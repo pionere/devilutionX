@@ -1671,7 +1671,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 				InitObjects();
 				InitItems();
 #ifdef HELLFIRE
-				if ( currlevel < 17 )
+				if (currlevel < 17)
 #endif
 					CreateThemeRooms();
 				IncProgress();
@@ -1789,21 +1789,15 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	}
 
 #ifdef HELLFIRE
-	if ( currlevel >= 21 )
-	{
-		if ( currlevel == 21 )
-		{
-			LoadCornerStone(CornerStone.x, CornerStone.y);
-		}
-		if ( quests[Q_NAKRUL]._qactive == QUEST_DONE && currlevel == 24 )
-		{
-			objects_454BA8();
-		}
+	if (currlevel == 21) {
+		LoadCornerStone(CornerStone.x, CornerStone.y);
+	} else if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
+		objects_454BA8();
 	}
 #endif
 
 #ifdef HELLFIRE
-	if ( currlevel >= 17 )
+	if (currlevel >= 17)
 		music_start(currlevel > 20 ? TMUSIC_L5 : TMUSIC_L6);
 	else
 		music_start(leveltype);
@@ -1905,17 +1899,16 @@ void diablo_color_cyc_logic()
 	if (!palette_get_color_cycling())
 		return;
 
-	if (leveltype == DTYPE_HELL) {
+	if (leveltype == DTYPE_HELL)
 		lighting_color_cycling();
 #ifdef HELLFIRE
-		} else if (currlevel >= 21) {
-			palette_update_crypt();
-		} else if (currlevel >= 17) {
-			palette_update_hive();
+	else if (currlevel >= 21)
+		palette_update_crypt();
+	else if (currlevel >= 17)
+		palette_update_hive();
 #endif
-	} else if (leveltype == DTYPE_CAVES) {
+	else if (leveltype == DTYPE_CAVES)
 		palette_update_caves();
-	}
 }
 
 DEVILUTION_END_NAMESPACE

@@ -1650,9 +1650,9 @@ DWORD On_PUTITEM(TCmd *pCmd, int pnum)
 		else
 			ii = SyncPutItem(pnum, p->x, p->y, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff
 #ifdef HELLFIRE
-				, p->wToHit, p->wMaxDam, p->bMinStr, p->bMinMag, p->bMinDex, p->bAC
+							, p->wToHit, p->wMaxDam, p->bMinStr, p->bMinMag, p->bMinDex, p->bAC
 #endif
-			);
+				);
 		if (ii != -1) {
 			PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
 			delta_put_item(p, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
@@ -2675,8 +2675,7 @@ DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 
 DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 {
-	if ( gbBufferMsgs != 1 )
-	{
+	if (gbBufferMsgs != 1) {
 		operate_lv24_lever();
 		IsUberRoomOpened = 1;
 		quests[Q_NAKRUL]._qactive = 3;
@@ -2688,8 +2687,7 @@ DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam2 *p = (TCmdLocParam2 *)pCmd;
-	if ( gbBufferMsgs != 1 )
-	{
+	if (gbBufferMsgs != 1) {
 		AddMissile(p->x, p->y, p->wParam1, p->wParam2, 0, MIS_HIVEEXP2, 0, pnum, 0, 0);
 		town_4751C6();
 	}
@@ -2698,11 +2696,10 @@ DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 
 DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
-	if ( gbBufferMsgs != 1 )
-	{
+	if (gbBufferMsgs != 1) {
 		town_475595();
 		InitTownTriggers();
-		if ( !currlevel )
+		if (currlevel == 0)
 			PlaySFX(IS_SARC);
 	}
 	return sizeof(*pCmd);

@@ -1766,8 +1766,8 @@ void LoadLevel()
 	AutomapZoomReset();
 	ResyncQuests();
 	SyncPortals();
-	dolighting = TRUE;
 
+	dolighting = TRUE;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive && currlevel == plr[i].plrlevel)
 			LightList[plr[i]._plid]._lunflag = TRUE;

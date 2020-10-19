@@ -522,10 +522,11 @@ BYTE MonstAvailTbl[] = {
 	MAT_NEVER,  // Na-Krul
 #endif
 };
+
 /** Contains the data related to each unique monster ID. */
 UniqMonstStruct UniqMonst[] = {
 	// clang-format off
-	// mtype,       mName,                      mTrnName,    mlevel, mmaxhp, mAi,      mint, mMinDamage, mMaxDamage, mMagicRes,                                                     mUnqAttr, mUnqVar1, mUnqVar2, mtalkmsg
+	// mtype,       mName,                      mTrnName, mlevel, mmaxhp, mAi,      mint, mMinDamage, mMaxDamage, mMagicRes,                                                     mUnqAttr, mUnqVar1, mUnqVar2, mtalkmsg
 	{  MT_NGOATMC,  "Gharbad the Weak",         "BSDB",        4,    120, AI_GARBUD,   3,          8,         16,                              IMUNE_LIGHTNING  | IMUNE_NULL_40,        0,        0,        0, TEXT_GARBUD1   },
 	{  MT_SKING,    "Skeleton King",            "GENRL",       0,    240, AI_SKELKING, 3,          6,         16, IMUNE_MAGIC  | RESIST_FIRE | RESIST_LIGHTNING | IMUNE_NULL_40,        1,        0,        0, 0              },
 	{  MT_COUNSLR,  "Zhar the Mad",             "GENERAL",     8,    360, AI_ZHAR,     3,         16,         40, IMUNE_MAGIC  | RESIST_FIRE | RESIST_LIGHTNING                ,        0,        0,        0, TEXT_ZHAR1     },

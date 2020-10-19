@@ -413,7 +413,7 @@ const char gszHelpText[] = {
 	"the corresponding number or right-clicking on the item.|"
 	"|"
 	"$Gold|"
-	"You can select a specific amount of gold to drop by"
+	"You can select a specific amount of gold to drop by "
 	"right-clicking on a pile of gold in your inventory.|"
 	"|"
 	"$Skills & Spells:|"

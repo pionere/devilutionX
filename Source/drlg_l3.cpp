@@ -535,6 +535,7 @@ const BYTE L3ANVIL[] = {
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,
 	// clang-format on
 };
+
 #ifdef HELLFIRE
 const BYTE byte_48A76C[] = { 1, 1, 8, 25 };
 const BYTE byte_48A770[] = { 1, 1, 8, 26 };
@@ -2520,13 +2521,10 @@ static void DRLG_L3(int entry)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel < 17)
+	if (currlevel < 17) {
 #endif
 		DRLG_PlaceThemeRooms(5, 10, 7, 0, 0);
 
-#ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
 		DRLG_L3Wood();
 		DRLG_L3PlaceRndSet(L3TITE1, 10);
 		DRLG_L3PlaceRndSet(L3TITE2, 10);
@@ -2631,8 +2629,7 @@ static void DRLG_L3Pass3()
 	v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
 	v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
 
-	for (j = 0; j < MAXDUNY; j += 2)
-	{
+	for (j = 0; j < MAXDUNY; j += 2) {
 		for (i = 0; i < MAXDUNX; i += 2) {
 			dPiece[i][j] = v1;
 			dPiece[i + 1][j] = v2;

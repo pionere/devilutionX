@@ -491,8 +491,8 @@ void DrawAutomapTile(int sx, int sy, WORD automap_type)
 			DrawLine(sx, sy + AmLine16, sx + AmLine32, sy, COLOR_DIM);
 	}
 }
-#ifdef HELLFIRE
 
+#ifdef HELLFIRE
 void SearchAutomapItem()
 {
 	int x, y;

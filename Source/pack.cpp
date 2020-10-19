@@ -272,6 +272,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	}
 
 	CalcPlrInv(pnum, FALSE);
+
 	p->wReflection = pPack->wReflection;
 	p->pTownWarps = 0;
 	p->pDungMsgs = 0;

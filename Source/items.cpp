@@ -518,7 +518,6 @@ void SpawnNote()
 	}
 	SpawnQuestItem(id, x, y, 0, 1);
 }
-
 #endif
 
 void InitItemGFX()
@@ -3900,7 +3899,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 	switch (plidx) {
 	case IPL_TOHIT:
 	case IPL_TOHIT_CURSE:
-		sprintf(tempstr, "chance to hit : %+i%%", is->_iPLToHit);
+		sprintf(tempstr, "chance to hit: %+i%%", is->_iPLToHit);
 		break;
 	case IPL_DAMP:
 	case IPL_DAMP_CURSE:
@@ -3928,36 +3927,36 @@ void PrintItemPower(char plidx, ItemStruct *is)
 	case IPL_FIRERES_CURSE:
 #endif
 		if (is->_iPLFR < 75)
-			sprintf(tempstr, "Resist Fire : %+i%%", is->_iPLFR);
+			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
 		if (is->_iPLFR >= 75)
-			sprintf(tempstr, "Resist Fire : 75%% MAX");
+			sprintf(tempstr, "Resist Fire: 75%% MAX");
 		break;
 	case IPL_LIGHTRES:
 #ifdef HELLFIRE
 	case IPL_LIGHTRES_CURSE:
 #endif
 		if (is->_iPLLR < 75)
-			sprintf(tempstr, "Resist Lightning : %+i%%", is->_iPLLR);
+			sprintf(tempstr, "Resist Lightning: %+i%%", is->_iPLLR);
 		if (is->_iPLLR >= 75)
-			sprintf(tempstr, "Resist Lightning : 75%% MAX");
+			sprintf(tempstr, "Resist Lightning: 75%% MAX");
 		break;
 	case IPL_MAGICRES:
 #ifdef HELLFIRE
 	case IPL_MAGICRES_CURSE:
 #endif
 		if (is->_iPLMR < 75)
-			sprintf(tempstr, "Resist Magic : %+i%%", is->_iPLMR);
+			sprintf(tempstr, "Resist Magic: %+i%%", is->_iPLMR);
 		if (is->_iPLMR >= 75)
-			sprintf(tempstr, "Resist Magic : 75%% MAX");
+			sprintf(tempstr, "Resist Magic: 75%% MAX");
 		break;
 	case IPL_ALLRES:
 #ifdef HELLFIRE
 	case IPL_ALLRES_CURSE:
 #endif
 		if (is->_iPLFR < 75)
-			sprintf(tempstr, "Resist All : %+i%%", is->_iPLFR);
+			sprintf(tempstr, "Resist All: %+i%%", is->_iPLFR);
 		if (is->_iPLFR >= 75)
-			sprintf(tempstr, "Resist All : 75%% MAX");
+			sprintf(tempstr, "Resist All: 75%% MAX");
 		break;
 	case IPL_SPLLVLADD:
 		if (is->_iSplLvlAdd == 1)
@@ -3990,7 +3989,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 			sprintf(tempstr, "Fire hit damage: %i", is->_iFMinDam);
 		else
 #endif
-		sprintf(tempstr, "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			sprintf(tempstr, "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		break;
 	case IPL_LIGHTDAM:
 #ifdef HELLFIRE
@@ -3998,7 +3997,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 			sprintf(tempstr, "Lightning hit damage: %i", is->_iLMinDam);
 		else
 #endif
-		sprintf(tempstr, "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			sprintf(tempstr, "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		break;
 	case IPL_STR:
 	case IPL_STR_CURSE:
@@ -4026,11 +4025,11 @@ void PrintItemPower(char plidx, ItemStruct *is)
 		break;
 	case IPL_LIFE:
 	case IPL_LIFE_CURSE:
-		sprintf(tempstr, "Hit Points : %+i", is->_iPLHP >> 6);
+		sprintf(tempstr, "Hit Points: %+i", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
 	case IPL_MANA_CURSE:
-		sprintf(tempstr, "Mana : %+i", is->_iPLMana >> 6);
+		sprintf(tempstr, "Mana: %+i", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
 		strcpy(tempstr, "high durability");
@@ -4058,7 +4057,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 			sprintf(tempstr, "fire arrows damage: %i", is->_iFMinDam);
 		else
 #endif
-		sprintf(tempstr, "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			sprintf(tempstr, "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		break;
 	case IPL_LIGHT_ARROWS:
 #ifdef HELLFIRE
@@ -4066,7 +4065,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 			sprintf(tempstr, "lightning arrows damage %i", is->_iLMinDam);
 		else
 #endif
-		sprintf(tempstr, "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			sprintf(tempstr, "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		break;
 	case IPL_THORNS:
 		strcpy(tempstr, "attacker takes 1-3 damage");
@@ -4175,11 +4174,10 @@ void PrintItemPower(char plidx, ItemStruct *is)
 		break;
 	case IPL_ADDACLIFE:
 #ifdef HELLFIRE
-		if (is->_iFMinDam != is->_iFMaxDam) {
+		if (is->_iFMinDam != is->_iFMaxDam)
 			sprintf(tempstr, "lightning: %i-%i", is->_iFMinDam, is->_iFMaxDam);
-			break;
-		}
-		sprintf(tempstr, "lightning damage: %i", is->_iFMinDam);
+		else
+			sprintf(tempstr, "lightning damage: %i", is->_iFMinDam);
 #else
 		strcpy(tempstr, "Armor class added to life");
 #endif
@@ -4195,7 +4193,7 @@ void PrintItemPower(char plidx, ItemStruct *is)
 		if (is->_iPLFR <= 0)
 			sprintf(tempstr, " ");
 		else if (is->_iPLFR >= 1)
-			sprintf(tempstr, "Resist Fire : %+i%%", is->_iPLFR);
+			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
 		break;
 #ifdef HELLFIRE
 	case IPL_DEVASTATION:

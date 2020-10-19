@@ -919,6 +919,7 @@ void MakeLightTable()
 		}
 		tbl += 224;
 	}
+
 #ifdef HELLFIRE
 	if (currlevel >= 17) {
 		tbl = pLightTbl;

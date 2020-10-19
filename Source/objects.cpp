@@ -148,7 +148,6 @@ char shrinemax[NUM_SHRINETYPE] = {
  * SHRINETYPE_SINGLE - 1 - sp only
  * SHRINETYPE_MULTI - 2 - mp only
  */
-
 BYTE shrineavail[NUM_SHRINETYPE] = {
 	SHRINETYPE_ANY,    // SHRINE_MYSTERIOUS
 	SHRINETYPE_ANY,    // SHRINE_HIDDEN
@@ -571,8 +570,8 @@ void AddCryptObjs(int x1, int y1, int x2, int y2)
 		}
 	}
 }
-
 #endif
+
 void AddL2Objs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
@@ -826,6 +825,7 @@ void AddLvl2xBooks(int s)
 				return;
 		}
 	}
+
 	AddHBooks(OBJ_STORYBOOK, s, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
@@ -902,6 +902,7 @@ void AddStoryBooks()
 				return;
 		}
 	}
+
 	AddObject(OBJ_STORYBOOK, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
@@ -5255,7 +5256,7 @@ void GetObjectStr(int oi)
 			strcpy(infostr, "Urn"); //Then a barrel is called an urn
 		else
 #endif
-		strcpy(infostr, "Barrel");
+			strcpy(infostr, "Barrel");
 		break;
 	case OBJ_SKELBOOK:
 		strcpy(infostr, "Skeleton Tome");

@@ -203,7 +203,6 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 		snprintf(directPath, MAX_PATH, "%s%s", SBasePath, tmpPath);
 		result = SFileOpenFileEx((HANDLE)0, directPath, 0xFFFFFFFF, phFile);
 	}
-
 #ifdef HELLFIRE
 	if (!result) {
 		result = SFileOpenFileEx((HANDLE)hfopt2_mpq, filename, 0, phFile);

@@ -243,15 +243,11 @@ void T_Pass3()
 #endif
 #ifdef HELLFIRE
 		if(quests[Q_FARMER]._qactive == 3 || quests[Q_FARMER]._qactive == 10
-		|| quests[Q_JERSEY]._qactive == 3 || quests[Q_JERSEY]._qactive == 10)
-		{
+		 || quests[Q_JERSEY]._qactive == 3 || quests[Q_JERSEY]._qactive == 10)
 			town_4751C6();
-		}
 		else
-		{
 			town_475379();
-		}
-		if ( quests[Q_GRAVE]._qactive == 3 || plr[myplr]._pLvlVisited[21] )
+		if (quests[Q_GRAVE]._qactive == 3 || plr[myplr]._pLvlVisited[21])
 			town_475595();
 		else
 			town_47552C();
@@ -279,35 +275,30 @@ void T_Pass3()
 		}
 #ifndef SPAWN
 #ifdef HELLFIRE
-		if (!(plr[myplr].pTownWarps & 4) && plr[myplr]._pLevel < 20) {
+		if (!(plr[myplr].pTownWarps & 4) && plr[myplr]._pLevel < 20)
 #else
-		if (!(plr[myplr].pTownWarps & 4)) {
+		if (!(plr[myplr].pTownWarps & 4))
 #endif
 #endif
+		{
 			for (x = 36; x < 46; x++) {
 				T_FillTile(P3Tiles, x, 78, random_(0, 4) + 1);
 			}
+		}
 #ifndef SPAWN
-		}
-	}
 #ifdef HELLFIRE
-	else
-	{
+	} else {
 		if(quests[Q_FARMER]._qactive == 3 || quests[Q_FARMER]._qactive == 10
-		|| quests[Q_JERSEY]._qactive == 3 || quests[Q_JERSEY]._qactive == 10)
-		{
+		 || quests[Q_JERSEY]._qactive == 3 || quests[Q_JERSEY]._qactive == 10)
 			town_4751C6();
-		}
 		else
-		{
 			town_475379();
-		}
-		if ( quests[Q_GRAVE]._qactive == 3 || plr[myplr]._pLvlVisited[21] )
+		if (quests[Q_GRAVE]._qactive == 3 || plr[myplr]._pLvlVisited[21])
 			town_475595();
 		else
 			town_47552C();
-	}
 #endif
+	}
 #endif
 
 	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive) {

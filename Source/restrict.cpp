@@ -20,7 +20,7 @@ void ReadOnlyTest()
 	GetPrefPath(path, MAX_PATH);
 	snprintf(Filename, MAX_PATH, "%sDiablo1ReadOnlyTest.foo", path);
 
-			f = fopen(Filename, "wt");
+	f = fopen(Filename, "wt");
 	if (!f) {
 		DirErrorDlg(path);
 	}

@@ -251,8 +251,6 @@ void palette_update_crypt()
 		system_palette[i].g = col.g;
 		system_palette[i].b = col.b;
 
-
-
 		dword_6E2D58 = 0;
 	} else {
 		dword_6E2D58++;
@@ -311,8 +309,8 @@ void palette_update_hive()
 		dword_6E2D5C++;
 	}
 }
-
 #endif
+
 #ifndef SPAWN
 void palette_update_quest_palette(int n)
 {

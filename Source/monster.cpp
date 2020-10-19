@@ -6089,13 +6089,12 @@ void SpawnGolum(int mnum, int x, int y, int mi)
 
 BOOL CanTalkToMonst(int mnum)
 {
-	if ((DWORD)mnum >= MAXMONSTERS) {
+	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
 		return FALSE;
 #else
 		app_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 #endif
-	}
 
 	if (monster[mnum]._mgoal == MGOAL_INQUIRING) {
 		return TRUE;
@@ -6106,13 +6105,12 @@ BOOL CanTalkToMonst(int mnum)
 
 BOOL CheckMonsterHit(int mnum, BOOL *ret)
 {
-	if ((DWORD)mnum >= MAXMONSTERS) {
+	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
 		return FALSE;
 #else
 		app_fatal("CheckMonsterHit: Invalid monster %d", mnum);
 #endif
-	}
 
 	if (monster[mnum]._mAi == AI_GARG && monster[mnum]._mFlags & MFLAG_ALLOW_SPECIAL) {
 		monster[mnum]._mFlags &= ~MFLAG_ALLOW_SPECIAL;

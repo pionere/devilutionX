@@ -556,7 +556,6 @@ BOOL ForceL1Trig()
 		}
 	}
 #endif
-
 	return FALSE;
 }
 
@@ -698,6 +697,7 @@ BOOL ForceL3Trig()
 			}
 		}
 	}
+
 #ifdef HELLFIRE
 	if (currlevel == 17) {
 		for (i = 0; L6TWarpUpList[i] != -1; i++) {
@@ -718,7 +718,6 @@ BOOL ForceL3Trig()
 		}
 	}
 #endif
-
 	return FALSE;
 }
 
