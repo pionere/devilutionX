@@ -584,7 +584,7 @@ bool TranslateMessage(const MSG *lpMsg)
 		unsigned mod = (DWORD)lpMsg->lParam >> 16;
 
 		bool shift = (mod & KMOD_SHIFT) != 0;
-		bool upper = shift != (mod & KMOD_CAPS);
+		bool upper = shift != ((mod & KMOD_CAPS) != 0);
 
 		bool is_alpha = (key >= 'A' && key <= 'Z');
 		bool is_numeric = (key >= '0' && key <= '9');
