@@ -1793,7 +1793,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	{
 		if ( currlevel == 21 )
 		{
-			items_427ABA(CornerStone.x, CornerStone.y);
+			LoadCornerStone(CornerStone.x, CornerStone.y);
 		}
 		if ( quests[Q_NAKRUL]._qactive == QUEST_DONE && currlevel == 24 )
 		{

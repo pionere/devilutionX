@@ -477,7 +477,7 @@ void DeltaLoadLevel()
 	if (currlevel != 0) {
 		for (i = 0; i < nummonsters; i++) {
 			if (sgLevels[currlevel].monster[i]._mx != 0xFF) {
-				M_ClearSquares(i);
+				MonClearSquares(i);
 				x = sgLevels[currlevel].monster[i]._mx;
 				y = sgLevels[currlevel].monster[i]._my;
 				monster[i]._mx = x;
@@ -491,7 +491,7 @@ void DeltaLoadLevel()
 				if (!sgLevels[currlevel].monster[i]._mhitpoints) {
 					monster[i]._moldx = x;
 					monster[i]._moldy = y;
-					M_ClearSquares(i);
+					MonClearSquares(i);
 					if (monster[i]._mAi != AI_DIABLO) {
 						if (!monster[i]._uniqtype)
 							/// ASSERT: assert(monster[i].MType != NULL);
@@ -500,7 +500,7 @@ void DeltaLoadLevel()
 							AddDead(monster[i]._mx, monster[i]._my, monster[i]._udeadval, (direction)monster[i]._mdir);
 					}
 					monster[i]._mDelFlag = TRUE;
-					M_UpdateLeader(i);
+					MonUpdateLeader(i);
 				} else {
 					decode_enemy(i, sgLevels[currlevel].monster[i]._menemy);
 					if (monster[i]._mx && monster[i]._mx != 1 || monster[i]._my)
@@ -509,7 +509,7 @@ void DeltaLoadLevel()
 						MAI_Golum(i);
 						monster[i]._mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
 					} else {
-						M_StartStand(i, monster[i]._mdir);
+						MonStartStand(i, monster[i]._mdir);
 					}
 					monster[i]._msquelch = sgLevels[currlevel].monster[i]._mactive;
 				}
@@ -1152,7 +1152,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_REMSHIELD(pCmd, pnum);
 #else
 	case CMD_REFLECT:
-		return On_REFLECT(pCmd, pnum);
+		return On_ENDREFLECT(pCmd, pnum);
 	case CMD_NAKRUL:
 		return On_NAKRUL(pCmd, pnum);
 	case CMD_OPENHIVE:
@@ -2046,8 +2046,8 @@ DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
 	TCmdParam1 *p = (TCmdParam1 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		M_GetKnockback(p->wParam1);
-		M_StartHit(p->wParam1, pnum, 0);
+		MonGetKnockback(p->wParam1);
+		MonStartHit(p->wParam1, pnum, 0);
 	}
 
 	return sizeof(*p);
@@ -2127,7 +2127,7 @@ DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, p, sizeof(*p));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
-			M_SyncStartKill(p->wParam1, p->x, p->y, pnum);
+			MonSyncStartKill(p->wParam1, p->x, p->y, pnum);
 		delta_kill_monster(p->wParam1, p->x, p->y, plr[pnum].plrlevel);
 	}
 
@@ -2142,7 +2142,7 @@ DWORD On_KILLGOLEM(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, p, sizeof(*p));
 	else if (pnum != myplr) {
 		if (currlevel == p->wParam1)
-			M_SyncStartKill(pnum, p->x, p->y, pnum);
+			MonSyncStartKill(pnum, p->x, p->y, pnum);
 		delta_kill_monster(pnum, p->x, p->y, plr[pnum].plrlevel);
 	}
 
@@ -2204,7 +2204,7 @@ DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
 	else if (pnum != myplr)
-		StartPlayerKill(pnum, p->wParam1);
+		StartPlrKill(pnum, p->wParam1);
 	else
 		check_update_plr(pnum);
 
@@ -2405,7 +2405,7 @@ DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 				LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
 				if ((plr[pnum]._pHitPoints >> 6) > 0)
-					StartStand(pnum, 0);
+					PlrStartStand(pnum, 0);
 				else {
 					plr[pnum]._pgfxnum = 0;
 					LoadPlrGFX(pnum, PFILE_DEATH);
@@ -2669,26 +2669,6 @@ DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1)
 		plr[pnum].pManaShield = FALSE;
-
-	return sizeof(*pCmd);
-}
-
-DWORD On_REFLECT(TCmd *pCmd, int pnum)
-{
-	int i, mx;
-
-	if ( gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel )
-	{
-		for(i = 0; i < nummissiles; i++)
-		{
-			mx = missileactive[i];
-			if ( missile[mx]._mitype == MIS_REFLECT && missile[mx]._misource == pnum )
-			{
-				ClearMissileSpot(mx);
-				DeleteMissile(mx, i);
-			}
-		}
-	}
 
 	return sizeof(*pCmd);
 }

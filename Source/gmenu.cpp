@@ -18,7 +18,7 @@ BYTE LogoAnim_frame;
 #endif
 int PentSpin_tick;
 BYTE PentSpin_frame;
-void (*dword_63447C)(TMenuItem *);
+void (*gmUpdateFunc)(TMenuItem *);
 TMenuItem *sgpCurrentMenu;
 BYTE *option_cel;
 BYTE *sgpLogo;
@@ -91,7 +91,7 @@ void gmenu_init_menu()
 #endif
 	sgpCurrentMenu = NULL;
 	sgpCurrItem = NULL;
-	dword_63447C = NULL;
+	gmUpdateFunc = NULL;
 	sgCurrentMenuIdx = 0;
 	mouseNavigation = FALSE;
 #ifdef HELLFIRE
@@ -110,16 +110,16 @@ BOOL gmenu_is_active()
 	return sgpCurrentMenu != NULL;
 }
 
-void gmenu_set_items(TMenuItem *pItem, void (*gmFunc)(TMenuItem *))
+void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 {
 	int i;
 
 	PauseMode = 0;
 	mouseNavigation = FALSE;
 	sgpCurrentMenu = pItem;
-	dword_63447C = gmFunc;
-	if (gmFunc) {
-		dword_63447C(sgpCurrentMenu);
+	gmUpdateFunc = gmUpdFunc;
+	if (gmUpdFunc) {
+		gmUpdateFunc(sgpCurrentMenu);
 		pItem = sgpCurrentMenu;
 	}
 	sgCurrentMenuIdx = 0;
@@ -170,8 +170,8 @@ void gmenu_draw()
 	DWORD ticks;
 
 	if (sgpCurrentMenu) {
-		if (dword_63447C)
-			dword_63447C(sgpCurrentMenu);
+		if (gmUpdateFunc)
+			gmUpdateFunc(sgpCurrentMenu);
 #ifdef HELLFIRE
 		ticks = SDL_GetTicks();
 		if ((int)(ticks - LogoAnim_tick) > 25) {

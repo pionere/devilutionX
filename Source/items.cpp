@@ -495,7 +495,7 @@ int items_get_currlevel()
 	return lvl;
 }
 
-void items_42390F()
+void SpawnNote()
 {
 	int x, y, id;
 
@@ -641,7 +641,7 @@ void InitItems()
 			AddInitItems();
 #ifdef HELLFIRE
 		if (currlevel >= 21 && currlevel <= 23)
-			items_42390F();
+			SpawnNote();
 #endif
 	}
 
@@ -3202,7 +3202,7 @@ void RecreateEar(int ii, WORD ic, int iseed, int Id, int dur, int mdur, int ch, 
 }
 
 #ifdef HELLFIRE
-void items_427A72()
+void SaveCornerStone()
 {
 	PkItemStruct id;
 	if (CornerStone.activated) {
@@ -3215,7 +3215,7 @@ void items_427A72()
 	}
 }
 
-void items_427ABA(int x, int y)
+void LoadCornerStone(int x, int y)
 {
 	int i, ii;
 	int dwSize;

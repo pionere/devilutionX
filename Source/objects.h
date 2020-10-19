@@ -37,7 +37,7 @@ void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int x2, in
 void InitRndBarrels();
 void AddL1Objs(int x1, int y1, int x2, int y2);
 #ifdef HELLFIRE
-void add_crypt_objs(int x1, int y1, int x2, int y2);
+void AddCryptObjs(int x1, int y1, int x2, int y2);
 #endif
 void AddL2Objs(int x1, int y1, int x2, int y2);
 void AddL3Objs(int x1, int y1, int x2, int y2);
@@ -50,8 +50,8 @@ void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, int w, i
 void LoadMapObjs(BYTE *pMap, int startx, int starty);
 void AddDiabObjs();
 #ifdef HELLFIRE
-void objects_add_lv22(int s);
-void objects_add_lv24();
+void AddLvl2xBooks(int s);
+void AddLvl24Books();
 #endif
 void AddStoryBooks();
 void AddHookedBodies(int freq);
@@ -96,8 +96,8 @@ void GetRndObjLoc(int randarea, int *xx, int *yy);
 void AddMushPatch();
 void AddSlainHero();
 #ifdef HELLFIRE
-void objects_44D8C5(int ot, int v2, int ox, int oy);
-void objects_44DA68(int a1, int a2);
+void AddHBooks(int ot, int v2, int ox, int oy);
+void SetupHBook(int a1, int a2);
 void objects_454AF0(int a1, int a2, int a3);
 #endif
 void AddObject(int ot, int ox, int oy);
@@ -175,7 +175,7 @@ void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);
 void operate_lv24_lever();
 void objects_454BA8();
-void objects_rnd_454BEA();
+void AddUberLever();
 DIABOOL objects_lv_24_454B04(int s);
 
 /* rdata */

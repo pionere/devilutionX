@@ -251,7 +251,7 @@ void DoResurrect(int pnum, int rid)
 		CalcPlrInv(rid, TRUE);
 
 		if (plr[rid].plrlevel == currlevel) {
-			StartStand(rid, plr[rid]._pdir);
+			PlrStartStand(rid, plr[rid]._pdir);
 		} else {
 			plr[rid]._pmode = PM_STAND;
 		}

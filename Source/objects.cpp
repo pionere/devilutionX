@@ -557,7 +557,7 @@ void AddL1Objs(int x1, int y1, int x2, int y2)
 }
 
 #ifdef HELLFIRE
-void add_crypt_objs(int x1, int y1, int x2, int y2)
+void AddCryptObjs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
 
@@ -803,7 +803,7 @@ void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
-void objects_add_lv22(int s)
+void AddLvl2xBooks(int s)
 {
 	DIABOOL exit;
 	int xp, yp, cnt, m, n;
@@ -826,7 +826,7 @@ void objects_add_lv22(int s)
 				return;
 		}
 	}
-	objects_44D8C5(OBJ_STORYBOOK, s, xp, yp);
+	AddHBooks(OBJ_STORYBOOK, s, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
@@ -835,9 +835,9 @@ void objects_add_lv22(int s)
 	AddObject(OBJ_STORYCANDLE, xp + 2, yp + 1);
 }
 
-void objects_add_lv24()
+void AddLvl24Books()
 {
-	objects_rnd_454BEA();
+	AddUberLever();
 	switch (random_(0, 6)) {
 	case 0:
 		objects_454AF0(6, UberRow + 3, UberCol);
@@ -874,7 +874,7 @@ void objects_add_lv24()
 
 void objects_454AF0(int a1, int a2, int a3)
 {
-	objects_44D8C5(OBJ_STORYBOOK, a1, a2, a3);
+	AddHBooks(OBJ_STORYBOOK, a1, a2, a3);
 }
 #endif
 
@@ -1028,16 +1028,16 @@ void InitObjects()
 		if (currlevel == 4 || currlevel == 8 || currlevel == 12)
 			AddStoryBooks();
 		if (currlevel == 21) {
-			objects_add_lv22(1);
+			AddLvl2xBooks(1);
 		} else if (currlevel == 22) {
-			objects_add_lv22(2);
-			objects_add_lv22(3);
+			AddLvl2xBooks(2);
+			AddLvl2xBooks(3);
 		} else if (currlevel == 23) {
-			objects_add_lv22(4);
-			objects_add_lv22(5);
+			AddLvl2xBooks(4);
+			AddLvl2xBooks(5);
 		}
 		if (currlevel == 24) {
-			objects_add_lv24();
+			AddLvl24Books();
 		}
 #else
 		if (currlevel == 4)
@@ -1057,7 +1057,7 @@ void InitObjects()
 			InitRndLocBigObj(10, 15, OBJ_SARC);
 #ifdef HELLFIRE
 			if (currlevel >= 21)
-				add_crypt_objs(0, 0, MAXDUNX, MAXDUNY);
+				AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
 			else
 #endif
 				AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
@@ -1646,7 +1646,7 @@ void AddSlainHero()
 }
 
 #ifdef HELLFIRE
-void objects_44D8C5(int ot, int v2, int ox, int oy)
+void AddHBooks(int ot, int v2, int ox, int oy)
 {
 	int oi;
 
@@ -1658,12 +1658,12 @@ void objects_44D8C5(int ot, int v2, int ox, int oy)
 	objectactive[nobjects] = oi;
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, ot);
-	objects_44DA68(oi, v2);
+	SetupHBook(oi, v2);
 	object[oi]._oAnimWidth2 = (object[oi]._oAnimWidth - 64) >> 1;
 	nobjects++;
 }
 
-void objects_44DA68(int oi, int a2)
+void SetupHBook(int oi, int a2)
 {
 	int v8, v9;
 	if (a2 > 5) {
@@ -1948,7 +1948,7 @@ void Obj_Circle(int oi)
 			track_repeat_walk(FALSE);
 			sgbMouseDown = 0;
 			ClrPlrPath(myplr);
-			StartStand(myplr, 0);
+			PlrStartStand(myplr, 0);
 		}
 	} else {
 		if (object[oi]._otype == OBJ_MCIRCLE1)
@@ -4297,7 +4297,7 @@ void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
 			    && monster[MAX_PLRS]._msquelch == UCHAR_MAX
 			    && monster[MAX_PLRS]._mhitpoints) {
 				monster[MAX_PLRS].mtalkmsg = TEXT_ZHAR2;
-				M_StartStand(0, monster[MAX_PLRS]._mdir);
+				MonStartStand(0, monster[MAX_PLRS]._mdir);
 				monster[MAX_PLRS]._mgoal = MGOAL_SHOOT;
 				monster[MAX_PLRS]._mmode = MM_TALK;
 			}
@@ -5358,7 +5358,7 @@ void objects_454BA8()
 	SetDungeonMicros();
 }
 
-void objects_rnd_454BEA()
+void AddUberLever()
 {
 	int xp, yp;
 

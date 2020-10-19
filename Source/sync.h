@@ -18,10 +18,10 @@ extern WORD sgwLRU[MAXMONSTERS];
 extern int sgnSyncItem;
 
 DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen);
-void sync_one_monster();
-BOOL sync_monster_active(TSyncMonster *p);
+void sync_init_monsters();
+BOOL sync_closest_monster(TSyncMonster *p);
 void sync_monster_pos(TSyncMonster *p, int ndx);
-BOOL sync_monster_active2(TSyncMonster *p);
+BOOL sync_prio_monster(TSyncMonster *p);
 void SyncPlrInv(TSyncHeader *pHdr);
 DWORD sync_update(int pnum, const BYTE *pbBuf);
 void sync_monster(int pnum, const TSyncMonster *p);
