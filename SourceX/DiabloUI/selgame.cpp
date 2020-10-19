@@ -106,10 +106,10 @@ void selgame_GameSelection_Focus(int value)
 {
 	switch (vecSelGameDlgItems[value]->m_value) {
 	case 0:
-		strncpy(selgame_Description, "Create a new game with a difficulty setting of your choice.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Description, sizeof(selgame_Description), "Create a new game with a difficulty setting of your choice.");
 		break;
 	case 1:
-		strncpy(selgame_Description, "Enter an IP or a hostname and join a game already in progress at that address.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Description, sizeof(selgame_Description), "Enter an IP or a hostname and join a game already in progress at that address.");
 		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
@@ -151,7 +151,7 @@ void selgame_GameSelection_Select(int value)
 
 	switch (value) {
 	case 0: {
-		strncpy(title, "Create Game", sizeof(title) - 1);
+		snprintf(title, sizeof(title), "Create Game");
 
 		SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
 		vecSelGameDialog.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_BIG));
@@ -172,7 +172,7 @@ void selgame_GameSelection_Select(int value)
 		break;
 	}
 	case 1: {
-		strncpy(title, "Join TCP Games", sizeof(title) - 1);
+		snprintf(title, sizeof(title), "Join TCP Games");
 
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
 		vecSelGameDialog.push_back(new UiArtText("Enter address", rect4, UIS_CENTER | UIS_BIG));
@@ -203,16 +203,16 @@ void selgame_Diff_Focus(int value)
 {
 	switch (vecSelGameDlgItems[value]->m_value) {
 	case DIFF_NORMAL:
-		strncpy(selgame_Label, "Normal", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case DIFF_NIGHTMARE:
-		strncpy(selgame_Label, "Nightmare", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Nightmare");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only.");
 		break;
 	case DIFF_HELL:
-		strncpy(selgame_Label, "Hell", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Hell");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.");
 		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
@@ -312,20 +312,20 @@ void selgame_Speed_Focus(int value)
 {
 	switch (vecSelGameDlgItems[value]->m_value) {
 	case 20:
-		strncpy(selgame_Label, "Normal", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case 30:
-		strncpy(selgame_Label, "Fast", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Fast");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.");
 		break;
 	case 40:
-		strncpy(selgame_Label, "Faster", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Faster");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.");
 		break;
 	case 50:
-		strncpy(selgame_Label, "Fastest", sizeof(selgame_Label) - 1);
-		strncpy(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.", sizeof(selgame_Description) - 1);
+		snprintf(selgame_Label, sizeof(selgame_Label), "Fastest");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.");
 		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);

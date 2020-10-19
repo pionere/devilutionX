@@ -8,7 +8,7 @@
 
 namespace dvl {
 
-extern std::size_t SelectedItem;
+extern int SelectedItem;
 extern bool textInputActive;
 
 typedef enum _artFocus {

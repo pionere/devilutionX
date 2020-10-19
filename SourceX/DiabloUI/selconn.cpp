@@ -102,15 +102,15 @@ void selconn_Focus(int value)
 	int players = MAX_PLRS;
 	switch (vecConnItems[value]->m_value) {
 	case SELCONN_TCP:
-		strncpy(selconn_Description, "All computers must be connected to a TCP-compatible network.", sizeof(selconn_Description) - 1);
+		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
 		players = MAX_PLRS;
 		break;
 	case SELCONN_UDP:
-		strncpy(selconn_Description, "All computers must be connected to a UDP-compatible network.", sizeof(selconn_Description) - 1);
+		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a UDP-compatible network.");
 		players = MAX_PLRS;
 		break;
 	case SELCONN_LOOPBACK:
-		strncpy(selconn_Description, "Play by yourself with no network exposure.", sizeof(selconn_Description) - 1);
+		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
 		players = 1;
 		break;
 	}

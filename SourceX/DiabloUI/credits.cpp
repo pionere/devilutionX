@@ -168,7 +168,7 @@ void CreditsRenderer::Render()
 	SDL_SetClipRect(GetOutputSurface(), &viewport);
 
 	// We use unscaled coordinates for calculation throughout.
-	Sint16 dest_y = UI_OFFSET_Y + VIEWPORT.y - (offset_y - lines_begin * LINE_H);
+	int dest_y = UI_OFFSET_Y + VIEWPORT.y - (offset_y - lines_begin * LINE_H);
 	for (std::size_t i = lines_begin; i < lines_end; ++i, dest_y += LINE_H) {
 		CachedLine &line = lines_[i];
 		if (line.m_surface == NULL)
@@ -180,7 +180,7 @@ void CreditsRenderer::Render()
 			line = PrepareLine(line.m_index);
 		}
 
-		Sint16 dest_x = PANEL_LEFT + VIEWPORT.x + 31;
+		int dest_x = PANEL_LEFT + VIEWPORT.x + 31;
 		int j = 0;
 		while (CREDITS_LINES[line.m_index][j++] == '\t')
 			dest_x += 40;

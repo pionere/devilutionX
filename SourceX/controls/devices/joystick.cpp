@@ -76,8 +76,6 @@ ControllerButton JoyButtonToControllerButton(const SDL_Event &event)
 		case JOY_BUTTON_DPAD_DOWN:
 			return ControllerButton_BUTTON_DPAD_DOWN;
 #endif
-		default:
-			break;
 		}
 		break;
 	case SDL_JOYHATMOTION:
@@ -98,9 +96,6 @@ ControllerButton JoyButtonToControllerButton(const SDL_Event &event)
 			return ControllerButton_BUTTON_DPAD_RIGHT;
 #endif
 		return ControllerButton_IGNORE;
-		break;
-	default:
-		break;
 	}
 	return ControllerButton_NONE;
 }
@@ -168,9 +163,8 @@ int JoyButtonToControllerButton(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
-	default:
-		return -1;
 	}
+	return -1;
 }
 
 bool IsJoystickHatButtonPressed(ControllerButton button)
@@ -192,9 +186,8 @@ bool IsJoystickHatButtonPressed(ControllerButton button)
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return (SDL_JoystickGetHat(CurrentJoystick(), JOY_HAT_DPAD_RIGHT_HAT) & JOY_HAT_DPAD_RIGHT) != 0;
 #endif
-	default:
-		return false;
 	}
+	return false;
 }
 
 } // namespace

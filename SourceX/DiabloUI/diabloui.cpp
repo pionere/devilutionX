@@ -24,8 +24,8 @@
 
 namespace dvl {
 
-std::size_t SelectedItemMin = 1;
-std::size_t SelectedItemMax = 1;
+int SelectedItemMin = 1;
+int SelectedItemMax = 1;
 
 std::size_t ListViewportSize = 1;
 const std::size_t *ListOffset = NULL;
@@ -48,7 +48,7 @@ char *UiTextInput;
 int UiTextInputLen;
 bool textInputActive = true;
 
-std::size_t SelectedItem = 0;
+int SelectedItem = 0;
 
 namespace {
 
@@ -147,7 +147,7 @@ void UiPlaySelectSound()
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
-void UiFocus(std::size_t itemIndex, bool wrap = false)
+void UiFocus(int itemIndex, bool wrap = false)
 {
 	if (!wrap) {
 		if (itemIndex < SelectedItemMin) {
@@ -501,7 +501,7 @@ BOOL UiValidPlayerName(char *name)
 	};
 
 	char tmpname[PLR_NAME_LEN];
-	strncpy(tmpname, name, PLR_NAME_LEN - 1);
+	snprintf(tmpname, PLR_NAME_LEN, name);
 	for (size_t i = 0, n = strlen(tmpname); i < n; i++)
 		tmpname[i]++;
 
@@ -727,10 +727,10 @@ void Render(const UiScrollBar *ui_sb)
 {
 	// Bar background (tiled):
 	{
-		const std::size_t bg_y_end = DownArrowRect(ui_sb).y;
-		std::size_t bg_y = ui_sb->m_rect.y + ui_sb->m_arrow->h();
+		const int bg_y_end = DownArrowRect(ui_sb).y;
+		int bg_y = ui_sb->m_rect.y + ui_sb->m_arrow->h();
 		while (bg_y < bg_y_end) {
-			std::size_t drawH = std::min(bg_y + ui_sb->m_bg->h(), bg_y_end) - bg_y;
+			int drawH = std::min(bg_y + ui_sb->m_bg->h(), bg_y_end) - bg_y;
 			DrawArt(ui_sb->m_rect.x, bg_y, ui_sb->m_bg, 0, SCROLLBAR_BG_WIDTH, drawH);
 			bg_y += drawH;
 		}
@@ -815,7 +815,7 @@ bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
 
-	const std::size_t index = ui_list->indexAt(event.button.y);
+	const int index = ui_list->indexAt(event.button.y);
 
 	if (gfnListFocus != NULL && SelectedItem != index) {
 		UiFocus(index);

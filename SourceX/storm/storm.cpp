@@ -440,7 +440,7 @@ BOOL SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *
 BOOL SRegSaveValue(const char *keyname, const char *valuename, BYTE flags, DWORD result)
 {
 	char str[10];
-	sprintf(str, "%d", result);
+	snprintf(str, 10, "%d", result);
 	setIniValue(keyname, valuename, str);
 
 	return true;
@@ -790,8 +790,8 @@ BOOL SVidPlayContinue(void)
 		} else {
 			factor = wFactor;
 		}
-		const Sint16 scaledW = SVidWidth * factor;
-		const Sint16 scaledH = SVidHeight * factor;
+		const int scaledW = SVidWidth * factor;
+		const int scaledH = SVidHeight * factor;
 
 		SDL_Rect pal_surface_offset = {
 			(output_surface->w - scaledW) / 2,
