@@ -4,7 +4,6 @@
  * Implementation of functions for keeping multiplaye games in sync.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "../DiabloUI/diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE

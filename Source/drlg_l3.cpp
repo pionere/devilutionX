@@ -5,8 +5,6 @@
  */
 #ifndef SPAWN
 
-#include <algorithm>
-
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE

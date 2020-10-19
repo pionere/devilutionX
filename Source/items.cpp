@@ -4,9 +4,6 @@
  * Implementation of item functionality.
  */
 #include "all.h"
-#ifdef HELLFIRE
-#include "../3rdParty/Storm/Source/storm.h"
-#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 

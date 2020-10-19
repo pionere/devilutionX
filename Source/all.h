@@ -6,6 +6,8 @@
 #ifndef __ALL_H__
 #define __ALL_H__
 
+#include <algorithm>
+
 #include <SDL.h>
 
 #ifdef USE_SDL1
@@ -88,5 +90,7 @@
 #include "trigs.h"
 #include "wave.h"
 #include "render.h" // linked last, likely .s/.asm
+
+#include "../3rdParty/Storm/Source/storm.h"
 
 #endif /* __ALL_H__ */

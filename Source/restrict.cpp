@@ -4,7 +4,6 @@
  * Implementation of functionality for checking if the game will be able run on the system.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

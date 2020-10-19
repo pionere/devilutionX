@@ -4,7 +4,6 @@
  * Implementation of monster functionality, AI, actions, spawning, loading, etc.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

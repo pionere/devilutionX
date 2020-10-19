@@ -4,7 +4,6 @@
  * Implementation of error dialogs.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include <config.h>
 
 DEVILUTION_BEGIN_NAMESPACE
