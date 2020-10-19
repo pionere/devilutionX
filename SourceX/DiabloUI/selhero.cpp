@@ -215,11 +215,7 @@ void selhero_List_Init()
 
 	UiInitList(selhero_SaveCount + 1, selhero_List_Focus, selhero_List_Select, selhero_List_Esc, vecSelDlgItems, false, selhero_List_DeleteYesNo);
 	UiInitScrollBar(scrollBar, kMaxViewportItems, &listOffset);
-	if (selhero_isMultiPlayer) {
-		strcpy(title, "Multi Player Characters");
-	} else {
-		strcpy(title, "Single Player Characters");
-	}
+	snprintf(title, sizeof(title), "%s Player Characters", selhero_isMultiPlayer ? "Multi" : "Single");
 }
 
 void selhero_List_Focus(int value)
@@ -240,11 +236,11 @@ void selhero_List_Focus(int value)
 #else
 	SELHERO_DIALOG_HERO_IMG->m_frame = UI_NUM_CLASSES;
 #endif
-	strncpy(textStats[0], "--", sizeof(textStats[0]) - 1);
-	strncpy(textStats[1], "--", sizeof(textStats[1]) - 1);
-	strncpy(textStats[2], "--", sizeof(textStats[2]) - 1);
-	strncpy(textStats[3], "--", sizeof(textStats[3]) - 1);
-	strncpy(textStats[4], "--", sizeof(textStats[4]) - 1);
+	snprintf(textStats[0], sizeof(textStats[0]), "--");
+	snprintf(textStats[1], sizeof(textStats[1]), "--");
+	snprintf(textStats[2], sizeof(textStats[2]), "--");
+	snprintf(textStats[3], sizeof(textStats[3]), "--");
+	snprintf(textStats[4], sizeof(textStats[4]), "--");
 	SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_DISABLED;
 	selhero_deleteEnabled = false;
 }
@@ -291,10 +287,7 @@ void selhero_List_Select(int value)
 
 		UiInitList(vecSelHeroDlgItems.size(), selhero_ClassSelector_Focus, selhero_ClassSelector_Select, selhero_ClassSelector_Esc, vecSelDlgItems);
 		memset(&selhero_heroInfo.name, 0, sizeof(selhero_heroInfo.name));
-		strncpy(title, "New Single Player Hero", sizeof(title) - 1);
-		if (selhero_isMultiPlayer) {
-			strncpy(title, "New Multi Player Hero", sizeof(title) - 1);
-		}
+		snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 		return;
 	}
 
@@ -316,7 +309,7 @@ void selhero_List_Select(int value)
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		UiInitList(vecSelHeroDlgItems.size(), selhero_Load_Focus, selhero_Load_Select, selhero_List_Init, vecSelDlgItems, true);
-		strncpy(title, "Single Player Characters", sizeof(title) - 1);
+		snprintf(title, sizeof(title), "Single Player Characters");
 		return;
 	}
 
@@ -357,10 +350,7 @@ void selhero_ClassSelector_Select(int value)
 		return;
 	}
 
-	strncpy(title, "New Single Player Hero", sizeof(title) - 1);
-	if (selhero_isMultiPlayer) {
-		strncpy(title, "New Multi Player Hero", sizeof(title) - 1);
-	}
+	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #ifdef PREFILL_PLAYER_NAME
 	strncpy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name) - 1);
@@ -506,11 +496,7 @@ BOOL UiSelHeroDialog(
 		if (selhero_navigateYesNo) {
 			char dialogTitle[32];
 			char dialogText[256];
-			if (selhero_isMultiPlayer) {
-				strncpy(dialogTitle, "Delete Multi Player Hero", sizeof(dialogTitle) - 1);
-			} else {
-				strncpy(dialogTitle, "Delete Single Player Hero", sizeof(dialogTitle) - 1);
-			}
+			snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 			snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.name);
 
 			if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
@@ -519,7 +505,7 @@ BOOL UiSelHeroDialog(
 	} while (selhero_navigateYesNo);
 
 	*dlgresult = selhero_result;
-	strncpy(name, selhero_heroInfo.name, 16 - 1);
+	snprintf(name, 16, selhero_heroInfo.name);
 
 	UnloadScrollBar();
 	return true;
