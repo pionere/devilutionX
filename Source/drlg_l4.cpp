@@ -1461,15 +1461,15 @@ static void DRLG_L4FloodTVal()
 	}
 }
 
-BOOL IsDURWall(char d)
+BOOL IsDURWall(char dd)
 {
-	if (d == 25) {
+	if (dd == 25) {
 		return TRUE;
 	}
-	if (d == 28) {
+	if (dd == 28) {
 		return TRUE;
 	}
-	if (d == 23) {
+	if (dd == 23) {
 		return TRUE;
 	}
 

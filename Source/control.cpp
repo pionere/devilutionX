@@ -256,11 +256,11 @@ void DrawSpellCel(int xp, int yp, BYTE *Trans, int nCel, int w)
 	CelDrawLight(xp, yp, Trans, nCel, w, SplTransTbl);
 }
 
-void SetSpellTrans(char t)
+void SetSpellTrans(char st)
 {
 	int i;
 
-	if (t == RSPLTYPE_SKILL) {
+	if (st == RSPLTYPE_SKILL) {
 		for (i = 0; i < 128; i++)
 			SplTransTbl[i] = i;
 	}
@@ -268,7 +268,7 @@ void SetSpellTrans(char t)
 		SplTransTbl[i] = i;
 	SplTransTbl[255] = 0;
 
-	switch (t) {
+	switch (st) {
 	case RSPLTYPE_SPELL:
 		SplTransTbl[PAL8_YELLOW] = PAL16_BLUE + 1;
 		SplTransTbl[PAL8_YELLOW + 1] = PAL16_BLUE + 3;

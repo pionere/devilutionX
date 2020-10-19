@@ -1532,17 +1532,16 @@ static int L5GetArea()
 
 static void L5makeDungeon()
 {
-	int i, j;
-	int i_2, j_2;
+	int i, j, x, y;
 
 	for (j = 0; j < DMAXY; j++) {
+		y = j << 1;
 		for (i = 0; i < DMAXX; i++) {
-			j_2 = j << 1;
-			i_2 = i << 1;
-			L5dungeon[i_2][j_2] = dungeon[i][j];
-			L5dungeon[i_2][j_2 + 1] = dungeon[i][j];
-			L5dungeon[i_2 + 1][j_2] = dungeon[i][j];
-			L5dungeon[i_2 + 1][j_2 + 1] = dungeon[i][j];
+			x = i << 1;
+			L5dungeon[x][y] = dungeon[i][j];
+			L5dungeon[x][y + 1] = dungeon[i][j];
+			L5dungeon[x + 1][y] = dungeon[i][j];
+			L5dungeon[x + 1][y + 1] = dungeon[i][j];
 		}
 	}
 }
@@ -1621,7 +1620,7 @@ static int L5VWallOk(int i, int j)
 		return -1;
 }
 
-static void L5HorizWall(int i, int j, char p, int dx)
+static void L5HorizWall(int i, int j, char pn, int dx)
 {
 	int xx;
 	char wt, dt;
@@ -1633,17 +1632,17 @@ static void L5HorizWall(int i, int j, char p, int dx)
 		break;
 	case 2:
 		dt = 12;
-		if (p == 2)
-			p = 12;
-		if (p == 4)
-			p = 10;
+		if (pn == 2)
+			pn = 12;
+		if (pn == 4)
+			pn = 10;
 		break;
 	case 3:
 		dt = 36;
-		if (p == 2)
-			p = 36;
-		if (p == 4)
-			p = 27;
+		if (pn == 2)
+			pn = 36;
+		if (pn == 4)
+			pn = 27;
 		break;
 	}
 
@@ -1654,7 +1653,7 @@ static void L5HorizWall(int i, int j, char p, int dx)
 	if (dt == 12)
 		wt = 12;
 
-	dungeon[i][j] = p;
+	dungeon[i][j] = pn;
 
 	for (xx = 1; xx < dx; xx++) {
 		dungeon[i + xx][j] = dt;
@@ -1670,7 +1669,7 @@ static void L5HorizWall(int i, int j, char p, int dx)
 	}
 }
 
-static void L5VertWall(int i, int j, char p, int dy)
+static void L5VertWall(int i, int j, char pn, int dy)
 {
 	int yy;
 	char wt, dt;
@@ -1682,17 +1681,17 @@ static void L5VertWall(int i, int j, char p, int dy)
 		break;
 	case 2:
 		dt = 11;
-		if (p == 1)
-			p = 11;
-		if (p == 4)
-			p = 14;
+		if (pn == 1)
+			pn = 11;
+		if (pn == 4)
+			pn = 14;
 		break;
 	case 3:
 		dt = 35;
-		if (p == 1)
-			p = 35;
-		if (p == 4)
-			p = 37;
+		if (pn == 1)
+			pn = 35;
+		if (pn == 4)
+			pn = 37;
 		break;
 	}
 
@@ -1703,7 +1702,7 @@ static void L5VertWall(int i, int j, char p, int dy)
 	if (dt == 11)
 		wt = 11;
 
-	dungeon[i][j] = p;
+	dungeon[i][j] = pn;
 
 	for (yy = 1; yy < dy; yy++) {
 		dungeon[i][j + yy] = dt;

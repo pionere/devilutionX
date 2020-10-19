@@ -508,7 +508,7 @@ void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, i
 	}
 }
 
-void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
+void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 {
 	int x, y, v, xoff, yoff, mult, radius_block;
 	int min_x, max_x, min_y, max_y;
@@ -521,9 +521,9 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 	block_x = 0;
 	block_y = 0;
 
-	if (Lnum >= 0) {
-		xoff = LightList[Lnum]._xoff;
-		yoff = LightList[Lnum]._yoff;
+	if (lnum >= 0) {
+		xoff = LightList[lnum]._xoff;
+		yoff = LightList[lnum]._yoff;
 		if (xoff < 0) {
 			xoff += 8;
 			nXPos--;
@@ -1058,96 +1058,96 @@ void InitLighting()
 
 int AddLight(int x, int y, int r)
 {
-	int lid;
+	int lnum;
 
 	if (lightflag) {
 		return -1;
 	}
 
-	lid = -1;
+	lnum = -1;
 
 	if (numlights < MAXLIGHTS) {
-		lid = lightactive[numlights++];
-		LightList[lid]._lx = x;
-		LightList[lid]._ly = y;
-		LightList[lid]._lradius = r;
-		LightList[lid]._xoff = 0;
-		LightList[lid]._yoff = 0;
-		LightList[lid]._ldel = FALSE;
-		LightList[lid]._lunflag = FALSE;
+		lnum = lightactive[numlights++];
+		LightList[lnum]._lx = x;
+		LightList[lnum]._ly = y;
+		LightList[lnum]._lradius = r;
+		LightList[lnum]._xoff = 0;
+		LightList[lnum]._yoff = 0;
+		LightList[lnum]._ldel = FALSE;
+		LightList[lnum]._lunflag = FALSE;
 		dolighting = TRUE;
 	}
 
-	return lid;
+	return lnum;
 }
 
-void AddUnLight(int i)
+void AddUnLight(int lnum)
 {
-	if (lightflag || i == -1) {
+	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[i]._ldel = TRUE;
+	LightList[lnum]._ldel = TRUE;
 	dolighting = TRUE;
 }
 
-void ChangeLightRadius(int i, int r)
+void ChangeLightRadius(int lnum, int r)
 {
-	if (lightflag || i == -1) {
+	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lradius = r;
+	LightList[lnum]._lunflag = TRUE;
+	LightList[lnum]._lunx = LightList[lnum]._lx;
+	LightList[lnum]._luny = LightList[lnum]._ly;
+	LightList[lnum]._lunr = LightList[lnum]._lradius;
+	LightList[lnum]._lradius = r;
 	dolighting = TRUE;
 }
 
-void ChangeLightXY(int i, int x, int y)
+void ChangeLightXY(int lnum, int x, int y)
 {
-	if (lightflag || i == -1) {
+	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lx = x;
-	LightList[i]._ly = y;
+	LightList[lnum]._lunflag = TRUE;
+	LightList[lnum]._lunx = LightList[lnum]._lx;
+	LightList[lnum]._luny = LightList[lnum]._ly;
+	LightList[lnum]._lunr = LightList[lnum]._lradius;
+	LightList[lnum]._lx = x;
+	LightList[lnum]._ly = y;
 	dolighting = TRUE;
 }
 
-void ChangeLightOff(int i, int x, int y)
+void ChangeLightOff(int lnum, int x, int y)
 {
-	if (lightflag || i == -1) {
+	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._xoff = x;
-	LightList[i]._yoff = y;
+	LightList[lnum]._lunflag = TRUE;
+	LightList[lnum]._lunx = LightList[lnum]._lx;
+	LightList[lnum]._luny = LightList[lnum]._ly;
+	LightList[lnum]._lunr = LightList[lnum]._lradius;
+	LightList[lnum]._xoff = x;
+	LightList[lnum]._yoff = y;
 	dolighting = TRUE;
 }
 
-void ChangeLight(int i, int x, int y, int r)
+void ChangeLight(int lnum, int x, int y, int r)
 {
-	if (lightflag || i == -1) {
+	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lx = x;
-	LightList[i]._ly = y;
-	LightList[i]._lradius = r;
+	LightList[lnum]._lunflag = TRUE;
+	LightList[lnum]._lunx = LightList[lnum]._lx;
+	LightList[lnum]._luny = LightList[lnum]._ly;
+	LightList[lnum]._lunr = LightList[lnum]._lradius;
+	LightList[lnum]._lx = x;
+	LightList[lnum]._ly = y;
+	LightList[lnum]._lradius = r;
 	dolighting = TRUE;
 }
 
@@ -1213,14 +1213,14 @@ void InitVision()
 
 int AddVision(int x, int y, int r, BOOL mine)
 {
-	int vid; // BUGFIX: if numvision >= MAXVISION behavior is undefined
+	int vnum; // BUGFIX: if numvision >= MAXVISION behavior is undefined
 
 	if (numvision < MAXVISION) {
 		VisionList[numvision]._lx = x;
 		VisionList[numvision]._ly = y;
 		VisionList[numvision]._lradius = r;
-		vid = visionid++;
-		VisionList[numvision]._lid = vid;
+		vnum = visionid++;
+		VisionList[numvision]._lid = vnum;
 		VisionList[numvision]._ldel = FALSE;
 		VisionList[numvision]._lunflag = FALSE;
 		VisionList[numvision]._lflags = mine != 0;
@@ -1228,15 +1228,15 @@ int AddVision(int x, int y, int r, BOOL mine)
 		dovision = TRUE;
 	}
 
-	return vid;
+	return vnum;
 }
 
-void ChangeVisionRadius(int id, int r)
+void ChangeVisionRadius(int vnum, int r)
 {
 	int i;
 
 	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == id) {
+		if (VisionList[i]._lid == vnum) {
 			VisionList[i]._lunflag = TRUE;
 			VisionList[i]._lunx = VisionList[i]._lx;
 			VisionList[i]._luny = VisionList[i]._ly;
@@ -1247,12 +1247,12 @@ void ChangeVisionRadius(int id, int r)
 	}
 }
 
-void ChangeVisionXY(int id, int x, int y)
+void ChangeVisionXY(int vnum, int x, int y)
 {
 	int i;
 
 	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == id) {
+		if (VisionList[i]._lid == vnum) {
 			VisionList[i]._lunflag = TRUE;
 			VisionList[i]._lunx = VisionList[i]._lx;
 			VisionList[i]._luny = VisionList[i]._ly;
