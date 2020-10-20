@@ -105,18 +105,18 @@ BOOL PortalOnLevel(int i)
 		return currlevel == 0;
 }
 
-void RemovePortalMissile(int id)
+void RemovePortalMissile(int pnum)
 {
 	int i;
 	int mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
-		if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == id) {
+		if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == pnum) {
 			dFlags[missile[mi]._mix][missile[mi]._miy] &= ~BFLAG_MISSILE;
 			dMissile[missile[mi]._mix][missile[mi]._miy] = 0;
 
-			if (portal[id].level != 0)
+			if (portal[pnum].level != 0)
 				AddUnLight(missile[mi]._mlid);
 
 			DeleteMissile(mi, i);

@@ -12,12 +12,12 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-int GetManaAmount(int id, int sn);
-void UseMana(int id, int sn);
-BOOL CheckSpell(int id, int sn, char st, BOOL manaonly);
-void CastSpell(int id, int spl, int sx, int sy, int dx, int dy, int caster, int spllvl);
-void DoResurrect(int pnum, int rid);
-void DoHealOther(int pnum, int rid);
+int GetManaAmount(int pnum, int sn);
+void UseMana(int pnum, int sn);
+BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly);
+void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, int spllvl);
+void DoResurrect(int pnum, int tnum);
+void DoHealOther(int pnum, int tnum);
 
 #ifdef __cplusplus
 }

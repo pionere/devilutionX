@@ -424,29 +424,29 @@ void S_ScrollSBuy(int idx)
 		stextsel = stextdown;
 }
 
-void PrintStoreItem(ItemStruct *x, int l, char iclr)
+void PrintStoreItem(ItemStruct *is, int l, char iclr)
 {
 	char sstr[128];
 	char str, dex;
 	BYTE mag;
 
 	sstr[0] = '\0';
-	if (x->_iIdentified) {
-		if (x->_iMagical != ITEM_QUALITY_UNIQUE) {
-			if (x->_iPrePower != -1) {
-				PrintItemPower(x->_iPrePower, x);
+	if (is->_iIdentified) {
+		if (is->_iMagical != ITEM_QUALITY_UNIQUE) {
+			if (is->_iPrePower != -1) {
+				PrintItemPower(is->_iPrePower, is);
 				strcat(sstr, tempstr);
 			}
 		}
-		if (x->_iSufPower != -1) {
-			PrintItemPower(x->_iSufPower, x);
+		if (is->_iSufPower != -1) {
+			PrintItemPower(is->_iSufPower, is);
 			if (sstr[0])
 				strcat(sstr, ",  ");
 			strcat(sstr, tempstr);
 		}
 	}
-	if (x->_iMiscId == IMISC_STAFF && x->_iMaxCharges) {
-		sprintf(tempstr, "Charges: %i/%i", x->_iCharges, x->_iMaxCharges);
+	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
+		sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 		if (sstr[0])
 			strcat(sstr, ",  ");
 		strcat(sstr, tempstr);
@@ -456,36 +456,36 @@ void PrintStoreItem(ItemStruct *x, int l, char iclr)
 		l++;
 	}
 	sstr[0] = '\0';
-	if (x->_iClass == ICLASS_WEAPON)
-		sprintf(sstr, "Damage: %i-%i  ", x->_iMinDam, x->_iMaxDam);
-	if (x->_iClass == ICLASS_ARMOR)
-		sprintf(sstr, "Armor: %i  ", x->_iAC);
-	if (x->_iMaxDur != DUR_INDESTRUCTIBLE && x->_iMaxDur) {
-		sprintf(tempstr, "Dur: %i/%i,  ", x->_iDurability, x->_iMaxDur);
+	if (is->_iClass == ICLASS_WEAPON)
+		sprintf(sstr, "Damage: %i-%i  ", is->_iMinDam, is->_iMaxDam);
+	if (is->_iClass == ICLASS_ARMOR)
+		sprintf(sstr, "Armor: %i  ", is->_iAC);
+	if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur) {
+		sprintf(tempstr, "Dur: %i/%i,  ", is->_iDurability, is->_iMaxDur);
 		strcat(sstr, tempstr);
 	} else {
 		strcat(sstr, "Indestructible,  ");
 	}
-	if (x->_itype == ITYPE_MISC)
+	if (is->_itype == ITYPE_MISC)
 		sstr[0] = '\0';
-	str = x->_iMinStr;
-	dex = x->_iMinDex;
-	mag = x->_iMinMag;
+	str = is->_iMinStr;
+	dex = is->_iMinDex;
+	mag = is->_iMinMag;
 	if ((str + mag + dex) == 0) {
 		strcat(sstr, "No required attributes");
 	} else {
 		strcpy(tempstr, "Required:");
-		if (x->_iMinStr)
-			sprintf(tempstr, "%s %i Str", tempstr, x->_iMinStr);
-		if (x->_iMinMag)
-			sprintf(tempstr, "%s %i Mag", tempstr, x->_iMinMag);
-		if (x->_iMinDex)
-			sprintf(tempstr, "%s %i Dex", tempstr, x->_iMinDex);
+		if (is->_iMinStr)
+			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
+		if (is->_iMinMag)
+			sprintf(tempstr, "%s %i Mag", tempstr, is->_iMinMag);
+		if (is->_iMinDex)
+			sprintf(tempstr, "%s %i Dex", tempstr, is->_iMinDex);
 		strcat(sstr, tempstr);
 	}
 	AddSText(40, l++, FALSE, sstr, iclr, FALSE);
-	if (x->_iMagical == ITEM_QUALITY_UNIQUE) {
-		if (x->_iIdentified)
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+		if (is->_iIdentified)
 			AddSText(40, l, FALSE, "Unique Item", iclr, FALSE);
 	}
 }
@@ -790,13 +790,13 @@ void S_StartSRepair()
 	OffsetSTextY(22, 6);
 }
 
-void AddStoreHoldRepair(ItemStruct *itm, int i)
+void AddStoreHoldRepair(ItemStruct *is, int i)
 {
 	ItemStruct *item;
 	int v;
 
 	item = &storehold[storenumh];
-	storehold[storenumh] = *itm;
+	storehold[storenumh] = *is;
 	if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
 		item->_ivalue = 30 * item->_iIvalue / 100;
 	v = item->_ivalue * (100 * (item->_iMaxDur - item->_iDurability) / item->_iMaxDur) / 100;
@@ -999,10 +999,10 @@ BOOL WitchRechargeOk(int i)
 	return rv;
 }
 
-void AddStoreHoldRecharge(ItemStruct itm, int i)
+void AddStoreHoldRecharge(ItemStruct is, int i)
 {
-	storehold[storenumh] = itm;
-	storehold[storenumh]._ivalue += spelldata[itm._iSpell].sStaffCost;
+	storehold[storenumh] = is;
+	storehold[storenumh]._ivalue += spelldata[is._iSpell].sStaffCost;
 	storehold[storenumh]._ivalue = storehold[storenumh]._ivalue * (100 * (storehold[storenumh]._iMaxCharges - storehold[storenumh]._iCharges) / storehold[storenumh]._iMaxCharges) / 100 >> 1;
 	storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
 	storehidx[storenumh] = i;
@@ -1288,20 +1288,20 @@ void S_StartStory()
 	AddSLine(5);
 }
 
-BOOL IdItemOk(ItemStruct *i)
+BOOL IdItemOk(ItemStruct *is)
 {
-	if (i->_itype == ITYPE_NONE) {
+	if (is->_itype == ITYPE_NONE) {
 		return FALSE;
 	}
-	if (i->_iMagical == ITEM_QUALITY_NORMAL) {
+	if (is->_iMagical == ITEM_QUALITY_NORMAL) {
 		return FALSE;
 	}
-	return !i->_iIdentified;
+	return !is->_iIdentified;
 }
 
-void AddStoreHoldId(ItemStruct itm, int i)
+void AddStoreHoldId(ItemStruct is, int i)
 {
-	storehold[storenumh] = itm;
+	storehold[storenumh] = is;
 	storehold[storenumh]._ivalue = 100;
 	storehold[storenumh]._iIvalue = 100;
 	storehidx[storenumh] = i;

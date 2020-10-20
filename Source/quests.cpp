@@ -281,25 +281,25 @@ BOOL ForceQuests()
 	return FALSE;
 }
 
-BOOL QuestStatus(int i)
+BOOL QuestStatus(int qn)
 {
 	if (setlevel)
 		return FALSE;
-	if (currlevel != quests[i]._qlevel)
+	if (currlevel != quests[qn]._qlevel)
 		return FALSE;
-	if (quests[i]._qactive == QUEST_NOTAVAIL)
+	if (quests[qn]._qactive == QUEST_NOTAVAIL)
 		return FALSE;
-	if (gbMaxPlayers != 1 && !(questlist[i]._qflags & QUEST_ANY))
+	if (gbMaxPlayers != 1 && !(questlist[qn]._qflags & QUEST_ANY))
 		return FALSE;
 	return TRUE;
 }
 
-void CheckQuestKill(int m, BOOL sendmsg)
+void CheckQuestKill(int mnum, BOOL sendmsg)
 {
 #ifndef SPAWN
 	int i, j;
 
-	if (monster[m].MType->mtype == MT_SKING) {
+	if (monster[mnum].MType->mtype == MT_SKING) {
 		quests[Q_SKELKING]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -321,7 +321,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 		if (sendmsg)
 			NetSendCmdQuest(TRUE, Q_SKELKING);
 
-	} else if (monster[m].MType->mtype == MT_CLEAVER) {
+	} else if (monster[mnum].MType->mtype == MT_CLEAVER) {
 		quests[Q_BUTCHER]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -342,7 +342,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 #endif
 		if (sendmsg)
 			NetSendCmdQuest(TRUE, Q_BUTCHER);
-	} else if (monster[m].mName == UniqMonst[UMT_GARBUD].mName) { //"Gharbad the Weak"
+	} else if (monster[mnum].mName == UniqMonst[UMT_GARBUD].mName) { //"Gharbad the Weak"
 		quests[Q_GARBUD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -361,7 +361,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 			sfxdnum = PS_WARR61;
 		}
 #endif
-	} else if (monster[m].mName == UniqMonst[UMT_ZHAR].mName) { //"Zhar the Mad"
+	} else if (monster[mnum].mName == UniqMonst[UMT_ZHAR].mName) { //"Zhar the Mad"
 		quests[Q_ZHAR]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -380,7 +380,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 			sfxdnum = PS_WARR62;
 		}
 #endif
-	} else if (monster[m].mName == UniqMonst[UMT_LAZURUS].mName && gbMaxPlayers != 1) { //"Arch-Bishop Lazarus"
+	} else if (monster[mnum].mName == UniqMonst[UMT_LAZURUS].mName && gbMaxPlayers != 1) { //"Arch-Bishop Lazarus"
 		quests[Q_BETRAYER]._qactive = QUEST_DONE;
 		quests[Q_BETRAYER]._qvar1 = 7;
 		sfxdelay = 30;
@@ -416,7 +416,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 			NetSendCmdQuest(TRUE, Q_BETRAYER);
 			NetSendCmdQuest(TRUE, Q_DIABLO);
 		}
-	} else if (monster[m].mName == UniqMonst[UMT_LAZURUS].mName && gbMaxPlayers == 1) { //"Arch-Bishop Lazarus"
+	} else if (monster[mnum].mName == UniqMonst[UMT_LAZURUS].mName && gbMaxPlayers == 1) { //"Arch-Bishop Lazarus"
 		quests[Q_BETRAYER]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		InitVPTriggers();
@@ -440,7 +440,7 @@ void CheckQuestKill(int m, BOOL sendmsg)
 			sfxdnum = PS_WARR83;
 		}
 #endif
-	} else if (monster[m].mName == UniqMonst[UMT_WARLORD].mName) { //"Warlord of Blood"
+	} else if (monster[mnum].mName == UniqMonst[UMT_WARLORD].mName) { //"Warlord of Blood"
 		quests[Q_WARLORD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -508,7 +508,7 @@ void DrawWarLord(int x, int y)
 	mem_free_dbg(setp);
 }
 
-void DrawSChamber(int q, int x, int y)
+void DrawSChamber(int qn, int x, int y)
 {
 	int i, j;
 	int rw, rh;
@@ -538,8 +538,8 @@ void DrawSChamber(int q, int x, int y)
 	}
 	xx = 2 * x + 22;
 	yy = 2 * y + 23;
-	quests[q]._qtx = xx;
-	quests[q]._qty = yy;
+	quests[qn]._qtx = xx;
+	quests[qn]._qty = yy;
 	mem_free_dbg(setp);
 }
 
@@ -949,15 +949,15 @@ void QuestlogESC()
 	}
 }
 
-void SetMultiQuest(int q, int s, int l, int v1)
+void SetMultiQuest(int qn, int s, int l, int v1)
 {
 #ifndef SPAWN
-	if (quests[q]._qactive != QUEST_DONE) {
-		if (s > quests[q]._qactive)
-			quests[q]._qactive = s;
-		quests[q]._qlog |= l;
-		if (v1 > quests[q]._qvar1)
-			quests[q]._qvar1 = v1;
+	if (quests[qn]._qactive != QUEST_DONE) {
+		if (s > quests[qn]._qactive)
+			quests[qn]._qactive = s;
+		quests[qn]._qlog |= l;
+		if (v1 > quests[qn]._qvar1)
+			quests[qn]._qvar1 = v1;
 	}
 #endif
 }

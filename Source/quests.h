@@ -28,12 +28,12 @@ extern int ReturnLvl;
 void InitQuests();
 void CheckQuests();
 BOOL ForceQuests();
-BOOL QuestStatus(int i);
-void CheckQuestKill(int m, BOOL sendmsg);
+BOOL QuestStatus(int qn);
+void CheckQuestKill(int mnum, BOOL sendmsg);
 void DrawButcher();
-void DrawSkelKing(int q, int x, int y);
+void DrawSkelKing(int qn, int x, int y);
 void DrawWarLord(int x, int y);
-void DrawSChamber(int q, int x, int y);
+void DrawSChamber(int qn, int x, int y);
 void DrawLTBanner(int x, int y);
 void DrawBlind(int x, int y);
 void DrawBlood(int x, int y);
@@ -49,7 +49,7 @@ void QuestlogUp();
 void QuestlogDown();
 void QuestlogEnter();
 void QuestlogESC();
-void SetMultiQuest(int q, int s, int l, int v1);
+void SetMultiQuest(int qn, int s, int l, int v1);
 
 /* rdata */
 extern QuestData questlist[MAXQUESTS];
