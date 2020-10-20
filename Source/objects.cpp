@@ -1159,7 +1159,6 @@ void InitObjects()
 	}
 }
 
-#ifndef SPAWN
 void SetMapObjects(BYTE *pMap, int startx, int starty)
 {
 	int rw, rh;
@@ -1219,7 +1218,6 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	}
 	InitObjFlag = FALSE;
 }
-#endif
 
 void DeleteObject_(int oi, int idx)
 {
@@ -2159,7 +2157,6 @@ void Obj_BCrossDamage(int oi)
 	} else {
 		if (p->_pClass == PC_WARRIOR) {
 			PlaySfxLoc(PS_WARR68, p->_px, p->_py);
-#ifndef SPAWN
 		} else if (p->_pClass == PC_ROGUE) {
 			PlaySfxLoc(PS_ROGUE68, p->_px, p->_py);
 		} else if (p->_pClass == PC_SORCERER) {
@@ -2171,7 +2168,6 @@ void Obj_BCrossDamage(int oi)
 			PlaySfxLoc(PS_ROGUE68, p->_px, p->_py);
 		} else if (p->_pClass == PC_BARBARIAN) {
 			PlaySfxLoc(PS_WARR68, p->_px, p->_py);
-#endif
 #endif
 		}
 	}
@@ -3260,7 +3256,6 @@ void OperateMushPatch(int pnum, int oi)
 		if (!deltaload && pnum == myplr) {
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				PlaySFX(PS_WARR13);
-#ifndef SPAWN
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
 				PlaySFX(PS_ROGUE13);
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -3272,7 +3267,6 @@ void OperateMushPatch(int pnum, int oi)
 				PlaySFX(PS_ROGUE13);
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				PlaySFX(PS_WARR13);
-#endif
 #endif
 			}
 		}
@@ -3301,7 +3295,6 @@ void OperateInnSignChest(int pnum, int oi)
 		if (!deltaload && pnum == myplr) {
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				PlaySFX(PS_WARR24);
-#ifndef SPAWN
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
 				PlaySFX(PS_ROGUE24);
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -3313,7 +3306,6 @@ void OperateInnSignChest(int pnum, int oi)
 				PlaySFX(PS_ROGUE24);
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				PlaySFX(PS_WARR24);
-#endif
 #endif
 			}
 		}
@@ -3342,33 +3334,23 @@ void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
 		if (!deltaload) {
 			if (plr[pnum]._pClass == PC_WARRIOR) {
 				CreateMagicArmor(os->_ox, os->_oy, ITYPE_HARMOR, ICURS_BREAST_PLATE, FALSE, TRUE);
-#ifndef SPAWN
 				PlaySfxLoc(PS_WARR9, plr[myplr]._px, plr[myplr]._py);
-#endif
 			} else if (plr[pnum]._pClass == PC_ROGUE) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
-#ifndef SPAWN
 				PlaySfxLoc(PS_ROGUE9, plr[myplr]._px, plr[myplr]._py);
-#endif
 			} else if (plr[pnum]._pClass == PC_SORCERER) {
 				CreateSpellBook(os->_ox, os->_oy, SPL_LIGHTNING, FALSE, TRUE);
-#ifndef SPAWN
 				PlaySfxLoc(PS_MAGE9, plr[myplr]._px, plr[myplr]._py);
-#endif
 #ifdef HELLFIRE
 			} else if (plr[pnum]._pClass == PC_MONK) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
 				PlaySfxLoc(PS_MONK9, plr[myplr]._px, plr[myplr]._py);
-#ifndef SPAWN
 			} else if (plr[pnum]._pClass == PC_BARD) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_SWORD, ICURS_BASTARD_SWORD, FALSE, TRUE);
 				PlaySfxLoc(PS_ROGUE9, plr[myplr]._px, plr[myplr]._py);
-#endif
 			} else if (plr[pnum]._pClass == PC_BARBARIAN) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_AXE, ICURS_BATTLE_AXE, FALSE, TRUE);
-#ifndef SPAWN
 				PlaySfxLoc(PS_WARR9, plr[myplr]._px, plr[myplr]._py);
-#endif
 #endif
 			}
 			if (pnum == myplr)

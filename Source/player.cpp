@@ -467,15 +467,11 @@ DWORD GetPlrGFXSize(char *szCel)
 	dwMaxSize = 0;
 
 	for (c = 0; c < NUM_CLASSES; c++) {
-#ifdef SPAWN
-		if (c != 0)
+		if (gbIsSpawn && c != 0)
 			continue;
-#endif
 		for (a = &ArmourChar[0]; *a; a++) {
-#ifdef SPAWN
-			if (a != &ArmourChar[0])
+			if (gbIsSpawn && a != &ArmourChar[0])
 				break;
-#endif
 			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animagions; DT is only for N, BT is only for U, D & H (fixed)
 				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
 					continue; //Death has no weapon
@@ -616,7 +612,6 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		}
-#ifndef SPAWN
 	} else if (pc == PC_ROGUE) {
 		if (gn == ANIM_ID_AXE) {
 			p->_pAFrames = 22;
@@ -641,7 +636,6 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 24;
 			p->_pAFNum = 16;
 		}
-#endif
 #ifdef HELLFIRE
 	} else if (pc == PC_MONK) {
 		p->_pNWidth = 112;
@@ -827,12 +821,10 @@ void CreatePlayer(int pnum, char c)
 
 	if (c == PC_WARRIOR) {
 		p->_pAblSpells = (__int64)1 << (SPL_REPAIR - 1);
-#ifndef SPAWN
 	} else if (c == PC_ROGUE) {
 		p->_pAblSpells = (__int64)1 << (SPL_DISARM - 1);
 	} else if (c == PC_SORCERER) {
 		p->_pAblSpells = (__int64)1 << (SPL_RECHARGE - 1);
-#endif
 	}
 
 	if (c == PC_SORCERER) {
@@ -859,12 +851,10 @@ void CreatePlayer(int pnum, char c)
 
 	if (c == PC_WARRIOR) {
 		p->_pgfxnum = ANIM_ID_SWORD_SHIELD;
-#ifndef SPAWN
 	} else if (c == PC_ROGUE) {
 		p->_pgfxnum = ANIM_ID_BOW;
 	} else if (c == PC_SORCERER) {
 		p->_pgfxnum = ANIM_ID_STAFF;
-#endif
 	}
 
 	for (i = 0; i < NUMLEVELS; i++) {
@@ -1133,7 +1123,6 @@ void InitPlayer(int pnum, BOOL FirstTime)
 
 	if (p->_pClass == PC_WARRIOR) {
 		p->_pAblSpells = 1 << (SPL_REPAIR - 1);
-#ifndef SPAWN
 	} else if (p->_pClass == PC_ROGUE) {
 		p->_pAblSpells = 1 << (SPL_DISARM - 1);
 	} else if (p->_pClass == PC_SORCERER) {
@@ -1145,7 +1134,6 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->_pAblSpells = 1 << (SPL_IDENTIFY - 1);
 	} else if (p->_pClass == PC_BARBARIAN) {
 		p->_pAblSpells = 1 << (SPL_BLODBOIL - 1);
-#endif
 #endif
 	}
 
@@ -1832,12 +1820,10 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 
 	if (p->_pClass == PC_WARRIOR) {
 		PlaySfxLoc(PS_WARR69, p->_px, p->_py);
-#ifndef SPAWN
 	} else if (p->_pClass == PC_ROGUE) {
 		PlaySfxLoc(PS_ROGUE69, p->_px, p->_py);
 	} else if (p->_pClass == PC_SORCERER) {
 		PlaySfxLoc(PS_MAGE69, p->_px, p->_py);
-#endif
 	}
 
 	drawhpflag = TRUE;
@@ -1911,7 +1897,6 @@ void StartPlrKill(int pnum, int earflag)
 
 	if (p->_pClass == PC_WARRIOR) {
 		PlaySfxLoc(PS_DEAD, p->_px, p->_py); // BUGFIX: should use `PS_WARR71` like other classes
-#ifndef SPAWN
 	} else if (p->_pClass == PC_ROGUE) {
 		PlaySfxLoc(PS_ROGUE71, p->_px, p->_py);
 	} else if (p->_pClass == PC_SORCERER) {
@@ -1923,7 +1908,6 @@ void StartPlrKill(int pnum, int earflag)
 		PlaySfxLoc(PS_ROGUE71, p->_px, p->_py);
 	} else if (p->_pClass == PC_BARBARIAN) {
 		PlaySfxLoc(PS_WARR71, p->_px, p->_py);
-#endif
 #endif
 	}
 
@@ -3807,7 +3791,7 @@ void ValidatePlayer()
 	}
 
 	for (b = 1; b < MAX_SPELLS; b++) {
-		if (spelldata[b].sBookLvl != -1) {
+		if (GetSpellBookLevel(b) != -1) {
 			msk |= (__int64)1 << (b - 1);
 			if (p->_pSplLvl[b] > 15)
 				p->_pSplLvl[b] = 15;
@@ -4094,12 +4078,10 @@ void CheckPlrSpell()
 	if (rspell == SPL_INVALID) {
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			PlaySFX(PS_WARR34);
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			PlaySFX(PS_ROGUE34);
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			PlaySFX(PS_MAGE34);
-#endif
 		}
 		return;
 	}
@@ -4107,12 +4089,10 @@ void CheckPlrSpell()
 	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			PlaySFX(PS_WARR27);
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			PlaySFX(PS_ROGUE27);
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			PlaySFX(PS_MAGE27);
-#endif
 		}
 		return;
 	}
@@ -4166,12 +4146,10 @@ void CheckPlrSpell()
 	if (plr[myplr]._pRSplType == RSPLTYPE_SPELL) {
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			PlaySFX(PS_WARR35);
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			PlaySFX(PS_ROGUE35);
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			PlaySFX(PS_MAGE35);
-#endif
 		}
 	}
 }
@@ -4636,7 +4614,6 @@ void PlayDungMsgs()
 		sfxdelay = 40;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR97;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE97;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -4649,14 +4626,12 @@ void PlayDungMsgs()
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR97;
 #endif
-#endif
 		}
 		plr[myplr].pDungMsgs = plr[myplr].pDungMsgs | DMSG_CATHEDRAL;
 	} else if (currlevel == 5 && !plr[myplr]._pLvlVisited[5] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR96B;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE96;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -4669,14 +4644,12 @@ void PlayDungMsgs()
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR96B;
 #endif
-#endif
 		}
 		plr[myplr].pDungMsgs |= DMSG_CATACOMBS;
 	} else if (currlevel == 9 && !plr[myplr]._pLvlVisited[9] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
 		sfxdelay = 40;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR98;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE98;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -4689,14 +4662,12 @@ void PlayDungMsgs()
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR98;
 #endif
-#endif
 		}
 		plr[myplr].pDungMsgs |= DMSG_CAVES;
 	} else if (currlevel == 13 && !plr[myplr]._pLvlVisited[13] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
 		sfxdelay = 40;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR99;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE99;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
@@ -4709,12 +4680,10 @@ void PlayDungMsgs()
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR99;
 #endif
-#endif
 		}
 		plr[myplr].pDungMsgs |= DMSG_HELL;
 	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[15] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
-#ifndef SPAWN
 #ifdef HELLFIRE
 		if (plr[myplr]._pClass == PC_WARRIOR || plr[myplr]._pClass == PC_ROGUE || plr[myplr]._pClass == PC_SORCERER || plr[myplr]._pClass == PC_MONK || plr[myplr]._pClass == PC_BARD || plr[myplr]._pClass == PC_BARBARIAN) {
 #else
@@ -4722,7 +4691,6 @@ void PlayDungMsgs()
 #endif
 			sfxdnum = PS_DIABLVLINT;
 		}
-#endif
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
 	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs2 & 1)) {
@@ -4738,25 +4706,19 @@ void PlayDungMsgs()
 		plr[myplr].pDungMsgs2 |= 4;
 	} else if (currlevel == 21 && !plr[myplr]._pLvlVisited[21] && gbMaxPlayers == 1 && !(plr[myplr].pDungMsgs & 32)) {
 		sfxdelay = 30;
-#ifndef SPAWN
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR92;
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE92;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE92;
-		} else
-#endif
-		if (plr[myplr]._pClass == PC_MONK) {
+		} else if (plr[myplr]._pClass == PC_MONK) {
 			sfxdnum = PS_MONK92;
-		}
-#ifndef SPAWN
-		else if (plr[myplr]._pClass == PC_BARD) {
+		} else if (plr[myplr]._pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE92;
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR92;
 		}
-#endif
 		plr[myplr].pDungMsgs |= 32;
 #endif
 	} else {

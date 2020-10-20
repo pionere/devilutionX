@@ -120,19 +120,16 @@ void InitInv()
 {
 	if (plr[myplr]._pClass == PC_WARRIOR) {
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
-#ifndef SPAWN
 	} else if (plr[myplr]._pClass == PC_ROGUE) {
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv_rog.CEL", NULL);
 	} else if (plr[myplr]._pClass == PC_SORCERER) {
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
-#endif
 #ifdef HELLFIRE
 	} else if (plr[myplr]._pClass == PC_MONK) {
-#ifndef SPAWN
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
-#else
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
-#endif
+		if (gbIsSpawn)
+			pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
+		else
+			pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
 	} else if (plr[myplr]._pClass == PC_BARD) {
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv_rog.CEL", NULL);
 	} else if (plr[myplr]._pClass == PC_BARBARIAN) {
@@ -1171,12 +1168,10 @@ void CheckInvPaste(int pnum, int mx, int my)
 		done = FALSE;
 		if (p->_pClass == PC_WARRIOR)
 			PlaySFX(PS_WARR13);
-#ifndef SPAWN
 		else if (p->_pClass == PC_ROGUE)
 			PlaySFX(PS_ROGUE13);
 		else if (p->_pClass == PC_SORCERER)
 			PlaySFX(PS_MAGE13);
-#endif
 	}
 
 	if (!done)
@@ -1843,7 +1838,6 @@ void CheckQuestItem(int pnum)
 	if (is->IDidx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
 	if (is->IDidx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
-#ifndef SPAWN
 		sfxdelay = 10;
 		if (p->_pClass == PC_WARRIOR) { // BUGFIX: Voice for this quest might be wrong in MP
 			sfxdnum = PS_WARR95;
@@ -1861,7 +1855,6 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_WARR95;
 		}
 #endif
-#endif
 		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
 	}
 	if (is->IDidx == IDI_ANVIL) {
@@ -1869,7 +1862,6 @@ void CheckQuestItem(int pnum)
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
 		}
-#ifndef SPAWN
 		if (quests[Q_ANVIL]._qlog == TRUE) {
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -1889,9 +1881,7 @@ void CheckQuestItem(int pnum)
 			}
 #endif
 		}
-#endif
 	}
-#ifndef SPAWN
 	if (is->IDidx == IDI_GLDNELIX) {
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -1911,13 +1901,11 @@ void CheckQuestItem(int pnum)
 		}
 #endif
 	}
-#endif
 	if (is->IDidx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
 		}
-#ifndef SPAWN
 		if (quests[Q_ROCK]._qlog == TRUE) {
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -1937,11 +1925,9 @@ void CheckQuestItem(int pnum)
 			}
 #endif
 		}
-#endif
 	}
 	if (is->IDidx == IDI_ARMOFVAL) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
-#ifndef SPAWN
 		sfxdelay = 20;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR91;
@@ -1958,7 +1944,6 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_WARR91;
 #endif
 		}
-#endif
 	}
 #ifdef HELLFIRE
 	if (is->IDidx == IDI_MAPOFDOOM) {
@@ -1968,18 +1953,14 @@ void CheckQuestItem(int pnum)
 		sfxdelay = 10;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR79;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE79;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE79;
-#endif
 		} else if (plr[myplr]._pClass == PC_MONK) {
 			sfxdnum = PS_MONK79;
-#ifndef SPAWN
 		} else if (plr[myplr]._pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE79;
-#endif
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR79;
 		}
@@ -2000,18 +1981,14 @@ void CheckQuestItem(int pnum)
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				sfxdnum = PS_WARR46;
-#ifndef SPAWN
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
 				sfxdnum = PS_ROGUE46;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
 				sfxdnum = PS_MAGE46;
-#endif
 			} else if (plr[myplr]._pClass == PC_MONK) {
 				sfxdnum = PS_MONK46;
-#ifndef SPAWN
 			} else if (plr[myplr]._pClass == PC_BARD) {
 				sfxdnum = PS_ROGUE46;
-#endif
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				sfxdnum = PS_WARR46;
 			}
@@ -2258,19 +2235,15 @@ void AutoGetItem(int pnum, int ii)
 		if (pnum == myplr) {
 			if (p->_pClass == PC_WARRIOR) {
 				PlaySFX(random_(0, 3) + PS_WARR14);
-#ifndef SPAWN
 			} else if (p->_pClass == PC_ROGUE) {
 				PlaySFX(random_(0, 3) + PS_ROGUE14);
 			} else if (p->_pClass == PC_SORCERER) {
 				PlaySFX(random_(0, 3) + PS_MAGE14);
-#endif
 #ifdef HELLFIRE
 			} else if (p->_pClass == PC_MONK) {
 				PlaySFX(random_(0, 3) + PS_MONK14);
-#ifndef SPAWN
 			} else if (p->_pClass == PC_BARD) {
 				PlaySFX(random_(0, 3) + PS_ROGUE14);
-#endif
 			} else if (p->_pClass == PC_BARBARIAN) {
 				PlaySFX(random_(0, 3) + PS_WARR14);
 #endif
@@ -2877,7 +2850,6 @@ BOOL UseInvItem(int pnum, int cii)
 	switch (Item->IDidx) {
 	case IDI_MUSHROOM:
 		sfxdelay = 10;
-#ifndef SPAWN
 		if (plr[pnum]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR95;
 		} else if (plr[pnum]._pClass == PC_ROGUE) {
@@ -2894,26 +2866,21 @@ BOOL UseInvItem(int pnum, int cii)
 			sfxdnum = PS_WARR95;
 		}
 #endif
-#endif
 		return TRUE;
 	case IDI_FUNGALTM:
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
 		if (plr[pnum]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR29;
-#ifndef SPAWN
 		} else if (plr[pnum]._pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE29;
 		} else if (plr[pnum]._pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE29;
-#endif
 #ifdef HELLFIRE
 		} else if (plr[pnum]._pClass == PC_MONK) {
 			sfxdnum = PS_MONK29;
-#ifndef SPAWN
 		} else if (plr[pnum]._pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE29;
-#endif
 		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR29;
 #endif
@@ -2927,19 +2894,15 @@ BOOL UseInvItem(int pnum, int cii)
 	if (!Item->_iStatFlag) {
 		if (plr[pnum]._pClass == PC_WARRIOR) {
 			PlaySFX(PS_WARR13);
-#ifndef SPAWN
 		} else if (plr[pnum]._pClass == PC_ROGUE) {
 			PlaySFX(PS_ROGUE13);
 		} else if (plr[pnum]._pClass == PC_SORCERER) {
 			PlaySFX(PS_MAGE13);
-#endif
 #ifdef HELLFIRE
 		} else if (plr[pnum]._pClass == PC_MONK) {
 			PlaySFX(PS_MONK13);
-#ifndef SPAWN
 		} else if (plr[pnum]._pClass == PC_BARD) {
 			PlaySFX(PS_ROGUE13);
-#endif
 		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
 			PlaySFX(PS_WARR13);
 #endif

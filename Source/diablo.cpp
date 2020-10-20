@@ -45,6 +45,7 @@ BOOL trigdebug;
 int setseed;
 int debugmonsttypes;
 int PauseMode;
+bool forceSpawn;
 #ifdef HELLFIRE
 BOOLEAN UseTheoQuest;
 BOOLEAN UseCowFarmer;
@@ -304,10 +305,11 @@ void diablo_init()
 	init_archives();
 	was_archives_init = true;
 
+	if (forceSpawn)
+		gbIsSpawn = true;
+
 	UiInitialize();
-#ifdef SPAWN
-	UiSetSpawned(TRUE);
-#endif
+	UiSetSpawned(gbIsSpawn);
 	was_ui_init = true;
 
 	ReadOnlyTest();
@@ -328,16 +330,19 @@ void diablo_splash()
 		return;
 
 	play_movie("gendata\\logo.smk", TRUE);
-#ifndef SPAWN
-	if (getIniBool("Diablo", "Intro", true)) {
+
+#ifndef HELLFIRE
+	if (!gbIsSpawn)
+#endif
+	if (getIniBool(APP_NAME, "Intro", true)) {
 #ifndef HELLFIRE
 		play_movie("gendata\\diablo1.smk", TRUE);
 #else
 		play_movie("gendata\\Hellfire.smk", TRUE);
 #endif
-		setIniValue("Diablo", "Intro", "0");
+		setIniValue(APP_NAME, "Intro", "0");
 	}
-#endif
+
 	UiTitleDialog();
 }
 
@@ -386,6 +391,7 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-f", "Display frames per second");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
+	printf("    %-20s %-30s\n", "--spawn", "Force spawn mode even if diabdat.mpq is found");
 #ifdef HELLFIRE
 	printf("    %-20s %-30s\n", "--theoquest", "Enable the Theo quest");
 	printf("    %-20s %-30s\n", "--cowquest", "Enable the Cow quest");
@@ -445,6 +451,8 @@ void diablo_parse_flags(int argc, char **argv)
 			EnableFrameCount();
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			fullscreen = FALSE;
+		} else if (strcasecmp("--spawn", argv[i]) == 0) {
+			forceSpawn = TRUE;
 #ifdef HELLFIRE
 		} else if (strcasecmp("--theoquest", argv[i]) == 0) {
 			UseTheoQuest = TRUE;
@@ -1463,7 +1471,6 @@ void LoadLvlGFX()
 		}
 #endif
 		break;
-#ifndef SPAWN
 	case DTYPE_CATACOMBS:
 		pDungeonCels = LoadFileInMem("Levels\\L2Data\\L2.CEL", NULL);
 		pMegaTiles = LoadFileInMem("Levels\\L2Data\\L2.TIL", NULL);
@@ -1492,7 +1499,6 @@ void LoadLvlGFX()
 		pLevelPieces = LoadFileInMem("Levels\\L4Data\\L4.MIN", NULL);
 		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
 		break;
-#endif
 	default:
 		app_fatal("LoadLvlGFX");
 		break;
@@ -1534,7 +1540,6 @@ void CreateLevel(int lvldir)
 		LoadRndLvlPal(1);
 #endif
 		break;
-#ifndef SPAWN
 	case DTYPE_CATACOMBS:
 		CreateL2Dungeon(glSeedTbl[currlevel], lvldir);
 		InitL2Triggers();
@@ -1561,7 +1566,6 @@ void CreateLevel(int lvldir)
 		Freeupstairs();
 		LoadRndLvlPal(4);
 		break;
-#endif
 	default:
 		app_fatal("CreateLevel");
 		break;
@@ -1714,7 +1718,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			ResyncQuests();
 		else
 			ResyncMPQuests();
-#ifndef SPAWN
 	} else {
 		LoadSetMap();
 		IncProgress();
@@ -1754,7 +1757,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 
 		InitMissiles();
 		IncProgress();
-#endif
 	}
 
 	SyncPortals();
@@ -1807,10 +1809,8 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	while (!IncProgress())
 		;
 
-#ifndef SPAWN
-	if (setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
+	if (gbIsSpawn && setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
 		PlaySFX(USFX_SKING1);
-#endif
 }
 
 void game_loop(BOOL bStartup)

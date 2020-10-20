@@ -1252,12 +1252,10 @@ int RndSFX(int psfx)
 		nRand = 3;
 	else if (psfx == PS_WARR16)
 		nRand = 3;
-#ifndef SPAWN
 	else if (psfx == PS_MAGE69)
 		nRand = 2;
 	else if (psfx == PS_ROGUE69)
 		nRand = 2;
-#endif
 #ifdef HELLFIRE
 	else if (psfx == PS_MONK69)
 		nRand = 2;
@@ -1272,10 +1270,8 @@ int RndSFX(int psfx)
 		nRand = 2;
 	else if (psfx == IS_BHIT)
 		nRand = 2;
-#ifndef SPAWN
 	else if (psfx == PS_WARR2)
 		nRand = 3;
-#endif
 	else
 		return psfx;
 	return psfx + random_(165, nRand);
@@ -1338,9 +1334,8 @@ void sound_init()
 	BYTE mask = sfx_MISC;
 	if (gbMaxPlayers > 1) {
 		mask |= sfx_WARRIOR;
-#ifndef SPAWN
-		mask |= (sfx_ROGUE | sfx_SORCEROR);
-#endif
+		if (gbIsSpawn)
+			mask |= (sfx_ROGUE | sfx_SORCEROR);
 #ifdef HELLFIRE
 		mask |= sfx_MONK;
 #endif
