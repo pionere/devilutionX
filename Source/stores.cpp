@@ -516,6 +516,7 @@ void S_StartSBuy()
 
 void S_ScrollSPBuy(int idx)
 {
+	ItemStruct* is;
 	int l, boughtitems;
 	char iclr;
 
@@ -529,15 +530,16 @@ void S_ScrollSPBuy(int idx)
 	}
 
 	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; l += 4) {
-		if (premiumitem[idx]._itype != ITYPE_NONE) {
+		is = &premiumitem[idx];
+		if (is->_itype != ITYPE_NONE) {
 			iclr = COL_WHITE;
-			if (premiumitem[idx]._iMagical)
+			if (is->_iMagical)
 				iclr = COL_BLUE;
-			if (!premiumitem[idx]._iStatFlag)
+			if (!is->_iStatFlag)
 				iclr = COL_RED;
-			AddSText(20, l, FALSE, premiumitem[idx]._iIName, iclr, TRUE);
-			AddSTextVal(l, premiumitem[idx]._iIvalue);
-			PrintStoreItem(&premiumitem[idx], l + 1, iclr);
+			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
+			AddSTextVal(l, is->_iIvalue);
+			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 		} else {
 			l -= 4;
@@ -603,6 +605,7 @@ BOOL SmithSellOk(int i)
 
 void S_ScrollSSell(int idx)
 {
+	ItemStruct* is;
 	int l;
 	char iclr;
 
@@ -612,25 +615,26 @@ void S_ScrollSSell(int idx)
 	for (l = 5; l < 20; l += 4) {
 		if (idx >= storenumh)
 			break;
-		if (storehold[idx]._itype != ITYPE_NONE) {
+		is = &storehold[idx];
+		if (is->_itype != ITYPE_NONE) {
 			iclr = COL_WHITE;
-			if (storehold[idx]._iMagical) {
+			if (is->_iMagical) {
 				iclr = COL_BLUE;
 			}
 
-			if (!storehold[idx]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				iclr = COL_RED;
 			}
 
-			if (storehold[idx]._iMagical && storehold[idx]._iIdentified) {
-				AddSText(20, l, FALSE, storehold[idx]._iIName, iclr, TRUE);
-				AddSTextVal(l, storehold[idx]._iIvalue);
+			if (is->_iMagical && is->_iIdentified) {
+				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
+				AddSTextVal(l, is->_iIvalue);
 			} else {
-				AddSText(20, l, FALSE, storehold[idx]._iName, iclr, TRUE);
-				AddSTextVal(l, storehold[idx]._ivalue);
+				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
+				AddSTextVal(l, is->_ivalue);
 			}
 
-			PrintStoreItem(&storehold[idx], l + 1, iclr);
+			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 		}
 		idx++;
@@ -643,6 +647,8 @@ void S_ScrollSSell(int idx)
 
 void S_StartSSell()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 	BOOL sellok;
 
@@ -653,14 +659,16 @@ void S_StartSSell()
 	for (i = 0; i < 48; i++)
 		storehold[i]._itype = ITYPE_NONE;
 
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
+	p = &plr[myplr];
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
 		if (SmithSellOk(i)) {
 			sellok = TRUE;
-			storehold[storenumh] = plr[myplr].InvList[i];
+			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
 				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
@@ -674,11 +682,12 @@ void S_StartSSell()
 	}
 #ifdef HELLFIRE
 
-	for (i = 0; i < MAXBELTITEMS; i++) {
+	pi = p->SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (storenumh >= 48)
 			break;
 		if (SmithSellOk(-(i + 1))) {
-			storehold[storenumh] = plr[myplr].SpdList[i];
+			storehold[storenumh] = *pi;
 			sellok = TRUE;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -733,6 +742,8 @@ BOOL SmithRepairOk(int i)
 
 void S_StartSRepair()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	BOOL repairok;
 	int i;
 
@@ -741,30 +752,36 @@ void S_StartSRepair()
 	storenumh = 0;
 	for (i = 0; i < 48; i++)
 		storehold[i]._itype = ITYPE_NONE;
-	if (plr[myplr].InvBody[INVLOC_HEAD]._itype != ITYPE_NONE && plr[myplr].InvBody[INVLOC_HEAD]._iDurability != plr[myplr].InvBody[INVLOC_HEAD]._iMaxDur) {
+	p = &plr[myplr];
+	pi = &p->InvBody[INVLOC_HEAD];
+	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
 		repairok = TRUE;
-		AddStoreHoldRepair(plr[myplr].InvBody, -1);
+		AddStoreHoldRepair(p->InvBody, -1);
 	}
-	if (plr[myplr].InvBody[INVLOC_CHEST]._itype != ITYPE_NONE && plr[myplr].InvBody[INVLOC_CHEST]._iDurability != plr[myplr].InvBody[INVLOC_CHEST]._iMaxDur) {
+	pi = &p->InvBody[INVLOC_CHEST];
+	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
 		repairok = TRUE;
-		AddStoreHoldRepair(&plr[myplr].InvBody[INVLOC_CHEST], -2);
+		AddStoreHoldRepair(pi, -2);
 	}
-	if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE && plr[myplr].InvBody[INVLOC_HAND_LEFT]._iDurability != plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMaxDur) {
+	pi = &p->InvBody[INVLOC_HAND_LEFT];
+	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
 		repairok = TRUE;
-		AddStoreHoldRepair(&plr[myplr].InvBody[INVLOC_HAND_LEFT], -3);
+		AddStoreHoldRepair(pi, -3);
 	}
-	if (plr[myplr].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE && plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iDurability != plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iMaxDur) {
+	pi = &p->InvBody[INVLOC_HAND_RIGHT];
+	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
 		repairok = TRUE;
-		AddStoreHoldRepair(&plr[myplr].InvBody[INVLOC_HAND_RIGHT], -4);
+		AddStoreHoldRepair(pi, -4);
 	}
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
 		if (SmithRepairOk(i)) {
 			repairok = TRUE;
-			AddStoreHoldRepair(&plr[myplr].InvList[i], i);
+			AddStoreHoldRepair(pi, i);
 		}
 	}
 	if (!repairok) {
@@ -830,34 +847,35 @@ void S_StartWitch()
 
 void S_ScrollWBuy(int idx)
 {
-	int l, ls;
+	ItemStruct *is;
+	int l;
 	char iclr;
 
-	ls = idx;
 	ClearSText(5, 21);
 	stextup = 5;
 
+	is = &witchitem[idx];
 	for (l = 5; l < 20; l += 4) {
-		if (witchitem[ls]._itype != ITYPE_NONE) {
+		if (is->_itype != ITYPE_NONE) {
 			iclr = COL_WHITE;
-			if (witchitem[ls]._iMagical) {
+			if (is->_iMagical) {
 				iclr = COL_BLUE;
 			}
 
-			if (!witchitem[ls]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				iclr = COL_RED;
 			}
 
-			if (witchitem[ls]._iMagical) {
-				AddSText(20, l, FALSE, witchitem[ls]._iIName, iclr, TRUE);
+			if (is->_iMagical) {
+				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			} else {
-				AddSText(20, l, FALSE, witchitem[ls]._iName, iclr, TRUE);
+				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
 			}
 
-			AddSTextVal(l, witchitem[ls]._iIvalue);
-			PrintStoreItem(&witchitem[ls], l + 1, iclr);
+			AddSTextVal(l, is->_iIvalue);
+			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
-			ls++;
+			is++;
 		}
 	}
 
@@ -915,6 +933,8 @@ BOOL WitchSellOk(int i)
 
 void S_StartWSell()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 	BOOL sellok;
 
@@ -925,14 +945,16 @@ void S_StartWSell()
 	for (i = 0; i < 48; i++)
 		storehold[i]._itype = ITYPE_NONE;
 
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
+	p = &plr[myplr];
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
 		if (WitchSellOk(i)) {
 			sellok = TRUE;
-			storehold[storenumh] = plr[myplr].InvList[i];
+			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
 				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
@@ -945,14 +967,15 @@ void S_StartWSell()
 		}
 	}
 
-	for (i = 0; i < MAXBELTITEMS; i++) {
+	pi = p->SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
-		if (plr[myplr].SpdList[i]._itype != ITYPE_NONE && WitchSellOk(-(i + 1))) {
+		if (pi->_itype != ITYPE_NONE && WitchSellOk(-(i + 1))) {
 			sellok = TRUE;
-			storehold[storenumh] = plr[myplr].SpdList[i];
+			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
 				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
@@ -1011,6 +1034,8 @@ void AddStoreHoldRecharge(ItemStruct is, int i)
 
 void S_StartWRecharge()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 	BOOL rechargeok;
 
@@ -1022,24 +1047,27 @@ void S_StartWRecharge()
 		storehold[i]._itype = ITYPE_NONE;
 	}
 
+	p = &plr[myplr];
+	pi = &p->InvBody[INVLOC_HAND_LEFT];
 #ifdef HELLFIRE
-	if ((plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_STAFF || plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_UNIQUE)
+	if ((pi->_itype == ITYPE_STAFF || pi->_iMiscId == IMISC_UNIQUE)
 #else
-	if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_STAFF
+	if (pi->_itype == ITYPE_STAFF
 #endif
-	    && plr[myplr].InvBody[INVLOC_HAND_LEFT]._iCharges != plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMaxCharges) {
+	    && pi->_iCharges != pi->_iMaxCharges) {
 		rechargeok = TRUE;
-		AddStoreHoldRecharge(plr[myplr].InvBody[INVLOC_HAND_LEFT], -1);
+		AddStoreHoldRecharge(*pi, -1);
 	}
 
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
 		if (WitchRechargeOk(i)) {
 			rechargeok = TRUE;
-			AddStoreHoldRecharge(plr[myplr].InvList[i], i);
+			AddStoreHoldRecharge(*pi, i);
 		}
 	}
 
@@ -1228,23 +1256,25 @@ void S_StartHealer()
 
 void S_ScrollHBuy(int idx)
 {
+	ItemStruct* is;
 	int l;
 	char iclr;
 
 	ClearSText(5, 21);
 	stextup = 5;
+	is = &healitem[idx];
 	for (l = 5; l < 20; l += 4) {
-		if (healitem[idx]._itype != ITYPE_NONE) {
+		if (is->_itype != ITYPE_NONE) {
 			iclr = COL_WHITE;
-			if (!healitem[idx]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				iclr = COL_RED;
 			}
 
-			AddSText(20, l, FALSE, healitem[idx]._iName, iclr, TRUE);
-			AddSTextVal(l, healitem[idx]._iIvalue);
-			PrintStoreItem(&healitem[idx], l + 1, iclr);
+			AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
+			AddSTextVal(l, is->_iIvalue);
+			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
-			idx++;
+			is++;
 		}
 	}
 
@@ -1310,6 +1340,8 @@ void AddStoreHoldId(ItemStruct is, int i)
 
 void S_StartSIdentify()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	BOOL idok;
 	int i;
 
@@ -1319,44 +1351,51 @@ void S_StartSIdentify()
 
 	for (i = 0; i < 48; i++)
 		storehold[i]._itype = ITYPE_NONE;
-
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_HEAD])) {
+	p = &plr[myplr];
+	pi = &p->InvBody[INVLOC_HEAD];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_HEAD], -1);
+		AddStoreHoldId(*pi, -1);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_CHEST])) {
+	pi = &p->InvBody[INVLOC_CHEST];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_CHEST], -2);
+		AddStoreHoldId(*pi, -2);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_HAND_LEFT])) {
+	pi = &p->InvBody[INVLOC_HAND_LEFT];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_HAND_LEFT], -3);
+		AddStoreHoldId(*pi, -3);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_HAND_RIGHT])) {
+	pi = &p->InvBody[INVLOC_HAND_RIGHT];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_HAND_RIGHT], -4);
+		AddStoreHoldId(*pi, -4);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_RING_LEFT])) {
+	pi = &p->InvBody[INVLOC_RING_LEFT];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_RING_LEFT], -5);
+		AddStoreHoldId(*pi, -5);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_RING_RIGHT])) {
+	pi = &p->InvBody[INVLOC_RING_RIGHT];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_RING_RIGHT], -6);
+		AddStoreHoldId(*pi, -6);
 	}
-	if (IdItemOk(&plr[myplr].InvBody[INVLOC_AMULET])) {
+	pi = &p->InvBody[INVLOC_AMULET];
+	if (IdItemOk(pi)) {
 		idok = TRUE;
-		AddStoreHoldId(plr[myplr].InvBody[INVLOC_AMULET], -7);
+		AddStoreHoldId(*pi, -7);
 	}
-
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
 #ifdef HELLFIRE
 		if (storenumh >= 48)
 			break;
 #endif
-		if (IdItemOk(&plr[myplr].InvList[i])) {
+		if (IdItemOk(pi)) {
 			idok = TRUE;
-			AddStoreHoldId(plr[myplr].InvList[i], i);
+			AddStoreHoldId(*pi, i);
 		}
 	}
 
@@ -1371,7 +1410,7 @@ void S_StartSIdentify()
 	} else {
 		stextscrl = TRUE;
 		stextsval = 0;
-		stextsmax = plr[myplr]._pNumInv;
+		stextsmax = p->_pNumInv;
 		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
@@ -1858,17 +1897,21 @@ void SetSpdbarGoldCurs(int pnum, int i)
 
 void TakePlrsMoney(int cost)
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 
-	plr[myplr]._pGold = CalculateGold(myplr) - cost;
+	p = &plr[myplr];
+	p->_pGold = CalculateGold(myplr) - cost;
 	for (i = 0; i < MAXBELTITEMS && cost > 0; i++) {
-		if (plr[myplr].SpdList[i]._itype == ITYPE_GOLD && plr[myplr].SpdList[i]._ivalue != GOLD_MAX_LIMIT) {
-			if (cost < plr[myplr].SpdList[i]._ivalue) {
-				plr[myplr].SpdList[i]._ivalue -= cost;
+		pi = &p->SpdList[i];
+		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
+			if (cost < pi->_ivalue) {
+				pi->_ivalue -= cost;
 				SetSpdbarGoldCurs(myplr, i);
 				cost = 0;
 			} else {
-				cost -= plr[myplr].SpdList[i]._ivalue;
+				cost -= pi->_ivalue;
 				RemoveSpdBarItem(myplr, i);
 				i = -1;
 			}
@@ -1876,13 +1919,14 @@ void TakePlrsMoney(int cost)
 	}
 	if (cost > 0) {
 		for (i = 0; i < MAXBELTITEMS && cost > 0; i++) {
-			if (plr[myplr].SpdList[i]._itype == ITYPE_GOLD) {
-				if (cost < plr[myplr].SpdList[i]._ivalue) {
-					plr[myplr].SpdList[i]._ivalue -= cost;
+			pi = &p->SpdList[i];
+			if (pi->_itype == ITYPE_GOLD) {
+				if (cost < pi->_ivalue) {
+					pi->_ivalue -= cost;
 					SetSpdbarGoldCurs(myplr, i);
 					cost = 0;
 				} else {
-					cost -= plr[myplr].SpdList[i]._ivalue;
+					cost -= pi->_ivalue;
 					RemoveSpdBarItem(myplr, i);
 					i = -1;
 				}
@@ -1891,28 +1935,30 @@ void TakePlrsMoney(int cost)
 	}
 	force_redraw = 255;
 	if (cost > 0) {
-		for (i = 0; i < plr[myplr]._pNumInv && cost > 0; i++) {
-			if (plr[myplr].InvList[i]._itype == ITYPE_GOLD && plr[myplr].InvList[i]._ivalue != GOLD_MAX_LIMIT) {
-				if (cost < plr[myplr].InvList[i]._ivalue) {
-					plr[myplr].InvList[i]._ivalue -= cost;
+		for (i = 0; i < p->_pNumInv && cost > 0; i++) {
+			pi = &p->InvList[i];
+			if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
+				if (cost < pi->_ivalue) {
+					pi->_ivalue -= cost;
 					SetGoldCurs(myplr, i);
 					cost = 0;
 				} else {
-					cost -= plr[myplr].InvList[i]._ivalue;
+					cost -= pi->_ivalue;
 					RemoveInvItem(myplr, i);
 					i = -1;
 				}
 			}
 		}
 		if (cost > 0) {
-			for (i = 0; i < plr[myplr]._pNumInv && cost > 0; i++) {
-				if (plr[myplr].InvList[i]._itype == ITYPE_GOLD) {
-					if (cost < plr[myplr].InvList[i]._ivalue) {
-						plr[myplr].InvList[i]._ivalue -= cost;
+			for (i = 0; i < p->_pNumInv && cost > 0; i++) {
+				pi = &p->InvList[i];
+				if (pi->_itype == ITYPE_GOLD) {
+					if (cost < pi->_ivalue) {
+						pi->_ivalue -= cost;
 						SetGoldCurs(myplr, i);
 						cost = 0;
 					} else {
-						cost -= plr[myplr].InvList[i]._ivalue;
+						cost -= pi->_ivalue;
 						RemoveInvItem(myplr, i);
 						i = -1;
 					}
@@ -2101,6 +2147,8 @@ void PlaceStoreGold(int v)
 
 void StoreSellItem()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i, idx, cost;
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
@@ -2117,16 +2165,18 @@ void StoreSellItem()
 			idx++;
 		}
 	}
-	plr[myplr]._pGold += cost;
-	for (i = 0; i < plr[myplr]._pNumInv && cost > 0; i++) {
-		if (plr[myplr].InvList[i]._itype == ITYPE_GOLD && plr[myplr].InvList[i]._ivalue != GOLD_MAX_LIMIT) {
-			if (cost + plr[myplr].InvList[i]._ivalue <= GOLD_MAX_LIMIT) {
-				plr[myplr].InvList[i]._ivalue += cost;
+	p = &plr[myplr];
+	p->_pGold += cost;
+	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
+		pi = &p->InvList[i];
+		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
+			if (cost + pi->_ivalue <= GOLD_MAX_LIMIT) {
+				pi->_ivalue += cost;
 				SetGoldCurs(myplr, i);
 				cost = 0;
 			} else {
-				cost -= GOLD_MAX_LIMIT - plr[myplr].InvList[i]._ivalue;
-				plr[myplr].InvList[i]._ivalue = GOLD_MAX_LIMIT;
+				cost -= GOLD_MAX_LIMIT - pi->_ivalue;
+				pi->_ivalue = GOLD_MAX_LIMIT;
 				SetGoldCurs(myplr, i);
 			}
 		}

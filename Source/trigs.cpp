@@ -905,15 +905,17 @@ void CheckTrigForce()
 
 void CheckTriggers()
 {
+	PlayerStruct *p;
 	int x, y, i;
 	BOOL abort;
 	char abortflag;
 
-	if (plr[myplr]._pmode != PM_STAND)
+	p = &plr[myplr];
+	if (p->_pmode != PM_STAND)
 		return;
 
 	for (i = 0; i < numtrigs; i++) {
-		if (plr[myplr]._px != trigs[i]._tx || plr[myplr]._py != trigs[i]._ty) {
+		if (p->_px != trigs[i]._tx || p->_py != trigs[i]._ty) {
 			continue;
 		}
 
@@ -921,7 +923,7 @@ void CheckTriggers()
 		case WM_DIABNEXTLVL:
 #ifdef SPAWN
 			if (currlevel >= 2) {
-				NetSendCmdLoc(TRUE, CMD_WALKXY, plr[myplr]._px, plr[myplr]._py + 1);
+				NetSendCmdLoc(TRUE, CMD_WALKXY, p->_px, p->_py + 1);
 				PlaySFX(PS_WARR18);
 				InitDiabloMsg(EMSG_NOT_IN_SHAREWARE);
 			} else {
@@ -945,45 +947,45 @@ void CheckTriggers()
 			if (gbMaxPlayers != 1) {
 				abort = FALSE;
 
-				if (trigs[i]._tlvl == 5 && plr[myplr]._pLevel < 8) {
+				if (trigs[i]._tlvl == 5 && p->_pLevel < 8) {
 					abort = TRUE;
-					x = plr[myplr]._px;
-					y = plr[myplr]._py + 1;
+					x = p->_px;
+					y = p->_py + 1;
 					abortflag = EMSG_REQUIRES_LVL_8;
 				}
 
-				if (trigs[i]._tlvl == 9 && plr[myplr]._pLevel < 13) {
+				if (trigs[i]._tlvl == 9 && p->_pLevel < 13) {
 					abort = TRUE;
-					x = plr[myplr]._px + 1;
-					y = plr[myplr]._py;
+					x = p->_px + 1;
+					y = p->_py;
 					abortflag = EMSG_REQUIRES_LVL_13;
 				}
 
-				if (trigs[i]._tlvl == 13 && plr[myplr]._pLevel < 17) {
+				if (trigs[i]._tlvl == 13 && p->_pLevel < 17) {
 					abort = TRUE;
-					x = plr[myplr]._px;
-					y = plr[myplr]._py + 1;
+					x = p->_px;
+					y = p->_py + 1;
 					abortflag = EMSG_REQUIRES_LVL_17;
 				}
 
 				if (abort) {
-					if (plr[myplr]._pClass == PC_WARRIOR) {
+					if (p->_pClass == PC_WARRIOR) {
 						PlaySFX(PS_WARR43);
 #ifndef SPAWN
-					} else if (plr[myplr]._pClass == PC_ROGUE) {
+					} else if (p->_pClass == PC_ROGUE) {
 						PlaySFX(PS_ROGUE43);
-					} else if (plr[myplr]._pClass == PC_SORCERER) {
+					} else if (p->_pClass == PC_SORCERER) {
 						PlaySFX(PS_MAGE43);
 #endif
 					}
 #ifdef HELLFIRE
-					else if (plr[myplr]._pClass == PC_MONK) {
+					else if (p->_pClass == PC_MONK) {
 						PlaySFX(PS_MONK43);
 #ifndef SPAWN
-					} else if (plr[myplr]._pClass == PC_BARD) {
+					} else if (p->_pClass == PC_BARD) {
 						PlaySFX(PS_ROGUE43);
 #endif
-					} else if (plr[myplr]._pClass == PC_BARBARIAN) {
+					} else if (p->_pClass == PC_BARBARIAN) {
 						PlaySFX(PS_WARR43);
 					}
 #endif

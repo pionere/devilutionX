@@ -14,7 +14,9 @@ int stonendx;
 
 void InitDead()
 {
-	int i, d, nd, mi;
+	MonsterStruct *mon;
+	CMonster *cmon;
+	int i, d, nd;
 	int mtypes[MAXMONSTERS];
 
 	for (i = 0; i < MAXMONSTERS; i++)
@@ -22,16 +24,17 @@ void InitDead()
 
 	nd = 0;
 
-	for (i = 0; i < nummtypes; i++) {
-		if (mtypes[Monsters[i].mtype] == 0) {
+	cmon = Monsters;
+	for (i = nummtypes; i > 0; i--, cmon++) {
+		if (mtypes[cmon->mtype] == 0) {
 			for (d = 0; d < 8; d++)
-				dead[nd]._deadData[d] = Monsters[i].Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = Monsters[i].Anims[MA_DEATH].Frames;
-			dead[nd]._deadWidth = Monsters[i].width;
-			dead[nd]._deadWidth2 = Monsters[i].width2;
+				dead[nd]._deadData[d] = cmon->Anims[MA_DEATH].Data[d];
+			dead[nd]._deadFrame = cmon->Anims[MA_DEATH].Frames;
+			dead[nd]._deadWidth = cmon->width;
+			dead[nd]._deadWidth2 = cmon->width2;
 			dead[nd]._deadtrans = 0;
-			Monsters[i].mdeadval = nd + 1;
-			mtypes[Monsters[i].mtype] = nd + 1;
+			cmon->mdeadval = nd + 1;
+			mtypes[cmon->mtype] = nd + 1;
 			nd++;
 		}
 	}
@@ -55,15 +58,15 @@ void InitDead()
 	nd++;
 
 	for (i = 0; i < nummonsters; i++) {
-		mi = monstactive[i];
-		if (monster[mi]._uniqtype != 0) {
+		mon = &monster[monstactive[i]];
+		if (mon->_uniqtype != 0) {
 			for (d = 0; d < 8; d++)
-				dead[nd]._deadData[d] = monster[mi].MType->Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = monster[mi].MType->Anims[MA_DEATH].Frames;
-			dead[nd]._deadWidth = monster[mi].MType->width;
-			dead[nd]._deadWidth2 = monster[mi].MType->width2;
-			dead[nd]._deadtrans = monster[mi]._uniqtrans + 4;
-			monster[mi]._udeadval = nd + 1;
+				dead[nd]._deadData[d] = mon->MType->Anims[MA_DEATH].Data[d];
+			dead[nd]._deadFrame = mon->MType->Anims[MA_DEATH].Frames;
+			dead[nd]._deadWidth = mon->MType->width;
+			dead[nd]._deadWidth2 = mon->MType->width2;
+			dead[nd]._deadtrans = mon->_uniqtrans + 4;
+			mon->_udeadval = nd + 1;
 			nd++;
 		}
 	}

@@ -310,6 +310,7 @@ void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
  */
 static void DrawMonster(int x, int y, int mx, int my, int mnum)
 {
+	MonsterStruct *mon;
 	int nCel, frames;
 	char trans;
 	BYTE *pCelBuff;
@@ -318,25 +319,25 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 		// app_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 		return;
 	}
-
-	pCelBuff = monster[mnum]._mAnimData;
+	mon = &monster[mnum];
+	pCelBuff = mon->_mAnimData;
 	if (!pCelBuff) {
-		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", monster[mnum].mName);
+		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
 		return;
 	}
 
-	nCel = monster[mnum]._mAnimFrame;
+	nCel = mon->_mAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		/*
 		const char *szMode = "unknown action";
-		if(monster[mnum]._mmode <= 17)
-			szMode = szMonModeAssert[monster[mnum]._mmode];
+		if(mon->_mmode <= 17)
+			szMode = szMonModeAssert[mon->_mmode];
 		app_fatal(
 			"Draw Monster \"%s\" %s: facing %d, frame %d of %d",
-			monster[mnum].mName,
+			mon->mName,
 			szMode,
-			monster[mnum]._mdir,
+			mon->_mdir,
 			nCel,
 			frames);
 		*/
@@ -344,19 +345,19 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, monster[mnum]._mAnimData, monster[mnum]._mAnimFrame, monster[mnum].MType->width, 1);
+		Cl2DrawLightTbl(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width, 1);
 	} else {
 		trans = 0;
-		if (monster[mnum]._uniqtype)
-			trans = monster[mnum]._uniqtrans + 4;
-		if (monster[mnum]._mmode == MM_STONE)
+		if (mon->_uniqtype)
+			trans = mon->_uniqtrans + 4;
+		if (mon->_mmode == MM_STONE)
 			trans = 2;
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
 		if (trans)
-			Cl2DrawLightTbl(mx, my, monster[mnum]._mAnimData, monster[mnum]._mAnimFrame, monster[mnum].MType->width, trans);
+			Cl2DrawLightTbl(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width, trans);
 		else
-			Cl2DrawLight(mx, my, monster[mnum]._mAnimData, monster[mnum]._mAnimFrame, monster[mnum].MType->width);
+			Cl2DrawLight(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width);
 	}
 }
 
@@ -486,6 +487,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  */
 static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 {
+	ObjectStruct *os;
 	int sx, sy, xx, yy, nCel, frames;
 	char oi;
 	BYTE *pCelBuff;
@@ -495,41 +497,43 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 
 	if (dObject[x][y] > 0) {
 		oi = dObject[x][y] - 1;
-		if (object[oi]._oPreFlag != pre)
+		os = &object[oi];
+		if (os->_oPreFlag != pre)
 			return;
-		sx = ox - object[oi]._oAnimWidth2;
+		sx = ox - os->_oAnimWidth2;
 		sy = oy;
 	} else {
 		oi = -(dObject[x][y] + 1);
-		if (object[oi]._oPreFlag != pre)
+		os = &object[oi];
+		if (os->_oPreFlag != pre)
 			return;
-		xx = object[oi]._ox - x;
-		yy = object[oi]._oy - y;
-		sx = (xx << 5) + ox - object[oi]._oAnimWidth2 - (yy << 5);
+		xx = os->_ox - x;
+		yy = os->_oy - y;
+		sx = (xx << 5) + ox - os->_oAnimWidth2 - (yy << 5);
 		sy = oy + (yy << 4) + (xx << 4);
 	}
 
 	assert((unsigned char)oi < MAXOBJECTS);
 
-	pCelBuff = object[oi]._oAnimData;
+	pCelBuff = os->_oAnimData;
 	if (!pCelBuff) {
-		// app_fatal("Draw Object type %d: NULL Cel Buffer", object[oi]._otype);
+		// app_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 		return;
 	}
 
-	nCel = object[oi]._oAnimFrame;
+	nCel = os->_oAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > (int)frames) {
-		// app_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, object[oi]._otype);
+		// app_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
 		return;
 	}
 
 	if (oi == pcursobj)
-		CelBlitOutline(194, sx, sy, object[oi]._oAnimData, object[oi]._oAnimFrame, object[oi]._oAnimWidth);
-	if (object[oi]._oLight) {
-		CelClippedDrawLight(sx, sy, object[oi]._oAnimData, object[oi]._oAnimFrame, object[oi]._oAnimWidth);
+		CelBlitOutline(194, sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
+	if (os->_oLight) {
+		CelClippedDrawLight(sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
 	} else {
-		CelClippedDraw(sx, sy, object[oi]._oAnimData, object[oi]._oAnimFrame, object[oi]._oAnimWidth);
+		CelClippedDraw(sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
 	}
 }
 
@@ -633,17 +637,19 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 {
 	int mnum, px, py;
 	MonsterStruct *mon;
+	TownerStruct *tw;
 
 	mnum = dMonster[x][y + oy];
 	mnum = mnum > 0 ? mnum - 1 : -(mnum + 1);
 
 	if (leveltype == DTYPE_TOWN) {
-		px = sx - towner[mnum]._tAnimWidth2;
+		tw = &towner[mnum];
+		px = sx - tw->_tAnimWidth2;
 		if (mnum == pcursmonst) {
-			CelBlitOutline(166, px, sy, towner[mnum]._tAnimData, towner[mnum]._tAnimFrame, towner[mnum]._tAnimWidth);
+			CelBlitOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		}
-		assert(towner[mnum]._tAnimData);
-		CelClippedDraw(px, sy, towner[mnum]._tAnimData, towner[mnum]._tAnimFrame, towner[mnum]._tAnimWidth);
+		assert(tw->_tAnimData);
+		CelClippedDraw(px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		return;
 	}
 

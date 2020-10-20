@@ -229,15 +229,16 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 
 void sync_monster(int pnum, const TSyncMonster *symon)
 {
+	MonsterStruct *mon;
 	int i, mnum, md, mdx, mdy;
 	DWORD delta;
 
 	mnum = symon->_mndx;
-
+	mon = &monster[mnum];
 #ifdef HELLFIRE
-	if (monster[mnum]._mhitpoints <= 0) {
+	if (mon->_mhitpoints <= 0) {
 #else
-	if (monster[mnum]._mhitpoints == 0) {
+	if (mon->_mhitpoints == 0) {
 #endif
 		return;
 	}
@@ -248,7 +249,7 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 		}
 	}
 
-	delta = abs(plr[myplr]._px - monster[mnum]._mx) + abs(plr[myplr]._py - monster[mnum]._my);
+	delta = abs(plr[myplr]._px - mon->_mx) + abs(plr[myplr]._py - mon->_my);
 	if (delta > 255) {
 		delta = 255;
 	}
@@ -256,34 +257,34 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 	if (delta < symon->_mdelta || (delta == symon->_mdelta && pnum > myplr)) {
 		return;
 	}
-	if (monster[mnum]._mfutx == symon->_mx && monster[mnum]._mfuty == symon->_my) {
+	if (mon->_mfutx == symon->_mx && mon->_mfuty == symon->_my) {
 		return;
 	}
-	if (monster[mnum]._mmode == MM_CHARGE || monster[mnum]._mmode == MM_STONE) {
+	if (mon->_mmode == MM_CHARGE || mon->_mmode == MM_STONE) {
 		return;
 	}
 
-	mdx = abs(monster[mnum]._mx - symon->_mx);
-	mdy = abs(monster[mnum]._my - symon->_my);
+	mdx = abs(mon->_mx - symon->_mx);
+	mdy = abs(mon->_my - symon->_my);
 	if (mdx <= 2 && mdy <= 2) {
-		if (monster[mnum]._mmode < MM_WALK || monster[mnum]._mmode > MM_WALK3) {
-			md = GetDirection(monster[mnum]._mx, monster[mnum]._my, symon->_mx, symon->_my);
+		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK3) {
+			md = GetDirection(mon->_mx, mon->_my, symon->_mx, symon->_my);
 			if (DirOK(mnum, md)) {
 				MonClearSquares(mnum);
-				dMonster[monster[mnum]._mx][monster[mnum]._my] = mnum + 1;
+				dMonster[mon->_mx][mon->_my] = mnum + 1;
 				MonWalkDir(mnum, md);
-				monster[mnum]._msquelch = UCHAR_MAX;
+				mon->_msquelch = UCHAR_MAX;
 			}
 		}
 	} else if (dMonster[symon->_mx][symon->_my] == 0) {
 		MonClearSquares(mnum);
 		dMonster[symon->_mx][symon->_my] = mnum + 1;
-		monster[mnum]._mx = symon->_mx;
-		monster[mnum]._my = symon->_my;
+		mon->_mx = symon->_mx;
+		mon->_my = symon->_my;
 		decode_enemy(mnum, symon->_menemy);
-		md = GetDirection(symon->_mx, symon->_my, monster[mnum]._menemyx, monster[mnum]._menemyy);
+		md = GetDirection(symon->_mx, symon->_my, mon->_menemyx, mon->_menemyy);
 		MonStartStand(mnum, md);
-		monster[mnum]._msquelch = UCHAR_MAX;
+		mon->_msquelch = UCHAR_MAX;
 	}
 
 	decode_enemy(mnum, symon->_menemy);

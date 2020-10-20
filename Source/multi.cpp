@@ -778,6 +778,7 @@ int InitLevelType(int l)
 
 void SetupLocalCoords()
 {
+	PlayerStruct *p;
 	int x, y;
 
 	if (!leveldebug || gbMaxPlayers > 1) {
@@ -795,17 +796,18 @@ void SetupLocalCoords()
 #endif
 	x += plrxoff[myplr];
 	y += plryoff[myplr];
-	plr[myplr]._px = x;
-	plr[myplr]._py = y;
-	plr[myplr]._pfutx = x;
-	plr[myplr]._pfuty = y;
-	plr[myplr]._ptargx = x;
-	plr[myplr]._ptargy = y;
-	plr[myplr].plrlevel = currlevel;
-	plr[myplr]._pLvlChanging = TRUE;
-	plr[myplr].pLvlLoad = 0;
-	plr[myplr]._pmode = PM_NEWLVL;
-	plr[myplr].destAction = ACTION_NONE;
+	p = &plr[myplr];
+	p->_px = x;
+	p->_py = y;
+	p->_pfutx = x;
+	p->_pfuty = y;
+	p->_ptargx = x;
+	p->_ptargy = y;
+	p->plrlevel = currlevel;
+	p->_pLvlChanging = TRUE;
+	p->pLvlLoad = 0;
+	p->_pmode = PM_NEWLVL;
+	p->destAction = ACTION_NONE;
 }
 
 BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info)

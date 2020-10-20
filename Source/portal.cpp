@@ -107,17 +107,19 @@ BOOL PortalOnLevel(int i)
 
 void RemovePortalMissile(int pnum)
 {
+	MissileStruct *mis;
 	int i;
 	int mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
-		if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == pnum) {
-			dFlags[missile[mi]._mix][missile[mi]._miy] &= ~BFLAG_MISSILE;
-			dMissile[missile[mi]._mix][missile[mi]._miy] = 0;
+		mis = &missile[mi];
+		if (mis->_mitype == MIS_TOWN && mis->_misource == pnum) {
+			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
+			dMissile[mis->_mix][mis->_miy] = 0;
 
 			if (portal[pnum].level != 0)
-				AddUnLight(missile[mi]._mlid);
+				AddUnLight(mis->_mlid);
 
 			DeleteMissile(mi, i);
 		}
@@ -174,10 +176,12 @@ void GetPortalLvlPos()
 
 BOOL PosOkPortal(int lvl, int x, int y)
 {
+	PortalStruct *ps;
 	int i;
 
-	for (i = 0; i < MAXPORTAL; i++) {
-		if (portal[i].open && portal[i].level == lvl && ((portal[i].x == x && portal[i].y == y) || (portal[i].x == x - 1 && portal[i].y == y - 1)))
+	ps = portal;
+	for (i = MAXPORTAL; i != 0; i--, ps++) {
+		if (ps->open && ps->level == lvl && ((ps->x == x && ps->y == y) || (ps->x == x - 1 && ps->y == y - 1)))
 			return TRUE;
 	}
 	return FALSE;

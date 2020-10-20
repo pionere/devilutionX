@@ -855,6 +855,7 @@ void drlg_l1_crypt_lavafloor()
 
 static void DRLG_L1Shadows()
 {
+	const ShadowStruct *ss;
 	int x, y, i;
 	BYTE sd[2][2];
 	BYTE tnv3;
@@ -867,22 +868,23 @@ static void DRLG_L1Shadows()
 			sd[0][1] = BSTYPES[dungeon[x][y - 1]];
 			sd[1][1] = BSTYPES[dungeon[x - 1][y - 1]];
 
-			for (i = 0; i < 37; i++) {
-				if (SPATS[i].strig == sd[0][0]) {
+			ss = SPATS;
+			for (i = 0; i < 37; i++, ss++) {
+				if (ss->strig == sd[0][0]) {
 					patflag = TRUE;
-					if (SPATS[i].s1 && SPATS[i].s1 != sd[1][1])
+					if (ss->s1 && ss->s1 != sd[1][1])
 						patflag = FALSE;
-					if (SPATS[i].s2 && SPATS[i].s2 != sd[0][1])
+					if (ss->s2 && ss->s2 != sd[0][1])
 						patflag = FALSE;
-					if (SPATS[i].s3 && SPATS[i].s3 != sd[1][0])
+					if (ss->s3 && ss->s3 != sd[1][0])
 						patflag = FALSE;
 					if (patflag == TRUE) {
-						if (SPATS[i].nv1 && !L5dflags[x - 1][y - 1])
-							dungeon[x - 1][y - 1] = SPATS[i].nv1;
-						if (SPATS[i].nv2 && !L5dflags[x][y - 1])
-							dungeon[x][y - 1] = SPATS[i].nv2;
-						if (SPATS[i].nv3 && !L5dflags[x - 1][y])
-							dungeon[x - 1][y] = SPATS[i].nv3;
+						if (ss->nv1 && !L5dflags[x - 1][y - 1])
+							dungeon[x - 1][y - 1] = ss->nv1;
+						if (ss->nv2 && !L5dflags[x][y - 1])
+							dungeon[x][y - 1] = ss->nv2;
+						if (ss->nv3 && !L5dflags[x - 1][y])
+							dungeon[x - 1][y] = ss->nv3;
 					}
 				}
 			}

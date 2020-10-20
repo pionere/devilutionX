@@ -463,6 +463,10 @@ void DeltaSaveLevel()
 
 void DeltaLoadLevel()
 {
+	DMonsterStr *mstr;
+	DObjectStr *dstr;
+	MonsterStruct *mon;
+	TCmdPItem* itm;
 	int ii, ot;
 	int i, j, k, l;
 	int x, y, xx, yy;
@@ -474,94 +478,97 @@ void DeltaLoadLevel()
 
 	deltaload = TRUE;
 	if (currlevel != 0) {
-		for (i = 0; i < nummonsters; i++) {
-			if (sgLevels[currlevel].monster[i]._mx != 0xFF) {
+		mstr = sgLevels[currlevel].monster;
+		for (i = 0; i < nummonsters; i++, mstr++) {
+			if (mstr->_mx != 0xFF) {
 				MonClearSquares(i);
-				x = sgLevels[currlevel].monster[i]._mx;
-				y = sgLevels[currlevel].monster[i]._my;
-				monster[i]._mx = x;
-				monster[i]._my = y;
-				monster[i]._moldx = x;
-				monster[i]._moldy = y;
-				monster[i]._mfutx = x;
-				monster[i]._mfuty = y;
-				if (sgLevels[currlevel].monster[i]._mhitpoints != -1)
-					monster[i]._mhitpoints = sgLevels[currlevel].monster[i]._mhitpoints;
-				if (!sgLevels[currlevel].monster[i]._mhitpoints) {
-					monster[i]._moldx = x;
-					monster[i]._moldy = y;
+				x = mstr->_mx;
+				y = mstr->_my;
+				mon = &monster[i];
+				mon->_mx = x;
+				mon->_my = y;
+				mon->_moldx = x;
+				mon->_moldy = y;
+				mon->_mfutx = x;
+				mon->_mfuty = y;
+				if (mstr->_mhitpoints != -1)
+					mon->_mhitpoints = mstr->_mhitpoints;
+				if (!mstr->_mhitpoints) {
+					mon->_moldx = x;
+					mon->_moldy = y;
 					MonClearSquares(i);
-					if (monster[i]._mAi != AI_DIABLO) {
-						if (!monster[i]._uniqtype)
-							/// ASSERT: assert(monster[i].MType != NULL);
-							AddDead(monster[i]._mx, monster[i]._my, monster[i].MType->mdeadval, (direction)monster[i]._mdir);
+					if (mon->_mAi != AI_DIABLO) {
+						if (!mon->_uniqtype)
+							/// ASSERT: assert(mon->MType != NULL);
+							AddDead(mon->_mx, mon->_my, mon->MType->mdeadval, (direction)mon->_mdir);
 						else
-							AddDead(monster[i]._mx, monster[i]._my, monster[i]._udeadval, (direction)monster[i]._mdir);
+							AddDead(mon->_mx, mon->_my, mon->_udeadval, (direction)mon->_mdir);
 					}
-					monster[i]._mDelFlag = TRUE;
+					mon->_mDelFlag = TRUE;
 					MonUpdateLeader(i);
 				} else {
-					decode_enemy(i, sgLevels[currlevel].monster[i]._menemy);
-					if (monster[i]._mx && monster[i]._mx != 1 || monster[i]._my)
-						dMonster[monster[i]._mx][monster[i]._my] = i + 1;
+					decode_enemy(i, mstr->_menemy);
+					if (mon->_mx && mon->_mx != 1 || mon->_my)
+						dMonster[mon->_mx][mon->_my] = i + 1;
 					if (i < MAX_PLRS) {
 						MAI_Golum(i);
-						monster[i]._mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
+						mon->_mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
 					} else {
-						MonStartStand(i, monster[i]._mdir);
+						MonStartStand(i, mon->_mdir);
 					}
-					monster[i]._msquelch = sgLevels[currlevel].monster[i]._mactive;
+					mon->_msquelch = mstr->_mactive;
 				}
 			}
 		}
 		memcpy(automapview, &sgLocals[currlevel], sizeof(automapview));
 	}
 
-	for (i = 0; i < MAXITEMS; i++) {
-		if (sgLevels[currlevel].item[i].bCmd != 0xFF) {
-			if (sgLevels[currlevel].item[i].bCmd == CMD_WALKXY) {
+	itm = sgLevels[currlevel].item;
+	for (i = 0; i < MAXITEMS; i++, itm++) {
+		if (itm->bCmd != 0xFF) {
+			if (itm->bCmd == CMD_WALKXY) {
 				ii = FindGetItem(
-					sgLevels[currlevel].item[i].wIndx,
-					sgLevels[currlevel].item[i].wCI,
-					sgLevels[currlevel].item[i].dwSeed);
+					itm->wIndx,
+					itm->wCI,
+					itm->dwSeed);
 				if (ii != -1) {
 					if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
 						dItem[item[ii]._ix][item[ii]._iy] = 0;
 					DeleteItem(ii, i);
 				}
 			}
-			if (sgLevels[currlevel].item[i].bCmd == CMD_ACK_PLRINFO) {
+			if (itm->bCmd == CMD_ACK_PLRINFO) {
 				ii = itemavail[0];
 				itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 				itemactive[numitems] = ii;
-				if (sgLevels[currlevel].item[i].wIndx == IDI_EAR) {
+				if (itm->wIndx == IDI_EAR) {
 					RecreateEar(
 						ii,
-						sgLevels[currlevel].item[i].wCI,
-						sgLevels[currlevel].item[i].dwSeed,
-						sgLevels[currlevel].item[i].bId,
-						sgLevels[currlevel].item[i].bDur,
-						sgLevels[currlevel].item[i].bMDur,
-						sgLevels[currlevel].item[i].bCh,
-						sgLevels[currlevel].item[i].bMCh,
-						sgLevels[currlevel].item[i].wValue,
-						sgLevels[currlevel].item[i].dwBuff);
+						itm->wCI,
+						itm->dwSeed,
+						itm->bId,
+						itm->bDur,
+						itm->bMDur,
+						itm->bCh,
+						itm->bMCh,
+						itm->wValue,
+						itm->dwBuff);
 				} else {
 					RecreateItem(
 						ii,
-						sgLevels[currlevel].item[i].wIndx,
-						sgLevels[currlevel].item[i].wCI,
-						sgLevels[currlevel].item[i].dwSeed,
-						sgLevels[currlevel].item[i].wValue);
-					if (sgLevels[currlevel].item[i].bId)
+						itm->wIndx,
+						itm->wCI,
+						itm->dwSeed,
+						itm->wValue);
+					if (itm->bId)
 						item[ii]._iIdentified = TRUE;
-					item[ii]._iDurability = sgLevels[currlevel].item[i].bDur;
-					item[ii]._iMaxDur = sgLevels[currlevel].item[i].bMDur;
-					item[ii]._iCharges = sgLevels[currlevel].item[i].bCh;
-					item[ii]._iMaxCharges = sgLevels[currlevel].item[i].bMCh;
+					item[ii]._iDurability = itm->bDur;
+					item[ii]._iMaxDur = itm->bMDur;
+					item[ii]._iCharges = itm->bCh;
+					item[ii]._iMaxCharges = itm->bMCh;
 				}
-				x = sgLevels[currlevel].item[i].x;
-				y = sgLevels[currlevel].item[i].y;
+				x = itm->x;
+				y = itm->y;
 				if (!CanPut(x, y)) {
 					done = FALSE;
 					for (k = 1; k < 50 && !done; k++) {
@@ -588,13 +595,14 @@ void DeltaLoadLevel()
 	}
 
 	if (currlevel != 0) {
-		for (i = 0; i < MAXOBJECTS; i++) {
-			switch (sgLevels[currlevel].object[i].bCmd) {
+		dstr = sgLevels[currlevel].object;
+		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
+			switch (dstr->bCmd) {
 			case CMD_OPENDOOR:
 			case CMD_CLOSEDOOR:
 			case CMD_OPERATEOBJ:
 			case CMD_PLROPOBJ:
-				SyncOpObject(-1, sgLevels[currlevel].object[i].bCmd, i);
+				SyncOpObject(-1, dstr->bCmd, i);
 				break;
 			case CMD_BREAKOBJ:
 				SyncBreakObj(-1, i);
@@ -750,6 +758,7 @@ void NetSendCmdQuest(BOOL bHiPri, BYTE q)
 
 void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 {
+	ItemStruct* is;
 	TCmdGItem cmd;
 
 	cmd.bCmd = bCmd;
@@ -758,29 +767,30 @@ void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 	cmd.bLevel = currlevel;
 	cmd.bCursitem = ii;
 	cmd.dwTime = 0;
-	cmd.x = item[ii]._ix;
-	cmd.y = item[ii]._iy;
-	cmd.wIndx = item[ii].IDidx;
+	is = &item[ii];
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
+	cmd.wIndx = is->IDidx;
 
-	if (item[ii].IDidx == IDI_EAR) {
-		cmd.wCI = item[ii]._iName[8] | (item[ii]._iName[7] << 8);
-		cmd.dwSeed = item[ii]._iName[12] | ((item[ii]._iName[11] | ((item[ii]._iName[10] | (item[ii]._iName[9] << 8)) << 8)) << 8);
-		cmd.bId = item[ii]._iName[13];
-		cmd.bDur = item[ii]._iName[14];
-		cmd.bMDur = item[ii]._iName[15];
-		cmd.bCh = item[ii]._iName[16];
-		cmd.bMCh = item[ii]._iName[17];
-		cmd.wValue = item[ii]._ivalue | (item[ii]._iName[18] << 8) | ((item[ii]._iCurs - ICURS_EAR_SORCEROR) << 6);
-		cmd.dwBuff = item[ii]._iName[22] | ((item[ii]._iName[21] | ((item[ii]._iName[20] | (item[ii]._iName[19] << 8)) << 8)) << 8);
+	if (is->IDidx == IDI_EAR) {
+		cmd.wCI = is->_iName[8] | (is->_iName[7] << 8);
+		cmd.dwSeed = is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8);
+		cmd.bId = is->_iName[13];
+		cmd.bDur = is->_iName[14];
+		cmd.bMDur = is->_iName[15];
+		cmd.bCh = is->_iName[16];
+		cmd.bMCh = is->_iName[17];
+		cmd.wValue = is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		cmd.dwBuff = is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8);
 	} else {
-		cmd.wCI = item[ii]._iCreateInfo;
-		cmd.dwSeed = item[ii]._iSeed;
-		cmd.bId = item[ii]._iIdentified;
-		cmd.bDur = item[ii]._iDurability;
-		cmd.bMDur = item[ii]._iMaxDur;
-		cmd.bCh = item[ii]._iCharges;
-		cmd.bMCh = item[ii]._iMaxCharges;
-		cmd.wValue = item[ii]._ivalue;
+		cmd.wCI = is->_iCreateInfo;
+		cmd.dwSeed = is->_iSeed;
+		cmd.bId = is->_iIdentified;
+		cmd.bDur = is->_iDurability;
+		cmd.bMDur = is->_iMaxDur;
+		cmd.bCh = is->_iCharges;
+		cmd.bMCh = is->_iMaxCharges;
+		cmd.wValue = is->_ivalue;
 	}
 
 	if (bHiPri)
@@ -914,32 +924,34 @@ void NetSendCmdDelItem(BOOL bHiPri, BYTE bLoc)
 
 void NetSendCmdDItem(BOOL bHiPri, int ii)
 {
+	ItemStruct *is;
 	TCmdPItem cmd;
 
+	is = &item[ii];
 	cmd.bCmd = CMD_DROPITEM;
-	cmd.x = item[ii]._ix;
-	cmd.y = item[ii]._iy;
-	cmd.wIndx = item[ii].IDidx;
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
+	cmd.wIndx = is->IDidx;
 
-	if (item[ii].IDidx == IDI_EAR) {
-		cmd.wCI = item[ii]._iName[8] | (item[ii]._iName[7] << 8);
-		cmd.dwSeed = item[ii]._iName[12] | ((item[ii]._iName[11] | ((item[ii]._iName[10] | (item[ii]._iName[9] << 8)) << 8)) << 8);
-		cmd.bId = item[ii]._iName[13];
-		cmd.bDur = item[ii]._iName[14];
-		cmd.bMDur = item[ii]._iName[15];
-		cmd.bCh = item[ii]._iName[16];
-		cmd.bMCh = item[ii]._iName[17];
-		cmd.wValue = item[ii]._ivalue | (item[ii]._iName[18] << 8) | ((item[ii]._iCurs - ICURS_EAR_SORCEROR) << 6);
-		cmd.dwBuff = item[ii]._iName[22] | ((item[ii]._iName[21] | ((item[ii]._iName[20] | (item[ii]._iName[19] << 8)) << 8)) << 8);
+	if (is->IDidx == IDI_EAR) {
+		cmd.wCI = is->_iName[8] | (is->_iName[7] << 8);
+		cmd.dwSeed = is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8);
+		cmd.bId = is->_iName[13];
+		cmd.bDur = is->_iName[14];
+		cmd.bMDur = is->_iName[15];
+		cmd.bCh = is->_iName[16];
+		cmd.bMCh = is->_iName[17];
+		cmd.wValue = is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		cmd.dwBuff = is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8);
 	} else {
-		cmd.wCI = item[ii]._iCreateInfo;
-		cmd.dwSeed = item[ii]._iSeed;
-		cmd.bId = item[ii]._iIdentified;
-		cmd.bDur = item[ii]._iDurability;
-		cmd.bMDur = item[ii]._iMaxDur;
-		cmd.bCh = item[ii]._iCharges;
-		cmd.bMCh = item[ii]._iMaxCharges;
-		cmd.wValue = item[ii]._ivalue;
+		cmd.wCI = is->_iCreateInfo;
+		cmd.dwSeed = is->_iSeed;
+		cmd.bId = is->_iIdentified;
+		cmd.bDur = is->_iDurability;
+		cmd.bMDur = is->_iMaxDur;
+		cmd.bCh = is->_iCharges;
+		cmd.bMCh = is->_iMaxCharges;
+		cmd.wValue = is->_ivalue;
 	}
 
 	if (bHiPri)
@@ -2161,8 +2173,8 @@ DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 		// check if this player already has an active golem
 		BOOL addGolem = TRUE;
 		for (i = 0; i < nummissiles; i++) {
-			int mi = missileactive[i];
-			if (missile[mi]._mitype == MIS_GOLEM && missile[mi]._misource == pnum) {
+			MissileStruct *mis = &missile[missileactive[i]];
+			if (mis->_mitype == MIS_GOLEM && mis->_misource == pnum) {
 				addGolem = FALSE;
 				// BUGFIX: break, don't need to check the rest
 			}
@@ -2384,39 +2396,41 @@ DWORD On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
+	PlayerStruct* pPlayer;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
 	else {
-		plr[pnum]._pLvlChanging = FALSE;
-		if (plr[pnum]._pName[0] && !plr[pnum].plractive) {
-			plr[pnum].plractive = TRUE;
+		pPlayer = &plr[pnum];
+		pPlayer->_pLvlChanging = FALSE;
+		if (pPlayer->_pName[0] && !pPlayer->plractive) {
+			pPlayer->plractive = TRUE;
 			gbActivePlayers++;
-			EventPlrMsg("Player '%s' (level %d) just joined the game", plr[pnum]._pName, plr[pnum]._pLevel);
+			EventPlrMsg("Player '%s' (level %d) just joined the game", pPlayer->_pName, pPlayer->_pLevel);
 		}
 
-		if (plr[pnum].plractive && myplr != pnum) {
-			plr[pnum]._px = p->x;
-			plr[pnum]._py = p->y;
-			plr[pnum].plrlevel = p->wParam1;
-			plr[pnum]._pGFXLoad = 0;
-			if (currlevel == plr[pnum].plrlevel) {
+		if (pPlayer->plractive && myplr != pnum) {
+			pPlayer->_px = p->x;
+			pPlayer->_py = p->y;
+			pPlayer->plrlevel = p->wParam1;
+			pPlayer->_pGFXLoad = 0;
+			if (currlevel == pPlayer->plrlevel) {
 				LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
-				if ((plr[pnum]._pHitPoints >> 6) > 0)
+				if ((pPlayer->_pHitPoints >> 6) > 0)
 					PlrStartStand(pnum, 0);
 				else {
-					plr[pnum]._pgfxnum = 0;
+					pPlayer->_pgfxnum = 0;
 					LoadPlrGFX(pnum, PFILE_DEATH);
-					plr[pnum]._pmode = PM_DEATH;
-					NewPlrAnim(pnum, plr[pnum]._pDAnim[DIR_S], plr[pnum]._pDFrames, 1, plr[pnum]._pDWidth);
-					plr[pnum]._pAnimFrame = plr[pnum]._pAnimLen - 1;
-					plr[pnum]._pVar8 = plr[pnum]._pAnimLen << 1;
-					dFlags[plr[pnum]._px][plr[pnum]._py] |= BFLAG_DEAD_PLAYER;
+					pPlayer->_pmode = PM_DEATH;
+					NewPlrAnim(pnum, pPlayer->_pDAnim[DIR_S], pPlayer->_pDFrames, 1, pPlayer->_pDWidth);
+					pPlayer->_pAnimFrame = pPlayer->_pAnimLen - 1;
+					pPlayer->_pVar8 = pPlayer->_pAnimLen << 1;
+					dFlags[pPlayer->_px][pPlayer->_py] |= BFLAG_DEAD_PLAYER;
 				}
 
-				plr[pnum]._pvid = AddVision(plr[pnum]._px, plr[pnum]._py, plr[pnum]._pLightRad, pnum == myplr);
-				plr[pnum]._plid = -1;
+				pPlayer->_pvid = AddVision(pPlayer->_px, pPlayer->_py, pPlayer->_pLightRad, pnum == myplr);
+				pPlayer->_plid = -1;
 			}
 		}
 	}
@@ -2439,8 +2453,8 @@ DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 				int i;
 				BOOL addPortal = TRUE;
 				for (i = 0; i < nummissiles; i++) {
-					int mi = missileactive[i];
-					if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == pnum) {
+					MissileStruct *mis = &missile[missileactive[i]];
+					if (mis->_mitype == MIS_TOWN && mis->_misource == pnum) {
 						addPortal = FALSE;
 						// BUGFIX: break
 					}

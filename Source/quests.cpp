@@ -97,17 +97,21 @@ int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 
 void InitQuests()
 {
+	QuestStruct *qs;
+	QuestData *qdata;
 	int i, initiatedQuests;
-	DWORD z;
 
 	if (gbMaxPlayers == 1) {
-		for (i = 0; i < MAXQUESTS; i++) {
-			quests[i]._qactive = QUEST_NOTAVAIL;
+		qs = quests;
+		for (i = MAXQUESTS; i != 0; i--, qs++) {
+			qs->_qactive = QUEST_NOTAVAIL;
 		}
 	} else {
-		for (i = 0; i < MAXQUESTS; i++) {
-			if (!(questlist[i]._qflags & QUEST_ANY)) {
-				quests[i]._qactive = QUEST_NOTAVAIL;
+		qs = quests;
+		qdata = questlist;
+		for (i = MAXQUESTS; i != 0; i--, qs++, qdata++) {
+			if (!(qdata->_qflags & QUEST_ANY)) {
+				qs->_qactive = QUEST_NOTAVAIL;
 			}
 		}
 	}
@@ -117,32 +121,34 @@ void InitQuests()
 	WaterDone = 0;
 	initiatedQuests = 0;
 
-	for (z = 0; z < MAXQUESTS; z++) {
-		if (gbMaxPlayers > 1 && !(questlist[z]._qflags & QUEST_ANY))
+	qs = quests;
+	qdata = questlist;
+	for (i = 0; i < MAXQUESTS; i++, qs++, qdata++) {
+		if (gbMaxPlayers > 1 && !(qdata->_qflags & QUEST_ANY))
 			continue;
-			quests[z]._qtype = questlist[z]._qdtype;
+			qs->_qtype = qdata->_qdtype;
 			if (gbMaxPlayers > 1) {
-				quests[z]._qlevel = questlist[z]._qdmultlvl;
+				qs->_qlevel = qdata->_qdmultlvl;
 				if (!delta_quest_inited(initiatedQuests)) {
-					quests[z]._qactive = QUEST_INIT;
-					quests[z]._qvar1 = 0;
-					quests[z]._qlog = FALSE;
+					qs->_qactive = QUEST_INIT;
+					qs->_qvar1 = 0;
+					qs->_qlog = FALSE;
 				}
 				initiatedQuests++;
 			} else {
-				quests[z]._qactive = QUEST_INIT;
-				quests[z]._qlevel = questlist[z]._qdlvl;
-				quests[z]._qvar1 = 0;
-				quests[z]._qlog = FALSE;
+				qs->_qactive = QUEST_INIT;
+				qs->_qlevel = qdata->_qdlvl;
+				qs->_qvar1 = 0;
+				qs->_qlog = FALSE;
 			}
 
-			quests[z]._qslvl = questlist[z]._qslvl;
-			quests[z]._qtx = 0;
-			quests[z]._qty = 0;
-			quests[z]._qidx = z;
-			quests[z]._qlvltype = questlist[z]._qlvlt;
-			quests[z]._qvar2 = 0;
-			quests[z]._qmsg = questlist[z]._qdmsg;
+			qs->_qslvl = qdata->_qslvl;
+			qs->_qtx = 0;
+			qs->_qty = 0;
+			qs->_qidx = i;
+			qs->_qlvltype = qdata->_qlvlt;
+			qs->_qvar2 = 0;
+			qs->_qmsg = qdata->_qdmsg;
 	}
 
 	if (gbMaxPlayers == 1) {
@@ -163,8 +169,8 @@ void InitQuests()
 #endif
 
 #ifdef SPAWN
-	for (z = 0; z < MAXQUESTS; z++) {
-		quests[z]._qactive = QUEST_NOTAVAIL;
+	for (i = 0; i < MAXQUESTS; i++) {
+		quests[i]._qactive = QUEST_NOTAVAIL;
 	}
 #endif
 
@@ -180,11 +186,13 @@ void InitQuests()
 void CheckQuests()
 {
 #ifndef SPAWN
+	QuestStruct *qs;
 	int i, rportx, rporty;
 
-	if (QuestStatus(Q_BETRAYER) && gbMaxPlayers != 1 && quests[Q_BETRAYER]._qvar1 == 2) {
+	qs = &quests[Q_BETRAYER];
+	if (QuestStatus(Q_BETRAYER) && gbMaxPlayers != 1 && qs->_qvar1 == 2) {
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + 20, 2 * setpc_y + 22);
-		quests[Q_BETRAYER]._qvar1 = 3;
+		qs->_qvar1 = 3;
 		NetSendCmdQuest(TRUE, Q_BETRAYER);
 	}
 
@@ -192,39 +200,40 @@ void CheckQuests()
 		return;
 	}
 
-	if (currlevel == quests[Q_BETRAYER]._qlevel
+	if (currlevel == qs->_qlevel
 	    && !setlevel
-	    && quests[Q_BETRAYER]._qvar1 >= 2
-	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)
-	    && (quests[Q_BETRAYER]._qvar2 == 0 || quests[Q_BETRAYER]._qvar2 == 2)) {
-		quests[Q_BETRAYER]._qtx = 2 * quests[Q_BETRAYER]._qtx + 16;
-		quests[Q_BETRAYER]._qty = 2 * quests[Q_BETRAYER]._qty + 16;
-		rportx = quests[Q_BETRAYER]._qtx;
-		rporty = quests[Q_BETRAYER]._qty;
+	    && qs->_qvar1 >= 2
+	    && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
+	    && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
+		qs->_qtx = 2 * qs->_qtx + 16;
+		qs->_qty = 2 * qs->_qty + 16;
+		rportx = qs->_qtx;
+		rporty = qs->_qty;
 		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
-		quests[Q_BETRAYER]._qvar2 = 1;
-		if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE) {
-			quests[Q_BETRAYER]._qvar1 = 3;
+		qs->_qvar2 = 1;
+		if (qs->_qactive == QUEST_ACTIVE) {
+			qs->_qvar1 = 3;
 		}
 	}
 
-	if (quests[Q_BETRAYER]._qactive == QUEST_DONE
+	if (qs->_qactive == QUEST_DONE
 	    && setlevel
 	    && setlvlnum == SL_VILEBETRAYER
-	    && quests[Q_BETRAYER]._qvar2 == 4) {
+	    && qs->_qvar2 == 4) {
 		rportx = 35;
 		rporty = 32;
 		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
-		quests[Q_BETRAYER]._qvar2 = 3;
+		qs->_qvar2 = 3;
 	}
 
 	if (setlevel) {
-		if (setlvlnum == quests[Q_PWATER]._qslvl
-		    && quests[Q_PWATER]._qactive != QUEST_INIT
-		    && leveltype == quests[Q_PWATER]._qlvltype
+		qs = &quests[Q_PWATER];
+		if (setlvlnum == qs->_qslvl
+		    && qs->_qactive != QUEST_INIT
+		    && leveltype == qs->_qlvltype
 		    && nummonsters == 4
-		    && quests[Q_PWATER]._qactive != QUEST_DONE) {
-			quests[Q_PWATER]._qactive = QUEST_DONE;
+		    && qs->_qactive != QUEST_DONE) {
+			qs->_qactive = QUEST_DONE;
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;
@@ -234,16 +243,17 @@ void CheckQuests()
 			WaterDone--;
 		}
 	} else if (plr[myplr]._pmode == PM_STAND) {
-		for (i = 0; i < MAXQUESTS; i++) {
-			if (currlevel == quests[i]._qlevel
-			    && quests[i]._qslvl != 0
-			    && quests[i]._qactive != QUEST_NOTAVAIL
-			    && plr[myplr]._px == quests[i]._qtx
-			    && plr[myplr]._py == quests[i]._qty) {
-				if (quests[i]._qlvltype != DTYPE_NONE) {
-					setlvltype = quests[i]._qlvltype;
+		qs = quests;
+		for (i = MAXQUESTS; i != 0; i--, qs++) {
+			if (currlevel == qs->_qlevel
+			    && qs->_qslvl != 0
+			    && qs->_qactive != QUEST_NOTAVAIL
+			    && plr[myplr]._px == qs->_qtx
+			    && plr[myplr]._py == qs->_qty) {
+				if (qs->_qlvltype != DTYPE_NONE) {
+					setlvltype = qs->_qlvltype;
 				}
-				StartNewLvl(myplr, WM_DIABSETLVL, quests[i]._qslvl);
+				StartNewLvl(myplr, WM_DIABSETLVL, qs->_qslvl);
 			}
 		}
 	}

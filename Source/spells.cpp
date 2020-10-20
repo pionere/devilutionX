@@ -211,17 +211,19 @@ static void PlacePlayer(int pnum)
  */
 void DoResurrect(int pnum, int tnum)
 {
+	PlayerStruct *tp;
 	int hp;
 
+	tp = &plr[tnum];
 	if ((char)tnum != -1) {
-		AddMissile(plr[tnum]._px, plr[tnum]._py, plr[tnum]._px, plr[tnum]._py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
+		AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
 	}
 
 	if (pnum == myplr) {
 		NewCursor(CURSOR_HAND);
 	}
 
-	if ((char)tnum != -1 && plr[tnum]._pHitPoints == 0) {
+	if ((char)tnum != -1 && tp->_pHitPoints == 0) {
 		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();
@@ -230,85 +232,91 @@ void DoResurrect(int pnum, int tnum)
 		}
 
 		ClrPlrPath(tnum);
-		plr[tnum].destAction = ACTION_NONE;
-		plr[tnum]._pInvincible = FALSE;
+		tp->destAction = ACTION_NONE;
+		tp->_pInvincible = FALSE;
 #ifndef HELLFIRE
 		PlacePlayer(tnum);
 #endif
 
 		hp = 640;
 #ifndef HELLFIRE
-		if (plr[tnum]._pMaxHPBase < 640) {
-			hp = plr[tnum]._pMaxHPBase;
+		if (tp->_pMaxHPBase < 640) {
+			hp = tp->_pMaxHPBase;
 		}
 #endif
 		SetPlayerHitPoints(tnum, hp);
 
-		plr[tnum]._pHPBase = plr[tnum]._pHitPoints + (plr[tnum]._pMaxHPBase - plr[tnum]._pMaxHP);
-		plr[tnum]._pMana = 0;
-		plr[tnum]._pManaBase = plr[tnum]._pMana + (plr[tnum]._pMaxManaBase - plr[tnum]._pMaxMana);
+		tp->_pHPBase = tp->_pHitPoints + (tp->_pMaxHPBase - tp->_pMaxHP);
+		tp->_pMana = 0;
+		tp->_pManaBase = tp->_pMana + (tp->_pMaxManaBase - tp->_pMaxMana);
 
 		CalcPlrInv(tnum, TRUE);
 
-		if (plr[tnum].plrlevel == currlevel) {
-			PlrStartStand(tnum, plr[tnum]._pdir);
+		if (tp->plrlevel == currlevel) {
+			PlrStartStand(tnum, tp->_pdir);
 		} else {
-			plr[tnum]._pmode = PM_STAND;
+			tp->_pmode = PM_STAND;
 		}
 	}
 }
 
 void DoHealOther(int pnum, int tnum)
 {
+	PlayerStruct *tp;
 	int i, j, hp;
 
 	if (pnum == myplr) {
 		NewCursor(CURSOR_HAND);
 	}
 
-	if ((char)tnum != -1 && (plr[tnum]._pHitPoints >> 6) > 0) {
-		hp = (random_(57, 10) + 1) << 6;
+	if ((DWORD)tnum >= MAX_PLRS)
+		return;
 
-		for (i = 0; i < plr[pnum]._pLevel; i++) {
-			hp += (random_(57, 4) + 1) << 6;
-		}
+	tp = &plr[tnum];
+	if ((tp->_pHitPoints >> 6) <= 0)
+		return; // too late, the target is dead
 
-		for (j = 0; j < GetSpellLevel(pnum, SPL_HEALOTHER); ++j) {
-			hp += (random_(57, 6) + 1) << 6;
-		}
+	hp = (random_(57, 10) + 1) << 6;
+
+	for (i = 0; i < plr[pnum]._pLevel; i++) {
+		hp += (random_(57, 4) + 1) << 6;
+	}
+
+	for (j = 0; j < GetSpellLevel(pnum, SPL_HEALOTHER); ++j) {
+		hp += (random_(57, 6) + 1) << 6;
+	}
 
 #ifdef HELLFIRE
-		if (plr[pnum]._pClass == PC_WARRIOR || plr[pnum]._pClass == PC_BARBARIAN) {
-			hp <<= 1;
-		} else if (plr[pnum]._pClass == PC_ROGUE || plr[pnum]._pClass == PC_BARD) {
-			hp += hp >> 1;
-		} else if (plr[pnum]._pClass == PC_MONK) {
-			hp *= 3;
-		}
+	if (plr[pnum]._pClass == PC_WARRIOR || plr[pnum]._pClass == PC_BARBARIAN) {
+		hp <<= 1;
+	} else if (plr[pnum]._pClass == PC_ROGUE || plr[pnum]._pClass == PC_BARD) {
+		hp += hp >> 1;
+	} else if (plr[pnum]._pClass == PC_MONK) {
+		hp *= 3;
+	}
 #else
-		if (plr[pnum]._pClass == PC_WARRIOR) {
-			hp <<= 1;
-		}
+	if (plr[pnum]._pClass == PC_WARRIOR) {
+		hp <<= 1;
+	}
 
-		if (plr[pnum]._pClass == PC_ROGUE) {
-			hp += hp >> 1;
-		}
+	if (plr[pnum]._pClass == PC_ROGUE) {
+		hp += hp >> 1;
+	}
 #endif
 
-		plr[tnum]._pHitPoints += hp;
+	tp->_pHitPoints += hp;
 
-		if (plr[tnum]._pHitPoints > plr[tnum]._pMaxHP) {
-			plr[tnum]._pHitPoints = plr[tnum]._pMaxHP;
-		}
-
-		plr[tnum]._pHPBase += hp;
-
-		if (plr[tnum]._pHPBase > plr[tnum]._pMaxHPBase) {
-			plr[tnum]._pHPBase = plr[tnum]._pMaxHPBase;
-		}
-
-		drawhpflag = TRUE;
+	if (tp->_pHitPoints > tp->_pMaxHP) {
+		tp->_pHitPoints = tp->_pMaxHP;
 	}
+
+	tp->_pHPBase += hp;
+
+	if (tp->_pHPBase > tp->_pMaxHPBase) {
+		tp->_pHPBase = tp->_pMaxHPBase;
+	}
+
+	drawhpflag = TRUE;
 }
 
 DEVILUTION_END_NAMESPACE

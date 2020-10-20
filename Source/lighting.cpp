@@ -1059,6 +1059,7 @@ void InitLighting()
 
 int AddLight(int x, int y, int r)
 {
+	LightListStruct *lis;
 	int lnum;
 
 	if (lightflag) {
@@ -1069,13 +1070,14 @@ int AddLight(int x, int y, int r)
 
 	if (numlights < MAXLIGHTS) {
 		lnum = lightactive[numlights++];
-		LightList[lnum]._lx = x;
-		LightList[lnum]._ly = y;
-		LightList[lnum]._lradius = r;
-		LightList[lnum]._xoff = 0;
-		LightList[lnum]._yoff = 0;
-		LightList[lnum]._ldel = FALSE;
-		LightList[lnum]._lunflag = FALSE;
+		lis = &LightList[lnum];
+		lis->_lx = x;
+		lis->_ly = y;
+		lis->_lradius = r;
+		lis->_xoff = 0;
+		lis->_yoff = 0;
+		lis->_ldel = FALSE;
+		lis->_lunflag = FALSE;
 		dolighting = TRUE;
 	}
 
@@ -1094,66 +1096,79 @@ void AddUnLight(int lnum)
 
 void ChangeLightRadius(int lnum, int r)
 {
+	LightListStruct *lis;
+
 	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[lnum]._lunflag = TRUE;
-	LightList[lnum]._lunx = LightList[lnum]._lx;
-	LightList[lnum]._luny = LightList[lnum]._ly;
-	LightList[lnum]._lunr = LightList[lnum]._lradius;
-	LightList[lnum]._lradius = r;
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lradius = r;
 	dolighting = TRUE;
 }
 
 void ChangeLightXY(int lnum, int x, int y)
 {
+	LightListStruct *lis;
+
 	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[lnum]._lunflag = TRUE;
-	LightList[lnum]._lunx = LightList[lnum]._lx;
-	LightList[lnum]._luny = LightList[lnum]._ly;
-	LightList[lnum]._lunr = LightList[lnum]._lradius;
-	LightList[lnum]._lx = x;
-	LightList[lnum]._ly = y;
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lx = x;
+	lis->_ly = y;
 	dolighting = TRUE;
 }
 
 void ChangeLightOff(int lnum, int x, int y)
 {
+	LightListStruct *lis;
+
 	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[lnum]._lunflag = TRUE;
-	LightList[lnum]._lunx = LightList[lnum]._lx;
-	LightList[lnum]._luny = LightList[lnum]._ly;
-	LightList[lnum]._lunr = LightList[lnum]._lradius;
-	LightList[lnum]._xoff = x;
-	LightList[lnum]._yoff = y;
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_xoff = x;
+	lis->_yoff = y;
 	dolighting = TRUE;
 }
 
 void ChangeLight(int lnum, int x, int y, int r)
 {
+	LightListStruct *lis;
+
 	if (lightflag || lnum == -1) {
 		return;
 	}
 
-	LightList[lnum]._lunflag = TRUE;
-	LightList[lnum]._lunx = LightList[lnum]._lx;
-	LightList[lnum]._luny = LightList[lnum]._ly;
-	LightList[lnum]._lunr = LightList[lnum]._lradius;
-	LightList[lnum]._lx = x;
-	LightList[lnum]._ly = y;
-	LightList[lnum]._lradius = r;
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lx = x;
+	lis->_ly = y;
+	lis->_lradius = r;
 	dolighting = TRUE;
 }
 
 void ProcessLightList()
 {
+	LightListStruct *lis;
 	int i, j;
 	BYTE temp;
 
@@ -1163,13 +1178,13 @@ void ProcessLightList()
 
 	if (dolighting) {
 		for (i = 0; i < numlights; i++) {
-			j = lightactive[i];
-			if (LightList[j]._ldel) {
-				DoUnLight(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius);
+			lis = &LightList[lightactive[i]];
+			if (lis->_ldel) {
+				DoUnLight(lis->_lx, lis->_ly, lis->_lradius);
 			}
-			if (LightList[j]._lunflag) {
-				DoUnLight(LightList[j]._lunx, LightList[j]._luny, LightList[j]._lunr);
-				LightList[j]._lunflag = FALSE;
+			if (lis->_lunflag) {
+				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
+				lis->_lunflag = FALSE;
 			}
 		}
 		for (i = 0; i < numlights; i++) {
@@ -1214,17 +1229,19 @@ void InitVision()
 
 int AddVision(int x, int y, int r, BOOL mine)
 {
+	LightListStruct *vis;
 	int vnum; // BUGFIX: if numvision >= MAXVISION behavior is undefined
 
 	if (numvision < MAXVISION) {
-		VisionList[numvision]._lx = x;
-		VisionList[numvision]._ly = y;
-		VisionList[numvision]._lradius = r;
+		vis = &VisionList[numvision];
+		vis->_lx = x;
+		vis->_ly = y;
+		vis->_lradius = r;
 		vnum = visionid++;
-		VisionList[numvision]._lid = vnum;
-		VisionList[numvision]._ldel = FALSE;
-		VisionList[numvision]._lunflag = FALSE;
-		VisionList[numvision]._lflags = mine != 0;
+		vis->_lid = vnum;
+		vis->_ldel = FALSE;
+		vis->_lunflag = FALSE;
+		vis->_lflags = mine != 0;
 		numvision++;
 		dovision = TRUE;
 	}
@@ -1234,15 +1251,17 @@ int AddVision(int x, int y, int r, BOOL mine)
 
 void ChangeVisionRadius(int vnum, int r)
 {
+	LightListStruct *vis;
 	int i;
 
-	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == vnum) {
-			VisionList[i]._lunflag = TRUE;
-			VisionList[i]._lunx = VisionList[i]._lx;
-			VisionList[i]._luny = VisionList[i]._ly;
-			VisionList[i]._lunr = VisionList[i]._lradius;
-			VisionList[i]._lradius = r;
+	vis = VisionList;
+	for (i = numvision; i > 0; i--, vis++) {
+		if (vis->_lid == vnum) {
+			vis->_lunflag = TRUE;
+			vis->_lunx = vis->_lx;
+			vis->_luny = vis->_ly;
+			vis->_lunr = vis->_lradius;
+			vis->_lradius = r;
 			dovision = TRUE;
 		}
 	}
@@ -1250,16 +1269,18 @@ void ChangeVisionRadius(int vnum, int r)
 
 void ChangeVisionXY(int vnum, int x, int y)
 {
+	LightListStruct *vis;
 	int i;
 
-	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == vnum) {
-			VisionList[i]._lunflag = TRUE;
-			VisionList[i]._lunx = VisionList[i]._lx;
-			VisionList[i]._luny = VisionList[i]._ly;
-			VisionList[i]._lunr = VisionList[i]._lradius;
-			VisionList[i]._lx = x;
-			VisionList[i]._ly = y;
+	vis = VisionList;
+	for (i = numvision; i > 0; i--, vis++) {
+		if (vis->_lid == vnum) {
+			vis->_lunflag = TRUE;
+			vis->_lunx = vis->_lx;
+			vis->_luny = vis->_ly;
+			vis->_lunr = vis->_lradius;
+			vis->_lx = x;
+			vis->_ly = y;
 			dovision = TRUE;
 		}
 	}
@@ -1267,30 +1288,33 @@ void ChangeVisionXY(int vnum, int x, int y)
 
 void ProcessVisionList()
 {
+	LightListStruct *vis;
 	int i;
 	BOOL delflag;
 
 	if (dovision) {
-		for (i = 0; i < numvision; i++) {
-			if (VisionList[i]._ldel) {
-				DoUnVision(VisionList[i]._lx, VisionList[i]._ly, VisionList[i]._lradius);
+		vis = VisionList;
+		for (i = numvision; i > 0; i--, vis++) {
+			if (vis->_ldel) {
+				DoUnVision(vis->_lx, vis->_ly, vis->_lradius);
 			}
-			if (VisionList[i]._lunflag) {
-				DoUnVision(VisionList[i]._lunx, VisionList[i]._luny, VisionList[i]._lunr);
-				VisionList[i]._lunflag = FALSE;
+			if (vis->_lunflag) {
+				DoUnVision(vis->_lunx, vis->_luny, vis->_lunr);
+				vis->_lunflag = FALSE;
 			}
 		}
 		for (i = 0; i < TransVal; i++) {
 			TransList[i] = FALSE;
 		}
-		for (i = 0; i < numvision; i++) {
-			if (!VisionList[i]._ldel) {
+		vis = VisionList;
+		for (i = numvision; i > 0; i--, vis++) {
+			if (!vis->_ldel) {
 				DoVision(
-				    VisionList[i]._lx,
-				    VisionList[i]._ly,
-				    VisionList[i]._lradius,
-				    VisionList[i]._lflags & 1,
-				    VisionList[i]._lflags & 1);
+				    vis->_lx,
+				    vis->_ly,
+				    vis->_lradius,
+				    vis->_lflags & 1,
+				    vis->_lflags & 1);
 			}
 		}
 		do {

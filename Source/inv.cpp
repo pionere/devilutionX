@@ -174,24 +174,28 @@ void InvDrawSlotBack(int X, int Y, int W, int H)
  */
 void DrawInv()
 {
+	PlayerStruct *p;
+	ItemStruct *is;
 	BOOL invtest[NUM_INV_GRID_ELEM];
 	int frame, frame_width, color, screen_x, screen_y, i, j, ii;
 	BYTE *pBuff;
 
 	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pInvCels, 1, SPANEL_WIDTH);
 
-	if (plr[myplr].InvBody[INVLOC_HEAD]._itype != ITYPE_NONE) {
+	p = &plr[myplr];
+	is = &p->InvBody[INVLOC_HEAD];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_HEAD]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == INVITEM_HEAD) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_HEAD]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_HEAD]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -205,7 +209,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_HEAD]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -228,18 +232,19 @@ void DrawInv()
 		}
 	}
 
-	if (plr[myplr].InvBody[INVLOC_RING_LEFT]._itype != ITYPE_NONE) {
+	is = &p->InvBody[INVLOC_RING_LEFT];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_RING_LEFT]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == INVITEM_RING_LEFT) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_RING_LEFT]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_RING_LEFT]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -253,7 +258,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_RING_LEFT]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -276,18 +281,19 @@ void DrawInv()
 		}
 	}
 
-	if (plr[myplr].InvBody[INVLOC_RING_RIGHT]._itype != ITYPE_NONE) {
+	is = &p->InvBody[INVLOC_RING_RIGHT];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_RING_RIGHT]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == INVITEM_RING_RIGHT) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_RING_RIGHT]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_RING_RIGHT]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -301,7 +307,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_RING_RIGHT]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -324,18 +330,19 @@ void DrawInv()
 		}
 	}
 
-	if (plr[myplr].InvBody[INVLOC_AMULET]._itype != ITYPE_NONE) {
+	is = &p->InvBody[INVLOC_AMULET];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_AMULET]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == INVITEM_AMULET) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_AMULET]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_AMULET]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -349,7 +356,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_AMULET]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -372,10 +379,11 @@ void DrawInv()
 		}
 	}
 
-	if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE) {
+	is = &p->InvBody[INVLOC_HAND_LEFT];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 17, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_HAND_LEFT]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
 		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 31) : (RIGHT_PANEL_X + 17);
@@ -383,10 +391,10 @@ void DrawInv()
 
 		if (pcursinvitem == INVITEM_HAND_LEFT) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_HAND_LEFT]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -400,7 +408,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -422,11 +430,11 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._iLoc == ILOC_TWOHAND) {
+		if (is->_iLoc == ILOC_TWOHAND) {
 #ifdef HELLFIRE
-			if (plr[myplr]._pClass != PC_BARBARIAN
-			    || plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_SWORD
-			        && plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_MACE) {
+			if (p->_pClass != PC_BARBARIAN
+			    || is->_itype != ITYPE_SWORD
+			        && is->_itype != ITYPE_MACE) {
 #endif
 				InvDrawSlotBack(RIGHT_PANEL_X + 248, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 				light_table_index = 0;
@@ -451,10 +459,12 @@ void DrawInv()
 #endif
 		}
 	}
-	if (plr[myplr].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
+
+	is = &p->InvBody[INVLOC_HAND_RIGHT];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 248, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
 		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 261) : (RIGHT_PANEL_X + 249);
@@ -462,10 +472,10 @@ void DrawInv()
 
 		if (pcursinvitem == INVITEM_HAND_RIGHT) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -479,7 +489,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_HAND_RIGHT]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -502,18 +512,19 @@ void DrawInv()
 		}
 	}
 
-	if (plr[myplr].InvBody[INVLOC_CHEST]._itype != ITYPE_NONE) {
+	is = &p->InvBody[INVLOC_CHEST];
+	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
-		frame = plr[myplr].InvBody[INVLOC_CHEST]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == INVITEM_CHEST) {
 			color = ICOL_WHITE;
-			if (plr[myplr].InvBody[INVLOC_CHEST]._iMagical != ITEM_QUALITY_NORMAL) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				color = ICOL_BLUE;
 			}
-			if (!plr[myplr].InvBody[INVLOC_CHEST]._iStatFlag) {
+			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
 #ifdef HELLFIRE
@@ -527,7 +538,7 @@ void DrawInv()
 #endif
 		}
 
-		if (plr[myplr].InvBody[INVLOC_CHEST]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179) {
 #endif
@@ -552,7 +563,7 @@ void DrawInv()
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		invtest[i] = FALSE;
-		if (plr[myplr].InvGrid[i] != 0) {
+		if (p->InvGrid[i] != 0) {
 			InvDrawSlotBack(
 			    InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
 			    InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
@@ -562,20 +573,21 @@ void DrawInv()
 	}
 
 	for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-		if (plr[myplr].InvGrid[j] > 0) // first slot of an item
+		if (p->InvGrid[j] > 0) // first slot of an item
 		{
-			ii = plr[myplr].InvGrid[j] - 1;
+			ii = p->InvGrid[j] - 1;
+			is = &p->InvList[ii];
 
 			invtest[j] = TRUE;
 
-			frame = plr[myplr].InvList[ii]._iCurs + CURSOR_FIRSTITEM;
+			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
 			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
 				color = ICOL_WHITE;
-				if (plr[myplr].InvList[ii]._iMagical != ITEM_QUALITY_NORMAL) {
+				if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 					color = ICOL_BLUE;
 				}
-				if (!plr[myplr].InvList[ii]._iStatFlag) {
+				if (!is->_iStatFlag) {
 					color = ICOL_RED;
 				}
 #ifdef HELLFIRE
@@ -597,7 +609,7 @@ void DrawInv()
 #endif
 			}
 
-			if (plr[myplr].InvList[ii]._iStatFlag) {
+			if (is->_iStatFlag) {
 #ifdef HELLFIRE
 				if (frame <= 179) {
 #endif
@@ -636,6 +648,7 @@ void DrawInv()
 
 void DrawInvBelt()
 {
+	ItemStruct *is;
 	int i, frame, frame_width, color;
 	BYTE fi, ff;
 
@@ -645,20 +658,21 @@ void DrawInvBelt()
 
 	DrawPanelBox(205, 21, 232, 28, PANEL_X + 205, PANEL_Y + 5);
 
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (plr[myplr].SpdList[i]._itype == ITYPE_NONE) {
+	is = plr[myplr].SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, is++) {
+		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
 
 		InvDrawSlotBack(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
-		frame = plr[myplr].SpdList[i]._iCurs + CURSOR_FIRSTITEM;
+		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
 		if (pcursinvitem == i + INVITEM_BELT_FIRST) {
 			color = ICOL_WHITE;
-			if (plr[myplr].SpdList[i]._iMagical)
+			if (is->_iMagical)
 				color = ICOL_BLUE;
-			if (!plr[myplr].SpdList[i]._iStatFlag)
+			if (!is->_iStatFlag)
 				color = ICOL_RED;
 			if (!sgbControllerActive || invflag) {
 #ifdef HELLFIRE
@@ -672,7 +686,7 @@ void DrawInvBelt()
 			}
 		}
 
-		if (plr[myplr].SpdList[i]._iStatFlag) {
+		if (is->_iStatFlag) {
 #ifdef HELLFIRE
 			if (frame <= 179)
 #endif
@@ -692,9 +706,9 @@ void DrawInvBelt()
 #endif
 		}
 
-		if (AllItemsList[plr[myplr].SpdList[i].IDidx].iUsable
-		    && plr[myplr].SpdList[i]._iStatFlag
-		    && plr[myplr].SpdList[i]._itype != ITYPE_GOLD) {
+		if (AllItemsList[is->IDidx].iUsable
+		    && is->_iStatFlag
+		    && is->_itype != ITYPE_GOLD) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
 			PrintChar(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X + INV_SLOT_SIZE_PX - fontkern[ff], InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, ff, 0);
@@ -704,9 +718,11 @@ void DrawInvBelt()
 
 BOOL AutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
 {
+	PlayerStruct *p;
 	int i, j, xx, yy;
 	BOOL done;
 
+	p = &plr[pnum];
 	done = TRUE;
 	yy = 10 * (ii / 10);
 	if (yy < 0) {
@@ -724,15 +740,15 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
 			if (xx >= 10) {
 				done = FALSE;
 			} else {
-				done = plr[pnum].InvGrid[xx + yy] == 0;
+				done = p->InvGrid[xx + yy] == 0;
 			}
 			xx++;
 		}
 		yy += 10;
 	}
 	if (done && saveflag) {
-		plr[pnum].InvList[plr[pnum]._pNumInv] = plr[pnum].HoldItem;
-		plr[pnum]._pNumInv++;
+		p->InvList[p->_pNumInv] = p->HoldItem;
+		p->_pNumInv++;
 		yy = 10 * (ii / 10);
 		if (yy < 0) {
 			yy = 0;
@@ -744,9 +760,9 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
 			}
 			for (i = 0; i < sx; i++) {
 				if (i != 0 || j != sy - 1) {
-					plr[pnum].InvGrid[xx + yy] = -plr[pnum]._pNumInv;
+					p->InvGrid[xx + yy] = -p->_pNumInv;
 				} else {
-					plr[pnum].InvGrid[xx + yy] = plr[pnum]._pNumInv;
+					p->InvGrid[xx + yy] = p->_pNumInv;
 				}
 				xx++;
 			}
@@ -827,40 +843,44 @@ BOOL SpecialAutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
 #ifndef HELLFIRE
 BOOL GoldAutoPlace(int pnum)
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	BOOL done;
 	int i, ii;
 	int xx, yy;
 
+	p = &plr[pnum];
+	pi = p->InvList;
 	done = FALSE;
-	for (i = 0; i < plr[pnum]._pNumInv && !done; i++) {
-		if (plr[pnum].InvList[i]._itype == ITYPE_GOLD) {
-			if (plr[pnum].HoldItem._ivalue + plr[pnum].InvList[i]._ivalue <= GOLD_MAX_LIMIT) {
-				plr[pnum].InvList[i]._ivalue = plr[pnum].HoldItem._ivalue + plr[pnum].InvList[i]._ivalue;
-				if (plr[pnum].InvList[i]._ivalue >= GOLD_MEDIUM_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_LARGE;
-				else if (plr[pnum].InvList[i]._ivalue <= GOLD_SMALL_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_SMALL;
+	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
+				pi->_ivalue = p->HoldItem._ivalue + pi->_ivalue;
+				if (pi->_ivalue >= GOLD_MEDIUM_LIMIT)
+					pi->_iCurs = ICURS_GOLD_LARGE;
+				else if (pi->_ivalue <= GOLD_SMALL_LIMIT)
+					pi->_iCurs = ICURS_GOLD_SMALL;
 				else
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_MEDIUM;
-				plr[pnum]._pGold = CalculateGold(pnum);
+					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
 			}
 		}
 	}
 	if (done)
 		return done;
-
-	for (i = 0; i < plr[pnum]._pNumInv && !done; i++) {
-		if (plr[pnum].InvList[i]._itype == ITYPE_GOLD && plr[pnum].InvList[i]._ivalue < GOLD_MAX_LIMIT) {
-			if (plr[pnum].HoldItem._ivalue + plr[pnum].InvList[i]._ivalue <= GOLD_MAX_LIMIT) {
-				plr[pnum].InvList[i]._ivalue = plr[pnum].HoldItem._ivalue + plr[pnum].InvList[i]._ivalue;
-				if (plr[pnum].InvList[i]._ivalue >= GOLD_MEDIUM_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_LARGE;
-				else if (plr[pnum].InvList[i]._ivalue <= GOLD_SMALL_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_SMALL;
+	pi = p->InvList;
+	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD && pi->_ivalue < GOLD_MAX_LIMIT) {
+			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
+				pi->_ivalue = p->HoldItem._ivalue + pi->_ivalue;
+				if (pi->_ivalue >= GOLD_MEDIUM_LIMIT)
+					pi->_iCurs = ICURS_GOLD_LARGE;
+				else if (pi->_ivalue <= GOLD_SMALL_LIMIT)
+					pi->_iCurs = ICURS_GOLD_SMALL;
 				else
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_MEDIUM;
-				plr[pnum]._pGold = CalculateGold(pnum);
+					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
 			}
 		}
@@ -871,18 +891,18 @@ BOOL GoldAutoPlace(int pnum)
 	for (i = 39; i >= 0 && !done; i--) {
 		yy = 10 * (i / 10);
 		xx = i % 10;
-		if (!plr[pnum].InvGrid[xx + yy]) {
-			ii = plr[pnum]._pNumInv;
-			plr[pnum].InvList[ii] = plr[pnum].HoldItem;
-			plr[pnum]._pNumInv = plr[pnum]._pNumInv + 1;
-			plr[pnum].InvGrid[xx + yy] = plr[pnum]._pNumInv;
-			if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-				plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_LARGE;
-			else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-				plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_SMALL;
+		if (!p->InvGrid[xx + yy]) {
+			ii = p->_pNumInv;
+			p->InvList[ii] = p->HoldItem;
+			p->_pNumInv = p->_pNumInv + 1;
+			p->InvGrid[xx + yy] = p->_pNumInv;
+			if (p->HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
+				p->InvList[ii]._iCurs = ICURS_GOLD_LARGE;
+			else if (p->HoldItem._ivalue <= GOLD_SMALL_LIMIT)
+				p->InvList[ii]._iCurs = ICURS_GOLD_SMALL;
 			else
-				plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
-			plr[pnum]._pGold = CalculateGold(pnum);
+				p->InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
+			p->_pGold = CalculateGold(pnum);
 			done = TRUE;
 		}
 	}
@@ -892,40 +912,44 @@ BOOL GoldAutoPlace(int pnum)
 #else
 BOOL GoldAutoPlace(int pnum)
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int ii;
 	int xx, yy;
 	int max_gold, gold;
 	BOOL done;
 
+	p = &plr[pnum];
+	pi = p->InvList;
 	done = FALSE;
-	for (int i = 0; i < plr[pnum]._pNumInv && !done; i++) {
-		if (plr[pnum].InvList[i]._itype == ITYPE_GOLD) {
-			gold = plr[pnum].InvList[i]._ivalue + plr[pnum].HoldItem._ivalue;
+	for (int i = p->_pNumInv; i > 0 && !done; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			gold = pi->_ivalue + p->HoldItem._ivalue;
 			if (gold <= MaxGold) {
-				plr[pnum].InvList[i]._ivalue = gold;
+				pi->_ivalue = gold;
 				if (gold >= GOLD_MEDIUM_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_LARGE;
+					pi->_iCurs = ICURS_GOLD_LARGE;
 				else if (gold <= GOLD_SMALL_LIMIT)
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_SMALL;
+					pi->_iCurs = ICURS_GOLD_SMALL;
 				else
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_MEDIUM;
-				plr[pnum]._pGold = CalculateGold(pnum);
+					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
-				plr[pnum].HoldItem._ivalue = 0;
+				p->HoldItem._ivalue = 0;
 			} else {
 				max_gold = MaxGold;
-				if (plr[pnum].InvList[i]._ivalue < max_gold) {
-					gold = max_gold - plr[pnum].InvList[i]._ivalue;
-					plr[pnum].InvList[i]._ivalue = max_gold;
-					plr[pnum].InvList[i]._iCurs = ICURS_GOLD_LARGE;
-					plr[pnum].HoldItem._ivalue -= gold;
-					if (plr[pnum].HoldItem._ivalue < 0) {
-						plr[pnum].HoldItem._ivalue = 0;
+				if (pi->_ivalue < max_gold) {
+					gold = max_gold - pi->_ivalue;
+					pi->_ivalue = max_gold;
+					pi->_iCurs = ICURS_GOLD_LARGE;
+					p->HoldItem._ivalue -= gold;
+					if (p->HoldItem._ivalue < 0) {
+						p->HoldItem._ivalue = 0;
 						done = TRUE;
 					}
-					GetPlrHandSeed(&plr[pnum].HoldItem);
+					GetPlrHandSeed(&p->HoldItem);
 					control_set_gold_curs(pnum);
-					plr[pnum]._pGold = CalculateGold(pnum);
+					p->_pGold = CalculateGold(pnum);
 				}
 			}
 		}
@@ -934,28 +958,28 @@ BOOL GoldAutoPlace(int pnum)
 		for (int i = 39; i >= 0 && !done; i--) {
 			yy = 10 * (i / 10);
 			xx = i % 10;
-			if (!plr[pnum].InvGrid[xx + yy]) {
-				ii = plr[pnum]._pNumInv;
-				plr[pnum].InvList[ii] = plr[pnum].HoldItem;
-				plr[pnum]._pNumInv = plr[pnum]._pNumInv + 1;
-				plr[pnum].InvGrid[xx + yy] = plr[pnum]._pNumInv;
-				if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-					plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_LARGE;
-				else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-					plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_SMALL;
+			if (!p->InvGrid[xx + yy]) {
+				ii = p->_pNumInv;
+				p->InvList[ii] = p->HoldItem;
+				p->_pNumInv = p->_pNumInv + 1;
+				p->InvGrid[xx + yy] = p->_pNumInv;
+				if (p->HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
+					p->InvList[ii]._iCurs = ICURS_GOLD_LARGE;
+				else if (p->HoldItem._ivalue <= GOLD_SMALL_LIMIT)
+					p->InvList[ii]._iCurs = ICURS_GOLD_SMALL;
 				else
-					plr[pnum].InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
+					p->InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
 
-				gold = plr[pnum].HoldItem._ivalue;
+				gold = p->HoldItem._ivalue;
 				if (gold > MaxGold) {
 					gold -= MaxGold;
-					plr[pnum].HoldItem._ivalue = gold;
-					GetPlrHandSeed(&plr[pnum].HoldItem);
-					plr[pnum].InvList[ii]._ivalue = MaxGold;
+					p->HoldItem._ivalue = gold;
+					GetPlrHandSeed(&p->HoldItem);
+					p->InvList[ii]._ivalue = MaxGold;
 				} else {
-					plr[pnum].HoldItem._ivalue = 0;
+					p->HoldItem._ivalue = 0;
 					done = TRUE;
-					plr[pnum]._pGold = CalculateGold(pnum);
+					p->_pGold = CalculateGold(pnum);
 					SetCursor_(CURSOR_HAND);
 				}
 			}
@@ -1017,13 +1041,17 @@ int SwapItem(ItemStruct *a, ItemStruct *b)
 
 void CheckInvPaste(int pnum, int mx, int my)
 {
+	PlayerStruct *p;
+	ItemStruct *holditem, *is, *wRight;
 	int r, sx, sy;
 	int i, j, xx, yy, ii;
 	BOOL done, done2h;
 	int il, cn, it, iv, ig, gt;
 	ItemStruct tempitem;
 
-	SetICursor(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+	p = &plr[pnum];
+	holditem = &p->HoldItem;
+	SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 	i = mx + (icursW >> 1);
 	j = my + (icursH >> 1);
 	sx = icursW28;
@@ -1069,20 +1097,20 @@ void CheckInvPaste(int pnum, int mx, int my)
 	if (r >= SLOTXY_BELT_FIRST && r <= SLOTXY_BELT_LAST)
 		il = ILOC_BELT;
 	done = FALSE;
-	if (plr[pnum].HoldItem._iLoc == il)
+	if (holditem->_iLoc == il)
 		done = TRUE;
-	if (il == ILOC_ONEHAND && plr[pnum].HoldItem._iLoc == ILOC_TWOHAND) {
+	if (il == ILOC_ONEHAND && holditem->_iLoc == ILOC_TWOHAND) {
 		il = ILOC_TWOHAND;
 		done = TRUE;
 	}
-	if (plr[pnum].HoldItem._iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {
+	if (holditem->_iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {
 		if (sx == 1 && sy == 1) {
 			done = TRUE;
-			if (!AllItemsList[plr[pnum].HoldItem.IDidx].iUsable)
+			if (!AllItemsList[holditem->IDidx].iUsable)
 				done = FALSE;
-			if (!plr[pnum].HoldItem._iStatFlag)
+			if (!holditem->_iStatFlag)
 				done = FALSE;
-			if (plr[pnum].HoldItem._itype == ITYPE_GOLD)
+			if (holditem->_itype == ITYPE_GOLD)
 				done = FALSE;
 		}
 	}
@@ -1091,13 +1119,13 @@ void CheckInvPaste(int pnum, int mx, int my)
 		done = TRUE;
 		it = 0;
 		ii = r - SLOTXY_INV_FIRST;
-		if (plr[pnum].HoldItem._itype == ITYPE_GOLD) {
+		if (holditem->_itype == ITYPE_GOLD) {
 			yy = 10 * (ii / 10);
 			xx = ii % 10;
-			if (plr[pnum].InvGrid[xx + yy] != 0) {
-				iv = plr[pnum].InvGrid[xx + yy];
+			if (p->InvGrid[xx + yy] != 0) {
+				iv = p->InvGrid[xx + yy];
 				if (iv > 0) {
-					if (plr[pnum].InvList[iv - 1]._itype != ITYPE_GOLD) {
+					if (p->InvList[iv - 1]._itype != ITYPE_GOLD) {
 						it = iv;
 					}
 				} else {
@@ -1118,8 +1146,8 @@ void CheckInvPaste(int pnum, int mx, int my)
 					if (xx >= 10) {
 						done = FALSE;
 					} else {
-						if (plr[pnum].InvGrid[xx + yy] != 0) {
-							iv = plr[pnum].InvGrid[xx + yy];
+						if (p->InvGrid[xx + yy] != 0) {
+							iv = p->InvGrid[xx + yy];
 							if (iv < 0)
 								iv = -iv;
 							if (it != 0) {
@@ -1139,14 +1167,14 @@ void CheckInvPaste(int pnum, int mx, int my)
 	if (!done)
 		return;
 
-	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !plr[pnum].HoldItem._iStatFlag) {
+	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !holditem->_iStatFlag) {
 		done = FALSE;
-		if (plr[pnum]._pClass == PC_WARRIOR)
+		if (p->_pClass == PC_WARRIOR)
 			PlaySFX(PS_WARR13);
 #ifndef SPAWN
-		else if (plr[pnum]._pClass == PC_ROGUE)
+		else if (p->_pClass == PC_ROGUE)
 			PlaySFX(PS_ROGUE13);
-		else if (plr[pnum]._pClass == PC_SORCERER)
+		else if (p->_pClass == PC_SORCERER)
 			PlaySFX(PS_MAGE13);
 #endif
 	}
@@ -1155,203 +1183,213 @@ void CheckInvPaste(int pnum, int mx, int my)
 		return;
 
 	if (pnum == myplr)
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[plr[pnum].HoldItem._iCurs]]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
 
 	cn = CURSOR_HAND;
 	switch (il) {
 	case ILOC_HELM:
 		NetSendCmdChItem(FALSE, INVLOC_HEAD);
-		if (plr[pnum].InvBody[INVLOC_HEAD]._itype == ITYPE_NONE)
-			plr[pnum].InvBody[INVLOC_HEAD] = plr[pnum].HoldItem;
+		is = &p->InvBody[INVLOC_HEAD];
+		if (is->_itype == ITYPE_NONE)
+			*is = *holditem;
 		else
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_HEAD], &plr[pnum].HoldItem);
+			cn = SwapItem(is, holditem);
 		break;
 	case ILOC_RING:
 		if (r == SLOTXY_RING_LEFT) {
 			NetSendCmdChItem(FALSE, INVLOC_RING_LEFT);
-			if (plr[pnum].InvBody[INVLOC_RING_LEFT]._itype == ITYPE_NONE)
-				plr[pnum].InvBody[INVLOC_RING_LEFT] = plr[pnum].HoldItem;
+			is = &p->InvBody[INVLOC_RING_LEFT];
+			if (is->_itype == ITYPE_NONE)
+				*is = *holditem;
 			else
-				cn = SwapItem(&plr[pnum].InvBody[INVLOC_RING_LEFT], &plr[pnum].HoldItem);
+				cn = SwapItem(is, holditem);
 		} else {
 			NetSendCmdChItem(FALSE, INVLOC_RING_RIGHT);
-			if (plr[pnum].InvBody[INVLOC_RING_RIGHT]._itype == ITYPE_NONE)
-				plr[pnum].InvBody[INVLOC_RING_RIGHT] = plr[pnum].HoldItem;
+			is = &p->InvBody[INVLOC_RING_RIGHT];
+			if (is->_itype == ITYPE_NONE)
+				*is = *holditem;
 			else
-				cn = SwapItem(&plr[pnum].InvBody[INVLOC_RING_RIGHT], &plr[pnum].HoldItem);
+				cn = SwapItem(is, holditem);
 		}
 		break;
 	case ILOC_AMULET:
 		NetSendCmdChItem(FALSE, INVLOC_AMULET);
-		if (plr[pnum].InvBody[INVLOC_AMULET]._itype == ITYPE_NONE)
-			plr[pnum].InvBody[INVLOC_AMULET] = plr[pnum].HoldItem;
+		is = &p->InvBody[INVLOC_AMULET];
+		if (is->_itype == ITYPE_NONE)
+			*is = *holditem;
 		else
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_AMULET], &plr[pnum].HoldItem);
+			cn = SwapItem(is, holditem);
 		break;
 	case ILOC_ONEHAND:
+		is = &p->InvBody[INVLOC_HAND_LEFT];
+		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		if (r <= SLOTXY_HAND_LEFT_LAST) {
-			if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE) {
-				if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE || plr[pnum].InvBody[INVLOC_HAND_RIGHT]._iClass != plr[pnum].HoldItem._iClass) {
+			if (is->_itype == ITYPE_NONE) {
+				if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
 					NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-					plr[pnum].InvBody[INVLOC_HAND_LEFT] = plr[pnum].HoldItem;
+					*is = *holditem;
 				} else {
 					NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
-					cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_RIGHT], &plr[pnum].HoldItem);
+					cn = SwapItem(wRight, holditem);
 				}
 				break;
 			}
-			if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE || plr[pnum].InvBody[INVLOC_HAND_RIGHT]._iClass != plr[pnum].HoldItem._iClass) {
+			if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
 				NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-				cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_LEFT], &plr[pnum].HoldItem);
+				cn = SwapItem(is, holditem);
 				break;
 			}
 
 			NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_RIGHT], &plr[pnum].HoldItem);
+			cn = SwapItem(wRight, holditem);
 			break;
 		}
-		if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE) {
-			if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE || plr[pnum].InvBody[INVLOC_HAND_LEFT]._iLoc != ILOC_TWOHAND) {
-				if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE || plr[pnum].InvBody[INVLOC_HAND_LEFT]._iClass != plr[pnum].HoldItem._iClass) {
+		if (wRight->_itype == ITYPE_NONE) {
+			if (is->_itype == ITYPE_NONE || is->_iLoc != ILOC_TWOHAND) {
+				if (is->_itype == ITYPE_NONE || is->_iClass != holditem->_iClass) {
 					NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
-					plr[pnum].InvBody[INVLOC_HAND_RIGHT] = plr[pnum].HoldItem;
+					*wRight = *holditem;
 					break;
 				}
 				NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-				cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_LEFT], &plr[pnum].HoldItem);
+				cn = SwapItem(is, holditem);
 				break;
 			}
 			NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
 			NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
-			SwapItem(&plr[pnum].InvBody[INVLOC_HAND_RIGHT], &plr[pnum].InvBody[INVLOC_HAND_LEFT]);
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_RIGHT], &plr[pnum].HoldItem);
+			SwapItem(wRight, is);
+			cn = SwapItem(wRight, holditem);
 			break;
 		}
 
-		if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iClass == plr[pnum].HoldItem._iClass) {
+		if (is->_itype != ITYPE_NONE && is->_iClass == holditem->_iClass) {
 			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_LEFT], &plr[pnum].HoldItem);
+			cn = SwapItem(is, holditem);
 			break;
 		}
 		NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
-		cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_RIGHT], &plr[pnum].HoldItem);
+		cn = SwapItem(wRight, holditem);
 		break;
 	case ILOC_TWOHAND:
+		is = &p->InvBody[INVLOC_HAND_LEFT];
+		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
-		if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
-			tempitem = plr[pnum].HoldItem;
-			if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SHIELD)
-				plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_HAND_RIGHT];
+		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
+			tempitem = *holditem;
+			if (wRight->_itype == ITYPE_SHIELD)
+				*holditem = *wRight;
 			else
-				plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_HAND_LEFT];
+				*holditem = *is;
 			if (pnum == myplr)
-				SetCursor_(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+				SetCursor_(holditem->_iCurs + CURSOR_FIRSTITEM);
 			else
-				SetICursor(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			done2h = FALSE;
 			for (i = 0; i < NUM_INV_GRID_ELEM && !done2h; i++)
 				done2h = AutoPlace(pnum, i, icursW28, icursH28, TRUE);
-			plr[pnum].HoldItem = tempitem;
+			*holditem = tempitem;
 			if (pnum == myplr)
-				SetCursor_(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+				SetCursor_(holditem->_iCurs + CURSOR_FIRSTITEM);
 			else
-				SetICursor(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			if (!done2h)
 				return;
 
-			if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SHIELD)
-				plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype = ITYPE_NONE;
+			if (wRight->_itype == ITYPE_SHIELD)
+				wRight->_itype = ITYPE_NONE;
 			else
-				plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype = ITYPE_NONE;
+				is->_itype = ITYPE_NONE;
 		}
 
-		if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE || plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
+		if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
 			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-			if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE)
-				SwapItem(&plr[pnum].InvBody[INVLOC_HAND_LEFT], &plr[pnum].InvBody[INVLOC_HAND_RIGHT]);
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_HAND_LEFT], &plr[pnum].HoldItem);
+			if (is->_itype == ITYPE_NONE)
+				SwapItem(is, wRight);
+			cn = SwapItem(is, holditem);
 		} else {
 			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
-			plr[pnum].InvBody[INVLOC_HAND_LEFT] = plr[pnum].HoldItem;
+			*is = *holditem;
 		}
-		if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_STAFF && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell != 0 && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
-			plr[pnum]._pRSpell = plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell;
-			plr[pnum]._pRSplType = RSPLTYPE_CHARGES;
+		if (is->_itype == ITYPE_STAFF && is->_iSpell != 0 && is->_iCharges > 0) {
+			p->_pRSpell = is->_iSpell;
+			p->_pRSplType = RSPLTYPE_CHARGES;
 			force_redraw = 255;
 		}
 		break;
 	case ILOC_ARMOR:
 		NetSendCmdChItem(FALSE, INVLOC_CHEST);
-		if (plr[pnum].InvBody[INVLOC_CHEST]._itype == ITYPE_NONE)
-			plr[pnum].InvBody[INVLOC_CHEST] = plr[pnum].HoldItem;
+		is = &p->InvBody[INVLOC_CHEST];
+		if (is->_itype == ITYPE_NONE)
+			*is = *holditem;
 		else
-			cn = SwapItem(&plr[pnum].InvBody[INVLOC_CHEST], &plr[pnum].HoldItem);
+			cn = SwapItem(is, holditem);
 		break;
 	case ILOC_UNEQUIPABLE:
-		if (plr[pnum].HoldItem._itype == ITYPE_GOLD && it == 0) {
+		if (holditem->_itype == ITYPE_GOLD && it == 0) {
 			ii = r - SLOTXY_INV_FIRST;
 			yy = 10 * (ii / 10);
 			xx = ii % 10;
-			if (plr[pnum].InvGrid[yy + xx] > 0) {
-				il = plr[pnum].InvGrid[yy + xx];
+			if (p->InvGrid[yy + xx] > 0) {
+				il = p->InvGrid[yy + xx];
 				il--;
-				gt = plr[pnum].InvList[il]._ivalue;
-				ig = plr[pnum].HoldItem._ivalue + gt;
+				is = &p->InvList[il];
+				gt = is->_ivalue;
+				ig = holditem->_ivalue + gt;
 				if (ig <= GOLD_MAX_LIMIT) {
-					plr[pnum].InvList[il]._ivalue = ig;
-					plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
+					is->_ivalue = ig;
+					p->_pGold += holditem->_ivalue;
 					if (ig >= GOLD_MEDIUM_LIMIT)
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_LARGE;
+						is->_iCurs = ICURS_GOLD_LARGE;
 					else if (ig <= GOLD_SMALL_LIMIT)
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_SMALL;
+						is->_iCurs = ICURS_GOLD_SMALL;
 					else
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_MEDIUM;
+						is->_iCurs = ICURS_GOLD_MEDIUM;
 				} else {
 					ig = GOLD_MAX_LIMIT - gt;
-					plr[pnum]._pGold += ig;
-					plr[pnum].HoldItem._ivalue -= ig;
-					plr[pnum].InvList[il]._ivalue = GOLD_MAX_LIMIT;
-					plr[pnum].InvList[il]._iCurs = ICURS_GOLD_LARGE;
+					p->_pGold += ig;
+					holditem->_ivalue -= ig;
+					is->_ivalue = GOLD_MAX_LIMIT;
+					is->_iCurs = ICURS_GOLD_LARGE;
 					// BUGFIX: incorrect values here are leftover from beta
-					if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
+					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
 						cn = 18;
-					else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
+					else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
 						cn = 16;
 					else
 						cn = 17;
 				}
 			} else {
-				il = plr[pnum]._pNumInv;
-				plr[pnum].InvList[il] = plr[pnum].HoldItem;
-				plr[pnum]._pNumInv++;
-				plr[pnum].InvGrid[yy + xx] = plr[pnum]._pNumInv;
-				plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
-				if (plr[pnum].HoldItem._ivalue <= GOLD_MAX_LIMIT) {
-					if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_LARGE;
-					else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_SMALL;
+				il = p->_pNumInv;
+				p->InvList[il] = *holditem;
+				p->_pNumInv++;
+				p->InvGrid[yy + xx] = p->_pNumInv;
+				p->_pGold += holditem->_ivalue;
+				if (holditem->_ivalue <= GOLD_MAX_LIMIT) {
+					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
+						p->InvList[il]._iCurs = ICURS_GOLD_LARGE;
+					else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
+						p->InvList[il]._iCurs = ICURS_GOLD_SMALL;
 					else
-						plr[pnum].InvList[il]._iCurs = ICURS_GOLD_MEDIUM;
+						p->InvList[il]._iCurs = ICURS_GOLD_MEDIUM;
 				}
 			}
 		} else {
 			if (it == 0) {
-				plr[pnum].InvList[plr[pnum]._pNumInv] = plr[pnum].HoldItem;
-				plr[pnum]._pNumInv++;
-				it = plr[pnum]._pNumInv;
+				p->InvList[p->_pNumInv] = *holditem;
+				p->_pNumInv++;
+				it = p->_pNumInv;
 			} else {
 				il = it - 1;
-				if (plr[pnum].HoldItem._itype == ITYPE_GOLD)
-					plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
-				cn = SwapItem(&plr[pnum].InvList[il], &plr[pnum].HoldItem);
-				if (plr[pnum].HoldItem._itype == ITYPE_GOLD)
-					plr[pnum]._pGold = CalculateGold(pnum);
+				if (holditem->_itype == ITYPE_GOLD)
+					p->_pGold += holditem->_ivalue;
+				cn = SwapItem(&p->InvList[il], holditem);
+				if (holditem->_itype == ITYPE_GOLD)
+					p->_pGold = CalculateGold(pnum);
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-					if (plr[pnum].InvGrid[i] == it)
-						plr[pnum].InvGrid[i] = 0;
-					if (plr[pnum].InvGrid[i] == -it)
-						plr[pnum].InvGrid[i] = 0;
+					if (p->InvGrid[i] == it)
+						p->InvGrid[i] = 0;
+					if (p->InvGrid[i] == -it)
+						p->InvGrid[i] = 0;
 				}
 			}
 			ii = r - SLOTXY_INV_FIRST;
@@ -1364,9 +1402,9 @@ void CheckInvPaste(int pnum, int mx, int my)
 					xx = 0;
 				for (i = 0; i < sx; i++) {
 					if (i != 0 || j != sy - 1)
-						plr[pnum].InvGrid[xx + yy] = -it;
+						p->InvGrid[xx + yy] = -it;
 					else
-						plr[pnum].InvGrid[xx + yy] = it;
+						p->InvGrid[xx + yy] = it;
 					xx++;
 				}
 				yy += 10;
@@ -1375,48 +1413,49 @@ void CheckInvPaste(int pnum, int mx, int my)
 		break;
 	case ILOC_BELT:
 		ii = r - SLOTXY_BELT_FIRST;
-		if (plr[pnum].HoldItem._itype == ITYPE_GOLD) {
-			if (plr[pnum].SpdList[ii]._itype != ITYPE_NONE) {
-				if (plr[pnum].SpdList[ii]._itype == ITYPE_GOLD) {
-					i = plr[pnum].HoldItem._ivalue + plr[pnum].SpdList[ii]._ivalue;
+		is = &p->SpdList[ii];
+		if (holditem->_itype == ITYPE_GOLD) {
+			if (is->_itype != ITYPE_NONE) {
+				if (is->_itype == ITYPE_GOLD) {
+					i = holditem->_ivalue + is->_ivalue;
 					if (i <= GOLD_MAX_LIMIT) {
-						plr[pnum].SpdList[ii]._ivalue += plr[pnum].HoldItem._ivalue;
-						plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
+						is->_ivalue += holditem->_ivalue;
+						p->_pGold += holditem->_ivalue;
 						if (i >= GOLD_MEDIUM_LIMIT)
-							plr[pnum].SpdList[ii]._iCurs = ICURS_GOLD_LARGE;
+							is->_iCurs = ICURS_GOLD_LARGE;
 						else if (i <= GOLD_SMALL_LIMIT)
-							plr[pnum].SpdList[ii]._iCurs = ICURS_GOLD_SMALL;
+							is->_iCurs = ICURS_GOLD_SMALL;
 						else
-							plr[pnum].SpdList[ii]._iCurs = ICURS_GOLD_MEDIUM;
+							is->_iCurs = ICURS_GOLD_MEDIUM;
 					} else {
-						i = GOLD_MAX_LIMIT - plr[pnum].SpdList[ii]._ivalue;
-						plr[pnum]._pGold += i;
-						plr[pnum].HoldItem._ivalue -= i;
-						plr[pnum].SpdList[ii]._ivalue = GOLD_MAX_LIMIT;
-						plr[pnum].SpdList[ii]._iCurs = ICURS_GOLD_LARGE;
+						i = GOLD_MAX_LIMIT - is->_ivalue;
+						p->_pGold += i;
+						holditem->_ivalue -= i;
+						is->_ivalue = GOLD_MAX_LIMIT;
+						is->_iCurs = ICURS_GOLD_LARGE;
 
 						// BUGFIX: incorrect values here are leftover from beta
-						if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
+						if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
 							cn = 18;
-						else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
+						else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
 							cn = 16;
 						else
 							cn = 17;
 					}
 				} else {
-					plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
-					cn = SwapItem(&plr[pnum].SpdList[ii], &plr[pnum].HoldItem);
+					p->_pGold += holditem->_ivalue;
+					cn = SwapItem(is, holditem);
 				}
 			} else {
-				plr[pnum].SpdList[ii] = plr[pnum].HoldItem;
-				plr[pnum]._pGold += plr[pnum].HoldItem._ivalue;
+				*is = p->HoldItem;
+				p->_pGold += holditem->_ivalue;
 			}
-		} else if (plr[pnum].SpdList[ii]._itype == ITYPE_NONE) {
-			plr[pnum].SpdList[ii] = plr[pnum].HoldItem;
+		} else if (is->_itype == ITYPE_NONE) {
+			*is = *holditem;
 		} else {
-			cn = SwapItem(&plr[pnum].SpdList[ii], &plr[pnum].HoldItem);
-			if (plr[pnum].HoldItem._itype == ITYPE_GOLD)
-				plr[pnum]._pGold = CalculateGold(pnum);
+			cn = SwapItem(is, holditem);
+			if (holditem->_itype == ITYPE_GOLD)
+				p->_pGold = CalculateGold(pnum);
 		}
 		drawsbarflag = TRUE;
 		break;
@@ -1457,12 +1496,14 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
 
 void CheckInvCut(int pnum, int mx, int my)
 {
+	PlayerStruct *p;
 	int r;
 	BOOL done;
 	char ii;
 	int iv, i, j, offs, ig;
 
-	if (plr[pnum]._pmode > PM_WALK3) {
+	p = &plr[pnum];
+	if (p->_pmode > PM_WALK3) {
 		return;
 	}
 
@@ -1496,71 +1537,71 @@ void CheckInvCut(int pnum, int mx, int my)
 		return;
 	}
 
-	plr[pnum].HoldItem._itype = ITYPE_NONE;
+	p->HoldItem._itype = ITYPE_NONE;
 
 	if (
 	    r >= SLOTXY_HEAD_FIRST
 	    && r <= SLOTXY_HEAD_LAST
-	    && plr[pnum].InvBody[INVLOC_HEAD]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_HEAD]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_HEAD);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_HEAD];
-		plr[pnum].InvBody[INVLOC_HEAD]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_HEAD];
+		p->InvBody[INVLOC_HEAD]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r == SLOTXY_RING_LEFT
-	    && plr[pnum].InvBody[INVLOC_RING_LEFT]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_RING_LEFT]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_RING_LEFT);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_RING_LEFT];
-		plr[pnum].InvBody[INVLOC_RING_LEFT]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_RING_LEFT];
+		p->InvBody[INVLOC_RING_LEFT]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r == SLOTXY_RING_RIGHT
-	    && plr[pnum].InvBody[INVLOC_RING_RIGHT]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_RING_RIGHT]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_RING_RIGHT);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_RING_RIGHT];
-		plr[pnum].InvBody[INVLOC_RING_RIGHT]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_RING_RIGHT];
+		p->InvBody[INVLOC_RING_RIGHT]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r == SLOTXY_AMULET
-	    && plr[pnum].InvBody[INVLOC_AMULET]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_AMULET]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_AMULET);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_AMULET];
-		plr[pnum].InvBody[INVLOC_AMULET]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_AMULET];
+		p->InvBody[INVLOC_AMULET]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r >= SLOTXY_HAND_LEFT_FIRST
 	    && r <= SLOTXY_HAND_LEFT_LAST
-	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_HAND_LEFT];
-		plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_HAND_LEFT];
+		p->InvBody[INVLOC_HAND_LEFT]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r >= SLOTXY_HAND_RIGHT_FIRST
 	    && r <= SLOTXY_HAND_RIGHT_LAST
-	    && plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_HAND_RIGHT];
-		plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_HAND_RIGHT];
+		p->InvBody[INVLOC_HAND_RIGHT]._itype = ITYPE_NONE;
 	}
 
 	if (
 	    r >= SLOTXY_CHEST_FIRST
 	    && r <= SLOTXY_CHEST_LAST
-	    && plr[pnum].InvBody[INVLOC_CHEST]._itype != ITYPE_NONE) {
+	    && p->InvBody[INVLOC_CHEST]._itype != ITYPE_NONE) {
 		NetSendCmdDelItem(FALSE, INVLOC_CHEST);
-		plr[pnum].HoldItem = plr[pnum].InvBody[INVLOC_CHEST];
-		plr[pnum].InvBody[INVLOC_CHEST]._itype = ITYPE_NONE;
+		p->HoldItem = p->InvBody[INVLOC_CHEST];
+		p->InvBody[INVLOC_CHEST]._itype = ITYPE_NONE;
 	}
 
 	if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
 		ig = r - SLOTXY_INV_FIRST;
-		ii = plr[pnum].InvGrid[ig];
+		ii = p->InvGrid[ig];
 		if (ii != 0) {
 			iv = ii;
 			if (ii <= 0) {
@@ -1568,25 +1609,25 @@ void CheckInvCut(int pnum, int mx, int my)
 			}
 
 			for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-				if (plr[pnum].InvGrid[i] == iv || plr[pnum].InvGrid[i] == -iv) {
-					plr[pnum].InvGrid[i] = 0;
+				if (p->InvGrid[i] == iv || p->InvGrid[i] == -iv) {
+					p->InvGrid[i] = 0;
 				}
 			}
 
 			iv--;
 
-			plr[pnum].HoldItem = plr[pnum].InvList[iv];
-			plr[pnum]._pNumInv--;
+			p->HoldItem = p->InvList[iv];
+			p->_pNumInv--;
 
-			if (plr[pnum]._pNumInv > 0 && plr[pnum]._pNumInv != iv) {
-				plr[pnum].InvList[iv] = plr[pnum].InvList[plr[pnum]._pNumInv];
+			if (p->_pNumInv > 0 && p->_pNumInv != iv) {
+				p->InvList[iv] = p->InvList[p->_pNumInv];
 
 				for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-					if (plr[pnum].InvGrid[j] == plr[pnum]._pNumInv + 1) {
-						plr[pnum].InvGrid[j] = iv + 1;
+					if (p->InvGrid[j] == p->_pNumInv + 1) {
+						p->InvGrid[j] = iv + 1;
 					}
-					if (plr[pnum].InvGrid[j] == -(plr[pnum]._pNumInv + 1)) {
-						plr[pnum].InvGrid[j] = -iv - 1;
+					if (p->InvGrid[j] == -(p->_pNumInv + 1)) {
+						p->InvGrid[j] = -iv - 1;
 					}
 				}
 			}
@@ -1595,16 +1636,16 @@ void CheckInvCut(int pnum, int mx, int my)
 
 	if (r >= SLOTXY_BELT_FIRST) {
 		offs = r - SLOTXY_BELT_FIRST;
-		if (plr[pnum].SpdList[offs]._itype != ITYPE_NONE) {
-			plr[pnum].HoldItem = plr[pnum].SpdList[offs];
-			plr[pnum].SpdList[offs]._itype = ITYPE_NONE;
+		if (p->SpdList[offs]._itype != ITYPE_NONE) {
+			p->HoldItem = p->SpdList[offs];
+			p->SpdList[offs]._itype = ITYPE_NONE;
 			drawsbarflag = TRUE;
 		}
 	}
 
-	if (plr[pnum].HoldItem._itype != ITYPE_NONE) {
-		if (plr[pnum].HoldItem._itype == ITYPE_GOLD) {
-			plr[pnum]._pGold = CalculateGold(pnum);
+	if (p->HoldItem._itype != ITYPE_NONE) {
+		if (p->HoldItem._itype == ITYPE_GOLD) {
+			p->_pGold = CalculateGold(pnum);
 		}
 
 		CalcPlrInv(pnum, TRUE);
@@ -1612,7 +1653,7 @@ void CheckInvCut(int pnum, int mx, int my)
 
 		if (pnum == myplr) {
 			PlaySFX(IS_IGRAB);
-			SetCursor_(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+			SetCursor_(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 			SetCursorPos(mx - (cursW >> 1), MouseY - (cursH >> 1));
 		}
 	}
@@ -1633,42 +1674,44 @@ void inv_update_rem_item(int pnum, BYTE iv)
 
 void RemoveInvItem(int pnum, int iv)
 {
+	PlayerStruct *p;
 	int i, j;
 
+	p = &plr[pnum];
 	iv++;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (plr[pnum].InvGrid[i] == iv || plr[pnum].InvGrid[i] == -iv) {
-			plr[pnum].InvGrid[i] = 0;
+		if (p->InvGrid[i] == iv || p->InvGrid[i] == -iv) {
+			p->InvGrid[i] = 0;
 		}
 	}
 
 	iv--;
-	plr[pnum]._pNumInv--;
+	p->_pNumInv--;
 
-	if (plr[pnum]._pNumInv > 0 && plr[pnum]._pNumInv != iv) {
-		plr[pnum].InvList[iv] = plr[pnum].InvList[plr[pnum]._pNumInv];
+	if (p->_pNumInv > 0 && p->_pNumInv != iv) {
+		p->InvList[iv] = p->InvList[p->_pNumInv];
 
 		for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-			if (plr[pnum].InvGrid[j] == plr[pnum]._pNumInv + 1) {
-				plr[pnum].InvGrid[j] = iv + 1;
+			if (p->InvGrid[j] == p->_pNumInv + 1) {
+				p->InvGrid[j] = iv + 1;
 			}
-			if (plr[pnum].InvGrid[j] == -(plr[pnum]._pNumInv + 1)) {
-				plr[pnum].InvGrid[j] = -(iv + 1);
+			if (p->InvGrid[j] == -(p->_pNumInv + 1)) {
+				p->InvGrid[j] = -(iv + 1);
 			}
 		}
 	}
 
 	CalcPlrScrolls(pnum);
 
-	if (plr[pnum]._pRSplType == RSPLTYPE_SCROLL) {
-		if (plr[pnum]._pRSpell != SPL_INVALID) {
+	if (p->_pRSplType == RSPLTYPE_SCROLL) {
+		if (p->_pRSpell != SPL_INVALID) {
 			// BUGFIX: Cast the literal `1` to `unsigned __int64` to make that bitshift 64bit
 			// this causes the last 4 skills to not reset correctly after use
 			if (!(
-			        plr[pnum]._pScrlSpells
-			        & (1 << (plr[pnum]._pRSpell - 1)))) {
-				plr[pnum]._pRSpell = SPL_INVALID;
+			        p->_pScrlSpells
+			        & (1 << (p->_pRSpell - 1)))) {
+				p->_pRSpell = SPL_INVALID;
 			}
 
 			force_redraw = 255;
@@ -1792,31 +1835,36 @@ void CheckBookLevel(int pnum)
 
 void CheckQuestItem(int pnum)
 {
-	if (plr[pnum].HoldItem.IDidx == IDI_OPTAMULET)
+	PlayerStruct *p;
+	ItemStruct *is;
+
+	p = &plr[pnum];
+	is = &p->HoldItem;
+	if (is->IDidx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-	if (plr[pnum].HoldItem.IDidx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
+	if (is->IDidx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
 #ifndef SPAWN
 		sfxdelay = 10;
-		if (plr[pnum]._pClass == PC_WARRIOR) { // BUGFIX: Voice for this quest might be wrong in MP
+		if (p->_pClass == PC_WARRIOR) { // BUGFIX: Voice for this quest might be wrong in MP
 			sfxdnum = PS_WARR95;
-		} else if (plr[pnum]._pClass == PC_ROGUE) {
+		} else if (p->_pClass == PC_ROGUE) {
 			sfxdnum = PS_ROGUE95;
-		} else if (plr[pnum]._pClass == PC_SORCERER) {
+		} else if (p->_pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE95;
 		}
 #ifdef HELLFIRE
-		else if (plr[pnum]._pClass == PC_MONK) {
+		else if (p->_pClass == PC_MONK) {
 			sfxdnum = PS_MONK95;
-		} else if (plr[pnum]._pClass == PC_BARD) {
+		} else if (p->_pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE95;
-		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
+		} else if (p->_pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR95;
 		}
 #endif
 #endif
 		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
 	}
-	if (plr[pnum].HoldItem.IDidx == IDI_ANVIL) {
+	if (is->IDidx == IDI_ANVIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
@@ -1844,7 +1892,7 @@ void CheckQuestItem(int pnum)
 #endif
 	}
 #ifndef SPAWN
-	if (plr[pnum].HoldItem.IDidx == IDI_GLDNELIX) {
+	if (is->IDidx == IDI_GLDNELIX) {
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR88;
@@ -1864,7 +1912,7 @@ void CheckQuestItem(int pnum)
 #endif
 	}
 #endif
-	if (plr[pnum].HoldItem.IDidx == IDI_ROCK) {
+	if (is->IDidx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
@@ -1891,7 +1939,7 @@ void CheckQuestItem(int pnum)
 		}
 #endif
 	}
-	if (plr[pnum].HoldItem.IDidx == IDI_ARMOFVAL) {
+	if (is->IDidx == IDI_ARMOFVAL) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 #ifndef SPAWN
 		sfxdelay = 20;
@@ -1913,7 +1961,7 @@ void CheckQuestItem(int pnum)
 #endif
 	}
 #ifdef HELLFIRE
-	if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM) {
+	if (is->IDidx == IDI_MAPOFDOOM) {
 		quests[Q_GRAVE]._qlog = FALSE;
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		quests[Q_GRAVE]._qvar1 = 1;
@@ -1936,12 +1984,12 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_WARR79;
 		}
 	}
-	if (plr[pnum].HoldItem.IDidx == IDI_NOTE1 || plr[pnum].HoldItem.IDidx == IDI_NOTE2 || plr[pnum].HoldItem.IDidx == IDI_NOTE3) {
+	if (is->IDidx == IDI_NOTE1 || is->IDidx == IDI_NOTE2 || is->IDidx == IDI_NOTE3) {
 		int mask, idx, item_num;
 		int n1, n2, n3;
 		ItemStruct tmp;
 		mask = 0;
-		idx = plr[pnum].HoldItem.IDidx;
+		idx = is->IDidx;
 		if (PlrHasItem(pnum, IDI_NOTE1, &n1) || idx == IDI_NOTE1)
 			mask = 1;
 		if (PlrHasItem(pnum, IDI_NOTE2, &n2) || idx == IDI_NOTE2)
@@ -1991,7 +2039,7 @@ void CheckQuestItem(int pnum)
 			tmp = item[item_num];
 			GetItemAttrs(item_num, IDI_FULLNOTE, 16);
 			SetupItem(item_num);
-			plr[pnum].HoldItem = item[item_num];
+			p->HoldItem = item[item_num];
 			item[item_num] = tmp;
 		}
 	}
@@ -2000,6 +2048,8 @@ void CheckQuestItem(int pnum)
 
 void InvGetItem(int pnum, int ii)
 {
+	PlayerStruct *p;
+	ItemStruct *is;
 	int i;
 #ifdef HELLFIRE
 	BOOL cursor_updated;
@@ -2010,25 +2060,27 @@ void InvGetItem(int pnum, int ii)
 		dropGoldValue = 0;
 	}
 
-	if (dItem[item[ii]._ix][item[ii]._iy] != 0) {
+	is = &item[ii];
+	if (dItem[is->_ix][is->_iy] != 0) {
+		p = &plr[pnum];
 		if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
-			NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, plr[myplr]._px, plr[myplr]._py);
+			NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
 #ifdef HELLFIRE
-		if (item[ii]._iUid != 0)
+		if (is->_iUid != 0)
 #endif
-			item[ii]._iCreateInfo &= ~CF_PREGEN;
-		plr[pnum].HoldItem = item[ii];
+			is->_iCreateInfo &= ~CF_PREGEN;
+		p->HoldItem = *is;
 		CheckQuestItem(pnum);
 		CheckBookLevel(pnum);
 		CheckItemStats(pnum);
 #ifdef HELLFIRE
 		cursor_updated = FALSE;
-		if (plr[pnum].HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
+		if (p->HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
 			cursor_updated = TRUE;
 #endif
-		dItem[item[ii]._ix][item[ii]._iy] = 0;
+		dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
-		if (currlevel == 21 && item[ii]._ix == CornerStone.x && item[ii]._iy == CornerStone.y) {
+		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
 			CornerStone.item.IDidx = -1;
 			CornerStone.item._itype = ITYPE_MISC;
 			CornerStone.item._iSelFlag = FALSE;
@@ -2052,12 +2104,14 @@ void InvGetItem(int pnum, int ii)
 #ifdef HELLFIRE
 		if (!cursor_updated)
 #endif
-			SetCursor_(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
+			SetCursor_(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	}
 }
 
 void AutoGetItem(int pnum, int ii)
 {
+	PlayerStruct *p;
+	ItemStruct *is;
 	int i, idx;
 	int w, h;
 	BOOL done;
@@ -2071,36 +2125,38 @@ void AutoGetItem(int pnum, int ii)
 		dropGoldValue = 0;
 	}
 
+	is = &item[ii];
 	if (ii != MAXITEMS) {
-		if (dItem[item[ii]._ix][item[ii]._iy] == 0)
+		if (dItem[is->_ix][is->_iy] == 0)
 			return;
 	}
 
+	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (item[ii]._iUid != 0)
+	if (is->_iUid != 0)
 #endif
-		item[ii]._iCreateInfo &= ~CF_PREGEN;
-	plr[pnum].HoldItem = item[ii]; /// BUGFIX: overwrites cursor item, allowing for belt dupe bug
+		is->_iCreateInfo &= ~CF_PREGEN;
+	p->HoldItem = *is; /// BUGFIX: overwrites cursor item, allowing for belt dupe bug
 	CheckQuestItem(pnum);
 	CheckBookLevel(pnum);
 	CheckItemStats(pnum);
-	SetICursor(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
-	if (plr[pnum].HoldItem._itype == ITYPE_GOLD) {
+	SetICursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+	if (p->HoldItem._itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum);
 #ifdef HELLFIRE
 		if (!done)
-			item[ii]._ivalue = plr[pnum].HoldItem._ivalue;
+			is->_ivalue = p->HoldItem._ivalue;
 #endif
 	} else {
 		done = FALSE;
-		if (((plr[pnum]._pgfxnum & 0xF) == ANIM_ID_UNARMED || (plr[pnum]._pgfxnum & 0xF) == ANIM_ID_UNARMED_SHIELD
+		if (((p->_pgfxnum & 0xF) == ANIM_ID_UNARMED || (p->_pgfxnum & 0xF) == ANIM_ID_UNARMED_SHIELD
 #ifdef HELLFIRE
-		        || plr[pnum]._pClass == PC_BARD && ((plr[pnum]._pgfxnum & 0xF) == ANIM_ID_MACE || (plr[pnum]._pgfxnum & 0xF) == ANIM_ID_SWORD)
+		        || p->_pClass == PC_BARD && ((p->_pgfxnum & 0xF) == ANIM_ID_MACE || (p->_pgfxnum & 0xF) == ANIM_ID_SWORD)
 #endif
 		            )
-		    && plr[pnum]._pmode <= PM_WALK3) {
-			if (plr[pnum].HoldItem._iStatFlag) {
-				if (plr[pnum].HoldItem._iClass == ICLASS_WEAPON) {
+		    && p->_pmode <= PM_WALK3) {
+			if (p->HoldItem._iStatFlag) {
+				if (p->HoldItem._iClass == ICLASS_WEAPON) {
 					done = WeaponAutoPlace(pnum);
 					if (done)
 						CalcPlrInv(pnum, TRUE);
@@ -2111,11 +2167,11 @@ void AutoGetItem(int pnum, int ii)
 			w = icursW28;
 			h = icursH28;
 			if (w == 1 && h == 1) {
-				idx = plr[pnum].HoldItem.IDidx;
-				if (plr[pnum].HoldItem._iStatFlag && AllItemsList[idx].iUsable) {
+				idx = p->HoldItem.IDidx;
+				if (p->HoldItem._iStatFlag && AllItemsList[idx].iUsable) {
 					for (i = 0; i < MAXBELTITEMS && !done; i++) {
-						if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
-							plr[pnum].SpdList[i] = plr[pnum].HoldItem;
+						if (p->SpdList[i]._itype == ITYPE_NONE) {
+							p->SpdList[i] = p->HoldItem;
 							CalcPlrScrolls(pnum);
 							drawsbarflag = TRUE;
 							done = TRUE;
@@ -2176,9 +2232,9 @@ void AutoGetItem(int pnum, int ii)
 		}
 	}
 	if (done) {
-		dItem[item[ii]._ix][item[ii]._iy] = 0;
+		dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
-		if (currlevel == 21 && item[ii]._ix == CornerStone.x && item[ii]._iy == CornerStone.y) {
+		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
 			CornerStone.item.IDidx = -1;
 			CornerStone.item._itype = ITYPE_MISC;
 			CornerStone.item._iSelFlag = FALSE;
@@ -2200,30 +2256,30 @@ void AutoGetItem(int pnum, int ii)
 		}
 	} else {
 		if (pnum == myplr) {
-			if (plr[pnum]._pClass == PC_WARRIOR) {
+			if (p->_pClass == PC_WARRIOR) {
 				PlaySFX(random_(0, 3) + PS_WARR14);
 #ifndef SPAWN
-			} else if (plr[pnum]._pClass == PC_ROGUE) {
+			} else if (p->_pClass == PC_ROGUE) {
 				PlaySFX(random_(0, 3) + PS_ROGUE14);
-			} else if (plr[pnum]._pClass == PC_SORCERER) {
+			} else if (p->_pClass == PC_SORCERER) {
 				PlaySFX(random_(0, 3) + PS_MAGE14);
 #endif
 #ifdef HELLFIRE
-			} else if (plr[pnum]._pClass == PC_MONK) {
+			} else if (p->_pClass == PC_MONK) {
 				PlaySFX(random_(0, 3) + PS_MONK14);
 #ifndef SPAWN
-			} else if (plr[pnum]._pClass == PC_BARD) {
+			} else if (p->_pClass == PC_BARD) {
 				PlaySFX(random_(0, 3) + PS_ROGUE14);
 #endif
-			} else if (plr[pnum]._pClass == PC_BARBARIAN) {
+			} else if (p->_pClass == PC_BARBARIAN) {
 				PlaySFX(random_(0, 3) + PS_WARR14);
 #endif
 			}
 		}
-		plr[pnum].HoldItem = item[ii];
+		p->HoldItem = *is;
 		RespawnItem(ii, TRUE);
-		NetSendCmdPItem(TRUE, CMD_RESPAWNITEM, item[ii]._ix, item[ii]._iy);
-		plr[pnum].HoldItem._itype = ITYPE_NONE;
+		NetSendCmdPItem(TRUE, CMD_RESPAWNITEM, is->_ix, is->_iy);
+		p->HoldItem._itype = ITYPE_NONE;
 #ifdef HELLFIRE
 		NewCursor(CURSOR_HAND);
 #endif
@@ -2254,6 +2310,7 @@ int FindGetItem(int idx, WORD ci, int iseed)
 
 void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 {
+	ItemStruct *is;
 	int i, ii;
 
 	if (dItem[x][y]) {
@@ -2270,9 +2327,10 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	}
 
 	if (ii != -1) {
-		dItem[item[ii]._ix][item[ii]._iy] = 0;
+		is = &item[ii];
+		dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
-		if (currlevel == 21 && item[ii]._ix == CornerStone.x && item[ii]._iy == CornerStone.y) {
+		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
 			CornerStone.item.IDidx = -1;
 			CornerStone.item._itype = ITYPE_MISC;
 			CornerStone.item._iSelFlag = FALSE;
@@ -2624,7 +2682,7 @@ char CheckInvHLight()
 		pi = &p->InvBody[INVLOC_HAND_LEFT];
 #ifdef HELLFIRE
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND
-		    || (p->_pClass == PC_BARBARIAN && (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_MACE))) {
+		    || (p->_pClass == PC_BARBARIAN && (pi->_itype == ITYPE_SWORD || pi->_itype == ITYPE_MACE))) {
 #else
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND) {
 #endif
@@ -2710,24 +2768,29 @@ void RemoveScroll(int pnum)
 
 BOOL UseScroll()
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 
+	p = &plr[myplr];
 	if (pcurs != CURSOR_HAND)
 		return FALSE;
-	if (leveltype == DTYPE_TOWN && !spelldata[plr[myplr]._pRSpell].sTownSpell)
+	if (leveltype == DTYPE_TOWN && !spelldata[p->_pRSpell].sTownSpell)
 		return FALSE;
 
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
-		if (plr[myplr].InvList[i]._itype != ITYPE_NONE
-		    && (plr[myplr].InvList[i]._iMiscId == IMISC_SCROLL || plr[myplr].InvList[i]._iMiscId == IMISC_SCROLLT)
-		    && plr[myplr].InvList[i]._iSpell == plr[myplr]._pRSpell) {
+	pi = p->InvList;
+	for (i = p->_pNumInv; i > 0; i--, pi++) {
+		if (pi->_itype != ITYPE_NONE
+		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		    && pi->_iSpell == p->_pRSpell) {
 			return TRUE;
 		}
 	}
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (plr[myplr].SpdList[i]._itype != ITYPE_NONE
-		    && (plr[myplr].SpdList[i]._iMiscId == IMISC_SCROLL || plr[myplr].SpdList[i]._iMiscId == IMISC_SCROLLT)
-		    && plr[myplr].SpdList[i]._iSpell == plr[myplr]._pRSpell) {
+	pi = p->SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+		if (pi->_itype != ITYPE_NONE
+		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		    && pi->_iSpell == p->_pRSpell) {
 			return TRUE;
 		}
 	}
@@ -2737,15 +2800,18 @@ BOOL UseScroll()
 
 void UseStaffCharge(int pnum)
 {
-	if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE
-	    && (plr[pnum].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_STAFF
+	ItemStruct *is;
+
+	is = &plr[pnum].InvBody[INVLOC_HAND_LEFT];
+	if (is->_itype != ITYPE_NONE
+	    && (is->_iMiscId == IMISC_STAFF
 #ifdef HELLFIRE
-	           || plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_UNIQUE // BUGFIX: myplr->pnum
+	           || is->_iMiscId == IMISC_UNIQUE // BUGFIX: myplr->pnum (fixed)
 #endif
 	           )
-	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell == plr[pnum]._pRSpell
-	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
-		plr[pnum].InvBody[INVLOC_HAND_LEFT]._iCharges--;
+	    && is->_iSpell == plr[pnum]._pRSpell
+	    && is->_iCharges > 0) {
+		is->_iCharges--;
 		CalcPlrStaff(pnum);
 	}
 }
@@ -2951,18 +3017,21 @@ void DoTelekinesis()
 
 int CalculateGold(int pnum)
 {
+	ItemStruct *pi;
 	int i, gold;
 
 	gold = 0;
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (plr[pnum].SpdList[i]._itype == ITYPE_GOLD) {
-			gold += plr[pnum].SpdList[i]._ivalue;
+	pi = plr[pnum].SpdList;
+	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			gold += pi->_ivalue;
 			force_redraw = 255;
 		}
 	}
-	for (i = 0; i < plr[pnum]._pNumInv; i++) {
-		if (plr[pnum].InvList[i]._itype == ITYPE_GOLD)
-			gold += plr[pnum].InvList[i]._ivalue;
+	pi = plr[pnum].SpdList;
+	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD)
+			gold += pi->_ivalue;
 	}
 
 	return gold;

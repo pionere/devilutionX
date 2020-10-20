@@ -1028,13 +1028,16 @@ void plrctrls_after_game_logic()
 
 void UseBeltItem(int type)
 {
-	for (int i = 0; i < MAXBELTITEMS; i++) {
-		const int id = AllItemsList[plr[myplr].SpdList[i].IDidx].iMiscId;
-		const int spellId = AllItemsList[plr[myplr].SpdList[i].IDidx].iSpell;
+	ItemStruct *pi;
+
+	pi = plr[myplr].SpdList;
+	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
+		const int id = AllItemsList[pi->IDidx].iMiscId;
+		const int spellId = AllItemsList[pi->IDidx].iSpell;
 		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (plr[myplr].SpdList[i]._itype > -1) {
+			if (pi->_itype > -1) {
 				UseInvItem(myplr, INVITEM_BELT_FIRST + i);
 				break;
 			}
