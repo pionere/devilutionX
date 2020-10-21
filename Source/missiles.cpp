@@ -20,9 +20,7 @@ int numchains;
 int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
 int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
-#ifdef HELLFIRE
 int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
-#endif
 
 void GetDamageAmt(int sn, int *mind, int *maxd)
 {
@@ -267,28 +265,24 @@ BOOL CheckBlock(int fx, int fy, int tx, int ty)
 int FindClosest(int sx, int sy, int rad)
 {
 	int j, i, mid, tx, ty, cr;
-#ifndef HELLFIRE
-	int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
-#endif
 
 	if (rad > 19)
 		rad = 19;
 
 	for (i = 1; i < rad; i++) {
-		cr = CrawlNum[i] + 2;
+		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[CrawlNum[i]]; j > 0; j--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
-		for (j = (BYTE)CrawlTable[CrawlNum[i]]; j > 0; j--) {
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-			tx = sx + CrawlTable[cr - 1];
-			ty = sy + CrawlTable[cr];
+			tx = sx + CrawlTable[cr];
+			ty = sy + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				mid = dMonster[tx][ty];
 				if (mid > 0 && !CheckBlock(sx, sy, tx, ty))
 					return mid - 1;
 			}
-			cr += 2;
 		}
 	}
 	return -1;
@@ -1357,24 +1351,23 @@ void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 {
 	BOOLEAN found;
-	int i, j, k, tx, ty, dp;
+	int i, j, cr, tx, ty;
 
 	found = FALSE;
 
 	if (rad > 19)
 		rad = 19;
 
-	for (j = 0; j < rad; j++) {
+	for (i = 0; i < rad; i++) {
 		if (found) {
 			break;
 		}
-		k = CrawlNum[j] + 2;
-		for (i = CrawlTable[CrawlNum[j]]; i > 0; i--, k += 2) {
-			tx = *x + CrawlTable[k - 1];
-			ty = *y + CrawlTable[k];
+		cr = CrawlNum[i] + 1;
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			tx = *x + CrawlTable[cr];
+			ty = *y + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				dp = dPiece[tx][ty];
-				if (!nSolidTable[dp] && !dObject[tx][ty] && !dMissile[tx][ty]) {
+				if (!nSolidTable[dPiece[tx][ty]] && !dObject[tx][ty] && !dMissile[tx][ty]) {
 					missile[mi]._mix = tx;
 					missile[mi]._miy = ty;
 					*x = tx;
@@ -1474,15 +1467,15 @@ void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 
 void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
-	int i, j, k, tx, ty, dm, r;
+	int i, j, cr, tx, ty, dm, r;
 
 	if (id >= 0) {
 		missile[mi]._misource = id;
-		for (j = 0; j < 6; j++) {
-			k = CrawlNum[j] + 2;
-			for (i = CrawlTable[CrawlNum[j]]; i > 0; i--, k += 2) {
-				tx = dx + CrawlTable[k - 1];
-				ty = dy + CrawlTable[k];
+		for (i = 0; i < 6; i++) {
+			cr = CrawlNum[i] + 1;
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+				tx = dx + CrawlTable[cr];
+				ty = dy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					dm = dMonster[tx][ty];
 					dm = dm > 0 ? dm - 1 : -(dm + 1);
@@ -1491,7 +1484,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 							if (monster[dm]._mmode != MM_FADEIN && monster[dm]._mmode != MM_FADEOUT) {
 								if (!(monster[dm].mMagicRes & IMUNE_MAGIC)) {
 									if ((!(monster[dm].mMagicRes & RESIST_MAGIC) || (monster[dm].mMagicRes & RESIST_MAGIC) == 1 && !random_(99, 2)) && monster[dm]._mmode != MM_CHARGE) {
-										j = 6;
+										i = 6;
 										double slvl = (double)GetSpellLevel(id, SPL_BERSERK);
 										monster[dm]._mFlags |= MFLAG_UNUSED | MFLAG_GOLEM;
 										monster[dm].mMinDamage = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)monster[dm].mMinDamage + slvl;
@@ -1569,16 +1562,15 @@ void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
-	int i, l, k, j, tx, ty, si, ii, pnum;
+	int i, cr, j, tx, ty, si, ii, pnum;
 	BOOL hasPlayedSFX;
 
 	missile[mi]._misource = id;
 	for (i = 0; i < 3; i++) {
-		k = CrawlNum[i];
-		l = k + 2;
-		for (j = CrawlTable[k]; j > 0; j--, l += 2) {
-			tx = sx + CrawlTable[l - 1];
-			ty = sy + CrawlTable[l];
+		cr = CrawlNum[i] + 1;
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			tx = sx + CrawlTable[cr];
+			ty = sy + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				pnum = dPlayer[tx][ty];
 				if (pnum) {
@@ -1646,15 +1638,14 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
-	int i, pn, k, j, tx, ty, pid;
+	int i, cr, j, tx, ty, pid;
 
 	missile[mi]._misource = id;
 	for (i = 0; i < 3; i++) {
-		k = CrawlNum[i];
-		pn = k + 2;
-		for (j = CrawlTable[k]; j > 0; j--) {
-			tx = sx + CrawlTable[pn - 1];
-			ty = sy + CrawlTable[pn];
+		cr = CrawlNum[i] + 1;
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			tx = sx + CrawlTable[cr];
+			ty = sy + CrawlTable[cr + 1];
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 				pid = dPlayer[tx][ty];
 				if (pid != 0) {
@@ -1669,7 +1660,6 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					PlaySfxLoc(TSFX_COW7, tx, ty);
 				}
 			}
-			pn += 2;
 		}
 	}
 	missile[mi]._mirange = 0;
@@ -2272,17 +2262,15 @@ void miss_null_33(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
 	MissileStruct *mis;
-	int i, pn, k, j, tx, ty;
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
+	int i, cr, j, tx, ty;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
-		k = CrawlNum[i];
-		pn = k + 2;
-		for (j = (BYTE)CrawlTable[k]; j > 0; j--) {
-			tx = dx + CrawlTable[pn - 1];
-			ty = dy + CrawlTable[pn];
+		cr = CrawlNum[i] + 1;
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			tx = dx + CrawlTable[cr];
+			ty = dy + CrawlTable[cr + 1];
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 				if (!(nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dObject[tx][ty] | dPlayer[tx][ty])) {
 					mis->_mix = tx;
@@ -2294,7 +2282,6 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					break;
 				}
 			}
-			pn += 2;
 		}
 	}
 
@@ -2496,23 +2483,20 @@ BOOL CheckIfTrig(int x, int y)
 void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
 	MissileStruct *mis;
-	int i, j, k, mx, tx, ty, dp;
-#ifndef HELLFIRE
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
-#endif
+	int i, j, cr, mx, tx, ty, dp;
 
 	mis = &missile[mi];
 	if (currlevel != 0) {
 		mis->_miDelFlag = TRUE;
-		for (j = 0; j < 6; j++) {
-			k = CrawlNum[j] + 2;
+		for (i = 0; i < 6; i++) {
+			cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-			for (i = CrawlTable[CrawlNum[j]]; i > 0; i--) {
+			for (j = CrawlTable[cr - 1]; j > 0; j--) {
 #else
-			for (i = (BYTE)CrawlTable[CrawlNum[j]]; i > 0; i--) {
+			for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-				tx = dx + CrawlTable[k - 1];
-				ty = dy + CrawlTable[k];
+				tx = dx + CrawlTable[cr];
+				ty = dy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					dp = dPiece[tx][ty];
 					if (!(dMissile[tx][ty] | nSolidTable[dp] | nMissileTable[dp] | dObject[tx][ty] | dPlayer[tx][ty])) {
@@ -2522,12 +2506,11 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 							mis->_misx = tx;
 							mis->_misy = ty;
 							mis->_miDelFlag = FALSE;
-							j = 6;
+							i = 6;
 							break;
 						}
 					}
 				}
-				k += 2;
 			}
 		}
 	} else {
@@ -2641,10 +2624,7 @@ void AddFiremove(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
 	MissileStruct *mis;
-	int i, pn, k, j, tx, ty;
-#ifndef HELLFIRE
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
-#endif
+	int i, cr, pn, j, tx, ty;
 
 	mis = &missile[mi];
 	mis->_midam = random_(62, 10) + (plr[id]._pLevel >> 1) + 1;
@@ -2654,15 +2634,14 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
-		pn = CrawlNum[i];
-		k = pn + 2;
+		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[pn]; j > 0; j--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--) {
 #else
-		for (j = (BYTE)CrawlTable[pn]; j > 0; j--) {
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-			tx = dx + CrawlTable[k - 1];
-			ty = dy + CrawlTable[k];
+			tx = dx + CrawlTable[cr];
+			ty = dy + CrawlTable[cr + 1];
 			pn = dPiece[tx][ty];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				if (LineClear(sx, sy, tx, ty)) {
@@ -2678,7 +2657,6 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					}
 				}
 			}
-			k += 2;
 		}
 	}
 
@@ -2893,23 +2871,19 @@ void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
 	MissileStruct *mis;
-	int i, j, k, l, tx, ty, mid;
-#ifndef HELLFIRE
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
-#endif
+	int i, j, cr, tx, ty, mid;
 
 	mis = &missile[mi];
 	mis->_misource = id;
 	for (i = 0; i < 6; i++) {
-		k = CrawlNum[i];
-		l = k + 2;
+		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[k]; j > 0; j--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
-		for (j = (BYTE)CrawlTable[k]; j > 0; j--) {
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-			tx = dx + CrawlTable[l - 1];
-			ty = dy + CrawlTable[l];
+			tx = dx + CrawlTable[cr];
+			ty = dy + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				mid = dMonster[tx][ty];
 				mid = mid > 0 ? mid - 1 : -1 - mid;
@@ -2928,7 +2902,6 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 					}
 				}
 			}
-			l += 2;
 		}
 	}
 
@@ -3128,27 +3101,22 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
 {
 	MissileStruct *mis;
-	int i, j, k, tx, ty, pn;
-#ifndef HELLFIRE
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
-#endif
+	int i, j, cr, tx, ty;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
-		k = CrawlNum[i];
-		pn = k + 2;
+		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[k]; j > 0; j--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
-		for (j = (BYTE)CrawlTable[k]; j > 0; j--) {
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-			tx = dx + CrawlTable[pn - 1];
-			ty = dy + CrawlTable[pn];
+			tx = dx + CrawlTable[cr];
+			ty = dy + CrawlTable[cr + 1];
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-				k = dPiece[tx][ty];
 				if (LineClear(sx, sy, tx, ty)) {
-					if ((sx != tx || sy != ty) && !(nSolidTable[k] | dObject[tx][ty])) {
+					if ((sx != tx || sy != ty) && !(nSolidTable[dPiece[tx][ty]] | dObject[tx][ty])) {
 						mis->_miVar1 = tx;
 						mis->_miVar2 = ty;
 						mis->_miVar5 = tx;
@@ -3159,7 +3127,6 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 					}
 				}
 			}
-			pn += 2;
 		}
 	}
 
@@ -3634,37 +3601,30 @@ void MI_Dummy(int mi)
 void MI_Golem(int mi)
 {
 	MissileStruct *mis;
-#ifndef HELLFIRE
-	int CrawlNum[6] = { 0, 3, 12, 45, 94, 159 };
-#endif
-	int tx, ty, dp, l, m, src, k, tid;
+	int tx, ty, i, j, src, cr;
 	char *ct;
 
 	mis = &missile[mi];
 	src = mis->_misource;
 	if (monster[src]._mx == 1 && !monster[src]._my) {
-		for (l = 0; l < 6; l++) {
-			k = CrawlNum[l];
-			tid = k + 2;
+		for (i = 0; i < 6; i++) {
+			cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-			for (m = CrawlTable[k]; m > 0; m--) {
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
-			for (m = (BYTE)CrawlTable[k]; m > 0; m--) {
+			for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-				ct = &CrawlTable[tid];
-				tx = mis->_miVar4 + *(ct - 1);
-				ty = mis->_miVar5 + *ct;
+				tx = mis->_miVar4 + CrawlTable[cr];
+				ty = mis->_miVar5 + CrawlTable[cr + 1];
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-					dp = dPiece[tx][ty];
 					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
-						if (!(dMonster[tx][ty] | nSolidTable[dp] | dObject[tx][ty])) {
-							l = 6;
+						if (!(dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty])) {
+							i = 6;
 							SpawnGolum(src, tx, ty, mi);
 							break;
 						}
 					}
 				}
-				tid += 2;
 			}
 		}
 	}
@@ -4072,22 +4032,21 @@ void MI_Fireball(int mi)
 void MI_HorkSpawn(int mi)
 {
 	MissileStruct *mis;
-	int t, j, k, tx, ty, dp;
+	int i, j, cr, tx, ty;
 
 	mis = &missile[mi];
 	mis->_mirange--;
 	CheckMissileCol(mi, 0, 0, 0, mis->_mix, mis->_miy, 0);
 	if (mis->_mirange <= 0) {
 		mis->_miDelFlag = TRUE;
-		for (j = 0; j < 2; j++) {
-			k = CrawlNum[j] + 2;
-			for (t = CrawlTable[CrawlNum[j]]; t > 0; t--, k += 2) {
-				tx = mis->_mix + CrawlTable[k - 1];
-				ty = mis->_miy + CrawlTable[k];
+		for (i = 0; i < 2; j++) {
+			cr = CrawlNum[i] + 1;
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+				tx = mis->_mix + CrawlTable[cr];
+				ty = mis->_miy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					dp = dPiece[tx][ty];
-					if (!nSolidTable[dp] && !dMonster[tx][ty] && !dPlayer[tx][ty] && !dObject[tx][ty]) {
-						j = 6;
+					if (!nSolidTable[dPiece[tx][ty]] && !dMonster[tx][ty] && !dPlayer[tx][ty] && !dObject[tx][ty]) {
+						i = 6;
 						int mon = AddMonster(tx, ty, mis->_miVar1, 1, TRUE);
 						MonStartStand(mon, mis->_miVar1);
 						break;
@@ -4446,27 +4405,26 @@ void MI_Reflect(int mi)
 void MI_FireRing(int mi)
 {
 	MissileStruct *mis;
-	int src, tx, ty, dam, k, j, dp, b;
+	int src, tx, ty, dam, j, cr, pn;
 	BYTE lvl;
 
-	b = CrawlNum[3];
 	mis = &missile[mi];
 	mis->_miDelFlag = 1;
 	src = mis->_micaster;
-	k = CrawlNum[3] + 1;
+	cr = CrawlNum[3] + 1;
 	if (src > 0)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
 	dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2) >> 1;
-	for (j = CrawlTable[b]; j > 0; j--, k += 2) {
-		tx = mis->_miVar1 + CrawlTable[k - 1];
-		ty = mis->_miVar2 + CrawlTable[k];
+	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		tx = mis->_miVar1 + CrawlTable[cr - 1];
+		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-			dp = dPiece[tx][ty];
-			if (!nSolidTable[dp] && !dObject[tx][ty]) {
+			pn = dPiece[tx][ty];
+			if (!nSolidTable[pn] && !dObject[tx][ty]) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
-					if (nMissileTable[dp] || mis->_miVar8)
+					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;
 					else
 						AddMissile(tx, ty, tx, ty, 0, MIS_FIREWALL, 2, src, dam, mis->_mispllvl);
@@ -4479,27 +4437,26 @@ void MI_FireRing(int mi)
 void MI_LightRing(int mi)
 {
 	MissileStruct *mis;
-	int src, tx, ty, dam, k, j, dp, b;
+	int src, tx, ty, dam, cr, j, pn;
 	BYTE lvl;
 
-	b = CrawlNum[3];
 	mis = &missile[mi];
 	mis->_miDelFlag = 1;
 	src = mis->_micaster;
-	k = CrawlNum[3] + 1;
+	cr = CrawlNum[3] + 1;
 	if (src > 0)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
 	dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2) >> 1;
-	for (j = CrawlTable[b]; j > 0; j--, k += 2) {
-		tx = mis->_miVar1 + CrawlTable[k - 1];
-		ty = mis->_miVar2 + CrawlTable[k];
+	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		tx = mis->_miVar1 + CrawlTable[cr - 1];
+		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-			dp = dPiece[tx][ty];
-			if (!nSolidTable[dp] && !dObject[tx][ty]) {
+			pn = dPiece[tx][ty];
+			if (!nSolidTable[pn] && !dObject[tx][ty]) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
-					if (nMissileTable[dp] || mis->_miVar8)
+					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;
 					else
 						AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
@@ -5099,10 +5056,7 @@ void MI_Guardian(int mi)
 void MI_Chain(int mi)
 {
 	MissileStruct *mis;
-	int sx, sy, src, l, n, m, k, rad, tx, ty, dir;
-#ifndef HELLFIRE
-	int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
-#endif
+	int sx, sy, src, cr, i, j, rad, tx, ty, dir;
 
 	mis = &missile[mi];
 	src = mis->_misource;
@@ -5113,21 +5067,19 @@ void MI_Chain(int mi)
 	rad = mis->_mispllvl + 3;
 	if (rad > 19)
 		rad = 19;
-	for (m = 1; m < rad; m++) {
-		k = CrawlNum[m];
-		l = k + 2;
+	for (i = 1; i < rad; i++) {
+		cr = CrawlNum[i]+ 1;
 #ifdef HELLFIRE
-		for (n = CrawlTable[k]; n > 0; n--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
-		for (n = (BYTE)CrawlTable[k]; n > 0; n--) {
+		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
-			tx = sx + CrawlTable[l - 1];
-			ty = sy + CrawlTable[l];
+			tx = sx + CrawlTable[cr];
+			ty = sy + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY && dMonster[tx][ty] > 0) {
 				dir = GetDirection(sx, sy, tx, ty);
 				AddMissile(sx, sy, tx, ty, dir, MIS_LIGHTCTRL, 0, src, 1, mis->_mispllvl);
 			}
-			l += 2;
 		}
 	}
 	mis->_mirange--;
