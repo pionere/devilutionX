@@ -694,25 +694,11 @@ void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstOff, int
  */
 void DrawLifeFlask()
 {
-	double p;
-	int filled;
+	int filled = plr[myplr]._pHPPer;
 
-#ifdef HELLFIRE
-	if (plr[myplr]._pMaxHP <= 0) {
-		p = 0.0;
-	} else {
-		p = (double)plr[myplr]._pHitPoints / (double)plr[myplr]._pMaxHP * 80.0;
-	}
-#else
-	p = (double)plr[myplr]._pHitPoints / (double)plr[myplr]._pMaxHP * 80.0;
-#endif
-	plr[myplr]._pHPPer = p;
-	filled = plr[myplr]._pHPPer;
-
-#ifndef HELLFIRE
 	if (filled > 80)
 		filled = 80;
-#endif
+
 	filled = 80 - filled;
 	if (filled > 11)
 		filled = 11;
@@ -730,27 +716,18 @@ void DrawLifeFlask()
  */
 void UpdateLifeFlask()
 {
-	double p;
 	int filled;
+	int maxHP = plr[myplr]._pMaxHP;
+	int hp = plr[myplr]._pHitPoints;
 
-#ifdef HELLFIRE
-	if (plr[myplr]._pMaxHP <= 0) {
-		p = 0.0;
-	} else {
-		p = (double)plr[myplr]._pHitPoints / (double)plr[myplr]._pMaxHP * 80.0;
-	}
-#else
-	p = (double)plr[myplr]._pHitPoints / (double)plr[myplr]._pMaxHP * 80.0;
-#endif
-	filled = p;
+	if (hp <= 0 || maxHP <= 0)
+		filled = 0;
+	else
+		filled = 80 * hp / maxHP;
 	plr[myplr]._pHPPer = filled;
 
 	if (filled > 69)
 		filled = 69;
-#ifndef HELLFIRE
-	else if (filled < 0)
-		filled = 0;
-#endif
 	if (filled != 69)
 		SetFlaskHeight(pLifeBuff, 16, 85 - filled, 96 + PANEL_X, PANEL_Y);
 	if (filled != 0)
@@ -760,10 +737,10 @@ void UpdateLifeFlask()
 void DrawManaFlask()
 {
 	int filled = plr[myplr]._pManaPer;
-#ifndef HELLFIRE
+
 	if (filled > 80)
 		filled = 80;
-#endif
+
 	filled = 80 - filled;
 	if (filled > 11)
 		filled = 11;
@@ -776,19 +753,24 @@ void DrawManaFlask()
 
 void control_update_life_mana()
 {
-	int manaPer;
-	int maxMana = plr[myplr]._pMaxMana;
-	int mana = plr[myplr]._pMana;
-	if (maxMana < 0)
-		maxMana = 0;
-	if (mana < 0)
-		mana = 0;
-	if (maxMana == 0)
-		manaPer = 0;
+	int per;
+	int maxVal = plr[myplr]._pMaxMana;
+	int val = plr[myplr]._pMana;
+
+	if (val <= 0 || maxVal <= 0)
+		per = 0;
 	else
-		manaPer = (double)mana / (double)maxMana * 80.0;
-	plr[myplr]._pManaPer = manaPer;
-	plr[myplr]._pHPPer = (double)plr[myplr]._pHitPoints / (double)plr[myplr]._pMaxHP * 80.0;
+		per = 80 * val / maxVal;
+	plr[myplr]._pManaPer = per;
+
+	maxVal = plr[myplr]._pMaxHP;
+	val = plr[myplr]._pHitPoints;
+
+	if (val <= 0 || maxVal <= 0)
+		per = 0;
+	else
+		per = 80 * val / maxVal;
+	plr[myplr]._pHPPer = per;
 }
 
 /**
@@ -800,16 +782,11 @@ void UpdateManaFlask()
 	int filled;
 	int maxMana = plr[myplr]._pMaxMana;
 	int mana = plr[myplr]._pMana;
-	if (maxMana < 0)
-		maxMana = 0;
-	if (mana < 0)
-		mana = 0;
 
-	if (maxMana == 0)
+	if (mana <= 0 || maxMana <= 0)
 		filled = 0;
 	else
-		filled = (double)mana / (double)maxMana * 80.0;
-
+		filled = 80 * mana / maxMana;
 	plr[myplr]._pManaPer = filled;
 
 	if (filled > 69)
