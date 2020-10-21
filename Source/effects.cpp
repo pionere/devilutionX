@@ -1334,8 +1334,9 @@ void sound_init()
 	BYTE mask = sfx_MISC;
 	if (gbMaxPlayers > 1) {
 		mask |= sfx_WARRIOR;
-		if (!gbIsSpawn)
-			mask |= (sfx_ROGUE | sfx_SORCEROR);
+#ifndef SPAWN
+		mask |= (sfx_ROGUE | sfx_SORCEROR);
+#endif
 #ifdef HELLFIRE
 		mask |= sfx_MONK;
 #endif

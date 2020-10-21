@@ -650,11 +650,11 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		sgGameInitInfo.bRate = ticks_per_sec;
 		memset(&ProgramData, 0, sizeof(ProgramData));
 		ProgramData.size = sizeof(ProgramData);
-
+#ifdef SPAWN
+		ProgramData.programname = "Diablo Shareware";
+#else
 		ProgramData.programname = PROGRAM_NAME;
-		if (gbIsSpawn)
-			ProgramData.programname = "Diablo Shareware";
-
+#endif
 		ProgramData.programdescription = gszVersionNumber;
 		ProgramData.programid = GAME_ID;
 		ProgramData.versionid = GAME_VERSION;

@@ -467,11 +467,15 @@ DWORD GetPlrGFXSize(char *szCel)
 	dwMaxSize = 0;
 
 	for (c = 0; c < NUM_CLASSES; c++) {
-		if (gbIsSpawn && c != 0)
+#ifdef SPAWN
+		if (c != 0)
 			continue;
+#endif
 		for (a = &ArmourChar[0]; *a; a++) {
-			if (gbIsSpawn && a != &ArmourChar[0])
+#ifdef SPAWN
+			if (a != &ArmourChar[0])
 				break;
+#endif
 			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animagions; DT is only for N, BT is only for U, D & H (fixed)
 				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
 					continue; //Death has no weapon
@@ -3791,7 +3795,7 @@ void ValidatePlayer()
 	}
 
 	for (b = 1; b < MAX_SPELLS; b++) {
-		if (GetSpellBookLevel(b) != -1) {
+		if (spelldata[b].sBookLvl != -1) {
 			msk |= (__int64)1 << (b - 1);
 			if (p->_pSplLvl[b] > 15)
 				p->_pSplLvl[b] = 15;

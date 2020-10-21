@@ -13,7 +13,8 @@ BOOL helpflag;
 int displayinghelp[22]; /* check, does nothing? */
 int HelpTop;
 
-const char gszSpawnHelpText[] = {
+const char gszHelpText[] = {
+#ifdef SPAWN
 	"Shareware Diablo Help|"
 	"|"
 	"$Keyboard Shortcuts:|"
@@ -371,9 +372,7 @@ const char gszSpawnHelpText[] = {
 	"the auto-map. Zooming in and out of the map is done with the + and - "
 	"keys while scrolling the map uses the arrow keys.|"
 	"&"
-};
-
-const char gszHelpText[] = {
+#else
 	"$Keyboard Shortcuts:|"
 	"F1:    Open Help Screen|"
 	"Esc:   Display Main Menu|"
@@ -440,6 +439,7 @@ const char gszHelpText[] = {
 	"Reading more than one book increases your knowledge of that "
 	"spell, allowing you to cast the spell more effectively.|"
 	"&"
+#endif
 };
 
 void InitHelp()
@@ -465,8 +465,6 @@ void DrawHelp()
 	DrawSLine(5);
 
 	s = &gszHelpText[0];
-	if (gbIsSpawn)
-		s = &gszSpawnHelpText[0];
 
 	for (i = 0; i < help_select_line; i++) {
 		c = 0;

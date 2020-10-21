@@ -28,8 +28,9 @@ BOOLEAN gbMusicOn = true;
 BOOLEAN gbSoundOn = true;
 /** Specifies the active background music track id. */
 int sgnMusicTrack = NUM_MUSIC;
-/** Maps from track ID to track name in spawn. */
-char *sgszSpawnMusicTracks[NUM_MUSIC] = {
+/** Maps from track ID to track name. */
+char *sgszMusicTracks[NUM_MUSIC] = {
+#ifdef SPAWN
 	"Music\\sTowne.wav",
 	"Music\\sLvlA.wav",
 	"Music\\sLvlA.wav",
@@ -40,9 +41,7 @@ char *sgszSpawnMusicTracks[NUM_MUSIC] = {
 	"Music\\sLvlA.wav",
 #endif
 	"Music\\sintro.wav",
-};
-/** Maps from track ID to track name. */
-char *sgszMusicTracks[NUM_MUSIC] = {
+#else
 	"Music\\DTowne.wav",
 	"Music\\DLvlA.wav",
 	"Music\\DLvlB.wav",
@@ -53,6 +52,7 @@ char *sgszMusicTracks[NUM_MUSIC] = {
 	"Music\\DLvlF.wav",
 #endif
 	"Music\\Dintro.wav",
+#endif
 };
 
 BOOL snd_playing(TSnd *pSnd)
@@ -203,16 +203,11 @@ void music_stop()
 void music_start(int nTrack)
 {
 	BOOL success;
-	char *trackPath;
 
 	assert((DWORD)nTrack < NUM_MUSIC);
 	music_stop();
 	if (gbMusicOn) {
-		if (gbIsSpawn)
-			trackPath = sgszSpawnMusicTracks[nTrack];
-		else
-			trackPath = sgszMusicTracks[nTrack];
-		success = SFileOpenFile(trackPath, &sghMusic);
+		success = SFileOpenFile(sgszMusicTracks[nTrack], &sghMusic);
 		if (!success) {
 			sghMusic = NULL;
 		} else {

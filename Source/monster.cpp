@@ -221,10 +221,11 @@ void GetLevelMTypes()
 
 	int nt; // number of types
 
-	if (gbIsSpawn)
-		mamask = 1; // monster availability mask
-	else
-		mamask = 3; // monster availability mask
+#ifdef SPAWN
+	mamask = 1; // monster availability mask
+#else
+	mamask = 3; // monster availability mask
+#endif
 
 	AddMonsterType(MT_GOLEM, 2);
 	if (currlevel == 16) {
@@ -1142,8 +1143,10 @@ void InitMonsters()
 		AddMonster(1, 0, 0, 0, FALSE);
 	}
 
-	if (!gbIsSpawn && !setlevel && currlevel == 16)
+#ifndef SPAWN
+	if (!setlevel && currlevel == 16)
 		LoadDiabMonsts();
+#endif
 
 	nt = numtrigs;
 	if (currlevel == 15)
@@ -1154,11 +1157,13 @@ void InitMonsters()
 				DoVision(s + trigs[i]._tx, t + trigs[i]._ty, 15, FALSE, FALSE);
 		}
 	}
-	if (!gbIsSpawn)
-		PlaceQuestMonsters();
+#ifndef SPAWN
+	PlaceQuestMonsters();
+#endif
 	if (!setlevel) {
-		if (!gbIsSpawn)
-			PlaceUniques();
+#ifndef SPAWN
+		PlaceUniques();
+#endif
 		na = 0;
 		for (s = 16; s < 96; s++)
 			for (t = 16; t < 96; t++)
@@ -2906,8 +2911,9 @@ void DoEnding()
 		SDL_Delay(1000);
 	}
 
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	if (plr[myplr]._pClass == PC_WARRIOR) {
 		play_movie("gendata\\DiabVic2.smk", FALSE);

@@ -45,7 +45,6 @@ BOOL trigdebug;
 int setseed;
 int debugmonsttypes;
 int PauseMode;
-bool forceSpawn;
 #ifdef HELLFIRE
 BOOLEAN UseTheoQuest;
 BOOLEAN UseCowFarmer;
@@ -305,11 +304,10 @@ void diablo_init()
 	init_archives();
 	was_archives_init = true;
 
-	if (forceSpawn)
-		gbIsSpawn = true;
-
 	UiInitialize();
-	UiSetSpawned(gbIsSpawn);
+#ifdef SPAWN
+	UiSetSpawned(TRUE);
+#endif
 	was_ui_init = true;
 
 	ReadOnlyTest();
@@ -331,9 +329,7 @@ void diablo_splash()
 
 	play_movie("gendata\\logo.smk", TRUE);
 
-#ifndef HELLFIRE
-	if (!gbIsSpawn)
-#endif
+#if defined(HELLFIRE) || !defined(SPAWN)
 	if (getIniBool(APP_NAME, "Intro", true)) {
 #ifndef HELLFIRE
 		play_movie("gendata\\diablo1.smk", TRUE);
@@ -342,6 +338,7 @@ void diablo_splash()
 #endif
 		setIniValue(APP_NAME, "Intro", "0");
 	}
+#endif
 
 	UiTitleDialog();
 }
@@ -391,7 +388,6 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-f", "Display frames per second");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-	printf("    %-20s %-30s\n", "--spawn", "Force spawn mode even if diabdat.mpq is found");
 #ifdef HELLFIRE
 	printf("    %-20s %-30s\n", "--theoquest", "Enable the Theo quest");
 	printf("    %-20s %-30s\n", "--cowquest", "Enable the Cow quest");
@@ -451,8 +447,6 @@ void diablo_parse_flags(int argc, char **argv)
 			EnableFrameCount();
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			fullscreen = FALSE;
-		} else if (strcasecmp("--spawn", argv[i]) == 0) {
-			forceSpawn = TRUE;
 #ifdef HELLFIRE
 		} else if (strcasecmp("--theoquest", argv[i]) == 0) {
 			UseTheoQuest = TRUE;
@@ -1809,8 +1803,10 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	while (!IncProgress())
 		;
 
-	if (gbIsSpawn && setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
+#ifndef SPAWN
+	if (setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
 		PlaySFX(USFX_SKING1);
+#endif
 }
 
 void game_loop(BOOL bStartup)

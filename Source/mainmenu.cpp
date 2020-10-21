@@ -19,8 +19,9 @@ void mainmenu_refresh_music()
 {
 	music_start(menu_music_track_id);
 
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	do {
 		menu_music_track_id++;
@@ -116,13 +117,10 @@ void mainmenu_loop()
 			break;
 		case MAINMENU_ATTRACT_MODE:
  		case MAINMENU_REPLAY_INTRO:
-#ifndef HELLFIRE
-			if (gbIsSpawn)
-				done = FALSE;
-			else
-#endif
+#if defined(HELLFIRE) || !defined(SPAWN)
 			if (gbActive)
 				mainmenu_play_intro();
+#endif
 			break;
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog(16);

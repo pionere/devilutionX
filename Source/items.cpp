@@ -1703,16 +1703,17 @@ void GetBookSpell(int ii, int lvl)
 		lvl = 1;
 	rv = random_(14, MAX_SPELLS) + 1;
 
-	if (gbIsSpawn && lvl > 5)
+#ifdef SPAWN
+	if (lvl > 5)
 		lvl = 5;
+#endif
 
 	s = SPL_FIREBOLT;
 #ifdef HELLFIRE
 	bs = SPL_FIREBOLT;
 #endif
 	while (rv > 0) {
-		int sLevel = GetSpellBookLevel(s);
-		if (sLevel != -1 && lvl >= sLevel) {
+		if (spelldata[s].sBookLvl != -1 && lvl >= spelldata[s].sBookLvl) {
 			rv--;
 			bs = s;
 		}
@@ -1823,13 +1824,14 @@ void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 			l = 1;
 		rv = random_(18, MAX_SPELLS) + 1;
 
-		if (gbIsSpawn && lvl > 10)
+#ifdef SPAWN
+		if (lvl > 10)
 			lvl = 10;
+#endif
 
 		s = SPL_FIREBOLT;
 		while (rv > 0) {
-			int sLevel = GetSpellStaffLevel(s);
-			if (sLevel != -1 && l >= sLevel) {
+			if (spelldata[s].sStaffLvl != -1 && l >= spelldata[s].sStaffLvl) {
 				rv--;
 				bs = s;
 			}
@@ -3616,7 +3618,7 @@ void DoRecharge(int pnum, int cii)
 		pi = &p->InvBody[cii];
 	}
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell) {
-		r = GetSpellBookLevel(pi->_iSpell);
+		r = spelldata[pi->_iSpell].sBookLvl;
 		r = random_(38, p->_pLevel / r) + 1;
 		RechargeItem(pi, r);
 		CalcPlrInv(pnum, TRUE);
@@ -5528,7 +5530,7 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 
 	done = FALSE;
 #ifdef HELLFIRE
-	int lvl = GetSpellBookLevel(ispell) + 1;
+	int lvl = spelldata[ispell].sBookLvl + 1;
 	if (lvl < 1) {
 		return;
 	}

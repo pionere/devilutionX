@@ -71,8 +71,8 @@ void InitTownTriggers()
 	trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 	numtrigs++;
 
-
-	if (!gbIsSpawn && gbMaxPlayers == MAX_PLRS) {
+#ifndef SPAWN
+	if (gbMaxPlayers == MAX_PLRS) {
 		for (i = 0; i < sizeof(townwarps) / sizeof(townwarps[0]); i++) {
 			townwarps[i] = TRUE;
 		}
@@ -104,46 +104,46 @@ void InitTownTriggers()
 		numtrigs++;
 #endif
 	} else {
+#endif
 		for (i = 0; i < sizeof(townwarps) / sizeof(townwarps[0]); i++) {
 			townwarps[i] = FALSE;
 		}
-		if (!gbIsSpawn) {
+#ifndef SPAWN
 #ifdef HELLFIRE
-			if (plr[myplr].pTownWarps & 1 || plr[myplr]._pLevel >= 10) {
+		if (plr[myplr].pTownWarps & 1 || plr[myplr]._pLevel >= 10) {
 #else
-			if (plr[myplr].pTownWarps & 1) {
+		if (plr[myplr].pTownWarps & 1) {
 #endif
-				trigs[numtrigs]._tx = 49;
-				trigs[numtrigs]._ty = 21;
-				trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-				trigs[numtrigs]._tlvl = 5;
-				numtrigs++;
-				townwarps[0] = TRUE;
-			}
+			trigs[numtrigs]._tx = 49;
+			trigs[numtrigs]._ty = 21;
+			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
+			trigs[numtrigs]._tlvl = 5;
+			numtrigs++;
+			townwarps[0] = TRUE;
+		}
 #ifdef HELLFIRE
-			if (plr[myplr].pTownWarps & 2 || plr[myplr]._pLevel >= 15) {
+		if (plr[myplr].pTownWarps & 2 || plr[myplr]._pLevel >= 15) {
 #else
-			if (plr[myplr].pTownWarps & 2) {
+		if (plr[myplr].pTownWarps & 2) {
 #endif
-				townwarps[1] = TRUE;
-				trigs[numtrigs]._tx = 17;
-				trigs[numtrigs]._ty = 69;
-				trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-				trigs[numtrigs]._tlvl = 9;
-				numtrigs++;
-			}
+			townwarps[1] = TRUE;
+			trigs[numtrigs]._tx = 17;
+			trigs[numtrigs]._ty = 69;
+			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
+			trigs[numtrigs]._tlvl = 9;
+			numtrigs++;
+		}
 #ifdef HELLFIRE
-			if (plr[myplr].pTownWarps & 4 || plr[myplr]._pLevel >= 20) {
+		if (plr[myplr].pTownWarps & 4 || plr[myplr]._pLevel >= 20) {
 #else
-			if (plr[myplr].pTownWarps & 4) {
+		if (plr[myplr].pTownWarps & 4) {
 #endif
-				townwarps[2] = TRUE;
-				trigs[numtrigs]._tx = 41;
-				trigs[numtrigs]._ty = 80;
-				trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-				trigs[numtrigs]._tlvl = 13;
-				numtrigs++;
-			}
+			townwarps[2] = TRUE;
+			trigs[numtrigs]._tx = 41;
+			trigs[numtrigs]._ty = 80;
+			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
+			trigs[numtrigs]._tlvl = 13;
+			numtrigs++;
 		}
 #ifdef HELLFIRE
 		if (quests[Q_GRAVE]._qactive == 3) {
@@ -160,6 +160,7 @@ void InitTownTriggers()
 		numtrigs++;
 #endif
 	}
+#endif
 
 	trigflag = FALSE;
 }
@@ -915,15 +916,17 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-			if (gbIsSpawn && currlevel >= 2) {
+#ifdef SPAWN
+			if (currlevel >= 2) {
 				NetSendCmdLoc(TRUE, CMD_WALKXY, p->_px, p->_py + 1);
 				PlaySFX(PS_WARR18);
 				InitDiabloMsg(EMSG_NOT_IN_SHAREWARE);
-			} else {
-				if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
-					return;
-				StartNewLvl(myplr, trigs[i]._tmsg, currlevel + 1);
+				break;
 			}
+#endif
+			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
+				return;
+			StartNewLvl(myplr, trigs[i]._tmsg, currlevel + 1);
 			break;
 		case WM_DIABPREVLVL:
 			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())

@@ -168,11 +168,11 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (gbIsSpawn) {
-		for (i = 0; i < MAXQUESTS; i++) {
-			quests[i]._qactive = QUEST_NOTAVAIL;
-		}
+#ifdef SPAWN
+	for (i = 0; i < MAXQUESTS; i++) {
+		quests[i]._qactive = QUEST_NOTAVAIL;
 	}
+#endif
 
 	if (quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
 		quests[Q_SKELKING]._qvar2 = 2;
@@ -185,8 +185,9 @@ void InitQuests()
 
 void CheckQuests()
 {
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	QuestStruct *qs;
 	int i, rportx, rporty;
@@ -265,8 +266,9 @@ BOOL ForceQuests()
 {
 	int i, j, qx, qy, ql;
 
-	if (gbIsSpawn)
-		return FALSE;
+#ifdef SPAWN
+	return FALSE;
+#endif
 
 	if (gbMaxPlayers != 1) {
 		return FALSE;
@@ -310,8 +312,9 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 {
 	int i, j;
 
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	if (monster[mnum].MType->mtype == MT_SKING) {
 		quests[Q_SKELKING]._qactive = QUEST_DONE;
@@ -709,9 +712,9 @@ void GetReturnLvlPos()
 
 void ResyncMPQuests()
 {
-	if (gbIsSpawn)
-		return;
-
+#ifdef SPAWN
+	return;
+#endif
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
 	    && currlevel >= quests[Q_SKELKING]._qlevel - 1
 	    && currlevel <= quests[Q_SKELKING]._qlevel + 1) {
@@ -754,8 +757,9 @@ void ResyncQuests()
 {
 	int i, tren, x, y;
 
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT && leveltype == quests[Q_PWATER]._qlvltype) {
 
@@ -966,8 +970,9 @@ void QuestlogESC()
 
 void SetMultiQuest(int qn, int s, int l, int v1)
 {
-	if (gbIsSpawn)
-		return;
+#ifdef SPAWN
+	return;
+#endif
 
 	if (quests[qn]._qactive != QUEST_DONE) {
 		if (s > quests[qn]._qactive)

@@ -9,10 +9,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PASSWORD_SPAWN_SINGLE "adslhfb1"
-#define PASSWORD_SPAWN_MULTI "lshbkfg1"
+#ifdef SPAWN
+#define PASSWORD_SINGLE "adslhfb1"
+#define PASSWORD_MULTI "lshbkfg1"
+#else
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI "szqnlsk1"
+#endif
 
 /** List of character names for the character selection screen. */
 static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
@@ -47,17 +50,10 @@ void pfile_encode_hero(const PkPlayerStruct *pPack)
 {
 	BYTE *packed;
 	DWORD packed_len;
-	const char *password;
+	char password[16] = PASSWORD_SINGLE;
 
-	if (gbIsSpawn) {
-		password = PASSWORD_SPAWN_SINGLE;
-		if (gbMaxPlayers > 1)
-			password = PASSWORD_SPAWN_MULTI;
-	} else {
-		password = PASSWORD_SINGLE;
-		if (gbMaxPlayers > 1)
-			password = PASSWORD_MULTI;
-	}
+	if (gbMaxPlayers > 1)
+		strcpy(password, PASSWORD_MULTI);
 
 	packed_len = codec_get_encoded_len(sizeof(*pPack));
 	packed = (BYTE *)DiabloAllocPtr(packed_len);
@@ -81,35 +77,34 @@ BOOL pfile_open_archive(BOOL update, DWORD save_num)
 void pfile_get_save_path(char *pszBuf, DWORD dwBufSize, DWORD save_num)
 {
 	char path[MAX_PATH];
-	const char *fmt;
 
-	if (gbIsSpawn) {
+#ifdef SPAWN
 #ifdef HELLFIRE
-		fmt = "%sshare_%d.hsv";
+	const char *fmt = "%sshare_%d.hsv";
 #else
-		fmt = "%sshare_%d.sv";
-#endif
-
-		if (gbMaxPlayers <= 1)
-#ifdef HELLFIRE
-			fmt = "%sspawn%d.hsv";
-#else
-			fmt = "%sspawn%d.sv";
-#endif
-	} else {
-#ifdef HELLFIRE
-		fmt = "%shrinfo_%d.drv";
-#else
-		fmt = "%smulti_%d.sv";
+	const char *fmt = "%sshare_%d.sv";
 #endif
 
-		if (gbMaxPlayers <= 1)
+	if (gbMaxPlayers <= 1)
 #ifdef HELLFIRE
-			fmt = "%ssingle_%d.hsv";
+		fmt = "%sspawn%d.hsv";
 #else
-			fmt = "%ssingle_%d.sv";
+		fmt = "%sspawn%d.sv";
 #endif
-	}
+#else
+#ifdef HELLFIRE
+	const char *fmt = "%shrinfo_%d.drv";
+#else
+	const char *fmt = "%smulti_%d.sv";
+#endif
+
+	if (gbMaxPlayers <= 1)
+#ifdef HELLFIRE
+		fmt = "%ssingle_%d.hsv";
+#else
+		fmt = "%ssingle_%d.sv";
+#endif
+#endif
 
 	GetPrefPath(path, MAX_PATH);
 	snprintf(pszBuf, MAX_PATH, fmt, path, save_num);
@@ -192,7 +187,11 @@ void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSav
 	heroinfo->gold = p->_pGold;
 	heroinfo->hassaved = bHasSaveFile;
 	heroinfo->herorank = p->pDiabloKillLevel;
-	heroinfo->spawned = gbIsSpawn;
+#ifdef SPAWN
+	heroinfo->spawned = TRUE;
+#else
+	heroinfo->spawned = FALSE;
+#endif
 }
 
 BYTE game_2_ui_class(const PlayerStruct *p)
@@ -252,18 +251,11 @@ BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		return FALSE;
 	} else {
 		BOOL ret = FALSE;
-		const char *password;
+		char password[16] = PASSWORD_SINGLE;
 		nSize = 16;
 
-		if (gbIsSpawn) {
-			password = PASSWORD_SPAWN_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_SPAWN_MULTI;
-		} else {
-			password = PASSWORD_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_MULTI;
-		}
+		if (gbMaxPlayers > 1)
+			strcpy(password, PASSWORD_MULTI);
 
 		dwlen = SFileGetFileSize(file, NULL);
 		if (dwlen) {
@@ -554,16 +546,9 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	pfile_strcpy(FileName, pszName);
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	{
-		const char *password;
-		if (gbIsSpawn) {
-			password = PASSWORD_SPAWN_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_SPAWN_MULTI;
-		} else {
-			password = PASSWORD_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_MULTI;
-		}
+		char password[16] = PASSWORD_SINGLE;
+		if (gbMaxPlayers > 1)
+			strcpy(password, PASSWORD_MULTI);
 
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
@@ -605,18 +590,11 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	pfile_SFileCloseArchive(archive);
 
 	{
-		const char *password;
+		char password[16] = PASSWORD_SINGLE;
 		DWORD nSize = 16;
 
-		if (gbIsSpawn) {
-			password = PASSWORD_SPAWN_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_SPAWN_MULTI;
-		} else {
-			password = PASSWORD_SINGLE;
-			if (gbMaxPlayers > 1)
-				password = PASSWORD_MULTI;
-		}
+		if (gbMaxPlayers > 1)
+			strcpy(password, PASSWORD_MULTI);
 
 		*pdwLen = codec_decode(buf, *pdwLen, password);
 		if (*pdwLen == 0) {

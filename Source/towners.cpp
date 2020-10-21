@@ -1376,25 +1376,25 @@ void CowSFX(int pnum)
 
 	sgdwCowClicks++;
 
-	if (gbIsSpawn) {
-		if (sgdwCowClicks == 4) {
-			sgdwCowClicks = 0;
-			CowPlaying = TSFX_COW2;
-		} else {
-			CowPlaying = TSFX_COW1;
-		}
+#ifdef SPAWN
+	if (sgdwCowClicks == 4) {
+		sgdwCowClicks = 0;
+		CowPlaying = TSFX_COW2;
 	} else {
-		if (sgdwCowClicks >= 8) {
-			PlaySfxLoc(TSFX_COW1, plr[pnum]._px, plr[pnum]._py + 5);
-			sgdwCowClicks = 4;
-			CowPlaying = snSFX[sgnCowMsg][plr[pnum]._pClass]; /* snSFX is local */
-			sgnCowMsg++;
-			if (sgnCowMsg >= 3)
-				sgnCowMsg = 0;
-		} else {
-			CowPlaying = sgdwCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
-		}
+		CowPlaying = TSFX_COW1;
 	}
+#else
+	if (sgdwCowClicks >= 8) {
+		PlaySfxLoc(TSFX_COW1, plr[pnum]._px, plr[pnum]._py + 5);
+		sgdwCowClicks = 4;
+		CowPlaying = snSFX[sgnCowMsg][plr[pnum]._pClass]; /* snSFX is local */
+		sgnCowMsg++;
+		if (sgnCowMsg >= 3)
+			sgnCowMsg = 0;
+	} else {
+		CowPlaying = sgdwCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
+	}
+#endif
 
 	PlaySfxLoc(CowPlaying, plr[pnum]._px, plr[pnum]._py);
 }

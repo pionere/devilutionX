@@ -126,10 +126,11 @@ void InitInv()
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
 #ifdef HELLFIRE
 	} else if (plr[myplr]._pClass == PC_MONK) {
-		if (gbIsSpawn)
-			pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
-		else
-			pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
+#ifdef SPAWN
+		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
+#else
+		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
+#endif
 	} else if (plr[myplr]._pClass == PC_BARD) {
 		pInvCels = LoadFileInMem("Data\\Inv\\Inv_rog.CEL", NULL);
 	} else if (plr[myplr]._pClass == PC_BARBARIAN) {
