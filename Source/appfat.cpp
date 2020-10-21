@@ -60,7 +60,7 @@ void FreeDlg()
 	terminating = TRUE;
 	cleanup_thread_id = SDL_GetThreadID(NULL);
 
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		if (SNetLeaveGame(3))
 			SDL_Delay(2000);
 	}

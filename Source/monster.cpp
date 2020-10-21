@@ -2874,13 +2874,13 @@ void DoEnding()
 	BOOL bMusicOn;
 	int musicVolume;
 
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		SNetLeaveGame(LEAVE_ENDING);
 	}
 
 	music_stop();
 
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		SDL_Delay(1000);
 	}
 
@@ -2932,7 +2932,7 @@ void PrepDoEnding()
 	for (i = 0; i < MAX_PLRS; i++) {
 		plr[i]._pmode = PM_QUIT;
 		plr[i]._pInvincible = TRUE;
-		if (gbMaxPlayers > 1) {
+		if (gbMaxPlayers != 1) {
 			if (plr[i]._pHitPoints >> 6 == 0)
 				plr[i]._pHitPoints = 64;
 			if (plr[i]._pMana >> 6 == 0)
@@ -5025,7 +5025,7 @@ void ProcessMonsters()
 		mnum = monstactive[i];
 		mon = &monster[mnum];
 		raflag = FALSE;
-		if (gbMaxPlayers > 1) {
+		if (gbMaxPlayers != 1) {
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
 		}

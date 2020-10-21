@@ -1332,7 +1332,7 @@ void effects_cleanup_sfx()
 void sound_init()
 {
 	BYTE mask = sfx_MISC;
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		mask |= sfx_WARRIOR;
 #ifndef SPAWN
 		mask |= (sfx_ROGUE | sfx_SORCEROR);

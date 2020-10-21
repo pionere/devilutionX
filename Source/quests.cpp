@@ -124,10 +124,10 @@ void InitQuests()
 	qs = quests;
 	qdata = questlist;
 	for (i = 0; i < MAXQUESTS; i++, qs++, qdata++) {
-		if (gbMaxPlayers > 1 && !(qdata->_qflags & QUEST_ANY))
+		if (gbMaxPlayers != 1 && !(qdata->_qflags & QUEST_ANY))
 			continue;
 			qs->_qtype = qdata->_qdtype;
-			if (gbMaxPlayers > 1) {
+			if (gbMaxPlayers != 1) {
 				qs->_qlevel = qdata->_qdmultlvl;
 				if (!delta_quest_inited(initiatedQuests)) {
 					qs->_qactive = QUEST_INIT;

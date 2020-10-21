@@ -988,7 +988,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 
 	// Prevent power leveling
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		powerLvlCap = p->_pLevel < 0 ? 0 : p->_pLevel;
 		if (powerLvlCap >= 50) {
 			powerLvlCap = 50;
@@ -1893,7 +1893,7 @@ void StartPlrKill(int pnum, int earflag)
 		NetSendCmdParam1(TRUE, CMD_PLRDEAD, earflag);
 	}
 
-	diablolevel = gbMaxPlayers > 1 && p->plrlevel == 16;
+	diablolevel = gbMaxPlayers != 1 && p->plrlevel == 16;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartPlrKill: illegal player %d", pnum);
@@ -2322,7 +2322,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr[pnum]._pmode = PM_NEWLVL;
 		plr[pnum]._pInvincible = TRUE;
 		PostMessage(fom, 0, 0);
-		if (gbMaxPlayers > 1) {
+		if (gbMaxPlayers != 1) {
 			NetSendCmdParam2(TRUE, CMD_NEWLVL, fom, lvl);
 		}
 	}

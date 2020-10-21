@@ -576,7 +576,7 @@ void NetClose()
 	tmsg_cleanup();
 	multi_event_handler(FALSE);
 	SNetLeaveGame(3);
-	if (gbMaxPlayers > 1)
+	if (gbMaxPlayers != 1)
 		SDL_Delay(2000);
 }
 
@@ -777,7 +777,7 @@ void SetupLocalCoords()
 	PlayerStruct *p;
 	int x, y;
 
-	if (!leveldebug || gbMaxPlayers > 1) {
+	if (!leveldebug || gbMaxPlayers != 1) {
 		currlevel = 0;
 		leveltype = DTYPE_TOWN;
 		setlevel = FALSE;

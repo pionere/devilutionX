@@ -68,7 +68,7 @@ void pfile_encode_hero(const PkPlayerStruct *pPack)
 	DWORD packed_len;
 	char password[16] = PASSWORD_SINGLE;
 
-	if (gbMaxPlayers > 1)
+	if (gbMaxPlayers != 1)
 		strcpy(password, PASSWORD_MULTI);
 
 	packed_len = codec_get_encoded_len(sizeof(*pPack));
@@ -243,7 +243,7 @@ BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		char password[16] = PASSWORD_SINGLE;
 		nSize = 16;
 
-		if (gbMaxPlayers > 1)
+		if (gbMaxPlayers != 1)
 			strcpy(password, PASSWORD_MULTI);
 
 		dwlen = SFileGetFileSize(file, NULL);
@@ -366,7 +366,7 @@ BOOL pfile_get_file_name(DWORD lvl, char *dst)
 {
 	const char *fmt;
 
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		if (lvl)
 			return FALSE;
 		fmt = "hero";
@@ -458,7 +458,7 @@ void pfile_get_game_name(char *dst)
 
 void pfile_remove_temp_files()
 {
-	if (gbMaxPlayers <= 1) {
+	if (gbMaxPlayers == 1) {
 		DWORD save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 		if (!pfile_open_archive(FALSE, save_num))
 			app_fatal("Unable to write to save file archive");
@@ -536,7 +536,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	{
 		char password[16] = PASSWORD_SINGLE;
-		if (gbMaxPlayers > 1)
+		if (gbMaxPlayers != 1)
 			strcpy(password, PASSWORD_MULTI);
 
 		codec_encode(pbData, dwLen, qwLen, password);
@@ -582,7 +582,7 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 		char password[16] = PASSWORD_SINGLE;
 		DWORD nSize = 16;
 
-		if (gbMaxPlayers > 1)
+		if (gbMaxPlayers != 1)
 			strcpy(password, PASSWORD_MULTI);
 
 		*pdwLen = codec_decode(buf, *pdwLen, password);

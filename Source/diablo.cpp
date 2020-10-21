@@ -238,7 +238,7 @@ void run_game_loop(unsigned int uMsg)
 		DrawAndBlit();
 	}
 
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		pfile_write_hero();
 	}
 
@@ -676,7 +676,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DIABTOWNWARP:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN:
-		if (gbMaxPlayers > 1)
+		if (gbMaxPlayers != 1)
 			pfile_write_hero();
 		nthread_ignore_mutex(TRUE);
 		PaletteFadeOut(8);
@@ -1146,7 +1146,7 @@ void PressKey(int vkey)
 
 void diablo_pause_game()
 {
-	if (gbMaxPlayers <= 1) {
+	if (gbMaxPlayers == 1) {
 		if (PauseMode) {
 			PauseMode = 0;
 		} else {
