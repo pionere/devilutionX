@@ -216,16 +216,9 @@ void GetLevelMTypes()
 
 	int minl; // min level
 	int maxl; // max level
-	char mamask;
 	const int numskeltypes = 19;
 
 	int nt; // number of types
-
-#ifdef SPAWN
-	mamask = 1; // monster availability mask
-#else
-	mamask = 3; // monster availability mask
-#endif
 
 	AddMonsterType(MT_GOLEM, 2);
 	if (currlevel == 16) {
@@ -275,7 +268,7 @@ void GetLevelMTypes()
 					maxl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
 
 					if (currlevel >= minl && currlevel <= maxl) {
-						if (MonstAvailTbl[i] & mamask) {
+						if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 							skeltypes[nt++] = i;
 						}
 					}
@@ -290,7 +283,7 @@ void GetLevelMTypes()
 			maxl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
 
 			if (currlevel >= minl && currlevel <= maxl) {
-				if (MonstAvailTbl[i] & mamask) {
+				if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 					typelist[nt++] = i;
 				}
 			}
@@ -390,18 +383,20 @@ void InitMonsterGFX(int midx)
 		LoadMissileGFX(MFILE_FLAREEXP);
 #endif
 	}
-#ifdef HELLFIRE
 	if (mtype >= MT_INCIN && mtype <= MT_HELLBURN && !(MissileFileFlag & 8)) {
 		MissileFileFlag |= 8;
 		LoadMissileGFX(MFILE_KRULL);
 	}
+#ifdef HELLFIRE
 	if ((mtype >= MT_NACID && mtype <= MT_XACID || mtype == MT_SPIDLORD) && !(MissileFileFlag & 0x10)) {
+#else
+	if (mtype >= MT_NACID && mtype <= MT_XACID && !(MissileFileFlag & 0x10)) {
+#endif
 		MissileFileFlag |= 0x10;
 		LoadMissileGFX(MFILE_ACIDBF);
 		LoadMissileGFX(MFILE_ACIDSPLA);
 		LoadMissileGFX(MFILE_ACIDPUD);
 	}
-#endif
 	if (mtype == MT_SNOWWICH && !(MissileFileFlag & 0x20)) {
 		MissileFileFlag |= 0x20;
 		LoadMissileGFX(MFILE_SCUBMISB);
@@ -444,17 +439,6 @@ void InitMonsterGFX(int midx)
 	if (mtype == MT_BONEDEMN && !(MissileFileFlag & 0x2000)) {
 		MissileFileFlag |= 0x2000u;
 		LoadMissileGFX(MFILE_EXBL3);
-	}
-#else
-	if (mtype >= MT_INCIN && mtype <= MT_HELLBURN && !(MissileFileFlag & 8)) {
-		MissileFileFlag |= 8;
-		LoadMissileGFX(MFILE_KRULL);
-	}
-	if (mtype >= MT_NACID && mtype <= MT_XACID && !(MissileFileFlag & 0x10)) {
-		MissileFileFlag |= 0x10;
-		LoadMissileGFX(MFILE_ACIDBF);
-		LoadMissileGFX(MFILE_ACIDSPLA);
-		LoadMissileGFX(MFILE_ACIDPUD);
 	}
 #endif
 	if (mtype == MT_DIABLO) {
@@ -570,12 +554,7 @@ void InitMonster(int mnum, int rd, int mtype, int x, int y)
 		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
 		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
 		mon->mArmorClass += NIGHTMARE_AC_BONUS;
-	}
-
-#ifdef HELLFIRE
-	else
-#endif
-	    if (gnDifficulty == DIFF_HELL) {
+	} else if (gnDifficulty == DIFF_HELL) {
 #ifdef HELLFIRE
 		mon->_mmaxhp = 4 * mon->_mmaxhp + ((gbMaxPlayers != 1 ? 200 : 100) << 6);
 #else
@@ -880,13 +859,7 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
 		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
 		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
-	}
-
-#ifdef HELLFIRE
-	else if (gnDifficulty == DIFF_HELL) {
-#else
-	if (gnDifficulty == DIFF_HELL) {
-#endif
+	} else if (gnDifficulty == DIFF_HELL) {
 #ifdef HELLFIRE
 		mon->_mmaxhp = 4 * mon->_mmaxhp + ((gbMaxPlayers != 1 ? 200 : 100) << 6);
 #else

@@ -331,11 +331,7 @@ void diablo_splash()
 
 #if defined(HELLFIRE) || !defined(SPAWN)
 	if (getIniBool(APP_NAME, "Intro", true)) {
-#ifdef HELLFIRE
-		play_movie("gendata\\Hellfire.smk", TRUE);
-#else
-		play_movie("gendata\\diablo1.smk", TRUE);
-#endif
+		play_movie(INTRO_ARCHIVE, TRUE);
 		setIniValue(APP_NAME, "Intro", "0");
 	}
 #endif
@@ -1450,20 +1446,18 @@ void LoadLvlGFX()
 		break;
 	case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
-		if (currlevel < 21) {
-#endif
-			pDungeonCels = LoadFileInMem("Levels\\L1Data\\L1.CEL", NULL);
-			pMegaTiles = LoadFileInMem("Levels\\L1Data\\L1.TIL", NULL);
-			pLevelPieces = LoadFileInMem("Levels\\L1Data\\L1.MIN", NULL);
-			pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
-#ifdef HELLFIRE
-		} else {
+		if (currlevel >= 21) {
 			pDungeonCels = LoadFileInMem("NLevels\\L5Data\\L5.CEL", NULL);
 			pMegaTiles = LoadFileInMem("NLevels\\L5Data\\L5.TIL", NULL);
 			pLevelPieces = LoadFileInMem("NLevels\\L5Data\\L5.MIN", NULL);
 			pSpecialCels = LoadFileInMem("NLevels\\L5Data\\L5S.CEL", NULL);
+			break;
 		}
 #endif
+		pDungeonCels = LoadFileInMem("Levels\\L1Data\\L1.CEL", NULL);
+		pMegaTiles = LoadFileInMem("Levels\\L1Data\\L1.TIL", NULL);
+		pLevelPieces = LoadFileInMem("Levels\\L1Data\\L1.MIN", NULL);
+		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
 		break;
 	case DTYPE_CATACOMBS:
 		pDungeonCels = LoadFileInMem("Levels\\L2Data\\L2.CEL", NULL);
@@ -1473,18 +1467,17 @@ void LoadLvlGFX()
 		break;
 	case DTYPE_CAVES:
 #ifdef HELLFIRE
-		if (currlevel < 17) {
-#endif
-			pDungeonCels = LoadFileInMem("Levels\\L3Data\\L3.CEL", NULL);
-			pMegaTiles = LoadFileInMem("Levels\\L3Data\\L3.TIL", NULL);
-			pLevelPieces = LoadFileInMem("Levels\\L3Data\\L3.MIN", NULL);
-#ifdef HELLFIRE
-		} else {
+		if (currlevel >= 17) {
 			pDungeonCels = LoadFileInMem("NLevels\\L6Data\\L6.CEL", NULL);
 			pMegaTiles = LoadFileInMem("NLevels\\L6Data\\L6.TIL", NULL);
 			pLevelPieces = LoadFileInMem("NLevels\\L6Data\\L6.MIN", NULL);
-		}
+		} else
 #endif
+		{
+			pDungeonCels = LoadFileInMem("Levels\\L3Data\\L3.CEL", NULL);
+			pMegaTiles = LoadFileInMem("Levels\\L3Data\\L3.TIL", NULL);
+			pLevelPieces = LoadFileInMem("Levels\\L3Data\\L3.MIN", NULL);
+		}
 		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
 		break;
 	case DTYPE_HELL:
@@ -1525,14 +1518,12 @@ void CreateLevel(int lvldir)
 		InitL1Triggers();
 		Freeupstairs();
 #ifdef HELLFIRE
-		if(currlevel < 21) {
-			LoadRndLvlPal(1);
-		} else {
+		if (currlevel >= 21) {
 			LoadRndLvlPal(5);
+			break;
 		}
-#else
-		LoadRndLvlPal(1);
 #endif
+		LoadRndLvlPal(1);
 		break;
 	case DTYPE_CATACOMBS:
 		CreateL2Dungeon(glSeedTbl[currlevel], lvldir);
@@ -1545,14 +1536,12 @@ void CreateLevel(int lvldir)
 		InitL3Triggers();
 		Freeupstairs();
 #ifdef HELLFIRE
-		if(currlevel < 17) {
-			LoadRndLvlPal(3);
-		} else {
+		if (currlevel >= 17) {
 			LoadRndLvlPal(6);
+			break;
 		}
-#else
-		LoadRndLvlPal(3);
 #endif
+		LoadRndLvlPal(3);
 		break;
 	case DTYPE_HELL:
 		CreateL4Dungeon(glSeedTbl[currlevel], lvldir);
@@ -1795,10 +1784,8 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	if (currlevel >= 17)
 		music_start(currlevel > 20 ? TMUSIC_L5 : TMUSIC_L6);
 	else
-		music_start(leveltype);
-#else
-	music_start(leveltype);
 #endif
+		music_start(leveltype);
 
 	while (!IncProgress())
 		;

@@ -4,14 +4,36 @@
  * Global definitions and Macros.
  */
 
+#ifdef SPAWN
+#define MAIN_DATA_ARCHIVE		"spawn.mpq"
+#else
+#define MAIN_DATA_ARCHIVE		"diabdat.mpq"
+#endif
+
 #ifdef HELLFIRE
 #define DIABOOL					BOOLEAN
 #define GAME_NAME				"HELLFIRE"
 #define APP_NAME				"Hellfire"
+#define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
+#define GAME_ID					((int)'HRTL')
+#define GAME_VERSION			34
+#ifdef SPAWN
+#define PROGRAM_NAME			"Diablo Shareware"
+#else
+#define PROGRAM_NAME			"Hellfire Retail"
+#endif
 #else
 #define DIABOOL					BOOL
 #define GAME_NAME				"DIABLO"
 #define APP_NAME				"Diablo"
+#define INTRO_ARCHIVE			"gendata\\diablo1.smk"
+#define GAME_ID					((int)'DRTL')
+#define GAME_VERSION			42
+#ifdef SPAWN
+#define PROGRAM_NAME			"Diablo Shareware"
+#else
+#define PROGRAM_NAME			"Diablo Retail"
+#endif
 #endif
 
 #ifdef HELLFIRE
@@ -129,17 +151,6 @@
 
 #define PMSG_COUNT				8
 
-// Diablo Retail Version Game ID
-#ifdef HELLFIRE
-#define GAME_ID					((int)'HRTL')
-#define GAME_VERSION			34
-#define PROGRAM_NAME			"Hellfire Retail"
-#else
-#define GAME_ID					((int)'DRTL')
-#define GAME_VERSION			42
-#define PROGRAM_NAME			"Diablo Retail"
-#endif
-
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
 // Entry 128-255 (0x80-0xFF) are global
@@ -208,6 +219,12 @@
 #define DIALOG_Y		(SCREEN_Y + DIALOG_TOP)
 
 #define SCREENXY(x, y)	((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
+
+#ifdef SPAWN
+#define MONST_AVAILABILITY_MASK	1
+#else
+#define MONST_AVAILABILITY_MASK	3
+#endif
 
 #define NIGHTMARE_TO_HIT_BONUS  85
 #define HELL_TO_HIT_BONUS      120

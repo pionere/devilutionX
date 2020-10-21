@@ -145,11 +145,6 @@ void FileErrDlg(const char *error)
  */
 void InsertCDDlg()
 {
-#ifdef SPAWN
-	const char *fileName = "spawn.mpq";
-#else
-	const char *fileName = "diabdat.mpq";
-#endif
 	char text[1024];
 	snprintf(
 	    text,
@@ -157,7 +152,7 @@ void InsertCDDlg()
 	    "Unable to open %s.\n"
 	    "\n"
 	    "Make sure that it is in the game folder and that the file name is in all lowercase.",
-	    fileName);
+	    MAIN_DATA_ARCHIVE);
 
 	UiErrorOkDialog("Data File Error", text);
 	app_fatal(NULL);

@@ -223,8 +223,8 @@ void InitObjectGFX()
 
 	memset(fileload, FALSE, sizeof(fileload));
 
-#ifdef HELLFIRE
 	int lvl = currlevel;
+#ifdef HELLFIRE
 	if (currlevel >= 21 && currlevel <= 24)
 		lvl -= 20;
 	else if (currlevel >= 17 && currlevel <= 20)
@@ -232,13 +232,8 @@ void InitObjectGFX()
 #endif
 	for (ods = AllObjects; ods->oload != -1; ods++) {
 		if (ods->oload == 1
-#ifdef HELLFIRE
-		    && (int)lvl >= ods->ominlvl
-		    && (int)lvl <= ods->omaxlvl) {
-#else
-		    && (int)currlevel >= ods->ominlvl
-		    && (int)currlevel <= ods->omaxlvl) {
-#endif
+		    && lvl >= ods->ominlvl
+		    && lvl <= ods->omaxlvl) {
 			fileload[ods->ofindex] = TRUE;
 		}
 		if (ods->otheme != THEME_NONE) {
@@ -1026,9 +1021,9 @@ void InitObjects()
 		if (currlevel == quests[Q_MUSHROOM]._qlevel && quests[Q_MUSHROOM]._qactive == QUEST_INIT)
 			AddMushPatch();
 
-#ifdef HELLFIRE
 		if (currlevel == 4 || currlevel == 8 || currlevel == 12)
 			AddStoryBooks();
+#ifdef HELLFIRE
 		if (currlevel == 21) {
 			AddLvl2xBooks(1);
 		} else if (currlevel == 22) {
@@ -1041,13 +1036,6 @@ void InitObjects()
 		if (currlevel == 24) {
 			AddLvl24Books();
 		}
-#else
-		if (currlevel == 4)
-			AddStoryBooks();
-		if (currlevel == 8)
-			AddStoryBooks();
-		if (currlevel == 12)
-			AddStoryBooks();
 #endif
 		if (leveltype == DTYPE_CATHEDRAL) {
 			if (QuestStatus(Q_BUTCHER))

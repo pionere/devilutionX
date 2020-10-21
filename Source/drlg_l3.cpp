@@ -2469,17 +2469,11 @@ static void DRLG_L3(int entry)
 	} while (!lavapool);
 
 #ifdef HELLFIRE
-	if (currlevel < 17)
-#endif
-		DRLG_L3PoolFix();
-#ifdef HELLFIRE
-	if (currlevel < 17)
-#endif
-		FixL3Warp();
-
-#ifdef HELLFIRE
 	if (currlevel < 17) {
 #endif
+		DRLG_L3PoolFix();
+		FixL3Warp();
+
 		DRLG_L3PlaceRndSet(L3ISLE1, 70);
 		DRLG_L3PlaceRndSet(L3ISLE2, 70);
 		DRLG_L3PlaceRndSet(L3ISLE3, 30);
@@ -2487,6 +2481,9 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L3ISLE1, 100);
 		DRLG_L3PlaceRndSet(L3ISLE2, 100);
 		DRLG_L3PlaceRndSet(L3ISLE5, 90);
+
+		FixL3HallofHeroes();
+		DRLG_L3River();
 #ifdef HELLFIRE
 	} else {
 		DRLG_L3PlaceRndSet(L6ISLE1, 70);
@@ -2498,15 +2495,6 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6ISLE5, 90);
 	}
 #endif
-
-#ifdef HELLFIRE
-	if (currlevel < 17)
-#endif
-		FixL3HallofHeroes();
-#ifdef HELLFIRE
-	if (currlevel < 17)
-#endif
-		DRLG_L3River();
 
 	if (QuestStatus(Q_ANVIL)) {
 		dungeon[setpc_x + 7][setpc_y + 5] = 7;

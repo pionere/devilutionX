@@ -117,10 +117,8 @@ void mainmenu_loop()
 			break;
 		case MAINMENU_ATTRACT_MODE:
  		case MAINMENU_REPLAY_INTRO:
-#if defined(HELLFIRE) || !defined(SPAWN)
 			if (gbActive)
 				mainmenu_play_intro();
-#endif
 			break;
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog(16);
@@ -180,13 +178,11 @@ BOOL mainmenu_multi_player()
 
 void mainmenu_play_intro()
 {
+#if defined(HELLFIRE) || !defined(SPAWN)
 	music_stop();
-#ifdef HELLFIRE
-	play_movie("gendata\\Hellfire.smk", TRUE);
-#else
-	play_movie("gendata\\diablo1.smk", TRUE);
-#endif
+	play_movie(INTRO_ARCHIVE, TRUE);
 	mainmenu_refresh_music();
+#endif
 }
 
 DEVILUTION_END_NAMESPACE

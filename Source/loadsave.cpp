@@ -7,6 +7,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef HELLFIRE
+#define SAVE_INITIAL 'HELF'
+#else
+#define SAVE_INITIAL 'RETL'
+#endif
+
 BYTE *tbuff;
 
 /**
@@ -27,11 +33,7 @@ void LoadGame(BOOL firstflag)
 	LoadBuff = pfile_read(szName, &dwLen);
 	tbuff = LoadBuff;
 
-#ifdef HELLFIRE
-	if (ILoad() != 'HELF')
-#else
-	if (ILoad() != 'RETL')
-#endif
+	if (ILoad() != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 
 	setlevel = OLoad();
@@ -863,11 +865,8 @@ void SaveGame()
 	BYTE *SaveBuff = DiabloAllocPtr(dwLen);
 	tbuff = SaveBuff;
 
-#ifdef HELLFIRE
-	ISave('HELF');
-#else
-	ISave('RETL');
-#endif
+	ISave(SAVE_INITIAL);
+
 	OSave(setlevel);
 	WSave(setlvlnum);
 	WSave(currlevel);

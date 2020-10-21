@@ -20,6 +20,7 @@ void town_475379();
 void town_47552C();
 void town_475595();
 void CreateTown(int entry);
+unsigned char GetOpenWarps();
 
 #ifdef __cplusplus
 }

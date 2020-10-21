@@ -12,9 +12,25 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef SPAWN
 #define PASSWORD_SINGLE "adslhfb1"
 #define PASSWORD_MULTI "lshbkfg1"
+
+#ifdef HELLFIRE
+#define SAVE_FILE_FORMAT_SINGLE "%sspawn%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI "%sshare_%d.hsv"
+#else
+#define SAVE_FILE_FORMAT_SINGLE "%sspawn%d.sv"
+#define SAVE_FILE_FORMAT_MULTI "%sshare_%d.sv"
+#endif
 #else
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI "szqnlsk1"
+
+#ifdef HELLFIRE
+#define SAVE_FILE_FORMAT_SINGLE "%ssingle_%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI "%shrinfo_%d.drv"
+#else
+#define SAVE_FILE_FORMAT_SINGLE "%ssingle_%d.sv"
+#define SAVE_FILE_FORMAT_MULTI "%smulti_%d.sv"
+#endif
 #endif
 
 /** List of character names for the character selection screen. */
@@ -77,34 +93,7 @@ BOOL pfile_open_archive(BOOL update, DWORD save_num)
 void pfile_get_save_path(char *pszBuf, DWORD dwBufSize, DWORD save_num)
 {
 	char path[MAX_PATH];
-
-#ifdef SPAWN
-#ifdef HELLFIRE
-	const char *fmt = "%sshare_%d.hsv";
-#else
-	const char *fmt = "%sshare_%d.sv";
-#endif
-
-	if (gbMaxPlayers <= 1)
-#ifdef HELLFIRE
-		fmt = "%sspawn%d.hsv";
-#else
-		fmt = "%sspawn%d.sv";
-#endif
-#else
-#ifdef HELLFIRE
-	const char *fmt = "%shrinfo_%d.drv";
-#else
-	const char *fmt = "%smulti_%d.sv";
-#endif
-
-	if (gbMaxPlayers <= 1)
-#ifdef HELLFIRE
-		fmt = "%ssingle_%d.hsv";
-#else
-		fmt = "%ssingle_%d.sv";
-#endif
-#endif
+	const char *fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
 
 	GetPrefPath(path, MAX_PATH);
 	snprintf(pszBuf, MAX_PATH, fmt, path, save_num);

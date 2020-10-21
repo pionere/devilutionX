@@ -2560,15 +2560,8 @@ static void DRLG_L5(int entry)
 	case 2:
 		minarea = 693;
 		break;
-	case 3:
-	case 4:
-		minarea = 761;
-		break;
-#ifdef HELLFIRE
 	default:
 		minarea = 761;
-		break;
-#endif
 	}
 
 	do {
@@ -2771,15 +2764,11 @@ static void DRLG_L5(int entry)
 #ifdef HELLFIRE
 	if (currlevel < 21)
 #endif
+	{
 		DRLG_L1Shadows();
-#ifdef HELLFIRE
-	if (currlevel < 21)
-#endif
 		DRLG_PlaceMiniSet(LAMPS, 5, 10, 0, 0, FALSE, -1, 4);
-#ifdef HELLFIRE
-	if (currlevel < 21)
-#endif
 		DRLG_L1Floor();
+	}
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {

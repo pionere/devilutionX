@@ -1738,15 +1738,9 @@ void GetBookSpell(int ii, int lvl)
 	is->_iIvalue += spelldata[bs].sBookCost;
 	if (spelldata[bs].sType == STYPE_FIRE)
 		is->_iCurs = ICURS_BOOK_RED;
-#ifdef HELLFIRE
-	else
-#endif
-	if (spelldata[bs].sType == STYPE_LIGHTNING)
+	else if (spelldata[bs].sType == STYPE_LIGHTNING)
 		is->_iCurs = ICURS_BOOK_BLUE;
-#ifdef HELLFIRE
-	else
-#endif
-	if (spelldata[bs].sType == STYPE_MAGIC)
+	else if (spelldata[bs].sType == STYPE_MAGIC)
 		is->_iCurs = ICURS_BOOK_GREY;
 }
 
@@ -2571,13 +2565,12 @@ void GetItemBonus(int ii, int idata, int minlvl, int maxlvl, BOOL onlygood)
 			break;
 		case ITYPE_STAFF:
 #ifdef HELLFIRE
-			if (allowspells)
+			if (!allowspells) {
+				GetItemPower(ii, minlvl, maxlvl, 0x100, onlygood);
+				break;
+			}
 #endif
 			GetStaffSpell(ii, maxlvl, onlygood);
-#ifdef HELLFIRE
-			else
-				GetItemPower(ii, minlvl, maxlvl, 0x100, onlygood);
-#endif
 			break;
 		case ITYPE_RING:
 		case ITYPE_AMULET:

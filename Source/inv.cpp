@@ -176,7 +176,7 @@ void DrawInv()
 	ItemStruct *is;
 	BOOL invtest[NUM_INV_GRID_ELEM];
 	int frame, frame_width, color, screen_x, screen_y, i, j, ii;
-	BYTE *pBuff;
+	BYTE *pBuff, *cCels;
 
 	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pInvCels, 1, SPANEL_WIDTH);
 
@@ -187,7 +187,13 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 		if (pcursinvitem == INVITEM_HEAD) {
 			color = ICOL_WHITE;
 			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -196,37 +202,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-				CelClippedDraw(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -236,6 +218,13 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 
 		if (pcursinvitem == INVITEM_RING_LEFT) {
 			color = ICOL_WHITE;
@@ -245,37 +234,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -285,6 +250,13 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 
 		if (pcursinvitem == INVITEM_RING_RIGHT) {
 			color = ICOL_WHITE;
@@ -294,37 +266,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -334,6 +282,13 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 
 		if (pcursinvitem == INVITEM_AMULET) {
 			color = ICOL_WHITE;
@@ -343,37 +298,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -387,6 +318,14 @@ void DrawInv()
 		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 31) : (RIGHT_PANEL_X + 17);
 		screen_y = InvItemHeight[frame] == (3 * INV_SLOT_SIZE_PX) ? (160 + SCREEN_Y) : (146 + SCREEN_Y);
 
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
+
 		if (pcursinvitem == INVITEM_HAND_LEFT) {
 			color = ICOL_WHITE;
 			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -395,37 +334,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, screen_x, screen_y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, screen_x, screen_y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(screen_x, screen_y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(screen_x, screen_y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(screen_x, screen_y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(screen_x, screen_y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 
 		if (is->_iLoc == ILOC_TWOHAND) {
@@ -441,15 +356,8 @@ void DrawInv()
 				pBuff = frame_width == INV_SLOT_SIZE_PX
 					? &gpBuffer[SCREENXY(RIGHT_PANEL_X + 197, SCREEN_Y)]
 					: &gpBuffer[SCREENXY(RIGHT_PANEL_X + 183, SCREEN_Y)];
-#ifdef HELLFIRE
-				if (frame <= 179) {
-#endif
-					CelClippedBlitLightTrans(pBuff, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-				} else {
-					CelClippedBlitLightTrans(pBuff, pCursCels2, frame - 179, frame_width);
-				}
-#endif
+
+				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
 
 				cel_transparency_active = FALSE;
 #ifdef HELLFIRE
@@ -468,6 +376,14 @@ void DrawInv()
 		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 261) : (RIGHT_PANEL_X + 249);
 		screen_y = InvItemHeight[frame] == 3 * INV_SLOT_SIZE_PX ? (160 + SCREEN_Y) : (146 + SCREEN_Y);
 
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
+
 		if (pcursinvitem == INVITEM_HAND_RIGHT) {
 			color = ICOL_WHITE;
 			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -476,37 +392,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, screen_x, screen_y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, screen_x, screen_y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(screen_x, screen_y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(screen_x, screen_y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(screen_x, screen_y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(screen_x, screen_y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -516,6 +408,13 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 
 		if (pcursinvitem == INVITEM_CHEST) {
 			color = ICOL_WHITE;
@@ -525,37 +424,13 @@ void DrawInv()
 			if (!is->_iStatFlag) {
 				color = ICOL_RED;
 			}
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelBlitOutline(color, RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelBlitOutline(color, RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelBlitOutline(color, RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelClippedDraw(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			} else {
-				CelClippedDraw(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels2, frame - 179, frame_width);
-			}
-#endif
+			CelClippedDraw(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179) {
-#endif
-			CelDrawLightRed(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			} else {
-				CelDrawLightRed(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, pCursCels2, frame - 179, frame_width, 1);
-			}
-#endif
+			CelDrawLightRed(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width, 1);
 		}
 	}
 
@@ -580,6 +455,13 @@ void DrawInv()
 
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
+			cCels = pCursCels;
+#ifdef HELLFIRE
+			if (frame > 179) {
+				frame -= 179;
+				cCels = pCursCels2;
+			}
+#endif
 			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
 				color = ICOL_WHITE;
 				if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -588,57 +470,23 @@ void DrawInv()
 				if (!is->_iStatFlag) {
 					color = ICOL_RED;
 				}
-#ifdef HELLFIRE
-				if (frame <= 179) {
-#endif
 				CelBlitOutline(
 				    color,
 				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
 				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-				    pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-				} else {
-					CelBlitOutline(
-					    color,
-					    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-					    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-					    pCursCels2, frame - 179, frame_width);
-				}
-#endif
+				    cCels, frame, frame_width);
 			}
 
 			if (is->_iStatFlag) {
-#ifdef HELLFIRE
-				if (frame <= 179) {
-#endif
 				CelClippedDraw(
 				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
 				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-				    pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-				} else {
-					CelClippedDraw(
-					    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-					    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-					    pCursCels2, frame - 179, frame_width);
-				}
-#endif
+				    cCels, frame, frame_width);
 			} else {
-#ifdef HELLFIRE
-				if (frame <= 179) {
-#endif
 				CelDrawLightRed(
 				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
 				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-				    pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-				} else {
-					CelDrawLightRed(
-					    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-					    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
-					    pCursCels2, frame - 179, frame_width, 1);
-				}
-#endif
+				    cCels, frame, frame_width, 1);
 			}
 		}
 	}
@@ -649,6 +497,7 @@ void DrawInvBelt()
 	ItemStruct *is;
 	int i, frame, frame_width, color;
 	BYTE fi, ff;
+	BYTE *cCels;
 
 	if (talkflag) {
 		return;
@@ -665,7 +514,13 @@ void DrawInvBelt()
 		InvDrawSlotBack(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-
+		cCels = pCursCels;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+		}
+#endif
 		if (pcursinvitem == i + INVITEM_BELT_FIRST) {
 			color = ICOL_WHITE;
 			if (is->_iMagical)
@@ -673,35 +528,14 @@ void DrawInvBelt()
 			if (!is->_iStatFlag)
 				color = ICOL_RED;
 			if (!sgbControllerActive || invflag) {
-#ifdef HELLFIRE
-			if (frame <= 179)
-#endif
-			CelBlitOutline(color, InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			else
-				CelBlitOutline(color, InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels2, frame - 179, frame_width);
-#endif
+				CelBlitOutline(color, InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width);
 			}
 		}
 
 		if (is->_iStatFlag) {
-#ifdef HELLFIRE
-			if (frame <= 179)
-#endif
-			CelClippedDraw(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels, frame, frame_width);
-#ifdef HELLFIRE
-			else
-				CelClippedDraw(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels2, frame - 179, frame_width);
-#endif
+			CelClippedDraw(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width);
 		} else {
-#ifdef HELLFIRE
-			if (frame <= 179)
-#endif
-			CelDrawLightRed(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels, frame, frame_width, 1);
-#ifdef HELLFIRE
-			else
-				CelDrawLightRed(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, pCursCels2, frame - 179, frame_width, 1);
-#endif
+			CelDrawLightRed(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width, 1);
 		}
 
 		if (AllItemsList[is->IDidx].iUsable

@@ -117,13 +117,11 @@ void doom_init()
 void doom_close()
 {
 #ifndef HELLFIRE
-	if (doomflag) {
+	if (!doomflag)
+		return;
 #endif
-		doomflag = FALSE;
-		doom_cleanup();
-#ifndef HELLFIRE
-	}
-#endif
+	doomflag = FALSE;
+	doom_cleanup();
 }
 
 void doom_draw()
