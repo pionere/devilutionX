@@ -167,6 +167,15 @@ void InvDrawSlotBack(int X, int Y, int W, int H)
 	}
 }
 
+int InvItemColor(ItemStruct *is)
+{
+	if (!is->_iStatFlag)
+		return ICOL_RED;
+	if (is->_iMagical != ITEM_QUALITY_NORMAL)
+		return ICOL_BLUE;
+	return ICOL_WHITE;
+}
+
 /**
  * @brief Render the inventory panel to the back buffer
  */
@@ -174,167 +183,145 @@ void DrawInv()
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	BOOL invtest[NUM_INV_GRID_ELEM];
-	int frame, frame_width, color, screen_x, screen_y, i, j, ii;
+	int frame, frame_width, screen_x, screen_y, i, j, ii;
 	BYTE *pBuff, *cCels;
 
 	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pInvCels, 1, SPANEL_WIDTH);
 
+	cCels = pCursCels;
+
 	p = &plr[myplr];
 	is = &p->InvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 133;
+		screen_y = 59 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 		if (pcursinvitem == INVITEM_HEAD) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(RIGHT_PANEL_X + 133, 59 + SCREEN_Y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
 	is = &p->InvBody[INVLOC_RING_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 48;
+		screen_y = 205 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_RING_LEFT) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(RIGHT_PANEL_X + 48, 205 + SCREEN_Y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
 	is = &p->InvBody[INVLOC_RING_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 249;
+		screen_y = 205 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_RING_RIGHT) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(RIGHT_PANEL_X + 249, 205 + SCREEN_Y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
 	is = &p->InvBody[INVLOC_AMULET];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 205;
+		screen_y = 60 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_AMULET) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(RIGHT_PANEL_X + 205, 60 + SCREEN_Y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
 	is = &p->InvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 17, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 17;
+		screen_y = 160 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
-		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 31) : (RIGHT_PANEL_X + 17);
-		screen_y = InvItemHeight[frame] == (3 * INV_SLOT_SIZE_PX) ? (160 + SCREEN_Y) : (146 + SCREEN_Y);
+		if (frame_width == INV_SLOT_SIZE_PX)
+			screen_x += 14;
+		if (InvItemHeight[frame] != (3 * INV_SLOT_SIZE_PX))
+			screen_y -= 14;
 
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_HAND_LEFT) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, screen_x, screen_y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -368,31 +355,30 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 248, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 248;
+		screen_y = 160 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
-		screen_x = frame_width == INV_SLOT_SIZE_PX ? (RIGHT_PANEL_X + 261) : (RIGHT_PANEL_X + 249);
-		screen_y = InvItemHeight[frame] == 3 * INV_SLOT_SIZE_PX ? (160 + SCREEN_Y) : (146 + SCREEN_Y);
+		if (frame_width == INV_SLOT_SIZE_PX)
+			screen_x += 13;
+		else
+			screen_x++;
+		if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
+			screen_y -= 14;
 
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_HAND_RIGHT) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, screen_x, screen_y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -404,38 +390,32 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
-		InvDrawSlotBack(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		screen_x = RIGHT_PANEL_X + 133;
+		screen_y = 160 + SCREEN_Y;
+		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 
 		if (pcursinvitem == INVITEM_CHEST) {
-			color = ICOL_WHITE;
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				color = ICOL_BLUE;
-			}
-			if (!is->_iStatFlag) {
-				color = ICOL_RED;
-			}
-			CelBlitOutline(color, RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width);
+			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(RIGHT_PANEL_X + 133, 160 + SCREEN_Y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		invtest[i] = FALSE;
 		if (p->InvGrid[i] != 0) {
 			InvDrawSlotBack(
 			    InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
@@ -446,46 +426,39 @@ void DrawInv()
 	}
 
 	for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-		if (p->InvGrid[j] > 0) // first slot of an item
-		{
+		if (p->InvGrid[j] > 0) { // first slot of an item
 			ii = p->InvGrid[j] - 1;
 			is = &p->InvList[ii];
 
-			invtest[j] = TRUE;
+			screen_x = InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
+			screen_y = InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1;
 
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
-			cCels = pCursCels;
 #ifdef HELLFIRE
 			if (frame > 179) {
 				frame -= 179;
 				cCels = pCursCels2;
-			}
+			} else
+				cCels = pCursCels;
 #endif
 			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
-				color = ICOL_WHITE;
-				if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-					color = ICOL_BLUE;
-				}
-				if (!is->_iStatFlag) {
-					color = ICOL_RED;
-				}
 				CelBlitOutline(
-				    color,
-				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
+				    InvItemColor(is),
+				    screen_x,
+				    screen_y,
 				    cCels, frame, frame_width);
 			}
 
 			if (is->_iStatFlag) {
 				CelClippedDraw(
-				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
+				    screen_x,
+				    screen_y,
 				    cCels, frame, frame_width);
 			} else {
 				CelDrawLightRed(
-				    InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-				    InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
+				    screen_x,
+				    screen_y,
 				    cCels, frame, frame_width, 1);
 			}
 		}
@@ -495,47 +468,44 @@ void DrawInv()
 void DrawInvBelt()
 {
 	ItemStruct *is;
-	int i, frame, frame_width, color;
+	int i, frame, frame_width, screen_x, screen_y;
 	BYTE fi, ff;
 	BYTE *cCels;
 
-	if (talkflag) {
+	if (talkflag)
 		return;
-	}
 
 	DrawPanelBox(205, 21, 232, 28, PANEL_X + 205, PANEL_Y + 5);
+
+	cCels = pCursCels;
 
 	is = plr[myplr].SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, is++) {
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-
-		InvDrawSlotBack(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		screen_x = InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X;
+		screen_y = InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1;
+		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-		cCels = pCursCels;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-		}
+		} else
+			cCels = pCursCels;
 #endif
 		if (pcursinvitem == i + INVITEM_BELT_FIRST) {
-			color = ICOL_WHITE;
-			if (is->_iMagical)
-				color = ICOL_BLUE;
-			if (!is->_iStatFlag)
-				color = ICOL_RED;
 			if (!sgbControllerActive || invflag) {
-				CelBlitOutline(color, InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width);
+				CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 			}
 		}
 
 		if (is->_iStatFlag) {
-			CelClippedDraw(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width);
+			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X, InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 
 		if (AllItemsList[is->IDidx].iUsable
@@ -543,7 +513,7 @@ void DrawInvBelt()
 		    && is->_itype != ITYPE_GOLD) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
-			PrintChar(InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X + INV_SLOT_SIZE_PX - fontkern[ff], InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1, ff, 0);
+			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, 0);
 		}
 	}
 }
