@@ -2491,7 +2491,7 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		for (i = 0; i < 6; i++) {
 			cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-			for (j = CrawlTable[cr - 1]; j > 0; j--) {
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
 			for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -2636,7 +2636,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -4039,7 +4039,7 @@ void MI_HorkSpawn(int mi)
 	CheckMissileCol(mi, 0, 0, 0, mis->_mix, mis->_miy, 0);
 	if (mis->_mirange <= 0) {
 		mis->_miDelFlag = TRUE;
-		for (i = 0; i < 2; j++) {
+		for (i = 0; i < 2; i++) {
 			cr = CrawlNum[i] + 1;
 			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 				tx = mis->_mix + CrawlTable[cr];
@@ -5068,7 +5068,7 @@ void MI_Chain(int mi)
 	if (rad > 19)
 		rad = 19;
 	for (i = 1; i < rad; i++) {
-		cr = CrawlNum[i]+ 1;
+		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
 		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #else
