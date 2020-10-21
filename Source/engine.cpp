@@ -684,7 +684,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 int GetDirection(int x1, int y1, int x2, int y2)
 {
 	int mx, my;
-	int md, ny;
+	int md;
 
 	mx = x2 - x1;
 	my = y2 - y1;
@@ -693,30 +693,29 @@ int GetDirection(int x1, int y1, int x2, int y2)
 		if (my >= 0) {
 			md = DIR_S;
 			if (2 * mx < my)
-				md = DIR_SW;
+				return DIR_SW;
 		} else {
 			my = -my;
 			md = DIR_E;
 			if (2 * mx < my)
-				md = DIR_NE;
+				return DIR_NE;
 		}
 		if (2 * my < mx)
-			return DIR_SE;
+			md = DIR_SE;
 	} else {
+		mx = -mx;
 		if (my >= 0) {
-			ny = -mx;
 			md = DIR_W;
-			if (2 * ny < my)
-				md = DIR_SW;
+			if (2 * mx < my)
+				return DIR_SW;
 		} else {
-			ny = -mx;
 			my = -my;
 			md = DIR_N;
-			if (2 * ny < my)
-				md = DIR_NE;
+			if (2 * mx < my)
+				return DIR_NE;
 		}
-		if (2 * my < ny)
-			return DIR_NW;
+		if (2 * my < mx)
+			md = DIR_NW;
 	}
 
 	return md;
