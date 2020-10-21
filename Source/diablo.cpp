@@ -12,16 +12,16 @@ DEVILUTION_BEGIN_NAMESPACE
 SDL_Window *ghMainWnd;
 DWORD glSeedTbl[NUMLEVELS];
 int gnLevelTypeTbl[NUMLEVELS];
-#ifndef HELLFIRE
-int glEndSeed[NUMLEVELS];
-int glMid1Seed[NUMLEVELS];
-int glMid2Seed[NUMLEVELS];
-int glMid3Seed[NUMLEVELS];
-#else
+#ifdef HELLFIRE
 int glEndSeed[NUMLEVELS + 1];
 int glMid1Seed[NUMLEVELS + 1];
 int glMid2Seed[NUMLEVELS + 1];
 int glMid3Seed[NUMLEVELS + 1];
+#else
+int glEndSeed[NUMLEVELS];
+int glMid1Seed[NUMLEVELS];
+int glMid2Seed[NUMLEVELS];
+int glMid3Seed[NUMLEVELS];
 #endif
 int MouseX;
 int MouseY;
@@ -142,12 +142,12 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 			InitQuests();
 			InitPortals();
 			InitDungMsgs(myplr);
-#ifndef HELLFIRE
-		}
-		if (!gbValidSaveFile || !gbLoadGame) {
-#else
+#ifdef HELLFIRE
 			if (!gbValidSaveFile && gbLoadGame)
 				inv_diablo_to_hellfire(myplr);
+#else
+		}
+		if (!gbValidSaveFile || !gbLoadGame) {
 #endif
 			uMsg = WM_DIABNEWGAME;
 		} else {
@@ -155,11 +155,11 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 		}
 		run_game_loop(uMsg);
 		NetClose();
-#ifndef HELLFIRE
+#ifdef HELLFIRE
+	} while (gbMaxPlayers == 1 || !gbRunGameResult);
+#else
 		pfile_create_player_description(0, 0);
 	} while (gbRunGameResult);
-#else
-	} while (gbMaxPlayers == 1 || !gbRunGameResult);
 #endif
 
 	SNetDestroy();
@@ -331,10 +331,10 @@ void diablo_splash()
 
 #if defined(HELLFIRE) || !defined(SPAWN)
 	if (getIniBool(APP_NAME, "Intro", true)) {
-#ifndef HELLFIRE
-		play_movie("gendata\\diablo1.smk", TRUE);
-#else
+#ifdef HELLFIRE
 		play_movie("gendata\\Hellfire.smk", TRUE);
+#else
+		play_movie("gendata\\diablo1.smk", TRUE);
 #endif
 		setIniValue(APP_NAME, "Intro", "0");
 	}

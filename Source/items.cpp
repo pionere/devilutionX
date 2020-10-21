@@ -60,25 +60,7 @@ int MaxGold = GOLD_MAX_LIMIT;
 
 /** Maps from item_cursor_graphic to in-memory item type. */
 BYTE ItemCAnimTbl[] = {
-#ifndef HELLFIRE
-	20, 16, 16, 16, 4, 4, 4, 12, 12, 12,
-	12, 12, 12, 12, 12, 21, 21, 25, 12, 28,
-	28, 28, 0, 0, 0, 32, 0, 0, 0, 24,
-	24, 26, 2, 25, 22, 23, 24, 25, 27, 27,
-	29, 0, 0, 0, 12, 12, 12, 12, 12, 0,
-	8, 8, 0, 8, 8, 8, 8, 8, 8, 6,
-	8, 8, 8, 6, 8, 8, 6, 8, 8, 6,
-	6, 6, 8, 8, 8, 5, 9, 13, 13, 13,
-	5, 5, 5, 15, 5, 5, 18, 18, 18, 30,
-	5, 5, 14, 5, 14, 13, 16, 18, 5, 5,
-	7, 1, 3, 17, 1, 15, 10, 14, 3, 11,
-	8, 0, 1, 7, 0, 7, 15, 7, 3, 3,
-	3, 6, 6, 11, 11, 11, 31, 14, 14, 14,
-	6, 6, 7, 3, 8, 14, 0, 14, 14, 0,
-	33, 1, 1, 1, 1, 1, 7, 7, 7, 14,
-	14, 17, 17, 17, 0, 34, 1, 0, 3, 17,
-	8, 8, 6, 1, 3, 3, 11, 3, 4
-#else
+#ifdef HELLFIRE
 	20, 16, 16, 16, 4, 4, 4, 12, 12, 12,
 	12, 12, 12, 12, 12, 21, 21, 25, 12, 28,
 	28, 28, 38, 38, 38, 32, 38, 38, 38, 24,
@@ -102,6 +84,24 @@ BYTE ItemCAnimTbl[] = {
 	8, 8, 8, 17, 0, 6, 8, 11, 11, 3,
 	3, 1, 6, 6, 6, 1, 8, 6, 11, 3,
 	6, 8, 1, 6, 6, 17, 40, 0, 0
+#else
+	20, 16, 16, 16, 4, 4, 4, 12, 12, 12,
+	12, 12, 12, 12, 12, 21, 21, 25, 12, 28,
+	28, 28, 0, 0, 0, 32, 0, 0, 0, 24,
+	24, 26, 2, 25, 22, 23, 24, 25, 27, 27,
+	29, 0, 0, 0, 12, 12, 12, 12, 12, 0,
+	8, 8, 0, 8, 8, 8, 8, 8, 8, 6,
+	8, 8, 8, 6, 8, 8, 6, 8, 8, 6,
+	6, 6, 8, 8, 8, 5, 9, 13, 13, 13,
+	5, 5, 5, 15, 5, 5, 18, 18, 18, 30,
+	5, 5, 14, 5, 14, 13, 16, 18, 5, 5,
+	7, 1, 3, 17, 1, 15, 10, 14, 3, 11,
+	8, 0, 1, 7, 0, 7, 15, 7, 3, 3,
+	3, 6, 6, 11, 11, 11, 31, 14, 14, 14,
+	6, 6, 7, 3, 8, 14, 0, 14, 14, 0,
+	33, 1, 1, 1, 1, 1, 7, 7, 7, 14,
+	14, 17, 17, 17, 0, 34, 1, 0, 3, 17,
+	8, 8, 6, 1, 3, 3, 11, 3, 4
 #endif
 };
 /** Map of item type .cel file names. */
@@ -1960,18 +1960,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	is->_iPrePower = -1;
 	is->_iSufPower = -1;
 
-#ifndef HELLFIRE
-	if (is->_iMiscId == IMISC_BOOK)
-		GetBookSpell(ii, lvl);
-
-	if (is->_itype == ITYPE_GOLD) {
-		if (gnDifficulty == DIFF_NORMAL)
-			rndv = 5 * currlevel + random_(21, 10 * currlevel);
-		if (gnDifficulty == DIFF_NIGHTMARE)
-			rndv = 5 * (currlevel + 16) + random_(21, 10 * (currlevel + 16));
-		if (gnDifficulty == DIFF_HELL)
-			rndv = 5 * (currlevel + 32) + random_(21, 10 * (currlevel + 32));
-#else
+#ifdef HELLFIRE
 	is->_iFlags = 0;
 	is->_iDamAcFlags = 0;
 
@@ -1989,6 +1978,17 @@ void GetItemAttrs(int ii, int idata, int lvl)
 			rndv = 5 * (itemlevel + 16) + random_(21, 10 * (itemlevel + 16));
 		else if (gnDifficulty == DIFF_HELL)
 			rndv = 5 * (itemlevel + 32) + random_(21, 10 * (itemlevel + 32));
+#else
+	if (is->_iMiscId == IMISC_BOOK)
+		GetBookSpell(ii, lvl);
+
+	if (is->_itype == ITYPE_GOLD) {
+		if (gnDifficulty == DIFF_NORMAL)
+			rndv = 5 * currlevel + random_(21, 10 * currlevel);
+		if (gnDifficulty == DIFF_NIGHTMARE)
+			rndv = 5 * (currlevel + 16) + random_(21, 10 * (currlevel + 16));
+		if (gnDifficulty == DIFF_HELL)
+			rndv = 5 * (currlevel + 32) + random_(21, 10 * (currlevel + 32));
 #endif
 		if (leveltype == DTYPE_HELL)
 			rndv += rndv >> 3;

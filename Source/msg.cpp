@@ -1154,14 +1154,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
-#ifndef HELLFIRE
-	case CMD_NOVA:
-		return On_NOVA(pCmd, pnum);
-	case CMD_SETSHIELD:
-		return On_SETSHIELD(pCmd, pnum);
-	case CMD_REMSHIELD:
-		return On_REMSHIELD(pCmd, pnum);
-#else
+#ifdef HELLFIRE
 	case CMD_REFLECT:
 		return On_ENDREFLECT(pCmd, pnum);
 	case CMD_NAKRUL:
@@ -1170,6 +1163,13 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_OPENHIVE(pCmd, pnum);
 	case CMD_OPENCRYPT:
 		return On_OPENCRYPT(pCmd, pnum);
+#else
+	case CMD_NOVA:
+		return On_NOVA(pCmd, pnum);
+	case CMD_SETSHIELD:
+		return On_SETSHIELD(pCmd, pnum);
+	case CMD_REMSHIELD:
+		return On_REMSHIELD(pCmd, pnum);
 #endif
 	}
 

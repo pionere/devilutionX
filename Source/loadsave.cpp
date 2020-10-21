@@ -473,11 +473,11 @@ void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->pBattleNet);
 #endif
 	CopyChar(tbuff, &p->pManaShield);
-#ifndef HELLFIRE
-	CopyBytes(tbuff, 3, &p->bReserved);
-#else
+#ifdef HELLFIRE
 	CopyChar(tbuff, &p->pDungMsgs2);
 	CopyBytes(tbuff, 2, &p->bReserved);
+#else
+	CopyBytes(tbuff, 3, &p->bReserved);
 #endif
 	CopyShort(tbuff, &p->wReflection);
 	CopyShorts(tbuff, 7, &p->wReserved);

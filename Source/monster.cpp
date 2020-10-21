@@ -417,18 +417,7 @@ void InitMonsterGFX(int midx)
 		LoadMissileGFX(MFILE_SCUBMISC);
 		LoadMissileGFX(MFILE_SCBSEXPC);
 	}
-#ifndef HELLFIRE
-	if (mtype >= MT_INCIN && mtype <= MT_HELLBURN && !(MissileFileFlag & 8)) {
-		MissileFileFlag |= 8;
-		LoadMissileGFX(MFILE_KRULL);
-	}
-	if (mtype >= MT_NACID && mtype <= MT_XACID && !(MissileFileFlag & 0x10)) {
-		MissileFileFlag |= 0x10;
-		LoadMissileGFX(MFILE_ACIDBF);
-		LoadMissileGFX(MFILE_ACIDSPLA);
-		LoadMissileGFX(MFILE_ACIDPUD);
-	}
-#else
+#ifdef HELLFIRE
 	if (mtype == MT_LICH && !(MissileFileFlag & 0x100)) {
 		MissileFileFlag |= 0x100u;
 		LoadMissileGFX(MFILE_LICH);
@@ -455,6 +444,17 @@ void InitMonsterGFX(int midx)
 	if (mtype == MT_BONEDEMN && !(MissileFileFlag & 0x2000)) {
 		MissileFileFlag |= 0x2000u;
 		LoadMissileGFX(MFILE_EXBL3);
+	}
+#else
+	if (mtype >= MT_INCIN && mtype <= MT_HELLBURN && !(MissileFileFlag & 8)) {
+		MissileFileFlag |= 8;
+		LoadMissileGFX(MFILE_KRULL);
+	}
+	if (mtype >= MT_NACID && mtype <= MT_XACID && !(MissileFileFlag & 0x10)) {
+		MissileFileFlag |= 0x10;
+		LoadMissileGFX(MFILE_ACIDBF);
+		LoadMissileGFX(MFILE_ACIDSPLA);
+		LoadMissileGFX(MFILE_ACIDPUD);
 	}
 #endif
 	if (mtype == MT_DIABLO) {

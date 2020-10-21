@@ -227,10 +227,10 @@ int SpellPages[6][7] = {
 	{ SPL_RESURRECT, SPL_FIREWALL, SPL_TELEKINESIS, SPL_LIGHTNING, SPL_TOWN, SPL_FLASH, SPL_STONE },
 	{ SPL_RNDTELEPORT, SPL_MANASHIELD, SPL_ELEMENT, SPL_FIREBALL, SPL_WAVE, SPL_CHAIN, SPL_GUARDIAN },
 	{ SPL_NOVA, SPL_GOLEM, SPL_TELEPORT, SPL_APOCA, SPL_BONESPIRIT, SPL_FLARE, SPL_ETHEREALIZE },
-#ifndef HELLFIRE
-	{ -1, -1, -1, -1, -1, -1, -1 },
-#else
+#ifdef HELLFIRE
 	{ SPL_LIGHTWALL, SPL_IMMOLAT, SPL_WARP, SPL_REFLECT, SPL_BERSERK, SPL_FIRERING, SPL_SEARCH },
+#else
+	{ -1, -1, -1, -1, -1, -1, -1 },
 #endif
 	{ -1, -1, -1, -1, -1, -1, -1 }
 };
@@ -839,10 +839,10 @@ void InitControlPan()
 	memset(pLifeBuff, 0, 88 * 88);
 	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL", NULL);
 	pChrPanel = LoadFileInMem("Data\\Char.CEL", NULL);
-#ifndef HELLFIRE
-	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL", NULL);
-#else
+#ifdef HELLFIRE
 	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL", NULL);
+#else
+	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL", NULL);
 #endif
 	SetSpellTrans(RSPLTYPE_SKILL);
 	pStatusPanel = LoadFileInMem("CtrlPan\\Panel8.CEL", NULL);

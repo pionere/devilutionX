@@ -2054,10 +2054,10 @@ void DropHalfPlayersGold(int pnum)
 	hGold = p->_pGold >> 1;
 	for (i = 0; i < MAXBELTITEMS && hGold > 0; i++) {
 		if (p->SpdList[i]._itype == ITYPE_GOLD &&
-#ifndef HELLFIRE
-			p->SpdList[i]._ivalue != GOLD_MAX_LIMIT) {
-#else
+#ifdef HELLFIRE
 			p->SpdList[i]._ivalue != MaxGold) {
+#else
+			p->SpdList[i]._ivalue != GOLD_MAX_LIMIT) {
 #endif
 			if (hGold < p->SpdList[i]._ivalue) {
 				p->SpdList[i]._ivalue -= hGold;
@@ -2109,10 +2109,10 @@ void DropHalfPlayersGold(int pnum)
 	if (hGold > 0) {
 		for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
 			if (p->InvList[i]._itype == ITYPE_GOLD &&
-#ifndef HELLFIRE
-				p->InvList[i]._ivalue != GOLD_MAX_LIMIT) {
-#else
+#ifdef HELLFIRE
 				p->InvList[i]._ivalue != MaxGold) {
+#else
+				p->InvList[i]._ivalue != GOLD_MAX_LIMIT) {
 #endif
 				if (hGold < p->InvList[i]._ivalue) {
 					p->InvList[i]._ivalue -= hGold;
@@ -2387,13 +2387,7 @@ BOOL PlrDoWalk(int pnum)
 	}
 
 	p = &plr[pnum];
-#ifndef HELLFIRE
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
-		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
-	}
-#else
+#ifdef HELLFIRE
 	if (!currlevel && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
@@ -2403,6 +2397,12 @@ BOOL PlrDoWalk(int pnum)
 			p->_pAnimFrame = 0;
 		}
 	}
+#else
+	if (p->_pAnimFrame == 3
+	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
+	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
+	}
 #endif
 
 	anim_len = 8;
@@ -2410,10 +2410,10 @@ BOOL PlrDoWalk(int pnum)
 		anim_len = AnimLenFromClass[p->_pClass];
 	}
 
-#ifndef HELLFIRE
-	if (p->_pVar8 == anim_len) {
-#else
+#ifdef HELLFIRE
 	if (p->_pVar8 >= anim_len) {
+#else
+	if (p->_pVar8 == anim_len) {
 #endif
 		dPlayer[p->_px][p->_py] = 0;
 		p->_px += p->_pVar1;
@@ -2460,13 +2460,7 @@ BOOL PlrDoWalk2(int pnum)
 		app_fatal("PlrDoWalk2: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-#ifndef HELLFIRE
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
-		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
-	}
-#else
+#ifdef HELLFIRE
 	if (!currlevel && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
@@ -2476,6 +2470,12 @@ BOOL PlrDoWalk2(int pnum)
 			p->_pAnimFrame = 0;
 		}
 	}
+#else
+	if (p->_pAnimFrame == 3
+	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
+	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
+	}
 #endif
 
 	anim_len = 8;
@@ -2483,10 +2483,10 @@ BOOL PlrDoWalk2(int pnum)
 		anim_len = AnimLenFromClass[p->_pClass];
 	}
 
-#ifndef HELLFIRE
-	if (p->_pVar8 == anim_len) {
-#else
+#ifdef HELLFIRE
 	if (p->_pVar8 >= anim_len) {
+#else
+	if (p->_pVar8 == anim_len) {
 #endif
 		dPlayer[p->_pVar1][p->_pVar2] = 0;
 
@@ -2529,13 +2529,7 @@ BOOL PlrDoWalk3(int pnum)
 		app_fatal("PlrDoWalk3: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-#ifndef HELLFIRE
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
-		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
-	}
-#else
+#ifdef HELLFIRE
 	if (!currlevel && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
@@ -2545,6 +2539,12 @@ BOOL PlrDoWalk3(int pnum)
 			p->_pAnimFrame = 0;
 		}
 	}
+#else
+	if (p->_pAnimFrame == 3
+	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
+	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
+	}
 #endif
 
 	anim_len = 8;
@@ -2552,10 +2552,10 @@ BOOL PlrDoWalk3(int pnum)
 		anim_len = AnimLenFromClass[p->_pClass];
 	}
 
-#ifndef HELLFIRE
-	if (p->_pVar8 == anim_len) {
-#else
+#ifdef HELLFIRE
 	if (p->_pVar8 >= anim_len) {
+#else
+	if (p->_pVar8 == anim_len) {
 #endif
 		dPlayer[p->_px][p->_py] = 0;
 		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;

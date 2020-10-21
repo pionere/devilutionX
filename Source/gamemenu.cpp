@@ -20,10 +20,10 @@ TMenuItem sgSingleMenu[] = {
 	{ GMENU_ENABLED, "Options",       &gamemenu_options    },
 	{ GMENU_ENABLED, "New Game",      &gamemenu_new_game   },
 	{ GMENU_ENABLED, "Load Game",     &gamemenu_load_game  },
-#ifndef HELLFIRE
-	{ GMENU_ENABLED, "Quit Diablo",   &gamemenu_quit_game  },
-#else
+#ifdef HELLFIRE
 	{ GMENU_ENABLED, "Quit Hellfire", &gamemenu_quit_game  },
+#else
+	{ GMENU_ENABLED, "Quit Diablo",   &gamemenu_quit_game  },
 #endif
 	{ GMENU_ENABLED, NULL,            NULL }
 	// clang-format on
@@ -35,10 +35,10 @@ TMenuItem sgMultiMenu[] = {
 	{ GMENU_ENABLED, "Options",         &gamemenu_options      },
 	{ GMENU_ENABLED, "New Game",        &gamemenu_new_game     },
 	{ GMENU_ENABLED, "Restart In Town", &gamemenu_restart_town },
-#ifndef HELLFIRE
-	{ GMENU_ENABLED, "Quit Diablo",     &gamemenu_quit_game    },
-#else
+#ifdef HELLFIRE
 	{ GMENU_ENABLED, "Quit Hellfire",   &gamemenu_quit_game    },
+#else
+	{ GMENU_ENABLED, "Quit Diablo",     &gamemenu_quit_game    },
 #endif
 	{ GMENU_ENABLED, NULL,              NULL                   },
 	// clang-format on
@@ -49,11 +49,11 @@ TMenuItem sgOptionsMenu[] = {
 	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_music_volume  },
 	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_sound_volume  },
 	{ GMENU_ENABLED | GMENU_SLIDER, "Gamma",         &gamemenu_gamma         },
-#ifndef HELLFIRE
+#ifdef HELLFIRE
+	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_loadjog       },
+#else
 //	{ GMENU_ENABLED               , NULL,            &gamemenu_color_cycling },
 	{ GMENU_ENABLED | GMENU_SLIDER, "Speed",         &gamemenu_speed         },
-#else
-	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_loadjog       },
 #endif
 	{ GMENU_ENABLED               , "Previous Menu", &gamemenu_previous      },
 	{ GMENU_ENABLED               , NULL,            NULL                    },
