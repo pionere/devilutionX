@@ -220,6 +220,14 @@
 
 #define SCREENXY(x, y)	((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
 
+#define SPLICONLENGTH 56
+#define SPLROWICONLS 10
+#ifdef HELLFIRE
+#define SPLICONLAST 52
+#else
+#define SPLICONLAST 43
+#endif
+
 #ifdef SPAWN
 #define MONST_AVAILABILITY_MASK	1
 #else

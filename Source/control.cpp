@@ -235,14 +235,6 @@ int SpellPages[6][7] = {
 	{ -1, -1, -1, -1, -1, -1, -1 }
 };
 
-#define SPLICONLENGTH 56
-#define SPLROWICONLS 10
-#ifdef HELLFIRE
-#define SPLICONLAST 52
-#else
-#define SPLICONLAST 43
-#endif
-
 /**
  * Draw spell cell onto the back buffer.
  * @param xp Back buffer coordinate

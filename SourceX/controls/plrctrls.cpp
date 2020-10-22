@@ -8,8 +8,6 @@
 #include "controls/controller_motion.h"
 #include "controls/game_controls.h"
 
-#define SPLICONLENGTH 56
-
 namespace dvl {
 
 bool sgbControllerActive = false;
