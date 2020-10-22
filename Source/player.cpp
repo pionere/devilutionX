@@ -169,7 +169,7 @@ int MaxStats[NUM_CLASSES][4] = {
 #endif
 };
 /** Specifies the experience point limit of each level. */
-int ExpLvlsTbl[MAXCHARLEVEL] = {
+int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	0,
 	2000,
 	4620,
@@ -3757,8 +3757,8 @@ void ValidatePlayer()
 		app_fatal("ValidatePlayer: illegal player %d", myplr);
 	}
 	p = &plr[myplr];
-	if (p->_pLevel > MAXCHARLEVEL - 1)
-		p->_pLevel = MAXCHARLEVEL - 1;
+	if (p->_pLevel > MAXCHARLEVEL)
+		p->_pLevel = MAXCHARLEVEL;
 	if (p->_pExperience > p->_pNextExper)
 		p->_pExperience = p->_pNextExper;
 

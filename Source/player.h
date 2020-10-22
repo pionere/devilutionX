@@ -148,7 +148,7 @@ extern int VitalityTbl[NUM_CLASSES];
 extern int ToBlkTbl[NUM_CLASSES];
 extern char *ClassStrTblOld[];
 extern int MaxStats[NUM_CLASSES][4];
-extern int ExpLvlsTbl[MAXCHARLEVEL];
+extern int ExpLvlsTbl[MAXCHARLEVEL + 1];
 extern char *ClassStrTbl[NUM_CLASSES];
 extern BYTE fix[9];
 

@@ -95,7 +95,7 @@
 #define MAXVISION				32
 #define MDMAXX					40
 #define MDMAXY					40
-#define MAXCHARLEVEL			51
+#define MAXCHARLEVEL			50
 #ifdef HELLFIRE
 #define ITEMTYPES				43
 #else

@@ -1435,7 +1435,7 @@ void DrawChr()
 	sprintf(chrstr, "%li", p->_pExperience);
 	ADD_PlrStringXY(216, 69, 300, chrstr, COL_WHITE);
 
-	if (p->_pLevel == MAXCHARLEVEL - 1) {
+	if (p->_pLevel == MAXCHARLEVEL) {
 		strcpy(chrstr, "None");
 		col = COL_GOLD;
 	} else {
