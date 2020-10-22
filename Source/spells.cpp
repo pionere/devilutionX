@@ -263,7 +263,7 @@ void DoResurrect(int pnum, int tnum)
 void DoHealOther(int pnum, int tnum)
 {
 	PlayerStruct *tp;
-	int i, j, hp;
+	int i, hp;
 
 	if (pnum == myplr) {
 		NewCursor(CURSOR_HAND);
@@ -282,7 +282,7 @@ void DoHealOther(int pnum, int tnum)
 		hp += (random_(57, 4) + 1) << 6;
 	}
 
-	for (j = 0; j < GetSpellLevel(pnum, SPL_HEALOTHER); ++j) {
+	for (i = 0; i < GetSpellLevel(pnum, SPL_HEALOTHER); ++i) {
 		hp += (random_(57, 6) + 1) << 6;
 	}
 

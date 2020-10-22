@@ -58,11 +58,13 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 
 void sync_init_monsters()
 {
-	int i, m;
+	int i, m, px, py;
 
+	px = plr[myplr]._px;
+	py = plr[myplr]._py;
 	for (i = 0; i < nummonsters; i++) {
 		m = monstactive[i];
-		monster_dists[m] = abs(plr[myplr]._px - monster[m]._mx) + abs(plr[myplr]._py - monster[m]._my);
+		monster_dists[m] = abs(px - monster[m]._mx) + abs(py - monster[m]._my);
 		if (monster[m]._msquelch == 0) {
 			monster_dists[m] += 0x1000;
 		} else if (monster_prio[m] != 0) {
@@ -146,29 +148,30 @@ void SyncPlrInv(TSyncHeader *pHdr)
 		}
 		ii = itemactive[sync_inum++];
 		pHdr->bItemI = ii;
-		pHdr->bItemX = item[ii]._ix;
-		pHdr->bItemY = item[ii]._iy;
-		pHdr->wItemIndx = item[ii].IDidx;
-		if (item[ii].IDidx == IDI_EAR) {
-			pHdr->wItemCI = (item[ii]._iName[7] << 8) | item[ii]._iName[8];
-			pHdr->dwItemSeed = (item[ii]._iName[9] << 24) | (item[ii]._iName[10] << 16) | (item[ii]._iName[11] << 8) | item[ii]._iName[12];
-			pHdr->bItemId = item[ii]._iName[13];
-			pHdr->bItemDur = item[ii]._iName[14];
-			pHdr->bItemMDur = item[ii]._iName[15];
-			pHdr->bItemCh = item[ii]._iName[16];
-			pHdr->bItemMCh = item[ii]._iName[17];
-			pHdr->wItemVal = (item[ii]._iName[18] << 8) | ((item[ii]._iCurs - ICURS_EAR_SORCEROR) << 6) | item[ii]._ivalue;
-			pHdr->dwItemBuff = (item[ii]._iName[19] << 24) | (item[ii]._iName[20] << 16) | (item[ii]._iName[21] << 8) | item[ii]._iName[22];
+		is = &item[ii];
+		pHdr->bItemX = is->_ix;
+		pHdr->bItemY = is->_iy;
+		pHdr->wItemIndx = is->IDidx;
+		if (is->IDidx == IDI_EAR) {
+			pHdr->wItemCI = (is->_iName[7] << 8) | is->_iName[8];
+			pHdr->dwItemSeed = (is->_iName[9] << 24) | (is->_iName[10] << 16) | (is->_iName[11] << 8) | is->_iName[12];
+			pHdr->bItemId = is->_iName[13];
+			pHdr->bItemDur = is->_iName[14];
+			pHdr->bItemMDur = is->_iName[15];
+			pHdr->bItemCh = is->_iName[16];
+			pHdr->bItemMCh = is->_iName[17];
+			pHdr->wItemVal = (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6) | is->_ivalue;
+			pHdr->dwItemBuff = (is->_iName[19] << 24) | (is->_iName[20] << 16) | (is->_iName[21] << 8) | is->_iName[22];
 		} else {
-			pHdr->wItemCI = item[ii]._iCreateInfo;
-			pHdr->dwItemSeed = item[ii]._iSeed;
-			pHdr->bItemId = item[ii]._iIdentified;
-			pHdr->bItemDur = item[ii]._iDurability;
-			pHdr->bItemMDur = item[ii]._iMaxDur;
-			pHdr->bItemCh = item[ii]._iCharges;
-			pHdr->bItemMCh = item[ii]._iMaxCharges;
-			if (item[ii].IDidx == IDI_GOLD) {
-				pHdr->wItemVal = item[ii]._ivalue;
+			pHdr->wItemCI = is->_iCreateInfo;
+			pHdr->dwItemSeed = is->_iSeed;
+			pHdr->bItemId = is->_iIdentified;
+			pHdr->bItemDur = is->_iDurability;
+			pHdr->bItemMDur = is->_iMaxDur;
+			pHdr->bItemCh = is->_iCharges;
+			pHdr->bItemMCh = is->_iMaxCharges;
+			if (is->IDidx == IDI_GOLD) {
+				pHdr->wItemVal = is->_ivalue;
 			}
 		}
 	} else {
@@ -206,23 +209,17 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 	}
 
 	/// ASSERT: assert(gbBufferMsgs != BUFFER_PROCESS);
-
-	if (gbBufferMsgs == 1) {
-		return pHdr->wLen + sizeof(*pHdr);
-	}
-	if (pnum == myplr) {
-		return pHdr->wLen + sizeof(*pHdr);
-	}
-
-	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
-		if (currlevel == pHdr->bLevel) {
-			sync_monster(pnum, (TSyncMonster *)pbBuf);
+	if (gbBufferMsgs != 1 && pnum != myplr) {
+		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+			if (currlevel == pHdr->bLevel) {
+				sync_monster(pnum, (TSyncMonster *)pbBuf);
+			}
+			delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);
+			pbBuf += sizeof(TSyncMonster);
 		}
-		delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);
-		pbBuf += sizeof(TSyncMonster);
-	}
 
-	assert(wLen == 0);
+		assert(wLen == 0);
+	}
 
 	return pHdr->wLen + sizeof(*pHdr);
 }
@@ -230,7 +227,7 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 void sync_monster(int pnum, const TSyncMonster *symon)
 {
 	MonsterStruct *mon;
-	int i, mnum, md, mdx, mdy;
+	int i, mnum, md;
 	DWORD delta;
 
 	mnum = symon->_mndx;
@@ -264,9 +261,7 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 		return;
 	}
 
-	mdx = abs(mon->_mx - symon->_mx);
-	mdy = abs(mon->_my - symon->_my);
-	if (mdx <= 2 && mdy <= 2) {
+	if (abs(mon->_mx - symon->_mx) <= 2 && abs(mon->_my - symon->_my) <= 2) {
 		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK3) {
 			md = GetDirection(mon->_mx, mon->_my, symon->_mx, symon->_my);
 			if (DirOK(mnum, md)) {

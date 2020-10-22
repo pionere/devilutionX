@@ -62,10 +62,10 @@ void SyncPortals()
 	for (i = 0; i < MAXPORTAL; i++) {
 		if (!portal[i].open)
 			continue;
-		if (currlevel == 0)
+		int lvl = currlevel;
+		if (lvl == 0)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
-			int lvl = currlevel;
 			if (setlevel)
 				lvl = setlvlnum;
 			if (portal[i].level == lvl)

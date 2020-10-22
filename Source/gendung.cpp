@@ -247,7 +247,7 @@ void SetDungeonMicros()
 			pMap = &dpiece_defs_map_2[x][y];
 			if (lv != 0) {
 				lv--;
-				if (leveltype != DTYPE_HELL && leveltype != DTYPE_TOWN)
+				if (blocks == 10)
 					pPiece = (WORD *)&pLevelPieces[20 * lv];
 				else
 					pPiece = (WORD *)&pLevelPieces[32 * lv];

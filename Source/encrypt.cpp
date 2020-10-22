@@ -118,11 +118,9 @@ unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
 
 	pInfo = (TDataInfo *)param;
 
-	if (*size >= pInfo->size - pInfo->srcOffset) {
-		sSize = pInfo->size - pInfo->srcOffset;
-	} else {
+	sSize = pInfo->size - pInfo->srcOffset;
+	if (*size < sSize)
 		sSize = *size;
-	}
 
 	memcpy(buf, pInfo->srcData + pInfo->srcOffset, sSize);
 	pInfo->srcOffset += sSize;

@@ -751,20 +751,20 @@ int InitLevelType(int l)
 {
 	if (l == 0)
 		return DTYPE_TOWN;
-	if (l >= 1 && l <= 4)
+	if (l <= 4)
 		return DTYPE_CATHEDRAL;
-	if (l >= 5 && l <= 8)
+	if (l <= 8)
 		return DTYPE_CATACOMBS;
-	if (l >= 9 && l <= 12)
+	if (l <= 12)
 		return DTYPE_CAVES;
 
 #ifdef HELLFIRE
-	if (l >= 13 && l <= 16)
+	if (l <= 16)
 		return DTYPE_HELL;
-	if (l >= 21 && l <= 24)
-		return DTYPE_CATHEDRAL; // Crypt
-	if (l >= 17 && l <= 20)
+	if (l <= 20)
 		return DTYPE_CAVES; // Hive
+	if (l <= 24)
+		return DTYPE_CATHEDRAL; // Crypt
 
 	return DTYPE_CATHEDRAL;
 #else

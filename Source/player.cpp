@@ -1189,7 +1189,6 @@ BOOL SolidLoc(int x, int y)
 BOOL PlrDirOK(int pnum, int dir)
 {
 	int px, py;
-	BOOL isOk;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDirOK: illegal player %d", pnum);
@@ -1202,16 +1201,15 @@ BOOL PlrDirOK(int pnum, int dir)
 		return FALSE;
 	}
 
-	isOk = TRUE;
 	if (dir == DIR_E) {
-		isOk = !SolidLoc(px, py + 1) && !(dFlags[px][py + 1] & BFLAG_PLAYERLR);
+		return !SolidLoc(px, py + 1) && !(dFlags[px][py + 1] & BFLAG_PLAYERLR);
 	}
 
-	if (isOk && dir == DIR_W) {
-		isOk = !SolidLoc(px + 1, py) && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
+	if (dir == DIR_W) {
+		return !SolidLoc(px + 1, py) && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
 	}
 
-	return isOk;
+	return TRUE;
 }
 
 void PlrClrTrans(int x, int y)
@@ -2179,11 +2177,12 @@ void StripTopGold(int pnum)
 	holditem = &p->HoldItem;
 	tmpItem = *holditem;
 
-	for (i = 0; i < plr[pnum]._pNumInv; i++) {
-		if (plr[pnum].InvList[i]._itype == ITYPE_GOLD) {
-			if (plr[pnum].InvList[i]._ivalue > MaxGold) {
-				val = plr[pnum].InvList[i]._ivalue - MaxGold;
-				plr[pnum].InvList[i]._ivalue = MaxGold;
+	pi = p->InvList;
+	for (i = p->_pNumInv; i > 0; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			if (pi->_ivalue > MaxGold) {
+				val = pi->_ivalue - MaxGold;
+				pi->_ivalue = MaxGold;
 				SetGoldCurs(pnum, i);
 				SetPlrHandItem(holditem, 0);
 				GetGoldSeed(pnum, holditem);
@@ -2327,6 +2326,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		}
 	}
 }
+
 void RestartTownLvl(int pnum)
 {
 	InitLevelChange(pnum);
@@ -2380,7 +2380,6 @@ BOOL PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
-	BOOL rv;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk: illegal player %d", pnum);
@@ -2441,20 +2440,17 @@ BOOL PlrDoWalk(int pnum)
 		if (leveltype != DTYPE_TOWN) {
 			ChangeLightOff(p->_plid, 0, 0);
 		}
-		rv = TRUE;
+		return TRUE;
 	} else {
 		PlrChangeOffset(pnum);
-		rv = FALSE;
+		return FALSE;
 	}
-
-	return rv;
 }
 
 BOOL PlrDoWalk2(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
-	BOOL rv;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk2: illegal player %d", pnum);
@@ -2510,20 +2506,17 @@ BOOL PlrDoWalk2(int pnum)
 		if (leveltype != DTYPE_TOWN) {
 			ChangeLightOff(p->_plid, 0, 0);
 		}
-		rv = TRUE;
+		return TRUE;
 	} else {
 		PlrChangeOffset(pnum);
-		rv = FALSE;
+		return FALSE;
 	}
-
-	return rv;
 }
 
 BOOL PlrDoWalk3(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
-	BOOL rv;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk3: illegal player %d", pnum);
@@ -2584,13 +2577,11 @@ BOOL PlrDoWalk3(int pnum)
 		if (leveltype != DTYPE_TOWN) {
 			ChangeLightOff(p->_plid, 0, 0);
 		}
-		rv = TRUE;
+		return TRUE;
 	} else {
 		PlrChangeOffset(pnum);
-		rv = FALSE;
+		return FALSE;
 	}
-
-	return rv;
 }
 
 BOOL WeaponDur(int pnum, int durrnd)
@@ -2706,7 +2697,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	BOOL rv, ret;
+	BOOL ret;
 	int hit, hper, mind, maxd, ddp, dam, skdam, phanditype, tmac;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
@@ -2731,8 +2722,6 @@ BOOL PlrHitMonst(int pnum, int mnum)
 	}
 
 	p = &plr[pnum];
-
-	rv = FALSE;
 
 	hit = random_(4, 100);
 	if (mon->_mmode == MM_STONE) {
@@ -2880,16 +2869,15 @@ BOOL PlrHitMonst(int pnum, int mnum)
 				MonStartHit(mnum, pnum, dam);
 			}
 		}
-		rv = TRUE;
+		return TRUE;
 	}
 
-	return rv;
+	return FALSE;
 }
 
 BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	BOOL rv;
 	int hit, hper, blk, blkper, dir, mind, maxd, dam, lvl, skdam, tac;
 
 	if ((DWORD)defp >= MAX_PLRS) {
@@ -2897,14 +2885,13 @@ BOOL PlrHitPlr(int offp, char defp)
 	}
 
 	dps = &plr[defp];
-	rv = FALSE;
 
 	if (dps->_pInvincible) {
-		return rv;
+		return FALSE;
 	}
 
 	if (dps->_pSpellFlags & 1) {
-		return rv;
+		return FALSE;
 	}
 
 	if ((DWORD)offp >= MAX_PLRS) {
@@ -2976,21 +2963,18 @@ BOOL PlrHitPlr(int offp, char defp)
 			StartPlrHit(defp, skdam, FALSE);
 		}
 
-		rv = TRUE;
+		return TRUE;
 	}
 
-	return rv;
+	return FALSE;
 }
 
 BOOL PlrHitObj(int pnum, int mx, int my)
 {
 	int oi;
 
-	if (dObject[mx][my] > 0) {
-		oi = dObject[mx][my] - 1;
-	} else {
-		oi = -dObject[mx][my] - 1;
-	}
+	oi = dObject[mx][my];
+	oi = oi >= 0 ? oi - 1 : -(oi + 1);
 
 	if (object[oi]._oBreak == 1) {
 		BreakObject(pnum, oi);
@@ -3003,7 +2987,7 @@ BOOL PlrHitObj(int pnum, int mx, int my)
 BOOL PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
-	int frame, dir, dx, dy, m;
+	int frame, dir, dx, dy, mp;
 	BOOL didhit;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -3033,13 +3017,10 @@ BOOL PlrDoAttack(int pnum)
 		dx = p->_px + offset_x[dir];
 		dy = p->_py + offset_y[dir];
 
-		if (dMonster[dx][dy]) {
-			if (dMonster[dx][dy] > 0) {
-				m = dMonster[dx][dy] - 1;
-			} else {
-				m = -(dMonster[dx][dy] + 1);
-			}
-			if (CanTalkToMonst(m)) {
+		mp = dMonster[dx][dy];
+		if (mp != 0) {
+			mp = mp >= 0 ? mp - 1 : -(mp + 1);
+			if (CanTalkToMonst(mp)) {
 				p->_pVar1 = 0;
 				return FALSE;
 			}
@@ -3053,22 +3034,14 @@ BOOL PlrDoAttack(int pnum)
 		}
 
 		didhit = FALSE;
-		if (dMonster[dx][dy]) {
-			m = dMonster[dx][dy];
-			if (dMonster[dx][dy] > 0) {
-				m = dMonster[dx][dy] - 1;
-			} else {
-				m = -(dMonster[dx][dy] + 1);
-			}
-			didhit = PlrHitMonst(pnum, m);
+		mp = dMonster[dx][dy];
+		if (mp != 0) {
+			mp = mp >= 0 ? mp - 1 : -(mp + 1);
+			didhit = PlrHitMonst(pnum, mp);
 		} else if (dPlayer[dx][dy] && !FriendlyMode) {
-			BYTE p = dPlayer[dx][dy];
-			if (dPlayer[dx][dy] > 0) {
-				p = dPlayer[dx][dy] - 1;
-			} else {
-				p = -(dPlayer[dx][dy] + 1);
-			}
-			didhit = PlrHitPlr(pnum, p);
+			mp = dPlayer[dx][dy];
+			mp = mp >= 0 ? mp - 1 : -(mp + 1);
+			didhit = PlrHitPlr(pnum, mp);
 		} else if (dObject[dx][dy] > 0) {
 			didhit = PlrHitObj(pnum, dx, dy);
 		}
@@ -3147,6 +3120,7 @@ BOOL PlrDoRangeAttack(int pnum)
 void ShieldDur(int pnum)
 {
 	ItemStruct *pi;
+
 	if (pnum != myplr) {
 		return;
 	}
@@ -3960,53 +3934,40 @@ void ClrPlrPath(int pnum)
 
 BOOL PosOkPlayer(int pnum, int x, int y)
 {
-	BOOL PosOK;
-	DWORD p;
-	char bv;
+	int mpo;
 
-	PosOK = FALSE;
 	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !SolidLoc(x, y) && dPiece[x][y]) {
-
-		if (dPlayer[x][y]) {
-			if (dPlayer[x][y] > 0) {
-				p = dPlayer[x][y] - 1;
-			} else {
-				p = -(dPlayer[x][y] + 1);
-			}
-			if (p != pnum && p < MAX_PLRS && plr[p]._pHitPoints) {
+		mpo = dPlayer[x][y];
+		if (mpo != 0) {
+			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+			if (mpo != pnum && mpo < MAX_PLRS && plr[mpo]._pHitPoints) {
 				return FALSE;
 			}
 		}
-
-		if (dMonster[x][y]) {
+		mpo = dMonster[x][y];
+		if (mpo != 0) {
 			if (currlevel == 0) {
 				return FALSE;
 			}
-			if (dMonster[x][y] <= 0) {
+			if (mpo < 0) {
 				return FALSE;
 			}
-			if ((monster[dMonster[x][y] - 1]._mhitpoints >> 6) > 0) {
+			if ((monster[mpo - 1]._mhitpoints >> 6) > 0) {
+				return FALSE;
+			}
+		}
+		mpo = dObject[x][y];
+		if (mpo != 0) {
+			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+			if (object[mpo]._oSolidFlag) {
 				return FALSE;
 			}
 		}
 
-		if (dObject[x][y]) {
-			if (dObject[x][y] > 0) {
-				bv = dObject[x][y] - 1;
-			} else {
-				bv = -(dObject[x][y] + 1);
-			}
-			if (object[bv]._oSolidFlag) {
-				return FALSE;
-			}
-		}
-
-		PosOK = TRUE;
+		return TRUE;
 	}
 
-	if (!PosOK)
-		return FALSE;
-	return TRUE;
+	return FALSE;
 }
 
 void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)

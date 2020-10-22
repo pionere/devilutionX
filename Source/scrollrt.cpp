@@ -492,18 +492,19 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	char oi;
 	BYTE *pCelBuff;
 
-	if (dObject[x][y] == 0 || light_table_index >= lightmax)
+	oi = dObject[x][y];
+	if (oi == 0 || light_table_index >= lightmax)
 		return;
 
-	if (dObject[x][y] > 0) {
-		oi = dObject[x][y] - 1;
+	if (oi > 0) {
+		oi--;
 		os = &object[oi];
 		if (os->_oPreFlag != pre)
 			return;
 		sx = ox - os->_oAnimWidth2;
 		sy = oy;
 	} else {
-		oi = -(dObject[x][y] + 1);
+		oi = -(oi + 1);
 		os = &object[oi];
 		if (os->_oPreFlag != pre)
 			return;
@@ -613,16 +614,18 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 	if (ii == 0)
 		return;
 
-	is = &item[ii - 1];
+	ii--;
+
+	is = &item[ii];
 	if (is->_iPostDraw == pre)
 		return;
 
 	assert((unsigned char)is <= MAXITEMS);
-	int px = sx - is->_iAnimWidth2;
+	sx -= is->_iAnimWidth2;
 	if (ii - 1 == pcursitem) {
-		CelBlitOutline(181, px, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
+		CelBlitOutline(181, sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
 	}
-	CelClippedDrawLight(px, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
+	CelClippedDrawLight(sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
 }
 
 /**
@@ -640,7 +643,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 	TownerStruct *tw;
 
 	mnum = dMonster[x][y + oy];
-	mnum = mnum > 0 ? mnum - 1 : -(mnum + 1);
+	mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
 
 	if (leveltype == DTYPE_TOWN) {
 		tw = &towner[mnum];
@@ -742,7 +745,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		dd = (bDead >> 5) & 7;
 		px = dx - pDeadGuy->_deadWidth2;
 		pCelBuff = pDeadGuy->_deadData[dd];
-		assert(pDeadGuy->_deadData[dd] != NULL);
+		assert(pCelBuff != NULL);
 		if (pCelBuff != NULL) {
 			if (pDeadGuy->_deadtrans != 0) {
 				Cl2DrawLightTbl(px, dy, pCelBuff, pDeadGuy->_deadFrame, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);

@@ -720,11 +720,14 @@ void ProcessTowners()
 ItemStruct *PlrHasItem(int pnum, int item, int *outidx)
 {
 	ItemStruct* pi;
+	int i;
 
 	pi = plr[pnum].InvList;
-	for (*outidx = 0; *outidx< plr[pnum]._pNumInv; (*outidx)++, pi++) {
-		if (pi->IDidx == item)
+	for (i = 0; i < plr[pnum]._pNumInv; i++, pi++) {
+		if (pi->IDidx == item) {
+			*outidx = i;
 			return pi;
+		}
 	}
 
 	return NULL;

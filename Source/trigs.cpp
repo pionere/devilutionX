@@ -210,10 +210,10 @@ void InitL3Triggers()
 {
 	int i, j;
 
+	numtrigs = 0;
 #ifdef HELLFIRE
 	if (currlevel < 17) {
 #endif
-		numtrigs = 0;
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] == 171) {
@@ -240,7 +240,6 @@ void InitL3Triggers()
 		}
 #ifdef HELLFIRE
 	} else {
-		numtrigs = 0;
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] == 66) {
@@ -880,15 +879,15 @@ void CheckTriggers()
 #endif
 			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
 				return;
-			StartNewLvl(myplr, trigs[i]._tmsg, currlevel + 1);
+			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);
 			break;
 		case WM_DIABPREVLVL:
 			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
 				return;
-			StartNewLvl(myplr, trigs[i]._tmsg, currlevel - 1);
+			StartNewLvl(myplr, WM_DIABPREVLVL, currlevel - 1);
 			break;
 		case WM_DIABRTNLVL:
-			StartNewLvl(myplr, trigs[i]._tmsg, ReturnLvl);
+			StartNewLvl(myplr, WM_DIABRTNLVL, ReturnLvl);
 			break;
 		case WM_DIABTOWNWARP:
 			if (gbMaxPlayers != 1) {
@@ -922,16 +921,15 @@ void CheckTriggers()
 						PlaySFX(PS_ROGUE43);
 					} else if (p->_pClass == PC_SORCERER) {
 						PlaySFX(PS_MAGE43);
-					}
 #ifdef HELLFIRE
-					else if (p->_pClass == PC_MONK) {
+					} else if (p->_pClass == PC_MONK) {
 						PlaySFX(PS_MONK43);
 					} else if (p->_pClass == PC_BARD) {
 						PlaySFX(PS_ROGUE43);
 					} else if (p->_pClass == PC_BARBARIAN) {
 						PlaySFX(PS_WARR43);
-					}
 #endif
+					}
 
 					InitDiabloMsg(abortflag);
 					NetSendCmdLoc(TRUE, CMD_WALKXY, x, y);
@@ -939,11 +937,11 @@ void CheckTriggers()
 				}
 			}
 
-			StartNewLvl(myplr, trigs[i]._tmsg, trigs[i]._tlvl);
+			StartNewLvl(myplr, WM_DIABTOWNWARP, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:
 			TWarpFrom = currlevel;
-			StartNewLvl(myplr, trigs[i]._tmsg, 0);
+			StartNewLvl(myplr, WM_DIABTWARPUP, 0);
 			break;
 		default:
 			app_fatal("Unknown trigger msg");

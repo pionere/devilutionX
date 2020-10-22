@@ -519,8 +519,7 @@ void DrawHelp()
 				s++;
 			}
 			tempstr[c] = *s;
-			BYTE tc = gbFontTransTbl[(BYTE)tempstr[c]];
-			w += fontkern[fontframe[tc]] + 1;
+			w += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
 			c++;
 			s++;
 		}

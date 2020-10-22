@@ -371,7 +371,7 @@ BOOL gmenu_left_mouse(BOOL isDown)
 		return TRUE;
 	}
 	pItem = &sgpCurrentMenu[i];
-	if (!(sgpCurrentMenu[i].dwFlags & GMENU_ENABLED)) {
+	if (!(pItem->dwFlags & GMENU_ENABLED)) {
 		return TRUE;
 	}
 	w = gmenu_get_lfont(pItem);

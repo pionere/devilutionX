@@ -144,26 +144,13 @@ const BYTE L4BTYPES[140] = {
 static void DRLG_L4Shadows()
 {
 	int x, y;
-	BOOL okflag;
+	BYTE bv;
 
 	for (y = 1; y < DMAXY; y++) {
 		for (x = 1; x < DMAXY; x++) {
-			okflag = FALSE;
-			if (dungeon[x][y] == 3) {
-				okflag = TRUE;
-			}
-			if (dungeon[x][y] == 4) {
-				okflag = TRUE;
-			}
-			if (dungeon[x][y] == 8) {
-				okflag = TRUE;
-			}
-			if (dungeon[x][y] == 15) {
-				okflag = TRUE;
-			}
-			if (!okflag) {
+			bv = dungeon[x][y];
+			if (bv != 3 && bv != 4 && bv != 8 && bv != 15)
 				continue;
-			}
 			if (dungeon[x - 1][y] == 6) {
 				dungeon[x - 1][y] = 47;
 			}
@@ -254,7 +241,7 @@ static void L4makeDmt()
 static int L4HWallOk(int i, int j)
 {
 	int x;
-	BOOL wallok;
+	BYTE bv;
 
 	for (x = 1; dungeon[i + x][j] == 6; x++) {
 		if (dflags[i + x][j] != 0) {
@@ -268,44 +255,18 @@ static int L4HWallOk(int i, int j)
 		}
 	}
 
-	wallok = FALSE;
-
-	if (dungeon[i + x][j] == 10) {
-		wallok = TRUE;
+	if (x > 3) {
+		bv = dungeon[i + x][j];
+		if (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)
+			return x;
 	}
-	if (dungeon[i + x][j] == 12) {
-		wallok = TRUE;
-	}
-	if (dungeon[i + x][j] == 13) {
-		wallok = TRUE;
-	}
-	if (dungeon[i + x][j] == 15) {
-		wallok = TRUE;
-	}
-	if (dungeon[i + x][j] == 16) {
-		wallok = TRUE;
-	}
-	if (dungeon[i + x][j] == 21) {
-		wallok = TRUE;
-	}
-	if (dungeon[i + x][j] == 22) {
-		wallok = TRUE;
-	}
-	if (x <= 3) {
-		wallok = FALSE;
-	}
-
-	if (wallok) {
-		return x;
-	} else {
-		return -1;
-	}
+	return -1;
 }
 
 static int L4VWallOk(int i, int j)
 {
 	int y;
-	BOOL wallok;
+	BYTE bv;
 
 	for (y = 1; dungeon[i][j + y] == 6; y++) {
 		if (dflags[i][j + y] != 0) {
@@ -319,41 +280,12 @@ static int L4VWallOk(int i, int j)
 		}
 	}
 
-	wallok = FALSE;
-
-	if (dungeon[i][j + y] == 8) {
-		wallok = TRUE;
+	if (y > 3) {
+		bv = dungeon[i][j + y];
+		if (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)
+			return y;
 	}
-	if (dungeon[i][j + y] == 9) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 11) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 14) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 15) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 16) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 21) {
-		wallok = TRUE;
-	}
-	if (dungeon[i][j + y] == 23) {
-		wallok = TRUE;
-	}
-	if (y <= 3) {
-		wallok = FALSE;
-	}
-
-	if (wallok) {
-		return y;
-	} else {
-		return -1;
-	}
+	return -1;
 }
 
 static void L4HorizWall(int i, int j, int dx)

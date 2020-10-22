@@ -163,7 +163,7 @@ void PrintSString(int x, int y, BOOL cjustflag, char *str, char col, int val)
 		sx += k;
 	}
 	if (stextsel == y) {
-		CelDraw(cjustflag ? xx + x + k - 20 : xx + x - 20, s + 45 + SCREEN_Y + UI_OFFSET_Y, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
 	}
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
@@ -185,7 +185,7 @@ void PrintSString(int x, int y, BOOL cjustflag, char *str, char col, int val)
 		}
 	}
 	if (stextsel == y) {
-		CelDraw(cjustflag ? (xx + x + k + 4) : (PANEL_X + 596 - x), s + 45 + SCREEN_Y + UI_OFFSET_Y, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(cjustflag ? (xx + x + k + 4) : (PANEL_X + 596 - x), sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
 	}
 }
 
@@ -427,8 +427,6 @@ void S_ScrollSBuy(int idx)
 void PrintStoreItem(ItemStruct *is, int l, char iclr)
 {
 	char sstr[128];
-	char str, dex;
-	BYTE mag;
 
 	sstr[0] = '\0';
 	if (is->_iIdentified) {
@@ -468,10 +466,7 @@ void PrintStoreItem(ItemStruct *is, int l, char iclr)
 	}
 	if (is->_itype == ITYPE_MISC)
 		sstr[0] = '\0';
-	str = is->_iMinStr;
-	dex = is->_iMinDex;
-	mag = is->_iMinMag;
-	if ((str + mag + dex) == 0) {
+	if ((is->_iMinStr + is->_iMinMag + is->_iMinDex) == 0) {
 		strcat(sstr, "No required attributes");
 	} else {
 		strcpy(tempstr, "Required:");
@@ -650,10 +645,8 @@ void S_StartSSell()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	int i;
-	BOOL sellok;
 
 	stextsize = TRUE;
-	sellok = FALSE;
 	storenumh = 0;
 
 	for (i = 0; i < 48; i++)
@@ -667,7 +660,6 @@ void S_StartSSell()
 			break;
 #endif
 		if (SmithSellOk(i)) {
-			sellok = TRUE;
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -688,7 +680,6 @@ void S_StartSSell()
 			break;
 		if (SmithSellOk(-(i + 1))) {
 			storehold[storenumh] = *pi;
-			sellok = TRUE;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
 				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
@@ -702,7 +693,7 @@ void S_StartSSell()
 	}
 #endif
 
-	if (!sellok) {
+	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -744,33 +735,27 @@ void S_StartSRepair()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	BOOL repairok;
 	int i;
 
 	stextsize = TRUE;
-	repairok = FALSE;
 	storenumh = 0;
 	for (i = 0; i < 48; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = &p->InvBody[INVLOC_HEAD];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
-		repairok = TRUE;
 		AddStoreHoldRepair(p->InvBody, -1);
 	}
 	pi = &p->InvBody[INVLOC_CHEST];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
-		repairok = TRUE;
 		AddStoreHoldRepair(pi, -2);
 	}
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
-		repairok = TRUE;
 		AddStoreHoldRepair(pi, -3);
 	}
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
-		repairok = TRUE;
 		AddStoreHoldRepair(pi, -4);
 	}
 	pi = p->InvList;
@@ -780,11 +765,10 @@ void S_StartSRepair()
 			break;
 #endif
 		if (SmithRepairOk(i)) {
-			repairok = TRUE;
 			AddStoreHoldRepair(pi, i);
 		}
 	}
-	if (!repairok) {
+	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to repair.            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -936,10 +920,8 @@ void S_StartWSell()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	int i;
-	BOOL sellok;
 
 	stextsize = TRUE;
-	sellok = FALSE;
 	storenumh = 0;
 
 	for (i = 0; i < 48; i++)
@@ -953,7 +935,6 @@ void S_StartWSell()
 			break;
 #endif
 		if (WitchSellOk(i)) {
-			sellok = TRUE;
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -974,7 +955,6 @@ void S_StartWSell()
 			break;
 #endif
 		if (pi->_itype != ITYPE_NONE && WitchSellOk(-(i + 1))) {
-			sellok = TRUE;
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -988,7 +968,7 @@ void S_StartWSell()
 		}
 	}
 
-	if (!sellok) {
+	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -1037,10 +1017,8 @@ void S_StartWRecharge()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	int i;
-	BOOL rechargeok;
 
 	stextsize = TRUE;
-	rechargeok = FALSE;
 	storenumh = 0;
 
 	for (i = 0; i < 48; i++) {
@@ -1055,7 +1033,6 @@ void S_StartWRecharge()
 	if (pi->_itype == ITYPE_STAFF
 #endif
 	    && pi->_iCharges != pi->_iMaxCharges) {
-		rechargeok = TRUE;
 		AddStoreHoldRecharge(*pi, -1);
 	}
 
@@ -1066,12 +1043,11 @@ void S_StartWRecharge()
 			break;
 #endif
 		if (WitchRechargeOk(i)) {
-			rechargeok = TRUE;
 			AddStoreHoldRecharge(*pi, i);
 		}
 	}
 
-	if (!rechargeok) {
+	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to recharge.            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -1342,10 +1318,8 @@ void S_StartSIdentify()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	BOOL idok;
 	int i;
 
-	idok = FALSE;
 	stextsize = TRUE;
 	storenumh = 0;
 
@@ -1354,37 +1328,30 @@ void S_StartSIdentify()
 	p = &plr[myplr];
 	pi = &p->InvBody[INVLOC_HEAD];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -1);
 	}
 	pi = &p->InvBody[INVLOC_CHEST];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -2);
 	}
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -3);
 	}
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -4);
 	}
 	pi = &p->InvBody[INVLOC_RING_LEFT];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -5);
 	}
 	pi = &p->InvBody[INVLOC_RING_RIGHT];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -6);
 	}
 	pi = &p->InvBody[INVLOC_AMULET];
 	if (IdItemOk(pi)) {
-		idok = TRUE;
 		AddStoreHoldId(*pi, -7);
 	}
 	pi = p->InvList;
@@ -1394,12 +1361,11 @@ void S_StartSIdentify()
 			break;
 #endif
 		if (IdItemOk(pi)) {
-			idok = TRUE;
 			AddStoreHoldId(*pi, i);
 		}
 	}
 
-	if (!idok) {
+	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -2120,12 +2086,9 @@ BOOL StoreGoldFit(int idx)
 
 void PlaceStoreGold(int v)
 {
-	BOOL done;
 	int ii, xx, yy, i;
 
-	done = FALSE;
-
-	for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		yy = 10 * (i / 10);
 		xx = i % 10;
 		if (!plr[myplr].InvGrid[xx + yy]) {
@@ -2136,7 +2099,7 @@ void PlaceStoreGold(int v)
 			plr[myplr].InvGrid[xx + yy] = plr[myplr]._pNumInv;
 			plr[myplr].InvList[ii]._ivalue = v;
 			SetGoldCurs(myplr, ii);
-			done = TRUE;
+			break;
 		}
 	}
 }
@@ -2154,12 +2117,10 @@ void StoreSellItem()
 		RemoveSpdBarItem(myplr, -(storehidx[idx] + 1));
 	cost = storehold[idx]._iIvalue;
 	storenumh--;
-	if (idx != storenumh) {
-		while (idx < storenumh) {
-			storehold[idx] = storehold[idx + 1];
-			storehidx[idx] = storehidx[idx + 1];
-			idx++;
-		}
+	while (idx < storenumh) {
+		storehold[idx] = storehold[idx + 1];
+		storehidx[idx] = storehidx[idx + 1];
+		idx++;
 	}
 	p = &plr[myplr];
 	p->_pGold += cost;

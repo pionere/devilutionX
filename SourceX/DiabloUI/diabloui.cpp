@@ -143,7 +143,7 @@ void UiPlaySelectSound()
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
-void UiFocus(int itemIndex, bool wrap = false)
+void UiFocus(int itemIndex)
 {
 	if (SelectedItem == itemIndex)
 		return;

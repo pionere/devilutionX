@@ -10,8 +10,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef SPAWN
-#define PASSWORD_SINGLE "adslhfb1"
-#define PASSWORD_MULTI "lshbkfg1"
+const char *PASSWORD_SINGLE = "adslhfb1";
+const char *PASSWORD_MULTI = "lshbkfg1";
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "%sspawn%d.hsv"
@@ -21,8 +21,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVE_FILE_FORMAT_MULTI "%sshare_%d.sv"
 #endif
 #else
-#define PASSWORD_SINGLE "xrgyrkj1"
-#define PASSWORD_MULTI "szqnlsk1"
+const char *PASSWORD_SINGLE = "xrgyrkj1";
+const char *PASSWORD_MULTI = "szqnlsk1";
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "%ssingle_%d.hsv"
@@ -66,10 +66,7 @@ void pfile_encode_hero(const PkPlayerStruct *pPack)
 {
 	BYTE *packed;
 	DWORD packed_len;
-	char password[16] = PASSWORD_SINGLE;
-
-	if (gbMaxPlayers != 1)
-		strcpy(password, PASSWORD_MULTI);
+	const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 	packed_len = codec_get_encoded_len(sizeof(*pPack));
 	packed = (BYTE *)DiabloAllocPtr(packed_len);
@@ -233,18 +230,14 @@ BOOL pfile_ui_set_hero_infos(BOOL(*ui_add_hero_info)(_uiheroinfo *))
 BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 {
 	HANDLE file;
-	DWORD dwlen, nSize;
+	DWORD dwlen;
 	BYTE *buf;
 
 	if (!SFileOpenFileEx(archive, "hero", 0, &file)) {
 		return FALSE;
 	} else {
 		BOOL ret = FALSE;
-		char password[16] = PASSWORD_SINGLE;
-		nSize = 16;
-
-		if (gbMaxPlayers != 1)
-			strcpy(password, PASSWORD_MULTI);
+		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		dwlen = SFileGetFileSize(file, NULL);
 		if (dwlen) {
@@ -535,9 +528,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	pfile_strcpy(FileName, pszName);
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	{
-		char password[16] = PASSWORD_SINGLE;
-		if (gbMaxPlayers != 1)
-			strcpy(password, PASSWORD_MULTI);
+		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
@@ -579,11 +570,7 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	pfile_SFileCloseArchive(archive);
 
 	{
-		char password[16] = PASSWORD_SINGLE;
-		DWORD nSize = 16;
-
-		if (gbMaxPlayers != 1)
-			strcpy(password, PASSWORD_MULTI);
+		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		*pdwLen = codec_decode(buf, *pdwLen, password);
 		if (*pdwLen == 0) {

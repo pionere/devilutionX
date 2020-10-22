@@ -860,7 +860,7 @@ void PrintQLString(int x, int y, BOOL cjustflag, char *str, int col)
 		sx += k;
 	}
 	if (qline == y) {
-		CelDraw(cjustflag ? x + k + 12 + SCREEN_X : x + 12 + SCREEN_X, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
 	}
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];

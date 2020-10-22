@@ -1011,7 +1011,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
 		return 0;
 
-	switch (pCmd->bCmd) {
+	switch (sbLastCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:
@@ -1173,7 +1173,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 #endif
 	}
 
-	if (pCmd->bCmd < CMD_DLEVEL_0 || pCmd->bCmd > CMD_DLEVEL_END) {
+	if (sbLastCmd < CMD_DLEVEL_0 || sbLastCmd > CMD_DLEVEL_END) {
 		SNetDropPlayer(pnum, LEAVE_DROP);
 		return 0;
 	}

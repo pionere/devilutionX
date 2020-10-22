@@ -551,10 +551,12 @@ BOOL ItemPlace(int xp, int yp)
 
 void AddInitItems()
 {
-	int x, y, i, j, rnd;
+	int x, y, i, j, rnd, lvl;
 
 #ifdef HELLFIRE
-	int curlv = items_get_currlevel();
+	lvl = items_get_currlevel();
+#else
+	lvl = currlevel;
 #endif
 	rnd = random_(11, 3) + 3;
 	for (j = 0; j < rnd; j++) {
@@ -570,19 +572,8 @@ void AddInitItems()
 		dItem[x][y] = i + 1;
 		item[i]._iSeed = GetRndSeed();
 		SetRndSeed(item[i]._iSeed);
-#ifdef HELLFIRE
-		if (random_(12, 2))
-			GetItemAttrs(i, IDI_HEAL, curlv);
-		else
-			GetItemAttrs(i, IDI_MANA, curlv);
-		item[i]._iCreateInfo = curlv - CF_PREGEN;
-#else
-		if (random_(12, 2))
-			GetItemAttrs(i, IDI_HEAL, currlevel);
-		else
-			GetItemAttrs(i, IDI_MANA, currlevel);
-		item[i]._iCreateInfo = currlevel - CF_PREGEN;
-#endif
+		GetItemAttrs(i, random_(12, 2) ? IDI_HEAL : IDI_MANA, lvl);
+		item[i]._iCreateInfo = lvl - CF_PREGEN;
 		SetupItem(i);
 		item[i]._iAnimFrame = item[i]._iAnimLen;
 		item[i]._iAnimFlag = FALSE;
@@ -1170,14 +1161,15 @@ void CalcSelfItems(int pnum)
 	int i;
 	PlayerStruct *p;
 	ItemStruct *pi;
-	BOOL sf, changeflag;
+	BOOL changeflag;
 	int sa, ma, da;
 
 	p = &plr[pnum];
 
-	sa = 0;
-	ma = 0;
-	da = 0;
+	sa = p->_pBaseStr;
+	ma = p->_pBaseMag;
+	da = p->_pBaseDex;
+
 	pi = p->InvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
@@ -1194,14 +1186,7 @@ void CalcSelfItems(int pnum)
 		pi = p->InvBody;
 		for (i = 0; i < NUM_INVLOC; i++, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-				sf = TRUE;
-				if (sa + p->_pBaseStr < pi->_iMinStr)
-					sf = FALSE;
-				if (ma + p->_pBaseMag < pi->_iMinMag)
-					sf = FALSE;
-				if (da + p->_pBaseDex < pi->_iMinDex)
-					sf = FALSE;
-				if (!sf) {
+				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
 					changeflag = TRUE;
 					pi->_iStatFlag = FALSE;
 					if (pi->_iIdentified) {
@@ -1556,17 +1541,19 @@ BOOL ItemSpaceOk(int i, int j)
 	if (dItem[i][j] != 0)
 		return FALSE;
 
-	if (dObject[i][j] != 0) {
-		oi = dObject[i][j] > 0 ? dObject[i][j] - 1 : -(dObject[i][j] + 1);
+	oi = dObject[i][j];
+	if (oi != 0) {
+		oi = oi > 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSolidFlag)
 			return FALSE;
 	}
 
-	if (dObject[i + 1][j + 1] > 0 && object[dObject[i + 1][j + 1] - 1]._oSelFlag != 0)
-		return FALSE;
-
-	if (dObject[i + 1][j + 1] < 0 && object[-(dObject[i + 1][j + 1] + 1)]._oSelFlag != 0)
-		return FALSE;
+	oi = dObject[i + 1][j + 1];
+	if (oi != 0) {
+		oi = oi > 0 ? oi - 1 : -(oi + 1);
+		if (object[oi]._oSelFlag != 0)
+			return FALSE;
+	}
 
 	if (dObject[i + 1][j] > 0
 	    && dObject[i][j + 1] > 0
@@ -1745,19 +1732,13 @@ void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 	int l[256];
 	char istr[128];
 	int nl, j, preidx;
-	BOOL addok;
-	int tmp;
 
-	tmp = random_(15, 10);
 	preidx = -1;
-	if (tmp == 0 || onlygood) {
+	if (random_(15, 10) == 0 || onlygood) {
 		nl = 0;
 		for (j = 0; PL_Prefix[j].PLPower != -1; j++) {
 			if (PL_Prefix[j].PLIType & PLT_STAFF && PL_Prefix[j].PLMinLvl <= lvl) {
-				addok = TRUE;
-				if (onlygood && !PL_Prefix[j].PLOk)
-					addok = FALSE;
-				if (addok) {
+				if (!onlygood || PL_Prefix[j].PLOk) {
 					l[nl] = j;
 					nl++;
 					if (PL_Prefix[j].PLDouble) {
@@ -4395,9 +4376,6 @@ void PrintItemMisc(ItemStruct *is)
 
 void PrintItemDetails(ItemStruct *is)
 {
-	char str, dex;
-	BYTE mag;
-
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
@@ -4444,10 +4422,7 @@ void PrintItemDetails(ItemStruct *is)
 		curruitem = *is;
 	}
 	PrintItemMisc(is);
-	mag = is->_iMinMag;
-	dex = is->_iMinDex;
-	str = is->_iMinStr;
-	if (mag + dex + str) {
+	if (is->_iMinMag + is->_iMinDex + is->_iMinStr) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
 			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
@@ -4462,9 +4437,6 @@ void PrintItemDetails(ItemStruct *is)
 
 void PrintItemDur(ItemStruct *is)
 {
-	char str, dex;
-	BYTE mag;
-
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
@@ -4502,10 +4474,7 @@ void PrintItemDur(ItemStruct *is)
 	if (is->_itype == ITYPE_RING || is->_itype == ITYPE_AMULET)
 		AddPanelString("Not Identified", TRUE);
 	PrintItemMisc(is);
-	str = is->_iMinStr;
-	mag = is->_iMinMag;
-	dex = is->_iMinDex;
-	if (str + mag + dex) {
+	if (is->_iMinStr + is->_iMinMag + is->_iMinDex) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
 			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
@@ -4548,13 +4517,13 @@ void UseItem(int pnum, int Mid, int spl)
 		break;
 	case IMISC_MANA:
 		p = &plr[pnum];
-		j = p->_pMaxMana >> 8;
-		l = ((j >> 1) + random_(40, j)) << 6;
-		if (p->_pClass == PC_SORCERER)
-			l *= 2;
-		if (p->_pClass == PC_ROGUE)
-			l += l >> 1;
 		if (!(p->_pIFlags & ISPL_NOMANA)) {
+			j = p->_pMaxMana >> 8;
+			l = ((j >> 1) + random_(40, j)) << 6;
+			if (p->_pClass == PC_SORCERER)
+				l *= 2;
+			if (p->_pClass == PC_ROGUE)
+				l += l >> 1;
 			p->_pMana += l;
 			if (p->_pMana > p->_pMaxMana)
 				p->_pMana = p->_pMaxMana;
@@ -4598,13 +4567,13 @@ void UseItem(int pnum, int Mid, int spl)
 		if (p->_pHPBase > p->_pMaxHPBase)
 			p->_pHPBase = p->_pMaxHPBase;
 		drawhpflag = TRUE;
-		j = p->_pMaxMana >> 8;
-		l = ((j >> 1) + random_(40, j)) << 6;
-		if (p->_pClass == PC_SORCERER)
-			l *= 2;
-		if (p->_pClass == PC_ROGUE)
-			l += l >> 1;
 		if (!(p->_pIFlags & ISPL_NOMANA)) {
+			j = p->_pMaxMana >> 8;
+			l = ((j >> 1) + random_(40, j)) << 6;
+			if (p->_pClass == PC_SORCERER)
+				l *= 2;
+			if (p->_pClass == PC_ROGUE)
+				l += l >> 1;
 			p->_pMana += l;
 			if (p->_pMana > p->_pMaxMana)
 				p->_pMana = p->_pMaxMana;

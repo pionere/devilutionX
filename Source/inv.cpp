@@ -858,8 +858,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 	j = my + (icursH >> 1);
 	sx = icursW28;
 	sy = icursH28;
-	done = FALSE;
-	for (r = 0; (DWORD)r < NUM_XY_SLOTS && !done; r++) {
+	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
 		if (r >= SLOTXY_BELT_FIRST) {
@@ -869,8 +868,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 
 		if (i >= InvRect[r].X + xo && i < InvRect[r].X + xo + INV_SLOT_SIZE_PX) {
 			if (j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX - 1 && j < InvRect[r].Y + yo) {
-				done = TRUE;
-				r--;
+				break;
 			}
 		}
 		if (r == SLOTXY_CHEST_LAST) {
@@ -883,7 +881,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		if (r == SLOTXY_INV_LAST && (sy & 1) == 0)
 			j += 14;
 	}
-	if (!done)
+	if (r == NUM_XY_SLOTS)
 		return;
 	il = ILOC_UNEQUIPABLE;
 	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST)
@@ -970,17 +968,14 @@ void CheckInvPaste(int pnum, int mx, int my)
 		return;
 
 	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !holditem->_iStatFlag) {
-		done = FALSE;
 		if (p->_pClass == PC_WARRIOR)
 			PlaySFX(PS_WARR13);
 		else if (p->_pClass == PC_ROGUE)
 			PlaySFX(PS_ROGUE13);
 		else if (p->_pClass == PC_SORCERER)
 			PlaySFX(PS_MAGE13);
-	}
-
-	if (!done)
 		return;
+	}
 
 	if (pnum == myplr)
 		PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
@@ -1298,7 +1293,6 @@ void CheckInvCut(int pnum, int mx, int my)
 {
 	PlayerStruct *p;
 	int r;
-	BOOL done;
 	char ii;
 	int iv, i, j, offs, ig;
 
@@ -1312,9 +1306,7 @@ void CheckInvCut(int pnum, int mx, int my)
 		dropGoldValue = 0;
 	}
 
-	done = FALSE;
-
-	for (r = 0; (DWORD)r < NUM_XY_SLOTS && !done; r++) {
+	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
 		if (r >= SLOTXY_BELT_FIRST) {
@@ -1327,12 +1319,11 @@ void CheckInvCut(int pnum, int mx, int my)
 		    && mx < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1)
 		    && my >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
 		    && my < InvRect[r].Y + yo) {
-			done = TRUE;
-			r--;
+			break;
 		}
 	}
 
-	if (!done) {
+	if (r == NUM_XY_SLOTS) {
 		// not on an inventory slot rectangle
 		return;
 	}
@@ -1489,15 +1480,17 @@ void RemoveInvItem(int pnum, int iv)
 	iv--;
 	p->_pNumInv--;
 
-	if (p->_pNumInv > 0 && p->_pNumInv != iv) {
-		p->InvList[iv] = p->InvList[p->_pNumInv];
+	i = p->_pNumInv;
+	if (i > 0 && i != iv) {
+		p->InvList[iv] = p->InvList[i];
 
+		i++;
+		iv++;
 		for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-			if (p->InvGrid[j] == p->_pNumInv + 1) {
-				p->InvGrid[j] = iv + 1;
-			}
-			if (p->InvGrid[j] == -(p->_pNumInv + 1)) {
-				p->InvGrid[j] = -(iv + 1);
+			if (p->InvGrid[j] == i) {
+				p->InvGrid[j] = iv;
+			} else if (p->InvGrid[j] == -i) {
+				p->InvGrid[j] = -iv;
 			}
 		}
 	}
@@ -2138,17 +2131,18 @@ BOOL CanPut(int x, int y)
 	if (nSolidTable[dPiece[x][y]])
 		return FALSE;
 
-	if (dObject[x][y] != 0) {
-		if (object[dObject[x][y] > 0 ? dObject[x][y] - 1 : -1 - dObject[x][y]]._oSolidFlag)
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (object[oi]._oSolidFlag)
 			return FALSE;
 	}
 
 	oi = dObject[x + 1][y + 1];
-	if (oi > 0 && object[oi - 1]._oSelFlag != 0) {
-		return FALSE;
-	}
-	if (oi < 0 && object[-(oi + 1)]._oSelFlag != 0) {
-		return FALSE;
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (object[oi]._oSelFlag != 0)
+			return FALSE;
 	}
 
 	oi = dObject[x + 1][y];
@@ -2168,27 +2162,29 @@ BOOL CanPut(int x, int y)
 
 BOOL TryInvPut()
 {
-	int dir;
+	int px, py, dir;
 
 	if (numitems >= MAXITEMS)
 		return FALSE;
 
-	dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
-	if (CanPut(plr[myplr]._px + offset_x[dir], plr[myplr]._py + offset_y[dir])) {
+	px = plr[myplr]._px;
+	py = plr[myplr]._py;
+	dir = GetDirection(px, py, cursmx, cursmy);
+	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
 		return TRUE;
 	}
 
 	dir = (dir - 1) & 7;
-	if (CanPut(plr[myplr]._px + offset_x[dir], plr[myplr]._py + offset_y[dir])) {
+	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
 		return TRUE;
 	}
 
 	dir = (dir + 2) & 7;
-	if (CanPut(plr[myplr]._px + offset_x[dir], plr[myplr]._py + offset_y[dir])) {
+	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
 		return TRUE;
 	}
 
-	return CanPut(plr[myplr]._px, plr[myplr]._py);
+	return CanPut(px, py);
 }
 
 void DrawInvMsg(char *msg)
@@ -2313,7 +2309,7 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, in
 	int d, ii;
 	int i, j, l;
 	int xx, yy;
-	int xp, yp;
+	int px, py;
 
 	if (numitems >= MAXITEMS)
 		return -1;
@@ -2323,32 +2319,32 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, in
 		SyncGetItem(x, y, idx, icreateinfo, iseed);
 	}
 
-	d = GetDirection(plr[pnum]._px, plr[pnum]._py, x, y);
-	xx = x - plr[pnum]._px;
-	yy = y - plr[pnum]._py;
-	if (abs(xx) > 1 || abs(yy) > 1) {
-		x = plr[pnum]._px + offset_x[d];
-		y = plr[pnum]._py + offset_y[d];
+	px = plr[pnum]._px;
+	py = plr[pnum]._py;
+	d = GetDirection(px, py, x, y);
+	if (abs(x - px) > 1 || abs(y - py) > 1) {
+		x = px + offset_x[d];
+		y = py + offset_y[d];
 	}
 	if (!CanPut(x, y)) {
 		d = (d - 1) & 7;
-		x = plr[pnum]._px + offset_x[d];
-		y = plr[pnum]._py + offset_y[d];
+		x = px + offset_x[d];
+		y = py + offset_y[d];
 		if (!CanPut(x, y)) {
 			d = (d + 2) & 7;
-			x = plr[pnum]._px + offset_x[d];
-			y = plr[pnum]._py + offset_y[d];
+			x = px + offset_x[d];
+			y = py + offset_y[d];
 			if (!CanPut(x, y)) {
 				done = FALSE;
 				for (l = 1; l < 50 && !done; l++) {
 					for (j = -l; j <= l && !done; j++) {
-						yp = j + plr[pnum]._py;
+						yy = j + py;
 						for (i = -l; i <= l && !done; i++) {
-							xp = i + plr[pnum]._px;
-							if (CanPut(xp, yp)) {
+							xx = i + px;
+							if (CanPut(xx, yy)) {
 								done = TRUE;
-								x = xp;
-								y = yp;
+								x = xx;
+								y = yy;
 							}
 						}
 					}
@@ -2403,11 +2399,13 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, in
 
 char CheckInvHLight()
 {
-	int r, ii, nGold;
+	int mx, my, r, ii, nGold;
 	ItemStruct *pi;
 	PlayerStruct *p;
 	char rv;
 
+	mx = MouseX;
+	my = MouseY;
 	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
@@ -2416,10 +2414,10 @@ char CheckInvHLight()
 			yo = PANEL_TOP;
 		}
 
-		if (MouseX >= InvRect[r].X + xo
-		    && MouseX < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1)
-		    && MouseY >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
-		    && MouseY < InvRect[r].Y + yo) {
+		if (mx >= InvRect[r].X + xo
+		    && mx < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1)
+		    && my >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
+		    && my < InvRect[r].Y + yo) {
 			break;
 		}
 	}
@@ -2618,7 +2616,7 @@ void StartGoldDrop()
 
 BOOL UseInvItem(int pnum, int cii)
 {
-	int c, idata;
+	int c;
 	ItemStruct *Item;
 	BOOL speedlist;
 
@@ -2730,11 +2728,10 @@ BOOL UseInvItem(int pnum, int cii)
 	}
 #endif
 
-	idata = ItemCAnimTbl[Item->_iCurs];
 	if (Item->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else if (pnum == myplr)
-		PlaySFX(ItemInvSnds[idata]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[Item->_iCurs]]);
 
 	UseItem(pnum, Item->_iMiscId, Item->_iSpell);
 
