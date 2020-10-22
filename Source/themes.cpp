@@ -61,8 +61,7 @@ BOOL TFit_Shrine(int tidx)
 
 	xp = 0;
 	yp = 0;
-	found = 0;
-	while (found == 0) {
+	while (TRUE) {
 		if (dTransVal[xp][yp] == themes[tidx].ttval) {
 			if (nTrapTable[dPiece[xp][yp - 1]]
 			    && !nSolidTable[dPiece[xp - 1][yp]]
@@ -72,9 +71,9 @@ BOOL TFit_Shrine(int tidx)
 			    && dObject[xp - 1][yp - 1] == 0
 			    && dObject[xp + 1][yp - 1] == 0) {
 				found = 1;
+				break;
 			}
-			if (found == 0
-			    && nTrapTable[dPiece[xp - 1][yp]]
+			if (nTrapTable[dPiece[xp - 1][yp]]
 			    && !nSolidTable[dPiece[xp][yp - 1]]
 			    && !nSolidTable[dPiece[xp][yp + 1]]
 			    && dTransVal[xp][yp - 1] == themes[tidx].ttval
@@ -82,16 +81,15 @@ BOOL TFit_Shrine(int tidx)
 			    && dObject[xp - 1][yp - 1] == 0
 			    && dObject[xp - 1][yp + 1] == 0) {
 				found = 2;
+				break;
 			}
 		}
-		if (found == 0) {
-			xp++;
-			if (xp == MAXDUNX) {
-				xp = 0;
-				yp++;
-				if (yp == MAXDUNY)
-					return FALSE;
-			}
+		xp++;
+		if (xp == MAXDUNX) {
+			xp = 0;
+			yp++;
+			if (yp == MAXDUNY)
+				return FALSE;
 		}
 	}
 	themex = xp;
@@ -421,11 +419,9 @@ void InitThemes()
 		for (i = 0; i < 256 && numthemes < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
 				themes[numthemes].ttval = i;
-				for (j = ThemeGood[random_(0, 4)];; j = random_(0, 17)) {
-					if (SpecialThemeFit(numthemes, j)) {
-						break;
-					}
-				}
+				j = ThemeGood[random_(0, 4)];
+				while (!SpecialThemeFit(numthemes, j))
+					j = random_(0, 17);
 				themes[numthemes].ttype = j;
 				numthemes++;
 			}
@@ -447,11 +443,9 @@ void InitThemes()
 		for (i = 0; i < themeCount; i++) {
 			if (themes[i].ttype == THEME_NONE) {
 				themes[i].ttval = themeLoc[i].ttval;
-				for (j = ThemeGood[random_(0, 4)];; j = random_(0, 17)) {
-					if (SpecialThemeFit(i, j)) {
-						break;
-					}
-				}
+				j = ThemeGood[random_(0, 4)];
+				while (!SpecialThemeFit(i, j))
+					j = random_(0, 17);
 				themes[i].ttype = j;
 			}
 		}
@@ -584,12 +578,12 @@ void Theme_MonstPit(int tidx)
 	r = random_(0, 100) + 1;
 	ixp = 0;
 	iyp = 0;
-	while (r > 0) {
+	while (TRUE) {
 		if (dTransVal[ixp][iyp] == themes[tidx].ttval && !nSolidTable[dPiece[ixp][iyp]]) {
 			--r;
+			if (r <= 0)
+				break;
 		}
-		if (r <= 0)
-			continue;
 		ixp++;
 		if (ixp == MAXDUNX) {
 			ixp = 0;
@@ -785,7 +779,7 @@ void Theme_Torture(int tidx)
 
 /**
  * Theme_BloodFountain initializes the blood fountain theme.
- * @param t Theme number (index into themes array).
+ * @param tidx Theme number (index into themes array).
  */
 void Theme_BloodFountain(int tidx)
 {
@@ -916,7 +910,7 @@ void Theme_MurkyFountain(int tidx)
 /**
  * Theme_TearFountain initializes the tear fountain theme.
  *
- * @param t theme number (index into themes array).
+ * @param tidx theme number (index into themes array).
  */
 void Theme_TearFountain(int tidx)
 {

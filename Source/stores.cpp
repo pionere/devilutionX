@@ -1803,17 +1803,12 @@ void STextDown()
 		return;
 	}
 
-	if (stextsel == STORE_LINES - 1)
-		stextsel = 0;
-	else
-		stextsel++;
-
-	while (!stext[stextsel]._ssel) {
+	do {
 		if (stextsel == STORE_LINES - 1)
 			stextsel = 0;
 		else
 			stextsel++;
-	}
+	} while (!stext[stextsel]._ssel);
 }
 
 void STextPrior()

@@ -2068,22 +2068,13 @@ int FindGetItem(int idx, WORD ci, int iseed)
 {
 	int i, ii;
 
-	i = 0;
-	if (numitems <= 0)
-		return -1;
-
-	while (1) {
+	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
 		if (item[ii].IDidx == idx && item[ii]._iSeed == iseed && item[ii]._iCreateInfo == ci)
-			break;
-
-		i++;
-
-		if (i >= numitems)
-			return -1;
+			return ii;
 	}
 
-	return ii;
+	return -1;
 }
 
 void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)

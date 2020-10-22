@@ -2171,15 +2171,13 @@ DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 	else if (pnum != myplr) {
 		int i;
 		// check if this player already has an active golem
-		BOOL addGolem = TRUE;
 		for (i = 0; i < nummissiles; i++) {
 			MissileStruct *mis = &missile[missileactive[i]];
 			if (mis->_mitype == MIS_GOLEM && mis->_misource == pnum) {
-				addGolem = FALSE;
-				// BUGFIX: break, don't need to check the rest
+				break;
 			}
 		}
-		if (addGolem)
+		if (i == nummissiles)
 			AddMissile(plr[pnum]._px, plr[pnum]._py, p->_mx, p->_my, p->_mdir, MIS_GOLEM, 0, pnum, 0, 1);
 	}
 
@@ -2451,15 +2449,13 @@ DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 				AddInTownPortal(pnum);
 			else if (currlevel == plr[pnum].plrlevel) {
 				int i;
-				BOOL addPortal = TRUE;
 				for (i = 0; i < nummissiles; i++) {
 					MissileStruct *mis = &missile[missileactive[i]];
 					if (mis->_mitype == MIS_TOWN && mis->_misource == pnum) {
-						addPortal = FALSE;
-						// BUGFIX: break
+						break;
 					}
 				}
-				if (addPortal)
+				if (i == nummissiles)
 					AddWarpMissile(pnum, p->x, p->y);
 			} else
 				RemovePortalMissile(pnum);

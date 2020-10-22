@@ -184,17 +184,12 @@ void InitLevelMonsters()
 
 int AddMonsterType(int type, int placeflag)
 {
-	BOOL done = FALSE;
 	int i;
 
-	for (i = 0; i < nummtypes && !done; i++) {
-		done = Monsters[i].mtype == type;
-	}
+	for (i = 0; i < nummtypes && Monsters[i].mtype != type; i++)
+		;
 
-	i--;
-
-	if (!done) {
-		i = nummtypes;
+	if (i == nummtypes) {
 		nummtypes++;
 		Monsters[i].mtype = type;
 		monstimgtot += monsterdata[type].mImage;
@@ -926,8 +921,6 @@ void PlaceQuestMonsters()
 		}
 
 		if (currlevel == quests[Q_SKELKING]._qlevel && gbMaxPlayers != 1) {
-			skeltype = 0;
-
 			for (skeltype = 0; skeltype < nummtypes; skeltype++) {
 				if (IsSkel(Monsters[skeltype].mtype)) {
 					break;

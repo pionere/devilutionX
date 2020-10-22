@@ -1986,9 +1986,9 @@ static void DRLG_L3Wood()
 		for (i = 1; i < DMAXX - 1; i++) { // BUGFIX: Change '0' to '1' (fixed)
 			if (dungeon[i][j] == 10 && random_(0, 2) != 0) {
 				x = i;
-				while (dungeon[x][j] == 10) {
+				do {
 					x++;
-				}
+				} while (dungeon[x][j] == 10);
 				x--;
 				if (x - i > 0) {
 					dungeon[i][j] = 127;
@@ -2004,9 +2004,9 @@ static void DRLG_L3Wood()
 			}
 			if (dungeon[i][j] == 9 && random_(0, 2) != 0) {
 				y = j;
-				while (dungeon[i][y] == 9) {
+				do {
 					y++;
-				}
+				} while (dungeon[i][y] == 9);
 				y--;
 				if (y - j > 0) {
 					dungeon[i][j] = 123;
@@ -2023,9 +2023,9 @@ static void DRLG_L3Wood()
 			if (dungeon[i][j] == 11 && dungeon[i + 1][j] == 10 && dungeon[i][j + 1] == 9 && random_(0, 2) != 0) {
 				dungeon[i][j] = 125;
 				x = i + 1;
-				while (dungeon[x][j] == 10) {
+				do {
 					x++;
-				}
+				} while (dungeon[x][j] == 10);
 				x--;
 				for (xx = i + 1; xx < x; xx++) {
 					if (random_(0, 2) != 0) {
@@ -2036,9 +2036,9 @@ static void DRLG_L3Wood()
 				}
 				dungeon[x][j] = 128;
 				y = j + 1;
-				while (dungeon[i][y] == 9) {
+				do {
 					y++;
-				}
+				} while (dungeon[i][y] == 9);
 				y--;
 				for (yy = j + 1; yy < y; yy++) {
 					if (random_(0, 2) != 0) {
