@@ -466,7 +466,7 @@ void PrintStoreItem(ItemStruct *is, int l, char iclr)
 	}
 	if (is->_itype == ITYPE_MISC)
 		sstr[0] = '\0';
-	if ((is->_iMinStr + is->_iMinMag + is->_iMinDex) == 0) {
+	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) == 0) {
 		strcat(sstr, "No required attributes");
 	} else {
 		strcpy(tempstr, "Required:");

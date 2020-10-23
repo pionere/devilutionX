@@ -190,11 +190,9 @@ BOOL CheckThemeObj3(int xp, int yp, int tidx, int rndfrq)
 		yy = yp + trm3y[i];
 		if (xx < 0 || yy < 0)
 			return FALSE;
-		if (nSolidTable[dPiece[xx][yy]])
+		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
 			return FALSE;
 		if (dTransVal[xx][yy] != tv)
-			return FALSE;
-		if (dObject[xx][yy] != 0)
 			return FALSE;
 		if (rndfrq != -1 && !random_(0, rndfrq))
 			return FALSE;
@@ -511,7 +509,7 @@ void PlaceThemeMonsts(int tidx, int rndfrq)
 	mtype = scattertypes[random_(0, numscattypes)];
 	for (yp = 0; yp < MAXDUNY; yp++) {
 		for (xp = 0; xp < MAXDUNX; xp++) {
-			if (dTransVal[xp][yp] == themes[tidx].ttval && !nSolidTable[dPiece[xp][yp]] && dItem[xp][yp] == 0 && dObject[xp][yp] == 0) {
+			if (dTransVal[xp][yp] == themes[tidx].ttval && (nSolidTable[dPiece[xp][yp]] | dItem[xp][yp] | dObject[xp][yp]) == 0) {
 				if (random_(0, rndfrq) == 0) {
 					AddMonster(xp, yp, random_(0, 8), mtype, TRUE);
 				}

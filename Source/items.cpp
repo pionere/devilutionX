@@ -4422,7 +4422,7 @@ void PrintItemDetails(ItemStruct *is)
 		curruitem = *is;
 	}
 	PrintItemMisc(is);
-	if (is->_iMinMag + is->_iMinDex + is->_iMinStr) {
+	if ((is->_iMinMag | is->_iMinDex | is->_iMinStr) != 0) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
 			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
@@ -4474,7 +4474,7 @@ void PrintItemDur(ItemStruct *is)
 	if (is->_itype == ITYPE_RING || is->_itype == ITYPE_AMULET)
 		AddPanelString("Not Identified", TRUE);
 	PrintItemMisc(is);
-	if (is->_iMinStr + is->_iMinMag + is->_iMinDex) {
+	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
 			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);

@@ -606,18 +606,12 @@ void ClrAllMonsters()
 
 BOOL MonstPlace(int xp, int yp)
 {
-	if (xp < 0 || xp >= MAXDUNX
-	    || yp < 0 || yp >= MAXDUNY
-	    || dMonster[xp][yp] != 0
-	    || dPlayer[xp][yp] != 0) {
+	if (xp < 0 || xp >= MAXDUNX || yp < 0 || yp >= MAXDUNY) {
 		return FALSE;
 	}
 
-	if (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED)) {
-		return FALSE;
-	}
-
-	return !nSolidTable[dPiece[xp][yp]];
+	return (dMonster[xp][yp] | dPlayer[xp][yp] | nSolidTable[dPiece[xp][yp]]
+	 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
 }
 
 void monster_some_crypt()
@@ -1260,7 +1254,7 @@ void monster_43C785(int mnum)
 		for (d = 0; d < 8; d++) {
 			x = mx + offset_x[d];
 			y = my + offset_y[d];
-			if (!nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0) {
+			if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0) {
 				oi = dObject[x][y];
 				if (oi == 0)
 					break;
@@ -5608,7 +5602,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	int oi;
 	BOOL ret;
 
-	ret = !nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+	ret = (nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0;
 	oi = dObject[x][y];
 	if (ret && oi != 0) {
 		oi = oi > 0 ? oi - 1 : -(oi + 1);
@@ -5623,7 +5617,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	BOOL ret, fire;
 
 	fire = FALSE;
-	ret = !nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+	ret = (nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0;
 	if (ret && dObject[x][y] != 0) {
 		oi = dObject[x][y] > 0 ? dObject[x][y] - 1 : -(dObject[x][y] + 1);
 		if (object[oi]._oSolidFlag)
@@ -5763,7 +5757,7 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 		}
 	}
 	if (ret) {
-		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && (dPlayer[x][y] | dMonster[x][y]) == 0;
 	}
 	if (ret)
 		ret = monster_posok(mnum, x, y);
@@ -5786,7 +5780,7 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 		}
 	}
 	if (ret) {
-		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && (dPlayer[x][y] | dMonster[x][y]) == 0;
 	}
 	if (ret && dMissile[x][y] != 0 && mnum >= 0) {
 		mi = dMissile[x][y];

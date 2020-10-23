@@ -1365,7 +1365,7 @@ BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 			tx = *x + CrawlTable[cr];
 			ty = *y + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				if (!nSolidTable[dPiece[tx][ty]] && dObject[tx][ty] == 0 && dMissile[tx][ty] == 0) {
+				if ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
 					missile[mi]._mix = tx;
 					missile[mi]._miy = ty;
 					*x = tx;
@@ -2145,7 +2145,7 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 		if (r1 <= MAXDUNX && r1 >= 0 && r2 <= MAXDUNY && r2 >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
 #endif
 			pn = dPiece[r1][r2];
-	} while (nSolidTable[pn] || dObject[r1][r2] != 0 || dMonster[r1][r2] != 0);
+	} while ((nSolidTable[pn] | dObject[r1][r2] | dMonster[r1][r2]) != 0);
 
 	missile[mi]._mirange = 2;
 	missile[mi]._miVar1 = 0;
@@ -4015,7 +4015,7 @@ void MI_HorkSpawn(int mi)
 				tx = mis->_mix + CrawlTable[cr];
 				ty = mis->_miy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					if (!nSolidTable[dPiece[tx][ty]] && dMonster[tx][ty] == 0 && dPlayer[tx][ty] == 0 && dObject[tx][ty] == 0) {
+					if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dPlayer[tx][ty] | dObject[tx][ty]) == 0) {
 						i = 6;
 						int mon = AddMonster(tx, ty, mis->_miVar1, 1, TRUE);
 						MonStartStand(mon, mis->_miVar1);
@@ -4369,7 +4369,7 @@ void MI_FireRing(int mi)
 		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
-			if (!nSolidTable[pn] && dObject[tx][ty] == 0) {
+			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
 					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;
@@ -4401,7 +4401,7 @@ void MI_LightRing(int mi)
 		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
-			if (!nSolidTable[pn] && dObject[tx][ty] == 0) {
+			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
 					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;

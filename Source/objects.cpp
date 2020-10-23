@@ -277,15 +277,8 @@ void FreeObjectGFX()
 
 DIABOOL RndLocOk(int xp, int yp)
 {
-	if (dMonster[xp][yp] != 0)
-		return FALSE;
-	if (dPlayer[xp][yp] != 0)
-		return FALSE;
-	if (dObject[xp][yp] != 0)
-		return FALSE;
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
-		return FALSE;
-	if (nSolidTable[dPiece[xp][yp]])
+	if ((dMonster[xp][yp] | dPlayer[xp][yp] | dObject[xp][yp]
+	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
 		return FALSE;
 	if (leveltype != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return TRUE;
@@ -1976,7 +1969,7 @@ void Obj_Door(int oi)
 	} else {
 		dx = object[oi]._ox;
 		dy = object[oi]._oy;
-		dok = dMonster[dx][dy] == 0 && dItem[dx][dy] == 0 && dDead[dx][dy] == 0 && dPlayer[dx][dy] == 0;
+		dok = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0;
 		object[oi]._oVar4 = dok ? 1 : 2;
 		object[oi]._oSelFlag = 2;
 		object[oi]._oMissFlag = TRUE;
@@ -2027,7 +2020,7 @@ void Obj_FlameTrap(int oi)
 			x = os->_ox - 2;
 			y = os->_oy;
 			for (i = 0; i < 5; i++) {
-				if (dPlayer[x][y] != 0 || dMonster[x][y] != 0)
+				if ((dPlayer[x][y] | dMonster[x][y]) != 0)
 					os->_oVar4 = 1;
 				x++;
 			}
@@ -2035,7 +2028,7 @@ void Obj_FlameTrap(int oi)
 			x = os->_ox;
 			y = os->_oy - 2;
 			for (i = 0; i < 5; i++) {
-				if (dPlayer[x][y] != 0 || dMonster[x][y] != 0)
+				if ((dPlayer[x][y] | dMonster[x][y]) != 0)
 					os->_oVar4 = 1;
 				y++;
 			}
@@ -2523,7 +2516,7 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		object[oi]._oVar4 = 0;
@@ -2627,7 +2620,7 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2693,7 +2686,7 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2736,7 +2729,7 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2780,7 +2773,7 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2825,7 +2818,7 @@ void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
+	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -3902,7 +3895,7 @@ void OperateShrine(int pnum, int oi, int sType)
 			if (i > MAXDUNX * 112)
 				break;
 			lv = dPiece[xx][yy];
-		} while (nSolidTable[lv] || dObject[xx][yy] != 0 || dMonster[xx][yy] != 0);
+		} while ((nSolidTable[lv] | dObject[xx][yy] | dMonster[xx][yy]) != 0);
 		AddMissile(p->_px, p->_py, xx, yy, p->_pdir, MIS_RNDTELEPORT, -1, pnum, 0, 2 * leveltype);
 		if (pnum != myplr)
 			return;
