@@ -396,15 +396,15 @@ typedef struct MissileData {
 } MissileData;
 
 typedef struct MisFileData {
-	unsigned char mAnimName;
-	unsigned char mAnimFAmt;
-	char *mName;
-	int mFlags;
-	unsigned char *mAnimData[16];
-	unsigned char mAnimDelay[16];
-	unsigned char mAnimLen[16];
-	int mAnimWidth[16];
-	int mAnimWidth2[16];
+	unsigned char mfAnimName;
+	unsigned char mfAnimFAmt;
+	char *mfName;
+	int mfFlags;
+	unsigned char *mfAnimData[16];
+	unsigned char mfAnimDelay[16];
+	unsigned char mfAnimLen[16];
+	int mfAnimWidth[16];
+	int mfAnimWidth2[16];
 } MisFileData;
 
 typedef struct ChainStruct {
