@@ -3471,7 +3471,7 @@ void MAI_Bat(int mnum)
 	pnum = mon->_menemy;
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
-	xd = mon->_mx - fy;
+	xd = mon->_mx - fx;
 	yd = mon->_my - fy;
 	if (mon->MType->mtype == MT_GLOOM
 	    && (abs(xd) >= 5 || abs(yd) >= 5)
