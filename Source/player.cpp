@@ -3925,7 +3925,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
-	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !nSolidTable[dPiece[x][y]] && dPiece[x][y]) {
+	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !nSolidTable[dPiece[x][y]] && dPiece[x][y] != 0) {
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);

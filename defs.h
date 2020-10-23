@@ -36,12 +36,6 @@
 #endif
 #endif
 
-#ifdef HELLFIRE
-#define HFAND &&
-#else
-#define HFAND &
-#endif
-
 #define DMAXX					40
 #define DMAXY					40
 

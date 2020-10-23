@@ -2126,7 +2126,7 @@ BOOL CanPut(int x, int y)
 {
 	char oi, oi2;
 
-	if (dItem[x][y])
+	if (dItem[x][y] != 0)
 		return FALSE;
 	if (nSolidTable[dPiece[x][y]])
 		return FALSE;

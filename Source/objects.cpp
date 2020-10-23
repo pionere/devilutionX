@@ -1968,7 +1968,7 @@ void Obj_StopAnim(int oi)
 void Obj_Door(int oi)
 {
 	int dx, dy;
-	DIABOOL dok;
+	BOOL dok;
 
 	if (object[oi]._oVar4 == 0) {
 		object[oi]._oSelFlag = 3;
@@ -1976,12 +1976,9 @@ void Obj_Door(int oi)
 	} else {
 		dx = object[oi]._ox;
 		dy = object[oi]._oy;
-		dok = dMonster[dx][dy] == 0;
-		dok = dok HFAND (dItem[dx][dy] == 0);
-		dok = dok HFAND (dDead[dx][dy] == 0);
-		dok = dok HFAND (dPlayer[dx][dy] == 0);
-		object[oi]._oSelFlag = 2;
+		dok = dMonster[dx][dy] == 0 && dItem[dx][dy] == 0 && dDead[dx][dy] == 0 && dPlayer[dx][dy] == 0;
 		object[oi]._oVar4 = dok ? 1 : 2;
+		object[oi]._oSelFlag = 2;
 		object[oi]._oMissFlag = TRUE;
 	}
 }
@@ -2522,15 +2519,11 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 		else
 			PlaySfxLoc(IS_CRCLOS, xp, yp);
 	}
-	BOOLEAN dok = dMonster[xp][yp] == 0;
-	dok = dok && dItem[xp][yp] == 0;
-	dok = dok && dDead[xp][yp] == 0;
-	if (dok) {
 #else
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (((dDead[xp][yp] != 0 ? 0 : 1) & (dMonster[xp][yp] != 0 ? 0 : 1) & (dItem[xp][yp] != 0 ? 0 : 1)) != 0) {
 #endif
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		object[oi]._oVar4 = 0;
@@ -2630,15 +2623,11 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 		else
 			PlaySfxLoc(IS_CRCLOS, xp, yp);
 	}
-	BOOLEAN dok = dMonster[xp][yp] == 0;
-	dok = dok && dItem[xp][yp] == 0;
-	dok = dok && dDead[xp][yp] == 0;
-	if (dok) {
 #else
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (((dDead[xp][yp] != 0 ? 0 : 1) & (dMonster[xp][yp] != 0 ? 0 : 1) & (dItem[xp][yp] != 0 ? 0 : 1)) != 0) {
 #endif
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2679,7 +2668,6 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 {
 	ObjectStruct *os;
 	int xp, yp;
-	DIABOOL dok;
 
 	os = &object[oi];
 	if (os->_oVar4 == 2) {
@@ -2705,10 +2693,7 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = dMonster[xp][yp] == 0;
-	dok = dok HFAND (dItem[xp][yp] == 0);
-	dok = dok HFAND (dDead[xp][yp] == 0);
-	if (dok) {
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2726,7 +2711,6 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 {
 	ObjectStruct *os;
 	int xp, yp;
-	DIABOOL dok;
 
 	os = &object[oi];
 	if (os->_oVar4 == 2) {
@@ -2752,10 +2736,7 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = dMonster[xp][yp] == 0;
-	dok = dok HFAND (dItem[xp][yp] == 0);
-	dok = dok HFAND (dDead[xp][yp] == 0);
-	if (dok) {
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2773,7 +2754,6 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 {
 	ObjectStruct *os;
 	int xp, yp;
-	DIABOOL dok;
 
 	os = &object[oi];
 	if (os->_oVar4 == 2) {
@@ -2800,10 +2780,7 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = dMonster[xp][yp] == 0;
-	dok = dok HFAND (dItem[xp][yp] == 0);
-	dok = dok HFAND (dDead[xp][yp] == 0);
-	if (dok) {
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
@@ -2848,10 +2825,7 @@ void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = dMonster[xp][yp] == 0;
-	dok = dok HFAND (dItem[xp][yp] == 0);
-	dok = dok HFAND (dDead[xp][yp] == 0);
-	if (dok) {
+	if (dMonster[xp][yp] == 0 && dItem[xp][yp] == 0 && dDead[xp][yp] == 0) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
