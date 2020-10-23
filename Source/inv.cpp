@@ -2784,7 +2784,7 @@ int CalculateGold(int pnum)
 			force_redraw = 255;
 		}
 	}
-	pi = plr[pnum].SpdList;
+	pi = plr[pnum].InvList;
 	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD)
 			gold += pi->_ivalue;
