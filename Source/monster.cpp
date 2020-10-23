@@ -3393,13 +3393,12 @@ void MAI_Snake(int mnum)
 			mon->_mgoalvar1++;
 			if (mon->_mgoalvar1 > 5)
 				mon->_mgoalvar1 = 0;
-			tmp -= mon->_mgoalvar2;
-			if (tmp < 0) {
-				md = tmp + 8;
-			} else if (tmp >= 8) {
-				md = tmp - 8;
-			} else
-				md = tmp;
+			md = tmp - mon->_mgoalvar2;
+			if (md < 0) {
+				md += 8;
+			} else if (md >= 8) {
+				md -= 8;
+			}
 			if (md > 0) {
 				if (md < 4) {
 					md = mon->_mgoalvar2 + 1;
