@@ -691,7 +691,7 @@ void Theme_Treasure(int tidx)
 	const char treasrnds[4] = { 4, 9, 7, 10 };
 	const char monstrnds[4] = { 6, 8, 3, 7 };
 	const char treasrnd = treasrnds[leveltype - 1];
-	const char monstrnd = treasrnds[leveltype - 1];
+	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
 	GetRndSeed();
