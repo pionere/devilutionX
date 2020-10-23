@@ -1883,12 +1883,12 @@ static void L5tileFix()
 					dungeon[i][j + 1] = 16;
 				if (v1 == 6 && v2 == 18)
 					dungeon[i][j + 1] = 21;
+				if (v1 == 6 && v2 == 2)
+					dungeon[i][j + 1] = 7;
 				if (v1 == 6 && v2 == 22)
 					dungeon[i][j + 1] = 24;
 				if (v1 == 6 && v2 == 13)
 					dungeon[i][j + 1] = 16;
-				if (v1 == 6 && v2 == 2)
-					dungeon[i][j + 1] = 7;
 				if (v1 == 18 && v2 == 2)
 					dungeon[i][j + 1] = 7;
 				if (v1 == 21 && v2 == 2)
