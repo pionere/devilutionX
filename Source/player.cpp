@@ -3038,7 +3038,7 @@ BOOL PlrDoAttack(int pnum)
 		if (mp != 0) {
 			mp = mp >= 0 ? mp - 1 : -(mp + 1);
 			didhit = PlrHitMonst(pnum, mp);
-		} else if (dPlayer[dx][dy] && !FriendlyMode) {
+		} else if (dPlayer[dx][dy] != 0 && !FriendlyMode) {
 			mp = dPlayer[dx][dy];
 			mp = mp >= 0 ? mp - 1 : -(mp + 1);
 			didhit = PlrHitPlr(pnum, mp);
@@ -3940,7 +3940,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-			if (mpo != pnum && mpo < MAX_PLRS && plr[mpo]._pHitPoints) {
+			if (mpo != pnum && mpo < MAX_PLRS && plr[mpo]._pHitPoints != 0) {
 				return FALSE;
 			}
 		}

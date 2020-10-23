@@ -608,8 +608,8 @@ BOOL MonstPlace(int xp, int yp)
 {
 	if (xp < 0 || xp >= MAXDUNX
 	    || yp < 0 || yp >= MAXDUNY
-	    || dMonster[xp][yp]
-	    || dPlayer[xp][yp]) {
+	    || dMonster[xp][yp] != 0
+	    || dPlayer[xp][yp] != 0) {
 		return FALSE;
 	}
 
@@ -977,7 +977,7 @@ void PlaceQuestMonsters()
 
 			if (i1 < nummtypes) {
 				for (int i2 = 0; i2 < nummonsters; i2++) {
-					if (monster[i2]._uniqtype == 0 || monster[i2]._mMTidx == i1) {
+					if (monster[i2]._uniqtype != 0 || monster[i2]._mMTidx == i1) {
 						UberDiabloMonsterIndex = i2;
 						break;
 					}
@@ -1260,7 +1260,7 @@ void monster_43C785(int mnum)
 		for (d = 0; d < 8; d++) {
 			x = mx + offset_x[d];
 			y = my + offset_y[d];
-			if (!SolidLoc(x, y) && !dPlayer[x][y] && !dMonster[x][y]) {
+			if (!SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0) {
 				oi = dObject[x][y];
 				if (oi == 0)
 					break;
@@ -5609,9 +5609,9 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	int oi;
 	BOOL ret;
 
-	ret = !SolidLoc(x, y) && !dPlayer[x][y] && !dMonster[x][y];
+	ret = !SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
 	oi = dObject[x][y];
-	if (ret && oi) {
+	if (ret && oi != 0) {
 		oi = oi > 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSolidFlag)
 			ret = FALSE;
@@ -5624,8 +5624,8 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	BOOL ret, fire;
 
 	fire = FALSE;
-	ret = !SolidLoc(x, y) && !dPlayer[x][y] && !dMonster[x][y];
-	if (ret && dObject[x][y]) {
+	ret = !SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+	if (ret && dObject[x][y] != 0) {
 		oi = dObject[x][y] > 0 ? dObject[x][y] - 1 : -(dObject[x][y] + 1);
 		if (object[oi]._oSolidFlag)
 			ret = FALSE;

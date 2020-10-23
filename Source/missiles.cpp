@@ -270,7 +270,7 @@ int FindClosest(int sx, int sy, int rad)
 	for (i = 1; i < rad; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -1365,7 +1365,7 @@ BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 			tx = *x + CrawlTable[cr];
 			ty = *y + CrawlTable[cr + 1];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				if (!nSolidTable[dPiece[tx][ty]] && !dObject[tx][ty] && !dMissile[tx][ty]) {
+				if (!nSolidTable[dPiece[tx][ty]] && dObject[tx][ty] == 0 && dMissile[tx][ty] == 0) {
 					missile[mi]._mix = tx;
 					missile[mi]._miy = ty;
 					*x = tx;
@@ -2145,7 +2145,7 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 		if (r1 <= MAXDUNX && r1 >= 0 && r2 <= MAXDUNY && r2 >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
 #endif
 			pn = dPiece[r1][r2];
-	} while (nSolidTable[pn] || dObject[r1][r2] || dMonster[r1][r2]);
+	} while (nSolidTable[pn] || dObject[r1][r2] != 0 || dMonster[r1][r2] != 0);
 
 	missile[mi]._mirange = 2;
 	missile[mi]._miVar1 = 0;
@@ -2244,7 +2244,7 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			tx = dx + CrawlTable[cr];
 			ty = dy + CrawlTable[cr + 1];
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-				if (!(nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dObject[tx][ty] | dPlayer[tx][ty])) {
+				if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 					mis->_mix = tx;
 					mis->_miy = ty;
 					mis->_misx = tx;
@@ -2464,7 +2464,7 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		for (i = 0; i < 6; i++) {
 			cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 			for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -2472,7 +2472,7 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 				ty = dy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					dp = dPiece[tx][ty];
-					if (!(dMissile[tx][ty] | nSolidTable[dp] | nMissileTable[dp] | dObject[tx][ty] | dPlayer[tx][ty])) {
+					if ((dMissile[tx][ty] | nSolidTable[dp] | nMissileTable[dp] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 						if (!CheckIfTrig(tx, ty)) {
 							mis->_mix = tx;
 							mis->_miy = ty;
@@ -2612,7 +2612,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -2621,7 +2621,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			pn = dPiece[tx][ty];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				if (LineClear(sx, sy, tx, ty)) {
-					if (!(dMonster[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dMissile[tx][ty])) {
+					if ((dMonster[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
 						mis->_mix = tx;
 						mis->_miy = ty;
 						mis->_misx = tx;
@@ -2855,7 +2855,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -3087,7 +3087,7 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -3095,7 +3095,7 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			ty = dy + CrawlTable[cr + 1];
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 				if (LineClear(sx, sy, tx, ty)) {
-					if ((sx != tx || sy != ty) && !(nSolidTable[dPiece[tx][ty]] | dObject[tx][ty])) {
+					if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
 						mis->_miVar1 = tx;
 						mis->_miVar2 = ty;
 						mis->_miVar5 = tx;
@@ -3585,7 +3585,7 @@ void MI_Golem(int mi)
 		for (i = 0; i < 6; i++) {
 			cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+			for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 			for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif
@@ -3593,7 +3593,7 @@ void MI_Golem(int mi)
 				ty = mis->_miVar5 + CrawlTable[cr + 1];
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
-						if (!(dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty])) {
+						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
 							i = 6;
 							SpawnGolum(src, tx, ty, mi);
 							break;
@@ -4015,7 +4015,7 @@ void MI_HorkSpawn(int mi)
 				tx = mis->_mix + CrawlTable[cr];
 				ty = mis->_miy + CrawlTable[cr + 1];
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					if (!nSolidTable[dPiece[tx][ty]] && !dMonster[tx][ty] && !dPlayer[tx][ty] && !dObject[tx][ty]) {
+					if (!nSolidTable[dPiece[tx][ty]] && dMonster[tx][ty] == 0 && dPlayer[tx][ty] == 0 && dObject[tx][ty] == 0) {
 						i = 6;
 						int mon = AddMonster(tx, ty, mis->_miVar1, 1, TRUE);
 						MonStartStand(mon, mis->_miVar1);
@@ -4369,7 +4369,7 @@ void MI_FireRing(int mi)
 		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
-			if (!nSolidTable[pn] && !dObject[tx][ty]) {
+			if (!nSolidTable[pn] && dObject[tx][ty] == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
 					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;
@@ -4401,7 +4401,7 @@ void MI_LightRing(int mi)
 		ty = mis->_miVar2 + CrawlTable[cr];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
-			if (!nSolidTable[pn] && !dObject[tx][ty]) {
+			if (!nSolidTable[pn] && dObject[tx][ty] == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
 					if (nMissileTable[pn] || mis->_miVar8)
 						mis->_miVar8 = 1;
@@ -5005,7 +5005,7 @@ void MI_Chain(int mi)
 	for (i = 1; i < rad; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
-		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
+		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
 #else
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 #endif

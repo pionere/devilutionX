@@ -277,11 +277,11 @@ void FreeObjectGFX()
 
 DIABOOL RndLocOk(int xp, int yp)
 {
-	if (dMonster[xp][yp])
+	if (dMonster[xp][yp] != 0)
 		return FALSE;
-	if (dPlayer[xp][yp])
+	if (dPlayer[xp][yp] != 0)
 		return FALSE;
-	if (dObject[xp][yp])
+	if (dObject[xp][yp] != 0)
 		return FALSE;
 	if (dFlags[xp][yp] & BFLAG_POPULATED)
 		return FALSE;
@@ -1976,10 +1976,10 @@ void Obj_Door(int oi)
 	} else {
 		dx = object[oi]._ox;
 		dy = object[oi]._oy;
-		dok = !dMonster[dx][dy];
-		dok = dok HFAND !dItem[dx][dy];
-		dok = dok HFAND !dDead[dx][dy];
-		dok = dok HFAND !dPlayer[dx][dy];
+		dok = dMonster[dx][dy] == 0;
+		dok = dok HFAND (dItem[dx][dy] == 0);
+		dok = dok HFAND (dDead[dx][dy] == 0);
+		dok = dok HFAND (dPlayer[dx][dy] == 0);
 		object[oi]._oSelFlag = 2;
 		object[oi]._oVar4 = dok ? 1 : 2;
 		object[oi]._oMissFlag = TRUE;
@@ -2030,7 +2030,7 @@ void Obj_FlameTrap(int oi)
 			x = os->_ox - 2;
 			y = os->_oy;
 			for (i = 0; i < 5; i++) {
-				if (dPlayer[x][y] || dMonster[x][y])
+				if (dPlayer[x][y] != 0 || dMonster[x][y] != 0)
 					os->_oVar4 = 1;
 				x++;
 			}
@@ -2038,7 +2038,7 @@ void Obj_FlameTrap(int oi)
 			x = os->_ox;
 			y = os->_oy - 2;
 			for (i = 0; i < 5; i++) {
-				if (dPlayer[x][y] || dMonster[x][y])
+				if (dPlayer[x][y] != 0 || dMonster[x][y] != 0)
 					os->_oVar4 = 1;
 				y++;
 			}
@@ -2104,7 +2104,7 @@ void Obj_Trap(int oi)
 			dy = on->_oy;
 			for (y = dy - 1; y <= on->_oy + 1; y++) {
 				for (x = on->_ox - 1; x <= on->_ox + 1; x++) {
-					if (dPlayer[x][y]) {
+					if (dPlayer[x][y] != 0) {
 						dx = x;
 						dy = y;
 					}
@@ -2522,9 +2522,9 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 		else
 			PlaySfxLoc(IS_CRCLOS, xp, yp);
 	}
-	BOOLEAN dok = !dMonster[xp][yp];
-	dok = dok && !dItem[xp][yp];
-	dok = dok && !dDead[xp][yp];
+	BOOLEAN dok = dMonster[xp][yp] == 0;
+	dok = dok && dItem[xp][yp] == 0;
+	dok = dok && dDead[xp][yp] == 0;
 	if (dok) {
 #else
 	if (!deltaload)
@@ -2630,9 +2630,9 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 		else
 			PlaySfxLoc(IS_CRCLOS, xp, yp);
 	}
-	BOOLEAN dok = !dMonster[xp][yp];
-	dok = dok && !dItem[xp][yp];
-	dok = dok && !dDead[xp][yp];
+	BOOLEAN dok = dMonster[xp][yp] == 0;
+	dok = dok && dItem[xp][yp] == 0;
+	dok = dok && dDead[xp][yp] == 0;
 	if (dok) {
 #else
 	if (!deltaload)
@@ -2705,9 +2705,9 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = !dMonster[xp][yp];
-	dok = dok HFAND !dItem[xp][yp];
-	dok = dok HFAND !dDead[xp][yp];
+	dok = dMonster[xp][yp] == 0;
+	dok = dok HFAND (dItem[xp][yp] == 0);
+	dok = dok HFAND (dDead[xp][yp] == 0);
 	if (dok) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
@@ -2752,9 +2752,9 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = !dMonster[xp][yp];
-	dok = dok HFAND !dItem[xp][yp];
-	dok = dok HFAND !dDead[xp][yp];
+	dok = dMonster[xp][yp] == 0;
+	dok = dok HFAND (dItem[xp][yp] == 0);
+	dok = dok HFAND (dDead[xp][yp] == 0);
 	if (dok) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
@@ -2800,9 +2800,9 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = !dMonster[xp][yp];
-	dok = dok HFAND !dItem[xp][yp];
-	dok = dok HFAND !dDead[xp][yp];
+	dok = dMonster[xp][yp] == 0;
+	dok = dok HFAND (dItem[xp][yp] == 0);
+	dok = dok HFAND (dDead[xp][yp] == 0);
 	if (dok) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
@@ -2848,9 +2848,9 @@ void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	dok = !dMonster[xp][yp];
-	dok = dok HFAND !dItem[xp][yp];
-	dok = dok HFAND !dDead[xp][yp];
+	dok = dMonster[xp][yp] == 0;
+	dok = dok HFAND (dItem[xp][yp] == 0);
+	dok = dok HFAND (dDead[xp][yp] == 0);
 	if (dok) {
 		if (pnum == myplr && sendflag)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
@@ -2872,14 +2872,14 @@ void MonstCheckDoors(int mnum)
 
 	mx = monster[mnum]._mx;
 	my = monster[mnum]._my;
-	if (dObject[mx - 1][my - 1]
-	    || dObject[mx][my - 1]
-	    || dObject[mx + 1][my - 1]
-	    || dObject[mx - 1][my]
-	    || dObject[mx + 1][my]
-	    || dObject[mx - 1][my + 1]
-	    || dObject[mx][my + 1]
-	    || dObject[mx + 1][my + 1]) {
+	if (dObject[mx - 1][my - 1] != 0
+	    || dObject[mx][my - 1] != 0
+	    || dObject[mx + 1][my - 1] != 0
+	    || dObject[mx - 1][my] != 0
+	    || dObject[mx + 1][my] != 0
+	    || dObject[mx - 1][my + 1] != 0
+	    || dObject[mx][my + 1] != 0
+	    || dObject[mx + 1][my + 1] != 0) {
 		for (i = 0; i < nobjects; ++i) {
 			oi = objectactive[i];
 			if ((object[oi]._otype == OBJ_L1LDOOR || object[oi]._otype == OBJ_L1RDOOR) && object[oi]._oVar4 == 0) {
@@ -3928,7 +3928,7 @@ void OperateShrine(int pnum, int oi, int sType)
 			if (i > MAXDUNX * 112)
 				break;
 			lv = dPiece[xx][yy];
-		} while (nSolidTable[lv] || dObject[xx][yy] || dMonster[xx][yy]);
+		} while (nSolidTable[lv] || dObject[xx][yy] != 0 || dMonster[xx][yy] != 0);
 		AddMissile(p->_px, p->_py, xx, yy, p->_pdir, MIS_RNDTELEPORT, -1, pnum, 0, 2 * leveltype);
 		if (pnum != myplr)
 			return;
