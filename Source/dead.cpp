@@ -40,7 +40,7 @@ void InitDead()
 	}
 
 	for (d = 0; d < 8; d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mAnimData[0];
+		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mfAnimData[0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;
@@ -49,7 +49,7 @@ void InitDead()
 	nd++;
 
 	for (d = 0; d < 8; d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mAnimData[0];
+		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mfAnimData[0];
 	dead[nd]._deadFrame = 12;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;

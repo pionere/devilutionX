@@ -1162,12 +1162,12 @@ void SetMissAnim(int mi, int animtype)
 	}
 	mis->_miAnimType = animtype;
 	mfd = &misfiledata[animtype];
-	mis->_miAnimFlags = mfd->mFlags;
-	mis->_miAnimData = mfd->mAnimData[dir];
-	mis->_miAnimDelay = mfd->mAnimDelay[dir];
-	mis->_miAnimLen = mfd->mAnimLen[dir];
-	mis->_miAnimWidth = mfd->mAnimWidth[dir];
-	mis->_miAnimWidth2 = mfd->mAnimWidth2[dir];
+	mis->_miAnimFlags = mfd->mfFlags;
+	mis->_miAnimData = mfd->mfAnimData[dir];
+	mis->_miAnimDelay = mfd->mfAnimDelay[dir];
+	mis->_miAnimLen = mfd->mfAnimLen[dir];
+	mis->_miAnimWidth = mfd->mfAnimWidth[dir];
+	mis->_miAnimWidth2 = mfd->mfAnimWidth2[dir];
 	mis->_miAnimCnt = 0;
 	mis->_miAnimFrame = 1;
 }
@@ -1186,21 +1186,21 @@ void LoadMissileGFX(BYTE midx)
 	MisFileData *mfd;
 
 	mfd = &misfiledata[midx];
-	if (mfd->mFlags & MFLAG_ALLOW_SPECIAL) {
-		sprintf(pszName, "Missiles\\%s.CL2", mfd->mName);
+	if (mfd->mfFlags & MFLAG_ALLOW_SPECIAL) {
+		sprintf(pszName, "Missiles\\%s.CL2", mfd->mfName);
 		file = LoadFileInMem(pszName, NULL);
-		for (i = 0; i < mfd->mAnimFAmt; i++)
-			mfd->mAnimData[i] = CelGetFrameStart(file, i);
-	} else if (mfd->mAnimFAmt == 1) {
-		sprintf(pszName, "Missiles\\%s.CL2", mfd->mName);
-		if (!mfd->mAnimData[0])
-			mfd->mAnimData[0] = LoadFileInMem(pszName, NULL);
+		for (i = 0; i < mfd->mfAnimFAmt; i++)
+			mfd->mfAnimData[i] = CelGetFrameStart(file, i);
+	} else if (mfd->mfAnimFAmt == 1) {
+		sprintf(pszName, "Missiles\\%s.CL2", mfd->mfName);
+		if (!mfd->mfAnimData[0])
+			mfd->mfAnimData[0] = LoadFileInMem(pszName, NULL);
 	} else {
-		for (i = 0; i < mfd->mAnimFAmt; i++) {
-			sprintf(pszName, "Missiles\\%s%i.CL2", mfd->mName, i + 1);
-			if (!mfd->mAnimData[i]) {
+		for (i = 0; i < mfd->mfAnimFAmt; i++) {
+			sprintf(pszName, "Missiles\\%s%i.CL2", mfd->mfName, i + 1);
+			if (!mfd->mfAnimData[i]) {
 				file = LoadFileInMem(pszName, NULL);
-				mfd->mAnimData[i] = file;
+				mfd->mfAnimData[i] = file;
 			}
 		}
 	}
@@ -1210,8 +1210,8 @@ void InitMissileGFX()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mAnimFAmt; i++) {
-		if (!(misfiledata[i].mFlags & MFLAG_HIDDEN))
+	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
 			LoadMissileGFX(i);
 	}
 }
@@ -1221,19 +1221,19 @@ void FreeMissileGFX(int midx)
 	int i;
 	DWORD *p;
 
-	if (misfiledata[midx].mFlags & MFLAG_ALLOW_SPECIAL) {
-		if (misfiledata[midx].mAnimData[0]) {
-			p = (DWORD *)misfiledata[midx].mAnimData[0];
-			p -= misfiledata[midx].mAnimFAmt;
+	if (misfiledata[midx].mfFlags & MFLAG_ALLOW_SPECIAL) {
+		if (misfiledata[midx].mfAnimData[0]) {
+			p = (DWORD *)misfiledata[midx].mfAnimData[0];
+			p -= misfiledata[midx].mfAnimFAmt;
 			MemFreeDbg(p);
-			misfiledata[midx].mAnimData[0] = NULL;
+			misfiledata[midx].mfAnimData[0] = NULL;
 		}
 		return;
 	}
 
-	for (i = 0; i < misfiledata[midx].mAnimFAmt; i++) {
-		if (misfiledata[midx].mAnimData[i]) {
-			MemFreeDbg(misfiledata[midx].mAnimData[i]);
+	for (i = 0; i < misfiledata[midx].mfAnimFAmt; i++) {
+		if (misfiledata[midx].mfAnimData[i]) {
+			MemFreeDbg(misfiledata[midx].mfAnimData[i]);
 		}
 	}
 }
@@ -1242,8 +1242,8 @@ void FreeMissiles()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mAnimFAmt; i++) {
-		if (!(misfiledata[i].mFlags & MFLAG_HIDDEN))
+	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
 			FreeMissileGFX(i);
 	}
 }
@@ -1252,8 +1252,8 @@ void FreeMissiles2()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mAnimFAmt; i++) {
-		if (misfiledata[i].mFlags & MFLAG_HIDDEN)
+	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+		if (misfiledata[i].mfFlags & MFLAG_HIDDEN)
 			FreeMissileGFX(i);
 	}
 }
@@ -2789,7 +2789,7 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		}
 	}
 #ifdef HELLFIRE
-	if (misfiledata[missile[mi]._miAnimType].mAnimFAmt == 16) {
+	if (misfiledata[missile[mi]._miAnimType].mfAnimFAmt == 16) {
 		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	}
 #endif
@@ -3401,7 +3401,7 @@ void AddResurrectBeam(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 	mis->_misy = mis->_miy;
 	mis->_mixvel = 0;
 	mis->_miyvel = 0;
-	mis->_mirange = misfiledata[MFILE_RESSUR1].mAnimLen[0];
+	mis->_mirange = misfiledata[MFILE_RESSUR1].mfAnimLen[0];
 }
 
 void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -3512,7 +3512,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_mispllvl = spllvl;
 	mis->_mimfnum = midir;
 
-	if (mis->_miAnimType == MFILE_NONE || misfiledata[mis->_miAnimType].mAnimFAmt < 8)
+	if (mis->_miAnimType == MFILE_NONE || misfiledata[mis->_miAnimType].mfAnimFAmt < 8)
 		SetMissDir(mi, 0);
 	else
 		SetMissDir(mi, midir);
@@ -5887,7 +5887,7 @@ void missiles_process_charge()
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		mis->_miAnimData = misfiledata[mis->_miAnimType].mAnimData[mis->_mimfnum];
+		mis->_miAnimData = misfiledata[mis->_miAnimType].mfAnimData[mis->_mimfnum];
 		if (mis->_mitype == MIS_RHINO) {
 			mon = monster[mis->_misource].MType;
 			if (mon->mtype >= MT_HORNED && mon->mtype <= MT_OBLORD) {

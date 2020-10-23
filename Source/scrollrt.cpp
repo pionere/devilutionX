@@ -404,21 +404,21 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
 			if (plr[pnum].pManaShield)
 				Cl2Draw(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0]);
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);
 		} else if (!(dFlags[x][y] & BFLAG_LIT) || plr[myplr]._pInfraFlag && light_table_index > 8) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
 #ifndef HELLFIRE
 			if (plr[pnum].pManaShield)
 				Cl2DrawLightTbl(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0],
 				    1);
 #endif
 		} else {
@@ -430,11 +430,11 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
 			if (plr[pnum].pManaShield)
 				Cl2DrawLight(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0]);
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);
 			light_table_index = l;
 		}
 	}
