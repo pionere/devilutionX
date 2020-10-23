@@ -617,7 +617,7 @@ BOOL MonstPlace(int xp, int yp)
 		return FALSE;
 	}
 
-	return !SolidLoc(xp, yp);
+	return !nSolidTable[dPiece[xp][yp]];
 }
 
 void monster_some_crypt()
@@ -1122,7 +1122,7 @@ void InitMonsters()
 		na = 0;
 		for (s = 16; s < 96; s++)
 			for (t = 16; t < 96; t++)
-				if (!SolidLoc(s, t))
+				if (!nSolidTable[dPiece[s][t]])
 					na++;
 		numplacemonsters = na / 30;
 		if (gbMaxPlayers != 1)
@@ -1260,7 +1260,7 @@ void monster_43C785(int mnum)
 		for (d = 0; d < 8; d++) {
 			x = mx + offset_x[d];
 			y = my + offset_y[d];
-			if (!SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0) {
+			if (!nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0) {
 				oi = dObject[x][y];
 				if (oi == 0)
 					break;
@@ -5109,19 +5109,19 @@ BOOL DirOK(int mnum, int mdir)
 	if (fy < 0 || fy >= MAXDUNY || fx < 0 || fx >= MAXDUNX || !PosOkMonst(mnum, fx, fy))
 		return FALSE;
 	if (mdir == DIR_E) {
-		if (SolidLoc(fx, fy + 1) || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
+		if (nSolidTable[dPiece[fx][fy + 1]] || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
 			return FALSE;
 	}
 	if (mdir == DIR_W) {
-		if (SolidLoc(fx + 1, fy) || dFlags[fx + 1][fy] & BFLAG_MONSTLR)
+		if (nSolidTable[dPiece[fx + 1][fy]] || dFlags[fx + 1][fy] & BFLAG_MONSTLR)
 			return FALSE;
 	}
 	if (mdir == DIR_N) {
-		if (SolidLoc(fx + 1, fy) || SolidLoc(fx, fy + 1))
+		if (nSolidTable[dPiece[fx + 1][fy]] || nSolidTable[dPiece[fx][fy + 1]])
 			return FALSE;
 	}
 	if (mdir == DIR_S)
-		if (SolidLoc(fx - 1, fy) || SolidLoc(fx, fy - 1))
+		if (nSolidTable[dPiece[fx - 1][fy]] || nSolidTable[dPiece[fx][fy - 1]])
 			return FALSE;
 	if (monster[mnum].leaderflag == 1) {
 		if (abs(fx - monster[monster[mnum].leader]._mfutx) >= 4
@@ -5608,7 +5608,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	int oi;
 	BOOL ret;
 
-	ret = !SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+	ret = !nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
 	oi = dObject[x][y];
 	if (ret && oi != 0) {
 		oi = oi > 0 ? oi - 1 : -(oi + 1);
@@ -5623,7 +5623,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 	BOOL ret, fire;
 
 	fire = FALSE;
-	ret = !SolidLoc(x, y) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+	ret = !nSolidTable[dPiece[x][y]] && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
 	if (ret && dObject[x][y] != 0) {
 		oi = dObject[x][y] > 0 ? dObject[x][y] - 1 : -(dObject[x][y] + 1);
 		if (object[oi]._oSolidFlag)
@@ -5698,7 +5698,7 @@ BOOL PosOkMonst2(int mnum, int x, int y)
 #ifdef HELLFIRE
 	BOOL ret;
 
-	ret = !SolidLoc(x, y);
+	ret = !nSolidTable[dPiece[x][y]];
 
 	oi = dObject[x][y];
 	if (ret && oi != 0) {
@@ -5713,7 +5713,7 @@ BOOL PosOkMonst2(int mnum, int x, int y)
 	BOOL ret, fire;
 
 	fire = FALSE;
-	ret = !SolidLoc(x, y);
+	ret = !nSolidTable[dPiece[x][y]];
 	oi = dObject[x][y];
 	if (ret && oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
@@ -5763,7 +5763,7 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 		}
 	}
 	if (ret) {
-		ret = (!SolidLoc(x, y) || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
 	}
 	if (ret)
 		ret = monster_posok(mnum, x, y);
@@ -5786,7 +5786,7 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 		}
 	}
 	if (ret) {
-		ret = (!SolidLoc(x, y) || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
+		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && dPlayer[x][y] == 0 && dMonster[x][y] == 0;
 	}
 	if (ret && dMissile[x][y] != 0 && mnum >= 0) {
 		mi = dMissile[x][y];

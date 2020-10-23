@@ -1175,17 +1175,6 @@ void InitMultiView()
 	ViewY = plr[myplr]._py;
 }
 
-BOOL SolidLoc(int x, int y)
-{
-#ifndef HELLFIRE
-	if (x < 0 || y < 0 || x >= MAXDUNX || y >= MAXDUNY) {
-		return FALSE;
-	}
-#endif
-
-	return nSolidTable[dPiece[x][y]];
-}
-
 BOOL PlrDirOK(int pnum, int dir)
 {
 	int px, py;
@@ -1202,11 +1191,11 @@ BOOL PlrDirOK(int pnum, int dir)
 	}
 
 	if (dir == DIR_E) {
-		return !SolidLoc(px, py + 1) && !(dFlags[px][py + 1] & BFLAG_PLAYERLR);
+		return !nSolidTable[dPiece[px][py + 1]] && !(dFlags[px][py + 1] & BFLAG_PLAYERLR);
 	}
 
 	if (dir == DIR_W) {
-		return !SolidLoc(px + 1, py) && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
+		return !nSolidTable[dPiece[px + 1][py]] && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
 	}
 
 	return TRUE;
@@ -3936,7 +3925,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
-	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !SolidLoc(x, y) && dPiece[x][y]) {
+	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !nSolidTable[dPiece[x][y]] && dPiece[x][y]) {
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);

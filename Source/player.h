@@ -46,7 +46,6 @@ void AddPlrMonstExper(int lvl, int exp, char pmask);
 void InitPlayer(int pnum, BOOL FirstTime);
 void InitMultiView();
 void CheckEFlag(int pnum, BOOL flag);
-BOOL SolidLoc(int x, int y);
 BOOL PlrDirOK(int pnum, int dir);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
