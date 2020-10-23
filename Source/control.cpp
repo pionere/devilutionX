@@ -1099,7 +1099,7 @@ void CheckPanelInfo()
 					}
 				}
 				pi = p->SpdList;
-				for (i = 0; i < MAXBELTITEMS; i++) {
+				for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 					if (pi->_itype != ITYPE_NONE
 					    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
 					    && pi->_iSpell == v) {
