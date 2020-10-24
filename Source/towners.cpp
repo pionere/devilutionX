@@ -773,7 +773,8 @@ void TalkToTowner(int pnum, int tnum)
 		return;
 	}
 
-	if (tnum == GetActiveTowner(TOWN_TAVERN)) {
+	switch (tw->_ttype) {
+	case TOWN_TAVERN:
 		if (!plr[pnum]._pLvlVisited[0] && !tw->_tMsgSaid) {
 			tw->_tbtcnt = 150;
 			tw->_tVar1 = pnum;
@@ -846,7 +847,8 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_TAVERN);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_DEADGUY)) {
+		break;
+	case TOWN_DEADGUY:
 		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 1) {
 			tw->_tbtcnt = 150;
 			tw->_tVar1 = pnum;
@@ -884,7 +886,8 @@ void TalkToTowner(int pnum, int tnum)
 			tw->_tMsgSaid = TRUE;
 			NetSendCmdQuest(TRUE, Q_BUTCHER);
 		}
-	} else if (tnum == GetActiveTowner(TOWN_SMITH)) {
+		break;
+	case TOWN_SMITH:
 		if (gbMaxPlayers == 1) {
 			if (plr[pnum]._pLvlVisited[4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 #ifdef HELLFIRE
@@ -964,7 +967,8 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_SMITH);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_WITCH)) {
+		break;
+	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i) != NULL) {
 			RemoveInvItem(pnum, i);
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
@@ -1017,7 +1021,8 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_WITCH);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_BMAID)) {
+		break;
+	case TOWN_BMAID:
 #ifdef HELLFIRE
 		if (plr[pnum]._pLvlVisited[21] == false && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
 			quests[Q_GRAVE]._qactive = 2;
@@ -1033,14 +1038,16 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_BARMAID);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_DRUNK)) {
+		break;
+	case TOWN_DRUNK:
 		if (!qtextflag) {
 			TownerTalk(TEXT_FARNHAM1);
 			if (storeflag) {
 				StartStore(STORE_DRUNK);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_HEALER)) {
+		break;
+	case TOWN_HEALER:
 		if (gbMaxPlayers == 1) {
 #ifdef HELLFIRE
 			if (plr[pnum]._pLvlVisited[1] || plr[pnum]._pLvlVisited[5]) {
@@ -1081,14 +1088,16 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_HEALER);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_PEGBOY)) {
+		break;
+	case TOWN_PEGBOY:
 		if (!qtextflag) {
 			TownerTalk(TEXT_WIRT1);
 			if (storeflag) {
 				StartStore(STORE_BOY);
 			}
 		}
-	} else if (tnum == GetActiveTowner(TOWN_STORY)) {
+		break;
+	case TOWN_STORY:
 		if (gbMaxPlayers == 1) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i) != NULL) {
 				RemoveInvItem(pnum, i);
@@ -1133,11 +1142,13 @@ void TalkToTowner(int pnum, int tnum)
 				StartStore(STORE_STORY);
 			}
 		}
-	} else if (tw->_ttype == TOWN_COW) {
+		break;
+	case TOWN_COW:
 		if (!qtextflag)
 			CowSFX(pnum);
+		break;
 #ifdef HELLFIRE
-	} else if (tw->_ttype == TOWN_FARMER) {
+	case TOWN_FARMER:
 		if (!qtextflag) {
 			qt = 277;
 			t2 = 1;
@@ -1227,7 +1238,8 @@ void TalkToTowner(int pnum, int tnum)
 				NetSendCmdQuest(TRUE, Q_FARMER);
 			}
 		}
-	} else if (tw->_ttype == TOWN_COWFARM) {
+		break;
+	case TOWN_COWFARM:
 		if (!qtextflag) {
 			qt = 297;
 			t2 = 1;
@@ -1311,7 +1323,8 @@ void TalkToTowner(int pnum, int tnum)
 				NetSendCmdQuest(TRUE, Q_JERSEY);
 			}
 		}
-	} else if (tw->_ttype == TOWN_GIRL) {
+		break;
+	case TOWN_GIRL:
 		if (!qtextflag) {
 			qt = 282;
 			t2 = 0;
@@ -1364,6 +1377,7 @@ void TalkToTowner(int pnum, int tnum)
 				NetSendCmdQuest(TRUE, Q_GIRL);
 			}
 		}
+		break;
 #endif
 	}
 }
