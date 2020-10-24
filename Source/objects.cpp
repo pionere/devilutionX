@@ -3466,6 +3466,31 @@ int ItemMiscIdIdx(int imiscid)
 	return i;
 }
 
+/** Reduce the maximum mana of the given player by 10%
+*/
+void ReducePlrMana10(PlayerStruct *p)
+{
+	int v1, v2;
+	DWORD t;
+
+	t = p->_pMaxManaBase / 10;
+	v1 = p->_pMana - p->_pManaBase;
+	v2 = p->_pMaxMana - p->_pMaxManaBase;
+
+	p->_pManaBase -= t;
+	p->_pMana -= t;
+	p->_pMaxMana -= t;
+	p->_pMaxManaBase -= t;
+	if (p->_pMana >> 6 <= 0) {
+		p->_pManaBase = 0;
+		p->_pMana = v1;
+	}
+	if (p->_pMaxMana >> 6 <= 0) {
+		p->_pMaxManaBase = 0;
+		p->_pMaxMana = v2;
+	}
+}
+
 void OperateShrine(int pnum, int oi, int sType)
 {
 	ObjectStruct *os;
@@ -3774,22 +3799,9 @@ void OperateShrine(int pnum, int oi, int sType)
 			p->_pSplLvl[SPL_FIREBOLT]++;
 		if (p->_pSplLvl[SPL_FIREBOLT] < 15)
 			p->_pSplLvl[SPL_FIREBOLT]++;
-		t = p->_pMaxManaBase / 10;
-		v1 = p->_pMana - p->_pManaBase;
-		v2 = p->_pMaxMana - p->_pMaxManaBase;
 
-		p->_pManaBase -= t;
-		p->_pMana -= t;
-		p->_pMaxMana -= t;
-		p->_pMaxManaBase -= t;
-		if (p->_pMana >> 6 <= 0) {
-			p->_pManaBase = 0;
-			p->_pMana = v1;
-		}
-		if (p->_pMaxMana >> 6 <= 0) {
-			p->_pMaxManaBase = 0;
-			p->_pMaxMana = v2;
-		}
+		ReducePlrMana10(p);
+
 		InitDiabloMsg(EMSG_SHRINE_FASCINATING);
 		break;
 	case SHRINE_CRYPTIC:
@@ -3909,21 +3921,9 @@ void OperateShrine(int pnum, int oi, int sType)
 			p->_pSplLvl[SPL_CBOLT]++;
 		if (p->_pSplLvl[SPL_CBOLT] < 15)
 			p->_pSplLvl[SPL_CBOLT]++;
-		t = p->_pMaxManaBase / 10;
-		v1 = p->_pMana - p->_pManaBase;
-		v2 = p->_pMaxMana - p->_pMaxManaBase;
-		p->_pManaBase -= t;
-		p->_pMana -= t;
-		p->_pMaxMana -= t;
-		p->_pMaxManaBase -= t;
-		if (p->_pMana >> 6 <= 0) {
-			p->_pMana = v1;
-			p->_pManaBase = 0;
-		}
-		if (p->_pMaxMana >> 6 <= 0) {
-			p->_pMaxMana = v2;
-			p->_pMaxManaBase = 0;
-		}
+
+		ReducePlrMana10(p);
+
 		InitDiabloMsg(EMSG_SHRINE_SACRED);
 		break;
 	case SHRINE_SPIRITUAL:
@@ -4011,21 +4011,9 @@ void OperateShrine(int pnum, int oi, int sType)
 			p->_pSplLvl[SPL_HBOLT]++;
 		if (p->_pSplLvl[SPL_HBOLT] < 15)
 			p->_pSplLvl[SPL_HBOLT]++;
-		t = p->_pMaxManaBase / 10;
-		v1 = p->_pMana - p->_pManaBase;
-		v2 = p->_pMaxMana - p->_pMaxManaBase;
-		p->_pManaBase -= t;
-		p->_pMana -= t;
-		p->_pMaxMana -= t;
-		p->_pMaxManaBase -= t;
-		if (p->_pMana >> 6 <= 0) {
-			p->_pMana = v1;
-			p->_pManaBase = 0;
-		}
-		if (p->_pMaxMana >> 6 <= 0) {
-			p->_pMaxMana = v2;
-			p->_pMaxManaBase = 0;
-		}
+
+		ReducePlrMana10(p);
+
 		InitDiabloMsg(EMSG_SHRINE_ORNATE);
 		break;
 	case SHRINE_GLIMMERING:
