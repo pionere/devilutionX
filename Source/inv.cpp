@@ -1392,7 +1392,7 @@ void CheckInvCut(int pnum, int mx, int my)
 		}
 
 		CalcPlrInv(pnum, TRUE);
-		CheckItemStats(pnum);
+		ItemStatOk(pnum, &p->HoldItem);
 
 		if (pnum == myplr) {
 			PlaySFX(IS_IGRAB);
@@ -1544,19 +1544,6 @@ void CheckInvScrn()
 	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT
 	    && MouseY > PANEL_TOP && MouseY < 33 + PANEL_TOP) {
 		CheckInvItem();
-	}
-}
-
-void CheckItemStats(int pnum)
-{
-	PlayerStruct *p = &plr[pnum];
-
-	p->HoldItem._iStatFlag = FALSE;
-
-	if (p->_pStrength >= p->HoldItem._iMinStr
-	    && p->_pMagic >= p->HoldItem._iMinMag
-	    && p->_pDexterity >= p->HoldItem._iMinDex) {
-		p->HoldItem._iStatFlag = TRUE;
 	}
 }
 
@@ -1799,7 +1786,7 @@ void InvGetItem(int pnum, int ii)
 		p->HoldItem = *is;
 		CheckQuestItem(pnum);
 		CheckBookLevel(pnum);
-		CheckItemStats(pnum);
+		ItemStatOk(pnum, &p->HoldItem);
 #ifdef HELLFIRE
 		cursor_updated = FALSE;
 		if (p->HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
@@ -1866,7 +1853,7 @@ void AutoGetItem(int pnum, int ii)
 	p->HoldItem = *is; /// BUGFIX: overwrites cursor item, allowing for belt dupe bug
 	CheckQuestItem(pnum);
 	CheckBookLevel(pnum);
-	CheckItemStats(pnum);
+	ItemStatOk(pnum, &p->HoldItem);
 	SetICursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	if (p->HoldItem._itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum);

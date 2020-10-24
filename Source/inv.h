@@ -37,7 +37,6 @@ BOOL inv_diablo_to_hellfire(int pnum);
 void RemoveSpdBarItem(int pnum, int iv);
 void CheckInvItem();
 void CheckInvScrn();
-void CheckItemStats(int pnum);
 void CheckBookLevel(int pnum);
 void CheckQuestItem(int pnum);
 void InvGetItem(int pnum, int ii);
