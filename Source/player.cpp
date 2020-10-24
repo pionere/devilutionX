@@ -2668,12 +2668,31 @@ BOOL WeaponDur(int pnum, int durrnd)
 	return FALSE;
 }
 
+int PlrAtkDam(int pnum)
+{
+	PlayerStruct *p;
+	int mind, maxd, dam;
+
+	p = &plr[pnum];
+	mind = p->_pIMinDam;
+	maxd = p->_pIMaxDam;
+	dam = random_(5, maxd - mind + 1) + mind;
+	dam += dam * p->_pIBonusDam / 100;
+	dam += p->_pDamageMod + p->_pIBonusDamMod;
+	if (p->_pClass == PC_WARRIOR) {
+		if (random_(6, 100) < p->_pLevel) {
+			dam <<= 1;
+		}
+	}
+	return dam;
+}
+
 BOOL PlrHitMonst(int pnum, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	BOOL ret;
-	int hit, hper, mind, maxd, ddp, dam, skdam, phanditype, tmac;
+	int hit, hper, dam, skdam, phanditype, tmac;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
@@ -2724,17 +2743,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 #else
 	if (hit < hper) {
 #endif
-		mind = p->_pIMinDam;
-		maxd = p->_pIMaxDam;
-		dam = random_(5, maxd - mind + 1) + mind;
-		dam += dam * p->_pIBonusDam / 100;
-		dam += p->_pDamageMod + p->_pIBonusDamMod;
-		if (p->_pClass == PC_WARRIOR) {
-			ddp = p->_pLevel;
-			if (random_(6, 100) < ddp) {
-				dam *= 2;
-			}
-		}
+		dam = PlrAtkDam(pnum);
 
 		phanditype = ITYPE_NONE;
 		if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
@@ -2853,7 +2862,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	int hit, hper, blk, blkper, dir, mind, maxd, dam, lvl, skdam, tac;
+	int hit, hper, blk, blkper, dir, dam, skdam, tac;
 
 	if ((DWORD)defp >= MAX_PLRS) {
 		app_fatal("PlrHitPlr: illegal target player %d", defp);
@@ -2907,18 +2916,7 @@ BOOL PlrHitPlr(int offp, char defp)
 			dir = GetDirection(dps->_px, dps->_py, ops->_px, ops->_py);
 			PlrStartBlock(defp, dir);
 		} else {
-			mind = ops->_pIMinDam;
-			maxd = ops->_pIMaxDam;
-			dam = random_(5, maxd - mind + 1) + mind;
-			dam += (dam * ops->_pIBonusDam) / 100;
-			dam += ops->_pIBonusDamMod + ops->_pDamageMod;
-
-			if (ops->_pClass == PC_WARRIOR) {
-				lvl = ops->_pLevel;
-				if (random_(6, 100) < lvl) {
-					dam <<= 1;
-				}
-			}
+			dam = PlrAtkDam(offp);
 			skdam = dam << 6;
 			if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
 				tac = random_(7, skdam >> 3);

@@ -4952,6 +4952,7 @@ void BreakObject(int pnum, int oi)
 	int objdam, mind, maxd;
 
 	if (pnum != -1) {
+		// BUGFIX: use PlrAtkDam instead?
 		mind = plr[pnum]._pIMinDam;
 		maxd = random_(163, plr[pnum]._pIMaxDam - mind + 1);
 		objdam = maxd + mind;
