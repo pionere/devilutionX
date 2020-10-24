@@ -14,7 +14,6 @@ extern "C" {
 
 extern TownerStruct towner[NUM_TOWNERS];
 
-int GetActiveTowner(int tnum);
 void SetTownerGPtrs(BYTE *pData, BYTE **pAnim);
 void NewTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay);
 void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, int tp);
@@ -36,22 +35,7 @@ void InitGirl();
 #endif
 void InitTowners();
 void FreeTownerGFX();
-void TownCtrlMsg(int tnum);
-void TownBlackSmith();
-void TownBarOwner();
-void TownDead();
-void TownHealer();
-void TownStory();
-void TownDrunk();
-void TownBoy();
-void TownWitch();
-void TownBarMaid();
-void TownCow();
-#ifdef HELLFIRE
-void TownFarmer();
-void TownCowFarmer();
-void TownGirl();
-#endif
+void TownCtrlMsg(TownerStruct *tw);
 void ProcessTowners();
 ItemStruct *PlrHasItem(int pnum, int item, int *outidx);
 void TownerTalk(int talk);

@@ -158,18 +158,6 @@ QuestTalkData Qtalklist[] = {
 /** Specifies the active sound effect ID for interacting with cows. */
 int CowPlaying = -1;
 
-int GetActiveTowner(int tnum)
-{
-	int i;
-
-	for (i = 0; i < numtowners; i++) {
-		if (towner[i]._ttype == tnum)
-			return i;
-	}
-
-	return -1;
-}
-
 void SetTownerGPtrs(BYTE *pData, BYTE **pAnim)
 {
 	int i;
@@ -511,140 +499,22 @@ void FreeTownerGFX()
 	MemFreeDbg(pCowCels);
 }
 
-void TownCtrlMsg(int tnum)
+void TownCtrlMsg(TownerStruct *tw)
 {
 	int pnum;
 	int dx, dy;
 
-	if (towner[tnum]._tbtcnt != 0) {
-		pnum = towner[tnum]._tVar1;
-		dx = abs(towner[tnum]._tx - plr[pnum]._px);
-		dy = abs(towner[tnum]._ty - plr[pnum]._py);
+	if (tw->_tbtcnt != 0) {
+		pnum = tw->_tVar1;
+		dx = abs(tw->_tx - plr[pnum]._px);
+		dy = abs(tw->_ty - plr[pnum]._py);
 		if (dx >= 2 || dy >= 2) {
-			towner[tnum]._tbtcnt = 0;
+			tw->_tbtcnt = 0;
 			qtextflag = FALSE;
 			stream_stop();
 		}
 	}
 }
-
-void TownBlackSmith()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_SMITH);
-	TownCtrlMsg(i);
-}
-
-void TownBarOwner()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_TAVERN);
-	TownCtrlMsg(i);
-}
-
-void TownDead()
-{
-	int tidx;
-
-	tidx = GetActiveTowner(TOWN_DEADGUY);
-	TownCtrlMsg(tidx);
-	if (!qtextflag) {
-		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && !quests[Q_BUTCHER]._qlog) {
-			return;
-		}
-		if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
-			towner[tidx]._tAnimDelay = 1000;
-			towner[tidx]._tAnimFrame = 1;
-			strcpy(towner[tidx]._tName, "Slain Townsman");
-		}
-	}
-	if (quests[Q_BUTCHER]._qactive != QUEST_INIT)
-		towner[tidx]._tAnimCnt = 0;
-}
-
-void TownHealer()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_HEALER);
-	TownCtrlMsg(i);
-}
-
-void TownStory()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_STORY);
-	TownCtrlMsg(i);
-}
-
-void TownDrunk()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_DRUNK);
-	TownCtrlMsg(i);
-}
-
-void TownBoy()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_PEGBOY);
-	TownCtrlMsg(i);
-}
-
-void TownWitch()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_WITCH);
-	TownCtrlMsg(i);
-}
-
-void TownBarMaid()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_BMAID);
-	TownCtrlMsg(i);
-}
-
-void TownCow()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_COW);
-	TownCtrlMsg(i);
-}
-
-#ifdef HELLFIRE
-void TownFarmer()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_FARMER);
-	TownCtrlMsg(i);
-}
-
-void TownCowFarmer()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_COWFARM);
-	TownCtrlMsg(i);
-}
-
-void TownGirl()
-{
-	int i;
-
-	i = GetActiveTowner(TOWN_GIRL);
-	TownCtrlMsg(i);
-}
-#endif
 
 void ProcessTowners()
 {
@@ -652,49 +522,22 @@ void ProcessTowners()
 	int i, ao;
 
 	tw = towner;
-	for (i = 0; i < NUM_TOWNERS; i++, tw++) {
-		switch (tw->_ttype) {
-		case TOWN_SMITH:
-			TownBlackSmith();
-			break;
-		case TOWN_HEALER:
-			TownHealer();
-			break;
-		case TOWN_DEADGUY:
-			TownDead();
-			break;
-		case TOWN_TAVERN:
-			TownBarOwner();
-			break;
-		case TOWN_STORY:
-			TownStory();
-			break;
-		case TOWN_DRUNK:
-			TownDrunk();
-			break;
-		case TOWN_WITCH:
-			TownWitch();
-			break;
-		case TOWN_BMAID:
-			TownBarMaid();
-			break;
-		case TOWN_PEGBOY:
-			TownBoy();
-			break;
-		case TOWN_COW:
-			TownCow();
-			break;
-#ifdef HELLFIRE
-		case TOWN_FARMER:
-			TownFarmer();
-			break;
-		case TOWN_GIRL:
-			TownGirl();
-			break;
-		case TOWN_COWFARM:
-			TownCowFarmer();
-			break;
-#endif
+	for (i = 0; i < numtowners; i++, tw++) {
+		TownCtrlMsg(tw);
+		if (tw->_ttype == TOWN_DEADGUY) {
+			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
+				if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
+					if (!qtextflag) {
+						tw->_tAnimDelay = 1000;
+						tw->_tAnimFrame = 1;
+						strcpy(tw->_tName, "Slain Townsman");
+					}
+					tw->_tAnimCnt = 0;
+				} else {
+					if (qtextflag)
+						tw->_tAnimCnt = 0;
+				}
+			}
 		}
 
 		tw->_tAnimCnt++;
