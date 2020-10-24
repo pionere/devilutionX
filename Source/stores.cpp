@@ -578,22 +578,14 @@ BOOL S_StartSPBuy()
 	return TRUE;
 }
 
-BOOL SmithSellOk(int i)
+BOOL SmithSellOk(ItemStruct *is)
 {
-	if (plr[myplr].InvList[i]._itype == ITYPE_NONE)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_MISC)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_GOLD)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_MEAT)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_STAFF)
-		return FALSE;
-	if (plr[myplr].InvList[i].IDidx == IDI_LAZSTAFF)
-		return FALSE;
-
-	return TRUE;
+	return is->_itype != ITYPE_NONE
+		&& is->_itype != ITYPE_MISC
+		&& is->_itype != ITYPE_GOLD
+		&& is->_itype != ITYPE_MEAT
+		&& is->_itype != ITYPE_STAFF
+		&& is->IDidx != IDI_LAZSTAFF;
 }
 
 void S_ScrollSSell(int idx)
@@ -650,7 +642,7 @@ void S_StartSSell()
 		if (storenumh >= 48)
 			break;
 #endif
-		if (SmithSellOk(i)) {
+		if (SmithSellOk(pi)) {
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -669,7 +661,7 @@ void S_StartSSell()
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (storenumh >= 48)
 			break;
-		if (SmithSellOk(-(i + 1))) {
+		if (SmithSellOk(pi)) {
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -706,20 +698,13 @@ void S_StartSSell()
 	}
 }
 
-BOOL SmithRepairOk(int i)
+BOOL SmithRepairOk(ItemStruct *is)
 {
-	if (plr[myplr].InvList[i]._itype == ITYPE_NONE)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_MISC)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_GOLD)
-		return FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_MEAT)
-		return FALSE;
-	if (plr[myplr].InvList[i]._iDurability == plr[myplr].InvList[i]._iMaxDur)
-		return FALSE;
-
-	return TRUE;
+	return is->_itype != ITYPE_NONE
+		&& is->_itype != ITYPE_MISC
+		&& is->_itype != ITYPE_GOLD
+		&& is->_itype != ITYPE_MEAT
+		&& is->_iDurability != is->_iMaxDur;
 }
 
 void S_StartSRepair()
@@ -755,7 +740,7 @@ void S_StartSRepair()
 		if (storenumh >= 48)
 			break;
 #endif
-		if (SmithRepairOk(i)) {
+		if (SmithRepairOk(pi)) {
 			AddStoreHoldRepair(pi, i);
 		}
 	}
@@ -876,27 +861,11 @@ void S_StartWBuy()
 		stextsmax = 0;
 }
 
-BOOL WitchSellOk(int i)
+BOOL WitchSellOk(ItemStruct *is)
 {
-	BOOL rv;
-	ItemStruct *pI;
-
-	rv = FALSE;
-
-	if (i >= 0)
-		pI = &plr[myplr].InvList[i];
-	else
-		pI = &plr[myplr].SpdList[-(i + 1)];
-
-	if (pI->_itype == ITYPE_MISC)
-		rv = TRUE;
-	if (pI->_itype == ITYPE_STAFF)
-		rv = TRUE;
-	if (pI->IDidx >= IDI_FIRSTQUEST && pI->IDidx <= IDI_LASTQUEST)
-		rv = FALSE;
-	if (pI->IDidx == IDI_LAZSTAFF)
-		rv = FALSE;
-	return rv;
+	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
+		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
+		&& is->IDidx != IDI_LAZSTAFF;
 }
 
 void S_StartWSell()
@@ -918,7 +887,7 @@ void S_StartWSell()
 		if (storenumh >= 48)
 			break;
 #endif
-		if (WitchSellOk(i)) {
+		if (WitchSellOk(pi)) {
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -938,7 +907,7 @@ void S_StartWSell()
 		if (storenumh >= 48)
 			break;
 #endif
-		if (pi->_itype != ITYPE_NONE && WitchSellOk(-(i + 1))) {
+		if (pi->_itype != ITYPE_NONE && WitchSellOk(pi)) {
 			storehold[storenumh] = *pi;
 
 			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
@@ -974,16 +943,9 @@ void S_StartWSell()
 	}
 }
 
-BOOL WitchRechargeOk(int i)
+BOOL WitchRechargeOk(ItemStruct *is)
 {
-	BOOL rv;
-
-	rv = FALSE;
-	if (plr[myplr].InvList[i]._itype == ITYPE_STAFF
-	    && plr[myplr].InvList[i]._iCharges != plr[myplr].InvList[i]._iMaxCharges) {
-		rv = TRUE;
-	}
-	return rv;
+	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
 }
 
 void AddStoreHoldRecharge(ItemStruct is, int i)
@@ -1026,7 +988,7 @@ void S_StartWRecharge()
 		if (storenumh >= 48)
 			break;
 #endif
-		if (WitchRechargeOk(i)) {
+		if (WitchRechargeOk(pi)) {
 			AddStoreHoldRecharge(*pi, i);
 		}
 	}
