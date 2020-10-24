@@ -4283,7 +4283,7 @@ void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
 			SetRndSeed(object[oi]._oRndSeed);
 			CreateTypeItem(object[oi]._ox, object[oi]._oy, FALSE, ITYPE_MISC, IMISC_BOOK, sendmsg, FALSE);
 			if (QuestStatus(Q_ZHAR)
-			    && monster[MAX_PLRS].mName == UniqMonst[UMT_ZHAR].mName
+			    && (monster[MAX_PLRS]._uniqtype - 1) == UMT_ZHAR
 			    && monster[MAX_PLRS]._msquelch == UCHAR_MAX
 			    && monster[MAX_PLRS]._mhitpoints) {
 				monster[MAX_PLRS].mtalkmsg = TEXT_ZHAR2;

@@ -1764,24 +1764,27 @@ void MonDiabloDeath(int mnum, BOOL sendmsg)
 #ifdef HELLFIRE
 void SpawnLoot(int mnum, BOOL sendmsg)
 {
-	int nSFX;
 	MonsterStruct *mon;
 
 	mon = &monster[mnum];
-	if (QuestStatus(Q_GARBUD) && mon->mName == UniqMonst[UMT_GARBUD].mName) {
-		CreateTypeItem(mon->_mx + 1, mon->_my + 1, TRUE, ITYPE_MACE, IMISC_NONE, TRUE, FALSE);
-	} else if (mon->mName == UniqMonst[UMT_DEFILER].mName) {
-		stream_stop();
-		quests[Q_DEFILER]._qlog = 0;
-		SpawnMapOfDoom(mon->_mx, mon->_my);
-	} else if (mon->mName == UniqMonst[UMT_HORKDMN].mName) {
+	switch (mon->_uniqtype - 1) {
+	case UMT_GARBUD:
+		if (QuestStatus(Q_GARBUD))
+			CreateTypeItem(mon->_mx + 1, mon->_my + 1, TRUE, ITYPE_MACE, IMISC_NONE, TRUE, FALSE);
+		break;
+	case UMT_HORKDMN:
 		if (UseTheoQuest) {
 			SpawnTheodore(mon->_mx, mon->_my);
 		} else {
 			CreateAmulet(mon->_mx, mon->_my, 13, FALSE, TRUE);
 		}
-	} else if (mon->MType->mtype == MT_HORKSPWN) {
-	} else if (mon->MType->mtype == MT_NAKRUL) {
+		break;
+	case UMT_DEFILER:
+		stream_stop();
+		quests[Q_DEFILER]._qlog = 0;
+		SpawnMapOfDoom(mon->_mx, mon->_my);
+		break;
+	case UMT_NAKRUL:
 		stream_stop();
 		quests[Q_NAKRUL]._qlog = 0;
 		UberDiabloMonsterIndex = -2;
@@ -1789,8 +1792,11 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
 		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
-	} else if (mnum > 3) {
-		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
+		break;
+	default:
+		if (mon->MType->mtype != MT_HORKSPWN && mnum > 3)
+			SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
+		break;
 	}
 }
 #endif
@@ -2694,7 +2700,8 @@ int MonDoTalk(int mnum)
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return FALSE;
 	InitQTextMsg(mon->mtalkmsg);
-	if (mon->mName == UniqMonst[UMT_GARBUD].mName) {
+	switch (mon->_uniqtype - 1) {
+	case UMT_GARBUD:
 		if (mon->mtalkmsg == TEXT_GARBUD1)
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
 		quests[Q_GARBUD]._qlog = TRUE;
@@ -2702,16 +2709,16 @@ int MonDoTalk(int mnum)
 			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, TRUE);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
-	}
-	if (mon->mName == UniqMonst[UMT_ZHAR].mName
-	    && mon->mtalkmsg == TEXT_ZHAR1
-	    && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
-		quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
-		quests[Q_ZHAR]._qlog = TRUE;
-		CreateTypeItem(mon->_mx + 1, mon->_my + 1, FALSE, ITYPE_MISC, IMISC_BOOK, TRUE, FALSE);
-		mon->_mFlags |= MFLAG_QUEST_COMPLETE;
-	}
-	if (mon->mName == UniqMonst[UMT_SNOTSPIL].mName) {
+		break;
+	case UMT_ZHAR:
+		if (mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
+			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
+			quests[Q_ZHAR]._qlog = TRUE;
+			CreateTypeItem(mon->_mx + 1, mon->_my + 1, FALSE, ITYPE_MISC, IMISC_BOOK, TRUE, FALSE);
+			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
+		}
+		break;
+	case UMT_SNOTSPIL:
 		if (mon->mtalkmsg == TEXT_BANNER10 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			ObjChangeMap(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2);
 			tren = TransVal;
@@ -2727,8 +2734,15 @@ int MonDoTalk(int mnum)
 			sprintf(tempstr, "SS Talk = %i, Flags = %i", mon->mtalkmsg, mon->_mFlags);
 			app_fatal(tempstr);
 		}
-	}
-	if (mon->mName == UniqMonst[UMT_LACHDAN].mName) {
+		break;
+	case UMT_LAZURUS:
+		if (gbMaxPlayers != 1) {
+			mon->_msquelch = UCHAR_MAX;
+			mon->mtalkmsg = 0;
+			quests[Q_BETRAYER]._qvar1 = 6;
+			mon->_mgoal = MGOAL_NORMAL;
+		}
+	case UMT_LACHDAN:
 		if (mon->mtalkmsg == TEXT_VEIL9) {
 			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
 			quests[Q_VEIL]._qlog = TRUE;
@@ -2737,14 +2751,10 @@ int MonDoTalk(int mnum)
 			SpawnUnique(UITEM_STEELVEIL, mon->_mx + 1, mon->_my + 1);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
-	}
-	if (mon->mName == UniqMonst[UMT_WARLORD].mName)
+		break;
+	case UMT_WARLORD:
 		quests[Q_WARLORD]._qvar1 = 2;
-	if (mon->mName == UniqMonst[UMT_LAZURUS].mName && gbMaxPlayers != 1) {
-		mon->_msquelch = UCHAR_MAX;
-		mon->mtalkmsg = 0;
-		quests[Q_BETRAYER]._qvar1 = 6;
-		mon->_mgoal = MGOAL_NORMAL;
+		break;
 	}
 	return FALSE;
 }
