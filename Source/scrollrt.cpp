@@ -810,7 +810,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY) {
+			if (IN_DUNGEON_AREA(x, y)) {
 				level_piece_id = dPiece[x][y];
 				if (level_piece_id != 0) {
 					if (!nSolidTable[level_piece_id])
@@ -864,7 +864,7 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns ; j++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY) {
+			if (IN_DUNGEON_AREA(x, y)) {
 				if (x + 1 < MAXDUNX && y - 1 >= 0 && sx + TILE_WIDTH <= SCREEN_X + SCREEN_WIDTH) {
 					// Render objects behind walls first to prevent sprites, that are moving
 					// between tiles, from poking through the walls as they exceed the tile bounds.

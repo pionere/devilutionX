@@ -561,7 +561,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 #ifdef HELLFIRE
 	if (currlevel < 17) {
 #else
-	if (nXPos >= 0 && nXPos < MAXDUNX && nYPos >= 0 && nYPos < MAXDUNY) {
+	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
 #endif
 		dLight[nXPos][nYPos] = 0;
 #ifdef HELLFIRE
@@ -579,7 +579,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 				temp_y = nYPos + y;
 				v = lightradius[nRadius][radius_block];
 #ifndef HELLFIRE
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY)
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
 #endif
 					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
@@ -596,7 +596,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 				temp_y = nYPos - x;
 				v = lightradius[nRadius][radius_block];
 #ifndef HELLFIRE
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY)
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
 #endif
 					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
@@ -613,7 +613,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 				temp_y = nYPos - y;
 				v = lightradius[nRadius][radius_block];
 #ifndef HELLFIRE
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY)
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
 #endif
 					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
@@ -630,7 +630,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 				temp_y = nYPos + x;
 				v = lightradius[nRadius][radius_block];
 #ifndef HELLFIRE
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY)
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
 #endif
 					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
@@ -665,7 +665,7 @@ void DoUnLight(int nXPos, int nYPos, int nRadius)
 	for (y = min_y; y < max_y; y++) {
 		for (x = min_x; x < max_x; x++) {
 #ifndef HELLFIRE
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY)
+			if (IN_DUNGEON_AREA(x, y))
 #endif
 				dLight[x][y] = dPreLight[x][y];
 		}
@@ -708,7 +708,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	int nCrawlX, nCrawlY, nLineLen, nTrans;
 	int j, k, v, x1adj, x2adj, y1adj, y2adj;
 
-	if (nXPos >= 0 && nXPos <= MAXDUNX && nYPos >= 0 && nYPos <= MAXDUNY) {
+	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
 		if (doautomap) {
 			if (dFlags[nXPos][nYPos] >= 0) {
 				SetAutomapView(nXPos, nXPos);
@@ -764,11 +764,11 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 					}
 					break;
 				}
-				if (nCrawlX >= 0 && nCrawlX < MAXDUNX && nCrawlY >= 0 && nCrawlY < MAXDUNY) {
+				if (IN_DUNGEON_AREA(nCrawlX, nCrawlY)) {
 					nBlockerFlag = nBlockTable[dPiece[nCrawlX][nCrawlY]];
-					if ((x1adj + nCrawlX >= 0 && x1adj + nCrawlX < MAXDUNX && y1adj + nCrawlY >= 0 && y1adj + nCrawlY < MAXDUNY
+					if ((IN_DUNGEON_AREA(x1adj + nCrawlX, y1adj + nCrawlY)
 					        && !nBlockTable[dPiece[x1adj + nCrawlX][y1adj + nCrawlY]])
-					    || (x2adj + nCrawlX >= 0 && x2adj + nCrawlX < MAXDUNX && y2adj + nCrawlY >= 0 && y2adj + nCrawlY < MAXDUNY
+					    || (IN_DUNGEON_AREA(x2adj + nCrawlX, y2adj + nCrawlY)
 					           && !nBlockTable[dPiece[x2adj + nCrawlX][y2adj + nCrawlY]])) {
 						if (doautomap) {
 							if (dFlags[nCrawlX][nCrawlY] >= 0) {

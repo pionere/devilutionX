@@ -606,12 +606,11 @@ void ClrAllMonsters()
 
 BOOL MonstPlace(int xp, int yp)
 {
-	if (xp < 0 || xp >= MAXDUNX || yp < 0 || yp >= MAXDUNY) {
-		return FALSE;
+	if (IN_DUNGEON_AREA(xp, yp)) {
+		return (dMonster[xp][yp] | dPlayer[xp][yp] | nSolidTable[dPiece[xp][yp]]
+			 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
 	}
-
-	return (dMonster[xp][yp] | dPlayer[xp][yp] | nSolidTable[dPiece[xp][yp]]
-	 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
+	return FALSE;
 }
 
 void monster_some_crypt()
@@ -684,7 +683,7 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 		count2 = 0;
 		for (x = xp - 3; x < xp + 3; x++) {
 			for (y = yp - 3; y < yp + 3; y++) {
-				if (y >= 0 && y < MAXDUNY && x >= 0 && x < MAXDUNX && MonstPlace(x, y)) {
+				if (IN_DUNGEON_AREA(x, y) && MonstPlace(x, y)) {
 					count2++;
 				}
 			}
@@ -2769,7 +2768,7 @@ void MonTeleport(int mnum)
 				if (j != 0 || k != 0) {
 					x = _mx + rx * j;
 					y = _my + ry * k;
-					if (y >= 0 && y < MAXDUNY && x >= 0 && x < MAXDUNX && x != mon->_mx && y != mon->_my) {
+					if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
 						if (PosOkMonst(mnum, x, y))
 							tren = TRUE;
 					}
@@ -3742,7 +3741,7 @@ void MAI_Fallen(int mnum)
 		rad = 2 * mon->_mint + 4;
 		for (y = -rad; y <= rad; y++) {
 			for (x = -rad; x <= rad; x++) {
-				if (y >= 0 && y < MAXDUNY && x >= 0 && x < MAXDUNX) {
+				if (IN_DUNGEON_AREA(x, y)) {
 					m = dMonster[x + mon->_mx][y + mon->_my];
 					if (m > 0) {
 						m--;
@@ -3997,15 +3996,14 @@ void MAI_Scav(int mnum)
 					for (y = -4; y <= 4 && !done; y++) {
 						for (x = -4; x <= 4 && !done; x++) {
 							// BUGFIX: incorrect check of offset against limits of the dungeon
-							if (y < 0 || y >= MAXDUNY || x < 0 || x >= MAXDUNX)
-								continue;
-							done = dDead[mon->_mx + x][mon->_my + y] != 0
-							    && LineClearF(
-							           CheckNoSolid,
-							           mon->_mx,
-							           mon->_my,
-							           mon->_mx + x,
-							           mon->_my + y);
+							if (IN_DUNGEON_AREA(x, y))
+								done = dDead[mon->_mx + x][mon->_my + y] != 0
+								    && LineClearF(
+								           CheckNoSolid,
+								           mon->_mx,
+								           mon->_my,
+								           mon->_mx + x,
+								           mon->_my + y);
 						}
 					}
 					x--;
@@ -4014,15 +4012,14 @@ void MAI_Scav(int mnum)
 					for (y = 4; y >= -4 && !done; y--) {
 						for (x = 4; x >= -4 && !done; x--) {
 							// BUGFIX: incorrect check of offset against limits of the dungeon
-							if (y < 0 || y >= MAXDUNY || x < 0 || x >= MAXDUNX)
-								continue;
-							done = dDead[mon->_mx + x][mon->_my + y] != 0
-							    && LineClearF(
-							           CheckNoSolid,
-							           mon->_mx,
-							           mon->_my,
-							           mon->_mx + x,
-							           mon->_my + y);
+							if (IN_DUNGEON_AREA(x, y))
+								done = dDead[mon->_mx + x][mon->_my + y] != 0
+								    && LineClearF(
+								           CheckNoSolid,
+								           mon->_mx,
+								           mon->_my,
+								           mon->_mx + x,
+								           mon->_my + y);
 						}
 					}
 					x++;
@@ -5100,7 +5097,7 @@ BOOL DirOK(int mnum, int mdir)
 		app_fatal("DirOK: Invalid monster %d", mnum);
 	fx = monster[mnum]._mx + offset_x[mdir];
 	fy = monster[mnum]._my + offset_y[mdir];
-	if (fy < 0 || fy >= MAXDUNY || fx < 0 || fx >= MAXDUNX || !PosOkMonst(mnum, fx, fy))
+	if (!IN_DUNGEON_AREA(fx, fy) || !PosOkMonst(mnum, fx, fy))
 		return FALSE;
 	if (mdir == DIR_E) {
 		if (nSolidTable[dPiece[fx][fy + 1]] || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
@@ -5129,19 +5126,19 @@ BOOL DirOK(int mnum, int mdir)
 	mcount = 0;
 	for (x = fx - 3; x <= fx + 3; x++) {
 		for (y = fy - 3; y <= fy + 3; y++) {
-			if (y < 0 || y >= MAXDUNY || x < 0 || x >= MAXDUNX)
-				continue;
-			mi = dMonster[x][y];
-			if (mi < 0)
-				mi = -mi;
-			if (mi != 0)
-				mi--;
-			// BUGFIX: should only run pack member check if mi was non-zero prior to executing the body of the above if-statement.
-			if (monster[mi].leaderflag == 1
-			    && monster[mi].leader == mnum
-			    && monster[mi]._mfutx == x
-			    && monster[mi]._mfuty == y) {
-				mcount++;
+			if (IN_DUNGEON_AREA(x, y)) {
+				mi = dMonster[x][y];
+				if (mi < 0)
+					mi = -mi;
+				if (mi != 0)
+					mi--;
+				// BUGFIX: should only run pack member check if mi was non-zero prior to executing the body of the above if-statement.
+				if (monster[mi].leaderflag == 1
+				    && monster[mi].leader == mnum
+				    && monster[mi]._mfutx == x
+					&& monster[mi]._mfuty == y) {
+					mcount++;
+				}
 			}
 		}
 	}

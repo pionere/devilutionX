@@ -237,6 +237,12 @@
 #define NIGHTMARE_AC_BONUS 50
 #define HELL_AC_BONUS      80
 
+#define IN_DUNGEON_AREA(x, y) \
+	(x >= 0                   \
+	&& x < MAXDUNX            \
+	&& y >= 0                 \
+	&& y < MAXDUNY)
+
 #define MemFreeDbg(p)	\
 {						\
 	void *p__p;			\

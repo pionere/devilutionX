@@ -1762,7 +1762,7 @@ void FixPlrWalkTags(int pnum)
 	dy = plr[pnum]._poldy;
 	for (y = dy - 1; y <= dy + 1; y++) {
 		for (x = dx - 1; x <= dx + 1; x++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && (dPlayer[x][y] == pp || dPlayer[x][y] == pn)) {
+			if (IN_DUNGEON_AREA(x, y) && (dPlayer[x][y] == pp || dPlayer[x][y] == pn)) {
 				dPlayer[x][y] = 0;
 			}
 		}
@@ -3909,7 +3909,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
-	if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY && !nSolidTable[dPiece[x][y]] && dPiece[x][y] != 0) {
+	if (IN_DUNGEON_AREA(x, y) && !nSolidTable[dPiece[x][y]] && dPiece[x][y] != 0) {
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
