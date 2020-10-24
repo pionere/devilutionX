@@ -805,38 +805,36 @@ BOOL LeftMouseCmd(BOOL bShift)
 
 BOOL TryIconCurs()
 {
-	if (pcurs == CURSOR_RESURRECT) {
-		NetSendCmdParam1(TRUE, CMD_RESURRECT, pcursplr);
-		return TRUE;
-	} else if (pcurs == CURSOR_HEALOTHER) {
-		NetSendCmdParam1(TRUE, CMD_HEALOTHER, pcursplr);
-		return TRUE;
-	} else if (pcurs == CURSOR_TELEKINESIS) {
-		DoTelekinesis();
-		return TRUE;
-	} else if (pcurs == CURSOR_IDENTIFY) {
+	switch (pcurs) {
+	case CURSOR_IDENTIFY:
 		if (pcursinvitem != -1) {
 			CheckIdentify(myplr, pcursinvitem);
 		} else {
 			NewCursor(CURSOR_HAND);
 		}
 		return TRUE;
-	} else if (pcurs == CURSOR_REPAIR) {
+	case CURSOR_REPAIR:
 		if (pcursinvitem != -1) {
 			DoRepair(myplr, pcursinvitem);
 		} else {
 			NewCursor(CURSOR_HAND);
 		}
 		return TRUE;
-	} else if (pcurs == CURSOR_RECHARGE) {
+	case CURSOR_RECHARGE:
 		if (pcursinvitem != -1) {
 			DoRecharge(myplr, pcursinvitem);
 		} else {
 			NewCursor(CURSOR_HAND);
 		}
 		return TRUE;
+	case CURSOR_DISARM:
+		if (pcursobj == -1) {
+			NewCursor(CURSOR_HAND);
+			return TRUE;
+		}
+		break;
 #ifdef HELLFIRE
-	} else if (pcurs == CURSOR_OIL) {
+	case CURSOR_OIL:
 		if (pcursinvitem != -1) {
 			DoOil(myplr, pcursinvitem);
 		} else {
@@ -844,7 +842,13 @@ BOOL TryIconCurs()
 		}
 		return TRUE;
 #endif
-	} else if (pcurs == CURSOR_TELEPORT) {
+	case CURSOR_TELEKINESIS:
+		DoTelekinesis();
+		return TRUE;
+	case CURSOR_RESURRECT:
+		NetSendCmdParam1(TRUE, CMD_RESURRECT, pcursplr);
+		return TRUE;
+	case CURSOR_TELEPORT:
 		if (pcursmonst != -1) {
 			NetSendCmdParam3(TRUE, CMD_TSPELLID, pcursmonst, plr[myplr]._pTSpell, GetSpellLevel(myplr, plr[myplr]._pTSpell));
 		} else if (pcursplr != -1) {
@@ -854,11 +858,10 @@ BOOL TryIconCurs()
 		}
 		NewCursor(CURSOR_HAND);
 		return TRUE;
-	} else if (pcurs == CURSOR_DISARM && pcursobj == -1) {
-		NewCursor(CURSOR_HAND);
+	case CURSOR_HEALOTHER:
+		NetSendCmdParam1(TRUE, CMD_HEALOTHER, pcursplr);
 		return TRUE;
 	}
-
 	return FALSE;
 }
 

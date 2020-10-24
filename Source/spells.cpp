@@ -123,11 +123,7 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 	int i;
 	int dir; // missile direction
 
-	switch (caster) {
-	case 1:
-		dir = monster[mpnum]._mdir;
-		break;
-	case 0:
+	if (caster == 0) {
 		// caster must be 0 already in this case, but oh well,
 		// it's needed to generate the right code
 		caster = 0;
@@ -140,7 +136,8 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 #endif
 			dir = plr[mpnum]._pVar3;
 		}
-		break;
+	} else {
+		dir = monster[mpnum]._mdir;
 	}
 
 	for (i = 0; spelldata[sn].sMissiles[i] != MIS_ARROW && i < 3; i++) {

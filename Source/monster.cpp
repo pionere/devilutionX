@@ -701,15 +701,14 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 		}
 	}
 
-	if (uniqindex == UMT_SNOTSPIL) {
-		xp = 2 * setpc_x + 24;
-		yp = 2 * setpc_y + 28;
-	}
-	if (uniqindex == UMT_WARLORD) {
-		xp = 2 * setpc_x + 22;
-		yp = 2 * setpc_y + 23;
-	}
-	if (uniqindex == UMT_ZHAR) {
+	switch (uniqindex) {
+	case UMT_SKELKING:
+		if (gbMaxPlayers == 1) {
+			xp = 35;
+			yp = 47;
+		}
+		break;
+	case UMT_ZHAR:
 		zharflag = TRUE;
 		for (i = 0; i < themeCount; i++) {
 			if (i == zharlib && zharflag == TRUE) {
@@ -718,49 +717,52 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 				yp = 2 * themeLoc[i].y + 20;
 			}
 		}
-	}
-	if (gbMaxPlayers == 1) {
-		if (uniqindex == UMT_LAZURUS) {
+		break;
+	case UMT_SNOTSPIL:
+		xp = 2 * setpc_x + 24;
+		yp = 2 * setpc_y + 28;
+		break;
+	case UMT_LAZURUS:
+		if (gbMaxPlayers == 1) {
 			xp = 32;
 			yp = 46;
-		}
-		if (uniqindex == UMT_RED_VEX) {
-			xp = 40;
-			yp = 45;
-		}
-		if (uniqindex == UMT_BLACKJADE) {
-			xp = 38;
-			yp = 49;
-		}
-		if (uniqindex == UMT_SKELKING) {
-			xp = 35;
-			yp = 47;
-		}
-	} else {
-		if (uniqindex == UMT_LAZURUS) {
+		} else  {
 			xp = 2 * setpc_x + 19;
 			yp = 2 * setpc_y + 22;
 		}
-		if (uniqindex == UMT_RED_VEX) {
+		break;
+	case UMT_RED_VEX:
+		if (gbMaxPlayers == 1) {
+			xp = 40;
+			yp = 45;
+		} else {
 			xp = 2 * setpc_x + 21;
 			yp = 2 * setpc_y + 19;
 		}
-		if (uniqindex == UMT_BLACKJADE) {
+		break;
+	case UMT_BLACKJADE:
+		if (gbMaxPlayers == 1) {
+			xp = 38;
+			yp = 49;
+		} else {
 			xp = 2 * setpc_x + 21;
 			yp = 2 * setpc_y + 25;
 		}
-	}
-	if (uniqindex == UMT_BUTCHER) {
+		break;
+	case UMT_WARLORD:
+		xp = 2 * setpc_x + 22;
+		yp = 2 * setpc_y + 23;
+		break;
+	case UMT_BUTCHER:
 		done = FALSE;
 		for (yp = 0; yp < MAXDUNY && !done; yp++) {
 			for (xp = 0; xp < MAXDUNX && !done; xp++) {
 				done = dPiece[xp][yp] == 367;
 			}
 		}
-	}
-
+		break;
 #ifdef HELLFIRE
-	if (uniqindex == UMT_NAKRUL) {
+	case UMT_NAKRUL:
 		if (UberRow == 0 || UberCol == 0) {
 			UberDiabloMonsterIndex = -1;
 			return;
@@ -768,8 +770,10 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 		xp = UberRow - 2;
 		yp = UberCol;
 		UberDiabloMonsterIndex = nummonsters;
-	}
+		break;
 #endif
+	}
+
 	PlaceMonster(nummonsters, uniqtype, xp, yp);
 	mon->_uniqtype = uniqindex + 1;
 

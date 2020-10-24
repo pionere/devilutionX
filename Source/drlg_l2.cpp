@@ -2801,19 +2801,12 @@ static BOOL CreateDungeon()
 
 	for (j = 0; j < DMAXY; j++) {     /// BUGFIX: change '<=' to '<' (fixed)
 		for (i = 0; i < DMAXX; i++) { /// BUGFIX: change '<=' to '<' (fixed)
-			if (predungeon[i][j] == 67) {
+			if (predungeon[i][j] == 67
+			 || predungeon[i][j] == 66
+			 || predungeon[i][j] == 69
+			 || predungeon[i][j] == 65) {
 				predungeon[i][j] = 35;
-			}
-			if (predungeon[i][j] == 66) {
-				predungeon[i][j] = 35;
-			}
-			if (predungeon[i][j] == 69) {
-				predungeon[i][j] = 35;
-			}
-			if (predungeon[i][j] == 65) {
-				predungeon[i][j] = 35;
-			}
-			if (predungeon[i][j] == 44) {
+			} else if (predungeon[i][j] == 44) {
 				predungeon[i][j] = 46;
 				if (predungeon[i - 1][j - 1] == 32) {
 					predungeon[i - 1][j - 1] = 35;

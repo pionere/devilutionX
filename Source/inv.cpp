@@ -1703,18 +1703,13 @@ void CheckQuestItem(int pnum)
 		}
 	}
 	if (is->IDidx == IDI_NOTE1 || is->IDidx == IDI_NOTE2 || is->IDidx == IDI_NOTE3) {
-		int mask, idx, item_num;
-		int n1, n2, n3;
+		int idx, item_num;
+		int nn;
 		ItemStruct tmp;
-		mask = 0;
 		idx = is->IDidx;
-		if (PlrHasItem(pnum, IDI_NOTE1, &n1) || idx == IDI_NOTE1)
-			mask = 1;
-		if (PlrHasItem(pnum, IDI_NOTE2, &n2) || idx == IDI_NOTE2)
-			mask |= 2;
-		if (PlrHasItem(pnum, IDI_NOTE3, &n3) || idx == IDI_NOTE3)
-			mask |= 4;
-		if (mask == 7) {
+		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
+		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
+		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				sfxdnum = PS_WARR46;
@@ -1729,25 +1724,17 @@ void CheckQuestItem(int pnum)
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				sfxdnum = PS_WARR46;
 			}
-			switch (idx) {
-			case IDI_NOTE1:
-				PlrHasItem(pnum, IDI_NOTE2, &n2);
-				RemoveInvItem(pnum, n2);
-				PlrHasItem(pnum, IDI_NOTE3, &n3);
-				RemoveInvItem(pnum, n3);
-				break;
-			case IDI_NOTE2:
-				PlrHasItem(pnum, IDI_NOTE1, &n1);
-				RemoveInvItem(pnum, n1);
-				PlrHasItem(pnum, IDI_NOTE3, &n3);
-				RemoveInvItem(pnum, n3);
-				break;
-			case IDI_NOTE3:
-				PlrHasItem(pnum, IDI_NOTE1, &n1);
-				RemoveInvItem(pnum, n1);
-				PlrHasItem(pnum, IDI_NOTE2, &n2);
-				RemoveInvItem(pnum, n2);
-				break;
+			if (idx != IDI_NOTE1) {
+				PlrHasItem(pnum, IDI_NOTE1, &nn);
+				RemoveInvItem(pnum, nn);
+			}
+			if (idx != IDI_NOTE2) {
+				PlrHasItem(pnum, IDI_NOTE2, &nn);
+				RemoveInvItem(pnum, nn);
+			}
+			if (idx != IDI_NOTE3) {
+				PlrHasItem(pnum, IDI_NOTE3, &nn);
+				RemoveInvItem(pnum, nn);
 			}
 			item_num = itemactive[0];
 			tmp = item[item_num];

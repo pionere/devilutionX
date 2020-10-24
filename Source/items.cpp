@@ -4700,27 +4700,16 @@ void ItemStatOk(int pnum, ItemStruct *is)
 
 BOOL SmithItemOk(int i)
 {
-	BOOL rv;
-
-	rv = TRUE;
-	if (AllItemsList[i].itype == ITYPE_MISC)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_GOLD)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_MEAT)
-		rv = FALSE;
+	return AllItemsList[i].itype != ITYPE_MISC
+	 && AllItemsList[i].itype != ITYPE_GOLD
+	 && AllItemsList[i].itype != ITYPE_MEAT
 #ifdef HELLFIRE
-	if (AllItemsList[i].itype == ITYPE_STAFF && AllItemsList[i].iSpell)
+	 && (AllItemsList[i].itype != ITYPE_STAFF || AllItemsList[i].iSpell == SPL_NULL)
 #else
-	if (AllItemsList[i].itype == ITYPE_STAFF)
+	 && AllItemsList[i].itype != ITYPE_STAFF
 #endif
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_RING)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_AMULET)
-		rv = FALSE;
-
-	return rv;
+	 && AllItemsList[i].itype != ITYPE_RING
+	 && AllItemsList[i].itype != ITYPE_AMULET;
 }
 
 int RndSmithItem(int lvl)
@@ -4816,36 +4805,14 @@ void SpawnSmith(int lvl)
 
 BOOL PremiumItemOk(int i)
 {
-	BOOL rv;
-
-	rv = TRUE;
+	return AllItemsList[i].itype != ITYPE_MISC
+		&& AllItemsList[i].itype != ITYPE_GOLD
+		&& AllItemsList[i].itype != ITYPE_MEAT
 #ifdef HELLFIRE
-	if (AllItemsList[i].itype == ITYPE_MISC || AllItemsList[i].itype == ITYPE_GOLD || AllItemsList[i].itype == ITYPE_MEAT)
-		rv = FALSE;
-
-	if (gbMaxPlayers != 1) {
-		if (AllItemsList[i].iMiscId == IMISC_OILOF || AllItemsList[i].itype == ITYPE_RING || AllItemsList[i].itype == ITYPE_AMULET)
-			rv = FALSE;
-	}
+		&& (gbMaxPlayers == 1 || (AllItemsList[i].iMiscId != IMISC_OILOF && AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #else
-	if (AllItemsList[i].itype == ITYPE_MISC)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_GOLD)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_MEAT)
-		rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_STAFF)
-		rv = FALSE;
-
-	if (gbMaxPlayers != 1) {
-		if (AllItemsList[i].itype == ITYPE_RING)
-			rv = FALSE;
-		if (AllItemsList[i].itype == ITYPE_AMULET)
-			rv = FALSE;
-	}
+		&& (gbMaxPlayers == 1 || (AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #endif
-
-	return rv;
 }
 
 int RndPremiumItem(int minlvl, int maxlvl)
@@ -5128,75 +5095,35 @@ void SpawnBoy(int lvl)
 
 BOOL HealerItemOk(int i)
 {
-	BOOL result;
-
-	result = FALSE;
 	if (AllItemsList[i].itype != ITYPE_MISC)
 		return FALSE;
 
-	if (AllItemsList[i].iMiscId == IMISC_SCROLL && AllItemsList[i].iSpell == SPL_HEAL)
-		result = TRUE;
-	if (AllItemsList[i].iMiscId == IMISC_SCROLLT && AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers != 1)
-		result = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_SCROLLT && AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers != 1)
-		result = TRUE;
-
-	if (gbMaxPlayers == 1) {
+	switch (AllItemsList[i].iMiscId) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iMiscId == IMISC_ELIXSTR && plr[myplr]._pBaseStr < MaxStats[plr[myplr]._pClass][ATTRIB_STR])
-			result = TRUE;
-		else if (AllItemsList[i].iMiscId == IMISC_ELIXMAG && plr[myplr]._pBaseMag < MaxStats[plr[myplr]._pClass][ATTRIB_MAG])
-			result = TRUE;
-		else if (AllItemsList[i].iMiscId == IMISC_ELIXDEX && plr[myplr]._pBaseDex < MaxStats[plr[myplr]._pClass][ATTRIB_DEX])
-			result = TRUE;
-		else if (AllItemsList[i].iMiscId == IMISC_ELIXVIT && plr[myplr]._pBaseVit < MaxStats[plr[myplr]._pClass][ATTRIB_VIT])
-			result = TRUE;
-	}
-
-	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL) // BUGFIX this is a duplicate with the wrong case
-		result = TRUE;
-
-	else if (AllItemsList[i].iMiscId == IMISC_REJUV)
-		result = TRUE;
-	else if (AllItemsList[i].iMiscId == IMISC_FULLREJUV)
-		result = TRUE;
-	else if (AllItemsList[i].iMiscId == IMISC_HEAL)
-		result = FALSE;
-	else if (AllItemsList[i].iMiscId == IMISC_FULLHEAL)
-		result = FALSE;
-	else if (AllItemsList[i].iMiscId == IMISC_MANA)
-		result = FALSE;
-	else if (AllItemsList[i].iMiscId == IMISC_FULLMANA)
-		result = FALSE;
+	case IMISC_ELIXSTR:
+		return gbMaxPlayers == 1 && plr[myplr]._pBaseStr < MaxStats[plr[myplr]._pClass][ATTRIB_STR];
+	case IMISC_ELIXMAG:
+		return gbMaxPlayers == 1 && plr[myplr]._pBaseMag < MaxStats[plr[myplr]._pClass][ATTRIB_MAG];
+	case IMISC_ELIXDEX:
+		return gbMaxPlayers == 1 && plr[myplr]._pBaseDex < MaxStats[plr[myplr]._pClass][ATTRIB_DEX];
+	case IMISC_ELIXVIT:
+		return gbMaxPlayers == 1 && plr[myplr]._pBaseVit < MaxStats[plr[myplr]._pClass][ATTRIB_VIT];
 #else
-		if (AllItemsList[i].iMiscId == IMISC_ELIXSTR)
-			result = TRUE;
-		if (AllItemsList[i].iMiscId == IMISC_ELIXMAG)
-			result = TRUE;
-		if (AllItemsList[i].iMiscId == IMISC_ELIXDEX)
-			result = TRUE;
-		if (AllItemsList[i].iMiscId == IMISC_ELIXVIT)
-			result = TRUE;
-	}
-
-	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL) // BUGFIX this is a duplicate with the wrong case
-		result = TRUE;
-
-	if (AllItemsList[i].iMiscId == IMISC_REJUV)
-		result = TRUE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLREJUV)
-		result = TRUE;
-	if (AllItemsList[i].iMiscId == IMISC_HEAL)
-		result = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL)
-		result = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_MANA)
-		result = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLMANA)
-		result = FALSE;
+	case IMISC_ELIXSTR:
+	case IMISC_ELIXMAG:
+	case IMISC_ELIXDEX:
+	case IMISC_ELIXVIT:
+		return gbMaxPlayers == 1;
 #endif
-
-	return result;
+	case IMISC_REJUV:
+	case IMISC_FULLREJUV:
+		return TRUE;
+	case IMISC_SCROLL:
+		return AllItemsList[i].iSpell == SPL_HEAL;
+	case IMISC_SCROLLT:
+		return gbMaxPlayers != 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER);
+	}
+	return FALSE;
 }
 
 int RndHealerItem(int lvl)

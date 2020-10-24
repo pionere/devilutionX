@@ -518,42 +518,33 @@ void DRLG_CreateThemeRoom(int themeIndex)
 	}
 
 	if (leveltype == DTYPE_CATACOMBS) {
-		switch (random_(0, 2)) {
-		case 0:
+		if (random_(0, 2) == 0) {
 			dungeon[hx - 1][(ly + hy) / 2] = 4;
-			break;
-		case 1:
+		} else {
 			dungeon[(lx + hx) / 2][hy - 1] = 5;
-			break;
 		}
 	}
 	if (leveltype == DTYPE_CAVES) {
-		switch (random_(0, 2)) {
-		case 0:
+		if (random_(0, 2) == 0) {
 			dungeon[hx - 1][(ly + hy) / 2] = 147;
-			break;
-		case 1:
+		} else {
 			dungeon[(lx + hx) / 2][hy - 1] = 146;
-			break;
 		}
 	}
 	if (leveltype == DTYPE_HELL) {
-		switch (random_(0, 2)) {
-		case 0:
+		if (random_(0, 2) == 0) {
 			yy = (ly + hy) / 2;
 			dungeon[hx - 1][yy - 1] = 53;
 			dungeon[hx - 1][yy] = 6;
 			dungeon[hx - 1][yy + 1] = 52;
 			dungeon[hx - 2][yy - 1] = 54;
-			break;
-		case 1:
+		} else {
 			xx = (lx + hx) / 2;
 			dungeon[xx - 1][hy - 1] = 57;
 			dungeon[xx][hy - 1] = 6;
 			dungeon[xx + 1][hy - 1] = 56;
 			dungeon[xx][hy - 2] = 59;
 			dungeon[xx - 1][hy - 2] = 58;
-			break;
 		}
 	}
 }

@@ -1553,7 +1553,7 @@ void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	case 8:
 		spell = MIS_APOCA;
 		break;
-	case 9:
+	default:
 		spell = MIS_STONE;
 		break;
 	}
@@ -2383,7 +2383,6 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 	if (micaster && id > 0) {
 		mon = monster[id].MType;
-#ifdef HELLFIRE
 		switch (mon->mtype) {
 		case MT_SUCCUBUS:
 			SetMissAnim(mi, MFILE_FLAREEXP);
@@ -2398,16 +2397,6 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 			SetMissAnim(mi, MFILE_SCBSEXPC);
 			break;
 		}
-#else
-		if (mon->mtype == MT_SUCCUBUS)
-			SetMissAnim(mi, MFILE_FLAREEXP);
-		if (mon->mtype == MT_SNOWWICH)
-			SetMissAnim(mi, MFILE_SCBSEXPB);
-		if (mon->mtype == MT_HLSPWN)
-			SetMissAnim(mi, MFILE_SCBSEXPD);
-		if (mon->mtype == MT_SOLBRNR)
-			SetMissAnim(mi, MFILE_SCBSEXPC);
-#endif
 	}
 
 	mis = &missile[mi];
@@ -2783,14 +2772,20 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			SyncPlrKill(id, 0);
 	} else {
 		if (id > 0) {
-			if (monster[id].MType->mtype == MT_SUCCUBUS)
+			switch (monster[id].MType->mtype) {
+			case MT_SUCCUBUS:
 				SetMissAnim(mi, MFILE_FLARE);
-			if (monster[id].MType->mtype == MT_SNOWWICH)
+				break;
+			case MT_SNOWWICH:
 				SetMissAnim(mi, MFILE_SCUBMISB);
-			if (monster[id].MType->mtype == MT_HLSPWN)
+				break;
+			case MT_HLSPWN:
 				SetMissAnim(mi, MFILE_SCUBMISD);
-			if (monster[id].MType->mtype == MT_SOLBRNR)
+				break;
+			case MT_SOLBRNR:
 				SetMissAnim(mi, MFILE_SCUBMISC);
+				break;
+			}
 		}
 	}
 #ifdef HELLFIRE

@@ -1727,21 +1727,18 @@ void ReleaseChrBtns()
 				switch (i) {
 				case 0:
 					NetSendCmdParam1(TRUE, CMD_ADDSTR, 1);
-					plr[myplr]._pStatPts--;
 					break;
 				case 1:
 					NetSendCmdParam1(TRUE, CMD_ADDMAG, 1);
-					plr[myplr]._pStatPts--;
 					break;
 				case 2:
 					NetSendCmdParam1(TRUE, CMD_ADDDEX, 1);
-					plr[myplr]._pStatPts--;
 					break;
-				case 3:
+				default:
 					NetSendCmdParam1(TRUE, CMD_ADDVIT, 1);
-					plr[myplr]._pStatPts--;
 					break;
 				}
+				plr[myplr]._pStatPts--;
 			}
 		}
 	}

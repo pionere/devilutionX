@@ -1394,32 +1394,12 @@ static void DRLG_L4FloodTVal()
 
 BOOL IsDURWall(char dd)
 {
-	if (dd == 25) {
-		return TRUE;
-	}
-	if (dd == 28) {
-		return TRUE;
-	}
-	if (dd == 23) {
-		return TRUE;
-	}
-
-	return FALSE;
+	return dd == 25 || dd == 28 || dd == 23;
 }
 
 BOOL IsDLLWall(char dd)
 {
-	if (dd == 27) {
-		return TRUE;
-	}
-	if (dd == 26) {
-		return TRUE;
-	}
-	if (dd == 22) {
-		return TRUE;
-	}
-
-	return FALSE;
+	return dd == 27 || dd == 26 || dd == 22;
 }
 
 static void DRLG_L4TransFix()
