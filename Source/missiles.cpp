@@ -545,10 +545,37 @@ void MoveMissilePos(int mi)
 	}
 }
 
+BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
+{
+	switch (missiledata[mitype].mResist) {
+	case MISR_FIRE:
+		if (mor & IMUNE_FIRE)
+			return TRUE;
+		*resist = (mor & RESIST_FIRE) != 0;
+		break;
+	case MISR_LIGHTNING:
+		if (mor & IMUNE_LIGHTNING)
+			return TRUE;
+		*resist = (mor & RESIST_LIGHTNING) != 0;
+		break;
+	case MISR_MAGIC:
+		if (mor & IMUNE_MAGIC)
+			return TRUE;
+		*resist = (mor & RESIST_MAGIC) != 0;
+		break;
+	case MISR_ACID:
+		if (mor & IMUNE_ACID)
+			return TRUE;
+		// BUGFIX: TODO player is resistant against ACID with RESIST_MAGIC, monsters should behave the same
+		break;
+	}
+	return FALSE;
+}
+
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	MonsterStruct *mon;
-	int hit, hper, dam, mor, mir;
+	int hit, hper, dam;
 	BOOL resist, ret;
 
 	resist = FALSE;
@@ -564,19 +591,8 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	if (mon->_mmode == MM_CHARGE)
 		return FALSE;
 
-	mir = missiledata[mitype].mResist;
-	mor = mon->mMagicRes;
-	if (mor & IMUNE_MAGIC && mir == MISR_MAGIC
-	    || mor & IMUNE_FIRE && mir == MISR_FIRE
-	    || mor & IMUNE_LIGHTNING && mir == MISR_LIGHTNING) {
+	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
 		return FALSE;
-	}
-
-	if ((mor & RESIST_MAGIC && mir == MISR_MAGIC)
-	    || (mor & RESIST_FIRE && mir == MISR_FIRE)
-	    || (mor & RESIST_LIGHTNING && mir == MISR_LIGHTNING)) {
-		resist = TRUE;
-	}
 
 	hit = random_(68, 100);
 #ifdef HELLFIRE
@@ -636,7 +652,7 @@ BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mityp
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	int hit, hper, dam, mor, mir;
+	int hit, hper, dam;
 	BOOL resist, ret;
 
 	resist = FALSE;
@@ -651,19 +667,8 @@ BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mityp
 	if (mon->_mmode == MM_CHARGE)
 		return FALSE;
 
-	mor = mon->mMagicRes;
-	mir = missiledata[mitype].mResist;
-
-	if (mor & IMUNE_MAGIC && mir == MISR_MAGIC
-	    || mor & IMUNE_FIRE && mir == MISR_FIRE
-	    || mor & IMUNE_LIGHTNING && mir == MISR_LIGHTNING
-	    || (mor & IMUNE_ACID) && mir == MISR_ACID)
+	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
 		return FALSE;
-
-	if (mor & RESIST_MAGIC && mir == MISR_MAGIC
-	    || mor & RESIST_FIRE && mir == MISR_FIRE
-	    || mor & RESIST_LIGHTNING && mir == MISR_LIGHTNING)
-		resist = TRUE;
 
 	p = &plr[pnum];
 	hit = random_(69, 100);
