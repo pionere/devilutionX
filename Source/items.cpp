@@ -1365,8 +1365,9 @@ void SetPlrHandSeed(ItemStruct *is, int iseed)
 	is->_iSeed = iseed;
 }
 
-void SetPlrHandGoldCurs(ItemStruct *is)
+void SetGoldItemValue(ItemStruct *is, int value)
 {
+	is->_ivalue = value;
 	if (is->_ivalue >= GOLD_MEDIUM_LIMIT)
 		is->_iCurs = ICURS_GOLD_LARGE;
 	else if (is->_ivalue <= GOLD_SMALL_LIMIT)
@@ -1503,15 +1504,13 @@ void CreatePlrItems(int pnum)
 #ifdef _DEBUG
 	if (!debug_mode_key_w) {
 #endif
-		p->HoldItem._ivalue = 100;
-		p->HoldItem._iCurs = ICURS_GOLD_SMALL;
+		SetGoldItemValue(&p->HoldItem, 100);
 		p->_pGold = p->HoldItem._ivalue;
 		p->InvList[p->_pNumInv++] = p->HoldItem;
 		p->InvGrid[30] = p->_pNumInv;
 #ifdef _DEBUG
 	} else {
-		p->HoldItem._ivalue = GOLD_MAX_LIMIT;
-		p->HoldItem._iCurs = ICURS_GOLD_LARGE;
+		SetGoldItemValue(&p->HoldItem, GOLD_MAX_LIMIT);
 		p->_pGold = p->HoldItem._ivalue * 40;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			GetPlrHandSeed(&p->HoldItem);
@@ -1966,12 +1965,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		if (rndv > GOLD_MAX_LIMIT)
 			rndv = GOLD_MAX_LIMIT;
 
-		is->_ivalue = rndv;
-
-		if (rndv >= GOLD_MEDIUM_LIMIT)
-			is->_iCurs = ICURS_GOLD_LARGE;
-		else
-			is->_iCurs = (rndv > GOLD_SMALL_LIMIT) + 4;
+		SetGoldItemValue(is, rndv);
 	}
 }
 
@@ -3138,13 +3132,7 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 		SetPlrHandItem(is, IDI_GOLD);
 		is->_iSeed = iseed;
 		is->_iCreateInfo = icreateinfo;
-		is->_ivalue = ivalue;
-		if (ivalue >= GOLD_MEDIUM_LIMIT)
-			is->_iCurs = ICURS_GOLD_LARGE;
-		else if (ivalue <= GOLD_SMALL_LIMIT)
-			is->_iCurs = ICURS_GOLD_SMALL;
-		else
-			is->_iCurs = ICURS_GOLD_MEDIUM;
+		SetGoldItemValue(is, ivalue);
 	} else {
 		if (!icreateinfo) {
 			SetPlrHandItem(is, idx);

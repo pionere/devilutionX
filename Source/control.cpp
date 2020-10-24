@@ -2074,45 +2074,33 @@ void control_drop_gold(char vkey)
 void control_remove_gold(int pnum, int gold_index)
 {
 	ItemStruct *is;
-	int gi;
+	int gi, val;
 
 	if (gold_index <= INVITEM_INV_LAST) {
 		gi = gold_index - INVITEM_INV_FIRST;
 		is = &plr[pnum].InvList[gi];
-		is->_ivalue -= dropGoldValue;
-		if (is->_ivalue > 0)
-			SetGoldCurs(pnum, gi);
+		val = is->_ivalue - dropGoldValue;
+		if (val > 0)
+			SetGoldItemValue(is, val);
 		else
 			RemoveInvItem(pnum, gi);
 	} else {
 		gi = gold_index - INVITEM_BELT_FIRST;
 		is = &plr[pnum].SpdList[gi];
-		is->_ivalue -= dropGoldValue;
-		if (is->_ivalue > 0)
-			SetSpdbarGoldCurs(pnum, gi);
+		val -= dropGoldValue;
+		if (val > 0)
+			SetGoldItemValue(is, val);
 		else
 			RemoveSpdBarItem(pnum, gi);
 	}
 	is = &plr[pnum].HoldItem;
 	SetPlrHandItem(is, IDI_GOLD);
 	GetGoldSeed(pnum, is);
-	is->_ivalue = dropGoldValue;
 	is->_iStatFlag = TRUE;
-	control_set_gold_curs(pnum);
+	SetGoldItemValue(is, dropGoldValue);
+	NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
 	plr[pnum]._pGold = CalculateGold(pnum);
 	dropGoldValue = 0;
-}
-
-void control_set_gold_curs(int pnum)
-{
-	if (plr[pnum].HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-		plr[pnum].HoldItem._iCurs = ICURS_GOLD_LARGE;
-	else if (plr[pnum].HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-		plr[pnum].HoldItem._iCurs = ICURS_GOLD_SMALL;
-	else
-		plr[pnum].HoldItem._iCurs = ICURS_GOLD_MEDIUM;
-
-	NewCursor(plr[pnum].HoldItem._iCurs + CURSOR_FIRSTITEM);
 }
 
 void DrawTalkPan()

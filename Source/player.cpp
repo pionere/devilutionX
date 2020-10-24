@@ -2047,12 +2047,10 @@ void DropHalfPlayersGold(int pnum)
 			p->SpdList[i]._ivalue != GOLD_MAX_LIMIT) {
 #endif
 			if (hGold < p->SpdList[i]._ivalue) {
-				p->SpdList[i]._ivalue -= hGold;
-				SetSpdbarGoldCurs(pnum, i);
+				SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
 				SetPlrHandItem(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
-				SetPlrHandGoldCurs(holditem);
-				holditem->_ivalue = hGold;
+				SetGoldItemValue(holditem, hGold);
 				PlrDeadItem(pnum, holditem, 0, 0);
 				hGold = 0;
 			} else {
@@ -2060,8 +2058,7 @@ void DropHalfPlayersGold(int pnum)
 				RemoveSpdBarItem(pnum, i);
 				SetPlrHandItem(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
-				SetPlrHandGoldCurs(holditem);
-				holditem->_ivalue = p->SpdList[i]._ivalue;
+				SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
 				PlrDeadItem(pnum, &p->HoldItem, 0, 0);
 				i = -1;
 			}
@@ -2071,12 +2068,10 @@ void DropHalfPlayersGold(int pnum)
 		for (i = 0; i < MAXBELTITEMS && hGold > 0; i++) {
 			if (p->SpdList[i]._itype == ITYPE_GOLD) {
 				if (hGold < p->SpdList[i]._ivalue) {
-					p->SpdList[i]._ivalue -= hGold;
-					SetSpdbarGoldCurs(pnum, i);
+					SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = hGold;
+					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
@@ -2084,8 +2079,7 @@ void DropHalfPlayersGold(int pnum)
 					RemoveSpdBarItem(pnum, i);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = p->SpdList[i]._ivalue;
+					SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -2102,12 +2096,10 @@ void DropHalfPlayersGold(int pnum)
 				p->InvList[i]._ivalue != GOLD_MAX_LIMIT) {
 #endif
 				if (hGold < p->InvList[i]._ivalue) {
-					p->InvList[i]._ivalue -= hGold;
-					SetGoldCurs(pnum, i);
+					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = hGold;
+					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
@@ -2115,8 +2107,7 @@ void DropHalfPlayersGold(int pnum)
 					RemoveInvItem(pnum, i);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = p->InvList[i]._ivalue;
+					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -2127,12 +2118,10 @@ void DropHalfPlayersGold(int pnum)
 		for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
 			if (p->InvList[i]._itype == ITYPE_GOLD) {
 				if (hGold < p->InvList[i]._ivalue) {
-					p->InvList[i]._ivalue -= hGold;
-					SetGoldCurs(pnum, i);
+					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = hGold;
+					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
@@ -2140,8 +2129,7 @@ void DropHalfPlayersGold(int pnum)
 					RemoveInvItem(pnum, i);
 					SetPlrHandItem(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetPlrHandGoldCurs(holditem);
-					holditem->_ivalue = p->InvList[i]._ivalue;
+					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -2171,12 +2159,10 @@ void StripTopGold(int pnum)
 		if (pi->_itype == ITYPE_GOLD) {
 			if (pi->_ivalue > MaxGold) {
 				val = pi->_ivalue - MaxGold;
-				pi->_ivalue = MaxGold;
-				SetGoldCurs(pnum, i);
+				SetGoldItemValue(pi, MaxGold);
 				SetPlrHandItem(holditem, 0);
 				GetGoldSeed(pnum, holditem);
-				SetPlrHandGoldCurs(holditem);
-				holditem->_ivalue = val;
+				SetGoldItemValue(holditem, val);
 				if (!GoldAutoPlace(pnum))
 					PlrDeadItem(pnum, holditem, 0, 0);
 			}

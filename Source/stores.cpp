@@ -1837,26 +1837,6 @@ void S_SmithEnter()
 	}
 }
 
-void SetGoldCurs(int pnum, int i)
-{
-	if (plr[pnum].InvList[i]._ivalue >= GOLD_MEDIUM_LIMIT)
-		plr[pnum].InvList[i]._iCurs = ICURS_GOLD_LARGE;
-	else if (plr[pnum].InvList[i]._ivalue <= GOLD_SMALL_LIMIT)
-		plr[pnum].InvList[i]._iCurs = ICURS_GOLD_SMALL;
-	else
-		plr[pnum].InvList[i]._iCurs = ICURS_GOLD_MEDIUM;
-}
-
-void SetSpdbarGoldCurs(int pnum, int i)
-{
-	if (plr[pnum].SpdList[i]._ivalue >= GOLD_MEDIUM_LIMIT)
-		plr[pnum].SpdList[i]._iCurs = ICURS_GOLD_LARGE;
-	else if (plr[pnum].SpdList[i]._ivalue <= GOLD_SMALL_LIMIT)
-		plr[pnum].SpdList[i]._iCurs = ICURS_GOLD_SMALL;
-	else
-		plr[pnum].SpdList[i]._iCurs = ICURS_GOLD_MEDIUM;
-}
-
 void TakePlrsMoney(int cost)
 {
 	PlayerStruct *p;
@@ -1869,8 +1849,7 @@ void TakePlrsMoney(int cost)
 		pi = &p->SpdList[i];
 		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
 			if (cost < pi->_ivalue) {
-				pi->_ivalue -= cost;
-				SetSpdbarGoldCurs(myplr, i);
+				SetGoldItemValue(pi, pi->_ivalue - cost);
 				cost = 0;
 			} else {
 				cost -= pi->_ivalue;
@@ -1884,8 +1863,7 @@ void TakePlrsMoney(int cost)
 			pi = &p->SpdList[i];
 			if (pi->_itype == ITYPE_GOLD) {
 				if (cost < pi->_ivalue) {
-					pi->_ivalue -= cost;
-					SetSpdbarGoldCurs(myplr, i);
+					SetGoldItemValue(pi, pi->_ivalue - cost);
 					cost = 0;
 				} else {
 					cost -= pi->_ivalue;
@@ -1901,8 +1879,7 @@ void TakePlrsMoney(int cost)
 			pi = &p->InvList[i];
 			if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
 				if (cost < pi->_ivalue) {
-					pi->_ivalue -= cost;
-					SetGoldCurs(myplr, i);
+					SetGoldItemValue(pi, pi->_ivalue - cost);
 					cost = 0;
 				} else {
 					cost -= pi->_ivalue;
@@ -1916,8 +1893,7 @@ void TakePlrsMoney(int cost)
 				pi = &p->InvList[i];
 				if (pi->_itype == ITYPE_GOLD) {
 					if (cost < pi->_ivalue) {
-						pi->_ivalue -= cost;
-						SetGoldCurs(myplr, i);
+						SetGoldItemValue(pi, pi->_ivalue - cost);
 						cost = 0;
 					} else {
 						cost -= pi->_ivalue;
@@ -2097,8 +2073,7 @@ void PlaceStoreGold(int v)
 			plr[myplr].InvList[ii] = golditem;
 			plr[myplr]._pNumInv++;
 			plr[myplr].InvGrid[xx + yy] = plr[myplr]._pNumInv;
-			plr[myplr].InvList[ii]._ivalue = v;
-			SetGoldCurs(myplr, ii);
+			SetGoldItemValue(&plr[myplr].InvList[ii], v);
 			break;
 		}
 	}
@@ -2128,13 +2103,11 @@ void StoreSellItem()
 		pi = &p->InvList[i];
 		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
 			if (cost + pi->_ivalue <= GOLD_MAX_LIMIT) {
-				pi->_ivalue += cost;
-				SetGoldCurs(myplr, i);
+				SetGoldItemValue(pi, pi->_ivalue + cost);
 				cost = 0;
 			} else {
 				cost -= GOLD_MAX_LIMIT - pi->_ivalue;
-				pi->_ivalue = GOLD_MAX_LIMIT;
-				SetGoldCurs(myplr, i);
+				SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			}
 		}
 	}

@@ -3939,9 +3939,8 @@ void OperateShrine(int pnum, int oi, int sType)
 				p->InvList[t]._iSeed = GetRndSeed();
 				p->_pNumInv++;
 				p->InvGrid[i] = p->_pNumInv;
-				p->InvList[t]._ivalue = r;
+				SetGoldItemValue(&p->InvList[t], r);
 				p->_pGold += r;
-				SetGoldCurs(pnum, t);
 			}
 		}
 		InitDiabloMsg(EMSG_SHRINE_SPIRITUAL);

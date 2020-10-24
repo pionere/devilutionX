@@ -60,7 +60,7 @@ void SetPlrHandItem(ItemStruct *is, int idata);
 void GetPlrHandSeed(ItemStruct *is);
 void GetGoldSeed(int pnum, ItemStruct *is);
 void SetPlrHandSeed(ItemStruct *is, int iseed);
-void SetPlrHandGoldCurs(ItemStruct *is);
+void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 BOOL ItemSpaceOk(int i, int j);
 BOOL GetItemSpace(int x, int y, char ii);

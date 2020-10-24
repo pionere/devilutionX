@@ -657,13 +657,7 @@ BOOL GoldAutoPlace(int pnum)
 	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
-				pi->_ivalue = p->HoldItem._ivalue + pi->_ivalue;
-				if (pi->_ivalue >= GOLD_MEDIUM_LIMIT)
-					pi->_iCurs = ICURS_GOLD_LARGE;
-				else if (pi->_ivalue <= GOLD_SMALL_LIMIT)
-					pi->_iCurs = ICURS_GOLD_SMALL;
-				else
-					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				SetGoldItemValue(pi, p->HoldItem._ivalue + pi->_ivalue);
 				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
 			}
@@ -675,13 +669,7 @@ BOOL GoldAutoPlace(int pnum)
 	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD && pi->_ivalue < GOLD_MAX_LIMIT) {
 			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
-				pi->_ivalue = p->HoldItem._ivalue + pi->_ivalue;
-				if (pi->_ivalue >= GOLD_MEDIUM_LIMIT)
-					pi->_iCurs = ICURS_GOLD_LARGE;
-				else if (pi->_ivalue <= GOLD_SMALL_LIMIT)
-					pi->_iCurs = ICURS_GOLD_SMALL;
-				else
-					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				SetGoldItemValue(pi, p->HoldItem._ivalue + pi->_ivalue);
 				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
 			}
@@ -698,12 +686,7 @@ BOOL GoldAutoPlace(int pnum)
 			p->InvList[ii] = p->HoldItem;
 			p->_pNumInv = p->_pNumInv + 1;
 			p->InvGrid[xx + yy] = p->_pNumInv;
-			if (p->HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-				p->InvList[ii]._iCurs = ICURS_GOLD_LARGE;
-			else if (p->HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-				p->InvList[ii]._iCurs = ICURS_GOLD_SMALL;
-			else
-				p->InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
+			SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
 			p->_pGold = CalculateGold(pnum);
 			done = TRUE;
 		}
@@ -728,13 +711,7 @@ BOOL GoldAutoPlace(int pnum)
 		if (pi->_itype == ITYPE_GOLD) {
 			gold = pi->_ivalue + p->HoldItem._ivalue;
 			if (gold <= MaxGold) {
-				pi->_ivalue = gold;
-				if (gold >= GOLD_MEDIUM_LIMIT)
-					pi->_iCurs = ICURS_GOLD_LARGE;
-				else if (gold <= GOLD_SMALL_LIMIT)
-					pi->_iCurs = ICURS_GOLD_SMALL;
-				else
-					pi->_iCurs = ICURS_GOLD_MEDIUM;
+				SetGoldItemValue(pi, gold);
 				p->_pGold = CalculateGold(pnum);
 				done = TRUE;
 				p->HoldItem._ivalue = 0;
@@ -742,15 +719,14 @@ BOOL GoldAutoPlace(int pnum)
 				max_gold = MaxGold;
 				if (pi->_ivalue < max_gold) {
 					gold = max_gold - pi->_ivalue;
-					pi->_ivalue = max_gold;
-					pi->_iCurs = ICURS_GOLD_LARGE;
-					p->HoldItem._ivalue -= gold;
+					SetGoldItemValue(pi, max_gold);
+					SetGoldItemValue(&p->HoldItem, p->HoldItem._ivalue - gold);
 					if (p->HoldItem._ivalue < 0) {
 						p->HoldItem._ivalue = 0;
 						done = TRUE;
 					}
 					GetPlrHandSeed(&p->HoldItem);
-					control_set_gold_curs(pnum);
+					NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 					p->_pGold = CalculateGold(pnum);
 				}
 			}
@@ -765,12 +741,7 @@ BOOL GoldAutoPlace(int pnum)
 				p->InvList[ii] = p->HoldItem;
 				p->_pNumInv = p->_pNumInv + 1;
 				p->InvGrid[xx + yy] = p->_pNumInv;
-				if (p->HoldItem._ivalue >= GOLD_MEDIUM_LIMIT)
-					p->InvList[ii]._iCurs = ICURS_GOLD_LARGE;
-				else if (p->HoldItem._ivalue <= GOLD_SMALL_LIMIT)
-					p->InvList[ii]._iCurs = ICURS_GOLD_SMALL;
-				else
-					p->InvList[ii]._iCurs = ICURS_GOLD_MEDIUM;
+				SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
 
 				gold = p->HoldItem._ivalue;
 				if (gold > MaxGold) {
@@ -1131,20 +1102,13 @@ void CheckInvPaste(int pnum, int mx, int my)
 				gt = is->_ivalue;
 				ig = holditem->_ivalue + gt;
 				if (ig <= GOLD_MAX_LIMIT) {
-					is->_ivalue = ig;
 					p->_pGold += holditem->_ivalue;
-					if (ig >= GOLD_MEDIUM_LIMIT)
-						is->_iCurs = ICURS_GOLD_LARGE;
-					else if (ig <= GOLD_SMALL_LIMIT)
-						is->_iCurs = ICURS_GOLD_SMALL;
-					else
-						is->_iCurs = ICURS_GOLD_MEDIUM;
+					SetGoldItemValue(is, ig);
 				} else {
 					ig = GOLD_MAX_LIMIT - gt;
 					p->_pGold += ig;
-					holditem->_ivalue -= ig;
-					is->_ivalue = GOLD_MAX_LIMIT;
-					is->_iCurs = ICURS_GOLD_LARGE;
+					SetGoldItemValue(holditem, holditem->_ivalue - ig);
+					SetGoldItemValue(is, GOLD_MAX_LIMIT);
 					// BUGFIX: incorrect values here are leftover from beta
 					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
 						cn = 18;
@@ -1160,12 +1124,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 				p->InvGrid[yy + xx] = p->_pNumInv;
 				p->_pGold += holditem->_ivalue;
 				if (holditem->_ivalue <= GOLD_MAX_LIMIT) {
-					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
-						p->InvList[il]._iCurs = ICURS_GOLD_LARGE;
-					else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
-						p->InvList[il]._iCurs = ICURS_GOLD_SMALL;
-					else
-						p->InvList[il]._iCurs = ICURS_GOLD_MEDIUM;
+					SetGoldItemValue(&p->InvList[il], holditem->_ivalue);
 				}
 			}
 		} else {
@@ -1214,20 +1173,13 @@ void CheckInvPaste(int pnum, int mx, int my)
 				if (is->_itype == ITYPE_GOLD) {
 					i = holditem->_ivalue + is->_ivalue;
 					if (i <= GOLD_MAX_LIMIT) {
-						is->_ivalue += holditem->_ivalue;
+						SetGoldItemValue(is, i);
 						p->_pGold += holditem->_ivalue;
-						if (i >= GOLD_MEDIUM_LIMIT)
-							is->_iCurs = ICURS_GOLD_LARGE;
-						else if (i <= GOLD_SMALL_LIMIT)
-							is->_iCurs = ICURS_GOLD_SMALL;
-						else
-							is->_iCurs = ICURS_GOLD_MEDIUM;
 					} else {
 						i = GOLD_MAX_LIMIT - is->_ivalue;
 						p->_pGold += i;
 						holditem->_ivalue -= i;
-						is->_ivalue = GOLD_MAX_LIMIT;
-						is->_iCurs = ICURS_GOLD_LARGE;
+						SetGoldItemValue(is, GOLD_MAX_LIMIT);
 
 						// BUGFIX: incorrect values here are leftover from beta
 						if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
