@@ -115,7 +115,7 @@ void init_create_window()
 
 void init_archives()
 {
-	HANDLE fh;
+	HANDLE fh = NULL;
 	memset(&fileinfo, 0, sizeof(fileinfo));
 	fileinfo.size = sizeof(fileinfo);
 	fileinfo.versionstring = gszVersionNumber;

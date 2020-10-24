@@ -750,10 +750,6 @@ void TalkToTowner(int pnum, int tnum)
 	int qt, t2;
 #endif
 
-	rv1 = random_(6, 3); /* unused */
-	rv2 = random_(6, 4); /* unused */
-	rv3 = random_(6, 5); /* unused */
-
 	tw = &towner[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
 	dy = abs(plr[pnum]._py - tw->_ty);
