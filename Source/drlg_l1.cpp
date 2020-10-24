@@ -2147,7 +2147,7 @@ static void L5FillChambers()
 				c = 2;
 				break;
 			case 1:
-				c = 16
+				c = 16;
 				break;
 			default:
 				c = 30;
@@ -2454,6 +2454,8 @@ static void DRLG_L5DirtFix()
 {
 	int i, j;
 #ifdef HELLFIRE
+	BYTE bv;
+
 	if (currlevel < 21) {
 		for (j = 0; j < DMAXY - 1; j++) {
 			for (i = 0; i < DMAXX - 1; i++) {
