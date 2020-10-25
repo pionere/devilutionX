@@ -620,9 +620,9 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 	if (is->_iPostDraw == pre)
 		return;
 
-	assert((unsigned char)ii <= MAXITEMS);
+	assert((unsigned char)ii < MAXITEMS);
 	sx -= is->_iAnimWidth2;
-	if (ii - 1 == pcursitem) {
+	if (ii == pcursitem) {
 		CelBlitOutline(181, sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
