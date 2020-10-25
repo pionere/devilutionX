@@ -263,9 +263,8 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 {
 	char prefix[16];
 	char pszName[256];
-	char *szCel;
+	const char *szCel, *cs;
 	PlayerStruct *p;
-	char *cs;
 	BYTE *pData, *pAnim;
 	DWORD i;
 
