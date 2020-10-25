@@ -61,7 +61,7 @@ void gmenu_draw_pause()
 	}
 }
 
-void gmenu_print_text(int x, int y, char *pszStr)
+void gmenu_print_text(int x, int y, const char *pszStr)
 {
 	BYTE c;
 
@@ -241,7 +241,7 @@ void gmenu_clear_buffer(int x, int y, int width, int height)
 
 int gmenu_get_lfont(TMenuItem *pItem)
 {
-	char *text;
+	const char *text;
 	int i;
 	BYTE c;
 

@@ -5469,7 +5469,7 @@ void PrintMonstHistory(int mt)
 			res = monsterdata[mt].mMagicRes;
 		else
 			res = monsterdata[mt].mMagicRes2;
-		res = res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMUNE_MAGIC | IMUNE_FIRE | IMUNE_LIGHTNING);
+		res = res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
 		if (!res) {
 			strcpy(tempstr, "No magic resistance");
 			AddPanelString(tempstr, TRUE);
@@ -5485,13 +5485,13 @@ void PrintMonstHistory(int mt)
 				tempstr[strlen(tempstr) - 1] = '\0';
 				AddPanelString(tempstr, TRUE);
 			}
-			if (res & (IMUNE_MAGIC | IMUNE_FIRE | IMUNE_LIGHTNING)) {
+			if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
 				strcpy(tempstr, "Immune: ");
-				if (res & IMUNE_MAGIC)
+				if (res & IMMUNE_MAGIC)
 					strcat(tempstr, "Magic ");
-				if (res & IMUNE_FIRE)
+				if (res & IMMUNE_FIRE)
 					strcat(tempstr, "Fire ");
-				if (res & IMUNE_LIGHTNING)
+				if (res & IMMUNE_LIGHTNING)
 					strcat(tempstr, "Lightning ");
 				tempstr[strlen(tempstr) - 1] = '\0';
 				AddPanelString(tempstr, TRUE);
@@ -5505,7 +5505,7 @@ void PrintUniqueHistory()
 {
 	int res;
 
-	res = monster[pcursmonst].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMUNE_MAGIC | IMUNE_FIRE | IMUNE_LIGHTNING);
+	res = monster[pcursmonst].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
 	if (!res) {
 		strcpy(tempstr, "No resistances");
 		AddPanelString(tempstr, TRUE);
@@ -5516,7 +5516,7 @@ void PrintUniqueHistory()
 		else
 			strcpy(tempstr, "No resistances");
 		AddPanelString(tempstr, TRUE);
-		if (res & (IMUNE_MAGIC | IMUNE_FIRE | IMUNE_LIGHTNING)) {
+		if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
 			strcpy(tempstr, "Some Magic Immunities");
 		} else {
 			strcpy(tempstr, "No Immunities");
@@ -5655,9 +5655,9 @@ BOOL monster_posok(int mnum, int x, int y)
 				}
 			}
 		}
-		if ((fire && !(monster[mnum].mMagicRes & IMUNE_FIRE)) || (fire && monster[mnum].MType->mtype == MT_DIABLO))
+		if ((fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE)) || (fire && monster[mnum].MType->mtype == MT_DIABLO))
 			ret = FALSE;
-		if ((lightning && !(monster[mnum].mMagicRes & IMUNE_LIGHTNING)) || (lightning && monster[mnum].MType->mtype == MT_DIABLO))
+		if ((lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING)) || (lightning && monster[mnum].MType->mtype == MT_DIABLO))
 			ret = FALSE;
 	}
 #else
@@ -5672,7 +5672,7 @@ BOOL monster_posok(int mnum, int x, int y)
 				}
 			}
 		}
-		if (fire && (!(monster[mnum].mMagicRes & IMUNE_FIRE) || monster[mnum].MType->mtype == MT_DIABLO))
+		if (fire && (!(monster[mnum].mMagicRes & IMMUNE_FIRE) || monster[mnum].MType->mtype == MT_DIABLO))
 			ret = FALSE;
 	}
 #endif

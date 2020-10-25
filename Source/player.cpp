@@ -147,7 +147,7 @@ int ToBlkTbl[NUM_CLASSES] = {
 	30,
 #endif
 };
-char *ClassStrTblOld[] = {
+const char *const ClassStrTblOld[] = {
 	"Warrior",
 	"Rogue",
 	"Sorceror",
@@ -222,7 +222,7 @@ int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	1310707109,
 	1583495809
 };
-char *ClassStrTbl[NUM_CLASSES] = {
+const char *const ClassStrTbl[NUM_CLASSES] = {
 	"Warrior",
 	"Rogue",
 	"Sorceror",
@@ -459,7 +459,7 @@ void InitPlrGFXMem(int pnum)
 	p->_pGFXLoad = 0;
 }
 
-DWORD GetPlrGFXSize(char *szCel)
+DWORD GetPlrGFXSize(const char *szCel)
 {
 	DWORD c;
 	const char *a, *w, *cc, *cst;

@@ -549,22 +549,22 @@ BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
 {
 	switch (missiledata[mitype].mResist) {
 	case MISR_FIRE:
-		if (mor & IMUNE_FIRE)
+		if (mor & IMMUNE_FIRE)
 			return TRUE;
 		*resist = (mor & RESIST_FIRE) != 0;
 		break;
 	case MISR_LIGHTNING:
-		if (mor & IMUNE_LIGHTNING)
+		if (mor & IMMUNE_LIGHTNING)
 			return TRUE;
 		*resist = (mor & RESIST_LIGHTNING) != 0;
 		break;
 	case MISR_MAGIC:
-		if (mor & IMUNE_MAGIC)
+		if (mor & IMMUNE_MAGIC)
 			return TRUE;
 		*resist = (mor & RESIST_MAGIC) != 0;
 		break;
 	case MISR_ACID:
-		if (mor & IMUNE_ACID)
+		if (mor & IMMUNE_ACID)
 			return TRUE;
 		// BUGFIX: TODO player is resistant against ACID with RESIST_MAGIC, monsters should behave the same
 		break;
@@ -1484,7 +1484,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 					if (dm > 3) {
 						if (!monster[dm]._uniqtype && monster[dm]._mAi != AI_DIABLO) {
 							if (monster[dm]._mmode != MM_FADEIN && monster[dm]._mmode != MM_FADEOUT) {
-								if (!(monster[dm].mMagicRes & IMUNE_MAGIC)) {
+								if (!(monster[dm].mMagicRes & IMMUNE_MAGIC)) {
 									if ((!(monster[dm].mMagicRes & RESIST_MAGIC) || (monster[dm].mMagicRes & RESIST_MAGIC) == 1 && !random_(99, 2)) && monster[dm]._mmode != MM_CHARGE) {
 										i = 6;
 										double slvl = (double)GetSpellLevel(id, SPL_BERSERK);

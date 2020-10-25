@@ -263,7 +263,7 @@ ObjDataStruct AllObjects[] = {
 };
 
 /** Maps from object_graphic_id to object CEL name. */
-char *ObjMasterLoadList[] = { // might be const
+const char *const ObjMasterLoadList[] = { // length might be const
 	"L1Braz",
 	"L1Doors",
 	"Lever",

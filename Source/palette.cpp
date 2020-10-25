@@ -82,7 +82,7 @@ void palette_init()
 	InitPalette();
 }
 
-void LoadPalette(char *pszFileName)
+void LoadPalette(const char *pszFileName)
 {
 	int i;
 	void *pBuf;
