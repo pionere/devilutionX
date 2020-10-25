@@ -4733,6 +4733,7 @@ BOOL PremiumItemOk(int i)
 #ifdef HELLFIRE
 		&& (gbMaxPlayers == 1 || (AllItemsList[i].iMiscId != IMISC_OILOF && AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #else
+		&& AllItemsList[i].itype != ITYPE_STAFF
 		&& (gbMaxPlayers == 1 || (AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #endif
 }
