@@ -84,11 +84,7 @@ void SetupItem(int ii);
 int RndItem(int m);
 int RndUItem(int m);
 int RndAllItems();
-#ifdef HELLFIRE
 int RndTypeItems(int itype, int imid, int lvl);
-#else
-int RndTypeItems(int itype, int imid);
-#endif
 int CheckUnique(int ii, int lvl, int uper, BOOL recreate);
 void GetUniqueItem(int ii, int uid);
 void SpawnUnique(int uid, int x, int y);

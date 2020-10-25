@@ -2690,11 +2690,7 @@ int RndAllItems()
 	return ril[random_(26, ri)];
 }
 
-#ifdef HELLFIRE
 int RndTypeItems(int itype, int imid, int lvl)
-#else
-int RndTypeItems(int itype, int imid)
-#endif
 {
 	int i, ri;
 	BOOL okflag;
@@ -2705,11 +2701,7 @@ int RndTypeItems(int itype, int imid)
 		okflag = TRUE;
 		if (!AllItemsList[i].iRnd)
 			okflag = FALSE;
-#ifdef HELLFIRE
 		if (lvl << 1 < AllItemsList[i].iMinMLvl)
-#else
-		if (currlevel << 1 < AllItemsList[i].iMinMLvl)
-#endif
 			okflag = FALSE;
 		if (AllItemsList[i].itype != itype)
 			okflag = FALSE;
@@ -2940,10 +2932,12 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 {
-	int idx, ii;
+	int idx, ii, lvl;
 
 #ifdef HELLFIRE
-	int curlv = items_get_currlevel();
+	lvl = items_get_currlevel();
+#else
+	lvl = currlevel;
 #endif
 	if (onlygood)
 		idx = RndUItem(-1);
@@ -2955,11 +2949,7 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 		GetSuperItemSpace(x, y, ii);
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
-#ifdef HELLFIRE
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * curlv, 1, onlygood, FALSE, delta);
-#else
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * currlevel, 1, onlygood, FALSE, delta);
-#endif
+		SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, onlygood, FALSE, delta);
 		if (sendmsg)
 			NetSendCmdDItem(FALSE, ii);
 		if (delta)
@@ -3044,16 +3034,15 @@ void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg)
 
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta)
 {
-	int idx, ii;
+	int idx, ii, lvl;
 
 #ifdef HELLFIRE
-	int curlv = items_get_currlevel();
-	if (itype != ITYPE_GOLD)
-		idx = RndTypeItems(itype, imisc, curlv);
+	lvl = items_get_currlevel();
 #else
-	if (itype != ITYPE_GOLD)
-		idx = RndTypeItems(itype, imisc);
+	lvl = currlevel;
 #endif
+	if (itype != ITYPE_GOLD)
+		idx = RndTypeItems(itype, imisc, lvl);
 	else
 		idx = 0;
 
@@ -3062,11 +3051,7 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 		GetSuperItemSpace(x, y, ii);
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
-#ifdef HELLFIRE
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * curlv, 1, onlygood, FALSE, delta);
-#else
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * currlevel, 1, onlygood, FALSE, delta);
-#endif
+		SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, onlygood, FALSE, delta);
 
 		if (sendmsg)
 			NetSendCmdDItem(FALSE, ii);
@@ -5348,28 +5333,23 @@ int ItemNoFlippy()
 
 void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 {
-	int ii, idx;
+	int ii, idx, lvl;
 
 #ifdef HELLFIRE
-	int lvl = spelldata[ispell].sBookLvl + 1;
-	if (lvl < 1) {
+	lvl = spelldata[ispell].sBookLvl + 1;
+	if (lvl < 1)
 		return;
-	}
-	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 #else
-	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK);
+	lvl = currlevel;
 #endif
+	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
 		while (TRUE) {
-#ifdef HELLFIRE
 			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
-#else
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * currlevel, 1, TRUE, FALSE, delta);
-#endif
 			if (item[ii]._iMiscId == IMISC_BOOK && item[ii]._iSpell == ispell)
 				break;
 		}
@@ -5383,10 +5363,12 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 
 void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta)
 {
-	int ii, idx;
+	int ii, idx, lvl;
 
 #ifdef HELLFIRE
-	int curlv = items_get_currlevel();
+	lvl = items_get_currlevel();
+#else
+	lvl = currlevel;
 #endif
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
@@ -5394,13 +5376,8 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
 		while (TRUE) {
-#ifdef HELLFIRE
-			idx = RndTypeItems(imisc, IMISC_NONE, curlv);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * curlv, 1, TRUE, FALSE, delta);
-#else
-			idx = RndTypeItems(imisc, IMISC_NONE);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * currlevel, 1, TRUE, FALSE, delta);
-#endif
+			idx = RndTypeItems(imisc, IMISC_NONE, lvl);
+			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iCurs == icurs)
 				break;
 		}
@@ -5439,15 +5416,17 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 
 void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta)
 {
-	int ii, idx;
+	int ii, idx, lvl, imid;
 
 #ifdef HELLFIRE
-	int imid;
 	if (imisc == ITYPE_STAFF)
 		imid = IMISC_STAFF;
 	else
 		imid = IMISC_NONE;
-	int lvl = items_get_currlevel();
+	lvl = items_get_currlevel();
+#else
+	imid = IMISC_NONE;
+	lvl = currlevel;
 #endif
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
@@ -5455,13 +5434,8 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
 		while (TRUE) {
-#ifdef HELLFIRE
 			idx = RndTypeItems(imisc, imid, lvl);
 			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
-#else
-			idx = RndTypeItems(imisc, IMISC_NONE);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * currlevel, 1, TRUE, FALSE, delta);
-#endif
 			if (item[ii]._iCurs == icurs)
 				break;
 		}
