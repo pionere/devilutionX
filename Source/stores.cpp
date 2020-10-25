@@ -578,6 +578,21 @@ BOOL S_StartSPBuy()
 	return TRUE;
 }
 
+void AddStoreSell(ItemStruct *is, int i)
+{
+	storehold[storenumh] = *is;
+
+	is = &storehold[storenumh];
+	if (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified)
+		is->_ivalue = is->_iIvalue;
+
+	if ((is->_ivalue >>= 2) == 0)
+		is->_ivalue = 1;
+	is->_iIvalue = is->_ivalue;
+
+	storehidx[storenumh++] = i;
+}
+
 BOOL SmithSellOk(ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
@@ -643,16 +658,7 @@ void S_StartSSell()
 			break;
 #endif
 		if (SmithSellOk(pi)) {
-			storehold[storenumh] = *pi;
-
-			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
-				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
-
-			if ((storehold[storenumh]._ivalue >>= 2) == 0)
-				storehold[storenumh]._ivalue = 1;
-
-			storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
-			storehidx[storenumh++] = i;
+			AddStoreSell(pi, i);
 		}
 	}
 #ifdef HELLFIRE
@@ -662,16 +668,7 @@ void S_StartSSell()
 		if (storenumh >= 48)
 			break;
 		if (SmithSellOk(pi)) {
-			storehold[storenumh] = *pi;
-
-			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
-				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
-
-			if (!(storehold[storenumh]._ivalue >>= 2))
-				storehold[storenumh]._ivalue = 1;
-
-			storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
-			storehidx[storenumh++] = -(i + 1);
+			AddStoreSell(pi, -(i + 1));
 		}
 	}
 #endif
@@ -888,16 +885,7 @@ void S_StartWSell()
 			break;
 #endif
 		if (WitchSellOk(pi)) {
-			storehold[storenumh] = *pi;
-
-			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
-				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
-
-			if ((storehold[storenumh]._ivalue >>= 2) == 0)
-				storehold[storenumh]._ivalue = 1;
-
-			storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
-			storehidx[storenumh++] = i;
+			AddStoreSell(pi, i);
 		}
 	}
 
@@ -908,16 +896,7 @@ void S_StartWSell()
 			break;
 #endif
 		if (pi->_itype != ITYPE_NONE && WitchSellOk(pi)) {
-			storehold[storenumh] = *pi;
-
-			if (storehold[storenumh]._iMagical != ITEM_QUALITY_NORMAL && storehold[storenumh]._iIdentified)
-				storehold[storenumh]._ivalue = storehold[storenumh]._iIvalue;
-
-			if ((storehold[storenumh]._ivalue >>= 2) == 0)
-				storehold[storenumh]._ivalue = 1;
-
-			storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
-			storehidx[storenumh++] = -(i + 1);
+			AddStoreSell(pi, -(i + 1));
 		}
 	}
 
