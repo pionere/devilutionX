@@ -5609,9 +5609,8 @@ void MissToMonst(int mi, int x, int y)
 
 BOOL PosOkMonst(int mnum, int x, int y)
 {
-#ifdef HELLFIRE
-	int oi;
 	BOOL ret;
+	int oi;
 
 	ret = (nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0;
 	oi = dObject[x][y];
@@ -5623,50 +5622,18 @@ BOOL PosOkMonst(int mnum, int x, int y)
 
 	if (ret)
 		ret = monster_posok(mnum, x, y);
-#else
-	int oi, mi, j;
-	BOOL ret, fire;
-
-	fire = FALSE;
-	ret = (nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0;
-	if (ret && dObject[x][y] != 0) {
-		oi = dObject[x][y] > 0 ? dObject[x][y] - 1 : -(dObject[x][y] + 1);
-		if (object[oi]._oSolidFlag)
-			ret = FALSE;
-	}
-
-	if (ret && dMissile[x][y] && mnum >= 0) {
-		mi = dMissile[x][y];
-		if (mi > 0) {
-			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-				fire = TRUE;
-			} else {
-				for (j = 0; j < nummissiles; j++) {
-					if (missile[missileactive[j]]._mitype == MIS_FIREWALL)
-						fire = TRUE;
-				}
-			}
-		}
-		if (fire && (!(monster[mnum].mMagicRes & IMUNE_FIRE) || monster[mnum].MType->mtype == MT_DIABLO))
-			ret = FALSE;
-	}
-#endif
-
 	return ret;
 }
 
-#ifdef HELLFIRE
-BOOLEAN monster_posok(int mnum, int x, int y)
+BOOL monster_posok(int mnum, int x, int y)
 {
+	BOOL ret = TRUE, fire = FALSE;
+	int mi = dMissile[x][y], j;
+#ifdef HELLFIRE
+	BOOL lightning = FALSE;
 	MissileStruct* mis;
-	int mi, j;
-	BOOLEAN ret, fire, lightning;
 
-	ret = TRUE;
-	mi = dMissile[x][y];
-	if (mi && mnum >= 0) {
-		fire = FALSE;
-		lightning = FALSE;
+	if (mi != 0 && mnum >= 0) {
 		if (mi > 0) {
 			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 				fire = TRUE;
@@ -5693,41 +5660,8 @@ BOOLEAN monster_posok(int mnum, int x, int y)
 		if ((lightning && !(monster[mnum].mMagicRes & IMUNE_LIGHTNING)) || (lightning && monster[mnum].MType->mtype == MT_DIABLO))
 			ret = FALSE;
 	}
-	return ret;
-}
-#endif
-
-BOOL PosOkMonst2(int mnum, int x, int y)
-{
-	int oi, mi, j;
-#ifdef HELLFIRE
-	BOOL ret;
-
-	ret = !nSolidTable[dPiece[x][y]];
-
-	oi = dObject[x][y];
-	if (ret && oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
-			ret = FALSE;
-	}
-
-	if (ret)
-		ret = monster_posok(mnum, x, y);
 #else
-	BOOL ret, fire;
-
-	fire = FALSE;
-	ret = !nSolidTable[dPiece[x][y]];
-	oi = dObject[x][y];
-	if (ret && oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
-			ret = FALSE;
-	}
-
-	if (ret && dMissile[x][y] && mnum >= 0) {
-		mi = dMissile[x][y];
+	if (mi != 0 && mnum >= 0) {
 		if (mi > 0) {
 			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 				fire = TRUE;
@@ -5742,16 +5676,33 @@ BOOL PosOkMonst2(int mnum, int x, int y)
 			ret = FALSE;
 	}
 #endif
+	return ret;
+}
+
+BOOL PosOkMonst2(int mnum, int x, int y)
+{
+	BOOL ret;
+	int oi;
+
+	ret = !nSolidTable[dPiece[x][y]];
+
+	oi = dObject[x][y];
+	if (ret && oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (object[oi]._oSolidFlag)
+			ret = FALSE;
+	}
+
+	if (ret)
+		ret = monster_posok(mnum, x, y);
 
 	return ret;
 }
 
 BOOL PosOkMonst3(int mnum, int x, int y)
 {
-	int j, oi, objtype, mi;
-#ifdef HELLFIRE
-	BOOL ret;
-	DIABOOL isdoor;
+	BOOL ret, isdoor;
+	int oi, objtype;
 
 	ret = TRUE;
 	isdoor = FALSE;
@@ -5772,45 +5723,6 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 	}
 	if (ret)
 		ret = monster_posok(mnum, x, y);
-#else
-	BOOL ret, fire, isdoor;
-
-	fire = FALSE;
-	ret = TRUE;
-	isdoor = FALSE;
-
-	oi = dObject[x][y];
-	if (ret && oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		objtype = object[oi]._otype;
-		isdoor = objtype == OBJ_L1LDOOR || objtype == OBJ_L1RDOOR
-		    || objtype == OBJ_L2LDOOR || objtype == OBJ_L2RDOOR
-		    || objtype == OBJ_L3LDOOR || objtype == OBJ_L3RDOOR;
-		if (object[oi]._oSolidFlag && !isdoor) {
-			ret = FALSE;
-		}
-	}
-	if (ret) {
-		ret = (!nSolidTable[dPiece[x][y]] || isdoor) && (dPlayer[x][y] | dMonster[x][y]) == 0;
-	}
-	if (ret && dMissile[x][y] != 0 && mnum >= 0) {
-		mi = dMissile[x][y];
-		if (mi > 0) {
-			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-				fire = TRUE;
-			} else {
-				for (j = 0; j < nummissiles; j++) {
-					if (missile[missileactive[j]]._mitype == MIS_FIREWALL) {
-						fire = TRUE;
-					}
-				}
-			}
-		}
-		if (fire && (!(monster[mnum].mMagicRes & IMUNE_FIRE) || monster[mnum].MType->mtype == MT_DIABLO)) {
-			ret = FALSE;
-		}
-	}
-#endif
 
 	return ret;
 }
