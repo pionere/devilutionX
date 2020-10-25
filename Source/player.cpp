@@ -244,6 +244,21 @@ void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
 	}
 }
 
+inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
+{
+#ifdef HELLFIRE
+	if ((pc == PC_BARD && hfbard_mpq == NULL) || (pc == PC_BARBARIAN && hfbarb_mpq == NULL)) {
+#endif
+		*szCel = &CharChar[pc];
+		*cs = ClassStrTbl[pc];
+#ifdef HELLFIRE
+	} else {
+		*szCel = &CharCharHF[pc];
+		*cs = ClassStrTblOld[pc];
+	}
+#endif
+}
+
 void LoadPlrGFX(int pnum, player_graphic gfxflag)
 {
 	char prefix[16];
@@ -259,18 +274,8 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 	}
 
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if ((p->_pClass != PC_BARD || hfbard_mpq == NULL) && (p->_pClass != PC_BARBARIAN || hfbarb_mpq == NULL)) {
-#endif
-		sprintf(prefix, "%c%c%c", CharChar[p->_pClass], ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
-		cs = ClassStrTbl[p->_pClass];
-#ifdef HELLFIRE
-	} else {
-		sprintf(prefix, "%c%c%c", CharCharHF[p->_pClass], ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
-		cs = ClassStrTbl[p->_pClass];
-		cs = ClassStrTblOld[p->_pClass];
-	}
-#endif
+	GetPlrGFXCells(p->_pClass, &szCel, &cs);
+	sprintf(prefix, "%c%c%c", szCel, ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
 
 	for (i = 1; i <= PFILE_NONDEATH; i <<= 1) {
 		if (!(i & gfxflag)) {
@@ -458,7 +463,7 @@ void InitPlrGFXMem(int pnum)
 DWORD GetPlrGFXSize(char *szCel)
 {
 	DWORD c;
-	const char *a, *w;
+	const char *a, *w, *cc, *cst;
 	DWORD dwSize, dwMaxSize;
 	HANDLE hsFile;
 	char pszName[256];
@@ -471,6 +476,7 @@ DWORD GetPlrGFXSize(char *szCel)
 		if (c != 0)
 			continue;
 #endif
+		GetPlrGFXCells(c, &cc, &cst);
 		for (a = &ArmourChar[0]; *a; a++) {
 #ifdef SPAWN
 			if (a != &ArmourChar[0])
@@ -483,17 +489,8 @@ DWORD GetPlrGFXSize(char *szCel)
 				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
 					continue; //No block without weapon
 				}
-#ifdef HELLFIRE
-				if ((c == PC_BARD && hfbard_mpq == NULL) || (c == PC_BARBARIAN && hfbarb_mpq == NULL)) {
-#endif
-					sprintf(Type, "%c%c%c", CharChar[c], *a, *w);
-					sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", ClassStrTbl[c], Type, Type, szCel);
-#ifdef HELLFIRE
-				} else {
-					sprintf(Type, "%c%c%c", CharCharHF[c], *a, *w);
-					sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", ClassStrTblOld[c], Type, Type, szCel);
-				}
-#endif
+				sprintf(Type, "%c%c%c", cc, *a, *w);
+				sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
 				if (WOpenFile(pszName, &hsFile, TRUE)) {
 					/// ASSERT: assert(hsFile);
 					dwSize = WGetFileSize(hsFile, NULL, pszName);
