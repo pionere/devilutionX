@@ -68,7 +68,6 @@ void GiveGoldCheat()
 
 void StoresCheat()
 {
-#ifndef HELLFIRE
 	int i;
 
 	numpremium = 0;
@@ -82,7 +81,6 @@ void StoresCheat()
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SpawnWitch(30);
-#endif
 }
 
 void TakeGoldCheat()
