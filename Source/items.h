@@ -95,7 +95,6 @@ void SpawnUnique(int uid, int x, int y);
 void ItemRndDur(int ii);
 void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood, BOOL recreate, BOOL pregen);
 void SpawnItem(int mnum, int x, int y, BOOL sendmsg);
-void CreateItem(int uid, int x, int y);
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta);
 void SetupAllUseful(int ii, int iseed, int lvl);
 void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg);

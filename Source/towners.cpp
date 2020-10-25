@@ -674,7 +674,7 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_LTBANNER]._qactive = QUEST_DONE;
 					quests[Q_LTBANNER]._qvar1 = 3;
 					RemoveInvItem(pnum, i);
-					CreateItem(UITEM_HARCREST, tw->_tx, tw->_ty + 1);
+					SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1);
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_BANNER3);
@@ -758,7 +758,7 @@ void TalkToTowner(int pnum, int tnum)
 						quests[Q_ROCK]._qvar2 = 2;
 						quests[Q_ROCK]._qvar1 = 2;
 						RemoveInvItem(pnum, i);
-						CreateItem(UITEM_INFRARING, tw->_tx, tw->_ty + 1);
+						SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1);
 						tw->_tbtcnt = 150;
 						tw->_tVar1 = pnum;
 						InitQTextMsg(TEXT_INFRA7);
@@ -793,7 +793,7 @@ void TalkToTowner(int pnum, int tnum)
 						quests[Q_ANVIL]._qvar2 = 2;
 						quests[Q_ANVIL]._qvar1 = 2;
 						RemoveInvItem(pnum, i);
-						CreateItem(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1);
+						SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1);
 						tw->_tbtcnt = 150;
 						tw->_tVar1 = pnum;
 						InitQTextMsg(TEXT_ANVIL7);
@@ -912,7 +912,7 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_POISON5);
-					CreateItem(UITEM_TRING, tw->_tx, tw->_ty + 1);
+					SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1);
 					tw->_tMsgSaid = TRUE;
 				}
 			}
@@ -1090,7 +1090,7 @@ void TalkToTowner(int pnum, int tnum)
 				qt = TEXT_JERSEY7;
 				RemoveInvItem(pnum, i);
 			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
-				CreateItem(UITEM_BOVINE, tw->_tx + 1, tw->_ty);
+				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty);
 				RemoveInvItem(pnum, i);
 				qt = TEXT_JERSEY8;
 				quests[Q_JERSEY]._qactive = 3;

@@ -3077,7 +3077,7 @@ void OperateBookLever(int pnum, int oi)
 			if (os->_otype != OBJ_BLOODBOOK)
 				ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (os->_otype == OBJ_BLINDBOOK) {
-				CreateItem(3, 2 * setpc_x + 16 + 5, 2 * setpc_y + 16 + 5);
+				SpawnUnique(3, 2 * setpc_x + 16 + 5, 2 * setpc_y + 16 + 5);
 				tren = TransVal;
 				TransVal = 9;
 				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
@@ -3414,7 +3414,7 @@ void OperatePedistal(int pnum, int oi)
 			mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 			LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(mem);
-			CreateItem(7, 2 * setpc_x + 25, 2 * setpc_y + 19);
+			SpawnUnique(7, 2 * setpc_x + 25, 2 * setpc_y + 19);
 			os->_oSelFlag = 0;
 		}
 	}

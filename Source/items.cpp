@@ -2938,36 +2938,6 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 	}
 }
 
-void CreateItem(int uid, int x, int y)
-{
-	int ii, idx;
-
-#ifdef HELLFIRE
-	int curlv = items_get_currlevel();
-#endif
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		idx = 0;
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-
-		while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
-			idx++;
-		}
-
-#ifdef HELLFIRE
-		GetItemAttrs(ii, idx, curlv);
-#else
-		GetItemAttrs(ii, idx, currlevel);
-#endif
-		GetUniqueItem(ii, uid);
-		SetupItem(ii);
-		item[ii]._iMagical = ITEM_QUALITY_UNIQUE;
-		numitems++;
-	}
-}
-
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 {
 	int idx, ii;
