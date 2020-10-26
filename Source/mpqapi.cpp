@@ -610,7 +610,7 @@ int mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 	pBlockTbl->offset += size;
 	pBlockTbl->sizealloc -= size;
 
-	if (!pBlockTbl->sizealloc)
+	if (pBlockTbl->sizealloc == 0)
 		memset(pBlockTbl, 0, sizeof(*pBlockTbl));
 
 	return result;

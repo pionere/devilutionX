@@ -129,7 +129,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 				c = gbFontTransTbl[(BYTE)*sstr++];
 				c = fontframe[c];
 				len += fontkern[c] + 1;
-				if (!c) // allow wordwrap on blank glyph
+				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
 					break;
@@ -142,7 +142,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		while (str < endstr) {
 			c = gbFontTransTbl[(BYTE)*str++];
 			c = fontframe[c];
-			if (c)
+			if (c != 0)
 				PrintChar(sx, y, c, col);
 			sx += fontkern[c] + 1;
 		}

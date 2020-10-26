@@ -867,7 +867,7 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (plr[pnum]._pLvlVisited[21] == false && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
+		if (!plr[pnum]._pLvlVisited[21] && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
 			quests[Q_GRAVE]._qactive = 2;
 			quests[Q_GRAVE]._qlog = 1;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;

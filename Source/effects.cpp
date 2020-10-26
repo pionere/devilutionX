@@ -1068,7 +1068,7 @@ BOOL effect_is_playing(int nSFX)
 
 void stream_stop()
 {
-	if (sghStream) {
+	if (sghStream != NULL) {
 		SFileDdaEnd(sghStream);
 		SFileCloseFile(sghStream);
 		SFileFreeChunk();
@@ -1115,7 +1115,7 @@ void FreeMonsterSnd()
 		for (j = 0; j < 4; ++j) {
 			for (k = 0; k < 2; ++k) {
 				pSnd = Monsters[i].Snds[j][k];
-				if (pSnd) {
+				if (pSnd != NULL) {
 					Monsters[i].Snds[j][k] = NULL;
 					file = pSnd->sound_path;
 					pSnd->sound_path = NULL;
@@ -1287,7 +1287,7 @@ void PlaySfxLoc(int psfx, int x, int y)
 
 	if (psfx >= 0 && psfx <= 3) {
 		pSnd = sgSFX[psfx].pSnd;
-		if (pSnd)
+		if (pSnd != NULL)
 			pSnd->start_tc = 0;
 	}
 

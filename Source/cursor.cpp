@@ -115,7 +115,7 @@ const int InvItemHeight[] = {
 
 void InitCursor()
 {
-	assert(!pCursCels);
+	assert(pCursCels == NULL);
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", NULL);
 #ifdef HELLFIRE
 	pCursCels2 = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", NULL);

@@ -1346,7 +1346,7 @@ void CPrintString(int y, const char *str, BOOL center, int lines)
 	lineOffset = 0;
 	sx = 177 + PANEL_X;
 	sy = lineOffsets[lines][y] + PANEL_Y;
-	if (center == TRUE) {
+	if (center) {
 		strWidth = 0;
 		tmp = str;
 		while (*tmp) {
@@ -1361,7 +1361,7 @@ void CPrintString(int y, const char *str, BOOL center, int lines)
 		c = gbFontTransTbl[(BYTE)*str++];
 		c = fontframe[c];
 		lineOffset += fontkern[c] + 2;
-		if (c) {
+		if (c != 0) {
 			if (lineOffset < 288) {
 				PrintChar(sx, sy, c, infoclr);
 			}
@@ -1379,7 +1379,7 @@ void PrintGameStr(int x, int y, const char *str, int color)
 	while (*str) {
 		c = gbFontTransTbl[(BYTE)*str++];
 		c = fontframe[c];
-		if (c)
+		if (c != 0)
 			PrintChar(sx, sy, c, color);
 		sx += fontkern[c] + 1;
 	}
@@ -1641,7 +1641,7 @@ void MY_PlrStringXY(int x, int y, int endX, const char *pszStr, char col, int ba
 		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = fontframe[c];
 		line += fontkern[c] + base;
-		if (c) {
+		if (c != 0) {
 			if (line < widthOffset)
 				PrintChar(sx, sy, c, col);
 		}
@@ -1678,7 +1678,7 @@ void CheckChrBtns()
 	int *stats;
 	int i;
 
-	if (!chrbtnactive && plr[myplr]._pStatPts) {
+	if (!chrbtnactive && plr[myplr]._pStatPts != 0) {
 		stats = MaxStats[plr[myplr]._pClass];
 		for (i = 0; i < 4; i++) {
 			switch (i) {
@@ -1954,7 +1954,7 @@ void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char col)
 		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = fontframe[c];
 		line += fontkern[c] + 1;
-		if (c) {
+		if (c != 0) {
 			if (line <= 222)
 				PrintChar(sx, y, c, col);
 		}

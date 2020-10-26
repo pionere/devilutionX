@@ -98,9 +98,9 @@ const char *const spszMsgTbl[4] = {
 const char *const spszMsgHotKeyTbl[4] = { "F9", "F10", "F11", "F12" };
 
 /** To know if these things have been done when we get to the diablo_deinit() function */
-BOOL was_archives_init = false;
-BOOL was_ui_init = false;
-BOOL was_snd_init = false;
+BOOL was_archives_init = FALSE;
+BOOL was_ui_init = FALSE;
+BOOL was_snd_init = FALSE;
 
 void FreeGameMem()
 {
@@ -172,14 +172,14 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 extern void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
 extern void plrctrls_after_check_curs_move();
 
-static bool ProcessInput()
+static BOOL ProcessInput()
 {
 	if (PauseMode == 2) {
-		return false;
+		return FALSE;
 	}
 	if (gbMaxPlayers == 1 && gmenu_is_active()) {
 		force_redraw |= 1;
-		return false;
+		return FALSE;
 	}
 
 	if (!gmenu_is_active() && sgnTimeoutCurs == CURSOR_NONE) {
@@ -191,7 +191,7 @@ static bool ProcessInput()
 		track_process();
 	}
 
-	return true;
+	return TRUE;
 }
 
 void run_game_loop(unsigned int uMsg)
@@ -303,13 +303,13 @@ void diablo_init()
 
 	SFileEnableDirectAccess(TRUE);
 	init_archives();
-	was_archives_init = true;
+	was_archives_init = TRUE;
 
 	UiInitialize();
 #ifdef SPAWN
 	UiSetSpawned(TRUE);
 #endif
-	was_ui_init = true;
+	was_ui_init = TRUE;
 
 	ReadOnlyTest();
 
@@ -318,7 +318,7 @@ void diablo_init()
 	diablo_init_screen();
 
 	snd_init(NULL);
-	was_snd_init = true;
+	was_snd_init = TRUE;
 
 	ui_sound_init();
 }

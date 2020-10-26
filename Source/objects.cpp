@@ -623,10 +623,7 @@ DIABOOL TorchLocOK(int xp, int yp)
 	if (dFlags[xp][yp] & BFLAG_POPULATED)
 		return FALSE;
 
-	if (nTrapTable[dPiece[xp][yp]] != FALSE)
-		return TRUE;
-	else
-		return FALSE;
+	return nTrapTable[dPiece[xp][yp]];
 }
 
 void AddObjTraps()
@@ -1286,7 +1283,7 @@ void AddSCambBook(int oi)
 
 void AddChest(int oi, int type)
 {
-	if (!random_(147, 2))
+	if (random_(147, 2) == 0)
 		object[oi]._oAnimFrame += 3;
 	object[oi]._oRndSeed = GetRndSeed();
 	switch (type) {
@@ -1406,15 +1403,15 @@ void AddShrine(int oi)
 	object[oi]._oPreFlag = TRUE;
 	for (j = 0; j < NUM_SHRINETYPE; j++) {
 		if (currlevel < shrinemin[j] || currlevel > shrinemax[j]) {
-			slist[j] = 0;
+			slist[j] = FALSE;
 		} else {
-			slist[j] = 1;
+			slist[j] = TRUE;
 		}
 		if (gbMaxPlayers != 1 && shrineavail[j] == 1) {
-			slist[j] = 0;
+			slist[j] = FALSE;
 		}
 		if (gbMaxPlayers == 1 && shrineavail[j] == 2) {
-			slist[j] = 0;
+			slist[j] = FALSE;
 		}
 	}
 	do {
@@ -3860,7 +3857,7 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (!p->InvGrid[i]) {
+			if (p->InvGrid[i] == 0) {
 				r = 5 * leveltype + random_(160, 10 * leveltype);
 				t = p->_pNumInv; // check
 				p->InvList[t] = golditem;
@@ -3951,17 +3948,17 @@ void OperateShrine(int pnum, int oi, int sType)
 			return;
 		pi = p->InvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_iMagical && !pi->_iIdentified)
+			if (pi->_iMagical != ITEM_QUALITY_NORMAL && !pi->_iIdentified)
 				pi->_iIdentified = TRUE;
 		}
 		pi = p->InvList;
 		for (i = p->_pNumInv; i > 0; i--, pi++) {
-			if (pi->_iMagical && !pi->_iIdentified)
+			if (pi->_iMagical != ITEM_QUALITY_NORMAL && !pi->_iIdentified)
 				pi->_iIdentified = TRUE;
 		}
 		pi = p->SpdList;
 		for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-			if (pi->_iMagical && !pi->_iIdentified)
+			if (pi->_iMagical != ITEM_QUALITY_NORMAL && !pi->_iIdentified)
 				pi->_iIdentified = TRUE; // belt items can't be magical?
 		}
 		InitDiabloMsg(EMSG_SHRINE_GLIMMERING);

@@ -13,11 +13,11 @@ BYTE L5dflags[DMAXX][DMAXY];
 /** Specifies whether a single player quest DUN has been loaded. */
 BOOL L5setloadflag;
 /** Specifies whether to generate a horizontal room at position 1 in the Cathedral. */
-int HR1;
+BOOL HR1;
 /** Specifies whether to generate a horizontal room at position 2 in the Cathedral. */
-int HR2;
+BOOL HR2;
 /** Specifies whether to generate a horizontal room at position 3 in the Cathedral. */
-int HR3;
+BOOL HR3;
 int UberRow;
 int UberCol;
 int dword_577368;
@@ -27,11 +27,11 @@ int UberLeverCol;
 int IsUberLeverActivated;
 int UberDiabloMonsterIndex;
 /** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
-int VR1;
+BOOL VR1;
 /** Specifies whether to generate a vertical room at position 2 in the Cathedral. */
-int VR2;
+BOOL VR2;
 /** Specifies whether to generate a vertical room at position 3 in the Cathedral. */
-int VR3;
+BOOL VR3;
 /** Contains the contents of the single player quest DUN file. */
 BYTE *L5pSetPiece;
 
@@ -870,15 +870,15 @@ static void DRLG_L1Shadows()
 			ss = SPATS;
 			for (i = 0; i < 37; i++, ss++) {
 				if (ss->strig == sd00) {
-					if ((ss->s1 && ss->s1 != sd11)
-					 || (ss->s2 && ss->s2 != sd01)
-					 || (ss->s3 && ss->s3 != sd10))
+					if ((ss->s1 != 0 && ss->s1 != sd11)
+					 || (ss->s2 != 0 && ss->s2 != sd01)
+					 || (ss->s3 != 0 && ss->s3 != sd10))
 						continue;
-					if (ss->nv1 && !L5dflags[x - 1][y - 1])
+					if (ss->nv1 != 0 && !L5dflags[x - 1][y - 1])
 						dungeon[x - 1][y - 1] = ss->nv1;
-					if (ss->nv2 && !L5dflags[x][y - 1])
+					if (ss->nv2 != 0 && !L5dflags[x][y - 1])
 						dungeon[x][y - 1] = ss->nv2;
-					if (ss->nv3 && !L5dflags[x - 1][y])
+					if (ss->nv3 != 0 && !L5dflags[x - 1][y])
 						dungeon[x - 1][y] = ss->nv3;
 				}
 			}
@@ -934,7 +934,7 @@ static int DRLG_PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, in
 		abort = FALSE;
 		found = 0;
 
-		while (abort == FALSE) {
+		while (!abort) {
 			abort = TRUE;
 			if (cx != -1 && sx >= cx - sw && sx <= cx + 12) {
 				sx++;
@@ -966,8 +966,8 @@ static int DRLG_PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, in
 
 			ii = 2;
 
-			for (yy = 0; yy < sh && abort == TRUE; yy++) {
-				for (xx = 0; xx < sw && abort == TRUE; xx++) {
+			for (yy = 0; yy < sh && abort; yy++) {
+				for (xx = 0; xx < sw && abort; xx++) {
 					if (miniset[ii] && dungeon[xx + sx][sy + yy] != miniset[ii])
 						abort = FALSE;
 					if (L5dflags[xx + sx][sy + yy])
@@ -976,7 +976,7 @@ static int DRLG_PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, in
 				}
 			}
 
-			if (abort == FALSE) {
+			if (!abort) {
 				if (++sx == DMAXX - sw) {
 					sx = 0;
 					if (++sy == DMAXY - sh)
@@ -1008,7 +1008,7 @@ static int DRLG_PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, in
 		quests[Q_PWATER]._qty = 2 * sy + 22;
 	}
 
-	if (setview == TRUE) {
+	if (setview) {
 		ViewX = 2 * sx + 19;
 		ViewY = 2 * sy + 20;
 	}
@@ -1356,11 +1356,11 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 			L5drawRoom(cx1, cy1, cw, ch);
 		cx2 = x + w;
 		ran2 = L5checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
-		if (ran2 == TRUE)
+		if (ran2)
 			L5drawRoom(cx2, cy1, cw, ch);
 		if (i != 0)
 			L5roomGen(cx1, cy1, cw, ch, 1);
-		if (ran2 == TRUE)
+		if (ran2)
 			L5roomGen(cx2, cy1, cw, ch, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
@@ -1376,11 +1376,11 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 			L5drawRoom(rx, ry, width, height);
 		ry2 = y + h;
 		ran2 = L5checkRoom(rx - 1, ry2, width + 2, height + 1);
-		if (ran2 == TRUE)
+		if (ran2)
 			L5drawRoom(rx, ry2, width, height);
 		if (i != 0)
 			L5roomGen(rx, ry, width, height, 0);
-		if (ran2 == TRUE)
+		if (ran2)
 			L5roomGen(rx, ry2, width, height, 0);
 	}
 }
@@ -1398,8 +1398,8 @@ static void L5firstRoom()
 		VR2 = random_(0, 2);
 		VR3 = random_(0, 2);
 
-		if (VR1 + VR3 <= 1)
-			VR2 = 1;
+		if (!(VR1 & VR3))
+			VR2 = TRUE;
 		if (VR1)
 			L5drawRoom(15, 1, 10, 10);
 		else
@@ -1428,9 +1428,9 @@ static void L5firstRoom()
 		if (VR3)
 			L5roomGen(15, 29, 10, 10, 0);
 
-		HR3 = 0;
-		HR2 = 0;
-		HR1 = 0;
+		HR3 = FALSE;
+		HR2 = FALSE;
+		HR1 = FALSE;
 	} else {
 		xs = 1;
 		xe = DMAXX - 1;
@@ -1439,8 +1439,8 @@ static void L5firstRoom()
 		HR2 = random_(0, 2);
 		HR3 = random_(0, 2);
 
-		if (HR1 + HR3 <= 1)
-			HR2 = 1;
+		if (!(HR1 & HR3))
+			HR2 = TRUE;
 		if (HR1)
 			L5drawRoom(1, 15, 10, 10);
 		else
@@ -1469,9 +1469,9 @@ static void L5firstRoom()
 		if (HR3)
 			L5roomGen(29, 15, 10, 10, 1);
 
-		VR3 = 0;
-		VR2 = 0;
-		VR1 = 0;
+		VR3 = FALSE;
+		VR2 = FALSE;
+		VR1 = FALSE;
 	}
 }
 
@@ -1714,7 +1714,7 @@ static void DRLG_L5GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL 
 {
 	int i, j;
 
-	if (topflag == TRUE) {
+	if (topflag) {
 		dungeon[sx + 2][sy] = 12;
 		dungeon[sx + 3][sy] = 12;
 		dungeon[sx + 4][sy] = 3;
@@ -1722,7 +1722,7 @@ static void DRLG_L5GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL 
 		dungeon[sx + 8][sy] = 12;
 		dungeon[sx + 9][sy] = 2;
 	}
-	if (bottomflag == TRUE) {
+	if (bottomflag) {
 		sy += 11;
 		dungeon[sx + 2][sy] = 10;
 		dungeon[sx + 3][sy] = 12;
@@ -1734,7 +1734,7 @@ static void DRLG_L5GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL 
 		}
 		sy -= 11;
 	}
-	if (leftflag == TRUE) {
+	if (leftflag) {
 		dungeon[sx][sy + 2] = 11;
 		dungeon[sx][sy + 3] = 11;
 		dungeon[sx][sy + 4] = 3;
@@ -1742,7 +1742,7 @@ static void DRLG_L5GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL 
 		dungeon[sx][sy + 8] = 11;
 		dungeon[sx][sy + 9] = 1;
 	}
-	if (rightflag == TRUE) {
+	if (rightflag) {
 		sx += 11;
 		dungeon[sx][sy + 2] = 14;
 		dungeon[sx][sy + 3] = 11;
@@ -1931,8 +1931,8 @@ void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXX - sw; sx++) {
 			found = TRUE;
 			ii = 2;
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1943,7 +1943,7 @@ void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
 				}
 			}
 			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found == TRUE) {
+			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84 (fixed)
 				if (sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
@@ -1959,7 +1959,7 @@ void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
 					found = FALSE;
 				}
 			}
-			if (found == TRUE && random_(0, 100) < rndper) {
+			if (found && random_(0, 100) < rndper) {
 				for (yy = 0; yy < sh; yy++) {
 					for (xx = 0; xx < sw; xx++) {
 						if (miniset[kk] != 0) {
@@ -1980,10 +1980,10 @@ static void DRLG_L5Subs()
 
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
-			if (!random_(0, 4)) {
+			if (random_(0, 4) == 0) {
 				BYTE c = L5BTYPES[dungeon[x][y]];
 
-				if (c && !L5dflags[x][y]) {
+				if (c != 0 && !L5dflags[x][y]) {
 					rv = random_(0, 16);
 					i = -1;
 
@@ -2096,9 +2096,9 @@ static void L5FillChambers()
 	if (currlevel == 24) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2))
+			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
 				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2))
+			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
@@ -2125,9 +2125,9 @@ static void L5FillChambers()
 			drlg_l1_set_crypt_room(16, c);
 		} else {
 			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2))
+			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
 				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2))
+			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (HR1 && !HR2 && HR3) {
@@ -2157,9 +2157,9 @@ static void L5FillChambers()
 	if (currlevel == 21) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2))
+			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
 				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2))
+			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
@@ -2186,9 +2186,9 @@ static void L5FillChambers()
 			drlg_l1_set_corner_room(16, c);
 		} else {
 			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2))
+			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
 				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2))
+			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (HR1 && !HR2 && HR3) {
@@ -2219,9 +2219,9 @@ static void L5FillChambers()
 	if (L5setloadflag) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2))
+			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
 				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2))
+			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
@@ -2248,9 +2248,9 @@ static void L5FillChambers()
 			DRLG_L5SetRoom(16, c);
 		} else {
 			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2))
+			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
 				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2))
+			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
 				c = 0;
 
 			if (HR1 && !HR2 && HR3) {
@@ -2680,7 +2680,7 @@ static void DRLG_L5(int entry)
 			ViewY--;
 #endif
 		}
-	} while (doneflag == FALSE);
+	} while (!doneflag);
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {

@@ -82,7 +82,7 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
 		while (rlePixel == *src) {
 			if (rleLength >= 63)
 				break;
-			if (!width)
+			if (width == 0)
 				break;
 			rleLength++;
 

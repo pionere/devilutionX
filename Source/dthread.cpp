@@ -91,13 +91,13 @@ unsigned int dthread_handler(void *data)
 
 		sgMemCrit.Enter();
 		pkt = sgpInfoHead;
-		if (sgpInfoHead)
+		if (sgpInfoHead != NULL)
 			sgpInfoHead = sgpInfoHead->pNext;
 		else
 			ResetEvent(sghWorkToDoEvent);
 		sgMemCrit.Leave();
 
-		if (pkt) {
+		if (pkt != NULL) {
 			if (pkt->dwSpaceLeft != MAX_PLRS)
 				multi_send_zero_packet(pkt->dwSpaceLeft, pkt->data[0], &pkt->data[8], *(DWORD *)&pkt->data[4]);
 
@@ -107,7 +107,7 @@ unsigned int dthread_handler(void *data)
 
 			mem_free_dbg(pkt);
 
-			if (dwMilliseconds)
+			if (dwMilliseconds != 0)
 				SDL_Delay(dwMilliseconds);
 		}
 	}

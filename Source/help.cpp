@@ -555,7 +555,7 @@ void DrawHelpLine(int x, int y, char *text, char color)
 		text++;
 		c = fontframe[c];
 		width += fontkern[c] + 1;
-		if (c) {
+		if (c != 0) {
 			if (width <= 577)
 				PrintChar(sx, sy, c, color);
 		}

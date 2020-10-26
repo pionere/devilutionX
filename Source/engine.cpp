@@ -785,7 +785,7 @@ BYTE *DiabloAllocPtr(DWORD dwBytes)
  */
 void mem_free_dbg(void *p)
 {
-	if (p) {
+	if (p != NULL) {
 		sgMemCrit.Enter();
 		SMemFree(p, __FILE__, __LINE__, 0);
 		sgMemCrit.Leave();
@@ -807,10 +807,10 @@ BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
 	WOpenFile(pszName, &file, FALSE);
 	fileLen = WGetFileSize(file, NULL, pszName);
 
-	if (pdwFileLen)
+	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
 
-	if (!fileLen)
+	if (fileLen == 0)
 		app_fatal("Zero length SFILE:\n%s", pszName);
 
 	buf = (BYTE *)DiabloAllocPtr(fileLen);
@@ -953,7 +953,7 @@ void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = nWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -969,7 +969,7 @@ void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = nWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -989,7 +989,7 @@ void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 				w -= width;
 				width = 0;
 			}
-			if (!w) {
+			if (w == 0) {
 				w = nWidth;
 				dst -= BUFFER_WIDTH + w;
 			}
@@ -1063,7 +1063,7 @@ void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = nWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -1084,7 +1084,7 @@ void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = nWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -1104,7 +1104,7 @@ void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 				w -= width;
 				width = 0;
 			}
-			if (!w) {
+			if (w == 0) {
 				w = nWidth;
 				dst -= BUFFER_WIDTH + w;
 			}
@@ -1183,7 +1183,7 @@ void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidt
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = sgnWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -1199,7 +1199,7 @@ void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidt
 						dst++;
 						width--;
 					}
-					if (!w) {
+					if (w == 0) {
 						w = sgnWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
@@ -1219,7 +1219,7 @@ void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidt
 				w -= width;
 				width = 0;
 			}
-			if (!w) {
+			if (w == 0) {
 				w = sgnWidth;
 				dst -= BUFFER_WIDTH + w;
 			}

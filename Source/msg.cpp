@@ -501,12 +501,12 @@ void DeltaLoadLevel()
 				mon->_mfuty = y;
 				if (mstr->_mhitpoints != -1)
 					mon->_mhitpoints = mstr->_mhitpoints;
-				if (!mstr->_mhitpoints) {
+				if (mstr->_mhitpoints == 0) {
 					mon->_moldx = x;
 					mon->_moldy = y;
 					MonClearSquares(i);
 					if (mon->_mAi != AI_DIABLO) {
-						if (!mon->_uniqtype)
+						if (mon->_uniqtype == 0)
 							/// ASSERT: assert(mon->MType != NULL);
 							AddDead(mon->_mx, mon->_my, mon->MType->mdeadval, (direction)mon->_mdir);
 						else
@@ -824,7 +824,7 @@ void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p
 	}
 
 	ticks = SDL_GetTicks();
-	if (!cmd.dwTime) {
+	if (cmd.dwTime == 0) {
 		cmd.dwTime = ticks;
 	} else if (ticks - cmd.dwTime > 5000) {
 		return;
@@ -844,7 +844,7 @@ BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	cmd.bMaster = mast;
 
 	ticks = SDL_GetTicks();
-	if (!cmd.dwTime) {
+	if (cmd.dwTime == 0) {
 		cmd.dwTime = ticks;
 	} else if (ticks - cmd.dwTime > 5000) {
 		return FALSE;
@@ -1482,7 +1482,7 @@ BOOL i_own_level(int nReqLevel)
 		if (plr[i].plractive
 			&& !plr[i]._pLvlChanging
 			&& plr[i].plrlevel == nReqLevel
-			&& (i != myplr || !gbBufferMsgs))
+			&& (i != myplr || gbBufferMsgs == 0))
 			break;
 	}
 

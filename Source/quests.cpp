@@ -807,7 +807,7 @@ void ResyncQuests()
 		}
 	}
 	if (currlevel == quests[Q_MUSHROOM]._qlevel) {
-		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && !quests[Q_MUSHROOM]._qvar1) {
+		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && quests[Q_MUSHROOM]._qvar1 == QS_INIT) {
 			SpawnQuestItem(IDI_FUNGALTM, 0, 0, 5, 1);
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
 		} else {
@@ -916,7 +916,7 @@ void StartQuestlog()
 
 void QuestlogUp()
 {
-	if (numqlines) {
+	if (numqlines != 0) {
 		if (qline == qtopline) {
 			qline = 22;
 		} else if (qline == 22) {
@@ -930,7 +930,7 @@ void QuestlogUp()
 
 void QuestlogDown()
 {
-	if (numqlines) {
+	if (numqlines != 0) {
 		if (qline == 22) {
 			qline = qtopline;
 		} else if (qline == qtopline + 2 * numqlines - 2) {
@@ -955,7 +955,7 @@ void QuestlogESC()
 	int y, i;
 
 	y = (MouseY - 32) / 12;
-	if (numqlines) {
+	if (numqlines != 0) {
 		for (i = 0; i < numqlines; i++) {
 			if (y == qtopline + 2 * i) {
 				qline = y;

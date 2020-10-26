@@ -16,7 +16,7 @@ void ReadOnlyTest()
 {
 	const std::string path = GetPrefPath() + "Diablo1ReadOnlyTest.foo";
 	FILE *f = fopen(path.c_str(), "wt");
-	if (!f) {
+	if (f == NULL) {
 		DirErrorDlg(GetPrefPath().c_str());
 	}
 

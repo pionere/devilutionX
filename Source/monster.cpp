@@ -711,7 +711,7 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 	case UMT_ZHAR:
 		zharflag = TRUE;
 		for (i = 0; i < themeCount; i++) {
-			if (i == zharlib && zharflag == TRUE) {
+			if (i == zharlib && zharflag) {
 				zharflag = FALSE;
 				xp = 2 * themeLoc[i].x + 20;
 				yp = 2 * themeLoc[i].y + 20;
@@ -1251,7 +1251,7 @@ void monster_43C785(int mnum)
 {
 	int x, y, d, j, oi, mx, my;
 
-	if (monster[mnum].MType) {
+	if (monster[mnum].MType != NULL) {
 		mx = monster[mnum]._mx;
 		my = monster[mnum]._my;
 		for (d = 0; d < 8; d++) {
@@ -1862,7 +1862,7 @@ void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 	}
 
 	mon = &monster[mnum];
-	if (!mon->MType) {
+	if (mon->MType == NULL) {
 #ifdef HELLFIRE
 		return;
 #else
@@ -1932,7 +1932,7 @@ void M2MStartKill(int offm, int defm)
 		app_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
 	}
 	dmon = &monster[defm];
-	if (!monster[offm].MType)
+	if (monster[offm].MType == NULL)
 		app_fatal("M2MStartKill: Monster %d \"%s\" MType NULL", defm, dmon->mName);
 
 	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
@@ -2212,7 +2212,7 @@ BOOL MonDoWalk(int mnum)
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
-	} else if (!mon->_mAnimCnt) {
+	} else if (mon->_mAnimCnt == 0) {
 		mon->_mVar8++;
 		mon->_mVar6 += mon->_mxvel;
 		mon->_mVar7 += mon->_myvel;
@@ -2244,7 +2244,7 @@ BOOL MonDoWalk2(int mnum)
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
-		if (!mon->_mAnimCnt) {
+		if (mon->_mAnimCnt == 0) {
 			mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
@@ -2281,7 +2281,7 @@ BOOL MonDoWalk3(int mnum)
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
-		if (!mon->_mAnimCnt) {
+		if (mon->_mAnimCnt == 0) {
 			mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
@@ -2559,7 +2559,7 @@ int MonDoRSpAttack(int mnum)
 	if (mon->MType == NULL) // BUGFIX: should check MData
 		app_fatal("MonDoRSpAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
-	if (mon->_mAnimFrame == mon->MData->mAFNum2 && !mon->_mAnimCnt) {
+	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
 		    mon->_mx,
 		    mon->_my,
@@ -3011,7 +3011,7 @@ BOOL MonDoDelay(int mnum)
 	mVar2 = mon->_mVar2;
 	mon->_mVar2--;
 
-	if (!mVar2) {
+	if (mVar2 == 0) {
 		oFrame = mon->_mAnimFrame;
 		MonStartStand(mnum, mon->_mdir);
 		mon->_mAnimFrame = oFrame;
@@ -3026,7 +3026,7 @@ BOOL MonDoStone(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoStone: Invalid monster %d", mnum);
 
-	if (!monster[mnum]._mhitpoints) {
+	if (monster[mnum]._mhitpoints == 0) {
 		dMonster[monster[mnum]._mx][monster[mnum]._my] = 0;
 		monster[mnum]._mDelFlag = TRUE;
 	}
@@ -3462,11 +3462,11 @@ void MAI_Bat(int mnum)
 	mon->_mdir = md;
 	v = random_(107, 100);
 	if (mon->_mgoal == MGOAL_RETREAT) {
-		if (!mon->_mgoalvar1) {
+		if (mon->_mgoalvar1 == 0) {
 			MonCallWalk(mnum, opposite[md]);
 			mon->_mgoalvar1++;
 		} else {
-			if (random_(108, 2))
+			if (random_(108, 2) != 0)
 				MonCallWalk(mnum, left[md]);
 			else
 				MonCallWalk(mnum, right[md]);
@@ -3734,14 +3734,14 @@ void MAI_Fallen(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_RETREAT) {
-		if (!mon->_mgoalvar1--) {
+		if (mon->_mgoalvar1-- == 0) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartStand(mnum, opposite[mon->_mdir]);
 		}
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		if (random_(113, 4)) {
+		if (random_(113, 4) != 0) {
 			return;
 		}
 		if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -5163,7 +5163,7 @@ BOOL PosOkMissile(int x, int y)
 
 BOOL CheckNoSolid(int x, int y)
 {
-	return nSolidTable[dPiece[x][y]] == FALSE;
+	return !nSolidTable[dPiece[x][y]];
 }
 
 BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
@@ -5747,7 +5747,7 @@ int MonSpawnSkel(int x, int y, int dir)
 			j++;
 	}
 
-	if (j) {
+	if (j != 0) {
 		skeltypes = random_(136, j);
 		j = 0;
 		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
@@ -5842,7 +5842,7 @@ int PreSpawnSkeleton()
 			j++;
 	}
 
-	if (j) {
+	if (j != 0) {
 		skeltypes = random_(136, j);
 		j = 0;
 		for (i = 0; i < nummtypes && j <= skeltypes; i++) {

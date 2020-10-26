@@ -55,7 +55,7 @@ void gmenu_draw_pause()
 {
 	if (currlevel != 0)
 		RedBack();
-	if (!sgpCurrentMenu) {
+	if (sgpCurrentMenu == NULL) {
 		light_table_index = 0;
 		gmenu_print_text(316 + PANEL_LEFT, 336, "Pause");
 	}
@@ -118,12 +118,12 @@ void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 	mouseNavigation = FALSE;
 	sgpCurrentMenu = pItem;
 	gmUpdateFunc = gmUpdFunc;
-	if (gmUpdFunc) {
+	if (gmUpdFunc != NULL) {
 		gmUpdateFunc(sgpCurrentMenu);
 		pItem = sgpCurrentMenu;
 	}
 	sgCurrentMenuIdx = 0;
-	if (sgpCurrentMenu) {
+	if (sgpCurrentMenu != NULL) {
 		for (i = 0; sgpCurrentMenu[i].fnMenu; i++) {
 			sgCurrentMenuIdx++;
 		}
@@ -137,12 +137,12 @@ void gmenu_up_down(BOOL isDown)
 {
 	int i;
 
-	if (!sgpCurrItem) {
+	if (sgpCurrItem == NULL) {
 		return;
 	}
 	mouseNavigation = FALSE;
 	i = sgCurrentMenuIdx;
-	if (sgCurrentMenuIdx) {
+	if (sgCurrentMenuIdx != 0) {
 		while (i) {
 			i--;
 			if (isDown) {
@@ -155,7 +155,7 @@ void gmenu_up_down(BOOL isDown)
 				sgpCurrItem--;
 			}
 			if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
-				if (i)
+				if (i != 0)
 					PlaySFX(IS_TITLEMOV);
 				return;
 			}
@@ -169,8 +169,8 @@ void gmenu_draw()
 	TMenuItem *i;
 	DWORD ticks;
 
-	if (sgpCurrentMenu) {
-		if (gmUpdateFunc)
+	if (sgpCurrentMenu != NULL) {
+		if (gmUpdateFunc != NULL)
 			gmUpdateFunc(sgpCurrentMenu);
 #ifdef HELLFIRE
 		ticks = SDL_GetTicks();
@@ -258,7 +258,7 @@ int gmenu_get_lfont(TMenuItem *pItem)
 
 BOOL gmenu_presskeys(int vkey)
 {
-	if (!sgpCurrentMenu)
+	if (sgpCurrentMenu == NULL)
 		return FALSE;
 	switch (vkey) {
 	case DVL_VK_RETURN:
@@ -357,7 +357,7 @@ BOOL gmenu_left_mouse(BOOL isDown)
 		}
 	}
 
-	if (!sgpCurrentMenu) {
+	if (sgpCurrentMenu == NULL) {
 		return FALSE;
 	}
 	if (MouseY >= PANEL_TOP) {

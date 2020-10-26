@@ -800,7 +800,7 @@ void FreeLightTable()
 
 void InitLightTable()
 {
-	assert(!pLightTbl);
+	assert(pLightTbl == NULL);
 	pLightTbl = DiabloAllocPtr(LIGHTSIZE);
 }
 

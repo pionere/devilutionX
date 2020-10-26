@@ -47,7 +47,7 @@ int cel_transparency_active;
 /**
  * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
  */
-int cel_foliage_active = false;
+BOOL cel_foliage_active = FALSE;
 /**
  * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
  */
@@ -147,7 +147,7 @@ static void scrollrt_draw_cursor_item()
 	int i, mx, my, col;
 	BYTE *src, *dst;
 
-	assert(!sgdwCursWdt);
+	assert(sgdwCursWdt == 0);
 
 	if (pcurs <= CURSOR_NONE || cursW == 0 || cursH == 0) {
 		return;
@@ -249,7 +249,7 @@ void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 		return;
 
 	pCelBuff = mis->_miAnimData;
-	if (!pCelBuff) {
+	if (pCelBuff == NULL) {
 		// app_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_mitype);
 		return;
 	}
@@ -321,7 +321,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 	mon = &monster[mnum];
 	pCelBuff = mon->_mAnimData;
-	if (!pCelBuff) {
+	if (pCelBuff == NULL) {
 		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
 		return;
 	}
@@ -377,7 +377,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 	int l, frames;
 
 	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || !setlevel && !currlevel) {
-		if (!pCelBuff) {
+		if (pCelBuff == NULL) {
 			// app_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 			return;
 		}
@@ -459,7 +459,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 		p = &plr[i];
 		if (p->plractive && p->_pHitPoints == 0 && p->plrlevel == (BYTE)currlevel && p->_px == x && p->_py == y) {
 			pCelBuff = p->_pAnimData;
-			if (!pCelBuff) {
+			if (pCelBuff == NULL) {
 				// app_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
 				break;
 			}
@@ -517,7 +517,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	assert((unsigned char)oi < MAXOBJECTS);
 
 	pCelBuff = os->_oAnimData;
-	if (!pCelBuff) {
+	if (pCelBuff == NULL) {
 		// app_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 		return;
 	}
@@ -570,7 +570,7 @@ static void drawCell(int x, int y, int sx, int sy)
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
-	cel_foliage_active = false;
+	cel_foliage_active = FALSE;
 }
 
 /**
@@ -982,9 +982,9 @@ void CalcTileOffset(int *offsetX, int *offsetY)
 		y = (VIEWPORT_HEIGHT / 2) % TILE_HEIGHT;
 	}
 
-	if (x)
+	if (x != 0)
 		x = (TILE_WIDTH - x) / 2;
-	if (y)
+	if (y != 0)
 		y = (TILE_HEIGHT - y) / 2;
 
 	*offsetX = x;

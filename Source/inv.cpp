@@ -681,7 +681,7 @@ BOOL GoldAutoPlace(int pnum)
 	for (i = 39; i >= 0 && !done; i--) {
 		yy = 10 * (i / 10);
 		xx = i % 10;
-		if (!p->InvGrid[xx + yy]) {
+		if (p->InvGrid[xx + yy] == 0) {
 			ii = p->_pNumInv;
 			p->InvList[ii] = p->HoldItem;
 			p->_pNumInv = p->_pNumInv + 1;
@@ -736,7 +736,7 @@ BOOL GoldAutoPlace(int pnum)
 		for (int i = 39; i >= 0 && !done; i--) {
 			yy = 10 * (i / 10);
 			xx = i % 10;
-			if (!p->InvGrid[xx + yy]) {
+			if (p->InvGrid[xx + yy] == 0) {
 				ii = p->_pNumInv;
 				p->InvList[ii] = p->HoldItem;
 				p->_pNumInv = p->_pNumInv + 1;
@@ -1599,7 +1599,7 @@ void CheckQuestItem(int pnum)
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
 		}
-		if (quests[Q_ANVIL]._qlog == TRUE) {
+		if (quests[Q_ANVIL]._qlog) {
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				sfxdnum = PS_WARR89;
@@ -1643,7 +1643,7 @@ void CheckQuestItem(int pnum)
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
 		}
-		if (quests[Q_ROCK]._qlog == TRUE) {
+		if (quests[Q_ROCK]._qlog) {
 			sfxdelay = 10;
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				sfxdnum = PS_WARR87;
@@ -2224,7 +2224,7 @@ int InvPutItem(int pnum, int x, int y)
 	return ii;
 }
 
-int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
+int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BOOL Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
 #ifdef HELLFIRE
     ,
     int to_hit, int max_dam, int min_str, int min_mag, int min_dex, int ac

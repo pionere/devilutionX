@@ -194,7 +194,7 @@ BOOL CheckThemeObj3(int xp, int yp, int tidx, int rndfrq)
 			return FALSE;
 		if (dTransVal[xx][yy] != tv)
 			return FALSE;
-		if (rndfrq != -1 && !random_(0, rndfrq))
+		if (rndfrq != -1 && random_(0, rndfrq) == 0)
 			return FALSE;
 	}
 

@@ -1029,7 +1029,7 @@ void AddPlrMonstExper(int lvl, int exp, char pmask)
 		}
 	}
 
-	if (totplrs) {
+	if (totplrs != 0) {
 		e = exp / totplrs;
 		if (pmask & (1 << myplr))
 			AddPlrExperience(myplr, lvl, e);
@@ -1134,7 +1134,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 #ifdef _DEBUG
 	if (debug_mode_dollar_sign && FirstTime) {
 		p->_pMemSpells |= 1 << (SPL_TELEPORT - 1);
-		if (!plr[myplr]._pSplLvl[SPL_TELEPORT]) {
+		if (plr[myplr]._pSplLvl[SPL_TELEPORT] == 0) {
 			plr[myplr]._pSplLvl[SPL_TELEPORT] = 1;
 		}
 	}
@@ -2175,7 +2175,7 @@ void SyncPlrKill(int pnum, int earflag)
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_mitype == MIS_MANASHIELD && mis->_misource == pnum && mis->_miDelFlag == FALSE) {
+		if (mis->_mitype == MIS_MANASHIELD && mis->_misource == pnum && !mis->_miDelFlag) {
 			if (earflag != -1) {
 				mis->_miVar8 = earflag;
 			}
@@ -2344,7 +2344,7 @@ BOOL PlrDoWalk(int pnum)
 
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (!currlevel && jogging_opt) {
+	if (currlevel == 0 && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
@@ -2414,7 +2414,7 @@ BOOL PlrDoWalk2(int pnum)
 	}
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (!currlevel && jogging_opt) {
+	if (currlevel == 0 && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
@@ -2480,7 +2480,7 @@ BOOL PlrDoWalk3(int pnum)
 	}
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (!currlevel && jogging_opt) {
+	if (currlevel == 0 && jogging_opt) {
 		if (p->_pAnimFrame % 2 == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
@@ -3125,7 +3125,7 @@ BOOL PlrDoBlock(int pnum)
 		PlrStartStand(pnum, p->_pdir);
 		ClearPlrPVars(pnum);
 
-		if (!random_(3, 10)) {
+		if (random_(3, 10) == 0) {
 			ShieldDur(pnum);
 		}
 		return TRUE;
@@ -3153,7 +3153,7 @@ BOOL PlrDoSpell(int pnum)
 		    0,
 		    p->_pVar4);
 
-		if (!p->_pSplFrom) {
+		if (p->_pSplFrom == 0) {
 			if (p->_pRSplType == RSPLTYPE_SCROLL) {
 				if (!(p->_pScrlSpells
 				        & (unsigned __int64)1 << (p->_pRSpell - 1))) {

@@ -1765,7 +1765,7 @@ void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 	char istr[64];
 
 #ifndef HELLFIRE
-	if (!random_(17, 4)) {
+	if (random_(17, 4) == 0) {
 		GetItemPower(ii, lvl >> 1, lvl, PLT_STAFF, onlygood);
 	} else
 #endif
@@ -2397,7 +2397,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	preidx = -1;
 	sufidx = -1;
 	goe = 0;
-	if (!onlygood && random_(0, 3))
+	if (!onlygood && random_(0, 3) != 0)
 		onlygood = TRUE;
 	if (!pre) {
 		nt = 0;
@@ -2524,7 +2524,7 @@ void SetupItem(int ii)
 	is->_iIdentified = FALSE;
 	is->_iPostDraw = FALSE;
 
-	if (!plr[myplr].pLvlLoad) {
+	if (plr[myplr].pLvlLoad == 0) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;
 		is->_iSelFlag = 0;
@@ -2556,7 +2556,7 @@ int RndItem(int lvl)
 			ril[ri] = i;
 			ri++;
 		}
-		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl
+		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl
 #ifdef HELLFIRE
 			&& ri < 512
 #endif
@@ -2583,7 +2583,7 @@ int RndUItem(int lvl)
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 		okflag = TRUE;
-		if (!AllItemsList[i].iRnd)
+		if (AllItemsList[i].iRnd == IDROP_NEVER)
 			okflag = FALSE;
 		if (lvl < AllItemsList[i].iMinMLvl)
 			okflag = FALSE;
@@ -2623,9 +2623,9 @@ int RndAllItems(int lvl)
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;
@@ -2648,7 +2648,7 @@ int RndTypeItems(int itype, int imid, int lvl)
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 		okflag = TRUE;
-		if (!AllItemsList[i].iRnd)
+		if (AllItemsList[i].iRnd == IDROP_NEVER)
 			okflag = FALSE;
 		if (lvl < AllItemsList[i].iMinMLvl)
 			okflag = FALSE;
@@ -2945,7 +2945,7 @@ void SetupAllUseful(int ii, int iseed, int lvl)
 	else
 		idx = IDI_MANA;
 
-	if (lvl > 1 && !random_(34, 3))
+	if (lvl > 1 && random_(34, 3) == 0)
 		idx = IDI_PORTAL;
 #endif
 
@@ -3008,13 +3008,13 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 	BOOL onlygood, recreate, pregen;
 
 	is = &item[ii];
-	if (!idx) {
+	if (idx == 0) {
 		SetPlrHandItem(is, IDI_GOLD);
 		is->_iSeed = iseed;
 		is->_iCreateInfo = icreateinfo;
 		SetGoldItemValue(is, ivalue);
 	} else {
-		if (!icreateinfo) {
+		if (icreateinfo == 0) {
 			SetPlrHandItem(is, idx);
 			is->_iSeed = iseed;
 		} else {
@@ -3130,7 +3130,7 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 	int i, j, tries, lvl;
 
 	lvl = items_get_currlevel();
-	if (randarea) {
+	if (randarea != 0) {
 		tries = 0;
 		while (1) {
 			tries++;
@@ -3421,7 +3421,7 @@ void RepairItem(ItemStruct *is, int lvl)
 		if (d < 1)
 			d = 1;
 		is->_iMaxDur = is->_iMaxDur - d;
-		if (!is->_iMaxDur) {
+		if (is->_iMaxDur == 0) {
 			is->_itype = ITYPE_NONE;
 			return;
 		}
@@ -4603,9 +4603,9 @@ int RndSmithItem(int lvl)
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4706,7 +4706,7 @@ int RndPremiumItem(int minlvl, int maxlvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-		if (AllItemsList[i].iRnd) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER) {
 			if (PremiumItemOk(i)) {
 #ifdef HELLFIRE
 				if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl && ri < 512) {
@@ -4819,9 +4819,9 @@ int RndWitchItem(int lvl)
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4926,9 +4926,9 @@ int RndBoyItem(int lvl)
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4999,9 +4999,9 @@ int RndHealerItem(int lvl)
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;

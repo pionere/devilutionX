@@ -17,7 +17,7 @@ BYTE *pSTextBoxCels;
 int premiumlevel;
 int talker;
 STextStruct stext[STORE_LINES];
-char stextsize;
+BOOL stextsize;
 int stextsmax;
 ItemStruct storehold[48];
 int gossipstart;
@@ -175,7 +175,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
 			c = fontframe[gbFontTransTbl[(BYTE)valstr[i]]];
 			sx -= fontkern[c] + 1;
-			if (c) {
+			if (c != 0) {
 				PrintChar(sx, sy, c, col);
 			}
 		}
@@ -548,7 +548,7 @@ BOOL S_StartSPBuy()
 		if (premiumitem[i]._itype != ITYPE_NONE)
 			storenumh++;
 	}
-	if (!storenumh) {
+	if (storenumh == 0) {
 		StartStore(STORE_SMITH);
 		stextsel = 14;
 		return FALSE;
@@ -770,7 +770,7 @@ void AddStoreHoldRepair(ItemStruct *is, int i)
 	if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
 		item->_ivalue = 30 * item->_iIvalue / 100;
 	v = item->_ivalue * (100 * (item->_iMaxDur - item->_iDurability) / item->_iMaxDur) / 100;
-	if (!v) {
+	if (v == 0) {
 		if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
 			return;
 		v = 1;
@@ -1945,7 +1945,7 @@ BOOL StoreGoldFit(int idx)
 		return TRUE;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (!plr[myplr].InvGrid[i])
+		if (plr[myplr].InvGrid[i] == 0)
 			numsqrs++;
 	}
 
@@ -1972,7 +1972,7 @@ void PlaceStoreGold(int v)
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		yy = 10 * (i / 10);
 		xx = i % 10;
-		if (!plr[myplr].InvGrid[xx + yy]) {
+		if (plr[myplr].InvGrid[xx + yy] == 0) {
 			ii = plr[myplr]._pNumInv;
 			GetGoldSeed(myplr, &golditem);
 			plr[myplr].InvList[ii] = golditem;

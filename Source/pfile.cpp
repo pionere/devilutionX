@@ -244,7 +244,7 @@ BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		dwlen = SFileGetFileSize(file, NULL);
-		if (dwlen) {
+		if (dwlen != 0) {
 			DWORD read;
 			buf = DiabloAllocPtr(dwlen);
 			if (SFileReadFile(file, buf, dwlen, &read, NULL)) {
@@ -254,7 +254,7 @@ BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 					ret = TRUE;
 				}
 			}
-			if (buf)
+			if (buf != NULL)
 				mem_free_dbg(buf);
 		}
 		SFileCloseFile(file);
@@ -362,7 +362,7 @@ BOOL pfile_get_file_name(DWORD lvl, char *dst)
 	const char *fmt;
 
 	if (gbMaxPlayers != 1) {
-		if (lvl)
+		if (lvl != 0)
 			return FALSE;
 		fmt = "hero";
 	} else {

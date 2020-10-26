@@ -1657,8 +1657,8 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, int tmin, int tmax, int cx, int c
 				found = FALSE;
 			}
 			ii = 2;
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1693,7 +1693,7 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, int tmin, int tmax, int cx, int c
 		}
 	}
 
-	if (setview == TRUE) {
+	if (setview) {
 		ViewX = 2 * sx + 21;
 		ViewY = 2 * sy + 22;
 	}
@@ -1724,8 +1724,8 @@ static void DRLG_L2PlaceRndSet(BYTE *miniset, int rndper)
 			if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
 				found = FALSE;
 			}
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1736,8 +1736,8 @@ static void DRLG_L2PlaceRndSet(BYTE *miniset, int rndper)
 				}
 			}
 			kk = sw * sh + 2;
-			if (found == TRUE) {
-				for (yy = std::max(sy - sh, 0); yy < std::min(sy + 2 * sh, DMAXY) && found == TRUE; yy++) {
+			if (found) {
+				for (yy = std::max(sy - sh, 0); yy < std::min(sy + 2 * sh, DMAXY) && found; yy++) {
 					for (xx = std::max(sx - sw, 0); xx < std::min(sx + 2 * sw, DMAXX); xx++) {
 						// BUGFIX: yy and xx can go out of bounds (fixed)
 						if (dungeon[xx][yy] == miniset[kk]) {
@@ -1746,7 +1746,7 @@ static void DRLG_L2PlaceRndSet(BYTE *miniset, int rndper)
 					}
 				}
 			}
-			if (found == TRUE && random_(0, 100) < rndper) {
+			if (found && random_(0, 100) < rndper) {
 				for (yy = 0; yy < sh; yy++) {
 					for (xx = 0; xx < sw; xx++) {
 						if (miniset[kk] != 0) {
@@ -1822,7 +1822,7 @@ static void DRLG_L2Shadows()
 					if (SPATSL2[i].s3 != 0 && SPATSL2[i].s3 != sd[1][0]) {
 						patflag = FALSE;
 					}
-					if (patflag == TRUE) {
+					if (patflag) {
 						if (SPATSL2[i].nv1 != 0) {
 							dungeon[x - 1][y - 1] = SPATSL2[i].nv1;
 						}
@@ -1915,7 +1915,7 @@ static void DefineRoom(int nX1, int nY1, int nX2, int nY2, BOOL ForceHW)
 	RoomList[nRoomCnt].nRoomy1 = nY1;
 	RoomList[nRoomCnt].nRoomy2 = nY2;
 
-	if (ForceHW == TRUE) {
+	if (ForceHW) {
 		for (i = nX1; i < nX2; i++) {
 			/// BUGFIX: Should loop j between nY1 and nY2 instead of always using nY1.
 			while (i < nY2) {
@@ -2041,7 +2041,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRh = nAh;
 	}
 
-	if (ForceHW == TRUE) {
+	if (ForceHW) {
 		nRw = nW;
 		nRh = nH;
 	}
@@ -2085,7 +2085,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	}
 	DefineRoom(nRx1, nRy1, nRx2, nRy2, ForceHW);
 
-	if (ForceHW == TRUE) {
+	if (ForceHW) {
 		nSx1 = nRx1 + 2;
 		nSy1 = nRy1 + 2;
 		nSx2 = nRx2;

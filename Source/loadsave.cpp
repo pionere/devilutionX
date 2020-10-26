@@ -220,7 +220,7 @@ int ILoad()
 
 BOOL OLoad()
 {
-	if (*tbuff++ == TRUE)
+	if (*tbuff++)
 		return TRUE;
 	else
 		return FALSE;
@@ -1024,7 +1024,7 @@ void ISave(int v)
 
 void OSave(BOOL v)
 {
-	if (v != FALSE)
+	if (v)
 		*tbuff++ = TRUE;
 	else
 		*tbuff++ = FALSE;

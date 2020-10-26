@@ -1062,17 +1062,17 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			cx1 = x - cw;
 			ran = L4checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1); /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
 			num++;
-		} while (ran == FALSE && num < 20);
+		} while (!ran && num < 20);
 
-		if (ran == TRUE)
+		if (ran)
 			L4drawRoom(cx1, cy1, cw, ch);
 		cx2 = x + w;
 		ran2 = L4checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
-		if (ran2 == TRUE)
+		if (ran2)
 			L4drawRoom(cx2, cy1, cw, ch);
-		if (ran == TRUE)
+		if (ran)
 			L4roomGen(cx1, cy1, cw, ch, 1);
-		if (ran2 == TRUE)
+		if (ran2)
 			L4roomGen(cx2, cy1, cw, ch, 1);
 		break;
 	case TRUE:
@@ -1084,17 +1084,17 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			ry = y - height;
 			ran = L4checkRoom(rx - 1, ry - 1, width + 2, height + 1);
 			num++;
-		} while (ran == FALSE && num < 20);
+		} while (!ran && num < 20);
 
-		if (ran == TRUE)
+		if (ran)
 			L4drawRoom(rx, ry, width, height);
 		ry2 = y + h;
 		ran2 = L4checkRoom(rx - 1, ry2, width + 2, height + 1);
-		if (ran2 == TRUE)
+		if (ran2)
 			L4drawRoom(rx, ry2, width, height);
-		if (ran == TRUE)
+		if (ran)
 			L4roomGen(rx, ry, width, height, 0);
-		if (ran2 == TRUE)
+		if (ran2)
 			L4roomGen(rx, ry2, width, height, 0);
 		break;
 	}

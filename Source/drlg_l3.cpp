@@ -963,7 +963,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		y2 = y1 + blksizey;
 	}
 
-	if (DRLG_L3FillRoom(x1, y1, x2, y2) == TRUE && random_(0, 4)) {
+	if (DRLG_L3FillRoom(x1, y1, x2, y2) && random_(0, 4)) {
 		if (dir != 2) {
 			DRLG_L3CreateBlock(x1, y1, blksizey, 0);
 		}
@@ -1369,10 +1369,10 @@ static void DRLG_L3River()
 				bail = TRUE;
 			}
 		}
-		if (bail == TRUE && riveramt < 7) {
+		if (bail && riveramt < 7) {
 			bail = FALSE;
 		}
-		if (bail == TRUE) {
+		if (bail) {
 			found = 0;
 			lpcnt = 0;
 			while (found == 0 && lpcnt < 30) {
@@ -1442,28 +1442,28 @@ static BOOL DRLG_L3SpawnEdge(int x, int y, int *totarea)
 	dungeon[x][y] |= 0x80;
 	*totarea += 1;
 
-	if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea) == TRUE) {
+	if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea)) {
 		return TRUE;
 	}
-	if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea) == TRUE) {
+	if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea)) {
 		return TRUE;
 	}
-	if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea) == TRUE) {
+	if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea)) {
 		return TRUE;
 	}
-	if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea) == TRUE) {
+	if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea)) {
 		return TRUE;
 	}
-	if (i & 0x80 && DRLG_L3Spawn(x, y - 1, totarea) == TRUE) {
+	if (i & 0x80 && DRLG_L3Spawn(x, y - 1, totarea)) {
 		return TRUE;
 	}
-	if (i & 0x40 && DRLG_L3Spawn(x, y + 1, totarea) == TRUE) {
+	if (i & 0x40 && DRLG_L3Spawn(x, y + 1, totarea)) {
 		return TRUE;
 	}
-	if (i & 0x20 && DRLG_L3Spawn(x + 1, y, totarea) == TRUE) {
+	if (i & 0x20 && DRLG_L3Spawn(x + 1, y, totarea)) {
 		return TRUE;
 	}
-	if (i & 0x10 && DRLG_L3Spawn(x - 1, y, totarea) == TRUE) {
+	if (i & 0x10 && DRLG_L3Spawn(x - 1, y, totarea)) {
 		return TRUE;
 	}
 
@@ -1494,29 +1494,29 @@ static BOOL DRLG_L3Spawn(int x, int y, int *totarea)
 
 	if (i != 8) {
 		i = spawntable[i];
-		if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea) == TRUE) {
+		if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea)) {
 			return TRUE;
 		}
-		if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea) == TRUE) {
+		if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea)) {
 			return TRUE;
 		}
-		if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea) == TRUE) {
+		if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea)) {
 			return TRUE;
 		}
-		if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea) == TRUE) {
+		if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea)) {
 			return TRUE;
 		}
 	} else {
-		if (DRLG_L3Spawn(x + 1, y, totarea) == TRUE) {
+		if (DRLG_L3Spawn(x + 1, y, totarea)) {
 			return TRUE;
 		}
-		if (DRLG_L3Spawn(x - 1, y, totarea) == TRUE) {
+		if (DRLG_L3Spawn(x - 1, y, totarea)) {
 			return TRUE;
 		}
-		if (DRLG_L3Spawn(x, y + 1, totarea) == TRUE) {
+		if (DRLG_L3Spawn(x, y + 1, totarea)) {
 			return TRUE;
 		}
-		if (DRLG_L3Spawn(x, y - 1, totarea) == TRUE) {
+		if (DRLG_L3Spawn(x, y - 1, totarea)) {
 			return TRUE;
 		}
 	}
@@ -1639,8 +1639,8 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx,
 				found = FALSE;
 			}
 			ii = 2;
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1675,7 +1675,7 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx,
 		}
 	}
 
-	if (setview == TRUE) {
+	if (setview) {
 		ViewX = 2 * sx + 17;
 		ViewY = 2 * sy + 19;
 	}
@@ -1699,8 +1699,8 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXY - sw; sx++) {
 			found = TRUE;
 			ii = 2;
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1711,7 +1711,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 				}
 			}
 			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found == TRUE) {
+			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84.
 				if (sx - 1 >= 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
@@ -1727,7 +1727,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 					found = FALSE;
 				}
 			}
-			if (found == TRUE && random_(0, 100) < rndper) {
+			if (found && random_(0, 100) < rndper) {
 				for (yy = 0; yy < sh; yy++) {
 					for (xx = 0; xx < sw; xx++) {
 						if (miniset[kk] != 0) {
@@ -1756,8 +1756,8 @@ BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXY - sw; sx++) {
 			found = TRUE;
 			ii = 2;
-			for (yy = 0; yy < sh && found == TRUE; yy++) {
-				for (xx = 0; xx < sw && found == TRUE; xx++) {
+			for (yy = 0; yy < sh && found; yy++) {
+				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = FALSE;
 					}
@@ -1768,7 +1768,7 @@ BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 				}
 			}
 			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found == TRUE) {
+			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
 				// BUGFIX: accesses to dungeon can go out of bounds
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84.
 				if (dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
@@ -1784,7 +1784,7 @@ BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 					found = FALSE;
 				}
 			}
-			if (found == TRUE && random_(0, 100) < rndper) {
+			if (found && random_(0, 100) < rndper) {
 				placed = TRUE;
 				for (yy = 0; yy < sh; yy++) {
 					for (xx = 0; xx < sw; xx++) {
@@ -2125,8 +2125,8 @@ BOOL DRLG_L3Anvil()
 		trys++;
 		found = TRUE;
 		ii = 2;
-		for (yy = 0; yy < sh && found == TRUE; yy++) {
-			for (xx = 0; xx < sw && found == TRUE; xx++) {
+		for (yy = 0; yy < sh && found; yy++) {
+			for (xx = 0; xx < sw && found; xx++) {
 				if (L3ANVIL[ii] != 0 && dungeon[xx + sx][yy + sy] != L3ANVIL[ii]) {
 					found = FALSE;
 				}
@@ -2388,7 +2388,7 @@ static void DRLG_L3(int entry)
 			if (!genok && QuestStatus(Q_ANVIL)) {
 				genok = DRLG_L3Anvil();
 			}
-		} while (genok == TRUE);
+		} while (genok);
 #ifdef HELLFIRE
 		if (currlevel < 17) {
 #endif

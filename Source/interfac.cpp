@@ -34,7 +34,7 @@ BOOL IncProgress()
 	sgdwProgress += 23;
 	if ((DWORD)sgdwProgress > 534)
 		sgdwProgress = 534;
-	if (sgpBackCel)
+	if (sgpBackCel != NULL)
 		DrawCutscene();
 	return (DWORD)sgdwProgress >= 534;
 }
@@ -261,7 +261,7 @@ void FreeInterface()
 
 void InitCutscene(unsigned int uMsg)
 {
-	assert(!sgpBackCel);
+	assert(sgpBackCel == NULL);
 
 	switch (uMsg) {
 	case WM_DIABNEXTLVL:
