@@ -2540,16 +2540,10 @@ void SetupItem(int ii)
 	}
 }
 
-int RndItem(int m)
+int RndItem(int lvl)
 {
 	int i, ri, r;
 	int ril[512];
-
-	if ((monster[m].MData->mTreasure & 0x8000) != 0)
-		return -1 - (monster[m].MData->mTreasure & 0xFFF);
-
-	if (monster[m].MData->mTreasure & 0x4000)
-		return 0;
 
 	if (random_(24, 100) > 40)
 		return 0;
@@ -2559,7 +2553,7 @@ int RndItem(int m)
 
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE && monster[m].mLevel >= AllItemsList[i].iMinMLvl
+		if (AllItemsList[i].iRnd == IDROP_DOUBLE && lvl >= AllItemsList[i].iMinMLvl
 #ifdef HELLFIRE
 			&& ri < 512
 #endif
@@ -2567,7 +2561,7 @@ int RndItem(int m)
 			ril[ri] = i;
 			ri++;
 		}
-		if (AllItemsList[i].iRnd && monster[m].mLevel >= AllItemsList[i].iMinMLvl
+		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl
 #ifdef HELLFIRE
 			&& ri < 512
 #endif
@@ -2585,34 +2579,19 @@ int RndItem(int m)
 	return ril[r] + 1;
 }
 
-int RndUItem(int m)
+int RndUItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
 	BOOL okflag;
 
-	if (m != -1 && (monster[m].MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1)
-		return -1 - (monster[m].MData->mTreasure & 0xFFF);
-
-#ifdef HELLFIRE
-	int curlv = items_get_currlevel();
-#endif
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 		okflag = TRUE;
 		if (!AllItemsList[i].iRnd)
 			okflag = FALSE;
-		if (m != -1) {
-			if (monster[m].mLevel < AllItemsList[i].iMinMLvl)
-				okflag = FALSE;
-		} else {
-#ifdef HELLFIRE
-			if (2 * curlv < AllItemsList[i].iMinMLvl)
-#else
-			if (2 * currlevel < AllItemsList[i].iMinMLvl)
-#endif
-				okflag = FALSE;
-		}
+		if (lvl < AllItemsList[i].iMinMLvl)
+			okflag = FALSE;
 		if (AllItemsList[i].itype == ITYPE_MISC)
 			okflag = FALSE;
 		if (AllItemsList[i].itype == ITYPE_GOLD)
@@ -2638,7 +2617,7 @@ int RndUItem(int m)
 	return ril[random_(25, ri)];
 }
 
-int RndAllItems()
+int RndAllItems(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -2646,15 +2625,12 @@ int RndAllItems()
 	if (random_(26, 100) > 25)
 		return 0;
 
-#ifdef HELLFIRE
-	int curlv = items_get_currlevel();
-#endif
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd && 2 * curlv >= AllItemsList[i].iMinMLvl && ri < 512) {
+		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
 #else
-		if (AllItemsList[i].iRnd && 2 * currlevel >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd && lvl >= AllItemsList[i].iMinMLvl) {
 #endif
 			ril[ri] = i;
 			ri++;
@@ -2679,7 +2655,7 @@ int RndTypeItems(int itype, int imid, int lvl)
 		okflag = TRUE;
 		if (!AllItemsList[i].iRnd)
 			okflag = FALSE;
-		if (lvl << 1 < AllItemsList[i].iMinMLvl)
+		if (lvl < AllItemsList[i].iMinMLvl)
 			okflag = FALSE;
 		if (AllItemsList[i].itype != itype)
 			okflag = FALSE;
@@ -2864,14 +2840,22 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 	BOOL onlygood;
 
 	if (monster[mnum]._uniqtype || ((monster[mnum].MData->mTreasure & 0x8000) && gbMaxPlayers != 1)) {
-		idx = RndUItem(mnum);
+		if ((monster[mnum].MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1)
+			idx = -1 - (monster[mnum].MData->mTreasure & 0xFFF);
+		else
+			idx = RndUItem(monster[mnum].mLevel);
 		if (idx < 0) {
 			SpawnUnique(-(idx + 1), x, y);
 			return;
 		}
 		onlygood = TRUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
-		idx = RndItem(mnum);
+		if ((monster[mnum].MData->mTreasure & 0x8000) != 0)
+			idx = -1 - (monster[mnum].MData->mTreasure & 0xFFF);
+		else if (monster[mnum].MData->mTreasure & 0x4000)
+			idx = 0;
+		else
+			idx = RndItem(monster[mnum].mLevel);
 		if (!idx)
 			return;
 		if (idx > 0) {
@@ -2911,17 +2895,19 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 #else
 	lvl = currlevel;
 #endif
+	lvl <<= 1;
+
 	if (onlygood)
-		idx = RndUItem(-1);
+		idx = RndUItem(lvl);
 	else
-		idx = RndAllItems();
+		idx = RndAllItems(lvl);
 
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, onlygood, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
 		if (sendmsg)
 			NetSendCmdDItem(FALSE, ii);
 		if (delta)
@@ -3011,6 +2997,8 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 #else
 	lvl = currlevel;
 #endif
+	lvl <<= 1;
+
 	if (itype != ITYPE_GOLD)
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
@@ -3021,7 +3009,7 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 		GetSuperItemSpace(x, y, ii);
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
-		SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, onlygood, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
 
 		if (sendmsg)
 			NetSendCmdDItem(FALSE, ii);
@@ -5281,6 +5269,8 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 #else
 	lvl = currlevel;
 #endif
+	lvl <<= 1;
+
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
@@ -5288,7 +5278,7 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
 		while (TRUE) {
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
+			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iMiscId == IMISC_BOOK && item[ii]._iSpell == ispell)
 				break;
 		}
@@ -5309,6 +5299,8 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 #else
 	lvl = currlevel;
 #endif
+	lvl <<= 1;
+
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
@@ -5316,7 +5308,7 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 		itemactive[numitems] = ii;
 		while (TRUE) {
 			idx = RndTypeItems(imisc, IMISC_NONE, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
+			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iCurs == icurs)
 				break;
 		}
@@ -5333,6 +5325,8 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx;
 
+	lvl <<= 1;
+
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
@@ -5340,7 +5334,7 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 		itemactive[numitems] = ii;
 		while (TRUE) {
 			idx = RndTypeItems(ITYPE_AMULET, IMISC_AMULET, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
+			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iCurs == ICURS_AMULET)
 				break;
 		}
@@ -5367,6 +5361,8 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 	imid = IMISC_NONE;
 	lvl = currlevel;
 #endif
+	lvl <<= 1;
+
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
@@ -5374,7 +5370,7 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 		itemactive[numitems] = ii;
 		while (TRUE) {
 			idx = RndTypeItems(imisc, imid, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), 2 * lvl, 1, TRUE, FALSE, delta);
+			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iCurs == icurs)
 				break;
 		}

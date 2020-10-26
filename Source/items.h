@@ -77,9 +77,9 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
 void GetItemBonus(int ii, int idata, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells);
 void SetupItem(int ii);
-int RndItem(int m);
-int RndUItem(int m);
-int RndAllItems();
+int RndItem(int lvl);
+int RndUItem(int lvl);
+int RndAllItems(int lvl);
 int RndTypeItems(int itype, int imid, int lvl);
 int CheckUnique(int ii, int lvl, int uper, BOOL recreate);
 void GetUniqueItem(int ii, int uid);
