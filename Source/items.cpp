@@ -479,19 +479,6 @@ int items_42357E(int i)
 	return res;
 }
 
-int items_get_currlevel()
-{
-	int lvl;
-
-	lvl = currlevel;
-	if (currlevel >= 17 && currlevel <= 20)
-		lvl = currlevel - 8;
-	if (currlevel >= 21 && currlevel <= 24)
-		lvl = currlevel - 7;
-
-	return lvl;
-}
-
 void SpawnNote()
 {
 	int x, y, id;
@@ -514,6 +501,22 @@ void SpawnNote()
 	SpawnQuestItem(id, x, y, 0, 1);
 }
 #endif
+
+inline int items_get_currlevel()
+{
+	int lvl;
+
+	lvl = currlevel;
+#ifdef HELLFIRE
+	if (lvl >= 17) {
+		if (lvl <= 20)
+			lvl -= 8;
+		else if (lvl <= 24)
+			lvl -= 7;
+	}
+#endif
+	return lvl;
+}
 
 void InitItemGFX()
 {
@@ -553,11 +556,8 @@ void AddInitItems()
 {
 	int x, y, i, j, rnd, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
+
 	rnd = random_(11, 3) + 3;
 	for (j = 0; j < rnd; j++) {
 		i = itemavail[0];
@@ -2739,11 +2739,8 @@ void SpawnUnique(int uid, int x, int y)
 {
 	int ii, itype, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
+
 	if (numitems >= MAXITEMS)
 		return;
 
@@ -2885,11 +2882,7 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 {
 	int idx, ii, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
 	lvl <<= 1;
 
 	if (onlygood)
@@ -2965,11 +2958,8 @@ void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg)
 {
 	int ii, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
+
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
 		GetSuperItemSpace(x, y, ii);
@@ -2987,11 +2977,7 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 {
 	int idx, ii, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
 	lvl <<= 1;
 
 	if (itype != ITYPE_GOLD)
@@ -3143,11 +3129,7 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 	BOOL failed;
 	int i, j, tries, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
 	if (randarea) {
 		tries = 0;
 		while (1) {
@@ -3197,11 +3179,9 @@ void SpawnRock()
 		ii = objectactive[i];
 		ostand = object[ii]._otype == OBJ_STAND;
 	}
-#ifdef HELLFIRE
+
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
+
 	if (ostand) {
 		i = itemavail[0];
 		itemavail[0] = itemavail[127 - numitems - 1];
@@ -5289,11 +5269,7 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 {
 	int ii, idx, lvl;
 
-#ifdef HELLFIRE
 	lvl = items_get_currlevel();
-#else
-	lvl = currlevel;
-#endif
 	lvl <<= 1;
 
 	if (numitems < MAXITEMS) {
@@ -5346,16 +5322,13 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 {
 	int ii, idx, lvl, imid;
 
+	imid = IMISC_NONE;
 #ifdef HELLFIRE
 	if (imisc == ITYPE_STAFF)
 		imid = IMISC_STAFF;
-	else
-		imid = IMISC_NONE;
-	lvl = items_get_currlevel();
-#else
-	imid = IMISC_NONE;
-	lvl = currlevel;
 #endif
+
+	lvl = items_get_currlevel();
 	lvl <<= 1;
 
 	if (numitems < MAXITEMS) {

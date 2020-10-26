@@ -42,7 +42,6 @@ int items_4234B2(int i);
 int items_423518(int i);
 int items_42357E(int i);
 void SpawnNote();
-int items_get_currlevel();
 #endif
 void InitItemGFX();
 BOOL ItemPlace(int xp, int yp);
