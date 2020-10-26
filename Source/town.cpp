@@ -323,25 +323,21 @@ void CreateTown(int entry)
 		if (TWarpFrom == 5) {
 			ViewX = 49;
 			ViewY = 22;
-		}
-		if (TWarpFrom == 9) {
+		} else if (TWarpFrom == 9) {
 			ViewX = 18;
 			ViewY = 69;
-		}
-		if (TWarpFrom == 13) {
+		} else if (TWarpFrom == 13) {
 			ViewX = 41;
 			ViewY = 81;
-		}
 #ifdef HELLFIRE
-		if (TWarpFrom == 21) {
-			ViewX = 36;
-			ViewY = 25;
-		}
-		if (TWarpFrom == 17) {
+		} else if (TWarpFrom == 17) {
 			ViewX = 79;
 			ViewY = 62;
-		}
+		} else if (TWarpFrom == 21) {
+			ViewX = 36;
+			ViewY = 25;
 #endif
+		}
 	}
 
 	T_Pass3();

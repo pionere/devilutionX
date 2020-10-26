@@ -57,14 +57,11 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
 
 #ifndef HELLFIRE
-	if (!gbSpawned) {
+	if (gbSpawned)
+		LoadBackgroundArt("ui_art\\swmmenu.pcx");
+	else
 #endif
 		LoadBackgroundArt("ui_art\\mainmenu.pcx");
-#ifndef HELLFIRE
-	} else {
-		LoadBackgroundArt("ui_art\\swmmenu.pcx");
-	}
-#endif
 
 	UiInitList(vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, vecMainMenuDialog, true);
 }

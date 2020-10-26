@@ -275,11 +275,11 @@ void DoHealOther(int pnum, int tnum)
 
 	hp = (random_(57, 10) + 1) << 6;
 
-	for (i = 0; i < plr[pnum]._pLevel; i++) {
+	for (i = plr[pnum]._pLevel; i > 0; i--) {
 		hp += (random_(57, 4) + 1) << 6;
 	}
 
-	for (i = 0; i < GetSpellLevel(pnum, SPL_HEALOTHER); ++i) {
+	for (i = GetSpellLevel(pnum, SPL_HEALOTHER); i > 0; i--) {
 		hp += (random_(57, 6) + 1) << 6;
 	}
 

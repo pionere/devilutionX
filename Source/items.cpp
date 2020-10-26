@@ -1171,7 +1171,7 @@ void CalcSelfItems(int pnum)
 	da = p->_pBaseDex;
 
 	pi = p->InvBody;
-	for (i = 0; i < NUM_INVLOC; i++, pi++) {
+	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
 			if (pi->_iIdentified) {
@@ -1184,7 +1184,7 @@ void CalcSelfItems(int pnum)
 	do {
 		changeflag = FALSE;
 		pi = p->InvBody;
-		for (i = 0; i < NUM_INVLOC; i++, pi++) {
+		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
 				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
 					changeflag = TRUE;
@@ -3172,17 +3172,15 @@ void SpawnRock()
 {
 	int i, ii, lvl;
 	int xx, yy;
-	int ostand;
 
-	ostand = FALSE;
-	for (i = 0; i < nobjects && !ostand; i++) {
+	for (i = 0; i < nobjects; i++) {
 		ii = objectactive[i];
-		ostand = object[ii]._otype == OBJ_STAND;
+		if (object[ii]._otype == OBJ_STAND)
+			break;
 	}
+	if (i != nobjects) {
+		lvl = items_get_currlevel();
 
-	lvl = items_get_currlevel();
-
-	if (ostand) {
 		i = itemavail[0];
 		itemavail[0] = itemavail[127 - numitems - 1];
 		itemactive[numitems] = i;

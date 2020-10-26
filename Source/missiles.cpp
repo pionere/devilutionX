@@ -1353,18 +1353,12 @@ void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 {
-	BOOLEAN found;
 	int i, j, cr, tx, ty;
-
-	found = FALSE;
 
 	if (rad > 19)
 		rad = 19;
 
 	for (i = 0; i < rad; i++) {
-		if (found) {
-			break;
-		}
 		cr = CrawlNum[i] + 1;
 		for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 			tx = *x + CrawlTable[cr];
@@ -1375,13 +1369,12 @@ BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 					missile[mi]._miy = ty;
 					*x = tx;
 					*y = ty;
-					found = TRUE;
-					break;
+					return TRUE;
 				}
 			}
 		}
 	}
-	return found;
+	return FALSE;
 }
 
 void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1393,12 +1386,10 @@ void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			missile[mi]._miVar1 = MIS_LIGHTBALL;
 			missile[mi]._miDelFlag = FALSE;
 			missile[mi]._mlid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
+			return;
 		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
 	}
+	missile[mi]._miDelFlag = TRUE;
 }
 
 void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1410,12 +1401,10 @@ void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 			missile[mi]._miVar1 = MIS_NOVA;
 			missile[mi]._miDelFlag = FALSE;
 			missile[mi]._mlid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
+			return;
 		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
 	}
+	missile[mi]._miDelFlag = TRUE;
 }
 
 void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1427,12 +1416,10 @@ void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 			missile[mi]._miVar1 = MIS_IMMOLATION;
 			missile[mi]._miDelFlag = FALSE;
 			missile[mi]._mlid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
+			return;
 		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
 	}
+	missile[mi]._miDelFlag = TRUE;
 }
 
 void AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1444,12 +1431,10 @@ void AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			missile[mi]._miVar1 = MIS_STONE;
 			missile[mi]._miDelFlag = FALSE;
 			missile[mi]._mlid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
+			return;
 		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
 	}
+	missile[mi]._miDelFlag = TRUE;
 }
 
 void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1471,6 +1456,9 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 {
 	int i, j, cr, tx, ty, dm, r;
 
+	missile[mi]._mirange = 0;
+	missile[mi]._miDelFlag = TRUE;
+
 	if (id >= 0) {
 		missile[mi]._misource = id;
 		for (i = 0; i < 6; i++) {
@@ -1486,7 +1474,6 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 							if (monster[dm]._mmode != MM_FADEIN && monster[dm]._mmode != MM_FADEOUT) {
 								if (!(monster[dm].mMagicRes & IMMUNE_MAGIC)) {
 									if ((!(monster[dm].mMagicRes & RESIST_MAGIC) || (monster[dm].mMagicRes & RESIST_MAGIC) == 1 && !random_(99, 2)) && monster[dm]._mmode != MM_CHARGE) {
-										i = 6;
 										double slvl = (double)GetSpellLevel(id, SPL_BERSERK);
 										monster[dm]._mFlags |= MFLAG_UNUSED | MFLAG_GOLEM;
 										monster[dm].mMinDamage = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)monster[dm].mMinDamage + slvl;
@@ -1499,7 +1486,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 											r = 9;
 										monster[dm].mlid = AddLight(monster[dm]._mx, monster[dm]._my, r);
 										UseMana(id, SPL_BERSERK);
-										break;
+										return;
 									}
 								}
 							}
@@ -1509,8 +1496,6 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			}
 		}
 	}
-	missile[mi]._mirange = 0;
-	missile[mi]._miDelFlag = TRUE;
 }
 
 void AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1893,10 +1878,10 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 
 	p = &plr[id];
 	ManaAmount = (random_(57, 10) + 1) << 6;
-	for (i = 0; i < p->_pLevel; i++) {
+	for (i = p->_pLevel; i > 0; i--) {
 		ManaAmount += (random_(57, 4) + 1) << 6;
 	}
-	for (i = 0; i < missile[mi]._mispllvl; i++) {
+	for (i = missile[mi]._mispllvl; i > 0; i--) {
 		ManaAmount += (random_(57, 6) + 1) << 6;
 	}
 	if (p->_pClass == PC_SORCERER)
@@ -2242,7 +2227,6 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	int i, cr, j, tx, ty;
 
 	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 		for (j = (BYTE)CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
@@ -2255,17 +2239,14 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					mis->_misx = tx;
 					mis->_misy = ty;
 					mis->_miDelFlag = FALSE;
-					i = 6;
-					break;
+					UseMana(id, SPL_TELEPORT);
+					mis->_mirange = 2;
+					return;
 				}
 			}
 		}
 	}
-
-	if (!mis->_miDelFlag) {
-		UseMana(id, SPL_TELEPORT);
-		mis->_mirange = 2;
-	}
+	mis->_miDelFlag = TRUE;
 }
 
 void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -2516,7 +2497,7 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	if (!micaster) {
 		if (id != -1) {
 			dam = 0;
-			for (i = 0; i <= plr[id]._pLevel; i++) {
+			for (i = plr[id]._pLevel; i >= 0; i--) {
 				dam += random_(55, 20) + 1;
 			}
 			for (i = mis->_mispllvl; i > 0; i--) {
@@ -2543,7 +2524,7 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	if (!micaster) {
 		if (id != -1) {
 			dam = 0;
-			for (i = 0; i <= plr[id]._pLevel; i++) {
+			for (i = plr[id]._pLevel; i >= 0; i--) {
 				dam += random_(56, 2) + 1;
 			}
 			for (i = mis->_mispllvl; i > 0; i--) {
@@ -2602,7 +2583,6 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 	mis->_midam = dam;
 
-	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
@@ -2622,31 +2602,29 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_misy = ty;
 						mis->_miDelFlag = FALSE;
 						UseMana(id, SPL_GUARDIAN);
-						i = 6;
-						break;
+						mis->_misource = id;
+						mis->_mlid = AddLight(mis->_mix, mis->_miy, 1);
+						range = mis->_mispllvl + (plr[id]._pLevel >> 1);
+						range += (range * plr[id]._pISplDur) >> 7;
+
+						if (range > 30)
+							range = 30;
+						range <<= 4;
+						if (range < 30)
+							range = 30;
+
+						mis->_mirange = range;
+						mis->_miVar1 = range - mis->_miAnimLen;
+						mis->_miVar2 = 0;
+						mis->_miVar3 = 1;
+						return;
 					}
 				}
 			}
 		}
 	}
 
-	if (mis->_miDelFlag != TRUE) {
-		mis->_misource = id;
-		mis->_mlid = AddLight(mis->_mix, mis->_miy, 1);
-		range = mis->_mispllvl + (plr[id]._pLevel >> 1);
-		range += (range * plr[id]._pISplDur) >> 7;
-
-		if (range > 30)
-			range = 30;
-		range <<= 4;
-		if (range < 30)
-			range = 30;
-
-		mis->_mirange = range;
-		mis->_miVar1 = range - mis->_miAnimLen;
-		mis->_miVar2 = 0;
-		mis->_miVar3 = 1;
-	}
+	mis->_miDelFlag = TRUE;
 }
 
 void AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -2870,33 +2848,28 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 				if (mid > MAX_PLRS - 1 && monster[mid]._mAi != AI_DIABLO) {
 #endif
 					if (monster[mid]._mmode != MM_FADEIN && monster[mid]._mmode != MM_FADEOUT && monster[mid]._mmode != MM_CHARGE) {
-						j = -99;
-						i = 6;
 						mis->_miVar1 = monster[mid]._mmode;
 						mis->_miVar2 = mid;
 						monster[mid]._mmode = MM_STONE;
-						break;
+						mis->_mix = tx;
+						mis->_miy = ty;
+						mis->_misx = mis->_mix;
+						mis->_misy = mis->_miy;
+						mis->_mirange = mis->_mispllvl + 6;
+						mis->_mirange += (mis->_mirange * plr[id]._pISplDur) >> 7;
+
+						if (mis->_mirange > 15)
+							mis->_mirange = 15;
+						mis->_mirange <<= 4;
+						UseMana(id, SPL_STONE);
+						return;
 					}
 				}
 			}
 		}
 	}
 
-	if (j != -99) {
-		mis->_miDelFlag = TRUE;
-	} else {
-		mis->_mix = tx;
-		mis->_miy = ty;
-		mis->_misx = mis->_mix;
-		mis->_misy = mis->_miy;
-		mis->_mirange = mis->_mispllvl + 6;
-		mis->_mirange += (mis->_mirange * plr[id]._pISplDur) >> 7;
-
-		if (mis->_mirange > 15)
-			mis->_mirange = 15;
-		mis->_mirange <<= 4;
-		UseMana(id, SPL_STONE);
-	}
+	mis->_miDelFlag = TRUE;
 }
 
 void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -2986,10 +2959,10 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	int HealAmount;
 
 	HealAmount = (random_(57, 10) + 1) << 6;
-	for (i = 0; i < plr[id]._pLevel; i++) {
+	for (i = plr[id]._pLevel; i > 0; i--) {
 		HealAmount += (random_(57, 4) + 1) << 6;
 	}
-	for (i = 0; i < missile[mi]._mispllvl; i++) {
+	for (i = missile[mi]._mispllvl; i > 0; i--) {
 		HealAmount += (random_(57, 6) + 1) << 6;
 	}
 
@@ -3083,7 +3056,6 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	int i, j, cr, tx, ty;
 
 	mis = &missile[mi];
-	mis->_miDelFlag = TRUE;
 	for (i = 0; i < 6; i++) {
 		cr = CrawlNum[i] + 1;
 #ifdef HELLFIRE
@@ -3101,22 +3073,20 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 						mis->_miVar5 = tx;
 						mis->_miVar6 = ty;
 						mis->_miDelFlag = FALSE;
-						i = 6;
-						break;
+						mis->_miVar7 = 0;
+						mis->_miVar8 = 0;
+						mis->_miVar3 = (midir - 2) & 7;
+						mis->_miVar4 = (midir + 2) & 7;
+						mis->_mirange = 7;
+						UseMana(id, SPL_FIREWALL);
+						return;
 					}
 				}
 			}
 		}
 	}
 
-	if (mis->_miDelFlag != TRUE) {
-		mis->_miVar7 = 0;
-		mis->_miVar8 = 0;
-		mis->_miVar3 = (midir - 2) & 7;
-		mis->_miVar4 = (midir + 2) & 7;
-		mis->_mirange = 7;
-		UseMana(id, SPL_FIREWALL);
-	}
+	mis->_miDelFlag = TRUE;
 }
 
 void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -3276,7 +3246,7 @@ void AddApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		mis->_miVar4 = 1;
 	if (mis->_miVar5 >= MAXDUNX)
 		mis->_miVar5 = MAXDUNX - 1;
-	for (i = 0; i < plr[id]._pLevel; i++) {
+	for (i = plr[id]._pLevel; i > 0; i--) {
 		mis->_midam += random_(67, 6) + 1;
 	}
 	mis->_mirange = 255;
@@ -3545,27 +3515,24 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	return mi;
 }
 
-int Sentfire(int mi, int sx, int sy)
+BOOL Sentfire(int mi, int sx, int sy)
 {
 	MissileStruct *mis;
-	int ex, dir;
+	int dir;
 
 	mis = &missile[mi];
-	ex = 0;
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 > MAX_PLRS - 1) {
 			dir = GetDirection(mis->_mix, mis->_miy, sx, sy);
 			mis->_miVar3 = missileavail[0];
 			AddMissile(mis->_mix, mis->_miy, sx, sy, dir, MIS_FIREBOLT, 0, mis->_misource, mis->_midam, GetSpellLevel(mis->_misource, SPL_FIREBOLT));
-			ex = -1;
+			SetMissDir(mi, 2);
+			mis->_miVar2 = 3;
+			return TRUE;
 		}
 	}
-	if (ex == -1) {
-		SetMissDir(mi, 2);
-		mis->_miVar2 = 3;
-	}
 
-	return ex;
+	return FALSE;
 }
 
 void MI_Dummy(int mi)
@@ -3580,6 +3547,7 @@ void MI_Golem(int mi)
 	char *ct;
 
 	mis = &missile[mi];
+	mis->_miDelFlag = TRUE;
 	src = mis->_misource;
 	if (monster[src]._mx == 1 && !monster[src]._my) {
 		for (i = 0; i < 6; i++) {
@@ -3594,16 +3562,14 @@ void MI_Golem(int mi)
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
 						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-							i = 6;
 							SpawnGolum(src, tx, ty, mi);
-							break;
+							return;
 						}
 					}
 				}
 			}
 		}
 	}
-	mis->_miDelFlag = TRUE;
 }
 
 void MI_SetManashield(int mi)
@@ -4919,7 +4885,8 @@ void MI_Firemove(int mi)
 void MI_Guardian(int mi)
 {
 	MissileStruct *mis;
-	int j, k, sx1, sy1, ex;
+	int j, k, sx1, sy1;
+	BOOL ex;
 
 	assert((DWORD)mi < MAXMISSILES);
 
@@ -4938,26 +4905,26 @@ void MI_Guardian(int mi)
 	}
 
 	if (!(mis->_mirange % 16)) {
-		ex = 0;
-		for (j = 0; j < 23 && ex != -1; j++) {
-			for (k = 10; k >= 0 && ex != -1 && (vCrawlTable[j][k] != 0 || vCrawlTable[j][k + 1] != 0); k -= 2) {
+		ex = FALSE;
+		for (j = 0; j < 23 && !ex; j++) {
+			for (k = 10; k >= 0 && (vCrawlTable[j][k] != 0 || vCrawlTable[j][k + 1] != 0); k -= 2) {
 				if (sx1 == vCrawlTable[j][k] && sy1 == vCrawlTable[j][k + 1]) {
 					continue;
 				}
 				ex = Sentfire(mi, mis->_mix + vCrawlTable[j][k], mis->_miy + vCrawlTable[j][k + 1]);
-				if (ex == -1) {
+				if (ex) {
 					break;
 				}
 				ex = Sentfire(mi, mis->_mix - vCrawlTable[j][k], mis->_miy - vCrawlTable[j][k + 1]);
-				if (ex == -1) {
+				if (ex) {
 					break;
 				}
 				ex = Sentfire(mi, mis->_mix + vCrawlTable[j][k], mis->_miy - vCrawlTable[j][k + 1]);
-				if (ex == -1) {
+				if (ex) {
 					break;
 				}
 				ex = Sentfire(mi, mis->_mix - vCrawlTable[j][k], mis->_miy + vCrawlTable[j][k + 1]);
-				if (ex == -1) {
+				if (ex) {
 					break;
 				}
 				sx1 = vCrawlTable[j][k];
@@ -5336,36 +5303,27 @@ void MI_Apoca(int mi)
 {
 	MissileStruct *mis;
 	int j, k, pnum;
-	BOOL exit;
 
 	mis = &missile[mi];
 	pnum = mis->_misource;
-	exit = FALSE;
-	for (j = mis->_miVar2; j < mis->_miVar3 && !exit; j++) {
-		for (k = mis->_miVar4; k < mis->_miVar5 && !exit; k++) {
+	for (j = mis->_miVar2; j < mis->_miVar3; j++) {
+		for (k = mis->_miVar4; k < mis->_miVar5; k++) {
 			if (dMonster[k][j] > MAX_PLRS - 1 && !nSolidTable[dPiece[k][j]]) {
 #ifdef HELLFIRE
-				if (LineClear(mis->_mix, mis->_miy, k, j)) {
-					AddMissile(k, j, k, j, plr[pnum]._pdir, MIS_BOOM, 0, pnum, mis->_midam, 0);
-					exit = TRUE;
-				}
-#else
-				AddMissile(k, j, k, j, plr[pnum]._pdir, MIS_BOOM, 0, pnum, mis->_midam, 0);
-				exit = TRUE;
+				if (!LineClear(mis->_mix, mis->_miy, k, j))
+					continue;
 #endif
+
+				AddMissile(k, j, k, j, plr[pnum]._pdir, MIS_BOOM, 0, pnum, mis->_midam, 0);
+				mis->_miVar2 = j - 1;
+				mis->_miVar4 = k;
+				return;
 			}
 		}
-		if (!exit) {
-			mis->_miVar4 = mis->_miVar6;
-		}
+		mis->_miVar4 = mis->_miVar6;
 	}
 
-	if (exit == TRUE) {
-		mis->_miVar2 = j - 1;
-		mis->_miVar4 = k;
-	} else {
-		mis->_miDelFlag = TRUE;
-	}
+	mis->_miDelFlag = TRUE;
 }
 
 void MI_Wave(int mi)
@@ -5399,7 +5357,7 @@ void MI_Wave(int mi)
 		nya += YDirAdd[dira];
 		nxb = sx + XDirAdd[sd] + XDirAdd[dirb];
 		nyb = sy + YDirAdd[sd] + YDirAdd[dirb];
-		for (j = 0; j < (mis->_mispllvl >> 1) + 2; j++) {
+		for (j = (mis->_mispllvl >> 1) + 2; j > 0; j--) {
 			pn = dPiece[nxa][nya]; // BUGFIX: dPiece is accessed before check against dungeon size and 0
 			assert((DWORD)pn <= MAXTILES);
 			if (nMissileTable[pn] || f1 || nxa <= 0 || nxa >= MAXDUNX || nya <= 0 || nya >= MAXDUNY) {

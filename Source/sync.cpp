@@ -227,7 +227,7 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 void sync_monster(int pnum, const TSyncMonster *symon)
 {
 	MonsterStruct *mon;
-	int i, mnum, md;
+	int mnum, md;
 	DWORD delta;
 
 	mnum = symon->_mndx;
@@ -238,12 +238,6 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 	if (mon->_mhitpoints == 0) {
 #endif
 		return;
-	}
-
-	for (i = 0; i < nummonsters; i++) {
-		if (monstactive[i] == mnum) {
-			break;
-		}
 	}
 
 	delta = abs(plr[myplr]._px - mon->_mx) + abs(plr[myplr]._py - mon->_my);

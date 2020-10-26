@@ -4262,7 +4262,7 @@ void MAI_Golum(int mnum)
 	int mx, my, _mex, _mey;
 	int md, j, k, _menemy;
 	MonsterStruct *mon;
-	BOOL have_enemy, ok;
+	BOOL have_enemy;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MAI_Golum: Invalid monster %d", mnum);
@@ -4322,17 +4322,14 @@ void MAI_Golum(int mnum)
 	if (monster[mnum]._pathcount > 8)
 		monster[mnum]._pathcount = 5;
 
-	ok = MonCallWalk(mnum, plr[mnum]._pdir);
-	if (!ok) {
-		md = (md - 1) & 7;
-		for (j = 0; j < 8 && !ok; j++) {
+	if (!MonCallWalk(mnum, plr[mnum]._pdir)) {
+		for (j = 0; j < 8; j++) {
+			if (DirOK(mnum, md)) {
+				MonWalkDir(mnum, md);
+				break;
+			}
 			md = (md + 1) & 7;
-			ok = DirOK(mnum, md);
 		}
-		if (!ok) {
-			return;
-		}
-		MonWalkDir(mnum, md);
 	}
 }
 

@@ -139,18 +139,12 @@ void GetPortalLevel()
 		plr[myplr].plrlevel = 0;
 		leveltype = DTYPE_TOWN;
 	} else {
-		if (portal[portalindex].setlvl) {
-			setlevel = TRUE;
-			setlvlnum = portal[portalindex].level;
-			currlevel = portal[portalindex].level;
-			plr[myplr].plrlevel = setlvlnum;
-			leveltype = portal[portalindex].ltype;
-		} else {
-			setlevel = FALSE;
-			currlevel = portal[portalindex].level;
-			plr[myplr].plrlevel = currlevel;
-			leveltype = portal[portalindex].ltype;
-		}
+		leveltype = portal[portalindex].ltype;
+		currlevel = portal[portalindex].level;
+		plr[myplr].plrlevel = currlevel;
+		setlevel = portal[portalindex].setlvl;
+		if (setlevel)
+			setlvlnum = currlevel;
 		if (portalindex == myplr) {
 			NetSendCmd(TRUE, CMD_DEACTIVATEPORTAL);
 			DeactivatePortal(portalindex);

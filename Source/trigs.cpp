@@ -134,8 +134,7 @@ void InitL1Triggers()
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 					numtrigs++;
-				}
-				if (dPiece[i][j] == 115) {
+				} else if (dPiece[i][j] == 115) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -153,14 +152,12 @@ void InitL1Triggers()
 					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
 					trigs[numtrigs]._tlvl = 0;
 					numtrigs++;
-				}
-				if (dPiece[i][j] == 158) {
+				} else if (dPiece[i][j] == 158) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 					numtrigs++;
-				}
-				if (dPiece[i][j] == 126) {
+				} else if (dPiece[i][j] == 126) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -185,17 +182,13 @@ void InitL2Triggers()
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 559) {
+			} else if (dPiece[i][j] == 559) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
 				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 271) {
+			} else if (dPiece[i][j] == 271) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -221,16 +214,12 @@ void InitL3Triggers()
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 					numtrigs++;
-				}
-
-				if (dPiece[i][j] == 168) {
+				} else if (dPiece[i][j] == 168) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 					numtrigs++;
-				}
-
-				if (dPiece[i][j] == 549) {
+				} else if (dPiece[i][j] == 549) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
@@ -247,16 +236,12 @@ void InitL3Triggers()
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 					numtrigs++;
-				}
-
-				if (dPiece[i][j] == 63) {
+				} else if (dPiece[i][j] == 63) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 					numtrigs++;
-				}
-
-				if (dPiece[i][j] == 80) {
+				} else if (dPiece[i][j] == 80) {
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
@@ -281,17 +266,13 @@ void InitL4Triggers()
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 422) {
+			} else if (dPiece[i][j] == 422) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
 				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 120) {
+			} else if (dPiece[i][j] == 120) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;

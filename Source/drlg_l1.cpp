@@ -1335,52 +1335,50 @@ static BOOL L5checkRoom(int x, int y, int width, int height)
 
 static void L5roomGen(int x, int y, int w, int h, int dir)
 {
-	int num, dirProb;
-	BOOL ran, ran2;
+	int i, dirProb;
+	BOOL ran2;
 	int width, height, rx, ry, ry2;
 	int cw, ch, cx1, cy1, cx2;
 
 	dirProb = random_(0, 4);
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
-		num = 0;
-		do {
+		for (i = 20; i != 0; i--) {
 			cw = (random_(0, 5) + 2) & 0xFFFFFFFE;
 			ch = (random_(0, 5) + 2) & 0xFFFFFFFE;
 			cy1 = h / 2 + y - ch / 2;
 			cx1 = x - cw;
-			ran = L5checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1); /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
-			num++;
-		} while (ran == FALSE && num < 20);
+			if (L5checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+				break;
+		}
 
-		if (ran == TRUE)
+		if (i != 0)
 			L5drawRoom(cx1, cy1, cw, ch);
 		cx2 = x + w;
 		ran2 = L5checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
 		if (ran2 == TRUE)
 			L5drawRoom(cx2, cy1, cw, ch);
-		if (ran == TRUE)
+		if (i != 0)
 			L5roomGen(cx1, cy1, cw, ch, 1);
 		if (ran2 == TRUE)
 			L5roomGen(cx2, cy1, cw, ch, 1);
 	} else {
-		num = 0;
-		do {
+		for (i = 20; i != 0; i--) {
 			width = (random_(0, 5) + 2) & 0xFFFFFFFE;
 			height = (random_(0, 5) + 2) & 0xFFFFFFFE;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
-			ran = L5checkRoom(rx - 1, ry - 1, width + 2, height + 1);
-			num++;
-		} while (ran == FALSE && num < 20);
+			if (L5checkRoom(rx - 1, ry - 1, width + 2, height + 1))
+				break;
+		};
 
-		if (ran == TRUE)
+		if (i != 0)
 			L5drawRoom(rx, ry, width, height);
 		ry2 = y + h;
 		ran2 = L5checkRoom(rx - 1, ry2, width + 2, height + 1);
 		if (ran2 == TRUE)
 			L5drawRoom(rx, ry2, width, height);
-		if (ran == TRUE)
+		if (i != 0)
 			L5roomGen(rx, ry, width, height, 0);
 		if (ran2 == TRUE)
 			L5roomGen(rx, ry2, width, height, 0);
@@ -1861,7 +1859,7 @@ static void L5tileFix()
 				if (v1 == 4 && v2 == 16)
 					dungeon[i + 1][j] = 17;
 			}
-			if (i > 0) {
+			if (i != 0) {
 				v2 = dungeon[i - 1][j];
 				if (v1 == 23 && v2 == 22)
 					dungeon[i - 1][j] = 19;
@@ -1893,7 +1891,7 @@ static void L5tileFix()
 				if (v1 == 13 && v2 == 16)
 					dungeon[i][j + 1] = 17;
 			}
-			if (j > 0) {
+			if (j != 0) {
 				v2 = dungeon[i][j - 1];
 				if (v1 == 6 && v2 == 22)
 					dungeon[i][j - 1] = 7;
