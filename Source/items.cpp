@@ -1346,11 +1346,6 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 	is->_iSeed = s;
 }
 
-void SetPlrHandSeed(ItemStruct *is, int iseed)
-{
-	is->_iSeed = iseed;
-}
-
 void SetGoldItemValue(ItemStruct *is, int value)
 {
 	is->_ivalue = value;
@@ -3035,7 +3030,7 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 	} else {
 		if (!icreateinfo) {
 			SetPlrHandItem(is, idx);
-			SetPlrHandSeed(is, iseed);
+			is->_iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
 				RecreateTownItem(ii, idx, icreateinfo, iseed, ivalue);
