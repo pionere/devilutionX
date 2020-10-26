@@ -119,7 +119,6 @@ void DrawTalkPan();
 char *control_print_talk_msg(char *msg, int *x, int y, int just);
 BOOL control_check_talk_btn();
 void control_release_talk_btn();
-void control_reset_talk_msg();
 void control_type_message();
 void control_reset_talk();
 BOOL control_talk_last_key(int vkey);
