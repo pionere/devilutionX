@@ -1045,58 +1045,53 @@ static BOOL L4checkRoom(int x, int y, int width, int height)
 
 static void L4roomGen(int x, int y, int w, int h, int dir)
 {
-	int num;
-	BOOL ran, ran2;
+	int i;
+	BOOL ran2;
 	int width, height, rx, ry, ry2;
 	int cw, ch, cx1, cy1, cx2;
 
 	int dirProb = random_(0, 4);
 
-	switch (dir == 1 ? dirProb != 0 : dirProb == 0) {
-	case FALSE:
-		num = 0;
-		do {
+	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
+		for (i = 20; i != 0; i--) {
 			cw = (random_(0, 5) + 2) & ~1;
 			ch = (random_(0, 5) + 2) & ~1;
 			cy1 = h / 2 + y - ch / 2;
 			cx1 = x - cw;
-			ran = L4checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1); /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
-			num++;
-		} while (!ran && num < 20);
+			if (L4checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+				break;
+		}
 
-		if (ran)
+		if (i != 0)
 			L4drawRoom(cx1, cy1, cw, ch);
 		cx2 = x + w;
 		ran2 = L4checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
 		if (ran2)
 			L4drawRoom(cx2, cy1, cw, ch);
-		if (ran)
+		if (i != 0)
 			L4roomGen(cx1, cy1, cw, ch, 1);
 		if (ran2)
 			L4roomGen(cx2, cy1, cw, ch, 1);
-		break;
-	case TRUE:
-		num = 0;
-		do {
+	} else {
+		for (i = 20; i != 0; i--) {
 			width = (random_(0, 5) + 2) & ~1;
 			height = (random_(0, 5) + 2) & ~1;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
-			ran = L4checkRoom(rx - 1, ry - 1, width + 2, height + 1);
-			num++;
-		} while (!ran && num < 20);
+			if (L4checkRoom(rx - 1, ry - 1, width + 2, height + 1))
+				break;
+		}
 
-		if (ran)
+		if (i != 0)
 			L4drawRoom(rx, ry, width, height);
 		ry2 = y + h;
 		ran2 = L4checkRoom(rx - 1, ry2, width + 2, height + 1);
 		if (ran2)
 			L4drawRoom(rx, ry2, width, height);
-		if (ran)
+		if (i != 0)
 			L4roomGen(rx, ry, width, height, 0);
 		if (ran2)
 			L4roomGen(rx, ry2, width, height, 0);
-		break;
 	}
 }
 

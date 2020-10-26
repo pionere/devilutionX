@@ -1395,23 +1395,16 @@ void AddShrine(int oi)
 {
 	int val;
 	DIABOOL slist[NUM_SHRINETYPE];
-#ifdef HELLFIRE
-	unsigned int j;
-#else
-	int j;
-#endif
+	int i;
+	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
+
 	object[oi]._oPreFlag = TRUE;
-	for (j = 0; j < NUM_SHRINETYPE; j++) {
-		if (currlevel < shrinemin[j] || currlevel > shrinemax[j]) {
-			slist[j] = FALSE;
+	for (i = 0; i < NUM_SHRINETYPE; i++) {
+		if (currlevel < shrinemin[i] || currlevel > shrinemax[i]
+		 || shrineavail[i] == excl) {
+			slist[i] = FALSE;
 		} else {
-			slist[j] = TRUE;
-		}
-		if (gbMaxPlayers != 1 && shrineavail[j] == 1) {
-			slist[j] = FALSE;
-		}
-		if (gbMaxPlayers == 1 && shrineavail[j] == 2) {
-			slist[j] = FALSE;
+			slist[i] = TRUE;
 		}
 	}
 	do {

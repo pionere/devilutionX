@@ -2548,26 +2548,24 @@ int RndItem(int lvl)
 
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-		if (AllItemsList[i].iRnd == IDROP_DOUBLE && lvl >= AllItemsList[i].iMinMLvl
+		if (AllItemsList[i].iRnd == IDROP_NEVER
+		 || lvl < AllItemsList[i].iMinMLvl
+		 || (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER)))
+			continue;
 #ifdef HELLFIRE
-			&& ri < 512
+		if (ri == 512)
+			break;
 #endif
-		) {
+		ril[ri] = i;
+		ri++;
+		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
+#endif
 			ril[ri] = i;
 			ri++;
 		}
-		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl
-#ifdef HELLFIRE
-			&& ri < 512
-#endif
-		) {
-			ril[ri] = i;
-			ri++;
-		}
-		if (AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1)
-			ri--;
-		if (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1)
-			ri--;
 	}
 
 	r = random_(24, ri);
@@ -2622,18 +2620,16 @@ int RndAllItems(int lvl)
 
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
+		if (AllItemsList[i].iRnd == IDROP_NEVER
+		 || lvl < AllItemsList[i].iMinMLvl
+		 || (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER)))
+			continue;
 #ifdef HELLFIRE
-		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
-#else
-		if (AllItemsList[i].iRnd != IDROP_NEVER && lvl >= AllItemsList[i].iMinMLvl) {
+		if (ri == 512)
+			break;
 #endif
-			ril[ri] = i;
-			ri++;
-		}
-		if (AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1)
-			ri--;
-		if (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1)
-			ri--;
+		ril[ri] = i;
+		ri++;
 	}
 
 	return ril[random_(26, ri)];
@@ -2648,22 +2644,17 @@ int RndTypeItems(int itype, int imid, int lvl)
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
 		okflag = TRUE;
-		if (AllItemsList[i].iRnd == IDROP_NEVER)
-			okflag = FALSE;
-		if (lvl < AllItemsList[i].iMinMLvl)
-			okflag = FALSE;
-		if (AllItemsList[i].itype != itype)
-			okflag = FALSE;
-		if (imid != -1 && AllItemsList[i].iMiscId != imid)
-			okflag = FALSE;
+		if (AllItemsList[i].iRnd == IDROP_NEVER
+		 || lvl < AllItemsList[i].iMinMLvl
+		 || AllItemsList[i].itype != itype
+		 || (imid != -1 && AllItemsList[i].iMiscId != imid))
+			continue;
 #ifdef HELLFIRE
-		if (okflag && ri < 512) {
-#else
-		if (okflag) {
+		if (ri == 512)
+			break;
 #endif
-			ril[ri] = i;
-			ri++;
-		}
+		ril[ri] = i;
+		ri++;
 	}
 
 	return ril[random_(27, ri)];

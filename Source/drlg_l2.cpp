@@ -1800,38 +1800,32 @@ static void DRLG_L2Subs()
 
 static void DRLG_L2Shadows()
 {
+	const ShadowStruct *ss;
 	int x, y, i;
-	BOOL patflag;
-	BYTE sd[2][2];
+	BYTE sd00, sd10, sd01, sd11;
 
 	for (y = 1; y < DMAXY; y++) {
 		for (x = 1; x < DMAXX; x++) {
-			sd[0][0] = BSTYPESL2[dungeon[x][y]];
-			sd[1][0] = BSTYPESL2[dungeon[x - 1][y]];
-			sd[0][1] = BSTYPESL2[dungeon[x][y - 1]];
-			sd[1][1] = BSTYPESL2[dungeon[x - 1][y - 1]];
+			sd00 = BSTYPESL2[dungeon[x][y]];
+			sd10 = BSTYPESL2[dungeon[x - 1][y]];
+			sd01 = BSTYPESL2[dungeon[x][y - 1]];
+			sd11 = BSTYPESL2[dungeon[x - 1][y - 1]];
+			ss = SPATSL2;
 			for (i = 0; i < 2; i++) {
-				if (SPATSL2[i].strig == sd[0][0]) {
-					patflag = TRUE;
-					if (SPATSL2[i].s1 != 0 && SPATSL2[i].s1 != sd[1][1]) {
-						patflag = FALSE;
+				if (ss->strig == sd00) {
+					if ((ss->s1 != 0 && ss->s1 != sd11)
+					 || (ss->s2 != 0 && ss->s2 != sd01)
+					 || (ss->s3 != 0 && ss->s3 != sd10)) {
+						continue;
 					}
-					if (SPATSL2[i].s2 != 0 && SPATSL2[i].s2 != sd[0][1]) {
-						patflag = FALSE;
+					if (ss->nv1 != 0) {
+						dungeon[x - 1][y - 1] = ss->nv1;
 					}
-					if (SPATSL2[i].s3 != 0 && SPATSL2[i].s3 != sd[1][0]) {
-						patflag = FALSE;
+					if (ss->nv2 != 0) {
+						dungeon[x][y - 1] = ss->nv2;
 					}
-					if (patflag) {
-						if (SPATSL2[i].nv1 != 0) {
-							dungeon[x - 1][y - 1] = SPATSL2[i].nv1;
-						}
-						if (SPATSL2[i].nv2 != 0) {
-							dungeon[x][y - 1] = SPATSL2[i].nv2;
-						}
-						if (SPATSL2[i].nv3 != 0) {
-							dungeon[x - 1][y] = SPATSL2[i].nv3;
-						}
+					if (ss->nv3 != 0) {
+						dungeon[x - 1][y] = ss->nv3;
 					}
 				}
 			}

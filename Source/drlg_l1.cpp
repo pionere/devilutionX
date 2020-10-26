@@ -2051,14 +2051,7 @@ static void L5FillChambers()
 		DRLG_L5GChamber(0, 14, 0, 0, 0, 1);
 
 	if (HR2) {
-		if (HR1 && !HR3)
-			DRLG_L5GChamber(14, 14, 0, 0, 1, 0);
-		if (!HR1 && HR3)
-			DRLG_L5GChamber(14, 14, 0, 0, 0, 1);
-		if (HR1 && HR3)
-			DRLG_L5GChamber(14, 14, 0, 0, 1, 1);
-		if (!HR1 && !HR3)
-			DRLG_L5GChamber(14, 14, 0, 0, 0, 0);
+		DRLG_L5GChamber(14, 14, 0, 0, HR1, HR3);
 	}
 
 	if (HR3)
@@ -2073,14 +2066,7 @@ static void L5FillChambers()
 		DRLG_L5GChamber(14, 0, 0, 1, 0, 0);
 
 	if (VR2) {
-		if (VR1 && !VR3)
-			DRLG_L5GChamber(14, 14, 1, 0, 0, 0);
-		if (!VR1 && VR3)
-			DRLG_L5GChamber(14, 14, 0, 1, 0, 0);
-		if (VR1 && VR3)
-			DRLG_L5GChamber(14, 14, 1, 1, 0, 0);
-		if (!VR1 && !VR3)
-			DRLG_L5GChamber(14, 14, 0, 0, 0, 0);
+		DRLG_L5GChamber(14, 14, VR1, VR3, 0, 0);
 	}
 
 	if (VR3)

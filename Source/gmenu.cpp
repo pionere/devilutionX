@@ -142,23 +142,21 @@ void gmenu_up_down(BOOL isDown)
 	}
 	mouseNavigation = FALSE;
 	i = sgCurrentMenuIdx;
-	if (sgCurrentMenuIdx != 0) {
-		while (i) {
-			i--;
-			if (isDown) {
-				sgpCurrItem++;
-				if (!sgpCurrItem->fnMenu)
-					sgpCurrItem = &sgpCurrentMenu[0];
-			} else {
-				if (sgpCurrItem == sgpCurrentMenu)
-					sgpCurrItem = &sgpCurrentMenu[sgCurrentMenuIdx];
-				sgpCurrItem--;
-			}
-			if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
-				if (i != 0)
-					PlaySFX(IS_TITLEMOV);
-				return;
-			}
+	while (i != 0) {
+		i--;
+		if (isDown) {
+			sgpCurrItem++;
+			if (!sgpCurrItem->fnMenu)
+				sgpCurrItem = &sgpCurrentMenu[0];
+		} else {
+			if (sgpCurrItem == sgpCurrentMenu)
+				sgpCurrItem = &sgpCurrentMenu[sgCurrentMenuIdx];
+			sgpCurrItem--;
+		}
+		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
+			if (i != 0)
+				PlaySFX(IS_TITLEMOV);
+			return;
 		}
 	}
 }
