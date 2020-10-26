@@ -22,7 +22,7 @@ extern BYTE *pSTextBoxCels;
 extern int premiumlevel;
 extern int talker;
 extern STextStruct stext[STORE_LINES];
-extern char stextsize;
+extern BOOL stextsize;
 extern int stextsmax;
 extern ItemStruct storehold[48];
 extern int gossipstart;
