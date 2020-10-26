@@ -3,7 +3,10 @@
  *
  * Implementation of the save game encoding functionality.
  */
+#include <string>
+
 #include "all.h"
+#include "paths.h"
 #include "../DiabloUI/diabloui.h"
 #include "file_util.h"
 
@@ -14,24 +17,40 @@ const char *PASSWORD_SINGLE = "adslhfb1";
 const char *PASSWORD_MULTI = "lshbkfg1";
 
 #ifdef HELLFIRE
-#define SAVE_FILE_FORMAT_SINGLE "%sspawn%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "%sshare_%d.hsv"
+#define SAVE_FILE_FORMAT_SINGLE "spawn%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI "share_%d.hsv"
 #else
-#define SAVE_FILE_FORMAT_SINGLE "%sspawn%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "%sshare_%d.sv"
+#define SAVE_FILE_FORMAT_SINGLE "spawn%d.sv"
+#define SAVE_FILE_FORMAT_MULTI "share_%d.sv"
 #endif
 #else
 const char *PASSWORD_SINGLE = "xrgyrkj1";
 const char *PASSWORD_MULTI = "szqnlsk1";
 
 #ifdef HELLFIRE
-#define SAVE_FILE_FORMAT_SINGLE "%ssingle_%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "%shrinfo_%d.drv"
+#define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI "hrinfo_%d.drv"
 #else
-#define SAVE_FILE_FORMAT_SINGLE "%ssingle_%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "%smulti_%d.sv"
+#define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
+#define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
 #endif
 #endif
+
+namespace {
+
+std::string GetSavePath(DWORD save_num)
+{
+	std::string path = GetPrefPath();
+
+	const char* fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
+
+	char save_file_name[21];
+	snprintf(save_file_name, sizeof(save_file_name) / sizeof(char), fmt, save_num);
+	path.append(save_file_name);
+	return path;
+}
+
+} // namespace
 
 /** List of character names for the character selection screen. */
 static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
@@ -78,30 +97,15 @@ void pfile_encode_hero(const PkPlayerStruct *pPack)
 
 BOOL pfile_open_archive(BOOL update, DWORD save_num)
 {
-	char FileName[MAX_PATH];
-
-	pfile_get_save_path(FileName, sizeof(FileName), save_num);
-	if (OpenMPQ(FileName, save_num))
+	if (OpenMPQ(GetSavePath(save_num).c_str(), save_num))
 		return TRUE;
 
 	return FALSE;
 }
 
-void pfile_get_save_path(char *pszBuf, DWORD dwBufSize, DWORD save_num)
-{
-	char path[MAX_PATH];
-	const char *fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
-
-	GetPrefPath(path, MAX_PATH);
-	snprintf(pszBuf, MAX_PATH, fmt, path, save_num);
-}
-
 void pfile_flush(BOOL is_single_player, DWORD save_num)
 {
-	char FileName[MAX_PATH];
-
-	pfile_get_save_path(FileName, sizeof(FileName), save_num);
-	mpqapi_flush_and_close(FileName, is_single_player, save_num);
+	mpqapi_flush_and_close(GetSavePath(save_num).c_str(), is_single_player, save_num);
 }
 
 BOOL pfile_create_player_description(char *dst, DWORD len)
@@ -263,11 +267,9 @@ BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
  */
 HANDLE pfile_open_save_archive(BOOL *showFixedMsg, DWORD save_num)
 {
-	char SrcStr[MAX_PATH];
 	HANDLE archive;
 
-	pfile_get_save_path(SrcStr, sizeof(SrcStr), save_num);
-	if (SFileOpenArchive(SrcStr, 0x7000, FS_PC, &archive))
+	if (SFileOpenArchive(GetSavePath(save_num).c_str(), 0x7000, FS_PC, &archive))
 		return archive;
 	return NULL;
 }
@@ -383,13 +385,11 @@ BOOL pfile_get_file_name(DWORD lvl, char *dst)
 BOOL pfile_delete_save(_uiheroinfo *hero_info)
 {
 	DWORD save_num;
-	char FileName[MAX_PATH];
 
 	save_num = pfile_get_save_num_from_name(hero_info->name);
 	if (save_num < MAX_CHARACTERS) {
 		hero_names[save_num][0] = '\0';
-		pfile_get_save_path(FileName, sizeof(FileName), save_num);
-		RemoveFile(FileName);
+		RemoveFile(GetSavePath(save_num).c_str());
 	}
 	return TRUE;
 }
@@ -523,9 +523,7 @@ BOOL GetPermSaveNames(DWORD dwIndex, char *szPerm)
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen)
 {
 	DWORD save_num;
-	char FileName[MAX_PATH];
 
-	pfile_strcpy(FileName, pszName);
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	{
 		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
@@ -534,29 +532,22 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	}
 	if (!pfile_open_archive(FALSE, save_num))
 		app_fatal("Unable to write so save file archive");
-	mpqapi_write_file(FileName, pbData, qwLen);
+	mpqapi_write_file(pszName, pbData, qwLen);
 	pfile_flush(TRUE, save_num);
-}
-
-void pfile_strcpy(char *dst, const char *src)
-{
-	strcpy(dst, src);
 }
 
 BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 {
 	DWORD save_num, nread;
-	char FileName[MAX_PATH];
 	HANDLE archive, save;
 	BYTE *buf;
 
-	pfile_strcpy(FileName, pszName);
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	archive = pfile_open_save_archive(NULL, save_num);
 	if (archive == NULL)
 		app_fatal("Unable to open save file archive");
 
-	if (!SFileOpenFileEx(archive, FileName, 0, &save))
+	if (!SFileOpenFileEx(archive, pszName, 0, &save))
 		app_fatal("Unable to open save file");
 
 	*pdwLen = SFileGetFileSize(save, NULL);
