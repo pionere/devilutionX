@@ -3594,156 +3594,6 @@ void RechargeItem(ItemStruct *is, int r)
 	}
 }
 
-void PrintItemOil(char IDidx)
-{
-	switch (IDidx) {
-#ifdef HELLFIRE
-	case IMISC_OILACC:
-		strcpy(tempstr, "increases a weapon\'s");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "chance to hit");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILMAST:
-		strcpy(tempstr, "greatly increases a");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "weapon\'s chance to hit");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILSHARP:
-		strcpy(tempstr, "increases a weapon\'s");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "damage potential");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILDEATH:
-		strcpy(tempstr, "greatly increases a weapon\'s");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "damage potential - not bows");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILSKILL:
-		strcpy(tempstr, "reduces attributes needed");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "to use armor or weapons");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILBSMTH:
-		strcpy(tempstr, "restores 20% of an");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "item\'s durability");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILFORT:
-		strcpy(tempstr, "increases an item\'s");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "current and max durability");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILPERM:
-		strcpy(tempstr, "makes an item indestructible");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILHARD:
-		strcpy(tempstr, "increases the armor class");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "of armor and shields");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OILIMP:
-		strcpy(tempstr, "greatly increases the armor");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "class of armor and shields");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_RUNEF:
-		strcpy(tempstr, "sets fire trap");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_RUNEL:
-		strcpy(tempstr, "sets lightning trap");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_GR_RUNEL:
-		strcpy(tempstr, "sets lightning trap");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_GR_RUNEF:
-		strcpy(tempstr, "sets fire trap");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_RUNES:
-		strcpy(tempstr, "sets petrification trap");
-		AddPanelString(tempstr, TRUE);
-		break;
-#endif
-	case IMISC_FULLHEAL:
-		strcpy(tempstr, "fully recover life");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_HEAL:
-		strcpy(tempstr, "recover partial life");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_OLDHEAL:
-		strcpy(tempstr, "recover life");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_DEADHEAL:
-		strcpy(tempstr, "deadly heal");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_MANA:
-		strcpy(tempstr, "recover mana");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_FULLMANA:
-		strcpy(tempstr, "fully recover mana");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXSTR:
-		strcpy(tempstr, "increase strength");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXMAG:
-		strcpy(tempstr, "increase magic");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXDEX:
-		strcpy(tempstr, "increase dexterity");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXVIT:
-		strcpy(tempstr, "increase vitality");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXWEAK:
-		strcpy(tempstr, "decrease strength");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXDIS:
-		strcpy(tempstr, "decrease strength");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXCLUM:
-		strcpy(tempstr, "decrease dexterity");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_ELIXSICK:
-		strcpy(tempstr, "decrease vitality");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_REJUV:
-		strcpy(tempstr, "recover life and mana");
-		AddPanelString(tempstr, TRUE);
-		break;
-	case IMISC_FULLREJUV:
-		strcpy(tempstr, "fully recover life and mana");
-		AddPanelString(tempstr, TRUE);
-		break;
-	}
-}
-
 void PrintItemPower(char plidx, ItemStruct *is)
 {
 	switch (plidx) {
@@ -4166,57 +4016,219 @@ void DrawUniqueInfo()
 
 void PrintItemMisc(ItemStruct *is)
 {
-	if (is->_iMiscId == IMISC_SCROLL) {
-		strcpy(tempstr, "Right-click to read");
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMiscId == IMISC_SCROLLT) {
-		strcpy(tempstr, "Right-click to read, then");
-		AddPanelString(tempstr, TRUE);
-		strcpy(tempstr, "left-click to target");
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMiscId >= IMISC_USEFIRST && is->_iMiscId <= IMISC_USELAST) {
-		PrintItemOil(is->_iMiscId);
-		strcpy(tempstr, "Right-click to use");
-		AddPanelString(tempstr, TRUE);
-	}
+	const char *desc;
+
+	switch (is->_iMiscId) {
+	case IMISC_NONE:
+		return;
+	case IMISC_USEFIRST:
+		break;
+	case IMISC_FULLHEAL:
+		desc = "fully recover life";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_HEAL:
+		desc = "recover partial life";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OLDHEAL:
+		desc = "recover life";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_DEADHEAL:
+		desc = "deadly heal";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_MANA:
+		desc = "recover mana";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_FULLMANA:
+		desc = "fully recover mana";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_POTEXP:
+	case IMISC_POTFORG:
+		break;
+	case IMISC_ELIXSTR:
+		desc = "increase strength";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXMAG:
+		desc = "increase magic";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXDEX:
+		desc = "increase dexterity";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXVIT:
+		desc = "increase vitality";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXWEAK:
+		desc = "decrease strength";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXDIS:
+		desc = "decrease strength";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXCLUM:
+		desc = "decrease dexterity";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_ELIXSICK:
+		desc = "decrease vitality";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_REJUV:
+		desc = "recover life and mana";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_FULLREJUV:
+		desc = "fully recover life and mana";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_USELAST:
+		break;
+	case IMISC_SCROLL:
+		desc = "Right-click to read";
+		AddPanelString(desc, TRUE);
+		return;
+	case IMISC_SCROLLT:
+		desc = "Right-click to read, then";
+		AddPanelString(desc, TRUE);
+		desc = "left-click to target";
+		AddPanelString(desc, TRUE);
+		return;
+	case IMISC_STAFF:
+		return;
+	case IMISC_BOOK:
+		desc = "Right-click to read";
+		AddPanelString(desc, TRUE);
+		return;
+	case IMISC_RING:
+	case IMISC_AMULET:
+	case IMISC_UNIQUE:
+	case IMISC_MEAT:
+	case IMISC_OILFIRST:
+		return;
 #ifdef HELLFIRE
-	if (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST) {
-		PrintItemOil(is->_iMiscId);
-		strcpy(tempstr, "Right click to use");
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMiscId > IMISC_RUNEFIRST && is->_iMiscId < IMISC_RUNELAST) {
-		PrintItemOil(is->_iMiscId);
-		strcpy(tempstr, "Right click to use");
-		AddPanelString(tempstr, TRUE);
-	}
+	case IMISC_OILOF:
+		break;
+	case IMISC_OILACC:
+		desc = "increases a weapon\'s";
+		AddPanelString(desc, TRUE);
+		desc = "chance to hit";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILMAST:
+		desc = "greatly increases a";
+		AddPanelString(desc, TRUE);
+		desc = "weapon\'s chance to hit";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILSHARP:
+		desc = "increases a weapon\'s";
+		AddPanelString(desc, TRUE);
+		desc = "damage potential";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILDEATH:
+		desc = "greatly increases a weapon\'s";
+		AddPanelString(desc, TRUE);
+		desc = "damage potential - not bows";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILSKILL:
+		desc = "reduces attributes needed";
+		AddPanelString(desc, TRUE);
+		desc = "to use armor or weapons";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILBSMTH:
+		desc = "restores 20% of an";
+		AddPanelString(desc, TRUE);
+		desc = "item\'s durability";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILFORT:
+		desc = "increases an item\'s";
+		AddPanelString(desc, TRUE);
+		desc = "current and max durability";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILPERM:
+		desc = "makes an item indestructible";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILHARD:
+		desc = "increases the armor class";
+		AddPanelString(desc, TRUE);
+		desc = "of armor and shields";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILIMP:
+		desc = "greatly increases the armor";
+		AddPanelString(desc, TRUE);
+		desc = "class of armor and shields";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_OILLAST:
+		return;
+	case IMISC_MAPOFDOOM:
+		desc = "Right-click to view";
+		AddPanelString(desc, TRUE);
+		return;
 #endif
-	if (is->_iMiscId == IMISC_BOOK) {
-		strcpy(tempstr, "Right-click to read");
-		AddPanelString(tempstr, TRUE);
-	}
-#ifdef HELLFIRE
-	if (is->_iMiscId == IMISC_NOTE) {
-		strcpy(tempstr, "Right click to read");
-		AddPanelString(tempstr, TRUE);
-	}
-#endif
-	if (is->_iMiscId == IMISC_MAPOFDOOM) {
-		strcpy(tempstr, "Right-click to view");
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMiscId == IMISC_EAR) {
+	case IMISC_EAR:
 		sprintf(tempstr, "Level : %i", is->_ivalue);
 		AddPanelString(tempstr, TRUE);
-	}
+		return;
+	case IMISC_SPECELIX:
+		return;
 #ifdef HELLFIRE
-	if (is->_iMiscId == IMISC_AURIC) {
-		sprintf(tempstr, "Doubles gold capacity");
-		AddPanelString(tempstr, TRUE);
-	}
+	case IMISC_RUNEFIRST:
+		return;
+	case IMISC_RUNEF:
+		desc = "sets fire trap";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_RUNEL:
+		desc = "sets lightning trap";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_GR_RUNEL:
+		desc = "sets lightning trap";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_GR_RUNEF:
+		desc = "sets fire trap";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_RUNES:
+		desc = "sets petrification trap";
+		AddPanelString(desc, TRUE);
+		break;
+	case IMISC_RUNELAST:
+		return;
+	case IMISC_AURIC:
+		desc = "Doubles gold capacity";
+		AddPanelString(desc, TRUE);
+		return;
+	case IMISC_NOTE:
+		desc = "Right click to read";
+		AddPanelString(desc, TRUE);
+		return;
 #endif
+	default:
+		return;
+	}
+
+	desc = "Right click to use";
+	AddPanelString(desc, TRUE);
+	return;
 }
 
 void PrintItemDetails(ItemStruct *is)

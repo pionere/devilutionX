@@ -118,7 +118,6 @@ void DoRecharge(int pnum, int cii);
 void DoOil(int pnum, int cii);
 #endif
 void RechargeItem(ItemStruct *is, int r);
-void PrintItemOil(char IDidx);
 void PrintItemPower(char plidx, ItemStruct *is);
 void DrawUTextBack();
 void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col);
