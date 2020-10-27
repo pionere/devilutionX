@@ -15,9 +15,9 @@ extern "C" {
 extern BYTE L5dungeon[80][80];
 extern BYTE L5dflags[DMAXX][DMAXY];
 extern BOOL L5setloadflag;
-extern int HR1;
-extern int HR2;
-extern int HR3;
+extern BOOL HR1;
+extern BOOL HR2;
+extern BOOL HR3;
 extern int UberRow;
 extern int UberCol;
 extern int dword_577368;
@@ -26,9 +26,9 @@ extern int UberLeverRow;
 extern int UberLeverCol;
 extern int IsUberLeverActivated;
 extern int UberDiabloMonsterIndex;
-extern int VR1;
-extern int VR2;
-extern int VR3;
+extern BOOL VR1;
+extern BOOL VR2;
+extern BOOL VR3;
 extern BYTE *L5pSetPiece;
 
 void DRLG_Init_Globals();
