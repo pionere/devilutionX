@@ -1,6 +1,8 @@
 #pragma once
 
-namespace dvl {
+#include "all.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 extern int gbDifficulty;
 
@@ -19,4 +21,4 @@ void selgame_Password_Init(int value);
 void selgame_Password_Select(int value);
 void selgame_Password_Esc();
 
-}
+DEVILUTION_END_NAMESPACE

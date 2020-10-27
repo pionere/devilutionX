@@ -3,7 +3,7 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern Art ArtScrollBarBackground;
 extern Art ArtScrollBarThumb;
@@ -77,4 +77,4 @@ inline SDL_Rect ThumbRect(const UiScrollBar *sb, std::size_t selected_index, std
 void LoadScrollBar();
 void UnloadScrollBar();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

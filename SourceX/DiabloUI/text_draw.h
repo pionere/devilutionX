@@ -2,7 +2,7 @@
 
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 struct TtfSurfaceCache {
 
@@ -28,4 +28,4 @@ void DrawTTF(const char *text, const SDL_Rect &rect, int flags,
 
 void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawTextCursor = false);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

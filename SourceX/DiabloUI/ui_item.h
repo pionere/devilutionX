@@ -11,7 +11,7 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/text_draw.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType {
 	UI_TEXT,
@@ -348,4 +348,4 @@ public:
 	Uint16 m_width, m_height;
 	std::vector<UiListItem *> m_vecItems;
 };
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

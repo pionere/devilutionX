@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
+#include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern bool selhero_isMultiPlayer;
 extern bool selhero_endMenu;
@@ -22,4 +22,4 @@ void selhero_Name_Esc();
 void selhero_Load_Focus(int value);
 void selhero_Load_Select(int value);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

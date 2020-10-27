@@ -1,6 +1,5 @@
 #include "selgame.h"
 
-#include "all.h"
 #include "config.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
@@ -8,7 +7,7 @@
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selhero.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 char selgame_Label[32];
 char selgame_Ip[129] = "";
@@ -442,4 +441,4 @@ int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_in
 
 	return selgame_enteringGame;
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

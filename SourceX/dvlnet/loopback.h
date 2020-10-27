@@ -4,10 +4,9 @@
 #include <queue>
 
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "dvlnet/abstract_net.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class loopback : public abstract_net {
@@ -42,4 +41,4 @@ public:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

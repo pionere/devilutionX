@@ -1,6 +1,6 @@
-#include "DiabloUI/credits_lines.h"
+#include "credits_lines.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 const char *const CREDITS_LINES[] = {
 #ifdef HELLFIRE
@@ -556,4 +556,4 @@ const char *const CREDITS_LINES[] = {
 
 const std::size_t CREDITS_LINES_SIZE = sizeof(CREDITS_LINES) / sizeof(CREDITS_LINES[0]);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

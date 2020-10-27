@@ -1,4 +1,4 @@
-#include "DiabloUI/dialogs.h"
+#include "dialogs.h"
 
 #include "controls/menu_controls.h"
 #include "all.h"
@@ -9,7 +9,7 @@
 #include "DiabloUI/errorart.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern HANDLE diabdat_mpq;
 extern SDL_Surface *pal_surface;
@@ -299,4 +299,4 @@ void UiErrorOkDialog(const char *text, std::vector<UiItemBase *> renderBehind)
 	UiErrorOkDialog(text, NULL, renderBehind);
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

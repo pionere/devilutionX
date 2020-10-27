@@ -1,7 +1,6 @@
 #ifndef USE_SDL1
-#include "display.h"
 #include "touch.h"
-#include "../../defs.h"
+#include "display.h"
 #include <math.h>
 
 static int visible_width;

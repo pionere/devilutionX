@@ -1,10 +1,8 @@
-#include "dvlnet/base.h"
-#include "../3rdParty/Storm/Source/storm.h"
+#include "base.h"
 
-#include <algorithm>
 #include <cstring>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 void base::setup_gameinfo(buffer_t info)
@@ -256,4 +254,4 @@ bool base::SNetGetTurnsInTransit(int *turns)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

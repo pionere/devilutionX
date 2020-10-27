@@ -1,11 +1,12 @@
 #pragma once
 
 #include <SDL.h>
+#include "../../types.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 #ifndef USE_SDL1
 void handle_touch(SDL_Event *event, int current_mouse_x, int current_mouse_y);
 #endif
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

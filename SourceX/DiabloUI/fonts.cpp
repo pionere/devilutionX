@@ -1,7 +1,7 @@
-#include "DiabloUI/fonts.h"
+#include "fonts.h"
 #include "file_util.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 TTF_Font *font = NULL;
 BYTE *FontTables[4];
@@ -92,4 +92,4 @@ void FontsCleanup() {
 	TTF_Quit();	
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

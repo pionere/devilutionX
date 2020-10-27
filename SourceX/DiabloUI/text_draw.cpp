@@ -1,4 +1,4 @@
-#include "DiabloUI/text_draw.h"
+#include "text_draw.h"
 
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/fonts.h"
@@ -7,7 +7,7 @@
 #include "DiabloUI/ttf_render_wrapped.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern SDL_Surface *pal_surface;
 
@@ -98,4 +98,4 @@ void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawText
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

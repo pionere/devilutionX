@@ -3,7 +3,6 @@
 
 #include "all.h"
 #include "paths.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 #include <queue>
@@ -17,9 +16,7 @@
 #include <SDL_mixer.h>
 #include <smacker.h>
 
-#include "DiabloUI/diabloui.h"
-
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 DWORD nLastError = 0;
 
@@ -852,4 +849,4 @@ BOOL SFileEnableDirectAccess(BOOL enable)
 	directFileAccess = enable;
 	return true;
 }
-}
+DEVILUTION_END_NAMESPACE

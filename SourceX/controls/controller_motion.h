@@ -4,7 +4,7 @@
 
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 // Raw axis values.
 extern float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
@@ -20,4 +20,4 @@ void ScaleJoysticks();
 // Updates motion state for mouse and joystick sticks.
 bool ProcessControllerMotion(const SDL_Event &event);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

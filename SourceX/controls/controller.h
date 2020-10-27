@@ -2,7 +2,7 @@
 
 #include "controls/controller_buttons.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 struct ControllerButtonEvent {
 	ControllerButton button;
@@ -15,4 +15,4 @@ bool IsControllerButtonPressed(ControllerButton button);
 
 void InitController();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

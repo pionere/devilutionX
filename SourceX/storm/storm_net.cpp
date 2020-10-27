@@ -4,7 +4,7 @@
 #include "stubs.h"
 #include "dvlnet/abstract_net.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static std::unique_ptr<net::abstract_net> dvlnet_inst;
 static char gpszGameName[128] = {};
@@ -164,4 +164,4 @@ BOOL SNetPerformUpgrade(DWORD *upgradestatus)
 	UNIMPLEMENTED();
 }
 
-}
+DEVILUTION_END_NAMESPACE

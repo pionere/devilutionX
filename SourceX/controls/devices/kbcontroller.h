@@ -9,7 +9,7 @@
 #include <SDL.h>
 #include "controls/controller_buttons.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ControllerButton KbCtrlToControllerButton(const SDL_Event &event);
 
@@ -17,5 +17,5 @@ bool IsKbCtrlButtonPressed(ControllerButton button);
 
 bool ProcessKbCtrlAxisMotion(const SDL_Event &event);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
 #endif

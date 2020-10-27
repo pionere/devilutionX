@@ -1,10 +1,9 @@
 #include "selyesno.h"
 
-#include "all.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 bool selyesno_endMenu;
 bool selyesno_value;
@@ -78,4 +77,4 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 
 	return selyesno_value;
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

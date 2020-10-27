@@ -6,12 +6,10 @@
 #include <array>
 #include <memory>
 
-#include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "dvlnet/abstract_net.h"
 #include "dvlnet/packet.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class base : public abstract_net {
@@ -82,4 +80,4 @@ private:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

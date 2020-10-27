@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include "controls/controller_buttons.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ControllerButton JoyButtonToControllerButton(const SDL_Event &event);
 
@@ -18,4 +18,4 @@ int CurrentJoystickIndex();
 
 void InitJoystick();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

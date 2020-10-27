@@ -1,11 +1,11 @@
-#include "controls/controller_motion.h"
+#include "controller_motion.h"
 
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/devices/kbcontroller.h"
 #include "controls/controller.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -122,4 +122,4 @@ bool ProcessControllerMotion(const SDL_Event &event)
 	return true;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -3,7 +3,7 @@
 
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 // NOTE: A, B, X, Y refer to physical positions on an XBox 360 controller.
 // A<->B and X<->Y are reversed on a Nintendo controller.
@@ -36,4 +36,4 @@ inline bool IsDPadButton(ControllerButton button)
 	    || button == ControllerButton_BUTTON_DPAD_RIGHT;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

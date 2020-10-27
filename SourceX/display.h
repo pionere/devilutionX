@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <type_traits>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern int vsyncEnabled;
 extern int refreshDelay; // Screen refresh rate in nanoseconds
@@ -93,4 +93,4 @@ void LogicalToOutput(T *x, T *y)
 #endif
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

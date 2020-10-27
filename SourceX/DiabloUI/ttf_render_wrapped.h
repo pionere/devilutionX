@@ -4,7 +4,7 @@
 
 #include <SDL_ttf.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 enum TextAlignment {
 	TextAlignment_BEGIN = 0,
@@ -21,4 +21,4 @@ enum TextAlignment {
 SDL_Surface *RenderUTF8_Solid_Wrapped(
     TTF_Font *font, const char *text, SDL_Color fg, Uint32 wrapLength, const int x_align = TextAlignment_BEGIN);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -1,10 +1,9 @@
 #include "selconn.h"
 
-#include "all.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 char selconn_MaxPlayers[21];
 char selconn_Description[64];
@@ -153,4 +152,4 @@ int UiSelectProvider(
 	return selconn_ReturnValue;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

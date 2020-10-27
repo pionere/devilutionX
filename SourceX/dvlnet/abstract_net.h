@@ -6,9 +6,8 @@
 #include <exception>
 
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 typedef std::vector<unsigned char> buffer_t;
@@ -53,4 +52,4 @@ public:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

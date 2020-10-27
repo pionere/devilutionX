@@ -1,10 +1,9 @@
-
-#include "controls/devices/joystick.h"
+#include "joystick.h"
 
 #include "controls/controller_motion.h"
 #include "stubs.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ControllerButton JoyButtonToControllerButton(const SDL_Event &event)
 {
@@ -283,4 +282,4 @@ void InitJoystick()
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -1,8 +1,9 @@
 #include <cstddef>
+#include "../../types.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern const char *const CREDITS_LINES[];
 extern const std::size_t CREDITS_LINES_SIZE;
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

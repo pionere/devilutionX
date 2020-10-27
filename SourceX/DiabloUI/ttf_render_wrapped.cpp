@@ -1,8 +1,8 @@
-#include "DiabloUI/ttf_render_wrapped.h"
+#include "ttf_render_wrapped.h"
 
 #include <cstddef>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -173,4 +173,4 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 	return textbuf;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

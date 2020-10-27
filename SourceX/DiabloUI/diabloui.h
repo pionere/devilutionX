@@ -6,7 +6,7 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern int SelectedItem;
 extern bool textInputActive;
@@ -56,4 +56,4 @@ void DvlIntSetting(const char *valuename, int *value);
 void DvlStringSetting(const char *valuename, char *string, int len);
 
 void mainmenu_restart_repintro();
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

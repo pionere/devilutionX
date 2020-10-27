@@ -10,7 +10,7 @@
 #include "dvlnet/packet.h"
 #include "dvlnet/base.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class udp_p2p : public base {
@@ -44,4 +44,4 @@ private:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

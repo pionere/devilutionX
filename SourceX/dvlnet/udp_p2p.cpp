@@ -1,4 +1,4 @@
-#include "dvlnet/udp_p2p.h"
+#include "udp_p2p.h"
 
 #include <SDL.h>
 
@@ -6,7 +6,7 @@
 #include "sdl2_to_1_2_backports.h"
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 const udp_p2p::endpoint udp_p2p::none;
@@ -178,4 +178,4 @@ void udp_p2p::recv_decrypted(packet &pkt, endpoint sender)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

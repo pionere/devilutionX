@@ -8,7 +8,7 @@
 #include "sdl2_to_1_2_backports.h"
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 // Re-maps a keyboard key as per the REMAP_KEYBOARD_KEYS define.
 inline void remap_keyboard_key(SDL_Keycode *sym)
@@ -29,4 +29,4 @@ inline void remap_keyboard_key(SDL_Keycode *sym)
 #endif
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

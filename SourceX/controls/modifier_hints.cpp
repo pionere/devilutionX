@@ -1,4 +1,4 @@
-#include "controls/modifier_hints.h"
+#include "modifier_hints.h"
 
 #include <cstddef>
 
@@ -6,7 +6,7 @@
 #include "controls/controller.h"
 #include "controls/game_controls.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -134,4 +134,4 @@ void DrawControllerModifierHints()
 	DrawSelectModifierMenu();
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -4,12 +4,11 @@
  * Implementation of functions setting up the audio pipeline.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "stubs.h"
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 BOOLEAN gbSndInited;
 int sglMusicVolume;
@@ -260,4 +259,4 @@ int sound_get_or_set_sound_volume(int volume)
 	return sglSoundVolume;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

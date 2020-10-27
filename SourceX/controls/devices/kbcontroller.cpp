@@ -1,4 +1,4 @@
-#include "controls/devices/kbcontroller.h"
+#include "kbcontroller.h"
 
 #if HAS_KBCTRL == 1
 
@@ -6,7 +6,7 @@
 #include "sdl_compat.h"
 #include "stubs.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
 {
@@ -170,5 +170,5 @@ bool ProcessKbCtrlAxisMotion(const SDL_Event &event)
 	return false;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
 #endif

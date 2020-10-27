@@ -1,19 +1,17 @@
 #include "selhero.h"
 
-#include <algorithm>
 #include <chrono>
 #include <random>
 
 #include "DiabloUI/diabloui.h"
 #include "../../DiabloUI/diabloui.h"
-#include "all.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selgame.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 const char *selhero_GenerateName(uint8_t hero_class);
 
@@ -585,4 +583,4 @@ const char *selhero_GenerateName(uint8_t hero_class)
 	return kNames[hero_class][iRand];
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

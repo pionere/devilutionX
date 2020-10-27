@@ -1,4 +1,4 @@
-#include "dvlnet/abstract_net.h"
+#include "abstract_net.h"
 
 #include "stubs.h"
 #ifndef NONET
@@ -8,7 +8,7 @@
 #endif
 #include "dvlnet/loopback.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
@@ -32,4 +32,4 @@ std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

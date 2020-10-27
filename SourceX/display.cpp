@@ -24,7 +24,7 @@
 #define DEFAULT_HEIGHT 480
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern SDL_Surface *renderer_texture_surface; /** defined in dx.cpp */
 
@@ -302,4 +302,4 @@ void ScaleSurfaceToOutput(SDL_Surface **surface)
 #endif
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -1,4 +1,4 @@
-#include "controls/game_controls.h"
+#include "game_controls.h"
 
 #include <cstdint>
 
@@ -10,7 +10,7 @@
 #include "controls/modifier_hints.h"
 #include "controls/plrctrls.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -281,4 +281,4 @@ MoveDirection GetMoveDirection()
 	return result;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

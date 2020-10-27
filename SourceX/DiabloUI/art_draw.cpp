@@ -1,7 +1,7 @@
 #include "DiabloUI/art_draw.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;
@@ -48,4 +48,4 @@ int GetAnimationFrame(int frames, int fps)
 	return frame > frames ? 0 : frame;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

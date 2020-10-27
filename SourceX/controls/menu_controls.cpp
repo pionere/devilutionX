@@ -1,10 +1,10 @@
-#include "controls/menu_controls.h"
+#include "menu_controls.h"
 
 #include "controls/controller.h"
 #include "controls/remap_keyboard.h"
 #include "DiabloUI/diabloui.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 MenuAction GetMenuAction(const SDL_Event &event)
 {
@@ -91,6 +91,6 @@ MenuAction GetMenuAction(const SDL_Event &event)
 #endif
 
 	return MenuAction_NONE;
-} // namespace dvl
+}
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

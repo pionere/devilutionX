@@ -2,7 +2,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/selok.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 int mainmenu_attract_time_out; //seconds
 DWORD dwAttractTicks;
@@ -115,4 +115,4 @@ BOOL UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 	return true;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

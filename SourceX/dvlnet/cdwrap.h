@@ -10,7 +10,7 @@
 
 #include "dvlnet/abstract_net.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 template <class T>
@@ -152,4 +152,4 @@ bool cdwrap<T>::SNetGetTurnsInTransit(int *turns)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

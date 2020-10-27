@@ -1,11 +1,10 @@
-#include "controls/devices/game_controller.h"
-
 #ifndef USE_SDL1
+#include "controls/devices/game_controller.h"
 #include "controls/controller_motion.h"
 #include "controls/devices/joystick.h"
 #include "stubs.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static SDL_GameController *current_game_controller = NULL;
 static bool sgbTriggerLeftDown = false;
@@ -169,5 +168,5 @@ void InitGameController()
 		SDL_Log(SDL_GetError());
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
 #endif

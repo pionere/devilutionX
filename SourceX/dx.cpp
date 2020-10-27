@@ -4,11 +4,10 @@
  * Implementation of functions setting up the graphics pipeline.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "display.h"
 #include <SDL.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 int sgdwLockCount;
 BYTE *gpBuffer;
@@ -305,4 +304,4 @@ void PaletteGetEntries(DWORD dwNumEntries, SDL_Color *lpEntries)
 		lpEntries[i] = system_palette[i];
 	}
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

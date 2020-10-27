@@ -1,10 +1,10 @@
-#include "controls/controller.h"
+#include "controller.h"
 
 #include "controls/devices/kbcontroller.h"
 #include "controls/devices/joystick.h"
 #include "controls/devices/game_controller.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 {
@@ -59,4 +59,4 @@ void InitController()
 #endif
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

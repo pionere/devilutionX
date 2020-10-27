@@ -1,14 +1,13 @@
-#include "controls/plrctrls.h"
+#include "plrctrls.h"
 
 #include <cstdint>
-#include <algorithm>
 #include <list>
 
 #include "controls/controller.h"
 #include "controls/controller_motion.h"
 #include "controls/game_controls.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 bool sgbControllerActive = false;
 coords speedspellscoords[50];
@@ -1220,4 +1219,4 @@ void PerformSecondaryAction()
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

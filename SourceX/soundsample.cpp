@@ -2,7 +2,7 @@
 #include "stubs.h"
 #include <SDL.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 ///// SoundSample /////
 
@@ -61,4 +61,4 @@ int SoundSample::SetChunk(BYTE *fileData, DWORD dwBytes)
 	return 0;
 };
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

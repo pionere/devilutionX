@@ -1,9 +1,9 @@
-#include "all.h"
+#include "selok.h"
+
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
-#include "DiabloUI/selok.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -89,4 +89,4 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 
 	selok_Free();
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

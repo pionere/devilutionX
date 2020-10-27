@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -12,7 +11,7 @@
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/fonts.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -229,4 +228,4 @@ BOOL UiCreditsDialog(int a1)
 	return true;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

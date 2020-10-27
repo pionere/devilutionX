@@ -4,7 +4,7 @@
 
 #include "dvlnet/packet.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 framesize_t frame_queue::size()
@@ -79,4 +79,4 @@ buffer_t frame_queue::make_frame(buffer_t packetbuf)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

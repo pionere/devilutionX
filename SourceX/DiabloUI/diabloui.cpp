@@ -1,15 +1,13 @@
-#include "all.h"
+#include "diabloui.h"
+
 #include "display.h"
 #include "stubs.h"
 #include "utf8.h"
 #include <string>
-#include <algorithm>
 
 #include "controls/menu_controls.h"
 
 #include "DiabloUI/scrollbar.h"
-#include "DiabloUI/diabloui.h"
-
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/fonts.h"
@@ -22,7 +20,7 @@
 #include "platform/switch/keyboard.h"
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 int SelectedItemMax;
 std::size_t ListViewportSize = 1;
@@ -957,4 +955,4 @@ void DvlStringSetting(const char *valuename, char *string, int len)
 		setIniValue("devilutionx", valuename, string);
 	}
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

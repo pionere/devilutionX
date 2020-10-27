@@ -1,7 +1,9 @@
 #pragma once
 
-namespace dvl {
+#include "../types.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 void DrawControllerModifierHints();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

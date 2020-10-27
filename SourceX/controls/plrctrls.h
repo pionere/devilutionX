@@ -3,7 +3,7 @@
 
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 typedef enum belt_item_type {
 	BLT_HEALING,
@@ -45,4 +45,4 @@ typedef struct coords {
 } coords;
 extern int speedspellcount;
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -1,7 +1,9 @@
 #pragma once
 
-namespace dvl {
+#include "display.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 void HandleDocking();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
