@@ -2084,7 +2084,7 @@ void control_remove_gold(int pnum, int gold_index)
 	} else {
 		gi = gold_index - INVITEM_BELT_FIRST;
 		is = &plr[pnum].SpdList[gi];
-		val -= dropGoldValue;
+		val = is->_ivalue - dropGoldValue;
 		if (val > 0)
 			SetGoldItemValue(is, val);
 		else
