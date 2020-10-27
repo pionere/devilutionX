@@ -274,7 +274,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 	p = &plr[pnum];
 	GetPlrGFXCells(p->_pClass, &szCel, &cs);
-	sprintf(prefix, "%c%c%c", szCel, ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
+	sprintf(prefix, "%c%c%c", *szCel, ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
 
 	for (i = 1; i <= PFILE_NONDEATH; i <<= 1) {
 		if (!(i & gfxflag)) {
@@ -482,7 +482,7 @@ DWORD GetPlrGFXSize(const char *szCel)
 				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
 					continue; //No block without weapon
 				}
-				sprintf(Type, "%c%c%c", cc, *a, *w);
+				sprintf(Type, "%c%c%c", *cc, *a, *w);
 				sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
 				if (WOpenFile(pszName, &hsFile, TRUE)) {
 					/// ASSERT: assert(hsFile);
