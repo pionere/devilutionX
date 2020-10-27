@@ -942,7 +942,7 @@ static void Zoom()
  * @param horizontal Shift the screen left or right
  * @param vertical Shift the screen up or down
  */
-void ShiftGrid(int *x, int *y, int horizontal, int vertical)
+inline void ShiftGrid(int *x, int *y, int horizontal, int vertical)
 {
 	*x += vertical + horizontal;
 	*y += vertical - horizontal;

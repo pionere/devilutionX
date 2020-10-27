@@ -502,7 +502,7 @@ void SpawnNote()
 }
 #endif
 
-inline int items_get_currlevel()
+static inline int items_get_currlevel()
 {
 	int lvl;
 

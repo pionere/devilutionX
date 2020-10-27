@@ -244,7 +244,7 @@ void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
 	}
 }
 
-inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
+static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 {
 #ifdef HELLFIRE
 	if ((pc == PC_BARD && hfbard_mpq == NULL) || (pc == PC_BARBARIAN && hfbarb_mpq == NULL)) {
