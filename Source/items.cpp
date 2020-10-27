@@ -3449,30 +3449,23 @@ void DoRecharge(int pnum, int cii)
 #ifdef HELLFIRE
 void DoOil(int pnum, int cii)
 {
-	PlayerStruct *p = &plr[pnum];
-
-	if (cii >= NUM_INVLOC || cii == INVLOC_HEAD || (cii > INVLOC_AMULET && cii <= INVLOC_CHEST)) {
-		if (OilItem(&p->InvBody[cii], p)) {
-			CalcPlrInv(pnum, TRUE);
-			if (pnum == myplr) {
-				SetCursor_(CURSOR_HAND);
-			}
-		}
-	}
-}
-
-BOOL OilItem(ItemStruct *is, PlayerStruct *p)
-{
+	PlayerStruct *p;
+	ItemStruct *is;
 	int dur, r;
 
+	if (cii == INVLOC_RING_LEFT || cii == INVLOC_RING_RIGHT || cii == INVLOC_AMULET)
+		return;
+
+	p = &plr[pnum];
+	is = &p->InvBody[cii];
 	if (is->_iClass == ICLASS_MISC) {
-		return FALSE;
+		return;
 	}
 	if (is->_iClass == ICLASS_GOLD) {
-		return FALSE;
+		return;
 	}
 	if (is->_iClass == ICLASS_QUEST) {
-		return FALSE;
+		return;
 	}
 
 	switch (p->_pOilType) {
@@ -3480,21 +3473,21 @@ BOOL OilItem(ItemStruct *is, PlayerStruct *p)
 	case IMISC_OILMAST:
 	case IMISC_OILSHARP:
 		if (is->_iClass == ICLASS_ARMOR) {
-			return FALSE;
+			return;
 		}
 		break;
 	case IMISC_OILDEATH:
 		if (is->_iClass == ICLASS_ARMOR) {
-			return FALSE;
+			return;
 		}
 		if (is->_itype == ITYPE_BOW) {
-			return FALSE;
+			return;
 		}
 		break;
 	case IMISC_OILHARD:
 	case IMISC_OILIMP:
 		if (is->_iClass == ICLASS_WEAPON) {
-			return FALSE;
+			return;
 		}
 		break;
 	}
@@ -3548,7 +3541,7 @@ BOOL OilItem(ItemStruct *is, PlayerStruct *p)
 				}
 			} else {
 				if (is->_iMaxDur >= 100) {
-					return TRUE;
+					break;
 				}
 				dur = is->_iMaxDur + 1;
 				is->_iMaxDur = dur;
@@ -3578,7 +3571,11 @@ BOOL OilItem(ItemStruct *is, PlayerStruct *p)
 		}
 		break;
 	}
-	return TRUE;
+
+	CalcPlrInv(pnum, TRUE);
+	if (pnum == myplr) {
+		SetCursor_(CURSOR_HAND);
+	}
 }
 
 #endif

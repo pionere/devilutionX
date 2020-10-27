@@ -116,7 +116,6 @@ void RepairItem(ItemStruct *is, int lvl);
 void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
 void DoOil(int pnum, int cii);
-BOOL OilItem(ItemStruct *is, PlayerStruct *p);
 #endif
 void RechargeItem(ItemStruct *is, int r);
 void PrintItemOil(char IDidx);
