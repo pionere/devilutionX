@@ -940,8 +940,7 @@ void DoSpeedBook()
 				spells = p->_pISpells;
 				break;
 			}
-			spell = (__int64)1;
-			for (j = 1; j < MAX_SPELLS; j++) {
+			for (spell = 1, j = 1; j < MAX_SPELLS; spell <<= 1, j++) {
 				if (spell & spells) {
 					if (j == p->_pRSpell && i == p->_pRSplType) {
 						X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
@@ -953,7 +952,6 @@ void DoSpeedBook()
 						yo -= SPLICONLENGTH;
 					}
 				}
-				spell <<= (__int64)1;
 			}
 			if (spells && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
 				xo -= SPLICONLENGTH;
@@ -977,14 +975,13 @@ void DoPanBtn()
 	mx = MouseX;
 	my = MouseY;
 	for (i = 0; i < numpanbtns; i++) {
-		int x = PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2];
-		int y = PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3];
-		if (mx >= PanBtnPos[i][0] + PANEL_LEFT && mx <= x) {
-			if (my >= PanBtnPos[i][1] + PANEL_TOP && my <= y) {
-				panbtn[i] = TRUE;
-				drawbtnflag = TRUE;
-				panbtndown = TRUE;
-			}
+		if (mx >= PanBtnPos[i][0] + PANEL_LEFT
+		 && mx <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
+		 && my >= PanBtnPos[i][1] + PANEL_TOP
+		 && my <= PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
+			panbtn[i] = TRUE;
+			drawbtnflag = TRUE;
+			panbtndown = TRUE;
 		}
 	}
 	if (!spselflag && mx >= 565 + PANEL_LEFT && mx < 621 + PANEL_LEFT && my >= 64 + PANEL_TOP && my < 120 + PANEL_TOP) {
@@ -1231,13 +1228,11 @@ void FreeControlPan()
 BOOL control_WriteStringToBuffer(BYTE *str)
 {
 	int k;
-	BYTE ichar;
 
 	k = 0;
 	while (*str) {
-		ichar = gbFontTransTbl[*str];
 		str++;
-		k += fontkern[fontframe[ichar]];
+		k += fontkern[fontframe[gbFontTransTbl[*str]]];
 		if (k >= 125)
 			return FALSE;
 	}
@@ -1276,7 +1271,7 @@ void DrawInfoBox()
 				strcpy(infostr, is->_iName);
 			if (is->_iMagical == ITEM_QUALITY_MAGIC)
 				infoclr = COL_BLUE;
-			if (is->_iMagical == ITEM_QUALITY_UNIQUE)
+			else if (is->_iMagical == ITEM_QUALITY_UNIQUE)
 				infoclr = COL_GOLD;
 		}
 	} else {
@@ -1456,24 +1451,15 @@ void DrawChr()
 		col = COL_RED;
 	mindam = p->_pIMinDam;
 	mindam += val * mindam / 100;
-	mindam += p->_pIBonusDamMod;
-	if (bow) {
-		if (pc == PC_ROGUE)
-			mindam += p->_pDamageMod;
-		else
-			mindam += p->_pDamageMod >> 1;
-	} else {
-		mindam += p->_pDamageMod;
-	}
 	maxdam = p->_pIMaxDam;
 	maxdam += val * maxdam / 100;
+	mindam += p->_pIBonusDamMod;
 	maxdam += p->_pIBonusDamMod;
-	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_BOW) {
-		if (pc == PC_ROGUE)
-			maxdam += p->_pDamageMod;
-		else
-			maxdam += p->_pDamageMod >> 1;
+	if (bow && pc != PC_ROGUE) {
+		mindam += p->_pDamageMod >> 1;
+		maxdam += p->_pDamageMod >> 1;
 	} else {
+		mindam += p->_pDamageMod;
 		maxdam += p->_pDamageMod;
 	}
 	sprintf(chrstr, "%i-%i", mindam, maxdam);

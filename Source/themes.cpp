@@ -487,7 +487,7 @@ void HoldThemeRooms()
  * PlaceThemeMonsts places theme monsters with the specified frequency.
  *
  * @param tidx theme number (index into themes array).
- * @param f frequency (1/f likelihood of adding monster).
+ * @param rndfrq frequency (1/f likelihood of adding monster).
  */
 void PlaceThemeMonsts(int tidx, int rndfrq)
 {
@@ -498,6 +498,7 @@ void PlaceThemeMonsts(int tidx, int rndfrq)
 	int scattertypes[111];
 #endif
 	int numscattypes, mtype, i;
+	char tv;
 
 	numscattypes = 0;
 	for (i = 0; i < nummtypes; i++) {
@@ -507,9 +508,10 @@ void PlaceThemeMonsts(int tidx, int rndfrq)
 		}
 	}
 	mtype = scattertypes[random_(0, numscattypes)];
+	tv = themes[tidx].ttval;
 	for (yp = 0; yp < MAXDUNY; yp++) {
 		for (xp = 0; xp < MAXDUNX; xp++) {
-			if (dTransVal[xp][yp] == themes[tidx].ttval && (nSolidTable[dPiece[xp][yp]] | dItem[xp][yp] | dObject[xp][yp]) == 0) {
+			if (dTransVal[xp][yp] == tv && (nSolidTable[dPiece[xp][yp]] | dItem[xp][yp] | dObject[xp][yp]) == 0) {
 				if (random_(0, rndfrq) == 0) {
 					AddMonster(xp, yp, random_(0, 8), mtype, TRUE);
 				}
@@ -684,8 +686,7 @@ void Theme_SkelRoom(int tidx)
  */
 void Theme_Treasure(int tidx)
 {
-	int xp, yp;
-	int i;
+	int xp, yp, i;
 	const char treasrnds[4] = { 4, 9, 7, 10 };
 	const char monstrnds[4] = { 6, 8, 3, 7 };
 	const char treasrnd = treasrnds[leveltype - 1];

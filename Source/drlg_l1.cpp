@@ -1335,33 +1335,31 @@ static BOOL L5checkRoom(int x, int y, int width, int height)
 
 static void L5roomGen(int x, int y, int w, int h, int dir)
 {
-	int i, dirProb;
+	int dirProb, i, width, height, rx, ry, rxy2;
 	BOOL ran2;
-	int width, height, rx, ry, ry2;
-	int cw, ch, cx1, cy1, cx2;
 
 	dirProb = random_(0, 4);
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
 		for (i = 20; i != 0; i--) {
-			cw = (random_(0, 5) + 2) & 0xFFFFFFFE;
-			ch = (random_(0, 5) + 2) & 0xFFFFFFFE;
-			cy1 = h / 2 + y - ch / 2;
-			cx1 = x - cw;
-			if (L5checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+			width = (random_(0, 5) + 2) & 0xFFFFFFFE;
+			height = (random_(0, 5) + 2) & 0xFFFFFFFE;
+			ry = h / 2 + y - height / 2;
+			rx = x - width;
+			if (L5checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
 				break;
 		}
 
 		if (i != 0)
-			L5drawRoom(cx1, cy1, cw, ch);
-		cx2 = x + w;
-		ran2 = L5checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
+			L5drawRoom(rx, ry, width, height);
+		rxy2 = x + w;
+		ran2 = L5checkRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
-			L5drawRoom(cx2, cy1, cw, ch);
+			L5drawRoom(rxy2, ry, width, height);
 		if (i != 0)
-			L5roomGen(cx1, cy1, cw, ch, 1);
+			L5roomGen(rx, ry, width, height, 1);
 		if (ran2)
-			L5roomGen(cx2, cy1, cw, ch, 1);
+			L5roomGen(rxy2, ry, width, height, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
 			width = (random_(0, 5) + 2) & 0xFFFFFFFE;
@@ -1370,18 +1368,18 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 			ry = y - height;
 			if (L5checkRoom(rx - 1, ry - 1, width + 2, height + 1))
 				break;
-		};
+		}
 
 		if (i != 0)
 			L5drawRoom(rx, ry, width, height);
-		ry2 = y + h;
-		ran2 = L5checkRoom(rx - 1, ry2, width + 2, height + 1);
+		rxy2 = y + h;
+		ran2 = L5checkRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
-			L5drawRoom(rx, ry2, width, height);
+			L5drawRoom(rx, rxy2, width, height);
 		if (i != 0)
 			L5roomGen(rx, ry, width, height, 0);
 		if (ran2)
-			L5roomGen(rx, ry2, width, height, 0);
+			L5roomGen(rx, rxy2, width, height, 0);
 	}
 }
 
@@ -1612,7 +1610,7 @@ static void L5HorizWall(int i, int j, char pn, int dx)
 	xx = random_(0, dx - 1) + 1;
 
 	if (wt == 12) {
-		dungeon[i + xx][j] = wt;
+		dungeon[i + xx][j] = 12;
 	} else {
 		dungeon[i + xx][j] = 2;
 		L5dflags[i + xx][j] |= DLRG_HDOOR;
@@ -1661,7 +1659,7 @@ static void L5VertWall(int i, int j, char pn, int dy)
 	yy = random_(0, dy - 1) + 1;
 
 	if (wt == 11) {
-		dungeon[i][j + yy] = wt;
+		dungeon[i][j + yy] = 11;
 	} else {
 		dungeon[i][j + yy] = 1;
 		L5dflags[i][j + yy] |= DLRG_VDOOR;
@@ -2532,7 +2530,7 @@ static void DRLG_L5CornerFix()
 static void DRLG_L5(int entry)
 {
 	int i, j;
-	LONG minarea;
+	int minarea;
 	BOOL doneflag;
 
 	switch (currlevel) {

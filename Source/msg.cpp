@@ -1411,7 +1411,7 @@ DWORD On_SBSPELL(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs != 1) {
 		int spell = p->wParam1;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			plr[pnum]._pSpell = p->wParam1;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pSBkSplType;
 			plr[pnum]._pSplFrom = 1;
 			plr[pnum].destAction = ACTION_SPELL;
@@ -1840,7 +1840,7 @@ DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
 			plr[pnum].destParam2 = p->y;
 			plr[pnum].destParam3 = p->wParam2;
 			plr[pnum].destParam4 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam1;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pRSplType;
 			plr[pnum]._pSplFrom = 0;
 		} else
@@ -1862,7 +1862,7 @@ DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 			plr[pnum].destParam1 = p->x;
 			plr[pnum].destParam2 = p->y;
 			plr[pnum].destParam3 = p->wParam2;
-			plr[pnum]._pSpell = p->wParam1;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pRSplType;
 			plr[pnum]._pSplFrom = 0;
 		} else
@@ -1884,7 +1884,7 @@ DWORD On_TSPELLXY(TCmd *pCmd, int pnum)
 			plr[pnum].destParam1 = p->x;
 			plr[pnum].destParam2 = p->y;
 			plr[pnum].destParam3 = p->wParam2;
-			plr[pnum]._pSpell = p->wParam1;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pTSplType;
 			plr[pnum]._pSplFrom = 2;
 		} else
@@ -1899,12 +1899,13 @@ DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
 	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (object[p->wParam1]._oSolidFlag || object[p->wParam1]._oDoorFlag)
+		int oi = p->wParam1;
+		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
 			MakePlrPath(pnum, p->x, p->y, FALSE);
 		else
 			MakePlrPath(pnum, p->x, p->y, TRUE);
 		plr[pnum].destAction = ACTION_OPERATE;
-		plr[pnum].destParam1 = p->wParam1;
+		plr[pnum].destParam1 = oi;
 	}
 
 	return sizeof(*p);
@@ -1915,12 +1916,13 @@ DWORD On_DISARMXY(TCmd *pCmd, int pnum)
 	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (object[p->wParam1]._oSolidFlag || object[p->wParam1]._oDoorFlag)
+		int oi = p->wParam1;
+		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
 			MakePlrPath(pnum, p->x, p->y, FALSE);
 		else
 			MakePlrPath(pnum, p->x, p->y, TRUE);
 		plr[pnum].destAction = ACTION_DISARM;
-		plr[pnum].destParam1 = p->wParam1;
+		plr[pnum].destParam1 = oi;
 	}
 
 	return sizeof(*p);
@@ -1943,12 +1945,13 @@ DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 	TCmdParam1 *p = (TCmdParam1 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int distx = abs(plr[pnum]._px - monster[p->wParam1]._mfutx);
-		int disty = abs(plr[pnum]._py - monster[p->wParam1]._mfuty);
+		int mnum = p->wParam1;
+		int distx = abs(plr[pnum]._px - monster[mnum]._mfutx);
+		int disty = abs(plr[pnum]._py - monster[mnum]._mfuty);
 		if (distx > 1 || disty > 1)
-			MakePlrPath(pnum, monster[p->wParam1]._mfutx, monster[p->wParam1]._mfuty, FALSE);
+			MakePlrPath(pnum, monster[mnum]._mfutx, monster[mnum]._mfuty, FALSE);
 		plr[pnum].destAction = ACTION_ATTACKMON;
-		plr[pnum].destParam1 = p->wParam1;
+		plr[pnum].destParam1 = mnum;
 	}
 
 	return sizeof(*p);
@@ -1959,9 +1962,10 @@ DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 	TCmdParam1 *p = (TCmdParam1 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, plr[p->wParam1]._pfutx, plr[p->wParam1]._pfuty, FALSE);
+		int tnum = p->wParam1;
+		MakePlrPath(pnum, plr[tnum]._pfutx, plr[tnum]._pfuty, FALSE);
 		plr[pnum].destAction = ACTION_ATTACKPLR;
-		plr[pnum].destParam1 = p->wParam1;
+		plr[pnum].destParam1 = tnum;
 	}
 
 	return sizeof(*p);
@@ -2004,7 +2008,7 @@ DWORD On_SPELLID(TCmd *pCmd, int pnum)
 			plr[pnum].destAction = ACTION_SPELLMON;
 			plr[pnum].destParam1 = p->wParam1;
 			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pRSplType;
 			plr[pnum]._pSplFrom = 0;
 		} else
@@ -2025,7 +2029,7 @@ DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 			plr[pnum].destAction = ACTION_SPELLPLR;
 			plr[pnum].destParam1 = p->wParam1;
 			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pRSplType;
 			plr[pnum]._pSplFrom = 0;
 		} else
@@ -2046,7 +2050,7 @@ DWORD On_TSPELLID(TCmd *pCmd, int pnum)
 			plr[pnum].destAction = ACTION_SPELLMON;
 			plr[pnum].destParam1 = p->wParam1;
 			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pTSplType;
 			plr[pnum]._pSplFrom = 2;
 		} else
@@ -2067,7 +2071,7 @@ DWORD On_TSPELLPID(TCmd *pCmd, int pnum)
 			plr[pnum].destAction = ACTION_SPELLPLR;
 			plr[pnum].destParam1 = p->wParam1;
 			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
+			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pTSplType;
 			plr[pnum]._pSplFrom = 2;
 		} else

@@ -501,13 +501,13 @@ void FreeTownerGFX()
 
 void TownCtrlMsg(TownerStruct *tw)
 {
-	int pnum;
+	PlayerStruct *p;
 	int dx, dy;
 
 	if (tw->_tbtcnt != 0) {
-		pnum = tw->_tVar1;
-		dx = abs(tw->_tx - plr[pnum]._px);
-		dy = abs(tw->_ty - plr[pnum]._py);
+		p = &plr[tw->_tVar1];
+		dx = abs(tw->_tx - p->_px);
+		dy = abs(tw->_ty - p->_py);
 		if (dx >= 2 || dy >= 2) {
 			tw->_tbtcnt = 0;
 			qtextflag = FALSE;
@@ -522,7 +522,7 @@ void ProcessTowners()
 	int i, ao;
 
 	tw = towner;
-	for (i = 0; i < numtowners; i++, tw++) {
+	for (i = numtowners; i > 0; i--, tw++) {
 		TownCtrlMsg(tw);
 		if (tw->_ttype == TOWN_DEADGUY) {
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
@@ -587,10 +587,10 @@ void TownerTalk(int talk)
 void TalkToTowner(int pnum, int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, rv1, rv2, rv3;
-	ItemStruct *is;
+	int i, dx, dy;
 #ifdef HELLFIRE
-	int qt, t2;
+	int qt;
+	BOOL qtsnd;
 #endif
 
 	tw = &towner[tnum];
@@ -841,14 +841,13 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tMsgSaid = TRUE;
 				}
 			} else {
-				is = PlrHasItem(pnum, IDI_SPECELIX, &i);
-				if (is != NULL) {
+				if (PlrHasItem(pnum, IDI_SPECELIX, &i) != NULL) {
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_MUSH12);
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
 					tw->_tMsgSaid = TRUE;
-					AllItemsList[is->IDidx].iUsable = TRUE;
+					AllItemsList[IDI_SPECELIX].iUsable = TRUE;
 				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) != NULL && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
@@ -993,8 +992,6 @@ void TalkToTowner(int pnum, int tnum)
 #ifdef HELLFIRE
 	case TOWN_FARMER:
 		if (!qtextflag) {
-			qt = 277;
-			t2 = 1;
 			switch (quests[Q_FARMER]._qactive) {
 			case 0:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
@@ -1019,7 +1016,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qlog = 1;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
-					t2 = 1;
 					break;
 				}
 			case 2:
@@ -1053,7 +1049,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qlog = 1;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
-					t2 = 1;
 				}
 				break;
 			case 3:
@@ -1061,7 +1056,6 @@ void TalkToTowner(int pnum, int tnum)
 				SpawnRewardItem(IDI_AURIC, tw->_tx + 1, tw->_ty);
 				quests[Q_FARMER]._qactive = 10;
 				quests[Q_FARMER]._qlog = 0;
-				t2 = 1;
 				break;
 			case 10:
 				qt = -1;
@@ -1072,10 +1066,7 @@ void TalkToTowner(int pnum, int tnum)
 				break;
 			}
 			if (qt != -1) {
-				if (t2)
 				InitQTextMsg(qt);
-				else
-					PlaySFX(alltext[qt].sfxnr);
 			}
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);
@@ -1084,8 +1075,6 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_COWFARM:
 		if (!qtextflag) {
-			qt = 297;
-			t2 = 1;
 			if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
 				qt = TEXT_JERSEY7;
 				RemoveInvItem(pnum, i);
@@ -1138,8 +1127,8 @@ void TalkToTowner(int pnum, int tnum)
 							break;
 						default:
 							qt = TEXT_JERSEY12;
-						}
 							break;
+						}
 					} else {
 						qt = TEXT_JERSEY4;
 						quests[Q_JERSEY]._qactive = 2;
@@ -1147,7 +1136,6 @@ void TalkToTowner(int pnum, int tnum)
 						quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 						quests[Q_JERSEY]._qlog = 1;
 						SpawnRuneBomb(tw->_tx + 1, tw->_ty);
-						t2 = 1;
 					}
 					break;
 				default:
@@ -1157,10 +1145,7 @@ void TalkToTowner(int pnum, int tnum)
 				}
 			}
 			if (qt != -1) {
-				if (t2)
 				InitQTextMsg(qt);
-				else
-					PlaySFX(alltext[qt].sfxnr);
 			}
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_JERSEY);
@@ -1169,8 +1154,7 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_GIRL:
 		if (!qtextflag) {
-			qt = 282;
-			t2 = 0;
+			qtsnd = FALSE;
 			if (!PlrHasItem(pnum, IDI_THEODORE, &i) || quests[Q_GIRL]._qactive == 3) {
 				switch (quests[Q_GIRL]._qactive) {
 				case 0:
@@ -1179,7 +1163,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_GIRL]._qvar1 = 1;
 					quests[Q_GIRL]._qlog = 1;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
-					t2 = 1;
 					break;
 				case 1:
 					qt = TEXT_GIRL2;
@@ -1187,11 +1170,9 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_GIRL]._qlog = 1;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
 					quests[Q_GIRL]._qactive = 2;
-					t2 = 1;
 					break;
 				case 2:
 					qt = TEXT_GIRL3;
-					t2 = 1;
 					break;
 				case 3:
 					qt = -1;
@@ -1199,6 +1180,7 @@ void TalkToTowner(int pnum, int tnum)
 				default:
 					quests[Q_GIRL]._qactive = 0;
 					qt = TEXT_GIRL1;
+					qtsnd = TRUE;
 					break;
 				}
 			} else {
@@ -1207,10 +1189,9 @@ void TalkToTowner(int pnum, int tnum)
 				CreateAmulet(tw->_tx, tw->_ty, 13, 0, 1);
 				quests[Q_GIRL]._qlog = 0;
 				quests[Q_GIRL]._qactive = 3;
-				t2 = 1;
 			}
 			if (qt != -1) {
-				if (t2 != 0) {
+				if (!qtsnd) {
 					InitQTextMsg(qt);
 				} else {
 					PlaySFX(alltext[qt].sfxnr);
@@ -1227,11 +1208,13 @@ void TalkToTowner(int pnum, int tnum)
 
 void CowSFX(int pnum)
 {
+	PlayerStruct *p;
 	if (CowPlaying != -1 && effect_is_playing(CowPlaying))
 		return;
 
 	sgdwCowClicks++;
 
+	p = &plr[pnum];
 #ifdef SPAWN
 	if (sgdwCowClicks == 4) {
 		sgdwCowClicks = 0;
@@ -1241,9 +1224,9 @@ void CowSFX(int pnum)
 	}
 #else
 	if (sgdwCowClicks >= 8) {
-		PlaySfxLoc(TSFX_COW1, plr[pnum]._px, plr[pnum]._py + 5);
+		PlaySfxLoc(TSFX_COW1, p->_px, p->_py + 5);
 		sgdwCowClicks = 4;
-		CowPlaying = snSFX[sgnCowMsg][plr[pnum]._pClass]; /* snSFX is local */
+		CowPlaying = snSFX[sgnCowMsg][p->_pClass]; /* snSFX is local */
 		sgnCowMsg++;
 		if (sgnCowMsg >= 3)
 			sgnCowMsg = 0;
@@ -1252,7 +1235,7 @@ void CowSFX(int pnum)
 	}
 #endif
 
-	PlaySfxLoc(CowPlaying, plr[pnum]._px, plr[pnum]._py);
+	PlaySfxLoc(CowPlaying, p->_px, p->_py);
 }
 
 DEVILUTION_END_NAMESPACE

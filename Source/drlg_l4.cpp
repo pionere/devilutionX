@@ -992,10 +992,9 @@ static void uShape()
 	} while (rv != 0);
 }
 
-static long GetArea()
+static int GetArea()
 {
-	int i, j;
-	long rv;
+	int i, j, rv;
 
 	rv = 0;
 
@@ -1045,33 +1044,31 @@ static BOOL L4checkRoom(int x, int y, int width, int height)
 
 static void L4roomGen(int x, int y, int w, int h, int dir)
 {
-	int i;
+	int dirProb, i, width, height, rx, ry, rxy2;
 	BOOL ran2;
-	int width, height, rx, ry, ry2;
-	int cw, ch, cx1, cy1, cx2;
 
-	int dirProb = random_(0, 4);
+	dirProb = random_(0, 4);
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
 		for (i = 20; i != 0; i--) {
-			cw = (random_(0, 5) + 2) & ~1;
-			ch = (random_(0, 5) + 2) & ~1;
-			cy1 = h / 2 + y - ch / 2;
-			cx1 = x - cw;
-			if (L4checkRoom(cx1 - 1, cy1 - 1, ch + 2, cw + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+			width = (random_(0, 5) + 2) & ~1;
+			height = (random_(0, 5) + 2) & ~1;
+			ry = h / 2 + y - height / 2;
+			rx = x - width;
+			if (L4checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
 				break;
 		}
 
 		if (i != 0)
-			L4drawRoom(cx1, cy1, cw, ch);
-		cx2 = x + w;
-		ran2 = L4checkRoom(cx2, cy1 - 1, cw + 1, ch + 2);
+			L4drawRoom(rx, ry, width, height);
+		rxy2 = x + w;
+		ran2 = L4checkRoom(rxy2, ry - 1, width + 1, height + 2);
 		if (ran2)
-			L4drawRoom(cx2, cy1, cw, ch);
+			L4drawRoom(rxy2, ry, width, height);
 		if (i != 0)
-			L4roomGen(cx1, cy1, cw, ch, 1);
+			L4roomGen(rx, ry, width, height, 1);
 		if (ran2)
-			L4roomGen(cx2, cy1, cw, ch, 1);
+			L4roomGen(rxy2, ry, width, height, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
 			width = (random_(0, 5) + 2) & ~1;
@@ -1084,14 +1081,14 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 
 		if (i != 0)
 			L4drawRoom(rx, ry, width, height);
-		ry2 = y + h;
-		ran2 = L4checkRoom(rx - 1, ry2, width + 2, height + 1);
+		rxy2 = y + h;
+		ran2 = L4checkRoom(rx - 1, rxy2, width + 2, height + 1);
 		if (ran2)
-			L4drawRoom(rx, ry2, width, height);
+			L4drawRoom(rx, rxy2, width, height);
 		if (i != 0)
 			L4roomGen(rx, ry, width, height, 0);
 		if (ran2)
-			L4roomGen(rx, ry2, width, height, 0);
+			L4roomGen(rx, rxy2, width, height, 0);
 	}
 }
 

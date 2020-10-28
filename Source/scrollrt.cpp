@@ -345,7 +345,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width, 1);
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, 1);
 	} else {
 		trans = 0;
 		if (mon->_uniqtype)
@@ -355,9 +355,9 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
 		if (trans)
-			Cl2DrawLightTbl(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width, trans);
+			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, trans);
 		else
-			Cl2DrawLight(mx, my, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width);
+			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->MType->width);
 	}
 }
 
@@ -530,11 +530,11 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	}
 
 	if (oi == pcursobj)
-		CelBlitOutline(194, sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
+		CelBlitOutline(194, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	if (os->_oLight) {
-		CelClippedDrawLight(sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
+		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
-		CelClippedDraw(sx, sy, os->_oAnimData, os->_oAnimFrame, os->_oAnimWidth);
+		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	}
 }
 

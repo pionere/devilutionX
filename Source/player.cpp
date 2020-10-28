@@ -962,12 +962,12 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 		return;
 	}
 
-	if ((DWORD)myplr >= MAX_PLRS) {
-		app_fatal("AddPlrExperience: illegal player %d", myplr);
+	if ((DWORD)pnum >= MAX_PLRS) {
+		app_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
 	p = &plr[pnum];
-	if (plr[myplr]._pHitPoints <= 0) {
+	if (p->_pHitPoints <= 0) {
 		return;
 	}
 
@@ -1015,7 +1015,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 		}
 	}
 
-	NetSendCmdParam1(FALSE, CMD_PLRLEVEL, plr[myplr]._pLevel);
+	NetSendCmdParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
 }
 
 void AddPlrMonstExper(int lvl, int exp, char pmask)
@@ -2228,7 +2228,7 @@ void InitLevelChange(int pnum)
 	RemovePlrFromMap(pnum);
 	SetPlayerOld(pnum);
 	if (pnum == myplr) {
-		dPlayer[plr[myplr]._px][plr[myplr]._py] = myplr + 1;
+		dPlayer[plr[pnum]._px][plr[pnum]._py] = pnum + 1;
 	} else {
 		plr[pnum]._pLvlVisited[plr[pnum].plrlevel] = TRUE;
 	}
@@ -2674,7 +2674,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	BOOL ret;
-	int hit, hper, dam, skdam, phanditype, tmac;
+	int hit, hper, dam, skdam, phanditype;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
@@ -2704,8 +2704,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 		hit = 0;
 	}
 
-	tmac = mon->mArmorClass - p->_pIEnAc;
-	hper = (p->_pDexterity >> 1) + p->_pLevel + 50 - tmac;
+	hper = (p->_pDexterity >> 1) + p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
 	if (p->_pClass == PC_WARRIOR) {
 		hper += 20;
 	}
@@ -2812,7 +2811,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 		}
 #ifdef _DEBUG
 		if (debug_mode_dollar_sign || debug_mode_key_inverted_v) {
-			monster[m]._mhitpoints = 0; /* double check */
+			mon->_mhitpoints = 0; /* double check */
 		}
 #endif
 		if ((mon->_mhitpoints >> 6) <= 0) {
@@ -2842,7 +2841,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	int hit, hper, blk, blkper, dir, dam, skdam, tac;
+	int hit, hper, blk, blkper, dir, dam, skdam;
 
 	if ((DWORD)defp >= MAX_PLRS) {
 		app_fatal("PlrHitPlr: illegal target player %d", defp);
@@ -2897,23 +2896,23 @@ BOOL PlrHitPlr(int offp, char defp)
 			PlrStartBlock(defp, dir);
 		} else {
 			dam = PlrAtkDam(offp);
-			skdam = dam << 6;
+			dam <<= 6;
 			if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
-				tac = random_(7, skdam >> 3);
-				ops->_pHitPoints += tac;
+				skdam = random_(7, dam >> 3);
+				ops->_pHitPoints += skdam;
 				if (ops->_pHitPoints > ops->_pMaxHP) {
 					ops->_pHitPoints = ops->_pMaxHP;
 				}
-				ops->_pHPBase += tac;
+				ops->_pHPBase += skdam;
 				if (ops->_pHPBase > ops->_pMaxHPBase) {
 					ops->_pHPBase = ops->_pMaxHPBase;
 				}
 				drawhpflag = TRUE;
 			}
 			if (offp == myplr) {
-				NetSendCmdDamage(TRUE, defp, skdam);
+				NetSendCmdDamage(TRUE, defp, dam);
 			}
-			StartPlrHit(defp, skdam, FALSE);
+			StartPlrHit(defp, dam, FALSE);
 		}
 
 		return TRUE;
@@ -3296,11 +3295,14 @@ void ArmorDur(int pnum)
 
 BOOL PlrDoDeath(int pnum)
 {
+	PlayerStruct *p;
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoDeath: illegal player %d", pnum);
 	}
 
-	if (plr[pnum]._pVar8 >= 2 * plr[pnum]._pDFrames) {
+	p = &plr[pnum];
+	if (p->_pVar8 >= 2 * p->_pDFrames) {
 		if (deathdelay > 1 && pnum == myplr) {
 			deathdelay--;
 			if (deathdelay == 1) {
@@ -3311,13 +3313,13 @@ BOOL PlrDoDeath(int pnum)
 			}
 		}
 
-		plr[pnum]._pAnimDelay = 10000;
-		plr[pnum]._pAnimFrame = plr[pnum]._pAnimLen;
-		dFlags[plr[pnum]._px][plr[pnum]._py] |= BFLAG_DEAD_PLAYER;
+		p->_pAnimDelay = 10000;
+		p->_pAnimFrame = p->_pAnimLen;
+		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 	}
 
-	if (plr[pnum]._pVar8 < 100) {
-		plr[pnum]._pVar8++;
+	if (p->_pVar8 < 100) {
+		p->_pVar8++;
 	}
 
 	return FALSE;
@@ -3339,11 +3341,9 @@ void CheckNewPath(int pnum)
 	}
 	p = &plr[pnum];
 	if (p->destAction == ACTION_ATTACKMON) {
-		i = p->destParam1;
-		MakePlrPath(pnum, monster[i]._mfutx, monster[i]._mfuty, FALSE);
+		MakePlrPath(pnum, monster[p->destParam1]._mfutx, monster[p->destParam1]._mfuty, FALSE);
 	} else if (p->destAction == ACTION_ATTACKPLR) {
-		i = p->destParam1;
-		MakePlrPath(pnum, plr[i]._pfutx, plr[i]._pfuty, FALSE);
+		MakePlrPath(pnum, plr[p->destParam1]._pfutx, plr[p->destParam1]._pfuty, FALSE);
 	}
 
 	if (p->walkpath[0] != WALK_NONE) {
@@ -3650,6 +3650,7 @@ void CheckNewPath(int pnum)
 
 BOOL PlrDeathModeOK(int pnum)
 {
+	PlayerStruct *p;
 	if (pnum != myplr) {
 		return TRUE;
 	}
@@ -3658,15 +3659,8 @@ BOOL PlrDeathModeOK(int pnum)
 		app_fatal("PlrDeathModeOK: illegal player %d", pnum);
 	}
 
-	if (plr[pnum]._pmode == PM_DEATH) {
-		return TRUE;
-	} else if (plr[pnum]._pmode == PM_QUIT) {
-		return TRUE;
-	} else if (plr[pnum]._pmode == PM_NEWLVL) {
-		return TRUE;
-	}
-
-	return FALSE;
+	p = &plr[pnum];
+	return p->_pmode == PM_DEATH || p->_pmode == PM_QUIT || p->_pmode == PM_NEWLVL;
 }
 
 void ValidatePlayer()
@@ -3674,9 +3668,7 @@ void ValidatePlayer()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	__int64 msk;
-	int gt, pc, i, b;
-
-	msk = 0;
+	int gt, pc, i;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ValidatePlayer: illegal player %d", myplr);
@@ -3719,11 +3711,12 @@ void ValidatePlayer()
 		p->_pBaseVit = MaxStats[pc][ATTRIB_VIT];
 	}
 
-	for (b = 1; b < MAX_SPELLS; b++) {
-		if (spelldata[b].sBookLvl != -1) {
-			msk |= (__int64)1 << (b - 1);
-			if (p->_pSplLvl[b] > 15)
-				p->_pSplLvl[b] = 15;
+	msk = 0;
+	for (i = 1; i < MAX_SPELLS; i++) {
+		if (spelldata[i].sBookLvl != -1) {
+			msk |= (__int64)1 << (i - 1);
+			if (p->_pSplLvl[i] > 15)
+				p->_pSplLvl[i] = 15;
 		}
 	}
 
@@ -4042,16 +4035,16 @@ void CheckPlrSpell()
 	}
 
 	if (addflag) {
-		sl = GetSpellLevel(myplr, plr[myplr]._pRSpell);
-		if (plr[myplr]._pRSpell == SPL_FIREWALL) {
+		sl = GetSpellLevel(myplr, rspell);
+		if (rspell == SPL_FIREWALL) {
 			sd = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXYD, cursmx, cursmy, plr[myplr]._pRSpell, sd, sl);
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXYD, cursmx, cursmy, rspell, sd, sl);
 		} else if (pcursmonst != -1) {
-			NetSendCmdParam3(TRUE, CMD_SPELLID, pcursmonst, plr[myplr]._pRSpell, sl);
+			NetSendCmdParam3(TRUE, CMD_SPELLID, pcursmonst, rspell, sl);
 		} else if (pcursplr != -1) {
-			NetSendCmdParam3(TRUE, CMD_SPELLPID, pcursplr, plr[myplr]._pRSpell, sl);
+			NetSendCmdParam3(TRUE, CMD_SPELLPID, pcursplr, rspell, sl);
 		} else { //145
-			NetSendCmdLocParam2(TRUE, CMD_SPELLXY, cursmx, cursmy, plr[myplr]._pRSpell, sl);
+			NetSendCmdLocParam2(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sl);
 		}
 		return;
 	}
@@ -4128,8 +4121,7 @@ void SyncPlrAnim(int pnum)
 void SyncInitPlrPos(int pnum)
 {
 	PlayerStruct *p;
-	int x, y, xx, yy, range;
-	DWORD i;
+	int x, y, xx, yy, i;
 	BOOL posOk;
 
 	p = &plr[pnum];
@@ -4155,10 +4147,10 @@ void SyncInitPlrPos(int pnum)
 #else
 	if (!PosOkPlayer(pnum, x, y)) {
 		posOk = FALSE;
-		for (range = 1; range < 50 && !posOk; range++) {
-			for (yy = -range; yy <= range && !posOk; yy++) {
+		for (i = 1; i < 50 && !posOk; i++) {
+			for (yy = -i; yy <= i && !posOk; yy++) {
 				y = yy + p->_py;
-				for (xx = -range; xx <= range && !posOk; xx++) {
+				for (xx = -i; xx <= i && !posOk; xx++) {
 					x = xx + p->_px;
 					if (PosOkPlayer(pnum, x, y) && !PosOkPortal(currlevel, x, y)) {
 						posOk = TRUE;
@@ -4196,60 +4188,32 @@ void SyncInitPlr(int pnum)
 void CheckStats(int pnum)
 {
 	PlayerStruct *p;
-	int c, i;
+	int *stats;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("CheckStats: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (p->_pClass == PC_WARRIOR) {
-		c = PC_WARRIOR;
-	} else if (p->_pClass == PC_ROGUE) {
-		c = PC_ROGUE;
-	} else if (p->_pClass == PC_SORCERER) {
-		c = PC_SORCERER;
+	stats = MaxStats[p->_pClass];
+	if (p->_pBaseStr > stats[ATTRIB_STR]) {
+		p->_pBaseStr = stats[ATTRIB_STR];
+	} else if (p->_pBaseStr < 0) {
+		p->_pBaseStr = 0;
 	}
-#ifdef HELLFIRE
-	else if (p->_pClass == PC_MONK) {
-		c = PC_MONK;
-	} else if (p->_pClass == PC_BARD) {
-		c = PC_BARD;
-	} else if (p->_pClass == PC_BARBARIAN) {
-		c = PC_BARBARIAN;
+	if (p->_pBaseMag > stats[ATTRIB_MAG]) {
+		p->_pBaseMag = stats[ATTRIB_MAG];
+	} else if (p->_pBaseMag < 0) {
+		p->_pBaseMag = 0;
 	}
-#endif
-
-	for (i = 0; i < 4; i++) {
-		switch (i) {
-		case ATTRIB_STR:
-			if (p->_pBaseStr > MaxStats[c][ATTRIB_STR]) {
-				p->_pBaseStr = MaxStats[c][ATTRIB_STR];
-			} else if (p->_pBaseStr < 0) {
-				p->_pBaseStr = 0;
-			}
-			break;
-		case ATTRIB_MAG:
-			if (p->_pBaseMag > MaxStats[c][ATTRIB_MAG]) {
-				p->_pBaseMag = MaxStats[c][ATTRIB_MAG];
-			} else if (p->_pBaseMag < 0) {
-				p->_pBaseMag = 0;
-			}
-			break;
-		case ATTRIB_DEX:
-			if (p->_pBaseDex > MaxStats[c][ATTRIB_DEX]) {
-				p->_pBaseDex = MaxStats[c][ATTRIB_DEX];
-			} else if (p->_pBaseDex < 0) {
-				p->_pBaseDex = 0;
-			}
-			break;
-		case ATTRIB_VIT:
-			if (p->_pBaseVit > MaxStats[c][ATTRIB_VIT]) {
-				p->_pBaseVit = MaxStats[c][ATTRIB_VIT];
-			} else if (p->_pBaseVit < 0) {
-				p->_pBaseVit = 0;
-			}
-			break;
-		}
+	if (p->_pBaseDex > stats[ATTRIB_DEX]) {
+		p->_pBaseDex = stats[ATTRIB_DEX];
+	} else if (p->_pBaseDex < 0) {
+		p->_pBaseDex = 0;
+	}
+	if (p->_pBaseVit > stats[ATTRIB_VIT]) {
+		p->_pBaseVit = stats[ATTRIB_VIT];
+	} else if (p->_pBaseVit < 0) {
+		p->_pBaseVit = 0;
 	}
 }
 
@@ -4305,12 +4269,11 @@ void ModifyPlrMag(int pnum, int l)
 	ms = l << 6;
 	if (p->_pClass == PC_SORCERER) {
 		ms <<= 1;
-	}
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_BARD) {
+	} else if (p->_pClass == PC_BARD) {
 		ms += ms >> 1;
-	}
 #endif
+	}
 
 	p->_pMaxManaBase += ms;
 	p->_pMaxMana += ms;
@@ -4493,12 +4456,11 @@ void SetPlrVit(int pnum, int v)
 	hp = v << 6;
 	if (p->_pClass == PC_WARRIOR) {
 		hp <<= 1;
-	}
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_BARBARIAN) {
+	} else if (p->_pClass == PC_BARBARIAN) {
 		hp <<= 1;
-	}
 #endif
+	}
 
 	p->_pHPBase = hp;
 	p->_pMaxHPBase = hp;

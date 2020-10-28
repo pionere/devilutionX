@@ -273,15 +273,16 @@ void DoHealOther(int pnum, int tnum)
 	if ((tp->_pHitPoints >> 6) <= 0)
 		return; // too late, the target is dead
 
-	hp = (random_(57, 10) + 1) << 6;
+	hp = random_(57, 10) + 1;
 
 	for (i = plr[pnum]._pLevel; i > 0; i--) {
-		hp += (random_(57, 4) + 1) << 6;
+		hp += random_(57, 4) + 1;
 	}
 
 	for (i = GetSpellLevel(pnum, SPL_HEALOTHER); i > 0; i--) {
-		hp += (random_(57, 6) + 1) << 6;
+		hp += random_(57, 6) + 1;
 	}
+	hp <<= 6;
 
 #ifdef HELLFIRE
 	if (plr[pnum]._pClass == PC_WARRIOR || plr[pnum]._pClass == PC_BARBARIAN) {
@@ -302,13 +303,11 @@ void DoHealOther(int pnum, int tnum)
 #endif
 
 	tp->_pHitPoints += hp;
-
 	if (tp->_pHitPoints > tp->_pMaxHP) {
 		tp->_pHitPoints = tp->_pMaxHP;
 	}
 
 	tp->_pHPBase += hp;
-
 	if (tp->_pHPBase > tp->_pMaxHPBase) {
 		tp->_pHPBase = tp->_pMaxHPBase;
 	}

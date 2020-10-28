@@ -893,8 +893,8 @@ void CheckInvPaste(int pnum, int mx, int my)
 		if (holditem->_itype == ITYPE_GOLD) {
 			yy = 10 * (ii / 10);
 			xx = ii % 10;
-			if (p->InvGrid[xx + yy] != 0) {
-				iv = p->InvGrid[xx + yy];
+			iv = p->InvGrid[xx + yy];
+			if (iv != 0) {
 				if (iv > 0) {
 					if (p->InvList[iv - 1]._itype != ITYPE_GOLD) {
 						it = iv;
@@ -917,8 +917,8 @@ void CheckInvPaste(int pnum, int mx, int my)
 					if (xx >= 10) {
 						done = FALSE;
 					} else {
-						if (p->InvGrid[xx + yy] != 0) {
-							iv = p->InvGrid[xx + yy];
+						iv = p->InvGrid[xx + yy];
+						if (iv != 0) {
 							if (iv < 0)
 								iv = -iv;
 							if (it != 0) {
@@ -1095,8 +1095,8 @@ void CheckInvPaste(int pnum, int mx, int my)
 			ii = r - SLOTXY_INV_FIRST;
 			yy = 10 * (ii / 10);
 			xx = ii % 10;
-			if (p->InvGrid[yy + xx] > 0) {
-				il = p->InvGrid[yy + xx];
+			il = p->InvGrid[yy + xx];
+			if (il > 0) {
 				il--;
 				is = &p->InvList[il];
 				gt = is->_ivalue;
@@ -1244,6 +1244,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
 void CheckInvCut(int pnum, int mx, int my)
 {
 	PlayerStruct *p;
+	ItemStruct *pi;
 	int r;
 	char ii;
 	int iv, i, j, offs, ig;
@@ -1268,7 +1269,7 @@ void CheckInvCut(int pnum, int mx, int my)
 
 		// check which inventory rectangle the mouse is in, if any
 		if (mx >= InvRect[r].X + xo
-		    && mx < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1)
+		    && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
 		    && my >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
 		    && my < InvRect[r].Y + yo) {
 			break;
@@ -1282,67 +1283,56 @@ void CheckInvCut(int pnum, int mx, int my)
 
 	p->HoldItem._itype = ITYPE_NONE;
 
-	if (
-	    r >= SLOTXY_HEAD_FIRST
-	    && r <= SLOTXY_HEAD_LAST
-	    && p->InvBody[INVLOC_HEAD]._itype != ITYPE_NONE) {
+	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST) {
+		pi = &p->InvBody[INVLOC_HEAD];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_HEAD);
-		p->HoldItem = p->InvBody[INVLOC_HEAD];
-		p->InvBody[INVLOC_HEAD]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r == SLOTXY_RING_LEFT
-	    && p->InvBody[INVLOC_RING_LEFT]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r == SLOTXY_RING_LEFT) {
+		pi = &p->InvBody[INVLOC_RING_LEFT];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_RING_LEFT);
-		p->HoldItem = p->InvBody[INVLOC_RING_LEFT];
-		p->InvBody[INVLOC_RING_LEFT]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r == SLOTXY_RING_RIGHT
-	    && p->InvBody[INVLOC_RING_RIGHT]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r == SLOTXY_RING_RIGHT) {
+		pi = &p->InvBody[INVLOC_RING_RIGHT];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_RING_RIGHT);
-		p->HoldItem = p->InvBody[INVLOC_RING_RIGHT];
-		p->InvBody[INVLOC_RING_RIGHT]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r == SLOTXY_AMULET
-	    && p->InvBody[INVLOC_AMULET]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r == SLOTXY_AMULET) {
+		pi = &p->InvBody[INVLOC_AMULET];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_AMULET);
-		p->HoldItem = p->InvBody[INVLOC_AMULET];
-		p->InvBody[INVLOC_AMULET]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r >= SLOTXY_HAND_LEFT_FIRST
-	    && r <= SLOTXY_HAND_LEFT_LAST
-	    && p->InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r >= SLOTXY_HAND_LEFT_FIRST && r <= SLOTXY_HAND_LEFT_LAST) {
+		pi = &p->InvBody[INVLOC_HAND_LEFT];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
-		p->HoldItem = p->InvBody[INVLOC_HAND_LEFT];
-		p->InvBody[INVLOC_HAND_LEFT]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r >= SLOTXY_HAND_RIGHT_FIRST
-	    && r <= SLOTXY_HAND_RIGHT_LAST
-	    && p->InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r >= SLOTXY_HAND_RIGHT_FIRST && r <= SLOTXY_HAND_RIGHT_LAST) {
+		pi = &p->InvBody[INVLOC_HAND_RIGHT];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
-		p->HoldItem = p->InvBody[INVLOC_HAND_RIGHT];
-		p->InvBody[INVLOC_HAND_RIGHT]._itype = ITYPE_NONE;
-	}
-
-	if (
-	    r >= SLOTXY_CHEST_FIRST
-	    && r <= SLOTXY_CHEST_LAST
-	    && p->InvBody[INVLOC_CHEST]._itype != ITYPE_NONE) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST) {
+		pi = &p->InvBody[INVLOC_CHEST];
+		if (pi->_itype == ITYPE_NONE)
+			return;
 		NetSendCmdDelItem(FALSE, INVLOC_CHEST);
-		p->HoldItem = p->InvBody[INVLOC_CHEST];
-		p->InvBody[INVLOC_CHEST]._itype = ITYPE_NONE;
-	}
-
-	if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+	} else if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
 		ig = r - SLOTXY_INV_FIRST;
 		ii = p->InvGrid[ig];
 		if (ii != 0) {
@@ -1375,15 +1365,14 @@ void CheckInvCut(int pnum, int mx, int my)
 				}
 			}
 		}
-	}
-
-	if (r >= SLOTXY_BELT_FIRST) {
+	} else if (r >= SLOTXY_BELT_FIRST) {
 		offs = r - SLOTXY_BELT_FIRST;
-		if (p->SpdList[offs]._itype != ITYPE_NONE) {
-			p->HoldItem = p->SpdList[offs];
-			p->SpdList[offs]._itype = ITYPE_NONE;
-			drawsbarflag = TRUE;
-		}
+		pi = &p->SpdList[offs];
+		if (pi->_itype == ITYPE_NONE)
+			return;
+		p->HoldItem = *pi;
+		pi->_itype = ITYPE_NONE;
+		drawsbarflag = TRUE;
 	}
 
 	if (p->HoldItem._itype != ITYPE_NONE) {
@@ -1470,37 +1459,41 @@ void RemoveInvItem(int pnum, int iv)
  */
 BOOL inv_diablo_to_hellfire(int pnum)
 {
+	PlayerStruct *p;
 	ItemStruct tmp;
-	ItemStruct *item;
+	ItemStruct *pi;
 	int i, old_item_cnt, new_item_index;
 
-	if (plr[pnum]._pgfxnum != 0) {
-		plr[pnum]._pgfxnum = 0;
-		plr[pnum]._pGFXLoad = 0;
+	p = &plr[pnum];
+	if (p->_pgfxnum != 0) {
+		p->_pgfxnum = 0;
+		p->_pGFXLoad = 0;
 		SetPlrAnims(pnum);
 	}
-	for (i = 0, item = plr[pnum].InvBody; i < NUM_INVLOC; i++, item++) {
-		item->_itype = ITYPE_NONE;
+	pi = p->InvBody;
+	for (i = NUM_INVLOC; i != 0; i--, pi++) {
+		pi->_itype = ITYPE_NONE;
 	}
-	old_item_cnt = plr[pnum]._pNumInv;
-	memset(plr[pnum].InvGrid, 0, sizeof(plr[pnum].InvGrid));
-	plr[pnum]._pNumInv = 0;
-	for (i = 0; i < old_item_cnt; i++) {
-		item = &plr[pnum].InvList[i];
-		if (item->_itype == ITYPE_GOLD) {
-			new_item_index = plr[pnum]._pNumInv;
+	old_item_cnt = p->_pNumInv;
+	memset(p->InvGrid, 0, sizeof(p->InvGrid));
+	p->_pNumInv = 0;
+	pi = p->InvList;
+	for (i = 0; i < old_item_cnt; i++, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			new_item_index = p->_pNumInv;
 			// BUGFIX: new_item_index may be greater or equal to NUM_INV_GRID_ELEM
-			tmp = *item;
-			item->_itype = ITYPE_NONE;
-			plr[pnum].InvList[new_item_index] = tmp;
-			plr[pnum]._pNumInv++;
-			plr[pnum].InvGrid[i] = plr[pnum]._pNumInv;
+			tmp = *pi;
+			pi->_itype = ITYPE_NONE;
+			p->InvList[new_item_index] = tmp;
+			p->_pNumInv++;
+			p->InvGrid[i] = p->_pNumInv;
 		} else {
 			item->_itype = ITYPE_NONE;
 		}
-	};
-	for (i = 0, item = plr[pnum].SpdList; i < MAXBELTITEMS; i++, item++) {
-		item->_itype = ITYPE_NONE;
+	}
+	pi = p->SpdList;
+	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
+		pi->_itype = ITYPE_NONE;
 	}
 	CalcPlrItemVals(pnum, FALSE);
 	return FALSE;
@@ -1569,12 +1562,14 @@ void CheckQuestItem(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
+	int idx;
 
 	p = &plr[pnum];
 	is = &p->HoldItem;
-	if (is->IDidx == IDI_OPTAMULET)
+	idx = is->IDidx;
+	if (idx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-	if (is->IDidx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
+	else if (idx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
 		sfxdelay = 10;
 		if (p->_pClass == PC_WARRIOR) { // BUGFIX: Voice for this quest might be wrong in MP
 			sfxdnum = PS_WARR95;
@@ -1582,19 +1577,17 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_ROGUE95;
 		} else if (p->_pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE95;
-		}
 #ifdef HELLFIRE
-		else if (p->_pClass == PC_MONK) {
+		} else if (p->_pClass == PC_MONK) {
 			sfxdnum = PS_MONK95;
 		} else if (p->_pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE95;
 		} else if (p->_pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR95;
-		}
 #endif
+		}
 		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
-	}
-	if (is->IDidx == IDI_ANVIL) {
+	} else if (idx == IDI_ANVIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
@@ -1607,19 +1600,17 @@ void CheckQuestItem(int pnum)
 				sfxdnum = PS_ROGUE89;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
 				sfxdnum = PS_MAGE89;
-			}
 #ifdef HELLFIRE
-			else if (plr[myplr]._pClass == PC_MONK) {
+			} else if (plr[myplr]._pClass == PC_MONK) {
 				sfxdnum = PS_MONK89;
 			} else if (plr[myplr]._pClass == PC_BARD) {
 				sfxdnum = PS_ROGUE89;
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				sfxdnum = PS_WARR89;
-			}
 #endif
+			}
 		}
-	}
-	if (is->IDidx == IDI_GLDNELIX) {
+	} else if (idx == IDI_GLDNELIX) {
 		sfxdelay = 30;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
 			sfxdnum = PS_WARR88;
@@ -1627,18 +1618,16 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_ROGUE88;
 		} else if (plr[myplr]._pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE88;
-		}
 #ifdef HELLFIRE
-		else if (plr[myplr]._pClass == PC_MONK) {
+		} else if (plr[myplr]._pClass == PC_MONK) {
 			sfxdnum = PS_MONK88;
 		} else if (plr[myplr]._pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE88;
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR88;
-		}
 #endif
-	}
-	if (is->IDidx == IDI_ROCK) {
+		}
+	} else if (idx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
@@ -1651,19 +1640,17 @@ void CheckQuestItem(int pnum)
 				sfxdnum = PS_ROGUE87;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
 				sfxdnum = PS_MAGE87;
-			}
 #ifdef HELLFIRE
-			else if (plr[myplr]._pClass == PC_MONK) {
+			} else if (plr[myplr]._pClass == PC_MONK) {
 				sfxdnum = PS_MONK87;
 			} else if (plr[myplr]._pClass == PC_BARD) {
 				sfxdnum = PS_ROGUE87;
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 				sfxdnum = PS_WARR87;
-			}
 #endif
+			}
 		}
-	}
-	if (is->IDidx == IDI_ARMOFVAL) {
+	} else if (idx == IDI_ARMOFVAL) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 		sfxdelay = 20;
 		if (plr[myplr]._pClass == PC_WARRIOR) {
@@ -1681,9 +1668,8 @@ void CheckQuestItem(int pnum)
 			sfxdnum = PS_WARR91;
 #endif
 		}
-	}
 #ifdef HELLFIRE
-	if (is->IDidx == IDI_MAPOFDOOM) {
+	} else if (idx == IDI_MAPOFDOOM) {
 		quests[Q_GRAVE]._qlog = FALSE;
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		quests[Q_GRAVE]._qvar1 = 1;
@@ -1701,12 +1687,10 @@ void CheckQuestItem(int pnum)
 		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR79;
 		}
-	}
-	if (is->IDidx == IDI_NOTE1 || is->IDidx == IDI_NOTE2 || is->IDidx == IDI_NOTE3) {
-		int idx, item_num;
+	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
+		int item_num;
 		int nn;
 		ItemStruct tmp;
-		idx = is->IDidx;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
@@ -1743,8 +1727,8 @@ void CheckQuestItem(int pnum)
 			p->HoldItem = item[item_num];
 			item[item_num] = tmp;
 		}
-	}
 #endif
+	}
 }
 
 void InvGetItem(int pnum, int ii)
@@ -2001,8 +1985,9 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	ItemStruct *is;
 	int i, ii;
 
-	if (dItem[x][y]) {
-		ii = dItem[x][y] - 1;
+	ii = dItem[x][y];
+	if (ii != 0) {
+		ii--;
 		if (item[ii].IDidx == idx
 		    && item[ii]._iSeed == iseed
 		    && item[ii]._iCreateInfo == ci) {

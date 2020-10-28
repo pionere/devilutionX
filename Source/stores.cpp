@@ -394,27 +394,28 @@ char StoreItemColor(ItemStruct *is)
 
 void S_ScrollSBuy(int idx)
 {
-	int l, ls;
+	ItemStruct *is;
+	int l;
 	char iclr;
 
-	ls = idx;
 	ClearSText(5, 21);
 	stextup = 5;
 
+	is = &smithitem[idx];
 	for (l = 5; l < 20; l += 4) {
-		if (smithitem[ls]._itype != ITYPE_NONE) {
-			iclr = StoreItemColor(&smithitem[ls]);
+		if (is->_itype != ITYPE_NONE) {
+			iclr = StoreItemColor(is);
 
-			if (smithitem[ls]._iMagical) {
-				AddSText(20, l, FALSE, smithitem[ls]._iIName, iclr, TRUE);
+			if (is->_iMagical) {
+				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			} else {
-				AddSText(20, l, FALSE, smithitem[ls]._iName, iclr, TRUE);
+				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
 			}
 
-			AddSTextVal(l, smithitem[ls]._iIvalue);
-			PrintStoreItem(&smithitem[ls], l + 1, iclr);
+			AddSTextVal(l, is->_iIvalue);
+			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
-			ls++;
+			is++;
 		}
 	}
 
@@ -477,10 +478,8 @@ void PrintStoreItem(ItemStruct *is, int l, char iclr)
 		strcat(sstr, tempstr);
 	}
 	AddSText(40, l++, FALSE, sstr, iclr, FALSE);
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-		if (is->_iIdentified)
-			AddSText(40, l, FALSE, "Unique Item", iclr, FALSE);
-	}
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE && is->_iIdentified)
+		AddSText(40, l, FALSE, "Unique Item", iclr, FALSE);
 }
 
 void S_StartSBuy()
@@ -766,7 +765,7 @@ void AddStoreHoldRepair(ItemStruct *is, int i)
 	int v;
 
 	item = &storehold[storenumh];
-	storehold[storenumh] = *is;
+	*item = *is;
 	if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
 		item->_ivalue = 30 * item->_iIvalue / 100;
 	v = item->_ivalue * (100 * (item->_iMaxDur - item->_iDurability) / item->_iMaxDur) / 100;
@@ -2004,8 +2003,8 @@ void StoreSellItem()
 	}
 	p = &plr[myplr];
 	p->_pGold += cost;
-	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-		pi = &p->InvList[i];
+	pi = p->InvList;
+	for (i = p->_pNumInv; i > 0 && cost > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
 			if (cost + pi->_ivalue <= GOLD_MAX_LIMIT) {
 				SetGoldItemValue(pi, pi->_ivalue + cost);

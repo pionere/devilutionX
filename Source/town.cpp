@@ -304,7 +304,7 @@ void T_Pass3()
  */
 void CreateTown(int entry)
 {
-	int x, y;
+	int x, y, pn;
 
 	dminx = 10;
 	dminy = 10;
@@ -351,35 +351,36 @@ void CreateTown(int entry)
 
 	for (y = 0; y < MAXDUNY; y++) {
 		for (x = 0; x < MAXDUNX; x++) {
-			if (dPiece[x][y] == 360) {
+			pn = dPiece[x][y];
+			if (pn == 360) {
 				dSpecial[x][y] = 1;
-			} else if (dPiece[x][y] == 358) {
+			} else if (pn == 358) {
 				dSpecial[x][y] = 2;
-			} else if (dPiece[x][y] == 129) {
+			} else if (pn == 129) {
 				dSpecial[x][y] = 6;
-			} else if (dPiece[x][y] == 130) {
+			} else if (pn == 130) {
 				dSpecial[x][y] = 7;
-			} else if (dPiece[x][y] == 128) {
+			} else if (pn == 128) {
 				dSpecial[x][y] = 8;
-			} else if (dPiece[x][y] == 117) {
+			} else if (pn == 117) {
 				dSpecial[x][y] = 9;
-			} else if (dPiece[x][y] == 157) {
+			} else if (pn == 157) {
 				dSpecial[x][y] = 10;
-			} else if (dPiece[x][y] == 158) {
+			} else if (pn == 158) {
 				dSpecial[x][y] = 11;
-			} else if (dPiece[x][y] == 156) {
+			} else if (pn == 156) {
 				dSpecial[x][y] = 12;
-			} else if (dPiece[x][y] == 162) {
+			} else if (pn == 162) {
 				dSpecial[x][y] = 13;
-			} else if (dPiece[x][y] == 160) {
+			} else if (pn == 160) {
 				dSpecial[x][y] = 14;
-			} else if (dPiece[x][y] == 214) {
+			} else if (pn == 214) {
 				dSpecial[x][y] = 15;
-			} else if (dPiece[x][y] == 212) {
+			} else if (pn == 212) {
 				dSpecial[x][y] = 16;
-			} else if (dPiece[x][y] == 217) {
+			} else if (pn == 217) {
 				dSpecial[x][y] = 17;
-			} else if (dPiece[x][y] == 216) {
+			} else if (pn == 216) {
 				dSpecial[x][y] = 18;
 			}
 		}
