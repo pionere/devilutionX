@@ -1196,10 +1196,11 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
+	memset(L5dflags, 0, sizeof(L5dflags));
+
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			dungeon[i][j] = 22;
-			L5dflags[i][j] = 0;
 		}
 	}
 
@@ -1247,10 +1248,11 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
+	memset(L5dflags, 0, sizeof(L5dflags));
+
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			dungeon[i][j] = 22;
-			L5dflags[i][j] = 0;
 		}
 	}
 
@@ -1285,14 +1287,8 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 
 static void InitL5Dungeon()
 {
-	int i, j;
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 0;
-			L5dflags[i][j] = 0;
-		}
-	}
+	memset(dungeon, 0, sizeof(dungeon));
+	memset(L5dflags, 0, sizeof(L5dflags));
 }
 
 static void L5ClearFlags()

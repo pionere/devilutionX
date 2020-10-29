@@ -598,19 +598,11 @@ void InitItems()
 	golditem._iStatFlag = TRUE;
 	numitems = 0;
 
-	for (i = 0; i < MAXITEMS; i++) {
-		item[i]._itype = ITYPE_MISC;
-		item[i]._ix = 0;
-		item[i]._iy = 0;
-		item[i]._iAnimFlag = FALSE;
-		item[i]._iSelFlag = 0;
-		item[i]._iIdentified = FALSE;
-		item[i]._iPostDraw = FALSE;
-	}
+	memset(item, 0, sizeof(item));
+	memset(itemactive, 0, sizeof(itemactive));
 
 	for (i = 0; i < MAXITEMS; i++) {
 		itemavail[i] = i;
-		itemactive[i] = 0;
 	}
 
 	if (!setlevel) {

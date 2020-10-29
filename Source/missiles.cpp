@@ -1303,9 +1303,9 @@ void InitMissiles()
 #endif
 
 	nummissiles = 0;
+	memset(missileactive, 0, sizeof(missileactive));
 	for (i = 0; i < MAXMISSILES; i++) {
 		missileavail[i] = i;
-		missileactive[i] = 0;
 	}
 	numchains = 0;
 	for (i = 0; i < MAXMISSILES; i++) {
@@ -3479,9 +3479,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	nummissiles++;
 
 	mis = &missile[mi];
-#ifdef HELLFIRE
 	memset(mis, 0, sizeof(*mis));
-#endif
 
 	mis->_mitype = mitype;
 	mis->_micaster = micaster;
@@ -3498,22 +3496,11 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 
 	mis->_mix = sx;
 	mis->_miy = sy;
-	mis->_mixoff = 0;
-	mis->_miyoff = 0;
 	mis->_misx = sx;
 	mis->_misy = sy;
-	mis->_mitxoff = 0;
-	mis->_mityoff = 0;
-	mis->_miDelFlag = FALSE;
 	mis->_miAnimAdd = 1;
-	mis->_miLightFlag = FALSE;
-	mis->_miPreFlag = FALSE;
-	mis->_miUniqTrans = 0;
 	mis->_midam = midam;
-	mis->_miHitFlag = FALSE;
-	mis->_midist = 0;
 	mis->_mlid = -1;
-	mis->_mirnd = 0;
 
 	if (missiledata[mitype].mlSFX != -1) {
 		PlaySfxLoc(missiledata[mitype].mlSFX, mis->_misx, mis->_misy);

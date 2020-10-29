@@ -368,34 +368,13 @@ void ClrAllObjects()
 {
 	int i;
 
-#ifdef HELLFIRE
 	memset(object, 0, sizeof(object));
-#else
-	for (i = 0; i < MAXOBJECTS; i++) {
-		object[i]._ox = 0;
-		object[i]._oy = 0;
-		object[i]._oAnimData = 0;
-		object[i]._oAnimDelay = 0;
-		object[i]._oAnimCnt = 0;
-		object[i]._oAnimLen = 0;
-		object[i]._oAnimFrame = 0;
-		object[i]._oDelFlag = FALSE;
-		object[i]._oVar1 = 0;
-		object[i]._oVar2 = 0;
-		object[i]._oVar3 = 0;
-		object[i]._oVar4 = 0;
-	}
-#endif
-	nobjects = 0;
-	for (i = 0; i < MAXOBJECTS; i++) {
-		objectavail[i] = i;
-#ifndef HELLFIRE
-		objectactive[i] = 0;
-#endif
-	}
-#ifdef HELLFIRE
 	memset(objectactive, 0, sizeof(objectactive));
-#endif
+
+	nobjects = 0;
+	for (i = 0; i < MAXOBJECTS; i++)
+		objectavail[i] = i;
+
 	trapdir = 0;
 	trapid = 1;
 	leverid = 1;
@@ -1128,8 +1107,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	char filestr[32];
 
 	ClrAllObjects();
-	for (i = 0; i < NUM_OFILE_TYPES; i++)
-		fileload[i] = FALSE;
+	memset(fileload, 0, sizeof(fileload));
 	InitObjFlag = TRUE;
 
 	for (i = 0; AllObjects[i].oload != -1; i++) {

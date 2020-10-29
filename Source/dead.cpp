@@ -19,8 +19,7 @@ void InitDead()
 	int i, d, nd;
 	int mtypes[MAXMONSTERS];
 
-	for (i = 0; i < MAXMONSTERS; i++)
-		mtypes[i] = 0;
+	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
 

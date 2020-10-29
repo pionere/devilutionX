@@ -574,30 +574,12 @@ void ClrAllMonsters()
 	int i;
 	MonsterStruct *mon;
 
+	memset(monster, 0, sizeof(monster));
+
 	for (i = 0; i < MAXMONSTERS; i++) {
 		mon = &monster[i];
-		ClearMVars(i);
 		mon->mName = "Invalid Monster";
-		mon->_mgoal = 0;
-		mon->_mmode = MM_STAND;
-		mon->_mVar1 = 0;
-		mon->_mVar2 = 0;
-		mon->_mx = 0;
-		mon->_my = 0;
-		mon->_mfutx = 0;
-		mon->_mfuty = 0;
-		mon->_moldx = 0;
-		mon->_moldy = 0;
 		mon->_mdir = random_(89, 8);
-		mon->_mxvel = 0;
-		mon->_myvel = 0;
-		mon->_mAnimData = NULL;
-		mon->_mAnimDelay = 0;
-		mon->_mAnimCnt = 0;
-		mon->_mAnimLen = 0;
-		mon->_mAnimFrame = 0;
-		mon->_mFlags = 0;
-		mon->_mDelFlag = FALSE;
 		mon->_menemy = random_(89, gbActivePlayers);
 		mon->_menemyx = plr[mon->_menemy]._pfutx;
 		mon->_menemyy = plr[mon->_menemy]._pfuty;

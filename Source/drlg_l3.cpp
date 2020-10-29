@@ -843,16 +843,8 @@ const BYTE byte_48A9C8[] = {
 
 static void InitL3Dungeon()
 {
-	int i, j;
-
 	memset(dungeon, 0, sizeof(dungeon));
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 0;
-			dflags[i][j] = 0;
-		}
-	}
+	memset(dflags, 0, sizeof(dflags));
 }
 
 static BOOL DRLG_L3FillRoom(int x1, int y1, int x2, int y2)

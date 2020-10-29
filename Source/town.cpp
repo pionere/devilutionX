@@ -237,18 +237,11 @@ unsigned char GetOpenWarps()
  */
 void T_Pass3()
 {
-	int xx, yy, x;
+	int x;
 	BYTE *P3Tiles, *pSector;
 	unsigned char twarps;
 
-	for (yy = 0; yy < MAXDUNY; yy += 2) {
-		for (xx = 0; xx < MAXDUNX; xx += 2) {
-			dPiece[xx][yy] = 0;
-			dPiece[xx + 1][yy] = 0;
-			dPiece[xx][yy + 1] = 0;
-			dPiece[xx + 1][yy + 1] = 0;
-		}
-	}
+	memset(dPiece, 0, sizeof(dPiece));
 
 	P3Tiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
 	pSector = LoadFileInMem("Levels\\TownData\\Sector1s.DUN", NULL);

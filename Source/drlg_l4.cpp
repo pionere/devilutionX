@@ -167,11 +167,11 @@ static void InitL4Dungeon()
 
 	memset(dung, 0, sizeof(dung));
 	memset(L4dungeon, 0, sizeof(L4dungeon));
+	memset(dflags, 0, sizeof(dflags));
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			dungeon[i][j] = 30;
-			dflags[i][j] = 0;
 		}
 	}
 }

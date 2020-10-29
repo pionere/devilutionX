@@ -94,10 +94,7 @@ void InitDiabloMsg(char e)
 
 void ClrDiabloMsg()
 {
-	int i;
-
-	for (i = 0; i < sizeof(msgtable); i++)
-		msgtable[i] = 0;
+	memset(msgtable, 0, sizeof(msgtable));
 
 	msgflag = 0;
 	msgcnt = 0;

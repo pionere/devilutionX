@@ -1837,10 +1837,11 @@ void InitDungeon()
 {
 	int i, j;
 
+	memset(dflags, 0, sizeof(dflags));
+
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			predungeon[i][j] = 32;
-			dflags[i][j] = 0;
 		}
 	}
 }
@@ -3318,10 +3319,11 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
+	memset(dflags, 0, sizeof(dflags));
+
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			dungeon[i][j] = 12;
-			dflags[i][j] = 0;
 		}
 	}
 
@@ -3408,10 +3410,11 @@ void LoadPreL2Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
+	memset(dflags, 0, sizeof(dflags));
+
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			dungeon[i][j] = 12;
-			dflags[i][j] = 0;
 		}
 	}
 
