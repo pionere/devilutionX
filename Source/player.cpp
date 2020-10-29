@@ -466,7 +466,7 @@ DWORD GetPlrGFXSize(const char *szCel)
 
 	for (c = 0; c < NUM_CLASSES; c++) {
 #ifdef SPAWN
-		if (c != 0)
+		if (c != PC_WARRIOR)
 			continue;
 #endif
 		GetPlrGFXCells(c, &cc, &cst);
@@ -1377,7 +1377,7 @@ void PlrChangeOffset(int pnum)
 	px -= p->_pVar6 >> 8;
 	py -= p->_pVar7 >> 8;
 
-	if (pnum == myplr && ScrollInfo._sdir) {
+	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ScrollInfo._sxoff += px;
 		ScrollInfo._syoff += py;
 	}
@@ -2381,7 +2381,7 @@ BOOL PlrDoWalk(int pnum)
 			ChangeVisionXY(p->_pvid, p->_px, p->_py);
 		}
 
-		if (pnum == myplr && ScrollInfo._sdir) {
+		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 			ViewX = p->_px - ScrollInfo._sdx;
 			ViewY = p->_py - ScrollInfo._sdy;
 		}
@@ -2448,7 +2448,7 @@ BOOL PlrDoWalk2(int pnum)
 			ChangeVisionXY(p->_pvid, p->_px, p->_py);
 		}
 
-		if (pnum == myplr && ScrollInfo._sdir) {
+		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 			ViewX = p->_px - ScrollInfo._sdx;
 			ViewY = p->_py - ScrollInfo._sdy;
 		}
@@ -2518,7 +2518,7 @@ BOOL PlrDoWalk3(int pnum)
 			ChangeVisionXY(p->_pvid, p->_px, p->_py);
 		}
 
-		if (pnum == myplr && ScrollInfo._sdir) {
+		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 			ViewX = p->_px - ScrollInfo._sdx;
 			ViewY = p->_py - ScrollInfo._sdy;
 		}
@@ -2556,7 +2556,7 @@ BOOL WeaponDur(int pnum, int durrnd)
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & 2) {
+	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & ISPH_DECAY) {
 		pi->_iPLDam -= 5;
 		if (pi->_iPLDam <= -100) {
 			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
@@ -2568,7 +2568,7 @@ BOOL WeaponDur(int pnum, int durrnd)
 	}
 
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & 2) {
+	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & ISPH_DECAY) {
 		pi->_iPLDam -= 5;
 		if (pi->_iPLDam <= -100) {
 			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT); // BUGFIX: INVLOC_HAND_RIGHT
@@ -3715,8 +3715,8 @@ void ValidatePlayer()
 	for (i = 1; i < MAX_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != -1) {
 			msk |= (__int64)1 << (i - 1);
-			if (p->_pSplLvl[i] > 15)
-				p->_pSplLvl[i] = 15;
+			if (p->_pSplLvl[i] > MAXSPLLEVEL)
+				p->_pSplLvl[i] = MAXSPLLEVEL;
 		}
 	}
 
@@ -3742,16 +3742,16 @@ void ProcessPlayers()
 #ifdef HELLFIRE
 			switch (sfxdnum) {
 			case USFX_DEFILER1:
-				InitQTextMsg(286);
+				InitQTextMsg(TEXT_DEFILER1);
 				break;
 			case USFX_DEFILER2:
-				InitQTextMsg(287);
+				InitQTextMsg(TEXT_DEFILER2);
 				break;
 			case USFX_DEFILER3:
-				InitQTextMsg(288);
+				InitQTextMsg(TEXT_DEFILER3);
 				break;
 			case USFX_DEFILER4:
-				InitQTextMsg(289);
+				InitQTextMsg(TEXT_DEFILER4);
 				break;
 			default:
 #endif
@@ -4576,9 +4576,9 @@ void PlayDungMsgs()
 	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & 1)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER1;
-		quests[Q_DEFILER]._qactive = 2;
-		quests[Q_DEFILER]._qlog = 1;
-		quests[Q_DEFILER]._qmsg = 286;
+		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+		quests[Q_DEFILER]._qlog = TRUE;
+		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		plr[myplr].pDungMsgs2 |= 1;
 	} else if (currlevel == 19 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & 4)) {
 		sfxdelay = 10;

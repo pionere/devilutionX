@@ -1694,16 +1694,16 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, int tmin, int tmax, int cx, int c
 	}
 
 	if (setview) {
-		ViewX = 2 * sx + 21;
-		ViewY = 2 * sy + 22;
+		ViewX = 2 * sx + DBORDERX + 5;
+		ViewY = 2 * sy + DBORDERY + 6;
 	}
 	if (ldir == 0) {
-		LvlViewX = 2 * sx + 21;
-		LvlViewY = 2 * sy + 22;
+		LvlViewX = 2 * sx + DBORDERX + 5;
+		LvlViewY = 2 * sy + DBORDERY + 6;
 	}
 	if (ldir == 6) {
-		LvlViewX = 2 * sx + 21;
-		LvlViewY = 2 * sy + 22;
+		LvlViewX = 2 * sx + DBORDERX + 5;
+		LvlViewY = 2 * sy + DBORDERY + 6;
 	}
 
 	return TRUE;
@@ -2864,9 +2864,9 @@ static void DRLG_L2Pass3()
 		}
 	}
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			lv = dungeon[i][j] - 1;
 			MegaTiles = (WORD *)&pMegaTiles[lv * 8];
@@ -2935,9 +2935,9 @@ static void DRLG_L2FloodTVal()
 {
 	int i, j, xx, yy;
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 3 && dTransVal[xx][yy] == 0) {
 				DRLG_L2FTVR(i, j, xx, yy, 0);
@@ -2953,9 +2953,9 @@ static void DRLG_L2TransFix()
 {
 	int i, j, xx, yy;
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 14 && dungeon[i][j - 1] == 10) {
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
@@ -3471,10 +3471,10 @@ void CreateL2Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 	DRLG_InitTrans();
 	DRLG_InitSetPC();

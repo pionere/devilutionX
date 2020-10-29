@@ -910,7 +910,7 @@ struct RightStickAccumulator {
 void StoreSpellCoords()
 {
 	const int START_X = PANEL_LEFT + 12 + SPLICONLENGTH / 2;
-	const int END_X = START_X + SPLICONLENGTH * 10;
+	const int END_X = START_X + SPLICONLENGTH * SPLROWICONLS;
 	const int END_Y = PANEL_TOP - 17 - SPLICONLENGTH / 2;
 	speedspellcount = 0;
 	int xo = END_X;

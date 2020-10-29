@@ -28,7 +28,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	int k, sl;
 
 	assert((DWORD)myplr < MAX_PLRS);
-	assert((DWORD)sn < 64);
+	assert((DWORD)sn < MAX_SPELLS);
 	p = &plr[myplr];
 	sl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 
@@ -1448,7 +1448,7 @@ void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 		UseMana(id, SPL_REFLECT);
 	}
 	missile[mi]._mirange = 0;
-	missile[mi]._miDelFlag = 0;
+	missile[mi]._miDelFlag = FALSE;
 }
 
 void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)
@@ -1700,8 +1700,8 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 	trg = trigs;
 	for (i = std::min(numtrigs, MAXTRIGGERS); i > 0; i--, trg++) {
-		if (trg->_tmsg == 1032 || trg->_tmsg == 1027 || trg->_tmsg == 1026 || trg->_tmsg == 1028) {
-			if ((leveltype == 1 || leveltype == 2) && (trg->_tmsg == 1026 || trg->_tmsg == 1027 || trg->_tmsg == 1028)) {
+		if (trg->_tmsg == WM_DIABTWARPUP || trg->_tmsg == WM_DIABPREVLVL || trg->_tmsg == WM_DIABNEXTLVL || trg->_tmsg == WM_DIABRTNLVL) {
+			if ((leveltype == DTYPE_CATHEDRAL || leveltype == DTYPE_CATACOMBS) && (trg->_tmsg == WM_DIABNEXTLVL || trg->_tmsg == WM_DIABPREVLVL || trg->_tmsg == WM_DIABRTNLVL)) {
 				fx = trg->_tx;
 				fy = trg->_ty + 1;
 			} else {
@@ -1768,7 +1768,7 @@ void AddHivectrl(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 	mis->_mlid = AddLight(sx, sy, 8);
 	SetMissDir(mi, 0);
-	mis->_miDelFlag = 0;
+	mis->_miDelFlag = FALSE;
 	mis->_mirange = mis->_miAnimLen - 1;
 }
 
@@ -1959,7 +1959,7 @@ void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 	for (i = 0; i < nummissiles; i++) {
 		tmis = &missile[missileactive[i]];
-		if (tmis->_mitype == 85 && mis != tmis && tmis->_miVar1 == id) {
+		if (tmis->_mitype == MIS_SEARCH && mis != tmis && tmis->_miVar1 == id) {
 			if (tmis->_mirange < INT_MAX - range)
 				tmis->_mirange += range;
 			mis->_miDelFlag = TRUE;
@@ -2482,9 +2482,9 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	PutMissile(mi);
 	if (id == myplr && !mis->_miDelFlag && currlevel != 0) {
 		if (!setlevel) {
-			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, 0);
+			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
 		} else {
-			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, 1);
+			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
 		}
 	}
 }
@@ -3182,7 +3182,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		PlaySfxLoc(blodboilSFX[plr[id]._pClass], plr[id]._px, plr[id]._py);
 	}
 #else
-	missile[mi]._miDelFlag = 1;
+	missile[mi]._miDelFlag = TRUE;
 #endif
 }
 
@@ -3978,7 +3978,7 @@ void MI_HorkSpawn(int mi)
 
 	mis = &missile[mi];
 	mis->_mirange--;
-	CheckMissileCol(mi, 0, 0, 0, mis->_mix, mis->_miy, 0);
+	CheckMissileCol(mi, 0, 0, FALSE, mis->_mix, mis->_miy, FALSE);
 	if (mis->_mirange <= 0) {
 		mis->_miDelFlag = TRUE;
 		for (i = 0; i < 2; i++) {
@@ -4038,7 +4038,7 @@ void MI_LightWall(int mi)
 	mis = &missile[mi];
 	mis->_mirange--;
 	range = mis->_mirange;
-	CheckMissileCol(mi, mis->_midam, mis->_midam, 1, mis->_mix, mis->_miy, 0);
+	CheckMissileCol(mi, mis->_midam, mis->_midam, TRUE, mis->_mix, mis->_miy, FALSE);
 	if (mis->_miHitFlag)
 		mis->_mirange = range;
 	if (mis->_mirange == 0)
@@ -4317,7 +4317,7 @@ void MI_Reflect(int mi)
 		mis->_miDelFlag = TRUE;
 	if ((WORD)p->wReflection <= 0) {
 		mis->_miDelFlag = TRUE;
-		NetSendCmd(TRUE, CMD_REFLECT);
+		NetSendCmd(TRUE, CMD_ENDREFLECT);
 	}
 	PutMissile(mi);
 }
@@ -4329,7 +4329,7 @@ void MI_FireRing(int mi)
 	BYTE lvl;
 
 	mis = &missile[mi];
-	mis->_miDelFlag = 1;
+	mis->_miDelFlag = TRUE;
 	src = mis->_micaster;
 	cr = CrawlNum[3] + 1;
 	if (src > 0)
@@ -4361,7 +4361,7 @@ void MI_LightRing(int mi)
 	BYTE lvl;
 
 	mis = &missile[mi];
-	mis->_miDelFlag = 1;
+	mis->_miDelFlag = TRUE;
 	src = mis->_micaster;
 	cr = CrawlNum[3] + 1;
 	if (src > 0)

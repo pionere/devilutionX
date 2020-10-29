@@ -1163,7 +1163,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
 #ifdef HELLFIRE
-	case CMD_REFLECT:
+	case CMD_ENDREFLECT:
 		return On_ENDREFLECT(pCmd, pnum);
 	case CMD_NAKRUL:
 		return On_NAKRUL(pCmd, pnum);
@@ -2715,8 +2715,8 @@ DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
 		operate_lv24_lever();
-		IsUberRoomOpened = 1;
-		quests[Q_NAKRUL]._qactive = 3;
+		IsUberRoomOpened = TRUE;
+		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		monster_some_crypt();
 	}
 	return sizeof(*pCmd);

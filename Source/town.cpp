@@ -265,12 +265,12 @@ void T_Pass3()
 	mem_free_dbg(pSector);
 
 #ifdef HELLFIRE
-	if (quests[Q_FARMER]._qactive == 3 || quests[Q_FARMER]._qactive == 10
-	 || quests[Q_JERSEY]._qactive == 3 || quests[Q_JERSEY]._qactive == 10)
+	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
+	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
 		town_4751C6();
 	else
 		town_475379();
-	if (quests[Q_GRAVE]._qactive == 3 || plr[myplr]._pLvlVisited[21])
+	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
 		town_475595();
 	else
 		town_47552C();

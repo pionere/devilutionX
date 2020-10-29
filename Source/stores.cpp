@@ -21,14 +21,10 @@ BOOL stextsize;
 int stextsmax;
 ItemStruct storehold[48];
 int gossipstart;
-#ifdef HELLFIRE
-ItemStruct witchitem[25];
-#else
-ItemStruct witchitem[20];
-#endif
+ItemStruct witchitem[WITCH_ITEMS];
 BOOL stextscrl;
 int numpremium;
-ItemStruct healitem[20];
+ItemStruct healitem[HEALER_ITEMS];
 ItemStruct golditem;
 char storehidx[48];
 BYTE *pSTextSlidCels;
@@ -74,7 +70,7 @@ void InitStores()
 	numpremium = 0;
 	premiumlevel = 1;
 
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		premiumitem[i]._itype = ITYPE_NONE;
 
 	boyitem._itype = ITYPE_NONE;
@@ -259,7 +255,7 @@ void ClearSText(int s, int e)
 		stext[i]._sstr[0] = 0;
 		stext[i]._sjust = FALSE;
 		stext[i]._sclr = COL_WHITE;
-		stext[i]._sline = 0;
+		stext[i]._sline = FALSE;
 		stext[i]._ssel = FALSE;
 		stext[i]._sval = -1;
 	}
@@ -270,7 +266,7 @@ void AddSLine(int y)
 	stext[y]._sx = 0;
 	stext[y]._syoff = 0;
 	stext[y]._sstr[0] = 0;
-	stext[y]._sline = 1;
+	stext[y]._sline = TRUE;
 }
 
 void AddSTextVal(int y, int val)
@@ -290,7 +286,7 @@ void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
 	strcpy(stext[y]._sstr, str);
 	stext[y]._sjust = j;
 	stext[y]._sclr = clr;
-	stext[y]._sline = 0;
+	stext[y]._sline = FALSE;
 	stext[y]._ssel = sel;
 }
 
@@ -543,7 +539,7 @@ BOOL S_StartSPBuy()
 	int i;
 
 	storenumh = 0;
-	for (i = 0; i < 6; i++) {
+	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
 		if (premiumitem[i]._itype != ITYPE_NONE)
 			storenumh++;
 	}
@@ -1720,7 +1716,7 @@ void S_SmithEnter()
 {
 	switch (stextsel) {
 	case 10:
-		talker = 0;
+		talker = TOWN_SMITH;
 		stextlhold = 10;
 		stextshold = STORE_SMITH;
 		gossipstart = TEXT_GRISWOLD2;
@@ -2094,7 +2090,7 @@ void S_WitchEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 6;
+		talker = TOWN_WITCH;
 		stextshold = STORE_WITCH;
 		gossipstart = TEXT_ADRIA2;
 		gossipend = TEXT_ADRIA13;
@@ -2247,7 +2243,7 @@ void S_BoyEnter()
 			StartStore(STORE_BBOY);
 		}
 	} else if (stextsel == 8 && boyitem._itype != ITYPE_NONE || stextsel == 12 && boyitem._itype == ITYPE_NONE) {
-		talker = 8;
+		talker = TOWN_PEGBOY;
 		stextshold = STORE_BOY;
 		stextlhold = stextsel;
 		gossipstart = TEXT_WIRT2;
@@ -2417,7 +2413,7 @@ void S_HealerEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 1;
+		talker = TOWN_HEALER;
 		stextshold = STORE_HEALER;
 		gossipstart = TEXT_PEPIN2;
 		gossipend = TEXT_PEPIN11;
@@ -2485,7 +2481,7 @@ void S_StoryEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 4;
+		talker = TOWN_STORY;
 		stextshold = STORE_STORY;
 		gossipstart = TEXT_STORY2;
 		gossipend = TEXT_STORY11;
@@ -2565,7 +2561,7 @@ void S_TavernEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 3;
+		talker = TOWN_TAVERN;
 		stextshold = STORE_TAVERN;
 		gossipstart = TEXT_OGDEN2;
 		gossipend = TEXT_OGDEN10;
@@ -2582,7 +2578,7 @@ void S_BarmaidEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 7;
+		talker = TOWN_BMAID;
 		stextshold = STORE_BARMAID;
 		gossipstart = TEXT_GILLIAN2;
 		gossipend = TEXT_GILLIAN10;
@@ -2599,7 +2595,7 @@ void S_DrunkEnter()
 	switch (stextsel) {
 	case 12:
 		stextlhold = 12;
-		talker = 5;
+		talker = TOWN_DRUNK;
 		stextshold = STORE_DRUNK;
 		gossipstart = TEXT_FARNHAM2;
 		gossipend = TEXT_FARNHAM13;

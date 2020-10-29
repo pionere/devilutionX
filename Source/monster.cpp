@@ -225,16 +225,16 @@ void GetLevelMTypes()
 
 #ifdef HELLFIRE
 	if (lvl == 18)
-		AddMonsterType(117, 1);
+		AddMonsterType(MT_HORKSPWN, 1);
 	if (lvl == 19) {
-		AddMonsterType(117, 1);
-		AddMonsterType(123, 4);
+		AddMonsterType(MT_HORKSPWN, 1);
+		AddMonsterType(MT_HORKDMN, 4);
 	}
 	if (lvl == 20)
-		AddMonsterType(124, 4);
+		AddMonsterType(MT_DEFILER, 4);
 	if (lvl == 24) {
-		AddMonsterType(133, 1);
-		AddMonsterType(137, 2);
+		AddMonsterType(MT_ARCHLICH, 1);
+		AddMonsterType(MT_NAKRUL, 2);
 	}
 #endif
 
@@ -621,7 +621,7 @@ void monster_some_crypt()
 	if (currlevel == 24 && UberDiabloMonsterIndex >= 0 && UberDiabloMonsterIndex < nummonsters) {
 		mon = &monster[UberDiabloMonsterIndex];
 		PlayEffect(UberDiabloMonsterIndex, 2);
-		quests[Q_NAKRUL]._qlog = 0;
+		quests[Q_NAKRUL]._qlog = FALSE;
 		mon->mArmorClass -= 50;
 		hp = mon->_mmaxhp / 2;
 		mon->mMagicRes = 0;
@@ -677,8 +677,8 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 	}
 
 	while (1) {
-		xp = random_(91, 80) + 16;
-		yp = random_(91, 80) + 16;
+		xp = random_(91, DSIZEX) + DBORDERX;
+		yp = random_(91, DSIZEY) + DBORDERY;
 		count2 = 0;
 		for (x = xp - 3; x < xp + 3; x++) {
 			for (y = yp - 3; y < yp + 3; y++) {
@@ -1005,8 +1005,8 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 			y1 = yp = monster[leader]._my + offset_y[offset];
 		} else {
 			do {
-				x1 = xp = random_(93, 80) + 16;
-				y1 = yp = random_(93, 80) + 16;
+				x1 = xp = random_(93, DSIZEX) + DBORDERX;
+				y1 = yp = random_(93, DSIZEY) + DBORDERY;
 			} while (!MonstPlace(xp, yp));
 		}
 
@@ -1113,8 +1113,8 @@ void InitMonsters()
 		PlaceUniques();
 #endif
 		na = 0;
-		for (s = 16; s < 96; s++)
-			for (t = 16; t < 96; t++)
+		for (s = DBORDERX; s < DSIZEX + DBORDERX; s++)
+			for (t = DBORDERY; t < DSIZEY + DBORDERY; t++)
 				if (!nSolidTable[dPiece[s][t]])
 					na++;
 		numplacemonsters = na / 30;
@@ -1212,7 +1212,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 		for (i = 0; i < rw; i++) {
 			if (*lm) {
 				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], 2);
-				PlaceMonster(nummonsters++, mtype, i + startx + 16, j + starty + 16);
+				PlaceMonster(nummonsters++, mtype, i + startx + DBORDERX, j + starty + DBORDERY);
 			}
 			lm++;
 		}
@@ -1766,12 +1766,12 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		break;
 	case UMT_DEFILER:
 		stream_stop();
-		quests[Q_DEFILER]._qlog = 0;
+		quests[Q_DEFILER]._qlog = FALSE;
 		SpawnMapOfDoom(mon->_mx, mon->_my);
 		break;
 	case UMT_NAKRUL:
 		stream_stop();
-		quests[Q_NAKRUL]._qlog = 0;
+		quests[Q_NAKRUL]._qlog = FALSE;
 		UberDiabloMonsterIndex = -2;
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_SWORD, ICURS_GREAT_SWORD, FALSE, TRUE);
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
@@ -1779,7 +1779,7 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
 		break;
 	default:
-		if (mon->MType->mtype != MT_HORKSPWN && mnum > 3)
+		if (mon->MType->mtype != MT_HORKSPWN && mnum > MAX_PLRS - 1)
 			SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
 		break;
 	}
@@ -2137,14 +2137,14 @@ BOOL MonDoStand(int mnum)
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
-		return 0;
+		return FALSE;
 #else
 		app_fatal("MonDoStand: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
 #ifdef HELLFIRE
-		return 0;
+		return FALSE;
 #else
 		app_fatal("MonDoStand: Monster %d \"%s\" MType NULL", mnum, mon->mName);
 #endif
@@ -4443,7 +4443,7 @@ void mai_horkdemon(int mnum)
 	mx = mon->_mx;
 	my = mon->_my;
 	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
-	if (mon->_msquelch < 255) {
+	if (mon->_msquelch < UCHAR_MAX) {
 		MonstCheckDoors(mnum);
 	}
 	v = random_(131, 100);
@@ -4451,21 +4451,21 @@ void mai_horkdemon(int mnum)
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	if (dist < 2) {
-		mon->_mgoal = 1;
-	} else if (mon->_mgoal == 4 || dist >= 5 && random_(132, 4) != 0) {
-		if (mon->_mgoal != 4) {
+		mon->_mgoal = MGOAL_NORMAL;
+	} else if (mon->_mgoal == MGOAL_MOVE || dist >= 5 && random_(132, 4) != 0) {
+		if (mon->_mgoal != MGOAL_MOVE) {
 			mon->_mgoalvar1 = 0;
 			mon->_mgoalvar2 = random_(133, 2);
 		}
-		mon->_mgoal = 4;
+		mon->_mgoal = MGOAL_MOVE;
 		if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
-			mon->_mgoal = 1;
+			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
 			MonStartDelay(mnum, random_(125, 10) + 10);
 		}
 	}
 
-	if (mon->_mgoal == 1) {
+	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 3 && v < 2 * mon->_mint + 43) {
 			if (PosOkMonst(mnum, mon->_mx + HorkXAdd[mon->_mdir], mon->_my + HorkYAdd[mon->_mdir]) && nummonsters < MAXMONSTERS) {
 				MonStartRSpAttack(mnum, MIS_HORKDMN, 0);
@@ -4709,7 +4709,7 @@ void MAI_Lazurus(int mnum)
 	md = MonGetDir(mnum);
 	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
 		if (gbMaxPlayers == 1) {
-			if (mon->mtalkmsg == TEXT_VILE13 && mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == TEXT_VILE13 && plr[myplr]._py == 46) {
+			if (mon->mtalkmsg == TEXT_VILE13 && mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == 35 && plr[myplr]._py == 46) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
 				quests[Q_BETRAYER]._qvar1 = 5;

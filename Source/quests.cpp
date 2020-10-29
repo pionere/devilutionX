@@ -194,7 +194,7 @@ void CheckQuests()
 
 	qs = &quests[Q_BETRAYER];
 	if (QuestStatus(Q_BETRAYER) && gbMaxPlayers != 1 && qs->_qvar1 == 2) {
-		AddObject(OBJ_ALTBOY, 2 * setpc_x + 20, 2 * setpc_y + 22);
+		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 		qs->_qvar1 = 3;
 		NetSendCmdQuest(TRUE, Q_BETRAYER);
 	}
@@ -208,8 +208,8 @@ void CheckQuests()
 	    && qs->_qvar1 >= 2
 	    && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
 	    && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
-		qs->_qtx = 2 * qs->_qtx + 16;
-		qs->_qty = 2 * qs->_qty + 16;
+		qs->_qtx = 2 * qs->_qtx + DBORDERX;
+		qs->_qty = 2 * qs->_qty + DBORDERY;
 		rportx = qs->_qtx;
 		rporty = qs->_qty;
 		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
@@ -484,15 +484,15 @@ void DrawButcher()
 {
 	int x, y;
 
-	x = 2 * setpc_x + 16;
-	y = 2 * setpc_y + 16;
+	x = 2 * setpc_x + DBORDERX;
+	y = 2 * setpc_y + DBORDERY;
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
 void DrawSkelKing(int q, int x, int y)
 {
-	quests[q]._qtx = 2 * x + 28;
-	quests[q]._qty = 2 * y + 23;
+	quests[q]._qtx = 2 * x + DBORDERX + 12;
+	quests[q]._qty = 2 * y + DBORDERY + 7;
 }
 
 void DrawWarLord(int x, int y)
@@ -733,22 +733,22 @@ void ResyncMPQuests()
 		NetSendCmdQuest(TRUE, Q_BETRAYER);
 	}
 	if (QuestStatus(Q_BETRAYER))
-		AddObject(OBJ_ALTBOY, 2 * setpc_x + 20, 2 * setpc_y + 22);
+		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
-	if (quests[Q_GRAVE]._qactive == 1 && currlevel == quests[Q_GRAVE]._qlevel - 1) {
-		quests[Q_GRAVE]._qactive = 2;
+	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currlevel == quests[Q_GRAVE]._qlevel - 1) {
+		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(TRUE, Q_GRAVE);
 	}
-	if (quests[Q_DEFILER]._qactive == 1 && currlevel == quests[Q_DEFILER]._qlevel - 1) {
-		quests[Q_DEFILER]._qactive = 2;
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currlevel == quests[Q_DEFILER]._qlevel - 1) {
+		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(TRUE, Q_DEFILER);
 	}
-	if (quests[Q_NAKRUL]._qactive == 1 && currlevel == quests[Q_NAKRUL]._qlevel - 1) {
-		quests[Q_NAKRUL]._qactive = 2;
+	if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currlevel == quests[Q_NAKRUL]._qlevel - 1) {
+		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(TRUE, Q_NAKRUL);
 	}
-	if (quests[Q_JERSEY]._qactive == 1 && currlevel == quests[Q_JERSEY]._qlevel - 1) {
-		quests[Q_JERSEY]._qactive = 2;
+	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currlevel == quests[Q_JERSEY]._qlevel - 1) {
+		quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(TRUE, Q_JERSEY);
 	}
 #endif

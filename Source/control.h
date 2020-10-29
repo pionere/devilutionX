@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define MAX_CTRL_PANEL_LINES 4
+
 extern BYTE *pDurIcons;
 extern BYTE *pChrButtons;
 extern BOOL drawhpflag;
@@ -29,10 +31,10 @@ extern BYTE *pPanelText;
 extern BYTE *pLifeBuff;
 extern BYTE *pBtmBuff;
 extern BYTE *pTalkBtns;
-extern int pstrjust[4];
+extern int pstrjust[MAX_CTRL_PANEL_LINES];
 extern int pnumlines;
 extern BOOL pinfoflag;
-extern BOOL talkbtndown[3];
+extern BOOL talkbtndown[MAX_PLRS - 1];
 extern int pSpell;
 extern BYTE *pManaBuff;
 extern char infoclr;
@@ -52,7 +54,7 @@ extern BYTE *pSpellBkCel;
 extern char infostr[256];
 extern int numpanbtns;
 extern BYTE *pStatusPanel;
-extern char panelstr[4][64];
+extern char panelstr[MAX_CTRL_PANEL_LINES][64];
 extern BOOL panelflag;
 extern BYTE SplTransTbl[256];
 extern int initialDropGoldValue;

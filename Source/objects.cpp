@@ -217,7 +217,7 @@ int StoryText[3][3] = {
 void InitObjectGFX()
 {
 	ObjDataStruct *ods;
-	BOOLEAN fileload[56];
+	BOOLEAN fileload[NUM_OFILE_TYPES];
 	char filestr[32];
 	int i;
 
@@ -244,7 +244,7 @@ void InitObjectGFX()
 		}
 	}
 
-	for (i = 0; i < 56; i++) {
+	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
 			ObjFileList[numobjfiles] = i;
 #ifdef HELLFIRE
@@ -289,8 +289,8 @@ void InitRndLocObj(int min, int max, int objtype)
 
 	for (i = 0; i < numobjs; i++) {
 		while (1) {
-			xp = random_(139, 80) + 16;
-			yp = random_(139, 80) + 16;
+			xp = random_(139, DSIZEX) + DBORDERX;
+			yp = random_(139, DSIZEY) + DBORDERY;
 			if (RndLocOk(xp - 1, yp - 1)
 			    && RndLocOk(xp, yp - 1)
 			    && RndLocOk(xp + 1, yp - 1)
@@ -314,8 +314,8 @@ void InitRndLocBigObj(int min, int max, int objtype)
 	numobjs = random_(140, max - min) + min;
 	for (i = 0; i < numobjs; i++) {
 		while (1) {
-			xp = random_(140, 80) + 16;
-			yp = random_(140, 80) + 16;
+			xp = random_(140, DSIZEX) + DBORDERX;
+			yp = random_(140, DSIZEY) + DBORDERY;
 			if (RndLocOk(xp - 1, yp - 2)
 			    && RndLocOk(xp, yp - 2)
 			    && RndLocOk(xp + 1, yp - 2)
@@ -346,8 +346,8 @@ void InitRndLocObj5x5(int min, int max, int objtype)
 		exit = FALSE;
 		while (!exit) {
 			exit = TRUE;
-			xp = random_(139, 80) + 16;
-			yp = random_(139, 80) + 16;
+			xp = random_(139, DSIZEX) + DBORDERX;
+			yp = random_(139, DSIZEY) + DBORDERY;
 			for (n = -2; n <= 2; n++) {
 				for (m = -2; m <= 2; m++) {
 					if (!RndLocOk(xp + m, yp + n))
@@ -445,8 +445,8 @@ void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int x2, in
 	exit = FALSE;
 	while (!exit) {
 		exit = TRUE;
-		xp = random_(139, 80) + 16;
-		yp = random_(139, 80) + 16;
+		xp = random_(139, DSIZEX) + DBORDERX;
+		yp = random_(139, DSIZEY) + DBORDERY;
 		for (n = -2; n <= 2; n++) {
 			for (m = -2; m <= 2; m++) {
 				if (!RndLocOk(xp + m, yp + n))
@@ -488,8 +488,8 @@ void InitRndBarrels()
 	// generate i number of groups of barrels
 	for (i = random_(143, 5) + 3; i != 0; i--) {
 		do {
-			xp = random_(143, 80) + 16;
-			yp = random_(143, 80) + 16;
+			xp = random_(143, DSIZEX) + DBORDERX;
+			yp = random_(143, DSIZEY) + DBORDERY;
 		} while (!RndLocOk(xp, yp));
 		o = (random_(143, 4) != 0) ? OBJ_BARREL : OBJ_BARRELEX;
 		AddObject(o, xp, yp);
@@ -782,8 +782,8 @@ void AddLvl2xBooks(int s)
 	exit = FALSE;
 	while (!exit) {
 		exit = TRUE;
-		xp = random_(139, 80) + 16;
-		yp = random_(139, 80) + 16;
+		xp = random_(139, DSIZEX) + DBORDERX;
+		yp = random_(139, DSIZEY) + DBORDERY;
 		for (n = -2; n <= 2; n++) {
 			for (m = -3; m <= 3; m++) {
 				if (!RndLocOk(xp + m, yp + n))
@@ -859,8 +859,8 @@ void AddStoryBooks()
 	done = FALSE;
 	while (!done) {
 		done = TRUE;
-		xp = random_(139, 80) + 16;
-		yp = random_(139, 80) + 16;
+		xp = random_(139, DSIZEX) + DBORDERX;
+		yp = random_(139, DSIZEY) + DBORDERY;
 		for (yy = -2; yy <= 2; yy++) {
 			for (xx = -3; xx <= 3; xx++) {
 				if (!RndLocOk(xx + xp, yy + yp))
@@ -888,9 +888,9 @@ void AddHookedBodies(int freq)
 	int i, j, ii, jj;
 
 	for (j = 0; j < DMAXY; j++) {
-		jj = 16 + j * 2;
+		jj = DBORDERY + j * 2;
 		for (i = 0; i < DMAXX; i++) {
-			ii = 16 + i * 2;
+			ii = DBORDERX + i * 2;
 			if (dungeon[i][j] != 1 && dungeon[i][j] != 2)
 				continue;
 			if (random_(0, freq) != 0)
@@ -949,8 +949,8 @@ void AddLazStand()
 	found = FALSE;
 	while (!found) {
 		found = TRUE;
-		xp = random_(139, 80) + 16;
-		yp = random_(139, 80) + 16;
+		xp = random_(139, DSIZEX) + DBORDERX;
+		yp = random_(139, DSIZEY) + DBORDERY;
 		for (yy = -3; yy <= 3; yy++) {
 			for (xx = -2; xx <= 3; xx++) {
 				if (!RndLocOk(xp + xx, yp + yy))
@@ -1124,11 +1124,11 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	int i, j;
 	BYTE *lm, *h;
 	long mapoff;
-	int fileload[56];
+	BOOL fileload[NUM_OFILE_TYPES];
 	char filestr[32];
 
 	ClrAllObjects();
-	for (i = 0; i < 56; i++)
+	for (i = 0; i < NUM_OFILE_TYPES; i++)
 		fileload[i] = FALSE;
 	InitObjFlag = TRUE;
 
@@ -1157,7 +1157,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 		}
 	}
 
-	for (i = 0; i < 56; i++) {
+	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (!fileload[i])
 			continue;
 
@@ -1251,7 +1251,7 @@ void SetBookMsg(int oi, int msg)
 void AddL1Door(int oi, int x, int y, int ot)
 {
 	object[oi]._oDoorFlag = TRUE;
-	if (ot == 1) {
+	if (ot == OBJ_L1LDOOR) {
 		object[oi]._oVar1 = dPiece[x][y];
 		object[oi]._oVar2 = dPiece[x][y - 1];
 	} else {
@@ -1600,7 +1600,7 @@ void AddHBooks(int ot, int v2, int ox, int oy)
 		return;
 
 	oi = objectavail[0];
-	objectavail[0] = objectavail[126 - nobjects];
+	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, ot);
@@ -1620,47 +1620,47 @@ void SetupHBook(int oi, int a2)
 		switch (a2) {
 		case 6:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = 323;
+				os->_oVar2 = TEXT_BOOKA;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = 332;
+				os->_oVar2 = TEXT_RBOOKA;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = 329;
+				os->_oVar2 = TEXT_MBOOKA;
 			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = 326;
+				os->_oVar2 = TEXT_OBOOKA;
 			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = 335;
+				os->_oVar2 = TEXT_BBOOKA;
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = 323;
+				os->_oVar2 = TEXT_BOOKA;
 			}
 			break;
 		case 7:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = 324;
+				os->_oVar2 = TEXT_BOOKB;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = 333;
+				os->_oVar2 = TEXT_RBOOKB;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = 330;
+				os->_oVar2 = TEXT_MBOOKB;
 			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = 327;
+				os->_oVar2 = TEXT_OBOOKB;
 			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = 336;
+				os->_oVar2 = TEXT_BBOOKB;
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = 324;
+				os->_oVar2 = TEXT_BOOKB;
 			}
 			break;
 		case 8:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = 325;
+				os->_oVar2 = TEXT_BOOKC;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = 334;
+				os->_oVar2 = TEXT_RBOOKC;
 			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = 331;
+				os->_oVar2 = TEXT_MBOOKC;
 			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = 328;
+				os->_oVar2 = TEXT_OBOOKC;
 			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = 337;
+				os->_oVar2 = TEXT_BBOOKC;
 			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = 325;
+				os->_oVar2 = TEXT_BOOKC;
 			}
 			break;
 		}
@@ -1671,7 +1671,7 @@ void SetupHBook(int oi, int a2)
 		os->_oVar4 = os->_oAnimFrame + 1;
 	} else {
 		os->_oVar1 = 1;
-		os->_oVar2 = a2 + 316;
+		os->_oVar2 = a2 + TEXT_BOOK4 - 1;
 		os->_oVar3 = a2 + 9;
 		v9 = 2 * os->_oVar1;
 		os->_oAnimFrame = 5 - v9;
@@ -1689,7 +1689,7 @@ void AddObject(int type, int ox, int oy)
 		return;
 
 	oi = objectavail[0];
-	objectavail[0] = objectavail[126 - nobjects];
+	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
@@ -2252,8 +2252,8 @@ void ObjSetMini(int x, int y, int v)
 	v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
 	v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
 
-	xx = 2 * x + 16;
-	yy = 2 * y + 16;
+	xx = 2 * x + DBORDERX;
+	yy = 2 * y + DBORDERY;
 	ObjSetMicro(xx, yy, v1);
 	ObjSetMicro(xx + 1, yy, v2);
 	ObjSetMicro(xx, yy + 1, v3);
@@ -2813,11 +2813,11 @@ void ObjChangeMap(int x1, int y1, int x2, int y2)
 #else
 	if (leveltype == DTYPE_CATHEDRAL) {
 #endif
-		ObjL1Special(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
-		AddL1Objs(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
+		ObjL1Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		AddL1Objs(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
 	} else if (leveltype == DTYPE_CATACOMBS) {
-		ObjL2Special(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
-		AddL2Objs(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
+		ObjL2Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		AddL2Objs(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
 	}
 }
 
@@ -2836,9 +2836,9 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 #else
 	if (leveltype == DTYPE_CATHEDRAL) {
 #endif
-		ObjL1Special(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
+		ObjL1Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
 	} else if (leveltype == DTYPE_CATACOMBS) {
-		ObjL2Special(2 * x1 + 16, 2 * y1 + 16, 2 * x2 + 17, 2 * y2 + 17);
+		ObjL2Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
 	}
 }
 
@@ -2879,9 +2879,9 @@ void OperateLever(int pnum, int oi)
 #ifdef HELLFIRE
 		if (currlevel == 24) {
 			operate_lv24_lever();
-			IsUberLeverActivated = 1;
+			IsUberLeverActivated = TRUE;
 			mapflag = FALSE;
-			quests[Q_NAKRUL]._qactive = 3;
+			quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		}
 #endif
 		if (mapflag)
@@ -2931,7 +2931,7 @@ void OperateBook(int pnum, int oi)
 
 	if (setlvlnum == SL_BONECHAMB) {
 		plr[myplr]._pMemSpells |= ((__int64)1 << (SPL_GUARDIAN - 1));
-		if (plr[pnum]._pSplLvl[SPL_GUARDIAN] < 15)
+		if (plr[pnum]._pSplLvl[SPL_GUARDIAN] < MAXSPLLEVEL)
 			plr[myplr]._pSplLvl[SPL_GUARDIAN]++;
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (!deltaload)
@@ -2971,9 +2971,9 @@ void OperateBookLever(int pnum, int oi)
 			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
 			quests[Q_BLOOD]._qlog = TRUE;
 			quests[Q_BLOOD]._qvar1 = 1;
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + 19, 2 * setpc_y + 26, 0, 1);
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + 31, 2 * setpc_y + 26, 0, 1);
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + 25, 2 * setpc_y + 33, 0, 1);
+			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, 0, 1);
+			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, 0, 1);
+			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, 0, 1);
 		}
 		if (os->_otype == OBJ_STEELTOME && !quests[Q_WARLORD]._qvar1) {
 			quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
@@ -2984,7 +2984,7 @@ void OperateBookLever(int pnum, int oi)
 			if (os->_otype != OBJ_BLOODBOOK)
 				ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (os->_otype == OBJ_BLINDBOOK) {
-				SpawnUnique(3, 2 * setpc_x + 16 + 5, 2 * setpc_y + 16 + 5);
+				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + 16 + 5, 2 * setpc_y + 16 + 5);
 				tren = TransVal;
 				TransVal = 9;
 				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
@@ -3319,7 +3319,7 @@ void OperatePedistal(int pnum, int oi)
 			mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 			LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(mem);
-			SpawnUnique(7, 2 * setpc_x + 25, 2 * setpc_y + 19);
+			SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3);
 			os->_oSelFlag = 0;
 		}
 	}
@@ -3652,7 +3652,7 @@ void OperateShrine(int pnum, int oi, int sType)
 			spell = 1;
 			for (i = 1; i <= MAX_SPELLS; i++) {
 				if (p->_pMemSpells & spell) {
-					if (p->_pSplLvl[i] < 15)
+					if (p->_pSplLvl[i] < MAXSPLLEVEL)
 						p->_pSplLvl[i]++;
 				}
 				spell <<= 1;
@@ -3690,9 +3690,9 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		p->_pMemSpells |= (__int64)1 << (SPL_FIREBOLT - 1);
-		if (p->_pSplLvl[SPL_FIREBOLT] < 15)
+		if (p->_pSplLvl[SPL_FIREBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_FIREBOLT]++;
-		if (p->_pSplLvl[SPL_FIREBOLT] < 15)
+		if (p->_pSplLvl[SPL_FIREBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_FIREBOLT]++;
 
 		ReducePlrMana10(p);
@@ -3799,7 +3799,7 @@ void OperateShrine(int pnum, int oi, int sType)
 			xx = random_(159, MAXDUNX);
 			yy = random_(159, MAXDUNY);
 			i++;
-			if (i > MAXDUNX * 112)
+			if (i > MAXDUNX * MAXDUNY)
 				break;
 			lv = dPiece[xx][yy];
 		} while ((nSolidTable[lv] | dObject[xx][yy] | dMonster[xx][yy]) != 0);
@@ -3812,9 +3812,9 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (deltaload || pnum != myplr)
 			return;
 		p->_pMemSpells |= (__int64)1 << (SPL_CBOLT - 1);
-		if (p->_pSplLvl[SPL_CBOLT] < 15)
+		if (p->_pSplLvl[SPL_CBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_CBOLT]++;
-		if (p->_pSplLvl[SPL_CBOLT] < 15)
+		if (p->_pSplLvl[SPL_CBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_CBOLT]++;
 
 		ReducePlrMana10(p);
@@ -3902,9 +3902,9 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		p->_pMemSpells |= (__int64)1 << (SPL_HBOLT - 1);
-		if (p->_pSplLvl[SPL_HBOLT] < 15)
+		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_HBOLT]++;
-		if (p->_pSplLvl[SPL_HBOLT] < 15)
+		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
 			p->_pSplLvl[SPL_HBOLT]++;
 
 		ReducePlrMana10(p);
@@ -4428,7 +4428,7 @@ void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy,
-		leveltype > 1,
+		leveltype > DTYPE_CATHEDRAL,
 		random_(0, 4) + ITYPE_SWORD,
 		IMISC_NONE, sendmsg, FALSE);
 	if (pnum == myplr)
@@ -4444,13 +4444,13 @@ void OperateStoryBook(int pnum, int oi)
 		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
 		if (os->_oVar8 && currlevel == 24) {
-			if (IsUberLeverActivated != 1 && quests[Q_NAKRUL]._qactive != 3 && objects_lv_24_454B04(os->_oVar8)) {
+			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && objects_lv_24_454B04(os->_oVar8)) {
 				NetSendCmd(FALSE, CMD_NAKRUL);
 				return;
 			}
 		} else if (currlevel >= 21) {
-			quests[Q_NAKRUL]._qactive = 2;
-			quests[Q_NAKRUL]._qlog = 1;
+			quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
+			quests[Q_NAKRUL]._qlog = TRUE;
 			quests[Q_NAKRUL]._qmsg = os->_oVar2;
 		}
 #endif
@@ -5238,8 +5238,8 @@ void AddUberLever()
 	int xp, yp;
 
 	while (1) {
-		xp = random_(141, 80) + 16;
-		yp = random_(141, 80) + 16;
+		xp = random_(141, DSIZEX) + DBORDERX;
+		yp = random_(141, DSIZEY) + DBORDERY;
 		if (RndLocOk(xp - 1, yp - 1)
 		    && RndLocOk(xp, yp - 1)
 		    && RndLocOk(xp + 1, yp - 1)

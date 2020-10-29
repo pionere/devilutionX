@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
-BYTE L5dungeon[80][80];
+BYTE L5dungeon[DSIZEX][DSIZEY];
 BYTE L5dflags[DMAXX][DMAXY];
 /** Specifies whether a single player quest DUN has been loaded. */
 BOOL L5setloadflag;
@@ -21,10 +21,10 @@ BOOL HR3;
 int UberRow;
 int UberCol;
 int dword_577368;
-int IsUberRoomOpened;
+BOOL IsUberRoomOpened;
 int UberLeverRow;
 int UberLeverCol;
-int IsUberLeverActivated;
+BOOL IsUberLeverActivated;
 int UberDiabloMonsterIndex;
 /** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
 BOOL VR1;
@@ -566,8 +566,8 @@ void drlg_l1_crypt_lavafloor()
 {
 	int i, j;
 
-	for (j = 1; j < 40; j++) {
-		for (i = 1; i < 40; i++) {
+	for (j = 1; j < DMAXY; j++) {
+		for (i = 1; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			case 5:
 				if (dungeon[i - 1][j] == 13)
@@ -1004,18 +1004,18 @@ static int DRLG_PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, in
 		DRLG_MRectTrans(sx, sy + 2, sx + 5, sy + 4);
 		TransVal = t;
 
-		quests[Q_PWATER]._qtx = 2 * sx + 21;
-		quests[Q_PWATER]._qty = 2 * sy + 22;
+		quests[Q_PWATER]._qtx = 2 * sx + DBORDERX + 5;
+		quests[Q_PWATER]._qty = 2 * sy + DBORDERY + 6;
 	}
 
 	if (setview) {
-		ViewX = 2 * sx + 19;
-		ViewY = 2 * sy + 20;
+		ViewX = 2 * sx + DBORDERX + 3;
+		ViewY = 2 * sy + DBORDERY + 4;
 	}
 
 	if (ldir == 0) {
-		LvlViewX = 2 * sx + 19;
-		LvlViewY = 2 * sy + 20;
+		LvlViewX = 2 * sx + DBORDERX + 3;
+		LvlViewY = 2 * sy + DBORDERY + 4;
 	}
 
 	if (sx < cx && sy < cy)
@@ -1070,9 +1070,9 @@ static void DRLG_L1Pass3()
 		}
 	}
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			lv = dungeon[i][j] - 1;
 			/// ASSERT: assert(lv >= 0);
@@ -1188,10 +1188,10 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
@@ -1240,10 +1240,10 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
@@ -1518,8 +1518,8 @@ static void L5makeDmt()
 		}
 	}
 
-	for (j = 0, dmty = 1; dmty <= 77; j++, dmty += 2) {
-		for (i = 0, dmtx = 1; dmtx <= 77; i++, dmtx += 2) {
+	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
+		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {
 			val = 8 * L5dungeon[dmtx + 1][dmty + 1]
 			    + 4 * L5dungeon[dmtx][dmty + 1]
 			    + 2 * L5dungeon[dmtx + 1][dmty]
@@ -2046,14 +2046,14 @@ static void L5FillChambers()
 	int c;
 
 	if (HR1)
-		DRLG_L5GChamber(0, 14, 0, 0, 0, 1);
+		DRLG_L5GChamber(0, 14, FALSE, FALSE, FALSE, TRUE);
 
 	if (HR2) {
-		DRLG_L5GChamber(14, 14, 0, 0, HR1, HR3);
+		DRLG_L5GChamber(14, 14, FALSE, FALSE, HR1, HR3);
 	}
 
 	if (HR3)
-		DRLG_L5GChamber(28, 14, 0, 0, 1, 0);
+		DRLG_L5GChamber(28, 14, FALSE, FALSE, TRUE, FALSE);
 	if (HR1 && HR2)
 		DRLG_L5GHall(12, 18, 14, 18);
 	if (HR2 && HR3)
@@ -2061,14 +2061,14 @@ static void L5FillChambers()
 	if (HR1 && !HR2 && HR3)
 		DRLG_L5GHall(12, 18, 28, 18);
 	if (VR1)
-		DRLG_L5GChamber(14, 0, 0, 1, 0, 0);
+		DRLG_L5GChamber(14, 0, FALSE, TRUE, FALSE, FALSE);
 
 	if (VR2) {
-		DRLG_L5GChamber(14, 14, VR1, VR3, 0, 0);
+		DRLG_L5GChamber(14, 14, VR1, VR3, FALSE, FALSE);
 	}
 
 	if (VR3)
-		DRLG_L5GChamber(14, 28, 1, 0, 0, 0);
+		DRLG_L5GChamber(14, 28, TRUE, FALSE, FALSE, FALSE);
 	if (VR1 && VR2)
 		DRLG_L5GHall(18, 12, 18, 14);
 	if (VR2 && VR3)
@@ -2277,9 +2277,9 @@ void drlg_l1_set_crypt_room(int rx1, int ry1)
 	setpc_y = ry1;
 	setpc_w = rw;
 	setpc_h = rh;
-	IsUberRoomOpened = 0;
+	IsUberRoomOpened = FALSE;
 	dword_577368 = 0;
-	IsUberLeverActivated = 0;
+	IsUberLeverActivated = FALSE;
 
 	sp = 2;
 
@@ -2377,10 +2377,10 @@ static void DRLG_L5FloodTVal()
 {
 	int xx, yy, i, j;
 
-	yy = 16;
+	yy = DBORDERY;
 
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 13 && !dTransVal[xx][yy]) {
@@ -2397,10 +2397,10 @@ static void DRLG_L5TransFix()
 {
 	int xx, yy, i, j;
 
-	yy = 16;
+	yy = DBORDERY;
 
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 
 		for (i = 0; i < DMAXX; i++) {
 			// BUGFIX: Should check for `j > 0` first. (fixed)
@@ -2408,8 +2408,8 @@ static void DRLG_L5TransFix()
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
 			}
-			// BUGFIX: Should check for `i + 1 < DMAXY` first. (fixed)
-			if (dungeon[i][j] == 24 && i + 1 < DMAXY && dungeon[i + 1][j] == 19) {
+			// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
+			if (dungeon[i][j] == 24 && i + 1 < DMAXX && dungeon[i + 1][j] == 19) {
 				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
 			}
@@ -2581,8 +2581,8 @@ static void DRLG_L5(int entry)
 				if (DRLG_PlaceMiniSet(STAIRSUP, 1, 1, 0, 0, FALSE, -1, 0) < 0)
 					doneflag = FALSE;
 				if (entry == 1) {
-					ViewX = 2 * setpc_x + 20;
-					ViewY = 2 * setpc_y + 28;
+					ViewX = 2 * setpc_x + DBORDERX + 4;
+					ViewY = 2 * setpc_y + DBORDERY + 12;
 				} else {
 					ViewY--;
 				}
@@ -2669,8 +2669,8 @@ static void DRLG_L5(int entry)
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 64) {
-				int xx = 2 * i + 16; /* todo: fix loop */
-				int yy = 2 * j + 16;
+				int xx = 2 * i + DBORDERX; /* todo: fix loop */
+				int yy = 2 * j + DBORDERY;
 				DRLG_CopyTrans(xx, yy + 1, xx, yy);
 				DRLG_CopyTrans(xx + 1, yy + 1, xx + 1, yy);
 			}
@@ -2769,19 +2769,19 @@ void CreateL5Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 #ifdef HELLFIRE
 	UberRow = 0;
 	UberCol = 0;
-	IsUberRoomOpened = 0;
+	IsUberRoomOpened = FALSE;
 	dword_577368 = 0;
 	UberLeverRow = 0;
 	UberLeverCol = 0;
-	IsUberLeverActivated = 0;
+	IsUberLeverActivated = FALSE;
 	UberDiabloMonsterIndex = 0;
 #endif
 

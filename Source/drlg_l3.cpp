@@ -1037,7 +1037,7 @@ static void DRLG_L3FillStraights()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		xs = 0;
-		for (i = 0; i < 37; i++) {
+		for (i = 0; i < DMAXX - 3; i++) {
 			if (dungeon[i][j] == 0 && dungeon[i][j + 1] == 1) {
 				if (xs == 0) {
 					xc = i;
@@ -1055,7 +1055,7 @@ static void DRLG_L3FillStraights()
 	}
 	for (j = 0; j < DMAXY - 1; j++) {
 		xs = 0;
-		for (i = 0; i < 37; i++) {
+		for (i = 0; i < DMAXX - 3; i++) {
 			if (dungeon[i][j] == 1 && dungeon[i][j + 1] == 0) {
 				if (xs == 0) {
 					xc = i;
@@ -1676,12 +1676,12 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx,
 	}
 
 	if (setview) {
-		ViewX = 2 * sx + 17;
-		ViewY = 2 * sy + 19;
+		ViewX = 2 * sx + DBORDERX + 1;
+		ViewY = 2 * sy + DBORDERY + 3;
 	}
 	if (ldir == 0) {
-		LvlViewX = 2 * sx + 17;
-		LvlViewY = 2 * sy + 19;
+		LvlViewX = 2 * sx + DBORDERX + 1;
+		LvlViewY = 2 * sy + DBORDERY + 3;
 	}
 
 	return FALSE;
@@ -2560,9 +2560,9 @@ static void DRLG_L3Pass3()
 		}
 	}
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			lv = dungeon[i][j] - 1;
 			if (lv >= 0) {
@@ -2593,10 +2593,12 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	BYTE bv;
 
 	SetRndSeed(rseed);
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
+
 	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_L3(entry);
@@ -2636,10 +2638,12 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	BYTE *pLevelMap, *lm;
 
 	InitL3Dungeon();
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
+
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 

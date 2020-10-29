@@ -22,7 +22,7 @@ int SP4x1;
 int SP4y1;
 int SP4x2;
 int SP4y2;
-BYTE L4dungeon[80][80];
+BYTE L4dungeon[DSIZEX][DSIZEY];
 BYTE dung[20][20];
 //int dword_52A4DC;
 
@@ -226,8 +226,8 @@ static void L4makeDmt()
 {
 	int i, j, idx, val, dmtx, dmty;
 
-	for (j = 0, dmty = 1; dmty <= 77; j++, dmty += 2) {
-		for (i = 0, dmtx = 1; dmtx <= 77; i++, dmtx += 2) {
+	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
+		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {
 			val = 8 * L4dungeon[dmtx + 1][dmty + 1]
 				+ 4 * L4dungeon[dmtx][dmty + 1]
 				+ 2 * L4dungeon[dmtx + 1][dmty]
@@ -1308,12 +1308,12 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx,
 		quests[Q_BETRAYER]._qty = sy + 1;
 	}
 	if (setview == TRUE) {
-		ViewX = 2 * sx + 21;
-		ViewY = 2 * sy + 22;
+		ViewX = 2 * sx + DBORDERX + 5;
+		ViewY = 2 * sy + DBORDERY + 6;
 	}
 	if (ldir == 0) {
-		LvlViewX = 2 * sx + 21;
-		LvlViewY = 2 * sy + 22;
+		LvlViewX = 2 * sx + DBORDERX + 5;
+		LvlViewY = 2 * sy + DBORDERY + 6;
 	}
 
 	return TRUE;
@@ -1370,9 +1370,9 @@ static void DRLG_L4FloodTVal()
 {
 	int i, j, xx, yy;
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 6 && dTransVal[xx][yy] == 0) {
 				DRLG_L4FTVR(i, j, xx, yy, 0);
@@ -1398,9 +1398,9 @@ static void DRLG_L4TransFix()
 {
 	int i, j, xx, yy;
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			if (IsDURWall(dungeon[i][j]) && dungeon[i][j - 1] == 18) {
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
@@ -1658,9 +1658,9 @@ static void DRLG_L4Pass3()
 		}
 	}
 
-	yy = 16;
+	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
-		xx = 16;
+		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
 			lv = dungeon[i][j] - 1;
 			if (lv >= 0) {
@@ -1689,13 +1689,13 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 {
 	SetRndSeed(rseed);
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
-	ViewX = 40;
-	ViewY = 40;
+	ViewX = DSIZEX / 2;
+	ViewY = DSIZEY / 2;
 
 	DRLG_InitSetPC();
 	DRLG_LoadL4SP();
@@ -1710,10 +1710,10 @@ void LoadL4Dungeon(char *sFileName, int vx, int vy)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 	DRLG_InitTrans();
 	InitL4Dungeon();
@@ -1730,7 +1730,7 @@ void LoadL4Dungeon(char *sFileName, int vx, int vy)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = *lm;
-				dflags[i][j] |= 0x80;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
@@ -1753,10 +1753,10 @@ void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	dminx = 16;
-	dminy = 16;
-	dmaxx = 96;
-	dmaxy = 96;
+	dminx = DBORDERX;
+	dminy = DBORDERY;
+	dmaxx = DSIZEX + DBORDERX;
+	dmaxy = DSIZEY + DBORDERY;
 
 	InitL4Dungeon();
 

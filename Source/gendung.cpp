@@ -272,10 +272,10 @@ void DRLG_MRectTrans(int x1, int y1, int x2, int y2)
 {
 	int i, j;
 
-	x1 = 2 * x1 + 17;
-	y1 = 2 * y1 + 17;
-	x2 = 2 * x2 + 16;
-	y2 = 2 * y2 + 16;
+	x1 = 2 * x1 + DBORDERX + 1;
+	y1 = 2 * y1 + DBORDERY + 1;
+	x2 = 2 * x2 + DBORDERX;
+	y2 = 2 * y2 + DBORDERY;
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
@@ -347,8 +347,8 @@ void DRLG_SetPC()
 
 	w = 2 * setpc_w;
 	h = 2 * setpc_h;
-	x = 2 * setpc_x + 16;
-	y = 2 * setpc_y + 16;
+	x = 2 * setpc_x + DBORDERX;
+	y = 2 * setpc_y + DBORDERY;
 
 	for (j = 0; j < h; j++) {
 		for (i = 0; i < w; i++) {
@@ -363,8 +363,8 @@ void Make_SetPC(int x, int y, int w, int h)
 
 	dw = 2 * w;
 	dh = 2 * h;
-	dx = 2 * x + 16;
-	dy = 2 * y + 16;
+	dx = 2 * x + DBORDERX;
+	dy = 2 * y + DBORDERY;
 
 	for (j = 0; j < dh; j++) {
 		for (i = 0; i < dw; i++) {
@@ -597,8 +597,8 @@ void DRLG_HoldThemeRooms()
 	for (i = 0; i < themeCount; i++) {
 		for (y = themeLoc[i].y; y < themeLoc[i].y + themeLoc[i].height - 1; y++) {
 			for (x = themeLoc[i].x; x < themeLoc[i].x + themeLoc[i].width - 1; x++) {
-				xx = 2 * x + 16;
-				yy = 2 * y + 16;
+				xx = 2 * x + DBORDERX;
+				yy = 2 * y + DBORDERY;
 				dFlags[xx][yy] |= BFLAG_POPULATED;
 				dFlags[xx + 1][yy] |= BFLAG_POPULATED;
 				dFlags[xx][yy + 1] |= BFLAG_POPULATED;

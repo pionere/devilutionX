@@ -422,7 +422,7 @@ void InitCowFarmer()
 
 	InitTownerInfo(numtowners, 96, 1, TOWN_COWFARM, 61, 22, -1, 10);
 	InitQstSnds(numtowners);
-	if (quests[Q_JERSEY]._qactive != 3) {
+	if (quests[Q_JERSEY]._qactive != QUEST_DONE) {
 		towner[numtowners]._tNData = LoadFileInMem("Towners\\Farmer\\cfrmrn2.CEL", NULL);
 	} else {
 		towner[numtowners]._tNData = LoadFileInMem("Towners\\Farmer\\mfrmrn2.CEL", NULL);
@@ -442,7 +442,7 @@ void InitGirl()
 
 	InitTownerInfo(numtowners, 96, 1, TOWN_GIRL, 77, 43, -1, 10);
 	InitQstSnds(numtowners);
-	if (quests[Q_GIRL]._qactive != 3) {
+	if (quests[Q_GIRL]._qactive != QUEST_DONE) {
 		towner[numtowners]._tNData = LoadFileInMem("Towners\\Girl\\Girlw1.CEL", NULL);
 	} else {
 		towner[numtowners]._tNData = LoadFileInMem("Towners\\Girl\\Girls1.CEL", NULL);
@@ -867,8 +867,8 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_BMAID:
 #ifdef HELLFIRE
 		if (!plr[pnum]._pLvlVisited[21] && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
-			quests[Q_GRAVE]._qactive = 2;
-			quests[Q_GRAVE]._qlog = 1;
+			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
+			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
 			InitQTextMsg(TEXT_GRAVE8);
 			tw->_tMsgSaid = TRUE;
@@ -993,44 +993,44 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_FARMER:
 		if (!qtextflag) {
 			switch (quests[Q_FARMER]._qactive) {
-			case 0:
+			case QUEST_NOTAVAIL:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 					qt = TEXT_FARMER2;
-					quests[Q_FARMER]._qactive = 2;
+					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qlog = 1;
+					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					break;
 				} else if (!plr[myplr]._pLvlVisited[9] && plr[myplr]._pLevel < 15) {
-					qt = 309;
+					qt = TEXT_FARMER8;
 					if (plr[myplr]._pLvlVisited[2])
-						qt = 281;
+						qt = TEXT_FARMER5;
 					if (plr[myplr]._pLvlVisited[5])
-						qt = 308;
+						qt = TEXT_FARMER7;
 					if (plr[myplr]._pLvlVisited[7])
-						qt = 310;
+						qt = TEXT_FARMER9;
 				} else {
 					qt = TEXT_FARMER1;
-					quests[Q_FARMER]._qactive = 2;
+					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qlog = 1;
+					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
 					break;
 				}
-			case 2:
+			case QUEST_ACTIVE:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i))
 					qt = TEXT_FARMER2;
 				else
 					qt = TEXT_FARMER3;
 				break;
-			case 1:
+			case QUEST_INIT:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 					qt = TEXT_FARMER2;
-					quests[Q_FARMER]._qactive = 2;
+					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 					quests[Q_FARMER]._qvar1 = 1;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-					quests[Q_FARMER]._qlog = 1;
+					quests[Q_FARMER]._qlog = TRUE;
 				} else if (!plr[myplr]._pLvlVisited[9] && plr[myplr]._pLevel < 15) {
 					qt = TEXT_FARMER8;
 					if (plr[myplr]._pLvlVisited[2]) {
@@ -1044,24 +1044,24 @@ void TalkToTowner(int pnum, int tnum)
 					}
 				} else {
 					qt = TEXT_FARMER1;
-					quests[Q_FARMER]._qactive = 2;
+					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qlog = 1;
+					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
 				}
 				break;
-			case 3:
+			case QUEST_DONE:
 				qt = TEXT_FARMER4;
 				SpawnRewardItem(IDI_AURIC, tw->_tx + 1, tw->_ty);
 				quests[Q_FARMER]._qactive = 10;
-				quests[Q_FARMER]._qlog = 0;
+				quests[Q_FARMER]._qlog = FALSE;
 				break;
 			case 10:
 				qt = -1;
 				break;
 			default:
-				quests[Q_FARMER]._qactive = 0;
+				quests[Q_FARMER]._qactive = QUEST_NOTAVAIL;
 				qt = TEXT_FARMER4;
 				break;
 			}
@@ -1082,27 +1082,27 @@ void TalkToTowner(int pnum, int tnum)
 				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty);
 				RemoveInvItem(pnum, i);
 				qt = TEXT_JERSEY8;
-				quests[Q_JERSEY]._qactive = 3;
+				quests[Q_JERSEY]._qactive = QUEST_DONE;
 			} else if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 				qt = TEXT_JERSEY5;
-				quests[Q_JERSEY]._qactive = 2;
+				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 				quests[Q_JERSEY]._qvar1 = 1;
 				quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
-				quests[Q_JERSEY]._qlog = 1;
+				quests[Q_JERSEY]._qlog = TRUE;
 			} else {
 				switch (quests[Q_JERSEY]._qactive) {
-				case 0:
+				case QUEST_NOTAVAIL:
 					qt = TEXT_JERSEY1;
 					quests[Q_JERSEY]._qactive = 7;
 					break;
-				case 1:
+				case QUEST_INIT:
 					qt = TEXT_JERSEY1;
-					quests[23]._qactive = 7;
+					quests[Q_JERSEY]._qactive = 7;
 					break;
-				case 2:
+				case QUEST_ACTIVE:
 					qt = TEXT_JERSEY5;
 					break;
-				case 3:
+				case QUEST_DONE:
 					qt = TEXT_JERSEY1;
 					break;
 				case 7:
@@ -1131,16 +1131,16 @@ void TalkToTowner(int pnum, int tnum)
 						}
 					} else {
 						qt = TEXT_JERSEY4;
-						quests[Q_JERSEY]._qactive = 2;
+						quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 						quests[Q_JERSEY]._qvar1 = 1;
 						quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
-						quests[Q_JERSEY]._qlog = 1;
+						quests[Q_JERSEY]._qlog = TRUE;
 						SpawnRuneBomb(tw->_tx + 1, tw->_ty);
 					}
 					break;
 				default:
 					qt = TEXT_JERSEY5;
-					quests[Q_JERSEY]._qactive = 0;
+					quests[Q_JERSEY]._qactive = QUEST_NOTAVAIL;
 					break;
 				}
 			}
@@ -1155,30 +1155,30 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_GIRL:
 		if (!qtextflag) {
 			qtsnd = FALSE;
-			if (!PlrHasItem(pnum, IDI_THEODORE, &i) || quests[Q_GIRL]._qactive == 3) {
+			if (!PlrHasItem(pnum, IDI_THEODORE, &i) || quests[Q_GIRL]._qactive == QUEST_DONE) {
 				switch (quests[Q_GIRL]._qactive) {
-				case 0:
+				case QUEST_NOTAVAIL:
 					qt = TEXT_GIRL2;
-					quests[Q_GIRL]._qactive = 2;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					quests[Q_GIRL]._qvar1 = 1;
-					quests[Q_GIRL]._qlog = 1;
+					quests[Q_GIRL]._qlog = TRUE;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
 					break;
-				case 1:
+				case QUEST_INIT:
 					qt = TEXT_GIRL2;
 					quests[Q_GIRL]._qvar1 = 1;
-					quests[Q_GIRL]._qlog = 1;
+					quests[Q_GIRL]._qlog = TRUE;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
-					quests[Q_GIRL]._qactive = 2;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					break;
-				case 2:
+				case QUEST_ACTIVE:
 					qt = TEXT_GIRL3;
 					break;
-				case 3:
+				case QUEST_DONE:
 					qt = -1;
 					break;
 				default:
-					quests[Q_GIRL]._qactive = 0;
+					quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
 					qt = TEXT_GIRL1;
 					qtsnd = TRUE;
 					break;

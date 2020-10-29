@@ -27,7 +27,7 @@ extern int SP4x1;
 extern int SP4y1;
 extern int SP4x2;
 extern int SP4y2;
-extern BYTE L4dungeon[80][80];
+extern BYTE L4dungeon[DSIZEX][DSIZEY];
 extern BYTE dung[20][20];
 //int dword_52A4DC;
 

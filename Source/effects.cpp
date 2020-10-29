@@ -1285,7 +1285,7 @@ void PlaySfxLoc(int psfx, int x, int y)
 
 	psfx = RndSFX(psfx);
 
-	if (psfx >= 0 && psfx <= 3) {
+	if (psfx <= PS_WALK4 && psfx >= PS_WALK1) {
 		pSnd = sgSFX[psfx].pSnd;
 		if (pSnd != NULL)
 			pSnd->start_tc = 0;

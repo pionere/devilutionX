@@ -2207,6 +2207,7 @@ typedef enum object_graphic_id {
 	OFILE_BKSLBRNT = 0x35,
 	OFILE_MUSHPTCH = 0x36,
 	OFILE_LZSTAND  = 0x37,
+	NUM_OFILE_TYPES
 } object_graphic_id;
 
 typedef enum dungeon_type {
@@ -2678,11 +2679,10 @@ typedef enum _cmd_id {
 	CMD_DLEVEL_22,
 	CMD_DLEVEL_23,
 	CMD_DLEVEL_24,
-	CMD_REFLECT,
+	CMD_ENDREFLECT,
 	CMD_NAKRUL,
 	CMD_OPENHIVE,
 	CMD_OPENCRYPT,
-	NUM_CMDS,
 } _cmd_id;
 
 typedef enum _talker_id {
@@ -2986,6 +2986,8 @@ typedef enum _item_indexes {
 	IDI_FULLNOTE,
 	IDI_BROWNSUIT,
 	IDI_GREYSUIT,
+	IDI_REJUV      = 0x51,
+	IDI_FULLREJUV  = 0x52,
 } _item_indexes;
 
 typedef enum _setlevels {
@@ -3265,6 +3267,16 @@ typedef enum item_special_effect {
 	ISPL_3XDAMVDEM      = 0x40000000,
 	ISPL_ALLRESZERO     = 0x80000000,
 } item_special_effect;
+
+typedef enum item_added_effects {
+	ISPH_DEVASTATION    = 0x00000001,
+	ISPH_DECAY          = 0x00000002,
+	ISPH_PERIL          = 0x00000004,
+	ISPH_JESTERS        = 0x00000008,
+	ISPH_DOPPELGANGER   = 0x00000010,
+	ISPH_ACDEMON        = 0x00000020,
+	ISPH_ACUNDEAD       = 0x00000040,
+} item_added_effects;
 
 // Logical equipment locations
 typedef enum inv_body_loc {

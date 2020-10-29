@@ -317,7 +317,7 @@ void world_draw_black_tile(int sx, int sy)
 	int i, j, k;
 	BYTE *dst;
 
-	if (sx >= SCREEN_X + SCREEN_WIDTH || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_WIDTH / 2)
+	if (sx >= SCREEN_X + SCREEN_WIDTH || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
 		return;
 
 	if (sx < SCREEN_X - (TILE_WIDTH - 4) || sy < SCREEN_Y)

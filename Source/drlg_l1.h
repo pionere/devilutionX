@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BYTE L5dungeon[80][80];
+extern BYTE L5dungeon[DSIZEX][DSIZEY];
 extern BYTE L5dflags[DMAXX][DMAXY];
 extern BOOL L5setloadflag;
 extern BOOL HR1;
@@ -21,10 +21,10 @@ extern BOOL HR3;
 extern int UberRow;
 extern int UberCol;
 extern int dword_577368;
-extern int IsUberRoomOpened;
+extern BOOL IsUberRoomOpened;
 extern int UberLeverRow;
 extern int UberLeverCol;
-extern int IsUberLeverActivated;
+extern BOOL IsUberLeverActivated;
 extern int UberDiabloMonsterIndex;
 extern BOOL VR1;
 extern BOOL VR2;

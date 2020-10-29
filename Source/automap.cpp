@@ -220,14 +220,14 @@ void DrawAutomap()
 
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
 
-	AutoMapX = (ViewX - 16) >> 1;
+	AutoMapX = (ViewX - DBORDERX) >> 1;
 	while (AutoMapX + AutoMapXOfs < 0)
 		AutoMapXOfs++;
 	while (AutoMapX + AutoMapXOfs >= DMAXX)
 		AutoMapXOfs--;
 	AutoMapX += AutoMapXOfs;
 
-	AutoMapY = (ViewY - 16) >> 1;
+	AutoMapY = (ViewY - DBORDERY) >> 1;
 	while (AutoMapY + AutoMapYOfs < 0)
 		AutoMapYOfs++;
 	while (AutoMapY + AutoMapYOfs >= DMAXY)
@@ -744,8 +744,8 @@ void SetAutomapView(int x, int y)
 	WORD maptype, solid;
 	int xx, yy;
 
-	xx = (x - 16) >> 1;
-	yy = (y - 16) >> 1;
+	xx = (x - DBORDERX) >> 1;
+	yy = (y - DBORDERY) >> 1;
 
 	if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY) {
 		return;
@@ -754,57 +754,57 @@ void SetAutomapView(int x, int y)
 	automapview[xx][yy] = TRUE;
 
 	maptype = GetAutomapType(xx, yy, FALSE);
-	solid = maptype & 0x4000;
+	solid = maptype & (MAPFLAG_DIRT << 8);
 
 	switch (maptype & MAPFLAG_TYPE) {
 	case 2:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 3:
 		if (solid) {
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
 	case 4:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
-			if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
 	case 5:
 		if (solid) {
-			if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 6:
 		if (solid) {
-			if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;

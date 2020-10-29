@@ -840,7 +840,7 @@ BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info,
 				return FALSE;
 			}
 			if (type == 'BNET')
-				plr[0].pBattleNet = 1;
+				plr[0].pBattleNet = TRUE;
 		}
 
 		multi_event_handler(TRUE);
@@ -859,7 +859,7 @@ BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info,
 		pfile_read_player_from_save();
 
 		if (type == 'BNET')
-			plr[myplr].pBattleNet = 1;
+			plr[myplr].pBattleNet = TRUE;
 
 		return TRUE;
 	}

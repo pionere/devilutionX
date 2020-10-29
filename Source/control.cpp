@@ -28,10 +28,10 @@ BYTE *pPanelText;
 BYTE *pLifeBuff;
 BYTE *pBtmBuff;
 BYTE *pTalkBtns;
-BOOL pstrjust[4];
+BOOL pstrjust[MAX_CTRL_PANEL_LINES];
 int pnumlines;
 BOOL pinfoflag;
-BOOL talkbtndown[3];
+BOOL talkbtndown[MAX_PLRS - 1];
 int pSpell;
 BYTE *pManaBuff;
 char infoclr;
@@ -52,7 +52,7 @@ BYTE *pSpellBkCel;
 char infostr[256];
 int numpanbtns;
 BYTE *pStatusPanel;
-char panelstr[4][64];
+char panelstr[MAX_CTRL_PANEL_LINES][64];
 BOOL panelflag;
 BYTE SplTransTbl[256];
 int initialDropGoldValue;
@@ -502,7 +502,7 @@ void ToggleSpell(int slot)
 	unsigned __int64 spells;
 
 	p = &plr[myplr];
-	if (p->_pSplHotKey[slot] == -1) {
+	if (p->_pSplHotKey[slot] == SPL_INVALID) {
 		return;
 	}
 
@@ -586,7 +586,7 @@ void AddPanelString(const char *str, BOOL just)
 	strcpy(panelstr[pnumlines], str);
 	pstrjust[pnumlines] = just;
 
-	if (pnumlines < 4)
+	if (pnumlines < MAX_CTRL_PANEL_LINES)
 		pnumlines++;
 }
 
@@ -920,7 +920,7 @@ void DoSpeedBook()
 
 	p = &plr[myplr];
 	spselflag = TRUE;
-	xo = PANEL_X + 12 + SPLICONLENGTH * 10;
+	xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	yo = PANEL_Y - 17;
 	X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
 	Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
@@ -1977,7 +1977,7 @@ void CheckSBook()
 		sbooktab = (MouseX - (RIGHT_PANEL + 7)) / 61;
 	}
 #else
-	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 311 && MouseY >= SPANEL_WIDTH && MouseY < 349) { /// BUGFIX: change `< 313` to `< 311` (fixed)
+	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 311 && MouseY >= 320 && MouseY < 349) { /// BUGFIX: change `< 313` to `< 311` (fixed)
 		sbooktab = (MouseX - (RIGHT_PANEL + 7)) / 76;
 	}
 #endif
@@ -2117,7 +2117,7 @@ void DrawTalkPan()
 	CelDraw(x, i + 22 + PANEL_Y, pSPentSpn2Cels, PentSpn2Frame, 12);
 	PentSpn2Spin();
 	talk_btn = 0;
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
 			continue;
 		if (whisper[i]) {
@@ -2228,7 +2228,7 @@ void control_type_message()
 	talkflag = TRUE;
 	sgszTalkMsg[0] = '\0';
 	PentSpn2Frame = 1;
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++) {
 		talkbtndown[i] = FALSE;
 	}
 	sgbPlrTalkTbl = PANEL_HEIGHT + 16;

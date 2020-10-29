@@ -183,7 +183,7 @@ extern BYTE ItemAnimLs[];
 extern int ItemDropSnds[];
 extern int ItemInvSnds[];
 extern int idoppely;
-extern int premiumlvladd[6];
+extern int premiumlvladd[SMITH_PREMIUM_ITEMS];
 
 #ifdef __cplusplus
 }

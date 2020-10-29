@@ -844,13 +844,13 @@ void CheckInvPaste(int pnum, int mx, int my)
 		}
 		if (r == SLOTXY_CHEST_LAST) {
 			if ((sx & 1) == 0)
-				i -= 14;
+				i -= INV_SLOT_SIZE_PX / 2;
 			if ((sy & 1) == 0) {
-				j -= 14;
+				j -= INV_SLOT_SIZE_PX / 2;
 			}
 		}
 		if (r == SLOTXY_INV_LAST && (sy & 1) == 0)
-			j += 14;
+			j += INV_SLOT_SIZE_PX / 2;
 	}
 	if (r == NUM_XY_SLOTS)
 		return;
@@ -2167,7 +2167,7 @@ int InvPutItem(int pnum, int x, int y)
 		xp = cursmx;
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && xp >= 79 && xp <= 82 && yp >= 61 && yp <= 64) {
 			NetSendCmdLocParam2(0, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, xx, yy);
-			quests[Q_FARMER]._qactive = 3;
+			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);
 				return -1;
@@ -2176,7 +2176,7 @@ int InvPutItem(int pnum, int x, int y)
 		}
 		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && xp >= 35 && xp <= 38 && yp >= 20 && yp <= 24) {
 			NetSendCmd(FALSE, CMD_OPENCRYPT);
-			quests[Q_GRAVE]._qactive = 3;
+			quests[Q_GRAVE]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_GRAVE);
 			}
@@ -2200,7 +2200,7 @@ int InvPutItem(int pnum, int x, int y)
 #ifdef HELLFIRE
 	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y) {
 		CornerStone.item = item[ii];
-		InitQTextMsg(296);
+		InitQTextMsg(TEXT_CORNSTN);
 		quests[Q_CORNSTN]._qlog = FALSE;
 		quests[Q_CORNSTN]._qactive = QUEST_DONE;
 	}
@@ -2300,9 +2300,9 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 #ifdef HELLFIRE
 	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y) {
 		CornerStone.item = item[ii];
-		InitQTextMsg(296);
+		InitQTextMsg(TEXT_CORNSTN);
 		quests[Q_CORNSTN]._qlog = 0;
-		quests[Q_CORNSTN]._qactive = 3;
+		quests[Q_CORNSTN]._qactive = QUEST_DONE;
 	}
 #endif
 	return ii;
@@ -2649,7 +2649,7 @@ BOOL UseInvItem(int pnum, int cii)
 	if (speedlist) {
 #ifdef HELLFIRE
 		if (plr[pnum].SpdList[c]._iMiscId == IMISC_NOTE) {
-			InitQTextMsg(322);
+			InitQTextMsg(TEXT_BOOK9);
 			invflag = FALSE;
 			return TRUE;
 		}
@@ -2661,7 +2661,7 @@ BOOL UseInvItem(int pnum, int cii)
 			return TRUE;
 #ifdef HELLFIRE
 		if (plr[pnum].InvList[c]._iMiscId == IMISC_NOTE) {
-			InitQTextMsg(322);
+			InitQTextMsg(TEXT_BOOK9);
 			invflag = FALSE;
 			return TRUE;
 		}

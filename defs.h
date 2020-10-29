@@ -36,8 +36,16 @@
 #endif
 #endif
 
+// MAXDUN = DSIZE + 2 * DBORDER
+// DSIZE = 2 * DMAX
 #define DMAXX					40
 #define DMAXY					40
+#define DBORDERX				16
+#define DBORDERY				16
+#define DSIZEX					80
+#define DSIZEY					80
+#define MAXDUNX					112
+#define MAXDUNY					112
 
 #define LIGHTSIZE				6912 // 27 * 256
 
@@ -64,15 +72,13 @@
 #define MAX_SEND_STR_LEN		80
 
 #define MAXDEAD					31
-#define MAXDUNX					112
-#define MAXDUNY					112
 #define MAXITEMS				127
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
 #define MAXMONSTERS				200
 #define MAXOBJECTS				127
-#define MAXPORTAL				4
+#define MAXPORTAL				MAX_PLRS
 #ifdef HELLFIRE
 #define MAXQUESTS				24
 #define MAXMULTIQUESTS			10
@@ -91,6 +97,7 @@
 #define MDMAXX					40
 #define MDMAXY					40
 #define MAXCHARLEVEL			50
+#define MAXSPLLEVEL				15
 #ifdef HELLFIRE
 #define ITEMTYPES				43
 #else
@@ -112,6 +119,7 @@
 // todo: enums
 #ifdef HELLFIRE
 #define NUMLEVELS				25
+#define HEALER_ITEMS			20
 #define WITCH_ITEMS				25
 #define SMITH_ITEMS				25
 #define SMITH_PREMIUM_ITEMS		15
@@ -120,6 +128,7 @@
 #define STORE_LINES				104
 #else
 #define NUMLEVELS				17
+#define HEALER_ITEMS			20
 #define WITCH_ITEMS				20
 #define SMITH_ITEMS				20
 #define SMITH_PREMIUM_ITEMS		6

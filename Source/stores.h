@@ -26,14 +26,10 @@ extern BOOL stextsize;
 extern int stextsmax;
 extern ItemStruct storehold[48];
 extern int gossipstart;
-#ifdef HELLFIRE
-extern ItemStruct witchitem[25];
-#else
-extern ItemStruct witchitem[20];
-#endif
+extern ItemStruct witchitem[WITCH_ITEMS];
 extern BOOL stextscrl;
 extern int numpremium;
-extern ItemStruct healitem[20];
+extern ItemStruct healitem[HEALER_ITEMS];
 extern ItemStruct golditem;
 extern char storehidx[48];
 extern BYTE *pSTextSlidCels;

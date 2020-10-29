@@ -314,11 +314,11 @@ char pfile_get_player_class(unsigned int player_class_nr)
 	else if (player_class_nr == UI_ROGUE)
 		pc_class = PC_ROGUE;
 #ifdef HELLFIRE
-	else if (player_class_nr == 3)
+	else if (player_class_nr == UI_MONK)
 		pc_class = PC_MONK;
-	else if (player_class_nr == 4)
+	else if (player_class_nr == UI_BARD)
 		pc_class = PC_BARD;
-	else if (player_class_nr == 5)
+	else if (player_class_nr == UI_BARBARIAN)
 		pc_class = PC_BARBARIAN;
 #endif
 	else

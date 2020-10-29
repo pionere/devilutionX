@@ -21,7 +21,7 @@ CornerStoneStruct CornerStone;
 BYTE *itemanims[ITEMTYPES];
 BOOL UniqueItemFlag[128];
 #ifdef HELLFIRE
-int auricGold = 10000;
+int auricGold = 2 * GOLD_MAX_LIMIT;
 #endif
 int numitems;
 int gnNumGetRecords;
@@ -300,9 +300,14 @@ int ItemInvSnds[] = {
 char *off_4A5AC4 = "SItem";
 #endif
 /** Specifies the current Y-coordinate used for validation of items on ground. */
-int idoppely = 16;
+int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
-int premiumlvladd[6] = { -1, -1, 0, 0, 1, 2 };
+int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
+	-1, -1, 0, 0, 1, 2
+#ifdef HELLFIRE
+	, 0, 0, 0, 0, 0, 0, 0, 0, 0 // BUGFIX: not the real values 
+#endif
+};
 
 #ifdef HELLFIRE
 int items_4231CA(int i)
@@ -484,8 +489,8 @@ void SpawnNote()
 	int x, y, id;
 
 	do {
-		x = random_(12, 80) + 16;
-		y = random_(12, 80) + 16;
+		x = random_(12, DSIZEX) + DBORDERX;
+		y = random_(12, DSIZEY) + DBORDERY;
 	} while (!ItemPlace(x, y));
 	switch (currlevel) {
 	case 22:
@@ -564,8 +569,8 @@ void AddInitItems()
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = i;
 		do {
-			x = random_(12, 80) + 16;
-			y = random_(12, 80) + 16;
+			x = random_(12, DSIZEX) + DBORDERX;
+			y = random_(12, DSIZEY) + DBORDERY;
 		} while (!ItemPlace(x, y));
 		item[i]._ix = x;
 		item[i]._iy = y;
@@ -1982,7 +1987,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 #ifdef HELLFIRE
 	case IPL_DOPPELGANGER:
-		is->_iDamAcFlags |= 16;
+		is->_iDamAcFlags |= ISPH_DOPPELGANGER;
 		// no break
 #endif
 	case IPL_TOHIT_DAMP:
@@ -2353,23 +2358,23 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iPLMR -= r;
 		break;
 	case IPL_DEVASTATION:
-		is->_iDamAcFlags |= 0x01;
+		is->_iDamAcFlags |= ISPH_DEVASTATION;
 		break;
 	case IPL_DECAY:
-		is->_iDamAcFlags |= 0x02;
+		is->_iDamAcFlags |= ISPH_DECAY;
 		is->_iPLDam += r;
 		break;
 	case IPL_PERIL:
-		is->_iDamAcFlags |= 0x04;
+		is->_iDamAcFlags |= ISPH_PERIL;
 		break;
 	case IPL_JESTERS:
-		is->_iDamAcFlags |= 0x08;
+		is->_iDamAcFlags |= ISPH_JESTERS;
 		break;
 	case IPL_ACDEMON:
-		is->_iDamAcFlags |= 0x20;
+		is->_iDamAcFlags |= ISPH_ACDEMON;
 		break;
 	case IPL_ACUNDEAD:
-		is->_iDamAcFlags |= 0x40;
+		is->_iDamAcFlags |= ISPH_ACUNDEAD;
 		break;
 	case IPL_MANATOLIFE:
 		r2 = ((plr[myplr]._pMaxManaBase >> 6) * 50 / 100);
@@ -2518,7 +2523,7 @@ void GetItemBonus(int ii, int idata, int minlvl, int maxlvl, BOOL onlygood, BOOL
 			if (allowspells)
 				GetStaffSpell(ii, maxlvl, onlygood);
 			else
-				GetItemPower(ii, minlvl, maxlvl, 0x100, onlygood);
+				GetItemPower(ii, minlvl, maxlvl, PLT_STAFF, onlygood);
 			break;
 		case ITYPE_RING:
 		case ITYPE_AMULET:
@@ -2982,7 +2987,7 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 	if (itype != ITYPE_GOLD)
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
-		idx = 0;
+		idx = IDI_GOLD;
 
 	if (numitems < MAXITEMS) {
 		ii = itemavail[0];
@@ -3182,7 +3187,7 @@ void SpawnRock()
 		lvl = items_get_currlevel();
 
 		i = itemavail[0];
-		itemavail[0] = itemavail[127 - numitems - 1];
+		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = i;
 		xx = object[ii]._ox;
 		yy = object[ii]._oy;
@@ -3206,7 +3211,7 @@ void SpawnRewardItem(int itemid, int xx, int yy)
 	lvl = items_get_currlevel();
 
 	i = itemavail[0];
-	itemavail[0] = itemavail[127 - numitems - 1];
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = i;
 	item[i]._ix = xx;
 	item[i]._iy = yy;
@@ -3284,7 +3289,7 @@ void ItemDoppel()
 	ItemStruct *i;
 
 	if (gbMaxPlayers != 1) {
-		for (idoppelx = 16; idoppelx < 96; idoppelx++) {
+		for (idoppelx = DBORDERX; idoppelx < DSIZEX + DBORDERX; idoppelx++) {
 			if (dItem[idoppelx][idoppely]) {
 				i = &item[dItem[idoppelx][idoppely] - 1];
 				if (i->_ix != idoppelx || i->_iy != idoppely)
@@ -3292,8 +3297,8 @@ void ItemDoppel()
 			}
 		}
 		idoppely++;
-		if (idoppely == 96)
-			idoppely = 16;
+		if (idoppely == DSIZEY + DBORDERX)
+			idoppely = DBORDERY;
 	}
 }
 
@@ -3541,7 +3546,7 @@ void DoOil(int pnum, int cii)
 		}
 		break;
 	case IMISC_OILBSMTH:
-		if (is->_iMaxDur != 255) {
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
 			if (is->_iDurability < is->_iMaxDur) {
 				dur = (is->_iMaxDur + 4) / 5 + is->_iDurability;
 				if (dur > is->_iMaxDur) {
@@ -3558,15 +3563,15 @@ void DoOil(int pnum, int cii)
 		}
 		break;
 	case IMISC_OILFORT:
-		if (is->_iMaxDur != 255 && is->_iMaxDur < 200) {
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur < 200) {
 			r = random_(68, 41) + 10;
 			is->_iMaxDur += r;
 			is->_iDurability += r;
 		}
 		break;
 	case IMISC_OILPERM:
-		is->_iDurability = 255;
-		is->_iMaxDur = 255;
+		is->_iDurability = DUR_INDESTRUCTIBLE;
+		is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IMISC_OILHARD:
 		if (is->_iAC < 60) {
@@ -4505,7 +4510,7 @@ void UseItem(int pnum, int Mid, int spl)
 	case IMISC_BOOK:
 		p = &plr[pnum];
 		p->_pMemSpells |= (__int64)1 << (spl - 1);
-		if (p->_pSplLvl[spl] < 15)
+		if (p->_pSplLvl[spl] < MAXSPLLEVEL)
 			p->_pSplLvl[spl]++;
 		p->_pMana += spelldata[spl].sManaCost << 6;
 		if (p->_pMana > p->_pMaxMana)
@@ -5074,7 +5079,7 @@ void SpawnHealer(int lvl)
 		srnd = 2;
 	}
 #ifdef HELLFIRE
-	iCnt = random_(50, 10) + 10;
+	iCnt = random_(50, HEALER_ITEMS - 10) + 10;
 #else
 	iCnt = random_(50, 8) + 10;
 #endif
@@ -5088,7 +5093,7 @@ void SpawnHealer(int lvl)
 		healitem[i]._iIdentified = TRUE;
 		ItemStatOk(myplr, &healitem[i]);
 	}
-	for (i = iCnt; i < 20; i++) {
+	for (i = iCnt; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;
 	}
 	SortHealer();
