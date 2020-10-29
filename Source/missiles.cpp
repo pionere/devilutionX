@@ -4760,7 +4760,7 @@ void MI_Manashield(int mi)
 			if (div != 0)
 #else
 			div = 3;
-			if (mis->_mispllvl > 0) {
+			if (mis->_mispllvl > 0)
 #endif
 				diff -= diff / div;
 
