@@ -40,8 +40,6 @@ void DRLG_L4SetSPRoom(int rx1, int ry1);
 void L4SaveQuads();
 void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1);
 void DRLG_LoadDiabQuads(BOOL preflag);
-BOOL IsDURWall(char dd);
-BOOL IsDLLWall(char dd);
 void L4FixRim();
 void DRLG_L4GeneralFix();
 void CreateL4Dungeon(DWORD rseed, int entry);

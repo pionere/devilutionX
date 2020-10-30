@@ -689,13 +689,8 @@ WORD GetAutomapType(int x, int y, BOOL view)
 
 	rv = automaptype[(BYTE)dungeon[x][y]];
 	if (rv == 7) {
-#ifdef HELLFIRE
-		if ((BYTE)(GetAutomapType(x - 1, y, FALSE) >> 8) & MAPFLAG_HORZARCH) {
-			if ((BYTE)(GetAutomapType(x, y - 1, FALSE) >> 8) & MAPFLAG_VERTARCH) {
-#else
-		if ((GetAutomapType(x - 1, y, FALSE) >> 8) & MAPFLAG_HORZARCH) {
-			if ((GetAutomapType(x, y - 1, FALSE) >> 8) & MAPFLAG_VERTARCH) {
-#endif
+		if (GetAutomapType(x - 1, y, FALSE) & (MAPFLAG_HORZARCH << 8)) {
+			if (GetAutomapType(x, y - 1, FALSE) & (MAPFLAG_VERTARCH << 8)) {
 				rv = 1;
 			}
 		}
@@ -725,17 +720,14 @@ void DrawAutomapText()
 		PrintGameStr(8, nextline, quest_level_names[(BYTE)setlvlnum], COL_GOLD);
 	} else if (currlevel != 0) {
 #ifdef HELLFIRE
-		if (currlevel < 17 || currlevel > 20) {
-			if (currlevel < 21 || currlevel > 24)
-				sprintf(desc, "Level: %i", currlevel);
+		if (currlevel >= 17 && currlevel <= 24) {
+			if (currlevel <= 20)
+				sprintf(desc, "Level: Nest %i", currlevel - 16);
 			else
 				sprintf(desc, "Level: Crypt %i", currlevel - 20);
-		} else {
-			sprintf(desc, "Level: Nest %i", currlevel - 16);
-		}
-#else
-		sprintf(desc, "Level: %i", currlevel);
+		} else
 #endif
+			sprintf(desc, "Level: %i", currlevel);
 		PrintGameStr(8, nextline, desc, COL_GOLD);
 	}
 }

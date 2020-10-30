@@ -2743,6 +2743,11 @@ BOOL PlrHitMonst(int pnum, int mnum)
 				dam += dam >> 1;
 			}
 			break;
+		case MC_DEMON:
+			if (p->_pIFlags & ISPL_3XDAMVDEM) {
+				dam *= 3;
+			}
+			break;
 		case MC_ANIMAL:
 			if (phanditype == ITYPE_MACE) {
 				dam -= dam >> 1;
@@ -2751,10 +2756,6 @@ BOOL PlrHitMonst(int pnum, int mnum)
 				dam += dam >> 1;
 			}
 			break;
-		}
-
-		if (p->_pIFlags & ISPL_3XDAMVDEM && mon->MData->mMonstClass == MC_DEMON) {
-			dam *= 3;
 		}
 
 		dam <<= 6;

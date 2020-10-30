@@ -898,7 +898,8 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 	blksizex = random_(0, 2) + 3;
 	blksizey = random_(0, 2) + 3;
 
-	if (dir == 0) {
+	switch (dir) {
+	case 0:
 		y2 = y - 1;
 		y1 = y2 - blksizey;
 		x1 = x;
@@ -907,28 +908,8 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		else if (blksizex > obs)
 			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
-	}
-	if (dir == 3) {
-		x2 = x - 1;
-		x1 = x2 - blksizex;
-		y1 = y;
-		if (blksizey < obs)
-			y1 += random_(0, blksizey);
-		else if (blksizey > obs)
-			y1 -= random_(0, blksizey);
-		y2 = y1 + blksizey;
-	}
-	if (dir == 2) {
-		y1 = y + 1;
-		y2 = y1 + blksizey;
-		x1 = x;
-		if (blksizex < obs)
-			x1 += random_(0, blksizex);
-		else if (blksizex > obs)
-			x1 -= random_(0, blksizex);
-		x2 = blksizex + x1;
-	}
-	if (dir == 1) {
+		break;
+	case 1:
 		x1 = x + 1;
 		x2 = x1 + blksizex;
 		y1 = y;
@@ -937,6 +918,27 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		else if (blksizey > obs)
 			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
+		break;
+	case 2:
+		y1 = y + 1;
+		y2 = y1 + blksizey;
+		x1 = x;
+		if (blksizex < obs)
+			x1 += random_(0, blksizex);
+		else if (blksizex > obs)
+			x1 -= random_(0, blksizex);
+		x2 = blksizex + x1;
+		break;
+	default: // dir == 3
+		x2 = x - 1;
+		x1 = x2 - blksizex;
+		y1 = y;
+		if (blksizey < obs)
+			y1 += random_(0, blksizey);
+		else if (blksizey > obs)
+			y1 -= random_(0, blksizey);
+		y2 = y1 + blksizey;
+		break;
 	}
 
 	if (DRLG_L3FillRoom(x1, y1, x2, y2) && random_(0, 4)) {
@@ -1834,8 +1836,6 @@ void AddFenceDoors()
 					dungeon[i][j] = 146;
 					continue;
 				}
-			}
-			if (dungeon[i][j] == 7) {
 				if (dungeon[i][j - 1] <= 152 && dungeon[i][j - 1] >= 130
 				    && dungeon[i][j + 1] <= 152 && dungeon[i][j + 1] >= 130) {
 					dungeon[i][j] = 147;
@@ -2170,15 +2170,16 @@ void FixL3HallofHeroes()
 	}
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 12 && dungeon[i + 1][j] == 7) {
-				dungeon[i][j] = 7;
-				dungeon[i][j + 1] = 7;
-				dungeon[i + 1][j + 1] = 7;
-			}
-			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 12 && dungeon[i][j + 1] == 7) {
-				dungeon[i][j] = 7;
-				dungeon[i + 1][j] = 7;
-				dungeon[i + 1][j + 1] = 7;
+			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 12) {
+				if (dungeon[i + 1][j] == 7) {
+					dungeon[i][j] = 7;
+					dungeon[i][j + 1] = 7;
+					dungeon[i + 1][j + 1] = 7;
+				} else if (dungeon[i][j + 1] == 7) {
+					dungeon[i][j] = 7;
+					dungeon[i + 1][j] = 7;
+					dungeon[i + 1][j + 1] = 7;
+				}
 			}
 		}
 	}

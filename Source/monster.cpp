@@ -2443,8 +2443,7 @@ BOOL MonDoAttack(int mnum)
 	if (mon->MType->mtype >= MT_NMAGMA && mon->MType->mtype <= MT_WMAGMA && mon->_mAnimFrame == 9) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit + 10, mon->mMinDamage - 2, mon->mMaxDamage - 2);
 		PlayEffect(mnum, 0);
-	}
-	if (mon->MType->mtype >= MT_STORM && mon->MType->mtype <= MT_MAEL && mon->_mAnimFrame == 13) {
+	} else if (mon->MType->mtype >= MT_STORM && mon->MType->mtype <= MT_MAEL && mon->_mAnimFrame == 13) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit - 20, mon->mMinDamage + 4, mon->mMaxDamage + 4);
 		PlayEffect(mnum, 0);
 	}
@@ -3029,15 +3028,14 @@ void GroupUnity(int mnum)
 	if (mon->leaderflag) {
 		leader = &monster[mon->leader];
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
-		if (clear || mon->leaderflag != 1) {
-			if (clear
-			    && mon->leaderflag == 2
+		if (clear) {
+			if (mon->leaderflag == 2
 			    && abs(mon->_mx - leader->_mfutx) < 4
 			    && abs(mon->_my - leader->_mfuty) < 4) {
 				leader->packsize++;
 				mon->leaderflag = 1;
 			}
-		} else {
+		} else if (mon->leaderflag == 1) {
 			leader->packsize--;
 			mon->leaderflag = 2;
 		}
@@ -5869,11 +5867,8 @@ BOOL CanTalkToMonst(int mnum)
 		app_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 #endif
 
-	if (monster[mnum]._mgoal == MGOAL_INQUIRING) {
-		return TRUE;
-	}
-
-	return monster[mnum]._mgoal == MGOAL_TALKING;
+	return monster[mnum]._mgoal == MGOAL_INQUIRING
+		|| monster[mnum]._mgoal == MGOAL_TALKING;
 }
 
 BOOL CheckMonsterHit(int mnum, BOOL *ret)

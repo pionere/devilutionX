@@ -347,14 +347,15 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, 1);
 	} else {
-		trans = 0;
-		if (mon->_uniqtype)
-			trans = mon->_uniqtrans + 4;
-		if (mon->_mmode == MM_STONE)
-			trans = 2;
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
-		if (trans)
+		else if (mon->_mmode == MM_STONE)
+			trans = 2;
+		else if (mon->_uniqtype != 0)
+			trans = mon->_uniqtrans + 4;
+		else
+			trans = 0;
+		if (trans != 0)
 			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, trans);
 		else
 			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->MType->width);

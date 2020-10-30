@@ -375,10 +375,9 @@ void delta_leave_sync(BYTE bLevel)
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
-		if (currlevel == 0) {
+		if (bLevel == 0) {
 			glSeedTbl[0] = GetRndSeed();
-		}
-		if (currlevel > 0) {
+		} else {
 			for (i = 0; i < nummonsters; ++i) {
 				ma = monstactive[i];
 				if (monster[ma]._mhitpoints) {
@@ -506,11 +505,9 @@ void DeltaLoadLevel()
 					mon->_moldy = y;
 					MonClearSquares(i);
 					if (mon->_mAi != AI_DIABLO) {
-						if (mon->_uniqtype == 0)
-							/// ASSERT: assert(mon->MType != NULL);
-							AddDead(mon->_mx, mon->_my, mon->MType->mdeadval, (direction)mon->_mdir);
-						else
-							AddDead(mon->_mx, mon->_my, mon->_udeadval, (direction)mon->_mdir);
+						AddDead(mon->_mx, mon->_my,
+							mon->_uniqtype == 0 ? mon->MType->mdeadval : mon->_udeadval,
+							(direction)mon->_mdir);
 					}
 					mon->_mDelFlag = TRUE;
 					MonUpdateLeader(i);

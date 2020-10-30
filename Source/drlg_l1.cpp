@@ -1094,16 +1094,14 @@ static void DRLG_L1Pass3()
 static void DRLG_LoadL1SP()
 {
 	L5setloadflag = FALSE;
-	if (QuestStatus(Q_BUTCHER)) {
-		L5pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
-		L5setloadflag = TRUE;
-	}
-	if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
-		L5pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
-		L5setloadflag = TRUE;
-	}
 	if (QuestStatus(Q_LTBANNER)) {
 		L5pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN", NULL);
+		L5setloadflag = TRUE;
+	} else if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
+		L5pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
+		L5setloadflag = TRUE;
+	} else if (QuestStatus(Q_BUTCHER)) {
+		L5pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
 		L5setloadflag = TRUE;
 	}
 }
@@ -2129,8 +2127,7 @@ static void L5FillChambers()
 			}
 			drlg_l1_set_crypt_room(c, 16);
 		}
-	}
-	if (currlevel == 21) {
+	} else if (currlevel == 21) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
 			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
@@ -2395,28 +2392,34 @@ static void DRLG_L5TransFix()
 		xx = DBORDERX;
 
 		for (i = 0; i < DMAXX; i++) {
-			// BUGFIX: Should check for `j > 0` first. (fixed)
-			if (dungeon[i][j] == 23 && j > 0 && dungeon[i][j - 1] == 18) {
+			switch (dungeon[i][j]) {
+			case 18:
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
-			if (dungeon[i][j] == 24 && i + 1 < DMAXX && dungeon[i + 1][j] == 19) {
+				break;
+			case 19:
 				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 18) {
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 19) {
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 20) {
+				break;
+			case 20:
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
 				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				break;
+			case 23:
+				// BUGFIX: Should check for `j > 0` first. (fixed)
+				if (j > 0 && dungeon[i][j - 1] == 18) {
+					dTransVal[xx + 1][yy] = dTransVal[xx][yy];
+					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				}
+				break;
+			case 24:
+				// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
+				if (i < DMAXX - 1 && dungeon[i + 1][j] == 19) {
+					dTransVal[xx][yy + 1] = dTransVal[xx][yy];
+					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				}
+				break;
 			}
 			xx += 2;
 		}

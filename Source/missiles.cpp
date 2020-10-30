@@ -449,7 +449,7 @@ void PutMissile(int mi)
 	y = missile[mi]._miy;
 	if (x <= 0 || y <= 0 || x >= MAXDUNX || y >= MAXDUNY)
 		missile[mi]._miDelFlag = TRUE;
-	if (!missile[mi]._miDelFlag) {
+	else if (!missile[mi]._miDelFlag) {
 		dFlags[x][y] |= BFLAG_MISSILE;
 		if (dMissile[x][y] == 0)
 			dMissile[x][y] = mi + 1;

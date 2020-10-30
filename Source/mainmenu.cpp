@@ -60,10 +60,7 @@ BOOL mainmenu_select_hero_dialog(
 			app_fatal("Unable to display SelHeroSing");
 		client_info->initdata->bDiff = gnDifficulty;
 
-		if (dlgresult == SELHERO_CONTINUE)
-			gbLoadGame = TRUE;
-		else
-			gbLoadGame = FALSE;
+		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 
 	} else if (!UiSelHeroMultDialog(
 	               pfile_ui_set_hero_infos,

@@ -2303,40 +2303,42 @@ void ObjL1Special(int x1, int y1, int x2, int y2)
 
 	for (i = y1; i <= y2; ++i) {
 		for (j = x1; j <= x2; ++j) {
-			dSpecial[j][i] = 0;
 			pn = dPiece[j][i];
 			if (pn == 12)
-				dSpecial[j][i] = 1;
-			if (pn == 11)
-				dSpecial[j][i] = 2;
-			if (pn == 71)
-				dSpecial[j][i] = 1;
-			if (pn == 253)
-				dSpecial[j][i] = 3;
-			if (pn == 267)
-				dSpecial[j][i] = 6;
-			if (pn == 259)
-				dSpecial[j][i] = 5;
-			if (pn == 249)
-				dSpecial[j][i] = 2;
-			if (pn == 325)
-				dSpecial[j][i] = 2;
-			if (pn == 321)
-				dSpecial[j][i] = 1;
-			if (pn == 255)
-				dSpecial[j][i] = 4;
-			if (pn == 211)
-				dSpecial[j][i] = 1;
-			if (pn == 344)
-				dSpecial[j][i] = 2;
-			if (pn == 341)
-				dSpecial[j][i] = 1;
-			if (pn == 331)
-				dSpecial[j][i] = 2;
-			if (pn == 418)
-				dSpecial[j][i] = 1;
-			if (pn == 421)
-				dSpecial[j][i] = 2;
+				pn = 1;
+			else if (pn == 11)
+				pn = 2;
+			else if (pn == 71)
+				pn = 1;
+			else if (pn == 253)
+				pn = 3;
+			else if (pn == 267)
+				pn = 6;
+			else if (pn == 259)
+				pn = 5;
+			else if (pn == 249)
+				pn = 2;
+			else if (pn == 325)
+				pn = 2;
+			else if (pn == 321)
+				pn = 1;
+			else if (pn == 255)
+				pn = 4;
+			else if (pn == 211)
+				pn = 1;
+			else if (pn == 344)
+				pn = 2;
+			else if (pn == 341)
+				pn = 1;
+			else if (pn == 331)
+				pn = 2;
+			else if (pn == 418)
+				pn = 1;
+			else if (pn == 421)
+				pn = 2;
+			else
+				pn = 0;
+			dSpecial[j][i] = pn;
 		}
 	}
 }
@@ -4992,11 +4994,10 @@ void SyncPedistal(int oi)
 	os = &object[oi];
 	if (os->_oVar6 == 1)
 		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-	if (os->_oVar6 == 2) {
+	else if (os->_oVar6 == 2) {
 		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
 		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
-	}
-	if (os->_oVar6 == 3) {
+	} else if (os->_oVar6 == 3) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 		setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 		LoadMapObjs(setp, 2 * setpc_x, 2 * setpc_y);
@@ -5117,9 +5118,9 @@ void GetObjectStr(int oi)
 	case OBJ_L3RDOOR:
 		if (os->_oVar4 == 1)
 			strcpy(infostr, "Open Door");
-		if (os->_oVar4 == 0)
+		else if (os->_oVar4 == 0)
 			strcpy(infostr, "Closed Door");
-		if (os->_oVar4 == 2)
+		else if (os->_oVar4 == 2)
 			strcpy(infostr, "Blocked Door");
 		break;
 	case OBJ_BOOK2L:

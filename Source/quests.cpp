@@ -297,15 +297,10 @@ BOOL ForceQuests()
 
 BOOL QuestStatus(int qn)
 {
-	if (setlevel)
-		return FALSE;
-	if (currlevel != quests[qn]._qlevel)
-		return FALSE;
-	if (quests[qn]._qactive == QUEST_NOTAVAIL)
-		return FALSE;
-	if (gbMaxPlayers != 1 && !(questlist[qn]._qflags & QUEST_ANY))
-		return FALSE;
-	return TRUE;
+	return currlevel == quests[qn]._qlevel
+		&& quests[qn]._qactive != QUEST_NOTAVAIL
+		&& (gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY))
+		&& !setlevel;
 }
 
 void CheckQuestKill(int mnum, BOOL sendmsg)
@@ -955,12 +950,10 @@ void QuestlogESC()
 	int y, i;
 
 	y = (MouseY - 32) / 12;
-	if (numqlines != 0) {
-		for (i = 0; i < numqlines; i++) {
-			if (y == qtopline + 2 * i) {
-				qline = y;
-				QuestlogEnter();
-			}
+	for (i = 0; i < numqlines; i++) {
+		if (y == qtopline + 2 * i) {
+			qline = y;
+			QuestlogEnter();
 		}
 	}
 	if (y == 22) {

@@ -1922,9 +1922,9 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	if (is->_itype == ITYPE_GOLD) {
 		if (gnDifficulty == DIFF_NORMAL)
 			rndv = 5 * lvl + random_(21, 10 * lvl);
-		if (gnDifficulty == DIFF_NIGHTMARE)
+		else if (gnDifficulty == DIFF_NIGHTMARE)
 			rndv = 5 * (lvl + 16) + random_(21, 10 * (lvl + 16));
-		if (gnDifficulty == DIFF_HELL)
+		else if (gnDifficulty == DIFF_HELL)
 			rndv = 5 * (lvl + 32) + random_(21, 10 * (lvl + 32));
 		if (leveltype == DTYPE_HELL)
 			rndv += rndv >> 3;
@@ -2788,18 +2788,11 @@ void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood,
 
 	if (item[ii]._iMiscId != IMISC_UNIQUE) {
 		iblvl = -1;
-		if (random_(32, 100) <= 10 || random_(33, 100) <= lvl) {
+		if ((random_(32, 100) <= 10 || random_(33, 100) <= lvl)
+		 || item[ii]._iMiscId == IMISC_STAFF
+		 || item[ii]._iMiscId == IMISC_RING
+		 || item[ii]._iMiscId == IMISC_AMULET)
 			iblvl = lvl;
-		}
-		if (iblvl == -1 && item[ii]._iMiscId == IMISC_STAFF) {
-			iblvl = lvl;
-		}
-		if (iblvl == -1 && item[ii]._iMiscId == IMISC_RING) {
-			iblvl = lvl;
-		}
-		if (iblvl == -1 && item[ii]._iMiscId == IMISC_AMULET) {
-			iblvl = lvl;
-		}
 		if (onlygood)
 			iblvl = lvl;
 		if (uper == 15)
@@ -3624,8 +3617,6 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		sprintf(tempstr, "%+i%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
-		sprintf(tempstr, "armor class: %i", is->_iAC);
-		break;
 	case IPL_AC_CURSE:
 		sprintf(tempstr, "armor class: %i", is->_iAC);
 		break;
@@ -3635,7 +3626,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #endif
 		if (is->_iPLFR < 75)
 			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
-		if (is->_iPLFR >= 75)
+		else
 			sprintf(tempstr, "Resist Fire: 75%% MAX");
 		break;
 	case IPL_LIGHTRES:
@@ -3644,7 +3635,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #endif
 		if (is->_iPLLR < 75)
 			sprintf(tempstr, "Resist Lightning: %+i%%", is->_iPLLR);
-		if (is->_iPLLR >= 75)
+		else
 			sprintf(tempstr, "Resist Lightning: 75%% MAX");
 		break;
 	case IPL_MAGICRES:
@@ -3653,7 +3644,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #endif
 		if (is->_iPLMR < 75)
 			sprintf(tempstr, "Resist Magic: %+i%%", is->_iPLMR);
-		if (is->_iPLMR >= 75)
+		else
 			sprintf(tempstr, "Resist Magic: 75%% MAX");
 		break;
 	case IPL_ALLRES:
@@ -3662,7 +3653,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #endif
 		if (is->_iPLFR < 75)
 			sprintf(tempstr, "Resist All: %+i%%", is->_iPLFR);
-		if (is->_iPLFR >= 75)
+		else
 			sprintf(tempstr, "Resist All: 75%% MAX");
 		break;
 	case IPL_SPLLVLADD:
@@ -3899,7 +3890,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	case IPL_FIRERESCLVL:
 		if (is->_iPLFR <= 0)
 			sprintf(tempstr, " ");
-		else if (is->_iPLFR >= 1)
+		else
 			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
 		break;
 #ifdef HELLFIRE

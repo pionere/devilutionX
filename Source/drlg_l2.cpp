@@ -2885,36 +2885,38 @@ static void DRLG_L2Pass3()
 	}
 }
 
-static void DRLG_L2FTVR(int i, int j, int x, int y, int d)
+static void DRLG_L2FTVR(int i, int j, int x, int y, int dir)
 {
 	if (dTransVal[x][y] != 0 || dungeon[i][j] != 3) {
-		if (d == 1) {
+		switch (dir) {
+		case 1:
 			dTransVal[x][y] = TransVal;
 			dTransVal[x][y + 1] = TransVal;
-		}
-		if (d == 2) {
+			break;
+		case 2:
 			dTransVal[x + 1][y] = TransVal;
 			dTransVal[x + 1][y + 1] = TransVal;
-		}
-		if (d == 3) {
+			break;
+		case 3:
 			dTransVal[x][y] = TransVal;
 			dTransVal[x + 1][y] = TransVal;
-		}
-		if (d == 4) {
+			break;
+		case 4:
 			dTransVal[x][y + 1] = TransVal;
 			dTransVal[x + 1][y + 1] = TransVal;
-		}
-		if (d == 5) {
+			break;
+		case 5:
 			dTransVal[x + 1][y + 1] = TransVal;
-		}
-		if (d == 6) {
+			break;
+		case 6:
 			dTransVal[x][y + 1] = TransVal;
-		}
-		if (d == 7) {
+			break;
+		case 7:
 			dTransVal[x + 1][y] = TransVal;
-		}
-		if (d == 8) {
+			break;
+		case 8:
 			dTransVal[x][y] = TransVal;
+			break;
 		}
 	} else {
 		dTransVal[x][y] = TransVal;
@@ -2958,26 +2960,32 @@ static void DRLG_L2TransFix()
 	for (j = 0; j < DMAXY; j++) {
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 14 && dungeon[i][j - 1] == 10) {
+			switch (dungeon[i][j]) {
+			case 10:
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 15 && dungeon[i + 1][j] == 11) {
+				break;
+			case 11:
 				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 10) {
+				break;
+			case 14:
+				if (dungeon[i][j - 1] == 10) {
+					dTransVal[xx + 1][yy] = dTransVal[xx][yy];
+					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				}
+				break;
+			case 15:
+				if (dungeon[i + 1][j] == 11) {
+					dTransVal[xx][yy + 1] = dTransVal[xx][yy];
+					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				}
+				break;
+			case 16:
 				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 11) {
 				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
 				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
-			}
-			if (dungeon[i][j] == 16) {
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				break;
 			}
 			xx += 2;
 		}
@@ -2991,23 +2999,27 @@ static void L2DirtFix()
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 13 && dungeon[i + 1][j] != 11) {
-				dungeon[i][j] = 146;
-			}
-			if (dungeon[i][j] == 11 && dungeon[i + 1][j] != 11) {
-				dungeon[i][j] = 144;
-			}
-			if (dungeon[i][j] == 15 && dungeon[i + 1][j] != 11) {
-				dungeon[i][j] = 148;
-			}
-			if (dungeon[i][j] == 10 && dungeon[i][j + 1] != 10) {
-				dungeon[i][j] = 143;
-			}
-			if (dungeon[i][j] == 13 && dungeon[i][j + 1] != 10) {
-				dungeon[i][j] = 146;
-			}
-			if (dungeon[i][j] == 14 && dungeon[i][j + 1] != 15) {
-				dungeon[i][j] = 147;
+			switch (dungeon[i][j]) {
+			case 10:
+				if (dungeon[i][j + 1] != 10)
+					dungeon[i][j] = 143;
+				break;
+			case 11:
+				if (dungeon[i + 1][j] != 11)
+					dungeon[i][j] = 144;
+				break;
+			case 13:
+				if (dungeon[i + 1][j] != 11 || dungeon[i][j + 1] != 10)
+					dungeon[i][j] = 146;
+				break;
+			case 14:
+				if (dungeon[i][j + 1] != 15)
+					dungeon[i][j] = 147;
+				break;
+			case 15:
+				if (dungeon[i + 1][j] != 11)
+					dungeon[i][j] = 148;
+				break;
 			}
 		}
 	}
@@ -3035,18 +3047,16 @@ void L2LockoutFix()
 			}
 			if ((dungeon[i][j] == 2 || dungeon[i][j] == 5) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
 				doorok = FALSE;
-				while (1) {
-					if (dungeon[i][j] != 2 && dungeon[i][j] != 5) {
-						break;
-					}
+				do {
 					if (dungeon[i][j - 1] != 3 || dungeon[i][j + 1] != 3) {
 						break;
 					}
 					if (dungeon[i][j] == 5) {
 						doorok = TRUE;
+						break;
 					}
 					i++;
-				}
+				} while (dungeon[i][j] == 2 || dungeon[i][j] == 5);
 				if (!doorok && !(dflags[i - 1][j] & DLRG_PROTECTED)) {
 					dungeon[i - 1][j] = 5;
 				}
@@ -3060,18 +3070,16 @@ void L2LockoutFix()
 			}
 			if ((dungeon[j][i] == 1 || dungeon[j][i] == 4) && dungeon[j - 1][i] == 3 && dungeon[j + 1][i] == 3) {
 				doorok = FALSE;
-				while (1) {
-					if (dungeon[j][i] != 1 && dungeon[j][i] != 4) {
-						break;
-					}
+				do {
 					if (dungeon[j - 1][i] != 3 || dungeon[j + 1][i] != 3) {
 						break;
 					}
 					if (dungeon[j][i] == 4) {
 						doorok = TRUE;
+						break;
 					}
 					i++;
-				}
+				} while (dungeon[j][i] == 1 || dungeon[j][i] == 4);
 				if (!doorok && !(dflags[j][i - 1] & DLRG_PROTECTED)) {
 					dungeon[j][i - 1] = 4;
 				}

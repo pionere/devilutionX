@@ -711,9 +711,9 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
 		if (doautomap) {
 			if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
+				dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
 				SetAutomapView(nXPos, nXPos);
 			}
-			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
 		}
 		if (visible) {
 			dFlags[nXPos][nYPos] |= BFLAG_LIT;
@@ -772,9 +772,9 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 					           && !nBlockTable[dPiece[x2adj + nCrawlX][y2adj + nCrawlY]])) {
 						if (doautomap) {
 							if (!(dFlags[nCrawlX][nCrawlY] & BFLAG_EXPLORED)) {
+								dFlags[nCrawlX][nCrawlY] |= BFLAG_EXPLORED;
 								SetAutomapView(nCrawlX, nCrawlY);
 							}
-							dFlags[nCrawlX][nCrawlY] |= BFLAG_EXPLORED;
 						}
 						if (visible) {
 							dFlags[nCrawlX][nCrawlY] |= BFLAG_LIT;
