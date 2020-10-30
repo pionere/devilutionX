@@ -419,6 +419,9 @@ void S_ScrollSBuy()
 
 	if (!stext[stextsel]._ssel && stextsel != 22)
 		stextsel = stextdown;
+	stextsmax = storenumh - 4;
+	if (stextsmax < 0)
+		stextsmax = 0;
 }
 
 void PrintStoreItem(const ItemStruct *is, int l, char iclr)
@@ -484,9 +487,14 @@ void S_StartSBuy()
 {
 	int i;
 
+	storenumh = 0;
+	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++)
+		storenumh++;
+
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
@@ -494,14 +502,6 @@ void S_StartSBuy()
 	S_ScrollSBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
-	storenumh = 0;
-	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++) {
-		storenumh++;
-	}
-
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
-		stextsmax = 0;
 }
 
 void S_ScrollSPBuy()
@@ -511,14 +511,12 @@ void S_ScrollSPBuy()
 	char iclr;
 
 	ClearSText(5, 21);
-	idx = stextsidx;
-	boughtitems = idx;
-
 	stextup = 5;
-	for (idx = 0; boughtitems; idx++) {
+
+	boughtitems = stextsidx;
+	for (idx = 0; boughtitems != 0; idx++)
 		if (premiumitem[idx]._itype != ITYPE_NONE)
 			boughtitems--;
-	}
 
 	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; l += 4) {
 		is = &premiumitem[idx];
@@ -533,8 +531,12 @@ void S_ScrollSPBuy()
 		}
 		idx++;
 	}
+
 	if (!stext[stextsel]._ssel && stextsel != 22)
 		stextsel = stextdown;
+	stextsmax = storenumh - 4;
+	if (stextsmax < 0)
+		stextsmax = 0;
 }
 
 BOOL S_StartSPBuy()
@@ -542,10 +544,10 @@ BOOL S_StartSPBuy()
 	int i;
 
 	storenumh = 0;
-	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
+	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		if (premiumitem[i]._itype != ITYPE_NONE)
 			storenumh++;
-	}
+
 	if (storenumh == 0) {
 		StartStore(STORE_SMITH);
 		stextsel = 14;
@@ -560,15 +562,9 @@ BOOL S_StartSPBuy()
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
+	S_ScrollSPBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
-
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
-		stextsmax = 0;
-
-	S_ScrollSPBuy();
-
 	return TRUE;
 }
 
@@ -605,10 +601,9 @@ void S_ScrollSSell()
 
 	ClearSText(5, 21);
 	stextup = 5;
+
 	idx = stextsidx;
 	for (l = 5; l < 20; l += 4) {
-		if (idx >= storenumh)
-			break;
 		is = &storehold[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
@@ -627,6 +622,8 @@ void S_ScrollSSell()
 		idx++;
 	}
 
+	if (!stext[stextsel]._ssel && stextsel != 22)
+		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
 		stextsmax = 0;
@@ -638,24 +635,23 @@ void S_StartSSell()
 	ItemStruct *pi;
 	int i;
 
-	stextsize = TRUE;
 	storenumh = 0;
-
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
+
 	p = &plr[myplr];
 	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
+	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, i);
-	}
 #ifdef HELLFIRE
 	pi = p->SpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+	for (i = 0; i < MAXBELTITEMS; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
-	}
 #endif
+
+	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
@@ -667,7 +663,6 @@ void S_StartSSell()
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
@@ -693,21 +688,21 @@ void S_StartSRepair()
 	ItemStruct *pi;
 	int i;
 
-	stextsize = TRUE;
 	storenumh = 0;
-
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
+
 	p = &plr[myplr];
 	pi = p->InvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, -(i + 1));
 	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
+	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, i);
-	}
+
+	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to repair.            Your gold : %i", plr[myplr]._pGold);
@@ -721,7 +716,6 @@ void S_StartSRepair()
 
 	stextscrl = TRUE;
 	stextsidx = 0;
-	stextsmax = plr[myplr]._pNumInv;
 	sprintf(tempstr, "Repair which item?            Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
@@ -798,16 +792,23 @@ void S_ScrollWBuy()
 
 	if (!stext[stextsel]._ssel && stextsel != 22)
 		stextsel = stextdown;
+	stextsmax = storenumh - 4;
+	if (stextsmax < 0)
+		stextsmax = 0;
 }
 
 void S_StartWBuy()
 {
 	int i;
 
+	storenumh = 0;
+	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++)
+		storenumh++;
+
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
-	stextsmax = 20;
+
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
@@ -815,14 +816,6 @@ void S_StartWBuy()
 	S_ScrollWBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
-
-	storenumh = 0;
-	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++) {
-		storenumh++;
-	}
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
-		stextsmax = 0;
 }
 
 BOOL WitchSellOk(const ItemStruct *is)
@@ -838,22 +831,21 @@ void S_StartWSell()
 	ItemStruct *pi;
 	int i;
 
-	stextsize = TRUE;
 	storenumh = 0;
-
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
+
 	p = &plr[myplr];
 	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
+	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, i);
-	}
 	pi = p->SpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+	for (i = 0; i < MAXBELTITEMS; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
-	}
+
+	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
@@ -865,7 +857,6 @@ void S_StartWSell()
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
@@ -897,21 +888,21 @@ void S_StartWRecharge()
 	ItemStruct *pi;
 	int i;
 
-	stextsize = TRUE;
 	storenumh = 0;
-
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
+
 	p = &plr[myplr];
 	pi = p->InvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, -(i + 1));
 	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
+	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, i);
-	}
+
+	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to recharge.            Your gold : %i", plr[myplr]._pGold);
@@ -923,7 +914,6 @@ void S_StartWRecharge()
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Recharge which item?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
@@ -1095,6 +1085,7 @@ void S_ScrollHBuy()
 
 	ClearSText(5, 21);
 	stextup = 5;
+
 	is = &healitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
@@ -1113,15 +1104,23 @@ void S_ScrollHBuy()
 
 	if (!stext[stextsel]._ssel && stextsel != 22)
 		stextsel = stextdown;
+	stextsmax = storenumh - 4;
+	if (stextsmax < 0)
+		stextsmax = 0;
 }
 
 void S_StartHBuy()
 {
 	int i;
 
+	storenumh = 0;
+	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++)
+		storenumh++;
+
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
@@ -1129,14 +1128,6 @@ void S_StartHBuy()
 	S_ScrollHBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
-
-	storenumh = 0;
-	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++) {
-		storenumh++;
-	}
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
-		stextsmax = 0;
 }
 
 void S_StartStory()
@@ -1173,21 +1164,21 @@ void S_StartSIdentify()
 	ItemStruct *pi;
 	int i;
 
-	stextsize = TRUE;
 	storenumh = 0;
-
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
+
 	p = &plr[myplr];
 	pi = p->InvBody;
 	for (i = 0; i < NUM_INVLOC; i++, pi++)
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, -(i + 1));
 	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
+	for (i = 0; i < p->_pNumInv; i++, pi++)
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, i);
-	}
+
+	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", plr[myplr]._pGold);
@@ -1199,7 +1190,6 @@ void S_StartSIdentify()
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		stextsmax = p->_pNumInv;
 		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
