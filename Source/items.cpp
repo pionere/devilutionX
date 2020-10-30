@@ -1134,12 +1134,11 @@ void CalcPlrScrolls(int pnum)
 				p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
 		}
 	}
-	if (p->_pRSplType == RSPLTYPE_SCROLL) {
-		if (!(p->_pScrlSpells & 1 << (p->_pRSpell - 1))) {
-			p->_pRSpell = SPL_INVALID;
-			p->_pRSplType = RSPLTYPE_INVALID;
-			force_redraw = 255;
-		}
+	if (p->_pRSplType == RSPLTYPE_SCROLL && p->_pRSpell != SPL_INVALID
+	 && !(p->_pScrlSpells & (__int64)1 << (p->_pRSpell - 1))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		force_redraw = 255;
 	}
 }
 
