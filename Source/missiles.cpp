@@ -766,7 +766,7 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		return FALSE;
 	}
 
-	if (p->_pSpellFlags & 1 && missiledata[mitype].mType == 0) {
+	if (p->_pSpellFlags & PSE_ETHERALIZED && missiledata[mitype].mType == 0) {
 		return FALSE;
 	}
 
@@ -926,7 +926,7 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 		return FALSE;
 	}
 
-	if (dps->_pSpellFlags & 1 && missiledata[mitype].mType == 0) {
+	if (dps->_pSpellFlags & PSE_ETHERALIZED && missiledata[mitype].mType == 0) {
 		return FALSE;
 	}
 
@@ -1270,7 +1270,7 @@ void InitMissiles()
 	AutoMapShowItems = FALSE;
 #endif
 	p = &plr[myplr];
-	p->_pSpellFlags &= ~0x1;
+	p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
@@ -1281,8 +1281,8 @@ void InitMissiles()
 	}
 
 #ifdef HELLFIRE
-	if ((p->_pSpellFlags & 2) == 2 || (p->_pSpellFlags & 4) == 4) {
-		p->_pSpellFlags &= ~(0x2 | 0x4);
+	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY)) {
+		p->_pSpellFlags &= ~(PSE_BLOOD_BOIL | PSE_LETHARGY);
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
 			if (mis->_mitype == MIS_BLODBOIL && mis->_misource == myplr) {
@@ -3144,7 +3144,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 #ifdef HELLFIRE
 	int lvl;
 
-	if (id == -1 || plr[id]._pSpellFlags & 6 || plr[id]._pHitPoints <= plr[id]._pLevel << 6) {
+	if (id == -1 || plr[id]._pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || plr[id]._pHitPoints <= plr[id]._pLevel << 6) {
 		missile[mi]._miDelFlag = TRUE;
 	} else {
 		int blodboilSFX[NUM_CLASSES] = {
@@ -3159,7 +3159,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		missile[mi]._miVar1 = id;
 		int tmp = 3 * plr[id]._pLevel;
 		tmp <<= 7;
-		plr[id]._pSpellFlags |= 2u;
+		plr[id]._pSpellFlags |= PSE_BLOOD_BOIL;
 		missile[mi]._miVar2 = tmp;
 		if (id > 0)
 			lvl = plr[id]._pLevel;
@@ -4811,10 +4811,10 @@ void MI_Etherealize(int mi)
 		else
 			mis->_miy++;
 	}
-	p->_pSpellFlags |= 1;
+	p->_pSpellFlags |= PSE_ETHERALIZED;
 	if (mis->_mirange == 0 || p->_pHitPoints <= 0) {
 		mis->_miDelFlag = TRUE;
-		p->_pSpellFlags &= ~0x1;
+		p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	}
 	PutMissile(mi);
 }
@@ -5404,9 +5404,9 @@ void MI_Bloodboil(int mi)
 		pnum = mis->_miVar1;
 		p = &plr[pnum];
 		hpdif = p->_pMaxHP - p->_pHitPoints;
-		if ((p->_pSpellFlags & 2) == 2) {
-			p->_pSpellFlags &= ~0x2;
-			p->_pSpellFlags |= 4;
+		if (p->_pSpellFlags & PSE_BLOOD_BOIL) {
+			p->_pSpellFlags &= ~PSE_BLOOD_BOIL;
+			p->_pSpellFlags |= PSE_LETHARGY;
 			if (pnum > 0)
 				lvl = p->_pLevel;
 			else
@@ -5414,7 +5414,7 @@ void MI_Bloodboil(int mi)
 			mis->_mirange = lvl + 10 * mis->_mispllvl + 245;
 		} else {
 			mis->_miDelFlag = TRUE;
-			p->_pSpellFlags &= ~0x4;
+			p->_pSpellFlags &= ~PSE_LETHARGY;
 			hpdif += mis->_miVar2;
 		}
 		CalcPlrItemVals(pnum, TRUE);

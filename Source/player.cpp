@@ -2854,7 +2854,7 @@ BOOL PlrHitPlr(int offp, char defp)
 		return FALSE;
 	}
 
-	if (dps->_pSpellFlags & 1) {
+	if (dps->_pSpellFlags & PSE_ETHERALIZED) {
 		return FALSE;
 	}
 

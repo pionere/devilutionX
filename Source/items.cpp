@@ -753,12 +753,12 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 
 #ifdef HELLFIRE
-	if ((p->_pSpellFlags & 2) == 2) {
+	if (p->_pSpellFlags & PSE_BLOOD_BOIL) {
 		sadd += 2 * p->_pLevel;
 		dadd += p->_pLevel + p->_pLevel / 2;
 		vadd += 2 * p->_pLevel;
 	}
-	if ((p->_pSpellFlags & 4) == 4) {
+	if (p->_pSpellFlags & PSE_LETHARGY) {
 		sadd -= 2 * p->_pLevel;
 		dadd -= p->_pLevel + p->_pLevel / 2;
 		vadd -= 2 * p->_pLevel;
@@ -887,7 +887,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		lr += p->_pLevel;
 	}
 
-	if ((p->_pSpellFlags & 4) == 4) {
+	if (p->_pSpellFlags & PSE_LETHARGY) {
 		mr -= p->_pLevel;
 		fr -= p->_pLevel;
 		lr -= p->_pLevel;

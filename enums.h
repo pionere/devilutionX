@@ -3345,6 +3345,12 @@ typedef enum player_graphic {
 	PFILE_NONDEATH = 0x17F
 } player_graphic;
 
+typedef enum player_spell_effects {
+	PSE_ETHERALIZED = 1 << 0,
+	PSE_BLOOD_BOIL  = 1 << 1,
+	PSE_LETHARGY    = 1 << 2,
+} player_spell_effects;
+
 typedef enum anim_weapon_id {
 	ANIM_ID_UNARMED        = 0x00,
 	ANIM_ID_UNARMED_SHIELD = 0x01,
