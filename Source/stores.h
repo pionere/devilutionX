@@ -37,7 +37,7 @@ extern char stextscrldbtn;
 extern int gossipend;
 extern BYTE *pSPentSpn2Cels;
 extern BYTE PentSpn2Frame;
-extern int stextsval;
+extern int stextsidx;
 extern int boylevel;
 extern ItemStruct smithitem[SMITH_ITEMS];
 extern int stextdown;
