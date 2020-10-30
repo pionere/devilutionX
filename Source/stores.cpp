@@ -1533,34 +1533,17 @@ void STextUp()
 		return;
 	}
 
-	if (stextscrl) {
-		if (stextsel == stextup) {
-			if (stextsval)
-				stextsval--;
-			return;
-		}
-
-		stextsel--;
-		while (!stext[stextsel]._ssel) {
-			if (!stextsel)
-				stextsel = STORE_LINES - 1;
-			else
-				stextsel--;
-		}
+	if (stextscrl && stextsel == stextup) {
+		if (stextsval != 0)
+			stextsval--;
 		return;
 	}
 
-	if (!stextsel)
-		stextsel = STORE_LINES - 1;
-	else
+	do {
 		stextsel--;
-
-	while (!stext[stextsel]._ssel) {
-		if (!stextsel)
+		if (stextsel < 0)
 			stextsel = STORE_LINES - 1;
-		else
-			stextsel--;
-	}
+	} while (!stext[stextsel]._ssel);
 }
 
 void STextDown()
@@ -1570,28 +1553,16 @@ void STextDown()
 		return;
 	}
 
-	if (stextscrl) {
-		if (stextsel == stextdown) {
-			if (stextsval < stextsmax)
-				stextsval++;
-			return;
-		}
-
-		stextsel++;
-		while (!stext[stextsel]._ssel) {
-			if (stextsel == STORE_LINES - 1)
-				stextsel = 0;
-			else
-				stextsel++;
-		}
+	if (stextscrl && stextsel == stextdown) {
+		if (stextsval < stextsmax)
+			stextsval++;
 		return;
 	}
 
 	do {
-		if (stextsel == STORE_LINES - 1)
+		stextsel++;
+		if (stextsel == STORE_LINES)
 			stextsel = 0;
-		else
-			stextsel++;
 	} while (!stext[stextsel]._ssel);
 }
 
@@ -1600,9 +1571,7 @@ void STextPrior()
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && stextscrl) {
 		if (stextsel == stextup) {
-			if (stextsval)
-				stextsval -= 4;
-			stextsval = stextsval;
+			stextsval -= 4;
 			if (stextsval < 0)
 				stextsval = 0;
 		} else {
@@ -1616,8 +1585,7 @@ void STextNext()
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && stextscrl) {
 		if (stextsel == stextdown) {
-			if (stextsval < stextsmax)
-				stextsval += 4;
+			stextsval += 4;
 			if (stextsval > stextsmax)
 				stextsval = stextsmax;
 		} else {
