@@ -2307,7 +2307,7 @@ void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		return;
 	}
 	p = &plr[pnum];
-	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible || p->_pSpellFlags & 1)
+	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible || p->_pSpellFlags & PSE_ETHERALIZED)
 		return;
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
