@@ -1604,11 +1604,7 @@ static void DRLG_L4(int entry)
 	DRLG_Init_Globals();
 
 	if (QuestStatus(Q_WARLORD)) {
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++) {
-				pdungeon[i][j] = dungeon[i][j];
-			}
-		}
+		memcpy(pdungeon, dungeon, sizeof(pdungeon));
 	}
 
 	DRLG_CheckQuests(SP4x1, SP4y1);
@@ -1626,11 +1622,8 @@ static void DRLG_L4(int entry)
 		}
 	}
 	if (currlevel == 16) {
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++) {
-				pdungeon[i][j] = dungeon[i][j];
-			}
-		}
+		memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
 		DRLG_LoadDiabQuads(FALSE);
 	}
 }

@@ -1276,11 +1276,7 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 
 	DRLG_L1Floor();
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			pdungeon[i][j] = dungeon[i][j];
-		}
-	}
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pLevelMap);
 }
@@ -2747,11 +2743,7 @@ static void DRLG_L5(int entry)
 		DRLG_L1Floor();
 	}
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			pdungeon[i][j] = dungeon[i][j];
-		}
-	}
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
 	DRLG_CheckQuests(setpc_x, setpc_y);
