@@ -1263,8 +1263,6 @@ void CalcPlrInv(int p, BOOL Loadgfx)
 		CalcPlrBookVals(p);
 		CalcPlrScrolls(p);
 		CalcPlrStaff(p);
-		if (p == myplr && currlevel == 0)
-			RecalcStoreStats();
 	}
 }
 
@@ -5200,33 +5198,6 @@ void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 		RecreateWitchItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
 	else if (icreateinfo & CF_HEALER)
 		RecreateHealerItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
-}
-
-void RecalcStoreStats()
-{
-	int i;
-
-	for (i = 0; i < SMITH_ITEMS; i++) {
-		if (smithitem[i]._itype != ITYPE_NONE) {
-			ItemStatOk(myplr, &smithitem[i]);
-		}
-	}
-	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
-		if (premiumitem[i]._itype != ITYPE_NONE) {
-			ItemStatOk(myplr, &premiumitem[i]);
-		}
-	}
-	for (i = 0; i < 20; i++) {
-		if (witchitem[i]._itype != ITYPE_NONE) {
-			ItemStatOk(myplr, &witchitem[i]);
-		}
-	}
-	for (i = 0; i < 20; i++) {
-		if (healitem[i]._itype != ITYPE_NONE) {
-			ItemStatOk(myplr, &healitem[i]);
-		}
-	}
-	ItemStatOk(myplr, &boyitem);
 }
 
 int ItemNoFlippy()

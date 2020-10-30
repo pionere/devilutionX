@@ -411,6 +411,7 @@ void S_ScrollSBuy()
 	is = &smithitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
+			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
 			if (is->_iMagical) {
@@ -526,6 +527,7 @@ void S_ScrollSPBuy()
 	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; l += 4) {
 		is = &premiumitem[idx];
 		if (is->_itype != ITYPE_NONE) {
+			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			AddSTextVal(l, is->_iIvalue);
@@ -757,6 +759,7 @@ void S_ScrollWBuy()
 	is = &witchitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
+			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
 			if (is->_iMagical) {
@@ -992,6 +995,7 @@ void S_StartBBoy()
 	AddSLine(3);
 	AddSLine(21);
 
+	ItemStatOk(myplr, &boyitem);
 	iclr = StoreItemColor(&boyitem);
 
 	if (boyitem._iMagical != ITEM_QUALITY_NORMAL)
@@ -1049,10 +1053,8 @@ void S_ScrollHBuy()
 	is = &healitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			iclr = COL_WHITE;
-			if (!is->_iStatFlag) {
-				iclr = COL_RED;
-			}
+			ItemStatOk(myplr, is);
+			iclr = StoreItemColor(is);
 
 			AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
 			AddSTextVal(l, is->_iIvalue);

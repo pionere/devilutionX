@@ -154,7 +154,6 @@ void RecreateBoyItem(int ii, int idx, int lvl, int iseed);
 void RecreateWitchItem(int ii, int idx, int lvl, int iseed);
 void RecreateHealerItem(int ii, int idx, int lvl, int iseed);
 void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue);
-void RecalcStoreStats();
 int ItemNoFlippy();
 void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta);
 void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta);
