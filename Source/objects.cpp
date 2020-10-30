@@ -4271,7 +4271,7 @@ void OperateArmorStand(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-int FindValidShrine(int i)
+int FindValidShrine()
 {
 	int rv;
 	DIABOOL done;
@@ -4304,7 +4304,7 @@ int FindValidShrine(int i)
 void OperateGoatShrine(int pnum, int oi, int sType)
 {
 	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine(oi);
+	object[oi]._oVar1 = FindValidShrine();
 	OperateShrine(pnum, oi, sType);
 	object[oi]._oAnimDelay = 2;
 	force_redraw = 255;
@@ -4313,7 +4313,7 @@ void OperateGoatShrine(int pnum, int oi, int sType)
 void OperateCauldron(int pnum, int oi, int sType)
 {
 	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine(oi);
+	object[oi]._oVar1 = FindValidShrine();
 	OperateShrine(pnum, oi, sType);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;

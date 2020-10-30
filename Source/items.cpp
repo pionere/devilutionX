@@ -2484,7 +2484,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		CalcItemValue(ii);
 }
 
-void GetItemBonus(int ii, int idata, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells)
+void GetItemBonus(int ii, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells)
 {
 	if (item[ii]._iClass != ICLASS_GOLD) {
 		if (minlvl > 25)
@@ -2807,7 +2807,7 @@ void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood,
 		if (iblvl != -1) {
 			uid = CheckUnique(ii, iblvl, uper, recreate);
 			if (uid == UITYPE_INVALID) {
-				GetItemBonus(ii, idx, iblvl >> 1, iblvl, onlygood, TRUE);
+				GetItemBonus(ii, iblvl >> 1, iblvl, onlygood, TRUE);
 			} else {
 				GetUniqueItem(ii, uid);
 				item[ii]._iCreateInfo |= CF_UNIQUE;
@@ -4745,7 +4745,7 @@ void SpawnOnePremium(int i, int plvl)
 		SetRndSeed(item[0]._iSeed);
 		itype = RndPremiumItem(plvl >> 2, plvl) - 1;
 		GetItemAttrs(0, itype, plvl);
-		GetItemBonus(0, itype, plvl >> 1, plvl, TRUE, FALSE);
+		GetItemBonus(0, plvl >> 1, plvl, TRUE, FALSE);
 	} while (item[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	premiumitem[i] = item[0];
 	premiumitem[i]._iCreateInfo = plvl | CF_SMITHPREMIUM;
@@ -4912,7 +4912,7 @@ void SpawnWitch(int lvl)
 			if (minlvl == -1 && item[0]._iMiscId == IMISC_STAFF)
 				minlvl = lvl;
 			if (minlvl != -1)
-				GetItemBonus(0, idata, minlvl, minlvl << 1, TRUE, TRUE);
+				GetItemBonus(0, minlvl, minlvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 140000);
 		witchitem[i] = item[0];
 		witchitem[i]._iCreateInfo = lvl | CF_WITCH;
@@ -4957,7 +4957,7 @@ void SpawnBoy(int lvl)
 			SetRndSeed(item[0]._iSeed);
 			itype = RndBoyItem(lvl) - 1;
 			GetItemAttrs(0, itype, lvl);
-			GetItemBonus(0, itype, lvl, lvl << 1, TRUE, TRUE);
+			GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 90000);
 		boyitem = item[0];
 		boyitem._iCreateInfo = lvl | CF_BOY;
@@ -5115,7 +5115,7 @@ void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 	SetRndSeed(iseed);
 	itype = RndPremiumItem(plvl >> 2, plvl) - 1;
 	GetItemAttrs(ii, itype, plvl);
-	GetItemBonus(ii, itype, plvl >> 1, plvl, TRUE, FALSE);
+	GetItemBonus(ii, plvl >> 1, plvl, TRUE, FALSE);
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = plvl | CF_SMITHPREMIUM;
@@ -5129,7 +5129,7 @@ void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 	SetRndSeed(iseed);
 	itype = RndBoyItem(lvl) - 1;
 	GetItemAttrs(ii, itype, lvl);
-	GetItemBonus(ii, itype, lvl, 2 * lvl, TRUE, TRUE);
+	GetItemBonus(ii, lvl, 2 * lvl, TRUE, TRUE);
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_BOY;
 	item[ii]._iIdentified = TRUE;
@@ -5158,7 +5158,7 @@ void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 			if (iblvl == -1 && item[ii]._iMiscId == IMISC_STAFF)
 				iblvl = lvl;
 			if (iblvl != -1)
-				GetItemBonus(ii, itype, iblvl, iblvl << 1, TRUE, TRUE);
+				GetItemBonus(ii, iblvl, iblvl << 1, TRUE, TRUE);
 #ifdef HELLFIRE
 		}
 #endif
