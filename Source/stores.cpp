@@ -37,7 +37,7 @@ int gossipend;
 BYTE *pSPentSpn2Cels;
 BYTE PentSpn2Frame;
 DWORD PentSpn2Tick;
-int stextsval;
+int stextsidx;
 int boylevel;
 ItemStruct smithitem[SMITH_ITEMS];
 int stextdown;
@@ -235,7 +235,7 @@ void DrawSSlider(int y1, int y2)
 	else
 		yd3 = stextsel;
 	if (storenumh > 1)
-		yd3 = 1000 * (stextsval + ((yd3 - stextup) >> 2)) / (storenumh - 1) * (y2 * 12 - y1 * 12 - 24) / 1000;
+		yd3 = 1000 * (stextsidx + ((yd3 - stextup) >> 2)) / (storenumh - 1) * (y2 * 12 - y1 * 12 - 24) / 1000;
 	else
 		yd3 = 0;
 	CelDraw(PANEL_X + 601, (y1 + 1) * 12 + 44 + SCREEN_Y + UI_OFFSET_Y + yd3, pSTextSlidCels, 13, 12);
@@ -390,7 +390,7 @@ char StoreItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-void S_ScrollSBuy(int idx)
+void S_ScrollSBuy()
 {
 	ItemStruct *is;
 	int l;
@@ -399,7 +399,7 @@ void S_ScrollSBuy(int idx)
 	ClearSText(5, 21);
 	stextup = 5;
 
-	is = &smithitem[idx];
+	is = &smithitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
@@ -486,12 +486,12 @@ void S_StartSBuy()
 
 	stextsize = TRUE;
 	stextscrl = TRUE;
-	stextsval = 0;
+	stextsidx = 0;
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
-	S_ScrollSBuy(stextsval);
+	S_ScrollSBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
 	storenumh = 0;
@@ -504,13 +504,14 @@ void S_StartSBuy()
 		stextsmax = 0;
 }
 
-void S_ScrollSPBuy(int idx)
+void S_ScrollSPBuy()
 {
 	ItemStruct* is;
-	int l, boughtitems;
+	int idx, l, boughtitems;
 	char iclr;
 
 	ClearSText(5, 21);
+	idx = stextsidx;
 	boughtitems = idx;
 
 	stextup = 5;
@@ -553,7 +554,7 @@ BOOL S_StartSPBuy()
 
 	stextsize = TRUE;
 	stextscrl = TRUE;
-	stextsval = 0;
+	stextsidx = 0;
 
 	sprintf(tempstr, "I have these premium items for sale :   Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
@@ -566,7 +567,7 @@ BOOL S_StartSPBuy()
 	if (stextsmax < 0)
 		stextsmax = 0;
 
-	S_ScrollSPBuy(stextsval);
+	S_ScrollSPBuy();
 
 	return TRUE;
 }
@@ -596,15 +597,15 @@ BOOL SmithSellOk(const ItemStruct *is)
 		&& is->IDidx != IDI_LAZSTAFF;
 }
 
-void S_ScrollSSell(int idx)
+void S_ScrollSSell()
 {
 	ItemStruct* is;
-	int l;
+	int idx, l;
 	char iclr;
 
 	ClearSText(5, 21);
 	stextup = 5;
-
+	idx = stextsidx;
 	for (l = 5; l < 20; l += 4) {
 		if (idx >= storenumh)
 			break;
@@ -665,13 +666,13 @@ void S_StartSSell()
 		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
-		stextsval = 0;
+		stextsidx = 0;
 		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
 		AddSLine(21);
-		S_ScrollSSell(stextsval);
+		S_ScrollSSell();
 		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 		OffsetSTextY(22, 6);
 	}
@@ -719,13 +720,13 @@ void S_StartSRepair()
 	}
 
 	stextscrl = TRUE;
-	stextsval = 0;
+	stextsidx = 0;
 	stextsmax = plr[myplr]._pNumInv;
 	sprintf(tempstr, "Repair which item?            Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
-	S_ScrollSSell(stextsval);
+	S_ScrollSSell();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 	OffsetSTextY(22, 6);
 }
@@ -768,7 +769,7 @@ void S_StartWitch()
 	storenumh = 20;
 }
 
-void S_ScrollWBuy(int idx)
+void S_ScrollWBuy()
 {
 	ItemStruct *is;
 	int l;
@@ -777,7 +778,7 @@ void S_ScrollWBuy(int idx)
 	ClearSText(5, 21);
 	stextup = 5;
 
-	is = &witchitem[idx];
+	is = &witchitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
@@ -805,13 +806,13 @@ void S_StartWBuy()
 
 	stextsize = TRUE;
 	stextscrl = TRUE;
-	stextsval = 0;
+	stextsidx = 0;
 	stextsmax = 20;
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
-	S_ScrollWBuy(stextsval);
+	S_ScrollWBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
 
@@ -863,13 +864,13 @@ void S_StartWSell()
 		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
-		stextsval = 0;
+		stextsidx = 0;
 		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
 		AddSLine(21);
-		S_ScrollSSell(stextsval);
+		S_ScrollSSell();
 		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 		OffsetSTextY(22, 6);
 	}
@@ -921,13 +922,13 @@ void S_StartWRecharge()
 		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
-		stextsval = 0;
+		stextsidx = 0;
 		stextsmax = plr[myplr]._pNumInv;
 		sprintf(tempstr, "Recharge which item?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
 		AddSLine(21);
-		S_ScrollSSell(stextsval);
+		S_ScrollSSell();
 		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 		OffsetSTextY(22, 6);
 	}
@@ -1086,7 +1087,7 @@ void S_StartHealer()
 	storenumh = 20;
 }
 
-void S_ScrollHBuy(int idx)
+void S_ScrollHBuy()
 {
 	ItemStruct* is;
 	int l;
@@ -1094,7 +1095,7 @@ void S_ScrollHBuy(int idx)
 
 	ClearSText(5, 21);
 	stextup = 5;
-	is = &healitem[idx];
+	is = &healitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = COL_WHITE;
@@ -1120,12 +1121,12 @@ void S_StartHBuy()
 
 	stextsize = TRUE;
 	stextscrl = TRUE;
-	stextsval = 0;
+	stextsidx = 0;
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
-	S_ScrollHBuy(stextsval);
+	S_ScrollHBuy();
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
 	OffsetSTextY(22, 6);
 
@@ -1197,13 +1198,13 @@ void S_StartSIdentify()
 		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
-		stextsval = 0;
+		stextsidx = 0;
 		stextsmax = p->_pNumInv;
 		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
 		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 		AddSLine(3);
 		AddSLine(21);
-		S_ScrollSSell(stextsval);
+		S_ScrollSSell();
 		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 		OffsetSTextY(22, 6);
 	}
@@ -1419,23 +1420,23 @@ void DrawSText()
 	if (stextscrl) {
 		switch (stextflag) {
 		case STORE_SBUY:
-			S_ScrollSBuy(stextsval);
+			S_ScrollSBuy();
 			break;
 		case STORE_SSELL:
 		case STORE_SREPAIR:
 		case STORE_WSELL:
 		case STORE_WRECHARGE:
 		case STORE_SIDENTIFY:
-			S_ScrollSSell(stextsval);
+			S_ScrollSSell();
 			break;
 		case STORE_WBUY:
-			S_ScrollWBuy(stextsval);
+			S_ScrollWBuy();
 			break;
 		case STORE_HBUY:
-			S_ScrollHBuy(stextsval);
+			S_ScrollHBuy();
 			break;
 		case STORE_SPBUY:
-			S_ScrollSPBuy(stextsval);
+			S_ScrollSPBuy();
 			break;
 		}
 	}
@@ -1520,7 +1521,7 @@ void STextESC()
 		case STORE_CONFIRM:
 			StartStore(stextshold);
 			stextsel = stextlhold;
-			stextsval = stextvhold;
+			stextsidx = stextvhold;
 			break;
 		}
 	}
@@ -1534,8 +1535,8 @@ void STextUp()
 	}
 
 	if (stextscrl && stextsel == stextup) {
-		if (stextsval != 0)
-			stextsval--;
+		if (stextsidx != 0)
+			stextsidx--;
 		return;
 	}
 
@@ -1554,8 +1555,8 @@ void STextDown()
 	}
 
 	if (stextscrl && stextsel == stextdown) {
-		if (stextsval < stextsmax)
-			stextsval++;
+		if (stextsidx < stextsmax)
+			stextsidx++;
 		return;
 	}
 
@@ -1571,9 +1572,9 @@ void STextPrior()
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && stextscrl) {
 		if (stextsel == stextup) {
-			stextsval -= 4;
-			if (stextsval < 0)
-				stextsval = 0;
+			stextsidx -= 4;
+			if (stextsidx < 0)
+				stextsidx = 0;
 		} else {
 			stextsel = stextup;
 		}
@@ -1585,9 +1586,9 @@ void STextNext()
 	PlaySFX(IS_TITLEMOV);
 	if (stextsel != -1 && stextscrl) {
 		if (stextsel == stextdown) {
-			stextsval += 4;
-			if (stextsval > stextsmax)
-				stextsval = stextsmax;
+			stextsidx += 4;
+			if (stextsidx > stextsmax)
+				stextsidx = stextsmax;
 		} else {
 			stextsel = stextdown;
 		}
@@ -1722,9 +1723,9 @@ void S_SBuyEnter()
 		stextsel = 12;
 	} else {
 		stextlhold = stextsel;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		if (plr[myplr]._pGold < smithitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
@@ -1778,8 +1779,8 @@ void S_SPBuyEnter()
 	} else {
 		stextshold = STORE_SPBUY;
 		stextlhold = stextsel;
-		stextvhold = stextsval;
-		xx = stextsval + ((stextsel - stextup) >> 2);
+		stextvhold = stextsidx;
+		xx = stextsidx + ((stextsel - stextup) >> 2);
 		idx = 0;
 		for (i = 0; xx >= 0; i++) {
 			if (premiumitem[i]._itype != ITYPE_NONE) {
@@ -1911,9 +1912,9 @@ void S_SSellEnter()
 		stextsel = 16;
 	} else {
 		stextlhold = stextsel;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_SSELL;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		plr[myplr].HoldItem = storehold[idx];
 
 		if (StoreGoldFit(idx))
@@ -1952,8 +1953,8 @@ void S_SRepairEnter()
 	} else {
 		stextshold = STORE_SREPAIR;
 		stextlhold = stextsel;
-		stextvhold = stextsval;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		stextvhold = stextsidx;
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		plr[myplr].HoldItem = storehold[idx];
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2024,9 +2025,9 @@ void S_WBuyEnter()
 		stextsel = 14;
 	} else {
 		stextlhold = stextsel;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		stextshold = STORE_WBUY;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 
 		if (plr[myplr]._pGold < witchitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
@@ -2058,9 +2059,9 @@ void S_WSellEnter()
 		stextsel = 16;
 	} else {
 		stextlhold = stextsel;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_WSELL;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		plr[myplr].HoldItem = storehold[idx];
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
@@ -2099,8 +2100,8 @@ void S_WRechargeEnter()
 	} else {
 		stextshold = STORE_WRECHARGE;
 		stextlhold = stextsel;
-		stextvhold = stextsval;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		stextvhold = stextsidx;
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		plr[myplr].HoldItem = storehold[idx];
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2115,7 +2116,7 @@ void S_BoyEnter()
 		if (plr[myplr]._pGold < 50) {
 			stextshold = STORE_BOY;
 			stextlhold = 18;
-			stextvhold = stextsval;
+			stextvhold = stextsidx;
 			StartStore(STORE_NOMONEY);
 		} else {
 			TakePlrsMoney(50);
@@ -2186,7 +2187,7 @@ void S_BBuyEnter()
 
 	if (stextsel == 10) {
 		stextshold = STORE_BBOY;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		stextlhold = 10;
 #ifdef HELLFIRE
 		if (plr[myplr]._pGold < boyitem._iIvalue - (boyitem._iIvalue >> 2)) {
@@ -2270,7 +2271,7 @@ void S_ConfirmEnter()
 	} else {
 		StartStore(stextshold);
 		stextsel = stextlhold;
-		stextsval = stextvhold;
+		stextsidx = stextvhold;
 	}
 }
 
@@ -2320,9 +2321,9 @@ void S_HBuyEnter()
 		stextsel = 16;
 	} else {
 		stextlhold = stextsel;
-		stextvhold = stextsval;
+		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		if (plr[myplr]._pGold < healitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
@@ -2372,8 +2373,8 @@ void S_SIDEnter()
 	} else {
 		stextshold = STORE_SIDENTIFY;
 		stextlhold = stextsel;
-		stextvhold = stextsval;
-		idx = stextsval + ((stextsel - stextup) >> 2);
+		stextvhold = stextsidx;
+		idx = stextsidx + ((stextsel - stextup) >> 2);
 		plr[myplr].HoldItem = storehold[idx];
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2513,7 +2514,7 @@ void STextEnter()
 		case STORE_NOROOM:
 			StartStore(stextshold);
 			stextsel = stextlhold;
-			stextsval = stextvhold;
+			stextsidx = stextvhold;
 			break;
 		case STORE_CONFIRM:
 			S_ConfirmEnter();
