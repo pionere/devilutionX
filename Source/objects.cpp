@@ -1340,7 +1340,7 @@ void AddFlameLvr(int oi)
 	os->_oVar2 = MIS_FLAMEC;
 }
 
-void AddTrap(int oi, int type)
+void AddTrap(int oi)
 {
 	ObjectStruct *os;
 	int mt;
@@ -1794,7 +1794,7 @@ void AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_TRAPL:
 	case OBJ_TRAPR:
-		AddTrap(oi, type);
+		AddTrap(oi);
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
