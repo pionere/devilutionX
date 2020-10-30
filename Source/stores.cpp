@@ -292,6 +292,15 @@ void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
 	stext[y]._ssel = sel;
 }
 
+void AddStoreFrame(const char* title, BOOL backSel)
+{
+	AddSText(0, 1, TRUE, title, COL_GOLD, FALSE);
+	AddSLine(3);
+	AddSLine(21);
+	AddSText(0, 22, TRUE, "Back", COL_WHITE, backSel);
+	OffsetSTextY(22, 6);
+}
+
 void StoreAutoPlace()
 {
 	BOOL done;
@@ -494,14 +503,10 @@ void S_StartSBuy()
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+	S_ScrollSBuy();
 
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
-	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-	AddSLine(3);
-	AddSLine(21);
-	S_ScrollSBuy();
-	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
-	OffsetSTextY(22, 6);
+	AddStoreFrame(tempstr, FALSE);
 }
 
 void S_ScrollSPBuy()
@@ -557,14 +562,10 @@ BOOL S_StartSPBuy()
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+	S_ScrollSPBuy();
 
 	sprintf(tempstr, "I have these premium items for sale :   Your gold : %i", plr[myplr]._pGold);
-	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-	AddSLine(3);
-	AddSLine(21);
-	S_ScrollSPBuy();
-	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
-	OffsetSTextY(22, 6);
+	AddStoreFrame(tempstr, FALSE);
 	return TRUE;
 }
 
@@ -655,22 +656,13 @@ void S_StartSSell()
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
 		S_ScrollSSell();
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
 	}
+	AddStoreFrame(tempstr, TRUE);
 }
 
 BOOL SmithRepairOk(const ItemStruct *is)
@@ -705,24 +697,14 @@ void S_StartSRepair()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to repair.            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
-		return;
+		sprintf(tempstr, "You have nothing to repair.            Your gold : %i", p->_pGold);
+	} else {
+		stextscrl = TRUE;
+		stextsidx = 0;
+		S_ScrollSSell();
+		sprintf(tempstr, "Repair which item?            Your gold : %i", p->_pGold);
 	}
-
-	stextscrl = TRUE;
-	stextsidx = 0;
-	sprintf(tempstr, "Repair which item?            Your gold : %i", plr[myplr]._pGold);
-	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-	AddSLine(3);
-	AddSLine(21);
-	S_ScrollSSell();
-	AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-	OffsetSTextY(22, 6);
+	AddStoreFrame(tempstr, TRUE);
 }
 
 void AddStoreHoldRepair(const ItemStruct *is, int i)
@@ -808,14 +790,10 @@ void S_StartWBuy()
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+	S_ScrollWBuy();
 
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
-	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-	AddSLine(3);
-	AddSLine(21);
-	S_ScrollWBuy();
-	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
-	OffsetSTextY(22, 6);
+	AddStoreFrame(tempstr, FALSE);
 }
 
 BOOL WitchSellOk(const ItemStruct *is)
@@ -848,23 +826,14 @@ void S_StartWSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "You have nothing I want.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
 		S_ScrollSSell();
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "Which item is for sale?            Your gold : %i", p->_pGold);
 	}
+	AddStoreFrame(tempstr, TRUE);
 }
 
 BOOL WitchRechargeOk(const ItemStruct *is)
@@ -905,23 +874,14 @@ void S_StartWRecharge()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to recharge.            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "You have nothing to recharge.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		sprintf(tempstr, "Recharge which item?            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
 		S_ScrollSSell();
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "Recharge which item?            Your gold : %i", p->_pGold);
 	}
+	AddStoreFrame(tempstr, TRUE);
 }
 
 void S_StartNoMoney()
@@ -1120,14 +1080,10 @@ void S_StartHBuy()
 	stextsize = TRUE;
 	stextscrl = TRUE;
 	stextsidx = 0;
+	S_ScrollHBuy();
 
 	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
-	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-	AddSLine(3);
-	AddSLine(21);
-	S_ScrollHBuy();
-	AddSText(0, 22, TRUE, "Back", COL_WHITE, FALSE);
-	OffsetSTextY(22, 6);
+	AddStoreFrame(tempstr, FALSE);
 }
 
 void S_StartStory()
@@ -1182,22 +1138,13 @@ void S_StartSIdentify()
 	if (storenumh == 0) {
 		stextscrl = FALSE;
 		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
-		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
-		AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
-		AddSLine(3);
-		AddSLine(21);
 		S_ScrollSSell();
-		AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
-		OffsetSTextY(22, 6);
+		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
 	}
+	AddStoreFrame(tempstr, TRUE);
 }
 
 void S_StartIdShow()
