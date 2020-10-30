@@ -7,6 +7,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define STORAGE_LIMIT		NUM_INV_GRID_ELEM + (MAXBELTITEMS > NUM_INVLOC ? MAXBELTITEMS : NUM_INVLOC)
+
 int stextup;
 int storenumh;
 int stextlhold;
@@ -19,14 +21,14 @@ int talker;
 STextStruct stext[STORE_LINES];
 BOOL stextsize;
 int stextsmax;
-ItemStruct storehold[48];
+ItemStruct storehold[STORAGE_LIMIT];
 int gossipstart;
 ItemStruct witchitem[WITCH_ITEMS];
 BOOL stextscrl;
 int numpremium;
 ItemStruct healitem[HEALER_ITEMS];
 ItemStruct golditem;
-char storehidx[48];
+char storehidx[STORAGE_LIMIT];
 BYTE *pSTextSlidCels;
 int stextvhold;
 int stextsel;
@@ -638,23 +640,17 @@ void S_StartSSell()
 	stextsize = TRUE;
 	storenumh = 0;
 
-	for (i = 0; i < 48; i++)
+	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, i);
 	}
 #ifdef HELLFIRE
 	pi = p->SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (storenumh >= 48)
-			break;
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
 	}
@@ -699,7 +695,7 @@ void S_StartSRepair()
 	stextsize = TRUE;
 	storenumh = 0;
 
-	for (i = 0; i < 48; i++)
+	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = p->InvBody;
@@ -708,10 +704,6 @@ void S_StartSRepair()
 			AddStoreHoldRepair(pi, -(i + 1));
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (SmithRepairOk(pi))
 			AddStoreHoldRepair(pi, i);
 	}
@@ -848,24 +840,16 @@ void S_StartWSell()
 	stextsize = TRUE;
 	storenumh = 0;
 
-	for (i = 0; i < 48; i++)
+	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, i);
 	}
 	pi = p->SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, -(i + 1));
 	}
@@ -915,7 +899,7 @@ void S_StartWRecharge()
 	stextsize = TRUE;
 	storenumh = 0;
 
-	for (i = 0; i < 48; i++)
+	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = p->InvBody;
@@ -924,10 +908,6 @@ void S_StartWRecharge()
 			AddStoreHoldRecharge(pi, -(i + 1));
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (WitchRechargeOk(pi))
 			AddStoreHoldRecharge(pi, i);
 	}
@@ -1195,7 +1175,7 @@ void S_StartSIdentify()
 	stextsize = TRUE;
 	storenumh = 0;
 
-	for (i = 0; i < 48; i++)
+	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
 	p = &plr[myplr];
 	pi = p->InvBody;
@@ -1204,10 +1184,6 @@ void S_StartSIdentify()
 			AddStoreHoldId(pi, -(i + 1));
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-#ifdef HELLFIRE
-		if (storenumh >= 48)
-			break;
-#endif
 		if (IdItemOk(pi))
 			AddStoreHoldId(pi, i);
 	}
