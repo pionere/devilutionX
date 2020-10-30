@@ -419,7 +419,7 @@ void S_ScrollSBuy(int idx)
 		stextsel = stextdown;
 }
 
-void PrintStoreItem(ItemStruct *is, int l, char iclr)
+void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 {
 	char sstr[128];
 
@@ -584,7 +584,7 @@ void AddStoreSell(ItemStruct *is, int i)
 	storehidx[storenumh++] = i;
 }
 
-BOOL SmithSellOk(ItemStruct *is)
+BOOL SmithSellOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
 		&& is->_itype != ITYPE_MISC
@@ -686,7 +686,7 @@ void S_StartSSell()
 	}
 }
 
-BOOL SmithRepairOk(ItemStruct *is)
+BOOL SmithRepairOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
 		&& is->_itype != ITYPE_MISC
@@ -708,7 +708,7 @@ void S_StartSRepair()
 	p = &plr[myplr];
 	pi = &p->InvBody[INVLOC_HEAD];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
-		AddStoreHoldRepair(p->InvBody, -1);
+		AddStoreHoldRepair(pi, -1);
 	}
 	pi = &p->InvBody[INVLOC_CHEST];
 	if (pi->_itype != ITYPE_NONE && pi->_iDurability != pi->_iMaxDur) {
@@ -755,7 +755,7 @@ void S_StartSRepair()
 	OffsetSTextY(22, 6);
 }
 
-void AddStoreHoldRepair(ItemStruct *is, int i)
+void AddStoreHoldRepair(const ItemStruct *is, int i)
 {
 	ItemStruct *item;
 	int v;
@@ -849,7 +849,7 @@ void S_StartWBuy()
 		stextsmax = 0;
 }
 
-BOOL WitchSellOk(ItemStruct *is)
+BOOL WitchSellOk(const ItemStruct *is)
 {
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
 		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
@@ -913,15 +913,15 @@ void S_StartWSell()
 	}
 }
 
-BOOL WitchRechargeOk(ItemStruct *is)
+BOOL WitchRechargeOk(const ItemStruct *is)
 {
 	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
 }
 
-void AddStoreHoldRecharge(ItemStruct is, int i)
+void AddStoreHoldRecharge(const ItemStruct *is, int i)
 {
-	storehold[storenumh] = is;
-	storehold[storenumh]._ivalue += spelldata[is._iSpell].sStaffCost;
+	storehold[storenumh] = *is;
+	storehold[storenumh]._ivalue += spelldata[is->_iSpell].sStaffCost;
 	storehold[storenumh]._ivalue = storehold[storenumh]._ivalue * (100 * (storehold[storenumh]._iMaxCharges - storehold[storenumh]._iCharges) / storehold[storenumh]._iMaxCharges) / 100 >> 1;
 	storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
 	storehidx[storenumh] = i;
@@ -949,7 +949,7 @@ void S_StartWRecharge()
 	if (pi->_itype == ITYPE_STAFF
 #endif
 	    && pi->_iCharges != pi->_iMaxCharges) {
-		AddStoreHoldRecharge(*pi, -1);
+		AddStoreHoldRecharge(pi, -1);
 	}
 
 	pi = p->InvList;
@@ -959,7 +959,7 @@ void S_StartWRecharge()
 			break;
 #endif
 		if (WitchRechargeOk(pi)) {
-			AddStoreHoldRecharge(*pi, i);
+			AddStoreHoldRecharge(pi, i);
 		}
 	}
 
@@ -1202,20 +1202,16 @@ void S_StartStory()
 	AddSLine(5);
 }
 
-BOOL IdItemOk(ItemStruct *is)
+BOOL IdItemOk(const ItemStruct *is)
 {
-	if (is->_itype == ITYPE_NONE) {
-		return FALSE;
-	}
-	if (is->_iMagical == ITEM_QUALITY_NORMAL) {
-		return FALSE;
-	}
-	return !is->_iIdentified;
+	return is->_itype != ITYPE_NONE
+		&& is->_iMagical != ITEM_QUALITY_NORMAL
+		&& !is->_iIdentified;
 }
 
-void AddStoreHoldId(ItemStruct is, int i)
+void AddStoreHoldId(const ItemStruct *is, int i)
 {
-	storehold[storenumh] = is;
+	storehold[storenumh] = *is;
 	storehold[storenumh]._ivalue = 100;
 	storehold[storenumh]._iIvalue = 100;
 	storehidx[storenumh] = i;
@@ -1236,31 +1232,31 @@ void S_StartSIdentify()
 	p = &plr[myplr];
 	pi = &p->InvBody[INVLOC_HEAD];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -1);
+		AddStoreHoldId(pi, -1);
 	}
 	pi = &p->InvBody[INVLOC_CHEST];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -2);
+		AddStoreHoldId(pi, -2);
 	}
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -3);
+		AddStoreHoldId(pi, -3);
 	}
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -4);
+		AddStoreHoldId(pi, -4);
 	}
 	pi = &p->InvBody[INVLOC_RING_LEFT];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -5);
+		AddStoreHoldId(pi, -5);
 	}
 	pi = &p->InvBody[INVLOC_RING_RIGHT];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -6);
+		AddStoreHoldId(pi, -6);
 	}
 	pi = &p->InvBody[INVLOC_AMULET];
 	if (IdItemOk(pi)) {
-		AddStoreHoldId(*pi, -7);
+		AddStoreHoldId(pi, -7);
 	}
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
@@ -1269,7 +1265,7 @@ void S_StartSIdentify()
 			break;
 #endif
 		if (IdItemOk(pi)) {
-			AddStoreHoldId(*pi, i);
+			AddStoreHoldId(pi, i);
 		}
 	}
 

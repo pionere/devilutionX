@@ -118,14 +118,14 @@ void DoRecharge(int pnum, int cii);
 void DoOil(int pnum, int cii);
 #endif
 void RechargeItem(ItemStruct *is, int r);
-void PrintItemPower(char plidx, ItemStruct *is);
+void PrintItemPower(char plidx, const ItemStruct *is);
 void DrawUTextBack();
 void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col);
 void DrawULine(int y);
 void DrawUniqueInfo();
-void PrintItemMisc(ItemStruct *is);
-void PrintItemDetails(ItemStruct *is);
-void PrintItemDur(ItemStruct *is);
+void PrintItemMisc(const ItemStruct *is);
+void PrintItemDetails(const ItemStruct *is);
+void PrintItemDur(const ItemStruct *is);
 void UseItem(int pnum, int Mid, int spl);
 BOOL SmithItemOk(int i);
 int RndSmithItem(int lvl);

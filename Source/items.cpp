@@ -3603,7 +3603,7 @@ void RechargeItem(ItemStruct *is, int r)
 	}
 }
 
-void PrintItemPower(char plidx, ItemStruct *is)
+void PrintItemPower(char plidx, const ItemStruct *is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
@@ -4023,7 +4023,7 @@ void DrawUniqueInfo()
 	}
 }
 
-void PrintItemMisc(ItemStruct *is)
+void PrintItemMisc(const ItemStruct *is)
 {
 	const char *desc;
 
@@ -4240,7 +4240,7 @@ void PrintItemMisc(ItemStruct *is)
 	return;
 }
 
-void PrintItemDetails(ItemStruct *is)
+void PrintItemDetails(const ItemStruct *is)
 {
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
@@ -4301,7 +4301,7 @@ void PrintItemDetails(ItemStruct *is)
 	pinfoflag = TRUE;
 }
 
-void PrintItemDur(ItemStruct *is)
+void PrintItemDur(const ItemStruct *is)
 {
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
