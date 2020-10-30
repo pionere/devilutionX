@@ -1082,17 +1082,18 @@ void InitMonsterSND(int monst)
 	TSnd *pSnd;
 	char name[MAX_PATH];
 	char *path;
-	int mtype, i, j;
+	int i, j;
+	MonsterData *mdata;
 
 	if (!gbSndInited) {
 		return;
 	}
 
-	mtype = Monsters[monst].mtype;
+	mdata = &monsterdata[Monsters[monst].mtype];
 	for (i = 0; i < 4; i++) {
-		if (MonstSndChar[i] != 's' || monsterdata[mtype].snd_special) {
+		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < 2; j++) {
-				sprintf(name, monsterdata[mtype].sndfile, MonstSndChar[i], j + 1);
+				sprintf(name, mdata->sndfile, MonstSndChar[i], j + 1);
 				path = (char *)DiabloAllocPtr(strlen(name) + 1);
 				strcpy(path, name);
 				pSnd = sound_file_load(path);
@@ -1106,17 +1107,18 @@ void InitMonsterSND(int monst)
 
 void FreeMonsterSnd()
 {
-	int mtype, i, j, k;
+	CMonster *cmon;
+	int i, j, k;
 	const char *file;
 	TSnd *pSnd;
 
-	for (i = 0; i < nummtypes; i++) {
-		mtype = Monsters[i].mtype;
+	cmon = Monsters;
+	for (i = 0; i < nummtypes; i++, cmon++) {
 		for (j = 0; j < 4; ++j) {
 			for (k = 0; k < 2; ++k) {
-				pSnd = Monsters[i].Snds[j][k];
+				pSnd = cmon->Snds[j][k];
 				if (pSnd != NULL) {
-					Monsters[i].Snds[j][k] = NULL;
+					cmon->Snds[j][k] = NULL;
 					file = pSnd->sound_path;
 					pSnd->sound_path = NULL;
 					sound_file_cleanup(pSnd);
@@ -1131,6 +1133,7 @@ void FreeMonsterSnd()
 
 void PlayEffect(int i, int mode)
 {
+	MonsterStruct *mon;
 	int sndIdx, mi, lVolume, lPan;
 	TSnd *snd;
 
@@ -1143,13 +1146,13 @@ void PlayEffect(int i, int mode)
 		return;
 	}
 
-	mi = monster[i]._mMTidx;
-	snd = Monsters[mi].Snds[mode][sndIdx];
+	mon = &monster[i];
+	snd = Monsters[mon->_mMTidx].Snds[mode][sndIdx];
 	if (!snd || snd_playing(snd)) {
 		return;
 	}
 
-	if (!calc_snd_position(monster[i]._mx, monster[i]._my, &lVolume, &lPan))
+	if (!calc_snd_position(mon->_mx, mon->_my, &lVolume, &lPan))
 		return;
 
 	snd_play_snd(snd, lVolume, lPan);
@@ -1168,7 +1171,7 @@ BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan)
 	if (abs(pan) > 6400)
 		return FALSE;
 
-	volume = abs(x) > abs(y) ? abs(x) : abs(y);
+	volume = std::max(abs(x), abs(y));
 	volume *= 64;
 	*plVolume = volume;
 

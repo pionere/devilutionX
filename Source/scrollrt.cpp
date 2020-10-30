@@ -1009,14 +1009,10 @@ void TilesInView(int *rcolumns, int *rrows)
 
 	if (!zoomflag) {
 		// Half the number of tiles, rounded up
-		if (columns & 1) {
-			columns++;
-		}
-		columns /= 2;
-		if (rows & 1) {
-			rows++;
-		}
-		rows /= 2;
+		columns++;
+		columns >>= 1;
+		rows++;
+		rows >>= 1;
 	}
 
 	*rcolumns = columns;

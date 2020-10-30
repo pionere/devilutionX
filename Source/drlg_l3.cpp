@@ -901,57 +901,41 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 	if (dir == 0) {
 		y2 = y - 1;
 		y1 = y2 - blksizey;
-		if (blksizex < obs) {
-			x1 = random_(0, blksizex) + x;
-		}
-		if (blksizex == obs) {
-			x1 = x;
-		}
-		if (blksizex > obs) {
-			x1 = x - random_(0, blksizex);
-		}
+		x1 = x;
+		if (blksizex < obs)
+			x1 += random_(0, blksizex);
+		else if (blksizex > obs)
+			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
 	}
 	if (dir == 3) {
 		x2 = x - 1;
 		x1 = x2 - blksizex;
-		if (blksizey < obs) {
-			y1 = random_(0, blksizey) + y;
-		}
-		if (blksizey == obs) {
-			y1 = y;
-		}
-		if (blksizey > obs) {
-			y1 = y - random_(0, blksizey);
-		}
+		y1 = y;
+		if (blksizey < obs)
+			y1 += random_(0, blksizey);
+		else if (blksizey > obs)
+			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
 	}
 	if (dir == 2) {
 		y1 = y + 1;
 		y2 = y1 + blksizey;
-		if (blksizex < obs) {
-			x1 = random_(0, blksizex) + x;
-		}
-		if (blksizex == obs) {
-			x1 = x;
-		}
-		if (blksizex > obs) {
-			x1 = x - random_(0, blksizex);
-		}
+		x1 = x;
+		if (blksizex < obs)
+			x1 += random_(0, blksizex);
+		else if (blksizex > obs)
+			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
 	}
 	if (dir == 1) {
 		x1 = x + 1;
 		x2 = x1 + blksizex;
-		if (blksizey < obs) {
-			y1 = random_(0, blksizey) + y;
-		}
-		if (blksizey == obs) {
-			y1 = y;
-		}
-		if (blksizey > obs) {
-			y1 = y - random_(0, blksizey);
-		}
+		y1 = y;
+		if (blksizey < obs)
+			y1 += random_(0, blksizey);
+		else if (blksizey > obs)
+			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
 	}
 
@@ -1025,77 +1009,65 @@ static void DRLG_L3FillSingles()
 
 static void DRLG_L3FillStraights()
 {
-	int i, j, xc, xs, yc, ys, k;
+	int i, j, sxy;
 
 	for (j = 0; j < DMAXY - 1; j++) {
-		xs = 0;
+		sxy = 0;
 		for (i = 0; i < DMAXX - 3; i++) {
 			if (dungeon[i][j] == 0 && dungeon[i][j + 1] == 1) {
-				if (xs == 0) {
-					xc = i;
-				}
-				xs++;
+				sxy++;
 			} else {
-				if (xs > 3 && random_(0, 2) != 0) {
-					for (k = xc; k < i; k++) {
-						dungeon[k][j] = random_(0, 2);
+				if (sxy > 3 && random_(0, 2) != 0) {
+					for (sxy = i - sxy; sxy < i; sxy++) {
+						dungeon[sxy][j] = random_(0, 2);
 					}
 				}
-				xs = 0;
+				sxy = 0;
 			}
 		}
 	}
 	for (j = 0; j < DMAXY - 1; j++) {
-		xs = 0;
+		sxy = 0;
 		for (i = 0; i < DMAXX - 3; i++) {
 			if (dungeon[i][j] == 1 && dungeon[i][j + 1] == 0) {
-				if (xs == 0) {
-					xc = i;
-				}
-				xs++;
+				sxy++;
 			} else {
-				if (xs > 3 && random_(0, 2) != 0) {
-					for (k = xc; k < i; k++) {
-						dungeon[k][j + 1] = random_(0, 2);
+				if (sxy > 3 && random_(0, 2) != 0) {
+					for (sxy = i - sxy; sxy < i; sxy++) {
+						dungeon[sxy][j + 1] = random_(0, 2);
 					}
 				}
-				xs = 0;
+				sxy = 0;
 			}
 		}
 	}
 	for (i = 0; i < DMAXX - 1; i++) {
-		ys = 0;
+		sxy = 0;
 		for (j = 0; j < 37; j++) {
 			if (dungeon[i][j] == 0 && dungeon[i + 1][j] == 1) {
-				if (ys == 0) {
-					yc = j;
-				}
-				ys++;
+				sxy++;
 			} else {
-				if (ys > 3 && random_(0, 2) != 0) {
-					for (k = yc; k < j; k++) {
-						dungeon[i][k] = random_(0, 2);
+				if (sxy > 3 && random_(0, 2) != 0) {
+					for (sxy = j - sxy; sxy < j; sxy++) {
+						dungeon[i][sxy] = random_(0, 2);
 					}
 				}
-				ys = 0;
+				sxy = 0;
 			}
 		}
 	}
 	for (i = 0; i < DMAXX - 1; i++) {
-		ys = 0;
+		sxy = 0;
 		for (j = 0; j < 37; j++) {
 			if (dungeon[i][j] == 1 && dungeon[i + 1][j] == 0) {
-				if (ys == 0) {
-					yc = j;
-				}
-				ys++;
+				sxy++;
 			} else {
-				if (ys > 3 && random_(0, 2) != 0) {
-					for (k = yc; k < j; k++) {
-						dungeon[i + 1][k] = random_(0, 2);
+				if (sxy > 3 && random_(0, 2) != 0) {
+					for (sxy = j - sxy; sxy < j; sxy++) {
+						dungeon[i + 1][sxy] = random_(0, 2);
 					}
 				}
-				ys = 0;
+				sxy = 0;
 			}
 		}
 	}
@@ -1877,41 +1849,44 @@ void AddFenceDoors()
 void FenceDoorFix()
 {
 	int i, j;
+	char bv0, bv1;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == 146) {
-				if (dungeon[i + 1][j] > 152 || dungeon[i + 1][j] < 130
-				    || dungeon[i - 1][j] > 152 || dungeon[i - 1][j] < 130) {
+				bv0 = dungeon[i + 1][j];
+				bv1 = dungeon[i - 1][j];
+				if (bv0 > 152 || bv0 < 130 || bv1 > 152 || bv1 < 130) {
 					dungeon[i][j] = 7;
 					continue;
 				}
 
-				if (dungeon[i + 1][j] != 130 && dungeon[i - 1][j] != 130
-				    && dungeon[i + 1][j] != 132 && dungeon[i - 1][j] != 132
-				    && dungeon[i + 1][j] != 133 && dungeon[i - 1][j] != 133
-				    && dungeon[i + 1][j] != 134 && dungeon[i - 1][j] != 134
-				    && dungeon[i + 1][j] != 136 && dungeon[i - 1][j] != 136
-				    && dungeon[i + 1][j] != 138 && dungeon[i - 1][j] != 138
-				    && dungeon[i + 1][j] != 140 && dungeon[i - 1][j] != 140) {
+				if (bv0 != 130 && bv1 != 130
+				 && bv0 != 132 && bv1 != 132
+				 && bv0 != 133 && bv1 != 133
+				 && bv0 != 134 && bv1 != 134
+				 && bv0 != 136 && bv1 != 136
+				 && bv0 != 138 && bv1 != 138
+				 && bv0 != 140 && bv1 != 140) {
 					dungeon[i][j] = 7;
 					continue;
 				}
 			}
 			if (dungeon[i][j] == 147) {
-				if (dungeon[i][j + 1] > 152 || dungeon[i][j + 1] < 130
-				    || dungeon[i][j - 1] > 152 || dungeon[i][j - 1] < 130) {
+				bv0 = dungeon[i][j + 1];
+				bv1 = dungeon[i][j - 1];
+				if (bv0 > 152 || bv0 < 130 || bv1 > 152 || bv1 < 130) {
 					dungeon[i][j] = 7;
 					continue;
 				}
 
-				if (dungeon[i][j + 1] != 131 && dungeon[i][j - 1] != 131
-				    && dungeon[i][j + 1] != 132 && dungeon[i][j - 1] != 132
-				    && dungeon[i][j + 1] != 133 && dungeon[i][j - 1] != 133
-				    && dungeon[i][j + 1] != 135 && dungeon[i][j - 1] != 135
-				    && dungeon[i][j + 1] != 137 && dungeon[i][j - 1] != 137
-				    && dungeon[i][j + 1] != 138 && dungeon[i][j - 1] != 138
-				    && dungeon[i][j + 1] != 139 && dungeon[i][j - 1] != 139) {
+				if (bv0 != 131 && bv1 != 131
+				 && bv0 != 132 && bv1 != 132
+				 && bv0 != 133 && bv1 != 133
+				 && bv0 != 135 && bv1 != 135
+				 && bv0 != 137 && bv1 != 137
+				 && bv0 != 138 && bv1 != 138
+				 && bv0 != 139 && bv1 != 139) {
 					dungeon[i][j] = 7;
 					continue;
 				}

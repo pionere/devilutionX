@@ -495,21 +495,34 @@ void DrawAutomapTile(int sx, int sy, WORD automap_type)
 #ifdef HELLFIRE
 void SearchAutomapItem()
 {
+	PlayerStruct *p;
 	int x, y;
-	int x1, y1, x2, y2;
+	int x1, y1, x2, y2, xoff, yoff;
 	int px, py;
 	int i, j;
 
-	if (plr[myplr]._pmode == PM_WALK3) {
-		x = plr[myplr]._pfutx;
-		y = plr[myplr]._pfuty;
-		if (plr[myplr]._pdir == DIR_W)
+	x = 2 * AutoMapXOfs + ViewX;
+	y = 2 * AutoMapYOfs + ViewY;
+	xoff = (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
+	yoff = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
+	if (PANELS_COVER) {
+		if (invflag || sbookflag)
+			xoff -= 160;
+		if (chrflag || questlog)
+			xoff += 160;
+	}
+
+	p = &plr[myplr];
+	if (p->_pmode == PM_WALK3) {
+		x = p->_pfutx;
+		y = p->_pfuty;
+		if (p->_pdir == DIR_W)
 			x++;
 		else
 			y++;
 	} else {
-		x = plr[myplr]._px;
-		y = plr[myplr]._py;
+		x = p->_px;
+		y = p->_py;
 	}
 
 	x1 = x - 8;
@@ -539,19 +552,8 @@ void SearchAutomapItem()
 	for (i = x1; i < x2; i++) {
 		for (j = y1; j < y2; j++) {
 			if (dItem[i][j] != 0){
-				px = i - 2 * AutoMapXOfs - ViewX;
-				py = j - 2 * AutoMapYOfs - ViewY;
-
-				x = (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
-				y = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
-
-				if (PANELS_COVER) {
-					if (invflag || sbookflag)
-						x -= 160;
-					if (chrflag || questlog)
-						x += 160;
-				}
-				y -= AmLine8;
+				x = xoff + (i - j) * AmLine16;
+				y = yoff + (i + j) * AmLine8;
 				DrawAutomapItem(x, y, COLOR_ITEM);
 			}
 		}
@@ -578,25 +580,27 @@ void DrawAutomapItem(int x, int y, BYTE color)
  */
 void DrawAutomapPlr()
 {
+	PlayerStruct *p;
 	int px, py;
 	int x, y;
 
-	if (plr[myplr]._pmode == PM_WALK3) {
-		x = plr[myplr]._pfutx;
-		y = plr[myplr]._pfuty;
-		if (plr[myplr]._pdir == DIR_W)
-			x++;
+	p = &plr[myplr];
+	if (p->_pmode == PM_WALK3) {
+		px = p->_pfutx;
+		py = p->_pfuty;
+		if (p->_pdir == DIR_W)
+			px++;
 		else
-			y++;
+			py++;
 	} else {
-		x = plr[myplr]._px;
-		y = plr[myplr]._py;
+		px = p->_px;
+		py = p->_py;
 	}
-	px = x - 2 * AutoMapXOfs - ViewX;
-	py = y - 2 * AutoMapYOfs - ViewY;
+	px -= 2 * AutoMapXOfs - ViewX;
+	py -= 2 * AutoMapYOfs - ViewY;
 
-	x = (plr[myplr]._pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	y = (plr[myplr]._pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
+	x = (p->_pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
+	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
 
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
@@ -606,7 +610,7 @@ void DrawAutomapPlr()
 	}
 	y -= AmLine8;
 
-	switch (plr[myplr]._pdir) {
+	switch (p->_pdir) {
 	case DIR_N:
 		DrawLine(x, y, x, y - AmLine16, COLOR_PLAYER);
 		DrawLine(x, y - AmLine16, x - AmLine4, y - AmLine8, COLOR_PLAYER);

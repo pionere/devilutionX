@@ -867,46 +867,43 @@ static void DRLG_L4Subs()
 
 static void L4makeDungeon()
 {
-	int i, j, k, l;
+	int i, j;
+	BYTE bv;
 
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			k = i << 1;
-			l = j << 1;
-			L4dungeon[k][l] = dung[i][j];
-			L4dungeon[k][l + 1] = dung[i][j];
-			L4dungeon[k + 1][l] = dung[i][j];
-			L4dungeon[k + 1][l + 1] = dung[i][j];
+	for (j = 0; j < 40; j += 2) {
+		for (i = 0; i < 40; i += 2) {
+			bv = dung[i >> 1][j >> 1];
+			L4dungeon[i][j] = bv;
+			L4dungeon[i][j + 1] = bv;
+			L4dungeon[i + 1][j] = bv;
+			L4dungeon[i + 1][j + 1] = bv;
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			k = i << 1;
-			l = j << 1;
-			L4dungeon[k][l + 40] = dung[i][19 - j];
-			L4dungeon[k][l + 41] = dung[i][19 - j];
-			L4dungeon[k + 1][l + 40] = dung[i][19 - j];
-			L4dungeon[k + 1][l + 41] = dung[i][19 - j];
+	for (j = 0; j < 40; j += 2) {
+		for (i = 0; i < 40; i += 2) {
+			bv = dung[i >> 1][19 - (j >> 1)];
+			L4dungeon[i][j + 40] = bv;
+			L4dungeon[i][j + 41] = bv;
+			L4dungeon[i + 1][j + 40] = bv;
+			L4dungeon[i + 1][j + 41] = bv;
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			k = i << 1;
-			l = j << 1;
-			L4dungeon[k + 40][l] = dung[19 - i][j];
-			L4dungeon[k + 40][l + 1] = dung[19 - i][j];
-			L4dungeon[k + 41][l] = dung[19 - i][j];
-			L4dungeon[k + 41][l + 1] = dung[19 - i][j];
+	for (j = 0; j < 40; j += 2) {
+		for (i = 0; i < 40; i += 2) {
+			bv = dung[19 - (i >> 1)][j >> 1];
+			L4dungeon[i + 40][j] = bv;
+			L4dungeon[i + 40][j + 1] = bv;
+			L4dungeon[i + 41][j] = bv;
+			L4dungeon[i + 41][j + 1] = bv;
 		}
 	}
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			k = i << 1;
-			l = j << 1;
-			L4dungeon[k + 40][l + 40] = dung[19 - i][19 - j];
-			L4dungeon[k + 40][l + 41] = dung[19 - i][19 - j];
-			L4dungeon[k + 41][l + 40] = dung[19 - i][19 - j];
-			L4dungeon[k + 41][l + 41] = dung[19 - i][19 - j];
+	for (j = 0; j < 40; j += 2) {
+		for (i = 0; i < 40; i += 2) {
+			bv = dung[19 - (i >> 1)][19 - (j >> 1)];
+			L4dungeon[i + 40][j + 40] = bv;
+			L4dungeon[i + 40][j + 41] = bv;
+			L4dungeon[i + 41][j + 40] = bv;
+			L4dungeon[i + 41][j + 41] = bv;
 		}
 	}
 }
@@ -1171,20 +1168,20 @@ void L4SaveQuads()
 
 void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
 {
-	int rw, rh, i, j;
+	int rx2, ry2, i, j;
 	BYTE *sp;
 
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
+	rx2 = pSetPiece[0] + rx1;
+	ry2 = pSetPiece[2] + ry1;
 	sp = &pSetPiece[4];
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	for (j = ry1; j < ry2; j++) {
+		for (i = rx1; i < rx2; i++) {
 			if (*sp != 0) {
-				dungeon[i + rx1][j + ry1] = *sp;
-				dflags[i + rx1][j + ry1] |= DLRG_PROTECTED;
+				dungeon[i][j] = *sp;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
-				dungeon[i + rx1][j + ry1] = 6;
+				dungeon[i][j] = 6;
 			}
 			sp += 2;
 		}

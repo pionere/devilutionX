@@ -319,22 +319,18 @@ void DrawSpell()
 	st = p->_pRSplType;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
-	if (st == RSPLTYPE_SPELL && spl != SPL_INVALID) {
+	if (spl == SPL_INVALID)
+		st = RSPLTYPE_INVALID;
+	else if (currlevel == 0 && !spelldata[spl].sTownSpell)
+		st = RSPLTYPE_INVALID;
+	else if (st == RSPLTYPE_SPELL) {
 		tlvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
-		if (!CheckSpell(myplr, spl, RSPLTYPE_SPELL, TRUE))
-			st = RSPLTYPE_INVALID;
-		if (tlvl <= 0)
+		if (tlvl <= 0 || !CheckSpell(myplr, spl, RSPLTYPE_SPELL, TRUE))
 			st = RSPLTYPE_INVALID;
 	}
-	if (currlevel == 0 && st != RSPLTYPE_INVALID && !spelldata[spl].sTownSpell)
-		st = RSPLTYPE_INVALID;
-	if (p->_pRSpell < 0)
-		st = RSPLTYPE_INVALID;
 	SetSpellTrans(st);
-	if (spl != SPL_INVALID)
-		DrawSpellCel(PANEL_X + 565, PANEL_Y + 119, pSpellCels, SpellITbl[spl], SPLICONLENGTH);
-	else
-		DrawSpellCel(PANEL_X + 565, PANEL_Y + 119, pSpellCels, 27, SPLICONLENGTH);
+	DrawSpellCel(PANEL_X + 565, PANEL_Y + 119, pSpellCels,
+		spl != SPL_INVALID ? SpellITbl[spl] : 27, SPLICONLENGTH);
 }
 
 void DrawSpellList()
@@ -901,10 +897,8 @@ void DrawCtrlBtns()
 	}
 	if (numpanbtns == 8) {
 		CelDraw(87 + PANEL_X, 122 + PANEL_Y, pMultiBtns, panbtn[6] + 1, 33);
-		if (FriendlyMode)
-			CelDraw(527 + PANEL_X, 122 + PANEL_Y, pMultiBtns, panbtn[7] + 3, 33);
-		else
-			CelDraw(527 + PANEL_X, 122 + PANEL_Y, pMultiBtns, panbtn[7] + 5, 33);
+		CelDraw(527 + PANEL_X, 122 + PANEL_Y, pMultiBtns,
+			panbtn[7] + FriendlyMode ? 3 : 5, 33);
 	}
 }
 
@@ -1395,17 +1389,7 @@ void DrawChr()
 	CelDraw(SCREEN_X, 351 + SCREEN_Y, pChrPanel, 1, SPANEL_WIDTH);
 	ADD_PlrStringXY(20, 32, 151, p->_pName, COL_WHITE);
 
-#ifdef HELLFIRE
 	ADD_PlrStringXY(168, 32, 299, ClassStrTbl[pc], COL_WHITE);
-#else
-	if (pc == PC_WARRIOR) {
-		ADD_PlrStringXY(168, 32, 299, "Warrior", COL_WHITE);
-	} else if (pc == PC_ROGUE) {
-		ADD_PlrStringXY(168, 32, 299, "Rogue", COL_WHITE);
-	} else if (pc == PC_SORCERER) {
-		ADD_PlrStringXY(168, 32, 299, "Sorceror", COL_WHITE);
-	}
-#endif
 
 	sprintf(chrstr, "%i", p->_pLevel);
 	ADD_PlrStringXY(66, 69, 109, chrstr, COL_WHITE);

@@ -5364,15 +5364,11 @@ void NextItemRecord(int i)
 
 void SetItemRecord(int nSeed, WORD wCI, int nIndex)
 {
-	DWORD dwTicks;
-
-	dwTicks = SDL_GetTicks();
-
 	if (gnNumGetRecords == MAXITEMS) {
 		return;
 	}
 
-	itemrecord[gnNumGetRecords].dwTimestamp = dwTicks;
+	itemrecord[gnNumGetRecords].dwTimestamp = SDL_GetTicks();
 	itemrecord[gnNumGetRecords].nSeed = nSeed;
 	itemrecord[gnNumGetRecords].wCI = wCI;
 	itemrecord[gnNumGetRecords].nIndex = nIndex;

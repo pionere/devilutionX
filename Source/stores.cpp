@@ -657,12 +657,12 @@ void S_StartSSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing I want.            Your gold : %i", plr[myplr]._pGold);
+		sprintf(tempstr, "You have nothing I want.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Which item is for sale?            Your gold : %i", plr[myplr]._pGold);
+		sprintf(tempstr, "Which item is for sale?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -1139,12 +1139,12 @@ void S_StartSIdentify()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", plr[myplr]._pGold);
+		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Identify which item?            Your gold : %i", plr[myplr]._pGold);
+		sprintf(tempstr, "Identify which item?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }

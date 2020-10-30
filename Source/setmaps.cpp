@@ -126,9 +126,11 @@ void DRLG_SetMapTrans(const char *sFileName)
 	dwOffset += 3 * x * y * 2;
 	d += dwOffset;
 
-	for (j = 0; j < y; j++) {
-		for (i = 0; i < x; i++) {
-			dTransVal[DBORDERX + i][DBORDERY + j] = *d;
+	x += DBORDERX;
+	y += DBORDERY;
+	for (j = DBORDERY; j < y; j++) {
+		for (i = DBORDERX; i < x; i++) {
+			dTransVal[i][j] = *d;
 			d += 2;
 		}
 	}

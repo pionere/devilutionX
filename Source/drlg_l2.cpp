@@ -3269,28 +3269,18 @@ static void DRLG_L2(int entry)
 
 static void DRLG_InitL2Vals()
 {
-	int i, j, pc;
+	int i, j, pn;
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 541) {
-				pc = 5;
-			} else if (dPiece[i][j] == 178) {
-				pc = 5;
-			} else if (dPiece[i][j] == 551) {
-				pc = 5;
-			} else if (dPiece[i][j] == 542) {
-				pc = 6;
-			} else if (dPiece[i][j] == 553) {
-				pc = 6;
-			} else if (dPiece[i][j] == 13) {
-				pc = 5;
-			} else if (dPiece[i][j] == 17) {
-				pc = 6;
-			} else {
+			pn = dPiece[i][j];
+			if (pn == 541 || pn == 178 || pn == 551 || pn == 13)
+				pn = 5;
+			else if (pn == 542 || pn == 553 || pn == 17)
+				pn = 6;
+			else
 				continue;
-			}
-			dSpecial[i][j] = pc;
+			dSpecial[i][j] = pn;
 		}
 	}
 	for (j = 0; j < MAXDUNY; j++) {
@@ -3308,7 +3298,7 @@ static void DRLG_InitL2Vals()
 
 void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh, pc;
+	int i, j, rw, rh, pn;
 	BYTE *pLevelMap, *lm;
 
 	InitDungeon();
@@ -3353,29 +3343,14 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			pc = 0;
-			if (dPiece[i][j] == 541) {
-				pc = 5;
-			}
-			if (dPiece[i][j] == 178) {
-				pc = 5;
-			}
-			if (dPiece[i][j] == 551) {
-				pc = 5;
-			}
-			if (dPiece[i][j] == 542) {
-				pc = 6;
-			}
-			if (dPiece[i][j] == 553) {
-				pc = 6;
-			}
-			if (dPiece[i][j] == 13) {
-				pc = 5;
-			}
-			if (dPiece[i][j] == 17) {
-				pc = 6;
-			}
-			dSpecial[i][j] = pc;
+			pn = dPiece[i][j];
+			if (pn == 541 || pn == 178 || pn == 551 || pn == 13)
+				pn = 5;
+			else if (pn == 542 || pn == 553 || pn == 17)
+				pn = 6;
+			else
+				pn = 0;
+			dSpecial[i][j] = pn;
 		}
 	}
 	for (j = 0; j < MAXDUNY; j++) {

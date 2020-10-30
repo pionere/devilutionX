@@ -12,9 +12,7 @@ int missileavail[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
 BOOL ManashieldFlag;
-ChainStruct chain[MAXMISSILES];
 BOOL MissilePreFlag;
-int numchains;
 
 /** Maps from direction to X-offset. */
 int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
@@ -1284,18 +1282,15 @@ void InitMissiles()
 
 #ifdef HELLFIRE
 	if ((p->_pSpellFlags & 2) == 2 || (p->_pSpellFlags & 4) == 4) {
-		p->_pSpellFlags &= ~0x2;
-		p->_pSpellFlags &= ~0x4;
+		p->_pSpellFlags &= ~(0x2 | 0x4);
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
-			if (mis->_mitype == MIS_BLODBOIL) {
-				if (mis->_misource == myplr) {
-					int missingHP = p->_pMaxHP - p->_pHitPoints;
-					CalcPlrItemVals(myplr, TRUE);
-					p->_pHitPoints -= missingHP + mis->_miVar2;
-					if (p->_pHitPoints < 64) {
-						p->_pHitPoints = 64;
-					}
+			if (mis->_mitype == MIS_BLODBOIL && mis->_misource == myplr) {
+				int missingHP = p->_pMaxHP - p->_pHitPoints;
+				CalcPlrItemVals(myplr, TRUE);
+				p->_pHitPoints -= missingHP + mis->_miVar2;
+				if (p->_pHitPoints < 64) {
+					p->_pHitPoints = 64;
 				}
 			}
 		}
@@ -1306,12 +1301,6 @@ void InitMissiles()
 	memset(missileactive, 0, sizeof(missileactive));
 	for (i = 0; i < MAXMISSILES; i++) {
 		missileavail[i] = i;
-	}
-	numchains = 0;
-	for (i = 0; i < MAXMISSILES; i++) {
-		chain[i].idx = -1;
-		chain[i]._mitype = 0;
-		chain[i]._mirange = 0;
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {

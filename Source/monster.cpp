@@ -972,8 +972,11 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 	int placed, try1, try2;
 	int xp, yp, x1, y1;
 
-	placed = 0;
+	if (num + nummonsters > totalmonsters) {
+		num = totalmonsters - nummonsters;
+	}
 
+	placed = 0;
 	for (try1 = 0; try1 < 10; try1++) {
 		while (placed) {
 			nummonsters--;
@@ -990,10 +993,6 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 				x1 = xp = random_(93, DSIZEX) + DBORDERX;
 				y1 = yp = random_(93, DSIZEY) + DBORDERY;
 			} while (!MonstPlace(xp, yp));
-		}
-
-		if (num + nummonsters > totalmonsters) {
-			num = totalmonsters - nummonsters;
 		}
 
 		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`

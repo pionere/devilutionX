@@ -343,32 +343,32 @@ void DRLG_InitSetPC()
 
 void DRLG_SetPC()
 {
-	int i, j, x, y, w, h;
+	int i, j, x0, y0, x1, y1;
 
-	w = 2 * setpc_w;
-	h = 2 * setpc_h;
-	x = 2 * setpc_x + DBORDERX;
-	y = 2 * setpc_y + DBORDERY;
+	x0 = 2 * setpc_x + DBORDERX;
+	y0 = 2 * setpc_y + DBORDERY;
+	x1 = 2 * setpc_w + x0;
+	y1 = 2 * setpc_h + y0;
 
-	for (j = 0; j < h; j++) {
-		for (i = 0; i < w; i++) {
-			dFlags[i + x][j + y] |= BFLAG_POPULATED;
+	for (j = y0; j < y1; j++) {
+		for (i = x0; i < x1; i++) {
+			dFlags[i][j] |= BFLAG_POPULATED;
 		}
 	}
 }
 
 void Make_SetPC(int x, int y, int w, int h)
 {
-	int i, j, dx, dy, dh, dw;
+	int i, j, x0, x1, y0, y1;
 
-	dw = 2 * w;
-	dh = 2 * h;
-	dx = 2 * x + DBORDERX;
-	dy = 2 * y + DBORDERY;
+	x0 = 2 * x + DBORDERX;
+	y0 = 2 * y + DBORDERY;
+	x1 = 2 * w + x0;
+	y1 = 2 * h + y0;
 
-	for (j = 0; j < dh; j++) {
-		for (i = 0; i < dw; i++) {
-			dFlags[i + dx][j + dy] |= BFLAG_POPULATED;
+	for (j = y0; j < y1; j++) {
+		for (i = x0; i < x1; i++) {
+			dFlags[i][j] |= BFLAG_POPULATED;
 		}
 	}
 }

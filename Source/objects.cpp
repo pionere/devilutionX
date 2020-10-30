@@ -1214,11 +1214,14 @@ void SetupObject(int oi, int x, int y, int type)
 
 void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 {
-	object[oi]._oVar1 = x1;
-	object[oi]._oVar2 = y1;
-	object[oi]._oVar3 = x2;
-	object[oi]._oVar4 = y2;
-	object[oi]._oVar8 = v;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar1 = x1;
+	os->_oVar2 = y1;
+	os->_oVar3 = x2;
+	os->_oVar4 = y2;
+	os->_oVar8 = v;
 }
 
 void SetBookMsg(int oi, int msg)
@@ -1228,93 +1231,118 @@ void SetBookMsg(int oi, int msg)
 
 void AddL1Door(int oi, int x, int y, int ot)
 {
-	object[oi]._oDoorFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oDoorFlag = TRUE;
 	if (ot == OBJ_L1LDOOR) {
-		object[oi]._oVar1 = dPiece[x][y];
-		object[oi]._oVar2 = dPiece[x][y - 1];
+		os->_oVar1 = dPiece[x][y];
+		os->_oVar2 = dPiece[x][y - 1];
 	} else {
-		object[oi]._oVar1 = dPiece[x][y];
-		object[oi]._oVar2 = dPiece[x - 1][y];
+		os->_oVar1 = dPiece[x][y];
+		os->_oVar2 = dPiece[x - 1][y];
 	}
-	object[oi]._oVar4 = 0;
+	os->_oVar4 = 0;
 }
 
 void AddSCambBook(int oi)
 {
-	object[oi]._oVar1 = setpc_x;
-	object[oi]._oVar2 = setpc_y;
-	object[oi]._oVar3 = setpc_w + setpc_x + 1;
-	object[oi]._oVar4 = setpc_h + setpc_y + 1;
-	object[oi]._oVar6 = object[oi]._oAnimFrame + 1;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar1 = setpc_x;
+	os->_oVar2 = setpc_y;
+	os->_oVar3 = setpc_w + setpc_x + 1;
+	os->_oVar4 = setpc_h + setpc_y + 1;
+	os->_oVar6 = os->_oAnimFrame + 1;
 }
 
 void AddChest(int oi, int type)
 {
+	ObjectStruct *os;
+
+	os = &object[oi];
 	if (random_(147, 2) == 0)
-		object[oi]._oAnimFrame += 3;
-	object[oi]._oRndSeed = GetRndSeed();
+		os->_oAnimFrame += 3;
+	os->_oRndSeed = GetRndSeed();
 	switch (type) {
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
-		object[oi]._oVar1 = setlevel ? 1 : random_(147, 2);
+		os->_oVar1 = setlevel ? 1 : random_(147, 2);
 		break;
 	case OBJ_TCHEST2:
 	case OBJ_CHEST2:
-		object[oi]._oVar1 = setlevel ? 2 : random_(147, 3);
+		os->_oVar1 = setlevel ? 2 : random_(147, 3);
 		break;
 	case OBJ_TCHEST3:
 	case OBJ_CHEST3:
-		object[oi]._oVar1 = setlevel ? 3 : random_(147, 4);
+		os->_oVar1 = setlevel ? 3 : random_(147, 4);
 		break;
 	}
-	object[oi]._oVar2 = random_(147, 8);
+	os->_oVar2 = random_(147, 8);
 }
 
 void AddL2Door(int oi, int x, int y, int type)
 {
-	object[oi]._oDoorFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oDoorFlag = TRUE;
 	if (type == OBJ_L2LDOOR)
 		ObjSetMicro(x, y, 538);
 	else
 		ObjSetMicro(x, y, 540);
-	object[oi]._oVar4 = 0;
+	os->_oVar4 = 0;
 }
 
 void AddL3Door(int oi, int x, int y, int type)
 {
-	object[oi]._oDoorFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oDoorFlag = TRUE;
 	if (type == OBJ_L3LDOOR)
 		ObjSetMicro(x, y, 531);
 	else
 		ObjSetMicro(x, y, 534);
-	object[oi]._oVar4 = 0;
+	os->_oVar4 = 0;
 }
 
 void AddSarc(int oi)
 {
-	dObject[object[oi]._ox][object[oi]._oy - 1] = -(oi + 1);
-	object[oi]._oVar1 = random_(153, 10);
-	object[oi]._oRndSeed = GetRndSeed();
-	if (object[oi]._oVar1 >= 8)
-		object[oi]._oVar2 = PreSpawnSkeleton();
+	ObjectStruct *os;
+
+	os = &object[oi];
+	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
+	os->_oVar1 = random_(153, 10);
+	os->_oRndSeed = GetRndSeed();
+	if (os->_oVar1 >= 8)
+		os->_oVar2 = PreSpawnSkeleton();
 }
 
 void AddFlameTrap(int oi)
 {
-	object[oi]._oVar1 = trapid;
-	object[oi]._oVar2 = 0;
-	object[oi]._oVar3 = trapdir;
-	object[oi]._oVar4 = 0;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar1 = trapid;
+	os->_oVar2 = 0;
+	os->_oVar3 = trapdir;
+	os->_oVar4 = 0;
 }
 
 void AddFlameLvr(int oi)
 {
-	object[oi]._oVar1 = trapid;
-	object[oi]._oVar2 = MIS_FLAMEC;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar1 = trapid;
+	os->_oVar2 = MIS_FLAMEC;
 }
 
 void AddTrap(int oi, int type)
 {
+	ObjectStruct *os;
 	int mt;
 
 	mt = currlevel;
@@ -1328,44 +1356,50 @@ void AddTrap(int oi, int type)
 #endif
 	mt = mt / 3 + 1;
 	mt = random_(148, mt);
+	os = &object[oi];
 	if (mt == 0)
-		object[oi]._oVar3 = MIS_ARROW;
+		os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
-		object[oi]._oVar3 = MIS_FIREBOLT;
+		os->_oVar3 = MIS_FIREBOLT;
 	if (mt == 2)
-		object[oi]._oVar3 = MIS_LIGHTCTRL;
-	object[oi]._oVar4 = 0;
+		os->_oVar3 = MIS_LIGHTCTRL;
+	os->_oVar4 = 0;
 }
 
 void AddObjLight(int oi, int r)
 {
+	ObjectStruct *os;
+
+	os = &object[oi];
 	if (InitObjFlag) {
-		DoLighting(object[oi]._ox, object[oi]._oy, r, -1);
-		object[oi]._oVar1 = -1;
+		DoLighting(os->_ox, os->_oy, r, -1);
+		os->_oVar1 = -1;
 	} else {
-		object[oi]._oVar1 = 0;
+		os->_oVar1 = 0;
 	}
 }
 
 void AddBarrel(int oi, int type)
 {
-	object[oi]._oVar1 = 0;
-	object[oi]._oRndSeed = GetRndSeed();
-	object[oi]._oVar2 = (type == OBJ_BARRELEX) ? 0 : random_(149, 10);
-	object[oi]._oVar3 = random_(149, 3);
+	ObjectStruct *os;
 
-	if (object[oi]._oVar2 >= 8)
-		object[oi]._oVar4 = PreSpawnSkeleton();
+	os = &object[oi];
+	os->_oVar1 = 0;
+	os->_oRndSeed = GetRndSeed();
+	os->_oVar2 = (type == OBJ_BARRELEX) ? 0 : random_(149, 10);
+	os->_oVar3 = random_(149, 3);
+
+	if (os->_oVar2 >= 8)
+		os->_oVar4 = PreSpawnSkeleton();
 }
 
 void AddShrine(int oi)
 {
-	int val;
+	ObjectStruct *os;
+	int i, val;
 	DIABOOL slist[NUM_SHRINETYPE];
-	int i;
 	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	object[oi]._oPreFlag = TRUE;
 	for (i = 0; i < NUM_SHRINETYPE; i++) {
 		if (currlevel < shrinemin[i] || currlevel > shrinemax[i]
 		 || shrineavail[i] == excl) {
@@ -1378,17 +1412,22 @@ void AddShrine(int oi)
 		val = random_(150, NUM_SHRINETYPE);
 	} while (!slist[val]);
 
-	object[oi]._oVar1 = val;
+	os = &object[oi];
+	os->_oPreFlag = TRUE;
+	os->_oVar1 = val;
 	if (random_(150, 2)) {
-		object[oi]._oAnimFrame = 12;
-		object[oi]._oAnimLen = 22;
+		os->_oAnimFrame = 12;
+		os->_oAnimLen = 22;
 	}
 }
 
 void AddBookcase(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
-	object[oi]._oPreFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oRndSeed = GetRndSeed();
+	os->_oPreFlag = TRUE;
 }
 
 void AddBookstand(int oi)
@@ -1415,12 +1454,15 @@ void AddPurifyingFountain(int oi)
 
 void AddArmorStand(int oi)
 {
+	ObjectStruct *os;
+
+	os = &object[oi];
 	if (!armorFlag) {
-		object[oi]._oAnimFlag = 2;
-		object[oi]._oSelFlag = 0;
+		os->_oAnimFlag = 2;
+		os->_oSelFlag = 0;
 	}
 
-	object[oi]._oRndSeed = GetRndSeed();
+	os->_oRndSeed = GetRndSeed();
 }
 
 void AddGoatShrine(int oi)
@@ -1452,9 +1494,12 @@ void AddTearFountain(int oi)
 
 void AddDecap(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
-	object[oi]._oAnimFrame = random_(151, 8) + 1;
-	object[oi]._oPreFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oRndSeed = GetRndSeed();
+	os->_oAnimFrame = random_(151, 8) + 1;
+	os->_oPreFlag = TRUE;
 }
 
 void AddVilebook(int oi)
@@ -1466,10 +1511,13 @@ void AddVilebook(int oi)
 
 void AddMagicCircle(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
-	object[oi]._oPreFlag = TRUE;
-	object[oi]._oVar6 = 0;
-	object[oi]._oVar5 = 1;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oRndSeed = GetRndSeed();
+	os->_oPreFlag = TRUE;
+	os->_oVar6 = 0;
+	os->_oVar5 = 1;
 }
 
 void AddBrnCross(int oi)
@@ -1479,45 +1527,56 @@ void AddBrnCross(int oi)
 
 void AddPedistal(int oi)
 {
-	object[oi]._oVar1 = setpc_x;
-	object[oi]._oVar2 = setpc_y;
-	object[oi]._oVar3 = setpc_x + setpc_w;
-	object[oi]._oVar4 = setpc_y + setpc_h;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar1 = setpc_x;
+	os->_oVar2 = setpc_y;
+	os->_oVar3 = setpc_x + setpc_w;
+	os->_oVar4 = setpc_y + setpc_h;
 }
 
 void AddStoryBook(int oi)
 {
+	ObjectStruct *os;
 	int bookframe;
 
 	SetRndSeed(glSeedTbl[16]);
 	bookframe = random_(0, 3);
 
-	object[oi]._oVar1 = bookframe;
+	os = &object[oi];
+	os->_oVar1 = bookframe;
 	if (currlevel == 4)
-		object[oi]._oVar2 = StoryText[bookframe][0];
+		os->_oVar2 = StoryText[bookframe][0];
 	if (currlevel == 8)
-		object[oi]._oVar2 = StoryText[bookframe][1];
+		os->_oVar2 = StoryText[bookframe][1];
 	if (currlevel == 12)
-		object[oi]._oVar2 = StoryText[bookframe][2];
-	object[oi]._oVar3 = (currlevel >> 2) + 3 * bookframe - 1;
-	object[oi]._oAnimFrame = 5 - 2 * bookframe;
-	object[oi]._oVar4 = object[oi]._oAnimFrame + 1;
+		os->_oVar2 = StoryText[bookframe][2];
+	os->_oVar3 = (currlevel >> 2) + 3 * bookframe - 1;
+	os->_oAnimFrame = 5 - 2 * bookframe;
+	os->_oVar4 = os->_oAnimFrame + 1;
 }
 
 void AddWeaponRack(int oi)
 {
+	ObjectStruct *os;
+
+	os = &object[oi];
 	if (!weaponFlag) {
-		object[oi]._oAnimFlag = 2;
-		object[oi]._oSelFlag = 0;
+		os->_oAnimFlag = 2;
+		os->_oSelFlag = 0;
 	}
-	object[oi]._oRndSeed = GetRndSeed();
+	os->_oRndSeed = GetRndSeed();
 }
 
 void AddTorturedBody(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
-	object[oi]._oAnimFrame = random_(0, 4) + 1;
-	object[oi]._oPreFlag = TRUE;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oRndSeed = GetRndSeed();
+	os->_oAnimFrame = random_(0, 4) + 1;
+	os->_oPreFlag = TRUE;
 }
 
 void GetRndObjLoc(int randarea, int *xx, int *yy)
@@ -1548,15 +1607,15 @@ void GetRndObjLoc(int randarea, int *xx, int *yy)
 
 void AddMushPatch()
 {
-	int i;
+	int oi;
 	int y, x;
 
 	if (nobjects < MAXOBJECTS) {
-		i = objectavail[0];
 		GetRndObjLoc(5, &x, &y);
-		dObject[x + 1][y + 1] = -1 - i;
-		dObject[x + 2][y + 1] = -1 - i;
-		dObject[x + 1][y + 2] = -1 - i;
+		oi = objectavail[0];
+		dObject[x + 1][y + 1] = -1 - oi;
+		dObject[x + 2][y + 1] = -1 - oi;
+		dObject[x + 1][y + 2] = -1 - oi;
 		AddObject(OBJ_MUSHPATCH, x + 2, y + 2);
 	}
 }

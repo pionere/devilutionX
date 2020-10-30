@@ -9,55 +9,44 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int GetManaAmount(int pnum, int sn)
 {
-	int ma; // mana amount
+	// mana amount, spell level, adjustment, min mana
+	int ma, sl, adj, mm;
 
-	// mana adjust
-	int adj = 0;
-
-	// spell level
-	int sl = plr[pnum]._pSplLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
-
-	if (sl < 0) {
-		sl = 0;
-	}
-
-	if (sl > 0) {
-		adj = sl * spelldata[sn].sManaAdj;
-	}
-	if (sn == SPL_FIREBOLT) {
-		adj >>= 1;
-	}
-	if (sn == SPL_RESURRECT && sl > 0) {
-		adj = sl * (spelldata[SPL_RESURRECT].sManaCost / 8);
-	}
-
+	ma = spelldata[sn].sManaCost;
 	if (sn == SPL_HEAL || sn == SPL_HEALOTHER) {
-		ma = (spelldata[SPL_HEAL].sManaCost + 2 * plr[pnum]._pLevel - adj);
-	} else if (spelldata[sn].sManaCost == 255) {
-		ma = ((BYTE)plr[pnum]._pMaxManaBase - adj);
-	} else {
-		ma = (spelldata[sn].sManaCost - adj);
+		ma += 2 * plr[pnum]._pLevel;
+	} else if (ma == 255) {
+		ma = (BYTE)plr[pnum]._pMaxManaBase;
 	}
 
+	sl = plr[pnum]._pSplLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
+	if (sl < 0)
+		sl = 0;
+	if (sn == SPL_RESURRECT) {
+		adj = sl * (ma >> 3);
+	} else {
+		adj = sl * spelldata[sn].sManaAdj;
+		if (sn == SPL_FIREBOLT) {
+			adj >>= 1;
+		}
+	}
+	ma -= adj;
 	if (ma < 0)
 		ma = 0;
 	ma <<= 6;
 
+	if (plr[pnum]._pClass == PC_ROGUE)
+		ma -= ma >> 2;
 #ifdef HELLFIRE
-	if (plr[pnum]._pClass == PC_SORCERER) {
+	else if (plr[pnum]._pClass == PC_SORCERER)
 		ma >>= 1;
-	} else if (plr[pnum]._pClass == PC_ROGUE || plr[pnum]._pClass == PC_MONK || plr[pnum]._pClass == PC_BARD) {
+	else if (plr[pnum]._pClass == PC_MONK || plr[pnum]._pClass == PC_BARD)
 		ma -= ma >> 2;
-	}
-#else
-	if (plr[pnum]._pClass == PC_ROGUE) {
-		ma -= ma >> 2;
-	}
 #endif
 
-	if (spelldata[sn].sMinMana > ma >> 6) {
-		ma = spelldata[sn].sMinMana << 6;
-	}
+	mm = spelldata[sn].sMinMana << 6;
+	if (mm > ma)
+		ma = mm;
 
 	return ma * (100 - plr[pnum]._pISplCost) / 100;
 }
@@ -124,18 +113,14 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 	int dir; // missile direction
 
 	if (caster == 0) {
-		// caster must be 0 already in this case, but oh well,
-		// it's needed to generate the right code
-		caster = 0;
-		dir = plr[mpnum]._pdir;
-
 #ifdef HELLFIRE
-		if (sn == SPL_FIREWALL || sn == SPL_LIGHTWALL) {
+		if (sn == SPL_FIREWALL || sn == SPL_LIGHTWALL)
 #else
-		if (sn == SPL_FIREWALL) {
+		if (sn == SPL_FIREWALL)
 #endif
 			dir = plr[mpnum]._pVar3;
-		}
+		else
+			dir = plr[mpnum]._pdir;
 	} else {
 		dir = monster[mpnum]._mdir;
 	}
@@ -158,8 +143,7 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 
 static void PlacePlayer(int pnum)
 {
-	int nx, ny, max, min, x, y;
-	DWORD i;
+	int i, nx, ny, x, y;
 	BOOL done;
 
 	if (plr[pnum].plrlevel == currlevel) {
@@ -172,14 +156,14 @@ static void PlacePlayer(int pnum)
 			}
 		}
 
-		if (!PosOkPlayer(pnum, nx, ny)) {
+		if (i == 8) {
 			done = FALSE;
 
-			for (max = 1, min = -1; min > -50 && !done; max++, min--) {
-				for (y = min; y <= max && !done; y++) {
+			for (i = 1; i < 50 && !done; i++) {
+				for (y = -i; y <= i && !done; y++) {
 					ny = plr[pnum]._py + y;
 
-					for (x = min; x <= max && !done; x++) {
+					for (x = -i; x <= i && !done; x++) {
 						nx = plr[pnum]._px + x;
 
 						if (PosOkPlayer(pnum, nx, ny)) {
