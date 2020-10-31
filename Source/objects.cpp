@@ -1932,7 +1932,6 @@ void Obj_Circle(int oi)
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			AddMissile(plr[myplr]._px, plr[myplr]._py, 35, 46, plr[myplr]._pdir, MIS_RNDTELEPORT, 0, myplr, 0, 0);
-			track_repeat_walk(FALSE);
 			sgbMouseDown = 0;
 			ClrPlrPath(myplr);
 			PlrStartStand(myplr, 0);

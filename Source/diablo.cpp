@@ -55,7 +55,8 @@ BOOLEAN UseBarbarianTest;
 BOOLEAN UseMultiTest;
 #endif
 int sgnTimeoutCurs;
-char sgbMouseDown;
+char sgbMouseDown;              // flags to remember the pressed mouse buttons (left/right)
+DWORD sgdwLastLMD, sgdwLastRMD; // tick counter when the last time one of the mouse-buttons were pressed down
 int color_cycle_timer;
 int ticks_per_sec = 20;
 WORD tick_delay = 50;
@@ -188,7 +189,15 @@ static BOOL ProcessInput()
 #endif
 		CheckCursMove();
 		plrctrls_after_check_curs_move();
-		track_process();
+		DWORD tick = SDL_GetTicks();
+		if ((sgbMouseDown & 1) != 0 && (tick - sgdwLastLMD) >= 200) {
+			sgdwLastLMD = tick;
+			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT));
+		}
+		if ((sgbMouseDown & 2) != 0 && (tick - sgdwLastRMD) >= 200) {
+			sgdwLastRMD = tick;
+			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT));
+		}
 	}
 
 	return TRUE;
@@ -274,7 +283,6 @@ void start_game(unsigned int uMsg)
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
 	sgbMouseDown = 0;
-	track_repeat_walk(FALSE);
 }
 
 void free_game()
@@ -565,29 +573,20 @@ void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		if (sgbMouseDown != 0)
-			return;
-		sgbMouseDown = 1;
+		sgbMouseDown |= 1;
 		return;
 	case DVL_WM_LBUTTONUP:
-		if (sgbMouseDown != 1)
-			return;
-		sgbMouseDown = 0;
+		sgbMouseDown &= ~1;
 		return;
 	case DVL_WM_RBUTTONDOWN:
-		if (sgbMouseDown != 0)
-			return;
-		sgbMouseDown = 2;
+		sgbMouseDown |= 2;
 		return;
 	case DVL_WM_RBUTTONUP:
-		if (sgbMouseDown != 2)
-			return;
-		sgbMouseDown = 0;
+		sgbMouseDown &= ~2;
 		return;
 	case DVL_WM_CAPTURECHANGED:
-		if (hWnd == (HWND)lParam)
-			return;
-		sgbMouseDown = 0;
+		if (hWnd != (HWND)lParam)
+			sgbMouseDown = 0;
 		return;
 	}
 
@@ -623,36 +622,34 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		GetMousePos(lParam);
-		if (sgbMouseDown == 0) {
-			sgbMouseDown = 1;
-			track_repeat_walk(LeftMouseDown((wParam & DVL_MK_SHIFT) != 0));
+		if (!(sgbMouseDown & 1)) {
+			sgbMouseDown |= 1;
+			sgdwLastLMD = SDL_GetTicks();
+			LeftMouseDown((wParam & DVL_MK_SHIFT) != 0);
 		}
 		return;
 	case DVL_WM_LBUTTONUP:
 		GetMousePos(lParam);
-		if (sgbMouseDown == 1) {
-			sgbMouseDown = 0;
+		if ((sgbMouseDown & 1) != 0) {
+			sgbMouseDown &= ~1;
 			LeftMouseUp();
-			track_repeat_walk(FALSE);
 		}
 		return;
 	case DVL_WM_RBUTTONDOWN:
 		GetMousePos(lParam);
-		if (sgbMouseDown == 0) {
-			sgbMouseDown = 2;
+		if (!(sgbMouseDown & 2)) {
+			sgbMouseDown |= 2;
+			sgdwLastRMD = SDL_GetTicks();
 			RightMouseDown((wParam & DVL_MK_SHIFT) != 0);
 		}
 		return;
 	case DVL_WM_RBUTTONUP:
 		GetMousePos(lParam);
-		if (sgbMouseDown == 2) {
-			sgbMouseDown = 0;
-		}
+		sgbMouseDown &= ~2;
 		return;
 	case DVL_WM_CAPTURECHANGED:
 		if (hWnd != (HWND)lParam) {
 			sgbMouseDown = 0;
-			track_repeat_walk(FALSE);
 		}
 		break;
 	case WM_DIABNEXTLVL:
@@ -669,7 +666,6 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PaletteFadeOut(8);
 		sound_stop();
 		music_stop();
-		track_repeat_walk(FALSE);
 		sgbMouseDown = 0;
 		ShowProgress(uMsg);
 		force_redraw = 255;
@@ -684,40 +680,40 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	MainWndProc(hWnd, uMsg, wParam, lParam);
 }
 
-BOOL LeftMouseDown(BOOL bShift)
+void LeftMouseDown(BOOL bShift)
 {
 	if (gmenu_left_mouse(TRUE) || sgnTimeoutCurs != CURSOR_NONE)
-		return FALSE;
+		return;
 
 	if (talkflag && control_check_talk_btn())
-		return FALSE;
+		return;
 
 	if (deathflag) {
 		control_check_btn_press();
-		return FALSE;
+		return;
 	}
 
 	if (PauseMode == 2)
-		return FALSE;
+		return;
 
 	if (doomflag) {
 		doom_close();
-		return FALSE;
+		return;
 	}
 
 	if (spselflag) {
 		SetSpell();
-		return FALSE;
+		return;
 	}
 
 	if (stextflag != STORE_NONE) {
 		CheckStoreBtn();
-		return FALSE;
+		return;
 	}
 
 	if (gmenu_is_active()) {
 		DoPanBtn();
-		return FALSE;
+		return;
 	}
 
 	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
@@ -726,50 +722,50 @@ BOOL LeftMouseDown(BOOL bShift)
 		DoPanBtn();
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
 			NewCursor(CURSOR_HAND);
-		return FALSE;
+		return;
 	}
 
 	if (TryIconCurs(bShift))
-		return FALSE;
+		return;
 
 	if (questlog && CheckQuestlog())
-		return FALSE;
+		return;
 
 	if (qtextflag) {
 		qtextflag = FALSE;
 		stream_stop();
-		return FALSE;
+		return;
 	}
 
 	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
 		CheckChrBtns();
-		return FALSE;
+		return;
 	}
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		if (!dropGoldFlag)
 			CheckInvItem();
-		return FALSE;
+		return;
 	}
 	if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		CheckSBook();
-		return FALSE;
+		return;
 	}
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (TryInvPut()) {
 			NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
 			NewCursor(CURSOR_HAND);
 		}
-		return FALSE;
+		return;
 	}
 
 	if (CheckLvlBtn())
-		return FALSE;
+		return;
 
-	return LeftMouseCmd(bShift);
+	LeftMouseCmd(bShift);
 }
 
-BOOL LeftMouseCmd(BOOL bShift)
+void LeftMouseCmd(BOOL bShift)
 {
 	BOOL bNear;
 
@@ -778,23 +774,24 @@ BOOL LeftMouseCmd(BOOL bShift)
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 		if (pcursmonst != -1) {
 			NetSendCmdLocParam1(TRUE, CMD_TALKXY, cursmx, cursmy, pcursmonst);
-			return FALSE;
+			return;
 		}
-		return pcursitem == -1 && pcursplr == -1;
+		if (pcursitem == -1 && pcursplr == -1)
+			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
 	} else {
 		bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
 		if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-			return FALSE;
+			return;
 		}
 		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
-			return FALSE;
+			return;
 		}
 		if (plr[myplr]._pwtype == WT_RANGED) {
 			if (bShift) {
 				NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
-				return FALSE;
+				return;
 			}
 			if (pcursmonst != -1) {
 				if (CanTalkToMonst(pcursmonst)) {
@@ -802,12 +799,12 @@ BOOL LeftMouseCmd(BOOL bShift)
 				} else {
 					NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
 				}
-				return FALSE;
+				return;
 			}
 			if (pcursplr != -1) {
 				if (!FriendlyMode)
 					NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
-				return FALSE;
+				return;
 			}
 		} else {
 			if (bShift) {
@@ -820,19 +817,20 @@ BOOL LeftMouseCmd(BOOL bShift)
 				} else {
 					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
 				}
-				return FALSE;
+				return;
 			}
 			if (pcursmonst != -1) {
 				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-				return FALSE;
+				return;
 			}
 			if (pcursplr != -1) {
 				if (!FriendlyMode)
 					NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
-				return FALSE;
+				return;
 			}
 		}
-		return pcursitem == -1 && pcursobj == -1;
+		if (pcursitem == -1 && pcursobj == -1)
+			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
 	}
 }
 
@@ -1032,7 +1030,6 @@ void PressKey(int vkey)
 	}
 	if (vkey == DVL_VK_ESCAPE) {
 		if (!PressEscKey()) {
-			track_repeat_walk(FALSE);
 			gamemenu_on();
 		}
 		return;
@@ -1068,7 +1065,6 @@ void PressKey(int vkey)
 			ClearPanel();
 			AddPanelString("No help available", TRUE); /// BUGFIX: message isn't displayed
 			AddPanelString("while in stores", TRUE);
-			track_repeat_walk(FALSE);
 		} else {
 			invflag = FALSE;
 			chrflag = FALSE;
@@ -1216,7 +1212,6 @@ void diablo_pause_game()
 		} else {
 			PauseMode = 2;
 			sound_stop();
-			track_repeat_walk(FALSE);
 		}
 		force_redraw = 255;
 	}
@@ -1312,7 +1307,6 @@ void PressChar(int vkey)
 			} else {
 				spselflag = FALSE;
 			}
-			track_repeat_walk(FALSE);
 		}
 		return;
 	case 'B':
