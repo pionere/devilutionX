@@ -1220,34 +1220,13 @@ void CalcPlrItemMin(int pnum)
 
 void CalcPlrBookVals(int pnum)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
-	int i, slvl;
+	int i;
 
-	if (currlevel == 0) {
-		for (i = 1; witchitem[i]._itype != ITYPE_NONE; i++) {
-			WitchBookLevel(i);
-#ifndef HELLFIRE
-			ItemStatOk(myplr, &witchitem[i]);
-#endif
-		}
-	}
-
-	p = &plr[pnum];
-	pi = p->InvList;
-	for (i = p->_pNumInv; i > 0; i--, pi++) {
+	pi = plr[pnum].InvList;
+	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_BOOK) {
-			pi->_iMinMag = spelldata[pi->_iSpell].sMinInt;
-			slvl = p->_pSplLvl[pi->_iSpell];
-
-			while (slvl != 0) {
-				pi->_iMinMag += 20 * pi->_iMinMag / 100;
-				slvl--;
-				if (pi->_iMinMag + 20 * pi->_iMinMag / 100 > 255) {
-					pi->_iMinMag = 255;
-					slvl = 0;
-				}
-			}
+			SetBookLevel(pnum, pi);
 			ItemStatOk(pnum, pi);
 		}
 	}
@@ -4662,7 +4641,6 @@ void SpawnSmith(int lvl)
 		smithitem[i] = item[0];
 		smithitem[i]._iCreateInfo = lvl | CF_SMITH;
 		smithitem[i]._iIdentified = TRUE;
-		ItemStatOk(myplr, &smithitem[i]);
 	}
 	for (i = iCnt; i < SMITH_ITEMS; i++)
 		smithitem[i]._itype = ITYPE_NONE;
@@ -4730,7 +4708,6 @@ void SpawnOnePremium(int i, int plvl)
 	premiumitem[i] = item[0];
 	premiumitem[i]._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumitem[i]._iIdentified = TRUE;
-	ItemStatOk(myplr, &premiumitem[i]);
 	item[0] = holditem;
 }
 
@@ -4841,15 +4818,13 @@ void SortWitch()
 	}
 }
 
-void WitchBookLevel(int ii)
+void SetBookLevel(int pnum, ItemStruct *is)
 {
-	ItemStruct *is;
 	int slvl;
 
-	is = &witchitem[ii];
 	if (is->_iMiscId == IMISC_BOOK) {
 		is->_iMinMag = spelldata[is->_iSpell].sMinInt;
-		slvl = plr[myplr]._pSplLvl[is->_iSpell];
+		slvl = plr[pnum]._pSplLvl[is->_iSpell];
 		while (slvl) {
 			is->_iMinMag += 20 * is->_iMinMag / 100;
 			slvl--;
@@ -4897,8 +4872,6 @@ void SpawnWitch(int lvl)
 		witchitem[i] = item[0];
 		witchitem[i]._iCreateInfo = lvl | CF_WITCH;
 		witchitem[i]._iIdentified = TRUE;
-		WitchBookLevel(i);
-		ItemStatOk(myplr, &witchitem[i]);
 	}
 
 	for (i = iCnt; i < 20; i++)
@@ -4942,7 +4915,6 @@ void SpawnBoy(int lvl)
 		boyitem = item[0];
 		boyitem._iCreateInfo = lvl | CF_BOY;
 		boyitem._iIdentified = TRUE;
-		ItemStatOk(myplr, &boyitem);
 		boylevel = lvl >> 1;
 	}
 }
@@ -5060,7 +5032,6 @@ void SpawnHealer(int lvl)
 		healitem[i] = item[0];
 		healitem[i]._iCreateInfo = lvl | CF_HEALER;
 		healitem[i]._iIdentified = TRUE;
-		ItemStatOk(myplr, &healitem[i]);
 	}
 	for (i = iCnt; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;

@@ -139,7 +139,7 @@ void SpawnPremium(int lvl);
 BOOL WitchItemOk(int i);
 int RndWitchItem(int lvl);
 void SortWitch();
-void WitchBookLevel(int ii);
+void SetBookLevel(int pnum, ItemStruct *is);
 void SpawnWitch(int lvl);
 int RndBoyItem(int lvl);
 void SpawnBoy(int lvl);
