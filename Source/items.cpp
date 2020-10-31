@@ -1899,6 +1899,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		GetOilType(ii, lvl);
 #endif
 	if (is->_itype == ITYPE_GOLD) {
+		lvl = items_get_currlevel();
 		if (gnDifficulty == DIFF_NORMAL)
 			rndv = 5 * lvl + random_(21, 10 * lvl);
 		else if (gnDifficulty == DIFF_NIGHTMARE)
