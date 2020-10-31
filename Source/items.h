@@ -115,7 +115,7 @@ void DoRepair(int pnum, int cii);
 void RepairItem(ItemStruct *is, int lvl);
 void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
-void DoOil(int pnum, int cii);
+BOOL DoOil(int pnum, int cii);
 #endif
 void RechargeItem(ItemStruct *is, int r);
 void PrintItemPower(char plidx, const ItemStruct *is);

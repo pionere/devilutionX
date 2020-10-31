@@ -2646,17 +2646,6 @@ BOOL UseInvItem(int pnum, int cii)
 	return TRUE;
 }
 
-void DoTelekinesis()
-{
-	if (pcursobj != -1)
-		NetSendCmdParam1(TRUE, CMD_OPOBJT, pcursobj);
-	if (pcursitem != -1)
-		NetSendCmdGItem(TRUE, CMD_REQUESTAGITEM, myplr, myplr, pcursitem);
-	if (pcursmonst != -1 && !MonTalker(pcursmonst) && monster[pcursmonst].mtalkmsg == 0)
-		NetSendCmdParam1(TRUE, CMD_KNOCKBACK, pcursmonst);
-	NewCursor(CURSOR_HAND);
-}
-
 int CalculateGold(int pnum)
 {
 	ItemStruct *pi;

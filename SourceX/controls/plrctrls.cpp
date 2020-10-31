@@ -1050,7 +1050,7 @@ void PerformPrimaryAction()
 {
 	if (invflag) { // inventory is open
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-			TryIconCurs();
+			TryIconCurs(FALSE);
 			SetCursor_(CURSOR_HAND);
 		} else {
 			CheckInvItem();
@@ -1129,7 +1129,7 @@ void PerformSpellAction()
 		if (pcurs >= CURSOR_FIRSTITEM)
 			TryDropItem();
 		else if (pcurs > CURSOR_HAND) {
-			TryIconCurs();
+			TryIconCurs(FALSE);
 			SetCursor_(CURSOR_HAND);
 		}
 		return;

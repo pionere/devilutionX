@@ -2996,7 +2996,7 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (id == myplr) {
 		SetCursor_(CURSOR_HEALOTHER);
 		if (sgbControllerActive)
-			TryIconCurs();
+			TryIconCurs(FALSE);
 	}
 }
 
@@ -3351,7 +3351,7 @@ void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (id == myplr) {
 		SetCursor_(CURSOR_RESURRECT);
 		if (sgbControllerActive)
-			TryIconCurs();
+			TryIconCurs(FALSE);
 	}
 	missile[mi]._miDelFlag = TRUE;
 }

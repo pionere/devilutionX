@@ -3358,9 +3358,6 @@ void CheckIdentify(int pnum, int cii)
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr)
-		SetCursor_(CURSOR_HAND);
 }
 
 void DoRepair(int pnum, int cii)
@@ -3379,9 +3376,6 @@ void DoRepair(int pnum, int cii)
 
 	RepairItem(pi, p->_pLevel);
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr)
-		SetCursor_(CURSOR_HAND);
 }
 
 void RepairItem(ItemStruct *is, int lvl)
@@ -3436,31 +3430,28 @@ void DoRecharge(int pnum, int cii)
 		RechargeItem(pi, r);
 		CalcPlrInv(pnum, TRUE);
 	}
-
-	if (pnum == myplr)
-		SetCursor_(CURSOR_HAND);
 }
 
 #ifdef HELLFIRE
-void DoOil(int pnum, int cii)
+BOOL DoOil(int pnum, int cii)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
 	int dur, r;
 
 	if (cii == INVLOC_RING_LEFT || cii == INVLOC_RING_RIGHT || cii == INVLOC_AMULET)
-		return;
+		return FALSE;
 
 	p = &plr[pnum];
 	is = &p->InvBody[cii];
 	if (is->_iClass == ICLASS_MISC) {
-		return;
+		return FALSE;
 	}
 	if (is->_iClass == ICLASS_GOLD) {
-		return;
+		return FALSE;
 	}
 	if (is->_iClass == ICLASS_QUEST) {
-		return;
+		return FALSE;
 	}
 
 	switch (p->_pOilType) {
@@ -3468,21 +3459,21 @@ void DoOil(int pnum, int cii)
 	case IMISC_OILMAST:
 	case IMISC_OILSHARP:
 		if (is->_iClass == ICLASS_ARMOR) {
-			return;
+			return FALSE;
 		}
 		break;
 	case IMISC_OILDEATH:
 		if (is->_iClass == ICLASS_ARMOR) {
-			return;
+			return FALSE;
 		}
 		if (is->_itype == ITYPE_BOW) {
-			return;
+			return FALSE;
 		}
 		break;
 	case IMISC_OILHARD:
 	case IMISC_OILIMP:
 		if (is->_iClass == ICLASS_WEAPON) {
-			return;
+			return FALSE;
 		}
 		break;
 	}
@@ -3568,9 +3559,7 @@ void DoOil(int pnum, int cii)
 	}
 
 	CalcPlrInv(pnum, TRUE);
-	if (pnum == myplr) {
-		SetCursor_(CURSOR_HAND);
-	}
+	return TRUE;
 }
 
 #endif

@@ -59,7 +59,6 @@ void UseStaffCharge(int pnum);
 BOOL UseStaff();
 void StartGoldDrop();
 BOOL UseInvItem(int pnum, int cii);
-void DoTelekinesis();
 int CalculateGold(int pnum);
 BOOL DropItemBeforeTrig();
 

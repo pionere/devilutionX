@@ -640,7 +640,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		if (sgbMouseDown == 0) {
 			sgbMouseDown = 2;
-			RightMouseDown();
+			RightMouseDown((wParam & DVL_MK_SHIFT) != 0);
 		}
 		return;
 	case DVL_WM_RBUTTONUP:
@@ -729,7 +729,7 @@ BOOL LeftMouseDown(BOOL bShift)
 		return FALSE;
 	}
 
-	if (TryIconCurs())
+	if (TryIconCurs(bShift))
 		return FALSE;
 
 	if (questlog && CheckQuestlog())
@@ -788,7 +788,7 @@ BOOL LeftMouseCmd(BOOL bShift)
 			return FALSE;
 		}
 		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
-			NetSendCmdLocParam1(TRUE, pcurs == CURSOR_DISARM ? CMD_DISARMXY : CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return FALSE;
 		}
 		if (plr[myplr]._pwtype == WT_RANGED) {
@@ -836,66 +836,69 @@ BOOL LeftMouseCmd(BOOL bShift)
 	}
 }
 
-BOOL TryIconCurs()
+BOOL TryIconCurs(BOOL bShift)
 {
 	switch (pcurs) {
 	case CURSOR_IDENTIFY:
-		if (pcursinvitem != -1) {
+		if (pcursinvitem != -1)
 			CheckIdentify(myplr, pcursinvitem);
-		} else {
-			NewCursor(CURSOR_HAND);
-		}
-		return TRUE;
+		break;
 	case CURSOR_REPAIR:
-		if (pcursinvitem != -1) {
+		if (pcursinvitem != -1)
 			DoRepair(myplr, pcursinvitem);
-		} else {
-			NewCursor(CURSOR_HAND);
-		}
-		return TRUE;
+		break;
 	case CURSOR_RECHARGE:
-		if (pcursinvitem != -1) {
+		if (pcursinvitem != -1)
 			DoRecharge(myplr, pcursinvitem);
-		} else {
-			NewCursor(CURSOR_HAND);
-		}
-		return TRUE;
+		break;
 	case CURSOR_DISARM:
-		if (pcursobj == -1) {
-			NewCursor(CURSOR_HAND);
-			return TRUE;
+		if (pcursobj != -1) {
+			if (!bShift ||
+			 (abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2)) {
+				NetSendCmdLocParam1(TRUE, CMD_DISARMXY, cursmx, cursmy, pcursobj);
+				return TRUE;
+			}
 		}
 		break;
 #ifdef HELLFIRE
 	case CURSOR_OIL:
 		if (pcursinvitem != -1) {
-			DoOil(myplr, pcursinvitem);
-		} else {
-			SetCursor_(CURSOR_HAND);
+			if (!DoOil(myplr, pcursinvitem))
+				return TRUE;
 		}
-		return TRUE;
+		break;
 #endif
 	case CURSOR_TELEKINESIS:
-		DoTelekinesis();
-		return TRUE;
+		if (pcursobj != -1)
+			NetSendCmdParam1(TRUE, CMD_OPOBJT, pcursobj);
+		if (pcursitem != -1)
+			NetSendCmdGItem(TRUE, CMD_REQUESTAGITEM, myplr, myplr, pcursitem);
+		if (pcursmonst != -1 && !MonTalker(pcursmonst) && monster[pcursmonst].mtalkmsg == 0)
+			NetSendCmdParam1(TRUE, CMD_KNOCKBACK, pcursmonst);
+		break;
 	case CURSOR_RESURRECT:
-		NetSendCmdParam1(TRUE, CMD_RESURRECT, pcursplr);
-		return TRUE;
-	case CURSOR_TELEPORT:
-		if (pcursmonst != -1) {
-			NetSendCmdParam3(TRUE, CMD_TSPELLID, pcursmonst, plr[myplr]._pTSpell, GetSpellLevel(myplr, plr[myplr]._pTSpell));
-		} else if (pcursplr != -1) {
-			NetSendCmdParam3(TRUE, CMD_TSPELLPID, pcursplr, plr[myplr]._pTSpell, GetSpellLevel(myplr, plr[myplr]._pTSpell));
-		} else {
-			NetSendCmdLocParam2(TRUE, CMD_TSPELLXY, cursmx, cursmy, plr[myplr]._pTSpell, GetSpellLevel(myplr, plr[myplr]._pTSpell));
-		}
-		NewCursor(CURSOR_HAND);
-		return TRUE;
+		if (pcursplr != -1)
+			NetSendCmdParam1(TRUE, CMD_RESURRECT, pcursplr);
+		break;
+	case CURSOR_TELEPORT: {
+		int sn = plr[myplr]._pTSpell;
+		int sl = GetSpellLevel(myplr, sn);
+		if (pcursmonst != -1)
+			NetSendCmdParam3(TRUE, CMD_TSPELLID, pcursmonst, sn, sl);
+		else if (pcursplr != -1)
+			NetSendCmdParam3(TRUE, CMD_TSPELLPID, pcursplr, sn, sl);
+		else
+			NetSendCmdLocParam2(TRUE, CMD_TSPELLXY, cursmx, cursmy, sn, sl);
+	} break;
 	case CURSOR_HEALOTHER:
-		NetSendCmdParam1(TRUE, CMD_HEALOTHER, pcursplr);
-		return TRUE;
+		if (pcursplr != -1)
+			NetSendCmdParam1(TRUE, CMD_HEALOTHER, pcursplr);
+		break;
+	default:
+		return FALSE;
 	}
-	return FALSE;
+	NewCursor(CURSOR_HAND);
+	return TRUE;
 }
 
 void LeftMouseUp()
@@ -913,7 +916,7 @@ void LeftMouseUp()
 		ReleaseStoreBtn();
 }
 
-void RightMouseDown()
+void RightMouseDown(BOOL bShift)
 {
 	if (gmenu_is_active() || sgnTimeoutCurs != CURSOR_NONE)
 		return;
@@ -937,25 +940,30 @@ void RightMouseDown()
 	if (stextflag != STORE_NONE)
 		return;
 
-#ifdef HELLFIRE
-	if (sbookflag && MouseX > RIGHT_PANEL)
+	if (TryIconCurs(bShift))
 		return;
-#else
+
+	if (questlog) {
+		questlog = FALSE;
+		return;
+	}
+
+	if (qtextflag) {
+		qtextflag = FALSE;
+		stream_stop();
+		return;
+	}
+
+	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)
+		return;
+
 	if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)
 		return;
-#endif
-	if (MouseY < SPANEL_HEIGHT) {
-		if (TryIconCurs())
-			return;
-		if (pcursinvitem != -1 && UseInvItem(myplr, pcursinvitem))
-			return;
-	}
+
 	if (pcurs == CURSOR_HAND) {
 		if (pcursinvitem != -1 && UseInvItem(myplr, pcursinvitem))
 			return;
 		CheckPlrSpell();
-	} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-		NewCursor(CURSOR_HAND);
 	}
 }
 

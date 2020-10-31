@@ -200,10 +200,6 @@ void DoResurrect(int pnum, int tnum)
 		AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
 	}
 
-	if (pnum == myplr) {
-		NewCursor(CURSOR_HAND);
-	}
-
 	if ((char)tnum != -1 && tp->_pHitPoints == 0) {
 		if (tnum == myplr) {
 			deathflag = FALSE;
@@ -245,10 +241,6 @@ void DoHealOther(int pnum, int tnum)
 {
 	PlayerStruct *tp;
 	int i, hp;
-
-	if (pnum == myplr) {
-		NewCursor(CURSOR_HAND);
-	}
 
 	if ((DWORD)tnum >= MAX_PLRS)
 		return;
