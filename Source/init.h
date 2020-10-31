@@ -14,12 +14,12 @@ extern "C" {
 
 extern _SNETVERSIONDATA fileinfo;
 extern int gbActive;
-extern HANDLE hellfire_mpq;
 extern WNDPROC CurrentProc;
 extern HANDLE diabdat_mpq;
 extern HANDLE patch_rt_mpq;
 extern BOOLEAN screensaver_enabled_prev;
 #ifdef HELLFIRE
+extern HANDLE hellfire_mpq;
 extern HANDLE hfmonk_mpq;
 extern HANDLE hfbard_mpq;
 extern HANDLE hfbarb_mpq;

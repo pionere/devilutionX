@@ -16,8 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 _SNETVERSIONDATA fileinfo;
 /** True if the game is the current active window */
 int gbActive;
-/** A handle to an unused MPQ archive. */
-HANDLE hellfire_mpq;
 /** The current input handler function */
 WNDPROC CurrentProc;
 /** A handle to the diabdat.mpq archive. */
@@ -25,6 +23,8 @@ HANDLE diabdat_mpq;
 /** A handle to the patch_rt.mpq archive. */
 HANDLE patch_rt_mpq;
 #ifdef HELLFIRE
+/** A handle to the hellfire.mpq archive. */
+HANDLE hellfire_mpq;
 HANDLE hfmonk_mpq;
 HANDLE hfbard_mpq;
 HANDLE hfbarb_mpq;
@@ -75,11 +75,11 @@ void init_cleanup()
 		SFileCloseArchive(patch_rt_mpq);
 		patch_rt_mpq = NULL;
 	}
+#ifdef HELLFIRE
 	if (hellfire_mpq) {
 		SFileCloseArchive(hellfire_mpq);
 		hellfire_mpq = NULL;
 	}
-#ifdef HELLFIRE
 	if (hfmonk_mpq) {
 		SFileCloseArchive(hfmonk_mpq);
 		hfmonk_mpq = NULL;
