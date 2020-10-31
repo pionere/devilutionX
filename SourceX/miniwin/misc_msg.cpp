@@ -287,7 +287,7 @@ bool BlurInventory()
 
 	invflag = false;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 	if (chrflag)
 		FocusOnCharInfo();
 
@@ -391,7 +391,7 @@ bool PeekMessage(LPMSG lpMsg)
 				questlog = false;
 				spselflag = false;
 				if (pcurs == CURSOR_DISARM)
-					SetCursor_(CURSOR_HAND);
+					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
 			}
 			break;
@@ -412,7 +412,7 @@ bool PeekMessage(LPMSG lpMsg)
 				spselflag = false;
 				invflag = true;
 				if (pcurs == CURSOR_DISARM)
-					SetCursor_(CURSOR_HAND);
+					NewCursor(CURSOR_HAND);
 				FocusOnInventory();
 			}
 			break;

@@ -3370,7 +3370,7 @@ void TryDisarm(int pnum, int oi)
 	int i, trapdisper;
 
 	if (pnum == myplr)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 	os = &object[oi];
 	if (os->_oTrapFlag) {
 		trapdisper = 2 * plr[pnum]._pDexterity - 5 * currlevel;

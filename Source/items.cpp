@@ -4515,7 +4515,7 @@ void UseItem(int pnum, int Mid, int spl)
 		if (!invflag) {
 			invflag = TRUE;
 		}
-		SetCursor_(CURSOR_OIL);
+		NewCursor(CURSOR_OIL);
 		break;
 #endif
 	case IMISC_SPECELIX:
@@ -4529,31 +4529,31 @@ void UseItem(int pnum, int Mid, int spl)
 		plr[pnum]._pTSpell = SPL_RUNEFIRE;
 		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
 		if (pnum == myplr)
-			SetCursor_(CURSOR_TELEPORT);
+			NewCursor(CURSOR_TELEPORT);
 		break;
 	case IMISC_RUNEL:
 		plr[pnum]._pTSpell = SPL_RUNELIGHT;
 		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
 		if (pnum == myplr)
-			SetCursor_(CURSOR_TELEPORT);
+			NewCursor(CURSOR_TELEPORT);
 		break;
 	case IMISC_GR_RUNEL:
 		plr[pnum]._pTSpell = SPL_RUNENOVA;
 		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
 		if (pnum == myplr)
-			SetCursor_(CURSOR_TELEPORT);
+			NewCursor(CURSOR_TELEPORT);
 		break;
 	case IMISC_GR_RUNEF:
 		plr[pnum]._pTSpell = SPL_RUNEIMMOLAT;
 		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
 		if (pnum == myplr)
-			SetCursor_(CURSOR_TELEPORT);
+			NewCursor(CURSOR_TELEPORT);
 		break;
 	case IMISC_RUNES:
 		plr[pnum]._pTSpell = SPL_RUNESTONE;
 		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
 		if (pnum == myplr)
-			SetCursor_(CURSOR_TELEPORT);
+			NewCursor(CURSOR_TELEPORT);
 		break;
 #endif
 	}

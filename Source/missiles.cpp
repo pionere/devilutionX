@@ -2994,7 +2994,7 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(id, SPL_HEALOTHER);
 	if (id == myplr) {
-		SetCursor_(CURSOR_HEALOTHER);
+		NewCursor(CURSOR_HEALOTHER);
 		if (sgbControllerActive)
 			TryIconCurs(FALSE);
 	}
@@ -3042,7 +3042,7 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			if (sgbControllerActive)
 				FocusOnInventory();
 		}
-		SetCursor_(CURSOR_IDENTIFY);
+		NewCursor(CURSOR_IDENTIFY);
 	}
 }
 
@@ -3187,7 +3187,7 @@ void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 			if (sgbControllerActive)
 				FocusOnInventory();
 		}
-		SetCursor_(CURSOR_REPAIR);
+		NewCursor(CURSOR_REPAIR);
 	}
 }
 
@@ -3203,7 +3203,7 @@ void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			if (sgbControllerActive)
 				FocusOnInventory();
 		}
-		SetCursor_(CURSOR_RECHARGE);
+		NewCursor(CURSOR_RECHARGE);
 	}
 }
 
@@ -3212,12 +3212,12 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(id, SPL_DISARM);
 	if (id == myplr) {
-		SetCursor_(CURSOR_DISARM);
+		NewCursor(CURSOR_DISARM);
 		if (sgbControllerActive) {
 			if (pcursobj != -1)
 				NetSendCmdLocParam1(TRUE, CMD_DISARMXY, cursmx, cursmy, pcursobj);
 			else
-				SetCursor_(CURSOR_HAND);
+				NewCursor(CURSOR_HAND);
 		}
 	}
 }
@@ -3349,7 +3349,7 @@ void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	UseMana(id, SPL_RESURRECT);
 	if (id == myplr) {
-		SetCursor_(CURSOR_RESURRECT);
+		NewCursor(CURSOR_RESURRECT);
 		if (sgbControllerActive)
 			TryIconCurs(FALSE);
 	}
@@ -3375,7 +3375,7 @@ void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(id, SPL_TELEKINESIS);
 	if (id == myplr)
-		SetCursor_(CURSOR_TELEKINESIS);
+		NewCursor(CURSOR_TELEKINESIS);
 }
 
 void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int id, int dam)

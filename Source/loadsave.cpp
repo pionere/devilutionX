@@ -189,7 +189,7 @@ void LoadGame(BOOL firstflag)
 	ProcessVisionList();
 	missiles_process_charge();
 	ResetPal();
-	SetCursor_(CURSOR_HAND);
+	NewCursor(CURSOR_HAND);
 	gbProcessPlayers = TRUE;
 }
 

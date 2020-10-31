@@ -753,7 +753,7 @@ BOOL GoldAutoPlace(int pnum)
 					p->HoldItem._ivalue = 0;
 					done = TRUE;
 					p->_pGold = CalculateGold(pnum);
-					SetCursor_(CURSOR_HAND);
+					NewCursor(CURSOR_HAND);
 				}
 			}
 		}
@@ -1047,7 +1047,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 			else
 				*holditem = *is;
 			if (pnum == myplr)
-				SetCursor_(holditem->_iCurs + CURSOR_FIRSTITEM);
+				NewCursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			else
 				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			done2h = FALSE;
@@ -1055,7 +1055,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 				done2h = AutoPlace(pnum, i, icursW28, icursH28, TRUE);
 			*holditem = tempitem;
 			if (pnum == myplr)
-				SetCursor_(holditem->_iCurs + CURSOR_FIRSTITEM);
+				NewCursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			else
 				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			if (!done2h)
@@ -1211,7 +1211,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 	if (pnum == myplr) {
 		if (cn == CURSOR_HAND)
 			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
-		SetCursor_(cn);
+		NewCursor(cn);
 	}
 }
 
@@ -1385,7 +1385,7 @@ void CheckInvCut(int pnum, int mx, int my)
 
 		if (pnum == myplr) {
 			PlaySFX(IS_IGRAB);
-			SetCursor_(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+			NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 			SetCursorPos(mx - (cursW >> 1), MouseY - (cursH >> 1));
 		}
 	}
@@ -1764,7 +1764,7 @@ void InvGetItem(int pnum, int ii)
 #ifdef HELLFIRE
 		if (!cursor_updated)
 #endif
-			SetCursor_(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+			NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	}
 }
 

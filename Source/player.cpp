@@ -1929,7 +1929,7 @@ void StartPlrKill(int pnum, int earflag)
 
 			if (pcurs >= CURSOR_FIRSTITEM) {
 				PlrDeadItem(pnum, &p->HoldItem, 0, 0);
-				SetCursor_(CURSOR_HAND);
+				NewCursor(CURSOR_HAND);
 			}
 
 			if (!diablolevel) {

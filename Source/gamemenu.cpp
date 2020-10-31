@@ -154,7 +154,7 @@ void gamemenu_load_game(BOOL bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
-	SetCursor_(CURSOR_NONE);
+	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
 	force_redraw = 255;
 	DrawAndBlit();
@@ -168,7 +168,7 @@ void gamemenu_load_game(BOOL bActivate)
 	force_redraw = 255;
 	DrawAndBlit();
 	PaletteFadeIn(8);
-	SetCursor_(CURSOR_HAND);
+	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }
@@ -185,7 +185,7 @@ void gamemenu_save_game(BOOL bActivate)
 	}
 
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
-	SetCursor_(CURSOR_NONE);
+	NewCursor(CURSOR_NONE);
 	gamemenu_off();
 	InitDiabloMsg(EMSG_SAVING);
 	force_redraw = 255;
@@ -193,7 +193,7 @@ void gamemenu_save_game(BOOL bActivate)
 	SaveGame();
 	ClrDiabloMsg();
 	force_redraw = 255;
-	SetCursor_(CURSOR_HAND);
+	NewCursor(CURSOR_HAND);
 #ifdef HELLFIRE
 	if (CornerStone.activated) {
 		SaveCornerStone();

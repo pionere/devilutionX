@@ -140,7 +140,7 @@ void SetICursor(int i)
 	icursH28 = icursH / INV_SLOT_SIZE_PX;
 }
 
-void SetCursor_(int i)
+void NewCursor(int i)
 {
 	pcurs = i;
 	cursW = InvItemWidth[i];
@@ -148,14 +148,9 @@ void SetCursor_(int i)
 	SetICursor(i);
 }
 
-void NewCursor(int i)
-{
-	SetCursor_(i);
-}
-
 void InitLevelCursor()
 {
-	SetCursor_(CURSOR_HAND);
+	NewCursor(CURSOR_HAND);
 	cursmx = ViewX;
 	cursmy = ViewY;
 	pcurstemp = -1;

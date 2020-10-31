@@ -35,7 +35,6 @@ extern int pcurs;
 void InitCursor();
 void FreeCursor();
 void SetICursor(int i);
-void SetCursor_(int i);
 void NewCursor(int i);
 void InitLevelCursor();
 void CheckTown();

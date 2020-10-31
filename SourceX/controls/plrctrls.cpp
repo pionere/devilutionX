@@ -1051,7 +1051,7 @@ void PerformPrimaryAction()
 	if (invflag) { // inventory is open
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
 			TryIconCurs(FALSE);
-			SetCursor_(CURSOR_HAND);
+			NewCursor(CURSOR_HAND);
 		} else {
 			CheckInvItem();
 		}
@@ -1130,7 +1130,7 @@ void PerformSpellAction()
 			TryDropItem();
 		else if (pcurs > CURSOR_HAND) {
 			TryIconCurs(FALSE);
-			SetCursor_(CURSOR_HAND);
+			NewCursor(CURSOR_HAND);
 		}
 		return;
 	}
@@ -1138,7 +1138,7 @@ void PerformSpellAction()
 	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
 		return;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 
 	if (spselflag) {
 		SetSpell();
@@ -1191,7 +1191,7 @@ void PerformSecondaryAction()
 	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
 		return;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 
 	if (pcursitem != -1) {
 		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
