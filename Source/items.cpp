@@ -2410,7 +2410,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		onlygood = TRUE;
 	if (!pre) {
 		nl = 0;
-		for (pres = PL_Prefix; pres->PLPower != -1; pres++) {
+		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if (flgs & pres->PLIType) {
 				if (pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl && (!onlygood || pres->PLOk) && (flgs != 256 || pres->PLPower != 15)) {
 					l[nl] = pres;
@@ -2437,12 +2437,12 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 			    pres->PLMaxVal,
 			    pres->PLMultVal);
 			item[ii]._iPrePower = pres->PLPower;
+			goe = pres->PLGOE;
 		}
 	}
 	if (post != 0) {
 		nl = 0;
-		goe = pres->PLGOE;
-		for (sufs = PL_Suffix; sufs->PLPower != -1; sufs++) {
+		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if (sufs->PLIType & flgs
 			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
 			    && (goe | sufs->PLGOE) != 0x11
