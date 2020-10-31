@@ -343,8 +343,8 @@ BOOLEAN gmenu_get_mouse_slider(int *plOffset)
 BOOL gmenu_left_mouse(BOOL isDown)
 {
 	TMenuItem *pItem;
-	DWORD i, w;
-	int dummy;
+	DWORD w;
+	int i, dummy;
 
 	if (!isDown) {
 		if (mouseNavigation) {
@@ -361,10 +361,11 @@ BOOL gmenu_left_mouse(BOOL isDown)
 	if (MouseY >= PANEL_TOP) {
 		return FALSE;
 	}
-	if (MouseY - (117 + UI_OFFSET_Y) < 0) {
+	i = MouseY - (117 + UI_OFFSET_Y);
+	if (i < 0) {
 		return TRUE;
 	}
-	i = (MouseY - (117 + UI_OFFSET_Y)) / 45;
+	i /= 45;
 	if (i >= sgCurrentMenuIdx) {
 		return TRUE;
 	}
@@ -372,11 +373,11 @@ BOOL gmenu_left_mouse(BOOL isDown)
 	if (!(pItem->dwFlags & GMENU_ENABLED)) {
 		return TRUE;
 	}
-	w = gmenu_get_lfont(pItem);
-	if (MouseX < SCREEN_WIDTH / 2 - w / 2) {
+	w = gmenu_get_lfont(pItem) / 2;
+	if (MouseX < SCREEN_WIDTH / 2 - w) {
 		return TRUE;
 	}
-	if (MouseX > SCREEN_WIDTH / 2 + w / 2) {
+	if (MouseX > SCREEN_WIDTH / 2 + w) {
 		return TRUE;
 	}
 	sgpCurrItem = pItem;

@@ -101,10 +101,10 @@ void PrintGameStr(int x, int y, const char *str, int color);
 void DrawChr();
 #define ADD_PlrStringXY(x, y, width, pszStr, col) MY_PlrStringXY(x, y, width, pszStr, col, 1)
 void MY_PlrStringXY(int x, int y, int width, const char *pszStr, char col, int base);
-void CheckLvlBtn();
+BOOL CheckLvlBtn();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
-void CheckChrBtns();
+BOOL CheckChrBtns();
 void ReleaseChrBtns();
 void DrawDurIcon();
 int DrawDurIcon4Item(ItemStruct *pItem, int x, int c);

@@ -686,7 +686,10 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 BOOL LeftMouseDown(BOOL bShift)
 {
-	if (gmenu_left_mouse(TRUE) || control_check_talk_btn() || sgnTimeoutCurs != CURSOR_NONE)
+	if (gmenu_left_mouse(TRUE) || sgnTimeoutCurs != CURSOR_NONE)
+		return FALSE;
+
+	if (talkflag && control_check_talk_btn())
 		return FALSE;
 
 	if (deathflag) {
@@ -712,8 +715,13 @@ BOOL LeftMouseDown(BOOL bShift)
 		return FALSE;
 	}
 
+	if (gmenu_is_active()) {
+		DoPanBtn();
+		return FALSE;
+	}
+
 	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
-		if (!talkflag && !dropGoldFlag && !gmenu_is_active())
+		if (!talkflag && !dropGoldFlag)
 			CheckInvScrn();
 		DoPanBtn();
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
@@ -721,25 +729,23 @@ BOOL LeftMouseDown(BOOL bShift)
 		return FALSE;
 	}
 
-	if (gmenu_is_active())
-		return FALSE;
-
 	if (TryIconCurs())
 		return FALSE;
 
-	if (questlog && MouseX > 32 && MouseX < 288 && MouseY > 32 && MouseY < 308) {
-		QuestlogESC();
+	if (questlog && CheckQuestlog())
 		return FALSE;
-	}
+
 	if (qtextflag) {
 		qtextflag = FALSE;
 		stream_stop();
 		return FALSE;
 	}
+
 	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
 		CheckChrBtns();
 		return FALSE;
 	}
+
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		if (!dropGoldFlag)
 			CheckInvItem();
@@ -757,9 +763,7 @@ BOOL LeftMouseDown(BOOL bShift)
 		return FALSE;
 	}
 
-	if (plr[myplr]._pStatPts != 0 && !spselflag)
-		CheckLvlBtn();
-	if (lvlbtndown)
+	if (CheckLvlBtn())
 		return FALSE;
 
 	return LeftMouseCmd(bShift);
@@ -897,7 +901,8 @@ BOOL TryIconCurs()
 void LeftMouseUp()
 {
 	gmenu_left_mouse(FALSE);
-	control_release_talk_btn();
+	if (talkflag)
+		control_release_talk_btn();
 	if (panbtndown)
 		CheckBtnUp();
 	if (chrbtnactive)
@@ -924,28 +929,33 @@ void RightMouseDown()
 		return;
 	}
 
-	if (stextflag != STORE_NONE)
-		return;
-
 	if (spselflag) {
 		SetSpell();
 		return;
 	}
 
+	if (stextflag != STORE_NONE)
+		return;
+
 #ifdef HELLFIRE
-	if ((!sbookflag || MouseX <= RIGHT_PANEL) && (MouseY >= SPANEL_HEIGHT || (!TryIconCurs() && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))))) {
+	if (sbookflag && MouseX > RIGHT_PANEL)
+		return;
 #else
-	if (MouseY >= SPANEL_HEIGHT
-	    || (!sbookflag || MouseX <= RIGHT_PANEL)
-	        && !TryIconCurs()
-	        && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))) {
+	if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)
+		return;
 #endif
-		if (pcurs == CURSOR_HAND) {
-			if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))
-				CheckPlrSpell();
-		} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-			NewCursor(CURSOR_HAND);
-		}
+	if (MouseY < SPANEL_HEIGHT) {
+		if (TryIconCurs())
+			return;
+		if (pcursinvitem != -1 && UseInvItem(myplr, pcursinvitem))
+			return;
+	}
+	if (pcurs == CURSOR_HAND) {
+		if (pcursinvitem != -1 && UseInvItem(myplr, pcursinvitem))
+			return;
+		CheckPlrSpell();
+	} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+		NewCursor(CURSOR_HAND);
 	}
 }
 

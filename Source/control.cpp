@@ -973,12 +973,11 @@ void DoPanBtn()
 		 && mx <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
 		 && my >= PanBtnPos[i][1] + PANEL_TOP
 		 && my <= PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
-			panbtn[i] = TRUE;
-			drawbtnflag = TRUE;
-			panbtndown = TRUE;
+			control_set_button_down(i);
+			return;
 		}
 	}
-	if (!spselflag && mx >= 565 + PANEL_LEFT && mx < 621 + PANEL_LEFT && my >= 64 + PANEL_TOP && my < 120 + PANEL_TOP) {
+	if (mx >= 565 + PANEL_LEFT && mx < 621 + PANEL_LEFT && my >= 64 + PANEL_TOP && my < 120 + PANEL_TOP) {
 		DoSpeedBook();
 		gamemenu_off();
 	}
@@ -994,15 +993,15 @@ void control_set_button_down(int btn_id)
 void control_check_btn_press()
 {
 	if (MouseX >= PanBtnPos[3][0] + PANEL_LEFT
-	    && MouseX <= PanBtnPos[3][0] + PANEL_LEFT + PanBtnPos[3][2]
-	    && MouseY >= PanBtnPos[3][1] + PANEL_TOP
-	    && MouseY <= PanBtnPos[3][1] + PANEL_TOP + PanBtnPos[3][3]) {
+	 && MouseX <= PanBtnPos[3][0] + PANEL_LEFT + PanBtnPos[3][2]
+	 && MouseY >= PanBtnPos[3][1] + PANEL_TOP
+	 && MouseY <= PanBtnPos[3][1] + PANEL_TOP + PanBtnPos[3][3]) {
 		control_set_button_down(3);
 	}
 	if (MouseX >= PanBtnPos[6][0] + PANEL_LEFT
-	    && MouseX <= PanBtnPos[6][0] + PANEL_LEFT + PanBtnPos[6][2]
-	    && MouseY >= PanBtnPos[6][1] + PANEL_TOP
-	    && MouseY <= PanBtnPos[6][1] + PANEL_TOP + PanBtnPos[6][3]) {
+	 && MouseX <= PanBtnPos[6][0] + PANEL_LEFT + PanBtnPos[6][2]
+	 && MouseY >= PanBtnPos[6][1] + PANEL_TOP
+	 && MouseY <= PanBtnPos[6][1] + PANEL_TOP + PanBtnPos[6][3]) {
 		control_set_button_down(6);
 	}
 }
@@ -1027,14 +1026,15 @@ void CheckPanelInfo()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int i, c, v, xend, yend;
+	int i, c, v;
 
 	panelflag = FALSE;
 	ClearPanel();
 	for (i = 0; i < numpanbtns; i++) {
-		xend = PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2];
-		yend = PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3];
-		if (MouseX >= PanBtnPos[i][0] + PANEL_LEFT && MouseX <= xend && MouseY >= PanBtnPos[i][1] + PANEL_TOP && MouseY <= yend) {
+		if (MouseX >= PanBtnPos[i][0] + PANEL_LEFT
+		 && MouseX <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
+		 && MouseY >= PanBtnPos[i][1] + PANEL_TOP
+		 && MouseY <= PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
 			if (i != 7) {
 				strcpy(infostr, PanBtnStr[i]);
 			} else {
@@ -1141,9 +1141,9 @@ void CheckBtnUp()
 		panbtn[i] = FALSE;
 
 		if (MouseX < PanBtnPos[i][0] + PANEL_LEFT
-		    || MouseX > PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
-		    || MouseY < PanBtnPos[i][1] + PANEL_TOP
-		    || MouseY > PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
+		 || MouseX > PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
+		 || MouseY < PanBtnPos[i][1] + PANEL_TOP
+		 || MouseY > PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
 			continue;
 		}
 
@@ -1619,10 +1619,11 @@ void MY_PlrStringXY(int x, int y, int endX, const char *pszStr, char col, int ba
 	}
 }
 
-void CheckLvlBtn()
+BOOL CheckLvlBtn()
 {
-	if (!lvlbtndown && MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
+	if (plr[myplr]._pStatPts != 0 && MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
 		lvlbtndown = TRUE;
+	return lvlbtndown;
 }
 
 void ReleaseLvlBtn()
@@ -1643,43 +1644,44 @@ void DrawLevelUpIcon()
 	}
 }
 
-void CheckChrBtns()
+BOOL CheckChrBtns()
 {
-	int *stats;
+	PlayerStruct *p;
 	int i;
 
-	if (!chrbtnactive && plr[myplr]._pStatPts != 0) {
-		stats = MaxStats[plr[myplr]._pClass];
+ 	if (plr[myplr]._pStatPts != 0 && !chrbtnactive) {
 		for (i = 0; i < 4; i++) {
+			if (MouseX < ChrBtnsRect[i].x
+			 || MouseX > ChrBtnsRect[i].x + ChrBtnsRect[i].w
+			 || MouseY < ChrBtnsRect[i].y
+			 || MouseY > ChrBtnsRect[i].y + ChrBtnsRect[i].h)
+				continue;
+
+			p = &plr[myplr];
 			switch (i) {
-			case ATTRIB_STR:
-				if (plr[myplr]._pBaseStr >= stats[ATTRIB_STR])
-					continue;
+			case 0:
+				if (p->_pBaseStr >= MaxStats[p->_pClass][ATTRIB_STR])
+					return FALSE;
 				break;
-			case ATTRIB_MAG:
-				if (plr[myplr]._pBaseMag >= stats[ATTRIB_MAG])
-					continue;
+			case 1:
+				if (p->_pBaseMag >= MaxStats[p->_pClass][ATTRIB_MAG])
+					return FALSE;
 				break;
-			case ATTRIB_DEX:
-				if (plr[myplr]._pBaseDex >= stats[ATTRIB_DEX])
-					continue;
-				break;
-			case ATTRIB_VIT:
-				if (plr[myplr]._pBaseVit >= stats[ATTRIB_VIT])
-					continue;
+			case 2:
+				if (p->_pBaseDex >= MaxStats[p->_pClass][ATTRIB_DEX])
+					return FALSE;
 				break;
 			default:
-				continue;
+				if (p->_pBaseVit >= MaxStats[p->_pClass][ATTRIB_VIT])
+					return FALSE;
+				break;
 			}
-			if (MouseX >= ChrBtnsRect[i].x
-			    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			    && MouseY >= ChrBtnsRect[i].y
-			    && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
-				chrbtn[i] = TRUE;
-				chrbtnactive = TRUE;
-			}
+			chrbtn[i] = TRUE;
+			chrbtnactive = TRUE;
+			return TRUE;
 		}
 	}
+	return FALSE;
 }
 
 void ReleaseChrBtns()
@@ -1691,9 +1693,9 @@ void ReleaseChrBtns()
 		if (chrbtn[i]) {
 			chrbtn[i] = FALSE;
 			if (MouseX >= ChrBtnsRect[i].x
-			    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			    && MouseY >= ChrBtnsRect[i].y
-			    && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
+			 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
+			 && MouseY >= ChrBtnsRect[i].y
+			 && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
 				switch (i) {
 				case 0:
 					NetSendCmdParam1(TRUE, CMD_ADDSTR, 1);
@@ -2160,9 +2162,6 @@ BOOL control_check_talk_btn()
 {
 	int i;
 
-	if (!talkflag)
-		return FALSE;
-
 	if (MouseX < 172 + PANEL_LEFT)
 		return FALSE;
 	if (MouseY < 69 + PANEL_TOP)
@@ -2185,19 +2184,17 @@ void control_release_talk_btn()
 {
 	int i, p, off;
 
-	if (talkflag) {
-		for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++)
-			talkbtndown[i] = FALSE;
-		if (MouseX >= 172 + PANEL_LEFT && MouseY >= 69 + PANEL_TOP && MouseX <= 233 + PANEL_LEFT && MouseY <= 123 + PANEL_TOP) {
-			off = (MouseY - (69 + PANEL_TOP)) / 18;
+	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++)
+		talkbtndown[i] = FALSE;
+	if (MouseX >= 172 + PANEL_LEFT && MouseY >= 69 + PANEL_TOP && MouseX <= 233 + PANEL_LEFT && MouseY <= 123 + PANEL_TOP) {
+		off = (MouseY - (69 + PANEL_TOP)) / 18;
 
-			for (p = 0; p < MAX_PLRS && off != -1; p++) {
-				if (p != myplr)
-					off--;
-			}
-			if (p <= MAX_PLRS)
-				whisper[p - 1] = !whisper[p - 1];
+		for (p = 0; p < MAX_PLRS && off != -1; p++) {
+			if (p != myplr)
+				off--;
 		}
+		if (p <= MAX_PLRS)
+			whisper[p - 1] = !whisper[p - 1];
 	}
 }
 

@@ -945,9 +945,12 @@ void QuestlogEnter()
 	questlog = FALSE;
 }
 
-void QuestlogESC()
+BOOL CheckQuestlog()
 {
 	int y, i;
+
+	if (MouseX <= 32 || MouseX >= 288 || MouseY <= 32 || MouseY >= 308)
+		return FALSE;
 
 	y = (MouseY - 32) / 12;
 	for (i = 0; i < numqlines; i++) {
@@ -960,6 +963,7 @@ void QuestlogESC()
 		qline = 22;
 		QuestlogEnter();
 	}
+	return TRUE;
 }
 
 void SetMultiQuest(int qn, int s, int l, int v1)

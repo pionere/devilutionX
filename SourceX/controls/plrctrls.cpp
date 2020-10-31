@@ -1063,18 +1063,8 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (chrflag && !chrbtnactive && plr[myplr]._pStatPts > 0) {
-		CheckChrBtns();
-		for (int i = 0; i < 4; i++) {
-			if (MouseX >= ChrBtnsRect[i].x
-			    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			    && MouseY >= ChrBtnsRect[i].y
-			    && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
-				chrbtn[i] = 1;
-				chrbtnactive = true;
-				ReleaseChrBtns();
-			}
-		}
+	if (chrflag && CheckChrBtns()) {
+		ReleaseChrBtns();
 		return;
 	}
 
