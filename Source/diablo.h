@@ -78,7 +78,7 @@ void diablo_quit(int exitStatus);
 BOOL PressEscKey();
 void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-BOOL LeftMouseDown(int wParam);
+BOOL LeftMouseDown(BOOL bShift);
 BOOL LeftMouseCmd(BOOL bShift);
 BOOL TryIconCurs();
 void LeftMouseUp();

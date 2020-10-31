@@ -625,7 +625,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		if (sgbMouseDown == 0) {
 			sgbMouseDown = 1;
-			track_repeat_walk(LeftMouseDown(wParam));
+			track_repeat_walk(LeftMouseDown((wParam & DVL_MK_SHIFT) != 0));
 		}
 		return;
 	case DVL_WM_LBUTTONUP:
@@ -684,87 +684,126 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	MainWndProc(hWnd, uMsg, wParam, lParam);
 }
 
-BOOL LeftMouseDown(int wParam)
+BOOL LeftMouseDown(BOOL bShift)
 {
-	if (!gmenu_left_mouse(TRUE) && !control_check_talk_btn() && sgnTimeoutCurs == CURSOR_NONE) {
-		if (deathflag) {
-			control_check_btn_press();
-		} else if (PauseMode != 2) {
-			if (doomflag) {
-				doom_close();
-			} else if (spselflag) {
-				SetSpell();
-			} else if (stextflag != STORE_NONE) {
-				CheckStoreBtn();
-			} else if (MouseY < PANEL_TOP || MouseX < PANEL_LEFT || MouseX >= PANEL_LEFT + PANEL_WIDTH) {
-				if (!gmenu_is_active() && !TryIconCurs()) {
-					if (questlog && MouseX > 32 && MouseX < 288 && MouseY > 32 && MouseY < 308) {
-						QuestlogESC();
-					} else if (qtextflag) {
-						qtextflag = FALSE;
-						stream_stop();
-					} else if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
-						CheckChrBtns();
-					} else if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
-						if (!dropGoldFlag)
-							CheckInvItem();
-					} else if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
-						CheckSBook();
-					} else if (pcurs >= CURSOR_FIRSTITEM) {
-						if (TryInvPut()) {
-							NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
-							NewCursor(CURSOR_HAND);
-						}
-					} else {
-						if (plr[myplr]._pStatPts != 0 && !spselflag)
-							CheckLvlBtn();
-						if (!lvlbtndown)
-							return LeftMouseCmd(wParam == DVL_MK_SHIFT + DVL_MK_LBUTTON);
-					}
-				}
-			} else {
-				if (!talkflag && !dropGoldFlag && !gmenu_is_active())
-					CheckInvScrn();
-				DoPanBtn();
-				if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
-					NewCursor(CURSOR_HAND);
-			}
-		}
+	if (gmenu_left_mouse(TRUE) || control_check_talk_btn() || sgnTimeoutCurs != CURSOR_NONE)
+		return FALSE;
+
+	if (deathflag) {
+		control_check_btn_press();
+		return FALSE;
 	}
 
-	return FALSE;
+	if (PauseMode == 2)
+		return FALSE;
+
+	if (doomflag) {
+		doom_close();
+		return FALSE;
+	}
+
+	if (spselflag) {
+		SetSpell();
+		return FALSE;
+	}
+
+	if (stextflag != STORE_NONE) {
+		CheckStoreBtn();
+		return FALSE;
+	}
+
+	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
+		if (!talkflag && !dropGoldFlag && !gmenu_is_active())
+			CheckInvScrn();
+		DoPanBtn();
+		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
+			NewCursor(CURSOR_HAND);
+		return FALSE;
+	}
+
+	if (gmenu_is_active())
+		return FALSE;
+
+	if (TryIconCurs())
+		return FALSE;
+
+	if (questlog && MouseX > 32 && MouseX < 288 && MouseY > 32 && MouseY < 308) {
+		QuestlogESC();
+		return FALSE;
+	}
+	if (qtextflag) {
+		qtextflag = FALSE;
+		stream_stop();
+		return FALSE;
+	}
+	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
+		CheckChrBtns();
+		return FALSE;
+	}
+	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		if (!dropGoldFlag)
+			CheckInvItem();
+		return FALSE;
+	}
+	if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		CheckSBook();
+		return FALSE;
+	}
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		if (TryInvPut()) {
+			NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
+			NewCursor(CURSOR_HAND);
+		}
+		return FALSE;
+	}
+
+	if (plr[myplr]._pStatPts != 0 && !spselflag)
+		CheckLvlBtn();
+	if (lvlbtndown)
+		return FALSE;
+
+	return LeftMouseCmd(bShift);
 }
 
 BOOL LeftMouseCmd(BOOL bShift)
 {
 	BOOL bNear;
 
-	assert(MouseY < PANEL_TOP || MouseX < PANEL_LEFT || MouseX >= PANEL_LEFT + PANEL_WIDTH);
-
 	if (leveltype == DTYPE_TOWN) {
 		if (pcursitem != -1 && pcurs == CURSOR_HAND)
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-		if (pcursmonst != -1)
+		if (pcursmonst != -1) {
 			NetSendCmdLocParam1(TRUE, CMD_TALKXY, cursmx, cursmy, pcursmonst);
-		if (pcursitem == -1 && pcursmonst == -1 && pcursplr == -1)
-			return TRUE;
+			return FALSE;
+		}
+		return pcursitem == -1 && pcursplr == -1;
 	} else {
 		bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
 		if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-		} else if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
+			return FALSE;
+		}
+		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(TRUE, pcurs == CURSOR_DISARM ? CMD_DISARMXY : CMD_OPOBJXY, cursmx, cursmy, pcursobj);
-		} else if (plr[myplr]._pwtype == WT_RANGED) {
+			return FALSE;
+		}
+		if (plr[myplr]._pwtype == WT_RANGED) {
 			if (bShift) {
 				NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
-			} else if (pcursmonst != -1) {
+				return FALSE;
+			}
+			if (pcursmonst != -1) {
 				if (CanTalkToMonst(pcursmonst)) {
 					NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
 				} else {
 					NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
 				}
-			} else if (pcursplr != -1 && !FriendlyMode) {
-				NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
+				return FALSE;
+			}
+			if (pcursplr != -1) {
+				if (!FriendlyMode)
+					NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
+				return FALSE;
 			}
 		} else {
 			if (bShift) {
@@ -777,17 +816,20 @@ BOOL LeftMouseCmd(BOOL bShift)
 				} else {
 					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
 				}
-			} else if (pcursmonst != -1) {
+				return FALSE;
+			}
+			if (pcursmonst != -1) {
 				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-			} else if (pcursplr != -1 && !FriendlyMode) {
-				NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
+				return FALSE;
+			}
+			if (pcursplr != -1) {
+				if (!FriendlyMode)
+					NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
+				return FALSE;
 			}
 		}
-		if (!bShift && pcursitem == -1 && pcursobj == -1 && pcursmonst == -1 && pcursplr == -1)
-			return TRUE;
+		return pcursitem == -1 && pcursobj == -1;
 	}
-
-	return FALSE;
 }
 
 BOOL TryIconCurs()
@@ -868,27 +910,41 @@ void LeftMouseUp()
 
 void RightMouseDown()
 {
-	if (!gmenu_is_active() && sgnTimeoutCurs == CURSOR_NONE && PauseMode != 2 && !plr[myplr]._pInvincible) {
-		if (doomflag) {
-			doom_close();
-		} else if (stextflag == STORE_NONE) {
-			if (spselflag) {
-				SetSpell();
+	if (gmenu_is_active() || sgnTimeoutCurs != CURSOR_NONE)
+		return;
+
+	if (PauseMode == 2)
+		return;
+
+	if (plr[myplr]._pInvincible)
+		return;
+
+	if (doomflag) {
+		doom_close();
+		return;
+	}
+
+	if (stextflag != STORE_NONE)
+		return;
+
+	if (spselflag) {
+		SetSpell();
+		return;
+	}
+
 #ifdef HELLFIRE
-			} else if ((!sbookflag || MouseX <= RIGHT_PANEL) && (MouseY >= SPANEL_HEIGHT || (!TryIconCurs() && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))))) {
+	if ((!sbookflag || MouseX <= RIGHT_PANEL) && (MouseY >= SPANEL_HEIGHT || (!TryIconCurs() && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))))) {
 #else
-			} else if (MouseY >= SPANEL_HEIGHT
-			    || (!sbookflag || MouseX <= RIGHT_PANEL)
-			        && !TryIconCurs()
-			        && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))) {
+	if (MouseY >= SPANEL_HEIGHT
+	    || (!sbookflag || MouseX <= RIGHT_PANEL)
+	        && !TryIconCurs()
+	        && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))) {
 #endif
-				if (pcurs == CURSOR_HAND) {
-					if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))
-						CheckPlrSpell();
-				} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-					NewCursor(CURSOR_HAND);
-				}
-			}
+		if (pcurs == CURSOR_HAND) {
+			if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))
+				CheckPlrSpell();
+		} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+			NewCursor(CURSOR_HAND);
 		}
 	}
 }
