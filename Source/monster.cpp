@@ -476,15 +476,7 @@ void InitMonster(int mnum, int rd, int mtype, int x, int y)
 	mon->_mAnimLen = cmon->Anims[MA_STAND].Frames;
 	mon->_mAnimFrame = random_(88, mon->_mAnimLen - 1) + 1;
 
-	if (cmon->mtype == MT_DIABLO) {
-#ifdef HELLFIRE
-		mon->_mmaxhp = (random_(88, 1) + 3333) << 6;
-#else
-		mon->_mmaxhp = (random_(88, 1) + 1666) << 6;
-#endif
-	} else {
-		mon->_mmaxhp = (cmon->mMinHP + random_(88, cmon->mMaxHP - cmon->mMinHP + 1)) << 6;
-	}
+	mon->_mmaxhp = (cmon->mMinHP + random_(88, cmon->mMaxHP - cmon->mMinHP + 1)) << 6;
 
 	if (gbMaxPlayers == 1) {
 		mon->_mmaxhp >>= 1;
@@ -5591,9 +5583,9 @@ BOOL monster_posok(int mnum, int x, int y)
 				}
 			}
 		}
-		if ((fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE)) || (fire && monster[mnum].MType->mtype == MT_DIABLO))
+		if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
 			ret = FALSE;
-		if ((lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING)) || (lightning && monster[mnum].MType->mtype == MT_DIABLO))
+		if (lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING))
 			ret = FALSE;
 	}
 #else
@@ -5608,7 +5600,7 @@ BOOL monster_posok(int mnum, int x, int y)
 				}
 			}
 		}
-		if (fire && (!(monster[mnum].mMagicRes & IMMUNE_FIRE) || monster[mnum].MType->mtype == MT_DIABLO))
+		if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
 			ret = FALSE;
 	}
 #endif
