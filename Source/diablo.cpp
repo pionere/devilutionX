@@ -178,12 +178,16 @@ static BOOL ProcessInput()
 	if (PauseMode == 2) {
 		return FALSE;
 	}
-	if (gbMaxPlayers == 1 && gmenu_is_active()) {
-		force_redraw |= 1;
-		return FALSE;
+
+	if (gmenu_is_active()) {
+		if (gbMaxPlayers == 1) {
+			force_redraw |= 1;
+			return FALSE;
+		}
+		return TRUE;
 	}
 
-	if (!gmenu_is_active() && sgnTimeoutCurs == CURSOR_NONE) {
+	if (sgnTimeoutCurs == CURSOR_NONE) {
 #ifndef USE_SDL1
 		finish_simulated_mouse_clicks(MouseX, MouseY);
 #endif

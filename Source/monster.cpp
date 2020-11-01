@@ -2254,11 +2254,9 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	dmon = &monster[defm];
 	if (dmon->MType == NULL)
 		app_fatal("MonTryM2MHit: Monster %d \"%s\" MType NULL", defm, dmon->mName);
-	if (dmon->_mhitpoints >> 6 > 0 && (dmon->MType->mtype != MT_ILLWEAV || dmon->_mgoal != MGOAL_RETREAT)) {
-		int hit = random_(4, 100);
-		if (dmon->_mmode == MM_STONE)
-			hit = 0;
-		if (!CheckMonsterHit(defm, &ret) && hit < hper) {
+	if (dmon->_mhitpoints >> 6 > 0 && (dmon->MType->mtype != MT_ILLWEAV || dmon->_mgoal != MGOAL_RETREAT) && !CheckMonsterHit(defm, &ret)) {
+		int hit = dmon->_mmode == MM_STONE ? 0 : random_(4, 100);
+		if (hit < hper) {
 			int dam = (mind + random_(5, maxd - mind + 1)) << 6;
 			dmon->_mhitpoints -= dam;
 			if (dmon->_mhitpoints >> 6 <= 0) {

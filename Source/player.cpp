@@ -1022,18 +1022,18 @@ void AddPlrMonstExper(int lvl, int exp, char pmask)
 {
 	int totplrs, i, e;
 
+	if (!(pmask & (1 << myplr)))
+		return;
+
 	totplrs = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
-		if ((1 << i) & pmask) {
+		if (pmask & (1 << i)) {
 			totplrs++;
 		}
 	}
 
-	if (totplrs != 0) {
-		e = exp / totplrs;
-		if (pmask & (1 << myplr))
-			AddPlrExperience(myplr, lvl, e);
-	}
+	e = exp / totplrs;
+	AddPlrExperience(myplr, lvl, e);
 }
 
 void InitPlayer(int pnum, BOOL FirstTime)
@@ -1746,21 +1746,35 @@ void FixPlrWalkTags(int pnum)
 		app_fatal("FixPlrWalkTags: illegal player %d", pnum);
 	}
 
-	pp = pnum + 1;
-	pn = -(pnum + 1);
 	dx = plr[pnum]._poldx;
 	dy = plr[pnum]._poldy;
+	// BUGFIX: is this necessary?
+	if (!IN_DUNGEON_AREA(dx, dy))
+		return;
+
+	if (dx < MAXDUNX - 1)
+		dFlags[dx + 1][dy] &= ~BFLAG_PLAYERLR;
+	if (dy < MAXDUNY - 1)
+		dFlags[dx][dy + 1] &= ~BFLAG_PLAYERLR;
+
+	// BUGFIX: is this necessary?
+	if (dx < 1)
+		dx = 1;
+	else if (dx >= MAXDUNX - 1)
+		dx = MAXDUNX - 2;
+	if (dy < 1)
+		dy = 1;
+	else if (dy >= MAXDUNY - 1)
+		dy = MAXDUNY - 2;
+
+	pp = pnum + 1;
+	pn = -(pnum + 1);
 	for (y = dy - 1; y <= dy + 1; y++) {
 		for (x = dx - 1; x <= dx + 1; x++) {
-			if (IN_DUNGEON_AREA(x, y) && (dPlayer[x][y] == pp || dPlayer[x][y] == pn)) {
+			if (dPlayer[x][y] == pp || dPlayer[x][y] == pn) {
 				dPlayer[x][y] = 0;
 			}
 		}
-	}
-
-	if (dx >= 0 && dx < MAXDUNX - 1 && dy >= 0 && dy < MAXDUNY - 1) {
-		dFlags[dx + 1][dy] &= ~BFLAG_PLAYERLR;
-		dFlags[dx][dy + 1] &= ~BFLAG_PLAYERLR;
 	}
 }
 
@@ -2219,6 +2233,8 @@ void RemovePlrMissiles(int pnum)
 
 void InitLevelChange(int pnum)
 {
+	PlayerStruct *p;
+
 	RemovePlrMissiles(pnum);
 	if (pnum == myplr && qtextflag) {
 		qtextflag = FALSE;
@@ -2227,19 +2243,17 @@ void InitLevelChange(int pnum)
 
 	RemovePlrFromMap(pnum);
 	SetPlayerOld(pnum);
-	if (pnum == myplr) {
-		dPlayer[plr[pnum]._px][plr[pnum]._py] = pnum + 1;
-	} else {
-		plr[pnum]._pLvlVisited[plr[pnum].plrlevel] = TRUE;
-	}
-
 	ClrPlrPath(pnum);
-	plr[pnum].destAction = ACTION_NONE;
-	plr[pnum]._pLvlChanging = TRUE;
-
+	p = &plr[pnum];
 	if (pnum == myplr) {
-		plr[pnum].pLvlLoad = 10;
+		p->pLvlLoad = 10;
+		dPlayer[p->_px][p->_py] = pnum + 1;
+	} else {
+		p->_pLvlVisited[p->plrlevel] = TRUE;
 	}
+
+	p->destAction = ACTION_NONE;
+	p->_pLvlChanging = TRUE;
 }
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -2693,22 +2707,22 @@ BOOL PlrHitMonst(int pnum, int mnum)
 		return FALSE;
 	}
 
+	if (CheckMonsterHit(mnum, &ret)) {
+		return ret;
+	}
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrHitMonst: illegal player %d", pnum);
 	}
 
 	p = &plr[pnum];
 
-	hit = random_(4, 100);
-	if (mon->_mmode == MM_STONE) {
-		hit = 0;
-	}
+	hit = mon->_mmode == MM_STONE ? 0 : random_(4, 100);
 
-	hper = (p->_pDexterity >> 1) + p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
+	hper = (p->_pDexterity >> 1) + p->_pIBonusToHit +  p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
 	if (p->_pClass == PC_WARRIOR) {
 		hper += 20;
 	}
-	hper += p->_pIBonusToHit;
 	if (hper < 5) {
 		hper = 5;
 	}
@@ -2716,9 +2730,6 @@ BOOL PlrHitMonst(int pnum, int mnum)
 		hper = 95;
 	}
 
-	if (CheckMonsterHit(mnum, &ret)) {
-		return ret;
-	}
 #ifdef _DEBUG
 	if (hit < hper || debug_mode_key_inverted_v || debug_mode_dollar_sign) {
 #else
@@ -3881,7 +3892,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
-	if (IN_DUNGEON_AREA(x, y) && !nSolidTable[dPiece[x][y]] && dPiece[x][y] != 0) {
+	if (IN_DUNGEON_AREA(x, y) && dPiece[x][y] != 0 && !nSolidTable[dPiece[x][y]]) {
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
@@ -3891,13 +3902,13 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 		}
 		mpo = dMonster[x][y];
 		if (mpo != 0) {
-			if (currlevel == 0) {
-				return FALSE;
-			}
 			if (mpo < 0) {
 				return FALSE;
 			}
 			if ((monster[mpo - 1]._mhitpoints >> 6) > 0) {
+				return FALSE;
+			}
+			if (currlevel == 0) {
 				return FALSE;
 			}
 		}

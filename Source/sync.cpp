@@ -255,6 +255,8 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 		return;
 	}
 
+	decode_enemy(mnum, symon->_menemy);
+
 	if (abs(mon->_mx - symon->_mx) <= 2 && abs(mon->_my - symon->_my) <= 2) {
 		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK3) {
 			md = GetDirection(mon->_mx, mon->_my, symon->_mx, symon->_my);
@@ -270,13 +272,10 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 		dMonster[symon->_mx][symon->_my] = mnum + 1;
 		mon->_mx = symon->_mx;
 		mon->_my = symon->_my;
-		decode_enemy(mnum, symon->_menemy);
 		md = GetDirection(symon->_mx, symon->_my, mon->_menemyx, mon->_menemyy);
 		MonStartStand(mnum, md);
 		mon->_msquelch = UCHAR_MAX;
 	}
-
-	decode_enemy(mnum, symon->_menemy);
 }
 
 void sync_init()

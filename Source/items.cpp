@@ -4552,14 +4552,14 @@ BOOL SmithItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 	 && AllItemsList[i].itype != ITYPE_GOLD
-	 && AllItemsList[i].itype != ITYPE_MEAT
 #ifdef HELLFIRE
 	 && (AllItemsList[i].itype != ITYPE_STAFF || AllItemsList[i].iSpell == SPL_NULL)
 #else
 	 && AllItemsList[i].itype != ITYPE_STAFF
 #endif
 	 && AllItemsList[i].itype != ITYPE_RING
-	 && AllItemsList[i].itype != ITYPE_AMULET;
+	 && AllItemsList[i].itype != ITYPE_AMULET
+	 && AllItemsList[i].itype != ITYPE_MEAT;
 }
 
 int RndSmithItem(int lvl)

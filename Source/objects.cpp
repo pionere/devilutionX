@@ -3249,14 +3249,13 @@ void OperateTrapLvr(int oi)
 	int frame, i;
 
 	os = &object[oi];
-	frame = os->_oAnimFrame;
-	i = 0;
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 
+	frame = os->_oAnimFrame;
 	if (frame == 1) {
 		os->_oAnimFrame = 2;
-		for (; i < nobjects; i++) {
+		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]];
 			if (on->_otype == os->_oVar2 && on->_oVar1 == os->_oVar1) {
 				on->_oVar2 = 1;
@@ -3267,7 +3266,7 @@ void OperateTrapLvr(int oi)
 	}
 
 	os->_oAnimFrame = frame - 1;
-	for (; i < nobjects; i++) {
+	for (i = 0; i < nobjects; i++) {
 		on = &object[objectactive[i]];
 		if (on->_otype == os->_oVar2 && on->_oVar1 == os->_oVar1) {
 			on->_oVar2 = 0;

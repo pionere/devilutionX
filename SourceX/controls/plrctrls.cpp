@@ -200,15 +200,14 @@ void FindRangedTarget()
 
 	// The first MAX_PLRS monsters are reserved for players' golems.
 	for (int mi = MAX_PLRS; mi < MAXMONSTERS; mi++) {
-		const MonsterStruct &mon = monster[mi];
-		const int mx = mon._mfutx;
-		const int my = mon._mfuty;
 		if (!CanTargetMonster(mi))
 			continue;
-
 		const bool newCanTalk = CanTalkToMonst(mi);
 		if (pcursmonst != -1 && !canTalk && newCanTalk)
 			continue;
+		const MonsterStruct &mon = monster[mi];
+		const int mx = mon._mfutx;
+		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
 		const int newRotations = GetRotaryDistance(mx, my);
 		if (pcursmonst != -1 && canTalk == newCanTalk) {
