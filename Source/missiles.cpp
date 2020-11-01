@@ -5288,8 +5288,8 @@ void MI_Apoca(int mi)
 #endif
 				pnum = mis->_misource;
 				AddMissile(i, j, i, j, plr[pnum]._pdir, MIS_BOOM, 0, pnum, mis->_midam, 0);
-				mis->_miVar2 = j - 1;
-				mis->_miVar4 = i;
+				mis->_miVar2 = j;
+				mis->_miVar4 = i + 1;
 				return;
 			}
 		}
