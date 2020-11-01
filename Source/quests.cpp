@@ -117,7 +117,6 @@ void InitQuests()
 	}
 
 	questlog = FALSE;
-	PentSpn2Frame = 1;
 	WaterDone = 0;
 	initiatedQuests = 0;
 
@@ -856,7 +855,7 @@ void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
 		sx += k;
 	}
 	if (qline == y) {
-		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	}
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
@@ -867,7 +866,7 @@ void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
 		sx += fontkern[c] + 1;
 	}
 	if (qline == y) {
-		CelDraw(cjustflag ? x + k + 36 + SCREEN_X : 276 + SCREEN_X - x, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(cjustflag ? x + k + 36 + SCREEN_X : 276 + SCREEN_X - x, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	}
 }
 
@@ -883,7 +882,6 @@ void DrawQuestLog()
 		y += 2;
 	}
 	PrintQLString(0, 22, TRUE, "Close Quest Log", 0);
-	PentSpn2Spin();
 }
 
 void StartQuestlog()
@@ -906,7 +904,6 @@ void StartQuestlog()
 	if (numqlines != 0)
 		qline = qtopline;
 	questlog = TRUE;
-	PentSpn2Frame = 1;
 }
 
 void QuestlogUp()

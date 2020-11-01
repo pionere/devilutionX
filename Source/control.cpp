@@ -872,7 +872,6 @@ void InitControlPan()
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
 	initialDropGoldIndex = 0;
-	PentSpn2Frame = 1;
 }
 
 void DrawCtrlPan()
@@ -2000,8 +1999,7 @@ void DrawGoldSplit(int amount)
 	} else {
 		screen_x = 450;
 	}
-	CelDraw(screen_x, 140 + SCREEN_Y, pSPentSpn2Cels, PentSpn2Frame, 12);
-	PentSpn2Spin();
+	CelDraw(screen_x, 140 + SCREEN_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 }
 
 void control_drop_gold(char vkey)
@@ -2100,8 +2098,7 @@ void DrawTalkPan()
 	}
 	if (msg)
 		*msg = '\0';
-	CelDraw(x, i + 22 + PANEL_Y, pSPentSpn2Cels, PentSpn2Frame, 12);
-	PentSpn2Spin();
+	CelDraw(x, i + 22 + PANEL_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	talk_btn = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
@@ -2208,7 +2205,6 @@ void control_type_message()
 
 	talkflag = TRUE;
 	sgszTalkMsg[0] = '\0';
-	PentSpn2Frame = 1;
 	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++) {
 		talkbtndown[i] = FALSE;
 	}

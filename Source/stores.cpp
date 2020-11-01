@@ -35,8 +35,6 @@ int stextsel;
 char stextscrldbtn;
 int gossipend;
 BYTE *pSPentSpn2Cels;
-BYTE PentSpn2Frame;
-DWORD PentSpn2Tick;
 int stextsidx;
 int boylevel;
 ItemStruct smithitem[SMITH_ITEMS];
@@ -66,7 +64,6 @@ void InitStores()
 	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL", NULL);
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
-	PentSpn2Frame = 1;
 	stextsize = FALSE;
 	stextscrl = FALSE;
 	numpremium = 0;
@@ -79,13 +76,9 @@ void InitStores()
 	boylevel = 0;
 }
 
-void PentSpn2Spin()
+int PentSpn2Spin()
 {
-	DWORD ticks = SDL_GetTicks();
-	if (ticks - PentSpn2Tick > 50) {
-		PentSpn2Frame = (PentSpn2Frame & 7) + 1;
-		PentSpn2Tick = ticks;
-	}
+	return (SDL_GetTicks() / 50) % 8 + 1;
 }
 
 void SetupTownStores()
@@ -157,7 +150,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 		sx += k;
 	}
 	if (stextsel == y) {
-		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	}
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
@@ -179,7 +172,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 		}
 	}
 	if (stextsel == y) {
-		CelDraw(cjustflag ? (xx + x + k + 4) : (PANEL_X + 596 - x), sy + 1, pSPentSpn2Cels, PentSpn2Frame, 12);
+		CelDraw(cjustflag ? (xx + x + k + 4) : (PANEL_X + 596 - x), sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	}
 }
 
@@ -1390,8 +1383,6 @@ void DrawSText()
 
 	if (stextscrl)
 		DrawSSlider(4, 20);
-
-	PentSpn2Spin();
 }
 
 void STextESC()
