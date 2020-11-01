@@ -3484,7 +3484,6 @@ void OperateShrine(int pnum, int oi, int sType)
 			ModifyPlrVit(pnum, 6);
 			break;
 		}
-		CheckStats(pnum);
 		InitDiabloMsg(EMSG_SHRINE_MYSTERIOUS);
 		break;
 	case SHRINE_HIDDEN:
@@ -3806,7 +3805,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		ModifyPlrMag(pnum, 2);
-		CheckStats(pnum);
 		InitDiabloMsg(EMSG_SHRINE_EERIE);
 		break;
 	case SHRINE_DIVINE:
@@ -3895,7 +3893,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		ModifyPlrDex(pnum, 2);
-		CheckStats(pnum);
 		if (pnum == myplr)
 			InitDiabloMsg(EMSG_SHRINE_ABANDONED);
 		break;
@@ -3905,7 +3902,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		ModifyPlrStr(pnum, 2);
-		CheckStats(pnum);
 		if (pnum == myplr)
 			InitDiabloMsg(EMSG_SHRINE_CREEPY);
 		break;
@@ -3915,7 +3911,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pnum != myplr)
 			return;
 		ModifyPlrVit(pnum, 2);
-		CheckStats(pnum);
 		if (pnum == myplr)
 			InitDiabloMsg(EMSG_SHRINE_QUIET);
 		break;
@@ -3989,8 +3984,6 @@ void OperateShrine(int pnum, int oi, int sType)
 			ModifyPlrMag(myplr, v2);
 			ModifyPlrDex(myplr, v3);
 			ModifyPlrVit(myplr, v4);
-
-			CheckStats(myplr);
 		}
 		break;
 #ifdef HELLFIRE
@@ -4023,7 +4016,6 @@ void OperateShrine(int pnum, int oi, int sType)
 			ModifyPlrVit(myplr, 2);
 			break;
 		}
-		CheckStats(myplr);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -4053,7 +4045,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		}
 		ModifyPlrMag(myplr, magicGain);
 		p->_pExperience = xpLoss;
-		CheckStats(myplr);
 	} break;
 	case SHRINE_MENDICANT:
 		if (deltaload)
@@ -4063,7 +4054,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		InitDiabloMsg(EMSG_SHRINE_MENDICANT);
 		AddPlrExperience(myplr, p->_pLevel, p->_pGold / 2);
 		TakePlrsMoney(p->_pGold / 2);
-		CheckStats(myplr);
 		break;
 	case SHRINE_SPARKLING:
 		if (deltaload)
@@ -4083,7 +4073,6 @@ void OperateShrine(int pnum, int oi, int sType)
 		    0,
 		    3 * currlevel + 2,
 		    0);
-		CheckStats(myplr);
 		break;
 	case SHRINE_TOWN:
 		if (deltaload)
@@ -4136,7 +4125,6 @@ void OperateShrine(int pnum, int oi, int sType)
 			InitDiabloMsg(EMSG_SHRINE_SOLAR3);
 			ModifyPlrMag(myplr, 2);
 		}
-		CheckStats(myplr);
 	} break;
 	case SHRINE_MURPHYS:
 		if (deltaload)
@@ -4439,7 +4427,6 @@ DIABOOL OperateFountains(int pnum, int oi)
 
 			done = TRUE;
 		}
-		CheckStats(pnum);
 		applied = TRUE;
 		if (pnum == myplr)
 			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);

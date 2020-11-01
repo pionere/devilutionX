@@ -4216,22 +4216,20 @@ void CheckStats(int pnum)
 	}
 }
 
-void ModifyPlrStr(int pnum, int l)
+void ModifyPlrStr(int pnum, int v)
 {
 	PlayerStruct *p;
-	int max;
+	int val;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrStr: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	max = MaxStats[p->_pClass][ATTRIB_STR];
-	if (p->_pBaseStr + l > max) {
-		l = max - p->_pBaseStr;
-	}
+	val = p->_pBaseStr;
+	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_STR] - val), -val);
 
-	p->_pStrength += l;
-	p->_pBaseStr += l;
+	p->_pStrength += v;
+	p->_pBaseStr += v;
 
 #ifndef HELLFIRE
 	if (p->_pClass == PC_ROGUE) {
@@ -4248,24 +4246,22 @@ void ModifyPlrStr(int pnum, int l)
 	}
 }
 
-void ModifyPlrMag(int pnum, int l)
+void ModifyPlrMag(int pnum, int v)
 {
 	PlayerStruct *p;
-	int max, ms;
+	int val, ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrMag: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	max = MaxStats[p->_pClass][ATTRIB_MAG];
-	if (p->_pBaseMag + l > max) {
-		l = max - p->_pBaseMag;
-	}
+	val = p->_pBaseMag;
+	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_MAG] - val), -val);
 
-	p->_pMagic += l;
-	p->_pBaseMag += l;
+	p->_pMagic += v;
+	p->_pBaseMag += v;
 
-	ms = l << 6;
+	ms = v << 6;
 	if (p->_pClass == PC_SORCERER) {
 		ms <<= 1;
 #ifdef HELLFIRE
@@ -4288,22 +4284,20 @@ void ModifyPlrMag(int pnum, int l)
 	}
 }
 
-void ModifyPlrDex(int pnum, int l)
+void ModifyPlrDex(int pnum, int v)
 {
 	PlayerStruct *p;
-	int max;
+	int val;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrDex: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	max = MaxStats[p->_pClass][ATTRIB_DEX];
-	if (p->_pBaseDex + l > max) {
-		l = max - p->_pBaseDex;
-	}
+	val = p->_pBaseDex;
+	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_DEX] - val), -val);
 
-	p->_pDexterity += l;
-	p->_pBaseDex += l;
+	p->_pDexterity += v;
+	p->_pBaseDex += v;
 	CalcPlrInv(pnum, TRUE);
 
 #ifndef HELLFIRE
@@ -4317,24 +4311,22 @@ void ModifyPlrDex(int pnum, int l)
 	}
 }
 
-void ModifyPlrVit(int pnum, int l)
+void ModifyPlrVit(int pnum, int v)
 {
 	PlayerStruct *p;
-	int max, ms;
+	int val, ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrVit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	max = MaxStats[p->_pClass][ATTRIB_VIT];
-	if (p->_pBaseVit + l > max) {
-		l = max - p->_pBaseVit;
-	}
+	val = p->_pBaseVit;
+	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_VIT] - val), -val);
 
-	p->_pVitality += l;
-	p->_pBaseVit += l;
+	p->_pVitality += v;
+	p->_pBaseVit += v;
 
-	ms = l << 6;
+	ms = v << 6;
 	if (p->_pClass == PC_WARRIOR) {
 		ms <<= 1;
 #ifdef HELLFIRE
@@ -4379,6 +4371,9 @@ void SetPlrStr(int pnum, int v)
 		app_fatal("SetPlrStr: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+
+	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_STR]));
+
 	p->_pBaseStr = v;
 	CalcPlrInv(pnum, TRUE);
 
@@ -4402,6 +4397,9 @@ void SetPlrMag(int pnum, int v)
 		app_fatal("SetPlrMag: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+
+	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_MAG]));
+
 	p->_pBaseMag = v;
 
 	m = v << 6;
@@ -4426,8 +4424,13 @@ void SetPlrDex(int pnum, int v)
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlrDex: illegal player %d", pnum);
 	}
+
 	p = &plr[pnum];
+
+	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_DEX]));
+
 	p->_pBaseDex = v;
+
 	CalcPlrInv(pnum, TRUE);
 
 #ifndef HELLFIRE
@@ -4449,7 +4452,11 @@ void SetPlrVit(int pnum, int v)
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlrVit: illegal player %d", pnum);
 	}
+
 	p = &plr[pnum];
+
+	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_VIT]));
+
 	p->_pBaseVit = v;
 
 	hp = v << 6;
