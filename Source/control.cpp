@@ -1814,7 +1814,7 @@ char GetSBookTrans(int sn, BOOL townok)
 
 	p = &plr[myplr];
 #ifdef HELLFIRE
-	if ((p->_pClass == PC_MONK) && (ii == SPL_SEARCH))
+	if ((p->_pClass == PC_MONK) && (sn == SPL_SEARCH))
 		return RSPLTYPE_SKILL;
 #endif
 	st = RSPLTYPE_SPELL;
