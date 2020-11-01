@@ -1025,7 +1025,7 @@ void CheckPanelInfo()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int i, c, v;
+	int i, c, sn;
 
 	panelflag = FALSE;
 	ClearPanel();
@@ -1059,17 +1059,17 @@ void CheckPanelInfo()
 		strcpy(tempstr, "Hotkey : 's'");
 		AddPanelString(tempstr, TRUE);
 		p = &plr[myplr];
-		v = p->_pRSpell;
-		if (v != SPL_INVALID) {
+		sn = p->_pRSpell;
+		if (sn != SPL_INVALID) {
 			switch (p->_pRSplType) {
 			case RSPLTYPE_SKILL:
-				sprintf(tempstr, "%s Skill", spelldata[v].sSkillText);
+				sprintf(tempstr, "%s Skill", spelldata[sn].sSkillText);
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_SPELL:
-				sprintf(tempstr, "%s Spell", spelldata[v].sNameText);
+				sprintf(tempstr, "%s Spell", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
-				c = p->_pISplLvlAdd + p->_pSplLvl[v];
+				c = p->_pISplLvlAdd + p->_pSplLvl[sn];
 				if (c <= 0)
 					sprintf(tempstr, "Spell Level 0 - Unusable");
 				else
@@ -1077,14 +1077,14 @@ void CheckPanelInfo()
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_SCROLL:
-				sprintf(tempstr, "Scroll of %s", spelldata[v].sNameText);
+				sprintf(tempstr, "Scroll of %s", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				c = 0;
 				pi = p->InvList;
 				for (i = p->_pNumInv; i > 0; i--, pi++) {
 					if (pi->_itype != ITYPE_NONE
 					    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
-					    && pi->_iSpell == v) {
+					    && pi->_iSpell == sn) {
 						c++;
 					}
 				}
@@ -1092,7 +1092,7 @@ void CheckPanelInfo()
 				for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 					if (pi->_itype != ITYPE_NONE
 					    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
-					    && pi->_iSpell == v) {
+					    && pi->_iSpell == sn) {
 						c++;
 					}
 				}
@@ -1103,7 +1103,7 @@ void CheckPanelInfo()
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_CHARGES:
-				sprintf(tempstr, "Staff of %s", spelldata[v].sNameText);
+				sprintf(tempstr, "Staff of %s", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				c = p->InvBody[INVLOC_HAND_LEFT]._iCharges;
 				if (c == 1)
@@ -1807,7 +1807,7 @@ void RedBack()
 	}
 }
 
-char GetSBookTrans(int ii, BOOL townok)
+char GetSBookTrans(int sn, BOOL townok)
 {
 	PlayerStruct *p;
 	char st;
@@ -1818,21 +1818,21 @@ char GetSBookTrans(int ii, BOOL townok)
 		return RSPLTYPE_SKILL;
 #endif
 	st = RSPLTYPE_SPELL;
-	if (p->_pISpells & (__int64)1 << (ii - 1)) {
+	if (p->_pISpells & (__int64)1 << (sn - 1)) {
 		st = RSPLTYPE_CHARGES;
 	}
-	if (p->_pAblSpells & (__int64)1 << (ii - 1)) { /// BUGFIX: missing (__int64) (fixed)
+	if (p->_pAblSpells & (__int64)1 << (sn - 1)) { /// BUGFIX: missing (__int64) (fixed)
 		st = RSPLTYPE_SKILL;
 	}
 	if (st == RSPLTYPE_SPELL) {
-		if (!CheckSpell(myplr, ii, RSPLTYPE_SPELL, TRUE)) {
+		if (!CheckSpell(myplr, sn, RSPLTYPE_SPELL, TRUE)) {
 			st = RSPLTYPE_INVALID;
 		}
-		if ((char)(p->_pSplLvl[ii] + p->_pISplLvlAdd) <= 0) {
+		if ((char)(p->_pSplLvl[sn] + p->_pISplLvlAdd) <= 0) {
 			st = RSPLTYPE_INVALID;
 		}
 	}
-	if (townok && currlevel == 0 && st != RSPLTYPE_INVALID && !spelldata[ii].sTownSpell) {
+	if (townok && currlevel == 0 && st != RSPLTYPE_INVALID && !spelldata[sn].sTownSpell) {
 		st = RSPLTYPE_INVALID;
 	}
 

@@ -1077,7 +1077,7 @@ void stream_stop()
 	}
 }
 
-void InitMonsterSND(int monst)
+void InitMonsterSND(int midx)
 {
 	TSnd *pSnd;
 	char name[MAX_PATH];
@@ -1089,7 +1089,7 @@ void InitMonsterSND(int monst)
 		return;
 	}
 
-	mdata = &monsterdata[Monsters[monst].mtype];
+	mdata = &monsterdata[Monsters[midx].mtype];
 	for (i = 0; i < 4; i++) {
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < 2; j++) {
@@ -1097,7 +1097,7 @@ void InitMonsterSND(int monst)
 				path = (char *)DiabloAllocPtr(strlen(name) + 1);
 				strcpy(path, name);
 				pSnd = sound_file_load(path);
-				Monsters[monst].Snds[i][j] = pSnd;
+				Monsters[midx].Snds[i][j] = pSnd;
 				if (!pSnd)
 					mem_free_dbg(path);
 			}
@@ -1131,7 +1131,7 @@ void FreeMonsterSnd()
 	}
 }
 
-void PlayEffect(int i, int mode)
+void PlayEffect(int mnum, int mode)
 {
 	MonsterStruct *mon;
 	int sndIdx, mi, lVolume, lPan;
@@ -1146,7 +1146,7 @@ void PlayEffect(int i, int mode)
 		return;
 	}
 
-	mon = &monster[i];
+	mon = &monster[mnum];
 	snd = Monsters[mon->_mMTidx].Snds[mode][sndIdx];
 	if (!snd || snd_playing(snd)) {
 		return;

@@ -104,7 +104,7 @@ void diablo_color_cyc_logic();
 /* rdata */
 
 extern BOOL fullscreen;
-extern int showintrodebug;
+extern int showintro;
 #ifdef _DEBUG
 extern int questdebug;
 extern int debug_mode_key_s;

@@ -109,7 +109,7 @@ void ReleaseChrBtns();
 void DrawDurIcon();
 int DrawDurIcon4Item(ItemStruct *pItem, int x, int c);
 void RedBack();
-char GetSBookTrans(int ii, BOOL townok);
+char GetSBookTrans(int sn, BOOL townok);
 void DrawSpellBook();
 void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char col);
 void CheckSBook();

@@ -3063,25 +3063,25 @@ void L2LockoutFix()
 			}
 		}
 	}
-	for (j = 1; j < DMAXX - 1; j++) { /* check: might be flipped */
-		for (i = 1; i < DMAXY - 1; i++) {
-			if (dflags[j][i] & DLRG_PROTECTED) {
+	for (i = 1; i < DMAXX - 1; i++) {
+		for (j = 1; j < DMAXY - 1; j++) {
+			if (dflags[i][j] & DLRG_PROTECTED) {
 				continue;
 			}
-			if ((dungeon[j][i] == 1 || dungeon[j][i] == 4) && dungeon[j - 1][i] == 3 && dungeon[j + 1][i] == 3) {
+			if ((dungeon[i][j] == 1 || dungeon[i][j] == 4) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
 				doorok = FALSE;
 				do {
-					if (dungeon[j - 1][i] != 3 || dungeon[j + 1][i] != 3) {
+					if (dungeon[i - 1][j] != 3 || dungeon[i + 1][j] != 3) {
 						break;
 					}
-					if (dungeon[j][i] == 4) {
+					if (dungeon[i][j] == 4) {
 						doorok = TRUE;
 						break;
 					}
-					i++;
-				} while (dungeon[j][i] == 1 || dungeon[j][i] == 4);
-				if (!doorok && !(dflags[j][i - 1] & DLRG_PROTECTED)) {
-					dungeon[j][i - 1] = 4;
+					j++;
+				} while (dungeon[i][j] == 1 || dungeon[i][j] == 4);
+				if (!doorok && !(dflags[i][j - 1] & DLRG_PROTECTED)) {
+					dungeon[i][j - 1] = 4;
 				}
 			}
 		}

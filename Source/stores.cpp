@@ -704,23 +704,23 @@ void S_StartSRepair()
 
 void AddStoreHoldRepair(const ItemStruct *is, int i)
 {
-	ItemStruct *item;
+	ItemStruct *holditem;
 	int v;
 
-	item = &storehold[storenumh];
-	*item = *is;
-	if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
-		item->_ivalue = 30 * item->_iIvalue / 100;
-	v = item->_ivalue * (100 * (item->_iMaxDur - item->_iDurability) / item->_iMaxDur) / 100;
+	holditem = &storehold[storenumh];
+	*holditem = *is;
+	if (holditem->_iMagical != ITEM_QUALITY_NORMAL && holditem->_iIdentified)
+		holditem->_ivalue = 30 * holditem->_iIvalue / 100;
+	v = holditem->_ivalue * (100 * (holditem->_iMaxDur - holditem->_iDurability) / holditem->_iMaxDur) / 100;
 	if (v == 0) {
-		if (item->_iMagical != ITEM_QUALITY_NORMAL && item->_iIdentified)
+		if (holditem->_iMagical != ITEM_QUALITY_NORMAL && holditem->_iIdentified)
 			return;
 		v = 1;
 	}
 	if (v > 1)
 		v >>= 1;
-	item->_iIvalue = v;
-	item->_ivalue = v;
+	holditem->_iIvalue = v;
+	holditem->_ivalue = v;
 	storehidx[storenumh] = i;
 	storenumh++;
 }
@@ -840,10 +840,13 @@ BOOL WitchRechargeOk(const ItemStruct *is)
 
 void AddStoreHoldRecharge(const ItemStruct *is, int i)
 {
-	storehold[storenumh] = *is;
-	storehold[storenumh]._ivalue += spelldata[is->_iSpell].sStaffCost;
-	storehold[storenumh]._ivalue = storehold[storenumh]._ivalue * (100 * (storehold[storenumh]._iMaxCharges - storehold[storenumh]._iCharges) / storehold[storenumh]._iMaxCharges) / 100 >> 1;
-	storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
+	ItemStruct *holditem;
+
+	holditem = &storehold[storenumh];
+	*holditem = *is;
+	holditem->_ivalue += spelldata[is->_iSpell].sStaffCost;
+	holditem->_ivalue = holditem->_ivalue * (100 * (holditem->_iMaxCharges - holditem->_iCharges) / holditem->_iMaxCharges) / 100 >> 1;
+	holditem->_iIvalue = holditem->_ivalue;
 	storehidx[storenumh] = i;
 	storenumh++;
 }
@@ -1103,9 +1106,12 @@ BOOL IdItemOk(const ItemStruct *is)
 
 void AddStoreHoldId(const ItemStruct *is, int i)
 {
-	storehold[storenumh] = *is;
-	storehold[storenumh]._ivalue = 100;
-	storehold[storenumh]._iIvalue = 100;
+	ItemStruct *holditem;
+
+	holditem = &storehold[storenumh];
+	*holditem = *is;
+	holditem->_ivalue = 100;
+	holditem->_iIvalue = 100;
 	storehidx[storenumh] = i;
 	storenumh++;
 }

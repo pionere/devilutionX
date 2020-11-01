@@ -19,9 +19,9 @@ extern TSFX *sgpStreamSFX;
 
 BOOL effect_is_playing(int nSFX);
 void stream_stop();
-void InitMonsterSND(int monst);
+void InitMonsterSND(int midx);
 void FreeMonsterSnd();
-void PlayEffect(int i, int mode);
+void PlayEffect(int mnum, int mode);
 BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan);
 void PlaySFX(int psfx);
 void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y);

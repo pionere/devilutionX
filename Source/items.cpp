@@ -1247,26 +1247,26 @@ void CalcPlrInv(int p, BOOL Loadgfx)
 
 void SetPlrHandItem(ItemStruct *is, int idata)
 {
-	ItemDataStruct *pAllItem;
+	ItemDataStruct *ids;
 
-	pAllItem = &AllItemsList[idata];
+	ids = &AllItemsList[idata];
 
 	// zero-initialize struct
 	memset(is, 0, sizeof(*is));
 
-	is->_itype = pAllItem->itype;
-	is->_iCurs = pAllItem->iCurs;
-	strcpy(is->_iName, pAllItem->iName);
-	strcpy(is->_iIName, pAllItem->iName);
-	is->_iLoc = pAllItem->iLoc;
-	is->_iClass = pAllItem->iClass;
-	is->_iMinDam = pAllItem->iMinDam;
-	is->_iMaxDam = pAllItem->iMaxDam;
-	is->_iAC = pAllItem->iMinAC;
-	is->_iMiscId = pAllItem->iMiscId;
-	is->_iSpell = pAllItem->iSpell;
+	is->_itype = ids->itype;
+	is->_iCurs = ids->iCurs;
+	strcpy(is->_iName, ids->iName);
+	strcpy(is->_iIName, ids->iName);
+	is->_iLoc = ids->iLoc;
+	is->_iClass = ids->iClass;
+	is->_iMinDam = ids->iMinDam;
+	is->_iMaxDam = ids->iMaxDam;
+	is->_iAC = ids->iMinAC;
+	is->_iMiscId = ids->iMiscId;
+	is->_iSpell = ids->iSpell;
 
-	if (pAllItem->iMiscId == IMISC_STAFF) {
+	if (ids->iMiscId == IMISC_STAFF) {
 #ifdef HELLFIRE
 		is->_iCharges = 18;
 #else
@@ -1275,13 +1275,13 @@ void SetPlrHandItem(ItemStruct *is, int idata)
 	}
 
 	is->_iMaxCharges = is->_iCharges;
-	is->_iDurability = pAllItem->iDurability;
-	is->_iMaxDur = pAllItem->iDurability;
-	is->_iMinStr = pAllItem->iMinStr;
-	is->_iMinMag = pAllItem->iMinMag;
-	is->_iMinDex = pAllItem->iMinDex;
-	is->_ivalue = pAllItem->iValue;
-	is->_iIvalue = pAllItem->iValue;
+	is->_iDurability = ids->iDurability;
+	is->_iMaxDur = ids->iDurability;
+	is->_iMinStr = ids->iMinStr;
+	is->_iMinMag = ids->iMinMag;
+	is->_iMinDex = ids->iMinDex;
+	is->_ivalue = ids->iValue;
+	is->_iIvalue = ids->iValue;
 	is->_iPrePower = -1;
 	is->_iSufPower = -1;
 	is->_iMagical = ITEM_QUALITY_NORMAL;
@@ -3247,15 +3247,15 @@ void DeleteItem(int ii, int i)
 
 void ItemDoppel()
 {
-	int idoppelx;
-	ItemStruct *i;
+	int i;
+	ItemStruct *is;
 
 	if (gbMaxPlayers != 1) {
-		for (idoppelx = DBORDERX; idoppelx < DSIZEX + DBORDERX; idoppelx++) {
-			if (dItem[idoppelx][idoppely]) {
-				i = &item[dItem[idoppelx][idoppely] - 1];
-				if (i->_ix != idoppelx || i->_iy != idoppely)
-					dItem[idoppelx][idoppely] = 0;
+		for (i = DBORDERX; i < DSIZEX + DBORDERX; i++) {
+			if (dItem[i][idoppely]) {
+				is = &item[dItem[i][idoppely] - 1];
+				if (is->_ix != i || is->_iy != idoppely)
+					dItem[i][idoppely] = 0;
 			}
 		}
 		idoppely++;

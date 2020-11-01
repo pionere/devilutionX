@@ -126,8 +126,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
  *
  * Note: last slot of item[MAXITEMS+1] used as temporary buffer
  * find real name reference below, possibly [sizeof(item[])/sizeof(ItemStruct)]
- * @param is The source packed item
- * @param id The distination item
+ * @param pis The source packed item
+ * @param is The distination item
  */
 #ifndef HELLFIRE
 static

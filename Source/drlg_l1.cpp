@@ -2313,10 +2313,10 @@ void drlg_l1_set_corner_room(int rx1, int ry1)
 }
 #endif
 
-static void DRLG_L5FTVR(int i, int j, int x, int y, int d)
+static void DRLG_L5FTVR(int i, int j, int x, int y, int dir)
 {
 	if (dTransVal[x][y] || dungeon[i][j] != 13) {
-		switch (d) {
+		switch (dir) {
 		case 1:
 			dTransVal[x][y] = TransVal;
 			dTransVal[x][y + 1] = TransVal;

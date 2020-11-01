@@ -68,7 +68,7 @@ WORD tick_delay = 50;
  * screen, as needed for efficient rendering in fullscreen mode.
  */
 BOOL fullscreen = TRUE;
-int showintrodebug = 1;
+int showintro = 1;
 #ifdef _DEBUG
 int questdebug = -1;
 int debug_mode_key_s;
@@ -333,7 +333,7 @@ void diablo_init()
 
 void diablo_splash()
 {
-	if (!showintrodebug)
+	if (!showintro)
 		return;
 
 	play_movie("gendata\\logo.smk", TRUE);
@@ -433,7 +433,7 @@ void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("--save-dir", argv[i]) == 0) {
 			SetPrefPath(argv[++i]);
 		} else if (strcasecmp("-n", argv[i]) == 0) {
-			showintrodebug = FALSE;
+			showintro = FALSE;
 		} else if (strcasecmp("-f", argv[i]) == 0) {
 			EnableFrameCount();
 		} else if (strcasecmp("-x", argv[i]) == 0) {

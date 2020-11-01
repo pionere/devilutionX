@@ -200,9 +200,9 @@ void FindRangedTarget()
 
 	// The first MAX_PLRS monsters are reserved for players' golems.
 	for (int mi = MAX_PLRS; mi < MAXMONSTERS; mi++) {
-		const MonsterStruct &monst = monster[mi];
-		const int mx = monst._mfutx;
-		const int my = monst._mfuty;
+		const MonsterStruct &mon = monster[mi];
+		const int mx = mon._mfutx;
+		const int my = mon._mfuty;
 		if (!CanTargetMonster(mi))
 			continue;
 
@@ -1164,17 +1164,17 @@ void PerformSpellAction()
 
 void CtrlUseInvItem()
 {
-	ItemStruct *Item;
+	ItemStruct *is;
 
 	if (pcursinvitem == -1)
 		return;
 
 	if (pcursinvitem <= INVITEM_INV_LAST)
-		Item = &plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
+		is = &plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
 	else
-		Item = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
+		is = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
 
-	if ((Item->_iMiscId == IMISC_SCROLLT || Item->_iMiscId == IMISC_SCROLL) && spelldata[Item->_iSpell].sTargeted) {
+	if ((is->_iMiscId == IMISC_SCROLLT || is->_iMiscId == IMISC_SCROLL) && spelldata[is->_iSpell].sTargeted) {
 		return;
 	}
 

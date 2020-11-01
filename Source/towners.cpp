@@ -200,15 +200,15 @@ void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, in
 void InitQstSnds(int tnum)
 {
 	TNQ *tqst;
-	int j, tl;
+	int i, tl;
 	tl = tnum;
 	if (boyloadflag)
 		tl++;
 	tqst = towner[tnum].qsts;
-	for (j = 0; j < MAXQUESTS; j++, tqst++) {
-		tqst->_qsttype = quests[j]._qtype;
-		tqst->_qstmsg = ((int *)(Qtalklist + tl))[j];
-		if (((int *)(Qtalklist + tl))[j] != -1)
+	for (i = 0; i < MAXQUESTS; i++, tqst++) {
+		tqst->_qsttype = quests[i]._qtype;
+		tqst->_qstmsg = ((int *)(Qtalklist + tl))[i];
+		if (((int *)(Qtalklist + tl))[i] != -1)
 			tqst->_qstmsgact = TRUE;
 		else
 			tqst->_qstmsgact = FALSE;

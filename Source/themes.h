@@ -33,7 +33,7 @@ BOOL TFit_Shrine(int tidx);
 BOOL TFit_Obj5(int tidx);
 BOOL TFit_SkelRoom(int tidx);
 BOOL TFit_GoatShrine(int tidx);
-BOOL CheckThemeObj3(int xp, int yp, int tidx, int rndfrq);
+BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq);
 BOOL TFit_Obj3(int tidx);
 BOOL CheckThemeReqs(int theme);
 BOOL SpecialThemeFit(int tidx, int theme);

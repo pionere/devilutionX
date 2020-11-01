@@ -2190,7 +2190,7 @@ void SyncPlrKill(int pnum, int earflag)
 
 void RemovePlrMissiles(int pnum)
 {
-	int i, am;
+	int i, mi;
 	int mx, my;
 
 	if (currlevel != 0 && pnum == myplr && (monster[myplr]._mx != 1 || monster[myplr]._my != 0)) {
@@ -2204,15 +2204,15 @@ void RemovePlrMissiles(int pnum)
 	}
 
 	for (i = 0; i < nummissiles; i++) {
-		am = missileactive[i];
-		if (missile[am]._misource != pnum)
+		mi = missileactive[i];
+		if (missile[mi]._misource != pnum)
 			continue;
-		if (missile[am]._mitype == MIS_STONE) {
-			monster[missile[am]._miVar2]._mmode = missile[am]._miVar1;
-		} else if (missile[am]._mitype == MIS_MANASHIELD
-				|| missile[am]._mitype == MIS_ETHEREALIZE) {
-			ClearMissileSpot(am);
-			DeleteMissile(am, i);
+		if (missile[mi]._mitype == MIS_STONE) {
+			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
+		} else if (missile[mi]._mitype == MIS_MANASHIELD
+				|| missile[mi]._mitype == MIS_ETHEREALIZE) {
+			ClearMissileSpot(mi);
+			DeleteMissile(mi, i);
 		}
 	}
 }
@@ -3018,7 +3018,7 @@ BOOL PlrDoAttack(int pnum)
 BOOL PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
-	int origFrame, mistype;
+	int origFrame, mitype;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoRangeAttack: illegal player %d", pnum);
@@ -3033,12 +3033,12 @@ BOOL PlrDoRangeAttack(int pnum)
 	}
 
 	if (p->_pAnimFrame == p->_pAFNum) {
-		mistype = MIS_ARROW;
+		mitype = MIS_ARROW;
 		if (p->_pIFlags & ISPL_FIRE_ARROWS) {
-			mistype = MIS_FARROW;
+			mitype = MIS_FARROW;
 		}
 		if (p->_pIFlags & ISPL_LIGHT_ARROWS) {
-			mistype = MIS_LARROW;
+			mitype = MIS_LARROW;
 		}
 		AddMissile(
 		    p->_px,
@@ -3046,7 +3046,7 @@ BOOL PlrDoRangeAttack(int pnum)
 		    p->_pVar1,
 		    p->_pVar2,
 		    p->_pdir,
-		    mistype,
+		    mitype,
 		    0,
 		    pnum,
 		    4,

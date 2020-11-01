@@ -2087,7 +2087,7 @@ void DrawInvMsg(const char *msg)
 int InvPutItem(int pnum, int x, int y)
 {
 	BOOL done;
-	int d, ii;
+	int dir, ii;
 	int i, j, l;
 	int xx, yy;
 	int xp, yp;
@@ -2100,21 +2100,21 @@ int InvPutItem(int pnum, int x, int y)
 		SyncGetItem(x, y, plr[pnum].HoldItem.IDidx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed);
 	}
 
-	d = GetDirection(plr[pnum]._px, plr[pnum]._py, x, y);
+	dir = GetDirection(plr[pnum]._px, plr[pnum]._py, x, y);
 	xx = x - plr[pnum]._px;
 	yy = y - plr[pnum]._py;
 	if (abs(xx) > 1 || abs(yy) > 1) {
-		x = plr[pnum]._px + offset_x[d];
-		y = plr[pnum]._py + offset_y[d];
+		x = plr[pnum]._px + offset_x[dir];
+		y = plr[pnum]._py + offset_y[dir];
 	}
 	if (!CanPut(x, y)) {
-		d = (d - 1) & 7;
-		x = plr[pnum]._px + offset_x[d];
-		y = plr[pnum]._py + offset_y[d];
+		dir = (dir - 1) & 7;
+		x = plr[pnum]._px + offset_x[dir];
+		y = plr[pnum]._py + offset_y[dir];
 		if (!CanPut(x, y)) {
-			d = (d + 2) & 7;
-			x = plr[pnum]._px + offset_x[d];
-			y = plr[pnum]._py + offset_y[d];
+			dir = (dir + 2) & 7;
+			x = plr[pnum]._px + offset_x[dir];
+			y = plr[pnum]._py + offset_y[dir];
 			if (!CanPut(x, y)) {
 				done = FALSE;
 				for (l = 1; l < 50 && !done; l++) {
@@ -2192,8 +2192,8 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 )
 {
 	BOOL done;
-	int d, ii;
-	int i, j, l;
+	int dir, ii;
+	int i, j, k;
 	int xx, yy;
 	int px, py;
 
@@ -2207,25 +2207,25 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 
 	px = plr[pnum]._px;
 	py = plr[pnum]._py;
-	d = GetDirection(px, py, x, y);
+	dir = GetDirection(px, py, x, y);
 	if (abs(x - px) > 1 || abs(y - py) > 1) {
-		x = px + offset_x[d];
-		y = py + offset_y[d];
+		x = px + offset_x[dir];
+		y = py + offset_y[dir];
 	}
 	if (!CanPut(x, y)) {
-		d = (d - 1) & 7;
-		x = px + offset_x[d];
-		y = py + offset_y[d];
+		dir = (dir - 1) & 7;
+		x = px + offset_x[dir];
+		y = py + offset_y[dir];
 		if (!CanPut(x, y)) {
-			d = (d + 2) & 7;
-			x = px + offset_x[d];
-			y = py + offset_y[d];
+			dir = (dir + 2) & 7;
+			x = px + offset_x[dir];
+			y = py + offset_y[dir];
 			if (!CanPut(x, y)) {
 				done = FALSE;
-				for (l = 1; l < 50 && !done; l++) {
-					for (j = -l; j <= l && !done; j++) {
+				for (k = 1; k < 50 && !done; k++) {
+					for (j = -k; j <= k && !done; j++) {
 						yy = j + py;
-						for (i = -l; i <= l && !done; i++) {
+						for (i = -k; i <= k && !done; i++) {
 							xx = i + px;
 							if (CanPut(xx, yy)) {
 								done = TRUE;
@@ -2502,8 +2502,8 @@ void StartGoldDrop()
 
 BOOL UseInvItem(int pnum, int cii)
 {
-	int c;
-	ItemStruct *Item;
+	int iv;
+	ItemStruct *is;
 	BOOL speedlist;
 
 	if (plr[pnum]._pInvincible && plr[pnum]._pHitPoints == 0 && pnum == myplr)
@@ -2516,18 +2516,18 @@ BOOL UseInvItem(int pnum, int cii)
 		return FALSE;
 
 	if (cii <= INVITEM_INV_LAST) {
-		c = cii - INVITEM_INV_FIRST;
-		Item = &plr[pnum].InvList[c];
+		iv = cii - INVITEM_INV_FIRST;
+		is = &plr[pnum].InvList[iv];
 		speedlist = FALSE;
 	} else {
 		if (talkflag)
 			return TRUE;
-		c = cii - INVITEM_BELT_FIRST;
-		Item = &plr[pnum].SpdList[c];
+		iv = cii - INVITEM_BELT_FIRST;
+		is = &plr[pnum].SpdList[iv];
 		speedlist = TRUE;
 	}
 
-	switch (Item->IDidx) {
+	switch (is->IDidx) {
 	case IDI_MUSHROOM:
 		sfxdelay = 10;
 		if (plr[pnum]._pClass == PC_WARRIOR) {
@@ -2568,10 +2568,10 @@ BOOL UseInvItem(int pnum, int cii)
 		return TRUE;
 	}
 
-	if (!AllItemsList[Item->IDidx].iUsable)
+	if (!AllItemsList[is->IDidx].iUsable)
 		return FALSE;
 
-	if (!Item->_iStatFlag) {
+	if (!is->_iStatFlag) {
 		if (plr[pnum]._pClass == PC_WARRIOR) {
 			PlaySFX(PS_WARR13);
 		} else if (plr[pnum]._pClass == PC_ROGUE) {
@@ -2590,7 +2590,7 @@ BOOL UseInvItem(int pnum, int cii)
 		return TRUE;
 	}
 
-	if (Item->_iMiscId == IMISC_NONE && Item->_itype == ITYPE_GOLD) {
+	if (is->_iMiscId == IMISC_NONE && is->_itype == ITYPE_GOLD) {
 		StartGoldDrop();
 		return TRUE;
 	}
@@ -2600,48 +2600,48 @@ BOOL UseInvItem(int pnum, int cii)
 		dropGoldValue = 0;
 	}
 
-	if (Item->_iMiscId == IMISC_SCROLL && currlevel == 0 && !spelldata[Item->_iSpell].sTownSpell) {
+	if (is->_iMiscId == IMISC_SCROLL && currlevel == 0 && !spelldata[is->_iSpell].sTownSpell) {
 		return TRUE;
 	}
 
-	if (Item->_iMiscId == IMISC_SCROLLT && currlevel == 0 && !spelldata[Item->_iSpell].sTownSpell) {
+	if (is->_iMiscId == IMISC_SCROLLT && currlevel == 0 && !spelldata[is->_iSpell].sTownSpell) {
 		return TRUE;
 	}
 
 #ifdef HELLFIRE
-	if (Item->_iMiscId > IMISC_RUNEFIRST && Item->_iMiscId < IMISC_RUNELAST && currlevel == 0) {
+	if (is->_iMiscId > IMISC_RUNEFIRST && is->_iMiscId < IMISC_RUNELAST && currlevel == 0) {
 		return TRUE;
 	}
 #endif
 
-	if (Item->_iMiscId == IMISC_BOOK)
+	if (is->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else if (pnum == myplr)
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[Item->_iCurs]]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[is->_iCurs]]);
 
-	UseItem(pnum, Item->_iMiscId, Item->_iSpell);
+	UseItem(pnum, is->_iMiscId, is->_iSpell);
 
 	if (speedlist) {
 #ifdef HELLFIRE
-		if (plr[pnum].SpdList[c]._iMiscId == IMISC_NOTE) {
+		if (plr[pnum].SpdList[iv]._iMiscId == IMISC_NOTE) {
 			InitQTextMsg(TEXT_BOOK9);
 			invflag = FALSE;
 			return TRUE;
 		}
 #endif
-		RemoveSpdBarItem(pnum, c);
+		RemoveSpdBarItem(pnum, iv);
 		return TRUE;
 	} else {
-		if (plr[pnum].InvList[c]._iMiscId == IMISC_MAPOFDOOM)
+		if (plr[pnum].InvList[iv]._iMiscId == IMISC_MAPOFDOOM)
 			return TRUE;
 #ifdef HELLFIRE
-		if (plr[pnum].InvList[c]._iMiscId == IMISC_NOTE) {
+		if (plr[pnum].InvList[iv]._iMiscId == IMISC_NOTE) {
 			InitQTextMsg(TEXT_BOOK9);
 			invflag = FALSE;
 			return TRUE;
 		}
 #endif
-		RemoveInvItem(pnum, c);
+		RemoveInvItem(pnum, iv);
 	}
 	return TRUE;
 }

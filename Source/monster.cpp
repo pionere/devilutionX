@@ -209,7 +209,7 @@ void GetLevelMTypes()
 	int typelist[MAXMONSTERS];
 	int skeltypes[NUM_MTYPES];
 
-	int lvl, minl, maxl; // current, min and max levels
+	int lvl, minlvl, maxlvl; // current, min and max levels
 	const int numskeltypes = 19;
 
 	int nt; // number of types
@@ -259,10 +259,10 @@ void GetLevelMTypes()
 			nt = 0;
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
 				if (IsSkel(i)) {
-					minl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
-					maxl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
+					minlvl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
+					maxlvl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
 
-					if (lvl >= minl && lvl <= maxl) {
+					if (lvl >= minlvl && lvl <= maxlvl) {
 						if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 							skeltypes[nt++] = i;
 						}
@@ -274,10 +274,10 @@ void GetLevelMTypes()
 
 		nt = 0;
 		for (i = 0; i < NUM_MTYPES; i++) {
-			minl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
-			maxl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
+			minlvl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
+			maxlvl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
 
-			if (lvl >= minl && lvl <= maxl) {
+			if (lvl >= minlvl && lvl <= maxlvl) {
 				if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 					typelist[nt++] = i;
 				}
@@ -614,15 +614,15 @@ void monster_some_crypt()
 
 void PlaceMonster(int mnum, int mtype, int x, int y)
 {
-	int rd;
+	int dir;
 
 #ifdef HELLFIRE
 	if (Monsters[mtype].mtype == MT_NAKRUL) {
-		for (int j = 0; j < nummonsters; j++) {
-			if (monster[j]._mMTidx == mtype) {
+		for (int i = 0; i < nummonsters; i++) {
+			if (monster[i]._mMTidx == mtype) {
 				return;
 			}
-			if (monster[j].MType->mtype == MT_NAKRUL) {
+			if (monster[i].MType->mtype == MT_NAKRUL) {
 				return;
 			}
 		}
@@ -630,8 +630,8 @@ void PlaceMonster(int mnum, int mtype, int x, int y)
 #endif
 	dMonster[x][y] = mnum + 1;
 
-	rd = random_(90, 8);
-	InitMonster(mnum, rd, mtype, x, y);
+	dir = random_(90, 8);
+	InitMonster(mnum, dir, mtype, x, y);
 }
 
 void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
@@ -1057,7 +1057,7 @@ void LoadDiabMonsts()
 void InitMonsters()
 {
 	int na, nt;
-	int i, s, t;
+	int i, xx, yy;
 	int numplacemonsters;
 	int mtype;
 	int numscattypes;
@@ -1081,9 +1081,9 @@ void InitMonsters()
 	if (currlevel == 15)
 		nt = 1;
 	for (i = 0; i < nt; i++) {
-		for (s = -2; s < 2; s++) {
-			for (t = -2; t < 2; t++)
-				DoVision(s + trigs[i]._tx, t + trigs[i]._ty, 15, FALSE, FALSE);
+		for (xx = -2; xx < 2; xx++) {
+			for (yy = -2; yy < 2; yy++)
+				DoVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15, FALSE, FALSE);
 		}
 	}
 #ifndef SPAWN
@@ -1094,9 +1094,9 @@ void InitMonsters()
 		PlaceUniques();
 #endif
 		na = 0;
-		for (s = DBORDERX; s < DSIZEX + DBORDERX; s++)
-			for (t = DBORDERY; t < DSIZEY + DBORDERY; t++)
-				if (!nSolidTable[dPiece[s][t]])
+		for (xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
+			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
+				if (!nSolidTable[dPiece[xx][yy]])
 					na++;
 		numplacemonsters = na / 30;
 		if (gbMaxPlayers != 1)
@@ -1127,9 +1127,9 @@ void InitMonsters()
 		}
 	}
 	for (i = 0; i < nt; i++) {
-		for (s = -2; s < 2; s++) {
-			for (t = -2; t < 2; t++)
-				DoUnVision(s + trigs[i]._tx, t + trigs[i]._ty, 15);
+		for (xx = -2; xx < 2; xx++) {
+			for (yy = -2; yy < 2; yy++)
+				DoUnVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15);
 		}
 	}
 }
@@ -1213,11 +1213,11 @@ void DeleteMonster(int i)
 int AddMonster(int x, int y, int dir, int mtype, BOOL InMap)
 {
 	if (nummonsters < MAXMONSTERS) {
-		int i = monstactive[nummonsters++];
+		int mnum = monstactive[nummonsters++];
 		if (InMap)
-			dMonster[x][y] = i + 1;
-		InitMonster(i, dir, mtype, x, y);
-		return i;
+			dMonster[x][y] = mnum + 1;
+		InitMonster(mnum, dir, mtype, x, y);
+		return mnum;
 	}
 
 	return -1;
@@ -1624,11 +1624,12 @@ void MonClearSquares(int mnum)
 void MonGetKnockback(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
-	int d = (mon->_mdir - 4) & 7;
-	if (DirOK(mnum, d)) {
+	int dir = (mon->_mdir - 4) & 7;
+
+	if (DirOK(mnum, dir)) {
 		MonClearSquares(mnum);
-		mon->_moldx += offset_x[d];
-		mon->_moldy += offset_y[d];
+		mon->_moldx += offset_x[dir];
+		mon->_moldy += offset_y[dir];
 		NewMonsterAnim(mnum, &mon->MType->Anims[MA_GOTHIT], mon->_mdir);
 		mon->_mmode = MM_GOTHIT;
 		mon->_mxoff = 0;
@@ -3018,7 +3019,7 @@ void MonWalkDir(int mnum, int md)
 void GroupUnity(int mnum)
 {
 	MonsterStruct *mon, *leader, *bmon;
-	int j;
+	int i;
 	BOOL clear;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
@@ -3057,8 +3058,8 @@ void GroupUnity(int mnum)
 	}
 	if (mon->_uniqtype != 0) {
 		if (UniqMonst[mon->_uniqtype - 1].mUnqAttr & 2) {
-			for (j = 0; j < nummonsters; j++) {
-				bmon = &monster[monstactive[j]];
+			for (i = 0; i < nummonsters; i++) {
+				bmon = &monster[monstactive[i]];
 				if (bmon->leaderflag == 1 && bmon->leader == mnum) {
 					if (mon->_msquelch > bmon->_msquelch) {
 						bmon->_lastx = mon->_mx;
@@ -3892,9 +3893,9 @@ void mai_ranged_44165F(int mnum)
 	MAI_Ranged(mnum, MIS_PSYCHORB, FALSE);
 }
 
-void mai_ranged_44166A(int i)
+void mai_ranged_44166A(int mnum)
 {
-	MAI_Ranged(i, MIS_NECROMORB, FALSE);
+	MAI_Ranged(mnum, MIS_NECROMORB, FALSE);
 }
 #endif
 
@@ -5794,7 +5795,7 @@ int PreSpawnSkeleton()
 void TalktoMonster(int mnum)
 {
 	MonsterStruct *mon;
-	int pnum, itm;
+	int pnum, iv;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
@@ -5807,15 +5808,15 @@ void TalktoMonster(int mnum)
 	mon->_mmode = MM_TALK;
 	if (mon->_mAi == AI_SNOTSPIL || mon->_mAi == AI_LACHDAN) {
 		pnum = mon->_menemy;
-		if (QuestStatus(Q_LTBANNER) && quests[Q_LTBANNER]._qvar1 == 2 && PlrHasItem(pnum, IDI_BANNER, &itm)) {
-			RemoveInvItem(pnum, itm);
+		if (QuestStatus(Q_LTBANNER) && quests[Q_LTBANNER]._qvar1 == 2 && PlrHasItem(pnum, IDI_BANNER, &iv)) {
+			RemoveInvItem(pnum, iv);
 			quests[Q_LTBANNER]._qactive = QUEST_DONE;
 			mon->mtalkmsg = TEXT_BANNER12;
 			mon->_mgoal = MGOAL_INQUIRING;
 		}
 		if (QuestStatus(Q_VEIL) && mon->mtalkmsg >= TEXT_VEIL9) {
-			if (PlrHasItem(pnum, IDI_GLDNELIX, &itm)) {
-				RemoveInvItem(pnum, itm);
+			if (PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
+				RemoveInvItem(pnum, iv);
 				mon->mtalkmsg = TEXT_VEIL11;
 				mon->_mgoal = MGOAL_INQUIRING;
 			}

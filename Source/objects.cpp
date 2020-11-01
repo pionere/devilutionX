@@ -752,10 +752,10 @@ void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
-void AddLvl2xBooks(int s)
+void AddLvl2xBooks(int bookidx)
 {
 	DIABOOL exit;
-	int xp, yp, cnt, m, n;
+	int xp, yp, cnt, i, j;
 
 	cnt = 0;
 	exit = FALSE;
@@ -763,9 +763,9 @@ void AddLvl2xBooks(int s)
 		exit = TRUE;
 		xp = random_(139, DSIZEX) + DBORDERX;
 		yp = random_(139, DSIZEY) + DBORDERY;
-		for (n = -2; n <= 2; n++) {
-			for (m = -3; m <= 3; m++) {
-				if (!RndLocOk(xp + m, yp + n))
+		for (j = -2; j <= 2; j++) {
+			for (i = -3; i <= 3; i++) {
+				if (!RndLocOk(xp + i, yp + j))
 					exit = FALSE;
 			}
 		}
@@ -776,7 +776,7 @@ void AddLvl2xBooks(int s)
 		}
 	}
 
-	AddHBooks(OBJ_STORYBOOK, s, xp, yp);
+	AddHBooks(OBJ_STORYBOOK, bookidx, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
@@ -822,9 +822,9 @@ void AddLvl24Books()
 	}
 }
 
-void objects_454AF0(int a1, int a2, int a3)
+void objects_454AF0(int bookidx, int ox, int oy)
 {
-	AddHBooks(OBJ_STORYBOOK, a1, a2, a3);
+	AddHBooks(OBJ_STORYBOOK, bookidx, ox, oy);
 }
 #endif
 
@@ -1629,7 +1629,7 @@ void AddSlainHero()
 }
 
 #ifdef HELLFIRE
-void AddHBooks(int ot, int v2, int ox, int oy)
+void AddHBooks(int type, int bookidx, int ox, int oy)
 {
 	int oi;
 
@@ -1640,21 +1640,21 @@ void AddHBooks(int ot, int v2, int ox, int oy)
 	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
 	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, ot);
-	SetupHBook(oi, v2);
+	SetupObject(oi, ox, oy, type);
+	SetupHBook(oi, bookidx);
 	object[oi]._oAnimWidth2 = (object[oi]._oAnimWidth - 64) >> 1;
 	nobjects++;
 }
 
-void SetupHBook(int oi, int a2)
+void SetupHBook(int oi, int bookidx)
 {
 	ObjectStruct *os;
-	int v8, v9;
+	int frame;
 
 	os = &object[oi];
-	if (a2 > 5) {
-		os->_oVar8 = a2;
-		switch (a2) {
+	if (bookidx > 5) {
+		os->_oVar8 = bookidx;
+		switch (bookidx) {
 		case 6:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				os->_oVar2 = TEXT_BOOKA;
@@ -1703,15 +1703,15 @@ void SetupHBook(int oi, int a2)
 		}
 		os->_oVar1 = 1;
 		os->_oVar3 = 15;
-		v8 = 2 * os->_oVar1;
-		os->_oAnimFrame = 5 - v8;
+		frame = 2 * os->_oVar1;
+		os->_oAnimFrame = 5 - frame;
 		os->_oVar4 = os->_oAnimFrame + 1;
 	} else {
 		os->_oVar1 = 1;
-		os->_oVar2 = a2 + TEXT_BOOK4 - 1;
-		os->_oVar3 = a2 + 9;
-		v9 = 2 * os->_oVar1;
-		os->_oAnimFrame = 5 - v9;
+		os->_oVar2 = bookidx + TEXT_BOOK4 - 1;
+		os->_oVar3 = bookidx + 9;
+		frame = 2 * os->_oVar1;
+		os->_oAnimFrame = 5 - frame;
 		os->_oVar4 = os->_oAnimFrame + 1;
 		os->_oVar8 = 0;
 	}
@@ -1870,7 +1870,7 @@ void AddObject(int type, int ox, int oy)
 void Obj_Light(int oi, int lr)
 {
 	ObjectStruct *os;
-	int ox, oy, dx, dy, p, tr;
+	int ox, oy, dx, dy, i, tr;
 	DIABOOL turnon;
 
 	turnon = FALSE;
@@ -1883,11 +1883,11 @@ void Obj_Light(int oi, int lr)
 		turnon = FALSE;
 #endif
 		if (!lightflag) {
-			for (p = 0; p < MAX_PLRS && !turnon; p++) {
-				if (plr[p].plractive) {
-					if (currlevel == plr[p].plrlevel) {
-						dx = abs(plr[p]._px - ox);
-						dy = abs(plr[p]._py - oy);
+			for (i = 0; i < MAX_PLRS && !turnon; i++) {
+				if (plr[i].plractive) {
+					if (currlevel == plr[i].plrlevel) {
+						dx = abs(plr[i]._px - ox);
+						dy = abs(plr[i]._py - oy);
 						if (dx < tr && dy < tr)
 							turnon = TRUE;
 					}
@@ -2156,8 +2156,7 @@ void Obj_BCrossDamage(int oi)
 
 void ProcessObjects()
 {
-	int oi;
-	int i;
+	int i, oi;
 
 	for (i = 0; i < nobjects; ++i) {
 		oi = objectactive[i];
@@ -2300,9 +2299,9 @@ void ObjL1Special(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
 
-	for (i = y1; i <= y2; ++i) {
-		for (j = x1; j <= x2; ++j) {
-			pn = dPiece[j][i];
+	for (j = y1; j <= y2; ++j) {
+		for (i = x1; i <= x2; ++i) {
+			pn = dPiece[i][j];
 			if (pn == 12)
 				pn = 1;
 			else if (pn == 11)
@@ -2337,7 +2336,7 @@ void ObjL1Special(int x1, int y1, int x2, int y2)
 				pn = 2;
 			else
 				pn = 0;
-			dSpecial[j][i] = pn;
+			dSpecial[i][j] = pn;
 		}
 	}
 }
@@ -2470,7 +2469,7 @@ void RedoPlayerVision()
 	}
 }
 
-void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
+void OperateL1RDoor(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp, pn;
@@ -2485,7 +2484,7 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
@@ -2515,7 +2514,7 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2542,7 +2541,7 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendflag)
 	}
 }
 
-void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
+void OperateL1LDoor(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp, pn;
@@ -2557,7 +2556,7 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
@@ -2591,7 +2590,7 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2617,7 +2616,7 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendflag)
 	}
 }
 
-void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
+void OperateL2RDoor(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2631,7 +2630,7 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2647,7 +2646,7 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2660,7 +2659,7 @@ void OperateL2RDoor(int pnum, int oi, DIABOOL sendflag)
 	}
 }
 
-void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
+void OperateL2LDoor(int pnum, int oi, BOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2674,7 +2673,7 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2690,7 +2689,7 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2703,7 +2702,7 @@ void OperateL2LDoor(int pnum, int oi, BOOL sendflag)
 	}
 }
 
-void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
+void OperateL3RDoor(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2718,7 +2717,7 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2734,7 +2733,7 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2747,7 +2746,7 @@ void OperateL3RDoor(int pnum, int oi, DIABOOL sendflag)
 	}
 }
 
-void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
+void OperateL3LDoor(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2762,7 +2761,7 @@ void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
 	xp = os->_ox;
 	yp = os->_oy;
 	if (os->_oVar4 == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_OPENDOOR, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2778,7 +2777,7 @@ void OperateL3LDoor(int pnum, int oi, DIABOOL sendflag)
 	if (!deltaload)
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (pnum == myplr && sendflag)
+		if (pnum == myplr && sendmsg)
 			NetSendCmdParam1(TRUE, CMD_CLOSEDOOR, oi);
 		os->_oVar4 = 0;
 		os->_oSelFlag = 3;
@@ -2880,16 +2879,16 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	}
 }
 
-void OperateL1Door(int pnum, int oi, DIABOOL sendflag)
+void OperateL1Door(int pnum, int oi, DIABOOL sendmsg)
 {
 	int dpx, dpy;
 
 	dpx = abs(object[oi]._ox - plr[pnum]._px);
 	dpy = abs(object[oi]._oy - plr[pnum]._py);
 	if (dpx == 1 && dpy <= 1 && object[oi]._otype == OBJ_L1LDOOR)
-		OperateL1LDoor(pnum, oi, sendflag);
+		OperateL1LDoor(pnum, oi, sendmsg);
 	if (dpx <= 1 && dpy == 1 && object[oi]._otype == OBJ_L1RDOOR)
-		OperateL1RDoor(pnum, oi, sendflag);
+		OperateL1RDoor(pnum, oi, sendmsg);
 }
 
 void OperateLever(int pnum, int oi)
@@ -3303,28 +3302,28 @@ void OperateSarc(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-void OperateL2Door(int pnum, int oi, DIABOOL sendflag)
+void OperateL2Door(int pnum, int oi, DIABOOL sendmsg)
 {
 	int dpx, dpy;
 
 	dpx = abs(object[oi]._ox - plr[pnum]._px);
 	dpy = abs(object[oi]._oy - plr[pnum]._py);
 	if (dpx == 1 && dpy <= 1 && object[oi]._otype == OBJ_L2LDOOR)
-		OperateL2LDoor(pnum, oi, sendflag);
+		OperateL2LDoor(pnum, oi, sendmsg);
 	if (dpx <= 1 && dpy == 1 && object[oi]._otype == OBJ_L2RDOOR)
-		OperateL2RDoor(pnum, oi, sendflag);
+		OperateL2RDoor(pnum, oi, sendmsg);
 }
 
-void OperateL3Door(int pnum, int oi, DIABOOL sendflag)
+void OperateL3Door(int pnum, int oi, DIABOOL sendmsg)
 {
 	int dpx, dpy;
 
 	dpx = abs(object[oi]._ox - plr[pnum]._px);
 	dpy = abs(object[oi]._oy - plr[pnum]._py);
 	if (dpx == 1 && dpy <= 1 && object[oi]._otype == OBJ_L3RDOOR)
-		OperateL3RDoor(pnum, oi, sendflag);
+		OperateL3RDoor(pnum, oi, sendmsg);
 	if (dpx <= 1 && dpy == 1 && object[oi]._otype == OBJ_L3LDOOR)
-		OperateL3LDoor(pnum, oi, sendflag);
+		OperateL3LDoor(pnum, oi, sendmsg);
 }
 
 void OperatePedistal(int pnum, int oi)
