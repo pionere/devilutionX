@@ -622,11 +622,11 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 			if (resist) {
 				PlayEffect(mnum, 1);
 			} else if (mon->_mmode == MM_STONE) {
-				if (mnum > MAX_PLRS - 1)
+				if (mnum >= MAX_PLRS)
 					MonStartHit(mnum, -1, dam);
 				mon->_mmode = MM_STONE;
 			} else {
-				if (mnum > MAX_PLRS - 1)
+				if (mnum >= MAX_PLRS)
 					MonStartHit(mnum, -1, dam);
 			}
 		}
@@ -716,14 +716,14 @@ BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mityp
 		if (resist) {
 			PlayEffect(mnum, 1);
 		} else if (mon->_mmode == MM_STONE) {
-			if (mnum > MAX_PLRS - 1)
+			if (mnum >= MAX_PLRS)
 				MonStartHit(mnum, pnum, dam);
 			mon->_mmode = MM_STONE;
 		} else {
 			if (missiledata[mitype].mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
 				MonGetKnockback(mnum);
 			}
-			if (mnum > MAX_PLRS - 1)
+			if (mnum >= MAX_PLRS)
 				MonStartHit(mnum, pnum, dam);
 		}
 	}
@@ -771,7 +771,7 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		}
 	} else {
 		if (mnum != -1) {
-			hper = +40 - (p->_pLevel << 1) - (dist << 1) + (monster[mnum].mLevel << 1);
+			hper = 40 - (p->_pLevel << 1) - (dist << 1) + (monster[mnum].mLevel << 1);
 		} else {
 			hper = 40;
 		}
@@ -1439,7 +1439,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 						if (mon->_uniqtype == 0 && mon->_mAi != AI_DIABLO) {
 							if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
 								if (!(mon->mMagicRes & IMMUNE_MAGIC)) {
-									if ((!(mon->mMagicRes & RESIST_MAGIC) || (mon->mMagicRes & RESIST_MAGIC) == 1 && random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
+									if ((!(mon->mMagicRes & RESIST_MAGIC) || random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
 										double slvl = (double)GetSpellLevel(misource, SPL_BERSERK);
 										mon->_mFlags |= MFLAG_UNUSED | MFLAG_GOLEM;
 										mon->mMinDamage = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)mon->mMinDamage + slvl;
@@ -2134,7 +2134,7 @@ void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			UseMana(misource, SPL_FIREBOLT);
 		if (misource != -1) {
 			av = 2 * spllvl + 16;
-			if (av >= 63)
+			if (av > 63)
 				av = 63;
 		} else {
 			av = 16;
@@ -2793,9 +2793,9 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 				mid = dMonster[tx][ty];
 				mid = mid > 0 ? mid - 1 : -1 - mid;
 #ifdef HELLFIRE
-				if (mid > MAX_PLRS - 1 && monster[mid]._mAi != AI_DIABLO && monster[mid].MType->mtype != MT_NAKRUL) {
+				if (mid >= MAX_PLRS && monster[mid]._mAi != AI_DIABLO && monster[mid].MType->mtype != MT_NAKRUL) {
 #else
-				if (mid > MAX_PLRS - 1 && monster[mid]._mAi != AI_DIABLO) {
+				if (mid >= MAX_PLRS && monster[mid]._mAi != AI_DIABLO) {
 #endif
 					if (monster[mid]._mmode != MM_FADEIN && monster[mid]._mmode != MM_FADEOUT && monster[mid]._mmode != MM_CHARGE) {
 						mis->_miVar1 = monster[mid]._mmode;
@@ -3460,7 +3460,7 @@ BOOL Sentfire(int mi, int sx, int sy)
 
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
-		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 > MAX_PLRS - 1) {
+		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 >= MAX_PLRS) {
 			dir = GetDirection(mis->_mix, mis->_miy, sx, sy);
 			mis->_miVar3 = missileavail[0];
 			AddMissile(mis->_mix, mis->_miy, sx, sy, dir, MIS_FIREBOLT, 0, mis->_misource, mis->_midam, GetSpellLevel(mis->_misource, SPL_FIREBOLT));
@@ -5237,7 +5237,7 @@ void MI_Apoca(int mi)
 	mis = &missile[mi];
 	for (j = mis->_miVar2; j < mis->_miVar3; j++) {
 		for (i = mis->_miVar4; i < mis->_miVar5; i++) {
-			if (dMonster[i][j] > MAX_PLRS - 1 && !nSolidTable[dPiece[i][j]]) {
+			if (dMonster[i][j] >= MAX_PLRS && !nSolidTable[dPiece[i][j]]) {
 #ifdef HELLFIRE
 				if (!LineClear(mis->_mix, mis->_miy, i, j))
 					continue;

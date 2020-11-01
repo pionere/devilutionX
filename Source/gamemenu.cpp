@@ -195,9 +195,7 @@ void gamemenu_save_game(BOOL bActivate)
 	force_redraw = 255;
 	NewCursor(CURSOR_HAND);
 #ifdef HELLFIRE
-	if (CornerStone.activated) {
-		SaveCornerStone();
-	}
+	SaveCornerStone();
 #endif
 	interface_msg_pump();
 	SetWindowProc(saveProc);

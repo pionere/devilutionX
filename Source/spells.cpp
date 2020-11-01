@@ -195,12 +195,13 @@ void DoResurrect(int pnum, int tnum)
 	PlayerStruct *tp;
 	int hp;
 
-	tp = &plr[tnum];
-	if ((char)tnum != -1) {
-		AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
-	}
+	if ((DWORD)tnum >= MAX_PLRS)
+		return;
 
-	if ((char)tnum != -1 && tp->_pHitPoints == 0) {
+	tp = &plr[tnum];
+	AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
+
+	if (tp->_pHitPoints == 0) {
 		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();

@@ -443,15 +443,12 @@ void CheckCursMove()
 				cursmx = mx;
 				cursmy = my;
 			}
-#ifdef HELLFIRE
-			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM && !(monster[pcursmonst]._mFlags & MFLAG_UNUSED)) {
-				pcursmonst = -1;
-			}
-#else
 			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-				pcursmonst = -1;
-			}
+#ifdef HELLFIRE
+				if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED)) 
 #endif
+					pcursmonst = -1;
+			}
 			if (pcursmonst != -1) {
 				return;
 			}
@@ -536,15 +533,12 @@ void CheckCursMove()
 			cursmx = mx;
 			cursmy = my;
 		}
-#ifdef HELLFIRE
-		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM && !(monster[pcursmonst]._mFlags & MFLAG_UNUSED)) {
-			pcursmonst = -1;
-		}
-#else
 		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-			pcursmonst = -1;
-		}
+#ifdef HELLFIRE
+			if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
 #endif
+				pcursmonst = -1;
+		}
 	} else {
 		if (!flipflag && mx + 1 < MAXDUNX) {
 			mi = dMonster[mx + 1][my];
@@ -752,15 +746,12 @@ void CheckCursMove()
 		cursmx = mx;
 		cursmy = my;
 	}
-#ifdef HELLFIRE
-	if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM && !(monster[pcursmonst]._mFlags & MFLAG_UNUSED)) {
-		pcursmonst = -1;
-	}
-#else
 	if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-		pcursmonst = -1;
-	}
+#ifdef HELLFIRE
+		if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
 #endif
+			pcursmonst = -1;
+	}
 }
 
 DEVILUTION_END_NAMESPACE

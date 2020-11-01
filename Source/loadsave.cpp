@@ -174,7 +174,7 @@ void LoadGame(BOOL firstflag)
 	premiumlevel = WLoad();
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		LoadPremium(i);
+		LoadItemData(&premiumitem[i]);
 
 	automapflag = OLoad();
 	AutoMapScale = WLoad();
@@ -776,11 +776,6 @@ void LoadItems(const int n, ItemStruct *pItem)
 	}
 }
 
-void LoadPremium(int i)
-{
-	LoadItemData(&premiumitem[i]);
-}
-
 void LoadQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
@@ -988,7 +983,7 @@ void SaveGame()
 	WSave(premiumlevel);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SavePremium(i);
+		SaveItem(&premiumitem[i]);
 
 	OSave(automapflag);
 	WSave(AutoMapScale);
@@ -1507,11 +1502,6 @@ void SaveItems(ItemStruct *pItem, const int n)
 	for (int i = 0; i < n; i++) {
 		SaveItem(&pItem[i]);
 	}
-}
-
-void SavePremium(int i)
-{
-	SaveItem(&premiumitem[i]);
 }
 
 void SaveQuest(int i)

@@ -591,11 +591,9 @@ void AddInitItems()
 void InitItems()
 {
 	int i;
-	long s;
 
-	GetItemAttrs(0, IDI_GOLD, 1);
-	golditem = item[0];
-	golditem._iStatFlag = TRUE;
+	SpawnStoreGold();
+
 	numitems = 0;
 
 	memset(item, 0, sizeof(item));
@@ -606,7 +604,7 @@ void InitItems()
 	}
 
 	if (!setlevel) {
-		s = GetRndSeed(); /* unused */
+		GetRndSeed(); /* unused */
 		if (QuestStatus(Q_ROCK))
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
@@ -2690,6 +2688,7 @@ int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
+
 	UniqueItemFlag[uid] = TRUE;
 	ui = &UniqueItemList[uid];
 	SaveItemPower(ii, ui->UIPower1, ui->UIParam1, ui->UIParam2, 0, 0, 1);
@@ -2783,7 +2782,6 @@ void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood,
 				GetItemBonus(ii, iblvl >> 1, iblvl, onlygood, TRUE);
 			} else {
 				GetUniqueItem(ii, uid);
-				item[ii]._iCreateInfo |= CF_UNIQUE;
 			}
 		}
 		if (item[ii]._iMagical != ITEM_QUALITY_UNIQUE)
@@ -4569,18 +4567,17 @@ int RndSmithItem(int lvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-#ifdef HELLFIRE
-		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
-#else
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
 #endif
 			ril[ri] = i;
 			ri++;
+			if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
 #ifdef HELLFIRE
-			if (AllItemsList[i].iRnd == IDROP_DOUBLE && ri < 512) {
-#else
-			if (AllItemsList[i].iRnd == IDROP_DOUBLE)
-				{
+				if (ri == 512)
+					break;
 #endif
 				ril[ri] = i;
 				ri++;
@@ -4672,16 +4669,14 @@ int RndPremiumItem(int minlvl, int maxlvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER) {
-			if (PremiumItemOk(i)) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i)) {
+			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl) {
 #ifdef HELLFIRE
-				if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl && ri < 512) {
-#else
-				if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl) {
+				if (ri == 512)
+					break;
 #endif
-					ril[ri] = i;
-					ri++;
-				}
+				ril[ri] = i;
+				ri++;
 			}
 		}
 	}
@@ -4783,10 +4778,10 @@ int RndWitchItem(int lvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-#ifdef HELLFIRE
-		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
-#else
 		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4888,10 +4883,10 @@ int RndBoyItem(int lvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-#ifdef HELLFIRE
-		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
-#else
 		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4960,10 +4955,10 @@ int RndHealerItem(int lvl)
 
 	ri = 0;
 	for (i = 1; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
-#ifdef HELLFIRE
-		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl && ri < 512) {
-#else
 		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
 #endif
 			ril[ri] = i;
 			ri++;
@@ -5093,28 +5088,24 @@ void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
+#ifdef HELLFIRE
+	} else if (idx >= 114 && idx <= 117) {
+		SetRndSeed(iseed);
+		volatile int hi_predelnik = random_(0, 1);
+		GetItemAttrs(ii, idx, lvl);
+#endif
 	} else {
-#ifdef HELLFIRE
-		if (idx >= 114 && idx <= 117) {
-			SetRndSeed(iseed);
-			volatile int hi_predelnik = random_(0, 1);
-			GetItemAttrs(ii, idx, lvl);
-		} else {
-#endif
-			SetRndSeed(iseed);
-			itype = RndWitchItem(lvl) - 1;
-			GetItemAttrs(ii, itype, lvl);
-			iblvl = -1;
-			if (random_(51, 100) <= 5)
-				iblvl = lvl;
-			if (iblvl == -1 && item[ii]._iMiscId == IMISC_STAFF)
-				iblvl = lvl;
-			if (iblvl != -1)
-				GetItemBonus(ii, iblvl, iblvl << 1, TRUE, TRUE);
-#ifdef HELLFIRE
-		}
-#endif
-}
+		SetRndSeed(iseed);
+		itype = RndWitchItem(lvl) - 1;
+		GetItemAttrs(ii, itype, lvl);
+		iblvl = -1;
+		if (random_(51, 100) <= 5)
+			iblvl = lvl;
+		if (iblvl == -1 && item[ii]._iMiscId == IMISC_STAFF)
+			iblvl = lvl;
+		if (iblvl != -1)
+			GetItemBonus(ii, iblvl, iblvl << 1, TRUE, TRUE);
+	}
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_WITCH;

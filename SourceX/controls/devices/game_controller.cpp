@@ -1,5 +1,5 @@
 #ifndef USE_SDL1
-#include "controls/devices/game_controller.h"
+#include "game_controller.h"
 #include "controls/controller_motion.h"
 #include "controls/devices/joystick.h"
 #include "stubs.h"

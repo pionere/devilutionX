@@ -734,30 +734,18 @@ void CreatePlayer(int pnum, char c)
 	p->_pClass = c;
 
 	val = StrengthTbl[c];
-	if (val < 0) {
-		val = 0;
-	}
 	p->_pStrength = val;
 	p->_pBaseStr = val;
 
 	val = MagicTbl[c];
-	if (val < 0) {
-		val = 0;
-	}
 	p->_pMagic = val;
 	p->_pBaseMag = val;
 
 	val = DexterityTbl[c];
-	if (val < 0) {
-		val = 0;
-	}
 	p->_pDexterity = val;
 	p->_pBaseDex = val;
 
 	val = VitalityTbl[c];
-	if (val < 0) {
-		val = 0;
-	}
 	p->_pVitality = val;
 	p->_pBaseVit = val;
 
@@ -4231,14 +4219,6 @@ void ModifyPlrStr(int pnum, int v)
 	p->_pStrength += v;
 	p->_pBaseStr += v;
 
-#ifndef HELLFIRE
-	if (p->_pClass == PC_ROGUE) {
-		p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-	} else {
-		p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
-	}
-#endif
-
 	CalcPlrInv(pnum, TRUE);
 
 	if (pnum == myplr) {
@@ -4298,13 +4278,8 @@ void ModifyPlrDex(int pnum, int v)
 
 	p->_pDexterity += v;
 	p->_pBaseDex += v;
-	CalcPlrInv(pnum, TRUE);
 
-#ifndef HELLFIRE
-	if (p->_pClass == PC_ROGUE) {
-		p->_pDamageMod = p->_pLevel * (p->_pDexterity + p->_pStrength) / 200;
-	}
-#endif
+	CalcPlrInv(pnum, TRUE);
 
 	if (pnum == myplr) {
 		NetSendCmdParam1(FALSE, CMD_SETDEX, p->_pBaseDex);
@@ -4375,17 +4350,8 @@ void SetPlrStr(int pnum, int v)
 	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_STR]));
 
 	p->_pBaseStr = v;
+
 	CalcPlrInv(pnum, TRUE);
-
-#ifndef HELLFIRE
-	if (p->_pClass == PC_ROGUE) {
-		dm = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-	} else {
-		dm = p->_pLevel * p->_pStrength / 100;
-	}
-
-	p->_pDamageMod = dm;
-#endif
 }
 
 void SetPlrMag(int pnum, int v)
@@ -4413,6 +4379,7 @@ void SetPlrMag(int pnum, int v)
 
 	p->_pMaxManaBase = m;
 	p->_pMaxMana = m;
+
 	CalcPlrInv(pnum, TRUE);
 }
 
@@ -4432,16 +4399,6 @@ void SetPlrDex(int pnum, int v)
 	p->_pBaseDex = v;
 
 	CalcPlrInv(pnum, TRUE);
-
-#ifndef HELLFIRE
-	if (p->_pClass == PC_ROGUE) {
-		dm = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-	} else {
-		dm = p->_pStrength * p->_pLevel / 100;
-	}
-
-	p->_pDamageMod = dm;
-#endif
 }
 
 void SetPlrVit(int pnum, int v)
@@ -4470,6 +4427,7 @@ void SetPlrVit(int pnum, int v)
 
 	p->_pHPBase = hp;
 	p->_pMaxHPBase = hp;
+
 	CalcPlrInv(pnum, TRUE);
 }
 
@@ -4513,7 +4471,7 @@ void PlayDungMsgs()
 			sfxdnum = PS_WARR97;
 #endif
 		}
-		plr[myplr].pDungMsgs = plr[myplr].pDungMsgs | DMSG_CATHEDRAL;
+		plr[myplr].pDungMsgs |= DMSG_CATHEDRAL;
 	} else if (currlevel == 5 && !plr[myplr]._pLvlVisited[5] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
 		if (plr[myplr]._pClass == PC_WARRIOR) {

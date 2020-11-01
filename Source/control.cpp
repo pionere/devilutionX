@@ -1542,11 +1542,6 @@ void DrawChr()
 	ADD_PlrStringXY(143, 239, 173, chrstr, col);
 
 	if (p->_pStatPts > 0) {
-		if (CalcStatDiff(myplr) < p->_pStatPts) {
-			p->_pStatPts = CalcStatDiff(myplr);
-		}
-	}
-	if (p->_pStatPts > 0) {
 		sprintf(chrstr, "%i", p->_pStatPts);
 		ADD_PlrStringXY(95, 266, 126, chrstr, COL_RED);
 		if (p->_pBaseStr < MaxStats[pc][ATTRIB_STR])

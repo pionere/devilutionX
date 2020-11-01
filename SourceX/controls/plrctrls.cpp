@@ -505,7 +505,7 @@ void InvMove(MoveDirection dir)
 	int y = MouseY;
 
 	// check which inventory rectangle the mouse is in, if any
-	for (int r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
+	for (int r = 0; r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
 		if (r >= SLOTXY_BELT_FIRST) {
@@ -513,7 +513,7 @@ void InvMove(MoveDirection dir)
 			yo = PANEL_TOP;
 		}
 
-		if (x >= InvRect[r].X + xo && x < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1) && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1) && y < InvRect[r].Y + yo) {
+		if (x >= InvRect[r].X + xo && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1) && y < InvRect[r].Y + yo) {
 			slot = r;
 			break;
 		}

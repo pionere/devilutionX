@@ -44,7 +44,6 @@ SpellData spelldata[] = {
 #endif
 	{ SPL_INVISIBIL,     0, STYPE_MAGIC,     "Invisibility",       NULL,             -1,        -1, FALSE,     FALSE,            0, IS_CAST2, { 0,                 0,          0 },        0,        0,        40,        80,         0,          0 },
 	{ SPL_FLAME,        11, STYPE_FIRE,      "Inferno",            NULL,              3,         2, TRUE,      FALSE,           20, IS_CAST2, { MIS_FLAMEC,        0,          0 },        1,        6,        20,        40,      2000,        100 },
-
 #ifdef SPAWN
 	{ SPL_GOLEM,       100, STYPE_FIRE,      "Golem",              NULL,             -1,        -1, FALSE,     FALSE,           81, IS_CAST2, { MIS_GOLEM,         0,          0 },        6,       60,        16,        32,     18000,       1100 },
 #else

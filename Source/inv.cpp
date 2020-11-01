@@ -2159,10 +2159,6 @@ int InvPutItem(int pnum, int x, int y)
 		}
 	}
 #endif
-	CanPut(x, y); //if (!CanPut(x, y)) {
-	//	assertion_failed(__LINE__, __FILE__, "CanPut(x,y)");
-	//}
-
 	ii = itemavail[0];
 	dItem[x][y] = ii + 1;
 	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
@@ -2240,8 +2236,6 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 			}
 		}
 	}
-
-	CanPut(x, y);
 
 	ii = itemavail[0];
 	dItem[x][y] = ii + 1;
@@ -2621,26 +2615,17 @@ BOOL UseInvItem(int pnum, int cii)
 
 	UseItem(pnum, is->_iMiscId, is->_iSpell);
 
-	if (speedlist) {
 #ifdef HELLFIRE
-		if (plr[pnum].SpdList[iv]._iMiscId == IMISC_NOTE) {
-			InitQTextMsg(TEXT_BOOK9);
-			invflag = FALSE;
-			return TRUE;
-		}
+	if (is->_iMiscId == IMISC_NOTE) {
+		InitQTextMsg(TEXT_BOOK9);
+		invflag = FALSE;
+		return TRUE;
+	}
 #endif
+	if (speedlist) {
 		RemoveSpdBarItem(pnum, iv);
 		return TRUE;
-	} else {
-		if (plr[pnum].InvList[iv]._iMiscId == IMISC_MAPOFDOOM)
-			return TRUE;
-#ifdef HELLFIRE
-		if (plr[pnum].InvList[iv]._iMiscId == IMISC_NOTE) {
-			InitQTextMsg(TEXT_BOOK9);
-			invflag = FALSE;
-			return TRUE;
-		}
-#endif
+	} else if (is->_iMiscId != IMISC_MAPOFDOOM) {
 		RemoveInvItem(pnum, iv);
 	}
 	return TRUE;

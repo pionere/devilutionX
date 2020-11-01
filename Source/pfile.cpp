@@ -414,8 +414,6 @@ void pfile_read_player_from_save()
 
 void GetTempLevelNames(char *szTemp)
 {
-	// BUGFIX: function call has no purpose
-	pfile_get_save_num_from_name(plr[myplr]._pName);
 	if (setlevel)
 		sprintf(szTemp, "temps%02d", setlvlnum);
 	else
@@ -444,8 +442,6 @@ void GetPermLevelNames(char *szPerm)
 
 void pfile_get_game_name(char *dst)
 {
-	// BUGFIX: function call with no purpose
-	pfile_get_save_num_from_name(plr[myplr]._pName);
 	strcpy(dst, "game");
 }
 

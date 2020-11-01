@@ -2537,7 +2537,7 @@ DWORD On_SETSTR(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
+	else if (pnum != myplr)
 		SetPlrStr(pnum, p->wParam1);
 
 	return sizeof(*p);
@@ -2549,7 +2549,7 @@ DWORD On_SETDEX(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
+	else if (pnum != myplr)
 		SetPlrDex(pnum, p->wParam1);
 
 	return sizeof(*p);
@@ -2561,7 +2561,7 @@ DWORD On_SETMAG(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
+	else if (pnum != myplr)
 		SetPlrMag(pnum, p->wParam1);
 
 	return sizeof(*p);
@@ -2573,7 +2573,7 @@ DWORD On_SETVIT(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
+	else if (pnum != myplr)
 		SetPlrVit(pnum, p->wParam1);
 
 	return sizeof(*p);
