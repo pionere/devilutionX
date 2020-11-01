@@ -577,16 +577,6 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
-	if (mon->mtalkmsg) {
-		return FALSE;
-	}
-	if (mon->_mhitpoints >> 6 <= 0) {
-		return FALSE;
-	}
-	if (mon->MType->mtype == MT_ILLWEAV && mon->_mgoal == MGOAL_RETREAT)
-		return FALSE;
-	if (mon->_mmode == MM_CHARGE)
-		return FALSE;
 
 	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
 		return FALSE;
@@ -654,11 +644,8 @@ BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mityp
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
-	if (mon->mtalkmsg
-	    || mon->_mhitpoints >> 6 <= 0
-	    || mitype == MIS_HBOLT && mon->MType->mtype != MT_DIABLO && mon->MData->mMonstClass != MC_UNDEAD) {
+	if (mitype == MIS_HBOLT && mon->MType->mtype != MT_DIABLO && mon->MData->mMonstClass != MC_UNDEAD)
 		return FALSE;
-	}
 
 	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
 		return FALSE;

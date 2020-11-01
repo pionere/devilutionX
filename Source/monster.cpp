@@ -2251,28 +2251,28 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	if ((DWORD)defm >= MAXMONSTERS) {
 		app_fatal("MonTryM2MHit: Invalid monster %d", defm);
 	}
+
+	if (CheckMonsterHit(defm, &ret))
+		return;
+
 	dmon = &monster[defm];
-	if (dmon->MType == NULL)
-		app_fatal("MonTryM2MHit: Monster %d \"%s\" MType NULL", defm, dmon->mName);
-	if (dmon->_mhitpoints >> 6 > 0 && (dmon->MType->mtype != MT_ILLWEAV || dmon->_mgoal != MGOAL_RETREAT) && !CheckMonsterHit(defm, &ret)) {
-		int hit = dmon->_mmode == MM_STONE ? 0 : random_(4, 100);
-		if (hit < hper) {
-			int dam = (mind + random_(5, maxd - mind + 1)) << 6;
-			dmon->_mhitpoints -= dam;
-			if (dmon->_mhitpoints >> 6 <= 0) {
-				if (dmon->_mmode == MM_STONE) {
-					M2MStartKill(offm, defm);
-					dmon->_mmode = MM_STONE;
-				} else {
-					M2MStartKill(offm, defm);
-				}
+	int hit = dmon->_mmode == MM_STONE ? 0 : random_(4, 100);
+	if (hit < hper) {
+		int dam = (mind + random_(5, maxd - mind + 1)) << 6;
+		dmon->_mhitpoints -= dam;
+		if (dmon->_mhitpoints >> 6 <= 0) {
+			if (dmon->_mmode == MM_STONE) {
+				M2MStartKill(offm, defm);
+				dmon->_mmode = MM_STONE;
 			} else {
-				if (dmon->_mmode == MM_STONE) {
-					M2MStartHit(defm, offm, dam);
-					dmon->_mmode = MM_STONE;
-				} else {
-					M2MStartHit(defm, offm, dam);
-				}
+				M2MStartKill(offm, defm);
+			}
+		} else {
+			if (dmon->_mmode == MM_STONE) {
+				M2MStartHit(defm, offm, dam);
+				dmon->_mmode = MM_STONE;
+			} else {
+				M2MStartHit(defm, offm, dam);
 			}
 		}
 	}
@@ -5873,18 +5873,20 @@ BOOL CheckMonsterHit(int mnum, BOOL *ret)
 		app_fatal("CheckMonsterHit: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
+
+	if (mon->mtalkmsg != 0 || mon->_mmode == MM_CHARGE || (mon->_mhitpoints >> 6) <= 0
+	 || (mon->MType->mtype == MT_ILLWEAV && mon->_mgoal == MGOAL_RETREAT)
+	 || ((mon->MType->mtype >= MT_COUNSLR && mon->MType->mtype <= MT_ADVOCATE)
+				&& mon->_mgoal != MGOAL_NORMAL)) {
+		*ret = FALSE;
+		return TRUE;
+	}
+
 	if (mon->_mAi == AI_GARG && mon->_mFlags & MFLAG_ALLOW_SPECIAL) {
 		mon->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
 		mon->_mmode = MM_SATTACK;
 		*ret = TRUE;
 		return TRUE;
-	}
-
-	if (mon->MType->mtype >= MT_COUNSLR && mon->MType->mtype <= MT_ADVOCATE) {
-		if (mon->_mgoal != MGOAL_NORMAL) {
-			*ret = FALSE;
-			return TRUE;
-		}
 	}
 
 	return FALSE;

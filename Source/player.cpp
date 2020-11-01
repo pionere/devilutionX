@@ -2694,19 +2694,6 @@ BOOL PlrHitMonst(int pnum, int mnum)
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
 	}
 
-	mon = &monster[mnum];
-	if ((mon->_mhitpoints >> 6) <= 0) {
-		return FALSE;
-	}
-
-	if (mon->MType->mtype == MT_ILLWEAV && mon->_mgoal == MGOAL_RETREAT) {
-		return FALSE;
-	}
-
-	if (mon->_mmode == MM_CHARGE) {
-		return FALSE;
-	}
-
 	if (CheckMonsterHit(mnum, &ret)) {
 		return ret;
 	}
@@ -2716,7 +2703,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 	}
 
 	p = &plr[pnum];
-
+	mon = &monster[mnum];
 	hit = mon->_mmode == MM_STONE ? 0 : random_(4, 100);
 
 	hper = (p->_pDexterity >> 1) + p->_pIBonusToHit +  p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
