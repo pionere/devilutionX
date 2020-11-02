@@ -345,7 +345,7 @@ No, you'll need access to the data from the original game. If you don't have an 
 DevilutionX's main focus is to make the game work on multiple platforms. An additional goal is to make the engine mod friendly. As such, there are no changes to gameplay, but we will be making some enhancments to the engine itself. For example, the engine now has upscaling, unlocked fps, controller support, and multiplayer via TCP.
 > Is 1080p supported?
 
-Currently the game simply scales the original 640x480 to best fit, but we are working on widescreen support.
+Yes, the game will automatically adjust to your screen. This can be further adjusted in the game ini file.
 > What about Hellfire?
 
 Hellfire is being worked on and is mostly done, though not fully playable at the moment.

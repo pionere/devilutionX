@@ -2262,7 +2262,7 @@ static void DRLG_L3(int entry)
 				}
 			} while (!found);
 			DRLG_L3MakeMegas();
-			if (entry == 0) {
+			if (entry == ENTRY_MAIN) {
 #ifdef HELLFIRE
 				if (currlevel < 17) {
 #endif
@@ -2290,7 +2290,7 @@ static void DRLG_L3(int entry)
 						genok = DRLG_L3PlaceMiniSet(L3HOLDWARP, 1, 1, -1, -1, FALSE, 6);
 					}
 				}
-			} else if (entry == 1) {
+			} else if (entry == ENTRY_PREV) {
 #ifdef HELLFIRE
 				if (currlevel < 17) {
 #endif

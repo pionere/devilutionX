@@ -40,7 +40,7 @@ void app_fatal(const char *pszFmt, ...)
  * @param pszFmt Error message format
  * @param va Additional parameters for message format
  */
-void MsgBox(const char *pszFmt, va_list va)
+static void MsgBox(const char *pszFmt, va_list va)
 {
 	char text[256];
 
@@ -52,7 +52,7 @@ void MsgBox(const char *pszFmt, va_list va)
 /**
  * @brief Cleans up after a fatal application error.
  */
-void FreeDlg()
+static void FreeDlg()
 {
 	if (terminating && cleanup_thread_id != SDL_GetThreadID(NULL))
 		SDL_Delay(20000);
