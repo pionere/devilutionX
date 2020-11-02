@@ -958,6 +958,13 @@ void DoSpeedBook()
 	SetCursorPos(X, Y);
 }
 
+static void control_set_button_down(int btn_id)
+{
+	panbtn[btn_id] = TRUE;
+	drawbtnflag = TRUE;
+	panbtndown = TRUE;
+}
+
 /**
  * Checks if the mouse cursor is within any of the panel buttons and flag it if so.
  */
@@ -980,13 +987,6 @@ void DoPanBtn()
 		DoSpeedBook();
 		gamemenu_off();
 	}
-}
-
-void control_set_button_down(int btn_id)
-{
-	panbtn[btn_id] = TRUE;
-	drawbtnflag = TRUE;
-	panbtndown = TRUE;
 }
 
 void control_check_btn_press()

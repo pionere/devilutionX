@@ -16,26 +16,6 @@ BOOL terminating;
 SDL_threadID cleanup_thread_id;
 
 /**
- * @brief Terminates the game and displays an error message box.
- * @param pszFmt Optional error message.
- * @param ... (see printf)
- */
-void app_fatal(const char *pszFmt, ...)
-{
-	va_list va;
-
-	va_start(va, pszFmt);
-	FreeDlg();
-
-	if (pszFmt != NULL)
-		MsgBox(pszFmt, va);
-
-	va_end(va);
-
-	diablo_quit(1);
-}
-
-/**
  * @brief Displays an error message box based on the given format string and variable argument list.
  * @param pszFmt Error message format
  * @param va Additional parameters for message format
@@ -66,6 +46,26 @@ static void FreeDlg()
 	}
 
 	SNetDestroy();
+}
+
+/**
+ * @brief Terminates the game and displays an error message box.
+ * @param pszFmt Optional error message.
+ * @param ... (see printf)
+ */
+void app_fatal(const char *pszFmt, ...)
+{
+	va_list va;
+
+	va_start(va, pszFmt);
+	FreeDlg();
+
+	if (pszFmt != NULL)
+		MsgBox(pszFmt, va);
+
+	va_end(va);
+
+	diablo_quit(1);
 }
 
 /**
