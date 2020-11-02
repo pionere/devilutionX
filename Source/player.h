@@ -146,6 +146,7 @@ extern int DexterityTbl[NUM_CLASSES];
 extern int VitalityTbl[NUM_CLASSES];
 extern int ToBlkTbl[NUM_CLASSES];
 extern int MaxStats[NUM_CLASSES][4];
+extern int Abilities[NUM_CLASSES];
 extern int ExpLvlsTbl[MAXCHARLEVEL + 1];
 extern const char *const ClassStrTbl[NUM_CLASSES];
 extern BYTE fix[9];

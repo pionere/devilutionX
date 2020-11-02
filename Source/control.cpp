@@ -851,21 +851,7 @@ void InitControlPan()
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL", NULL);
 	sbooktab = 0;
 	sbookflag = FALSE;
-	if (plr[myplr]._pClass == PC_WARRIOR) {
-		SpellPages[0][0] = SPL_REPAIR;
-	} else if (plr[myplr]._pClass == PC_ROGUE) {
-		SpellPages[0][0] = SPL_DISARM;
-	} else if (plr[myplr]._pClass == PC_SORCERER) {
-		SpellPages[0][0] = SPL_RECHARGE;
-#ifdef HELLFIRE
-	} else if (plr[myplr]._pClass == PC_MONK) {
-		SpellPages[0][0] = SPL_SEARCH;
-	} else if (plr[myplr]._pClass == PC_BARD) {
-		SpellPages[0][0] = SPL_IDENTIFY;
-	} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-		SpellPages[0][0] = SPL_BLODBOIL;
-#endif
-	}
+	SpellPages[0][0] = Abilities[plr[myplr]._pClass];
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL", NULL);
 	pGBoxBuff = LoadFileInMem("CtrlPan\\Golddrop.cel", NULL);
 	dropGoldFlag = FALSE;
