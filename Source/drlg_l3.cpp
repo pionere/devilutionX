@@ -1849,7 +1849,7 @@ void AddFenceDoors()
 void FenceDoorFix()
 {
 	int i, j;
-	char bv0, bv1;
+	BYTE bv0, bv1;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
