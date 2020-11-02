@@ -1210,8 +1210,8 @@ BOOL control_WriteStringToBuffer(BYTE *str)
 
 	k = 0;
 	while (*str) {
-		str++;
 		k += fontkern[fontframe[gbFontTransTbl[*str]]];
+		str++;
 		if (k >= 125)
 			return FALSE;
 	}
@@ -1343,7 +1343,6 @@ void DrawInfoBox()
 	if (infostr[0] != '\0' || pnumlines != 0)
 		PrintInfo();
 }
-
 
 #define ADD_PlrStringXY(x, y, width, pszStr, col) MY_PlrStringXY(x, y, width, pszStr, col, 1)
 
@@ -1632,7 +1631,7 @@ BOOL CheckChrBtns()
 	PlayerStruct *p;
 	int i;
 
- 	if (plr[myplr]._pStatPts != 0 && !chrbtnactive) {
+	if (plr[myplr]._pStatPts != 0 && !chrbtnactive) {
 		for (i = 0; i < 4; i++) {
 			if (MouseX < ChrBtnsRect[i].x
 			 || MouseX > ChrBtnsRect[i].x + ChrBtnsRect[i].w

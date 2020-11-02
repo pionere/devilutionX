@@ -1134,7 +1134,7 @@ void FreeMonsterSnd()
 void PlayEffect(int mnum, int mode)
 {
 	MonsterStruct *mon;
-	int sndIdx, mi, lVolume, lPan;
+	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
 	if (plr[myplr].pLvlLoad) {

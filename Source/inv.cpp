@@ -1474,7 +1474,7 @@ BOOL inv_diablo_to_hellfire(int pnum)
 			p->_pNumInv++;
 			p->InvGrid[i] = p->_pNumInv;
 		} else {
-			item->_itype = ITYPE_NONE;
+			pi->_itype = ITYPE_NONE;
 		}
 	}
 	pi = p->SpdList;
