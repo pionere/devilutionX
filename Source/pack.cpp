@@ -190,7 +190,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	PkItemStruct *pki;
 
 	p = &plr[pnum];
-	ClearPlrRVars(p);
 	p->_px = pPack->px;
 	p->_py = pPack->py;
 	p->_pfutx = pPack->px;
@@ -202,6 +201,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->destAction = ACTION_NONE;
 	strcpy(p->_pName, pPack->pName);
 	p->_pClass = pPack->pClass;
+	p->_pLevel = pPack->pLevel;
 	InitPlayer(pnum, TRUE);
 	p->_pBaseStr = pPack->pBaseStr;
 	p->_pStrength = pPack->pBaseStr;
@@ -211,15 +211,13 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->_pDexterity = pPack->pBaseDex;
 	p->_pBaseVit = pPack->pBaseVit;
 	p->_pVitality = pPack->pBaseVit;
-	p->_pLevel = pPack->pLevel;
 	p->_pStatPts = pPack->pStatPts;
 	p->_pExperience = SwapLE32(pPack->pExperience);
 	p->_pGold = SwapLE32(pPack->pGold);
 	p->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
 	p->_pHPBase = SwapLE32(pPack->pHPBase);
-	p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 	if (!killok)
-		if ((int)(p->_pHPBase & 0xFFFFFFC0) < 64)
+		if (p->_pHPBase < 64)
 			p->_pHPBase = 64;
 
 	p->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
@@ -264,11 +262,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 		UnPackItem(pki, pi);
 		pki++;
 		pi++;
-	}
-
-	if (pnum == myplr) {
-		for (i = 0; i < 20; i++)
-			witchitem[i]._itype = ITYPE_NONE;
 	}
 
 	CalcPlrInv(pnum, FALSE);

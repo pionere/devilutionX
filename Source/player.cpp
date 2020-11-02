@@ -168,6 +168,13 @@ int MaxStats[NUM_CLASSES][4] = {
 	{ 255,   0,  55, 150 },
 #endif
 };
+int Abilities[NUM_CLASSES] = {
+	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
+#ifdef HELLFIRE
+	, SPL_SEARCH, SPL_IDENTIFY, SPL_BLODBOIL
+#endif
+};
+
 /** Specifies the experience point limit of each level. */
 int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	0,
@@ -719,8 +726,7 @@ void ClearPlrRVars(PlayerStruct *p)
 void CreatePlayer(int pnum, char c)
 {
 	PlayerStruct *p;
-	char val;
-	int hp, mana;
+	int val, hp, mana;
 	int i;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -728,10 +734,12 @@ void CreatePlayer(int pnum, char c)
 	}
 
 	p = &plr[pnum];
-	ClearPlrRVars(p);
+	memset(p, 0, sizeof(*p));
 	SetRndSeed(SDL_GetTicks());
 
 	p->_pClass = c;
+
+	p->_pBaseToBlk = ToBlkTbl[c];
 
 	val = StrengthTbl[c];
 	p->_pStrength = val;
@@ -749,80 +757,32 @@ void CreatePlayer(int pnum, char c)
 	p->_pVitality = val;
 	p->_pBaseVit = val;
 
-	p->_pStatPts = 0;
-	p->pTownWarps = 0;
-	p->pDungMsgs = 0;
-	p->pLvlLoad = 0;
-	p->pDiabloKillLevel = 0;
-
-	if (c == PC_ROGUE) {
-		p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-	} else {
-		p->_pDamageMod = p->_pStrength * p->_pLevel / 100;
-	}
-
-	p->_pBaseToBlk = ToBlkTbl[c];
-
-	p->_pHitPoints = (val + 10) << 6;
+	hp = (val + 10) << 6;
 	if (c == PC_WARRIOR) {
-		p->_pHitPoints *= 2;
+		hp <<= 1;
+	} else if (c == PC_ROGUE) {
+		hp += hp >> 1;
 	}
-	if (c == PC_ROGUE) {
-		p->_pHitPoints += p->_pHitPoints >> 1;
-	}
+	p->_pHitPoints = p->_pMaxHP = p->_pHPBase = p->_pMaxHPBase = hp;
 
-	hp = p->_pHitPoints;
-	p->_pMaxHP = hp;
-	p->_pHPBase = hp;
-	p->_pMaxHPBase = hp;
-
-	p->_pMana = p->_pMagic << 6;
+	mana = p->_pMagic << 6;
 	if (c == PC_SORCERER) {
-		p->_pMana *= 2;
+		mana <<= 1;
+	} else if (c == PC_ROGUE) {
+		mana += mana >> 1;
 	}
-	if (c == PC_ROGUE) {
-		p->_pMana += p->_pMana >> 1;
-	}
-
-	mana = p->_pMana;
-	p->_pMaxMana = mana;
-	p->_pManaBase = mana;
-	p->_pMaxManaBase = mana;
+	p->_pMana = p->_pMaxMana = p->_pManaBase = p->_pMaxManaBase = mana;
 
 	p->_pLevel = 1;
 	p->_pMaxLvl = 1;
-	p->_pExperience = 0;
-	p->_pMaxExp = 0;
 	p->_pNextExper = ExpLvlsTbl[1];
-	p->_pArmorClass = 0;
-	p->_pMagResist = 0;
-	p->_pFireResist = 0;
-	p->_pLghtResist = 0;
 	p->_pLightRad = 10;
-	p->_pInfraFlag = FALSE;
 
-	if (c == PC_WARRIOR) {
-		p->_pAblSpells = (__int64)1 << (SPL_REPAIR - 1);
-	} else if (c == PC_ROGUE) {
-		p->_pAblSpells = (__int64)1 << (SPL_DISARM - 1);
-	} else if (c == PC_SORCERER) {
-		p->_pAblSpells = (__int64)1 << (SPL_RECHARGE - 1);
-	}
+	p->_pAblSpells = (__int64)1 << (Abilities[c] - 1);
 
 	if (c == PC_SORCERER) {
-		p->_pMemSpells = 1;
-	} else {
-		p->_pMemSpells = 0;
-	}
-
-	for (i = 0; i < sizeof(p->_pSplLvl) / sizeof(p->_pSplLvl[0]); i++) {
-		p->_pSplLvl[i] = 0;
-	}
-
-	p->_pSpellFlags = 0;
-
-	if (p->_pClass == PC_SORCERER) {
 		p->_pSplLvl[SPL_FIREBOLT] = 2;
+		p->_pMemSpells = (__int64)1 << (SPL_FIREBOLT - 1);
 	}
 
 	// interestingly, only the first three hotkeys are reset
@@ -831,6 +791,7 @@ void CreatePlayer(int pnum, char c)
 		p->_pSplHotKey[i] = -1;
 	}
 
+	// TODO: BUGFIX: is this necessary? does not seem to work with hellfire...
 	if (c == PC_WARRIOR) {
 		p->_pgfxnum = ANIM_ID_SWORD_SHIELD;
 	} else if (c == PC_ROGUE) {
@@ -838,20 +799,6 @@ void CreatePlayer(int pnum, char c)
 	} else if (c == PC_SORCERER) {
 		p->_pgfxnum = ANIM_ID_STAFF;
 	}
-
-	for (i = 0; i < NUMLEVELS; i++) {
-		p->_pLvlVisited[i] = FALSE;
-	}
-
-	for (i = 0; i < 10; i++) {
-		p->_pSLvlVisited[i] = FALSE;
-	}
-
-	p->_pLvlChanging = FALSE;
-	p->pTownWarps = 0;
-	p->pLvlLoad = 0;
-	p->pBattleNet = FALSE;
-	p->pManaShield = FALSE;
 
 	InitDungMsgs(pnum);
 	CreatePlrItems(pnum);
@@ -1036,17 +983,20 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	ClearPlrRVars(p);
 
 	if (FirstTime) {
-		p->_pRSplType = RSPLTYPE_INVALID;
-		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = p->_pSplType = RSPLTYPE_INVALID;
+		p->_pRSpell = p->_pSpell = SPL_INVALID;
 		p->_pSBkSpell = SPL_INVALID;
-		p->_pSpell = p->_pRSpell;
-		p->_pSplType = p->_pRSplType;
+		// TODO: BUGFIX: does not seem to be the best place to set this
 		if ((p->_pgfxnum & 0xF) == ANIM_ID_BOW) {
 			p->_pwtype = WT_RANGED;
 		} else {
 			p->_pwtype = WT_MELEE;
 		}
 		p->pManaShield = FALSE;
+
+		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
+		p->_pAblSpells = (unsigned __int64)1 << (Abilities[p->_pClass] - 1);
+		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 	}
 
 	if (p->plrlevel == currlevel || leveldebug) {
@@ -1103,22 +1053,6 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
 	}
 
-	if (p->_pClass == PC_WARRIOR) {
-		p->_pAblSpells = 1 << (SPL_REPAIR - 1);
-	} else if (p->_pClass == PC_ROGUE) {
-		p->_pAblSpells = 1 << (SPL_DISARM - 1);
-	} else if (p->_pClass == PC_SORCERER) {
-		p->_pAblSpells = 1 << (SPL_RECHARGE - 1);
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_MONK) {
-		p->_pAblSpells = (unsigned __int64)1 << (SPL_SEARCH - 1);
-	} else if (p->_pClass == PC_BARD) {
-		p->_pAblSpells = 1 << (SPL_IDENTIFY - 1);
-	} else if (p->_pClass == PC_BARBARIAN) {
-		p->_pAblSpells = 1 << (SPL_BLODBOIL - 1);
-#endif
-	}
-
 #ifdef _DEBUG
 	if (debug_mode_dollar_sign && FirstTime) {
 		p->_pMemSpells |= 1 << (SPL_TELEPORT - 1);
@@ -1131,7 +1065,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	}
 #endif
 
-	p->_pNextExper = ExpLvlsTbl[p->_pLevel];
+	// TODO: BUGFIX: should be set on FirstTime only?
 	p->_pInvincible = FALSE;
 
 	if (pnum == myplr) {
