@@ -495,8 +495,8 @@ static void DrawAutomapPlr()
 		px = p->_px;
 		py = p->_py;
 	}
-	px -= 2 * AutoMapXOfs - ViewX;
-	py -= 2 * AutoMapYOfs - ViewY;
+	px -= 2 * AutoMapXOfs + ViewX;
+	py -= 2 * AutoMapYOfs + ViewY;
 
 	x = (p->_pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
 	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
@@ -674,7 +674,6 @@ void DrawAutomap()
 	mapx = AutoMapX - cells;
 	mapy = AutoMapY - 1;
 
-
 	if (cells & 1) {
 		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * ((cells - 1) >> 1);
 		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * ((cells + 1) >> 1);
@@ -690,7 +689,6 @@ void DrawAutomap()
 		sx += AmLine16;
 		sy -= AmLine8;
 	}
-
 
 	sx += AutoMapScale * ScrollInfo._sxoff / 100 >> 1;
 	sy += AutoMapScale * ScrollInfo._syoff / 100 >> 1;
