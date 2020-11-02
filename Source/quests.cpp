@@ -274,7 +274,6 @@ BOOL ForceQuests()
 	}
 
 	for (i = 0; i < MAXQUESTS; i++) {
-
 		if (i != Q_BETRAYER && currlevel == quests[i]._qlevel && quests[i]._qslvl != 0) {
 			ql = quests[quests[i]._qidx]._qslvl - 1;
 			qx = quests[i]._qtx;

@@ -134,13 +134,13 @@ QuestTalkData Qtalklist[] = {
 	{ TEXT_INFRA9,  TEXT_MUSH9,  -1,          -1,          TEXT_VEIL7, -1,          TEXT_BUTCH7, TEXT_BANNER8, TEXT_BLIND7, TEXT_BLOOD7, TEXT_ANVIL9,  TEXT_WARLRD7, TEXT_KING9,  TEXT_POISON9,  TEXT_BONE7, TEXT_VILE11, TEXT_GRAVE1, -1,     -1,     -1,      -1,        -1,       -1,      -1 },
 	{ TEXT_INFRA4,  TEXT_MUSH5,  -1,          -1,          TEXT_VEIL4, -1,          TEXT_BUTCH4, TEXT_BANNER5, TEXT_BLIND4, TEXT_BLOOD4, TEXT_ANVIL4,  TEXT_WARLRD4, TEXT_KING6,  TEXT_POISON6,  TEXT_BONE4, TEXT_VILE8,  TEXT_GRAVE8, -1,     -1,     -1,      -1,        -1,       -1,      -1 },
 	{ TEXT_INFRA10, TEXT_MUSH13, -1,          -1,          TEXT_VEIL8, -1,          TEXT_BUTCH8, TEXT_BANNER9, TEXT_BLIND8, TEXT_BLOOD8, TEXT_ANVIL10, TEXT_WARLRD8, TEXT_KING10, TEXT_POISON10, TEXT_BONE8, TEXT_VILE12, TEXT_GRAVE9, -1,     -1,     -1,      -1,        -1,       -1,      -1 },
-	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,            -1,           -1,        -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
-	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,            -1,           -1,        -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
-	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,            -1,           -1,        -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
-	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,            -1,           -1,        -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
-	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,            -1,           -1,        -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
+	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
+	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
+	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
+	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
+	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1,          -1,          -1,     -1,     -1,      -1,        -1,       -1,      -1 },
 #else
-	// _qinfra,     _qblkm,      _qgarb,      _qzhar,      _qveil,      _qmod,       _qbutch,    _qbol,        _qblind,     _qblood,     _qanvil,      _qwarlrd,     _qking,      _qpw,          _qbone,     _qvb
+	// _qinfra,     _qblkm,      _qgarb,      _qzhar,      _qveil,     _qmod,       _qbutch,     _qbol,        _qblind,     _qblood,     _qanvil,      _qwarlrd,     _qking,      _qpw,          _qbone,     _qvb
 	{ TEXT_INFRA6,  TEXT_MUSH6,  -1,          -1,          TEXT_VEIL5, -1,          TEXT_BUTCH5, TEXT_BANNER6, TEXT_BLIND5, TEXT_BLOOD5, TEXT_ANVIL6,  TEXT_WARLRD5, TEXT_KING7,  TEXT_POISON7,  TEXT_BONE5, TEXT_VILE9  },
 	{ TEXT_INFRA3,  -1,          -1,          -1,          TEXT_VEIL3, -1,          TEXT_BUTCH3, TEXT_BANNER4, TEXT_BLIND3, TEXT_BLOOD3, TEXT_ANVIL3,  TEXT_WARLRD3, TEXT_KING5,  TEXT_POISON4,  TEXT_BONE3, TEXT_VILE7  },
 	{ -1,           -1,          -1,          -1,          -1,         -1,          -1,          -1,           -1,          -1,          -1,           -1,           -1,          -1,            -1,         -1          },
@@ -201,6 +201,7 @@ void InitQstSnds(int tnum)
 {
 	TNQ *tqst;
 	int i, tl;
+
 	tl = tnum;
 	if (boyloadflag)
 		tl++;

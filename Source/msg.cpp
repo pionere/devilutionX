@@ -2613,11 +2613,11 @@ DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
 #ifdef HELLFIRE
 DWORD On_ENDREFLECT(TCmd *pCmd, int pnum)
 {
-	int i;
+	int i, mi;
 
 	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
 		for (i = 0; i < nummissiles; i++) {
-			int mi = missileactive[i];
+			mi = missileactive[i];
 			if (missile[mi]._mitype == MIS_REFLECT && missile[mi]._misource == pnum) {
 				ClearMissileSpot(mi);
 				DeleteMissile(mi, i);

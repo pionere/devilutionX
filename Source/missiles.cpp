@@ -595,45 +595,43 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 		hper = 5;
 	if (hper > 95)
 		hper = 95;
+	if (hit >= hper)
 #ifdef _DEBUG
-	if (hit < hper || debug_mode_dollar_sign || debug_mode_key_inverted_v) {
-#else
-	if (hit < hper) {
+		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
 #endif
-		dam = mindam + random_(68, maxdam - mindam + 1);
-		if (!shift)
-			dam <<= 6;
-		if (resist)
-			mon->_mhitpoints -= dam >> 2;
-		else
-			mon->_mhitpoints -= dam;
+			return FALSE;
+
+	dam = mindam + random_(68, maxdam - mindam + 1);
+	if (!shift)
+		dam <<= 6;
+	if (resist)
+		mon->_mhitpoints -= dam >> 2;
+	else
+		mon->_mhitpoints -= dam;
 #ifdef _DEBUG
-		if (debug_mode_dollar_sign || debug_mode_key_inverted_v)
-			mon->_mhitpoints = 0;
+	if (debug_mode_dollar_sign || debug_mode_key_inverted_v)
+		mon->_mhitpoints = 0;
 #endif
-		if (mon->_mhitpoints >> 6 <= 0) {
-			if (mon->_mmode == MM_STONE) {
-				MonStartKill(mnum, -1);
-				mon->_mmode = MM_STONE;
-			} else {
-				MonStartKill(mnum, -1);
-			}
+	if (mon->_mhitpoints >> 6 <= 0) {
+		if (mon->_mmode == MM_STONE) {
+			MonStartKill(mnum, -1);
+			mon->_mmode = MM_STONE;
 		} else {
-			if (resist) {
-				PlayEffect(mnum, 1);
-			} else if (mon->_mmode == MM_STONE) {
-				if (mnum >= MAX_PLRS)
-					MonStartHit(mnum, -1, dam);
-				mon->_mmode = MM_STONE;
-			} else {
-				if (mnum >= MAX_PLRS)
-					MonStartHit(mnum, -1, dam);
-			}
+			MonStartKill(mnum, -1);
 		}
-		return TRUE;
 	} else {
-		return FALSE;
+		if (resist) {
+			PlayEffect(mnum, 1);
+		} else if (mon->_mmode == MM_STONE) {
+			if (mnum >= MAX_PLRS)
+				MonStartHit(mnum, -1, dam);
+			mon->_mmode = MM_STONE;
+		} else {
+			if (mnum >= MAX_PLRS)
+				MonStartHit(mnum, -1, dam);
+		}
 	}
+	return TRUE;
 }
 
 BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
@@ -677,13 +675,12 @@ BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mityp
 		hper = 5;
 	if (hper > 95)
 		hper = 95;
-#ifdef _DEBUG
-	if (hit >= hper && !debug_mode_key_inverted_v && !debug_mode_dollar_sign)
-		return FALSE;
-#else
 	if (hit >= hper)
-		return FALSE;
+#ifdef _DEBUG
+		if (!debug_mode_key_inverted_v && !debug_mode_dollar_sign)
 #endif
+			return FALSE;
+
 	if (mitype == MIS_BONESPIRIT) {
 		dam = mon->_mhitpoints / 3 >> 6;
 	} else {
@@ -824,28 +821,59 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		break;
 	}
 
-	if (hit < hper) {
-		if (mitype == MIS_BONESPIRIT) {
-			dam = p->_pHitPoints / 3;
+	if (hit >= hper)
+		return FALSE;
+
+	if (mitype == MIS_BONESPIRIT) {
+		dam = p->_pHitPoints / 3;
+	} else {
+		if (!shift) {
+			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
+			if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
+				dam >>= 1;
+			dam += (p->_pIGetHit * 64);
 		} else {
-			if (!shift) {
-				dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
-				if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
-					dam >>= 1;
-				dam += (p->_pIGetHit * 64);
-			} else {
-				dam = mind + random_(75, maxd - mind + 1);
-				if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
-					dam >>= 1;
-				dam += p->_pIGetHit;
-			}
-
-			if (dam < 64)
-				dam = 64;
+			dam = mind + random_(75, maxd - mind + 1);
+			if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
+				dam >>= 1;
+			dam += p->_pIGetHit;
 		}
-		if (resper > 0) {
 
-			dam = dam - dam * resper / 100;
+		if (dam < 64)
+			dam = 64;
+	}
+	if (resper > 0) {
+		dam = dam - dam * resper / 100;
+		if (pnum == myplr) {
+			p->_pHitPoints -= dam;
+			p->_pHPBase -= dam;
+		}
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
+			p->_pHPBase = p->_pMaxHPBase;
+		}
+
+		if (p->_pHitPoints >> 6 <= 0) {
+			SyncPlrKill(pnum, earflag);
+		} else {
+			if (p->_pClass == PC_WARRIOR) {
+				PlaySfxLoc(PS_WARR69, p->_px, p->_py);
+			} else if (p->_pClass == PC_ROGUE) {
+				PlaySfxLoc(PS_ROGUE69, p->_px, p->_py);
+			} else if (p->_pClass == PC_SORCERER) {
+				PlaySfxLoc(PS_MAGE69, p->_px, p->_py);
+			}
+			drawhpflag = TRUE;
+		}
+	} else {
+		if (blk < blkper) {
+			if (mnum != -1) {
+				tac = GetDirection(p->_px, p->_py, monster[mnum]._mx, monster[mnum]._my);
+			} else {
+				tac = p->_pdir;
+			}
+			PlrStartBlock(pnum, tac);
+		} else {
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
 				p->_pHPBase -= dam;
@@ -854,46 +882,14 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 				p->_pHitPoints = p->_pMaxHP;
 				p->_pHPBase = p->_pMaxHPBase;
 			}
-
 			if (p->_pHitPoints >> 6 <= 0) {
 				SyncPlrKill(pnum, earflag);
 			} else {
-				if (p->_pClass == PC_WARRIOR) {
-					PlaySfxLoc(PS_WARR69, p->_px, p->_py);
-				} else if (p->_pClass == PC_ROGUE) {
-					PlaySfxLoc(PS_ROGUE69, p->_px, p->_py);
-				} else if (p->_pClass == PC_SORCERER) {
-					PlaySfxLoc(PS_MAGE69, p->_px, p->_py);
-				}
-				drawhpflag = TRUE;
-			}
-		} else {
-			if (blk < blkper) {
-				if (mnum != -1) {
-					tac = GetDirection(p->_px, p->_py, monster[mnum]._mx, monster[mnum]._my);
-				} else {
-					tac = p->_pdir;
-				}
-				PlrStartBlock(pnum, tac);
-			} else {
-				if (pnum == myplr) {
-					p->_pHitPoints -= dam;
-					p->_pHPBase -= dam;
-				}
-				if (p->_pHitPoints > p->_pMaxHP) {
-					p->_pHitPoints = p->_pMaxHP;
-					p->_pHPBase = p->_pMaxHPBase;
-				}
-				if (p->_pHitPoints >> 6 <= 0) {
-					SyncPlrKill(pnum, earflag);
-				} else {
-					StartPlrHit(pnum, dam, FALSE);
-				}
+				StartPlrHit(pnum, dam, FALSE);
 			}
 		}
-		return TRUE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
@@ -955,59 +951,59 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 		hit = 5;
 	if (hit > 95)
 		hit = 95;
-	if (hper < hit) {
-		if ((dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK) && dps->_pBlockFlag) {
-			blkper = random_(73, 100);
-		} else {
-			blkper = 100;
-		}
-		if (shift)
-			blkper = 100;
-		blk = dps->_pDexterity + dps->_pBaseToBlk + (dps->_pLevel << 1) - (ops->_pLevel << 1);
+	if (hper >= hit)
+		return FALSE;
 
-		if (blk < 0) {
-			blk = 0;
-		}
-		if (blk > 100) {
-			blk = 100;
-		}
-
-		if (mitype == MIS_BONESPIRIT) {
-			dam = dps->_pHitPoints / 3;
-		} else {
-			dam = mindam + random_(70, maxdam - mindam + 1);
-			if (missiledata[mitype].mType == 0)
-				dam += ops->_pIBonusDamMod + ops->_pDamageMod + dam * ops->_pIBonusDam / 100;
-			if (!shift)
-				dam <<= 6;
-		}
-		if (missiledata[mitype].mType != 0)
-			dam >>= 1;
-		if (resper > 0) {
-			if (offp == myplr)
-				NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
-			if (ops->_pClass == PC_WARRIOR) {
-				tac = PS_WARR69;
-			} else if (ops->_pClass == PC_ROGUE) {
-				tac = PS_ROGUE69;
-			} else if (ops->_pClass == PC_SORCERER) {
-				tac = PS_MAGE69;
-			} else {
-				return TRUE;
-			}
-			PlaySfxLoc(tac, ops->_px, ops->_py);
-		} else {
-			if (blkper < blk) {
-				PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
-			} else {
-				if (offp == myplr)
-					NetSendCmdDamage(TRUE, defp, dam);
-				StartPlrHit(defp, dam, FALSE);
-			}
-		}
-		return TRUE;
+	if ((dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK) && dps->_pBlockFlag) {
+		blkper = random_(73, 100);
+	} else {
+		blkper = 100;
 	}
-	return FALSE;
+	if (shift)
+		blkper = 100;
+	blk = dps->_pDexterity + dps->_pBaseToBlk + (dps->_pLevel << 1) - (ops->_pLevel << 1);
+
+	if (blk < 0) {
+		blk = 0;
+	}
+	if (blk > 100) {
+		blk = 100;
+	}
+
+	if (mitype == MIS_BONESPIRIT) {
+		dam = dps->_pHitPoints / 3;
+	} else {
+		dam = mindam + random_(70, maxdam - mindam + 1);
+		if (missiledata[mitype].mType == 0)
+			dam += ops->_pIBonusDamMod + ops->_pDamageMod + dam * ops->_pIBonusDam / 100;
+		if (!shift)
+			dam <<= 6;
+	}
+	if (missiledata[mitype].mType != 0)
+		dam >>= 1;
+	if (resper > 0) {
+		if (offp == myplr)
+			NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
+		if (ops->_pClass == PC_WARRIOR) {
+			tac = PS_WARR69;
+		} else if (ops->_pClass == PC_ROGUE) {
+			tac = PS_ROGUE69;
+		} else if (ops->_pClass == PC_SORCERER) {
+			tac = PS_MAGE69;
+		} else {
+			return TRUE;
+		}
+		PlaySfxLoc(tac, ops->_px, ops->_py);
+	} else {
+		if (blkper < blk) {
+			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
+		} else {
+			if (offp == myplr)
+				NetSendCmdDamage(TRUE, defp, dam);
+			StartPlrHit(defp, dam, FALSE);
+		}
+	}
+	return TRUE;
 }
 
 void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
@@ -2089,7 +2085,6 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 			r1 = -r1;
 		if (random_(58, 2) == 1)
 			r2 = -r2;
-
 		r1 += sx;
 		r2 += sy;
 #ifdef HELLFIRE
@@ -2918,14 +2913,11 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 	if (p->_pClass == PC_WARRIOR)
 		HealAmount <<= 1;
+	else if (p->_pClass == PC_ROGUE)
+		HealAmount += HealAmount >> 1;
 #ifdef HELLFIRE
 	else if (p->_pClass == PC_BARBARIAN || p->_pClass == PC_MONK)
 		HealAmount <<= 1;
-#endif
-
-	if (p->_pClass == PC_ROGUE)
-		HealAmount += HealAmount >> 1;
-#ifdef HELLFIRE
 	else if (p->_pClass == PC_BARD)
 		HealAmount += HealAmount >> 1;
 #endif
@@ -3337,8 +3329,8 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	MissileStruct *mis;
 
 	if (sx == dx && sy == dy) {
-		dx = XDirAdd[midir] + dx;
-		dy = YDirAdd[midir] + dy;
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
@@ -5705,8 +5697,7 @@ void ProcessMissiles()
 #endif
 	}
 
-	i = 0;
-	while (i < nummissiles) {
+	for (i = 0; i < nummissiles; ) {
 		mi = missileactive[i];
 		if (missile[mi]._miDelFlag) {
 			DeleteMissile(mi, i);
@@ -5744,8 +5735,7 @@ void ProcessMissiles()
 		}
 	}
 
-	i = 0;
-	while (i < nummissiles) {
+	for (i = 0; i < nummissiles ;) {
 		mi = missileactive[i];
 		if (missile[mi]._miDelFlag) {
 			DeleteMissile(mi, i);

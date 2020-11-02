@@ -2522,16 +2522,15 @@ void OperateL1RDoor(int pnum, int oi, DIABOOL sendmsg)
 
 		pn = os->_oVar2;
 #ifdef HELLFIRE
-		if (currlevel < 17) {
-#endif
-			if (pn == 50 && dPiece[xp - 1][yp] == 396)
-				pn = 411;
-#ifdef HELLFIRE
-		} else {
+		if (currlevel >= 17) {
 			if (pn == 86 && dPiece[xp - 1][yp] == 210)
 				pn = 232;
-		}
+		} else
 #endif
+		{
+			if (pn == 50 && dPiece[xp - 1][yp] == 396)
+				pn = 411;
+		}
 		ObjSetMicro(xp - 1, yp, pn);
 		os->_oAnimFrame -= 2;
 		os->_oPreFlag = FALSE;
@@ -2597,16 +2596,15 @@ void OperateL1LDoor(int pnum, int oi, DIABOOL sendmsg)
 		ObjSetMicro(xp, yp, os->_oVar1);
 		pn = os->_oVar2;
 #ifdef HELLFIRE
-		if (currlevel < 17) {
-#endif
-			if (pn == 50 && dPiece[xp][yp - 1] == 396)
-				pn = 412;
-#ifdef HELLFIRE
-		} else {
+		if (currlevel >= 17) {
 			if (pn == 86 && dPiece[xp][yp - 1] == 210)
 				pn = 234;
-		}
+		} else
 #endif
+		{
+			if (pn == 50 && dPiece[xp][yp - 1] == 396)
+				pn = 412;
+		}
 		ObjSetMicro(xp, yp - 1, pn);
 		os->_oAnimFrame -= 2;
 		os->_oPreFlag = FALSE;
@@ -4311,7 +4309,6 @@ DIABOOL OperateFountains(int pnum, int oi)
 {
 	PlayerStruct *p;
 	ObjectStruct *os;
-
 	int prev, add, rnd, cnt;
 	DIABOOL applied;
 	BOOL done;
@@ -4349,14 +4346,12 @@ DIABOOL OperateFountains(int pnum, int oi)
 
 		p = &plr[pnum];
 		if (p->_pMana < p->_pMaxMana) {
-
 			p->_pMana += 64;
 			p->_pManaBase += 64;
 			if (p->_pMana > p->_pMaxMana) {
 				p->_pMana = p->_pMaxMana;
 				p->_pManaBase = p->_pMaxManaBase;
 			}
-
 			applied = TRUE;
 		}
 		break;
@@ -4452,7 +4447,7 @@ void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy,
 		leveltype > DTYPE_CATHEDRAL,
-		random_(0, 4) + ITYPE_SWORD,
+		ITYPE_SWORD + random_(0, 4),
 		IMISC_NONE, sendmsg, FALSE);
 	if (pnum == myplr)
 		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
@@ -5146,7 +5141,7 @@ void GetObjectStr(int oi)
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
-		if (currlevel > 16 && currlevel < 21) // for hive levels
+		if (currlevel >= 17 && currlevel <= 20) // for hive levels
 			strcpy(infostr, "Pod"); //Then a barrel is called a pod
 		else if (currlevel > 20 && currlevel < 25) // for crypt levels
 			strcpy(infostr, "Urn"); //Then a barrel is called an urn

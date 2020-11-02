@@ -57,12 +57,12 @@ void AddWarpMissile(int i, int x, int y)
 
 void SyncPortals()
 {
-	int i;
+	int i, lvl;
 
 	for (i = 0; i < MAXPORTAL; i++) {
 		if (!portal[i].open)
 			continue;
-		int lvl = currlevel;
+		lvl = currlevel;
 		if (lvl == 0)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
@@ -108,8 +108,7 @@ BOOL PortalOnLevel(int i)
 void RemovePortalMissile(int pnum)
 {
 	MissileStruct *mis;
-	int i;
-	int mi;
+	int i, mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];

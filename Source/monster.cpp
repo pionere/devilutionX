@@ -306,7 +306,6 @@ void GetLevelMTypes()
 				}
 			}
 		}
-
 	} else {
 		if (setlvlnum == SL_SKELKING) {
 			AddMonsterType(MT_SKING, 4);
@@ -610,14 +609,9 @@ void PlaceMonster(int mnum, int mtype, int x, int y)
 
 #ifdef HELLFIRE
 	if (Monsters[mtype].mtype == MT_NAKRUL) {
-		for (int i = 0; i < nummonsters; i++) {
-			if (monster[i]._mMTidx == mtype) {
+		for (int i = 0; i < nummonsters; i++)
+			if (monster[i]._mMTidx == mtype || monster[i].MType->mtype == MT_NAKRUL)
 				return;
-			}
-			if (monster[i].MType->mtype == MT_NAKRUL) {
-				return;
-			}
-		}
 	}
 #endif
 	dMonster[x][y] = mnum + 1;
@@ -933,7 +927,6 @@ void PlaceQuestMonsters()
 			mem_free_dbg(setp);
 		}
 #ifdef HELLFIRE
-
 		if (currlevel == 24) {
 			UberDiabloMonsterIndex = -1;
 			int i1;
@@ -2016,6 +2009,7 @@ void MonStartFadein(int mnum, int md, BOOL backwards)
 void MonStartFadeout(int mnum, int md, BOOL backwards)
 {
 	MonsterStruct *mon;
+
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
 		return;
@@ -2703,31 +2697,32 @@ int MonDoTalk(int mnum)
 
 void MonTeleport(int mnum)
 {
-	BOOL tren;
 	MonsterStruct *mon;
+	BOOL tren;
 	int k, j, x, y, _mx, _my, rx, ry;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonTeleport: Invalid monster %d", mnum);
 
+	mon = &monster[mnum];
+	if (mon->_mmode == MM_STONE)
+		return;
+
 	tren = FALSE;
 
-	mon = &monster[mnum];
-	if (mon->_mmode != MM_STONE) {
-		_mx = mon->_menemyx;
-		_my = mon->_menemyy;
-		rx = 2 * random_(100, 2) - 1;
-		ry = 2 * random_(100, 2) - 1;
+	_mx = mon->_menemyx;
+	_my = mon->_menemyy;
+	rx = 2 * random_(100, 2) - 1;
+	ry = 2 * random_(100, 2) - 1;
 
-		for (j = -1; j <= 1 && !tren; j++) {
-			for (k = -1; k < 1 && !tren; k++) {
-				if (j != 0 || k != 0) {
-					x = _mx + rx * j;
-					y = _my + ry * k;
-					if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
-						if (PosOkMonst(mnum, x, y))
-							tren = TRUE;
-					}
+	for (j = -1; j <= 1 && !tren; j++) {
+		for (k = -1; k < 1 && !tren; k++) {
+			if (j != 0 || k != 0) {
+				x = _mx + rx * j;
+				y = _my + ry * k;
+				if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
+					if (PosOkMonst(mnum, x, y))
+						tren = TRUE;
 				}
 			}
 		}
@@ -2930,8 +2925,7 @@ BOOL MonDoSpStand(int mnum)
 BOOL MonDoDelay(int mnum)
 {
 	MonsterStruct *mon;
-	int mVar2;
-	int oFrame;
+	int mVar2, oFrame;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoDelay: Invalid monster %d", mnum);
@@ -3649,9 +3643,9 @@ void MAI_Fireman(int mnum)
 
 void MAI_Fallen(int mnum)
 {
+	MonsterStruct *mon;
 	int x, y;
 	int m, rad, md;
-	MonsterStruct *mon;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("MAI_Fallen: Invalid monster %d", mnum);
@@ -4037,7 +4031,7 @@ void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmis
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MAI_RoundRanged: Invalid monster %d", mnum);
-	mon = monster + mnum;
+	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
@@ -4422,7 +4416,7 @@ void mai_horkdemon(int mnum)
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	if (dist < 2) {
 		mon->_mgoal = MGOAL_NORMAL;
-	} else if (mon->_mgoal == MGOAL_MOVE || dist >= 5 && random_(132, 4) != 0) {
+	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 		if (mon->_mgoal != MGOAL_MOVE) {
 			mon->_mgoalvar1 = 0;
 			mon->_mgoalvar2 = random_(133, 2);
@@ -5555,52 +5549,52 @@ BOOL monster_posok(int mnum, int x, int y)
 {
 	BOOL ret = TRUE, fire = FALSE;
 	int mi = dMissile[x][y], j;
+
+	if (mi == 0 || mnum < 0)
+		return TRUE;
+
 #ifdef HELLFIRE
 	BOOL lightning = FALSE;
 	MissileStruct* mis;
 
-	if (mi != 0 && mnum >= 0) {
-		if (mi > 0) {
-			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-				fire = TRUE;
-			} else if (missile[mi - 1]._mitype == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-				lightning = TRUE;
+	if (mi > 0) {
+		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+			fire = TRUE;
+		} else if (missile[mi - 1]._mitype == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+			lightning = TRUE;
+		}
+	} else {
+		for (j = 0; j < nummissiles; j++) {
+			mis = &missile[missileactive[j]];
+			if (mis->_mix == x && mis->_miy == y) {
+				if (mis->_mitype == MIS_FIREWALL) {
+					fire = TRUE;
+					break;
+				}
+				if (mis->_mitype == MIS_LIGHTWALL) {
+					lightning = TRUE;
+					break;
+				}
 			}
+		}
+	}
+	if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
+		ret = FALSE;
+	if (lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING))
+		ret = FALSE;
+#else
+	if (mi > 0) {
+		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+			fire = TRUE;
 		} else {
 			for (j = 0; j < nummissiles; j++) {
-				mis = &missile[missileactive[j]];
-				if (mis->_mix == x && mis->_miy == y) {
-					if (mis->_mitype == MIS_FIREWALL) {
-						fire = TRUE;
-						break;
-					}
-					if (mis->_mitype == MIS_LIGHTWALL) {
-						lightning = TRUE;
-						break;
-					}
-				}
+				if (missile[missileactive[j]]._mitype == MIS_FIREWALL)
+					fire = TRUE;
 			}
 		}
-		if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
-			ret = FALSE;
-		if (lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING))
-			ret = FALSE;
 	}
-#else
-	if (mi != 0 && mnum >= 0) {
-		if (mi > 0) {
-			if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-				fire = TRUE;
-			} else {
-				for (j = 0; j < nummissiles; j++) {
-					if (missile[missileactive[j]]._mitype == MIS_FIREWALL)
-						fire = TRUE;
-				}
-			}
-		}
-		if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
-			ret = FALSE;
-	}
+	if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
+		ret = FALSE;
 #endif
 	return ret;
 }

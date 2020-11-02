@@ -22,7 +22,6 @@ void InitDead()
 	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
-
 	cmon = Monsters;
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (mtypes[cmon->mtype] == 0) {

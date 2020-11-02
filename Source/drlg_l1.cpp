@@ -1336,7 +1336,7 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 			height = (random_(0, 5) + 2) & 0xFFFFFFFE;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L5checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+			if (L5checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1")
 				break;
 		}
 

@@ -510,6 +510,7 @@ static void L4tileFix()
 			case 14:
 				if (dungeon[i + 1][j] == 1)
 					dungeon[i + 1][j] = 13;
+				break;
 			}
 		}
 	}

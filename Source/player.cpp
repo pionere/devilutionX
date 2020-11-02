@@ -459,7 +459,7 @@ DWORD GetPlrGFXSize(const char *szCel)
 			if (a != &ArmourChar[0])
 				break;
 #endif
-			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animagions; DT is only for N, BT is only for U, D & H (fixed)
+			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animations; DT is only for N, BT is only for U, D & H (fixed)
 				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
 					continue; //Death has no weapon
 				}
@@ -2491,8 +2491,8 @@ BOOL WeaponDur(int pnum, int durrnd)
 		}
 		CalcPlrInv(pnum, TRUE);
 	}
-
 #endif
+
 	if (random_(3, durrnd) != 0) {
 		return FALSE;
 	}
@@ -2605,7 +2605,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 	mon = &monster[mnum];
 	hit = mon->_mmode == MM_STONE ? 0 : random_(4, 100);
 
-	hper = (p->_pDexterity >> 1) + p->_pIBonusToHit +  p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
+	hper = (p->_pDexterity >> 1) + p->_pIBonusToHit + p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
 	if (p->_pClass == PC_WARRIOR) {
 		hper += 20;
 	}
@@ -3549,6 +3549,7 @@ void CheckNewPath(int pnum)
 BOOL PlrDeathModeOK(int pnum)
 {
 	PlayerStruct *p;
+
 	if (pnum != myplr) {
 		return TRUE;
 	}
@@ -4251,7 +4252,6 @@ void SetPlayerHitPoints(int pnum, int val)
 void SetPlrStr(int pnum, int v)
 {
 	PlayerStruct *p;
-	int dm;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlrStr: illegal player %d", pnum);
@@ -4297,12 +4297,10 @@ void SetPlrMag(int pnum, int v)
 void SetPlrDex(int pnum, int v)
 {
 	PlayerStruct *p;
-	int dm;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlrDex: illegal player %d", pnum);
 	}
-
 	p = &plr[pnum];
 
 	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_DEX]));
@@ -4320,7 +4318,6 @@ void SetPlrVit(int pnum, int v)
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlrVit: illegal player %d", pnum);
 	}
-
 	p = &plr[pnum];
 
 	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_VIT]));

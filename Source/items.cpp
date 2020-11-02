@@ -17,12 +17,11 @@ ItemStruct item[MAXITEMS + 1];
 BOOL itemhold[3][3];
 #ifdef HELLFIRE
 CornerStoneStruct CornerStone;
+int auricGold = 2 * GOLD_MAX_LIMIT;
+int MaxGold = GOLD_MAX_LIMIT;
 #endif
 BYTE *itemanims[ITEMTYPES];
 BOOL UniqueItemFlag[128];
-#ifdef HELLFIRE
-int auricGold = 2 * GOLD_MAX_LIMIT;
-#endif
 int numitems;
 int gnNumGetRecords;
 
@@ -55,7 +54,6 @@ char OilNames[10][25] = {
 	"Oil of Hardening",
 	"Oil of Imperviousness"
 };
-int MaxGold = GOLD_MAX_LIMIT;
 #endif
 
 /** Maps from item_cursor_graphic to in-memory item type. */
@@ -525,11 +523,7 @@ static inline int items_get_currlevel()
 
 void InitItemGFX()
 {
-#ifdef HELLFIRE
-	DWORD i;
-#else
 	int i;
-#endif
 	char arglist[64];
 
 	for (i = 0; i < ITEMTYPES; i++) {
@@ -818,9 +812,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	if (p->_pClass == PC_ROGUE) {
 		p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-	}
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_MONK) {
+	} else if (p->_pClass == PC_MONK) {
 		if (wLeft->_itype != ITYPE_STAFF) {
 			if (wRight->_itype != ITYPE_STAFF && (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE)) {
 				p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 300;
@@ -859,9 +852,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				p->_pDamageMod += p->_pLevel * p->_pVitality / 100;
 		}
 		p->_pIAC += p->_pLevel/4;
-	}
 #endif
-	else {
+	} else {
 		p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
 	}
 
@@ -935,12 +927,11 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	if (p->_pClass == PC_ROGUE) {
 #endif
 		madd += madd >> 1;
-	}
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_BARD) {
+	} else if (p->_pClass == PC_BARD) {
 		madd += madd >> 2 + madd >> 1;
-	}
 #endif
+	}
 	imana += (madd << 6);
 
 	p->_pHitPoints = ihp + p->_pHPBase;
@@ -1120,20 +1111,22 @@ void CalcPlrScrolls(int pnum)
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)) {
-			if (pi->_iStatFlag)
-				p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
+		if (pi->_itype != ITYPE_NONE
+		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		 && pi->_iStatFlag) {
+			p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
 		}
 	}
 	pi = p->SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)) {
-			if (pi->_iStatFlag)
-				p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
+		if (pi->_itype != ITYPE_NONE
+		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		 && pi->_iStatFlag) {
+			p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
 		}
 	}
 	if (p->_pRSplType == RSPLTYPE_SCROLL && p->_pRSpell != SPL_INVALID
-	 && !(p->_pScrlSpells & (__int64)1 << (p->_pRSpell - 1))) {
+	 && !(p->_pScrlSpells & ((__int64)1 << (p->_pRSpell - 1)))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
 		force_redraw = 255;
@@ -1200,19 +1193,15 @@ void CalcPlrItemMin(int pnum)
 	int i;
 
 	pi = plr[pnum].InvList;
-	i = plr[pnum]._pNumInv;
-
-	while (i--) {
+	for (i = plr[pnum]._pNumInv; i != 0; i--, pi++) {
 		ItemStatOk(pnum, pi);
-		pi++;
 	}
 
 	pi = plr[pnum].SpdList;
-	for (i = MAXBELTITEMS; i != 0; i--) {
+	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			ItemStatOk(pnum, pi);
 		}
-		pi++;
 	}
 }
 
@@ -2389,14 +2378,15 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	if (!pre) {
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-			if (flgs & pres->PLIType) {
-				if (pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl && (!onlygood || pres->PLOk) && (flgs != 256 || pres->PLPower != 15)) {
+			if ((flgs & pres->PLIType)
+			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl 
+			 && (!onlygood || pres->PLOk)
+			 && (flgs != 256 || pres->PLPower != 15)) {
+				l[nl] = pres;
+				nl++;
+				if (pres->PLDouble) {
 					l[nl] = pres;
 					nl++;
-					if (pres->PLDouble) {
-						l[nl] = pres;
-						nl++;
-					}
 				}
 			}
 		}
@@ -3257,7 +3247,7 @@ void ItemDoppel()
 			}
 		}
 		idoppely++;
-		if (idoppely == DSIZEY + DBORDERX)
+		if (idoppely == DSIZEY + DBORDERY)
 			idoppely = DBORDERY;
 	}
 }
@@ -4900,7 +4890,7 @@ void SpawnBoy(int lvl)
 {
 	int itype;
 
-	if (boylevel<lvl>> 1 || boyitem._itype == ITYPE_NONE) {
+	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
 		do {
 			item[0]._iSeed = GetRndSeed();
 			SetRndSeed(item[0]._iSeed);

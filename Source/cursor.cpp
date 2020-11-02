@@ -445,7 +445,7 @@ void CheckCursMove()
 			}
 			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
 #ifdef HELLFIRE
-				if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED)) 
+				if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
 #endif
 					pcursmonst = -1;
 			}

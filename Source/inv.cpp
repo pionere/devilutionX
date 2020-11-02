@@ -1721,51 +1721,52 @@ void InvGetItem(int pnum, int ii)
 	}
 
 	is = &item[ii];
-	if (dItem[is->_ix][is->_iy] != 0) {
-		p = &plr[pnum];
-		if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
-			NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
+	if (dItem[is->_ix][is->_iy] == 0)
+		return;
+
+	p = &plr[pnum];
+	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
+		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
 #ifdef HELLFIRE
-		if (is->_iUid != 0)
+	if (is->_iUid != 0)
 #endif
-			is->_iCreateInfo &= ~CF_PREGEN;
-		p->HoldItem = *is;
-		CheckQuestItem(pnum);
-		CheckBookLevel(pnum);
-		ItemStatOk(pnum, &p->HoldItem);
+		is->_iCreateInfo &= ~CF_PREGEN;
+	p->HoldItem = *is;
+	CheckQuestItem(pnum);
+	CheckBookLevel(pnum);
+	ItemStatOk(pnum, &p->HoldItem);
 #ifdef HELLFIRE
-		cursor_updated = FALSE;
-		if (p->HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
-			cursor_updated = TRUE;
+	cursor_updated = FALSE;
+	if (p->HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
+		cursor_updated = TRUE;
 #endif
-		dItem[is->_ix][is->_iy] = 0;
+	dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
-		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-			CornerStone.item.IDidx = -1;
-			CornerStone.item._itype = ITYPE_MISC;
-			CornerStone.item._iSelFlag = FALSE;
-			CornerStone.item._ix = 0;
-			CornerStone.item._iy = 0;
-			CornerStone.item._iAnimFlag = FALSE;
-			CornerStone.item._iIdentified = FALSE;
-			CornerStone.item._iPostDraw = FALSE;
-		}
-#endif
-		i = 0;
-		while (i < numitems) {
-			if (itemactive[i] == ii) {
-				DeleteItem(itemactive[i], i);
-				i = 0;
-			} else {
-				i++;
-			}
-		}
-		pcursitem = -1;
-#ifdef HELLFIRE
-		if (!cursor_updated)
-#endif
-			NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+	if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
+		CornerStone.item.IDidx = -1;
+		CornerStone.item._itype = ITYPE_MISC;
+		CornerStone.item._iSelFlag = FALSE;
+		CornerStone.item._ix = 0;
+		CornerStone.item._iy = 0;
+		CornerStone.item._iAnimFlag = FALSE;
+		CornerStone.item._iIdentified = FALSE;
+		CornerStone.item._iPostDraw = FALSE;
 	}
+#endif
+	i = 0;
+	while (i < numitems) {
+		if (itemactive[i] == ii) {
+			DeleteItem(itemactive[i], i);
+			i = 0;
+		} else {
+			i++;
+		}
+	}
+	pcursitem = -1;
+#ifdef HELLFIRE
+	if (!cursor_updated)
+#endif
+		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 }
 
 void AutoGetItem(int pnum, int ii)
@@ -2182,8 +2183,7 @@ int InvPutItem(int pnum, int x, int y)
 
 int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BOOL Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
 #ifdef HELLFIRE
-    ,
-    int to_hit, int max_dam, int min_str, int min_mag, int min_dex, int ac
+    , int to_hit, int max_dam, int min_str, int min_mag, int min_dex, int ac
 #endif
 )
 {
@@ -2530,16 +2530,15 @@ BOOL UseInvItem(int pnum, int cii)
 			sfxdnum = PS_ROGUE95;
 		} else if (plr[pnum]._pClass == PC_SORCERER) {
 			sfxdnum = PS_MAGE95;
-		}
 #ifdef HELLFIRE
-		else if (plr[pnum]._pClass == PC_MONK) {
+		} else if (plr[pnum]._pClass == PC_MONK) {
 			sfxdnum = PS_MONK95;
 		} else if (plr[pnum]._pClass == PC_BARD) {
 			sfxdnum = PS_ROGUE95;
 		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
 			sfxdnum = PS_WARR95;
-		}
 #endif
+		}
 		return TRUE;
 	case IDI_FUNGALTM:
 		PlaySFX(IS_IBOOK);
