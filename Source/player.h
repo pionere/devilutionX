@@ -129,7 +129,7 @@ int player_45EFB5(int pc);
 
 extern const char ArmourChar[4];
 extern const char WepChar[10];
-extern const char CharChar[];
+extern const char CharChar[NUM_CLASSES];
 
 /* data */
 
@@ -145,7 +145,6 @@ extern int MagicTbl[NUM_CLASSES];
 extern int DexterityTbl[NUM_CLASSES];
 extern int VitalityTbl[NUM_CLASSES];
 extern int ToBlkTbl[NUM_CLASSES];
-extern const char *const ClassStrTblOld[];
 extern int MaxStats[NUM_CLASSES][4];
 extern int ExpLvlsTbl[MAXCHARLEVEL + 1];
 extern const char *const ClassStrTbl[NUM_CLASSES];

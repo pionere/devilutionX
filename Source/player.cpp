@@ -28,25 +28,25 @@ const char ArmourChar[4] = { 'L', 'M', 'H', 0 };
 /** Maps from weapon animation to letter used in graphic files. */
 const char WepChar[10] = { 'N', 'U', 'S', 'D', 'B', 'A', 'M', 'H', 'T', 0 };
 /** Maps from player class to letter used in graphic files. */
-const char CharChar[] = {
+const char CharChar[NUM_CLASSES] = {
 	'W',
 	'R',
 	'S',
 #ifdef HELLFIRE
 	'M',
-	'R',
-	'W',
-	0
-};
-const char CharCharHF[] = {
-	'W',
-	'R',
-	'S',
-	'M',
 	'B',
-	'C',
+	'C'
 #endif
-	0
+};
+const char *const ClassStrTbl[NUM_CLASSES] = {
+	"Warrior",
+	"Rogue",
+	"Sorceror",
+#ifdef HELLFIRE
+	"Monk",
+	"Bard",
+	"Barbarian"
+#endif
 };
 
 /* data */
@@ -147,16 +147,6 @@ int ToBlkTbl[NUM_CLASSES] = {
 	30,
 #endif
 };
-const char *const ClassStrTblOld[] = {
-	"Warrior",
-	"Rogue",
-	"Sorceror",
-#ifdef HELLFIRE
-	"Monk",
-	"Bard",
-	"Barbarian",
-#endif
-};
 /** Maps from player_class to maximum stats. */
 int MaxStats[NUM_CLASSES][4] = {
 	{ 250,  50,  60, 100 },
@@ -229,16 +219,6 @@ int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	1310707109,
 	1583495809
 };
-const char *const ClassStrTbl[NUM_CLASSES] = {
-	"Warrior",
-	"Rogue",
-	"Sorceror",
-#ifdef HELLFIRE
-	"Monk",
-	"Rogue",
-	"Warrior",
-#endif
-};
 /** Unused local of PlrChangeLightOff, originally for computing light radius. */
 BYTE fix[9] = { 0, 0, 3, 3, 3, 6, 6, 6, 8 };
 
@@ -254,16 +234,13 @@ void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
 static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 {
 #ifdef HELLFIRE
-	if ((pc == PC_BARD && hfbard_mpq == NULL) || (pc == PC_BARBARIAN && hfbarb_mpq == NULL)) {
+	if (pc == PC_BARD && hfbard_mpq == NULL)
+		pc = PC_ROGUE;
+	else if (pc == PC_BARBARIAN && hfbarb_mpq == NULL)
+		pc = PC_WARRIOR;
 #endif
-		*szCel = &CharChar[pc];
-		*cs = ClassStrTbl[pc];
-#ifdef HELLFIRE
-	} else {
-		*szCel = &CharCharHF[pc];
-		*cs = ClassStrTblOld[pc];
-	}
-#endif
+	*szCel = &CharChar[pc];
+	*cs = ClassStrTbl[pc];
 }
 
 void LoadPlrGFX(int pnum, player_graphic gfxflag)
