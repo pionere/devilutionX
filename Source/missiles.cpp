@@ -596,9 +596,9 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	if (hper > 95)
 		hper = 95;
 #ifdef _DEBUG
-	else if (hit < hper || debug_mode_dollar_sign || debug_mode_key_inverted_v) {
+	if (hit < hper || debug_mode_dollar_sign || debug_mode_key_inverted_v) {
 #else
-	else if (hit < hper) {
+	if (hit < hper) {
 #endif
 		dam = mindam + random_(68, maxdam - mindam + 1);
 		if (!shift)
