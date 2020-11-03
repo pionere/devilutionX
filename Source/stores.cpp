@@ -294,7 +294,7 @@ void AddStoreFrame(const char* title, BOOL backSel)
 	OffsetSTextY(22, 6);
 }
 
-BOOL StoreAutoPlace(int pnum, ItemStruct *is)
+BOOL StoreAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 {
 	BOOL done;
 	int i, w, h;
@@ -307,62 +307,64 @@ BOOL StoreAutoPlace(int pnum, ItemStruct *is)
 		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
 			for (i = 0; i < MAXBELTITEMS && !done; i++) {
 				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
-					plr[pnum].SpdList[i] = *is;
-					CalcPlrScrolls(pnum);
-					drawsbarflag = TRUE;
+					if (saveflag) {
+						plr[pnum].SpdList[i] = *is;
+						CalcPlrScrolls(pnum);
+						drawsbarflag = TRUE;
+					}
 					done = TRUE;
 				}
 			}
 		}
 		for (i = 30; i <= 39 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 20; i <= 29 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 10; i <= 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 0; i <= 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 	}
 	if (w == 1 && h == 2) {
 		for (i = 29; i >= 20 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 9; i >= 0 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 19; i >= 10 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 	}
 	if (w == 1 && h == 3) {
 		for (i = 0; i < 20 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 	}
 	if (w == 2 && h == 2) {
 		for (i = 0; i < 10 && !done; i++) {
-			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, TRUE);
+			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, saveflag);
 		}
 		for (i = 21; i < 29 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 1; i < 9 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 	}
 	if (w == 2 && h == 3) {
 		for (i = 0; i < 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, saveflag);
 		}
 	}
 	return done;
@@ -1639,7 +1641,7 @@ void SmithBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	if (idx == SMITH_ITEMS - 1) {
 		smithitem[SMITH_ITEMS - 1]._itype = ITYPE_NONE;
@@ -1655,7 +1657,6 @@ void SmithBuyItem()
 void S_SBuyEnter()
 {
 	int idx, i;
-	BOOL done;
 
 	if (stextsel == 22) {
 		StartStore(STORE_SMITH);
@@ -1669,13 +1670,8 @@ void S_SBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = smithitem[idx];
-			NewCursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
-			done = FALSE;
 
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
-				done = AutoPlace(myplr, i, cursW / 28, cursH / 28, FALSE);
-			}
-			if (done)
+			if (StoreAutoPlace(myplr, &smithitem[idx], FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -1691,7 +1687,7 @@ void SmithBuyPItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	xx = 0;
@@ -1710,7 +1706,6 @@ void SmithBuyPItem()
 void S_SPBuyEnter()
 {
 	int i, idx, xx;
-	BOOL done;
 
 	if (stextsel == 22) {
 		StartStore(STORE_SMITH);
@@ -1731,12 +1726,7 @@ void S_SPBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = premiumitem[idx];
-			NewCursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
-			done = FALSE;
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
-				done = AutoPlace(myplr, i, cursW / 28, cursH / 28, FALSE);
-			}
-			if (done)
+			if (StoreAutoPlace(myplr, &premiumitem[idx], FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -1938,7 +1928,7 @@ void WitchBuyItem()
 		plr[myplr].HoldItem._iSeed = GetRndSeed();
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 
 	if (idx >= 3) {
 		if (idx == WITCH_ITEMS - 1) {
@@ -1957,7 +1947,6 @@ void WitchBuyItem()
 void S_WBuyEnter()
 {
 	int i, idx;
-	BOOL done;
 
 	if (stextsel == 22) {
 		StartStore(STORE_WITCH);
@@ -1972,14 +1961,7 @@ void S_WBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = witchitem[idx];
-			NewCursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
-			done = FALSE;
-
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
-				done = SpecialAutoPlace(myplr, i, cursW / 28, cursH / 28, FALSE);
-			}
-
-			if (done)
+			if (StoreAutoPlace(myplr, &witchitem[idx], FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -2076,7 +2058,7 @@ void S_BoyEnter()
 void BoyBuyItem()
 {
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
 	CalcPlrInv(myplr, TRUE);
@@ -2098,7 +2080,7 @@ void HealerBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 
 	if (gbMaxPlayers == 1) {
 		if (idx < 2)
@@ -2121,7 +2103,6 @@ void HealerBuyItem()
 
 void S_BBuyEnter()
 {
-	BOOL done;
 	int i;
 
 	if (stextsel == 10) {
@@ -2141,12 +2122,7 @@ void S_BBuyEnter()
 #else
 			plr[myplr].HoldItem._iIvalue += plr[myplr].HoldItem._iIvalue >> 1;
 #endif
-			NewCursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
-			done = FALSE;
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
-				done = AutoPlace(myplr, i, cursW / 28, cursH / 28, FALSE);
-			}
-			if (done)
+			if (StoreAutoPlace(myplr, &boyitem, FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -2253,7 +2229,6 @@ void S_HealerEnter()
 void S_HBuyEnter()
 {
 	int i, idx;
-	BOOL done;
 
 	if (stextsel == 22) {
 		StartStore(STORE_HEALER);
@@ -2267,13 +2242,7 @@ void S_HBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = healitem[idx];
-			NewCursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
-			done = FALSE;
-			i = 0;
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done; i++) {
-				done = SpecialAutoPlace(myplr, i, cursW / 28, cursH / 28, FALSE);
-			}
-			if (done)
+			if (StoreAutoPlace(myplr, &healitem[idx], FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
