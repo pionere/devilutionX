@@ -57,7 +57,7 @@ void AddSLine(int y);
 void AddSTextVal(int y, int val);
 void OffsetSTextY(int y, int yo);
 void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel);
-void StoreAutoPlace();
+BOOL StoreAutoPlace(int pnum, ItemStruct *is);
 void S_StartSmith();
 void S_ScrollSBuy();
 void PrintStoreItem(const ItemStruct *is, int l, char iclr);

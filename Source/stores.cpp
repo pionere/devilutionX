@@ -294,76 +294,78 @@ void AddStoreFrame(const char* title, BOOL backSel)
 	OffsetSTextY(22, 6);
 }
 
-void StoreAutoPlace()
+BOOL StoreAutoPlace(int pnum, ItemStruct *is)
 {
 	BOOL done;
-	int i, w, h, idx;
+	int i, w, h;
 
-	SetICursor(plr[myplr].HoldItem._iCurs + CURSOR_FIRSTITEM);
+	SetICursor(is->_iCurs + CURSOR_FIRSTITEM);
 	w = icursW28;
 	h = icursH28;
 	done = FALSE;
 	if (w == 1 && h == 1) {
-		idx = plr[myplr].HoldItem.IDidx;
-		if (plr[myplr].HoldItem._iStatFlag && AllItemsList[idx].iUsable) {
+		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
 			for (i = 0; i < MAXBELTITEMS && !done; i++) {
-				if (plr[myplr].SpdList[i]._itype == ITYPE_NONE) {
-					plr[myplr].SpdList[i] = plr[myplr].HoldItem;
+				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
+					plr[pnum].SpdList[i] = *is;
+					CalcPlrScrolls(pnum);
+					drawsbarflag = TRUE;
 					done = TRUE;
 				}
 			}
 		}
 		for (i = 30; i <= 39 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 20; i <= 29 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 10; i <= 19 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 0; i <= 9 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 	}
 	if (w == 1 && h == 2) {
 		for (i = 29; i >= 20 && !done; i--) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 9; i >= 0 && !done; i--) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 19; i >= 10 && !done; i--) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 	}
 	if (w == 1 && h == 3) {
 		for (i = 0; i < 20 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 	}
 	if (w == 2 && h == 2) {
 		for (i = 0; i < 10 && !done; i++) {
-			done = AutoPlace(myplr, AP2x2Tbl[i], w, h, TRUE);
+			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, TRUE);
 		}
 		for (i = 21; i < 29 && !done; i += 2) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 1; i < 9 && !done; i += 2) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 	}
 	if (w == 2 && h == 3) {
 		for (i = 0; i < 9 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(myplr, i, w, h, TRUE);
+			done = AutoPlace(pnum, i, w, h, TRUE);
 		}
 	}
+	return done;
 }
 
 void S_StartSmith()
@@ -1637,7 +1639,7 @@ void SmithBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace();
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	if (idx == SMITH_ITEMS - 1) {
 		smithitem[SMITH_ITEMS - 1]._itype = ITYPE_NONE;
@@ -1689,7 +1691,7 @@ void SmithBuyPItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace();
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	xx = 0;
@@ -1936,7 +1938,7 @@ void WitchBuyItem()
 		plr[myplr].HoldItem._iSeed = GetRndSeed();
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	StoreAutoPlace();
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
 
 	if (idx >= 3) {
 		if (idx == WITCH_ITEMS - 1) {
@@ -2074,7 +2076,7 @@ void S_BoyEnter()
 void BoyBuyItem()
 {
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	StoreAutoPlace();
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
 	CalcPlrInv(myplr, TRUE);
@@ -2096,7 +2098,7 @@ void HealerBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	StoreAutoPlace();
+	StoreAutoPlace(myplr, &plr[myplr].HoldItem);
 
 	if (gbMaxPlayers == 1) {
 		if (idx < 2)

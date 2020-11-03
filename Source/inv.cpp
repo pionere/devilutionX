@@ -1773,8 +1773,7 @@ void AutoGetItem(int pnum, int ii)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	int i, idx;
-	int w, h;
+	int i;
 	BOOL done;
 
 	if (pcurs != CURSOR_HAND) {
@@ -1801,7 +1800,6 @@ void AutoGetItem(int pnum, int ii)
 	CheckQuestItem(pnum);
 	CheckBookLevel(pnum);
 	ItemStatOk(pnum, &p->HoldItem);
-	SetICursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	if (p->HoldItem._itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum);
 #ifdef HELLFIRE
@@ -1825,71 +1823,7 @@ void AutoGetItem(int pnum, int ii)
 			}
 		}
 		if (!done) {
-			w = icursW28;
-			h = icursH28;
-			if (w == 1 && h == 1) {
-				idx = p->HoldItem.IDidx;
-				if (p->HoldItem._iStatFlag && AllItemsList[idx].iUsable) {
-					for (i = 0; i < MAXBELTITEMS && !done; i++) {
-						if (p->SpdList[i]._itype == ITYPE_NONE) {
-							p->SpdList[i] = p->HoldItem;
-							CalcPlrScrolls(pnum);
-							drawsbarflag = TRUE;
-							done = TRUE;
-						}
-					}
-				}
-				for (i = 30; i <= 39 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 20; i <= 29 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 10; i <= 19 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 0; i <= 9 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-			}
-			if (w == 1 && h == 2) {
-				for (i = 29; i >= 20 && !done; i--) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 9; i >= 0 && !done; i--) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 19; i >= 10 && !done; i--) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-			}
-			if (w == 1 && h == 3) {
-				for (i = 0; i < 20 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-			}
-			if (w == 2 && h == 2) {
-				for (i = 0; i < 10 && !done; i++) {
-					done = AutoPlace(pnum, AP2x2Tbl[i], w, h, TRUE);
-				}
-				for (i = 21; i < 29 && !done; i += 2) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 1; i < 9 && !done; i += 2) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 10; i < 19 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-			}
-			if (w == 2 && h == 3) {
-				for (i = 0; i < 9 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-				for (i = 10; i < 19 && !done; i++) {
-					done = AutoPlace(pnum, i, w, h, TRUE);
-				}
-			}
+			done = StoreAutoPlace(pnum, &p->HoldItem);
 		}
 	}
 	if (done) {
