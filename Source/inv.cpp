@@ -1323,39 +1323,38 @@ void CheckInvCut(int pnum, int mx, int my)
 		p->HoldItem = *pi;
 		pi->_itype = ITYPE_NONE;
 	} else if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
-		ig = r - SLOTXY_INV_FIRST;
-		ii = p->InvGrid[ig];
-		if (ii != 0) {
-			iv = ii;
-			if (ii <= 0) {
-				iv = -ii;
+		ii = p->InvGrid[r - SLOTXY_INV_FIRST];
+		if (ii == 0)
+			return;
+		if (ii < 0) {
+			ii = -ii;
+		}
+
+		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+			if (p->InvGrid[i] == ii || p->InvGrid[i] == -ii) {
+				p->InvGrid[i] = 0;
 			}
+		}
 
-			for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-				if (p->InvGrid[i] == iv || p->InvGrid[i] == -iv) {
-					p->InvGrid[i] = 0;
-				}
-			}
+		ii--;
 
-			iv--;
+		p->HoldItem = p->InvList[ii];
+		p->_pNumInv--;
+		i = p->_pNumInv;
+		if (i > 0 && i != ii) {
+			p->InvList[ii] = p->InvList[i];
 
-			p->HoldItem = p->InvList[iv];
-			p->_pNumInv--;
-
-			if (p->_pNumInv > 0 && p->_pNumInv != iv) {
-				p->InvList[iv] = p->InvList[p->_pNumInv];
-
-				for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-					if (p->InvGrid[j] == p->_pNumInv + 1) {
-						p->InvGrid[j] = iv + 1;
-					}
-					if (p->InvGrid[j] == -(p->_pNumInv + 1)) {
-						p->InvGrid[j] = -iv - 1;
-					}
+			i++;
+			ii++;
+			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
+				if (p->InvGrid[j] == i) {
+					p->InvGrid[j] = ii;
+				} else if (p->InvGrid[j] == -i) {
+					p->InvGrid[j] = -ii;
 				}
 			}
 		}
-	} else if (r >= SLOTXY_BELT_FIRST) {
+	} else { // r >= SLOTXY_BELT_FIRST
 		offs = r - SLOTXY_BELT_FIRST;
 		pi = &p->SpdList[offs];
 		if (pi->_itype == ITYPE_NONE)
@@ -1365,19 +1364,17 @@ void CheckInvCut(int pnum, int mx, int my)
 		drawsbarflag = TRUE;
 	}
 
-	if (p->HoldItem._itype != ITYPE_NONE) {
-		if (p->HoldItem._itype == ITYPE_GOLD) {
-			p->_pGold = CalculateGold(pnum);
-		}
+	if (p->HoldItem._itype == ITYPE_GOLD) {
+		p->_pGold = CalculateGold(pnum);
+	}
 
-		CalcPlrInv(pnum, TRUE);
-		ItemStatOk(pnum, &p->HoldItem);
+	CalcPlrInv(pnum, TRUE);
+	ItemStatOk(pnum, &p->HoldItem);
 
-		if (pnum == myplr) {
-			PlaySFX(IS_IGRAB);
-			NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
-			SetCursorPos(mx - (cursW >> 1), MouseY - (cursH >> 1));
-		}
+	if (pnum == myplr) {
+		PlaySFX(IS_IGRAB);
+		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+		SetCursorPos(mx - (cursW >> 1), MouseY - (cursH >> 1));
 	}
 }
 
@@ -2044,13 +2041,11 @@ int InvPutItem(int pnum, int x, int y)
 				done = FALSE;
 				for (k = 1; k < 50 && !done; k++) {
 					for (j = -k; j <= k && !done; j++) {
-						yp = j + plr[pnum]._py;
+						y = j + plr[pnum]._py;
 						for (i = -k; i <= k && !done; i++) {
-							xp = i + plr[pnum]._px;
-							if (CanPut(xp, yp)) {
+							x = i + plr[pnum]._px;
+							if (CanPut(x, y)) {
 								done = TRUE;
-								x = xp;
-								y = yp;
 							}
 						}
 					}

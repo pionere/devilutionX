@@ -4811,7 +4811,7 @@ void MAI_Warlord(int mnum)
 	mon->_mdir = md;
 
 	if (mon->_mmode == MM_STAND || mon->_mmode == MM_TALK)
-		mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[mon->_mdir];
+		mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[md];
 }
 
 void DeleteMonsterList()

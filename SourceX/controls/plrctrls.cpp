@@ -1111,8 +1111,8 @@ bool TryDropItem()
 	cursmy = plr[myplr]._pfuty;
 	if (!DropItemBeforeTrig()) {
 		// Try to drop on the other side
-		cursmx = plr[myplr]._pfutx;
-		cursmy = plr[myplr]._pfuty + 1;
+		cursmx--;
+		cursmy++;
 		DropItemBeforeTrig();
 	}
 

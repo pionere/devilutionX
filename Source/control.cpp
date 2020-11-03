@@ -394,11 +394,11 @@ void DrawSpellList()
 				switch (i) {
 #endif
 				case RSPLTYPE_SKILL:
-					sprintf(infostr, "%s Skill", spelldata[pSpell].sSkillText);
+					sprintf(infostr, "%s Skill", spelldata[j].sSkillText);
 					break;
 				case RSPLTYPE_SPELL:
-					sprintf(infostr, "%s Spell", spelldata[pSpell].sNameText);
-					if (pSpell == SPL_HBOLT) {
+					sprintf(infostr, "%s Spell", spelldata[j].sNameText);
+					if (j == SPL_HBOLT) {
 						sprintf(tempstr, "Damages undead only");
 						AddPanelString(tempstr, TRUE);
 					}
@@ -409,13 +409,13 @@ void DrawSpellList()
 					AddPanelString(tempstr, TRUE);
 					break;
 				case RSPLTYPE_SCROLL:
-					sprintf(infostr, "Scroll of %s", spelldata[pSpell].sNameText);
+					sprintf(infostr, "Scroll of %s", spelldata[j].sNameText);
 					v = 0;
 					pi = p->InvList;
 					for (t = p->_pNumInv; t > 0; t--, pi++) {
 						if (pi->_itype != ITYPE_NONE
 						    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
-						    && pi->_iSpell == pSpell) {
+						    && pi->_iSpell == j) {
 							v++;
 						}
 					}
@@ -423,7 +423,7 @@ void DrawSpellList()
 					for (t = MAXBELTITEMS; t > 0; t--, pi++) {
 						if (pi->_itype != ITYPE_NONE
 						    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
-						    && pi->_iSpell == pSpell) {
+						    && pi->_iSpell == j) {
 							v++;
 						}
 					}
@@ -434,7 +434,7 @@ void DrawSpellList()
 					AddPanelString(tempstr, TRUE);
 					break;
 				case RSPLTYPE_CHARGES:
-					sprintf(infostr, "Staff of %s", spelldata[pSpell].sNameText);
+					sprintf(infostr, "Staff of %s", spelldata[j].sNameText);
 					if (p->InvBody[INVLOC_HAND_LEFT]._iCharges == 1)
 						strcpy(tempstr, "1 Charge");
 					else
@@ -443,7 +443,7 @@ void DrawSpellList()
 					break;
 				}
 				for (t = 0; t < 4; t++) {
-					if (p->_pSplHotKey[t] == pSpell && p->_pSplTHotKey[t] == pSplType) {
+					if (p->_pSplHotKey[t] == j && p->_pSplTHotKey[t] == pSplType) {
 						DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
 						sprintf(tempstr, "Spell Hot Key #F%i", t + 5);
 						AddPanelString(tempstr, TRUE);
@@ -1735,7 +1735,7 @@ static int DrawDurIcon4Item(ItemStruct *pItem, int x, int c)
 
 void DrawDurIcon()
 {
-	PlayerStruct *p;
+	ItemStruct *inv;
 	int x;
 
 	bool hasRoomBetweenPanels = SCREEN_WIDTH >= PANEL_WIDTH + 16 + (32 + 8 + 32 + 8 + 32 + 8 + 32) + 16;
@@ -1752,11 +1752,11 @@ void DrawDurIcon()
 			x -= SPANEL_WIDTH - (SCREEN_WIDTH - PANEL_WIDTH) / 2;
 	}
 
-	p = &plr[myplr];
-	x = DrawDurIcon4Item(&p->InvBody[INVLOC_HEAD], x, 4);
-	x = DrawDurIcon4Item(&p->InvBody[INVLOC_CHEST], x, 3);
-	x = DrawDurIcon4Item(&p->InvBody[INVLOC_HAND_LEFT], x, 0);
-	DrawDurIcon4Item(&p->InvBody[INVLOC_HAND_RIGHT], x, 0);
+	inv = plr[myplr].InvBody;
+	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x, 4);
+	x = DrawDurIcon4Item(&inv[INVLOC_CHEST], x, 3);
+	x = DrawDurIcon4Item(&inv[INVLOC_HAND_LEFT], x, 0);
+	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x, 0);
 }
 
 void RedBack()

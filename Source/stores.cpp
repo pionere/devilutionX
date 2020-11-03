@@ -445,7 +445,7 @@ void S_ScrollSPBuy()
 		if (premiumitem[idx]._itype != ITYPE_NONE)
 			boughtitems--;
 
-	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; l += 4) {
+	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitem[idx];
 		if (is->_itype != ITYPE_NONE) {
 			ItemStatOk(myplr, is);
@@ -454,8 +454,7 @@ void S_ScrollSPBuy()
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
-		} else {
-			l -= 4;
+			l += 4;
 		}
 		idx++;
 	}
@@ -772,7 +771,7 @@ void AddStoreHoldRecharge(const ItemStruct *is, int i)
 
 	holditem = &storehold[storenumh];
 	*holditem = *is;
-	holditem->_ivalue += spelldata[is->_iSpell].sStaffCost;
+	holditem->_ivalue += spelldata[holditem->_iSpell].sStaffCost;
 	holditem->_ivalue = holditem->_ivalue * (100 * (holditem->_iMaxCharges - holditem->_iCharges) / holditem->_iMaxCharges) / 100 >> 1;
 	holditem->_iIvalue = holditem->_ivalue;
 	storehidx[storenumh] = i;
@@ -1657,54 +1656,48 @@ void S_SPBuyEnter()
 
 BOOL StoreGoldFit(int idx)
 {
-	int i, sz, cost, numsqrs;
+	ItemStruct *pi;
+	int i, cost, numsqrs;
 
 	cost = storehold[idx]._iIvalue;
-	sz = cost / GOLD_MAX_LIMIT;
-	if (cost % GOLD_MAX_LIMIT)
-		sz++;
 
 	i = storehold[idx]._iCurs + CURSOR_FIRSTITEM;
 	numsqrs = InvItemHeight[i] * InvItemWidth[i] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
-
-	if (numsqrs >= sz)
-		return TRUE;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr[myplr].InvGrid[i] == 0)
 			numsqrs++;
 	}
 
-	for (i = 0; i < plr[myplr]._pNumInv; i++) {
-		if (plr[myplr].InvList[i]._itype == ITYPE_GOLD && plr[myplr].InvList[i]._ivalue != GOLD_MAX_LIMIT) {
-			if (cost + plr[myplr].InvList[i]._ivalue <= GOLD_MAX_LIMIT)
-				cost = 0;
-			else
-				cost -= GOLD_MAX_LIMIT - plr[myplr].InvList[i]._ivalue;
+	cost -= numsqrs * GOLD_MAX_LIMIT;
+	if (cost <= 0)
+		return TRUE;
+
+	pi = plr[myplr].InvList;
+	for (i = plr[myplr]._pNumInv; i > 0; i--, pi++) {
+		if (pi->_itype == ITYPE_GOLD) {
+			cost -= GOLD_MAX_LIMIT - pi->_ivalue;
+			if (cost <= 0)
+				return TRUE;
 		}
 	}
-
-	sz = cost / GOLD_MAX_LIMIT;
-	if (cost % GOLD_MAX_LIMIT)
-		sz++;
-
-	return numsqrs >= sz;
+	return FALSE;
 }
 
 void PlaceStoreGold(int v)
 {
-	int ii, xx, yy, i;
+	PlayerStruct *p;
+	int ii, i;
 
+	p = &plr[myplr];
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		yy = 10 * (i / 10);
-		xx = i % 10;
-		if (plr[myplr].InvGrid[xx + yy] == 0) {
-			ii = plr[myplr]._pNumInv;
+		if (p->InvGrid[i] == 0) {
+			ii = p->_pNumInv;
 			GetGoldSeed(myplr, &golditem);
-			plr[myplr].InvList[ii] = golditem;
-			plr[myplr]._pNumInv++;
-			plr[myplr].InvGrid[xx + yy] = plr[myplr]._pNumInv;
-			SetGoldItemValue(&plr[myplr].InvList[ii], v);
+			p->InvList[ii] = golditem;
+			SetGoldItemValue(&p->InvList[ii], v);
+			p->_pNumInv++;
+			p->InvGrid[i] = p->_pNumInv;
 			break;
 		}
 	}
@@ -1714,7 +1707,7 @@ void StoreSellItem()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int i, idx, cost;
+	int i, idx, cost, val;
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	if (storehidx[idx] >= 0)
@@ -1732,12 +1725,15 @@ void StoreSellItem()
 	p->_pGold += cost;
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0 && cost > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
-			if (cost + pi->_ivalue <= GOLD_MAX_LIMIT) {
+		if (pi->_itype != ITYPE_GOLD)
+			continue;
+		val = GOLD_MAX_LIMIT - pi->_ivalue;
+		if (val > 0) {
+			if (cost < val) {
 				SetGoldItemValue(pi, pi->_ivalue + cost);
 				cost = 0;
 			} else {
-				cost -= GOLD_MAX_LIMIT - pi->_ivalue;
+				cost -= val;
 				SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			}
 		}
@@ -1981,28 +1977,21 @@ void BoyBuyItem()
 void HealerBuyItem()
 {
 	int idx;
+	BOOL infinite;
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	if (gbMaxPlayers == 1) {
-		if (idx < 2)
-			plr[myplr].HoldItem._iSeed = GetRndSeed();
-	} else {
-		if (idx < 3)
-			plr[myplr].HoldItem._iSeed = GetRndSeed();
-	}
+	infinite = idx < (gbMaxPlayers == 1 ? 2 : 3);
+	if (infinite)
+		plr[myplr].HoldItem._iSeed = GetRndSeed();
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
 	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
 
-	if (gbMaxPlayers == 1) {
-		if (idx < 2)
-			return;
-	} else {
-		if (idx < 3)
-			return;
-	}
+	if (infinite)
+		return;
+
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	if (idx == 19) {
 		healitem[19]._itype = ITYPE_NONE;

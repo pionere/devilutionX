@@ -408,18 +408,20 @@ BOOL delta_quest_inited(int i)
 
 void DeltaAddItem(int ii)
 {
+	ItemStruct *is;
 	int i;
 	TCmdPItem *pD;
 
 	if (gbMaxPlayers == 1)
 		return;
 
+	is = &item[ii];
 	pD = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-			&& pD->wIndx == item[ii].IDidx
-			&& pD->wCI == item[ii]._iCreateInfo
-			&& pD->dwSeed == item[ii]._iSeed
+			&& pD->wIndx == is->IDidx
+			&& pD->wCI == is->_iCreateInfo
+			&& pD->dwSeed == is->_iSeed
 			&& (pD->bCmd == CMD_WALKXY || pD->bCmd == CMD_STAND)) {
 			return;
 		}
@@ -430,24 +432,24 @@ void DeltaAddItem(int ii)
 		if (pD->bCmd == 0xFF) {
 			sgbDeltaChanged = TRUE;
 			pD->bCmd = CMD_STAND;
-			pD->x = item[ii]._ix;
-			pD->y = item[ii]._iy;
-			pD->wIndx = item[ii].IDidx;
-			pD->wCI = item[ii]._iCreateInfo;
-			pD->dwSeed = item[ii]._iSeed;
-			pD->bId = item[ii]._iIdentified;
-			pD->bDur = item[ii]._iDurability;
-			pD->bMDur = item[ii]._iMaxDur;
-			pD->bCh = item[ii]._iCharges;
-			pD->bMCh = item[ii]._iMaxCharges;
-			pD->wValue = item[ii]._ivalue;
+			pD->x = is->_ix;
+			pD->y = is->_iy;
+			pD->wIndx = is->IDidx;
+			pD->wCI = is->_iCreateInfo;
+			pD->dwSeed = is->_iSeed;
+			pD->bId = is->_iIdentified;
+			pD->bDur = is->_iDurability;
+			pD->bMDur = is->_iMaxDur;
+			pD->bCh = is->_iCharges;
+			pD->bMCh = is->_iMaxCharges;
+			pD->wValue = is->_ivalue;
 #ifdef HELLFIRE
-			pD->wToHit = item[ii]._iPLToHit;
-			pD->wMaxDam = item[ii]._iMaxDam;
-			pD->bMinStr = item[ii]._iMinStr;
-			pD->bMinMag = item[ii]._iMinMag;
-			pD->bMinDex = item[ii]._iMinDex;
-			pD->bAC = item[ii]._iAC;
+			pD->wToHit = is->_iPLToHit;
+			pD->wMaxDam = is->_iMaxDam;
+			pD->bMinStr = is->_iMinStr;
+			pD->bMinMag = is->_iMinMag;
+			pD->bMinDex = is->_iMinDex;
+			pD->bAC = is->_iAC;
 #endif
 			return;
 		}

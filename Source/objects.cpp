@@ -2116,21 +2116,22 @@ void Obj_BCrossDamage(int oi)
 {
 	PlayerStruct *p;
 	int fire_resist;
-	int damage[4] = { 6, 8, 10, 12 };
+	int damage;
 
 	p = &plr[myplr];
 	if (p->_pmode == PM_DEATH)
 		return;
 
+	damage = 4 + 2 * leveltype;
 	fire_resist = p->_pFireResist;
 	if (fire_resist > 0)
-		damage[leveltype - 1] -= fire_resist * damage[leveltype - 1] / 100;
+		damage -= fire_resist * damage / 100;
 
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
 		return;
 
-	p->_pHitPoints -= damage[leveltype - 1];
-	p->_pHPBase -= damage[leveltype - 1];
+	p->_pHitPoints -= damage;
+	p->_pHPBase -= damage;
 	if (p->_pHitPoints >> 6 <= 0) {
 		SyncPlrKill(myplr, 0);
 	} else {
@@ -2842,16 +2843,20 @@ void ObjChangeMap(int x1, int y1, int x2, int y2)
 			dungeon[i][j] = pdungeon[i][j];
 		}
 	}
+	x1 = 2 * x1 + DBORDERX;
+	y1 = 2 * y1 + DBORDERY;
+	x2 = 2 * x2 + DBORDERX + 1;
+	y2 = 2 * y2 + DBORDERY + 1;
 #ifdef HELLFIRE
 	if (leveltype == DTYPE_CATHEDRAL && currlevel < 17) {
 #else
 	if (leveltype == DTYPE_CATHEDRAL) {
 #endif
-		ObjL1Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
-		AddL1Objs(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		ObjL1Special(x1, y1, x2, y2);
+		AddL1Objs(x1, y1, x2, y2);
 	} else if (leveltype == DTYPE_CATACOMBS) {
-		ObjL2Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
-		AddL2Objs(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		ObjL2Special(x1, y1, x2, y2);
+		AddL2Objs(x1, y1, x2, y2);
 	}
 }
 
@@ -2865,14 +2870,18 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 			dungeon[i][j] = pdungeon[i][j];
 		}
 	}
+	x1 = 2 * x1 + DBORDERX;
+	y1 = 2 * y1 + DBORDERY;
+	x2 = 2 * x2 + DBORDERX + 1;
+	y2 = 2 * y2 + DBORDERY + 1;
 #ifdef HELLFIRE
 	if (leveltype == DTYPE_CATHEDRAL && currlevel < 17) {
 #else
 	if (leveltype == DTYPE_CATHEDRAL) {
 #endif
-		ObjL1Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		ObjL1Special(x1, y1, x2, y2);
 	} else if (leveltype == DTYPE_CATACOMBS) {
-		ObjL2Special(2 * x1 + DBORDERX, 2 * y1 + DBORDERY, 2 * x2 + DBORDERX + 1, 2 * y2 + DBORDERY + 1);
+		ObjL2Special(x1, y1, x2, y2);
 	}
 }
 

@@ -3143,7 +3143,7 @@ void SpawnRock()
 		yy = object[oi]._oy;
 		item[i]._ix = xx;
 		item[i]._iy = yy;
-		dItem[xx][item[i]._iy] = i + 1;
+		dItem[xx][yy] = i + 1;
 		GetItemAttrs(i, IDI_ROCK, lvl);
 		SetupItem(i);
 		item[i]._iSelFlag = 2;
