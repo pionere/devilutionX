@@ -300,9 +300,11 @@ BOOL StoreAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 	BOOL done;
 	int i, w, h;
 
-	SetICursor(is->_iCurs + CURSOR_FIRSTITEM);
-	w = icursW28;
-	h = icursH28;
+	i = is->_iCurs + CURSOR_FIRSTITEM;
+
+	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
+	h = InvItemHeight[i] / INV_SLOT_SIZE_PX;
+
 	pi = saveflag ? is : NULL;
 	done = FALSE;
 	if (w == 1 && h == 1) {
@@ -1653,7 +1655,6 @@ void SmithBuyItem()
 		}
 		smithitem[idx]._itype = ITYPE_NONE;
 	}
-	CalcPlrInv(myplr, TRUE);
 }
 
 void S_SBuyEnter()
@@ -1676,7 +1677,6 @@ void S_SBuyEnter()
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
-			NewCursor(CURSOR_HAND);
 		}
 	}
 }
@@ -1731,7 +1731,6 @@ void S_SPBuyEnter()
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
-			NewCursor(CURSOR_HAND);
 		}
 	}
 }
@@ -1745,9 +1744,8 @@ BOOL StoreGoldFit(int idx)
 	if (cost % GOLD_MAX_LIMIT)
 		sz++;
 
-	NewCursor(storehold[idx]._iCurs + CURSOR_FIRSTITEM);
-	numsqrs = cursW / 28 * (cursH / 28);
-	NewCursor(CURSOR_HAND);
+	i = storehold[idx]._iCurs + CURSOR_FIRSTITEM;
+	numsqrs = InvItemHeight[i] * InvItemWidth[i] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
 
 	if (numsqrs >= sz)
 		return TRUE;
@@ -1941,8 +1939,6 @@ void WitchBuyItem()
 			witchitem[idx]._itype = ITYPE_NONE;
 		}
 	}
-
-	CalcPlrInv(myplr, TRUE);
 }
 
 void S_WBuyEnter()
@@ -1966,8 +1962,6 @@ void S_WBuyEnter()
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
-
-			NewCursor(CURSOR_HAND);
 		}
 	}
 }
@@ -2062,7 +2056,6 @@ void BoyBuyItem()
 	StoreAutoPlace(myplr, &plr[myplr].HoldItem, TRUE);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
-	CalcPlrInv(myplr, TRUE);
 }
 
 void HealerBuyItem()
@@ -2099,7 +2092,6 @@ void HealerBuyItem()
 		}
 		healitem[idx]._itype = ITYPE_NONE;
 	}
-	CalcPlrInv(myplr, TRUE);
 }
 
 void S_BBuyEnter()
@@ -2127,7 +2119,6 @@ void S_BBuyEnter()
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
-			NewCursor(CURSOR_HAND);
 		}
 	} else {
 		stextflag = STORE_NONE;
@@ -2247,7 +2238,6 @@ void S_HBuyEnter()
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
-			NewCursor(CURSOR_HAND);
 		}
 	}
 }

@@ -15,8 +15,6 @@ extern "C" {
 extern int cursW;
 extern int cursH;
 extern int pcursmonst;
-extern int icursW28;
-extern int icursH28;
 extern BYTE *pCursCels;
 #ifdef HELLFIRE
 extern BYTE *pCursCels2;
@@ -33,7 +31,6 @@ extern int pcurs;
 
 void InitCursor();
 void FreeCursor();
-void SetICursor(int i);
 void NewCursor(int i);
 void InitLevelCursor();
 void CheckRportal();

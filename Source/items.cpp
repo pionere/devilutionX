@@ -1360,7 +1360,7 @@ void CreatePlrItems(int pnum)
 #endif
 			SetPlrHandItem(&p->HoldItem, IDI_WARRCLUB);
 			GetPlrHandSeed(&p->HoldItem);
-			AutoPlace(pnum, 0, 1, 3, TRUE);
+			AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 #ifdef _DEBUG
 		}
 #endif

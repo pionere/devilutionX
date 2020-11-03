@@ -13,10 +13,6 @@ int cursW;
 int cursH;
 /** Current highlighted monster */
 int pcursmonst = -1;
-/** Width of current cursor in inventory cells */
-int icursW28;
-/** Height of current cursor in inventory cells */
-int icursH28;
 /** Cursor images CEL */
 BYTE *pCursCels;
 #ifdef HELLFIRE
@@ -132,20 +128,11 @@ void FreeCursor()
 	ClearCursor();
 }
 
-void SetICursor(int i)
-{
-	icursW = InvItemWidth[i];
-	icursH = InvItemHeight[i];
-	icursW28 = icursW / INV_SLOT_SIZE_PX;
-	icursH28 = icursH / INV_SLOT_SIZE_PX;
-}
-
 void NewCursor(int i)
 {
 	pcurs = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
-	SetICursor(i);
 }
 
 void InitLevelCursor()

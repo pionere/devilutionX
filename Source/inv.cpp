@@ -767,11 +767,15 @@ void CheckInvPaste(int pnum, int mx, int my)
 
 	p = &plr[pnum];
 	holditem = &p->HoldItem;
-	SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
-	i = mx + (icursW >> 1);
-	j = my + (icursH >> 1);
-	sx = icursW28;
-	sy = icursH28;
+
+	r = holditem->_iCurs + CURSOR_FIRSTITEM;
+	sx = InvItemWidth[r];
+	sy = InvItemHeight[r];
+	i = mx + (sx >> 1);
+	j = my + (sy >> 1);
+	sx /= INV_SLOT_SIZE_PX;
+	sy /= INV_SLOT_SIZE_PX;
+
 	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
@@ -989,18 +993,10 @@ void CheckInvPaste(int pnum, int mx, int my)
 				*holditem = *wRight;
 			else
 				*holditem = *is;
-			if (pnum == myplr)
-				NewCursor(holditem->_iCurs + CURSOR_FIRSTITEM);
-			else
-				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
-			done2h = FALSE;
-			for (i = 0; i < NUM_INV_GRID_ELEM && !done2h; i++)
-				done2h = AutoPlace(pnum, i, icursW28, icursH28, holditem);
+
+			done2h = StoreAutoPlace(pnum, holditem, TRUE);
+
 			*holditem = tempitem;
-			if (pnum == myplr)
-				NewCursor(holditem->_iCurs + CURSOR_FIRSTITEM);
-			else
-				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			if (!done2h)
 				return;
 
