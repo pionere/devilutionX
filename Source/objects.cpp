@@ -3463,32 +3463,27 @@ void OperateShrine(int pnum, int oi, int sType)
 			return;
 		if (pnum != myplr)
 			return;
-		ModifyPlrStr(pnum, -1);
-		ModifyPlrMag(pnum, -1);
-		ModifyPlrDex(pnum, -1);
-		ModifyPlrVit(pnum, -1);
+
+		v1 = v2 = v3 = v4 = -1;
 		switch (random_(0, 4)) {
-		case 0:
-			ModifyPlrStr(pnum, 6);
-			break;
-		case 1:
-			ModifyPlrMag(pnum, 6);
-			break;
-		case 2:
-			ModifyPlrDex(pnum, 6);
-			break;
-		case 3:
-			ModifyPlrVit(pnum, 6);
-			break;
+		case 0: v1 = 5; break;
+		case 1: v2 = 5;	break;
+		case 2: v3 = 5;	break;
+		default:v4 = 5;	break;
 		}
+		ModifyPlrStr(pnum, v1);
+		ModifyPlrMag(pnum, v2);
+		ModifyPlrDex(pnum, v3);
+		ModifyPlrVit(pnum, v4);
+
 		InitDiabloMsg(EMSG_SHRINE_MYSTERIOUS);
 		break;
 	case SHRINE_HIDDEN:
-		cnt = 0;
 		if (deltaload)
 			return;
 		if (pnum != myplr)
 			return;
+		cnt = 0;
 		pi = p->InvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE)
@@ -3561,23 +3556,11 @@ void OperateShrine(int pnum, int oi, int sType)
 		}
 		pi = p->InvList;
 		for (i = p->_pNumInv; i > 0; i--, pi++) {
-			switch (pi->_itype) {
-			case ITYPE_SWORD:
-			case ITYPE_AXE:
-			case ITYPE_BOW:
-			case ITYPE_MACE:
-			case ITYPE_STAFF:
+			if (pi->_iClass == ICLASS_WEAPON) {
 				if (pi->_iMaxDam > pi->_iMinDam)
 					pi->_iMaxDam--;
-				break;
-			case ITYPE_SHIELD:
-			case ITYPE_LARMOR:
-			case ITYPE_HELM:
-			case ITYPE_MARMOR:
-			case ITYPE_HARMOR:
+			} else if (pi->_iClass == ICLASS_ARMOR)
 				pi->_iAC += 2;
-				break;
-			}
 		}
 		InitDiabloMsg(EMSG_SHRINE_GLOOMY);
 		break;
@@ -3594,17 +3577,9 @@ void OperateShrine(int pnum, int oi, int sType)
 		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_SHIELD)
 			pi->_iMaxDam++;
 		pi = p->InvList;
-		for (i = p->_pNumInv; i > 0; i--, pi++) {
-			switch (pi->_itype) {
-			case ITYPE_SWORD:
-			case ITYPE_AXE:
-			case ITYPE_BOW:
-			case ITYPE_MACE:
-			case ITYPE_STAFF:
+		for (i = p->_pNumInv; i > 0; i--, pi++)
+			if (pi->_iClass == ICLASS_WEAPON)
 				pi->_iMaxDam++;
-				break;
-			}
-		}
 		InitDiabloMsg(EMSG_SHRINE_WEIRD);
 		break;
 	case SHRINE_MAGICAL:
@@ -3681,21 +3656,21 @@ void OperateShrine(int pnum, int oi, int sType)
 			spell <<= 1;
 		}
 		if (cnt > 1) {
+			r = random_(0, cnt);
 			spell = 1;
 			for (i = 1; i <= MAX_SPELLS; i++) {
-				if (p->_pMemSpells & spell) {
-					if (p->_pSplLvl[i] < MAXSPLLEVEL)
-						p->_pSplLvl[i]++;
+				if (spells & spell) {
+					if (r == 0) {
+						if (p->_pSplLvl[i] != 0)
+							p->_pSplLvl[i]--;
+					} else {
+						if (p->_pSplLvl[i] < MAXSPLLEVEL)
+							p->_pSplLvl[i]++;
+					}
+					r--;
 				}
 				spell <<= 1;
 			}
-			do {
-				r = random_(0, 37);
-			} while (!(p->_pMemSpells & ((__int64)1 << r)));
-			if (p->_pSplLvl[r] >= 2)
-				p->_pSplLvl[r] -= 2;
-			else
-				p->_pSplLvl[r] = 0;
 		}
 		InitDiabloMsg(EMSG_SHRINE_ENCHANTED);
 		break;
