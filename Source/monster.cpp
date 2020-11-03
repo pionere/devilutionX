@@ -1732,7 +1732,8 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		}
 		break;
 	case UMT_DEFILER:
-		stream_stop();
+		if (effect_is_playing(USFX_DEFILER8))
+			stream_stop();
 		quests[Q_DEFILER]._qlog = FALSE;
 		SpawnMapOfDoom(mon->_mx, mon->_my);
 		break;

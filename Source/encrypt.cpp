@@ -75,6 +75,33 @@ void InitHash()
 	}
 }
 
+static unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
+{
+	TDataInfo *pInfo;
+	DWORD sSize;
+
+	pInfo = (TDataInfo *)param;
+
+	sSize = pInfo->size - pInfo->srcOffset;
+	if (*size < sSize)
+		sSize = *size;
+
+	memcpy(buf, pInfo->srcData + pInfo->srcOffset, sSize);
+	pInfo->srcOffset += sSize;
+
+	return sSize;
+}
+
+static void PkwareBufferWrite(char *buf, unsigned int *size, void *param)
+{
+	TDataInfo *pInfo;
+
+	pInfo = (TDataInfo *)param;
+
+	memcpy(pInfo->destData + pInfo->destOffset, buf, *size);
+	pInfo->destOffset += *size;
+}
+
 int PkwareCompress(BYTE *srcData, int size)
 {
 	BYTE *destData;
@@ -109,33 +136,6 @@ int PkwareCompress(BYTE *srcData, int size)
 	mem_free_dbg(destData);
 
 	return size;
-}
-
-unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
-{
-	TDataInfo *pInfo;
-	DWORD sSize;
-
-	pInfo = (TDataInfo *)param;
-
-	sSize = pInfo->size - pInfo->srcOffset;
-	if (*size < sSize)
-		sSize = *size;
-
-	memcpy(buf, pInfo->srcData + pInfo->srcOffset, sSize);
-	pInfo->srcOffset += sSize;
-
-	return sSize;
-}
-
-void PkwareBufferWrite(char *buf, unsigned int *size, void *param)
-{
-	TDataInfo *pInfo;
-
-	pInfo = (TDataInfo *)param;
-
-	memcpy(pInfo->destData + pInfo->destOffset, buf, *size);
-	pInfo->destOffset += *size;
 }
 
 void PkwareDecompress(BYTE *pbInBuff, int recv_size, int dwMaxBytes)
