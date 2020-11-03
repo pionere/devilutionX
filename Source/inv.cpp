@@ -2089,7 +2089,7 @@ int InvPutItem(int pnum, int x, int y)
 {
 	BOOL done;
 	int dir, ii;
-	int i, j, l;
+	int i, j, k;
 	int xx, yy;
 	int xp, yp;
 
@@ -2118,10 +2118,10 @@ int InvPutItem(int pnum, int x, int y)
 			y = plr[pnum]._py + offset_y[dir];
 			if (!CanPut(x, y)) {
 				done = FALSE;
-				for (l = 1; l < 50 && !done; l++) {
-					for (j = -l; j <= l && !done; j++) {
+				for (k = 1; k < 50 && !done; k++) {
+					for (j = -k; j <= k && !done; j++) {
 						yp = j + plr[pnum]._py;
-						for (i = -l; i <= l && !done; i++) {
+						for (i = -k; i <= k && !done; i++) {
 							xp = i + plr[pnum]._px;
 							if (CanPut(xp, yp)) {
 								done = TRUE;

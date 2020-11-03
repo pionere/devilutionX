@@ -452,12 +452,12 @@ void ClearMVars(int mnum)
 	monster[mnum]._mVar8 = 0;
 }
 
-void InitMonster(int mnum, int rd, int mtype, int x, int y)
+void InitMonster(int mnum, int dir, int mtype, int x, int y)
 {
 	CMonster *cmon = &Monsters[mtype];
 	MonsterStruct *mon = &monster[mnum];
 
-	mon->_mdir = rd;
+	mon->_mdir = dir;
 	mon->_mx = x;
 	mon->_my = y;
 	mon->_mfutx = x;
@@ -469,7 +469,7 @@ void InitMonster(int mnum, int rd, int mtype, int x, int y)
 	mon->mName = cmon->MData->mName;
 	mon->MType = cmon;
 	mon->MData = cmon->MData;
-	mon->_mAnimData = cmon->Anims[MA_STAND].Data[rd];
+	mon->_mAnimData = cmon->Anims[MA_STAND].Data[dir];
 	mon->_mAnimDelay = cmon->Anims[MA_STAND].Rate;
 	mon->_mAnimCnt = random_(88, mon->_mAnimDelay - 1);
 	mon->_mAnimLen = cmon->Anims[MA_STAND].Frames;
@@ -518,7 +518,7 @@ void InitMonster(int mnum, int rd, int mtype, int x, int y)
 	mon->mtalkmsg = 0;
 
 	if (mon->_mAi == AI_GARG) {
-		mon->_mAnimData = cmon->Anims[MA_SPECIAL].Data[rd];
+		mon->_mAnimData = cmon->Anims[MA_SPECIAL].Data[dir];
 		mon->_mAnimFrame = 1;
 		mon->_mFlags |= MFLAG_ALLOW_SPECIAL;
 		mon->_mmode = MM_SATTACK;

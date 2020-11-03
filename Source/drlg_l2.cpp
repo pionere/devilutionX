@@ -2298,62 +2298,62 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	}
 }
 
-static void DoPatternCheck(int i, int j)
+static void DoPatternCheck(int x, int y)
 {
-	int k, l, x, y, nOk;
+	int i, j, xx, yy, nOk;
 
-	for (k = 0; Patterns[k][4] != 255; k++) {
-		x = i - 1;
-		y = j - 1;
+	for (i = 0; Patterns[i][4] != 255; i++) {
+		xx = x - 1;
+		yy = y - 1;
 		nOk = 254;
-		for (l = 0; l < 9 && nOk == 254; l++) {
+		for (j = 0; j < 9 && nOk == 254; j++) {
 			nOk = 255;
-			if (l == 3 || l == 6) {
-				y++;
-				x = i - 1;
+			if (j == 3 || j == 6) {
+				yy++;
+				xx = x - 1;
 			}
-			if (x >= 0 && x < DMAXX && y >= 0 && y < DMAXY) {
-				switch (Patterns[k][l]) {
+			if (xx >= 0 && xx < DMAXX && yy >= 0 && yy < DMAXY) {
+				switch (Patterns[i][j]) {
 				case 0:
 					nOk = 254;
 					break;
 				case 1:
-					if (predungeon[x][y] == 35) {
+					if (predungeon[xx][yy] == 35) {
 						nOk = 254;
 					}
 					break;
 				case 2:
-					if (predungeon[x][y] == 46) {
+					if (predungeon[xx][yy] == 46) {
 						nOk = 254;
 					}
 					break;
 				case 4:
-					if (predungeon[x][y] == 32) {
+					if (predungeon[xx][yy] == 32) {
 						nOk = 254;
 					}
 					break;
 				case 3:
-					if (predungeon[x][y] == 68) {
+					if (predungeon[xx][yy] == 68) {
 						nOk = 254;
 					}
 					break;
 				case 5:
-					if (predungeon[x][y] == 68 || predungeon[x][y] == 46) {
+					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 46) {
 						nOk = 254;
 					}
 					break;
 				case 6:
-					if (predungeon[x][y] == 68 || predungeon[x][y] == 35) {
+					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35) {
 						nOk = 254;
 					}
 					break;
 				case 7:
-					if (predungeon[x][y] == 32 || predungeon[x][y] == 46) {
+					if (predungeon[xx][yy] == 32 || predungeon[xx][yy] == 46) {
 						nOk = 254;
 					}
 					break;
 				case 8:
-					if (predungeon[x][y] == 68 || predungeon[x][y] == 35 || predungeon[x][y] == 46) {
+					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35 || predungeon[xx][yy] == 46) {
 						nOk = 254;
 					}
 					break;
@@ -2361,10 +2361,10 @@ static void DoPatternCheck(int i, int j)
 			} else {
 				nOk = 254;
 			}
-			x++;
+			xx++;
 		}
 		if (nOk == 254) {
-			dungeon[i][j] = Patterns[k][9];
+			dungeon[x][y] = Patterns[i][9];
 		}
 	}
 }

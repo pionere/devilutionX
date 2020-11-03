@@ -1173,8 +1173,7 @@ void SetupObject(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
 	ObjDataStruct *ods;
-	int ofi;
-	int j;
+	int ofi, i;
 
 	os = &object[oi];
 	os->_otype = type;
@@ -1183,11 +1182,11 @@ void SetupObject(int oi, int x, int y, int type)
 	ofi = ods->ofindex;
 	os->_ox = x;
 	os->_oy = y;
-	j = 0;
-	while (ObjFileList[j] != ofi) {
-		j++;
+	i = 0;
+	while (ObjFileList[i] != ofi) {
+		i++;
 	}
-	os->_oAnimData = pObjCels[j];
+	os->_oAnimData = pObjCels[i];
 	os->_oAnimFlag = ods->oAnimFlag;
 	if (ods->oAnimFlag) {
 		os->_oAnimDelay = ods->oAnimDelay;
@@ -1229,13 +1228,13 @@ void SetBookMsg(int oi, int msg)
 	object[oi]._oVar7 = msg;
 }
 
-void AddL1Door(int oi, int x, int y, int ot)
+void AddL1Door(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
 
 	os = &object[oi];
 	os->_oDoorFlag = TRUE;
-	if (ot == OBJ_L1LDOOR) {
+	if (type == OBJ_L1LDOOR) {
 		os->_oVar1 = dPiece[x][y];
 		os->_oVar2 = dPiece[x][y - 1];
 	} else {

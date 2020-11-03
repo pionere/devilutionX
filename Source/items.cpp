@@ -1219,16 +1219,16 @@ void CalcPlrBookVals(int pnum)
 	}
 }
 
-void CalcPlrInv(int p, BOOL Loadgfx)
+void CalcPlrInv(int pnum, BOOL Loadgfx)
 {
-	CalcPlrItemMin(p);
-	CalcSelfItems(p);
-	CalcPlrItemVals(p, Loadgfx);
-	CalcPlrItemMin(p);
-	if (p == myplr) {
-		CalcPlrBookVals(p);
-		CalcPlrScrolls(p);
-		CalcPlrStaff(p);
+	CalcPlrItemMin(pnum);
+	CalcSelfItems(pnum);
+	CalcPlrItemVals(pnum, Loadgfx);
+	CalcPlrItemMin(pnum);
+	if (pnum == myplr) {
+		CalcPlrBookVals(pnum);
+		CalcPlrScrolls(pnum);
+		CalcPlrStaff(pnum);
 	}
 }
 
@@ -2707,7 +2707,7 @@ void GetUniqueItem(int ii, int uid)
 
 void SpawnUnique(int uid, int x, int y)
 {
-	int ii, itype, lvl;
+	int ii, idx, lvl;
 
 	lvl = items_get_currlevel();
 
@@ -2719,12 +2719,12 @@ void SpawnUnique(int uid, int x, int y)
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = ii;
 
-	itype = 0;
-	while (AllItemsList[itype].iItemId != UniqueItemList[uid].UIItemId) {
-		itype++;
+	idx = 0;
+	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
+		idx++;
 	}
 
-	GetItemAttrs(ii, itype, lvl);
+	GetItemAttrs(ii, idx, lvl);
 	GetUniqueItem(ii, uid);
 	SetupItem(ii);
 	numitems++;
@@ -3125,12 +3125,12 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 
 void SpawnRock()
 {
-	int i, ii, lvl;
+	int i, oi, lvl;
 	int xx, yy;
 
 	for (i = 0; i < nobjects; i++) {
-		ii = objectactive[i];
-		if (object[ii]._otype == OBJ_STAND)
+		oi = objectactive[i];
+		if (object[oi]._otype == OBJ_STAND)
 			break;
 	}
 	if (i != nobjects) {
@@ -3139,8 +3139,8 @@ void SpawnRock()
 		i = itemavail[0];
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = i;
-		xx = object[ii]._ox;
-		yy = object[ii]._oy;
+		xx = object[oi]._ox;
+		yy = object[oi]._oy;
 		item[i]._ix = xx;
 		item[i]._iy = yy;
 		dItem[xx][item[i]._iy] = i + 1;
