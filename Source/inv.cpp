@@ -518,7 +518,17 @@ void DrawInvBelt()
 	}
 }
 
-BOOL AutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
+/** 
+ * @brief Try to place an item with the given dimensions in the inventory
+ *        of the selected player.
+ * @param pnum the id of the player
+ * @param ii the inventory index to place the item
+ * @param sx the width of the item
+ * @param sy the height of the item
+ * @param is the item to place, if NULL the item wont be added to the inventory
+ * @return TRUE if the item fits
+*/
+BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 {
 	PlayerStruct *p;
 	int i, j, xx, yy;
@@ -548,8 +558,8 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, BOOL saveflag)
 		}
 		yy += 10;
 	}
-	if (done && saveflag) {
-		p->InvList[p->_pNumInv] = p->HoldItem;
+	if (done && is != NULL) {
+		p->InvList[p->_pNumInv] = *is;
 		p->_pNumInv++;
 		yy = 10 * (ii / 10);
 		if (yy < 0) {
@@ -985,7 +995,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 				SetICursor(holditem->_iCurs + CURSOR_FIRSTITEM);
 			done2h = FALSE;
 			for (i = 0; i < NUM_INV_GRID_ELEM && !done2h; i++)
-				done2h = AutoPlace(pnum, i, icursW28, icursH28, TRUE);
+				done2h = AutoPlace(pnum, i, icursW28, icursH28, holditem);
 			*holditem = tempitem;
 			if (pnum == myplr)
 				NewCursor(holditem->_iCurs + CURSOR_FIRSTITEM);

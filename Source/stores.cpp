@@ -296,19 +296,21 @@ void AddStoreFrame(const char* title, BOOL backSel)
 
 BOOL StoreAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 {
+	ItemStruct *pi;
 	BOOL done;
 	int i, w, h;
 
 	SetICursor(is->_iCurs + CURSOR_FIRSTITEM);
 	w = icursW28;
 	h = icursH28;
+	pi = saveflag ? is : NULL;
 	done = FALSE;
 	if (w == 1 && h == 1) {
 		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
 			for (i = 0; i < MAXBELTITEMS && !done; i++) {
 				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
-					if (saveflag) {
-						plr[pnum].SpdList[i] = *is;
+					if (pi != NULL) {
+						plr[pnum].SpdList[i] = *pi;
 						CalcPlrScrolls(pnum);
 						drawsbarflag = TRUE;
 					}
@@ -317,54 +319,54 @@ BOOL StoreAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 			}
 		}
 		for (i = 30; i <= 39 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 20; i <= 29 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 10; i <= 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 0; i <= 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 	}
 	if (w == 1 && h == 2) {
 		for (i = 29; i >= 20 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 9; i >= 0 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 19; i >= 10 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 	}
 	if (w == 1 && h == 3) {
 		for (i = 0; i < 20 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 	}
 	if (w == 2 && h == 2) {
 		for (i = 0; i < 10 && !done; i++) {
-			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, saveflag);
+			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, pi);
 		}
 		for (i = 21; i < 29 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 1; i < 9 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 	}
 	if (w == 2 && h == 3) {
 		for (i = 0; i < 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, saveflag);
+			done = AutoPlace(pnum, i, w, h, pi);
 		}
 	}
 	return done;
@@ -1670,7 +1672,6 @@ void S_SBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = smithitem[idx];
-
 			if (StoreAutoPlace(myplr, &smithitem[idx], FALSE))
 				StartStore(STORE_CONFIRM);
 			else
