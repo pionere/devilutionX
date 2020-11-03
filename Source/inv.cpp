@@ -536,18 +536,14 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 
 	p = &plr[pnum];
 	done = TRUE;
+	if (ii < 0)
+		ii = 0;
 	yy = 10 * (ii / 10);
-	if (yy < 0) {
-		yy = 0;
-	}
 	for (j = 0; j < sy && done; j++) {
 		if (yy >= NUM_INV_GRID_ELEM) {
 			done = FALSE;
 		}
 		xx = ii % 10;
-		if (xx < 0) {
-			xx = 0;
-		}
 		for (i = 0; i < sx && done; i++) {
 			if (xx >= 10) {
 				done = FALSE;
@@ -562,14 +558,8 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 		p->InvList[p->_pNumInv] = *is;
 		p->_pNumInv++;
 		yy = 10 * (ii / 10);
-		if (yy < 0) {
-			yy = 0;
-		}
 		for (j = 0; j < sy; j++) {
 			xx = ii % 10;
-			if (xx < 0) {
-				xx = 0;
-			}
 			for (i = 0; i < sx; i++) {
 				if (i != 0 || j != sy - 1) {
 					p->InvGrid[xx + yy] = -p->_pNumInv;
@@ -744,6 +734,86 @@ BOOL WeaponAutoPlace(int pnum)
 	return FALSE;
 }
 
+BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
+{
+	ItemStruct *pi;
+	BOOL done;
+	int i, w, h;
+
+	i = is->_iCurs + CURSOR_FIRSTITEM;
+
+	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
+	h = InvItemHeight[i] / INV_SLOT_SIZE_PX;
+
+	pi = saveflag ? is : NULL;
+	done = FALSE;
+	if (w == 1 && h == 1) {
+		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
+			for (i = 0; i < MAXBELTITEMS && !done; i++) {
+				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
+					if (pi != NULL) {
+						plr[pnum].SpdList[i] = *pi;
+						CalcPlrScrolls(pnum);
+						drawsbarflag = TRUE;
+					}
+					done = TRUE;
+				}
+			}
+		}
+		for (i = 30; i <= 39 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 20; i <= 29 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 10; i <= 19 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 0; i <= 9 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+	}
+	if (w == 1 && h == 2) {
+		for (i = 29; i >= 20 && !done; i--) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 9; i >= 0 && !done; i--) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 19; i >= 10 && !done; i--) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+	}
+	if (w == 1 && h == 3) {
+		for (i = 0; i < 20 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+	}
+	if (w == 2 && h == 2) {
+		for (i = 0; i < 10 && !done; i++) {
+			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, pi);
+		}
+		for (i = 21; i < 29 && !done; i += 2) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 1; i < 9 && !done; i += 2) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 10; i < 19 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+	}
+	if (w == 2 && h == 3) {
+		for (i = 0; i < 9 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+		for (i = 10; i < 19 && !done; i++) {
+			done = AutoPlace(pnum, i, w, h, pi);
+		}
+	}
+	return done;
+}
+
 int SwapItem(ItemStruct *a, ItemStruct *b)
 {
 	ItemStruct h;
@@ -761,9 +831,8 @@ void CheckInvPaste(int pnum, int mx, int my)
 	ItemStruct *holditem, *is, *wRight;
 	int r, sx, sy;
 	int i, j, xx, yy, ii;
-	BOOL done, done2h;
+	BOOL done;
 	int il, cn, it, iv, ig, gt;
-	ItemStruct tempitem;
 
 	p = &plr[pnum];
 	holditem = &p->HoldItem;
@@ -988,16 +1057,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
 		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
-			tempitem = *holditem;
-			if (wRight->_itype == ITYPE_SHIELD)
-				*holditem = *wRight;
-			else
-				*holditem = *is;
-
-			done2h = StoreAutoPlace(pnum, holditem, TRUE);
-
-			*holditem = tempitem;
-			if (!done2h)
+			if (!AutoPlaceInv(pnum, wRight->_itype == ITYPE_SHIELD ? wRight : is, TRUE))
 				return;
 
 			if (wRight->_itype == ITYPE_SHIELD)
@@ -1762,7 +1822,7 @@ void AutoGetItem(int pnum, int ii)
 			}
 		}
 		if (!done) {
-			done = StoreAutoPlace(pnum, &p->HoldItem, TRUE);
+			done = AutoPlaceInv(pnum, &p->HoldItem, TRUE);
 		}
 	}
 	if (done) {
