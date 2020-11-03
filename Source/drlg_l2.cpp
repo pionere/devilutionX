@@ -2300,70 +2300,65 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 
 static void DoPatternCheck(int x, int y)
 {
-	int i, j, xx, yy, nOk;
+	int i, j, xx, yy;
 
 	for (i = 0; Patterns[i][4] != 255; i++) {
 		xx = x - 1;
 		yy = y - 1;
-		nOk = 254;
-		for (j = 0; j < 9 && nOk == 254; j++) {
-			nOk = 255;
+		for (j = 0; j < 9; j++, xx++) {
 			if (j == 3 || j == 6) {
 				yy++;
 				xx = x - 1;
 			}
-			if (xx >= 0 && xx < DMAXX && yy >= 0 && yy < DMAXY) {
-				switch (Patterns[i][j]) {
-				case 0:
-					nOk = 254;
-					break;
-				case 1:
-					if (predungeon[xx][yy] == 35) {
-						nOk = 254;
-					}
-					break;
-				case 2:
-					if (predungeon[xx][yy] == 46) {
-						nOk = 254;
-					}
-					break;
-				case 4:
-					if (predungeon[xx][yy] == 32) {
-						nOk = 254;
-					}
-					break;
-				case 3:
-					if (predungeon[xx][yy] == 68) {
-						nOk = 254;
-					}
-					break;
-				case 5:
-					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 46) {
-						nOk = 254;
-					}
-					break;
-				case 6:
-					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35) {
-						nOk = 254;
-					}
-					break;
-				case 7:
-					if (predungeon[xx][yy] == 32 || predungeon[xx][yy] == 46) {
-						nOk = 254;
-					}
-					break;
-				case 8:
-					if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35 || predungeon[xx][yy] == 46) {
-						nOk = 254;
-					}
-					break;
+			if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY)
+				continue;
+			switch (Patterns[i][j]) {
+			case 0:
+				continue;
+			case 1:
+				if (predungeon[xx][yy] == 35) {
+					continue;
 				}
-			} else {
-				nOk = 254;
+				break;
+			case 2:
+				if (predungeon[xx][yy] == 46) {
+					continue;
+				}
+				break;
+			case 4:
+				if (predungeon[xx][yy] == 32) {
+					continue;
+				}
+				break;
+			case 3:
+				if (predungeon[xx][yy] == 68) {
+					continue;
+				}
+				break;
+			case 5:
+				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 46) {
+					continue;
+				}
+				break;
+			case 6:
+				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35) {
+					continue;
+				}
+				break;
+			case 7:
+				if (predungeon[xx][yy] == 32 || predungeon[xx][yy] == 46) {
+					continue;
+				}
+				break;
+			case 8:
+				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35 || predungeon[xx][yy] == 46) {
+					continue;
+				}
+				break;
 			}
-			xx++;
+			break;
 		}
-		if (nOk == 254) {
+		if (j == 9) {
 			dungeon[x][y] = Patterns[i][9];
 		}
 	}
