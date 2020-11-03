@@ -156,7 +156,7 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("--save-dir", argv[i]) == 0) {
 			SetPrefPath(argv[++i]);
 		} else if (strcasecmp("-n", argv[i]) == 0) {
-			showintrodebug = FALSE;
+			showintro = FALSE;
 		} else if (strcasecmp("-f", argv[i]) == 0) {
 			EnableFrameCount();
 		} else if (strcasecmp("-x", argv[i]) == 0) {
@@ -655,7 +655,7 @@ BOOL TryIconCurs(BOOL bShift)
 	return TRUE;
 }
 
-static void LeftMouseDown(BOOL bShift)
+void LeftMouseDown(BOOL bShift)
 {
 	if (gmenu_left_mouse(TRUE) || sgnTimeoutCurs != CURSOR_NONE)
 		return;
@@ -757,7 +757,7 @@ static void LeftMouseUp()
 		ReleaseStoreBtn();
 }
 
-static void RightMouseDown(BOOL bShift)
+void RightMouseDown(BOOL bShift)
 {
 	if (gmenu_is_active() || sgnTimeoutCurs != CURSOR_NONE)
 		return;

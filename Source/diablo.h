@@ -53,6 +53,8 @@ void FreeGameMem();
 BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char **argv);
+void LeftMouseDown(BOOL bShift);
+void RightMouseDown(BOOL bShift);
 BOOL TryIconCurs(BOOL bShift);
 BOOL PressEscKey();
 void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

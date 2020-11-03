@@ -1221,7 +1221,7 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		snd_play_snd(pSFX->pSnd, lVolume, lPan);
 }
 
-void PlayEffect(int i, int mode)
+void PlayEffect(int mnum, int mode)
 {
 	MonsterStruct *mon;
 	int sndIdx, lVolume, lPan;
