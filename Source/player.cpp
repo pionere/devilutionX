@@ -3143,9 +3143,8 @@ BOOL PlrDoGotHit(int pnum)
 
 void ArmorDur(int pnum)
 {
-	int a;
-	ItemStruct *pi;
-	PlayerStruct *p;
+	ItemStruct *pi, *pio;
+	inv_body_loc loc;
 
 	if (pnum != myplr) {
 		return;
@@ -3155,24 +3154,21 @@ void ArmorDur(int pnum)
 		app_fatal("ArmorDur: illegal player %d", pnum);
 	}
 
-	p = &plr[pnum];
-	if (p->InvBody[INVLOC_CHEST]._itype == ITYPE_NONE && p->InvBody[INVLOC_HEAD]._itype == ITYPE_NONE) {
-		return;
+	loc = INVLOC_CHEST;
+	pi = &plr[pnum].InvBody[INVLOC_CHEST];
+	pio = &plr[pnum].InvBody[INVLOC_HEAD];
+	if (pi->_itype == ITYPE_NONE) {
+		if (pio->_itype == ITYPE_NONE)
+			return; // neither chest nor head equipment
+		// only head
+		pi = pio;
+		loc = INVLOC_HEAD;
+	} else if (pio->_itype != ITYPE_NONE && random_(8, 3) == 0) {
+		// head + chest -> 33% chance to damage the head
+		pi = pio;
+		loc = INVLOC_HEAD;
 	}
 
-	a = random_(8, 3);
-	if (p->InvBody[INVLOC_CHEST]._itype != ITYPE_NONE && p->InvBody[INVLOC_HEAD]._itype == ITYPE_NONE) {
-		a = 1;
-	}
-	if (p->InvBody[INVLOC_CHEST]._itype == ITYPE_NONE && p->InvBody[INVLOC_HEAD]._itype != ITYPE_NONE) {
-		a = 0;
-	}
-
-	if (a != 0) {
-		pi = &p->InvBody[INVLOC_CHEST];
-	} else {
-		pi = &p->InvBody[INVLOC_HEAD];
-	}
 	if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
 		return;
 	}
@@ -3182,11 +3178,7 @@ void ArmorDur(int pnum)
 		return;
 	}
 
-	if (a != 0) {
-		NetSendCmdDelItem(TRUE, INVLOC_CHEST);
-	} else {
-		NetSendCmdDelItem(TRUE, INVLOC_HEAD);
-	}
+	NetSendCmdDelItem(TRUE, loc);
 	pi->_itype = ITYPE_NONE;
 	CalcPlrInv(pnum, TRUE);
 }
@@ -3583,13 +3575,12 @@ void ValidatePlayer()
 	for (i = p->_pNumInv; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 #ifdef HELLFIRE
-			if (pi->_ivalue > auricGold) { // BUGFIX: change to MaxGold? Why would auricGold be used here?
+			if (pi->_ivalue > auricGold)   // BUGFIX: change to MaxGold? Why would auricGold be used here?
 				pi->_ivalue = auricGold;   // BUGFIX: change to MaxGold? Why would auricGold be used here?
 #else
-			if (pi->_ivalue > GOLD_MAX_LIMIT) {
+			if (pi->_ivalue > GOLD_MAX_LIMIT)
 				pi->_ivalue = GOLD_MAX_LIMIT;
 #endif
-			}
 			gt += pi->_ivalue;
 		}
 	}

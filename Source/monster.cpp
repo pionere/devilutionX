@@ -4233,9 +4233,9 @@ void MAI_Golum(int mnum)
 			tmon->_msquelch = UCHAR_MAX;
 			tmon->_lastx = mon->_mx;
 			tmon->_lasty = mon->_my;
-			for (j = 0; j < 5; j++) {
-				for (k = 0; k < 5; k++) {
-					md = dMonster[mon->_mx + k - 2][mon->_my + j - 2];
+			for (j = -2; j <= 2; j++) {
+				for (k = -2; k <= 2; k++) {
+					md = dMonster[mon->_mx + k][mon->_my + j];
 					if (md > 0)
 						monster[md]._msquelch = UCHAR_MAX; // BUGFIX: should be `monster[md-1]`, not monster[md].
 				}

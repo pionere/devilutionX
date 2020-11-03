@@ -582,7 +582,6 @@ BOOL GoldAutoPlace(int pnum)
 	ItemStruct *pi;
 	BOOL done;
 	int i, ii;
-	int xx, yy;
 
 	p = &plr[pnum];
 	pi = p->InvList;
@@ -612,14 +611,12 @@ BOOL GoldAutoPlace(int pnum)
 		return done;
 
 	for (i = 39; i >= 0 && !done; i--) {
-		yy = 10 * (i / 10);
-		xx = i % 10;
-		if (p->InvGrid[xx + yy] == 0) {
+		if (p->InvGrid[i] == 0) {
 			ii = p->_pNumInv;
 			p->InvList[ii] = p->HoldItem;
-			p->_pNumInv = p->_pNumInv + 1;
-			p->InvGrid[xx + yy] = p->_pNumInv;
 			SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
+			p->_pNumInv = ii + 1;
+			p->InvGrid[i] = ii + 1;
 			p->_pGold = CalculateGold(pnum);
 			done = TRUE;
 		}
@@ -667,14 +664,12 @@ BOOL GoldAutoPlace(int pnum)
 	}
 	if (!done)
 		for (int i = 39; i >= 0 && !done; i--) {
-			yy = 10 * (i / 10);
-			xx = i % 10;
-			if (p->InvGrid[xx + yy] == 0) {
+			if (p->InvGrid[i] == 0) {
 				ii = p->_pNumInv;
 				p->InvList[ii] = p->HoldItem;
-				p->_pNumInv = p->_pNumInv + 1;
-				p->InvGrid[xx + yy] = p->_pNumInv;
 				SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
+				p->_pNumInv = ii + 1;
+				p->InvGrid[i] = ii + 1;
 
 				gold = p->HoldItem._ivalue;
 				if (gold > MaxGold) {
@@ -907,9 +902,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		it = 0;
 		ii = r - SLOTXY_INV_FIRST;
 		if (holditem->_itype == ITYPE_GOLD) {
-			yy = 10 * (ii / 10);
-			xx = ii % 10;
-			iv = p->InvGrid[xx + yy];
+			iv = p->InvGrid[ii];
 			if (iv != 0) {
 				if (iv > 0) {
 					if (p->InvList[iv - 1]._itype != ITYPE_GOLD) {
@@ -1092,9 +1085,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 	case ILOC_UNEQUIPABLE:
 		if (holditem->_itype == ITYPE_GOLD && it == 0) {
 			ii = r - SLOTXY_INV_FIRST;
-			yy = 10 * (ii / 10);
-			xx = ii % 10;
-			il = p->InvGrid[yy + xx];
+			il = p->InvGrid[ii];
 			if (il > 0) {
 				il--;
 				is = &p->InvList[il];
@@ -1120,7 +1111,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 				il = p->_pNumInv;
 				p->InvList[il] = *holditem;
 				p->_pNumInv++;
-				p->InvGrid[yy + xx] = p->_pNumInv;
+				p->InvGrid[ii] = p->_pNumInv;
 				p->_pGold += holditem->_ivalue;
 				if (holditem->_ivalue <= GOLD_MAX_LIMIT) {
 					SetGoldItemValue(&p->InvList[il], holditem->_ivalue);
@@ -2123,7 +2114,6 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 	BOOL done;
 	int dir, ii;
 	int i, j, k;
-	int xx, yy;
 	int px, py;
 
 	if (numitems >= MAXITEMS)
@@ -2153,13 +2143,11 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 				done = FALSE;
 				for (k = 1; k < 50 && !done; k++) {
 					for (j = -k; j <= k && !done; j++) {
-						yy = j + py;
+						y = j + py;
 						for (i = -k; i <= k && !done; i++) {
-							xx = i + px;
-							if (CanPut(xx, yy)) {
+							x = i + px;
+							if (CanPut(x, y)) {
 								done = TRUE;
-								x = xx;
-								y = yy;
 							}
 						}
 					}

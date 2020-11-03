@@ -4233,30 +4233,14 @@ void OperateArmorStand(int pnum, int oi, DIABOOL sendmsg)
 int FindValidShrine()
 {
 	int rv;
-	DIABOOL done;
+	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	done = FALSE;
-	do {
+	while (1) {
 		rv = random_(0, NUM_SHRINETYPE);
-		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv] && rv != SHRINE_THAUMATURGIC) {
-			done = TRUE;
-		}
-		if (done) {
-			if (gbMaxPlayers != 1) {
-				if (shrineavail[rv] == 1) {
-					done = FALSE;
-					continue;
-				}
-			}
-			if (gbMaxPlayers == 1) {
-				if (shrineavail[rv] == 2) {
-					done = FALSE;
-					continue;
-				}
-			}
-			done = TRUE;
-		}
-	} while (!done);
+		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
+		 && rv != SHRINE_THAUMATURGIC && shrineavail[rv] != excl)
+			break;
+	}
 	return rv;
 }
 

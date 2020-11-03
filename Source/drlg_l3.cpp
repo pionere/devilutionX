@@ -1498,38 +1498,22 @@ static BOOL DRLG_L3Spawn(int x, int y, int *totarea)
 static void DRLG_L3Pool()
 {
 	int i, j, dunx, duny, totarea;
-	BOOL found, addpool;
+	BOOL notFound, addpool;
 	BYTE k;
 	static BYTE poolsub[15] = { 0, 35, 26, 36, 25, 29, 34, 7, 33, 28, 27, 37, 32, 31, 30 };
 
-	for (duny = 0; duny < DMAXY; duny++) {
-		for (dunx = 0; dunx < DMAXY; dunx++) {
+	for (duny = 1; duny < DMAXY - 1; duny++) {
+		for (dunx = 1; dunx < DMAXY - 1; dunx++) {
 			if (dungeon[dunx][duny] != 8) {
 				continue;
 			}
 			dungeon[dunx][duny] |= 0x80;
 			totarea = 1;
-			if (dunx + 1 < DMAXX) {
-				found = DRLG_L3Spawn(dunx + 1, duny, &totarea);
-			} else {
-				found = TRUE;
-			}
-			if (dunx - 1 > 0 && !found) {
-				found = DRLG_L3Spawn(dunx - 1, duny, &totarea);
-			} else {
-				found = TRUE;
-			}
-			if (duny + 1 < DMAXY && !found) {
-				found = DRLG_L3Spawn(dunx, duny + 1, &totarea);
-			} else {
-				found = TRUE;
-			}
-			if (duny - 1 > 0 && !found) {
-				found = DRLG_L3Spawn(dunx, duny - 1, &totarea);
-			} else {
-				found = TRUE;
-			}
-			addpool = random_(0, 100) < 25 && totarea > 4 && !found;
+			notFound = !DRLG_L3Spawn(dunx + 1, duny, &totarea)
+				&& !DRLG_L3Spawn(dunx - 1, duny, &totarea)
+				&& !DRLG_L3Spawn(dunx, duny + 1, &totarea)
+				&& !DRLG_L3Spawn(dunx, duny - 1, &totarea);
+			addpool = random_(0, 100) < 25 && totarea > 4 && notFound;
 			for (j = std::max(duny - totarea, 0); j < std::min(duny + totarea, DMAXY); j++) {
 				for (i = std::max(dunx - totarea, 0); i < std::min(dunx + totarea, DMAXX); i++) {
 					// BUGFIX: In the following swap the order to first do the

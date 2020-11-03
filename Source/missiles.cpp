@@ -3104,12 +3104,9 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
 		UseMana(misource, 22);
 		missile[mi]._miVar1 = misource;
-		lvl = 3 * p->_pLevel;
-		lvl <<= 7;
-		missile[mi]._miVar2 = lvl;
-		if (misource > 0)
-			lvl = p->_pLevel;
-		else
+		lvl = p->_pLevel;
+		missile[mi]._miVar2 = (3 * lvl) << 7;
+		if (misource <= 0)
 			lvl = 1;
 		missile[mi]._mirange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
@@ -4336,33 +4333,29 @@ void MI_LightningWall(int mi)
 	if (mis->_mirange == 0) {
 		mis->_miDelFlag = TRUE;
 	} else {
-		dp = dPiece[mis->_miVar1][mis->_miVar2];
-		if (dp || 1) {
+		if (!mis->_miVar8) {
+			dp = dPiece[mis->_miVar1][mis->_miVar2];
 			tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
 			ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
-			if (!nMissileTable[dp] && !mis->_miVar8 && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+			if (!nMissileTable[dp] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
 				mis->_miVar1 = tx;
 				mis->_miVar2 = ty;
 			} else {
 				mis->_miVar8 = TRUE;
 			}
-		} else {
-			mis->_miVar8 = TRUE;
 		}
-		dp = dPiece[mis->_miVar5][mis->_miVar6];
-		if (dp || 1) {
+		if (!mis->_miVar7) {
+			dp = dPiece[mis->_miVar5][mis->_miVar6];
 			tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
 			ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
-			if (!nMissileTable[dp] && !mis->_miVar7 && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+			if (!nMissileTable[dp] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
 				mis->_miVar5 = tx;
 				mis->_miVar6 = ty;
 			} else {
 				mis->_miVar7 = TRUE;
 			}
-		} else {
-			mis->_miVar7 = TRUE;
 		}
 	}
 }
@@ -4482,34 +4475,20 @@ void MI_Lightctrl(int mi)
 
 	if (!nMissileTable[pn]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
-			if (mis->_misource != -1) {
-				if (mis->_micaster == 1
-				    && monster[mis->_misource].MType->mtype >= MT_STORM
-				    && monster[mis->_misource].MType->mtype <= MT_MAEL) {
-					AddMissile(
-					    mx,
-					    my,
-					    mis->_misx,
-					    mis->_misy,
-					    mi,
-					    MIS_LIGHTNING2,
-					    mis->_micaster,
-					    mis->_misource,
-					    dam,
-					    mis->_mispllvl);
-				} else {
-					AddMissile(
-					    mx,
-					    my,
-					    mis->_misx,
-					    mis->_misy,
-					    mi,
-					    MIS_LIGHTNING,
-					    mis->_micaster,
-					    mis->_misource,
-					    dam,
-					    mis->_mispllvl);
-				}
+			if (mis->_misource != -1 && mis->_micaster == 1
+		     && monster[mis->_misource].MType->mtype >= MT_STORM
+			 && monster[mis->_misource].MType->mtype <= MT_MAEL) {
+				AddMissile(
+				    mx,
+				    my,
+				    mis->_misx,
+				    mis->_misy,
+				    mi,
+				    MIS_LIGHTNING2,
+				    mis->_micaster,
+				    mis->_misource,
+				    dam,
+				    mis->_mispllvl);
 			} else {
 				AddMissile(
 				    mx,
@@ -5187,23 +5166,27 @@ void MI_FirewallC(int mi)
 	if (mis->_mirange == 0) {
 		mis->_miDelFlag = TRUE;
 	} else {
-		tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
-		ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
-		if (!nMissileTable[dPiece[mis->_miVar1][mis->_miVar2]] && !mis->_miVar8 && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-			AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_mispllvl);
-			mis->_miVar1 = tx;
-			mis->_miVar2 = ty;
-		} else {
-			mis->_miVar8 = TRUE;
+		if (!mis->_miVar8) {
+			tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
+			ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
+			if (!nMissileTable[dPiece[mis->_miVar1][mis->_miVar2]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+				AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_mispllvl);
+				mis->_miVar1 = tx;
+				mis->_miVar2 = ty;
+			} else {
+				mis->_miVar8 = TRUE;
+			}
 		}
-		tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
-		ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
-		if (!nMissileTable[dPiece[mis->_miVar5][mis->_miVar6]] && !mis->_miVar7 && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-			AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_mispllvl);
-			mis->_miVar5 = tx;
-			mis->_miVar6 = ty;
-		} else {
-			mis->_miVar7 = TRUE;
+		if (!mis->_miVar7) {
+			tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
+			ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
+			if (!nMissileTable[dPiece[mis->_miVar5][mis->_miVar6]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+				AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_mispllvl);
+				mis->_miVar5 = tx;
+				mis->_miVar6 = ty;
+			} else {
+				mis->_miVar7 = TRUE;
+			}
 		}
 	}
 }
@@ -5250,12 +5233,9 @@ void MI_Apoca(int mi)
 void MI_Wave(int mi)
 {
 	MissileStruct *mis;
-	int sx, sy, sd, nxa, nxb, nya, nyb, dira, dirb;
-	int j, pnum, pn;
-	BOOL f1, f2;
+	int sx, sy, sd, nx, ny, dir;
+	int i, j, pnum, pn;
 
-	f1 = FALSE;
-	f2 = FALSE;
 	assert((DWORD)mi < MAXMISSILES);
 
 	mis = &missile[mi];
@@ -5263,36 +5243,27 @@ void MI_Wave(int mi)
 	sx = mis->_mix;
 	sy = mis->_miy;
 	sd = GetDirection(sx, sy, mis->_miVar1, mis->_miVar2);
-	dira = (sd - 2) & 7;
-	dirb = (sd + 2) & 7;
-	nxa = sx + XDirAdd[sd];
-	nya = sy + YDirAdd[sd];
-	pn = dPiece[nxa][nya];
+	sx += XDirAdd[sd];
+	sy += YDirAdd[sd];
+	pn = dPiece[sx][sy];
 	assert((DWORD)pn <= MAXTILES);
 	if (!nMissileTable[pn]) {
-		AddMissile(nxa, nya, nxa + XDirAdd[sd], nya + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
-		nxa += XDirAdd[dira];
-		nya += YDirAdd[dira];
-		nxb = sx + XDirAdd[sd] + XDirAdd[dirb];
-		nyb = sy + YDirAdd[sd] + YDirAdd[dirb];
-		for (j = (mis->_mispllvl >> 1) + 2; j > 0; j--) {
-			pn = dPiece[nxa][nya]; // BUGFIX: dPiece is accessed before check against dungeon size and 0
-			assert((DWORD)pn <= MAXTILES);
-			if (nMissileTable[pn] || f1 || nxa <= 0 || nxa >= MAXDUNX || nya <= 0 || nya >= MAXDUNY) {
-				f1 = TRUE;
-			} else {
-				AddMissile(nxa, nya, nxa + XDirAdd[sd], nya + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
-				nxa += XDirAdd[dira];
-				nya += YDirAdd[dira];
-			}
-			pn = dPiece[nxb][nyb]; // BUGFIX: dPiece is accessed before check against dungeon size and 0
-			assert((DWORD)pn <= MAXTILES);
-			if (nMissileTable[pn] || f2 || nxb <= 0 || nxb >= MAXDUNX || nyb <= 0 || nyb >= MAXDUNY) {
-				f2 = TRUE;
-			} else {
-				AddMissile(nxb, nyb, nxb + XDirAdd[sd], nyb + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
-				nxb += XDirAdd[dirb];
-				nyb += YDirAdd[dirb];
+		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
+
+		for (i = -2; i <= 2; i += 4) {
+			dir = (sd + i) & 7;
+			nx = sx;
+			ny = sy;
+			for (j = (mis->_mispllvl >> 1) + 2; j > 0; j--) {
+				nx += XDirAdd[dir];
+				ny += YDirAdd[dir];
+				pn = dPiece[nx][ny]; // BUGFIX: dPiece is accessed before check against dungeon size and 0
+				assert((DWORD)pn <= MAXTILES);
+				if (nMissileTable[pn] || nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY) {
+					break;
+				} else {
+					AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
+				}
 			}
 		}
 	}
