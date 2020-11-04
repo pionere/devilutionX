@@ -1630,71 +1630,30 @@ void AddHBooks(int bookidx, int ox, int oy)
 
 void SetupHBook(int oi, int bookidx)
 {
+	const int bs5[NUM_CLASSES] = { TEXT_BOOKA, TEXT_RBOOKA, TEXT_MBOOKA, TEXT_OBOOKA, TEXT_BBOOKA, TEXT_BOOKA};
+	const int bs6[NUM_CLASSES] = { TEXT_BOOKB, TEXT_RBOOKB, TEXT_MBOOKB, TEXT_OBOOKB, TEXT_BBOOKB, TEXT_BOOKB};
+	const int bs7[NUM_CLASSES] = { TEXT_BOOKC, TEXT_RBOOKC, TEXT_MBOOKC, TEXT_OBOOKC, TEXT_BBOOKC, TEXT_BOOKC};
 	ObjectStruct *os;
 	int frame;
+	const int *bookSet;
 
 	os = &object[oi];
+	os->_oVar1 = 1;
+	frame = 2 * os->_oVar1;
+	os->_oAnimFrame = 5 - frame;
+	os->_oVar4 = os->_oAnimFrame + 1;
 	if (bookidx >= 5) {
 		os->_oVar8 = bookidx + 1;
 		switch (bookidx) {
-		case 5:
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = TEXT_BOOKA;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = TEXT_RBOOKA;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = TEXT_MBOOKA;
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = TEXT_OBOOKA;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = TEXT_BBOOKA;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = TEXT_BOOKA;
-			}
-			break;
-		case 6:
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = TEXT_BOOKB;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = TEXT_RBOOKB;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = TEXT_MBOOKB;
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = TEXT_OBOOKB;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = TEXT_BBOOKB;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = TEXT_BOOKB;
-			}
-			break;
-		case 7:
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				os->_oVar2 = TEXT_BOOKC;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				os->_oVar2 = TEXT_RBOOKC;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				os->_oVar2 = TEXT_MBOOKC;
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				os->_oVar2 = TEXT_OBOOKC;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				os->_oVar2 = TEXT_BBOOKC;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				os->_oVar2 = TEXT_BOOKC;
-			}
-			break;
+		case 5: bookSet = bs5; break;
+		case 6:	bookSet = bs6; break;
+		case 7: bookSet = bs7; break;
 		}
-		os->_oVar1 = 1;
+		os->_oVar2 = bookSet[plr[myplr]._pClass];
 		os->_oVar3 = 15;
-		frame = 2 * os->_oVar1;
-		os->_oAnimFrame = 5 - frame;
-		os->_oVar4 = os->_oAnimFrame + 1;
 	} else {
-		os->_oVar1 = 1;
 		os->_oVar2 = bookidx + TEXT_BOOK4;
 		os->_oVar3 = bookidx + 10;
-		frame = 2 * os->_oVar1;
-		os->_oAnimFrame = 5 - frame;
-		os->_oVar4 = os->_oAnimFrame + 1;
 		os->_oVar8 = 0;
 	}
 }
