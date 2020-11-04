@@ -1526,24 +1526,6 @@ void CheckInvScrn()
 	}
 }
 
-void CheckBookLevel(int pnum)
-{
-	int slvl;
-
-	if (plr[pnum].HoldItem._iMiscId == IMISC_BOOK) {
-		plr[pnum].HoldItem._iMinMag = spelldata[plr[pnum].HoldItem._iSpell].sMinInt;
-		slvl = plr[pnum]._pSplLvl[plr[pnum].HoldItem._iSpell];
-		while (slvl != 0) {
-			plr[pnum].HoldItem._iMinMag += 20 * plr[pnum].HoldItem._iMinMag / 100;
-			slvl--;
-			if (plr[pnum].HoldItem._iMinMag + 20 * plr[pnum].HoldItem._iMinMag / 100 > 255) {
-				plr[pnum].HoldItem._iMinMag = -1;
-				slvl = 0;
-			}
-		}
-	}
-}
-
 void CheckQuestItem(int pnum)
 {
 	PlayerStruct *p;
@@ -1744,7 +1726,7 @@ void InvGetItem(int pnum, int ii)
 		is->_iCreateInfo &= ~CF_PREGEN;
 	p->HoldItem = *is;
 	CheckQuestItem(pnum);
-	CheckBookLevel(pnum);
+	SetBookLevel(pnum, &p->HoldItem);
 	ItemStatOk(pnum, &p->HoldItem);
 #ifdef HELLFIRE
 	cursor_updated = FALSE;
@@ -1809,7 +1791,7 @@ void AutoGetItem(int pnum, int ii)
 		is->_iCreateInfo &= ~CF_PREGEN;
 	p->HoldItem = *is; /// BUGFIX: overwrites cursor item, allowing for belt dupe bug
 	CheckQuestItem(pnum);
-	CheckBookLevel(pnum);
+	SetBookLevel(pnum, &p->HoldItem);
 	ItemStatOk(pnum, &p->HoldItem);
 	if (p->HoldItem._itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum);
