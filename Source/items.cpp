@@ -3427,40 +3427,29 @@ BOOL DoOil(int pnum, int cii)
 	ItemStruct *is;
 	int dur, r;
 
-	if (cii == INVLOC_RING_LEFT || cii == INVLOC_RING_RIGHT || cii == INVLOC_AMULET)
-		return FALSE;
-
 	p = &plr[pnum];
 	is = &p->InvBody[cii];
-	if (is->_iClass == ICLASS_MISC) {
-		return FALSE;
-	}
-	if (is->_iClass == ICLASS_GOLD) {
-		return FALSE;
-	}
-	if (is->_iClass == ICLASS_QUEST) {
-		return FALSE;
-	}
-
 	switch (p->_pOilType) {
 	case IMISC_OILACC:
 	case IMISC_OILMAST:
 	case IMISC_OILSHARP:
-		if (is->_iClass == ICLASS_ARMOR) {
+		if (is->_iClass != ICLASS_WEAPON)
 			return FALSE;
-		}
 		break;
 	case IMISC_OILDEATH:
-		if (is->_iClass == ICLASS_ARMOR) {
+		if (is->_iClass != ICLASS_WEAPON || is->_itype == ITYPE_BOW)
 			return FALSE;
-		}
-		if (is->_itype == ITYPE_BOW) {
+		break;
+	case IMISC_OILSKILL:
+	case IMISC_OILBSMTH:
+	case IMISC_OILFORT:
+	case IMISC_OILPERM:
+		if (is->_iClass != ICLASS_WEAPON && is->_iClass != ICLASS_ARMOR)
 			return FALSE;
-		}
 		break;
 	case IMISC_OILHARD:
 	case IMISC_OILIMP:
-		if (is->_iClass == ICLASS_WEAPON) {
+		if (is->_iClass != ICLASS_ARMOR) {
 			return FALSE;
 		}
 		break;
@@ -3479,48 +3468,47 @@ BOOL DoOil(int pnum, int cii)
 		break;
 	case IMISC_OILSHARP:
 		if (is->_iMaxDam - is->_iMinDam < 30) {
-			is->_iMaxDam = is->_iMaxDam + 1;
+			is->_iMaxDam++;
 		}
 		break;
 	case IMISC_OILDEATH:
 		if (is->_iMaxDam - is->_iMinDam < 30) {
-			is->_iMinDam = is->_iMinDam + 1;
-			is->_iMaxDam = is->_iMaxDam + 2;
+			is->_iMinDam++;
+			is->_iMaxDam += 2;
 		}
 		break;
 	case IMISC_OILSKILL:
 		r = random_(68, 6) + 5;
 		if (is->_iMinStr > r) {
-			is->_iMinStr = is->_iMinStr - r;
+			is->_iMinStr -= r;
 		} else {
 			is->_iMinStr = 0;
 		}
 		if (is->_iMinMag > r) {
-			is->_iMinMag = is->_iMinMag - r;
+			is->_iMinMag -= r;
 		} else {
 			is->_iMinMag = 0;
 		}
 		if (is->_iMinDex > r) {
-			is->_iMinDex = is->_iMinDex - r;
+			is->_iMinDex -= r;
 		} else {
 			is->_iMinDex = 0;
 		}
 		break;
 	case IMISC_OILBSMTH:
-		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
-			if (is->_iDurability < is->_iMaxDur) {
-				dur = (is->_iMaxDur + 4) / 5 + is->_iDurability;
-				if (dur > is->_iMaxDur) {
-					dur = is->_iMaxDur;
-				}
+		dur = is->_iMaxDur;
+		if (dur != DUR_INDESTRUCTIBLE) {
+			if (is->_iDurability < dur) {
+				r = (dur + 4) / 5 + is->_iDurability;
+				if (r > dur)
+					r = dur;
 			} else {
-				if (is->_iMaxDur >= 100) {
+				if (dur >= 100)
 					break;
-				}
-				dur = is->_iMaxDur + 1;
-				is->_iMaxDur = dur;
+				r = dur + 1;
+				is->_iMaxDur = r;
 			}
-			is->_iDurability = dur;
+			is->_iDurability = r;
 		}
 		break;
 	case IMISC_OILFORT:
