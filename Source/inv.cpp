@@ -575,119 +575,71 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 	return done;
 }
 
-#ifndef HELLFIRE
 BOOL GoldAutoPlace(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	BOOL done;
-	int i, ii;
+	int limit, free, value, ii, done;
 
+#ifdef HELLFIRE
+	limit = MaxGold;
+#else
+	limit = GOLD_MAX_LIMIT;
+#endif
 	p = &plr[pnum];
+	value = p->HoldItem._ivalue;
 	pi = p->InvList;
-	done = FALSE;
-	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
+	done = 0;
+	for (int i = p->_pNumInv; i > 0 && done < 2; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
-				SetGoldItemValue(pi, p->HoldItem._ivalue + pi->_ivalue);
-				p->_pGold = CalculateGold(pnum);
-				done = TRUE;
+			free = limit - pi->_ivalue;
+			if (free > 0) {
+				value -= free;
+				if (value <= 0) {
+					SetGoldItemValue(pi, limit + value);
+					done |= 2;
+				} else {
+					SetGoldItemValue(pi, limit);
+					done |= 1;
+				}			
 			}
 		}
 	}
-	if (done)
-		return done;
-	pi = p->InvList;
-	for (i = p->_pNumInv; i > 0 && !done; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD && pi->_ivalue < GOLD_MAX_LIMIT) {
-			if (p->HoldItem._ivalue + pi->_ivalue <= GOLD_MAX_LIMIT) {
-				SetGoldItemValue(pi, p->HoldItem._ivalue + pi->_ivalue);
-				p->_pGold = CalculateGold(pnum);
-				done = TRUE;
-			}
-		}
-	}
-	if (done)
-		return done;
-
-	for (i = 39; i >= 0 && !done; i--) {
+	for (int i = 39; i >= 0 && done < 2; i--) {
 		if (p->InvGrid[i] == 0) {
 			ii = p->_pNumInv;
-			p->InvList[ii] = p->HoldItem;
-			SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
 			p->_pNumInv = ii + 1;
 			p->InvGrid[i] = ii + 1;
-			p->_pGold = CalculateGold(pnum);
-			done = TRUE;
-		}
-	}
-
-	return done;
-}
-#else
-BOOL GoldAutoPlace(int pnum)
-{
-	PlayerStruct *p;
-	ItemStruct *pi;
-	int ii;
-	int xx, yy;
-	int max_gold, gold;
-	BOOL done;
-
-	p = &plr[pnum];
-	pi = p->InvList;
-	done = FALSE;
-	for (int i = p->_pNumInv; i > 0 && !done; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD) {
-			gold = pi->_ivalue + p->HoldItem._ivalue;
-			if (gold <= MaxGold) {
-				SetGoldItemValue(pi, gold);
-				p->_pGold = CalculateGold(pnum);
-				done = TRUE;
-				p->HoldItem._ivalue = 0;
+			pi = &p->InvList[ii];
+			*pi = p->HoldItem;
+			value -= limit;
+			if (value <= 0) {
+				SetGoldItemValue(pi, value + limit);
+				done |= 2;
 			} else {
-				max_gold = MaxGold;
-				if (pi->_ivalue < max_gold) {
-					gold = max_gold - pi->_ivalue;
-					SetGoldItemValue(pi, max_gold);
-					SetGoldItemValue(&p->HoldItem, p->HoldItem._ivalue - gold);
-					if (p->HoldItem._ivalue < 0) {
-						p->HoldItem._ivalue = 0;
-						done = TRUE;
-					}
-					GetPlrHandSeed(&p->HoldItem);
-					NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
-					p->_pGold = CalculateGold(pnum);
-				}
+				SetGoldItemValue(pi, limit);
+				GetPlrHandSeed(&p->HoldItem);
+				done |= 1;
 			}
 		}
 	}
-	if (!done)
-		for (int i = 39; i >= 0 && !done; i--) {
-			if (p->InvGrid[i] == 0) {
-				ii = p->_pNumInv;
-				p->InvList[ii] = p->HoldItem;
-				SetGoldItemValue(&p->InvList[ii], p->HoldItem._ivalue);
-				p->_pNumInv = ii + 1;
-				p->InvGrid[i] = ii + 1;
 
-				gold = p->HoldItem._ivalue;
-				if (gold > MaxGold) {
-					gold -= MaxGold;
-					p->HoldItem._ivalue = gold;
-					GetPlrHandSeed(&p->HoldItem);
-					p->InvList[ii]._ivalue = MaxGold;
-				} else {
-					p->HoldItem._ivalue = 0;
-					done = TRUE;
-					p->_pGold = CalculateGold(pnum);
-					NewCursor(CURSOR_HAND);
-				}
-			}
-		}
-	return done;
+	if (done == 0)
+		return FALSE;
+
+	p->_pGold = CalculateGold(pnum);
+	if (done == 1) {
+		// partial placement
+		SetGoldItemValue(&p->HoldItem, value);
+		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+		return FALSE;
+	} else {
+		// complete placement
+		p->HoldItem._itype = ITYPE_NONE;
+		NewCursor(CURSOR_HAND);
+		return TRUE;
+	}
 }
-#endif
 
 BOOL WeaponAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 {
@@ -1795,10 +1747,8 @@ void AutoGetItem(int pnum, int ii)
 	ItemStatOk(pnum, &p->HoldItem);
 	if (p->HoldItem._itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum);
-#ifdef HELLFIRE
 		if (!done)
 			is->_ivalue = p->HoldItem._ivalue;
-#endif
 	} else {
 		done = WeaponAutoPlace(pnum, &p->HoldItem, TRUE)
 			|| AutoPlaceInv(pnum, &p->HoldItem, TRUE);
@@ -1848,9 +1798,7 @@ void AutoGetItem(int pnum, int ii)
 		RespawnItem(ii, TRUE);
 		NetSendCmdPItem(TRUE, CMD_RESPAWNITEM, is->_ix, is->_iy);
 		p->HoldItem._itype = ITYPE_NONE;
-#ifdef HELLFIRE
 		NewCursor(CURSOR_HAND);
-#endif
 	}
 }
 
