@@ -39,6 +39,7 @@ int items_423518(int i);
 int items_42357E(int i);
 #endif
 void InitItemGFX();
+BOOL ItemPlace(int xp, int yp);
 void InitItems();
 void CalcPlrItemVals(int pnum, BOOL Loadgfx);
 void CalcPlrScrolls(int pnum);
