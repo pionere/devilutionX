@@ -1361,7 +1361,7 @@ DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->wParam1 <= 256)
+	else
 		ModifyPlrStr(pnum, cmd->wParam1);
 
 	return sizeof(*cmd);
@@ -1373,7 +1373,7 @@ DWORD On_ADDMAG(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->wParam1 <= 256)
+	else
 		ModifyPlrMag(pnum, cmd->wParam1);
 
 	return sizeof(*cmd);
@@ -1385,7 +1385,7 @@ DWORD On_ADDDEX(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->wParam1 <= 256)
+	else
 		ModifyPlrDex(pnum, cmd->wParam1);
 
 	return sizeof(*cmd);
@@ -1397,7 +1397,7 @@ DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->wParam1 <= 256)
+	else
 		ModifyPlrVit(pnum, cmd->wParam1);
 
 	return sizeof(*cmd);
