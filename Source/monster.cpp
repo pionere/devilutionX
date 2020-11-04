@@ -5423,11 +5423,11 @@ void PrintMonstHistory(int mt)
 	pinfoflag = TRUE;
 }
 
-void PrintUniqueHistory()
+void PrintUniqueHistory(int mnum)
 {
 	int res;
 
-	res = monster[pcursmonst].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
+	res = monster[mnum].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
 	if (!res) {
 		strcpy(tempstr, "No resistances");
 		AddPanelString(tempstr, TRUE);

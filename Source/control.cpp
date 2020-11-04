@@ -1317,7 +1317,7 @@ void DrawInfoBox()
 				ClearPanel();
 				if (monster[pcursmonst]._uniqtype != 0) {
 					infoclr = COL_GOLD;
-					PrintUniqueHistory();
+					PrintUniqueHistory(pcursmonst);
 				} else {
 					PrintMonstHistory(monster[pcursmonst].MType->mtype);
 				}

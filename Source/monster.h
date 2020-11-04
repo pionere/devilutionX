@@ -115,7 +115,7 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 void SyncMonsterAnim(int i);
 void MonFallenFear(int x, int y);
 void PrintMonstHistory(int mt);
-void PrintUniqueHistory();
+void PrintUniqueHistory(int mnum);
 void MissToMonst(int mnum, int x, int y);
 BOOL monster_posok(int mnum, int x, int y);
 BOOL PosOkMonst(int mnum, int x, int y);
