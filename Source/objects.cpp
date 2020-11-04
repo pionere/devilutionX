@@ -1390,13 +1390,25 @@ void AddBarrel(int oi, int type)
 void AddShrine(int oi)
 {
 	ObjectStruct *os;
-	int i;
+	int i, val;
+	DIABOOL slist[NUM_SHRINETYPE];
+	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	i = FindValidShrine(NUM_SHRINETYPE);
+	for (i = 0; i < NUM_SHRINETYPE; i++) {
+		if (currlevel < shrinemin[i] || currlevel > shrinemax[i]
+		 || shrineavail[i] == excl) {
+			slist[i] = FALSE;
+		} else {
+			slist[i] = TRUE;
+		}
+	}
+	do {
+		val = random_(150, NUM_SHRINETYPE);
+	} while (!slist[val]);
 
 	os = &object[oi];
 	os->_oPreFlag = TRUE;
-	os->_oVar1 = i;
+	os->_oVar1 = val;
 	if (random_(150, 2)) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
