@@ -779,7 +779,7 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 			mon->mtalkmsg = 0;
 #ifndef HELLFIRE
 		if (mon->_mAi != AI_LAZURUS || quests[Q_BETRAYER]._qvar1 <= 3) {
-			if (mon->mtalkmsg) {
+			if (mon->mtalkmsg != 0) {
 				mon->_mgoal = MGOAL_INQUIRING;
 			}
 		} else {
@@ -788,9 +788,9 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 #endif
 	}
 #ifdef HELLFIRE
-	if (mon->mtalkmsg)
+	if (mon->mtalkmsg != 0)
 #else
-	else if (mon->mtalkmsg)
+	else if (mon->mtalkmsg != 0)
 #endif
 		mon->_mgoal = MGOAL_INQUIRING;
 
@@ -2095,7 +2095,7 @@ void MonChangeLightOffset(int mnum)
 
 	_myoff *= (ly >> 3);
 #ifdef HELLFIRE
-	if (mon->mlid)
+	if (mon->mlid != 0)
 #endif
 		ChangeLightOff(mon->mlid, _mxoff, _myoff);
 }
@@ -2218,7 +2218,7 @@ BOOL MonDoWalk3(int mnum)
 		mon->_my = mon->_mVar2;
 		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		if (mon->_uniqtype)
+		if (mon->_uniqtype != 0)
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
@@ -3114,8 +3114,8 @@ BOOL MonCallWalk2(int mnum, int md)
 	int mdtemp;
 
 	mdtemp = md;
-	ok = DirOK(mnum, md);     // Can we continue in the same direction
-	if (random_(101, 2)) { // Randomly go left or right
+	ok = DirOK(mnum, md);       // Can we continue in the same direction
+	if (random_(101, 2) != 0) { // Randomly go left or right
 		ok = ok || (mdtemp = left[md], DirOK(mnum, left[md])) || (mdtemp = right[md], DirOK(mnum, right[md]));
 	} else {
 		ok = ok || (mdtemp = right[md], DirOK(mnum, right[md])) || (mdtemp = left[md], DirOK(mnum, left[md]));

@@ -380,7 +380,7 @@ void delta_leave_sync(BYTE bLevel)
 		} else {
 			for (i = 0; i < nummonsters; ++i) {
 				ma = monstactive[i];
-				if (monster[ma]._mhitpoints) {
+				if (monster[ma]._mhitpoints != 0) {
 					sgbDeltaChanged = TRUE;
 					pD = &sgLevels[bLevel].monster[ma];
 					pD->_mx = monster[ma]._mx;

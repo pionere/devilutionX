@@ -376,7 +376,7 @@ void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 	block = cur_archive.sgpBlockTbl;
 	i = 2048;
 	while (i-- != 0) {
-		if (block->offset && !block->flags && !block->sizefile) {
+		if (block->offset != 0 && block->flags == 0 && block->sizefile == 0) {
 			if (block->offset + block->sizealloc == block_offset) {
 				block_offset = block->offset;
 				block_size += block->sizealloc;
@@ -416,10 +416,10 @@ int mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 	i = 2048;
 	while (1) {
 		i--;
-		if (pBlockTbl->offset && !pBlockTbl->flags && !pBlockTbl->sizefile && (DWORD)pBlockTbl->sizealloc >= size)
+		if (pBlockTbl->offset != 0 && pBlockTbl->flags == 0 && pBlockTbl->sizefile == 0 && (DWORD)pBlockTbl->sizealloc >= size)
 			break;
 		pBlockTbl++;
-		if (!i) {
+		if (i == 0) {
 			*block_size = size;
 			result = cur_archive.size;
 			cur_archive.size += size;
@@ -509,7 +509,7 @@ static _BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int 
 	}
 	if (i < 0)
 		app_fatal("Out of hash space");
-	if (!pBlk)
+	if (pBlk == NULL)
 		pBlk = mpqapi_new_block(&block_index);
 
 	cur_archive.sgpHashTbl[hIdx].hashcheck[0] = h2;

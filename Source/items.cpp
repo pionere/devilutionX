@@ -2365,7 +2365,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	pre = random_(23, 4);
 	post = random_(23, 3);
 	if (pre != 0 && post == 0) {
-		if (random_(23, 2))
+		if (random_(23, 2) != 0)
 			post = 1;
 		else
 			pre = 0;
@@ -2375,7 +2375,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	goe = 0;
 	if (!onlygood && random_(0, 3) != 0)
 		onlygood = TRUE;
-	if (!pre) {
+	if (pre == 0) {
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
@@ -3114,7 +3114,7 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 		GetItemAttrs(i, itemid, lvl);
 		SetupItem(i);
 		item[i]._iPostDraw = TRUE;
-		if (selflag) {
+		if (selflag != 0) {
 			item[i]._iSelFlag = selflag;
 			item[i]._iAnimFrame = item[i]._iAnimLen;
 			item[i]._iAnimFlag = FALSE;
@@ -3240,7 +3240,7 @@ void ItemDoppel()
 
 	if (gbMaxPlayers != 1) {
 		for (i = DBORDERX; i < DSIZEX + DBORDERX; i++) {
-			if (dItem[i][idoppely]) {
+			if (dItem[i][idoppely] != 0) {
 				is = &item[dItem[i][idoppely] - 1];
 				if (is->_ix != i || is->_iy != idoppely)
 					dItem[i][idoppely] = 0;
@@ -3913,7 +3913,7 @@ void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
 		k += fontkern[c] + 1;
-		if (c && k <= 257) {
+		if (c != '\0' && k <= 257) {
 			PrintChar(sx, sy, c, col);
 		}
 		sx += fontkern[c] + 1;
@@ -4812,7 +4812,7 @@ void SetBookLevel(int pnum, ItemStruct *is)
 	if (is->_iMiscId == IMISC_BOOK) {
 		is->_iMinMag = spelldata[is->_iSpell].sMinInt;
 		slvl = plr[pnum]._pSplLvl[is->_iSpell];
-		while (slvl) {
+		while (slvl != 0) {
 			is->_iMinMag += 20 * is->_iMinMag / 100;
 			slvl--;
 			if (is->_iMinMag + 20 * is->_iMinMag / 100 > 255) {

@@ -82,7 +82,7 @@ int dbgqst;
 int dbgmon;
 int arrowdebug;
 #endif
-int frameflag;
+BOOL frameflag;
 int frameend;
 int framerate;
 int framestart;

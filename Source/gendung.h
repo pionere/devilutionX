@@ -90,7 +90,7 @@ void DRLG_SetPC();
 void Make_SetPC(int x, int y, int w, int h);
 BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height);
 void DRLG_CreateThemeRoom(int themeIndex);
-void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, int rndSize);
+void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rndSize);
 void DRLG_HoldThemeRooms();
 BOOL SkipThemeRoom(int x, int y);
 void InitLevels();

@@ -932,7 +932,7 @@ void DoSpeedBook()
 					}
 				}
 			}
-			if (spells && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
+			if (spells != 0 && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
 				xo -= SPLICONLENGTH;
 			if (xo == PANEL_X + 12 - SPLICONLENGTH) {
 				xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -1209,7 +1209,7 @@ BOOL control_WriteStringToBuffer(BYTE *str)
 	int k;
 
 	k = 0;
-	while (*str) {
+	while (*str != '\0') {
 		k += fontkern[fontframe[gbFontTransTbl[*str]]];
 		str++;
 		if (k >= 125)
@@ -1228,10 +1228,10 @@ static void CPrintString(int y, const char *str, BOOL center, int lines)
 	lineOffset = 0;
 	sx = 177 + PANEL_X;
 	sy = lineOffsets[lines][y] + PANEL_Y;
-	if (center == TRUE) {
+	if (center) {
 		strWidth = 0;
 		tmp = str;
-		while (*tmp) {
+		while (*tmp != '\0') {
 			c = gbFontTransTbl[(BYTE)*tmp++];
 			strWidth += fontkern[fontframe[c]] + 2;
 		}
@@ -1239,11 +1239,11 @@ static void CPrintString(int y, const char *str, BOOL center, int lines)
 			lineOffset = (288 - strWidth) >> 1;
 		sx += lineOffset;
 	}
-	while (*str) {
+	while (*str != '\0') {
 		c = gbFontTransTbl[(BYTE)*str++];
 		c = fontframe[c];
 		lineOffset += fontkern[c] + 2;
-		if (c) {
+		if (c != '\0') {
 			if (lineOffset < 288) {
 				PrintChar(sx, sy, c, infoclr);
 			}
@@ -1352,10 +1352,10 @@ void PrintGameStr(int x, int y, const char *str, int color)
 	int sx, sy;
 	sx = x + SCREEN_X;
 	sy = y + SCREEN_Y;
-	while (*str) {
+	while (*str != '\0') {
 		c = gbFontTransTbl[(BYTE)*str++];
 		c = fontframe[c];
-		if (c)
+		if (c != '\0')
 			PrintChar(sx, sy, c, color);
 		sx += fontkern[c] + 1;
 	}
@@ -1382,18 +1382,18 @@ static void MY_PlrStringXY(int x, int y, int endX, const char *pszStr, char col,
 	line = 0;
 	screen_x = 0;
 	tmp = pszStr;
-	while (*tmp) {
+	while (*tmp != '\0') {
 		c = gbFontTransTbl[(BYTE)*tmp++];
 		screen_x += fontkern[fontframe[c]] + base;
 	}
 	if (screen_x < widthOffset)
 		line = (widthOffset - screen_x) >> 1;
 	sx += line;
-	while (*pszStr) {
+	while (*pszStr != '\0') {
 		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = fontframe[c];
 		line += fontkern[c] + base;
-		if (c != 0) {
+		if (c != '\0') {
 			if (line < widthOffset)
 				PrintChar(sx, sy, c, col);
 		}
@@ -1801,7 +1801,7 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 	if (cjustflag) {
 		screen_x = 0;
 		tmp = pszStr;
-		while (*tmp) {
+		while (*tmp != '\0') {
 			c = gbFontTransTbl[(BYTE)*tmp++];
 			screen_x += fontkern[fontframe[c]] + 1;
 		}
@@ -1809,11 +1809,11 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 			line = (222 - screen_x) >> 1;
 		sx += line;
 	}
-	while (*pszStr) {
+	while (*pszStr != '\0') {
 		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = fontframe[c];
 		line += fontkern[c] + 1;
-		if (c != 0) {
+		if (c != '\0') {
 			if (line <= 222)
 				PrintChar(sx, y, c, col);
 		}
@@ -2061,15 +2061,14 @@ static char *control_print_talk_msg(char *msg, int *x, int y, int color)
 	*x += 200 + SCREEN_X;
 	y += 22 + PANEL_Y;
 	width = *x;
-	while (*msg) {
-
+	while (*msg != '\0') {
 		c = gbFontTransTbl[(BYTE)*msg];
 		c = fontframe[c];
 		width += fontkern[c] + 1;
 		if (width > 450 + PANEL_X)
 			return msg;
 		msg++;
-		if (c != 0) {
+		if (c != '\0') {
 			PrintChar(*x, y, c, color);
 		}
 		*x += fontkern[c] + 1;
@@ -2100,10 +2099,10 @@ void DrawTalkPan()
 	for (i = 0; i < 39; i += 13) {
 		x = 0 + PANEL_LEFT;
 		msg = control_print_talk_msg(msg, &x, i, 0);
-		if (!msg)
+		if (msg == NULL)
 			break;
 	}
-	if (msg)
+	if (msg != NULL)
 		*msg = '\0';
 	CelDraw(x, i + 22 + PANEL_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	talk_btn = 0;

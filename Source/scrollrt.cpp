@@ -377,7 +377,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 {
 	int l, frames;
 
-	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || !setlevel && !currlevel) {
+	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || !setlevel && currlevel == 0) {
 		if (pCelBuff == NULL) {
 			// app_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 			return;
@@ -1353,7 +1353,7 @@ void ScrollView()
  */
 void EnableFrameCount()
 {
-	frameflag = frameflag == 0;
+	frameflag = !frameflag;
 	framestart = SDL_GetTicks();
 }
 

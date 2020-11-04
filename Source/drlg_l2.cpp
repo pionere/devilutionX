@@ -3152,7 +3152,7 @@ static void DRLG_L2(int entry)
 	L2DoorFix();
 	L2DirtFix();
 
-	DRLG_PlaceThemeRooms(6, 10, 3, 0, 0);
+	DRLG_PlaceThemeRooms(6, 10, 3, 0, FALSE);
 	DRLG_L2PlaceRndSet(CTRDOOR1, 100);
 	DRLG_L2PlaceRndSet(CTRDOOR2, 100);
 	DRLG_L2PlaceRndSet(CTRDOOR3, 100);

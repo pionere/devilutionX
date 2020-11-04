@@ -79,7 +79,7 @@ extern int dbgplr;
 extern int dbgqst;
 extern int dbgmon;
 #endif
-extern int frameflag;
+extern BOOL frameflag;
 extern int frameend;
 extern int framerate;
 extern int framestart;

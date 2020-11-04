@@ -941,7 +941,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		break;
 	}
 
-	if (DRLG_L3FillRoom(x1, y1, x2, y2) && random_(0, 4)) {
+	if (DRLG_L3FillRoom(x1, y1, x2, y2) && random_(0, 4) != 0) {
 		if (dir != 2) {
 			DRLG_L3CreateBlock(x1, y1, blksizey, 0);
 		}
@@ -2397,7 +2397,7 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 	if (currlevel < 17) {
 #endif
-		DRLG_PlaceThemeRooms(5, 10, 7, 0, 0);
+		DRLG_PlaceThemeRooms(5, 10, 7, 0, FALSE);
 
 		DRLG_L3Wood();
 		DRLG_L3PlaceRndSet(L3TITE1, 10);

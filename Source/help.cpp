@@ -457,12 +457,12 @@ static void DrawHelpLine(int x, int y, char *text, char color)
 	width = 0;
 	sx = x + 32 + PANEL_X;
 	sy = y * 12 + 44 + SCREEN_Y + UI_OFFSET_Y;
-	while (*text) {
+	while (*text != '\0') {
 		c = gbFontTransTbl[(BYTE)*text];
 		text++;
 		c = fontframe[c];
 		width += fontkern[c] + 1;
-		if (c != 0) {
+		if (c != '\0') {
 			if (width <= 577)
 				PrintChar(sx, sy, c, color);
 		}

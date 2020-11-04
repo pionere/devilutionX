@@ -314,7 +314,7 @@ void ShowProgress(unsigned int uMsg)
 	gbSomebodyWonGameKludge = FALSE;
 	plrmsg_delay(TRUE);
 
-	assert(ghMainWnd);
+	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
 
 	interface_msg_pump();
@@ -472,7 +472,7 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	}
 
-	assert(ghMainWnd);
+	assert(ghMainWnd != NULL);
 
 	PaletteFadeOut(8);
 	FreeInterface();

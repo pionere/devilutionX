@@ -155,7 +155,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
 		k += fontkern[c] + 1;
-		if (c && k <= yy) {
+		if (c != '\0' && k <= yy) {
 			PrintChar(sx, sy, c, col);
 		}
 		sx += fontkern[c] + 1;
@@ -166,7 +166,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
 			c = fontframe[gbFontTransTbl[(BYTE)valstr[i]]];
 			sx -= fontkern[c] + 1;
-			if (c != 0) {
+			if (c != '\0') {
 				PrintChar(sx, sy, c, col);
 			}
 		}
@@ -1269,7 +1269,7 @@ void StartStore(char s)
 
 		stextsel = i == STORE_LINES ? -1 : i;
 		stextflag = t;
-		if (t != STORE_SBUY || storenumh)
+		if (t != STORE_SBUY || storenumh != 0)
 			break;
 	}
 }
@@ -1310,7 +1310,7 @@ void DrawSText()
 	for (i = 0; i < STORE_LINES; i++) {
 		if (stext[i]._sline)
 			DrawSLine(i);
-		if (stext[i]._sstr[0])
+		if (stext[i]._sstr[0] != '\0')
 			PrintSString(stext[i]._sx, i, stext[i]._sjust, stext[i]._sstr, stext[i]._sclr, stext[i]._sval);
 	}
 

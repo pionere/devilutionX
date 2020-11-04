@@ -549,7 +549,7 @@ void DRLG_CreateThemeRoom(int themeIndex)
 	}
 }
 
-void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, int rndSize)
+void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rndSize)
 {
 	int i, j;
 	int themeW, themeH;
@@ -560,7 +560,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, int rnd
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == floor && random_(0, freq) == 0 && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
-				if (rndSize != 0) {
+				if (rndSize) {
 					min = minSize - 2;
 					max = maxSize - 2;
 					rv2 = min + random_(0, random_(0, themeW - min + 1));

@@ -106,7 +106,7 @@ void DrawPlrMsg()
 
 	pMsg = plr_msgs;
 	for (i = 0; i < PMSG_COUNT; i++) {
-		if (pMsg->str[0])
+		if (pMsg->str[0] != '\0')
 			PrintPlrMsg(x, y, width, pMsg->str, text_color_from_player_num[pMsg->player]);
 		pMsg++;
 		y += 35;
@@ -117,7 +117,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 {
 	int line = 0;
 
-	while (*str) {
+	while (*str != '\0') {
 		BYTE c;
 		int sx = x;
 		DWORD len = 0;
@@ -125,11 +125,11 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		const char *endstr = sstr;
 
 		while (1) {
-			if (*sstr) {
+			if (*sstr != '\0') {
 				c = gbFontTransTbl[(BYTE)*sstr++];
 				c = fontframe[c];
 				len += fontkern[c] + 1;
-				if (c == 0) // allow wordwrap on blank glyph
+				if (c == '\0') // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
 					break;
@@ -142,7 +142,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		while (str < endstr) {
 			c = gbFontTransTbl[(BYTE)*str++];
 			c = fontframe[c];
-			if (c != 0)
+			if (c != '\0')
 				PrintChar(sx, y, c, col);
 			sx += fontkern[c] + 1;
 		}

@@ -1057,7 +1057,7 @@ TSFX sgSFX[] = {
 BOOL effect_is_playing(int nSFX)
 {
 	TSFX *sfx = &sgSFX[nSFX];
-	if (sfx->pSnd)
+	if (sfx->pSnd != NULL)
 		return snd_playing(sfx->pSnd);
 
 	if (sfx->bFlags & sfx_STREAM)
@@ -1130,7 +1130,7 @@ void InitMonsterSND(int midx)
 				strcpy(path, name);
 				pSnd = sound_file_load(path);
 				Monsters[midx].Snds[i][j] = pSnd;
-				if (!pSnd)
+				if (pSnd == NULL)
 					mem_free_dbg(path);
 			}
 		}
@@ -1192,10 +1192,10 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 {
 	int lPan, lVolume;
 
-	if (plr[myplr].pLvlLoad && gbMaxPlayers != 1) {
+	if (plr[myplr].pLvlLoad != 0 && gbMaxPlayers != 1) {
 		return;
 	}
-	if (!gbSndInited || !gbSoundOn || gbBufferMsgs) {
+	if (!gbSndInited || !gbSoundOn || gbBufferMsgs != 0) {
 		return;
 	}
 
@@ -1214,10 +1214,10 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		return;
 	}
 
-	if (!pSFX->pSnd)
+	if (pSFX->pSnd == NULL)
 		pSFX->pSnd = sound_file_load(pSFX->pszName);
 
-	if (pSFX->pSnd)
+	if (pSFX->pSnd != NULL)
 		snd_play_snd(pSFX->pSnd, lVolume, lPan);
 }
 
@@ -1238,7 +1238,7 @@ void PlayEffect(int mnum, int mode)
 
 	mon = &monster[mnum];
 	snd = Monsters[mon->_mMTidx].Snds[mode][sndIdx];
-	if (!snd || snd_playing(snd)) {
+	if (snd == NULL || snd_playing(snd)) {
 		return;
 	}
 
@@ -1327,7 +1327,7 @@ void effects_cleanup_sfx()
 	sound_stop();
 
 	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
-		if (sgSFX[i].pSnd) {
+		if (sgSFX[i].pSnd != NULL) {
 			sound_file_cleanup(sgSFX[i].pSnd);
 			sgSFX[i].pSnd = NULL;
 		}
@@ -1343,7 +1343,7 @@ static void priv_sound_init(BYTE bLoadMask)
 	}
 
 	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
-		if (sgSFX[i].pSnd) {
+		if (sgSFX[i].pSnd != NULL) {
 			continue;
 		}
 
@@ -1411,7 +1411,7 @@ void effects_play_sound(const char *snd_file)
 	}
 
 	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
-		if (!strcasecmp(sgSFX[i].pszName, snd_file) && sgSFX[i].pSnd) {
+		if (!strcasecmp(sgSFX[i].pszName, snd_file) && sgSFX[i].pSnd != NULL) {
 			if (!snd_playing(sgSFX[i].pSnd))
 				snd_play_snd(sgSFX[i].pSnd, 0, 0);
 

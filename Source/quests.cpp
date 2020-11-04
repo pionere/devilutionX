@@ -814,7 +814,7 @@ void ResyncQuests()
 			}
 		}
 	}
-	if (currlevel == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive == QUEST_ACTIVE && !quests[Q_VEIL]._qvar1) {
+	if (currlevel == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive == QUEST_ACTIVE && quests[Q_VEIL]._qvar1 == 0) {
 		quests[Q_VEIL]._qvar1 = 1;
 		SpawnQuestItem(IDI_GLDNELIX, 0, 0, 5, 1);
 	}
@@ -936,7 +936,7 @@ void QuestlogDown()
 void QuestlogEnter()
 {
 	PlaySFX(IS_TITLSLCT);
-	if (numqlines && qline != 22)
+	if (numqlines != 0 && qline != 22)
 		InitQTextMsg(quests[qlist[(qline - qtopline) >> 1]]._qmsg);
 	questlog = FALSE;
 }
