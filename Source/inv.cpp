@@ -689,40 +689,64 @@ BOOL GoldAutoPlace(int pnum)
 }
 #endif
 
-BOOL WeaponAutoPlace(int pnum)
+BOOL WeaponAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 {
+	PlayerStruct *p;
+
+	if (!is->_iStatFlag || is->_iClass != ICLASS_WEAPON)
+		return FALSE;
+
+	p = &plr[pnum];
+	if (p->_pmode > PM_WALK3)
+		return FALSE;
+
+	if ((p->_pgfxnum & 0xF) != ANIM_ID_UNARMED && (p->_pgfxnum & 0xF) != ANIM_ID_UNARMED_SHIELD)
 #ifdef HELLFIRE
-	if (plr[pnum]._pClass == PC_MONK)
+		if (p->_pClass != PC_BARD || ((p->_pgfxnum & 0xF) != ANIM_ID_MACE && (p->_pgfxnum & 0xF) != ANIM_ID_SWORD))
+#endif
+			return FALSE;
+
+#ifdef HELLFIRE
+	if (p->_pClass == PC_MONK)
 		return FALSE;
 #endif
-	if (plr[pnum].HoldItem._iLoc != ILOC_TWOHAND
+	if (is->_iLoc != ILOC_TWOHAND
 #ifdef HELLFIRE
-	    || (plr[pnum]._pClass == PC_BARBARIAN && (plr[pnum].HoldItem._itype == ITYPE_SWORD || plr[pnum].HoldItem._itype == ITYPE_MACE))
+	    || (p->_pClass == PC_BARBARIAN && (is->_itype == ITYPE_SWORD || is->_itype == ITYPE_MACE))
 #endif
 	) {
 #ifdef HELLFIRE
-		if (plr[pnum]._pClass != PC_BARD)
+		if (p->_pClass != PC_BARD)
 #endif
 		{
-			if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iClass == ICLASS_WEAPON)
+			if (p->InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE && p->InvBody[INVLOC_HAND_LEFT]._iClass == ICLASS_WEAPON)
 				return FALSE;
-			if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_RIGHT]._iClass == ICLASS_WEAPON)
+			if (p->InvBody[INVLOC_HAND_RIGHT]._itype != ITYPE_NONE && p->InvBody[INVLOC_HAND_RIGHT]._iClass == ICLASS_WEAPON)
 				return FALSE;
 		}
 
-		if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE) {
-			NetSendCmdChItem(TRUE, INVLOC_HAND_LEFT);
-			plr[pnum].InvBody[INVLOC_HAND_LEFT] = plr[pnum].HoldItem;
+		if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE) {
+			if (saveflag) {
+				NetSendCmdChItem(TRUE, is, INVLOC_HAND_LEFT);
+				p->InvBody[INVLOC_HAND_LEFT] = *is;
+				CalcPlrInv(pnum, TRUE);
+			}
 			return TRUE;
 		}
-		if (plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iLoc != ILOC_TWOHAND) {
-			NetSendCmdChItem(TRUE, INVLOC_HAND_RIGHT);
-			plr[pnum].InvBody[INVLOC_HAND_RIGHT] = plr[pnum].HoldItem;
+		if (p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE && p->InvBody[INVLOC_HAND_LEFT]._iLoc != ILOC_TWOHAND) {
+			if (saveflag) {
+				NetSendCmdChItem(TRUE, is, INVLOC_HAND_RIGHT);
+				p->InvBody[INVLOC_HAND_RIGHT] = *is;
+				CalcPlrInv(pnum, TRUE);
+			}
 			return TRUE;
 		}
-	} else if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE && plr[pnum].InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE) {
-		NetSendCmdChItem(TRUE, INVLOC_HAND_LEFT);
-		plr[pnum].InvBody[INVLOC_HAND_LEFT] = plr[pnum].HoldItem;
+	} else if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE && p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE) {
+		if (saveflag) {
+			NetSendCmdChItem(TRUE, is, INVLOC_HAND_LEFT);
+			p->InvBody[INVLOC_HAND_LEFT] = *is;
+			CalcPlrInv(pnum, TRUE);
+		}
 		return TRUE;
 	}
 
@@ -963,7 +987,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 	cn = CURSOR_HAND;
 	switch (il) {
 	case ILOC_HELM:
-		NetSendCmdChItem(FALSE, INVLOC_HEAD);
+		NetSendCmdChItem(FALSE, holditem, INVLOC_HEAD);
 		is = &p->InvBody[INVLOC_HEAD];
 		if (is->_itype == ITYPE_NONE)
 			*is = *holditem;
@@ -972,14 +996,14 @@ void CheckInvPaste(int pnum, int mx, int my)
 		break;
 	case ILOC_RING:
 		if (r == SLOTXY_RING_LEFT) {
-			NetSendCmdChItem(FALSE, INVLOC_RING_LEFT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_RING_LEFT);
 			is = &p->InvBody[INVLOC_RING_LEFT];
 			if (is->_itype == ITYPE_NONE)
 				*is = *holditem;
 			else
 				cn = SwapItem(is, holditem);
 		} else {
-			NetSendCmdChItem(FALSE, INVLOC_RING_RIGHT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_RING_RIGHT);
 			is = &p->InvBody[INVLOC_RING_RIGHT];
 			if (is->_itype == ITYPE_NONE)
 				*is = *holditem;
@@ -988,7 +1012,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		}
 		break;
 	case ILOC_AMULET:
-		NetSendCmdChItem(FALSE, INVLOC_AMULET);
+		NetSendCmdChItem(FALSE, holditem, INVLOC_AMULET);
 		is = &p->InvBody[INVLOC_AMULET];
 		if (is->_itype == ITYPE_NONE)
 			*is = *holditem;
@@ -1001,48 +1025,48 @@ void CheckInvPaste(int pnum, int mx, int my)
 		if (r <= SLOTXY_HAND_LEFT_LAST) {
 			if (is->_itype == ITYPE_NONE) {
 				if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
-					NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 					*is = *holditem;
 				} else {
-					NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
+					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 					cn = SwapItem(wRight, holditem);
 				}
 				break;
 			}
 			if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
-				NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 				cn = SwapItem(is, holditem);
 				break;
 			}
 
-			NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 			cn = SwapItem(wRight, holditem);
 			break;
 		}
 		if (wRight->_itype == ITYPE_NONE) {
 			if (is->_itype == ITYPE_NONE || is->_iLoc != ILOC_TWOHAND) {
 				if (is->_itype == ITYPE_NONE || is->_iClass != holditem->_iClass) {
-					NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
+					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 					*wRight = *holditem;
 					break;
 				}
-				NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 				cn = SwapItem(is, holditem);
 				break;
 			}
 			NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
-			NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 			SwapItem(wRight, is);
 			cn = SwapItem(wRight, holditem);
 			break;
 		}
 
 		if (is->_itype != ITYPE_NONE && is->_iClass == holditem->_iClass) {
-			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			cn = SwapItem(is, holditem);
 			break;
 		}
-		NetSendCmdChItem(FALSE, INVLOC_HAND_RIGHT);
+		NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 		cn = SwapItem(wRight, holditem);
 		break;
 	case ILOC_TWOHAND:
@@ -1060,12 +1084,12 @@ void CheckInvPaste(int pnum, int mx, int my)
 		}
 
 		if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
-			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			if (is->_itype == ITYPE_NONE)
 				SwapItem(is, wRight);
 			cn = SwapItem(is, holditem);
 		} else {
-			NetSendCmdChItem(FALSE, INVLOC_HAND_LEFT);
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			*is = *holditem;
 		}
 		if (is->_itype == ITYPE_STAFF && is->_iSpell != 0 && is->_iCharges > 0) {
@@ -1075,7 +1099,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		}
 		break;
 	case ILOC_ARMOR:
-		NetSendCmdChItem(FALSE, INVLOC_CHEST);
+		NetSendCmdChItem(FALSE, holditem, INVLOC_CHEST);
 		is = &p->InvBody[INVLOC_CHEST];
 		if (is->_itype == ITYPE_NONE)
 			*is = *holditem;
@@ -1794,24 +1818,8 @@ void AutoGetItem(int pnum, int ii)
 			is->_ivalue = p->HoldItem._ivalue;
 #endif
 	} else {
-		done = FALSE;
-		if (((p->_pgfxnum & 0xF) == ANIM_ID_UNARMED || (p->_pgfxnum & 0xF) == ANIM_ID_UNARMED_SHIELD
-#ifdef HELLFIRE
-		        || p->_pClass == PC_BARD && ((p->_pgfxnum & 0xF) == ANIM_ID_MACE || (p->_pgfxnum & 0xF) == ANIM_ID_SWORD)
-#endif
-		            )
-		    && p->_pmode <= PM_WALK3) {
-			if (p->HoldItem._iStatFlag) {
-				if (p->HoldItem._iClass == ICLASS_WEAPON) {
-					done = WeaponAutoPlace(pnum);
-					if (done)
-						CalcPlrInv(pnum, TRUE);
-				}
-			}
-		}
-		if (!done) {
-			done = AutoPlaceInv(pnum, &p->HoldItem, TRUE);
-		}
+		done = WeaponAutoPlace(pnum, &p->HoldItem, TRUE)
+			|| AutoPlaceInv(pnum, &p->HoldItem, TRUE);
 	}
 	if (done) {
 		dItem[is->_ix][is->_iy] = 0;

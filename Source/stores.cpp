@@ -1557,6 +1557,12 @@ void TakePlrsMoney(int cost)
 	}
 }
 
+static BOOL StoreAutoPlace(BOOL saveflag)
+{
+	return WeaponAutoPlace(myplr, &plr[myplr].HoldItem, saveflag)
+		|| AutoPlaceInv(myplr, &plr[myplr].HoldItem, saveflag);
+}
+
 void SmithBuyItem()
 {
 	int idx;
@@ -1564,7 +1570,7 @@ void SmithBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
+	StoreAutoPlace(TRUE);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	if (idx == SMITH_ITEMS - 1) {
 		smithitem[SMITH_ITEMS - 1]._itype = ITYPE_NONE;
@@ -1592,7 +1598,7 @@ void S_SBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = smithitem[idx];
-			if (AutoPlaceInv(myplr, &smithitem[idx], FALSE))
+			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -1607,7 +1613,7 @@ void SmithBuyPItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
+	StoreAutoPlace(TRUE);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	xx = 0;
@@ -1646,7 +1652,7 @@ void S_SPBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = premiumitem[idx];
-			if (AutoPlaceInv(myplr, &premiumitem[idx], FALSE))
+			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -1843,7 +1849,7 @@ void WitchBuyItem()
 		plr[myplr].HoldItem._iSeed = GetRndSeed();
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
+	StoreAutoPlace(TRUE);
 
 	if (idx >= 3) {
 		if (idx == WITCH_ITEMS - 1) {
@@ -1874,7 +1880,7 @@ void S_WBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = witchitem[idx];
-			if (AutoPlaceInv(myplr, &witchitem[idx], FALSE))
+			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -1969,7 +1975,7 @@ void S_BoyEnter()
 void BoyBuyItem()
 {
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
+	StoreAutoPlace(TRUE);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
 }
@@ -1987,7 +1993,7 @@ void HealerBuyItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
 		plr[myplr].HoldItem._iIdentified = FALSE;
-	AutoPlaceInv(myplr, &plr[myplr].HoldItem, TRUE);
+	StoreAutoPlace(TRUE);
 
 	if (infinite)
 		return;
@@ -2024,7 +2030,7 @@ void S_BBuyEnter()
 #else
 			plr[myplr].HoldItem._iIvalue += plr[myplr].HoldItem._iIvalue >> 1;
 #endif
-			if (AutoPlaceInv(myplr, &boyitem, FALSE))
+			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);
@@ -2143,7 +2149,7 @@ void S_HBuyEnter()
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = healitem[idx];
-			if (AutoPlaceInv(myplr, &healitem[idx], FALSE))
+			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
 				StartStore(STORE_NOROOM);

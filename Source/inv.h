@@ -23,6 +23,7 @@ void DrawInvBelt();
 BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is);
 BOOL GoldAutoPlace(int pnum);
 BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag);
+BOOL WeaponAutoPlace(int pnum, ItemStruct *is, BOOL saveflag);
 int SwapItem(ItemStruct *a, ItemStruct *b);
 void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId);
 void inv_update_rem_item(int pnum, BYTE iv);

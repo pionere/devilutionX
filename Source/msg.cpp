@@ -900,16 +900,16 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdChItem(BOOL bHiPri, BYTE bLoc)
+void NetSendCmdChItem(BOOL bHiPri, ItemStruct *is, BYTE bLoc)
 {
 	TCmdChItem cmd;
 
 	cmd.bCmd = CMD_CHANGEPLRITEMS;
 	cmd.bLoc = bLoc;
-	cmd.wIndx = plr[myplr].HoldItem.IDidx;
-	cmd.wCI = plr[myplr].HoldItem._iCreateInfo;
-	cmd.dwSeed = plr[myplr].HoldItem._iSeed;
-	cmd.bId = plr[myplr].HoldItem._iIdentified;
+	cmd.wIndx = is->IDidx;
+	cmd.wCI = is->_iCreateInfo;
+	cmd.dwSeed = is->_iSeed;
+	cmd.bId = is->_iIdentified;
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
