@@ -4242,9 +4242,8 @@ DIABOOL OperateFountains(int pnum, int oi)
 {
 	PlayerStruct *p;
 	ObjectStruct *os;
-	int prev, add, rnd, cnt;
+	int add, rnd;
 	DIABOOL applied;
-	BOOL done;
 
 	applied = FALSE;
 	os = &object[oi];
@@ -4325,39 +4324,28 @@ DIABOOL OperateFountains(int pnum, int oi)
 		if (pnum != myplr)
 			return FALSE;
 
-		prev = -1;
-		add = -1;
-		done = FALSE;
-		cnt = 0;
-		while (!done) {
-			rnd = random_(0, 4);
-			if (rnd != prev) {
-				switch (rnd) {
-				case 0:
-					ModifyPlrStr(pnum, add);
-					break;
-				case 1:
-					ModifyPlrMag(pnum, add);
-					break;
-				case 2:
-					ModifyPlrDex(pnum, add);
-					break;
-				case 3:
-					ModifyPlrVit(pnum, add);
-					break;
-				}
-				prev = rnd;
-				add = 1;
-				cnt++;
+		for (add = -1; add <= 1; add += 2) {
+			if (add == 1)
+				rnd = (rnd + 1 + random_(0, 3)) % 4;
+			else
+				rnd = random_(0, 4);
+			switch (rnd) {
+			case 0:
+				ModifyPlrStr(pnum, add);
+				break;
+			case 1:
+				ModifyPlrMag(pnum, add);
+				break;
+			case 2:
+				ModifyPlrDex(pnum, add);
+				break;
+			default:
+				ModifyPlrVit(pnum, add);
+				break;
 			}
-			if (cnt <= 1)
-				continue;
-
-			done = TRUE;
 		}
 		applied = TRUE;
-		if (pnum == myplr)
-			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
+		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		break;
 	}
 	force_redraw = 255;
