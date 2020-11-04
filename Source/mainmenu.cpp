@@ -30,6 +30,53 @@ void mainmenu_refresh_music()
 	} while (menu_music_track_id == TMUSIC_TOWN || menu_music_track_id == TMUSIC_L1);
 }
 
+static BOOL mainmenu_init_menu(int type)
+{
+	BOOL success;
+
+	if (type == SELHERO_PREVIOUS)
+		return TRUE;
+
+	music_stop();
+
+	success = StartGame(type != SELHERO_CONTINUE, type != SELHERO_CONNECT);
+	if (success)
+		mainmenu_refresh_music();
+
+	return success;
+}
+
+static BOOL mainmenu_single_player()
+{
+#ifdef HELLFIRE
+	if (!SRegLoadValue(APP_NAME, jogging_title, 0, &jogging_opt)) {
+		jogging_opt = TRUE;
+	}
+#endif
+	gbMaxPlayers = 1;
+
+	if (!SRegLoadValue("devilutionx", "game speed", 0, &ticks_per_sec)) {
+		SRegSaveValue("devilutionx", "game speed", 0, ticks_per_sec);
+	}
+
+	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
+}
+
+static BOOL mainmenu_multi_player()
+{
+	gbMaxPlayers = MAX_PLRS;
+	return mainmenu_init_menu(SELHERO_CONNECT);
+}
+
+static void mainmenu_play_intro()
+{
+#if defined(HELLFIRE) || !defined(SPAWN)
+	music_stop();
+	play_movie(INTRO_ARCHIVE, TRUE);
+	mainmenu_refresh_music();
+#endif
+}
+
 void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
 {
 	if (UiValidPlayerName(name_2))
@@ -132,53 +179,6 @@ void mainmenu_loop()
 	} while (!done);
 
 	music_stop();
-}
-
-BOOL mainmenu_single_player()
-{
-#ifdef HELLFIRE
-	if (!SRegLoadValue(APP_NAME, jogging_title, 0, &jogging_opt)) {
-		jogging_opt = TRUE;
-	}
-#endif
-	gbMaxPlayers = 1;
-
-	if (!SRegLoadValue("devilutionx", "game speed", 0, &ticks_per_sec)) {
-		SRegSaveValue("devilutionx", "game speed", 0, ticks_per_sec);
-	}
-
-	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
-}
-
-BOOL mainmenu_init_menu(int type)
-{
-	BOOL success;
-
-	if (type == SELHERO_PREVIOUS)
-		return TRUE;
-
-	music_stop();
-
-	success = StartGame(type != SELHERO_CONTINUE, type != SELHERO_CONNECT);
-	if (success)
-		mainmenu_refresh_music();
-
-	return success;
-}
-
-BOOL mainmenu_multi_player()
-{
-	gbMaxPlayers = MAX_PLRS;
-	return mainmenu_init_menu(SELHERO_CONNECT);
-}
-
-void mainmenu_play_intro()
-{
-#if defined(HELLFIRE) || !defined(SPAWN)
-	music_stop();
-	play_movie(INTRO_ARCHIVE, TRUE);
-	mainmenu_refresh_music();
-#endif
 }
 
 DEVILUTION_END_NAMESPACE

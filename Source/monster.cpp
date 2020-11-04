@@ -863,6 +863,32 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 	}
 }
 
+static void PlaceUniques()
+{
+	int u, mt;
+
+	for (u = 0; UniqMonst[u].mtype != -1; u++) {
+		if (UniqMonst[u].mlevel != currlevel)
+			continue;
+		if (u == UMT_GARBUD && quests[Q_GARBUD]._qactive == QUEST_NOTAVAIL)
+			continue;
+		if (u == UMT_ZHAR && quests[Q_ZHAR]._qactive == QUEST_NOTAVAIL)
+			continue;
+		if (u == UMT_SNOTSPIL && quests[Q_LTBANNER]._qactive == QUEST_NOTAVAIL)
+			continue;
+		if (u == UMT_LACHDAN && quests[Q_VEIL]._qactive == QUEST_NOTAVAIL)
+			continue;
+		if (u == UMT_WARLORD && quests[Q_WARLORD]._qactive == QUEST_NOTAVAIL)
+			continue;
+		for (mt = 0; mt < nummtypes; mt++) {
+			if (Monsters[mt].mtype == UniqMonst[u].mtype) {
+				PlaceUniqueMonst(u, mt, 8);
+				break;
+			}
+		}
+	}
+}
+
 void PlaceQuestMonsters()
 {
 	int skeltype;
@@ -1115,32 +1141,6 @@ void InitMonsters()
 		for (xx = -2; xx < 2; xx++) {
 			for (yy = -2; yy < 2; yy++)
 				DoUnVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15);
-		}
-	}
-}
-
-void PlaceUniques()
-{
-	int u, mt;
-
-	for (u = 0; UniqMonst[u].mtype != -1; u++) {
-		if (UniqMonst[u].mlevel != currlevel)
-			continue;
-		if (u == UMT_GARBUD && quests[Q_GARBUD]._qactive == QUEST_NOTAVAIL)
-			continue;
-		if (u == UMT_ZHAR && quests[Q_ZHAR]._qactive == QUEST_NOTAVAIL)
-			continue;
-		if (u == UMT_SNOTSPIL && quests[Q_LTBANNER]._qactive == QUEST_NOTAVAIL)
-			continue;
-		if (u == UMT_LACHDAN && quests[Q_VEIL]._qactive == QUEST_NOTAVAIL)
-			continue;
-		if (u == UMT_WARLORD && quests[Q_WARLORD]._qactive == QUEST_NOTAVAIL)
-			continue;
-		for (mt = 0; mt < nummtypes; mt++) {
-			if (Monsters[mt].mtype == UniqMonst[u].mtype) {
-				PlaceUniqueMonst(u, mt, 8);
-				break;
-			}
 		}
 	}
 }

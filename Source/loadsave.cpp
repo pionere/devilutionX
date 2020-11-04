@@ -9,196 +9,20 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef HELLFIRE
 #define SAVE_INITIAL 'HELF'
+#elif defined(SPAWN)
+#define SAVE_INITIAL 'SHAR'
 #else
 #define SAVE_INITIAL 'RETL'
 #endif
 
 BYTE *tbuff;
 
-/**
- * @brief Load game state
- * @param firstflag Can be set to false if we are simply reloading the current game
- */
-void LoadGame(BOOL firstflag)
-{
-	int i, j;
-	DWORD dwLen;
-	char szName[MAX_PATH];
-	BYTE *LoadBuff;
-	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
-
-	FreeGameMem();
-	pfile_remove_temp_files();
-	pfile_get_game_name(szName);
-	LoadBuff = pfile_read(szName, &dwLen);
-	tbuff = LoadBuff;
-
-	if (ILoad() != SAVE_INITIAL)
-		app_fatal("Invalid save file");
-
-	setlevel = OLoad();
-	setlvlnum = WLoad();
-	currlevel = WLoad();
-	leveltype = WLoad();
-	_ViewX = WLoad();
-	_ViewY = WLoad();
-	invflag = OLoad();
-	chrflag = OLoad();
-	_nummonsters = WLoad();
-	_numitems = WLoad();
-	_nummissiles = WLoad();
-	_nobjects = WLoad();
-
-	for (i = 0; i < NUMLEVELS; i++) {
-		glSeedTbl[i] = ILoad();
-		gnLevelTypeTbl[i] = WLoad();
-	}
-
-	LoadPlayer(myplr);
-
-	gnDifficulty = plr[myplr].pDifficulty;
-	if (gnDifficulty < DIFF_NORMAL || gnDifficulty > DIFF_HELL)
-		gnDifficulty = DIFF_NORMAL;
-
-	for (i = 0; i < MAXQUESTS; i++)
-		LoadQuest(i);
-	for (i = 0; i < MAXPORTAL; i++)
-		LoadPortal(i);
-
-	LoadGameLevel(firstflag, ENTRY_LOAD);
-	SyncInitPlr(myplr);
-	SyncPlrAnim(myplr);
-
-	ViewX = _ViewX;
-	ViewY = _ViewY;
-	nummonsters = _nummonsters;
-	numitems = _numitems;
-	nummissiles = _nummissiles;
-	nobjects = _nobjects;
-
-	for (i = 0; i < MAXMONSTERS; i++)
-		monstkills[i] = ILoad();
-
-	if (leveltype != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
-			monstactive[i] = WLoad();
-		for (i = 0; i < nummonsters; i++)
-			LoadMonster(monstactive[i]);
-		for (i = 0; i < MAXMISSILES; i++)
-			missileactive[i] = BLoad();
-		for (i = 0; i < MAXMISSILES; i++)
-			missileavail[i] = BLoad();
-		for (i = 0; i < nummissiles; i++)
-			LoadMissile(missileactive[i]);
-		for (i = 0; i < MAXOBJECTS; i++)
-			objectactive[i] = BLoad();
-		for (i = 0; i < MAXOBJECTS; i++)
-			objectavail[i] = BLoad();
-		for (i = 0; i < nobjects; i++)
-			LoadObject(objectactive[i]);
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
-
-		numlights = WLoad();
-
-		for (i = 0; i < MAXLIGHTS; i++)
-			lightactive[i] = BLoad();
-		for (i = 0; i < numlights; i++)
-			LoadLighting(lightactive[i]);
-
-		visionid = WLoad();
-		numvision = WLoad();
-
-		for (i = 0; i < numvision; i++)
-			LoadVision(i);
-	}
-
-	for (i = 0; i < MAXITEMS; i++)
-		itemactive[i] = BLoad();
-	for (i = 0; i < MAXITEMS; i++)
-		itemavail[i] = BLoad();
-	for (i = 0; i < numitems; i++)
-		LoadItem(itemactive[i]);
-	for (i = 0; i < 128; i++)
-		UniqueItemFlag[i] = OLoad();
-
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dLight[i][j] = BLoad();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dFlags[i][j] = BLoad();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dPlayer[i][j] = BLoad();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dItem[i][j] = BLoad();
-	}
-
-	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMonster[i][j] = WLoad();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dDead[i][j] = BLoad();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dObject[i][j] = BLoad();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dLight[i][j] = BLoad();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dPreLight[i][j] = BLoad();
-		}
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++)
-				automapview[i][j] = OLoad();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMissile[i][j] = BLoad();
-		}
-	}
-
-	numpremium = WLoad();
-	premiumlevel = WLoad();
-
-	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		LoadItemData(&premiumitem[i]);
-
-	automapflag = OLoad();
-	AutoMapScale = WLoad();
-	mem_free_dbg(LoadBuff);
-	AutomapZoomReset();
-	ResyncQuests();
-
-	if (leveltype != DTYPE_TOWN)
-		ProcessLightList();
-
-	RedoPlayerVision();
-	ProcessVisionList();
-	missiles_process_charge();
-	ResetPal();
-	NewCursor(CURSOR_HAND);
-	gbProcessPlayers = TRUE;
-}
-
-char BLoad()
+static char BLoad()
 {
 	return *tbuff++;
 }
 
-int WLoad()
+static int WLoad()
 {
 	int rv = *tbuff++ << 24;
 	rv |= *tbuff++ << 16;
@@ -208,7 +32,7 @@ int WLoad()
 	return rv;
 }
 
-int ILoad()
+static int ILoad()
 {
 	int rv = *tbuff++ << 24;
 	rv |= *tbuff++ << 16;
@@ -218,7 +42,7 @@ int ILoad()
 	return rv;
 }
 
-BOOL OLoad()
+static BOOL OLoad()
 {
 	if (*tbuff++)
 		return TRUE;
@@ -226,19 +50,19 @@ BOOL OLoad()
 		return FALSE;
 }
 
-void CopyBytes(const void *src, const int n, void *dst)
+static void CopyBytes(const void *src, const int n, void *dst)
 {
 	memcpy(dst, src, n);
 	tbuff += n;
 }
 
-void CopyChar(const void *src, void *dst)
+static void CopyChar(const void *src, void *dst)
 {
 	*(char *)dst = *(char *)src;
 	tbuff += 1;
 }
 
-void CopyShort(const void *src, void *dst)
+static void CopyShort(const void *src, void *dst)
 {
 	unsigned short buf;
 	memcpy(&buf, src, 2);
@@ -247,7 +71,7 @@ void CopyShort(const void *src, void *dst)
 	memcpy(dst, &buf, 2);
 }
 
-void CopyShorts(const void *src, const int n, void *dst)
+static void CopyShorts(const void *src, const int n, void *dst)
 {
 	const unsigned short *s = reinterpret_cast<const unsigned short *>(src);
 	unsigned short *d = reinterpret_cast<unsigned short *>(dst);
@@ -258,7 +82,7 @@ void CopyShorts(const void *src, const int n, void *dst)
 	}
 }
 
-void CopyInt(const void *src, void *dst)
+static void CopyInt(const void *src, void *dst)
 {
 	unsigned int buf;
 	memcpy(&buf, src, 4);
@@ -267,7 +91,7 @@ void CopyInt(const void *src, void *dst)
 	memcpy(dst, &buf, 4);
 }
 
-void CopyInts(const void *src, const int n, void *dst)
+static void CopyInts(const void *src, const int n, void *dst)
 {
 	const unsigned int *s = reinterpret_cast<const unsigned int *>(src);
 	const unsigned int *d = reinterpret_cast<unsigned int *>(dst);
@@ -278,7 +102,7 @@ void CopyInts(const void *src, const int n, void *dst)
 	}
 }
 
-void CopyInt64(const void *src, void *dst)
+static void CopyInt64(const void *src, void *dst)
 {
 	unsigned long long buf;
 	memcpy(&buf, src, 8);
@@ -287,7 +111,92 @@ void CopyInt64(const void *src, void *dst)
 	memcpy(dst, &buf, 8);
 }
 
-void LoadPlayer(int pnum)
+static void LoadItemData(ItemStruct *is)
+{
+	CopyInt(tbuff, &is->_iSeed);
+	CopyShort(tbuff, &is->_iCreateInfo);
+	tbuff += 2; // Alignment
+	CopyInt(tbuff, &is->_itype);
+	CopyInt(tbuff, &is->_ix);
+	CopyInt(tbuff, &is->_iy);
+	CopyInt(tbuff, &is->_iAnimFlag);
+	tbuff += 4; // Skip pointer _iAnimData
+	CopyInt(tbuff, &is->_iAnimLen);
+	CopyInt(tbuff, &is->_iAnimFrame);
+	CopyInt(tbuff, &is->_iAnimWidth);
+	CopyInt(tbuff, &is->_iAnimWidth2);
+	CopyInt(tbuff, &is->_iDelFlag);
+	CopyChar(tbuff, &is->_iSelFlag);
+	tbuff += 3; // Alignment
+	CopyInt(tbuff, &is->_iPostDraw);
+	CopyInt(tbuff, &is->_iIdentified);
+	CopyChar(tbuff, &is->_iMagical);
+	CopyBytes(tbuff, 64, &is->_iName);
+	CopyBytes(tbuff, 64, &is->_iIName);
+	CopyChar(tbuff, &is->_iLoc);
+	CopyChar(tbuff, &is->_iClass);
+	tbuff += 1; // Alignment
+	CopyInt(tbuff, &is->_iCurs);
+	CopyInt(tbuff, &is->_ivalue);
+	CopyInt(tbuff, &is->_iIvalue);
+	CopyInt(tbuff, &is->_iMinDam);
+	CopyInt(tbuff, &is->_iMaxDam);
+	CopyInt(tbuff, &is->_iAC);
+	CopyInt(tbuff, &is->_iFlags);
+	CopyInt(tbuff, &is->_iMiscId);
+	CopyInt(tbuff, &is->_iSpell);
+	CopyInt(tbuff, &is->_iCharges);
+	CopyInt(tbuff, &is->_iMaxCharges);
+	CopyInt(tbuff, &is->_iDurability);
+	CopyInt(tbuff, &is->_iMaxDur);
+	CopyInt(tbuff, &is->_iPLDam);
+	CopyInt(tbuff, &is->_iPLToHit);
+	CopyInt(tbuff, &is->_iPLAC);
+	CopyInt(tbuff, &is->_iPLStr);
+	CopyInt(tbuff, &is->_iPLMag);
+	CopyInt(tbuff, &is->_iPLDex);
+	CopyInt(tbuff, &is->_iPLVit);
+	CopyInt(tbuff, &is->_iPLFR);
+	CopyInt(tbuff, &is->_iPLLR);
+	CopyInt(tbuff, &is->_iPLMR);
+	CopyInt(tbuff, &is->_iPLMana);
+	CopyInt(tbuff, &is->_iPLHP);
+	CopyInt(tbuff, &is->_iPLDamMod);
+	CopyInt(tbuff, &is->_iPLGetHit);
+	CopyInt(tbuff, &is->_iPLLight);
+	CopyChar(tbuff, &is->_iSplLvlAdd);
+	CopyChar(tbuff, &is->_iRequest);
+	tbuff += 2; // Alignment
+	CopyInt(tbuff, &is->_iUid);
+	CopyInt(tbuff, &is->_iFMinDam);
+	CopyInt(tbuff, &is->_iFMaxDam);
+	CopyInt(tbuff, &is->_iLMinDam);
+	CopyInt(tbuff, &is->_iLMaxDam);
+	CopyInt(tbuff, &is->_iPLEnAc);
+	CopyChar(tbuff, &is->_iPrePower);
+	CopyChar(tbuff, &is->_iSufPower);
+	tbuff += 2; // Alignment
+	CopyInt(tbuff, &is->_iVAdd1);
+	CopyInt(tbuff, &is->_iVMult1);
+	CopyInt(tbuff, &is->_iVAdd2);
+	CopyInt(tbuff, &is->_iVMult2);
+	CopyChar(tbuff, &is->_iMinStr);
+	CopyChar(tbuff, &is->_iMinMag);
+	CopyChar(tbuff, &is->_iMinDex);
+	tbuff += 1; // Alignment
+	CopyInt(tbuff, &is->_iStatFlag);
+	CopyInt(tbuff, &is->IDidx);
+	CopyInt(tbuff, &is->offs016C);
+}
+
+static void LoadItems(const int n, ItemStruct *pItem)
+{
+	for (int i = 0; i < n; i++) {
+		LoadItemData(&pItem[i]);
+	}
+}
+
+static void LoadPlayer(int pnum)
 {
 	PlayerStruct *p = &plr[pnum];
 
@@ -498,7 +407,7 @@ void LoadPlayer(int pnum)
 	// Omit pointer pReserved
 }
 
-void LoadMonster(int mnum)
+static void LoadMonster(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
@@ -592,7 +501,7 @@ void LoadMonster(int mnum)
 	SyncMonsterAnim(mnum);
 }
 
-void LoadMissile(int mi)
+static void LoadMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
 
@@ -643,7 +552,7 @@ void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_miVar8);
 }
 
-void LoadObject(int oi)
+static void LoadObject(int oi)
 {
 	ObjectStruct *os = &object[oi];
 
@@ -682,98 +591,13 @@ void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oVar8);
 }
 
-void LoadItem(int ii)
+static void LoadItem(int ii)
 {
 	LoadItemData(&item[ii]);
 	GetItemFrm(ii);
 }
 
-void LoadItemData(ItemStruct *is)
-{
-	CopyInt(tbuff, &is->_iSeed);
-	CopyShort(tbuff, &is->_iCreateInfo);
-	tbuff += 2; // Alignment
-	CopyInt(tbuff, &is->_itype);
-	CopyInt(tbuff, &is->_ix);
-	CopyInt(tbuff, &is->_iy);
-	CopyInt(tbuff, &is->_iAnimFlag);
-	tbuff += 4; // Skip pointer _iAnimData
-	CopyInt(tbuff, &is->_iAnimLen);
-	CopyInt(tbuff, &is->_iAnimFrame);
-	CopyInt(tbuff, &is->_iAnimWidth);
-	CopyInt(tbuff, &is->_iAnimWidth2);
-	CopyInt(tbuff, &is->_iDelFlag);
-	CopyChar(tbuff, &is->_iSelFlag);
-	tbuff += 3; // Alignment
-	CopyInt(tbuff, &is->_iPostDraw);
-	CopyInt(tbuff, &is->_iIdentified);
-	CopyChar(tbuff, &is->_iMagical);
-	CopyBytes(tbuff, 64, &is->_iName);
-	CopyBytes(tbuff, 64, &is->_iIName);
-	CopyChar(tbuff, &is->_iLoc);
-	CopyChar(tbuff, &is->_iClass);
-	tbuff += 1; // Alignment
-	CopyInt(tbuff, &is->_iCurs);
-	CopyInt(tbuff, &is->_ivalue);
-	CopyInt(tbuff, &is->_iIvalue);
-	CopyInt(tbuff, &is->_iMinDam);
-	CopyInt(tbuff, &is->_iMaxDam);
-	CopyInt(tbuff, &is->_iAC);
-	CopyInt(tbuff, &is->_iFlags);
-	CopyInt(tbuff, &is->_iMiscId);
-	CopyInt(tbuff, &is->_iSpell);
-	CopyInt(tbuff, &is->_iCharges);
-	CopyInt(tbuff, &is->_iMaxCharges);
-	CopyInt(tbuff, &is->_iDurability);
-	CopyInt(tbuff, &is->_iMaxDur);
-	CopyInt(tbuff, &is->_iPLDam);
-	CopyInt(tbuff, &is->_iPLToHit);
-	CopyInt(tbuff, &is->_iPLAC);
-	CopyInt(tbuff, &is->_iPLStr);
-	CopyInt(tbuff, &is->_iPLMag);
-	CopyInt(tbuff, &is->_iPLDex);
-	CopyInt(tbuff, &is->_iPLVit);
-	CopyInt(tbuff, &is->_iPLFR);
-	CopyInt(tbuff, &is->_iPLLR);
-	CopyInt(tbuff, &is->_iPLMR);
-	CopyInt(tbuff, &is->_iPLMana);
-	CopyInt(tbuff, &is->_iPLHP);
-	CopyInt(tbuff, &is->_iPLDamMod);
-	CopyInt(tbuff, &is->_iPLGetHit);
-	CopyInt(tbuff, &is->_iPLLight);
-	CopyChar(tbuff, &is->_iSplLvlAdd);
-	CopyChar(tbuff, &is->_iRequest);
-	tbuff += 2; // Alignment
-	CopyInt(tbuff, &is->_iUid);
-	CopyInt(tbuff, &is->_iFMinDam);
-	CopyInt(tbuff, &is->_iFMaxDam);
-	CopyInt(tbuff, &is->_iLMinDam);
-	CopyInt(tbuff, &is->_iLMaxDam);
-	CopyInt(tbuff, &is->_iPLEnAc);
-	CopyChar(tbuff, &is->_iPrePower);
-	CopyChar(tbuff, &is->_iSufPower);
-	tbuff += 2; // Alignment
-	CopyInt(tbuff, &is->_iVAdd1);
-	CopyInt(tbuff, &is->_iVMult1);
-	CopyInt(tbuff, &is->_iVAdd2);
-	CopyInt(tbuff, &is->_iVMult2);
-	CopyChar(tbuff, &is->_iMinStr);
-	CopyChar(tbuff, &is->_iMinMag);
-	CopyChar(tbuff, &is->_iMinDex);
-	tbuff += 1; // Alignment
-	CopyInt(tbuff, &is->_iStatFlag);
-	CopyInt(tbuff, &is->IDidx);
-	CopyInt(tbuff, &is->offs016C);
-}
-
-void LoadItems(const int n, ItemStruct *pItem)
-{
-	for (int i = 0; i < n; i++) {
-		LoadItemData(&pItem[i]);
-	}
-}
-
-void LoadQuest(int i)
+static void LoadQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
@@ -798,7 +622,7 @@ void LoadQuest(int i)
 	DoomQuestState = WLoad();
 }
 
-void LoadLighting(int lnum)
+static void LoadLighting(int lnum)
 {
 	LightListStruct *pLight = &LightList[lnum];
 
@@ -817,7 +641,7 @@ void LoadLighting(int lnum)
 	CopyInt(tbuff, &pLight->_lflags);
 }
 
-void LoadVision(int vnum)
+static void LoadVision(int vnum)
 {
 	LightListStruct *pVision = &VisionList[vnum];
 
@@ -836,7 +660,7 @@ void LoadVision(int vnum)
 	CopyInt(tbuff, &pVision->_lflags);
 }
 
-void LoadPortal(int i)
+static void LoadPortal(int i)
 {
 	PortalStruct *pPortal = &portal[i];
 
@@ -848,157 +672,191 @@ void LoadPortal(int i)
 	CopyInt(tbuff, &pPortal->setlvl);
 }
 
-void SaveGame()
+/**
+ * @brief Load game state
+ * @param firstflag Can be set to false if we are simply reloading the current game
+ */
+void LoadGame(BOOL firstflag)
 {
 	int i, j;
+	DWORD dwLen;
 	char szName[MAX_PATH];
+	BYTE *LoadBuff;
+	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
 
-	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
-	BYTE *SaveBuff = DiabloAllocPtr(dwLen);
-	tbuff = SaveBuff;
+	FreeGameMem();
+	pfile_remove_temp_files();
+	pfile_get_game_name(szName);
+	LoadBuff = pfile_read(szName, &dwLen);
+	tbuff = LoadBuff;
 
-	ISave(SAVE_INITIAL);
+	if (ILoad() != SAVE_INITIAL)
+		app_fatal("Invalid save file");
 
-	OSave(setlevel);
-	WSave(setlvlnum);
-	WSave(currlevel);
-	WSave(leveltype);
-	WSave(ViewX);
-	WSave(ViewY);
-	OSave(invflag);
-	OSave(chrflag);
-	WSave(nummonsters);
-	WSave(numitems);
-	WSave(nummissiles);
-	WSave(nobjects);
+	setlevel = OLoad();
+	setlvlnum = WLoad();
+	currlevel = WLoad();
+	leveltype = WLoad();
+	_ViewX = WLoad();
+	_ViewY = WLoad();
+	invflag = OLoad();
+	chrflag = OLoad();
+	_nummonsters = WLoad();
+	_numitems = WLoad();
+	_nummissiles = WLoad();
+	_nobjects = WLoad();
 
 	for (i = 0; i < NUMLEVELS; i++) {
-		ISave(glSeedTbl[i]);
-		WSave(gnLevelTypeTbl[i]);
+		glSeedTbl[i] = ILoad();
+		gnLevelTypeTbl[i] = WLoad();
 	}
 
-	plr[myplr].pDifficulty = gnDifficulty;
-	SavePlayer(myplr);
+	LoadPlayer(myplr);
+
+	gnDifficulty = plr[myplr].pDifficulty;
+	if (gnDifficulty < DIFF_NORMAL || gnDifficulty > DIFF_HELL)
+		gnDifficulty = DIFF_NORMAL;
 
 	for (i = 0; i < MAXQUESTS; i++)
-		SaveQuest(i);
+		LoadQuest(i);
 	for (i = 0; i < MAXPORTAL; i++)
-		SavePortal(i);
+		LoadPortal(i);
+
+	LoadGameLevel(firstflag, ENTRY_LOAD);
+	SyncInitPlr(myplr);
+	SyncPlrAnim(myplr);
+
+	ViewX = _ViewX;
+	ViewY = _ViewY;
+	nummonsters = _nummonsters;
+	numitems = _numitems;
+	nummissiles = _nummissiles;
+	nobjects = _nobjects;
+
 	for (i = 0; i < MAXMONSTERS; i++)
-		ISave(monstkills[i]);
+		monstkills[i] = ILoad();
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			WSave(monstactive[i]);
+			monstactive[i] = WLoad();
 		for (i = 0; i < nummonsters; i++)
-			SaveMonster(monstactive[i]);
+			LoadMonster(monstactive[i]);
 		for (i = 0; i < MAXMISSILES; i++)
-			BSave(missileactive[i]);
+			missileactive[i] = BLoad();
 		for (i = 0; i < MAXMISSILES; i++)
-			BSave(missileavail[i]);
+			missileavail[i] = BLoad();
 		for (i = 0; i < nummissiles; i++)
-			SaveMissile(missileactive[i]);
+			LoadMissile(missileactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectactive[i]);
+			objectactive[i] = BLoad();
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectavail[i]);
+			objectavail[i] = BLoad();
 		for (i = 0; i < nobjects; i++)
-			SaveObject(objectactive[i]);
+			LoadObject(objectactive[i]);
+		for (i = 0; i < nobjects; i++)
+			SyncObjectAnim(objectactive[i]);
 
-		WSave(numlights);
+		numlights = WLoad();
 
 		for (i = 0; i < MAXLIGHTS; i++)
-			BSave(lightactive[i]);
+			lightactive[i] = BLoad();
 		for (i = 0; i < numlights; i++)
-			SaveLighting(lightactive[i]);
+			LoadLighting(lightactive[i]);
 
-		WSave(visionid);
-		WSave(numvision);
+		visionid = WLoad();
+		numvision = WLoad();
 
 		for (i = 0; i < numvision; i++)
-			SaveVision(i);
+			LoadVision(i);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemactive[i]);
+		itemactive[i] = BLoad();
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemavail[i]);
+		itemavail[i] = BLoad();
 	for (i = 0; i < numitems; i++)
-		SaveItem(&item[itemactive[i]]);
+		LoadItem(itemactive[i]);
 	for (i = 0; i < 128; i++)
-		OSave(UniqueItemFlag[i]);
+		UniqueItemFlag[i] = OLoad();
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dLight[i][j]);
+			dLight[i][j] = BLoad();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
+			dFlags[i][j] = BLoad();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dPlayer[i][j]);
+			dPlayer[i][j] = BLoad();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dItem[i][j]);
+			dItem[i][j] = BLoad();
 	}
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				WSave(dMonster[i][j]);
+				dMonster[i][j] = WLoad();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dDead[i][j]);
+				dDead[i][j] = BLoad();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dObject[i][j]);
+				dObject[i][j] = BLoad();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dLight[i][j]);
+				dLight[i][j] = BLoad();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dPreLight[i][j]);
+				dPreLight[i][j] = BLoad();
 		}
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++)
-				OSave(automapview[i][j]);
+				automapview[i][j] = OLoad();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dMissile[i][j]);
+				dMissile[i][j] = BLoad();
 		}
 	}
 
-	WSave(numpremium);
-	WSave(premiumlevel);
+	numpremium = WLoad();
+	premiumlevel = WLoad();
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SaveItem(&premiumitem[i]);
+		LoadItemData(&premiumitem[i]);
 
-	OSave(automapflag);
-	WSave(AutoMapScale);
-	pfile_get_game_name(szName);
-	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
-	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
-	mem_free_dbg(SaveBuff);
-	gbValidSaveFile = TRUE;
-	pfile_rename_temp_to_perm();
-	pfile_write_hero();
+	automapflag = OLoad();
+	AutoMapScale = WLoad();
+	mem_free_dbg(LoadBuff);
+	AutomapZoomReset();
+	ResyncQuests();
+
+	if (leveltype != DTYPE_TOWN)
+		ProcessLightList();
+
+	RedoPlayerVision();
+	ProcessVisionList();
+	missiles_process_charge();
+	ResetPal();
+	NewCursor(CURSOR_HAND);
+	gbProcessPlayers = TRUE;
 }
 
-void BSave(char v)
+
+static void BSave(char v)
 {
 	*tbuff++ = v;
 }
 
-void WSave(int v)
+static void WSave(int v)
 {
 	*tbuff++ = v >> 24;
 	*tbuff++ = v >> 16;
@@ -1006,7 +864,7 @@ void WSave(int v)
 	*tbuff++ = v;
 }
 
-void ISave(int v)
+static void ISave(int v)
 {
 	*tbuff++ = v >> 24;
 	*tbuff++ = v >> 16;
@@ -1014,7 +872,7 @@ void ISave(int v)
 	*tbuff++ = v;
 }
 
-void OSave(BOOL v)
+static void OSave(BOOL v)
 {
 	if (v)
 		*tbuff++ = TRUE;
@@ -1022,7 +880,92 @@ void OSave(BOOL v)
 		*tbuff++ = FALSE;
 }
 
-void SavePlayer(int pnum)
+static void SaveItem(ItemStruct *is)
+{
+	CopyInt(&is->_iSeed, tbuff);
+	CopyShort(&is->_iCreateInfo, tbuff);
+	tbuff += 2; // Alignment
+	CopyInt(&is->_itype, tbuff);
+	CopyInt(&is->_ix, tbuff);
+	CopyInt(&is->_iy, tbuff);
+	CopyInt(&is->_iAnimFlag, tbuff);
+	tbuff += 4; // Skip pointer _iAnimData
+	CopyInt(&is->_iAnimLen, tbuff);
+	CopyInt(&is->_iAnimFrame, tbuff);
+	CopyInt(&is->_iAnimWidth, tbuff);
+	CopyInt(&is->_iAnimWidth2, tbuff);
+	CopyInt(&is->_iDelFlag, tbuff);
+	CopyChar(&is->_iSelFlag, tbuff);
+	tbuff += 3; // Alignment
+	CopyInt(&is->_iPostDraw, tbuff);
+	CopyInt(&is->_iIdentified, tbuff);
+	CopyChar(&is->_iMagical, tbuff);
+	CopyBytes(&is->_iName, 64, tbuff);
+	CopyBytes(&is->_iIName, 64, tbuff);
+	CopyChar(&is->_iLoc, tbuff);
+	CopyChar(&is->_iClass, tbuff);
+	tbuff += 1; // Alignment
+	CopyInt(&is->_iCurs, tbuff);
+	CopyInt(&is->_ivalue, tbuff);
+	CopyInt(&is->_iIvalue, tbuff);
+	CopyInt(&is->_iMinDam, tbuff);
+	CopyInt(&is->_iMaxDam, tbuff);
+	CopyInt(&is->_iAC, tbuff);
+	CopyInt(&is->_iFlags, tbuff);
+	CopyInt(&is->_iMiscId, tbuff);
+	CopyInt(&is->_iSpell, tbuff);
+	CopyInt(&is->_iCharges, tbuff);
+	CopyInt(&is->_iMaxCharges, tbuff);
+	CopyInt(&is->_iDurability, tbuff);
+	CopyInt(&is->_iMaxDur, tbuff);
+	CopyInt(&is->_iPLDam, tbuff);
+	CopyInt(&is->_iPLToHit, tbuff);
+	CopyInt(&is->_iPLAC, tbuff);
+	CopyInt(&is->_iPLStr, tbuff);
+	CopyInt(&is->_iPLMag, tbuff);
+	CopyInt(&is->_iPLDex, tbuff);
+	CopyInt(&is->_iPLVit, tbuff);
+	CopyInt(&is->_iPLFR, tbuff);
+	CopyInt(&is->_iPLLR, tbuff);
+	CopyInt(&is->_iPLMR, tbuff);
+	CopyInt(&is->_iPLMana, tbuff);
+	CopyInt(&is->_iPLHP, tbuff);
+	CopyInt(&is->_iPLDamMod, tbuff);
+	CopyInt(&is->_iPLGetHit, tbuff);
+	CopyInt(&is->_iPLLight, tbuff);
+	CopyChar(&is->_iSplLvlAdd, tbuff);
+	CopyChar(&is->_iRequest, tbuff);
+	tbuff += 2; // Alignment
+	CopyInt(&is->_iUid, tbuff);
+	CopyInt(&is->_iFMinDam, tbuff);
+	CopyInt(&is->_iFMaxDam, tbuff);
+	CopyInt(&is->_iLMinDam, tbuff);
+	CopyInt(&is->_iLMaxDam, tbuff);
+	CopyInt(&is->_iPLEnAc, tbuff);
+	CopyChar(&is->_iPrePower, tbuff);
+	CopyChar(&is->_iSufPower, tbuff);
+	tbuff += 2; // Alignment
+	CopyInt(&is->_iVAdd1, tbuff);
+	CopyInt(&is->_iVMult1, tbuff);
+	CopyInt(&is->_iVAdd2, tbuff);
+	CopyInt(&is->_iVMult2, tbuff);
+	CopyChar(&is->_iMinStr, tbuff);
+	CopyChar(&is->_iMinMag, tbuff);
+	CopyChar(&is->_iMinDex, tbuff);
+	tbuff += 1; // Alignment
+	CopyInt(&is->_iStatFlag, tbuff);
+	CopyInt(&is->IDidx, tbuff);
+	CopyInt(&is->offs016C, tbuff);
+}
+
+static void SaveItems(ItemStruct *pItem, const int n)
+{
+	for (int i = 0; i < n; i++) {
+		SaveItem(&pItem[i]);
+	}
+}
+
+static void SavePlayer(int pnum)
 {
 	PlayerStruct *p = &plr[pnum];
 
@@ -1229,7 +1172,7 @@ void SavePlayer(int pnum)
 	// Omit pointer pReserved
 }
 
-void SaveMonster(int mnum)
+static void SaveMonster(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 	char tempChar;
@@ -1326,7 +1269,7 @@ void SaveMonster(int mnum)
 	// Omit pointer MData;
 }
 
-void SaveMissile(int mi)
+static void SaveMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
 
@@ -1377,7 +1320,7 @@ void SaveMissile(int mi)
 	CopyInt(&mis->_miVar8, tbuff);
 }
 
-void SaveObject(int oi)
+static void SaveObject(int oi)
 {
 	ObjectStruct *os = &object[oi];
 
@@ -1416,92 +1359,7 @@ void SaveObject(int oi)
 	CopyInt(&os->_oVar8, tbuff);
 }
 
-void SaveItem(ItemStruct *is)
-{
-	CopyInt(&is->_iSeed, tbuff);
-	CopyShort(&is->_iCreateInfo, tbuff);
-	tbuff += 2; // Alignment
-	CopyInt(&is->_itype, tbuff);
-	CopyInt(&is->_ix, tbuff);
-	CopyInt(&is->_iy, tbuff);
-	CopyInt(&is->_iAnimFlag, tbuff);
-	tbuff += 4; // Skip pointer _iAnimData
-	CopyInt(&is->_iAnimLen, tbuff);
-	CopyInt(&is->_iAnimFrame, tbuff);
-	CopyInt(&is->_iAnimWidth, tbuff);
-	CopyInt(&is->_iAnimWidth2, tbuff);
-	CopyInt(&is->_iDelFlag, tbuff);
-	CopyChar(&is->_iSelFlag, tbuff);
-	tbuff += 3; // Alignment
-	CopyInt(&is->_iPostDraw, tbuff);
-	CopyInt(&is->_iIdentified, tbuff);
-	CopyChar(&is->_iMagical, tbuff);
-	CopyBytes(&is->_iName, 64, tbuff);
-	CopyBytes(&is->_iIName, 64, tbuff);
-	CopyChar(&is->_iLoc, tbuff);
-	CopyChar(&is->_iClass, tbuff);
-	tbuff += 1; // Alignment
-	CopyInt(&is->_iCurs, tbuff);
-	CopyInt(&is->_ivalue, tbuff);
-	CopyInt(&is->_iIvalue, tbuff);
-	CopyInt(&is->_iMinDam, tbuff);
-	CopyInt(&is->_iMaxDam, tbuff);
-	CopyInt(&is->_iAC, tbuff);
-	CopyInt(&is->_iFlags, tbuff);
-	CopyInt(&is->_iMiscId, tbuff);
-	CopyInt(&is->_iSpell, tbuff);
-	CopyInt(&is->_iCharges, tbuff);
-	CopyInt(&is->_iMaxCharges, tbuff);
-	CopyInt(&is->_iDurability, tbuff);
-	CopyInt(&is->_iMaxDur, tbuff);
-	CopyInt(&is->_iPLDam, tbuff);
-	CopyInt(&is->_iPLToHit, tbuff);
-	CopyInt(&is->_iPLAC, tbuff);
-	CopyInt(&is->_iPLStr, tbuff);
-	CopyInt(&is->_iPLMag, tbuff);
-	CopyInt(&is->_iPLDex, tbuff);
-	CopyInt(&is->_iPLVit, tbuff);
-	CopyInt(&is->_iPLFR, tbuff);
-	CopyInt(&is->_iPLLR, tbuff);
-	CopyInt(&is->_iPLMR, tbuff);
-	CopyInt(&is->_iPLMana, tbuff);
-	CopyInt(&is->_iPLHP, tbuff);
-	CopyInt(&is->_iPLDamMod, tbuff);
-	CopyInt(&is->_iPLGetHit, tbuff);
-	CopyInt(&is->_iPLLight, tbuff);
-	CopyChar(&is->_iSplLvlAdd, tbuff);
-	CopyChar(&is->_iRequest, tbuff);
-	tbuff += 2; // Alignment
-	CopyInt(&is->_iUid, tbuff);
-	CopyInt(&is->_iFMinDam, tbuff);
-	CopyInt(&is->_iFMaxDam, tbuff);
-	CopyInt(&is->_iLMinDam, tbuff);
-	CopyInt(&is->_iLMaxDam, tbuff);
-	CopyInt(&is->_iPLEnAc, tbuff);
-	CopyChar(&is->_iPrePower, tbuff);
-	CopyChar(&is->_iSufPower, tbuff);
-	tbuff += 2; // Alignment
-	CopyInt(&is->_iVAdd1, tbuff);
-	CopyInt(&is->_iVMult1, tbuff);
-	CopyInt(&is->_iVAdd2, tbuff);
-	CopyInt(&is->_iVMult2, tbuff);
-	CopyChar(&is->_iMinStr, tbuff);
-	CopyChar(&is->_iMinMag, tbuff);
-	CopyChar(&is->_iMinDex, tbuff);
-	tbuff += 1; // Alignment
-	CopyInt(&is->_iStatFlag, tbuff);
-	CopyInt(&is->IDidx, tbuff);
-	CopyInt(&is->offs016C, tbuff);
-}
-
-void SaveItems(ItemStruct *pItem, const int n)
-{
-	for (int i = 0; i < n; i++) {
-		SaveItem(&pItem[i]);
-	}
-}
-
-void SaveQuest(int i)
+static void SaveQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
@@ -1526,7 +1384,7 @@ void SaveQuest(int i)
 	WSave(DoomQuestState);
 }
 
-void SaveLighting(int lnum)
+static void SaveLighting(int lnum)
 {
 	LightListStruct *pLight = &LightList[lnum];
 
@@ -1545,7 +1403,7 @@ void SaveLighting(int lnum)
 	CopyInt(&pLight->_lflags, tbuff);
 }
 
-void SaveVision(int vnum)
+static void SaveVision(int vnum)
 {
 	LightListStruct *pVision = &VisionList[vnum];
 
@@ -1564,7 +1422,7 @@ void SaveVision(int vnum)
 	CopyInt(&pVision->_lflags, tbuff);
 }
 
-void SavePortal(int i)
+static void SavePortal(int i)
 {
 	PortalStruct *pPortal = &portal[i];
 
@@ -1574,6 +1432,151 @@ void SavePortal(int i)
 	CopyInt(&pPortal->level, tbuff);
 	CopyInt(&pPortal->ltype, tbuff);
 	CopyInt(&pPortal->setlvl, tbuff);
+}
+
+void SaveGame()
+{
+	int i, j;
+	char szName[MAX_PATH];
+
+	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
+	BYTE *SaveBuff = DiabloAllocPtr(dwLen);
+	tbuff = SaveBuff;
+
+	ISave(SAVE_INITIAL);
+
+	OSave(setlevel);
+	WSave(setlvlnum);
+	WSave(currlevel);
+	WSave(leveltype);
+	WSave(ViewX);
+	WSave(ViewY);
+	OSave(invflag);
+	OSave(chrflag);
+	WSave(nummonsters);
+	WSave(numitems);
+	WSave(nummissiles);
+	WSave(nobjects);
+
+	for (i = 0; i < NUMLEVELS; i++) {
+		ISave(glSeedTbl[i]);
+		WSave(gnLevelTypeTbl[i]);
+	}
+
+	plr[myplr].pDifficulty = gnDifficulty;
+	SavePlayer(myplr);
+
+	for (i = 0; i < MAXQUESTS; i++)
+		SaveQuest(i);
+	for (i = 0; i < MAXPORTAL; i++)
+		SavePortal(i);
+	for (i = 0; i < MAXMONSTERS; i++)
+		ISave(monstkills[i]);
+
+	if (leveltype != DTYPE_TOWN) {
+		for (i = 0; i < MAXMONSTERS; i++)
+			WSave(monstactive[i]);
+		for (i = 0; i < nummonsters; i++)
+			SaveMonster(monstactive[i]);
+		for (i = 0; i < MAXMISSILES; i++)
+			BSave(missileactive[i]);
+		for (i = 0; i < MAXMISSILES; i++)
+			BSave(missileavail[i]);
+		for (i = 0; i < nummissiles; i++)
+			SaveMissile(missileactive[i]);
+		for (i = 0; i < MAXOBJECTS; i++)
+			BSave(objectactive[i]);
+		for (i = 0; i < MAXOBJECTS; i++)
+			BSave(objectavail[i]);
+		for (i = 0; i < nobjects; i++)
+			SaveObject(objectactive[i]);
+
+		WSave(numlights);
+
+		for (i = 0; i < MAXLIGHTS; i++)
+			BSave(lightactive[i]);
+		for (i = 0; i < numlights; i++)
+			SaveLighting(lightactive[i]);
+
+		WSave(visionid);
+		WSave(numvision);
+
+		for (i = 0; i < numvision; i++)
+			SaveVision(i);
+	}
+
+	for (i = 0; i < MAXITEMS; i++)
+		BSave(itemactive[i]);
+	for (i = 0; i < MAXITEMS; i++)
+		BSave(itemavail[i]);
+	for (i = 0; i < numitems; i++)
+		SaveItem(&item[itemactive[i]]);
+	for (i = 0; i < 128; i++)
+		OSave(UniqueItemFlag[i]);
+
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++)
+			BSave(dLight[i][j]);
+	}
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++)
+			BSave(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
+	}
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++)
+			BSave(dPlayer[i][j]);
+	}
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++)
+			BSave(dItem[i][j]);
+	}
+
+	if (leveltype != DTYPE_TOWN) {
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				WSave(dMonster[i][j]);
+		}
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				BSave(dDead[i][j]);
+		}
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				BSave(dObject[i][j]);
+		}
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				BSave(dLight[i][j]);
+		}
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				BSave(dPreLight[i][j]);
+		}
+		for (j = 0; j < DMAXY; j++) {
+			for (i = 0; i < DMAXX; i++)
+				OSave(automapview[i][j]);
+		}
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++)
+				BSave(dMissile[i][j]);
+		}
+	}
+
+	WSave(numpremium);
+	WSave(premiumlevel);
+
+	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
+		SaveItem(&premiumitem[i]);
+
+	OSave(automapflag);
+	WSave(AutoMapScale);
+	pfile_get_game_name(szName);
+	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
+	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
+	mem_free_dbg(SaveBuff);
+	gbValidSaveFile = TRUE;
+	pfile_rename_temp_to_perm();
+	pfile_write_hero();
 }
 
 void SaveLevel()

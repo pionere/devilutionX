@@ -482,7 +482,7 @@ int items_42357E(int i)
 	return res;
 }
 
-void SpawnNote()
+static void SpawnNote()
 {
 	int x, y, id;
 
@@ -3328,25 +3328,7 @@ void CheckIdentify(int pnum, int cii)
 	CalcPlrInv(pnum, TRUE);
 }
 
-void DoRepair(int pnum, int cii)
-{
-	PlayerStruct *p;
-	ItemStruct *pi;
-
-	p = &plr[pnum];
-	PlaySfxLoc(IS_REPAIR, p->_px, p->_py);
-
-	if (cii >= NUM_INVLOC) {
-		pi = &p->InvList[cii - NUM_INVLOC];
-	} else {
-		pi = &p->InvBody[cii];
-	}
-
-	RepairItem(pi, p->_pLevel);
-	CalcPlrInv(pnum, TRUE);
-}
-
-void RepairItem(ItemStruct *is, int lvl)
+static void RepairItem(ItemStruct *is, int lvl)
 {
 	int rep, d, md;
 
@@ -3378,6 +3360,44 @@ void RepairItem(ItemStruct *is, int lvl)
 	if (is->_iDurability > md)
 		is->_iDurability = md;
 	is->_iMaxDur = md;
+}
+
+void DoRepair(int pnum, int cii)
+{
+	PlayerStruct *p;
+	ItemStruct *pi;
+
+	p = &plr[pnum];
+	PlaySfxLoc(IS_REPAIR, p->_px, p->_py);
+
+	if (cii >= NUM_INVLOC) {
+		pi = &p->InvList[cii - NUM_INVLOC];
+	} else {
+		pi = &p->InvBody[cii];
+	}
+
+	RepairItem(pi, p->_pLevel);
+	CalcPlrInv(pnum, TRUE);
+}
+
+static void RechargeItem(ItemStruct *is, int r)
+{
+	int mc;
+
+	mc = is->_iMaxCharges;
+	if (is->_iCharges != mc) {
+		do {
+			mc--;
+			if (mc == 0) {
+				is->_iMaxCharges = 0;
+				return;
+			}
+			is->_iCharges += r;
+		} while (is->_iCharges < mc);
+		if (is->_iCharges > mc)
+			is->_iCharges = mc;
+		is->_iMaxCharges = mc;
+	}
 }
 
 void DoRecharge(int pnum, int cii)
@@ -3531,25 +3551,6 @@ BOOL DoOil(int pnum, int cii)
 }
 
 #endif
-void RechargeItem(ItemStruct *is, int r)
-{
-	int mc;
-
-	mc = is->_iMaxCharges;
-	if (is->_iCharges != mc) {
-		do {
-			mc--;
-			if (mc == 0) {
-				is->_iMaxCharges = 0;
-				return;
-			}
-			is->_iCharges += r;
-		} while (is->_iCharges < mc);
-		if (is->_iCharges > mc)
-			is->_iCharges = mc;
-		is->_iMaxCharges = mc;
-	}
-}
 
 void PrintItemPower(char plidx, const ItemStruct *is)
 {
@@ -4674,7 +4675,7 @@ int RndPremiumItem(int minlvl, int maxlvl)
 	return ril[random_(50, ri)] + 1;
 }
 
-void SpawnOnePremium(int i, int plvl)
+static void SpawnOnePremium(int i, int plvl)
 {
 	int itype;
 	ItemStruct holditem;
@@ -5262,6 +5263,20 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 	}
 }
 
+static void NextItemRecord(int i)
+{
+	gnNumGetRecords--;
+
+	if (gnNumGetRecords == 0) {
+		return;
+	}
+
+	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
+	itemrecord[i].nSeed = itemrecord[gnNumGetRecords].nSeed;
+	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
+	itemrecord[i].nIndex = itemrecord[gnNumGetRecords].nIndex;
+}
+
 BOOL GetItemRecord(int nSeed, WORD wCI, int nIndex)
 {
 	int i;
@@ -5279,20 +5294,6 @@ BOOL GetItemRecord(int nSeed, WORD wCI, int nIndex)
 	}
 
 	return TRUE;
-}
-
-void NextItemRecord(int i)
-{
-	gnNumGetRecords--;
-
-	if (gnNumGetRecords == 0) {
-		return;
-	}
-
-	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
-	itemrecord[i].nSeed = itemrecord[gnNumGetRecords].nSeed;
-	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
-	itemrecord[i].nIndex = itemrecord[gnNumGetRecords].nIndex;
 }
 
 void SetItemRecord(int nSeed, WORD wCI, int nIndex)

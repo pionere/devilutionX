@@ -1303,23 +1303,7 @@ void AddHiveExplosion(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 	missile[mi]._miDelFlag = TRUE;
 }
 
-void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNEFIRE);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_HIVEEXP;
-			missile[mi]._mlid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
-		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
-	}
-}
-
-BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
+static BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 {
 	int i, j, cr, tx, ty;
 
@@ -1343,6 +1327,22 @@ BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 		}
 	}
 	return FALSE;
+}
+
+void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	if (LineClear(sx, sy, dx, dy)) {
+		if (misource >= 0)
+			UseMana(misource, SPL_RUNEFIRE);
+		if (missiles_found_target(mi, &dx, &dy, 10)) {
+			missile[mi]._miVar1 = MIS_HIVEEXP;
+			missile[mi]._mlid = AddLight(dx, dy, 8);
+		} else {
+			missile[mi]._miDelFlag = TRUE;
+		}
+	} else {
+		missile[mi]._miDelFlag = TRUE;
+	}
 }
 
 void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)

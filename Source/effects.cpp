@@ -1163,7 +1163,7 @@ void FreeMonsterSnd()
 	}
 }
 
-static BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan)
+BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan)
 {
 	int pan, volume;
 

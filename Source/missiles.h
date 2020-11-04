@@ -16,37 +16,23 @@ extern int missileactive[MAXMISSILES];
 extern int missileavail[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
-extern BOOL ManashieldFlag;
 extern BOOL MissilePreFlag;
 
 void GetDamageAmt(int sn, int *mind, int *maxd);
-BOOL CheckBlock(int fx, int fy, int tx, int ty);
-int FindClosest(int sx, int sy, int rad);
 int GetSpellLevel(int pnum, int sn);
-int GetDirection8(int x1, int y1, int x2, int y2);
-int GetDirection16(int x1, int y1, int x2, int y2);
 void DeleteMissile(int mi, int idx);
-void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v);
-void PutMissile(int mi);
-void GetMissilePos(int mi);
-void MoveMissilePos(int mi);
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift);
-BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift);
 BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BOOLEAN shift, int earflag);
-BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift);
-void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel);
 void SetMissAnim(int mi, int animtype);
 void SetMissDir(int mi, int dir);
 void LoadMissileGFX(BYTE midx);
 void InitMissileGFX();
-void FreeMissileGFX(int midx);
 void FreeMissiles();
 void FreeMissiles2();
 void InitMissiles();
 #ifdef HELLFIRE
 void AddHiveExplosion(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad);
 void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -88,7 +74,6 @@ void AddLightctrl(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddWeapexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-BOOL CheckIfTrig(int x, int y);
 void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -135,7 +120,6 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 void AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddDiabApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micaster, int misource, int midam, int spllvl);
-BOOL Sentfire(int mi, int sx, int sy);
 void MI_Dummy(int mi);
 void MI_Golem(int mi);
 void MI_SetManashield(int mi);
@@ -169,7 +153,6 @@ void MI_Lightning(int mi);
 void MI_Town(int mi);
 void MI_Flash(int mi);
 void MI_Flash2(int mi);
-void MI_Manashield(int mi);
 void MI_Etherealize(int mi);
 void MI_Firemove(int mi);
 void MI_Guardian(int mi);
@@ -200,11 +183,6 @@ void MI_Rportal(int mi);
 void ProcessMissiles();
 void missiles_process_charge();
 void ClearMissileSpot(int mi);
-
-/* rdata */
-
-extern int XDirAdd[8];
-extern int YDirAdd[8];
 
 #ifdef __cplusplus
 }
