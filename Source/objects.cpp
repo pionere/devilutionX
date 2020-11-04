@@ -1395,25 +1395,13 @@ void AddBarrel(int oi, int type)
 void AddShrine(int oi)
 {
 	ObjectStruct *os;
-	int i, val;
-	DIABOOL slist[NUM_SHRINETYPE];
-	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
+	int i;
 
-	for (i = 0; i < NUM_SHRINETYPE; i++) {
-		if (currlevel < shrinemin[i] || currlevel > shrinemax[i]
-		 || shrineavail[i] == excl) {
-			slist[i] = FALSE;
-		} else {
-			slist[i] = TRUE;
-		}
-	}
-	do {
-		val = random_(150, NUM_SHRINETYPE);
-	} while (!slist[val]);
+	i = FindValidShrine(NUM_SHRINETYPE);
 
 	os = &object[oi];
 	os->_oPreFlag = TRUE;
-	os->_oVar1 = val;
+	os->_oVar1 = i;
 	if (random_(150, 2)) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
@@ -4217,7 +4205,7 @@ void OperateArmorStand(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-int FindValidShrine()
+int FindValidShrine(int filter)
 {
 	int rv;
 	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
@@ -4225,7 +4213,7 @@ int FindValidShrine()
 	while (1) {
 		rv = random_(0, NUM_SHRINETYPE);
 		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
-		 && rv != SHRINE_THAUMATURGIC && shrineavail[rv] != excl)
+		 && rv != filter && shrineavail[rv] != excl)
 			break;
 	}
 	return rv;
@@ -4234,7 +4222,7 @@ int FindValidShrine()
 void OperateGoatShrine(int pnum, int oi, int sType)
 {
 	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine();
+	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 	OperateShrine(pnum, oi, sType);
 	object[oi]._oAnimDelay = 2;
 	force_redraw = 255;
@@ -4243,7 +4231,7 @@ void OperateGoatShrine(int pnum, int oi, int sType)
 void OperateCauldron(int pnum, int oi, int sType)
 {
 	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine();
+	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 	OperateShrine(pnum, oi, sType);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;

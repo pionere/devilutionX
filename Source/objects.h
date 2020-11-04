@@ -148,7 +148,7 @@ void OperateSkelBook(int pnum, int oi, DIABOOL sendmsg);
 void OperateBookCase(int pnum, int oi, DIABOOL sendmsg);
 void OperateDecap(int pnum, int oi, DIABOOL sendmsg);
 void OperateArmorStand(int pnum, int oi, DIABOOL sendmsg);
-int FindValidShrine();
+int FindValidShrine(int filter);
 void OperateGoatShrine(int pnum, int oi, int sType);
 void OperateCauldron(int pnum, int oi, int sType);
 DIABOOL OperateFountains(int pnum, int oi);
