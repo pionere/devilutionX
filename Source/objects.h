@@ -96,9 +96,8 @@ void GetRndObjLoc(int randarea, int *xx, int *yy);
 void AddMushPatch();
 void AddSlainHero();
 #ifdef HELLFIRE
-void AddHBooks(int type, int bookidx, int ox, int oy);
+void AddHBooks(int bookidx, int ox, int oy);
 void SetupHBook(int oi, int bookidx);
-void objects_454AF0(int bookidx, int ox, int oy);
 #endif
 void AddObject(int ot, int ox, int oy);
 void Obj_Light(int oi, int lr);

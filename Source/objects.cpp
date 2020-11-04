@@ -776,7 +776,7 @@ void AddLvl2xBooks(int bookidx)
 		}
 	}
 
-	AddHBooks(OBJ_STORYBOOK, bookidx, xp, yp);
+	AddHBooks(bookidx, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 1, yp - 1);
@@ -790,41 +790,36 @@ void AddLvl24Books()
 	AddUberLever();
 	switch (random_(0, 6)) {
 	case 0:
-		objects_454AF0(6, UberRow + 3, UberCol);
-		objects_454AF0(7, UberRow + 2, UberCol - 3);
-		objects_454AF0(8, UberRow + 2, UberCol + 2);
+		AddHBooks(5, UberRow + 3, UberCol);
+		AddHBooks(6, UberRow + 2, UberCol - 3);
+		AddHBooks(7, UberRow + 2, UberCol + 2);
 		break;
 	case 1:
-		objects_454AF0(6, UberRow + 3, UberCol);
-		objects_454AF0(8, UberRow + 2, UberCol - 3);
-		objects_454AF0(7, UberRow + 2, UberCol + 2);
+		AddHBooks(5, UberRow + 3, UberCol);
+		AddHBooks(7, UberRow + 2, UberCol - 3);
+		AddHBooks(6, UberRow + 2, UberCol + 2);
 		break;
 	case 2:
-		objects_454AF0(7, UberRow + 3, UberCol);
-		objects_454AF0(6, UberRow + 2, UberCol - 3);
-		objects_454AF0(8, UberRow + 2, UberCol + 2);
+		AddHBooks(6, UberRow + 3, UberCol);
+		AddHBooks(5, UberRow + 2, UberCol - 3);
+		AddHBooks(7, UberRow + 2, UberCol + 2);
 		break;
 	case 3:
-		objects_454AF0(7, UberRow + 3, UberCol);
-		objects_454AF0(8, UberRow + 2, UberCol - 3);
-		objects_454AF0(6, UberRow + 2, UberCol + 2);
+		AddHBooks(6, UberRow + 3, UberCol);
+		AddHBooks(7, UberRow + 2, UberCol - 3);
+		AddHBooks(5, UberRow + 2, UberCol + 2);
 		break;
 	case 4:
-		objects_454AF0(8, UberRow + 3, UberCol);
-		objects_454AF0(7, UberRow + 2, UberCol - 3);
-		objects_454AF0(6, UberRow + 2, UberCol + 2);
+		AddHBooks(7, UberRow + 3, UberCol);
+		AddHBooks(6, UberRow + 2, UberCol - 3);
+		AddHBooks(5, UberRow + 2, UberCol + 2);
 		break;
-	case 5:
-		objects_454AF0(8, UberRow + 3, UberCol);
-		objects_454AF0(6, UberRow + 2, UberCol - 3);
-		objects_454AF0(7, UberRow + 2, UberCol + 2);
+	default:
+		AddHBooks(7, UberRow + 3, UberCol);
+		AddHBooks(5, UberRow + 2, UberCol - 3);
+		AddHBooks(6, UberRow + 2, UberCol + 2);
 		break;
 	}
-}
-
-void objects_454AF0(int bookidx, int ox, int oy)
-{
-	AddHBooks(OBJ_STORYBOOK, bookidx, ox, oy);
 }
 #endif
 
@@ -979,13 +974,13 @@ void InitObjects()
 			AddStoryBooks();
 #ifdef HELLFIRE
 		} else if (currlevel == 21) {
-			AddLvl2xBooks(1);
+			AddLvl2xBooks(0);
 		} else if (currlevel == 22) {
+			AddLvl2xBooks(1);
 			AddLvl2xBooks(2);
-			AddLvl2xBooks(3);
 		} else if (currlevel == 23) {
+			AddLvl2xBooks(3);
 			AddLvl2xBooks(4);
-			AddLvl2xBooks(5);
 		} else if (currlevel == 24) {
 			AddLvl24Books();
 #endif
@@ -1616,7 +1611,7 @@ void AddSlainHero()
 }
 
 #ifdef HELLFIRE
-void AddHBooks(int type, int bookidx, int ox, int oy)
+void AddHBooks(int bookidx, int ox, int oy)
 {
 	int oi;
 
@@ -1627,7 +1622,7 @@ void AddHBooks(int type, int bookidx, int ox, int oy)
 	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
 	dObject[ox][oy] = oi + 1;
-	SetupObject(oi, ox, oy, type);
+	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
 	SetupHBook(oi, bookidx);
 	object[oi]._oAnimWidth2 = (object[oi]._oAnimWidth - 64) >> 1;
 	nobjects++;
@@ -1639,10 +1634,10 @@ void SetupHBook(int oi, int bookidx)
 	int frame;
 
 	os = &object[oi];
-	if (bookidx > 5) {
-		os->_oVar8 = bookidx;
+	if (bookidx >= 5) {
+		os->_oVar8 = bookidx + 1;
 		switch (bookidx) {
-		case 6:
+		case 5:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				os->_oVar2 = TEXT_BOOKA;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
@@ -1657,7 +1652,7 @@ void SetupHBook(int oi, int bookidx)
 				os->_oVar2 = TEXT_BOOKA;
 			}
 			break;
-		case 7:
+		case 6:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				os->_oVar2 = TEXT_BOOKB;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
@@ -1672,7 +1667,7 @@ void SetupHBook(int oi, int bookidx)
 				os->_oVar2 = TEXT_BOOKB;
 			}
 			break;
-		case 8:
+		case 7:
 			if (plr[myplr]._pClass == PC_WARRIOR) {
 				os->_oVar2 = TEXT_BOOKC;
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
@@ -1695,8 +1690,8 @@ void SetupHBook(int oi, int bookidx)
 		os->_oVar4 = os->_oAnimFrame + 1;
 	} else {
 		os->_oVar1 = 1;
-		os->_oVar2 = bookidx + TEXT_BOOK4 - 1;
-		os->_oVar3 = bookidx + 9;
+		os->_oVar2 = bookidx + TEXT_BOOK4;
+		os->_oVar3 = bookidx + 10;
 		frame = 2 * os->_oVar1;
 		os->_oAnimFrame = 5 - frame;
 		os->_oVar4 = os->_oAnimFrame + 1;
