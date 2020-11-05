@@ -14,6 +14,7 @@ extern "C" {
 
 extern int sfxdelay;
 extern int sfxdnum;
+extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 BOOL effect_is_playing(int nSFX);
 void stream_stop();

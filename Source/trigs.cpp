@@ -896,12 +896,7 @@ void CheckTriggers()
 				}
 
 				if (abort) {
-					int sfxSet[NUM_CLASSES] = {PS_WARR43, PS_ROGUE43, PS_MAGE43
-#ifdef HELLFIRE
-						, PS_MONK43, PS_ROGUE43, PS_WARR43
-#endif
-					};
-					PlaySFX(sfxSet[p->_pClass]);
+					PlaySFX(sgSFXSets[SFXS_PLR_43][p->_pClass]);
 					InitDiabloMsg(abortflag);
 					NetSendCmdLoc(TRUE, CMD_WALKXY, x, y);
 					return;

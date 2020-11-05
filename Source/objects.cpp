@@ -2089,12 +2089,7 @@ void Obj_BCrossDamage(int oi)
 	if (p->_pHitPoints >> 6 <= 0) {
 		SyncPlrKill(myplr, 0);
 	} else {
-		int sfxSet[NUM_CLASSES] = {PS_WARR68, PS_ROGUE68, PS_MAGE68
-#ifdef HELLFIRE
-				, PS_MONK68, PS_ROGUE68, PS_WARR68
-#endif
-		};
-		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_68][p->_pClass], p->_px, p->_py);
 	}
 	drawhpflag = TRUE;
 }
@@ -3091,12 +3086,7 @@ void OperateMushPatch(int pnum, int oi)
 
 	if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 < QS_TOMEGIVEN) {
 		if (!deltaload && pnum == myplr) {
-			int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
-#ifdef HELLFIRE
-				, PS_MONK13, PS_ROGUE13, PS_WARR13
-#endif
-			};
-			PlaySFX(sfxSet[plr[myplr]._pClass]);
+			PlaySFX(sgSFXSets[SFXS_PLR_13][plr[myplr]._pClass]);
 		}
 	} else {
 		os = &object[oi];
@@ -3120,12 +3110,7 @@ void OperateInnSignChest(int pnum, int oi)
 
 	if (quests[Q_LTBANNER]._qvar1 != 2) {
 		if (!deltaload && pnum == myplr) {
-			int sfxSet[NUM_CLASSES] = {PS_WARR24, PS_ROGUE24, PS_MAGE24
-#ifdef HELLFIRE
-				, PS_MONK24, PS_ROGUE24, PS_WARR24
-#endif
-			};
-			PlaySFX(sfxSet[plr[myplr]._pClass]);
+			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[myplr]._pClass]);
 		}
 	} else {
 		os = &object[oi];
@@ -3164,12 +3149,7 @@ void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_AXE, ICURS_BATTLE_AXE, FALSE, TRUE);
 #endif
 			}
-			int sfxSet[NUM_CLASSES] = {PS_WARR9, PS_ROGUE9, PS_MAGE9
-#ifdef HELLFIRE
-				, PS_MONK9, PS_ROGUE9, PS_WARR9
-#endif
-			};
-			PlaySfxLoc(sfxSet[plr[myplr]._pClass], plr[myplr]._px, plr[myplr]._py);
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][plr[myplr]._pClass], plr[myplr]._px, plr[myplr]._py);
 			if (pnum == myplr)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}

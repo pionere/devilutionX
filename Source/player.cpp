@@ -1712,12 +1712,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		return;
 	}
 
-	int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
-#ifdef HELLFIRE
-				, PS_MONK69, PS_ROGUE69, PS_WARR69
-#endif
-	};
-	PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py, 2);
+	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 
 	drawhpflag = TRUE;
 	if (dam >> 6 >= p->_pLevel || forcehit) {
@@ -1788,13 +1783,7 @@ void StartPlrKill(int pnum, int earflag)
 		app_fatal("StartPlrKill: illegal player %d", pnum);
 	}
 
-	// BUGFIX: should use `PS_WARR71` like other classes
-	int sfxSet[NUM_CLASSES] = {PS_DEAD, PS_ROGUE71, PS_MAGE71
-#ifdef HELLFIRE
-				, PS_MONK71, PS_ROGUE71, PS_WARR71
-#endif
-	};
-	PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
+	PlaySfxLoc(sgSFXSets[SFXS_PLR_71][p->_pClass], p->_px, p->_py);
 
 	if (p->_pgfxnum) {
 		p->_pgfxnum = 0;
@@ -3866,22 +3855,12 @@ void CheckPlrSpell()
 
 	rspell = plr[myplr]._pRSpell;
 	if (rspell == SPL_INVALID) {
-		int sfxSet[NUM_CLASSES] = {PS_WARR34, PS_ROGUE34, PS_MAGE34
-#ifdef HELLFIRE
-				, PS_MONK34, PS_ROGUE34, PS_WARR34
-#endif
-		};
-		PlaySFX(sfxSet[plr[myplr]._pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_34][plr[myplr]._pClass]);
 		return;
 	}
 
 	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
-		int sfxSet[NUM_CLASSES] = {PS_WARR27, PS_ROGUE27, PS_MAGE27
-#ifdef HELLFIRE
-				, PS_MONK27, PS_ROGUE27, PS_WARR27
-#endif
-		};
-		PlaySFX(sfxSet[plr[myplr]._pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
 		return;
 	}
 
@@ -3929,12 +3908,7 @@ void CheckPlrSpell()
 	}
 
 	if (plr[myplr]._pRSplType == RSPLTYPE_SPELL) {
-		int sfxSet[NUM_CLASSES] = {PS_WARR35, PS_ROGUE35, PS_MAGE35
-#ifdef HELLFIRE
-				, PS_MONK35, PS_ROGUE35, PS_WARR35
-#endif
-		};
-		PlaySFX(sfxSet[plr[myplr]._pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_35][plr[myplr]._pClass]);
 	}
 }
 

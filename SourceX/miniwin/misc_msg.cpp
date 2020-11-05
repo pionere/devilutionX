@@ -274,13 +274,8 @@ bool BlurInventory()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (!TryDropItem()) {
-			int sfxSet[NUM_CLASSES] = {PS_WARR16, PS_ROGUE16, PS_MAGE16
-#ifdef HELLFIRE
-				, PS_MONK16, PS_ROGUE16, PS_WARR16
-#endif
-			};
 			int pc = plr[myplr]._pClass;
-			PlaySFX(sfxSet[pc], sfxSet[pc] == PS_WARR16 ? 3 : 1);
+			PlaySFX(sgSFXSets[SFXS_PLR_16][pc], sgSFXSets[SFXS_PLR_16][pc] == PS_WARR16 ? 3 : 1);
 			return false;
 		}
 	}

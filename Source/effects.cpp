@@ -40,7 +40,7 @@ TSFX sgSFX[] = {
 	{ sfx_MISC,                  "Sfx\\Misc\\Lghit1.wav",       NULL },
 	{ sfx_MISC,                  "Sfx\\Misc\\Swing.wav",        NULL },
 	{ sfx_MISC,                  "Sfx\\Misc\\Swing2.wav",       NULL },
-	{ sfx_MISC,                  "Sfx\\Misc\\Dead.wav",         NULL },
+	{ sfx_MISC,                  "Sfx\\Misc\\Dead.wav",         NULL }, // Aaauh...
 	{ sfx_MISC | sfx_HELLFIRE,   "Sfx\\Misc\\Sting1.wav",       NULL },
 	{ sfx_MISC | sfx_HELLFIRE,   "Sfx\\Misc\\FBallBow.wav",     NULL },
 	{ sfx_STREAM,                "Sfx\\Misc\\Questdon.wav",     NULL },
@@ -559,29 +559,29 @@ TSFX sgSFX[] = {
 	{ sfx_STREAM | sfx_SORCEROR, "Sfx\\Sorceror\\Mage10.wav",   NULL },
 	{ sfx_STREAM | sfx_SORCEROR, "Sfx\\Sorceror\\Mage11.wav",   NULL },
 	{ sfx_STREAM | sfx_SORCEROR, "Sfx\\Sorceror\\Mage12.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage13.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage14.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage15.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage16.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage17.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage18.wav",   NULL },
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage13.wav",   NULL }, // I can not use this yet.
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage14.wav",   NULL }, // I can not carry any more
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage15.wav",   NULL }, // I have no room.
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage16.wav",   NULL }, // Where would I put this?
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage17.wav",   NULL }, // No way.
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage18.wav",   NULL }, // Not a chance.
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage19.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage20.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage21.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage22.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage23.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage24.wav",   NULL },
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage24.wav",   NULL }, // I can not open this. Yet.
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage25.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage26.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage27.wav",   NULL },
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage27.wav",   NULL }, // I can not cast that here.
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage28.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage29.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage30.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage31.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage32.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage33.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage34.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage35.wav",   NULL },
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage34.wav",   NULL }, // I do not have a spell ready.
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage35.wav",   NULL }, // Not enough mana.
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage36.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage37.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage38.wav",   NULL },
@@ -615,11 +615,11 @@ TSFX sgSFX[] = {
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage66.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage67.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage68.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage69.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage69b.wav",  NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage70.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage71.wav",   NULL },
-	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage72.wav",   NULL },
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage69.wav",   NULL }, // Ouhm..
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage69b.wav",  NULL }, // Umm..
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage70.wav",   NULL }, // Argh...
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage71.wav",   NULL }, // Ouah.
+	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage72.wav",   NULL }, // Huh ah..
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage73.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage74.wav",   NULL },
 	{ sfx_SORCEROR,              "Sfx\\Sorceror\\Mage75.wav",   NULL },
@@ -662,29 +662,29 @@ TSFX sgSFX[] = {
 	{ sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue10.wav",     NULL },
 	{ sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue11.wav",     NULL },
 	{ sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue12.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue13.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue14.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue15.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue16.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue17.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue18.wav",     NULL },
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue13.wav",     NULL }, // I can't use this yet.
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue14.wav",     NULL }, // I can't carry any more.
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue15.wav",     NULL }, // I have no room.
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue16.wav",     NULL }, // Now where would I put this?
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue17.wav",     NULL }, // No way...
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue18.wav",     NULL }, // Not a chance
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue19.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue20.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue21.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue22.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue23.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue24.wav",     NULL },
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue24.wav",     NULL }, // I can't open this. .. Yet.
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue25.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue26.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue27.wav",     NULL },
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue27.wav",     NULL }, // I can't cast that here.
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue28.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue29.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue30.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue31.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue32.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue33.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue35.wav",     NULL },
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     NULL }, // I don't have a spell ready.
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue35.wav",     NULL }, // Not enough mana.
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue36.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue37.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue38.wav",     NULL },
@@ -718,11 +718,11 @@ TSFX sgSFX[] = {
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue66.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue67.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue68.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue69.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue69b.wav",    NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue70.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue71.wav",     NULL },
-	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue72.wav",     NULL },
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue69.wav",     NULL }, // Aeh...
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue69b.wav",    NULL }, // Oah...
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue70.wav",     NULL }, // Ouhuh..
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue71.wav",     NULL }, // Aaaaauh.
+	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue72.wav",     NULL }, // Huuhuhh.
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue73.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue74.wav",     NULL },
 	{ sfx_ROGUE,                 "Sfx\\Rogue\\Rogue75.wav",     NULL },
@@ -765,16 +765,16 @@ TSFX sgSFX[] = {
 	{ sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior10.wav",  NULL },
 	{ sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior11.wav",  NULL },
 	{ sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior12.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior13.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior14.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario14b.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario14c.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior13.wav",  NULL }, // I can't use this. .. Yet.
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior14.wav",  NULL }, // I can't carry any more.
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario14b.wav",  NULL }, // I've got to pawn some of this stuff.
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario14c.wav",  NULL }, // Too much baggage.
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior15.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario15b.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario15c.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior16.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario16b.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario16c.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior16.wav",  NULL }, // Where would I put this?
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario16b.wav",  NULL }, // Where you want me to put this?
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario16c.wav",  NULL }, // What am I a pack rat?
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior17.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior18.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior19.wav",  NULL },
@@ -782,18 +782,18 @@ TSFX sgSFX[] = {
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior21.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior22.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior23.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior24.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior24.wav",  NULL }, // I can not open this. Yet.
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior25.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior26.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior27.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior27.wav",  NULL }, // I can't cast that here.
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior28.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior29.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior30.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior31.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior32.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior33.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior35.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  NULL }, // I don't have a spell ready.
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior35.wav",  NULL }, // Not enough mana.
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior36.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior37.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior38.wav",  NULL },
@@ -827,11 +827,11 @@ TSFX sgSFX[] = {
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior66.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior67.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior68.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior69.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario69b.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior70.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior71.wav",  NULL },
-	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior72.wav",  NULL },
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior69.wav",  NULL }, // Ahh..
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Wario69b.wav",  NULL }, // Ouh...
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior70.wav",  NULL }, // Ouah..
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior71.wav",  NULL }, // Auuahh..
+	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior72.wav",  NULL }, // Huhhuhh.
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior73.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior74.wav",  NULL },
 	{ sfx_WARRIOR,               "Sfx\\Warrior\\Warior75.wav",  NULL },
@@ -879,10 +879,10 @@ TSFX sgSFX[] = {
 	{ sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk10.wav",       NULL },
 	{ sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk11.wav",       NULL },
 	{ sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk12.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk13.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk14.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk15.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk16.wav",       NULL },
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk13.wav",       NULL }, // I can not use this. yet.
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk14.wav",       NULL }, // I can not carry any more.
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk15.wav",       NULL }, // I have no room.
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk16.wav",       NULL }, // Where would I put this?
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
@@ -890,18 +890,18 @@ TSFX sgSFX[] = {
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk24.wav",       NULL },
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk24.wav",       NULL }, // I can not open this. .. Yet.
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk27.wav",       NULL },
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk27.wav",       NULL }, // I can not cast that here.
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Monk\\Monk29.wav",       NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk35.wav",       NULL },
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       NULL }, // I do not have a spell ready.
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk35.wav",       NULL }, // Not enough mana.
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
@@ -935,10 +935,10 @@ TSFX sgSFX[] = {
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Monk\\Monk68.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk69.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk69b.wav",      NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk70.wav",       NULL },
-	{ sfx_MONK,                  "Sfx\\Monk\\Monk71.wav",       NULL },
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk69.wav",       NULL }, // Umm..
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk69b.wav",      NULL }, // Ouch..
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk70.wav",       NULL }, // Oahhahh.
+	{ sfx_MONK,                  "Sfx\\Monk\\Monk71.wav",       NULL }, // Oaah ah.
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
 	{ sfx_MONK,                  "Sfx\\Misc\\blank.wav",        NULL },
@@ -1052,6 +1052,44 @@ TSFX sgSFX[] = {
 	{ sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Cropen.wav",      NULL },
 	{ sfx_MISC | sfx_HELLFIRE,   "Sfx\\Items\\Crclos.wav",      NULL },
 	// clang-format on
+};
+
+const int const sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
+#ifdef HELLFIRE
+	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8,  PS_MONK8,  PS_ROGUE8,  PS_WARR8 },
+	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9,  PS_MONK9,  PS_ROGUE9,  PS_WARR9 },
+	{ PS_WARR13, PS_ROGUE13, PS_MAGE13, PS_MONK13, PS_ROGUE13, PS_WARR13 },
+	{ PS_WARR14, PS_ROGUE14, PS_MAGE14, PS_MONK14, PS_ROGUE14, PS_WARR14 },
+	{ PS_WARR16, PS_ROGUE16, PS_MAGE16, PS_MONK16, PS_ROGUE16, PS_WARR16 },
+	{ PS_WARR24, PS_ROGUE24, PS_MAGE24, PS_MONK24, PS_ROGUE24, PS_WARR24 },
+	{ PS_WARR27, PS_ROGUE27, PS_MAGE27, PS_MONK27, PS_ROGUE27, PS_WARR27 },
+	{ PS_WARR29, PS_ROGUE29, PS_MAGE29, PS_MONK29, PS_ROGUE29, PS_WARR29 },
+	{ PS_WARR34, PS_ROGUE34, PS_MAGE34, PS_MONK34, PS_ROGUE34, PS_WARR34 },
+	{ PS_WARR35, PS_ROGUE35, PS_MAGE35, PS_MONK35, PS_ROGUE35, PS_WARR35 },
+	{ PS_WARR43, PS_ROGUE43, PS_MAGE43, PS_MONK43, PS_ROGUE43, PS_WARR43 },
+	{ PS_WARR68, PS_ROGUE68, PS_MAGE68, PS_MONK68, PS_ROGUE68, PS_WARR68 },
+	{ PS_WARR69, PS_ROGUE69, PS_MAGE69, PS_MONK69, PS_ROGUE69, PS_WARR69 },
+	{ PS_WARR70, PS_ROGUE70, PS_MAGE70, PS_MONK70, PS_ROGUE70, PS_WARR70 },
+	{ PS_DEAD,   PS_ROGUE71, PS_MAGE71, PS_MONK71, PS_ROGUE71, PS_WARR71 }, // BUGFIX: should use `PS_WARR71` like other classes
+	{ PS_WARR72, PS_ROGUE72, PS_MAGE72, PS_MAGE72, PS_ROGUE72, PS_WARR72 }, // BUGFIX: should be PS_MONK72, but it is blank...
+#else
+	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8 },
+	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9 },
+	{ PS_WARR13, PS_ROGUE13, PS_MAGE13 },
+	{ PS_WARR14, PS_ROGUE14, PS_MAGE14 },
+	{ PS_WARR16, PS_ROGUE16, PS_MAGE16 },
+	{ PS_WARR24, PS_ROGUE24, PS_MAGE24 },
+	{ PS_WARR27, PS_ROGUE27, PS_MAGE27 },
+	{ PS_WARR29, PS_ROGUE29, PS_MAGE29 },
+	{ PS_WARR34, PS_ROGUE34, PS_MAGE34 },
+	{ PS_WARR35, PS_ROGUE35, PS_MAGE35 },
+	{ PS_WARR43, PS_ROGUE43, PS_MAGE43 },
+	{ PS_WARR68, PS_ROGUE68, PS_MAGE68 },
+	{ PS_WARR69, PS_ROGUE69, PS_MAGE69 },
+	{ PS_WARR70, PS_ROGUE70, PS_MAGE70 },
+	{ PS_DEAD,   PS_ROGUE71, PS_MAGE71 }, // BUGFIX: should use `PS_WARR71` like other classes
+	{ PS_WARR72, PS_ROGUE72, PS_MAGE72 },
+#endif
 };
 
 BOOL effect_is_playing(int nSFX)

@@ -924,12 +924,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 		return;
 
 	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !holditem->_iStatFlag) {
-		int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
-#ifdef HELLFIRE
-				, PS_MONK13, PS_ROGUE13, PS_WARR13
-#endif
-		};
-		PlaySFX(sfxSet[p->_pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_13][p->_pClass]);
 		return;
 	}
 
@@ -1778,12 +1773,7 @@ void AutoGetItem(int pnum, int ii)
 		}
 	} else {
 		if (pnum == myplr) {
-			int sfxSet[NUM_CLASSES] = {PS_WARR14, PS_ROGUE14, PS_MAGE14
-#ifdef HELLFIRE
-				, PS_MONK14, PS_ROGUE14, PS_WARR14
-#endif
-			};
-			PlaySFX(sfxSet[p->_pClass], 3);
+			PlaySFX(sgSFXSets[SFXS_PLR_14][p->_pClass], 3);
 		}
 		p->HoldItem = *is;
 		RespawnItem(ii, TRUE);
@@ -2388,12 +2378,7 @@ BOOL UseInvItem(int pnum, int cii)
 	case IDI_FUNGALTM:
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
-		int sfxSet[NUM_CLASSES] = {PS_WARR29, PS_ROGUE29, PS_MAGE29
-#ifdef HELLFIRE
-				, PS_MONK29, PS_ROGUE29, PS_WARR29
-#endif
-		};
-		sfxdnum = sfxSet[plr[pnum]._pClass];
+		sfxdnum = sgSFXSets[SFXS_PLR_29][plr[pnum]._pClass];
 		return TRUE;
 	}
 
@@ -2401,12 +2386,7 @@ BOOL UseInvItem(int pnum, int cii)
 		return FALSE;
 
 	if (!is->_iStatFlag) {
-		int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
-#ifdef HELLFIRE
-				, PS_MONK13, PS_ROGUE13, PS_WARR13
-#endif
-		};
-		PlaySFX(sfxSet[plr[pnum]._pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_13][plr[pnum]._pClass]);
 		return TRUE;
 	}
 

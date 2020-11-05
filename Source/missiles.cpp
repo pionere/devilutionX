@@ -856,12 +856,7 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, earflag);
 		} else {
-			int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
-#ifdef HELLFIRE
-				, PS_MONK69, PS_ROGUE69, PS_WARR69
-#endif
-			};
-			PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py, 2);
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 			drawhpflag = TRUE;
 		}
 	} else {
@@ -983,12 +978,7 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 	if (resper > 0) {
 		if (offp == myplr)
 			NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
-		int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
-#ifdef HELLFIRE
-			, PS_MONK69, PS_ROGUE69, PS_WARR69
-#endif
-		};
-		PlaySfxLoc(sfxSet[ops->_pClass], ops->_px, ops->_py, 2);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_69][ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
 		if (blkper < blk) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
@@ -3099,15 +3089,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (misource == -1 || p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
 		missile[mi]._miDelFlag = TRUE;
 	} else {
-		int sfxSet[NUM_CLASSES] = {
-			PS_WARR70,
-			PS_ROGUE70,
-			PS_MAGE70,
-			PS_MAGE70,  // BUGFIX: PS_MONK70?
-			PS_ROGUE70,
-			PS_WARR70
-		};
-		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
 		UseMana(misource, 22);
 		missile[mi]._miVar1 = misource;
@@ -5356,15 +5338,7 @@ void MI_Bloodboil(int mi)
 		if (p->_pHitPoints < 64)
 			p->_pHitPoints = 64;
 		force_redraw = 255;
-		int sfxSet[NUM_CLASSES] = {
-			PS_WARR72,
-			PS_ROGUE72,
-			PS_MAGE72,
-			PS_MAGE72, // BUGFIX: should be PS_MONK72?
-			PS_ROGUE72,
-			PS_WARR72
-		};
-		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_72][p->_pClass], p->_px, p->_py);
 	}
 }
 #else

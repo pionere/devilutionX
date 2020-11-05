@@ -1350,6 +1350,26 @@ typedef enum sfx_flag {
 	sfx_HELLFIRE = 0x80,
 } sfx_flag;
 
+typedef enum sfx_set {
+	SFXS_PLR_08,
+	SFXS_PLR_09,
+	SFXS_PLR_13,
+	SFXS_PLR_14,
+	SFXS_PLR_16,
+	SFXS_PLR_24,
+	SFXS_PLR_27,
+	SFXS_PLR_29,
+	SFXS_PLR_34,
+	SFXS_PLR_35,
+	SFXS_PLR_43,
+	SFXS_PLR_68,
+	SFXS_PLR_69,
+	SFXS_PLR_70,
+	SFXS_PLR_71,
+	SFXS_PLR_72,
+	NUM_SFXSets,
+} sfx_set;
+
 typedef enum item_equip_type {
 	ILOC_NONE        = 0x0,
 	ILOC_ONEHAND     = 0x1,

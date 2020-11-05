@@ -697,12 +697,7 @@ void TalkToTowner(int pnum, int tnum)
 			tw->_tbtcnt = 150;
 			tw->_tVar1 = pnum;
 			quests[Q_BUTCHER]._qvar1 = 1;
-			int sfxSet[NUM_CLASSES] = {PS_WARR8, PS_ROGUE8, PS_MAGE8
-#ifdef HELLFIRE
-				, PS_MONK8, PS_ROGUE8, PS_WARR8
-#endif
-			};
-			i = sfxSet[plr[myplr]._pClass];
+			i = sgSFXSets[SFXS_PLR_08][plr[myplr]._pClass];
 			if (!effect_is_playing(i))
 				PlaySFX(i);
 			tw->_tMsgSaid = TRUE;
