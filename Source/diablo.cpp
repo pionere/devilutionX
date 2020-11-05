@@ -452,9 +452,6 @@ static void diablo_init()
 	was_archives_init = TRUE;
 
 	UiInitialize();
-#ifdef SPAWN
-	UiSetSpawned(TRUE);
-#endif
 	was_ui_init = TRUE;
 
 	ReadOnlyTest();

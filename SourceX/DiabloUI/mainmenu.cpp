@@ -56,12 +56,7 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	SDL_Rect rect = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
 	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
 
-#ifndef HELLFIRE
-	if (gbSpawned)
-		LoadBackgroundArt("ui_art\\swmmenu.pcx");
-	else
-#endif
-		LoadBackgroundArt("ui_art\\mainmenu.pcx");
+	LoadBackgroundArt(MENU_ART);
 
 	UiInitList(vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, vecMainMenuDialog, true);
 }
@@ -96,15 +91,17 @@ BOOL UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 		while (MainMenuResult == 0) {
 			UiClearScreen();
 			UiPollAndRender();
-			if (!gbSpawned && SDL_GetTicks() >= dwAttractTicks) {
+#ifndef SPAWN
+			if (SDL_GetTicks() >= dwAttractTicks) {
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
 			}
+#endif
 		}
 
 		mainmenu_Free();
 
-#ifndef HELLFIRE
-		if (gbSpawned && MainMenuResult == MAINMENU_REPLAY_INTRO) {
+#ifdef SPAWN
+		if (MainMenuResult == MAINMENU_REPLAY_INTRO) {
 			UiSelOkDialog(NULL, "The Diablo introduction cinematic is only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.", true);
 			MainMenuResult = 0;
 		}

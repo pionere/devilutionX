@@ -340,13 +340,15 @@ void selhero_ClassSelector_Focus(int value)
 void selhero_ClassSelector_Select(int value)
 {
 	int hClass = vecSelHeroDlgItems[value]->m_value;
-	if (gbSpawned && (hClass == UI_ROGUE || hClass == UI_SORCERER)) {
+#ifdef SPAWN
+	if (hClass != UI_WARRIOR) {
 		ArtBackground.Unload();
 		UiSelOkDialog(NULL, "The Rogue and Sorcerer are only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.", false);
 		LoadBackgroundArt("ui_art\\selhero.pcx");
 		selhero_List_Select(selhero_SaveCount);
 		return;
 	}
+#endif
 
 	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));

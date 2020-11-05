@@ -69,9 +69,4 @@ void UiTitleDialog()
 	title_Free();
 }
 
-void UiSetSpawned(BOOL bSpawned)
-{
-	gbSpawned = bSpawned;
-}
-
 DEVILUTION_END_NAMESPACE

@@ -31,7 +31,6 @@ Art ArtFocus[3];
 Art ArtBackground;
 Art ArtCursor;
 Art ArtHero;
-bool gbSpawned;
 
 void (*gfnSoundFunction)(const char *file);
 void (*gfnListFocus)(int value);

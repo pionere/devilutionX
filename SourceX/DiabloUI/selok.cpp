@@ -51,11 +51,7 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 	if (!background) {
 		LoadBackgroundArt("ui_art\\black.pcx");
 	} else {
-		if (!gbSpawned) {
-			LoadBackgroundArt("ui_art\\mainmenu.pcx");
-		} else {
-			LoadBackgroundArt("ui_art\\swmmenu.pcx");
-		}
+		LoadBackgroundArt(MENU_ART);
 	}
 
 	UiAddBackground(&vecSelOkDialog);

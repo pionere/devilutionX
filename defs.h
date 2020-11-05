@@ -6,8 +6,10 @@
 
 #ifdef SPAWN
 #define MAIN_DATA_ARCHIVE		"spawn.mpq"
+#define MENU_ART				"ui_art\\swmmenu.pcx"
 #else
 #define MAIN_DATA_ARCHIVE		"diabdat.mpq"
+#define MENU_ART				"ui_art\\mainmenu.pcx"
 #endif
 
 #ifdef HELLFIRE

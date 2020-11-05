@@ -6,7 +6,6 @@ namespace dvl {
 
 void UiDestroy();
 void UiTitleDialog();
-void UiSetSpawned(BOOL bSpawned);
 void UiInitialize();
 BOOL UiValidPlayerName(const char *name); /* check */
 BOOL UiSelHeroMultDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), BOOL(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, BOOL *hero_is_created, char *name);
