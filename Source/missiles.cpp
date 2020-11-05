@@ -3099,7 +3099,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (misource == -1 || p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
 		missile[mi]._miDelFlag = TRUE;
 	} else {
-		int blodboilSFX[NUM_CLASSES] = {
+		int sfxSet[NUM_CLASSES] = {
 			PS_WARR70,
 			PS_ROGUE70,
 			PS_MAGE70,
@@ -3107,7 +3107,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			PS_ROGUE70,
 			PS_WARR70
 		};
-		PlaySfxLoc(blodboilSFX[p->_pClass], p->_px, p->_py);
+		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
 		UseMana(misource, 22);
 		missile[mi]._miVar1 = misource;
@@ -5356,7 +5356,7 @@ void MI_Bloodboil(int mi)
 		if (p->_pHitPoints < 64)
 			p->_pHitPoints = 64;
 		force_redraw = 255;
-		int blodboilSFX[NUM_CLASSES] = {
+		int sfxSet[NUM_CLASSES] = {
 			PS_WARR72,
 			PS_ROGUE72,
 			PS_MAGE72,
@@ -5364,7 +5364,7 @@ void MI_Bloodboil(int mi)
 			PS_ROGUE72,
 			PS_WARR72
 		};
-		PlaySfxLoc(blodboilSFX[p->_pClass], p->_px, p->_py);
+		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
 	}
 }
 #else

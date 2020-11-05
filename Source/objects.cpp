@@ -2089,21 +2089,12 @@ void Obj_BCrossDamage(int oi)
 	if (p->_pHitPoints >> 6 <= 0) {
 		SyncPlrKill(myplr, 0);
 	} else {
-		if (p->_pClass == PC_WARRIOR) {
-			PlaySfxLoc(PS_WARR68, p->_px, p->_py);
-		} else if (p->_pClass == PC_ROGUE) {
-			PlaySfxLoc(PS_ROGUE68, p->_px, p->_py);
-		} else if (p->_pClass == PC_SORCERER) {
-			PlaySfxLoc(PS_MAGE68, p->_px, p->_py);
+		int sfxSet[NUM_CLASSES] = {PS_WARR68, PS_ROGUE68, PS_MAGE68
 #ifdef HELLFIRE
-		} else if (p->_pClass == PC_MONK) {
-			PlaySfxLoc(PS_MONK68, p->_px, p->_py);
-		} else if (p->_pClass == PC_BARD) {
-			PlaySfxLoc(PS_ROGUE68, p->_px, p->_py);
-		} else if (p->_pClass == PC_BARBARIAN) {
-			PlaySfxLoc(PS_WARR68, p->_px, p->_py);
+				, PS_MONK68, PS_ROGUE68, PS_WARR68
 #endif
-		}
+		};
+		PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
 	}
 	drawhpflag = TRUE;
 }
@@ -3100,21 +3091,12 @@ void OperateMushPatch(int pnum, int oi)
 
 	if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 < QS_TOMEGIVEN) {
 		if (!deltaload && pnum == myplr) {
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR13);
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				PlaySFX(PS_ROGUE13);
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				PlaySFX(PS_MAGE13);
+			int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
 #ifdef HELLFIRE
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				PlaySFX(PS_MONK13);
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				PlaySFX(PS_ROGUE13);
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				PlaySFX(PS_WARR13);
+				, PS_MONK13, PS_ROGUE13, PS_WARR13
 #endif
-			}
+			};
+			PlaySFX(sfxSet[plr[myplr]._pClass]);
 		}
 	} else {
 		os = &object[oi];
@@ -3138,21 +3120,12 @@ void OperateInnSignChest(int pnum, int oi)
 
 	if (quests[Q_LTBANNER]._qvar1 != 2) {
 		if (!deltaload && pnum == myplr) {
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR24);
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				PlaySFX(PS_ROGUE24);
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				PlaySFX(PS_MAGE24);
+			int sfxSet[NUM_CLASSES] = {PS_WARR24, PS_ROGUE24, PS_MAGE24
 #ifdef HELLFIRE
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				PlaySFX(PS_MONK24);
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				PlaySFX(PS_ROGUE24);
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				PlaySFX(PS_WARR24);
+				, PS_MONK24, PS_ROGUE24, PS_WARR24
 #endif
-			}
+			};
+			PlaySFX(sfxSet[plr[myplr]._pClass]);
 		}
 	} else {
 		os = &object[oi];
@@ -3178,25 +3151,25 @@ void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
 		if (!deltaload) {
 			if (plr[pnum]._pClass == PC_WARRIOR) {
 				CreateMagicArmor(os->_ox, os->_oy, ITYPE_HARMOR, ICURS_BREAST_PLATE, FALSE, TRUE);
-				PlaySfxLoc(PS_WARR9, plr[myplr]._px, plr[myplr]._py);
 			} else if (plr[pnum]._pClass == PC_ROGUE) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
-				PlaySfxLoc(PS_ROGUE9, plr[myplr]._px, plr[myplr]._py);
 			} else if (plr[pnum]._pClass == PC_SORCERER) {
 				CreateSpellBook(os->_ox, os->_oy, SPL_LIGHTNING, FALSE, TRUE);
-				PlaySfxLoc(PS_MAGE9, plr[myplr]._px, plr[myplr]._py);
 #ifdef HELLFIRE
 			} else if (plr[pnum]._pClass == PC_MONK) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
-				PlaySfxLoc(PS_MONK9, plr[myplr]._px, plr[myplr]._py);
 			} else if (plr[pnum]._pClass == PC_BARD) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_SWORD, ICURS_BASTARD_SWORD, FALSE, TRUE);
-				PlaySfxLoc(PS_ROGUE9, plr[myplr]._px, plr[myplr]._py);
 			} else if (plr[pnum]._pClass == PC_BARBARIAN) {
 				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_AXE, ICURS_BATTLE_AXE, FALSE, TRUE);
-				PlaySfxLoc(PS_WARR9, plr[myplr]._px, plr[myplr]._py);
 #endif
 			}
+			int sfxSet[NUM_CLASSES] = {PS_WARR9, PS_ROGUE9, PS_MAGE9
+#ifdef HELLFIRE
+				, PS_MONK9, PS_ROGUE9, PS_WARR9
+#endif
+			};
+			PlaySfxLoc(sfxSet[plr[myplr]._pClass], plr[myplr]._px, plr[myplr]._py);
 			if (pnum == myplr)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}

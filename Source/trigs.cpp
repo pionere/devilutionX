@@ -896,22 +896,12 @@ void CheckTriggers()
 				}
 
 				if (abort) {
-					if (p->_pClass == PC_WARRIOR) {
-						PlaySFX(PS_WARR43);
-					} else if (p->_pClass == PC_ROGUE) {
-						PlaySFX(PS_ROGUE43);
-					} else if (p->_pClass == PC_SORCERER) {
-						PlaySFX(PS_MAGE43);
+					int sfxSet[NUM_CLASSES] = {PS_WARR43, PS_ROGUE43, PS_MAGE43
 #ifdef HELLFIRE
-					} else if (p->_pClass == PC_MONK) {
-						PlaySFX(PS_MONK43);
-					} else if (p->_pClass == PC_BARD) {
-						PlaySFX(PS_ROGUE43);
-					} else if (p->_pClass == PC_BARBARIAN) {
-						PlaySFX(PS_WARR43);
+						, PS_MONK43, PS_ROGUE43, PS_WARR43
 #endif
-					}
-
+					};
+					PlaySFX(sfxSet[p->_pClass]);
 					InitDiabloMsg(abortflag);
 					NetSendCmdLoc(TRUE, CMD_WALKXY, x, y);
 					return;

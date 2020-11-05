@@ -1788,21 +1788,13 @@ void StartPlrKill(int pnum, int earflag)
 		app_fatal("StartPlrKill: illegal player %d", pnum);
 	}
 
-	if (p->_pClass == PC_WARRIOR) {
-		PlaySfxLoc(PS_DEAD, p->_px, p->_py); // BUGFIX: should use `PS_WARR71` like other classes
-	} else if (p->_pClass == PC_ROGUE) {
-		PlaySfxLoc(PS_ROGUE71, p->_px, p->_py);
-	} else if (p->_pClass == PC_SORCERER) {
-		PlaySfxLoc(PS_MAGE71, p->_px, p->_py);
+	// BUGFIX: should use `PS_WARR71` like other classes
+	int sfxSet[NUM_CLASSES] = {PS_DEAD, PS_ROGUE71, PS_MAGE71
 #ifdef HELLFIRE
-	} else if (p->_pClass == PC_MONK) {
-		PlaySfxLoc(PS_MONK71, p->_px, p->_py);
-	} else if (p->_pClass == PC_BARD) {
-		PlaySfxLoc(PS_ROGUE71, p->_px, p->_py);
-	} else if (p->_pClass == PC_BARBARIAN) {
-		PlaySfxLoc(PS_WARR71, p->_px, p->_py);
+				, PS_MONK71, PS_ROGUE71, PS_WARR71
 #endif
-	}
+	};
+	PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py);
 
 	if (p->_pgfxnum) {
 		p->_pgfxnum = 0;
@@ -3874,24 +3866,22 @@ void CheckPlrSpell()
 
 	rspell = plr[myplr]._pRSpell;
 	if (rspell == SPL_INVALID) {
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			PlaySFX(PS_WARR34);
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			PlaySFX(PS_ROGUE34);
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			PlaySFX(PS_MAGE34);
-		}
+		int sfxSet[NUM_CLASSES] = {PS_WARR34, PS_ROGUE34, PS_MAGE34
+#ifdef HELLFIRE
+				, PS_MONK34, PS_ROGUE34, PS_WARR34
+#endif
+		};
+		PlaySFX(sfxSet[plr[myplr]._pClass]);
 		return;
 	}
 
 	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			PlaySFX(PS_WARR27);
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			PlaySFX(PS_ROGUE27);
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			PlaySFX(PS_MAGE27);
-		}
+		int sfxSet[NUM_CLASSES] = {PS_WARR27, PS_ROGUE27, PS_MAGE27
+#ifdef HELLFIRE
+				, PS_MONK27, PS_ROGUE27, PS_WARR27
+#endif
+		};
+		PlaySFX(sfxSet[plr[myplr]._pClass]);
 		return;
 	}
 
@@ -3939,13 +3929,12 @@ void CheckPlrSpell()
 	}
 
 	if (plr[myplr]._pRSplType == RSPLTYPE_SPELL) {
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			PlaySFX(PS_WARR35);
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			PlaySFX(PS_ROGUE35);
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			PlaySFX(PS_MAGE35);
-		}
+		int sfxSet[NUM_CLASSES] = {PS_WARR35, PS_ROGUE35, PS_MAGE35
+#ifdef HELLFIRE
+				, PS_MONK35, PS_ROGUE35, PS_WARR35
+#endif
+		};
+		PlaySFX(sfxSet[plr[myplr]._pClass]);
 	}
 }
 

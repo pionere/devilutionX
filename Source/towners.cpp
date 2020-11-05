@@ -697,21 +697,14 @@ void TalkToTowner(int pnum, int tnum)
 			tw->_tbtcnt = 150;
 			tw->_tVar1 = pnum;
 			quests[Q_BUTCHER]._qvar1 = 1;
-			if (plr[pnum]._pClass == PC_WARRIOR && !effect_is_playing(PS_WARR8)) {
-				PlaySFX(PS_WARR8);
-			} else if (plr[pnum]._pClass == PC_ROGUE && !effect_is_playing(PS_ROGUE8)) {
-				PlaySFX(PS_ROGUE8);
-			} else if (plr[pnum]._pClass == PC_SORCERER && !effect_is_playing(PS_MAGE8)) {
-				PlaySFX(PS_MAGE8);
+			int sfxSet[NUM_CLASSES] = {PS_WARR8, PS_ROGUE8, PS_MAGE8
 #ifdef HELLFIRE
-			} else if (plr[pnum]._pClass == PC_MONK && !effect_is_playing(PS_MONK8)) {
-				PlaySFX(PS_MONK8);
-			} else if (plr[pnum]._pClass == PC_BARD && !effect_is_playing(PS_ROGUE8)) {
-				PlaySFX(PS_ROGUE8);
-			} else if (plr[pnum]._pClass == PC_BARBARIAN && !effect_is_playing(PS_WARR8)) {
-				PlaySFX(PS_WARR8);
+				, PS_MONK8, PS_ROGUE8, PS_WARR8
 #endif
-			}
+			};
+			i = sfxSet[plr[myplr]._pClass];
+			if (!effect_is_playing(i))
+				PlaySFX(i);
 			tw->_tMsgSaid = TRUE;
 		} else if (quests[Q_BUTCHER]._qactive == QUEST_DONE && quests[Q_BUTCHER]._qvar1 == 1) {
 			quests[Q_BUTCHER]._qvar1 = 1;

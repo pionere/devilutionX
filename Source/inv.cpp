@@ -924,12 +924,12 @@ void CheckInvPaste(int pnum, int mx, int my)
 		return;
 
 	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !holditem->_iStatFlag) {
-		if (p->_pClass == PC_WARRIOR)
-			PlaySFX(PS_WARR13);
-		else if (p->_pClass == PC_ROGUE)
-			PlaySFX(PS_ROGUE13);
-		else if (p->_pClass == PC_SORCERER)
-			PlaySFX(PS_MAGE13);
+		int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
+#ifdef HELLFIRE
+				, PS_MONK13, PS_ROGUE13, PS_WARR13
+#endif
+		};
+		PlaySFX(sfxSet[p->_pClass]);
 		return;
 	}
 
@@ -1778,21 +1778,12 @@ void AutoGetItem(int pnum, int ii)
 		}
 	} else {
 		if (pnum == myplr) {
-			if (p->_pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR14, 3);
-			} else if (p->_pClass == PC_ROGUE) {
-				PlaySFX(PS_ROGUE14, 3);
-			} else if (p->_pClass == PC_SORCERER) {
-				PlaySFX(PS_MAGE14, 3);
+			int sfxSet[NUM_CLASSES] = {PS_WARR14, PS_ROGUE14, PS_MAGE14
 #ifdef HELLFIRE
-			} else if (p->_pClass == PC_MONK) {
-				PlaySFX(PS_MONK14, 3);
-			} else if (p->_pClass == PC_BARD) {
-				PlaySFX(PS_ROGUE14, 3);
-			} else if (p->_pClass == PC_BARBARIAN) {
-				PlaySFX(PS_WARR14, 3);
+				, PS_MONK14, PS_ROGUE14, PS_WARR14
 #endif
-			}
+			};
+			PlaySFX(sfxSet[p->_pClass], 3);
 		}
 		p->HoldItem = *is;
 		RespawnItem(ii, TRUE);
@@ -2397,21 +2388,12 @@ BOOL UseInvItem(int pnum, int cii)
 	case IDI_FUNGALTM:
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
-		if (plr[pnum]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR29;
-		} else if (plr[pnum]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE29;
-		} else if (plr[pnum]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE29;
+		int sfxSet[NUM_CLASSES] = {PS_WARR29, PS_ROGUE29, PS_MAGE29
 #ifdef HELLFIRE
-		} else if (plr[pnum]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK29;
-		} else if (plr[pnum]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE29;
-		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR29;
+				, PS_MONK29, PS_ROGUE29, PS_WARR29
 #endif
-		}
+		};
+		sfxdnum = sfxSet[plr[pnum]._pClass];
 		return TRUE;
 	}
 
@@ -2419,21 +2401,12 @@ BOOL UseInvItem(int pnum, int cii)
 		return FALSE;
 
 	if (!is->_iStatFlag) {
-		if (plr[pnum]._pClass == PC_WARRIOR) {
-			PlaySFX(PS_WARR13);
-		} else if (plr[pnum]._pClass == PC_ROGUE) {
-			PlaySFX(PS_ROGUE13);
-		} else if (plr[pnum]._pClass == PC_SORCERER) {
-			PlaySFX(PS_MAGE13);
+		int sfxSet[NUM_CLASSES] = {PS_WARR13, PS_ROGUE13, PS_MAGE13
 #ifdef HELLFIRE
-		} else if (plr[pnum]._pClass == PC_MONK) {
-			PlaySFX(PS_MONK13);
-		} else if (plr[pnum]._pClass == PC_BARD) {
-			PlaySFX(PS_ROGUE13);
-		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
-			PlaySFX(PS_WARR13);
+				, PS_MONK13, PS_ROGUE13, PS_WARR13
 #endif
-		}
+		};
+		PlaySFX(sfxSet[plr[pnum]._pClass]);
 		return TRUE;
 	}
 
