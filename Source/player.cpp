@@ -1712,13 +1712,12 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		return;
 	}
 
-	if (p->_pClass == PC_WARRIOR) {
-		PlaySfxLoc(PS_WARR69, p->_px, p->_py, 2);
-	} else if (p->_pClass == PC_ROGUE) {
-		PlaySfxLoc(PS_ROGUE69, p->_px, p->_py, 2);
-	} else if (p->_pClass == PC_SORCERER) {
-		PlaySfxLoc(PS_MAGE69, p->_px, p->_py, 2);
-	}
+	int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
+#ifdef HELLFIRE
+				, PS_MONK69, PS_ROGUE69, PS_WARR69
+#endif
+	};
+	PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py, 2);
 
 	drawhpflag = TRUE;
 	if (dam >> 6 >= p->_pLevel || forcehit) {

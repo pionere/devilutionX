@@ -856,13 +856,12 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, earflag);
 		} else {
-			if (p->_pClass == PC_WARRIOR) {
-				PlaySfxLoc(PS_WARR69, p->_px, p->_py, 2);
-			} else if (p->_pClass == PC_ROGUE) {
-				PlaySfxLoc(PS_ROGUE69, p->_px, p->_py, 2);
-			} else if (p->_pClass == PC_SORCERER) {
-				PlaySfxLoc(PS_MAGE69, p->_px, p->_py, 2);
-			}
+			int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
+#ifdef HELLFIRE
+				, PS_MONK69, PS_ROGUE69, PS_WARR69
+#endif
+			};
+			PlaySfxLoc(sfxSet[p->_pClass], p->_px, p->_py, 2);
 			drawhpflag = TRUE;
 		}
 	} else {
@@ -984,16 +983,12 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 	if (resper > 0) {
 		if (offp == myplr)
 			NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
-		if (ops->_pClass == PC_WARRIOR) {
-			tac = PS_WARR69;
-		} else if (ops->_pClass == PC_ROGUE) {
-			tac = PS_ROGUE69;
-		} else if (ops->_pClass == PC_SORCERER) {
-			tac = PS_MAGE69;
-		} else {
-			return TRUE;
-		}
-		PlaySfxLoc(tac, ops->_px, ops->_py, 2);
+		int sfxSet[NUM_CLASSES] = {PS_WARR69, PS_ROGUE69, PS_MAGE69
+#ifdef HELLFIRE
+			, PS_MONK69, PS_ROGUE69, PS_WARR69
+#endif
+		};
+		PlaySfxLoc(sfxSet[ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
 		if (blkper < blk) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));

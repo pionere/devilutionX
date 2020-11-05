@@ -274,13 +274,13 @@ bool BlurInventory()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (!TryDropItem()) {
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR16, 3); // "Where would I put this?"
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				PlaySFX(PS_ROGUE16);
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				PlaySFX(PS_MAGE16);
-			}
+			int sfxSet[NUM_CLASSES] = {PS_WARR16, PS_ROGUE16, PS_MAGE16
+#ifdef HELLFIRE
+				, PS_MONK16, PS_ROGUE16, PS_WARR16
+#endif
+			};
+			int pc = plr[myplr]._pClass;
+			PlaySFX(sfxSet[pc], sfxSet[pc] == PS_WARR16 ? 3 : 1);
 			return false;
 		}
 	}
