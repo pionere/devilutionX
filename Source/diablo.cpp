@@ -50,8 +50,6 @@ int PauseMode;
 BOOLEAN UseTheoQuest;
 BOOLEAN UseCowFarmer;
 BOOLEAN UseNestArt;
-BOOLEAN UseBardTest;
-BOOLEAN UseBarbarianTest;
 BOOLEAN UseMultiTest;
 #endif
 int sgnTimeoutCurs;
@@ -115,17 +113,14 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-f", "Display frames per second");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-	printf("    %-20s %-30s\n", "--spawn", "Force spawn mode even if diabdat.mpq is found");
 #ifdef HELLFIRE
 	printf("    %-20s %-30s\n", "--theoquest", "Enable the Theo quest");
 	printf("    %-20s %-30s\n", "--cowquest", "Enable the Cow quest");
 	printf("    %-20s %-30s\n", "--nestart", "Use alternate nest palette");
-	printf("    %-20s %-30s\n", "--bardtest", "Enable the Bard class");
-	printf("    %-20s %-30s\n", "--barbariantest", "Enable the Barbarian class");
 #endif
 #ifdef _DEBUG
 	printf("\nDebug options:\n");
-	printf("    %-20s %-30s\n", "-d", "Increaased item drops");
+	printf("    %-20s %-30s\n", "-d", "Increased item drops");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
 	printf("    %-20s %-30s\n", "-$", "Enable god mode");
 	printf("    %-20s %-30s\n", "-^", "Enable god mode and debug tools");
@@ -168,10 +163,6 @@ static void diablo_parse_flags(int argc, char **argv)
 			UseCowFarmer = TRUE;
 		} else if (strcasecmp("--nestart", argv[i]) == 0) {
 			UseNestArt = TRUE;
-		} else if (strcasecmp("--bardtest", argv[i]) == 0) {
-			UseBardTest = TRUE;
-		} else if (strcasecmp("--barbariantest", argv[i]) == 0) {
-			UseBarbarianTest = TRUE;
 #endif
 #ifdef _DEBUG
 		} else if (strcasecmp("-^", argv[i]) == 0) {

@@ -41,8 +41,6 @@ extern int PauseMode;
 extern BOOLEAN UseTheoQuest;
 extern BOOLEAN UseCowFarmer;
 extern BOOLEAN UseNestArt;
-extern BOOLEAN UseBardTest;
-extern BOOLEAN UseBarbarianTest;
 extern BOOLEAN UseMultiTest;
 #endif
 extern char sgbMouseDown;

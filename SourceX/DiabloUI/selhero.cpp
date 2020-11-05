@@ -265,14 +265,10 @@ void selhero_List_Select(int value)
 		vecSelHeroDlgItems.push_back(new UiListItem("Sorcerer", UI_SORCERER));
 #ifdef HELLFIRE
 		vecSelHeroDlgItems.push_back(new UiListItem("Monk", UI_MONK));
-		if (UseBardTest) {
-			vecSelHeroDlgItems.push_back(new UiListItem("Bard", UI_BARD));
-		}
-		if (UseBarbarianTest) {
-			vecSelHeroDlgItems.push_back(new UiListItem("Barbarian", UI_BARBARIAN));
-		}
-		if (vecSelHeroDlgItems.size() > 4)
-			itemH = 26;
+		vecSelHeroDlgItems.push_back(new UiListItem("Bard", UI_BARD));
+		vecSelHeroDlgItems.push_back(new UiListItem("Barbarian", UI_BARBARIAN));
+
+		itemH = 26;
 #endif
 		int itemY = 246 + (176 - vecSelHeroDlgItems.size() * itemH) / 2;
 		vecSelDlgItems.push_back(new UiList(vecSelHeroDlgItems, PANEL_LEFT + 264, (UI_OFFSET_Y + itemY), 320, itemH, UIS_CENTER | UIS_MED | UIS_GOLD));
