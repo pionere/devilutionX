@@ -1713,11 +1713,11 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	}
 
 	if (p->_pClass == PC_WARRIOR) {
-		PlaySfxLoc(PS_WARR69, p->_px, p->_py);
+		PlaySfxLoc(PS_WARR69, p->_px, p->_py, 2);
 	} else if (p->_pClass == PC_ROGUE) {
-		PlaySfxLoc(PS_ROGUE69, p->_px, p->_py);
+		PlaySfxLoc(PS_ROGUE69, p->_px, p->_py, 2);
 	} else if (p->_pClass == PC_SORCERER) {
-		PlaySfxLoc(PS_MAGE69, p->_px, p->_py);
+		PlaySfxLoc(PS_MAGE69, p->_px, p->_py, 2);
 	}
 
 	drawhpflag = TRUE;
@@ -2859,7 +2859,7 @@ BOOL PlrDoAttack(int pnum)
 		p->_pAnimFrame += 2;
 	}
 	if (p->_pAnimFrame == p->_pAFNum - 1) {
-		PlaySfxLoc(PS_SWING, p->_px, p->_py);
+		PlaySfxLoc(PS_SWING, p->_px, p->_py, 2);
 	}
 
 	if (p->_pAnimFrame == p->_pAFNum) {

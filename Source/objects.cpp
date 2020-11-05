@@ -3385,7 +3385,7 @@ void ReducePlrMana10(PlayerStruct *p)
 	}
 }
 
-void OperateShrine(int pnum, int oi, int sType)
+void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 {
 	ObjectStruct *os;
 	PlayerStruct *p;
@@ -3412,7 +3412,7 @@ void OperateShrine(int pnum, int oi, int sType)
 	os->_oSelFlag = 0;
 
 	if (!deltaload) {
-		PlaySfxLoc(sType, os->_ox, os->_oy);
+		PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
 		os->_oAnimFlag = 1;
 		os->_oAnimDelay = 1;
 	} else {
@@ -4185,20 +4185,20 @@ int FindValidShrine(int filter)
 	return rv;
 }
 
-void OperateGoatShrine(int pnum, int oi, int sType)
+void OperateGoatShrine(int pnum, int oi)
 {
 	SetRndSeed(object[oi]._oRndSeed);
 	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
-	OperateShrine(pnum, oi, sType);
+	OperateShrine(pnum, oi, LS_GSHRINE, 1);
 	object[oi]._oAnimDelay = 2;
 	force_redraw = 255;
 }
 
-void OperateCauldron(int pnum, int oi, int sType)
+void OperateCauldron(int pnum, int oi)
 {
 	SetRndSeed(object[oi]._oRndSeed);
 	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
-	OperateShrine(pnum, oi, sType);
+	OperateShrine(pnum, oi, LS_CALDRON, 1);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;
 	force_redraw = 255;
@@ -4450,7 +4450,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, oi, IS_MAGIC);
+		OperateShrine(pnum, oi, IS_MAGIC, 2);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
@@ -4468,10 +4468,10 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		OperateArmorStand(pnum, oi, sendmsg);
 		break;
 	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, LS_GSHRINE);
+		OperateGoatShrine(pnum, oi);
 		break;
 	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, LS_CALDRON);
+		OperateCauldron(pnum, oi);
 		break;
 	case OBJ_BLOODFTN:
 	case OBJ_PURIFYINGFTN:
@@ -4583,7 +4583,7 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, oi, IS_MAGIC);
+		OperateShrine(pnum, oi, IS_MAGIC, 2);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
@@ -4601,10 +4601,10 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		OperateArmorStand(pnum, oi, FALSE);
 		break;
 	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, LS_GSHRINE);
+		OperateGoatShrine(pnum, oi);
 		break;
 	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, LS_CALDRON);
+		OperateCauldron(pnum, oi);
 		break;
 	case OBJ_MURKYFTN:
 	case OBJ_TEARFTN:

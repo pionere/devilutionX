@@ -857,11 +857,11 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 			SyncPlrKill(pnum, earflag);
 		} else {
 			if (p->_pClass == PC_WARRIOR) {
-				PlaySfxLoc(PS_WARR69, p->_px, p->_py);
+				PlaySfxLoc(PS_WARR69, p->_px, p->_py, 2);
 			} else if (p->_pClass == PC_ROGUE) {
-				PlaySfxLoc(PS_ROGUE69, p->_px, p->_py);
+				PlaySfxLoc(PS_ROGUE69, p->_px, p->_py, 2);
 			} else if (p->_pClass == PC_SORCERER) {
-				PlaySfxLoc(PS_MAGE69, p->_px, p->_py);
+				PlaySfxLoc(PS_MAGE69, p->_px, p->_py, 2);
 			}
 			drawhpflag = TRUE;
 		}
@@ -993,7 +993,7 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 		} else {
 			return TRUE;
 		}
-		PlaySfxLoc(tac, ops->_px, ops->_py);
+		PlaySfxLoc(tac, ops->_px, ops->_py, 2);
 	} else {
 		if (blkper < blk) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
@@ -1009,6 +1009,7 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
 {
 	MissileStruct *mis;
+	MissileData *mds;
 	int oi, mnum;
 	char pnum;
 
@@ -1126,8 +1127,11 @@ void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my,
 			mis->_mirange = 0;
 		mis->_miHitFlag = FALSE;
 	}
-	if (mis->_mirange == 0 && missiledata[mis->_mitype].miSFX != -1)
-		PlaySfxLoc(missiledata[mis->_mitype].miSFX, mis->_mix, mis->_miy);
+	if (mis->_mirange == 0) {
+		mds = &missiledata[mis->_mitype];
+		if (mds->miSFX != -1)
+			PlaySfxLoc(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
+	}
 }
 
 void SetMissAnim(int mi, int animtype)
@@ -3442,7 +3446,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_mlid = -1;
 
 	if (mds->mlSFX != -1) {
-		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy);
+		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
 	}
 
 	mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);

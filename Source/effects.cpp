@@ -1248,54 +1248,19 @@ void PlayEffect(int mnum, int mode)
 	snd_play_snd(snd, lVolume, lPan);
 }
 
-static int RndSFX(int psfx)
+void PlaySFX(int psfx, int rndCnt)
 {
-	int nRand;
-
-	if (psfx == PS_WARR69)
-		nRand = 2;
-	else if (psfx == PS_WARR14)
-		nRand = 3;
-	else if (psfx == PS_WARR15)
-		nRand = 3;
-	else if (psfx == PS_WARR16)
-		nRand = 3;
-	else if (psfx == PS_MAGE69)
-		nRand = 2;
-	else if (psfx == PS_ROGUE69)
-		nRand = 2;
-#ifdef HELLFIRE
-	else if (psfx == PS_MONK69)
-		nRand = 2;
-#endif
-	else if (psfx == PS_SWING)
-		nRand = 2;
-	else if (psfx == LS_ACID)
-		nRand = 2;
-	else if (psfx == IS_FMAG)
-		nRand = 2;
-	else if (psfx == IS_MAGIC)
-		nRand = 2;
-	else if (psfx == IS_BHIT)
-		nRand = 2;
-	else if (psfx == PS_WARR2)
-		nRand = 3;
-	else
-		return psfx;
-	return psfx + random_(165, nRand);
-}
-
-void PlaySFX(int psfx)
-{
-	psfx = RndSFX(psfx);
+	if (rndCnt != 1)
+		psfx += random_(165, rndCnt);
 	PlaySFX_priv(&sgSFX[psfx], FALSE, 0, 0);
 }
 
-void PlaySfxLoc(int psfx, int x, int y)
+void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 {
 	TSnd *pSnd;
 
-	psfx = RndSFX(psfx);
+	if (rndCnt != 1)
+		psfx += random_(165, rndCnt);
 
 	if (psfx <= PS_WALK4 && psfx >= PS_WALK1) {
 		pSnd = sgSFX[psfx].pSnd;

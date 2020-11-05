@@ -275,7 +275,7 @@ bool BlurInventory()
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (!TryDropItem()) {
 			if (plr[myplr]._pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR16); // "Where would I put this?"
+				PlaySFX(PS_WARR16, 3); // "Where would I put this?"
 			} else if (plr[myplr]._pClass == PC_ROGUE) {
 				PlaySFX(PS_ROGUE16);
 			} else if (plr[myplr]._pClass == PC_SORCERER) {

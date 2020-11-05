@@ -393,6 +393,8 @@ typedef struct MissileData {
 	unsigned char mFileNum;
 	int mlSFX;
 	int miSFX;
+	unsigned char mlSFXCnt;
+	unsigned char miSFXCnt;
 } MissileData;
 
 typedef struct MisFileData {
