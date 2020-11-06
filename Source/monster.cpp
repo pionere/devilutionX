@@ -1747,7 +1747,7 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
 		break;
 	default:
-		if (mon->MType->mtype != MT_HORKSPWN && mnum > MAX_PLRS - 1)
+		if (mnum > MAX_PLRS - 1)
 			SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
 		break;
 	}

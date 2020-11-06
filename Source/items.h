@@ -57,7 +57,6 @@ void GetItemAttrs(int ii, int idata, int lvl);
 void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval);
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
 void SetupItem(int ii);
-int RndItem(int lvl);
 void SpawnUnique(int uid, int x, int y);
 void SpawnItem(int mnum, int x, int y, BOOL sendmsg);
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta);

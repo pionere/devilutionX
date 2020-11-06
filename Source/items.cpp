@@ -2515,16 +2515,16 @@ void SetupItem(int ii)
 	}
 }
 
-int RndItem(int lvl)
+static int RndItem(int lvl)
 {
-	int i, ri, r;
+	int i, ri;
 	int ril[512];
 
 	if (random_(24, 100) > 40)
-		return 0;
+		return -1;
 
 	if (random_(24, 100) > 25)
-		return IDI_GOLD + 1;
+		return IDI_GOLD;
 
 	ri = 0;
 	for (i = 0; AllItemsList[i].iLoc != ILOC_INVALID; i++) {
@@ -2548,8 +2548,7 @@ int RndItem(int lvl)
 		}
 	}
 
-	r = random_(24, ri);
-	return ril[r] + 1;
+	return ril[random_(24, ri)];
 }
 
 int RndUItem(int lvl)
@@ -2795,32 +2794,24 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 	BOOL onlygood;
 
 	mon = &monster[mnum];
-	if (mon->_uniqtype || ((mon->MData->mTreasure & 0x8000) && gbMaxPlayers != 1)) {
-		if ((mon->MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1)
-			idx = -1 - (mon->MData->mTreasure & 0xFFF);
-		else
-			idx = RndUItem(mon->mLevel);
-		if (idx < 0) {
-			SpawnUnique(-(idx + 1), x, y);
-			return;
-		}
+	if ((mon->MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1) {
+		// fix drop in single player
+		idx = mon->MData->mTreasure & 0xFFF;
+		SpawnUnique(idx, x, y);
+		return;
+	}
+	if (mon->MData->mTreasure & 0x4000)
+		// no drop
+		return;
+
+	if (mon->_uniqtype != 0) {
+		idx = RndUItem(mon->mLevel);
 		onlygood = TRUE;
 	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHGIVEN) {
-		if ((mon->MData->mTreasure & 0x8000) != 0)
-			idx = -1 - (mon->MData->mTreasure & 0xFFF);
-		else if (mon->MData->mTreasure & 0x4000)
-			idx = 0;
-		else
-			idx = RndItem(mon->mLevel);
-		if (!idx)
+		idx = RndItem(mon->mLevel);
+		if (idx < 0)
 			return;
-		if (idx > 0) {
-			idx--;
-			onlygood = FALSE;
-		} else {
-			SpawnUnique(-(idx + 1), x, y);
-			return;
-		}
+		onlygood = FALSE;
 	} else {
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
