@@ -1721,8 +1721,10 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 	mon = &monster[mnum];
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
-		if (QuestStatus(Q_GARBUD))
+		if (QuestStatus(Q_GARBUD)) {
 			CreateTypeItem(mon->_mx + 1, mon->_my + 1, TRUE, ITYPE_MACE, IMISC_NONE, TRUE, FALSE);
+			return;
+		}
 		break;
 	case UMT_HORKDMN:
 		if (UseTheoQuest) {
@@ -1730,13 +1732,13 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		} else {
 			CreateAmulet(mon->_mx, mon->_my, 13, FALSE, TRUE);
 		}
-		break;
+		return;
 	case UMT_DEFILER:
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
 		quests[Q_DEFILER]._qlog = FALSE;
 		SpawnMapOfDoom(mon->_mx, mon->_my);
-		break;
+		return;
 	case UMT_NAKRUL:
 		stream_stop();
 		quests[Q_NAKRUL]._qlog = FALSE;
@@ -1745,12 +1747,10 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
 		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
-		break;
-	default:
-		if (mnum > MAX_PLRS - 1)
-			SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
-		break;
+		return;
 	}
+	if (mnum > MAX_PLRS - 1)
+		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
 }
 #endif
 
