@@ -23,25 +23,16 @@ extern BOOL zoomflag;
 extern BOOL gbProcessPlayers;
 extern BOOL gbLoadGame;
 extern HINSTANCE ghInst;
-extern int DebugMonsters[10];
 extern BOOLEAN cineflag;
 extern int force_redraw;
-extern BOOL visiondebug;
 /* These are defined in fonts.h */
 extern BOOL was_fonts_init;
 extern void FontsCleanup();
-/** unused */
-extern BOOL light4flag;
-extern BOOL leveldebug;
-extern BOOL monstdebug;
-/** unused */
-extern int debugmonsttypes;
 extern int PauseMode;
 #ifdef HELLFIRE
 extern BOOLEAN UseTheoQuest;
 extern BOOLEAN UseCowFarmer;
 extern BOOLEAN UseNestArt;
-extern BOOLEAN UseMultiTest;
 #endif
 extern char sgbMouseDown;
 extern int ticks_per_sec;
@@ -67,6 +58,14 @@ void diablo_color_cyc_logic();
 extern BOOL fullscreen;
 extern int showintro;
 #ifdef _DEBUG
+extern int DebugMonsters[10];
+extern BOOL visiondebug;
+extern BOOL lightflag;
+extern BOOL light4flag;
+extern BOOL leveldebug;
+extern BOOL monstdebug;
+/** unused */
+extern int debugmonsttypes;
 extern int questdebug;
 extern int debug_mode_key_w;
 extern int debug_mode_key_inverted_v;

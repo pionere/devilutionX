@@ -1763,8 +1763,11 @@ void RedBack()
 {
 	int idx;
 
-	idx = light4flag ? 1536 : 4608;
-
+	idx = 4608;
+#ifdef _DEBUG
+	if (light4flag)
+		idx = 1536;
+#endif
 	assert(gpBuffer);
 
 	int w, h;

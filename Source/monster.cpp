@@ -284,26 +284,27 @@ void GetLevelMTypes()
 			}
 		}
 
+#ifdef _DEBUG
 		if (monstdebug) {
 			for (i = 0; i < debugmonsttypes; i++)
 				AddMonsterType(DebugMonsters[i], 1);
-		} else {
-
-			while (nt > 0 && nummtypes < MAX_LVLMTYPES && monstimgtot < 4000) {
-				for (i = 0; i < nt;) {
-					if (monsterdata[typelist[i]].mImage > 4000 - monstimgtot) {
-						typelist[i] = typelist[--nt];
-						continue;
-					}
-
-					i++;
-				}
-
-				if (nt != 0) {
-					i = random_(88, nt);
-					AddMonsterType(typelist[i], 1);
+			return;
+		}
+#endif
+		while (nt > 0 && nummtypes < MAX_LVLMTYPES && monstimgtot < 4000) {
+			for (i = 0; i < nt;) {
+				if (monsterdata[typelist[i]].mImage > 4000 - monstimgtot) {
 					typelist[i] = typelist[--nt];
+					continue;
 				}
+
+				i++;
+			}
+
+			if (nt != 0) {
+				i = random_(88, nt);
+				AddMonsterType(typelist[i], 1);
+				typelist[i] = typelist[--nt];
 			}
 		}
 	} else {

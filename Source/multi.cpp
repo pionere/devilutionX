@@ -777,11 +777,6 @@ void SetupLocalCoords()
 	PlayerStruct *p;
 	int x, y;
 
-	if (!leveldebug || gbMaxPlayers != 1) {
-		currlevel = 0;
-		leveltype = DTYPE_TOWN;
-		setlevel = FALSE;
-	}
 	x = 75;
 	y = 68;
 #ifdef _DEBUG
@@ -789,6 +784,15 @@ void SetupLocalCoords()
 		x = 49;
 		y = 23;
 	}
+	if (!leveldebug || gbMaxPlayers != 1) {
+		currlevel = 0;
+		leveltype = DTYPE_TOWN;
+		setlevel = FALSE;
+	}
+#else
+	currlevel = 0;
+	leveltype = DTYPE_TOWN;
+	setlevel = FALSE;
 #endif
 	x += plrxoff[myplr];
 	y += plryoff[myplr];

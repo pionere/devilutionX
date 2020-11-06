@@ -1123,14 +1123,13 @@ void DRLG_Init_Globals()
 	memset(dItem, 0, sizeof(dItem));
 	memset(dMissile, 0, sizeof(dMissile));
 	memset(dSpecial, 0, sizeof(dSpecial));
-	if (!lightflag) {
-		if (light4flag)
-			c = 3;
-		else
-			c = 15;
-	} else {
+	c = 15;
+#ifdef _DEBUG
+	if (lightflag)
 		c = 0;
-	}
+	else if (light4flag)
+		c = 3;
+#endif
 	memset(dLight, c, sizeof(dLight));
 }
 

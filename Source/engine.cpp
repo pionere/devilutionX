@@ -147,6 +147,22 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 		CelBlitSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
+static inline int lightidx(char light)
+{
+	int idx;
+
+	idx = 4096;
+#ifdef _DEBUG
+	if (light4flag)
+		idx = 1024;
+#endif
+	if (light == 2)
+		idx += 256; // gray colors
+	if (light >= 4)
+		idx += (light - 1) << 8;
+	return idx;
+}
+
 /**
  * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates, translated to a red hue
  * @param sx Back buffer coordinate
@@ -158,8 +174,9 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, w, idx;
-	BYTE *pRLEBytes, *dst, *tbl;
+	int nDataSize, w;
+	BYTE *pRLEBytes, *dst, *tbl, *end;
+	BYTE width;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -167,16 +184,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
-
-	BYTE width;
-	BYTE *end;
-
-	tbl = &pLightTbl[idx];
+	tbl = &pLightTbl[lightidx(light)];
 	end = &pRLEBytes[nDataSize];
 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
@@ -453,8 +461,9 @@ void CelClippedBlitLightTrans(BYTE *pBuff, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, w, idx;
-	BYTE *pRLEBytes, *dst, *tbl;
+	int nDataSize, w;
+	BYTE *pRLEBytes, *dst, *tbl, *end;
+	BYTE width;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -462,16 +471,7 @@ void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, c
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
-
-	tbl = &pLightTbl[idx];
-
-	BYTE width;
-	BYTE *end;
+	tbl = &pLightTbl[lightidx(light)];
 
 	end = &pRLEBytes[nDataSize];
 
@@ -1205,8 +1205,8 @@ void Cl2DrawOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
  */
 void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, idx;
-	BYTE *pRLEBytes, *pDecodeTo;
+	int nDataSize;
+	BYTE *pRLEBytes, *pDecodeTo, *tbl;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -1214,19 +1214,14 @@ void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
+	tbl = &pLightTbl[lightidx(light)];
 
 	Cl2BlitLightSafe(
 	    pDecodeTo,
 	    pRLEBytes,
 	    nDataSize,
 	    nWidth,
-	    &pLightTbl[idx]);
+	    tbl);
 }
 
 /**

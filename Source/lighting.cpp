@@ -19,7 +19,6 @@ BOOL dolighting;
 BYTE lightblock[64][16][16];
 int visionid;
 BYTE *pLightTbl;
-BOOL lightflag;
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -814,12 +813,11 @@ void MakeLightTable()
 
 	tbl = pLightTbl;
 	shade = 0;
-
-	if (light4flag) {
+	lights = 15;
+#ifdef _DEBUG
+	if (light4flag)
 		lights = 3;
-	} else {
-		lights = 15;
-	}
+#endif
 
 	for (i = 0; i < lights; i++) {
 		*tbl++ = 0;
@@ -868,11 +866,12 @@ void MakeLightTable()
 				}
 			}
 		}
-		if (light4flag) {
+#ifdef _DEBUG
+		if (light4flag)
 			shade += 5;
-		} else {
+		else
+#endif
 			shade++;
-		}
 	}
 
 	for (i = 0; i < 256; i++) {
@@ -1037,11 +1036,11 @@ void ToggleLighting()
 
 void InitLightMax()
 {
-	if (light4flag) {
+	lightmax = 15;
+#ifdef _DEBUG
+	if (light4flag)
 		lightmax = 3;
-	} else {
-		lightmax = 15;
-	}
+#endif
 }
 
 void InitLighting()
@@ -1050,7 +1049,9 @@ void InitLighting()
 
 	numlights = 0;
 	dolighting = FALSE;
+#ifdef _DEBUG
 	lightflag = FALSE;
+#endif
 
 	for (i = 0; i < MAXLIGHTS; i++) {
 		lightactive[i] = i;
@@ -1062,9 +1063,10 @@ int AddLight(int x, int y, int r)
 	LightListStruct *lis;
 	int lnum;
 
-	if (lightflag) {
+#ifdef _DEBUG
+	if (lightflag)
 		return -1;
-	}
+#endif
 
 	lnum = -1;
 
@@ -1086,9 +1088,12 @@ int AddLight(int x, int y, int r)
 
 void AddUnLight(int lnum)
 {
-	if (lightflag || lnum == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
 	LightList[lnum]._ldel = TRUE;
 	dolighting = TRUE;
@@ -1098,9 +1103,12 @@ void ChangeLightRadius(int lnum, int r)
 {
 	LightListStruct *lis;
 
-	if (lightflag || lnum == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lis->_lunflag = TRUE;
@@ -1115,9 +1123,12 @@ void ChangeLightXY(int lnum, int x, int y)
 {
 	LightListStruct *lis;
 
-	if (lightflag || lnum == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lis->_lunflag = TRUE;
@@ -1133,9 +1144,12 @@ void ChangeLightOff(int lnum, int x, int y)
 {
 	LightListStruct *lis;
 
-	if (lightflag || lnum == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lis->_lunflag = TRUE;
@@ -1151,9 +1165,12 @@ void ChangeLight(int lnum, int x, int y, int r)
 {
 	LightListStruct *lis;
 
-	if (lightflag || lnum == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lis->_lunflag = TRUE;
@@ -1172,9 +1189,10 @@ void ProcessLightList()
 	int i, j;
 	BYTE temp;
 
-	if (lightflag) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
 
 	if (dolighting) {
 		for (i = 0; i < numlights; i++) {
@@ -1340,12 +1358,15 @@ void lighting_color_cycling()
 	BYTE col;
 	BYTE *tbl;
 
-	l = light4flag ? 4 : 16;
-
 	if (leveltype != DTYPE_HELL) {
 		return;
 	}
 
+	l = 16;
+#ifdef _DEBUG
+	if (light4flag)
+		l = 4;
+#endif
 	tbl = pLightTbl;
 
 	for (j = 0; j < l; j++) {

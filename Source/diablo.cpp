@@ -32,25 +32,13 @@ BOOL gbRunGameResult;
 BOOL zoomflag;
 BOOL gbProcessPlayers;
 BOOL gbLoadGame;
-int DebugMonsters[10];
 BOOLEAN cineflag;
 int force_redraw;
-BOOL visiondebug;
-/** unused */
-BOOL scrollflag;
-BOOL light4flag;
-BOOL leveldebug;
-BOOL monstdebug;
-/** unused */
-BOOL trigdebug;
-int setseed;
-int debugmonsttypes;
 int PauseMode;
 #ifdef HELLFIRE
 BOOLEAN UseTheoQuest;
 BOOLEAN UseCowFarmer;
 BOOLEAN UseNestArt;
-BOOLEAN UseMultiTest;
 #endif
 int sgnTimeoutCurs;
 char sgbMouseDown;              // flags to remember the pressed mouse buttons (left/right)
@@ -68,6 +56,18 @@ WORD tick_delay = 50;
 BOOL fullscreen = TRUE;
 int showintro = 1;
 #ifdef _DEBUG
+int DebugMonsters[10];
+BOOL visiondebug;
+/** unused */
+BOOL scrollflag;
+BOOL lightflag;
+BOOL light4flag;
+BOOL leveldebug;
+BOOL monstdebug;
+/** unused */
+BOOL trigdebug;
+int setseed;
+int debugmonsttypes;
 int questdebug = -1;
 int debug_mode_key_s;
 int debug_mode_key_w;
@@ -235,7 +235,9 @@ static void start_game(unsigned int uMsg)
 	cineflag = FALSE;
 	InitCursor();
 	InitLightTable();
+#ifdef _DEBUG
 	LoadDebugGFX();
+#endif
 	assert(ghMainWnd);
 	music_stop();
 	ShowProgress(uMsg);
@@ -261,7 +263,9 @@ static void free_game()
 	FreeItemGFX();
 	FreeCursor();
 	FreeLightTable();
+#ifdef _DEBUG
 	FreeDebugGFX();
+#endif
 	FreeGameMem();
 }
 
@@ -1597,8 +1601,10 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	int i, j;
 	BOOL visited;
 
+#ifdef _DEBUG
 	if (setseed)
 		glSeedTbl[currlevel] = setseed;
+#endif
 
 	music_stop();
 	NewCursor(CURSOR_HAND);

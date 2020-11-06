@@ -9,7 +9,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef _DEBUG
 BOOL update_seed_check = FALSE;
-#endif
 
 #define DEBUGSEEDS 4096
 int seed_index;
@@ -30,6 +29,7 @@ void FreeDebugGFX()
 {
 	MemFreeDbg(pSquareCel);
 }
+#endif
 
 void CheckDungeonClear()
 {
@@ -42,8 +42,10 @@ void CheckDungeonClear()
 			if (dPlayer[i][j] != 0)
 				app_fatal("Players not cleared");
 
+#ifdef _DEBUG
 			dMonsDbg[currlevel][i][j] = dFlags[i][j] & BFLAG_VISIBLE;
 			dFlagDbg[currlevel][i][j] = dFlags[i][j] & BFLAG_POPULATED;
+#endif
 		}
 	}
 }

@@ -12,12 +12,12 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+void CheckDungeonClear();
+#ifdef _DEBUG
 extern BYTE *pSquareCel;
 
 void LoadDebugGFX();
 void FreeDebugGFX();
-void CheckDungeonClear();
-#ifdef _DEBUG
 void GiveGoldCheat();
 void StoresCheat();
 void TakeGoldCheat();

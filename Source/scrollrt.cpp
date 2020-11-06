@@ -733,9 +733,11 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (sy > 0) // check for OOB
 		mnum = dMonster[sx][sy - 1];
 
+#ifdef _DEBUG
 	if (visiondebug && bFlag & BFLAG_LIT) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
 	}
+#endif
 
 	if (MissilePreFlag) {
 		DrawMissile(sx, sy, dx, dy, TRUE);

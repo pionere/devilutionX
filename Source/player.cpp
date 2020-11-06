@@ -976,8 +976,11 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 	}
 
+#ifdef _DEBUG
 	if (p->plrlevel == currlevel || leveldebug) {
-
+#else
+	if (p->plrlevel == currlevel) {
+#endif
 		SetPlrAnims(pnum);
 
 		p->_pxoff = 0;

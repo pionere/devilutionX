@@ -1826,16 +1826,17 @@ void Obj_Light(int oi, int lr)
 	int ox, oy, dx, dy, i, tr;
 	DIABOOL turnon;
 
-	turnon = FALSE;
 	os = &object[oi];
 	if (os->_oVar1 != -1) {
 		ox = os->_ox;
 		oy = os->_oy;
 		tr = lr + 10;
-#ifndef HELLFIRE
 		turnon = FALSE;
-#endif
+#ifdef _DEBUG
 		if (!lightflag) {
+#else
+		{
+#endif
 			for (i = 0; i < MAX_PLRS && !turnon; i++) {
 				if (plr[i].plractive) {
 					if (currlevel == plr[i].plrlevel) {
