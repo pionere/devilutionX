@@ -508,9 +508,7 @@ void DrawInvBelt()
 			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 
-		if (AllItemsList[is->IDidx].iUsable
-		    && is->_iStatFlag
-		    && is->_itype != ITYPE_GOLD) {
+		if (AllItemsList[is->IDidx].iUsable && is->_iStatFlag) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, 0);
@@ -719,7 +717,7 @@ BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
 	pi = saveflag ? is : NULL;
 	done = FALSE;
 	if (w == 1 && h == 1) {
-		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
+		if (AllItemsList[is->IDidx].iUsable && is->_iStatFlag) {
 			for (i = 0; i < MAXBELTITEMS && !done; i++) {
 				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
 					if (pi != NULL) {
@@ -863,13 +861,7 @@ void CheckInvPaste(int pnum, int mx, int my)
 	}
 	if (holditem->_iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {
 		if (sx == 1 && sy == 1) {
-			done = TRUE;
-			if (!AllItemsList[holditem->IDidx].iUsable)
-				done = FALSE;
-			if (!holditem->_iStatFlag)
-				done = FALSE;
-			if (holditem->_itype == ITYPE_GOLD)
-				done = FALSE;
+			done = AllItemsList[holditem->IDidx].iUsable && holditem->_iStatFlag;
 		}
 	}
 
@@ -2275,16 +2267,16 @@ BOOL UseInvItem(int pnum, int cii)
 		return TRUE;
 	}
 
-	if (!AllItemsList[is->IDidx].iUsable)
+	if (!AllItemsList[is->IDidx].iUsable) {
+		if (is->_iMiscId == IMISC_NONE && is->_itype == ITYPE_GOLD) {
+			StartGoldDrop();
+			return TRUE;
+		}
 		return FALSE;
+	}
 
 	if (!is->_iStatFlag) {
 		PlaySFX(sgSFXSets[SFXS_PLR_13][plr[pnum]._pClass]);
-		return TRUE;
-	}
-
-	if (is->_iMiscId == IMISC_NONE && is->_itype == ITYPE_GOLD) {
-		StartGoldDrop();
 		return TRUE;
 	}
 
