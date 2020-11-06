@@ -1486,21 +1486,8 @@ void CheckQuestItem(int pnum)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
 	else if (idx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
 		sfxdelay = 10;
-		if (p->_pClass == PC_WARRIOR) { // BUGFIX: Voice for this quest might be wrong in MP
-			sfxdnum = PS_WARR95;
-		} else if (p->_pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE95;
-		} else if (p->_pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE95;
-#ifdef HELLFIRE
-		} else if (p->_pClass == PC_MONK) {
-			sfxdnum = PS_MONK95;
-		} else if (p->_pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE95;
-		} else if (p->_pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR95;
-#endif
-		}
+		// BUGFIX: Voice for this quest might be wrong in MP
+		sfxdnum = sgSFXSets[SFXS_PLR_95][p->_pClass];
 		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
 	} else if (idx == IDI_ANVIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
@@ -1509,39 +1496,11 @@ void CheckQuestItem(int pnum)
 		}
 		if (quests[Q_ANVIL]._qlog) {
 			sfxdelay = 10;
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				sfxdnum = PS_WARR89;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				sfxdnum = PS_ROGUE89;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				sfxdnum = PS_MAGE89;
-#ifdef HELLFIRE
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				sfxdnum = PS_MONK89;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				sfxdnum = PS_ROGUE89;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				sfxdnum = PS_WARR89;
-#endif
-			}
+			sfxdnum = sgSFXSets[SFXS_PLR_89][plr[myplr]._pClass];
 		}
 	} else if (idx == IDI_GLDNELIX) {
 		sfxdelay = 30;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR88;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE88;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE88;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK88;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE88;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR88;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_88][plr[myplr]._pClass];
 	} else if (idx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
@@ -1549,59 +1508,19 @@ void CheckQuestItem(int pnum)
 		}
 		if (quests[Q_ROCK]._qlog) {
 			sfxdelay = 10;
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				sfxdnum = PS_WARR87;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				sfxdnum = PS_ROGUE87;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				sfxdnum = PS_MAGE87;
-#ifdef HELLFIRE
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				sfxdnum = PS_MONK87;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				sfxdnum = PS_ROGUE87;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				sfxdnum = PS_WARR87;
-#endif
-			}
+			sfxdnum = sgSFXSets[SFXS_PLR_87][plr[myplr]._pClass];
 		}
 	} else if (idx == IDI_ARMOFVAL) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 		sfxdelay = 20;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR91;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE91;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE91;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK91;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE91;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR91;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_91][plr[myplr]._pClass];
 #ifdef HELLFIRE
 	} else if (idx == IDI_MAPOFDOOM) {
 		quests[Q_GRAVE]._qlog = FALSE;
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		quests[Q_GRAVE]._qvar1 = 1;
 		sfxdelay = 10;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR79;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE79;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE79;
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK79;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE79;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR79;
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_79][plr[myplr]._pClass];
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int item_num;
 		int nn;
@@ -1610,19 +1529,7 @@ void CheckQuestItem(int pnum)
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
 			sfxdelay = 10;
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				sfxdnum = PS_WARR46;
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				sfxdnum = PS_ROGUE46;
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				sfxdnum = PS_MAGE46;
-			} else if (plr[myplr]._pClass == PC_MONK) {
-				sfxdnum = PS_MONK46;
-			} else if (plr[myplr]._pClass == PC_BARD) {
-				sfxdnum = PS_ROGUE46;
-			} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-				sfxdnum = PS_WARR46;
-			}
+			sfxdnum = sgSFXSets[SFXS_PLR_46][plr[myplr]._pClass];
 			if (idx != IDI_NOTE1) {
 				PlrHasItem(pnum, IDI_NOTE1, &nn);
 				RemoveInvItem(pnum, nn);
@@ -2359,21 +2266,7 @@ BOOL UseInvItem(int pnum, int cii)
 	switch (is->IDidx) {
 	case IDI_MUSHROOM:
 		sfxdelay = 10;
-		if (plr[pnum]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR95;
-		} else if (plr[pnum]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE95;
-		} else if (plr[pnum]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE95;
-#ifdef HELLFIRE
-		} else if (plr[pnum]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK95;
-		} else if (plr[pnum]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE95;
-		} else if (plr[pnum]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR95;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_95][plr[pnum]._pClass];
 		return TRUE;
 	case IDI_FUNGALTM:
 		PlaySFX(IS_IBOOK);

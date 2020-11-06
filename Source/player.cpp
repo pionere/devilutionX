@@ -4317,75 +4317,19 @@ void PlayDungMsgs()
 
 	if (currlevel == 1 && !plr[myplr]._pLvlVisited[1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
 		sfxdelay = 40;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR97;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE97;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE97;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK97;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE97;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR97;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_97][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATHEDRAL;
 	} else if (currlevel == 5 && !plr[myplr]._pLvlVisited[5] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR96B;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE96;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE96;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK96;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE96;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR96B;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_96][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATACOMBS;
 	} else if (currlevel == 9 && !plr[myplr]._pLvlVisited[9] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
 		sfxdelay = 40;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR98;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE98;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE98;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK98;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE98;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR98;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_98][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CAVES;
 	} else if (currlevel == 13 && !plr[myplr]._pLvlVisited[13] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
 		sfxdelay = 40;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR99;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE99;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE99;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK99;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE99;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR99;
-#endif
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_99][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_HELL;
 	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[15] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
@@ -4411,19 +4355,7 @@ void PlayDungMsgs()
 		plr[myplr].pDungMsgs2 |= 4;
 	} else if (currlevel == 21 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & 32)) {
 		sfxdelay = 30;
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			sfxdnum = PS_WARR92;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			sfxdnum = PS_ROGUE92;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			sfxdnum = PS_MAGE92;
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			sfxdnum = PS_MONK92;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			sfxdnum = PS_ROGUE92;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			sfxdnum = PS_WARR92;
-		}
+		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= 32;
 #endif
 	}
