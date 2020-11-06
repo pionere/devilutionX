@@ -1703,11 +1703,9 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	ii = dItem[x][y];
 	if (ii != 0) {
 		ii--;
-		if (item[ii].IDidx == idx
-		    && item[ii]._iSeed == iseed
-		    && item[ii]._iCreateInfo == ci) {
-			FindGetItem(idx, ci, iseed);
-		} else {
+		if (item[ii].IDidx != idx
+		 || item[ii]._iSeed != iseed
+		 || item[ii]._iCreateInfo != ci) {
 			ii = FindGetItem(idx, ci, iseed);
 		}
 	} else {
@@ -1733,18 +1731,11 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 		while (i < numitems) {
 			if (itemactive[i] == ii) {
 				DeleteItem(itemactive[i], i);
-				FindGetItem(idx, ci, iseed);
-#ifndef HELLFIRE
-				/// ASSERT: assert(FindGetItem(idx,ci,iseed) == -1);
-				FindGetItem(idx, ci, iseed); /* todo: replace with above */
-#endif
 				i = 0;
 			} else {
 				i++;
 			}
 		}
-		/// ASSERT: assert(FindGetItem(idx, ci, iseed) == -1);
-		FindGetItem(idx, ci, iseed); /* todo: replace with above */
 	}
 }
 
