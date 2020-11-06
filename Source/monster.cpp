@@ -1246,13 +1246,13 @@ void NewMonsterAnim(int mnum, AnimStruct *anim, int md)
 {
 	MonsterStruct *mon = &monster[mnum];
 
+	mon->_mdir = md;
 	mon->_mAnimData = anim->Data[md];
 	mon->_mAnimLen = anim->Frames;
 	mon->_mAnimCnt = 0;
 	mon->_mAnimFrame = 1;
 	mon->_mAnimDelay = anim->Rate;
 	mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_ALLOW_SPECIAL);
-	mon->_mdir = md;
 }
 
 BOOL MonRanged(int mnum)
@@ -1366,7 +1366,6 @@ void MonStartStand(int mnum, int md)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 	MonEnemy(mnum);
 }
 
@@ -1392,7 +1391,6 @@ void MonStartSpStand(int mnum, int md)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 }
 
 void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
@@ -1416,7 +1414,6 @@ void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
 	mon->_mVar1 = xadd;
 	mon->_mVar2 = yadd;
 	mon->_mVar3 = EndDir;
-	mon->_mdir = EndDir;
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_WALK], EndDir);
 	mon->_mVar6 = 0;
 	mon->_mVar7 = 0;
@@ -1451,7 +1448,6 @@ void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, i
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
 	mon->_mVar3 = EndDir;
-	mon->_mdir = EndDir;
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_WALK], EndDir);
 	mon->_mVar6 = 16 * xoff;
 	mon->_mVar7 = 16 * yoff;
@@ -1490,7 +1486,6 @@ void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, i
 	mon->_mVar1 = fx;
 	mon->_mVar2 = fy;
 	mon->_mVar3 = EndDir;
-	mon->_mdir = EndDir;
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_WALK], EndDir);
 	mon->_mVar6 = 16 * xoff;
 	mon->_mVar7 = 16 * yoff;
@@ -1508,7 +1503,6 @@ void MonStartAttack(int mnum)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 }
 
 void MonStartRAttack(int mnum, int mitype, int dam)
@@ -1524,7 +1518,6 @@ void MonStartRAttack(int mnum, int mitype, int dam)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 }
 
 void MonStartRSpAttack(int mnum, int mitype, int dam)
@@ -1541,7 +1534,6 @@ void MonStartRSpAttack(int mnum, int mitype, int dam)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 }
 
 void MonStartSpAttack(int mnum)
@@ -1555,7 +1547,6 @@ void MonStartSpAttack(int mnum)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 }
 
 void MonStartEat(int mnum)
@@ -1905,7 +1896,6 @@ void M2MStartKill(int offm, int defm)
 	if (dmon->MType->mtype == MT_GOLEM)
 		md = 0;
 
-	dmon->_mdir = md;
 	NewMonsterAnim(defm, &dmon->MType->Anims[MA_DEATH], md);
 	dmon->_mmode = MM_DEATH;
 	dmon->_mxoff = 0;
@@ -1999,7 +1989,6 @@ void MonStartFadein(int mnum, int md, BOOL backwards)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 	mon->_mFlags &= ~MFLAG_HIDDEN;
 	if (backwards) {
 		mon->_mFlags |= MFLAG_LOCK_ANIMATION;
@@ -2031,7 +2020,6 @@ void MonStartFadeout(int mnum, int md, BOOL backwards)
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
-	mon->_mdir = md;
 	if (backwards) {
 		mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 		mon->_mAnimFrame = mon->_mAnimLen;
