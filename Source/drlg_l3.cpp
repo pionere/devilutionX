@@ -1556,72 +1556,52 @@ static void DRLG_L3PoolFix()
 	}
 }
 
-static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx, int cy, BOOL setview, int ldir)
+static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, numt, trys;
-	BOOL found;
+	int sx, sy, sw, sh, xx, yy, i, ii, tries;
+	BOOL done;
 
 	sw = miniset[0];
 	sh = miniset[1];
 
-	if (tmax - tmin == 0) {
-		numt = 1;
-	} else {
-		numt = random_(0, tmax - tmin) + tmin;
-	}
+	sx = random_(0, DMAXX - sw);
+	sy = random_(0, DMAXY - sh);
 
-	for (i = 0; i < numt; i++) {
-		sx = random_(0, DMAXX - sw);
-		sy = random_(0, DMAXY - sh);
-		found = FALSE;
-		trys = 0;
-		while (!found && trys < 200) {
-			trys++;
-			found = TRUE;
-			if (cx != -1 && sx >= cx - sw && sx <= cx + 12) {
-				sx = random_(0, DMAXX - sw);
-				sy = random_(0, DMAXY - sh);
-				found = FALSE;
-			}
-			if (cy != -1 && sy >= cy - sh && sy <= cy + 12) {
-				sx = random_(0, DMAXX - sw);
-				sy = random_(0, DMAXY - sh);
-				found = FALSE;
-			}
-			ii = 2;
-			for (yy = 0; yy < sh && found; yy++) {
-				for (xx = 0; xx < sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
-						found = FALSE;
-					}
-					if (dflags[xx + sx][yy + sy] != 0) {
-						found = FALSE;
-					}
-					ii++;
+	tries = 0;
+	while (TRUE) {
+		done = TRUE;
+		ii = 2;
+		for (yy = 0; yy < sh && done; yy++) {
+			for (xx = 0; xx < sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+					done = FALSE;
 				}
-			}
-			if (!found) {
-				sx++;
-				if (sx == DMAXX - sw) {
-					sx = 0;
-					sy++;
-					if (sy == DMAXY - sh) {
-						sy = 0;
-					}
-				}
-			}
-		}
-		if (trys >= 200) {
-			return TRUE;
-		}
-		ii = sw * sh + 2;
-		for (yy = 0; yy < sh; yy++) {
-			for (xx = 0; xx < sw; xx++) {
-				if (miniset[ii] != 0) {
-					dungeon[xx + sx][yy + sy] = miniset[ii];
+				if (dflags[xx + sx][yy + sy] != 0) {
+					done = FALSE;
 				}
 				ii++;
 			}
+		}
+		tries++;
+		if (done || tries == 200)
+			break;
+		if (++sx == DMAXX - sw) {
+			sx = 0;
+			if (++sy == DMAXY - sh) {
+				sy = 0;
+			}
+		}
+	}
+	if (tries == 200)
+		return FALSE;
+
+	ii = sw * sh + 2;
+	for (yy = 0; yy < sh; yy++) {
+		for (xx = 0; xx < sw; xx++) {
+			if (miniset[ii] != 0) {
+				dungeon[xx + sx][yy + sy] = miniset[ii];
+			}
+			ii++;
 		}
 	}
 
@@ -1634,7 +1614,7 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, int tmin, int tmax, int cx,
 		LvlViewY = 2 * sy + DBORDERY + 3;
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
@@ -2060,47 +2040,43 @@ static void DRLG_L3Wood()
 	FenceDoorFix();
 }
 
-BOOL DRLG_L3Anvil()
+static BOOL DRLG_L3Anvil()
 {
-	int sx, sy, sw, sh, xx, yy, ii, trys;
-	BOOL found;
+	int sx, sy, sw, sh, xx, yy, ii, tries;
+	BOOL done;
 
 	sw = L3ANVIL[0];
 	sh = L3ANVIL[1];
 	sx = random_(0, DMAXX - sw);
 	sy = random_(0, DMAXY - sh);
 
-	found = FALSE;
-	trys = 0;
-	while (!found && trys < 200) {
-		trys++;
-		found = TRUE;
+	tries = 0;
+	while (TRUE) {
+		done = TRUE;
 		ii = 2;
-		for (yy = 0; yy < sh && found; yy++) {
-			for (xx = 0; xx < sw && found; xx++) {
+		for (yy = 0; yy < sh && done; yy++) {
+			for (xx = 0; xx < sw && done; xx++) {
 				if (L3ANVIL[ii] != 0 && dungeon[xx + sx][yy + sy] != L3ANVIL[ii]) {
-					found = FALSE;
+					done = FALSE;
 				}
 				if (dflags[xx + sx][yy + sy] != 0) {
-					found = FALSE;
+					done = FALSE;
 				}
 				ii++;
 			}
 		}
-		if (!found) {
-			sx++;
-			if (sx == DMAXX - sw) {
-				sx = 0;
-				sy++;
-				if (sy == DMAXY - sh) {
-					sy = 0;
-				}
+		tries++;
+		if (done || tries == 200)
+			break;
+		if (++sx == DMAXX - sw) {
+			sx = 0;
+			if (++sy == DMAXY - sh) {
+				sy = 0;
 			}
 		}
 	}
-	if (trys >= 200) {
-		return TRUE;
-	}
+	if (tries == 200)
+		return FALSE;
 
 	ii = sw * sh + 2;
 	for (yy = 0; yy < sh; yy++) {
@@ -2118,7 +2094,7 @@ BOOL DRLG_L3Anvil()
 	setpc_w = sw;
 	setpc_h = sh;
 
-	return FALSE;
+	return TRUE;
 }
 
 void FixL3Warp()
@@ -2210,7 +2186,7 @@ BOOL DRLG_L3Lockout()
 static void DRLG_L3(int entry)
 {
 	int x1, y1, x2, y2, i, j;
-	BOOL found, genok;
+	BOOL doneflag;
 
 	lavapool = FALSE;
 
@@ -2240,107 +2216,73 @@ static void DRLG_L3(int entry)
 				DRLG_L3FillDiags();
 				DRLG_L3Edges();
 				if (DRLG_L3GetFloorArea() >= 600) {
-					found = DRLG_L3Lockout();
+					doneflag = DRLG_L3Lockout();
 				} else {
-					found = FALSE;
+					doneflag = FALSE;
 				}
-			} while (!found);
+			} while (!doneflag);
 			DRLG_L3MakeMegas();
 			if (entry == ENTRY_MAIN) {
 #ifdef HELLFIRE
 				if (currlevel < 17) {
 #endif
-					genok = DRLG_L3PlaceMiniSet(L3UP, 1, 1, -1, -1, TRUE, 0);
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, TRUE, 0)
+					 && DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
+					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
 #ifdef HELLFIRE
 				} else {
-					if ( currlevel != 17 )
-						genok = DRLG_L3PlaceMiniSet(L6UP, 1, 1, -1, -1, TRUE, 0);
+					if (currlevel != 17)
+						doneflag = DRLG_L3PlaceMiniSet(L6UP, TRUE, 0);
 					else
-						genok = DRLG_L3PlaceMiniSet(L6HOLDWARP, 1, 1, -1, -1, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
+					if (doneflag && currlevel != 20)
+						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
 				}
 #endif
-				if (!genok) {
-#ifdef HELLFIRE
-					if (currlevel < 17) {
-#endif
-						genok = DRLG_L3PlaceMiniSet(L3DOWN, 1, 1, -1, -1, FALSE, 1);
-#ifdef HELLFIRE
-					} else {
-						if ( currlevel != 20 )
-							genok = DRLG_L3PlaceMiniSet(L6DOWN, 1, 1, -1, -1, FALSE, 1);
-					}
-#endif
-					if (!genok && currlevel == 9) {
-						genok = DRLG_L3PlaceMiniSet(L3HOLDWARP, 1, 1, -1, -1, FALSE, 6);
-					}
-				}
 			} else if (entry == ENTRY_PREV) {
 #ifdef HELLFIRE
 				if (currlevel < 17) {
 #endif
-					genok = DRLG_L3PlaceMiniSet(L3UP, 1, 1, -1, -1, FALSE, 0);
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DOWN, TRUE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
+					ViewX += 2;
+					ViewY -= 2;
 #ifdef HELLFIRE
 				} else {
-					if ( currlevel != 17 )
-						genok = DRLG_L3PlaceMiniSet(L6UP, 1, 1, -1, -1, FALSE, 0);
+					if (currlevel != 17)
+						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
 					else
-						genok = DRLG_L3PlaceMiniSet(L6HOLDWARP, 1, 1, -1, -1, FALSE, 6);
-				}
-#endif
-				if (!genok) {
-#ifdef HELLFIRE
-					if (currlevel < 17) {
-#endif
-						genok = DRLG_L3PlaceMiniSet(L3DOWN, 1, 1, -1, -1, TRUE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, FALSE, 6);
+					if (doneflag && currlevel != 20) {
+						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, TRUE, 1);
 						ViewX += 2;
 						ViewY -= 2;
-#ifdef HELLFIRE
-					} else {
-						if ( currlevel != 20 )
-						{
-							genok = DRLG_L3PlaceMiniSet(L6DOWN, 1, 1, -1, -1, TRUE, 1);
-							ViewX += 2;
-							ViewY -= 2;
-						}
-					}
-#endif
-					if (!genok && currlevel == 9) {
-						genok = DRLG_L3PlaceMiniSet(L3HOLDWARP, 1, 1, -1, -1, FALSE, 6);
 					}
 				}
+#endif
 			} else {
 #ifdef HELLFIRE
 				if (currlevel < 17) {
 #endif
-					genok = DRLG_L3PlaceMiniSet(L3UP, 1, 1, -1, -1, FALSE, 0);
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, TRUE, 6));
 #ifdef HELLFIRE
 				} else {
-					if ( currlevel != 17 )
-						genok = DRLG_L3PlaceMiniSet(L6UP, 1, 1, -1, -1, FALSE, 0);
+					if (currlevel != 17)
+						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
 					else
-						genok = DRLG_L3PlaceMiniSet(L6HOLDWARP, 1, 1, -1, -1, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
+					if (doneflag && currlevel != 20)
+						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
 				}
 #endif
-				if (!genok) {
-#ifdef HELLFIRE
-					if (currlevel < 17) {
-#endif
-						genok = DRLG_L3PlaceMiniSet(L3DOWN, 1, 1, -1, -1, FALSE, 1);
-#ifdef HELLFIRE
-					} else {
-						if ( currlevel != 20 )
-							genok = DRLG_L3PlaceMiniSet(L6DOWN, 1, 1, -1, -1, FALSE, 1);
-					}
-#endif
-					if (!genok && currlevel == 9) {
-						genok = DRLG_L3PlaceMiniSet(L3HOLDWARP, 1, 1, -1, -1, TRUE, 6);
-					}
-				}
 			}
-			if (!genok && QuestStatus(Q_ANVIL)) {
-				genok = DRLG_L3Anvil();
+			if (doneflag && QuestStatus(Q_ANVIL)) {
+				doneflag = DRLG_L3Anvil();
 			}
-		} while (genok);
+		} while (!doneflag);
 #ifdef HELLFIRE
 		if (currlevel < 17) {
 #endif
@@ -2351,7 +2293,7 @@ static void DRLG_L3(int entry)
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A9C8, 40);
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A948, 50);
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A970, 60);
-			if ( lavapool < 3 )
+			if (lavapool < 3)
 				lavapool = FALSE;
 		}
 #endif

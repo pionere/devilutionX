@@ -19,7 +19,6 @@ extern BOOLEAN lockout[DMAXX][DMAXY];
 
 void AddFenceDoors();
 void FenceDoorFix();
-BOOL DRLG_L3Anvil();
 void FixL3Warp();
 void FixL3HallofHeroes();
 void DRLG_L3LockRec(int x, int y);

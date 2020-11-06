@@ -1623,73 +1623,56 @@ int Patterns[100][10] = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, int tmin, int tmax, int cx, int cy, BOOL setview, int ldir)
+static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, numt, bailcnt;
-	BOOL found;
+	int sx, sy, sw, sh, xx, yy, i, ii, tries;
+	BOOL done;
 
 	sw = miniset[0];
 	sh = miniset[1];
 
-	if (tmax - tmin == 0) {
-		numt = 1;
-	} else {
-		numt = random_(0, tmax - tmin) + tmin;
-	}
+	sx = random_(0, DMAXX - sw);
+	sy = random_(0, DMAXY - sh);
 
-	for (i = 0; i < numt; i++) {
-		sx = random_(0, DMAXX - sw);
-		sy = random_(0, DMAXY - sh);
-		found = FALSE;
-		for (bailcnt = 0; !found && bailcnt < 200; bailcnt++) {
-			found = TRUE;
-			if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
-				found = FALSE;
-			}
-			if (cx != -1 && sx >= cx - sw && sx <= cx + 12) {
-				sx = random_(0, DMAXX - sw);
-				sy = random_(0, DMAXY - sh);
-				found = FALSE;
-			}
-			if (cy != -1 && sy >= cy - sh && sy <= cy + 12) {
-				sx = random_(0, DMAXX - sw);
-				sy = random_(0, DMAXY - sh);
-				found = FALSE;
-			}
-			ii = 2;
-			for (yy = 0; yy < sh && found; yy++) {
-				for (xx = 0; xx < sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
-						found = FALSE;
-					}
-					if (dflags[xx + sx][yy + sy] != 0) {
-						found = FALSE;
-					}
-					ii++;
-				}
-			}
-			if (!found) {
-				sx++;
-				if (sx == DMAXX - sw) {
-					sx = 0;
-					sy++;
-					if (sy == DMAXY - sh) {
-						sy = 0;
-					}
-				}
-			}
+	tries = 0;
+	while (TRUE) {
+		done = TRUE;
+		if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
+			done = FALSE;
 		}
-		if (bailcnt >= 200) {
-			return FALSE;
-		}
-		ii = sw * sh + 2;
-		for (yy = 0; yy < sh; yy++) {
-			for (xx = 0; xx < sw; xx++) {
-				if (miniset[ii] != 0) {
-					dungeon[xx + sx][yy + sy] = miniset[ii];
+		ii = 2;
+		for (yy = 0; yy < sh && done; yy++) {
+			for (xx = 0; xx < sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+					done = FALSE;
+				}
+				if (dflags[xx + sx][yy + sy] != 0) {
+					done = FALSE;
 				}
 				ii++;
 			}
+		}
+		tries++;
+		if (done || tries == 200)
+			break;
+
+		if (++sx == DMAXX - sw) {
+			sx = 0;
+			if (++sy == DMAXY - sh) {
+				sy = 0;
+			}
+		}
+	}
+	if (tries == 200)
+		return FALSE;
+
+	ii = sw * sh + 2;
+	for (yy = 0; yy < sh; yy++) {
+		for (xx = 0; xx < sw; xx++) {
+			if (miniset[ii] != 0) {
+				dungeon[xx + sx][yy + sy] = miniset[ii];
+			}
+			ii++;
 		}
 	}
 
@@ -3101,11 +3084,9 @@ void L2DoorFix()
 
 static void DRLG_L2(int entry)
 {
-	int i, j;
 	BOOL doneflag;
 
-	doneflag = FALSE;
-	while (!doneflag) {
+	do {
 		nRoomCnt = 0;
 		InitDungeon();
 		DRLG_InitTrans();
@@ -3119,34 +3100,22 @@ static void DRLG_L2(int entry)
 		DRLG_L2FloodTVal();
 		DRLG_L2TransFix();
 		if (entry == ENTRY_MAIN) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, 1, 1, -1, -1, TRUE, 0);
-			if (doneflag) {
-				doneflag = DRLG_L2PlaceMiniSet(DSTAIRS, 1, 1, -1, -1, FALSE, 1);
-				if (doneflag && currlevel == 5) {
-					doneflag = DRLG_L2PlaceMiniSet(WARPSTAIRS, 1, 1, -1, -1, FALSE, 6);
-				}
-			}
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, TRUE, 0)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE, 1)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE, 6));
 			ViewY -= 2;
 		} else if (entry == ENTRY_PREV) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, 1, 1, -1, -1, FALSE, 0);
-			if (doneflag) {
-				doneflag = DRLG_L2PlaceMiniSet(DSTAIRS, 1, 1, -1, -1, TRUE, 1);
-				if (doneflag && currlevel == 5) {
-					doneflag = DRLG_L2PlaceMiniSet(WARPSTAIRS, 1, 1, -1, -1, FALSE, 6);
-				}
-			}
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE, 0)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, TRUE, 1)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE, 6));
 			ViewX--;
 		} else {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, 1, 1, -1, -1, FALSE, 0);
-			if (doneflag) {
-				doneflag = DRLG_L2PlaceMiniSet(DSTAIRS, 1, 1, -1, -1, FALSE, 1);
-				if (doneflag && currlevel == 5) {
-					doneflag = DRLG_L2PlaceMiniSet(WARPSTAIRS, 1, 1, -1, -1, TRUE, 6);
-				}
-			}
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE, 0)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE, 1)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, TRUE, 6));
 			ViewY -= 2;
 		}
-	}
+	} while (!doneflag);
 
 	L2LockoutFix();
 	L2DoorFix();
