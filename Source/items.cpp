@@ -3927,34 +3927,32 @@ void DrawUniqueInfo()
 	const UItemStruct *uis;
 	int y;
 
-	if ((!chrflag && !questlog) || SCREEN_WIDTH >= SPANEL_WIDTH * 3) {
-		uis = &UniqueItemList[curruitem._iUid];
-		DrawUTextBack();
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, 2, TRUE, uis->UIName, 3);
-		DrawULine(5);
-		PrintItemPower(uis->UIPower1, &curruitem);
-		y = 6 - uis->UINumPL + 8;
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, 0);
-		if (uis->UINumPL > 1) {
-			PrintItemPower(uis->UIPower2, &curruitem);
-			PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, 0);
-		}
-		if (uis->UINumPL > 2) {
-			PrintItemPower(uis->UIPower3, &curruitem);
-			PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, 0);
-		}
-		if (uis->UINumPL > 3) {
-			PrintItemPower(uis->UIPower4, &curruitem);
-			PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, 0);
-		}
-		if (uis->UINumPL > 4) {
-			PrintItemPower(uis->UIPower5, &curruitem);
-			PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, 0);
-		}
-		if (uis->UINumPL > 5) {
-			PrintItemPower(uis->UIPower6, &curruitem);
-			PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, 0);
-		}
+	uis = &UniqueItemList[curruitem._iUid];
+	DrawUTextBack();
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, 2, TRUE, uis->UIName, 3);
+	DrawULine(5);
+	PrintItemPower(uis->UIPower1, &curruitem);
+	y = 6 - uis->UINumPL + 8;
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, 0);
+	if (uis->UINumPL > 1) {
+		PrintItemPower(uis->UIPower2, &curruitem);
+		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, 0);
+	}
+	if (uis->UINumPL > 2) {
+		PrintItemPower(uis->UIPower3, &curruitem);
+		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, 0);
+	}
+	if (uis->UINumPL > 3) {
+		PrintItemPower(uis->UIPower4, &curruitem);
+		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, 0);
+	}
+	if (uis->UINumPL > 4) {
+		PrintItemPower(uis->UIPower5, &curruitem);
+		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, 0);
+	}
+	if (uis->UINumPL > 5) {
+		PrintItemPower(uis->UIPower6, &curruitem);
+		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, 0);
 	}
 }
 
