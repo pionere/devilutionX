@@ -2243,6 +2243,8 @@ BOOL UseInvItem(int pnum, int cii)
 			return TRUE;
 		iv = cii - INVITEM_BELT_FIRST;
 		is = &plr[pnum].SpdList[iv];
+		if (is->_itype == ITYPE_NONE)
+			return FALSE;
 		speedlist = TRUE;
 	}
 
