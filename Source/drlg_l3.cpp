@@ -851,7 +851,7 @@ static BOOL DRLG_L3FillRoom(int x1, int y1, int x2, int y2)
 {
 	int i, j, v;
 
-	if (x1 <= 1 || x2 >= 34 || y1 <= 1 || y2 >= 38) {
+	if (x1 <= 1 || x2 >= DMAXX - 6 || y1 <= 1 || y2 >= DMAXY - 2) {
 		return FALSE;
 	}
 
@@ -1045,7 +1045,7 @@ static void DRLG_L3FillStraights()
 	}
 	for (i = 0; i < DMAXX - 1; i++) {
 		sxy = 0;
-		for (j = 0; j < 37; j++) {
+		for (j = 0; j < DMAXY - 3; j++) {
 			if (dungeon[i][j] == 0 && dungeon[i + 1][j] == 1) {
 				sxy++;
 			} else {
@@ -1060,7 +1060,7 @@ static void DRLG_L3FillStraights()
 	}
 	for (i = 0; i < DMAXX - 1; i++) {
 		sxy = 0;
-		for (j = 0; j < 37; j++) {
+		for (j = 0; j < DMAXY - 3; j++) {
 			if (dungeon[i][j] == 1 && dungeon[i + 1][j] == 0) {
 				sxy++;
 			} else {

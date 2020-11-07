@@ -70,7 +70,7 @@ static void LoadGamma()
 	gamma_correction = gamma_value - gamma_value % 5;
 #ifndef HELLFIRE
 	if (!SRegLoadValue(APP_NAME, "Color Cycling", 0, &value))
-		value = 1;
+		value = TRUE;
 	color_cycling_enabled = value;
 #endif
 }

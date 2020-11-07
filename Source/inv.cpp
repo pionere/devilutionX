@@ -1995,7 +1995,7 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y) {
 		CornerStone.item = item[ii];
 		InitQTextMsg(TEXT_CORNSTN);
-		quests[Q_CORNSTN]._qlog = 0;
+		quests[Q_CORNSTN]._qlog = FALSE;
 		quests[Q_CORNSTN]._qactive = QUEST_DONE;
 	}
 #endif

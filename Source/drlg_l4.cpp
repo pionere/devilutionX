@@ -1604,8 +1604,8 @@ static void DRLG_L4(int entry)
 				if (doneflag && currlevel == 13) {
 					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6);
 				}
-				ViewX = 2 * setpc_x + 22;
-				ViewY = 2 * setpc_y + 22;
+				ViewX = 2 * setpc_x + DBORDERX + 6;
+				ViewY = 2 * setpc_y + DBORDERY + 6;
 			} else {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
 				if (doneflag && currlevel == 13) {

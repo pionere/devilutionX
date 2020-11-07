@@ -2317,6 +2317,12 @@ typedef enum dungeon_message {
 	DMSG_DIABLO    = 1 << 4,
 } dungeon_message;
 
+typedef enum dungeon_message2 {
+	DMSG2_DEFILER  = 1 << 0,
+	DMSG2_DEFILER1 = 1 << 2,
+	DMSG2_DEFILER2 = 1 << 5,
+} dungeon_message2;
+
 typedef enum diablo_message {
 	EMSG_NONE                   = 0,
 	EMSG_NO_AUTOMAP_IN_TOWN     = 1,

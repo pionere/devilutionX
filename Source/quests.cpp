@@ -222,8 +222,8 @@ void CheckQuests()
 	    && setlevel
 	    && setlvlnum == SL_VILEBETRAYER
 	    && qs->_qvar2 == 4) {
-		rportx = 35;
-		rporty = 32;
+		rportx = DBORDERX + 19;
+		rporty = DBORDERY + 16;
 		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
 		qs->_qvar2 = 3;
 	}
@@ -233,7 +233,7 @@ void CheckQuests()
 		if (setlvlnum == qs->_qslvl
 		    && qs->_qactive != QUEST_INIT
 		    && leveltype == qs->_qlvltype
-		    && nummonsters == 4
+		    && nummonsters == MAX_PLRS
 		    && qs->_qactive != QUEST_DONE) {
 			qs->_qactive = QUEST_DONE;
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);

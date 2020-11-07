@@ -7,6 +7,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef HELLFIRE
+#define SBOOK_PAGER_WIDTH 61
+#else
+#define SBOOK_PAGER_WIDTH 76
+#endif
+
 BYTE sgbNextTalkSave;
 BYTE sgbTalkSavePos;
 BYTE *pDurIcons;
@@ -1866,10 +1872,8 @@ void DrawSpellBook()
 	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pSpellBkCel, 1, SPANEL_WIDTH);
 #ifdef HELLFIRE
 	if (sbooktab < 5)
-		CelDraw(RIGHT_PANEL_X + 61 * sbooktab + 7, 348 + SCREEN_Y, pSBkBtnCel, sbooktab + 1, 61);
-#else
-	CelDraw(RIGHT_PANEL_X + 76 * sbooktab + 7, 348 + SCREEN_Y, pSBkBtnCel, sbooktab + 1, 76);
 #endif
+		CelDraw(RIGHT_PANEL_X + SBOOK_PAGER_WIDTH * sbooktab + 7, 348 + SCREEN_Y, pSBkBtnCel, sbooktab + 1, SBOOK_PAGER_WIDTH);
 
 	p = &plr[myplr];
 	spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
@@ -1944,14 +1948,11 @@ void CheckSBook()
 		}
 	}
 #ifdef HELLFIRE
-	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 312 && MouseY >= 320 && MouseY < 349) {
-		sbooktab = (MouseX - (RIGHT_PANEL + 7)) / 61;
-	}
+	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 312 && MouseY >= 320 && MouseY < 349)
 #else
-	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 311 && MouseY >= 320 && MouseY < 349) { /// BUGFIX: change `< 313` to `< 311` (fixed)
-		sbooktab = (MouseX - (RIGHT_PANEL + 7)) / 76;
-	}
+	if (MouseX >= RIGHT_PANEL + 7 && MouseX < RIGHT_PANEL + 311 && MouseY >= 320 && MouseY < 349) /// BUGFIX: change `< 313` to `< 311` (fixed)
 #endif
+		sbooktab = (MouseX - (RIGHT_PANEL + 7)) / SBOOK_PAGER_WIDTH;
 }
 
 const char *get_pieces_str(int nGold)

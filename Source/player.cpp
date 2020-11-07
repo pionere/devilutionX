@@ -2042,7 +2042,7 @@ void StripTopGold(int pnum)
 			if (pi->_ivalue > MaxGold) {
 				val = pi->_ivalue - MaxGold;
 				SetGoldItemValue(pi, MaxGold);
-				SetPlrHandItem(holditem, 0);
+				SetPlrHandItem(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, val);
 				if (!GoldAutoPlace(pnum))
@@ -4345,21 +4345,21 @@ void PlayDungMsgs()
 		}
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
-	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & 1)) {
+	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER1;
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
-		plr[myplr].pDungMsgs2 |= 1;
-	} else if (currlevel == 19 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & 4)) {
+		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER;
+	} else if (currlevel == 19 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER3;
-		plr[myplr].pDungMsgs2 |= 4;
-	} else if (currlevel == 21 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & 32)) {
+		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER1;
+	} else if (currlevel == 21 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
-		plr[myplr].pDungMsgs |= 32;
+		plr[myplr].pDungMsgs |= DMSG2_DEFILER2;
 #endif
 	}
 }

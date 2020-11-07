@@ -2968,7 +2968,7 @@ void OperateBookLever(int pnum, int oi)
 			if (os->_otype != OBJ_BLOODBOOK)
 				ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (os->_otype == OBJ_BLINDBOOK) {
-				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + 16 + 5, 2 * setpc_y + 16 + 5);
+				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5);
 				tren = TransVal;
 				TransVal = 9;
 				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
