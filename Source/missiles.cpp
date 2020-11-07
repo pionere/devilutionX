@@ -36,43 +36,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = k + 1;
 		*maxd = k + 9;
 		break;
-	case SPL_HEAL: /// BUGFIX: healing calculation is unused
-		*mind = p->_pLevel + sl + 1;
-#ifdef HELLFIRE
-		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_MONK || p->_pClass == PC_BARBARIAN) {
-#else
-		if (p->_pClass == PC_WARRIOR) {
-#endif
-			*mind <<= 1;
-		}
-#ifdef HELLFIRE
-		else if (p->_pClass == PC_ROGUE || p->_pClass == PC_BARD) {
-#else
-		if (p->_pClass == PC_ROGUE) {
-#endif
-			*mind += *mind >> 1;
-		}
-		*maxd = 10;
-		for (k = 0; k < p->_pLevel; k++) {
-			*maxd += 4;
-		}
-		for (k = 0; k < sl; k++) {
-			*maxd += 6;
-		}
-#ifdef HELLFIRE
-		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_MONK || p->_pClass == PC_BARBARIAN) {
-#else
-		if (p->_pClass == PC_WARRIOR) {
-#endif
-			*maxd <<= 1;
-		}
-#ifdef HELLFIRE
-		else if (p->_pClass == PC_ROGUE || p->_pClass == PC_BARD) {
-#else
-		if (p->_pClass == PC_ROGUE) {
-#endif
-			*maxd += *maxd >> 1;
-		}
+	case SPL_HEAL:
 		*mind = -1;
 		*maxd = -1;
 		break;
@@ -194,43 +158,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = p->_pLevel + 9;
 		*maxd = p->_pLevel + 18;
 		break;
-	case SPL_HEALOTHER: /// BUGFIX: healing calculation is unused
-		*mind = p->_pLevel + sl + 1;
-#ifdef HELLFIRE
-		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_MONK || p->_pClass == PC_BARBARIAN) {
-#else
-		if (p->_pClass == PC_WARRIOR) {
-#endif
-			*mind <<= 1;
-		}
-#ifdef HELLFIRE
-		if (p->_pClass == PC_ROGUE || p->_pClass == PC_BARD) {
-#else
-		if (p->_pClass == PC_ROGUE) {
-#endif
-			*mind += *mind >> 1;
-		}
-		*maxd = 10;
-		for (k = 0; k < p->_pLevel; k++) {
-			*maxd += 4;
-		}
-		for (k = 0; k < sl; k++) {
-			*maxd += 6;
-		}
-#ifdef HELLFIRE
-		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_MONK || p->_pClass == PC_BARBARIAN) {
-#else
-		if (p->_pClass == PC_WARRIOR) {
-#endif
-			*maxd <<= 1;
-		}
-#ifdef HELLFIRE
-		if (p->_pClass == PC_ROGUE || p->_pClass == PC_BARD) {
-#else
-		if (p->_pClass == PC_ROGUE) {
-#endif
-			*maxd += *maxd >> 1;
-		}
+	case SPL_HEALOTHER:
 		*mind = -1;
 		*maxd = -1;
 		break;
@@ -2784,10 +2712,10 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 				if (mid < MAX_PLRS)
 					continue;
 				mon = &monster[mid];
-#ifdef HELLFIRE
-				if (mon->_mAi != AI_DIABLO && mon->MType->mtype != MT_NAKRUL) {
-#else
 				if (mon->_mAi != AI_DIABLO) {
+#ifdef HELLFIRE
+					if (mon->MType->mtype == MT_NAKRUL)
+						continue;
 #endif
 					if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE) {
 						mis->_miVar1 = mon->_mmode;
@@ -2908,16 +2836,15 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	HealAmount <<= 6;
 
-	if (p->_pClass == PC_WARRIOR)
-		HealAmount <<= 1;
-	else if (p->_pClass == PC_ROGUE)
-		HealAmount += HealAmount >> 1;
+	switch (p->_pClass) {
+	case PC_WARRIOR: HealAmount <<= 1;            break;
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_BARBARIAN || p->_pClass == PC_MONK)
-		HealAmount <<= 1;
-	else if (p->_pClass == PC_BARD)
-		HealAmount += HealAmount >> 1;
+	case PC_BARBARIAN:
+	case PC_MONK:    HealAmount <<= 1;            break;
+	case PC_BARD:
 #endif
+	case PC_ROGUE: HealAmount += HealAmount >> 1; break;
+	}
 
 	p->_pHitPoints += HealAmount;
 	if (p->_pHitPoints > p->_pMaxHP)

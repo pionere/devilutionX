@@ -903,34 +903,24 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		lr = MAXRESIST;
 	p->_pLghtResist = lr;
 
-	if (p->_pClass == PC_WARRIOR) {
-		vadd *= 2;
-	}
+	switch (p->_pClass) {
+	case PC_WARRIOR:   vadd *= 2;         break;
 #ifdef HELLFIRE
-	if (p->_pClass == PC_BARBARIAN) {
-		vadd *= 3;
-	}
-	if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD) {
-#else
-	if (p->_pClass == PC_ROGUE) {
+	case PC_BARBARIAN: vadd *= 3;         break;
+	case PC_MONK:
+	case PC_BARD:
 #endif
-		vadd += vadd >> 1;
+	case PC_ROGUE:	   vadd += vadd >> 1; break;
 	}
 	ihp += (vadd << 6);
 
-	if (p->_pClass == PC_SORCERER) {
-		madd *= 2;
-	}
+	switch (p->_pClass) {
+	case PC_SORCERER: madd *= 2;                  break;
 #ifdef HELLFIRE
-	if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK) {
-#else
-	if (p->_pClass == PC_ROGUE) {
+	case PC_BARD:  madd += madd >> 2 + madd >> 1; break;
+	case PC_MONK:
 #endif
-		madd += madd >> 1;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_BARD) {
-		madd += madd >> 2 + madd >> 1;
-#endif
+	case PC_ROGUE: madd += madd >> 1;             break;
 	}
 	imana += (madd << 6);
 
@@ -1355,15 +1345,9 @@ void CreatePlrItems(int pnum)
 		SetPlrHandItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
 
-#ifdef _DEBUG
-		if (!debug_mode_key_w) {
-#endif
-			SetPlrHandItem(&p->HoldItem, IDI_WARRCLUB);
-			GetPlrHandSeed(&p->HoldItem);
-			AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
-#ifdef _DEBUG
-		}
-#endif
+		SetPlrHandItem(&p->HoldItem, IDI_WARRCLUB);
+		GetPlrHandSeed(&p->HoldItem);
+		AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 
 		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
 		GetPlrHandSeed(&p->SpdList[0]);
@@ -1441,14 +1425,7 @@ void CreatePlrItems(int pnum)
 	GetPlrHandSeed(&p->HoldItem);
 
 #ifdef _DEBUG
-	if (!debug_mode_key_w) {
-#endif
-		SetGoldItemValue(&p->HoldItem, 100);
-		p->_pGold = p->HoldItem._ivalue;
-		p->InvList[p->_pNumInv++] = p->HoldItem;
-		p->InvGrid[30] = p->_pNumInv;
-#ifdef _DEBUG
-	} else {
+	if (debug_mode_key_w) {
 		SetGoldItemValue(&p->HoldItem, GOLD_MAX_LIMIT);
 		p->_pGold = p->HoldItem._ivalue * 40;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
@@ -1456,8 +1433,14 @@ void CreatePlrItems(int pnum)
 			p->InvList[p->_pNumInv++] = p->HoldItem;
 			p->InvGrid[i] = p->_pNumInv;
 		}
-	}
+	} else
 #endif
+	{
+		SetGoldItemValue(&p->HoldItem, 100);
+		p->_pGold = p->HoldItem._ivalue;
+		p->InvList[p->_pNumInv++] = p->HoldItem;
+		p->InvGrid[30] = p->_pNumInv;
+	}
 
 	CalcPlrItemVals(pnum, FALSE);
 }
@@ -2140,25 +2123,21 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iFlags |= ISPL_FIRE_ARROWS;
 #ifdef HELLFIRE
 		is->_iFlags &= ~ISPL_LIGHT_ARROWS;
-#endif
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-#ifdef HELLFIRE
 		is->_iLMinDam = 0;
 		is->_iLMaxDam = 0;
 #endif
+		is->_iFMinDam = param1;
+		is->_iFMaxDam = param2;
 		break;
 	case IPL_LIGHT_ARROWS:
 		is->_iFlags |= ISPL_LIGHT_ARROWS;
 #ifdef HELLFIRE
 		is->_iFlags &= ~ISPL_FIRE_ARROWS;
-#endif
-		is->_iLMinDam = param1;
-		is->_iLMaxDam = param2;
-#ifdef HELLFIRE
 		is->_iFMinDam = 0;
 		is->_iFMaxDam = 0;
 #endif
+		is->_iLMinDam = param1;
+		is->_iLMaxDam = param2;
 		break;
 #ifdef HELLFIRE
 	case IPL_FIREBALL:
@@ -2576,10 +2555,10 @@ int RndUItem(int lvl)
 			okflag = FALSE;
 		if (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1)
 			okflag = FALSE;
-#ifdef HELLFIRE
-		if (okflag && ri < 512) {
-#else
 		if (okflag) {
+#ifdef HELLFIRE
+			if (ri == 512)
+				break;
 #endif
 			ril[ri] = i;
 			ri++;
@@ -4702,7 +4681,6 @@ BOOL WitchItemOk(int i)
 	BOOL rv;
 
 	rv = FALSE;
-#ifdef HELLFIRE
 	if (AllItemsList[i].itype == ITYPE_MISC || AllItemsList[i].itype == ITYPE_STAFF)
 		rv = TRUE;
 	if (AllItemsList[i].iMiscId == IMISC_MANA || AllItemsList[i].iMiscId == IMISC_FULLMANA)
@@ -4711,30 +4689,12 @@ BOOL WitchItemOk(int i)
 		rv = FALSE;
 	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL || AllItemsList[i].iMiscId == IMISC_HEAL)
 		rv = FALSE;
+#ifdef HELLFIRE
 	if (AllItemsList[i].iMiscId > IMISC_OILFIRST && AllItemsList[i].iMiscId < IMISC_OILLAST)
 		rv = FALSE;
+#endif
 	if ((AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1) || (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1))
 		rv = FALSE;
-#else
-	if (AllItemsList[i].itype == ITYPE_MISC)
-		rv = TRUE;
-	if (AllItemsList[i].itype == ITYPE_STAFF)
-		rv = TRUE;
-	if (AllItemsList[i].iMiscId == IMISC_MANA)
-		rv = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLMANA)
-		rv = FALSE;
-	if (AllItemsList[i].iSpell == SPL_TOWN)
-		rv = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL)
-		rv = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_HEAL)
-		rv = FALSE;
-	if (AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1)
-		rv = FALSE;
-	if (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1)
-		rv = FALSE;
-#endif
 
 	return rv;
 }

@@ -81,26 +81,22 @@ void InitAutomap()
 	switch (leveltype) {
 	case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
-		if (currlevel < 21)
-			pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
-		else
+		if (currlevel >= 21)
 			pAFile = LoadFileInMem("NLevels\\L5Data\\L5.AMP", &dwTiles);
-#else
-		pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
+		else
 #endif
+			pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
 		break;
 	case DTYPE_CATACOMBS:
 		pAFile = LoadFileInMem("Levels\\L2Data\\L2.AMP", &dwTiles);
 		break;
 	case DTYPE_CAVES:
 #ifdef HELLFIRE
-		if (currlevel < 17)
-			pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
-		else
+		if (currlevel >= 17)
 			pAFile = LoadFileInMem("NLevels\\L6Data\\L6.AMP", &dwTiles);
-#else
-		pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
+		else
 #endif
+			pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
 		break;
 	case DTYPE_HELL:
 		pAFile = LoadFileInMem("Levels\\L4Data\\L4.AMP", &dwTiles);

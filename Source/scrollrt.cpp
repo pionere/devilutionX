@@ -144,8 +144,8 @@ static void scrollrt_draw_cursor_back_buffer()
  */
 static void scrollrt_draw_cursor_item()
 {
-	int i, mx, my, col;
-	BYTE *src, *dst;
+	int i, mx, my, col, frame;
+	BYTE *src, *dst, *cCels;
 
 	assert(sgdwCursWdt == 0);
 
@@ -201,7 +201,9 @@ static void scrollrt_draw_cursor_item()
 	my++;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y) - cursW - 2];
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	frame = pcurs;
+	cCels = pCursCels;
+	if (frame >= CURSOR_FIRSTITEM) {
 		col = PAL16_YELLOW + 5;
 		if (plr[myplr].HoldItem._iMagical != 0) {
 			col = PAL16_BLUE + 5;
@@ -209,27 +211,23 @@ static void scrollrt_draw_cursor_item()
 		if (!plr[myplr].HoldItem._iStatFlag) {
 			col = PAL16_RED + 5;
 		}
+
+		i = 1;
 #ifdef HELLFIRE
-		if (pcurs <= 179) {
-#endif
-			CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
-			if (col != PAL16_RED + 5) {
-				CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
-			} else {
-				CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW, 1);
-			}
-#ifdef HELLFIRE
-		} else {
-			CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels2, pcurs - 179, cursW);
-			if (col != PAL16_RED + 5) {
-				CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels2, pcurs - 179, cursW);
-			} else {
-				CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels2, pcurs - 179, cursW, 0);
-			}
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+			i = 0;
 		}
 #endif
+		CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+		if (col != PAL16_RED + 5) {
+			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+		} else {
+			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW, i);
+		}
 	} else {
-		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
+		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 	}
 }
 

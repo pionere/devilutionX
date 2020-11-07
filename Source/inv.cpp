@@ -334,8 +334,9 @@ void DrawInv()
 #ifdef HELLFIRE
 			if (p->_pClass != PC_BARBARIAN
 			    || is->_itype != ITYPE_SWORD
-			        && is->_itype != ITYPE_MACE) {
+			        && is->_itype != ITYPE_MACE)
 #endif
+			{
 				InvDrawSlotBack(RIGHT_PANEL_X + 248, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 				light_table_index = 0;
 				cel_transparency_active = TRUE;
@@ -347,9 +348,7 @@ void DrawInv()
 				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
 
 				cel_transparency_active = FALSE;
-#ifdef HELLFIRE
 			}
-#endif
 		}
 	}
 

@@ -3542,7 +3542,7 @@ void ValidatePlayer()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	__int64 msk;
-	int gt, pc, i;
+	int gt, pc, i, limit;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ValidatePlayer: illegal player %d", myplr);
@@ -3553,17 +3553,17 @@ void ValidatePlayer()
 	if (p->_pExperience > p->_pNextExper)
 		p->_pExperience = p->_pNextExper;
 
+#ifdef HELLFIRE
+	limit = auricGold; // BUGFIX: change to MaxGold? Why would auricGold be used here?
+#else
+	limit = GOLD_MAX_LIMIT;
+#endif
 	gt = 0;
 	pi = p->InvList;
 	for (i = p->_pNumInv; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-#ifdef HELLFIRE
-			if (pi->_ivalue > auricGold)   // BUGFIX: change to MaxGold? Why would auricGold be used here?
-				pi->_ivalue = auricGold;   // BUGFIX: change to MaxGold? Why would auricGold be used here?
-#else
-			if (pi->_ivalue > GOLD_MAX_LIMIT)
-				pi->_ivalue = GOLD_MAX_LIMIT;
-#endif
+			if (pi->_ivalue > limit)
+				pi->_ivalue = limit;
 			gt += pi->_ivalue;
 		}
 	}
@@ -3627,10 +3627,10 @@ void ProcessPlayers()
 				InitQTextMsg(TEXT_DEFILER4);
 				break;
 			default:
-#endif
-			PlaySFX(sfxdnum);
-#ifdef HELLFIRE
+				PlaySFX(sfxdnum);
 			}
+#else
+			PlaySFX(sfxdnum);
 #endif
 		}
 	}
@@ -4336,13 +4336,7 @@ void PlayDungMsgs()
 		plr[myplr].pDungMsgs |= DMSG_HELL;
 	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[15] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
-#ifdef HELLFIRE
-		if (plr[myplr]._pClass == PC_WARRIOR || plr[myplr]._pClass == PC_ROGUE || plr[myplr]._pClass == PC_SORCERER || plr[myplr]._pClass == PC_MONK || plr[myplr]._pClass == PC_BARD || plr[myplr]._pClass == PC_BARBARIAN) {
-#else
-		if (plr[myplr]._pClass == PC_WARRIOR || plr[myplr]._pClass == PC_ROGUE || plr[myplr]._pClass == PC_SORCERER) {
-#endif
-			sfxdnum = PS_DIABLVLINT;
-		}
+		sfxdnum = PS_DIABLVLINT;
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
 	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {

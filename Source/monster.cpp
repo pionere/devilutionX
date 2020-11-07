@@ -775,24 +775,13 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, 3);
 
-	if (gbMaxPlayers != 1) {
-		if (mon->_mAi == AI_LAZHELP)
-			mon->mtalkmsg = 0;
+	if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZHELP)
+		mon->mtalkmsg = 0;
 #ifndef HELLFIRE
-		if (mon->_mAi != AI_LAZURUS || quests[Q_BETRAYER]._qvar1 <= 3) {
-			if (mon->mtalkmsg != 0) {
-				mon->_mgoal = MGOAL_INQUIRING;
-			}
-		} else {
-			mon->_mgoal = MGOAL_NORMAL;
-		}
+	else if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZURUS && quests[Q_BETRAYER]._qvar1 > 3)
+		mon->_mgoal = MGOAL_NORMAL;
 #endif
-	}
-#ifdef HELLFIRE
-	if (mon->mtalkmsg != 0)
-#else
 	else if (mon->mtalkmsg != 0)
-#endif
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {

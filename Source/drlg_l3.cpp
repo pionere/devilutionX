@@ -2224,32 +2224,21 @@ static void DRLG_L3(int entry)
 			DRLG_L3MakeMegas();
 			if (entry == ENTRY_MAIN) {
 #ifdef HELLFIRE
-				if (currlevel < 17) {
-#endif
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, TRUE, 0)
-					 && DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
-					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
-#ifdef HELLFIRE
-				} else {
+				if (currlevel >= 17) {
 					if (currlevel != 17)
 						doneflag = DRLG_L3PlaceMiniSet(L6UP, TRUE, 0);
 					else
 						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
 					if (doneflag && currlevel != 20)
 						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
-				}
+				} else
 #endif
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, TRUE, 0)
+					 && DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
+					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
 			} else if (entry == ENTRY_PREV) {
 #ifdef HELLFIRE
-				if (currlevel < 17) {
-#endif
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DOWN, TRUE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
-					ViewX += 2;
-					ViewY -= 2;
-#ifdef HELLFIRE
-				} else {
+				if (currlevel >= 17) {
 					if (currlevel != 17)
 						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
 					else
@@ -2259,49 +2248,59 @@ static void DRLG_L3(int entry)
 						ViewX += 2;
 						ViewY -= 2;
 					}
-				}
+				} else
 #endif
+				{
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DOWN, TRUE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
+					ViewX += 2;
+					ViewY -= 2;
+				}
 			} else {
 #ifdef HELLFIRE
-				if (currlevel < 17) {
-#endif
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, TRUE, 6));
-#ifdef HELLFIRE
-				} else {
+				if (currlevel >= 17) {
 					if (currlevel != 17)
 						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
 					else
 						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
 					if (doneflag && currlevel != 20)
 						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
-				}
+				} else
 #endif
+					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, TRUE, 6));
 			}
 			if (doneflag && QuestStatus(Q_ANVIL)) {
 				doneflag = DRLG_L3Anvil();
 			}
 		} while (!doneflag);
 #ifdef HELLFIRE
-		if (currlevel < 17) {
-#endif
-			DRLG_L3Pool();
-#ifdef HELLFIRE
-		} else {
+		if (currlevel >= 17) {
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A998, 30);
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A9C8, 40);
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A948, 50);
 			lavapool += drlg_l3_hive_rnd_piece(byte_48A970, 60);
 			if (lavapool < 3)
 				lavapool = FALSE;
-		}
+		} else
 #endif
+			DRLG_L3Pool();
 	} while (!lavapool);
 
 #ifdef HELLFIRE
-	if (currlevel < 17) {
+	if (currlevel >= 17) {
+		DRLG_L3PlaceRndSet(L6ISLE1, 70);
+		DRLG_L3PlaceRndSet(L6ISLE2, 70);
+		DRLG_L3PlaceRndSet(L6ISLE3, 30);
+		DRLG_L3PlaceRndSet(L6ISLE4, 30);
+		DRLG_L3PlaceRndSet(L6ISLE1, 100);
+		DRLG_L3PlaceRndSet(L6ISLE2, 100);
+		DRLG_L3PlaceRndSet(L6ISLE5, 90);
+	} else
 #endif
+	{
 		DRLG_L3PoolFix();
 		FixL3Warp();
 
@@ -2315,17 +2314,7 @@ static void DRLG_L3(int entry)
 
 		FixL3HallofHeroes();
 		DRLG_L3River();
-#ifdef HELLFIRE
-	} else {
-		DRLG_L3PlaceRndSet(L6ISLE1, 70);
-		DRLG_L3PlaceRndSet(L6ISLE2, 70);
-		DRLG_L3PlaceRndSet(L6ISLE3, 30);
-		DRLG_L3PlaceRndSet(L6ISLE4, 30);
-		DRLG_L3PlaceRndSet(L6ISLE1, 100);
-		DRLG_L3PlaceRndSet(L6ISLE2, 100);
-		DRLG_L3PlaceRndSet(L6ISLE5, 90);
 	}
-#endif
 
 	if (QuestStatus(Q_ANVIL)) {
 		dungeon[setpc_x + 7][setpc_y + 5] = 7;
@@ -2337,40 +2326,7 @@ static void DRLG_L3(int entry)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
-		DRLG_PlaceThemeRooms(5, 10, 7, 0, FALSE);
-
-		DRLG_L3Wood();
-		DRLG_L3PlaceRndSet(L3TITE1, 10);
-		DRLG_L3PlaceRndSet(L3TITE2, 10);
-		DRLG_L3PlaceRndSet(L3TITE3, 10);
-		DRLG_L3PlaceRndSet(L3TITE6, 20);
-		DRLG_L3PlaceRndSet(L3TITE7, 20);
-		DRLG_L3PlaceRndSet(L3TITE8, 20);
-		DRLG_L3PlaceRndSet(L3TITE9, 20);
-		DRLG_L3PlaceRndSet(L3TITE10, 20);
-		DRLG_L3PlaceRndSet(L3TITE11, 30);
-		DRLG_L3PlaceRndSet(L3TITE12, 20);
-		DRLG_L3PlaceRndSet(L3TITE13, 20);
-		DRLG_L3PlaceRndSet(L3CREV1, 30);
-		DRLG_L3PlaceRndSet(L3CREV2, 30);
-		DRLG_L3PlaceRndSet(L3CREV3, 30);
-		DRLG_L3PlaceRndSet(L3CREV4, 30);
-		DRLG_L3PlaceRndSet(L3CREV5, 30);
-		DRLG_L3PlaceRndSet(L3CREV6, 30);
-		DRLG_L3PlaceRndSet(L3CREV7, 30);
-		DRLG_L3PlaceRndSet(L3CREV8, 30);
-		DRLG_L3PlaceRndSet(L3CREV9, 30);
-		DRLG_L3PlaceRndSet(L3CREV10, 30);
-		DRLG_L3PlaceRndSet(L3CREV11, 30);
-		DRLG_L3PlaceRndSet(L3XTRA1, 25);
-		DRLG_L3PlaceRndSet(L3XTRA2, 25);
-		DRLG_L3PlaceRndSet(L3XTRA3, 25);
-		DRLG_L3PlaceRndSet(L3XTRA4, 25);
-		DRLG_L3PlaceRndSet(L3XTRA5, 25);
-#ifdef HELLFIRE
-	} else {
+	if (currlevel >= 17) {
 		DRLG_L3PlaceRndSet(byte_48A76C, 20);
 		DRLG_L3PlaceRndSet(byte_48A770, 20);
 		DRLG_L3PlaceRndSet(byte_48A774, 20);
@@ -2419,8 +2375,40 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(byte_48A7E8, 25);
 		DRLG_L3PlaceRndSet(byte_48A7FC, 25);
 		DRLG_L3PlaceRndSet(byte_48A800, 25);
-	}
+	} else
 #endif
+	{
+		DRLG_PlaceThemeRooms(5, 10, 7, 0, FALSE);
+
+		DRLG_L3Wood();
+		DRLG_L3PlaceRndSet(L3TITE1, 10);
+		DRLG_L3PlaceRndSet(L3TITE2, 10);
+		DRLG_L3PlaceRndSet(L3TITE3, 10);
+		DRLG_L3PlaceRndSet(L3TITE6, 20);
+		DRLG_L3PlaceRndSet(L3TITE7, 20);
+		DRLG_L3PlaceRndSet(L3TITE8, 20);
+		DRLG_L3PlaceRndSet(L3TITE9, 20);
+		DRLG_L3PlaceRndSet(L3TITE10, 20);
+		DRLG_L3PlaceRndSet(L3TITE11, 30);
+		DRLG_L3PlaceRndSet(L3TITE12, 20);
+		DRLG_L3PlaceRndSet(L3TITE13, 20);
+		DRLG_L3PlaceRndSet(L3CREV1, 30);
+		DRLG_L3PlaceRndSet(L3CREV2, 30);
+		DRLG_L3PlaceRndSet(L3CREV3, 30);
+		DRLG_L3PlaceRndSet(L3CREV4, 30);
+		DRLG_L3PlaceRndSet(L3CREV5, 30);
+		DRLG_L3PlaceRndSet(L3CREV6, 30);
+		DRLG_L3PlaceRndSet(L3CREV7, 30);
+		DRLG_L3PlaceRndSet(L3CREV8, 30);
+		DRLG_L3PlaceRndSet(L3CREV9, 30);
+		DRLG_L3PlaceRndSet(L3CREV10, 30);
+		DRLG_L3PlaceRndSet(L3CREV11, 30);
+		DRLG_L3PlaceRndSet(L3XTRA1, 25);
+		DRLG_L3PlaceRndSet(L3XTRA2, 25);
+		DRLG_L3PlaceRndSet(L3XTRA3, 25);
+		DRLG_L3PlaceRndSet(L3XTRA4, 25);
+		DRLG_L3PlaceRndSet(L3XTRA5, 25);
+	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
@@ -2495,8 +2483,17 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	DRLG_L3Pass3();
 
 #ifdef HELLFIRE
-	if (currlevel < 17) {
+	if (currlevel >= 17) {
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++) {
+				if (dPiece[i][j] >= 382 && dPiece[i][j] <= 457) {
+					DoLighting(i, j, 9, -1);
+				}
+			}
+		}
+	} else
 #endif
+	{
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				bv = dPiece[i][j];
@@ -2507,17 +2504,7 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 				}
 			}
 		}
-#ifdef HELLFIRE
-	} else {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] >= 382 && dPiece[i][j] <= 457) {
-					DoLighting(i, j, 9, -1);
-				}
-			}
-		}
 	}
-#endif
 
 	DRLG_SetPC();
 }

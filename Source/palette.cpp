@@ -113,18 +113,18 @@ void LoadRndLvlPal(int l)
 		LoadPalette("Levels\\TownData\\Town.pal");
 	} else {
 		rv = random_(0, 4) + 1;
-		sprintf(szFileName, "Levels\\L%iData\\L%i_%i.PAL", l, l, rv);
 #ifdef HELLFIRE
 		if (l == 5) {
 			sprintf(szFileName, "NLevels\\L5Data\\L5Base.PAL");
-		}
-		if (l == 6) {
+		} else if (l == 6) {
 			if (!UseNestArt) {
 				rv++;
 			}
 			sprintf(szFileName, "NLevels\\L%iData\\L%iBase%i.PAL", 6, 6, rv);
-		}
+		} else
 #endif
+			sprintf(szFileName, "Levels\\L%iData\\L%i_%i.PAL", l, l, rv);
+
 		LoadPalette(szFileName);
 	}
 }

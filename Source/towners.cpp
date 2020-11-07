@@ -626,9 +626,6 @@ void TalkToTowner(int pnum, int tnum)
 			tw->_tMsgSaid = TRUE;
 		}
 		if ((plr[pnum]._pLvlVisited[2] || plr[pnum]._pLvlVisited[4]) && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
-#ifdef HELLFIRE
-			if (quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL)
-#endif
 			if (quests[Q_SKELKING]._qvar2 == 0 && !tw->_tMsgSaid) {
 				quests[Q_SKELKING]._qvar2 = 1;
 				quests[Q_SKELKING]._qlog = TRUE;
@@ -654,18 +651,18 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		if (gbMaxPlayers == 1) {
 			if (plr[pnum]._pLvlVisited[3] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
-			if ((quests[Q_LTBANNER]._qactive == QUEST_INIT || quests[Q_LTBANNER]._qactive == QUEST_ACTIVE) && quests[Q_LTBANNER]._qvar2 == 0 && !tw->_tMsgSaid) {
-				quests[Q_LTBANNER]._qvar2 = 1;
-				if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
-					quests[Q_LTBANNER]._qvar1 = 1;
-					quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
+				if ((quests[Q_LTBANNER]._qactive == QUEST_INIT || quests[Q_LTBANNER]._qactive == QUEST_ACTIVE) && quests[Q_LTBANNER]._qvar2 == 0 && !tw->_tMsgSaid) {
+					quests[Q_LTBANNER]._qvar2 = 1;
+					if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
+						quests[Q_LTBANNER]._qvar1 = 1;
+						quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
+					}
+					quests[Q_LTBANNER]._qlog = TRUE;
+					tw->_tbtcnt = 150;
+					tw->_tVar1 = pnum;
+					InitQTextMsg(TEXT_BANNER2);
+					tw->_tMsgSaid = TRUE;
 				}
-				quests[Q_LTBANNER]._qlog = TRUE;
-				tw->_tbtcnt = 150;
-				tw->_tVar1 = pnum;
-				InitQTextMsg(TEXT_BANNER2);
-				tw->_tMsgSaid = TRUE;
-			}
 #ifdef HELLFIRE
 			}
 			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_BANNER, &i) != NULL) {
@@ -680,11 +677,11 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_BANNER3);
 					tw->_tMsgSaid = TRUE;
-				}
-			}
 #ifndef HELLFIRE
 				}
 #endif
+			}
+		}
 		if (!qtextflag) {
 			TownerTalk(TEXT_OGDEN1);
 			if (storeflag) {
@@ -722,9 +719,6 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_SMITH:
 		if (gbMaxPlayers == 1) {
 			if (plr[pnum]._pLvlVisited[4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
-#ifdef HELLFIRE
-				if (quests[Q_ROCK]._qactive != QUEST_NOTAVAIL)
-#endif
 				if (quests[Q_ROCK]._qvar2 == 0) {
 					quests[Q_ROCK]._qvar2 = 1;
 					quests[Q_ROCK]._qlog = TRUE;
@@ -743,19 +737,19 @@ void TalkToTowner(int pnum, int tnum)
 #else
 				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) != NULL && !tw->_tMsgSaid) {
 #endif
-						quests[Q_ROCK]._qactive = QUEST_DONE;
-						quests[Q_ROCK]._qvar2 = 2;
-						quests[Q_ROCK]._qvar1 = 2;
-						RemoveInvItem(pnum, i);
-						SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1);
-						tw->_tbtcnt = 150;
-						tw->_tVar1 = pnum;
-						InitQTextMsg(TEXT_INFRA7);
-						tw->_tMsgSaid = TRUE;
-					}
+					quests[Q_ROCK]._qactive = QUEST_DONE;
+					quests[Q_ROCK]._qvar2 = 2;
+					quests[Q_ROCK]._qvar1 = 2;
+					RemoveInvItem(pnum, i);
+					SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1);
+					tw->_tbtcnt = 150;
+					tw->_tVar1 = pnum;
+					InitQTextMsg(TEXT_INFRA7);
+					tw->_tMsgSaid = TRUE;
 #ifndef HELLFIRE
 				}
 #endif
+			}
 			if (plr[pnum]._pLvlVisited[9] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 				if ((quests[Q_ANVIL]._qactive == QUEST_INIT || quests[Q_ANVIL]._qactive == QUEST_ACTIVE) && quests[Q_ANVIL]._qvar2 == 0 && !tw->_tMsgSaid) {
 					if (quests[Q_ROCK]._qvar2 == 2 || quests[Q_ROCK]._qactive == QUEST_ACTIVE && quests[Q_ROCK]._qvar2 == 1) {
@@ -775,20 +769,18 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ANVIL, &i) != NULL) {
 #else
-				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) != NULL) {
-					if (!tw->_tMsgSaid) {
+				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) != NULL && !tw->_tMsgSaid) {
 #endif
-						quests[Q_ANVIL]._qactive = QUEST_DONE;
-						quests[Q_ANVIL]._qvar2 = 2;
-						quests[Q_ANVIL]._qvar1 = 2;
-						RemoveInvItem(pnum, i);
-						SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1);
-						tw->_tbtcnt = 150;
-						tw->_tVar1 = pnum;
-						InitQTextMsg(TEXT_ANVIL7);
-						tw->_tMsgSaid = TRUE;
+					quests[Q_ANVIL]._qactive = QUEST_DONE;
+					quests[Q_ANVIL]._qvar2 = 2;
+					quests[Q_ANVIL]._qvar1 = 2;
+					RemoveInvItem(pnum, i);
+					SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1);
+					tw->_tbtcnt = 150;
+					tw->_tVar1 = pnum;
+					InitQTextMsg(TEXT_ANVIL7);
+					tw->_tMsgSaid = TRUE;
 #ifndef HELLFIRE
-					}
 				}
 #endif
 			}

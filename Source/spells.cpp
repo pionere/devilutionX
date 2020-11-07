@@ -261,18 +261,14 @@ void DoHealOther(int pnum, int tnum)
 	}
 	hp <<= 6;
 
-	if (plr[pnum]._pClass == PC_WARRIOR) {
-		hp <<= 1;
-	} else if (plr[pnum]._pClass == PC_ROGUE) {
-		hp += hp >> 1;
+	switch (plr[pnum]._pClass) {
+	case PC_WARRIOR: hp <<= 1;    break;
 #ifdef HELLFIRE
-	} else if (plr[pnum]._pClass == PC_BARBARIAN) {
-		hp <<= 1;
-	} else if (plr[pnum]._pClass == PC_BARD) {
-		hp += hp >> 1;
-	} else if (plr[pnum]._pClass == PC_MONK) {
-		hp *= 3;
+	case PC_MONK: hp *= 3;        break;
+	case PC_BARBARIAN: hp <<= 1;  break;
+	case PC_BARD:
 #endif
+	case PC_ROGUE: hp += hp >> 1; break;
 	}
 	tp->_pHitPoints += hp;
 	if (tp->_pHitPoints > tp->_pMaxHP) {

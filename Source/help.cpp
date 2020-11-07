@@ -478,11 +478,7 @@ void DrawHelp()
 
 	DrawSTextHelp();
 	DrawQTextBack();
-#ifdef HELLFIRE
-	PrintSString(0, 2, TRUE, "Hellfire Help", COL_GOLD, 0);
-#else
-	PrintSString(0, 2, TRUE, "Diablo Help", COL_GOLD, 0);
-#endif
+	PrintSString(0, 2, TRUE, HELP_TITLE, COL_GOLD, 0);
 	DrawSLine(5);
 
 	s = &gszHelpText[0];

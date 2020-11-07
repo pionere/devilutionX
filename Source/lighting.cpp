@@ -558,16 +558,14 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel < 17) {
-#else
-	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
-#endif
+	if (currlevel < 17)
 		dLight[nXPos][nYPos] = 0;
-#ifdef HELLFIRE
-	} else if (dLight[nXPos][nYPos] > lightradius[nRadius][0]) {
+	else if (dLight[nXPos][nYPos] > lightradius[nRadius][0])
 		dLight[nXPos][nYPos] = lightradius[nRadius][0];
+#else
+	if (IN_DUNGEON_AREA(nXPos, nYPos))
+		dLight[nXPos][nYPos] = 0;
 #endif
-	}
 
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < min_y; y++) {

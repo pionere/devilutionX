@@ -56,8 +56,8 @@ int L6DownList[] = { 57, 58, 59, 60, 61, 62, 63, 64, -1 };
 
 void InitNoTriggers()
 {
-	numtrigs = 0;
 	trigflag = FALSE;
+	numtrigs = 0;
 }
 
 void InitTownTriggers()
@@ -65,6 +65,7 @@ void InitTownTriggers()
 	int i;
 	unsigned char twarps;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 
 	trigs[numtrigs]._tx = 25;
@@ -115,35 +116,16 @@ void InitTownTriggers()
 	trigs[numtrigs]._tlvl = 17;
 	numtrigs++;
 #endif
-
-	trigflag = FALSE;
 }
 
 void InitL1Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 #ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] == 129) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 115) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-					numtrigs++;
-				}
-			}
-		}
-#ifdef HELLFIRE
-	} else {
+	if (currlevel >= 17) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] == 184) {
@@ -165,15 +147,31 @@ void InitL1Triggers()
 				}
 			}
 		}
+		return;
 	}
 #endif
-	trigflag = FALSE;
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++) {
+			if (dPiece[i][j] == 129) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 115) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				numtrigs++;
+			}
+		}
+	}
 }
 
 void InitL2Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
@@ -196,39 +194,16 @@ void InitL2Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
 void InitL3Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 #ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] == 171) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 168) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 549) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-					numtrigs++;
-				}
-			}
-		}
-#ifdef HELLFIRE
-	} else {
+	if (currlevel >= 17) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] == 66) {
@@ -249,15 +224,36 @@ void InitL3Triggers()
 				}
 			}
 		}
+		return;
 	}
 #endif
-	trigflag = FALSE;
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++) {
+			if (dPiece[i][j] == 171) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 168) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 549) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				numtrigs++;
+			}
+		}
+	}
 }
 
 void InitL4Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
@@ -291,7 +287,6 @@ void InitL4Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
 void InitSKingTriggers()
@@ -403,40 +398,8 @@ BOOL ForceL1Trig()
 	int i, j;
 #ifdef HELLFIRE
 	int dx, dy;
-#endif
 
-#ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
-		for (i = 0; L1UpList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L1UpList[i]) {
-				if (currlevel > 1)
-					sprintf(infostr, "Up to level %i", currlevel - 1);
-				else
-					strcpy(infostr, "Up to town");
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
-						return TRUE;
-					}
-				}
-			}
-		}
-		for (i = 0; L1DownList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L1DownList[i]) {
-				sprintf(infostr, "Down to level %i", currlevel + 1);
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
-						return TRUE;
-					}
-				}
-			}
-		}
-#ifdef HELLFIRE
-	} else {
+	if (currlevel >= 17) {
 		for (i = 0; L5UpList[i] != -1; i++) {
 			if (dPiece[cursmx][cursmy] == L5UpList[i]) {
 				sprintf(infostr, "Up to Crypt level %i", currlevel - 21);
@@ -483,8 +446,36 @@ BOOL ForceL1Trig()
 				}
 			}
 		}
+		return FALSE;
 	}
 #endif
+	for (i = 0; L1UpList[i] != -1; i++) {
+		if (dPiece[cursmx][cursmy] == L1UpList[i]) {
+			if (currlevel > 1)
+				sprintf(infostr, "Up to level %i", currlevel - 1);
+			else
+				strcpy(infostr, "Up to town");
+			for (j = 0; j < numtrigs; j++) {
+				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[j]._tx;
+					cursmy = trigs[j]._ty;
+					return TRUE;
+				}
+			}
+		}
+	}
+	for (i = 0; L1DownList[i] != -1; i++) {
+		if (dPiece[cursmx][cursmy] == L1DownList[i]) {
+			sprintf(infostr, "Down to level %i", currlevel + 1);
+			for (j = 0; j < numtrigs; j++) {
+				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[j]._tx;
+					cursmy = trigs[j]._ty;
+					return TRUE;
+				}
+			}
+		}
+	}
 	return FALSE;
 }
 
@@ -549,36 +540,7 @@ BOOL ForceL3Trig()
 	int i, j, dx, dy;
 
 #ifdef HELLFIRE
-	if (currlevel < 17) {
-#endif
-		for (i = 0; L3UpList[i] != -1; ++i) {
-			if (dPiece[cursmx][cursmy] == L3UpList[i]) {
-				sprintf(infostr, "Up to level %i", currlevel - 1);
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
-						return TRUE;
-					}
-				}
-			}
-		}
-		for (i = 0; L3DownList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L3DownList[i]
-			    || dPiece[cursmx + 1][cursmy] == L3DownList[i]
-			    || dPiece[cursmx + 2][cursmy] == L3DownList[i]) {
-				sprintf(infostr, "Down to level %i", currlevel + 1);
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
-						return TRUE;
-					}
-				}
-			}
-		}
-#ifdef HELLFIRE
-	} else {
+	if (currlevel >= 17) {
 		for (i = 0; L6UpList[i] != -1; ++i) {
 			if (dPiece[cursmx][cursmy] == L6UpList[i]) {
 				sprintf(infostr, "Up to Nest level %i", currlevel - 17);
@@ -593,8 +555,8 @@ BOOL ForceL3Trig()
 		}
 		for (i = 0; L6DownList[i] != -1; i++) {
 			if (dPiece[cursmx][cursmy] == L6DownList[i]
-			    || dPiece[cursmx + 1][cursmy] == L6DownList[i]
-			    || dPiece[cursmx + 2][cursmy] == L6DownList[i]) {
+			 || dPiece[cursmx + 1][cursmy] == L6DownList[i]
+			 || dPiece[cursmx + 2][cursmy] == L6DownList[i]) {
 				sprintf(infostr, "Down to level %i", currlevel - 15);
 				for (j = 0; j < numtrigs; j++) {
 					if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
@@ -605,8 +567,54 @@ BOOL ForceL3Trig()
 				}
 			}
 		}
+
+		if (currlevel == 17) {
+			for (i = 0; L6TWarpUpList[i] != -1; i++) {
+				if (dPiece[cursmx][cursmy] == L6TWarpUpList[i]) {
+					for (j = 0; j < numtrigs; j++) {
+						if (trigs[j]._tmsg == WM_DIABTWARPUP) {
+							dx = abs(trigs[j]._tx - cursmx);
+							dy = abs(trigs[j]._ty - cursmy);
+							if (dx < 4 && dy < 4) {
+								strcpy(infostr, "Up to town");
+								cursmx = trigs[j]._tx;
+								cursmy = trigs[j]._ty;
+								return TRUE;
+							}
+						}
+					}
+				}
+			}
+		}
+		return FALSE;
 	}
 #endif
+	for (i = 0; L3UpList[i] != -1; ++i) {
+		if (dPiece[cursmx][cursmy] == L3UpList[i]) {
+			sprintf(infostr, "Up to level %i", currlevel - 1);
+			for (j = 0; j < numtrigs; j++) {
+				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[j]._tx;
+					cursmy = trigs[j]._ty;
+					return TRUE;
+				}
+			}
+		}
+	}
+	for (i = 0; L3DownList[i] != -1; i++) {
+		if (dPiece[cursmx][cursmy] == L3DownList[i]
+		 || dPiece[cursmx + 1][cursmy] == L3DownList[i]
+		 || dPiece[cursmx + 2][cursmy] == L3DownList[i]) {
+			sprintf(infostr, "Down to level %i", currlevel + 1);
+			for (j = 0; j < numtrigs; j++) {
+				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[j]._tx;
+					cursmy = trigs[j]._ty;
+					return TRUE;
+				}
+			}
+		}
+	}
 
 	if (currlevel == 9) {
 		for (i = 0; L3TWarpUpList[i] != -1; i++) {
@@ -626,27 +634,6 @@ BOOL ForceL3Trig()
 			}
 		}
 	}
-
-#ifdef HELLFIRE
-	if (currlevel == 17) {
-		for (i = 0; L6TWarpUpList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L6TWarpUpList[i]) {
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABTWARPUP) {
-						dx = abs(trigs[j]._tx - cursmx);
-						dy = abs(trigs[j]._ty - cursmy);
-						if (dx < 4 && dy < 4) {
-							strcpy(infostr, "Up to town");
-							cursmx = trigs[j]._tx;
-							cursmy = trigs[j]._ty;
-							return TRUE;
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return FALSE;
 }
 

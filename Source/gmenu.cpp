@@ -92,11 +92,7 @@ void gmenu_init_menu()
 	gmUpdateFunc = NULL;
 	sgCurrentMenuIdx = 0;
 	mouseNavigation = FALSE;
-#ifdef HELLFIRE
-	sgpLogo = LoadFileInMem("Data\\hf_logo3.CEL", NULL);
-#else
-	sgpLogo = LoadFileInMem("Data\\Diabsmal.CEL", NULL);
-#endif
+	sgpLogo = LoadFileInMem(LOGO_DATA, NULL);
 	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL", NULL);
 	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL", NULL);
 	option_cel = LoadFileInMem("Data\\option.CEL", NULL);
@@ -213,7 +209,7 @@ static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 
 void gmenu_draw()
 {
-	int y;
+	int nCel, y;
 	TMenuItem *i;
 	DWORD ticks;
 
@@ -228,10 +224,11 @@ void gmenu_draw()
 				LogoAnim_frame = 1;
 			LogoAnim_tick = ticks;
 		}
-		CelDraw((SCREEN_WIDTH - 430) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, LogoAnim_frame, 430);
+		nCel = LogoAnim_frame;
 #else
-		CelDraw((SCREEN_WIDTH - 296) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, 1, 296);
+		nCel = 1;
 #endif
+		CelDraw((SCREEN_WIDTH - LOGO_WIDTH) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, nCel, LOGO_WIDTH);
 		y = 160 + SCREEN_Y + UI_OFFSET_Y;
 		i = sgpCurrentMenu;
 		if (sgpCurrentMenu->fnMenu) {

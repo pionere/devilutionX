@@ -16,9 +16,12 @@
 #define DIABOOL					BOOLEAN
 #define GAME_NAME				"HELLFIRE"
 #define APP_NAME				"Hellfire"
+#define LOGO_DATA				"Data\\hf_logo3.CEL"
+#define LOGO_WIDTH				430
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
+#define HELP_TITLE				"Hellfire Help"
 #ifdef SPAWN
 #define PROGRAM_NAME			"Diablo Shareware"
 #else
@@ -28,9 +31,12 @@
 #define DIABOOL					BOOL
 #define GAME_NAME				"DIABLO"
 #define APP_NAME				"Diablo"
+#define LOGO_DATA				"Data\\Diabsmal.CEL"
+#define LOGO_WIDTH				296
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42
+#define HELP_TITLE				"Diablo Help"
 #ifdef SPAWN
 #define PROGRAM_NAME			"Diablo Shareware"
 #else
