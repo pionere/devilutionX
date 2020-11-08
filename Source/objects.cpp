@@ -4161,9 +4161,7 @@ DIABOOL OperateFountains(int pnum, int oi)
 	PlayerStruct *p;
 	ObjectStruct *os;
 	int add, rnd;
-	DIABOOL applied;
 
-	applied = FALSE;
 	os = &object[oi];
 	SetRndSeed(os->_oRndSeed);
 	switch (os->_otype) {
@@ -4176,14 +4174,14 @@ DIABOOL OperateFountains(int pnum, int oi)
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		p = &plr[pnum];
-		if (p->_pHitPoints < p->_pMaxHP) {
-			p->_pHitPoints += 64;
-			p->_pHPBase += 64;
-			if (p->_pHitPoints > p->_pMaxHP) {
-				p->_pHitPoints = p->_pMaxHP;
-				p->_pHPBase = p->_pMaxHPBase;
-			}
-			applied = TRUE;
+		if (p->_pHitPoints >= p->_pMaxHP)
+			return FALSE;
+
+		p->_pHitPoints += 64;
+		p->_pHPBase += 64;
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
+			p->_pHPBase = p->_pMaxHPBase;
 		}
 		break;
 	case OBJ_PURIFYINGFTN:
@@ -4195,14 +4193,14 @@ DIABOOL OperateFountains(int pnum, int oi)
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		p = &plr[pnum];
-		if (p->_pMana < p->_pMaxMana) {
-			p->_pMana += 64;
-			p->_pManaBase += 64;
-			if (p->_pMana > p->_pMaxMana) {
-				p->_pMana = p->_pMaxMana;
-				p->_pManaBase = p->_pMaxManaBase;
-			}
-			applied = TRUE;
+		if (p->_pMana >= p->_pMaxMana)
+			return FALSE;
+
+		p->_pMana += 64;
+		p->_pManaBase += 64;
+		if (p->_pMana > p->_pMaxMana) {
+			p->_pMana = p->_pMaxMana;
+			p->_pManaBase = p->_pMaxManaBase;
 		}
 		break;
 	case OBJ_MURKYFTN:
@@ -4226,7 +4224,6 @@ DIABOOL OperateFountains(int pnum, int oi)
 		    pnum,
 		    0,
 		    2 * leveltype);
-		applied = TRUE;
 		if (pnum == myplr)
 			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		break;
@@ -4262,12 +4259,11 @@ DIABOOL OperateFountains(int pnum, int oi)
 				break;
 			}
 		}
-		applied = TRUE;
 		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		break;
 	}
 	force_redraw = 255;
-	return applied;
+	return TRUE;
 }
 
 void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)

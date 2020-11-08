@@ -556,13 +556,13 @@ static void drawCell(int x, int y, int sx, int sy)
 	level_piece_id = dPiece[x][y];
 	cel_transparency_active = (BYTE)(nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	cel_foliage_active = !nSolidTable[level_piece_id];
-	for (int i = 0; i<MicroTileLen>> 1; i++) {
-		level_cel_block = pMap->mt[2 * i];
+	for (int i = 0; i < MicroTileLen; i += 2) {
+		level_cel_block = pMap->mt[i];
 		if (level_cel_block != 0) {
 			arch_draw_type = i == 0 ? 1 : 0;
 			RenderTile(dst);
 		}
-		level_cel_block = pMap->mt[2 * i + 1];
+		level_cel_block = pMap->mt[i + 1];
 		if (level_cel_block != 0) {
 			arch_draw_type = i == 0 ? 2 : 0;
 			RenderTile(dst + TILE_WIDTH / 2);

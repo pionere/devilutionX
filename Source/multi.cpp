@@ -91,16 +91,19 @@ void multi_send_packet(void *packet, BYTE dwSize)
 
 void NetRecvPlrData(TPkt *pkt)
 {
+	PlayerStruct *p;
+
+	p = &plr[myplr];
 	pkt->hdr.wCheck = 'ip';
-	pkt->hdr.px = plr[myplr]._px;
-	pkt->hdr.py = plr[myplr]._py;
-	pkt->hdr.targx = plr[myplr]._ptargx;
-	pkt->hdr.targy = plr[myplr]._ptargy;
-	pkt->hdr.php = plr[myplr]._pHitPoints;
-	pkt->hdr.pmhp = plr[myplr]._pMaxHP;
-	pkt->hdr.bstr = plr[myplr]._pBaseStr;
-	pkt->hdr.bmag = plr[myplr]._pBaseMag;
-	pkt->hdr.bdex = plr[myplr]._pBaseDex;
+	pkt->hdr.px = p->_px;
+	pkt->hdr.py = p->_py;
+	pkt->hdr.targx = p->_ptargx;
+	pkt->hdr.targy = p->_ptargy;
+	pkt->hdr.php = p->_pHitPoints;
+	pkt->hdr.pmhp = p->_pMaxHP;
+	pkt->hdr.bstr = p->_pBaseStr;
+	pkt->hdr.bmag = p->_pBaseMag;
+	pkt->hdr.bdex = p->_pBaseDex;
 }
 
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen)

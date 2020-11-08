@@ -3025,22 +3025,24 @@ void AddNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 #ifdef HELLFIRE
+	MissileStruct *mis;
 	PlayerStruct *p;
 	int lvl;
 
+	mis = &missile[mi];
 	p = &plr[misource];
 	if (misource == -1 || p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
-		missile[mi]._miDelFlag = TRUE;
+		mis->_miDelFlag = TRUE;
 	} else {
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
 		UseMana(misource, 22);
-		missile[mi]._miVar1 = misource;
+		mis->_miVar1 = misource;
 		lvl = p->_pLevel;
-		missile[mi]._miVar2 = (3 * lvl) << 7;
+		mis->_miVar2 = (3 * lvl) << 7;
 		if (misource <= 0)
 			lvl = 1;
-		missile[mi]._mirange = lvl + 10 * spllvl + 245;
+		mis->_mirange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
 		force_redraw = 255;
 	}
@@ -3146,7 +3148,8 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dam = 8 * dam + 16;
 		dam += dam >> 1;
 	} else {
-		dam = monster[misource].mMinDamage + random_(77, monster[misource].mMaxDamage - monster[misource].mMinDamage + 1);
+		dam = monster[misource].mMinDamage;
+		dam += random_(77, monster[misource].mMaxDamage - dam + 1);
 	}
 	mis->_midam = dam;
 }

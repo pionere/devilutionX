@@ -2107,28 +2107,33 @@ char CheckInvHLight()
 
 void RemoveScroll(int pnum)
 {
+	PlayerStruct *p;
+	ItemStruct *pi;
 	int i;
 
-	for (i = 0; i < plr[pnum]._pNumInv; i++) {
-		if (plr[pnum].InvList[i]._itype != ITYPE_NONE
-		    && (plr[pnum].InvList[i]._iMiscId == IMISC_SCROLL || plr[pnum].InvList[i]._iMiscId == IMISC_SCROLLT)
+	p = &plr[pnum];
+	pi = p->InvList;
+	for (i = 0; i < p->_pNumInv; i++, pi++) {
+		if (pi->_itype != ITYPE_NONE
+		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
 #ifdef HELLFIRE
-		    && plr[pnum].InvList[i]._iSpell == plr[pnum]._pSpell) {
+		    && pi->_iSpell == p->_pSpell) {
 #else
-		    && plr[pnum].InvList[i]._iSpell == plr[pnum]._pRSpell) {
+		    && pi->_iSpell == p->_pRSpell) {
 #endif
 			RemoveInvItem(pnum, i);
 			CalcPlrScrolls(pnum);
 			return;
 		}
 	}
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (plr[pnum].SpdList[i]._itype != ITYPE_NONE
-		    && (plr[pnum].SpdList[i]._iMiscId == IMISC_SCROLL || plr[pnum].SpdList[i]._iMiscId == IMISC_SCROLLT)
+	pi = p->SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+		if (pi->_itype != ITYPE_NONE
+		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
 #ifdef HELLFIRE
-			&& plr[pnum].SpdList[i]._iSpell == plr[pnum]._pSpell) {
+			&& pi->_iSpell == p->_pSpell) {
 #else
-		    && plr[pnum].SpdList[i]._iSpell == plr[pnum]._pRSpell) {
+		    && pi->_iSpell == p->_pRSpell) {
 #endif
 			RemoveSpdBarItem(pnum, i);
 			CalcPlrScrolls(pnum);
@@ -2189,15 +2194,18 @@ void UseStaffCharge(int pnum)
 
 BOOL UseStaff()
 {
+	ItemStruct *pi;
+
 	if (pcurs == CURSOR_HAND) {
-		if (plr[myplr].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE
+		pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
+		if (pi->_itype != ITYPE_NONE
 #ifdef HELLFIRE
-		    && (plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_STAFF || plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_UNIQUE)
+		    && (pi->_iMiscId == IMISC_STAFF || pi->_iMiscId == IMISC_UNIQUE)
 #else
-		    && plr[myplr].InvBody[INVLOC_HAND_LEFT]._iMiscId == IMISC_STAFF
+		    && pi->_iMiscId == IMISC_STAFF
 #endif
-		    && plr[myplr].InvBody[INVLOC_HAND_LEFT]._iSpell == plr[myplr]._pRSpell
-		    && plr[myplr].InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
+		    && pi->_iSpell == plr[myplr]._pRSpell
+		    && pi->_iCharges > 0) {
 			return TRUE;
 		}
 	}

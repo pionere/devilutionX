@@ -1909,7 +1909,7 @@ void PlrDeadItem(int pnum, ItemStruct *is, int xx, int yy)
 void DropHalfPlayersGold(int pnum)
 {
 	PlayerStruct *p;
-	ItemStruct *holditem;
+	ItemStruct *pi, *holditem;
 	int i, hGold;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -1920,46 +1920,48 @@ void DropHalfPlayersGold(int pnum)
 	holditem = &p->HoldItem;
 	hGold = p->_pGold >> 1;
 	for (i = 0; i < MAXBELTITEMS && hGold > 0; i++) {
-		if (p->SpdList[i]._itype == ITYPE_GOLD &&
+		pi = &p->SpdList[i];
+		if (pi->_itype == ITYPE_GOLD &&
 #ifdef HELLFIRE
-			p->SpdList[i]._ivalue != MaxGold) {
+			pi->_ivalue != MaxGold) {
 #else
-			p->SpdList[i]._ivalue != GOLD_MAX_LIMIT) {
+			pi->_ivalue != GOLD_MAX_LIMIT) {
 #endif
-			if (hGold < p->SpdList[i]._ivalue) {
-				SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
+			if (hGold < pi->_ivalue) {
+				SetGoldItemValue(pi, pi->_ivalue - hGold);
 				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, hGold);
 				PlrDeadItem(pnum, holditem, 0, 0);
 				hGold = 0;
 			} else {
-				hGold -= p->SpdList[i]._ivalue;
+				hGold -= pi->_ivalue;
 				RemoveSpdBarItem(pnum, i);
 				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
-				SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
-				PlrDeadItem(pnum, &p->HoldItem, 0, 0);
+				SetGoldItemValue(holditem, pi->_ivalue);
+				PlrDeadItem(pnum, holditem, 0, 0);
 				i = -1;
 			}
 		}
 	}
 	if (hGold > 0) {
 		for (i = 0; i < MAXBELTITEMS && hGold > 0; i++) {
-			if (p->SpdList[i]._itype == ITYPE_GOLD) {
-				if (hGold < p->SpdList[i]._ivalue) {
-					SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
+			pi = &p->SpdList[i];
+			if (pi->_itype == ITYPE_GOLD) {
+				if (hGold < pi->_ivalue) {
+					SetGoldItemValue(pi, pi->_ivalue - hGold);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
-					hGold -= p->SpdList[i]._ivalue;
+					hGold -= pi->_ivalue;
 					RemoveSpdBarItem(pnum, i);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
+					SetGoldItemValue(holditem, pi->_ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -1969,25 +1971,26 @@ void DropHalfPlayersGold(int pnum)
 	force_redraw = 255;
 	if (hGold > 0) {
 		for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
-			if (p->InvList[i]._itype == ITYPE_GOLD &&
+			pi = &p->InvList[i];
+			if (pi->_itype == ITYPE_GOLD &&
 #ifdef HELLFIRE
-				p->InvList[i]._ivalue != MaxGold) {
+				pi->_ivalue != MaxGold) {
 #else
-				p->InvList[i]._ivalue != GOLD_MAX_LIMIT) {
+				pi->_ivalue != GOLD_MAX_LIMIT) {
 #endif
-				if (hGold < p->InvList[i]._ivalue) {
-					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
+				if (hGold < pi->_ivalue) {
+					SetGoldItemValue(pi, pi->_ivalue - hGold);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
-					hGold -= p->InvList[i]._ivalue;
+					hGold -= pi->_ivalue;
 					RemoveInvItem(pnum, i);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
+					SetGoldItemValue(holditem, pi->_ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -1996,20 +1999,21 @@ void DropHalfPlayersGold(int pnum)
 	}
 	if (hGold > 0) {
 		for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
-			if (p->InvList[i]._itype == ITYPE_GOLD) {
-				if (hGold < p->InvList[i]._ivalue) {
-					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
+			pi = &p->InvList[i];
+			if (pi->_itype == ITYPE_GOLD) {
+				if (hGold < pi->_ivalue) {
+					SetGoldItemValue(pi, pi->_ivalue - hGold);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					hGold = 0;
 				} else {
-					hGold -= p->InvList[i]._ivalue;
+					hGold -= pi->_ivalue;
 					RemoveInvItem(pnum, i);
 					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
-					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
+					SetGoldItemValue(holditem, pi->_ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
 					i = -1;
 				}
@@ -3501,17 +3505,16 @@ void CheckNewPath(int pnum)
 	}
 
 	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum) {
+		i = p->destParam1;
 		if (p->destAction == ACTION_SPELL) {
-			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
-			StartSpell(pnum, d, p->destParam1, p->destParam2);
+			d = GetDirection(p->_px, p->_py, i, p->destParam2);
+			StartSpell(pnum, d, i, p->destParam2);
 			p->destAction = ACTION_NONE;
 		} else if (p->destAction == ACTION_SPELLMON) {
-			i = p->destParam1;
 			d = GetDirection(p->_px, p->_py, monster[i]._mfutx, monster[i]._mfuty);
 			StartSpell(pnum, d, monster[i]._mfutx, monster[i]._mfuty);
 			p->destAction = ACTION_NONE;
 		} else if (p->destAction == ACTION_SPELLPLR) {
-			i = p->destParam1;
 			d = GetDirection(p->_px, p->_py, plr[i]._pfutx, plr[i]._pfuty);
 			StartSpell(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
 			p->destAction = ACTION_NONE;

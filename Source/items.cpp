@@ -1582,19 +1582,21 @@ void GetSuperItemLoc(int x, int y, int *xx, int *yy)
 
 void CalcItemValue(int ii)
 {
+	ItemStruct *is;
 	int v;
 
-	v = item[ii]._iVMult1 + item[ii]._iVMult2;
+	is = &item[ii];
+	v = is->_iVMult1 + is->_iVMult2;
 	if (v >= 0) {
-		v *= item[ii]._ivalue;
+		v *= is->_ivalue;
 	} else {
-		v = item[ii]._ivalue / v;
+		v = is->_ivalue / v;
 	}
-	v += item[ii]._iVAdd1 + item[ii]._iVAdd2;
+	v += is->_iVAdd1 + is->_iVAdd2;
 	if (v <= 0) {
 		v = 1;
 	}
-	item[ii]._iIvalue = v;
+	is->_iIvalue = v;
 }
 
 void GetBookSpell(int ii, int lvl)
@@ -3051,9 +3053,8 @@ void LoadCornerStone(int x, int y)
 void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 {
 	BOOL failed;
-	int i, j, tries, lvl;
+	int i, j, tries;
 
-	lvl = items_get_currlevel();
 	if (randarea != 0) {
 		tries = 0;
 		while (1) {
@@ -3080,7 +3081,7 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 		item[i]._ix = x;
 		item[i]._iy = y;
 		dItem[x][y] = i + 1;
-		GetItemAttrs(i, itemid, lvl);
+		GetItemAttrs(i, itemid, items_get_currlevel());
 		SetupItem(i);
 		item[i]._iPostDraw = TRUE;
 		if (selflag != 0) {
@@ -3094,7 +3095,7 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 
 void SpawnRock()
 {
-	int i, oi, lvl;
+	int i, oi;
 	int xx, yy;
 
 	for (i = 0; i < nobjects; i++) {
@@ -3103,8 +3104,6 @@ void SpawnRock()
 			break;
 	}
 	if (i != nobjects) {
-		lvl = items_get_currlevel();
-
 		i = itemavail[0];
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = i;
@@ -3113,7 +3112,7 @@ void SpawnRock()
 		item[i]._ix = xx;
 		item[i]._iy = yy;
 		dItem[xx][yy] = i + 1;
-		GetItemAttrs(i, IDI_ROCK, lvl);
+		GetItemAttrs(i, IDI_ROCK, items_get_currlevel());
 		SetupItem(i);
 		item[i]._iSelFlag = 2;
 		item[i]._iPostDraw = TRUE;
@@ -3125,9 +3124,7 @@ void SpawnRock()
 #ifdef HELLFIRE
 void SpawnRewardItem(int itemid, int xx, int yy)
 {
-	int i, lvl;
-
-	lvl = items_get_currlevel();
+	int i;
 
 	i = itemavail[0];
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
@@ -3135,7 +3132,7 @@ void SpawnRewardItem(int itemid, int xx, int yy)
 	item[i]._ix = xx;
 	item[i]._iy = yy;
 	dItem[xx][yy] = i + 1;
-	GetItemAttrs(i, itemid, lvl);
+	GetItemAttrs(i, itemid, items_get_currlevel());
 	SetupItem(i);
 	item[i]._iSelFlag = 2;
 	item[i]._iPostDraw = TRUE;
@@ -3302,7 +3299,8 @@ static void RepairItem(ItemStruct *is, int lvl)
 	int rep, d, md;
 
 	md = is->_iMaxDur;
-	if (is->_iDurability == md) {
+	rep = is->_iDurability;
+	if (rep == md) {
 		return;
 	}
 
@@ -3311,7 +3309,6 @@ static void RepairItem(ItemStruct *is, int lvl)
 		return;
 	}
 
-	rep = 0;
 	do {
 		rep += lvl + random_(37, lvl);
 		d = md / (lvl + 9);
@@ -3323,11 +3320,12 @@ static void RepairItem(ItemStruct *is, int lvl)
 			is->_itype = ITYPE_NONE;
 			return;
 		}
-	} while (rep + is->_iDurability < md);
+	} while (rep < md);
 
-	is->_iDurability += rep;
-	if (is->_iDurability > md)
-		is->_iDurability = md;
+	if (rep > md)
+		rep = md;
+
+	is->_iDurability = rep;
 	is->_iMaxDur = md;
 }
 
@@ -3351,20 +3349,22 @@ void DoRepair(int pnum, int cii)
 
 static void RechargeItem(ItemStruct *is, int r)
 {
-	int mc;
+	int cc, mc;
 
 	mc = is->_iMaxCharges;
-	if (is->_iCharges != mc) {
+	cc = is->_iCharges;
+	if (cc != mc) {
 		do {
 			mc--;
 			if (mc == 0) {
 				is->_iMaxCharges = 0;
 				return;
 			}
-			is->_iCharges += r;
-		} while (is->_iCharges < mc);
-		if (is->_iCharges > mc)
-			is->_iCharges = mc;
+			cc += r;
+		} while (cc < mc);
+		if (cc > mc)
+			cc = mc;
+		is->_iCharges = cc;
 		is->_iMaxCharges = mc;
 	}
 }
@@ -5005,7 +5005,7 @@ void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 
 void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 {
-	int iblvl, itype;
+	int itype;
 
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
@@ -5019,13 +5019,8 @@ void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 		SetRndSeed(iseed);
 		itype = RndWitchItem(lvl) - 1;
 		GetItemAttrs(ii, itype, lvl);
-		iblvl = -1;
-		if (random_(51, 100) <= 5)
-			iblvl = lvl;
-		if (iblvl == -1 && item[ii]._iMiscId == IMISC_STAFF)
-			iblvl = lvl;
-		if (iblvl != -1)
-			GetItemBonus(ii, iblvl, iblvl << 1, TRUE, TRUE);
+		if (random_(51, 100) <= 5 || item[ii]._iMiscId == IMISC_STAFF)
+			GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	}
 
 	item[ii]._iSeed = iseed;
