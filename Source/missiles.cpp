@@ -1464,7 +1464,6 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 									} else {
 										ii = ItemMiscIdIdx(IMISC_HEAL);
 									}
-									ii = ItemMiscIdIdx(IMISC_HEAL);
 									break;
 								case IMISC_FULLREJUV:
 									switch (random_(205, 3)) {
@@ -5139,7 +5138,7 @@ void MI_Apoca(int mi)
 	mis = &missile[mi];
 	for (j = mis->_miVar2; j < mis->_miVar3; j++) {
 		for (i = mis->_miVar4; i < mis->_miVar5; i++) {
-			if (dMonster[i][j] >= MAX_PLRS && !nSolidTable[dPiece[i][j]]) {
+			if (dMonster[i][j] > MAX_PLRS && !nSolidTable[dPiece[i][j]]) {
 #ifdef HELLFIRE
 				if (!LineClear(mis->_mix, mis->_miy, i, j))
 					continue;

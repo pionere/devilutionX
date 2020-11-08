@@ -1487,11 +1487,11 @@ void CheckQuestItem(int pnum)
 		}
 		if (quests[Q_ANVIL]._qlog) {
 			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_89][plr[myplr]._pClass];
+			sfxdnum = sgSFXSets[SFXS_PLR_89][p->_pClass];
 		}
 	} else if (idx == IDI_GLDNELIX) {
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_88][plr[myplr]._pClass];
+		sfxdnum = sgSFXSets[SFXS_PLR_88][p->_pClass];
 	} else if (idx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
@@ -1499,19 +1499,19 @@ void CheckQuestItem(int pnum)
 		}
 		if (quests[Q_ROCK]._qlog) {
 			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_87][plr[myplr]._pClass];
+			sfxdnum = sgSFXSets[SFXS_PLR_87][p->_pClass];
 		}
 	} else if (idx == IDI_ARMOFVAL) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 		sfxdelay = 20;
-		sfxdnum = sgSFXSets[SFXS_PLR_91][plr[myplr]._pClass];
+		sfxdnum = sgSFXSets[SFXS_PLR_91][p->_pClass];
 #ifdef HELLFIRE
 	} else if (idx == IDI_MAPOFDOOM) {
 		quests[Q_GRAVE]._qlog = FALSE;
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		quests[Q_GRAVE]._qvar1 = 1;
 		sfxdelay = 10;
-		sfxdnum = sgSFXSets[SFXS_PLR_79][plr[myplr]._pClass];
+		sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int item_num;
 		int nn;
@@ -1520,7 +1520,7 @@ void CheckQuestItem(int pnum)
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
 			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_46][plr[myplr]._pClass];
+			sfxdnum = sgSFXSets[SFXS_PLR_46][p->_pClass];
 			if (idx != IDI_NOTE1) {
 				PlrHasItem(pnum, IDI_NOTE1, &nn);
 				RemoveInvItem(pnum, nn);
@@ -2230,7 +2230,7 @@ BOOL UseInvItem(int pnum, int cii)
 		return TRUE;
 	if (stextflag != STORE_NONE)
 		return TRUE;
-	if (cii <= INVITEM_HAND_RIGHT)
+	if (cii < INVITEM_INV_FIRST)
 		return FALSE;
 
 	if (cii <= INVITEM_INV_LAST) {

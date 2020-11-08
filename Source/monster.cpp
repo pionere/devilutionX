@@ -1747,8 +1747,8 @@ void M2MStartHit(int defm, int offm, int dam)
 		app_fatal("Monster %d \"%s\" getting hit by monster: MType NULL", defm, dmon->mName);
 	}
 
-	if (offm >= 0)
-		monster[offm].mWhoHit |= 1 << offm;
+	if ((DWORD)offm < MAX_PLRS)
+		dmon->mWhoHit |= 1 << offm;
 
 	delta_monster_hp(defm, dmon->_mhitpoints, currlevel);
 	NetSendCmdParam2(FALSE, CMD_MONSTDAMAGE, defm, dam);
@@ -1801,9 +1801,9 @@ void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 #endif
 	}
 
-	if (pnum >= 0)
+	if ((DWORD)pnum < MAX_PLRS)
 		mon->mWhoHit |= 1 << pnum;
-	if (pnum < MAX_PLRS && mnum > MAX_PLRS) /// BUGFIX: mnum >= MAX_PLRS
+	if ((DWORD)pnum < MAX_PLRS && mnum >= MAX_PLRS)
 		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->mWhoHit);
 	monstkills[mon->MType->mtype]++;
 	mon->_mhitpoints = 0;
@@ -1854,18 +1854,19 @@ void M2MStartKill(int offm, int defm)
 	if ((DWORD)offm >= MAXMONSTERS) {
 		app_fatal("M2MStartKill: Invalid monster (attacker) %d", offm);
 	}
-	if ((DWORD)offm >= MAXMONSTERS) { /// BUGFIX: should check `defm`
+	if ((DWORD)defm >= MAXMONSTERS) {
 		app_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
 	}
 	dmon = &monster[defm];
-	if (monster[offm].MType == NULL)
+	if (dmon->MType == NULL)
 		app_fatal("M2MStartKill: Monster %d \"%s\" MType NULL", defm, dmon->mName);
 
 	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
 	NetSendCmdLocParam1(FALSE, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
 
-	dmon->mWhoHit |= 1 << offm;
 	if (offm < MAX_PLRS)
+		dmon->mWhoHit |= 1 << offm;
+	if (offm < MAX_PLRS && defm >= MAX_PLRS)
 		AddPlrMonstExper(dmon->mLevel, dmon->mExp, dmon->mWhoHit);
 
 	monstkills[dmon->MType->mtype]++;
@@ -2396,7 +2397,7 @@ BOOL MonDoAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
 		app_fatal("MonDoAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MType == NULL) // BUGFIX: should check MData
+	if (mon->MData == NULL)
 		app_fatal("MonDoAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
@@ -2431,7 +2432,7 @@ BOOL MonDoRAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
 		app_fatal("MonDoRAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MType == NULL) // BUGFIX: should check MData
+	if (mon->MData == NULL)
 		app_fatal("MonDoRAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
@@ -2474,7 +2475,7 @@ int MonDoRSpAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
 		app_fatal("MonDoRSpAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MType == NULL) // BUGFIX: should check MData
+	if (mon->MData == NULL)
 		app_fatal("MonDoRSpAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
@@ -2519,7 +2520,7 @@ BOOL MonDoSAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
 		app_fatal("MonDoSAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MType == NULL) // BUGFIX: should check MData
+	if (mon->MData == NULL)
 		app_fatal("MonDoSAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum2)
@@ -4215,7 +4216,7 @@ void MAI_Golum(int mnum)
 				for (k = -2; k <= 2; k++) {
 					md = dMonster[mon->_mx + k][mon->_my + j];
 					if (md > 0)
-						monster[md]._msquelch = UCHAR_MAX; // BUGFIX: should be `monster[md-1]`, not monster[md].
+						monster[md - 1]._msquelch = UCHAR_MAX;
 				}
 			}
 		}
@@ -4812,7 +4813,7 @@ void DeleteMonsterList()
 	while (i < nummonsters) {
 		if (monster[monstactive[i]]._mDelFlag) {
 			DeleteMonster(i);
-			i = 0; // TODO: check if this should be MAX_PLRS.
+			i = MAX_PLRS;
 		} else {
 			i++;
 		}
@@ -5042,11 +5043,9 @@ BOOL DirOK(int mnum, int mdir)
 		for (y = fy - 3; y <= fy + 3; y++) {
 			if (IN_DUNGEON_AREA(x, y)) {
 				mi = dMonster[x][y];
-				if (mi < 0)
-					mi = -mi;
-				if (mi != 0)
-					mi--;
-				// BUGFIX: should only run pack member check if mi was non-zero prior to executing the body of the above if-statement.
+				if (mi == 0)
+					continue;
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (monster[mi].leaderflag == 1
 				    && monster[mi].leader == mnum
 				    && monster[mi]._mfutx == x
@@ -5331,7 +5330,7 @@ void MonFallenFear(int x, int y)
 		    && mon->_mhitpoints >> 6 > 0) {
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = rundist;
-			mon->_mdir = GetDirection(x, y, monster[i]._mx, monster[i]._my);
+			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
 		}
 	}
 }
@@ -5548,11 +5547,8 @@ BOOL monster_posok(int mnum, int x, int y)
 			if (mis->_mix == x && mis->_miy == y) {
 				if (mis->_mitype == MIS_FIREWALL) {
 					fire = TRUE;
-					break;
-				}
-				if (mis->_mitype == MIS_LIGHTWALL) {
+				} else if (mis->_mitype == MIS_LIGHTWALL) {
 					lightning = TRUE;
-					break;
 				}
 			}
 		}

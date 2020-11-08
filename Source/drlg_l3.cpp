@@ -2128,8 +2128,8 @@ void FixL3HallofHeroes()
 			}
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
 			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 12) {
 				if (dungeon[i + 1][j] == 7) {
 					dungeon[i][j] = 7;

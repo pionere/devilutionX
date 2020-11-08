@@ -2912,22 +2912,22 @@ void OperateBook(int pnum, int oi)
 		return;
 
 	if (setlvlnum == SL_BONECHAMB) {
-		plr[myplr]._pMemSpells |= ((__int64)1 << (SPL_GUARDIAN - 1));
+		plr[pnum]._pMemSpells |= ((__int64)1 << (SPL_GUARDIAN - 1));
 		if (plr[pnum]._pSplLvl[SPL_GUARDIAN] < MAXSPLLEVEL)
-			plr[myplr]._pSplLvl[SPL_GUARDIAN]++;
+			plr[pnum]._pSplLvl[SPL_GUARDIAN]++;
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (!deltaload)
 			PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		InitDiabloMsg(EMSG_BONECHAMB);
 		AddMissile(
-		    plr[myplr]._px,
-		    plr[myplr]._py,
+		    plr[pnum]._px,
+		    plr[pnum]._py,
 		    os->_ox - 2,
 		    os->_oy - 4,
-		    plr[myplr]._pdir,
+		    plr[pnum]._pdir,
 		    MIS_GUARDIAN,
 		    0,
-		    myplr,
+		    pnum,
 		    0,
 		    0);
 	} else if (setlvlnum == SL_VILEBETRAYER) {

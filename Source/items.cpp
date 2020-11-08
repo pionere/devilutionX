@@ -691,12 +691,12 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				if (pi->_iPLAC) {
 					int tmpac = pi->_iPLAC * pi->_iAC / 100;
 					if (tmpac == 0)
-						tmpac = 1;
+						tmpac = pi->_iPLAC >= 0 ? 1 : -1;
 					bac += tmpac;
 				}
 				iflgs |= pi->_iFlags;
 #ifdef HELLFIRE
-				pDamAcFlags |= p->pDamAcFlags;
+				pDamAcFlags |= pi->_iDamAcFlags;
 #endif
 				sadd += pi->_iPLStr;
 				madd += pi->_iPLMag;
@@ -791,23 +791,23 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 
 	p->_pStrength = sadd + p->_pBaseStr;
-	if (plr[myplr]._pStrength <= 0) {
-		plr[myplr]._pStrength = 0;
+	if (p->_pStrength < 0) {
+		p->_pStrength = 0;
 	}
 
 	p->_pMagic = madd + p->_pBaseMag;
-	if (plr[myplr]._pMagic <= 0) {
-		plr[myplr]._pMagic = 0;
+	if (p->_pMagic < 0) {
+		p->_pMagic = 0;
 	}
 
 	p->_pDexterity = dadd + p->_pBaseDex;
-	if (plr[myplr]._pDexterity <= 0) {
-		plr[myplr]._pDexterity = 0;
+	if (p->_pDexterity < 0) {
+		p->_pDexterity = 0;
 	}
 
 	p->_pVitality = vadd + p->_pBaseVit;
-	if (plr[myplr]._pVitality <= 0) {
-		plr[myplr]._pVitality = 0;
+	if (p->_pVitality < 0) {
+		p->_pVitality = 0;
 	}
 
 	if (p->_pClass == PC_ROGUE) {
@@ -4168,12 +4168,6 @@ void PrintItemDetails(const ItemStruct *is)
 		AddPanelString(tempstr, TRUE);
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-#ifdef HELLFIRE
-		if (is->_iMinDam == is->_iMaxDam)
-			sprintf(tempstr, "dam: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
-		else
-#endif
-		sprintf(tempstr, "dam: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
 		sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 		AddPanelString(tempstr, TRUE);
 	}

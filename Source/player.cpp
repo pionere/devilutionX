@@ -762,9 +762,7 @@ void CreatePlayer(int pnum, char c)
 		p->_pMemSpells = (__int64)1 << (SPL_FIREBOLT - 1);
 	}
 
-	// interestingly, only the first three hotkeys are reset
-	// TODO: BUGFIX: clear all 4 hotkeys instead of 3 (demo leftover)
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 4; i++) {
 		p->_pSplHotKey[i] = -1;
 	}
 
@@ -2467,7 +2465,7 @@ BOOL WeaponDur(int pnum, int durrnd)
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & ISPH_DECAY) {
 		pi->_iPLDam -= 5;
 		if (pi->_iPLDam <= -100) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT); // BUGFIX: INVLOC_HAND_RIGHT
+			NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);
 			pi->_itype = ITYPE_NONE;
 			CalcPlrInv(pnum, TRUE);
 			return TRUE;
@@ -3443,7 +3441,7 @@ void CheckNewPath(int pnum)
 		return;
 	}
 
-	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > plr[myplr]._pAFNum) {
+	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > p->_pAFNum) {
 		if (p->destAction == ACTION_ATTACK) {
 			d = GetDirection(p->_pfutx, p->_pfuty, p->destParam1, p->destParam2);
 			StartAttack(pnum, d);
@@ -3484,7 +3482,7 @@ void CheckNewPath(int pnum)
 		}
 	}
 
-	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > plr[myplr]._pAFNum) {
+	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum) {
 		if (p->destAction == ACTION_RATTACK) {
 			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
 			StartRangeAttack(pnum, d, p->destParam1, p->destParam2);
@@ -3654,7 +3652,7 @@ void ProcessPlayers()
 					}
 					drawhpflag = TRUE;
 				}
-				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pManaBase > 0) {
+				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pMana > 0) {
 					plr[pnum]._pManaBase -= plr[pnum]._pMana;
 					plr[pnum]._pMana = 0;
 					drawmanaflag = TRUE;
