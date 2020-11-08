@@ -84,12 +84,10 @@ void GetItemFrm(int ii);
 void GetItemStr(int ii);
 void CheckIdentify(int pnum, int cii);
 void DoRepair(int pnum, int cii);
-void RepairItem(ItemStruct *is, int lvl);
 void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
 BOOL DoOil(int pnum, int cii);
 #endif
-void RechargeItem(ItemStruct *is, int r);
 void PrintItemPower(char plidx, const ItemStruct *is);
 void DrawUniqueInfo();
 void PrintItemDetails(const ItemStruct *is);
