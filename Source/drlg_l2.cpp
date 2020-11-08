@@ -1641,12 +1641,12 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
 			done = FALSE;
 		}
 		ii = 2;
-		for (yy = 0; yy < sh && done; yy++) {
-			for (xx = 0; xx < sw && done; xx++) {
-				if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+		for (yy = sy; yy < sy + sh && done; yy++) {
+			for (xx = sx; xx < sx + sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = FALSE;
 				}
-				if (dflags[xx + sx][yy + sy] != 0) {
+				if (dflags[xx][yy] != 0) {
 					done = FALSE;
 				}
 				ii++;
@@ -1667,10 +1667,10 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
 		return FALSE;
 
 	ii = sw * sh + 2;
-	for (yy = 0; yy < sh; yy++) {
-		for (xx = 0; xx < sw; xx++) {
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
-				dungeon[xx + sx][yy + sy] = miniset[ii];
+				dungeon[xx][yy] = miniset[ii];
 			}
 			ii++;
 		}
@@ -1707,12 +1707,12 @@ static void DRLG_L2PlaceRndSet(BYTE *miniset, int rndper)
 			if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
 				found = FALSE;
 			}
-			for (yy = 0; yy < sh && found; yy++) {
-				for (xx = 0; xx < sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+			for (yy = sy; yy < sy + sh && found; yy++) {
+				for (xx = sx; xx < sx + sw && found; xx++) {
+					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = FALSE;
 					}
-					if (dflags[xx + sx][yy + sy] != 0) {
+					if (dflags[xx][yy] != 0) {
 						found = FALSE;
 					}
 					ii++;
@@ -1730,10 +1730,10 @@ static void DRLG_L2PlaceRndSet(BYTE *miniset, int rndper)
 				}
 			}
 			if (found && random_(0, 100) < rndper) {
-				for (yy = 0; yy < sh; yy++) {
-					for (xx = 0; xx < sw; xx++) {
+				for (yy = sy; yy < sy + sh; yy++) {
+					for (xx = sx; xx < sx + sw; xx++) {
 						if (miniset[kk] != 0) {
-							dungeon[xx + sx][yy + sy] = miniset[kk];
+							dungeon[xx][yy] = miniset[kk];
 						}
 						kk++;
 					}
@@ -1865,13 +1865,15 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 
 	sp = &pSetPiece[4];
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
 			if (*sp != 0) {
-				dungeon[i + rx1][j + ry1] = *sp;
-				dflags[i + rx1][j + ry1] |= DLRG_PROTECTED;
+				dungeon[i][j] = *sp;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
-				dungeon[i + rx1][j + ry1] = 3;
+				dungeon[i][j] = 3;
 			}
 			sp += 2;
 		}
@@ -1918,27 +1920,11 @@ static void DefineRoom(int nX1, int nY1, int nX2, int nY2, BOOL ForceHW)
 
 static void CreateDoorType(int nX, int nY)
 {
-	BOOL fDoneflag;
-
-	fDoneflag = FALSE;
-
-	if (predungeon[nX - 1][nY] == 68) {
-		fDoneflag = TRUE;
-	}
-	if (predungeon[nX + 1][nY] == 68) {
-		fDoneflag = TRUE;
-	}
-	if (predungeon[nX][nY - 1] == 68) {
-		fDoneflag = TRUE;
-	}
-	if (predungeon[nX][nY + 1] == 68) {
-		fDoneflag = TRUE;
-	}
-	if (predungeon[nX][nY] == 66 || predungeon[nX][nY] == 67 || predungeon[nX][nY] == 65 || predungeon[nX][nY] == 69) {
-		fDoneflag = TRUE;
-	}
-
-	if (!fDoneflag) {
+	if (predungeon[nX - 1][nY] != 68
+	 && predungeon[nX + 1][nY] != 68
+	 && predungeon[nX][nY - 1] != 68
+	 && predungeon[nX][nY + 1] != 68
+	 && (predungeon[nX][nY] < 65 || predungeon[nX][nY] > 69)) {
 		predungeon[nX][nY] = 68;
 	}
 }
@@ -2037,28 +2023,28 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRy1 = nY2 - nRh;
 	}
 
-	if (nRx1 >= 38) {
+	if (nRx1 > 38) {
 		nRx1 = 38;
 	}
-	if (nRy1 >= 38) {
+	if (nRy1 > 38) {
 		nRy1 = 38;
 	}
-	if (nRx1 <= 1) {
+	if (nRx1 < 1) {
 		nRx1 = 1;
 	}
-	if (nRy1 <= 1) {
+	if (nRy1 < 1) {
 		nRy1 = 1;
 	}
-	if (nRx2 >= 38) {
+	if (nRx2 > 38) {
 		nRx2 = 38;
 	}
-	if (nRy2 >= 38) {
+	if (nRy2 > 38) {
 		nRy2 = 38;
 	}
-	if (nRx2 <= 1) {
+	if (nRx2 < 1) {
 		nRx2 = 1;
 	}
-	if (nRy2 <= 1) {
+	if (nRy2 < 1) {
 		nRy2 = 1;
 	}
 	DefineRoom(nRx1, nRy1, nRx2, nRy2, ForceHW);

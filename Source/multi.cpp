@@ -155,17 +155,17 @@ BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, int *size)
 	return body;
 }
 
-void multi_send_msg_packet(int pmask, BYTE *src, BYTE len)
+void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 {
-	DWORD v, p, t;
+	DWORD p, t;
 	TPkt pkt;
 
 	NetRecvPlrData(&pkt);
 	t = len + sizeof(pkt.hdr);
 	pkt.hdr.wLen = t;
 	memcpy(pkt.body, src, len);
-	for (v = 1, p = 0; p < MAX_PLRS; p++, v <<= 1) {
-		if (v & pmask) {
+	for (p = 0; p < MAX_PLRS; p++, pmask >>= 1) {
+		if (pmask & 1) {
 			if (!SNetSendMessage(p, &pkt.hdr, t) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;

@@ -1585,10 +1585,9 @@ void CalcItemValue(int ii)
 	int v;
 
 	v = item[ii]._iVMult1 + item[ii]._iVMult2;
-	if (v > 0) {
+	if (v >= 0) {
 		v *= item[ii]._ivalue;
-	}
-	if (v < 0) {
+	} else {
 		v = item[ii]._ivalue / v;
 	}
 	v += item[ii]._iVAdd1 + item[ii]._iVAdd2;

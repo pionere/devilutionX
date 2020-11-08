@@ -331,7 +331,6 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = 7;
-			sfxdelay = 30;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 
 			for (j = 0; j < MAXDUNY; j++) {
@@ -344,21 +343,20 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 					}
 				}
 			}
-			sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
 			if (sendmsg) {
 				NetSendCmdQuest(TRUE, Q_BETRAYER);
 				NetSendCmdQuest(TRUE, Q_DIABLO);
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
-			sfxdelay = 30;
 			InitVPTriggers();
 			quests[Q_BETRAYER]._qvar1 = 7;
 			quests[Q_BETRAYER]._qvar2 = 4;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 			AddMissile(35, 32, 35, 32, 0, MIS_RPORTAL, 0, myplr, 0, 0);
-			sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
 		}
+		sfxdelay = 30;
+		sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
 		break;
 	case UMT_WARLORD: //"Warlord of Blood"
 		quests[Q_WARLORD]._qactive = QUEST_DONE;

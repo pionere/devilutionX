@@ -940,11 +940,11 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview, int l
 			}
 
 			ii = 2;
-			for (yy = 0; yy < sh && done; yy++) {
-				for (xx = 0; xx < sw && done; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][sy + yy] != miniset[ii])
+			for (yy = sy; yy < sy + sh && done; yy++) {
+				for (xx = sx; xx < sx + sw && done; xx++) {
+					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii])
 						done = FALSE;
-					if (L5dflags[xx + sx][sy + yy] != 0)
+					if (L5dflags[xx][yy] != 0)
 						done = FALSE;
 					ii++;
 				}
@@ -964,10 +964,10 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview, int l
 
 		ii = sw * sh + 2;
 
-		for (yy = 0; yy < sh; yy++) {
-			for (xx = 0; xx < sw; xx++) {
+		for (yy = sy; yy < sy + sh; yy++) {
+			for (xx = sx; xx < sx + sw; xx++) {
 				if (miniset[ii])
-					dungeon[xx + sx][sy + yy] = miniset[ii];
+					dungeon[xx][yy] = miniset[ii];
 				ii++;
 			}
 		}
@@ -1276,13 +1276,15 @@ static void L5drawRoom(int x, int y, int w, int h)
 
 static BOOL L5checkRoom(int x, int y, int width, int height)
 {
-	int i, j;
+	int i, j, x2, y2;
 
-	for (j = 0; j < height; j++) {
-		for (i = 0; i < width; i++) {
-			if (i + x < 0 || i + x >= DMAXX || j + y < 0 || j + y >= DMAXY)
+	x2 = x + width;
+	y2 = y + height;
+	for (j = y; j < y2; j++) {
+		for (i = x; i < x2; i++) {
+			if (i < 0 || i >= DMAXX || j < 0 || j >= DMAXY)
 				return FALSE;
-			if (dungeon[i + x][j + y])
+			if (dungeon[i][j])
 				return FALSE;
 		}
 	}

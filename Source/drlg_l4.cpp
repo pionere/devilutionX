@@ -208,13 +208,15 @@ void DRLG_L4SetSPRoom(int rx1, int ry1)
 
 	sp = &pSetPiece[4];
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
 			if (*sp != 0) {
-				dungeon[i + rx1][j + ry1] = *sp;
-				dflags[i + rx1][j + ry1] |= DLRG_PROTECTED;
+				dungeon[i][j] = *sp;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
-				dungeon[i + rx1][j + ry1] = 6;
+				dungeon[i][j] = 6;
 			}
 			sp += 2;
 		}
@@ -242,23 +244,25 @@ static int L4HWallOk(int i, int j)
 	int x;
 	BYTE bv;
 
-	for (x = 1; dungeon[i + x][j] == 6; x++) {
-		if (dflags[i + x][j] != 0) {
+	x = i;
+	while (TRUE) {
+		x++;
+		bv = dungeon[x][j];
+		if (bv == 6)
 			break;
-		}
-		if (dungeon[i + x][j - 1] != 6) {
+		if (dflags[x][j] != 0)
 			break;
-		}
-		if (dungeon[i + x][j + 1] != 6) {
+		if (dungeon[x][j - 1] != 6)
 			break;
-		}
+		if (dungeon[x][j + 1] != 6)
+			break;
 	}
 
-	if (x > 3) {
-		bv = dungeon[i + x][j];
-		if (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)
-			return x;
-	}
+	x -= i;
+	if (x > 3
+	 && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22))
+		return x;
+
 	return -1;
 }
 
@@ -267,23 +271,25 @@ static int L4VWallOk(int i, int j)
 	int y;
 	BYTE bv;
 
-	for (y = 1; dungeon[i][j + y] == 6; y++) {
-		if (dflags[i][j + y] != 0) {
+	y = j;
+	while (TRUE) {
+		y++;
+		bv = dungeon[i][y];
+		if (bv == 6)
 			break;
-		}
-		if (dungeon[i - 1][j + y] != 6) {
+		if (dflags[i][y] != 0)
 			break;
-		}
-		if (dungeon[i + 1][j + y] != 6) {
+		if (dungeon[i - 1][y] != 6)
 			break;
-		}
+		if (dungeon[i + 1][y] != 6)
+			break;
 	}
 
-	if (y > 3) {
-		bv = dungeon[i][j + y];
-		if (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)
-			return y;
-	}
+	y -= j;
+	if (y > 3
+	 && (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23))
+		return y;
+
 	return -1;
 }
 
@@ -1104,29 +1110,33 @@ static int GetArea()
 
 static void L4drawRoom(int x, int y, int width, int height)
 {
-	int i, j;
+	int i, j, x2, y2;
 
-	for (j = 0; j < height; j++) {
-		for (i = 0; i < width; i++) {
-			dung[i + x][j + y] = 1;
+	x2 = x + width;
+	y2 = y + height;
+	for (j = y; j < y2; j++) {
+		for (i = x; i < x2; i++) {
+			dung[i][j] = 1;
 		}
 	}
 }
 
 static BOOL L4checkRoom(int x, int y, int width, int height)
 {
-	int i, j;
+	int i, j, x2, y2;
 
 	if (x <= 0 || y <= 0) {
 		return FALSE;
 	}
 
-	for (j = 0; j < height; j++) {
-		for (i = 0; i < width; i++) {
-			if (i + x < 0 || i + x >= 20 || j + y < 0 || j + y >= 20) {
+	x2 = x + width;
+	y2 = y + height;
+	for (j = y; j < y2; j++) {
+		for (i = x; i < x2; i++) {
+			if (i < 0 || i >= 20 || j < 0 || j >= 20) {
 				return FALSE;
 			}
-			if (dung[i + x][j + y] != 0) {
+			if (dung[i][j] != 0) {
 				return FALSE;
 			}
 		}
@@ -1252,12 +1262,12 @@ void L4SaveQuads()
 	x = l4holdx;
 	y = l4holdy;
 
-	for (j = 0; j < 14; j++) {
-		for (i = 0; i < 14; i++) {
-			dflags[i + x][j + y] = 1;
-			dflags[DMAXX - 1 - i - x][j + y] = 1;
-			dflags[i + x][DMAXY - 1 - j - y] = 1;
-			dflags[DMAXX - 1 - i - x][DMAXY - 1 - j - y] = 1;
+	for (j = y; j < y + 14; j++) {
+		for (i = x; i < x + 14; i++) {
+			dflags[i][j] = 1;
+			dflags[DMAXX - 1 - i][j] = 1;
+			dflags[i][DMAXY - 1 - j] = 1;
+			dflags[DMAXX - 1 - i][DMAXY - 1 - j] = 1;
 		}
 	}
 }
@@ -1343,12 +1353,12 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 			done = FALSE;
 		}
 		ii = 2;
-		for (yy = 0; yy < sh && done; yy++) {
-			for (xx = 0; xx < sw && done; xx++) {
-				if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+		for (yy = sy; yy < sy + sh && done; yy++) {
+			for (xx = sx; xx < sx + sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = FALSE;
 				}
-				if (dflags[xx + sx][yy + sy] != 0) {
+				if (dflags[xx][yy] != 0) {
 					done = FALSE;
 				}
 				ii++;
@@ -1368,11 +1378,11 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 		return FALSE;
 
 	ii = sw * sh + 2;
-	for (yy = 0; yy < sh; yy++) {
-		for (xx = 0; xx < sw; xx++) {
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
-				dungeon[xx + sx][yy + sy] = miniset[ii];
-				dflags[xx + sx][yy + sy] |= 8;
+				dungeon[xx][yy] = miniset[ii];
+				dflags[xx][yy] |= 8;
 			}
 			ii++;
 		}

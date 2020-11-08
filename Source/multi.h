@@ -32,7 +32,7 @@ void multi_send_packet(void *packet, BYTE dwSize);
 void NetRecvPlrData(TPkt *pkt);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, int *size);
-void multi_send_msg_packet(int pmask, BYTE *src, BYTE len);
+void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
 void multi_msg_countdown();
 void multi_parse_turn(int pnum, int turn);
 void multi_handle_turn_upper_bit(int pnum);

@@ -1973,7 +1973,7 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 #else
 		if (plr[misource]._pClass == PC_ROGUE)
 			av += (plr[misource]._pLevel - 1) >> 2;
-		if (plr[misource]._pClass == PC_WARRIOR)
+		else if (plr[misource]._pClass == PC_WARRIOR)
 			av += (plr[misource]._pLevel - 1) >> 3;
 #endif
 	}
@@ -2600,9 +2600,9 @@ void miss_null_32(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	AnimStruct *anim;
 	MonsterStruct *mon;
 
-	anim = &monster[misource].MType->Anims[MA_WALK];
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mon = &monster[misource];
+	anim = &mon->MType->Anims[MA_WALK];
 	mis = &missile[mi];
 	mis->_mimfnum = midir;
 	mis->_miAnimFlags = 0;
@@ -2792,7 +2792,7 @@ void AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 		UseMana(misource, SPL_ETHEREALIZE);
 	mis = &missile[mi];
 	p = &plr[misource];
-	range = 16 * p->_pLevel >> 1;
+	range = p->_pLevel << 3;
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
 	}
@@ -4186,7 +4186,7 @@ void MI_FireRing(int mi)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
-	dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2) >> 1;
+	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
 	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 		tx = mis->_miVar1 + CrawlTable[cr - 1];
 		ty = mis->_miVar2 + CrawlTable[cr];
@@ -4218,7 +4218,7 @@ void MI_LightRing(int mi)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
-	dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2) >> 1;
+	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
 	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
 		tx = mis->_miVar1 + CrawlTable[cr - 1];
 		ty = mis->_miVar2 + CrawlTable[cr];

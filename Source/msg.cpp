@@ -532,72 +532,69 @@ void DeltaLoadLevel()
 
 	itm = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
-		if (itm->bCmd != 0xFF) {
-			if (itm->bCmd == CMD_WALKXY) {
-				ii = FindGetItem(
+		if (itm->bCmd == CMD_WALKXY) {
+			ii = FindGetItem(
+				itm->wIndx,
+				itm->wCI,
+				itm->dwSeed);
+			if (ii != -1) {
+				if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
+					dItem[item[ii]._ix][item[ii]._iy] = 0;
+				DeleteItem(ii, i);
+			}
+		} else if (itm->bCmd == CMD_ACK_PLRINFO) {
+			ii = itemavail[0];
+			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+			itemactive[numitems] = ii;
+			if (itm->wIndx == IDI_EAR) {
+				RecreateEar(
+					ii,
+					itm->wCI,
+					itm->dwSeed,
+					itm->bId,
+					itm->bDur,
+					itm->bMDur,
+					itm->bCh,
+					itm->bMCh,
+					itm->wValue,
+					itm->dwBuff);
+			} else {
+				RecreateItem(
+					ii,
 					itm->wIndx,
 					itm->wCI,
-					itm->dwSeed);
-				if (ii != -1) {
-					if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
-						dItem[item[ii]._ix][item[ii]._iy] = 0;
-					DeleteItem(ii, i);
-				}
+					itm->dwSeed,
+					itm->wValue);
+				if (itm->bId)
+					item[ii]._iIdentified = TRUE;
+				item[ii]._iDurability = itm->bDur;
+				item[ii]._iMaxDur = itm->bMDur;
+				item[ii]._iCharges = itm->bCh;
+				item[ii]._iMaxCharges = itm->bMCh;
 			}
-			if (itm->bCmd == CMD_ACK_PLRINFO) {
-				ii = itemavail[0];
-				itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-				itemactive[numitems] = ii;
-				if (itm->wIndx == IDI_EAR) {
-					RecreateEar(
-						ii,
-						itm->wCI,
-						itm->dwSeed,
-						itm->bId,
-						itm->bDur,
-						itm->bMDur,
-						itm->bCh,
-						itm->bMCh,
-						itm->wValue,
-						itm->dwBuff);
-				} else {
-					RecreateItem(
-						ii,
-						itm->wIndx,
-						itm->wCI,
-						itm->dwSeed,
-						itm->wValue);
-					if (itm->bId)
-						item[ii]._iIdentified = TRUE;
-					item[ii]._iDurability = itm->bDur;
-					item[ii]._iMaxDur = itm->bMDur;
-					item[ii]._iCharges = itm->bCh;
-					item[ii]._iMaxCharges = itm->bMCh;
-				}
-				x = itm->x;
-				y = itm->y;
-				if (!CanPut(x, y)) {
-					done = FALSE;
-					for (k = 1; k < 50 && !done; k++) {
-						for (j = -k; j <= k && !done; j++) {
-							yy = y + j;
-							for (l = -k; l <= k && !done; l++) {
-								xx = x + l;
-								if (CanPut(xx, yy)) {
-									done = TRUE;
-									x = xx;
-									y = yy;
-								}
+			x = itm->x;
+			y = itm->y;
+			if (!CanPut(x, y)) {
+				done = FALSE;
+				for (k = 1; k < 50 && !done; k++) {
+					for (j = -k; j <= k && !done; j++) {
+						yy = y + j;
+						for (l = -k; l <= k && !done; l++) {
+							xx = x + l;
+							if (CanPut(xx, yy)) {
+								done = TRUE;
+								x = xx;
+								y = yy;
 							}
 						}
 					}
 				}
-				item[ii]._ix = x;
-				item[ii]._iy = y;
-				dItem[x][y] = ii + 1;
-				RespawnItem(ii, FALSE);
-				numitems++;
 			}
+			item[ii]._ix = x;
+			item[ii]._iy = y;
+			dItem[x][y] = ii + 1;
+			RespawnItem(ii, FALSE);
+			numitems++;
 		}
 	}
 
@@ -981,7 +978,7 @@ void NetSendCmdMonDmg(BOOL bHiPri, WORD wMon, DWORD dwDam)
 }
 #endif
 
-void NetSendCmdString(int pmask, const char *pszStr)
+void NetSendCmdString(unsigned int pmask, const char *pszStr)
 {
 	int dwStrLen;
 	TCmdString cmd;

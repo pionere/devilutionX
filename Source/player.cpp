@@ -890,16 +890,16 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	// Prevent power leveling
 	if (gbMaxPlayers != 1) {
 		powerLvlCap = p->_pLevel < 0 ? 0 : p->_pLevel;
-		if (powerLvlCap >= 50) {
+		if (powerLvlCap > 50) {
 			powerLvlCap = 50;
 		}
 		// cap to 1/20 of current levels xp
-		if (exp >= ExpLvlsTbl[powerLvlCap] / 20) {
+		if (exp > ExpLvlsTbl[powerLvlCap] / 20) {
 			exp = ExpLvlsTbl[powerLvlCap] / 20;
 		}
 		// cap to 200 * current level
 		expCap = 200 * powerLvlCap;
-		if (exp >= expCap) {
+		if (exp > expCap) {
 			exp = expCap;
 		}
 	}
@@ -2037,8 +2037,8 @@ void StripTopGold(int pnum)
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-			if (pi->_ivalue > MaxGold) {
-				val = pi->_ivalue - MaxGold;
+			val = pi->_ivalue - MaxGold;
+			if (val > 0) {
 				SetGoldItemValue(pi, MaxGold);
 				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
@@ -2239,7 +2239,7 @@ BOOL PlrDoWalk(int pnum)
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	if (currlevel == 0 && jogging_opt) {
-		if (p->_pAnimFrame % 2 == 0) {
+		if ((p->_pAnimFrame & 1) == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
 		}
@@ -2309,7 +2309,7 @@ BOOL PlrDoWalk2(int pnum)
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	if (currlevel == 0 && jogging_opt) {
-		if (p->_pAnimFrame % 2 == 0) {
+		if ((p->_pAnimFrame & 1) == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
 		}
@@ -2375,7 +2375,7 @@ BOOL PlrDoWalk3(int pnum)
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	if (currlevel == 0 && jogging_opt) {
-		if (p->_pAnimFrame % 2 == 0) {
+		if ((p->_pAnimFrame & 1) == 0) {
 			p->_pAnimFrame++;
 			p->_pVar8++;
 		}

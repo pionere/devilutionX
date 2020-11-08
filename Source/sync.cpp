@@ -85,7 +85,7 @@ BOOL sync_closest_monster(TSyncMonster *symon)
 		mnum = monstactive[i];
 		if (monster_dists[mnum] < lru && monster_prio[mnum] < 0xFFFE) {
 			lru = monster_dists[mnum];
-			ndx = monstactive[i];
+			ndx = mnum;
 		}
 	}
 
@@ -124,7 +124,7 @@ BOOL sync_prio_monster(TSyncMonster *symon)
 		mnum = monstactive[sync_mnum];
 		if (monster_prio[mnum] < lru) {
 			lru = monster_prio[mnum];
-			ndx = monstactive[sync_mnum];
+			ndx = mnum;
 		}
 		sync_mnum++;
 	}

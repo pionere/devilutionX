@@ -2054,12 +2054,12 @@ static BOOL DRLG_L3Anvil()
 	while (TRUE) {
 		done = TRUE;
 		ii = 2;
-		for (yy = 0; yy < sh && done; yy++) {
-			for (xx = 0; xx < sw && done; xx++) {
-				if (L3ANVIL[ii] != 0 && dungeon[xx + sx][yy + sy] != L3ANVIL[ii]) {
+		for (yy = sy; yy < sy + sh && done; yy++) {
+			for (xx = sx; xx < sx + sw  && done; xx++) {
+				if (L3ANVIL[ii] != 0 && dungeon[xx][yy] != L3ANVIL[ii]) {
 					done = FALSE;
 				}
-				if (dflags[xx + sx][yy + sy] != 0) {
+				if (dflags[xx][yy] != 0) {
 					done = FALSE;
 				}
 				ii++;
@@ -2079,12 +2079,12 @@ static BOOL DRLG_L3Anvil()
 		return FALSE;
 
 	ii = sw * sh + 2;
-	for (yy = 0; yy < sh; yy++) {
-		for (xx = 0; xx < sw; xx++) {
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
 			if (L3ANVIL[ii] != 0) {
-				dungeon[xx + sx][yy + sy] = L3ANVIL[ii];
+				dungeon[xx][yy] = L3ANVIL[ii];
 			}
-			dflags[xx + sx][yy + sy] |= DLRG_PROTECTED;
+			dflags[xx][yy] |= DLRG_PROTECTED;
 			ii++;
 		}
 	}

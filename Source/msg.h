@@ -63,7 +63,7 @@ void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam);
 #ifdef HELLFIRE
 void NetSendCmdMonDmg(BOOL bHiPri, WORD bMon, DWORD dwDam);
 #endif
-void NetSendCmdString(int pmask, const char *pszStr);
+void NetSendCmdString(unsigned int pmask, const char *pszStr);
 void delta_close_portal(int pnum);
 DWORD ParseCmd(int pnum, TCmd *pCmd);
 DWORD On_DLEVEL(int pnum, TCmd *pCmd);
