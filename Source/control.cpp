@@ -2048,7 +2048,7 @@ void control_remove_gold(int pnum, int gold_index)
 			RemoveSpdBarItem(pnum, gi);
 	}
 	is = &plr[pnum].HoldItem;
-	SetPlrHandItem(is, IDI_GOLD);
+	SetItemData(is, IDI_GOLD);
 	GetGoldSeed(pnum, is);
 	is->_iStatFlag = TRUE;
 	SetGoldItemValue(is, dropGoldValue);

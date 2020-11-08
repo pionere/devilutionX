@@ -1830,7 +1830,7 @@ void StartPlrKill(int pnum, int earflag)
 				DropHalfPlayersGold(pnum);
 				if (earflag != -1) {
 					if (earflag != 0) {
-						SetPlrHandItem(&ear, IDI_EAR);
+						SetItemData(&ear, IDI_EAR);
 						sprintf(ear._iName, "Ear of %s", p->_pName);
 						if (p->_pClass == PC_SORCERER) {
 							ear._iCurs = ICURS_EAR_SORCEROR;
@@ -1928,7 +1928,7 @@ void DropHalfPlayersGold(int pnum)
 #endif
 			if (hGold < p->SpdList[i]._ivalue) {
 				SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
-				SetPlrHandItem(holditem, IDI_GOLD);
+				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, hGold);
 				PlrDeadItem(pnum, holditem, 0, 0);
@@ -1936,7 +1936,7 @@ void DropHalfPlayersGold(int pnum)
 			} else {
 				hGold -= p->SpdList[i]._ivalue;
 				RemoveSpdBarItem(pnum, i);
-				SetPlrHandItem(holditem, IDI_GOLD);
+				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
 				PlrDeadItem(pnum, &p->HoldItem, 0, 0);
@@ -1949,7 +1949,7 @@ void DropHalfPlayersGold(int pnum)
 			if (p->SpdList[i]._itype == ITYPE_GOLD) {
 				if (hGold < p->SpdList[i]._ivalue) {
 					SetGoldItemValue(&p->SpdList[i], p->SpdList[i]._ivalue - hGold);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -1957,7 +1957,7 @@ void DropHalfPlayersGold(int pnum)
 				} else {
 					hGold -= p->SpdList[i]._ivalue;
 					RemoveSpdBarItem(pnum, i);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, p->SpdList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -1977,7 +1977,7 @@ void DropHalfPlayersGold(int pnum)
 #endif
 				if (hGold < p->InvList[i]._ivalue) {
 					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -1985,7 +1985,7 @@ void DropHalfPlayersGold(int pnum)
 				} else {
 					hGold -= p->InvList[i]._ivalue;
 					RemoveInvItem(pnum, i);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -1999,7 +1999,7 @@ void DropHalfPlayersGold(int pnum)
 			if (p->InvList[i]._itype == ITYPE_GOLD) {
 				if (hGold < p->InvList[i]._ivalue) {
 					SetGoldItemValue(&p->InvList[i], p->InvList[i]._ivalue - hGold);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, hGold);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -2007,7 +2007,7 @@ void DropHalfPlayersGold(int pnum)
 				} else {
 					hGold -= p->InvList[i]._ivalue;
 					RemoveInvItem(pnum, i);
-					SetPlrHandItem(holditem, IDI_GOLD);
+					SetItemData(holditem, IDI_GOLD);
 					GetGoldSeed(pnum, holditem);
 					SetGoldItemValue(holditem, p->InvList[i]._ivalue);
 					PlrDeadItem(pnum, holditem, 0, 0);
@@ -2040,7 +2040,7 @@ void StripTopGold(int pnum)
 			if (pi->_ivalue > MaxGold) {
 				val = pi->_ivalue - MaxGold;
 				SetGoldItemValue(pi, MaxGold);
-				SetPlrHandItem(holditem, IDI_GOLD);
+				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, val);
 				if (!GoldAutoPlace(pnum))

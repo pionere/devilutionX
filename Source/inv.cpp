@@ -615,7 +615,7 @@ BOOL GoldAutoPlace(int pnum)
 				done |= 2;
 			} else {
 				SetGoldItemValue(pi, limit);
-				GetPlrHandSeed(&p->HoldItem);
+				GetItemSeed(&p->HoldItem);
 				done |= 1;
 			}
 		}

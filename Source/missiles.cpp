@@ -1482,8 +1482,8 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 							}
 						}
 						if (ii != -1) {
-							SetPlrHandItem(pi, ii);
-							GetPlrHandSeed(pi);
+							SetItemData(pi, ii);
+							GetItemSeed(pi);
 							pi->_iStatFlag = 1;
 						}
 						if (!hasPlayedSFX) {

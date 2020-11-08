@@ -1222,7 +1222,7 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 	}
 }
 
-void SetPlrHandItem(ItemStruct *is, int idata)
+void SetItemData(ItemStruct *is, int idata)
 {
 	ItemDataStruct *ids;
 
@@ -1265,7 +1265,7 @@ void SetPlrHandItem(ItemStruct *is, int idata)
 	is->IDidx = idata;
 }
 
-void GetPlrHandSeed(ItemStruct *is)
+void GetItemSeed(ItemStruct *is)
 {
 	is->_iSeed = GetRndSeed();
 }
@@ -1339,97 +1339,97 @@ void CreatePlrItems(int pnum)
 
 	switch (p->_pClass) {
 	case PC_WARRIOR:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRIOR);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRIOR);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
 
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
 
-		SetPlrHandItem(&p->HoldItem, IDI_WARRCLUB);
-		GetPlrHandSeed(&p->HoldItem);
+		SetItemData(&p->HoldItem, IDI_WARRCLUB);
+		GetItemSeed(&p->HoldItem);
 		AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 		break;
 	case PC_ROGUE:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
 
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 		break;
 	case PC_SORCERER:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCEROR);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCEROR);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
 
 #ifdef HELLFIRE
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 #else
-		SetPlrHandItem(&p->SpdList[0], IDI_MANA);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->SpdList[0], IDI_MANA);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_MANA);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_MANA);
+		GetItemSeed(&p->SpdList[1]);
 #endif
 		break;
 
 #ifdef HELLFIRE
 	case PC_MONK:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], 36);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], 36);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 		break;
 	case PC_BARD:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], 37);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], 37);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
 
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_RIGHT], 38);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], 38);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 		break;
 	case PC_BARBARIAN:
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_LEFT], 139);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], 139);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
 
-		SetPlrHandItem(&p->InvBody[INVLOC_HAND_RIGHT], 2);
-		GetPlrHandSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
-		SetPlrHandItem(&p->SpdList[0], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[0]);
+		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], 2);
+		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
+		SetItemData(&p->SpdList[0], IDI_HEAL);
+		GetItemSeed(&p->SpdList[0]);
 
-		SetPlrHandItem(&p->SpdList[1], IDI_HEAL);
-		GetPlrHandSeed(&p->SpdList[1]);
+		SetItemData(&p->SpdList[1], IDI_HEAL);
+		GetItemSeed(&p->SpdList[1]);
 		break;
 #endif
 	}
 
-	SetPlrHandItem(&p->HoldItem, IDI_GOLD);
-	GetPlrHandSeed(&p->HoldItem);
+	SetItemData(&p->HoldItem, IDI_GOLD);
+	GetItemSeed(&p->HoldItem);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
 		SetGoldItemValue(&p->HoldItem, GOLD_MAX_LIMIT);
 		p->_pGold = p->HoldItem._ivalue * 40;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			GetPlrHandSeed(&p->HoldItem);
+			GetItemSeed(&p->HoldItem);
 			p->InvList[p->_pNumInv++] = p->HoldItem;
 			p->InvGrid[i] = p->_pNumInv;
 		}
@@ -2933,13 +2933,13 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 
 	is = &item[ii];
 	if (idx == 0) {
-		SetPlrHandItem(is, IDI_GOLD);
+		SetItemData(is, IDI_GOLD);
 		is->_iSeed = iseed;
 		is->_iCreateInfo = icreateinfo;
 		SetGoldItemValue(is, ivalue);
 	} else {
 		if (icreateinfo == 0) {
-			SetPlrHandItem(is, idx);
+			SetItemData(is, idx);
 			is->_iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
@@ -2969,7 +2969,7 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 
 void RecreateEar(int ii, WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
 {
-	SetPlrHandItem(&item[ii], IDI_EAR);
+	SetItemData(&item[ii], IDI_EAR);
 	tempstr[0] = (ic >> 8) & 0x7F;
 	tempstr[1] = ic & 0x7F;
 	tempstr[2] = (iseed >> 24) & 0x7F;

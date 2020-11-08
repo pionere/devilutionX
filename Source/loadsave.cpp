@@ -189,7 +189,7 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->offs016C);
 }
 
-static void LoadItems(const int n, ItemStruct *pItem)
+static void LoadItems(ItemStruct *pItem, const int n)
 {
 	for (int i = 0; i < n; i++) {
 		LoadItemData(&pItem[i]);
@@ -342,11 +342,11 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pBFrames);
 	CopyInt(tbuff, &p->_pBWidth);
 
-	LoadItems(NUM_INVLOC, p->InvBody);
-	LoadItems(NUM_INV_GRID_ELEM, p->InvList);
+	LoadItems(p->InvBody, NUM_INVLOC);
+	LoadItems(p->InvList, NUM_INV_GRID_ELEM);
 	CopyInt(tbuff, &p->_pNumInv);
 	CopyBytes(tbuff, NUM_INV_GRID_ELEM, p->InvGrid);
-	LoadItems(MAXBELTITEMS, p->SpdList);
+	LoadItems(p->SpdList, MAXBELTITEMS);
 	LoadItemData(&p->HoldItem);
 
 	CopyInt(tbuff, &p->_pIMinDam);
@@ -880,7 +880,7 @@ static void OSave(BOOL v)
 		*tbuff++ = FALSE;
 }
 
-static void SaveItem(ItemStruct *is)
+static void SaveItemData(ItemStruct *is)
 {
 	CopyInt(&is->_iSeed, tbuff);
 	CopyShort(&is->_iCreateInfo, tbuff);
@@ -961,7 +961,7 @@ static void SaveItem(ItemStruct *is)
 static void SaveItems(ItemStruct *pItem, const int n)
 {
 	for (int i = 0; i < n; i++) {
-		SaveItem(&pItem[i]);
+		SaveItemData(&pItem[i]);
 	}
 }
 
@@ -1116,7 +1116,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pNumInv, tbuff);
 	CopyBytes(p->InvGrid, NUM_INV_GRID_ELEM, tbuff);
 	SaveItems(p->SpdList, MAXBELTITEMS);
-	SaveItem(&p->HoldItem);
+	SaveItemData(&p->HoldItem);
 
 	CopyInt(&p->_pIMinDam, tbuff);
 	CopyInt(&p->_pIMaxDam, tbuff);
@@ -1510,7 +1510,7 @@ void SaveGame()
 	for (i = 0; i < MAXITEMS; i++)
 		BSave(itemavail[i]);
 	for (i = 0; i < numitems; i++)
-		SaveItem(&item[itemactive[i]]);
+		SaveItemData(&item[itemactive[i]]);
 	for (i = 0; i < 128; i++)
 		OSave(UniqueItemFlag[i]);
 
@@ -1566,7 +1566,7 @@ void SaveGame()
 	WSave(premiumlevel);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SaveItem(&premiumitem[i]);
+		SaveItemData(&premiumitem[i]);
 
 	OSave(automapflag);
 	WSave(AutoMapScale);
@@ -1622,7 +1622,7 @@ void SaveLevel()
 	for (i = 0; i < MAXITEMS; i++)
 		BSave(itemavail[i]);
 	for (i = 0; i < numitems; i++)
-		SaveItem(&item[itemactive[i]]);
+		SaveItemData(&item[itemactive[i]]);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)

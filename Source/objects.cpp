@@ -3638,15 +3638,15 @@ void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (pi->_itype == ITYPE_MISC) {
 				if (pi->_iMiscId == IMISC_HEAL
 				    || pi->_iMiscId == IMISC_MANA) {
-					SetPlrHandItem(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
-					GetPlrHandSeed(&p->HoldItem);
+					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
+					GetItemSeed(&p->HoldItem);
 					p->HoldItem._iStatFlag = TRUE;
 					*pi = p->HoldItem;
 				}
 				if (pi->_iMiscId == IMISC_FULLHEAL
 				    || pi->_iMiscId == IMISC_FULLMANA) {
-					SetPlrHandItem(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
-					GetPlrHandSeed(&p->HoldItem);
+					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
+					GetItemSeed(&p->HoldItem);
 					p->HoldItem._iStatFlag = TRUE;
 					*pi = p->HoldItem;
 				}
@@ -3657,15 +3657,15 @@ void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (pi->_itype == ITYPE_MISC) {
 				if (pi->_iMiscId == IMISC_HEAL
 				    || pi->_iMiscId == IMISC_MANA) {
-					SetPlrHandItem(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
-					GetPlrHandSeed(&p->HoldItem);
+					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
+					GetItemSeed(&p->HoldItem);
 					p->HoldItem._iStatFlag = TRUE;
 					*pi = p->HoldItem;
 				}
 				if (pi->_iMiscId == IMISC_FULLHEAL
 				    || pi->_iMiscId == IMISC_FULLMANA) {
-					SetPlrHandItem(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
-					GetPlrHandSeed(&p->HoldItem);
+					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
+					GetItemSeed(&p->HoldItem);
 					p->HoldItem._iStatFlag = TRUE;
 					*pi = p->HoldItem;
 				}
@@ -4301,7 +4301,7 @@ void OperateStoryBook(int pnum, int oi)
 		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
 		if (os->_oVar8 && currlevel == 24) {
-			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && objects_lv_24_454B04(os->_oVar8)) {
+			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && OpenUberLevel(os->_oVar8)) {
 				NetSendCmd(FALSE, CMD_NAKRUL);
 				return;
 			}
@@ -5113,7 +5113,7 @@ void AddUberLever()
 	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
 }
 
-DIABOOL objects_lv_24_454B04(int s)
+BOOL OpenUberLevel(int s)
 {
 	switch (s) {
 	case 6:

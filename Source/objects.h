@@ -175,7 +175,7 @@ void GetObjectStr(int oi);
 void operate_lv24_lever();
 void objects_454BA8();
 void AddUberLever();
-DIABOOL objects_lv_24_454B04(int s);
+BOOL OpenUberLevel(int s);
 
 /* rdata */
 

@@ -58,8 +58,8 @@ void GiveGoldCheat()
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr[myplr].InvGrid[i] == 0) {
 			ni = plr[myplr]._pNumInv++;
-			SetPlrHandItem(&plr[myplr].InvList[ni], IDI_GOLD);
-			GetPlrHandSeed(&plr[myplr].InvList[ni]);
+			SetItemData(&plr[myplr].InvList[ni], IDI_GOLD);
+			GetItemSeed(&plr[myplr].InvList[ni]);
 			plr[myplr].InvList[ni]._ivalue = GOLD_MAX_LIMIT;
 			plr[myplr].InvList[ni]._iCurs = ICURS_GOLD_LARGE;
 			plr[myplr]._pGold += GOLD_MAX_LIMIT;
