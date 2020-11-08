@@ -597,15 +597,14 @@ void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int fla
 			SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
 
 			/* Check is there are any modes available */
-			if(modes == (SDL_Rect **)0){
+			if (modes == NULL) {
 				IsSVidVideoMode = false;
 			}
-
 			/* Check if our resolution is restricted */
-			if(modes != (SDL_Rect **)-1){
+			else if (modes != (SDL_Rect **)-1) {
 				// Search for a usable video mode
 				bool UsableModeFound = false;
-				for (int i=0; modes[i]; i++) {
+				for (int i = 0; modes[i] != NULL; i++) {
 					if (modes[i]->w == SVidWidth || modes[i]->h == SVidHeight) {
 						UsableModeFound = true;
 						break;
