@@ -13,50 +13,7 @@ int sync_mnum;	// next monster to be synchronized
 int sync_inum;	// next active item to be synchronized
 int sync_pinum;	// next item to be synchronized on the body of the current player
 
-DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
-{
-	TSyncHeader *pHdr;
-	int i;
-	BOOL sync;
-
-	if (nummonsters < 1) {
-		return dwMaxLen;
-	}
-	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {
-		return dwMaxLen;
-	}
-
-	pHdr = (TSyncHeader *)pbBuf;
-	pbBuf += sizeof(*pHdr);
-	dwMaxLen -= sizeof(*pHdr);
-
-	pHdr->bCmd = CMD_SYNCDATA;
-	pHdr->bLevel = currlevel;
-	pHdr->wLen = 0;
-	SyncPlrInv(pHdr);
-	assert(dwMaxLen <= 0xffff);
-	sync_init_monsters();
-
-	for (i = 0; i < nummonsters && dwMaxLen >= sizeof(TSyncMonster); i++) {
-		sync = FALSE;
-		if (i < 2) {
-			sync = sync_prio_monster((TSyncMonster *)pbBuf);
-		}
-		if (!sync) {
-			sync = sync_closest_monster((TSyncMonster *)pbBuf);
-		}
-		if (!sync) {
-			break;
-		}
-		pbBuf += sizeof(TSyncMonster);
-		pHdr->wLen += sizeof(TSyncMonster);
-		dwMaxLen -= sizeof(TSyncMonster);
-	}
-
-	return dwMaxLen;
-}
-
-void sync_init_monsters()
+static void sync_init_monsters()
 {
 	int i, m, px, py;
 
@@ -73,7 +30,19 @@ void sync_init_monsters()
 	}
 }
 
-BOOL sync_closest_monster(TSyncMonster *symon)
+static void sync_monster_pos(TSyncMonster *symon, int mnum)
+{
+	symon->_mndx = mnum;
+	symon->_mx = monster[mnum]._mx;
+	symon->_my = monster[mnum]._my;
+	symon->_menemy = encode_enemy(mnum);
+	symon->_mdelta = monster_dists[mnum] > 255 ? 255 : monster_dists[mnum];
+
+	monster_dists[mnum] = 0xFFFF;
+	monster_prio[mnum] = monster[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
+}
+
+static BOOL sync_closest_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
 	DWORD lru;
@@ -97,19 +66,7 @@ BOOL sync_closest_monster(TSyncMonster *symon)
 	return TRUE;
 }
 
-void sync_monster_pos(TSyncMonster *symon, int mnum)
-{
-	symon->_mndx = mnum;
-	symon->_mx = monster[mnum]._mx;
-	symon->_my = monster[mnum]._my;
-	symon->_menemy = encode_enemy(mnum);
-	symon->_mdelta = monster_dists[mnum] > 255 ? 255 : monster_dists[mnum];
-
-	monster_dists[mnum] = 0xFFFF;
-	monster_prio[mnum] = monster[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
-}
-
-BOOL sync_prio_monster(TSyncMonster *symon)
+static BOOL sync_prio_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
 	DWORD lru;
@@ -137,7 +94,7 @@ BOOL sync_prio_monster(TSyncMonster *symon)
 	return TRUE;
 }
 
-void SyncPlrInv(TSyncHeader *pHdr)
+static void SyncPlrInv(TSyncHeader *pHdr)
 {
 	int ii;
 	ItemStruct *is;
@@ -196,35 +153,50 @@ void SyncPlrInv(TSyncHeader *pHdr)
 	}
 }
 
-DWORD sync_update(int pnum, const BYTE *pbBuf)
+DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 {
 	TSyncHeader *pHdr;
-	WORD wLen;
+	int i;
+	BOOL sync;
+
+	if (nummonsters < 1) {
+		return dwMaxLen;
+	}
+	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {
+		return dwMaxLen;
+	}
 
 	pHdr = (TSyncHeader *)pbBuf;
 	pbBuf += sizeof(*pHdr);
+	dwMaxLen -= sizeof(*pHdr);
 
-	if (pHdr->bCmd != CMD_SYNCDATA) {
-		app_fatal("bad sync command");
-	}
+	pHdr->bCmd = CMD_SYNCDATA;
+	pHdr->bLevel = currlevel;
+	pHdr->wLen = 0;
+	SyncPlrInv(pHdr);
+	assert(dwMaxLen <= 0xffff);
+	sync_init_monsters();
 
-	/// ASSERT: assert(gbBufferMsgs != BUFFER_PROCESS);
-	if (gbBufferMsgs != 1 && pnum != myplr) {
-		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
-			if (currlevel == pHdr->bLevel) {
-				sync_monster(pnum, (TSyncMonster *)pbBuf);
-			}
-			delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);
-			pbBuf += sizeof(TSyncMonster);
+	for (i = 0; i < nummonsters && dwMaxLen >= sizeof(TSyncMonster); i++) {
+		sync = FALSE;
+		if (i < 2) {
+			sync = sync_prio_monster((TSyncMonster *)pbBuf);
 		}
-
-		assert(wLen == 0);
+		if (!sync) {
+			sync = sync_closest_monster((TSyncMonster *)pbBuf);
+		}
+		if (!sync) {
+			break;
+		}
+		pbBuf += sizeof(TSyncMonster);
+		pHdr->wLen += sizeof(TSyncMonster);
+		dwMaxLen -= sizeof(TSyncMonster);
 	}
 
-	return pHdr->wLen + sizeof(*pHdr);
+	return dwMaxLen;
 }
 
-void sync_monster(int pnum, const TSyncMonster *symon)
+static void sync_monster(int pnum, const TSyncMonster *symon)
 {
 	MonsterStruct *mon;
 	int mnum, md;
@@ -276,6 +248,34 @@ void sync_monster(int pnum, const TSyncMonster *symon)
 		MonStartStand(mnum, md);
 		mon->_msquelch = UCHAR_MAX;
 	}
+}
+
+DWORD sync_update(int pnum, const BYTE *pbBuf)
+{
+	TSyncHeader *pHdr;
+	WORD wLen;
+
+	pHdr = (TSyncHeader *)pbBuf;
+	pbBuf += sizeof(*pHdr);
+
+	if (pHdr->bCmd != CMD_SYNCDATA) {
+		app_fatal("bad sync command");
+	}
+
+	/// ASSERT: assert(gbBufferMsgs != BUFFER_PROCESS);
+	if (gbBufferMsgs != 1 && pnum != myplr) {
+		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+			if (currlevel == pHdr->bLevel) {
+				sync_monster(pnum, (TSyncMonster *)pbBuf);
+			}
+			delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);
+			pbBuf += sizeof(TSyncMonster);
+		}
+
+		assert(wLen == 0);
+	}
+
+	return pHdr->wLen + sizeof(*pHdr);
 }
 
 void sync_init()

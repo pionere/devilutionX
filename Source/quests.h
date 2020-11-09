@@ -12,14 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int qtopline;
 extern BOOL questlog;
 extern BYTE *pQLogCel;
 extern QuestStruct quests[MAXQUESTS];
-extern int qline;
-extern int qlist[MAXQUESTS];
-extern int numqlines;
-extern int WaterDone;
 extern int ReturnLvlX;
 extern int ReturnLvlY;
 extern int ReturnLvlT;
@@ -30,19 +25,11 @@ void CheckQuests();
 BOOL ForceQuests();
 BOOL QuestStatus(int qn);
 void CheckQuestKill(int mnum, BOOL sendmsg);
-void DrawButcher();
-void DrawSkelKing(int qn, int x, int y);
-void DrawWarLord(int x, int y);
-void DrawSChamber(int qn, int x, int y);
-void DrawLTBanner(int x, int y);
-void DrawBlind(int x, int y);
-void DrawBlood(int x, int y);
 void DRLG_CheckQuests(int x, int y);
 void SetReturnLvlPos();
 void GetReturnLvlPos();
 void ResyncMPQuests();
 void ResyncQuests();
-void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col);
 void DrawQuestLog();
 void StartQuestlog();
 void QuestlogUp();
@@ -53,13 +40,6 @@ void SetMultiQuest(int qn, int s, int l, int v1);
 
 /* rdata */
 extern QuestData questlist[MAXQUESTS];
-extern char questxoff[7];
-extern char questyoff[7];
-extern const char *const questtrigstr[5];
-extern int QuestGroup1[3];
-extern int QuestGroup2[3];
-extern int QuestGroup3[3];
-extern int QuestGroup4[2];
 
 #ifdef __cplusplus
 }

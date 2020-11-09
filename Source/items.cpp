@@ -301,9 +301,10 @@ char *off_4A5AC4 = "SItem";
 int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
-	-1, -1, 0, 0, 1, 2
 #ifdef HELLFIRE
-	, 0, 0, 0, 0, 0, 0, 0, 0, 0 // BUGFIX: not the real values 
+	-1, -1, -1,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  3,  3
+#else
+	-1, -1,  0,  0,  1,  2
 #endif
 };
 
@@ -4660,12 +4661,30 @@ void SpawnPremium(int lvl)
 	}
 	while (premiumlevel < lvl) {
 		premiumlevel++;
+#ifdef HELLFIRE
+		premiumitem[0] = premiumitem[3];
+		premiumitem[1] = premiumitem[4];
+		premiumitem[2] = premiumitem[5];
+		premiumitem[3] = premiumitem[6];
+		premiumitem[4] = premiumitem[7];
+		premiumitem[5] = premiumitem[8];
+		premiumitem[6] = premiumitem[9];
+		premiumitem[7] = premiumitem[10];
+		premiumitem[8] = premiumitem[11];
+		premiumitem[9] = premiumitem[12];
+		SpawnOnePremium(10, premiumlevel + premiumlvladd[10], pnum, FALSE);
+		premiumitem[11] = premiumitem[13];
+		SpawnOnePremium(12, premiumlevel + premiumlvladd[12], pnum, FALSE);
+		premiumitem[13] = premiumitem[14];
+		SpawnOnePremium(14, premiumlevel + premiumlvladd[14], pnum, FALSE);
+#else
 		premiumitem[0] = premiumitem[2];
 		premiumitem[1] = premiumitem[3];
 		premiumitem[2] = premiumitem[4];
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
 		premiumitem[4] = premiumitem[5];
 		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
+#endif
 	}
 }
 

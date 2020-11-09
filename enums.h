@@ -1823,7 +1823,7 @@ typedef enum monster_goal {
 	MGOAL_RETREAT   = 2,
 	MGOAL_HEALING   = 3,
 	MGOAL_MOVE      = 4,
-	MGOAL_SHOOT     = 5,
+	MGOAL_ATTACK2   = 5,
 	MGOAL_INQUIRING = 6,
 	MGOAL_TALKING   = 7,
 } monster_goal;
@@ -2275,6 +2275,12 @@ typedef enum clicktype {
 	CLICK_LEFT  = 1,
 	CLICK_RIGHT = 2,
 } clicktype;
+
+typedef enum placeflag {
+	PLACE_SCATTER = 1,
+	PLACE_SPECIAL = 2,
+	PLACE_UNIQUE  = 4,
+} placeflag;
 
  /*
  First 5 bits store level

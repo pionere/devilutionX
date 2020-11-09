@@ -855,7 +855,11 @@ void CheckInvPaste(int pnum, int mx, int my)
 	if (holditem->_iLoc == il)
 		done = TRUE;
 	if (il == ILOC_ONEHAND && holditem->_iLoc == ILOC_TWOHAND) {
-		il = ILOC_TWOHAND;
+#ifdef HELLFIRE
+		if (p->_pClass != PC_BARBARIAN
+			|| (holditem->_itype != ITYPE_SWORD && holditem->_itype != ITYPE_MACE))
+#endif
+			il = ILOC_TWOHAND;
 		done = TRUE;
 	}
 	if (holditem->_iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {

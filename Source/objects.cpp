@@ -281,6 +281,17 @@ DIABOOL RndLocOk(int xp, int yp)
 	return FALSE;
 }
 
+static DIABOOL WallTrapLocOk(int xp, int yp)
+{
+	if (dFlags[xp][yp] & BFLAG_POPULATED)
+		return FALSE;
+
+	if (nTrapTable[dPiece[xp][yp]] != FALSE)
+		return TRUE;
+	else
+		return FALSE;
+}
+
 void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
@@ -554,7 +565,7 @@ void AddL3Objs(int x1, int y1, int x2, int y2)
 	}
 }
 
-DIABOOL WallTrapLocOk(int xp, int yp)
+DIABOOL TorchLocOk(int xp, int yp)
 {
 	if (dFlags[xp][yp] & BFLAG_POPULATED)
 		return FALSE;
@@ -567,7 +578,7 @@ void AddL2Torches()
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (!WallTrapLocOk(i, j))
+			if (!TorchLocOk(i, j))
 				continue;
 
 			pn = dPiece[i][j];
@@ -584,14 +595,6 @@ void AddL2Torches()
 				AddObject(OBJ_TORCHR, i, j - 1);
 		}
 	}
-}
-
-DIABOOL TorchLocOK(int xp, int yp)
-{
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
-		return FALSE;
-
-	return nTrapTable[dPiece[xp][yp]];
 }
 
 void AddObjTraps()
@@ -623,7 +626,7 @@ void AddObjTraps()
 				while (!nSolidTable[dPiece[xp][j]])
 					xp--;
 
-				if (!TorchLocOK(xp, j) || i - xp <= 1)
+				if (!WallTrapLocOk(xp, j) || i - xp <= 1)
 					continue;
 
 				AddObject(OBJ_TRAPL, xp, j);
@@ -636,7 +639,7 @@ void AddObjTraps()
 				while (!nSolidTable[dPiece[i][yp]])
 					yp--;
 
-				if (!TorchLocOK(i, yp) || j - yp <= 1)
+				if (!WallTrapLocOk(i, yp) || j - yp <= 1)
 					continue;
 
 				AddObject(OBJ_TRAPR, i, yp);
@@ -2949,7 +2952,7 @@ void OperateBookLever(int pnum, int oi)
 			quests[Q_BLIND]._qlog = TRUE;
 			quests[Q_BLIND]._qvar1 = 1;
 		}
-		if (os->_otype == OBJ_BLOODBOOK && !quests[Q_BLOOD]._qvar1) {
+		if (os->_otype == OBJ_BLOODBOOK && quests[Q_BLOOD]._qvar1 == 0) {
 			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
 			quests[Q_BLOOD]._qlog = TRUE;
 			quests[Q_BLOOD]._qvar1 = 1;
@@ -2957,7 +2960,7 @@ void OperateBookLever(int pnum, int oi)
 			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, 0, 1);
 			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, 0, 1);
 		}
-		if (os->_otype == OBJ_STEELTOME && !quests[Q_WARLORD]._qvar1) {
+		if (os->_otype == OBJ_STEELTOME && quests[Q_WARLORD]._qvar1 == 0) {
 			quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
 			quests[Q_WARLORD]._qlog = TRUE;
 			quests[Q_WARLORD]._qvar1 = 1;
@@ -4059,7 +4062,7 @@ void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
 			    && monster[MAX_PLRS]._mhitpoints) {
 				monster[MAX_PLRS].mtalkmsg = TEXT_ZHAR2;
 				MonStartStand(0, monster[MAX_PLRS]._mdir);
-				monster[MAX_PLRS]._mgoal = MGOAL_SHOOT;
+				monster[MAX_PLRS]._mgoal = MGOAL_ATTACK2;
 				monster[MAX_PLRS]._mmode = MM_TALK;
 			}
 			if (pnum == myplr)
@@ -4296,7 +4299,7 @@ void OperateStoryBook(int pnum, int oi)
 		os->_oAnimFrame = os->_oVar4;
 		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
-		if (os->_oVar8 && currlevel == 24) {
+		if (os->_oVar8 != 0 && currlevel == 24) {
 			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && OpenUberLevel(os->_oVar8)) {
 				NetSendCmd(FALSE, CMD_NAKRUL);
 				return;

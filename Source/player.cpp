@@ -368,6 +368,52 @@ void InitPlayerGFX(int pnum)
 	}
 }
 
+static DWORD GetPlrGFXSize(const char *szCel)
+{
+	DWORD c;
+	const char *a, *w, *cc, *cst;
+	DWORD dwSize, dwMaxSize;
+	HANDLE hsFile;
+	char pszName[256];
+	char Type[16];
+
+	dwMaxSize = 0;
+
+	for (c = 0; c < NUM_CLASSES; c++) {
+#ifdef SPAWN
+		if (c != PC_WARRIOR)
+			continue;
+#endif
+		GetPlrGFXCells(c, &cc, &cst);
+		for (a = &ArmourChar[0]; *a; a++) {
+#ifdef SPAWN
+			if (a != &ArmourChar[0])
+				break;
+#endif
+			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animations; DT is only for N, BT is only for U, D & H (fixed)
+				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
+					continue; //Death has no weapon
+				}
+				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
+					continue; //No block without weapon
+				}
+				sprintf(Type, "%c%c%c", *cc, *a, *w);
+				sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
+				if (WOpenFile(pszName, &hsFile, TRUE)) {
+					/// ASSERT: assert(hsFile);
+					dwSize = WGetFileSize(hsFile, NULL, pszName);
+					WCloseFile(hsFile);
+					if (dwMaxSize <= dwSize) {
+						dwMaxSize = dwSize;
+					}
+				}
+			}
+		}
+	}
+
+	return dwMaxSize;
+}
+
 void InitPlrGFXMem(int pnum)
 {
 	PlayerStruct *p;
@@ -435,52 +481,6 @@ void InitPlrGFXMem(int pnum)
 	p->_pBData = DiabloAllocPtr(plr_bframe_size);
 
 	p->_pGFXLoad = 0;
-}
-
-DWORD GetPlrGFXSize(const char *szCel)
-{
-	DWORD c;
-	const char *a, *w, *cc, *cst;
-	DWORD dwSize, dwMaxSize;
-	HANDLE hsFile;
-	char pszName[256];
-	char Type[16];
-
-	dwMaxSize = 0;
-
-	for (c = 0; c < NUM_CLASSES; c++) {
-#ifdef SPAWN
-		if (c != PC_WARRIOR)
-			continue;
-#endif
-		GetPlrGFXCells(c, &cc, &cst);
-		for (a = &ArmourChar[0]; *a; a++) {
-#ifdef SPAWN
-			if (a != &ArmourChar[0])
-				break;
-#endif
-			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animations; DT is only for N, BT is only for U, D & H (fixed)
-				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
-					continue; //Death has no weapon
-				}
-				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
-					continue; //No block without weapon
-				}
-				sprintf(Type, "%c%c%c", *cc, *a, *w);
-				sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
-				if (WOpenFile(pszName, &hsFile, TRUE)) {
-					/// ASSERT: assert(hsFile);
-					dwSize = WGetFileSize(hsFile, NULL, pszName);
-					WCloseFile(hsFile);
-					if (dwMaxSize <= dwSize) {
-						dwMaxSize = dwSize;
-					}
-				}
-			}
-		}
-	}
-
-	return dwMaxSize;
 }
 
 void FreePlayerGFX(int pnum)
@@ -1758,6 +1758,45 @@ void RespawnDeadItem(ItemStruct *is, int x, int y)
 	is->_itype = ITYPE_NONE;
 }
 
+static void PlrDeadItem(int pnum, ItemStruct *is, int xx, int yy)
+{
+	PlayerStruct *p;
+	int x, y;
+	int i, j, k;
+
+	if (is->_itype == ITYPE_NONE)
+		return;
+
+	if ((DWORD)pnum >= MAX_PLRS) {
+		app_fatal("PlrDeadItem: illegal player %d", pnum);
+	}
+
+	p = &plr[pnum];
+	x = xx + p->_px;
+	y = yy + p->_py;
+	if ((xx || yy) && ItemSpaceOk(x, y)) {
+		RespawnDeadItem(is, x, y);
+		p->HoldItem = *is;
+		NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
+		return;
+	}
+
+	for (k = 1; k < 50; k++) {
+		for (j = -k; j <= k; j++) {
+			y = j + p->_py;
+			for (i = -k; i <= k; i++) {
+				x = i + p->_px;
+				if (ItemSpaceOk(x, y)) {
+					RespawnDeadItem(is, x, y);
+					p->HoldItem = *is;
+					NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
+					return;
+				}
+			}
+		}
+	}
+}
+
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
@@ -1865,45 +1904,6 @@ void StartPlrKill(int pnum, int earflag)
 #ifndef HELLFIRE
 	SetPlayerHitPoints(pnum, 0);
 #endif
-}
-
-void PlrDeadItem(int pnum, ItemStruct *is, int xx, int yy)
-{
-	PlayerStruct *p;
-	int x, y;
-	int i, j, k;
-
-	if (is->_itype == ITYPE_NONE)
-		return;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("PlrDeadItem: illegal player %d", pnum);
-	}
-
-	p = &plr[pnum];
-	x = xx + p->_px;
-	y = yy + p->_py;
-	if ((xx || yy) && ItemSpaceOk(x, y)) {
-		RespawnDeadItem(is, x, y);
-		p->HoldItem = *is;
-		NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
-		return;
-	}
-
-	for (k = 1; k < 50; k++) {
-		for (j = -k; j <= k; j++) {
-			y = j + p->_py;
-			for (i = -k; i <= k; i++) {
-				x = i + p->_px;
-				if (ItemSpaceOk(x, y)) {
-					RespawnDeadItem(is, x, y);
-					p->HoldItem = *is;
-					NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
-					return;
-				}
-			}
-		}
-	}
 }
 
 void DropHalfPlayersGold(int pnum)
@@ -3016,6 +3016,48 @@ BOOL PlrDoBlock(int pnum)
 	return FALSE;
 }
 
+static void ArmorDur(int pnum)
+{
+	ItemStruct *pi, *pio;
+	inv_body_loc loc;
+
+	if (pnum != myplr) {
+		return;
+	}
+
+	if ((DWORD)pnum >= MAX_PLRS) {
+		app_fatal("ArmorDur: illegal player %d", pnum);
+	}
+
+	loc = INVLOC_CHEST;
+	pi = &plr[pnum].InvBody[INVLOC_CHEST];
+	pio = &plr[pnum].InvBody[INVLOC_HEAD];
+	if (pi->_itype == ITYPE_NONE) {
+		if (pio->_itype == ITYPE_NONE)
+			return; // neither chest nor head equipment
+		// only head
+		pi = pio;
+		loc = INVLOC_HEAD;
+	} else if (pio->_itype != ITYPE_NONE && random_(8, 3) == 0) {
+		// head + chest -> 33% chance to damage the head
+		pi = pio;
+		loc = INVLOC_HEAD;
+	}
+
+	if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
+		return;
+	}
+
+	pi->_iDurability--;
+	if (pi->_iDurability != 0) {
+		return;
+	}
+
+	NetSendCmdDelItem(TRUE, loc);
+	pi->_itype = ITYPE_NONE;
+	CalcPlrInv(pnum, TRUE);
+}
+
 BOOL PlrDoSpell(int pnum)
 {
 	PlayerStruct *p;
@@ -3124,48 +3166,6 @@ BOOL PlrDoGotHit(int pnum)
 	p->_pVar8++;
 #endif
 	return FALSE;
-}
-
-void ArmorDur(int pnum)
-{
-	ItemStruct *pi, *pio;
-	inv_body_loc loc;
-
-	if (pnum != myplr) {
-		return;
-	}
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("ArmorDur: illegal player %d", pnum);
-	}
-
-	loc = INVLOC_CHEST;
-	pi = &plr[pnum].InvBody[INVLOC_CHEST];
-	pio = &plr[pnum].InvBody[INVLOC_HEAD];
-	if (pi->_itype == ITYPE_NONE) {
-		if (pio->_itype == ITYPE_NONE)
-			return; // neither chest nor head equipment
-		// only head
-		pi = pio;
-		loc = INVLOC_HEAD;
-	} else if (pio->_itype != ITYPE_NONE && random_(8, 3) == 0) {
-		// head + chest -> 33% chance to damage the head
-		pi = pio;
-		loc = INVLOC_HEAD;
-	}
-
-	if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-		return;
-	}
-
-	pi->_iDurability--;
-	if (pi->_iDurability != 0) {
-		return;
-	}
-
-	NetSendCmdDelItem(TRUE, loc);
-	pi->_itype = ITYPE_NONE;
-	CalcPlrInv(pnum, TRUE);
 }
 
 BOOL PlrDoDeath(int pnum)
@@ -3597,6 +3597,33 @@ void ValidatePlayer()
 	p->_pMemSpells &= msk;
 }
 
+static void CheckCheatStats(int pnum)
+{
+	if (plr[pnum]._pStrength > 750) {
+		plr[pnum]._pStrength = 750;
+	}
+
+	if (plr[pnum]._pDexterity > 750) {
+		plr[pnum]._pDexterity = 750;
+	}
+
+	if (plr[pnum]._pMagic > 750) {
+		plr[pnum]._pMagic = 750;
+	}
+
+	if (plr[pnum]._pVitality > 750) {
+		plr[pnum]._pVitality = 750;
+	}
+
+	if (plr[pnum]._pHitPoints > 128000) {
+		plr[pnum]._pHitPoints = 128000;
+	}
+
+	if (plr[pnum]._pMana > 128000) {
+		plr[pnum]._pMana = 128000;
+	}
+}
+
 void ProcessPlayers()
 {
 	int pnum;
@@ -3711,33 +3738,6 @@ void ProcessPlayers()
 				}
 			}
 		}
-	}
-}
-
-void CheckCheatStats(int pnum)
-{
-	if (plr[pnum]._pStrength > 750) {
-		plr[pnum]._pStrength = 750;
-	}
-
-	if (plr[pnum]._pDexterity > 750) {
-		plr[pnum]._pDexterity = 750;
-	}
-
-	if (plr[pnum]._pMagic > 750) {
-		plr[pnum]._pMagic = 750;
-	}
-
-	if (plr[pnum]._pVitality > 750) {
-		plr[pnum]._pVitality = 750;
-	}
-
-	if (plr[pnum]._pHitPoints > 128000) {
-		plr[pnum]._pHitPoints = 128000;
-	}
-
-	if (plr[pnum]._pMana > 128000) {
-		plr[pnum]._pMana = 128000;
 	}
 }
 

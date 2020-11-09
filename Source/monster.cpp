@@ -214,47 +214,47 @@ void GetLevelMTypes()
 
 	int nt; // number of types
 
-	AddMonsterType(MT_GOLEM, 2);
+	AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
 	lvl = currlevel;
 	if (lvl == 16) {
-		AddMonsterType(MT_ADVOCATE, 1);
-		AddMonsterType(MT_RBLACK, 1);
-		AddMonsterType(MT_DIABLO, 2);
+		AddMonsterType(MT_ADVOCATE, PLACE_SCATTER);
+		AddMonsterType(MT_RBLACK, PLACE_SCATTER);
+		AddMonsterType(MT_DIABLO, PLACE_SPECIAL);
 		return;
 	}
 
 #ifdef HELLFIRE
 	if (lvl == 18)
-		AddMonsterType(MT_HORKSPWN, 1);
+		AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
 	if (lvl == 19) {
-		AddMonsterType(MT_HORKSPWN, 1);
-		AddMonsterType(MT_HORKDMN, 4);
+		AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
+		AddMonsterType(MT_HORKDMN, PLACE_UNIQUE);
 	}
 	if (lvl == 20)
-		AddMonsterType(MT_DEFILER, 4);
+		AddMonsterType(MT_DEFILER, PLACE_UNIQUE);
 	if (lvl == 24) {
-		AddMonsterType(MT_ARCHLICH, 1);
-		AddMonsterType(MT_NAKRUL, 2);
+		AddMonsterType(MT_ARCHLICH, PLACE_SCATTER);
+		AddMonsterType(MT_NAKRUL, PLACE_SPECIAL);
 	}
 #endif
 
 	if (!setlevel) {
 		if (QuestStatus(Q_BUTCHER))
-			AddMonsterType(MT_CLEAVER, 2);
+			AddMonsterType(MT_CLEAVER, PLACE_SPECIAL);
 		if (QuestStatus(Q_GARBUD))
-			AddMonsterType(UniqMonst[UMT_GARBUD].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_GARBUD].mtype, PLACE_UNIQUE);
 		if (QuestStatus(Q_ZHAR))
-			AddMonsterType(UniqMonst[UMT_ZHAR].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_ZHAR].mtype, PLACE_UNIQUE);
 		if (QuestStatus(Q_LTBANNER))
-			AddMonsterType(UniqMonst[UMT_SNOTSPIL].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_SNOTSPIL].mtype, PLACE_UNIQUE);
 		if (QuestStatus(Q_VEIL))
-			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, PLACE_UNIQUE);
 		if (QuestStatus(Q_WARLORD))
-			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, PLACE_UNIQUE);
 
 		if (gbMaxPlayers != 1 && lvl == quests[Q_SKELKING]._qlevel) {
 
-			AddMonsterType(MT_SKING, 4);
+			AddMonsterType(MT_SKING, PLACE_UNIQUE);
 
 			nt = 0;
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
@@ -269,7 +269,7 @@ void GetLevelMTypes()
 					}
 				}
 			}
-			AddMonsterType(skeltypes[random_(88, nt)], 1);
+			AddMonsterType(skeltypes[random_(88, nt)], PLACE_SCATTER);
 		}
 
 		nt = 0;
@@ -287,7 +287,7 @@ void GetLevelMTypes()
 #ifdef _DEBUG
 		if (monstdebug) {
 			for (i = 0; i < debugmonsttypes; i++)
-				AddMonsterType(DebugMonsters[i], 1);
+				AddMonsterType(DebugMonsters[i], PLACE_SCATTER);
 			return;
 		}
 #endif
@@ -303,13 +303,13 @@ void GetLevelMTypes()
 
 			if (nt != 0) {
 				i = random_(88, nt);
-				AddMonsterType(typelist[i], 1);
+				AddMonsterType(typelist[i], PLACE_SCATTER);
 				typelist[i] = typelist[--nt];
 			}
 		}
 	} else {
 		if (setlvlnum == SL_SKELKING) {
-			AddMonsterType(MT_SKING, 4);
+			AddMonsterType(MT_SKING, PLACE_UNIQUE);
 		}
 	}
 }
@@ -621,7 +621,7 @@ void PlaceMonster(int mnum, int mtype, int x, int y)
 	InitMonster(mnum, dir, mtype, x, y);
 }
 
-void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
+void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 {
 	int xp, yp, x, y, i;
 	int uniqtype;
@@ -842,7 +842,7 @@ void PlaceUniqueMonst(int uniqindex, int miniontype, int unpackfilesize)
 	nummonsters++;
 
 	if (uniqm->mUnqAttr & 1) {
-		PlaceGroup(miniontype, unpackfilesize, uniqm->mUnqAttr, nummonsters - 1);
+		PlaceGroup(miniontype, bosspacksize, uniqm->mUnqAttr, nummonsters - 1);
 	}
 
 	if (mon->_mAi != AI_GARG) {
@@ -923,18 +923,18 @@ void PlaceQuestMonsters()
 			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
-			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, 1);
+			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, PLACE_SCATTER);
 		}
 		if (QuestStatus(Q_VEIL)) {
-			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, 1);
+			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, PLACE_SCATTER);
 		}
 		if (QuestStatus(Q_ZHAR) && zharlib == -1) {
 			quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
 		}
 
 		if (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
-			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, 4);
-			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, 4);
+			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
 			PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
 			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
 			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
@@ -1102,11 +1102,11 @@ void InitMonsters()
 		numplacemonsters = na / 30;
 		if (gbMaxPlayers != 1)
 			numplacemonsters += numplacemonsters >> 1;
-		if (nummonsters + numplacemonsters > 190)
-			numplacemonsters = 190 - nummonsters;
+		if (nummonsters + numplacemonsters > MAXMONSTERS - 10)
+			numplacemonsters = MAXMONSTERS - 10 - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
-			if (Monsters[i].mPlaceFlags & 1) {
+			if (Monsters[i].mPlaceFlags & PLACE_SCATTER) {
 				scattertypes[numscattypes] = i;
 				numscattypes++;
 			}
@@ -1142,15 +1142,15 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	int i, j;
 	int mtype;
 
-	AddMonsterType(MT_GOLEM, 2);
+	AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
 	AddMonster(1, 0, 0, 0, FALSE);
 	AddMonster(1, 0, 0, 0, FALSE);
 	AddMonster(1, 0, 0, 0, FALSE);
 	AddMonster(1, 0, 0, 0, FALSE);
 	if (setlevel && setlvlnum == SL_VILEBETRAYER) {
-		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, 4);
-		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, 4);
-		AddMonsterType(UniqMonst[UMT_BLACKJADE].mtype, 4);
+		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
+		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
+		AddMonsterType(UniqMonst[UMT_BLACKJADE].mtype, PLACE_UNIQUE);
 		PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
 		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
 		PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
@@ -1167,7 +1167,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm) {
-				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], 2);
+				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], PLACE_SPECIAL);
 				PlaceMonster(nummonsters++, mtype, i + startx + DBORDERX, j + starty + DBORDERY);
 			}
 			lm++;
@@ -1602,9 +1602,8 @@ void MonGetKnockback(int mnum)
 		mon->_myoff = 0;
 		mon->_mx = mon->_mfutx = mon->_moldx;
 		mon->_my = mon->_mfuty = mon->_moldy;
-		// BUGFIX useless assignment
-		mon->_moldx = mon->_mx;
-		mon->_moldy = mon->_my;
+		mon->_moldx = mon->_mx; // CODEFIX: useless assignment
+		mon->_moldy = mon->_my; // CODEFIX: useless assignment
 		MonClearSquares(mnum);
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 	}
@@ -1659,8 +1658,11 @@ void MonDiabloDeath(int mnum, BOOL sendmsg)
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
 		NetSendCmdQuest(TRUE, Q_DIABLO);
-	gbProcessPlayers = FALSE;
 	sgbSaveSoundOn = gbSoundOn;
+	gbProcessPlayers = FALSE;
+#ifdef HELLFIRE
+	gbSoundOn = FALSE;
+#endif
 	for (j = 0; j < nummonsters; j++) {
 		k = monstactive[j];
 		if (k == mnum || mon->_msquelch == 0)
@@ -2116,22 +2118,38 @@ BOOL MonDoWalk(int mnum)
 	BOOL rv;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk: Monster %d \"%s\" MType NULL", mnum, mon->mName);
+#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
 		mon->_mx += mon->_mVar1;
 		mon->_my += mon->_mVar2;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
+#ifdef HELLFIRE
+		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
+#else
 		if (mon->_uniqtype != 0)
+#endif
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
 		if (mon->_mAnimCnt == 0) {
+#ifdef HELLFIRE
+			if (mon->_mVar8 == 0 && mon->MType->mtype == MT_FLESTHNG)
+				PlayEffect(mnum, 3);
+#endif
 			mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
@@ -2141,7 +2159,11 @@ BOOL MonDoWalk(int mnum)
 		rv = FALSE;
 	}
 
+#ifdef HELLFIRE
+	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
+#else
 	if (mon->_uniqtype != 0)
+#endif
 		MonChangeLightOffset(mnum);
 
 	return rv;
@@ -2153,19 +2175,35 @@ BOOL MonDoWalk2(int mnum)
 	BOOL rv;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk2: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk2: Monster %d \"%s\" MType NULL", mnum, mon->mName);
+#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
+#ifdef HELLFIRE
+		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
+#else
 		if (mon->_uniqtype != 0)
+#endif
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
 		if (mon->_mAnimCnt == 0) {
+#ifdef HELLFIRE
+			if (mon->_mVar8 == 0 && mon->MType->mtype == MT_FLESTHNG)
+				PlayEffect(mnum, 3);
+#endif
 			mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
@@ -2174,7 +2212,11 @@ BOOL MonDoWalk2(int mnum)
 		}
 		rv = FALSE;
 	}
+#ifdef HELLFIRE
+	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
+#else
 	if (mon->_uniqtype != 0)
+#endif
 		MonChangeLightOffset(mnum);
 
 	return rv;
@@ -2186,10 +2228,18 @@ BOOL MonDoWalk3(int mnum)
 	BOOL rv;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk3: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoWalk3: Monster %d \"%s\" MType NULL", mnum, mon->mName);
+#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
@@ -2197,12 +2247,20 @@ BOOL MonDoWalk3(int mnum)
 		mon->_my = mon->_mVar2;
 		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
+#ifdef HELLFIRE
+		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
+#else
 		if (mon->_uniqtype != 0)
+#endif
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
 		if (mon->_mAnimCnt == 0) {
+#ifdef HELLFIRE
+			if (mon->_mVar8 == 0 && mon->MType->mtype == MT_FLESTHNG)
+				PlayEffect(mnum, 3);
+#endif
 			mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
@@ -2211,7 +2269,11 @@ BOOL MonDoWalk3(int mnum)
 		}
 		rv = FALSE;
 	}
+#ifdef HELLFIRE
+	if (mon->_uniqtype != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) // BUGFIX: change uniqtype check to mlid check like it is in all other places
+#else
 	if (mon->_uniqtype != 0)
+#endif
 		MonChangeLightOffset(mnum);
 
 	return rv;
@@ -2772,10 +2834,18 @@ void DoEnding()
 	return;
 #endif
 
+#ifdef HELLFIRE
+	if (plr[myplr]._pClass == PC_WARRIOR || plr[myplr]._pClass == PC_BARBARIAN) {
+#else
 	if (plr[myplr]._pClass == PC_WARRIOR) {
+#endif
 		play_movie("gendata\\DiabVic2.smk", FALSE);
 	} else if (plr[myplr]._pClass == PC_SORCERER) {
 		play_movie("gendata\\DiabVic1.smk", FALSE);
+#ifdef HELLFIRE
+	} else if (plr[myplr]._pClass == PC_MONK) {
+		play_movie("gendata\\DiabVic1.smk", FALSE);
+#endif
 	} else {
 		play_movie("gendata\\DiabVic3.smk", FALSE);
 	}
@@ -2908,10 +2978,18 @@ BOOL MonDoDelay(int mnum)
 	int mVar2, oFrame;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoDelay: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	if (mon->MType == NULL)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoDelay: Monster %d \"%s\" MType NULL", mnum, mon->mName);
+#endif
 
 	mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[MonGetDir(mnum)];
 	mVar2 = mon->_mVar2;
@@ -2934,7 +3012,11 @@ BOOL MonDoDelay(int mnum)
 BOOL MonDoStone(int mnum)
 {
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonDoStone: Invalid monster %d", mnum);
+#endif
 
 	if (monster[mnum]._mhitpoints == 0) {
 		dMonster[monster[mnum]._mx][monster[mnum]._my] = 0;
@@ -2949,7 +3031,11 @@ void MonWalkDir(int mnum, int md)
 	int *mwi;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonWalkDir: Invalid monster %d", mnum);
+#endif
 
 	mwi = MWVel[monster[mnum].MType->Anims[MA_WALK].Frames - 1];
 	switch (md) {
@@ -2987,10 +3073,14 @@ void GroupUnity(int mnum)
 	BOOL clear;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("GroupUnity: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
-	if (mon->leaderflag) {
+	if (mon->leaderflag != 0) {
 		leader = &monster[mon->leader];
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear) {
@@ -3014,13 +3104,11 @@ void GroupUnity(int mnum)
 		}
 		if (leader->_mAi == AI_GARG) {
 			if (leader->_mFlags & MFLAG_ALLOW_SPECIAL) {
-				leader->_mmode = MM_SATTACK;
 				leader->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
+				leader->_mmode = MM_SATTACK;
 			}
 		}
-		return;
-	}
-	if (mon->_uniqtype != 0) {
+	} else if (mon->_uniqtype != 0) {
 		if (UniqMonst[mon->_uniqtype - 1].mUnqAttr & 2) {
 			for (i = 0; i < nummonsters; i++) {
 				bmon = &monster[monstactive[i]];
@@ -3032,8 +3120,8 @@ void GroupUnity(int mnum)
 					}
 					if (bmon->_mAi == AI_GARG) {
 						if (bmon->_mFlags & MFLAG_ALLOW_SPECIAL) {
-							bmon->_mmode = MM_SATTACK;
 							bmon->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
+							bmon->_mmode = MM_SATTACK;
 						}
 					}
 				}
@@ -3073,7 +3161,11 @@ BOOL MonPathWalk(int mnum)
 	(int, int, int);
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MonPathWalk: Invalid monster %d", mnum);
+#endif
 
 	Check = PosOkMonst3;
 	if (!(monster[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -3151,7 +3243,11 @@ void MAI_Zombie(int mnum)
 	int mx, my, md;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Zombie: Invalid monster %d", mnum);
+#endif
 	}
 
 	mon = &monster[mnum];
@@ -3193,7 +3289,11 @@ void MAI_SkelSd(int mnum)
 	int mx, my, x, y, md;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_SkelSd: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
@@ -3230,7 +3330,11 @@ BOOL MAI_Path(int mnum)
 	BOOL clear;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return FALSE;
+#else
 		app_fatal("MAI_Path: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->MType->mtype != MT_GOLEM) {
@@ -3238,7 +3342,7 @@ BOOL MAI_Path(int mnum)
 			return FALSE;
 		if (mon->_mmode != MM_STAND)
 			return FALSE;
-		if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_SHOOT)
+		if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
 			return FALSE;
 		if (mon->_mx == 1 && mon->_my == 0)
 			return FALSE;
@@ -3360,7 +3464,11 @@ void MAI_Bat(int mnum)
 	int fx, fy, xd, yd;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Bat: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
@@ -3424,7 +3532,11 @@ void MAI_SkelBow(int mnum)
 	BOOL walking;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_SkelBow: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
@@ -3465,7 +3577,11 @@ void MAI_Fat(int mnum)
 	int mx, my, md, v;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Fat: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
@@ -3501,7 +3617,11 @@ void MAI_Sneak(int mnum)
 	int dist, range, v;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Sneak: Invalid monster %d", mnum);
+#endif
 	}
 
 	mon = &monster[mnum];
@@ -3516,16 +3636,23 @@ void MAI_Sneak(int mnum)
 			range = 5 - mon->_mint;
 			dist = std::max(abs(mx), abs(my));
 			if (mon->_mVar1 == MM_GOTHIT) {
-				mon->_mgoalvar1 = 0;
 				mon->_mgoal = MGOAL_RETREAT;
+				mon->_mgoalvar1 = 0;
 			} else {
 				if (dist >= range + 3 || mon->_mgoalvar1 > 8) {
-					mon->_mgoalvar1 = 0;
 					mon->_mgoal = MGOAL_NORMAL;
+					mon->_mgoalvar1 = 0;
 				}
 			}
+#ifdef HELLFIRE
+			if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
+				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
+					md = GetDirection(mon->_mx, mon->_my, monster[mon->_menemy]._mx, monster[mon->_menemy]._my);
+				else
+#else
 			if (mon->_mgoal == MGOAL_RETREAT) {
 				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
+#endif
 					md = GetDirection(mon->_mx, mon->_my, plr[mon->_menemy]._pownerx, plr[mon->_menemy]._pownery);
 				md = opposite[md];
 				if (mon->MType->mtype == MT_UNSEEN) {
@@ -3568,7 +3695,11 @@ void MAI_Fireman(int mnum)
 	MonsterStruct *mon;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Fireman: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
@@ -3585,10 +3716,10 @@ void MAI_Fireman(int mnum)
 		if (LineClear(mon->_mx, mon->_my, fx, fy)
 		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, pnum, mnum, 0, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
-			mon->_mgoal = MGOAL_SHOOT;
+			mon->_mgoal = MGOAL_ATTACK2;
 			mon->_mgoalvar1 = 0;
 		}
-	} else if (mon->_mgoal == MGOAL_SHOOT) {
+	} else if (mon->_mgoal == MGOAL_ATTACK2) {
 		if (mon->_mgoalvar1 == 3) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadeout(mnum, md, TRUE);
@@ -3601,7 +3732,7 @@ void MAI_Fireman(int mnum)
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		MonStartFadein(mnum, md, FALSE);
-		mon->_mgoal = MGOAL_SHOOT;
+		mon->_mgoal = MGOAL_ATTACK2;
 	}
 	mon->_mdir = md;
 	random_(112, 100);
@@ -3613,11 +3744,11 @@ void MAI_Fireman(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		if (!MonCallWalk(mnum, opposite[md])) {
 			MonStartFadein(mnum, md, FALSE);
-			mon->_mgoal = MGOAL_SHOOT;
+			mon->_mgoal = MGOAL_ATTACK2;
 		}
 	} else if (!MonCallWalk(mnum, md) && (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT)) {
 		MonStartFadein(mnum, md, FALSE);
-		mon->_mgoal = MGOAL_SHOOT;
+		mon->_mgoal = MGOAL_ATTACK2;
 	}
 }
 
@@ -3625,19 +3756,22 @@ void MAI_Fallen(int mnum)
 {
 	MonsterStruct *mon;
 	int x, y;
-	int m, rad, md;
+	int m, rad;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
+#if HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Fallen: Invalid monster %d", mnum);
+#endif
 	}
 	mon = &monster[mnum];
-	if (mon->_mgoal == MGOAL_SHOOT) {
-		if (mon->_mgoalvar1)
+	if (mon->_mgoal == MGOAL_ATTACK2) {
+		if (mon->_mgoalvar1 != 0)
 			mon->_mgoalvar1--;
 		else
 			mon->_mgoal = MGOAL_NORMAL;
 	}
-
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
 	}
@@ -3655,9 +3789,9 @@ void MAI_Fallen(int mnum)
 		}
 		if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 			MonStartSpStand(mnum, mon->_mdir);
-			rad = 2 * mon->_mint + 2;
-			if (mon->_mmaxhp - rad >= mon->_mhitpoints)
-				mon->_mhitpoints = rad + mon->_mhitpoints;
+			rad = mon->_mhitpoints + 2 * mon->_mint + 2;
+			if (mon->_mmaxhp >= rad)
+				mon->_mhitpoints = rad;
 			else
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
@@ -3669,7 +3803,7 @@ void MAI_Fallen(int mnum)
 					if (m > 0) {
 						m--;
 						if (monster[m]._mAi == AI_FALLEN) {
-							monster[m]._mgoal = MGOAL_SHOOT;
+							monster[m]._mgoal = MGOAL_ATTACK2;
 							monster[m]._mgoalvar1 = 30 * mon->_mint + 105;
 						}
 					}
@@ -3677,14 +3811,12 @@ void MAI_Fallen(int mnum)
 			}
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
-		md = mon->_mdir;
-		MonCallWalk(mnum, md);
-	} else if (mon->_mgoal == MGOAL_SHOOT) {
+		MonCallWalk(mnum, mon->_mdir);
+	} else if (mon->_mgoal == MGOAL_ATTACK2) {
 		if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2) {
 			MonStartAttack(mnum);
 		} else {
-			md = MonGetDir(mnum);
-			MonCallWalk(mnum, md);
+			MonCallWalk(mnum, MonGetDir(mnum));
 		}
 	} else {
 		MAI_SkelSd(mnum);
@@ -3697,7 +3829,11 @@ void MAI_Cleaver(int mnum)
 	int x, y, mx, my, md;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Cleaver: Invalid monster %d", mnum);
+#endif
 
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
@@ -3729,7 +3865,11 @@ void MAI_Round(int mnum, BOOL special)
 	int dist, v;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Round: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		fy = mon->_menemyy;
@@ -3887,13 +4027,17 @@ void MAI_Scav(int mnum)
 	MonsterStruct *mon;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
+#ifdef HELLFIRE
+		return;
+#else
 		app_fatal("MAI_Scav: Invalid monster %d", mnum);
+#endif
 	mon = &monster[mnum];
 	done = FALSE;
 	if (mon->_mmode != MM_STAND)
 		return;
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
-		if (mon->leaderflag) {
+		if (mon->leaderflag != 0) {
 			monster[mon->leader].packsize--;
 			mon->leaderflag = 0;
 		}
@@ -3902,7 +4046,7 @@ void MAI_Scav(int mnum)
 	}
 	if (mon->_mgoal == MGOAL_HEALING && mon->_mgoalvar3 != 0) {
 		mon->_mgoalvar3--;
-		if (dDead[mon->_mx][mon->_my]) {
+		if (dDead[mon->_mx][mon->_my] != 0) {
 			MonStartEat(mnum);
 			if (!(mon->_mFlags & MFLAG_NOHEAL))
 				mon->_mhitpoints += 64;
@@ -4626,7 +4770,7 @@ void MAI_SnotSpil(int mnum)
 			}
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
-			if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_SHOOT)
+			if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_ATTACK2)
 				MAI_Fallen(mnum);
 		}
 	}
