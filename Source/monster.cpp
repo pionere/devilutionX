@@ -1696,12 +1696,12 @@ void MonDiabloDeath(int mnum, BOOL sendmsg)
 	mon->_mVar6 = (int)((k - (mon->_my << 16)) / (double)dist);
 }
 
-#ifdef HELLFIRE
-void SpawnLoot(int mnum, BOOL sendmsg)
+static void SpawnLoot(int mnum, BOOL sendmsg)
 {
 	MonsterStruct *mon;
 
 	mon = &monster[mnum];
+	SetRndSeed(mon->_mRndSeed);
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
 		if (QuestStatus(Q_GARBUD)) {
@@ -1709,6 +1709,7 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 			return;
 		}
 		break;
+#ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (UseTheoQuest) {
 			SpawnTheodore(mon->_mx, mon->_my);
@@ -1731,11 +1732,10 @@ void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
 		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
 		return;
-	}
-	if (mnum > MAX_PLRS - 1)
-		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
-}
 #endif
+	}
+	SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
+}
 
 void M2MStartHit(int defm, int offm, int dam)
 {
@@ -1803,22 +1803,16 @@ void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 #endif
 	}
 
-	if ((DWORD)pnum < MAX_PLRS)
-		mon->mWhoHit |= 1 << pnum;
-	if ((DWORD)pnum < MAX_PLRS && mnum >= MAX_PLRS)
-		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->mWhoHit);
 	monstkills[mon->MType->mtype]++;
 	mon->_mhitpoints = 0;
-	SetRndSeed(mon->_mRndSeed);
-#ifdef HELLFIRE
-	SpawnLoot(mnum, sendmsg);
-#else
-	if (QuestStatus(Q_GARBUD) && mon->mName == UniqMonst[UMT_GARBUD].mName) {
-		CreateTypeItem(mon->_mx + 1, mon->_my + 1, TRUE, ITYPE_MACE, IMISC_NONE, TRUE, FALSE);
-	} else if (mnum > MAX_PLRS - 1) { // Golems should not spawn items
-		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
+
+	if (mnum >= MAX_PLRS) {
+		if ((DWORD)pnum < MAX_PLRS)
+			mon->mWhoHit |= 1 << pnum;
+		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->mWhoHit);
+		SpawnLoot(mnum, sendmsg);
 	}
-#endif
+
 	if (mon->MType->mtype == MT_DIABLO)
 		MonDiabloDeath(mnum, TRUE);
 	else
@@ -1866,17 +1860,15 @@ void M2MStartKill(int offm, int defm)
 	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
 	NetSendCmdLocParam1(FALSE, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
 
-	if (offm < MAX_PLRS)
-		dmon->mWhoHit |= 1 << offm;
-	if (offm < MAX_PLRS && defm >= MAX_PLRS)
-		AddPlrMonstExper(dmon->mLevel, dmon->mExp, dmon->mWhoHit);
-
 	monstkills[dmon->MType->mtype]++;
 	dmon->_mhitpoints = 0;
-	SetRndSeed(dmon->_mRndSeed);
 
-	if (defm >= MAX_PLRS)
-		SpawnItem(defm, dmon->_mx, dmon->_my, TRUE);
+	if (defm >= MAX_PLRS) {
+		if (offm < MAX_PLRS)
+			dmon->mWhoHit |= 1 << offm;
+		AddPlrMonstExper(dmon->mLevel, dmon->mExp, dmon->mWhoHit);
+		SpawnLoot(defm, TRUE);
+	}
 
 	if (dmon->MType->mtype == MT_DIABLO)
 		MonDiabloDeath(defm, TRUE);
@@ -1899,7 +1891,11 @@ void M2MStartKill(int offm, int defm)
 	dMonster[dmon->_mx][dmon->_my] = defm + 1;
 	CheckQuestKill(defm, TRUE);
 	MonFallenFear(dmon->_mx, dmon->_my);
+#ifdef HELLFIRE
+	if (dmon->MType->mtype >= MT_NACID && dmon->MType->mtype <= MT_XACID || dmon->MType->mtype == MT_SPIDLORD)
+#else
 	if (dmon->MType->mtype >= MT_NACID && dmon->MType->mtype <= MT_XACID)
+#endif
 		AddMissile(dmon->_mx, dmon->_my, 0, 0, 0, MIS_ACIDPUD, 1, defm, dmon->_mint + 1, 0);
 }
 
