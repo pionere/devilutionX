@@ -3032,7 +3032,7 @@ void MonWalkDir(int mnum, int md)
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
-		return FALSE;
+		return;
 #else
 		app_fatal("MonWalkDir: Invalid monster %d", mnum);
 #endif
@@ -3074,7 +3074,7 @@ void GroupUnity(int mnum)
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
-		return FALSE;
+		return;
 #else
 		app_fatal("GroupUnity: Invalid monster %d", mnum);
 #endif

@@ -4672,11 +4672,11 @@ void SpawnPremium(int lvl)
 		premiumitem[7] = premiumitem[10];
 		premiumitem[8] = premiumitem[11];
 		premiumitem[9] = premiumitem[12];
-		SpawnOnePremium(10, premiumlevel + premiumlvladd[10], pnum, FALSE);
+		SpawnOnePremium(10, premiumlevel + premiumlvladd[10]);
 		premiumitem[11] = premiumitem[13];
-		SpawnOnePremium(12, premiumlevel + premiumlvladd[12], pnum, FALSE);
+		SpawnOnePremium(12, premiumlevel + premiumlvladd[12]);
 		premiumitem[13] = premiumitem[14];
-		SpawnOnePremium(14, premiumlevel + premiumlvladd[14], pnum, FALSE);
+		SpawnOnePremium(14, premiumlevel + premiumlvladd[14]);
 #else
 		premiumitem[0] = premiumitem[2];
 		premiumitem[1] = premiumitem[3];
