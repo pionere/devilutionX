@@ -248,7 +248,7 @@ static int L4HWallOk(int i, int j)
 	while (TRUE) {
 		x++;
 		bv = dungeon[x][j];
-		if (bv == 6)
+		if (bv != 6)
 			break;
 		if (dflags[x][j] != 0)
 			break;
@@ -275,7 +275,7 @@ static int L4VWallOk(int i, int j)
 	while (TRUE) {
 		y++;
 		bv = dungeon[i][y];
-		if (bv == 6)
+		if (bv != 6)
 			break;
 		if (dflags[i][y] != 0)
 			break;
