@@ -4191,8 +4191,8 @@ void MI_FireRing(int mi)
 		lvl = currlevel;
 	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
 	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
-		tx = mis->_miVar1 + CrawlTable[cr - 1];
-		ty = mis->_miVar2 + CrawlTable[cr];
+		tx = mis->_miVar1 + CrawlTable[cr];
+		ty = mis->_miVar2 + CrawlTable[cr + 1];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
 			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
@@ -4223,8 +4223,8 @@ void MI_LightRing(int mi)
 		lvl = currlevel;
 	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
 	for (j = CrawlTable[cr - 1]; j > 0; j--, cr += 2) {
-		tx = mis->_miVar1 + CrawlTable[cr - 1];
-		ty = mis->_miVar2 + CrawlTable[cr];
+		tx = mis->_miVar1 + CrawlTable[cr];
+		ty = mis->_miVar2 + CrawlTable[cr + 1];
 		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 			pn = dPiece[tx][ty];
 			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
