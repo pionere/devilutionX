@@ -176,7 +176,7 @@ static void InitL4Dungeon()
 	}
 }
 
-void DRLG_LoadL4SP()
+static void DRLG_LoadL4SP()
 {
 	setloadflag = FALSE;
 	if (currlevel == 15 && gbMaxPlayers != 1) {
@@ -188,12 +188,12 @@ void DRLG_LoadL4SP()
 	}
 }
 
-void DRLG_FreeL4SP()
+static void DRLG_FreeL4SP()
 {
 	MemFreeDbg(pSetPiece);
 }
 
-void DRLG_L4SetSPRoom(int rx1, int ry1)
+static void DRLG_L4SetSPRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j;
 	BYTE *sp;
@@ -1255,7 +1255,7 @@ static void L4firstRoom()
 	L4roomGen(x, y, w, h, random_(0, 2));
 }
 
-void L4SaveQuads()
+static void L4SaveQuads()
 {
 	int i, j, x, y;
 
@@ -1272,7 +1272,7 @@ void L4SaveQuads()
 	}
 }
 
-void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
+static void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
 {
 	int rx2, ry2, i, j;
 	BYTE *sp;
@@ -1294,7 +1294,7 @@ void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
 	}
 }
 
-void DRLG_LoadDiabQuads(BOOL preflag)
+static void DRLG_LoadDiabQuads(BOOL preflag)
 {
 	BYTE *lpSetPiece;
 
@@ -1539,7 +1539,7 @@ static void DRLG_L4Corners()
 	}
 }
 
-void L4FixRim()
+static void L4FixRim()
 {
 	int i, j;
 
@@ -1551,7 +1551,7 @@ void L4FixRim()
 	}
 }
 
-void DRLG_L4GeneralFix()
+static void DRLG_L4GeneralFix()
 {
 	int i, j;
 
@@ -1783,7 +1783,7 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 	DRLG_SetPC();
 }
 
-void LoadL4Dungeon(char *sFileName, int vx, int vy)
+static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
@@ -1826,7 +1826,7 @@ void LoadL4Dungeon(char *sFileName, int vx, int vy)
 	mem_free_dbg(pLevelMap);
 }
 
-void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
+static void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;

@@ -190,7 +190,7 @@ static void CowSFX(int pnum)
 	PlaySfxLoc(CowPlaying, p->_px, p->_py);
 }
 
-void SetTownerGPtrs(BYTE *pData, BYTE **pAnim)
+static void SetTownerGPtrs(BYTE *pData, BYTE **pAnim)
 {
 	int i;
 	DWORD *pFrameTable;
@@ -202,7 +202,7 @@ void SetTownerGPtrs(BYTE *pData, BYTE **pAnim)
 	}
 }
 
-void NewTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
+static void NewTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 {
 	towner[tnum]._tAnimData = pAnim;
 	towner[tnum]._tAnimLen = numFrames;
@@ -211,7 +211,7 @@ void NewTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 	towner[tnum]._tAnimDelay = Delay;
 }
 
-void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, int tp)
+static void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, int tp)
 {
 	TownerStruct *tw = &towner[tnum];
 
@@ -229,7 +229,7 @@ void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, in
 	tw->_tSeed = GetRndSeed();
 }
 
-void InitQstSnds(int tnum)
+static void InitQstSnds(int tnum)
 {
 	TNQ *tqst;
 	int i, tl;
@@ -252,7 +252,7 @@ void InitQstSnds(int tnum)
  * @brief Load Griswold into the game
 
  */
-void InitSmith()
+static void InitSmith()
 {
 	int i;
 
@@ -268,7 +268,7 @@ void InitSmith()
 	numtowners++;
 }
 
-void InitBarOwner()
+static void InitBarOwner()
 {
 	int i;
 
@@ -285,7 +285,7 @@ void InitBarOwner()
 	numtowners++;
 }
 
-void InitTownDead()
+static void InitTownDead()
 {
 	int i;
 
@@ -301,7 +301,7 @@ void InitTownDead()
 	numtowners++;
 }
 
-void InitWitch()
+static void InitWitch()
 {
 	int i;
 
@@ -317,7 +317,7 @@ void InitWitch()
 	numtowners++;
 }
 
-void InitBarmaid()
+static void InitBarmaid()
 {
 	int i;
 
@@ -333,7 +333,7 @@ void InitBarmaid()
 	numtowners++;
 }
 
-void InitBoy()
+static void InitBoy()
 {
 	int i;
 
@@ -350,7 +350,7 @@ void InitBoy()
 	numtowners++;
 }
 
-void InitHealer()
+static void InitHealer()
 {
 	int i;
 
@@ -366,7 +366,7 @@ void InitHealer()
 	numtowners++;
 }
 
-void InitTeller()
+static void InitTeller()
 {
 	int i;
 
@@ -382,7 +382,7 @@ void InitTeller()
 	numtowners++;
 }
 
-void InitDrunk()
+static void InitDrunk()
 {
 	int i;
 
@@ -398,7 +398,7 @@ void InitDrunk()
 	numtowners++;
 }
 
-void InitCows()
+static void InitCows()
 {
 	int i, dir;
 	int x, y, xo, yo;
@@ -433,7 +433,7 @@ void InitCows()
 }
 
 #ifdef HELLFIRE
-void InitFarmer()
+static void InitFarmer()
 {
 	int i;
 
@@ -449,7 +449,7 @@ void InitFarmer()
 	numtowners++;
 }
 
-void InitCowFarmer()
+static void InitCowFarmer()
 {
 	int i;
 
@@ -469,7 +469,7 @@ void InitCowFarmer()
 	numtowners++;
 }
 
-void InitGirl()
+static void InitGirl()
 {
 	int i;
 
@@ -532,7 +532,7 @@ void FreeTownerGFX()
 	MemFreeDbg(pCowCels);
 }
 
-void TownCtrlMsg(TownerStruct *tw)
+static void TownCtrlMsg(TownerStruct *tw)
 {
 	PlayerStruct *p;
 	int dx, dy;
@@ -609,7 +609,7 @@ ItemStruct *PlrHasItem(int pnum, int item, int *outidx)
 	return NULL;
 }
 
-void TownerTalk(int talk)
+static void TownerTalk(int talk)
 {
 	sgdwCowClicks = 0;
 	sgnCowMsg = 0;

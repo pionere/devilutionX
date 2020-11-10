@@ -552,7 +552,7 @@ BOOL ItemPlace(int xp, int yp)
 	return TRUE;
 }
 
-void AddInitItems()
+static void AddInitItems()
 {
 	int x, y, i, j, rnd, lvl;
 
@@ -1134,7 +1134,7 @@ void CalcPlrStaff(int pnum)
 	}
 }
 
-void CalcSelfItems(int pnum)
+static void CalcSelfItems(int pnum)
 {
 	int i;
 	PlayerStruct *p;
@@ -1178,7 +1178,7 @@ void CalcSelfItems(int pnum)
 	} while (changeflag);
 }
 
-void CalcPlrItemMin(int pnum)
+static void CalcPlrItemMin(int pnum)
 {
 	ItemStruct *pi;
 	int i;
@@ -1196,7 +1196,7 @@ void CalcPlrItemMin(int pnum)
 	}
 }
 
-void CalcPlrBookVals(int pnum)
+static void CalcPlrBookVals(int pnum)
 {
 	ItemStruct *pi;
 	int i;
@@ -1487,7 +1487,7 @@ BOOL ItemSpaceOk(int i, int j)
 	return !nSolidTable[dPiece[i][j]];
 }
 
-BOOL GetItemSpace(int x, int y, char ii)
+static BOOL GetItemSpace(int x, int y, char ii)
 {
 	int i, j, rs;
 	int xx, yy;
@@ -1541,7 +1541,7 @@ BOOL GetItemSpace(int x, int y, char ii)
 	return TRUE;
 }
 
-void GetSuperItemSpace(int x, int y, char ii)
+static void GetSuperItemSpace(int x, int y, char ii)
 {
 	int xx, yy;
 	int i, j, k;
@@ -1581,7 +1581,7 @@ void GetSuperItemLoc(int x, int y, int *xx, int *yy)
 	}
 }
 
-void CalcItemValue(int ii)
+static void CalcItemValue(int ii)
 {
 	ItemStruct *is;
 	int v;
@@ -1600,7 +1600,7 @@ void CalcItemValue(int ii)
 	is->_iIvalue = v;
 }
 
-void GetBookSpell(int ii, int lvl)
+static void GetBookSpell(int ii, int lvl)
 {
 	SpellData *sd;
 	ItemStruct *is;
@@ -1652,7 +1652,7 @@ void GetBookSpell(int ii, int lvl)
 		is->_iCurs = ICURS_BOOK_GREY;
 }
 
-void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
+static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 {
 	const PLStruct *l[256];
 	char istr[128];
@@ -1707,7 +1707,7 @@ void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 	CalcItemValue(ii);
 }
 
-void GetStaffSpell(int ii, int lvl, BOOL onlygood)
+static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 {
 	SpellData *sd;
 	ItemStruct *is;
@@ -1767,7 +1767,7 @@ void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 }
 
 #ifdef HELLFIRE
-void GetOilType(int ii, int max_lvl)
+static void GetOilType(int ii, int max_lvl)
 {
 	int cnt, t, j, r;
 	char rnd[32];
@@ -1887,12 +1887,12 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	}
 }
 
-int RndPL(int param1, int param2)
+static int RndPL(int param1, int param2)
 {
 	return param1 + random_(22, param2 - param1 + 1);
 }
 
-int PLVal(int pv, int p1, int p2, int minv, int maxv)
+static int PLVal(int pv, int p1, int p2, int minv, int maxv)
 {
 	int dp, dv, rv;
 
@@ -2433,7 +2433,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		CalcItemValue(ii);
 }
 
-void GetItemBonus(int ii, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells)
+static void GetItemBonus(int ii, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells)
 {
 	if (item[ii]._iClass != ICLASS_GOLD) {
 		if (minlvl > 25)
@@ -2532,7 +2532,7 @@ static int RndItem(int lvl)
 	return ril[random_(24, ri)];
 }
 
-int RndUItem(int lvl)
+static int RndUItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -2570,7 +2570,7 @@ int RndUItem(int lvl)
 	return ril[random_(25, ri)];
 }
 
-int RndAllItems(int lvl)
+static int RndAllItems(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -2595,7 +2595,7 @@ int RndAllItems(int lvl)
 	return ril[random_(26, ri)];
 }
 
-int RndTypeItems(int itype, int imid, int lvl)
+static int RndTypeItems(int itype, int imid, int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -2618,7 +2618,7 @@ int RndTypeItems(int itype, int imid, int lvl)
 	return ril[random_(27, ri)];
 }
 
-int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
+static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 {
 	int j, idata, numu;
 	BOOLEAN uok[128];
@@ -2655,7 +2655,7 @@ int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	return idata;
 }
 
-void GetUniqueItem(int ii, int uid)
+static void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
 
@@ -2710,13 +2710,13 @@ void SpawnUnique(int uid, int x, int y)
 	numitems++;
 }
 
-void ItemRndDur(int ii)
+static void ItemRndDur(int ii)
 {
 	if (item[ii]._iDurability && item[ii]._iDurability != DUR_INDESTRUCTIBLE)
 		item[ii]._iDurability = random_(0, item[ii]._iMaxDur >> 1) + (item[ii]._iMaxDur >> 2) + 1;
 }
 
-void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood, BOOL recreate, BOOL pregen)
+static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL onlygood, BOOL recreate, BOOL pregen)
 {
 	int iblvl, uid;
 
@@ -2837,7 +2837,7 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 	}
 }
 
-void SetupAllUseful(int ii, int iseed, int lvl)
+static void SetupAllUseful(int ii, int iseed, int lvl)
 {
 	int idx;
 
@@ -3200,7 +3200,7 @@ void DeleteItem(int ii, int i)
 		itemactive[i] = itemactive[numitems];
 }
 
-void ItemDoppel()
+static void ItemDoppel()
 {
 	int i;
 	ItemStruct *is;
@@ -3844,13 +3844,13 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	}
 }
 
-void DrawUTextBack()
+static void DrawUTextBack()
 {
 	CelDraw(RIGHT_PANEL_X - SPANEL_WIDTH + 24, SCREEN_Y + 327, pSTextBoxCels, 1, 271);
 	trans_rect(RIGHT_PANEL - SPANEL_WIDTH + 27, 28, 265, 297);
 }
 
-void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
+static void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
 {
 	int len, width, sx, sy, i, k;
 	BYTE c;
@@ -3878,7 +3878,7 @@ void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
 	}
 }
 
-void DrawULine(int y)
+static void DrawULine(int y)
 {
 	assert(gpBuffer);
 
@@ -3926,7 +3926,7 @@ void DrawUniqueInfo()
 	}
 }
 
-void PrintItemMisc(const ItemStruct *is)
+static void PrintItemMisc(const ItemStruct *is)
 {
 	const char *desc;
 
@@ -4487,7 +4487,7 @@ void ItemStatOk(int pnum, ItemStruct *is)
 				  && p->_pMagic >= is->_iMinMag;
 }
 
-BOOL SmithItemOk(int i)
+static BOOL SmithItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 	 && AllItemsList[i].itype != ITYPE_GOLD
@@ -4501,7 +4501,7 @@ BOOL SmithItemOk(int i)
 	 && AllItemsList[i].itype != ITYPE_MEAT;
 }
 
-int RndSmithItem(int lvl)
+static int RndSmithItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -4529,7 +4529,7 @@ int RndSmithItem(int lvl)
 	return ril[random_(50, ri)] + 1;
 }
 
-void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
+static void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
 {
 	ItemStruct h;
 
@@ -4538,7 +4538,7 @@ void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
 	*b = h;
 }
 
-void SortSmith()
+static void SortSmith()
 {
 	int j, k;
 	BOOL sorted;
@@ -4590,7 +4590,7 @@ void SpawnSmith(int lvl)
 #endif
 }
 
-BOOL PremiumItemOk(int i)
+static BOOL PremiumItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 		&& AllItemsList[i].itype != ITYPE_GOLD
@@ -4603,7 +4603,7 @@ BOOL PremiumItemOk(int i)
 #endif
 }
 
-int RndPremiumItem(int minlvl, int maxlvl)
+static int RndPremiumItem(int minlvl, int maxlvl)
 {
 	int i, ri;
 	int ril[512];
@@ -4688,7 +4688,7 @@ void SpawnPremium(int lvl)
 	}
 }
 
-BOOL WitchItemOk(int i)
+static BOOL WitchItemOk(int i)
 {
 	BOOL rv;
 
@@ -4711,7 +4711,7 @@ BOOL WitchItemOk(int i)
 	return rv;
 }
 
-int RndWitchItem(int lvl)
+static int RndWitchItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -4731,7 +4731,7 @@ int RndWitchItem(int lvl)
 	return ril[random_(51, ri)] + 1;
 }
 
-void SortWitch()
+static void SortWitch()
 {
 	int j, k;
 	BOOL sorted;
@@ -4816,7 +4816,7 @@ void SpawnWitch(int lvl)
 	SortWitch();
 }
 
-int RndBoyItem(int lvl)
+static int RndBoyItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -4855,7 +4855,7 @@ void SpawnBoy(int lvl)
 	}
 }
 
-BOOL HealerItemOk(int i)
+static BOOL HealerItemOk(int i)
 {
 	if (AllItemsList[i].itype != ITYPE_MISC)
 		return FALSE;
@@ -4888,7 +4888,7 @@ BOOL HealerItemOk(int i)
 	return FALSE;
 }
 
-int RndHealerItem(int lvl)
+static int RndHealerItem(int lvl)
 {
 	int i, ri;
 	int ril[512];
@@ -4908,7 +4908,7 @@ int RndHealerItem(int lvl)
 	return ril[random_(50, ri)] + 1;
 }
 
-void SortHealer()
+static void SortHealer()
 {
 	int j, k;
 	BOOL sorted;
@@ -4982,7 +4982,7 @@ void SpawnStoreGold()
 	golditem._iStatFlag = TRUE;
 }
 
-void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
+static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 {
 	int itype;
 
@@ -4995,7 +4995,7 @@ void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
+static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 {
 	int itype;
 
@@ -5009,7 +5009,7 @@ void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
+static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 {
 	int itype;
 
@@ -5022,7 +5022,7 @@ void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
+static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 {
 	int itype;
 
@@ -5047,7 +5047,7 @@ void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
+static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
 {
 	int itype;
 

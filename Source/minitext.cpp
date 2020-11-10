@@ -90,7 +90,7 @@ void DrawQTextBack()
 	trans_rect(PANEL_LEFT + 27, UI_OFFSET_Y + 28, 585, 297);
 }
 
-void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
+static void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
 {
 	BYTE *pStart, *pEnd;
 

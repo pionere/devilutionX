@@ -53,7 +53,7 @@ void selhero_UiFocusNavigationYesNo()
 		UiFocusNavigationYesNo();
 }
 
-void selhero_FreeListItems()
+static void selhero_FreeListItems()
 {
 	for (std::size_t i = 0; i < vecSelHeroDlgItems.size(); i++) {
 		UiListItem *pUIItem = vecSelHeroDlgItems[i];
@@ -62,7 +62,7 @@ void selhero_FreeListItems()
 	vecSelHeroDlgItems.clear();
 }
 
-void selhero_FreeDlgItems()
+static void selhero_FreeDlgItems()
 {
 	for (std::size_t i = 0; i < vecSelDlgItems.size(); i++) {
 		UiItemBase *pUIItem = vecSelDlgItems[i];
@@ -71,7 +71,7 @@ void selhero_FreeDlgItems()
 	vecSelDlgItems.clear();
 }
 
-void selhero_Free()
+static void selhero_Free()
 {
 	ArtBackground.Unload();
 
@@ -87,7 +87,7 @@ void selhero_Free()
 	bUIElementsLoaded = false;
 }
 
-void selhero_SetStats()
+static void selhero_SetStats()
 {
 	int heroclass = selhero_heroInfo.heroclass;
 #ifdef HELLFIRE
@@ -107,7 +107,7 @@ namespace {
 std::size_t listOffset = 0;
 UiArtTextButton *SELLIST_DIALOG_DELETE_BUTTON;
 
-void selhero_UpdateViewportItems()
+static void selhero_UpdateViewportItems()
 {
 	const std::size_t num_viewport_heroes = std::min(selhero_SaveCount - listOffset, kMaxViewportItems);
 	for (std::size_t i = 0; i < num_viewport_heroes; i++) {
@@ -121,7 +121,7 @@ void selhero_UpdateViewportItems()
 	}
 }
 
-void selhero_ScrollIntoView(std::size_t index)
+static void selhero_ScrollIntoView(std::size_t index)
 {
 	std::size_t new_offset = listOffset;
 	if (index >= listOffset + kMaxViewportItems)

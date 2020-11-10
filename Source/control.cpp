@@ -249,12 +249,12 @@ int SpellPages[6][7] = {
  * @param nCel Index of the cel frame to draw. 0 based.
  * @param w Width of the frame.
  */
-void DrawSpellCel(int xp, int yp, BYTE *Trans, int nCel, int w)
+static void DrawSpellCel(int xp, int yp, BYTE *Trans, int nCel, int w)
 {
 	CelDrawLight(xp, yp, Trans, nCel, w, SplTransTbl);
 }
 
-void SetSpellTrans(char st)
+static void SetSpellTrans(char st)
 {
 	int i;
 
@@ -314,7 +314,7 @@ void SetSpellTrans(char st)
 /**
  * Sets the spell frame to draw and its position then draws it.
  */
-void DrawSpell()
+static void DrawSpell()
 {
 	PlayerStruct *p;
 	char st;
@@ -628,7 +628,7 @@ void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
+static void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
 {
 	int nSrcOff, nDstOff, w;
 
@@ -658,7 +658,7 @@ void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
  * @param nDstOff Offset of the target buffer where the bytes will start to be copied to.
  * @param h How many lines of the source buffer that will be copied.
  */
-void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstOff, int h)
+static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstOff, int h)
 {
 	int wdt, hgt;
 	BYTE *src, *dst;
@@ -1830,7 +1830,7 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 	}
 }
 
-char GetSBookTrans(int sn, BOOL townok)
+static char GetSBookTrans(int sn, BOOL townok)
 {
 	PlayerStruct *p;
 	char st;

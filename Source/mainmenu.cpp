@@ -15,7 +15,7 @@ char gszHero[16];
 /** The active music track id for the main menu. */
 int menu_music_track_id = TMUSIC_INTRO;
 
-void mainmenu_refresh_music()
+static void mainmenu_refresh_music()
 {
 	music_start(menu_music_track_id);
 

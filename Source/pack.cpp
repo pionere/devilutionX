@@ -164,7 +164,7 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 	}
 }
 
-void VerifyGoldSeeds(PlayerStruct *p)
+static void VerifyGoldSeeds(PlayerStruct *p)
 {
 	int i, j;
 

@@ -14,14 +14,14 @@ DIABOOL doomflag;
 int DoomQuestState;
 
 /*
-void doom_reset_state()
+stastic void doom_reset_state()
 {
     if (DoomQuestState <= 0) {
         DoomQuestState = 0;
     }
 }
 
-void doom_play_movie()
+static void doom_play_movie()
 {
     if (DoomQuestState < 36001) {
         DoomQuestState++;
@@ -42,7 +42,7 @@ int doom_get_frame_from_time()
 	return DoomQuestState / 1200;
 }
 
-void doom_cleanup()
+static void doom_cleanup()
 {
 #ifdef HELLFIRE
 	if (pDoomCel != NULL) {

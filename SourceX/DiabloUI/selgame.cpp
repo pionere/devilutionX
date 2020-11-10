@@ -35,7 +35,7 @@ std::vector<UiItemBase *> vecSelGameDialog;
 
 } // namespace
 
-void selgame_FreeVectors()
+static void selgame_FreeVectors()
 {
 	for (std::size_t i = 0; i < vecSelGameDlgItems.size(); i++) {
 		UiListItem *pUIItem = vecSelGameDlgItems[i];
@@ -50,7 +50,7 @@ void selgame_FreeVectors()
 	vecSelGameDialog.clear();
 }
 
-void selgame_Free()
+static void selgame_Free()
 {
 	ArtBackground.Unload();
 
@@ -217,7 +217,7 @@ void selgame_Diff_Focus(int value)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
 }
 
-bool IsDifficultyAllowed(int value)
+static bool IsDifficultyAllowed(int value)
 {
 	if (value == 0 || (value == 1 && heroLevel >= 20) || (value == 2 && heroLevel >= 30)) {
 		return true;

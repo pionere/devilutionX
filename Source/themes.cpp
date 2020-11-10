@@ -55,7 +55,7 @@ int trm3y[] = {
 	1, 1, 1
 };
 
-BOOL TFit_Shrine(int tidx)
+static BOOL TFit_Shrine(int tidx)
 {
 	int xx, yy, found;
 	const char tv = themes[tidx].ttval;
@@ -99,7 +99,7 @@ BOOL TFit_Shrine(int tidx)
 	return TRUE;
 }
 
-BOOL TFit_Obj5(int tidx)
+static BOOL TFit_Obj5(int tidx)
 {
 	int xx, yy;
 	int i, r, rs;
@@ -148,7 +148,7 @@ BOOL TFit_Obj5(int tidx)
 	return TRUE;
 }
 
-BOOL TFit_SkelRoom(int tidx)
+static BOOL TFit_SkelRoom(int tidx)
 {
 	int i;
 
@@ -166,7 +166,7 @@ BOOL TFit_SkelRoom(int tidx)
 	return FALSE;
 }
 
-BOOL TFit_GoatShrine(int tidx)
+static BOOL TFit_GoatShrine(int tidx)
 {
 	int i;
 
@@ -180,7 +180,7 @@ BOOL TFit_GoatShrine(int tidx)
 	return FALSE;
 }
 
-BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
+static BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 {
 	int i, xx, yy;
 	const char tv = themes[tidx].ttval;
@@ -201,7 +201,7 @@ BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 	return TRUE;
 }
 
-BOOL TFit_Obj3(int tidx)
+static BOOL TFit_Obj3(int tidx)
 {
 	int xx, yy;
 	const char objrnds[4] = { 4, 4, 3, 5 };
@@ -220,7 +220,7 @@ BOOL TFit_Obj3(int tidx)
 	return FALSE;
 }
 
-BOOL CheckThemeReqs(int theme)
+static BOOL CheckThemeReqs(int theme)
 {
 	BOOL rv;
 
@@ -273,7 +273,7 @@ BOOL CheckThemeReqs(int theme)
 	return rv;
 }
 
-BOOL SpecialThemeFit(int tidx, int theme)
+static BOOL SpecialThemeFit(int tidx, int theme)
 {
 	BOOL rv;
 
@@ -355,7 +355,7 @@ BOOL SpecialThemeFit(int tidx, int theme)
 	return rv;
 }
 
-BOOL CheckThemeRoom(int tv)
+static BOOL CheckThemeRoom(int tv)
 {
 	int i, j, tarea;
 
@@ -489,7 +489,7 @@ void HoldThemeRooms()
  * @param tidx theme number (index into themes array).
  * @param rndfrq frequency (1/f likelihood of adding monster).
  */
-void PlaceThemeMonsts(int tidx, int rndfrq)
+static void PlaceThemeMonsts(int tidx, int rndfrq)
 {
 	int xx, yy;
 	int scattertypes[MAX_LVLMTYPES];
@@ -521,7 +521,7 @@ void PlaceThemeMonsts(int tidx, int rndfrq)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Barrel(int tidx)
+static void Theme_Barrel(int tidx)
 {
 	int r, xx, yy;
 	const char barrnds[4] = { 2, 6, 4, 8 };
@@ -552,7 +552,7 @@ void Theme_Barrel(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Shrine(int tidx)
+static void Theme_Shrine(int tidx)
 {
 	const char monstrnds[4] = { 6, 6, 3, 9 };
 
@@ -574,7 +574,7 @@ void Theme_Shrine(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_MonstPit(int tidx)
+static void Theme_MonstPit(int tidx)
 {
 	int r, xx, yy;
 	const char monstrnds[4] = { 6, 7, 3, 9 };
@@ -608,7 +608,7 @@ void Theme_MonstPit(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_SkelRoom(int tidx)
+static void Theme_SkelRoom(int tidx)
 {
 	int xx, yy, i;
 	const char monstrnds[4] = { 6, 7, 3, 9 };
@@ -679,7 +679,7 @@ void Theme_SkelRoom(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Treasure(int tidx)
+static void Theme_Treasure(int tidx)
 {
 	int xx, yy, ii;
 	const char treasrnds[4] = { 4, 9, 7, 10 };
@@ -719,7 +719,7 @@ void Theme_Treasure(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Library(int tidx)
+static void Theme_Library(int tidx)
 {
 	int xx, yy, oi;
 	const char librnds[4] = { 1, 2, 2, 5 };
@@ -763,7 +763,7 @@ void Theme_Library(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Torture(int tidx)
+static void Theme_Torture(int tidx)
 {
 	int xx, yy;
 	const char tortrnds[4] = { 6, 8, 3, 8 };
@@ -790,7 +790,7 @@ void Theme_Torture(int tidx)
  * Theme_BloodFountain initializes the blood fountain theme.
  * @param tidx Theme number (index into themes array).
  */
-void Theme_BloodFountain(int tidx)
+static void Theme_BloodFountain(int tidx)
 {
 	const char monstrnds[4] = { 6, 8, 3, 9 };
 
@@ -804,7 +804,7 @@ void Theme_BloodFountain(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Decap(int tidx)
+static void Theme_Decap(int tidx)
 {
 	int xx, yy;
 	const char decaprnds[4] = { 6, 8, 3, 8 };
@@ -832,7 +832,7 @@ void Theme_Decap(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_PurifyingFountain(int tidx)
+static void Theme_PurifyingFountain(int tidx)
 {
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 
@@ -846,7 +846,7 @@ void Theme_PurifyingFountain(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_ArmorStand(int tidx)
+static void Theme_ArmorStand(int tidx)
 {
 	int xx, yy;
 	const char armorrnds[4] = { 6, 8, 3, 8 };
@@ -879,7 +879,7 @@ void Theme_ArmorStand(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_GoatShrine(int tidx)
+static void Theme_GoatShrine(int tidx)
 {
 	int xx, yy;
 	const char tv = themes[tidx].ttval;
@@ -900,7 +900,7 @@ void Theme_GoatShrine(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_Cauldron(int tidx)
+static void Theme_Cauldron(int tidx)
 {
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 
@@ -914,7 +914,7 @@ void Theme_Cauldron(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_MurkyFountain(int tidx)
+static void Theme_MurkyFountain(int tidx)
 {
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 
@@ -928,7 +928,7 @@ void Theme_MurkyFountain(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_TearFountain(int tidx)
+static void Theme_TearFountain(int tidx)
 {
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 
@@ -942,7 +942,7 @@ void Theme_TearFountain(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_BrnCross(int tidx)
+static void Theme_BrnCross(int tidx)
 {
 	int xx, yy;
 	const char monstrnds[4] = { 6, 8, 3, 9 };
@@ -971,7 +971,7 @@ void Theme_BrnCross(int tidx)
  *
  * @param tidx theme number (index into themes array).
  */
-void Theme_WeaponRack(int tidx)
+static void Theme_WeaponRack(int tidx)
 {
 	int xx, yy;
 	const char weaponrnds[4] = { 6, 8, 5, 8 };
@@ -1002,7 +1002,7 @@ void Theme_WeaponRack(int tidx)
 /**
  * UpdateL4Trans sets each value of the transparency map to 1.
  */
-void UpdateL4Trans()
+static void UpdateL4Trans()
 {
 	int i, j;
 

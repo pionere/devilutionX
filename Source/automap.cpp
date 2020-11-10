@@ -402,7 +402,7 @@ static void DrawAutomapItem(int x, int y, BYTE color)
 	DrawLine(x, y2, x2, y, color);
 }
 
-void SearchAutomapItem()
+static void SearchAutomapItem()
 {
 	PlayerStruct *p;
 	int x, y;

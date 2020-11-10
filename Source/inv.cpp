@@ -142,7 +142,7 @@ void InitInv()
 	drawsbarflag = FALSE;
 }
 
-void InvDrawSlotBack(int X, int Y, int W, int H)
+static void InvDrawSlotBack(int X, int Y, int W, int H)
 {
 	BYTE *dst;
 
@@ -167,7 +167,7 @@ void InvDrawSlotBack(int X, int Y, int W, int H)
 	}
 }
 
-int InvItemColor(ItemStruct *is)
+static int InvItemColor(ItemStruct *is)
 {
 	if (!is->_iStatFlag)
 		return ICOL_RED;
@@ -793,7 +793,7 @@ int SwapItem(ItemStruct *a, ItemStruct *b)
 	return h._iCurs + CURSOR_FIRSTITEM;
 }
 
-void CheckInvPaste(int pnum, int mx, int my)
+static void CheckInvPaste(int pnum, int mx, int my)
 {
 	PlayerStruct *p;
 	ItemStruct *holditem, *is, *wRight;
@@ -1197,7 +1197,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
 	CalcPlrInv(pnum, TRUE);
 }
 
-void CheckInvCut(int pnum, int mx, int my)
+static void CheckInvCut(int pnum, int mx, int my)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -1468,7 +1468,7 @@ void CheckInvScrn()
 	}
 }
 
-void CheckQuestItem(int pnum)
+static void CheckQuestItem(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
@@ -2217,7 +2217,7 @@ BOOL UseStaff()
 	return FALSE;
 }
 
-void StartGoldDrop()
+static void StartGoldDrop()
 {
 	initialDropGoldIndex = pcursinvitem;
 	if (pcursinvitem <= INVITEM_INV_LAST)

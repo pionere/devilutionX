@@ -129,7 +129,7 @@ void town_4751C6(){
 	SetDungeonMicros();
 }
 
-void town_475379(){
+static void town_475379(){
 	dPiece[78][60] = 0x48a;
 	dPiece[79][60] = 0x4eb;
 	dPiece[78][61] = 0x4ec;
@@ -179,7 +179,7 @@ void town_475379(){
 	SetDungeonMicros();
 }
 
-void town_47552C(){
+static void town_47552C(){
 	dPiece[36][21] = 0x52b;
 	dPiece[37][21] = 0x52c;
 	dPiece[36][22] = 0x52d;

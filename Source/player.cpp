@@ -222,7 +222,7 @@ int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 /** Unused local of PlrChangeLightOff, originally for computing light radius. */
 BYTE fix[9] = { 0, 0, 3, 3, 3, 6, 6, 6, 8 };
 
-void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
+static void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
 {
 	int i;
 
@@ -521,7 +521,7 @@ void NewPlrAnim(int pnum, BYTE *Peq, int numFrames, int Delay, int width)
 	p->_pAnimWidth2 = (width - 64) >> 1;
 }
 
-void ClearPlrPVars(int pnum)
+static void ClearPlrPVars(int pnum)
 {
 	PlayerStruct *p;
 
@@ -1065,7 +1065,7 @@ void InitMultiView()
 	ViewY = plr[myplr]._py;
 }
 
-BOOL PlrDirOK(int pnum, int dir)
+static BOOL PlrDirOK(int pnum, int dir)
 {
 	int px, py;
 
@@ -1177,7 +1177,7 @@ void PlrStartStand(int pnum, int dir)
 	}
 }
 
-void StartWalkStand(int pnum)
+static void StartWalkStand(int pnum)
 {
 	PlayerStruct *p;
 
@@ -1200,7 +1200,7 @@ void StartWalkStand(int pnum)
 	}
 }
 
-void PlrChangeLightOff(int pnum)
+static void PlrChangeLightOff(int pnum)
 {
 	PlayerStruct *p;
 	int x, y;
@@ -1247,7 +1247,7 @@ void PlrChangeLightOff(int pnum)
 	ChangeLightOff(p->_plid, x, y);
 }
 
-void PlrChangeOffset(int pnum)
+static void PlrChangeOffset(int pnum)
 {
 	PlayerStruct *p;
 	int px, py;
@@ -1285,7 +1285,7 @@ void PlrChangeOffset(int pnum)
 	PlrChangeLightOff(pnum);
 }
 
-void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int sdir)
+static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int sdir)
 {
 	PlayerStruct *p;
 	int px, py;
@@ -1358,7 +1358,7 @@ void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir, int sdir)
+static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir, int sdir)
 {
 	PlayerStruct *p;
 	int px, py;
@@ -1436,7 +1436,7 @@ void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int 
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir, int sdir)
+static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir, int sdir)
 {
 	PlayerStruct *p;
 	int px, py, x, y;
@@ -1539,7 +1539,7 @@ void StartAttack(int pnum, int dir)
 	SetPlayerOld(pnum);
 }
 
-void StartRangeAttack(int pnum, int dir, int cx, int cy)
+static void StartRangeAttack(int pnum, int dir, int cx, int cy)
 {
 	PlayerStruct *p;
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -1589,7 +1589,7 @@ void PlrStartBlock(int pnum, int dir)
 	SetPlayerOld(pnum);
 }
 
-void StartSpell(int pnum, int dir, int cx, int cy)
+static void StartSpell(int pnum, int dir, int cx, int cy)
 {
 	PlayerStruct *p;
 	if ((DWORD)pnum >= MAX_PLRS)
@@ -1733,7 +1733,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	}
 }
 
-void RespawnDeadItem(ItemStruct *is, int x, int y)
+static void RespawnDeadItem(ItemStruct *is, int x, int y)
 {
 	int ii;
 
@@ -2115,7 +2115,7 @@ void RemovePlrMissiles(int pnum)
 	}
 }
 
-void InitLevelChange(int pnum)
+static void InitLevelChange(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2226,12 +2226,12 @@ void StartWarpLvl(int pnum, int pidx)
 	}
 }
 
-BOOL PlrDoStand(int pnum)
+static BOOL PlrDoStand(int pnum)
 {
 	return FALSE;
 }
 
-BOOL PlrDoWalk(int pnum)
+static BOOL PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
@@ -2302,7 +2302,7 @@ BOOL PlrDoWalk(int pnum)
 	}
 }
 
-BOOL PlrDoWalk2(int pnum)
+static BOOL PlrDoWalk2(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
@@ -2368,7 +2368,7 @@ BOOL PlrDoWalk2(int pnum)
 	}
 }
 
-BOOL PlrDoWalk3(int pnum)
+static BOOL PlrDoWalk3(int pnum)
 {
 	PlayerStruct *p;
 	int anim_len;
@@ -2439,7 +2439,7 @@ BOOL PlrDoWalk3(int pnum)
 	}
 }
 
-BOOL WeaponDur(int pnum, int durrnd)
+static BOOL WeaponDur(int pnum, int durrnd)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -2548,7 +2548,7 @@ BOOL WeaponDur(int pnum, int durrnd)
 	return FALSE;
 }
 
-int PlrAtkDam(int pnum)
+static int PlrAtkDam(int pnum)
 {
 	PlayerStruct *p;
 	int mind, maxd, dam;
@@ -2567,7 +2567,7 @@ int PlrAtkDam(int pnum)
 	return dam;
 }
 
-BOOL PlrHitMonst(int pnum, int mnum)
+static BOOL PlrHitMonst(int pnum, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
@@ -2721,7 +2721,7 @@ BOOL PlrHitMonst(int pnum, int mnum)
 	return FALSE;
 }
 
-BOOL PlrHitPlr(int offp, char defp)
+static BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
 	int hit, hper, blk, blkper, dir, dam, skdam;
@@ -2804,7 +2804,7 @@ BOOL PlrHitPlr(int offp, char defp)
 	return FALSE;
 }
 
-BOOL PlrHitObj(int pnum, int mx, int my)
+static BOOL PlrHitObj(int pnum, int mx, int my)
 {
 	int oi;
 
@@ -2819,7 +2819,7 @@ BOOL PlrHitObj(int pnum, int mx, int my)
 	return FALSE;
 }
 
-BOOL PlrDoAttack(int pnum)
+static BOOL PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
 	int frame, dir, dx, dy, mp;
@@ -2897,7 +2897,7 @@ BOOL PlrDoAttack(int pnum)
 	}
 }
 
-BOOL PlrDoRangeAttack(int pnum)
+static BOOL PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
 	int origFrame, mitype;
@@ -2952,7 +2952,7 @@ BOOL PlrDoRangeAttack(int pnum)
 	}
 }
 
-void ShieldDur(int pnum)
+static void ShieldDur(int pnum)
 {
 	ItemStruct *pi;
 
@@ -2991,7 +2991,7 @@ void ShieldDur(int pnum)
 	}
 }
 
-BOOL PlrDoBlock(int pnum)
+static BOOL PlrDoBlock(int pnum)
 {
 	PlayerStruct *p;
 
@@ -3058,7 +3058,7 @@ static void ArmorDur(int pnum)
 	CalcPlrInv(pnum, TRUE);
 }
 
-BOOL PlrDoSpell(int pnum)
+static BOOL PlrDoSpell(int pnum)
 {
 	PlayerStruct *p;
 
@@ -3115,7 +3115,7 @@ BOOL PlrDoSpell(int pnum)
 	return FALSE;
 }
 
-BOOL PlrDoGotHit(int pnum)
+static BOOL PlrDoGotHit(int pnum)
 {
 	PlayerStruct *p;
 	int frame;
@@ -3168,7 +3168,7 @@ BOOL PlrDoGotHit(int pnum)
 	return FALSE;
 }
 
-BOOL PlrDoDeath(int pnum)
+static BOOL PlrDoDeath(int pnum)
 {
 	PlayerStruct *p;
 
@@ -3200,12 +3200,12 @@ BOOL PlrDoDeath(int pnum)
 	return FALSE;
 }
 
-BOOL PlrDoNewLvl(int pnum)
+static BOOL PlrDoNewLvl(int pnum)
 {
 	return FALSE;
 }
 
-void CheckNewPath(int pnum)
+static void CheckNewPath(int pnum)
 {
 	PlayerStruct *p;
 	int i, x, y, d;
@@ -3522,7 +3522,7 @@ void CheckNewPath(int pnum)
 	}
 }
 
-BOOL PlrDeathModeOK(int pnum)
+static BOOL PlrDeathModeOK(int pnum)
 {
 	PlayerStruct *p;
 
@@ -3538,7 +3538,7 @@ BOOL PlrDeathModeOK(int pnum)
 	return p->_pmode == PM_DEATH || p->_pmode == PM_QUIT || p->_pmode == PM_NEWLVL;
 }
 
-void ValidatePlayer()
+static void ValidatePlayer()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;

@@ -483,7 +483,7 @@ BYTE CornerstoneRoomPattern[32] = { 5, 5, 4, 2, 2, 2, 6, 1, 111, 172, 0, 1, 1, 1
 BYTE L5ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
 
 #ifdef HELLFIRE
-void DRLG_InitL5Vals()
+static void DRLG_InitL5Vals()
 {
 	int i, j, pc;
 
@@ -562,7 +562,7 @@ static void DRLG_PlaceDoor(int x, int y)
 }
 
 #ifdef HELLFIRE
-void drlg_l1_crypt_lavafloor()
+static void drlg_l1_crypt_lavafloor()
 {
 	int i, j;
 
@@ -1876,7 +1876,7 @@ static void L5tileFix()
 }
 
 #ifdef HELLFIRE
-void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
+static void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
 	BOOL found;

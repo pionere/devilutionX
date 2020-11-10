@@ -1068,7 +1068,7 @@ void PerformPrimaryAction()
 	Interact();
 }
 
-bool SpellHasActorTarget()
+static bool SpellHasActorTarget()
 {
 	int spl = plr[myplr]._pRSpell;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
@@ -1082,7 +1082,7 @@ bool SpellHasActorTarget()
 	return pcursplr != -1 || pcursmonst != -1;
 }
 
-void UpdateSpellTarget()
+static void UpdateSpellTarget()
 {
 	if (SpellHasActorTarget())
 		return;
@@ -1153,7 +1153,7 @@ void PerformSpellAction()
 	CheckPlrSpell();
 }
 
-void CtrlUseInvItem()
+static void CtrlUseInvItem()
 {
 	ItemStruct *is;
 

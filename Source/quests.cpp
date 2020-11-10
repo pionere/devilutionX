@@ -373,7 +373,7 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 	}
 }
 
-void DrawButcher()
+static void DrawButcher()
 {
 	int x, y;
 
@@ -382,13 +382,13 @@ void DrawButcher()
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
-void DrawSkelKing(int q, int x, int y)
+static void DrawSkelKing(int q, int x, int y)
 {
 	quests[q]._qtx = 2 * x + DBORDERX + 12;
 	quests[q]._qty = 2 * y + DBORDERY + 7;
 }
 
-void DrawWarLord(int x, int y)
+static void DrawWarLord(int x, int y)
 {
 	int rw, rh;
 	int i, j;
@@ -418,7 +418,7 @@ void DrawWarLord(int x, int y)
 	mem_free_dbg(setp);
 }
 
-void DrawSChamber(int qn, int x, int y)
+static void DrawSChamber(int qn, int x, int y)
 {
 	int i, j;
 	int rw, rh;
@@ -453,7 +453,7 @@ void DrawSChamber(int qn, int x, int y)
 	mem_free_dbg(setp);
 }
 
-void DrawLTBanner(int x, int y)
+static void DrawLTBanner(int x, int y)
 {
 	int rw, rh;
 	int i, j;
@@ -479,7 +479,7 @@ void DrawLTBanner(int x, int y)
 	mem_free_dbg(setp);
 }
 
-void DrawBlind(int x, int y)
+static void DrawBlind(int x, int y)
 {
 	int rw, rh;
 	int i, j;
@@ -505,7 +505,7 @@ void DrawBlind(int x, int y)
 	mem_free_dbg(setp);
 }
 
-void DrawBlood(int x, int y)
+static void DrawBlood(int x, int y)
 {
 	int rw, rh;
 	int i, j;
@@ -736,7 +736,7 @@ void ResyncQuests()
 	}
 }
 
-void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
+static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
 {
 	int len, width, i, k, sx, sy;
 	BYTE c;

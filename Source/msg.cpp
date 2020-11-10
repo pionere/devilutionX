@@ -529,7 +529,7 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 	}
 }
 
-void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
+static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
@@ -545,7 +545,7 @@ void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 	}
 }
 
-void delta_leave_sync(BYTE bLevel)
+static void delta_leave_sync(BYTE bLevel)
 {
 	int i, ma;
 	DMonsterStr *pD;
@@ -1098,7 +1098,7 @@ void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
@@ -1128,7 +1128,7 @@ void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p
 	multi_msg_add((BYTE *)&cmd.bCmd, sizeof(cmd));
 }
 
-BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
@@ -1154,7 +1154,7 @@ BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	return TRUE;
 }
 
-void NetSendCmdExtra(TCmdGItem *p)
+static void NetSendCmdExtra(TCmdGItem *p)
 {
 	TCmdGItem cmd;
 

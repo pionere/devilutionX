@@ -169,7 +169,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	}
 }
 
-BOOL CheckBlock(int fx, int fy, int tx, int ty)
+static BOOL CheckBlock(int fx, int fy, int tx, int ty)
 {
 	int pn;
 
@@ -184,7 +184,7 @@ BOOL CheckBlock(int fx, int fy, int tx, int ty)
 	return FALSE;
 }
 
-int FindClosest(int sx, int sy, int rad)
+static int FindClosest(int sx, int sy, int rad)
 {
 	int j, i, mid, tx, ty, cr;
 
@@ -242,7 +242,7 @@ int GetSpellLevel(int pnum, int sn)
  * @param y2 the y coordinate of p2
  * @return the direction of the p1->p2 vector
 */
-int GetDirection8(int x1, int y1, int x2, int y2)
+static int GetDirection8(int x1, int y1, int x2, int y2)
 {
 	int mx, my, md;
 
@@ -298,7 +298,7 @@ int GetDirection8(int x1, int y1, int x2, int y2)
  * @param y2 the y coordinate of p2
  * @return the direction of the p1->p2 vector
 */
-int GetDirection16(int x1, int y1, int x2, int y2)
+static int GetDirection16(int x1, int y1, int x2, int y2)
 {
 	int mx, my, md;
 
@@ -370,7 +370,7 @@ void DeleteMissile(int mi, int idx)
 		missileactive[idx] = missileactive[nummissiles];
 }
 
-void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
+static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 {
 	double dxp, dyp, dr;
 
@@ -386,7 +386,7 @@ void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 	}
 }
 
-void PutMissile(int mi)
+static void PutMissile(int mi)
 {
 	int x, y;
 
@@ -405,7 +405,7 @@ void PutMissile(int mi)
 	}
 }
 
-void GetMissilePos(int mi)
+static void GetMissilePos(int mi)
 {
 	MissileStruct *mis;
 	int mx, my, dx, dy, lx, ly;
@@ -436,7 +436,7 @@ void GetMissilePos(int mi)
 	ChangeLightOff(mis->_mlid, lx - (dx * 8), ly - (dy * 8));
 }
 
-void MoveMissilePos(int mi)
+static void MoveMissilePos(int mi)
 {
 	MissileStruct *mis;
 	int dx, dy, x, y;
@@ -486,7 +486,7 @@ void MoveMissilePos(int mi)
 	}
 }
 
-BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
+static BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
 {
 	switch (missiledata[mitype].mResist) {
 	case MISR_FIRE:
@@ -579,7 +579,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	return TRUE;
 }
 
-BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
+static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
@@ -831,7 +831,7 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 	return TRUE;
 }
 
-BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
+static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
 	int tac, resper, dam, blk, blkper, hper, hit;
@@ -936,7 +936,7 @@ BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mityp
 	return TRUE;
 }
 
-void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
+static void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
 {
 	MissileStruct *mis;
 	MissileData *mds;
@@ -1131,7 +1131,7 @@ void InitMissileGFX()
 	}
 }
 
-void FreeMissileGFX(int midx)
+static void FreeMissileGFX(int midx)
 {
 	MisFileData *mfd;
 	int i;
@@ -2302,7 +2302,7 @@ void AddWeapexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_mirange = mis->_miAnimLen - 1;
 }
 
-BOOL CheckIfTrig(int x, int y)
+static BOOL CheckIfTrig(int x, int y)
 {
 	int i;
 
@@ -3377,7 +3377,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	return mi;
 }
 
-BOOL Sentfire(int mi, int sx, int sy)
+static BOOL Sentfire(int mi, int sx, int sy)
 {
 	MissileStruct *mis;
 	int dir;
@@ -4560,7 +4560,7 @@ void MI_Flash2(int mi)
 	PutMissile(mi);
 }
 
-void MI_Manashield(int mi)
+static void MI_Manashield(int mi)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;

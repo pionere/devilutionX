@@ -2989,7 +2989,7 @@ static void L2DirtFix()
 	}
 }
 
-void L2LockoutFix()
+static void L2LockoutFix()
 {
 	int i, j;
 	BOOL doorok;
@@ -3052,7 +3052,7 @@ void L2LockoutFix()
 	}
 }
 
-void L2DoorFix()
+static void L2DoorFix()
 {
 	int i, j;
 

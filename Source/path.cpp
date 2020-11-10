@@ -114,7 +114,7 @@ int path_get_h_cost(int sx, int sy, int dx, int dy)
  * of sqrt(2). That's approximately 1.5, so they multiply all step costs by 2,
  * except diagonal steps which are times 3
  */
-int path_check_equal(PATHNODE *pPath, int dx, int dy)
+static int path_check_equal(PATHNODE *pPath, int dx, int dy)
 {
 	if (pPath->x == dx || pPath->y == dy)
 		return 2;

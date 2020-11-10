@@ -373,7 +373,7 @@ void Make_SetPC(int x, int y, int w, int h)
 	}
 }
 
-BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
+static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
 {
 	int ii, xx, yy;
 	int xSmallest, ySmallest;
@@ -458,7 +458,7 @@ BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, in
 	return TRUE;
 }
 
-void DRLG_CreateThemeRoom(int themeIndex)
+static void DRLG_CreateThemeRoom(int themeIndex)
 {
 	int xx, yy;
 	const int lx = themeLoc[themeIndex].x;

@@ -480,7 +480,7 @@ BYTE byte_49463C[18][18] = {
 /** RadiusAdj maps from vCrawlTable index to lighting vision radius adjustment. */
 BYTE RadiusAdj[23] = { 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 4, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0 };
 
-void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
+static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
 {
 	int swap;
 
@@ -636,7 +636,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	}
 }
 
-void DoUnLight(int nXPos, int nYPos, int nRadius)
+static void DoUnLight(int nXPos, int nYPos, int nRadius)
 {
 	int x, y, min_x, min_y, max_x, max_y;
 

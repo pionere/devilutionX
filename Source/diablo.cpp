@@ -1468,7 +1468,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	MainWndProc(hWnd, uMsg, wParam, lParam);
 }
 
-void LoadLvlGFX()
+static void LoadLvlGFX()
 {
 	assert(! pDungeonCels);
 
@@ -1533,7 +1533,7 @@ void LoadLvlGFX()
 	}
 }
 
-void LoadAllGFX()
+static void LoadAllGFX()
 {
 	IncProgress();
 	IncProgress();
@@ -1546,7 +1546,7 @@ void LoadAllGFX()
 /**
  * @param lvldir method of entry
  */
-void CreateLevel(int lvldir)
+static void CreateLevel(int lvldir)
 {
 	switch (leveltype) {
 	case DTYPE_TOWN:

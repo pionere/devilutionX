@@ -1810,7 +1810,7 @@ void AddFenceDoors()
 	}
 }
 
-void FenceDoorFix()
+static void FenceDoorFix()
 {
 	int i, j;
 	BYTE bv0, bv1;
@@ -2097,7 +2097,7 @@ static BOOL DRLG_L3Anvil()
 	return TRUE;
 }
 
-void FixL3Warp()
+static void FixL3Warp()
 {
 	int i, j;
 
@@ -2117,7 +2117,7 @@ void FixL3Warp()
 	}
 }
 
-void FixL3HallofHeroes()
+static void FixL3HallofHeroes()
 {
 	int i, j;
 
@@ -2145,7 +2145,7 @@ void FixL3HallofHeroes()
 	}
 }
 
-void DRLG_L3LockRec(int x, int y)
+static void DRLG_L3LockRec(int x, int y)
 {
 	if (!lockout[x][y]) {
 		return;
@@ -2159,7 +2159,7 @@ void DRLG_L3LockRec(int x, int y)
 	DRLG_L3LockRec(x + 1, y);
 }
 
-BOOL DRLG_L3Lockout()
+static BOOL DRLG_L3Lockout()
 {
 	int i, j, t, fx, fy;
 

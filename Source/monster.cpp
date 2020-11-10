@@ -131,7 +131,7 @@ void (*AiProc[])(int i) = {
 #endif
 };
 
-void InitMonsterTRN(int midx, BOOL special)
+static void InitMonsterTRN(int midx, BOOL special)
 {
 	CMonster *cmon;
 	BYTE *f;
@@ -182,7 +182,7 @@ void InitLevelMonsters()
 	uniquetrans = 0;
 }
 
-int AddMonsterType(int type, int placeflag)
+static int AddMonsterType(int type, int placeflag)
 {
 	int i;
 
@@ -441,7 +441,7 @@ void InitMonsterGFX(int midx)
 	}
 }
 
-void ClearMVars(int mnum)
+static void ClearMVars(int mnum)
 {
 	monster[mnum]._mVar1 = 0;
 	monster[mnum]._mVar2 = 0;
@@ -578,7 +578,7 @@ void ClrAllMonsters()
 	}
 }
 
-BOOL MonstPlace(int xp, int yp)
+static BOOL MonstPlace(int xp, int yp)
 {
 	if (IN_DUNGEON_AREA(xp, yp)) {
 		return (dMonster[xp][yp] | dPlayer[xp][yp] | nSolidTable[dPiece[xp][yp]]
@@ -604,7 +604,7 @@ void monster_some_crypt()
 	}
 }
 
-void PlaceMonster(int mnum, int mtype, int x, int y)
+static void PlaceMonster(int mnum, int mtype, int x, int y)
 {
 	int dir;
 
@@ -621,7 +621,7 @@ void PlaceMonster(int mnum, int mtype, int x, int y)
 	InitMonster(mnum, dir, mtype, x, y);
 }
 
-void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
+static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 {
 	int xp, yp, x, y, i;
 	int uniqtype;
@@ -879,7 +879,7 @@ static void PlaceUniques()
 	}
 }
 
-void PlaceQuestMonsters()
+static void PlaceQuestMonsters()
 {
 	int skeltype;
 	BYTE *setp;
@@ -1037,7 +1037,7 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 	}
 }
 
-void LoadDiabMonsts()
+static void LoadDiabMonsts()
 {
 	BYTE *lpSetPiece;
 
@@ -1232,7 +1232,7 @@ void monster_43C785(int mnum)
 }
 #endif
 
-void NewMonsterAnim(int mnum, AnimStruct *anim, int md)
+static void NewMonsterAnim(int mnum, AnimStruct *anim, int md)
 {
 	MonsterStruct *mon = &monster[mnum];
 
@@ -1245,7 +1245,7 @@ void NewMonsterAnim(int mnum, AnimStruct *anim, int md)
 	mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_ALLOW_SPECIAL);
 }
 
-BOOL MonRanged(int mnum)
+static BOOL MonRanged(int mnum)
 {
 	char ai = monster[mnum]._mAi;
 	return ai == AI_SKELBOW || ai == AI_GOATBOW || ai == AI_SUCC || ai == AI_LAZHELP;
@@ -1263,7 +1263,7 @@ BOOL MonTalker(int mnum)
 	    || ai == AI_LAZHELP;
 }
 
-void MonEnemy(int mnum)
+static void MonEnemy(int mnum)
 {
 	int i, tnum;
 	int enemy, dist, best_dist;
@@ -1329,7 +1329,7 @@ void MonEnemy(int mnum)
 	}
 }
 
-int MonGetDir(int mnum)
+static int MonGetDir(int mnum)
 {
 	return GetDirection(monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy);
 }
@@ -1359,7 +1359,7 @@ void MonStartStand(int mnum, int md)
 	MonEnemy(mnum);
 }
 
-void MonStartDelay(int mnum, int len)
+static void MonStartDelay(int mnum, int len)
 {
 	if (len <= 0) {
 		return;
@@ -1371,7 +1371,7 @@ void MonStartDelay(int mnum, int len)
 	}
 }
 
-void MonStartSpStand(int mnum, int md)
+static void MonStartSpStand(int mnum, int md)
 {
 	MonsterStruct *mon = &monster[mnum];
 
@@ -1383,7 +1383,7 @@ void MonStartSpStand(int mnum, int md)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
+static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
 {
 	MonsterStruct *mon = &monster[mnum];
 	int mx, my;
@@ -1410,7 +1410,7 @@ void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
 	mon->_mVar8 = 0;
 }
 
-void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir)
+static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir)
 {
 	MonsterStruct *mon = &monster[mnum];
 	int mx, my;
@@ -1444,7 +1444,7 @@ void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, i
 	mon->_mVar8 = 0;
 }
 
-void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir)
+static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir)
 {
 	MonsterStruct *mon = &monster[mnum];
 	int fx = xadd + mon->_mx;
@@ -1482,7 +1482,7 @@ void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, i
 	mon->_mVar8 = 0;
 }
 
-void MonStartAttack(int mnum)
+static void MonStartAttack(int mnum)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon = &monster[mnum];
@@ -1495,7 +1495,7 @@ void MonStartAttack(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonStartRAttack(int mnum, int mitype, int dam)
+static void MonStartRAttack(int mnum, int mitype, int dam)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon = &monster[mnum];
@@ -1510,7 +1510,7 @@ void MonStartRAttack(int mnum, int mitype, int dam)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonStartRSpAttack(int mnum, int mitype, int dam)
+static void MonStartRSpAttack(int mnum, int mitype, int dam)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon = &monster[mnum];
@@ -1526,7 +1526,7 @@ void MonStartRSpAttack(int mnum, int mitype, int dam)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonStartSpAttack(int mnum)
+static void MonStartSpAttack(int mnum)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon = &monster[mnum];
@@ -1539,7 +1539,7 @@ void MonStartSpAttack(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonStartEat(int mnum)
+static void MonStartEat(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
@@ -1646,7 +1646,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	}
 }
 
-void MonDiabloDeath(int mnum, BOOL sendmsg)
+static void MonDiabloDeath(int mnum, BOOL sendmsg)
 {
 	MonsterStruct *mon, *pmonster;
 	int dist;
@@ -1737,7 +1737,7 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 	SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);
 }
 
-void M2MStartHit(int defm, int offm, int dam)
+static void M2MStartHit(int defm, int offm, int dam)
 {
 	MonsterStruct *dmon;
 	if ((DWORD)defm >= MAXMONSTERS) {
@@ -1782,7 +1782,7 @@ void M2MStartHit(int defm, int offm, int dam)
 	}
 }
 
-void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
+static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 {
 	MonsterStruct *mon;
 
@@ -1842,7 +1842,7 @@ void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, 1, mnum, mon->_mint + 1, 0);
 }
 
-void M2MStartKill(int offm, int defm)
+static void M2MStartKill(int offm, int defm)
 {
 	MonsterStruct *dmon;
 	int md;
@@ -1954,7 +1954,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 #endif
 }
 
-void MonStartFadein(int mnum, int md, BOOL backwards)
+static void MonStartFadein(int mnum, int md, BOOL backwards)
 {
 	MonsterStruct *mon;
 
@@ -1985,7 +1985,7 @@ void MonStartFadein(int mnum, int md, BOOL backwards)
 	}
 }
 
-void MonStartFadeout(int mnum, int md, BOOL backwards)
+static void MonStartFadeout(int mnum, int md, BOOL backwards)
 {
 	MonsterStruct *mon;
 
@@ -2015,7 +2015,7 @@ void MonStartFadeout(int mnum, int md, BOOL backwards)
 	}
 }
 
-void MonStartHeal(int mnum)
+static void MonStartHeal(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2040,7 +2040,7 @@ void MonStartHeal(int mnum)
 	mon->_mVar1 = mon->_mmaxhp / (16 * (random_(97, 5) + 4));
 }
 
-void MonChangeLightOffset(int mnum)
+static void MonChangeLightOffset(int mnum)
 {
 	MonsterStruct *mon;
 	int lx, ly, _mxoff, _myoff, sign;
@@ -2480,7 +2480,7 @@ BOOL MonDoAttack(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoRAttack(int mnum)
+static BOOL MonDoRAttack(int mnum)
 {
 	MonsterStruct *mon;
 	int multimissiles, i;
@@ -2524,7 +2524,7 @@ BOOL MonDoRAttack(int mnum)
 	return FALSE;
 }
 
-int MonDoRSpAttack(int mnum)
+static int MonDoRSpAttack(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2569,7 +2569,7 @@ int MonDoRSpAttack(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoSAttack(int mnum)
+static BOOL MonDoSAttack(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2592,7 +2592,7 @@ BOOL MonDoSAttack(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoFadein(int mnum)
+static BOOL MonDoFadein(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2611,7 +2611,7 @@ BOOL MonDoFadein(int mnum)
 	return TRUE;
 }
 
-BOOL MonDoFadeout(int mnum)
+static BOOL MonDoFadeout(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2633,7 +2633,7 @@ BOOL MonDoFadeout(int mnum)
 	return TRUE;
 }
 
-int MonDoHeal(int mnum)
+static int MonDoHeal(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2660,7 +2660,7 @@ int MonDoHeal(int mnum)
 	return FALSE;
 }
 
-int MonDoTalk(int mnum)
+static int MonDoTalk(int mnum)
 {
 	MonsterStruct *mon;
 	int tren;
@@ -2889,7 +2889,7 @@ void PrepDoEnding()
 	}
 }
 
-BOOL MonDoDeath(int mnum)
+static BOOL MonDoDeath(int mnum)
 {
 	MonsterStruct *mon;
 	int x, y;
@@ -2940,7 +2940,7 @@ BOOL MonDoDeath(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoSpStand(int mnum)
+static BOOL MonDoSpStand(int mnum)
 {
 	MonsterStruct *mon;
 	if ((DWORD)mnum >= MAXMONSTERS)
@@ -2968,7 +2968,7 @@ BOOL MonDoSpStand(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoDelay(int mnum)
+static BOOL MonDoDelay(int mnum)
 {
 	MonsterStruct *mon;
 	int mVar2, oFrame;
@@ -3005,7 +3005,7 @@ BOOL MonDoDelay(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoStone(int mnum)
+static BOOL MonDoStone(int mnum)
 {
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
@@ -3062,7 +3062,7 @@ void MonWalkDir(int mnum, int md)
 	}
 }
 
-void GroupUnity(int mnum)
+static void GroupUnity(int mnum)
 {
 	MonsterStruct *mon, *leader, *bmon;
 	int i;
@@ -3126,7 +3126,7 @@ void GroupUnity(int mnum)
 	}
 }
 
-BOOL MonCallWalk(int mnum, int md)
+static BOOL MonCallWalk(int mnum, int md)
 {
 	int mdtemp;
 	BOOL ok;
@@ -3150,7 +3150,7 @@ BOOL MonCallWalk(int mnum, int md)
 	return ok;
 }
 
-BOOL MonPathWalk(int mnum)
+static BOOL MonPathWalk(int mnum)
 {
 	char path[MAX_PATH_LENGTH];
 	BOOL(*Check)
@@ -3175,7 +3175,7 @@ BOOL MonPathWalk(int mnum)
 	return FALSE;
 }
 
-BOOL MonCallWalk2(int mnum, int md)
+static BOOL MonCallWalk2(int mnum, int md)
 {
 	BOOL ok;
 	int mdtemp;
@@ -3194,7 +3194,7 @@ BOOL MonCallWalk2(int mnum, int md)
 	return ok;
 }
 
-BOOL MonDumbWalk(int mnum, int md)
+static BOOL MonDumbWalk(int mnum, int md)
 {
 	BOOL ok;
 	ok = DirOK(mnum, md);
@@ -3204,7 +3204,7 @@ BOOL MonDumbWalk(int mnum, int md)
 	return ok;
 }
 
-BOOL MonRoundWalk(int mnum, int md, int *dir)
+static BOOL MonRoundWalk(int mnum, int md, int *dir)
 {
 	int mdtemp;
 	BOOL ok;
@@ -3320,7 +3320,7 @@ void MAI_SkelSd(int mnum)
 		mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[md];
 }
 
-BOOL MAI_Path(int mnum)
+static BOOL MAI_Path(int mnum)
 {
 	MonsterStruct *mon;
 	BOOL clear;
@@ -4230,7 +4230,7 @@ void MAI_Diablo(int mnum)
 	MAI_RoundRanged(mnum, MIS_DIABAPOCA, FALSE, 40, 0);
 }
 
-void MAI_RR2(int mnum, int mitype, int dam)
+static void MAI_RR2(int mnum, int mitype, int dam)
 {
 	MonsterStruct *mon;
 	int mx, my, fx, fy;
@@ -5796,7 +5796,7 @@ int MonSpawnSkel(int x, int y, int dir)
 	return -1;
 }
 
-void ActivateSpawn(int mnum, int x, int y, int dir)
+static void ActivateSpawn(int mnum, int x, int y, int dir)
 {
 	dMonster[x][y] = mnum + 1;
 	monster[mnum]._mx = x;

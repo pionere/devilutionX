@@ -238,7 +238,7 @@ static void scrollrt_draw_cursor_item()
  * @param sy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
+static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 {
 	int mx, my, nCel, frames;
 	BYTE *pCelBuff;

@@ -325,7 +325,7 @@ void InitVPTriggers()
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
-BOOL ForceTownTrig()
+static BOOL ForceTownTrig()
 {
 	int i, j, k, l;
 
@@ -393,7 +393,7 @@ BOOL ForceTownTrig()
 	return FALSE;
 }
 
-BOOL ForceL1Trig()
+static BOOL ForceL1Trig()
 {
 	int i, j;
 #ifdef HELLFIRE
@@ -479,7 +479,7 @@ BOOL ForceL1Trig()
 	return FALSE;
 }
 
-BOOL ForceL2Trig()
+static BOOL ForceL2Trig()
 {
 	int i, j, dx, dy;
 
@@ -535,7 +535,7 @@ BOOL ForceL2Trig()
 	return FALSE;
 }
 
-BOOL ForceL3Trig()
+static BOOL ForceL3Trig()
 {
 	int i, j, dx, dy;
 
@@ -637,7 +637,7 @@ BOOL ForceL3Trig()
 	return FALSE;
 }
 
-BOOL ForceL4Trig()
+static BOOL ForceL4Trig()
 {
 	int i, j, dx, dy;
 
@@ -720,7 +720,7 @@ void Freeupstairs()
 	}
 }
 
-BOOL ForceSKingTrig()
+static BOOL ForceSKingTrig()
 {
 	int i;
 
@@ -737,7 +737,7 @@ BOOL ForceSKingTrig()
 	return FALSE;
 }
 
-BOOL ForceSChambTrig()
+static BOOL ForceSChambTrig()
 {
 	int i;
 
@@ -754,7 +754,7 @@ BOOL ForceSChambTrig()
 	return FALSE;
 }
 
-BOOL ForcePWaterTrig()
+static BOOL ForcePWaterTrig()
 {
 	int i;
 

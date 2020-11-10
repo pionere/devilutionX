@@ -85,7 +85,7 @@ int ObjIndex(int x, int y)
 	return -1;
 }
 
-void AddSKingObjs()
+static void AddSKingObjs()
 {
 	SetObjMapRange(ObjIndex(64, 34), 20, 7, 23, 10, 1);
 	SetObjMapRange(ObjIndex(64, 59), 20, 14, 21, 16, 2);
@@ -95,20 +95,20 @@ void AddSKingObjs()
 	SetObjMapRange(ObjIndex(27, 53), 8, 1, 15, 11, 3);
 }
 
-void AddSChamObjs()
+static void AddSChamObjs()
 {
 	SetObjMapRange(ObjIndex(37, 30), 17, 0, 21, 5, 1);
 	SetObjMapRange(ObjIndex(37, 46), 13, 0, 16, 5, 2);
 }
 
-void AddVileObjs()
+static void AddVileObjs()
 {
 	SetObjMapRange(ObjIndex(26, 45), 1, 1, 9, 10, 1);
 	SetObjMapRange(ObjIndex(45, 46), 11, 1, 20, 10, 2);
 	SetObjMapRange(ObjIndex(35, 36), 7, 11, 13, 18, 3);
 }
 
-void DRLG_SetMapTrans(const char *sFileName)
+static void DRLG_SetMapTrans(const char *sFileName)
 {
 	int x, y;
 	int i, j;

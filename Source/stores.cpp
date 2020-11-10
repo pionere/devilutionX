@@ -115,7 +115,7 @@ void FreeStoreMem()
 	MemFreeDbg(pSTextSlidCels);
 }
 
-void DrawSTextBack()
+static void DrawSTextBack()
 {
 	CelDraw(PANEL_X + 344, 327 + SCREEN_Y + UI_OFFSET_Y, pSTextBoxCels, 1, 271);
 	trans_rect(PANEL_LEFT + 347, UI_OFFSET_Y + 28, 265, 297);
@@ -205,7 +205,7 @@ void DrawSLine(int y)
 		memcpy(dst, src, BUFFER_WIDTH - line);
 }
 
-void DrawSSlider(int y1, int y2)
+static void DrawSSlider(int y1, int y2)
 {
 	int yd1, yd2, yd3;
 
@@ -256,7 +256,7 @@ void ClearSText(int s, int e)
 	}
 }
 
-void AddSLine(int y)
+static void AddSLine(int y)
 {
 	stext[y]._sx = 0;
 	stext[y]._syoff = 0;
@@ -264,17 +264,17 @@ void AddSLine(int y)
 	stext[y]._sline = TRUE;
 }
 
-void AddSTextVal(int y, int val)
+static void AddSTextVal(int y, int val)
 {
 	stext[y]._sval = val;
 }
 
-void OffsetSTextY(int y, int yo)
+static void OffsetSTextY(int y, int yo)
 {
 	stext[y]._syoff = yo;
 }
 
-void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
+static void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
 {
 	stext[y]._sx = x;
 	stext[y]._syoff = 0;
@@ -344,7 +344,7 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 		AddSText(40, l, FALSE, "Unique Item", iclr, FALSE);
 }
 
-void AddStoreFrame(const char* title, BOOL backSel)
+static void AddStoreFrame(const char* title, BOOL backSel)
 {
 	AddSText(0, 1, TRUE, title, COL_GOLD, FALSE);
 	AddSLine(3);
@@ -353,7 +353,7 @@ void AddStoreFrame(const char* title, BOOL backSel)
 	OffsetSTextY(22, 6);
 }
 
-void S_StartSmith()
+static void S_StartSmith()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -370,7 +370,7 @@ void S_StartSmith()
 	storenumh = 20;
 }
 
-char StoreItemColor(ItemStruct *is)
+static char StoreItemColor(ItemStruct *is)
 {
 	if (!is->_iStatFlag)
 		return COL_RED;
@@ -379,7 +379,7 @@ char StoreItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-void S_ScrollSBuy()
+static void S_ScrollSBuy()
 {
 	ItemStruct *is;
 	int l;
@@ -414,7 +414,7 @@ void S_ScrollSBuy()
 		stextsmax = 0;
 }
 
-void S_StartSBuy()
+static void S_StartSBuy()
 {
 	int i;
 
@@ -431,7 +431,7 @@ void S_StartSBuy()
 	AddStoreFrame(tempstr, FALSE);
 }
 
-void S_ScrollSPBuy()
+static void S_ScrollSPBuy()
 {
 	ItemStruct* is;
 	int idx, l, boughtitems;
@@ -466,7 +466,7 @@ void S_ScrollSPBuy()
 		stextsmax = 0;
 }
 
-BOOL S_StartSPBuy()
+static BOOL S_StartSPBuy()
 {
 	int i;
 
@@ -491,7 +491,7 @@ BOOL S_StartSPBuy()
 	return TRUE;
 }
 
-void AddStoreSell(ItemStruct *is, int i)
+static void AddStoreSell(ItemStruct *is, int i)
 {
 	storehold[storenumh] = *is;
 
@@ -506,7 +506,7 @@ void AddStoreSell(ItemStruct *is, int i)
 	storehidx[storenumh++] = i;
 }
 
-BOOL SmithSellOk(const ItemStruct *is)
+static BOOL SmithSellOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
 		&& is->_itype != ITYPE_MISC
@@ -516,7 +516,7 @@ BOOL SmithSellOk(const ItemStruct *is)
 		&& is->IDidx != IDI_LAZSTAFF;
 }
 
-void S_ScrollSSell()
+static void S_ScrollSSell()
 {
 	ItemStruct* is;
 	int idx, l;
@@ -552,7 +552,7 @@ void S_ScrollSSell()
 		stextsmax = 0;
 }
 
-void S_StartSSell()
+static void S_StartSSell()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -587,7 +587,7 @@ void S_StartSSell()
 	AddStoreFrame(tempstr, TRUE);
 }
 
-BOOL SmithRepairOk(const ItemStruct *is)
+static BOOL SmithRepairOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
 		&& is->_itype != ITYPE_MISC
@@ -619,7 +619,7 @@ static void AddStoreHoldRepair(const ItemStruct *is, int i)
 	storenumh++;
 }
 
-void S_StartSRepair()
+static void S_StartSRepair()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -652,7 +652,7 @@ void S_StartSRepair()
 	AddStoreFrame(tempstr, TRUE);
 }
 
-void S_StartWitch()
+static void S_StartWitch()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -667,7 +667,7 @@ void S_StartWitch()
 	storenumh = 20;
 }
 
-void S_ScrollWBuy()
+static void S_ScrollWBuy()
 {
 	ItemStruct *is;
 	int l;
@@ -703,7 +703,7 @@ void S_ScrollWBuy()
 		stextsmax = 0;
 }
 
-void S_StartWBuy()
+static void S_StartWBuy()
 {
 	int i;
 
@@ -720,14 +720,14 @@ void S_StartWBuy()
 	AddStoreFrame(tempstr, FALSE);
 }
 
-BOOL WitchSellOk(const ItemStruct *is)
+static BOOL WitchSellOk(const ItemStruct *is)
 {
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
 		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
 		&& is->IDidx != IDI_LAZSTAFF;
 }
 
-void S_StartWSell()
+static void S_StartWSell()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -760,12 +760,12 @@ void S_StartWSell()
 	AddStoreFrame(tempstr, TRUE);
 }
 
-BOOL WitchRechargeOk(const ItemStruct *is)
+static BOOL WitchRechargeOk(const ItemStruct *is)
 {
 	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
 }
 
-void AddStoreHoldRecharge(const ItemStruct *is, int i)
+static void AddStoreHoldRecharge(const ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
@@ -778,7 +778,7 @@ void AddStoreHoldRecharge(const ItemStruct *is, int i)
 	storenumh++;
 }
 
-void S_StartWRecharge()
+static void S_StartWRecharge()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -811,7 +811,7 @@ void S_StartWRecharge()
 	AddStoreFrame(tempstr, TRUE);
 }
 
-void S_StartNoMoney()
+static void S_StartNoMoney()
 {
 	StartStore(stextshold);
 	stextscrl = FALSE;
@@ -820,7 +820,7 @@ void S_StartNoMoney()
 	AddSText(0, 14, TRUE, "You do not have enough gold", COL_WHITE, TRUE);
 }
 
-void S_StartNoRoom()
+static void S_StartNoRoom()
 {
 	StartStore(stextshold);
 	stextscrl = FALSE;
@@ -828,7 +828,7 @@ void S_StartNoRoom()
 	AddSText(0, 14, TRUE, "You do not have enough room in inventory", COL_WHITE, TRUE);
 }
 
-void S_StartConfirm()
+static void S_StartConfirm()
 {
 	BOOL idprint;
 	char iclr;
@@ -889,7 +889,7 @@ void S_StartConfirm()
 	AddSText(0, 20, TRUE, "No", COL_WHITE, TRUE);
 }
 
-void S_StartBoy()
+static void S_StartBoy()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -908,7 +908,7 @@ void S_StartBoy()
 	}
 }
 
-void S_StartBBoy()
+static void S_StartBBoy()
 {
 	int iclr;
 
@@ -937,7 +937,7 @@ void S_StartBBoy()
 	OffsetSTextY(22, 6);
 }
 
-void S_StartHealer()
+static void S_StartHealer()
 {
 #ifdef HELLFIRE
 	if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
@@ -965,7 +965,7 @@ void S_StartHealer()
 	storenumh = 20;
 }
 
-void S_ScrollHBuy()
+static void S_ScrollHBuy()
 {
 	ItemStruct* is;
 	int l;
@@ -995,7 +995,7 @@ void S_ScrollHBuy()
 		stextsmax = 0;
 }
 
-void S_StartHBuy()
+static void S_StartHBuy()
 {
 	int i;
 
@@ -1012,7 +1012,7 @@ void S_StartHBuy()
 	AddStoreFrame(tempstr, FALSE);
 }
 
-void S_StartStory()
+static void S_StartStory()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -1024,14 +1024,14 @@ void S_StartStory()
 	AddSLine(5);
 }
 
-BOOL IdItemOk(const ItemStruct *is)
+static BOOL IdItemOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
 		&& is->_iMagical != ITEM_QUALITY_NORMAL
 		&& !is->_iIdentified;
 }
 
-void AddStoreHoldId(const ItemStruct *is, int i)
+static void AddStoreHoldId(const ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
@@ -1043,7 +1043,7 @@ void AddStoreHoldId(const ItemStruct *is, int i)
 	storenumh++;
 }
 
-void S_StartSIdentify()
+static void S_StartSIdentify()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -1076,7 +1076,7 @@ void S_StartSIdentify()
 	AddStoreFrame(tempstr, TRUE);
 }
 
-void S_StartIdShow()
+static void S_StartIdShow()
 {
 	char iclr;
 
@@ -1092,7 +1092,7 @@ void S_StartIdShow()
 	AddSText(0, 18, TRUE, "Done", COL_WHITE, TRUE);
 }
 
-void S_StartTalk()
+static void S_StartTalk()
 {
 	int i, sn, sn2, la;
 
@@ -1136,7 +1136,7 @@ void S_StartTalk()
 	AddSText(0, 22, TRUE, "Back", COL_WHITE, TRUE);
 }
 
-void S_StartTavern()
+static void S_StartTavern()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -1149,7 +1149,7 @@ void S_StartTavern()
 	storenumh = 20;
 }
 
-void S_StartBarMaid()
+static void S_StartBarMaid()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -1161,7 +1161,7 @@ void S_StartBarMaid()
 	storenumh = 20;
 }
 
-void S_StartDrunk()
+static void S_StartDrunk()
 {
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -1459,7 +1459,7 @@ void STextNext()
 	}
 }
 
-void S_SmithEnter()
+static void S_SmithEnter()
 {
 	switch (stextsel) {
 	case 10:
@@ -1563,7 +1563,7 @@ static BOOL StoreAutoPlace(BOOL saveflag)
 		|| AutoPlaceInv(myplr, &plr[myplr].HoldItem, saveflag);
 }
 
-void SmithBuyItem()
+static void SmithBuyItem()
 {
 	int idx;
 
@@ -1582,7 +1582,7 @@ void SmithBuyItem()
 	}
 }
 
-void S_SBuyEnter()
+static void S_SBuyEnter()
 {
 	int idx, i;
 
@@ -1606,7 +1606,7 @@ void S_SBuyEnter()
 	}
 }
 
-void SmithBuyPItem()
+static void SmithBuyPItem()
 {
 	int i, xx, idx;
 
@@ -1629,7 +1629,7 @@ void SmithBuyPItem()
 	SpawnPremium(plr[myplr]._pLevel);
 }
 
-void S_SPBuyEnter()
+static void S_SPBuyEnter()
 {
 	int i, idx, xx;
 
@@ -1660,7 +1660,7 @@ void S_SPBuyEnter()
 	}
 }
 
-BOOL StoreGoldFit(int idx)
+static BOOL StoreGoldFit(int idx)
 {
 	ItemStruct *pi;
 	int i, cost, numsqrs;
@@ -1690,7 +1690,7 @@ BOOL StoreGoldFit(int idx)
 	return FALSE;
 }
 
-void PlaceStoreGold(int v)
+static void PlaceStoreGold(int v)
 {
 	PlayerStruct *p;
 	int ii, i;
@@ -1709,7 +1709,7 @@ void PlaceStoreGold(int v)
 	}
 }
 
-void StoreSellItem()
+static void StoreSellItem()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -1753,7 +1753,7 @@ void StoreSellItem()
 	}
 }
 
-void S_SSellEnter()
+static void S_SSellEnter()
 {
 	int idx;
 
@@ -1774,7 +1774,7 @@ void S_SSellEnter()
 	}
 }
 
-void SmithRepairItem()
+static void SmithRepairItem()
 {
 	ItemStruct *pi;
 	int i, idx;
@@ -1793,7 +1793,7 @@ void SmithRepairItem()
 	pi->_iDurability = pi->_iMaxDur;
 }
 
-void S_SRepairEnter()
+static void S_SRepairEnter()
 {
 	int idx;
 
@@ -1813,7 +1813,7 @@ void S_SRepairEnter()
 	}
 }
 
-void S_WitchEnter()
+static void S_WitchEnter()
 {
 	switch (stextsel) {
 	case 12:
@@ -1839,7 +1839,7 @@ void S_WitchEnter()
 	}
 }
 
-void WitchBuyItem()
+static void WitchBuyItem()
 {
 	int idx;
 
@@ -1863,7 +1863,7 @@ void WitchBuyItem()
 	}
 }
 
-void S_WBuyEnter()
+static void S_WBuyEnter()
 {
 	int i, idx;
 
@@ -1888,7 +1888,7 @@ void S_WBuyEnter()
 	}
 }
 
-void S_WSellEnter()
+static void S_WSellEnter()
 {
 	int idx;
 
@@ -1908,7 +1908,7 @@ void S_WSellEnter()
 	}
 }
 
-void WitchRechargeItem()
+static void WitchRechargeItem()
 {
 	ItemStruct *pi;
 	int i, idx;
@@ -1928,7 +1928,7 @@ void WitchRechargeItem()
 	CalcPlrInv(myplr, TRUE);
 }
 
-void S_WRechargeEnter()
+static void S_WRechargeEnter()
 {
 	int idx;
 
@@ -1948,7 +1948,7 @@ void S_WRechargeEnter()
 	}
 }
 
-void S_BoyEnter()
+static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE && stextsel == 18) {
 		if (plr[myplr]._pGold < 50) {
@@ -1972,7 +1972,7 @@ void S_BoyEnter()
 	}
 }
 
-void BoyBuyItem()
+static void BoyBuyItem()
 {
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	StoreAutoPlace(TRUE);
@@ -1980,7 +1980,7 @@ void BoyBuyItem()
 	stextshold = STORE_BOY;
 }
 
-void HealerBuyItem()
+static void HealerBuyItem()
 {
 	int idx;
 	BOOL infinite;
@@ -2009,7 +2009,7 @@ void HealerBuyItem()
 	}
 }
 
-void S_BBuyEnter()
+static void S_BBuyEnter()
 {
 	int i;
 
@@ -2040,7 +2040,7 @@ void S_BBuyEnter()
 	}
 }
 
-void StoryIdItem()
+static void StoryIdItem()
 {
 	int idx;
 
@@ -2055,7 +2055,7 @@ void StoryIdItem()
 	CalcPlrInv(myplr, TRUE);
 }
 
-void S_ConfirmEnter()
+static void S_ConfirmEnter()
 {
 	if (stextsel == 18) {
 		switch (stextshold) {
@@ -2097,7 +2097,7 @@ void S_ConfirmEnter()
 	}
 }
 
-void S_HealerEnter()
+static void S_HealerEnter()
 {
 	switch (stextsel) {
 	case 12:
@@ -2133,7 +2133,7 @@ void S_HealerEnter()
 	}
 }
 
-void S_HBuyEnter()
+static void S_HBuyEnter()
 {
 	int i, idx;
 
@@ -2157,7 +2157,7 @@ void S_HBuyEnter()
 	}
 }
 
-void S_StoryEnter()
+static void S_StoryEnter()
 {
 	switch (stextsel) {
 	case 12:
@@ -2177,7 +2177,7 @@ void S_StoryEnter()
 	}
 }
 
-void S_SIDEnter()
+static void S_SIDEnter()
 {
 	int idx;
 
@@ -2197,7 +2197,7 @@ void S_SIDEnter()
 	}
 }
 
-void S_TalkEnter()
+static void S_TalkEnter()
 {
 	int i, tq, sn, la;
 
@@ -2237,7 +2237,7 @@ void S_TalkEnter()
 	}
 }
 
-void S_TavernEnter()
+static void S_TavernEnter()
 {
 	switch (stextsel) {
 	case 12:
@@ -2254,7 +2254,7 @@ void S_TavernEnter()
 	}
 }
 
-void S_BarmaidEnter()
+static void S_BarmaidEnter()
 {
 	switch (stextsel) {
 	case 12:
@@ -2271,7 +2271,7 @@ void S_BarmaidEnter()
 	}
 }
 
-void S_DrunkEnter()
+static void S_DrunkEnter()
 {
 	switch (stextsel) {
 	case 12:
