@@ -1572,14 +1572,10 @@ static void SmithBuyItem()
 		plr[myplr].HoldItem._iIdentified = FALSE;
 	StoreAutoPlace(TRUE);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	if (idx == SMITH_ITEMS - 1) {
-		smithitem[SMITH_ITEMS - 1]._itype = ITYPE_NONE;
-	} else {
-		for (; smithitem[idx + 1]._itype != ITYPE_NONE; idx++) {
-			smithitem[idx] = smithitem[idx + 1];
-		}
-		smithitem[idx]._itype = ITYPE_NONE;
-	}
+	do {
+		smithitem[idx] = smithitem[idx + 1];
+		idx++;
+	} while (smithitem[idx]._itype != ITYPE_NONE);
 }
 
 static void S_SBuyEnter()
@@ -1852,14 +1848,10 @@ static void WitchBuyItem()
 	StoreAutoPlace(TRUE);
 
 	if (idx >= 3) {
-		if (idx == WITCH_ITEMS - 1) {
-			witchitem[WITCH_ITEMS - 1]._itype = ITYPE_NONE;
-		} else {
-			for (; witchitem[idx + 1]._itype != ITYPE_NONE; idx++) {
-				witchitem[idx] = witchitem[idx + 1];
-			}
-			witchitem[idx]._itype = ITYPE_NONE;
-		}
+		do {
+			witchitem[idx] = witchitem[idx + 1];
+			idx++;
+		} while (witchitem[idx]._itype != ITYPE_NONE);
 	}
 }
 
@@ -1998,15 +1990,10 @@ static void HealerBuyItem()
 	if (infinite)
 		return;
 
-	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	if (idx == 19) {
-		healitem[19]._itype = ITYPE_NONE;
-	} else {
-		for (; healitem[idx + 1]._itype != ITYPE_NONE; idx++) {
-			healitem[idx] = healitem[idx + 1];
-		}
-		healitem[idx]._itype = ITYPE_NONE;
-	}
+	do {
+		healitem[idx] = healitem[idx + 1];
+		idx++;
+	} while (healitem[idx]._itype != ITYPE_NONE);
 }
 
 static void S_BBuyEnter()
