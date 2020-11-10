@@ -2055,8 +2055,8 @@ void StripTopGold(int pnum)
 	p->_pGold = CalculateGold(pnum);
 	*holditem = tmpItem;
 }
-
 #endif
+
 void SyncPlrKill(int pnum, int earflag)
 {
 	MissileStruct *mis;
@@ -3239,7 +3239,7 @@ static void CheckNewPath(int pnum)
 
 					if (x < 2 && y < 2) {
 						ClrPlrPath(pnum);
-						if (monster[i].mtalkmsg && monster[i].mtalkmsg != TEXT_VILE14) {
+						if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
 							TalktoMonster(i);
 						} else {
 							StartAttack(pnum, d);

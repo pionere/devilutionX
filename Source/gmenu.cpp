@@ -176,7 +176,7 @@ static int gmenu_get_lfont(TMenuItem *pItem)
 		return 490;
 	text = pItem->pszStr;
 	i = 0;
-	while (*text) {
+	while (*text != '\0') {
 		c = gbFontTransTbl[(BYTE)*text++];
 		i += lfontkern[lfontframe[c]] + 2;
 	}
@@ -219,7 +219,7 @@ void gmenu_draw()
 #ifdef HELLFIRE
 		ticks = SDL_GetTicks();
 		if ((int)(ticks - LogoAnim_tick) > 25) {
-		    LogoAnim_frame++;
+			LogoAnim_frame++;
 			if (LogoAnim_frame > 16)
 				LogoAnim_frame = 1;
 			LogoAnim_tick = ticks;
@@ -231,8 +231,8 @@ void gmenu_draw()
 		CelDraw((SCREEN_WIDTH - LOGO_WIDTH) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, nCel, LOGO_WIDTH);
 		y = 160 + SCREEN_Y + UI_OFFSET_Y;
 		i = sgpCurrentMenu;
-		if (sgpCurrentMenu->fnMenu) {
-			while (i->fnMenu) {
+		if (sgpCurrentMenu->fnMenu != NULL) {
+			while (i->fnMenu != NULL) {
 				gmenu_draw_menu_item(i, y);
 				i++;
 				y += 45;

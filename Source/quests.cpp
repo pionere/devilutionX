@@ -759,7 +759,7 @@ static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
 		k += fontkern[c] + 1;
-		if (c && k <= 257) {
+		if (c != '\0' && k <= 257) {
 			PrintChar(sx, sy, c, col);
 		}
 		sx += fontkern[c] + 1;

@@ -1273,7 +1273,7 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		return;
 	}
 
-	if (!(pSFX->bFlags & (sfx_STREAM | sfx_MISC)) && pSFX->pSnd != 0 && snd_playing(pSFX->pSnd)) {
+	if (!(pSFX->bFlags & (sfx_STREAM | sfx_MISC)) && pSFX->pSnd != NULL && snd_playing(pSFX->pSnd)) {
 		return;
 	}
 
@@ -1301,12 +1301,12 @@ void PlayEffect(int mnum, int mode)
 	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
-	if (plr[myplr].pLvlLoad) {
+	if (plr[myplr].pLvlLoad != 0) {
 		return;
 	}
 
 	sndIdx = random_(164, 2);
-	if (!gbSndInited || !gbSoundOn || gbBufferMsgs) {
+	if (!gbSndInited || !gbSoundOn || gbBufferMsgs != 0) {
 		return;
 	}
 

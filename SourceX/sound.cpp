@@ -88,7 +88,7 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	SoundSample *DSB;
 	DWORD tc;
 
-	if (!pSnd || !gbSoundOn) {
+	if (pSnd == NULL || !gbSoundOn) {
 		return;
 	}
 

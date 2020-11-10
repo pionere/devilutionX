@@ -299,18 +299,18 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 		}
 		if (is->_iSufPower != -1) {
 			PrintItemPower(is->_iSufPower, is);
-			if (sstr[0])
+			if (sstr[0] != '\0')
 				strcat(sstr, ",  ");
 			strcat(sstr, tempstr);
 		}
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
 		sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
-		if (sstr[0])
+		if (sstr[0] != '\0')
 			strcat(sstr, ",  ");
 		strcat(sstr, tempstr);
 	}
-	if (sstr[0]) {
+	if (sstr[0] != '\0') {
 		AddSText(40, l, FALSE, sstr, iclr, FALSE);
 		l++;
 	}
@@ -331,11 +331,11 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 		strcat(sstr, "No required attributes");
 	} else {
 		strcpy(tempstr, "Required:");
-		if (is->_iMinStr)
+		if (is->_iMinStr != 0)
 			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
-		if (is->_iMinMag)
+		if (is->_iMinMag != 0)
 			sprintf(tempstr, "%s %i Mag", tempstr, is->_iMinMag);
-		if (is->_iMinDex)
+		if (is->_iMinDex != 0)
 			sprintf(tempstr, "%s %i Dex", tempstr, is->_iMinDex);
 		strcat(sstr, tempstr);
 	}

@@ -120,7 +120,7 @@ static void NetRecvPlrData(TPkt *pkt)
 
 void multi_msg_add(BYTE *pbMsg, BYTE bLen)
 {
-	if (pbMsg && bLen) {
+	if (pbMsg != NULL && bLen != 0) {
 		tmsg_add(pbMsg, bLen);
 	}
 }
@@ -138,7 +138,7 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
 {
-	if (pbMsg && bLen) {
+	if (pbMsg != NULL && bLen != 0) {
 		multi_copy_packet(&sgLoPriBuf, pbMsg, bLen);
 		multi_send_packet(pbMsg, bLen);
 	}
@@ -152,7 +152,7 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 	TPkt pkt;
 	int size;
 
-	if (pbMsg && bLen) {
+	if (pbMsg != NULL && bLen != 0) {
 		multi_copy_packet(&sgHiPriBuf, pbMsg, bLen);
 		multi_send_packet(pbMsg, bLen);
 	}
@@ -651,7 +651,7 @@ static BOOL multi_upgrade(BOOL *pfExitProgram)
 
 	SNetPerformUpgrade((LPDWORD)&status);
 	result = TRUE;
-	if (status && status != 1) {
+	if (status != 0 && status != 1) {
 		if (status != 2) {
 			if (status == -1) {
 				DrawDlg("Network upgrade failed");

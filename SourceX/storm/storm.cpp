@@ -50,7 +50,7 @@ BOOL SFileDdaBeginEx(HANDLE hFile, DWORD flags, DWORD mask, unsigned __int32 lDi
 		SDL_Log(SDL_GetError());
 		return false;
 	}
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		SFileDdaEnd(hFile);
 		SFileFreeChunk();
 	}
@@ -67,7 +67,7 @@ BOOL SFileDdaBeginEx(HANDLE hFile, DWORD flags, DWORD mask, unsigned __int32 lDi
 
 void SFileFreeChunk()
 {
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		Mix_FreeChunk(SFileChunk);
 		SFileChunk = NULL;
 	}
@@ -75,7 +75,7 @@ void SFileFreeChunk()
 
 BOOL SFileDdaDestroy()
 {
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		Mix_FreeChunk(SFileChunk);
 		SFileChunk = NULL;
 	}
@@ -171,14 +171,14 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 		result = SFileOpenFileEx((HANDLE)hellfire_mpq, filename, 0, phFile);
 	}
 #endif
-	if (!result && patch_rt_mpq) {
+	if (!result && patch_rt_mpq != NULL) {
 		result = SFileOpenFileEx((HANDLE)patch_rt_mpq, filename, 0, phFile);
 	}
 	if (!result) {
 		result = SFileOpenFileEx((HANDLE)diabdat_mpq, filename, 0, phFile);
 	}
 
-	if (!result || !*phFile) {
+	if (!result || *phFile == NULL) {
 		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
 	}
 	return result;
@@ -193,22 +193,22 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	BYTE *dataPtr, *fileBuffer;
 	BYTE byte;
 
-	if (pdwWidth)
+	if (pdwWidth != NULL)
 		*pdwWidth = 0;
-	if (dwHeight)
+	if (dwHeight != NULL)
 		*dwHeight = 0;
-	if (pdwBpp)
+	if (pdwBpp != NULL)
 		*pdwBpp = 0;
 
-	if (!pszFileName || !*pszFileName) {
+	if (pszFileName == NULL || *pszFileName == '\0') {
 		return false;
 	}
 
-	if (pBuffer && !dwBuffersize) {
+	if (pBuffer != NULL && dwBuffersize == 0) {
 		return false;
 	}
 
-	if (!pPalette && !pBuffer && !pdwWidth && !dwHeight) {
+	if (pPalette == NULL && pBuffer == NULL && pdwWidth == NULL && dwHeight == NULL) {
 		return false;
 	}
 
@@ -216,14 +216,14 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		return false;
 	}
 
-	while (strchr(pszFileName, 92))
+	while (strchr(pszFileName, 92) != NULL)
 		pszFileName = strchr(pszFileName, 92) + 1;
 
-	while (strchr(pszFileName + 1, 46))
+	while (strchr(pszFileName + 1, 46) != NULL)
 		pszFileName = strchr(pszFileName, 46);
 
 	// omit all types except PCX
-	if (!pszFileName || strcasecmp(pszFileName, ".pcx")) {
+	if (pszFileName == NULL || strcasecmp(pszFileName, ".pcx")) {
 		return false;
 	}
 
@@ -242,14 +242,14 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	// than image width for efficiency.
 	const int x_skip = dwBuffersize / height - width;
 
-	if (pdwWidth)
+	if (pdwWidth != NULL)
 		*pdwWidth = width;
-	if (dwHeight)
+	if (dwHeight != NULL)
 		*dwHeight = height;
-	if (pdwBpp)
+	if (pdwBpp != NULL)
 		*pdwBpp = pcxhdr.BitsPerPixel;
 
-	if (!pBuffer) {
+	if (pBuffer == NULL) {
 		SFileSetFilePointer(hFile, 0, 0, 2);
 		fileBuffer = NULL;
 	} else {
@@ -257,7 +257,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		fileBuffer = (BYTE *)malloc(size);
 	}
 
-	if (fileBuffer) {
+	if (fileBuffer != NULL) {
 		SFileReadFile(hFile, fileBuffer, size, 0, 0);
 		dataPtr = fileBuffer;
 
@@ -285,7 +285,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		free(fileBuffer);
 	}
 
-	if (pPalette && pcxhdr.BitsPerPixel == 8) {
+	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
 		SFileSetFilePointer(hFile, -768, 0, 1);
 		SFileReadFile(hFile, paldata, 768, 0, 0);
 		for (int i = 0; i < 256; i++) {
@@ -329,18 +329,18 @@ bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize)
 {
 	radon::Section *section = getIni().getSection(sectionName);
-	if (!section)
+	if (section == NULL)
 		return false;
 
 	radon::Key *key = section->getKey(keyName);
-	if (!key)
+	if (key == NULL)
 		return false;
 
 	std::string value = key->getStringValue();
-	if (dataSize)
+	if (dataSize != NULL)
 		*dataSize = value.length();
 
-	if (string)
+	if (string != NULL)
 		strncpy(string, value.c_str(), stringSize);
 
 	return true;
@@ -351,7 +351,7 @@ void setIniValue(const char *sectionName, const char *keyName, char *value, int 
 	radon::File& ini = getIni();
 
 	radon::Section *section = ini.getSection(sectionName);
-	if (!section) {
+	if (section == NULL) {
 		ini.addSection(sectionName);
 		section = ini.getSection(sectionName);
 	}
@@ -359,7 +359,7 @@ void setIniValue(const char *sectionName, const char *keyName, char *value, int 
 	std::string stringValue(value, len ? len : strlen(value));
 
 	radon::Key *key = section->getKey(keyName);
-	if (!key) {
+	if (key == NULL) {
 		section->addKey(radon::Key(keyName, stringValue));
 	} else {
 		key->setValue(stringValue);

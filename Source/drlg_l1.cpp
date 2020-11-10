@@ -504,7 +504,7 @@ static void DRLG_InitL5Vals()
 
 static void DRLG_PlaceDoor(int x, int y)
 {
-	if ((L5dflags[x][y] & DLRG_PROTECTED) == 0) {
+	if (!(L5dflags[x][y] & DLRG_PROTECTED)) {
 		BYTE df = L5dflags[x][y] & 0x7F;
 		BYTE c = dungeon[x][y];
 
@@ -966,7 +966,7 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview, int l
 
 		for (yy = sy; yy < sy + sh; yy++) {
 			for (xx = sx; xx < sx + sw; xx++) {
-				if (miniset[ii])
+				if (miniset[ii] != 0)
 					dungeon[xx][yy] = miniset[ii];
 				ii++;
 			}
@@ -1284,7 +1284,7 @@ static BOOL L5checkRoom(int x, int y, int width, int height)
 		for (i = x; i < x2; i++) {
 			if (i < 0 || i >= DMAXX || j < 0 || j >= DMAXY)
 				return FALSE;
-			if (dungeon[i][j])
+			if (dungeon[i][j] != 0)
 				return FALSE;
 		}
 	}

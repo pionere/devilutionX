@@ -699,7 +699,7 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm) {
+			if (*lm != 0) {
 				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
 				oi = ObjIndex(startx + 16 + i, starty + 16 + j);
 				SetObjMapRange(oi, x1, y1, x1 + w, y1 + h, leveridx);
@@ -730,7 +730,7 @@ static void LoadMapObjs(BYTE *pMap, int startx, int starty)
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm) {
+			if (*lm != 0) {
 				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
 			}
 			lm += 2;
@@ -1146,7 +1146,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	lm = h;
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm)
+			if (*lm != 0)
 				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
 			lm += 2;
 		}
@@ -2947,7 +2947,7 @@ static void OperateBookLever(int pnum, int oi)
 
 	os = &object[oi];
 	if (os->_oSelFlag != 0 && !qtextflag) {
-		if (os->_otype == OBJ_BLINDBOOK && !quests[Q_BLIND]._qvar1) {
+		if (os->_otype == OBJ_BLINDBOOK && quests[Q_BLIND]._qvar1 == 0) {
 			quests[Q_BLIND]._qactive = QUEST_ACTIVE;
 			quests[Q_BLIND]._qlog = TRUE;
 			quests[Q_BLIND]._qvar1 = 1;
@@ -3385,9 +3385,9 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		v1 = v2 = v3 = v4 = -1;
 		switch (random_(0, 4)) {
 		case 0: v1 = 5; break;
-		case 1: v2 = 5;	break;
-		case 2: v3 = 5;	break;
-		default:v4 = 5;	break;
+		case 1: v2 = 5; break;
+		case 2: v3 = 5; break;
+		default:v4 = 5; break;
 		}
 		ModifyPlrStr(pnum, v1);
 		ModifyPlrMag(pnum, v2);
@@ -3467,8 +3467,9 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (pi->_iClass == ICLASS_WEAPON) {
 				if (pi->_iMaxDam > pi->_iMinDam)
 					pi->_iMaxDam--;
-			} else if (pi->_iClass == ICLASS_ARMOR)
+			} else if (pi->_iClass == ICLASS_ARMOR) {
 				pi->_iAC += 2;
+			}
 		}
 		InitDiabloMsg(EMSG_SHRINE_GLOOMY);
 		break;
@@ -3564,7 +3565,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			r = random_(0, cnt);
 			spell = 1;
 			for (i = 1; i <= MAX_SPELLS; i++) {
-				if (spells & spell) {
+				if (spell & spells) {
 					if (r == 0) {
 						if (p->_pSplLvl[i] != 0)
 							p->_pSplLvl[i]--;

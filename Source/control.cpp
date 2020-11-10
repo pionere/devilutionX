@@ -1774,7 +1774,7 @@ void RedBack()
 	if (light4flag)
 		idx = 1536;
 #endif
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	int w, h;
 	BYTE *dst, *tbl;

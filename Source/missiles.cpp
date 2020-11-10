@@ -2733,7 +2733,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			ty = dy + *++cr;
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				mid = dMonster[tx][ty];
-				mid = mid > 0 ? mid - 1 : -1 - mid;
+				mid = mid >= 0 ? mid - 1 : -1 - mid;
 				if (mid < MAX_PLRS)
 					continue;
 				mon = &monster[mid];
@@ -4389,8 +4389,8 @@ void MI_SpecArrow(int mi)
 	if (mis->_mirange == 0)
 		mis->_miDelFlag = TRUE;
 }
-
 #endif
+
 void MI_Lightctrl(int mi)
 {
 	MissileStruct *mis;
@@ -5662,7 +5662,7 @@ void ProcessMissiles()
 		}
 	}
 
-	for (i = 0; i < nummissiles ;) {
+	for (i = 0; i < nummissiles; ) {
 		mi = missileactive[i];
 		if (missile[mi]._miDelFlag) {
 			DeleteMissile(mi, i);

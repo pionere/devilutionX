@@ -34,7 +34,7 @@ static void msg_get_next_packet()
 	sgpCurrPkt->dwSpaceLeft = sizeof(result->data);
 
 	result = (TMegaPkt *)&sgpMegaPkt;
-	while (result->pNext) {
+	while (result->pNext != NULL) {
 		result = result->pNext;
 	}
 	result->pNext = sgpCurrPkt;
@@ -42,7 +42,7 @@ static void msg_get_next_packet()
 
 static void msg_free_packets()
 {
-	while (sgpMegaPkt) {
+	while (sgpMegaPkt != NULL) {
 		sgpCurrPkt = sgpMegaPkt->pNext;
 		MemFreeDbg(sgpMegaPkt);
 		sgpMegaPkt = sgpCurrPkt;
@@ -80,7 +80,6 @@ static void msg_pre_packet()
 		}
 	}
 }
-
 
 static void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
 {
@@ -1324,7 +1323,7 @@ static DWORD On_STRING2(int pnum, TCmd *pCmd)
 	TCmdString *cmd = (TCmdString *)pCmd;
 
 	int len = strlen(cmd->str);
-	if (!gbBufferMsgs)
+	if (gbBufferMsgs == 0)
 		SendPlrMsg(pnum, cmd->str);
 
 	return len + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
@@ -1389,7 +1388,7 @@ static DWORD On_WALKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd= (TCmdParam1 *)pCmd;
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));

@@ -1128,14 +1128,14 @@ void TalkToTowner(int pnum, int tnum)
 					break;
 				case 9:
 					if (!plr[pnum]._pLvlVisited[9] && plr[pnum]._pLevel < 15) {
-						switch (random_(0, 4) + 9) {
-						case 9:
+						switch (random_(0, 4)) {
+						case 0:
 							qt = TEXT_JERSEY9;
 							break;
-						case 10:
+						case 1:
 							qt = TEXT_JERSEY10;
 							break;
-						case 11:
+						case 2:
 							qt = TEXT_JERSEY11;
 							break;
 						default:

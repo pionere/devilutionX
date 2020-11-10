@@ -689,7 +689,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 			if (pi->_iMagical == ITEM_QUALITY_NORMAL || pi->_iIdentified) {
 				bdam += pi->_iPLDam;
 				btohit += pi->_iPLToHit;
-				if (pi->_iPLAC) {
+				if (pi->_iPLAC != 0) {
 					int tmpac = pi->_iPLAC * pi->_iAC / 100;
 					if (tmpac == 0)
 						tmpac = pi->_iPLAC >= 0 ? 1 : -1;
@@ -2360,7 +2360,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
-			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl 
+			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
 			 && (!onlygood || pres->PLOk)
 			 && (flgs != 256 || pres->PLPower != 15)) {
 				l[nl] = pres;
@@ -3507,7 +3507,6 @@ BOOL DoOil(int pnum, int cii)
 	CalcPlrInv(pnum, TRUE);
 	return TRUE;
 }
-
 #endif
 
 void PrintItemPower(char plidx, const ItemStruct *is)
@@ -3880,7 +3879,7 @@ static void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
 
 static void DrawULine(int y)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	int i;
 	BYTE *src, *dst;
