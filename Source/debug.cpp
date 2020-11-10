@@ -79,7 +79,7 @@ void StoresCheat()
 
 	SpawnPremium(30);
 
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < WITCH_ITEMS; i++)
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SpawnWitch(30);

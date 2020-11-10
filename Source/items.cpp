@@ -4788,8 +4788,7 @@ void SpawnWitch(int lvl)
 	witchitem[2] = item[0];
 	witchitem[2]._iCreateInfo = lvl;
 	witchitem[2]._iStatFlag = TRUE;
-	iCnt = random_(51, 8) + 10;
-
+	iCnt = random_(51, WITCH_ITEMS - 10) + 10;
 	for (i = 3; i < iCnt; i++) {
 		do {
 			item[0]._iSeed = GetRndSeed();
@@ -4954,11 +4953,7 @@ void SpawnHealer(int lvl)
 	} else {
 		srnd = 2;
 	}
-#ifdef HELLFIRE
 	iCnt = random_(50, HEALER_ITEMS - 10) + 10;
-#else
-	iCnt = random_(50, 8) + 10;
-#endif
 	for (i = srnd; i < iCnt; i++) {
 		item[0]._iSeed = GetRndSeed();
 		SetRndSeed(item[0]._iSeed);
