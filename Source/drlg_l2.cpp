@@ -1625,7 +1625,7 @@ int Patterns[100][10] = {
 
 static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, tries;
+	int sx, sy, sw, sh, xx, yy, ii, tries;
 	BOOL done;
 
 	sw = miniset[0];

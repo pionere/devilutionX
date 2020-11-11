@@ -404,8 +404,10 @@ static void DrawWarLord(int x, int y)
 	setpc_h = rh;
 	setpc_x = x;
 	setpc_y = y;
-	for (j = y; j < y + rh; j++) {
-		for (i = x; i < x + rw; i++) {
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
 				v = *sp;
 			} else {
@@ -435,8 +437,10 @@ static void DrawSChamber(int qn, int x, int y)
 	setpc_h = rh;
 	setpc_x = x;
 	setpc_y = y;
-	for (j = y; j < y + rh; j++) {
-		for (i = x; i < x + rw; i++) {
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
 				v = *sp;
 			} else {
@@ -446,10 +450,8 @@ static void DrawSChamber(int qn, int x, int y)
 			sp += 2;
 		}
 	}
-	xx = 2 * x + 22;
-	yy = 2 * y + 23;
-	quests[qn]._qtx = xx;
-	quests[qn]._qty = yy;
+	quests[qn]._qtx = 2 * x + 22;
+	quests[qn]._qty = 2 * y + 23;
 	mem_free_dbg(setp);
 }
 
@@ -468,10 +470,12 @@ static void DrawLTBanner(int x, int y)
 	setpc_h = rh;
 	setpc_x = x;
 	setpc_y = y;
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
-				pdungeon[x + i][y + j] = *sp;
+				pdungeon[i][j] = *sp;
 			}
 			sp += 2;
 		}
@@ -494,10 +498,12 @@ static void DrawBlind(int x, int y)
 	setpc_y = y;
 	setpc_w = rw;
 	setpc_h = rh;
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
-				pdungeon[x + i][y + j] = *sp;
+				pdungeon[i][j] = *sp;
 			}
 			sp += 2;
 		}
@@ -520,10 +526,12 @@ static void DrawBlood(int x, int y)
 	setpc_y = y;
 	setpc_w = rw;
 	setpc_h = rh;
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	rw += x;
+	rh += y;
+	for (j = y; j < rh; j++) {
+		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
-				dungeon[x + i][y + j] = *sp;
+				dungeon[i][j] = *sp;
 			}
 			sp += 2;
 		}

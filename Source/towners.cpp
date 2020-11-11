@@ -204,17 +204,22 @@ static void SetTownerGPtrs(BYTE *pData, BYTE **pAnim)
 
 static void NewTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 {
-	towner[tnum]._tAnimData = pAnim;
-	towner[tnum]._tAnimLen = numFrames;
-	towner[tnum]._tAnimFrame = 1;
-	towner[tnum]._tAnimCnt = 0;
-	towner[tnum]._tAnimDelay = Delay;
+	TownerStruct *tw;
+
+	tw = &towner[tnum];
+	tw->_tAnimData = pAnim;
+	tw->_tAnimLen = numFrames;
+	tw->_tAnimFrame = 1;
+	tw->_tAnimCnt = 0;
+	tw->_tAnimDelay = Delay;
 }
 
 static void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int ao, int tp)
 {
-	TownerStruct *tw = &towner[tnum];
+	TownerStruct *tw;
 
+	dMonster[x][y] = tnum + 1;
+	tw = &towner[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	tw->_tSelFlag = sel;
 	tw->_tAnimWidth = w;
@@ -223,7 +228,6 @@ static void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int
 	tw->_ttype = type;
 	tw->_tx = x;
 	tw->_ty = y;
-	dMonster[x][y] = tnum + 1;
 	tw->_tAnimOrder = ao;
 	tw->_tTenPer = tp;
 	tw->_tSeed = GetRndSeed();

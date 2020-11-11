@@ -1950,6 +1950,7 @@ void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	PlayerStruct *p;
 	int av = 32, flags;
 
 	if (sx == dx && sy == dy) {
@@ -1957,7 +1958,8 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dy += YDirAdd[midir];
 	}
 	if (micaster == 0) {
-		flags = plr[misource]._pIFlags;
+		p = &plr[misource];
+		flags = p->_pIFlags;
 		if (flags & ISPL_RNDARROWVEL) {
 			av = random_(64, 32) + 16;
 		}
@@ -1971,15 +1973,15 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		if (flags & ISPL_FASTESTATTACK)
 			av += 8;
 
-		if (plr[misource]._pClass == PC_ROGUE)
-			av += (plr[misource]._pLevel - 1) >> 2;
-		else if (plr[misource]._pClass == PC_WARRIOR || plr[misource]._pClass == PC_BARD)
-			av += (plr[misource]._pLevel - 1) >> 3;
+		if (p->_pClass == PC_ROGUE)
+			av += (p->_pLevel - 1) >> 2;
+		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+			av += (p->_pLevel - 1) >> 3;
 #else
-		if (plr[misource]._pClass == PC_ROGUE)
-			av += (plr[misource]._pLevel - 1) >> 2;
-		else if (plr[misource]._pClass == PC_WARRIOR)
-			av += (plr[misource]._pLevel - 1) >> 3;
+		if (p->_pClass == PC_ROGUE)
+			av += (p->_pLevel - 1) >> 2;
+		else if (p->_pClass == PC_WARRIOR)
+			av += (p->_pLevel - 1) >> 3;
 #endif
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
@@ -2475,9 +2477,9 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 #endif
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			pn = dPiece[tx][ty];
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				if (LineClear(sx, sy, tx, ty)) {
+					pn = dPiece[tx][ty];
 					if ((dMonster[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
 						mis->_mix = tx;
 						mis->_miy = ty;
@@ -4269,7 +4271,7 @@ void MI_Search(int mi)
 void MI_LightningWall(int mi)
 {
 	MissileStruct *mis;
-	int src, lvl, dam, tx, ty, dp;
+	int src, lvl, dam, tx, ty;
 
 	mis = &missile[mi];
 	mis->_mirange--;
@@ -4283,10 +4285,9 @@ void MI_LightningWall(int mi)
 			lvl = 0;
 		dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2);
 		if (!mis->_miVar8) {
-			dp = dPiece[mis->_miVar1][mis->_miVar2];
 			tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
 			ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
-			if (!nMissileTable[dp] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+			if (!nMissileTable[dPiece[mis->_miVar1][mis->_miVar2]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
 				mis->_miVar1 = tx;
 				mis->_miVar2 = ty;
@@ -4295,10 +4296,9 @@ void MI_LightningWall(int mi)
 			}
 		}
 		if (!mis->_miVar7) {
-			dp = dPiece[mis->_miVar5][mis->_miVar6];
 			tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
 			ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
-			if (!nMissileTable[dp] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+			if (!nMissileTable[dPiece[mis->_miVar5][mis->_miVar6]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
 				mis->_miVar5 = tx;
 				mis->_miVar6 = ty;
@@ -4394,7 +4394,7 @@ void MI_SpecArrow(int mi)
 void MI_Lightctrl(int mi)
 {
 	MissileStruct *mis;
-	int pn, dam, mpnum, mx, my;
+	int dam, mpnum, mx, my;
 
 	assert((DWORD)mi < MAXMISSILES);
 	mis = &missile[mi];
@@ -4419,10 +4419,7 @@ void MI_Lightctrl(int mi)
 	my = mis->_miy;
 	assert((DWORD)mx < MAXDUNX);
 	assert((DWORD)my < MAXDUNY);
-	pn = dPiece[mx][my];
-	assert((DWORD)pn <= MAXTILES);
-
-	if (!nMissileTable[pn]) {
+	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
 			if (mis->_misource != -1 && mis->_micaster == 1
 		     && monster[mis->_misource].MType->mtype >= MT_STORM
@@ -5195,7 +5192,7 @@ void MI_Wave(int mi)
 {
 	MissileStruct *mis;
 	int sx, sy, sd, nx, ny, dir;
-	int i, j, pnum, pn;
+	int i, j, pnum;
 
 	assert((DWORD)mi < MAXMISSILES);
 
@@ -5206,9 +5203,7 @@ void MI_Wave(int mi)
 	sd = GetDirection(sx, sy, mis->_miVar1, mis->_miVar2);
 	sx += XDirAdd[sd];
 	sy += YDirAdd[sd];
-	pn = dPiece[sx][sy];
-	assert((DWORD)pn <= MAXTILES);
-	if (!nMissileTable[pn]) {
+	if (!nMissileTable[dPiece[sx][sy]]) {
 		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
 
 		for (i = -2; i <= 2; i += 4) {
@@ -5218,9 +5213,8 @@ void MI_Wave(int mi)
 			for (j = (mis->_mispllvl >> 1) + 2; j > 0; j--) {
 				nx += XDirAdd[dir];
 				ny += YDirAdd[dir];
-				pn = dPiece[nx][ny]; // BUGFIX: dPiece is accessed before check against dungeon size and 0
-				assert((DWORD)pn <= MAXTILES);
-				if (nMissileTable[pn] || nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY) {
+				// BUGFIX: dPiece is accessed before check against dungeon size and 0
+				if (nMissileTable[dPiece[nx][ny]] || nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY) {
 					break;
 				} else {
 					AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);

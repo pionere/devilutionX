@@ -157,12 +157,13 @@ void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 
 static void gmenu_clear_buffer(int x, int y, int width, int height)
 {
-	BYTE *i;
+	int i;
+	BYTE *pBuf;
 
-	i = gpBuffer + BUFFER_WIDTH * y + x;
-	while (height--) {
-		memset(i, 205, width);
-		i -= BUFFER_WIDTH;
+	pBuf = gpBuffer + BUFFER_WIDTH * y + x;
+	for (i = height; i != 0; i--) {
+		memset(pBuf, 205, width);
+		pBuf -= BUFFER_WIDTH;
 	}
 }
 
@@ -230,14 +231,8 @@ void gmenu_draw()
 #endif
 		CelDraw((SCREEN_WIDTH - LOGO_WIDTH) / 2 + SCREEN_X, 102 + SCREEN_Y + UI_OFFSET_Y, sgpLogo, nCel, LOGO_WIDTH);
 		y = 160 + SCREEN_Y + UI_OFFSET_Y;
-		i = sgpCurrentMenu;
-		if (sgpCurrentMenu->fnMenu != NULL) {
-			while (i->fnMenu != NULL) {
-				gmenu_draw_menu_item(i, y);
-				i++;
-				y += 45;
-			}
-		}
+		for (i = sgpCurrentMenu; i->fnMenu != NULL; i++, y += 45)
+			gmenu_draw_menu_item(i, y);
 	}
 }
 
@@ -297,16 +292,18 @@ BOOL gmenu_presskeys(int vkey)
 
 static BOOLEAN gmenu_get_mouse_slider(int *plOffset)
 {
-	*plOffset = 282;
-	if (MouseX < 282 + PANEL_LEFT) {
+	int offset;
+
+	offset = MouseX - (PANEL_LEFT + 282);
+	if (offset < 0) {
 		*plOffset = 0;
 		return FALSE;
 	}
-	if (MouseX > 538 + PANEL_LEFT) {
+	if (offset > 256) {
 		*plOffset = 256;
 		return FALSE;
 	}
-	*plOffset = MouseX - 282 - PANEL_LEFT;
+	*plOffset = offset;
 	return TRUE;
 }
 

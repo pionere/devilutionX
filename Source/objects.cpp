@@ -2073,8 +2073,7 @@ void Obj_Trap(int oi)
 static void Obj_BCrossDamage(int oi)
 {
 	PlayerStruct *p;
-	int fire_resist;
-	int damage;
+	int fire_resist, damage;
 
 	p = &plr[myplr];
 	if (p->_pmode == PM_DEATH)
@@ -3347,7 +3346,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	ItemStruct *pi;
 	int cnt;
 	int r, i;
-	DWORD lv, t;
+	DWORD lv;
 	int xx, yy;
 	int v1, v2, v3, v4;
 	unsigned __int64 spell, spells;
@@ -3741,12 +3740,12 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (p->InvGrid[i] == 0) {
 				r = 5 * leveltype + random_(160, 10 * leveltype);
-				t = p->_pNumInv; // check
-				p->InvList[t] = golditem;
-				p->InvList[t]._iSeed = GetRndSeed();
+				pi = &p->InvList[p->_pNumInv]; // check
+				*pi = golditem;
+				pi->_iSeed = GetRndSeed();
 				p->_pNumInv++;
 				p->InvGrid[i] = p->_pNumInv;
-				SetGoldItemValue(&p->InvList[t], r);
+				SetGoldItemValue(pi, r);
 				p->_pGold += r;
 			}
 		}

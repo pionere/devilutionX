@@ -82,9 +82,7 @@ static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, int *size)
 
 	if (pBuf->dwNextWriteOffset != 0) {
 		src_ptr = pBuf->bData;
-		while (TRUE) {
-			if (*src_ptr == 0)
-				break;
+		while (*src_ptr != 0) {
 			chunk_size = *src_ptr;
 			if (chunk_size > *size)
 				break;
@@ -96,7 +94,6 @@ static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, int *size)
 		}
 		memcpy(pBuf->bData, src_ptr, (pBuf->bData - src_ptr) + pBuf->dwNextWriteOffset + 1);
 		pBuf->dwNextWriteOffset += (pBuf->bData - src_ptr);
-		return body;
 	}
 	return body;
 }

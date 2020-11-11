@@ -1558,7 +1558,7 @@ static void DRLG_L3PoolFix()
 
 static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, tries;
+	int sx, sy, sw, sh, xx, yy, ii, tries;
 	BOOL done;
 
 	sw = miniset[0];

@@ -721,6 +721,32 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		}
 	}
 
+	p->_pIBonusDam = bdam;
+	p->_pIBonusToHit = btohit;
+	p->_pIBonusAC = bac;
+	p->_pIFlags = iflgs;
+	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
+#ifdef HELLFIRE
+	p->pDamAcFlags = pDamAcFlags;
+#endif
+	p->_pIBonusDamMod = dmod;
+	p->_pIGetHit = ghit;
+	p->_pIEnAc = enac;
+	p->_pIFMinDam = fmin;
+	p->_pIFMaxDam = fmax;
+	p->_pILMinDam = lmin;
+	p->_pILMaxDam = lmax;
+	p->_pISplLvlAdd = spllvladd;
+	p->_pISpells = spl;
+
+	// check if the current RSplType is a valid/allowed spell
+	if (p->_pRSplType == RSPLTYPE_CHARGES
+	 && !(spl & ((unsigned __int64)1 << (p->_pRSpell - 1)))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		force_redraw = 255;
+	}
+
 	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
 	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (mind == 0 && maxd == 0) {
@@ -761,15 +787,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIMinDam = mind;
 	p->_pIMaxDam = maxd;
 	p->_pIAC = tac;
-	p->_pIBonusDam = bdam;
-	p->_pIBonusToHit = btohit;
-	p->_pIBonusAC = bac;
-	p->_pIFlags = iflgs;
-#ifdef HELLFIRE
-	p->pDamAcFlags = pDamAcFlags;
-#endif
-	p->_pIBonusDamMod = dmod;
-	p->_pIGetHit = ghit;
 
 	if (lrad < 2) {
 		lrad = 2;
@@ -858,19 +875,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
 	}
 
-	p->_pISpells = spl;
-
-	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_CHARGES
-	    && !(spl & ((unsigned __int64)1 << (p->_pRSpell - 1)))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		force_redraw = 255;
-	}
-
-	p->_pISplLvlAdd = spllvladd;
-	p->_pIEnAc = enac;
-
 #ifdef HELLFIRE
 	if (p->_pClass == PC_BARBARIAN) {
 		mr += p->_pLevel;
@@ -942,17 +946,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	if (p->_pMana > p->_pMaxMana)
 		p->_pMana = p->_pMaxMana;
 #endif
-
-	p->_pIFMinDam = fmin;
-	p->_pIFMaxDam = fmax;
-	p->_pILMinDam = lmin;
-	p->_pILMaxDam = lmax;
-
-	if (iflgs & ISPL_INFRAVISION) {
-		p->_pInfraFlag = TRUE;
-	} else {
-		p->_pInfraFlag = FALSE;
-	}
 
 	p->_pBlockFlag = FALSE;
 #ifdef HELLFIRE
@@ -1769,7 +1762,8 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 #ifdef HELLFIRE
 static void GetOilType(int ii, int max_lvl)
 {
-	int cnt, t, j, r;
+	ItemStruct *is;
+	int cnt, t, j;
 	char rnd[32];
 
 	if (gbMaxPlayers == 1) {
@@ -1783,17 +1777,17 @@ static void GetOilType(int ii, int max_lvl)
 				cnt++;
 			}
 		}
-		r = random_(165, cnt);
-		t = rnd[r];
+		t = rnd[random_(165, cnt)];
 	} else {
-		r = random_(165, 2);
-		t = (r != 0 ? 6 : 5);
+		t = random_(165, 2) != 0 ? 6 : 5;
 	}
-	strcpy(item[ii]._iName, OilNames[t]);
-	strcpy(item[ii]._iIName, OilNames[t]);
-	item[ii]._iMiscId = OilMagic[t];
-	item[ii]._ivalue = OilValues[t];
-	item[ii]._iIvalue = OilValues[t];
+
+	is = &item[ii];
+	strcpy(is->_iName, OilNames[t]);
+	strcpy(is->_iIName, OilNames[t]);
+	is->_iMiscId = OilMagic[t];
+	is->_ivalue = OilValues[t];
+	is->_iIvalue = OilValues[t];
 }
 #endif
 
@@ -2689,8 +2683,6 @@ void SpawnUnique(int uid, int x, int y)
 {
 	int ii, idx, lvl;
 
-	lvl = items_get_currlevel();
-
 	if (numitems >= MAXITEMS)
 		return;
 
@@ -2704,7 +2696,7 @@ void SpawnUnique(int uid, int x, int y)
 		idx++;
 	}
 
-	GetItemAttrs(ii, idx, lvl);
+	GetItemAttrs(ii, idx, items_get_currlevel());
 	GetUniqueItem(ii, uid);
 	SetupItem(ii);
 	numitems++;
@@ -3301,33 +3293,23 @@ static void RepairItem(ItemStruct *is, int lvl)
 
 	md = is->_iMaxDur;
 	rep = is->_iDurability;
-	if (rep == md) {
-		return;
-	}
 
-	if (md <= 0) {
-		is->_itype = ITYPE_NONE;
-		return;
-	}
-
-	do {
+	while (rep < md) {
 		rep += lvl + random_(37, lvl);
 		d = md / (lvl + 9);
 		if (d < 1)
 			d = 1;
 		md -= d;
-		if (md == 0) {
-			is->_iMaxDur = 0;
-			is->_itype = ITYPE_NONE;
-			return;
-		}
-	} while (rep < md);
+	}
 
+	is->_iMaxDur = md;
+	if (md == 0) {
+		is->_itype = ITYPE_NONE;
+		return;
+	}
 	if (rep > md)
 		rep = md;
-
 	is->_iDurability = rep;
-	is->_iMaxDur = md;
 }
 
 void DoRepair(int pnum, int cii)
@@ -3354,20 +3336,18 @@ static void RechargeItem(ItemStruct *is, int r)
 
 	mc = is->_iMaxCharges;
 	cc = is->_iCharges;
-	if (cc != mc) {
-		do {
-			mc--;
-			if (mc == 0) {
-				is->_iMaxCharges = 0;
-				return;
-			}
-			cc += r;
-		} while (cc < mc);
-		if (cc > mc)
-			cc = mc;
-		is->_iCharges = cc;
-		is->_iMaxCharges = mc;
+
+	while (cc < mc) {
+		mc--;
+		cc += r;
 	}
+
+	is->_iMaxCharges = mc;
+	if (mc == 0)
+		return;
+	if (cc > mc)
+		cc = mc;
+	is->_iCharges = cc;
 }
 
 void DoRecharge(int pnum, int cii)

@@ -1016,13 +1016,13 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
 		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
-			if (!AutoPlaceInv(pnum, wRight->_itype == ITYPE_SHIELD ? wRight : is, TRUE))
+			if (wRight->_itype != ITYPE_SHIELD)
+				wRight = is;
+			if (!AutoPlaceInv(pnum, wRight, TRUE))
 				return;
 
-			if (wRight->_itype == ITYPE_SHIELD)
-				wRight->_itype = ITYPE_NONE;
-			else
-				is->_itype = ITYPE_NONE;
+			wRight->_itype = ITYPE_NONE;
+			wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		}
 
 		if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
@@ -1058,7 +1058,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				gt = is->_ivalue;
 				ig = holditem->_ivalue + gt;
 				if (ig <= GOLD_MAX_LIMIT) {
-					p->_pGold += holditem->_ivalue;
+					p->_pGold += ig - gt;
 					SetGoldItemValue(is, ig);
 				} else {
 					ig = GOLD_MAX_LIMIT - gt;
@@ -1472,7 +1472,7 @@ static void CheckQuestItem(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	int idx;
+	int idx, nn;
 
 	p = &plr[pnum];
 	is = &p->HoldItem;
@@ -1517,9 +1517,6 @@ static void CheckQuestItem(int pnum)
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int item_num;
-		int nn;
-		ItemStruct tmp;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
@@ -1537,12 +1534,13 @@ static void CheckQuestItem(int pnum)
 				PlrHasItem(pnum, IDI_NOTE3, &nn);
 				RemoveInvItem(pnum, nn);
 			}
-			item_num = itemactive[0];
-			tmp = item[item_num];
-			GetItemAttrs(item_num, IDI_FULLNOTE, 16);
-			SetupItem(item_num);
-			p->HoldItem = item[item_num];
-			item[item_num] = tmp;
+			ItemStruct tmp;
+			nn = itemactive[0];
+			tmp = item[nn];
+			GetItemAttrs(nn, IDI_FULLNOTE, 16);
+			SetupItem(nn);
+			p->HoldItem = item[nn];
+			item[nn] = tmp;
 		}
 #endif
 	}

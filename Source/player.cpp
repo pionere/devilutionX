@@ -403,7 +403,7 @@ static DWORD GetPlrGFXSize(const char *szCel)
 					/// ASSERT: assert(hsFile);
 					dwSize = WGetFileSize(hsFile, NULL, pszName);
 					WCloseFile(hsFile);
-					if (dwMaxSize <= dwSize) {
+					if (dwMaxSize < dwSize) {
 						dwMaxSize = dwSize;
 					}
 				}
@@ -1121,12 +1121,14 @@ void PlrDoTrans(int x, int y)
 
 void SetPlayerOld(int pnum)
 {
+	PlayerStruct *p;
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SetPlayerOld: illegal player %d", pnum);
 	}
-
-	plr[pnum]._poldx = plr[pnum]._px;
-	plr[pnum]._poldy = plr[pnum]._py;
+	p = &plr[pnum];
+	p->_poldx = p->_px;
+	p->_poldy = p->_py;
 }
 
 void FixPlayerLocation(int pnum, int dir)
@@ -3568,8 +3570,7 @@ static void ValidatePlayer()
 			gt += pi->_ivalue;
 		}
 	}
-	if (gt != p->_pGold)
-		p->_pGold = gt;
+	p->_pGold = gt;
 
 	pc = p->_pClass;
 	if (p->_pBaseStr > MaxStats[pc][ATTRIB_STR]) {

@@ -258,10 +258,13 @@ void ClearSText(int s, int e)
 
 static void AddSLine(int y)
 {
-	stext[y]._sx = 0;
-	stext[y]._syoff = 0;
-	stext[y]._sstr[0] = 0;
-	stext[y]._sline = TRUE;
+	STextStruct *ss;
+
+	ss = &stext[y];
+	ss->_sx = 0;
+	ss->_syoff = 0;
+	ss->_sstr[0] = 0;
+	ss->_sline = TRUE;
 }
 
 static void AddSTextVal(int y, int val)
@@ -276,13 +279,16 @@ static void OffsetSTextY(int y, int yo)
 
 static void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
 {
-	stext[y]._sx = x;
-	stext[y]._syoff = 0;
-	strcpy(stext[y]._sstr, str);
-	stext[y]._sjust = j;
-	stext[y]._sclr = clr;
-	stext[y]._sline = FALSE;
-	stext[y]._ssel = sel;
+	STextStruct *ss;
+
+	ss = &stext[y];
+	ss->_sx = x;
+	ss->_syoff = 0;
+	strcpy(ss->_sstr, str);
+	ss->_sjust = j;
+	ss->_sclr = clr;
+	ss->_sline = FALSE;
+	ss->_ssel = sel;
 }
 
 static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
@@ -1580,7 +1586,7 @@ static void SmithBuyItem()
 
 static void S_SBuyEnter()
 {
-	int idx, i;
+	int idx;
 
 	if (stextsel == 22) {
 		StartStore(STORE_SMITH);
@@ -1857,7 +1863,7 @@ static void WitchBuyItem()
 
 static void S_WBuyEnter()
 {
-	int i, idx;
+	int idx;
 
 	if (stextsel == 22) {
 		StartStore(STORE_WITCH);
@@ -2122,7 +2128,7 @@ static void S_HealerEnter()
 
 static void S_HBuyEnter()
 {
-	int i, idx;
+	int idx;
 
 	if (stextsel == 22) {
 		StartStore(STORE_HEALER);

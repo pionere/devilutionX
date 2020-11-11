@@ -56,18 +56,21 @@ const char *const sgszMusicTracks[NUM_MUSIC] = {
 
 static void snd_get_volume(const char *value_name, int *value)
 {
-	int v = *value;
-	if (!SRegLoadValue(APP_NAME, value_name, 0, &v)) {
-		v = VOLUME_MAX;
-	}
-	*value = v;
+	int v;
 
-	if (*value < VOLUME_MIN) {
-		*value = VOLUME_MIN;
-	} else if (*value > VOLUME_MAX) {
-		*value = VOLUME_MAX;
+	if (SRegLoadValue(APP_NAME, value_name, 0, value)) {
+		v = *value;
+		if (v < VOLUME_MIN) {
+			v = VOLUME_MIN;
+		} else if (v > VOLUME_MAX) {
+			v = VOLUME_MAX;
+		}
 	}
-	*value -= *value % 100;
+	else
+		v = VOLUME_MAX;
+	v -= v % 100;
+
+	*value = v;
 }
 
 static void snd_set_volume(const char *key, int value)

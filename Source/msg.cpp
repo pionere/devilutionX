@@ -288,34 +288,38 @@ static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
 
 static BYTE *DeltaExportJunk(BYTE *dst)
 {
-	int i, q;
+	DPortal *pD;
+	MultiQuests *mq;
+	int i;
 
-	for (i = 0; i < MAXPORTAL; i++) {
-		if (sgJunk.portal[i].x == 0xFF) {
+	pD = sgJunk.portal;
+	for (i = 0; i < MAXPORTAL; i++, pD++) {
+		if (pD->x == 0xFF) {
 			*dst = 0xFF;
 			dst++;
 		} else {
 #ifdef HELLFIRE
-			*reinterpret_cast<DPortal *>(dst) = sgJunk.portal[i];
+			*reinterpret_cast<DPortal *>(dst) = *pD;
 #else
-			memcpy(dst, &sgJunk.portal[i], sizeof(DPortal));
+			memcpy(dst, pD, sizeof(*pD));
 #endif
-			dst += sizeof(DPortal);
+			dst += sizeof(*pD);
 		}
 	}
 
-	for (i = 0, q = 0; i < MAXQUESTS; i++) {
+	mq = sgJunk.quests;
+	for (i = 0; i < MAXQUESTS; i++) {
 		if (questlist[i]._qflags & QUEST_ANY) {
-			sgJunk.quests[q].qlog = quests[i]._qlog;
-			sgJunk.quests[q].qstate = quests[i]._qactive;
-			sgJunk.quests[q].qvar1 = quests[i]._qvar1;
+			mq->qlog = quests[i]._qlog;
+			mq->qstate = quests[i]._qactive;
+			mq->qvar1 = quests[i]._qvar1;
 #ifdef HELLFIRE
-			*reinterpret_cast<MultiQuests *>(dst) = sgJunk.quests[q];
+			*reinterpret_cast<MultiQuests *>(dst) = *mq;
 #else
-			memcpy(dst, &sgJunk.quests[q], sizeof(MultiQuests));
+			memcpy(dst, mq, sizeof(*mq));
 #endif
-			dst += sizeof(MultiQuests);
-			q++;
+			dst += sizeof(*mq);
+			mq++;
 		}
 	}
 
@@ -324,42 +328,46 @@ static BYTE *DeltaExportJunk(BYTE *dst)
 
 static void DeltaImportJunk(BYTE *src)
 {
-	int i, q;
+	DPortal *pD;
+	MultiQuests *mq;
+	int i;
 
-	for (i = 0; i < MAXPORTAL; i++) {
+	pD = sgJunk.portal;
+	for (i = 0; i < MAXPORTAL; i++, pD++) {
 		if (*src == 0xFF) {
-			memset(&sgJunk.portal[i], 0xFF, sizeof(DPortal));
+			memset(pD, 0xFF, sizeof(*pD));
 			src++;
 			SetPortalStats(i, FALSE, 0, 0, 0, DTYPE_TOWN);
 		} else {
 #ifdef HELLFIRE
-			sgJunk.portal[i] = *reinterpret_cast<DPortal *>(src);
+			*pD = *reinterpret_cast<DPortal *>(src);
 #else
-			memcpy(&sgJunk.portal[i], src, sizeof(DPortal));
+			memcpy(pD, src, sizeof(*pD));
 #endif
-			src += sizeof(DPortal);
+			src += sizeof(*pD);
 			SetPortalStats(
 				i,
 				TRUE,
-				sgJunk.portal[i].x,
-				sgJunk.portal[i].y,
-				sgJunk.portal[i].level,
-				sgJunk.portal[i].ltype);
+				pD->x,
+				pD->y,
+				pD->level,
+				pD->ltype);
 		}
 	}
 
-	for (i = 0, q = 0; i < MAXQUESTS; i++) {
+	mq = sgJunk.quests;
+	for (i = 0; i < MAXQUESTS; i++) {
 		if (questlist[i]._qflags & QUEST_ANY) {
 #ifdef HELLFIRE
-			sgJunk.quests[q] = *reinterpret_cast<MultiQuests *>(src);
+			*mq = *reinterpret_cast<MultiQuests *>(src);
 #else
-			memcpy(&sgJunk.quests[q], src, sizeof(MultiQuests));
+			memcpy(mq, src, sizeof(*mq));
 #endif
-			src += sizeof(MultiQuests);
-			quests[i]._qlog = sgJunk.quests[q].qlog;
-			quests[i]._qactive = sgJunk.quests[q].qstate;
-			quests[i]._qvar1 = sgJunk.quests[q].qvar1;
-			q++;
+			src += sizeof(*mq);
+			quests[i]._qlog = mq->qlog;
+			quests[i]._qactive = mq->qstate;
+			quests[i]._qvar1 = mq->qvar1;
+			mq++;
 		}
 	}
 }
@@ -1836,15 +1844,16 @@ static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
 static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	int mnum, x, y;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int mnum = cmd->wParam1;
-		int distx = abs(plr[pnum]._px - monster[mnum]._mfutx);
-		int disty = abs(plr[pnum]._py - monster[mnum]._mfuty);
-		if (distx > 1 || disty > 1)
-			MakePlrPath(pnum, monster[mnum]._mfutx, monster[mnum]._mfuty, FALSE);
-		plr[pnum].destAction = ACTION_ATTACKMON;
+		mnum = cmd->wParam1;
 		plr[pnum].destParam1 = mnum;
+		plr[pnum].destAction = ACTION_ATTACKMON;
+		x = monster[mnum]._mfutx;
+		y = monster[mnum]._mfuty;
+		if (abs(plr[pnum]._px - x) > 1 || abs(plr[pnum]._py - y) > 1)
+			MakePlrPath(pnum, x, y, FALSE);
 	}
 
 	return sizeof(*cmd);
@@ -2109,18 +2118,20 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+	int mnum;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
-			monster[cmd->wParam1].mWhoHit |= 1 << pnum;
+			mnum = cmd->wParam1;
+			monster[mnum].mWhoHit |= 1 << pnum;
 
-			if (monster[cmd->wParam1]._mhitpoints) {
-				monster[cmd->wParam1]._mhitpoints -= cmd->wParam2;
-				if ((monster[cmd->wParam1]._mhitpoints >> 6) < 1)
-					monster[cmd->wParam1]._mhitpoints = 1 << 6;
-				delta_monster_hp(cmd->wParam1, monster[cmd->wParam1]._mhitpoints, plr[pnum].plrlevel);
+			if (monster[mnum]._mhitpoints) {
+				monster[mnum]._mhitpoints -= cmd->wParam2;
+				if ((monster[mnum]._mhitpoints >> 6) < 1)
+					monster[mnum]._mhitpoints = 1 << 6;
+				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
 			}
 		}
 	}
@@ -2613,7 +2624,7 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
 		return 0;
 
-	switch (pCmd->bCmd) {
+	switch (sbLastCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:

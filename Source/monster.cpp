@@ -1361,13 +1361,16 @@ void MonStartStand(int mnum, int md)
 
 static void MonStartDelay(int mnum, int len)
 {
+	MonsterStruct *mon;
+
 	if (len <= 0) {
 		return;
 	}
 
-	if (monster[mnum]._mAi != AI_LAZURUS) {
-		monster[mnum]._mVar2 = len;
-		monster[mnum]._mmode = MM_DELAY;
+	mon = &monster[mnum];
+	if (mon->_mAi != AI_LAZURUS) {
+		mon->_mVar2 = len;
+		mon->_mmode = MM_DELAY;
 	}
 }
 
@@ -1673,15 +1676,15 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 		pmonster->_mxoff = 0;
 		pmonster->_myoff = 0;
 		pmonster->_mVar1 = 0;
+		pmonster->_mmode = MM_DEATH;
+		MonClearSquares(k);
 		_moldx = pmonster->_moldx;
 		_moldy = pmonster->_moldy;
 		pmonster->_my = _moldy;
 		pmonster->_mfuty = _moldy;
-		pmonster->_mmode = MM_DEATH;
 		pmonster->_mx = _moldx;
 		pmonster->_mfutx = _moldx;
-		MonClearSquares(k);
-		dMonster[pmonster->_mx][pmonster->_my] = k + 1;
+		dMonster[_moldx][_moldy] = k + 1;
 	}
 	AddLight(mon->_mx, mon->_my, 8);
 	DoVision(mon->_mx, mon->_my, 8, FALSE, TRUE);
@@ -3007,16 +3010,18 @@ static BOOL MonDoDelay(int mnum)
 
 static BOOL MonDoStone(int mnum)
 {
+	MonsterStruct *mon;
+
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
 		return FALSE;
 #else
 		app_fatal("MonDoStone: Invalid monster %d", mnum);
 #endif
-
-	if (monster[mnum]._mhitpoints == 0) {
-		dMonster[monster[mnum]._mx][monster[mnum]._my] = 0;
-		monster[mnum]._mDelFlag = TRUE;
+	mon = &monster[mnum];
+	if (mon->_mhitpoints == 0) {
+		mon->_mDelFlag = TRUE;
+		dMonster[mon->_mx][mon->_my] = 0;
 	}
 
 	return FALSE;
