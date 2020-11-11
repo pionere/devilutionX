@@ -52,7 +52,7 @@ inline bool GetFileSize(const char *path, std::uintmax_t *size)
 		return false;
 	}
 	delete[] path_utf16;
-	*size = (attr.nFileSizeHigh) << (sizeof(attr.nFileSizeHigh) * 8) | attr.nFileSizeLow;
+	*size = (std::uintmax_t)(attr.nFileSizeHigh) << (sizeof(attr.nFileSizeHigh) * 8) | attr.nFileSizeLow;
 	return true;
 #else
 	struct ::stat stat_result;
