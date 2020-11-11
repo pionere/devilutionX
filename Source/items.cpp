@@ -1763,7 +1763,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 static void GetOilType(int ii, int max_lvl)
 {
 	ItemStruct *is;
-	int cnt, t, j;
+	int cnt, type, i;
 	char rnd[32];
 
 	if (gbMaxPlayers == 1) {
@@ -1771,23 +1771,23 @@ static void GetOilType(int ii, int max_lvl)
 			max_lvl = 1;
 		cnt = 0;
 
-		for (j = 0; j < (int)(sizeof(OilLevels) / sizeof(OilLevels[0])); j++) {
-			if (OilLevels[j] <= max_lvl) {
-				rnd[cnt] = j;
+		for (i = 0; i < (int)(sizeof(OilLevels) / sizeof(OilLevels[0])); i++) {
+			if (OilLevels[i] <= max_lvl) {
+				rnd[cnt] = i;
 				cnt++;
 			}
 		}
-		t = rnd[random_(165, cnt)];
+		type = rnd[random_(165, cnt)];
 	} else {
-		t = random_(165, 2) != 0 ? 6 : 5;
+		type = random_(165, 2) != 0 ? 6 : 5;
 	}
 
 	is = &item[ii];
-	strcpy(is->_iName, OilNames[t]);
-	strcpy(is->_iIName, OilNames[t]);
-	is->_iMiscId = OilMagic[t];
-	is->_ivalue = OilValues[t];
-	is->_iIvalue = OilValues[t];
+	strcpy(is->_iName, OilNames[type]);
+	strcpy(is->_iIName, OilNames[type]);
+	is->_iMiscId = OilMagic[type];
+	is->_ivalue = OilValues[type];
+	is->_iIvalue = OilValues[type];
 }
 #endif
 
@@ -2614,32 +2614,32 @@ static int RndTypeItems(int itype, int imid, int lvl)
 
 static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 {
-	int j, idata, numu;
+	int i, idata, ui;
 	BOOLEAN uok[128];
 
 	if (random_(28, 100) > uper)
 		return UITYPE_INVALID;
 
-	numu = 0;
+	ui = 0;
 	memset(uok, 0, sizeof(uok));
-	for (j = 0; UniqueItemList[j].UIItemId != UITYPE_INVALID; j++) {
-		if (UniqueItemList[j].UIItemId == AllItemsList[item[ii].IDidx].iItemId
-		    && lvl >= UniqueItemList[j].UIMinLvl
-		    && (recreate || !UniqueItemFlag[j] || gbMaxPlayers != 1)) {
-			uok[j] = TRUE;
-			numu++;
+	for (i = 0; UniqueItemList[i].UIItemId != UITYPE_INVALID; i++) {
+		if (UniqueItemList[i].UIItemId == AllItemsList[item[ii].IDidx].iItemId
+		    && lvl >= UniqueItemList[i].UIMinLvl
+		    && (recreate || !UniqueItemFlag[i] || gbMaxPlayers != 1)) {
+			uok[i] = TRUE;
+			ui++;
 		}
 	}
 
-	if (numu == 0)
+	if (ui == 0)
 		return UITYPE_INVALID;
 
 	random_(29, 10); /// BUGFIX: unused, last unique in array always gets chosen
 	idata = 0;
-	while (numu > 0) {
+	while (ui > 0) {
 		if (uok[idata])
-			numu--;
-		if (numu > 0) {
+			ui--;
+		if (ui > 0) {
 			idata++;
 			if (idata == 128)
 				idata = 0;
@@ -5054,14 +5054,14 @@ void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 
 int ItemNoFlippy()
 {
-	int r;
+	int ii;
 
-	r = itemactive[numitems - 1];
-	item[r]._iAnimFrame = item[r]._iAnimLen;
-	item[r]._iAnimFlag = FALSE;
-	item[r]._iSelFlag = 1;
+	ii = itemactive[numitems - 1];
+	item[ii]._iAnimFrame = item[ii]._iAnimLen;
+	item[ii]._iAnimFlag = FALSE;
+	item[ii]._iSelFlag = 1;
 
-	return r;
+	return ii;
 }
 
 void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)

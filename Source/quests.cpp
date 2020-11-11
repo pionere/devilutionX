@@ -382,10 +382,10 @@ static void DrawButcher()
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
-static void DrawSkelKing(int q, int x, int y)
+static void DrawSkelKing(int qn, int x, int y)
 {
-	quests[q]._qtx = 2 * x + DBORDERX + 12;
-	quests[q]._qty = 2 * y + DBORDERY + 7;
+	quests[qn]._qtx = 2 * x + DBORDERX + 12;
+	quests[qn]._qty = 2 * y + DBORDERY + 7;
 }
 
 static void DrawWarLord(int x, int y)

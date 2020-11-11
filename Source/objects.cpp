@@ -19,7 +19,7 @@ int objectavail[MAXOBJECTS];
 ObjectStruct object[MAXOBJECTS];
 BOOL InitObjFlag;
 int numobjfiles;
-int dword_6DE0E0;
+int UberLeverProgress;
 
 /** Specifies the X-coordinate delta between barrels. */
 int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
@@ -349,11 +349,11 @@ static void InitRndLocBigObj(int min, int max, int objtype)
 static void InitRndLocObj5x5(int min, int max, int objtype)
 {
 	DIABOOL exit;
-	int xp, yp, numobjs, i, cnt, m, n;
+	int xp, yp, numobjs, i, tries, m, n;
 
 	numobjs = min + random_(139, max - min);
 	for (i = 0; i < numobjs; i++) {
-		cnt = 0;
+		tries = 0;
 		exit = FALSE;
 		while (!exit) {
 			exit = TRUE;
@@ -366,8 +366,8 @@ static void InitRndLocObj5x5(int min, int max, int objtype)
 				}
 			}
 			if (!exit) {
-				cnt++;
-				if (cnt > 20000)
+				tries++;
+				if (tries > 20000)
 					return;
 			}
 		}
@@ -429,9 +429,9 @@ static void AddCandles()
 static void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int x2, int y2, int msg)
 {
 	DIABOOL exit;
-	int xp, yp, ob, cnt, m, n;
+	int xp, yp, ob, tries, m, n;
 
-	cnt = 0;
+	tries = 0;
 	exit = FALSE;
 	while (!exit) {
 		exit = TRUE;
@@ -444,8 +444,8 @@ static void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int
 			}
 		}
 		if (!exit) {
-			cnt++;
-			if (cnt > 20000)
+			tries++;
+			if (tries > 20000)
 				return;
 		}
 	}
@@ -758,9 +758,9 @@ static void AddDiabObjs()
 static void AddLvl2xBooks(int bookidx)
 {
 	DIABOOL exit;
-	int xp, yp, cnt, i, j;
+	int xp, yp, tries, i, j;
 
-	cnt = 0;
+	tries = 0;
 	exit = FALSE;
 	while (!exit) {
 		exit = TRUE;
@@ -773,8 +773,8 @@ static void AddLvl2xBooks(int bookidx)
 			}
 		}
 		if (!exit) {
-			cnt++;
-			if (cnt > 20000)
+			tries++;
+			if (tries > 20000)
 				return;
 		}
 	}
@@ -828,11 +828,10 @@ static void AddLvl24Books()
 
 static void AddStoryBooks()
 {
-	int xp, yp, xx, yy;
-	int cnt;
+	int xp, yp, xx, yy, tries;
 	DIABOOL done;
 
-	cnt = 0;
+	tries = 0;
 	done = FALSE;
 	while (!done) {
 		done = TRUE;
@@ -845,8 +844,8 @@ static void AddStoryBooks()
 			}
 		}
 		if (!done) {
-			cnt++;
-			if (cnt > 20000)
+			tries++;
+			if (tries > 20000)
 				return;
 		}
 	}
@@ -918,11 +917,10 @@ static void AddL4Goodies()
 
 static void AddLazStand()
 {
-	int xp, yp, xx, yy;
-	int cnt;
+	int xp, yp, xx, yy, tries;
 	DIABOOL found;
 
-	cnt = 0;
+	tries = 0;
 	found = FALSE;
 	while (!found) {
 		found = TRUE;
@@ -935,8 +933,8 @@ static void AddLazStand()
 			}
 		}
 		if (!found) {
-			cnt++;
-			if (cnt > 10000) {
+			tries++;
+			if (tries > 10000) {
 				InitRndLocObj(1, 1, OBJ_LAZSTAND);
 				return;
 			}
@@ -961,7 +959,7 @@ void InitObjects()
 
 	ClrAllObjects();
 #ifdef HELLFIRE
-	dword_6DE0E0 = 0;
+	UberLeverProgress = 0;
 #endif
 	if (currlevel == 16) {
 		AddDiabObjs();
@@ -5112,23 +5110,23 @@ void AddUberLever()
 	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
 }
 
-BOOL OpenUberLevel(int s)
+BOOL OpenUberLevel(int bookidx)
 {
-	switch (s) {
+	switch (bookidx) {
 	case 6:
-		dword_6DE0E0 = 1;
+		UberLeverProgress = 1;
 		break;
 	case 7:
-		if (dword_6DE0E0 == 1) {
-			dword_6DE0E0 = 2;
+		if (UberLeverProgress == 1) {
+			UberLeverProgress = 2;
 		} else {
-			dword_6DE0E0 = 0;
+			UberLeverProgress = 0;
 		}
 		break;
 	case 8:
-		if (dword_6DE0E0 == 2)
+		if (UberLeverProgress == 2)
 			return TRUE;
-		dword_6DE0E0 = 0;
+		UberLeverProgress = 0;
 		break;
 	}
 	return FALSE;

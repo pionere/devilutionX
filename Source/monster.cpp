@@ -1653,7 +1653,7 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 {
 	MonsterStruct *mon, *pmonster;
 	int dist;
-	int j, k;
+	int i, j;
 	int _moldx, _moldy;
 
 	mon = &monster[mnum];
@@ -1666,37 +1666,37 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 #ifdef HELLFIRE
 	gbSoundOn = FALSE;
 #endif
-	for (j = 0; j < nummonsters; j++) {
-		k = monstactive[j];
-		if (k == mnum || mon->_msquelch == 0)
+	for (i = 0; i < nummonsters; i++) {
+		j = monstactive[i];
+		if (j == mnum || mon->_msquelch == 0)
 			continue;
 
-		pmonster = &monster[k];
-		NewMonsterAnim(k, &pmonster->MType->Anims[MA_DEATH], pmonster->_mdir);
+		pmonster = &monster[j];
+		NewMonsterAnim(j, &pmonster->MType->Anims[MA_DEATH], pmonster->_mdir);
 		pmonster->_mxoff = 0;
 		pmonster->_myoff = 0;
 		pmonster->_mVar1 = 0;
 		pmonster->_mmode = MM_DEATH;
-		MonClearSquares(k);
+		MonClearSquares(j);
 		_moldx = pmonster->_moldx;
 		_moldy = pmonster->_moldy;
 		pmonster->_my = _moldy;
 		pmonster->_mfuty = _moldy;
 		pmonster->_mx = _moldx;
 		pmonster->_mfutx = _moldx;
-		dMonster[_moldx][_moldy] = k + 1;
+		dMonster[_moldx][_moldy] = j + 1;
 	}
 	AddLight(mon->_mx, mon->_my, 8);
 	DoVision(mon->_mx, mon->_my, 8, FALSE, TRUE);
 	dist = std::max(abs(ViewX - mon->_mx), abs(ViewY - mon->_my));
 	if (dist > 20)
 		dist = 20;
-	j = ViewX << 16;
-	k = ViewY << 16;
-	mon->_mVar3 = j;
-	mon->_mVar4 = k;
-	mon->_mVar5 = (int)((j - (mon->_mx << 16)) / (double)dist);
-	mon->_mVar6 = (int)((k - (mon->_my << 16)) / (double)dist);
+	i = ViewX << 16;
+	j = ViewY << 16;
+	mon->_mVar3 = i;
+	mon->_mVar4 = j;
+	mon->_mVar5 = (int)((i - (mon->_mx << 16)) / (double)dist);
+	mon->_mVar6 = (int)((j - (mon->_my << 16)) / (double)dist);
 }
 
 static void SpawnLoot(int mnum, BOOL sendmsg)
@@ -5151,7 +5151,7 @@ BOOL DirOK(int mnum, int mdir)
 {
 	int fx, fy;
 	int x, y;
-	int mcount, mi;
+	int mcount, ma;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("DirOK: Invalid monster %d", mnum);
@@ -5187,14 +5187,14 @@ BOOL DirOK(int mnum, int mdir)
 	for (x = fx - 3; x <= fx + 3; x++) {
 		for (y = fy - 3; y <= fy + 3; y++) {
 			if (IN_DUNGEON_AREA(x, y)) {
-				mi = dMonster[x][y];
-				if (mi == 0)
+				ma = dMonster[x][y];
+				if (ma == 0)
 					continue;
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monster[mi].leaderflag == 1
-				    && monster[mi].leader == mnum
-				    && monster[mi]._mfutx == x
-					&& monster[mi]._mfuty == y) {
+				ma = ma >= 0 ? ma - 1 : -(ma + 1);
+				if (monster[ma].leaderflag == 1
+				    && monster[ma].leader == mnum
+				    && monster[ma]._mfutx == x
+					&& monster[ma]._mfuty == y) {
 					mcount++;
 				}
 			}
@@ -5671,7 +5671,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 BOOL monster_posok(int mnum, int x, int y)
 {
 	BOOL ret = TRUE, fire = FALSE;
-	int mi = dMissile[x][y], j;
+	int mi = dMissile[x][y], i;
 
 	if (mi == 0 || mnum < 0)
 		return TRUE;
@@ -5687,8 +5687,8 @@ BOOL monster_posok(int mnum, int x, int y)
 			lightning = TRUE;
 		}
 	} else {
-		for (j = 0; j < nummissiles; j++) {
-			mis = &missile[missileactive[j]];
+		for (i = 0; i < nummissiles; i++) {
+			mis = &missile[missileactive[i]];
 			if (mis->_mix == x && mis->_miy == y) {
 				if (mis->_mitype == MIS_FIREWALL) {
 					fire = TRUE;
@@ -5707,8 +5707,8 @@ BOOL monster_posok(int mnum, int x, int y)
 		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = TRUE;
 		} else {
-			for (j = 0; j < nummissiles; j++) {
-				if (missile[missileactive[j]]._mitype == MIS_FIREWALL)
+			for (i = 0; i < nummissiles; i++) {
+				if (missile[missileactive[i]]._mitype == MIS_FIREWALL)
 					fire = TRUE;
 			}
 		}

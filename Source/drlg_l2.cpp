@@ -2375,81 +2375,81 @@ static BOOL DL2_Cont(BOOL x1f, BOOL y1f, BOOL x2f, BOOL y2f)
 
 static int DL2_NumNoChar()
 {
-	int t, ii, jj;
+	int n, i, j;
 
-	t = 0;
-	for (jj = 0; jj < DMAXY; jj++) {
-		for (ii = 0; ii < DMAXX; ii++) {
-			if (predungeon[ii][jj] == 32) {
-				t++;
+	n = 0;
+	for (j = 0; j < DMAXY; j++) {
+		for (i = 0; i < DMAXX; i++) {
+			if (predungeon[i][j] == 32) {
+				n++;
 			}
 		}
 	}
 
-	return t;
+	return n;
 }
 
 static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
 {
-	int ii, jj;
+	int i, j;
 
-	for (jj = y1; jj <= y2; jj++) {
-		for (ii = x1; ii <= x2; ii++) {
-			predungeon[ii][jj] = 46;
+	for (j = y1; j <= y2; j++) {
+		for (i = x1; i <= x2; i++) {
+			predungeon[i][j] = 46;
 		}
 	}
-	for (jj = y1; jj <= y2; jj++) {
-		predungeon[x1][jj] = 35;
-		predungeon[x2][jj] = 35;
+	for (j = y1; j <= y2; j++) {
+		predungeon[x1][j] = 35;
+		predungeon[x2][j] = 35;
 	}
-	for (ii = x1; ii <= x2; ii++) {
-		predungeon[ii][y1] = 35;
-		predungeon[ii][y2] = 35;
+	for (i = x1; i <= x2; i++) {
+		predungeon[i][y1] = 35;
+		predungeon[i][y2] = 35;
 	}
 }
 
 static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 {
-	int ii, jj;
+	int i, j;
 
-	for (ii = x1 + 1; ii < x2; ii++) {
-		if (predungeon[ii][y1 - 1] == 46 && predungeon[ii][y1 + 1] == 46) {
-			predungeon[ii][y1] = 46;
+	for (i = x1 + 1; i < x2; i++) {
+		if (predungeon[i][y1 - 1] == 46 && predungeon[i][y1 + 1] == 46) {
+			predungeon[i][y1] = 46;
 		}
-		if (predungeon[ii][y2 - 1] == 46 && predungeon[ii][y2 + 1] == 46) {
-			predungeon[ii][y2] = 46;
+		if (predungeon[i][y2 - 1] == 46 && predungeon[i][y2 + 1] == 46) {
+			predungeon[i][y2] = 46;
 		}
-		if (predungeon[ii][y1 - 1] == 68) {
-			predungeon[ii][y1 - 1] = 46;
+		if (predungeon[i][y1 - 1] == 68) {
+			predungeon[i][y1 - 1] = 46;
 		}
-		if (predungeon[ii][y2 + 1] == 68) {
-			predungeon[ii][y2 + 1] = 46;
+		if (predungeon[i][y2 + 1] == 68) {
+			predungeon[i][y2 + 1] = 46;
 		}
 	}
-	for (jj = y1 + 1; jj < y2; jj++) {
-		if (predungeon[x1 - 1][jj] == 46 && predungeon[x1 + 1][jj] == 46) {
-			predungeon[x1][jj] = 46;
+	for (j = y1 + 1; j < y2; j++) {
+		if (predungeon[x1 - 1][j] == 46 && predungeon[x1 + 1][j] == 46) {
+			predungeon[x1][j] = 46;
 		}
-		if (predungeon[x2 - 1][jj] == 46 && predungeon[x2 + 1][jj] == 46) {
-			predungeon[x2][jj] = 46;
+		if (predungeon[x2 - 1][j] == 46 && predungeon[x2 + 1][j] == 46) {
+			predungeon[x2][j] = 46;
 		}
-		if (predungeon[x1 - 1][jj] == 68) {
-			predungeon[x1 - 1][jj] = 46;
+		if (predungeon[x1 - 1][j] == 68) {
+			predungeon[x1 - 1][j] = 46;
 		}
-		if (predungeon[x2 + 1][jj] == 68) {
-			predungeon[x2 + 1][jj] = 46;
+		if (predungeon[x2 + 1][j] == 68) {
+			predungeon[x2 + 1][j] = 46;
 		}
 	}
 }
 
 static BOOL DL2_FillVoids()
 {
-	int ii, jj, xx, yy, x1, x2, y1, y2;
+	int i, j, xx, yy, x1, x2, y1, y2;
 	BOOL xf1, xf2, yf1, yf2;
-	int to;
+	int tries;
 
-	to = 0;
-	while (DL2_NumNoChar() > 700 && to < 100) {
+	tries = 0;
+	while (DL2_NumNoChar() > 700 && tries < 100) {
 		xx = random_(0, 38) + 1;
 		yy = random_(0, 38) + 1;
 		if (predungeon[xx][yy] != 35) {
@@ -2541,8 +2541,8 @@ static BOOL DL2_FillVoids()
 						if (x2 - x1 >= 12) {
 							xf2 = FALSE;
 						}
-						for (jj = y1; jj <= y2; jj++) {
-							if (predungeon[x2][jj] != 32) {
+						for (j = y1; j <= y2; j++) {
+							if (predungeon[x2][j] != 32) {
 								xf2 = FALSE;
 							}
 						}
@@ -2591,8 +2591,8 @@ static BOOL DL2_FillVoids()
 						if (x2 - x1 >= 12) {
 							xf1 = FALSE;
 						}
-						for (jj = y1; jj <= y2; jj++) {
-							if (predungeon[x1][jj] != 32) {
+						for (j = y1; j <= y2; j++) {
+							if (predungeon[x1][j] != 32) {
 								xf1 = FALSE;
 							}
 						}
@@ -2641,8 +2641,8 @@ static BOOL DL2_FillVoids()
 						if (y2 - y1 >= 12) {
 							yf2 = FALSE;
 						}
-						for (ii = x1; ii <= x2; ii++) {
-							if (predungeon[ii][y2] != 32) {
+						for (i = x1; i <= x2; i++) {
+							if (predungeon[i][y2] != 32) {
 								yf2 = FALSE;
 							}
 						}
@@ -2691,8 +2691,8 @@ static BOOL DL2_FillVoids()
 						if (y2 - y1 >= 12) {
 							yf1 = FALSE;
 						}
-						for (ii = x1; ii <= x2; ii++) {
-							if (predungeon[ii][y1] != 32) {
+						for (i = x1; i <= x2; i++) {
+							if (predungeon[i][y1] != 32) {
 								yf1 = FALSE;
 							}
 						}
@@ -2708,7 +2708,7 @@ static BOOL DL2_FillVoids()
 				}
 			}
 		}
-		to++;
+		tries++;
 	}
 
 	return DL2_NumNoChar() <= 700;

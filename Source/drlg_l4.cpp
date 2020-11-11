@@ -239,56 +239,56 @@ static void L4makeDmt()
 	}
 }
 
-static int L4HWallOk(int i, int j)
+static int L4HWallOk(int x, int y)
 {
-	int x;
+	int i;
 	BYTE bv;
 
-	x = i;
+	i = x;
 	while (TRUE) {
-		x++;
-		bv = dungeon[x][j];
-		if (bv != 6)
-			break;
-		if (dflags[x][j] != 0)
-			break;
-		if (dungeon[x][j - 1] != 6)
-			break;
-		if (dungeon[x][j + 1] != 6)
-			break;
-	}
-
-	x -= i;
-	if (x > 3
-	 && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22))
-		return x;
-
-	return -1;
-}
-
-static int L4VWallOk(int i, int j)
-{
-	int y;
-	BYTE bv;
-
-	y = j;
-	while (TRUE) {
-		y++;
+		i++;
 		bv = dungeon[i][y];
 		if (bv != 6)
 			break;
 		if (dflags[i][y] != 0)
 			break;
-		if (dungeon[i - 1][y] != 6)
+		if (dungeon[i][y - 1] != 6)
 			break;
-		if (dungeon[i + 1][y] != 6)
+		if (dungeon[i][y + 1] != 6)
 			break;
 	}
 
-	y -= j;
-	if (y > 3
+	i -= x;
+	if (i > 3
+	 && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22))
+		return i;
+
+	return -1;
+}
+
+static int L4VWallOk(int x, int y)
+{
+	int j;
+	BYTE bv;
+
+	j = y;
+	while (TRUE) {
+		j++;
+		bv = dungeon[x][j];
+		if (bv != 6)
+			break;
+		if (dflags[x][j] != 0)
+			break;
+		if (dungeon[x - 1][j] != 6)
+			break;
+		if (dungeon[x + 1][j] != 6)
+			break;
+	}
+
+	j -= y;
+	if (j > 3
 	 && (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23))
-		return y;
+		return j;
 
 	return -1;
 }

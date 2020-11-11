@@ -15,17 +15,17 @@ int sync_pinum;	// next item to be synchronized on the body of the current playe
 
 static void sync_init_monsters()
 {
-	int i, m, px, py;
+	int i, mnum, px, py;
 
 	px = plr[myplr]._px;
 	py = plr[myplr]._py;
 	for (i = 0; i < nummonsters; i++) {
-		m = monstactive[i];
-		monster_dists[m] = abs(px - monster[m]._mx) + abs(py - monster[m]._my);
-		if (monster[m]._msquelch == 0) {
-			monster_dists[m] += 0x1000;
-		} else if (monster_prio[m] != 0) {
-			monster_prio[m]--;
+		mnum = monstactive[i];
+		monster_dists[mnum] = abs(px - monster[mnum]._mx) + abs(py - monster[mnum]._my);
+		if (monster[mnum]._msquelch == 0) {
+			monster_dists[mnum] += 0x1000;
+		} else if (monster_prio[mnum] != 0) {
+			monster_prio[mnum]--;
 		}
 	}
 }

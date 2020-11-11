@@ -2902,17 +2902,17 @@ static BOOL PlrDoAttack(int pnum)
 static BOOL PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
-	int origFrame, mitype;
+	int frame, mitype;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoRangeAttack: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	origFrame = p->_pAnimFrame;
-	if (p->_pIFlags & ISPL_QUICKATTACK && origFrame == 1) {
+	frame = p->_pAnimFrame;
+	if (p->_pIFlags & ISPL_QUICKATTACK && frame == 1) {
 		p->_pAnimFrame++;
 	}
-	if (p->_pIFlags & ISPL_FASTATTACK && (origFrame == 1 || origFrame == 3)) {
+	if (p->_pIFlags & ISPL_FASTATTACK && (frame == 1 || frame == 3)) {
 		p->_pAnimFrame++;
 	}
 

@@ -2324,7 +2324,7 @@ static BOOL CheckIfTrig(int x, int y)
 void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
-	int i, j, tx, ty, dp;
+	int i, j, tx, ty, pn;
 	char *cr;
 
 	mis = &missile[mi];
@@ -2340,8 +2340,8 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					dp = dPiece[tx][ty];
-					if ((dMissile[tx][ty] | nSolidTable[dp] | nMissileTable[dp] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
+					pn = dPiece[tx][ty];
+					if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 						if (!CheckIfTrig(tx, ty)) {
 							mis->_miDelFlag = FALSE;
 							i = 6;

@@ -52,7 +52,7 @@ void GetObjectStr(int oi);
 void operate_lv24_lever();
 void objects_454BA8();
 void AddUberLever();
-BOOL OpenUberLevel(int s);
+BOOL OpenUberLevel(int bookidx);
 
 #ifdef __cplusplus
 }

@@ -169,16 +169,16 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 
 void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 {
-	DWORD p, t;
+	DWORD i, msglen;
 	TPkt pkt;
 
 	NetRecvPlrData(&pkt);
-	t = len + sizeof(pkt.hdr);
-	pkt.hdr.wLen = t;
+	msglen = len + sizeof(pkt.hdr);
+	pkt.hdr.wLen = msglen;
 	memcpy(pkt.body, src, len);
-	for (p = 0; p < MAX_PLRS; p++, pmask >>= 1) {
+	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
-			if (!SNetSendMessage(p, &pkt.hdr, t) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
+			if (!SNetSendMessage(i, &pkt.hdr, msglen) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;
 			}

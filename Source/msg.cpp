@@ -489,27 +489,27 @@ void delta_init()
 	deltaload = FALSE;
 }
 
-void delta_kill_monster(int mi, BYTE x, BYTE y, BYTE bLevel)
+void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
 		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mi];
+		pD = &sgLevels[bLevel].monster[mnum];
 		pD->_mx = x;
 		pD->_my = y;
-		pD->_mdir = monster[mi]._mdir;
+		pD->_mdir = monster[mnum]._mdir;
 		pD->_mhitpoints = 0;
 	}
 }
 
-void delta_monster_hp(int mi, int hp, BYTE bLevel)
+void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
 		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mi];
+		pD = &sgLevels[bLevel].monster[mnum];
 		if (pD->_mhitpoints > hp)
 			pD->_mhitpoints = hp;
 	}
@@ -554,7 +554,7 @@ static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 
 static void delta_leave_sync(BYTE bLevel)
 {
-	int i, ma;
+	int i, mnum;
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
@@ -562,16 +562,16 @@ static void delta_leave_sync(BYTE bLevel)
 			glSeedTbl[0] = GetRndSeed();
 		} else {
 			for (i = 0; i < nummonsters; ++i) {
-				ma = monstactive[i];
-				if (monster[ma]._mhitpoints != 0) {
+				mnum = monstactive[i];
+				if (monster[mnum]._mhitpoints != 0) {
 					sgbDeltaChanged = TRUE;
-					pD = &sgLevels[bLevel].monster[ma];
-					pD->_mx = monster[ma]._mx;
-					pD->_my = monster[ma]._my;
-					pD->_mdir = monster[ma]._mdir;
-					pD->_menemy = encode_enemy(ma);
-					pD->_mhitpoints = monster[ma]._mhitpoints;
-					pD->_mactive = monster[ma]._msquelch;
+					pD = &sgLevels[bLevel].monster[mnum];
+					pD->_mx = monster[mnum]._mx;
+					pD->_my = monster[mnum]._my;
+					pD->_mdir = monster[mnum]._mdir;
+					pD->_menemy = encode_enemy(mnum);
+					pD->_mhitpoints = monster[mnum]._mhitpoints;
+					pD->_mactive = monster[mnum]._msquelch;
 				}
 			}
 			memcpy(&sgLocals[bLevel], automapview, sizeof(automapview));
