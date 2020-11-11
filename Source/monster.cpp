@@ -5670,6 +5670,7 @@ BOOL PosOkMonst(int mnum, int x, int y)
 
 BOOL monster_posok(int mnum, int x, int y)
 {
+	MissileStruct* mis;
 	BOOL ret = TRUE, fire = FALSE;
 	int mi = dMissile[x][y], i;
 
@@ -5678,7 +5679,6 @@ BOOL monster_posok(int mnum, int x, int y)
 
 #ifdef HELLFIRE
 	BOOL lightning = FALSE;
-	MissileStruct* mis;
 
 	if (mi > 0) {
 		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
@@ -5704,13 +5704,14 @@ BOOL monster_posok(int mnum, int x, int y)
 		ret = FALSE;
 #else
 	if (mi > 0) {
-		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+		if (missile[mi - 1]._mitype == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = TRUE;
-		} else {
-			for (i = 0; i < nummissiles; i++) {
-				if (missile[missileactive[i]]._mitype == MIS_FIREWALL)
-					fire = TRUE;
-			}
+	} else {
+		for (i = 0; i < nummissiles; i++) {
+			mis = &missile[missileactive[i]];
+			if (mis->_mix == x && mis->_miy == y
+			 && mis->_mitype == MIS_FIREWALL)
+				fire = TRUE;
 		}
 	}
 	if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
