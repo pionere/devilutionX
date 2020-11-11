@@ -597,7 +597,7 @@ void ProcessTowners()
 	}
 }
 
-ItemStruct *PlrHasItem(int pnum, int item, int *outidx)
+BOOL PlrHasItem(int pnum, int item, int *outidx)
 {
 	ItemStruct* pi;
 	int i;
@@ -606,11 +606,11 @@ ItemStruct *PlrHasItem(int pnum, int item, int *outidx)
 	for (i = 0; i < plr[pnum]._pNumInv; i++, pi++) {
 		if (pi->IDidx == item) {
 			*outidx = i;
-			return pi;
+			return TRUE;
 		}
 	}
 
-	return NULL;
+	return FALSE;
 }
 
 static void TownerTalk(int talk)
@@ -701,9 +701,9 @@ void TalkToTowner(int pnum, int tnum)
 				}
 #ifdef HELLFIRE
 			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_BANNER, &i) != NULL) {
+			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_BANNER, &i)) {
 #else
-				if (quests[Q_LTBANNER]._qvar2 == 1 && PlrHasItem(pnum, IDI_BANNER, &i) != NULL && !tw->_tMsgSaid) {
+				if (quests[Q_LTBANNER]._qvar2 == 1 && PlrHasItem(pnum, IDI_BANNER, &i) && !tw->_tMsgSaid) {
 #endif
 					quests[Q_LTBANNER]._qactive = QUEST_DONE;
 					quests[Q_LTBANNER]._qvar1 = 3;
@@ -769,9 +769,9 @@ void TalkToTowner(int pnum, int tnum)
 				}
 #ifdef HELLFIRE
 			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ROCK, &i) != NULL) {
+			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ROCK, &i)) {
 #else
-				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) != NULL && !tw->_tMsgSaid) {
+				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) && !tw->_tMsgSaid) {
 #endif
 					quests[Q_ROCK]._qactive = QUEST_DONE;
 					quests[Q_ROCK]._qvar2 = 2;
@@ -803,9 +803,9 @@ void TalkToTowner(int pnum, int tnum)
 				}
 #ifdef HELLFIRE
 			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ANVIL, &i) != NULL) {
+			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ANVIL, &i)) {
 #else
-				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) != NULL && !tw->_tMsgSaid) {
+				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) && !tw->_tMsgSaid) {
 #endif
 					quests[Q_ANVIL]._qactive = QUEST_DONE;
 					quests[Q_ANVIL]._qvar2 = 2;
@@ -829,7 +829,7 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		break;
 	case TOWN_WITCH:
-		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i) != NULL) {
+		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i)) {
 			RemoveInvItem(pnum, i);
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 			quests[Q_MUSHROOM]._qlog = TRUE;
@@ -840,7 +840,7 @@ void TalkToTowner(int pnum, int tnum)
 			tw->_tMsgSaid = TRUE;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 >= QS_TOMEGIVEN && quests[Q_MUSHROOM]._qvar1 <= QS_MUSHPICKED) {
-				if (PlrHasItem(pnum, IDI_MUSHROOM, &i) != NULL) {
+				if (PlrHasItem(pnum, IDI_MUSHROOM, &i)) {
 					RemoveInvItem(pnum, i);
 					quests[Q_MUSHROOM]._qvar1 = 5;
 					Qtalklist[TOWN_HEALER]._qblkm = TEXT_MUSH3;
@@ -858,14 +858,14 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tMsgSaid = TRUE;
 				}
 			} else {
-				if (PlrHasItem(pnum, IDI_SPECELIX, &i) != NULL) {
+				if (PlrHasItem(pnum, IDI_SPECELIX, &i)) {
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_MUSH12);
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
 					tw->_tMsgSaid = TRUE;
 					AllItemsList[IDI_SPECELIX].iUsable = TRUE;
-				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) != NULL && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
+				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
@@ -933,7 +933,7 @@ void TalkToTowner(int pnum, int tnum)
 				}
 			}
 			}
-			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) != NULL) {
+			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i)) {
 				RemoveInvItem(pnum, i);
 				SpawnQuestItem(IDI_SPECELIX, tw->_tx, tw->_ty + 1, 0, 0);
 				InitQTextMsg(TEXT_MUSH4);
@@ -958,7 +958,7 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_STORY:
 		if (gbMaxPlayers == 1) {
-			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i) != NULL) {
+			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i)) {
 				RemoveInvItem(pnum, i);
 				quests[Q_BETRAYER]._qvar1 = 2;
 				tw->_tbtcnt = 150;

@@ -3245,7 +3245,7 @@ static void OperatePedistal(int pnum, int oi)
 
 	os = &object[oi];
 	if (os->_oVar6 != 3) {
-		if (PlrHasItem(pnum, IDI_BLDSTONE, &iv) != NULL) {
+		if (PlrHasItem(pnum, IDI_BLDSTONE, &iv)) {
 			RemoveInvItem(pnum, iv);
 			os->_oAnimFrame++;
 			os->_oVar6++;
