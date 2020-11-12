@@ -426,10 +426,10 @@ static void AddCandles()
 	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 2);
 }
 
-static void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int x2, int y2, int msg)
+static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int msg)
 {
 	DIABOOL exit;
-	int xp, yp, ob, tries, m, n;
+	int xp, yp, oi, tries, m, n;
 
 	tries = 0;
 	exit = FALSE;
@@ -450,20 +450,15 @@ static void AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1, int
 		}
 	}
 
-	if (QuestStatus(Q_BLIND))
-		AddObject(OBJ_BLINDBOOK, xp, yp);
-	if (QuestStatus(Q_WARLORD))
-		AddObject(OBJ_STEELTOME, xp, yp);
-	if (QuestStatus(Q_BLOOD)) {
-		xp = 2 * setpc_x + 25;
-		yp = 2 * setpc_y + 40;
-		AddObject(OBJ_BLOODBOOK, xp, yp);
+	if (x != -1) {
+		xp = x;
+		yp = y;
 	}
-	ob = dObject[xp][yp] - 1;
-	SetObjMapRange(ob, x1, y1, x2, y2, leverid);
-	SetBookMsg(ob, msg);
+	oi = AddObject(type, xp, yp);
+	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
-	object[ob]._oVar6 = object[ob]._oAnimFrame + 1;
+	object[oi]._oVar6 = object[oi]._oAnimFrame + 1;
+	object[oi]._oVar7 = msg;
 }
 
 static void InitRndBarrels()
@@ -1027,7 +1022,7 @@ void InitObjects()
 #endif
 				}
 				quests[Q_BLIND]._qmsg = sp_id;
-				AddBookLever(0, 0, MAXDUNX, MAXDUNY, setpc_x, setpc_y, setpc_w + setpc_x + 1, setpc_h + setpc_y + 1, sp_id);
+				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x + 1, setpc_h + setpc_y + 1, sp_id);
 				mem = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
 				LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
 				mem_free_dbg(mem);
@@ -1049,7 +1044,7 @@ void InitObjects()
 #endif
 				}
 				quests[Q_BLOOD]._qmsg = sp_id;
-				AddBookLever(0, 0, MAXDUNX, MAXDUNY, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
+				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + 25, 2 * setpc_y + 40, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + 25, 2 * setpc_y + 32);
 			}
 			InitRndBarrels();
@@ -1074,7 +1069,7 @@ void InitObjects()
 #endif
 				}
 				quests[Q_WARLORD]._qmsg = sp_id;
-				AddBookLever(0, 0, MAXDUNX, MAXDUNY, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
+				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
 				mem = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
 				LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
 				mem_free_dbg(mem);
@@ -1216,11 +1211,6 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 	os->_oVar3 = x2;
 	os->_oVar4 = y2;
 	os->_oVar8 = v;
-}
-
-void SetBookMsg(int oi, int msg)
-{
-	object[oi]._oVar7 = msg;
 }
 
 static void AddL1Door(int oi, int x, int y, int type)
