@@ -3342,6 +3342,19 @@ static void ReducePlrMana10(PlayerStruct *p)
 	}
 }
 
+static void ConvertPotion(ItemStruct *pi)
+{
+	if (pi->_itype != ITYPE_MISC)
+		return;
+	if (pi->_iMiscId == IMISC_FULLHEAL || pi->_iMiscId == IMISC_FULLMANA) {
+		SetItemData(pi, ItemMiscIdIdx(IMISC_FULLREJUV));
+	} else if (pi->_iMiscId == IMISC_HEAL || pi->_iMiscId == IMISC_MANA) {
+		SetItemData(pi, ItemMiscIdIdx(IMISC_REJUV));
+	} else
+		return;
+	GetItemSeed(pi);
+}
+
 static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 {
 	ObjectStruct *os;
@@ -3640,43 +3653,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (pnum != myplr)
 			break;
 		pi = p->InvList;
-		for (i = p->_pNumInv; i > 0; i--, pi++) {
-			if (pi->_itype == ITYPE_MISC) {
-				if (pi->_iMiscId == IMISC_HEAL
-				    || pi->_iMiscId == IMISC_MANA) {
-					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
-					GetItemSeed(&p->HoldItem);
-					p->HoldItem._iStatFlag = TRUE;
-					*pi = p->HoldItem;
-				}
-				if (pi->_iMiscId == IMISC_FULLHEAL
-				    || pi->_iMiscId == IMISC_FULLMANA) {
-					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
-					GetItemSeed(&p->HoldItem);
-					p->HoldItem._iStatFlag = TRUE;
-					*pi = p->HoldItem;
-				}
-			}
-		}
+		for (i = p->_pNumInv; i > 0; i--, pi++)
+			ConvertPotion(pi);
 		pi = p->SpdList;
-		for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-			if (pi->_itype == ITYPE_MISC) {
-				if (pi->_iMiscId == IMISC_HEAL
-				    || pi->_iMiscId == IMISC_MANA) {
-					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_REJUV));
-					GetItemSeed(&p->HoldItem);
-					p->HoldItem._iStatFlag = TRUE;
-					*pi = p->HoldItem;
-				}
-				if (pi->_iMiscId == IMISC_FULLHEAL
-				    || pi->_iMiscId == IMISC_FULLMANA) {
-					SetItemData(&p->HoldItem, ItemMiscIdIdx(IMISC_FULLREJUV));
-					GetItemSeed(&p->HoldItem);
-					p->HoldItem._iStatFlag = TRUE;
-					*pi = p->HoldItem;
-				}
-			}
-		}
+		for (i = MAXBELTITEMS; i != 0; i--, pi++)
+			ConvertPotion(pi);
 		InitDiabloMsg(EMSG_SHRINE_ELDRITCH);
 		break;
 	case SHRINE_EERIE:
