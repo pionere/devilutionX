@@ -614,10 +614,11 @@ static void AddObjTraps()
 		rndv = 25;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (dObject[i][j] <= 0 || random_(144, 100) >= rndv)
+			oi = dObject[i][j];
+			if (oi <= 0 || random_(144, 100) >= rndv)
 				continue;
 
-			oi = dObject[i][j] - 1;
+			oi--;
 			if (!AllObjects[object[oi]._otype].oTrapFlag)
 				continue;
 
@@ -682,7 +683,7 @@ static void AddChestTraps()
 
 static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
 {
-	int rw, rh, i, j, oi;
+	int rw, rh, i, j, oi, x2, y2;
 	BYTE *lm;
 	long mapoff;
 
@@ -697,12 +698,18 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 	mapoff += rw * 2 * rh * 2;
 	lm += mapoff;
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	x2 = x1 + w;
+	y2 = y1 + h;
+	startx += 16;
+	starty += 16;
+	rw += startx;
+	rh += starty;
+	for (j = starty; j < rh; j++) {
+		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
-				oi = ObjIndex(startx + 16 + i, starty + 16 + j);
-				SetObjMapRange(oi, x1, y1, x1 + w, y1 + h, leveridx);
+				AddObject(ObjTypeConv[*lm], i, j);
+				oi = ObjIndex(i, j);
+				SetObjMapRange(oi, x1, y1, x2, y2, leveridx);
 			}
 			lm += 2;
 		}
@@ -728,10 +735,14 @@ static void LoadMapObjs(BYTE *pMap, int startx, int starty)
 	mapoff += 2 * rw * rh * 2;
 	lm += mapoff;
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	startx += 16;
+	starty += 16;
+	rw += startx;
+	rh += starty;
+	for (j = starty; j < rh; j++) {
+		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
+				AddObject(ObjTypeConv[*lm], i, j);
 			}
 			lm += 2;
 		}
@@ -881,20 +892,15 @@ static void AddHookedBodies(int freq)
 				case 1:
 					AddObject(OBJ_TORTURE2, ii + 1, jj);
 					break;
-				case 2:
+				default:
 					AddObject(OBJ_TORTURE5, ii + 1, jj);
 					break;
 				}
-				continue;
-			}
-			if (dungeon[i][j] == 2 && dungeon[i][j + 1] == 6) {
-				switch (random_(0, 2)) {
-				case 0:
+			} else if (dungeon[i][j] == 2 && dungeon[i][j + 1] == 6) {
+				if (random_(0, 2) == 0) {
 					AddObject(OBJ_TORTURE3, ii, jj);
-					break;
-				case 1:
+				} else {
 					AddObject(OBJ_TORTURE4, ii, jj);
-					break;
 				}
 			}
 		}
@@ -2076,14 +2082,13 @@ static void Obj_BCrossDamage(int oi)
 	p = &plr[myplr];
 	if (p->_pmode == PM_DEATH)
 		return;
+	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
+		return;
 
 	damage = 4 + 2 * leveltype;
 	fire_resist = p->_pFireResist;
 	if (fire_resist > 0)
 		damage -= fire_resist * damage / 100;
-
-	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
-		return;
 
 	p->_pHitPoints -= damage;
 	p->_pHPBase -= damage;
@@ -2332,11 +2337,11 @@ static void DoorSet(int oi, int dx, int dy)
 			ObjSetMicro(dx, dy, 204);
 		if (pn == 79)
 			ObjSetMicro(dx, dy, 208);
-		if (pn == 86 && object[oi]._otype == OBJ_L1LDOOR) {
-			ObjSetMicro(dx, dy, 232);
-		}
-		if (pn == 86 && object[oi]._otype == OBJ_L1RDOOR) {
-			ObjSetMicro(dx, dy, 234);
+		if (pn == 86) {
+			if (object[oi]._otype == OBJ_L1LDOOR)
+				ObjSetMicro(dx, dy, 232);
+			else if (object[oi]._otype == OBJ_L1RDOOR)
+				ObjSetMicro(dx, dy, 234);
 		}
 		if (pn == 91)
 			ObjSetMicro(dx, dy, 215);
@@ -2365,10 +2370,12 @@ static void DoorSet(int oi, int dx, int dy)
 		ObjSetMicro(dx, dy, 392);
 	if (pn == 45)
 		ObjSetMicro(dx, dy, 394);
-	if (pn == 50 && object[oi]._otype == OBJ_L1LDOOR)
-		ObjSetMicro(dx, dy, 411);
-	if (pn == 50 && object[oi]._otype == OBJ_L1RDOOR)
-		ObjSetMicro(dx, dy, 412);
+	if (pn == 50) {
+		if (object[oi]._otype == OBJ_L1LDOOR)
+			ObjSetMicro(dx, dy, 411);
+		else if (object[oi]._otype == OBJ_L1RDOOR)
+			ObjSetMicro(dx, dy, 412);
+	}
 	if (pn == 54)
 		ObjSetMicro(dx, dy, 397);
 	if (pn == 55)
@@ -2751,16 +2758,14 @@ void MonstCheckDoors(int mnum)
 					OperateL1LDoor(myplr, oi, TRUE);
 				if (dpx <= 1 && dpy == 1 && object[oi]._otype == OBJ_L1RDOOR)
 					OperateL1RDoor(myplr, oi, TRUE);
-			}
-			if ((object[oi]._otype == OBJ_L2LDOOR || object[oi]._otype == OBJ_L2RDOOR) && object[oi]._oVar4 == 0) {
+			} else if ((object[oi]._otype == OBJ_L2LDOOR || object[oi]._otype == OBJ_L2RDOOR) && object[oi]._oVar4 == 0) {
 				dpx = abs(object[oi]._ox - mx);
 				dpy = abs(object[oi]._oy - my);
 				if (dpx == 1 && dpy <= 1 && object[oi]._otype == OBJ_L2LDOOR)
 					OperateL2LDoor(myplr, oi, TRUE);
 				if (dpx <= 1 && dpy == 1 && object[oi]._otype == OBJ_L2RDOOR)
 					OperateL2RDoor(myplr, oi, TRUE);
-			}
-			if ((object[oi]._otype == OBJ_L3LDOOR || object[oi]._otype == OBJ_L3RDOOR) && object[oi]._oVar4 == 0) {
+			} else if ((object[oi]._otype == OBJ_L3LDOOR || object[oi]._otype == OBJ_L3RDOOR) && object[oi]._oVar4 == 0) {
 				dpx = abs(object[oi]._ox - mx);
 				dpy = abs(object[oi]._oy - my);
 				if (dpx == 1 && dpy <= 1 && object[oi]._otype == OBJ_L3RDOOR)
@@ -4826,21 +4831,20 @@ static void SyncL2Doors(int oi)
 	int x, y;
 
 	os = &object[oi];
-	if (os->_oVar4 == 0)
-		os->_oMissFlag = FALSE;
-	else
-		os->_oMissFlag = TRUE;
+	os->_oMissFlag = os->_oVar4 != 0;
 	x = os->_ox;
 	y = os->_oy;
 	os->_oSelFlag = 2;
-	if (os->_otype == OBJ_L2LDOOR && os->_oVar4 == 0) {
-		ObjSetMicro(x, y, 538);
-	} else if (os->_otype == OBJ_L2LDOOR && (os->_oVar4 == 1 || os->_oVar4 == 2)) {
-		ObjSetMicro(x, y, 13);
-	} else if (os->_otype == OBJ_L2RDOOR && os->_oVar4 == 0) {
-		ObjSetMicro(x, y, 540);
-	} else if (os->_otype == OBJ_L2RDOOR && (os->_oVar4 == 1 || os->_oVar4 == 2)) {
-		ObjSetMicro(x, y, 17);
+	if (os->_otype == OBJ_L2LDOOR) {
+		if (os->_oVar4 == 0)
+			ObjSetMicro(x, y, 538);
+		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			ObjSetMicro(x, y, 13);
+	} else if (os->_otype == OBJ_L2RDOOR) {
+		if (os->_oVar4 == 0)
+			ObjSetMicro(x, y, 540);
+		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			ObjSetMicro(x, y, 17);
 	}
 }
 
@@ -4854,14 +4858,16 @@ static void SyncL3Doors(int oi)
 	x = os->_ox;
 	y = os->_oy;
 	os->_oSelFlag = 2;
-	if (os->_otype == OBJ_L3LDOOR && os->_oVar4 == 0) {
-		ObjSetMicro(x, y, 531);
-	} else if (os->_otype == OBJ_L3LDOOR && (os->_oVar4 == 1 || os->_oVar4 == 2)) {
-		ObjSetMicro(x, y, 538);
-	} else if (os->_otype == OBJ_L3RDOOR && os->_oVar4 == 0) {
-		ObjSetMicro(x, y, 534);
-	} else if (os->_otype == OBJ_L3RDOOR && (os->_oVar4 == 1 || os->_oVar4 == 2)) {
-		ObjSetMicro(x, y, 541);
+	if (os->_otype == OBJ_L3LDOOR) {
+		if (os->_oVar4 == 0)
+			ObjSetMicro(x, y, 531);
+		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			ObjSetMicro(x, y, 538);
+	} else if (os->_otype == OBJ_L3RDOOR) {
+		if (os->_oVar4 == 0)
+			ObjSetMicro(x, y, 534);
+		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			ObjSetMicro(x, y, 541);
 	}
 }
 

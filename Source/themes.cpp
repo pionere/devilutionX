@@ -222,133 +222,89 @@ static BOOL TFit_Obj3(int tidx)
 
 static BOOL CheckThemeReqs(int theme)
 {
-	BOOL rv;
-
-	rv = TRUE;
 	switch (theme) {
 	case THEME_SHRINE:
 	case THEME_SKELROOM:
 	case THEME_LIBRARY:
-		if (leveltype == DTYPE_CAVES || leveltype == DTYPE_HELL) {
-			rv = FALSE;
-		}
-		break;
+		return leveltype != DTYPE_CAVES && leveltype == DTYPE_HELL;
 	case THEME_BLOODFOUNTAIN:
-		if (!bFountainFlag) {
-			rv = FALSE;
-		}
-		break;
+		return bFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
-		if (!pFountainFlag) {
-			rv = FALSE;
-		}
-		break;
+		return pFountainFlag;
 	case THEME_ARMORSTAND:
-		if (leveltype == DTYPE_CATHEDRAL) {
-			rv = FALSE;
-		}
-		break;
+		return leveltype != DTYPE_CATHEDRAL;
 	case THEME_CAULDRON:
-		if (leveltype != DTYPE_HELL || !cauldronFlag) {
-			rv = FALSE;
-		}
-		break;
+		return leveltype == DTYPE_HELL && cauldronFlag;
 	case THEME_MURKYFOUNTAIN:
-		if (!mFountainFlag) {
-			rv = FALSE;
-		}
-		break;
+		return mFountainFlag;
 	case THEME_TEARFOUNTAIN:
-		if (!tFountainFlag) {
-			rv = FALSE;
-		}
-		break;
+		return tFountainFlag;
 	case THEME_WEAPONRACK:
-		if (leveltype == DTYPE_CATHEDRAL) {
-			rv = FALSE;
-		}
-		break;
+		return leveltype != DTYPE_CATHEDRAL;
+	case THEME_TREASURE:
+		return treasureFlag;
 	}
-
-	return rv;
+	return TRUE;
 }
 
 static BOOL SpecialThemeFit(int tidx, int theme)
 {
 	BOOL rv;
 
-	rv = CheckThemeReqs(theme);
+	if (!CheckThemeReqs(theme))
+		return FALSE;
+
 	switch (theme) {
 	case THEME_SHRINE:
 	case THEME_LIBRARY:
-		if (rv) {
-			rv = TFit_Shrine(tidx);
-		}
+		rv = TFit_Shrine(tidx);
 		break;
 	case THEME_SKELROOM:
-		if (rv) {
-			rv = TFit_SkelRoom(tidx);
-		}
+		rv = TFit_SkelRoom(tidx);
 		break;
 	case THEME_BLOODFOUNTAIN:
-		if (rv) {
-			rv = TFit_Obj5(tidx);
-		}
+		rv = TFit_Obj5(tidx);
 		if (rv) {
 			bFountainFlag = FALSE;
 		}
 		break;
 	case THEME_PURIFYINGFOUNTAIN:
-		if (rv) {
-			rv = TFit_Obj5(tidx);
-		}
+		rv = TFit_Obj5(tidx);
 		if (rv) {
 			pFountainFlag = FALSE;
 		}
 		break;
 	case THEME_MURKYFOUNTAIN:
-		if (rv) {
-			rv = TFit_Obj5(tidx);
-		}
+		rv = TFit_Obj5(tidx);
 		if (rv) {
 			mFountainFlag = FALSE;
 		}
 		break;
 	case THEME_TEARFOUNTAIN:
-		if (rv) {
-			rv = TFit_Obj5(tidx);
-		}
+		rv = TFit_Obj5(tidx);
 		if (rv) {
 			tFountainFlag = FALSE;
 		}
 		break;
 	case THEME_CAULDRON:
-		if (rv) {
-			rv = TFit_Obj5(tidx);
-		}
+		rv = TFit_Obj5(tidx);
 		if (rv) {
 			cauldronFlag = FALSE;
 		}
 		break;
 	case THEME_GOATSHRINE:
-		if (rv) {
-			rv = TFit_GoatShrine(tidx);
-		}
+		rv = TFit_GoatShrine(tidx);
 		break;
 	case THEME_TORTURE:
 	case THEME_DECAPITATED:
 	case THEME_ARMORSTAND:
 	case THEME_BRNCROSS:
 	case THEME_WEAPONRACK:
-		if (rv) {
-			rv = TFit_Obj3(tidx);
-		}
+		rv = TFit_Obj3(tidx);
 		break;
 	case THEME_TREASURE:
-		rv = treasureFlag;
-		if (rv) {
-			treasureFlag = FALSE;
-		}
+		rv = TRUE;
+		treasureFlag = FALSE;
 		break;
 	}
 

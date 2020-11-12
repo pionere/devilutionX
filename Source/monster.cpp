@@ -651,7 +651,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		count2 = 0;
 		for (x = xp - 3; x < xp + 3; x++) {
 			for (y = yp - 3; y < yp + 3; y++) {
-				if (IN_DUNGEON_AREA(x, y) && MonstPlace(x, y)) {
+				if (MonstPlace(x, y)) {
 					count2++;
 				}
 			}
@@ -1339,10 +1339,7 @@ void MonStartStand(int mnum, int md)
 	MonsterStruct *mon;
 
 	mon = &monster[mnum];
-	if (mon->MType->mtype == MT_GOLEM)
-		NewMonsterAnim(mnum, &mon->MType->Anims[MA_WALK], md);
-	else
-		NewMonsterAnim(mnum, &mon->MType->Anims[MA_STAND], md);
+	NewMonsterAnim(mnum, &mon->MType->Anims[mon->MType->mtype == MT_GOLEM ? MA_WALK : MA_STAND], md);
 	mon->_mVar1 = mon->_mmode;
 	mon->_mVar2 = 0;
 	mon->_mVar3 = 0;
@@ -2739,7 +2736,6 @@ static int MonDoTalk(int mnum)
 void MonTeleport(int mnum)
 {
 	MonsterStruct *mon;
-	BOOL tren;
 	int k, j, x, y, _mx, _my, rx, ry;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
@@ -2749,33 +2745,29 @@ void MonTeleport(int mnum)
 	if (mon->_mmode == MM_STONE)
 		return;
 
-	tren = FALSE;
-
 	_mx = mon->_menemyx;
 	_my = mon->_menemyy;
 	rx = 2 * random_(100, 2) - 1;
 	ry = 2 * random_(100, 2) - 1;
 
-	for (j = -1; j <= 1 && !tren; j++) {
-		for (k = -1; k < 1 && !tren; k++) {
+	for (j = -1; j <= 1; j++) {
+		for (k = -1; k < 1; k++) {
 			if (j != 0 || k != 0) {
 				x = _mx + rx * j;
 				y = _my + ry * k;
 				if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
-					if (PosOkMonst(mnum, x, y))
-						tren = TRUE;
+					if (PosOkMonst(mnum, x, y)) {
+						MonClearSquares(mnum);
+						dMonster[mon->_mx][mon->_my] = 0;
+						dMonster[x][y] = mnum + 1;
+						mon->_moldx = x;
+						mon->_moldy = y;
+						mon->_mdir = MonGetDir(mnum);
+						return;
+					}
 				}
 			}
 		}
-	}
-
-	if (tren) {
-		MonClearSquares(mnum);
-		dMonster[mon->_mx][mon->_my] = 0;
-		dMonster[x][y] = mnum + 1;
-		mon->_moldx = x;
-		mon->_moldy = y;
-		mon->_mdir = MonGetDir(mnum);
 	}
 }
 

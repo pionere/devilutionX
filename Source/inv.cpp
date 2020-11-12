@@ -507,7 +507,7 @@ void DrawInvBelt()
 			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 
-		if (AllItemsList[is->IDidx].iUsable && is->_iStatFlag) {
+		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, 0);
@@ -705,81 +705,92 @@ BOOL WeaponAutoPlace(int pnum, ItemStruct *is, BOOL saveflag)
 BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
 {
 	ItemStruct *pi;
-	BOOL done;
 	int i, w, h;
 
 	i = is->_iCurs + CURSOR_FIRSTITEM;
-
 	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
 	h = InvItemHeight[i] / INV_SLOT_SIZE_PX;
 
 	pi = saveflag ? is : NULL;
-	done = FALSE;
 	if (w == 1 && h == 1) {
 		if (AllItemsList[is->IDidx].iUsable && is->_iStatFlag) {
-			for (i = 0; i < MAXBELTITEMS && !done; i++) {
+			for (i = 0; i < MAXBELTITEMS; i++) {
 				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
 					if (pi != NULL) {
 						plr[pnum].SpdList[i] = *pi;
 						CalcPlrScrolls(pnum);
 						drawsbarflag = TRUE;
 					}
-					done = TRUE;
+					return TRUE;
 				}
 			}
 		}
-		for (i = 30; i <= 39 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 30; i <= 39; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 20; i <= 29 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 20; i <= 29; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 10; i <= 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 10; i <= 19; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 0; i <= 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 0; i <= 9; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
 	}
 	if (w == 1 && h == 2) {
-		for (i = 29; i >= 20 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 29; i >= 20; i--) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 9; i >= 0 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 9; i >= 0; i--) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 19; i >= 10 && !done; i--) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 19; i >= 10; i--) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
 	}
 	if (w == 1 && h == 3) {
-		for (i = 0; i < 20 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 0; i < 20; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
 	}
 	if (w == 2 && h == 2) {
-		for (i = 0; i < 10 && !done; i++) {
-			done = AutoPlace(pnum, AP2x2Tbl[i], w, h, pi);
+		for (i = 0; i < 10; i++) {
+			if (AutoPlace(pnum, AP2x2Tbl[i], w, h, pi))
+				return TRUE;
 		}
-		for (i = 21; i < 29 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 21; i < 29; i += 2) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 1; i < 9 && !done; i += 2) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 1; i < 9; i += 2) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 10; i < 19; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
 	}
 	if (w == 2 && h == 3) {
-		for (i = 0; i < 9 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 0; i < 9; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
-		for (i = 10; i < 19 && !done; i++) {
-			done = AutoPlace(pnum, i, w, h, pi);
+		for (i = 10; i < 19; i++) {
+			if (AutoPlace(pnum, i, w, h, pi))
+				return TRUE;
 		}
 	}
-	return done;
+	return FALSE;
 }
 
 int SwapItem(ItemStruct *a, ItemStruct *b)
@@ -821,10 +832,11 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			yo = PANEL_TOP;
 		}
 
-		if (i >= InvRect[r].X + xo && i < InvRect[r].X + xo + INV_SLOT_SIZE_PX) {
-			if (j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX - 1 && j < InvRect[r].Y + yo) {
-				break;
-			}
+		if (i >= InvRect[r].X + xo
+		 && i < InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX - 1
+		 && j < InvRect[r].Y + yo) {
+			break;
 		}
 		if (r == SLOTXY_CHEST_LAST) {
 			if ((sx & 1) == 0)
@@ -1479,11 +1491,13 @@ static void CheckQuestItem(int pnum)
 	idx = is->IDidx;
 	if (idx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-	else if (idx == IDI_MUSHROOM && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
-		sfxdelay = 10;
-		// BUGFIX: Voice for this quest might be wrong in MP
-		sfxdnum = sgSFXSets[SFXS_PLR_95][p->_pClass];
-		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
+	else if (idx == IDI_MUSHROOM) {
+		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
+			sfxdelay = 10;
+			// BUGFIX: Voice for this quest might be wrong in MP
+			sfxdnum = sgSFXSets[SFXS_PLR_95][p->_pClass];
+			quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
+		}
 	} else if (idx == IDI_ANVIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
@@ -2257,12 +2271,16 @@ BOOL UseInvItem(int pnum, int cii)
 		speedlist = TRUE;
 	}
 
-	switch (is->IDidx) {
-	case IDI_MUSHROOM:
+	if (is->IDidx == IDI_GOLD) {
+		StartGoldDrop();
+		return TRUE;
+	}
+	if (is->IDidx == IDI_MUSHROOM) {
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_95][plr[pnum]._pClass];
 		return TRUE;
-	case IDI_FUNGALTM:
+	}
+	if (is->IDidx == IDI_FUNGALTM) {
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_29][plr[pnum]._pClass];
@@ -2270,10 +2288,6 @@ BOOL UseInvItem(int pnum, int cii)
 	}
 
 	if (!AllItemsList[is->IDidx].iUsable) {
-		if (is->_iMiscId == IMISC_NONE && is->_itype == ITYPE_GOLD) {
-			StartGoldDrop();
-			return TRUE;
-		}
 		return FALSE;
 	}
 
@@ -2287,16 +2301,15 @@ BOOL UseInvItem(int pnum, int cii)
 		dropGoldValue = 0;
 	}
 
-	if (is->_iMiscId == IMISC_SCROLL && currlevel == 0 && !spelldata[is->_iSpell].sTownSpell) {
-		return TRUE;
-	}
-
-	if (is->_iMiscId == IMISC_SCROLLT && currlevel == 0 && !spelldata[is->_iSpell].sTownSpell) {
+	if (currlevel == 0
+	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_SCROLLT)
+	 && !spelldata[is->_iSpell].sTownSpell) {
 		return TRUE;
 	}
 
 #ifdef HELLFIRE
-	if (is->_iMiscId > IMISC_RUNEFIRST && is->_iMiscId < IMISC_RUNELAST && currlevel == 0) {
+	if (currlevel == 0
+	 && is->_iMiscId > IMISC_RUNEFIRST && is->_iMiscId < IMISC_RUNELAST) {
 		return TRUE;
 	}
 #endif

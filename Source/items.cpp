@@ -14,7 +14,6 @@ ItemStruct curruitem;
 ItemGetRecordStruct itemrecord[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct item[MAXITEMS + 1];
-BOOL itemhold[3][3];
 #ifdef HELLFIRE
 CornerStoneStruct CornerStone;
 int auricGold = 2 * GOLD_MAX_LIMIT;
@@ -1062,9 +1061,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		if (mi->_mitype == MIS_MANASHIELD && mi->_misource == pnum) {
 			mi->_miVar1 = p->_pHitPoints;
 			mi->_miVar2 = p->_pHPBase;
-#ifdef HELLFIRE
 			break;
-#endif
 		}
 	}
 #ifdef HELLFIRE
@@ -1196,7 +1193,7 @@ static void CalcPlrBookVals(int pnum)
 
 	pi = plr[pnum].InvList;
 	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_MISC && pi->_iMiscId == IMISC_BOOK) {
+		if (pi->_iMiscId == IMISC_BOOK) {
 			SetBookLevel(pnum, pi);
 			ItemStatOk(pnum, pi);
 		}
@@ -1458,22 +1455,22 @@ BOOL ItemSpaceOk(int i, int j)
 
 	oi = dObject[i][j];
 	if (oi != 0) {
-		oi = oi > 0 ? oi - 1 : -(oi + 1);
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSolidFlag)
 			return FALSE;
 	}
 
 	oi = dObject[i + 1][j + 1];
 	if (oi != 0) {
-		oi = oi > 0 ? oi - 1 : -(oi + 1);
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSelFlag != 0)
 			return FALSE;
 	}
 
 	if (dObject[i + 1][j] > 0
-	    && dObject[i][j + 1] > 0
-	    && object[dObject[i + 1][j] - 1]._oSelFlag != 0
-	    && object[dObject[i][j + 1] - 1]._oSelFlag != 0) {
+	 && dObject[i][j + 1] > 0
+	 && object[dObject[i + 1][j] - 1]._oSelFlag != 0
+	 && object[dObject[i][j + 1] - 1]._oSelFlag != 0) {
 		return FALSE;
 	}
 
@@ -1483,53 +1480,44 @@ BOOL ItemSpaceOk(int i, int j)
 static BOOL GetItemSpace(int x, int y, char ii)
 {
 	int i, j, rs;
-	int xx, yy;
+	BOOL slist[9];
 	BOOL savail;
 
-	yy = 0;
-	for (j = y - 1; j <= y + 1; j++) {
-		xx = 0;
-		for (i = x - 1; i <= x + 1; i++) {
-			itemhold[xx][yy] = ItemSpaceOk(i, j);
-			xx++;
-		}
-		yy++;
-	}
-
+	rs = 0;
 	savail = FALSE;
-	for (j = 0; j < 3; j++) {
-		for (i = 0; i < 3; i++) {
-			if (itemhold[i][j])
+	for (j = -1; j <= 1; j++) {
+		for (i = -1; i <= 1; i++) {
+			slist[rs] = ItemSpaceOk(x + i, y + j);
+			if (slist[rs])
 				savail = TRUE;
+			rs++;
 		}
 	}
 
-	rs = random_(13, 15) + 1;
+	rs = random_(13, 15);
 
 	if (!savail)
 		return FALSE;
 
-	xx = 0;
-	yy = 0;
-	while (rs > 0) {
-		if (itemhold[xx][yy])
+	i = 0;
+	while (TRUE) {
+		if (slist[i]) {
+			if (rs == 0)
+				break;
 			rs--;
-		if (rs > 0) {
-			xx++;
-			if (xx == 3) {
-				xx = 0;
-				yy++;
-				if (yy == 3)
-					yy = 0;
-			}
+		}
+		if (++i == 9) {
+			i = 0;
 		}
 	}
 
-	xx += x - 1;
-	yy += y - 1;
-	item[ii]._ix = xx;
-	item[ii]._iy = yy;
-	dItem[xx][yy] = ii + 1;
+	x--;
+	y--;
+	x += i % 3;
+	y += i / 3;
+	item[ii]._ix = x;
+	item[ii]._iy = y;
+	dItem[x][y] = ii + 1;
 
 	return TRUE;
 }
@@ -1597,37 +1585,33 @@ static void GetBookSpell(int ii, int lvl)
 {
 	SpellData *sd;
 	ItemStruct *is;
-	int rv, s, bs;
+	int rv, bs;
 
 	if (lvl == 0)
 		lvl = 1;
-	rv = random_(14, MAX_SPELLS) + 1;
+	rv = random_(14, MAX_SPELLS);
 
 #ifdef SPAWN
 	if (lvl > 5)
 		lvl = 5;
 #endif
 
-	s = SPL_FIREBOLT;
-#ifdef HELLFIRE
 	bs = SPL_FIREBOLT;
-#endif
-	while (rv > 0) {
-		if (spelldata[s].sBookLvl != -1 && lvl >= spelldata[s].sBookLvl) {
+	while (TRUE) {
+		if (spelldata[bs].sBookLvl != -1 && lvl >= spelldata[bs].sBookLvl) {
+			if (rv == 0)
+				break;
 			rv--;
-			bs = s;
 		}
-		s++;
+		bs++;
 		if (gbMaxPlayers == 1) {
-			if (s == SPL_RESURRECT)
-				s = SPL_TELEKINESIS;
+			if (bs == SPL_RESURRECT)
+				bs = SPL_TELEKINESIS;
+			if (bs == SPL_HEALOTHER)
+				bs = SPL_FLARE;
 		}
-		if (gbMaxPlayers == 1) {
-			if (s == SPL_HEALOTHER)
-				s = SPL_FLARE;
-		}
-		if (s == MAX_SPELLS)
-			s = 1;
+		if (bs == MAX_SPELLS)
+			bs = 1;
 	}
 	is = &item[ii];
 	is->_iSpell = bs;
@@ -1704,7 +1688,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 {
 	SpellData *sd;
 	ItemStruct *is;
-	int l, rv, s, minc, maxc, v, bs;
+	int l, rv, minc, maxc, v, bs;
 	char istr[64];
 
 #ifndef HELLFIRE
@@ -1716,26 +1700,29 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 		l = lvl >> 1;
 		if (l == 0)
 			l = 1;
-		rv = random_(18, MAX_SPELLS) + 1;
+		rv = random_(18, MAX_SPELLS);
 
 #ifdef SPAWN
 		if (lvl > 10)
 			lvl = 10;
 #endif
 
-		s = SPL_FIREBOLT;
-		while (rv > 0) {
-			if (spelldata[s].sStaffLvl != -1 && l >= spelldata[s].sStaffLvl) {
+		bs = SPL_FIREBOLT;
+		while (TRUE) {
+			if (spelldata[bs].sStaffLvl != -1 && l >= spelldata[bs].sStaffLvl) {
+				if (rv == 0)
+					break;
 				rv--;
-				bs = s;
 			}
-			s++;
-			if (gbMaxPlayers == 1 && s == SPL_RESURRECT)
-				s = SPL_TELEKINESIS;
-			if (gbMaxPlayers == 1 && s == SPL_HEALOTHER)
-				s = SPL_FLARE;
-			if (s == MAX_SPELLS)
-				s = SPL_FIREBOLT;
+			bs++;
+			if (gbMaxPlayers == 1) {
+				if (bs == SPL_RESURRECT)
+					bs = SPL_TELEKINESIS;
+				if (bs == SPL_HEALOTHER)
+					bs = SPL_FLARE;
+			}
+			if (bs == MAX_SPELLS)
+				bs = SPL_FIREBOLT;
 		}
 		is = &item[ii];
 		sd = &spelldata[bs];
@@ -2616,16 +2603,20 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 {
 	int i, idata, ui;
 	BOOLEAN uok[128];
+	BOOL uniq;
+	char uid;
 
 	if (random_(28, 100) > uper)
 		return UITYPE_INVALID;
 
+	uid = AllItemsList[item[ii].IDidx].iItemId;
+	uniq = !recreate && gbMaxPlayers == 1;
 	ui = 0;
 	memset(uok, 0, sizeof(uok));
 	for (i = 0; UniqueItemList[i].UIItemId != UITYPE_INVALID; i++) {
-		if (UniqueItemList[i].UIItemId == AllItemsList[item[ii].IDidx].iItemId
-		    && lvl >= UniqueItemList[i].UIMinLvl
-		    && (recreate || !UniqueItemFlag[i] || gbMaxPlayers != 1)) {
+		if (UniqueItemList[i].UIItemId == uid
+		 && lvl >= UniqueItemList[i].UIMinLvl
+		 && (!uniq || !UniqueItemFlag[i])) {
 			uok[i] = TRUE;
 			ui++;
 		}
@@ -2636,14 +2627,14 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 
 	random_(29, 10); /// BUGFIX: unused, last unique in array always gets chosen
 	idata = 0;
-	while (ui > 0) {
-		if (uok[idata])
+	while (TRUE) {
+		if (uok[idata]) {
 			ui--;
-		if (ui > 0) {
-			idata++;
-			if (idata == 128)
-				idata = 0;
+			if (ui == 0)
+				break;
 		}
+		if (++idata == 128)
+			idata = 0;
 	}
 
 	return idata;
@@ -4684,7 +4675,7 @@ static BOOL WitchItemOk(int i)
 	if (AllItemsList[i].iMiscId > IMISC_OILFIRST && AllItemsList[i].iMiscId < IMISC_OILLAST)
 		rv = FALSE;
 #endif
-	if ((AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1) || (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1))
+	if (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER))
 		rv = FALSE;
 
 	return rv;

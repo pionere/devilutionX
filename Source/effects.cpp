@@ -1273,10 +1273,6 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		return;
 	}
 
-	if (!(pSFX->bFlags & (sfx_STREAM | sfx_MISC)) && pSFX->pSnd != NULL && snd_playing(pSFX->pSnd)) {
-		return;
-	}
-
 	lPan = 0;
 	lVolume = 0;
 	if (loc && !calc_snd_position(x, y, &lVolume, &lPan)) {
@@ -1288,11 +1284,17 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		return;
 	}
 
-	if (pSFX->pSnd == NULL)
-		pSFX->pSnd = sound_file_load(pSFX->pszName);
+	if (!(pSFX->bFlags & sfx_MISC) && pSFX->pSnd != NULL && snd_playing(pSFX->pSnd)) {
+		return;
+	}
 
-	if (pSFX->pSnd != NULL)
-		snd_play_snd(pSFX->pSnd, lVolume, lPan);
+	if (pSFX->pSnd == NULL) {
+		pSFX->pSnd = sound_file_load(pSFX->pszName);
+		if (pSFX->pSnd == NULL)
+			return;
+	}
+
+	snd_play_snd(pSFX->pSnd, lVolume, lPan);
 }
 
 void PlayEffect(int mnum, int mode)
@@ -1305,11 +1307,11 @@ void PlayEffect(int mnum, int mode)
 		return;
 	}
 
-	sndIdx = random_(164, 2);
 	if (!gbSndInited || !gbSoundOn || gbBufferMsgs != 0) {
 		return;
 	}
 
+	sndIdx = random_(164, 2);
 	mon = &monster[mnum];
 	snd = Monsters[mon->_mMTidx].Snds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {

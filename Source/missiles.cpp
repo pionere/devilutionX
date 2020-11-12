@@ -628,19 +628,19 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 			return FALSE;
 
 	if (mitype == MIS_BONESPIRIT) {
-		dam = mon->_mhitpoints / 3 >> 6;
+		dam = mon->_mhitpoints / 3;
 	} else {
 		dam = mindam + random_(70, maxdam - mindam + 1);
+		if (missiledata[mitype].mType == 0) {
+			dam = p->_pIBonusDamMod + dam * p->_pIBonusDam / 100 + dam;
+			if (p->_pClass == PC_ROGUE)
+				dam += p->_pDamageMod;
+			else
+				dam += (p->_pDamageMod >> 1);
+		}
+		if (!shift)
+			dam <<= 6;
 	}
-	if (missiledata[mitype].mType == 0) {
-		dam = p->_pIBonusDamMod + dam * p->_pIBonusDam / 100 + dam;
-		if (p->_pClass == PC_ROGUE)
-			dam += p->_pDamageMod;
-		else
-			dam += (p->_pDamageMod >> 1);
-	}
-	if (!shift)
-		dam <<= 6;
 	if (resist)
 		dam >>= 2;
 	if (pnum == myplr)
@@ -685,15 +685,11 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 	int hit, hper, tac, dam, blk, blkper, resper;
 
 	p = &plr[pnum];
-	if (p->_pHitPoints >> 6 <= 0) {
+	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
 		return FALSE;
 	}
 
-	if (p->_pInvincible) {
-		return FALSE;
-	}
-
-	if (p->_pSpellFlags & PSE_ETHERALIZED && missiledata[mitype].mType == 0) {
+	if ((p->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
 		return FALSE;
 	}
 
@@ -846,7 +842,7 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 		return FALSE;
 	}
 
-	if (dps->_pSpellFlags & PSE_ETHERALIZED && missiledata[mitype].mType == 0) {
+	if ((dps->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
 		return FALSE;
 	}
 
@@ -3746,8 +3742,7 @@ void MI_Firewall(int mi)
 	if (mis->_mirange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_mlid);
-	}
-	if (mis->_mimfnum != 0 && mis->_mirange != 0 && mis->_miAnimAdd != -1 && mis->_miVar2 < 12) {
+	} else if (mis->_mimfnum != 0 && mis->_miAnimAdd != -1 && mis->_miVar2 < 12) {
 		if (mis->_miVar2 == 0)
 			mis->_mlid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
 		ChangeLight(mis->_mlid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
@@ -4212,8 +4207,8 @@ void MI_FireRing(int mi)
 			pn = dPiece[tx][ty];
 			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
-					if (nMissileTable[pn] || mis->_miVar8)
-						mis->_miVar8 = TRUE;
+					if (nMissileTable[pn])
+						break;
 					else
 						AddMissile(tx, ty, tx, ty, 0, MIS_FIREWALL, 2, src, dam, mis->_mispllvl);
 				}
@@ -4245,8 +4240,8 @@ void MI_LightRing(int mi)
 			pn = dPiece[tx][ty];
 			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
 				if (LineClear(mis->_mix, mis->_miy, tx, ty)) {
-					if (nMissileTable[pn] || mis->_miVar8)
-						mis->_miVar8 = TRUE;
+					if (nMissileTable[pn])
+						break;
 					else
 						AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, 2, src, dam, mis->_mispllvl);
 				}
@@ -4689,10 +4684,11 @@ void MI_Etherealize(int mi)
 		else
 			mis->_miy++;
 	}
-	p->_pSpellFlags |= PSE_ETHERALIZED;
 	if (mis->_mirange == 0 || p->_pHitPoints <= 0) {
 		mis->_miDelFlag = TRUE;
 		p->_pSpellFlags &= ~PSE_ETHERALIZED;
+	} else {
+		p->_pSpellFlags |= PSE_ETHERALIZED;
 	}
 	PutMissile(mi);
 }
@@ -5155,10 +5151,11 @@ void MI_Infra(int mi)
 
 	mis = &missile[mi];
 	mis->_mirange--;
-	plr[mis->_misource]._pInfraFlag = TRUE;
 	if (mis->_mirange == 0) {
 		mis->_miDelFlag = TRUE;
 		CalcPlrItemVals(mis->_misource, TRUE);
+	} else {
+		plr[mis->_misource]._pInfraFlag = TRUE;
 	}
 }
 
@@ -5216,9 +5213,8 @@ void MI_Wave(int mi)
 				// BUGFIX: dPiece is accessed before check against dungeon size and 0
 				if (nMissileTable[dPiece[nx][ny]] || nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY) {
 					break;
-				} else {
-					AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
 				}
+				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
 			}
 		}
 	}

@@ -1940,28 +1940,22 @@ static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 {
 	HALLNODE *p1, *p2;
 
-	if (pHallList == NULL) {
-		pHallList = (HALLNODE *)DiabloAllocPtr(sizeof(*pHallList));
-		pHallList->nHallx1 = nX1;
-		pHallList->nHally1 = nY1;
-		pHallList->nHallx2 = nX2;
-		pHallList->nHally2 = nY2;
-		pHallList->nHalldir = nHd;
-		pHallList->pNext = NULL;
+	p1 = (HALLNODE *)DiabloAllocPtr(sizeof(*p1));
+	p2 = pHallList;
+	if (p2 == NULL) {
+		pHallList = p1;
 	} else {
-		p1 = (HALLNODE *)DiabloAllocPtr(sizeof(*pHallList));
-		p1->nHallx1 = nX1;
-		p1->nHally1 = nY1;
-		p1->nHallx2 = nX2;
-		p1->nHally2 = nY2;
-		p1->nHalldir = nHd;
-		p1->pNext = NULL;
-		p2 = pHallList;
 		while (p2->pNext != NULL) {
 			p2 = p2->pNext;
 		}
 		p2->pNext = p1;
 	}
+	p1->nHallx1 = nX1;
+	p1->nHally1 = nY1;
+	p1->nHallx2 = nX2;
+	p1->nHally2 = nY2;
+	p1->nHalldir = nHd;
+	p1->pNext = NULL;
 }
 
 /**
@@ -2294,13 +2288,13 @@ static void DoPatternCheck(int x, int y)
 					continue;
 				}
 				break;
-			case 4:
-				if (predungeon[xx][yy] == 32) {
+			case 3:
+				if (predungeon[xx][yy] == 68) {
 					continue;
 				}
 				break;
-			case 3:
-				if (predungeon[xx][yy] == 68) {
+			case 4:
+				if (predungeon[xx][yy] == 32) {
 					continue;
 				}
 				break;
@@ -2356,21 +2350,6 @@ static void L2TileFix()
 			}
 		}
 	}
-}
-
-static BOOL DL2_Cont(BOOL x1f, BOOL y1f, BOOL x2f, BOOL y2f)
-{
-	if (x1f && x2f && y1f && y2f) {
-		return FALSE;
-	}
-	if (x1f && x2f && (y1f || y2f)) {
-		return TRUE;
-	}
-	if (y1f && y2f && (x1f || x2f)) {
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 static int DL2_NumNoChar()
@@ -2448,267 +2427,263 @@ static BOOL DL2_FillVoids()
 	BOOL xf1, xf2, yf1, yf2;
 	int tries;
 
-	tries = 0;
-	while (DL2_NumNoChar() > 700 && tries < 100) {
-		xx = random_(0, 38) + 1;
-		yy = random_(0, 38) + 1;
-		if (predungeon[xx][yy] != 35) {
-			continue;
-		}
+	for (tries = 0; DL2_NumNoChar() > 700 && tries < 100; tries++) {
+		do {
+			xx = random_(0, 38) + 1;
+			yy = random_(0, 38) + 1;
+		} while (predungeon[xx][yy] != 35);
 		xf1 = xf2 = yf1 = yf2 = FALSE;
 		if (predungeon[xx - 1][yy] == 32 && predungeon[xx + 1][yy] == 46) {
-			if (predungeon[xx + 1][yy - 1] == 46
-			    && predungeon[xx + 1][yy + 1] == 46
-			    && predungeon[xx - 1][yy - 1] == 32
-			    && predungeon[xx - 1][yy + 1] == 32) {
-				xf1 = yf1 = yf2 = TRUE;
-			}
+			if (predungeon[xx + 1][yy - 1] != 46
+			 || predungeon[xx + 1][yy + 1] != 46
+			 || predungeon[xx - 1][yy - 1] != 32
+			 || predungeon[xx - 1][yy + 1] != 32)
+				continue;
+			xf1 = yf1 = yf2 = TRUE;
 		} else if (predungeon[xx + 1][yy] == 32 && predungeon[xx - 1][yy] == 46) {
-			if (predungeon[xx - 1][yy - 1] == 46
-			    && predungeon[xx - 1][yy + 1] == 46
-			    && predungeon[xx + 1][yy - 1] == 32
-			    && predungeon[xx + 1][yy + 1] == 32) {
-				xf2 = yf1 = yf2 = TRUE;
-			}
+			if (predungeon[xx - 1][yy - 1] != 46
+			 || predungeon[xx - 1][yy + 1] != 46
+			 || predungeon[xx + 1][yy - 1] != 32
+			 || predungeon[xx + 1][yy + 1] != 32)
+				continue;
+			xf2 = yf1 = yf2 = TRUE;
 		} else if (predungeon[xx][yy - 1] == 32 && predungeon[xx][yy + 1] == 46) {
-			if (predungeon[xx - 1][yy + 1] == 46
-			    && predungeon[xx + 1][yy + 1] == 46
-			    && predungeon[xx - 1][yy - 1] == 32
-			    && predungeon[xx + 1][yy - 1] == 32) {
-				yf1 = xf1 = xf2 = TRUE;
-			}
+			if (predungeon[xx - 1][yy + 1] != 46
+			 || predungeon[xx + 1][yy + 1] != 46
+			 || predungeon[xx - 1][yy - 1] != 32
+			 || predungeon[xx + 1][yy - 1] != 32)
+				continue;
+			yf1 = xf1 = xf2 = TRUE;
 		} else if (predungeon[xx][yy + 1] == 32 && predungeon[xx][yy - 1] == 46) {
-			if (predungeon[xx - 1][yy - 1] == 46
-			    && predungeon[xx + 1][yy - 1] == 46
-			    && predungeon[xx - 1][yy + 1] == 32
-			    && predungeon[xx + 1][yy + 1] == 32) {
-				yf2 = xf1 = xf2 = TRUE;
-			}
+			if (predungeon[xx - 1][yy - 1] != 46
+			 || predungeon[xx + 1][yy - 1] != 46
+			 || predungeon[xx - 1][yy + 1] != 32
+			 || predungeon[xx + 1][yy + 1] != 32)
+				continue;
+			yf2 = xf1 = xf2 = TRUE;
+		} else
+			continue;
+		if (xf1) {
+			x1 = xx - 1;
+		} else {
+			x1 = xx;
 		}
-		if (DL2_Cont(xf1, yf1, xf2, yf2)) {
-			if (xf1) {
-				x1 = xx - 1;
-			} else {
-				x1 = xx;
-			}
-			if (xf2) {
-				x2 = xx + 1;
-			} else {
-				x2 = xx;
-			}
-			if (yf1) {
-				y1 = yy - 1;
-			} else {
-				y1 = yy;
-			}
-			if (yf2) {
-				y2 = yy + 1;
-			} else {
-				y2 = yy;
-			}
-			if (!xf1) {
-				while (yf1 || yf2) {
-					if (y1 == 0) {
-						yf1 = FALSE;
-					}
-					if (y2 == DMAXY - 1) {
-						yf2 = FALSE;
-					}
-					if (y2 - y1 >= 14) {
-						yf1 = FALSE;
-						yf2 = FALSE;
-					}
-					if (yf1) {
-						y1--;
-					}
-					if (yf2) {
-						y2++;
-					}
-					if (predungeon[x2][y1] != 32) {
-						yf1 = FALSE;
-					}
-					if (predungeon[x2][y2] != 32) {
-						yf2 = FALSE;
-					}
+		if (xf2) {
+			x2 = xx + 1;
+		} else {
+			x2 = xx;
+		}
+		if (yf1) {
+			y1 = yy - 1;
+		} else {
+			y1 = yy;
+		}
+		if (yf2) {
+			y2 = yy + 1;
+		} else {
+			y2 = yy;
+		}
+		if (!xf1) {
+			while (yf1 || yf2) {
+				if (y1 == 0) {
+					yf1 = FALSE;
 				}
-				y1 += 2;
-				y2 -= 2;
-				if (y2 - y1 > 5) {
-					while (xf2) {
-						if (x2 == 39) {
-							xf2 = FALSE;
-						}
-						if (x2 - x1 >= 12) {
-							xf2 = FALSE;
-						}
-						for (j = y1; j <= y2; j++) {
-							if (predungeon[x2][j] != 32) {
-								xf2 = FALSE;
-							}
-						}
-						if (xf2) {
-							x2++;
-						}
-					}
-					x2 -= 2;
-					if (x2 - x1 > 5) {
-						DL2_DrawRoom(x1, y1, x2, y2);
-						DL2_KnockWalls(x1, y1, x2, y2);
-					}
+				if (y2 == DMAXY - 1) {
+					yf2 = FALSE;
 				}
-			} else if (!xf2) {
-				while (yf1 || yf2) {
-					if (y1 == 0) {
-						yf1 = FALSE;
-					}
-					if (y2 == DMAXY - 1) {
-						yf2 = FALSE;
-					}
-					if (y2 - y1 >= 14) {
-						yf1 = FALSE;
-						yf2 = FALSE;
-					}
-					if (yf1) {
-						y1--;
-					}
-					if (yf2) {
-						y2++;
-					}
-					if (predungeon[x1][y1] != 32) {
-						yf1 = FALSE;
-					}
-					if (predungeon[x1][y2] != 32) {
-						yf2 = FALSE;
-					}
+				if (y2 - y1 >= 14) {
+					yf1 = FALSE;
+					yf2 = FALSE;
 				}
-				y1 += 2;
-				y2 -= 2;
-				if (y2 - y1 > 5) {
-					while (xf1) {
-						if (x1 == 0) {
-							xf1 = FALSE;
-						}
-						if (x2 - x1 >= 12) {
-							xf1 = FALSE;
-						}
-						for (j = y1; j <= y2; j++) {
-							if (predungeon[x1][j] != 32) {
-								xf1 = FALSE;
-							}
-						}
-						if (xf1) {
-							x1--;
-						}
-					}
-					x1 += 2;
-					if (x2 - x1 > 5) {
-						DL2_DrawRoom(x1, y1, x2, y2);
-						DL2_KnockWalls(x1, y1, x2, y2);
-					}
+				if (yf1) {
+					y1--;
 				}
-			} else if (!yf1) {
-				while (xf1 || xf2) {
-					if (x1 == 0) {
-						xf1 = FALSE;
-					}
-					if (x2 == DMAXX - 1) {
+				if (yf2) {
+					y2++;
+				}
+				if (predungeon[x2][y1] != 32) {
+					yf1 = FALSE;
+				}
+				if (predungeon[x2][y2] != 32) {
+					yf2 = FALSE;
+				}
+			}
+			y1 += 2;
+			y2 -= 2;
+			if (y2 - y1 > 5) {
+				while (xf2) {
+					if (x2 == 39) {
 						xf2 = FALSE;
 					}
-					if (x2 - x1 >= 14) {
-						xf1 = FALSE;
+					if (x2 - x1 >= 12) {
 						xf2 = FALSE;
 					}
-					if (xf1) {
-						x1--;
+					for (j = y1; j <= y2; j++) {
+						if (predungeon[x2][j] != 32) {
+							xf2 = FALSE;
+						}
 					}
 					if (xf2) {
 						x2++;
 					}
-					if (predungeon[x1][y2] != 32) {
-						xf1 = FALSE;
-					}
-					if (predungeon[x2][y2] != 32) {
-						xf2 = FALSE;
-					}
 				}
-				x1 += 2;
 				x2 -= 2;
 				if (x2 - x1 > 5) {
-					while (yf2) {
-						if (y2 == DMAXY - 1) {
-							yf2 = FALSE;
-						}
-						if (y2 - y1 >= 12) {
-							yf2 = FALSE;
-						}
-						for (i = x1; i <= x2; i++) {
-							if (predungeon[i][y2] != 32) {
-								yf2 = FALSE;
-							}
-						}
-						if (yf2) {
-							y2++;
-						}
-					}
-					y2 -= 2;
-					if (y2 - y1 > 5) {
-						DL2_DrawRoom(x1, y1, x2, y2);
-						DL2_KnockWalls(x1, y1, x2, y2);
-					}
+					DL2_DrawRoom(x1, y1, x2, y2);
+					DL2_KnockWalls(x1, y1, x2, y2);
 				}
-			} else if (!yf2) {
-				while (xf1 || xf2) {
+			}
+		} else if (!xf2) {
+			while (yf1 || yf2) {
+				if (y1 == 0) {
+					yf1 = FALSE;
+				}
+				if (y2 == DMAXY - 1) {
+					yf2 = FALSE;
+				}
+				if (y2 - y1 >= 14) {
+					yf1 = FALSE;
+					yf2 = FALSE;
+				}
+				if (yf1) {
+					y1--;
+				}
+				if (yf2) {
+					y2++;
+				}
+				if (predungeon[x1][y1] != 32) {
+					yf1 = FALSE;
+				}
+				if (predungeon[x1][y2] != 32) {
+					yf2 = FALSE;
+				}
+			}
+			y1 += 2;
+			y2 -= 2;
+			if (y2 - y1 > 5) {
+				while (xf1) {
 					if (x1 == 0) {
 						xf1 = FALSE;
 					}
-					if (x2 == DMAXX - 1) {
-						xf2 = FALSE;
-					}
-					if (x2 - x1 >= 14) {
+					if (x2 - x1 >= 12) {
 						xf1 = FALSE;
-						xf2 = FALSE;
+					}
+					for (j = y1; j <= y2; j++) {
+						if (predungeon[x1][j] != 32) {
+							xf1 = FALSE;
+						}
 					}
 					if (xf1) {
 						x1--;
 					}
-					if (xf2) {
-						x2++;
-					}
-					if (predungeon[x1][y1] != 32) {
-						xf1 = FALSE;
-					}
-					if (predungeon[x2][y1] != 32) {
-						xf2 = FALSE;
-					}
 				}
 				x1 += 2;
-				x2 -= 2;
 				if (x2 - x1 > 5) {
-					while (yf1) {
-						if (y1 == 0) {
-							yf1 = FALSE;
-						}
-						if (y2 - y1 >= 12) {
-							yf1 = FALSE;
-						}
-						for (i = x1; i <= x2; i++) {
-							if (predungeon[i][y1] != 32) {
-								yf1 = FALSE;
-							}
-						}
-						if (yf1) {
-							y1--;
+					DL2_DrawRoom(x1, y1, x2, y2);
+					DL2_KnockWalls(x1, y1, x2, y2);
+				}
+			}
+		} else if (!yf1) {
+			while (xf1 || xf2) {
+				if (x1 == 0) {
+					xf1 = FALSE;
+				}
+				if (x2 == DMAXX - 1) {
+					xf2 = FALSE;
+				}
+				if (x2 - x1 >= 14) {
+					xf1 = FALSE;
+					xf2 = FALSE;
+				}
+				if (xf1) {
+					x1--;
+				}
+				if (xf2) {
+					x2++;
+				}
+				if (predungeon[x1][y2] != 32) {
+					xf1 = FALSE;
+				}
+				if (predungeon[x2][y2] != 32) {
+					xf2 = FALSE;
+				}
+			}
+			x1 += 2;
+			x2 -= 2;
+			if (x2 - x1 > 5) {
+				while (yf2) {
+					if (y2 == DMAXY - 1) {
+						yf2 = FALSE;
+					}
+					if (y2 - y1 >= 12) {
+						yf2 = FALSE;
+					}
+					for (i = x1; i <= x2; i++) {
+						if (predungeon[i][y2] != 32) {
+							yf2 = FALSE;
 						}
 					}
-					y1 += 2;
-					if (y2 - y1 > 5) {
-						DL2_DrawRoom(x1, y1, x2, y2);
-						DL2_KnockWalls(x1, y1, x2, y2);
+					if (yf2) {
+						y2++;
 					}
+				}
+				y2 -= 2;
+				if (y2 - y1 > 5) {
+					DL2_DrawRoom(x1, y1, x2, y2);
+					DL2_KnockWalls(x1, y1, x2, y2);
+				}
+			}
+		} else if (!yf2) {
+			while (xf1 || xf2) {
+				if (x1 == 0) {
+					xf1 = FALSE;
+				}
+				if (x2 == DMAXX - 1) {
+					xf2 = FALSE;
+				}
+				if (x2 - x1 >= 14) {
+					xf1 = FALSE;
+					xf2 = FALSE;
+				}
+				if (xf1) {
+					x1--;
+				}
+				if (xf2) {
+					x2++;
+				}
+				if (predungeon[x1][y1] != 32) {
+					xf1 = FALSE;
+				}
+				if (predungeon[x2][y1] != 32) {
+					xf2 = FALSE;
+				}
+			}
+			x1 += 2;
+			x2 -= 2;
+			if (x2 - x1 > 5) {
+				while (yf1) {
+					if (y1 == 0) {
+						yf1 = FALSE;
+					}
+					if (y2 - y1 >= 12) {
+						yf1 = FALSE;
+					}
+					for (i = x1; i <= x2; i++) {
+						if (predungeon[i][y1] != 32) {
+							yf1 = FALSE;
+						}
+					}
+					if (yf1) {
+						y1--;
+					}
+				}
+				y1 += 2;
+				if (y2 - y1 > 5) {
+					DL2_DrawRoom(x1, y1, x2, y2);
+					DL2_KnockWalls(x1, y1, x2, y2);
 				}
 			}
 		}
-		tries++;
 	}
 
 	return DL2_NumNoChar() <= 700;

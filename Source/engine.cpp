@@ -665,7 +665,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 
 	dx = x1 - x0;
 	dy = y1 - y0;
-	steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+	steps = std::max(abs(dx), abs(dy));
 	ix = dx / (float)steps;
 	iy = dy / (float)steps;
 	sx = x0;
@@ -1164,6 +1164,7 @@ void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	    nDataSize,
 	    nWidth);
 }
+
 /**
  * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordianates
  * @param col Color index from current palette

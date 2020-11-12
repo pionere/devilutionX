@@ -113,23 +113,20 @@ static unsigned int nthread_handler(void *data)
 	int delta;
 	BOOL received;
 
-	if (nthread_should_run) {
-		while (1) {
-			sgMemCrit.Enter();
-			if (!nthread_should_run)
-				break;
-			nthread_send_and_recv_turn(0, 0);
-			if (nthread_recv_turns(&received))
-				delta = last_tick - SDL_GetTicks();
-			else
-				delta = tick_delay;
+	while (nthread_should_run) {
+		sgMemCrit.Enter();
+		if (!nthread_should_run) {
 			sgMemCrit.Leave();
-			if (delta > 0)
-				SDL_Delay(delta);
-			if (!nthread_should_run)
-				return 0;
+			break;
 		}
+		nthread_send_and_recv_turn(0, 0);
+		if (nthread_recv_turns(&received))
+			delta = last_tick - SDL_GetTicks();
+		else
+			delta = tick_delay;
 		sgMemCrit.Leave();
+		if (delta > 0)
+			SDL_Delay(delta);
 	}
 	return 0;
 }

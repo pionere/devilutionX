@@ -465,39 +465,28 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 	const int ly = themeLoc[themeIndex].y;
 	const int hx = lx + themeLoc[themeIndex].width;
 	const int hy = ly + themeLoc[themeIndex].height;
+	BYTE v;
 
+	// left/right side
+	v = leveltype == DTYPE_CAVES ? 137 : 1;
 	for (yy = ly; yy < hy; yy++) {
-		for (xx = lx; xx < hx; xx++) {
-			if (leveltype == DTYPE_CATACOMBS) {
-				if (yy == ly || yy == hy - 1) {
-					dungeon[xx][yy] = 2;
-				} else if (xx == lx || xx == hx - 1) {
-					dungeon[xx][yy] = 1;
-				} else {
-					dungeon[xx][yy] = 3;
-				}
-			}
-			if (leveltype == DTYPE_CAVES) {
-				if (yy == ly || yy == hy - 1) {
-					dungeon[xx][yy] = 134;
-				} else if (xx == lx || xx == hx - 1) {
-					dungeon[xx][yy] = 137;
-				} else {
-					dungeon[xx][yy] = 7;
-				}
-			}
-			if (leveltype == DTYPE_HELL) {
-				if (yy == ly || yy == hy - 1) {
-					dungeon[xx][yy] = 2;
-				} else if (xx == lx || xx == hx - 1) {
-					dungeon[xx][yy] = 1;
-				} else {
-					dungeon[xx][yy] = 6;
-				}
-			}
+		dungeon[lx][yy] = v;
+		dungeon[hx - 1][yy] = v;
+	}
+	// top/bottom line
+	v = leveltype == DTYPE_CAVES ? 134 : 2;
+	for (xx = lx; xx < hx; xx++) {
+		dungeon[xx][ly] = v;
+		dungeon[xx][hy - 1] = v;
+	}
+	// inner tiles
+	v = leveltype == DTYPE_CATACOMBS ? 3 : (leveltype == DTYPE_CAVES ? 7 : 6);
+	for (yy = ly + 1; yy < hy - 1; yy++) {
+		for (xx = lx + 1; xx < hx - 1; xx++) {
+			dungeon[xx][yy] = v;
 		}
 	}
-
+	// corners
 	if (leveltype == DTYPE_CATACOMBS) {
 		dungeon[lx][ly] = 8;
 		dungeon[hx - 1][ly] = 7;
@@ -517,6 +506,7 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 		dungeon[hx - 1][hy - 1] = 12;
 	}
 
+	// exits
 	if (leveltype == DTYPE_CATACOMBS) {
 		if (random_(0, 2) == 0) {
 			dungeon[hx - 1][(ly + hy) / 2] = 4;
@@ -553,7 +543,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rn
 {
 	int i, j;
 	int themeW, themeH;
-	int rv2, min, max;
+	int min, max;
 
 	themeCount = 0;
 	memset(themeLoc, 0, sizeof(*themeLoc));
@@ -563,15 +553,11 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rn
 				if (rndSize) {
 					min = minSize - 2;
 					max = maxSize - 2;
-					rv2 = min + random_(0, random_(0, themeW - min + 1));
-					if (rv2 >= min && rv2 <= max)
-						themeW = rv2;
-					else
+					themeW = min + random_(0, random_(0, themeW - min + 1));
+					if (themeW > max)
 						themeW = min;
-					rv2 = min + random_(0, random_(0, themeH - min + 1));
-					if (rv2 >= min && rv2 <= max)
-						themeH = rv2;
-					else
+					themeH = min + random_(0, random_(0, themeH - min + 1));
+					if (themeH > max)
 						themeH = min;
 				}
 				themeLoc[themeCount].x = i + 1;

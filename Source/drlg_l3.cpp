@@ -1158,12 +1158,11 @@ static void DRLG_L3River()
 				rx = random_(0, DMAXX);
 				ry = random_(0, DMAXY);
 				i++;
-				// BUGFIX: Move `ry < DMAXY` check before dungeon checks (fixed)
-				while (ry < DMAXY && (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28)) {
-					rx++;
-					if (rx >= DMAXX) {
+				while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
+					if (++rx == DMAXX) {
 						rx = 0;
-						ry++;
+						if (++ry == DMAXY)
+							break;
 					}
 				}
 			}
@@ -1835,8 +1834,7 @@ static void FenceDoorFix()
 					dungeon[i][j] = 7;
 					continue;
 				}
-			}
-			if (dungeon[i][j] == 147) {
+			} else if (dungeon[i][j] == 147) {
 				bv0 = dungeon[i][j + 1];
 				bv1 = dungeon[i][j - 1];
 				if (bv0 > 152 || bv0 < 130 || bv1 > 152 || bv1 < 130) {
@@ -2215,12 +2213,7 @@ static void DRLG_L3(int entry)
 				DRLG_L3FillStraights();
 				DRLG_L3FillDiags();
 				DRLG_L3Edges();
-				if (DRLG_L3GetFloorArea() >= 600) {
-					doneflag = DRLG_L3Lockout();
-				} else {
-					doneflag = FALSE;
-				}
-			} while (!doneflag);
+			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			if (entry == ENTRY_MAIN) {
 #ifdef HELLFIRE

@@ -1125,17 +1125,16 @@ static BOOL L4checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
-	if (x <= 0 || y <= 0) {
+	if (x <= 0 || y <= 0)
 		return FALSE;
-	}
 
 	x2 = x + width;
 	y2 = y + height;
+	if (x2 > 20 || y2 > 20)
+		return FALSE;
+
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			if (i < 0 || i >= 20 || j < 0 || j >= 20) {
-				return FALSE;
-			}
 			if (dung[i][j] != 0) {
 				return FALSE;
 			}
@@ -1604,52 +1603,34 @@ static void DRLG_L4(int entry)
 		}
 		if (QuestStatus(Q_WARLORD)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0);
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
 				ViewX++;
 			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
 				ViewX = 2 * setpc_x + DBORDERX + 6;
 				ViewY = 2 * setpc_y + DBORDERY + 6;
 			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
 				ViewX++;
 			}
 		} else if (currlevel != 15) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0);
-				if (doneflag && currlevel != 16) {
-					doneflag = DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1);
-				}
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
 				ViewX++;
 			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
-				if (doneflag && currlevel != 16) {
-					doneflag = DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE, 1);
-				}
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE, 1))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
 				ViewY++;
 			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
-				if (doneflag && currlevel != 16) {
-					doneflag = DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1);
-				}
-				if (doneflag && currlevel == 13) {
-					doneflag = DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6);
-				}
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
 				ViewX++;
 			}
 		} else {
@@ -1697,10 +1678,7 @@ static void DRLG_L4(int entry)
 	if (currlevel == 15) {
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++) {
-				if (dungeon[i][j] == 98) {
-					Make_SetPC(i - 1, j - 1, 5, 5);
-				}
-				if (dungeon[i][j] == 107) {
+				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
 					Make_SetPC(i - 1, j - 1, 5, 5);
 				}
 			}

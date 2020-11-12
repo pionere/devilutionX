@@ -1278,12 +1278,16 @@ static BOOL L5checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
+	if (x < 0 || y < 0)
+		return FALSE;
+
 	x2 = x + width;
 	y2 = y + height;
+	if (x2 > DMAXX || y2 > DMAXY)
+		return FALSE;
+
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			if (i < 0 || i >= DMAXX || j < 0 || j >= DMAXY)
-				return FALSE;
 			if (dungeon[i][j] != 0)
 				return FALSE;
 		}
@@ -1906,10 +1910,10 @@ static void drlg_l1_crypt_rndset(const BYTE *miniset, int rndper)
 				if (sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
 					found = FALSE;
 				}
-				if (sx < DMAXX - 1 && dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100) {
+				if (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100) {
 					found = FALSE;
 				}
-				if (sy < DMAXY - 1 && dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100) {
+				if (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100) {
 					found = FALSE;
 				}
 				if (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100) {
