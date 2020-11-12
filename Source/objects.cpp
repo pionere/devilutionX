@@ -599,8 +599,7 @@ static void AddL2Torches()
 
 static void AddObjTraps()
 {
-	char oi_trap, oi;
-	int i, j;
+	int i, j, oi;
 	int xp, yp;
 	int rndv;
 
@@ -630,11 +629,10 @@ static void AddObjTraps()
 				if (!WallTrapLocOk(xp, j) || i - xp <= 1)
 					continue;
 
-				AddObject(OBJ_TRAPL, xp, j);
-				oi_trap = dObject[xp][j] - 1;
-				object[oi_trap]._oVar1 = i;
-				object[oi_trap]._oVar2 = j;
 				object[oi]._oTrapFlag = TRUE;
+				oi = AddObject(OBJ_TRAPL, xp, j);
+				object[oi]._oVar1 = i;
+				object[oi]._oVar2 = j;
 			} else {
 				yp = j - 1;
 				while (!nSolidTable[dPiece[i][yp]])
@@ -643,11 +641,10 @@ static void AddObjTraps()
 				if (!WallTrapLocOk(i, yp) || j - yp <= 1)
 					continue;
 
-				AddObject(OBJ_TRAPR, i, yp);
-				oi_trap = dObject[i][yp] - 1;
-				object[oi_trap]._oVar1 = i;
-				object[oi_trap]._oVar2 = j;
 				object[oi]._oTrapFlag = TRUE;
+				oi = AddObject(OBJ_TRAPR, i, yp);
+				object[oi]._oVar1 = i;
+				object[oi]._oVar2 = j;
 			}
 		}
 	}
@@ -707,8 +704,7 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				AddObject(ObjTypeConv[*lm], i, j);
-				oi = ObjIndex(i, j);
+				oi = AddObject(ObjTypeConv[*lm], i, j);
 				SetObjMapRange(oi, x1, y1, x2, y2, leveridx);
 			}
 			lm += 2;
@@ -1160,12 +1156,8 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 
 static void DeleteObject_(int oi, int idx)
 {
-	int ox, oy;
-
-	ox = object[oi]._ox;
-	oy = object[oi]._oy;
-	dObject[ox][oy] = 0;
-	objectavail[-nobjects + MAXOBJECTS] = oi;
+	objectavail[MAXOBJECTS - nobjects] = oi;
+	dObject[object[oi]._ox][object[oi]._oy] = 0;
 	nobjects--;
 	if (nobjects > 0 && idx != nobjects)
 		objectactive[idx] = objectactive[nobjects];
@@ -1202,6 +1194,7 @@ static void SetupObject(int oi, int x, int y, int type)
 		os->_oAnimFrame = ods->oAnimDelay;
 	}
 	os->_oAnimWidth = ods->oAnimWidth;
+	os->_oAnimWidth2 = (os->_oAnimWidth - 64) >> 1;
 	os->_oSolidFlag = ods->oSolidFlag;
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oLight = ods->oLightFlag;
@@ -1613,11 +1606,11 @@ void AddMushPatch()
 
 	if (nobjects < MAXOBJECTS) {
 		GetRndObjLoc(5, &x, &y);
-		oi = objectavail[0];
-		dObject[x + 1][y + 1] = -1 - oi;
-		dObject[x + 2][y + 1] = -1 - oi;
-		dObject[x + 1][y + 2] = -1 - oi;
-		AddObject(OBJ_MUSHPATCH, x + 2, y + 2);
+		oi = AddObject(OBJ_MUSHPATCH, x + 2, y + 2);
+		oi = -(oi + 1);
+		dObject[x + 1][y + 1] = oi;
+		dObject[x + 2][y + 1] = oi;
+		dObject[x + 1][y + 2] = oi;
 	}
 }
 
@@ -1638,13 +1631,12 @@ void AddHBooks(int bookidx, int ox, int oy)
 		return;
 
 	oi = objectavail[0];
-	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
+	nobjects++;
+	objectavail[0] = objectavail[MAXOBJECTS - nobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, OBJ_STORYBOOK);
 	SetupHBook(oi, bookidx);
-	object[oi]._oAnimWidth2 = (object[oi]._oAnimWidth - 64) >> 1;
-	nobjects++;
 }
 
 void SetupHBook(int oi, int bookidx)
@@ -1678,16 +1670,17 @@ void SetupHBook(int oi, int bookidx)
 }
 #endif
 
-void AddObject(int type, int ox, int oy)
+int AddObject(int type, int ox, int oy)
 {
 	int oi;
 
 	if (nobjects >= MAXOBJECTS)
-		return;
+		return -1;
 
 	oi = objectavail[0];
-	objectavail[0] = objectavail[MAXOBJECTS - nobjects - 1];
 	objectactive[nobjects] = oi;
+	nobjects++;
+	objectavail[0] = objectavail[MAXOBJECTS - nobjects];
 	dObject[ox][oy] = oi + 1;
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
@@ -1823,8 +1816,7 @@ void AddObject(int type, int ox, int oy)
 		AddTorturedBody(oi);
 		break;
 	}
-	object[oi]._oAnimWidth2 = (object[oi]._oAnimWidth - 64) >> 1;
-	nobjects++;
+	return oi;
 }
 
 void Obj_Light(int oi, int lr)

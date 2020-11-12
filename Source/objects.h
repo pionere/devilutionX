@@ -33,7 +33,7 @@ void AddSlainHero();
 void AddHBooks(int bookidx, int ox, int oy);
 void SetupHBook(int oi, int bookidx);
 #endif
-void AddObject(int ot, int ox, int oy);
+int AddObject(int ot, int ox, int oy);
 void Obj_Trap(int oi);
 void ProcessObjects();
 void ObjSetMicro(int dx, int dy, int pn);

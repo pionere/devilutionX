@@ -71,10 +71,9 @@ const char *const quest_level_names[] = {
 	"Archbishop Lazarus' Lair",
 };
 
-int ObjIndex(int x, int y)
+static int ObjIndex(int x, int y)
 {
-	int i;
-	int oi;
+	int i, oi;
 
 	for (i = 0; i < nobjects; i++) {
 		oi = objectactive[i];

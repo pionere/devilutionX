@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-int ObjIndex(int x, int y);
 void LoadSetMap();
 
 /* rdata */
