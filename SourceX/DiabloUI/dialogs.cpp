@@ -261,27 +261,31 @@ void UiOkDialog(const char *text, const char *caption, bool error, std::vector<U
 {
 	static bool inDialog = false;
 
-	if (!gbActive || inDialog) {
-		if (SDL_ShowCursor(SDL_ENABLE) <= -1) {
-			SDL_Log(SDL_GetError());
+	if (gbActive && !inDialog) {
+		inDialog = true;
+		Init(text, caption, error, renderBehind.size() > 0);
+		if (font != NULL) {
+			DialogLoop(vecOkDialog, renderBehind);
+			Deinit();
+			inDialog = false;
+			return;
 		}
-#ifndef RUN_TESTS
-		if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, text, caption, NULL) <= -1) {
-			SDL_Log(SDL_GetError());
-#else
-		{
-#endif
-			SDL_Log(text);
-			SDL_Log(caption);
-		}
-		return;
+		Deinit();
+		inDialog = false;
 	}
 
-	inDialog = true;
-	Init(text, caption, error, renderBehind.size() > 0);
-	DialogLoop(vecOkDialog, renderBehind);
-	Deinit();
-	inDialog = false;
+	if (SDL_ShowCursor(SDL_ENABLE) <= -1) {
+		SDL_Log(SDL_GetError());
+	}
+#ifndef RUN_TESTS
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, text, caption, NULL) <= -1) {
+		SDL_Log(SDL_GetError());
+#else
+	{
+#endif
+		SDL_Log(text);
+		SDL_Log(caption);
+	}
 }
 
 void UiErrorOkDialog(const char *text, const char *caption, std::vector<UiItemBase *> renderBehind)
