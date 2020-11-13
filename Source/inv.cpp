@@ -1909,20 +1909,16 @@ int InvPutItem(int pnum, int x, int y)
 	return ii;
 }
 
-int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BOOL Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
-#ifdef HELLFIRE
-    , int to_hit, int max_dam, int min_str, int min_mag, int min_dex, int ac
-#endif
-)
+int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 {
 	int ii;
 
 	if (numitems >= MAXITEMS)
 		return -1;
 
-	if (FindGetItem(idx, icreateinfo, iseed) != -1) {
+	if (FindGetItem(is->IDidx, is->_iCreateInfo, is->_iSeed) != -1) {
 		DrawInvMsg("A duplicate item has been detected from another player.");
-		SyncGetItem(x, y, idx, icreateinfo, iseed);
+		SyncGetItem(x, y, is->IDidx, is->_iCreateInfo, is->_iSeed);
 	}
 
 	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
@@ -1932,27 +1928,7 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 	dItem[x][y] = ii + 1;
 	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
 	itemactive[numitems] = ii;
-
-	if (idx == IDI_EAR) {
-		RecreateEar(ii, icreateinfo, iseed, Id, dur, mdur, ch, mch, ivalue, ibuff);
-	} else {
-		RecreateItem(ii, idx, icreateinfo, iseed, ivalue);
-		if (Id)
-			item[ii]._iIdentified = TRUE;
-		item[ii]._iDurability = dur;
-		item[ii]._iMaxDur = mdur;
-		item[ii]._iCharges = ch;
-		item[ii]._iMaxCharges = mch;
-#ifdef HELLFIRE
-		item[ii]._iPLToHit = to_hit;
-		item[ii]._iMaxDam = max_dam;
-		item[ii]._iMinStr = min_str;
-		item[ii]._iMinMag = min_mag;
-		item[ii]._iMinDex = min_dex;
-		item[ii]._iAC = ac;
-#endif
-	}
-
+	item[ii] = *is;
 	item[ii]._ix = x;
 	item[ii]._iy = y;
 	RespawnItem(ii, TRUE);

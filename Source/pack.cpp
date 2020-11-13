@@ -124,7 +124,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 /**
  * Expand a PkItemStruct in to a ItemStruct
  *
- * Note: last slot of item[MAXITEMS+1] used as temporary buffer
+ * Note: last slot of item[MAXITEMS] used as temporary buffer
  * find real name reference below, possibly [sizeof(item[])/sizeof(ItemStruct)]
  * @param pis The source packed item
  * @param is The distination item
@@ -140,8 +140,7 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 		is->_itype = ITYPE_NONE;
 	} else {
 		if (idx == IDI_EAR) {
-			RecreateEar(
-			    MAXITEMS,
+			RecreateEar(MAXITEMS,
 			    SwapLE16(pis->iCreateInfo),
 			    SwapLE32(pis->iSeed),
 			    pis->bId,
@@ -152,7 +151,11 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 			    SwapLE16(pis->wValue),
 			    SwapLE32(pis->dwBuff));
 		} else {
-			RecreateItem(MAXITEMS, idx, SwapLE16(pis->iCreateInfo), SwapLE32(pis->iSeed), SwapLE16(pis->wValue));
+			RecreateItem(MAXITEMS,
+				idx,
+				SwapLE16(pis->iCreateInfo),
+				SwapLE32(pis->iSeed),
+				SwapLE16(pis->wValue));
 			item[MAXITEMS]._iMagical = pis->bId >> 1;
 			item[MAXITEMS]._iIdentified = pis->bId & 1;
 			item[MAXITEMS]._iDurability = pis->bDur;

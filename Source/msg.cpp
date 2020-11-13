@@ -817,6 +817,78 @@ void DeltaSaveLevel()
 	}
 }
 
+static void UnPackPItem(TCmdPItem *src)
+{
+	if (src->wIndx == IDI_EAR) {
+		RecreateEar(MAXITEMS,
+			src->wCI,
+			src->dwSeed,
+			src->bId,
+			src->bDur,
+			src->bMDur,
+			src->bCh,
+			src->bMCh,
+			src->wValue,
+			src->dwBuff);
+	} else {
+		RecreateItem(MAXITEMS,
+			src->wIndx,
+			src->wCI,
+			src->dwSeed,
+			src->wValue);
+		if (src->bId)
+			item[MAXITEMS]._iIdentified = TRUE;
+		item[MAXITEMS]._iDurability = src->bDur;
+		item[MAXITEMS]._iMaxDur = src->bMDur;
+		item[MAXITEMS]._iCharges = src->bCh;
+		item[MAXITEMS]._iMaxCharges = src->bMCh;
+#ifdef HELLFIRE
+		item[MAXITEMS]._iPLToHit = src->wToHit;
+		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinStr = src->bMinStr;
+		item[MAXITEMS]._iMinMag = src->bMinMag;
+		item[MAXITEMS]._iMinDex = src->bMinDex;
+		item[MAXITEMS]._iAC = src->bAC;
+#endif
+	}
+}
+
+static void UnPackGItem(TCmdGItem *src)
+{
+	if (src->wIndx == IDI_EAR) {
+		RecreateEar(MAXITEMS,
+			src->wCI,
+			src->dwSeed,
+			src->bId,
+			src->bDur,
+			src->bMDur,
+			src->bCh,
+			src->bMCh,
+			src->wValue,
+			src->dwBuff);
+	} else {
+		RecreateItem(MAXITEMS,
+			src->wIndx,
+			src->wCI,
+			src->dwSeed,
+			src->wValue);
+		if (src->bId)
+			item[MAXITEMS]._iIdentified = TRUE;
+		item[MAXITEMS]._iDurability = src->bDur;
+		item[MAXITEMS]._iMaxDur = src->bMDur;
+		item[MAXITEMS]._iCharges = src->bCh;
+		item[MAXITEMS]._iMaxCharges = src->bMCh;
+#ifdef HELLFIRE
+		item[MAXITEMS]._iPLToHit = src->wToHit;
+		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinStr = src->bMinStr;
+		item[MAXITEMS]._iMinMag = src->bMinMag;
+		item[MAXITEMS]._iMinDex = src->bMinDex;
+		item[MAXITEMS]._iAC = src->bAC;
+#endif
+	}
+}
+
 void DeltaLoadLevel()
 {
 	DMonsterStr *mstr;
@@ -889,47 +961,16 @@ void DeltaLoadLevel()
 				DeleteItem(ii, i);
 			}
 		} else if (itm->bCmd == CMD_ACK_PLRINFO) {
+			UnPackPItem(itm);
+			x = itm->x;
+			y = itm->y;
+			if (!CanPut(x, y))
+				FindItemLocation(x, y, &x, &y, DSIZEX / 2);
+
 			ii = itemavail[0];
 			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 			itemactive[numitems] = ii;
-			if (itm->wIndx == IDI_EAR) {
-				RecreateEar(
-					ii,
-					itm->wCI,
-					itm->dwSeed,
-					itm->bId,
-					itm->bDur,
-					itm->bMDur,
-					itm->bCh,
-					itm->bMCh,
-					itm->wValue,
-					itm->dwBuff);
-			} else {
-				RecreateItem(
-					ii,
-					itm->wIndx,
-					itm->wCI,
-					itm->dwSeed,
-					itm->wValue);
-				if (itm->bId)
-					item[ii]._iIdentified = TRUE;
-				item[ii]._iDurability = itm->bDur;
-				item[ii]._iMaxDur = itm->bMDur;
-				item[ii]._iCharges = itm->bCh;
-				item[ii]._iMaxCharges = itm->bMCh;
-#ifdef HELLFIRE
-				item[ii]._iPLToHit = itm->wToHit;
-				item[ii]._iMaxDam = itm->wMaxDam;
-				item[ii]._iMinStr = itm->bMinStr;
-				item[ii]._iMinMag = itm->bMinMag;
-				item[ii]._iMinDex = itm->bMinDex;
-				item[ii]._iAC = itm->bAC;
-#endif
-			}
-			x = itm->x;
-			y = itm->y;
-			FindItemLocation(x, y, &x, &y, DSIZEX / 2);
-
+			item[ii] = item[MAXITEMS];
 			item[ii]._ix = x;
 			item[ii]._iy = y;
 			dItem[x][y] = ii + 1;
@@ -1491,11 +1532,8 @@ static DWORD On_GETITEM(TCmd *pCmd, int pnum)
 			if ((currlevel == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
 					if (currlevel != cmd->bLevel) {
-						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId, cmd->bDur, cmd->bMDur, cmd->bCh, cmd->bMCh, cmd->wValue, cmd->dwBuff
-#ifdef HELLFIRE
-							, cmd->wToHit, cmd->wMaxDam, cmd->bMinStr, cmd->bMinMag, cmd->bMinDex, cmd->bAC
-#endif
-						);
+						UnPackGItem(cmd);
+						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
 						if (ii != -1)
 							InvGetItem(myplr, ii);
 					} else
@@ -1557,11 +1595,8 @@ static DWORD On_AGETITEM(TCmd *pCmd, int pnum)
 			if ((currlevel == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
 					if (currlevel != cmd->bLevel) {
-						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId, cmd->bDur, cmd->bMDur, cmd->bCh, cmd->bMCh, cmd->wValue, cmd->dwBuff
-#ifdef HELLFIRE
-							, cmd->wToHit, cmd->wMaxDam, cmd->bMinStr, cmd->bMinMag, cmd->bMinDex, cmd->bAC
-#endif
-						);
+						UnPackGItem(cmd);
+						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
 						if (ii != -1)
 							AutoGetItem(myplr, ii);
 					} else
@@ -1601,12 +1636,10 @@ static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
 		int ii;
 		if (pnum == myplr)
 			ii = InvPutItem(pnum, cmd->x, cmd->y);
-		else
-			ii = SyncPutItem(pnum, cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId, cmd->bDur, cmd->bMDur, cmd->bCh, cmd->bMCh, cmd->wValue, cmd->dwBuff
-#ifdef HELLFIRE
-							, cmd->wToHit, cmd->wMaxDam, cmd->bMinStr, cmd->bMinMag, cmd->bMinDex, cmd->bAC
-#endif
-				);
+		else {
+			UnPackPItem(cmd);
+			ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+		}
 		if (ii != -1) {
 			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
@@ -1629,11 +1662,8 @@ static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (currlevel == plr[pnum].plrlevel) {
-		int ii = SyncPutItem(pnum, cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId, cmd->bDur, cmd->bMDur, cmd->bCh, cmd->bMCh, cmd->wValue, cmd->dwBuff
-#ifdef HELLFIRE
-			, cmd->wToHit, cmd->wMaxDam, cmd->bMinStr, cmd->bMinMag, cmd->bMinDex, cmd->bAC
-#endif
-		);
+		UnPackPItem(cmd);
+		int ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
 		if (ii != -1) {
 			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
@@ -1657,11 +1687,8 @@ static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (currlevel == plr[pnum].plrlevel && pnum != myplr) {
-			SyncPutItem(pnum, cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId, cmd->bDur, cmd->bMDur, cmd->bCh, cmd->bMCh, cmd->wValue, cmd->dwBuff
-#ifdef HELLFIRE
-				, cmd->wToHit, cmd->wMaxDam, cmd->bMinStr, cmd->bMinMag, cmd->bMinDex, cmd->bAC
-#endif
-			);
+			UnPackPItem(cmd);
+			SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
 		}
 		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);

@@ -43,11 +43,7 @@ BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
 BOOL DropItem();
 void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y);
-int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BOOL Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
-#ifdef HELLFIRE
-	, int to_hit, int max_dam, int min_str, int min_mag, int min_dex, int ac
-#endif
-);
+int SyncPutItem(int pnum, int x, int y, ItemStruct *is);
 char CheckInvHLight();
 void RemoveScroll(int pnum);
 BOOL UseScroll();
