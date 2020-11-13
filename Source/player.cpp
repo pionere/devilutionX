@@ -2037,7 +2037,7 @@ void StripTopGold(int pnum)
 				SetItemData(holditem, IDI_GOLD);
 				GetGoldSeed(pnum, holditem);
 				SetGoldItemValue(holditem, val);
-				if (!GoldAutoPlace(pnum))
+				if (!GoldAutoPlace(pnum, holditem))
 					PlrDeadItem(pnum, holditem, 0, 0);
 			}
 		}

@@ -564,7 +564,7 @@ BOOL AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct *is)
 	return done;
 }
 
-BOOL GoldAutoPlace(int pnum)
+BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -576,7 +576,7 @@ BOOL GoldAutoPlace(int pnum)
 	limit = GOLD_MAX_LIMIT;
 #endif
 	p = &plr[pnum];
-	value = p->HoldItem._ivalue;
+	value = is->_ivalue;
 	pi = p->InvList;
 	done = 0;
 	for (int i = p->_pNumInv; i > 0 && done < 2; i--, pi++) {
@@ -600,14 +600,14 @@ BOOL GoldAutoPlace(int pnum)
 			p->_pNumInv = ii + 1;
 			p->InvGrid[i] = ii + 1;
 			pi = &p->InvList[ii];
-			*pi = p->HoldItem;
+			*pi = *is;
 			value -= limit;
 			if (value <= 0) {
 				SetGoldItemValue(pi, value + limit);
 				done |= 2;
 			} else {
 				SetGoldItemValue(pi, limit);
-				GetItemSeed(&p->HoldItem);
+				GetItemSeed(is);
 				done |= 1;
 			}
 		}
@@ -619,12 +619,12 @@ BOOL GoldAutoPlace(int pnum)
 	p->_pGold = CalculateGold(pnum);
 	if (done == 1) {
 		// partial placement
-		SetGoldItemValue(&p->HoldItem, value);
-		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+		SetGoldItemValue(is, value);
+		NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
 		return FALSE;
 	} else {
 		// complete placement
-		p->HoldItem._itype = ITYPE_NONE;
+		is->_itype = ITYPE_NONE;
 		NewCursor(CURSOR_HAND);
 		return TRUE;
 	}
@@ -1472,14 +1472,12 @@ void CheckInvScrn()
 	}
 }
 
-static void CheckQuestItem(int pnum)
+static void CheckQuestItem(int pnum, ItemStruct *is)
 {
 	PlayerStruct *p;
-	ItemStruct *is;
 	int idx, nn;
 
 	p = &plr[pnum];
-	is = &p->HoldItem;
 	idx = is->IDidx;
 	if (idx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
@@ -1545,7 +1543,7 @@ static void CheckQuestItem(int pnum)
 			tmp = item[nn];
 			GetItemAttrs(nn, IDI_FULLNOTE, 16);
 			SetupItem(nn);
-			p->HoldItem = item[nn];
+			*is = item[nn];
 			item[nn] = tmp;
 		}
 #endif
@@ -1566,18 +1564,6 @@ void InvGetItem(int pnum, int ii)
 	is = &item[ii];
 	if (dItem[is->_ix][is->_iy] == 0)
 		return;
-
-	p = &plr[pnum];
-	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
-		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
-#ifdef HELLFIRE
-	if (is->_iUid != 0)
-#endif
-		is->_iCreateInfo &= ~CF_PREGEN;
-	p->HoldItem = *is;
-	CheckQuestItem(pnum);
-	SetBookLevel(pnum, &p->HoldItem);
-	ItemStatOk(pnum, &p->HoldItem);
 	dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
 	if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
@@ -1591,17 +1577,29 @@ void InvGetItem(int pnum, int ii)
 		CornerStone.item._iPostDraw = FALSE;
 	}
 #endif
+
+	p = &plr[pnum];
+	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
+		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
+#ifdef HELLFIRE
+	if (is->_iUid != 0)
+#endif
+		is->_iCreateInfo &= ~CF_PREGEN;
+	CheckQuestItem(pnum, is);
+	SetBookLevel(pnum, is);
+	ItemStatOk(pnum, is);
+	p->HoldItem = *is;
+	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+	pcursitem = -1;
 	i = 0;
 	while (i < numitems) {
 		if (itemactive[i] == ii) {
-			DeleteItem(itemactive[i], i);
+			DeleteItem(ii, i);
 			i = 0;
 		} else {
 			i++;
 		}
 	}
-	pcursitem = -1;
-	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 }
 
 void AutoGetItem(int pnum, int ii)
@@ -1621,27 +1619,22 @@ void AutoGetItem(int pnum, int ii)
 	}
 
 	is = &item[ii];
-	if (ii != MAXITEMS) {
-		if (dItem[is->_ix][is->_iy] == 0)
-			return;
-	}
+	if (dItem[is->_ix][is->_iy] == 0 && ii != MAXITEMS)
+		return;
 
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	if (is->_iUid != 0)
 #endif
 		is->_iCreateInfo &= ~CF_PREGEN;
-	p->HoldItem = *is; /// BUGFIX: overwrites cursor item, allowing for belt dupe bug
-	CheckQuestItem(pnum);
-	SetBookLevel(pnum, &p->HoldItem);
-	ItemStatOk(pnum, &p->HoldItem);
-	if (p->HoldItem._itype == ITYPE_GOLD) {
-		done = GoldAutoPlace(pnum);
-		if (!done)
-			is->_ivalue = p->HoldItem._ivalue;
+	CheckQuestItem(pnum, is);
+	SetBookLevel(pnum, is);
+	ItemStatOk(pnum, is);
+	if (is->_itype == ITYPE_GOLD) {
+		done = GoldAutoPlace(pnum, is);
 	} else {
-		done = WeaponAutoPlace(pnum, &p->HoldItem, TRUE)
-			|| AutoPlaceInv(pnum, &p->HoldItem, TRUE);
+		done = WeaponAutoPlace(pnum, is, TRUE)
+			|| AutoPlaceInv(pnum, is, TRUE);
 	}
 	if (done) {
 		dItem[is->_ix][is->_iy] = 0;
@@ -1660,7 +1653,7 @@ void AutoGetItem(int pnum, int ii)
 		i = 0;
 		while (i < numitems) {
 			if (itemactive[i] == ii) {
-				DeleteItem(itemactive[i], i);
+				DeleteItem(ii, i);
 				i = 0;
 			} else {
 				i++;
@@ -1726,7 +1719,7 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 		i = 0;
 		while (i < numitems) {
 			if (itemactive[i] == ii) {
-				DeleteItem(itemactive[i], i);
+				DeleteItem(ii, i);
 				i = 0;
 			} else {
 				i++;
