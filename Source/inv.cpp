@@ -1739,6 +1739,9 @@ BOOL CanPut(int x, int y)
 {
 	char oi, oi2;
 
+	if (x < DBORDERX || x >= DSIZEX + DBORDERX || y < DBORDERY || y >= DSIZEY + DBORDERY)
+		return FALSE;
+
 	if (dItem[x][y] != 0)
 		return FALSE;
 	if (nSolidTable[dPiece[x][y]])
@@ -1773,7 +1776,7 @@ BOOL CanPut(int x, int y)
 	return TRUE;
 }
 
-static BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
+BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
 {
 	int dir;
 	int xx, yy, i, j, k;

@@ -771,9 +771,8 @@ void DeltaLoadLevel()
 	MonsterStruct *mon;
 	TCmdPItem* itm;
 	int ii, ot;
-	int i, j, k, l;
-	int x, y, xx, yy;
-	BOOL done;
+	int i;
+	int x, y;
 
 	if (gbMaxPlayers == 1) {
 		return;
@@ -876,22 +875,8 @@ void DeltaLoadLevel()
 			}
 			x = itm->x;
 			y = itm->y;
-			if (!CanPut(x, y)) {
-				done = FALSE;
-				for (k = 1; k < 50 && !done; k++) {
-					for (j = -k; j <= k && !done; j++) {
-						yy = y + j;
-						for (l = -k; l <= k && !done; l++) {
-							xx = x + l;
-							if (CanPut(xx, yy)) {
-								done = TRUE;
-								x = xx;
-								y = yy;
-							}
-						}
-					}
-				}
-			}
+			FindItemLocation(x, y, &x, &y, DSIZEX / 2);
+
 			item[ii]._ix = x;
 			item[ii]._iy = y;
 			dItem[x][y] = ii + 1;

@@ -39,6 +39,7 @@ void AutoGetItem(int pnum, int ii);
 int FindGetItem(int idx, WORD ci, int iseed);
 void SyncGetItem(int x, int y, int idx, WORD ci, int iseed);
 BOOL CanPut(int x, int y);
+BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
 BOOL DropItem();
 void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y);

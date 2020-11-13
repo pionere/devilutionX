@@ -1760,7 +1760,7 @@ static void RespawnDeadItem(ItemStruct *is, int x, int y)
 	is->_itype = ITYPE_NONE;
 }
 
-static void PlrDeadItem(int pnum, ItemStruct *is, int xx, int yy)
+static void PlrDeadItem(int pnum, ItemStruct *is, int dx, int dy)
 {
 	PlayerStruct *p;
 	int x, y;
@@ -1774,28 +1774,16 @@ static void PlrDeadItem(int pnum, ItemStruct *is, int xx, int yy)
 	}
 
 	p = &plr[pnum];
-	x = xx + p->_px;
-	y = yy + p->_py;
-	if ((xx || yy) && ItemSpaceOk(x, y)) {
-		RespawnDeadItem(is, x, y);
+	x = p->_px;
+	y = p->_py;
+	dx += x;
+	dy += y;
+	// BUGFIX: TODO prevent a drop to x, y if it is too bad...
+	if (FindItemLocation(x, y, &dx, &dy, DSIZEX / 2)) {
+		RespawnDeadItem(is, dx, dy);
 		p->HoldItem = *is;
-		NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
+		NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, dx, dy);
 		return;
-	}
-
-	for (k = 1; k < 50; k++) {
-		for (j = -k; j <= k; j++) {
-			y = j + p->_py;
-			for (i = -k; i <= k; i++) {
-				x = i + p->_px;
-				if (ItemSpaceOk(x, y)) {
-					RespawnDeadItem(is, x, y);
-					p->HoldItem = *is;
-					NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, x, y);
-					return;
-				}
-			}
-		}
 	}
 }
 
