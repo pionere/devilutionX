@@ -1557,9 +1557,6 @@ void InvGetItem(int pnum, int ii)
 	PlayerStruct *p;
 	ItemStruct *is;
 	int i;
-#ifdef HELLFIRE
-	BOOL cursor_updated;
-#endif
 
 	if (dropGoldFlag) {
 		dropGoldFlag = FALSE;
@@ -1581,11 +1578,6 @@ void InvGetItem(int pnum, int ii)
 	CheckQuestItem(pnum);
 	SetBookLevel(pnum, &p->HoldItem);
 	ItemStatOk(pnum, &p->HoldItem);
-#ifdef HELLFIRE
-	cursor_updated = FALSE;
-	if (p->HoldItem._itype == ITYPE_GOLD && GoldAutoPlace(pnum))
-		cursor_updated = TRUE;
-#endif
 	dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
 	if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
@@ -1609,10 +1601,7 @@ void InvGetItem(int pnum, int ii)
 		}
 	}
 	pcursitem = -1;
-#ifdef HELLFIRE
-	if (!cursor_updated)
-#endif
-		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 }
 
 void AutoGetItem(int pnum, int ii)
