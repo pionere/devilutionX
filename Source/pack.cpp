@@ -140,7 +140,7 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 		is->_itype = ITYPE_NONE;
 	} else {
 		if (idx == IDI_EAR) {
-			RecreateEar(MAXITEMS,
+			RecreateEar(
 			    SwapLE16(pis->iCreateInfo),
 			    SwapLE32(pis->iSeed),
 			    pis->bId,
@@ -151,7 +151,7 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 			    SwapLE16(pis->wValue),
 			    SwapLE32(pis->dwBuff));
 		} else {
-			RecreateItem(MAXITEMS,
+			RecreateItem(
 				idx,
 				SwapLE16(pis->iCreateInfo),
 				SwapLE32(pis->iSeed),

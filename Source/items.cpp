@@ -2903,13 +2903,13 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 	}
 }
 
-void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
+void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 {
 	ItemStruct *is;
 	int uper;
 	BOOL onlygood, recreate, pregen;
 
-	is = &item[ii];
+	is = &item[MAXITEMS];
 	if (idx == 0) {
 		SetItemData(is, IDI_GOLD);
 		is->_iSeed = iseed;
@@ -2921,9 +2921,9 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 			is->_iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
-				RecreateTownItem(ii, idx, icreateinfo, iseed, ivalue);
+				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed, ivalue);
 			} else if ((icreateinfo & CF_USEFUL) == CF_USEFUL) {
-				SetupAllUseful(ii, iseed, icreateinfo & CF_LEVEL);
+				SetupAllUseful(MAXITEMS, iseed, icreateinfo & CF_LEVEL);
 			} else {
 				uper = 0;
 				onlygood = FALSE;
@@ -2939,15 +2939,15 @@ void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
 					recreate = TRUE;
 				if (icreateinfo & CF_PREGEN)
 					pregen = TRUE;
-				SetupAllItems(ii, idx, iseed, icreateinfo & CF_LEVEL, uper, onlygood, recreate, pregen);
+				SetupAllItems(MAXITEMS, idx, iseed, icreateinfo & CF_LEVEL, uper, onlygood, recreate, pregen);
 			}
 		}
 	}
 }
 
-void RecreateEar(int ii, WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
+void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
 {
-	SetItemData(&item[ii], IDI_EAR);
+	SetItemData(&item[MAXITEMS], IDI_EAR);
 	tempstr[0] = (ic >> 8) & 0x7F;
 	tempstr[1] = ic & 0x7F;
 	tempstr[2] = (iseed >> 24) & 0x7F;
@@ -2965,11 +2965,11 @@ void RecreateEar(int ii, WORD ic, int iseed, int Id, int dur, int mdur, int ch, 
 	tempstr[14] = (ibuff >> 8) & 0x7F;
 	tempstr[15] = ibuff & 0x7F;
 	tempstr[16] = '\0';
-	sprintf(item[ii]._iName, "Ear of %s", tempstr);
-	item[ii]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCEROR;
-	item[ii]._ivalue = ivalue & 0x3F;
-	item[ii]._iCreateInfo = ic;
-	item[ii]._iSeed = iseed;
+	sprintf(item[MAXITEMS]._iName, "Ear of %s", tempstr);
+	item[MAXITEMS]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCEROR;
+	item[MAXITEMS]._ivalue = ivalue & 0x3F;
+	item[MAXITEMS]._iCreateInfo = ic;
+	item[MAXITEMS]._iSeed = iseed;
 }
 
 #ifdef HELLFIRE

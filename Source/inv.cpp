@@ -1179,7 +1179,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
 {
 	PlayerStruct *p;
 
-	RecreateItem(MAXITEMS, idx, wCI, seed, 0);
+	RecreateItem(idx, wCI, seed, 0);
 
 	p = &plr[pnum];
 	p->HoldItem = item[MAXITEMS];

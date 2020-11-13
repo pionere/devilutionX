@@ -62,8 +62,8 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg);
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta);
 void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg);
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta);
-void RecreateItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue);
-void RecreateEar(int ii, WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
+void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
+void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 #ifdef HELLFIRE
 void SaveCornerStone();
 void LoadCornerStone(int x, int y);

@@ -820,7 +820,7 @@ void DeltaSaveLevel()
 static void UnPackPItem(TCmdPItem *src)
 {
 	if (src->wIndx == IDI_EAR) {
-		RecreateEar(MAXITEMS,
+		RecreateEar(
 			src->wCI,
 			src->dwSeed,
 			src->bId,
@@ -831,7 +831,7 @@ static void UnPackPItem(TCmdPItem *src)
 			src->wValue,
 			src->dwBuff);
 	} else {
-		RecreateItem(MAXITEMS,
+		RecreateItem(
 			src->wIndx,
 			src->wCI,
 			src->dwSeed,
@@ -856,7 +856,7 @@ static void UnPackPItem(TCmdPItem *src)
 static void UnPackGItem(TCmdGItem *src)
 {
 	if (src->wIndx == IDI_EAR) {
-		RecreateEar(MAXITEMS,
+		RecreateEar(
 			src->wCI,
 			src->dwSeed,
 			src->bId,
@@ -867,7 +867,7 @@ static void UnPackGItem(TCmdGItem *src)
 			src->wValue,
 			src->dwBuff);
 	} else {
-		RecreateItem(MAXITEMS,
+		RecreateItem(
 			src->wIndx,
 			src->wCI,
 			src->dwSeed,
