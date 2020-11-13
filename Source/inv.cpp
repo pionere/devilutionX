@@ -1823,7 +1823,6 @@ int InvPutItem(int pnum, int x, int y)
 	BOOL done;
 	int dir, ii;
 	int i, j, k;
-	int xx, yy;
 	int xp, yp;
 
 	if (numitems >= MAXITEMS)
@@ -1835,9 +1834,7 @@ int InvPutItem(int pnum, int x, int y)
 	}
 
 	dir = GetDirection(plr[pnum]._px, plr[pnum]._py, x, y);
-	xx = x - plr[pnum]._px;
-	yy = y - plr[pnum]._py;
-	if (abs(xx) > 1 || abs(yy) > 1) {
+	if (abs(x - plr[pnum]._px) > 1 || abs(y - plr[pnum]._py) > 1) {
 		x = plr[pnum]._px + offset_x[dir];
 		y = plr[pnum]._py + offset_y[dir];
 	}
@@ -1873,7 +1870,7 @@ int InvPutItem(int pnum, int x, int y)
 		yp = cursmy;
 		xp = cursmx;
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && xp >= 79 && xp <= 82 && yp >= 61 && yp <= 64) {
-			NetSendCmdLocParam2(0, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, xx, yy);
+			NetSendCmdLocParam2(0, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, 0, 0);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);
