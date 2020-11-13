@@ -1436,45 +1436,38 @@ void CreatePlrItems(int pnum)
 	CalcPlrItemVals(pnum, FALSE);
 }
 
-BOOL ItemSpaceOk(int i, int j)
+BOOL ItemSpaceOk(int x, int y)
 {
-	int oi;
+	int oi, oi2;
 
-	// BUGFIX: Check `i + 1 >= MAXDUNX` and `j + 1 >= MAXDUNY` (applied)
-	if (i < 0 || i + 1 >= MAXDUNX || j < 0 || j + 1 >= MAXDUNY)
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return FALSE;
 
-	if (dMonster[i][j] != 0)
+	if ((dItem[x][y] | dMonster[x][y] | dPlayer[x][y] | nSolidTable[dPiece[x][y]]) != 0)
 		return FALSE;
 
-	if (dPlayer[i][j] != 0)
-		return FALSE;
-
-	if (dItem[i][j] != 0)
-		return FALSE;
-
-	oi = dObject[i][j];
+	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSolidFlag)
 			return FALSE;
 	}
 
-	oi = dObject[i + 1][j + 1];
+	oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (object[oi]._oSelFlag != 0)
 			return FALSE;
 	}
 
-	if (dObject[i + 1][j] > 0
-	 && dObject[i][j + 1] > 0
-	 && object[dObject[i + 1][j] - 1]._oSelFlag != 0
-	 && object[dObject[i][j + 1] - 1]._oSelFlag != 0) {
-		return FALSE;
+	oi = dObject[x + 1][y];
+	if (oi > 0) {
+		oi2 = dObject[x][y + 1];
+		if (oi2 > 0 && object[oi - 1]._oSelFlag != 0 && object[oi2 - 1]._oSelFlag != 0)
+			return FALSE;
 	}
 
-	return !nSolidTable[dPiece[i][j]];
+	return TRUE;
 }
 
 static BOOL GetItemSpace(int x, int y, char ii)

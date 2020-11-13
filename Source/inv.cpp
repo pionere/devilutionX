@@ -1737,14 +1737,12 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 
 BOOL CanPut(int x, int y)
 {
-	char oi, oi2;
+	int oi, oi2;
 
 	if (x < DBORDERX || x >= DSIZEX + DBORDERX || y < DBORDERY || y >= DSIZEY + DBORDERY)
 		return FALSE;
 
-	if (dItem[x][y] != 0)
-		return FALSE;
-	if (nSolidTable[dPiece[x][y]])
+	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
 		return FALSE;
 
 	oi = dObject[x][y];
@@ -1768,10 +1766,9 @@ BOOL CanPut(int x, int y)
 			return FALSE;
 	}
 
-	if (currlevel == 0 && dMonster[x][y] != 0)
-		return FALSE;
-	if (currlevel == 0 && dMonster[x + 1][y + 1] != 0)
-		return FALSE;
+	if (currlevel == 0)
+		if (dMonster[x][y] != 0 || dMonster[x + 1][y + 1] != 0)
+			return FALSE;
 
 	return TRUE;
 }
