@@ -1107,14 +1107,7 @@ bool TryDropItem()
 {
 	cursmx = plr[myplr]._pfutx + 1;
 	cursmy = plr[myplr]._pfuty;
-	if (!DropItem()) {
-		// Try to drop on the other side
-		cursmx--;
-		cursmy++;
-		DropItem();
-	}
-
-	return pcurs == CURSOR_HAND;
+	return DropItem();
 }
 
 void PerformSpellAction()

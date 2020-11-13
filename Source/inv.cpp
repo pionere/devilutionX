@@ -1778,26 +1778,29 @@ static BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
 	int dir;
 	int xx, yy, i, j, k;
 
-	dir = GetDirection(sx, sy, *dx, *dy);
-	*dx = sx + offset_x[dir];
-	*dy = sy + offset_y[dir];
-	if (CanPut(*dx, *dy))
-		return TRUE;
-		
-	dir = (dir - 1) & 7;
-	*dx = sx + offset_x[dir];
-	*dy = sy + offset_y[dir];
-	if (CanPut(*dx, *dy))
-		return TRUE;
+	if (sx != *dx || sy != *dy) {
+		dir = GetDirection(sx, sy, *dx, *dy);
+		*dx = sx + offset_x[dir];
+		*dy = sy + offset_y[dir];
+		if (CanPut(*dx, *dy))
+			return TRUE;
 
-	dir = (dir + 2) & 7;
-	*dx = sx + offset_x[dir];
-	*dy = sy + offset_y[dir];
-	if (CanPut(*dx, *dy))
-		return TRUE;
+		dir = (dir - 1) & 7;
+		*dx = sx + offset_x[dir];
+		*dy = sy + offset_y[dir];
+		if (CanPut(*dx, *dy))
+			return TRUE;
 
-	*dx = sx;
-	*dy = sy;
+		dir = (dir + 2) & 7;
+		*dx = sx + offset_x[dir];
+		*dy = sy + offset_y[dir];
+		if (CanPut(*dx, *dy))
+			return TRUE;
+
+		*dx = sx;
+		*dy = sy;
+	}
+
 	if (CanPut(*dx, *dy))
 		return TRUE;
 
@@ -1821,16 +1824,14 @@ static BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
 
 BOOL DropItem()
 {
-	int x, y, px, py;
+	int x, y;
 
 	if (numitems >= MAXITEMS)
 		return FALSE;
 
-	px = plr[myplr]._px;
-	py = plr[myplr]._py;
 	x = cursmx;
 	y = cursmy;
-	if (!FindItemLocation(px, py, &x, &y, 0))
+	if (!FindItemLocation(plr[myplr]._px, plr[myplr]._py, &x, &y, 1))
 		return FALSE;
 
 	NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
