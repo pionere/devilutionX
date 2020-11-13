@@ -118,26 +118,18 @@ void FreeInvGFX()
 
 void InitInv()
 {
-	if (plr[myplr]._pClass == PC_WARRIOR) {
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
-	} else if (plr[myplr]._pClass == PC_ROGUE) {
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv_rog.CEL", NULL);
-	} else if (plr[myplr]._pClass == PC_SORCERER) {
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
+	const char *const invSets[NUM_CLASSES] = {
+		"Data\\Inv\\Inv.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv_Sor.CEL"
 #ifdef HELLFIRE
-	} else if (plr[myplr]._pClass == PC_MONK) {
 #ifdef SPAWN
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
+		, "Data\\Inv\\Inv.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv.CEL"
 #else
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv_Sor.CEL", NULL);
+		, "Data\\Inv\\Inv_Sor.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv.CEL"
 #endif
-	} else if (plr[myplr]._pClass == PC_BARD) {
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv_rog.CEL", NULL);
-	} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-		pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
 #endif
-	}
+	};
 
+	pInvCels = LoadFileInMem(invSets[plr[myplr]._pClass], NULL);
 	invflag = FALSE;
 	drawsbarflag = FALSE;
 }
