@@ -1056,8 +1056,9 @@ TSFX sgSFX[] = {
 
 const int const sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 #ifdef HELLFIRE
-	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8,  PS_MONK8,  PS_ROGUE8,  PS_WARR8 },
-	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9,  PS_MONK9,  PS_ROGUE9,  PS_WARR9 },
+	{ sfx_WARRIOR, sfx_ROGUE, sfx_SORCEROR, sfx_MONK, sfx_ROGUE, sfx_WARRIOR },
+	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8,  PS_MONK8,  PS_ROGUE8,  PS_WARR8  },
+	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9,  PS_MONK9,  PS_ROGUE9,  PS_WARR9  },
 	{ PS_WARR13, PS_ROGUE13, PS_MAGE13, PS_MONK13, PS_ROGUE13, PS_WARR13 },
 	{ PS_WARR14, PS_ROGUE14, PS_MAGE14, PS_MONK14, PS_ROGUE14, PS_WARR14 },
 	{ PS_WARR16, PS_ROGUE16, PS_MAGE16, PS_MONK16, PS_ROGUE16, PS_WARR16 },
@@ -1091,8 +1092,9 @@ const int const sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR98, PS_ROGUE98, PS_MAGE98, PS_MONK98, PS_ROGUE98, PS_WARR98 },
 	{ PS_WARR99, PS_ROGUE99, PS_MAGE99, PS_MONK99, PS_ROGUE99, PS_WARR99 },
 #else
-	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8 },
-	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9 },
+	{ sfx_WARRIOR, sfx_ROGUE, sfx_SORCEROR },
+	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8  },
+	{ PS_WARR9,  PS_ROGUE9,  PS_MAGE9  },
 	{ PS_WARR13, PS_ROGUE13, PS_MAGE13 },
 	{ PS_WARR14, PS_ROGUE14, PS_MAGE14 },
 	{ PS_WARR16, PS_ROGUE16, PS_MAGE16 },
@@ -1417,22 +1419,8 @@ void sound_init()
 #ifdef HELLFIRE
 		mask |= sfx_MONK;
 #endif
-	} else if (plr[myplr]._pClass == PC_WARRIOR) {
-		mask |= sfx_WARRIOR;
-	} else if (plr[myplr]._pClass == PC_ROGUE) {
-		mask |= sfx_ROGUE;
-	} else if (plr[myplr]._pClass == PC_SORCERER) {
-		mask |= sfx_SORCEROR;
-#ifdef HELLFIRE
-	} else if (plr[myplr]._pClass == PC_MONK) {
-		mask |= sfx_MONK;
-	} else if (plr[myplr]._pClass == PC_BARD) {
-		mask |= sfx_ROGUE;
-	} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-		mask |= sfx_WARRIOR;
-#endif
 	} else {
-		app_fatal("effects:1");
+		mask |= sgSFXSets[SFXS_MASK][plr[myplr]._pClass];
 	}
 
 	priv_sound_init(mask);

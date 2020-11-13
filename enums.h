@@ -1351,6 +1351,7 @@ typedef enum sfx_flag {
 } sfx_flag;
 
 typedef enum sfx_set {
+	SFXS_MASK,
 	SFXS_PLR_08,
 	SFXS_PLR_09,
 	SFXS_PLR_13,
