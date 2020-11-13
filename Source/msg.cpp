@@ -700,6 +700,74 @@ BOOL delta_quest_inited(int i)
 	return sgJunk.quests[i].qstate != 0xFF;
 }
 
+static void PackPItem(TCmdPItem* dest, ItemStruct* src)
+{
+	dest->wIndx = src->IDidx;
+
+	if (src->IDidx == IDI_EAR) {
+		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
+		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->bId = src->_iName[13];
+		dest->bDur = src->_iName[14];
+		dest->bMDur = src->_iName[15];
+		dest->bCh = src->_iName[16];
+		dest->bMCh = src->_iName[17];
+		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+	} else {
+		dest->wCI = src->_iCreateInfo;
+		dest->dwSeed = src->_iSeed;
+		dest->bId = src->_iIdentified;
+		dest->bDur = src->_iDurability;
+		dest->bMDur = src->_iMaxDur;
+		dest->bCh = src->_iCharges;
+		dest->bMCh = src->_iMaxCharges;
+		dest->wValue = src->_ivalue;
+#ifdef HELLFIRE
+		dest->wToHit = src->_iPLToHit;
+		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinStr = src->_iMinStr;
+		dest->bMinMag = src->_iMinMag;
+		dest->bMinDex = src->_iMinDex;
+		dest->bAC = src->_iAC;
+#endif
+	}
+}
+
+static void PackGItem(TCmdGItem* dest, ItemStruct* src)
+{
+	dest->wIndx = src->IDidx;
+
+	if (src->IDidx == IDI_EAR) {
+		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
+		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->bId = src->_iName[13];
+		dest->bDur = src->_iName[14];
+		dest->bMDur = src->_iName[15];
+		dest->bCh = src->_iName[16];
+		dest->bMCh = src->_iName[17];
+		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+	} else {
+		dest->wCI = src->_iCreateInfo;
+		dest->dwSeed = src->_iSeed;
+		dest->bId = src->_iIdentified;
+		dest->bDur = src->_iDurability;
+		dest->bMDur = src->_iMaxDur;
+		dest->bCh = src->_iCharges;
+		dest->bMCh = src->_iMaxCharges;
+		dest->wValue = src->_ivalue;
+#ifdef HELLFIRE
+		dest->wToHit = src->_iPLToHit;
+		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinStr = src->_iMinStr;
+		dest->bMinMag = src->_iMinMag;
+		dest->bMinDex = src->_iMinDex;
+		dest->bAC = src->_iAC;
+#endif
+	}
+}
+
 void DeltaAddItem(int ii)
 {
 	ItemStruct *is;
@@ -728,23 +796,8 @@ void DeltaAddItem(int ii)
 			pD->bCmd = CMD_STAND;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
-			pD->wIndx = is->IDidx;
-			pD->wCI = is->_iCreateInfo;
-			pD->dwSeed = is->_iSeed;
-			pD->bId = is->_iIdentified;
-			pD->bDur = is->_iDurability;
-			pD->bMDur = is->_iMaxDur;
-			pD->bCh = is->_iCharges;
-			pD->bMCh = is->_iMaxCharges;
-			pD->wValue = is->_ivalue;
-#ifdef HELLFIRE
-			pD->wToHit = is->_iPLToHit;
-			pD->wMaxDam = is->_iMaxDam;
-			pD->bMinStr = is->_iMinStr;
-			pD->bMinMag = is->_iMinMag;
-			pD->bMinDex = is->_iMinDex;
-			pD->bAC = is->_iAC;
-#endif
+
+			PackPItem(pD, is);
 			return;
 		}
 	}
@@ -1061,28 +1114,8 @@ void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 	is = &item[ii];
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
-	cmd.wIndx = is->IDidx;
 
-	if (is->IDidx == IDI_EAR) {
-		cmd.wCI = is->_iName[8] | (is->_iName[7] << 8);
-		cmd.dwSeed = is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8);
-		cmd.bId = is->_iName[13];
-		cmd.bDur = is->_iName[14];
-		cmd.bMDur = is->_iName[15];
-		cmd.bCh = is->_iName[16];
-		cmd.bMCh = is->_iName[17];
-		cmd.wValue = is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6);
-		cmd.dwBuff = is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8);
-	} else {
-		cmd.wCI = is->_iCreateInfo;
-		cmd.dwSeed = is->_iSeed;
-		cmd.bId = is->_iIdentified;
-		cmd.bDur = is->_iDurability;
-		cmd.bMDur = is->_iMaxDur;
-		cmd.bCh = is->_iCharges;
-		cmd.bMCh = is->_iMaxCharges;
-		cmd.wValue = is->_ivalue;
-	}
+	PackGItem(&cmd, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -1160,40 +1193,6 @@ static void NetSendCmdExtra(TCmdGItem *p)
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-static void packItem(TCmdPItem* dest, ItemStruct* src)
-{
-	dest->wIndx = src->IDidx;
-
-	if (src->IDidx == IDI_EAR) {
-		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
-		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
-		dest->bId = src->_iName[13];
-		dest->bDur = src->_iName[14];
-		dest->bMDur = src->_iName[15];
-		dest->bCh = src->_iName[16];
-		dest->bMCh = src->_iName[17];
-		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCEROR) << 6);
-		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
-	} else {
-		dest->wCI = src->_iCreateInfo;
-		dest->dwSeed = src->_iSeed;
-		dest->bId = src->_iIdentified;
-		dest->bDur = src->_iDurability;
-		dest->bMDur = src->_iMaxDur;
-		dest->bCh = src->_iCharges;
-		dest->bMCh = src->_iMaxCharges;
-		dest->wValue = src->_ivalue;
-#ifdef HELLFIRE
-		dest->wToHit = src->_iPLToHit;
-		dest->wMaxDam = src->_iMaxDam;
-		dest->bMinStr = src->_iMinStr;
-		dest->bMinMag = src->_iMinMag;
-		dest->bMinDex = src->_iMinDex;
-		dest->bAC = src->_iAC;
-#endif
-	}
-}
-
 void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 {
 	TCmdPItem cmd;
@@ -1202,7 +1201,7 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 	cmd.x = x;
 	cmd.y = y;
 
-	packItem(&cmd, &plr[myplr].HoldItem);
+	PackPItem(&cmd, &plr[myplr].HoldItem);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -1249,7 +1248,7 @@ void NetSendCmdDItem(BOOL bHiPri, int ii)
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
 
-	packItem(&cmd, is);
+	PackPItem(&cmd, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
