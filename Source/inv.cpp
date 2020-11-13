@@ -1773,34 +1773,60 @@ BOOL CanPut(int x, int y)
 	return TRUE;
 }
 
+static BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
+{
+	int dir;
+	int xx, yy, i, j, k;
+
+	dir = GetDirection(sx, sy, *dx, *dy);
+	*dx = sx + offset_x[dir];
+	*dy = sy + offset_y[dir];
+	if (CanPut(*dx, *dy))
+		return TRUE;
+		
+	dir = (dir - 1) & 7;
+	*dx = sx + offset_x[dir];
+	*dy = sy + offset_y[dir];
+	if (CanPut(*dx, *dy))
+		return TRUE;
+
+	dir = (dir + 2) & 7;
+	*dx = sx + offset_x[dir];
+	*dy = sy + offset_y[dir];
+	if (CanPut(*dx, *dy))
+		return TRUE;
+
+	xx = *dx;
+	yy = *dy;
+	for (k = 1; k <= rad; k++) {
+		for (j = -k; j <= k; j++) {
+			yy = j + sy;
+			for (i = -k; i <= k; i++) {
+				xx = i + sx;
+				if (CanPut(xx, yy)) {
+					*dx = xx;
+					*dy = yy;
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
 BOOL DropItem()
 {
-	int x, y, px, py, dir;
+	int x, y, px, py;
 
 	if (numitems >= MAXITEMS)
 		return FALSE;
 
 	px = plr[myplr]._px;
 	py = plr[myplr]._py;
-	dir = GetDirection(px, py, cursmx, cursmy);
-	x = px + offset_x[dir];
-	y = py + offset_y[dir];
-	if (!CanPut(x, y)) {
-		dir = (dir - 1) & 7;
-		x = px + offset_x[dir];
-		y = py + offset_y[dir];
-		if (!CanPut(x, y)) {
-			dir = (dir + 2) & 7;
-			x = px + offset_x[dir];
-			y = py + offset_y[dir];
-			if (!CanPut(x, y)) {
-				x = px;
-				y = py;
-				if (!CanPut(x, y))
-					return FALSE;
-			}
-		}
-	}
+	x = cursmx;
+	y = cursmy;
+	if (!FindItemLocation(px, py, &x, &y, 0) && !CanPut(px, py))
+		return FALSE;
 
 	NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
 	NewCursor(CURSOR_HAND);
@@ -1820,9 +1846,7 @@ void DrawInvMsg(const char *msg)
 
 int InvPutItem(int pnum, int x, int y)
 {
-	BOOL done;
-	int dir, ii;
-	int i, j, k;
+	int ii;
 	int xp, yp;
 
 	if (numitems >= MAXITEMS)
@@ -1833,37 +1857,8 @@ int InvPutItem(int pnum, int x, int y)
 		SyncGetItem(x, y, plr[pnum].HoldItem.IDidx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed);
 	}
 
-	dir = GetDirection(plr[pnum]._px, plr[pnum]._py, x, y);
-	if (abs(x - plr[pnum]._px) > 1 || abs(y - plr[pnum]._py) > 1) {
-		x = plr[pnum]._px + offset_x[dir];
-		y = plr[pnum]._py + offset_y[dir];
-	}
-	if (!CanPut(x, y)) {
-		dir = (dir - 1) & 7;
-		x = plr[pnum]._px + offset_x[dir];
-		y = plr[pnum]._py + offset_y[dir];
-		if (!CanPut(x, y)) {
-			dir = (dir + 2) & 7;
-			x = plr[pnum]._px + offset_x[dir];
-			y = plr[pnum]._py + offset_y[dir];
-			if (!CanPut(x, y)) {
-				done = FALSE;
-				for (k = 1; k < 50 && !done; k++) {
-					for (j = -k; j <= k && !done; j++) {
-						y = j + plr[pnum]._py;
-						for (i = -k; i <= k && !done; i++) {
-							x = i + plr[pnum]._px;
-							if (CanPut(x, y)) {
-								done = TRUE;
-							}
-						}
-					}
-				}
-				if (!done)
-					return -1;
-			}
-		}
-	}
+	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
+		return -1;
 
 #ifdef HELLFIRE
 	if (currlevel == 0) {
@@ -1874,7 +1869,6 @@ int InvPutItem(int pnum, int x, int y)
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);
-				return -1;
 			}
 			return -1;
 		}
@@ -1915,10 +1909,7 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 #endif
 )
 {
-	BOOL done;
-	int dir, ii;
-	int i, j, k;
-	int px, py;
+	int ii;
 
 	if (numitems >= MAXITEMS)
 		return -1;
@@ -1928,39 +1919,8 @@ int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BO
 		SyncGetItem(x, y, idx, icreateinfo, iseed);
 	}
 
-	px = plr[pnum]._px;
-	py = plr[pnum]._py;
-	dir = GetDirection(px, py, x, y);
-	if (abs(x - px) > 1 || abs(y - py) > 1) {
-		x = px + offset_x[dir];
-		y = py + offset_y[dir];
-	}
-	if (!CanPut(x, y)) {
-		dir = (dir - 1) & 7;
-		x = px + offset_x[dir];
-		y = py + offset_y[dir];
-		if (!CanPut(x, y)) {
-			dir = (dir + 2) & 7;
-			x = px + offset_x[dir];
-			y = py + offset_y[dir];
-			if (!CanPut(x, y)) {
-				done = FALSE;
-				for (k = 1; k < 50 && !done; k++) {
-					for (j = -k; j <= k && !done; j++) {
-						y = j + py;
-						for (i = -k; i <= k && !done; i++) {
-							x = i + px;
-							if (CanPut(x, y)) {
-								done = TRUE;
-							}
-						}
-					}
-				}
-				if (!done)
-					return -1;
-			}
-		}
-	}
+	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
+		return -1;
 
 	ii = itemavail[0];
 	dItem[x][y] = ii + 1;
