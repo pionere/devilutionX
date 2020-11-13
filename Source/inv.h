@@ -39,7 +39,7 @@ void AutoGetItem(int pnum, int ii);
 int FindGetItem(int idx, WORD ci, int iseed);
 void SyncGetItem(int x, int y, int idx, WORD ci, int iseed);
 BOOL CanPut(int x, int y);
-BOOL TryInvPut();
+BOOL DropItem();
 void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y);
 int SyncPutItem(int pnum, int x, int y, int idx, WORD icreateinfo, int iseed, BOOL Id, int dur, int mdur, int ch, int mch, int ivalue, DWORD ibuff
@@ -54,7 +54,6 @@ void UseStaffCharge(int pnum);
 BOOL UseStaff();
 BOOL UseInvItem(int pnum, int cii);
 int CalculateGold(int pnum);
-BOOL DropItemBeforeTrig();
 
 /* data */
 

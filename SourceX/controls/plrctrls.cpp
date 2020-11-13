@@ -1107,11 +1107,11 @@ bool TryDropItem()
 {
 	cursmx = plr[myplr]._pfutx + 1;
 	cursmy = plr[myplr]._pfuty;
-	if (!DropItemBeforeTrig()) {
+	if (!DropItem()) {
 		// Try to drop on the other side
 		cursmx--;
 		cursmy++;
-		DropItemBeforeTrig();
+		DropItem();
 	}
 
 	return pcurs == CURSOR_HAND;

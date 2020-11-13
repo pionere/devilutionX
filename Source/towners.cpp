@@ -581,7 +581,7 @@ void TalkToTowner(int pnum, int tnum)
 
 	tw->_tMsgSaid = FALSE;
 
-	if (pcurs >= CURSOR_FIRSTITEM && !DropItemBeforeTrig()) {
+	if (pcurs >= CURSOR_FIRSTITEM && !DropItem()) {
 		return;
 	}
 

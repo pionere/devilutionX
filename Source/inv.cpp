@@ -1784,9 +1784,9 @@ BOOL CanPut(int x, int y)
 	return TRUE;
 }
 
-BOOL TryInvPut()
+BOOL DropItem()
 {
-	int px, py, dir;
+	int x, y, px, py, dir;
 
 	if (numitems >= MAXITEMS)
 		return FALSE;
@@ -1794,21 +1794,28 @@ BOOL TryInvPut()
 	px = plr[myplr]._px;
 	py = plr[myplr]._py;
 	dir = GetDirection(px, py, cursmx, cursmy);
-	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
-		return TRUE;
+	x = px + offset_x[dir];
+	y = py + offset_y[dir];
+	if (!CanPut(x, y)) {
+		dir = (dir - 1) & 7;
+		x = px + offset_x[dir];
+		y = py + offset_y[dir];
+		if (!CanPut(x, y)) {
+			dir = (dir + 2) & 7;
+			x = px + offset_x[dir];
+			y = py + offset_y[dir];
+			if (!CanPut(x, y)) {
+				x = px;
+				y = py;
+				if (!CanPut(x, y))
+					return FALSE;
+			}
+		}
 	}
 
-	dir = (dir - 1) & 7;
-	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
-		return TRUE;
-	}
-
-	dir = (dir + 2) & 7;
-	if (CanPut(px + offset_x[dir], py + offset_y[dir])) {
-		return TRUE;
-	}
-
-	return CanPut(px, py);
+	NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
+	NewCursor(CURSOR_HAND);
+	return TRUE;
 }
 
 void DrawInvMsg(const char *msg)
@@ -2349,17 +2356,6 @@ int CalculateGold(int pnum)
 	}
 
 	return gold;
-}
-
-BOOL DropItemBeforeTrig()
-{
-	if (TryInvPut()) {
-		NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
-		NewCursor(CURSOR_HAND);
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 DEVILUTION_END_NAMESPACE

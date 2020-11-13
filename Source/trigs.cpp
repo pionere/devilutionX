@@ -845,12 +845,12 @@ void CheckTriggers()
 				break;
 			}
 #endif
-			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
+			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
 				return;
 			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);
 			break;
 		case WM_DIABPREVLVL:
-			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
+			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
 				return;
 			StartNewLvl(myplr, WM_DIABPREVLVL, currlevel - 1);
 			break;
