@@ -1388,6 +1388,17 @@ typedef enum sfx_set {
 	NUM_SFXSets,
 } sfx_set;
 
+typedef enum text_set {
+	TXTS_BLINDING,
+	TXTS_BLOODY,
+	TXTS_BLOODWAR,
+	TXTS_BONER,
+	TXTS_BOOKA,
+	TXTS_BOOKB,
+	TXTS_BOOKC,
+	NUM_TXTSets
+} text_set;
+
 typedef enum item_equip_type {
 	ILOC_NONE        = 0x0,
 	ILOC_ONEHAND     = 0x1,

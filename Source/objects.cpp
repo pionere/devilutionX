@@ -214,6 +214,26 @@ int StoryText[3][3] = {
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
 };
 
+const int const textSets[NUM_TXTSets][NUM_CLASSES] {
+#ifdef HELLFIRE
+	{ TEXT_BLINDING, TEXT_RBLINDING, TEXT_MBLINDING, TEXT_HBLINDING, TEXT_BBLINDING, TEXT_BLINDING },
+	{ TEXT_BLOODY,   TEXT_RBLOODY,   TEXT_MBLOODY,   TEXT_HBLOODY,   TEXT_BBLOODY,   TEXT_BLOODY   },
+	{ TEXT_BLOODWAR, TEXT_RBLOODWAR, TEXT_MBLOODWAR, TEXT_HBLOODWAR, TEXT_BBLOODWAR, TEXT_BLOODWAR },
+	{ TEXT_BONER,    TEXT_RBONER,    TEXT_MBONER,    TEXT_HBONER,    TEXT_BBONER,    TEXT_BONER    },
+	{ TEXT_BOOKA,    TEXT_RBOOKA,    TEXT_MBOOKA,    TEXT_OBOOKA,    TEXT_BBOOKA,    TEXT_BOOKA    },
+	{ TEXT_BOOKB,    TEXT_RBOOKB,    TEXT_MBOOKB,    TEXT_OBOOKB,    TEXT_BBOOKB,    TEXT_BOOKB    },
+	{ TEXT_BOOKC,    TEXT_RBOOKC,    TEXT_MBOOKC,    TEXT_OBOOKC,    TEXT_BBOOKC,    TEXT_BOOKC    },
+#else
+	{ TEXT_BLINDING, TEXT_RBLINDING, TEXT_MBLINDING },
+	{ TEXT_BLOODY,   TEXT_RBLOODY,   TEXT_MBLOODY   },
+	{ TEXT_BLOODWAR, TEXT_RBLOODWAR, TEXT_MBLOODWAR },
+	{ TEXT_BONER,    TEXT_RBONER,    TEXT_MBONER    },
+	{ TEXT_BOOKA,    TEXT_RBOOKA,    TEXT_MBOOKA    },
+	{ TEXT_BOOKB,    TEXT_RBOOKB,    TEXT_MBOOKB    },
+	{ TEXT_BOOKC,    TEXT_RBOOKC,    TEXT_MBOOKC    },
+#endif
+};
+
 void InitObjectGFX()
 {
 	ObjDataStruct *ods;
@@ -1006,21 +1026,7 @@ void InitObjects()
 			AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 			AddL2Torches();
 			if (QuestStatus(Q_BLIND)) {
-				if (plr[myplr]._pClass == PC_WARRIOR) {
-					sp_id = TEXT_BLINDING;
-				} else if (plr[myplr]._pClass == PC_ROGUE) {
-					sp_id = TEXT_RBLINDING;
-				} else if (plr[myplr]._pClass == PC_SORCERER) {
-					sp_id = TEXT_MBLINDING;
-#ifdef HELLFIRE
-				} else if (plr[myplr]._pClass == PC_MONK) {
-					sp_id = TEXT_HBLINDING;
-				} else if (plr[myplr]._pClass == PC_BARD) {
-					sp_id = TEXT_BBLINDING;
-				} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-					sp_id = TEXT_BLINDING;
-#endif
-				}
+				sp_id = textSets[TXTS_BLINDING][plr[myplr]._pClass];
 				quests[Q_BLIND]._qmsg = sp_id;
 				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x + 1, setpc_h + setpc_y + 1, sp_id);
 				mem = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
@@ -1028,21 +1034,7 @@ void InitObjects()
 				mem_free_dbg(mem);
 			}
 			if (QuestStatus(Q_BLOOD)) {
-				if (plr[myplr]._pClass == PC_WARRIOR) {
-					sp_id = TEXT_BLOODY;
-				} else if (plr[myplr]._pClass == PC_ROGUE) {
-					sp_id = TEXT_RBLOODY;
-				} else if (plr[myplr]._pClass == PC_SORCERER) {
-					sp_id = TEXT_MBLOODY;
-#ifdef HELLFIRE
-				} else if (plr[myplr]._pClass == PC_MONK) {
-					sp_id = TEXT_HBLOODY;
-				} else if (plr[myplr]._pClass == PC_BARD) {
-					sp_id = TEXT_BBLOODY;
-				} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-					sp_id = TEXT_BLOODY;
-#endif
-				}
+				sp_id = textSets[TXTS_BLOODY][plr[myplr]._pClass];
 				quests[Q_BLOOD]._qmsg = sp_id;
 				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + 25, 2 * setpc_y + 40, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + 25, 2 * setpc_y + 32);
@@ -1053,21 +1045,7 @@ void InitObjects()
 			InitRndBarrels();
 		} else if (leveltype == DTYPE_HELL) {
 			if (QuestStatus(Q_WARLORD)) {
-				if (plr[myplr]._pClass == PC_WARRIOR) {
-					sp_id = TEXT_BLOODWAR;
-				} else if (plr[myplr]._pClass == PC_ROGUE) {
-					sp_id = TEXT_RBLOODWAR;
-				} else if (plr[myplr]._pClass == PC_SORCERER) {
-					sp_id = TEXT_MBLOODWAR;
-#ifdef HELLFIRE
-				} else if (plr[myplr]._pClass == PC_MONK) {
-					sp_id = TEXT_HBLOODWAR;
-				} else if (plr[myplr]._pClass == PC_BARD) {
-					sp_id = TEXT_BBLOODWAR;
-				} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-					sp_id = TEXT_BLOODWAR;
-#endif
-				}
+				sp_id = textSets[TXTS_BLOODWAR][plr[myplr]._pClass];
 				quests[Q_WARLORD]._qmsg = sp_id;
 				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
 				mem = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
@@ -1631,12 +1609,8 @@ void AddHBooks(int bookidx, int ox, int oy)
 
 void SetupHBook(int oi, int bookidx)
 {
-	const int bs5[NUM_CLASSES] = { TEXT_BOOKA, TEXT_RBOOKA, TEXT_MBOOKA, TEXT_OBOOKA, TEXT_BBOOKA, TEXT_BOOKA};
-	const int bs6[NUM_CLASSES] = { TEXT_BOOKB, TEXT_RBOOKB, TEXT_MBOOKB, TEXT_OBOOKB, TEXT_BBOOKB, TEXT_BOOKB};
-	const int bs7[NUM_CLASSES] = { TEXT_BOOKC, TEXT_RBOOKC, TEXT_MBOOKC, TEXT_OBOOKC, TEXT_BBOOKC, TEXT_BOOKC};
 	ObjectStruct *os;
 	int frame;
-	const int *bookSet;
 
 	os = &object[oi];
 	os->_oVar1 = 1;
@@ -1644,16 +1618,11 @@ void SetupHBook(int oi, int bookidx)
 	os->_oAnimFrame = 5 - frame;
 	os->_oVar4 = os->_oAnimFrame + 1;
 	if (bookidx >= 5) {
-		os->_oVar8 = bookidx + 1;
-		switch (bookidx) {
-		case 5: bookSet = bs5; break;
-		case 6:	bookSet = bs6; break;
-		case 7: bookSet = bs7; break;
-		}
-		os->_oVar2 = bookSet[plr[myplr]._pClass];
+		os->_oVar2 = textSets[TXTS_BOOKA + bookidx - 5][plr[myplr]._pClass];
 		os->_oVar3 = 15;
+		os->_oVar8 = bookidx + 1;
 	} else {
-		os->_oVar2 = bookidx + TEXT_BOOK4;
+		os->_oVar2 = TEXT_BOOK4 + bookidx;
 		os->_oVar3 = bookidx + 10;
 		os->_oVar8 = 0;
 	}
@@ -2984,21 +2953,7 @@ static void OperateSChambBk(int pnum, int oi)
 			quests[Q_SCHAMB]._qactive = QUEST_ACTIVE;
 			quests[Q_SCHAMB]._qlog = TRUE;
 		}
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			textdef = TEXT_BONER;
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			textdef = TEXT_RBONER;
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			textdef = TEXT_MBONER;
-#ifdef HELLFIRE
-		} else if (plr[myplr]._pClass == PC_MONK) {
-			textdef = TEXT_HBONER;
-		} else if (plr[myplr]._pClass == PC_BARD) {
-			textdef = TEXT_BBONER;
-		} else if (plr[myplr]._pClass == PC_BARBARIAN) {
-			textdef = TEXT_BONER;
-#endif
-		}
+		textdef = textSets[TXTS_BONER][plr[myplr]._pClass];
 		quests[Q_SCHAMB]._qmsg = textdef;
 		InitQTextMsg(textdef);
 	}
