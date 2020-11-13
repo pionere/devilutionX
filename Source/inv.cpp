@@ -1796,6 +1796,11 @@ static BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad)
 	if (CanPut(*dx, *dy))
 		return TRUE;
 
+	*dx = sx;
+	*dy = sy;
+	if (CanPut(*dx, *dy))
+		return TRUE;
+
 	xx = *dx;
 	yy = *dy;
 	for (k = 1; k <= rad; k++) {
@@ -1825,7 +1830,7 @@ BOOL DropItem()
 	py = plr[myplr]._py;
 	x = cursmx;
 	y = cursmy;
-	if (!FindItemLocation(px, py, &x, &y, 0) && !CanPut(px, py))
+	if (!FindItemLocation(px, py, &x, &y, 0))
 		return FALSE;
 
 	NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
