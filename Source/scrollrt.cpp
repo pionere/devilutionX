@@ -144,8 +144,9 @@ static void scrollrt_draw_cursor_back_buffer()
  */
 static void scrollrt_draw_cursor_item()
 {
-	int i, mx, my, col, frame;
+	int i, mx, my, frame;
 	BYTE *src, *dst, *cCels;
+	BYTE col;
 
 	assert(sgdwCursWdt == 0);
 
@@ -707,7 +708,7 @@ static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int px, nCel, mnum;
+	int px, mnum;
 	char bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
@@ -1365,7 +1366,6 @@ static void DrawFPS()
 {
 	DWORD tc, frames;
 	char String[12];
-	HDC hdc;
 
 	if (frameflag && gbActive && pPanelText) {
 		frameend++;
@@ -1418,8 +1418,6 @@ static void DoBlitScreen(DWORD dwX, DWORD dwY, DWORD dwWdt, DWORD dwHgt)
 static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BOOL draw_sbar, BOOL draw_btn)
 {
 	int ysize;
-	DWORD dwTicks;
-	BOOL retry;
 
 	ysize = dwHgt;
 

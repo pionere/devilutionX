@@ -2004,8 +2004,6 @@ static void HealerBuyItem()
 
 static void S_BBuyEnter()
 {
-	int i;
-
 	if (stextsel == 10) {
 		stextshold = STORE_BBOY;
 		stextvhold = stextsidx;

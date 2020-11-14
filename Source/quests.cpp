@@ -424,7 +424,6 @@ static void DrawSChamber(int qn, int x, int y)
 {
 	int i, j;
 	int rw, rh;
-	int xx, yy;
 	BYTE *sp, *setp;
 	int v;
 

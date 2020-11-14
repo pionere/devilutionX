@@ -74,7 +74,7 @@ void InitAutomap()
 	DWORD dwTiles;
 	int x, y;
 	BYTE *pAFile, *pTmp;
-	int i;
+	DWORD i;
 
 	memset(automaptype, 0, sizeof(automaptype));
 
@@ -407,7 +407,6 @@ static void SearchAutomapItem()
 	PlayerStruct *p;
 	int x, y;
 	int x1, y1, x2, y2, xoff, yoff;
-	int px, py;
 	int i, j;
 
 	x = 2 * AutoMapXOfs + ViewX;

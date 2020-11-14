@@ -2183,7 +2183,7 @@ static BOOL DRLG_L3Lockout()
 
 static void DRLG_L3(int entry)
 {
-	int x1, y1, x2, y2, i, j;
+	int x1, y1, x2, y2;
 	BOOL doneflag;
 
 	lavapool = FALSE;

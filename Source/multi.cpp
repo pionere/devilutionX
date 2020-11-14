@@ -15,7 +15,7 @@ WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 PkPlayerStruct netplr[MAX_PLRS];
 BOOLEAN sgbPlayerTurnBitTbl[MAX_PLRS];
 BOOLEAN sgbPlayerLeftGameTbl[MAX_PLRS];
-int sgbSentThisCycle;
+DWORD sgbSentThisCycle;
 BOOL gbShouldValidatePackage;
 BYTE gbActivePlayers;
 BOOLEAN gbGameDestroyed;
@@ -75,7 +75,7 @@ static void multi_copy_packet(TBuffer *buf, void *packet, BYTE size)
 	p[size] = 0;
 }
 
-static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, int *size)
+static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, DWORD *size)
 {
 	BYTE *src_ptr;
 	size_t chunk_size;
@@ -145,9 +145,8 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 {
 	BYTE *hipri_body;
 	BYTE *lowpri_body;
-	DWORD len;
+	DWORD size, len;
 	TPkt pkt;
-	int size;
 
 	if (pbMsg != NULL && bLen != 0) {
 		multi_copy_packet(&sgHiPriBuf, pbMsg, bLen);

@@ -623,7 +623,7 @@ static void PlaceMonster(int mnum, int mtype, int x, int y)
 
 static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 {
-	int xp, yp, x, y, i;
+	int xp, yp, x, y;
 	int uniqtype;
 	int count2;
 	char filestr[64];

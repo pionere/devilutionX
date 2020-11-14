@@ -9,10 +9,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int qtexty;
 const char *qtextptr;
-int qtextSpd;
+DWORD qtextTime;
 BOOLEAN qtextflag;
-int scrolltexty;
-int sgLastScroll;
+DWORD scrolltexty;
 BYTE *pMedTextCels;
 BYTE *pTextBoxCels;
 
@@ -69,17 +68,19 @@ void InitQuestText()
 
 void InitQTextMsg(int m)
 {
+	int speed;
+
 	if (alltext[m].scrlltxt) {
 		questlog = FALSE;
 		qtextptr = alltext[m].txtstr;
 		qtextflag = TRUE;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
-		qtextSpd = qscroll_spd_tbl[alltext[m].txtspd - 1];
-		if (qtextSpd <= 0)
-			scrolltexty = 50 / -(qtextSpd - 1);
+		speed = qscroll_spd_tbl[alltext[m].txtspd - 1];
+		if (speed <= 0)
+			scrolltexty = 50 / -(speed - 1);
 		else
-			scrolltexty = ((qtextSpd + 1) * 50) / qtextSpd;
-		qtextSpd = SDL_GetTicks();
+			scrolltexty = ((speed + 1) * 50) / speed;
+		qtextTime = SDL_GetTicks();
 	}
 	PlaySFX(alltext[m].sfxnr);
 }
@@ -168,7 +169,7 @@ void DrawQText()
 		}
 	}
 
-	for (currTime = SDL_GetTicks(); qtextSpd + scrolltexty < currTime; qtextSpd += scrolltexty) {
+	for (currTime = SDL_GetTicks(); qtextTime + scrolltexty < currTime; qtextTime += scrolltexty) {
 		qtexty--;
 		if (qtexty <= 49 + SCREEN_Y + UI_OFFSET_Y) {
 			qtexty += 38;

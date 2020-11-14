@@ -831,7 +831,7 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
-	int tac, resper, dam, blk, blkper, hper, hit;
+	int resper, dam, blk, blkper, hper, hit;
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
@@ -1822,7 +1822,7 @@ void AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 
 void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	int lvl, i, mx, range;
+	int lvl, i, range;
 	MissileStruct *mis, *tmis;
 
 	mis = &missile[mi];

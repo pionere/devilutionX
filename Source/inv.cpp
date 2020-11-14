@@ -159,7 +159,7 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 	}
 }
 
-static int InvItemColor(ItemStruct *is)
+static BYTE InvItemColor(ItemStruct *is)
 {
 	if (!is->_iStatFlag)
 		return ICOL_RED;
@@ -1207,7 +1207,7 @@ static void CheckInvCut(int pnum, int mx, int my)
 	ItemStruct *pi;
 	int r;
 	char ii;
-	int iv, i, j, offs, ig;
+	int i, j, offs;
 
 	p = &plr[pnum];
 	if (p->_pmode > PM_WALK3) {

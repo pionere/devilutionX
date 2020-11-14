@@ -1764,7 +1764,6 @@ static void PlrDeadItem(int pnum, ItemStruct *is, int dx, int dy)
 {
 	PlayerStruct *p;
 	int x, y;
-	int i, j, k;
 
 	if (is->_itype == ITYPE_NONE)
 		return;

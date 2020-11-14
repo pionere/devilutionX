@@ -1054,7 +1054,7 @@ TSFX sgSFX[] = {
 	// clang-format on
 };
 
-const int const sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
+const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 #ifdef HELLFIRE
 	{ sfx_WARRIOR, sfx_ROGUE, sfx_SORCEROR, sfx_MONK, sfx_ROGUE, sfx_WARRIOR },
 	{ PS_WARR8,  PS_ROGUE8,  PS_MAGE8,  PS_MONK8,  PS_ROGUE8,  PS_WARR8  },

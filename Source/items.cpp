@@ -912,12 +912,12 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	ihp += (vadd << 6);
 
 	switch (p->_pClass) {
-	case PC_SORCERER: madd *= 2;                  break;
+	case PC_SORCERER: madd *= 2;                     break;
 #ifdef HELLFIRE
-	case PC_BARD:  madd += madd >> 2 + madd >> 1; break;
+	case PC_BARD: madd += (madd >> 2) + (madd >> 1); break;
 	case PC_MONK:
 #endif
-	case PC_ROGUE: madd += madd >> 1;             break;
+	case PC_ROGUE: madd += madd >> 1;                break;
 	}
 	imana += (madd << 6);
 
@@ -2656,7 +2656,7 @@ static void GetUniqueItem(int ii, int uid)
 
 void SpawnUnique(int uid, int x, int y)
 {
-	int ii, idx, lvl;
+	int ii, idx;
 
 	if (numitems >= MAXITEMS)
 		return;
