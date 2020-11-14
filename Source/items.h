@@ -20,7 +20,7 @@ extern ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
 extern CornerStoneStruct CornerStone;
 #endif
-extern BOOL UniqueItemFlag[128];
+extern BOOL UniqueItemFlag[NUM_UITEM];
 #ifdef HELLFIRE
 extern int auricGold;
 #endif
@@ -118,8 +118,8 @@ void PutItemRecord(int nSeed, WORD wCI, int nIndex);
 extern int MaxGold;
 #endif
 
-extern BYTE ItemCAnimTbl[];
-extern int ItemInvSnds[];
+extern const BYTE ItemCAnimTbl[];
+extern const int ItemInvSnds[];
 
 #ifdef __cplusplus
 }

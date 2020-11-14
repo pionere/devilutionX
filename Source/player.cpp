@@ -52,15 +52,15 @@ const char *const ClassStrTbl[NUM_CLASSES] = {
 /* data */
 
 /** Specifies the X-coordinate delta from the player start location in Tristram. */
-int plrxoff[MAX_PLRS] = { 0, 2, 0, 2 }; //, 1, 0, 1, 2, 1 };
+const int plrxoff[MAX_PLRS] = { 0, 2, 0, 2 }; //, 1, 0, 1, 2, 1 };
 /** Specifies the Y-coordinate delta from the player start location in Tristram. */
-int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
+const int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
 /** Specifies the X-coordinate delta from a player, used for instanced when casting resurrect. */
-int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
+const int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
 /** Specifies the Y-coordinate delta from a player, used for instanced when casting resurrect. */
-int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
+const int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
 /** Specifies the frame of each animation for which an action is triggered, for each player class. */
-char PlrGFXAnimLens[NUM_CLASSES][11] = {
+const char PlrGFXAnimLens[NUM_CLASSES][11] = {
 	{ 10, 16, 8, 2, 20, 20, 6, 20, 8, 9, 14 },
 	{ 8, 18, 8, 4, 20, 16, 7, 20, 8, 10, 12 },
 	{ 8, 16, 8, 6, 20, 12, 8, 20, 8, 12, 8 },
@@ -71,7 +71,7 @@ char PlrGFXAnimLens[NUM_CLASSES][11] = {
 #endif
 };
 /** Maps from player class to player velocity. */
-int PWVel[NUM_CLASSES][3] = {
+const int PWVel[NUM_CLASSES][3] = {
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
@@ -82,7 +82,7 @@ int PWVel[NUM_CLASSES][3] = {
 #endif
 };
 /** Total number of frames in walk animation. */
-int AnimLenFromClass[NUM_CLASSES] = {
+const int AnimLenFromClass[NUM_CLASSES] = {
 	8,
 	8,
 	8,
@@ -93,7 +93,7 @@ int AnimLenFromClass[NUM_CLASSES] = {
 #endif
 };
 /** Maps from player_class to starting stat in strength. */
-int StrengthTbl[NUM_CLASSES] = {
+const int StrengthTbl[NUM_CLASSES] = {
 	30,
 	20,
 	15,
@@ -104,7 +104,7 @@ int StrengthTbl[NUM_CLASSES] = {
 #endif
 };
 /** Maps from player_class to starting stat in magic. */
-int MagicTbl[NUM_CLASSES] = {
+const int MagicTbl[NUM_CLASSES] = {
 	10,
 	15,
 	35,
@@ -115,7 +115,7 @@ int MagicTbl[NUM_CLASSES] = {
 #endif
 };
 /** Maps from player_class to starting stat in dexterity. */
-int DexterityTbl[NUM_CLASSES] = {
+const int DexterityTbl[NUM_CLASSES] = {
 	20,
 	30,
 	15,
@@ -126,7 +126,7 @@ int DexterityTbl[NUM_CLASSES] = {
 #endif
 };
 /** Maps from player_class to starting stat in vitality. */
-int VitalityTbl[NUM_CLASSES] = {
+const int VitalityTbl[NUM_CLASSES] = {
 	25,
 	20,
 	20,
@@ -137,7 +137,7 @@ int VitalityTbl[NUM_CLASSES] = {
 #endif
 };
 /** Specifies the chance to block bonus of each player class.*/
-int ToBlkTbl[NUM_CLASSES] = {
+const int ToBlkTbl[NUM_CLASSES] = {
 	30,
 	20,
 	10,
@@ -148,7 +148,7 @@ int ToBlkTbl[NUM_CLASSES] = {
 #endif
 };
 /** Maps from player_class to maximum stats. */
-int MaxStats[NUM_CLASSES][4] = {
+const int MaxStats[NUM_CLASSES][4] = {
 	{ 250,  50,  60, 100 },
 	{  55,  70, 250,  80 },
 	{  45, 250,  85,  80 },
@@ -158,7 +158,7 @@ int MaxStats[NUM_CLASSES][4] = {
 	{ 255,   0,  55, 150 },
 #endif
 };
-int Abilities[NUM_CLASSES] = {
+const int Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
 #ifdef HELLFIRE
 	, SPL_SEARCH, SPL_IDENTIFY, SPL_BLODBOIL
@@ -166,7 +166,7 @@ int Abilities[NUM_CLASSES] = {
 };
 
 /** Specifies the experience point limit of each level. */
-int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
+const int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	0,
 	2000,
 	4620,
@@ -782,7 +782,7 @@ void CreatePlayer(int pnum, char c)
 
 int CalcStatDiff(int pnum)
 {
-	int *stats;
+	const int *stats;
 
 	stats = MaxStats[plr[pnum]._pClass];
 	return stats[ATTRIB_STR]
@@ -4033,7 +4033,7 @@ void SyncInitPlr(int pnum)
 void CheckStats(int pnum)
 {
 	PlayerStruct *p;
-	int *stats;
+	const int *stats;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("CheckStats: illegal player %d", pnum);

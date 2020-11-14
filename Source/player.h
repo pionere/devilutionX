@@ -79,16 +79,16 @@ int player_45EFB5(int pc);
 
 /* data */
 
-extern int plrxoff[MAX_PLRS];
-extern int plryoff[9];
-extern int plrxoff2[9];
-extern int plryoff2[9];
-extern int StrengthTbl[NUM_CLASSES];
-extern int MagicTbl[NUM_CLASSES];
-extern int DexterityTbl[NUM_CLASSES];
-extern int VitalityTbl[NUM_CLASSES];
-extern int MaxStats[NUM_CLASSES][4];
-extern int Abilities[NUM_CLASSES];
+extern const int plrxoff[MAX_PLRS];
+extern const int plryoff[MAX_PLRS];
+extern const int plrxoff2[9];
+extern const int plryoff2[9];
+extern const int StrengthTbl[NUM_CLASSES];
+extern const int MagicTbl[NUM_CLASSES];
+extern const int DexterityTbl[NUM_CLASSES];
+extern const int VitalityTbl[NUM_CLASSES];
+extern const int MaxStats[NUM_CLASSES][4];
+extern const int Abilities[NUM_CLASSES];
 extern const char *const ClassStrTbl[NUM_CLASSES];
 
 #ifdef __cplusplus

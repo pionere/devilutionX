@@ -56,7 +56,7 @@ char OilNames[10][25] = {
 #endif
 
 /** Maps from item_cursor_graphic to in-memory item type. */
-const BYTE const ItemCAnimTbl[] = {
+const BYTE ItemCAnimTbl[] = {
 #ifdef HELLFIRE
 	20, 16, 16, 16, 4, 4, 4, 12, 12, 12,
 	12, 12, 12, 12, 12, 21, 21, 25, 12, 28,
@@ -150,7 +150,7 @@ const char *const ItemDropNames[] = {
 #endif
 };
 /** Maps of item drop animation length. */
-const BYTE const ItemAnimLs[] = {
+const BYTE ItemAnimLs[] = {
 	15,
 	13,
 	16,
@@ -198,7 +198,7 @@ const BYTE const ItemAnimLs[] = {
 #endif
 };
 /** Maps of drop sounds effect of dropping the item on ground. */
-const int const ItemDropSnds[] = {
+const int ItemDropSnds[] = {
 	IS_FHARM,
 	IS_FAXE,
 	IS_FPOT,
@@ -246,7 +246,7 @@ const int const ItemDropSnds[] = {
 #endif
 };
 /** Maps of drop sounds effect of placing the item in the inventory. */
-const int const ItemInvSnds[] = {
+const int ItemInvSnds[] = {
 	IS_IHARM,
 	IS_IAXE,
 	IS_IPOT,
@@ -299,7 +299,7 @@ const char *off_4A5AC4 = "SItem";
 /** Specifies the current Y-coordinate used for validation of items on ground. */
 int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
-const int const premiumlvladd[SMITH_PREMIUM_ITEMS] = {
+const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 #ifdef HELLFIRE
 	-1, -1, -1,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  3,  3
 #else
