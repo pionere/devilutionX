@@ -27,31 +27,24 @@ int gnNumGetRecords;
 /* data */
 
 #ifdef HELLFIRE
-int OilLevels[] = { 1, 10, 1, 10, 4, 1, 5, 17, 1, 10 };
-int OilValues[] = { 500, 2500, 500, 2500, 1500, 100, 2500, 15000, 500, 2500 };
-int OilMagic[] = {
-	IMISC_OILACC,
-	IMISC_OILMAST,
-	IMISC_OILSHARP,
-	IMISC_OILDEATH,
-	IMISC_OILSKILL,
-	IMISC_OILBSMTH,
-	IMISC_OILFORT,
-	IMISC_OILPERM,
-	IMISC_OILHARD,
-	IMISC_OILIMP,
+struct OilStruct {
+	int type;
+	char name[25];
+	int level;
+	int value;
 };
-char OilNames[10][25] = {
-	"Oil of Accuracy",
-	"Oil of Mastery",
-	"Oil of Sharpness",
-	"Oil of Death",
-	"Oil of Skill",
-	"Blacksmith Oil",
-	"Oil of Fortitude",
-	"Oil of Permanence",
-	"Oil of Hardening",
-	"Oil of Imperviousness"
+OilStruct oildata[10] = {
+	// type,          name,                 level, value
+	{ IMISC_OILACC,   "Oil of Accuracy",        1,   500 },
+	{ IMISC_OILMAST,  "Oil of Mastery",        10,  2500 },
+	{ IMISC_OILSHARP, "Oil of Sharpness",       1,   500 },
+	{ IMISC_OILDEATH, "Oil of Death",          10,  2500 },
+	{ IMISC_OILSKILL, "Oil of Skill",           4,  1500 },
+	{ IMISC_OILBSMTH, "Blacksmith Oil",         1,   100 },
+	{ IMISC_OILFORT,  "Oil of Fortitude",       5,  2500 },
+	{ IMISC_OILPERM,  "Oil of Permanence",     17, 15000 },
+	{ IMISC_OILHARD,  "Oil of Hardening",       1,   500 },
+	{ IMISC_OILIMP,   "Oil of Imperviousness", 10,  2500 },
 };
 #endif
 
@@ -1738,6 +1731,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 #ifdef HELLFIRE
 static void GetOilType(int ii, int max_lvl)
 {
+	OilStruct *oil;
 	ItemStruct *is;
 	int cnt, type, i;
 	char rnd[32];
@@ -1747,8 +1741,8 @@ static void GetOilType(int ii, int max_lvl)
 			max_lvl = 1;
 		cnt = 0;
 
-		for (i = 0; i < (int)(sizeof(OilLevels) / sizeof(OilLevels[0])); i++) {
-			if (OilLevels[i] <= max_lvl) {
+		for (i = 0; i < (sizeof(oildata) / sizeof(oildata[0])); i++) {
+			if (oildata[i].level <= max_lvl) {
 				rnd[cnt] = i;
 				cnt++;
 			}
@@ -1758,12 +1752,13 @@ static void GetOilType(int ii, int max_lvl)
 		type = random_(165, 2) != 0 ? (IMISC_OILFORT - IMISC_OILACC) : (IMISC_OILBSMTH - IMISC_OILACC);
 	}
 
+	oil = &oildata[type];
 	is = &item[ii];
-	strcpy(is->_iName, OilNames[type]);
-	strcpy(is->_iIName, OilNames[type]);
-	is->_iMiscId = IMISC_OILACC + type;
-	is->_ivalue = OilValues[type];
-	is->_iIvalue = OilValues[type];
+	strcpy(is->_iName, oil->name);
+	strcpy(is->_iIName, oil->name);
+	is->_iMiscId = oil->type;
+	is->_ivalue = oil->value;
+	is->_iIvalue = oil->value;
 }
 #endif
 
