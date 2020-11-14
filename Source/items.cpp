@@ -4209,56 +4209,82 @@ void PrintItemDur(const ItemStruct *is)
 	pinfoflag = TRUE;
 }
 
+static void PlrAddHp(int pnum)
+{
+	PlayerStruct *p;
+	int hp;
+
+	p = &plr[pnum];
+	hp = p->_pMaxHP >> 8;
+	hp = ((hp >> 1) + random_(39, hp)) << 6;
+	if (p->_pClass == PC_WARRIOR)
+		hp <<= 1;
+	else if (p->_pClass == PC_ROGUE)
+		hp += hp>> 1;
+	p->_pHitPoints += hp;
+	if (p->_pHitPoints > p->_pMaxHP)
+		p->_pHitPoints = p->_pMaxHP;
+	p->_pHPBase += hp;
+	if (p->_pHPBase > p->_pMaxHPBase)
+		p->_pHPBase = p->_pMaxHPBase;
+	drawhpflag = TRUE;
+}
+
+static void PlrAddMana(int pnum)
+{
+	PlayerStruct *p;
+	int mana;
+
+	p = &plr[pnum];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+	mana = p->_pMaxMana >> 8;
+	mana = ((mana >> 1) + random_(40, mana)) << 6;
+	if (p->_pClass == PC_SORCERER)
+		mana <<= 1;
+	else if (p->_pClass == PC_ROGUE)
+		mana += mana >> 1;
+	p->_pMana += mana;
+	if (p->_pMana > p->_pMaxMana)
+		p->_pMana = p->_pMaxMana;
+	p->_pManaBase += mana;
+	if (p->_pManaBase > p->_pMaxManaBase)
+		p->_pManaBase = p->_pMaxManaBase;
+	drawmanaflag = TRUE;
+}
+
+static void PlrSetTSpell(int pnum, int spell)
+{
+	if (pnum == myplr)
+		NewCursor(CURSOR_TELEPORT);
+	plr[pnum]._pTSpell = spell;
+	plr[pnum]._pTSplType = RSPLTYPE_INVALID;
+}
+
 void UseItem(int pnum, int Mid, int spl)
 {
 	PlayerStruct *p;
-	int l, j;
+	int mana;
 
 	switch (Mid) {
 	case IMISC_HEAL:
 	case IMISC_MEAT:
-		p = &plr[pnum];
-		j = p->_pMaxHP >> 8;
-		l = ((j >> 1) + random_(39, j)) << 6;
-		if (p->_pClass == PC_WARRIOR)
-			l *= 2;
-		if (p->_pClass == PC_ROGUE)
-			l += l >> 1;
-		p->_pHitPoints += l;
-		if (p->_pHitPoints > p->_pMaxHP)
-			p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase += l;
-		if (p->_pHPBase > p->_pMaxHPBase)
-			p->_pHPBase = p->_pMaxHPBase;
-		drawhpflag = TRUE;
+		PlrAddHp(pnum);
 		break;
 	case IMISC_FULLHEAL:
-		plr[pnum]._pHitPoints = plr[pnum]._pMaxHP;
-		plr[pnum]._pHPBase = plr[pnum]._pMaxHPBase;
+		p = &plr[pnum];
+		p->_pHitPoints = p->_pMaxHP;
+		p->_pHPBase = p->_pMaxHPBase;
 		drawhpflag = TRUE;
 		break;
 	case IMISC_MANA:
-		p = &plr[pnum];
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			j = p->_pMaxMana >> 8;
-			l = ((j >> 1) + random_(40, j)) << 6;
-			if (p->_pClass == PC_SORCERER)
-				l *= 2;
-			if (p->_pClass == PC_ROGUE)
-				l += l >> 1;
-			p->_pMana += l;
-			if (p->_pMana > p->_pMaxMana)
-				p->_pMana = p->_pMaxMana;
-			p->_pManaBase += l;
-			if (p->_pManaBase > p->_pMaxManaBase)
-				p->_pManaBase = p->_pMaxManaBase;
-			drawmanaflag = TRUE;
-		}
+		PlrAddMana(pnum);
 		break;
 	case IMISC_FULLMANA:
-		if (!(plr[pnum]._pIFlags & ISPL_NOMANA)) {
-			plr[pnum]._pMana = plr[pnum]._pMaxMana;
-			plr[pnum]._pManaBase = plr[pnum]._pMaxManaBase;
+		p = &plr[pnum];
+		if (!(p->_pIFlags & ISPL_NOMANA)) {
+			p->_pMana = p->_pMaxMana;
+			p->_pManaBase = p->_pMaxManaBase;
 			drawmanaflag = TRUE;
 		}
 		break;
@@ -4275,35 +4301,8 @@ void UseItem(int pnum, int Mid, int spl)
 		ModifyPlrVit(pnum, 1);
 		break;
 	case IMISC_REJUV:
-		p = &plr[pnum];
-		j = p->_pMaxHP >> 8;
-		l = ((j >> 1) + random_(39, j)) << 6;
-		if (p->_pClass == PC_WARRIOR)
-			l *= 2;
-		if (p->_pClass == PC_ROGUE)
-			l += l >> 1;
-		p->_pHitPoints += l;
-		if (p->_pHitPoints > p->_pMaxHP)
-			p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase += l;
-		if (p->_pHPBase > p->_pMaxHPBase)
-			p->_pHPBase = p->_pMaxHPBase;
-		drawhpflag = TRUE;
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			j = p->_pMaxMana >> 8;
-			l = ((j >> 1) + random_(40, j)) << 6;
-			if (p->_pClass == PC_SORCERER)
-				l *= 2;
-			if (p->_pClass == PC_ROGUE)
-				l += l >> 1;
-			p->_pMana += l;
-			if (p->_pMana > p->_pMaxMana)
-				p->_pMana = p->_pMaxMana;
-			p->_pManaBase += l;
-			if (p->_pManaBase > p->_pMaxManaBase)
-				p->_pManaBase = p->_pMaxManaBase;
-			drawmanaflag = TRUE;
-		}
+		PlrAddHp(pnum);
+		PlrAddMana(pnum);
 		break;
 	case IMISC_FULLREJUV:
 		p = &plr[pnum];
@@ -4317,14 +4316,11 @@ void UseItem(int pnum, int Mid, int spl)
 		}
 		break;
 	case IMISC_SCROLL:
-		p = &plr[pnum];
 		if (spelldata[spl].sTargeted) {
-			p->_pTSpell = spl;
-			p->_pTSplType = RSPLTYPE_INVALID;
-			if (pnum == myplr)
-				NewCursor(CURSOR_TELEPORT);
+			PlrSetTSpell(pnum, spl);
 		} else {
 			ClrPlrPath(pnum);
+			p = &plr[pnum];
 			p->_pSpell = spl;
 			p->_pSplType = RSPLTYPE_INVALID;
 			p->_pSplFrom = 3;
@@ -4338,14 +4334,11 @@ void UseItem(int pnum, int Mid, int spl)
 		}
 		break;
 	case IMISC_SCROLLT:
-		p = &plr[pnum];
 		if (spelldata[spl].sTargeted) {
-			p->_pTSpell = spl;
-			p->_pTSplType = RSPLTYPE_INVALID;
-			if (pnum == myplr)
-				NewCursor(CURSOR_TELEPORT);
+			PlrSetTSpell(pnum, spl);
 		} else {
 			ClrPlrPath(pnum);
+			p = &plr[pnum];
 			p->_pSpell = spl;
 			p->_pSplType = RSPLTYPE_INVALID;
 			p->_pSplFrom = 3;
@@ -4359,10 +4352,11 @@ void UseItem(int pnum, int Mid, int spl)
 		p->_pMemSpells |= (__int64)1 << (spl - 1);
 		if (p->_pSplLvl[spl] < MAXSPLLEVEL)
 			p->_pSplLvl[spl]++;
-		p->_pMana += spelldata[spl].sManaCost << 6;
+		mana = spelldata[spl].sManaCost << 6;
+		p->_pMana += mana;
 		if (p->_pMana > p->_pMaxMana)
 			p->_pMana = p->_pMaxMana;
-		p->_pManaBase += spelldata[spl].sManaCost << 6;
+		p->_pManaBase += mana;
 		if (p->_pManaBase > p->_pMaxManaBase)
 			p->_pManaBase = p->_pMaxManaBase;
 		if (pnum == myplr)
@@ -4404,34 +4398,19 @@ void UseItem(int pnum, int Mid, int spl)
 		break;
 #ifdef HELLFIRE
 	case IMISC_RUNEF:
-		plr[pnum]._pTSpell = SPL_RUNEFIRE;
-		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
-		if (pnum == myplr)
-			NewCursor(CURSOR_TELEPORT);
+		PlrSetTSpell(pnum, SPL_RUNEFIRE);
 		break;
 	case IMISC_RUNEL:
-		plr[pnum]._pTSpell = SPL_RUNELIGHT;
-		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
-		if (pnum == myplr)
-			NewCursor(CURSOR_TELEPORT);
+		PlrSetTSpell(pnum, SPL_RUNELIGHT);
 		break;
 	case IMISC_GR_RUNEL:
-		plr[pnum]._pTSpell = SPL_RUNENOVA;
-		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
-		if (pnum == myplr)
-			NewCursor(CURSOR_TELEPORT);
+		PlrSetTSpell(pnum, SPL_RUNENOVA);
 		break;
 	case IMISC_GR_RUNEF:
-		plr[pnum]._pTSpell = SPL_RUNEIMMOLAT;
-		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
-		if (pnum == myplr)
-			NewCursor(CURSOR_TELEPORT);
+		PlrSetTSpell(pnum, SPL_RUNEIMMOLAT);
 		break;
 	case IMISC_RUNES:
-		plr[pnum]._pTSpell = SPL_RUNESTONE;
-		plr[pnum]._pTSplType = RSPLTYPE_INVALID;
-		if (pnum == myplr)
-			NewCursor(CURSOR_TELEPORT);
+		PlrSetTSpell(pnum, SPL_RUNESTONE);
 		break;
 #endif
 	}
