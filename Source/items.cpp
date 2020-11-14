@@ -4742,7 +4742,7 @@ void SpawnWitch(int lvl)
 		witchitem[i]._iIdentified = TRUE;
 	}
 
-	for (i = iCnt; i < 20; i++)
+	for (i = iCnt; i < WITCH_ITEMS; i++)
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SortWitch();
