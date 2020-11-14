@@ -79,7 +79,7 @@ int player_45EFB5(int pc);
 
 /* data */
 
-extern int plrxoff[9];
+extern int plrxoff[MAX_PLRS];
 extern int plryoff[9];
 extern int plrxoff2[9];
 extern int plryoff2[9];

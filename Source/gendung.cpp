@@ -565,7 +565,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rn
 				themeLoc[themeCount].width = themeW;
 				themeLoc[themeCount].height = themeH;
 				if (leveltype == DTYPE_CAVES)
-					DRLG_RectTrans(2 * i + 20, 2 * j + 20, 2 * (i + themeW) + 15, 2 * (j + themeH) + 15);
+					DRLG_RectTrans(2 * i + DBORDERX + 4, 2 * j + DBORDERY + 4, 2 * (i + themeW) - 1 + DBORDERX, 2 * (j + themeH) - 1 + DBORDERY);
 				else
 					DRLG_MRectTrans(i + 1, j + 1, i + themeW, j + themeH);
 				themeLoc[themeCount].ttval = TransVal - 1;

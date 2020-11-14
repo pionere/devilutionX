@@ -502,7 +502,7 @@ void DrawInvBelt()
 		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
-			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, 0);
+			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, COL_WHITE);
 		}
 	}
 }
@@ -1864,7 +1864,7 @@ int InvPutItem(int pnum, int x, int y)
 		yp = cursmy;
 		xp = cursmx;
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && xp >= 79 && xp <= 82 && yp >= 61 && yp <= 64) {
-			NetSendCmdLocParam2(0, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, 0, 0);
+			NetSendCmdLocParam2(FALSE, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, 0, 0);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);

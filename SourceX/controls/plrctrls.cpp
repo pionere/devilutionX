@@ -154,7 +154,7 @@ void FindItemOrObject()
 
 void CheckTownersNearby()
 {
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < NUM_TOWNERS; i++) {
 		int distance = GetDistance(towner[i]._tx, towner[i]._ty, 2);
 		if (distance == 0)
 			continue;
@@ -430,15 +430,15 @@ void FindTrigger()
 void Interact()
 {
 	if (leveltype == DTYPE_TOWN && pcursmonst != -1) {
-		NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
+		NetSendCmdLocParam1(TRUE, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
 	} else if (pcursmonst != -1) {
 		if (plr[myplr]._pwtype != WT_RANGED || CanTalkToMonst(pcursmonst)) {
-			NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
+			NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
 		} else {
-			NetSendCmdParam1(true, CMD_RATTACKID, pcursmonst);
+			NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
 		}
 	} else if (leveltype != DTYPE_TOWN && pcursplr != -1 && !FriendlyMode) {
-		NetSendCmdParam1(true, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr);
+		NetSendCmdParam1(TRUE, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr);
 	}
 }
 
@@ -832,7 +832,7 @@ void WalkInDir(MoveDirection dir)
 
 	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
 		if (sgbControllerActive && plr[myplr].walkpath[0] != WALK_NONE && plr[myplr].destAction == ACTION_NONE)
-			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
+			NetSendCmdLoc(TRUE, CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
 
@@ -844,7 +844,7 @@ void WalkInDir(MoveDirection dir)
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
 
-	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
+	NetSendCmdLoc(TRUE, CMD_WALKXY, dx, dy);
 }
 
 void Movement()
@@ -1178,17 +1178,17 @@ void PerformSecondaryAction()
 		NewCursor(CURSOR_HAND);
 
 	if (pcursitem != -1) {
-		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(TRUE, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 	} else if (pcursobj != -1) {
-		NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+		NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcursmissile != -1) {
-		MakePlrPath(myplr, missile[pcursmissile]._mix, missile[pcursmissile]._miy, true);
+		MakePlrPath(myplr, missile[pcursmissile]._mix, missile[pcursmissile]._miy, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	} else if (pcurstrig != -1) {
-		MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, true);
+		MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	} else if (pcursquest != -1) {
-		MakePlrPath(myplr, quests[pcursquest]._qtx, quests[pcursquest]._qty, true);
+		MakePlrPath(myplr, quests[pcursquest]._qtx, quests[pcursquest]._qty, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	}
 }

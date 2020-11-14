@@ -1068,10 +1068,8 @@ void InitMonsters()
 	if (gbMaxPlayers != 1)
 		CheckDungeonClear();
 	if (!setlevel) {
-		AddMonster(1, 0, 0, 0, FALSE);
-		AddMonster(1, 0, 0, 0, FALSE);
-		AddMonster(1, 0, 0, 0, FALSE);
-		AddMonster(1, 0, 0, 0, FALSE);
+		for (i = 0; i < MAX_PLRS; i++)
+			AddMonster(1, 0, 0, 0, FALSE);
 
 #ifndef SPAWN
 		if (currlevel == 16)
@@ -1102,8 +1100,8 @@ void InitMonsters()
 		numplacemonsters = na / 30;
 		if (gbMaxPlayers != 1)
 			numplacemonsters += numplacemonsters >> 1;
-		if (nummonsters + numplacemonsters > MAXMONSTERS - 10)
-			numplacemonsters = MAXMONSTERS - 10 - nummonsters;
+		if (numplacemonsters > MAXMONSTERS - (MAX_PLRS + 6) - nummonsters)
+			numplacemonsters = MAXMONSTERS - (MAX_PLRS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
 			if (Monsters[i].mPlaceFlags & PLACE_SCATTER) {
@@ -1143,10 +1141,8 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	int mtype;
 
 	AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
-	AddMonster(1, 0, 0, 0, FALSE);
-	AddMonster(1, 0, 0, 0, FALSE);
-	AddMonster(1, 0, 0, 0, FALSE);
-	AddMonster(1, 0, 0, 0, FALSE);
+	for (i = 0; i < MAX_PLRS; i++)
+		AddMonster(1, 0, 0, 0, FALSE);
 	if (setlevel && setlvlnum == SL_VILEBETRAYER) {
 		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
 		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
@@ -1273,7 +1269,7 @@ static void MonEnemy(int mnum)
 
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
-	bestsameroom = 0;
+	bestsameroom = FALSE;
 	if (!(mon->_mFlags & MFLAG_GOLEM)) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || (plr[i]._pHitPoints == 0 && gbMaxPlayers != 1))

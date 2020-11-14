@@ -712,8 +712,8 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 
 	x2 = x1 + w;
 	y2 = y1 + h;
-	startx += 16;
-	starty += 16;
+	startx += DBORDERX;
+	starty += DBORDERY;
 	rw += startx;
 	rh += starty;
 	for (j = starty; j < rh; j++) {
@@ -746,8 +746,8 @@ static void LoadMapObjs(BYTE *pMap, int startx, int starty)
 	mapoff += 2 * rw * rh * 2;
 	lm += mapoff;
 
-	startx += 16;
-	starty += 16;
+	startx += DBORDERX;
+	starty += DBORDERY;
 	rw += startx;
 	rh += starty;
 	for (j = starty; j < rh; j++) {
@@ -1009,7 +1009,7 @@ void InitObjects()
 			if (QuestStatus(Q_PWATER))
 				AddCandles();
 			if (QuestStatus(Q_LTBANNER))
-				AddObject(OBJ_SIGNCHEST, 2 * setpc_x + 26, 2 * setpc_y + 19);
+				AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
 			InitRndLocBigObj(10, 15, OBJ_SARC);
 #ifdef HELLFIRE
 			if (currlevel >= 21)
@@ -1036,8 +1036,8 @@ void InitObjects()
 			if (QuestStatus(Q_BLOOD)) {
 				sp_id = textSets[TXTS_BLOODY][plr[myplr]._pClass];
 				quests[Q_BLOOD]._qmsg = sp_id;
-				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + 25, 2 * setpc_y + 40, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
-				AddObject(OBJ_PEDISTAL, 2 * setpc_x + 25, 2 * setpc_y + 32);
+				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERX + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
+				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 			}
 			InitRndBarrels();
 		} else if (leveltype == DTYPE_CAVES) {
@@ -1120,7 +1120,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0)
-				AddObject(ObjTypeConv[*lm], startx + 16 + i, starty + 16 + j);
+				AddObject(ObjTypeConv[*lm], startx + DBORDERX + i, starty + DBORDERY + j);
 			lm += 2;
 		}
 	}

@@ -450,8 +450,8 @@ static void DrawSChamber(int qn, int x, int y)
 			sp += 2;
 		}
 	}
-	quests[qn]._qtx = 2 * x + 22;
-	quests[qn]._qty = 2 * y + 23;
+	quests[qn]._qtx = 2 * x + DBORDERX + 6;
+	quests[qn]._qty = 2 * y + DBORDERY + 7;
 	mem_free_dbg(setp);
 }
 

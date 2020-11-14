@@ -298,12 +298,12 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 	sstr[0] = '\0';
 	if (is->_iIdentified) {
 		if (is->_iMagical != ITEM_QUALITY_UNIQUE) {
-			if (is->_iPrePower != -1) {
+			if (is->_iPrePower != IPL_INVALID) {
 				PrintItemPower(is->_iPrePower, is);
 				strcat(sstr, tempstr);
 			}
 		}
-		if (is->_iSufPower != -1) {
+		if (is->_iSufPower != IPL_INVALID) {
 			PrintItemPower(is->_iSufPower, is);
 			if (sstr[0] != '\0')
 				strcat(sstr, ",  ");

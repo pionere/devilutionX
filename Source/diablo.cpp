@@ -54,7 +54,7 @@ WORD tick_delay = 50;
  * screen, as needed for efficient rendering in fullscreen mode.
  */
 BOOL fullscreen = TRUE;
-int showintro = 1;
+BOOL showintro = TRUE;
 #ifdef _DEBUG
 int DebugMonsters[10];
 BOOL visiondebug;
@@ -99,7 +99,7 @@ const char *const spszMsgHotKeyTbl[4] = { "F9", "F10", "F11", "F12" };
 /** To know if these things have been done when we get to the diablo_deinit() function */
 BOOL was_archives_init = FALSE;
 /** To know if surfaces have been initialized or not */
-BOOL was_window_init = false;
+BOOL was_window_init = FALSE;
 BOOL was_ui_init = FALSE;
 BOOL was_snd_init = FALSE;
 
@@ -440,7 +440,7 @@ static void diablo_init_screen()
 static void diablo_init()
 {
 	init_create_window();
-	was_window_init = true;
+	was_window_init = TRUE;
 
 	SFileEnableDirectAccess(TRUE);
 	init_archives();

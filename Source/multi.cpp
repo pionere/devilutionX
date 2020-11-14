@@ -397,12 +397,12 @@ int multi_handle_delta()
 	sgbTimeout = FALSE;
 	if (received) {
 		if (!gbShouldValidatePackage) {
-			NetSendHiPri(0, 0);
+			NetSendHiPri(NULL, 0);
 			gbShouldValidatePackage = FALSE;
 		} else {
 			gbShouldValidatePackage = FALSE;
 			if (!multi_check_pkt_valid(&sgHiPriBuf))
-				NetSendHiPri(0, 0);
+				NetSendHiPri(NULL, 0);
 		}
 	}
 	multi_mon_seeds();

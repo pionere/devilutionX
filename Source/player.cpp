@@ -52,9 +52,9 @@ const char *const ClassStrTbl[NUM_CLASSES] = {
 /* data */
 
 /** Specifies the X-coordinate delta from the player start location in Tristram. */
-int plrxoff[9] = { 0, 2, 0, 2, 1, 0, 1, 2, 1 };
+int plrxoff[MAX_PLRS] = { 0, 2, 0, 2 }; //, 1, 0, 1, 2, 1 };
 /** Specifies the Y-coordinate delta from the player start location in Tristram. */
-int plryoff[9] = { 0, 2, 2, 0, 1, 1, 0, 1, 2 };
+int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
 /** Specifies the X-coordinate delta from a player, used for instanced when casting resurrect. */
 int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
 /** Specifies the Y-coordinate delta from a player, used for instanced when casting resurrect. */
@@ -890,8 +890,8 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	// Prevent power leveling
 	if (gbMaxPlayers != 1) {
 		powerLvlCap = p->_pLevel < 0 ? 0 : p->_pLevel;
-		if (powerLvlCap > 50) {
-			powerLvlCap = 50;
+		if (powerLvlCap > MAXCHARLEVEL) {
+			powerLvlCap = MAXCHARLEVEL;
 		}
 		// cap to 1/20 of current levels xp
 		if (exp > ExpLvlsTbl[powerLvlCap] / 20) {
@@ -909,8 +909,8 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 		p->_pExperience = MAXEXP;
 	}
 
-	if (p->_pExperience >= ExpLvlsTbl[49]) {
-		p->_pLevel = 50;
+	if (p->_pExperience >= ExpLvlsTbl[MAXCHARLEVEL - 1]) {
+		p->_pLevel = MAXCHARLEVEL;
 		return;
 	}
 

@@ -124,7 +124,7 @@ BOOL UpdateHeroLevel(_uiheroinfo *pInfo)
 	if (strcasecmp(pInfo->name, gszHero) == 0)
 		heroLevel = pInfo->level;
 
-	return true;
+	return TRUE;
 }
 
 void selgame_GameSelection_Select(int value)

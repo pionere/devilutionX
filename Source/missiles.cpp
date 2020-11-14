@@ -1362,8 +1362,8 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 				ty = dy + *++cr;
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					dm = dMonster[tx][ty];
-					dm = dm > 0 ? dm - 1 : -(dm + 1);
-					if (dm > 3) {
+					dm = dm >= 0 ? dm - 1 : -(dm + 1);
+					if (dm >= MAX_PLRS) {
 						mon = &monster[dm];
 						if (mon->_uniqtype == 0 && mon->_mAi != AI_DIABLO) {
 							if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
@@ -1501,7 +1501,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 						if (ii != -1) {
 							SetItemData(pi, ii);
 							GetItemSeed(pi);
-							pi->_iStatFlag = 1;
+							pi->_iStatFlag = TRUE;
 						}
 						if (!hasPlayedSFX) {
 							PlaySfxLoc(IS_POPPOP2, tx, ty);
@@ -3044,7 +3044,7 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	} else {
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
-		UseMana(misource, 22);
+		UseMana(misource, SPL_BLODBOIL);
 		mis->_miVar1 = misource;
 		lvl = p->_pLevel;
 		mis->_miVar2 = (3 * lvl) << 7;

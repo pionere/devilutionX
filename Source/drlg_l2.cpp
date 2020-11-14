@@ -2017,11 +2017,11 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRy1 = nY2 - nRh;
 	}
 
-	if (nRx1 > 38) {
-		nRx1 = 38;
+	if (nRx1 > DMAXX - 2) {
+		nRx1 = DMAXX - 2;
 	}
-	if (nRy1 > 38) {
-		nRy1 = 38;
+	if (nRy1 > DMAXY - 2) {
+		nRy1 = DMAXY - 2;
 	}
 	if (nRx1 < 1) {
 		nRx1 = 1;
@@ -2029,11 +2029,11 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	if (nRy1 < 1) {
 		nRy1 = 1;
 	}
-	if (nRx2 > 38) {
-		nRx2 = 38;
+	if (nRx2 > DMAXX - 2) {
+		nRx2 = DMAXX - 2;
 	}
-	if (nRy2 > 38) {
-		nRy2 = 38;
+	if (nRy2 > DMAXY - 2) {
+		nRy2 = DMAXY - 2;
 	}
 	if (nRx2 < 1) {
 		nRx2 = 1;
@@ -2131,10 +2131,10 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	fInroom = FALSE;
 
 	while (!fDoneflag) {
-		if (nX1 >= 38 && nCurrd == 2) {
+		if (nX1 >= DMAXX - 2 && nCurrd == 2) {
 			nCurrd = 4;
 		}
-		if (nY1 >= 38 && nCurrd == 3) {
+		if (nY1 >= DMAXY - 2 && nCurrd == 3) {
 			nCurrd = 1;
 		}
 		if (nX1 <= 1 && nCurrd == 4) {
@@ -2512,7 +2512,7 @@ static BOOL DL2_FillVoids()
 			y2 -= 2;
 			if (y2 - y1 > 5) {
 				while (xf2) {
-					if (x2 == 39) {
+					if (x2 == DMAXX - 1) {
 						xf2 = FALSE;
 					}
 					if (x2 - x1 >= 12) {

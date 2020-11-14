@@ -3067,6 +3067,8 @@ typedef enum _item_indexes {
 	IDI_GREYSUIT,
 	IDI_REJUV      = 0x51,
 	IDI_FULLREJUV  = 0x52,
+	// hellfire only
+	IDI_FLAIL      = 0x8B,
 } _item_indexes;
 
 typedef enum _setlevels {
@@ -3252,7 +3254,7 @@ typedef enum _unique_items {
 	UITEM_BLEEDER      = 0x57,
 	UITEM_CONSTRICT    = 0x58,
 	UITEM_ENGAGE       = 0x59,
-	UITEM_INVALID      = 0x5A,
+	NUM_UITEM          = 0x5A,
 } _unique_items;
 
 typedef enum plr_class {

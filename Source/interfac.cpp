@@ -83,7 +83,7 @@ static void InitCutscene(unsigned int uMsg)
 		}
 		break;
 	case WM_DIABPREVLVL:
-		if (gnLevelTypeTbl[currlevel - 1] == 0) {
+		if (gnLevelTypeTbl[currlevel - 1] == DTYPE_TOWN) {
 			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
 			LoadPalette("Gendata\\Cuttt.pal");
 			progress_id = 1;
