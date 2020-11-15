@@ -34,7 +34,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_FIREBOLT:
 		k = (p->_pMagic >> 3) + sl;
 		*mind = k + 1;
-		*maxd = k + 9;
+		*maxd = k + 10;
 		break;
 	case SPL_HEAL:
 		*mind = -1;
@@ -130,8 +130,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*maxd += *maxd >> 1;
 		break;
 	case SPL_GOLEM:
-		*mind = 11;
-		*maxd = 17;
+		*mind = 2 * sl + 8;
+		*maxd = 2 * sl + 16;
 		break;
 	case SPL_APOCA:
 		k = std::max((int)p->_pLevel, 0);
@@ -143,16 +143,18 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		for (k = 0; k < sl; k++) {
 			*mind += *mind >> 3;
 		}
-		/// BUGFIX: add here '*mind >>= 1;'
+		*mind >>= 1;
 		*maxd = 2 * p->_pLevel + 40;
 		for (k = 0; k < sl; k++) {
 			*maxd += *maxd >> 3;
 		}
-		/// BUGFIX: add here '*maxd >>= 1;'
+		*maxd >>= 1;
 		break;
 	case SPL_CBOLT:
 		*mind = 1;
-		*maxd = (p->_pMagic >> 2) + 1;
+		*maxd = p->_pMagic >> 2;
+		if (*maxd == 0)
+			*maxd = 1;
 		break;
 	case SPL_HBOLT:
 		*mind = p->_pLevel + 9;
@@ -532,11 +534,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	}
 
 	hit = mon->_mmode == MM_STONE ? 0 : random_(68, 100);
-#ifdef HELLFIRE
-	hper = 90 - (char)mon->mArmorClass - dist;
-#else
-	hper = 90 - (BYTE)mon->mArmorClass - dist;
-#endif
+	hper = 90 - mon->mArmorClass - dist;
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
@@ -1766,8 +1764,12 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	int i, ManaAmount;
 
 	missile[mi]._miDelFlag = TRUE;
+	UseMana(misource, SPL_MANA);
 
 	p = &plr[misource];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+
 	ManaAmount = random_(57, 10) + 1;
 	for (i = p->_pLevel; i > 0; i--) {
 		ManaAmount += random_(57, 4) + 1;
@@ -1786,7 +1788,6 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	p->_pManaBase += ManaAmount;
 	if (p->_pManaBase > p->_pMaxManaBase)
 		p->_pManaBase = p->_pMaxManaBase;
-	UseMana(misource, SPL_MANA);
 	drawmanaflag = TRUE;
 }
 
@@ -1795,10 +1796,13 @@ void AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	PlayerStruct *p;
 
 	missile[mi]._miDelFlag = TRUE;
+	UseMana(misource, SPL_MAGI);
 	p = &plr[misource];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+
 	p->_pMana = p->_pMaxMana;
 	p->_pManaBase = p->_pMaxManaBase;
-	UseMana(misource, SPL_MAGI);
 	drawmanaflag = TRUE;
 }
 
@@ -1906,32 +1910,37 @@ void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int av = 32;
+	PlayerStruct *p;
+	int av = 31, flags;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
 	if (micaster == 0) {
+		p = &plr[misource];
+		flags = p->_pIFlags;
+		if (flags & ISPL_RNDARROWVEL)
+			av = random_(64, 31) + 16;
 #ifdef HELLFIRE
-		if (plr[misource]._pClass == PC_ROGUE)
-			av += (plr[misource]._pLevel) >> 2;
-		else if (plr[misource]._pClass == PC_WARRIOR || plr[misource]._pClass == PC_BARD)
-			av += (plr[misource]._pLevel) >> 3;
-
-		if (plr[misource]._pIFlags & ISPL_QUICKATTACK)
+		if (flags & ISPL_QUICKATTACK)
 			av++;
-		if (plr[misource]._pIFlags & ISPL_FASTATTACK)
+		if (flags & ISPL_FASTATTACK)
 			av += 2;
-		if (plr[misource]._pIFlags & ISPL_FASTERATTACK)
+		if (flags & ISPL_FASTERATTACK)
 			av += 4;
-		if (plr[misource]._pIFlags & ISPL_FASTESTATTACK)
+		if (flags & ISPL_FASTESTATTACK)
 			av += 8;
+
+		if (p->_pClass == PC_ROGUE)
+			av += p->_pLevel >> 2;
+		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+			av += p->_pLevel >> 3;
 #else
-		if (plr[misource]._pClass == PC_ROGUE)
-			av = (plr[misource]._pLevel >> 2) + 31;
-		else if (plr[misource]._pClass == PC_WARRIOR)
-			av = (plr[misource]._pLevel >> 3) + 31;
+		if (p->_pClass == PC_ROGUE)
+			av += p->_pLevel >> 2;
+		else if (p->_pClass == PC_WARRIOR)
+			av += p->_pLevel >> 3;
 #endif
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
@@ -3030,9 +3039,9 @@ void AddNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_mirange = 1;
 }
 
+#ifdef HELLFIRE
 void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-#ifdef HELLFIRE
 	MissileStruct *mis;
 	PlayerStruct *p;
 	int lvl;
@@ -3054,10 +3063,8 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		CalcPlrItemVals(misource, TRUE);
 		force_redraw = 255;
 	}
-#else
-	missile[mi]._miDelFlag = TRUE;
-#endif
 }
+#endif
 
 void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -3431,7 +3438,7 @@ void MI_Golem(int mi)
 				ty = mis->_miVar5 + *++cr;
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
-						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 							SpawnGolum(src, tx, ty, mi);
 							return;
 						}
@@ -4041,7 +4048,7 @@ void MI_Immolation(int mi)
 void MI_LightArrow(int mi)
 {
 	MissileStruct *mis;
-	int pn, dam, mx, my;
+	int dam, mx, my;
 
 	mis = &missile[mi];
 	mis->_mirange--;
@@ -4053,10 +4060,8 @@ void MI_LightArrow(int mi)
 	my = mis->_miy;
 	/// ASSERT: assert((DWORD)mx < MAXDUNX);
 	/// ASSERT: assert((DWORD)my < MAXDUNY);
-	pn = dPiece[mx][my];
-	/// ASSERT: assert((DWORD)pn <= MAXTILES);
-
-	if (!nMissileTable[pn]) {
+	dam = mis->_midam;
+	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
 			if (mis->_misource != -1) {
 				if (mis->_micaster == 1
@@ -4602,16 +4607,11 @@ static void MI_Manashield(int mi)
 		diff = mis->_miVar1 - p->_pHitPoints;
 		if (diff > 0) {
 #ifdef HELLFIRE
-			div = 0;
-			for (int m = std::min(mis->_mispllvl, 7); m > 0; m--)
-				div += 3;
-
-			if (div != 0)
+			div = 19 - (std::min(mis->_mispllvl, 8) << 1);
 #else
 			div = 3;
-			if (mis->_mispllvl > 0)
 #endif
-				diff -= diff / div;
+			diff -= diff / div;
 
 			drawmanaflag = TRUE;
 			drawhpflag = TRUE;
@@ -4622,13 +4622,8 @@ static void MI_Manashield(int mi)
 				p->_pMana -= diff;
 				p->_pManaBase -= diff;
 			} else {
-#ifdef HELLFIRE
-				p->_pHitPoints += p->_pMana - diff;
-				p->_pHPBase += p->_pMana - diff;
-#else
 				p->_pHitPoints = p->_pMana + mis->_miVar1 - diff;
 				p->_pHPBase = p->_pMana + mis->_miVar2 - diff;
-#endif
 				p->_pMana = 0;
 				p->_pManaBase = p->_pMaxManaBase - p->_pMaxMana;
 				mis->_mirange = 0;
@@ -4745,10 +4740,6 @@ void MI_Guardian(int mi)
 
 	assert((DWORD)mi < MAXMISSILES);
 
-#ifndef HELLFIRE
-	cx = 0;
-	cy = 0;
-#endif
 	mis = &missile[mi];
 	mis->_mirange--;
 
@@ -4762,12 +4753,11 @@ void MI_Guardian(int mi)
 	if (!(mis->_mirange % 16)) {
 		ex = FALSE;
 		for (i = 0; i < 23 && !ex; i++) {
-			for (j = 10; j >= 0 && (vCrawlTable[i][j] != 0 || vCrawlTable[i][j + 1] != 0); j -= 2) {
-				if (cx == vCrawlTable[i][j] && cy == vCrawlTable[i][j + 1]) {
-					continue;
-				}
+			for (j = 10; j >= 0; j -= 2) {
 				cx = vCrawlTable[i][j];
 				cy = vCrawlTable[i][j + 1];
+				if (cx == 0 && cy == 0)
+					continue;
 				ex = Sentfire(mi, mis->_mix + cx, mis->_miy + cy);
 				if (ex) {
 					break;
@@ -5210,10 +5200,10 @@ void MI_Wave(int mi)
 			for (j = (mis->_mispllvl >> 1) + 2; j > 0; j--) {
 				nx += XDirAdd[dir];
 				ny += YDirAdd[dir];
-				// BUGFIX: dPiece is accessed before check against dungeon size and 0
-				if (nMissileTable[dPiece[nx][ny]] || nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY) {
+				if (nx <= 0 || nx >= MAXDUNX || ny <= 0 || ny >= MAXDUNY)
 					break;
-				}
+				if (nMissileTable[dPiece[nx][ny]])
+					break;
 				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_mispllvl);
 			}
 		}

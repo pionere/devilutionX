@@ -1797,6 +1797,10 @@ void StartPlrKill(int pnum, int earflag)
 	ItemStruct ear;
 	ItemStruct *pi;
 
+	if ((DWORD)pnum >= MAX_PLRS) {
+		app_fatal("StartPlrKill: illegal player %d", pnum);
+	}
+
 	p = &plr[pnum];
 	if (p->_pHitPoints <= 0 && p->_pmode == PM_DEATH) {
 		return;
@@ -1807,10 +1811,6 @@ void StartPlrKill(int pnum, int earflag)
 	}
 
 	diablolevel = gbMaxPlayers != 1 && p->plrlevel == 16;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("StartPlrKill: illegal player %d", pnum);
-	}
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_71][p->_pClass], p->_px, p->_py);
 
@@ -2100,6 +2100,7 @@ void RemovePlrMissiles(int pnum)
 				|| missile[mi]._mitype == MIS_ETHEREALIZE) {
 			ClearMissileSpot(mi);
 			DeleteMissile(mi, i);
+			i--;
 		}
 	}
 }
@@ -2678,7 +2679,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 			}
 			drawhpflag = TRUE;
 		}
-		if (p->_pIFlags & ISPL_NOHEALPLR) {
+		if (p->_pIFlags & ISPL_NOHEALMON) {
 			mon->_mFlags |= MFLAG_NOHEAL;
 		}
 #ifdef _DEBUG

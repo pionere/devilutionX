@@ -519,6 +519,7 @@ static BOOL SmithSellOk(const ItemStruct *is)
 		&& is->_itype != ITYPE_GOLD
 		&& is->_itype != ITYPE_MEAT
 		&& is->_itype != ITYPE_STAFF
+		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
 		&& is->IDidx != IDI_LAZSTAFF;
 }
 
@@ -1669,9 +1670,13 @@ static BOOL StoreGoldFit(int idx)
 
 	cost = storehold[idx]._iIvalue;
 
-	i = storehold[idx]._iCurs + CURSOR_FIRSTITEM;
-	numsqrs = InvItemHeight[i] * InvItemWidth[i] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
-
+	numsqrs = 0;
+	// add the item slots but only if it is not in the belt, since gold can not be placed there
+	if (storehidx[idx] >= 0) {
+		i = storehold[idx]._iCurs + CURSOR_FIRSTITEM;
+		numsqrs = InvItemHeight[i] * InvItemWidth[i] / (INV_SLOT_SIZE_PX * INV_SLOT_SIZE_PX);
+	}
+	// add the empty slots
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr[myplr].InvGrid[i] == 0)
 			numsqrs++;
@@ -1681,6 +1686,7 @@ static BOOL StoreGoldFit(int idx)
 	if (cost <= 0)
 		return TRUE;
 
+	// check for not full piles of gold if there is still not enough place
 	pi = plr[myplr].InvList;
 	for (i = plr[myplr]._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
@@ -1973,6 +1979,8 @@ static void S_BoyEnter()
 static void BoyBuyItem()
 {
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
+	// restore the price of the item
+	plr[myplr].HoldItem._iIvalue = boyitem._iIvalue;
 	StoreAutoPlace(TRUE);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
@@ -2004,23 +2012,22 @@ static void HealerBuyItem()
 
 static void S_BBuyEnter()
 {
+	int sellValue;
+
 	if (stextsel == 10) {
 		stextshold = STORE_BBOY;
 		stextvhold = stextsidx;
 		stextlhold = 10;
 #ifdef HELLFIRE
-		if (plr[myplr]._pGold < boyitem._iIvalue - (boyitem._iIvalue >> 2)) {
+		sellValue = boyitem._iIvalue - (boyitem._iIvalue >> 2);
 #else
-		if (plr[myplr]._pGold < boyitem._iIvalue + (boyitem._iIvalue >> 1)) {
+		sellValue = boyitem._iIvalue + (boyitem._iIvalue >> 1);
 #endif
+		if (plr[myplr]._pGold < sellValue) {
 			StartStore(STORE_NOMONEY);
 		} else {
 			plr[myplr].HoldItem = boyitem;
-#ifdef HELLFIRE
-			plr[myplr].HoldItem._iIvalue -= plr[myplr].HoldItem._iIvalue >> 2;
-#else
-			plr[myplr].HoldItem._iIvalue += plr[myplr].HoldItem._iIvalue >> 1;
-#endif
+			plr[myplr].HoldItem._iIvalue = sellValue;
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else

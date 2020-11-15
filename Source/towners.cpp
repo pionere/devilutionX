@@ -865,7 +865,7 @@ void TalkToTowner(int pnum, int tnum)
 				}
 			}
 			}
-			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i)) {
+			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && !tw->_tMsgSaid) {
 				RemoveInvItem(pnum, i);
 				SpawnQuestItem(IDI_SPECELIX, tw->_tx, tw->_ty + 1, 0, 0);
 				InitQTextMsg(TEXT_MUSH4);
@@ -949,7 +949,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qvar1 = 1;
 					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-					break;
 				} else if (!plr[pnum]._pLvlVisited[9] && plr[pnum]._pLevel < 15) {
 					qt = TEXT_FARMER8;
 					if (plr[pnum]._pLvlVisited[2])
@@ -965,8 +964,8 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
-					break;
 				}
+				break;
 			case QUEST_ACTIVE:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i))
 					qt = TEXT_FARMER2;

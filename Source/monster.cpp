@@ -2747,7 +2747,7 @@ void MonTeleport(int mnum)
 	ry = 2 * random_(100, 2) - 1;
 
 	for (j = -1; j <= 1; j++) {
-		for (k = -1; k < 1; k++) {
+		for (k = -1; k <= 1; k++) {
 			if (j != 0 || k != 0) {
 				x = _mx + rx * j;
 				y = _my + ry * k;
@@ -3633,17 +3633,12 @@ void MAI_Sneak(int mnum)
 					mon->_mgoalvar1 = 0;
 				}
 			}
-#ifdef HELLFIRE
 			if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
+				md = mon->_menemy;
 				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
-					md = GetDirection(mon->_mx, mon->_my, monster[mon->_menemy]._mx, monster[mon->_menemy]._my);
+					md = GetDirection(monster[md]._mx, monster[md]._my, mon->_mx, mon->_my);
 				else
-#else
-			if (mon->_mgoal == MGOAL_RETREAT) {
-				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
-#endif
-					md = GetDirection(mon->_mx, mon->_my, plr[mon->_menemy]._pownerx, plr[mon->_menemy]._pownery);
-				md = opposite[md];
+					md = GetDirection(plr[md]._px, plr[md]._py, mon->_mx, mon->_my);
 				if (mon->MType->mtype == MT_UNSEEN) {
 					if (random_(112, 2))
 						md = left[md];
@@ -3744,8 +3739,7 @@ void MAI_Fireman(int mnum)
 void MAI_Fallen(int mnum)
 {
 	MonsterStruct *mon;
-	int x, y;
-	int m, rad;
+	int x, y, mx, my, m, rad;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 #if HELLFIRE
@@ -3784,17 +3778,17 @@ void MAI_Fallen(int mnum)
 			else
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
-		rad = 2 * mon->_mint + 4;
+		rad = std::min(2 * mon->_mint + 4, MAXDUNX / 2 - 1);
+		mx = std::min(std::max(mon->_mx, rad), MAXDUNX - rad - 1);
+		my = std::min(std::max(mon->_my, rad), MAXDUNY - rad - 1);
 		for (y = -rad; y <= rad; y++) {
 			for (x = -rad; x <= rad; x++) {
-				if (IN_DUNGEON_AREA(x, y)) {
-					m = dMonster[x + mon->_mx][y + mon->_my];
-					if (m > 0) {
-						m--;
-						if (monster[m]._mAi == AI_FALLEN) {
-							monster[m]._mgoal = MGOAL_ATTACK2;
-							monster[m]._mgoalvar1 = 30 * mon->_mint + 105;
-						}
+				m = dMonster[x + mx][y + my];
+				if (m > 0) {
+					m--;
+					if (monster[m]._mAi == AI_FALLEN) {
+						monster[m]._mgoal = MGOAL_ATTACK2;
+						monster[m]._mgoalvar1 = 30 * mon->_mint + 105;
 					}
 				}
 			}

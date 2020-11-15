@@ -116,7 +116,6 @@ static void SHA1Input(SHA1Context *context, const char *message_array, DWORD len
 		context->count[1]++;
 
 	context->count[0] = count;
-	context->count[1] += len >> 29;
 
 	for (i = len; i >= 64; i -= 64) {
 		memcpy(context->buffer, message_array, sizeof(context->buffer));

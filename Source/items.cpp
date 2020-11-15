@@ -4347,16 +4347,18 @@ void UseItem(int pnum, int Mid, int spl)
 		p->_pMemSpells |= (__int64)1 << (spl - 1);
 		if (p->_pSplLvl[spl] < MAXSPLLEVEL)
 			p->_pSplLvl[spl]++;
-		mana = spelldata[spl].sManaCost << 6;
-		p->_pMana += mana;
-		if (p->_pMana > p->_pMaxMana)
-			p->_pMana = p->_pMaxMana;
-		p->_pManaBase += mana;
-		if (p->_pManaBase > p->_pMaxManaBase)
-			p->_pManaBase = p->_pMaxManaBase;
+		if (!(p->_pIFlags & ISPL_NOMANA)) {
+			mana = spelldata[spl].sManaCost << 6;
+			p->_pMana += mana;
+			if (p->_pMana > p->_pMaxMana)
+				p->_pMana = p->_pMaxMana;
+			p->_pManaBase += mana;
+			if (p->_pManaBase > p->_pMaxManaBase)
+				p->_pManaBase = p->_pMaxManaBase;
+			drawmanaflag = TRUE;
+		}
 		if (pnum == myplr)
 			CalcPlrBookVals(pnum);
-		drawmanaflag = TRUE;
 		break;
 	case IMISC_MAPOFDOOM:
 		doom_init();
