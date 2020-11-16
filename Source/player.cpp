@@ -2852,10 +2852,10 @@ static BOOL PlrDoAttack(int pnum)
 		}
 
 		if (p->_pIFlags & ISPL_FIREDAM) {
-			AddMissile(dx, dy, 1, 0, 0, MIS_WEAPEXP, 0, pnum, 0, 0);
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, pnum, 0, 0);
 		}
 		if (p->_pIFlags & ISPL_LIGHTDAM) {
-			AddMissile(dx, dy, 2, 0, 0, MIS_WEAPEXP, 0, pnum, 0, 0);
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, 0, pnum, 0, 0);
 		}
 
 		didhit = FALSE;

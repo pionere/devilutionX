@@ -2307,18 +2307,27 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miVar1 = 0;
 }
 
-void AddWeapexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
 	mis = &missile[mi];
 	mis->_miVar1 = 0;
-	mis->_miVar2 = dx;
+	mis->_miVar2 = plr[mis->_miSource]._pIFMinDam;
+	mis->_miVar3 = plr[mis->_miSource]._pIFMaxDam;
 	mis->_miDir = 0;
-	if (dx == 1)
-		SetMissAnim(mi, MFILE_MAGBLOS);
-	else
-		SetMissAnim(mi, MFILE_MINILTNG);
+	mis->_miRange = mis->_miAnimLen - 1;
+}
+
+void AddWeapLexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	MissileStruct *mis;
+
+	mis = &missile[mi];
+	mis->_miVar1 = 0;
+	mis->_miVar2 = plr[mis->_miSource]._pILMinDam;
+	mis->_miVar3 = plr[mis->_miSource]._pILMaxDam;
+	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 }
 
@@ -4814,25 +4823,14 @@ void mi_null_11(int mi)
 	PutMissile(mi);
 }
 
-void MI_Weapexp(int mi)
+void MI_WeapExp(int mi)
 {
 	MissileStruct *mis;
-	int pnum, mind, maxd;
 	int ExpLight[10] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2 };
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	pnum = mis->_miSource;
-	if (mis->_miVar2 == 1) {
-		mind = plr[pnum]._pIFMinDam;
-		maxd = plr[pnum]._pIFMaxDam;
-		missiledata[mis->_miType].mResist = MISR_FIRE;
-	} else {
-		mind = plr[pnum]._pILMinDam;
-		maxd = plr[pnum]._pILMaxDam;
-		missiledata[mis->_miType].mResist = MISR_LIGHTNING;
-	}
-	CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, FALSE);
+	CheckMissileCol(mi, mis->_miVar2, mis->_miVar3, FALSE, mis->_mix, mis->_miy, FALSE);
 	if (mis->_miVar1 == 0) {
 		mis->_miLid = AddLight(mis->_mix, mis->_miy, 9);
 	} else {
