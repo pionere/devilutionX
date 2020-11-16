@@ -2540,7 +2540,7 @@ static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 #ifdef _DEBUG
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else if (plr[pnum]._pLevel < MAXCHARLEVEL - 1) {
+	else if (plr[pnum]._pLevel < MAXCHARLEVEL) {
 		plr[pnum]._pExperience = plr[pnum]._pNextExper;
 		NextPlrLevel(pnum);
 	}

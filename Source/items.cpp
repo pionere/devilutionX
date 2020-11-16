@@ -1407,11 +1407,13 @@ void CreatePlrItems(int pnum)
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
 		SetGoldItemValue(&p->HoldItem, GOLD_MAX_LIMIT);
-		p->_pGold = p->HoldItem._ivalue * NUM_INV_GRID_ELEM;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			GetItemSeed(&p->HoldItem);
-			p->InvList[p->_pNumInv++] = p->HoldItem;
-			p->InvGrid[i] = p->_pNumInv;
+			if (p->InvGrid[i] == 0) {
+				GetItemSeed(&p->HoldItem);
+				p->InvList[p->_pNumInv] = p->HoldItem;
+				p->InvGrid[i] = ++p->_pNumInv;
+				p->_pGold += GOLD_MAX_LIMIT;
+			}
 		}
 	} else
 #endif

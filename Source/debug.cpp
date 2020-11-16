@@ -53,17 +53,17 @@ void CheckDungeonClear()
 #ifdef _DEBUG
 void GiveGoldCheat()
 {
-	int i, ni;
+	ItemStruct *pi;
+	int i;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr[myplr].InvGrid[i] == 0) {
-			ni = plr[myplr]._pNumInv++;
-			SetItemData(&plr[myplr].InvList[ni], IDI_GOLD);
-			GetItemSeed(&plr[myplr].InvList[ni]);
-			plr[myplr].InvList[ni]._ivalue = GOLD_MAX_LIMIT;
-			plr[myplr].InvList[ni]._iCurs = ICURS_GOLD_LARGE;
+			pi = &plr[myplr].InvList[plr[myplr]._pNumInv];
+			SetItemData(pi, IDI_GOLD);
+			GetItemSeed(pi);
+			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			plr[myplr]._pGold += GOLD_MAX_LIMIT;
-			plr[myplr].InvGrid[i] = plr[myplr]._pNumInv;
+			plr[myplr].InvGrid[i] = ++plr[myplr]._pNumInv;
 		}
 	}
 }
