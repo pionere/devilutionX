@@ -526,19 +526,19 @@ void InitItemGFX()
 	memset(UniqueItemFlag, 0, sizeof(UniqueItemFlag));
 }
 
-BOOL ItemPlace(int xp, int yp)
+BOOL ItemPlace(int x, int y)
 {
-	if (dMonster[xp][yp] != 0)
+	if (dMonster[x][y] != 0)
 		return FALSE;
-	if (dPlayer[xp][yp] != 0)
+	if (dPlayer[x][y] != 0)
 		return FALSE;
-	if (dItem[xp][yp] != 0)
+	if (dItem[x][y] != 0)
 		return FALSE;
-	if (dObject[xp][yp] != 0)
+	if (dObject[x][y] != 0)
 		return FALSE;
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
+	if (dFlags[x][y] & BFLAG_POPULATED)
 		return FALSE;
-	if (nSolidTable[dPiece[xp][yp]])
+	if (nSolidTable[dPiece[x][y]])
 		return FALSE;
 
 	return TRUE;
@@ -5105,14 +5105,14 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 }
 #endif
 
-void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta)
+void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL delta)
 {
-	int ii, idx, lvl, imid;
+	int ii, idx, lvl, imisc;
 
-	imid = IMISC_NONE;
+	imisc = IMISC_NONE;
 #ifdef HELLFIRE
-	if (imisc == ITYPE_STAFF)
-		imid = IMISC_STAFF;
+	if (itype == ITYPE_STAFF)
+		imisc = IMISC_STAFF;
 #endif
 
 	lvl = items_get_currlevel();
@@ -5124,7 +5124,7 @@ void CreateMagicWeapon(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL de
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		itemactive[numitems] = ii;
 		while (TRUE) {
-			idx = RndTypeItems(imisc, imid, lvl);
+			idx = RndTypeItems(itype, imisc, lvl);
 			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
 			if (item[ii]._iCurs == icurs)
 				break;

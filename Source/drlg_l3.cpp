@@ -1137,19 +1137,19 @@ static void DRLG_L3River()
 	int rx, ry, px, py, dir, pdir, nodir, nodir2, dircheck;
 	int river[3][100];
 	int rivercnt, riveramt;
-	int i, trys, found, bridge, lpcnt;
+	int i, tries, found, bridge, lpcnt;
 	BOOL bail;
 
 	rivercnt = 0;
 	bail = FALSE;
-	trys = 0;
+	tries = 0;
 	/// BUGFIX: pdir is uninitialized, add code `pdir = -1;`(fixed)
 	pdir = -1;
 
-	while (trys < 200 && rivercnt < 4) {
+	while (tries < 200 && rivercnt < 4) {
 		bail = FALSE;
-		while (!bail && trys < 200) {
-			trys++;
+		while (!bail && tries < 200) {
+			tries++;
 			rx = 0;
 			ry = 0;
 			i = 0;

@@ -175,7 +175,7 @@ void DrawInv()
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	int frame, frame_width, screen_x, screen_y, i, j, ii;
+	int frame, frame_width, screen_x, screen_y, i, ii;
 	BYTE *pBuff, *cCels;
 
 	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pInvCels, 1, SPANEL_WIDTH);
@@ -416,13 +416,13 @@ void DrawInv()
 		}
 	}
 
-	for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-		if (p->InvGrid[j] > 0) { // first slot of an item
-			ii = p->InvGrid[j] - 1;
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+		if (p->InvGrid[i] > 0) { // first slot of an item
+			ii = p->InvGrid[i] - 1;
 			is = &p->InvList[ii];
 
-			screen_x = InvRect[j + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
-			screen_y = InvRect[j + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1;
+			screen_x = InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
+			screen_y = InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1;
 
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];

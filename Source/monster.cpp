@@ -2314,7 +2314,7 @@ void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	int blk, blkper;
 	int dam, mdam;
 	int newx, newy;
-	int j, misnum, cur_ms_num, new_hp;
+	int i, misnum, cur_ms_num, new_hp;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonTryH2HHit: Invalid monster %d", mnum);
@@ -2371,8 +2371,8 @@ void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 	if (mon->MType->mtype == MT_YZOMBIE && pnum == myplr) {
 		cur_ms_num = -1;
-		for (j = 0; j < nummissiles; j++) {
-			misnum = missileactive[j];
+		for (i = 0; i < nummissiles; i++) {
+			misnum = missileactive[i];
 			if (missile[misnum]._mitype != MIS_MANASHIELD)
 				continue;
 			if (missile[misnum]._misource == pnum)

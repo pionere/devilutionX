@@ -869,18 +869,18 @@ BOOL CheckQuestlog()
 	return TRUE;
 }
 
-void SetMultiQuest(int qn, int s, int l, int v1)
+void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 {
 #ifdef SPAWN
 	return;
 #endif
 
 	if (quests[qn]._qactive != QUEST_DONE) {
-		if (s > quests[qn]._qactive)
-			quests[qn]._qactive = s;
-		quests[qn]._qlog |= l;
-		if (v1 > quests[qn]._qvar1)
-			quests[qn]._qvar1 = v1;
+		if (qa > quests[qn]._qactive)
+			quests[qn]._qactive = qa;
+		quests[qn]._qlog |= qlog;
+		if (qvar > quests[qn]._qvar1)
+			quests[qn]._qvar1 = qvar;
 	}
 }
 

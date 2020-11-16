@@ -1565,7 +1565,7 @@ static void DRLG_L4GeneralFix()
 
 static void DRLG_L4(int entry)
 {
-	int i, j, spi, spj, ar;
+	int i, j, ar;
 	BOOL doneflag;
 
 	do {
@@ -1586,9 +1586,9 @@ static void DRLG_L4(int entry)
 			L4SaveQuads();
 		}
 		if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
-			for (spi = SP4x1; spi < SP4x2; spi++) {
-				for (spj = SP4y1; spj < SP4y2; spj++) {
-					dflags[spi][spj] = 1;
+			for (i = SP4x1; i < SP4x2; i++) {
+				for (j = SP4y1; j < SP4y2; j++) {
+					dflags[i][j] = 1;
 				}
 			}
 		}

@@ -36,7 +36,7 @@ void QuestlogUp();
 void QuestlogDown();
 void QuestlogEnter();
 BOOL CheckQuestlog();
-void SetMultiQuest(int qn, int s, int l, int v1);
+void SetMultiQuest(int qn, int qa, int qlog, int qvar);
 
 /* rdata */
 extern QuestData questlist[MAXQUESTS];
