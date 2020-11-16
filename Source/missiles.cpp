@@ -1073,9 +1073,6 @@ void SetMissAnim(int mi, int animtype)
 	int dir;
 
 	mis = &missile[mi];
-	if (animtype > MFILE_NULL) {
-		animtype = MFILE_NULL;
-	}
 	mis->_miAnimType = animtype;
 	mfd = &misfiledata[animtype];
 	dir = mis->_miDir;
@@ -1127,7 +1124,7 @@ void InitMissileGFX()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+	for (i = 0; i < NUM_MFILE; i++) {
 		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
 			LoadMissileGFX(i);
 	}
@@ -1161,7 +1158,7 @@ void FreeMissiles()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+	for (i = 0; i < NUM_MFILE; i++) {
 		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
 			FreeMissileGFX(i);
 	}
@@ -1171,7 +1168,7 @@ void FreeMissiles2()
 {
 	int i;
 
-	for (i = 0; misfiledata[i].mfAnimFAmt; i++) {
+	for (i = 0; i < NUM_MFILE; i++) {
 		if (misfiledata[i].mfFlags & MFLAG_HIDDEN)
 			FreeMissileGFX(i);
 	}
@@ -3384,7 +3381,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_misy = sy;
 	mis->_miDam = midam;
 
-	if (mis->_miAnimType == MFILE_NONE || misfiledata[mis->_miAnimType].mfAnimFAmt < 8)
+	if (misfiledata[mis->_miAnimType].mfAnimFAmt < 8)
 		SetMissDir(mi, 0);
 	else
 		SetMissDir(mi, midir);

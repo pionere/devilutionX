@@ -2597,6 +2597,7 @@ static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
+#ifdef HELLFIRE
 static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
@@ -2628,6 +2629,7 @@ static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
 	}
 	return sizeof(*pCmd);
 }
+#endif
 
 DWORD ParseCmd(int pnum, TCmd *pCmd)
 {

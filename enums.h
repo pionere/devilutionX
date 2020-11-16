@@ -1483,6 +1483,7 @@ typedef enum missile_id {
 	MIS_RPORTAL,
 	MIS_BOOM2,
 	MIS_DIABAPOCA,
+#ifdef HELLFIRE
 	MIS_MANA,
 	MIS_MAGI,
 	MIS_LIGHTWALL,
@@ -1523,6 +1524,7 @@ typedef enum missile_id {
 	MIS_EXBL2,
 	MIS_EXBL3,
 	MIS_EXORA1,
+#endif
 } missile_id;
 
 typedef enum missile_graphic_id {
@@ -1587,8 +1589,8 @@ typedef enum missile_graphic_id {
 	MFILE_EXORA1,
 	MFILE_EXBL3,
 #endif
-	MFILE_NULL,
-	MFILE_NONE = 0xFF, // BUGFIX: should be `MFILE_NONE = MFILE_SCBSEXPD+1`, i.e. MFILE_NULL, since there would otherwise be an out-of-bounds in SetMissAnim when accessing misfiledata for any of the missiles that have MFILE_NONE as mFileNum in missiledata.
+	NUM_MFILE,
+	MFILE_NONE = NUM_MFILE,
 } missile_graphic_id;
 
 typedef enum _mai_id {
