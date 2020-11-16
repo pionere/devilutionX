@@ -49,7 +49,7 @@ void AddWarpMissile(int i, int x, int y)
 		SetMissDir(mi, 1);
 
 		if (currlevel != 0)
-			missile[mi]._mlid = AddLight(missile[mi]._mix, missile[mi]._miy, 15);
+			missile[mi]._miLid = AddLight(missile[mi]._mix, missile[mi]._miy, 15);
 
 		missiledata[MIS_TOWN].mlSFX = LS_SENTINEL;
 	}
@@ -113,12 +113,12 @@ void RemovePortalMissile(int pnum)
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
 		mis = &missile[mi];
-		if (mis->_mitype == MIS_TOWN && mis->_misource == pnum) {
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
 			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
 			dMissile[mis->_mix][mis->_miy] = 0;
 
 			if (portal[pnum].level != 0)
-				AddUnLight(mis->_mlid);
+				AddUnLight(mis->_miLid);
 
 			DeleteMissile(mi, i);
 		}

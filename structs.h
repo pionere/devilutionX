@@ -416,7 +416,7 @@ typedef struct ChainStruct {
 } ChainStruct;
 
 typedef struct MissileStruct {
-	int _mitype;
+	int _miType;
 	int _mix;
 	int _miy;
 	int _mixoff;
@@ -427,8 +427,8 @@ typedef struct MissileStruct {
 	int _misy;
 	int _mitxoff;
 	int _mityoff;
-	int _mimfnum;
-	int _mispllvl;
+	int _miDir;
+	int _miSpllvl;
 	BOOL _miDelFlag;
 	BYTE _miAnimType;
 	int _miAnimFlags;
@@ -444,14 +444,14 @@ typedef struct MissileStruct {
 	BOOL _miLightFlag;
 	BOOL _miPreFlag;
 	int _miUniqTrans;
-	int _mirange;
-	int _misource;
-	int _micaster;
-	int _midam;
+	int _miRange;
+	int _miSource;
+	int _miCaster;
+	int _miDam;
 	BOOL _miHitFlag;
-	int _midist;
-	int _mlid;
-	int _mirnd;
+	int _miDist;
+	int _miLid;
+	int _miRnd;
 	int _miVar1;
 	int _miVar2;
 	int _miVar3;

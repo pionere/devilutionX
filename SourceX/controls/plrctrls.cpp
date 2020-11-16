@@ -372,7 +372,7 @@ void FindTrigger()
 
 	for (int i = 0; i < nummissiles; i++) {
 		int mi = missileactive[i];
-		if (missile[mi]._mitype == MIS_TOWN || missile[mi]._mitype == MIS_RPORTAL) {
+		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
 			int mix = missile[mi]._mix;
 			int miy = missile[mi]._miy;
 			const int newDdistance = GetDistance(mix, miy, 2);

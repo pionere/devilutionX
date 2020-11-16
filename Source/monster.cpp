@@ -2373,9 +2373,9 @@ void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		cur_ms_num = -1;
 		for (i = 0; i < nummissiles; i++) {
 			misnum = missileactive[i];
-			if (missile[misnum]._mitype != MIS_MANASHIELD)
+			if (missile[misnum]._miType != MIS_MANASHIELD)
 				continue;
-			if (missile[misnum]._misource == pnum)
+			if (missile[misnum]._miSource == pnum)
 				cur_ms_num = misnum;
 		}
 		if (p->_pMaxHP > 64) {
@@ -5564,7 +5564,7 @@ void MissToMonst(int mi, int x, int y)
 		app_fatal("MissToMonst: Invalid missile %d", mi);
 
 	mis = &missile[mi];
-	mnum = mis->_misource;
+	mnum = mis->_miSource;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MissToMonst: Invalid monster %d", mnum);
@@ -5573,7 +5573,7 @@ void MissToMonst(int mi, int x, int y)
 	oldx = mis->_mix;
 	oldy = mis->_miy;
 	dMonster[x][y] = mnum + 1;
-	mon->_mdir = mis->_mimfnum;
+	mon->_mdir = mis->_miDir;
 	mon->_mx = x;
 	mon->_my = y;
 	MonStartStand(mnum, mon->_mdir);
@@ -5663,18 +5663,18 @@ BOOL monster_posok(int mnum, int x, int y)
 	BOOL lightning = FALSE;
 
 	if (mi > 0) {
-		if (missile[mi - 1]._mitype == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+		if (missile[mi - 1]._miType == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = TRUE;
-		} else if (missile[mi - 1]._mitype == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+		} else if (missile[mi - 1]._miType == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			lightning = TRUE;
 		}
 	} else {
 		for (i = 0; i < nummissiles; i++) {
 			mis = &missile[missileactive[i]];
 			if (mis->_mix == x && mis->_miy == y) {
-				if (mis->_mitype == MIS_FIREWALL) {
+				if (mis->_miType == MIS_FIREWALL) {
 					fire = TRUE;
-				} else if (mis->_mitype == MIS_LIGHTWALL) {
+				} else if (mis->_miType == MIS_LIGHTWALL) {
 					lightning = TRUE;
 				}
 			}
@@ -5686,13 +5686,13 @@ BOOL monster_posok(int mnum, int x, int y)
 		ret = FALSE;
 #else
 	if (mi > 0) {
-		if (missile[mi - 1]._mitype == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
+		if (missile[mi - 1]._miType == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = TRUE;
 	} else {
 		for (i = 0; i < nummissiles; i++) {
 			mis = &missile[missileactive[i]];
 			if (mis->_mix == x && mis->_miy == y
-			 && mis->_mitype == MIS_FIREWALL)
+			 && mis->_miType == MIS_FIREWALL)
 				fire = TRUE;
 		}
 	}
@@ -5928,11 +5928,11 @@ void SpawnGolum(int mnum, int x, int y, int mi)
 	mon->_pathcount = 0;
 	mon->_mFlags |= MFLAG_GOLEM;
 	mon->mArmorClass = 25;
-	mon->_mmaxhp = 2 * (320 * missile[mi]._mispllvl + plr[mnum]._pMaxMana / 3);
+	mon->_mmaxhp = 2 * (320 * missile[mi]._miSpllvl + plr[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->mHit = 5 * (missile[mi]._mispllvl + 8) + 2 * plr[mnum]._pLevel;
-	mon->mMinDamage = 2 * (missile[mi]._mispllvl + 4);
-	mon->mMaxDamage = 2 * (missile[mi]._mispllvl + 8);
+	mon->mHit = 5 * (missile[mi]._miSpllvl + 8) + 2 * plr[mnum]._pLevel;
+	mon->mMinDamage = 2 * (missile[mi]._miSpllvl + 4);
+	mon->mMaxDamage = 2 * (missile[mi]._miSpllvl + 8);
 	MonStartSpStand(mnum, 0);
 	MonEnemy(mnum);
 	if (mnum == myplr) {

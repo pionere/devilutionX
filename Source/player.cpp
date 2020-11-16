@@ -2062,7 +2062,7 @@ void SyncPlrKill(int pnum, int earflag)
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_mitype == MIS_MANASHIELD && mis->_misource == pnum && !mis->_miDelFlag) {
+		if (mis->_miType == MIS_MANASHIELD && mis->_miSource == pnum && !mis->_miDelFlag) {
 			if (earflag != -1) {
 				mis->_miVar8 = earflag;
 			}
@@ -2092,12 +2092,12 @@ void RemovePlrMissiles(int pnum)
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
-		if (missile[mi]._misource != pnum)
+		if (missile[mi]._miSource != pnum)
 			continue;
-		if (missile[mi]._mitype == MIS_STONE) {
+		if (missile[mi]._miType == MIS_STONE) {
 			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
-		} else if (missile[mi]._mitype == MIS_MANASHIELD
-				|| missile[mi]._mitype == MIS_ETHEREALIZE) {
+		} else if (missile[mi]._miType == MIS_MANASHIELD
+				|| missile[mi]._miType == MIS_ETHEREALIZE) {
 			ClearMissileSpot(mi);
 			DeleteMissile(mi, i);
 			i--;

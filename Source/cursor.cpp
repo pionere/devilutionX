@@ -155,7 +155,7 @@ void CheckTown()
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_mitype == MIS_TOWN) {
+		if (mis->_miType == MIS_TOWN) {
 			if (cursmx == mis->_mix - 1 && cursmy == mis->_miy
 			    || cursmx == mis->_mix && cursmy == mis->_miy - 1
 			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 1
@@ -166,7 +166,7 @@ void CheckTown()
 				trigflag = TRUE;
 				ClearPanel();
 				strcpy(infostr, "Town Portal");
-				sprintf(tempstr, "from %s", plr[mis->_misource]._pName);
+				sprintf(tempstr, "from %s", plr[mis->_miSource]._pName);
 				AddPanelString(tempstr, TRUE);
 				cursmx = mis->_mix;
 				cursmy = mis->_miy;
@@ -182,7 +182,7 @@ void CheckRportal()
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_mitype == MIS_RPORTAL) {
+		if (mis->_miType == MIS_RPORTAL) {
 			if (cursmx == mis->_mix - 1 && cursmy == mis->_miy
 			    || cursmx == mis->_mix && cursmy == mis->_miy - 1
 			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 1

@@ -2115,7 +2115,7 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 		// check if this player already has an active golem
 		for (i = 0; i < nummissiles; i++) {
 			MissileStruct *mis = &missile[missileactive[i]];
-			if (mis->_mitype == MIS_GOLEM && mis->_misource == pnum) {
+			if (mis->_miType == MIS_GOLEM && mis->_miSource == pnum) {
 				break;
 			}
 		}
@@ -2387,7 +2387,7 @@ static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 				int i;
 				for (i = 0; i < nummissiles; i++) {
 					MissileStruct *mis = &missile[missileactive[i]];
-					if (mis->_mitype == MIS_TOWN && mis->_misource == pnum) {
+					if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
 						break;
 					}
 				}
@@ -2507,7 +2507,7 @@ static DWORD On_ENDREFLECT(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
 		for (i = 0; i < nummissiles; i++) {
 			mi = missileactive[i];
-			if (missile[mi]._mitype == MIS_REFLECT && missile[mi]._misource == pnum) {
+			if (missile[mi]._miType == MIS_REFLECT && missile[mi]._miSource == pnum) {
 				ClearMissileSpot(mi);
 				DeleteMissile(mi, i);
 			}
@@ -2525,7 +2525,7 @@ static DWORD On_ENDSHIELD(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
 		for (i = 0; i < nummissiles; i++) {
 			int mi = missileactive[i];
-			if (missile[mi]._mitype == MIS_MANASHIELD && missile[mi]._misource == pnum) {
+			if (missile[mi]._miType == MIS_MANASHIELD && missile[mi]._miSource == pnum) {
 				ClearMissileSpot(mi);
 				DeleteMissile(mi, i);
 			}

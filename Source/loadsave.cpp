@@ -505,7 +505,7 @@ static void LoadMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
 
-	CopyInt(tbuff, &mis->_mitype);
+	CopyInt(tbuff, &mis->_miType);
 	CopyInt(tbuff, &mis->_mix);
 	CopyInt(tbuff, &mis->_miy);
 	CopyInt(tbuff, &mis->_mixoff);
@@ -516,8 +516,8 @@ static void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_misy);
 	CopyInt(tbuff, &mis->_mitxoff);
 	CopyInt(tbuff, &mis->_mityoff);
-	CopyInt(tbuff, &mis->_mimfnum);
-	CopyInt(tbuff, &mis->_mispllvl);
+	CopyInt(tbuff, &mis->_miDir);
+	CopyInt(tbuff, &mis->_miSpllvl);
 	CopyInt(tbuff, &mis->_miDelFlag);
 	CopyChar(tbuff, &mis->_miAnimType);
 	tbuff += 3; // Alignment
@@ -534,14 +534,14 @@ static void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_miLightFlag);
 	CopyInt(tbuff, &mis->_miPreFlag);
 	CopyInt(tbuff, &mis->_miUniqTrans);
-	CopyInt(tbuff, &mis->_mirange);
-	CopyInt(tbuff, &mis->_misource);
-	CopyInt(tbuff, &mis->_micaster);
-	CopyInt(tbuff, &mis->_midam);
+	CopyInt(tbuff, &mis->_miRange);
+	CopyInt(tbuff, &mis->_miSource);
+	CopyInt(tbuff, &mis->_miCaster);
+	CopyInt(tbuff, &mis->_miDam);
 	CopyInt(tbuff, &mis->_miHitFlag);
-	CopyInt(tbuff, &mis->_midist);
-	CopyInt(tbuff, &mis->_mlid);
-	CopyInt(tbuff, &mis->_mirnd);
+	CopyInt(tbuff, &mis->_miDist);
+	CopyInt(tbuff, &mis->_miLid);
+	CopyInt(tbuff, &mis->_miRnd);
 	CopyInt(tbuff, &mis->_miVar1);
 	CopyInt(tbuff, &mis->_miVar2);
 	CopyInt(tbuff, &mis->_miVar3);
@@ -1273,7 +1273,7 @@ static void SaveMissile(int mi)
 {
 	MissileStruct *mis = &missile[mi];
 
-	CopyInt(&mis->_mitype, tbuff);
+	CopyInt(&mis->_miType, tbuff);
 	CopyInt(&mis->_mix, tbuff);
 	CopyInt(&mis->_miy, tbuff);
 	CopyInt(&mis->_mixoff, tbuff);
@@ -1284,8 +1284,8 @@ static void SaveMissile(int mi)
 	CopyInt(&mis->_misy, tbuff);
 	CopyInt(&mis->_mitxoff, tbuff);
 	CopyInt(&mis->_mityoff, tbuff);
-	CopyInt(&mis->_mimfnum, tbuff);
-	CopyInt(&mis->_mispllvl, tbuff);
+	CopyInt(&mis->_miDir, tbuff);
+	CopyInt(&mis->_miSpllvl, tbuff);
 	CopyInt(&mis->_miDelFlag, tbuff);
 	CopyChar(&mis->_miAnimType, tbuff);
 	tbuff += 3; // Alignment
@@ -1302,14 +1302,14 @@ static void SaveMissile(int mi)
 	CopyInt(&mis->_miLightFlag, tbuff);
 	CopyInt(&mis->_miPreFlag, tbuff);
 	CopyInt(&mis->_miUniqTrans, tbuff);
-	CopyInt(&mis->_mirange, tbuff);
-	CopyInt(&mis->_misource, tbuff);
-	CopyInt(&mis->_micaster, tbuff);
-	CopyInt(&mis->_midam, tbuff);
+	CopyInt(&mis->_miRange, tbuff);
+	CopyInt(&mis->_miSource, tbuff);
+	CopyInt(&mis->_miCaster, tbuff);
+	CopyInt(&mis->_miDam, tbuff);
 	CopyInt(&mis->_miHitFlag, tbuff);
-	CopyInt(&mis->_midist, tbuff);
-	CopyInt(&mis->_mlid, tbuff);
-	CopyInt(&mis->_mirnd, tbuff);
+	CopyInt(&mis->_miDist, tbuff);
+	CopyInt(&mis->_miLid, tbuff);
+	CopyInt(&mis->_miRnd, tbuff);
 	CopyInt(&mis->_miVar1, tbuff);
 	CopyInt(&mis->_miVar2, tbuff);
 	CopyInt(&mis->_miVar3, tbuff);

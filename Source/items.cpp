@@ -1051,7 +1051,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = &missile[missileactive[i]];
-		if (mi->_mitype == MIS_MANASHIELD && mi->_misource == pnum) {
+		if (mi->_miType == MIS_MANASHIELD && mi->_miSource == pnum) {
 			mi->_miVar1 = p->_pHitPoints;
 			mi->_miVar2 = p->_pHPBase;
 			break;
