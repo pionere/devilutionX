@@ -635,6 +635,10 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 				dam += p->_pDamageMod;
 			else
 				dam += (p->_pDamageMod >> 1);
+			if ((p->_pIFlags & ISPL_3XDAMVDEM) && mon->MData->mMonstClass == MC_DEMON)
+				dam *= 3;
+			if (p->_pIFlags & ISPL_NOHEALMON)
+				mon->_mFlags |= MFLAG_NOHEAL;
 		}
 		if (!shift)
 			dam <<= 6;
@@ -643,8 +647,6 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 		dam >>= 2;
 	if (pnum == myplr)
 		mon->_mhitpoints -= dam;
-	if (p->_pIFlags & ISPL_FIRE_ARROWS)
-		mon->_mFlags |= MFLAG_NOHEAL;
 
 	if (mon->_mhitpoints >> 6 <= 0) {
 		if (mon->_mmode == MM_STONE) {
@@ -908,8 +910,13 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 		dam = dps->_pHitPoints / 3;
 	} else {
 		dam = mindam + random_(70, maxdam - mindam + 1);
-		if (missiledata[mitype].mType == 0)
-			dam += ops->_pIBonusDamMod + ops->_pDamageMod + dam * ops->_pIBonusDam / 100;
+		if (missiledata[mitype].mType == 0) {
+			dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
+			if (ops->_pClass == PC_ROGUE)
+				dam += ops->_pDamageMod;
+			else
+				dam += (ops->_pDamageMod >> 1);
+		}
 		if (!shift)
 			dam <<= 6;
 	}
@@ -2915,7 +2922,7 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miVar3 = 0;
+	mis->_miVar3 = FALSE;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -3117,22 +3124,15 @@ void AddApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 {
 	MissileStruct *mis;
 	int i;
+	const int RAD = 8;
 
 	mis = &missile[mi];
-	mis->_miVar1 = 8;
-	mis->_miVar2 = sy - mis->_miVar1;
-	mis->_miVar3 = mis->_miVar1 + sy;
-	mis->_miVar4 = sx - mis->_miVar1;
-	mis->_miVar5 = mis->_miVar1 + sx;
+	mis->_miVar1 = RAD;
+	mis->_miVar2 = std::max(sy - RAD, 1);
+	mis->_miVar3 = std::min(sy + RAD, MAXDUNY - 1);
+	mis->_miVar4 = std::max(sx - RAD, 1);
+	mis->_miVar5 = std::min(sx + RAD, MAXDUNX - 1);
 	mis->_miVar6 = mis->_miVar4;
-	if (mis->_miVar2 <= 0)
-		mis->_miVar2 = 1;
-	if (mis->_miVar3 >= MAXDUNY)
-		mis->_miVar3 = MAXDUNY - 1;
-	if (mis->_miVar4 <= 0)
-		mis->_miVar4 = 1;
-	if (mis->_miVar5 >= MAXDUNX)
-		mis->_miVar5 = MAXDUNX - 1;
 	for (i = plr[misource]._pLevel; i > 0; i--) {
 		mis->_miDam += random_(67, 6) + 1;
 	}
@@ -3284,7 +3284,7 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miVar3 = 0;
+	mis->_miVar3 = FALSE;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -3464,30 +3464,20 @@ void MI_LArrow(int mi)
 	mpnum = mis->_miSource;
 	if (mis->_miAnimType == MFILE_MINILTNG || mis->_miAnimType == MFILE_MAGBLOS) {
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame + 5);
-		rst = missiledata[mis->_miType].mResist;
-		if (mis->_miType == MIS_LARROW) {
-			if (mpnum != -1) {
+		if (mis->_miCaster == 0) {
+			if (mis->_miType == MIS_LARROW) {
 				mind = plr[mpnum]._pILMinDam;
 				maxd = plr[mpnum]._pILMaxDam;
-			} else {
-				mind = random_(68, 10) + 1 + currlevel;
-				maxd = random_(68, 10) + 1 + currlevel * 2;
-			}
-			missiledata[MIS_LARROW].mResist = MISR_LIGHTNING;
-			CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, TRUE);
-		}
-		if (mis->_miType == MIS_FARROW) {
-			if (mpnum != -1) {
+			} else { // mis->_miType == MIS_FARROW
 				mind = plr[mpnum]._pIFMinDam;
 				maxd = plr[mpnum]._pIFMaxDam;
-			} else {
-				mind = random_(68, 10) + 1 + currlevel;
-				maxd = random_(68, 10) + 1 + currlevel * 2;
 			}
-			missiledata[MIS_FARROW].mResist = MISR_FIRE;
-			CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, TRUE);
+		} else {
+			// BUGFIX: use mMin/MaxDamage(2) of monsters?
+			mind = 1 + currlevel;
+			maxd = 10 + currlevel * 2;
 		}
-		missiledata[mis->_miType].mResist = rst;
+		CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, TRUE);
 	} else {
 		mis->_miDist++;
 		mis->_mitxoff += mis->_mixvel;
@@ -3503,8 +3493,8 @@ void MI_LArrow(int mi)
 				maxd = monster[mpnum].mMaxDamage;
 			}
 		} else {
-			mind = random_(68, 10) + 1 + currlevel;
-			maxd = random_(68, 10) + 1 + currlevel * 2;
+			mind = 1 + currlevel;
+			maxd = 10 + currlevel * 2;
 		}
 
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
@@ -3931,7 +3921,7 @@ void MI_Hivectrl(int mi)
 void MI_Immolation(int mi)
 {
 	MissileStruct *mis;
-	int dam, mpnum, px, py, mx, my, xof, yof;
+	int dam, mpnum, px, py, mx, my;
 
 	mis = &missile[mi];
 	mpnum = mis->_miSource;
@@ -3948,30 +3938,6 @@ void MI_Immolation(int mi)
 		mis->_miVar7--;
 	}
 
-	xof = mis->_mixvel;
-	yof = mis->_miyvel;
-	switch (mis->_miDir) {
-	case DIR_S:
-		yof = 0;
-		break;
-	case DIR_SW:
-		break;
-	case DIR_W:
-		xof = 0;
-		break;
-	case DIR_NW:
-		break;
-	case DIR_N:
-		yof = 0;
-		break;
-	case DIR_NE:
-		break;
-	case DIR_E:
-		xof = 0;
-		break;
-	case DIR_SE:
-		break;
-	}
 	mis->_miRange--;
 
 	if (mis->_miCaster == 0) {
@@ -3988,8 +3954,8 @@ void MI_Immolation(int mi)
 			AddUnLight(mis->_miLid);
 		}
 	} else {
-		mis->_mitxoff += xof;
-		mis->_mityoff += yof;
+		mis->_mitxoff += mis->_mixvel;
+		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
 			CheckMissileCol(mi, dam, dam, FALSE, mis->_mix, mis->_miy, FALSE);
@@ -5476,10 +5442,8 @@ void MI_Element(int mi)
 		cx = mis->_mix;
 		cy = mis->_miy;
 		CheckMissileCol(mi, dam, dam, FALSE, cx, cy, FALSE);
-		if (mis->_miVar3 == 0 && cx == mis->_miVar4 && cy == mis->_miVar5)
-			mis->_miVar3 = 1;
-		if (mis->_miVar3 == 1) {
-			mis->_miVar3 = 2;
+		if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
+			mis->_miVar3 = TRUE;
 			mis->_miRange = 255;
 			mid = FindClosest(cx, cy, 19);
 			if (mid > 0) {
@@ -5528,10 +5492,8 @@ void MI_Bonespirit(int mi)
 		cx = mis->_mix;
 		cy = mis->_miy;
 		CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, cx, cy, FALSE);
-		if (mis->_miVar3 == 0 && cx == mis->_miVar4 && cy == mis->_miVar5)
-			mis->_miVar3 = 1;
-		if (mis->_miVar3 == 1) {
-			mis->_miVar3 = 2;
+		if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
+			mis->_miVar3 = TRUE;
 			mis->_miRange = 255;
 			mid = FindClosest(cx, cy, 19);
 			if (mid > 0) {
