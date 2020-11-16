@@ -1263,6 +1263,9 @@ static BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
 	return FALSE;
 }
 
+/**
+ * Var1: mitype to fire upon impact
+ */
 void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
@@ -1279,6 +1282,9 @@ void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 }
 
+/**
+ * Var1: mitype to fire upon impact
+ */
 void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
@@ -1293,6 +1299,9 @@ void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	missile[mi]._miDelFlag = TRUE;
 }
 
+/**
+ * Var1: mitype to fire upon impact
+ */
 void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
@@ -1307,6 +1316,9 @@ void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 	missile[mi]._miDelFlag = TRUE;
 }
 
+/**
+ * Var1: mitype to fire upon impact
+ */
 void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
@@ -1321,6 +1333,9 @@ void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 	missile[mi]._miDelFlag = TRUE;
 }
 
+/**
+ * Var1: mitype to fire upon impact
+ */
 void AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
@@ -1395,6 +1410,9 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	}
 }
 
+/**
+ * Var1: direction to place the spawn
+ */
 void AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, 8);
@@ -1543,6 +1561,10 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 }
 
+/**
+ * Var1: dx destination of the missile
+ * Var2: dy destination of the missile
+ */
 void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1660,6 +1682,12 @@ void AddHivectrl(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = mis->_miAnimLen - 1;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ * Var6: animation + direction
+ * Var7: animation + direction
+ */
 void AddImmolation(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1696,6 +1724,10 @@ void AddImmolation(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miRange = 256;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddFireNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1723,6 +1755,10 @@ void AddFireNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = 256;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddLightArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1810,6 +1846,10 @@ void AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	drawmanaflag = TRUE;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1828,6 +1868,9 @@ void AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 	mis->_miRange = 7;
 }
 
+/**
+ * Var1: misource
+ */
 void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int lvl, i, range;
@@ -1863,6 +1906,11 @@ void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 }
 
+/**
+ * Var1: light strength
+ * Var2: base direction
+ * Var3: movement counter
+ */
 void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1885,6 +1933,10 @@ void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miAnimFrame = random_(63, 8) + 1;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1911,6 +1963,10 @@ void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 }
 #endif
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2063,6 +2119,10 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	}
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2099,6 +2159,10 @@ void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = 256;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2158,6 +2222,10 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miDelFlag = TRUE;
 }
 
+/**
+ * Var1: origin to check for a shrine
+ * Var2: origin to check for a shrine
+ */
 void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2174,6 +2242,10 @@ void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miAnimFrame = random_(63, 8) + 1;
 }
 
+/**
+ * Var1: range of the wall
+ * Var2: light strength
+ */
 void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2194,6 +2266,10 @@ void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar2 = 0;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2228,6 +2304,10 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = 256;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddLightctrl(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2267,6 +2347,9 @@ void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miAnimFrame = random_(52, 8) + 1;
 }
 
+/**
+ * Var1: light strength
+ */
 void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
@@ -2304,6 +2387,11 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miVar1 = 0;
 }
 
+/**
+ * Var1: light strength
+ * Var2: min damage
+ * Var3: max damage
+ */
 void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2316,6 +2404,11 @@ void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = mis->_miAnimLen - 1;
 }
 
+/**
+ * Var1: light strength
+ * Var2: min damage
+ * Var3: max damage
+ */
 void AddWeapLexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2339,6 +2432,10 @@ static BOOL CheckIfTrig(int x, int y)
 	return FALSE;
 }
 
+/**
+ * Var1: animation
+ * Var2: light strength
+ */
 void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
@@ -2445,6 +2542,11 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miRange = 19;
 }
 
+/**
+ * Var1: last hp
+ * Var2: last base hp
+ * Var8: earflag
+ */
 void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2463,6 +2565,12 @@ void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	p->pManaShield = TRUE;
 }
 
+/**
+ * Var1: animation
+ * Var2: light strength
+ * Var3: mx position of the missile
+ * Var4: my position of the missile
+ */
 void AddFiremove(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2478,6 +2586,11 @@ void AddFiremove(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miyoff -= 32;
 }
 
+/**
+ * Var1: animation
+ * Var2: animation
+ * Var3: light strength
+ */
 void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2534,6 +2647,10 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miDelFlag = TRUE;
 }
 
+/**
+ * Var1: dx direction of the missile
+ * Var2: dy direction of the missile
+ */
 void AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2622,6 +2739,10 @@ void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	PutMissile(mi);
 }
 
+/**
+ * Var1: target found
+ * Var2: attempts to find a target
+ */
 void miss_null_32(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2650,6 +2771,10 @@ void miss_null_32(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	PutMissile(mi);
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (sx == dx && sy == dy) {
@@ -2693,6 +2818,10 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 #endif
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2714,6 +2843,10 @@ void AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	PutMissile(mi);
 }
 
+/**
+ * Var1: animation
+ * Var2: light strength
+ */
 void miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2734,6 +2867,10 @@ void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miPreFlag = TRUE;
 }
 
+/**
+ * Var1: mmode of the monster
+ * Var2: mnum of the monster
+ */
 void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2789,6 +2926,12 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miDelFlag = TRUE;
 }
 
+/**
+ * Var1: sx position of the source
+ * Var2: sy position of the source
+ * Var4: dx position of the destination
+ * Var5: dy position of the destination
+ */
 void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *tmis;
@@ -2849,6 +2992,9 @@ void miss_null_23(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miRange = mis->_miAnimLen;
 }
 
+/**
+ * Var1: target hit
+ */
 void AddBoom(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2913,6 +3059,13 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	}
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ * Var3: destination reached
+ * Var4: dx position of the destination
+ * Var5: dy position of the destination
+ */
 void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2959,6 +3112,16 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 }
 
+/**
+ * Var1: sx position of the first wave
+ * Var2: sy position of the first wave
+ * Var3: direction of the first wave
+ * Var4: direction of the second wave
+ * Var5: sx position of the second wave
+ * Var6: sy position of the second wave
+ * Var7: first wave stopped
+ * Var8: second wave stopped
+ */
 void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3014,6 +3177,10 @@ void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		UseMana(misource, SPL_INFRA);
 }
 
+/**
+ * Var1: dx direction of the wave
+ * Var2: dy direction of the wave
+ */
 void AddWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3053,6 +3220,10 @@ void AddNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 }
 
 #ifdef HELLFIRE
+/**
+ * Var1: misource
+ * Var2: hp penalty
+ */
 void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3126,6 +3297,13 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 }
 
+/**
+ * Var2: y0 of the affected area (incremented)
+ * Var3: y1 of the affected area
+ * Var4: x0 of the affected area (incremented)
+ * Var5: x1 of the affected area
+ * Var6: x0 of the affected area
+ */
 void AddApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3146,6 +3324,9 @@ void AddApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	UseMana(misource, SPL_APOCA);
 }
 
+/**
+ * Var2: animation timer
+ */
 void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3175,6 +3356,11 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miDam = dam;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ * Var3: timer to dissipate
+ */
 void AddFlamec(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3193,6 +3379,11 @@ void AddFlamec(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miRange = 256;
 }
 
+/**
+ * Var1: light strength
+ * Var2: base direction
+ * Var3: movement counter
+ */
 void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3219,6 +3410,10 @@ void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miAnimFrame = random_(63, 8) + 1;
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ */
 void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3277,6 +3472,11 @@ void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 		NewCursor(CURSOR_TELEKINESIS);
 }
 
+/**
+ * Var1: mx position of the missile
+ * Var2: my position of the missile
+ * Var3: destination reached
+ */
 void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -3306,6 +3506,10 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	}
 }
 
+/**
+ * Var1: animation
+ * Var2: light strength
+ */
 void AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
