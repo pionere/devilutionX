@@ -2346,7 +2346,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		hper = tmp;
 	if (random_(98, 100) >= hper)
 #ifdef _DEBUG
-		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+		if (!debug_mode_god_mode)
 #endif
 			return;
 

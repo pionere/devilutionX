@@ -1032,14 +1032,13 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	}
 
 #ifdef _DEBUG
-	if (debug_mode_dollar_sign && FirstTime) {
+	if (debug_mode_key_inverted_v && FirstTime) {
+		p->_pMemSpells = SPL_INVALID;
+	} else if (debug_mode_god_mode && FirstTime) {
 		p->_pMemSpells |= 1 << (SPL_TELEPORT - 1);
 		if (plr[myplr]._pSplLvl[SPL_TELEPORT] == 0) {
 			plr[myplr]._pSplLvl[SPL_TELEPORT] = 1;
 		}
-	}
-	if (debug_mode_key_inverted_v && FirstTime) {
-		p->_pMemSpells = SPL_INVALID;
 	}
 #endif
 
@@ -2589,7 +2588,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		hper = 95;
 	if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
-		if (!debug_mode_key_inverted_v && !debug_mode_dollar_sign)
+		if (!debug_mode_god_mode)
 #endif
 			return FALSE;
 
@@ -2680,7 +2679,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		mon->_mFlags |= MFLAG_NOHEAL;
 	}
 #ifdef _DEBUG
-	if (debug_mode_dollar_sign || debug_mode_key_inverted_v) {
+	if (debug_mode_god_mode) {
 		mon->_mhitpoints = 0; /* double check */
 	}
 #endif

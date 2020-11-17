@@ -540,7 +540,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 		hper = 95;
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
-		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+		if (!debug_mode_god_mode)
 #endif
 			return FALSE;
 
@@ -552,7 +552,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 
 	mon->_mhitpoints -= dam;
 #ifdef _DEBUG
-	if (debug_mode_dollar_sign || debug_mode_key_inverted_v)
+	if (debug_mode_god_mode)
 		mon->_mhitpoints = 0;
 #endif
 	if (mon->_mhitpoints >> 6 <= 0) {
@@ -618,7 +618,7 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 		hper = 95;
 	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
-		if (!debug_mode_key_inverted_v && !debug_mode_dollar_sign)
+		if (!debug_mode_god_mode)
 #endif
 			return FALSE;
 
@@ -710,7 +710,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		hper = tmp;
 	if (random_(72, 100) >= hper)
 #ifdef _DEBUG
-		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+		if (!debug_mode_god_mode)
 #endif
 			return FALSE;
 
@@ -842,7 +842,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 		hper = tmp;
 	if (random_(72, 100) >= hper)
 #ifdef _DEBUG
-		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+		if (!debug_mode_god_mode)
 #endif
 			return FALSE;
 

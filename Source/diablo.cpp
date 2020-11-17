@@ -72,7 +72,7 @@ int questdebug = -1;
 int debug_mode_key_s;
 int debug_mode_key_w;
 int debug_mode_key_inverted_v;
-int debug_mode_dollar_sign;
+BOOL debug_mode_god_mode;
 int debug_mode_key_d;
 int debug_mode_key_i;
 int dbgplr;
@@ -167,8 +167,9 @@ static void diablo_parse_flags(int argc, char **argv)
 #ifdef _DEBUG
 		} else if (strcasecmp("-^", argv[i]) == 0) {
 			debug_mode_key_inverted_v = TRUE;
+			debug_mode_god_mode = TRUE;
 		} else if (strcasecmp("-$", argv[i]) == 0) {
-			debug_mode_dollar_sign = TRUE;
+			debug_mode_god_mode = TRUE;
 			/*
 		} else if (strcasecmp("-b", argv[i]) == 0) {
 			debug_mode_key_b = 1;
