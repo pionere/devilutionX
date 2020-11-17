@@ -489,9 +489,9 @@ static void MoveMissilePos(int mi)
 	}
 }
 
-static BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
+static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist)
 {
-	switch (missiledata[mitype].mResist) {
+	switch (mRes) {
 	case MISR_FIRE:
 		if (mor & IMMUNE_FIRE)
 			return TRUE;
@@ -521,12 +521,13 @@ static BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift)
 {
 	MonsterStruct *mon;
+	MissileData *mds;
 	int hit, hper, dam;
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
-
-	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
+	mds = &missiledata[mitype];
+	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
 		return FALSE;
 
 	if (CheckMonsterHit(mnum, &ret)) {
@@ -581,21 +582,23 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
+	MissileData *mds;
 	int hper, dam;
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
-	if (mitype == MIS_HBOLT && mon->MType->mtype != MT_DIABLO && mon->MData->mMonstClass != MC_UNDEAD)
-		return FALSE;
+	mds = &missiledata[mitype];
+	if (mds->mdFlags & MIFLAG_UNDEAD && mon->MData->mMonstClass != MC_UNDEAD && mon->MType->mtype != MT_DIABLO)
+		return TRUE;
 
-	if (CheckMonsterRes(mon->mMagicRes, mitype, &resist))
+	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
 		return FALSE;
 
 	if (CheckMonsterHit(mnum, &ret))
 		return ret;
 
 	p = &plr[pnum];
-	if (missiledata[mitype].mType == 0) {
+	if (mds->mType == 0) {
 		hper = p->_pDexterity
 		    + p->_pIBonusToHit
 		    + p->_pLevel
@@ -622,11 +625,11 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 #endif
 			return FALSE;
 
-	if (mitype == MIS_BONESPIRIT) {
+	if (mds->mName == MIS_BONESPIRIT) {
 		dam = mon->_mhitpoints / 3;
 	} else {
 		dam = mindam + random_(70, maxdam - mindam + 1);
-		if (missiledata[mitype].mType == 0) {
+		if (mds->mType == 0) {
 			dam = p->_pIBonusDamMod + dam * p->_pIBonusDam / 100 + dam;
 			if (p->_pClass == PC_ROGUE)
 				dam += p->_pDamageMod;
@@ -660,7 +663,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 				MonStartHit(mnum, pnum, dam);
 			mon->_mmode = MM_STONE;
 		} else {
-			if (missiledata[mitype].mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
+			if (mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
 				MonGetKnockback(mnum);
 			}
 			if (mnum >= MAX_PLRS)
@@ -679,6 +682,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift)
 {
 	PlayerStruct *p;
+	MissileData *mds;
 	int hper, tmp, dam, resper;
 	BOOL blk;
 
@@ -686,12 +690,12 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
 		return FALSE;
 	}
-
-	if ((p->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
+	mds = &missiledata[mitype];
+	if ((p->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
 		return FALSE;
 	}
 
-	if (missiledata[mitype].mType == 0) {
+	if (mds->mType == 0) {
 		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
 		hper = 100 - (tmp >> 1);
 		hper -= dist << 1;
@@ -714,7 +718,8 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 #endif
 			return FALSE;
 
-	if (shift || mitype == MIS_ACIDPUD || !p->_pBlockFlag
+	if (shift || !p->_pBlockFlag
+	 || (mds->mdFlags & MIFLAG_NOBLOCK)
 	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
@@ -727,7 +732,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			blk = random_(73, 100) < tmp;
 	}
 
-	if (mitype == MIS_BONESPIRIT) {
+	if (mds->mName == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
 		dam = mind + random_(75, maxd - mind + 1);
@@ -739,7 +744,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			dam = 64;
 	}
 
-	switch (missiledata[mitype].mResist) {
+	switch (mds->mResist) {
 	case MISR_FIRE:
 		resper = p->_pFireResist;
 		break;
@@ -788,6 +793,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
+	MissileData *mds;
 	int hper, tmp, dam, resper;
 	BOOL blk;
 
@@ -796,12 +802,13 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		return FALSE;
 	}
 
-	if ((p->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
+	mds = &missiledata[mitype];
+	if ((p->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
 		return FALSE;
 	}
 
 	mon = &monster[mnum];
-	if (missiledata[mitype].mType == 0) {
+	if (mds->mType == 0) {
 		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
 		hper = 30 + mon->mHit
 		    + (mon->mLevel << 1)
@@ -830,7 +837,8 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 #endif
 			return FALSE;
 
-	if (shift || mitype == MIS_ACIDPUD || !p->_pBlockFlag
+	if (shift || !p->_pBlockFlag
+	 || (mds->mdFlags & MIFLAG_NOBLOCK)
 	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
@@ -847,7 +855,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 			blk = random_(73, 100) < tmp;
 	}
 
-	if (mitype == MIS_BONESPIRIT) {
+	if (mds->mName == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
 		dam = mind + random_(75, maxd - mind + 1);
@@ -858,7 +866,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 			dam = 64;
 	}
 
-	switch (missiledata[mitype].mResist) {
+	switch (mds->mResist) {
 	case MISR_FIRE:
 		resper = p->_pFireResist;
 		break;
@@ -907,6 +915,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
+	MissileData *mds;
 	int resper, dam, blkper, hper;
 	BOOL blk;
 
@@ -915,16 +924,17 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		return FALSE;
 	}
 
-	if (mitype == MIS_HBOLT) {
+	mds = &missiledata[mitype];
+	if (mds->mdFlags & MIFLAG_UNDEAD) {
 		return FALSE;
 	}
 
-	if ((dps->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
+	if ((dps->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
 		return FALSE;
 	}
 
 	ops = &plr[offp];
-	if (missiledata[mitype].mType == 0) {
+	if (mds->mType == 0) {
 		hper = ops->_pIBonusToHit
 		    + ops->_pLevel
 		    - (dist * dist >> 1)
@@ -937,7 +947,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		if (ops->_pClass == PC_WARRIOR)
 			hper += 10;
 	} else {
-		if (missiledata[mitype].mFileNum == MFILE_FIREWAL) {
+		if (mds->mdFlags & MIFLAG_AREA) {
 			hper = 40
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
@@ -958,6 +968,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		return FALSE;
 
 	if (shift || !dps->_pBlockFlag
+	 || (mds->mdFlags & MIFLAG_NOBLOCK)
 	 || (dps->_pmode != PM_STAND && dps->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
@@ -971,11 +982,11 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 			blk = random_(73, 100) < blkper;
 	}
 
-	if (mitype == MIS_BONESPIRIT) {
+	if (mds->mName == MIS_BONESPIRIT) {
 		dam = dps->_pHitPoints / 3;
 	} else {
 		dam = mindam + random_(70, maxdam - mindam + 1);
-		if (missiledata[mitype].mType == 0) {
+		if (mds->mType == 0) {
 			dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
 			if (ops->_pClass == PC_ROGUE)
 				dam += ops->_pDamageMod;
@@ -985,10 +996,10 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		if (!shift)
 			dam <<= 6;
 	}
-	if (missiledata[mitype].mType != 0)
+	if (mds->mType != 0)
 		dam >>= 1;
 
-	switch (missiledata[mitype].mResist) {
+	switch (mds->mResist) {
 	case MISR_FIRE:
 		resper = dps->_pFireResist;
 		break;

@@ -1593,6 +1593,12 @@ typedef enum missile_graphic_id {
 	MFILE_NONE = NUM_MFILE,
 } missile_graphic_id;
 
+typedef enum missile_flags {
+	MIFLAG_AREA    = 1 << 0,
+	MIFLAG_NOBLOCK = 1 << 1,
+	MIFLAG_UNDEAD  = 1 << 2,
+} missile_flags;
+
 typedef enum _mai_id {
 	AI_ZOMBIE   = 0,
 	AI_FAT      = 1,

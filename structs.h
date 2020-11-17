@@ -389,6 +389,7 @@ typedef struct MissileData {
 	void (*mProc)(int);
 	BOOL mDraw;
 	unsigned char mType;
+	unsigned char mdFlags;
 	unsigned char mResist;
 	unsigned char mFileNum;
 	int mlSFX;
