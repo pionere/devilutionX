@@ -730,18 +730,11 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	if (mitype == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
-		if (!shift) {
-			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
-			if (p->_pIFlags & ISPL_ABSHALFTRAP)
-				dam >>= 1;
-			dam += (p->_pIGetHit << 6);
-		} else {
-			dam = mind + random_(75, maxd - mind + 1);
-			if (p->_pIFlags & ISPL_ABSHALFTRAP)
-				dam >>= 1;
-			dam += p->_pIGetHit;
-		}
-
+		dam = mind + random_(75, maxd - mind + 1);
+		if (p->_pIFlags & ISPL_ABSHALFTRAP)
+			dam >>= 1;
+		if (!shift)
+			dam <<= 6;
 		if (dam < 64)
 			dam = 64;
 	}
@@ -866,14 +859,10 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 	if (mitype == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
-		if (!shift) {
-			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
-			dam += (p->_pIGetHit << 6);
-		} else {
-			dam = mind + random_(75, maxd - mind + 1);
-			dam += p->_pIGetHit;
-		}
-
+		dam = mind + random_(75, maxd - mind + 1);
+		dam += p->_pIGetHit;
+		if (!shift)
+			dam <<= 6;
 		if (dam < 64)
 			dam = 64;
 	}
