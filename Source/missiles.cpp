@@ -518,7 +518,7 @@ static BOOL CheckMonsterRes(unsigned short mor, int mitype, BOOL *resist)
 	return FALSE;
 }
 
-BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
+BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift)
 {
 	MonsterStruct *mon;
 	int hit, hper, dam;
@@ -676,10 +676,9 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
-BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BOOLEAN shift, int earflag)
+BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift, int earflag)
 {
 	PlayerStruct *p;
-	MonsterStruct *mon;
 	int hper, tmp, dam, resper;
 	BOOL blk;
 
@@ -692,27 +691,12 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		return FALSE;
 	}
 
-	mon = mnum == -1 ? NULL : &monster[mnum];
 	if (missiledata[mitype].mType == 0) {
 		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
-		if (mon != NULL) {
-			hper = 30 + mon->mHit
-			    + (mon->mLevel << 1)
-				- (p->_pLevel << 1)
-			    - tmp;
-		} else {
-			hper = 100 - (tmp >> 1);
-		}
+		hper = 100 - (tmp >> 1);
 		hper -= dist << 1;
 	} else {
-		if (mon != NULL) {
-			hper = 40
-				+ (mon->mLevel << 1)
-				- (p->_pLevel << 1)
-				- (dist << 1);
-		} else {
-			hper = 40;
-		}
+		hper = 40;
 	}
 
 	tmp = 10;
@@ -735,10 +719,6 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		blk = FALSE;
 	} else {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
-		if (mon != NULL)
-			tmp = tmp
-				+ (p->_pLevel << 1)
-				- (mon->mLevel << 1);
 		if (tmp <= 0)
 			blk = FALSE;
 		else if (tmp >= 100)
@@ -752,12 +732,12 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 	} else {
 		if (!shift) {
 			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
-			if (mon == NULL && p->_pIFlags & ISPL_ABSHALFTRAP)
+			if (p->_pIFlags & ISPL_ABSHALFTRAP)
 				dam >>= 1;
 			dam += (p->_pIGetHit << 6);
 		} else {
 			dam = mind + random_(75, maxd - mind + 1);
-			if (mon == NULL && p->_pIFlags & ISPL_ABSHALFTRAP)
+			if (p->_pIFlags & ISPL_ABSHALFTRAP)
 				dam >>= 1;
 			dam += p->_pIGetHit;
 		}
@@ -800,11 +780,139 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		}
 	} else {
 		if (blk) {
-			if (mon != NULL) {
-				tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
-			} else {
-				tmp = p->_pdir;
+			PlrStartBlock(pnum, p->_pdir);
+		} else {
+			if (pnum == myplr) {
+				p->_pHitPoints -= dam;
+				p->_pHPBase -= dam;
 			}
+			if (p->_pHitPoints > p->_pMaxHP) {
+				p->_pHitPoints = p->_pMaxHP;
+				p->_pHPBase = p->_pMaxHPBase;
+			}
+			if (p->_pHitPoints >> 6 <= 0) {
+				SyncPlrKill(pnum, earflag);
+			} else {
+				StartPlrHit(pnum, dam, FALSE);
+			}
+		}
+	}
+	return TRUE;
+}
+
+static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BOOLEAN shift, int earflag)
+{
+	PlayerStruct *p;
+	MonsterStruct *mon;
+	int hper, tmp, dam, resper;
+	BOOL blk;
+
+	p = &plr[pnum];
+	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
+		return FALSE;
+	}
+
+	if ((p->_pSpellFlags & PSE_ETHERALIZED) && missiledata[mitype].mType == 0) {
+		return FALSE;
+	}
+
+	mon = &monster[mnum];
+	if (missiledata[mitype].mType == 0) {
+		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
+		hper = 30 + mon->mHit
+		    + (mon->mLevel << 1)
+			- (p->_pLevel << 1)
+		    - tmp;
+		hper -= dist << 1;
+	} else {
+		hper = 40
+			+ (mon->mLevel << 1)
+			- (p->_pLevel << 1)
+			- (dist << 1);
+	}
+
+	tmp = 10;
+	if (currlevel == 14)
+		tmp = 20;
+	else if (currlevel == 15)
+		tmp = 25;
+	else if (currlevel == 16)
+		tmp = 30;
+	if (hper < tmp)
+		hper = tmp;
+	if (random_(72, 100) >= hper)
+#ifdef _DEBUG
+		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+#endif
+			return FALSE;
+
+	if (shift || mitype == MIS_ACIDPUD || !p->_pBlockFlag
+	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+		blk = FALSE;
+	} else {
+		tmp = p->_pBaseToBlk + p->_pDexterity;
+		if (mon != NULL)
+			tmp = tmp
+				+ (p->_pLevel << 1)
+				- (mon->mLevel << 1);
+		if (tmp <= 0)
+			blk = FALSE;
+		else if (tmp >= 100)
+			blk = TRUE;
+		else
+			blk = random_(73, 100) < tmp;
+	}
+
+	if (mitype == MIS_BONESPIRIT) {
+		dam = p->_pHitPoints / 3;
+	} else {
+		if (!shift) {
+			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
+			dam += (p->_pIGetHit << 6);
+		} else {
+			dam = mind + random_(75, maxd - mind + 1);
+			dam += p->_pIGetHit;
+		}
+
+		if (dam < 64)
+			dam = 64;
+	}
+
+	switch (missiledata[mitype].mResist) {
+	case MISR_FIRE:
+		resper = p->_pFireResist;
+		break;
+	case MISR_LIGHTNING:
+		resper = p->_pLghtResist;
+		break;
+	case MISR_MAGIC:
+	case MISR_ACID:
+		resper = p->_pMagResist;
+		break;
+	default:
+		resper = 0;
+		break;
+	}
+	if (resper > 0) {
+		dam = dam - dam * resper / 100;
+		if (pnum == myplr) {
+			p->_pHitPoints -= dam;
+			p->_pHPBase -= dam;
+		}
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
+			p->_pHPBase = p->_pMaxHPBase;
+		}
+
+		if (p->_pHitPoints >> 6 <= 0) {
+			SyncPlrKill(pnum, earflag);
+		} else {
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
+			drawhpflag = TRUE;
+		}
+	} else {
+		if (blk) {
+			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
 			PlrStartBlock(pnum, tmp);
 		} else {
 			if (pnum == myplr) {
@@ -1033,7 +1141,7 @@ static void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, 
 			}
 		}
 		if (pnum > 0
-		    && PlayerMHit(pnum - 1, -1, mis->_miDist, mindam, maxdam, mis->_miType, shift, mis->_miAnimType == MFILE_FIREWAL)) {
+		    && PlayerTrapHit(pnum - 1, mindam, maxdam, mis->_miDist, mis->_miType, shift, mis->_miAnimType == MFILE_FIREWAL)) {
 			if (!nodel)
 				mis->_miRange = 0;
 			mis->_miHitFlag = TRUE;
