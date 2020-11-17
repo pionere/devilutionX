@@ -178,6 +178,7 @@ void MI_Flamec(int mi);
 void MI_Cbolt(int mi);
 void MI_Hbolt(int mi);
 void MI_Element(int mi);
+void MI_Elexp(int mi);
 void MI_Bonespirit(int mi);
 void MI_ResurrectBeam(int mi);
 void MI_Rportal(int mi);

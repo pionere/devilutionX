@@ -718,9 +718,8 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 #endif
 			return FALSE;
 
-	if (shift || !p->_pBlockFlag
-	 || (mds->mdFlags & MIFLAG_NOBLOCK)
-	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+	if ((mds->mdFlags & MIFLAG_NOBLOCK)
+	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
@@ -837,9 +836,8 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 #endif
 			return FALSE;
 
-	if (shift || !p->_pBlockFlag
-	 || (mds->mdFlags & MIFLAG_NOBLOCK)
-	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+	if ((mds->mdFlags & MIFLAG_NOBLOCK)
+	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
@@ -967,9 +965,8 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	if (random_(69, 100) >= hper)
 		return FALSE;
 
-	if (shift || !dps->_pBlockFlag
-	 || (mds->mdFlags & MIFLAG_NOBLOCK)
-	 || (dps->_pmode != PM_STAND && dps->_pmode != PM_ATTACK)) {
+	if ((mds->mdFlags & MIFLAG_NOBLOCK)
+	 || !dps->_pBlockFlag || (dps->_pmode != PM_STAND && dps->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
@@ -5649,71 +5646,81 @@ void MI_Hbolt(int mi)
 void MI_Element(int mi)
 {
 	MissileStruct *mis;
-	int mid, sd, dam, cx, cy, px, py, pnum;
+	int mid, sd, cx, cy;
 
 	mis = &missile[mi];
 	mis->_miRange--;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	cx = mis->_mix;
+	cy = mis->_miy;
+	CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, cx, cy, FALSE);
+	if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
+		mis->_miVar3 = TRUE;
+		mis->_miRange = 255;
+		mid = FindClosest(cx, cy, 19);
+		if (mid > 0) {
+			sd = GetDirection8(cx, cy, monster[mid]._mx, monster[mid]._my);
+			SetMissDir(mi, sd);
+			GetMissileVel(mi, cx, cy, monster[mid]._mx, monster[mid]._my, 16);
+		} else {
+			sd = plr[mis->_miSource]._pdir;
+			SetMissDir(mi, sd);
+			GetMissileVel(mi, cx, cy, cx + XDirAdd[sd], cy + YDirAdd[sd], 16);
+		}
+	}
+	if (cx != mis->_miVar1 || cy != mis->_miVar2) {
+		mis->_miVar1 = cx;
+		mis->_miVar2 = cy;
+		ChangeLight(mis->_miLid, cx, cy, 8);
+	}
+	if (mis->_miRange == 0) {
+		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_ELEXP, mis->_miCaster, mis->_miSource, mis->_miDam, 0);
+		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
+	}
+	PutMissile(mi);
+}
+
+void MI_Elexp(int mi)
+{
+	MissileStruct *mis;
+	int dam, cx, cy, px, py, pnum;
+
+	mis = &missile[mi];
+	cx = mis->_mix;
+	cy = mis->_miy;
+	if (mis->_miVar1++ == 0)
+		mis->_miLid = AddLight(cx, cy, mis->_miAnimFrame);
+	else
+		ChangeLight(mis->_miLid, cx, cy, mis->_miAnimFrame);
+	mis->_miRange--;
 	dam = mis->_miDam;
 	pnum = mis->_miSource;
-	if (mis->_miAnimType == MFILE_BIGEXP) {
-		cx = mis->_mix;
-		cy = mis->_miy;
-		px = plr[pnum]._px;
-		py = plr[pnum]._py;
-		ChangeLight(mis->_miLid, cx, cy, mis->_miAnimFrame);
-		if (!CheckBlock(px, py, cx, cy))
-			CheckMissileCol(mi, dam, dam, TRUE, cx, cy, TRUE);
-		if (!CheckBlock(px, py, cx, cy + 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx, cy + 1, TRUE);
-		if (!CheckBlock(px, py, cx, cy - 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx, cy - 1, TRUE);
-		if (!CheckBlock(px, py, cx + 1, cy))
-			CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy, TRUE); /* check x/y */
-		if (!CheckBlock(px, py, cx + 1, cy - 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy - 1, TRUE);
-		if (!CheckBlock(px, py, cx + 1, cy + 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy + 1, TRUE);
-		if (!CheckBlock(px, py, cx - 1, cy))
-			CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy, TRUE);
-		if (!CheckBlock(px, py, cx - 1, cy + 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy + 1, TRUE);
-		if (!CheckBlock(px, py, cx - 1, cy - 1))
-			CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy - 1, TRUE);
-		if (mis->_miRange == 0) {
-			mis->_miDelFlag = TRUE;
-			AddUnLight(mis->_miLid);
-		}
-	} else {
-		mis->_mitxoff += mis->_mixvel;
-		mis->_mityoff += mis->_miyvel;
-		GetMissilePos(mi);
-		cx = mis->_mix;
-		cy = mis->_miy;
-		CheckMissileCol(mi, dam, dam, FALSE, cx, cy, FALSE);
-		if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
-			mis->_miVar3 = TRUE;
-			mis->_miRange = 255;
-			mid = FindClosest(cx, cy, 19);
-			if (mid > 0) {
-				sd = GetDirection8(cx, cy, monster[mid]._mx, monster[mid]._my);
-				SetMissDir(mi, sd);
-				GetMissileVel(mi, cx, cy, monster[mid]._mx, monster[mid]._my, 16);
-			} else {
-				sd = plr[pnum]._pdir;
-				SetMissDir(mi, sd);
-				GetMissileVel(mi, cx, cy, cx + XDirAdd[sd], cy + YDirAdd[sd], 16);
-			}
-		}
-		if (cx != mis->_miVar1 || cy != mis->_miVar2) {
-			mis->_miVar1 = cx;
-			mis->_miVar2 = cy;
-			ChangeLight(mis->_miLid, cx, cy, 8);
-		}
-		if (mis->_miRange == 0) {
-			mis->_miDir = 0;
-			SetMissAnim(mi, MFILE_BIGEXP);
-			mis->_miRange = mis->_miAnimLen - 1;
-		}
+	px = plr[pnum]._px;
+	py = plr[pnum]._py;
+	if (!CheckBlock(px, py, cx, cy))
+		CheckMissileCol(mi, dam, dam, TRUE, cx, cy, TRUE);
+	if (!CheckBlock(px, py, cx, cy + 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx, cy + 1, TRUE);
+	if (!CheckBlock(px, py, cx, cy - 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx, cy - 1, TRUE);
+	if (!CheckBlock(px, py, cx + 1, cy))
+		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy, TRUE); /* check x/y */
+	if (!CheckBlock(px, py, cx + 1, cy - 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy - 1, TRUE);
+	if (!CheckBlock(px, py, cx + 1, cy + 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy + 1, TRUE);
+	if (!CheckBlock(px, py, cx - 1, cy))
+		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy, TRUE);
+	if (!CheckBlock(px, py, cx - 1, cy + 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy + 1, TRUE);
+	if (!CheckBlock(px, py, cx - 1, cy - 1))
+		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy - 1, TRUE);
+	if (mis->_miRange == 0) {
+		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
 	}
 	PutMissile(mi);
 }

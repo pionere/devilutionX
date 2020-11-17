@@ -2561,7 +2561,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	BOOL ret;
-	int hit, hper, dam, skdam, phanditype;
+	int hper, dam, skdam, phanditype;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);

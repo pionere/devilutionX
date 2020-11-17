@@ -81,6 +81,7 @@ MissileData missiledata[] = {
 	{  MIS_ACIDPUD,       &AddAcidpud,                &MI_Acidpud,        TRUE,      2,               MIFLAG_NOBLOCK, MISR_ACID,      MFILE_ACIDPUD,   LS_PUDDLE,   -1,          1,        1        },
 	{  MIS_HEALOTHER,     &AddHealOther,              &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_ELEMENT,       &AddElement,                &MI_Element,        TRUE,      1,                            0, MISR_FIRE,      MFILE_FIRERUN,   LS_ELEMENTL, -1,          1,        1        },
+	{  MIS_ELEXP,         &AddMisexp,                 &MI_Elexp,          TRUE,      1,               MIFLAG_NOBLOCK, MISR_FIRE,      MFILE_BIGEXP,    -1,          -1,          1,        1        },
 	{  MIS_RESURRECTBEAM, &AddResurrectBeam,          &MI_ResurrectBeam,  TRUE,      1,                            0, MISR_NONE,      MFILE_RESSUR1,   -1,          -1,          1,        1        },
 	{  MIS_BONESPIRIT,    &AddBoneSpirit,             &MI_Bonespirit,     TRUE,      1,                            0, MISR_MAGIC,     MFILE_SKLBALL,   LS_BONESP,   LS_BSIMPCT,  1,        1        },
 	{  MIS_WEAPFEXP,      &AddWeapFexp,               &MI_WeapExp,        TRUE,      2,                            0, MISR_FIRE,      MFILE_MAGBLOS,   -1,          -1,          1,        1        },
