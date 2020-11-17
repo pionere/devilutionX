@@ -2306,15 +2306,13 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	}
 }
 
-void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
+static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 {
 	MonsterStruct *mon;
 	PlayerStruct *p;
-	int hit, hper;
-	int blk, blkper;
-	int dam, mdam;
-	int newx, newy;
-	int i, misnum, cur_ms_num, new_hp;
+	int tmp, dam, hper, blkper;
+	int i, newx, newy;
+	MissileStruct *mis, *shmis;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonTryH2HHit: Invalid monster %d", mnum);
@@ -2331,98 +2329,87 @@ void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
 
-	hper = random_(98, 100);
+	hper = 30 + Hit
+		+ (mon->mLevel << 1)
+		- (p->_pLevel << 1)
+		- p->_pIBonusAC
+		- p->_pIAC
+		- p->_pDexterity / 5;
+	tmp = 15;
+	if (currlevel == 14)
+		tmp = 20;
+	else if (currlevel == 15)
+		tmp = 25;
+	else if (currlevel == 16)
+		tmp = 30;
+	if (hper < tmp)
+		hper = tmp;
+	if (random_(98, 100) >= hper)
 #ifdef _DEBUG
-	if (debug_mode_dollar_sign || debug_mode_key_inverted_v)
-		hper = 1000;
+		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
 #endif
-	hit = Hit
-	    + 2 * (mon->mLevel - p->_pLevel)
-	    + 30
-	    - p->_pIBonusAC
-	    - p->_pIAC
-	    - p->_pDexterity / 5;
-	if (hit < 15)
-		hit = 15;
-	if (currlevel == 14 && hit < 20)
-		hit = 20;
-	if (currlevel == 15 && hit < 25)
-		hit = 25;
-	if (currlevel == 16 && hit < 30)
-		hit = 30;
-	if ((p->_pmode == PM_STAND || p->_pmode == PM_ATTACK) && p->_pBlockFlag) {
-		blkper = random_(98, 100);
-	} else {
-		blkper = 100;
-	}
-	blk = p->_pDexterity
-	    + p->_pBaseToBlk
-	    - (mon->mLevel << 1)
-	    + (p->_pLevel << 1);
-	if (blk < 0)
-		blk = 0;
-	if (blk > 100)
-		blk = 100;
-	if (hper >= hit)
-		return;
-	if (blkper < blk) {
-		PlrStartBlock(pnum, GetDirection(p->_px, p->_py, mon->_mx, mon->_my));
-		return;
+			return;
+
+	if (p->_pBlockFlag
+	 && (p->_pmode == PM_STAND || p->_pmode == PM_ATTACK)) {
+		blkper = p->_pDexterity + p->_pBaseToBlk
+			+ (p->_pLevel << 1)
+			- (mon->mLevel << 1);
+		if (blkper >= 100 || blkper > random_(98, 100)) {
+			PlrStartBlock(pnum, GetDirection(p->_px, p->_py, mon->_mx, mon->_my));
+			return;
+		}
 	}
 	if (mon->MType->mtype == MT_YZOMBIE && pnum == myplr) {
-		cur_ms_num = -1;
+		shmis = NULL;
 		for (i = 0; i < nummissiles; i++) {
-			misnum = missileactive[i];
-			if (missile[misnum]._miType != MIS_MANASHIELD)
-				continue;
-			if (missile[misnum]._miSource == pnum)
-				cur_ms_num = misnum;
+			mis = &missile[missileactive[i]];
+			if (mis->_miType == MIS_MANASHIELD && mis->_miSource == pnum)
+				shmis = mis;
 		}
-		if (p->_pMaxHP > 64) {
-			if (p->_pMaxHPBase > 64) {
-				new_hp = p->_pMaxHP - 64;
-				p->_pMaxHP = new_hp;
-				if (p->_pHitPoints > new_hp) {
-					p->_pHitPoints = new_hp;
-					if (cur_ms_num >= 0)
-						missile[cur_ms_num]._miVar1 = new_hp;
-				}
-				new_hp = p->_pMaxHPBase - 64;
-				p->_pMaxHPBase = new_hp;
-				if (p->_pHPBase > new_hp) {
-					p->_pHPBase = new_hp;
-					if (cur_ms_num >= 0)
-						missile[cur_ms_num]._miVar2 = new_hp;
-				}
+		if (p->_pMaxHP > 64 && p->_pMaxHPBase > 64) {
+			tmp = p->_pMaxHP - 64;
+			p->_pMaxHP = tmp;
+			if (p->_pHitPoints > tmp) {
+				p->_pHitPoints = tmp;
+				if (shmis != NULL)
+					shmis->_miVar1 = tmp;
+			}
+			tmp = p->_pMaxHPBase - 64;
+			p->_pMaxHPBase = tmp;
+			if (p->_pHPBase > tmp) {
+				p->_pHPBase = tmp;
+				if (shmis != NULL)
+					shmis->_miVar2 = tmp;
 			}
 		}
+	}
+	if (p->_pIFlags & ISPL_THORNS) {
+		tmp = (random_(99, 3) + 1) << 6;
+		mon->_mhitpoints -= tmp;
+		if (mon->_mhitpoints >> 6 <= 0)
+			MonStartKill(mnum, pnum);
+		else
+			MonStartHit(mnum, pnum, tmp);
 	}
 	dam = MinDam + random_(99, (MaxDam - MinDam + 1));
 	dam += p->_pIGetHit;
 	if (dam <= 0)
 		dam = 1;
 	dam <<= 6;
+	if (!(mon->_mFlags & MFLAG_NOLIFESTEAL) && mon->MType->mtype == MT_SKING && gbMaxPlayers != 1)
+		mon->_mhitpoints += dam;
 	if (pnum == myplr) {
 		p->_pHitPoints -= dam;
 		p->_pHPBase -= dam;
-	}
-	if (p->_pIFlags & ISPL_THORNS) {
-		mdam = (random_(99, 3) + 1) << 6;
-		mon->_mhitpoints -= mdam;
-		if (mon->_mhitpoints >> 6 <= 0)
-			MonStartKill(mnum, pnum);
-		else
-			MonStartHit(mnum, pnum, mdam);
-	}
-	if (!(mon->_mFlags & MFLAG_NOLIFESTEAL) && mon->MType->mtype == MT_SKING && gbMaxPlayers != 1)
-		mon->_mhitpoints += dam;
-	if (p->_pHitPoints > p->_pMaxHP) {
-		p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase = p->_pMaxHPBase;
-	}
-	if (p->_pHitPoints >> 6 <= 0) {
-		SyncPlrKill(pnum, 0);
-		return;
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
+			p->_pHPBase = p->_pMaxHPBase;
+		}
+		if (p->_pHitPoints >> 6 <= 0) {
+			SyncPlrKill(pnum, 0);
+			return;
+		}
 	}
 	StartPlrHit(pnum, dam, FALSE);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {

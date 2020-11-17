@@ -533,13 +533,12 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 		return ret;
 	}
 
-	hit = mon->_mmode == MM_STONE ? 0 : random_(68, 100);
 	hper = 90 - mon->mArmorClass - dist;
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
 		hper = 95;
-	if (hit >= hper)
+	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
 #endif
@@ -582,7 +581,7 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	int hit, hper, dam;
+	int hper, dam;
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
@@ -595,8 +594,6 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 	if (CheckMonsterHit(mnum, &ret))
 		return ret;
 
-	hit = mon->_mmode == MM_STONE ? 0 : random_(69, 100);
-
 	p = &plr[pnum];
 	if (missiledata[mitype].mType == 0) {
 		hper = p->_pDexterity
@@ -608,7 +605,7 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 		    + 50;
 		if (p->_pClass == PC_ROGUE)
 			hper += 20;
-		if (p->_pClass == PC_WARRIOR)
+		else if (p->_pClass == PC_WARRIOR)
 			hper += 10;
 	} else {
 		hper = p->_pMagic - (mon->mLevel << 1) - dist + 50;
@@ -619,7 +616,7 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 		hper = 5;
 	if (hper > 95)
 		hper = 95;
-	if (hit >= hper)
+	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_key_inverted_v && !debug_mode_dollar_sign)
 #endif
@@ -682,7 +679,9 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BOOLEAN shift, int earflag)
 {
 	PlayerStruct *p;
-	int hit, hper, tac, dam, blk, blkper, resper;
+	MonsterStruct *mon;
+	int hper, tmp, dam, resper;
+	BOOL blk;
 
 	p = &plr[pnum];
 	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
@@ -693,59 +692,79 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 		return FALSE;
 	}
 
-	hit = random_(72, 100);
-#ifdef _DEBUG
-	if (debug_mode_dollar_sign || debug_mode_key_inverted_v)
-		hit = 1000;
-#endif
+	mon = mnum == -1 ? NULL : &monster[mnum];
 	if (missiledata[mitype].mType == 0) {
-		tac = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
-		if (mnum != -1) {
-			hper = monster[mnum].mHit
-			    + ((monster[mnum].mLevel - p->_pLevel) * 2)
-			    + 30
-			    - (dist << 1) - tac;
+		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
+		if (mon != NULL) {
+			hper = 30 + mon->mHit
+			    + (mon->mLevel << 1)
+				- (p->_pLevel << 1)
+			    - tmp;
 		} else {
-			hper = 100 - (tac >> 1) - (dist << 1);
+			hper = 100 - (tmp >> 1);
 		}
+		hper -= dist << 1;
 	} else {
-		if (mnum != -1) {
-			hper = 40 - (p->_pLevel << 1) - (dist << 1) + (monster[mnum].mLevel << 1);
+		if (mon != NULL) {
+			hper = 40
+				+ (mon->mLevel << 1)
+				- (p->_pLevel << 1)
+				- (dist << 1);
 		} else {
 			hper = 40;
 		}
 	}
 
-	if (hper < 10)
-		hper = 10;
-	if (currlevel == 14 && hper < 20) {
-		hper = 20;
-	}
-	if (currlevel == 15 && hper < 25) {
-		hper = 25;
-	}
-	if (currlevel == 16 && hper < 30) {
-		hper = 30;
-	}
+	tmp = 10;
+	if (currlevel == 14)
+		tmp = 20;
+	else if (currlevel == 15)
+		tmp = 25;
+	else if (currlevel == 16)
+		tmp = 30;
+	if (hper < tmp)
+		hper = tmp;
+	if (random_(72, 100) >= hper)
+#ifdef _DEBUG
+		if (!debug_mode_dollar_sign && !debug_mode_key_inverted_v)
+#endif
+			return FALSE;
 
-	if ((p->_pmode == PM_STAND || p->_pmode == PM_ATTACK) && p->_pBlockFlag) {
-		blk = random_(73, 100);
+	if (shift || mitype == MIS_ACIDPUD || !p->_pBlockFlag
+	 || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+		blk = FALSE;
 	} else {
-		blk = 100;
+		tmp = p->_pBaseToBlk + p->_pDexterity;
+		if (mon != NULL)
+			tmp = tmp
+				+ (p->_pLevel << 1)
+				- (mon->mLevel << 1);
+		if (tmp <= 0)
+			blk = FALSE;
+		else if (tmp >= 100)
+			blk = TRUE;
+		else
+			blk = random_(73, 100) < tmp;
 	}
 
-	if (shift)
-		blk = 100;
-	if (mitype == MIS_ACIDPUD)
-		blk = 100;
-	if (mnum != -1)
-		blkper = p->_pBaseToBlk + (p->_pLevel << 1) - (monster[mnum].mLevel << 1) + p->_pDexterity;
-	else
-		blkper = p->_pBaseToBlk + p->_pDexterity;
-	if (blkper < 0)
-		blkper = 0;
-	if (blkper > 100)
-		blkper = 100;
+	if (mitype == MIS_BONESPIRIT) {
+		dam = p->_pHitPoints / 3;
+	} else {
+		if (!shift) {
+			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
+			if (mon == NULL && p->_pIFlags & ISPL_ABSHALFTRAP)
+				dam >>= 1;
+			dam += (p->_pIGetHit << 6);
+		} else {
+			dam = mind + random_(75, maxd - mind + 1);
+			if (mon == NULL && p->_pIFlags & ISPL_ABSHALFTRAP)
+				dam >>= 1;
+			dam += p->_pIGetHit;
+		}
+
+		if (dam < 64)
+			dam = 64;
+	}
 
 	switch (missiledata[mitype].mResist) {
 	case MISR_FIRE:
@@ -761,28 +780,6 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 	default:
 		resper = 0;
 		break;
-	}
-
-	if (hit >= hper)
-		return FALSE;
-
-	if (mitype == MIS_BONESPIRIT) {
-		dam = p->_pHitPoints / 3;
-	} else {
-		if (!shift) {
-			dam = (mind << 6) + random_(75, (maxd - mind + 1) << 6);
-			if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
-				dam >>= 1;
-			dam += (p->_pIGetHit * 64);
-		} else {
-			dam = mind + random_(75, maxd - mind + 1);
-			if (mnum == -1 && p->_pIFlags & ISPL_ABSHALFTRAP)
-				dam >>= 1;
-			dam += p->_pIGetHit;
-		}
-
-		if (dam < 64)
-			dam = 64;
 	}
 	if (resper > 0) {
 		dam = dam - dam * resper / 100;
@@ -802,13 +799,13 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 			drawhpflag = TRUE;
 		}
 	} else {
-		if (blk < blkper) {
-			if (mnum != -1) {
-				tac = GetDirection(p->_px, p->_py, monster[mnum]._mx, monster[mnum]._my);
+		if (blk) {
+			if (mon != NULL) {
+				tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
 			} else {
-				tac = p->_pdir;
+				tmp = p->_pdir;
 			}
-			PlrStartBlock(pnum, tac);
+			PlrStartBlock(pnum, tmp);
 		} else {
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
@@ -831,7 +828,8 @@ BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BO
 static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
-	int resper, dam, blk, blkper, hper, hit;
+	int resper, dam, blkper, hper;
+	BOOL blk;
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
@@ -846,25 +844,9 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 		return FALSE;
 	}
 
-	switch (missiledata[mitype].mResist) {
-	case MISR_FIRE:
-		resper = dps->_pFireResist;
-		break;
-	case MISR_LIGHTNING:
-		resper = dps->_pLghtResist;
-		break;
-	case MISR_MAGIC:
-	case MISR_ACID:
-		resper = dps->_pMagResist;
-		break;
-	default:
-		resper = 0;
-		break;
-	}
-	hper = random_(69, 100);
 	ops = &plr[offp];
 	if (missiledata[mitype].mType == 0) {
-		hit = ops->_pIBonusToHit
+		hper = ops->_pIBonusToHit
 		    + ops->_pLevel
 		    - (dist * dist >> 1)
 		    - dps->_pDexterity / 5
@@ -872,38 +854,36 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 		    - dps->_pIAC
 		    + ops->_pDexterity + 50;
 		if (ops->_pClass == PC_ROGUE)
-			hit += 20;
+			hper += 20;
 		if (ops->_pClass == PC_WARRIOR)
-			hit += 10;
+			hper += 10;
 	} else {
-		hit = ops->_pMagic
+		hper = ops->_pMagic
 		    - (dps->_pLevel << 1)
 		    - dist
 		    + 50;
 		if (ops->_pClass == PC_SORCERER)
-			hit += 20;
+			hper += 20;
 	}
-	if (hit < 5)
-		hit = 5;
-	if (hit > 95)
-		hit = 95;
-	if (hper >= hit)
+	if (hper < 5)
+		hper = 5;
+	if (hper > 95)
+		hper = 95;
+	if (random_(69, 100) >= hper)
 		return FALSE;
 
-	if ((dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK) && dps->_pBlockFlag) {
-		blkper = random_(73, 100);
+	if (shift || !dps->_pBlockFlag
+	 || (dps->_pmode != PM_STAND && dps->_pmode != PM_ATTACK)) {
+		blk = FALSE;
 	} else {
-		blkper = 100;
-	}
-	if (shift)
-		blkper = 100;
-	blk = dps->_pDexterity + dps->_pBaseToBlk + (dps->_pLevel << 1) - (ops->_pLevel << 1);
-
-	if (blk < 0) {
-		blk = 0;
-	}
-	if (blk > 100) {
-		blk = 100;
+		blkper = dps->_pDexterity + dps->_pBaseToBlk
+			+ ((dps->_pLevel - ops->_pLevel) << 1);
+		if (blkper <= 0)
+			blk = FALSE;
+		else if (blkper >= 100)
+			blk = TRUE;
+		else
+			blk = random_(73, 100) < blkper;
 	}
 
 	if (mitype == MIS_BONESPIRIT) {
@@ -922,12 +902,28 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 	}
 	if (missiledata[mitype].mType != 0)
 		dam >>= 1;
+
+	switch (missiledata[mitype].mResist) {
+	case MISR_FIRE:
+		resper = dps->_pFireResist;
+		break;
+	case MISR_LIGHTNING:
+		resper = dps->_pLghtResist;
+		break;
+	case MISR_MAGIC:
+	case MISR_ACID:
+		resper = dps->_pMagResist;
+		break;
+	default:
+		resper = 0;
+		break;
+	}
 	if (resper > 0) {
 		if (offp == myplr)
 			NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_69][ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
-		if (blkper < blk) {
+		if (blk) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
 		} else {
 			if (offp == myplr)

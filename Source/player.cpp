@@ -2578,150 +2578,143 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 
 	p = &plr[pnum];
 	mon = &monster[mnum];
-	hit = mon->_mmode == MM_STONE ? 0 : random_(4, 100);
 
-	hper = (p->_pDexterity >> 1) + p->_pIBonusToHit + p->_pLevel - (mon->mArmorClass - p->_pIEnAc) + 50;
-	if (p->_pClass == PC_WARRIOR) {
+	hper = 50 + (p->_pDexterity >> 1) + p->_pIBonusToHit + p->_pLevel
+		- (mon->mArmorClass - p->_pIEnAc);
+	if (p->_pClass == PC_WARRIOR)
 		hper += 20;
-	}
-	if (hper < 5) {
+	if (hper < 5)
 		hper = 5;
-	}
-	if (hper > 95) {
+	if (hper > 95)
 		hper = 95;
+	if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
+#ifdef _DEBUG
+		if (!debug_mode_key_inverted_v && !debug_mode_dollar_sign)
+#endif
+			return FALSE;
+
+	dam = PlrAtkDam(pnum);
+
+	phanditype = ITYPE_NONE;
+	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
+		phanditype = ITYPE_SWORD;
+	}
+	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_MACE || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_MACE) {
+		phanditype = ITYPE_MACE;
 	}
 
-#ifdef _DEBUG
-	if (hit < hper || debug_mode_key_inverted_v || debug_mode_dollar_sign) {
-#else
-	if (hit < hper) {
-#endif
-		dam = PlrAtkDam(pnum);
+	switch (mon->MData->mMonstClass) {
+	case MC_UNDEAD:
+		if (phanditype == ITYPE_SWORD) {
+			dam -= dam >> 1;
+		}
+		if (phanditype == ITYPE_MACE) {
+			dam += dam >> 1;
+		}
+		break;
+	case MC_DEMON:
+		if (p->_pIFlags & ISPL_3XDAMVDEM) {
+			dam *= 3;
+		}
+		break;
+	case MC_ANIMAL:
+		if (phanditype == ITYPE_MACE) {
+			dam -= dam >> 1;
+		}
+		if (phanditype == ITYPE_SWORD) {
+			dam += dam >> 1;
+		}
+		break;
+	}
 
-		phanditype = ITYPE_NONE;
-		if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
-			phanditype = ITYPE_SWORD;
-		}
-		if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_MACE || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_MACE) {
-			phanditype = ITYPE_MACE;
-		}
+	dam <<= 6;
+	if (pnum == myplr) {
+		mon->_mhitpoints -= dam;
+	}
 
-		switch (mon->MData->mMonstClass) {
-		case MC_UNDEAD:
-			if (phanditype == ITYPE_SWORD) {
-				dam -= dam >> 1;
-			}
-			if (phanditype == ITYPE_MACE) {
-				dam += dam >> 1;
-			}
-			break;
-		case MC_DEMON:
-			if (p->_pIFlags & ISPL_3XDAMVDEM) {
-				dam *= 3;
-			}
-			break;
-		case MC_ANIMAL:
-			if (phanditype == ITYPE_MACE) {
-				dam -= dam >> 1;
-			}
-			if (phanditype == ITYPE_SWORD) {
-				dam += dam >> 1;
-			}
-			break;
+	if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
+		skdam = random_(7, dam >> 3);
+		p->_pHitPoints += skdam;
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
 		}
-
-		dam <<= 6;
-		if (pnum == myplr) {
-			mon->_mhitpoints -= dam;
+		p->_pHPBase += skdam;
+		if (p->_pHPBase > p->_pMaxHPBase) {
+			p->_pHPBase = p->_pMaxHPBase;
 		}
-
-		if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
-			skdam = random_(7, dam >> 3);
-			p->_pHitPoints += skdam;
-			if (p->_pHitPoints > p->_pMaxHP) {
-				p->_pHitPoints = p->_pMaxHP;
-			}
-			p->_pHPBase += skdam;
-			if (p->_pHPBase > p->_pMaxHPBase) {
-				p->_pHPBase = p->_pMaxHPBase;
-			}
-			drawhpflag = TRUE;
-		}
-		if (p->_pIFlags & (ISPL_STEALMANA_3 | ISPL_STEALMANA_5) && !(p->_pIFlags & ISPL_NOMANA)) {
-			if (p->_pIFlags & ISPL_STEALMANA_5) {
-				skdam = 5 * dam / 100;
-			} else {
-				skdam = 3 * dam / 100;
-			}
-			p->_pMana += skdam;
-			if (p->_pMana > p->_pMaxMana) {
-				p->_pMana = p->_pMaxMana;
-			}
-			p->_pManaBase += skdam;
-			if (p->_pManaBase > p->_pMaxManaBase) {
-				p->_pManaBase = p->_pMaxManaBase;
-			}
-			drawmanaflag = TRUE;
-		}
-		if (p->_pIFlags & (ISPL_STEALLIFE_3 | ISPL_STEALLIFE_5)) {
-			if (p->_pIFlags & ISPL_STEALLIFE_5) {
-				skdam = 5 * dam / 100;
-			} else {
-				skdam = 3 * dam / 100;
-			}
-			p->_pHitPoints += skdam;
-			if (p->_pHitPoints > p->_pMaxHP) {
-				p->_pHitPoints = p->_pMaxHP;
-			}
-			p->_pHPBase += skdam;
-			if (p->_pHPBase > p->_pMaxHPBase) {
-				p->_pHPBase = p->_pMaxHPBase;
-			}
-			drawhpflag = TRUE;
-		}
-		if (p->_pIFlags & ISPL_NOHEALMON) {
-			mon->_mFlags |= MFLAG_NOHEAL;
-		}
-#ifdef _DEBUG
-		if (debug_mode_dollar_sign || debug_mode_key_inverted_v) {
-			mon->_mhitpoints = 0; /* double check */
-		}
-#endif
-		if ((mon->_mhitpoints >> 6) <= 0) {
-			if (mon->_mmode == MM_STONE) {
-				MonStartKill(mnum, pnum);
-				mon->_mmode = MM_STONE;
-			} else {
-				MonStartKill(mnum, pnum);
-			}
+		drawhpflag = TRUE;
+	}
+	if (p->_pIFlags & (ISPL_STEALMANA_3 | ISPL_STEALMANA_5) && !(p->_pIFlags & ISPL_NOMANA)) {
+		if (p->_pIFlags & ISPL_STEALMANA_5) {
+			skdam = 5 * dam / 100;
 		} else {
-			if (mon->_mmode == MM_STONE) {
-				MonStartHit(mnum, pnum, dam);
-				mon->_mmode = MM_STONE;
-			} else {
-				if (p->_pIFlags & ISPL_KNOCKBACK) {
-					MonGetKnockback(mnum);
-				}
-				MonStartHit(mnum, pnum, dam);
-			}
+			skdam = 3 * dam / 100;
 		}
-		return TRUE;
+		p->_pMana += skdam;
+		if (p->_pMana > p->_pMaxMana) {
+			p->_pMana = p->_pMaxMana;
+		}
+		p->_pManaBase += skdam;
+		if (p->_pManaBase > p->_pMaxManaBase) {
+			p->_pManaBase = p->_pMaxManaBase;
+		}
+		drawmanaflag = TRUE;
 	}
-
-	return FALSE;
+	if (p->_pIFlags & (ISPL_STEALLIFE_3 | ISPL_STEALLIFE_5)) {
+		if (p->_pIFlags & ISPL_STEALLIFE_5) {
+			skdam = 5 * dam / 100;
+		} else {
+			skdam = 3 * dam / 100;
+		}
+		p->_pHitPoints += skdam;
+		if (p->_pHitPoints > p->_pMaxHP) {
+			p->_pHitPoints = p->_pMaxHP;
+		}
+		p->_pHPBase += skdam;
+		if (p->_pHPBase > p->_pMaxHPBase) {
+			p->_pHPBase = p->_pMaxHPBase;
+		}
+		drawhpflag = TRUE;
+	}
+	if (p->_pIFlags & ISPL_NOHEALMON) {
+		mon->_mFlags |= MFLAG_NOHEAL;
+	}
+#ifdef _DEBUG
+	if (debug_mode_dollar_sign || debug_mode_key_inverted_v) {
+		mon->_mhitpoints = 0; /* double check */
+	}
+#endif
+	if ((mon->_mhitpoints >> 6) <= 0) {
+		if (mon->_mmode == MM_STONE) {
+			MonStartKill(mnum, pnum);
+			mon->_mmode = MM_STONE;
+		} else {
+			MonStartKill(mnum, pnum);
+		}
+	} else {
+		if (mon->_mmode == MM_STONE) {
+			MonStartHit(mnum, pnum, dam);
+			mon->_mmode = MM_STONE;
+		} else {
+			if (p->_pIFlags & ISPL_KNOCKBACK) {
+				MonGetKnockback(mnum);
+			}
+			MonStartHit(mnum, pnum, dam);
+		}
+	}
+	return TRUE;
 }
 
 static BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	int hit, hper, blk, blkper, dir, dam, skdam;
+	int hper, blkper, dir, dam, skdam;
 
 	if ((DWORD)defp >= MAX_PLRS) {
 		app_fatal("PlrHitPlr: illegal target player %d", defp);
 	}
 
 	dps = &plr[defp];
-
 	if (dps->_pInvincible) {
 		return FALSE;
 	}
@@ -2734,64 +2727,48 @@ static BOOL PlrHitPlr(int offp, char defp)
 		app_fatal("PlrHitPlr: illegal attacking player %d", offp);
 	}
 	ops = &plr[offp];
-	hit = random_(4, 100);
-
-	hper = (ops->_pDexterity >> 1) + ops->_pLevel + 50 - (dps->_pIBonusAC + dps->_pIAC + dps->_pDexterity / 5);
-
-	if (ops->_pClass == PC_WARRIOR) {
+	hper = 50 + (ops->_pDexterity >> 1) + ops->_pLevel + ops->_pIBonusToHit
+		- (dps->_pIBonusAC + dps->_pIAC + dps->_pDexterity / 5);
+	if (ops->_pClass == PC_WARRIOR)
 		hper += 20;
-	}
-	hper += ops->_pIBonusToHit;
-	if (hper < 5) {
+	if (hper < 5)
 		hper = 5;
-	}
-	if (hper > 95) {
+	if (hper > 95)
 		hper = 95;
-	}
+	if (random_(4, 100) >= hper)
+		return FALSE;
 
-	if ((dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK) && dps->_pBlockFlag) {
-		blk = random_(5, 100);
-	} else {
-		blk = 100;
-	}
-
-	blkper = dps->_pDexterity + dps->_pBaseToBlk + (dps->_pLevel << 1) - (ops->_pLevel << 1);
-	if (blkper < 0) {
-		blkper = 0;
-	}
-	if (blkper > 100) {
-		blkper = 100;
-	}
-
-	if (hit < hper) {
-		if (blk < blkper) {
+	if (dps->_pBlockFlag
+	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK)) {
+		blkper = dps->_pDexterity + dps->_pBaseToBlk
+			+ (dps->_pLevel << 1)
+			- (ops->_pLevel << 1);
+		if (blkper >= 100 || blkper > random_(5, 100)) {
 			dir = GetDirection(dps->_px, dps->_py, ops->_px, ops->_py);
 			PlrStartBlock(defp, dir);
-		} else {
-			dam = PlrAtkDam(offp);
-			dam <<= 6;
-			if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
-				skdam = random_(7, dam >> 3);
-				ops->_pHitPoints += skdam;
-				if (ops->_pHitPoints > ops->_pMaxHP) {
-					ops->_pHitPoints = ops->_pMaxHP;
-				}
-				ops->_pHPBase += skdam;
-				if (ops->_pHPBase > ops->_pMaxHPBase) {
-					ops->_pHPBase = ops->_pMaxHPBase;
-				}
-				drawhpflag = TRUE;
-			}
-			if (offp == myplr) {
-				NetSendCmdDamage(TRUE, defp, dam);
-			}
-			StartPlrHit(defp, dam, FALSE);
+			return TRUE;
 		}
-
-		return TRUE;
 	}
 
-	return FALSE;
+	dam = PlrAtkDam(offp);
+	dam <<= 6;
+	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
+		skdam = random_(7, dam >> 3);
+		ops->_pHitPoints += skdam;
+		if (ops->_pHitPoints > ops->_pMaxHP) {
+			ops->_pHitPoints = ops->_pMaxHP;
+		}
+		ops->_pHPBase += skdam;
+		if (ops->_pHPBase > ops->_pMaxHPBase) {
+			ops->_pHPBase = ops->_pMaxHPBase;
+		}
+		drawhpflag = TRUE;
+	}
+	if (offp == myplr) {
+		NetSendCmdDamage(TRUE, defp, dam);
+	}
+	StartPlrHit(defp, dam, FALSE);
+	return TRUE;
 }
 
 static BOOL PlrHitObj(int pnum, int mx, int my)
