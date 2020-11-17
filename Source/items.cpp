@@ -923,10 +923,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	p->_pHitPoints = ihp + p->_pHPBase;
 	p->_pMaxHP = ihp + p->_pMaxHPBase;
-#ifdef HELLFIRE
-	if (p->_pHitPoints > p->_pMaxHP)
-		p->_pHitPoints = p->_pMaxHP;
-#endif
 
 	if (pnum == myplr && (p->_pHitPoints >> 6) <= 0) {
 		SetPlayerHitPoints(pnum, 0);
@@ -934,10 +930,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	p->_pMana = imana + p->_pManaBase;
 	p->_pMaxMana = imana + p->_pMaxManaBase;
-#ifdef HELLFIRE
-	if (p->_pMana > p->_pMaxMana)
-		p->_pMana = p->_pMaxMana;
-#endif
 
 	p->_pBlockFlag = FALSE;
 #ifdef HELLFIRE

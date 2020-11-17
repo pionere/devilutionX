@@ -760,11 +760,6 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
 		}
-		if (p->_pHitPoints > p->_pMaxHP) {
-			p->_pHitPoints = p->_pMaxHP;
-			p->_pHPBase = p->_pMaxHPBase;
-		}
-
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, earflag);
 		} else {
@@ -778,10 +773,6 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
 				p->_pHPBase -= dam;
-			}
-			if (p->_pHitPoints > p->_pMaxHP) {
-				p->_pHitPoints = p->_pMaxHP;
-				p->_pHPBase = p->_pMaxHPBase;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
 				SyncPlrKill(pnum, earflag);
@@ -888,11 +879,6 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
 		}
-		if (p->_pHitPoints > p->_pMaxHP) {
-			p->_pHitPoints = p->_pMaxHP;
-			p->_pHPBase = p->_pMaxHPBase;
-		}
-
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, earflag);
 		} else {
@@ -907,10 +893,6 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
 				p->_pHPBase -= dam;
-			}
-			if (p->_pHitPoints > p->_pMaxHP) {
-				p->_pHitPoints = p->_pMaxHP;
-				p->_pHPBase = p->_pMaxHPBase;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
 				SyncPlrKill(pnum, earflag);

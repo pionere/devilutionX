@@ -2167,17 +2167,15 @@ static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDamage *cmd = (TCmdDamage *)pCmd;
+	DWORD dam;
 
 	if (cmd->bPlr == myplr && currlevel != 0) {
-		if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel && cmd->dwDam <= 192000) {
-			if ((plr[myplr]._pHitPoints >> 6) > 0) {
+		if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+			dam = cmd->dwDam;
+			if ((plr[myplr]._pHitPoints >> 6) > 0 && dam <= 192000) {
 				drawhpflag = TRUE;
-				plr[myplr]._pHitPoints -= cmd->dwDam;
-				plr[myplr]._pHPBase -= cmd->dwDam;
-				if (plr[myplr]._pHitPoints > plr[myplr]._pMaxHP) {
-					plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-					plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-				}
+				plr[myplr]._pHitPoints -= dam;
+				plr[myplr]._pHPBase -= dam;
 				if ((plr[myplr]._pHitPoints >> 6) <= 0)
 					SyncPlrKill(myplr, 1);
 			}
