@@ -1830,7 +1830,7 @@ typedef enum monster_flag {
 	MFLAG_CAN_OPEN_DOOR   = 0x200,
 	MFLAG_NO_ENEMY        = 0x400,
 	MFLAG_UNUSED          = 0x800,
-	MFLAG_NOLIFESTEAL     = 0x1000
+	MFLAG_LIFESTEAL       = 0x1000
 } monster_flag;
 
 typedef enum monster_goal {

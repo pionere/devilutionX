@@ -2397,7 +2397,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (dam <= 0)
 		dam = 1;
 	dam <<= 6;
-	if (!(mon->_mFlags & MFLAG_NOLIFESTEAL) && mon->MType->mtype == MT_SKING && gbMaxPlayers != 1)
+	if (mon->_mFlags & MFLAG_LIFESTEAL)
 		mon->_mhitpoints += dam;
 	if (pnum == myplr) {
 		p->_pHitPoints -= dam;
