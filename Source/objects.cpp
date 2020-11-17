@@ -1961,7 +1961,7 @@ static void Obj_FlameTrap(int oi)
 		if (dMonster[x][y] > 0)
 			MonsterTrapHit(dMonster[x][y] - 1, mindam / 2, maxdam / 2, 0, MIS_FIREWALLC, FALSE);
 		if (dPlayer[x][y] > 0)
-			PlayerTrapHit(dPlayer[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALLC, FALSE, 0);
+			PlayerTrapHit(dPlayer[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALLC, FALSE);
 
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
@@ -4595,7 +4595,7 @@ static void BreakBarrel(int pnum, int oi, int dam, BOOL forcebreak, BOOL sendmsg
 					MonsterTrapHit(mpo - 1, 1, 4, 0, MIS_FIREBOLT, FALSE);
 				mpo = dPlayer[xp][yp];
 				if (mpo > 0)
-					PlayerTrapHit(mpo - 1, 8, 16, 0, MIS_FIREBOLT, FALSE, 0);
+					PlayerTrapHit(mpo - 1, 8, 16, 0, MIS_FIREBOLT, FALSE);
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;

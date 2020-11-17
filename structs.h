@@ -448,7 +448,7 @@ typedef struct MissileStruct {
 	int _miSource;
 	int _miCaster;
 	int _miDam;
-	BOOL _miHitFlag;
+	BOOL _miHitFlag; // unused
 	int _miDist;
 	int _miLid;
 	int _miRnd;

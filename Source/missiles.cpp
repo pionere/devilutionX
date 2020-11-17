@@ -577,7 +577,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	return TRUE;
 }
 
-static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
+static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
@@ -676,7 +676,7 @@ static BOOL MonsterMHit(int pnum, int mnum, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
-BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift, int earflag)
+BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift)
 {
 	PlayerStruct *p;
 	int hper, tmp, dam, resper;
@@ -761,7 +761,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			p->_pHPBase -= dam;
 		}
 		if (p->_pHitPoints >> 6 <= 0) {
-			SyncPlrKill(pnum, earflag);
+			SyncPlrKill(pnum, 0);
 		} else {
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 			drawhpflag = TRUE;
@@ -775,7 +775,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 				p->_pHPBase -= dam;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
-				SyncPlrKill(pnum, earflag);
+				SyncPlrKill(pnum, 0);
 			} else {
 				StartPlrHit(pnum, dam, FALSE);
 			}
@@ -784,7 +784,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	return TRUE;
 }
 
-static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mitype, BOOLEAN shift, int earflag)
+static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
@@ -880,7 +880,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 			p->_pHPBase -= dam;
 		}
 		if (p->_pHitPoints >> 6 <= 0) {
-			SyncPlrKill(pnum, earflag);
+			SyncPlrKill(pnum, 0);
 		} else {
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 			drawhpflag = TRUE;
@@ -895,7 +895,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 				p->_pHPBase -= dam;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
-				SyncPlrKill(pnum, earflag);
+				SyncPlrKill(pnum, 0);
 			} else {
 				StartPlrHit(pnum, dam, FALSE);
 			}
@@ -904,7 +904,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int dist, int mind, int maxd, int mit
 	return TRUE;
 }
 
-static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
+static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
 	int resper, dam, blkper, hper;
@@ -937,12 +937,18 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 		if (ops->_pClass == PC_WARRIOR)
 			hper += 10;
 	} else {
-		hper = ops->_pMagic
-		    - (dps->_pLevel << 1)
-		    - dist
-		    + 50;
-		if (ops->_pClass == PC_SORCERER)
-			hper += 20;
+		if (missiledata[mitype].mFileNum == MFILE_FIREWAL) {
+			hper = 40
+				+ (ops->_pLevel << 1)
+				- (dps->_pLevel << 1);
+		} else {
+			hper = ops->_pMagic
+				- (dps->_pLevel << 1)
+				- dist
+				+ 50;
+			if (ops->_pClass == PC_SORCERER)
+				hper += 20;
+		}
 	}
 	if (hper < 5)
 		hper = 5;
@@ -1013,132 +1019,94 @@ static BOOL Plr2PlrMHit(int offp, int defp, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
-static void CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
+static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
 {
 	MissileStruct *mis;
 	MissileData *mds;
-	int oi, mnum;
-	char pnum;
+	int oi, mnum, pnum;
+	int hit = 0;
 
 	mis = &missile[mi];
 	mnum = dMonster[mx][my];
-	pnum = dPlayer[mx][my];
-	if (mis->_miAnimType != MFILE_FIREWAL && mis->_miSource != -1) {
-		if (mis->_miCaster == 0) {
-			if (mnum > 0) {
-				if (MonsterMHit(
-				        mis->_miSource,
-				        mnum - 1,
-				        mindam,
-				        maxdam,
-				        mis->_miDist,
-				        mis->_miType,
-				        shift)) {
-					if (!nodel)
-						mis->_miRange = 0;
-					mis->_miHitFlag = TRUE;
+	if (mnum != 0) {
+		if (mnum > 0) {
+			mnum--;
+			if (mis->_miSource != -1) {
+				if (mis->_miCaster == 0) {
+					if (MonsterMHit(mnum, mis->_miSource, mindam, maxdam,
+							mis->_miDist, mis->_miType, shift)) {
+						hit = 1;
+					}
+				} else {
+					if (mnum < MAX_PLRS
+					 && MonsterTrapHit(mnum, mindam, maxdam,
+							mis->_miDist, mis->_miType, shift)) {
+						hit = 1;
+					}
 				}
-			} else if (mnum < 0
-				    && monster[-(mnum + 1)]._mmode == MM_STONE
-				    && MonsterMHit(
-				           mis->_miSource,
-				           -(mnum + 1),
-				           mindam,
-				           maxdam,
-				           mis->_miDist,
-				           mis->_miType,
-				           shift)) {
-					if (!nodel)
-						mis->_miRange = 0;
-					mis->_miHitFlag = TRUE;
-			}
-			if (pnum > 0
-			    && pnum - 1 != mis->_miSource
-			    && Plr2PlrMHit(
-			           mis->_miSource,
-			           pnum - 1,
-			           mindam,
-			           maxdam,
-			           mis->_miDist,
-			           mis->_miType,
-			           shift)) {
-				if (!nodel)
-					mis->_miRange = 0;
-				mis->_miHitFlag = TRUE;
+			} else {
+				if (MonsterTrapHit(mnum, mindam, maxdam,
+						mis->_miDist, mis->_miType, shift)) {
+					hit = 1;
+				}
 			}
 		} else {
-			if (monster[mis->_miSource]._mFlags & MFLAG_TARGETS_MONSTER
-			    && mnum > 0
-			    && monster[mnum - 1]._mFlags & MFLAG_GOLEM
-			    && MonsterTrapHit(mnum - 1, mindam, maxdam, mis->_miDist, mis->_miType, shift)) {
-				if (!nodel)
-					mis->_miRange = 0;
-				mis->_miHitFlag = TRUE;
+			mnum = -(mnum + 1);
+			if (monster[mnum]._mmode == MM_STONE
+			 && MonsterMHit(mnum, mis->_miSource, mindam, maxdam,
+					mis->_miDist, mis->_miType, shift)) {
+				hit = 1;
 			}
-			if (pnum > 0
-			    && PlayerMHit(
-			           pnum - 1,
-			           mis->_miSource,
-			           mis->_miDist,
-			           mindam,
-			           maxdam,
-			           mis->_miType,
-			           shift,
-			           0)) {
-				if (!nodel)
-					mis->_miRange = 0;
-				mis->_miHitFlag = TRUE;
-			}
-		}
-	} else {
-		if (mnum > 0) {
-			if (mis->_miAnimType == MFILE_FIREWAL) {
-				if (MonsterMHit(
-				        mis->_miSource,
-				        mnum - 1,
-				        mindam,
-				        maxdam,
-				        mis->_miDist,
-				        mis->_miType,
-				        shift)) {
-					if (!nodel)
-						mis->_miRange = 0;
-					mis->_miHitFlag = TRUE;
-				}
-			} else if (MonsterTrapHit(mnum - 1, mindam, maxdam, mis->_miDist, mis->_miType, shift)) {
-				if (!nodel)
-					mis->_miRange = 0;
-				mis->_miHitFlag = TRUE;
-			}
-		}
-		if (pnum > 0
-		    && PlayerTrapHit(pnum - 1, mindam, maxdam, mis->_miDist, mis->_miType, shift, mis->_miAnimType == MFILE_FIREWAL)) {
-			if (!nodel)
-				mis->_miRange = 0;
-			mis->_miHitFlag = TRUE;
 		}
 	}
+
+	pnum = dPlayer[mx][my];
+	if (pnum > 0) {
+		pnum--;
+		if (mis->_miSource != -1) {
+			if (mis->_miCaster == 0) {
+				if (pnum != mis->_miSource
+				 && Plr2PlrMHit(pnum, mis->_miSource, mindam, maxdam,
+					 mis->_miDist, mis->_miType, shift)) {
+					hit = 1;
+				}
+			} else {
+				if (PlayerMHit(pnum, mis->_miSource, mindam, maxdam,
+						mis->_miDist, mis->_miType, shift)) {
+					hit = 1;
+				}
+			}
+		} else {
+			if (PlayerTrapHit(pnum, mindam, maxdam,
+					mis->_miDist, mis->_miType, shift)) {
+				hit = 1;
+			}
+		}
+	}
+
 	oi = dObject[mx][my];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (!object[oi]._oMissFlag) {
 			if (object[oi]._oBreak == 1)
 				BreakObject(-1, oi);
-			if (!nodel)
-				mis->_miRange = 0;
-			mis->_miHitFlag = FALSE;
+			hit = 2;
 		}
 	}
 	if (nMissileTable[dPiece[mx][my]]) {
-		if (!nodel)
-			mis->_miRange = 0;
-		mis->_miHitFlag = FALSE;
+		hit = 2;
 	}
-	if (mis->_miRange == 0) {
+
+	if (hit == 0)
+		return FALSE;
+
+	if (!nodel) {
+		mis->_miRange = 0;
 		mds = &missiledata[mis->_miType];
 		if (mds->miSFX != -1)
 			PlaySfxLoc(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
 	}
+	return hit == 1;
 }
 
 void SetMissAnim(int mi, int animtype)
@@ -3954,8 +3922,7 @@ void MI_Lightball(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	range = mis->_miRange;
-	CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miHitFlag)
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = range;
 	oi = dObject[tx][ty];
 	if (oi != 0 && tx == mis->_mix && ty == mis->_miy) {
@@ -4182,8 +4149,7 @@ void MI_LightWall(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miHitFlag)
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = range;
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
@@ -4719,10 +4685,10 @@ void MI_Lightning(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miHitFlag)
-		mis->_miRange = range;
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
+			mis->_miRange = range;
+	}
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
@@ -4958,8 +4924,7 @@ void MI_Firemove(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	range = mis->_miRange;
-	CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miHitFlag)
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -5238,10 +5203,10 @@ void MI_Boom(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miVar1 == 0)
-		CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, TRUE);
-	if (mis->_miHitFlag)
-		mis->_miVar1 = 1;
+	if (mis->_miVar1 == 0) {
+		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, TRUE))
+			mis->_miVar1 = 1;
+	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
 	PutMissile(mi);
@@ -5538,8 +5503,7 @@ void MI_Flame(int mi)
 	mis->_miRange--;
 	mis->_miVar2--;
 	k = mis->_miRange;
-	CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miRange == 0 && mis->_miHitFlag)
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = k;
 	if (mis->_miVar2 == 0)
 		mis->_miAnimFrame = 20;
@@ -5613,8 +5577,7 @@ void MI_Cbolt(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE);
-		if (mis->_miHitFlag) {
+		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE)) {
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
 			mis->_mixoff = 0;

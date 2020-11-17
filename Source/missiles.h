@@ -22,7 +22,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd);
 int GetSpellLevel(int pnum, int sn);
 void DeleteMissile(int mi, int idx);
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift);
-BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift, int earflag);
+BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift);
 void SetMissAnim(int mi, int animtype);
 void SetMissDir(int mi, int dir);
 void LoadMissileGFX(BYTE midx);
