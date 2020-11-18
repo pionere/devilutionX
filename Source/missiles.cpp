@@ -3828,7 +3828,7 @@ void MI_Firebolt(int mi)
 {
 	MissileStruct *mis;
 	int omx, omy;
-	int dam, mpnum;
+	int mpnum, mindam, maxdam;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -3837,25 +3837,28 @@ void MI_Firebolt(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	mpnum = mis->_miSource;
-	if (mpnum != -1) {
-		if (mis->_miCaster == 0) {
-			switch (mis->_miType) {
-			case MIS_FIREBOLT:
-				dam = random_(75, 10) + (plr[mpnum]._pMagic >> 3) + mis->_miSpllvl + 1;
-				break;
-			case MIS_FLARE:
-				dam = 3 * mis->_miSpllvl - (plr[mpnum]._pMagic >> 3) + (plr[mpnum]._pMagic >> 1);
-				break;
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		mpnum = mis->_miSource;
+		if (mpnum != -1) {
+			if (mis->_miCaster == 0) {
+				switch (mis->_miType) {
+				case MIS_FIREBOLT:
+					mindam = (plr[mpnum]._pMagic >> 3) + mis->_miSpllvl + 1;
+					maxdam = mindam + 9;
+					break;
+				case MIS_FLARE:
+					mindam = maxdam = 3 * mis->_miSpllvl - (plr[mpnum]._pMagic >> 3) + (plr[mpnum]._pMagic >> 1);
+					break;
+				}
+			} else {
+				mindam = monster[mpnum].mMinDamage;
+				maxdam = monster[mpnum].mMaxDamage;
 			}
 		} else {
-			dam = monster[mpnum].mMinDamage + random_(77, monster[mpnum].mMaxDamage - monster[mpnum].mMinDamage + 1);
+			mindam = currlevel;
+			maxdam = mindam + 2 * currlevel - 1;
 		}
-	} else {
-		dam = currlevel + random_(78, 2 * currlevel);
-	}
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, dam, dam, FALSE, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mindam, maxdam, FALSE, mis->_mix, mis->_miy, FALSE);
 	}
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
