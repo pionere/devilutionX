@@ -2017,6 +2017,11 @@ void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 /**
  * Var1: mx position of the missile
  * Var2: my position of the missile
+ * Var3: min damage of the physical arrow
+ * Var4: max damage of the physical arrow
+ * Var5: min damage of the elemental hit
+ * Var6: max damage of the elemental hit
+ * Var7: the mitype of the elemental hit
  */
 void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -2062,10 +2067,39 @@ void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 5);
 	mis->_miRange = 256;
+	if (misource != -1) {
+		if (micaster == 0) {
+			p = &plr[misource];
+			mis->_miVar3 = p->_pIMinDam;
+			mis->_miVar4 = p->_pIMaxDam;
+			if (mis->_miType == MIS_LARROW) {
+				mis->_miVar5 = p->_pILMinDam;
+				mis->_miVar6 = p->_pILMaxDam;
+			} else { // mis->_miType == MIS_FARROW
+				mis->_miVar5 = p->_pIFMinDam;
+				mis->_miVar6 = p->_pIFMaxDam;
+			}
+		} else {
+			mis->_miVar3 = monster[misource].mMinDamage;
+			mis->_miVar4 = monster[misource].mMaxDamage;
+			// BUGFIX: use mMin/MaxDamage(2) of monsters?
+			mis->_miVar5 = 1 + currlevel;
+			mis->_miVar6 = 10 + currlevel * 2;
+		}
+	} else {
+		mis->_miVar3 = mis->_miVar5 = 1 + currlevel;
+		mis->_miVar4 = mis->_miVar6 = 10 + currlevel * 2;
+	}
+	mis->_miVar7 = mis->_miType == MIS_LARROW ? MFILE_MINILTNG : MFILE_MAGBLOS;
 }
 
+/**
+ * Var1: min damage of the arrow
+ * Var2: max damage of the arrow
+ */
 void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	MissileStruct *mis;
 	PlayerStruct *p;
 	int av = 32, flags;
 
@@ -2101,8 +2135,21 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 #endif
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
-	missile[mi]._miAnimFrame = GetDirection16(sx, sy, dx, dy) + 1;
-	missile[mi]._miRange = 256;
+	mis = &missile[mi];
+	mis->_miAnimFrame = GetDirection16(sx, sy, dx, dy) + 1;
+	mis->_miRange = 256;
+	if (misource != -1) {
+		if (micaster == 0) {
+			mis->_miVar1 = plr[misource]._pIMinDam;
+			mis->_miVar2 = plr[misource]._pIMaxDam;
+		} else {
+			mis->_miVar1 = monster[misource].mMinDamage;
+			mis->_miVar2 = monster[misource].mMaxDamage;
+		}
+	} else {
+		mis->_miVar1 = currlevel;
+		mis->_miVar2 = 2 * currlevel;
+	}
 }
 
 void GetVileMissPos(MissileStruct *mis, int dx, int dy)
@@ -3718,50 +3765,23 @@ void MI_SetManashield(int mi)
 void MI_LArrow(int mi)
 {
 	MissileStruct *mis;
-	int mpnum, mind, maxd, rst;
+	int rst;
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	mpnum = mis->_miSource;
-	if (mis->_miAnimType == MFILE_MINILTNG || mis->_miAnimType == MFILE_MAGBLOS) {
+	if (mis->_miAnimType == mis->_miVar7) {
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame + 5);
-		if (mis->_miCaster == 0) {
-			if (mis->_miType == MIS_LARROW) {
-				mind = plr[mpnum]._pILMinDam;
-				maxd = plr[mpnum]._pILMaxDam;
-			} else { // mis->_miType == MIS_FARROW
-				mind = plr[mpnum]._pIFMinDam;
-				maxd = plr[mpnum]._pIFMaxDam;
-			}
-		} else {
-			// BUGFIX: use mMin/MaxDamage(2) of monsters?
-			mind = 1 + currlevel;
-			maxd = 10 + currlevel * 2;
-		}
-		CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, TRUE);
+		CheckMissileCol(mi, mis->_miVar5, mis->_miVar6, FALSE, mis->_mix, mis->_miy, TRUE);
 	} else {
 		mis->_miDist++;
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 
-		if (mpnum != -1) {
-			if (mis->_miCaster == 0) {
-				mind = plr[mpnum]._pIMinDam;
-				maxd = plr[mpnum]._pIMaxDam;
-			} else {
-				mind = monster[mpnum].mMinDamage;
-				maxd = monster[mpnum].mMaxDamage;
-			}
-		} else {
-			mind = 1 + currlevel;
-			maxd = 10 + currlevel * 2;
-		}
-
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
 			rst = missiledata[mis->_miType].mResist;
 			missiledata[mis->_miType].mResist = 0;
-			CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, FALSE);
+			CheckMissileCol(mi, mis->_miVar3, mis->_miVar4, FALSE, mis->_mix, mis->_miy, FALSE);
 			missiledata[mis->_miType].mResist = rst;
 		}
 		if (mis->_miRange == 0) {
@@ -3769,7 +3789,7 @@ void MI_LArrow(int mi)
 			mis->_mitxoff -= mis->_mixvel;
 			mis->_mityoff -= mis->_miyvel;
 			GetMissilePos(mi);
-			SetMissAnim(mi, mis->_miType == MIS_LARROW ? MFILE_MINILTNG : MFILE_MAGBLOS);
+			SetMissAnim(mi, mis->_miVar7);
 			mis->_miRange = mis->_miAnimLen - 1;
 		} else {
 			if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
@@ -3789,7 +3809,6 @@ void MI_LArrow(int mi)
 void MI_Arrow(int mi)
 {
 	MissileStruct *mis;
-	int mpnum, mind, maxd;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -3798,20 +3817,7 @@ void MI_Arrow(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		mpnum = mis->_miSource;
-		if (mpnum != -1) {
-			if (mis->_miCaster == 0) {
-				mind = plr[mpnum]._pIMinDam;
-				maxd = plr[mpnum]._pIMaxDam;
-			} else {
-				mind = monster[mpnum].mMinDamage;
-				maxd = monster[mpnum].mMaxDamage;
-			}
-		} else {
-			mind = currlevel;
-			maxd = 2 * currlevel;
-		}
-		CheckMissileCol(mi, mind, maxd, FALSE, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mis->_miVar1, mis->_miVar2, FALSE, mis->_mix, mis->_miy, FALSE);
 	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
