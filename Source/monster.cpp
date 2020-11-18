@@ -5178,19 +5178,23 @@ BOOL CheckNoSolid(int x, int y)
 	return !nSolidTable[dPiece[x][y]];
 }
 
+/**
+ * Walks from (x1; y1) to (x2; y2) and calls the Clear check for 
+ * every position inbetween.
+ * The target and source positions are NOT checked.
+ * @returns TRUE if the Clear checks succeeded.
+ */
 BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
 {
-	int xorg, yorg;
 	int dx, dy;
-	int d;
-	int xincD, yincD, dincD, dincH;
-	int tmp;
+	int tmp, d, xyinc;
 
-	xorg = x1;
-	yorg = y1;
 	dx = x2 - x1;
 	dy = y2 - y1;
-	if (abs(dx) > abs(dy)) {
+	if (abs(dx) >= abs(dy)) {
+		if (dx == 0)
+			return TRUE;
+		// alway proceed from lower to higher x
 		if (dx < 0) {
 			tmp = x1;
 			x1 = x2;
@@ -5201,28 +5205,26 @@ BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			dx = -dx;
 			dy = -dy;
 		}
-		if (dy > 0) {
-			d = 2 * dy - dx;
-			dincH = 2 * (dy - dx);
-			dincD = 2 * dy;
-			yincD = 1;
+		// find out step size and direction on the y coordinate
+		if (dy >= 0) {
+			xyinc = 1;
 		} else {
-			d = 2 * dy + dx;
-			dincH = 2 * (dx + dy);
-			dincD = 2 * dy;
-			yincD = -1;
+			dy = -dy;
+			xyinc = -1;
 		}
-		while (x1 != x2 || y1 != y2) {
-			if ((d <= 0) ^ (yincD < 0)) {
-				d += dincD;
-			} else {
-				d += dincH;
-				y1 += yincD;
+		// multiply by 2 so we round up
+		dy *= 2;
+		d = 0;
+		do {
+			d += dy;
+			if (d >= dx) {
+				d -= 2 * dx; // multiply by 2 to support rounding
+				y1 += xyinc;
 			}
 			x1++;
-			if ((x1 != xorg || y1 != yorg) && !Clear(x1, y1))
-				break;
-		}
+			if (x1 == x2 && y1 == y2)
+				return TRUE;
+		} while (Clear(x1, y1));
 	} else {
 		if (dy < 0) {
 			tmp = y1;
@@ -5234,30 +5236,26 @@ BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			dy = -dy;
 			dx = -dx;
 		}
-		if (dx > 0) {
-			d = 2 * dx - dy;
-			dincH = 2 * (dx - dy);
-			dincD = 2 * dx;
-			xincD = 1;
+		if (dx >= 0) {
+			xyinc = 1;
 		} else {
-			d = 2 * dx + dy;
-			dincH = 2 * (dy + dx);
-			dincD = 2 * dx;
-			xincD = -1;
+			dx = -dx;
+			xyinc = -1;
 		}
-		while (y1 != y2 || x1 != x2) {
-			if ((d <= 0) ^ (xincD < 0)) {
-				d += dincD;
-			} else {
-				d += dincH;
-				x1 += xincD;
+		dx *= 2;
+		d = 0;
+		do {
+			d += dx;
+			if (d >= dy) {
+				d -= 2 * dy;
+				x1 += xyinc;
 			}
 			y1++;
-			if ((y1 != yorg || x1 != xorg) && !Clear(x1, y1))
-				break;
-		}
+			if (x1 == x2 && y1 == y2)
+				return TRUE;
+		} while (Clear(x1, y1));
 	}
-	return x1 == x2 && y1 == y2;
+	return FALSE;
 }
 
 BOOL LineClear(int x1, int y1, int x2, int y2)
@@ -5265,19 +5263,20 @@ BOOL LineClear(int x1, int y1, int x2, int y2)
 	return LineClearF(PosOkMissile, x1, y1, x2, y2);
 }
 
-BOOL LineClearF1(BOOL (*Clear)(int, int, int), int monst, int x1, int y1, int x2, int y2)
+/**
+ * Same as LineClearF, only with a different Clear function.
+ */
+BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2)
 {
-	int xorg, yorg;
 	int dx, dy;
-	int d;
-	int xincD, yincD, dincD, dincH;
-	int tmp;
+	int tmp, d, xyinc;
 
-	xorg = x1;
-	yorg = y1;
 	dx = x2 - x1;
 	dy = y2 - y1;
-	if (abs(dx) > abs(dy)) {
+	if (abs(dx) >= abs(dy)) {
+		if (dx == 0)
+			return TRUE;
+		// alway proceed from lower to higher x
 		if (dx < 0) {
 			tmp = x1;
 			x1 = x2;
@@ -5288,28 +5287,26 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int monst, int x1, int y1, int x2
 			dx = -dx;
 			dy = -dy;
 		}
-		if (dy > 0) {
-			d = 2 * dy - dx;
-			dincH = 2 * (dy - dx);
-			dincD = 2 * dy;
-			yincD = 1;
+		// find out step size and direction on the y coordinate
+		if (dy >= 0) {
+			xyinc = 1;
 		} else {
-			d = 2 * dy + dx;
-			dincH = 2 * (dx + dy);
-			dincD = 2 * dy;
-			yincD = -1;
+			dy = -dy;
+			xyinc = -1;
 		}
-		while (x1 != x2 || y1 != y2) {
-			if ((d <= 0) ^ (yincD < 0)) {
-				d += dincD;
-			} else {
-				d += dincH;
-				y1 += yincD;
+		// multiply by 2 so we round up
+		dy *= 2;
+		d = 0;
+		do {
+			d += dy;
+			if (d >= dx) {
+				d -= 2 * dx; // multiply by 2 to support rounding
+				y1 += xyinc;
 			}
 			x1++;
-			if ((x1 != xorg || y1 != yorg) && !Clear(monst, x1, y1))
-				break;
-		}
+			if (x1 == x2 && y1 == y2)
+				return TRUE;
+		} while (Clear(mnum, x1, y1));
 	} else {
 		if (dy < 0) {
 			tmp = y1;
@@ -5321,30 +5318,26 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int monst, int x1, int y1, int x2
 			dy = -dy;
 			dx = -dx;
 		}
-		if (dx > 0) {
-			d = 2 * dx - dy;
-			dincH = 2 * (dx - dy);
-			dincD = 2 * dx;
-			xincD = 1;
+		if (dx >= 0) {
+			xyinc = 1;
 		} else {
-			d = 2 * dx + dy;
-			dincH = 2 * (dy + dx);
-			dincD = 2 * dx;
-			xincD = -1;
+			dx = -dx;
+			xyinc = -1;
 		}
-		while (y1 != y2 || x1 != x2) {
-			if ((d <= 0) ^ (xincD < 0)) {
-				d += dincD;
-			} else {
-				d += dincH;
-				x1 += xincD;
+		dx *= 2;
+		d = 0;
+		do {
+			d += dx;
+			if (d >= dy) {
+				d -= 2 * dy;
+				x1 += xyinc;
 			}
 			y1++;
-			if ((y1 != yorg || x1 != xorg) && !Clear(monst, x1, y1))
-				break;
-		}
+			if (x1 == x2 && y1 == y2)
+				return TRUE;
+		} while (Clear(mnum, x1, y1));
 	}
-	return x1 == x2 && y1 == y2;
+	return FALSE;
 }
 
 void SyncMonsterAnim(int mnum)
