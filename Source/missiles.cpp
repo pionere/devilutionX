@@ -4278,46 +4278,32 @@ void MI_LightArrow(int mi)
 	dam = mis->_miDam;
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
-			if (mis->_miSource != -1) {
-				if (mis->_miCaster == 1
-				    && monster[mis->_miSource].MType->mtype >= MT_STORM
-				    && monster[mis->_miSource].MType->mtype <= MT_MAEL) {
-					AddMissile(
-					    mx,
-					    my,
-					    mis->_misx,
-					    mis->_misy,
-					    mi,
-					    MIS_LIGHTNING2,
-					    mis->_miCaster,
-					    mis->_miSource,
-					    dam,
-					    mis->_miSpllvl);
-				} else {
-					AddMissile(
-					    mx,
-					    my,
-					    mis->_misx,
-					    mis->_misy,
-					    mi,
-					    MIS_LIGHTNING,
-					    mis->_miCaster,
-					    mis->_miSource,
-					    dam,
-					    mis->_miSpllvl);
-				}
+			if (mis->_miCaster == 1 && mis->_miSource != -1
+			 && monster[mis->_miSource].MType->mtype >= MT_STORM
+			 && monster[mis->_miSource].MType->mtype <= MT_MAEL) {
+				AddMissile(
+					mx,
+					my,
+					mis->_misx,
+					mis->_misy,
+					mi,
+					MIS_LIGHTNING2,
+					mis->_miCaster,
+					mis->_miSource,
+					dam,
+					mis->_miSpllvl);
 			} else {
 				AddMissile(
-				    mx,
-				    my,
-				    mis->_misx,
-				    mis->_misy,
-				    mi,
-				    MIS_LIGHTNING,
-				    mis->_miCaster,
-				    mis->_miSource,
-				    dam,
-				    mis->_miSpllvl);
+					mx,
+					my,
+					mis->_misx,
+					mis->_misy,
+					mi,
+					MIS_LIGHTNING,
+					mis->_miCaster,
+					mis->_miSource,
+					dam,
+					mis->_miSpllvl);
 			}
 			mis->_miVar1 = mis->_mix;
 			mis->_miVar2 = mis->_miy;
@@ -4500,23 +4486,23 @@ void MI_LightningWall(int mi)
 			lvl = 0;
 		dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2);
 		if (!mis->_miVar8) {
-			tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
-			ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
-			if (!nMissileTable[dPiece[mis->_miVar1][mis->_miVar2]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
-				mis->_miVar1 = tx;
-				mis->_miVar2 = ty;
+			tx = mis->_miVar1;
+			ty = mis->_miVar2;
+			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
+				AddMissile(tx, ty, tx, ty, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
+				mis->_miVar1 += XDirAdd[mis->_miVar3];
+				mis->_miVar2 += YDirAdd[mis->_miVar3];
 			} else {
 				mis->_miVar8 = TRUE;
 			}
 		}
 		if (!mis->_miVar7) {
-			tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
-			ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
-			if (!nMissileTable[dPiece[mis->_miVar5][mis->_miVar6]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
-				mis->_miVar5 = tx;
-				mis->_miVar6 = ty;
+			tx = mis->_miVar5;
+			ty = mis->_miVar6;
+			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
+				AddMissile(tx, ty, tx, ty, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
+				mis->_miVar5 += XDirAdd[mis->_miVar4];
+				mis->_miVar6 += YDirAdd[mis->_miVar4];
 			} else {
 				mis->_miVar7 = TRUE;
 			}
@@ -4636,7 +4622,7 @@ void MI_Lightctrl(int mi)
 	assert((DWORD)my < MAXDUNY);
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
-			if (mis->_miSource != -1 && mis->_miCaster == 1
+			if (mis->_miCaster == 1 && mis->_miSource != -1
 		     && monster[mis->_miSource].MType->mtype >= MT_STORM
 			 && monster[mis->_miSource].MType->mtype <= MT_MAEL) {
 				AddMissile(
@@ -5314,23 +5300,23 @@ void MI_FirewallC(int mi)
 		mis->_miDelFlag = TRUE;
 	} else {
 		if (!mis->_miVar8) {
-			tx = mis->_miVar1 + XDirAdd[mis->_miVar3];
-			ty = mis->_miVar2 + YDirAdd[mis->_miVar3];
-			if (!nMissileTable[dPiece[mis->_miVar1][mis->_miVar2]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				AddMissile(mis->_miVar1, mis->_miVar2, mis->_miVar1, mis->_miVar2, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
-				mis->_miVar1 = tx;
-				mis->_miVar2 = ty;
+			tx = mis->_miVar1;
+			ty = mis->_miVar2;
+			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
+				AddMissile(tx, ty, tx, ty, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
+				mis->_miVar1 += XDirAdd[mis->_miVar3];
+				mis->_miVar2 += YDirAdd[mis->_miVar3];
 			} else {
 				mis->_miVar8 = TRUE;
 			}
 		}
 		if (!mis->_miVar7) {
-			tx = mis->_miVar5 + XDirAdd[mis->_miVar4];
-			ty = mis->_miVar6 + YDirAdd[mis->_miVar4];
-			if (!nMissileTable[dPiece[mis->_miVar5][mis->_miVar6]] && tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				AddMissile(mis->_miVar5, mis->_miVar6, mis->_miVar5, mis->_miVar6, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
-				mis->_miVar5 = tx;
-				mis->_miVar6 = ty;
+			tx = mis->_miVar5;
+			ty = mis->_miVar6;
+			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
+				AddMissile(tx, ty, tx, ty, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
+				mis->_miVar5 += XDirAdd[mis->_miVar4];
+				mis->_miVar6 += YDirAdd[mis->_miVar4];
 			} else {
 				mis->_miVar7 = TRUE;
 			}
