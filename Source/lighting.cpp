@@ -704,6 +704,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	BOOL nBlockerFlag;
 	int nCrawlX, nCrawlY, nLineLen, nTrans;
 	int j, k, v, x1adj, x2adj, y1adj, y2adj;
+	const char visFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
 	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
 		if (doautomap) {
@@ -712,10 +713,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 				SetAutomapView(nXPos, nXPos);
 			}
 		}
-		if (visible) {
-			dFlags[nXPos][nYPos] |= BFLAG_LIT;
-		}
-		dFlags[nXPos][nYPos] |= BFLAG_VISIBLE;
+		dFlags[nXPos][nYPos] |= visFlags;
 	}
 
 	for (v = 0; v < 4; v++) {
@@ -723,44 +721,41 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 			nBlockerFlag = FALSE;
 			nLineLen = 2 * (nRadius - RadiusAdj[j]);
 			for (k = 0; k < nLineLen && !nBlockerFlag; k += 2) {
-				x1adj = 0;
-				x2adj = 0;
-				y1adj = 0;
-				y2adj = 0;
+				x1adj = x2adj = y1adj = y2adj = 0;
+				nCrawlX = vCrawlTable[j][k];
+				nCrawlY = vCrawlTable[j][k + 1];
 				switch (v) {
 				case 0:
-					nCrawlX = nXPos + vCrawlTable[j][k];
-					nCrawlY = nYPos + vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						x1adj = -1;
 						y2adj = -1;
 					}
 					break;
 				case 1:
-					nCrawlX = nXPos - vCrawlTable[j][k];
-					nCrawlY = nYPos - vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						y1adj = 1;
 						x2adj = 1;
 					}
+					nCrawlX = -nCrawlX;
+					nCrawlY = -nCrawlY;
 					break;
 				case 2:
-					nCrawlX = nXPos + vCrawlTable[j][k];
-					nCrawlY = nYPos - vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						x1adj = -1;
 						y2adj = 1;
 					}
+					nCrawlY = -nCrawlY;
 					break;
-				case 3:
-					nCrawlX = nXPos - vCrawlTable[j][k];
-					nCrawlY = nYPos + vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+				default:
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						y1adj = -1;
 						x2adj = 1;
 					}
+					nCrawlX = -nCrawlX;
 					break;
 				}
+				nCrawlX += nXPos;
+				nCrawlY += nYPos;
 				if (IN_DUNGEON_AREA(nCrawlX, nCrawlY)) {
 					nBlockerFlag = nBlockTable[dPiece[nCrawlX][nCrawlY]];
 					if ((IN_DUNGEON_AREA(x1adj + nCrawlX, y1adj + nCrawlY)
@@ -773,10 +768,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 								SetAutomapView(nCrawlX, nCrawlY);
 							}
 						}
-						if (visible) {
-							dFlags[nCrawlX][nCrawlY] |= BFLAG_LIT;
-						}
-						dFlags[nCrawlX][nCrawlY] |= BFLAG_VISIBLE;
+						dFlags[nCrawlX][nCrawlY] |= visFlags;
 						if (!nBlockerFlag) {
 							nTrans = dTransVal[nCrawlX][nCrawlY];
 							if (nTrans != 0) {
