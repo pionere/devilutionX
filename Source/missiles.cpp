@@ -1919,9 +1919,6 @@ void AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 	mis->_miRange = 7;
 }
 
-/**
- * Var1: misource
- */
 void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int lvl, i, range;
@@ -2493,11 +2490,13 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	PlayerStruct *p;
 
 	mis = &missile[mi];
 	mis->_miVar1 = 0;
-	mis->_miVar2 = plr[mis->_miSource]._pIFMinDam;
-	mis->_miVar3 = plr[mis->_miSource]._pIFMaxDam;
+	p = &plr[misource];
+	mis->_miVar2 = p->_pIFMinDam;
+	mis->_miVar3 = p->_pIFMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 }
@@ -2510,11 +2509,13 @@ void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 void AddWeapLexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	PlayerStruct *p;
 
 	mis = &missile[mi];
 	mis->_miVar1 = 0;
-	mis->_miVar2 = plr[mis->_miSource]._pILMinDam;
-	mis->_miVar3 = plr[mis->_miSource]._pILMaxDam;
+	p = &plr[misource];
+	mis->_miVar2 = p->_pILMinDam;
+	mis->_miVar3 = p->_pILMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 }
@@ -2859,7 +2860,7 @@ void miss_null_32(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miAnimWidth = mon->MType->width;
 	mis->_miAnimWidth2 = mon->MType->width2;
 	mis->_miAnimAdd = 1;
-	mis->_miVar1 = 0;
+	mis->_miVar1 = FALSE;
 	mis->_miVar2 = 0;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0)
@@ -2958,10 +2959,13 @@ void miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	MonsterStruct *mon;
 
 	mis = &missile[mi];
+	mon = &monster[misource];
+	mis->_miDam = (mon->MData->mLevel >= 2) + 1;
+	mis->_miRange = 40 * (mon->_mint + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
-	mis->_miRange = random_(50, 15) + 40 * (monster[misource]._mint + 1);
 	mis->_miPreFlag = TRUE;
 }
 
@@ -3103,7 +3107,7 @@ void AddBoom(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_misx = dx;
 	mis->_misy = dy;
 	mis->_miRange = mis->_miAnimLen;
-	mis->_miVar1 = 0;
+	mis->_miVar1 = FALSE;
 }
 
 void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -3319,7 +3323,7 @@ void AddNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 #ifdef HELLFIRE
 /**
- * Var1: misource
+ * Var1: length of the effect
  * Var2: hp penalty
  */
 void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -3336,12 +3340,11 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
 		UseMana(misource, SPL_BLODBOIL);
-		mis->_miVar1 = misource;
 		lvl = p->_pLevel;
 		mis->_miVar2 = (3 * lvl) << 7;
 		if (misource <= 0)
 			lvl = 1;
-		mis->_miRange = lvl + 10 * spllvl + 245;
+		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
 		force_redraw = 255;
 	}
@@ -3951,14 +3954,11 @@ void mi_null_33(int mi)
 void MI_Acidpud(int mi)
 {
 	MissileStruct *mis;
-	int range;
 
 	mis = &missile[mi];
+	CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, TRUE);
 	mis->_miRange--;
-	range = mis->_miRange;
-	CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE);
-	mis->_miRange = range;
-	if (range == 0) {
+	if (mis->_miRange == 0) {
 		if (mis->_miDir != 0) {
 			mis->_miDelFlag = TRUE;
 		} else {
@@ -4478,7 +4478,7 @@ void MI_Search(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		PlaySfxLoc(IS_CAST7, plr[mis->_miVar1]._px, plr[mis->_miVar1]._py);
+		PlaySfxLoc(IS_CAST7, plr[mis->_miSource]._px, plr[mis->_miSource]._py);
 		AutoMapShowItems = FALSE;
 	}
 }
@@ -5122,7 +5122,7 @@ void MI_Acidsplat(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, (monster[mis->_miSource].MData->mLevel >= 2) + 1, mis->_miSpllvl);
+		AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 0, mis->_miSpllvl);
 	} else {
 		PutMissile(mi);
 	}
@@ -5201,9 +5201,9 @@ void MI_Boom(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miVar1 == 0) {
+	if (!mis->_miVar1) {
 		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, TRUE))
-			mis->_miVar1 = 1;
+			mis->_miVar1 = TRUE;
 	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
@@ -5281,7 +5281,7 @@ void mi_null_32(int mi)
 		cx = monster[enemy]._mx;
 		cy = monster[enemy]._my;
 	}
-	if ((bx != ax || by != ay) && (mis->_miVar1 & 1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4) || mis->_miVar2 > 1) && PosOkMonst(mnum, ax, ay)) {
+	if ((bx != ax || by != ay) && (mis->_miVar1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4) || mis->_miVar2 > 1) && PosOkMonst(mnum, ax, ay)) {
 		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
 	} else if (!(monster[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
@@ -5289,14 +5289,14 @@ void mi_null_32(int mi)
 	} else {
 		j = dMonster[bx][by];
 	}
-	if (!PosOkMissile(bx, by) || j > 0 && !(mis->_miVar1 & 1)) {
+	if (!PosOkMissile(bx, by) || j > 0 && !mis->_miVar1) {
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = opposite[mis->_miDir];
 		mis->_miAnimData = monster[mnum].MType->Anims[MA_WALK].Data[mis->_miDir];
 		mis->_miVar2++;
 		if (j > 0)
-			mis->_miVar1 |= 1;
+			mis->_miVar1 = TRUE;
 	}
 	MoveMissilePos(mi);
 	PutMissile(mi);
@@ -5456,22 +5456,18 @@ void MI_Bloodboil(int mi)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int lvl, pnum, hpdif;
+	int pnum, hpdif;
 
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
-		pnum = mis->_miVar1;
+		pnum = mis->_miSource;
 		p = &plr[pnum];
 		hpdif = p->_pMaxHP - p->_pHitPoints;
 		if (p->_pSpellFlags & PSE_BLOOD_BOIL) {
 			p->_pSpellFlags &= ~PSE_BLOOD_BOIL;
 			p->_pSpellFlags |= PSE_LETHARGY;
-			if (pnum > 0)
-				lvl = p->_pLevel;
-			else
-				lvl = 1;
-			mis->_miRange = lvl + 10 * mis->_miSpllvl + 245;
+			mis->_miRange = mis->_miVar1;
 		} else {
 			mis->_miDelFlag = TRUE;
 			p->_pSpellFlags &= ~PSE_LETHARGY;
