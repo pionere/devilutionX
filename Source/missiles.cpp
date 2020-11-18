@@ -3832,95 +3832,76 @@ void MI_Firebolt(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miType != MIS_BONESPIRIT || mis->_miDir != 8) {
-		omx = mis->_mitxoff;
-		omy = mis->_mityoff;
-		mis->_mitxoff += mis->_mixvel;
-		mis->_mityoff += mis->_miyvel;
-		GetMissilePos(mi);
-		mpnum = mis->_miSource;
-		if (mpnum != -1) {
-			if (mis->_miCaster == 0) {
-				switch (mis->_miType) {
-				case MIS_FIREBOLT:
-					dam = random_(75, 10) + (plr[mpnum]._pMagic >> 3) + mis->_miSpllvl + 1;
-					break;
-				case MIS_FLARE:
-					dam = 3 * mis->_miSpllvl - (plr[mpnum]._pMagic >> 3) + (plr[mpnum]._pMagic >> 1);
-					break;
-				case MIS_BONESPIRIT:
-					dam = 0;
-					break;
-				}
-			} else {
-				dam = monster[mpnum].mMinDamage + random_(77, monster[mpnum].mMaxDamage - monster[mpnum].mMinDamage + 1);
-			}
-		} else {
-			dam = currlevel + random_(78, 2 * currlevel);
-		}
-		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-			CheckMissileCol(mi, dam, dam, FALSE, mis->_mix, mis->_miy, FALSE);
-		}
-		if (mis->_miRange == 0) {
-			mis->_miDelFlag = TRUE;
-			mis->_mitxoff = omx;
-			mis->_mityoff = omy;
-			GetMissilePos(mi);
+	omx = mis->_mitxoff;
+	omy = mis->_mityoff;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	mpnum = mis->_miSource;
+	if (mpnum != -1) {
+		if (mis->_miCaster == 0) {
 			switch (mis->_miType) {
 			case MIS_FIREBOLT:
-			case MIS_MAGMABALL:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP, mis->_miCaster, mis->_miSource, 0, 0);
+				dam = random_(75, 10) + (plr[mpnum]._pMagic >> 3) + mis->_miSpllvl + 1;
 				break;
 			case MIS_FLARE:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP2, mis->_miCaster, mis->_miSource, 0, 0);
+				dam = 3 * mis->_miSpllvl - (plr[mpnum]._pMagic >> 3) + (plr[mpnum]._pMagic >> 1);
 				break;
-			case MIS_ACID:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP3, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-			case MIS_BONESPIRIT:
-				SetMissDir(mi, 8);
-				mis->_miRange = 7;
-				mis->_miDelFlag = FALSE;
-				PutMissile(mi);
-				return;
-#ifdef HELLFIRE
-			case MIS_LICH:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXORA1, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-			case MIS_PSYCHORB:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXBL2, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-			case MIS_NECROMORB:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXRED3, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-			case MIS_ARCHLICH:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXYEL2, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-			case MIS_BONEDEMON:
-				AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXBL3, mis->_miCaster, mis->_miSource, 0, 0);
-				break;
-#endif
 			}
-			if (mis->_miLid >= 0)
-				AddUnLight(mis->_miLid);
-			PutMissile(mi);
 		} else {
-			if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
-				mis->_miVar1 = mis->_mix;
-				mis->_miVar2 = mis->_miy;
-				if (mis->_miLid >= 0)
-					ChangeLight(mis->_miLid, mis->_miVar1, mis->_miVar2, 8);
-			}
-			PutMissile(mi);
+			dam = monster[mpnum].mMinDamage + random_(77, monster[mpnum].mMaxDamage - monster[mpnum].mMinDamage + 1);
 		}
-	} else if (mis->_miRange == 0) {
+	} else {
+		dam = currlevel + random_(78, 2 * currlevel);
+	}
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		CheckMissileCol(mi, dam, dam, FALSE, mis->_mix, mis->_miy, FALSE);
+	}
+	if (mis->_miRange == 0) {
+		mis->_miDelFlag = TRUE;
+		mis->_mitxoff = omx;
+		mis->_mityoff = omy;
+		GetMissilePos(mi);
+		switch (mis->_miType) {
+		case MIS_FIREBOLT:
+		case MIS_MAGMABALL:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_FLARE:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP2, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_ACID:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP3, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+#ifdef HELLFIRE
+		case MIS_LICH:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXORA1, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_PSYCHORB:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXBL2, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_NECROMORB:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXRED3, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_ARCHLICH:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXYEL2, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+		case MIS_BONEDEMON:
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXBL3, mis->_miCaster, mis->_miSource, 0, 0);
+			break;
+#endif
+		}
 		if (mis->_miLid >= 0)
 			AddUnLight(mis->_miLid);
-		mis->_miDelFlag = TRUE;
-		PlaySfxLoc(LS_BSIMPCT, mis->_mix, mis->_miy);
-		PutMissile(mi);
-	} else
-		PutMissile(mi);
+	} else {
+		if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
+			mis->_miVar1 = mis->_mix;
+			mis->_miVar2 = mis->_miy;
+			if (mis->_miLid >= 0)
+				ChangeLight(mis->_miLid, mis->_miVar1, mis->_miVar2, 8);
+		}
+	}
+	PutMissile(mi);
 }
 
 void MI_Lightball(int mi)
@@ -5739,7 +5720,7 @@ void MI_Bonespirit(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miDir == 8) {
+	if (mis->_miDir == DIR_OMNI) {
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame);
 		if (mis->_miRange == 0) {
 			mis->_miDelFlag = TRUE;
