@@ -4393,19 +4393,18 @@ void MI_Reflect(int mi)
 void MI_FireRing(int mi)
 {
 	MissileStruct *mis;
-	int src, tx, ty, dam, j, pn;
+	int src, lvl, tx, ty, dam, j, pn;
 	char *cr;
-	BYTE lvl;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-	src = mis->_miCaster;
-	cr = &CrawlTable[CrawlNum[3]];
-	if (src > 0)
+	src = mis->_miSource;
+	if (src != -1)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
 	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
+	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
 		ty = mis->_miVar2 + *++cr;
@@ -4416,7 +4415,7 @@ void MI_FireRing(int mi)
 					if (nMissileTable[pn])
 						break;
 					else
-						AddMissile(tx, ty, tx, ty, 0, MIS_FIREWALL, 2, src, dam, mis->_miSpllvl);
+						AddMissile(tx, ty, tx, ty, 0, MIS_FIREWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
 				}
 			}
 		}
@@ -4426,19 +4425,18 @@ void MI_FireRing(int mi)
 void MI_LightRing(int mi)
 {
 	MissileStruct *mis;
-	int src, tx, ty, dam, j, pn;
+	int src, lvl, tx, ty, dam, j, pn;
 	char *cr;
-	BYTE lvl;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-	src = mis->_miCaster;
-	cr = &CrawlTable[CrawlNum[3]];
-	if (src > 0)
+	src = mis->_miSource;
+	if (src != -1)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
 	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
+	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
 		ty = mis->_miVar2 + *++cr;
@@ -4449,7 +4447,7 @@ void MI_LightRing(int mi)
 					if (nMissileTable[pn])
 						break;
 					else
-						AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
+						AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
 				}
 			}
 		}
@@ -4480,16 +4478,16 @@ void MI_LightningWall(int mi)
 		mis->_miDelFlag = TRUE;
 	} else {
 		src = mis->_miSource;
-		if (src > 0)
+		if (src != -1)
 			lvl = plr[src]._pLevel;
 		else
-			lvl = 0;
+			lvl = currlevel;
 		dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2);
 		if (!mis->_miVar8) {
 			tx = mis->_miVar1;
 			ty = mis->_miVar2;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
+				AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
 				mis->_miVar1 += XDirAdd[mis->_miVar3];
 				mis->_miVar2 += YDirAdd[mis->_miVar3];
 			} else {
@@ -4500,7 +4498,7 @@ void MI_LightningWall(int mi)
 			tx = mis->_miVar5;
 			ty = mis->_miVar6;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, plr[src]._pdir, MIS_LIGHTWALL, 2, src, dam, mis->_miSpllvl);
+				AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
 				mis->_miVar5 += XDirAdd[mis->_miVar4];
 				mis->_miVar6 += YDirAdd[mis->_miVar4];
 			} else {
