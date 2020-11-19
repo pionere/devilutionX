@@ -3863,10 +3863,7 @@ void CheckPlrSpell()
 
 	if (addflag) {
 		sl = GetSpellLevel(myplr, rspell);
-		if (rspell == SPL_FIREWALL) {
-			sd = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXYD, cursmx, cursmy, rspell, sd, sl);
-		} else if (pcursmonst != -1) {
+		if (pcursmonst != -1) {
 			NetSendCmdParam3(TRUE, CMD_SPELLID, pcursmonst, rspell, sl);
 		} else if (pcursplr != -1) {
 			NetSendCmdParam3(TRUE, CMD_SPELLPID, pcursplr, rspell, sl);

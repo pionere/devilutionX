@@ -113,14 +113,7 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 	int dir; // missile direction
 
 	if (caster == 0) {
-#ifdef HELLFIRE
-		if (sn == SPL_FIREWALL || sn == SPL_LIGHTWALL)
-#else
-		if (sn == SPL_FIREWALL)
-#endif
-			dir = plr[mpnum]._pVar3;
-		else
-			dir = plr[mpnum]._pdir;
+		dir = plr[mpnum]._pdir;
 	} else {
 		dir = monster[mpnum]._mdir;
 	}

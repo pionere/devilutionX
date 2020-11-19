@@ -92,7 +92,7 @@ MissileData missiledata[] = {
 #ifdef HELLFIRE
 	{  MIS_MANA,          &AddManaRecharge,           &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_MAGI,          &AddMagiRecharge,           &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
-	{  MIS_LIGHTWALL,     &AddLightWall,              &MI_LightWall,      TRUE,      1,               MIFLAG_NOBLOCK, MISR_LIGHTNING, MFILE_LGHNING,   LS_LMAG,     LS_ELECIMP1, 1,        1        },
+	{  MIS_LIGHTWALL,     &AddLightWall,              &MI_LightWall,      TRUE,      1, MIFLAG_NOBLOCK | MIFLAG_AREA, MISR_LIGHTNING, MFILE_LGHNING,   LS_LMAG,     LS_ELECIMP1, 1,        1        },
 	{  MIS_LIGHTNINGWALL, &AddFirewallC,              &MI_LightningWall,  FALSE,     1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   -1,          -1,          1,        1        },
 	{  MIS_IMMOLATION,    &AddNova,                   &MI_FireNova,       TRUE,      1,                            0, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1        },
 	{  MIS_SPECARROW,     &AddSpecArrow,              &MI_SpecArrow,      TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    -1,          -1,          1,        1        },

@@ -3243,14 +3243,15 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 				if (LineClear(sx, sy, tx, ty)) {
 					if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+						midir = GetDirection8(sx, sy, dx, dy);
 						mis->_miVar1 = tx;
 						mis->_miVar2 = ty;
+						mis->_miVar3 = (midir - 2) & 7;
+						mis->_miVar4 = (midir + 2) & 7;
 						mis->_miVar5 = tx;
 						mis->_miVar6 = ty;
 						mis->_miVar7 = FALSE;
 						mis->_miVar8 = FALSE;
-						mis->_miVar3 = (midir - 2) & 7;
-						mis->_miVar4 = (midir + 2) & 7;
 						mis->_miRange = 7;
 						UseMana(misource, SPL_FIREWALL);
 						return;
