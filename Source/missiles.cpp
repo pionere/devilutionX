@@ -1278,7 +1278,7 @@ void InitMissiles()
 }
 
 #ifdef HELLFIRE
-void AddHiveExplosion(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	AddMissile(80, 62, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
 	AddMissile(80, 63, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
@@ -1690,7 +1690,7 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		UseMana(misource, SPL_WARP);
 }
 
-void AddLightWall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -1706,7 +1706,7 @@ void AddLightWall(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miAnimFrame = random_(63, 8) + 1;
 }
 
-void AddHivectrl(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -2280,7 +2280,7 @@ void AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miLid = AddLight(sx, sy, 8);
 }
 
-void miss_null_33(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	missile[mi]._miRange = 256;
@@ -2403,7 +2403,7 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var1: mx position of the missile
  * Var2: my position of the missile
  */
-void AddLightctrl(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2842,7 +2842,7 @@ void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var1: target found
  * Var2: attempts to find a target
  */
-void miss_null_32(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	AnimStruct *anim;
@@ -3872,13 +3872,13 @@ void MI_Firebolt(int mi)
 		switch (mis->_miType) {
 		case MIS_FIREBOLT:
 		case MIS_MAGMABALL:
-			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP, mis->_miCaster, mis->_miSource, 0, 0);
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXFIRE, mis->_miCaster, mis->_miSource, 0, 0);
 			break;
 		case MIS_FLARE:
-			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP2, mis->_miCaster, mis->_miSource, 0, 0);
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXFLARE, mis->_miCaster, mis->_miSource, 0, 0);
 			break;
 		case MIS_ACID:
-			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_MISEXP3, mis->_miCaster, mis->_miSource, 0, 0);
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXACID, mis->_miCaster, mis->_miSource, 0, 0);
 			break;
 #ifdef HELLFIRE
 		case MIS_LICH:
@@ -3937,7 +3937,7 @@ void MI_Lightball(int mi)
 	PutMissile(mi);
 }
 
-void mi_null_33(int mi)
+void MI_Krull(int mi)
 {
 	MissileStruct *mis;
 
@@ -4140,7 +4140,7 @@ void MI_Rune(int mi)
 	PutMissile(mi);
 }
 
-void MI_LightWall(int mi)
+void MI_Lightwall(int mi)
 {
 	MissileStruct *mis;
 	int range;
@@ -4155,7 +4155,7 @@ void MI_LightWall(int mi)
 	PutMissile(mi);
 }
 
-void MI_Hivectrl(int mi)
+void MI_Hiveexp(int mi)
 {
 	MissileStruct *mis;
 
@@ -4468,7 +4468,7 @@ void MI_Search(int mi)
 	}
 }
 
-void MI_LightningWall(int mi)
+void MI_LightwallC(int mi)
 {
 	MissileStruct *mis;
 	int src, lvl, dam, tx, ty;
@@ -4591,7 +4591,7 @@ void MI_SpecArrow(int mi)
 }
 #endif
 
-void MI_Lightctrl(int mi)
+void MI_LightningC(int mi)
 {
 	MissileStruct *mis;
 	int dam, mpnum, mx, my;
@@ -5010,7 +5010,7 @@ void MI_Chain(int mi)
 	sx = mis->_mix;
 	sy = mis->_miy;
 	dir = GetDirection(sx, sy, mis->_miVar1, mis->_miVar2);
-	AddMissile(sx, sy, mis->_miVar1, mis->_miVar2, dir, MIS_LIGHTCTRL, 0, src, 1, mis->_miSpllvl);
+	AddMissile(sx, sy, mis->_miVar1, mis->_miVar2, dir, MIS_LIGHTNINGC, 0, src, 1, mis->_miSpllvl);
 	rad = mis->_miSpllvl + 3;
 	if (rad > 19)
 		rad = 19;
@@ -5025,7 +5025,7 @@ void MI_Chain(int mi)
 			ty = sy + *++cr;
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY && dMonster[tx][ty] > 0) {
 				dir = GetDirection(sx, sy, tx, ty);
-				AddMissile(sx, sy, tx, ty, dir, MIS_LIGHTCTRL, 0, src, 1, mis->_miSpllvl);
+				AddMissile(sx, sy, tx, ty, dir, MIS_LIGHTNINGC, 0, src, 1, mis->_miSpllvl);
 			}
 		}
 	}
@@ -5243,7 +5243,7 @@ void MI_Rhino(int mi)
 	PutMissile(mi);
 }
 
-void mi_null_32(int mi)
+void MI_Fireman(int mi)
 {
 	MissileStruct *mis;
 	int mnum, enemy, ax, ay, bx, by, cx, cy, j;
@@ -5647,14 +5647,14 @@ void MI_Element(int mi)
 		ChangeLight(mis->_miLid, cx, cy, 8);
 	}
 	if (mis->_miRange == 0) {
-		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_ELEXP, mis->_miCaster, mis->_miSource, mis->_miDam, 0);
+		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, mis->_miCaster, mis->_miSource, mis->_miDam, 0);
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	}
 	PutMissile(mi);
 }
 
-void MI_Elexp(int mi)
+void MI_Eleexp(int mi)
 {
 	MissileStruct *mis;
 	int dam, cx, cy, px, py, pnum;

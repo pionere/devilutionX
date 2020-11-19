@@ -35,7 +35,7 @@ int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 /** Maps from walking path step to facing direction. */
 const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
 /** Maps from monster intelligence factor to missile type. */
-const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLT, MIS_LIGHTCTRL, MIS_FIREBALL };
+const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLT, MIS_LIGHTNINGC, MIS_FIREBALL };
 
 /* data */
 
@@ -4180,7 +4180,7 @@ void MAI_Magma(int mnum)
 
 void MAI_Storm(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTCTRL2, TRUE, 4, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 4, 0);
 }
 
 #ifdef HELLFIRE

@@ -1324,7 +1324,7 @@ static void AddTrap(int oi)
 	if (mt == 1)
 		os->_oVar3 = MIS_FIREBOLT;
 	if (mt == 2)
-		os->_oVar3 = MIS_LIGHTCTRL;
+		os->_oVar3 = MIS_LIGHTNINGC;
 	os->_oVar4 = 0;
 }
 
