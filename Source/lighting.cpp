@@ -661,9 +661,6 @@ static void DoUnLight(int nXPos, int nYPos, int nRadius)
 
 	for (y = min_y; y < max_y; y++) {
 		for (x = min_x; x < max_x; x++) {
-#ifndef HELLFIRE
-			if (IN_DUNGEON_AREA(x, y))
-#endif
 				dLight[x][y] = dPreLight[x][y];
 		}
 	}
@@ -963,40 +960,40 @@ void MakeLightTable()
 		*tbl++ = 0;
 	}
 
-	for (j = 0; j < 16; j++) {
-		for (i = 0; i < 128; i++) {
-			if (i > (j + 1) * 8) {
-				lightradius[j][i] = 15;
-			} else {
-				fs = (double)15 * i / ((double)8 * (j + 1));
-				lightradius[j][i] = (BYTE)(fs + 0.5);
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		for (i = 0; i < 16; i++) {
+			for (j = 128; j > 0; j--) {
+				k = 15 - ((i + 1) * (j * j)) / (128 * 128);
+				k -= i >> 1;
+				if (k < 0)
+					k = 0;
+				lightradius[i][128 - j] = k;
+			}
+		}
+	} else
+#endif
+	{
+		for (i = 0, k = 8; i < 16; i++, k += 8) {
+			for (j = 0; j < 128; j++) {
+				if (j > k) {
+					lightradius[i][j] = 15;
+				} else {
+					lightradius[i][j] = ((15 * j) + (k >> 1)) / k;
+				}
 			}
 		}
 	}
 
-#ifdef HELLFIRE
-	if (currlevel >= 17) {
-		for (j = 0; j < 16; j++) {
-			fa = (sqrt((double)(16 - j))) / 128;
-			fa *= fa;
-			for (i = 0; i < 128; i++) {
-				lightradius[15 - j][i] = 15 - (BYTE)(fa * (double)((128 - i) * (128 - i)));
-				if (lightradius[15 - j][i] > 15)
-					lightradius[15 - j][i] = 0;
-				lightradius[15 - j][i] = lightradius[15 - j][i] - (BYTE)((15 - j) / 2);
-				if (lightradius[15 - j][i] > 15)
-					lightradius[15 - j][i] = 0;
-			}
-		}
-	}
-#endif
 	for (j = 0; j < 8; j++) {
 		for (i = 0; i < 8; i++) {
 			for (k = 0; k < 16; k++) {
+				fa = (8 * k - i);
+				fa *= fa;
 				for (l = 0; l < 16; l++) {
-					fs = (BYTE)sqrt((double)(8 * l - j) * (8 * l - j) + (8 * k - i) * (8 * k - i));
-					fs += fs < 0 ? -0.5 : 0.5;
-
+					fs = (8 * l - j);
+					fs *= fs;
+					fs = sqrt(fs + fa);
 					lightblock[j * 8 + i][k][l] = fs;
 				}
 			}
