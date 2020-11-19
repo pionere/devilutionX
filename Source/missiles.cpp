@@ -4279,33 +4279,17 @@ void MI_LightArrow(int mi)
 	dam = mis->_miDam;
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
-			if (mis->_miCaster == 1 && mis->_miSource != -1
-			 && monster[mis->_miSource].MType->mtype >= MT_STORM
-			 && monster[mis->_miSource].MType->mtype <= MT_MAEL) {
-				AddMissile(
-					mx,
-					my,
-					mis->_misx,
-					mis->_misy,
-					mi,
-					MIS_LIGHTNING2,
-					mis->_miCaster,
-					mis->_miSource,
-					dam,
-					mis->_miSpllvl);
-			} else {
-				AddMissile(
-					mx,
-					my,
-					mis->_misx,
-					mis->_misy,
-					mi,
-					MIS_LIGHTNING,
-					mis->_miCaster,
-					mis->_miSource,
-					dam,
-					mis->_miSpllvl);
-			}
+			AddMissile(
+				mx,
+				my,
+				mis->_misx,
+				mis->_misy,
+				mi,
+				mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
+				mis->_miCaster,
+				mis->_miSource,
+				dam,
+				mis->_miSpllvl);
 			mis->_miVar1 = mis->_mix;
 			mis->_miVar2 = mis->_miy;
 		}
@@ -4621,33 +4605,17 @@ void MI_LightningC(int mi)
 	assert((DWORD)my < MAXDUNY);
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
-			if (mis->_miCaster == 1 && mis->_miSource != -1
-		     && monster[mis->_miSource].MType->mtype >= MT_STORM
-			 && monster[mis->_miSource].MType->mtype <= MT_MAEL) {
-				AddMissile(
-				    mx,
-				    my,
-				    mis->_misx,
-				    mis->_misy,
-				    mi,
-				    MIS_LIGHTNING2,
-				    mis->_miCaster,
-				    mis->_miSource,
-				    dam,
-				    mis->_miSpllvl);
-			} else {
-				AddMissile(
-				    mx,
-				    my,
-				    mis->_misx,
-				    mis->_misy,
-				    mi,
-				    MIS_LIGHTNING,
-				    mis->_miCaster,
-				    mis->_miSource,
-				    dam,
-				    mis->_miSpllvl);
-			}
+			AddMissile(
+			    mx,
+			    my,
+			    mis->_misx,
+			    mis->_misy,
+			    mi,
+			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
+			    mis->_miCaster,
+			    mis->_miSource,
+			    dam,
+			    mis->_miSpllvl);
 			mis->_miVar1 = mx;
 			mis->_miVar2 = my;
 		}

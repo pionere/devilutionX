@@ -104,6 +104,7 @@ void (*AiProc[])(int i) = {
 	&MAI_Succ,
 	&MAI_Sneak,
 	&MAI_Storm,
+	&MAI_Storm2,
 	&MAI_Fireman,
 	&MAI_Garbud,
 	&MAI_Acid,
@@ -4179,6 +4180,11 @@ void MAI_Magma(int mnum)
 }
 
 void MAI_Storm(int mnum)
+{
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, TRUE, 4, 0);
+}
+
+void MAI_Storm2(int mnum)
 {
 	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 4, 0);
 }

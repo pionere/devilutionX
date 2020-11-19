@@ -83,6 +83,7 @@ void MAI_Garg(int mnum);
 void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmissiles);
 void MAI_Magma(int mnum);
 void MAI_Storm(int mnum);
+void MAI_Storm2(int mnum);
 #ifdef HELLFIRE
 void mai_roundranged_441EA0(int mnum);
 #endif
