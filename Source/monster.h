@@ -62,40 +62,31 @@ void MAI_Sneak(int mnum);
 void MAI_Fireman(int mnum);
 void MAI_Fallen(int mnum);
 void MAI_Cleaver(int mnum);
-void MAI_Round(int mnum, BOOL special);
 void MAI_GoatMc(int mnum);
-void MAI_Ranged(int mnum, int mitype, BOOL special);
 void MAI_GoatBow(int mnum);
 void MAI_Succ(int mnum);
-#ifdef HELLFIRE
-void mai_ranged_441649(int mnum);
-void mai_ranged_441654(int mnum);
-void mai_ranged_44165F(int mnum);
-void mai_ranged_44166A(int mnum);
-#endif
 void MAI_AcidUniq(int mnum);
 #ifdef HELLFIRE
-void mai_ranged_441680(int mnum);
-void mai_ranged_44168B(int mnum);
+void MAI_Firebat(int mnum);
+void MAI_Torchant(int mnum);
+void MAI_Horkdemon(int mnum);
+void MAI_Lich(int mnum);
+void MAI_ArchLich(int mnum);
+void MAI_PsychOrb(int mnum);
+void MAI_NecromOrb(int mnum);
+void MAI_BoneDemon(int mnum);
 #endif
 void MAI_Scav(int mnum);
 void MAI_Garg(int mnum);
-void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmissiles);
 void MAI_Magma(int mnum);
 void MAI_Storm(int mnum);
 void MAI_Storm2(int mnum);
-#ifdef HELLFIRE
-void mai_roundranged_441EA0(int mnum);
-#endif
 void MAI_Acid(int mnum);
 void MAI_Diablo(int mnum);
 void MAI_Mega(int mnum);
 void MAI_Golum(int mnum);
 void MAI_SkelKing(int mnum);
 void MAI_Rhino(int mnum);
-#ifdef HELLFIRE
-void mai_horkdemon(int mnum);
-#endif
 void MAI_Counselor(int mnum);
 void MAI_Garbud(int mnum);
 void MAI_Zhar(int mnum);

@@ -121,14 +121,14 @@ void (*AiProc[])(int i) = {
 	&MAI_Lachdanan,
 	&MAI_Warlord,
 #ifdef HELLFIRE
-	&mai_ranged_441680,
-	&mai_ranged_44168B,
-	&mai_horkdemon,
-	&mai_ranged_441649,
-	&mai_ranged_441654,
-	&mai_ranged_44165F,
-	&mai_ranged_44166A,
-	&mai_roundranged_441EA0
+	&MAI_Firebat,
+	&MAI_Torchant,
+	&MAI_Horkdemon,
+	&MAI_Lich,
+	&MAI_ArchLich,
+	&MAI_PsychOrb,
+	&MAI_NecromOrb,
+	&MAI_BoneDemon
 #endif
 };
 
@@ -3824,7 +3824,7 @@ void MAI_Cleaver(int mnum)
 		mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[md];
 }
 
-void MAI_Round(int mnum, BOOL special)
+static void MAI_Round(int mnum, BOOL special)
 {
 	MonsterStruct *mon;
 	int fx, fy;
@@ -3889,7 +3889,7 @@ void MAI_GoatMc(int mnum)
 	MAI_Round(mnum, TRUE);
 }
 
-void MAI_Ranged(int mnum, int mitype, BOOL special)
+static void MAI_Ranged(int mnum, int mitype, BOOL special)
 {
 	int md;
 	int fx, fy, mx, my;
@@ -3949,22 +3949,22 @@ void MAI_Succ(int mnum)
 }
 
 #ifdef HELLFIRE
-void mai_ranged_441649(int mnum)
+void MAI_Lich(int mnum)
 {
 	MAI_Ranged(mnum, MIS_LICH, FALSE);
 }
 
-void mai_ranged_441654(int mnum)
+void MAI_ArchLich(int mnum)
 {
 	MAI_Ranged(mnum, MIS_ARCHLICH, FALSE);
 }
 
-void mai_ranged_44165F(int mnum)
+void MAI_PsychOrb(int mnum)
 {
 	MAI_Ranged(mnum, MIS_PSYCHORB, FALSE);
 }
 
-void mai_ranged_44166A(int mnum)
+void MAI_NecromOrb(int mnum)
 {
 	MAI_Ranged(mnum, MIS_NECROMORB, FALSE);
 }
@@ -3976,12 +3976,12 @@ void MAI_AcidUniq(int mnum)
 }
 
 #ifdef HELLFIRE
-void mai_ranged_441680(int mnum)
+void MAI_Firebat(int mnum)
 {
 	MAI_Ranged(mnum, MIS_FIREBOLT, FALSE);
 }
 
-void mai_ranged_44168B(int mnum)
+void MAI_Torchant(int mnum)
 {
 	MAI_Ranged(mnum, MIS_FIREBALL, FALSE);
 }
@@ -4113,7 +4113,7 @@ void MAI_Garg(int mnum)
 	MAI_Round(mnum, FALSE);
 }
 
-void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmissiles)
+static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmissiles)
 {
 	MonsterStruct *mon;
 	int mx, my;
@@ -4190,7 +4190,7 @@ void MAI_Storm2(int mnum)
 }
 
 #ifdef HELLFIRE
-void mai_roundranged_441EA0(int mnum)
+void MAI_BoneDemon(int mnum)
 {
 	MAI_RoundRanged(mnum, MIS_BONEDEMON, TRUE, 4, 0);
 }
@@ -4486,7 +4486,7 @@ void MAI_Rhino(int mnum)
 }
 
 #ifdef HELLFIRE
-void mai_horkdemon(int mnum)
+void MAI_Horkdemon(int mnum)
 {
 	MonsterStruct *mon;
 	int fx, fy, mx, my, md, v, dist;
