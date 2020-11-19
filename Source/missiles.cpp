@@ -1537,32 +1537,32 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 							if (random_(205, 2)) {
 								switch (pi->_iMiscId) {
 								case IMISC_FULLHEAL:
-									ii = ItemMiscIdIdx(IMISC_HEAL);
+									ii = IDI_HEAL;
 									break;
 								case IMISC_HEAL:
 								case IMISC_MANA:
 									RemoveSpdBarItem(pnum, si);
 									continue;
 								case IMISC_FULLMANA:
-									ii = ItemMiscIdIdx(IMISC_MANA);
+									ii = IDI_MANA;
 									break;
 								case IMISC_REJUV:
 									if (random_(205, 2)) {
-										ii = ItemMiscIdIdx(IMISC_MANA);
+										ii = IDI_MANA;
 									} else {
-										ii = ItemMiscIdIdx(IMISC_HEAL);
+										ii = IDI_HEAL;
 									}
 									break;
 								case IMISC_FULLREJUV:
 									switch (random_(205, 3)) {
 									case 0:
-										ii = ItemMiscIdIdx(IMISC_FULLMANA);
+										ii = IDI_FULLMANA;
 										break;
 									case 1:
-										ii = ItemMiscIdIdx(IMISC_FULLHEAL);
+										ii = IDI_FULLHEAL;
 										break;
 									default:
-										ii = ItemMiscIdIdx(IMISC_REJUV);
+										ii = IDI_REJUV;
 										break;
 									}
 									break;

@@ -41,7 +41,6 @@ void MonstCheckDoors(int m);
 void ObjChangeMap(int x1, int y1, int x2, int y2);
 void ObjChangeMapResync(int x1, int y1, int x2, int y2);
 void TryDisarm(int pnum, int oi);
-int ItemMiscIdIdx(int imiscid);
 void OperateObject(int pnum, int oi, BOOL TeleFlag);
 void SyncOpObject(int pnum, int cmd, int oi);
 void BreakObject(int pnum, int oi);

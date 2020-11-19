@@ -3242,18 +3242,6 @@ void TryDisarm(int pnum, int oi)
 	}
 }
 
-int ItemMiscIdIdx(int imiscid)
-{
-	int i;
-
-	i = 0;
-	while (AllItemsList[i].iRnd == IDROP_NEVER || AllItemsList[i].iMiscId != imiscid) {
-		i++;
-	}
-
-	return i;
-}
-
 /** Reduce the maximum mana of the given player by 10%
 */
 static void ReducePlrMana10(PlayerStruct *p)
@@ -3284,9 +3272,9 @@ static void ConvertPotion(ItemStruct *pi)
 	if (pi->_itype != ITYPE_MISC)
 		return;
 	if (pi->_iMiscId == IMISC_FULLHEAL || pi->_iMiscId == IMISC_FULLMANA) {
-		SetItemData(pi, ItemMiscIdIdx(IMISC_FULLREJUV));
+		SetItemData(pi, IDI_FULLREJUV);
 	} else if (pi->_iMiscId == IMISC_HEAL || pi->_iMiscId == IMISC_MANA) {
-		SetItemData(pi, ItemMiscIdIdx(IMISC_REJUV));
+		SetItemData(pi, IDI_REJUV);
 	} else
 		return;
 	GetItemSeed(pi);
