@@ -133,36 +133,38 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 		nthread_terminate_game("SNetSendMessage0");
 }
 
-void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
-{
-	if (pbMsg != NULL && bLen != 0) {
-		multi_copy_packet(&sgLoPriBuf, pbMsg, bLen);
-		multi_send_packet(pbMsg, bLen);
-	}
-}
-
-void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
+static void validate_package()
 {
 	BYTE *hipri_body;
 	BYTE *lowpri_body;
 	DWORD size, len;
 	TPkt pkt;
 
-	if (pbMsg != NULL && bLen != 0) {
-		multi_copy_packet(&sgHiPriBuf, pbMsg, bLen);
-		multi_send_packet(pbMsg, bLen);
-	}
+	NetRecvPlrData(&pkt);
+	size = gdwNormalMsgSize - sizeof(TPktHdr);
+	hipri_body = multi_recv_packet(&sgHiPriBuf, pkt.body, &size);
+	lowpri_body = multi_recv_packet(&sgLoPriBuf, hipri_body, &size);
+	size = sync_all_monsters(lowpri_body, size);
+	len = gdwNormalMsgSize - size;
+	pkt.hdr.wLen = len;
+	if (!SNetSendMessage(-2, &pkt.hdr, len))
+		nthread_terminate_game("SNetSendMessage");
+}
+
+void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
+{
+	multi_copy_packet(&sgLoPriBuf, pbMsg, bLen);
+	multi_send_packet(pbMsg, bLen);
+}
+
+void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
+{
+	multi_copy_packet(&sgHiPriBuf, pbMsg, bLen);
+	multi_send_packet(pbMsg, bLen);
+
 	if (!gbShouldValidatePackage) {
 		gbShouldValidatePackage = TRUE;
-		NetRecvPlrData(&pkt);
-		size = gdwNormalMsgSize - sizeof(TPktHdr);
-		hipri_body = multi_recv_packet(&sgHiPriBuf, pkt.body, &size);
-		lowpri_body = multi_recv_packet(&sgLoPriBuf, hipri_body, &size);
-		size = sync_all_monsters(lowpri_body, size);
-		len = gdwNormalMsgSize - size;
-		pkt.hdr.wLen = len;
-		if (!SNetSendMessage(-2, &pkt.hdr, len))
-			nthread_terminate_game("SNetSendMessage");
+		validate_package();
 	}
 }
 
@@ -396,12 +398,15 @@ int multi_handle_delta()
 	sgbTimeout = FALSE;
 	if (received) {
 		if (!gbShouldValidatePackage) {
-			NetSendHiPri(NULL, 0);
+			gbShouldValidatePackage = TRUE;
+			validate_package();
 			gbShouldValidatePackage = FALSE;
 		} else {
 			gbShouldValidatePackage = FALSE;
-			if (!multi_check_pkt_valid(&sgHiPriBuf))
-				NetSendHiPri(NULL, 0);
+			if (!multi_check_pkt_valid(&sgHiPriBuf)) {
+				gbShouldValidatePackage = TRUE;
+				validate_package();
+			}
 		}
 	}
 	multi_mon_seeds();
