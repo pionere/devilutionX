@@ -1781,6 +1781,7 @@ typedef enum _monster_id {
 	MT_GOLEM    = 0x6D,
 	MT_DIABLO   = 0x6E,
 	MT_DARKMAGE = 0x6F,
+#ifdef HELLFIRE
 	MT_HELLBOAR = 0x70,
 	MT_STINGER  = 0x71,
 	MT_PSYCHORB = 0x72,
@@ -1807,6 +1808,7 @@ typedef enum _monster_id {
 	MT_FLESTHNG = 0x87,
 	MT_REAPER   = 0x88,
 	MT_NAKRUL   = 0x89,
+#endif
 	NUM_MTYPES, /// BUGFIX the count is off by one (fixed)
 } _monster_id;
 

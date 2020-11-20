@@ -162,6 +162,7 @@ MonsterData monsterdata[] = {
 	{    160,   2000, "Monsters\\Diablo\\Diablo%c.CL2",   TRUE,        "Monsters\\Diablo\\Diablo%c%i.WAV",  TRUE,        FALSE,     NULL,                              { 16,  6, 16,  6, 16, 16 }, { 0, 0, 0, 0, 0, 0 }, "The Dark Lord",           50,       50,     30,   1666,   1666, AI_DIABLO,                   MFLAG_KNOCKBACK | MFLAG_SEARCH | MFLAG_CAN_OPEN_DOOR,    3,  220,      4,         30,         60,     0,      11,           0,           0,          90, MC_DEMON,    IMMUNE_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_NULL_40, IMMUNE_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_NULL_40,         0,        7, 31666 },
 	{    128,   1060, "Monsters\\DarkMage\\Dmage%c.CL2",  TRUE,        "Monsters\\DarkMage\\Dmag%c%i.WAV",  FALSE,       FALSE,     NULL,                              {  6,  1, 21,  6, 23, 18 }, { 0, 0, 0, 0, 0, 0 }, "The Arch-Litch Malignus", 30,       30,     30,    160,    160, AI_COUNSLR,                                                   MFLAG_CAN_OPEN_DOOR,    3,  120,      8,         20,         40,     0,       0,           0,           0,          70, MC_DEMON,    RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_NULL_40, IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING | IMMUNE_NULL_40,         0,        7,  4968 },
 #endif
+#ifdef HELLFIRE
 	{    188,    800, "Monsters\\Fork\\Fork%c.CL2",       FALSE,       "Monsters\\newsfx\\HBoar%c%i.WAV",   FALSE,       FALSE,     NULL,                              { 10, 10, 15,  6, 16,  0 }, { 2, 0, 0, 0, 0, 0 }, "Hellboar",                32,       35,     23,     80,    100, AI_SKELSD,                   MFLAG_KNOCKBACK | MFLAG_SEARCH                      ,    2,   70,      7,         16,         24,     0,       0,           0,           0,          60, MC_DEMON,    0                                                             ,                RESIST_FIRE | RESIST_LIGHTNING                 ,         0,        3,   750 },
 	{     64,    305, "Monsters\\Scorp\\Scorp%c.CL2",     FALSE,       "Monsters\\newsfx\\Stingr%c%i.WAV",  FALSE,       FALSE,     NULL,                              { 10, 10, 12,  6, 15,  0 }, { 2, 0, 0, 0, 0, 0 }, "Stinger",                 32,       35,     22,     30,     40, AI_SKELSD,    0                                                                  ,    3,   85,      8,          1,         20,     0,       0,           0,           0,          50, MC_ANIMAL,   0                                                             ,                              RESIST_LIGHTNING                 ,         0,        1,   500 },
 	{    156,    800, "Monsters\\Eye\\Eye%c.CL2",         FALSE,       "Monsters\\newsfx\\psyco%c%i.WAV",   FALSE,       FALSE,     NULL,                              { 12, 13, 13,  7, 21,  0 }, { 2, 0, 0, 0, 0, 0 }, "Psychorb",                32,       35,     22,     20,     30, AI_PSYCHORB,  0                                                                  ,    3,   80,      8,         10,         10,     0,       0,           0,           0,          40, MC_ANIMAL,   0                                                             ,                RESIST_FIRE                                    ,         0,        6,   450 },
@@ -188,6 +189,7 @@ MonsterData monsterdata[] = {
 	{    164,    800, "Monsters\\Flesh\\Flesh%c.CL2",     FALSE,       "Monsters\\newsfx\\FleshT%c%i.WAV",  TRUE,        FALSE,     NULL,                              { 15, 24, 15,  6, 16,  0 }, { 0, 0, 0, 0, 0, 0 }, "Flesh Thing",             44,       47,     28,    300,    400, AI_SKELSD,    0                                                                  ,    3,  150,      8,         12,         18,     0,       0,           0,           0,          70, MC_DEMON,    RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING                 , RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING                 ,         0,        3,  4000 },
 	{    180,    800, "Monsters\\Reaper\\Reap%c.CL2",     FALSE,       "Monsters\\newsfx\\Reaper%c%i.WAV",  FALSE,       FALSE,     NULL,                              { 12, 10, 14,  6, 16,  0 }, { 2, 0, 0, 0, 0, 0 }, "Reaper",                  44,       47,     30,    260,    300, AI_SKELSD,    0                                                                  ,    3,  120,      8,         30,         35,     0,       0,           0,           0,          90, MC_DEMON,    IMMUNE_MAGIC | IMMUNE_FIRE | RESIST_LIGHTNING                 , IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING                 ,         0,        3,  6000 },
 	{    226,   1200, "Monsters\\Nkr\\Nkr%c.CL2",         TRUE,        "Monsters\\newsfx\\Nakrul%c%i.WAV",  TRUE,        FALSE,     NULL,                              {  2,  6, 16,  3, 16, 16 }, { 0, 0, 0, 0, 0, 0 }, "Na-Krul",                 60,       60,     40,   1332,   1332, AI_SKELSD,                   MFLAG_KNOCKBACK | MFLAG_SEARCH | MFLAG_CAN_OPEN_DOOR,    3,  150,      7,         40,         50,   150,      10,          40,          50,         125, MC_DEMON,    IMMUNE_MAGIC | IMMUNE_FIRE | RESIST_LIGHTNING | IMMUNE_NULL_40, IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING | IMMUNE_NULL_40,         0,        7, 13333 },
+#endif
 	// clang-format on
 };
 
@@ -327,6 +329,7 @@ BYTE MonstConvTbl[] = {
 	0,
 	MT_BIGFALL,
 	MT_DARKMAGE,
+#ifdef HELLFIRE
 	MT_HELLBOAR,
 	MT_STINGER,
 	MT_PSYCHORB,
@@ -356,6 +359,7 @@ BYTE MonstConvTbl[] = {
 	MT_CLEAVER,
 	MT_INVILORD,
 	MT_LRDSAYTR,
+#endif
 };
 
 #define MAT_NEVER 0
