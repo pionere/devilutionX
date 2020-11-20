@@ -12,26 +12,16 @@ DEVILUTION_BEGIN_NAMESPACE
 // NOTE: Diablo's "SHA1" is different from actual SHA1 in that it uses arithmetic
 // right shifts (sign bit extension).
 
-namespace {
-
 /**
- * Diablo-"SHA1" circular left shift, portable version.
+ * Diablo-"SHA1" buggy circular left shift, portable version.
  */
-uint32_t SHA1CircularShift(uint32_t bits, uint32_t word)
+static uint32_t SHA1CircularShift(uint32_t bits, uint32_t word)
 {
 	assert(bits < 32);
 	assert(bits > 0);
 
-	if (word >> 31) {
-		//moving this part to a separate volatile variable fixes saves in x64-release build in visual studio 2017
-		volatile uint32_t tmp = ((~word) >> (32 - bits));
-		return (word << bits) | (~tmp);
-	} else {
-		return (word << bits) | (word >> (32 - bits));
-	}
+	return (word << bits) | ((int32_t)word >> (32 - bits));
 }
-
-} // namespace
 
 SHA1Context sgSHA1[3];
 
