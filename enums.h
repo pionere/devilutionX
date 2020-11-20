@@ -1618,7 +1618,6 @@ typedef enum _mai_id {
 	AI_SUCC,
 	AI_SNEAK,
 	AI_STORM,
-	AI_STORM2,
 	AI_FIREMAN,
 	AI_GARBUD,
 	AI_ACID,
@@ -1634,6 +1633,7 @@ typedef enum _mai_id {
 	AI_LAZHELP,
 	AI_LACHDAN,
 	AI_WARLORD,
+#ifdef HELLFIRE
 	AI_FIREBAT,
 	AI_TORCHANT,
 	AI_HORKDMN,
@@ -1642,6 +1642,8 @@ typedef enum _mai_id {
 	AI_PSYCHORB,
 	AI_NECROMORB,
 	AI_BONEDEMON,
+#endif
+	AI_STORM2,
 } _mai_id;
 
 typedef enum _mc_id {

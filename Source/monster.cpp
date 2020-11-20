@@ -104,7 +104,6 @@ void (*AiProc[])(int i) = {
 	&MAI_Succ,
 	&MAI_Sneak,
 	&MAI_Storm,
-	&MAI_Storm2,
 	&MAI_Fireman,
 	&MAI_Garbud,
 	&MAI_Acid,
@@ -128,8 +127,9 @@ void (*AiProc[])(int i) = {
 	&MAI_ArchLich,
 	&MAI_PsychOrb,
 	&MAI_NecromOrb,
-	&MAI_BoneDemon
+	&MAI_BoneDemon,
 #endif
+	&MAI_Storm2,
 };
 
 static void InitMonsterTRN(int midx, BOOL special)
