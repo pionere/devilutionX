@@ -9,17 +9,23 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-// NOTE: Diablo's "SHA1" is different from actual SHA1 in that it uses arithmetic
-// right shifts (sign bit extension).
-
 /**
- * Diablo-"SHA1" buggy circular left shift, portable version.
+ * Standard circular left shift, portable version.
+ * Necessary because the MSVC-compiler messed up the inlining of the original code.
  */
-static uint32_t SHA1CircularShift(uint32_t bits, uint32_t word)
+static uint32_t SHA1CircularShiftA(uint32_t bits, uint32_t word)
 {
 	assert(bits < 32);
 	assert(bits > 0);
-
+	return (word << bits) | (word >> (32 - bits));
+}
+/**
+ * Diablo-"SHA1" circular left shift (arithmetic shift), portable version.
+ */
+static uint32_t SHA1CircularShiftB(uint32_t bits, uint32_t word)
+{
+	assert(bits < 32);
+	assert(bits > 0);
 	return (word << bits) | ((int32_t)word >> (32 - bits));
 }
 
@@ -58,37 +64,37 @@ static void SHA1ProcessMessageBlock(SHA1Context *context)
 	E = context->state[4];
 
 	for (i = 0; i < 20; i++) {
-		temp = SHA1CircularShift(5, A) + ((B & C) | ((~B) & D)) + E + W[i] + 0x5A827999;
+		temp = SHA1CircularShiftA(5, A) + ((B & C) | ((~B) & D)) + E + W[i] + 0x5A827999;
 		E = D;
 		D = C;
-		C = SHA1CircularShift(30, B);
+		C = SHA1CircularShiftB(30, B);
 		B = A;
 		A = temp;
 	}
 
 	for (i = 20; i < 40; i++) {
-		temp = SHA1CircularShift(5, A) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1;
+		temp = SHA1CircularShiftA(5, A) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1;
 		E = D;
 		D = C;
-		C = SHA1CircularShift(30, B);
+		C = SHA1CircularShiftA(30, B);
 		B = A;
 		A = temp;
 	}
 
 	for (i = 40; i < 60; i++) {
-		temp = SHA1CircularShift(5, A) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC;
+		temp = SHA1CircularShiftA(5, A) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC;
 		E = D;
 		D = C;
-		C = SHA1CircularShift(30, B);
+		C = SHA1CircularShiftA(30, B);
 		B = A;
 		A = temp;
 	}
 
 	for (i = 60; i < 80; i++) {
-		temp = SHA1CircularShift(5, A) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6;
+		temp = SHA1CircularShiftA(5, A) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6;
 		E = D;
 		D = C;
-		C = SHA1CircularShift(30, B);
+		C = SHA1CircularShiftA(30, B);
 		B = A;
 		A = temp;
 	}
