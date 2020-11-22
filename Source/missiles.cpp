@@ -4002,20 +4002,11 @@ void MI_Firewall(int mi)
 void MI_Fireball(int mi)
 {
 	MissileStruct *mis;
-	int dam, mpnum, px, py, mx, my;
+	int dam, mx, my;
 
 	mis = &missile[mi];
-	mpnum = mis->_miSource;
 	dam = mis->_miDam;
 	mis->_miRange--;
-
-	if (mis->_miCaster == 0) {
-		px = plr[mpnum]._px;
-		py = plr[mpnum]._py;
-	} else {
-		px = monster[mpnum]._mx;
-		py = monster[mpnum]._my;
-	}
 
 	if (mis->_miAnimType == MFILE_BIGEXP) {
 		if (mis->_miRange == 0) {
@@ -4032,23 +4023,23 @@ void MI_Fireball(int mi)
 		my = mis->_miy;
 		if (mis->_miRange == 0) {
 			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
-			if (!CheckBlock(px, py, mx, my))
+			if (CheckNoSolid(mx, my))
 				CheckMissileCol(mi, dam, dam, 0, mx, my, 1);
-			if (!CheckBlock(px, py, mx, my + 1))
+			if (CheckNoSolid(mx, my + 1))
 				CheckMissileCol(mi, dam, dam, 0, mx, my + 1, 1);
-			if (!CheckBlock(px, py, mx, my - 1))
+			if (CheckNoSolid(mx, my - 1))
 				CheckMissileCol(mi, dam, dam, 0, mx, my - 1, 1);
-			if (!CheckBlock(px, py, mx + 1, my))
+			if (CheckNoSolid(mx + 1, my))
 				CheckMissileCol(mi, dam, dam, 0, mx + 1, my, 1);
-			if (!CheckBlock(px, py, mx + 1, my - 1))
+			if (CheckNoSolid(mx + 1, my - 1))
 				CheckMissileCol(mi, dam, dam, 0, mx + 1, my - 1, 1);
-			if (!CheckBlock(px, py, mx + 1, my + 1))
+			if (CheckNoSolid(mx + 1, my + 1))
 				CheckMissileCol(mi, dam, dam, 0, mx + 1, my + 1, 1);
-			if (!CheckBlock(px, py, mx - 1, my))
+			if (CheckNoSolid(mx - 1, my))
 				CheckMissileCol(mi, dam, dam, 0, mx - 1, my, 1);
-			if (!CheckBlock(px, py, mx - 1, my + 1))
+			if (CheckNoSolid(mx - 1, my + 1))
 				CheckMissileCol(mi, dam, dam, 0, mx - 1, my + 1, 1);
-			if (!CheckBlock(px, py, mx - 1, my - 1))
+			if (CheckNoSolid(mx - 1, my - 1))
 				CheckMissileCol(mi, dam, dam, 0, mx - 1, my - 1, 1);
 			if (!TransList[dTransVal[mx][my]]
 			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
@@ -4171,10 +4162,9 @@ void MI_Hiveexp(int mi)
 void MI_Immolation(int mi)
 {
 	MissileStruct *mis;
-	int dam, mpnum, px, py, mx, my;
+	int dam, mx, my;
 
 	mis = &missile[mi];
-	mpnum = mis->_miSource;
 	dam = mis->_miDam;
 
 	if (mis->_miVar7 < 0) {
@@ -4189,14 +4179,6 @@ void MI_Immolation(int mi)
 	}
 
 	mis->_miRange--;
-
-	if (mis->_miCaster == 0) {
-		px = plr[mpnum]._px;
-		py = plr[mpnum]._py;
-	} else {
-		px = monster[mpnum]._mx;
-		py = monster[mpnum]._my;
-	}
 
 	if (mis->_miAnimType == MFILE_BIGEXP) {
 		if (mis->_miRange == 0) {
@@ -4213,23 +4195,23 @@ void MI_Immolation(int mi)
 		my = mis->_miy;
 		if (mis->_miRange == 0) {
 			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
-			if (!CheckBlock(px, py, mx, my))
+			if (CheckNoSolid(mx, my))
 				CheckMissileCol(mi, dam, dam, FALSE, mx, my, TRUE);
-			if (!CheckBlock(px, py, mx, my + 1))
+			if (CheckNoSolid(mx, my + 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx, my + 1, TRUE);
-			if (!CheckBlock(px, py, mx, my - 1))
+			if (CheckNoSolid(mx, my - 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx, my - 1, TRUE);
-			if (!CheckBlock(px, py, mx + 1, my))
+			if (CheckNoSolid(mx + 1, my))
 				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my, TRUE);
-			if (!CheckBlock(px, py, mx + 1, my - 1))
+			if (CheckNoSolid(mx + 1, my - 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my - 1, TRUE);
-			if (!CheckBlock(px, py, mx + 1, my + 1))
+			if (CheckNoSolid(mx + 1, my + 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my + 1, TRUE);
-			if (!CheckBlock(px, py, mx - 1, my))
+			if (CheckNoSolid(mx - 1, my))
 				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my, TRUE);
-			if (!CheckBlock(px, py, mx - 1, my + 1))
+			if (CheckNoSolid(mx - 1, my + 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my + 1, TRUE);
-			if (!CheckBlock(px, py, mx - 1, my - 1))
+			if (CheckNoSolid(mx - 1, my - 1))
 				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my - 1, TRUE);
 			if (!TransList[dTransVal[mx][my]]
 			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
@@ -5625,7 +5607,7 @@ void MI_Element(int mi)
 void MI_Eleexp(int mi)
 {
 	MissileStruct *mis;
-	int dam, cx, cy, px, py, pnum;
+	int dam, cx, cy;
 
 	mis = &missile[mi];
 	cx = mis->_mix;
@@ -5636,26 +5618,23 @@ void MI_Eleexp(int mi)
 		ChangeLight(mis->_miLid, cx, cy, mis->_miAnimFrame);
 	mis->_miRange--;
 	dam = mis->_miDam;
-	pnum = mis->_miSource;
-	px = plr[pnum]._px;
-	py = plr[pnum]._py;
-	if (!CheckBlock(px, py, cx, cy))
+	if (CheckNoSolid(cx, cy))
 		CheckMissileCol(mi, dam, dam, TRUE, cx, cy, TRUE);
-	if (!CheckBlock(px, py, cx, cy + 1))
+	if (CheckNoSolid(cx, cy + 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx, cy + 1, TRUE);
-	if (!CheckBlock(px, py, cx, cy - 1))
+	if (CheckNoSolid(cx, cy - 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx, cy - 1, TRUE);
-	if (!CheckBlock(px, py, cx + 1, cy))
+	if (CheckNoSolid(cx + 1, cy))
 		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy, TRUE); /* check x/y */
-	if (!CheckBlock(px, py, cx + 1, cy - 1))
+	if (CheckNoSolid(cx + 1, cy - 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy - 1, TRUE);
-	if (!CheckBlock(px, py, cx + 1, cy + 1))
+	if (CheckNoSolid(cx + 1, cy + 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx + 1, cy + 1, TRUE);
-	if (!CheckBlock(px, py, cx - 1, cy))
+	if (CheckNoSolid(cx - 1, cy))
 		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy, TRUE);
-	if (!CheckBlock(px, py, cx - 1, cy + 1))
+	if (CheckNoSolid(cx - 1, cy + 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy + 1, TRUE);
-	if (!CheckBlock(px, py, cx - 1, cy - 1))
+	if (CheckNoSolid(cx - 1, cy - 1))
 		CheckMissileCol(mi, dam, dam, TRUE, cx - 1, cy - 1, TRUE);
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
