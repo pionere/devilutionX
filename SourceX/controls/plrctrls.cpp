@@ -423,8 +423,7 @@ void FindTrigger()
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
-	CheckTown();
-	CheckRportal();
+	CheckTownPortal();
 }
 
 void Interact()

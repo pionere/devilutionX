@@ -33,8 +33,7 @@ void InitCursor();
 void FreeCursor();
 void NewCursor(int i);
 void InitLevelCursor();
-void CheckRportal();
-void CheckTown();
+void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */

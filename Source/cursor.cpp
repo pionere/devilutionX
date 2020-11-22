@@ -148,55 +148,37 @@ void InitLevelCursor()
 	ClearCursor();
 }
 
-void CheckTown()
+void CheckTownPortal()
 {
 	MissileStruct *mis;
 	int i;
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN) {
-			if (cursmx == mis->_mix - 1 && cursmy == mis->_miy
-			    || cursmx == mis->_mix && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 2 && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 2 && cursmy == mis->_miy - 2
-			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 2
-			    || cursmx == mis->_mix && cursmy == mis->_miy) {
+		if (mis->_miType == MIS_TOWN || mis->_miType == MIS_RPORTAL) {
+			/*      ^
+			 *      |
+			 * ----++------>
+			 *    +++
+			 *    ++|
+			 *      |
+			 */
+			int dx = cursmx - (mis->_mix - 1);
+			int dy = cursmy - (mis->_miy - 1);
+			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
+				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
 				trigflag = TRUE;
 				ClearPanel();
-				strcpy(infostr, "Town Portal");
-				sprintf(tempstr, "from %s", plr[mis->_miSource]._pName);
-				AddPanelString(tempstr, TRUE);
-				cursmx = mis->_mix;
-				cursmy = mis->_miy;
-			}
-		}
-	}
-}
-
-void CheckRportal()
-{
-	MissileStruct *mis;
-	int i;
-
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_RPORTAL) {
-			if (cursmx == mis->_mix - 1 && cursmy == mis->_miy
-			    || cursmx == mis->_mix && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 2 && cursmy == mis->_miy - 1
-			    || cursmx == mis->_mix - 2 && cursmy == mis->_miy - 2
-			    || cursmx == mis->_mix - 1 && cursmy == mis->_miy - 2
-			    || cursmx == mis->_mix && cursmy == mis->_miy) {
-				trigflag = TRUE;
-				ClearPanel();
-				strcpy(infostr, "Portal to");
-				if (!setlevel)
-					strcpy(tempstr, "The Unholy Altar");
-				else
-					strcpy(tempstr, "level 15");
+				if (mis->_miType == MIS_TOWN) {
+					strcpy(infostr, "Town Portal");
+					sprintf(tempstr, "from %s", plr[mis->_miSource]._pName);
+				} else {
+					strcpy(infostr, "Portal to");
+					if (!setlevel)
+						strcpy(tempstr, "The Unholy Altar");
+					else
+						strcpy(tempstr, "level 15");
+				}
 				AddPanelString(tempstr, TRUE);
 				cursmx = mis->_mix;
 				cursmy = mis->_miy;
@@ -721,8 +703,7 @@ void CheckCursMove()
 			cursmx = mx;
 			cursmy = my;
 			CheckTrigForce();
-			CheckTown();
-			CheckRportal();
+			CheckTownPortal();
 		}
 	}
 
