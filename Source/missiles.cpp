@@ -171,21 +171,6 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	}
 }
 
-static BOOL CheckBlock(int fx, int fy, int tx, int ty)
-{
-	int pn;
-
-	while (fx != tx || fy != ty) {
-		pn = GetDirection(fx, fy, tx, ty);
-		fx += XDirAdd[pn];
-		fy += YDirAdd[pn];
-		if (nSolidTable[dPiece[fx][fy]])
-			return TRUE;
-	}
-
-	return FALSE;
-}
-
 static int FindClosest(int sx, int sy, int rad)
 {
 	int j, i, mid, tx, ty;
@@ -205,7 +190,7 @@ static int FindClosest(int sx, int sy, int rad)
 			ty = sy + *++cr;
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				mid = dMonster[tx][ty];
-				if (mid > 0 && !CheckBlock(sx, sy, tx, ty))
+				if (mid > 0 && LineClearF(CheckNoSolid, sx, sy, tx, ty))
 					return mid - 1;
 			}
 		}
