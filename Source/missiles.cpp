@@ -2948,7 +2948,6 @@ void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	mis = &missile[mi];
 	mon = &monster[misource];
-	mis->_miDam = (mon->MData->mLevel >= 2) + 1;
 	mis->_miRange = 40 * (mon->_mint + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
@@ -5042,7 +5041,7 @@ void MI_Acidsplat(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, 0, mis->_miSpllvl);
+		AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_ACIDPUD, 1, mis->_miSource, (monster[mis->_miSource].MData->mLevel >= 2) + 1, mis->_miSpllvl);
 	} else {
 		PutMissile(mi);
 	}
