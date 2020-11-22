@@ -4203,7 +4203,7 @@ void MAI_Acid(int mnum)
 
 void MAI_Diablo(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_DIABAPOCA, FALSE, 40, 0);
+	MAI_RoundRanged(mnum, MIS_APOCAC2, FALSE, 40, 0);
 }
 
 static void MAI_RR2(int mnum, int mitype, int dam)

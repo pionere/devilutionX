@@ -2994,7 +2994,7 @@ static void OperateChest(int pnum, int oi, DIABOOL sendmsg)
 					mtype = MIS_FARROW;
 					break;
 				case 2:
-					mtype = MIS_NOVA;
+					mtype = MIS_LIGHTNOVAC;
 					break;
 #ifdef HELLFIRE
 				case 3:
@@ -3563,7 +3563,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    p->_px,
 		    p->_py,
 		    p->_pdir,
-		    MIS_NOVA,
+		    MIS_LIGHTNOVAC,
 		    -1,
 		    pnum,
 		    0,

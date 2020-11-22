@@ -34,13 +34,13 @@ SpellData spelldata[] = {
 	{ SPL_GUARDIAN,     50, STYPE_FIRE,      "Guardian",           NULL,              9,         8, TRUE,      FALSE,           61, IS_CAST2, { MIS_GUARDIAN,      0,          0 },        2,       30,        16,        32,     14000,        950 },
 #endif
 	{ SPL_CHAIN,        30, STYPE_LIGHTNING, "Chain Lightning",    NULL,              8,         7, FALSE,     FALSE,           54, IS_CAST2, { MIS_CHAIN,         0,          0 },        1,       18,        20,        60,     11000,        750 },
-	{ SPL_WAVE,         35, STYPE_FIRE,      "Flame Wave",         NULL,              9,         8, TRUE,      FALSE,           54, IS_CAST2, { MIS_WAVE,          0,          0 },        3,       20,        20,        40,     10000,        650 },
+	{ SPL_WAVE,         35, STYPE_FIRE,      "Flame Wave",         NULL,              9,         8, TRUE,      FALSE,           54, IS_CAST2, { MIS_FIREWAVEC,     0,          0 },        3,       20,        20,        40,     10000,        650 },
 	{ SPL_DOOMSERP,      0, STYPE_LIGHTNING, "Doom Serpents",      NULL,             -1,        -1, FALSE,     FALSE,            0, IS_CAST2, { 0,                 0,          0 },        0,        0,        40,        80,         0,          0 },
 	{ SPL_BLODRIT,       0, STYPE_MAGIC,     "Blood Ritual",       NULL,             -1,        -1, FALSE,     FALSE,            0, IS_CAST2, { 0,                 0,          0 },        0,        0,        40,        80,         0,          0 },
 #ifdef HELLFIRE
-	{ SPL_NOVA,         60, STYPE_MAGIC,     "Nova",               NULL,             14,        10, FALSE,     FALSE,           87, IS_CAST4, { MIS_NOVA,          0,          0 },        3,       35,        16,        32,     21000,       1300 },
+	{ SPL_NOVA,         60, STYPE_MAGIC,     "Nova",               NULL,             14,        10, FALSE,     FALSE,           87, IS_CAST4, { MIS_LIGHTNOVAC,    0,          0 },        3,       35,        16,        32,     21000,       1300 },
 #else
-	{ SPL_NOVA,         60, STYPE_MAGIC,     "Nova",               NULL,             -1,        10, FALSE,     FALSE,           87, IS_CAST4, { MIS_NOVA,          0,          0 },        3,       35,        16,        32,     21000,       1300 },
+	{ SPL_NOVA,         60, STYPE_MAGIC,     "Nova",               NULL,             -1,        10, FALSE,     FALSE,           87, IS_CAST4, { MIS_LIGHTNOVAC,    0,          0 },        3,       35,        16,        32,     21000,       1300 },
 #endif
 	{ SPL_INVISIBIL,     0, STYPE_MAGIC,     "Invisibility",       NULL,             -1,        -1, FALSE,     FALSE,            0, IS_CAST2, { 0,                 0,          0 },        0,        0,        40,        80,         0,          0 },
 	{ SPL_FLAME,        11, STYPE_FIRE,      "Inferno",            NULL,              3,         2, TRUE,      FALSE,           20, IS_CAST2, { MIS_FLAMEC,        0,          0 },        1,        6,        20,        40,      2000,        100 },
@@ -56,11 +56,11 @@ SpellData spelldata[] = {
 #endif
 	{ SPL_TELEPORT,     35, STYPE_MAGIC,     "Teleport",           NULL,             14,        12, TRUE,      FALSE,          105, IS_CAST6, { MIS_TELEPORT,      0,          0 },        3,       15,        16,        32,     20000,       1250 },
 #ifdef SPAWN
-	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             -1,        -1, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCA,         0,          0 },        6,       90,         8,        12,     30000,       2000 },
+	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             -1,        -1, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCAC,        0,          0 },        6,       90,         8,        12,     30000,       2000 },
 #elif defined(HELLFIRE)
-	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             19,        15, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCA,         0,          0 },        6,       90,         8,        12,     30000,       2000 },
+	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             19,        15, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCAC,        0,          0 },        6,       90,         8,        12,     30000,       2000 },
 #else
-	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             -1,        15, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCA,         0,          0 },        6,       90,         8,        12,     30000,       2000 },
+	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             -1,        15, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCAC,        0,          0 },        6,       90,         8,        12,     30000,       2000 },
 #endif
 	{ SPL_ETHEREALIZE, 100, STYPE_MAGIC,     "Etherealize",        NULL,             -1,        -1, FALSE,     FALSE,           93, IS_CAST2, { MIS_ETHEREALIZE,   0,          0 },        0,      100,         2,         6,     26000,       1600 },
 	{ SPL_REPAIR,        0, STYPE_MAGIC,     "Item Repair",        "Item Repair",    -1,        -1, FALSE,     TRUE,            -1, IS_CAST6, { MIS_REPAIR,        0,          0 },        0,        0,        40,        80,         0,          0 },
@@ -88,7 +88,7 @@ SpellData spelldata[] = {
 	{ SPL_MAGI,        255, STYPE_MAGIC,     "the Magi",           NULL,             -1,        20, FALSE,     TRUE,            45, IS_CAST8, { MIS_MAGI,          0,          0 },        3,        1,        15,        30,    100000,        200 },
 	{ SPL_JESTER,      255, STYPE_MAGIC,     "the Jester",         NULL,             -1,         4, TRUE,      FALSE,           30, IS_CAST8, { MIS_JESTER,        0,          0 },        3,        1,        15,        30,    100000,        200 },
 	{ SPL_LIGHTWALL,    28, STYPE_LIGHTNING, "Lightning Wall",     NULL,              3,         2, TRUE,      FALSE,           27, IS_CAST4, { MIS_LIGHTWALLC,    0,          0 },        2,       16,         8,        16,      6000,        400 },
-	{ SPL_IMMOLAT,      60, STYPE_FIRE,      "Immolation",         NULL,             14,        10, FALSE,     FALSE,           87, IS_CAST2, { MIS_IMMOLATION,    0,          0 },        3,       35,        16,        32,     21000,       1300 },
+	{ SPL_IMMOLAT,      60, STYPE_FIRE,      "Immolation",         NULL,             14,        10, FALSE,     FALSE,           87, IS_CAST2, { MIS_FIRENOVAC,     0,          0 },        3,       35,        16,        32,     21000,       1300 },
 	{ SPL_WARP,         35, STYPE_MAGIC,     "Warp",               NULL,              3,         3, FALSE,     FALSE,           25, IS_CAST6, { MIS_WARP,          0,          0 },        3,       18,         8,        12,      3000,        200 },
 	{ SPL_REFLECT,      35, STYPE_MAGIC,     "Reflect",            NULL,              3,         3, FALSE,     FALSE,           25, IS_CAST6, { MIS_REFLECT,       0,          0 },        3,       15,         8,        12,      3000,        200 },
 	{ SPL_BERSERK,      35, STYPE_MAGIC,     "Berserk",            NULL,              3,         3, TRUE,      FALSE,           35, IS_CAST6, { MIS_BERSERK,       0,          0 },        3,       15,         8,        12,      3000,        200 },

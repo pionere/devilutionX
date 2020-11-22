@@ -1344,7 +1344,7 @@ void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNENOVA);
 		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_NOVA;
+			missile[mi]._miVar1 = MIS_LIGHTNOVAC;
 			missile[mi]._miLid = AddLight(dx, dy, 8);
 			return;
 		}
@@ -1361,7 +1361,7 @@ void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNEIMMOLAT);
 		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_IMMOLATION;
+			missile[mi]._miVar1 = MIS_FIRENOVAC;
 			missile[mi]._miLid = AddLight(dx, dy, 8);
 			return;
 		}
@@ -1487,7 +1487,7 @@ void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		spell = MIS_TELEPORT;
 		break;
 	case 8:
-		spell = MIS_APOCA;
+		spell = MIS_APOCAC;
 		break;
 	default:
 		spell = MIS_STONE;
@@ -1724,7 +1724,7 @@ void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
  * Var6: animation + direction
  * Var7: animation + direction
  */
-void AddImmolation(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -1764,7 +1764,7 @@ void AddImmolation(int mi, int sx, int sy, int dx, int dy, int midir, char micas
  * Var1: mx position of the missile
  * Var2: my position of the missile
  */
-void AddFireNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int av = 16;
@@ -2472,7 +2472,7 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var2: min damage
  * Var3: max damage
  */
-void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2491,7 +2491,7 @@ void AddWeapFexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var2: min damage
  * Var3: max damage
  */
-void AddWeapLexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2655,7 +2655,7 @@ void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micas
  * Var3: mx position of the missile
  * Var4: my position of the missile
  */
-void AddFiremove(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3082,7 +3082,7 @@ void miss_null_23(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 /**
  * Var1: target hit
  */
-void AddBoom(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3269,7 +3269,7 @@ void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var1: dx direction of the wave
  * Var2: dy direction of the wave
  */
-void AddWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3283,7 +3283,7 @@ void AddWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	UseMana(misource, SPL_WAVE);
 }
 
-void AddNova(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -3391,7 +3391,7 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var5: x1 of the affected area
  * Var6: x0 of the affected area
  */
-void AddApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i;
@@ -3608,7 +3608,7 @@ void AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	PutMissile(mi);
 }
 
-void AddDiabApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	PlayerStruct *p;
 	int pnum, dam;
@@ -3619,7 +3619,7 @@ void AddDiabApoca(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		p = &plr[pnum];
 		if (p->plractive) {
 			if (LineClear(sx, sy, p->_pfutx, p->_pfuty)) {
-				AddMissile(0, 0, p->_pfutx, p->_pfuty, 0, MIS_BOOM2, micaster, misource, dam, 0);
+				AddMissile(0, 0, p->_pfutx, p->_pfuty, 0, MIS_EXAPOCA2, micaster, misource, dam, 0);
 			}
 		}
 	}
@@ -4144,7 +4144,7 @@ void MI_Hiveexp(int mi)
 	PutMissile(mi);
 }
 
-void MI_Immolation(int mi)
+void MI_Fireball3(int mi)
 {
 	MissileStruct *mis;
 	int dam, mx, my;
@@ -4460,7 +4460,7 @@ void MI_LightwallC(int mi)
 	}
 }
 
-void MI_FireNova(int mi)
+void MI_FireNovaC(int mi)
 {
 	MissileStruct *mis;
 	int i, src, sx, sy, dir, en, cx, cy, dam, spllvl;
@@ -4484,10 +4484,10 @@ void MI_FireNova(int mi)
 		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
 			cx = vCrawlTable[i][6];
 			cy = vCrawlTable[i][7];
-			AddMissile(sx, sy, sx + cx, sy + cy, dir, MIS_FIRENOVA, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy - cy, dir, MIS_FIRENOVA, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy + cy, dir, MIS_FIRENOVA, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx + cx, sy - cy, dir, MIS_FIRENOVA, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy + cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy - cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy + cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy - cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
 		}
 	}
 	mis->_miRange--;
@@ -4515,7 +4515,7 @@ void MI_SpecArrow(int mi)
 
 		switch (plr[src]._pILMinDam) {
 		case 0:
-			mitype = MIS_FIRENOVA;
+			mitype = MIS_FIREBALL2;
 			break;
 		case 1:
 			mitype = MIS_LIGHTARROW;
@@ -4823,7 +4823,7 @@ void MI_Etherealize(int mi)
 	PutMissile(mi);
 }
 
-void MI_Firemove(int mi)
+void MI_FireWave(int mi)
 {
 	MissileStruct *mis;
 	int range;
@@ -5115,7 +5115,7 @@ void MI_Stone(int mi)
 		PutMissile(mi);
 }
 
-void MI_Boom(int mi)
+void MI_ApocaExp(int mi)
 {
 	MissileStruct *mis;
 
@@ -5272,7 +5272,7 @@ void MI_Infra(int mi)
 	}
 }
 
-void MI_Apoca(int mi)
+void MI_ApocaC(int mi)
 {
 	MissileStruct *mis;
 	int i, j, pnum;
@@ -5286,7 +5286,7 @@ void MI_Apoca(int mi)
 					continue;
 #endif
 				pnum = mis->_miSource;
-				AddMissile(i, j, i, j, plr[pnum]._pdir, MIS_BOOM, 0, pnum, mis->_miDam, 0);
+				AddMissile(i, j, i, j, plr[pnum]._pdir, MIS_EXAPOCA, 0, pnum, mis->_miDam, 0);
 				mis->_miVar2 = j;
 				mis->_miVar4 = i + 1;
 				return;
@@ -5298,7 +5298,7 @@ void MI_Apoca(int mi)
 	mis->_miDelFlag = TRUE;
 }
 
-void MI_Wave(int mi)
+void MI_FireWaveC(int mi)
 {
 	MissileStruct *mis;
 	int sx, sy, sd, nx, ny, dir;
@@ -5314,7 +5314,7 @@ void MI_Wave(int mi)
 	sx += XDirAdd[sd];
 	sy += YDirAdd[sd];
 	if (!nMissileTable[dPiece[sx][sy]]) {
-		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_miSpllvl);
+		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
 
 		for (i = -2; i <= 2; i += 4) {
 			dir = (sd + i) & 7;
@@ -5327,7 +5327,7 @@ void MI_Wave(int mi)
 					break;
 				if (nMissileTable[dPiece[nx][ny]])
 					break;
-				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREMOVE, 0, pnum, 0, mis->_miSpllvl);
+				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
 			}
 		}
 	}
@@ -5336,7 +5336,7 @@ void MI_Wave(int mi)
 		mis->_miDelFlag = TRUE;
 }
 
-void MI_Nova(int mi)
+void MI_LightNovaC(int mi)
 {
 	MissileStruct *mis;
 	int i, src, sx, sy, dir, en, cx, cy, dam, spllvl;
@@ -5589,7 +5589,7 @@ void MI_Element(int mi)
 	PutMissile(mi);
 }
 
-void MI_Eleexp(int mi)
+void MI_EleExp(int mi)
 {
 	MissileStruct *mis;
 	int dam, cx, cy;
