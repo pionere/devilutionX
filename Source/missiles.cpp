@@ -3446,16 +3446,18 @@ void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	MissileStruct *bmis;
 	int i, dam;
 
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 1);
-	mis->_misx = dx;
-	mis->_misy = dy;
-	mis->_mixoff = missile[midir]._mixoff;
-	mis->_miyoff = missile[midir]._miyoff;
-	mis->_mitxoff = missile[midir]._mitxoff;
-	mis->_mityoff = missile[midir]._mityoff;
+	bmis = &missile[midir];
+	mis->_misx = bmis->_misx;
+	mis->_misy = bmis->_misy;
+	mis->_mixoff = bmis->_mixoff;
+	mis->_miyoff = bmis->_miyoff;
+	mis->_mitxoff = bmis->_mitxoff;
+	mis->_mityoff = bmis->_mityoff;
 	mis->_miVar2 = 0;
 	for (i = mis->_miDam; i > 0; i--) {
 		mis->_miVar2 += 5;
@@ -3477,7 +3479,7 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var2: my position of the missile
  * Var3: timer to dissipate
  */
-void AddFlamec(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -5430,29 +5432,26 @@ void MI_Flame(int mi)
 		PutMissile(mi);
 }
 
-void MI_Flamec(int mi)
+void MI_FlameC(int mi)
 {
 	MissileStruct *mis;
-	int pn, src;
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	src = mis->_miSource;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
-		pn = dPiece[mis->_mix][mis->_miy];
-		if (!nMissileTable[pn]) {
+		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
 			AddMissile(
 			    mis->_mix,
 			    mis->_miy,
-			    mis->_misx,
-			    mis->_misy,
+			    0,
+			    0,
 			    mi,
 			    MIS_FLAME,
 			    mis->_miCaster,
-			    src,
+			    mis->_miSource,
 			    mis->_miVar3,
 			    mis->_miSpllvl);
 		} else {

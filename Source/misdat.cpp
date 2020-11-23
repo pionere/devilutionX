@@ -68,7 +68,7 @@ MissileData missiledata[] = {
 	{  MIS_RECHARGE,      &AddRecharge,               &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_DISARM,        &AddDisarm,                 &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      LS_TRAPDIS,  -1,          1,        1        },
 	{  MIS_FLAME,         &AddFlame,                  &MI_Flame,          TRUE,      1,               MIFLAG_NOBLOCK, MISR_FIRE,      MFILE_INFERNO,   LS_SPOUTSTR, -1,          1,        1        },
-	{  MIS_FLAMEC,        &AddFlamec,                 &MI_Flamec,         FALSE,     1,                            0, MISR_FIRE,      MFILE_NONE,      -1,          -1,          1,        1        },
+	{  MIS_FLAMEC,        &AddFlameC,                 &MI_FlameC,         FALSE,     1,                            0, MISR_FIRE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_FIREMAN,       &AddFireman,                &MI_Fireman,        TRUE,      2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_KRULL,         &AddKrull,                  &MI_Krull,          TRUE,      0,                            0, MISR_FIRE,      MFILE_KRULL,     -1,          -1,          1,        1        },
 	{  MIS_CBOLT,         &AddCbolt,                  &MI_Cbolt,          TRUE,      1,                            0, MISR_LIGHTNING, MFILE_MINILTNG,  LS_CBOLT,    -1,          1,        1        },

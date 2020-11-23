@@ -111,7 +111,7 @@ void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-void AddFlamec(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -174,7 +174,7 @@ void MI_FireWaveC(int mi);
 void MI_LightNovaC(int mi);
 void MI_Bloodboil(int mi);
 void MI_Flame(int mi);
-void MI_Flamec(int mi);
+void MI_FlameC(int mi);
 void MI_Cbolt(int mi);
 void MI_Hbolt(int mi);
 void MI_Element(int mi);
