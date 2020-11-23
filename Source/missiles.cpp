@@ -530,7 +530,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 #endif
 			return FALSE;
 
-	dam = mindam + random_(68, maxdam - mindam + 1);
+	dam = RandRange(mindam, maxdam);
 	if (!shift)
 		dam <<= 6;
 	if (resist)
@@ -613,7 +613,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	if (mds->mName == MIS_BONESPIRIT) {
 		dam = mon->_mhitpoints / 3;
 	} else {
-		dam = mindam + random_(70, maxdam - mindam + 1);
+		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
 			dam = p->_pIBonusDamMod + dam * p->_pIBonusDam / 100 + dam;
 			if (p->_pClass == PC_ROGUE)
@@ -719,7 +719,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	if (mds->mName == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
-		dam = mind + random_(75, maxd - mind + 1);
+		dam = RandRange(mind, maxd);
 		if (p->_pIFlags & ISPL_ABSHALFTRAP)
 			dam >>= 1;
 		if (!shift)
@@ -841,7 +841,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	if (mds->mName == MIS_BONESPIRIT) {
 		dam = p->_pHitPoints / 3;
 	} else {
-		dam = mind + random_(75, maxd - mind + 1);
+		dam = RandRange(mind, maxd);
 		dam += p->_pIGetHit;
 		if (!shift)
 			dam <<= 6;
@@ -967,7 +967,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	if (mds->mName == MIS_BONESPIRIT) {
 		dam = dps->_pHitPoints / 3;
 	} else {
-		dam = mindam + random_(70, maxdam - mindam + 1);
+		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
 			dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
 			if (ops->_pClass == PC_ROGUE)
@@ -1776,7 +1776,7 @@ void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			i = 50;
 		UseMana(misource, SPL_FIREBALL);
 	} else {
-		dam = monster[misource].mMinDamage + random_(77, monster[misource].mMaxDamage - monster[misource].mMinDamage + 1);
+		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 		i = 16;
 	}
 	mis->_miDam = dam;
@@ -2050,7 +2050,7 @@ void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		p = &plr[misource];
 		flags = p->_pIFlags;
 		if (flags & ISPL_RNDARROWVEL)
-			av = random_(64, 31) + 16;
+			av = RandRange(16, 46);
 #ifdef HELLFIRE
 		if (flags & ISPL_QUICKATTACK)
 			av++;
@@ -2124,7 +2124,7 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		p = &plr[misource];
 		flags = p->_pIFlags;
 		if (flags & ISPL_RNDARROWVEL) {
-			av = random_(64, 32) + 16;
+			av = RandRange(16, 47);
 		}
 #ifdef HELLFIRE
 		if (flags & ISPL_QUICKATTACK)
@@ -2199,8 +2199,8 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 			r2 = 0;
 			break; //BUGFIX: warps player to 0/0 in hellfire, change to return or use 1.09's version of the code
 		}
-		r1 = random_(58, 3) + 4;
-		r2 = random_(58, 3) + 4;
+		r1 = RandRange(4, 6);
+		r2 = RandRange(4, 6);
 		if (random_(58, 2) == 1)
 			r1 = -r1;
 		if (random_(58, 2) == 1)
@@ -2401,7 +2401,7 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			i = 50;
 		UseMana(misource, SPL_FIREBALL);
 	} else {
-		dam = monster[misource].mMinDamage + random_(77, monster[misource].mMaxDamage - monster[misource].mMinDamage + 1);
+		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 		i = 16;
 	}
 	mis->_miDam = dam;
@@ -3468,8 +3468,7 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dam = 8 * dam + 16;
 		dam += dam >> 1;
 	} else {
-		dam = monster[misource].mMinDamage;
-		dam += random_(77, monster[misource].mMaxDamage - dam + 1);
+		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 	}
 	mis->_miDam = dam;
 }
@@ -4561,7 +4560,7 @@ void MI_LightningC(int mi)
 		if (mis->_miCaster == 0) {
 			dam = (random_(79, 2) + random_(79, plr[mpnum]._pLevel) + 2) << 6;
 		} else {
-			dam = 2 * (monster[mpnum].mMinDamage + random_(80, monster[mpnum].mMaxDamage - monster[mpnum].mMinDamage + 1));
+			dam = 2 * RandRange(monster[mpnum].mMinDamage, monster[mpnum].mMaxDamage);
 		}
 	} else {
 		dam = random_(81, currlevel) + 2 * currlevel;

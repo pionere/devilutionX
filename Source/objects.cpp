@@ -491,7 +491,7 @@ static void InitRndBarrels()
 	int i;
 
 	// generate i number of groups of barrels
-	for (i = random_(143, 5) + 3; i != 0; i--) {
+	for (i = RandRange(3, 7); i != 0; i--) {
 		do {
 			xp = random_(143, DSIZEX) + DBORDERX;
 			yp = random_(143, DSIZEY) + DBORDERY;
@@ -4617,13 +4617,11 @@ static void BreakBarrel(int pnum, int oi, int dam, BOOL forcebreak, BOOL sendmsg
 
 void BreakObject(int pnum, int oi)
 {
-	int objdam, mind, maxd;
+	int objdam;
 
 	if (pnum != -1) {
 		// BUGFIX: use PlrAtkDam instead?
-		mind = plr[pnum]._pIMinDam;
-		maxd = random_(163, plr[pnum]._pIMaxDam - mind + 1);
-		objdam = maxd + mind;
+		objdam = RandRange(plr[pnum]._pIMinDam, plr[pnum]._pIMaxDam);
 		objdam += plr[pnum]._pDamageMod + plr[pnum]._pIBonusDamMod + objdam * plr[pnum]._pIBonusDam / 100;
 	} else {
 		objdam = 10;

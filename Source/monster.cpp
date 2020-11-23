@@ -477,7 +477,7 @@ void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	mon->_mAnimLen = cmon->Anims[MA_STAND].Frames;
 	mon->_mAnimFrame = random_(88, mon->_mAnimLen - 1) + 1;
 
-	mon->_mmaxhp = (cmon->mMinHP + random_(88, cmon->mMaxHP - cmon->mMinHP + 1)) << 6;
+	mon->_mmaxhp = RandRange(cmon->mMinHP, cmon->mMaxHP) << 6;
 
 	if (gbMaxPlayers == 1) {
 		mon->_mmaxhp >>= 1;
@@ -1120,9 +1120,9 @@ void InitMonsters()
 #else
 			else if (i == 2)
 #endif
-				na = random_(95, 2) + 2;
+				na = RandRange(2, 3);
 			else
-				na = random_(95, 3) + 3;
+				na = RandRange(3, 5);
 			PlaceGroup(mtype, na, 0, 0);
 		}
 	}
@@ -2034,7 +2034,7 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->MType->Anims[MA_SPECIAL].Frames;
 	mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * (random_(97, 5) + 4));
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8));
 }
 
 static void MonChangeLightOffset(int mnum)
@@ -2287,7 +2287,7 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	dmon = &monster[defm];
 	int hit = dmon->_mmode == MM_STONE ? 0 : random_(4, 100);
 	if (hit < hper) {
-		int dam = (mind + random_(5, maxd - mind + 1)) << 6;
+		int dam = RandRange(mind, maxd) << 6;
 		dmon->_mhitpoints -= dam;
 		if (dmon->_mhitpoints >> 6 <= 0) {
 			if (dmon->_mmode == MM_STONE) {
@@ -2386,14 +2386,14 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		}
 	}
 	if (p->_pIFlags & ISPL_THORNS) {
-		tmp = (random_(99, 3) + 1) << 6;
+		tmp = RandRange(1, 3) << 6;
 		mon->_mhitpoints -= tmp;
 		if (mon->_mhitpoints >> 6 <= 0)
 			MonStartKill(mnum, pnum);
 		else
 			MonStartHit(mnum, pnum, tmp);
 	}
-	dam = MinDam + random_(99, (MaxDam - MinDam + 1));
+	dam = RandRange(MinDam, MaxDam);
 	dam += p->_pIGetHit;
 	if (dam <= 0)
 		dam = 1;
@@ -3490,7 +3490,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0;
 		if (mon->MType->mtype == MT_FAMILIAR) {
-			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, random_(109, 10) + 1, 0);
+			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, RandRange(1, 10), 0);
 		}
 	}
 
@@ -3695,7 +3695,7 @@ void MAI_Fireman(int mnum)
 			MonStartRAttack(mnum, MIS_KRULL, 4);
 			mon->_mgoalvar1++;
 		} else {
-			MonStartDelay(mnum, random_(112, 10) + 5);
+			MonStartDelay(mnum, RandRange(5, 14));
 			mon->_mgoalvar1++;
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
@@ -3858,7 +3858,7 @@ static void MAI_Round(int mnum, BOOL special)
 				if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
-					MonStartDelay(mnum, random_(125, 10) + 10);
+					MonStartDelay(mnum, RandRange(10, 19));
 				}
 			}
 		} else
@@ -4169,7 +4169,7 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 			}
 		}
 		if (mon->_mmode == MM_STAND) {
-			MonStartDelay(mnum, random_(125, 10) + 5);
+			MonStartDelay(mnum, RandRange(5, 14));
 		}
 	}
 }
@@ -4270,7 +4270,7 @@ static void MAI_RR2(int mnum, int mitype)
 			mon->_mgoalvar3 = 1;
 		}
 		if (mon->_mmode == MM_STAND) {
-			MonStartDelay(mnum, random_(125, 10) + 5);
+			MonStartDelay(mnum, RandRange(5, 14));
 		}
 	}
 }
@@ -4384,7 +4384,7 @@ void MAI_SkelKing(int mnum)
 				if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
-					MonStartDelay(mnum, random_(125, 10) + 10);
+					MonStartDelay(mnum, RandRange(10, 19));
 				}
 			}
 		} else
@@ -4404,7 +4404,7 @@ void MAI_SkelKing(int mnum)
 					v = random_(129, 100);
 					if (v >= mon->_mint + 25
 					    && (mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3 || mon->_mVar2 != 0 || (v >= mon->_mint + 75))) {
-						MonStartDelay(mnum, random_(130, 10) + 10);
+						MonStartDelay(mnum, RandRange(10, 19));
 					} else {
 						MonCallWalk(mnum, md);
 					}
@@ -4448,7 +4448,7 @@ void MAI_Rhino(int mnum)
 				if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
-					MonStartDelay(mnum, random_(125, 10) + 10);
+					MonStartDelay(mnum, RandRange(10, 19));
 				}
 			}
 		} else
@@ -4470,7 +4470,7 @@ void MAI_Rhino(int mnum)
 					    && (mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3
 					           || mon->_mVar2
 					           || v >= 2 * mon->_mint + 83)) {
-						MonStartDelay(mnum, random_(135, 10) + 10);
+						MonStartDelay(mnum, RandRange(10, 19));
 					} else {
 						MonCallWalk(mnum, md);
 					}
@@ -4521,7 +4521,7 @@ void MAI_Horkdemon(int mnum)
 		if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
-			MonStartDelay(mnum, random_(125, 10) + 10);
+			MonStartDelay(mnum, RandRange(10, 19));
 		}
 	}
 
@@ -4541,7 +4541,7 @@ void MAI_Horkdemon(int mnum)
 			    || (mon->_mVar1 == 1 || mon->_mVar1 == 2 || mon->_mVar1 == 3) && mon->_mVar2 == 0 && v < 2 * mon->_mint + 83) {
 				MonCallWalk(mnum, md);
 			} else {
-				MonStartDelay(mnum, random_(135, 10) + 10);
+				MonStartDelay(mnum, RandRange(10, 19));
 			}
 		}
 	}
@@ -4615,7 +4615,7 @@ void MAI_Counselor(int mnum)
 			}
 		}
 		if (mon->_mmode == MM_STAND) {
-			MonStartDelay(mnum, random_(125, 10) + 5);
+			MonStartDelay(mnum, RandRange(5, 14));
 		}
 	}
 }

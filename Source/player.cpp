@@ -2540,12 +2540,10 @@ static BOOL WeaponDur(int pnum, int durrnd)
 static int PlrAtkDam(int pnum)
 {
 	PlayerStruct *p;
-	int mind, maxd, dam;
+	int dam;
 
 	p = &plr[pnum];
-	mind = p->_pIMinDam;
-	maxd = p->_pIMaxDam;
-	dam = random_(5, maxd - mind + 1) + mind;
+	dam = RandRange(p->_pIMinDam, p->_pIMaxDam);
 	dam += dam * p->_pIBonusDam / 100;
 	dam += p->_pDamageMod + p->_pIBonusDamMod;
 	if (p->_pClass == PC_WARRIOR) {

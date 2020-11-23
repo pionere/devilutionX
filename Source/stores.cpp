@@ -2220,7 +2220,7 @@ static void S_TalkEnter()
 
 	if (stextsel == sn - 2) {
 		SetRndSeed(towner[talker]._tSeed);
-		tq = gossipstart + random_(0, gossipend - gossipstart + 1);
+		tq = RandRange(gossipstart, gossipend);
 		InitQTextMsg(tq);
 		return;
 	}

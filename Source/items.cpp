@@ -550,7 +550,7 @@ static void AddInitItems()
 
 	lvl = items_get_currlevel();
 
-	rnd = random_(11, 3) + 3;
+	rnd = RandRange(3, 5);
 	for (j = 0; j < rnd; j++) {
 		i = itemavail[0];
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
@@ -1664,7 +1664,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 {
 	SpellData *sd;
 	ItemStruct *is;
-	int l, rv, minc, maxc, v, bs;
+	int l, rv, v, bs;
 	char istr[64];
 
 #ifndef HELLFIRE
@@ -1708,10 +1708,8 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 		strcpy(is->_iName, istr);
 		strcpy(is->_iIName, istr);
 
-		minc = sd->sStaffMin;
-		maxc = sd->sStaffMax - minc + 1;
 		is->_iSpell = bs;
-		is->_iCharges = minc + random_(19, maxc);
+		is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
 		is->_iMaxCharges = is->_iCharges;
 
 		is->_iMinMag = sd->sMinInt;
@@ -1773,7 +1771,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	is->_iClass = ids->iClass;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
-	is->_iAC = ids->iMinAC + random_(20, ids->iMaxAC - ids->iMinAC + 1);
+	is->_iAC = RandRange(ids->iMinAC, ids->iMaxAC);
 #ifndef HELLFIRE
 	is->_iFlags = ids->iFlags;
 #endif
@@ -1846,11 +1844,6 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	}
 }
 
-static int RndPL(int param1, int param2)
-{
-	return param1 + random_(22, param2 - param1 + 1);
-}
-
 static int PLVal(int pv, int p1, int p2, int minv, int maxv)
 {
 	int dp, dv, rv;
@@ -1871,7 +1864,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	int r, r2;
 
 	is = &item[ii];
-	r = RndPL(param1, param2);
+	r = RandRange(param1, param2);
 	switch (power) {
 	case IPL_TOHIT:
 		is->_iPLToHit += r;
@@ -1891,34 +1884,34 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		// no break
 #endif
 	case IPL_TOHIT_DAMP:
-		r = RndPL(param1, param2);
+		r = RandRange(param1, param2);
 		is->_iPLDam += r;
 		if (param1 == 20)
-			r2 = RndPL(1, 5);
+			r2 = RandRange(1, 5);
 		if (param1 == 36)
-			r2 = RndPL(6, 10);
+			r2 = RandRange(6, 10);
 		if (param1 == 51)
-			r2 = RndPL(11, 15);
+			r2 = RandRange(11, 15);
 		if (param1 == 66)
-			r2 = RndPL(16, 20);
+			r2 = RandRange(16, 20);
 		if (param1 == 81)
-			r2 = RndPL(21, 30);
+			r2 = RandRange(21, 30);
 		if (param1 == 96)
-			r2 = RndPL(31, 40);
+			r2 = RandRange(31, 40);
 		if (param1 == 111)
-			r2 = RndPL(41, 50);
+			r2 = RandRange(41, 50);
 		if (param1 == 126)
-			r2 = RndPL(51, 75);
+			r2 = RandRange(51, 75);
 		if (param1 == 151)
-			r2 = RndPL(76, 100);
+			r2 = RandRange(76, 100);
 		is->_iPLToHit += r2;
 		break;
 	case IPL_TOHIT_DAMP_CURSE:
 		is->_iPLDam -= r;
 		if (param1 == 25)
-			r2 = RndPL(1, 5);
+			r2 = RandRange(1, 5);
 		if (param1 == 50)
-			r2 = RndPL(6, 10);
+			r2 = RandRange(6, 10);
 		is->_iPLToHit -= r2;
 		break;
 	case IPL_ACP:
@@ -3397,7 +3390,7 @@ BOOL DoOil(int pnum, int cii)
 		}
 		break;
 	case IMISC_OILSKILL:
-		r = random_(68, 6) + 5;
+		r = RandRange(5, 10);
 		if (is->_iMinStr > r) {
 			is->_iMinStr -= r;
 		} else {
@@ -3432,7 +3425,7 @@ BOOL DoOil(int pnum, int cii)
 		break;
 	case IMISC_OILFORT:
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur < 200) {
-			r = random_(68, 41) + 10;
+			r = RandRange(10, 50);
 			is->_iMaxDur += r;
 			is->_iDurability += r;
 		}
@@ -3443,12 +3436,12 @@ BOOL DoOil(int pnum, int cii)
 		break;
 	case IMISC_OILHARD:
 		if (is->_iAC < 60) {
-			is->_iAC += random_(68, 2) + 1;
+			is->_iAC += RandRange(1, 2);
 		}
 		break;
 	case IMISC_OILIMP:
 		if (is->_iAC < 120) {
-			is->_iAC += random_(68, 3) + 3;
+			is->_iAC += RandRange(3, 5);
 		}
 		break;
 	}
@@ -4498,7 +4491,7 @@ void SpawnSmith(int lvl)
 	ItemStruct holditem;
 	holditem = item[0];
 #endif
-	iCnt = random_(50, SMITH_ITEMS - 10) + 10;
+	iCnt = RandRange(10, SMITH_ITEMS - 1);
 	for (i = 0; i < iCnt; i++) {
 		do {
 			item[0]._iSeed = GetRndSeed();
@@ -4718,7 +4711,7 @@ void SpawnWitch(int lvl)
 	witchitem[2] = item[0];
 	witchitem[2]._iCreateInfo = lvl;
 	witchitem[2]._iStatFlag = TRUE;
-	iCnt = random_(51, WITCH_ITEMS - 10) + 10;
+	iCnt = RandRange(10, WITCH_ITEMS - 1);
 	for (i = 3; i < iCnt; i++) {
 		do {
 			item[0]._iSeed = GetRndSeed();
@@ -4883,7 +4876,7 @@ void SpawnHealer(int lvl)
 	} else {
 		srnd = 2;
 	}
-	iCnt = random_(50, HEALER_ITEMS - 10) + 10;
+	iCnt = RandRange(10, HEALER_ITEMS - 1);
 	for (i = srnd; i < iCnt; i++) {
 		item[0]._iSeed = GetRndSeed();
 		SetRndSeed(item[0]._iSeed);

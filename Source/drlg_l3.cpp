@@ -2192,8 +2192,8 @@ static void DRLG_L3(int entry)
 		do {
 			do {
 				InitL3Dungeon();
-				x1 = random_(0, 20) + 10;
-				y1 = random_(0, 20) + 10;
+				x1 = RandRange(10, 29);
+				y1 = RandRange(10, 29);
 				x2 = x1 + 2;
 				y2 = y1 + 2;
 				DRLG_L3FillRoom(x1, y1, x2, y2);
@@ -2202,8 +2202,8 @@ static void DRLG_L3(int entry)
 				DRLG_L3CreateBlock(x1, y2, 2, 2);
 				DRLG_L3CreateBlock(x1, y1, 2, 3);
 				if (QuestStatus(Q_ANVIL)) {
-					x1 = random_(0, 10) + 10;
-					y1 = random_(0, 10) + 10;
+					x1 = RandRange(10, 19);
+					y1 = RandRange(10, 19);
 					x2 = x1 + 12;
 					y2 = y1 + 12;
 					DRLG_L3FloorArea(x1, y1, x2, y2);

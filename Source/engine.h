@@ -82,6 +82,10 @@ void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void PlayInGameMovie(const char *pszMovie);
 
+inline int RandRange(int minVal, int maxVal)
+{
+	return minVal + random_(0, maxVal - minVal + 1);
+}
 
 #ifdef __cplusplus
 }

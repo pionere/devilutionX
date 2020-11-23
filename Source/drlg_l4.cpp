@@ -1217,7 +1217,7 @@ static void L4firstRoom()
 
 	xmin = (20 - w) >> 1;
 	xmax = 19 - w;
-	rndx = random_(0, xmax - xmin + 1) + xmin;
+	rndx = RandRange(xmin, xmax);
 	if (rndx + w > 19) {
 		tx = w + rndx - 19;
 		x = rndx - tx + 1;
@@ -1226,7 +1226,7 @@ static void L4firstRoom()
 	}
 	ymin = (20 - h) >> 1;
 	ymax = 19 - h;
-	rndy = random_(0, ymax - ymin + 1) + ymin;
+	rndy = RandRange(ymin, ymax);
 	if (rndy + h > 19) {
 		ty = h + rndy - 19;
 		y = rndy - ty + 1;
