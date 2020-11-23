@@ -4470,31 +4470,25 @@ void MI_LightwallC(int mi)
 void MI_FireNovaC(int mi)
 {
 	MissileStruct *mis;
-	int i, src, sx, sy, dir, en, cx, cy, dam, spllvl;
+	int i, sx, sy, cx, cy, caster, source, dam, spllvl;
 
 	mis = &missile[mi];
-	src = mis->_miSource;
+	caster = mis->_miCaster;
+	source = mis->_miSource;
 	dam = mis->_miDam;
 	spllvl = mis->_miSpllvl;
 	sx = mis->_mix;
 	sy = mis->_miy;
-	if (src != -1) {
-		en = 0;
-		dir = plr[src]._pdir;
-	} else {
-		dir = 0;
-		en = 1;
-	}
 	cx = 0;
 	cy = 0;
 	for (i = 0; i < 23; i++) {
 		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
 			cx = vCrawlTable[i][6];
 			cy = vCrawlTable[i][7];
-			AddMissile(sx, sy, sx + cx, sy + cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy - cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy + cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx + cx, sy - cy, dir, MIS_FIREBALL2, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy + cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy - cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy + cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy - cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
 		}
 	}
 	mis->_miRange--;
@@ -5344,31 +5338,25 @@ void MI_FireWaveC(int mi)
 void MI_LightNovaC(int mi)
 {
 	MissileStruct *mis;
-	int i, src, sx, sy, dir, en, cx, cy, dam, spllvl;
+	int i, sx, sy, cx, cy, micaster, misource, midam, spllvl;
 
 	mis = &missile[mi];
-	src = mis->_miSource;
-	dam = mis->_miDam;
+	micaster = mis->_miCaster;
+	misource = mis->_miSource;
+	midam = mis->_miDam;
 	spllvl = mis->_miSpllvl;
 	sx = mis->_mix;
 	sy = mis->_miy;
-	if (src != -1) {
-		en = 0;
-		dir = plr[src]._pdir;
-	} else {
-		dir = 0;
-		en = 1;
-	}
 	cx = 0;
 	cy = 0;
 	for (i = 0; i < 23; i++) {
 		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
 			cx = vCrawlTable[i][6];
 			cy = vCrawlTable[i][7];
-			AddMissile(sx, sy, sx + cx, sy + cy, dir, MIS_LIGHTBALL, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy - cy, dir, MIS_LIGHTBALL, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy + cy, dir, MIS_LIGHTBALL, en, src, dam, spllvl);
-			AddMissile(sx, sy, sx + cx, sy - cy, dir, MIS_LIGHTBALL, en, src, dam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy + cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy - cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
+			AddMissile(sx, sy, sx - cx, sy + cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
+			AddMissile(sx, sy, sx + cx, sy - cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
 		}
 	}
 	mis->_miRange--;
