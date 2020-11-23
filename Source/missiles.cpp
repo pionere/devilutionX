@@ -1610,16 +1610,41 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 /**
  * Var1: dx destination of the missile
  * Var2: dy destination of the missile
+ * Var3: the arrow direction
+ * Var4: the arrow type
+ * Var5: the arrow velocity bonus
  */
 void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int av, flags;
+	int av, mitype, flags;
+
+	mis = &missile[mi];
+	mis->_miRange = 1;
+	mis->_miVar1 = dx;
+	mis->_miVar2 = dy;
+	mis->_miVar3 = midir;
 
 	av = 0;
-	if (micaster == 0) {
+	mitype = 0;
+	if (misource != -1) {
 		p = &plr[misource];
+		switch (p->_pILMinDam) {
+		case 0:
+			mitype = MIS_FIREBALL2;
+			break;
+		case 1:
+			mitype = MIS_LIGHTARROW;
+			break;
+		case 2:
+			mitype = MIS_CBOLTARROW;
+			break;
+		case 3:
+			mitype = MIS_HBOLTARROW;
+			break;
+		}
+
 		if (p->_pClass == PC_ROGUE)
 			av += (p->_pLevel - 1) >> 2;
 		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
@@ -1635,11 +1660,8 @@ void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		if (flags & ISPL_FASTESTATTACK)
 			av += 8;
 	}
-	mis = &missile[mi];
-	mis->_miRange = 1;
-	mis->_miVar1 = dx;
-	mis->_miVar2 = dy;
-	mis->_miVar3 = av;
+	mis->_miVar4 = mitype;
+	mis->_miVar5 = av;
 }
 
 void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -4499,43 +4521,23 @@ void MI_FireNovaC(int mi)
 void MI_SpecArrow(int mi)
 {
 	MissileStruct *mis;
-	int dir, src, dam, sx, sy, dx, dy, spllvl, mitype, micaster;
+	int sx, sy, dx, dy, dir, mitype, caster, source, dam, spllvl;
 
 	mis = &missile[mi];
-	src = mis->_miSource;
+	caster = mis->_miCaster;
+	source = mis->_miSource;
 	dam = mis->_miDam;
 	sx = mis->_mix;
 	sy = mis->_miy;
 	dx = mis->_miVar1;
 	dy = mis->_miVar2;
-	spllvl = mis->_miVar3;
-	mitype = 0;
-	if (src != -1) {
-		dir = plr[src]._pdir;
-		micaster = 0;
-
-		switch (plr[src]._pILMinDam) {
-		case 0:
-			mitype = MIS_FIREBALL2;
-			break;
-		case 1:
-			mitype = MIS_LIGHTARROW;
-			break;
-		case 2:
-			mitype = MIS_CBOLTARROW;
-			break;
-		case 3:
-			mitype = MIS_HBOLTARROW;
-			break;
-		}
-	} else {
-		dir = 0;
-		micaster = 1;
-	}
-	AddMissile(sx, sy, dx, dy, dir, mitype, micaster, src, dam, spllvl);
+	dir = mis->_miVar3;
+	mitype = mis->_miVar4;
+	spllvl = mis->_miVar5;
+	AddMissile(sx, sy, dx, dy, dir, mitype, caster, source, dam, spllvl);
 	if (mitype == MIS_CBOLTARROW) {
-		AddMissile(sx, sy, dx, dy, dir, mitype, micaster, src, dam, spllvl);
-		AddMissile(sx, sy, dx, dy, dir, mitype, micaster, src, dam, spllvl);
+		AddMissile(sx, sy, dx, dy, dir, mitype, caster, source, dam, spllvl);
+		AddMissile(sx, sy, dx, dy, dir, mitype, caster, source, dam, spllvl);
 	}
 	mis->_miRange--;
 	if (mis->_miRange == 0)
