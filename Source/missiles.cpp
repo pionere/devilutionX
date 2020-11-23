@@ -1708,7 +1708,7 @@ void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 8);
-	if (micaster == 0 || micaster == 2) {
+	if (micaster == 0) {
 		dam = 2 * (plr[misource]._pLevel + random_(60, 10) + random_(60, 10)) + 4;
 		for (i = spllvl; i > 0; i--) {
 			dam += dam >> 3;
@@ -4118,7 +4118,7 @@ void MI_Rune(int mi)
 		}
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
-		AddMissile(mx, my, mx, my, dir, mis->_miVar1, 2, mis->_miSource, mis->_miDam, mis->_miSpllvl);
+		AddMissile(mx, my, mx, my, dir, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miDam, mis->_miSpllvl);
 	}
 	PutMissile(mi);
 }
