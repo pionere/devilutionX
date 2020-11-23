@@ -1818,6 +1818,30 @@ void Obj_Light(int oi, int lr)
 	}
 }
 
+static void GetVileMissPos(int *dx, int *dy)
+{
+	int xx, yy, k, j, i;
+
+	i = dObject[*dx][*dy] - 1;
+	// BUGFIX: should only run magic circle check if dObject[dx][dy] is non-zero.
+	if (object[i]._otype != OBJ_MCIRCLE1 && object[i]._otype != OBJ_MCIRCLE2)
+		return;
+
+	for (k = 0; k < 50; k++) {
+		for (j = -k; j <= k; j++) {
+			yy = j + *dy;
+			for (i = -k; i <= k; i++) {
+				xx = i + *dx;
+				if (PosOkPlayer(myplr, xx, yy)) {
+					*dx = xx;
+					*dy = yy;
+					return;
+				}
+			}
+		}
+	}
+}
+
 static void Obj_Circle(int oi)
 {
 	ObjectStruct *os;
@@ -1843,7 +1867,13 @@ static void Obj_Circle(int oi)
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE)
 				quests[Q_BETRAYER]._qvar1 = 4;
-			AddMissile(plr[myplr]._px, plr[myplr]._py, 35, 46, plr[myplr]._pdir, MIS_RNDTELEPORT, 0, myplr, 0, 0);
+			int dx = 0, dy = 0, caster = 0;
+			if (setlevel && setlvlnum == SL_VILEBETRAYER) {
+				dx = 35; dy = 46;
+				GetVileMissPos(&dx, &dy);
+				caster = -1;
+			}
+			AddMissile(plr[myplr]._px, plr[myplr]._py, dx, dy, 0, MIS_RNDTELEPORT, caster, myplr, 0, 0);
 			sgbMouseDown = CLICK_NONE;
 			ClrPlrPath(myplr);
 			PlrStartStand(myplr, 0);
@@ -2856,7 +2886,8 @@ static void OperateBook(int pnum, int oi)
 			}
 			on->_oVar6 = 4;
 			object[dObject[35][36] - 1]._oVar5++;
-			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, plr[pnum]._pdir, MIS_RNDTELEPORT, 0, pnum, 0, 0);
+			GetVileMissPos(&dx, &dy);
+			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0);
 			missile_added = TRUE;
 		}
 		if (!missile_added)
@@ -3287,7 +3318,6 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	ItemStruct *pi;
 	int cnt;
 	int r, i;
-	DWORD lv;
 	int xx, yy;
 	int v1, v2, v3, v4;
 	unsigned __int64 spell, spells;
@@ -3620,16 +3650,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	case SHRINE_HOLY:
 		if (deltaload)
 			return;
-		i = 0;
-		do {
-			xx = random_(159, MAXDUNX);
-			yy = random_(159, MAXDUNY);
-			i++;
-			if (i > MAXDUNX * MAXDUNY)
-				break;
-			lv = dPiece[xx][yy];
-		} while ((nSolidTable[lv] | dObject[xx][yy] | dMonster[xx][yy]) != 0);
-		AddMissile(p->_px, p->_py, xx, yy, p->_pdir, MIS_RNDTELEPORT, -1, pnum, 0, 2 * leveltype);
+		AddMissile(p->_px, p->_py, 0, 0, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0);
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);

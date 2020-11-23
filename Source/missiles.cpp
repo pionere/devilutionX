@@ -2165,69 +2165,42 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 }
 
-void GetVileMissPos(MissileStruct *mis, int dx, int dy)
-{
-	int xx, yy, k, j, i;
-
-	for (k = 0; k < 50; k++) {
-		for (j = -k; j <= k; j++) {
-			yy = j + dy;
-			for (i = -k; i <= k; i++) {
-				xx = i + dx;
-				if (PosOkPlayer(myplr, xx, yy)) {
-					mis->_mix = xx;
-					mis->_miy = yy;
-					return;
-				}
-			}
-		}
-	}
-	mis->_mix = dx;
-	mis->_miy = dy;
-}
-
 void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int pn, r1, r2, nTries;
+	int pn, nTries;
 
-	nTries = 0;
-	do {
-		nTries++;
-		if (nTries > 500) {
-			r1 = 0;
-			r2 = 0;
-			break; //BUGFIX: warps player to 0/0 in hellfire, change to return or use 1.09's version of the code
-		}
-		r1 = RandRange(4, 6);
-		r2 = RandRange(4, 6);
-		if (random_(58, 2) == 1)
-			r1 = -r1;
-		if (random_(58, 2) == 1)
-			r2 = -r2;
-		r1 += sx;
-		r2 += sy;
+	if (dx == 0 && dy == 0) {
+		nTries = 0;
+		do {
+			nTries++;
+			if (nTries > 500) {
+				dx = 0;
+				dy = 0;
+				break; //BUGFIX: warps player to 0/0 in hellfire, change to return or use 1.09's version of the code
+			}
+			dx = RandRange(4, 6);
+			dy = RandRange(4, 6);
+			if (random_(58, 2) == 1)
+				dx = -dx;
+			if (random_(58, 2) == 1)
+				dy = -dy;
+			dx += sx;
+			dy += sy;
 #ifdef HELLFIRE
-		if (r1 <= MAXDUNX && r1 >= 0 && r2 <= MAXDUNY && r2 >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
+			if (dx <= MAXDUNX && dx >= 0 && dy <= MAXDUNY && dy >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
 #endif
-			pn = dPiece[r1][r2];
-	} while ((nSolidTable[pn] | dObject[r1][r2] | dMonster[r1][r2]) != 0);
+				pn = dPiece[dx][dy];
+		} while ((nSolidTable[pn] | dObject[dx][dy] | dMonster[dx][dy]) != 0);
+	}
 
 	mis = &missile[mi];
 	mis->_miRange = 2;
 	mis->_miVar1 = 0;
-	if (!setlevel || setlvlnum != SL_VILEBETRAYER) {
-		mis->_mix = r1;
-		mis->_miy = r2;
-		if (micaster == 0)
-			UseMana(misource, SPL_RNDTELEPORT);
-	} else {
-		pn = dObject[dx][dy] - 1;
-		// BUGFIX: should only run magic circle check if dObject[dx][dy] is non-zero.
-		if (object[pn]._otype == OBJ_MCIRCLE1 || object[pn]._otype == OBJ_MCIRCLE2) {
-			GetVileMissPos(mis, dx, dy);
-		}
-	}
+	mis->_mix = dx;
+	mis->_miy = dy;
+	if (micaster == 0)
+		UseMana(misource, SPL_RNDTELEPORT);
 }
 
 /**
