@@ -1012,6 +1012,51 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
+static BOOL MonMissHit(int mnum, int mi, int mindam, int maxdam, int shift)
+{
+	MissileStruct *mis;
+
+	mis = &missile[mi];
+	if (mis->_miSource != -1) {
+		if (mis->_miCaster == 0) {
+			// player vs. monster
+			return MonsterMHit(mnum, mis->_miSource, mindam, maxdam,
+					mis->_miDist, mis->_miType, shift);
+		} else {
+			// monster vs. golem
+			return mnum < MAX_PLRS && MonsterTrapHit(mnum, mindam, maxdam,
+				mis->_miDist, mis->_miType, shift);
+		}
+	} else {
+		// trap vs. monster
+		return MonsterTrapHit(mnum, mindam, maxdam,
+				mis->_miDist, mis->_miType, shift);
+	}
+}
+
+static BOOL PlrMissHit(int pnum, int mi, int mindam, int maxdam, int shift)
+{
+	MissileStruct *mis;
+
+	mis = &missile[mi];
+	if (mis->_miSource != -1) {
+		if (mis->_miCaster == 0) {
+			// player vs. player
+			return pnum != mis->_miSource
+			 && Plr2PlrMHit(pnum, mis->_miSource, mindam, maxdam,
+				 mis->_miDist, mis->_miType, shift);
+		} else {
+			// monster vs. player
+			return PlayerMHit(pnum, mis->_miSource, mindam, maxdam,
+					mis->_miDist, mis->_miType, shift);
+		}
+	} else {
+		// trap vs. player
+		return PlayerTrapHit(pnum, mindam, maxdam,
+				mis->_miDist, mis->_miType, shift);
+	}
+}
+
 static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
 {
 	MissileStruct *mis;
@@ -1019,36 +1064,17 @@ static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, 
 	int oi, mnum, pnum;
 	int hit = 0;
 
-	mis = &missile[mi];
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
 		if (mnum > 0) {
 			mnum--;
-			if (mis->_miSource != -1) {
-				if (mis->_miCaster == 0) {
-					if (MonsterMHit(mnum, mis->_miSource, mindam, maxdam,
-							mis->_miDist, mis->_miType, shift)) {
-						hit = 1;
-					}
-				} else {
-					if (mnum < MAX_PLRS
-					 && MonsterTrapHit(mnum, mindam, maxdam,
-							mis->_miDist, mis->_miType, shift)) {
-						hit = 1;
-					}
-				}
-			} else {
-				if (MonsterTrapHit(mnum, mindam, maxdam,
-						mis->_miDist, mis->_miType, shift)) {
-					hit = 1;
-				}
-			}
+			if (MonMissHit(mnum, mi, mindam, maxdam, shift))
+				hit = 1;
 		} else {
 			mnum = -(mnum + 1);
-			if (monster[mnum]._mmode == MM_STONE
-			 && MonsterMHit(mnum, mis->_miSource, mindam, maxdam,
-					mis->_miDist, mis->_miType, shift)) {
-				hit = 1;
+			if (monster[mnum]._mmode == MM_STONE) {
+				if (MonMissHit(mnum, mi, mindam, maxdam, shift))
+					hit = 1;
 			}
 		}
 	}
@@ -1056,25 +1082,8 @@ static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, 
 	pnum = dPlayer[mx][my];
 	if (pnum > 0) {
 		pnum--;
-		if (mis->_miSource != -1) {
-			if (mis->_miCaster == 0) {
-				if (pnum != mis->_miSource
-				 && Plr2PlrMHit(pnum, mis->_miSource, mindam, maxdam,
-					 mis->_miDist, mis->_miType, shift)) {
-					hit = 1;
-				}
-			} else {
-				if (PlayerMHit(pnum, mis->_miSource, mindam, maxdam,
-						mis->_miDist, mis->_miType, shift)) {
-					hit = 1;
-				}
-			}
-		} else {
-			if (PlayerTrapHit(pnum, mindam, maxdam,
-					mis->_miDist, mis->_miType, shift)) {
-				hit = 1;
-			}
-		}
+		if (PlrMissHit(pnum, mi, mindam, maxdam, shift))
+			hit = 1;
 	}
 
 	oi = dObject[mx][my];
@@ -1094,6 +1103,7 @@ static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, 
 		return FALSE;
 
 	if (!nodel) {
+		mis = &missile[mi];
 		mis->_miRange = 0;
 		mds = &missiledata[mis->_miType];
 		if (mds->miSFX != -1)
