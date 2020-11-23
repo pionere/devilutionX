@@ -765,8 +765,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->_mint = uniqm->mint;
 	mon->mMinDamage = uniqm->mMinDamage;
 	mon->mMaxDamage = uniqm->mMaxDamage;
-	mon->mMinDamage2 = uniqm->mMinDamage;
-	mon->mMaxDamage2 = uniqm->mMaxDamage;
+	mon->mMinDamage2 = uniqm->mMinDamage2;
+	mon->mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
 #ifdef HELLFIRE

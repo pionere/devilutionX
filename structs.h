@@ -646,6 +646,8 @@ typedef struct UniqMonstStruct {
 	unsigned char mint;
 	unsigned char mMinDamage;
 	unsigned char mMaxDamage;
+	unsigned char mMinDamage2;
+	unsigned char mMaxDamage2;
 	unsigned short mMagicRes;
 	unsigned short mUnqAttr;
 	unsigned char mUnqVar1;
