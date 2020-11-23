@@ -2170,7 +2170,7 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	MissileStruct *mis;
 	int pn, nTries;
 
-	if (dx == 0 && dy == 0) {
+	if (micaster == 0 || (dx == 0 && dy == 0)) {
 		nTries = 0;
 		do {
 			nTries++;
