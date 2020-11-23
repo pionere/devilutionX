@@ -1867,13 +1867,12 @@ static void Obj_Circle(int oi)
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE)
 				quests[Q_BETRAYER]._qvar1 = 4;
-			int dx = 0, dy = 0, caster = 0;
+			int dx = 0, dy = 0;
 			if (setlevel && setlvlnum == SL_VILEBETRAYER) {
 				dx = 35; dy = 46;
 				GetVileMissPos(&dx, &dy);
-				caster = -1;
 			}
-			AddMissile(plr[myplr]._px, plr[myplr]._py, dx, dy, 0, MIS_RNDTELEPORT, caster, myplr, 0, 0);
+			AddMissile(plr[myplr]._px, plr[myplr]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0);
 			sgbMouseDown = CLICK_NONE;
 			ClrPlrPath(myplr);
 			PlrStartStand(myplr, 0);
