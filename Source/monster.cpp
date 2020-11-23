@@ -3490,7 +3490,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0;
 		if (mon->MType->mtype == MT_FAMILIAR) {
-			AddMissile(mon->_menemyx, mon->_menemyy, mon->_menemyx + 1, 0, -1, MIS_LIGHTNING, 1, mnum, random_(109, 10) + 1, 0);
+			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, random_(109, 10) + 1, 0);
 		}
 	}
 

@@ -2419,8 +2419,6 @@ void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 4);
-	mis->_misx = dx;
-	mis->_misy = dy;
 	if (midir >= 0) {
 		mis->_mixoff = missile[midir]._mixoff;
 		mis->_miyoff = missile[midir]._miyoff;
@@ -4258,8 +4256,8 @@ void MI_LightArrow(int mi)
 			AddMissile(
 				mx,
 				my,
-				mis->_misx,
-				mis->_misy,
+				0,
+				0,
 				mi,
 				mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 				mis->_miCaster,
@@ -4584,8 +4582,8 @@ void MI_LightningC(int mi)
 			AddMissile(
 			    mx,
 			    my,
-			    mis->_misx,
-			    mis->_misy,
+			    0,
+			    0,
 			    mi,
 			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 			    mis->_miCaster,
@@ -4612,10 +4610,8 @@ void MI_Lightning(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
-			mis->_miRange = range;
-	}
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
+		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
