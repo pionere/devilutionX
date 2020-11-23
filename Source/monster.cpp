@@ -3536,7 +3536,7 @@ void MAI_SkelBow(int mnum)
 	if (!walking) {
 		if (random_(110, 100) < 2 * mon->_mint + 3) {
 			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
-				MonStartRAttack(mnum, MIS_ARROW, 4);
+				MonStartRAttack(mnum, MIS_ARROW, 0);
 		}
 	}
 
@@ -3925,9 +3925,9 @@ static void MAI_Ranged(int mnum, int mitype, BOOL special)
 		if (mon->_mmode == MM_STAND) {
 			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
 				if (special)
-					MonStartRSpAttack(mnum, mitype, 4);
+					MonStartRSpAttack(mnum, mitype, 0);
 				else
-					MonStartRAttack(mnum, mitype, 4);
+					MonStartRAttack(mnum, mitype, 0);
 			} else {
 				mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[md];
 			}
@@ -4176,29 +4176,29 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 
 void MAI_Magma(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_MAGMABALL, TRUE, 4, 0);
+	MAI_RoundRanged(mnum, MIS_MAGMABALL, TRUE, 0, 0);
 }
 
 void MAI_Storm(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, TRUE, 4, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, TRUE, 0, 0);
 }
 
 void MAI_Storm2(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 4, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 0, 0);
 }
 
 #ifdef HELLFIRE
 void MAI_BoneDemon(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_BONEDEMON, TRUE, 4, 0);
+	MAI_RoundRanged(mnum, MIS_BONEDEMON, TRUE, 0, 0);
 }
 #endif
 
 void MAI_Acid(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_ACID, FALSE, 4, 1);
+	MAI_RoundRanged(mnum, MIS_ACID, FALSE, 0, 1);
 }
 
 void MAI_Diablo(int mnum)
@@ -4206,7 +4206,7 @@ void MAI_Diablo(int mnum)
 	MAI_RoundRanged(mnum, MIS_APOCAC2, FALSE, 40, 0);
 }
 
-static void MAI_RR2(int mnum, int mitype, int dam)
+static void MAI_RR2(int mnum, int mitype)
 {
 	MonsterStruct *mon;
 	int mx, my, fx, fy;
@@ -4249,7 +4249,7 @@ static void MAI_RR2(int mnum, int mitype, int dam)
 			mon->_mgoal = MGOAL_NORMAL;
 		if (mon->_mgoal == MGOAL_NORMAL) {
 			if ((dist >= 3 && v < 5 * (mon->_mint + 2) || v < 5 * (mon->_mint + 1) || mon->_mgoalvar3 == 4) && LineClear(mon->_mx, mon->_my, fx, fy)) {
-				MonStartRSpAttack(mnum, mitype, dam);
+				MonStartRSpAttack(mnum, mitype, 0);
 			} else if (dist >= 2) {
 				v = random_(124, 100);
 				if (v < 2 * (5 * mon->_mint + 25)
@@ -4264,7 +4264,7 @@ static void MAI_RR2(int mnum, int mitype, int dam)
 					if (random_(124, 2) != 0)
 						MonStartAttack(mnum);
 					else
-						MonStartRSpAttack(mnum, mitype, dam);
+						MonStartRSpAttack(mnum, mitype, 0);
 				}
 			}
 			mon->_mgoalvar3 = 1;
@@ -4277,7 +4277,7 @@ static void MAI_RR2(int mnum, int mitype, int dam)
 
 void MAI_Mega(int mnum)
 {
-	MAI_RR2(mnum, MIS_FLAMEC, 0);
+	MAI_RR2(mnum, MIS_FLAMEC);
 }
 
 void MAI_Golum(int mnum)
@@ -4592,7 +4592,7 @@ void MAI_Counselor(int mnum)
 		} else if (mon->_mgoal == MGOAL_NORMAL) {
 			if (abs(mx) >= 2 || abs(my) >= 2) {
 				if (v < 5 * (mon->_mint + 10) && LineClear(mon->_mx, mon->_my, fx, fy)) {
-					MonStartRAttack(mnum, counsmiss[mon->_mint], mon->mMinDamage + random_(77, mon->mMaxDamage - mon->mMinDamage + 1));
+					MonStartRAttack(mnum, counsmiss[mon->_mint], 0);
 				} else if (random_(124, 100) < 30) {
 					mon->_mgoal = MGOAL_MOVE;
 					mon->_mgoalvar1 = 0;

@@ -1771,14 +1771,16 @@ void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		for (i = spllvl; i > 0; i--) {
 			dam += dam >> 3;
 		}
-		mis->_miDam = dam;
 		i = 2 * spllvl + 16;
 		if (i > 50)
 			i = 50;
 		UseMana(misource, SPL_FIREBALL);
 	} else {
+		dam = monster[misource].mMinDamage + random_(77, monster[misource].mMaxDamage - monster[misource].mMinDamage + 1);
 		i = 16;
 	}
+	mis->_miDam = dam;
+
 	GetMissileVel(mi, sx, sy, dx, dy, i);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis->_miVar1 = sx;
@@ -1987,9 +1989,6 @@ void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	GetMissileVel(mi, sx, sy, dx, dy, 8);
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 5);
-	if (micaster != 0) {
-		mis->_miDam = 15;
-	}
 	mis->_miVar1 = 5;
 	mis->_miVar2 = midir;
 	mis->_miVar3 = 0;
@@ -2397,14 +2396,15 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		for (i = spllvl; i > 0; i--) {
 			dam += dam >> 3;
 		}
-		mis->_miDam = dam;
 		i = 2 * spllvl + 16;
 		if (i > 50)
 			i = 50;
 		UseMana(misource, SPL_FIREBALL);
 	} else {
+		dam = monster[misource].mMinDamage + random_(77, monster[misource].mMaxDamage - monster[misource].mMinDamage + 1);
 		i = 16;
 	}
+	mis->_miDam = dam;
 	GetMissileVel(mi, sx, sy, dx, dy, i);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis->_miVar1 = sx;
