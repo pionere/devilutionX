@@ -3371,7 +3371,7 @@ void MAI_Snake(int mnum)
 	mon->_mdir = md;
 	if (abs(mx) >= 2 || abs(my) >= 2) {
 		if (abs(mx) < 3 && abs(my) < 3 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, pnum, mnum, 0, 0) != -1) {
+			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
 				PlayEffect(mnum, 0);
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 				mon->_mmode = MM_CHARGE;
@@ -3474,7 +3474,7 @@ void MAI_Bat(int mnum)
 	    && (abs(xd) >= 5 || abs(yd) >= 5)
 	    && v < 4 * mon->_mint + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, pnum, mnum, 0, 0) != -1) {
+		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
 			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			mon->_mmode = MM_CHARGE;
 		}
@@ -3682,7 +3682,7 @@ void MAI_Fireman(int mnum)
 	md = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (LineClear(mon->_mx, mon->_my, fx, fy)
-		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, pnum, mnum, 0, 0) != -1) {
+		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK2;
 			mon->_mgoalvar1 = 0;
@@ -4457,7 +4457,7 @@ void MAI_Rhino(int mnum)
 			if (dist >= 5
 			    && v < 2 * mon->_mint + 43
 			    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-				if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, mon->_menemy, mnum, 0, 0) != -1) {
+				if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
 					if (mon->MData->snd_special)
 						PlayEffect(mnum, 3);
 					mon->_mmode = MM_CHARGE;
