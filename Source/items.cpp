@@ -3514,23 +3514,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 			strcpy(tempstr, "Resist All: 75% MAX");
 		break;
 	case IPL_SPLLVLADD:
-		if (is->_iSplLvlAdd == 1)
-			strcpy(tempstr, "spells are increased 1 level");
-#ifdef HELLFIRE
-		if (is->_iSplLvlAdd > 1)
-			snprintf(tempstr, sizeof(tempstr), "spells are increased %i levels", is->_iSplLvlAdd);
-#else
-		if (is->_iSplLvlAdd == 2)
-			strcpy(tempstr, "spells are increased 2 levels");
-#endif
-		if (is->_iSplLvlAdd < 1)
-			strcpy(tempstr, "spells are decreased 1 level");
-#ifdef HELLFIRE
-		if (is->_iSplLvlAdd < -1)
-			snprintf(tempstr, sizeof(tempstr), "spells are decreased %i levels", is->_iSplLvlAdd);
-		if (is->_iSplLvlAdd == 0)
-			strcpy(tempstr, "spell levels unchanged (?)");
-#endif
+		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);
 		break;
 	case IPL_CHARGES:
 		strcpy(tempstr, "Extra charges");
@@ -3539,20 +3523,16 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_FIREDAM:
-#ifdef HELLFIRE
-		if (is->_iFMinDam == is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i", is->_iFMinDam);
-		else
-#endif
+		if (is->_iFMinDam != is->_iFMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i", is->_iFMinDam);
 		break;
 	case IPL_LIGHTDAM:
-#ifdef HELLFIRE
-		if (is->_iLMinDam == is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i", is->_iLMinDam);
-		else
-#endif
+		if (is->_iLMinDam != is->_iLMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i", is->_iLMinDam);
 		break;
 	case IPL_STR:
 	case IPL_STR_CURSE:
@@ -3607,20 +3587,16 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		break;
 #endif
 	case IPL_FIRE_ARROWS:
-#ifdef HELLFIRE
-		if (is->_iFMinDam == is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i", is->_iFMinDam);
-		else
-#endif
+		if (is->_iFMinDam != is->_iFMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i", is->_iFMinDam);
 		break;
 	case IPL_LIGHT_ARROWS:
-#ifdef HELLFIRE
-		if (is->_iLMinDam == is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
-		else
-#endif
+		if (is->_iLMinDam != is->_iLMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
 		break;
 	case IPL_THORNS:
 		strcpy(tempstr, "attacker takes 1-3 damage");
@@ -3773,10 +3749,10 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		strcpy(tempstr, "extra AC vs undead");
 		break;
 	case IPL_MANATOLIFE:
-		strcpy(tempstr, "50%% Mana moved to Health");
+		strcpy(tempstr, "50% Mana moved to Health");
 		break;
 	case IPL_LIFETOMANA:
-		strcpy(tempstr, "40%% Health moved to Mana");
+		strcpy(tempstr, "40% Health moved to Mana");
 		break;
 #endif
 	default:
