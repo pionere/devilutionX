@@ -1623,7 +1623,8 @@ void MonStartHit(int mnum, int pnum, int dam)
 			mon->_menemy = pnum;
 			mon->_menemyx = plr[pnum]._pfutx;
 			mon->_menemyy = plr[pnum]._pfuty;
-			mon->_mdir = MonGetDir(mnum);
+			if (mon->_mmode != MM_STONE)
+				mon->_mdir = MonGetDir(mnum);
 		}
 		if (mon->MType->mtype == MT_BLINK) {
 			MonTeleport(mnum);
@@ -1754,9 +1755,6 @@ static void M2MStartHit(int defm, int offm, int dam)
 	PlayEffect(defm, 1);
 
 	if (dmon->MType->mtype >= MT_SNEAK && dmon->MType->mtype <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {
-		if (offm >= 0)
-			dmon->_mdir = (monster[offm]._mdir - 4) & 7;
-
 		if (dmon->MType->mtype == MT_BLINK) {
 			MonTeleport(defm);
 		} else if (dmon->MType->mtype >= MT_NSCAV && dmon->MType->mtype <= MT_YSCAV) {
@@ -1764,6 +1762,8 @@ static void M2MStartHit(int defm, int offm, int dam)
 		}
 
 		if (dmon->_mmode != MM_STONE) {
+			if (offm >= 0)
+				dmon->_mdir = (monster[offm]._mdir - 4) & 7;
 			if (dmon->MType->mtype != MT_GOLEM) {
 				NewMonsterAnim(defm, &dmon->MType->Anims[MA_GOTHIT], dmon->_mdir);
 				dmon->_mmode = MM_GOTHIT;
@@ -1815,10 +1815,12 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 	else
 		PlayEffect(mnum, 2);
 
-	if (pnum >= 0)
-		mon->_mdir = MonGetDir(mnum);
-	NewMonsterAnim(mnum, &mon->MType->Anims[MA_DEATH], mon->_mdir);
-	mon->_mmode = MM_DEATH;
+	if (mon->_mmode != MM_STONE) {
+		mon->_mmode = MM_DEATH;
+		if (pnum >= 0)
+			mon->_mdir = MonGetDir(mnum);
+		NewMonsterAnim(mnum, &mon->MType->Anims[MA_DEATH], mon->_mdir);
+	}
 #ifdef HELLFIRE
 	mon->_mgoal = 0;
 #endif
@@ -1939,16 +1941,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 		monster[mnum]._moldy = y;
 	}
 
-#ifdef HELLFIRE
 	MonstStartKill(mnum, pnum, FALSE);
-#else
-	if (monster[mnum]._mmode == MM_STONE) {
-		MonstStartKill(mnum, pnum, FALSE);
-		monster[mnum]._mmode = MM_STONE;
-	} else {
-		MonstStartKill(mnum, pnum, FALSE);
-	}
-#endif
 }
 
 static void MonStartFadein(int mnum, int md, BOOL backwards)
@@ -2297,12 +2290,7 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 				M2MStartKill(offm, defm);
 			}
 		} else {
-			if (dmon->_mmode == MM_STONE) {
-				M2MStartHit(defm, offm, dam);
-				dmon->_mmode = MM_STONE;
-			} else {
-				M2MStartHit(defm, offm, dam);
-			}
+			M2MStartHit(defm, offm, dam);
 		}
 	}
 }
@@ -2883,7 +2871,6 @@ static BOOL MonDoDeath(int mnum)
 		app_fatal("MonDoDeath: Monster %d \"%s\" MType NULL", mnum, mon->mName);
 #endif
 
-	mon->_mVar1++;
 	if (mon->MType->mtype == MT_DIABLO) {
 		x = mon->_mx - ViewX;
 		if (x < 0)
@@ -2900,17 +2887,10 @@ static BOOL MonDoDeath(int mnum)
 		}
 		ViewY += y;
 
-		if (mon->_mVar1 == 140)
+		if (++mon->_mVar1 == 140)
 			PrepDoEnding();
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AddDead(mon->_mx, mon->_my,
-			mon->_uniqtype == 0 ? mon->MType->mdeadval : mon->_udeadval,
-			(direction)mon->_mdir);
-
-		dMonster[mon->_mx][mon->_my] = 0;
-		mon->_mDelFlag = TRUE;
-
-		MonUpdateLeader(mnum);
+		AddDead(mnum);
 	}
 	return FALSE;
 }

@@ -921,16 +921,7 @@ void DeltaLoadLevel()
 				if (mstr->_mhitpoints != -1)
 					mon->_mhitpoints = mstr->_mhitpoints;
 				if (mstr->_mhitpoints == 0) {
-					mon->_moldx = x; // CODEFIX: useless assignment
-					mon->_moldy = y; // CODEFIX: useless assignment
-					MonClearSquares(i);
-					if (mon->_mAi != AI_DIABLO) {
-						AddDead(mon->_mx, mon->_my,
-							mon->_uniqtype == 0 ? mon->MType->mdeadval : mon->_udeadval,
-							(direction)mon->_mdir);
-					}
-					mon->_mDelFlag = TRUE;
-					MonUpdateLeader(i);
+					AddDead(i);
 				} else {
 					decode_enemy(i, mstr->_menemy);
 					if (mon->_mx && mon->_mx != 1 || mon->_my)

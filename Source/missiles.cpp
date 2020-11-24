@@ -542,19 +542,10 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 		mon->_mhitpoints = 0;
 #endif
 	if (mon->_mhitpoints >> 6 <= 0) {
-		if (mon->_mmode == MM_STONE) {
-			MonStartKill(mnum, -1);
-			mon->_mmode = MM_STONE;
-		} else {
-			MonStartKill(mnum, -1);
-		}
+		MonStartKill(mnum, -1);
 	} else {
 		if (resist) {
 			PlayEffect(mnum, 1);
-		} else if (mon->_mmode == MM_STONE) {
-			if (mnum >= MAX_PLRS)
-				MonStartHit(mnum, -1, dam);
-			mon->_mmode = MM_STONE;
 		} else {
 			if (mnum >= MAX_PLRS)
 				MonStartHit(mnum, -1, dam);
@@ -634,21 +625,12 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		mon->_mhitpoints -= dam;
 
 	if (mon->_mhitpoints >> 6 <= 0) {
-		if (mon->_mmode == MM_STONE) {
-			MonStartKill(mnum, pnum);
-			mon->_mmode = MM_STONE;
-		} else {
-			MonStartKill(mnum, pnum);
-		}
+		MonStartKill(mnum, pnum);
 	} else {
 		if (resist) {
 			PlayEffect(mnum, 1);
-		} else if (mon->_mmode == MM_STONE) {
-			if (mnum >= MAX_PLRS)
-				MonStartHit(mnum, pnum, dam);
-			mon->_mmode = MM_STONE;
 		} else {
-			if (mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
+			if (mon->_mmode != MM_STONE && mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
 				MonGetKnockback(mnum);
 			}
 			if (mnum >= MAX_PLRS)
@@ -5023,30 +5005,30 @@ void MI_Stone(int mi)
 	MonsterStruct *mon;
 
 	mis = &missile[mi];
-	mis->_miRange--;
 	mon = &monster[mis->_miVar2];
-	if (mon->_mhitpoints == 0 && mis->_miAnimType != MFILE_SHATTER1) {
-#ifndef HELLFIRE
-		mis->_miDir = 0;
-		mis->_miDrawFlag = TRUE;
-#endif
-		SetMissAnim(mi, MFILE_SHATTER1);
-		mis->_miRange = 11;
-	}
 	if (mon->_mmode != MM_STONE) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-
+	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		if (mon->_mhitpoints > 0)
 			mon->_mmode = mis->_miVar1;
 		else
-			AddDead(mon->_mx, mon->_my, stonendx, (direction)mon->_mdir);
+			AddDead(mis->_miVar2);
+		return;
 	}
-	if (mis->_miAnimType == MFILE_SHATTER1)
+
+	if (mon->_mhitpoints == 0) {
+		if (mis->_miAnimType != MFILE_SHATTER1) {
+			//mis->_miDir = 0;
+			mis->_miDrawFlag = TRUE;
+			SetMissAnim(mi, MFILE_SHATTER1);
+			mis->_miRange = 11;
+		}
 		PutMissile(mi);
+	}
 }
 
 void MI_ApocaExp(int mi)

@@ -72,9 +72,23 @@ void InitDead()
 	assert(nd <= MAXDEAD);
 }
 
-void AddDead(int dx, int dy, char dv, int ddir)
+void AddDead(int mnum)
 {
-	dDead[dx][dy] = (dv & 0x1F) + (ddir << 5);
+	MonsterStruct *mon;
+	int dx, dy, dir, dv;
+
+	if (mnum >= MAX_PLRS)
+		MonUpdateLeader(mnum);
+
+	mon = &monster[mnum];
+	mon->_mDelFlag = TRUE;
+
+	dx = mon->_mx;
+	dy = mon->_my;
+	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->mdeadval : mon->_udeadval);
+	dir = mon->_mdir;
+	dMonster[dx][dy] = 0;
+	dDead[dx][dy] = (dv & 0x1F) + (dir << 5);
 }
 
 void SetDead()

@@ -2081,11 +2081,7 @@ void RemovePlrMissiles(int pnum)
 
 	if (currlevel != 0 && pnum == myplr && (monster[myplr]._mx != 1 || monster[myplr]._my != 0)) {
 		MonStartKill(myplr, myplr);
-		AddDead(monster[myplr]._mx, monster[myplr]._my, (monster[myplr].MType)->mdeadval, monster[myplr]._mdir);
-		mx = monster[myplr]._mx;
-		my = monster[myplr]._my;
-		dMonster[mx][my] = 0;
-		monster[myplr]._mDelFlag = TRUE;
+		AddDead(myplr);
 		DeleteMonsterList();
 	}
 
@@ -2682,22 +2678,12 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 #endif
 	if ((mon->_mhitpoints >> 6) <= 0) {
-		if (mon->_mmode == MM_STONE) {
-			MonStartKill(mnum, pnum);
-			mon->_mmode = MM_STONE;
-		} else {
-			MonStartKill(mnum, pnum);
-		}
+		MonStartKill(mnum, pnum);
 	} else {
-		if (mon->_mmode == MM_STONE) {
-			MonStartHit(mnum, pnum, dam);
-			mon->_mmode = MM_STONE;
-		} else {
-			if (p->_pIFlags & ISPL_KNOCKBACK) {
-				MonGetKnockback(mnum);
-			}
-			MonStartHit(mnum, pnum, dam);
+		if (mon->_mmode != MM_STONE && p->_pIFlags & ISPL_KNOCKBACK) {
+			MonGetKnockback(mnum);
 		}
+		MonStartHit(mnum, pnum, dam);
 	}
 	return TRUE;
 }
