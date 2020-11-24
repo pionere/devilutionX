@@ -1175,7 +1175,6 @@ static void SavePlayer(int pnum)
 static void SaveMonster(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
-	char tempChar;
 
 	CopyInt(&mon->_mMTidx, tbuff);
 	CopyInt(&mon->_mmode, tbuff);
@@ -1243,14 +1242,10 @@ static void SaveMonster(int mnum)
 	tbuff += 1; // Alignment
 	CopyShort(&mon->mExp, tbuff);
 
-	// Wtite mHit for backwards compatabiliyt
-	tempChar = mon->mHit < SCHAR_MAX ? mon->mHit : SCHAR_MAX;
-	CopyChar(&tempChar, tbuff);
+	tbuff += 1; // Skip mHit
 	CopyChar(&mon->mMinDamage, tbuff);
 	CopyChar(&mon->mMaxDamage, tbuff);
-	// Wtite mHit2 for backwards compatabiliyt
-	tempChar = mon->mHit2 < SCHAR_MAX ? mon->mHit2 : SCHAR_MAX;
-	CopyChar(&tempChar, tbuff);
+	tbuff += 1; // Skip mHit2
 	CopyChar(&mon->mMinDamage2, tbuff);
 	CopyChar(&mon->mMaxDamage2, tbuff);
 	CopyChar(&mon->mArmorClass, tbuff);
