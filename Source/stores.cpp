@@ -161,7 +161,7 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 		sx += fontkern[c] + 1;
 	}
 	if (!cjustflag && val >= 0) {
-		sprintf(valstr, "%i", val);
+		snprintf(valstr, sizeof(valstr), "%i", val);
 		sx = PANEL_X + 592 - x;
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
 			c = fontframe[gbFontTransTbl[(BYTE)valstr[i]]];
@@ -311,7 +311,7 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 		}
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-		sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
+		snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 		if (sstr[0] != '\0')
 			strcat(sstr, ",  ");
 		strcat(sstr, tempstr);
@@ -322,11 +322,11 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 	}
 	sstr[0] = '\0';
 	if (is->_iClass == ICLASS_WEAPON)
-		sprintf(sstr, "Damage: %i-%i  ", is->_iMinDam, is->_iMaxDam);
+		snprintf(sstr, sizeof(sstr), "Damage: %i-%i  ", is->_iMinDam, is->_iMaxDam);
 	if (is->_iClass == ICLASS_ARMOR)
-		sprintf(sstr, "Armor: %i  ", is->_iAC);
+		snprintf(sstr, sizeof(sstr), "Armor: %i  ", is->_iAC);
 	if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur) {
-		sprintf(tempstr, "Dur: %i/%i,  ", is->_iDurability, is->_iMaxDur);
+		snprintf(tempstr, sizeof(tempstr), "Dur: %i/%i,  ", is->_iDurability, is->_iMaxDur);
 		strcat(sstr, tempstr);
 	} else {
 		strcat(sstr, "Indestructible,  ");
@@ -338,11 +338,11 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 	} else {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr != 0)
-			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag != 0)
-			sprintf(tempstr, "%s %i Mag", tempstr, is->_iMinMag);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
 		if (is->_iMinDex != 0)
-			sprintf(tempstr, "%s %i Dex", tempstr, is->_iMinDex);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
 		strcat(sstr, tempstr);
 	}
 	AddSText(40, l++, FALSE, sstr, iclr, FALSE);
@@ -433,7 +433,7 @@ static void S_StartSBuy()
 	stextsidx = 0;
 	S_ScrollSBuy();
 
-	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -492,7 +492,7 @@ static BOOL S_StartSPBuy()
 	stextsidx = 0;
 	S_ScrollSPBuy();
 
-	sprintf(tempstr, "I have these premium items for sale :   Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these premium items for sale :   Your gold : %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 	return TRUE;
 }
@@ -584,12 +584,12 @@ static void S_StartSSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing I want.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Which item is for sale?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -649,12 +649,12 @@ static void S_StartSRepair()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to repair.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to repair.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Repair which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Repair which item?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -723,7 +723,7 @@ static void S_StartWBuy()
 	stextsidx = 0;
 	S_ScrollWBuy();
 
-	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -757,12 +757,12 @@ static void S_StartWSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing I want.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Which item is for sale?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -808,12 +808,12 @@ static void S_StartWRecharge()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to recharge.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to recharge.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Recharge which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Recharge which item?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -921,7 +921,7 @@ static void S_StartBBoy()
 
 	stextsize = TRUE;
 	stextscrl = FALSE;
-	sprintf(tempstr, "I have this item for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have this item for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
@@ -1015,7 +1015,7 @@ static void S_StartHBuy()
 	stextsidx = 0;
 	S_ScrollHBuy();
 
-	sprintf(tempstr, "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -1073,12 +1073,12 @@ static void S_StartSIdentify()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		sprintf(tempstr, "You have nothing to identify.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to identify.            Your gold : %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		sprintf(tempstr, "Identify which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Identify which item?            Your gold : %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -1105,11 +1105,11 @@ static void S_StartTalk()
 
 	stextsize = FALSE;
 	stextscrl = FALSE;
-	sprintf(tempstr, "Talk to %s", talkname[talker]);
+	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(5);
 #ifdef SPAWN
-	sprintf(tempstr, "Talking to %s", talkname[talker]);
+	snprintf(tempstr, sizeof(tempstr), "Talking to %s", talkname[talker]);
 	AddSText(0, 10, TRUE, tempstr, COL_WHITE, FALSE);
 	AddSText(0, 12, TRUE, "is not available", COL_WHITE, FALSE);
 	AddSText(0, 14, TRUE, "in the shareware", COL_WHITE, FALSE);

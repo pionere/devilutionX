@@ -520,7 +520,7 @@ void InitItemGFX()
 	char arglist[64];
 
 	for (i = 0; i < ITEMTYPES; i++) {
-		sprintf(arglist, "Items\\%s.CEL", ItemDropNames[i]);
+		snprintf(arglist, sizeof(arglist), "Items\\%s.CEL", ItemDropNames[i]);
 		itemanims[i] = LoadFileInMem(arglist, NULL);
 	}
 	memset(UniqueItemFlag, 0, sizeof(UniqueItemFlag));
@@ -1631,7 +1631,7 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 		pres = NULL;
 		if (nl != 0) {
 			pres = l[random_(16, nl)];
-			sprintf(istr, "%s %s", pres->PLName, item[ii]._iIName);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
 			strcpy(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
@@ -1649,10 +1649,10 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 	if (!control_WriteStringToBuffer((BYTE *)iname)) {
 		strcpy(iname, AllItemsList[item[ii].IDidx].iSName);
 		if (pres != NULL) {
-			sprintf(istr, "%s %s", pres->PLName, iname);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, iname);
 			strcpy(iname, istr);
 		}
-		sprintf(istr, "%s of %s", iname, spelldata[bs].sNameText);
+		snprintf(istr, sizeof(istr), "%s of %s", iname, spelldata[bs].sNameText);
 		strcpy(iname, istr);
 		if (item[ii]._iMagical == ITEM_QUALITY_NORMAL)
 			strcpy(item[ii]._iName, iname);
@@ -1702,9 +1702,9 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 		}
 		is = &item[ii];
 		sd = &spelldata[bs];
-		sprintf(istr, "%s of %s", is->_iName, sd->sNameText);
+		snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
 		if (!control_WriteStringToBuffer((BYTE *)istr))
-			sprintf(istr, "Staff of %s", sd->sNameText);
+			snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
 		strcpy(is->_iName, istr);
 		strcpy(is->_iIName, istr);
 
@@ -2326,7 +2326,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		pres = NULL;
 		if (nl != 0) {
 			pres = l[random_(23, nl)];
-			sprintf(istr, "%s %s", pres->PLName, item[ii]._iIName);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
 			strcpy(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
@@ -2355,7 +2355,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		sufs = NULL;
 		if (nl != 0) {
 			sufs = l[random_(23, nl)];
-			sprintf(istr, "%s of %s", item[ii]._iIName, sufs->PLName);
+			snprintf(istr, sizeof(istr), "%s of %s", item[ii]._iIName, sufs->PLName);
 			strcpy(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
@@ -2373,11 +2373,11 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	if (!control_WriteStringToBuffer((BYTE *)iname)) {
 		strcpy(iname, AllItemsList[item[ii].IDidx].iSName);
 		if (pres != NULL) {
-			sprintf(istr, "%s %s", pres->PLName, iname);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, iname);
 			strcpy(iname, istr);
 		}
 		if (sufs != NULL) {
-			sprintf(istr, "%s of %s", iname, sufs->PLName);
+			snprintf(istr, sizeof(istr), "%s of %s", iname, sufs->PLName);
 			strcpy(iname, istr);
 		}
 	}
@@ -2943,7 +2943,7 @@ void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch,
 	tempstr[14] = (ibuff >> 8) & 0x7F;
 	tempstr[15] = ibuff & 0x7F;
 	tempstr[16] = '\0';
-	sprintf(item[MAXITEMS]._iName, "Ear of %s", tempstr);
+	snprintf(item[MAXITEMS]._iName, sizeof(item[MAXITEMS]._iName), "Ear of %s", tempstr);
 	item[MAXITEMS]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCEROR;
 	item[MAXITEMS]._ivalue = ivalue & 0x3F;
 	item[MAXITEMS]._iCreateInfo = ic;
@@ -3232,7 +3232,7 @@ void GetItemStr(int ii)
 		if (is->_iMagical == ITEM_QUALITY_UNIQUE)
 			infoclr = COL_GOLD;
 	} else {
-		sprintf(infostr, "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+		snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
 }
 
@@ -3456,69 +3456,69 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	switch (plidx) {
 	case IPL_TOHIT:
 	case IPL_TOHIT_CURSE:
-		sprintf(tempstr, "chance to hit: %+i%%", is->_iPLToHit);
+		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+i%%", is->_iPLToHit);
 		break;
 	case IPL_DAMP:
 	case IPL_DAMP_CURSE:
-		sprintf(tempstr, "%+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "%+i%% damage", is->_iPLDam);
 		break;
 	case IPL_TOHIT_DAMP:
 	case IPL_TOHIT_DAMP_CURSE:
 #ifdef HELLFIRE
 	case IPL_DOPPELGANGER:
 #endif
-		sprintf(tempstr, "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
 	case IPL_ACP_CURSE:
-		sprintf(tempstr, "%+i%% armor", is->_iPLAC);
+		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
 	case IPL_AC_CURSE:
-		sprintf(tempstr, "armor class: %i", is->_iAC);
+		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
 		break;
 	case IPL_FIRERES:
 #ifdef HELLFIRE
 	case IPL_FIRERES_CURSE:
 #endif
 		if (is->_iPLFR < 75)
-			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		else
-			sprintf(tempstr, "Resist Fire: 75%% MAX");
+			strcpy(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
 #ifdef HELLFIRE
 	case IPL_LIGHTRES_CURSE:
 #endif
 		if (is->_iPLLR < 75)
-			sprintf(tempstr, "Resist Lightning: %+i%%", is->_iPLLR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
 		else
-			sprintf(tempstr, "Resist Lightning: 75%% MAX");
+			strcpy(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
 #ifdef HELLFIRE
 	case IPL_MAGICRES_CURSE:
 #endif
 		if (is->_iPLMR < 75)
-			sprintf(tempstr, "Resist Magic: %+i%%", is->_iPLMR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
 		else
-			sprintf(tempstr, "Resist Magic: 75%% MAX");
+			strcpy(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ALLRES:
 #ifdef HELLFIRE
 	case IPL_ALLRES_CURSE:
 #endif
 		if (is->_iPLFR < 75)
-			sprintf(tempstr, "Resist All: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
 		else
-			sprintf(tempstr, "Resist All: 75%% MAX");
+			strcpy(tempstr, "Resist All: 75% MAX");
 		break;
 	case IPL_SPLLVLADD:
 		if (is->_iSplLvlAdd == 1)
 			strcpy(tempstr, "spells are increased 1 level");
 #ifdef HELLFIRE
 		if (is->_iSplLvlAdd > 1)
-			sprintf(tempstr, "spells are increased %i levels", is->_iSplLvlAdd);
+			snprintf(tempstr, sizeof(tempstr), "spells are increased %i levels", is->_iSplLvlAdd);
 #else
 		if (is->_iSplLvlAdd == 2)
 			strcpy(tempstr, "spells are increased 2 levels");
@@ -3527,7 +3527,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 			strcpy(tempstr, "spells are decreased 1 level");
 #ifdef HELLFIRE
 		if (is->_iSplLvlAdd < -1)
-			sprintf(tempstr, "spells are decreased %i levels", is->_iSplLvlAdd);
+			snprintf(tempstr, sizeof(tempstr), "spells are decreased %i levels", is->_iSplLvlAdd);
 		if (is->_iSplLvlAdd == 0)
 			strcpy(tempstr, "spell levels unchanged (?)");
 #endif
@@ -3536,55 +3536,55 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		strcpy(tempstr, "Extra charges");
 		break;
 	case IPL_SPELL:
-		sprintf(tempstr, "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_FIREDAM:
 #ifdef HELLFIRE
 		if (is->_iFMinDam == is->_iFMaxDam)
-			sprintf(tempstr, "Fire hit damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i", is->_iFMinDam);
 		else
 #endif
-			sprintf(tempstr, "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		break;
 	case IPL_LIGHTDAM:
 #ifdef HELLFIRE
 		if (is->_iLMinDam == is->_iLMaxDam)
-			sprintf(tempstr, "Lightning hit damage: %i", is->_iLMinDam);
+			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i", is->_iLMinDam);
 		else
 #endif
-			sprintf(tempstr, "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		break;
 	case IPL_STR:
 	case IPL_STR_CURSE:
-		sprintf(tempstr, "%+i to strength", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);
 		break;
 	case IPL_MAG:
 	case IPL_MAG_CURSE:
-		sprintf(tempstr, "%+i to magic", is->_iPLMag);
+		snprintf(tempstr, sizeof(tempstr), "%+i to magic", is->_iPLMag);
 		break;
 	case IPL_DEX:
 	case IPL_DEX_CURSE:
-		sprintf(tempstr, "%+i to dexterity", is->_iPLDex);
+		snprintf(tempstr, sizeof(tempstr), "%+i to dexterity", is->_iPLDex);
 		break;
 	case IPL_VIT:
 	case IPL_VIT_CURSE:
-		sprintf(tempstr, "%+i to vitality", is->_iPLVit);
+		snprintf(tempstr, sizeof(tempstr), "%+i to vitality", is->_iPLVit);
 		break;
 	case IPL_ATTRIBS:
 	case IPL_ATTRIBS_CURSE:
-		sprintf(tempstr, "%+i to all attributes", is->_iPLStr);
+		snprintf(tempstr, sizeof(tempstr), "%+i to all attributes", is->_iPLStr);
 		break;
 	case IPL_GETHIT_CURSE:
 	case IPL_GETHIT:
-		sprintf(tempstr, "%+i damage from enemies", is->_iPLGetHit);
+		snprintf(tempstr, sizeof(tempstr), "%+i damage from enemies", is->_iPLGetHit);
 		break;
 	case IPL_LIFE:
 	case IPL_LIFE_CURSE:
-		sprintf(tempstr, "Hit Points: %+i", is->_iPLHP >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+i", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
 	case IPL_MANA_CURSE:
-		sprintf(tempstr, "Mana: %+i", is->_iPLMana >> 6);
+		snprintf(tempstr, sizeof(tempstr), "Mana: %+i", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
 		strcpy(tempstr, "high durability");
@@ -3596,10 +3596,10 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		strcpy(tempstr, "indestructible");
 		break;
 	case IPL_LIGHT:
-		sprintf(tempstr, "+%i%% light radius", 10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "+%i%% light radius", 10 * is->_iPLLight);
 		break;
 	case IPL_LIGHT_CURSE:
-		sprintf(tempstr, "-%i%% light radius", -10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "-%i%% light radius", -10 * is->_iPLLight);
 		break;
 #ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
@@ -3609,18 +3609,18 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	case IPL_FIRE_ARROWS:
 #ifdef HELLFIRE
 		if (is->_iFMinDam == is->_iFMaxDam)
-			sprintf(tempstr, "fire arrows damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i", is->_iFMinDam);
 		else
 #endif
-			sprintf(tempstr, "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		break;
 	case IPL_LIGHT_ARROWS:
 #ifdef HELLFIRE
 		if (is->_iLMinDam == is->_iLMaxDam)
-			sprintf(tempstr, "lightning arrows damage %i", is->_iLMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
 		else
 #endif
-			sprintf(tempstr, "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		break;
 	case IPL_THORNS:
 		strcpy(tempstr, "attacker takes 1-3 damage");
@@ -3634,9 +3634,9 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #ifdef HELLFIRE
 	case IPL_FIREBALL:
 		if (is->_iFMinDam != is->_iFMaxDam)
-			sprintf(tempstr, "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		else
-			sprintf(tempstr, "fireball damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i", is->_iFMinDam);
 		break;
 #endif
 	case IPL_ABSHALFTRAP:
@@ -3695,13 +3695,13 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		strcpy(tempstr, "fast block");
 		break;
 	case IPL_DAMMOD:
-		sprintf(tempstr, "adds %i points to damage", is->_iPLDamMod);
+		snprintf(tempstr, sizeof(tempstr), "adds %i points to damage", is->_iPLDamMod);
 		break;
 	case IPL_RNDARROWVEL:
 		strcpy(tempstr, "fires random speed arrows");
 		break;
 	case IPL_SETDAM:
-		sprintf(tempstr, "unusual item damage");
+		strcpy(tempstr, "unusual item damage");
 		break;
 	case IPL_SETDUR:
 		strcpy(tempstr, "altered durability");
@@ -3730,9 +3730,9 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	case IPL_ADDACLIFE:
 #ifdef HELLFIRE
 		if (is->_iFMinDam != is->_iFMaxDam)
-			sprintf(tempstr, "lightning: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		else
-			sprintf(tempstr, "lightning damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iFMinDam);
 #else
 		strcpy(tempstr, "Armor class added to life");
 #endif
@@ -3746,16 +3746,16 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		break;
 	case IPL_FIRERESCLVL:
 		if (is->_iPLFR <= 0)
-			sprintf(tempstr, " ");
+			strcpy(tempstr, " ");
 		else
-			sprintf(tempstr, "Resist Fire: %+i%%", is->_iPLFR);
+			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		break;
 #ifdef HELLFIRE
 	case IPL_DEVASTATION:
 		strcpy(tempstr, "occasional triple damage");
 		break;
 	case IPL_DECAY:
-		sprintf(tempstr, "decaying %+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "decaying %+i%% damage", is->_iPLDam);
 		break;
 	case IPL_PERIL:
 		strcpy(tempstr, "2x dmg to monst, 1x to you");
@@ -3764,7 +3764,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		strcpy(tempstr, "Random 0 - 500% damage");
 		break;
 	case IPL_CRYSTALLINE:
-		sprintf(tempstr, "low dur, %+i%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
 		break;
 	case IPL_ACDEMON:
 		strcpy(tempstr, "extra AC vs demons");
@@ -4036,7 +4036,7 @@ static void PrintItemMisc(const ItemStruct *is)
 		return;
 #endif
 	case IMISC_EAR:
-		sprintf(tempstr, "Level : %i", is->_ivalue);
+		snprintf(tempstr, sizeof(tempstr), "Level : %i", is->_ivalue);
 		AddPanelString(tempstr, TRUE);
 		return;
 	case IMISC_SPECELIX:
@@ -4090,26 +4090,26 @@ void PrintItemDetails(const ItemStruct *is)
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
 			if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-				sprintf(tempstr, "damage: %i  Indestructible", is->_iMinDam);
+				snprintf(tempstr, sizeof(tempstr), "damage: %i  Indestructible", is->_iMinDam);
 			else
-				sprintf(tempstr, "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+				snprintf(tempstr, sizeof(tempstr), "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
 		} else
 #endif
 		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			sprintf(tempstr, "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
 		else
-			sprintf(tempstr, "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
 		AddPanelString(tempstr, TRUE);
 	}
 	if (is->_iClass == ICLASS_ARMOR) {
 		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			sprintf(tempstr, "armor: %i  Indestructible", is->_iAC);
+			snprintf(tempstr, sizeof(tempstr), "armor: %i  Indestructible", is->_iAC);
 		else
-			sprintf(tempstr, "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
 		AddPanelString(tempstr, TRUE);
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-		sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
+		snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 		AddPanelString(tempstr, TRUE);
 	}
 	if (is->_iPrePower != IPL_INVALID) {
@@ -4129,11 +4129,11 @@ void PrintItemDetails(const ItemStruct *is)
 	if ((is->_iMinMag | is->_iMinDex | is->_iMinStr) != 0) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
-			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag)
-			sprintf(tempstr, "%s %i Mag", tempstr, is->_iMinMag);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
 		if (is->_iMinDex)
-			sprintf(tempstr, "%s %i Dex", tempstr, is->_iMinDex);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
 		AddPanelString(tempstr, TRUE);
 	}
 	pinfoflag = TRUE;
@@ -4145,18 +4145,18 @@ void PrintItemDur(const ItemStruct *is)
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
 			if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-				sprintf(tempstr, "damage: %i  Indestructible", is->_iMinDam);
+				snprintf(tempstr, sizeof(tempstr), "damage: %i  Indestructible", is->_iMinDam);
 			else
-				sprintf(tempstr, "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+				snprintf(tempstr, sizeof(tempstr), "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
 		} else
 #endif
 		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			sprintf(tempstr, "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
 		else
-			sprintf(tempstr, "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
 		AddPanelString(tempstr, TRUE);
 		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-			sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
+			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 			AddPanelString(tempstr, TRUE);
 		}
 		if (is->_iMagical != ITEM_QUALITY_NORMAL)
@@ -4164,14 +4164,14 @@ void PrintItemDur(const ItemStruct *is)
 	}
 	if (is->_iClass == ICLASS_ARMOR) {
 		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			sprintf(tempstr, "armor: %i  Indestructible", is->_iAC);
+			snprintf(tempstr, sizeof(tempstr), "armor: %i  Indestructible", is->_iAC);
 		else
-			sprintf(tempstr, "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
 		AddPanelString(tempstr, TRUE);
 		if (is->_iMagical != ITEM_QUALITY_NORMAL)
 			AddPanelString("Not Identified", TRUE);
 		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-			sprintf(tempstr, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
+			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 			AddPanelString(tempstr, TRUE);
 		}
 	}
@@ -4181,11 +4181,11 @@ void PrintItemDur(const ItemStruct *is)
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		strcpy(tempstr, "Required:");
 		if (is->_iMinStr)
-			sprintf(tempstr, "%s %i Str", tempstr, is->_iMinStr);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag)
-			sprintf(tempstr, "%s %i Mag", tempstr, is->_iMinMag);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
 		if (is->_iMinDex)
-			sprintf(tempstr, "%s %i Dex", tempstr, is->_iMinDex);
+			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
 		AddPanelString(tempstr, TRUE);
 	}
 	pinfoflag = TRUE;

@@ -171,7 +171,7 @@ void CheckTownPortal()
 				ClearPanel();
 				if (mis->_miType == MIS_TOWN) {
 					strcpy(infostr, "Town Portal");
-					sprintf(tempstr, "from %s", plr[mis->_miSource]._pName);
+					snprintf(tempstr, sizeof(tempstr), "from %s", plr[mis->_miSource]._pName);
 				} else {
 					strcpy(infostr, "Portal to");
 					if (!setlevel)

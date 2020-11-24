@@ -400,22 +400,22 @@ void DrawSpellList()
 				switch (i) {
 #endif
 				case RSPLTYPE_SKILL:
-					sprintf(infostr, "%s Skill", spelldata[j].sSkillText);
+					snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[j].sSkillText);
 					break;
 				case RSPLTYPE_SPELL:
-					sprintf(infostr, "%s Spell", spelldata[j].sNameText);
+					snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[j].sNameText);
 					if (j == SPL_HBOLT) {
-						sprintf(tempstr, "Damages undead only");
+						strcpy(tempstr, "Damages undead only");
 						AddPanelString(tempstr, TRUE);
 					}
 					if (s <= 0)
-						sprintf(tempstr, "Spell Level 0 - Unusable");
+						strcpy(tempstr, "Spell Level 0 - Unusable");
 					else
-						sprintf(tempstr, "Spell Level %i", s);
+						snprintf(tempstr, sizeof(tempstr), "Spell Level %i", s);
 					AddPanelString(tempstr, TRUE);
 					break;
 				case RSPLTYPE_SCROLL:
-					sprintf(infostr, "Scroll of %s", spelldata[j].sNameText);
+					snprintf(infostr, sizeof(infostr), "Scroll of %s", spelldata[j].sNameText);
 					v = 0;
 					pi = p->InvList;
 					for (t = p->_pNumInv; t > 0; t--, pi++) {
@@ -436,22 +436,22 @@ void DrawSpellList()
 					if (v == 1)
 						strcpy(tempstr, "1 Scroll");
 					else
-						sprintf(tempstr, "%i Scrolls", v);
+						snprintf(tempstr, sizeof(tempstr), "%i Scrolls", v);
 					AddPanelString(tempstr, TRUE);
 					break;
 				case RSPLTYPE_CHARGES:
-					sprintf(infostr, "Staff of %s", spelldata[j].sNameText);
+					snprintf(infostr, sizeof(infostr), "Staff of %s", spelldata[j].sNameText);
 					if (p->InvBody[INVLOC_HAND_LEFT]._iCharges == 1)
 						strcpy(tempstr, "1 Charge");
 					else
-						sprintf(tempstr, "%i Charges", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
+						snprintf(tempstr, sizeof(tempstr), "%i Charges", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
 					AddPanelString(tempstr, TRUE);
 					break;
 				}
 				for (t = 0; t < 4; t++) {
 					if (p->_pSplHotKey[t] == j && p->_pSplTHotKey[t] == pSplType) {
 						DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
-						sprintf(tempstr, "Spell Hot Key #F%i", t + 5);
+						snprintf(tempstr, sizeof(tempstr), "Spell Hot Key #F%i", t + 5);
 						AddPanelString(tempstr, TRUE);
 					}
 				}
@@ -1035,7 +1035,7 @@ void CheckPanelInfo()
 					strcpy(infostr, "Player attack");
 			}
 			if (PanBtnHotKey[i] != NULL) {
-				sprintf(tempstr, "Hotkey : %s", PanBtnHotKey[i]);
+				snprintf(tempstr, sizeof(tempstr), "Hotkey : %s", PanBtnHotKey[i]);
 				AddPanelString(tempstr, TRUE);
 			}
 			infoclr = COL_WHITE;
@@ -1055,21 +1055,21 @@ void CheckPanelInfo()
 		if (sn != SPL_INVALID) {
 			switch (p->_pRSplType) {
 			case RSPLTYPE_SKILL:
-				sprintf(tempstr, "%s Skill", spelldata[sn].sSkillText);
+				snprintf(tempstr, sizeof(tempstr), "%s Skill", spelldata[sn].sSkillText);
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_SPELL:
-				sprintf(tempstr, "%s Spell", spelldata[sn].sNameText);
+				snprintf(tempstr, sizeof(tempstr), "%s Spell", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				c = p->_pISplLvlAdd + p->_pSplLvl[sn];
 				if (c <= 0)
-					sprintf(tempstr, "Spell Level 0 - Unusable");
+					strcpy(tempstr, "Spell Level 0 - Unusable");
 				else
-					sprintf(tempstr, "Spell Level %i", c);
+					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", c);
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_SCROLL:
-				sprintf(tempstr, "Scroll of %s", spelldata[sn].sNameText);
+				snprintf(tempstr, sizeof(tempstr), "Scroll of %s", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				c = 0;
 				pi = p->InvList;
@@ -1091,17 +1091,17 @@ void CheckPanelInfo()
 				if (c == 1)
 					strcpy(tempstr, "1 Scroll");
 				else
-					sprintf(tempstr, "%i Scrolls", c);
+					snprintf(tempstr, sizeof(tempstr), "%i Scrolls", c);
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_CHARGES:
-				sprintf(tempstr, "Staff of %s", spelldata[sn].sNameText);
+				snprintf(tempstr, sizeof(tempstr), "Staff of %s", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				c = p->InvBody[INVLOC_HAND_LEFT]._iCharges;
 				if (c == 1)
 					strcpy(tempstr, "1 Charge");
 				else
-					sprintf(tempstr, "%i Charges", c);
+					snprintf(tempstr, sizeof(tempstr), "%i Charges", c);
 				AddPanelString(tempstr, TRUE);
 				break;
 			}
@@ -1296,7 +1296,7 @@ void DrawInfoBox()
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
 		is = &plr[myplr].HoldItem;
 		if (is->_itype == ITYPE_GOLD) {
-			sprintf(infostr, "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+			snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 		} else if (!is->_iStatFlag) {
 			ClearPanel();
 			AddPanelString("Requirements not met", TRUE);
@@ -1337,12 +1337,12 @@ void DrawInfoBox()
 			strcpy(infostr, p->_pName);
 			ClearPanel();
 #ifdef HELLFIRE
-			sprintf(tempstr, "%s, Level : %i", ClassStrTbl[p->_pClass], p->_pLevel);
+			snprintf(tempstr, sizeof(tempstr), "%s, Level : %i", ClassStrTbl[p->_pClass], p->_pLevel);
 #else
-			sprintf(tempstr, "Level : %i", p->_pLevel);
+			snprintf(tempstr, sizeof(tempstr), "Level : %i", p->_pLevel);
 #endif
 			AddPanelString(tempstr, TRUE);
-			sprintf(tempstr, "Hit Points %i of %i", p->_pHitPoints >> 6, p->_pMaxHP >> 6);
+			snprintf(tempstr, sizeof(tempstr), "Hit Points %i of %i", p->_pHitPoints >> 6, p->_pMaxHP >> 6);
 			AddPanelString(tempstr, TRUE);
 		}
 	}
@@ -1424,22 +1424,22 @@ void DrawChr()
 
 	ADD_PlrStringXY(168, 32, 299, ClassStrTbl[pc], COL_WHITE);
 
-	sprintf(chrstr, "%i", p->_pLevel);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pLevel);
 	ADD_PlrStringXY(66, 69, 109, chrstr, COL_WHITE);
 
-	sprintf(chrstr, "%li", p->_pExperience);
+	snprintf(chrstr, sizeof(chrstr), "%li", p->_pExperience);
 	ADD_PlrStringXY(216, 69, 300, chrstr, COL_WHITE);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		strcpy(chrstr, "None");
 		col = COL_GOLD;
 	} else {
-		sprintf(chrstr, "%li", p->_pNextExper);
+		snprintf(chrstr, sizeof(chrstr), "%li", p->_pNextExper);
 		col = COL_WHITE;
 	}
 	ADD_PlrStringXY(216, 97, 300, chrstr, col);
 
-	sprintf(chrstr, "%i", p->_pGold);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pGold);
 	ADD_PlrStringXY(216, 146, 300, chrstr, COL_WHITE);
 
 	val = p->_pIBonusAC;
@@ -1448,7 +1448,7 @@ void DrawChr()
 		col = COL_BLUE;
 	if (val < 0)
 		col = COL_RED;
-	sprintf(chrstr, "%i", val + p->_pIAC + p->_pDexterity / 5);
+	snprintf(chrstr, sizeof(chrstr), "%i", val + p->_pIAC + p->_pDexterity / 5);
 	ADD_PlrStringXY(258, 183, 301, chrstr, col);
 
 	val = p->_pIBonusToHit;
@@ -1457,7 +1457,7 @@ void DrawChr()
 		col = COL_BLUE;
 	if (val < 0)
 		col = COL_RED;
-	sprintf(chrstr, "%i%%", val + (p->_pDexterity >> 1) + 50);
+	snprintf(chrstr, sizeof(chrstr), "%i%%", val + (p->_pDexterity >> 1) + 50);
 	ADD_PlrStringXY(258, 211, 301, chrstr, col);
 
 	val = p->_pIBonusDam;
@@ -1479,7 +1479,7 @@ void DrawChr()
 		mindam += p->_pDamageMod;
 		maxdam += p->_pDamageMod;
 	}
-	sprintf(chrstr, "%i-%i", mindam, maxdam);
+	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
 		MY_PlrStringXY(254, 239, 305, chrstr, col, -1);
 	else
@@ -1488,55 +1488,55 @@ void DrawChr()
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
 		col = val == 0 ? COL_WHITE : COL_BLUE;
-		sprintf(chrstr, "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		sprintf(chrstr, "MAX");
+		strcpy(chrstr, "MAX");
 	}
 	ADD_PlrStringXY(257, 276, 300, chrstr, col);
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
 		col = val == 0 ? COL_WHITE : COL_BLUE;
-		sprintf(chrstr, "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		sprintf(chrstr, "MAX");
+		strcpy(chrstr, "MAX");
 	}
 	ADD_PlrStringXY(257, 304, 300, chrstr, col);
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
 		col = val == 0 ? COL_WHITE : COL_BLUE;
-		sprintf(chrstr, "%i%%", val);
+		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		sprintf(chrstr, "MAX");
+		strcpy(chrstr, "MAX");
 	}
 	ADD_PlrStringXY(257, 332, 300, chrstr, col);
 
 	col = COL_WHITE;
 	if (MaxStats[pc][ATTRIB_STR] == p->_pBaseStr)
 		col = COL_GOLD;
-	sprintf(chrstr, "%i", p->_pBaseStr);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseStr);
 	ADD_PlrStringXY(95, 155, 126, chrstr, col);
 
 	col = COL_WHITE;
 	if (MaxStats[pc][ATTRIB_MAG] == p->_pBaseMag)
 		col = COL_GOLD;
-	sprintf(chrstr, "%i", p->_pBaseMag);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseMag);
 	ADD_PlrStringXY(95, 183, 126, chrstr, col);
 
 	col = COL_WHITE;
 	if (MaxStats[pc][ATTRIB_DEX] == p->_pBaseDex)
 		col = COL_GOLD;
-	sprintf(chrstr, "%i", p->_pBaseDex);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseDex);
 	ADD_PlrStringXY(95, 211, 126, chrstr, col);
 
 	col = COL_WHITE;
 	if (MaxStats[pc][ATTRIB_VIT] == p->_pBaseVit)
 		col = COL_GOLD;
-	sprintf(chrstr, "%i", p->_pBaseVit);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseVit);
 	ADD_PlrStringXY(95, 239, 126, chrstr, col);
 
 	val = p->_pStrength;
@@ -1545,7 +1545,7 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (val < p->_pBaseStr)
 		col = COL_RED;
-	sprintf(chrstr, "%i", val);
+	snprintf(chrstr, sizeof(chrstr), "%i", val);
 	ADD_PlrStringXY(143, 155, 173, chrstr, col);
 
 	val = p->_pMagic;
@@ -1554,7 +1554,7 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (val < p->_pBaseMag)
 		col = COL_RED;
-	sprintf(chrstr, "%i", val);
+	snprintf(chrstr, sizeof(chrstr), "%i", val);
 	ADD_PlrStringXY(143, 183, 173, chrstr, col);
 
 	val = p->_pDexterity;
@@ -1563,7 +1563,7 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (val < p->_pBaseDex)
 		col = COL_RED;
-	sprintf(chrstr, "%i", val);
+	snprintf(chrstr, sizeof(chrstr), "%i", val);
 	ADD_PlrStringXY(143, 211, 173, chrstr, col);
 
 	val = p->_pVitality;
@@ -1572,11 +1572,11 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (val < p->_pBaseVit)
 		col = COL_RED;
-	sprintf(chrstr, "%i", val);
+	snprintf(chrstr, sizeof(chrstr), "%i", val);
 	ADD_PlrStringXY(143, 239, 173, chrstr, col);
 
 	if (p->_pStatPts > 0) {
-		sprintf(chrstr, "%i", p->_pStatPts);
+		snprintf(chrstr, sizeof(chrstr), "%i", p->_pStatPts);
 		ADD_PlrStringXY(95, 266, 126, chrstr, COL_RED);
 		if (p->_pBaseStr < MaxStats[pc][ATTRIB_STR])
 			CelDraw(137 + SCREEN_X, 159 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_STR] + 2, 41);
@@ -1590,20 +1590,20 @@ void DrawChr()
 
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
-	sprintf(chrstr, "%i", val >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
 	ADD_PlrStringXY(95, 304, 126, chrstr, col);
 	if (p->_pHitPoints != val)
 		col = COL_RED;
-	sprintf(chrstr, "%i", p->_pHitPoints >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pHitPoints >> 6);
 	ADD_PlrStringXY(143, 304, 174, chrstr, col);
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
-	sprintf(chrstr, "%i", val >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%i", val >> 6);
 	ADD_PlrStringXY(95, 332, 126, chrstr, col);
 	if (p->_pMana != val)
 		col = COL_RED;
-	sprintf(chrstr, "%i", p->_pMana >> 6);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pMana >> 6);
 	ADD_PlrStringXY(143, 332, 174, chrstr, col);
 }
 
@@ -1895,25 +1895,25 @@ void DrawSpellBook()
 				strcpy(tempstr, "Skill");
 				break;
 			case RSPLTYPE_CHARGES:
-				sprintf(tempstr, "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
+				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
 				break;
 			default:
 				mana = GetManaAmount(myplr, sn) >> 6;
 				GetDamageAmt(sn, &min, &max);
 				if (min != -1) {
-					sprintf(tempstr, "Mana: %i  Dam: %i - %i", mana, min, max);
+					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: %i - %i", mana, min, max);
 				} else {
-					sprintf(tempstr, "Mana: %i   Dam: n/a", mana);
+					snprintf(tempstr, sizeof(tempstr), "Mana: %i   Dam: n/a", mana);
 				}
 				if (sn == SPL_BONESPIRIT) {
-					sprintf(tempstr, "Mana: %i  Dam: 1/3 tgt hp", mana);
+					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: 1/3 tgt hp", mana);
 				}
 				PrintSBookStr(10, yp - 1, FALSE, tempstr, COL_WHITE);
 				lvl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 				if (lvl <= 0) {
-					sprintf(tempstr, "Spell Level 0 - Unusable");
+					strcpy(tempstr, "Spell Level 0 - Unusable");
 				} else {
-					sprintf(tempstr, "Spell Level %i", lvl);
+					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
 				}
 				break;
 			}
@@ -1971,13 +1971,13 @@ void DrawGoldSplit(int amount)
 
 	screen_x = 0;
 	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGBoxBuff, 1, 261);
-	sprintf(tempstr, "You have %u gold", initialDropGoldValue);
+	snprintf(tempstr, sizeof(tempstr), "You have %u gold", initialDropGoldValue);
 	ADD_PlrStringXY(366, 87, 600, tempstr, COL_GOLD);
-	sprintf(tempstr, "%s.  How many do", get_pieces_str(initialDropGoldValue));
+	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
 	ADD_PlrStringXY(366, 103, 600, tempstr, COL_GOLD);
 	ADD_PlrStringXY(366, 121, 600, "you want to remove?", COL_GOLD);
 	if (amount > 0) {
-		sprintf(tempstr, "%u", amount);
+		snprintf(tempstr, sizeof(tempstr), "%u", amount);
 		PrintGameStr(388, 140, tempstr, COL_WHITE);
 		for (i = 0; i < tempstr[i]; i++) {
 			screen_x += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[i]]]] + 1;

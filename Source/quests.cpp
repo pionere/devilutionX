@@ -281,7 +281,7 @@ BOOL ForceQuests()
 
 			for (j = 0; j < 7; j++) {
 				if (qx + questxoff[j] == cursmx && qy + questyoff[j] == cursmy) {
-					sprintf(infostr, "To %s", questtrigstr[ql]);
+					snprintf(infostr, sizeof(infostr), "To %s", questtrigstr[ql]);
 					cursmx = qx;
 					cursmy = qy;
 					return TRUE;

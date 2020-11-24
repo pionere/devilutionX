@@ -269,12 +269,12 @@ void InitObjectGFX()
 			ObjFileList[numobjfiles] = i;
 #ifdef HELLFIRE
 			if (currlevel >= 17 && currlevel < 21)
-				sprintf(filestr, "Objects\\%s.CEL", ObjHiveLoadList[i]);
+				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjHiveLoadList[i]);
 			else if (currlevel >= 21)
-				sprintf(filestr, "Objects\\%s.CEL", ObjCryptLoadList[i]);
+				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjCryptLoadList[i]);
 			else
 #endif
-				sprintf(filestr, "Objects\\%s.CEL", ObjMasterLoadList[i]);
+				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
 			pObjCels[numobjfiles] = LoadFileInMem(filestr, NULL);
 			numobjfiles++;
 		}
@@ -1111,7 +1111,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 			continue;
 
 		ObjFileList[numobjfiles] = i;
-		sprintf(filestr, "Objects\\%s.CEL", ObjMasterLoadList[i]);
+		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
 		pObjCels[numobjfiles] = LoadFileInMem(filestr, NULL);
 		numobjfiles++;
 	}
@@ -4930,7 +4930,7 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		sprintf(tempstr, "%s Shrine", shrinestrs[os->_oVar1]);
+		snprintf(tempstr, sizeof(tempstr), "%s Shrine", shrinestrs[os->_oVar1]);
 		strcpy(infostr, tempstr);
 		break;
 	case OBJ_BOOKCASEL:
@@ -4996,7 +4996,7 @@ void GetObjectStr(int oi)
 	}
 	if (plr[myplr]._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
-			sprintf(tempstr, "Trapped %s", infostr);
+			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
 			strcpy(infostr, tempstr);
 			infoclr = COL_RED;
 		}

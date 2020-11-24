@@ -1201,7 +1201,7 @@ void InitMonsterSND(int midx)
 	for (i = 0; i < 4; i++) {
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < 2; j++) {
-				sprintf(name, mdata->sndfile, MonstSndChar[i], j + 1);
+				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
 				path = (char *)DiabloAllocPtr(strlen(name) + 1);
 				strcpy(path, name);
 				pSnd = sound_file_load(path);

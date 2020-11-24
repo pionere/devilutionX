@@ -24,7 +24,7 @@ static void MsgBox(const char *pszFmt, va_list va)
 {
 	char text[256];
 
-	vsnprintf(text, 256, pszFmt, va);
+	vsnprintf(text, sizeof(text), pszFmt, va);
 
 	UiErrorOkDialog("Error", text);
 }
@@ -79,7 +79,7 @@ void DrawDlg(const char *pszFmt, ...)
 	va_list va;
 
 	va_start(va, pszFmt);
-	vsnprintf(text, 256, pszFmt, va);
+	vsnprintf(text, sizeof(text), pszFmt, va);
 	va_end(va);
 
 	UiErrorOkDialog(PROJECT_NAME, text, false);
@@ -107,7 +107,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 
 	FreeDlg();
 
-	snprintf(text, 1024, "%s\n\nThe error occurred at: %s line %d", error, log_file_path, log_line_nr);
+	snprintf(text, sizeof(text), "%s\n\nThe error occurred at: %s line %d", error, log_file_path, log_line_nr);
 
 	UiErrorOkDialog(title, text);
 	app_fatal(NULL);
@@ -126,7 +126,7 @@ void FileErrDlg(const char *error)
 		error = "";
 	snprintf(
 	    text,
-	    1024,
+	    sizeof(text),
 	    "Unable to open a required file.\n"
 	    "\n"
 	    "Verify that the MD5 of diabdat.mpq matches one of the following values\n"
@@ -148,7 +148,7 @@ void InsertCDDlg()
 	char text[1024];
 	snprintf(
 	    text,
-	    1024,
+	    sizeof(text),
 	    "Unable to open %s.\n"
 	    "\n"
 	    "Make sure that it is in the game folder and that the file name is in all lowercase.",
@@ -165,7 +165,7 @@ void DirErrorDlg(const char *error)
 {
 	char text[1024];
 
-	snprintf(text, 1024, "Unable to write to location:\n%s", error);
+	snprintf(text, sizeof(text), "Unable to write to location:\n%s", error);
 
 	UiErrorOkDialog("Read-Only Directory Error", text);
 	app_fatal(NULL);

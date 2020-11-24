@@ -1376,7 +1376,7 @@ static void DrawFPS()
 			framerate = 1000 * frameend / frames;
 			frameend = 0;
 		}
-		snprintf(String, 12, "%d FPS", framerate);
+		snprintf(String, sizeof(String), "%d FPS", framerate);
 		PrintGameStr(8, 65, String, COL_RED);
 	}
 }

@@ -115,15 +115,15 @@ void LoadRndLvlPal(int lvl)
 		rv = random_(0, 4) + 1;
 #ifdef HELLFIRE
 		if (lvl == 5) {
-			sprintf(szFileName, "NLevels\\L5Data\\L5Base.PAL");
+			strcpy(szFileName, "NLevels\\L5Data\\L5Base.PAL");
 		} else if (lvl == 6) {
 			if (!UseNestArt) {
 				rv++;
 			}
-			sprintf(szFileName, "NLevels\\L%iData\\L%iBase%i.PAL", 6, 6, rv);
+			snprintf(szFileName, sizeof(szFileName), "NLevels\\L%iData\\L%iBase%i.PAL", 6, 6, rv);
 		} else
 #endif
-			sprintf(szFileName, "Levels\\L%iData\\L%i_%i.PAL", lvl, lvl, rv);
+			snprintf(szFileName, sizeof(szFileName), "Levels\\L%iData\\L%i_%i.PAL", lvl, lvl, rv);
 
 		LoadPalette(szFileName);
 	}

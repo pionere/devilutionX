@@ -258,7 +258,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 	p = &plr[pnum];
 	GetPlrGFXCells(p->_pClass, &szCel, &cs);
-	sprintf(prefix, "%c%c%c", *szCel, ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
+	snprintf(prefix, sizeof(prefix), "%c%c%c", *szCel, ArmourChar[p->_pgfxnum >> 4], WepChar[p->_pgfxnum & 0xF]);
 
 	for (i = 1; i <= PFILE_NONDEATH; i <<= 1) {
 		if (!(i & gfxflag)) {
@@ -347,7 +347,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			break;
 		}
 
-		sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cs, prefix, prefix, szCel);
+		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cs, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, pData);
 		SetPlayerGPtrs((BYTE *)pData, (BYTE **)pAnim);
 		p->_pGFXLoad |= i;
@@ -397,8 +397,8 @@ static DWORD GetPlrGFXSize(const char *szCel)
 				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
 					continue; //No block without weapon
 				}
-				sprintf(Type, "%c%c%c", *cc, *a, *w);
-				sprintf(pszName, "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
+				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
+				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
 				if (WOpenFile(pszName, &hsFile, TRUE)) {
 					/// ASSERT: assert(hsFile);
 					dwSize = WGetFileSize(hsFile, NULL, pszName);
@@ -1858,7 +1858,7 @@ void StartPlrKill(int pnum, int earflag)
 				if (earflag != -1) {
 					if (earflag != 0) {
 						SetItemData(&ear, IDI_EAR);
-						sprintf(ear._iName, "Ear of %s", p->_pName);
+						snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
 						if (p->_pClass == PC_SORCERER) {
 							ear._iCurs = ICURS_EAR_SORCEROR;
 						} else if (p->_pClass == PC_WARRIOR) {

@@ -1386,7 +1386,7 @@ static void msg_errorf(const char *pszFmt, ...)
 	ticks = SDL_GetTicks();
 	if (ticks - msg_err_timer >= 5000) {
 		msg_err_timer = ticks;
-		vsprintf(msg, pszFmt, va);
+		vsnprintf(msg, sizeof(msg), pszFmt, va);
 		ErrorPlrMsg(msg);
 	}
 	va_end(va);

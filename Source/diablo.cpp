@@ -980,15 +980,16 @@ static void PressKey(int vkey)
 #ifdef _DEBUG
 	else if (vkey == DVL_VK_F3) {
 		if (pcursitem != -1) {
-			sprintf(
+			snprintf(
 			    tempstr,
+				sizeof(tempstr),
 			    "IDX = %i  :  Seed = %i  :  CF = %i",
 			    item[pcursitem].IDidx,
 			    item[pcursitem]._iSeed,
 			    item[pcursitem]._iCreateInfo);
 			NetSendCmdString(1 << myplr, tempstr);
 		}
-		sprintf(tempstr, "Numitems : %i", numitems);
+		snprintf(tempstr, sizeof(tempstr), "Numitems : %i", numitems);
 		NetSendCmdString(1 << myplr, tempstr);
 	}
 #endif
@@ -1209,7 +1210,7 @@ static void PressChar(int vkey)
 	case 'v': {
 		const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
 		char pszStr[120];
-		sprintf(pszStr, "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
+		snprintf(pszStr, sizeof(pszStr), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
 		NetSendCmdString(1 << myplr, pszStr);
 	} return;
 	case 'V':
@@ -1314,19 +1315,19 @@ static void PressChar(int vkey)
 		return;
 	case 'R':
 	case 'r':
-		sprintf(tempstr, "seed = %i", glSeedTbl[currlevel]);
+		snprintf(tempstr, sizeof(tempstr), "seed = %i", glSeedTbl[currlevel]);
 		NetSendCmdString(1 << myplr, tempstr);
-		sprintf(tempstr, "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
+		snprintf(tempstr, sizeof(tempstr), "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
 		NetSendCmdString(1 << myplr, tempstr);
-		sprintf(tempstr, "End = %i", glEndSeed[currlevel]);
+		snprintf(tempstr, sizeof(tempstr), "End = %i", glEndSeed[currlevel]);
 		NetSendCmdString(1 << myplr, tempstr);
 		return;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
-			sprintf(tempstr, "PX = %i  PY = %i", plr[myplr]._px, plr[myplr]._py);
+			snprintf(tempstr, sizeof(tempstr), "PX = %i  PY = %i", plr[myplr]._px, plr[myplr]._py);
 			NetSendCmdString(1 << myplr, tempstr);
-			sprintf(tempstr, "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
+			snprintf(tempstr, sizeof(tempstr), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
 			NetSendCmdString(1 << myplr, tempstr);
 		}
 		return;

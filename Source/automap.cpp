@@ -616,12 +616,12 @@ static void DrawAutomapText()
 #ifdef HELLFIRE
 		if (currlevel >= 17 && currlevel <= 24) {
 			if (currlevel <= 20)
-				sprintf(desc, "Level: Nest %i", currlevel - 16);
+				snprintf(desc, sizeof(desc), "Level: Nest %i", currlevel - 16);
 			else
-				sprintf(desc, "Level: Crypt %i", currlevel - 20);
+				snprintf(desc, sizeof(desc), "Level: Crypt %i", currlevel - 20);
 		} else
 #endif
-			sprintf(desc, "Level: %i", currlevel);
+			snprintf(desc, sizeof(desc), "Level: %i", currlevel);
 		PrintGameStr(8, nextline, desc, COL_GOLD);
 	}
 }

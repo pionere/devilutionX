@@ -329,7 +329,7 @@ void InitMonsterGFX(int midx)
 
 	for (anim = 0; anim < 6; anim++) {
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->Frames[anim] > 0) {
-			sprintf(strBuff, mdata->GraphicType, animletter[anim]);
+			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff, NULL);
 			cmon->Anims[anim].CMem = celBuf;
@@ -815,7 +815,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
 	}
 
-	sprintf(filestr, "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
+	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, &pLightTbl[256 * (uniquetrans + 19)]);
 
 	mon->_uniqtrans = uniquetrans++;
@@ -2675,8 +2675,7 @@ static int MonDoTalk(int mnum)
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		if (quests[Q_LTBANNER]._qvar1 < 2) {
-			sprintf(tempstr, "SS Talk = %i, Flags = %i", mon->mtalkmsg, mon->_mFlags);
-			app_fatal(tempstr);
+			app_fatal("SS Talk = %i, Flags = %i", mon->mtalkmsg, mon->_mFlags);
 		}
 		break;
 	case UMT_LAZURUS:
@@ -5430,7 +5429,7 @@ void PrintMonstHistory(int mt)
 {
 	int minHP, maxHP, res;
 
-	sprintf(tempstr, "Total kills: %i", monstkills[mt]);
+	snprintf(tempstr, sizeof(tempstr), "Total kills: %i", monstkills[mt]);
 	AddPanelString(tempstr, TRUE);
 	if (monstkills[mt] >= 30) {
 		minHP = monsterdata[mt].mMinHP;
@@ -5451,7 +5450,7 @@ void PrintMonstHistory(int mt)
 			minHP = 4 * minHP + 3;
 			maxHP = 4 * maxHP + 3;
 		}
-		sprintf(tempstr, "Hit Points: %i-%i", minHP, maxHP);
+		snprintf(tempstr, sizeof(tempstr), "Hit Points: %i-%i", minHP, maxHP);
 		AddPanelString(tempstr, TRUE);
 	}
 	if (monstkills[mt] >= 15) {
