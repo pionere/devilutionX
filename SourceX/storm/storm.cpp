@@ -32,7 +32,7 @@ static bool IsSVidVideoMode = false;
 #endif
 
 radon::File& getIni() {
-  static radon::File ini(GetPrefPath() + "diablo.ini");
+  static radon::File ini(GetConfigPath() + "diablo.ini");
   return ini;
 }
 
