@@ -23,13 +23,13 @@ extern int nummtypes;
 void InitLevelMonsters();
 void GetLevelMTypes();
 void InitMonsterGFX(int midx);
-void InitMonster(int mnum, int dir, int mtype, int x, int y);
 void ClrAllMonsters();
+#ifdef HELLFIRE
 void monster_some_crypt();
+#endif
 void PlaceGroup(int mtype, int num, int leaderf, int leader);
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
-void DeleteMonster(int i);
 int AddMonster(int x, int y, int dir, int mtype, BOOL InMap);
 #ifdef HELLFIRE
 void monster_43C785(int mnum);
@@ -41,13 +41,7 @@ void MonGetKnockback(int mnum);
 void MonStartHit(int mnum, int pnum, int dam);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
-BOOL MonDoStand(int mnum);
-BOOL MonDoWalk(int mnum);
-BOOL MonDoWalk2(int mnum);
-BOOL MonDoWalk3(int mnum);
-BOOL MonDoAttack(int mnum);
 void MonTeleport(int mnum);
-BOOL MonDoGotHit(int mnum);
 void MonUpdateLeader(int mnum);
 void DoEnding();
 void PrepDoEnding();
@@ -104,7 +98,7 @@ BOOL CheckNoSolid(int x, int y);
 BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2);
 BOOL LineClear(int x1, int y1, int x2, int y2);
 BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
-void SyncMonsterAnim(int i);
+void SyncMonsterAnim(int mnum);
 void MonFallenFear(int x, int y);
 void PrintMonstHistory(int mt);
 void PrintUniqueHistory(int mnum);

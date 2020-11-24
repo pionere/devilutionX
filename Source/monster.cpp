@@ -454,7 +454,7 @@ static void ClearMVars(int mnum)
 	monster[mnum]._mVar8 = 0;
 }
 
-void InitMonster(int mnum, int dir, int mtype, int x, int y)
+static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 {
 	CMonster *cmon = &Monsters[mtype];
 	MonsterStruct *mon = &monster[mnum];
@@ -588,6 +588,7 @@ static BOOL MonstPlace(int xp, int yp)
 	return FALSE;
 }
 
+#ifdef HELLFIRE
 void monster_some_crypt()
 {
 	MonsterStruct *mon;
@@ -604,6 +605,7 @@ void monster_some_crypt()
 		mon->_mmaxhp = hp;
 	}
 }
+#endif
 
 static void PlaceMonster(int mnum, int mtype, int x, int y)
 {
@@ -1172,7 +1174,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	}
 }
 
-void DeleteMonster(int i)
+static void DeleteMonster(int i)
 {
 	int temp;
 
@@ -2067,7 +2069,7 @@ static void MonChangeLightOffset(int mnum)
 		ChangeLightOff(mon->mlid, _mxoff, _myoff);
 }
 
-BOOL MonDoStand(int mnum)
+static BOOL MonDoStand(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2098,7 +2100,7 @@ BOOL MonDoStand(int mnum)
 	return FALSE;
 }
 
-BOOL MonDoWalk(int mnum)
+static BOOL MonDoWalk(int mnum)
 {
 	MonsterStruct *mon;
 	BOOL rv;
@@ -2155,7 +2157,7 @@ BOOL MonDoWalk(int mnum)
 	return rv;
 }
 
-BOOL MonDoWalk2(int mnum)
+static BOOL MonDoWalk2(int mnum)
 {
 	MonsterStruct *mon;
 	BOOL rv;
@@ -2208,7 +2210,7 @@ BOOL MonDoWalk2(int mnum)
 	return rv;
 }
 
-BOOL MonDoWalk3(int mnum)
+static BOOL MonDoWalk3(int mnum)
 {
 	MonsterStruct *mon;
 	BOOL rv;
@@ -2413,7 +2415,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	}
 }
 
-BOOL MonDoAttack(int mnum)
+static BOOL MonDoAttack(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2739,7 +2741,7 @@ void MonTeleport(int mnum)
 	}
 }
 
-BOOL MonDoGotHit(int mnum)
+static BOOL MonDoGotHit(int mnum)
 {
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoGotHit: Invalid monster %d", mnum);
