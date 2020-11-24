@@ -3847,14 +3847,12 @@ void MI_Firebolt(int mi)
 			break;
 #endif
 		}
-		if (mis->_miLid >= 0)
-			AddUnLight(mis->_miLid);
+		AddUnLight(mis->_miLid);
 	} else {
 		if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
 			mis->_miVar1 = mis->_mix;
 			mis->_miVar2 = mis->_miy;
-			if (mis->_miLid >= 0)
-				ChangeLight(mis->_miLid, mis->_miVar1, mis->_miVar2, 8);
+			ChangeLight(mis->_miLid, mis->_miVar1, mis->_miVar2, 8);
 		}
 	}
 	PutMissile(mi);
@@ -3942,7 +3940,8 @@ void MI_Firewall(int mi)
 	} else if (mis->_miDir != 0 && mis->_miAnimAdd != -1 && mis->_miVar2 < 12) {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
+		else
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
 		mis->_miVar2++;
 	}
 	PutMissile(mi);
@@ -4564,7 +4563,8 @@ void MI_Town(int mi)
 	if (currlevel != 0 && mis->_miDir != 1 && mis->_miRange != 0) {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
+		else
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
 		mis->_miVar2++;
 	}
 
@@ -4793,7 +4793,8 @@ void MI_FireWave(int mi)
 	} else {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
+		else
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
 		mis->_miVar2++;
 	}
 	mis->_mix++;
@@ -4926,17 +4927,15 @@ void MI_WeapExp(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	CheckMissileCol(mi, mis->_miVar2, mis->_miVar3, FALSE, mis->_mix, mis->_miy, FALSE);
-	if (mis->_miVar1 == 0) {
-		mis->_miLid = AddLight(mis->_mix, mis->_miy, 9);
-	} else {
-		if (mis->_miRange != 0)
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar1]);
-	}
-	mis->_miVar1++;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
 	} else {
+		if (mis->_miVar1 == 0)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, 9);
+		else
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar1]);
+		mis->_miVar1++;
 		PutMissile(mi);
 	}
 }
@@ -5107,7 +5106,7 @@ void MI_Rhino(int mi)
 	monster[mnum]._mfuty = omy;
 	monster[mnum]._moldy = omy;
 	monster[mnum]._my = omy;
-	if (monster[mnum]._uniqtype != 0)
+	if (mis->_miLid != -1)
 		ChangeLightXY(mis->_miLid, omx, omy);
 	MoveMissilePos(mi);
 	PutMissile(mi);
@@ -5344,24 +5343,24 @@ void MI_Flame(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	mis->_miVar2--;
 	k = mis->_miRange;
 	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = k;
-	if (mis->_miVar2 == 0)
-		mis->_miAnimFrame = 20;
+	if (mis->_miRange == 0) {
+		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
+		return;
+	}
+	mis->_miVar2--;
 	if (mis->_miVar2 <= 0) {
+		if (mis->_miVar2 == 0)
+			mis->_miAnimFrame = 20;
 		k = mis->_miAnimFrame;
 		if (k > 11)
 			k = 24 - k;
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, k);
-	}
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
-	}
-	if (mis->_miVar2 <= 0)
 		PutMissile(mi);
+	}
 }
 
 void MI_FlameC(int mi)
@@ -5466,10 +5465,11 @@ void MI_Hbolt(int mi)
 			}
 		}
 	} else {
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame + 7);
 		if (mis->_miRange == 0) {
 			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
+		} else {
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame + 7);
 		}
 	}
 	PutMissile(mi);
@@ -5563,12 +5563,12 @@ void MI_Bonespirit(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miDir == DIR_OMNI) {
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame);
 		if (mis->_miRange == 0) {
 			mis->_miDelFlag = TRUE;
 			AddUnLight(mis->_miLid);
+		} else {
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miAnimFrame);
 		}
-		PutMissile(mi);
 	} else {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
@@ -5598,8 +5598,8 @@ void MI_Bonespirit(int mi)
 			SetMissDir(mi, DIR_OMNI);
 			mis->_miRange = 7;
 		}
-		PutMissile(mi);
 	}
+	PutMissile(mi);
 }
 
 void MI_ResurrectBeam(int mi)
@@ -5621,15 +5621,15 @@ void MI_Rportal(int mi)
 	if (mis->_miRange == mis->_miVar1)
 		SetMissDir(mi, 1);
 
-	if (currlevel != 0 && mis->_miDir != 1 && mis->_miRange != 0) {
-		if (mis->_miVar2 == 0)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
-		mis->_miVar2++;
-	}
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
+	} else if (currlevel != 0 && mis->_miDir != 1) {
+		if (mis->_miVar2 == 0)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
+		else
+			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
+		mis->_miVar2++;
 	}
 	PutMissile(mi);
 }
