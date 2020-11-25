@@ -1187,9 +1187,7 @@ static void stream_update()
 
 void InitMonsterSND(int midx)
 {
-	TSnd *pSnd;
 	char name[MAX_PATH];
-	char *path;
 	int i, j;
 	MonsterData *mdata;
 
@@ -1202,9 +1200,10 @@ void InitMonsterSND(int midx)
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < 2; j++) {
 				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
-				path = (char *)DiabloAllocPtr(strlen(name) + 1);
-				strcpy(path, name);
-				pSnd = sound_file_load(path);
+				int len = strlen(name) + 1;
+				char *path = (char *)DiabloAllocPtr(len);
+				memcpy(path, name, len);
+				TSnd *pSnd = sound_file_load(path);
 				Monsters[midx].Snds[i][j] = pSnd;
 				if (pSnd == NULL)
 					mem_free_dbg(path);

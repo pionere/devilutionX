@@ -275,7 +275,7 @@ static void InitSmith()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_SMITH, 62, 63, 0, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL", NULL), 16, 3);
-	strcpy(towner[numtowners]._tName, "Griswold the Blacksmith");
+	copy_cstr(towner[numtowners]._tName, "Griswold the Blacksmith")
 	numtowners++;
 }
 
@@ -285,7 +285,7 @@ static void InitBarOwner()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_TAVERN, 55, 62, 3, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL", NULL), 16, 3);
-	strcpy(towner[numtowners]._tName, "Ogden the Tavern owner");
+	copy_cstr(towner[numtowners]._tName, "Ogden the Tavern owner")
 	numtowners++;
 }
 
@@ -294,7 +294,7 @@ static void InitTownDead()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_DEADGUY, 24, 32, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL", NULL), 8, 6);
-	strcpy(towner[numtowners]._tName, "Wounded Townsman");
+	copy_cstr(towner[numtowners]._tName, "Wounded Townsman")
 	numtowners++;
 }
 
@@ -303,7 +303,7 @@ static void InitWitch()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_WITCH, 80, 20, 5, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL", NULL), 19, 6);
-	strcpy(towner[numtowners]._tName, "Adria the Witch");
+	copy_cstr(towner[numtowners]._tName, "Adria the Witch")
 	numtowners++;
 }
 
@@ -312,7 +312,7 @@ static void InitBarmaid()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_BMAID, 43, 66, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL", NULL), 18, 6);
-	strcpy(towner[numtowners]._tName, "Gillian the Barmaid");
+	copy_cstr(towner[numtowners]._tName, "Gillian the Barmaid")
 	numtowners++;
 }
 
@@ -322,7 +322,7 @@ static void InitBoy()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_PEGBOY, 11, 53, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL", NULL), 20, 6);
-	strcpy(towner[numtowners]._tName, "Wirt the Peg-legged boy");
+	copy_cstr(towner[numtowners]._tName, "Wirt the Peg-legged boy")
 	numtowners++;
 }
 
@@ -331,7 +331,7 @@ static void InitHealer()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_HEALER, 55, 79, 1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL", NULL), 20, 6);
-	strcpy(towner[numtowners]._tName, "Pepin the Healer");
+	copy_cstr(towner[numtowners]._tName, "Pepin the Healer")
 	numtowners++;
 }
 
@@ -340,7 +340,7 @@ static void InitTeller()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_STORY, 62, 71, 2, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL", NULL), 25, 3);
-	strcpy(towner[numtowners]._tName, "Cain the Elder");
+	copy_cstr(towner[numtowners]._tName, "Cain the Elder")
 	numtowners++;
 }
 
@@ -349,7 +349,7 @@ static void InitDrunk()
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_DRUNK, 71, 84, 4, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL", NULL), 18, 3);
-	strcpy(towner[numtowners]._tName, "Farnham the Drunk");
+	copy_cstr(towner[numtowners]._tName, "Farnham the Drunk")
 	numtowners++;
 }
 
@@ -368,7 +368,7 @@ static void InitCows()
 		InitTownerInfo(numtowners, 128, FALSE, TOWN_COW, x, y, -1, 10);
 		InitCowAnim(numtowners, dir);
 		towner[numtowners]._tSelFlag = TRUE;
-		strcpy(towner[numtowners]._tName, "Cow");
+		copy_cstr(towner[numtowners]._tName, "Cow")
 
 		xo = x + cowoffx[dir];
 		yo = y + cowoffy[dir];
@@ -389,7 +389,7 @@ static void InitFarmer()
 	InitTownerInfo(numtowners, 96, 1, TOWN_FARMER, 62, 16, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL", NULL), 15, 3);
-	strcpy(towner[numtowners]._tName, "Lester the farmer");
+	copy_cstr(towner[numtowners]._tName, "Lester the farmer")
 	numtowners++;
 }
 
@@ -405,7 +405,7 @@ static void InitCowFarmer()
 		pBuf = LoadFileInMem("Towners\\Farmer\\mfrmrn2.CEL", NULL);
 	}
 	InitTownerAnim(numtowners, pBuf, 15, 3);
-	strcpy(towner[numtowners]._tName, "Complete Nut");
+	copy_cstr(towner[numtowners]._tName, "Complete Nut")
 	numtowners++;
 }
 
@@ -421,7 +421,7 @@ static void InitGirl()
 		pBuf = LoadFileInMem("Towners\\Girl\\Girls1.CEL", NULL);
 	}
 	InitTownerAnim(numtowners, pBuf, 20, 6);
-	strcpy(towner[numtowners]._tName, "Celia");
+	copy_cstr(towner[numtowners]._tName, "Celia")
 	numtowners++;
 }
 #endif
@@ -499,7 +499,7 @@ void ProcessTowners()
 					if (!qtextflag) {
 						tw->_tAnimDelay = 1000;
 						tw->_tAnimFrame = 1;
-						strcpy(tw->_tName, "Slain Townsman");
+						copy_cstr(tw->_tName, "Slain Townsman")
 					}
 					tw->_tAnimCnt = 0;
 				} else {

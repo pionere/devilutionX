@@ -54,7 +54,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 	pPack->py = p->_py;
 	pPack->targx = p->_ptargx;
 	pPack->targy = p->_ptargy;
-	strcpy(pPack->pName, p->_pName);
+	copy_str(pPack->pName, p->_pName)
 	pPack->pClass = p->_pClass;
 	pPack->pBaseStr = p->_pBaseStr;
 	pPack->pBaseMag = p->_pBaseMag;
@@ -202,7 +202,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->plrlevel = pPack->plrlevel;
 	ClrPlrPath(pnum);
 	p->destAction = ACTION_NONE;
-	strcpy(p->_pName, pPack->pName);
+	copy_str(p->_pName, pPack->pName)
 	p->_pClass = pPack->pClass;
 	p->_pLevel = pPack->pLevel;
 	InitPlayer(pnum, TRUE);

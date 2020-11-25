@@ -405,11 +405,11 @@ void DrawSpellList()
 				case RSPLTYPE_SPELL:
 					snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[j].sNameText);
 					if (j == SPL_HBOLT) {
-						strcpy(tempstr, "Damages undead only");
+						copy_cstr(tempstr, "Damages undead only")
 						AddPanelString(tempstr, TRUE);
 					}
 					if (s <= 0)
-						strcpy(tempstr, "Spell Level 0 - Unusable");
+						copy_cstr(tempstr, "Spell Level 0 - Unusable")
 					else
 						snprintf(tempstr, sizeof(tempstr), "Spell Level %i", s);
 					AddPanelString(tempstr, TRUE);
@@ -434,7 +434,7 @@ void DrawSpellList()
 						}
 					}
 					if (v == 1)
-						strcpy(tempstr, "1 Scroll");
+						copy_cstr(tempstr, "1 Scroll")
 					else
 						snprintf(tempstr, sizeof(tempstr), "%i Scrolls", v);
 					AddPanelString(tempstr, TRUE);
@@ -442,7 +442,7 @@ void DrawSpellList()
 				case RSPLTYPE_CHARGES:
 					snprintf(infostr, sizeof(infostr), "Staff of %s", spelldata[j].sNameText);
 					if (p->InvBody[INVLOC_HAND_LEFT]._iCharges == 1)
-						strcpy(tempstr, "1 Charge");
+						copy_cstr(tempstr, "1 Charge")
 					else
 						snprintf(tempstr, sizeof(tempstr), "%i Charges", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
 					AddPanelString(tempstr, TRUE);
@@ -585,7 +585,7 @@ void PrintChar(int sx, int sy, int nCel, char col)
 
 void AddPanelString(const char *str, BOOL just)
 {
-	strcpy(panelstr[pnumlines], str);
+	SStrCopy(panelstr[pnumlines], str, sizeof(panelstr[pnumlines]));
 	pstrjust[pnumlines] = just;
 
 	if (pnumlines < MAX_CTRL_PANEL_LINES)
@@ -846,7 +846,7 @@ void InitControlPan()
 		chrbtn[i] = FALSE;
 	chrbtnactive = FALSE;
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
-	strcpy(infostr, "");
+	copy_str(infostr, "")
 	ClearPanel();
 	drawhpflag = TRUE;
 	drawmanaflag = TRUE;
@@ -1030,9 +1030,9 @@ void CheckPanelInfo()
 				strcpy(infostr, PanBtnStr[i]);
 			} else {
 				if (FriendlyMode)
-					strcpy(infostr, "Player friendly");
+					copy_cstr(infostr, "Player friendly")
 				else
-					strcpy(infostr, "Player attack");
+					copy_cstr(infostr, "Player attack")
 			}
 			if (PanBtnHotKey[i] != NULL) {
 				snprintf(tempstr, sizeof(tempstr), "Hotkey : %s", PanBtnHotKey[i]);
@@ -1044,11 +1044,11 @@ void CheckPanelInfo()
 		}
 	}
 	if (!spselflag && MouseX >= 565 + PANEL_LEFT && MouseX < 621 + PANEL_LEFT && MouseY >= 64 + PANEL_TOP && MouseY < 120 + PANEL_TOP) {
-		strcpy(infostr, "Select current spell button");
+		copy_cstr(infostr, "Select current spell button")
 		infoclr = COL_WHITE;
 		panelflag = TRUE;
 		pinfoflag = TRUE;
-		strcpy(tempstr, "Hotkey : 's'");
+		copy_cstr(tempstr, "Hotkey : 's'")
 		AddPanelString(tempstr, TRUE);
 		p = &plr[myplr];
 		sn = p->_pRSpell;
@@ -1063,7 +1063,7 @@ void CheckPanelInfo()
 				AddPanelString(tempstr, TRUE);
 				c = p->_pISplLvlAdd + p->_pSplLvl[sn];
 				if (c <= 0)
-					strcpy(tempstr, "Spell Level 0 - Unusable");
+					copy_cstr(tempstr, "Spell Level 0 - Unusable")
 				else
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", c);
 				AddPanelString(tempstr, TRUE);
@@ -1089,7 +1089,7 @@ void CheckPanelInfo()
 					}
 				}
 				if (c == 1)
-					strcpy(tempstr, "1 Scroll");
+					copy_cstr(tempstr, "1 Scroll")
 				else
 					snprintf(tempstr, sizeof(tempstr), "%i Scrolls", c);
 				AddPanelString(tempstr, TRUE);
@@ -1099,7 +1099,7 @@ void CheckPanelInfo()
 				AddPanelString(tempstr, TRUE);
 				c = p->InvBody[INVLOC_HAND_LEFT]._iCharges;
 				if (c == 1)
-					strcpy(tempstr, "1 Charge");
+					copy_cstr(tempstr, "1 Charge")
 				else
 					snprintf(tempstr, sizeof(tempstr), "%i Charges", c);
 				AddPanelString(tempstr, TRUE);
@@ -1303,9 +1303,9 @@ void DrawInfoBox()
 			pinfoflag = TRUE;
 		} else {
 			if (is->_iIdentified)
-				strcpy(infostr, is->_iIName);
+				copy_str(infostr, is->_iIName)
 			else
-				strcpy(infostr, is->_iName);
+				copy_str(infostr, is->_iName)
 			if (is->_iMagical == ITEM_QUALITY_MAGIC)
 				infoclr = COL_BLUE;
 			else if (is->_iMagical == ITEM_QUALITY_UNIQUE)
@@ -1328,13 +1328,13 @@ void DrawInfoBox()
 					PrintMonstHistory(monster[pcursmonst].MType->mtype);
 				}
 			} else if (pcursitem == -1) {
-				strcpy(infostr, towner[pcursmonst]._tName);
+				copy_str(infostr, towner[pcursmonst]._tName)
 			}
 		}
 		if (pcursplr != -1) {
 			infoclr = COL_GOLD;
 			p = &plr[pcursplr];
-			strcpy(infostr, p->_pName);
+			copy_str(infostr, p->_pName)
 			ClearPanel();
 #ifdef HELLFIRE
 			snprintf(tempstr, sizeof(tempstr), "%s, Level : %i", ClassStrTbl[p->_pClass], p->_pLevel);
@@ -1431,7 +1431,7 @@ void DrawChr()
 	ADD_PlrStringXY(216, 69, 300, chrstr, COL_WHITE);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
-		strcpy(chrstr, "None");
+		copy_cstr(chrstr, "None")
 		col = COL_GOLD;
 	} else {
 		snprintf(chrstr, sizeof(chrstr), "%li", p->_pNextExper);
@@ -1491,7 +1491,7 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		strcpy(chrstr, "MAX");
+		copy_cstr(chrstr, "MAX")
 	}
 	ADD_PlrStringXY(257, 276, 300, chrstr, col);
 
@@ -1501,7 +1501,7 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		strcpy(chrstr, "MAX");
+		copy_cstr(chrstr, "MAX")
 	}
 	ADD_PlrStringXY(257, 304, 300, chrstr, col);
 
@@ -1511,7 +1511,7 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	} else {
 		col = COL_GOLD;
-		strcpy(chrstr, "MAX");
+		copy_cstr(chrstr, "MAX")
 	}
 	ADD_PlrStringXY(257, 332, 300, chrstr, col);
 
@@ -1892,7 +1892,7 @@ void DrawSpellBook()
 			PrintSBookStr(10, yp - 23, FALSE, spelldata[sn].sNameText, COL_WHITE);
 			switch (GetSBookTrans(sn, FALSE)) {
 			case RSPLTYPE_SKILL:
-				strcpy(tempstr, "Skill");
+				copy_cstr(tempstr, "Skill")
 				break;
 			case RSPLTYPE_CHARGES:
 				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
@@ -1911,7 +1911,7 @@ void DrawSpellBook()
 				PrintSBookStr(10, yp - 1, FALSE, tempstr, COL_WHITE);
 				lvl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 				if (lvl <= 0) {
-					strcpy(tempstr, "Spell Level 0 - Unusable");
+					copy_cstr(tempstr, "Spell Level 0 - Unusable")
 				} else {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
 				}
@@ -2225,15 +2225,15 @@ static void control_press_enter()
 				break;
 		}
 		if (i >= 8) {
-			strcpy(sgszTalkSave[sgbNextTalkSave], sgszTalkMsg);
+			copy_str(sgszTalkSave[sgbNextTalkSave], sgszTalkMsg)
 			sgbNextTalkSave++;
 			sgbNextTalkSave &= 7;
 		} else {
 			talk_save = sgbNextTalkSave - 1;
 			talk_save &= 7;
 			if (i != talk_save) {
-				strcpy(sgszTalkSave[i], sgszTalkSave[talk_save]);
-				strcpy(sgszTalkSave[talk_save], sgszTalkMsg);
+				copy_str(sgszTalkSave[i], sgszTalkSave[talk_save])
+				copy_str(sgszTalkSave[talk_save], sgszTalkMsg)
 			}
 		}
 		sgszTalkMsg[0] = '\0';
@@ -2270,7 +2270,7 @@ static void control_up_down(int v)
 	for (i = 0; i < 8; i++) {
 		sgbTalkSavePos = (v + sgbTalkSavePos) & 7;
 		if (sgszTalkSave[sgbTalkSavePos][0]) {
-			strcpy(sgszTalkMsg, sgszTalkSave[sgbTalkSavePos]);
+			copy_str(sgszTalkMsg, sgszTalkSave[sgbTalkSavePos])
 			return;
 		}
 	}

@@ -170,14 +170,14 @@ void CheckTownPortal()
 				trigflag = TRUE;
 				ClearPanel();
 				if (mis->_miType == MIS_TOWN) {
-					strcpy(infostr, "Town Portal");
+					copy_cstr(infostr, "Town Portal")
 					snprintf(tempstr, sizeof(tempstr), "from %s", plr[mis->_miSource]._pName);
 				} else {
-					strcpy(infostr, "Portal to");
+					copy_cstr(infostr, "Portal to")
 					if (!setlevel)
-						strcpy(tempstr, "The Unholy Altar");
+						copy_cstr(tempstr, "The Unholy Altar")
 					else
-						strcpy(tempstr, "level 15");
+						copy_cstr(tempstr, "level 15")
 				}
 				AddPanelString(tempstr, TRUE);
 				cursmx = mis->_mix;

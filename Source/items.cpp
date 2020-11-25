@@ -29,7 +29,7 @@ int gnNumGetRecords;
 #ifdef HELLFIRE
 struct OilStruct {
 	int type;
-	char name[25];
+	const char name[24];
 	int level;
 	int value;
 };
@@ -1608,10 +1608,10 @@ static void GetBookSpell(int ii, int lvl)
 static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 {
 	const PLStruct *l[256];
-	char istr[128];
+	char istr[64];
 	int nl;
 	const PLStruct *pres;
-	char *iname;
+	char (* iname)[64];
 
 	pres = NULL;
 	if (random_(15, 10) == 0 || onlygood) {
@@ -1632,7 +1632,7 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 		if (nl != 0) {
 			pres = l[random_(16, nl)];
 			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
-			strcpy(item[ii]._iIName, istr);
+			copy_str(item[ii]._iIName, istr)
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -1645,17 +1645,17 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 			item[ii]._iPrePower = pres->PLPower;
 		}
 	}
-	iname = item[ii]._iIName;
-	if (!control_WriteStringToBuffer((BYTE *)iname)) {
-		strcpy(iname, AllItemsList[item[ii].IDidx].iSName);
+	iname = &item[ii]._iIName;
+	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
+		strcpy(*iname, AllItemsList[item[ii].IDidx].iSName);
 		if (pres != NULL) {
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, iname);
-			strcpy(iname, istr);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
+			copy_str(*iname, istr)
 		}
-		snprintf(istr, sizeof(istr), "%s of %s", iname, spelldata[bs].sNameText);
-		strcpy(iname, istr);
+		snprintf(istr, sizeof(istr), "%s of %s", *iname, spelldata[bs].sNameText);
+		copy_str(*iname, istr)
 		if (item[ii]._iMagical == ITEM_QUALITY_NORMAL)
-			strcpy(item[ii]._iName, iname);
+			copy_str(item[ii]._iName, *iname)
 	}
 	CalcItemValue(ii);
 }
@@ -1705,8 +1705,8 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 		snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
 		if (!control_WriteStringToBuffer((BYTE *)istr))
 			snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
-		strcpy(is->_iName, istr);
-		strcpy(is->_iIName, istr);
+		copy_str(is->_iName, istr)
+		copy_str(is->_iIName, istr)
 
 		is->_iSpell = bs;
 		is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
@@ -1746,8 +1746,8 @@ static void GetOilType(int ii, int max_lvl)
 
 	oil = &oildata[type];
 	is = &item[ii];
-	strcpy(is->_iName, oil->name);
-	strcpy(is->_iIName, oil->name);
+	copy_str(is->_iName, oil->name)
+	copy_str(is->_iIName, oil->name)
 	is->_iMiscId = oil->type;
 	is->_ivalue = oil->value;
 	is->_iIvalue = oil->value;
@@ -2291,9 +2291,9 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	int pre, post, nl;
 	const PLStruct *pres, *sufs;
 	const PLStruct *l[256];
-	char istr[128];
+	char istr[64];
 	BYTE goe;
-	char *iname;
+	char (* iname)[64];
 
 	pre = random_(23, 4);
 	post = random_(23, 3);
@@ -2327,7 +2327,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		if (nl != 0) {
 			pres = l[random_(23, nl)];
 			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
-			strcpy(item[ii]._iIName, istr);
+			copy_str(item[ii]._iIName, istr)
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -2356,7 +2356,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		if (nl != 0) {
 			sufs = l[random_(23, nl)];
 			snprintf(istr, sizeof(istr), "%s of %s", item[ii]._iIName, sufs->PLName);
-			strcpy(item[ii]._iIName, istr);
+			copy_str(item[ii]._iIName, istr)
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -2369,16 +2369,16 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 			item[ii]._iSufPower = sufs->PLPower;
 		}
 	}
-	iname = item[ii]._iIName;
-	if (!control_WriteStringToBuffer((BYTE *)iname)) {
-		strcpy(iname, AllItemsList[item[ii].IDidx].iSName);
+	iname = &item[ii]._iIName;
+	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
+		strcpy(*iname, AllItemsList[item[ii].IDidx].iSName);
 		if (pres != NULL) {
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, iname);
-			strcpy(iname, istr);
+			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
+			copy_str(*iname, istr)
 		}
 		if (sufs != NULL) {
-			snprintf(istr, sizeof(istr), "%s of %s", iname, sufs->PLName);
-			strcpy(iname, istr);
+			snprintf(istr, sizeof(istr), "%s of %s", *iname, sufs->PLName);
+			copy_str(*iname, istr)
 		}
 	}
 	if (pres != NULL || sufs != NULL)
@@ -3223,9 +3223,9 @@ void GetItemStr(int ii)
 	is = &item[ii];
 	if (is->_itype != ITYPE_GOLD) {
 		if (is->_iIdentified)
-			strcpy(infostr, is->_iIName);
+			copy_str(infostr, is->_iIName)
 		else
-			strcpy(infostr, is->_iName);
+			copy_str(infostr, is->_iName)
 
 		if (is->_iMagical == ITEM_QUALITY_MAGIC)
 			infoclr = COL_BLUE;
@@ -3484,7 +3484,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		else
-			strcpy(tempstr, "Resist Fire: 75% MAX");
+			copy_cstr(tempstr, "Resist Fire: 75% MAX")
 		break;
 	case IPL_LIGHTRES:
 #ifdef HELLFIRE
@@ -3493,7 +3493,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		if (is->_iPLLR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
 		else
-			strcpy(tempstr, "Resist Lightning: 75% MAX");
+			copy_cstr(tempstr, "Resist Lightning: 75% MAX")
 		break;
 	case IPL_MAGICRES:
 #ifdef HELLFIRE
@@ -3502,7 +3502,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		if (is->_iPLMR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
 		else
-			strcpy(tempstr, "Resist Magic: 75% MAX");
+			copy_cstr(tempstr, "Resist Magic: 75% MAX")
 		break;
 	case IPL_ALLRES:
 #ifdef HELLFIRE
@@ -3511,13 +3511,13 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
 		else
-			strcpy(tempstr, "Resist All: 75% MAX");
+			copy_cstr(tempstr, "Resist All: 75% MAX")
 		break;
 	case IPL_SPLLVLADD:
 		snprintf(tempstr, sizeof(tempstr), "%+i to spell levels", is->_iSplLvlAdd);
 		break;
 	case IPL_CHARGES:
-		strcpy(tempstr, "Extra charges");
+		copy_cstr(tempstr, "Extra charges")
 		break;
 	case IPL_SPELL:
 		snprintf(tempstr, sizeof(tempstr), "%i %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
@@ -3567,13 +3567,13 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "Mana: %+i", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
-		strcpy(tempstr, "high durability");
+		copy_cstr(tempstr, "high durability")
 		break;
 	case IPL_DUR_CURSE:
-		strcpy(tempstr, "decreased durability");
+		copy_cstr(tempstr, "decreased durability")
 		break;
 	case IPL_INDESTRUCTIBLE:
-		strcpy(tempstr, "indestructible");
+		copy_cstr(tempstr, "indestructible")
 		break;
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "+%i%% light radius", 10 * is->_iPLLight);
@@ -3583,7 +3583,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		break;
 #ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
-		strcpy(tempstr, "multiple arrows per shot");
+		copy_cstr(tempstr, "multiple arrows per shot")
 		break;
 #endif
 	case IPL_FIRE_ARROWS:
@@ -3599,13 +3599,13 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
 		break;
 	case IPL_THORNS:
-		strcpy(tempstr, "attacker takes 1-3 damage");
+		copy_cstr(tempstr, "attacker takes 1-3 damage")
 		break;
 	case IPL_NOMANA:
-		strcpy(tempstr, "user loses all mana");
+		copy_cstr(tempstr, "user loses all mana")
 		break;
 	case IPL_NOHEALPLR:
-		strcpy(tempstr, "you can't heal");
+		copy_cstr(tempstr, "you can't heal")
 		break;
 #ifdef HELLFIRE
 	case IPL_FIREBALL:
@@ -3616,92 +3616,92 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		break;
 #endif
 	case IPL_ABSHALFTRAP:
-		strcpy(tempstr, "absorbs half of trap damage");
+		copy_cstr(tempstr, "absorbs half of trap damage")
 		break;
 	case IPL_KNOCKBACK:
-		strcpy(tempstr, "knocks target back");
+		copy_cstr(tempstr, "knocks target back")
 		break;
 	case IPL_3XDAMVDEM:
-		strcpy(tempstr, "+200% damage vs. demons");
+		copy_cstr(tempstr, "+200% damage vs. demons")
 		break;
 	case IPL_ALLRESZERO:
-		strcpy(tempstr, "All Resistance equals 0");
+		copy_cstr(tempstr, "All Resistance equals 0")
 		break;
 	case IPL_NOHEALMON:
-		strcpy(tempstr, "hit monster doesn't heal");
+		copy_cstr(tempstr, "hit monster doesn't heal")
 		break;
 	case IPL_STEALMANA:
 		if (is->_iFlags & ISPL_STEALMANA_3)
-			strcpy(tempstr, "hit steals 3% mana");
+			copy_cstr(tempstr, "hit steals 3% mana")
 		if (is->_iFlags & ISPL_STEALMANA_5)
-			strcpy(tempstr, "hit steals 5% mana");
+			copy_cstr(tempstr, "hit steals 5% mana")
 		break;
 	case IPL_STEALLIFE:
 		if (is->_iFlags & ISPL_STEALLIFE_3)
-			strcpy(tempstr, "hit steals 3% life");
+			copy_cstr(tempstr, "hit steals 3% life")
 		if (is->_iFlags & ISPL_STEALLIFE_5)
-			strcpy(tempstr, "hit steals 5% life");
+			copy_cstr(tempstr, "hit steals 5% life")
 		break;
 	case IPL_TARGAC:
 #ifdef HELLFIRE
-		strcpy(tempstr, "penetrates target\'s armor");
+		copy_cstr(tempstr, "penetrates target\'s armor")
 #else
-		strcpy(tempstr, "damages target's armor");
+		copy_cstr(tempstr, "damages target's armor")
 #endif
 		break;
 	case IPL_FASTATTACK:
 		if (is->_iFlags & ISPL_QUICKATTACK)
-			strcpy(tempstr, "quick attack");
+			copy_cstr(tempstr, "quick attack")
 		if (is->_iFlags & ISPL_FASTATTACK)
-			strcpy(tempstr, "fast attack");
+			copy_cstr(tempstr, "fast attack")
 		if (is->_iFlags & ISPL_FASTERATTACK)
-			strcpy(tempstr, "faster attack");
+			copy_cstr(tempstr, "faster attack")
 		if (is->_iFlags & ISPL_FASTESTATTACK)
-			strcpy(tempstr, "fastest attack");
+			copy_cstr(tempstr, "fastest attack")
 		break;
 	case IPL_FASTRECOVER:
 		if (is->_iFlags & ISPL_FASTRECOVER)
-			strcpy(tempstr, "fast hit recovery");
+			copy_cstr(tempstr, "fast hit recovery")
 		if (is->_iFlags & ISPL_FASTERRECOVER)
-			strcpy(tempstr, "faster hit recovery");
+			copy_cstr(tempstr, "faster hit recovery")
 		if (is->_iFlags & ISPL_FASTESTRECOVER)
-			strcpy(tempstr, "fastest hit recovery");
+			copy_cstr(tempstr, "fastest hit recovery")
 		break;
 	case IPL_FASTBLOCK:
-		strcpy(tempstr, "fast block");
+		copy_cstr(tempstr, "fast block")
 		break;
 	case IPL_DAMMOD:
 		snprintf(tempstr, sizeof(tempstr), "adds %i points to damage", is->_iPLDamMod);
 		break;
 	case IPL_RNDARROWVEL:
-		strcpy(tempstr, "fires random speed arrows");
+		copy_cstr(tempstr, "fires random speed arrows")
 		break;
 	case IPL_SETDAM:
-		strcpy(tempstr, "unusual item damage");
+		copy_cstr(tempstr, "unusual item damage")
 		break;
 	case IPL_SETDUR:
-		strcpy(tempstr, "altered durability");
+		copy_cstr(tempstr, "altered durability")
 		break;
 	case IPL_FASTSWING:
-		strcpy(tempstr, "Faster attack swing");
+		copy_cstr(tempstr, "Faster attack swing")
 		break;
 	case IPL_ONEHAND:
-		strcpy(tempstr, "one handed sword");
+		copy_cstr(tempstr, "one handed sword")
 		break;
 	case IPL_DRAINLIFE:
-		strcpy(tempstr, "constantly lose hit points");
+		copy_cstr(tempstr, "constantly lose hit points")
 		break;
 	case IPL_RNDSTEALLIFE:
-		strcpy(tempstr, "life stealing");
+		copy_cstr(tempstr, "life stealing")
 		break;
 	case IPL_NOMINSTR:
-		strcpy(tempstr, "no strength requirement");
+		copy_cstr(tempstr, "no strength requirement")
 		break;
 	case IPL_INFRAVISION:
-		strcpy(tempstr, "see with infravision");
+		copy_cstr(tempstr, "see with infravision")
 		break;
 	case IPL_INVCURS:
-		strcpy(tempstr, " ");
+		copy_cstr(tempstr, " ")
 		break;
 	case IPL_ADDACLIFE:
 #ifdef HELLFIRE
@@ -3710,53 +3710,53 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		else
 			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iFMinDam);
 #else
-		strcpy(tempstr, "Armor class added to life");
+		copy_cstr(tempstr, "Armor class added to life")
 #endif
 		break;
 	case IPL_ADDMANAAC:
 #ifdef HELLFIRE
-		strcpy(tempstr, "charged bolts on hits");
+		copy_cstr(tempstr, "charged bolts on hits")
 #else
-		strcpy(tempstr, "10% of mana added to armor");
+		copy_cstr(tempstr, "10% of mana added to armor")
 #endif
 		break;
 	case IPL_FIRERESCLVL:
 		if (is->_iPLFR <= 0)
-			strcpy(tempstr, " ");
+			copy_cstr(tempstr, " ")
 		else
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		break;
 #ifdef HELLFIRE
 	case IPL_DEVASTATION:
-		strcpy(tempstr, "occasional triple damage");
+		copy_cstr(tempstr, "occasional triple damage")
 		break;
 	case IPL_DECAY:
 		snprintf(tempstr, sizeof(tempstr), "decaying %+i%% damage", is->_iPLDam);
 		break;
 	case IPL_PERIL:
-		strcpy(tempstr, "2x dmg to monst, 1x to you");
+		copy_cstr(tempstr, "2x dmg to monst, 1x to you")
 		break;
 	case IPL_JESTERS:
-		strcpy(tempstr, "Random 0 - 500% damage");
+		copy_cstr(tempstr, "Random 0 - 500% damage")
 		break;
 	case IPL_CRYSTALLINE:
 		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
 		break;
 	case IPL_ACDEMON:
-		strcpy(tempstr, "extra AC vs demons");
+		copy_cstr(tempstr, "extra AC vs demons")
 		break;
 	case IPL_ACUNDEAD:
-		strcpy(tempstr, "extra AC vs undead");
+		copy_cstr(tempstr, "extra AC vs undead")
 		break;
 	case IPL_MANATOLIFE:
-		strcpy(tempstr, "50% Mana moved to Health");
+		copy_cstr(tempstr, "50% Mana moved to Health")
 		break;
 	case IPL_LIFETOMANA:
-		strcpy(tempstr, "40% Health moved to Mana");
+		copy_cstr(tempstr, "40% Health moved to Mana")
 		break;
 #endif
 	default:
-		strcpy(tempstr, "Another ability (NW)");
+		copy_cstr(tempstr, "Another ability (NW)")
 		break;
 	}
 }
@@ -4103,7 +4103,7 @@ void PrintItemDetails(const ItemStruct *is)
 	}
 	PrintItemMisc(is);
 	if ((is->_iMinMag | is->_iMinDex | is->_iMinStr) != 0) {
-		strcpy(tempstr, "Required:");
+		copy_cstr(tempstr, "Required:")
 		if (is->_iMinStr)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag)
@@ -4155,7 +4155,7 @@ void PrintItemDur(const ItemStruct *is)
 		AddPanelString("Not Identified", TRUE);
 	PrintItemMisc(is);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
-		strcpy(tempstr, "Required:");
+		copy_cstr(tempstr, "Required:")
 		if (is->_iMinStr)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag)

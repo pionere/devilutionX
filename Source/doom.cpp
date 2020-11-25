@@ -76,13 +76,13 @@ static void doom_load_graphics()
 #endif
 {
 #ifdef HELLFIRE
-	strcpy(tempstr, "Items\\Map\\MapZtown.CEL");
+	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL")
 	if (LoadFileWithMem(tempstr, pDoomCel))
 		return TRUE;
 	return FALSE;
 #else
 	if (doom_quest_time == 31) {
-		strcpy(tempstr, "Items\\Map\\MapZDoom.CEL");
+		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL")
 	} else if (doom_quest_time < 10) {
 		sprintf(tempstr, "Items\\Map\\MapZ000%i.CEL", doom_quest_time);
 	} else {

@@ -115,7 +115,7 @@ void LoadRndLvlPal(int lvl)
 		rv = random_(0, 4) + 1;
 #ifdef HELLFIRE
 		if (lvl == 5) {
-			strcpy(szFileName, "NLevels\\L5Data\\L5Base.PAL");
+			copy_cstr(szFileName, "NLevels\\L5Data\\L5Base.PAL")
 		} else if (lvl == 6) {
 			if (!UseNestArt) {
 				rv++;

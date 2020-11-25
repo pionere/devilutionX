@@ -4859,11 +4859,11 @@ void GetObjectStr(int oi)
 	switch (os->_otype) {
 	case OBJ_LEVER:
 	case OBJ_FLAMELVR:
-		strcpy(infostr, "Lever");
+		copy_cstr(infostr, "Lever")
 		break;
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
-		strcpy(infostr, "Small Chest");
+		copy_cstr(infostr, "Small Chest")
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -4872,132 +4872,130 @@ void GetObjectStr(int oi)
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		if (os->_oVar4 == 1)
-			strcpy(infostr, "Open Door");
+			copy_cstr(infostr, "Open Door")
 		else if (os->_oVar4 == 0)
-			strcpy(infostr, "Closed Door");
+			copy_cstr(infostr, "Closed Door")
 		else if (os->_oVar4 == 2)
-			strcpy(infostr, "Blocked Door");
+			copy_cstr(infostr, "Blocked Door")
 		break;
 	case OBJ_BOOK2L:
 		if (setlevel) {
-			if (setlvlnum == SL_BONECHAMB) {
-				strcpy(infostr, "Ancient Tome");
-			} else if (setlvlnum == SL_VILEBETRAYER) {
-				strcpy(infostr, "Book of Vileness");
-			}
+			if (setlvlnum == SL_BONECHAMB)
+				copy_cstr(infostr, "Ancient Tome")
+			else if (setlvlnum == SL_VILEBETRAYER)
+				copy_cstr(infostr, "Book of Vileness")
 		}
 		break;
 	case OBJ_SWITCHSKL:
-		strcpy(infostr, "Skull Lever");
+		copy_cstr(infostr, "Skull Lever")
 		break;
 	case OBJ_BOOK2R:
-		strcpy(infostr, "Mythical Book");
+		copy_cstr(infostr, "Mythical Book")
 		break;
 
 	case OBJ_CHEST2:
 	case OBJ_TCHEST2:
-		strcpy(infostr, "Chest");
+		copy_cstr(infostr, "Chest")
 		break;
 	case OBJ_CHEST3:
 	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
-		strcpy(infostr, "Large Chest");
+		copy_cstr(infostr, "Large Chest")
 		break;
 	case OBJ_CRUX1:
 	case OBJ_CRUX2:
 	case OBJ_CRUX3:
-		strcpy(infostr, "Crucified Skeleton");
+		copy_cstr(infostr, "Crucified Skeleton")
 		break;
 	case OBJ_SARC:
-		strcpy(infostr, "Sarcophagus");
+		copy_cstr(infostr, "Sarcophagus")
 		break;
 	case OBJ_BOOKSHELF:
-		strcpy(infostr, "Bookshelf");
+		copy_cstr(infostr, "Bookshelf")
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
 		if (currlevel >= 17 && currlevel <= 20) // for hive levels
-			strcpy(infostr, "Pod"); //Then a barrel is called a pod
+			copy_cstr(infostr, "Pod") //Then a barrel is called a pod
 		else if (currlevel > 20 && currlevel < 25) // for crypt levels
-			strcpy(infostr, "Urn"); //Then a barrel is called an urn
+			copy_cstr(infostr, "Urn") //Then a barrel is called an urn
 		else
 #endif
-			strcpy(infostr, "Barrel");
+			copy_cstr(infostr, "Barrel")
 		break;
 	case OBJ_SKELBOOK:
-		strcpy(infostr, "Skeleton Tome");
+		copy_cstr(infostr, "Skeleton Tome")
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		snprintf(tempstr, sizeof(tempstr), "%s Shrine", shrinestrs[os->_oVar1]);
-		strcpy(infostr, tempstr);
+		snprintf(infostr, sizeof(infostr), "%s Shrine", shrinestrs[os->_oVar1]);
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		strcpy(infostr, "Bookcase");
+		copy_cstr(infostr, "Bookcase")
 		break;
 	case OBJ_BOOKSTAND:
-		strcpy(infostr, "Library Book");
+		copy_cstr(infostr, "Library Book")
 		break;
 	case OBJ_BLOODFTN:
-		strcpy(infostr, "Blood Fountain");
+		copy_cstr(infostr, "Blood Fountain")
 		break;
 	case OBJ_DECAP:
-		strcpy(infostr, "Decapitated Body");
+		copy_cstr(infostr, "Decapitated Body")
 		break;
 	case OBJ_BLINDBOOK:
-		strcpy(infostr, "Book of the Blind");
+		copy_cstr(infostr, "Book of the Blind")
 		break;
 	case OBJ_BLOODBOOK:
-		strcpy(infostr, "Book of Blood");
+		copy_cstr(infostr, "Book of Blood")
 		break;
 	case OBJ_PEDISTAL:
-		strcpy(infostr, "Pedestal of Blood");
+		copy_cstr(infostr, "Pedestal of Blood")
 		break;
 	case OBJ_PURIFYINGFTN:
-		strcpy(infostr, "Purifying Spring");
+		copy_cstr(infostr, "Purifying Spring")
 		break;
 	case OBJ_ARMORSTAND:
 	case OBJ_WARARMOR:
-		strcpy(infostr, "Armor");
+		copy_cstr(infostr, "Armor")
 		break;
 	case OBJ_GOATSHRINE:
-		strcpy(infostr, "Goat Shrine");
+		copy_cstr(infostr, "Goat Shrine")
 		break;
 	case OBJ_CAULDRON:
-		strcpy(infostr, "Cauldron");
+		copy_cstr(infostr, "Cauldron")
 		break;
 	case OBJ_MURKYFTN:
-		strcpy(infostr, "Murky Pool");
+		copy_cstr(infostr, "Murky Pool")
 		break;
 	case OBJ_TEARFTN:
-		strcpy(infostr, "Fountain of Tears");
+		copy_cstr(infostr, "Fountain of Tears")
 		break;
 	case OBJ_STEELTOME:
-		strcpy(infostr, "Steel Tome");
+		copy_cstr(infostr, "Steel Tome")
 		break;
 	case OBJ_STORYBOOK:
-		strcpy(infostr, StoryBookName[os->_oVar3]);
+		copy_cstr(infostr, StoryBookName[os->_oVar3])
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
-		strcpy(infostr, "Weapon Rack");
+		copy_cstr(infostr, "Weapon Rack")
 		break;
 	case OBJ_MUSHPATCH:
-		strcpy(infostr, "Mushroom Patch");
+		copy_cstr(infostr, "Mushroom Patch")
 		break;
 	case OBJ_LAZSTAND:
-		strcpy(infostr, "Vile Stand");
+		copy_cstr(infostr, "Vile Stand")
 		break;
 	case OBJ_SLAINHERO:
-		strcpy(infostr, "Slain Hero");
+		copy_cstr(infostr, "Slain Hero")
 		break;
 	}
 	if (plr[myplr]._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
 			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
-			strcpy(infostr, tempstr);
+			copy_str(infostr, tempstr)
 			infoclr = COL_RED;
 		}
 	}

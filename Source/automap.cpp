@@ -601,11 +601,11 @@ static void DrawAutomapText()
 	int nextline = 20;
 
 	if (gbMaxPlayers != 1) {
-		strcat(strcpy(desc, "game: "), szPlayerName);
+		snprintf(desc, sizeof(desc), "game: %s", szPlayerName);
 		PrintGameStr(8, 20, desc, COL_GOLD);
 		nextline = 35;
 		if (szPlayerDescript[0] != '\0') {
-			strcat(strcpy(desc, "password: "), szPlayerDescript);
+			snprintf(desc, sizeof(desc), "password: %s", szPlayerDescript);
 			PrintGameStr(8, 35, desc, COL_GOLD);
 			nextline = 50;
 		}

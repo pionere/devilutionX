@@ -87,6 +87,61 @@ inline int RandRange(int minVal, int maxVal)
 	return minVal + random_(0, maxVal - minVal + 1);
 }
 
+/* BUGFIX: TODO DISABLE/ENABLE_WARNING macros are not tested for GNUC/clang
+ *			would be nice to prevent the users from passing char* pointers instead of arrays with fixed size
+template <typename T, size_t N>
+constexpr BOOL isArray(T (&)[N]) {
+	return TRUE;
+}
+*/
+#if defined(_MSC_VER)
+#define DIAG_PRAGMA(x) __pragma(warning(x))
+#define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
+#define ENABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) DIAG_PRAGMA(pop)
+//#define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) __pragma(warning(suppress: msvc_errorcode))
+//#define ENABLE_WARNING(gcc_unused,clang_unused,msvc_unused) ((void)0)
+#else
+#define DIAG_STR(s) #s
+#define DIAG_JOINSTR(x,y) DIAG_STR(x ## y)
+#define DIAG_PRAGMA(compiler,x) _Pragma(compiler diagnostic x)
+#if defined(__clang__)
+# define DISABLE_WARNING(gcc_unused,clang_option,msvc_unused) DIAG_PRAGMA(clang,push) DIAG_PRAGMA(clang,ignored DIAG_JOINSTR(-W,clang_option))
+# define ENABLE_WARNING(gcc_unused,clang_option,msvc_unused) DIAG_PRAGMA(clang,pop)
+#elif defined(__GNUC__)
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
+# define DISABLE_WARNING(gcc_option,clang_unused,msvc_unused) DIAG_PRAGMA(GCC,push) DIAG_PRAGMA(GCC,ignored DIAG_JOINSTR(-W,gcc_option))
+# define ENABLE_WARNING(gcc_option,clang_unused,msvc_unused) DIAG_PRAGMA(GCC,pop)
+#else
+# define DISABLE_WARNING(gcc_option,clang_unused,msvc_unused) DIAG_PRAGMA(GCC,ignored DIAG_JOINSTR(-W,gcc_option))
+# define ENABLE_WARNING(gcc_option,clang_option,msvc_unused) DIAG_PRAGMA(GCC,warning DIAG_JOINSTR(-W,gcc_option))
+#endif
+#else
+#define DISABLE_WARNING(gcc_unused,clang_unused,msvc_unused) ;
+#define ENABLE_WARNING(gcc_unused,clang_unused,msvc_unused) ;
+#endif
+#endif
+/*
+ * Copy string from src to dest. dest and src must be an array of chars.
+ * The NULL terminated content of src is copied to dest.
+ */
+#define copy_str(dest, src) \
+ { \
+	static_assert(sizeof(dest) >= sizeof(src), "String does not fit the destination."); \
+	DISABLE_WARNING(gcc_option, clang_option, 4996) \
+	strcpy(dest, src); \
+	ENABLE_WARNING(gcc_option, clang_option, 4996) \
+ }
+
+/*
+ * Copy constant string from src to dest. dest and src must be an array of chars.
+ * The whole (padded) length of the src array is copied.
+ */
+#define copy_cstr(dest, src) \
+ { \
+	static_assert(sizeof(dest) >= sizeof(src), "String does not fit the destination."); \
+	memcpy(dest, src, std::min(sizeof(dest), ((sizeof(src) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))); \
+ }
+
 #ifdef __cplusplus
 }
 #endif
