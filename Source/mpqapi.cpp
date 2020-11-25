@@ -472,12 +472,12 @@ void mpqapi_remove_hash_entry(const char *pszName)
 	}
 }
 
-void mpqapi_remove_hash_entries(BOOL (*fnGetName)(DWORD, char *))
+void mpqapi_remove_hash_entries(BOOL (*fnGetName)(DWORD, char (*)[MAX_PATH]))
 {
 	DWORD i;
 	char pszFileName[MAX_PATH];
 
-	for (i = 0; fnGetName(i, pszFileName); i++)
+	for (i = 0; fnGetName(i, &pszFileName); i++)
 		mpqapi_remove_hash_entry(pszFileName);
 }
 
