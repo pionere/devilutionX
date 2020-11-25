@@ -167,7 +167,7 @@ BOOL pfile_create_player_description(char *dst, DWORD len)
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
 	if (dst != NULL && len) {
-		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
+		if (UiCreatePlayerDescription(&uihero, GAME_ID, &desc) == 0)
 			return FALSE;
 		SStrCopy(dst, desc, len);
 	}
@@ -257,8 +257,7 @@ static BYTE game_2_ui_class(const PlayerStruct *p)
 void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile)
 {
 	memset(heroinfo, 0, sizeof(*heroinfo));
-	strncpy(heroinfo->name, p->_pName, sizeof(heroinfo->name) - 1);
-	heroinfo->name[sizeof(heroinfo->name) - 1] = '\0';
+	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
 	heroinfo->level = p->_pLevel;
 	heroinfo->heroclass = game_2_ui_class(p);
 	heroinfo->strength = p->_pStrength;
@@ -345,12 +344,10 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	if (!pfile_open_archive(FALSE, save_num))
 		return FALSE;
 	mpqapi_remove_hash_entries(pfile_get_file_name);
-	strncpy(hero_names[save_num], heroinfo->name, PLR_NAME_LEN);
-	hero_names[save_num][PLR_NAME_LEN - 1] = '\0';
+	copy_str(hero_names[save_num], heroinfo->name);
 	cl = pfile_get_player_class(heroinfo->heroclass);
 	CreatePlayer(0, cl);
-	strncpy(plr[0]._pName, heroinfo->name, PLR_NAME_LEN);
-	plr[0]._pName[PLR_NAME_LEN - 1] = '\0';
+	copy_str(plr[0]._pName, heroinfo->name)
 	PackPlayer(&pkplr, 0, TRUE);
 	pfile_encode_hero(&pkplr);
 	game_2_ui_player(&plr[0], heroinfo, FALSE);

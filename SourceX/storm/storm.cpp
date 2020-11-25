@@ -341,7 +341,7 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 		*dataSize = value.length();
 
 	if (string != NULL)
-		strncpy(string, value.c_str(), stringSize);
+		SStrCopy(string, value.c_str(), stringSize);
 
 	return true;
 }
@@ -827,10 +827,10 @@ void SErrSetLastError(DWORD dwErrCode)
 	nLastError = dwErrCode;
 }
 
-int SStrCopy(char *dest, const char *src, int max_length)
+void SStrCopy(char *dest, const char *src, int max_length)
 {
-	strncpy(dest, src, max_length);
-	return strlen(dest);
+	memccpy(dest, src, '\0', max_length);
+	//strncpy(dest, src, max_length);
 }
 
 BOOL SFileSetBasePath(const char *path)

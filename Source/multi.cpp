@@ -743,7 +743,6 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 	_SNETPROGRAMDATA ProgramData;
 	_SNETUIDATA UiData;
 	_SNETPLAYERDATA plrdata;
-	unsigned int len;
 
 	while (1) {
 		*pfExitProgram = FALSE;
@@ -828,9 +827,9 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		glSeedTbl[i] = GetRndSeed();
 		gnLevelTypeTbl[i] = InitLevelType(i);
 	}
-	if (!SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, 128, &len))
+	if (!SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, 128))
 		nthread_terminate_game("SNetGetGameInfo1");
-	if (!SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, 128, &len))
+	if (!SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, 128))
 		nthread_terminate_game("SNetGetGameInfo2");
 
 	return TRUE;

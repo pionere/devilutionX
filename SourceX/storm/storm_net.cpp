@@ -68,16 +68,14 @@ BOOL SNetDropPlayer(int playerid, DWORD flags)
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }
 
-BOOL SNetGetGameInfo(int type, void *dst, unsigned int length, unsigned int *byteswritten)
+BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
 {
 	switch (type) {
 	case GAMEINFO_NAME:
-		strncpy((char *)dst, gpszGameName, length);
-		*byteswritten = strlen(gpszGameName) + 1;
+		SStrCopy((char *)dst, gpszGameName, length);
 		break;
 	case GAMEINFO_PASSWORD:
-		strncpy((char *)dst, gpszGamePassword, length);
-		*byteswritten = strlen(gpszGamePassword) + 1;
+		SStrCopy((char *)dst, gpszGamePassword, length);
 		break;
 	}
 
@@ -118,9 +116,9 @@ BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 
 	char addrstr[129] = "0.0.0.0";
 	getIniValue("dvlnet", "bindaddr", addrstr, 128);
-	strncpy(gpszGameName, addrstr, sizeof(gpszGameName) - 1);
+	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
 	if (pszGamePassword)
-		strncpy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword) - 1);
+		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->create(addrstr, pszGamePassword);
 	return *playerID != -1;
 }
@@ -128,9 +126,9 @@ BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
 {
 	if (pszGameName)
-		strncpy(gpszGameName, pszGameName, sizeof(gpszGameName) - 1);
+		SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
 	if (pszGamePassword)
-		strncpy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword) - 1);
+		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->join(pszGameName, pszGamePassword);
 	return *playerID != -1;
 }
