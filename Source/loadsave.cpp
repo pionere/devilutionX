@@ -686,7 +686,7 @@ void LoadGame(BOOL firstflag)
 
 	FreeGameMem();
 	pfile_remove_temp_files();
-	pfile_get_game_name(&szName);
+	pfile_get_game_name(szName);
 	LoadBuff = pfile_read(szName, &dwLen);
 	tbuff = LoadBuff;
 
@@ -1565,7 +1565,7 @@ void SaveGame()
 
 	OSave(automapflag);
 	WSave(AutoMapScale);
-	pfile_get_game_name(&szName);
+	pfile_get_game_name(szName);
 	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
@@ -1655,7 +1655,7 @@ void SaveLevel()
 		}
 	}
 
-	GetTempLevelNames(&szName);
+	GetTempLevelNames(szName);
 	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
@@ -1673,7 +1673,7 @@ void LoadLevel()
 	char szName[MAX_PATH];
 	BYTE *LoadBuff;
 
-	GetPermLevelNames(&szName);
+	GetPermLevelNames(szName);
 	LoadBuff = pfile_read(szName, &dwLen);
 	tbuff = LoadBuff;
 

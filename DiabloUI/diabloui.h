@@ -8,8 +8,8 @@ void UiDestroy();
 void UiTitleDialog();
 void UiInitialize();
 BOOL UiValidPlayerName(const char *name); /* check */
-BOOL UiSelHeroMultDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), BOOL(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, BOOL *hero_is_created, char (* name)[16]);
-BOOL UiSelHeroSingDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), BOOL(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, char (* name)[16], int *difficulty);
+BOOL UiSelHeroMultDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), BOOL(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, BOOL *hero_is_created, char (&name)[16]);
+BOOL UiSelHeroSingDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), BOOL(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, char (&name)[16], int *difficulty);
 BOOL UiCreditsDialog(int a1);
 BOOL UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const char *file), int attractTimeOut);
 BOOL UiProgressDialog(const char *msg, int enable, int(*fnfunc)(), int rate);
@@ -26,7 +26,7 @@ BOOL UiCreateGameCallback(int a1, int a2, int a3, int a4, int a5, int a6);
 BOOL UiArtCallback(int game_type, unsigned int art_code, SDL_Color *pPalette, BYTE *pBuffer, DWORD dwBuffersize, DWORD *pdwWidth, DWORD *pdwHeight, DWORD *pdwBpp);
 int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *a6);
 int UiSelectProvider(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *type);
-BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (*desc)[128]);
+BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
 void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type);
 }
 

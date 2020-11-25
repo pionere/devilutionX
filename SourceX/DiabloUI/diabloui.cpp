@@ -560,15 +560,15 @@ BOOL UiArtCallback(int game_type, unsigned int art_code, SDL_Color *pPalette, BY
 	UNIMPLEMENTED();
 }
 
-BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (*desc)[128])
+BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 {
 	char format[32] = "";
 	*(DWORD *)format = mode;
 	strcpy(&format[sizeof(DWORD)], " %d %d %d %d %d %d %d %d %d");
 
 	snprintf(
-	    *desc,
-	    sizeof(*desc),
+	    desc,
+	    sizeof(desc),
 	    format,
 	    info->level,
 	    info->heroclass,

@@ -167,7 +167,7 @@ BOOL pfile_create_player_description(char *dst, DWORD len)
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
 	if (dst != NULL && len) {
-		if (UiCreatePlayerDescription(&uihero, GAME_ID, &desc) == 0)
+		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
 			return FALSE;
 		SStrCopy(dst, desc, len);
 	}
@@ -355,7 +355,7 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	return TRUE;
 }
 
-BOOL pfile_get_file_name(DWORD lvl, char (* dst)[MAX_PATH])
+BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -376,7 +376,7 @@ BOOL pfile_get_file_name(DWORD lvl, char (* dst)[MAX_PATH])
 		else
 			return FALSE;
 	}
-	snprintf(*dst, sizeof(*dst), fmt, lvl);
+	snprintf(dst, sizeof(dst), fmt, lvl);
 	return TRUE;
 }
 
@@ -410,15 +410,15 @@ void pfile_read_player_from_save()
 	pfile_SFileCloseArchive(archive);
 }
 
-void GetTempLevelNames(char (* szTemp)[MAX_PATH])
+void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 {
 	if (setlevel)
-		snprintf(*szTemp, sizeof(*szTemp), "temps%02d", setlvlnum);
+		snprintf(szTemp, sizeof(szTemp), "temps%02d", setlvlnum);
 	else
-		snprintf(*szTemp, sizeof(*szTemp), "templ%02d", currlevel);
+		snprintf(szTemp, sizeof(szTemp), "templ%02d", currlevel);
 }
 
-void GetPermLevelNames(char (* szPerm)[MAX_PATH])
+void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 {
 	DWORD save_num;
 	BOOL has_file;
@@ -428,22 +428,22 @@ void GetPermLevelNames(char (* szPerm)[MAX_PATH])
 	if (!pfile_open_archive(FALSE, save_num))
 		app_fatal("Unable to read to save file archive");
 
-	has_file = mpqapi_has_file(*szPerm);
+	has_file = mpqapi_has_file(szPerm);
 	pfile_flush(TRUE, save_num);
 	if (!has_file) {
 		if (setlevel)
-			snprintf(*szPerm, sizeof(*szPerm), "perms%02d", setlvlnum);
+			snprintf(szPerm, sizeof(szPerm), "perms%02d", setlvlnum);
 		else
-			snprintf(*szPerm, sizeof(*szPerm), "perml%02d", currlevel);
+			snprintf(szPerm, sizeof(szPerm), "perml%02d", currlevel);
 	}
 }
 
-void pfile_get_game_name(char (* dst)[MAX_PATH])
+void pfile_get_game_name(char (&dst)[MAX_PATH])
 {
-	copy_cstr(*dst, "game");
+	copy_cstr(dst, "game");
 }
 
-static BOOL GetPermSaveNames(DWORD dwIndex, char (* szPerm)[MAX_PATH])
+static BOOL GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -455,11 +455,11 @@ static BOOL GetPermSaveNames(DWORD dwIndex, char (* szPerm)[MAX_PATH])
 	} else
 		return FALSE;
 
-	snprintf(*szPerm, sizeof(*szPerm), fmt, dwIndex);
+	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
 	return TRUE;
 }
 
-static BOOL GetTempSaveNames(DWORD dwIndex, char (* szTemp)[MAX_PATH])
+static BOOL GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -471,7 +471,7 @@ static BOOL GetTempSaveNames(DWORD dwIndex, char (* szTemp)[MAX_PATH])
 	} else
 		return FALSE;
 
-	snprintf(*szTemp, sizeof(*szTemp), fmt, dwIndex);
+	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
 	return TRUE;
 }
 
@@ -500,8 +500,8 @@ void pfile_rename_temp_to_perm()
 		app_fatal("Unable to write to save file archive");
 
 	dwIndex = 0;
-	while (GetTempSaveNames(dwIndex, &szTemp)) {
-		bResult = GetPermSaveNames(dwIndex, &szPerm);
+	while (GetTempSaveNames(dwIndex, szTemp)) {
+		bResult = GetPermSaveNames(dwIndex, szPerm);
 		assert(bResult);
 		dwIndex++;
 		if (mpqapi_has_file(szTemp)) {
@@ -510,7 +510,7 @@ void pfile_rename_temp_to_perm()
 			mpqapi_rename(szTemp, szPerm);
 		}
 	}
-	assert(! GetPermSaveNames(dwIndex,szPerm));
+	assert(!GetPermSaveNames(dwIndex, szPerm));
 	pfile_flush(TRUE, dwChar);
 }
 
