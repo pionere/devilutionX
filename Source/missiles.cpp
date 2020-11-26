@@ -507,7 +507,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 {
 	MonsterStruct *mon;
 	MissileData *mds;
-	int hit, hper, dam;
+	int hper, dam;
 	BOOL resist, ret;
 
 	mon = &monster[mnum];
@@ -1414,12 +1414,11 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 							if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
 								if (!(mon->mMagicRes & IMMUNE_MAGIC)) {
 									if ((!(mon->mMagicRes & RESIST_MAGIC) || random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
-										double slvl = (double)GetSpellLevel(misource, SPL_BERSERK);
 										mon->_mFlags |= MFLAG_UNUSED | MFLAG_GOLEM;
-										mon->mMinDamage = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)mon->mMinDamage + slvl;
-										mon->mMaxDamage = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)mon->mMaxDamage + slvl;
-										mon->mMinDamage2 = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)mon->mMinDamage2 + slvl;
-										mon->mMaxDamage2 = ((double)(random_(145, 10) + 20) / 100 - -1) * (double)mon->mMaxDamage2 + slvl;
+										mon->mMinDamage = mon->mMinDamage * RandRange(120, 129) / 100 + spllvl;
+										mon->mMaxDamage = mon->mMaxDamage * RandRange(120, 129) / 100 + spllvl;
+										mon->mMinDamage2 = mon->mMinDamage2 * RandRange(120, 129) / 100 + spllvl;
+										mon->mMaxDamage2 = mon->mMaxDamage2 * RandRange(120, 129) / 100 + spllvl;
 										if (currlevel < 17 || currlevel > 20)
 											r = 3;
 										else
