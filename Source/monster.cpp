@@ -467,10 +467,12 @@ static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	mon->_moldx = x;
 	mon->_moldy = y;
 	mon->_mMTidx = mtype;
-	mon->_mmode = MM_STAND;
-	mon->mName = cmon->MData->mName;
 	mon->MType = cmon;
 	mon->MData = cmon->MData;
+	mon->mName = cmon->MData->mName;
+	mon->_mAi = cmon->MData->mAi;
+	mon->_mint = cmon->MData->mInt;
+	mon->_mFlags = cmon->MData->mFlags;
 	mon->_mAnimData = cmon->Anims[MA_STAND].Data[dir];
 	mon->_mAnimDelay = cmon->Anims[MA_STAND].Rate;
 	mon->_mAnimCnt = random_(88, mon->_mAnimDelay - 1);
@@ -487,8 +489,7 @@ static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	}
 
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mAi = cmon->MData->mAi;
-	mon->_mint = cmon->MData->mInt;
+	mon->_mmode = MM_STAND;
 	mon->_mgoal = MGOAL_NORMAL;
 	mon->_mgoalvar1 = 0;
 	mon->_mgoalvar2 = 0;
@@ -498,9 +499,6 @@ static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	mon->_mDelFlag = FALSE;
 	mon->_uniqtype = 0;
 	mon->_msquelch = 0;
-#ifdef HELLFIRE
-	mon->mlid = 0;
-#endif
 	mon->_mRndSeed = GetRndSeed();
 	mon->_mAISeed = GetRndSeed();
 	mon->mWhoHit = 0;
@@ -514,10 +512,11 @@ static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	mon->mMaxDamage2 = cmon->MData->mMaxDamage2;
 	mon->mArmorClass = cmon->MData->mArmorClass;
 	mon->mMagicRes = cmon->MData->mMagicRes;
+	mon->mtalkmsg = 0;
 	mon->leader = 0;
 	mon->leaderflag = 0;
-	mon->_mFlags = cmon->MData->mFlags;
-	mon->mtalkmsg = 0;
+	mon->packsize = 0;
+	mon->mlid = 0;
 
 	if (mon->_mAi == AI_GARG) {
 		mon->_mAnimData = cmon->Anims[MA_SPECIAL].Data[dir];
@@ -772,9 +771,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
 #ifdef HELLFIRE
-	if (uniqindex == UMT_HORKDMN)
-		mon->mlid = 0;
-	else
+	if (uniqindex != UMT_HORKDMN)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, 3);
 
@@ -1425,11 +1422,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-#ifdef HELLFIRE
-	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-	if (mon->_uniqtype != 0)
-#endif
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		ChangeLightXY(mon->mlid, mx, my);
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
@@ -1451,11 +1444,7 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mapx += mon->_mx;
 	mapy += mon->_my;
 
-#ifdef HELLFIRE
-	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-	if (mon->_uniqtype != 0)
-#endif
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		ChangeLightXY(mon->mlid, mapx, mapy);
 
 	dMonster[mon->_mx][mon->_my] = -(mnum + 1);
@@ -2033,10 +2022,7 @@ static void MonChangeLightOffset(int mnum)
 	}
 
 	_myoff *= (ly >> 3);
-#ifdef HELLFIRE
-	if (mon->mlid != 0)
-#endif
-		ChangeLightOff(mon->mlid, _mxoff, _myoff);
+	ChangeLightOff(mon->mlid, _mxoff, _myoff);
 }
 
 static BOOL MonDoStand(int mnum)
@@ -2082,11 +2068,7 @@ static BOOL MonDoWalk(int mnum)
 		mon->_mx += mon->_mVar1;
 		mon->_my += mon->_mVar2;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-#ifdef HELLFIRE
-		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-		if (mon->_uniqtype != 0)
-#endif
+		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
@@ -2105,11 +2087,7 @@ static BOOL MonDoWalk(int mnum)
 		rv = FALSE;
 	}
 
-#ifdef HELLFIRE
-	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-	if (mon->_uniqtype != 0)
-#endif
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		MonChangeLightOffset(mnum);
 
 	return rv;
@@ -2130,11 +2108,7 @@ static BOOL MonDoWalk2(int mnum)
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
-#ifdef HELLFIRE
-		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-		if (mon->_uniqtype != 0)
-#endif
+		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
@@ -2152,11 +2126,7 @@ static BOOL MonDoWalk2(int mnum)
 		}
 		rv = FALSE;
 	}
-#ifdef HELLFIRE
-	if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-	if (mon->_uniqtype != 0)
-#endif
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		MonChangeLightOffset(mnum);
 
 	return rv;
@@ -2181,11 +2151,7 @@ static BOOL MonDoWalk3(int mnum)
 		mon->_my = mon->_mVar2;
 		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-#ifdef HELLFIRE
-		if (!(mon->_mFlags & MFLAG_HIDDEN) && mon->mlid != 0)
-#else
-		if (mon->_uniqtype != 0)
-#endif
+		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
@@ -2203,11 +2169,7 @@ static BOOL MonDoWalk3(int mnum)
 		}
 		rv = FALSE;
 	}
-#ifdef HELLFIRE
-	if (mon->_uniqtype != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) // BUGFIX: change uniqtype check to mlid check like it is in all other places
-#else
-	if (mon->_uniqtype != 0)
-#endif
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		MonChangeLightOffset(mnum);
 
 	return rv;
