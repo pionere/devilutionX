@@ -60,8 +60,8 @@ HANDLE init_test_access(const char *mpq_name, const char *reg_loc, int dwPriorit
 
 /* data */
 
-char gszVersionNumber[260] = "internal version unknown";
-char gszProductName[260] = "Diablo v1.09";
+char gszVersionNumber[MAX_SEND_STR_LEN] = "internal version unknown";
+char gszProductName[MAX_SEND_STR_LEN] = "Diablo v1.09";
 
 void init_cleanup()
 {

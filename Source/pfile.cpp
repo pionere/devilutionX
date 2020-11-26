@@ -288,7 +288,7 @@ BOOL pfile_ui_set_hero_infos(BOOL(*ui_add_hero_info)(_uiheroinfo *))
 		if (archive) {
 			if (pfile_read_hero(archive, &pkplr)) {
 				_uiheroinfo uihero;
-				copy_str(hero_names[i], pkplr.pName)
+				copy_str(hero_names[i], pkplr.pName);
 				UnPackPlayer(&pkplr, 0, FALSE);
 				game_2_ui_player(plr, &uihero, pfile_archive_contains_game(archive, i));
 				ui_add_hero_info(&uihero);
@@ -347,7 +347,7 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	copy_str(hero_names[save_num], heroinfo->name);
 	cl = pfile_get_player_class(heroinfo->heroclass);
 	CreatePlayer(0, cl);
-	copy_str(plr[0]._pName, heroinfo->name)
+	copy_str(plr[0]._pName, heroinfo->name);
 	PackPlayer(&pkplr, 0, TRUE);
 	pfile_encode_hero(&pkplr);
 	game_2_ui_player(&plr[0], heroinfo, FALSE);

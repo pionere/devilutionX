@@ -87,13 +87,11 @@ inline int RandRange(int minVal, int maxVal)
 	return minVal + random_(0, maxVal - minVal + 1);
 }
 
-/* BUGFIX: TODO DISABLE/ENABLE_WARNING macros are not tested for GNUC/clang
- *			would be nice to prevent the users from passing char* pointers instead of arrays with fixed size
-template <typename T, size_t N>
-constexpr BOOL isArray(T (&)[N]) {
-	return TRUE;
+#ifdef __cplusplus
 }
-*/
+#endif
+
+// BUGFIX: TODO DISABLE/ENABLE_WARNING macros are not tested for GNUC/clang
 #if defined(_MSC_VER)
 #define DIAG_PRAGMA(x) __pragma(warning(x))
 #define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
@@ -121,30 +119,28 @@ constexpr BOOL isArray(T (&)[N]) {
 #endif
 #endif
 /*
- * Copy string from src to dest. dest and src must be an array of chars.
+ * Copy string from src to dest.
  * The NULL terminated content of src is copied to dest.
  */
-#define copy_str(dest, src) \
- { \
-	static_assert(sizeof(dest) >= sizeof(src), "String does not fit the destination."); \
-	DISABLE_WARNING(gcc_option, clang_option, 4996) \
-	strcpy(dest, src); \
-	ENABLE_WARNING(gcc_option, clang_option, 4996) \
- }
+template<DWORD N1, DWORD N2>
+inline void copy_str(char (&dest)[N1], char (&src)[N2])
+{
+	static_assert(N1 >= N2, "String does not fit the destination.");
+	DISABLE_WARNING(gcc_option, clang_option, 4996)
+	strcpy(dest, src);
+	ENABLE_WARNING(gcc_option, clang_option, 4996)
+}
 
 /*
- * Copy constant string from src to dest. dest and src must be an array of chars.
+ * Copy constant string from src to dest.
  * The whole (padded) length of the src array is copied.
  */
-#define copy_cstr(dest, src) \
- { \
-	static_assert(sizeof(dest) >= sizeof(src), "String does not fit the destination."); \
-	memcpy(dest, src, std::min(sizeof(dest), ((sizeof(src) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))); \
- }
-
-#ifdef __cplusplus
+template<DWORD N1, DWORD N2>
+inline void copy_cstr(char (&dest)[N1], const char (&src)[N2])
+{
+	static_assert(N1 >= N2, "String does not fit the destination.");
+	memcpy(dest, src, std::min(N1, ((N2 + sizeof(int) - 1) / sizeof(int)) * sizeof(int)));
 }
-#endif
 
 DEVILUTION_END_NAMESPACE
 

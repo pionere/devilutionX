@@ -2030,10 +2030,10 @@ char CheckInvHLight()
 			infoclr = COL_GOLD;
 		}
 		if (pi->_iIdentified) {
-			copy_str(infostr, pi->_iIName)
+			copy_str(infostr, pi->_iIName);
 			PrintItemDetails(pi);
 		} else {
-			copy_str(infostr, pi->_iName)
+			copy_str(infostr, pi->_iName);
 			PrintItemDur(pi);
 		}
 	}

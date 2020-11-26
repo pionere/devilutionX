@@ -76,7 +76,7 @@ static void doom_load_graphics()
 #endif
 {
 #ifdef HELLFIRE
-	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL")
+	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL");
 	if (LoadFileWithMem(tempstr, pDoomCel))
 		return TRUE;
 	return FALSE;

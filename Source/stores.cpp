@@ -336,7 +336,7 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) == 0) {
 		strcat(sstr, "No required attributes");
 	} else {
-		copy_cstr(tempstr, "Required:")
+		copy_cstr(tempstr, "Required:");
 		if (is->_iMinStr != 0)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
 		if (is->_iMinMag != 0)
@@ -869,26 +869,26 @@ static void S_StartConfirm()
 
 	switch (stextshold) {
 	case STORE_BBOY:
-		copy_cstr(tempstr, "Do we have a deal?")
+		copy_cstr(tempstr, "Do we have a deal?");
 		break;
 	case STORE_SIDENTIFY:
-		copy_cstr(tempstr, "Are you sure you want to identify this item?")
+		copy_cstr(tempstr, "Are you sure you want to identify this item?");
 		break;
 	case STORE_HBUY:
 	case STORE_SPBUY:
 	case STORE_WBUY:
 	case STORE_SBUY:
-		copy_cstr(tempstr, "Are you sure you want to buy this item?")
+		copy_cstr(tempstr, "Are you sure you want to buy this item?");
 		break;
 	case STORE_WRECHARGE:
-		copy_cstr(tempstr, "Are you sure you want to recharge this item?")
+		copy_cstr(tempstr, "Are you sure you want to recharge this item?");
 		break;
 	case STORE_SSELL:
 	case STORE_WSELL:
-		copy_cstr(tempstr, "Are you sure you want to sell this item?")
+		copy_cstr(tempstr, "Are you sure you want to sell this item?");
 		break;
 	case STORE_SREPAIR:
-		copy_cstr(tempstr, "Are you sure you want to repair this item?")
+		copy_cstr(tempstr, "Are you sure you want to repair this item?");
 		break;
 	}
 	AddSText(0, 15, TRUE, tempstr, COL_WHITE, FALSE);

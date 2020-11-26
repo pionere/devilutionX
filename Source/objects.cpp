@@ -187,7 +187,7 @@ BYTE shrineavail[NUM_SHRINETYPE] = {
 #endif
 };
 /** Maps from book_id to book name. */
-const char *const StoryBookName[] = {
+const char StoryBookName[][28] = {
 	"The Great Conflict",
 	"The Wages of Sin are War",
 	"The Tale of the Horadrim",
@@ -4859,11 +4859,11 @@ void GetObjectStr(int oi)
 	switch (os->_otype) {
 	case OBJ_LEVER:
 	case OBJ_FLAMELVR:
-		copy_cstr(infostr, "Lever")
+		copy_cstr(infostr, "Lever");
 		break;
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
-		copy_cstr(infostr, "Small Chest")
+		copy_cstr(infostr, "Small Chest");
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -4872,60 +4872,60 @@ void GetObjectStr(int oi)
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		if (os->_oVar4 == 1)
-			copy_cstr(infostr, "Open Door")
+			copy_cstr(infostr, "Open Door");
 		else if (os->_oVar4 == 0)
-			copy_cstr(infostr, "Closed Door")
+			copy_cstr(infostr, "Closed Door");
 		else if (os->_oVar4 == 2)
-			copy_cstr(infostr, "Blocked Door")
+			copy_cstr(infostr, "Blocked Door");
 		break;
 	case OBJ_BOOK2L:
 		if (setlevel) {
 			if (setlvlnum == SL_BONECHAMB)
-				copy_cstr(infostr, "Ancient Tome")
+				copy_cstr(infostr, "Ancient Tome");
 			else if (setlvlnum == SL_VILEBETRAYER)
-				copy_cstr(infostr, "Book of Vileness")
+				copy_cstr(infostr, "Book of Vileness");
 		}
 		break;
 	case OBJ_SWITCHSKL:
-		copy_cstr(infostr, "Skull Lever")
+		copy_cstr(infostr, "Skull Lever");
 		break;
 	case OBJ_BOOK2R:
-		copy_cstr(infostr, "Mythical Book")
+		copy_cstr(infostr, "Mythical Book");
 		break;
 
 	case OBJ_CHEST2:
 	case OBJ_TCHEST2:
-		copy_cstr(infostr, "Chest")
+		copy_cstr(infostr, "Chest");
 		break;
 	case OBJ_CHEST3:
 	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
-		copy_cstr(infostr, "Large Chest")
+		copy_cstr(infostr, "Large Chest");
 		break;
 	case OBJ_CRUX1:
 	case OBJ_CRUX2:
 	case OBJ_CRUX3:
-		copy_cstr(infostr, "Crucified Skeleton")
+		copy_cstr(infostr, "Crucified Skeleton");
 		break;
 	case OBJ_SARC:
-		copy_cstr(infostr, "Sarcophagus")
+		copy_cstr(infostr, "Sarcophagus");
 		break;
 	case OBJ_BOOKSHELF:
-		copy_cstr(infostr, "Bookshelf")
+		copy_cstr(infostr, "Bookshelf");
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
 		if (currlevel >= 17 && currlevel <= 20) // for hive levels
-			copy_cstr(infostr, "Pod") //Then a barrel is called a pod
+			copy_cstr(infostr, "Pod"); //Then a barrel is called a pod
 		else if (currlevel > 20 && currlevel < 25) // for crypt levels
-			copy_cstr(infostr, "Urn") //Then a barrel is called an urn
+			copy_cstr(infostr, "Urn"); //Then a barrel is called an urn
 		else
 #endif
-			copy_cstr(infostr, "Barrel")
+			copy_cstr(infostr, "Barrel");
 		break;
 	case OBJ_SKELBOOK:
-		copy_cstr(infostr, "Skeleton Tome")
+		copy_cstr(infostr, "Skeleton Tome");
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -4933,69 +4933,69 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		copy_cstr(infostr, "Bookcase")
+		copy_cstr(infostr, "Bookcase");
 		break;
 	case OBJ_BOOKSTAND:
-		copy_cstr(infostr, "Library Book")
+		copy_cstr(infostr, "Library Book");
 		break;
 	case OBJ_BLOODFTN:
-		copy_cstr(infostr, "Blood Fountain")
+		copy_cstr(infostr, "Blood Fountain");
 		break;
 	case OBJ_DECAP:
-		copy_cstr(infostr, "Decapitated Body")
+		copy_cstr(infostr, "Decapitated Body");
 		break;
 	case OBJ_BLINDBOOK:
-		copy_cstr(infostr, "Book of the Blind")
+		copy_cstr(infostr, "Book of the Blind");
 		break;
 	case OBJ_BLOODBOOK:
-		copy_cstr(infostr, "Book of Blood")
+		copy_cstr(infostr, "Book of Blood");
 		break;
 	case OBJ_PEDISTAL:
-		copy_cstr(infostr, "Pedestal of Blood")
+		copy_cstr(infostr, "Pedestal of Blood");
 		break;
 	case OBJ_PURIFYINGFTN:
-		copy_cstr(infostr, "Purifying Spring")
+		copy_cstr(infostr, "Purifying Spring");
 		break;
 	case OBJ_ARMORSTAND:
 	case OBJ_WARARMOR:
-		copy_cstr(infostr, "Armor")
+		copy_cstr(infostr, "Armor");
 		break;
 	case OBJ_GOATSHRINE:
-		copy_cstr(infostr, "Goat Shrine")
+		copy_cstr(infostr, "Goat Shrine");
 		break;
 	case OBJ_CAULDRON:
-		copy_cstr(infostr, "Cauldron")
+		copy_cstr(infostr, "Cauldron");
 		break;
 	case OBJ_MURKYFTN:
-		copy_cstr(infostr, "Murky Pool")
+		copy_cstr(infostr, "Murky Pool");
 		break;
 	case OBJ_TEARFTN:
-		copy_cstr(infostr, "Fountain of Tears")
+		copy_cstr(infostr, "Fountain of Tears");
 		break;
 	case OBJ_STEELTOME:
-		copy_cstr(infostr, "Steel Tome")
+		copy_cstr(infostr, "Steel Tome");
 		break;
 	case OBJ_STORYBOOK:
-		copy_cstr(infostr, StoryBookName[os->_oVar3])
+		copy_cstr(infostr, StoryBookName[os->_oVar3]);
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
-		copy_cstr(infostr, "Weapon Rack")
+		copy_cstr(infostr, "Weapon Rack");
 		break;
 	case OBJ_MUSHPATCH:
-		copy_cstr(infostr, "Mushroom Patch")
+		copy_cstr(infostr, "Mushroom Patch");
 		break;
 	case OBJ_LAZSTAND:
-		copy_cstr(infostr, "Vile Stand")
+		copy_cstr(infostr, "Vile Stand");
 		break;
 	case OBJ_SLAINHERO:
-		copy_cstr(infostr, "Slain Hero")
+		copy_cstr(infostr, "Slain Hero");
 		break;
 	}
 	if (plr[myplr]._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
 			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
-			copy_str(infostr, tempstr)
+			copy_str(infostr, tempstr);
 			infoclr = COL_RED;
 		}
 	}

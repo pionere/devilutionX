@@ -332,7 +332,7 @@ static BOOL ForceTownTrig()
 #ifdef HELLFIRE
 	for (i = 0; TownCryptList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownCryptList[i]) {
-			copy_cstr(infostr, "Down to Crypt")
+			copy_cstr(infostr, "Down to Crypt");
 			cursmx = 36;
 			cursmy = 24;
 			return TRUE;
@@ -340,7 +340,7 @@ static BOOL ForceTownTrig()
 	}
 	for (i = 0; TownHiveList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownHiveList[i]) {
-			copy_cstr(infostr, "Down to Hive")
+			copy_cstr(infostr, "Down to Hive");
 			cursmx = 80;
 			cursmy = 62;
 			return TRUE;
@@ -350,7 +350,7 @@ static BOOL ForceTownTrig()
 
 	for (i = 0; TownDownList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownDownList[i]) {
-			copy_cstr(infostr, "Down to dungeon")
+			copy_cstr(infostr, "Down to dungeon");
 			cursmx = 25;
 			cursmy = 29;
 			return TRUE;
@@ -360,7 +360,7 @@ static BOOL ForceTownTrig()
 	if (townwarps[0]) {
 		for (j = 0; TownWarp1List[j] != -1; j++) {
 			if (dPiece[cursmx][cursmy] == TownWarp1List[j]) {
-				copy_cstr(infostr, "Down to catacombs")
+				copy_cstr(infostr, "Down to catacombs");
 				cursmx = 49;
 				cursmy = 21;
 				return TRUE;
@@ -371,7 +371,7 @@ static BOOL ForceTownTrig()
 	if (townwarps[1]) {
 		for (k = 1199; k <= 1220; k++) {
 			if (dPiece[cursmx][cursmy] == k) {
-				copy_cstr(infostr, "Down to caves")
+				copy_cstr(infostr, "Down to caves");
 				cursmx = 17;
 				cursmy = 69;
 				return TRUE;
@@ -382,7 +382,7 @@ static BOOL ForceTownTrig()
 	if (townwarps[2]) {
 		for (l = 1240; l <= 1255; l++) {
 			if (dPiece[cursmx][cursmy] == l) {
-				copy_cstr(infostr, "Down to hell")
+				copy_cstr(infostr, "Down to hell");
 				cursmx = 41;
 				cursmy = 80;
 				return TRUE;
@@ -413,7 +413,7 @@ static BOOL ForceL1Trig()
 			}
 		}
 		if (dPiece[cursmx][cursmy] == 317) {
-			copy_cstr(infostr, "Cornerstone of the World")
+			copy_cstr(infostr, "Cornerstone of the World");
 			return TRUE;
 		}
 		for (i = 0; L5DownList[i] != -1; i++) {
@@ -436,7 +436,7 @@ static BOOL ForceL1Trig()
 							dx = abs(trigs[j]._tx - cursmx);
 							dy = abs(trigs[j]._ty - cursmy);
 							if (dx < 4 && dy < 4) {
-								copy_cstr(infostr, "Up to town")
+								copy_cstr(infostr, "Up to town");
 								cursmx = trigs[j]._tx;
 								cursmy = trigs[j]._ty;
 								return TRUE;
@@ -454,7 +454,7 @@ static BOOL ForceL1Trig()
 			if (currlevel > 1)
 				snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
 			else
-				copy_cstr(infostr, "Up to town")
+				copy_cstr(infostr, "Up to town");
 			for (j = 0; j < numtrigs; j++) {
 				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
 					cursmx = trigs[j]._tx;
@@ -521,7 +521,7 @@ static BOOL ForceL2Trig()
 						dx = abs(trigs[j]._tx - cursmx);
 						dy = abs(trigs[j]._ty - cursmy);
 						if (dx < 4 && dy < 4) {
-							copy_cstr(infostr, "Up to town")
+							copy_cstr(infostr, "Up to town");
 							cursmx = trigs[j]._tx;
 							cursmy = trigs[j]._ty;
 							return TRUE;
@@ -576,7 +576,7 @@ static BOOL ForceL3Trig()
 							dx = abs(trigs[j]._tx - cursmx);
 							dy = abs(trigs[j]._ty - cursmy);
 							if (dx < 4 && dy < 4) {
-								copy_cstr(infostr, "Up to town")
+								copy_cstr(infostr, "Up to town");
 								cursmx = trigs[j]._tx;
 								cursmy = trigs[j]._ty;
 								return TRUE;
@@ -624,7 +624,7 @@ static BOOL ForceL3Trig()
 						dx = abs(trigs[j]._tx - cursmx);
 						dy = abs(trigs[j]._ty - cursmy);
 						if (dx < 4 && dy < 4) {
-							copy_cstr(infostr, "Up to town")
+							copy_cstr(infostr, "Up to town");
 							cursmx = trigs[j]._tx;
 							cursmy = trigs[j]._ty;
 							return TRUE;
@@ -675,7 +675,7 @@ static BOOL ForceL4Trig()
 						dx = abs(trigs[j]._tx - cursmx);
 						dy = abs(trigs[j]._ty - cursmy);
 						if (dx < 4 && dy < 4) {
-							copy_cstr(infostr, "Up to town")
+							copy_cstr(infostr, "Up to town");
 							cursmx = trigs[j]._tx;
 							cursmy = trigs[j]._ty;
 							return TRUE;
@@ -689,7 +689,7 @@ static BOOL ForceL4Trig()
 	if (currlevel == 15) {
 		for (i = 0; L4PentaList[i] != -1; i++) {
 			if (dPiece[cursmx][cursmy] == L4PentaList[i]) {
-				copy_cstr(infostr, "Down to Diablo")
+				copy_cstr(infostr, "Down to Diablo");
 				for (j = 0; j < numtrigs; j++) {
 					if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
 						cursmx = trigs[j]._tx;

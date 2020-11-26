@@ -23,6 +23,7 @@ static BOOLEAN sgbDeltaChanged;
 static BYTE sgbDeltaChunks;
 BOOL deltaload;
 BYTE gbBufferMsgs;
+char gbNetMsg[MAX_SEND_STR_LEN];
 int dwRecCount;
 
 static void msg_get_next_packet()
@@ -1331,14 +1332,14 @@ void NetSendCmdMonDmg(BOOL bHiPri, WORD wMon, DWORD dwDam)
 }
 #endif
 
-void NetSendCmdString(unsigned int pmask, const char *pszStr)
+void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
 	TCmdString cmd;
 
-	dwStrLen = strlen(pszStr);
+	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = CMD_STRING;
-	strcpy(cmd.str, pszStr);
+	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
 	multi_send_msg_packet(pmask, (BYTE *)&cmd.bCmd, dwStrLen + 2);
 }
 

@@ -36,8 +36,8 @@ WNDPROC SetWindowProc(WNDPROC NewProc);
 
 /* data */
 
-extern char gszVersionNumber[260];
-extern char gszProductName[260];
+extern char gszVersionNumber[MAX_SEND_STR_LEN];
+extern char gszProductName[MAX_SEND_STR_LEN];
 
 #ifdef __cplusplus
 }

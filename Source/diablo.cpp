@@ -816,19 +816,17 @@ void diablo_pause_game()
 
 static void diablo_hotkey_msg(DWORD dwMsg)
 {
-	char szMsg[MAX_SEND_STR_LEN];
-
 	if (gbMaxPlayers == 1) {
 		return;
 	}
 
 	assert(dwMsg < sizeof(spszMsgTbl) / sizeof(spszMsgTbl[0]));
-	if (!getIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], szMsg, MAX_SEND_STR_LEN)) {
-		snprintf(szMsg, MAX_SEND_STR_LEN, "%s", spszMsgTbl[dwMsg]);
-		setIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], szMsg);
+	if (!getIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], gbNetMsg, sizeof(gbNetMsg))) {
+		SStrCopy(gbNetMsg, spszMsgTbl[dwMsg], sizeof(gbNetMsg));
+		setIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], gbNetMsg);
 	}
 
-	NetSendCmdString(-1, szMsg);
+	NetSendCmdString(-1);
 }
 
 static BOOL PressSysKey(int wParam)
@@ -981,16 +979,16 @@ static void PressKey(int vkey)
 	else if (vkey == DVL_VK_F3) {
 		if (pcursitem != -1) {
 			snprintf(
-			    tempstr,
-				sizeof(tempstr),
+			    gbNetMsg,
+				sizeof(gbNetMsg),
 			    "IDX = %i  :  Seed = %i  :  CF = %i",
 			    item[pcursitem].IDidx,
 			    item[pcursitem]._iSeed,
 			    item[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << myplr, tempstr);
+			NetSendCmdString(1 << myplr);
 		}
-		snprintf(tempstr, sizeof(tempstr), "Numitems : %i", numitems);
-		NetSendCmdString(1 << myplr, tempstr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %i", numitems);
+		NetSendCmdString(1 << myplr);
 	}
 #endif
 #ifdef _DEBUG
@@ -1209,12 +1207,12 @@ static void PressChar(int vkey)
 		return;
 	case 'v': {
 		const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
-		char pszStr[120];
-		snprintf(pszStr, sizeof(pszStr), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
-		NetSendCmdString(1 << myplr, pszStr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
+		NetSendCmdString(1 << myplr);
 	} return;
 	case 'V':
-		NetSendCmdString(1 << myplr, gszVersionNumber);
+		copy_str(gbNetMsg, gszVersionNumber);
+		NetSendCmdString(1 << myplr);
 		return;
 	case '!':
 	case '1':
@@ -1314,21 +1312,21 @@ static void PressChar(int vkey)
 		GetDebugMonster();
 		return;
 	case 'R':
-	case 'r':
-		snprintf(tempstr, sizeof(tempstr), "seed = %i", glSeedTbl[currlevel]);
-		NetSendCmdString(1 << myplr, tempstr);
-		snprintf(tempstr, sizeof(tempstr), "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
-		NetSendCmdString(1 << myplr, tempstr);
-		snprintf(tempstr, sizeof(tempstr), "End = %i", glEndSeed[currlevel]);
-		NetSendCmdString(1 << myplr, tempstr);
-		return;
+	case 'r': {
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currlevel]);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "End = %i", glEndSeed[currlevel]);
+		NetSendCmdString(1 << myplr);
+	} return;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
-			snprintf(tempstr, sizeof(tempstr), "PX = %i  PY = %i", plr[myplr]._px, plr[myplr]._py);
-			NetSendCmdString(1 << myplr, tempstr);
-			snprintf(tempstr, sizeof(tempstr), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
-			NetSendCmdString(1 << myplr, tempstr);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %i  PY = %i", plr[myplr]._px, plr[myplr]._py);
+			NetSendCmdString(1 << myplr);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
+			NetSendCmdString(1 << myplr);
 		}
 		return;
 	case '|':

@@ -14,6 +14,7 @@ extern "C" {
 
 extern BOOL deltaload;
 extern BYTE gbBufferMsgs;
+extern char gbNetMsg[MAX_SEND_STR_LEN];
 extern int dwRecCount;
 
 void msg_send_drop_pkt(int pnum, int reason);
@@ -48,7 +49,7 @@ void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam);
 #ifdef HELLFIRE
 void NetSendCmdMonDmg(BOOL bHiPri, WORD bMon, DWORD dwDam);
 #endif
-void NetSendCmdString(unsigned int pmask, const char *pszStr);
+void NetSendCmdString(unsigned int pmask);
 void delta_close_portal(int pnum);
 DWORD ParseCmd(int pnum, TCmd *pCmd);
 

@@ -5460,11 +5460,11 @@ void PrintMonstHistory(int mt)
 			res = monsterdata[mt].mMagicRes2;
 		res = res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
 		if (!res) {
-			copy_cstr(tempstr, "No magic resistance")
+			copy_cstr(tempstr, "No magic resistance");
 			AddPanelString(tempstr, TRUE);
 		} else {
 			if (res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING)) {
-				copy_cstr(tempstr, "Resists:")
+				copy_cstr(tempstr, "Resists:");
 				if (res & RESIST_MAGIC)
 					strcat(tempstr, " Magic");
 				if (res & RESIST_FIRE)
@@ -5494,19 +5494,19 @@ void PrintUniqueHistory(int mnum)
 
 	res = monster[mnum].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
 	if (!res) {
-		copy_cstr(tempstr, "No resistances")
+		copy_cstr(tempstr, "No resistances");
 		AddPanelString(tempstr, TRUE);
-		copy_cstr(tempstr, "No Immunities")
+		copy_cstr(tempstr, "No Immunities");
 	} else {
 		if (res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING))
-			copy_cstr(tempstr, "Some Magic Resistances")
+			copy_cstr(tempstr, "Some Magic Resistances");
 		else
-			copy_cstr(tempstr, "No resistances")
+			copy_cstr(tempstr, "No resistances");
 		AddPanelString(tempstr, TRUE);
 		if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
-			copy_cstr(tempstr, "Some Magic Immunities")
+			copy_cstr(tempstr, "Some Magic Immunities");
 		} else {
-			copy_cstr(tempstr, "No Immunities")
+			copy_cstr(tempstr, "No Immunities");
 		}
 	}
 	AddPanelString(tempstr, TRUE);
