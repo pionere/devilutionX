@@ -3676,7 +3676,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (p->InvGrid[i] == 0) {
 				r = 5 * leveltype + random_(160, 10 * leveltype);
 				pi = &p->InvList[p->_pNumInv]; // check
-				*pi = golditem;
+				copy_pod(*pi, golditem);
 				pi->_iSeed = GetRndSeed();
 				p->_pNumInv++;
 				p->InvGrid[i] = p->_pNumInv;

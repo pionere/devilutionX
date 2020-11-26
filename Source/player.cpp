@@ -1751,7 +1751,7 @@ static void RespawnDeadItem(ItemStruct *is, int x, int y)
 	dItem[x][y] = ii + 1;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = ii;
-	item[ii] = *is;
+	copy_pod(item[ii], *is);
 	item[ii]._ix = x;
 	item[ii]._iy = y;
 	RespawnItem(ii, TRUE);
@@ -1779,7 +1779,7 @@ static void PlrDeadItem(int pnum, ItemStruct *is, int dx, int dy)
 	// BUGFIX: TODO prevent a drop to x, y if it is too bad...
 	if (FindItemLocation(x, y, &dx, &dy, DSIZEX / 2)) {
 		RespawnDeadItem(is, dx, dy);
-		p->HoldItem = *is;
+		copy_pod(p->HoldItem, *is);
 		NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, dx, dy);
 		return;
 	}
@@ -2024,7 +2024,7 @@ void StripTopGold(int pnum)
 	}
 	p = &plr[pnum];
 	holditem = &p->HoldItem;
-	tmpItem = *holditem;
+	copy_pod(tmpItem, *holditem);
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
@@ -2041,7 +2041,7 @@ void StripTopGold(int pnum)
 		}
 	}
 	p->_pGold = CalculateGold(pnum);
-	*holditem = tmpItem;
+	copy_pod(*holditem, tmpItem);
 }
 #endif
 

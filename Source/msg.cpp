@@ -196,11 +196,7 @@ static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
 			*dst = 0xFF;
 			dst++;
 		} else {
-#ifdef HELLFIRE
-			*reinterpret_cast<TCmdPItem *>(dst) = *src;
-#else
-			memcpy(dst, src, sizeof(TCmdPItem));
-#endif
+			copy_pod(*reinterpret_cast<TCmdPItem *>(dst), *src);
 			dst += sizeof(TCmdPItem);
 		}
 		src++;
@@ -218,11 +214,7 @@ static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
 			memset(dst, 0xFF, sizeof(TCmdPItem));
 			src++;
 		} else {
-#ifdef HELLFIRE
-			*dst = *reinterpret_cast<TCmdPItem *>(src);
-#else
-			memcpy(dst, src, sizeof(TCmdPItem));
-#endif
+			copy_pod(*dst, *reinterpret_cast<TCmdPItem *>(src));
 			src += sizeof(TCmdPItem);
 		}
 		dst++;
@@ -252,11 +244,7 @@ static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
 			*dst = 0xFF;
 			dst++;
 		} else {
-#ifdef HELLFIRE
-			*reinterpret_cast<DMonsterStr *>(dst) = *src;
-#else
-			memcpy(dst, src, sizeof(DMonsterStr));
-#endif
+			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *src);
 			dst += sizeof(DMonsterStr);
 		}
 		src++;
@@ -274,11 +262,7 @@ static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
 			memset(dst, 0xFF, sizeof(DMonsterStr));
 			src++;
 		} else {
-#ifdef HELLFIRE
-			*dst = *reinterpret_cast<DMonsterStr *>(src);
-#else
-			memcpy(dst, src, sizeof(DMonsterStr));
-#endif
+			copy_pod(*dst, *reinterpret_cast<DMonsterStr *>(src));
 			src += sizeof(DMonsterStr);
 		}
 		dst++;
@@ -299,11 +283,7 @@ static BYTE *DeltaExportJunk(BYTE *dst)
 			*dst = 0xFF;
 			dst++;
 		} else {
-#ifdef HELLFIRE
-			*reinterpret_cast<DPortal *>(dst) = *pD;
-#else
-			memcpy(dst, pD, sizeof(*pD));
-#endif
+			copy_pod(*reinterpret_cast<DPortal *>(dst), *pD);
 			dst += sizeof(*pD);
 		}
 	}
@@ -314,11 +294,7 @@ static BYTE *DeltaExportJunk(BYTE *dst)
 			mq->qlog = quests[i]._qlog;
 			mq->qstate = quests[i]._qactive;
 			mq->qvar1 = quests[i]._qvar1;
-#ifdef HELLFIRE
-			*reinterpret_cast<MultiQuests *>(dst) = *mq;
-#else
-			memcpy(dst, mq, sizeof(*mq));
-#endif
+			copy_pod(*reinterpret_cast<MultiQuests *>(dst), *mq);
 			dst += sizeof(*mq);
 			mq++;
 		}
@@ -340,11 +316,7 @@ static void DeltaImportJunk(BYTE *src)
 			src++;
 			SetPortalStats(i, FALSE, 0, 0, 0, DTYPE_TOWN);
 		} else {
-#ifdef HELLFIRE
-			*pD = *reinterpret_cast<DPortal *>(src);
-#else
-			memcpy(pD, src, sizeof(*pD));
-#endif
+			copy_pod(*pD, *reinterpret_cast<DPortal *>(src));
 			src += sizeof(*pD);
 			SetPortalStats(
 				i,
@@ -359,11 +331,7 @@ static void DeltaImportJunk(BYTE *src)
 	mq = sgJunk.quests;
 	for (i = 0; i < MAXQUESTS; i++) {
 		if (questlist[i]._qflags & QUEST_ANY) {
-#ifdef HELLFIRE
-			*mq = *reinterpret_cast<MultiQuests *>(src);
-#else
-			memcpy(mq, src, sizeof(*mq));
-#endif
+			copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
 			src += sizeof(*mq);
 			quests[i]._qlog = mq->qlog;
 			quests[i]._qactive = mq->qstate;
@@ -678,11 +646,7 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			sgbDeltaChanged = TRUE;
-#ifdef HELLFIRE
-			*pD = *pI;
-#else
-			memcpy(pD, pI, sizeof(TCmdPItem));
-#endif
+			copy_pod(*pD, *pI);
 			pD->bCmd = CMD_ACK_PLRINFO;
 			pD->x = x;
 			pD->y = y;
@@ -962,7 +926,7 @@ void DeltaLoadLevel()
 			ii = itemavail[0];
 			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 			itemactive[numitems] = ii;
-			item[ii] = item[MAXITEMS];
+			copy_pod(item[ii], item[MAXITEMS]);
 			item[ii]._ix = x;
 			item[ii]._iy = y;
 			dItem[x][y] = ii + 1;
@@ -2056,7 +2020,7 @@ static DWORD On_WARP(TCmd *pCmd, int pnum)
 	else {
 		StartWarpLvl(pnum, cmd->wParam1);
 		if (pnum == myplr && pcurs >= CURSOR_FIRSTITEM) {
-			item[MAXITEMS] = plr[myplr].HoldItem;
+			copy_pod(item[MAXITEMS], plr[myplr].HoldItem);
 			AutoGetItem(myplr, MAXITEMS);
 		}
 	}

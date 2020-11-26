@@ -163,7 +163,7 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 			item[MAXITEMS]._iCharges = pis->bCh;
 			item[MAXITEMS]._iMaxCharges = pis->bMCh;
 		}
-		*is = item[MAXITEMS];
+		copy_pod(*is, item[MAXITEMS]);
 	}
 }
 

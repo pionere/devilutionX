@@ -1328,7 +1328,7 @@ void ProcessVisionList()
 				if (VisionList[i]._ldel) {
 					numvision--;
 					if (numvision > 0 && i != numvision) {
-						VisionList[i] = VisionList[numvision];
+						copy_pod(VisionList[i], VisionList[numvision]);
 					}
 					delflag = TRUE;
 				}

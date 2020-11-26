@@ -1402,7 +1402,7 @@ void CreatePlrItems(int pnum)
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (p->InvGrid[i] == 0) {
 				GetItemSeed(&p->HoldItem);
-				p->InvList[p->_pNumInv] = p->HoldItem;
+				copy_pod(p->InvList[p->_pNumInv], p->HoldItem);
 				p->InvGrid[i] = ++p->_pNumInv;
 				p->_pGold += GOLD_MAX_LIMIT;
 			}
@@ -1412,7 +1412,7 @@ void CreatePlrItems(int pnum)
 	{
 		SetGoldItemValue(&p->HoldItem, 100);
 		p->_pGold = p->HoldItem._ivalue;
-		p->InvList[p->_pNumInv++] = p->HoldItem;
+		copy_pod(p->InvList[p->_pNumInv++], p->HoldItem);
 		p->InvGrid[30] = p->_pNumInv;
 	}
 
@@ -4431,9 +4431,9 @@ static void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
 {
 	ItemStruct h;
 
-	h = *a;
-	*a = *b;
-	*b = h;
+	copy_pod(h, *a);
+	copy_pod(*a, *b);
+	copy_pod(*b, h);
 }
 
 static void SortSmith()
@@ -4465,7 +4465,7 @@ void SpawnSmith(int lvl)
 
 #ifdef HELLFIRE
 	ItemStruct holditem;
-	holditem = item[0];
+	copy_pod(holditem, item[0]);
 #endif
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
 	for (i = 0; i < iCnt; i++) {
@@ -4475,7 +4475,7 @@ void SpawnSmith(int lvl)
 			idata = RndSmithItem(lvl) - 1;
 			GetItemAttrs(0, idata, lvl);
 		} while (item[0]._iIvalue > SMITH_MAX_VALUE);
-		smithitem[i] = item[0];
+		copy_pod(smithitem[i], item[0]);
 		smithitem[i]._iCreateInfo = lvl | CF_SMITH;
 		smithitem[i]._iIdentified = TRUE;
 	}
@@ -4484,7 +4484,7 @@ void SpawnSmith(int lvl)
 
 	SortSmith();
 #ifdef HELLFIRE
-	item[0] = holditem;
+	copy_pod(item[0], holditem);
 #endif
 }
 
@@ -4528,7 +4528,7 @@ static void SpawnOnePremium(int i, int plvl)
 	int itype;
 	ItemStruct holditem;
 
-	holditem = item[0];
+	copy_pod(holditem, item[0]);
 	if (plvl > 30)
 		plvl = 30;
 	if (plvl < 1)
@@ -4540,10 +4540,10 @@ static void SpawnOnePremium(int i, int plvl)
 		GetItemAttrs(0, itype, plvl);
 		GetItemBonus(0, plvl >> 1, plvl, TRUE, FALSE);
 	} while (item[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
-	premiumitem[i] = item[0];
+	copy_pod(premiumitem[i], item[0]);
 	premiumitem[i]._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumitem[i]._iIdentified = TRUE;
-	item[0] = holditem;
+	copy_pod(item[0], holditem);
 }
 
 void SpawnPremium(int lvl)
@@ -4560,27 +4560,27 @@ void SpawnPremium(int lvl)
 	while (premiumlevel < lvl) {
 		premiumlevel++;
 #ifdef HELLFIRE
-		premiumitem[0] = premiumitem[3];
-		premiumitem[1] = premiumitem[4];
-		premiumitem[2] = premiumitem[5];
-		premiumitem[3] = premiumitem[6];
-		premiumitem[4] = premiumitem[7];
-		premiumitem[5] = premiumitem[8];
-		premiumitem[6] = premiumitem[9];
-		premiumitem[7] = premiumitem[10];
-		premiumitem[8] = premiumitem[11];
-		premiumitem[9] = premiumitem[12];
+		copy_pod(premiumitem[0], premiumitem[3]);
+		copy_pod(premiumitem[1], premiumitem[4]);
+		copy_pod(premiumitem[2], premiumitem[5]);
+		copy_pod(premiumitem[3], premiumitem[6]);
+		copy_pod(premiumitem[4], premiumitem[7]);
+		copy_pod(premiumitem[5], premiumitem[8]);
+		copy_pod(premiumitem[6], premiumitem[9]);
+		copy_pod(premiumitem[7], premiumitem[10]);
+		copy_pod(premiumitem[8], premiumitem[11]);
+		copy_pod(premiumitem[9], premiumitem[12]);
 		SpawnOnePremium(10, premiumlevel + premiumlvladd[10]);
-		premiumitem[11] = premiumitem[13];
+		copy_pod(premiumitem[11], premiumitem[13]);
 		SpawnOnePremium(12, premiumlevel + premiumlvladd[12]);
-		premiumitem[13] = premiumitem[14];
+		copy_pod(premiumitem[13], premiumitem[14]);
 		SpawnOnePremium(14, premiumlevel + premiumlvladd[14]);
 #else
-		premiumitem[0] = premiumitem[2];
-		premiumitem[1] = premiumitem[3];
-		premiumitem[2] = premiumitem[4];
+		copy_pod(premiumitem[0], premiumitem[2]);
+		copy_pod(premiumitem[1], premiumitem[3]);
+		copy_pod(premiumitem[2], premiumitem[4]);
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
-		premiumitem[4] = premiumitem[5];
+		copy_pod(premiumitem[4], premiumitem[5]);
 		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
 #endif
 	}
@@ -4676,15 +4676,15 @@ void SpawnWitch(int lvl)
 	int idata, minlvl;
 
 	GetItemAttrs(0, IDI_MANA, 1);
-	witchitem[0] = item[0];
+	copy_pod(witchitem[0], item[0]);
 	witchitem[0]._iCreateInfo = lvl;
 	witchitem[0]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_FULLMANA, 1);
-	witchitem[1] = item[0];
+	copy_pod(witchitem[1], item[0]);
 	witchitem[1]._iCreateInfo = lvl;
 	witchitem[1]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_PORTAL, 1);
-	witchitem[2] = item[0];
+	copy_pod(witchitem[2], item[0]);
 	witchitem[2]._iCreateInfo = lvl;
 	witchitem[2]._iStatFlag = TRUE;
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
@@ -4702,7 +4702,7 @@ void SpawnWitch(int lvl)
 			if (minlvl != -1)
 				GetItemBonus(0, minlvl, minlvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 140000);
-		witchitem[i] = item[0];
+		copy_pod(witchitem[i], item[0]);
 		witchitem[i]._iCreateInfo = lvl | CF_WITCH;
 		witchitem[i]._iIdentified = TRUE;
 	}
@@ -4745,7 +4745,7 @@ void SpawnBoy(int lvl)
 			GetItemAttrs(0, itype, lvl);
 			GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 90000);
-		boyitem = item[0];
+		copy_pod(boyitem, item[0]);
 		boyitem._iCreateInfo = lvl | CF_BOY;
 		boyitem._iIdentified = TRUE;
 		boylevel = lvl >> 1;
@@ -4833,18 +4833,18 @@ void SpawnHealer(int lvl)
 	int i, iCnt, srnd, itype;
 
 	GetItemAttrs(0, IDI_HEAL, 1);
-	healitem[0] = item[0];
+	copy_pod(healitem[0], item[0]);
 	healitem[0]._iCreateInfo = lvl;
 	healitem[0]._iStatFlag = TRUE;
 
 	GetItemAttrs(0, IDI_FULLHEAL, 1);
-	healitem[1] = item[0];
+	copy_pod(healitem[1], item[0]);
 	healitem[1]._iCreateInfo = lvl;
 	healitem[1]._iStatFlag = TRUE;
 
 	if (gbMaxPlayers != 1) {
 		GetItemAttrs(0, IDI_RESURRECT, 1);
-		healitem[2] = item[0];
+		copy_pod(healitem[2], item[0]);
 		healitem[2]._iCreateInfo = lvl;
 		healitem[2]._iStatFlag = TRUE;
 
@@ -4858,7 +4858,7 @@ void SpawnHealer(int lvl)
 		SetRndSeed(item[0]._iSeed);
 		itype = RndHealerItem(lvl) - 1;
 		GetItemAttrs(0, itype, lvl);
-		healitem[i] = item[0];
+		copy_pod(healitem[i], item[0]);
 		healitem[i]._iCreateInfo = lvl | CF_HEALER;
 		healitem[i]._iIdentified = TRUE;
 	}
@@ -4871,7 +4871,7 @@ void SpawnHealer(int lvl)
 void SpawnStoreGold()
 {
 	GetItemAttrs(0, IDI_GOLD, 1);
-	golditem = item[0];
+	copy_pod(golditem, item[0]);
 	golditem._iStatFlag = TRUE;
 }
 

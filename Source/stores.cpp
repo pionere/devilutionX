@@ -499,7 +499,7 @@ static BOOL S_StartSPBuy()
 
 static void AddStoreSell(ItemStruct *is, int i)
 {
-	storehold[storenumh] = *is;
+	copy_pod(storehold[storenumh], *is);
 
 	is = &storehold[storenumh];
 	if (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified)
@@ -603,13 +603,13 @@ static BOOL SmithRepairOk(const ItemStruct *is)
 		&& is->_iDurability != is->_iMaxDur;
 }
 
-static void AddStoreHoldRepair(const ItemStruct *is, int i)
+static void AddStoreHoldRepair(ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 	int v;
 
 	holditem = &storehold[storenumh];
-	*holditem = *is;
+	copy_pod(*holditem, *is);
 	if (holditem->_iMagical != ITEM_QUALITY_NORMAL && holditem->_iIdentified)
 		holditem->_ivalue = 30 * holditem->_iIvalue / 100;
 	v = holditem->_ivalue * (100 * (holditem->_iMaxDur - holditem->_iDurability) / holditem->_iMaxDur) / 100;
@@ -772,12 +772,12 @@ static BOOL WitchRechargeOk(const ItemStruct *is)
 	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
 }
 
-static void AddStoreHoldRecharge(const ItemStruct *is, int i)
+static void AddStoreHoldRecharge(ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
 	holditem = &storehold[storenumh];
-	*holditem = *is;
+	copy_pod(*holditem, *is);
 	holditem->_ivalue += spelldata[holditem->_iSpell].sStaffCost;
 	holditem->_ivalue = holditem->_ivalue * (100 * (holditem->_iMaxCharges - holditem->_iCharges) / holditem->_iMaxCharges) / 100 >> 1;
 	holditem->_iIvalue = holditem->_ivalue;
@@ -1038,12 +1038,12 @@ static BOOL IdItemOk(const ItemStruct *is)
 		&& !is->_iIdentified;
 }
 
-static void AddStoreHoldId(const ItemStruct *is, int i)
+static void AddStoreHoldId(ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
 	holditem = &storehold[storenumh];
-	*holditem = *is;
+	copy_pod(*holditem, *is);
 	holditem->_ivalue = 100;
 	holditem->_iIvalue = 100;
 	storehidx[storenumh] = i;
@@ -1580,7 +1580,7 @@ static void SmithBuyItem()
 	StoreAutoPlace(TRUE);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	do {
-		smithitem[idx] = smithitem[idx + 1];
+		copy_pod(smithitem[idx], smithitem[idx + 1]);
 		idx++;
 	} while (smithitem[idx]._itype != ITYPE_NONE);
 }
@@ -1600,7 +1600,7 @@ static void S_SBuyEnter()
 		if (plr[myplr]._pGold < smithitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			plr[myplr].HoldItem = smithitem[idx];
+			copy_pod(plr[myplr].HoldItem, smithitem[idx]);
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
@@ -1654,7 +1654,7 @@ static void S_SPBuyEnter()
 		if (plr[myplr]._pGold < premiumitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			plr[myplr].HoldItem = premiumitem[idx];
+			copy_pod(plr[myplr].HoldItem, premiumitem[idx]);
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
@@ -1708,7 +1708,7 @@ static void PlaceStoreGold(int v)
 		if (p->InvGrid[i] == 0) {
 			ii = p->_pNumInv;
 			GetGoldSeed(myplr, &golditem);
-			p->InvList[ii] = golditem;
+			copy_pod(p->InvList[ii], golditem);
 			SetGoldItemValue(&p->InvList[ii], v);
 			p->_pNumInv++;
 			p->InvGrid[i] = p->_pNumInv;
@@ -1731,7 +1731,7 @@ static void StoreSellItem()
 	cost = storehold[idx]._iIvalue;
 	storenumh--;
 	while (idx < storenumh) {
-		storehold[idx] = storehold[idx + 1];
+		copy_pod(storehold[idx], storehold[idx + 1]);
 		storehidx[idx] = storehidx[idx + 1];
 		idx++;
 	}
@@ -1773,7 +1773,7 @@ static void S_SSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_SSELL;
 		stextvhold = stextsidx;
-		plr[myplr].HoldItem = storehold[idx];
+		copy_pod(plr[myplr].HoldItem, storehold[idx]);
 
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
@@ -1813,7 +1813,7 @@ static void S_SRepairEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		plr[myplr].HoldItem = storehold[idx];
+		copy_pod(plr[myplr].HoldItem, storehold[idx]);
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -1861,7 +1861,7 @@ static void WitchBuyItem()
 
 	if (idx >= 3) {
 		do {
-			witchitem[idx] = witchitem[idx + 1];
+			copy_pod(witchitem[idx], witchitem[idx + 1]);
 			idx++;
 		} while (witchitem[idx]._itype != ITYPE_NONE);
 	}
@@ -1883,7 +1883,7 @@ static void S_WBuyEnter()
 		if (plr[myplr]._pGold < witchitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			plr[myplr].HoldItem = witchitem[idx];
+			copy_pod(plr[myplr].HoldItem, witchitem[idx]);
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
@@ -1904,7 +1904,7 @@ static void S_WSellEnter()
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 		stextshold = STORE_WSELL;
 		stextvhold = stextsidx;
-		plr[myplr].HoldItem = storehold[idx];
+		copy_pod(plr[myplr].HoldItem, storehold[idx]);
 		if (StoreGoldFit(idx))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1944,7 +1944,7 @@ static void S_WRechargeEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		plr[myplr].HoldItem = storehold[idx];
+		copy_pod(plr[myplr].HoldItem, storehold[idx]);
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else
@@ -2005,7 +2005,7 @@ static void HealerBuyItem()
 		return;
 
 	do {
-		healitem[idx] = healitem[idx + 1];
+		copy_pod(healitem[idx], healitem[idx + 1]);
 		idx++;
 	} while (healitem[idx]._itype != ITYPE_NONE);
 }
@@ -2026,7 +2026,7 @@ static void S_BBuyEnter()
 		if (plr[myplr]._pGold < sellValue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			plr[myplr].HoldItem = boyitem;
+			copy_pod(plr[myplr].HoldItem, boyitem);
 			plr[myplr].HoldItem._iIvalue = sellValue;
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
@@ -2146,7 +2146,7 @@ static void S_HBuyEnter()
 		if (plr[myplr]._pGold < healitem[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			plr[myplr].HoldItem = healitem[idx];
+			copy_pod(plr[myplr].HoldItem, healitem[idx]);
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
@@ -2187,7 +2187,7 @@ static void S_SIDEnter()
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		plr[myplr].HoldItem = storehold[idx];
+		copy_pod(plr[myplr].HoldItem, storehold[idx]);
 		if (plr[myplr]._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
 		else

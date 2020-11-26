@@ -142,6 +142,12 @@ inline void copy_cstr(char (&dest)[N1], const char (&src)[N2])
 	memcpy(dest, src, std::min(N1, ((N2 + sizeof(int) - 1) / sizeof(int)) * sizeof(int)));
 }
 
+template<class T>
+inline void copy_pod(T &dest, T &src)
+{
+	memcpy(&dest, &src, sizeof(T));
+}
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __ENGINE_H__ */
