@@ -829,7 +829,8 @@ void SErrSetLastError(DWORD dwErrCode)
 
 void SStrCopy(char *dest, const char *src, int max_length)
 {
-	memccpy(dest, src, '\0', max_length);
+	if (memccpy(dest, src, '\0', max_length) == NULL)
+		dest[max_length - 1] = '\0';
 	//strncpy(dest, src, max_length);
 }
 
