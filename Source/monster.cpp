@@ -1745,9 +1745,6 @@ static void M2MStartHit(int defm, int offm, int dam)
 	}
 
 	dmon = &monster[defm];
-	if (dmon->MType == NULL) {
-		app_fatal("Monster %d \"%s\" getting hit by monster: MType NULL", defm, dmon->mName);
-	}
 
 	if ((DWORD)offm < MAX_PLRS)
 		dmon->mWhoHit |= 1 << offm;
@@ -1794,13 +1791,6 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 	}
 
 	mon = &monster[mnum];
-	if (mon->MType == NULL) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonstStartKill: Monster %d \"%s\" MType NULL", mnum, monster[mnum].mName);
-#endif
-	}
 
 	monstkills[mon->MType->mtype]++;
 	mon->_mhitpoints = 0;
@@ -1855,8 +1845,6 @@ static void M2MStartKill(int offm, int defm)
 		app_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
 	}
 	dmon = &monster[defm];
-	if (dmon->MType == NULL)
-		app_fatal("M2MStartKill: Monster %d \"%s\" MType NULL", defm, dmon->mName);
 
 	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
 	NetSendCmdLocParam1(FALSE, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
@@ -1957,12 +1945,6 @@ static void MonStartFadein(int mnum, int md, BOOL backwards)
 		app_fatal("MonStartFadein: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartFadein: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_SPECIAL], md);
 	mon->_mmode = MM_FADEIN;
@@ -1988,12 +1970,6 @@ static void MonStartFadeout(int mnum, int md, BOOL backwards)
 		app_fatal("MonStartFadeout: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartFadeout: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_SPECIAL], md);
 	mon->_mmode = MM_FADEOUT;
@@ -2018,12 +1994,6 @@ static void MonStartHeal(int mnum)
 		app_fatal("MonStartHeal: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartHeal: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	mon->_mAnimData = mon->MType->Anims[MA_SPECIAL].Data[mon->_mdir];
 	mon->_mAnimFrame = mon->MType->Anims[MA_SPECIAL].Frames;
@@ -2080,12 +2050,6 @@ static BOOL MonDoStand(int mnum)
 		app_fatal("MonDoStand: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoStand: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->MType->mtype == MT_GOLEM)
 		mon->_mAnimData = mon->MType->Anims[MA_WALK].Data[mon->_mdir];
@@ -2112,12 +2076,6 @@ static BOOL MonDoWalk(int mnum)
 		app_fatal("MonDoWalk: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
@@ -2169,12 +2127,6 @@ static BOOL MonDoWalk2(int mnum)
 		app_fatal("MonDoWalk2: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk2: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
@@ -2222,12 +2174,6 @@ static BOOL MonDoWalk3(int mnum)
 		app_fatal("MonDoWalk3: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk3: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
@@ -2308,8 +2254,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonTryH2HHit: Invalid monster %d", mnum);
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-		app_fatal("MonTryH2HHit: Monster %d \"%s\" MType NULL", mnum, mon->mName);
+
 	if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
 		MonTryM2MHit(mnum, pnum, Hit, MinDam, MaxDam);
 		return;
@@ -2423,10 +2368,6 @@ static BOOL MonDoAttack(int mnum)
 		app_fatal("MonDoAttack: Invalid monster %d", mnum);
 
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-		app_fatal("MonDoAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MData == NULL)
-		app_fatal("MonDoAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit, mon->mMinDamage, mon->mMaxDamage);
@@ -2458,10 +2399,6 @@ static BOOL MonDoRAttack(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoRAttack: Invalid monster %d", mnum);
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-		app_fatal("MonDoRAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MData == NULL)
-		app_fatal("MonDoRAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		if (mon->_mVar1 != -1) {
@@ -2501,10 +2438,6 @@ static int MonDoRSpAttack(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-		app_fatal("MonDoRSpAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MData == NULL)
-		app_fatal("MonDoRSpAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
@@ -2546,10 +2479,6 @@ static BOOL MonDoSAttack(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoSAttack: Invalid monster %d", mnum);
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-		app_fatal("MonDoSAttack: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-	if (mon->MData == NULL)
-		app_fatal("MonDoSAttack: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum2)
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit2, mon->mMinDamage2, mon->mMaxDamage2);
@@ -2745,8 +2674,6 @@ static BOOL MonDoGotHit(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MonDoGotHit: Invalid monster %d", mnum);
 
-	if (monster[mnum].MType == NULL)
-		app_fatal("MonDoGotHit: Monster %d \"%s\" MType NULL", mnum, monster[mnum].mName);
 	if (monster[mnum]._mAnimFrame == monster[mnum]._mAnimLen) {
 		MonStartStand(mnum, monster[mnum]._mdir);
 
@@ -2865,12 +2792,6 @@ static BOOL MonDoDeath(int mnum)
 		app_fatal("MonDoDeath: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoDeath: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->MType->mtype == MT_DIABLO) {
 		x = mon->_mx - ViewX;
@@ -2906,12 +2827,6 @@ static BOOL MonDoSpStand(int mnum)
 		app_fatal("MonDoSpStand: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoSpStand: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	if (mon->_mAnimFrame == mon->MData->mAFNum2)
 		PlayEffect(mnum, 3);
@@ -2936,12 +2851,6 @@ static BOOL MonDoDelay(int mnum)
 		app_fatal("MonDoDelay: Invalid monster %d", mnum);
 #endif
 	mon = &monster[mnum];
-	if (mon->MType == NULL)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoDelay: Monster %d \"%s\" MType NULL", mnum, mon->mName);
-#endif
 
 	mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[MonGetDir(mnum)];
 	mVar2 = mon->_mVar2;
@@ -5338,6 +5247,8 @@ void SyncMonsterAnim(int mnum)
 	mon = &monster[mnum];
 	mon->MType = &Monsters[mon->_mMTidx];
 	MData = mon->MType->MData;
+	if (MData == NULL)
+		app_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mnum, mon->mName);
 	mon->MData = MData;
 	if (mon->_uniqtype != 0)
 		mon->mName = UniqMonst[mon->_uniqtype - 1].mName;
