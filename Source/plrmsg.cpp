@@ -20,11 +20,11 @@ void plrmsg_delay(BOOL delay)
 	static DWORD plrmsg_ticks;
 
 	if (delay) {
-		plrmsg_ticks = -SDL_GetTicks();
+		plrmsg_ticks = SDL_GetTicks();
 		return;
 	}
 
-	plrmsg_ticks += SDL_GetTicks();
+	plrmsg_ticks = SDL_GetTicks() - plrmsg_ticks;
 	pMsg = plr_msgs;
 	for (i = 0; i < PMSG_COUNT; i++, pMsg++)
 		pMsg->time += plrmsg_ticks;

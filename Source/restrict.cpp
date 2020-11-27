@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "paths.h"
+#include "file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -15,7 +16,7 @@ DEVILUTION_BEGIN_NAMESPACE
 void ReadOnlyTest()
 {
 	const std::string path = GetPrefPath() + "Diablo1ReadOnlyTest.foo";
-	FILE *f = fopen(path.c_str(), "wt");
+	FILE *f = FileOpen(path.c_str(), "wt");
 	if (f == NULL) {
 		DirErrorDlg(GetPrefPath().c_str());
 	}
