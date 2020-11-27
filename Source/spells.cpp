@@ -139,44 +139,35 @@ static void PlacePlayer(int pnum)
 	int i, nx, ny, x, y;
 	BOOL done;
 
-	if (plr[pnum].plrlevel == currlevel) {
-		for (i = 0; i < 8; i++) {
-			nx = plr[pnum]._px + plrxoff2[i];
-			ny = plr[pnum]._py + plryoff2[i];
+	for (i = 0; i < 9; i++) {
+		nx = plr[pnum]._px + plrxoff2[i];
+		ny = plr[pnum]._py + plryoff2[i];
 
-			if (PosOkPlayer(pnum, nx, ny)) {
-				break;
-			}
+		if (PosOkPlayer(pnum, nx, ny)) {
+			break;
 		}
+	}
 
-		if (i == 8) {
-			done = FALSE;
+	if (i == 9) {
+		done = FALSE;
 
-			for (i = 1; i < 50 && !done; i++) {
-				for (y = -i; y <= i && !done; y++) {
-					ny = plr[pnum]._py + y;
+		for (i = 1; i < 50 && !done; i++) {
+			for (y = -i; y <= i && !done; y++) {
+				ny = plr[pnum]._py + y;
 
-					for (x = -i; x <= i && !done; x++) {
-						nx = plr[pnum]._px + x;
+				for (x = -i; x <= i && !done; x++) {
+					nx = plr[pnum]._px + x;
 
-						if (PosOkPlayer(pnum, nx, ny)) {
-							done = TRUE;
-						}
+					if (PosOkPlayer(pnum, nx, ny)) {
+						done = TRUE;
 					}
 				}
 			}
 		}
-
-		plr[pnum]._px = nx;
-		plr[pnum]._py = ny;
-
-		dPlayer[nx][ny] = pnum + 1;
-
-		if (pnum == myplr) {
-			ViewX = nx;
-			ViewY = ny;
-		}
 	}
+
+	plr[pnum]._px = nx;
+	plr[pnum]._py = ny;
 }
 
 /**
@@ -186,7 +177,6 @@ static void PlacePlayer(int pnum)
 void DoResurrect(int pnum, int tnum)
 {
 	PlayerStruct *tp;
-	int hp;
 
 	if ((DWORD)tnum >= MAX_PLRS)
 		return;
@@ -205,18 +195,8 @@ void DoResurrect(int pnum, int tnum)
 		ClrPlrPath(tnum);
 		tp->destAction = ACTION_NONE;
 		tp->_pInvincible = FALSE;
-#ifndef HELLFIRE
-		PlacePlayer(tnum);
-#endif
 
-		hp = 640;
-#ifndef HELLFIRE
-		if (tp->_pMaxHPBase < 640) {
-			hp = tp->_pMaxHPBase;
-		}
-#endif
-		SetPlayerHitPoints(tnum, hp);
-
+		tp->_pHitPoints = std::min(640, tp->_pMaxHPBase);
 		tp->_pHPBase = tp->_pHitPoints + (tp->_pMaxHPBase - tp->_pMaxHP);
 		tp->_pMana = 0;
 		tp->_pManaBase = tp->_pMana + (tp->_pMaxManaBase - tp->_pMaxMana);
@@ -224,6 +204,7 @@ void DoResurrect(int pnum, int tnum)
 		CalcPlrInv(tnum, TRUE);
 
 		if (tp->plrlevel == currlevel) {
+			PlacePlayer(tnum);
 			PlrStartStand(tnum, tp->_pdir);
 		} else {
 			tp->_pmode = PM_STAND;
