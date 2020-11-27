@@ -82,7 +82,7 @@ static void doom_load_graphics()
 	return FALSE;
 #else
 	if (doom_quest_time == 31) {
-		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL")
+		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL");
 	} else if (doom_quest_time < 10) {
 		snprintf(tempstr, sizeof(tempstr), "Items\\Map\\MapZ000%i.CEL", doom_quest_time);
 	} else {
