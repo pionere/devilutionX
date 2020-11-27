@@ -297,11 +297,9 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 
 	sstr[0] = '\0';
 	if (is->_iIdentified) {
-		if (is->_iMagical != ITEM_QUALITY_UNIQUE) {
-			if (is->_iPrePower != IPL_INVALID) {
-				PrintItemPower(is->_iPrePower, is);
-				strcat(sstr, tempstr);
-			}
+		if (is->_iPrePower != IPL_INVALID) {
+			PrintItemPower(is->_iPrePower, is);
+			strcat(sstr, tempstr);
 		}
 		if (is->_iSufPower != IPL_INVALID) {
 			PrintItemPower(is->_iSufPower, is);
@@ -309,33 +307,42 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 				strcat(sstr, ",  ");
 			strcat(sstr, tempstr);
 		}
+		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+			if (sstr[0] != '\0') // should not happen, but better safe than sorry
+				strcat(sstr, ",  ");
+			strcat(sstr, "Unique Item");
+		}
 	}
-	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
+	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
 		snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 		if (sstr[0] != '\0')
 			strcat(sstr, ",  ");
 		strcat(sstr, tempstr);
 	}
 	if (sstr[0] != '\0') {
-		AddSText(40, l, FALSE, sstr, iclr, FALSE);
-		l++;
-	}
-	sstr[0] = '\0';
-	if (is->_iClass == ICLASS_WEAPON)
-		snprintf(sstr, sizeof(sstr), "Damage: %i-%i  ", is->_iMinDam, is->_iMaxDam);
-	if (is->_iClass == ICLASS_ARMOR)
-		snprintf(sstr, sizeof(sstr), "Armor: %i  ", is->_iAC);
-	if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur) {
-		snprintf(tempstr, sizeof(tempstr), "Dur: %i/%i,  ", is->_iDurability, is->_iMaxDur);
-		strcat(sstr, tempstr);
-	} else {
-		strcat(sstr, "Indestructible,  ");
-	}
-	if (is->_itype == ITYPE_MISC)
+		AddSText(40, l++, FALSE, sstr, iclr, FALSE);
 		sstr[0] = '\0';
-	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) == 0) {
-		strcat(sstr, "No required attributes");
-	} else {
+	}
+	if (is->_iClass == ICLASS_WEAPON) {
+#ifdef HELLFIRE
+		if (is->_iMinDam == is->_iMaxDam) {
+			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+				snprintf(sstr, sizeof(sstr), "Damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+			else
+				snprintf(sstr, sizeof(sstr), "Damage: %i  Indestructible", is->_iMinDam);
+		} else
+#endif
+			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+				snprintf(sstr, sizeof(sstr), "Damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
+			else
+				snprintf(sstr, sizeof(sstr), "Damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
+	} else if (is->_iClass == ICLASS_ARMOR) {
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+			snprintf(sstr, sizeof(sstr), "Armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
+		else
+			snprintf(sstr, sizeof(sstr), "Armor: %i  Indestructible", is->_iAC);
+	}
+	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		copy_cstr(tempstr, "Required:");
 		if (is->_iMinStr != 0)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
@@ -343,11 +350,12 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
 		if (is->_iMinDex != 0)
 			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
+		if (sstr[0] != '\0')
+			strcat(sstr, ",  ");
 		strcat(sstr, tempstr);
 	}
-	AddSText(40, l++, FALSE, sstr, iclr, FALSE);
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE && is->_iIdentified)
-		AddSText(40, l, FALSE, "Unique Item", iclr, FALSE);
+	if (sstr[0] != '\0')
+		AddSText(40, l++, FALSE, sstr, iclr, FALSE);
 }
 
 static void AddStoreFrame(const char* title, BOOL backSel)

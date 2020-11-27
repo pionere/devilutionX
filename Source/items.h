@@ -91,7 +91,6 @@ BOOL DoOil(int pnum, int cii);
 void PrintItemPower(char plidx, const ItemStruct *is);
 void DrawUniqueInfo();
 void PrintItemDetails(const ItemStruct *is);
-void PrintItemDur(const ItemStruct *is);
 void UseItem(int pnum, int Mid, int spl);
 void SpawnSmith(int lvl);
 void SpawnPremium(int lvl);

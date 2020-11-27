@@ -2029,13 +2029,11 @@ char CheckInvHLight()
 		} else if (pi->_iMagical == ITEM_QUALITY_UNIQUE) {
 			infoclr = COL_GOLD;
 		}
-		if (pi->_iIdentified) {
+		if (pi->_iIdentified)
 			copy_str(infostr, pi->_iIName);
-			PrintItemDetails(pi);
-		} else {
+		else
 			copy_str(infostr, pi->_iName);
-			PrintItemDur(pi);
-		}
+		PrintItemDetails(pi);
 	}
 
 	return rv;

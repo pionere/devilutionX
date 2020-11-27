@@ -4065,94 +4065,47 @@ void PrintItemDetails(const ItemStruct *is)
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
-			if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-				snprintf(tempstr, sizeof(tempstr), "damage: %i  Indestructible", is->_iMinDam);
+			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+				snprintf(tempstr, sizeof(tempstr), "Damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
 			else
-				snprintf(tempstr, sizeof(tempstr), "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+				snprintf(tempstr, sizeof(tempstr), "Damage: %i  Indestructible", is->_iMinDam);
 		} else
 #endif
-		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iClass == ICLASS_ARMOR) {
-		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			snprintf(tempstr, sizeof(tempstr), "armor: %i  Indestructible", is->_iAC);
-		else
-			snprintf(tempstr, sizeof(tempstr), "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-		snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iPrePower != IPL_INVALID) {
-		PrintItemPower(is->_iPrePower, is);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iSufPower != IPL_INVALID) {
-		PrintItemPower(is->_iSufPower, is);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-		AddPanelString("unique item", TRUE);
-		uitemflag = TRUE;
-		curruitem = *is;
-	}
-	PrintItemMisc(is);
-	if ((is->_iMinMag | is->_iMinDex | is->_iMinStr) != 0) {
-		copy_cstr(tempstr, "Required:");
-		if (is->_iMinStr)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
-		if (is->_iMinMag)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
-		if (is->_iMinDex)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
-		AddPanelString(tempstr, TRUE);
-	}
-	pinfoflag = TRUE;
-}
-
-void PrintItemDur(const ItemStruct *is)
-{
-	if (is->_iClass == ICLASS_WEAPON) {
-#ifdef HELLFIRE
-		if (is->_iMinDam == is->_iMaxDam) {
-			if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-				snprintf(tempstr, sizeof(tempstr), "damage: %i  Indestructible", is->_iMinDam);
+			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+				snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
 			else
-				snprintf(tempstr, sizeof(tempstr), "damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
-		} else
-#endif
-		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
+				snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
 		AddPanelString(tempstr, TRUE);
-		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
+		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
 			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 			AddPanelString(tempstr, TRUE);
 		}
-		if (is->_iMagical != ITEM_QUALITY_NORMAL)
-			AddPanelString("Not Identified", TRUE);
-	}
-	if (is->_iClass == ICLASS_ARMOR) {
-		if (is->_iMaxDur == DUR_INDESTRUCTIBLE)
-			snprintf(tempstr, sizeof(tempstr), "armor: %i  Indestructible", is->_iAC);
+	} else if (is->_iClass == ICLASS_ARMOR) {
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+			snprintf(tempstr, sizeof(tempstr), "Armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
 		else
-			snprintf(tempstr, sizeof(tempstr), "armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
+			snprintf(tempstr, sizeof(tempstr), "Armor: %i  Indestructible", is->_iAC);
 		AddPanelString(tempstr, TRUE);
-		if (is->_iMagical != ITEM_QUALITY_NORMAL)
+	}
+	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
+		if (is->_iIdentified) {
+			if (is->_iPrePower != IPL_INVALID) {
+				PrintItemPower(is->_iPrePower, is);
+				AddPanelString(tempstr, TRUE);
+			}
+			if (is->_iSufPower != IPL_INVALID) {
+				PrintItemPower(is->_iSufPower, is);
+				AddPanelString(tempstr, TRUE);
+			}
+			if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+				AddPanelString("Unique Item", TRUE);
+				uitemflag = TRUE;
+				curruitem = *is;
+			}
+		} else {
 			AddPanelString("Not Identified", TRUE);
-		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges) {
-			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
-			AddPanelString(tempstr, TRUE);
 		}
 	}
-	if (is->_itype == ITYPE_RING || is->_itype == ITYPE_AMULET)
-		AddPanelString("Not Identified", TRUE);
 	PrintItemMisc(is);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		copy_cstr(tempstr, "Required:");
