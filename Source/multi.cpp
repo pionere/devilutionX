@@ -443,67 +443,64 @@ void multi_process_network_packets()
 	int dx, dy;
 	TPktHdr *pkt;
 	DWORD dwMsgSize;
-	DWORD dwID;
-	BOOL cond;
-	char *data;
+	int pnum;
+	PlayerStruct *p;
 
 	multi_clear_left_tbl();
 	multi_process_tmsgs();
-	while (SNetReceiveMessage((int *)&dwID, &data, (int *)&dwMsgSize)) {
+	while (SNetReceiveMessage(&pnum, (char **)&pkt, (int *)&dwMsgSize)) {
 		dwRecCount++;
 		multi_clear_left_tbl();
-		pkt = (TPktHdr *)data;
 		if (dwMsgSize < sizeof(TPktHdr))
 			continue;
-		if (dwID >= MAX_PLRS)
+		if ((DWORD)pnum >= MAX_PLRS)
 			continue;
 		if (pkt->wCheck != 'ip')
 			continue;
 		if (pkt->wLen != dwMsgSize)
 			continue;
-		plr[dwID]._pownerx = pkt->px;
-		plr[dwID]._pownery = pkt->py;
-		if (dwID != myplr) {
+		p = &plr[pnum];
+		p->_pownerx = pkt->px;
+		p->_pownery = pkt->py;
+		if (pnum != myplr) {
 			// ASSERT: gbBufferMsgs != BUFFER_PROCESS (2)
-			plr[dwID]._pHitPoints = pkt->php;
-			plr[dwID]._pMaxHP = pkt->pmhp;
-			cond = gbBufferMsgs == 1;
-			plr[dwID]._pBaseStr = pkt->bstr;
-			plr[dwID]._pBaseMag = pkt->bmag;
-			plr[dwID]._pBaseDex = pkt->bdex;
-			if (!cond && plr[dwID].plractive && plr[dwID]._pHitPoints != 0) {
-				if (currlevel == plr[dwID].plrlevel && !plr[dwID]._pLvlChanging) {
-					dx = abs(plr[dwID]._px - pkt->px);
-					dy = abs(plr[dwID]._py - pkt->py);
+			p->_pHitPoints = pkt->php;
+			p->_pMaxHP = pkt->pmhp;
+			p->_pBaseStr = pkt->bstr;
+			p->_pBaseMag = pkt->bmag;
+			p->_pBaseDex = pkt->bdex;
+			if (gbBufferMsgs != 1 && p->plractive && p->_pHitPoints != 0) {
+				if (currlevel == p->plrlevel && !p->_pLvlChanging) {
+					dx = abs(p->_px - pkt->px);
+					dy = abs(p->_py - pkt->py);
 					if ((dx > 3 || dy > 3) && dPlayer[pkt->px][pkt->py] == 0) {
-						RemovePlrFromMap(dwID);
-						plr[dwID]._poldx = plr[dwID]._px;
-						plr[dwID]._poldy = plr[dwID]._py;
-						RemovePlrFromMap(dwID);
-						plr[dwID]._px = pkt->px;
-						plr[dwID]._py = pkt->py;
-						plr[dwID]._pfutx = pkt->px;
-						plr[dwID]._pfuty = pkt->py;
-						dPlayer[plr[dwID]._px][plr[dwID]._py] = dwID + 1;
+						RemovePlrFromMap(pnum);
+						SetPlayerOld(p);
+						RemovePlrFromMap(pnum);
+						p->_px = pkt->px;
+						p->_py = pkt->py;
+						p->_pfutx = pkt->px;
+						p->_pfuty = pkt->py;
+						dPlayer[p->_px][p->_py] = pnum + 1;
 					}
-					dx = abs(plr[dwID]._pfutx - plr[dwID]._px);
-					dy = abs(plr[dwID]._pfuty - plr[dwID]._py);
+					dx = abs(p->_pfutx - p->_px);
+					dy = abs(p->_pfuty - p->_py);
 					if (dx > 1 || dy > 1) {
-						plr[dwID]._pfutx = plr[dwID]._px;
-						plr[dwID]._pfuty = plr[dwID]._py;
+						p->_pfutx = p->_px;
+						p->_pfuty = p->_py;
 					}
-					MakePlrPath(dwID, pkt->targx, pkt->targy, TRUE);
+					MakePlrPath(pnum, pkt->targx, pkt->targy, TRUE);
 				} else {
-					plr[dwID]._px = pkt->px;
-					plr[dwID]._py = pkt->py;
-					plr[dwID]._pfutx = pkt->px;
-					plr[dwID]._pfuty = pkt->py;
-					plr[dwID]._ptargx = pkt->targx;
-					plr[dwID]._ptargy = pkt->targy;
+					p->_px = pkt->px;
+					p->_py = pkt->py;
+					p->_pfutx = pkt->px;
+					p->_pfuty = pkt->py;
+					p->_ptargx = pkt->targx;
+					p->_ptargy = pkt->targy;
 				}
 			}
 		}
-		multi_handle_all_packets(dwID, (BYTE *)(pkt + 1), dwMsgSize - sizeof(TPktHdr));
+		multi_handle_all_packets(pnum, (BYTE *)(pkt + 1), dwMsgSize - sizeof(TPktHdr));
 	}
 	if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 		nthread_terminate_game("SNetReceiveMsg");

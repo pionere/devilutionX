@@ -2314,10 +2314,9 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (PosOkPlayer(pnum, newx, newy)) {
 			p->_px = newx;
 			p->_py = newy;
-			FixPlayerLocation(pnum, p->_pdir);
 			RemovePlrFromMap(pnum);
 			dPlayer[newx][newy] = pnum + 1;
-			SetPlayerOld(pnum);
+			FixPlayerLocation(pnum, p->_pdir);
 		}
 	}
 }
@@ -5436,10 +5435,9 @@ void MissToMonst(int mi, int x, int y)
 					if (PosOkPlayer(tnum, newx, newy)) {
 						plr[tnum]._px = newx;
 						plr[tnum]._py = newy;
-						FixPlayerLocation(tnum, plr[tnum]._pdir);
 						RemovePlrFromMap(tnum);
 						dPlayer[newx][newy] = tnum + 1;
-						SetPlayerOld(tnum);
+						FixPlayerLocation(tnum, plr[tnum]._pdir);
 					}
 				}
 			}

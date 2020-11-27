@@ -1118,18 +1118,6 @@ void PlrDoTrans(int x, int y)
 	}
 }
 
-void SetPlayerOld(int pnum)
-{
-	PlayerStruct *p;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlayerOld: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-	p->_poldx = p->_px;
-	p->_poldy = p->_py;
-}
-
 void FixPlayerLocation(int pnum, int dir)
 {
 	PlayerStruct *p;
@@ -1138,10 +1126,8 @@ void FixPlayerLocation(int pnum, int dir)
 		app_fatal("FixPlayerLocation: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	p->_pfutx = p->_px;
-	p->_pfuty = p->_py;
-	p->_ptargx = p->_px;
-	p->_ptargy = p->_py;
+	p->_pfutx = p->_ptargx = p->_poldx = p->_px;
+	p->_pfuty = p->_ptargy = p->_poldy = p->_py;
 	p->_pxoff = 0;
 	p->_pyoff = 0;
 	p->_pdir = dir;
@@ -1169,10 +1155,9 @@ void PlrStartStand(int pnum, int dir)
 
 		NewPlrAnim(pnum, p->_pNAnim[dir], p->_pNFrames, 3, p->_pNWidth);
 		p->_pmode = PM_STAND;
-		FixPlayerLocation(pnum, dir);
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
-		SetPlayerOld(pnum);
+		FixPlayerLocation(pnum, dir);
 	} else {
 		SyncPlrKill(pnum, -1);
 	}
@@ -1301,7 +1286,7 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 		return;
 	}
 
-	SetPlayerOld(pnum);
+	SetPlayerOld(p);
 
 	px = xadd + p->_px;
 	py = yadd + p->_py;
@@ -1374,7 +1359,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		return;
 	}
 
-	SetPlayerOld(pnum);
+	SetPlayerOld(p);
+
 	px = xadd + p->_px;
 	py = yadd + p->_py;
 
@@ -1452,7 +1438,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		return;
 	}
 
-	SetPlayerOld(pnum);
+	SetPlayerOld(p);
+
 	px = xadd + p->_px;
 	py = yadd + p->_py;
 	x = mapx + p->_px;
@@ -1537,7 +1524,6 @@ void StartAttack(int pnum, int dir)
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 	p->_pmode = PM_ATTACK;
 	FixPlayerLocation(pnum, dir);
-	SetPlayerOld(pnum);
 }
 
 static void StartRangeAttack(int pnum, int dir, int cx, int cy)
@@ -1560,7 +1546,6 @@ static void StartRangeAttack(int pnum, int dir, int cx, int cy)
 
 	p->_pmode = PM_RATTACK;
 	FixPlayerLocation(pnum, dir);
-	SetPlayerOld(pnum);
 	p->_pVar1 = cx;
 	p->_pVar2 = cy;
 }
@@ -1587,7 +1572,6 @@ void PlrStartBlock(int pnum, int dir)
 
 	p->_pmode = PM_BLOCK;
 	FixPlayerLocation(pnum, dir);
-	SetPlayerOld(pnum);
 }
 
 static void StartSpell(int pnum, int dir, int cx, int cy)
@@ -1630,7 +1614,6 @@ static void StartSpell(int pnum, int dir, int cx, int cy)
 	p->_pmode = PM_SPELL;
 
 	FixPlayerLocation(pnum, dir);
-	SetPlayerOld(pnum);
 
 	p->_pVar1 = cx;
 	p->_pVar2 = cy;
@@ -1702,7 +1685,6 @@ void RemovePlrFromMap(int pnum)
 void StartPlrHit(int pnum, int dam, BOOL forcehit)
 {
 	PlayerStruct *p;
-	int pd;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartPlrHit: illegal player %d", pnum);
@@ -1718,19 +1700,16 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 
 	drawhpflag = TRUE;
 	if (dam >> 6 >= p->_pLevel || forcehit) {
-		pd = p->_pdir;
-
 		if (!(p->_pGFXLoad & PFILE_HIT)) {
 			LoadPlrGFX(pnum, PFILE_HIT);
 		}
-		NewPlrAnim(pnum, p->_pHAnim[pd], p->_pHFrames, 0, p->_pHWidth);
+		NewPlrAnim(pnum, p->_pHAnim[p->_pdir], p->_pHFrames, 0, p->_pHWidth);
 
 		p->_pmode = PM_GOTHIT;
-		FixPlayerLocation(pnum, pd);
 		p->_pVar8 = 1;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
-		SetPlayerOld(pnum);
+		FixPlayerLocation(pnum, p->_pdir);
 	}
 }
 
@@ -1839,10 +1818,9 @@ void StartPlrKill(int pnum, int earflag)
 	}
 
 	if (p->plrlevel == currlevel) {
-		FixPlayerLocation(pnum, p->_pdir);
 		RemovePlrFromMap(pnum);
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
-		SetPlayerOld(pnum);
+		FixPlayerLocation(pnum, p->_pdir);
 
 		if (pnum == myplr) {
 			drawhpflag = TRUE;
@@ -2111,7 +2089,7 @@ static void InitLevelChange(int pnum)
 	}
 
 	RemovePlrFromMap(pnum);
-	SetPlayerOld(pnum);
+	SetPlayerOld(p);
 	ClrPlrPath(pnum);
 	p = &plr[pnum];
 	if (pnum == myplr) {

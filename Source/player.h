@@ -33,7 +33,6 @@ void InitMultiView();
 void CheckEFlag(int pnum, BOOL flag);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
-void SetPlayerOld(int pnum);
 void FixPlayerLocation(int pnum, int dir);
 void PlrStartStand(int pnum, int dir);
 void StartAttack(int pnum, int dir);
@@ -75,6 +74,12 @@ int player_45EFA1(int pc);
 int player_45EFAB(int pc);
 int player_45EFB5(int pc);
 #endif
+
+inline void SetPlayerOld(PlayerStruct *p)
+{
+	p->_poldx = p->_px;
+	p->_poldy = p->_py;
+}
 
 /* data */
 
