@@ -5337,23 +5337,25 @@ void PrintMonstHistory(int mt)
 			AddPanelString(tempstr, TRUE);
 		} else {
 			if (res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING)) {
-				copy_cstr(tempstr, "Resists:");
+				int cursor = 0;
+				cat_cstr(tempstr, cursor, "Resists:");
 				if (res & RESIST_MAGIC)
-					strcat(tempstr, " Magic");
+					cat_cstr(tempstr, cursor, " Magic");
 				if (res & RESIST_FIRE)
-					strcat(tempstr, " Fire");
+					cat_cstr(tempstr, cursor, " Fire");
 				if (res & RESIST_LIGHTNING)
-					strcat(tempstr, " Lightning");
+					cat_cstr(tempstr, cursor, " Lightning");
 				AddPanelString(tempstr, TRUE);
 			}
 			if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
-				copy_cstr(tempstr, "Immune:");
+				int cursor = 0;
+				cat_cstr(tempstr, cursor, "Immune:");
 				if (res & IMMUNE_MAGIC)
-					strcat(tempstr, " Magic");
+					cat_cstr(tempstr, cursor, " Magic");
 				if (res & IMMUNE_FIRE)
-					strcat(tempstr, " Fire");
+					cat_cstr(tempstr, cursor, " Fire");
 				if (res & IMMUNE_LIGHTNING)
-					strcat(tempstr, " Lightning");
+					cat_cstr(tempstr, cursor, " Lightning");
 				AddPanelString(tempstr, TRUE);
 			}
 		}

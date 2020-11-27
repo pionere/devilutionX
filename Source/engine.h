@@ -148,6 +148,37 @@ inline void copy_pod(T &dest, T &src)
 	memcpy(&dest, &src, sizeof(T));
 }
 
+template<int N>
+inline void cat_str(char (&dest)[N], int &pos, const char* fmt, ...)
+{
+	int n;
+	va_list va;
+
+	va_start(va, fmt);
+	
+	n = N - pos;
+	pos += std::min(vsnprintf(&dest[pos], n, fmt, va), n - 1);
+
+	va_end(va);
+}
+
+template<int N1, int N2>
+inline void cat_cstr(char (&dest)[N1], int &pos, const char (&src)[N2])
+{
+	int n;
+	n = N1 - pos;
+	if (n >= N2) {
+		memcpy(&dest[pos], src, N2);
+		pos += N2 - 1;
+	}
+	else {
+		n--;
+		memcpy(&dest[pos], src, n);
+		pos += n;
+		dest[pos] = '\0';
+	}
+}
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __ENGINE_H__ */

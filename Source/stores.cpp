@@ -293,68 +293,67 @@ static void AddSText(int x, int y, BOOL j, const char *str, char clr, BOOL sel)
 
 static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 {
+	int cursor;
 	char sstr[128];
 
-	sstr[0] = '\0';
+	cursor = 0;
 	if (is->_iIdentified) {
 		if (is->_iPrePower != IPL_INVALID) {
 			PrintItemPower(is->_iPrePower, is);
-			strcat(sstr, tempstr);
+			cat_str(sstr, cursor, "%s", tempstr);
 		}
 		if (is->_iSufPower != IPL_INVALID) {
 			PrintItemPower(is->_iSufPower, is);
-			if (sstr[0] != '\0')
-				strcat(sstr, ",  ");
-			strcat(sstr, tempstr);
+			if (cursor != 0)
+				cat_cstr(sstr, cursor, ",  ");
+			cat_str(sstr, cursor, "%s", tempstr);
 		}
 		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-			if (sstr[0] != '\0') // should not happen, but better safe than sorry
-				strcat(sstr, ",  ");
-			strcat(sstr, "Unique Item");
+			if (cursor != 0) // should not happen, but better safe than sorry
+				cat_cstr(sstr, cursor, ",  ");
+			cat_cstr(sstr, cursor, "Unique Item");
 		}
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
-		snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
-		if (sstr[0] != '\0')
-			strcat(sstr, ",  ");
-		strcat(sstr, tempstr);
+		if (cursor != 0)
+			cat_cstr(sstr, cursor, ",  ");
+		cat_str(sstr, cursor, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 	}
-	if (sstr[0] != '\0') {
+	if (cursor != 0) {
 		AddSText(40, l++, FALSE, sstr, iclr, FALSE);
-		sstr[0] = '\0';
+		cursor = 0;
 	}
 	if (is->_iClass == ICLASS_WEAPON) {
 #ifdef HELLFIRE
 		if (is->_iMinDam == is->_iMaxDam) {
 			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				snprintf(sstr, sizeof(sstr), "Damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+				cat_str(sstr, cursor, "Damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
 			else
-				snprintf(sstr, sizeof(sstr), "Damage: %i  Indestructible", is->_iMinDam);
+				cat_str(sstr, cursor, "Damage: %i  Indestructible", is->_iMinDam);
 		} else
 #endif
 			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				snprintf(sstr, sizeof(sstr), "Damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
+				cat_str(sstr, cursor, "Damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
 			else
-				snprintf(sstr, sizeof(sstr), "Damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
+				cat_str(sstr, cursor, "Damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
 	} else if (is->_iClass == ICLASS_ARMOR) {
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-			snprintf(sstr, sizeof(sstr), "Armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
+			cat_str(sstr, cursor, "Armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
 		else
-			snprintf(sstr, sizeof(sstr), "Armor: %i  Indestructible", is->_iAC);
+			cat_str(sstr, cursor, "Armor: %i  Indestructible", is->_iAC);
 	}
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
-		copy_cstr(tempstr, "Required:");
+		if (cursor != 0)
+			cat_cstr(sstr, cursor, ",  ");
+		cat_cstr(sstr, cursor, "Required:");
 		if (is->_iMinStr != 0)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
+			cat_str(sstr, cursor, " %i Str", is->_iMinStr);
 		if (is->_iMinMag != 0)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
+			cat_str(sstr, cursor, " %i Mag", is->_iMinMag);
 		if (is->_iMinDex != 0)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
-		if (sstr[0] != '\0')
-			strcat(sstr, ",  ");
-		strcat(sstr, tempstr);
+			cat_str(sstr, cursor, " %i Dex", is->_iMinDex);
 	}
-	if (sstr[0] != '\0')
+	if (cursor != 0)
 		AddSText(40, l++, FALSE, sstr, iclr, FALSE);
 }
 

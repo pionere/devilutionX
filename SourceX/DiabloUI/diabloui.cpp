@@ -203,10 +203,11 @@ void UiFocusPageDown()
 	}
 }
 
-void selhero_CatToName(char *in_buf, char *out_buf, int cnt)
+static void selhero_CatToName(char *in_buf, char *out_buf, int cnt)
 {
 	std::string output = utf8_to_latin1(in_buf);
-	strncat(out_buf, output.c_str(), cnt - strlen(out_buf));
+	int pos = strlen(out_buf);
+	SStrCopy(&out_buf[pos], output.c_str(), cnt - pos);
 }
 
 void UiFocusNavigation(SDL_Event *event)
@@ -453,9 +454,10 @@ char connect_categorystr[128];
 void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
 {
 	SStrCopy(connect_plrinfostr, infostr, sizeof(connect_plrinfostr));
-	char format[32] = "";
+	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
+	char format[sizeof(DWORD) + sizeof(fmt)];
 	*(DWORD *)format = type;
-	strcpy(&format[sizeof(DWORD)], " %d %d %d %d %d %d %d %d %d");
+	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
 
 	snprintf(
 	    connect_categorystr,
@@ -562,9 +564,10 @@ BOOL UiArtCallback(int game_type, unsigned int art_code, SDL_Color *pPalette, BY
 
 BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 {
-	char format[32] = "";
+	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
+	char format[sizeof(DWORD) + sizeof(fmt)];
 	*(DWORD *)format = mode;
-	strcpy(&format[sizeof(DWORD)], " %d %d %d %d %d %d %d %d %d");
+	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
 
 	snprintf(
 	    desc,

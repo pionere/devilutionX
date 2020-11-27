@@ -4108,13 +4108,14 @@ void PrintItemDetails(const ItemStruct *is)
 	}
 	PrintItemMisc(is);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
-		copy_cstr(tempstr, "Required:");
+		int cursor = 0;
+		cat_cstr(tempstr, cursor, "Required:");
 		if (is->_iMinStr)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Str", tempstr, is->_iMinStr);
+			cat_str(tempstr, cursor, " %i Str", is->_iMinStr);
 		if (is->_iMinMag)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Mag", tempstr, is->_iMinMag);
+			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
 		if (is->_iMinDex)
-			snprintf(tempstr, sizeof(tempstr), "%s %i Dex", tempstr, is->_iMinDex);
+			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
 		AddPanelString(tempstr, TRUE);
 	}
 	pinfoflag = TRUE;
