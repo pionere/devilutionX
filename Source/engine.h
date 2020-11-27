@@ -148,6 +148,12 @@ inline void copy_pod(T &dest, T &src)
 	memcpy(&dest, &src, sizeof(T));
 }
 
+template<class T>
+inline void copy_pod(T &dest, const T &src)
+{
+	memcpy(&dest, &src, sizeof(T));
+}
+
 template<int N>
 inline void cat_str(char (&dest)[N], int &pos, const char* fmt, ...)
 {

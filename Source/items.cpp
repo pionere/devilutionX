@@ -2998,7 +2998,7 @@ void LoadCornerStone(int x, int y)
 			item[ii]._ix = x;
 			item[ii]._iy = y;
 			RespawnItem(ii, FALSE);
-			CornerStone.item = item[ii];
+			copy_pod(CornerStone.item, item[ii]);
 			numitems++;
 		}
 	}
@@ -4100,7 +4100,7 @@ void PrintItemDetails(const ItemStruct *is)
 			if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
 				AddPanelString("Unique Item", TRUE);
 				uitemflag = TRUE;
-				curruitem = *is;
+				copy_pod(curruitem, *is);
 			}
 		} else {
 			AddPanelString("Not Identified", TRUE);

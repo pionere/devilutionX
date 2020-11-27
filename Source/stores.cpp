@@ -610,7 +610,7 @@ static BOOL SmithRepairOk(const ItemStruct *is)
 		&& is->_iDurability != is->_iMaxDur;
 }
 
-static void AddStoreHoldRepair(ItemStruct *is, int i)
+static void AddStoreHoldRepair(const ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 	int v;
@@ -779,7 +779,7 @@ static BOOL WitchRechargeOk(const ItemStruct *is)
 	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
 }
 
-static void AddStoreHoldRecharge(ItemStruct *is, int i)
+static void AddStoreHoldRecharge(const ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
@@ -1045,7 +1045,7 @@ static BOOL IdItemOk(const ItemStruct *is)
 		&& !is->_iIdentified;
 }
 
-static void AddStoreHoldId(ItemStruct *is, int i)
+static void AddStoreHoldId(const ItemStruct *is, int i)
 {
 	ItemStruct *holditem;
 
