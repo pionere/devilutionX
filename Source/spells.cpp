@@ -139,7 +139,7 @@ static void PlacePlayer(int pnum)
 	int i, nx, ny, x, y;
 	BOOL done;
 
-	for (i = 0; i < 9; i++) {
+	for (i = 0; i < lengthof(plrxoff2); i++) {
 		nx = plr[pnum]._px + plrxoff2[i];
 		ny = plr[pnum]._py + plryoff2[i];
 
@@ -148,7 +148,7 @@ static void PlacePlayer(int pnum)
 		}
 	}
 
-	if (i == 9) {
+	if (i == lengthof(plrxoff2)) {
 		done = FALSE;
 
 		for (i = 1; i < 50 && !done; i++) {

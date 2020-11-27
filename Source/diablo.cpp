@@ -820,7 +820,7 @@ static void diablo_hotkey_msg(DWORD dwMsg)
 		return;
 	}
 
-	assert(dwMsg < sizeof(spszMsgTbl) / sizeof(spszMsgTbl[0]));
+	assert(dwMsg < lengthof(spszMsgTbl));
 	if (!getIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], gbNetMsg, sizeof(gbNetMsg))) {
 		SStrCopy(gbNetMsg, spszMsgTbl[dwMsg], sizeof(gbNetMsg));
 		setIniValue("NetMsg", spszMsgHotKeyTbl[dwMsg], gbNetMsg);

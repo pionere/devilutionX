@@ -828,13 +828,13 @@ void InitControlPan()
 		sgszTalkMsg[0] = '\0';
 		for (i = 0; i < MAX_PLRS; i++)
 			whisper[i] = TRUE;
-		for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++)
+		for (i = 0; i < lengthof(talkbtndown); i++)
 			talkbtndown[i] = FALSE;
 	}
 	panelflag = FALSE;
 	lvlbtndown = FALSE;
 	pPanelButtons = LoadFileInMem("CtrlPan\\Panel8bu.CEL", NULL);
-	for (i = 0; i < sizeof(panbtn) / sizeof(panbtn[0]); i++)
+	for (i = 0; i < lengthof(panbtn); i++)
 		panbtn[i] = FALSE;
 	panbtndown = FALSE;
 	if (gbMaxPlayers == 1)
@@ -842,7 +842,7 @@ void InitControlPan()
 	else
 		numpanbtns = 8;
 	pChrButtons = LoadFileInMem("Data\\CharBut.CEL", NULL);
-	for (i = 0; i < sizeof(chrbtn) / sizeof(chrbtn[0]); i++)
+	for (i = 0; i < lengthof(chrbtn); i++)
 		chrbtn[i] = FALSE;
 	chrbtnactive = FALSE;
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
@@ -2154,7 +2154,7 @@ BOOL control_check_talk_btn()
 	if (MouseY > 123 + PANEL_TOP)
 		return FALSE;
 
-	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++) {
+	for (i = 0; i < lengthof(talkbtndown); i++) {
 		talkbtndown[i] = FALSE;
 	}
 
@@ -2167,7 +2167,7 @@ void control_release_talk_btn()
 {
 	int i, p, off;
 
-	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++)
+	for (i = 0; i < lengthof(talkbtndown); i++)
 		talkbtndown[i] = FALSE;
 	if (MouseX >= 172 + PANEL_LEFT && MouseY >= 69 + PANEL_TOP && MouseX <= 233 + PANEL_LEFT && MouseY <= 123 + PANEL_TOP) {
 		off = (MouseY - (69 + PANEL_TOP)) / 18;
@@ -2191,7 +2191,7 @@ void control_type_message()
 
 	talkflag = TRUE;
 	sgszTalkMsg[0] = '\0';
-	for (i = 0; i < sizeof(talkbtndown) / sizeof(talkbtndown[0]); i++) {
+	for (i = 0; i < lengthof(talkbtndown); i++) {
 		talkbtndown[i] = FALSE;
 	}
 	sgbPlrTalkTbl = PANEL_HEIGHT + 16;

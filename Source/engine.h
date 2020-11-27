@@ -185,6 +185,12 @@ inline void cat_cstr(char (&dest)[N1], int &pos, const char (&src)[N2])
 	}
 }
 
+template<class T, int N>
+inline constexpr int lengthof(T (&array)[N])
+{
+	return N;
+}
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __ENGINE_H__ */

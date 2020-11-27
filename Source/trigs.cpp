@@ -75,7 +75,7 @@ void InitTownTriggers()
 
 	twarps = GetOpenWarps();
 
-	for (i = 0; i < sizeof(townwarps) / sizeof(townwarps[0]); i++)
+	for (i = 0; i < lengthof(townwarps); i++)
 		townwarps[i] = FALSE;
 
 	if (twarps & 1) {

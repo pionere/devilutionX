@@ -384,7 +384,7 @@ static void DeltaImportData(BYTE cmd, DWORD recv_offset)
 	BYTE *src;
 
 	if (sgRecvBuf[0] != 0)
-		PkwareDecompress(&sgRecvBuf[1], recv_offset, (sizeof(sgRecvBuf) / sizeof(sgRecvBuf[0])) - 1);
+		PkwareDecompress(&sgRecvBuf[1], recv_offset, lengthof(sgRecvBuf) - 1);
 
 	src = &sgRecvBuf[1];
 	if (cmd == CMD_DLEVEL_JUNK) {

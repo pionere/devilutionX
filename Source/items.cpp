@@ -1733,7 +1733,7 @@ static void GetOilType(int ii, int max_lvl)
 			max_lvl = 1;
 		cnt = 0;
 
-		for (i = 0; i < (sizeof(oildata) / sizeof(oildata[0])); i++) {
+		for (i = 0; i < lengthof(oildata); i++) {
 			if (oildata[i].level <= max_lvl) {
 				rnd[cnt] = i;
 				cnt++;
