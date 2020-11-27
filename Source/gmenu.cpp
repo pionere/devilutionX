@@ -212,13 +212,12 @@ void gmenu_draw()
 {
 	int nCel, y;
 	TMenuItem *i;
-	DWORD ticks;
 
 	if (sgpCurrentMenu != NULL) {
 		if (gmUpdateFunc != NULL)
 			gmUpdateFunc(sgpCurrentMenu);
 #ifdef HELLFIRE
-		ticks = SDL_GetTicks();
+		DWORD ticks = SDL_GetTicks();
 		if ((int)(ticks - LogoAnim_tick) > 25) {
 			LogoAnim_frame++;
 			if (LogoAnim_frame > 16)

@@ -1475,7 +1475,7 @@ void CheckInvScrn()
 static void CheckQuestItem(int pnum, ItemStruct *is)
 {
 	PlayerStruct *p;
-	int idx, nn;
+	int idx;
 
 	p = &plr[pnum];
 	idx = is->IDidx;
@@ -1521,6 +1521,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
+		int nn;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
@@ -1846,7 +1847,6 @@ void DrawInvMsg(const char *msg)
 int InvPutItem(int pnum, int x, int y)
 {
 	int ii;
-	int xp, yp;
 
 	if (numitems >= MAXITEMS)
 		return -1;
@@ -1861,9 +1861,7 @@ int InvPutItem(int pnum, int x, int y)
 
 #ifdef HELLFIRE
 	if (currlevel == 0) {
-		yp = cursmy;
-		xp = cursmx;
-		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && xp >= 79 && xp <= 82 && yp >= 61 && yp <= 64) {
+		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= 79 && cursmx <= 82 && cursmy >= 61 && cursmy <= 64) {
 			NetSendCmdLocParam2(FALSE, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, 0, 0);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
@@ -1871,7 +1869,7 @@ int InvPutItem(int pnum, int x, int y)
 			}
 			return -1;
 		}
-		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && xp >= 35 && xp <= 38 && yp >= 20 && yp <= 24) {
+		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && cursmx >= 35 && cursmx <= 38 && cursmy >= 20 && cursmy <= 24) {
 			NetSendCmd(FALSE, CMD_OPENCRYPT);
 			quests[Q_GRAVE]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
