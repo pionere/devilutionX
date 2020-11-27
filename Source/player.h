@@ -38,7 +38,6 @@ void FixPlayerLocation(int pnum, int dir);
 void PlrStartStand(int pnum, int dir);
 void StartAttack(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);
-void FixPlrWalkTags(int pnum);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, BOOL forcehit);
 void StartPlrKill(int pnum, int earflag);

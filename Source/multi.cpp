@@ -476,10 +476,10 @@ void multi_process_network_packets()
 					dx = abs(plr[dwID]._px - pkt->px);
 					dy = abs(plr[dwID]._py - pkt->py);
 					if ((dx > 3 || dy > 3) && dPlayer[pkt->px][pkt->py] == 0) {
-						FixPlrWalkTags(dwID);
+						RemovePlrFromMap(dwID);
 						plr[dwID]._poldx = plr[dwID]._px;
 						plr[dwID]._poldy = plr[dwID]._py;
-						FixPlrWalkTags(dwID);
+						RemovePlrFromMap(dwID);
 						plr[dwID]._px = pkt->px;
 						plr[dwID]._py = pkt->py;
 						plr[dwID]._pfutx = pkt->px;

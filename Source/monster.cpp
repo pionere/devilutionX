@@ -2315,7 +2315,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			p->_px = newx;
 			p->_py = newy;
 			FixPlayerLocation(pnum, p->_pdir);
-			FixPlrWalkTags(pnum);
+			RemovePlrFromMap(pnum);
 			dPlayer[newx][newy] = pnum + 1;
 			SetPlayerOld(pnum);
 		}
@@ -5437,7 +5437,7 @@ void MissToMonst(int mi, int x, int y)
 						plr[tnum]._px = newx;
 						plr[tnum]._py = newy;
 						FixPlayerLocation(tnum, plr[tnum]._pdir);
-						FixPlrWalkTags(tnum);
+						RemovePlrFromMap(tnum);
 						dPlayer[newx][newy] = tnum + 1;
 						SetPlayerOld(tnum);
 					}

@@ -1170,7 +1170,7 @@ void PlrStartStand(int pnum, int dir)
 		NewPlrAnim(pnum, p->_pNAnim[dir], p->_pNFrames, 3, p->_pNWidth);
 		p->_pmode = PM_STAND;
 		FixPlayerLocation(pnum, dir);
-		FixPlrWalkTags(pnum);
+		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
 		SetPlayerOld(pnum);
 	} else {
@@ -1638,13 +1638,13 @@ static void StartSpell(int pnum, int dir, int cx, int cy)
 	p->_pVar8 = 1;
 }
 
-void FixPlrWalkTags(int pnum)
+void RemovePlrFromMap(int pnum)
 {
 	int pp, pn;
 	int dx, dy, y, x;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("FixPlrWalkTags: illegal player %d", pnum);
+		app_fatal("RemovePlrFromMap: illegal player %d", pnum);
 	}
 
 	dx = plr[pnum]._poldx;
@@ -1679,7 +1679,7 @@ void FixPlrWalkTags(int pnum)
 	}
 }
 
-void RemovePlrFromMap(int pnum)
+/*void RemovePlrFromMap(int pnum)
 {
 	int x, y;
 	int pp, pn;
@@ -1697,7 +1697,7 @@ void RemovePlrFromMap(int pnum)
 				if (y < MAXDUNY - 1)
 					dFlags[x][y + 1] &= ~BFLAG_PLAYERLR;
 			}
-}
+}*/
 
 void StartPlrHit(int pnum, int dam, BOOL forcehit)
 {
@@ -1728,7 +1728,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		p->_pmode = PM_GOTHIT;
 		FixPlayerLocation(pnum, pd);
 		p->_pVar8 = 1;
-		FixPlrWalkTags(pnum);
+		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
 		SetPlayerOld(pnum);
 	}
