@@ -2316,7 +2316,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			p->_py = newy;
 			RemovePlrFromMap(pnum);
 			dPlayer[newx][newy] = pnum + 1;
-			FixPlayerLocation(pnum, p->_pdir);
+			FixPlayerLocation(pnum);
 		}
 	}
 }
@@ -5437,7 +5437,7 @@ void MissToMonst(int mi, int x, int y)
 						plr[tnum]._py = newy;
 						RemovePlrFromMap(tnum);
 						dPlayer[newx][newy] = tnum + 1;
-						FixPlayerLocation(tnum, plr[tnum]._pdir);
+						FixPlayerLocation(tnum);
 					}
 				}
 			}

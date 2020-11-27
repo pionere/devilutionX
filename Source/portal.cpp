@@ -167,17 +167,17 @@ void GetPortalLvlPos()
 	}
 }
 
-BOOL PosOkPortal(int lvl, int x, int y)
+BOOL PosOkPortal(int x, int y)
 {
 	PortalStruct *ps;
-	int i;
+	int i, lvl = currlevel;
 
 	ps = portal;
 	for (i = MAXPORTAL; i != 0; i--, ps++) {
 		if (ps->open && ps->level == lvl && ((ps->x == x && ps->y == y) || (ps->x == x - 1 && ps->y == y - 1)))
-			return TRUE;
+			return FALSE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 DEVILUTION_END_NAMESPACE

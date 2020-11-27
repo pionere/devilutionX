@@ -26,7 +26,7 @@ void RemovePortalMissile(int id);
 void SetCurrentPortal(int p);
 void GetPortalLevel();
 void GetPortalLvlPos();
-BOOL PosOkPortal(int lvl, int x, int y);
+BOOL PosOkPortal(int x, int y);
 
 #ifdef __cplusplus
 }

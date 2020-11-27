@@ -33,7 +33,7 @@ void InitMultiView();
 void CheckEFlag(int pnum, BOOL flag);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
-void FixPlayerLocation(int pnum, int dir);
+void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum, int dir);
 void StartAttack(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);

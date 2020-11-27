@@ -134,7 +134,16 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 	}
 }
 
-static void PlacePlayer(int pnum)
+/*
+ * @brief Find a place for the given player starting from its current location.
+ *
+ * TODO: In the original code it was possible to auto-townwarp after resurrection.
+ *       The new solution prevents this, but in some cases it could be useful
+ *       (in some cases it is annoying).
+ *
+ * @return TRUE if the player had to be displaced.
+ */
+BOOL PlacePlayer(int pnum)
 {
 	int i, nx, ny, x, y;
 	BOOL done;
@@ -143,10 +152,13 @@ static void PlacePlayer(int pnum)
 		nx = plr[pnum]._px + plrxoff2[i];
 		ny = plr[pnum]._py + plryoff2[i];
 
-		if (PosOkPlayer(pnum, nx, ny)) {
+		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
 			break;
 		}
 	}
+
+	if (i == 0)
+		return FALSE;
 
 	if (i == lengthof(plrxoff2)) {
 		done = FALSE;
@@ -158,7 +170,7 @@ static void PlacePlayer(int pnum)
 				for (x = -i; x <= i && !done; x++) {
 					nx = plr[pnum]._px + x;
 
-					if (PosOkPlayer(pnum, nx, ny)) {
+					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
 						done = TRUE;
 					}
 				}
@@ -168,6 +180,7 @@ static void PlacePlayer(int pnum)
 
 	plr[pnum]._px = nx;
 	plr[pnum]._py = ny;
+	return TRUE;
 }
 
 /**

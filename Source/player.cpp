@@ -1118,7 +1118,7 @@ void PlrDoTrans(int x, int y)
 	}
 }
 
-void FixPlayerLocation(int pnum, int dir)
+void FixPlayerLocation(int pnum)
 {
 	PlayerStruct *p;
 
@@ -1130,7 +1130,6 @@ void FixPlayerLocation(int pnum, int dir)
 	p->_pfuty = p->_ptargy = p->_poldy = p->_py;
 	p->_pxoff = 0;
 	p->_pyoff = 0;
-	p->_pdir = dir;
 	if (pnum == myplr) {
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
@@ -1155,9 +1154,10 @@ void PlrStartStand(int pnum, int dir)
 
 		NewPlrAnim(pnum, p->_pNAnim[dir], p->_pNFrames, 3, p->_pNWidth);
 		p->_pmode = PM_STAND;
+		p->_pdir = dir;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
-		FixPlayerLocation(pnum, dir);
+		FixPlayerLocation(pnum);
 	} else {
 		SyncPlrKill(pnum, -1);
 	}
@@ -1523,7 +1523,8 @@ void StartAttack(int pnum, int dir)
 
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 	p->_pmode = PM_ATTACK;
-	FixPlayerLocation(pnum, dir);
+	p->_pdir = dir;
+	FixPlayerLocation(pnum);
 }
 
 static void StartRangeAttack(int pnum, int dir, int cx, int cy)
@@ -1545,7 +1546,8 @@ static void StartRangeAttack(int pnum, int dir, int cx, int cy)
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 
 	p->_pmode = PM_RATTACK;
-	FixPlayerLocation(pnum, dir);
+	p->_pdir = dir;
+	FixPlayerLocation(pnum);
 	p->_pVar1 = cx;
 	p->_pVar2 = cy;
 }
@@ -1571,7 +1573,8 @@ void PlrStartBlock(int pnum, int dir)
 	NewPlrAnim(pnum, p->_pBAnim[dir], p->_pBFrames, 2, p->_pBWidth);
 
 	p->_pmode = PM_BLOCK;
-	FixPlayerLocation(pnum, dir);
+	p->_pdir = dir;
+	FixPlayerLocation(pnum);
 }
 
 static void StartSpell(int pnum, int dir, int cx, int cy)
@@ -1612,8 +1615,8 @@ static void StartSpell(int pnum, int dir, int cx, int cy)
 	PlaySfxLoc(spelldata[p->_pSpell].sSFX, p->_px, p->_py);
 
 	p->_pmode = PM_SPELL;
-
-	FixPlayerLocation(pnum, dir);
+	p->_pdir = dir;
+	FixPlayerLocation(pnum);
 
 	p->_pVar1 = cx;
 	p->_pVar2 = cy;
@@ -1709,7 +1712,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		p->_pVar8 = 1;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
-		FixPlayerLocation(pnum, p->_pdir);
+		FixPlayerLocation(pnum);
 	}
 }
 
@@ -1820,7 +1823,7 @@ void StartPlrKill(int pnum, int earflag)
 	if (p->plrlevel == currlevel) {
 		RemovePlrFromMap(pnum);
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
-		FixPlayerLocation(pnum, p->_pdir);
+		FixPlayerLocation(pnum);
 
 		if (pnum == myplr) {
 			drawhpflag = TRUE;
@@ -2055,7 +2058,6 @@ void SyncPlrKill(int pnum, int earflag)
 void RemovePlrMissiles(int pnum)
 {
 	int i, mi;
-	int mx, my;
 
 	if (currlevel != 0 && pnum == myplr && (monster[myplr]._mx != 1 || monster[myplr]._my != 0)) {
 		MonStartKill(myplr, myplr);
@@ -3367,7 +3369,7 @@ static void CheckNewPath(int pnum)
 			break;
 		}
 
-		FixPlayerLocation(pnum, p->_pdir);
+		FixPlayerLocation(pnum);
 		p->destAction = ACTION_NONE;
 
 		return;
@@ -3778,7 +3780,7 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 void CheckPlrSpell()
 {
 	BOOL addflag;
-	int rspell, sd, sl;
+	int rspell, sl;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("CheckPlrSpell: illegal player %d", myplr);
@@ -3900,59 +3902,15 @@ void SyncPlrAnim(int pnum)
 
 void SyncInitPlrPos(int pnum)
 {
-	PlayerStruct *p;
-	int x, y, xx, yy, i;
-	BOOL posOk;
+	plr[pnum]._ptargx = plr[pnum]._px;
+	plr[pnum]._ptargy = plr[pnum]._py;
 
-	p = &plr[pnum];
-	p->_ptargx = p->_px;
-	p->_ptargy = p->_py;
-
-	if (gbMaxPlayers == 1 || p->plrlevel != currlevel) {
+	if (gbMaxPlayers == 1 || plr[pnum].plrlevel != currlevel)
 		return;
-	}
 
-	for (i = 0; i < 8; i++) {
-		x = p->_px + plrxoff2[i];
-		y = p->_py + plryoff2[i];
-		if (PosOkPlayer(pnum, x, y)) {
-			break;
-		}
-	}
-
-#ifdef HELLFIRE
-	p->_px += plrxoff2[i];
-	p->_py += plryoff2[i];
-	dPlayer[p->_px][p->_py] = pnum + 1;
-#else
-	if (!PosOkPlayer(pnum, x, y)) {
-		posOk = FALSE;
-		for (i = 1; i < 50 && !posOk; i++) {
-			for (yy = -i; yy <= i && !posOk; yy++) {
-				y = yy + p->_py;
-				for (xx = -i; xx <= i && !posOk; xx++) {
-					x = xx + p->_px;
-					if (PosOkPlayer(pnum, x, y) && !PosOkPortal(currlevel, x, y)) {
-						posOk = TRUE;
-					}
-				}
-			}
-		}
-	}
-
-	p->_px = x;
-	p->_py = y;
-	dPlayer[x][y] = pnum + 1;
-
-	if (pnum == myplr) {
-		p->_pfutx = x;
-		p->_pfuty = y;
-		p->_ptargx = x;
-		p->_ptargy = y;
-		ViewX = x;
-		ViewY = y;
-	}
-#endif
+	if (PlacePlayer(pnum))
+		FixPlayerLocation(pnum);
+	dPlayer[plr[pnum]._px][plr[pnum]._py] = pnum + 1;
 }
 
 void SyncInitPlr(int pnum)
