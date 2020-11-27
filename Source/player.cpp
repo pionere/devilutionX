@@ -2089,9 +2089,9 @@ static void InitLevelChange(int pnum)
 	}
 
 	RemovePlrFromMap(pnum);
-	SetPlayerOld(p);
 	ClrPlrPath(pnum);
 	p = &plr[pnum];
+	SetPlayerOld(p);
 	if (pnum == myplr) {
 		p->pLvlLoad = 10;
 		dPlayer[p->_px][p->_py] = pnum + 1;
