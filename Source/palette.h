@@ -28,8 +28,8 @@ void DecreaseGamma();
 int UpdateGamma(int gamma);
 void BlackPalette();
 void SetFadeLevel(DWORD fadeval);
-void PaletteFadeIn(int fr);
-void PaletteFadeOut(int fr);
+void PaletteFadeIn();
+void PaletteFadeOut();
 void palette_update_caves();
 #ifdef HELLFIRE
 void palette_update_crypt();

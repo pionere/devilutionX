@@ -6,8 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-// Raw axis values.
-extern float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
+// Raw axis values. (range: -32768 to 32767)
+extern int leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
 
 // Axis values scaled to [-1, 1] range and clamped to a deadzone.
 extern float leftStickX, leftStickY, rightStickX, rightStickY;

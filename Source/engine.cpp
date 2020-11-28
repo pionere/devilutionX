@@ -1257,12 +1257,12 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void PlayInGameMovie(const char *pszMovie)
 {
-	PaletteFadeOut(8);
+	PaletteFadeOut();
 	play_movie(pszMovie, FALSE);
 	ClearScreenBuffer();
 	force_redraw = 255;
 	scrollrt_draw_game_screen(TRUE);
-	PaletteFadeIn(8);
+	PaletteFadeIn();
 	force_redraw = 255;
 }
 

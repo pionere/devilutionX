@@ -183,15 +183,15 @@ void BlackPalette()
 	SetFadeLevel(0);
 }
 
-void PaletteFadeIn(int fr)
+void PaletteFadeIn()
 {
 	int i;
 
 	ApplyGamma(logical_palette, orig_palette, 256);
 	DWORD tc = SDL_GetTicks();
-	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) / 2.083) { // 32 frames @ 60hz
+	const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
+	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) << 1) { // instead of << 1 it was *2.083 ... 32 frames @ 60hz
 		SetFadeLevel(i);
-		SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 		BltFast(&SrcRect, NULL);
 		RenderPresent();
 	}
@@ -200,15 +200,15 @@ void PaletteFadeIn(int fr)
 	sgbFadedIn = TRUE;
 }
 
-void PaletteFadeOut(int fr)
+void PaletteFadeOut()
 {
 	int i;
 
 	if (sgbFadedIn) {
 		DWORD tc = SDL_GetTicks();
-		for (i = 256; i > 0; i = 256 - (SDL_GetTicks() - tc) / 2.083) { // 32 frames @ 60hz
+		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
+		for (i = 256; i > 0; i = 256 - ((SDL_GetTicks() - tc) >> 1)) { // instead of >> 1 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
-			SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 			BltFast(&SrcRect, NULL);
 			RenderPresent();
 		}

@@ -313,7 +313,7 @@ void ShowProgress(unsigned int uMsg)
 	InitCutscene(uMsg);
 	BlackPalette();
 	DrawCutscene();
-	PaletteFadeIn(8);
+	PaletteFadeIn();
 	IncProgress();
 	sound_init();
 	IncProgress();
@@ -464,7 +464,7 @@ void ShowProgress(unsigned int uMsg)
 
 	assert(ghMainWnd != NULL);
 
-	PaletteFadeOut(8);
+	PaletteFadeOut();
 	FreeInterface();
 
 	saveProc = SetWindowProc(saveProc);

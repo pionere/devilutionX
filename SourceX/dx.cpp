@@ -172,12 +172,12 @@ void InitPalette()
 	}
 }
 
-void BltFast(SDL_Rect *src_rect, SDL_Rect *dst_rect)
+void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 {
 	Blit(pal_surface, src_rect, dst_rect);
 }
 
-void Blit(SDL_Surface *src, SDL_Rect *src_rect, SDL_Rect *dst_rect)
+void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 {
 	SDL_Surface *dst = GetOutputSurface();
 #ifndef USE_SDL1

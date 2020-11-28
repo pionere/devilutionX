@@ -882,7 +882,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 
 	// Adjust xp based on difference in level between player and monster
-	exp *= 1 + ((double)lvl - p->_pLevel) / 10;
+	exp = exp * (10 + (lvl - p->_pLevel)) / 10;
 	if (exp < 0) {
 		exp = 0;
 	}

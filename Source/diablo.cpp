@@ -328,7 +328,7 @@ static void run_game_loop(unsigned int uMsg)
 	gbRunGameResult = TRUE;
 	force_redraw = 255;
 	DrawAndBlit();
-	PaletteFadeIn(8);
+	PaletteFadeIn();
 	force_redraw = 255;
 	gbGameLoopStartup = TRUE;
 	nthread_ignore_mutex(FALSE);
@@ -362,7 +362,7 @@ static void run_game_loop(unsigned int uMsg)
 	}
 
 	pfile_flush_W();
-	PaletteFadeOut(8);
+	PaletteFadeOut();
 	NewCursor(CURSOR_NONE);
 	ClearScreenBuffer();
 	force_redraw = 255;
@@ -1451,7 +1451,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (gbMaxPlayers != 1)
 			pfile_write_hero();
 		nthread_ignore_mutex(TRUE);
-		PaletteFadeOut(8);
+		PaletteFadeOut();
 		sound_stop();
 		music_stop();
 		sgbMouseDown = CLICK_NONE;
@@ -1459,7 +1459,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		force_redraw = 255;
 		DrawAndBlit();
 		if (gbRunGame)
-			PaletteFadeIn(8);
+			PaletteFadeIn();
 		nthread_ignore_mutex(FALSE);
 		gbGameLoopStartup = TRUE;
 		return;

@@ -46,7 +46,7 @@ public:
 		m_iFlags = flags;
 	};
 
-	UiItemBase(Sint16 x, Sint16 y, Uint16 item_width, Uint16 item_height, int flags)
+	UiItemBase(int x, int y, int item_width, int item_height, int flags)
 	{
 		SDL_Rect tmp;
 		tmp.x = x;

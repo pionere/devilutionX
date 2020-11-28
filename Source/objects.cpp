@@ -2191,7 +2191,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 static void objects_set_door_piece(int x, int y)
 {
 	int pn;
-	long v1, v2;
+	WORD v1, v2;
 
 	pn = dPiece[x][y] - 1;
 
@@ -3846,7 +3846,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		int xpLoss, magicGain;
 		if (playerXP > 5000) {
 			magicGain = 5;
-			xpLoss = (signed __int64)((double)playerXP * 0.95);
+			xpLoss = (int)((double)playerXP * 0.95);
 		} else {
 			xpLoss = 0;
 			magicGain = playerXP / 1000;

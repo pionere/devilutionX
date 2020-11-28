@@ -106,14 +106,13 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, int size_64, const char *pszPasswo
 	char tmp[SHA1HashSize];
 	char dst[SHA1HashSize];
 	DWORD chunk;
-	WORD last_chunk;
 	CodecSignature *sig;
 
 	if (size_64 != codec_get_encoded_len(size))
 		app_fatal("Invalid encode parameters");
 	codec_init_key(1, pszPassword);
 
-	last_chunk = 0;
+	chunk = 0;
 	while (size != 0) {
 		chunk = size < SHA1BlockSize ? size : SHA1BlockSize;
 		memcpy(buf, pbSrcDst, chunk);
@@ -126,7 +125,6 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, int size_64, const char *pszPasswo
 		}
 		memset(dst, 0, sizeof(dst));
 		memcpy(pbSrcDst, buf, SHA1BlockSize);
-		last_chunk = chunk;
 		pbSrcDst += SHA1BlockSize;
 		size -= chunk;
 	}
@@ -136,7 +134,7 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, int size_64, const char *pszPasswo
 	sig->error = 0;
 	sig->unused = 0;
 	sig->checksum = *(DWORD *)&tmp[0];
-	sig->last_chunk_size = last_chunk;
+	sig->last_chunk_size = chunk;
 	SHA1Clear();
 }
 

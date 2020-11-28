@@ -36,7 +36,7 @@ struct CircleMenuHint {
 	    , bottom_w(CalculateTextWidth(bottom))
 	    , left(left)
 	    , left_w(CalculateTextWidth(left))
-	    , x_mid(left_w + SpaceWidth() * 2.5)
+	    , x_mid(left_w + SpaceWidth() * 5 / 2)
 	{
 	}
 

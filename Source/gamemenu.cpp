@@ -163,11 +163,11 @@ void gamemenu_load_game(BOOL bActivate)
 #ifdef HELLFIRE
 	CornerStone.activated = FALSE;
 #endif
-	PaletteFadeOut(8);
+	PaletteFadeOut();
 	deathflag = FALSE;
 	force_redraw = 255;
 	DrawAndBlit();
-	PaletteFadeIn(8);
+	PaletteFadeIn();
 	NewCursor(CURSOR_HAND);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
