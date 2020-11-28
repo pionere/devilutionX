@@ -115,11 +115,11 @@ static void SHA1Input(SHA1Context *context, const char *message_array, DWORD len
 		context->count[1]++;
 
 	context->count[0] = count;
-
-	for (i = len; i >= 64; i -= 64) {
-		memcpy(context->buffer, message_array, sizeof(context->buffer));
+	static_assert(sizeof(context->buffer) == SHA1BlockSize, "SHA1 buffer size is too small.");
+	for (i = len; i >= SHA1BlockSize; i -= SHA1BlockSize) {
+		memcpy(context->buffer, message_array, SHA1BlockSize);
 		SHA1ProcessMessageBlock(context);
-		message_array += 64;
+		message_array += SHA1BlockSize;
 	}
 }
 
@@ -144,7 +144,7 @@ void SHA1Result(int n, char Message_Digest[SHA1HashSize])
 
 void SHA1Calculate(int n, const char *data, char Message_Digest[SHA1HashSize])
 {
-	SHA1Input(&sgSHA1[n], data, 64);
+	SHA1Input(&sgSHA1[n], data, SHA1BlockSize);
 	if (Message_Digest)
 		SHA1Result(n, Message_Digest);
 }

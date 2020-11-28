@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #define SHA1HashSize 20
+#define SHA1BlockSize 64
 
 void SHA1Clear();
 void SHA1Result(int n, char Message_Digest[SHA1HashSize]);
