@@ -83,7 +83,14 @@ public:
 	bool Open(const char *path, std::ios::openmode mode)
 	{
 		s_.reset(new std::fstream(path, mode));
-		return CheckError("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+#endif
+			return true;
+		}
+		PrintError("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+		return false;
 	}
 
 	void Close()
@@ -99,68 +106,117 @@ public:
 	bool seekg(std::streampos pos)
 	{
 		s_->seekg(pos);
-		return CheckError("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+#endif
+			return true;
+		}
+		PrintError("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		return false;
 	}
 
 	bool seekg(std::streamoff pos, std::ios::seekdir dir)
 	{
 		s_->seekg(pos, dir);
-		return CheckError("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+#endif
+			return true;
+		}
+		PrintError("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		return false;
 	}
 
 	bool seekp(std::streampos pos)
 	{
 		s_->seekp(pos);
-		return CheckError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+#endif
+			return true;
+		}
+		PrintError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		return false;
 	}
 
 	bool seekp(std::streamoff pos, std::ios::seekdir dir)
 	{
 		s_->seekp(pos, dir);
-		return CheckError("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+#endif
+			return true;
+		}
+		PrintError("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		return false;
 	}
 
 	bool tellg(std::streampos *result)
 	{
 		*result = s_->tellg();
-		return CheckError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+#endif
+			return true;
+		}
+		PrintError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		return false;
 	}
 
 	bool tellp(std::streampos *result)
 	{
 		*result = s_->tellp();
-		return CheckError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+#endif
+			return true;
+		}
+		PrintError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		return false;
 	}
 
 	bool write(const char *data, std::streamsize size)
 	{
 		s_->write(data, size);
-		return CheckError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+			return true;
+		}
+		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
 	}
 
 	bool read(char *out, std::streamsize size)
 	{
 		s_->read(out, size);
-		return CheckError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+			return true;
+		}
+		PrintError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
 	}
 
 private:
 	template <typename... PrintFArgs>
-	bool CheckError(const char *fmt, PrintFArgs... args)
+	void PrintError(const char *fmt, PrintFArgs... args)
 	{
-		if (s_->fail()) {
-			std::string fmt_with_error = fmt;
-			fmt_with_error.append(": failed with \"%s\"");
-			const char *error_message = std::strerror(errno);
-			if (error_message == NULL)
-				error_message = "";
-			SDL_Log(fmt_with_error.c_str(), args..., error_message);
-#ifdef _DEBUG
-		} else {
-			SDL_Log(fmt, args...);
-#endif
-		}
-		return !s_->fail();
+		std::string fmt_with_error = fmt;
+		fmt_with_error.append(": failed with \"%s\"");
+		const char *error_message = std::strerror(errno);
+		if (error_message == NULL)
+			error_message = "";
+		SDL_Log(fmt_with_error.c_str(), args..., error_message);
 	}
 
 	std::unique_ptr<std::fstream> s_;
