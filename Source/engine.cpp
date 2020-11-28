@@ -660,19 +660,31 @@ void engine_draw_pixel(int sx, int sy)
  */
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 {
-	int i, dx, dy, steps;
-	float ix, iy, sx, sy;
+	int di, ip, dx, dy, ax, ay, steps;
+	float df, fp;
 
 	dx = x1 - x0;
 	dy = y1 - y0;
-	steps = std::max(abs(dx), abs(dy));
-	ix = dx / (float)steps;
-	iy = dy / (float)steps;
-	sx = x0;
-	sy = y0;
-
-	for (i = 0; i <= steps; i++, sx += ix, sy += iy) {
-		ENG_set_pixel(sx, sy, col);
+	ax = abs(dx);
+	ay = abs(dy);
+	if (ax > ay) {
+		steps = ax;
+		di = dx / ax;
+		df = dy / (float)steps;
+		ip = x0;
+		fp = (float)y0;
+		for ( ; steps >= 0; steps--, ip += di, fp += df) {
+			ENG_set_pixel(ip, std::lrintf(fp), col);
+		}
+	} else {
+		steps = ay;
+		di = dy / ay;
+		df = dx / float(steps);
+		fp = (float)x0;
+		ip = y0;
+		for ( ; steps >= 0; steps--, fp += df, ip += di) {
+			ENG_set_pixel(std::lrintf(fp), ip, col);
+		}
 	}
 }
 
