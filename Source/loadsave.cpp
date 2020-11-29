@@ -776,8 +776,12 @@ void LoadGame(BOOL firstflag)
 		itemavail[i] = BLoad();
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
-	for (i = 0; i < 128; i++)
+
+	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
+	for (i = 0; i < NUM_UITEM; i++)
 		UniqueItemFlag[i] = OLoad();
+	for ( ; i < 128; i++)
+		OLoad();
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
@@ -1506,8 +1510,11 @@ void SaveGame()
 		BSave(itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&item[itemactive[i]]);
-	for (i = 0; i < 128; i++)
+	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
+	for (i = 0; i < NUM_UITEM; i++)
 		OSave(UniqueItemFlag[i]);
+	for ( ; i < 128; i++)
+		OSave(FALSE);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
