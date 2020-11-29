@@ -332,6 +332,9 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 
+	if (HandleControllerAddedOrRemovedEvent(e))
+		return true;
+
 	const ControllerButtonEvent ctrl_event = ToControllerButtonEvent(e);
 	if (ProcessControllerMotion(e, ctrl_event))
 		return true;
@@ -443,15 +446,6 @@ bool PeekMessage(LPMSG lpMsg)
 	}
 
 	switch (e.type) {
-#ifndef USE_SDL1
-	case SDL_CONTROLLERDEVICEADDED:
-	case SDL_CONTROLLERDEVICEREMOVED:
-		break;
-	case SDL_JOYDEVICEADDED:
-	case SDL_JOYDEVICEREMOVED:
-		InitController();
-		break;
-#endif
 	case SDL_QUIT:
 		lpMsg->message = DVL_WM_QUIT;
 		break;
