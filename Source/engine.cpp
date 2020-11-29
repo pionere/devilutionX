@@ -674,7 +674,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		ip = x0;
 		fp = (float)y0;
 		for ( ; steps >= 0; steps--, ip += di, fp += df) {
-			ENG_set_pixel(ip, std::lrintf(fp), col);
+			ENG_set_pixel(ip, (int)fp, col);
 		}
 	} else {
 		steps = ay;
@@ -683,7 +683,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		fp = (float)x0;
 		ip = y0;
 		for ( ; steps >= 0; steps--, fp += df, ip += di) {
-			ENG_set_pixel(std::lrintf(fp), ip, col);
+			ENG_set_pixel((int)fp, ip, col);
 		}
 	}
 }
