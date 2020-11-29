@@ -119,17 +119,13 @@ static void scrollrt_draw_cursor_back_buffer()
 		return;
 	}
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	src = sgSaveBack;
 	dst = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
-	i = sgdwCursHgt;
-
-	if (sgdwCursHgt != 0) {
-		while (i--) {
-			memcpy(dst, src, sgdwCursWdt);
-			src += sgdwCursWdt;
-			dst += BUFFER_WIDTH;
-		}
+	for (i = sgdwCursHgt; i != 0; i--) {
+		memcpy(dst, src, sgdwCursWdt);
+		src += sgdwCursWdt;
+		dst += BUFFER_WIDTH;
 	}
 
 	sgdwCursXOld = sgdwCursX;
@@ -190,7 +186,7 @@ static void scrollrt_draw_cursor_item()
 	sgdwCursHgt++;
 
 	assert(sgdwCursWdt * sgdwCursHgt <= sizeof sgSaveBack);
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
 	src = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
 
@@ -808,7 +804,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
  */
 static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int columns)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -858,7 +854,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
  */
 static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	// Keep evaluating until MicroTiles can't affect screen
 	rows += MicroTileLen;

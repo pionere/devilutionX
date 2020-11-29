@@ -113,6 +113,8 @@ int pcurs;
 };
 
 /* commented out because even the latest MSVC compiler requires a special flag (/Zc:externConstexpr) to handle this
+   the drawing logic extends the cursor to whole DWORDs (and adds a border)
+   This means the check is not exact!
 constexpr BOOL validateCursorAreas()
 {
 	static_assert(lengthof(InvItemHeight) == lengthof(InvItemWidth), "Mismatching InvItem tables.");
