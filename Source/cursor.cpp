@@ -40,9 +40,10 @@ int pcurstemp;
 /** Index of current cursor image */
 int pcurs;
 
-/* rdata */
-/** Maps from objcurs.cel frame number to frame width. */
-const int InvItemWidth[] = {
+/*  Maps from objcurs.cel frame number to frame width.
+ **If the values are modified, make sure validateCursorAreas does not fail.**
+ */
+/*constexpr*/ const int InvItemWidth[] = {
 	// clang-format off
 	// Cursors
 	0, 33, 32, 32, 32, 32, 32, 32, 32, 32, 32, 23,
@@ -75,8 +76,10 @@ const int InvItemWidth[] = {
 	// clang-format on
 };
 
-/** Maps from objcurs.cel frame number to frame height. */
-const int InvItemHeight[] = {
+/*  Maps from objcurs.cel frame number to frame height.
+ **If the values are modified, make sure validateCursorAreas does not fail.**
+ */
+/*constexpr*/ const int InvItemHeight[] = {
 	// clang-format off
 	// Cursors
 	0, 29, 32, 32, 32, 32, 32, 32, 32, 32, 32, 35,
@@ -108,6 +111,19 @@ const int InvItemHeight[] = {
 #endif
 	// clang-format on
 };
+
+/* commented out because even the latest MSVC compiler requires a special flag (/Zc:externConstexpr) to handle this
+constexpr BOOL validateCursorAreas()
+{
+	static_assert(lengthof(InvItemHeight) == lengthof(InvItemWidth), "Mismatching InvItem tables.");
+	for (int i = 0; i < lengthof(InvItemHeight); i++) {
+		if (InvItemHeight[i] * InvItemWidth[i] > MAX_CURSOR_AREA) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+static_assert(validateCursorAreas(), "One of the cursor area does not fit to the defined maximum.");*/
 
 void InitCursor()
 {

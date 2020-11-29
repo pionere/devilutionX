@@ -37,6 +37,7 @@ void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */
+#define MAX_CURSOR_AREA		(2 * INV_SLOT_SIZE_PX * 3 * INV_SLOT_SIZE_PX)
 extern const int InvItemWidth[];
 extern const int InvItemHeight[];
 

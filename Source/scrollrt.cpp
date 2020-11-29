@@ -54,7 +54,7 @@ BOOL cel_foliage_active = FALSE;
 int level_piece_id;
 DWORD sgdwCursWdt;
 void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
-BYTE sgSaveBack[8192];
+BYTE sgSaveBack[MAX_CURSOR_AREA];
 DWORD sgdwCursHgtOld;
 
 bool dRendered[MAXDUNX][MAXDUNY];
@@ -189,7 +189,7 @@ static void scrollrt_draw_cursor_item()
 	sgdwCursHgt -= sgdwCursY;
 	sgdwCursHgt++;
 
-	assert(sgdwCursWdt * sgdwCursHgt < sizeof sgSaveBack);
+	assert(sgdwCursWdt * sgdwCursHgt <= sizeof sgSaveBack);
 	assert(gpBuffer);
 	dst = sgSaveBack;
 	src = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
