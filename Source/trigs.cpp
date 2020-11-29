@@ -327,7 +327,7 @@ void InitVPTriggers()
 
 static BOOL ForceTownTrig()
 {
-	int i, j, k, l;
+	int i;
 
 #ifdef HELLFIRE
 	for (i = 0; TownCryptList[i] != -1; i++) {
@@ -358,8 +358,8 @@ static BOOL ForceTownTrig()
 	}
 
 	if (townwarps[0]) {
-		for (j = 0; TownWarp1List[j] != -1; j++) {
-			if (dPiece[cursmx][cursmy] == TownWarp1List[j]) {
+		for (i = 0; TownWarp1List[i] != -1; i++) {
+			if (dPiece[cursmx][cursmy] == TownWarp1List[i]) {
 				copy_cstr(infostr, "Down to catacombs");
 				cursmx = 49;
 				cursmy = 21;
@@ -369,8 +369,8 @@ static BOOL ForceTownTrig()
 	}
 
 	if (townwarps[1]) {
-		for (k = 1199; k <= 1220; k++) {
-			if (dPiece[cursmx][cursmy] == k) {
+		for (i = 1199; i <= 1220; i++) {
+			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to caves");
 				cursmx = 17;
 				cursmy = 69;
@@ -380,8 +380,8 @@ static BOOL ForceTownTrig()
 	}
 
 	if (townwarps[2]) {
-		for (l = 1240; l <= 1255; l++) {
-			if (dPiece[cursmx][cursmy] == l) {
+		for (i = 1240; i <= 1255; i++) {
+			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to hell");
 				cursmx = 41;
 				cursmy = 80;
