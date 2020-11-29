@@ -67,16 +67,16 @@ static bool SimulateRightStickWithDpad(const SDL_Event &event, ControllerButtonE
 		return false;
 	switch (ctrl_event.button) {
 	case ControllerButton_BUTTON_DPAD_LEFT:
-		rightStickX = ctrl_event.up ? 0 : -1;
+		rightStickX = ctrl_event.up ? 0.0f : -1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_RIGHT:
-		rightStickX = ctrl_event.up ? 0 : 1;
+		rightStickX = ctrl_event.up ? 0.0f : 1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_UP:
-		rightStickY = ctrl_event.up ? 0 : 1;
+		rightStickY = ctrl_event.up ? 0.0f : 1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_DOWN:
-		rightStickY = ctrl_event.up ? 0 : -1;
+		rightStickY = ctrl_event.up ? 0.0f : -1.0f;
 		break;
 	default:
 		return false;

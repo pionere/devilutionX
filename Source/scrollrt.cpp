@@ -11,9 +11,23 @@ DEVILUTION_BEGIN_NAMESPACE
  * Specifies the current light entry.
  */
 int light_table_index;
-DWORD sgdwCursWdtOld;
-DWORD sgdwCursX;
-DWORD sgdwCursY;
+
+/**
+ * Cursor-size
+ */
+int sgCursHgt;
+int sgCursWdt;
+int sgCursHgtOld;
+int sgCursWdtOld;
+
+/**
+ * Cursor-position
+ */
+int sgCursX;
+int sgCursY;
+int sgCursXOld;
+int sgCursYOld;
+
 /**
  * Upper bound of back buffer.
  */
@@ -22,7 +36,6 @@ BYTE *gpBufStart;
  * Lower bound of back buffer.
  */
 BYTE *gpBufEnd;
-DWORD sgdwCursHgt;
 
 /**
  * Specifies the current MIN block of the level CEL file, as used during rendering of the level tiles.
@@ -31,8 +44,6 @@ DWORD sgdwCursHgt;
  * frameType := block & 0x7000 >> 12
  */
 DWORD level_cel_block;
-DWORD sgdwCursXOld;
-DWORD sgdwCursYOld;
 #ifdef HELLFIRE
 BOOLEAN AutoMapShowItems;
 #endif
@@ -52,10 +63,11 @@ BOOL cel_foliage_active = FALSE;
  * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
  */
 int level_piece_id;
-DWORD sgdwCursWdt;
 void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
+/**
+ * Buffer to store the cursor image.
+ */
 BYTE sgSaveBack[MAX_CURSOR_AREA];
-DWORD sgdwCursHgtOld;
 
 bool dRendered[MAXDUNX][MAXDUNY];
 
@@ -103,8 +115,8 @@ const char *const szPlrModeAssert[12] = {
  */
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
-	sgdwCursWdt = 0;
-	sgdwCursWdtOld = 0;
+	sgCursWdt = 0;
+	sgCursWdtOld = 0;
 }
 
 /**
@@ -115,24 +127,24 @@ static void scrollrt_draw_cursor_back_buffer()
 	int i;
 	BYTE *src, *dst;
 
-	if (sgdwCursWdt == 0) {
+	if (sgCursWdt == 0) {
 		return;
 	}
 
 	assert(gpBuffer != NULL);
 	src = sgSaveBack;
-	dst = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
-	for (i = sgdwCursHgt; i != 0; i--) {
-		memcpy(dst, src, sgdwCursWdt);
-		src += sgdwCursWdt;
+	dst = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
+	for (i = sgCursHgt; i != 0; i--) {
+		memcpy(dst, src, sgCursWdt);
+		src += sgCursWdt;
 		dst += BUFFER_WIDTH;
 	}
 
-	sgdwCursXOld = sgdwCursX;
-	sgdwCursYOld = sgdwCursY;
-	sgdwCursWdtOld = sgdwCursWdt;
-	sgdwCursHgtOld = sgdwCursHgt;
-	sgdwCursWdt = 0;
+	sgCursXOld = sgCursX;
+	sgCursYOld = sgCursY;
+	sgCursWdtOld = sgCursWdt;
+	sgCursHgtOld = sgCursHgt;
+	sgCursWdt = 0;
 }
 
 /**
@@ -144,7 +156,7 @@ static void scrollrt_draw_cursor_item()
 	BYTE *src, *dst, *cCels;
 	BYTE col;
 
-	assert(sgdwCursWdt == 0);
+	assert(sgCursWdt == 0);
 
 	if (pcurs <= CURSOR_NONE || cursW == 0 || cursH == 0) {
 		return;
@@ -167,31 +179,31 @@ static void scrollrt_draw_cursor_item()
 		return;
 	}
 
-	sgdwCursX = mx;
-	sgdwCursWdt = sgdwCursX + cursW + 1;
-	if (sgdwCursWdt > SCREEN_WIDTH - 1) {
-		sgdwCursWdt = SCREEN_WIDTH - 1;
+	sgCursX = mx;
+	sgCursWdt = sgCursX + cursW + 1;
+	if (sgCursWdt > SCREEN_WIDTH - 1) {
+		sgCursWdt = SCREEN_WIDTH - 1;
 	}
-	sgdwCursX &= ~3;
-	sgdwCursWdt |= 3;
-	sgdwCursWdt -= sgdwCursX;
-	sgdwCursWdt++;
+	sgCursX &= ~3;
+	sgCursWdt |= 3;
+	sgCursWdt -= sgCursX;
+	sgCursWdt++;
 
-	sgdwCursY = my;
-	sgdwCursHgt = sgdwCursY + cursH + 1;
-	if (sgdwCursHgt > SCREEN_HEIGHT - 1) {
-		sgdwCursHgt = SCREEN_HEIGHT - 1;
+	sgCursY = my;
+	sgCursHgt = sgCursY + cursH + 1;
+	if (sgCursHgt > SCREEN_HEIGHT - 1) {
+		sgCursHgt = SCREEN_HEIGHT - 1;
 	}
-	sgdwCursHgt -= sgdwCursY;
-	sgdwCursHgt++;
+	sgCursHgt -= sgCursY;
+	sgCursHgt++;
 
-	assert(sgdwCursWdt * sgdwCursHgt <= sizeof sgSaveBack);
+	assert(sgCursWdt * sgCursHgt <= sizeof sgSaveBack);
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
-	src = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
+	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
 
-	for (i = sgdwCursHgt; i != 0; i--, dst += sgdwCursWdt, src += BUFFER_WIDTH) {
-		memcpy(dst, src, sgdwCursWdt);
+	for (i = sgCursHgt; i != 0; i--, dst += sgCursWdt, src += BUFFER_WIDTH) {
+		memcpy(dst, src, sgCursWdt);
 	}
 
 	mx++;
@@ -533,8 +545,6 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	}
 }
-
-static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy);
 
 /**
  * @brief Render a cell
@@ -1448,11 +1458,11 @@ static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BO
 				DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
 			}
 		}
-		if (sgdwCursWdtOld != 0) {
-			DoBlitScreen(sgdwCursXOld, sgdwCursYOld, sgdwCursWdtOld, sgdwCursHgtOld);
+		if (sgCursWdtOld != 0) {
+			DoBlitScreen(sgCursXOld, sgCursYOld, sgCursWdtOld, sgCursHgtOld);
 		}
-		if (sgdwCursWdt != 0) {
-			DoBlitScreen(sgdwCursX, sgdwCursY, sgdwCursWdt, sgdwCursHgt);
+		if (sgCursWdt != 0) {
+			DoBlitScreen(sgCursX, sgCursY, sgCursWdt, sgCursHgt);
 		}
 	}
 }
