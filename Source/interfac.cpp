@@ -242,31 +242,30 @@ static void InitCutscene(unsigned int uMsg)
 	sgdwProgress = 0;
 }
 
-static void DrawProgress(int screen_x, int screen_y, int progress_id)
+static void DrawProgress()
 {
-	BYTE *dst;
-	int i;
+	BYTE *dst, col;
+	int screen_x, screen_y, cursor, i, j;
 
-	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
-	for (i = 0; i < 22; i++) {
-		*dst = BarColor[progress_id];
-		dst += BUFFER_WIDTH;
+	screen_x = BarPos[progress_id][0] + PANEL_X;
+	screen_y = BarPos[progress_id][1] + SCREEN_Y + UI_OFFSET_Y;
+	cursor = screen_x + BUFFER_WIDTH * screen_y;
+	col = BarColor[progress_id];
+	for (i = sgdwProgress; i != 0; i--, cursor++) {
+		dst = &gpBuffer[cursor];
+		for (j = 0; j < 22; j++) {
+			*dst = col;
+			dst += BUFFER_WIDTH;
+		}
 	}
 }
 
 static void DrawCutscene()
 {
-	DWORD i;
-
 	lock_buf(1);
 	CelDraw(PANEL_X, 480 + SCREEN_Y - 1 + UI_OFFSET_Y, sgpBackCel, 1, 640);
 
-	for (i = 0; i < sgdwProgress; i++) {
-		DrawProgress(
-		    BarPos[progress_id][0] + i + PANEL_X,
-		    BarPos[progress_id][1] + SCREEN_Y + UI_OFFSET_Y,
-		    progress_id);
-	}
+	DrawProgress();
 
 	unlock_buf(1);
 	force_redraw = 255;
