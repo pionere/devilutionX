@@ -114,7 +114,8 @@ static BOOL TFit_Obj5(int tidx)
 		found = FALSE;
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 			found = TRUE;
-			for (i = 0; found && i < 25; i++) {
+			static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
+			for (i = 0; found && i < lengthof(trm5x); i++) {
 				if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
 					found = FALSE;
 				}
@@ -185,7 +186,8 @@ static BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 	int i, xx, yy;
 	const char tv = themes[tidx].ttval;
 
-	for (i = 0; i < 9; i++) {
+	static_assert(lengthof(trm3x) == lengthof(trm3y), "Mismatching trm3 tables.");
+	for (i = 0; i < lengthof(trm3x); i++) {
 		xx = x + trm3x[i];
 		yy = y + trm3y[i];
 		if (xx < 0 || yy < 0)

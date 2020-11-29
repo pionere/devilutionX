@@ -714,7 +714,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	}
 
 	for (v = 0; v < 4; v++) {
-		for (j = 0; j < 23; j++) {
+		for (j = 0; j < lengthof(RadiusAdj); j++) {
 			nBlockerFlag = FALSE;
 			nLineLen = 2 * (nRadius - RadiusAdj[j]);
 			for (k = 0; k < nLineLen && !nBlockerFlag; k += 2) {

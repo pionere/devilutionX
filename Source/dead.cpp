@@ -25,7 +25,7 @@ void InitDead()
 	cmon = Monsters;
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (mtypes[cmon->mtype] == 0) {
-			for (d = 0; d < 8; d++)
+			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = cmon->Anims[MA_DEATH].Data[d];
 			dead[nd]._deadFrame = cmon->Anims[MA_DEATH].Frames;
 			dead[nd]._deadWidth = cmon->width;
@@ -37,7 +37,7 @@ void InitDead()
 		}
 	}
 
-	for (d = 0; d < 8; d++)
+	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mfAnimData[0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
@@ -46,7 +46,7 @@ void InitDead()
 	spurtndx = nd + 1;
 	nd++;
 
-	for (d = 0; d < 8; d++)
+	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mfAnimData[0];
 	dead[nd]._deadFrame = 12;
 	dead[nd]._deadWidth = 128;
@@ -58,7 +58,7 @@ void InitDead()
 	for (i = 0; i < nummonsters; i++) {
 		mon = &monster[monstactive[i]];
 		if (mon->_uniqtype != 0) {
-			for (d = 0; d < 8; d++)
+			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = mon->MType->Anims[MA_DEATH].Data[d];
 			dead[nd]._deadFrame = mon->MType->Anims[MA_DEATH].Frames;
 			dead[nd]._deadWidth = mon->MType->width;

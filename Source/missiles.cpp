@@ -4418,7 +4418,7 @@ void MI_FireNovaC(int mi)
 	sy = mis->_miy;
 	cx = 0;
 	cy = 0;
-	for (i = 0; i < 23; i++) {
+	for (i = 0; i < lengthof(vCrawlTable); i++) {
 		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
 			cx = vCrawlTable[i][6];
 			cy = vCrawlTable[i][7];
@@ -4804,7 +4804,7 @@ void MI_Guardian(int mi)
 
 	if (!(mis->_miRange % 16)) {
 		ex = FALSE;
-		for (i = 0; i < 23 && !ex; i++) {
+		for (i = 0; i < lengthof(vCrawlTable) && !ex; i++) {
 			for (j = 10; j >= 0; j -= 2) {
 				cx = vCrawlTable[i][j];
 				cy = vCrawlTable[i][j + 1];
@@ -5265,7 +5265,7 @@ void MI_LightNovaC(int mi)
 	sy = mis->_miy;
 	cx = 0;
 	cy = 0;
-	for (i = 0; i < 23; i++) {
+	for (i = 0; i < lengthof(vCrawlTable); i++) {
 		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
 			cx = vCrawlTable[i][6];
 			cy = vCrawlTable[i][7];

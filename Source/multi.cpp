@@ -702,7 +702,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 
 static void multi_event_handler(BOOL add)
 {
-	DWORD i;
+	int i;
 	BOOL(STORMAPI * fn)
 	(int, SEVTHANDLER);
 
@@ -711,7 +711,7 @@ static void multi_event_handler(BOOL add)
 	else
 		fn = SNetUnregisterEventHandler;
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < lengthof(event_types); i++) {
 		if (!fn(event_types[i], multi_handle_events) && add) {
 			app_fatal("SNetRegisterEventHandler:\n%s", TraceLastError());
 		}

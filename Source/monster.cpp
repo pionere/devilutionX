@@ -29,8 +29,8 @@ int uniquetrans;
 int nummtypes;
 
 #ifdef HELLFIRE
-int HorkXAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
-int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+const int HorkXAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
+const int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 #endif
 /** Maps from walking path step to facing direction. */
 const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
@@ -40,7 +40,7 @@ const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLT, MIS_LIGHTNINGC, MIS_FIREBAL
 /* data */
 
 /** Maps from monster walk animation frame num to monster velocity. */
-int MWVel[24][3] = {
+const int MWVel[24][3] = {
 	{ 256, 512, 1024 },
 	{ 128, 256, 512 },
 	{ 85, 170, 341 },
@@ -67,17 +67,17 @@ int MWVel[24][3] = {
 	{ 10, 21, 42 }
 };
 /** Maps from monster action to monster animation letter. */
-char animletter[7] = "nwahds";
+const char animletter[6] = { 'n', 'w', 'a', 'h', 'd', 's' };
 /** Maps from direction to a left turn from the direction. */
-int left[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
+const int left[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 /** Maps from direction to a right turn from the direction. */
-int right[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
+const int right[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
 /** Maps from direction to the opposite direction. */
-int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
+const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 /** Maps from direction to delta X-offset. */
-int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
+const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
-int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+const int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
 /** unused */
 int rnd5[4] = { 5, 10, 15, 20 };
@@ -150,7 +150,7 @@ static void InitMonsterTRN(int midx, BOOL special)
 	n = special ? 6 : 5;
 	for (i = 0; i < n; i++) {
 		if (i != 1 || cmon->mtype < MT_COUNSLR || cmon->mtype > MT_ADVOCATE) {
-			for (j = 0; j < 8; j++) {
+			for (j = 0; j < lengthof(cmon->Anims[i].Data); j++) {
 				Cl2ApplyTrans(
 				    cmon->Anims[i].Data[j],
 				    cmon->trans_file,
@@ -327,7 +327,8 @@ void InitMonsterGFX(int midx)
 	mtype = cmon->mtype;
 	mdata = &monsterdata[mtype];
 
-	for (anim = 0; anim < 6; anim++) {
+	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].Frames), "");
+	for (anim = 0; anim < lengthof(animletter); anim++) {
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->Frames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
@@ -335,11 +336,11 @@ void InitMonsterGFX(int midx)
 			cmon->Anims[anim].CMem = celBuf;
 
 			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
-				for (i = 0; i < 8; i++) {
+				for (i = 0; i < lengthof(cmon->Anims[anim].Data); i++) {
 					cmon->Anims[anim].Data[i] = CelGetFrameStart(celBuf, i);
 				}
 			} else {
-				for (i = 0; i < 8; i++) {
+				for (i = 0; i < lengthof(cmon->Anims[anim].Data); i++) {
 					cmon->Anims[anim].Data[i] = celBuf;
 				}
 			}
@@ -1204,7 +1205,8 @@ void monster_43C785(int mnum)
 	if (mon->MType != NULL) {
 		mx = mon->_mx;
 		my = mon->_my;
-		for (i = 0; i < 8; i++) {
+		static_assert(lengthof(offset_x) == lengthof(offset_y), "Mismatching offset tables.");
+		for (i = 0; i < lengthof(offset_x); i++) {
 			x = mx + offset_x[i];
 			y = my + offset_y[i];
 			if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0) {
@@ -1216,7 +1218,7 @@ void monster_43C785(int mnum)
 					break;
 			}
 		}
-		if (i < 8) {
+		if (i < lengthof(offset_x)) {
 			for (i = 0; i < MAX_LVLMTYPES; i++) {
 				if (Monsters[i].mtype == mon->MType->mtype) {
 					AddMonster(x, y, mon->_mdir, i, TRUE);
@@ -2852,7 +2854,7 @@ static BOOL MonDoStone(int mnum)
 
 void MonWalkDir(int mnum, int md)
 {
-	int *mwi;
+	const int *mwi;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 #ifdef HELLFIRE
@@ -4959,7 +4961,7 @@ void FreeMonsters()
 
 	for (i = 0; i < nummtypes; i++) {
 		mtype = Monsters[i].mtype;
-		for (j = 0; j < 6; j++) {
+		for (j = 0; j < lengthof(animletter); j++) {
 			if (animletter[j] != 's' || monsterdata[mtype].has_special) {
 				MemFreeDbg(Monsters[i].Anims[j].CMem);
 			}

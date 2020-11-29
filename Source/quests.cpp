@@ -279,7 +279,8 @@ BOOL ForceQuests()
 			qx = quests[i]._qtx;
 			qy = quests[i]._qty;
 
-			for (j = 0; j < 7; j++) {
+			static_assert(lengthof(questxoff) == lengthof(questyoff), "Mismatching questoff tables.");
+			for (j = 0; j < lengthof(questxoff); j++) {
 				if (qx + questxoff[j] == cursmx && qy + questyoff[j] == cursmy) {
 					snprintf(infostr, sizeof(infostr), "To %s", questtrigstr[ql]);
 					cursmx = qx;

@@ -222,11 +222,11 @@ const int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 /** Unused local of PlrChangeLightOff, originally for computing light radius. */
 BYTE fix[9] = { 0, 0, 3, 3, 3, 6, 6, 6, 8 };
 
-static void SetPlayerGPtrs(BYTE *pData, BYTE **pAnim)
+static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 {
 	int i;
 
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < lengthof(pAnim); i++) {
 		pAnim[i] = CelGetFrameStart(pData, i);
 	}
 }
@@ -249,7 +249,8 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 	char pszName[256];
 	const char *szCel, *cs;
 	PlayerStruct *p;
-	BYTE *pData, *pAnim;
+	BYTE *pData;
+	BYTE *(*pAnim)[8];
 	DWORD i;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -272,7 +273,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 				szCel = "ST";
 			}
 			pData = p->_pNData;
-			pAnim = (BYTE *)p->_pNAnim;
+			pAnim = &p->_pNAnim;
 			break;
 		case PFILE_WALK:
 			szCel = "AW";
@@ -280,7 +281,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 				szCel = "WL";
 			}
 			pData = p->_pWData;
-			pAnim = (BYTE *)p->_pWAnim;
+			pAnim = &p->_pWAnim;
 			break;
 		case PFILE_ATTACK:
 			if (leveltype == DTYPE_TOWN) {
@@ -288,7 +289,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "AT";
 			pData = p->_pAData;
-			pAnim = (BYTE *)p->_pAAnim;
+			pAnim = &p->_pAAnim;
 			break;
 		case PFILE_HIT:
 			if (leveltype == DTYPE_TOWN) {
@@ -296,7 +297,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "HT";
 			pData = p->_pHData;
-			pAnim = (BYTE *)p->_pHAnim;
+			pAnim = &p->_pHAnim;
 			break;
 		case PFILE_LIGHTNING:
 			if (leveltype == DTYPE_TOWN) {
@@ -304,7 +305,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "LM";
 			pData = p->_pLData;
-			pAnim = (BYTE *)p->_pLAnim;
+			pAnim = &p->_pLAnim;
 			break;
 		case PFILE_FIRE:
 			if (leveltype == DTYPE_TOWN) {
@@ -312,7 +313,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "FM";
 			pData = p->_pFData;
-			pAnim = (BYTE *)p->_pFAnim;
+			pAnim = &p->_pFAnim;
 			break;
 		case PFILE_MAGIC:
 			if (leveltype == DTYPE_TOWN) {
@@ -320,7 +321,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "QM";
 			pData = p->_pTData;
-			pAnim = (BYTE *)p->_pTAnim;
+			pAnim = &p->_pTAnim;
 			break;
 		case PFILE_DEATH:
 			if (p->_pgfxnum & 0xF) {
@@ -328,7 +329,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			}
 			szCel = "DT";
 			pData = p->_pDData;
-			pAnim = (BYTE *)p->_pDAnim;
+			pAnim = &p->_pDAnim;
 			break;
 		case PFILE_BLOCK:
 			if (leveltype == DTYPE_TOWN) {
@@ -340,7 +341,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 			szCel = "BL";
 			pData = p->_pBData;
-			pAnim = (BYTE *)p->_pBAnim;
+			pAnim = &p->_pBAnim;
 			break;
 		default:
 			app_fatal("PLR:2");
@@ -349,7 +350,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cs, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, pData);
-		SetPlayerGPtrs((BYTE *)pData, (BYTE **)pAnim);
+		SetPlayerGPtrs(pData, *pAnim);
 		p->_pGFXLoad |= i;
 	}
 }
@@ -762,7 +763,7 @@ void CreatePlayer(int pnum, char c)
 		p->_pMemSpells = (__int64)1 << (SPL_FIREBOLT - 1);
 	}
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < lengthof(p->_pSplHotKey); i++) {
 		p->_pSplHotKey[i] = -1;
 	}
 

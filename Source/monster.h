@@ -121,9 +121,9 @@ void decode_enemy(int mnum, int enemy);
 
 /* data */
 
-extern int opposite[8];
-extern int offset_x[8];
-extern int offset_y[8];
+extern const int opposite[8];
+extern const int offset_x[8];
+extern const int offset_y[8];
 
 #ifdef __cplusplus
 }

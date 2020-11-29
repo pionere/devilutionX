@@ -489,7 +489,7 @@ void SetSpeedSpell(int slot)
 
 	if (pSpell != SPL_INVALID) {
 		p = &plr[myplr];
-		for (i = 0; i < 4; ++i) {
+		for (i = 0; i < lengthof(p->_pSplHotKey); ++i) {
 			if (p->_pSplHotKey[i] == pSpell && p->_pSplTHotKey[i] == pSplType)
 				p->_pSplHotKey[i] = SPL_INVALID;
 		}
@@ -550,7 +550,7 @@ void PrintChar(int sx, int sy, int nCel, char col)
 		CelDraw(sx, sy, pPanelText, nCel, 13);
 		return;
 	case COL_BLUE:
-		for (i = 0; i < 256; i++) {
+		for (i = 0; i < lengthof(tbl); i++) {
 			pix = i;
 			if (pix > PAL16_GRAY + 13)
 				pix = PAL16_BLUE + 15;
@@ -560,7 +560,7 @@ void PrintChar(int sx, int sy, int nCel, char col)
 		}
 		break;
 	case COL_RED:
-		for (i = 0; i < 256; i++) {
+		for (i = 0; i < lengthof(tbl); i++) {
 			pix = i;
 			if (pix >= PAL16_GRAY)
 				pix -= PAL16_GRAY - PAL16_RED;
@@ -568,7 +568,7 @@ void PrintChar(int sx, int sy, int nCel, char col)
 		}
 		break;
 	default:
-		for (i = 0; i < 256; i++) {
+		for (i = 0; i < lengthof(tbl); i++) {
 			pix = i;
 			if (pix >= PAL16_GRAY) {
 				if (pix >= PAL16_GRAY + 14)
@@ -826,7 +826,7 @@ void InitControlPan()
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
 		sgbPlrTalkTbl = 0;
 		sgszTalkMsg[0] = '\0';
-		for (i = 0; i < MAX_PLRS; i++)
+		for (i = 0; i < lengthof(whisper); i++)
 			whisper[i] = TRUE;
 		for (i = 0; i < lengthof(talkbtndown); i++)
 			talkbtndown[i] = FALSE;
@@ -1124,7 +1124,8 @@ void CheckBtnUp()
 	drawbtnflag = TRUE;
 	panbtndown = FALSE;
 
-	for (i = 0; i < 8; i++) {
+	static_assert(lengthof(panbtn) == lengthof(PanBtnPos), "Mismatching panbtn and panbtnpos tables.");
+	for (i = 0; i < lengthof(panbtn); i++) {
 		if (!panbtn[i]) {
 			continue;
 		}
@@ -1638,7 +1639,7 @@ BOOL CheckChrBtns()
 	int i;
 
 	if (plr[myplr]._pStatPts != 0 && !chrbtnactive) {
-		for (i = 0; i < 4; i++) {
+		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
 			if (MouseX < ChrBtnsRect[i].x
 			 || MouseX > ChrBtnsRect[i].x + ChrBtnsRect[i].w
 			 || MouseY < ChrBtnsRect[i].y
@@ -1677,7 +1678,9 @@ void ReleaseChrBtns()
 	int i;
 
 	chrbtnactive = FALSE;
-	for (i = 0; i < 4; ++i) {
+	static_assert(lengthof(chrbtn) == lengthof(ChrBtnsRect), "Mismatching chrbtn and ChrBtnsRect tables.");
+	static_assert(lengthof(chrbtn) == 4, "Table chrbtn does not work with ReleaseChrBtns function.");
+	for (i = 0; i < lengthof(chrbtn); ++i) {
 		if (chrbtn[i]) {
 			chrbtn[i] = FALSE;
 			if (MouseX >= ChrBtnsRect[i].x
@@ -1879,7 +1882,7 @@ void DrawSpellBook()
 	spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
 
 	yp = 55 + SCREEN_Y;
-	for (i = 0; i < 7; i++) {
+	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
 		if (sn != -1 && spl & (__int64)1 << (sn - 1)) {
 			st = GetSBookTrans(sn, TRUE);
@@ -2110,6 +2113,7 @@ void DrawTalkPan()
 		*msg = '\0';
 	CelDraw(x, i + 22 + PANEL_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	talk_btn = 0;
+	static_assert(lengthof(whisper) == MAX_PLRS, "Table whisper does not work with the current MAX_PLRS in DrawTalkPan.");
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
 			continue;
@@ -2214,6 +2218,7 @@ static void control_press_enter()
 	if (sgszTalkMsg[0] != 0) {
 		pmask = 0;
 
+		static_assert(lengthof(whisper) == MAX_PLRS, "Table whisper does not work with the current MAX_PLRS in control_press_enter.");
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (whisper[i])
 				pmask |= 1 << i;
@@ -2221,11 +2226,11 @@ static void control_press_enter()
 		copy_str(gbNetMsg, sgszTalkMsg);
 		NetSendCmdString(pmask);
 
-		for (i = 0; i < 8; i++) {
+		for (i = 0; i < lengthof(sgszTalkSave); i++) {
 			if (!strcmp(sgszTalkSave[i], sgszTalkMsg))
 				break;
 		}
-		if (i >= 8) {
+		if (i == lengthof(sgszTalkSave)) {
 			copy_str(sgszTalkSave[sgbNextTalkSave], sgszTalkMsg);
 			sgbNextTalkSave++;
 			sgbNextTalkSave &= 7;
@@ -2268,7 +2273,8 @@ static void control_up_down(int v)
 {
 	int i;
 
-	for (i = 0; i < 8; i++) {
+	static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in control_up_down.");
+	for (i = 0; i < lengthof(sgszTalkSave); i++) {
 		sgbTalkSavePos = (v + sgbTalkSavePos) & 7;
 		if (sgszTalkSave[sgbTalkSavePos][0]) {
 			copy_str(sgszTalkMsg, sgszTalkSave[sgbTalkSavePos]);

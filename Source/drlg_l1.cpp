@@ -868,7 +868,7 @@ static void DRLG_L1Shadows()
 			sd11 = BSTYPES[dungeon[x - 1][y - 1]];
 
 			ss = SPATS;
-			for (i = 0; i < 37; i++, ss++) {
+			for (i = 0; i < lengthof(SPATS); i++, ss++) {
 				if (ss->strig == sd00) {
 					if ((ss->s1 != 0 && ss->s1 != sd11)
 					 || (ss->s2 != 0 && ss->s2 != sd01)

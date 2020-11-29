@@ -1189,22 +1189,25 @@ void InitMonsterSND(int midx)
 {
 	char name[MAX_PATH];
 	int i, j;
+	CMonster *cmon;
 	MonsterData *mdata;
 
 	if (!gbSndInited) {
 		return;
 	}
 
-	mdata = &monsterdata[Monsters[midx].mtype];
-	for (i = 0; i < 4; i++) {
+	cmon = &Monsters[midx];
+	mdata = &monsterdata[cmon->mtype];
+	static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].Snds), "Mismatching tables MonstSndChar and CMonster::Snds.");
+	for (i = 0; i < lengthof(MonstSndChar); i++) {
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
-			for (j = 0; j < 2; j++) {
+			for (j = 0; j < lengthof(cmon->Snds[i]); j++) {
 				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
 				int len = strlen(name) + 1;
 				char *path = (char *)DiabloAllocPtr(len);
 				memcpy(path, name, len);
 				TSnd *pSnd = sound_file_load(path);
-				Monsters[midx].Snds[i][j] = pSnd;
+				cmon->Snds[i][j] = pSnd;
 				if (pSnd == NULL)
 					mem_free_dbg(path);
 			}
@@ -1221,8 +1224,8 @@ void FreeMonsterSnd()
 
 	cmon = Monsters;
 	for (i = 0; i < nummtypes; i++, cmon++) {
-		for (j = 0; j < 4; ++j) {
-			for (k = 0; k < 2; ++k) {
+		for (j = 0; j < lengthof(cmon->Snds); ++j) {
+			for (k = 0; k < lengthof(cmon->Snds[j]); ++k) {
 				pSnd = cmon->Snds[j][k];
 				if (pSnd != NULL) {
 					cmon->Snds[j][k] = NULL;
@@ -1364,11 +1367,11 @@ void sound_update()
 
 void effects_cleanup_sfx()
 {
-	DWORD i;
+	int i;
 
 	sound_stop();
 
-	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
+	for (i = 0; i < lengthof(sgSFX); i++) {
 		if (sgSFX[i].pSnd != NULL) {
 			sound_file_cleanup(sgSFX[i].pSnd);
 			sgSFX[i].pSnd = NULL;
@@ -1378,13 +1381,13 @@ void effects_cleanup_sfx()
 
 static void priv_sound_init(BYTE bLoadMask)
 {
-	DWORD i;
+	int i;
 
 	if (!gbSndInited) {
 		return;
 	}
 
-	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
+	for (i = 0; i < lengthof(sgSFX); i++) {
 		if (sgSFX[i].pSnd != NULL) {
 			continue;
 		}
@@ -1432,13 +1435,13 @@ void ui_sound_init()
 
 void effects_play_sound(const char *snd_file)
 {
-	DWORD i;
+	int i;
 
 	if (!gbSndInited || !gbSoundOn) {
 		return;
 	}
 
-	for (i = 0; i < sizeof(sgSFX) / sizeof(TSFX); i++) {
+	for (i = 0; i < lengthof(sgSFX); i++) {
 		if (!strcasecmp(sgSFX[i].pszName, snd_file) && sgSFX[i].pSnd != NULL) {
 			if (!snd_playing(sgSFX[i].pSnd))
 				snd_play_snd(sgSFX[i].pSnd, 0, 0);

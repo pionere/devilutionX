@@ -197,7 +197,7 @@ static void InitCowAnim(int tnum, int dir)
 
 	tw = &towner[tnum];
 	tw->_tNData = pCowCels;
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < lengthof(tw->_tNAnim); i++) {
 		tw->_tNAnim[i] = CelGetFrameStart(pCowCels, i);
 	}
 	tw->_tNFrames = 12;
@@ -216,7 +216,7 @@ static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 
 	tw = &towner[tnum];
 	tw->_tNData = pAnim;
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < lengthof(tw->_tNAnim); i++) {
 		tw->_tNAnim[i] = pAnim;
 	}
 	tw->_tNFrames = numFrames;
@@ -361,7 +361,9 @@ static void InitCows()
 	//if ( pCowCels )
 	// assertion_failed(__LINE__, __FILE__, "! pCowCels");
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL", NULL);
-	for (i = 0; i < 3; i++) {
+	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
+	static_assert(lengthof(TownCowX) == lengthof(TownCowDir), "Mismatching TownCow tables II.");
+	for (i = 0; i < lengthof(TownCowX); i++) {
 		x = TownCowX[i];
 		y = TownCowY[i];
 		dir = TownCowDir[i];

@@ -36,7 +36,6 @@ void UiFadeIn();
 void UiHandleEvents(SDL_Event *event);
 bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items);
 int GetCenterOffset(int w, int bw = 0);
-void LoadPalInMem(const SDL_Color *pPal);
 void DrawMouse();
 void LoadBackgroundArt(const char *pszFile, int frames = 1);
 void UiAddBackground(std::vector<UiItemBase *> *vecDialog);

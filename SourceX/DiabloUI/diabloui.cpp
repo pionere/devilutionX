@@ -45,6 +45,8 @@ bool textInputActive = true;
 
 int SelectedItem = 0;
 
+static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)]);
+
 namespace {
 
 DWORD fadeTc;
@@ -499,7 +501,7 @@ BOOL UiValidPlayerName(const char *name)
 	for (size_t i = 0, n = strlen(tmpname); i < n; i++)
 		tmpname[i]++;
 
-	for (uint32_t i = 0; i < sizeof(reserved) / sizeof(*reserved); i++) {
+	for (int i = 0; i < lengthof(reserved); i++) {
 		if (strstr(tmpname, reserved[i]))
 			return false;
 	}
@@ -883,9 +885,9 @@ bool HandleMouseEvent(const SDL_Event &event, UiItemBase *item)
 
 } // namespace
 
-void LoadPalInMem(const SDL_Color *pPal)
+void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
 {
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < lengthof(orig_palette); i++) {
 		orig_palette[i] = pPal[i];
 	}
 }
