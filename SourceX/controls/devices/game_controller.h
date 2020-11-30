@@ -1,12 +1,22 @@
 #pragma once
 
+#include "../../types.h"
+
+#ifndef HAS_GAMECTRL
+#define HAS_GAMECTRL 0
+#endif
+
+#if HAS_GAMECTRL == 1
+#ifdef USE_SDL1
+static_assert(FALSE, "GameController is not supported in SDL1.");
+#endif
+
 #include <vector>
 
 #include <SDL.h>
 
-#include "controls/controller_buttons.h"
+#include "../controller_buttons.h"
 
-#ifndef USE_SDL1
 DEVILUTION_BEGIN_NAMESPACE
 
 class GameController {

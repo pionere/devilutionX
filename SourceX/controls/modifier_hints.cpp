@@ -1,9 +1,10 @@
 #include "modifier_hints.h"
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+
 #include <cstddef>
 
 #include "all.h"
-#include "controls/controller.h"
 #include "controls/game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -135,3 +136,5 @@ void DrawControllerModifierHints()
 }
 
 DEVILUTION_END_NAMESPACE
+
+#endif

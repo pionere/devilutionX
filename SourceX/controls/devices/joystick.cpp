@@ -1,8 +1,10 @@
 #include "joystick.h"
 
+#if HAS_JOYSTICK == 1
 #include <cstddef>
 
 #include "controls/controller_motion.h"
+#include "controls/plrctrls.h"
 #include "stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -325,3 +327,4 @@ bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 }
 
 DEVILUTION_END_NAMESPACE
+#endif

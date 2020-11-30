@@ -1,8 +1,18 @@
 #pragma once
 
+#include "../../types.h"
 #include <SDL.h>
 
-#include "controls/controller_buttons.h"
+#include "devices/kbcontroller.h"
+#include "devices/joystick.h"
+#include "devices/game_controller.h"
+
+#ifndef HAS_DPAD
+#define HAS_DPAD 0
+#endif
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#include "controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -20,3 +30,5 @@ bool IsControllerButtonPressed(ControllerButton button);
 bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event);
 
 DEVILUTION_END_NAMESPACE
+
+#endif

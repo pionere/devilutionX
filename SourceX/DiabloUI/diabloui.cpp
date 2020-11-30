@@ -13,7 +13,7 @@
 #include "DiabloUI/fonts.h"
 #include "DiabloUI/button.h"
 #include "DiabloUI/dialogs.h"
-#include "controls/controller.h"
+#include "controls/plrctrls.h"
 
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
@@ -357,7 +357,9 @@ void UiHandleEvents(SDL_Event *event)
 		diablo_quit(0);
 
 #ifndef USE_SDL1
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	HandleControllerAddedOrRemovedEvent(*event);
+#endif
 
 	if (event->type == SDL_WINDOWEVENT) {
 		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
@@ -931,8 +933,10 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 
 void DrawMouse()
 {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
 		return;
+#endif
 
 	DrawArt(MouseX, MouseY, &ArtCursor);
 }

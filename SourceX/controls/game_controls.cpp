@@ -1,11 +1,9 @@
 #include "game_controls.h"
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #include <cstdint>
 
-#include "controls/controller.h"
 #include "controls/controller_motion.h"
-#include "controls/devices/game_controller.h"
-#include "controls/devices/joystick.h"
 #include "controls/menu_controls.h"
 #include "controls/modifier_hints.h"
 #include "controls/plrctrls.h"
@@ -272,12 +270,14 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 	}
 
 #ifndef USE_SDL1
+ #if HAS_JOYSTICK == 1 && HAS_GAMECTRL == 1
 	// Ignore unhandled joystick events where a GameController is open for this joystick.
 	// This is because SDL sends both game controller and joystick events in this case.
 	const Joystick *const joystick = Joystick::Get(event);
 	if (joystick != NULL && GameController::Get(joystick->instance_id()) != NULL) {
 		return true;
 	}
+#endif
 	if (event.type == SDL_CONTROLLERAXISMOTION) {
 		return true; // Ignore releasing the trigger buttons
 	}
@@ -308,3 +308,5 @@ MoveDirection GetMoveDirection()
 }
 
 DEVILUTION_END_NAMESPACE
+
+#endif

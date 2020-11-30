@@ -4,6 +4,7 @@
  * Implementation of missile functionality.
  */
 #include "all.h"
+#include "../SourceX/controls/plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -3089,8 +3090,10 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	UseMana(misource, SPL_HEALOTHER);
 	if (misource == myplr) {
 		NewCursor(CURSOR_HEALOTHER);
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive)
 			TryIconCurs(FALSE);
+#endif
 	}
 }
 
@@ -3129,8 +3132,6 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miRange = 256;
 }
 
-extern void FocusOnInventory();
-
 void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	missile[mi]._miDelFlag = TRUE;
@@ -3140,8 +3141,10 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			sbookflag = FALSE;
 		if (!invflag) {
 			invflag = TRUE;
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			if (sgbControllerActive)
 				FocusOnInventory();
+#endif
 		}
 		NewCursor(CURSOR_IDENTIFY);
 	}
@@ -3290,8 +3293,10 @@ void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 			sbookflag = FALSE;
 		if (!invflag) {
 			invflag = TRUE;
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			if (sgbControllerActive)
 				FocusOnInventory();
+#endif
 		}
 		NewCursor(CURSOR_REPAIR);
 	}
@@ -3306,8 +3311,10 @@ void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			sbookflag = FALSE;
 		if (!invflag) {
 			invflag = TRUE;
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			if (sgbControllerActive)
 				FocusOnInventory();
+#endif
 		}
 		NewCursor(CURSOR_RECHARGE);
 	}
@@ -3319,12 +3326,14 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	UseMana(misource, SPL_DISARM);
 	if (misource == myplr) {
 		NewCursor(CURSOR_DISARM);
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive) {
 			if (pcursobj != -1)
 				NetSendCmdLocParam1(TRUE, CMD_DISARMXY, cursmx, cursmy, pcursobj);
 			else
 				NewCursor(CURSOR_HAND);
 		}
+#endif
 	}
 }
 
@@ -3478,8 +3487,10 @@ void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	UseMana(misource, SPL_RESURRECT);
 	if (misource == myplr) {
 		NewCursor(CURSOR_RESURRECT);
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive)
 			TryIconCurs(FALSE);
+#endif
 	}
 }
 

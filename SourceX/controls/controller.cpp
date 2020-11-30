@@ -1,8 +1,6 @@
 #include "controller.h"
 
-#include "controls/devices/kbcontroller.h"
-#include "controls/devices/joystick.h"
-#include "controls/devices/game_controller.h"
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -27,7 +25,7 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 		return result;
 #endif
 
-#ifndef USE_SDL1
+#if HAS_GAMECTRL == 1
 	GameController *const controller = GameController::Get(event);
 	if (controller != NULL) {
 		result.button = controller->ToControllerButton(event);
@@ -36,16 +34,17 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event &event)
 	}
 #endif
 
+#if HAS_JOYSTICK == 1
 	const Joystick *joystick = Joystick::Get(event);
 	if (joystick != NULL)
 		result.button = joystick->ToControllerButton(event);
-
+#endif
 	return result;
 }
 
 bool IsControllerButtonPressed(ControllerButton button)
 {
-#ifndef USE_SDL1
+#if HAS_GAMECTRL == 1
 	if (GameController::IsPressedOnAnyController(button))
 		return true;
 #endif
@@ -53,25 +52,33 @@ bool IsControllerButtonPressed(ControllerButton button)
 	if (IsKbCtrlButtonPressed(button))
 		return true;
 #endif
-	return Joystick::IsPressedOnAnyJoystick(button);
+#if HAS_JOYSTICK == 1
+	if (Joystick::IsPressedOnAnyJoystick(button))
+		return true;
+#endif
+	return false;
 }
 
 bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event)
 {
 #ifndef USE_SDL1
 	switch (event.type) {
+#if HAS_GAMECTRL == 1
 	case SDL_CONTROLLERDEVICEADDED:
 		GameController::Add(event.cdevice.which);
 		break;
 	case SDL_CONTROLLERDEVICEREMOVED:
 		GameController::Remove(event.cdevice.which);
 		break;
+#endif
+#if HAS_JOYSTICK == 1
 	case SDL_JOYDEVICEADDED:
 		Joystick::Add(event.jdevice.which);
 		break;
 	case SDL_JOYDEVICEREMOVED:
 		Joystick::Remove(event.jdevice.which);
 		break;
+#endif
 	default:
 		return false;
 	}
@@ -82,3 +89,5 @@ bool HandleControllerAddedOrRemovedEvent(const SDL_Event &event)
 }
 
 DEVILUTION_END_NAMESPACE
+
+#endif

@@ -3,7 +3,9 @@
 // Processes and stores mouse and joystick motion.
 
 #include "all.h"
-#include "controls/controller.h"
+#include "controller.h"
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -20,3 +22,5 @@ extern bool leftStickNeedsScaling, rightStickNeedsScaling;
 bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrl_event);
 
 DEVILUTION_END_NAMESPACE
+
+#endif

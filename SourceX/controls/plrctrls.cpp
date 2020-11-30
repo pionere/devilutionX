@@ -1,9 +1,9 @@
 #include "plrctrls.h"
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #include <cstdint>
 #include <list>
 
-#include "controls/controller.h"
 #include "controls/controller_motion.h"
 #include "controls/game_controls.h"
 
@@ -1198,3 +1198,5 @@ void PerformSecondaryAction()
 }
 
 DEVILUTION_END_NAMESPACE
+
+#endif

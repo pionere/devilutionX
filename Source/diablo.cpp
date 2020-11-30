@@ -7,6 +7,8 @@
 #include "paths.h"
 #include "../DiabloUI/diabloui.h"
 #include <config.h>
+#include "../SourceX/controls/plrctrls.h"
+#include "../SourceX/controls/touch.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -273,11 +275,6 @@ static void free_game()
 	FreeGameMem();
 }
 
-// Controller support: Actions to run after updating the cursor state.
-// Defined in SourceX/controls/plctrls.cpp.
-extern void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
-extern void plrctrls_after_check_curs_move();
-
 static BOOL ProcessInput()
 {
 	if (PauseMode == 2) {
@@ -293,11 +290,13 @@ static BOOL ProcessInput()
 	}
 
 	if (sgnTimeoutCurs == CURSOR_NONE) {
-#ifndef USE_SDL1
+#if HAS_TOUCHPAD == 1
 		finish_simulated_mouse_clicks(MouseX, MouseY);
 #endif
 		CheckCursMove();
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		plrctrls_after_check_curs_move();
+#endif
 		DWORD tick = SDL_GetTicks();
 		if ((sgbMouseDown & 1) != 0 && (tick - sgdwLastLMD) >= 200) {
 			sgdwLastLMD = tick;
@@ -430,7 +429,9 @@ static void diablo_init_screen()
 {
 	MouseX = SCREEN_WIDTH / 2;
 	MouseY = SCREEN_HEIGHT / 2;
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (!sgbControllerActive)
+#endif
 		SetCursorPos(MouseX, MouseY);
 	ScrollInfo._sdx = 0;
 	ScrollInfo._sdy = 0;
@@ -1839,9 +1840,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 #endif
 }
 
-// Controller support:
-extern void plrctrls_after_game_logic();
-
 static void game_logic()
 {
 	if (!ProcessInput()) {
@@ -1876,7 +1874,9 @@ static void game_logic()
 	force_redraw |= 1;
 	pfile_update(FALSE);
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	plrctrls_after_game_logic();
+#endif
 }
 
 static void timeout_cursor(BOOL bTimeout)

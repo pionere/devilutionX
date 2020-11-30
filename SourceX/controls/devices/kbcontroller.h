@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../types.h"
+
 // Keyboard keys acting like gamepad buttons
 #ifndef HAS_KBCTRL
 #define HAS_KBCTRL 0
@@ -7,7 +9,7 @@
 
 #if HAS_KBCTRL == 1
 #include <SDL.h>
-#include "controls/controller_buttons.h"
+#include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

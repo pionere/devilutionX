@@ -4,6 +4,7 @@
  * Implementation of player inventory.
  */
 #include "all.h"
+#include "../SourceX/controls/plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -488,9 +489,10 @@ void DrawInvBelt()
 			cCels = pCursCels;
 #endif
 		if (pcursinvitem == i + INVITEM_BELT_FIRST) {
-			if (!sgbControllerActive || invflag) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+			if (!sgbControllerActive || invflag)
+#endif
 				CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
-			}
 		}
 
 		if (is->_iStatFlag) {

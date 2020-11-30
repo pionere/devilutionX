@@ -266,6 +266,7 @@ bool false_avail(const char *name, int value)
 
 } // namespace
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 /**
  * @brief Try to clean the inventory related cursor states.
  * @return True if it is safe to close the inventory
@@ -288,6 +289,7 @@ bool BlurInventory()
 
 	return true;
 }
+#endif
 
 bool PeekMessage(LPMSG lpMsg)
 {
@@ -315,7 +317,7 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 
-#ifndef USE_SDL1
+#if HAS_TOUCHPAD == 1
 	handle_touch(&e, MouseX, MouseY);
 #endif
 
@@ -332,6 +334,7 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (HandleControllerAddedOrRemovedEvent(e))
 		return true;
 
@@ -438,9 +441,13 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		}
 		return true;
-	} else if (e.type < SDL_JOYAXISMOTION || e.type >= 0x700) {
+	}
+#endif
+	if (e.type < SDL_JOYAXISMOTION || e.type >= 0x700) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
+#endif
 		if (mouseWarping && e.type == SDL_MOUSEMOTION)
 			mouseWarping = false;
 	}

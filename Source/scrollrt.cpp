@@ -4,6 +4,8 @@
  * Implementation of functionality for rendering the dungeons, monsters and calling other render routines.
  */
 #include "all.h"
+#include "../SourceX/controls/plrctrls.h"
+#include "../SourceX/controls/modifier_hints.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -162,9 +164,10 @@ static void scrollrt_draw_cursor_item()
 		return;
 	}
 
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !invflag && (!chrflag || plr[myplr]._pStatPts <= 0)) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !invflag && (!chrflag || plr[myplr]._pStatPts <= 0))
 		return;
-	}
+#endif
 
 	mx = MouseX - 1;
 	if (mx < 0 - cursW - 1) {
@@ -1184,9 +1187,6 @@ static void DrawGame(int x, int y)
 	}
 }
 
-// DevilutionX extension.
-extern void DrawControllerModifierHints();
-
 /**
  * @brief Start rendering of screen, town variation
  * @param StartX Center of view in dPiece coordinate
@@ -1242,7 +1242,9 @@ void DrawView(int StartX, int StartY)
 		gmenu_draw_pause();
 	}
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	DrawControllerModifierHints();
+#endif
 	DrawPlrMsg();
 	gmenu_draw();
 	doom_draw();

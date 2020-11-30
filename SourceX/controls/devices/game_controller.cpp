@@ -1,10 +1,10 @@
-#ifndef USE_SDL1
 #include "game_controller.h"
 
+#if HAS_GAMECTRL == 1
 #include <cstddef>
 
 #include "controls/controller_motion.h"
-#include "controls/devices/joystick.h"
+#include "controls/plrctrls.h"
 #include "stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE

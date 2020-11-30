@@ -4,6 +4,35 @@
  * Global definitions and Macros.
  */
 
+#ifdef USE_SDL1
+// SDL1 controllers
+#ifndef HAS_JOYSTICK
+#define HAS_JOYSTICK	1
+#endif
+#ifndef HAS_DPAD
+#define HAS_DPAD		1
+#endif
+#define HAS_GAMECTRL	0
+#define HAS_TOUCHPAD	0
+#else
+// SDL2 controllers
+#ifndef HAS_JOYSTICK
+#define HAS_JOYSTICK	1
+#endif
+#ifndef HAS_DPAD
+#define HAS_DPAD		1
+#endif
+#ifndef HAS_GAMECTRL
+#define HAS_GAMECTRL	1
+#endif
+#ifndef HAS_TOUCHPAD
+#define HAS_TOUCHPAD	1
+#endif
+//#ifndef HAS_KBCTRL
+//#define HAS_KBCTRL		1
+//#endif
+#endif
+
 #ifdef SPAWN
 #define MAIN_DATA_ARCHIVE		"spawn.mpq"
 #define MENU_ART				"ui_art\\swmmenu.pcx"

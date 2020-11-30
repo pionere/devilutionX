@@ -1,5 +1,5 @@
-#ifndef USE_SDL1
 #include "touch.h"
+#if HAS_TOUCHPAD == 1
 #include "display.h"
 #include <math.h>
 

@@ -4,6 +4,7 @@
  * Implementation of player functionality, leveling, actions, creation, loading, etc.
  */
 #include "all.h"
+#include "../SourceX/controls/plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -859,9 +860,10 @@ void NextPlrLevel(int pnum)
 #endif
 			drawmanaflag = TRUE;
 	}
-
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
 		FocusOnCharInfo();
+#endif
 }
 
 void AddPlrExperience(int pnum, int lvl, int exp)
@@ -3798,7 +3800,9 @@ void CheckPlrSpell()
 		return;
 	}
 
-	if (!sgbControllerActive) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (!sgbControllerActive)
+#endif
 		if (pcurs != CURSOR_HAND
 		    || (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)     // inside main panel
 		    || ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) // inside left panel
@@ -3810,7 +3814,6 @@ void CheckPlrSpell()
 		        && rspell != SPL_RECHARGE) {
 			return;
 		}
-	}
 
 	addflag = FALSE;
 	switch (plr[myplr]._pRSplType) {

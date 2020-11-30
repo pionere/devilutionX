@@ -4,6 +4,7 @@
  * Implementation of functionality for triggering events when the player enters an area.
  */
 #include "all.h"
+#include "../SourceX/controls/plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -774,8 +775,11 @@ static BOOL ForcePWaterTrig()
 void CheckTrigForce()
 {
 	trigflag = FALSE;
-
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (!sgbControllerActive && MouseY > PANEL_TOP - 1) {
+#else
+	if (MouseY > PANEL_TOP - 1) {
+#endif
 		return;
 	}
 
