@@ -4,7 +4,7 @@
  * Implementation of video playback.
  */
 #include "all.h"
-#include "../SourceX/display.h"
+#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

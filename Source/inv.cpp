@@ -4,7 +4,7 @@
  * Implementation of player inventory.
  */
 #include "all.h"
-#include "../SourceX/controls/plrctrls.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

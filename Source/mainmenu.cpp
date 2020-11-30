@@ -4,7 +4,7 @@
  * Implementation of functions for interacting with the main menu.
  */
 #include "all.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

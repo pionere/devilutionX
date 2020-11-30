@@ -4,7 +4,7 @@
  * Implementation of functions for keeping multiplaye games in sync.
  */
 #include "all.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -762,19 +762,7 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		plrdata.size = sizeof(plrdata);
 		memset(&UiData, 0, sizeof(UiData));
 		UiData.size = sizeof(UiData);
-		UiData.artcallback = (void (*)())UiArtCallback;
-		UiData.createcallback = (void (*)())UiCreateGameCallback;
-		UiData.drawdesccallback = (void (*)())UiDrawDescCallback;
-		UiData.messageboxcallback = (void (*)())UiMessageBoxCallback;
-		UiData.soundcallback = (void (*)())UiSoundCallback;
-		UiData.authcallback = (void (*)())UiAuthCallback;
-		UiData.getdatacallback = (void (*)())UiGetDataCallback;
-		UiData.categorycallback = (void (*)())UiCategoryCallback;
-		UiData.selectnamecallback = mainmenu_select_hero_dialog;
-		UiData.changenamecallback = (void (*)())mainmenu_change_name;
-		UiData.profilebitmapcallback = (void (*)())UiProfileDraw;
-		UiData.profilecallback = (void (*)())UiProfileCallback;
-		UiData.profilefields = UiProfileGetString();
+		InitUICallbacks(UiData);
 		memset(sgbPlayerTurnBitTbl, 0, sizeof(sgbPlayerTurnBitTbl));
 		gbGameDestroyed = FALSE;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));

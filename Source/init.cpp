@@ -7,7 +7,6 @@
 
 #include "all.h"
 #include "paths.h"
-#include "../DiabloUI/diabloui.h"
 #include <SDL.h>
 #include <config.h>
 

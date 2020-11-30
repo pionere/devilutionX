@@ -5,10 +5,9 @@
  */
 #include "all.h"
 #include "paths.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 #include <config.h>
-#include "../SourceX/controls/plrctrls.h"
-#include "../SourceX/controls/touch.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

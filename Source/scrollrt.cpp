@@ -4,8 +4,7 @@
  * Implementation of functionality for rendering the dungeons, monsters and calling other render routines.
  */
 #include "all.h"
-#include "../SourceX/controls/plrctrls.h"
-#include "../SourceX/controls/modifier_hints.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

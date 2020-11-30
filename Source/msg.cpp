@@ -4,7 +4,7 @@
  * Implementation of function for sending and reciving network messages.
  */
 #include "all.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

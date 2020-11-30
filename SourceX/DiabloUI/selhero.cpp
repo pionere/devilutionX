@@ -4,7 +4,6 @@
 #include <random>
 
 #include "DiabloUI/diabloui.h"
-#include "../../DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selyesno.h"

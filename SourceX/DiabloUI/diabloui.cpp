@@ -960,4 +960,22 @@ void DvlStringSetting(const char *valuename, char *string, int len)
 		setIniValue("devilutionx", valuename, string);
 	}
 }
+
+void InitUICallbacks(_SNETUIDATA &UiData)
+{
+	UiData.artcallback = (void (*)())UiArtCallback;
+	UiData.createcallback = (void (*)())UiCreateGameCallback;
+	UiData.drawdesccallback = (void (*)())UiDrawDescCallback;
+	UiData.messageboxcallback = (void (*)())UiMessageBoxCallback;
+	UiData.soundcallback = (void (*)())UiSoundCallback;
+	UiData.authcallback = (void (*)())UiAuthCallback;
+	UiData.getdatacallback = (void (*)())UiGetDataCallback;
+	UiData.categorycallback = (void (*)())UiCategoryCallback;
+	UiData.selectnamecallback = mainmenu_select_hero_dialog;
+	UiData.changenamecallback = (void (*)())mainmenu_change_name;
+	UiData.profilebitmapcallback = (void (*)())UiProfileDraw;
+	UiData.profilecallback = (void (*)())UiProfileCallback;
+	UiData.profilefields = UiProfileGetString();
+}
+
 DEVILUTION_END_NAMESPACE
