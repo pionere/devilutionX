@@ -212,11 +212,16 @@ private:
 	void PrintError(const char *fmt, PrintFArgs... args)
 	{
 		std::string fmt_with_error = fmt;
+#ifdef _DEBUG
 		fmt_with_error.append(": failed with \"%s\"");
 		const char *error_message = std::strerror(errno);
 		if (error_message == NULL)
 			error_message = "";
 		SDL_Log(fmt_with_error.c_str(), args..., error_message);
+#else
+		fmt_with_error.append(" failed (%d)");
+		SDL_Log(fmt_with_error.c_str(), args..., errno);
+#endif
 	}
 
 	std::unique_ptr<std::fstream> s_;
@@ -253,14 +258,19 @@ struct Archive {
 		exists = FileExists(name);
 		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
 		if (exists) {
-			if (GetFileSize(name, &size) == 0) {
+#ifdef _DEBUG
+			if (!GetFileSize(name, &size)) {
 				SDL_Log("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
 				return false;
-#ifdef _DEBUG
 			} else {
 				SDL_Log("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
-#endif
 			}
+#else
+			if (!GetFileSize(name, &size)) {
+				SDL_Log("GetFileSize(\"%s\") failed. (%d)", name, errno);
+				return false;
+			}
+#endif
 		} else {
 			mode |= std::ios::trunc;
 		}

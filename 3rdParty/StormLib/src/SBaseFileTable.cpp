@@ -1810,7 +1810,6 @@ void FreeBetTable(TMPQBetTable * pBetTable)
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
 {
     TMPQHash * pHash;
-    DWORD dwFileIndex;
 
     // First, we have to search the classic hash table
     // This is because on renaming, deleting, or changing locale,
@@ -1830,7 +1829,7 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID
     // If we have HET table in the MPQ, try to find the file in HET table
     if(ha->pHetTable != NULL)
     {
-        dwFileIndex = GetFileIndex_Het(ha, szFileName);
+        DWORD dwFileIndex = GetFileIndex_Het(ha, szFileName);
         if(dwFileIndex != HASH_ENTRY_FREE)
             return ha->pFileTable + dwFileIndex;
     }
@@ -1848,7 +1847,6 @@ TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID 
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
 {
     TMPQHash * pHash;
-    DWORD dwFileIndex;
 
     // If the hash table is present, find the entry from hash table
     if(ha->pHashTable != NULL)
@@ -1866,7 +1864,7 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
     // If we have HET table in the MPQ, try to find the file in HET table
     if(ha->pHetTable != NULL)
     {
-        dwFileIndex = GetFileIndex_Het(ha, szFileName);
+        DWORD dwFileIndex = GetFileIndex_Het(ha, szFileName);
         if(dwFileIndex != HASH_ENTRY_FREE)
         {
             if(PtrHashIndex != NULL)
