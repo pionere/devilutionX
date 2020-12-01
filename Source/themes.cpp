@@ -228,7 +228,7 @@ static BOOL CheckThemeReqs(int theme)
 	case THEME_SHRINE:
 	case THEME_SKELROOM:
 	case THEME_LIBRARY:
-		return leveltype != DTYPE_CAVES && leveltype == DTYPE_HELL;
+		return leveltype != DTYPE_CAVES && leveltype != DTYPE_HELL;
 	case THEME_BLOODFOUNTAIN:
 		return bFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
