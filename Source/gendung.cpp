@@ -552,10 +552,10 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rn
 				if (rndSize) {
 					min = minSize - 2;
 					max = maxSize - 2;
-					themeW = RandRange(min, themeW);
+					themeW = min + random_(0, random_(0, themeW - min + 1));
 					if (themeW > max)
 						themeW = min;
-					themeH = RandRange(min, themeH);
+					themeH = min + random_(0, random_(0, themeH - min + 1));
 					if (themeH > max)
 						themeH = min;
 				}
