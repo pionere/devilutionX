@@ -1857,12 +1857,13 @@ static void M2MStartKill(int offm, int defm)
 
 	PlayEffect(defm, 2);
 
-	md = (monster[offm]._mdir - 4) & 7;
-	if (dmon->MType->mtype == MT_GOLEM)
-		md = 0;
-
-	NewMonsterAnim(defm, &dmon->MType->Anims[MA_DEATH], md);
-	dmon->_mmode = MM_DEATH;
+	if (dmon->_mmode != MM_STONE) {
+		dmon->_mmode = MM_DEATH;
+		md = (monster[offm]._mdir - 4) & 7;
+		if (dmon->MType->mtype == MT_GOLEM)
+			md = 0;
+		NewMonsterAnim(defm, &dmon->MType->Anims[MA_DEATH], md);
+	}
 	dmon->_mxoff = 0;
 	dmon->_myoff = 0;
 	dmon->_mx = dmon->_mfutx = dmon->_moldx;
@@ -2195,12 +2196,7 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 		int dam = RandRange(mind, maxd) << 6;
 		dmon->_mhitpoints -= dam;
 		if (dmon->_mhitpoints >> 6 <= 0) {
-			if (dmon->_mmode == MM_STONE) {
-				M2MStartKill(offm, defm);
-				dmon->_mmode = MM_STONE;
-			} else {
-				M2MStartKill(offm, defm);
-			}
+			M2MStartKill(offm, defm);
 		} else {
 			M2MStartHit(defm, offm, dam);
 		}
