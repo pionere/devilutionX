@@ -222,17 +222,14 @@ RECT32 ChrBtnsRect[4] = {
 };
 
 /** Maps from spellbook page number and position to spell_id. */
-int SpellPages[6][7] = {
+int SpellPages[][7] = {
 	{ SPL_NULL, SPL_FIREBOLT, SPL_CBOLT, SPL_HBOLT, SPL_HEAL, SPL_HEALOTHER, SPL_FLAME },
 	{ SPL_RESURRECT, SPL_FIREWALL, SPL_TELEKINESIS, SPL_LIGHTNING, SPL_TOWN, SPL_FLASH, SPL_STONE },
 	{ SPL_RNDTELEPORT, SPL_MANASHIELD, SPL_ELEMENT, SPL_FIREBALL, SPL_WAVE, SPL_CHAIN, SPL_GUARDIAN },
 	{ SPL_NOVA, SPL_GOLEM, SPL_TELEPORT, SPL_APOCA, SPL_BONESPIRIT, SPL_FLARE, SPL_ETHEREALIZE },
 #ifdef HELLFIRE
 	{ SPL_LIGHTWALL, SPL_IMMOLAT, SPL_WARP, SPL_REFLECT, SPL_BERSERK, SPL_FIRERING, SPL_SEARCH },
-#else
-	{ SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID },
 #endif
-	{ SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID, SPL_INVALID }
 };
 
 /**
@@ -1800,9 +1797,9 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 {
 	BYTE c;
 	const char *tmp;
-	int screen_x, line, sx;
+	int screen_x, line;
 
-	sx = x + RIGHT_PANEL_X + SPLICONLENGTH;
+	x += SPLICONLENGTH;
 	line = 0;
 	if (cjustflag) {
 		screen_x = 0;
@@ -1813,7 +1810,7 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 		}
 		if (screen_x < 222)
 			line = (222 - screen_x) >> 1;
-		sx += line;
+		x += line;
 	}
 	while (*pszStr != '\0') {
 		c = gbFontTransTbl[(BYTE)*pszStr++];
@@ -1821,9 +1818,9 @@ static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char
 		line += fontkern[c] + 1;
 		if (c != '\0') {
 			if (line <= 222)
-				PrintChar(sx, y, c, col);
+				PrintChar(x, y, c, col);
 		}
-		sx += fontkern[c] + 1;
+		x += fontkern[c] + 1;
 	}
 }
 
@@ -1860,9 +1857,10 @@ static char GetSBookTrans(int sn, BOOL townok)
 }
 
 #define SBOOK_CELSIZE		37
-#define SBOOK_TOP_BORDER	18
+#define SBOOK_CELBORDER		 3
+#define SBOOK_TOP_BORDER	15
 #define SBOOK_LEFT_BORDER	 7
-#define SBOOK_LINE_SEP		 6
+#define SBOOK_BOTTOM_BORDER	 3
 #define SBOOK_PAGER_HEIGHT	29
 #ifdef HELLFIRE
 #define SBOOK_PAGER_WIDTH	61
@@ -1873,31 +1871,31 @@ static char GetSBookTrans(int sn, BOOL townok)
 void DrawSpellBook()
 {
 	PlayerStruct* p;
-	int i, sn, mana, lvl, yp, min, max;
+	int i, sn, mana, lvl, sx, yp, min, max;
 	char st;
 	unsigned __int64 spl;
 
+	// back panel
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
-#ifdef HELLFIRE
-	if (sbooktab < 5)
-#endif
-		CelDraw(RIGHT_PANEL_X + SBOOK_LEFT_BORDER + SBOOK_PAGER_WIDTH * sbooktab, SCREEN_Y + SPANEL_HEIGHT - 4, pSBkBtnCel, sbooktab + 1, SBOOK_PAGER_WIDTH);
+	// selected pager
+	CelDraw(RIGHT_PANEL_X + SBOOK_LEFT_BORDER + SBOOK_PAGER_WIDTH * sbooktab, SCREEN_Y + SPANEL_HEIGHT - 1 - SBOOK_BOTTOM_BORDER, pSBkBtnCel, sbooktab + 1, SBOOK_PAGER_WIDTH);
 
 	p = &plr[myplr];
 	spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
 
-	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELSIZE;
+	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELBORDER + SBOOK_CELSIZE;
+	sx = RIGHT_PANEL_X + SBOOK_LEFT_BORDER + SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
-		if (sn != -1 && spl & (__int64)1 << (sn - 1)) {
+		if (sn != SPL_INVALID && (spl & (__int64)1 << (sn - 1))) {
 			st = GetSBookTrans(sn, TRUE);
 			SetSpellTrans(st);
-			DrawSpellCel(RIGHT_PANEL_X + SBOOK_LEFT_BORDER + 4, yp, pSBkIconCels, SpellITbl[sn], SBOOK_CELSIZE);
+			DrawSpellCel(sx + 1, yp, pSBkIconCels, SpellITbl[sn], SBOOK_CELSIZE);
 			if (sn == p->_pRSpell && st == p->_pRSplType) {
 				SetSpellTrans(RSPLTYPE_SKILL);
-				DrawSpellCel(RIGHT_PANEL_X + SBOOK_LEFT_BORDER + 4, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELSIZE);
+				DrawSpellCel(sx + 1, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELSIZE);
 			}
-			PrintSBookStr(SBOOK_LEFT_BORDER + 3, yp - 23, FALSE, spelldata[sn].sNameText, COL_WHITE);
+			PrintSBookStr(sx, yp - 23, FALSE, spelldata[sn].sNameText, COL_WHITE);
 			switch (GetSBookTrans(sn, FALSE)) {
 			case RSPLTYPE_SKILL:
 				copy_cstr(tempstr, "Skill");
@@ -1916,7 +1914,7 @@ void DrawSpellBook()
 				if (sn == SPL_BONESPIRIT) {
 					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: 1/3 tgt hp", mana);
 				}
-				PrintSBookStr(SBOOK_LEFT_BORDER + 3, yp - 1, FALSE, tempstr, COL_WHITE);
+				PrintSBookStr(sx, yp - 1, FALSE, tempstr, COL_WHITE);
 				lvl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 				if (lvl <= 0) {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
@@ -1925,9 +1923,9 @@ void DrawSpellBook()
 				}
 				break;
 			}
-			PrintSBookStr(SBOOK_LEFT_BORDER + 3, yp - 12, FALSE, tempstr, COL_WHITE);
+			PrintSBookStr(sx, yp - 12, FALSE, tempstr, COL_WHITE);
 		}
-		yp += SBOOK_LINE_SEP + SBOOK_CELSIZE;
+		yp += 2 * SBOOK_CELBORDER + SBOOK_CELSIZE;
 	}
 }
 
@@ -1938,25 +1936,38 @@ void CheckSBook()
 	char st;
 	unsigned __int64 spl;
 
-	if (MouseX >= RIGHT_PANEL + SBOOK_LEFT_BORDER + 4 && MouseX < RIGHT_PANEL + SBOOK_LEFT_BORDER + 4 + SBOOK_CELSIZE && MouseY >= SBOOK_TOP_BORDER && MouseY <= (SBOOK_TOP_BORDER + lengthof(SpellPages[sbooktab]) * (SBOOK_LINE_SEP + SBOOK_CELSIZE) - SBOOK_LINE_SEP)) {
-		p = &plr[myplr];
-		sn = SpellPages[sbooktab][(MouseY - SBOOK_TOP_BORDER) / (SBOOK_LINE_SEP + SBOOK_CELSIZE)];
-		spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
-		if (sn != SPL_INVALID && spl & (__int64)1 << (sn - 1)) {
-			st = RSPLTYPE_SPELL;
-			if (p->_pISpells & (__int64)1 << (sn - 1)) {
-				st = RSPLTYPE_CHARGES;
-			}
-			if (p->_pAblSpells & (__int64)1 << (sn - 1)) {
-				st = RSPLTYPE_SKILL;
-			}
-			p->_pRSpell = sn;
-			p->_pRSplType = st;
-			force_redraw = 255;
+	int dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER + 1);
+	if (dx < 0)
+		return;
+	int dy = MouseY - SBOOK_TOP_BORDER;
+	if (dy < 0)
+		return;
+
+	if (dy < lengthof(SpellPages[sbooktab]) * (2 * SBOOK_CELBORDER + SBOOK_CELSIZE)) {
+		if (dx < 2 * SBOOK_CELBORDER + SBOOK_CELSIZE) {
+			sn = SpellPages[sbooktab][dy / (2 * SBOOK_CELBORDER + SBOOK_CELSIZE)];
+			p = &plr[myplr];
+			spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
+			if (sn != SPL_INVALID && spl & (__int64)1 << (sn - 1)) {
+				if (p->_pAblSpells & (__int64)1 << (sn - 1))
+					st = RSPLTYPE_SKILL;
+				else if (p->_pISpells & (__int64)1 << (sn - 1))
+					st = RSPLTYPE_CHARGES;
+				else
+					st = RSPLTYPE_SPELL;
+				p->_pRSpell = sn;
+				p->_pRSplType = st;
+				force_redraw = 255;
+			}		
+		}
+	} else {
+		dy -= SPANEL_HEIGHT - SBOOK_TOP_BORDER - SBOOK_BOTTOM_BORDER - SBOOK_PAGER_HEIGHT;
+		if (dy >= 0 && dy < SBOOK_PAGER_HEIGHT) {
+			dx /= SBOOK_PAGER_WIDTH;
+			if (dx < lengthof(SpellPages))
+				sbooktab = dx;
 		}
 	}
-	if (MouseX >= RIGHT_PANEL + SBOOK_LEFT_BORDER && MouseX < RIGHT_PANEL + SBOOK_LEFT_BORDER + SBOOK_PAGER_WIDTH * (lengthof(SpellPages) - 1) && MouseY >= SPANEL_HEIGHT - 3 - SBOOK_PAGER_HEIGHT && MouseY < SPANEL_HEIGHT - 3)
-		sbooktab = (MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER)) / SBOOK_PAGER_WIDTH;
 }
 
 const char *get_pieces_str(int nGold)
