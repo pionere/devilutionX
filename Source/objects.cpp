@@ -1034,7 +1034,7 @@ void InitObjects()
 			if (QuestStatus(Q_BLOOD)) {
 				sp_id = textSets[TXTS_BLOODY][plr[myplr]._pClass];
 				quests[Q_BLOOD]._qmsg = sp_id;
-				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERX + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
+				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 			}
 			InitRndBarrels();

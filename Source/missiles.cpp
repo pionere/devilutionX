@@ -3677,7 +3677,7 @@ void MI_LArrow(int mi)
 
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
 			rst = missiledata[mis->_miType].mResist;
-			missiledata[mis->_miType].mResist = 0;
+			missiledata[mis->_miType].mResist = MISR_NONE;
 			CheckMissileCol(mi, mis->_miVar3, mis->_miVar4, FALSE, mis->_mix, mis->_miy, FALSE);
 			missiledata[mis->_miType].mResist = rst;
 		}
@@ -3910,29 +3910,29 @@ void MI_Fireball(int mi)
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-			CheckMissileCol(mi, dam, dam, 0, mis->_mix, mis->_miy, 0);
+			CheckMissileCol(mi, dam, dam, FALSE, mis->_mix, mis->_miy, FALSE);
 		mx = mis->_mix;
 		my = mis->_miy;
 		if (mis->_miRange == 0) {
 			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
 			if (CheckNoSolid(mx, my))
-				CheckMissileCol(mi, dam, dam, 0, mx, my, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx, my, TRUE);
 			if (CheckNoSolid(mx, my + 1))
-				CheckMissileCol(mi, dam, dam, 0, mx, my + 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx, my + 1, TRUE);
 			if (CheckNoSolid(mx, my - 1))
-				CheckMissileCol(mi, dam, dam, 0, mx, my - 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx, my - 1, TRUE);
 			if (CheckNoSolid(mx + 1, my))
-				CheckMissileCol(mi, dam, dam, 0, mx + 1, my, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my, TRUE);
 			if (CheckNoSolid(mx + 1, my - 1))
-				CheckMissileCol(mi, dam, dam, 0, mx + 1, my - 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my - 1, TRUE);
 			if (CheckNoSolid(mx + 1, my + 1))
-				CheckMissileCol(mi, dam, dam, 0, mx + 1, my + 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx + 1, my + 1, TRUE);
 			if (CheckNoSolid(mx - 1, my))
-				CheckMissileCol(mi, dam, dam, 0, mx - 1, my, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my, TRUE);
 			if (CheckNoSolid(mx - 1, my + 1))
-				CheckMissileCol(mi, dam, dam, 0, mx - 1, my + 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my + 1, TRUE);
 			if (CheckNoSolid(mx - 1, my - 1))
-				CheckMissileCol(mi, dam, dam, 0, mx - 1, my - 1, 1);
+				CheckMissileCol(mi, dam, dam, FALSE, mx - 1, my - 1, TRUE);
 			if (!TransList[dTransVal[mx][my]]
 			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
 				mis->_mix++;
@@ -4761,7 +4761,7 @@ void MI_Guardian(int mi)
 	if (mis->_miVar2 > 0) {
 		mis->_miVar2--;
 	}
-	if (mis->_miRange == mis->_miVar1 || mis->_miDir == MFILE_GUARD && mis->_miVar2 == 0) {
+	if (mis->_miRange == mis->_miVar1 || mis->_miDir == 2 && mis->_miVar2 == 0) {
 		SetMissDir(mi, 1);
 	}
 

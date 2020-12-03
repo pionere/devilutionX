@@ -15,6 +15,8 @@ int progress_id;
 const BYTE BarColor[3] = { 138, 43, 254 };
 /** The screen position of the top left corner of the progress bar. */
 const int BarPos[3][2] = { { 53, 37 }, { 53, 421 }, { 53, 37 } };
+/** The width of the progress bar. PANEL_WIDTH - std::max(BarPos[i][0]) * 2 */
+#define BAR_WIDTH		PANEL_WIDTH - 53 * 2
 
 static void FreeInterface()
 {
@@ -288,11 +290,11 @@ BOOL IncProgress()
 {
 	interface_msg_pump();
 	sgdwProgress += 23;
-	if (sgdwProgress > 534)
-		sgdwProgress = 534;
+	if (sgdwProgress > BAR_WIDTH)
+		sgdwProgress = BAR_WIDTH;
 	if (sgpBackCel != NULL)
 		DrawCutscene();
-	return sgdwProgress >= 534;
+	return sgdwProgress >= BAR_WIDTH;
 }
 
 

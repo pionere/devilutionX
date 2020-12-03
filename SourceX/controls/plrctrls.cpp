@@ -226,7 +226,7 @@ void FindRangedTarget()
 void FindMeleeTarget()
 {
 	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
-	int maxSteps = 25; // Max steps for FindPath is 25
+	int maxSteps = MAX_PATH_LENGTH; // Max steps for FindPath is 25
 	int rotations = 0;
 	bool canTalk = false;
 
@@ -247,7 +247,8 @@ void FindMeleeTarget()
 		SearchNode node = queue.front();
 		queue.pop_front();
 
-		for (int i = 0; i < 8; i++) {
+		static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
+		for (int i = 0; i < lengthof(pathxdir); i++) {
 			const int dx = node.x + pathxdir[i];
 			const int dy = node.y + pathydir[i];
 
@@ -459,7 +460,7 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 
 	// first, find our cursor location
 	int slot = 0;
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
 		if (MouseX >= ChrBtnsRect[i].x
 		 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
 		 && MouseY >= ChrBtnsRect[i].y

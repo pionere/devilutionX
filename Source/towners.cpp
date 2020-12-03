@@ -388,7 +388,7 @@ static void InitCows()
 #ifdef HELLFIRE
 static void InitFarmer()
 {
-	InitTownerInfo(numtowners, 96, 1, TOWN_FARMER, 62, 16, -1, 10);
+	InitTownerInfo(numtowners, 96, TRUE, TOWN_FARMER, 62, 16, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL", NULL), 15, 3);
 	copy_cstr(towner[numtowners]._tName, "Lester the farmer");
@@ -399,7 +399,7 @@ static void InitCowFarmer()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, 1, TOWN_COWFARM, 61, 22, -1, 10);
+	InitTownerInfo(numtowners, 96, TRUE, TOWN_COWFARM, 61, 22, -1, 10);
 	InitQstSnds(numtowners);
 	if (quests[Q_JERSEY]._qactive != QUEST_DONE) {
 		pBuf = LoadFileInMem("Towners\\Farmer\\cfrmrn2.CEL", NULL);
@@ -415,7 +415,7 @@ static void InitGirl()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, 1, TOWN_GIRL, 77, 43, -1, 10);
+	InitTownerInfo(numtowners, 96, TRUE, TOWN_GIRL, 77, 43, -1, 10);
 	InitQstSnds(numtowners);
 	if (quests[Q_GIRL]._qactive != QUEST_DONE) {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girlw1.CEL", NULL);

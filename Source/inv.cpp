@@ -179,7 +179,7 @@ void DrawInv()
 	int frame, frame_width, screen_x, screen_y, i, ii;
 	BYTE *pBuff, *cCels;
 
-	CelDraw(RIGHT_PANEL_X, 351 + SCREEN_Y, pInvCels, 1, SPANEL_WIDTH);
+	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1, SPANEL_WIDTH);
 
 	cCels = pCursCels;
 
@@ -596,7 +596,7 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 			}
 		}
 	}
-	for (int i = 39; i >= 0 && done < 2; i--) {
+	for (int i = NUM_INV_GRID_ELEM - 1; i >= 0 && done < 2; i--) {
 		if (p->InvGrid[i] == 0) {
 			ii = p->_pNumInv;
 			p->_pNumInv = ii + 1;

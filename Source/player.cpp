@@ -363,7 +363,7 @@ void InitPlayerGFX(int pnum)
 	}
 
 	if (plr[pnum]._pHitPoints >> 6 == 0) {
-		plr[pnum]._pgfxnum = 0;
+		plr[pnum]._pgfxnum = ANIM_ID_UNARMED;
 		LoadPlrGFX(pnum, PFILE_DEATH);
 	} else {
 		LoadPlrGFX(pnum, PFILE_NONDEATH);
@@ -1798,8 +1798,8 @@ void StartPlrKill(int pnum, int earflag)
 
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_71][p->_pClass], p->_px, p->_py);
 
-	if (p->_pgfxnum) {
-		p->_pgfxnum = 0;
+	if (p->_pgfxnum != ANIM_ID_UNARMED) {
+		p->_pgfxnum = ANIM_ID_UNARMED;
 		p->_pGFXLoad = 0;
 		SetPlrAnims(pnum);
 	}

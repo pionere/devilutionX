@@ -407,7 +407,7 @@ static void S_ScrollSBuy()
 			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
-			if (is->_iMagical) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			} else {
 				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
@@ -545,7 +545,7 @@ static void S_ScrollSSell()
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
 
-			if (is->_iMagical && is->_iIdentified) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) {
 				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 				AddSTextVal(l, is->_iIvalue);
 			} else {
@@ -697,7 +697,7 @@ static void S_ScrollWBuy()
 			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
-			if (is->_iMagical) {
+			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			} else {
 				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);

@@ -764,8 +764,8 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 			}
 		}
 	}
-	DrawObject(sx, sy, dx, dy, 1);
-	DrawItem(sx, sy, dx, dy, 1);
+	DrawObject(sx, sy, dx, dy, TRUE);
+	DrawItem(sx, sy, dx, dy, TRUE);
 	if (bFlag & BFLAG_PLAYERLR) {
 		assert((DWORD)(sy - 1) < MAXDUNY);
 		DrawPlayerHelper(sx, sy, -1, dx, dy);
@@ -783,8 +783,8 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawMonsterHelper(sx, sy, 0, dx, dy);
 	}
 	DrawMissile(sx, sy, dx, dy, FALSE);
-	DrawObject(sx, sy, dx, dy, 0);
-	DrawItem(sx, sy, dx, dy, 0);
+	DrawObject(sx, sy, dx, dy, FALSE);
+	DrawItem(sx, sy, dx, dy, FALSE);
 
 	if (leveltype != DTYPE_TOWN) {
 		bArch = dSpecial[sx][sy];

@@ -118,7 +118,7 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 		dir = monster[mpnum]._mdir;
 	}
 
-	for (i = 0; spelldata[sn].sMissiles[i] != MIS_ARROW && i < 3; i++) {
+	for (i = 0; spelldata[sn].sMissiles[i] != 0 && i < 3; i++) {
 		AddMissile(sx, sy, dx, dy, dir, spelldata[sn].sMissiles[i], caster, mpnum, 0, spllvl);
 	}
 

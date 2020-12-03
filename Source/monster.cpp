@@ -675,50 +675,50 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	switch (uniqindex) {
 	case UMT_SKELKING:
 		if (gbMaxPlayers == 1) {
-			xp = 35;
-			yp = 47;
+			xp = DBORDERX + 19;
+			yp = DBORDERY + 31;
 		}
 		break;
 	case UMT_ZHAR:
 		if (zharlib >= 0 && zharlib < themeCount) {
-			xp = 2 * themeLoc[zharlib].x + 20;
-			yp = 2 * themeLoc[zharlib].y + 20;
+			xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
+			yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
 		}
 		break;
 	case UMT_SNOTSPIL:
-		xp = 2 * setpc_x + 24;
-		yp = 2 * setpc_y + 28;
+		xp = 2 * setpc_x + DBORDERX + 8;
+		yp = 2 * setpc_y + DBORDERY + 12;
 		break;
 	case UMT_LAZURUS:
 		if (gbMaxPlayers == 1) {
-			xp = 32;
-			yp = 46;
+			xp = DBORDERX + 16;
+			yp = DBORDERY + 30;
 		} else {
-			xp = 2 * setpc_x + 19;
-			yp = 2 * setpc_y + 22;
+			xp = 2 * setpc_x + DBORDERX + 3;
+			yp = 2 * setpc_y + DBORDERY + 6;
 		}
 		break;
 	case UMT_RED_VEX:
 		if (gbMaxPlayers == 1) {
-			xp = 40;
-			yp = 45;
+			xp = DBORDERX + 24;
+			yp = DBORDERY + 29;
 		} else {
-			xp = 2 * setpc_x + 21;
-			yp = 2 * setpc_y + 19;
+			xp = 2 * setpc_x + DBORDERX + 5;
+			yp = 2 * setpc_y + DBORDERY + 3;
 		}
 		break;
 	case UMT_BLACKJADE:
 		if (gbMaxPlayers == 1) {
-			xp = 38;
-			yp = 49;
+			xp = DBORDERX + 22;
+			yp = DBORDERY + 33;
 		} else {
-			xp = 2 * setpc_x + 21;
-			yp = 2 * setpc_y + 25;
+			xp = 2 * setpc_x + DBORDERX + 5;
+			yp = 2 * setpc_y + DBORDERY + 9;
 		}
 		break;
 	case UMT_WARLORD:
-		xp = 2 * setpc_x + 22;
-		yp = 2 * setpc_y + 23;
+		xp = 2 * setpc_x + DBORDERX + 6;
+		yp = 2 * setpc_y + DBORDERY + 7;
 		break;
 	case UMT_BUTCHER:
 		done = FALSE;
