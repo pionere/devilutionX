@@ -604,7 +604,7 @@ void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
 	src = &pBtmBuff[nSrcOff];
 	dst = &gpBuffer[nDstOff];
 
-	for (hgt = h; hgt; hgt--, src += PANEL_WIDTH, dst += BUFFER_WIDTH) {
+	for (hgt = h; hgt != 0; hgt--, src += PANEL_WIDTH, dst += BUFFER_WIDTH) {
 		memcpy(dst, src, w);
 	}
 }
@@ -634,7 +634,7 @@ static void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
 	src = &pCelBuff[nSrcOff];
 	dst = &gpBuffer[nDstOff];
 
-	for (; w; w--, src += 88, dst += BUFFER_WIDTH)
+	for ( ; w != 0; w--, src += 88, dst += BUFFER_WIDTH)
 		memcpy(dst, src, 88);
 }
 
@@ -657,9 +657,9 @@ static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstO
 	src = &pCelBuff[nSrcOff];
 	dst = &pBuff[nDstOff];
 
-	for (hgt = h; hgt; hgt--, src += w - 59, dst += BUFFER_WIDTH - 59) {
-		for (wdt = 59; wdt; wdt--) {
-			if (*src)
+	for (hgt = h; hgt != 0; hgt--, src += w - 59, dst += BUFFER_WIDTH - 59) {
+		for (wdt = 59; wdt != 0; wdt--) {
+			if (*src != 0)
 				*dst = *src;
 			src++;
 			dst++;
@@ -679,9 +679,9 @@ void DrawLifeFlask()
 		filled = 80;
 
 	filled = 80 - filled;
-	if (filled > 11)
-		filled = 11;
-	filled += 2;
+	if (filled > 12)
+		filled = 12;
+	filled += 1;
 
 	DrawFlask(pLifeBuff, 88, 88 * 3 + 13, gpBuffer, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13), filled);
 	if (filled != 13)
@@ -721,9 +721,9 @@ void DrawManaFlask()
 		filled = 80;
 
 	filled = 80 - filled;
-	if (filled > 11)
-		filled = 11;
-	filled += 2;
+	if (filled > 12)
+		filled = 12;
+	filled += 1;
 
 	DrawFlask(pManaBuff, 88, 88 * 3 + 13, gpBuffer, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13), filled);
 	if (filled != 13)
