@@ -1262,27 +1262,23 @@ void AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	missile[mi]._miDelFlag = TRUE;
 }
 
-static BOOLEAN missiles_found_target(int mi, int *x, int *y, int rad)
+static BOOL place_rune(int mi, int dx, int dy, int mitype)
 {
 	int i, j, tx, ty;
 	char *cr;
 
-	if (rad > 19)
-		rad = 19;
-
-	for (i = 0; i < rad; i++) {
+	for (i = 0; i < 10; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
-			tx = *x + *++cr;
-			ty = *y + *++cr;
-			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				if ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
-					missile[mi]._mix = tx;
-					missile[mi]._miy = ty;
-					*x = tx;
-					*y = ty;
-					return TRUE;
-				}
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			if (IN_DUNGEON_AREA(tx, ty)
+			 && ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dMissile[tx][ty]) == 0)) {
+				missile[mi]._mix = tx;
+				missile[mi]._miy = ty;
+				missile[mi]._miVar1 = mitype;
+				missile[mi]._miLid = AddLight(tx, ty, 8);
+				return TRUE;
 			}
 		}
 	}
@@ -1297,15 +1293,10 @@ void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	if (LineClear(sx, sy, dx, dy)) {
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNEFIRE);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_HIVEEXP;
-			missile[mi]._miLid = AddLight(dx, dy, 8);
-		} else {
-			missile[mi]._miDelFlag = TRUE;
-		}
-	} else {
-		missile[mi]._miDelFlag = TRUE;
+		if (place_rune(mi, dx, dy, MIS_HIVEEXP))
+			return;
 	}
+	missile[mi]._miDelFlag = TRUE;
 }
 
 /**
@@ -1316,11 +1307,8 @@ void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (LineClear(sx, sy, dx, dy)) {
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNELIGHT);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_LIGHTBALL;
-			missile[mi]._miLid = AddLight(dx, dy, 8);
+		if (place_rune(mi, dx, dy, MIS_LIGHTBALL))
 			return;
-		}
 	}
 	missile[mi]._miDelFlag = TRUE;
 }
@@ -1333,11 +1321,8 @@ void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 	if (LineClear(sx, sy, dx, dy)) {
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNENOVA);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_LIGHTNOVAC;
-			missile[mi]._miLid = AddLight(dx, dy, 8);
+		if (place_rune(mi, dx, dy, MIS_LIGHTNOVAC))
 			return;
-		}
 	}
 	missile[mi]._miDelFlag = TRUE;
 }
@@ -1350,11 +1335,8 @@ void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char m
 	if (LineClear(sx, sy, dx, dy)) {
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNEIMMOLAT);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_FIRENOVAC;
-			missile[mi]._miLid = AddLight(dx, dy, 8);
+		if (place_rune(mi, dx, dy, MIS_FIRENOVAC))
 			return;
-		}
 	}
 	missile[mi]._miDelFlag = TRUE;
 }
@@ -1367,11 +1349,8 @@ void AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (LineClear(sx, sy, dx, dy)) {
 		if (misource >= 0)
 			UseMana(misource, SPL_RUNESTONE);
-		if (missiles_found_target(mi, &dx, &dy, 10)) {
-			missile[mi]._miVar1 = MIS_STONE;
-			missile[mi]._miLid = AddLight(dx, dy, 8);
+		if (place_rune(mi, dx, dy, MIS_STONE))
 			return;
-		}
 	}
 	missile[mi]._miDelFlag = TRUE;
 }
