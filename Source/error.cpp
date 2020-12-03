@@ -123,7 +123,7 @@ void DrawDiabloMsg()
 		sy += 12;
 	}
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	trans_rect(PANEL_LEFT + 104, DIALOG_TOP - 8, 432, 54);
 

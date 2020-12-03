@@ -23,7 +23,7 @@ BOOLEAN sgbFadedIn = TRUE;
 
 void palette_update()
 {
-	assert(palette);
+	assert(palette != NULL);
 	if (SDLC_SetSurfaceAndPaletteColors(pal_surface, palette, system_palette, 0, 256) < 0) {
 		ErrSdl();
 	}
@@ -88,10 +88,10 @@ void LoadPalette(const char *pszFileName)
 	void *pBuf;
 	BYTE PalData[256][3];
 
-	assert(pszFileName);
+	assert(pszFileName != NULL);
 
 	WOpenFile(pszFileName, &pBuf, FALSE);
-	WReadFile(pBuf, (char *)PalData, sizeof(PalData), pszFileName);
+	WReadFile(pBuf, PalData, sizeof(PalData), pszFileName);
 	WCloseFile(pBuf);
 
 	for (i = 0; i < 256; i++) {
@@ -157,7 +157,7 @@ void DecreaseGamma()
 
 int UpdateGamma(int gamma)
 {
-	if (gamma) {
+	if (gamma != 0) {
 		gamma_correction = 130 - gamma;
 		ApplyGamma(system_palette, logical_palette, 256);
 		palette_update();

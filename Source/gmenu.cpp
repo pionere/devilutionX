@@ -388,7 +388,7 @@ void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
 {
 	int nSteps;
 
-	assert(pItem);
+	assert(pItem != NULL);
 	nSteps = (int)(pItem->dwFlags & 0xFFF000) >> 12;
 	if (nSteps < 2)
 		nSteps = 2;

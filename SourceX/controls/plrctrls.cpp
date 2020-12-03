@@ -107,8 +107,8 @@ void FindItemOrObject()
 	int rotations = 5;
 
 	// As the player can not stand on the edge fo the map this is safe from OOB
-	for (int xx = -1; xx < 2; xx++) {
-		for (int yy = -1; yy < 2; yy++) {
+	for (int xx = -1; xx <= 1; xx++) {
+		for (int yy = -1; yy <= 1; yy++) {
 			if (dItem[mx + xx][my + yy] <= 0)
 				continue;
 			int i = dItem[mx + xx][my + yy] - 1;
@@ -130,11 +130,11 @@ void FindItemOrObject()
 	if (leveltype == DTYPE_TOWN || pcursitem != -1)
 		return; // Don't look for objects in town
 
-	for (int xx = -1; xx < 2; xx++) {
-		for (int yy = -1; yy < 2; yy++) {
+	for (int xx = -1; xx <= 1; xx++) {
+		for (int yy = -1; yy <= 1; yy++) {
 			if (dObject[mx + xx][my + yy] == 0)
 				continue;
-			int o = dObject[mx + xx][my + yy] > 0 ? dObject[mx + xx][my + yy] - 1 : -(dObject[mx + xx][my + yy] + 1);
+			int o = dObject[mx + xx][my + yy] >= 0 ? dObject[mx + xx][my + yy] - 1 : -(dObject[mx + xx][my + yy] + 1);
 			if (object[o]._oSelFlag == 0)
 				continue;
 			if (xx == 0 && yy == 0 && object[o]._oDoorFlag)
@@ -263,7 +263,7 @@ void FindMeleeTarget()
 				visited[dx][dy] = true;
 
 				if (dMonster[dx][dy] != 0) {
-					const int mi = dMonster[dx][dy] > 0 ? dMonster[dx][dy] - 1 : -(dMonster[dx][dy] + 1);
+					const int mi = dMonster[dx][dy] >= 0 ? dMonster[dx][dy] - 1 : -(dMonster[dx][dy] + 1);
 					if (CanTargetMonster(mi)) {
 						const bool newCanTalk = CanTalkToMonst(mi);
 						if (pcursmonst != -1 && !canTalk && newCanTalk)
@@ -461,9 +461,9 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 	int slot = 0;
 	for (int i = 0; i < 4; i++) {
 		if (MouseX >= ChrBtnsRect[i].x
-		    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-		    && MouseY >= ChrBtnsRect[i].y
-		    && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
+		 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
+		 && MouseY >= ChrBtnsRect[i].y
+		 && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
 			slot = i;
 			break;
 		}
@@ -512,7 +512,10 @@ void InvMove(MoveDirection dir)
 			yo = PANEL_TOP;
 		}
 
-		if (x >= InvRect[r].X + xo && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1) && y < InvRect[r].Y + yo) {
+		if (x >= InvRect[r].X + xo
+		 && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
+		 && y < InvRect[r].Y + yo) {
 			slot = r;
 			break;
 		}

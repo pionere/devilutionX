@@ -134,7 +134,7 @@ void SHA1Result(int n, char Message_Digest[SHA1HashSize])
 	int i;
 
 	Message_Digest_Block = (DWORD *)Message_Digest;
-	if (Message_Digest) {
+	if (Message_Digest_Block != NULL) {
 		for (i = 0; i < lengthof(sgSHA1[n].state); i++) {
 			*Message_Digest_Block = SwapLE32(sgSHA1[n].state[i]);
 			Message_Digest_Block++;
@@ -145,7 +145,7 @@ void SHA1Result(int n, char Message_Digest[SHA1HashSize])
 void SHA1Calculate(int n, const char *data, char Message_Digest[SHA1HashSize])
 {
 	SHA1Input(&sgSHA1[n], data, SHA1BlockSize);
-	if (Message_Digest)
+	if (Message_Digest != NULL)
 		SHA1Result(n, Message_Digest);
 }
 

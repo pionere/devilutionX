@@ -106,6 +106,8 @@ namespace {
 std::size_t listOffset = 0;
 UiArtTextButton *SELLIST_DIALOG_DELETE_BUTTON;
 
+} // namespace
+
 static void selhero_UpdateViewportItems()
 {
 	const std::size_t num_viewport_heroes = std::min(selhero_SaveCount - listOffset, kMaxViewportItems);
@@ -132,8 +134,6 @@ static void selhero_ScrollIntoView(std::size_t index)
 		selhero_UpdateViewportItems();
 	}
 }
-
-} // namespace
 
 void selhero_Init()
 {

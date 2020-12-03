@@ -27,8 +27,8 @@ PATHNODE *path_2_nodes;
 PATHNODE path_unusednodes[MAXPATHNODES];
 
 /** For iterating over the 8 possible movement directions */
-const char pathxdir[8] = { -1, -1, 1, 1, -1, 0, 1, 0 };
-const char pathydir[8] = { -1, 1, -1, 1, 0, -1, 0, 1 };
+const char pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
+const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
 
 /* data */
 
@@ -328,7 +328,7 @@ void path_set_coords(PATHNODE *pPath)
 	int i;
 
 	path_push_active_step(pPath);
-	while (gdwCurPathStep) {
+	while (gdwCurPathStep != 0) {
 		PathOld = path_pop_active_step();
 		for (i = 0; i < lengthof(PathOld->Child); i++) {
 			PathAct = PathOld->Child[i];

@@ -665,7 +665,7 @@ BOOL delta_quest_inited(int i)
 	return sgJunk.quests[i].qstate != 0xFF;
 }
 
-static void PackPItem(TCmdPItem* dest, ItemStruct* src)
+static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 {
 	dest->wIndx = src->IDidx;
 
@@ -699,7 +699,7 @@ static void PackPItem(TCmdPItem* dest, ItemStruct* src)
 	}
 }
 
-static void PackGItem(TCmdGItem* dest, ItemStruct* src)
+static void PackGItem(TCmdGItem *dest, ItemStruct *src)
 {
 	dest->wIndx = src->IDidx;
 
@@ -2094,9 +2094,9 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 			mnum = cmd->wParam1;
 			monster[mnum].mWhoHit |= 1 << pnum;
 
-			if (monster[mnum]._mhitpoints) {
+			if (monster[mnum]._mhitpoints != 0) {
 				monster[mnum]._mhitpoints -= cmd->wParam2;
-				if ((monster[mnum]._mhitpoints >> 6) < 1)
+				if (monster[mnum]._mhitpoints < (1 << 6))
 					monster[mnum]._mhitpoints = 1 << 6;
 				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
 			}

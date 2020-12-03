@@ -65,8 +65,7 @@ static void snd_get_volume(const char *value_name, int *value)
 		} else if (v > VOLUME_MAX) {
 			v = VOLUME_MAX;
 		}
-	}
-	else
+	} else
 		v = VOLUME_MAX;
 	v -= v % 100;
 

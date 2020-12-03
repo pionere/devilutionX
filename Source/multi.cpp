@@ -355,7 +355,7 @@ static void multi_begin_timeout()
 		}
 	}
 
-	/// ASSERT: assert(bGroupPlayers);
+	/// ASSERT: assert(bGroupPlayers != 0);
 	/// ASSERT: assert(nLowestActive != -1);
 	/// ASSERT: assert(nLowestPlayer != -1);
 
@@ -513,7 +513,7 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 	TCmdPlrInfoHdr *p;
 
 	/// ASSERT: assert(pnum != myplr);
-	/// ASSERT: assert(pbSrc);
+	/// ASSERT: assert(pbSrc != NULL);
 	/// ASSERT: assert(dwLen <= 0x0ffff);
 
 	dwOffset = 0;

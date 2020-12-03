@@ -661,7 +661,7 @@ static void DoUnLight(int nXPos, int nYPos, int nRadius)
 
 	for (y = min_y; y < max_y; y++) {
 		for (x = min_x; x < max_x; x++) {
-				dLight[x][y] = dPreLight[x][y];
+			dLight[x][y] = dPreLight[x][y];
 		}
 	}
 }

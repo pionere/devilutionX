@@ -122,7 +122,7 @@ void FileErrDlg(const char *error)
 
 	FreeDlg();
 
-	if (!error)
+	if (error == NULL)
 		error = "";
 	snprintf(
 	    text,

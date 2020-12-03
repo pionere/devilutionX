@@ -539,7 +539,7 @@ void ToggleSpell(int slot)
  */
 void PrintChar(int sx, int sy, int nCel, char col)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	int i;
 	BYTE pix;
@@ -602,7 +602,7 @@ void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
 {
 	int nSrcOff, nDstOff;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	nSrcOff = x + PANEL_WIDTH * y;
 	nDstOff = sx + BUFFER_WIDTH * sy;
@@ -632,7 +632,7 @@ static void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
 {
 	int nSrcOff, nDstOff, w;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	nSrcOff = 88 * min;
 	nDstOff = sx + BUFFER_WIDTH * sy;
@@ -2215,7 +2215,7 @@ static void control_press_enter()
 	int i, pmask;
 	BYTE talk_save;
 
-	if (sgszTalkMsg[0] != 0) {
+	if (sgszTalkMsg[0] != '\0') {
 		pmask = 0;
 
 		static_assert(lengthof(whisper) == MAX_PLRS, "Table whisper does not work with the current MAX_PLRS in control_press_enter.");

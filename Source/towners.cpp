@@ -567,15 +567,11 @@ void TalkToTowner(int pnum, int tnum)
 	tw = &towner[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
 	dy = abs(plr[pnum]._py - tw->_ty);
+	if (dx >= 2 || dy >= 2)
 #ifdef _DEBUG
-	if (!debug_mode_key_d && (dx >= 2 || dy >= 2)) {
-		return;
-	}
-#else
-	if (dx >= 2 || dy >= 2) {
-		return;
-	}
+		if (!debug_mode_key_d)
 #endif
+			return;
 
 	if (qtextflag) {
 		return;
@@ -968,12 +964,6 @@ void TalkToTowner(int pnum, int tnum)
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
 				}
 				break;
-			case QUEST_ACTIVE:
-				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i))
-					qt = TEXT_FARMER2;
-				else
-					qt = TEXT_FARMER3;
-				break;
 			case QUEST_INIT:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 					qt = TEXT_FARMER2;
@@ -1000,6 +990,9 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
 				}
+				break;
+			case QUEST_ACTIVE:
+				qt = PlrHasItem(pnum, IDI_RUNEBOMB, &i) ? TEXT_FARMER2 : TEXT_FARMER3;
 				break;
 			case QUEST_DONE:
 				qt = TEXT_FARMER4;

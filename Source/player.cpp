@@ -402,7 +402,7 @@ static DWORD GetPlrGFXSize(const char *szCel)
 				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
 				if (WOpenFile(pszName, &hsFile, TRUE)) {
-					/// ASSERT: assert(hsFile);
+					/// ASSERT: assert(hsFile != NULL);
 					dwSize = WGetFileSize(hsFile, NULL, pszName);
 					WCloseFile(hsFile);
 					if (dwMaxSize < dwSize) {
@@ -3735,7 +3735,7 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 	}
 
 	path = FindPath(PosOkPlayer, pnum, plr[pnum]._pfutx, plr[pnum]._pfuty, xx, yy, plr[pnum].walkpath);
-	if (!path) {
+	if (path == 0) {
 		return;
 	}
 

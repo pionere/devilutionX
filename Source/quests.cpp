@@ -614,9 +614,7 @@ void GetReturnLvlPos()
 
 void ResyncMPQuests()
 {
-#ifdef SPAWN
-	return;
-#endif
+#ifndef SPAWN
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
 	    && currlevel >= quests[Q_SKELKING]._qlevel - 1
 	    && currlevel <= quests[Q_SKELKING]._qlevel + 1) {
@@ -653,18 +651,15 @@ void ResyncMPQuests()
 		NetSendCmdQuest(TRUE, Q_JERSEY);
 	}
 #endif
+#endif
 }
 
 void ResyncQuests()
 {
+#ifndef SPAWN
 	int i, tren, x, y;
 
-#ifdef SPAWN
-	return;
-#endif
-
 	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT && leveltype == quests[Q_PWATER]._qlvltype) {
-
 		if (quests[Q_PWATER]._qactive == QUEST_DONE)
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		else
@@ -742,6 +737,7 @@ void ResyncQuests()
 	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)) {
 		quests[Q_BETRAYER]._qvar2 = 2;
 	}
+#endif
 }
 
 static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
@@ -872,10 +868,7 @@ BOOL CheckQuestlog()
 
 void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 {
-#ifdef SPAWN
-	return;
-#endif
-
+#ifndef SPAWN
 	if (quests[qn]._qactive != QUEST_DONE) {
 		if (qa > quests[qn]._qactive)
 			quests[qn]._qactive = qa;
@@ -883,6 +876,7 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 		if (qvar > quests[qn]._qvar1)
 			quests[qn]._qvar1 = qvar;
 	}
+#endif
 }
 
 DEVILUTION_END_NAMESPACE

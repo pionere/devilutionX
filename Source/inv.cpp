@@ -139,7 +139,7 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 {
 	BYTE *dst;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	dst = &gpBuffer[X + BUFFER_WIDTH * Y];
 
@@ -1207,9 +1207,8 @@ static void CheckInvCut(int pnum, int mx, int my)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int r;
 	char ii;
-	int i, j, offs;
+	int r, i, j, offs;
 
 	p = &plr[pnum];
 	if (p->_pmode > PM_WALK3) {

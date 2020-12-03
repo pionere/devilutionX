@@ -115,10 +115,7 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 
 static BOOL pfile_open_archive(BOOL update, DWORD save_num)
 {
-	if (OpenMPQ(GetSavePath(save_num).c_str(), save_num))
-		return TRUE;
-
-	return FALSE;
+	return OpenMPQ(GetSavePath(save_num).c_str(), save_num);
 }
 
 static void pfile_flush(BOOL is_single_player, DWORD save_num)
@@ -166,7 +163,7 @@ BOOL pfile_create_player_description(char *dst, DWORD len)
 	game_2_ui_player(plr, &uihero, gbValidSaveFile);
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
-	if (dst != NULL && len) {
+	if (dst != NULL && len != 0) {
 		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
 			return FALSE;
 		SStrCopy(dst, desc, len);

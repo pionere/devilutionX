@@ -243,7 +243,7 @@ static void start_game(unsigned int uMsg)
 #ifdef _DEBUG
 	LoadDebugGFX();
 #endif
-	assert(ghMainWnd);
+	assert(ghMainWnd != NULL);
 	music_stop();
 	ShowProgress(uMsg);
 	gmenu_init_menu();
@@ -317,7 +317,7 @@ static void run_game_loop(unsigned int uMsg)
 
 	nthread_ignore_mutex(TRUE);
 	start_game(uMsg);
-	assert(ghMainWnd);
+	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GM_Game);
 	control_update_life_mana();
 	run_delta_info();
@@ -416,7 +416,7 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 #ifdef HELLFIRE
 	} while (gbMaxPlayers == 1 || !gbRunGameResult);
 #else
-		pfile_create_player_description(0, 0);
+		pfile_create_player_description(NULL, 0);
 	} while (gbRunGameResult);
 #endif
 
@@ -1312,14 +1312,14 @@ static void PressChar(int vkey)
 		GetDebugMonster();
 		return;
 	case 'R':
-	case 'r': {
+	case 'r':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currlevel]);
 		NetSendCmdString(1 << myplr);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
 		NetSendCmdString(1 << myplr);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "End = %i", glEndSeed[currlevel]);
 		NetSendCmdString(1 << myplr);
-	} return;
+		return;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {

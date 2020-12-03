@@ -705,7 +705,7 @@ SHORT GetAsyncKeyState(int vKey)
 
 void DispatchMessage(const MSG *lpMsg)
 {
-	assert(CurrentProc);
+	assert(CurrentProc != NULL);
 
 	CurrentProc(NULL, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
 }

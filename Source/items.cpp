@@ -33,7 +33,7 @@ struct OilStruct {
 	int level;
 	int value;
 };
-OilStruct oildata[10] = {
+const OilStruct oildata[10] = {
 	// type,          name,                 level, value
 	{ IMISC_OILACC,   "Oil of Accuracy",        1,   500 },
 	{ IMISC_OILMAST,  "Oil of Mastery",        10,  2500 },
@@ -546,31 +546,30 @@ BOOL ItemPlace(int x, int y)
 
 static void AddInitItems()
 {
-	int x, y, i, j, rnd, lvl;
+	int x, y, ii, i, lvl;
 
 	lvl = items_get_currlevel();
 
-	rnd = RandRange(3, 5);
-	for (j = 0; j < rnd; j++) {
-		i = itemavail[0];
+	for (i = RandRange(3, 5); i != 0; i--) {
+		ii = itemavail[0];
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = i;
+		itemactive[numitems] = ii;
 		do {
 			x = random_(12, DSIZEX) + DBORDERX;
 			y = random_(12, DSIZEY) + DBORDERY;
 		} while (!ItemPlace(x, y));
-		item[i]._ix = x;
-		item[i]._iy = y;
-		dItem[x][y] = i + 1;
-		item[i]._iSeed = GetRndSeed();
-		SetRndSeed(item[i]._iSeed);
-		GetItemAttrs(i, random_(12, 2) ? IDI_HEAL : IDI_MANA, lvl);
-		item[i]._iCreateInfo = lvl - CF_PREGEN;
-		SetupItem(i);
-		item[i]._iAnimFrame = item[i]._iAnimLen;
-		item[i]._iAnimFlag = FALSE;
-		item[i]._iSelFlag = 1;
-		DeltaAddItem(i);
+		item[ii]._ix = x;
+		item[ii]._iy = y;
+		dItem[x][y] = ii + 1;
+		item[ii]._iSeed = GetRndSeed();
+		SetRndSeed(item[ii]._iSeed);
+		GetItemAttrs(ii, random_(12, 2) ? IDI_HEAL : IDI_MANA, lvl);
+		item[ii]._iCreateInfo = lvl - CF_PREGEN;
+		SetupItem(ii);
+		item[ii]._iAnimFrame = item[ii]._iAnimLen;
+		item[ii]._iAnimFlag = FALSE;
+		item[ii]._iSelFlag = 1;
+		DeltaAddItem(ii);
 		numitems++;
 	}
 }
@@ -1355,7 +1354,6 @@ void CreatePlrItems(int pnum)
 		GetItemSeed(&p->SpdList[1]);
 #endif
 		break;
-
 #ifdef HELLFIRE
 	case PC_MONK:
 		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
@@ -1670,63 +1668,62 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 #ifndef HELLFIRE
 	if (random_(17, 4) == 0) {
 		GetItemPower(ii, lvl >> 1, lvl, PLT_STAFF, onlygood);
-	} else
+		return;
+	}
 #endif
-	{
-		l = lvl >> 1;
-		if (l == 0)
-			l = 1;
-		rv = random_(18, MAX_SPELLS);
+	l = lvl >> 1;
+	if (l == 0)
+		l = 1;
+	rv = random_(18, MAX_SPELLS);
 
 #ifdef SPAWN
-		if (lvl > 10)
-			lvl = 10;
+	if (lvl > 10)
+		lvl = 10;
 #endif
 
-		bs = SPL_FIREBOLT;
-		while (TRUE) {
-			if (spelldata[bs].sStaffLvl != -1 && l >= spelldata[bs].sStaffLvl) {
-				if (rv == 0)
-					break;
-				rv--;
-			}
-			bs++;
-			if (gbMaxPlayers == 1) {
-				if (bs == SPL_RESURRECT)
-					bs = SPL_TELEKINESIS;
-				if (bs == SPL_HEALOTHER)
-					bs = SPL_FLARE;
-			}
-			if (bs == MAX_SPELLS)
-				bs = SPL_FIREBOLT;
+	bs = SPL_FIREBOLT;
+	while (TRUE) {
+		if (spelldata[bs].sStaffLvl != -1 && l >= spelldata[bs].sStaffLvl) {
+			if (rv == 0)
+				break;
+			rv--;
 		}
-		is = &item[ii];
-		sd = &spelldata[bs];
-		snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
-		if (!control_WriteStringToBuffer((BYTE *)istr))
-			snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
-		copy_str(is->_iName, istr);
-		copy_str(is->_iIName, istr);
-
-		is->_iSpell = bs;
-		is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
-		is->_iMaxCharges = is->_iCharges;
-
-		is->_iMinMag = sd->sMinInt;
-		v = is->_iCharges * sd->sStaffCost / 5;
-		is->_ivalue += v;
-		is->_iIvalue += v;
-		GetStaffPower(ii, lvl, bs, onlygood);
+		bs++;
+		if (gbMaxPlayers == 1) {
+			if (bs == SPL_RESURRECT)
+				bs = SPL_TELEKINESIS;
+			if (bs == SPL_HEALOTHER)
+				bs = SPL_FLARE;
+		}
+		if (bs == MAX_SPELLS)
+			bs = SPL_FIREBOLT;
 	}
+	is = &item[ii];
+	sd = &spelldata[bs];
+	snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
+	if (!control_WriteStringToBuffer((BYTE *)istr))
+		snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
+	copy_str(is->_iName, istr);
+	copy_str(is->_iIName, istr);
+
+	is->_iSpell = bs;
+	is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
+	is->_iMaxCharges = is->_iCharges;
+
+	is->_iMinMag = sd->sMinInt;
+	v = is->_iCharges * sd->sStaffCost / 5;
+	is->_ivalue += v;
+	is->_iIvalue += v;
+	GetStaffPower(ii, lvl, bs, onlygood);
 }
 
 #ifdef HELLFIRE
 static void GetOilType(int ii, int max_lvl)
 {
-	OilStruct *oil;
+	const OilStruct *oil;
 	ItemStruct *is;
 	int cnt, type, i;
-	char rnd[32];
+	char rnd[lengthof(oildata)];
 
 	if (gbMaxPlayers == 1) {
 		if (max_lvl == 0)
@@ -1966,25 +1963,21 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iFlags |= ISPL_FIREDAM;
 #ifdef HELLFIRE
 		is->_iFlags &= ~ISPL_LIGHTDAM;
-#endif
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-#ifdef HELLFIRE
 		is->_iLMinDam = 0;
 		is->_iLMaxDam = 0;
 #endif
+		is->_iFMinDam = param1;
+		is->_iFMaxDam = param2;
 		break;
 	case IPL_LIGHTDAM:
 		is->_iFlags |= ISPL_LIGHTDAM;
 #ifdef HELLFIRE
 		is->_iFlags &= ~ISPL_FIREDAM;
-#endif
-		is->_iLMinDam = param1;
-		is->_iLMaxDam = param2;
-#ifdef HELLFIRE
 		is->_iFMinDam = 0;
 		is->_iFMaxDam = 0;
 #endif
+		is->_iLMinDam = param1;
+		is->_iLMaxDam = param2;
 		break;
 	case IPL_STR:
 		is->_iPLStr += r;
@@ -2680,7 +2673,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 	item[ii]._iCreateInfo = lvl;
 
 	if (pregen)
-		item[ii]._iCreateInfo = lvl | CF_PREGEN;
+		item[ii]._iCreateInfo |= CF_PREGEN;
 	if (onlygood)
 		item[ii]._iCreateInfo |= CF_ONLYGOOD;
 
@@ -2830,7 +2823,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 #endif
 
 	GetItemAttrs(ii, idx, lvl);
-	item[ii]._iCreateInfo = lvl + CF_USEFUL;
+	item[ii]._iCreateInfo = lvl | CF_USEFUL;
 	SetupItem(ii);
 }
 
@@ -3139,10 +3132,7 @@ void RespawnItem(int ii, BOOL FlipFlag)
 	if (is->_iCurs == ICURS_MAGIC_ROCK) {
 		is->_iSelFlag = 1;
 		PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[ICURS_MAGIC_ROCK]], is->_ix, is->_iy);
-	}
-	if (is->_iCurs == ICURS_TAVERN_SIGN)
-		is->_iSelFlag = 1;
-	if (is->_iCurs == ICURS_ANVIL_OF_FURY)
+	} else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
 		is->_iSelFlag = 1;
 }
 
@@ -4132,7 +4122,7 @@ static void PlrAddHp(int pnum)
 	if (p->_pClass == PC_WARRIOR)
 		hp <<= 1;
 	else if (p->_pClass == PC_ROGUE)
-		hp += hp>> 1;
+		hp += hp >> 1;
 	p->_pHitPoints += hp;
 	if (p->_pHitPoints > p->_pMaxHP)
 		p->_pHitPoints = p->_pMaxHP;

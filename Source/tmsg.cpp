@@ -14,7 +14,7 @@ int tmsg_get(BYTE *pbMsg, DWORD dwMaxLen)
 	int len;
 	TMsg *head;
 
-	if (!sgpTimedMsgHead)
+	if (sgpTimedMsgHead == NULL)
 		return 0;
 
 	if ((int)(sgpTimedMsgHead->hdr.dwTime - SDL_GetTicks()) >= 0)
@@ -45,14 +45,14 @@ void tmsg_add(BYTE *pbMsg, BYTE bLen)
 
 void tmsg_start()
 {
-	assert(!sgpTimedMsgHead);
+	assert(sgpTimedMsgHead == NULL);
 }
 
 void tmsg_cleanup()
 {
 	TMsg *next;
 
-	while (sgpTimedMsgHead) {
+	while (sgpTimedMsgHead != NULL) {
 		next = sgpTimedMsgHead->hdr.pNext;
 		MemFreeDbg(sgpTimedMsgHead);
 		sgpTimedMsgHead = next;

@@ -18,7 +18,7 @@ void base::setup_password(std::string pw)
 void base::run_event_handler(_SNETEVENT &ev)
 {
 	auto f = registered_handlers[static_cast<event_type>(ev.eventid)];
-	if (f) {
+	if (f != NULL) {
 		f(&ev);
 	}
 }
@@ -145,8 +145,7 @@ bool base::SNetReceiveTurns(char **data, unsigned int *size, DWORD *status)
 		for (auto i = 0; i < MAX_PLRS; ++i) {
 			if (connected_table[i]) {
 				size[i] = sizeof(turn_t);
-				status[i] |= PS_ACTIVE;
-				status[i] |= PS_TURN_ARRIVED;
+				status[i] |= PS_ACTIVE | PS_TURN_ARRIVED;
 				turn_last[i] = turn_queue[i].front();
 				turn_queue[i].pop_front();
 				data[i] = reinterpret_cast<char *>(&turn_last[i]);

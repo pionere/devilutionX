@@ -2225,12 +2225,11 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
 
+	tmp = p->_pIBonusAC + p->_pIAC + p->_pDexterity / 5;
 	hper = 30 + Hit
 		+ (mon->mLevel << 1)
 		- (p->_pLevel << 1)
-		- p->_pIBonusAC
-		- p->_pIAC
-		- p->_pDexterity / 5;
+		- tmp;
 	tmp = 15;
 	if (currlevel == 14)
 		tmp = 20;
@@ -2993,7 +2992,7 @@ static BOOL MonPathWalk(int mnum)
 	if (!(monster[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR))
 		Check = PosOkMonst;
 
-	if (FindPath(Check, mnum, monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy, path)) {
+	if (FindPath(Check, mnum, monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy, path) != 0) {
 		MonCallWalk(mnum, plr2monst[path[0]]); /* plr2monst is local */
 		return TRUE;
 	}

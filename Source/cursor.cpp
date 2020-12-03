@@ -604,8 +604,8 @@ void CheckCursMove()
 			}
 		}
 		if (pcurs == CURSOR_RESURRECT) {
-			for (xx = -1; xx < 2; xx++) {
-				for (yy = -1; yy < 2; yy++) {
+			for (xx = -1; xx <= 1; xx++) {
+				for (yy = -1; yy <= 1; yy++) {
 					if (mx + xx < MAXDUNX && my + yy < MAXDUNY && dFlags[mx + xx][my + yy] & BFLAG_DEAD_PLAYER) {
 						for (i = 0; i < MAX_PLRS; i++) {
 							if (plr[i]._px == mx + xx && plr[i]._py == my + yy && i != myplr) {

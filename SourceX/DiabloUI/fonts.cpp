@@ -9,14 +9,10 @@ Art ArtFonts[4][2];
 /** This is so we know ttf has been init when we get to the diablo_deinit() function */
 BOOL was_fonts_init = false;
 
-namespace {
-
-void LoadArtFont(const char *pszFile, int size, int color)
+static void LoadArtFont(const char *pszFile, int size, int color)
 {
 	LoadMaskedArt(pszFile, &ArtFonts[size][color], 256, 32);
 }
-
-} // namespace
 
 void LoadArtFonts()
 {

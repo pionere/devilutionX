@@ -95,7 +95,7 @@ static void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
 {
 	BYTE *pStart, *pEnd;
 
-	/// ASSERT: assert(gpBuffer);
+	/// ASSERT: assert(gpBuffer != NULL);
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (49 + SCREEN_Y + UI_OFFSET_Y)];
 	pEnd = gpBufEnd;

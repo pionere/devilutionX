@@ -699,7 +699,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
 {
 	int pnum = dPlayer[x][y + oy];
-	pnum = pnum > 0 ? pnum - 1 : -(pnum + 1);
+	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
 	PlayerStruct *p = &plr[pnum];
 	int px = sx + p->_pxoff - p->_pAnimWidth2;
 	int py = sy + p->_pyoff;

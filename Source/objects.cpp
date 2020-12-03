@@ -22,9 +22,9 @@ int numobjfiles;
 int UberLeverProgress;
 
 /** Specifies the X-coordinate delta between barrels. */
-int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 /** Specifies the Y-coordinate delta between barrels. */
-int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+const int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 /** Maps from shrine_id to shrine name. */
 const char *const shrinestrs[NUM_SHRINETYPE] = {
 	"Mysterious",
@@ -65,7 +65,7 @@ const char *const shrinestrs[NUM_SHRINETYPE] = {
 #endif
 };
 /** Specifies the minimum dungeon level on which each shrine will appear. */
-char shrinemin[NUM_SHRINETYPE] = {
+const char shrinemin[NUM_SHRINETYPE] = {
 	1, // Mysterious
 	1, // Hidden
 	1, // Gloomy
@@ -104,7 +104,7 @@ char shrinemin[NUM_SHRINETYPE] = {
 #endif
 };
 /** Specifies the maximum dungeon level on which each shrine will appear. */
-char shrinemax[NUM_SHRINETYPE] = {
+const char shrinemax[NUM_SHRINETYPE] = {
 	MAX_LVLS, // Mysterious
 	MAX_LVLS, // Hidden
 	MAX_LVLS, // Gloomy
@@ -148,7 +148,7 @@ char shrinemax[NUM_SHRINETYPE] = {
  * SHRINETYPE_SINGLE - 1 - sp only
  * SHRINETYPE_MULTI - 2 - mp only
  */
-BYTE shrineavail[NUM_SHRINETYPE] = {
+const BYTE shrineavail[NUM_SHRINETYPE] = {
 	SHRINETYPE_ANY,    // SHRINE_MYSTERIOUS
 	SHRINETYPE_ANY,    // SHRINE_HIDDEN
 	SHRINETYPE_SINGLE, // SHRINE_GLOOMY
@@ -208,13 +208,13 @@ const char StoryBookName[][28] = {
 #endif
 };
 /** Specifies the speech IDs of each dungeon type narrator book, for each player class. */
-int StoryText[3][3] = {
+const int StoryText[3][3] = {
 	{ TEXT_BOOK11, TEXT_BOOK12, TEXT_BOOK13 },
 	{ TEXT_BOOK21, TEXT_BOOK22, TEXT_BOOK23 },
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
 };
 
-const int textSets[NUM_TXTSets][NUM_CLASSES] {
+const int textSets[NUM_TXTSets][NUM_CLASSES] = {
 #ifdef HELLFIRE
 	{ TEXT_BLINDING, TEXT_RBLINDING, TEXT_MBLINDING, TEXT_HBLINDING, TEXT_BBLINDING, TEXT_BLINDING },
 	{ TEXT_BLOODY,   TEXT_RBLOODY,   TEXT_MBLOODY,   TEXT_HBLOODY,   TEXT_BBLOODY,   TEXT_BLOODY   },
@@ -582,9 +582,7 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 
 static DIABOOL TorchLocOk(int xp, int yp)
 {
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
-		return FALSE;
-	return TRUE;
+	return (dFlags[xp][yp] & BFLAG_POPULATED) == 0;
 }
 
 static void AddL2Torches()
@@ -1099,7 +1097,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm) {
+			if (*lm != 0) {
 				fileload[AllObjects[ObjTypeConv[*lm]].ofindex] = TRUE;
 			}
 			lm += 2;
@@ -1796,13 +1794,11 @@ void Obj_Light(int oi, int lr)
 		{
 #endif
 			for (i = 0; i < MAX_PLRS && !turnon; i++) {
-				if (plr[i].plractive) {
-					if (currlevel == plr[i].plrlevel) {
-						dx = abs(plr[i]._px - ox);
-						dy = abs(plr[i]._py - oy);
-						if (dx < tr && dy < tr)
-							turnon = TRUE;
-					}
+				if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+					dx = abs(plr[i]._px - ox);
+					dy = abs(plr[i]._py - oy);
+					if (dx < tr && dy < tr)
+						turnon = TRUE;
 				}
 			}
 		}

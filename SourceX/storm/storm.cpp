@@ -311,7 +311,7 @@ void *SMemAlloc(unsigned int amount, const char *logfilename, int logline, int d
 
 BOOL SMemFree(void *location, const char *logfilename, int logline, char defaultValue)
 {
-	assert(location);
+	assert(location != NULL);
 	free(location);
 	return true;
 }

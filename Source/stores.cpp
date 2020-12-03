@@ -193,7 +193,7 @@ void DrawSLine(int y)
 		line = BUFFER_WIDTH - 266; // BUGFIX: should be 267, not 266
 	}
 
-	/// ASSERT: assert(gpBuffer);
+	/// ASSERT: assert(gpBuffer != NULL);
 
 	int i;
 	BYTE *src, *dst;

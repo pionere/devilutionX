@@ -104,6 +104,7 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
+ * @param tbl Palette translation table
  */
 void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tbl)
 {

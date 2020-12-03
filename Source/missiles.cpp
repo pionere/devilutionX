@@ -565,7 +565,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 
 	mon = &monster[mnum];
 	mds = &missiledata[mitype];
-	if (mds->mdFlags & MIFLAG_UNDEAD && mon->MData->mMonstClass != MC_UNDEAD && mon->MType->mtype != MT_DIABLO)
+	if ((mds->mdFlags & MIFLAG_UNDEAD) && mon->MData->mMonstClass != MC_UNDEAD && mon->MType->mtype != MT_DIABLO)
 		return TRUE;
 
 	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
@@ -576,19 +576,20 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 
 	p = &plr[pnum];
 	if (mds->mType == 0) {
-		hper = p->_pDexterity
+		hper = 50 + p->_pDexterity
 		    + p->_pIBonusToHit
 		    + p->_pLevel
 		    - mon->mArmorClass
 		    - (dist * dist >> 1)
-		    + p->_pIEnAc
-		    + 50;
+		    + p->_pIEnAc;
 		if (p->_pClass == PC_ROGUE)
 			hper += 20;
 		else if (p->_pClass == PC_WARRIOR)
 			hper += 10;
 	} else {
-		hper = p->_pMagic - (mon->mLevel << 1) - dist + 50;
+		hper = 50 + p->_pMagic
+			- (mon->mLevel << 1)
+			- dist;
 		if (p->_pClass == PC_SORCERER)
 			hper += 20;
 	}
@@ -607,11 +608,11 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	} else {
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
-			dam = p->_pIBonusDamMod + dam * p->_pIBonusDam / 100 + dam;
+			dam += p->_pIBonusDamMod + dam * p->_pIBonusDam / 100;
 			if (p->_pClass == PC_ROGUE)
 				dam += p->_pDamageMod;
 			else
-				dam += (p->_pDamageMod >> 1);
+				dam += p->_pDamageMod >> 1;
 			if ((p->_pIFlags & ISPL_3XDAMVDEM) && mon->MData->mMonstClass == MC_DEMON)
 				dam *= 3;
 			if (p->_pIFlags & ISPL_NOHEALMON)
@@ -727,7 +728,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		break;
 	}
 	if (resper > 0) {
-		dam = dam - dam * resper / 100;
+		dam -= dam * resper / 100;
 		if (pnum == myplr) {
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
@@ -808,11 +809,9 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
 		blk = FALSE;
 	} else {
-		tmp = p->_pBaseToBlk + p->_pDexterity;
-		if (mon != NULL)
-			tmp = tmp
-				+ (p->_pLevel << 1)
-				- (mon->mLevel << 1);
+		tmp = p->_pBaseToBlk + p->_pDexterity
+			+ (p->_pLevel << 1)
+			- (mon->mLevel << 1);
 		if (tmp <= 0)
 			blk = FALSE;
 		else if (tmp >= 100)
@@ -848,7 +847,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		break;
 	}
 	if (resper > 0) {
-		dam = dam - dam * resper / 100;
+		dam -= dam * resper / 100;
 		if (pnum == myplr) {
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
@@ -901,13 +900,11 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 
 	ops = &plr[offp];
 	if (mds->mType == 0) {
-		hper = ops->_pIBonusToHit
-		    + ops->_pLevel
+		hper = 50 + ops->_pIBonusToHit + ops->_pDexterity + ops->_pLevel
 		    - (dist * dist >> 1)
 		    - dps->_pDexterity / 5
 		    - dps->_pIBonusAC
-		    - dps->_pIAC
-		    + ops->_pDexterity + 50;
+		    - dps->_pIAC;
 		if (ops->_pClass == PC_ROGUE)
 			hper += 20;
 		if (ops->_pClass == PC_WARRIOR)
@@ -918,10 +915,9 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
 		} else {
-			hper = ops->_pMagic
+			hper = 50 + ops->_pMagic
 				- (dps->_pLevel << 1)
-				- dist
-				+ 50;
+				- dist;
 			if (ops->_pClass == PC_SORCERER)
 				hper += 20;
 		}
@@ -938,7 +934,8 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		blk = FALSE;
 	} else {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
-			+ ((dps->_pLevel - ops->_pLevel) << 1);
+			+ (dps->_pLevel << 1)
+			- (ops->_pLevel << 1);
 		if (blkper <= 0)
 			blk = FALSE;
 		else if (blkper >= 100)
@@ -956,7 +953,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 			if (ops->_pClass == PC_ROGUE)
 				dam += ops->_pDamageMod;
 			else
-				dam += (ops->_pDamageMod >> 1);
+				dam += ops->_pDamageMod >> 1;
 		}
 		if (!shift)
 			dam <<= 6;
@@ -1511,7 +1508,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 					for (si = 0; si < MAXBELTITEMS; si++, pi++) {
 						ii = -1;
 						if (pi->_itype == ITYPE_MISC) {
-							if (random_(205, 2)) {
+							if (random_(205, 2) != 0) {
 								switch (pi->_iMiscId) {
 								case IMISC_FULLHEAL:
 									ii = IDI_HEAL;
@@ -1524,7 +1521,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 									ii = IDI_MANA;
 									break;
 								case IMISC_REJUV:
-									if (random_(205, 2)) {
+									if (random_(205, 2) != 0) {
 										ii = IDI_MANA;
 									} else {
 										ii = IDI_HEAL;
@@ -2483,11 +2480,7 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miDelFlag = TRUE;
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-			for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 			for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
@@ -2639,11 +2632,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-		for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 		for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
@@ -2896,11 +2885,9 @@ void miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	MonsterStruct *mon;
 
 	mis = &missile[mi];
-	mon = &monster[misource];
-	mis->_miRange = 40 * (mon->_mint + 1) + random_(50, 15);
+	mis->_miRange = 40 * (monster[misource]._mint + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 }
@@ -2919,11 +2906,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-		for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 		for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
@@ -2987,7 +2970,7 @@ void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miVar2 = sy;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
-	if ((monster[misource]._mx != 1 || monster[misource]._my) && misource == myplr)
+	if ((monster[misource]._mx != 1 || monster[misource]._my != 0) && misource == myplr)
 		MonStartKill(misource, misource);
 	UseMana(misource, SPL_GOLEM);
 }
@@ -3169,11 +3152,7 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-		for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 		for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
@@ -3682,11 +3661,7 @@ void MI_Golem(int mi)
 	if (monster[src]._mx == 1 && monster[src]._my == 0) {
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-			for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 			for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 				tx = mis->_miVar4 + *++cr;
 				ty = mis->_miVar5 + *++cr;
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
@@ -3730,10 +3705,10 @@ void MI_LArrow(int mi)
 			missiledata[mis->_miType].mResist = rst;
 		}
 		if (mis->_miRange == 0) {
-			mis->_miDir = 0;
 			mis->_mitxoff -= mis->_mixvel;
 			mis->_mityoff -= mis->_miyvel;
 			GetMissilePos(mi);
+			mis->_miDir = 0;
 			SetMissAnim(mi, mis->_miVar7);
 			mis->_miRange = mis->_miAnimLen - 1;
 		} else {
@@ -5135,7 +5110,7 @@ void MI_Fireman(int mi)
 	} else {
 		j = dMonster[bx][by];
 	}
-	if (!PosOkMissile(bx, by) || j > 0 && !mis->_miVar1) {
+	if (!PosOkMissile(bx, by) || (j > 0 && !mis->_miVar1)) {
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = opposite[mis->_miDir];
