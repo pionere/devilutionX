@@ -1278,30 +1278,48 @@ static void MonEnemy(int mnum)
 				continue;
 			sameroom = tv == dTransVal[plr[i]._px][plr[i]._py];
 			dist = std::max(abs(mon->_mx - plr[i]._px), abs(mon->_my - plr[i]._py));
-			if ((sameroom && !bestsameroom)
-			    || ((sameroom || !bestsameroom) && dist < best_dist)) {
-				enemy = i + 1;
-				best_dist = dist;
-				bestsameroom = sameroom;
+			if (sameroom == bestsameroom) {
+				if (dist >= best_dist)
+					continue;
+			} else if (!sameroom)
+				continue;
+			enemy = i + 1;
+			best_dist = dist;
+			bestsameroom = sameroom;
+		}
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (monster[i]._mx == 1 && monster[i]._my == 0)
+				continue;
+			dist = std::max(abs(mon->_mx - monster[i]._mx), abs(mon->_my - monster[i]._my));
+			if (dist >= 2 && !MonRanged(mnum)) {
+				continue;
 			}
+			sameroom = tv == dTransVal[monster[i]._mx][monster[i]._my];
+			if (sameroom == bestsameroom) {
+				if (dist >= best_dist)
+					continue;
+			} else if (!sameroom)
+				continue;
+			enemy = -(i + 1);
+			best_dist = dist;
+			bestsameroom = sameroom;
 		}
-	}
-	for (i = 0; i < nummonsters; i++) {
-		tnum = monstactive[i];
-		if (tnum == mnum)
-			continue;
-		if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
-			continue;
-		if (MonTalker(tnum) && monster[tnum].mtalkmsg)
-			continue;
-		dist = std::max(abs(mon->_mx - monster[tnum]._mx), abs(mon->_my - monster[tnum]._my));
-		if (!(mon->_mFlags & MFLAG_GOLEM) && (dist >= 2 && !MonRanged(mnum)
-		 || (!(mon->_mFlags & MFLAG_GOLEM) && !(monster[tnum]._mFlags & MFLAG_GOLEM)))) {
-			continue;
-		}
-		sameroom = tv == dTransVal[monster[tnum]._mx][monster[tnum]._my];
-		if ((sameroom && !bestsameroom)
-		    || ((sameroom || !bestsameroom) && dist < best_dist)) {
+	} else {
+		for (i = 0; i < nummonsters; i++) {
+			tnum = monstactive[i];
+			if (tnum == mnum)
+				continue;
+			if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
+				continue;
+			if (MonTalker(tnum) && monster[tnum].mtalkmsg)
+				continue;
+			dist = std::max(abs(mon->_mx - monster[tnum]._mx), abs(mon->_my - monster[tnum]._my));
+			sameroom = tv == dTransVal[monster[tnum]._mx][monster[tnum]._my];
+			if (sameroom == bestsameroom) {
+				if (dist >= best_dist)
+					continue;
+			} else if (!sameroom)
+				continue;
 			enemy = -(tnum + 1);
 			best_dist = dist;
 			bestsameroom = sameroom;
