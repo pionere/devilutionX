@@ -2565,18 +2565,17 @@ static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 
 static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
 	if (gbBufferMsgs != 1) {
-		AddMissile(cmd->x, cmd->y, cmd->wParam1, cmd->wParam2, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
-		town_4751C6();
+		AddMissile(80, 62, 81, 63, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
+		T_HiveOpen();
 	}
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
-		town_475595();
+		T_CryptOpen();
 		InitTownTriggers();
 		if (currlevel == 0)
 			PlaySFX(IS_SARC);

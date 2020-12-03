@@ -79,7 +79,8 @@ void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t)
 	dPiece[xx + 1][yy + 1] = v4;
 }
 
-void town_4751C6(){
+void T_HiveOpen()
+{
 	dPiece[78][60] = 0x48a;
 	dPiece[79][60] = 0x48b;
 	dPiece[78][61] = 0x48c;
@@ -129,7 +130,8 @@ void town_4751C6(){
 	SetDungeonMicros();
 }
 
-static void town_475379(){
+static void T_HiveClosed()
+{
 	dPiece[78][60] = 0x48a;
 	dPiece[79][60] = 0x4eb;
 	dPiece[78][61] = 0x4ec;
@@ -179,7 +181,8 @@ static void town_475379(){
 	SetDungeonMicros();
 }
 
-static void town_47552C(){
+static void T_CryptClosed()
+{
 	dPiece[36][21] = 0x52b;
 	dPiece[37][21] = 0x52c;
 	dPiece[36][22] = 0x52d;
@@ -193,7 +196,8 @@ static void town_47552C(){
 	SetDungeonMicros();
 }
 
-void town_475595(){
+void T_CryptOpen()
+{
 	dPiece[36][21] = 0x533;
 	dPiece[37][21] = 0x534;
 	dPiece[36][22] = 0x535;
@@ -260,13 +264,13 @@ void T_Pass3()
 #ifdef HELLFIRE
 	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
 	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
-		town_4751C6();
+		T_HiveOpen();
 	else
-		town_475379();
+		T_HiveClosed();
 	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
-		town_475595();
+		T_CryptOpen();
 	else
-		town_47552C();
+		T_CryptClosed();
 #endif
 
 	twarps = GetOpenWarps();

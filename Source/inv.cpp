@@ -1863,7 +1863,7 @@ int InvPutItem(int pnum, int x, int y)
 #ifdef HELLFIRE
 	if (currlevel == 0) {
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= 79 && cursmx <= 82 && cursmy >= 61 && cursmy <= 64) {
-			NetSendCmdLocParam2(FALSE, CMD_OPENHIVE, plr[pnum]._px, plr[pnum]._py, 0, 0);
+			NetSendCmd(FALSE, CMD_OPENHIVE);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
 				NetSendCmdQuest(TRUE, Q_FARMER);

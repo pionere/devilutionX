@@ -1255,10 +1255,11 @@ void InitMissiles()
 #ifdef HELLFIRE
 void AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	AddMissile(80, 62, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
-	AddMissile(80, 63, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
-	AddMissile(81, 62, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
-	AddMissile(81, 63, 80, 62, midir, MIS_HIVEEXP, micaster, misource, missile[mi]._miDam, 0);
+	int i, j;
+
+	for (i = sx; i <= dx; i++)
+		for (j = sy; j <= dy; j++)
+			AddMissile(i, j, 0, 0, 0, MIS_HIVEEXP, micaster, misource, 0, 0);
 	missile[mi]._miDelFlag = TRUE;
 }
 
@@ -1681,24 +1682,21 @@ void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	mis = &missile[mi];
 	mis->_miLid = AddLight(sx, sy, 8);
-	if (micaster == 0) {
-		dam = 2 * (plr[misource]._pLevel + random_(60, 10) + random_(60, 10)) + 4;
-		for (i = spllvl; i > 0; i--) {
-			dam += dam >> 3;
-		}
-		mis->_miDam = dam;
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix - 1, mis->_miy - 1, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix, mis->_miy - 1, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix + 1, mis->_miy - 1, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix - 1, mis->_miy, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix, mis->_miy, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix + 1, mis->_miy, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix - 1, mis->_miy + 1, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix, mis->_miy + 1, 1);
-		CheckMissileCol(mi, dam, dam, 0, mis->_mix + 1, mis->_miy + 1, 1);
-	}
-	SetMissDir(mi, 0);
 	mis->_miRange = mis->_miAnimLen - 1;
+
+	dam = 2 * (plr[misource]._pLevel + random_(60, 10) + random_(60, 10)) + 4;
+	for (i = spllvl; i > 0; i--) {
+		dam += dam >> 3;
+	}
+	CheckMissileCol(mi, dam, dam, FALSE, sx - 1, sy - 1, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx, sy - 1, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx + 1, sy - 1, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx - 1, sy, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx, sy, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx + 1, sy, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx - 1, sy + 1, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx, sy + 1, TRUE);
+	CheckMissileCol(mi, dam, dam, FALSE, sx + 1, sy + 1, TRUE);
 }
 
 /**
