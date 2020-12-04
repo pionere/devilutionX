@@ -3048,12 +3048,11 @@ static void DRLG_L2(int entry)
 	BOOL doneflag;
 
 	do {
-		nRoomCnt = 0;
-		InitDungeon();
-		DRLG_InitTrans();
-		if (!CreateDungeon()) {
-			continue;
-		}
+		do {
+			nRoomCnt = 0;
+			InitDungeon();
+			DRLG_InitTrans();
+		} while (!CreateDungeon());
 		L2TileFix();
 		if (setloadflag) {
 			DRLG_L2SetRoom(nSx1, nSy1);
