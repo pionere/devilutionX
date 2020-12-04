@@ -80,14 +80,6 @@ BOOLEAN nTransTable[MAXTILES + 1];
  */
 BOOLEAN nMissileTable[MAXTILES + 1];
 BOOLEAN nTrapTable[MAXTILES + 1];
-/** Specifies the minimum X-coordinate of the map. */
-int dminx;
-/** Specifies the minimum Y-coordinate of the map. */
-int dminy;
-/** Specifies the maximum X-coordinate of the map. */
-int dmaxx;
-/** Specifies the maximum Y-coordinate of the map. */
-int dmaxy;
 int gnDifficulty;
 /** Specifies the active dungeon type of the current game. */
 BYTE leveltype;

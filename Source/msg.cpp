@@ -2566,7 +2566,7 @@ static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
-		AddMissile(70 + dminx, 52 + dminy, 71 + dminx, 53 + dminy, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
+		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
 		T_HiveOpen();
 	}
 	return sizeof(*pCmd);

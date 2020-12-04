@@ -69,8 +69,8 @@ void InitTownTriggers()
 	trigflag = FALSE;
 	numtrigs = 0;
 
-	trigs[numtrigs]._tx = 15 + dminx;
-	trigs[numtrigs]._ty = 19 + dminy;
+	trigs[numtrigs]._tx = 15 + DBORDERX;
+	trigs[numtrigs]._ty = 19 + DBORDERY;
 	trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 	numtrigs++;
 
@@ -81,38 +81,38 @@ void InitTownTriggers()
 
 	if (twarps & 1) {
 		townwarps[0] = TRUE;
-		trigs[numtrigs]._tx = 39 + dminx;
-		trigs[numtrigs]._ty = 11 + dminy;
+		trigs[numtrigs]._tx = 39 + DBORDERX;
+		trigs[numtrigs]._ty = 11 + DBORDERY;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 5;
 		numtrigs++;
 	}
 	if (twarps & 2) {
 		townwarps[1] = TRUE;
-		trigs[numtrigs]._tx = 7 + dminx;
-		trigs[numtrigs]._ty = 59 + dminy;
+		trigs[numtrigs]._tx = 7 + DBORDERX;
+		trigs[numtrigs]._ty = 59 + DBORDERY;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 9;
 		numtrigs++;
 	}
 	if (twarps & 4) {
 		townwarps[2] = TRUE;
-		trigs[numtrigs]._tx = 31 + dminx;
-		trigs[numtrigs]._ty = 70 + dminy;
+		trigs[numtrigs]._tx = 31 + DBORDERX;
+		trigs[numtrigs]._ty = 70 + DBORDERY;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 13;
 		numtrigs++;
 	}
 #ifdef HELLFIRE
 	if (gbMaxPlayers != 1 || quests[Q_GRAVE]._qactive == 3) {
-		trigs[numtrigs]._tx = 26 + dminx;
-		trigs[numtrigs]._ty = 14 + dminy;
+		trigs[numtrigs]._tx = 26 + DBORDERX;
+		trigs[numtrigs]._ty = 14 + DBORDERY;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 21;
 		numtrigs++;
 	}
-	trigs[numtrigs]._tx = 70 + dminx;
-	trigs[numtrigs]._ty = 52 + dminy;
+	trigs[numtrigs]._tx = 70 + DBORDERX;
+	trigs[numtrigs]._ty = 52 + DBORDERY;
 	trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 	trigs[numtrigs]._tlvl = 17;
 	numtrigs++;
@@ -334,16 +334,16 @@ static BOOL ForceTownTrig()
 	for (i = 0; TownCryptList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownCryptList[i]) {
 			copy_cstr(infostr, "Down to Crypt");
-			cursmx = 26 + dminx;
-			cursmy = 14 + dminy;
+			cursmx = 26 + DBORDERX;
+			cursmy = 14 + DBORDERY;
 			return TRUE;
 		}
 	}
 	for (i = 0; TownHiveList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownHiveList[i]) {
 			copy_cstr(infostr, "Down to Hive");
-			cursmx = 70 + dminx;
-			cursmy = 52 + dminy;
+			cursmx = 70 + DBORDERX;
+			cursmy = 52 + DBORDERY;
 			return TRUE;
 		}
 	}
@@ -352,8 +352,8 @@ static BOOL ForceTownTrig()
 	for (i = 0; TownDownList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownDownList[i]) {
 			copy_cstr(infostr, "Down to dungeon");
-			cursmx = 15 + dminx;
-			cursmy = 19 + dminy;
+			cursmx = 15 + DBORDERX;
+			cursmy = 19 + DBORDERY;
 			return TRUE;
 		}
 	}
@@ -362,8 +362,8 @@ static BOOL ForceTownTrig()
 		for (i = 0; TownWarp1List[i] != -1; i++) {
 			if (dPiece[cursmx][cursmy] == TownWarp1List[i]) {
 				copy_cstr(infostr, "Down to catacombs");
-				cursmx = 39 + dminx;
-				cursmy = 11 + dminy;
+				cursmx = 39 + DBORDERX;
+				cursmy = 11 + DBORDERY;
 				return TRUE;
 			}
 		}
@@ -373,8 +373,8 @@ static BOOL ForceTownTrig()
 		for (i = 1199; i <= 1220; i++) {
 			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to caves");
-				cursmx = 7 + dminx;
-				cursmy = 59 + dminy;
+				cursmx = 7 + DBORDERX;
+				cursmy = 59 + DBORDERY;
 				return TRUE;
 			}
 		}
@@ -384,8 +384,8 @@ static BOOL ForceTownTrig()
 		for (i = 1240; i <= 1255; i++) {
 			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to hell");
-				cursmx = 31 + dminx;
-				cursmy = 70 + dminy;
+				cursmx = 31 + DBORDERX;
+				cursmy = 70 + DBORDERY;
 				return TRUE;
 			}
 		}

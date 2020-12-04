@@ -1745,11 +1745,6 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 {
 	SetRndSeed(rseed);
 
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
-
 	ViewX = DSIZEX / 2;
 	ViewY = DSIZEY / 2;
 
@@ -1765,11 +1760,6 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
-
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
 
 	DRLG_InitTrans();
 	InitL4Dungeon();
@@ -1808,11 +1798,6 @@ static void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
-
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
 
 	InitL4Dungeon();
 

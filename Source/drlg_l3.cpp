@@ -2465,11 +2465,6 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
-
 	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_L3(entry);
@@ -2508,11 +2503,6 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	BYTE *pLevelMap, *lm;
 
 	InitL3Dungeon();
-
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
 
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);

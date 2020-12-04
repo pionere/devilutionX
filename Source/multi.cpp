@@ -609,12 +609,12 @@ static void SetupLocalCoords()
 	PlayerStruct *p;
 	int x, y;
 
-	x = 75;
-	y = 68;
+	x = 65 + DBORDERX;
+	y = 58 + DBORDERY;
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v || debug_mode_key_d) {
-		x = 49;
-		y = 23;
+		x = 39 + DBORDERX;
+		y = 13 + DBORDERY;
 	}
 	if (!leveldebug || gbMaxPlayers != 1) {
 		currlevel = 0;

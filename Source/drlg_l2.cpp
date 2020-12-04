@@ -3374,11 +3374,6 @@ void CreateL2Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
-
 	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_LoadL2SP();

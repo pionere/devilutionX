@@ -1288,12 +1288,12 @@ void ScrollView()
 	scroll = FALSE;
 
 	if (MouseX < 20) {
-		if (dmaxy - 1 <= ViewY || dminx >= ViewX) {
-			if (dmaxy - 1 > ViewY) {
+		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
+			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
 				scroll = TRUE;
 			}
-			if (dminx < ViewX) {
+			if (DBORDERX < ViewX) {
 				ViewX--;
 				scroll = TRUE;
 			}
@@ -1304,12 +1304,12 @@ void ScrollView()
 		}
 	}
 	if (MouseX > SCREEN_WIDTH - 20) {
-		if (dmaxx - 1 <= ViewX || dminy >= ViewY) {
-			if (dmaxx - 1 > ViewX) {
+		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
+			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
 				scroll = TRUE;
 			}
-			if (dminy < ViewY) {
+			if (DBORDERY < ViewY) {
 				ViewY--;
 				scroll = TRUE;
 			}
@@ -1320,12 +1320,12 @@ void ScrollView()
 		}
 	}
 	if (MouseY < 20) {
-		if (dminy >= ViewY || dminx >= ViewX) {
-			if (dminy < ViewY) {
+		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
+			if (DBORDERY < ViewY) {
 				ViewY--;
 				scroll = TRUE;
 			}
-			if (dminx < ViewX) {
+			if (DBORDERX < ViewX) {
 				ViewX--;
 				scroll = TRUE;
 			}
@@ -1336,12 +1336,12 @@ void ScrollView()
 		}
 	}
 	if (MouseY > SCREEN_HEIGHT - 20) {
-		if (dmaxy - 1 <= ViewY || dmaxx - 1 <= ViewX) {
-			if (dmaxy - 1 > ViewY) {
+		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
+			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
 				scroll = TRUE;
 			}
-			if (dmaxx - 1 > ViewX) {
+			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
 				scroll = TRUE;
 			}

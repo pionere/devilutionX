@@ -1153,11 +1153,6 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
-
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
@@ -1205,11 +1200,6 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
-
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
 
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
@@ -2727,11 +2717,6 @@ void CreateL5Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	dminx = DBORDERX;
-	dminy = DBORDERY;
-	dmaxx = DSIZEX + DBORDERX;
-	dmaxy = DSIZEY + DBORDERY;
-
 #ifdef HELLFIRE
 	UberRow = 0;
 	UberCol = 0;
@@ -2758,8 +2743,8 @@ void CreateL5Dungeon(DWORD rseed, int entry)
 
 	DRLG_SetPC();
 
-	for (j = dminy; j < dmaxy; j++) {
-		for (i = dminx; i < dmaxx; i++) {
+	for (j = DBORDERY; j < DSIZEY + DBORDERY; j++) {
+		for (i = DBORDERX; i < DSIZEX + DBORDERX; i++) {
 			if (dPiece[i][j] == 290) {
 				UberRow = i;
 				UberCol = j;
