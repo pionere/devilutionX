@@ -211,27 +211,33 @@ void T_CryptOpen()
 	SetDungeonMicros();
 }
 
-/** Return the available town-warps for the current player
-*/
+/**
+ * Return the available town-warps for the current player
+ */
 unsigned char GetOpenWarps()
 {
-	unsigned char twarps;
-#ifdef SPAWN
-	townwarps = 0;
-#else
+	unsigned char twarps = 1 << TWARP_CATHEDRAL;
+#ifndef SPAWN
 	if (gbMaxPlayers == 1) {
-		twarps = plr[myplr].pTownWarps;
+		twarps |= plr[myplr].pTownWarps << 1;
 #ifdef HELLFIRE
 		if (plr[myplr]._pLevel >= 10)
-			twarps |= 1;
+			twarps |= 1 << TWARP_CATACOMB;
 		if (plr[myplr]._pLevel >= 15)
-			twarps |= 2;
+			twarps |= 1 << TWARP_CAVES;
 		if (plr[myplr]._pLevel >= 20)
-			twarps |= 4;
+			twarps |= 1 << TWARP_HELL;
 #endif
 	} else {
-		twarps = 0xFF;
+		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
 	}
+#endif
+#ifdef HELLFIRE
+	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
+	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
+		twarps |= 1 << TWARP_HIVE;
+	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
+		twarps |= 1 << TWARP_CRYPT;
 #endif
 	return twarps;
 }
@@ -261,32 +267,30 @@ void T_Pass3()
 	T_FillSector(P3Tiles, pSector, -10 + DBORDERX, -10 + DBORDERY, 23, 23);
 	mem_free_dbg(pSector);
 
-#ifdef HELLFIRE
-	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
-	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
-		T_HiveOpen();
-	else
-		T_HiveClosed();
-	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
-		T_CryptOpen();
-	else
-		T_CryptClosed();
-#endif
-
 	twarps = GetOpenWarps();
-	if (!(twarps & 1))
+	if (!(twarps & (1 << TWARP_CATACOMB)))
 		T_FillTile(P3Tiles, 38 + DBORDERX, 10 + DBORDERY, 320);
-	if (!(twarps & 2)) {
+	if (!(twarps & (1 << TWARP_CAVES))) {
 		T_FillTile(P3Tiles, 6 + DBORDERX, 58 + DBORDERY, 332);
 		T_FillTile(P3Tiles, 6 + DBORDERX, 60 + DBORDERY, 331);
 	}
-	if (!(twarps & 4)) {
+	if (!(twarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x++) {
 			T_FillTile(P3Tiles, x, 68 + DBORDERY, random_(0, 4) + 1);
 		}
 	}
+#ifdef HELLFIRE
+	if (!(twarps & (1 << TWARP_HIVE)))
+		T_HiveClosed();
+	else
+		T_HiveOpen();
+	if (!(twarps & (1 << TWARP_CRYPT)))
+		T_CryptClosed();
+	else
+		T_CryptOpen();
+#endif
 
-	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive) {
+	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive != QUEST_NOTAVAIL) {
 		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 342);
 	} else {
 		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 71);

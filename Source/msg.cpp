@@ -2568,6 +2568,7 @@ static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs != 1) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
 		T_HiveOpen();
+		InitTownTriggers();
 	}
 	return sizeof(*pCmd);
 }

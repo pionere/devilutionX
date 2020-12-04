@@ -2286,6 +2286,18 @@ typedef enum dungeon_type {
 	DTYPE_NONE      = 0xFF,
 } dungeon_type;
 
+typedef enum townwarp_dest {
+	TWARP_CATHEDRAL,
+	TWARP_CATACOMB,
+	TWARP_CAVES,
+	TWARP_HELL,
+#ifdef HELLFIRE
+	TWARP_HIVE,
+	TWARP_CRYPT,
+#endif
+	NUM_TWARP
+} townwarp_dest;
+
 typedef enum dflag {
 	BFLAG_MISSILE     = 0x01,
 	BFLAG_VISIBLE     = 0x02,
