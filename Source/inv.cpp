@@ -1862,7 +1862,7 @@ int InvPutItem(int pnum, int x, int y)
 
 #ifdef HELLFIRE
 	if (currlevel == 0) {
-		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= 79 && cursmx <= 82 && cursmy >= 61 && cursmy <= 64) {
+		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= 69 + dminx && cursmx <= 72 + dminx && cursmy >= 51 + dminy && cursmy <= 54 + dminy) {
 			NetSendCmd(FALSE, CMD_OPENHIVE);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
@@ -1870,7 +1870,7 @@ int InvPutItem(int pnum, int x, int y)
 			}
 			return -1;
 		}
-		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && cursmx >= 35 && cursmx <= 38 && cursmy >= 20 && cursmy <= 24) {
+		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && cursmx >= 25 + dminx && cursmx <= 28 + dminx && cursmy >= 10 + dminy && cursmy <= 14 + dminy) {
 			NetSendCmd(FALSE, CMD_OPENCRYPT);
 			quests[Q_GRAVE]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {

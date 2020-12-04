@@ -69,8 +69,8 @@ void InitTownTriggers()
 	trigflag = FALSE;
 	numtrigs = 0;
 
-	trigs[numtrigs]._tx = 25;
-	trigs[numtrigs]._ty = 29;
+	trigs[numtrigs]._tx = 15 + dminx;
+	trigs[numtrigs]._ty = 19 + dminy;
 	trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 	numtrigs++;
 
@@ -81,38 +81,38 @@ void InitTownTriggers()
 
 	if (twarps & 1) {
 		townwarps[0] = TRUE;
-		trigs[numtrigs]._tx = 49;
-		trigs[numtrigs]._ty = 21;
+		trigs[numtrigs]._tx = 39 + dminx;
+		trigs[numtrigs]._ty = 11 + dminy;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 5;
 		numtrigs++;
 	}
 	if (twarps & 2) {
 		townwarps[1] = TRUE;
-		trigs[numtrigs]._tx = 17;
-		trigs[numtrigs]._ty = 69;
+		trigs[numtrigs]._tx = 7 + dminx;
+		trigs[numtrigs]._ty = 59 + dminy;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 9;
 		numtrigs++;
 	}
 	if (twarps & 4) {
 		townwarps[2] = TRUE;
-		trigs[numtrigs]._tx = 41;
-		trigs[numtrigs]._ty = 80;
+		trigs[numtrigs]._tx = 31 + dminx;
+		trigs[numtrigs]._ty = 70 + dminy;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 13;
 		numtrigs++;
 	}
 #ifdef HELLFIRE
 	if (gbMaxPlayers != 1 || quests[Q_GRAVE]._qactive == 3) {
-		trigs[numtrigs]._tx = 36;
-		trigs[numtrigs]._ty = 24;
+		trigs[numtrigs]._tx = 26 + dminx;
+		trigs[numtrigs]._ty = 14 + dminy;
 		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 		trigs[numtrigs]._tlvl = 21;
 		numtrigs++;
 	}
-	trigs[numtrigs]._tx = 80;
-	trigs[numtrigs]._ty = 62;
+	trigs[numtrigs]._tx = 70 + dminx;
+	trigs[numtrigs]._ty = 52 + dminy;
 	trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
 	trigs[numtrigs]._tlvl = 17;
 	numtrigs++;

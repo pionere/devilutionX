@@ -81,133 +81,133 @@ void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t)
 
 void T_HiveOpen()
 {
-	dPiece[78][60] = 0x48a;
-	dPiece[79][60] = 0x48b;
-	dPiece[78][61] = 0x48c;
-	dPiece[79][61] = 0x50e;
-	dPiece[78][62] = 0x4ee;
-	dPiece[78][63] = 0x4f0;
-	dPiece[79][62] = 0x510;
-	dPiece[79][63] = 0x511;
-	dPiece[79][64] = 0x512;
-	dPiece[78][64] = 0x11a;
-	dPiece[78][65] = 0x11c;
-	dPiece[79][65] = 0x11d;
-	dPiece[80][60] = 0x513;
-	dPiece[80][61] = 0x515;
-	dPiece[81][61] = 0x516;
-	dPiece[82][60] = 0x517;
-	dPiece[83][60] = 0x518;
-	dPiece[82][61] = 0x519;
-	dPiece[83][61] = 0x51a;
-	dPiece[80][62] = 0x51b;
-	dPiece[81][62] = 0x51c;
-	dPiece[80][63] = 0x51d;
-	dPiece[81][63] = 0x51e;
-	dPiece[80][64] = 0x51f;
-	dPiece[81][64] = 0x520;
-	dPiece[80][65] = 0x521;
-	dPiece[81][65] = 0x522;
-	dPiece[82][64] = 0x527;
-	dPiece[83][64] = 0x528;
-	dPiece[82][65] = 0x529;
-	dPiece[83][65] = 0x52a;
-	dPiece[82][62] = 0x523;
-	dPiece[83][62] = 0x524;
-	dPiece[82][63] = 0x525;
-	dPiece[83][63] = 0x526;
-	dPiece[84][61] = 0x118;
-	dPiece[84][62] = 0x118;
-	dPiece[84][63] = 0x118;
-	dPiece[85][60] = 0x118;
-	dPiece[85][61] = 0x118;
-	dPiece[85][63] = 8;
-	dPiece[85][64] = 8;
-	dPiece[86][60] = 0xd9;
-	dPiece[86][61] = 0x18;
-	dPiece[85][62] = 0x13;
-	dPiece[84][64] = 0x118;
+	dPiece[68 + dminx][50 + dminy] = 0x48a;
+	dPiece[69 + dminx][50 + dminy] = 0x48b;
+	dPiece[68 + dminx][51 + dminy] = 0x48c;
+	dPiece[69 + dminx][51 + dminy] = 0x50e;
+	dPiece[68 + dminx][52 + dminy] = 0x4ee;
+	dPiece[68 + dminx][53 + dminy] = 0x4f0;
+	dPiece[69 + dminx][52 + dminy] = 0x510;
+	dPiece[69 + dminx][53 + dminy] = 0x511;
+	dPiece[69 + dminx][54 + dminy] = 0x512;
+	dPiece[68 + dminx][54 + dminy] = 0x11a;
+	dPiece[68 + dminx][55 + dminy] = 0x11c;
+	dPiece[69 + dminx][55 + dminy] = 0x11d;
+	dPiece[70 + dminx][50 + dminy] = 0x513;
+	dPiece[70 + dminx][51 + dminy] = 0x515;
+	dPiece[71 + dminx][51 + dminy] = 0x516;
+	dPiece[72 + dminx][50 + dminy] = 0x517;
+	dPiece[73 + dminx][50 + dminy] = 0x518;
+	dPiece[72 + dminx][51 + dminy] = 0x519;
+	dPiece[73 + dminx][51 + dminy] = 0x51a;
+	dPiece[70 + dminx][52 + dminy] = 0x51b;
+	dPiece[71 + dminx][52 + dminy] = 0x51c;
+	dPiece[70 + dminx][53 + dminy] = 0x51d;
+	dPiece[71 + dminx][53 + dminy] = 0x51e;
+	dPiece[70 + dminx][54 + dminy] = 0x51f;
+	dPiece[71 + dminx][54 + dminy] = 0x520;
+	dPiece[70 + dminx][55 + dminy] = 0x521;
+	dPiece[71 + dminx][55 + dminy] = 0x522;
+	dPiece[72 + dminx][54 + dminy] = 0x527;
+	dPiece[73 + dminx][54 + dminy] = 0x528;
+	dPiece[72 + dminx][55 + dminy] = 0x529;
+	dPiece[73 + dminx][55 + dminy] = 0x52a;
+	dPiece[72 + dminx][52 + dminy] = 0x523;
+	dPiece[73 + dminx][52 + dminy] = 0x524;
+	dPiece[72 + dminx][53 + dminy] = 0x525;
+	dPiece[73 + dminx][53 + dminy] = 0x526;
+	dPiece[74 + dminx][51 + dminy] = 0x118;
+	dPiece[74 + dminx][52 + dminy] = 0x118;
+	dPiece[74 + dminx][53 + dminy] = 0x118;
+	dPiece[75 + dminx][50 + dminy] = 0x118;
+	dPiece[75 + dminx][51 + dminy] = 0x118;
+	dPiece[75 + dminx][53 + dminy] = 8;
+	dPiece[75 + dminx][54 + dminy] = 8;
+	dPiece[76 + dminx][50 + dminy] = 0xd9;
+	dPiece[76 + dminx][51 + dminy] = 0x18;
+	dPiece[75 + dminx][52 + dminy] = 0x13;
+	dPiece[74 + dminx][54 + dminy] = 0x118;
 	SetDungeonMicros();
 }
 
 static void T_HiveClosed()
 {
-	dPiece[78][60] = 0x48a;
-	dPiece[79][60] = 0x4eb;
-	dPiece[78][61] = 0x4ec;
-	dPiece[79][61] = 0x4ed;
-	dPiece[78][62] = 0x4ee;
-	dPiece[79][62] = 0x4ef;
-	dPiece[78][63] = 0x4f0;
-	dPiece[79][63] = 0x4f1;
-	dPiece[78][64] = 0x4f2;
-	dPiece[79][64] = 0x4f3;
-	dPiece[78][65] = 0x4f4;
-	dPiece[80][60] = 0x4f5;
-	dPiece[81][60] = 0x4f6;
-	dPiece[80][61] = 0x4f7;
-	dPiece[81][61] = 0x4f8;
-	dPiece[82][60] = 0x4f9;
-	dPiece[83][60] = 0x4fa;
-	dPiece[82][61] = 0x4fb;
-	dPiece[83][61] = 0x4fc;
-	dPiece[80][62] = 0x4fd;
-	dPiece[81][62] = 0x4fe;
-	dPiece[80][63] = 0x4ff;
-	dPiece[81][63] = 0x500;
-	dPiece[80][64] = 0x501;
-	dPiece[81][64] = 0x502;
-	dPiece[80][65] = 0x503;
-	dPiece[81][65] = 0x504;
-	dPiece[82][64] = 0x509;
-	dPiece[83][64] = 0x50a;
-	dPiece[82][65] = 0x50b;
-	dPiece[83][65] = 0x50c;
-	dPiece[82][62] = 0x505;
-	dPiece[83][62] = 0x506;
-	dPiece[82][63] = 0x507;
-	dPiece[83][63] = 0x508;
-	dPiece[84][61] = 0x118;
-	dPiece[84][62] = 0x118;
-	dPiece[84][63] = 0x118;
-	dPiece[85][60] = 0x118;
-	dPiece[85][61] = 0x118;
-	dPiece[85][63] = 8;
-	dPiece[85][64] = 8;
-	dPiece[86][60] = 0xd9;
-	dPiece[86][61] = 0x18;
-	dPiece[85][62] = 0x13;
-	dPiece[84][64] = 0x118;
+	dPiece[68 + dminx][50 + dminy] = 0x48a;
+	dPiece[69 + dminx][50 + dminy] = 0x4eb;
+	dPiece[68 + dminx][51 + dminy] = 0x4ec;
+	dPiece[69 + dminx][51 + dminy] = 0x4ed;
+	dPiece[68 + dminx][52 + dminy] = 0x4ee;
+	dPiece[69 + dminx][52 + dminy] = 0x4ef;
+	dPiece[68 + dminx][53 + dminy] = 0x4f0;
+	dPiece[69 + dminx][53 + dminy] = 0x4f1;
+	dPiece[68 + dminx][54 + dminy] = 0x4f2;
+	dPiece[69 + dminx][54 + dminy] = 0x4f3;
+	dPiece[68 + dminx][55 + dminy] = 0x4f4;
+	dPiece[70 + dminx][50 + dminy] = 0x4f5;
+	dPiece[71 + dminx][50 + dminy] = 0x4f6;
+	dPiece[70 + dminx][51 + dminy] = 0x4f7;
+	dPiece[71 + dminx][51 + dminy] = 0x4f8;
+	dPiece[72 + dminx][50 + dminy] = 0x4f9;
+	dPiece[73 + dminx][50 + dminy] = 0x4fa;
+	dPiece[72 + dminx][51 + dminy] = 0x4fb;
+	dPiece[73 + dminx][51 + dminy] = 0x4fc;
+	dPiece[70 + dminx][52 + dminy] = 0x4fd;
+	dPiece[71 + dminx][52 + dminy] = 0x4fe;
+	dPiece[70 + dminx][53 + dminy] = 0x4ff;
+	dPiece[71 + dminx][53 + dminy] = 0x500;
+	dPiece[70 + dminx][54 + dminy] = 0x501;
+	dPiece[71 + dminx][54 + dminy] = 0x502;
+	dPiece[70 + dminx][55 + dminy] = 0x503;
+	dPiece[71 + dminx][55 + dminy] = 0x504;
+	dPiece[72 + dminx][54 + dminy] = 0x509;
+	dPiece[73 + dminx][54 + dminy] = 0x50a;
+	dPiece[72 + dminx][55 + dminy] = 0x50b;
+	dPiece[73 + dminx][55 + dminy] = 0x50c;
+	dPiece[72 + dminx][52 + dminy] = 0x505;
+	dPiece[73 + dminx][52 + dminy] = 0x506;
+	dPiece[72 + dminx][53 + dminy] = 0x507;
+	dPiece[73 + dminx][53 + dminy] = 0x508;
+	dPiece[74 + dminx][51 + dminy] = 0x118;
+	dPiece[74 + dminx][52 + dminy] = 0x118;
+	dPiece[74 + dminx][53 + dminy] = 0x118;
+	dPiece[75 + dminx][50 + dminy] = 0x118;
+	dPiece[75 + dminx][51 + dminy] = 0x118;
+	dPiece[75 + dminx][53 + dminy] = 8;
+	dPiece[75 + dminx][54 + dminy] = 8;
+	dPiece[76 + dminx][50 + dminy] = 0xd9;
+	dPiece[76 + dminx][51 + dminy] = 0x18;
+	dPiece[75 + dminx][52 + dminy] = 0x13;
+	dPiece[74 + dminx][54 + dminy] = 0x118;
 	SetDungeonMicros();
 }
 
 static void T_CryptClosed()
 {
-	dPiece[36][21] = 0x52b;
-	dPiece[37][21] = 0x52c;
-	dPiece[36][22] = 0x52d;
-	dPiece[37][22] = 0x52e;
-	dPiece[36][23] = 0x52f;
-	dPiece[37][23] = 0x530;
-	dPiece[36][24] = 0x531;
-	dPiece[37][24] = 0x532;
-	dPiece[35][21] = 0x53b;
-	dPiece[34][21] = 0x53c;
+	dPiece[26 + dminx][11 + dminy] = 0x52b;
+	dPiece[27 + dminx][11 + dminy] = 0x52c;
+	dPiece[26 + dminx][12 + dminy] = 0x52d;
+	dPiece[27 + dminx][12 + dminy] = 0x52e;
+	dPiece[26 + dminx][13 + dminy] = 0x52f;
+	dPiece[27 + dminx][13 + dminy] = 0x530;
+	dPiece[26 + dminx][14 + dminy] = 0x531;
+	dPiece[27 + dminx][14 + dminy] = 0x532;
+	dPiece[25 + dminx][11 + dminy] = 0x53b;
+	dPiece[24 + dminx][11 + dminy] = 0x53c;
 	SetDungeonMicros();
 }
 
 void T_CryptOpen()
 {
-	dPiece[36][21] = 0x533;
-	dPiece[37][21] = 0x534;
-	dPiece[36][22] = 0x535;
-	dPiece[37][22] = 0x536;
-	dPiece[36][23] = 0x537;
-	dPiece[37][23] = 0x538;
-	dPiece[36][24] = 0x539;
-	dPiece[37][24] = 0x53a;
-	dPiece[35][21] = 0x53b;
-	dPiece[34][21] = 0x53c;
+	dPiece[26 + dminx][11 + dminy] = 0x533;
+	dPiece[27 + dminx][11 + dminy] = 0x534;
+	dPiece[26 + dminx][12 + dminy] = 0x535;
+	dPiece[27 + dminx][12 + dminy] = 0x536;
+	dPiece[26 + dminx][13 + dminy] = 0x537;
+	dPiece[27 + dminx][13 + dminy] = 0x538;
+	dPiece[26 + dminx][14 + dminy] = 0x539;
+	dPiece[27 + dminx][14 + dminy] = 0x53a;
+	dPiece[25 + dminx][11 + dminy] = 0x53b;
+	dPiece[24 + dminx][11 + dminy] = 0x53c;
 	SetDungeonMicros();
 }
 
@@ -249,16 +249,16 @@ void T_Pass3()
 
 	P3Tiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
 	pSector = LoadFileInMem("Levels\\TownData\\Sector1s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 46, 46, 25, 25);
+	T_FillSector(P3Tiles, pSector, 36 + dminx, 36 + dminy, 25, 25);
 	mem_free_dbg(pSector);
 	pSector = LoadFileInMem("Levels\\TownData\\Sector2s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 46, 0, 25, 23);
+	T_FillSector(P3Tiles, pSector, 36 + dminx, -10 + dminy, 25, 23);
 	mem_free_dbg(pSector);
 	pSector = LoadFileInMem("Levels\\TownData\\Sector3s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 0, 46, 23, 25);
+	T_FillSector(P3Tiles, pSector, -10 + dminx, 36 + dminy, 23, 25);
 	mem_free_dbg(pSector);
 	pSector = LoadFileInMem("Levels\\TownData\\Sector4s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 0, 0, 23, 23);
+	T_FillSector(P3Tiles, pSector, -10 + dminx, -10 + dminy, 23, 23);
 	mem_free_dbg(pSector);
 
 #ifdef HELLFIRE
@@ -275,21 +275,21 @@ void T_Pass3()
 
 	twarps = GetOpenWarps();
 	if (!(twarps & 1))
-		T_FillTile(P3Tiles, 48, 20, 320);
+		T_FillTile(P3Tiles, 38 + dminx, 10 + dminy, 320);
 	if (!(twarps & 2)) {
-		T_FillTile(P3Tiles, 16, 68, 332);
-		T_FillTile(P3Tiles, 16, 70, 331);
+		T_FillTile(P3Tiles, 6 + dminx, 58 + dminy, 332);
+		T_FillTile(P3Tiles, 6 + dminx, 60 + dminy, 331);
 	}
 	if (!(twarps & 4)) {
-		for (x = 36; x < 46; x++) {
-			T_FillTile(P3Tiles, x, 78, random_(0, 4) + 1);
+		for (x = 26 + dminx; x < 36 + dminx; x++) {
+			T_FillTile(P3Tiles, x, 68 + dminy, random_(0, 4) + 1);
 		}
 	}
 
 	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive) {
-		T_FillTile(P3Tiles, 60, 70, 342);
+		T_FillTile(P3Tiles, 50 + dminx, 60 + dminy, 342);
 	} else {
-		T_FillTile(P3Tiles, 60, 70, 71);
+		T_FillTile(P3Tiles, 50 + dminx, 60 + dminy, 71);
 	}
 
 	mem_free_dbg(P3Tiles);
@@ -311,28 +311,28 @@ void CreateTown(int entry)
 	DRLG_Init_Globals();
 
 	if (entry == ENTRY_MAIN) { // New game
-		ViewX = 75;
-		ViewY = 68;
+		ViewX = 65 + dminx;
+		ViewY = 58 + dminy;
 	} else if (entry == ENTRY_PREV) { // Cathedral
-		ViewX = 25;
-		ViewY = 31;
+		ViewX = 15 + dminx;
+		ViewY = 21 + dminy;
 	} else if (entry == ENTRY_TWARPUP) {
 		if (TWarpFrom == 5) {
-			ViewX = 49;
-			ViewY = 22;
+			ViewX = 39 + dminx;
+			ViewY = 12 + dminy;
 		} else if (TWarpFrom == 9) {
-			ViewX = 18;
-			ViewY = 69;
+			ViewX = 8 + dminx;
+			ViewY = 59 + dminy;
 		} else if (TWarpFrom == 13) {
-			ViewX = 41;
-			ViewY = 81;
+			ViewX = 31 + dminx;
+			ViewY = 71 + dminy;
 #ifdef HELLFIRE
 		} else if (TWarpFrom == 17) {
-			ViewX = 79;
-			ViewY = 62;
+			ViewX = 69 + dminx;
+			ViewY = 52 + dminy;
 		} else if (TWarpFrom == 21) {
-			ViewX = 36;
-			ViewY = 25;
+			ViewX = 26 + dminx;
+			ViewY = 15 + dminy;
 #endif
 		}
 	}
