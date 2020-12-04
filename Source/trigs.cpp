@@ -334,16 +334,16 @@ static BOOL ForceTownTrig()
 	for (i = 0; TownCryptList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownCryptList[i]) {
 			copy_cstr(infostr, "Down to Crypt");
-			cursmx = 36;
-			cursmy = 24;
+			cursmx = 26 + dminx;
+			cursmy = 14 + dminy;
 			return TRUE;
 		}
 	}
 	for (i = 0; TownHiveList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownHiveList[i]) {
 			copy_cstr(infostr, "Down to Hive");
-			cursmx = 80;
-			cursmy = 62;
+			cursmx = 70 + dminx;
+			cursmy = 52 + dminy;
 			return TRUE;
 		}
 	}
@@ -352,8 +352,8 @@ static BOOL ForceTownTrig()
 	for (i = 0; TownDownList[i] != -1; i++) {
 		if (dPiece[cursmx][cursmy] == TownDownList[i]) {
 			copy_cstr(infostr, "Down to dungeon");
-			cursmx = 25;
-			cursmy = 29;
+			cursmx = 15 + dminx;
+			cursmy = 19 + dminy;
 			return TRUE;
 		}
 	}
@@ -362,8 +362,8 @@ static BOOL ForceTownTrig()
 		for (i = 0; TownWarp1List[i] != -1; i++) {
 			if (dPiece[cursmx][cursmy] == TownWarp1List[i]) {
 				copy_cstr(infostr, "Down to catacombs");
-				cursmx = 49;
-				cursmy = 21;
+				cursmx = 39 + dminx;
+				cursmy = 11 + dminy;
 				return TRUE;
 			}
 		}
@@ -373,8 +373,8 @@ static BOOL ForceTownTrig()
 		for (i = 1199; i <= 1220; i++) {
 			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to caves");
-				cursmx = 17;
-				cursmy = 69;
+				cursmx = 7 + dminx;
+				cursmy = 59 + dminy;
 				return TRUE;
 			}
 		}
@@ -384,8 +384,8 @@ static BOOL ForceTownTrig()
 		for (i = 1240; i <= 1255; i++) {
 			if (dPiece[cursmx][cursmy] == i) {
 				copy_cstr(infostr, "Down to hell");
-				cursmx = 41;
-				cursmy = 80;
+				cursmx = 31 + dminx;
+				cursmy = 70 + dminy;
 				return TRUE;
 			}
 		}
