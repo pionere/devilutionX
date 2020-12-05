@@ -21,7 +21,7 @@ BOOLEAN lockout[DMAXX][DMAXY];
  */
 const BYTE L3ConvTbl[16] = { 8, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
 /** Miniset: Stairs up. */
-const BYTE L3UP[] = {
+const BYTE L3USTAIRS[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -32,10 +32,18 @@ const BYTE L3UP[] = {
 	51, 50, 0, // replace
 	48, 49, 0,
 	 0,  0, 0,
+/*  181,182    178,179,     0,  0,	// MegaTiles
+	183, 31    180, 31,     0,  0,
+
+	170,171    174,175,     0,  0,
+	172,173    176,177,     0,  0,
+
+	  0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
-const BYTE L6UP[] = {
+const BYTE L6USTAIRS[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -50,7 +58,7 @@ const BYTE L6UP[] = {
 };
 #endif
 /** Miniset: Stairs down. */
-const BYTE L3DOWN[] = {
+const BYTE L3DSTAIRS[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -61,10 +69,18 @@ const BYTE L3DOWN[] = {
 	0, 47, 0, // replace
 	0, 46, 0,
 	0,  0, 0,
+	/*0,  0,   166,167,     0,  0,	// MegaTiles
+	  0,  0,   168,169,     0,  0,
+
+	  0,  0,   162,163,     0,  0,
+	  0,  0,   164,165,     0,  0,
+
+	  0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
-const BYTE L6DOWN[] = {
+const BYTE L6DSTAIRS[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -79,7 +95,7 @@ const BYTE L6DOWN[] = {
 };
 #endif
 /** Miniset: Stairs up to town. */
-const BYTE L3HOLDWARP[] = {
+const BYTE L3TWARP[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -90,10 +106,18 @@ const BYTE L3HOLDWARP[] = {
 	125, 125, 0, // replace
 	125, 125, 0,
 	  0,   0, 0,
+/*  559,182    556,557,     0,  0,	// MegaTiles
+	560, 31    558, 31,     0,  0,
+
+	548,549    552,553,     0,  0,
+	550,551    554,555,     0,  0,
+
+	  0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
-const BYTE L6HOLDWARP[] = {
+const BYTE L6TWARP[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -2219,34 +2243,34 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6UP, TRUE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, TRUE, 0);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE, 6);
 					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE, 1);
 				} else
 #endif
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, TRUE, 0)
-					 && DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
-					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, TRUE, 0)
+					 && DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE, 1)
+					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE, 6));
 			} else if (entry == ENTRY_PREV) {
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE, 0);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, FALSE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, FALSE, 6);
 					if (doneflag && currlevel != 20) {
-						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, TRUE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, TRUE, 1);
 						ViewX += 2;
 						ViewY -= 2;
 					}
 				} else
 #endif
 				{
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DOWN, TRUE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, FALSE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, TRUE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE, 6));
 					ViewX += 2;
 					ViewY -= 2;
 				}
@@ -2254,16 +2278,16 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6UP, FALSE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE, 0);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6HOLDWARP, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE, 6);
 					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DOWN, FALSE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE, 1);
 				} else
 #endif
-					doneflag = DRLG_L3PlaceMiniSet(L3UP, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DOWN, FALSE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3HOLDWARP, TRUE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE, 0)
+						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE, 1)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, TRUE, 6));
 			}
 			if (doneflag && QuestStatus(Q_ANVIL)) {
 				doneflag = DRLG_L3Anvil();

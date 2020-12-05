@@ -48,6 +48,20 @@ const BYTE L4USTAIRS[] = {
 	37, 34, 33, 32,
 	 0,  0, 31,  0,
 	 0,  0,  0,  0,
+/*    0,  0,     0,  0,     0,  0,     0,  0,	// MegaTiles
+	  0,  0,     0,  0,     0,  0,     0,  0,
+
+	102,103,   110,111,    98, 99,     0,  0,
+	104,105,   112,113,   100,101,     0,  0,
+
+	106,107,    94, 95,    90, 91,    86, 87,
+	108,109,    96, 97,    92, 93,    88, 89 
+
+	  0,  0,     0,  0,    82, 83,     0,  0,
+	  0,  0,     0,  0,    84, 85,     0,  0,
+
+	  0,  0,     0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 /** Miniset: Stairs up to town. */
@@ -66,6 +80,20 @@ const BYTE L4TWARP[] = {
 	135, 132, 131, 130,
 	  0,   0, 129,   0,
 	  0,   0,   0,   0,
+/*    0,  0,     0,  0,     0,  0,     0,  0,	// MegaTiles
+	  0,  0,     0,  0,     0,  0,     0,  0,
+
+	441,442,   449,450,   437,438,     0,  0,
+	443,444,   451,452,   439,440,     0,  0,
+
+	445,446,   433,434,   429,430,   425,426,
+	447,448,   435,436,   431,432,   427,428,
+
+	  0,  0,     0,  0,   421,422,     0,  0,
+	  0,  0,     0,  0,   423,424,     0,  0,
+
+	  0,  0,     0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 /** Miniset: Stairs down. */
@@ -84,6 +112,20 @@ const BYTE L4DSTAIRS[] = {
 	0, 44, 43, 40, 0,
 	0, 46, 42, 39, 0,
 	0,  0,  0,  0, 0,
+/*    0,  0,     0,  0,     0,  0,     0,  0,    0,  0,	// MegaTiles
+	  0,  0,     0,  0,     0,  0,     0,  0,    0,  0,
+
+	  0,  0,     0,  0,   137,138,   122,123,    0,  0,
+	  0,  0,     0,  0,   139,140,   124,125,    0,  0,
+
+	  0,  0,   134,135,   130,131,   118,119,    0,  0,
+	  0,  0,    49,136,	  132,133,   120,121,    0,  0,
+
+	  0,  0,   141,142,   126,127,   114,115     0,  0,
+	  0,  0,   143,144,   128,129,   116,117     0,  0,
+
+	  0,  0,     0,  0,     0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 /** Miniset: Pentagram. */
@@ -1605,7 +1647,6 @@ static void DRLG_L4(int entry)
 			if (entry == ENTRY_MAIN) {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
-				ViewX++;
 			} else if (entry == ENTRY_PREV) {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
@@ -1614,24 +1655,22 @@ static void DRLG_L4(int entry)
 			} else {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
-				ViewX++;
 			}
 		} else if (currlevel != 15) {
 			if (entry == ENTRY_MAIN) {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
 					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
-				ViewX++;
 			} else if (entry == ENTRY_PREV) {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
 					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE, 1))
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
-				ViewY++;
+				ViewX++;
+				ViewY -= 2;
 			} else {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
 					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
 					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
-				ViewX++;
 			}
 		} else {
 			if (entry == ENTRY_MAIN) {
@@ -1643,7 +1682,6 @@ static void DRLG_L4(int entry)
 						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, FALSE, 1);
 					}
 				}
-				ViewX++;
 			} else {
 				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
 				if (doneflag) {
