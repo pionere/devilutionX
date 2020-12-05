@@ -514,7 +514,7 @@ void ToggleSpell(int slot)
 		break;
 	}
 
-	if (spells & (__int64)1 << (p->_pSplHotKey[slot] - 1)) {
+	if (spells & SPELL_MASK(p->_pSplHotKey[slot])) {
 		p->_pRSpell = p->_pSplHotKey[slot];
 		p->_pRSplType = p->_pSplTHotKey[slot];
 		force_redraw = 255;
@@ -1835,10 +1835,10 @@ static char GetSBookTrans(int sn, BOOL townok)
 		return RSPLTYPE_SKILL;
 #endif
 	st = RSPLTYPE_SPELL;
-	if (p->_pISpells & (__int64)1 << (sn - 1)) {
+	if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
 	}
-	if (p->_pAblSpells & (__int64)1 << (sn - 1)) { /// BUGFIX: missing (__int64) (fixed)
+	if (p->_pAblSpells & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
 		st = RSPLTYPE_SKILL;
 	}
 	if (st == RSPLTYPE_SPELL) {
@@ -1887,7 +1887,7 @@ void DrawSpellBook()
 	sx = RIGHT_PANEL_X + SBOOK_LEFT_BORDER + SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
-		if (sn != SPL_INVALID && (spl & (__int64)1 << (sn - 1))) {
+		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn, TRUE);
 			SetSpellTrans(st);
 			DrawSpellCel(sx + 1, yp, pSBkIconCels, SpellITbl[sn], SBOOK_CELSIZE);
@@ -1948,10 +1948,10 @@ void CheckSBook()
 			sn = SpellPages[sbooktab][dy / (2 * SBOOK_CELBORDER + SBOOK_CELSIZE)];
 			p = &plr[myplr];
 			spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
-			if (sn != SPL_INVALID && spl & (__int64)1 << (sn - 1)) {
-				if (p->_pAblSpells & (__int64)1 << (sn - 1))
+			if (sn != SPL_INVALID && spl & SPELL_MASK(sn)) {
+				if (p->_pAblSpells & SPELL_MASK(sn))
 					st = RSPLTYPE_SKILL;
-				else if (p->_pISpells & (__int64)1 << (sn - 1))
+				else if (p->_pISpells & SPELL_MASK(sn))
 					st = RSPLTYPE_CHARGES;
 				else
 					st = RSPLTYPE_SPELL;

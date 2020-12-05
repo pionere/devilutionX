@@ -674,7 +674,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 			maxd += pi->_iMaxDam;
 
 			if (pi->_iSpell != SPL_NULL) {
-				spl |= (unsigned __int64)1 << (pi->_iSpell - 1);
+				spl |= SPELL_MASK(pi->_iSpell);
 			}
 
 			if (pi->_iMagical == ITEM_QUALITY_NORMAL || pi->_iIdentified) {
@@ -732,7 +732,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	// check if the current RSplType is a valid/allowed spell
 	if (p->_pRSplType == RSPLTYPE_CHARGES
-	 && !(spl & ((unsigned __int64)1 << (p->_pRSpell - 1)))) {
+	 && !(spl & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
 		force_redraw = 255;
@@ -1079,7 +1079,7 @@ void CalcPlrScrolls(int pnum)
 		if (pi->_itype != ITYPE_NONE
 		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
 		 && pi->_iStatFlag) {
-			p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
+			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
 		}
 	}
 	pi = p->SpdList;
@@ -1087,11 +1087,11 @@ void CalcPlrScrolls(int pnum)
 		if (pi->_itype != ITYPE_NONE
 		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
 		 && pi->_iStatFlag) {
-			p->_pScrlSpells |= (__int64)1 << (pi->_iSpell - 1);
+			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
 		}
 	}
 	if (p->_pRSplType == RSPLTYPE_SCROLL && p->_pRSpell != SPL_INVALID
-	 && !(p->_pScrlSpells & ((__int64)1 << (p->_pRSpell - 1)))) {
+	 && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
 		force_redraw = 255;
@@ -1104,7 +1104,7 @@ void CalcPlrStaff(int pnum)
 	if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE
 	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iStatFlag
 	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
-		plr[pnum]._pISpells |= (__int64)1 << (plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell - 1);
+		plr[pnum]._pISpells |= SPELL_MASK(plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell);
 	}
 }
 
@@ -4251,7 +4251,7 @@ void UseItem(int pnum, int Mid, int spl)
 		break;
 	case IMISC_BOOK:
 		p = &plr[pnum];
-		p->_pMemSpells |= (__int64)1 << (spl - 1);
+		p->_pMemSpells |= SPELL_MASK(spl);
 		if (p->_pSplLvl[spl] < MAXSPLLEVEL)
 			p->_pSplLvl[spl]++;
 		if (!(p->_pIFlags & ISPL_NOMANA)) {

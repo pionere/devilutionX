@@ -757,11 +757,11 @@ void CreatePlayer(int pnum, char c)
 	p->_pNextExper = ExpLvlsTbl[1];
 	p->_pLightRad = 10;
 
-	p->_pAblSpells = (__int64)1 << (Abilities[c] - 1);
+	p->_pAblSpells = SPELL_MASK(Abilities[c]);
 
 	if (c == PC_SORCERER) {
 		p->_pSplLvl[SPL_FIREBOLT] = 2;
-		p->_pMemSpells = (__int64)1 << (SPL_FIREBOLT - 1);
+		p->_pMemSpells = SPELL_MASK(SPL_FIREBOLT);
 	}
 
 	for (i = 0; i < lengthof(p->_pSplHotKey); i++) {
@@ -973,7 +973,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->pManaShield = FALSE;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
-		p->_pAblSpells = (unsigned __int64)1 << (Abilities[p->_pClass] - 1);
+		p->_pAblSpells = SPELL_MASK(Abilities[p->_pClass]);
 		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 	}
 
@@ -3012,8 +3012,7 @@ static BOOL PlrDoSpell(int pnum)
 
 		if (p->_pSplFrom == 0) {
 			if (p->_pRSplType == RSPLTYPE_SCROLL) {
-				if (!(p->_pScrlSpells
-				        & (unsigned __int64)1 << (p->_pRSpell - 1))) {
+				if (!(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
 					p->_pRSpell = SPL_INVALID;
 					p->_pRSplType = RSPLTYPE_INVALID;
 					force_redraw = 255;
@@ -3021,8 +3020,7 @@ static BOOL PlrDoSpell(int pnum)
 			}
 
 			if (p->_pRSplType == RSPLTYPE_CHARGES) {
-				if (!(p->_pISpells
-				        & (unsigned __int64)1 << (p->_pRSpell - 1))) {
+				if (!(p->_pISpells & SPELL_MASK(p->_pRSpell))) {
 					p->_pRSpell = SPL_INVALID;
 					p->_pRSplType = RSPLTYPE_INVALID;
 					force_redraw = 255;
@@ -3520,7 +3518,7 @@ static void ValidatePlayer()
 	msk = 0;
 	for (i = 1; i < MAX_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != -1) {
-			msk |= (__int64)1 << (i - 1);
+			msk |= SPELL_MASK(i);
 			if (p->_pSplLvl[i] > MAXSPLLEVEL)
 				p->_pSplLvl[i] = MAXSPLLEVEL;
 		}
