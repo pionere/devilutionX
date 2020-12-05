@@ -13,9 +13,9 @@ PortalStruct portal[MAXPORTAL];
 int portalindex;
 
 /** X-coordinate of each players portal in town. */
-int WarpDropX[MAXPORTAL] = { 57, 59, 61, 63 };
+int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
-int WarpDropY[MAXPORTAL] = { 40, 40, 40, 40 };
+int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
 
 void InitPortals()
 {
