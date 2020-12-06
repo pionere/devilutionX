@@ -4327,7 +4327,7 @@ void MAI_Rhino(int mnum)
 					if (mon->MData->snd_special)
 						PlayEffect(mnum, 3);
 					mon->_mmode = MM_CHARGE;
-					dMonster[mon->_mx][mon->_my] = -1 - mnum;
+					dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 				}
 			} else {
 				if (dist >= 2) {

@@ -1406,9 +1406,9 @@ static void AddPurifyingFountain(int oi)
 
 	ox = object[oi]._ox;
 	oy = object[oi]._oy;
-	dObject[ox][oy - 1] = -1 - oi;
-	dObject[ox - 1][oy] = -1 - oi;
-	dObject[ox - 1][oy - 1] = -1 - oi;
+	dObject[ox][oy - 1] = -(oi + 1);
+	dObject[ox - 1][oy] = -(oi + 1);
+	dObject[ox - 1][oy - 1] = -(oi + 1);
 	object[oi]._oRndSeed = GetRndSeed();
 }
 
@@ -1441,9 +1441,9 @@ static void AddMurkyFountain(int oi)
 
 	ox = object[oi]._ox;
 	oy = object[oi]._oy;
-	dObject[ox][oy - 1] = -1 - oi;
-	dObject[ox - 1][oy] = -1 - oi;
-	dObject[ox - 1][oy - 1] = -1 - oi;
+	dObject[ox][oy - 1] = -(oi + 1);
+	dObject[ox - 1][oy] = -(oi + 1);
+	dObject[ox - 1][oy - 1] = -(oi + 1);
 	object[oi]._oRndSeed = GetRndSeed();
 }
 

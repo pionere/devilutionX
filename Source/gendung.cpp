@@ -109,12 +109,18 @@ char dTransVal[MAXDUNX][MAXDUNY];
 char dLight[MAXDUNX][MAXDUNY];
 char dPreLight[MAXDUNX][MAXDUNY];
 char dFlags[MAXDUNX][MAXDUNY];
-/** Contains the player numbers (players array indices) of the map. */
+/**
+ * Contains the player numbers (players array indices) of the map.
+ *   pnum + 1 : the player is on spot
+ * -(pnum + 1): reserved for a moving player
+ */
 char dPlayer[MAXDUNX][MAXDUNY];
 /**
  * Contains the NPC numbers of the map. The NPC number represents a
  * towner number (towners array index) in Tristram and a monster number
  * (monsters array index) in the dungeon.
+ *   mnum + 1 : the NPC is on spot
+ * -(mnum + 1): reserved for a moving NPC
  */
 int dMonster[MAXDUNX][MAXDUNY];
 /**
@@ -124,11 +130,22 @@ int dMonster[MAXDUNX][MAXDUNY];
  * dDead[x][y] >> 0x5 - direction
  */
 char dDead[MAXDUNX][MAXDUNY];
-/** Contains the object numbers (objects array indices) of the map. */
+/**
+ * Contains the object numbers (objects array indices) of the map.
+ *   oi + 1 : the object is on the given location
+ * -(oi + 1): a large object protrudes from its base location
+ */
 char dObject[MAXDUNX][MAXDUNY];
-/** Contains the item numbers (items array indices) of the map. */
+/**
+ * Contains the item numbers (items array indices) of the map.
+ *   ii + 1 : the item is on the floor on the given location.
+ */
 char dItem[MAXDUNX][MAXDUNY];
-/** Contains the missile numbers (missiles array indices) of the map. */
+/**
+ * Contains the missile numbers (missiles array indices) of the map.
+ *   mi + 1 : the missile is on the given location.
+ *     -1   : more than one missile on the given location.
+ */
 char dMissile[MAXDUNX][MAXDUNY];
 /**
  * Contains the arch frame numbers of the map from the special tileset

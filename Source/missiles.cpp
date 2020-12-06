@@ -5045,7 +5045,7 @@ void MI_Rhino(int mi)
 	}
 	monster[mnum]._mfutx = omx;
 	monster[mnum]._moldx = omx;
-	dMonster[omx][omy] = -1 - mnum;
+	dMonster[omx][omy] = -(mnum + 1);
 	monster[mnum]._mx = omx;
 	monster[mnum]._mfuty = omy;
 	monster[mnum]._moldy = omy;

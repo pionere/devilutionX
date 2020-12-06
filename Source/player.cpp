@@ -1379,7 +1379,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		ScrollInfo._sdy = p->_py - ViewY;
 	}
 
-	dPlayer[p->_px][p->_py] = -1 - pnum;
+	dPlayer[p->_px][p->_py] = -(pnum + 1);
 	p->_pVar1 = p->_px;
 	p->_pVar2 = p->_py;
 	p->_px = px;
@@ -1460,8 +1460,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		ScrollInfo._sdy = p->_py - ViewY;
 	}
 
-	dPlayer[p->_px][p->_py] = -1 - pnum;
-	dPlayer[px][py] = -1 - pnum;
+	dPlayer[p->_px][p->_py] = -(pnum + 1);
+	dPlayer[px][py] = -(pnum + 1);
 	p->_pVar4 = x;
 	p->_pVar5 = y;
 	dFlags[x][y] |= BFLAG_PLAYERLR;
@@ -3307,7 +3307,7 @@ static void CheckNewPath(int pnum)
 			i = p->destParam1;
 			x = abs(p->_px - object[i]._ox);
 			y = abs(p->_py - object[i]._oy);
-			if (y > 1 && dObject[object[i]._ox][object[i]._oy - 1] == -1 - i) {
+			if (y > 1 && dObject[object[i]._ox][object[i]._oy - 1] == -(i + 1)) {
 				y = abs(p->_py - object[i]._oy + 1);
 			}
 			if (x <= 1 && y <= 1) {
