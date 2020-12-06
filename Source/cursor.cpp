@@ -344,6 +344,12 @@ void CheckCursMove()
 		return;
 	}
 
+	if (pcurs == CURSOR_IDENTIFY) {
+		cursmx = mx;
+		cursmy = my;
+		return;
+	}
+
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
 	if (leveltype != DTYPE_TOWN) {
 		if (pcurstemp != -1) {
@@ -416,19 +422,17 @@ void CheckCursMove()
 					pcursmonst = mi;
 				}
 			}
-			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_HIDDEN) {
-				pcursmonst = -1;
-				cursmx = mx;
-				cursmy = my;
-			}
-			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
+			if (pcursmonst != -1) {
+				if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
+				 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
 #ifdef HELLFIRE
-				if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+					&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#else
+					)
 #endif
 					pcursmonst = -1;
-			}
-			if (pcursmonst != -1) {
-				return;
+				else
+					return;
 			}
 		}
 		if (!flipflag) {
@@ -500,16 +504,17 @@ void CheckCursMove()
 				pcursmonst = mi;
 			}
 		}
-		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_HIDDEN) {
-			pcursmonst = -1;
-			cursmx = mx;
-			cursmy = my;
-		}
-		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
+		if (pcursmonst != -1) {
+			if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
+			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
 #ifdef HELLFIRE
-			if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+				&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#else
+				)
 #endif
 				pcursmonst = -1;
+			else
+				return;
 		}
 	} else {
 		if (!flipflag) {
@@ -539,177 +544,175 @@ void CheckCursMove()
 			cursmx = mx + 1;
 			cursmy = my + 1;
 		}
-		if (pcursmonst != -1 && !towner[pcursmonst]._tSelFlag) {
-			pcursmonst = -1;
+		if (pcursmonst != -1) {
+			if (!towner[pcursmonst]._tSelFlag
+			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
+#ifdef HELLFIRE
+				&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#else
+				)
+#endif
+				pcursmonst = -1;
+			else
+				return;
 		}
 	}
 
-	if (pcursmonst == -1) {
-		if (!flipflag) {
-			bv = dPlayer[mx + 1][my];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != myplr && plr[bv]._pHitPoints != 0) {
-					cursmx = mx + 1;
-					cursmy = my;
-					pcursplr = bv;
-				}
-			}
-		} else {
-			bv = dPlayer[mx][my + 1];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != myplr && plr[bv]._pHitPoints != 0) {
-					cursmx = mx;
-					cursmy = my + 1;
-					pcursplr = bv;
-				}
-			}
-		}
-		bv = dPlayer[mx][my];
+	if (!flipflag) {
+		bv = dPlayer[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != myplr) {
-				cursmx = mx;
+			if (bv != myplr && plr[bv]._pHitPoints != 0) {
+				cursmx = mx + 1;
 				cursmy = my;
 				pcursplr = bv;
 			}
 		}
-		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
-			for (i = 0; i < MAX_PLRS; i++) {
-				if (plr[i]._px == mx && plr[i]._py == my && i != myplr) {
-					cursmx = mx;
-					cursmy = my;
-					pcursplr = i;
-				}
+	} else {
+		bv = dPlayer[mx][my + 1];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (bv != myplr && plr[bv]._pHitPoints != 0) {
+				cursmx = mx;
+				cursmy = my + 1;
+				pcursplr = bv;
 			}
 		}
-		if (pcurs == CURSOR_RESURRECT) {
-			for (xx = -1; xx <= 1; xx++) {
-				for (yy = -1; yy <= 1; yy++) {
-					if (dFlags[mx + xx][my + yy] & BFLAG_DEAD_PLAYER) {
-						for (i = 0; i < MAX_PLRS; i++) {
-							if (plr[i]._px == mx + xx && plr[i]._py == my + yy && i != myplr) {
-								cursmx = mx + xx;
-								cursmy = my + yy;
-								pcursplr = i;
-							}
+	}
+	bv = dPlayer[mx][my];
+	if (bv != 0) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (bv != myplr) {
+			cursmx = mx;
+			cursmy = my;
+			pcursplr = bv;
+		}
+	}
+	if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (plr[i]._px == mx && plr[i]._py == my && i != myplr) {
+				cursmx = mx;
+				cursmy = my;
+				pcursplr = i;
+			}
+		}
+	}
+	if (pcurs == CURSOR_RESURRECT) {
+		for (xx = -1; xx <= 1; xx++) {
+			for (yy = -1; yy <= 1; yy++) {
+				if (dFlags[mx + xx][my + yy] & BFLAG_DEAD_PLAYER) {
+					for (i = 0; i < MAX_PLRS; i++) {
+						if (plr[i]._px == mx + xx && plr[i]._py == my + yy && i != myplr) {
+							cursmx = mx + xx;
+							cursmy = my + yy;
+							pcursplr = i;
 						}
 					}
 				}
 			}
 		}
-		bv = dPlayer[mx + 1][my + 1];
-		if (bv != 0) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
-				cursmx = mx + 1;
-				cursmy = my + 1;
-				pcursplr = bv;
-			}
+	}
+	bv = dPlayer[mx + 1][my + 1];
+	if (bv != 0) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (bv != myplr && plr[bv]._pHitPoints != 0) {
+			cursmx = mx + 1;
+			cursmy = my + 1;
+			pcursplr = bv;
 		}
 	}
-	if (pcursmonst == -1 && pcursplr == -1) {
-		if (!flipflag) {
-			bv = dObject[mx + 1][my];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (object[bv]._oSelFlag >= 2) {
-					cursmx = mx + 1;
-					cursmy = my;
-					pcursobj = bv;
-				}
-			}
-		} else {
-			bv = dObject[mx][my + 1];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (object[bv]._oSelFlag >= 2) {
-					cursmx = mx;
-					cursmy = my + 1;
-					pcursobj = bv;
-				}
-			}
-		}
-		bv = dObject[mx][my];
-		if (bv != 0) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (object[bv]._oSelFlag == 1 || object[bv]._oSelFlag == 3) {
-				cursmx = mx;
-				cursmy = my;
-				pcursobj = bv;
-			}
-		}
-		bv = dObject[mx + 1][my + 1];
+
+	if (pcursplr != -1) {
+		return;
+	}
+
+	if (!flipflag) {
+		bv = dObject[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (object[bv]._oSelFlag >= 2) {
 				cursmx = mx + 1;
+				cursmy = my;
+				pcursobj = bv;
+			}
+		}
+	} else {
+		bv = dObject[mx][my + 1];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
+			if (object[bv]._oSelFlag >= 2) {
+				cursmx = mx;
 				cursmy = my + 1;
 				pcursobj = bv;
 			}
 		}
 	}
-	if (pcursplr == -1 && pcursobj == -1 && pcursmonst == -1) {
-		if (!flipflag) {
-			bv = dItem[mx + 1][my];
-			if (bv > 0) {
-				bv--;
-				if (item[bv]._iSelFlag >= 2) {
-					cursmx = mx + 1;
-					cursmy = my;
-					pcursitem = bv;
-				}
-			}
-		} else {
-			bv = dItem[mx][my + 1];
-			if (bv > 0) {
-				bv--;
-				if (item[bv]._iSelFlag >= 2) {
-					cursmx = mx;
-					cursmy = my + 1;
-					pcursitem = bv;
-				}
-			}
+	bv = dObject[mx][my];
+	if (bv != 0) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (object[bv]._oSelFlag == 1 || object[bv]._oSelFlag == 3) {
+			cursmx = mx;
+			cursmy = my;
+			pcursobj = bv;
 		}
-		bv = dItem[mx][my];
-		if (bv > 0) {
-			bv--;
-			if (item[bv]._iSelFlag == 1 || item[bv]._iSelFlag == 3) {
-				cursmx = mx;
-				cursmy = my;
-				pcursitem = bv;
-			}
+	}
+	bv = dObject[mx + 1][my + 1];
+	if (bv != 0) {
+		bv = bv >= 0 ? bv - 1 : -(bv + 1);
+		if (object[bv]._oSelFlag >= 2) {
+			cursmx = mx + 1;
+			cursmy = my + 1;
+			pcursobj = bv;
 		}
-		bv = dItem[mx + 1][my + 1];
+	}
+
+	if (pcursobj != -1)
+		return;
+
+	if (!flipflag) {
+		bv = dItem[mx + 1][my];
 		if (bv > 0) {
 			bv--;
 			if (item[bv]._iSelFlag >= 2) {
 				cursmx = mx + 1;
+				cursmy = my;
+				pcursitem = bv;
+			}
+		}
+	} else {
+		bv = dItem[mx][my + 1];
+		if (bv > 0) {
+			bv--;
+			if (item[bv]._iSelFlag >= 2) {
+				cursmx = mx;
 				cursmy = my + 1;
 				pcursitem = bv;
 			}
 		}
-		if (pcursitem == -1) {
+	}
+	bv = dItem[mx][my];
+	if (bv > 0) {
+		bv--;
+		if (item[bv]._iSelFlag == 1 || item[bv]._iSelFlag == 3) {
 			cursmx = mx;
 			cursmy = my;
-			CheckTrigForce();
-			CheckTownPortal();
+			pcursitem = bv;
 		}
 	}
-
-	if (pcurs == CURSOR_IDENTIFY) {
-		pcursobj = -1;
-		pcursmonst = -1;
-		pcursitem = -1;
+	bv = dItem[mx + 1][my + 1];
+	if (bv > 0) {
+		bv--;
+		if (item[bv]._iSelFlag >= 2) {
+			cursmx = mx + 1;
+			cursmy = my + 1;
+			pcursitem = bv;
+		}
+	}
+	if (pcursitem == -1) {
 		cursmx = mx;
 		cursmy = my;
-	}
-	if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-#ifdef HELLFIRE
-		if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
-#endif
-			pcursmonst = -1;
+		CheckTrigForce();
+		CheckTownPortal();
 	}
 }
 
