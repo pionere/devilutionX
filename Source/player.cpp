@@ -3304,36 +3304,21 @@ static void CheckNewPath(int pnum)
 			p->_pVar4 = p->destParam2;
 			break;
 		case ACTION_OPERATE:
-			i = p->destParam1;
-			x = abs(p->_px - object[i]._ox);
-			y = abs(p->_py - object[i]._oy);
-			if (y > 1 && dObject[object[i]._ox][object[i]._oy - 1] == -(i + 1)) {
-				y = abs(p->_py - object[i]._oy + 1);
-			}
-			if (x <= 1 && y <= 1) {
-				if (object[i]._oBreak == 1) {
-					d = GetDirection(p->_px, p->_py, object[i]._ox, object[i]._oy);
-					StartAttack(pnum, d);
-				} else {
+			x = p->destParam2;
+			y = p->destParam3;
+			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
+				i = p->destParam1;
+				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
 					OperateObject(pnum, i, FALSE);
-				}
 			}
 			break;
 		case ACTION_DISARM:
-			i = p->destParam1;
-			x = abs(p->_px - object[i]._ox);
-			y = abs(p->_py - object[i]._oy);
-			if (y > 1 && dObject[object[i]._ox][object[i]._oy - 1] == -1 - i) {
-				y = abs(p->_py - object[i]._oy + 1);
-			}
-			if (x <= 1 && y <= 1) {
-				if (object[i]._oBreak == 1) {
-					d = GetDirection(p->_px, p->_py, object[i]._ox, object[i]._oy);
-					StartAttack(pnum, d);
-				} else {
-					TryDisarm(pnum, i);
-					OperateObject(pnum, i, FALSE);
-				}
+			x = p->destParam2;
+			y = p->destParam3;
+			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
+				i = p->destParam1;
+				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
+					DisarmObject(pnum, i);
 			}
 			break;
 		case ACTION_OPERATETK:
@@ -3400,19 +3385,12 @@ static void CheckNewPath(int pnum)
 			}
 			p->destAction = ACTION_NONE;
 		} else if (p->destAction == ACTION_OPERATE) {
-			i = p->destParam1;
-			x = abs(p->_px - object[i]._ox);
-			y = abs(p->_py - object[i]._oy);
-			if (y > 1 && dObject[object[i]._ox][object[i]._oy - 1] == -1 - i) {
-				y = abs(p->_py - object[i]._oy + 1);
-			}
-			if (x <= 1 && y <= 1) {
-				if (object[i]._oBreak == 1) {
-					d = GetDirection(p->_px, p->_py, object[i]._ox, object[i]._oy);
-					StartAttack(pnum, d);
-				} else {
+			x = p->destParam2;
+			y = p->destParam3;
+			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
+				i = p->destParam1;
+				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
 					OperateObject(pnum, i, FALSE);
-				}
 			}
 		}
 	}

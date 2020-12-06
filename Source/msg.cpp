@@ -1768,12 +1768,11 @@ static DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int oi = cmd->wParam1;
-		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
-			MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
-		else
-			MakePlrPath(pnum, cmd->x, cmd->y, TRUE);
 		plr[pnum].destAction = ACTION_OPERATE;
 		plr[pnum].destParam1 = oi;
+		plr[pnum].destParam2 = cmd->x;
+		plr[pnum].destParam3 = cmd->y;
+		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
 	}
 
 	return sizeof(*cmd);
@@ -1785,12 +1784,11 @@ static DWORD On_DISARMXY(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int oi = cmd->wParam1;
-		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
-			MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
-		else
-			MakePlrPath(pnum, cmd->x, cmd->y, TRUE);
 		plr[pnum].destAction = ACTION_DISARM;
 		plr[pnum].destParam1 = oi;
+		plr[pnum].destParam2 = cmd->x;
+		plr[pnum].destParam3 = cmd->y;
+		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
 	}
 
 	return sizeof(*cmd);
