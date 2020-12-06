@@ -423,13 +423,7 @@ void CheckCursMove()
 				}
 			}
 			if (pcursmonst != -1) {
-				if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
-				 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
-#ifdef HELLFIRE
-					&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
-#else
-					)
-#endif
+				if (monster[pcursmonst]._mFlags & (MFLAG_HIDDEN | MFLAG_GOLEM))
 					pcursmonst = -1;
 				else
 					return;
@@ -505,13 +499,7 @@ void CheckCursMove()
 			}
 		}
 		if (pcursmonst != -1) {
-			if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
-			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
-#ifdef HELLFIRE
-				&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
-#else
-				)
-#endif
+			if (monster[pcursmonst]._mFlags & (MFLAG_HIDDEN | MFLAG_GOLEM))
 				pcursmonst = -1;
 			else
 				return;
@@ -546,12 +534,7 @@ void CheckCursMove()
 		}
 		if (pcursmonst != -1) {
 			if (!towner[pcursmonst]._tSelFlag
-			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
-#ifdef HELLFIRE
-				&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
-#else
-				)
-#endif
+			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM))
 				pcursmonst = -1;
 			else
 				return;

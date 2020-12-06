@@ -1272,7 +1272,7 @@ static void MonEnemy(int mnum)
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
 	bestsameroom = FALSE;
-	if (!(mon->_mFlags & MFLAG_GOLEM)) {
+	if (!(mon->_mFlags & (MFLAG_GOLEM | MFLAG_BERSERK))) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || (plr[i]._pHitPoints == 0 && gbMaxPlayers != 1))
 				continue;
