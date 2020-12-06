@@ -93,15 +93,7 @@ char setlvltype;
 int ViewX;
 /** Specifies the player viewpoint Y-coordinate of the map. */
 int ViewY;
-int ViewBX;
-int ViewBY;
-int ViewDX;
-int ViewDY;
 ScrollStruct ScrollInfo;
-/** Specifies the level viewpoint X-coordinate of the map. */
-int LvlViewX;
-/** Specifies the level viewpoint Y-coordinate of the map. */
-int LvlViewY;
 int MicroTileLen;
 char TransVal;
 /** Specifies the active transparency indices. */

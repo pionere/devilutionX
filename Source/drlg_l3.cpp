@@ -1579,7 +1579,7 @@ static void DRLG_L3PoolFix()
 	}
 }
 
-static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
+static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	BOOL done;
@@ -1631,10 +1631,6 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 	if (setview) {
 		ViewX = 2 * sx + DBORDERX + 1;
 		ViewY = 2 * sy + DBORDERY + 3;
-	}
-	if (ldir == 0) {
-		LvlViewX = 2 * sx + DBORDERX + 1;
-		LvlViewY = 2 * sy + DBORDERY + 3;
 	}
 
 	return TRUE;
@@ -2243,34 +2239,34 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, TRUE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, TRUE);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE);
 					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE);
 				} else
 #endif
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, TRUE, 0)
-					 && DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE, 1)
-					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, TRUE)
+					 && DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE)
+					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE));
 			} else if (entry == ENTRY_PREV) {
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, FALSE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, FALSE);
 					if (doneflag && currlevel != 20) {
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, TRUE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, TRUE);
 						ViewX += 2;
 						ViewY -= 2;
 					}
 				} else
 #endif
 				{
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, TRUE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE)
+						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, TRUE)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE));
 					ViewX += 2;
 					ViewY -= 2;
 				}
@@ -2278,16 +2274,16 @@ static void DRLG_L3(int entry)
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
 					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE, 0);
+						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE);
 					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE, 6);
+						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE);
 					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE, 1);
+						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE);
 				} else
 #endif
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE, 0)
-						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE, 1)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, TRUE, 6));
+					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE)
+						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE)
+						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, TRUE));
 			}
 			if (doneflag && QuestStatus(Q_ANVIL)) {
 				doneflag = DRLG_L3Anvil();

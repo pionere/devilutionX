@@ -1376,7 +1376,7 @@ static void DRLG_LoadDiabQuads(BOOL preflag)
 	mem_free_dbg(lpSetPiece);
 }
 
-static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
+static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	BOOL done;
@@ -1436,10 +1436,6 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview, int ldir)
 	if (setview) {
 		ViewX = 2 * sx + DBORDERX + 5;
 		ViewY = 2 * sy + DBORDERY + 6;
-	}
-	if (ldir == 0) {
-		LvlViewX = 2 * sx + DBORDERX + 5;
-		LvlViewY = 2 * sy + DBORDERY + 6;
 	}
 
 	return TRUE;
@@ -1645,50 +1641,50 @@ static void DRLG_L4(int entry)
 		}
 		if (QuestStatus(Q_WARLORD)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
 			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
 				ViewX = 2 * setpc_x + DBORDERX + 6;
 				ViewY = 2 * setpc_y + DBORDERY + 6;
 			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE));
 			}
 		} else if (currlevel != 15) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
 			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE, 1))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
 				ViewX++;
 				ViewY -= 2;
 			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE, 1))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE, 6));
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
+					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE))
+					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE));
 			}
 		} else {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE, 0);
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE);
 				if (doneflag) {
 					if (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, FALSE, 1);
+						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, FALSE);
 					} else {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, FALSE, 1);
+						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, FALSE);
 					}
 				}
 			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE, 0);
+				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE);
 				if (doneflag) {
 					if (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, TRUE, 1);
+						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, TRUE);
 					} else {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, TRUE, 1);
+						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, TRUE);
 					}
 				}
 				ViewY++;

@@ -1623,7 +1623,7 @@ int Patterns[100][10] = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
+static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	BOOL done;
@@ -1679,14 +1679,6 @@ static BOOL DRLG_L2PlaceMiniSet(BYTE *miniset, BOOL setview, int ldir)
 	if (setview) {
 		ViewX = 2 * sx + DBORDERX + 5;
 		ViewY = 2 * sy + DBORDERY + 6;
-	}
-	if (ldir == 0) {
-		LvlViewX = 2 * sx + DBORDERX + 5;
-		LvlViewY = 2 * sy + DBORDERY + 6;
-	}
-	if (ldir == 6) {
-		LvlViewX = 2 * sx + DBORDERX + 5;
-		LvlViewY = 2 * sy + DBORDERY + 6;
 	}
 
 	return TRUE;
@@ -3060,19 +3052,19 @@ static void DRLG_L2(int entry)
 		DRLG_L2FloodTVal();
 		DRLG_L2TransFix();
 		if (entry == ENTRY_MAIN) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, TRUE, 0)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE, 1)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE, 6));
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, TRUE)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE));
 			ViewY -= 2;
 		} else if (entry == ENTRY_PREV) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE, 0)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, TRUE, 1)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE, 6));
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, TRUE)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE));
 			ViewX--;
 		} else {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE, 0)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE, 1)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, TRUE, 6));
+			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE)
+				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE)
+				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, TRUE));
 			ViewY -= 2;
 		}
 	} while (!doneflag);

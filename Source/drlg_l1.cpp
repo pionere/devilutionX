@@ -973,7 +973,7 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview, int ldir)
+static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, i, ii, tries, t;
 	BOOL done;
@@ -1044,11 +1044,6 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview, int l
 	if (setview) {
 		ViewX = 2 * sx + DBORDERX + 3;
 		ViewY = 2 * sy + DBORDERY + 4;
-	}
-
-	if (ldir == 0) {
-		LvlViewX = 2 * sx + DBORDERX + 3;
-		LvlViewY = 2 * sy + DBORDERY + 4;
 	}
 
 	return TRUE;
@@ -2595,17 +2590,17 @@ static void DRLG_L5(int entry)
 
 		if (QuestStatus(Q_PWATER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, TRUE, 0);
+				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, TRUE);
 			} else {
-				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, FALSE, 0);
+				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, FALSE);
 				ViewY--;
 			}
 		}
 		if (QuestStatus(Q_LTBANNER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE, 0);
+				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE);
 			} else {
-				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE, 0);
+				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE);
 				if (entry == ENTRY_PREV) {
 					ViewX = 2 * setpc_x + DBORDERX + 4;
 					ViewY = 2 * setpc_y + DBORDERY + 12;
@@ -2616,74 +2611,74 @@ static void DRLG_L5(int entry)
 #ifdef HELLFIRE
 		} else if (entry == ENTRY_MAIN) {
 			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE, 0))
+				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE, 1))
+				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
 					doneflag = FALSE;
 			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE, 6))
+				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE, 1))
+				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
 					doneflag = FALSE;
 				ViewY++;
 			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE, 0))
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
 					doneflag = FALSE;
 				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE, 1))
+					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
 						doneflag = FALSE;
 				}
 				ViewY++;
 			}
 		} else if (entry == ENTRY_PREV) {
 			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE, 0))
+				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE, 1))
+				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
 					doneflag = FALSE;
 				ViewY--;
 			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE, 6))
+				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE, 1))
+				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE))
 					doneflag = FALSE;
 				ViewY += 3;
 			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE, 0))
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
 					doneflag = FALSE;
 				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE, 1))
+					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE))
 						doneflag = FALSE;
 				}
 				ViewY += 3;
 			}
 		} else {
 			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE, 0))
+				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE, 1))
+				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
 					doneflag = FALSE;
 			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, TRUE, 6))
+				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, TRUE))
 					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE, 1))
+				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
 					doneflag = FALSE;
 			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE, 0))
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
 					doneflag = FALSE;
 				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE, 1))
+					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
 						doneflag = FALSE;
 				}
 			}
 #else
 		} else if (entry == ENTRY_MAIN) {
-			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE, 0)
-			 || !DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE, 1))
+			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE)
+			 || !DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
 				doneflag = FALSE;
 		} else {
-			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, FALSE, 0)
-			|| !DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE, 1))
+			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, FALSE)
+			|| !DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
 				doneflag = FALSE;
 			ViewY--;
 #endif
@@ -2771,7 +2766,7 @@ static void DRLG_L5(int entry)
 #endif
 	{
 		DRLG_L1Shadows();
-		DRLG_PlaceMiniSet(LAMPS, 5 + random_(0, 5), FALSE, 4);
+		DRLG_PlaceMiniSet(LAMPS, 5 + random_(0, 5), FALSE);
 		DRLG_L1Floor();
 	}
 
