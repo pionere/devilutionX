@@ -12,7 +12,7 @@
 #include "dvlnet/base.h"
 #include "dvlnet/tcp_server.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class tcp_client : public base {
@@ -44,4 +44,4 @@ private:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

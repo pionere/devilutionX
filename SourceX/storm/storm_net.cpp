@@ -4,7 +4,7 @@
 #include "stubs.h"
 #include "dvlnet/abstract_net.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static std::unique_ptr<net::abstract_net> dvlnet_inst;
 static char gpszGameName[128] = {};
@@ -68,16 +68,14 @@ BOOL SNetDropPlayer(int playerid, DWORD flags)
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }
 
-BOOL SNetGetGameInfo(int type, void *dst, unsigned int length, unsigned int *byteswritten)
+BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
 {
 	switch (type) {
 	case GAMEINFO_NAME:
-		strncpy((char *)dst, gpszGameName, length);
-		*byteswritten = strlen(gpszGameName) + 1;
+		SStrCopy((char *)dst, gpszGameName, length);
 		break;
 	case GAMEINFO_PASSWORD:
-		strncpy((char *)dst, gpszGamePassword, length);
-		*byteswritten = strlen(gpszGamePassword) + 1;
+		SStrCopy((char *)dst, gpszGamePassword, length);
 		break;
 	}
 
@@ -108,19 +106,19 @@ int SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *clie
  * @brief Called by engine for single, called by ui for multi
  */
 BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString,
-    DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount,
-    char *creatorName, char *a11, int *playerID)
+	DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount,
+    const char *creatorName, const char *a11, int *playerID)
 {
-	if (GameTemplateSize != 8)
+	if (GameTemplateSize != sizeof(_gamedata))
 		ABORT();
 	net::buffer_t game_init_info(GameTemplateData, GameTemplateData + GameTemplateSize);
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	char addrstr[129] = "0.0.0.0";
 	getIniValue("dvlnet", "bindaddr", addrstr, 128);
-	strncpy(gpszGameName, addrstr, sizeof(gpszGameName) - 1);
+	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
 	if (pszGamePassword)
-		strncpy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword) - 1);
+		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->create(addrstr, pszGamePassword);
 	return *playerID != -1;
 }
@@ -128,9 +126,9 @@ BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
 {
 	if (pszGameName)
-		strncpy(gpszGameName, pszGameName, sizeof(gpszGameName) - 1);
+		SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
 	if (pszGamePassword)
-		strncpy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword) - 1);
+		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->join(pszGameName, pszGamePassword);
 	return *playerID != -1;
 }
@@ -143,7 +141,7 @@ BOOL SNetGetOwnerTurnsWaiting(DWORD *turns)
 	return dvlnet_inst->SNetGetOwnerTurnsWaiting(turns);
 }
 
-BOOL SNetGetTurnsInTransit(int *turns)
+BOOL SNetGetTurnsInTransit(DWORD *turns)
 {
 	return dvlnet_inst->SNetGetTurnsInTransit(turns);
 }
@@ -164,4 +162,4 @@ BOOL SNetPerformUpgrade(DWORD *upgradestatus)
 	UNIMPLEMENTED();
 }
 
-}
+DEVILUTION_END_NAMESPACE

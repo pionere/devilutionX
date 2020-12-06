@@ -1,8 +1,10 @@
 #pragma once
 
-namespace dvl {
+#include "../../types.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 extern const unsigned char btnData[];
 extern const unsigned char popupData[];
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

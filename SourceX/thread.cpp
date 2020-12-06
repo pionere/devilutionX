@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <set>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static int SDLCALL thread_translate(void *ptr)
 {
@@ -75,4 +75,4 @@ int WaitForEvent(event_emul *e)
 	return ret;
 }
 
-}
+DEVILUTION_END_NAMESPACE

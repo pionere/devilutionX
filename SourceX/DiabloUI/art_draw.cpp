@@ -1,12 +1,12 @@
 #include "DiabloUI/art_draw.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;
 
-void DrawArt(int screenX, int screenY, Art *art, int nFrame, Uint16 srcW, Uint16 srcH)
+void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 {
 	if (screenY >= SCREEN_HEIGHT || screenX >= SCREEN_WIDTH || art->surface == NULL)
 		return;
@@ -48,4 +48,4 @@ int GetAnimationFrame(int frames, int fps)
 	return frame > frames ? 0 : frame;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

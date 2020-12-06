@@ -4,8 +4,7 @@
  * Implementation of function for sending and reciving network messages.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -24,19 +23,66 @@ static BOOLEAN sgbDeltaChanged;
 static BYTE sgbDeltaChunks;
 BOOL deltaload;
 BYTE gbBufferMsgs;
+char gbNetMsg[MAX_SEND_STR_LEN];
 int dwRecCount;
 
-void msg_send_drop_pkt(int pnum, int reason)
+static void msg_get_next_packet()
 {
-	TFakeDropPlr cmd;
+	TMegaPkt *result;
 
-	cmd.dwReason = reason;
-	cmd.bCmd = FAKE_CMD_DROPID;
-	cmd.bPlr = pnum;
-	msg_send_packet(pnum, &cmd, sizeof(cmd));
+	sgpCurrPkt = (TMegaPkt *)DiabloAllocPtr(sizeof(TMegaPkt));
+	sgpCurrPkt->pNext = NULL;
+	sgpCurrPkt->dwSpaceLeft = sizeof(result->data);
+
+	result = (TMegaPkt *)&sgpMegaPkt;
+	while (result->pNext != NULL) {
+		result = result->pNext;
+	}
+	result->pNext = sgpCurrPkt;
 }
 
-void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
+static void msg_free_packets()
+{
+	while (sgpMegaPkt != NULL) {
+		sgpCurrPkt = sgpMegaPkt->pNext;
+		MemFreeDbg(sgpMegaPkt);
+		sgpMegaPkt = sgpCurrPkt;
+	}
+}
+
+static void msg_pre_packet()
+{
+	int i;
+	int spaceLeft, pktSize;
+	TMegaPkt *pkt;
+	TFakeCmdPlr *cmd, *tmpCmd;
+	TFakeDropPlr *dropCmd;
+
+	i = -1;
+	for (pkt = sgpMegaPkt; pkt != NULL; pkt = pkt->pNext) {
+		spaceLeft = sizeof(pkt->data);
+		cmd = (TFakeCmdPlr *)pkt->data;
+		while (spaceLeft != pkt->dwSpaceLeft) {
+			if (cmd->bCmd == FAKE_CMD_SETID) {
+				tmpCmd = cmd;
+				cmd++;
+				i = tmpCmd->bPlr;
+				spaceLeft -= sizeof(*cmd);
+			} else if (cmd->bCmd == FAKE_CMD_DROPID) {
+				dropCmd = (TFakeDropPlr *)cmd;
+				cmd += 3;
+				spaceLeft -= sizeof(*dropCmd);
+				multi_player_left(dropCmd->bPlr, dropCmd->dwReason);
+			} else {
+				pktSize = ParseCmd(i, (TCmd *)cmd);
+				cmd = (TFakeCmdPlr *)((char *)cmd + pktSize);
+				spaceLeft -= pktSize;
+			}
+		}
+	}
+}
+
+static void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
 {
 	TMegaPkt *packeta;
 	TFakeCmdPlr cmd;
@@ -56,19 +102,47 @@ void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
 	sgpCurrPkt->dwSpaceLeft -= dwSize;
 }
 
-void msg_get_next_packet()
+void msg_send_drop_pkt(int pnum, int reason)
 {
-	TMegaPkt *result;
+	TFakeDropPlr cmd;
 
-	sgpCurrPkt = (TMegaPkt *)DiabloAllocPtr(sizeof(TMegaPkt));
-	sgpCurrPkt->pNext = NULL;
-	sgpCurrPkt->dwSpaceLeft = 32000;
+	cmd.dwReason = reason;
+	cmd.bCmd = FAKE_CMD_DROPID;
+	cmd.bPlr = pnum;
+	msg_send_packet(pnum, &cmd, sizeof(cmd));
+}
 
-	result = (TMegaPkt *)&sgpMegaPkt;
-	while (result->pNext) {
-		result = result->pNext;
+static int msg_wait_for_turns()
+{
+	BOOL received;
+	DWORD turns;
+
+	if (sgbDeltaChunks == 0) {
+		nthread_send_and_recv_turn(0, 0);
+		if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
+			return 100;
+		if (SDL_GetTicks() - sgdwOwnerWait <= 2000 && turns < gdwTurnsInTransit)
+			return 0;
+		sgbDeltaChunks++;
 	}
-	result->pNext = sgpCurrPkt;
+	multi_process_network_packets();
+	nthread_send_and_recv_turn(0, 0);
+	if (nthread_has_500ms_passed(FALSE))
+		nthread_recv_turns(&received);
+
+	if (gbGameDestroyed)
+		return 100;
+	if (gbDeltaSender >= MAX_PLRS) {
+		sgbDeltaChunks = 0;
+		sgbRecvCmd = CMD_DLEVEL_END;
+		gbDeltaSender = myplr;
+		nthread_set_turn_upper_bit();
+	}
+	if (sgbDeltaChunks == MAX_CHUNKS - 1) {
+		sgbDeltaChunks = MAX_CHUNKS;
+		return 99;
+	}
+	return 100 * sgbDeltaChunks / MAX_CHUNKS;
 }
 
 BOOL msg_wait_resync()
@@ -94,55 +168,13 @@ BOOL msg_wait_resync()
 		return FALSE;
 	}
 
-	if (sgbDeltaChunks != 21) {
+	if (sgbDeltaChunks != MAX_CHUNKS) {
 		DrawDlg("Unable to get level data");
 		msg_free_packets();
 		return FALSE;
 	}
 
 	return TRUE;
-}
-
-void msg_free_packets()
-{
-	while (sgpMegaPkt) {
-		sgpCurrPkt = sgpMegaPkt->pNext;
-		MemFreeDbg(sgpMegaPkt);
-		sgpMegaPkt = sgpCurrPkt;
-	}
-}
-
-int msg_wait_for_turns()
-{
-	BOOL received;
-	DWORD turns;
-
-	if (!sgbDeltaChunks) {
-		nthread_send_and_recv_turn(0, 0);
-		if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
-			return 100;
-		if (SDL_GetTicks() - sgdwOwnerWait <= 2000 && turns < gdwTurnsInTransit)
-			return 0;
-		sgbDeltaChunks++;
-	}
-	multi_process_network_packets();
-	nthread_send_and_recv_turn(0, 0);
-	if (nthread_has_500ms_passed(FALSE))
-		nthread_recv_turns(&received);
-
-	if (gbGameDestroyed)
-		return 100;
-	if (gbDeltaSender >= MAX_PLRS) {
-		sgbDeltaChunks = 0;
-		sgbRecvCmd = CMD_DLEVEL_END;
-		gbDeltaSender = myplr;
-		nthread_set_turn_upper_bit();
-	}
-	if (sgbDeltaChunks == 20) {
-		sgbDeltaChunks = 21;
-		return 99;
-	}
-	return 100 * sgbDeltaChunks / 21;
 }
 
 void run_delta_info()
@@ -155,36 +187,169 @@ void run_delta_info()
 	}
 }
 
-void msg_pre_packet()
+static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
 {
 	int i;
-	int spaceLeft, pktSize;
-	TMegaPkt *pkt;
-	TFakeCmdPlr *cmd, *tmpCmd;
-	TFakeDropPlr *dropCmd;
 
-	pkt = sgpMegaPkt;
-	for (i = -1; pkt; pkt = pkt->pNext) {
-		spaceLeft = 32000;
-		cmd = (TFakeCmdPlr *)pkt->data;
-		while (spaceLeft != pkt->dwSpaceLeft) {
-			if (cmd->bCmd == FAKE_CMD_SETID) {
-				tmpCmd = cmd;
-				cmd++;
-				i = tmpCmd->bPlr;
-				spaceLeft -= sizeof(*cmd);
-			} else if (cmd->bCmd == FAKE_CMD_DROPID) {
-				dropCmd = (TFakeDropPlr *)cmd;
-				cmd += 3;
-				spaceLeft -= sizeof(*dropCmd);
-				multi_player_left(dropCmd->bPlr, dropCmd->dwReason);
-			} else {
-				pktSize = ParseCmd(i, (TCmd *)cmd);
-				cmd = (TFakeCmdPlr *)((char *)cmd + pktSize);
-				spaceLeft -= pktSize;
-			}
+	for (i = 0; i < MAXITEMS; i++) {
+		if (src->bCmd == 0xFF) {
+			*dst = 0xFF;
+			dst++;
+		} else {
+			copy_pod(*reinterpret_cast<TCmdPItem *>(dst), *src);
+			dst += sizeof(TCmdPItem);
+		}
+		src++;
+	}
+
+	return dst;
+}
+
+static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
+{
+	int i;
+
+	for (i = 0; i < MAXITEMS; i++) {
+		if (*src == 0xFF) {
+			memset(dst, 0xFF, sizeof(TCmdPItem));
+			src++;
+		} else {
+			copy_pod(*dst, *reinterpret_cast<TCmdPItem *>(src));
+			src += sizeof(TCmdPItem);
+		}
+		dst++;
+	}
+
+	return src;
+}
+
+static BYTE *DeltaExportObject(BYTE *dst, DObjectStr *src)
+{
+	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
+	return dst + sizeof(DObjectStr) * MAXOBJECTS;
+}
+
+static BYTE *DeltaImportObject(BYTE *src, DObjectStr *dst)
+{
+	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
+	return src + sizeof(DObjectStr) * MAXOBJECTS;
+}
+
+static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
+{
+	int i;
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		if (src->_mx == 0xFF) {
+			*dst = 0xFF;
+			dst++;
+		} else {
+			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *src);
+			dst += sizeof(DMonsterStr);
+		}
+		src++;
+	}
+
+	return dst;
+}
+
+static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
+{
+	int i;
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		if (*src == 0xFF) {
+			memset(dst, 0xFF, sizeof(DMonsterStr));
+			src++;
+		} else {
+			copy_pod(*dst, *reinterpret_cast<DMonsterStr *>(src));
+			src += sizeof(DMonsterStr);
+		}
+		dst++;
+	}
+
+	return src;
+}
+
+static BYTE *DeltaExportJunk(BYTE *dst)
+{
+	DPortal *pD;
+	MultiQuests *mq;
+	int i;
+
+	pD = sgJunk.portal;
+	for (i = 0; i < MAXPORTAL; i++, pD++) {
+		if (pD->x == 0xFF) {
+			*dst = 0xFF;
+			dst++;
+		} else {
+			copy_pod(*reinterpret_cast<DPortal *>(dst), *pD);
+			dst += sizeof(*pD);
 		}
 	}
+
+	mq = sgJunk.quests;
+	for (i = 0; i < MAXQUESTS; i++) {
+		if (questlist[i]._qflags & QUEST_ANY) {
+			mq->qlog = quests[i]._qlog;
+			mq->qstate = quests[i]._qactive;
+			mq->qvar1 = quests[i]._qvar1;
+			copy_pod(*reinterpret_cast<MultiQuests *>(dst), *mq);
+			dst += sizeof(*mq);
+			mq++;
+		}
+	}
+
+	return dst;
+}
+
+static void DeltaImportJunk(BYTE *src)
+{
+	DPortal *pD;
+	MultiQuests *mq;
+	int i;
+
+	pD = sgJunk.portal;
+	for (i = 0; i < MAXPORTAL; i++, pD++) {
+		if (*src == 0xFF) {
+			memset(pD, 0xFF, sizeof(*pD));
+			src++;
+			SetPortalStats(i, FALSE, 0, 0, 0, DTYPE_TOWN);
+		} else {
+			copy_pod(*pD, *reinterpret_cast<DPortal *>(src));
+			src += sizeof(*pD);
+			SetPortalStats(
+				i,
+				TRUE,
+				pD->x,
+				pD->y,
+				pD->level,
+				pD->ltype);
+		}
+	}
+
+	mq = sgJunk.quests;
+	for (i = 0; i < MAXQUESTS; i++) {
+		if (questlist[i]._qflags & QUEST_ANY) {
+			copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
+			src += sizeof(*mq);
+			quests[i]._qlog = mq->qlog;
+			quests[i]._qactive = mq->qstate;
+			quests[i]._qvar1 = mq->qvar1;
+			mq++;
+		}
+	}
+}
+
+static DWORD msg_comp_level(BYTE *buffer, BYTE *end)
+{
+	DWORD size, pkSize;
+
+	size = end - buffer - 1;
+	pkSize = PkwareCompress(buffer + 1, size);
+	*buffer = size != pkSize;
+
+	return pkSize + 1;
 }
 
 void DeltaExportData(int pnum)
@@ -194,7 +359,7 @@ void DeltaExportData(int pnum)
 	char src;
 
 	if (sgbDeltaChanged) {
-		dst = (BYTE *)DiabloAllocPtr(4722);
+		dst = (BYTE *)DiabloAllocPtr(sizeof(DLevel) + 1);
 		for (i = 0; i < NUMLEVELS; i++) {
 			dstEnd = dst + 1;
 			dstEnd = DeltaExportItem(dstEnd, sgLevels[i].item);
@@ -213,89 +378,75 @@ void DeltaExportData(int pnum)
 	dthread_send_delta(pnum, CMD_DLEVEL_END, &src, 1);
 }
 
-BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
+static void DeltaImportData(BYTE cmd, DWORD recv_offset)
 {
-	int i;
+	BYTE i;
+	BYTE *src;
 
-	for (i = 0; i < MAXITEMS; i++) {
-		if (src->bCmd == 0xFF) {
-			*dst = 0xFF;
-			dst++;
+	if (sgRecvBuf[0] != 0)
+		PkwareDecompress(&sgRecvBuf[1], recv_offset, lengthof(sgRecvBuf) - 1);
+
+	src = &sgRecvBuf[1];
+	if (cmd == CMD_DLEVEL_JUNK) {
+		DeltaImportJunk(src);
+#ifdef HELLFIRE
+	} else if (cmd >= CMD_DLEVEL_0 && cmd <= CMD_DLEVEL_24) {
+#else
+	} else if (cmd >= CMD_DLEVEL_0 && cmd <= CMD_DLEVEL_16) {
+#endif
+		i = cmd - CMD_DLEVEL_0;
+		src = DeltaImportItem(src, sgLevels[i].item);
+		src = DeltaImportObject(src, sgLevels[i].object);
+		DeltaImportMonster(src, sgLevels[i].monster);
+	} else {
+		app_fatal("msg:1");
+	}
+
+	sgbDeltaChunks++;
+	sgbDeltaChanged = TRUE;
+}
+
+static DWORD On_DLEVEL(int pnum, TCmd *pCmd)
+{
+	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
+
+	if (gbDeltaSender != pnum) {
+		if (cmd->bCmd == CMD_DLEVEL_END) {
+			gbDeltaSender = pnum;
+			sgbRecvCmd = CMD_DLEVEL_END;
+		} else if (cmd->bCmd == CMD_DLEVEL_0 && cmd->wOffset == 0) {
+			gbDeltaSender = pnum;
+			sgbRecvCmd = CMD_DLEVEL_END;
 		} else {
-			memcpy(dst, src, sizeof(TCmdPItem));
-			dst += sizeof(TCmdPItem);
+			return cmd->wBytes + sizeof(*cmd);
 		}
-		src++;
 	}
-
-	return dst;
-}
-
-BYTE *DeltaExportObject(BYTE *dst, DObjectStr *src)
-{
-	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
-	return dst + sizeof(DObjectStr) * MAXOBJECTS;
-}
-
-BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
-{
-	int i;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		if (*(BYTE *)src == 0xFF) {
-			*dst = 0xFF;
-			dst++;
+	if (sgbRecvCmd == CMD_DLEVEL_END) {
+		if (cmd->bCmd == CMD_DLEVEL_END) {
+			sgbDeltaChunks = MAX_CHUNKS - 1;
+			return cmd->wBytes + sizeof(*cmd);
+		} else if (cmd->bCmd == CMD_DLEVEL_0 && cmd->wOffset == 0) {
+			sgdwRecvOffset = 0;
+			sgbRecvCmd = cmd->bCmd;
 		} else {
-			memcpy(dst, src, sizeof(DMonsterStr));
-			dst += sizeof(DMonsterStr);
+			return cmd->wBytes + sizeof(*cmd);
 		}
-		src++;
-	}
-
-	return dst;
-}
-
-BYTE *DeltaExportJunk(BYTE *dst)
-{
-	int i;
-	MultiQuests *mq;
-	DPortal *pD;
-
-	for (i = 0; i < MAXPORTAL; i++) {
-		pD = &sgJunk.portal[i];
-		if (pD->x == 0xFF) {
-			*dst = 0xFF;
-			dst++;
+	} else if (sgbRecvCmd != cmd->bCmd) {
+		DeltaImportData(sgbRecvCmd, sgdwRecvOffset);
+		if (cmd->bCmd == CMD_DLEVEL_END) {
+			sgbDeltaChunks = MAX_CHUNKS - 1;
+			sgbRecvCmd = CMD_DLEVEL_END;
+			return cmd->wBytes + sizeof(*cmd);
 		} else {
-			memcpy(dst, pD, sizeof(*pD));
-			dst += sizeof(*pD);
+			sgdwRecvOffset = 0;
+			sgbRecvCmd = cmd->bCmd;
 		}
 	}
 
-	mq = sgJunk.quests;
-	for (i = 0; i < MAXMULTIQUESTS; i++) {
-		if (questlist[i]._qflags & 1) {
-			mq->qlog = quests[i]._qlog;
-			mq->qstate = quests[i]._qactive;
-			mq->qvar1 = quests[i]._qvar1;
-			memcpy(dst, mq, sizeof(*mq));
-			dst += sizeof(*mq);
-			mq++;
-		}
-	}
-
-	return dst;
-}
-
-int msg_comp_level(BYTE *buffer, BYTE *end)
-{
-	int size, pkSize;
-
-	size = end - buffer - 1;
-	pkSize = PkwareCompress(buffer + 1, size);
-	*buffer = size != pkSize;
-
-	return pkSize + 1;
+	/// ASSERT: assert(cmd->wOffset == sgdwRecvOffset);
+	memcpy(&sgRecvBuf[cmd->wOffset], &cmd[1], cmd->wBytes);
+	sgdwRecvOffset += cmd->wBytes;
+	return cmd->wBytes + sizeof(*cmd);
 }
 
 void delta_init()
@@ -307,27 +458,27 @@ void delta_init()
 	deltaload = FALSE;
 }
 
-void delta_kill_monster(int mi, BYTE x, BYTE y, BYTE bLevel)
+void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
 		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mi];
+		pD = &sgLevels[bLevel].monster[mnum];
 		pD->_mx = x;
 		pD->_my = y;
-		pD->_mdir = monster[mi]._mdir;
+		pD->_mdir = monster[mnum]._mdir;
 		pD->_mhitpoints = 0;
 	}
 }
 
-void delta_monster_hp(int mi, int hp, BYTE bLevel)
+void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
 		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mi];
+		pD = &sgLevels[bLevel].monster[mnum];
 		if (pD->_mhitpoints > hp)
 			pD->_mhitpoints = hp;
 	}
@@ -354,7 +505,7 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 	}
 }
 
-void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
+static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
@@ -370,30 +521,136 @@ void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 	}
 }
 
-void delta_leave_sync(BYTE bLevel)
+static void delta_leave_sync(BYTE bLevel)
 {
-	int i, ma;
+	int i, mnum;
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers != 1) {
-		if (currlevel == 0) {
+		if (bLevel == 0) {
 			glSeedTbl[0] = GetRndSeed();
-		}
-		if (currlevel > 0) {
+		} else {
 			for (i = 0; i < nummonsters; ++i) {
-				ma = monstactive[i];
-				if (monster[ma]._mhitpoints) {
+				mnum = monstactive[i];
+				if (monster[mnum]._mhitpoints != 0) {
 					sgbDeltaChanged = TRUE;
-					pD = &sgLevels[bLevel].monster[ma];
-					pD->_mx = monster[ma]._mx;
-					pD->_my = monster[ma]._my;
-					pD->_mdir = monster[ma]._mdir;
-					pD->_menemy = encode_enemy(ma);
-					pD->_mhitpoints = monster[ma]._mhitpoints;
-					pD->_mactive = monster[ma]._msquelch;
+					pD = &sgLevels[bLevel].monster[mnum];
+					pD->_mx = monster[mnum]._mx;
+					pD->_my = monster[mnum]._my;
+					pD->_mdir = monster[mnum]._mdir;
+					pD->_menemy = encode_enemy(mnum);
+					pD->_mhitpoints = monster[mnum]._mhitpoints;
+					pD->_mactive = monster[mnum]._msquelch;
 				}
 			}
 			memcpy(&sgLocals[bLevel], automapview, sizeof(automapview));
+		}
+	}
+}
+
+static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
+{
+	if (gbMaxPlayers != 1) {
+		sgbDeltaChanged = TRUE;
+		sgLevels[bLevel].object[oi].bCmd = bCmd;
+	}
+}
+
+static BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
+{
+	TCmdPItem *pD;
+	int i;
+
+	if (gbMaxPlayers == 1)
+		return TRUE;
+
+	pD = sgLevels[bLevel].item;
+	for (i = 0; i < MAXITEMS; i++, pD++) {
+		if (pD->bCmd == 0xFF || pD->wIndx != pI->wIndx || pD->wCI != pI->wCI || pD->dwSeed != pI->dwSeed)
+			continue;
+
+		if (pD->bCmd == CMD_WALKXY) {
+			return TRUE;
+		}
+		if (pD->bCmd == CMD_STAND) {
+			sgbDeltaChanged = TRUE;
+			pD->bCmd = CMD_WALKXY;
+			return TRUE;
+		}
+		if (pD->bCmd == CMD_ACK_PLRINFO) {
+			sgbDeltaChanged = TRUE;
+			pD->bCmd = 0xFF;
+			return TRUE;
+		}
+
+		app_fatal("delta:1");
+		break;
+	}
+
+	if ((pI->wCI & CF_PREGEN) == 0)
+		return FALSE;
+
+	pD = sgLevels[bLevel].item;
+	for (i = 0; i < MAXITEMS; i++, pD++) {
+		if (pD->bCmd == 0xFF) {
+			sgbDeltaChanged = TRUE;
+			pD->bCmd = CMD_WALKXY;
+			pD->x = pI->x;
+			pD->y = pI->y;
+			pD->wIndx = pI->wIndx;
+			pD->wCI = pI->wCI;
+			pD->dwSeed = pI->dwSeed;
+			pD->bId = pI->bId;
+			pD->bDur = pI->bDur;
+			pD->bMDur = pI->bMDur;
+			pD->bCh = pI->bCh;
+			pD->bMCh = pI->bMCh;
+			pD->wValue = pI->wValue;
+			pD->dwBuff = pI->dwBuff;
+#ifdef HELLFIRE
+			pD->wToHit = pI->wToHit;
+			pD->wMaxDam = pI->wMaxDam;
+			pD->bMinStr = pI->bMinStr;
+			pD->bMinMag = pI->bMinMag;
+			pD->bMinDex = pI->bMinDex;
+			pD->bAC = pI->bAC;
+#endif
+			break;
+		}
+	}
+	return TRUE;
+}
+
+static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
+{
+	int i;
+	TCmdPItem *pD;
+
+	if (gbMaxPlayers == 1) {
+		return;
+	}
+	pD = sgLevels[bLevel].item;
+	for (i = 0; i < MAXITEMS; i++, pD++) {
+		if (pD->bCmd != CMD_WALKXY
+			&& pD->bCmd != 0xFF
+			&& pD->wIndx == pI->wIndx
+			&& pD->wCI == pI->wCI
+			&& pD->dwSeed == pI->dwSeed) {
+			if (pD->bCmd == CMD_ACK_PLRINFO)
+				return;
+			app_fatal("Trying to drop a floor item?");
+		}
+	}
+
+	pD = sgLevels[bLevel].item;
+	for (i = 0; i < MAXITEMS; i++, pD++) {
+		if (pD->bCmd == 0xFF) {
+			sgbDeltaChanged = TRUE;
+			copy_pod(*pD, *pI);
+			pD->bCmd = CMD_ACK_PLRINFO;
+			pD->x = x;
+			pD->y = y;
+			return;
 		}
 	}
 }
@@ -408,21 +665,91 @@ BOOL delta_quest_inited(int i)
 	return sgJunk.quests[i].qstate != 0xFF;
 }
 
+static void PackPItem(TCmdPItem *dest, ItemStruct *src)
+{
+	dest->wIndx = src->IDidx;
+
+	if (src->IDidx == IDI_EAR) {
+		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
+		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->bId = src->_iName[13];
+		dest->bDur = src->_iName[14];
+		dest->bMDur = src->_iName[15];
+		dest->bCh = src->_iName[16];
+		dest->bMCh = src->_iName[17];
+		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+	} else {
+		dest->wCI = src->_iCreateInfo;
+		dest->dwSeed = src->_iSeed;
+		dest->bId = src->_iIdentified;
+		dest->bDur = src->_iDurability;
+		dest->bMDur = src->_iMaxDur;
+		dest->bCh = src->_iCharges;
+		dest->bMCh = src->_iMaxCharges;
+		dest->wValue = src->_ivalue;
+#ifdef HELLFIRE
+		dest->wToHit = src->_iPLToHit;
+		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinStr = src->_iMinStr;
+		dest->bMinMag = src->_iMinMag;
+		dest->bMinDex = src->_iMinDex;
+		dest->bAC = src->_iAC;
+#endif
+	}
+}
+
+static void PackGItem(TCmdGItem *dest, ItemStruct *src)
+{
+	dest->wIndx = src->IDidx;
+
+	if (src->IDidx == IDI_EAR) {
+		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
+		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->bId = src->_iName[13];
+		dest->bDur = src->_iName[14];
+		dest->bMDur = src->_iName[15];
+		dest->bCh = src->_iName[16];
+		dest->bMCh = src->_iName[17];
+		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCEROR) << 6);
+		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+	} else {
+		dest->wCI = src->_iCreateInfo;
+		dest->dwSeed = src->_iSeed;
+		dest->bId = src->_iIdentified;
+		dest->bDur = src->_iDurability;
+		dest->bMDur = src->_iMaxDur;
+		dest->bCh = src->_iCharges;
+		dest->bMCh = src->_iMaxCharges;
+		dest->wValue = src->_ivalue;
+#ifdef HELLFIRE
+		dest->wToHit = src->_iPLToHit;
+		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinStr = src->_iMinStr;
+		dest->bMinMag = src->_iMinMag;
+		dest->bMinDex = src->_iMinDex;
+		dest->bAC = src->_iAC;
+#endif
+	}
+}
+
 void DeltaAddItem(int ii)
 {
+	ItemStruct *is;
 	int i;
 	TCmdPItem *pD;
 
-	if (gbMaxPlayers == 1) {
+	if (gbMaxPlayers == 1)
 		return;
-	}
+
+	is = &item[ii];
 	pD = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-		    && pD->wIndx == item[ii].IDidx
-		    && pD->wCI == item[ii]._iCreateInfo
-		    && pD->dwSeed == item[ii]._iSeed
-		    && (pD->bCmd == CMD_WALKXY || pD->bCmd == CMD_STAND)) {
+			&& pD->wIndx == is->IDidx
+			&& pD->wCI == is->_iCreateInfo
+			&& pD->dwSeed == is->_iSeed
+			&& (pD->bCmd == CMD_WALKXY || pD->bCmd == CMD_STAND)) {
 			return;
 		}
 	}
@@ -430,19 +757,12 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
-			pD->bCmd = CMD_STAND;
 			sgbDeltaChanged = TRUE;
-			pD->x = item[ii]._ix;
-			pD->y = item[ii]._iy;
-			pD->wIndx = item[ii].IDidx;
-			pD->wCI = item[ii]._iCreateInfo;
-			pD->dwSeed = item[ii]._iSeed;
-			pD->bId = item[ii]._iIdentified;
-			pD->bDur = item[ii]._iDurability;
-			pD->bMDur = item[ii]._iMaxDur;
-			pD->bCh = item[ii]._iCharges;
-			pD->bMCh = item[ii]._iMaxCharges;
-			pD->wValue = item[ii]._ivalue;
+			pD->bCmd = CMD_STAND;
+			pD->x = is->_ix;
+			pD->y = is->_iy;
+
+			PackPItem(pD, is);
 			return;
 		}
 	}
@@ -462,12 +782,87 @@ void DeltaSaveLevel()
 	}
 }
 
+static void UnPackPItem(TCmdPItem *src)
+{
+	if (src->wIndx == IDI_EAR) {
+		RecreateEar(
+			src->wCI,
+			src->dwSeed,
+			src->bId,
+			src->bDur,
+			src->bMDur,
+			src->bCh,
+			src->bMCh,
+			src->wValue,
+			src->dwBuff);
+	} else {
+		RecreateItem(
+			src->wIndx,
+			src->wCI,
+			src->dwSeed,
+			src->wValue);
+		if (src->bId)
+			item[MAXITEMS]._iIdentified = TRUE;
+		item[MAXITEMS]._iDurability = src->bDur;
+		item[MAXITEMS]._iMaxDur = src->bMDur;
+		item[MAXITEMS]._iCharges = src->bCh;
+		item[MAXITEMS]._iMaxCharges = src->bMCh;
+#ifdef HELLFIRE
+		item[MAXITEMS]._iPLToHit = src->wToHit;
+		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinStr = src->bMinStr;
+		item[MAXITEMS]._iMinMag = src->bMinMag;
+		item[MAXITEMS]._iMinDex = src->bMinDex;
+		item[MAXITEMS]._iAC = src->bAC;
+#endif
+	}
+}
+
+static void UnPackGItem(TCmdGItem *src)
+{
+	if (src->wIndx == IDI_EAR) {
+		RecreateEar(
+			src->wCI,
+			src->dwSeed,
+			src->bId,
+			src->bDur,
+			src->bMDur,
+			src->bCh,
+			src->bMCh,
+			src->wValue,
+			src->dwBuff);
+	} else {
+		RecreateItem(
+			src->wIndx,
+			src->wCI,
+			src->dwSeed,
+			src->wValue);
+		if (src->bId)
+			item[MAXITEMS]._iIdentified = TRUE;
+		item[MAXITEMS]._iDurability = src->bDur;
+		item[MAXITEMS]._iMaxDur = src->bMDur;
+		item[MAXITEMS]._iCharges = src->bCh;
+		item[MAXITEMS]._iMaxCharges = src->bMCh;
+#ifdef HELLFIRE
+		item[MAXITEMS]._iPLToHit = src->wToHit;
+		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinStr = src->bMinStr;
+		item[MAXITEMS]._iMinMag = src->bMinMag;
+		item[MAXITEMS]._iMinDex = src->bMinDex;
+		item[MAXITEMS]._iAC = src->bAC;
+#endif
+	}
+}
+
 void DeltaLoadLevel()
 {
+	DMonsterStr *mstr;
+	DObjectStr *dstr;
+	MonsterStruct *mon;
+	TCmdPItem* itm;
 	int ii, ot;
-	int i, j, k, l;
-	int x, y, xx, yy;
-	BOOL done;
+	int i;
+	int x, y;
 
 	if (gbMaxPlayers == 1) {
 		return;
@@ -475,127 +870,80 @@ void DeltaLoadLevel()
 
 	deltaload = TRUE;
 	if (currlevel != 0) {
-		for (i = 0; i < nummonsters; i++) {
-			if (sgLevels[currlevel].monster[i]._mx != 0xFF) {
-				M_ClearSquares(i);
-				x = sgLevels[currlevel].monster[i]._mx;
-				y = sgLevels[currlevel].monster[i]._my;
-				monster[i]._mx = x;
-				monster[i]._my = y;
-				monster[i]._moldx = x;
-				monster[i]._moldy = y;
-				monster[i]._mfutx = x;
-				monster[i]._mfuty = y;
-				if (sgLevels[currlevel].monster[i]._mhitpoints != -1)
-					monster[i]._mhitpoints = sgLevels[currlevel].monster[i]._mhitpoints;
-				if (!sgLevels[currlevel].monster[i]._mhitpoints) {
-					monster[i]._moldx = x;
-					monster[i]._moldy = y;
-					M_ClearSquares(i);
-					if (monster[i]._mAi != AI_DIABLO) {
-						if (!monster[i]._uniqtype)
-							/// ASSERT: assert(monster[i].MType != NULL);
-							AddDead(monster[i]._mx, monster[i]._my, monster[i].MType->mdeadval, (direction)monster[i]._mdir);
-						else
-							AddDead(monster[i]._mx, monster[i]._my, monster[i]._udeadval, (direction)monster[i]._mdir);
-					}
-					monster[i]._mDelFlag = TRUE;
-					M_UpdateLeader(i);
+		mstr = sgLevels[currlevel].monster;
+		for (i = 0; i < nummonsters; i++, mstr++) {
+			if (mstr->_mx != 0xFF) {
+				MonClearSquares(i);
+				x = mstr->_mx;
+				y = mstr->_my;
+				mon = &monster[i];
+				mon->_mx = x;
+				mon->_my = y;
+				mon->_moldx = x;
+				mon->_moldy = y;
+				mon->_mfutx = x;
+				mon->_mfuty = y;
+				if (mstr->_mhitpoints != -1)
+					mon->_mhitpoints = mstr->_mhitpoints;
+				if (mstr->_mhitpoints == 0) {
+					AddDead(i);
 				} else {
-					decode_enemy(i, sgLevels[currlevel].monster[i]._menemy);
-					if (monster[i]._mx && monster[i]._mx != 1 || monster[i]._my)
-						dMonster[monster[i]._mx][monster[i]._my] = i + 1;
+					decode_enemy(i, mstr->_menemy);
+					if (mon->_mx && mon->_mx != 1 || mon->_my)
+						dMonster[mon->_mx][mon->_my] = i + 1;
 					if (i < MAX_PLRS) {
 						MAI_Golum(i);
-						monster[i]._mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
+						mon->_mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
 					} else {
-						M_StartStand(i, monster[i]._mdir);
+						MonStartStand(i, mon->_mdir);
 					}
-					monster[i]._msquelch = sgLevels[currlevel].monster[i]._mactive;
+					mon->_msquelch = mstr->_mactive;
 				}
 			}
 		}
 		memcpy(automapview, &sgLocals[currlevel], sizeof(automapview));
 	}
 
-	for (i = 0; i < MAXITEMS; i++) {
-		if (sgLevels[currlevel].item[i].bCmd != 0xFF) {
-			if (sgLevels[currlevel].item[i].bCmd == CMD_WALKXY) {
-				ii = FindGetItem(
-				    sgLevels[currlevel].item[i].wIndx,
-				    sgLevels[currlevel].item[i].wCI,
-				    sgLevels[currlevel].item[i].dwSeed);
-				if (ii != -1) {
-					if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
-						dItem[item[ii]._ix][item[ii]._iy] = 0;
-					DeleteItem(ii, i);
-				}
+	itm = sgLevels[currlevel].item;
+	for (i = 0; i < MAXITEMS; i++, itm++) {
+		if (itm->bCmd == CMD_WALKXY) {
+			ii = FindGetItem(
+				itm->wIndx,
+				itm->wCI,
+				itm->dwSeed);
+			if (ii != -1) {
+				if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
+					dItem[item[ii]._ix][item[ii]._iy] = 0;
+				DeleteItem(ii, i);
 			}
-			if (sgLevels[currlevel].item[i].bCmd == CMD_ACK_PLRINFO) {
-				ii = itemavail[0];
-				itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-				itemactive[numitems] = ii;
-				if (sgLevels[currlevel].item[i].wIndx == IDI_EAR) {
-					RecreateEar(
-					    ii,
-					    sgLevels[currlevel].item[i].wCI,
-					    sgLevels[currlevel].item[i].dwSeed,
-					    sgLevels[currlevel].item[i].bId,
-					    sgLevels[currlevel].item[i].bDur,
-					    sgLevels[currlevel].item[i].bMDur,
-					    sgLevels[currlevel].item[i].bCh,
-					    sgLevels[currlevel].item[i].bMCh,
-					    sgLevels[currlevel].item[i].wValue,
-					    sgLevels[currlevel].item[i].dwBuff);
-				} else {
-					RecreateItem(
-					    ii,
-					    sgLevels[currlevel].item[i].wIndx,
-					    sgLevels[currlevel].item[i].wCI,
-					    sgLevels[currlevel].item[i].dwSeed,
-					    sgLevels[currlevel].item[i].wValue);
-					if (sgLevels[currlevel].item[i].bId)
-						item[ii]._iIdentified = TRUE;
-					item[ii]._iDurability = sgLevels[currlevel].item[i].bDur;
-					item[ii]._iMaxDur = sgLevels[currlevel].item[i].bMDur;
-					item[ii]._iCharges = sgLevels[currlevel].item[i].bCh;
-					item[ii]._iMaxCharges = sgLevels[currlevel].item[i].bMCh;
-				}
-				x = sgLevels[currlevel].item[i].x;
-				y = sgLevels[currlevel].item[i].y;
-				if (!CanPut(x, y)) {
-					done = FALSE;
-					for (k = 1; k < 50 && !done; k++) {
-						for (j = -k; j <= k && !done; j++) {
-							yy = y + j;
-							for (l = -k; l <= k && !done; l++) {
-								xx = x + l;
-								if (CanPut(xx, yy)) {
-									done = TRUE;
-									x = xx;
-									y = yy;
-								}
-							}
-						}
-					}
-				}
-				item[ii]._ix = x;
-				item[ii]._iy = y;
-				dItem[x][y] = ii + 1;
-				RespawnItem(ii, FALSE);
-				numitems++;
-			}
+		} else if (itm->bCmd == CMD_ACK_PLRINFO) {
+			UnPackPItem(itm);
+			x = itm->x;
+			y = itm->y;
+			if (!CanPut(x, y))
+				FindItemLocation(x, y, &x, &y, DSIZEX / 2);
+
+			ii = itemavail[0];
+			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+			itemactive[numitems] = ii;
+			copy_pod(item[ii], item[MAXITEMS]);
+			item[ii]._ix = x;
+			item[ii]._iy = y;
+			dItem[x][y] = ii + 1;
+			RespawnItem(ii, FALSE);
+			numitems++;
 		}
 	}
 
 	if (currlevel != 0) {
-		for (i = 0; i < MAXOBJECTS; i++) {
-			switch (sgLevels[currlevel].object[i].bCmd) {
+		dstr = sgLevels[currlevel].object;
+		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
+			switch (dstr->bCmd) {
 			case CMD_OPENDOOR:
 			case CMD_CLOSEDOOR:
 			case CMD_OPERATEOBJ:
 			case CMD_PLROPOBJ:
-				SyncOpObject(-1, sgLevels[currlevel].object[i].bCmd, i);
+				SyncOpObject(-1, dstr->bCmd, i);
 				break;
 			case CMD_BREAKOBJ:
 				SyncBreakObj(-1, i);
@@ -751,6 +1099,7 @@ void NetSendCmdQuest(BOOL bHiPri, BYTE q)
 
 void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 {
+	ItemStruct* is;
 	TCmdGItem cmd;
 
 	cmd.bCmd = bCmd;
@@ -759,30 +1108,11 @@ void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 	cmd.bLevel = currlevel;
 	cmd.bCursitem = ii;
 	cmd.dwTime = 0;
-	cmd.x = item[ii]._ix;
-	cmd.y = item[ii]._iy;
-	cmd.wIndx = item[ii].IDidx;
+	is = &item[ii];
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
 
-	if (item[ii].IDidx == IDI_EAR) {
-		cmd.wCI = item[ii]._iName[8] | (item[ii]._iName[7] << 8);
-		cmd.dwSeed = item[ii]._iName[12] | ((item[ii]._iName[11] | ((item[ii]._iName[10] | (item[ii]._iName[9] << 8)) << 8)) << 8);
-		cmd.bId = item[ii]._iName[13];
-		cmd.bDur = item[ii]._iName[14];
-		cmd.bMDur = item[ii]._iName[15];
-		cmd.bCh = item[ii]._iName[16];
-		cmd.bMCh = item[ii]._iName[17];
-		cmd.wValue = item[ii]._ivalue | (item[ii]._iName[18] << 8) | ((item[ii]._iCurs - 19) << 6);
-		cmd.dwBuff = item[ii]._iName[22] | ((item[ii]._iName[21] | ((item[ii]._iName[20] | (item[ii]._iName[19] << 8)) << 8)) << 8);
-	} else {
-		cmd.wCI = item[ii]._iCreateInfo;
-		cmd.dwSeed = item[ii]._iSeed;
-		cmd.bId = item[ii]._iIdentified;
-		cmd.bDur = item[ii]._iDurability;
-		cmd.bMDur = item[ii]._iMaxDur;
-		cmd.bCh = item[ii]._iCharges;
-		cmd.bMCh = item[ii]._iMaxCharges;
-		cmd.wValue = item[ii]._ivalue;
-	}
+	PackGItem(&cmd, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -790,12 +1120,16 @@ void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
 
+#ifdef HELLFIRE
+	cmd = *p;
+#else
 	memcpy(&cmd, p, sizeof(cmd));
+#endif
 	cmd.bPnum = pnum;
 	cmd.bCmd = bCmd;
 	cmd.bMaster = mast;
@@ -807,7 +1141,7 @@ void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p
 	}
 
 	ticks = SDL_GetTicks();
-	if (!cmd.dwTime) {
+	if (cmd.dwTime == 0) {
 		cmd.dwTime = ticks;
 	} else if (ticks - cmd.dwTime > 5000) {
 		return;
@@ -816,18 +1150,22 @@ void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p
 	multi_msg_add((BYTE *)&cmd.bCmd, sizeof(cmd));
 }
 
-BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
 
+#ifdef HELLFIRE
+	cmd = *p;
+#else
 	memcpy(&cmd, p, sizeof(cmd));
+#endif
 	cmd.bCmd = bCmd;
 	cmd.bPnum = pnum;
 	cmd.bMaster = mast;
 
 	ticks = SDL_GetTicks();
-	if (!cmd.dwTime) {
+	if (cmd.dwTime == 0) {
 		cmd.dwTime = ticks;
 	} else if (ticks - cmd.dwTime > 5000) {
 		return FALSE;
@@ -838,11 +1176,15 @@ BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	return TRUE;
 }
 
-void NetSendCmdExtra(TCmdGItem *p)
+static void NetSendCmdExtra(TCmdGItem *p)
 {
 	TCmdGItem cmd;
 
+#ifdef HELLFIRE
+	cmd = *p;
+#else
 	memcpy(&cmd, p, sizeof(cmd));
+#endif
 	cmd.dwTime = 0;
 	cmd.bCmd = CMD_ITEMEXTRA;
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -855,28 +1197,8 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 	cmd.bCmd = bCmd;
 	cmd.x = x;
 	cmd.y = y;
-	cmd.wIndx = plr[myplr].HoldItem.IDidx;
 
-	if (plr[myplr].HoldItem.IDidx == IDI_EAR) {
-		cmd.wCI = plr[myplr].HoldItem._iName[8] | (plr[myplr].HoldItem._iName[7] << 8);
-		cmd.dwSeed = plr[myplr].HoldItem._iName[12] | ((plr[myplr].HoldItem._iName[11] | ((plr[myplr].HoldItem._iName[10] | (plr[myplr].HoldItem._iName[9] << 8)) << 8)) << 8);
-		cmd.bId = plr[myplr].HoldItem._iName[13];
-		cmd.bDur = plr[myplr].HoldItem._iName[14];
-		cmd.bMDur = plr[myplr].HoldItem._iName[15];
-		cmd.bCh = plr[myplr].HoldItem._iName[16];
-		cmd.bMCh = plr[myplr].HoldItem._iName[17];
-		cmd.wValue = plr[myplr].HoldItem._ivalue | (plr[myplr].HoldItem._iName[18] << 8) | ((plr[myplr].HoldItem._iCurs - 19) << 6);
-		cmd.dwBuff = plr[myplr].HoldItem._iName[22] | ((plr[myplr].HoldItem._iName[21] | ((plr[myplr].HoldItem._iName[20] | (plr[myplr].HoldItem._iName[19] << 8)) << 8)) << 8);
-	} else {
-		cmd.wCI = plr[myplr].HoldItem._iCreateInfo;
-		cmd.dwSeed = plr[myplr].HoldItem._iSeed;
-		cmd.bId = plr[myplr].HoldItem._iIdentified;
-		cmd.bDur = plr[myplr].HoldItem._iDurability;
-		cmd.bMDur = plr[myplr].HoldItem._iMaxDur;
-		cmd.bCh = plr[myplr].HoldItem._iCharges;
-		cmd.bMCh = plr[myplr].HoldItem._iMaxCharges;
-		cmd.wValue = plr[myplr].HoldItem._ivalue;
-	}
+	PackPItem(&cmd, &plr[myplr].HoldItem);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -884,16 +1206,16 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdChItem(BOOL bHiPri, BYTE bLoc)
+void NetSendCmdChItem(BOOL bHiPri, ItemStruct *is, BYTE bLoc)
 {
 	TCmdChItem cmd;
 
 	cmd.bCmd = CMD_CHANGEPLRITEMS;
 	cmd.bLoc = bLoc;
-	cmd.wIndx = plr[myplr].HoldItem.IDidx;
-	cmd.wCI = plr[myplr].HoldItem._iCreateInfo;
-	cmd.dwSeed = plr[myplr].HoldItem._iSeed;
-	cmd.bId = plr[myplr].HoldItem._iIdentified;
+	cmd.wIndx = is->IDidx;
+	cmd.wCI = is->_iCreateInfo;
+	cmd.dwSeed = is->_iSeed;
+	cmd.bId = is->_iIdentified;
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -915,38 +1237,35 @@ void NetSendCmdDelItem(BOOL bHiPri, BYTE bLoc)
 
 void NetSendCmdDItem(BOOL bHiPri, int ii)
 {
+	ItemStruct *is;
 	TCmdPItem cmd;
 
+	is = &item[ii];
 	cmd.bCmd = CMD_DROPITEM;
-	cmd.x = item[ii]._ix;
-	cmd.y = item[ii]._iy;
-	cmd.wIndx = item[ii].IDidx;
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
 
-	if (item[ii].IDidx == IDI_EAR) {
-		cmd.wCI = item[ii]._iName[8] | (item[ii]._iName[7] << 8);
-		cmd.dwSeed = item[ii]._iName[12] | ((item[ii]._iName[11] | ((item[ii]._iName[10] | (item[ii]._iName[9] << 8)) << 8)) << 8);
-		cmd.bId = item[ii]._iName[13];
-		cmd.bDur = item[ii]._iName[14];
-		cmd.bMDur = item[ii]._iName[15];
-		cmd.bCh = item[ii]._iName[16];
-		cmd.bMCh = item[ii]._iName[17];
-		cmd.wValue = item[ii]._ivalue | (item[ii]._iName[18] << 8) | ((item[ii]._iCurs - 19) << 6);
-		cmd.dwBuff = item[ii]._iName[22] | ((item[ii]._iName[21] | ((item[ii]._iName[20] | (item[ii]._iName[19] << 8)) << 8)) << 8);
-	} else {
-		cmd.wCI = item[ii]._iCreateInfo;
-		cmd.dwSeed = item[ii]._iSeed;
-		cmd.bId = item[ii]._iIdentified;
-		cmd.bDur = item[ii]._iDurability;
-		cmd.bMDur = item[ii]._iMaxDur;
-		cmd.bCh = item[ii]._iCharges;
-		cmd.bMCh = item[ii]._iMaxCharges;
-		cmd.wValue = item[ii]._ivalue;
-	}
+	PackPItem(&cmd, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+static BOOL i_own_level(int nReqLevel)
+{
+	int i;
+
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (plr[i].plractive
+			&& !plr[i]._pLvlChanging
+			&& plr[i].plrlevel == nReqLevel
+			&& (i != myplr || gbBufferMsgs == 0))
+			break;
+	}
+
+	return i == myplr;
 }
 
 void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam)
@@ -962,15 +1281,51 @@ void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdString(int pmask, const char *pszStr)
+#ifdef HELLFIRE
+void NetSendCmdMonDmg(BOOL bHiPri, WORD wMon, DWORD dwDam)
+{
+	TCmdMonDamage cmd;
+
+	cmd.bCmd = CMD_MONSTDAMAGE;
+	cmd.wMon = wMon;
+	cmd.dwDam = dwDam;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+#endif
+
+void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
 	TCmdString cmd;
 
-	dwStrLen = strlen(pszStr);
+	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = CMD_STRING;
-	strcpy(cmd.str, pszStr);
+	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
 	multi_send_msg_packet(pmask, (BYTE *)&cmd.bCmd, dwStrLen + 2);
+}
+
+static DWORD On_STRING2(int pnum, TCmd *pCmd)
+{
+	TCmdString *cmd = (TCmdString *)pCmd;
+
+	int len = strlen(cmd->str);
+	if (gbBufferMsgs == 0)
+		SendPlrMsg(pnum, cmd->str);
+
+	return len + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
+}
+
+static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel, BYTE bLType, BYTE bSetLvl)
+{
+	sgbDeltaChanged = TRUE;
+	sgJunk.portal[pnum].x = x;
+	sgJunk.portal[pnum].y = y;
+	sgJunk.portal[pnum].level = bLevel;
+	sgJunk.portal[pnum].ltype = bLType;
+	sgJunk.portal[pnum].setlvl = bSetLvl;
 }
 
 void delta_close_portal(int pnum)
@@ -979,13 +1334,1264 @@ void delta_close_portal(int pnum)
 	sgbDeltaChanged = TRUE;
 }
 
+static void check_update_plr(int pnum)
+{
+	if (gbMaxPlayers != 1 && pnum == myplr)
+		pfile_update(TRUE);
+}
+
+static void msg_errorf(const char *pszFmt, ...)
+{
+	static DWORD msg_err_timer;
+	DWORD ticks;
+	char msg[256];
+	va_list va;
+
+	va_start(va, pszFmt);
+	ticks = SDL_GetTicks();
+	if (ticks - msg_err_timer >= 5000) {
+		msg_err_timer = ticks;
+		vsnprintf(msg, sizeof(msg), pszFmt, va);
+		ErrorPlrMsg(msg);
+	}
+	va_end(va);
+}
+
+static DWORD On_SYNCDATA(TCmd *pCmd, int pnum)
+{
+	return sync_update(pnum, (const BYTE *)pCmd);
+}
+
+static DWORD On_WALKXY(TCmd *pCmd, int pnum)
+{
+	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		MakePlrPath(pnum, cmd->x, cmd->y, TRUE);
+		plr[pnum].destAction = ACTION_NONE;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
+		ModifyPlrStr(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
+		ModifyPlrMag(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd= (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
+		ModifyPlrDex(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
+		ModifyPlrVit(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SBSPELL(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1) {
+		int spell = cmd->wParam1;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pSBkSplType;
+			plr[pnum]._pSplFrom = 1;
+			plr[pnum].destAction = ACTION_SPELL;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		plr[pnum].destAction = ACTION_PICKUPITEM;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_REQUESTGITEM(TCmd *pCmd, int pnum)
+{
+	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+
+	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
+		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
+			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+			if (ii != -1) {
+				NetSendCmdGItem2(FALSE, CMD_GETITEM, myplr, cmd->bPnum, cmd);
+				if (cmd->bPnum != myplr)
+					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+				else
+					InvGetItem(myplr, ii);
+				SetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, myplr, cmd->bPnum, cmd))
+				NetSendCmdExtra(cmd);
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_GETITEM(TCmd *pCmd, int pnum)
+{
+	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+		if (delta_get_item(cmd, cmd->bLevel)) {
+			if ((currlevel == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
+				if (cmd->bPnum == myplr) {
+					if (currlevel != cmd->bLevel) {
+						UnPackGItem(cmd);
+						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
+						if (ii != -1)
+							InvGetItem(myplr, ii);
+					} else
+						InvGetItem(myplr, ii);
+				} else
+					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+			}
+		} else
+			NetSendCmdGItem2(TRUE, CMD_GETITEM, cmd->bMaster, cmd->bPnum, cmd);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_GOTOAGETITEM(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		plr[pnum].destAction = ACTION_PICKUPAITEM;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_REQUESTAGITEM(TCmd *pCmd, int pnum)
+{
+	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+
+	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
+		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
+			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+			if (ii != -1) {
+				NetSendCmdGItem2(FALSE, CMD_AGETITEM, myplr, cmd->bPnum, cmd);
+				if (cmd->bPnum != myplr)
+					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+				else
+					AutoGetItem(myplr, cmd->bCursitem);
+				SetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, myplr, cmd->bPnum, cmd))
+				NetSendCmdExtra(cmd);
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_AGETITEM(TCmd *pCmd, int pnum)
+{
+	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+		if (delta_get_item(cmd, cmd->bLevel)) {
+			if ((currlevel == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
+				if (cmd->bPnum == myplr) {
+					if (currlevel != cmd->bLevel) {
+						UnPackGItem(cmd);
+						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
+						if (ii != -1)
+							AutoGetItem(myplr, ii);
+					} else
+						AutoGetItem(myplr, cmd->bCursitem);
+				} else
+					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+			}
+		} else
+			NetSendCmdGItem2(TRUE, CMD_AGETITEM, cmd->bMaster, cmd->bPnum, cmd);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ITEMEXTRA(TCmd *pCmd, int pnum)
+{
+	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		delta_get_item(cmd, cmd->bLevel);
+		if (currlevel == plr[pnum].plrlevel)
+			SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
+{
+	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (currlevel == plr[pnum].plrlevel) {
+		int ii;
+		if (pnum == myplr)
+			ii = InvPutItem(pnum, cmd->x, cmd->y);
+		else {
+			UnPackPItem(cmd);
+			ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+		}
+		if (ii != -1) {
+			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
+			check_update_plr(pnum);
+		}
+		return sizeof(*cmd);
+	} else {
+		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
+		check_update_plr(pnum);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
+{
+	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (currlevel == plr[pnum].plrlevel) {
+		UnPackPItem(cmd);
+		int ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+		if (ii != -1) {
+			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
+			check_update_plr(pnum);
+		}
+		return sizeof(*cmd);
+	} else {
+		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
+		check_update_plr(pnum);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
+{
+	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel && pnum != myplr) {
+			UnPackPItem(cmd);
+			SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+		}
+		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
+{
+	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		plr[pnum].destAction = ACTION_ATTACK;
+		plr[pnum].destParam1 = cmd->x;
+		plr[pnum].destParam2 = cmd->y;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
+{
+	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		plr[pnum].destAction = ACTION_ATTACK;
+		plr[pnum].destParam1 = cmd->x;
+		plr[pnum].destParam2 = cmd->y;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
+{
+	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		plr[pnum].destAction = ACTION_RATTACK;
+		plr[pnum].destParam1 = cmd->x;
+		plr[pnum].destParam2 = cmd->y;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam1;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELLWALL;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum].destParam4 = cmd->wParam3;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pRSplType;
+			plr[pnum]._pSplFrom = 0;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam1;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELL;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pRSplType;
+			plr[pnum]._pSplFrom = 0;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_TSPELLXY(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam1;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELL;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pTSplType;
+			plr[pnum]._pSplFrom = 2;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int oi = cmd->wParam1;
+		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
+			MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		else
+			MakePlrPath(pnum, cmd->x, cmd->y, TRUE);
+		plr[pnum].destAction = ACTION_OPERATE;
+		plr[pnum].destParam1 = oi;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_DISARMXY(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int oi = cmd->wParam1;
+		if (object[oi]._oSolidFlag || object[oi]._oDoorFlag)
+			MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		else
+			MakePlrPath(pnum, cmd->x, cmd->y, TRUE);
+		plr[pnum].destAction = ACTION_DISARM;
+		plr[pnum].destParam1 = oi;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		plr[pnum].destAction = ACTION_OPERATETK;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	int mnum, x, y;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		mnum = cmd->wParam1;
+		plr[pnum].destParam1 = mnum;
+		plr[pnum].destAction = ACTION_ATTACKMON;
+		x = monster[mnum]._mfutx;
+		y = monster[mnum]._mfuty;
+		if (abs(plr[pnum]._px - x) > 1 || abs(plr[pnum]._py - y) > 1)
+			MakePlrPath(pnum, x, y, FALSE);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int tnum = cmd->wParam1;
+		MakePlrPath(pnum, plr[tnum]._pfutx, plr[tnum]._pfuty, FALSE);
+		plr[pnum].destAction = ACTION_ATTACKPLR;
+		plr[pnum].destParam1 = tnum;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		plr[pnum].destAction = ACTION_RATTACKMON;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		plr[pnum].destAction = ACTION_RATTACKPLR;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SPELLID(TCmd *pCmd, int pnum)
+{
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam2;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELLMON;
+			plr[pnum].destParam1 = cmd->wParam1;
+			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pRSplType;
+			plr[pnum]._pSplFrom = 0;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
+{
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam2;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELLPLR;
+			plr[pnum].destParam1 = cmd->wParam1;
+			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pRSplType;
+			plr[pnum]._pSplFrom = 0;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_TSPELLID(TCmd *pCmd, int pnum)
+{
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam2;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELLMON;
+			plr[pnum].destParam1 = cmd->wParam1;
+			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pTSplType;
+			plr[pnum]._pSplFrom = 2;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_TSPELLPID(TCmd *pCmd, int pnum)
+{
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam2;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELLPLR;
+			plr[pnum].destParam1 = cmd->wParam1;
+			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pTSplType;
+			plr[pnum]._pSplFrom = 2;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		MonGetKnockback(cmd->wParam1);
+		MonStartHit(cmd->wParam1, pnum, 0);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_RESURRECT(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		DoResurrect(pnum, cmd->wParam1);
+		check_update_plr(pnum);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_HEALOTHER(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel)
+		DoHealOther(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_TALKXY(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
+		plr[pnum].destAction = ACTION_TALK;
+		plr[pnum].destParam1 = cmd->wParam1;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_NEWLVL(TCmd *pCmd, int pnum)
+{
+	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		StartNewLvl(pnum, cmd->wParam1, cmd->wParam2);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_WARP(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		StartWarpLvl(pnum, cmd->wParam1);
+		if (pnum == myplr && pcurs >= CURSOR_FIRSTITEM) {
+			copy_pod(item[MAXITEMS], plr[myplr].HoldItem);
+			AutoGetItem(myplr, MAXITEMS);
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr) {
+		if (currlevel == plr[pnum].plrlevel)
+			MonSyncStartKill(cmd->wParam1, cmd->x, cmd->y, pnum);
+		delta_kill_monster(cmd->wParam1, cmd->x, cmd->y, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_KILLGOLEM(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr) {
+		if (currlevel == cmd->wParam1)
+			MonSyncStartKill(pnum, cmd->x, cmd->y, pnum);
+		delta_kill_monster(pnum, cmd->x, cmd->y, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
+{
+	TCmdGolem *cmd = (TCmdGolem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (currlevel != plr[pnum].plrlevel)
+		delta_sync_golem(cmd, pnum, cmd->_currlevel);
+	else if (pnum != myplr) {
+		int i;
+		// check if this player already has an active golem
+		for (i = 0; i < nummissiles; i++) {
+			MissileStruct *mis = &missile[missileactive[i]];
+			if (mis->_miType == MIS_GOLEM && mis->_miSource == pnum) {
+				break;
+			}
+		}
+		if (i == nummissiles)
+			AddMissile(plr[pnum]._px, plr[pnum]._py, cmd->_mx, cmd->_my, cmd->_mdir, MIS_GOLEM, 0, pnum, 0, 1);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
+{
+	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+	int mnum;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr) {
+		if (currlevel == plr[pnum].plrlevel) {
+			mnum = cmd->wParam1;
+			monster[mnum].mWhoHit |= 1 << pnum;
+
+			if (monster[mnum]._mhitpoints != 0) {
+				monster[mnum]._mhitpoints -= cmd->wParam2;
+				if (monster[mnum]._mhitpoints < (1 << 6))
+					monster[mnum]._mhitpoints = 1 << 6;
+				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
+			}
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		StartPlrKill(pnum, cmd->wParam1);
+	else
+		check_update_plr(pnum);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
+{
+	TCmdDamage *cmd = (TCmdDamage *)pCmd;
+	DWORD dam;
+
+	if (cmd->bPlr == myplr && currlevel != 0) {
+		if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+			dam = cmd->dwDam;
+			if ((plr[myplr]._pHitPoints >> 6) > 0 && dam <= 192000) {
+				drawhpflag = TRUE;
+				plr[myplr]._pHitPoints -= dam;
+				plr[myplr]._pHPBase -= dam;
+				if ((plr[myplr]._pHitPoints >> 6) <= 0)
+					SyncPlrKill(myplr, 1);
+			}
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel)
+			SyncOpObject(pnum, CMD_OPENDOOR, cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_OPENDOOR, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel)
+			SyncOpObject(pnum, CMD_CLOSEDOOR, cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_CLOSEDOOR, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel)
+			SyncOpObject(pnum, CMD_OPERATEOBJ, cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PLROPOBJ(TCmd *pCmd, int pnum)
+{
+	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel)
+			SyncOpObject(cmd->wParam1, CMD_PLROPOBJ, cmd->wParam2);
+		delta_sync_object(cmd->wParam2, CMD_PLROPOBJ, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_BREAKOBJ(TCmd *pCmd, int pnum)
+{
+	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currlevel == plr[pnum].plrlevel)
+			SyncBreakObj(cmd->wParam1, cmd->wParam2);
+		delta_sync_object(cmd->wParam2, CMD_BREAKOBJ, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
+{
+	TCmdChItem *cmd = (TCmdChItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		CheckInvSwap(pnum, cmd->bLoc, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
+{
+	TCmdDelItem *cmd = (TCmdDelItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		inv_update_rem_item(pnum, cmd->bLoc);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (cmd->wParam1 <= MAXCHARLEVEL && pnum != myplr)
+		plr[pnum]._pLevel = cmd->wParam1;
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_DROPITEM(TCmd *pCmd, int pnum)
+{
+	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
+		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SEND_PLRINFO(TCmd *pCmd, int pnum)
+{
+	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, cmd->wBytes + sizeof(*cmd));
+	else
+		recv_plrinfo(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
+
+	return cmd->wBytes + sizeof(*cmd);
+}
+
+static DWORD On_ACK_PLRINFO(TCmd *pCmd, int pnum)
+{
+	return On_SEND_PLRINFO(pCmd, pnum);
+}
+
+static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+	PlayerStruct* p;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		p = &plr[pnum];
+		p->_pLvlChanging = FALSE;
+		if (p->_pName[0] && !p->plractive) {
+			p->plractive = TRUE;
+			gbActivePlayers++;
+			EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);
+		}
+
+		if (p->plractive && myplr != pnum) {
+			p->_px = cmd->x;
+			p->_py = cmd->y;
+			p->plrlevel = cmd->wParam1;
+			p->_pGFXLoad = 0;
+			if (currlevel == p->plrlevel) {
+				LoadPlrGFX(pnum, PFILE_STAND);
+				SyncInitPlr(pnum);
+				if ((p->_pHitPoints >> 6) > 0)
+					PlrStartStand(pnum, 0);
+				else {
+					p->_pgfxnum = 0;
+					LoadPlrGFX(pnum, PFILE_DEATH);
+					p->_pmode = PM_DEATH;
+					NewPlrAnim(pnum, p->_pDAnim[DIR_S], p->_pDFrames, 1, p->_pDWidth);
+					p->_pAnimFrame = p->_pAnimLen - 1;
+					p->_pVar8 = p->_pAnimLen << 1;
+					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
+				}
+
+				p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
+				p->_plid = -1;
+			}
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		ActivatePortal(pnum, cmd->x, cmd->y, cmd->wParam1, cmd->wParam2, cmd->wParam3);
+		if (pnum != myplr) {
+			if (currlevel == 0)
+				AddInTownPortal(pnum);
+			else if (currlevel == plr[pnum].plrlevel) {
+				int i;
+				for (i = 0; i < nummissiles; i++) {
+					MissileStruct *mis = &missile[missileactive[i]];
+					if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
+						break;
+					}
+				}
+				if (i == nummissiles)
+					AddWarpMissile(pnum, cmd->x, cmd->y);
+			} else
+				RemovePortalMissile(pnum);
+		}
+		delta_open_portal(pnum, cmd->x, cmd->y, cmd->wParam1, cmd->wParam2, cmd->wParam3);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else {
+		if (PortalOnLevel(pnum))
+			RemovePortalMissile(pnum);
+		DeactivatePortal(pnum);
+		delta_close_portal(pnum);
+	}
+
+	return sizeof(*pCmd);
+}
+
+static DWORD On_RETOWN(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else {
+		if (pnum == myplr) {
+			deathflag = FALSE;
+			gamemenu_off();
+		}
+		RestartTownLvl(pnum);
+	}
+
+	return sizeof(*pCmd);
+}
+
+static DWORD On_SETSTR(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		SetPlrStr(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SETDEX(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		SetPlrDex(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SETMAG(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		SetPlrMag(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SETVIT(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr)
+		SetPlrVit(pnum, cmd->wParam1);
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_STRING(TCmd *pCmd, int pnum)
+{
+	return On_STRING2(pnum, pCmd);
+}
+
+static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
+{
+	TCmdQuest *cmd = (TCmdQuest *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (pnum != myplr)
+			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
+		sgbDeltaChanged = TRUE;
+	}
+
+	return sizeof(*cmd);
+}
+
+#ifdef HELLFIRE
+static DWORD On_ENDREFLECT(TCmd *pCmd, int pnum)
+{
+	int i, mi;
+
+	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
+		for (i = 0; i < nummissiles; i++) {
+			mi = missileactive[i];
+			if (missile[mi]._miType == MIS_REFLECT && missile[mi]._miSource == pnum) {
+				ClearMissileSpot(mi);
+				DeleteMissile(mi, i);
+			}
+		}
+	}
+
+	return sizeof(*pCmd);
+}
+#endif
+
+static DWORD On_ENDSHIELD(TCmd *pCmd, int pnum)
+{
+	int i;
+
+	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
+		for (i = 0; i < nummissiles; i++) {
+			int mi = missileactive[i];
+			if (missile[mi]._miType == MIS_MANASHIELD && missile[mi]._miSource == pnum) {
+				ClearMissileSpot(mi);
+				DeleteMissile(mi, i);
+			}
+		}
+	}
+
+	return sizeof(*pCmd);
+}
+
+static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
+{
+#ifdef _DEBUG
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else if (plr[pnum]._pLevel < MAXCHARLEVEL) {
+		plr[pnum]._pExperience = plr[pnum]._pNextExper;
+		NextPlrLevel(pnum);
+	}
+#endif
+	return sizeof(*pCmd);
+}
+
+static DWORD On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
+{
+#ifdef _DEBUG
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else
+		plr[pnum]._pSplLvl[plr[pnum]._pRSpell]++;
+#endif
+	return sizeof(*pCmd);
+}
+
+static DWORD On_DEBUG(TCmd *pCmd, int pnum)
+{
+	return sizeof(*pCmd);
+}
+
+static DWORD On_NOVA(TCmd *pCmd, int pnum)
+{
+	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel && pnum != myplr) {
+		ClrPlrPath(pnum);
+		plr[pnum]._pSpell = SPL_NOVA;
+		plr[pnum]._pSplType = RSPLTYPE_INVALID;
+		plr[pnum]._pSplFrom = 3;
+		plr[pnum].destAction = ACTION_SPELL;
+		plr[pnum].destParam1 = cmd->x;
+		plr[pnum].destParam2 = cmd->y;
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1)
+		plr[pnum].pManaShield = TRUE;
+
+	return sizeof(*pCmd);
+}
+
+static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1)
+		plr[pnum].pManaShield = FALSE;
+
+	return sizeof(*pCmd);
+}
+
+#ifdef HELLFIRE
+static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1) {
+		operate_lv24_lever();
+		IsUberRoomOpened = TRUE;
+		quests[Q_NAKRUL]._qactive = QUEST_DONE;
+		monster_some_crypt();
+	}
+	return sizeof(*pCmd);
+}
+
+static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1) {
+		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
+		T_HiveOpen();
+		InitTownTriggers();
+	}
+	return sizeof(*pCmd);
+}
+
+static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1) {
+		T_CryptOpen();
+		InitTownTriggers();
+		if (currlevel == 0)
+			PlaySFX(IS_SARC);
+	}
+	return sizeof(*pCmd);
+}
+#endif
+
 DWORD ParseCmd(int pnum, TCmd *pCmd)
 {
 	sbLastCmd = pCmd->bCmd;
 	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
 		return 0;
 
-	switch (pCmd->bCmd) {
+	switch (sbLastCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:
@@ -1128,1484 +2734,31 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
+#ifdef HELLFIRE
+	case CMD_ENDREFLECT:
+		return On_ENDREFLECT(pCmd, pnum);
+	case CMD_NAKRUL:
+		return On_NAKRUL(pCmd, pnum);
+	case CMD_OPENHIVE:
+		return On_OPENHIVE(pCmd, pnum);
+	case CMD_OPENCRYPT:
+		return On_OPENCRYPT(pCmd, pnum);
+#else
 	case CMD_NOVA:
 		return On_NOVA(pCmd, pnum);
 	case CMD_SETSHIELD:
 		return On_SETSHIELD(pCmd, pnum);
 	case CMD_REMSHIELD:
 		return On_REMSHIELD(pCmd, pnum);
+#endif
 	}
 
-	if (pCmd->bCmd < CMD_DLEVEL_0 || pCmd->bCmd > CMD_DLEVEL_END) {
-		SNetDropPlayer(pnum, 0x40000006);
+	if (sbLastCmd < CMD_DLEVEL_0 || sbLastCmd > CMD_DLEVEL_END) {
+		SNetDropPlayer(pnum, LEAVE_DROP);
 		return 0;
 	}
 
 	return On_DLEVEL(pnum, pCmd);
-}
-
-DWORD On_DLEVEL(int pnum, TCmd *pCmd)
-{
-	TCmdPlrInfoHdr *p = (TCmdPlrInfoHdr *)pCmd;
-
-	if (gbDeltaSender != pnum) {
-		if (p->bCmd == CMD_DLEVEL_END) {
-			gbDeltaSender = pnum;
-			sgbRecvCmd = CMD_DLEVEL_END;
-		} else if (p->bCmd == CMD_DLEVEL_0 && p->wOffset == 0) {
-			gbDeltaSender = pnum;
-			sgbRecvCmd = CMD_DLEVEL_END;
-		} else {
-			return p->wBytes + sizeof(*p);
-		}
-	}
-	if (sgbRecvCmd == CMD_DLEVEL_END) {
-		if (p->bCmd == CMD_DLEVEL_END) {
-			sgbDeltaChunks = 20;
-			return p->wBytes + sizeof(*p);
-		} else if (p->bCmd == CMD_DLEVEL_0 && p->wOffset == 0) {
-			sgdwRecvOffset = 0;
-			sgbRecvCmd = p->bCmd;
-		} else {
-			return p->wBytes + sizeof(*p);
-		}
-	} else if (sgbRecvCmd != p->bCmd) {
-		DeltaImportData(sgbRecvCmd, sgdwRecvOffset);
-		if (p->bCmd == CMD_DLEVEL_END) {
-			sgbDeltaChunks = 20;
-			sgbRecvCmd = CMD_DLEVEL_END;
-			return p->wBytes + sizeof(*p);
-		} else {
-			sgdwRecvOffset = 0;
-			sgbRecvCmd = p->bCmd;
-		}
-	}
-
-	/// ASSERT: assert(p->wOffset == sgdwRecvOffset);
-	memcpy(&sgRecvBuf[p->wOffset], &p[1], p->wBytes);
-	sgdwRecvOffset += p->wBytes;
-	return p->wBytes + sizeof(*p);
-}
-
-void DeltaImportData(BYTE cmd, DWORD recv_offset)
-{
-	BYTE i;
-	BYTE *src;
-
-	if (sgRecvBuf[0])
-		PkwareDecompress(&sgRecvBuf[1], recv_offset, 4721);
-
-	src = &sgRecvBuf[1];
-	if (cmd == CMD_DLEVEL_JUNK) {
-		DeltaImportJunk(src);
-	} else if (cmd >= CMD_DLEVEL_0 && cmd <= CMD_DLEVEL_16) {
-		i = cmd - CMD_DLEVEL_0;
-		src = DeltaImportItem(src, sgLevels[i].item);
-		src = DeltaImportObject(src, sgLevels[i].object);
-		DeltaImportMonster(src, sgLevels[i].monster);
-	} else {
-		app_fatal("msg:1");
-	}
-
-	sgbDeltaChunks++;
-	sgbDeltaChanged = TRUE;
-}
-
-BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
-{
-	int i;
-
-	for (i = 0; i < MAXITEMS; i++) {
-		if (*src == 0xFF) {
-			memset(dst, 0xFF, sizeof(TCmdPItem));
-			src++;
-		} else {
-			memcpy(dst, src, sizeof(TCmdPItem));
-			src += sizeof(TCmdPItem);
-		}
-		dst++;
-	}
-
-	return src;
-}
-
-BYTE *DeltaImportObject(BYTE *src, DObjectStr *dst)
-{
-	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
-	return src + sizeof(DObjectStr) * MAXOBJECTS;
-}
-
-BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
-{
-	int i;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		if (*src == 0xFF) {
-			memset(dst, 0xFF, sizeof(DMonsterStr));
-			src++;
-		} else {
-			memcpy(dst, src, sizeof(DMonsterStr));
-			src += sizeof(DMonsterStr);
-		}
-		dst++;
-	}
-
-	return src;
-}
-
-void DeltaImportJunk(BYTE *src)
-{
-	int i;
-	MultiQuests *mq;
-
-	for (i = 0; i < MAXPORTAL; i++) {
-		if (*src == 0xFF) {
-			memset(&sgJunk.portal[i], 0xFF, sizeof(DPortal));
-			src++;
-			SetPortalStats(i, FALSE, 0, 0, 0, DTYPE_TOWN);
-		} else {
-			memcpy(&sgJunk.portal[i], src, sizeof(DPortal));
-			src += sizeof(DPortal);
-			SetPortalStats(
-			    i,
-			    TRUE,
-			    sgJunk.portal[i].x,
-			    sgJunk.portal[i].y,
-			    sgJunk.portal[i].level,
-			    sgJunk.portal[i].ltype);
-		}
-	}
-
-	mq = sgJunk.quests;
-	for (i = 0; i < MAXMULTIQUESTS; i++) {
-		if (questlist[i]._qflags & 1) {
-			memcpy(mq, src, sizeof(MultiQuests));
-			src += sizeof(MultiQuests);
-			quests[i]._qlog = mq->qlog;
-			quests[i]._qactive = mq->qstate;
-			quests[i]._qvar1 = mq->qvar1;
-			mq++;
-		}
-	}
-}
-
-DWORD On_SYNCDATA(TCmd *pCmd, int pnum)
-{
-	return sync_update(pnum, (const BYTE *)pCmd);
-}
-
-DWORD On_WALKXY(TCmd *pCmd, int pnum)
-{
-	TCmdLoc *p = (TCmdLoc *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		ClrPlrPath(pnum);
-		MakePlrPath(pnum, p->x, p->y, TRUE);
-		plr[pnum].destAction = ACTION_NONE;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ADDSTR(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 256)
-		ModifyPlrStr(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_ADDMAG(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 256)
-		ModifyPlrMag(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_ADDDEX(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 256)
-		ModifyPlrDex(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_ADDVIT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 256)
-		ModifyPlrVit(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_SBSPELL(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1) {
-		if (currlevel != 0 || spelldata[p->wParam1].sTownSpell) {
-			plr[pnum]._pSpell = p->wParam1;
-			plr[pnum]._pSplType = plr[pnum]._pSBkSplType;
-			plr[pnum]._pSplFrom = 1;
-			plr[pnum].destAction = ACTION_SPELL;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-void msg_errorf(const char *pszFmt, ...)
-{
-	static DWORD msg_err_timer;
-	DWORD ticks;
-	char msg[256];
-	va_list va;
-
-	va_start(va, pszFmt);
-	ticks = SDL_GetTicks();
-	if (ticks - msg_err_timer >= 5000) {
-		msg_err_timer = ticks;
-		vsprintf(msg, pszFmt, va);
-		ErrorPlrMsg(msg);
-	}
-	va_end(va);
-}
-
-DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, p->x, p->y, FALSE);
-		plr[pnum].destAction = ACTION_PICKUPITEM;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_REQUESTGITEM(TCmd *pCmd, int pnum)
-{
-	TCmdGItem *p = (TCmdGItem *)pCmd;
-
-	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(p->dwSeed, p->wCI, p->wIndx)) {
-			int ii = FindGetItem(p->wIndx, p->wCI, p->dwSeed);
-			if (ii != -1) {
-				NetSendCmdGItem2(FALSE, CMD_GETITEM, myplr, p->bPnum, p);
-				if (p->bPnum != myplr)
-					SyncGetItem(p->x, p->y, p->wIndx, p->wCI, p->dwSeed);
-				else
-					InvGetItem(myplr, ii);
-				SetItemRecord(p->dwSeed, p->wCI, p->wIndx);
-			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, myplr, p->bPnum, p))
-				NetSendCmdExtra(p);
-		}
-	}
-
-	return sizeof(*p);
-}
-
-BOOL i_own_level(int nReqLevel)
-{
-	int i;
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive
-		    && !plr[i]._pLvlChanging
-		    && plr[i].plrlevel == nReqLevel
-		    && (i != myplr || !gbBufferMsgs))
-			break;
-	}
-
-	return i == myplr;
-}
-
-DWORD On_GETITEM(TCmd *pCmd, int pnum)
-{
-	TCmdGItem *p = (TCmdGItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		int ii = FindGetItem(p->wIndx, p->wCI, p->dwSeed);
-		if (delta_get_item(p, p->bLevel)) {
-			if ((currlevel == p->bLevel || p->bPnum == myplr) && p->bMaster != myplr) {
-				if (p->bPnum == myplr) {
-					if (currlevel != p->bLevel) {
-						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff);
-						if (ii != -1)
-							InvGetItem(myplr, ii);
-					} else
-						InvGetItem(myplr, ii);
-				} else
-					SyncGetItem(p->x, p->y, p->wIndx, p->wCI, p->dwSeed);
-			}
-		} else
-			NetSendCmdGItem2(TRUE, CMD_GETITEM, p->bMaster, p->bPnum, p);
-	}
-
-	return sizeof(*p);
-}
-
-BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
-{
-	BOOL result;
-	TCmdPItem *pD;
-	int i;
-	BOOL found;
-
-	result = TRUE;
-	found = FALSE;
-	if (gbMaxPlayers != 1) {
-		pD = sgLevels[bLevel].item;
-		for (i = 0; i < MAXITEMS; i++, pD++) {
-			if (pD->bCmd != 0xFF && pD->wIndx == pI->wIndx && pD->wCI == pI->wCI && pD->dwSeed == pI->dwSeed) {
-				found = TRUE;
-				break;
-			}
-		}
-		if (found) {
-			if (pD->bCmd == CMD_WALKXY) {
-				return result;
-			}
-			if (pD->bCmd == CMD_STAND) {
-				sgbDeltaChanged = 1;
-				pD->bCmd = CMD_WALKXY;
-				return result;
-			}
-			if (pD->bCmd == CMD_ACK_PLRINFO) {
-				pD->bCmd = 0xFF;
-				sgbDeltaChanged = 1;
-				return result;
-			}
-			app_fatal("delta:1");
-		}
-		if (((pI->wCI >> 8) & 0x80) == 0)
-			return FALSE;
-		pD = sgLevels[bLevel].item;
-		for (i = 0; i < MAXITEMS; i++, pD++) {
-			if (pD->bCmd == 0xFF) {
-				sgbDeltaChanged = 1;
-				pD->bCmd = CMD_WALKXY;
-				pD->x = pI->x;
-				pD->y = pI->y;
-				pD->wIndx = pI->wIndx;
-				pD->wCI = pI->wCI;
-				pD->dwSeed = pI->dwSeed;
-				pD->bId = pI->bId;
-				pD->bDur = pI->bDur;
-				pD->bMDur = pI->bMDur;
-				pD->bCh = pI->bCh;
-				pD->bMCh = pI->bMCh;
-				pD->wValue = pI->wValue;
-				pD->dwBuff = pI->dwBuff;
-				result = TRUE;
-				break;
-			}
-		}
-	}
-	return result;
-}
-
-DWORD On_GOTOAGETITEM(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, p->x, p->y, FALSE);
-		plr[pnum].destAction = ACTION_PICKUPAITEM;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_REQUESTAGITEM(TCmd *pCmd, int pnum)
-{
-	TCmdGItem *p = (TCmdGItem *)pCmd;
-
-	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(p->dwSeed, p->wCI, p->wIndx)) {
-			int ii = FindGetItem(p->wIndx, p->wCI, p->dwSeed);
-			if (ii != -1) {
-				NetSendCmdGItem2(FALSE, CMD_AGETITEM, myplr, p->bPnum, p);
-				if (p->bPnum != myplr)
-					SyncGetItem(p->x, p->y, p->wIndx, p->wCI, p->dwSeed);
-				else
-					AutoGetItem(myplr, p->bCursitem);
-				SetItemRecord(p->dwSeed, p->wCI, p->wIndx);
-			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, myplr, p->bPnum, p))
-				NetSendCmdExtra(p);
-		}
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_AGETITEM(TCmd *pCmd, int pnum)
-{
-	TCmdGItem *p = (TCmdGItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		FindGetItem(p->wIndx, p->wCI, p->dwSeed);
-		if (delta_get_item(p, p->bLevel)) {
-			if ((currlevel == p->bLevel || p->bPnum == myplr) && p->bMaster != myplr) {
-				if (p->bPnum == myplr) {
-					if (currlevel != p->bLevel) {
-						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff);
-						if (ii != -1)
-							AutoGetItem(myplr, ii);
-					} else
-						AutoGetItem(myplr, p->bCursitem);
-				} else
-					SyncGetItem(p->x, p->y, p->wIndx, p->wCI, p->dwSeed);
-			}
-		} else
-			NetSendCmdGItem2(TRUE, CMD_AGETITEM, p->bMaster, p->bPnum, p);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ITEMEXTRA(TCmd *pCmd, int pnum)
-{
-	TCmdGItem *p = (TCmdGItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		delta_get_item(p, p->bLevel);
-		if (currlevel == plr[pnum].plrlevel)
-			SyncGetItem(p->x, p->y, p->wIndx, p->wCI, p->dwSeed);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_PUTITEM(TCmd *pCmd, int pnum)
-{
-	TCmdPItem *p = (TCmdPItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (currlevel == plr[pnum].plrlevel) {
-		int ii;
-		if (pnum == myplr)
-			ii = InvPutItem(pnum, p->x, p->y);
-		else
-			ii = SyncPutItem(pnum, p->x, p->y, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff);
-		if (ii != -1) {
-			PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
-			delta_put_item(p, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
-			check_update_plr(pnum);
-		}
-		return sizeof(*p);
-	} else {
-		PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
-		delta_put_item(p, p->x, p->y, plr[pnum].plrlevel);
-		check_update_plr(pnum);
-	}
-
-	return sizeof(*p);
-}
-
-void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
-{
-	int i;
-	TCmdPItem *pD;
-
-	if (gbMaxPlayers == 1) {
-		return;
-	}
-	pD = sgLevels[bLevel].item;
-	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd != CMD_WALKXY
-		    && pD->bCmd != 0xFF
-		    && pD->wIndx == pI->wIndx
-		    && pD->wCI == pI->wCI
-		    && pD->dwSeed == pI->dwSeed) {
-			if (pD->bCmd == CMD_ACK_PLRINFO)
-				return;
-			app_fatal("Trying to drop a floor item?");
-		}
-	}
-
-	pD = sgLevels[bLevel].item;
-	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF) {
-			sgbDeltaChanged = TRUE;
-			memcpy(pD, pI, sizeof(TCmdPItem));
-			pD->bCmd = CMD_ACK_PLRINFO;
-			pD->x = x;
-			pD->y = y;
-			return;
-		}
-	}
-}
-
-void check_update_plr(int pnum)
-{
-	if (gbMaxPlayers != 1 && pnum == myplr)
-		pfile_update(TRUE);
-}
-
-DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
-{
-	TCmdPItem *p = (TCmdPItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (currlevel == plr[pnum].plrlevel) {
-		int ii = SyncPutItem(pnum, p->x, p->y, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff);
-		if (ii != -1) {
-			PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
-			delta_put_item(p, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
-			check_update_plr(pnum);
-		}
-		return sizeof(*p);
-	} else {
-		PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
-		delta_put_item(p, p->x, p->y, plr[pnum].plrlevel);
-		check_update_plr(pnum);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
-{
-	TCmdPItem *p = (TCmdPItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel && pnum != myplr) {
-			SyncPutItem(pnum, p->x, p->y, p->wIndx, p->wCI, p->dwSeed, p->bId, p->bDur, p->bMDur, p->bCh, p->bMCh, p->wValue, p->dwBuff);
-		}
-		PutItemRecord(p->dwSeed, p->wCI, p->wIndx);
-		delta_put_item(p, p->x, p->y, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
-{
-	TCmdLoc *p = (TCmdLoc *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, p->x, p->y, FALSE);
-		plr[pnum].destAction = ACTION_ATTACK;
-		plr[pnum].destParam1 = p->x;
-		plr[pnum].destParam2 = p->y;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
-{
-	TCmdLoc *p = (TCmdLoc *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_ATTACK;
-		plr[pnum].destParam1 = p->x;
-		plr[pnum].destParam2 = p->y;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
-{
-	TCmdLoc *p = (TCmdLoc *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACK;
-		plr[pnum].destParam1 = p->x;
-		plr[pnum].destParam2 = p->y;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam3 *p = (TCmdLocParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam1].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLWALL;
-			plr[pnum].destParam1 = p->x;
-			plr[pnum].destParam2 = p->y;
-			plr[pnum].destParam3 = p->wParam2;
-			plr[pnum].destParam4 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam1;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SPELLXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *p = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam1].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = p->x;
-			plr[pnum].destParam2 = p->y;
-			plr[pnum].destParam3 = p->wParam2;
-			plr[pnum]._pSpell = p->wParam1;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_TSPELLXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *p = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam1].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = p->x;
-			plr[pnum].destParam2 = p->y;
-			plr[pnum].destParam3 = p->wParam2;
-			plr[pnum]._pSpell = p->wParam1;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (object[p->wParam1]._oSolidFlag || object[p->wParam1]._oDoorFlag)
-			MakePlrPath(pnum, p->x, p->y, FALSE);
-		else
-			MakePlrPath(pnum, p->x, p->y, TRUE);
-		plr[pnum].destAction = ACTION_OPERATE;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_DISARMXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (object[p->wParam1]._oSolidFlag || object[p->wParam1]._oDoorFlag)
-			MakePlrPath(pnum, p->x, p->y, FALSE);
-		else
-			MakePlrPath(pnum, p->x, p->y, TRUE);
-		plr[pnum].destAction = ACTION_DISARM;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_OPOBJT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		plr[pnum].destAction = ACTION_OPERATETK;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ATTACKID(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int distx = abs(plr[pnum]._px - monster[p->wParam1]._mfutx);
-		int disty = abs(plr[pnum]._py - monster[p->wParam1]._mfuty);
-		if (distx > 1 || disty > 1)
-			MakePlrPath(pnum, monster[p->wParam1]._mfutx, monster[p->wParam1]._mfuty, FALSE);
-		plr[pnum].destAction = ACTION_ATTACKMON;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, plr[p->wParam1]._pfutx, plr[p->wParam1]._pfuty, FALSE);
-		plr[pnum].destAction = ACTION_ATTACKPLR;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_RATTACKID(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACKMON;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACKPLR;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SPELLID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *p = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam2].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1 = p->wParam1;
-			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SPELLPID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *p = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam2].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1 = p->wParam1;
-			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_TSPELLID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *p = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam2].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1 = p->wParam1;
-			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_TSPELLPID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *p = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (currlevel != 0 || spelldata[p->wParam2].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1 = p->wParam1;
-			plr[pnum].destParam2 = p->wParam3;
-			plr[pnum]._pSpell = p->wParam2;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		M_GetKnockback(p->wParam1);
-		M_StartHit(p->wParam1, pnum, 0);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_RESURRECT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		DoResurrect(pnum, p->wParam1);
-		check_update_plr(pnum);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_HEALOTHER(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel)
-		DoHealOther(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_TALKXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		MakePlrPath(pnum, p->x, p->y, FALSE);
-		plr[pnum].destAction = ACTION_TALK;
-		plr[pnum].destParam1 = p->wParam1;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_NEWLVL(TCmd *pCmd, int pnum)
-{
-	TCmdParam2 *p = (TCmdParam2 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr)
-		StartNewLvl(pnum, p->wParam1, p->wParam2);
-
-	return sizeof(*p);
-}
-
-DWORD On_WARP(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		StartWarpLvl(pnum, p->wParam1);
-		if (pnum == myplr && pcurs >= CURSOR_FIRSTITEM) {
-			item[MAXITEMS] = plr[myplr].HoldItem;
-			AutoGetItem(myplr, MAXITEMS);
-		}
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr) {
-		if (currlevel == plr[pnum].plrlevel)
-			M_SyncStartKill(p->wParam1, p->x, p->y, pnum);
-		delta_kill_monster(p->wParam1, p->x, p->y, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_KILLGOLEM(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr) {
-		if (currlevel == p->wParam1)
-			M_SyncStartKill(pnum, p->x, p->y, pnum);
-		delta_kill_monster(pnum, p->x, p->y, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
-{
-	TCmdGolem *p = (TCmdGolem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (currlevel != plr[pnum].plrlevel)
-		delta_sync_golem(p, pnum, p->_currlevel);
-	else if (pnum != myplr) {
-		int i;
-		// check if this player already has an active golem
-		BOOL addGolem = TRUE;
-		for (i = 0; i < nummissiles; i++) {
-			int mi = missileactive[i];
-			if (missile[mi]._mitype == MIS_GOLEM && missile[mi]._misource == pnum) {
-				addGolem = FALSE;
-				// BUGFIX: break, don't need to check the rest
-			}
-		}
-		if (addGolem)
-			AddMissile(plr[pnum]._px, plr[pnum]._py, p->_mx, p->_my, p->_mdir, MIS_GOLEM, 0, pnum, 0, 1);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
-{
-	TCmdParam2 *p = (TCmdParam2 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr) {
-		if (currlevel == plr[pnum].plrlevel) {
-			monster[p->wParam1].mWhoHit |= 1 << pnum;
-
-			if (monster[p->wParam1]._mhitpoints) {
-				monster[p->wParam1]._mhitpoints -= p->wParam2;
-				if ((monster[p->wParam1]._mhitpoints >> 6) < 1)
-					monster[p->wParam1]._mhitpoints = 1 << 6;
-				delta_monster_hp(p->wParam1, monster[p->wParam1]._mhitpoints, plr[pnum].plrlevel);
-			}
-		}
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr)
-		StartPlayerKill(pnum, p->wParam1);
-	else
-		check_update_plr(pnum);
-
-	return sizeof(*p);
-}
-
-DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
-{
-	TCmdDamage *p = (TCmdDamage *)pCmd;
-
-	if (p->bPlr == myplr && currlevel != 0) {
-		if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel && p->dwDam <= 192000) {
-			if ((plr[myplr]._pHitPoints >> 6) > 0) {
-				drawhpflag = TRUE;
-				plr[myplr]._pHitPoints -= p->dwDam;
-				plr[myplr]._pHPBase -= p->dwDam;
-				if (plr[myplr]._pHitPoints > plr[myplr]._pMaxHP) {
-					plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-					plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-				}
-				if ((plr[myplr]._pHitPoints >> 6) <= 0)
-					SyncPlrKill(myplr, 1);
-			}
-		}
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_OPENDOOR, p->wParam1);
-		delta_sync_object(p->wParam1, CMD_OPENDOOR, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
-{
-	if (gbMaxPlayers != 1) {
-		sgbDeltaChanged = TRUE;
-		sgLevels[bLevel].object[oi].bCmd = bCmd;
-	}
-}
-
-DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_CLOSEDOOR, p->wParam1);
-		delta_sync_object(p->wParam1, CMD_CLOSEDOOR, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_OPERATEOBJ, p->wParam1);
-		delta_sync_object(p->wParam1, CMD_OPERATEOBJ, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_PLROPOBJ(TCmd *pCmd, int pnum)
-{
-	TCmdParam2 *p = (TCmdParam2 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel)
-			SyncOpObject(p->wParam1, CMD_PLROPOBJ, p->wParam2);
-		delta_sync_object(p->wParam2, CMD_PLROPOBJ, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_BREAKOBJ(TCmd *pCmd, int pnum)
-{
-	TCmdParam2 *p = (TCmdParam2 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (currlevel == plr[pnum].plrlevel)
-			SyncBreakObj(p->wParam1, p->wParam2);
-		delta_sync_object(p->wParam2, CMD_BREAKOBJ, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
-{
-	TCmdChItem *p = (TCmdChItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr)
-		CheckInvSwap(pnum, p->bLoc, p->wIndx, p->wCI, p->dwSeed, p->bId);
-
-	return sizeof(*p);
-}
-
-DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
-{
-	TCmdDelItem *p = (TCmdDelItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (pnum != myplr)
-		inv_update_rem_item(pnum, p->bLoc);
-
-	return sizeof(*p);
-}
-
-DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= MAXCHARLEVEL && pnum != myplr)
-		plr[pnum]._pLevel = p->wParam1;
-
-	return sizeof(*p);
-}
-
-DWORD On_DROPITEM(TCmd *pCmd, int pnum)
-{
-	TCmdPItem *p = (TCmdPItem *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else
-		delta_put_item(p, p->x, p->y, plr[pnum].plrlevel);
-
-	return sizeof(*p);
-}
-
-DWORD On_SEND_PLRINFO(TCmd *pCmd, int pnum)
-{
-	TCmdPlrInfoHdr *p = (TCmdPlrInfoHdr *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, p->wBytes + sizeof(*p));
-	else
-		recv_plrinfo(pnum, p, p->bCmd == CMD_ACK_PLRINFO);
-
-	return p->wBytes + sizeof(*p);
-}
-
-DWORD On_ACK_PLRINFO(TCmd *pCmd, int pnum)
-{
-	return On_SEND_PLRINFO(pCmd, pnum);
-}
-
-DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *p = (TCmdLocParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		plr[pnum]._pLvlChanging = FALSE;
-		if (plr[pnum]._pName[0] && !plr[pnum].plractive) {
-			plr[pnum].plractive = TRUE;
-			gbActivePlayers++;
-			EventPlrMsg("Player '%s' (level %d) just joined the game", plr[pnum]._pName, plr[pnum]._pLevel);
-		}
-
-		if (plr[pnum].plractive && myplr != pnum) {
-			plr[pnum]._px = p->x;
-			plr[pnum]._py = p->y;
-			plr[pnum].plrlevel = p->wParam1;
-			plr[pnum]._pGFXLoad = 0;
-			if (currlevel == plr[pnum].plrlevel) {
-				LoadPlrGFX(pnum, PFILE_STAND);
-				SyncInitPlr(pnum);
-				if ((plr[pnum]._pHitPoints >> 6) > 0)
-					StartStand(pnum, 0);
-				else {
-					plr[pnum]._pgfxnum = 0;
-					LoadPlrGFX(pnum, PFILE_DEATH);
-					plr[pnum]._pmode = PM_DEATH;
-					NewPlrAnim(pnum, plr[pnum]._pDAnim[0], plr[pnum]._pDFrames, 1, plr[pnum]._pDWidth);
-					plr[pnum]._pAnimFrame = plr[pnum]._pAnimLen - 1;
-					plr[pnum]._pVar8 = plr[pnum]._pAnimLen << 1;
-					dFlags[plr[pnum]._px][plr[pnum]._py] |= BFLAG_DEAD_PLAYER;
-				}
-
-				plr[pnum]._pvid = AddVision(plr[pnum]._px, plr[pnum]._py, plr[pnum]._pLightRad, pnum == myplr);
-				plr[pnum]._plid = -1;
-			}
-		}
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam3 *p = (TCmdLocParam3 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		ActivatePortal(pnum, p->x, p->y, p->wParam1, p->wParam2, p->wParam3);
-		if (pnum != myplr) {
-			if (currlevel == 0)
-				AddInTownPortal(pnum);
-			else if (currlevel == plr[pnum].plrlevel) {
-				int i;
-				BOOL addPortal = TRUE;
-				for (i = 0; i < nummissiles; i++) {
-					int mi = missileactive[i];
-					if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == pnum) {
-						addPortal = FALSE;
-						// BUGFIX: break
-					}
-				}
-				if (addPortal)
-					AddWarpMissile(pnum, p->x, p->y);
-			} else
-				RemovePortalMissile(pnum);
-		}
-		delta_open_portal(pnum, p->x, p->y, p->wParam1, p->wParam2, p->wParam3);
-	}
-
-	return sizeof(*p);
-}
-
-void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel, BYTE bLType, BYTE bSetLvl)
-{
-	sgbDeltaChanged = TRUE;
-	sgJunk.portal[pnum].x = x;
-	sgJunk.portal[pnum].y = y;
-	sgJunk.portal[pnum].level = bLevel;
-	sgJunk.portal[pnum].ltype = bLType;
-	sgJunk.portal[pnum].setlvl = bSetLvl;
-}
-
-DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
-{
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else {
-		if (PortalOnLevel(pnum))
-			RemovePortalMissile(pnum);
-		DeactivatePortal(pnum);
-		delta_close_portal(pnum);
-	}
-
-	return sizeof(*pCmd);
-}
-
-DWORD On_RETOWN(TCmd *pCmd, int pnum)
-{
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else {
-		if (pnum == myplr) {
-			deathflag = FALSE;
-			gamemenu_off();
-		}
-		RestartTownLvl(pnum);
-	}
-
-	return sizeof(*pCmd);
-}
-
-DWORD On_SETSTR(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
-		SetPlrStr(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_SETDEX(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
-		SetPlrDex(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_SETMAG(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
-		SetPlrMag(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_SETVIT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *p = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else if (p->wParam1 <= 750 && pnum != myplr)
-		SetPlrVit(pnum, p->wParam1);
-
-	return sizeof(*p);
-}
-
-DWORD On_STRING(TCmd *pCmd, int pnum)
-{
-	return On_STRING2(pnum, pCmd);
-}
-
-DWORD On_STRING2(int pnum, TCmd *pCmd)
-{
-	TCmdString *p = (TCmdString *)pCmd;
-
-	int len = strlen(p->str);
-	if (!gbBufferMsgs)
-		SendPlrMsg(pnum, p->str);
-
-	return len + 2; // length of string + nul terminator + sizeof(p->bCmd)
-}
-
-DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
-{
-	TCmdQuest *p = (TCmdQuest *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, p, sizeof(*p));
-	else {
-		if (pnum != myplr)
-			SetMultiQuest(p->q, p->qstate, p->qlog, p->qvar1);
-		sgbDeltaChanged = TRUE;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_ENDSHIELD(TCmd *pCmd, int pnum)
-{
-	int i;
-
-	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
-		for (i = 0; i < nummissiles; i++) {
-			int mi = missileactive[i];
-			if (missile[mi]._mitype == MIS_MANASHIELD && missile[mi]._misource == pnum) {
-				ClearMissileSpot(mi);
-				DeleteMissile(mi, i);
-			}
-		}
-	}
-
-	return sizeof(*pCmd);
-}
-
-DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
-{
-#ifdef _DEBUG
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else if (plr[pnum]._pLevel < MAXCHARLEVEL - 1) {
-		plr[pnum]._pExperience = plr[pnum]._pNextExper;
-		NextPlrLevel(pnum);
-	}
-#endif
-	return sizeof(*pCmd);
-}
-
-DWORD On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
-{
-#ifdef _DEBUG
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else
-		plr[pnum]._pSplLvl[plr[pnum]._pRSpell]++;
-#endif
-	return sizeof(*pCmd);
-}
-
-DWORD On_DEBUG(TCmd *pCmd, int pnum)
-{
-	return sizeof(*pCmd);
-}
-
-DWORD On_NOVA(TCmd *pCmd, int pnum)
-{
-	TCmdLoc *p = (TCmdLoc *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel && pnum != myplr) {
-		ClrPlrPath(pnum);
-		plr[pnum]._pSpell = SPL_NOVA;
-		plr[pnum]._pSplType = RSPLTYPE_INVALID;
-		plr[pnum]._pSplFrom = 3;
-		plr[pnum].destAction = ACTION_SPELL;
-		plr[pnum].destParam1 = p->x;
-		plr[pnum].destParam2 = p->y;
-	}
-
-	return sizeof(*p);
-}
-
-DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
-{
-	if (gbBufferMsgs != 1)
-		plr[pnum].pManaShield = TRUE;
-
-	return sizeof(*pCmd);
-}
-
-DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
-{
-	if (gbBufferMsgs != 1)
-		plr[pnum].pManaShield = FALSE;
-
-	return sizeof(*pCmd);
 }
 
 DEVILUTION_END_NAMESPACE

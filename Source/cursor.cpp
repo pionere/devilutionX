@@ -7,115 +7,155 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/** Pixel width of the current cursor image */
 int cursW;
+/** Pixel height of the current cursor image */
 int cursH;
+/** Current highlighted monster */
 int pcursmonst = -1;
-int icursW28;
-int icursH28;
+/** Cursor images CEL */
 BYTE *pCursCels;
+#ifdef HELLFIRE
+BYTE *pCursCels2;
+#endif
 
 /** inv_item value */
 char pcursinvitem;
+/** Pixel width of the current cursor image */
 int icursW;
+/** Pixel height of the current cursor image */
 int icursH;
+/** Current highlighted item */
 char pcursitem;
+/** Current highlighted object */
 char pcursobj;
+/** Current highlighted player */
 char pcursplr;
+/** Current highlighted tile row */
 int cursmx;
+/** Current highlighted tile column */
 int cursmy;
+/** Previously highlighted monster */
 int pcurstemp;
+/** Index of current cursor image */
 int pcurs;
 
-/* rdata */
-/** Maps from objcurs.cel frame number to frame width. */
-const int InvItemWidth[] = {
+/*  Maps from objcurs.cel frame number to frame width.
+ **If the values are modified, make sure validateCursorAreas does not fail.**
+ */
+/*constexpr*/ const int InvItemWidth[] = {
 	// clang-format off
 	// Cursors
 	0, 33, 32, 32, 32, 32, 32, 32, 32, 32, 32, 23,
 	// Items
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+#ifdef HELLFIRE
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX
+#endif
 	// clang-format on
 };
 
-/** Maps from objcurs.cel frame number to frame height. */
-const int InvItemHeight[] = {
+/*  Maps from objcurs.cel frame number to frame height.
+ **If the values are modified, make sure validateCursorAreas does not fail.**
+ */
+/*constexpr*/ const int InvItemHeight[] = {
 	// clang-format off
 	// Cursors
 	0, 29, 32, 32, 32, 32, 32, 32, 32, 32, 32, 35,
 	// Items
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28, 1 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28, 2 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
-	3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28, 3 * 28,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+#ifdef HELLFIRE
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX, 1 * INV_SLOT_SIZE_PX,
+	2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX,
+	3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX
+#endif
 	// clang-format on
 };
 
+/* commented out because even the latest MSVC compiler requires a special flag (/Zc:externConstexpr) to handle this
+   the drawing logic extends the cursor to whole DWORDs (and adds a border)
+   This means the check is not exact!
+constexpr BOOL validateCursorAreas()
+{
+	static_assert(lengthof(InvItemHeight) == lengthof(InvItemWidth), "Mismatching InvItem tables.");
+	for (int i = 0; i < lengthof(InvItemHeight); i++) {
+		if (InvItemHeight[i] * InvItemWidth[i] > MAX_CURSOR_AREA) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+static_assert(validateCursorAreas(), "One of the cursor area does not fit to the defined maximum.");*/
+
 void InitCursor()
 {
-	assert(!pCursCels);
+	assert(pCursCels == NULL);
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", NULL);
+#ifdef HELLFIRE
+	pCursCels2 = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", NULL);
+#endif
 	ClearCursor();
 }
 
 void FreeCursor()
 {
 	MemFreeDbg(pCursCels);
+#ifdef HELLFIRE
+	MemFreeDbg(pCursCels2);
+#endif
 	ClearCursor();
-}
-
-void SetICursor(int i)
-{
-	icursW = InvItemWidth[i];
-	icursH = InvItemHeight[i];
-	icursW28 = icursW / 28;
-	icursH28 = icursH / 28;
-}
-
-void SetCursor_(int i)
-{
-	pcurs = i;
-	cursW = InvItemWidth[i];
-	cursH = InvItemHeight[i];
-	SetICursor(i);
 }
 
 void NewCursor(int i)
 {
-	SetCursor_(i);
+	pcurs = i;
+	cursW = InvItemWidth[i];
+	cursH = InvItemHeight[i];
 }
 
 void InitLevelCursor()
 {
-	SetCursor_(CURSOR_HAND);
+	NewCursor(CURSOR_HAND);
 	cursmx = ViewX;
 	cursmy = ViewY;
 	pcurstemp = -1;
@@ -126,56 +166,40 @@ void InitLevelCursor()
 	ClearCursor();
 }
 
-void CheckTown()
+void CheckTownPortal()
 {
-	int i, mx;
+	MissileStruct *mis;
+	int i;
 
 	for (i = 0; i < nummissiles; i++) {
-		mx = missileactive[i];
-		if (missile[mx]._mitype == MIS_TOWN) {
-			if (cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy
-			    || cursmx == missile[mx]._mix && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 2 && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 2 && cursmy == missile[mx]._miy - 2
-			    || cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy - 2
-			    || cursmx == missile[mx]._mix && cursmy == missile[mx]._miy) {
+		mis = &missile[missileactive[i]];
+		if (mis->_miType == MIS_TOWN || mis->_miType == MIS_RPORTAL) {
+			/*      ^
+			 *      |
+			 * ----++------>
+			 *    +++
+			 *    ++|
+			 *      |
+			 */
+			int dx = cursmx - (mis->_mix - 1);
+			int dy = cursmy - (mis->_miy - 1);
+			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
+				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
 				trigflag = TRUE;
 				ClearPanel();
-				strcpy(infostr, "Town Portal");
-				sprintf(tempstr, "from %s", plr[missile[mx]._misource]._pName);
+				if (mis->_miType == MIS_TOWN) {
+					copy_cstr(infostr, "Town Portal");
+					snprintf(tempstr, sizeof(tempstr), "from %s", plr[mis->_miSource]._pName);
+				} else {
+					copy_cstr(infostr, "Portal to");
+					if (!setlevel)
+						copy_cstr(tempstr, "The Unholy Altar");
+					else
+						copy_cstr(tempstr, "level 15");
+				}
 				AddPanelString(tempstr, TRUE);
-				cursmx = missile[mx]._mix;
-				cursmy = missile[mx]._miy;
-			}
-		}
-	}
-}
-
-void CheckRportal()
-{
-	int i, mx;
-
-	for (i = 0; i < nummissiles; i++) {
-		mx = missileactive[i];
-		if (missile[mx]._mitype == MIS_RPORTAL) {
-			if (cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy
-			    || cursmx == missile[mx]._mix && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 2 && cursmy == missile[mx]._miy - 1
-			    || cursmx == missile[mx]._mix - 2 && cursmy == missile[mx]._miy - 2
-			    || cursmx == missile[mx]._mix - 1 && cursmy == missile[mx]._miy - 2
-			    || cursmx == missile[mx]._mix && cursmy == missile[mx]._miy) {
-				trigflag = TRUE;
-				ClearPanel();
-				strcpy(infostr, "Portal to");
-				if (!setlevel)
-					strcpy(tempstr, "The Unholy Altar");
-				else
-					strcpy(tempstr, "level 15");
-				AddPanelString(tempstr, TRUE);
-				cursmx = missile[mx]._mix;
-				cursmy = missile[mx]._miy;
+				cursmx = mis->_mix;
+				cursmy = mis->_miy;
 			}
 		}
 	}
@@ -220,11 +244,11 @@ void CheckCursMove()
 	sy -= ScrollInfo._syoff - yo;
 
 	// Predict the next frame when walking to avoid input jitter
-	fx = plr[myplr]._pVar6 / 256;
-	fy = plr[myplr]._pVar7 / 256;
-	fx -= (plr[myplr]._pVar6 + plr[myplr]._pxvel) / 256;
-	fy -= (plr[myplr]._pVar7 + plr[myplr]._pyvel) / 256;
 	if (ScrollInfo._sdir != SDIR_NONE) {
+		fx = plr[myplr]._pVar6 / 256;
+		fy = plr[myplr]._pVar7 / 256;
+		fx -= (plr[myplr]._pVar6 + plr[myplr]._pxvel) / 256;
+		fy -= (plr[myplr]._pVar7 + plr[myplr]._pyvel) / 256;
 		sx -= fx;
 		sy -= fy;
 	}
@@ -232,16 +256,29 @@ void CheckCursMove()
 	// Convert to tile grid
 	mx = ViewX;
 	my = ViewY;
+
+	TilesInView(&columns, &rows);
+	int lrow = rows - RowsCoveredByPanel();
+
+	// Center player tile on screen
+	ShiftGrid(&mx, &my, -columns / 2, -lrow / 2);
+
+	// Align grid
+	if ((columns & 1) == 0 && (lrow & 1) == 0) {
+		sy += TILE_HEIGHT / 2;
+	} else if (columns & 1 && lrow & 1) {
+		sx -= TILE_WIDTH / 2;
+	} else if (columns & 1 && (lrow & 1) == 0) {
+		my++;
+	}
+
+	if (!zoomflag) {
+		sy -= TILE_HEIGHT / 4;
+	}
+
 	tx = sx / TILE_WIDTH;
 	ty = sy / TILE_HEIGHT;
 	ShiftGrid(&mx, &my, tx, ty);
-
-	// Center player tile on screen
-	TilesInView(&columns, &rows);
-	ShiftGrid(&mx, &my, -columns / 2, -(rows - RowsCoveredByPanel()) / 4);
-	if ((columns % 2) != 0) {
-		my++;
-	}
 
 	// Shift position to match diamond grid aligment
 	px = sx % TILE_WIDTH;
@@ -313,60 +350,79 @@ void CheckCursMove()
 
 	if (leveltype != DTYPE_TOWN) {
 		if (pcurstemp != -1) {
-			if (!flipflag && mx + 2 < MAXDUNX && my + 1 < MAXDUNY && dMonster[mx + 2][my + 1] != 0 && dFlags[mx + 2][my + 1] & BFLAG_LIT) {
-				mi = dMonster[mx + 2][my + 1] > 0 ? dMonster[mx + 2][my + 1] - 1 : -(dMonster[mx + 2][my + 1] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-					cursmx = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
-					cursmy = my + 1; /// BUGFIX: 'my + 1' (fixed)
-					pcursmonst = mi;
+			if (!flipflag && mx + 2 < MAXDUNX && my + 1 < MAXDUNY) {
+				mi = dMonster[mx + 2][my + 1];
+				if (mi != 0 && dFlags[mx + 2][my + 1] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+						cursmx = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
+						cursmy = my + 1; /// BUGFIX: 'my + 1' (fixed)
+						pcursmonst = mi;
+					}
 				}
 			}
-			if (flipflag && mx + 1 < MAXDUNX && my + 2 < MAXDUNY && dMonster[mx + 1][my + 2] != 0 && dFlags[mx + 1][my + 2] & BFLAG_LIT) {
-				mi = dMonster[mx + 1][my + 2] > 0 ? dMonster[mx + 1][my + 2] - 1 : -(dMonster[mx + 1][my + 2] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-					cursmx = mx + 1;
-					cursmy = my + 2;
-					pcursmonst = mi;
+			if (flipflag && mx + 1 < MAXDUNX && my + 2 < MAXDUNY) {
+				mi = dMonster[mx + 1][my + 2];
+				if (mi != 0 && dFlags[mx + 1][my + 2] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+						cursmx = mx + 1;
+						cursmy = my + 2;
+						pcursmonst = mi;
+					}
 				}
 			}
-			if (mx + 2 < MAXDUNX && my + 2 < MAXDUNY && dMonster[mx + 2][my + 2] != 0 && dFlags[mx + 2][my + 2] & BFLAG_LIT) {
-				mi = dMonster[mx + 2][my + 2] > 0 ? dMonster[mx + 2][my + 2] - 1 : -(dMonster[mx + 2][my + 2] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-					cursmx = mx + 2;
-					cursmy = my + 2;
-					pcursmonst = mi;
+			if (mx + 2 < MAXDUNX && my + 2 < MAXDUNY) {
+				mi = dMonster[mx + 2][my + 2];
+				if (mi != 0 && dFlags[mx + 2][my + 2] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+						cursmx = mx + 2;
+						cursmy = my + 2;
+						pcursmonst = mi;
+					}
 				}
 			}
-			if (mx + 1 < MAXDUNX && !flipflag && dMonster[mx + 1][my] != 0 && dFlags[mx + 1][my] & BFLAG_LIT) {
-				mi = dMonster[mx + 1][my] > 0 ? dMonster[mx + 1][my] - 1 : -(dMonster[mx + 1][my] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-					cursmx = mx + 1;
-					cursmy = my;
-					pcursmonst = mi;
+			if (mx + 1 < MAXDUNX && !flipflag) {
+				mi = dMonster[mx + 1][my];
+				if (mi != 0 && dFlags[mx + 1][my] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+						cursmx = mx + 1;
+						cursmy = my;
+						pcursmonst = mi;
+					}
 				}
 			}
-			if (my + 1 < MAXDUNY && flipflag && dMonster[mx][my + 1] != 0 && dFlags[mx][my + 1] & BFLAG_LIT) {
-				mi = dMonster[mx][my + 1] > 0 ? dMonster[mx][my + 1] - 1 : -(dMonster[mx][my + 1] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-					cursmx = mx;
-					cursmy = my + 1;
-					pcursmonst = mi;
+			if (my + 1 < MAXDUNY && flipflag) {
+				mi = dMonster[mx][my + 1];
+				if (mi != 0 && dFlags[mx][my + 1] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+						cursmx = mx;
+						cursmy = my + 1;
+						pcursmonst = mi;
+					}
 				}
 			}
-			if (dMonster[mx][my] != 0 && dFlags[mx][my] & BFLAG_LIT) {
-				mi = dMonster[mx][my] > 0 ? dMonster[mx][my] - 1 : -(dMonster[mx][my] + 1);
+			mi = dMonster[mx][my];
+			if (mi != 0 && dFlags[mx][my] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
 				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 1) {
 					cursmx = mx;
 					cursmy = my;
 					pcursmonst = mi;
 				}
 			}
-			if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dMonster[mx + 1][my + 1] != 0 && dFlags[mx + 1][my + 1] & BFLAG_LIT) {
-				mi = dMonster[mx + 1][my + 1] > 0 ? dMonster[mx + 1][my + 1] - 1 : -(dMonster[mx + 1][my + 1] + 1);
-				if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-					cursmx = mx + 1;
-					cursmy = my + 1;
-					pcursmonst = mi;
+			if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+				mi = dMonster[mx + 1][my + 1];
+				if (mi != 0 && dFlags[mx + 1][my + 1] & BFLAG_LIT) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi == pcurstemp && monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+						cursmx = mx + 1;
+						cursmy = my + 1;
+						pcursmonst = mi;
+					}
 				}
 			}
 			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_HIDDEN) {
@@ -375,66 +431,88 @@ void CheckCursMove()
 				cursmy = my;
 			}
 			if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-				pcursmonst = -1;
+#ifdef HELLFIRE
+				if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#endif
+					pcursmonst = -1;
 			}
 			if (pcursmonst != -1) {
 				return;
 			}
 		}
-		if (!flipflag && mx + 2 < MAXDUNX && my + 1 < MAXDUNY && dMonster[mx + 2][my + 1] != 0 && dFlags[mx + 2][my + 1] & BFLAG_LIT) {
-			mi = dMonster[mx + 2][my + 1] > 0 ? dMonster[mx + 2][my + 1] - 1 : -(dMonster[mx + 2][my + 1] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-				cursmx = mx + 2;
-				cursmy = my + 1;
-				pcursmonst = mi;
+		if (!flipflag && mx + 2 < MAXDUNX && my + 1 < MAXDUNY) {
+			mi = dMonster[mx + 2][my + 1];
+			if (mi != 0 && dFlags[mx + 2][my + 1] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+					cursmx = mx + 2;
+					cursmy = my + 1;
+					pcursmonst = mi;
+				}
 			}
 		}
-		if (flipflag && mx + 1 < MAXDUNX && my + 2 < MAXDUNY && dMonster[mx + 1][my + 2] != 0 && dFlags[mx + 1][my + 2] & BFLAG_LIT) {
-			mi = dMonster[mx + 1][my + 2] > 0 ? dMonster[mx + 1][my + 2] - 1 : -(dMonster[mx + 1][my + 2] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-				cursmx = mx + 1;
-				cursmy = my + 2;
-				pcursmonst = mi;
+		if (flipflag && mx + 1 < MAXDUNX && my + 2 < MAXDUNY) {
+			mi = dMonster[mx + 1][my + 2];
+			if (mi != 0 && dFlags[mx + 1][my + 2] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+					cursmx = mx + 1;
+					cursmy = my + 2;
+					pcursmonst = mi;
+				}
 			}
 		}
-		if (mx + 2 < MAXDUNX && my + 2 < MAXDUNY && dMonster[mx + 2][my + 2] != 0 && dFlags[mx + 2][my + 2] & BFLAG_LIT) {
-			mi = dMonster[mx + 2][my + 2] > 0 ? dMonster[mx + 2][my + 2] - 1 : -(dMonster[mx + 2][my + 2] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
-				cursmx = mx + 2;
-				cursmy = my + 2;
-				pcursmonst = mi;
+		if (mx + 2 < MAXDUNX && my + 2 < MAXDUNY) {
+			mi = dMonster[mx + 2][my + 2];
+			if (mi != 0 && dFlags[mx + 2][my + 2] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 4) {
+					cursmx = mx + 2;
+					cursmy = my + 2;
+					pcursmonst = mi;
+				}
 			}
 		}
-		if (!flipflag && mx + 1 < MAXDUNX && dMonster[mx + 1][my] != 0 && dFlags[mx + 1][my] & BFLAG_LIT) {
-			mi = dMonster[mx + 1][my] > 0 ? dMonster[mx + 1][my] - 1 : -(dMonster[mx + 1][my] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-				cursmx = mx + 1;
-				cursmy = my;
-				pcursmonst = mi;
+		if (!flipflag && mx + 1 < MAXDUNX) {
+			mi = dMonster[mx + 1][my];
+			if (mi != 0 && dFlags[mx + 1][my] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+					cursmx = mx + 1;
+					cursmy = my;
+					pcursmonst = mi;
+				}
 			}
 		}
-		if (flipflag && my + 1 < MAXDUNY && dMonster[mx][my + 1] != 0 && dFlags[mx][my + 1] & BFLAG_LIT) {
-			mi = dMonster[mx][my + 1] > 0 ? dMonster[mx][my + 1] - 1 : -(dMonster[mx][my + 1] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-				cursmx = mx;
-				cursmy = my + 1;
-				pcursmonst = mi;
+		if (flipflag && my + 1 < MAXDUNY) {
+			mi = dMonster[mx][my + 1];
+			if (mi != 0 && dFlags[mx][my + 1] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+					cursmx = mx;
+					cursmy = my + 1;
+					pcursmonst = mi;
+				}
 			}
 		}
-		if (dMonster[mx][my] != 0 && dFlags[mx][my] & BFLAG_LIT) {
-			mi = dMonster[mx][my] > 0 ? dMonster[mx][my] - 1 : -(dMonster[mx][my] + 1);
+		mi = dMonster[mx][my];
+		if (mi != 0 && dFlags[mx][my] & BFLAG_LIT) {
+			mi = mi >= 0 ? mi - 1 : -(mi + 1);
 			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 1) {
 				cursmx = mx;
 				cursmy = my;
 				pcursmonst = mi;
 			}
 		}
-		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dMonster[mx + 1][my + 1] != 0 && dFlags[mx + 1][my + 1] & BFLAG_LIT) {
-			mi = dMonster[mx + 1][my + 1] > 0 ? dMonster[mx + 1][my + 1] - 1 : -(dMonster[mx + 1][my + 1] + 1);
-			if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
-				cursmx = mx + 1;
-				cursmy = my + 1;
-				pcursmonst = mi;
+		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+			mi = dMonster[mx + 1][my + 1];
+			if (mi != 0 && dFlags[mx + 1][my + 1] & BFLAG_LIT) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monster[mi]._mhitpoints >> 6 > 0 && monster[mi].MData->mSelFlag & 2) {
+					cursmx = mx + 1;
+					cursmy = my + 1;
+					pcursmonst = mi;
+				}
 			}
 		}
 		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_HIDDEN) {
@@ -443,28 +521,41 @@ void CheckCursMove()
 			cursmy = my;
 		}
 		if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-			pcursmonst = -1;
+#ifdef HELLFIRE
+			if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#endif
+				pcursmonst = -1;
 		}
 	} else {
-		if (!flipflag && mx + 1 < MAXDUNX && dMonster[mx + 1][my] > 0) {
-			pcursmonst = dMonster[mx + 1][my] - 1;
-			cursmx = mx + 1;
+		if (!flipflag && mx + 1 < MAXDUNX) {
+			mi = dMonster[mx + 1][my];
+			if (mi > 0) {
+				pcursmonst = mi - 1;
+				cursmx = mx + 1;
+				cursmy = my;
+			}
+		}
+		if (flipflag && my + 1 < MAXDUNY) {
+			mi = dMonster[mx][my + 1];
+			if (mi > 0) {
+				pcursmonst = mi - 1;
+				cursmx = mx;
+				cursmy = my + 1;
+			}
+		}
+		mi = dMonster[mx][my];
+		if (mi > 0) {
+			pcursmonst = mi - 1;
+			cursmx = mx;
 			cursmy = my;
 		}
-		if (flipflag && my + 1 < MAXDUNY && dMonster[mx][my + 1] > 0) {
-			pcursmonst = dMonster[mx][my + 1] - 1;
-			cursmx = mx;
-			cursmy = my + 1;
-		}
-		if (dMonster[mx][my] > 0) {
-			pcursmonst = dMonster[mx][my] - 1;
-			cursmx = mx;
-			cursmy = my;
-		}
-		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dMonster[mx + 1][my + 1] > 0) {
-			pcursmonst = dMonster[mx + 1][my + 1] - 1;
-			cursmx = mx + 1;
-			cursmy = my + 1;
+		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+			mi = dMonster[mx + 1][my + 1];
+			if (mi > 0) {
+				pcursmonst = mi - 1;
+				cursmx = mx + 1;
+				cursmy = my + 1;
+			}
 		}
 		if (pcursmonst != -1 && !towner[pcursmonst]._tSelFlag) {
 			pcursmonst = -1;
@@ -472,24 +563,31 @@ void CheckCursMove()
 	}
 
 	if (pcursmonst == -1) {
-		if (!flipflag && mx + 1 < MAXDUNX && dPlayer[mx + 1][my] != 0) {
-			bv = dPlayer[mx + 1][my] > 0 ? dPlayer[mx + 1][my] - 1 : -(dPlayer[mx + 1][my] + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
-				cursmx = mx + 1;
-				cursmy = my;
-				pcursplr = bv;
+		if (!flipflag && mx + 1 < MAXDUNX) {
+			bv = dPlayer[mx + 1][my];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (bv != myplr && plr[bv]._pHitPoints != 0) {
+					cursmx = mx + 1;
+					cursmy = my;
+					pcursplr = bv;
+				}
 			}
 		}
-		if (flipflag && my + 1 < MAXDUNY && dPlayer[mx][my + 1] != 0) {
-			bv = dPlayer[mx][my + 1] > 0 ? dPlayer[mx][my + 1] - 1 : -(dPlayer[mx][my + 1] + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
-				cursmx = mx;
-				cursmy = my + 1;
-				pcursplr = bv;
+		if (flipflag && my + 1 < MAXDUNY) {
+			bv = dPlayer[mx][my + 1];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (bv != myplr && plr[bv]._pHitPoints != 0) {
+					cursmx = mx;
+					cursmy = my + 1;
+					pcursplr = bv;
+				}
 			}
 		}
-		if (dPlayer[mx][my] != 0) {
-			bv = dPlayer[mx][my] > 0 ? dPlayer[mx][my] - 1 : -(dPlayer[mx][my] + 1);
+		bv = dPlayer[mx][my];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != myplr) {
 				cursmx = mx;
 				cursmy = my;
@@ -506,8 +604,8 @@ void CheckCursMove()
 			}
 		}
 		if (pcurs == CURSOR_RESURRECT) {
-			for (xx = -1; xx < 2; xx++) {
-				for (yy = -1; yy < 2; yy++) {
+			for (xx = -1; xx <= 1; xx++) {
+				for (yy = -1; yy <= 1; yy++) {
 					if (mx + xx < MAXDUNX && my + yy < MAXDUNY && dFlags[mx + xx][my + yy] & BFLAG_DEAD_PLAYER) {
 						for (i = 0; i < MAX_PLRS; i++) {
 							if (plr[i]._px == mx + xx && plr[i]._py == my + yy && i != myplr) {
@@ -520,88 +618,110 @@ void CheckCursMove()
 				}
 			}
 		}
-		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dPlayer[mx + 1][my + 1] != 0) {
-			bv = dPlayer[mx + 1][my + 1] > 0 ? dPlayer[mx + 1][my + 1] - 1 : -(dPlayer[mx + 1][my + 1] + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
-				cursmx = mx + 1;
-				cursmy = my + 1;
-				pcursplr = bv;
+		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+			bv = dPlayer[mx + 1][my + 1];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (bv != myplr && plr[bv]._pHitPoints != 0) {
+					cursmx = mx + 1;
+					cursmy = my + 1;
+					pcursplr = bv;
+				}
 			}
 		}
 	}
 	if (pcursmonst == -1 && pcursplr == -1) {
-		if (!flipflag && mx + 1 < MAXDUNX && dObject[mx + 1][my] != 0) {
-			bv = dObject[mx + 1][my] > 0 ? dObject[mx + 1][my] - 1 : -(dObject[mx + 1][my] + 1);
-			if (object[bv]._oSelFlag >= 2) {
-				cursmx = mx + 1;
-				cursmy = my;
-				pcursobj = bv;
+		if (!flipflag && mx + 1 < MAXDUNX) {
+			bv = dObject[mx + 1][my];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (object[bv]._oSelFlag >= 2) {
+					cursmx = mx + 1;
+					cursmy = my;
+					pcursobj = bv;
+				}
 			}
 		}
-		if (flipflag && my + 1 < MAXDUNY && dObject[mx][my + 1] != 0) {
-			bv = dObject[mx][my + 1] > 0 ? dObject[mx][my + 1] - 1 : -(dObject[mx][my + 1] + 1);
-			if (object[bv]._oSelFlag >= 2) {
-				cursmx = mx;
-				cursmy = my + 1;
-				pcursobj = bv;
+		if (flipflag && my + 1 < MAXDUNY) {
+			bv = dObject[mx][my + 1];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (object[bv]._oSelFlag >= 2) {
+					cursmx = mx;
+					cursmy = my + 1;
+					pcursobj = bv;
+				}
 			}
 		}
-		if (dObject[mx][my] != 0) {
-			bv = dObject[mx][my] > 0 ? dObject[mx][my] - 1 : -(dObject[mx][my] + 1);
+		bv = dObject[mx][my];
+		if (bv != 0) {
+			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (object[bv]._oSelFlag == 1 || object[bv]._oSelFlag == 3) {
 				cursmx = mx;
 				cursmy = my;
 				pcursobj = bv;
 			}
 		}
-		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dObject[mx + 1][my + 1] != 0) {
-			bv = dObject[mx + 1][my + 1] > 0 ? dObject[mx + 1][my + 1] - 1 : -(dObject[mx + 1][my + 1] + 1);
-			if (object[bv]._oSelFlag >= 2) {
-				cursmx = mx + 1;
-				cursmy = my + 1;
-				pcursobj = bv;
+		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+			bv = dObject[mx + 1][my + 1];
+			if (bv != 0) {
+				bv = bv >= 0 ? bv - 1 : -(bv + 1);
+				if (object[bv]._oSelFlag >= 2) {
+					cursmx = mx + 1;
+					cursmy = my + 1;
+					pcursobj = bv;
+				}
 			}
 		}
 	}
 	if (pcursplr == -1 && pcursobj == -1 && pcursmonst == -1) {
-		if (!flipflag && mx + 1 < MAXDUNX && dItem[mx + 1][my] > 0) {
-			bv = dItem[mx + 1][my] - 1;
-			if (item[bv]._iSelFlag >= 2) {
-				cursmx = mx + 1;
-				cursmy = my;
-				pcursitem = bv;
+		if (!flipflag && mx + 1 < MAXDUNX) {
+			bv = dItem[mx + 1][my];
+			if (bv > 0) {
+				bv--;
+				if (item[bv]._iSelFlag >= 2) {
+					cursmx = mx + 1;
+					cursmy = my;
+					pcursitem = bv;
+				}
 			}
 		}
-		if (flipflag && my + 1 < MAXDUNY && dItem[mx][my + 1] > 0) {
-			bv = dItem[mx][my + 1] - 1;
-			if (item[bv]._iSelFlag >= 2) {
-				cursmx = mx;
-				cursmy = my + 1;
-				pcursitem = bv;
+		if (flipflag && my + 1 < MAXDUNY) {
+			bv = dItem[mx][my + 1];
+			if (bv > 0) {
+				bv--;
+				if (item[bv]._iSelFlag >= 2) {
+					cursmx = mx;
+					cursmy = my + 1;
+					pcursitem = bv;
+				}
 			}
 		}
-		if (dItem[mx][my] > 0) {
-			bv = dItem[mx][my] - 1;
+		bv = dItem[mx][my];
+		if (bv > 0) {
+			bv--;
 			if (item[bv]._iSelFlag == 1 || item[bv]._iSelFlag == 3) {
 				cursmx = mx;
 				cursmy = my;
 				pcursitem = bv;
 			}
 		}
-		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY && dItem[mx + 1][my + 1] > 0) {
-			bv = dItem[mx + 1][my + 1] - 1;
-			if (item[bv]._iSelFlag >= 2) {
-				cursmx = mx + 1;
-				cursmy = my + 1;
-				pcursitem = bv;
+		if (mx + 1 < MAXDUNX && my + 1 < MAXDUNY) {
+			bv = dItem[mx + 1][my + 1];
+			if (bv > 0) {
+				bv--;
+				if (item[bv]._iSelFlag >= 2) {
+					cursmx = mx + 1;
+					cursmy = my + 1;
+					pcursitem = bv;
+				}
 			}
 		}
 		if (pcursitem == -1) {
 			cursmx = mx;
 			cursmy = my;
 			CheckTrigForce();
-			CheckTown();
-			CheckRportal();
+			CheckTownPortal();
 		}
 	}
 
@@ -613,7 +733,10 @@ void CheckCursMove()
 		cursmy = my;
 	}
 	if (pcursmonst != -1 && monster[pcursmonst]._mFlags & MFLAG_GOLEM) {
-		pcursmonst = -1;
+#ifdef HELLFIRE
+		if (!(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+#endif
+			pcursmonst = -1;
 	}
 }
 

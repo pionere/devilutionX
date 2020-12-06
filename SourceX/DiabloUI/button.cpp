@@ -1,10 +1,11 @@
-#include "DiabloUI/button.h"
+#include "button.h"
+
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/errorart.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 Art SmlButton;
 
@@ -54,4 +55,4 @@ void HandleGlobalMouseUpButton(UiButton *button)
 	button->m_pressed = false;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

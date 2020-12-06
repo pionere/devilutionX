@@ -44,7 +44,7 @@ make -j$(nproc)
 Make sure you have [Homebrew](https://brew.sh/) installed, then run:
 
 ```
-brew bundle
+brew bundle install
 cd build
 cmake ..
 cmake --build . -j $(sysctl -n hw.physicalcpu)
@@ -55,6 +55,19 @@ cmake --build . -j $(sysctl -n hw.physicalcpu)
 ### Installing dependencies
 ```
 pkg install cmake sdl2_mixer sdl2_ttf libsodium
+```
+### Compiling
+```
+cd build
+cmake ..
+cmake --build . -j $(sysctl -n hw.ncpu)
+```
+</details>
+<details><summary>NetBSD</summary>
+
+### Installing dependencies
+```
+pkgin install cmake SDL2_mixer SDL2_ttf libsodium
 ```
 ### Compiling
 ```
@@ -273,6 +286,7 @@ select Icons -> Information in the top menu.
 - `-DSPAWN=ON` build the shareware version, using spawn.mpq from the original shareware; which can still be [downloaded](http://ftp.blizzard.com/pub/demos/diablosw.exe) for free.
 - `-DCMAKE_TOOLCHAIN_FILE=../CMake/32bit.cmake` generate 32bit builds on 64bit platforms (remember to use the `linux32` command if on Linux).
 - `-DCROSS_PREFIX=/path/to/prefix` set the path to the `i686-w64-mingw32` directory.
+- `-DHELLFIRE=ON` build Hellfire version
 
 ### Debug builds
 - `-DDEBUG=OFF` disable debug mode of the Diablo engine.
@@ -331,7 +345,7 @@ No, you'll need access to the data from the original game. If you don't have an 
 DevilutionX's main focus is to make the game work on multiple platforms. An additional goal is to make the engine mod friendly. As such, there are no changes to gameplay, but we will be making some enhancments to the engine itself. For example, the engine now has upscaling, unlocked fps, controller support, and multiplayer via TCP.
 > Is 1080p supported?
 
-Currently the game simply scales the original 640x480 to best fit, but we are working on widescreen support.
+Yes, the game will automatically adjust to your screen. This can be further adjusted in the game ini file.
 > What about Hellfire?
 
 Hellfire is being worked on and is mostly done, though not fully playable at the moment.
@@ -349,8 +363,10 @@ Battle.net is a service provided by Blizzard. We are not associated with them, s
 [From the beginning until release](docs/CHANGELOG.md)
 
 # Legal
-DevilutionX is released to the Public Domain. The documentation and functionality provided by Devilution may only be utilized with assets provided by ownership of Diablo.
+DevilutionX is released to the Public Domain. The documentation and functionality provided by DevilutionX may only be utilized with assets provided by ownership of Diablo.
+
+The source code in this repository is for non-commerical use only. If you use the source code you may not charge others for access to it or any derivative work thereof.
 
 Diablo® - Copyright © 1996 Blizzard Entertainment, Inc. All rights reserved. Diablo and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
 
-Devilution and any of its maintainers are in no way associated with or endorsed by Blizzard Entertainment®.
+DevilutionX and any of its maintainers are in no way associated with or endorsed by Blizzard Entertainment®.

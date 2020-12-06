@@ -1,14 +1,19 @@
+/**
+ * @file sound.cpp
+ *
+ * Implementation of functions setting up the audio pipeline.
+ */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "stubs.h"
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 BOOLEAN gbSndInited;
 int sglMusicVolume;
 int sglSoundVolume;
+/** Specifies whether background music is enabled. */
 HANDLE sghMusic;
 
 Mix_Music *music;
@@ -18,16 +23,22 @@ char *musicBuffer;
 /* data */
 
 BOOLEAN gbMusicOn = true;
+/** Specifies whether sound effects are enabled. */
 BOOLEAN gbSoundOn = true;
+/** Specifies the active background music track id. */
 int sgnMusicTrack = NUM_MUSIC;
-
-char *sgszMusicTracks[NUM_MUSIC] = {
+/** Maps from track ID to track name. */
+const char *const sgszMusicTracks[NUM_MUSIC] = {
 #ifdef SPAWN
 	"Music\\sTowne.wav",
 	"Music\\sLvlA.wav",
 	"Music\\sLvlA.wav",
 	"Music\\sLvlA.wav",
 	"Music\\sLvlA.wav",
+#ifdef HELLFIRE
+	"Music\\sLvlA.wav",
+	"Music\\sLvlA.wav",
+#endif
 	"Music\\sintro.wav",
 #else
 	"Music\\DTowne.wav",
@@ -35,9 +46,36 @@ char *sgszMusicTracks[NUM_MUSIC] = {
 	"Music\\DLvlB.wav",
 	"Music\\DLvlC.wav",
 	"Music\\DLvlD.wav",
+#ifdef HELLFIRE
+	"Music\\DLvlE.wav",
+	"Music\\DLvlF.wav",
+#endif
 	"Music\\Dintro.wav",
 #endif
 };
+
+static void snd_get_volume(const char *value_name, int *value)
+{
+	int v;
+
+	if (SRegLoadValue(APP_NAME, value_name, 0, value)) {
+		v = *value;
+		if (v < VOLUME_MIN) {
+			v = VOLUME_MIN;
+		} else if (v > VOLUME_MAX) {
+			v = VOLUME_MAX;
+		}
+	} else
+		v = VOLUME_MAX;
+	v -= v % 100;
+
+	*value = v;
+}
+
+static void snd_set_volume(const char *key, int value)
+{
+	SRegSaveValue(APP_NAME, key, 0, value);
+}
 
 BOOL snd_playing(TSnd *pSnd)
 {
@@ -52,7 +90,7 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	SoundSample *DSB;
 	DWORD tc;
 
-	if (!pSnd || !gbSoundOn) {
+	if (pSnd == NULL || !gbSoundOn) {
 		return;
 	}
 
@@ -76,7 +114,7 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	pSnd->start_tc = tc;
 }
 
-TSnd *sound_file_load(char *path)
+TSnd *sound_file_load(const char *path)
 {
 	HANDLE file;
 	BYTE *wave_file;
@@ -138,22 +176,6 @@ void snd_init(HWND hWnd)
 	gbSndInited = true;
 }
 
-void snd_get_volume(char *value_name, int *value)
-{
-	int v = *value;
-	if (!SRegLoadValue("Diablo", value_name, 0, &v)) {
-		v = VOLUME_MAX;
-	}
-	*value = v;
-
-	if (*value < VOLUME_MIN) {
-		*value = VOLUME_MIN;
-	} else if (*value > VOLUME_MAX) {
-		*value = VOLUME_MAX;
-	}
-	*value -= *value % 100;
-}
-
 void sound_cleanup()
 {
 	SFileDdaDestroy();
@@ -163,11 +185,6 @@ void sound_cleanup()
 		snd_set_volume("Sound Volume", sglSoundVolume);
 		snd_set_volume("Music Volume", sglMusicVolume);
 	}
-}
-
-void snd_set_volume(char *key, int value)
-{
-	SRegSaveValue("Diablo", key, 0, value);
 }
 
 void music_stop()
@@ -244,4 +261,4 @@ int sound_get_or_set_sound_volume(int volume)
 	return sglSoundVolume;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

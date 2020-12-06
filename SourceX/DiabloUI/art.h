@@ -1,9 +1,8 @@
 #pragma once
 
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 struct Art {
 	SDL_Surface *surface;
@@ -42,4 +41,4 @@ void LoadArt(const char *pszFile, Art *art, int frames = 1, SDL_Color *pPalette 
 void LoadMaskedArt(const char *pszFile, Art *art, int frames = 1, int mask = 250);
 void LoadArt(Art *art, const BYTE *artData, int w, int h, int frames = 1);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -1,5 +1,8 @@
+#include <cstddef>
+#include <string>
+
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
+#include "paths.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 #include <queue>
@@ -13,82 +16,27 @@
 #include <SDL_mixer.h>
 #include <smacker.h>
 
-#include "DiabloUI/diabloui.h"
-
-namespace dvl {
-
-std::string basePath;
-std::string prefPath;
+DEVILUTION_BEGIN_NAMESPACE
 
 DWORD nLastError = 0;
+
+namespace {
+
 bool directFileAccess = false;
-char SBasePath[MAX_PATH];
+std::string *SBasePath = NULL;
+
+} // namespace
 
 #ifdef USE_SDL1
 static bool IsSVidVideoMode = false;
 #endif
 
-static std::string getIniPath()
-{
-	char path[MAX_PATH];
-	GetPrefPath(path, MAX_PATH);
-	std::string result = path;
-	result.append("diablo.ini");
-	return result;
-}
-
 radon::File& getIni() {
-  static radon::File ini(getIniPath());
+  static radon::File ini(GetConfigPath() + "diablo.ini");
   return ini;
 }
 
 static Mix_Chunk *SFileChunk = NULL;
-
-void GetBasePath(char *buffer, size_t size)
-{
-	if (basePath.length()) {
-		snprintf(buffer, size, "%s", basePath.c_str());
-		return;
-	}
-
-	char *path = SDL_GetBasePath();
-	if (path == NULL) {
-		SDL_Log(SDL_GetError());
-		buffer[0] = '\0';
-		return;
-	}
-
-	snprintf(buffer, size, "%s", path);
-	SDL_free(path);
-}
-
-void GetPrefPath(char *buffer, size_t size)
-{
-	if (prefPath.length()) {
-		snprintf(buffer, size, "%s", prefPath.c_str());
-		return;
-	}
-
-	char *path = SDL_GetPrefPath("diasurgical", "devilution");
-	if (path == NULL) {
-		buffer[0] = '\0';
-		return;
-	}
-
-	snprintf(buffer, size, "%s", path);
-	SDL_free(path);
-}
-
-void TranslateFileName(char *dst, int dstLen, const char *src)
-{
-	for (int i = 0; i < dstLen; i++) {
-		char c = *src++;
-		dst[i] = c == '\\' ? '/' : c;
-		if (!c) {
-			break;
-		}
-	}
-}
 
 BOOL SFileDdaBeginEx(HANDLE hFile, DWORD flags, DWORD mask, unsigned __int32 lDistanceToMove,
     signed __int32 volume, signed int pan, int a7)
@@ -102,7 +50,7 @@ BOOL SFileDdaBeginEx(HANDLE hFile, DWORD flags, DWORD mask, unsigned __int32 lDi
 		SDL_Log(SDL_GetError());
 		return false;
 	}
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		SFileDdaEnd(hFile);
 		SFileFreeChunk();
 	}
@@ -119,7 +67,7 @@ BOOL SFileDdaBeginEx(HANDLE hFile, DWORD flags, DWORD mask, unsigned __int32 lDi
 
 void SFileFreeChunk()
 {
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		Mix_FreeChunk(SFileChunk);
 		SFileChunk = NULL;
 	}
@@ -127,7 +75,7 @@ void SFileFreeChunk()
 
 BOOL SFileDdaDestroy()
 {
-	if (SFileChunk) {
+	if (SFileChunk != NULL) {
 		Mix_FreeChunk(SFileChunk);
 		SFileChunk = NULL;
 	}
@@ -163,21 +111,18 @@ BOOL SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume)
 
 // Converts ASCII characters to lowercase
 // Converts slash (0x2F) / backslash (0x5C) to system file-separator
+#ifdef _WIN32
+#define SLSH 0x5C
+#else
+#define SLSH 0x2F
+#endif
 unsigned char AsciiToLowerTable_Path[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
-#ifdef _WIN32
-	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x5C,
-#else
-	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
-#endif
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, SLSH,
 	0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
 	0x40, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
-#ifdef _WIN32
-	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
-#else
-	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x5B, 0x2F, 0x5D, 0x5E, 0x5F,
-#endif
+	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x5B, SLSH, 0x5D, 0x5E, 0x5F,
 	0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
 	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
 	0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
@@ -194,23 +139,46 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 {
 	bool result = false;
 
-	if (directFileAccess) {
-		char directPath[MAX_PATH] = "\0";
-		char tmpPath[MAX_PATH] = "\0";
-		for (size_t i = 0; i < strlen(filename); i++) {
-			tmpPath[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(filename[i])];
-		}
-		snprintf(directPath, MAX_PATH, "%s%s", SBasePath, tmpPath);
-		result = SFileOpenFileEx((HANDLE)0, directPath, 0xFFFFFFFF, phFile);
+	if (directFileAccess && SBasePath != NULL) {
+		std::string path = *SBasePath + filename;
+		for (std::size_t i = SBasePath->size(); i < path.size(); ++i)
+			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
+		result = SFileOpenFileEx((HANDLE)0, path.c_str(), 0xFFFFFFFF, phFile);
 	}
-	if (!result && patch_rt_mpq) {
+#ifdef HELLFIRE
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfopt2_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfopt1_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfvoice_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfmusic_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfbarb_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfbard_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hfmonk_mpq, filename, 0, phFile);
+	}
+	if (!result) {
+		result = SFileOpenFileEx((HANDLE)hellfire_mpq, filename, 0, phFile);
+	}
+#endif
+	if (!result && patch_rt_mpq != NULL) {
 		result = SFileOpenFileEx((HANDLE)patch_rt_mpq, filename, 0, phFile);
 	}
 	if (!result) {
 		result = SFileOpenFileEx((HANDLE)diabdat_mpq, filename, 0, phFile);
 	}
 
-	if (!result || !*phFile) {
+	if (!result || *phFile == NULL) {
 		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
 	}
 	return result;
@@ -225,22 +193,22 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	BYTE *dataPtr, *fileBuffer;
 	BYTE byte;
 
-	if (pdwWidth)
+	if (pdwWidth != NULL)
 		*pdwWidth = 0;
-	if (dwHeight)
+	if (dwHeight != NULL)
 		*dwHeight = 0;
-	if (pdwBpp)
+	if (pdwBpp != NULL)
 		*pdwBpp = 0;
 
-	if (!pszFileName || !*pszFileName) {
+	if (pszFileName == NULL || *pszFileName == '\0') {
 		return false;
 	}
 
-	if (pBuffer && !dwBuffersize) {
+	if (pBuffer != NULL && dwBuffersize == 0) {
 		return false;
 	}
 
-	if (!pPalette && !pBuffer && !pdwWidth && !dwHeight) {
+	if (pPalette == NULL && pBuffer == NULL && pdwWidth == NULL && dwHeight == NULL) {
 		return false;
 	}
 
@@ -248,14 +216,14 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		return false;
 	}
 
-	while (strchr(pszFileName, 92))
+	while (strchr(pszFileName, 92) != NULL)
 		pszFileName = strchr(pszFileName, 92) + 1;
 
-	while (strchr(pszFileName + 1, 46))
+	while (strchr(pszFileName + 1, 46) != NULL)
 		pszFileName = strchr(pszFileName, 46);
 
 	// omit all types except PCX
-	if (!pszFileName || strcasecmp(pszFileName, ".pcx")) {
+	if (pszFileName == NULL || strcasecmp(pszFileName, ".pcx")) {
 		return false;
 	}
 
@@ -274,14 +242,14 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	// than image width for efficiency.
 	const int x_skip = dwBuffersize / height - width;
 
-	if (pdwWidth)
+	if (pdwWidth != NULL)
 		*pdwWidth = width;
-	if (dwHeight)
+	if (dwHeight != NULL)
 		*dwHeight = height;
-	if (pdwBpp)
+	if (pdwBpp != NULL)
 		*pdwBpp = pcxhdr.BitsPerPixel;
 
-	if (!pBuffer) {
+	if (pBuffer == NULL) {
 		SFileSetFilePointer(hFile, 0, 0, 2);
 		fileBuffer = NULL;
 	} else {
@@ -289,7 +257,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		fileBuffer = (BYTE *)malloc(size);
 	}
 
-	if (fileBuffer) {
+	if (fileBuffer != NULL) {
 		SFileReadFile(hFile, fileBuffer, size, 0, 0);
 		dataPtr = fileBuffer;
 
@@ -317,7 +285,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		free(fileBuffer);
 	}
 
-	if (pPalette && pcxhdr.BitsPerPixel == 8) {
+	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
 		SFileSetFilePointer(hFile, -768, 0, 1);
 		SFileReadFile(hFile, paldata, 768, 0, 0);
 		for (int i = 0; i < 256; i++) {
@@ -335,15 +303,15 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	return true;
 }
 
-void *SMemAlloc(unsigned int amount, char *logfilename, int logline, int defaultValue)
+void *SMemAlloc(unsigned int amount, const char *logfilename, int logline, int defaultValue)
 {
 	assert(amount != -1u);
 	return malloc(amount);
 }
 
-BOOL SMemFree(void *location, char *logfilename, int logline, char defaultValue)
+BOOL SMemFree(void *location, const char *logfilename, int logline, char defaultValue)
 {
-	assert(location);
+	assert(location != NULL);
 	free(location);
 	return true;
 }
@@ -361,19 +329,19 @@ bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize)
 {
 	radon::Section *section = getIni().getSection(sectionName);
-	if (!section)
+	if (section == NULL)
 		return false;
 
 	radon::Key *key = section->getKey(keyName);
-	if (!key)
+	if (key == NULL)
 		return false;
 
 	std::string value = key->getStringValue();
-	if (dataSize)
+	if (dataSize != NULL)
 		*dataSize = value.length();
 
-	if (string)
-		strncpy(string, value.c_str(), stringSize);
+	if (string != NULL)
+		SStrCopy(string, value.c_str(), stringSize);
 
 	return true;
 }
@@ -383,7 +351,7 @@ void setIniValue(const char *sectionName, const char *keyName, char *value, int 
 	radon::File& ini = getIni();
 
 	radon::Section *section = ini.getSection(sectionName);
-	if (!section) {
+	if (section == NULL) {
 		ini.addSection(sectionName);
 		section = ini.getSection(sectionName);
 	}
@@ -391,7 +359,7 @@ void setIniValue(const char *sectionName, const char *keyName, char *value, int 
 	std::string stringValue(value, len ? len : strlen(value));
 
 	radon::Key *key = section->getKey(keyName);
-	if (!key) {
+	if (key == NULL) {
 		section->addKey(radon::Key(keyName, stringValue));
 	} else {
 		key->setValue(stringValue);
@@ -414,7 +382,7 @@ BOOL SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *
 BOOL SRegSaveValue(const char *keyname, const char *valuename, BYTE flags, DWORD result)
 {
 	char str[10];
-	sprintf(str, "%d", result);
+	snprintf(str, 10, "%d", result);
 	setIniValue(keyname, valuename, str);
 
 	return true;
@@ -542,7 +510,7 @@ private:
 static AudioQueue *sVidAudioQueue = new AudioQueue();
 #endif
 
-void SVidPlayBegin(char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video)
+void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video)
 {
 	if (flags & 0x10000 || flags & 0x20000000) {
 		return;
@@ -623,6 +591,29 @@ void SVidPlayBegin(char *filename, int a2, int a3, int a4, int a5, int flags, HA
 	{
 		const SDL_Surface *display = SDL_GetVideoSurface();
 		IsSVidVideoMode = (display->flags & (SDL_FULLSCREEN | SDL_NOFRAME)) != 0;
+
+		if (IsSVidVideoMode) {
+			/* Get available fullscreen/hardware modes */
+			SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
+
+			/* Check is there are any modes available */
+			if (modes == NULL) {
+				IsSVidVideoMode = false;
+			}
+			/* Check if our resolution is restricted */
+			else if (modes != (SDL_Rect **)-1) {
+				// Search for a usable video mode
+				bool UsableModeFound = false;
+				for (int i = 0; modes[i] != NULL; i++) {
+					if (modes[i]->w == SVidWidth || modes[i]->h == SVidHeight) {
+						UsableModeFound = true;
+						break;
+					}
+				}
+				IsSVidVideoMode = UsableModeFound;
+			}
+		}
+
 		if (IsSVidVideoMode) {
 			int w, h;
 			if (display->w * SVidWidth > display->h * SVidHeight) {
@@ -740,8 +731,8 @@ BOOL SVidPlayContinue(void)
 		} else {
 			factor = wFactor;
 		}
-		const Sint16 scaledW = SVidWidth * factor;
-		const Sint16 scaledH = SVidHeight * factor;
+		const int scaledW = SVidWidth * factor;
+		const int scaledH = SVidHeight * factor;
 
 		SDL_Rect pal_surface_offset = {
 			(output_surface->w - scaledW) / 2,
@@ -772,7 +763,7 @@ BOOL SVidPlayContinue(void)
 
 	double now = SDL_GetTicks() * 1000;
 	if (now < SVidFrameEnd) {
-		SDL_Delay((SVidFrameEnd - now) / 1000); // wait with next frame if the system is to fast
+		SDL_Delay((SVidFrameEnd - now) / 1000); // wait with next frame if the system is too fast
 	}
 
 	return SVidLoadNextFrame();
@@ -822,7 +813,7 @@ void SVidPlayEnd(HANDLE video)
 		}
 	}
 #else
-	if (IsSVidVideoMode) SetVideoModeToPrimary();
+	if (IsSVidVideoMode) SetVideoModeToPrimary(IsFullScreen(), screenWidth, screenHeight);
 #endif
 }
 
@@ -836,15 +827,17 @@ void SErrSetLastError(DWORD dwErrCode)
 	nLastError = dwErrCode;
 }
 
-int SStrCopy(char *dest, const char *src, int max_length)
+void SStrCopy(char *dest, const char *src, int max_length)
 {
-	strncpy(dest, src, max_length);
-	return strlen(dest);
+	if (memccpy(dest, src, '\0', max_length) == NULL)
+		dest[max_length - 1] = '\0';
+	//strncpy(dest, src, max_length);
 }
 
-BOOL SFileSetBasePath(char *path)
+BOOL SFileSetBasePath(const char *path)
 {
-	strncpy(SBasePath, path, MAX_PATH);
+	if (SBasePath == NULL) SBasePath = new std::string;
+	*SBasePath = path;
 	return true;
 }
 
@@ -853,4 +846,4 @@ BOOL SFileEnableDirectAccess(BOOL enable)
 	directFileAccess = enable;
 	return true;
 }
-}
+DEVILUTION_END_NAMESPACE

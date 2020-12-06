@@ -1,3 +1,8 @@
+/**
+ * @file portal.cpp
+ *
+ * Implementation of functionality for handling town portals.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -8,9 +13,9 @@ PortalStruct portal[MAXPORTAL];
 int portalindex;
 
 /** X-coordinate of each players portal in town. */
-int WarpDropX[MAXPORTAL] = { 57, 59, 61, 63 };
+int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
-int WarpDropY[MAXPORTAL] = { 40, 40, 40, 40 };
+int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
 
 void InitPortals()
 {
@@ -44,7 +49,7 @@ void AddWarpMissile(int i, int x, int y)
 		SetMissDir(mi, 1);
 
 		if (currlevel != 0)
-			missile[mi]._mlid = AddLight(missile[mi]._mix, missile[mi]._miy, 15);
+			missile[mi]._miLid = AddLight(missile[mi]._mix, missile[mi]._miy, 15);
 
 		missiledata[MIS_TOWN].mlSFX = LS_SENTINEL;
 	}
@@ -52,15 +57,15 @@ void AddWarpMissile(int i, int x, int y)
 
 void SyncPortals()
 {
-	int i;
+	int i, lvl;
 
 	for (i = 0; i < MAXPORTAL; i++) {
 		if (!portal[i].open)
 			continue;
-		if (currlevel == 0)
+		lvl = currlevel;
+		if (lvl == 0)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
-			int lvl = currlevel;
 			if (setlevel)
 				lvl = setlvlnum;
 			if (portal[i].level == lvl)
@@ -100,19 +105,20 @@ BOOL PortalOnLevel(int i)
 		return currlevel == 0;
 }
 
-void RemovePortalMissile(int id)
+void RemovePortalMissile(int pnum)
 {
-	int i;
-	int mi;
+	MissileStruct *mis;
+	int i, mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
-		if (missile[mi]._mitype == MIS_TOWN && missile[mi]._misource == id) {
-			dFlags[missile[mi]._mix][missile[mi]._miy] &= ~BFLAG_MISSILE;
-			dMissile[missile[mi]._mix][missile[mi]._miy] = 0;
+		mis = &missile[mi];
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
+			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
+			dMissile[mis->_mix][mis->_miy] = 0;
 
-			if (portal[id].level != 0)
-				AddUnLight(missile[mi]._mlid);
+			if (portal[pnum].level != 0)
+				AddUnLight(mis->_miLid);
 
 			DeleteMissile(mi, i);
 		}
@@ -126,24 +132,18 @@ void SetCurrentPortal(int p)
 
 void GetPortalLevel()
 {
-	if (currlevel) {
+	if (currlevel != 0) {
 		setlevel = FALSE;
 		currlevel = 0;
 		plr[myplr].plrlevel = 0;
 		leveltype = DTYPE_TOWN;
 	} else {
-		if (portal[portalindex].setlvl) {
-			setlevel = TRUE;
-			setlvlnum = portal[portalindex].level;
-			currlevel = portal[portalindex].level;
-			plr[myplr].plrlevel = setlvlnum;
-			leveltype = portal[portalindex].ltype;
-		} else {
-			setlevel = FALSE;
-			currlevel = portal[portalindex].level;
-			plr[myplr].plrlevel = currlevel;
-			leveltype = portal[portalindex].ltype;
-		}
+		leveltype = portal[portalindex].ltype;
+		currlevel = portal[portalindex].level;
+		plr[myplr].plrlevel = currlevel;
+		setlevel = portal[portalindex].setlvl;
+		if (setlevel)
+			setlvlnum = currlevel;
 		if (portalindex == myplr) {
 			NetSendCmd(TRUE, CMD_DEACTIVATEPORTAL);
 			DeactivatePortal(portalindex);
@@ -167,15 +167,17 @@ void GetPortalLvlPos()
 	}
 }
 
-BOOL PosOkPortal(int lvl, int x, int y)
+BOOL PosOkPortal(int x, int y)
 {
-	int i;
+	PortalStruct *ps;
+	int i, lvl = currlevel;
 
-	for (i = 0; i < MAXPORTAL; i++) {
-		if (portal[i].open && portal[i].level == lvl && ((portal[i].x == x && portal[i].y == y) || (portal[i].x == x - 1 && portal[i].y == y - 1)))
-			return TRUE;
+	ps = portal;
+	for (i = MAXPORTAL; i != 0; i--, ps++) {
+		if (ps->open && ps->level == lvl && ((ps->x == x && ps->y == y) || (ps->x == x - 1 && ps->y == y - 1)))
+			return FALSE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 DEVILUTION_END_NAMESPACE

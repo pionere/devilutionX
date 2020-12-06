@@ -8,16 +8,15 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int qtexty;
-char *qtextptr;
-int qtextSpd;
+const char *qtextptr;
+DWORD qtextTime;
 BOOLEAN qtextflag;
-int scrolltexty;
-int sgLastScroll;
+DWORD scrolltexty;
 BYTE *pMedTextCels;
 BYTE *pTextBoxCels;
 
 /** Maps from font index to medtexts.cel frame number. */
-const BYTE mfontframe[127] = {
+const BYTE mfontframe[128] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -30,7 +29,7 @@ const BYTE mfontframe[127] = {
 	26, 42, 0, 43, 0, 0, 0, 1, 2, 3,
 	4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 	14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-	24, 25, 26, 48, 0, 49, 0
+	24, 25, 26, 48, 0, 49, 0, 0
 };
 /**
  * Maps from medtexts.cel frame number to character width. Note, the
@@ -69,36 +68,38 @@ void InitQuestText()
 
 void InitQTextMsg(int m)
 {
+	int speed;
+
 	if (alltext[m].scrlltxt) {
 		questlog = FALSE;
 		qtextptr = alltext[m].txtstr;
 		qtextflag = TRUE;
-		qtexty = 500;
-		qtextSpd = qscroll_spd_tbl[alltext[m].txtspd - 1];
-		if (qtextSpd <= 0)
-			scrolltexty = 50 / -(qtextSpd - 1);
+		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
+		speed = qscroll_spd_tbl[alltext[m].txtspd - 1];
+		if (speed <= 0)
+			scrolltexty = 50 / -(speed - 1);
 		else
-			scrolltexty = ((qtextSpd + 1) * 50) / qtextSpd;
-		qtextSpd = SDL_GetTicks();
+			scrolltexty = ((speed + 1) * 50) / speed;
+		qtextTime = SDL_GetTicks();
 	}
 	PlaySFX(alltext[m].sfxnr);
 }
 
 void DrawQTextBack()
 {
-	CelDraw(PANEL_X + 24, 487, pTextBoxCels, 1, 591);
-	trans_rect(PANEL_LEFT + 27, 28, 585, 297);
+	CelDraw(PANEL_X + 24, SCREEN_Y + 327 + UI_OFFSET_Y, pTextBoxCels, 1, 591);
+	trans_rect(PANEL_LEFT + 27, UI_OFFSET_Y + 28, 585, 297);
 }
 
-void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
+static void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
 {
 	BYTE *pStart, *pEnd;
 
-	/// ASSERT: assert(gpBuffer);
+	/// ASSERT: assert(gpBuffer != NULL);
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (49 + SCREEN_Y)];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (49 + SCREEN_Y + UI_OFFSET_Y)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (309 + SCREEN_Y)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (309 + SCREEN_Y + UI_OFFSET_Y)];
 	CelDraw(sx, sy, pCelBuff, nCel, 22);
 
 	gpBufStart = pStart;
@@ -109,7 +110,7 @@ void DrawQText()
 {
 	int i, l, w, tx, ty;
 	BYTE c;
-	char *p, *pnl, *s;
+	const char *p, *pnl, *s;
 	char tempstr[128];
 	BOOL doneflag;
 	DWORD currTime;
@@ -163,14 +164,14 @@ void DrawQText()
 		}
 		tx = 48 + PANEL_X;
 		ty += 38;
-		if (ty > 501) {
+		if (ty > 341 + SCREEN_Y + UI_OFFSET_Y) {
 			doneflag = TRUE;
 		}
 	}
 
-	for (currTime = SDL_GetTicks(); qtextSpd + scrolltexty < currTime; qtextSpd += scrolltexty) {
+	for (currTime = SDL_GetTicks(); qtextTime + scrolltexty < currTime; qtextTime += scrolltexty) {
 		qtexty--;
-		if (qtexty <= 209) {
+		if (qtexty <= 49 + SCREEN_Y + UI_OFFSET_Y) {
 			qtexty += 38;
 			qtextptr = pnl;
 			if (*pnl == '|') {

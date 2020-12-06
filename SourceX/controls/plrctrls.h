@@ -2,8 +2,11 @@
 // Controller actions implementation
 
 #include "all.h"
+#include "controller.h"
 
-namespace dvl {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+
+DEVILUTION_BEGIN_NAMESPACE
 
 typedef enum belt_item_type {
 	BLT_HEALING,
@@ -27,6 +30,9 @@ bool InGameMenu();
 // Whether the automap is being displayed.
 bool IsAutomapActive();
 
+// Whether the mouse cursor is being moved with the controller.
+bool IsMovingMouseCursorWithController();
+
 void UseBeltItem(int type);
 
 // Talk to towners, click on inv items, attack, etc.
@@ -37,12 +43,15 @@ void PerformSecondaryAction();
 bool TryDropItem();
 void FocusOnInventory();
 void PerformSpellAction();
+void StoreSpellCoords();
 
 typedef struct coords {
 	int x;
 	int y;
 } coords;
-extern coords speedspellscoords[50];
 extern int speedspellcount;
+extern bool sgbControllerActive;
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
+
+#endif

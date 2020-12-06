@@ -4,7 +4,6 @@
  * Implementation of functions for managing game ticks.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -48,15 +47,14 @@ DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 {
 	DWORD new_cur_turn;
 	int turn, turn_tmp;
-	int curTurnsInTransit;
+	DWORD curTurnsInTransit;
 
 	new_cur_turn = cur_turn;
 	if (!SNetGetTurnsInTransit(&curTurnsInTransit)) {
 		nthread_terminate_game("SNetGetTurnsInTransit");
 		return 0;
 	}
-	while (curTurnsInTransit < gdwTurnsInTransit) {
-		curTurnsInTransit++;
+	while (curTurnsInTransit++ < gdwTurnsInTransit) {
 
 		turn_tmp = turn_upper_bit | new_cur_turn & 0x7FFFFFFF;
 		turn_upper_bit = 0;
@@ -79,7 +77,7 @@ BOOL nthread_recv_turns(BOOL *pfSendAsync)
 	*pfSendAsync = FALSE;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown) {
-		last_tick += 50;
+		last_tick += tick_delay;
 		return TRUE;
 	}
 	sgbSyncCountdown--;
@@ -87,7 +85,7 @@ BOOL nthread_recv_turns(BOOL *pfSendAsync)
 	if (sgbSyncCountdown != 0) {
 
 		*pfSendAsync = TRUE;
-		last_tick += 50;
+		last_tick += tick_delay;
 		return TRUE;
 	}
 	if (!SNetReceiveTurns(0, MAX_PLRS, (char **)glpMsgTbl, gdwMsgLenTbl, (LPDWORD)player_state)) {
@@ -105,9 +103,32 @@ BOOL nthread_recv_turns(BOOL *pfSendAsync)
 		sgbSyncCountdown = 4;
 		multi_msg_countdown();
 		*pfSendAsync = TRUE;
-		last_tick += 50;
+		last_tick += tick_delay;
 		return TRUE;
 	}
+}
+
+static unsigned int nthread_handler(void *data)
+{
+	int delta;
+	BOOL received;
+
+	while (nthread_should_run) {
+		sgMemCrit.Enter();
+		if (!nthread_should_run) {
+			sgMemCrit.Leave();
+			break;
+		}
+		nthread_send_and_recv_turn(0, 0);
+		if (nthread_recv_turns(&received))
+			delta = last_tick - SDL_GetTicks();
+		else
+			delta = tick_delay;
+		sgMemCrit.Leave();
+		if (delta > 0)
+			SDL_Delay(delta);
+	}
+	return 0;
 }
 
 void nthread_set_turn_upper_bit()
@@ -158,7 +179,7 @@ void nthread_start(BOOL set_turn_upper_bit)
 	}
 	if (gdwNormalMsgSize > largestMsgSize)
 		gdwNormalMsgSize = largestMsgSize;
-	if (gbMaxPlayers > 1) {
+	if (gbMaxPlayers != 1) {
 		sgbThreadIsRunning = FALSE;
 		sgMemCrit.Enter();
 		nthread_should_run = TRUE;
@@ -168,32 +189,6 @@ void nthread_start(BOOL set_turn_upper_bit)
 			app_fatal("nthread2:\n%s", err2);
 		}
 	}
-}
-
-unsigned int nthread_handler(void *data)
-{
-	int delta;
-	BOOL received;
-
-	if (nthread_should_run) {
-		while (1) {
-			sgMemCrit.Enter();
-			if (!nthread_should_run)
-				break;
-			nthread_send_and_recv_turn(0, 0);
-			if (nthread_recv_turns(&received))
-				delta = last_tick - SDL_GetTicks();
-			else
-				delta = 50;
-			sgMemCrit.Leave();
-			if (delta > 0)
-				SDL_Delay(delta);
-			if (!nthread_should_run)
-				return 0;
-		}
-		sgMemCrit.Leave();
-	}
-	return 0;
 }
 
 void nthread_cleanup()
@@ -221,6 +216,11 @@ void nthread_ignore_mutex(BOOL bStart)
 	}
 }
 
+/**
+ * @brief Checks if it's time for the logic to advance
+ * @param unused
+ * @return True if the engine should tick
+ */
 BOOL nthread_has_500ms_passed(BOOL unused)
 {
 	DWORD currentTickCount;
@@ -228,7 +228,7 @@ BOOL nthread_has_500ms_passed(BOOL unused)
 
 	currentTickCount = SDL_GetTicks();
 	ticksElapsed = currentTickCount - last_tick;
-	if (gbMaxPlayers == 1 && ticksElapsed > 500) {
+	if (gbMaxPlayers == 1 && ticksElapsed > tick_delay * 10) {
 		last_tick = currentTickCount;
 		ticksElapsed = 0;
 	}

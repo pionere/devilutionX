@@ -2,14 +2,18 @@
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 std::vector<UiItemBase *> vecTitleScreen;
 
 void title_Load()
 {
+#ifdef HELLFIRE
+	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
+#else
 	LoadBackgroundArt("ui_art\\title.pcx");
 	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogos[LOGO_BIG], 15);
+#endif
 }
 
 void title_Free()
@@ -26,11 +30,16 @@ void title_Free()
 
 void UiTitleDialog()
 {
+#ifdef HELLFIRE
+	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
+	vecTitleScreen.push_back(new UiImage(&ArtBackground, /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
+#else
 	UiAddBackground(&vecTitleScreen);
 	UiAddLogo(&vecTitleScreen, LOGO_BIG, 182);
 
-	SDL_Rect rect = { PANEL_LEFT + 49, 410, 550, 26 };
+	SDL_Rect rect = { PANEL_LEFT + 49, (UI_OFFSET_Y + 410), 550, 26 };
 	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect, UIS_MED | UIS_CENTER));
+#endif
 
 	title_Load();
 
@@ -60,9 +69,4 @@ void UiTitleDialog()
 	title_Free();
 }
 
-void UiSetSpawned(BOOL bSpawned)
-{
-	gbSpawned = bSpawned;
-}
-
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

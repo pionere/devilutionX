@@ -4,8 +4,7 @@
  * Implementation of video playback.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
-#include "../SourceX/display.h"
+#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,7 +13,12 @@ BYTE movie_playing;
 /** Should the movie play in a loop. */
 BOOL loop_movie;
 
-void play_movie(char *pszMovie, BOOL user_can_close)
+/**
+ * @brief Start playback of a given video.
+ * @param pszMovie The file name of the video
+ * @param user_can_close Set to false to make the video unskippable.
+ */
+void play_movie(const char *pszMovie, BOOL user_can_close)
 {
 	HANDLE video_stream;
 

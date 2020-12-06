@@ -14,30 +14,31 @@ int stonendx;
 
 void InitDead()
 {
-	int i, d, nd, mi;
+	MonsterStruct *mon;
+	CMonster *cmon;
+	int i, d, nd;
 	int mtypes[MAXMONSTERS];
 
-	for (i = 0; i < MAXMONSTERS; i++)
-		mtypes[i] = 0;
+	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
-
-	for (i = 0; i < nummtypes; i++) {
-		if (mtypes[Monsters[i].mtype] == 0) {
-			for (d = 0; d < 8; d++)
-				dead[nd]._deadData[d] = Monsters[i].Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = Monsters[i].Anims[MA_DEATH].Frames;
-			dead[nd]._deadWidth = Monsters[i].width;
-			dead[nd]._deadWidth2 = Monsters[i].width2;
+	cmon = Monsters;
+	for (i = nummtypes; i > 0; i--, cmon++) {
+		if (mtypes[cmon->mtype] == 0) {
+			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+				dead[nd]._deadData[d] = cmon->Anims[MA_DEATH].Data[d];
+			dead[nd]._deadFrame = cmon->Anims[MA_DEATH].Frames;
+			dead[nd]._deadWidth = cmon->width;
+			dead[nd]._deadWidth2 = cmon->width2;
 			dead[nd]._deadtrans = 0;
-			Monsters[i].mdeadval = nd + 1;
-			mtypes[Monsters[i].mtype] = nd + 1;
+			cmon->mdeadval = nd + 1;
+			mtypes[cmon->mtype] = nd + 1;
 			nd++;
 		}
 	}
 
-	for (d = 0; d < 8; d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mAnimData[0];
+	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mfAnimData[0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;
@@ -45,8 +46,8 @@ void InitDead()
 	spurtndx = nd + 1;
 	nd++;
 
-	for (d = 0; d < 8; d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mAnimData[0];
+	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mfAnimData[0];
 	dead[nd]._deadFrame = 12;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;
@@ -55,15 +56,15 @@ void InitDead()
 	nd++;
 
 	for (i = 0; i < nummonsters; i++) {
-		mi = monstactive[i];
-		if (monster[mi]._uniqtype != 0) {
-			for (d = 0; d < 8; d++)
-				dead[nd]._deadData[d] = monster[mi].MType->Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = monster[mi].MType->Anims[MA_DEATH].Frames;
-			dead[nd]._deadWidth = monster[mi].MType->width;
-			dead[nd]._deadWidth2 = monster[mi].MType->width2;
-			dead[nd]._deadtrans = monster[mi]._uniqtrans + 4;
-			monster[mi]._udeadval = nd + 1;
+		mon = &monster[monstactive[i]];
+		if (mon->_uniqtype != 0) {
+			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+				dead[nd]._deadData[d] = mon->MType->Anims[MA_DEATH].Data[d];
+			dead[nd]._deadFrame = mon->MType->Anims[MA_DEATH].Frames;
+			dead[nd]._deadWidth = mon->MType->width;
+			dead[nd]._deadWidth2 = mon->MType->width2;
+			dead[nd]._deadtrans = mon->_uniqtrans + 4;
+			mon->_udeadval = nd + 1;
 			nd++;
 		}
 	}
@@ -71,9 +72,23 @@ void InitDead()
 	assert(nd <= MAXDEAD);
 }
 
-void AddDead(int dx, int dy, char dv, int ddir)
+void AddDead(int mnum)
 {
-	dDead[dx][dy] = (dv & 0x1F) + (ddir << 5);
+	MonsterStruct *mon;
+	int dx, dy, dir, dv;
+
+	if (mnum >= MAX_PLRS)
+		MonUpdateLeader(mnum);
+
+	mon = &monster[mnum];
+	mon->_mDelFlag = TRUE;
+
+	dx = mon->_mx;
+	dy = mon->_my;
+	dv = mon->_mmode == MM_STONE ? stonendx : (mon->_uniqtype == 0 ? mon->MType->mdeadval : mon->_udeadval);
+	dir = mon->_mdir;
+	dMonster[dx][dy] = 0;
+	dDead[dx][dy] = (dv & 0x1F) + (dir << 5);
 }
 
 void SetDead()

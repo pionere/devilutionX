@@ -1,12 +1,13 @@
-#include "controls/modifier_hints.h"
+#include "modifier_hints.h"
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 
 #include <cstddef>
 
 #include "all.h"
-#include "controls/controller.h"
 #include "controls/game_controls.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -36,7 +37,7 @@ struct CircleMenuHint {
 	    , bottom_w(CalculateTextWidth(bottom))
 	    , left(left)
 	    , left_w(CalculateTextWidth(left))
-	    , x_mid(left_w + SpaceWidth() * 2.5)
+	    , x_mid(left_w + SpaceWidth() * 5 / 2)
 	{
 	}
 
@@ -106,7 +107,7 @@ void DrawCircleMenuHint(const CircleMenuHint &hint, int x, int y)
 }
 
 const int kCircleMarginX = 16;
-const int kCirclesTop = PANEL_TOP - 76;
+const int kCirclesTop = 76;
 
 void DrawStartModifierMenu()
 {
@@ -114,8 +115,8 @@ void DrawStartModifierMenu()
 		return;
 	static const CircleMenuHint kDpad(/*is_dpad=*/true, /*top=*/"Menu", /*right=*/"Inv", /*bottom=*/"Map", /*left=*/"Char");
 	static const CircleMenuHint kButtons(/*is_dpad=*/false, /*top=*/"", /*right=*/"", /*bottom=*/"Spells", /*left=*/"Quests");
-	DrawCircleMenuHint(kDpad, kCircleMarginX, kCirclesTop);
-	DrawCircleMenuHint(kButtons, SCREEN_WIDTH - kButtons.width() - kCircleMarginX, kCirclesTop);
+	DrawCircleMenuHint(kDpad, PANEL_LEFT + kCircleMarginX, PANEL_TOP - kCirclesTop);
+	DrawCircleMenuHint(kButtons, PANEL_LEFT + PANEL_WIDTH - kButtons.width() - kCircleMarginX, PANEL_TOP - kCirclesTop);
 }
 
 void DrawSelectModifierMenu()
@@ -123,7 +124,7 @@ void DrawSelectModifierMenu()
 	if (!select_modifier_active)
 		return;
 	static const CircleMenuHint kSpells(/*is_dpad=*/false, "F6", "F8", "F7", "F5");
-	DrawCircleMenuHint(kSpells, SCREEN_WIDTH - kSpells.width() - kCircleMarginX, kCirclesTop);
+	DrawCircleMenuHint(kSpells, PANEL_LEFT + PANEL_WIDTH - kSpells.width() - kCircleMarginX, PANEL_TOP - kCirclesTop);
 }
 
 } // namespace
@@ -134,4 +135,6 @@ void DrawControllerModifierHints()
 	DrawSelectModifierMenu();
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
+
+#endif

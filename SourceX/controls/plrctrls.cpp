@@ -1,21 +1,22 @@
-#include "controls/plrctrls.h"
+#include "plrctrls.h"
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #include <cstdint>
-#include <algorithm>
 #include <list>
 
-#include "controls/controller.h"
 #include "controls/controller_motion.h"
 #include "controls/game_controls.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 bool sgbControllerActive = false;
 coords speedspellscoords[50];
 const int repeatRate = 100;
 int speedspellcount = 0;
 
-// Native game menu, controlled by simulating a keyboard.
+/**
+ * Native game menu, controlled by simulating a keyboard.
+ */
 bool InGameMenu()
 {
 	return stextflag > 0
@@ -30,9 +31,7 @@ bool InGameMenu()
 namespace {
 
 DWORD invmove = 0;
-int hsr[3] = { 0, 0, 0 }; // hot spell row counts
 int slot = SLOTXY_INV_FIRST;
-int spbslot = 0;
 
 /**
  * Number of angles to turn to face the coordinate
@@ -108,8 +107,8 @@ void FindItemOrObject()
 	int rotations = 5;
 
 	// As the player can not stand on the edge fo the map this is safe from OOB
-	for (int xx = -1; xx < 2; xx++) {
-		for (int yy = -1; yy < 2; yy++) {
+	for (int xx = -1; xx <= 1; xx++) {
+		for (int yy = -1; yy <= 1; yy++) {
 			if (dItem[mx + xx][my + yy] <= 0)
 				continue;
 			int i = dItem[mx + xx][my + yy] - 1;
@@ -131,11 +130,11 @@ void FindItemOrObject()
 	if (leveltype == DTYPE_TOWN || pcursitem != -1)
 		return; // Don't look for objects in town
 
-	for (int xx = -1; xx < 2; xx++) {
-		for (int yy = -1; yy < 2; yy++) {
+	for (int xx = -1; xx <= 1; xx++) {
+		for (int yy = -1; yy <= 1; yy++) {
 			if (dObject[mx + xx][my + yy] == 0)
 				continue;
-			int o = dObject[mx + xx][my + yy] > 0 ? dObject[mx + xx][my + yy] - 1 : -(dObject[mx + xx][my + yy] + 1);
+			int o = dObject[mx + xx][my + yy] >= 0 ? dObject[mx + xx][my + yy] - 1 : -(dObject[mx + xx][my + yy] + 1);
 			if (object[o]._oSelFlag == 0)
 				continue;
 			if (xx == 0 && yy == 0 && object[o]._oDoorFlag)
@@ -155,7 +154,7 @@ void FindItemOrObject()
 
 void CheckTownersNearby()
 {
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < NUM_TOWNERS; i++) {
 		int distance = GetDistance(towner[i]._tx, towner[i]._ty, 2);
 		if (distance == 0)
 			continue;
@@ -185,7 +184,7 @@ bool CanTargetMonster(int mi)
 
 	const int mx = monst._mx;
 	const int my = monst._my;
-	if (!(dFlags[mx][my] & BFLAG_LIT)) // not visable
+	if (!(dFlags[mx][my] & BFLAG_LIT)) // not visible
 		return false;
 	if (dMonster[mx][my] == 0)
 		return false;
@@ -195,20 +194,20 @@ bool CanTargetMonster(int mi)
 
 void FindRangedTarget()
 {
-	int distance, rotations;
-	bool canTalk;
+	int rotations = 0;
+	int distance = 0;
+	bool canTalk = false;
 
 	// The first MAX_PLRS monsters are reserved for players' golems.
 	for (int mi = MAX_PLRS; mi < MAXMONSTERS; mi++) {
-		const MonsterStruct &monst = monster[mi];
-		const int mx = monst._mfutx;
-		const int my = monst._mfuty;
 		if (!CanTargetMonster(mi))
 			continue;
-
 		const bool newCanTalk = CanTalkToMonst(mi);
 		if (pcursmonst != -1 && !canTalk && newCanTalk)
 			continue;
+		const MonsterStruct &mon = monster[mi];
+		const int mx = mon._mfutx;
+		const int my = mon._mfuty;
 		const int newDdistance = GetDistanceRanged(mx, my);
 		const int newRotations = GetRotaryDistance(mx, my);
 		if (pcursmonst != -1 && canTalk == newCanTalk) {
@@ -227,9 +226,9 @@ void FindRangedTarget()
 void FindMeleeTarget()
 {
 	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
-	int maxSteps = 25; // Max steps for FindPath is 25
-	int rotations;
-	bool canTalk;
+	int maxSteps = MAX_PATH_LENGTH; // Max steps for FindPath is 25
+	int rotations = 0;
+	bool canTalk = false;
 
 	struct SearchNode {
 		int x, y;
@@ -248,7 +247,8 @@ void FindMeleeTarget()
 		SearchNode node = queue.front();
 		queue.pop_front();
 
-		for (int i = 0; i < 8; i++) {
+		static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
+		for (int i = 0; i < lengthof(pathxdir); i++) {
 			const int dx = node.x + pathxdir[i];
 			const int dy = node.y + pathydir[i];
 
@@ -264,7 +264,7 @@ void FindMeleeTarget()
 				visited[dx][dy] = true;
 
 				if (dMonster[dx][dy] != 0) {
-					const int mi = dMonster[dx][dy] > 0 ? dMonster[dx][dy] - 1 : -(dMonster[dx][dy] + 1);
+					const int mi = dMonster[dx][dy] >= 0 ? dMonster[dx][dy] - 1 : -(dMonster[dx][dy] + 1);
 					if (CanTargetMonster(mi)) {
 						const bool newCanTalk = CanTalkToMonst(mi);
 						if (pcursmonst != -1 && !canTalk && newCanTalk)
@@ -307,7 +307,9 @@ void CheckMonstersNearby()
 
 void CheckPlayerNearby()
 {
-	int distance, newDdistance, rotations;
+	int newDdistance;
+	int rotations = 0;
+	int distance = 0;
 
 	if (pcursmonst != -1)
 		return;
@@ -363,14 +365,15 @@ int pcursquest;
 
 void FindTrigger()
 {
-	int distance, rotations;
+	int rotations;
+	int distance = 0;
 
 	if (pcursitem != -1 || pcursobj != -1)
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < nummissiles; i++) {
 		int mi = missileactive[i];
-		if (missile[mi]._mitype == MIS_TOWN || missile[mi]._mitype == MIS_RPORTAL) {
+		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
 			int mix = missile[mi]._mix;
 			int miy = missile[mi]._miy;
 			const int newDdistance = GetDistance(mix, miy, 2);
@@ -421,29 +424,30 @@ void FindTrigger()
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
-	CheckTown();
-	CheckRportal();
+	CheckTownPortal();
 }
 
 void Interact()
 {
 	if (leveltype == DTYPE_TOWN && pcursmonst != -1) {
-		NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
+		NetSendCmdLocParam1(TRUE, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
 	} else if (pcursmonst != -1) {
 		if (plr[myplr]._pwtype != WT_RANGED || CanTalkToMonst(pcursmonst)) {
-			NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
+			NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
 		} else {
-			NetSendCmdParam1(true, CMD_RATTACKID, pcursmonst);
+			NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
 		}
 	} else if (leveltype != DTYPE_TOWN && pcursplr != -1 && !FriendlyMode) {
-		NetSendCmdParam1(true, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr);
+		NetSendCmdParam1(TRUE, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr);
 	}
 }
 
 void AttrIncBtnSnap(MoveDirectionY dir)
 {
-	if (dir == MoveDirectionY_NONE)
+	if (dir == MoveDirectionY_NONE) {
+		invmove = 0;
 		return;
+	}
 
 	if (chrbtnactive && plr[myplr]._pStatPts <= 0)
 		return;
@@ -456,11 +460,11 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 
 	// first, find our cursor location
 	int slot = 0;
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
 		if (MouseX >= ChrBtnsRect[i].x
-		    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-		    && MouseY >= ChrBtnsRect[i].y
-		    && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
+		 && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
+		 && MouseY >= ChrBtnsRect[i].y
+		 && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
 			slot = i;
 			break;
 		}
@@ -480,11 +484,18 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 	SetCursorPos(x, y);
 }
 
-// move the cursor around in our inventory
-// if mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
-// small inventory squares are 29x29 (roughly)
+/**
+ * Move the cursor around in our inventory
+ * If mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
+ * small inventory squares are 29x29 (roughly)
+ */
 void InvMove(MoveDirection dir)
 {
+	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
+		invmove = 0;
+		return;
+	}
+
 	DWORD ticks = SDL_GetTicks();
 	if (ticks - invmove < repeatRate) {
 		return;
@@ -494,8 +505,18 @@ void InvMove(MoveDirection dir)
 	int y = MouseY;
 
 	// check which inventory rectangle the mouse is in, if any
-	for (int r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
-		if (x >= InvRect[r].X && x < InvRect[r].X + (INV_SLOT_SIZE_PX + 1) && y >= InvRect[r].Y - (INV_SLOT_SIZE_PX + 1) && y < InvRect[r].Y) {
+	for (int r = 0; r < NUM_XY_SLOTS; r++) {
+		int xo = RIGHT_PANEL;
+		int yo = 0;
+		if (r >= SLOTXY_BELT_FIRST) {
+			xo = PANEL_LEFT;
+			yo = PANEL_TOP;
+		}
+
+		if (x >= InvRect[r].X + xo
+		 && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
+		 && y < InvRect[r].Y + yo) {
 			slot = r;
 			break;
 		}
@@ -509,16 +530,16 @@ void InvMove(MoveDirection dir)
 	// when item is on cursor, this is the real cursor XY
 	if (dir.x == MoveDirectionX_LEFT) {
 		if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_AMULET) {
-			x = InvRect[SLOTXY_HEAD_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_RIGHT) {
-			x = InvRect[SLOTXY_RING_LEFT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_BELT_FIRST) {
 			// do nothing
@@ -528,25 +549,29 @@ void InvMove(MoveDirection dir)
 			                                                                          // do nothing
 		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {           // head
 			                                                                          // do nothing
-		} else if (slot > SLOTXY_INV_FIRST) {                                         // general inventory
+		} else if (slot > SLOTXY_INV_FIRST && slot <= SLOTXY_INV_LAST) {              // general inventory
 			if (slot != SLOTXY_INV_FIRST && slot != 35 && slot != 45 && slot != 55) { // left bounds
 				slot -= 1;
-				x = InvRect[slot].X + (INV_SLOT_SIZE_PX / 2);
+				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
 			}
+		} else if (slot > SLOTXY_BELT_FIRST && slot <= SLOTXY_BELT_LAST) {            // belt
+			slot -= 1;
+			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
 		}
 	} else if (dir.x == MoveDirectionX_RIGHT) {
 		if (slot == SLOTXY_RING_LEFT) {
-			x = InvRect[SLOTXY_RING_RIGHT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) { // head to amulet
-			x = InvRect[SLOTXY_AMULET].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) { // right hand
 			                                                                            // do nothing
@@ -554,74 +579,82 @@ void InvMove(MoveDirection dir)
 			// do nothing
 		} else if (slot == SLOTXY_RING_RIGHT) {
 			// do nothing
-		} else if (slot < SLOTXY_BELT_LAST && slot >= SLOTXY_INV_FIRST) {            // general inventory
+		} else if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_LAST) {            // general inventory
 			if (slot != 34 && slot != 44 && slot != 54 && slot != SLOTXY_INV_LAST) { // right bounds
 				slot += 1;
-				x = InvRect[slot].X + (INV_SLOT_SIZE_PX / 2);
+				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
 			}
+		} else if (slot >= SLOTXY_BELT_FIRST && slot < SLOTXY_BELT_LAST) {           // belt
+			slot += 1;
+			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
 		}
 	}
 	if (dir.y == MoveDirectionY_UP) {
 		if (slot > 24 && slot <= 27) { // first 3 general slots
-			x = InvRect[SLOTXY_RING_LEFT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= 28 && slot <= 32) { // middle 4 general slots
-			x = InvRect[SLOTXY_CHEST_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= 33 && slot < 35) { // last 3 general slots
-			x = InvRect[SLOTXY_RING_RIGHT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) { // chest to head
-			x = InvRect[SLOTXY_HEAD_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_LEFT) { // left ring to left hand
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_RIGHT) { // right ring to right hand
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) { // right hand to amulet
-			x = InvRect[SLOTXY_AMULET].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
 			// do nothing
 		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) { // left hand to head
-			x = InvRect[SLOTXY_HEAD_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_AMULET) {
 			// do nothing
 		} else if (slot >= (SLOTXY_INV_FIRST + 10)) { // general inventory
 			slot -= 10;
-			x = InvRect[slot].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
 		}
 	} else if (dir.y == MoveDirectionY_DOWN) {
 		if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[30].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[30].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) {
-			x = InvRect[SLOTXY_RING_LEFT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_LEFT) {
-			x = InvRect[26].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[26].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[26].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_RIGHT) {
-			x = InvRect[34].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[34].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[34].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_AMULET) {
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
-			x = InvRect[SLOTXY_RING_RIGHT].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot < (SLOTXY_BELT_LAST - 10)) { // general inventory
+		} else if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
 			slot += 10;
-			x = InvRect[slot].X + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+		} else if (slot <= (SLOTXY_BELT_LAST - 10)) { // general inventory
+			slot += 10;
+			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
 		}
 	}
 
@@ -638,11 +671,17 @@ void InvMove(MoveDirection dir)
 	SetCursorPos(x, y);
 }
 
-// check if hot spell at X Y exists
+/**
+ * check if hot spell at X Y exists
+ */
 bool HSExists(int x, int y)
 {
-	for (int r = 0; r < speedspellcount; r++) { // speedbook cells are 56x56
-		if (MouseX >= speedspellscoords[r].x - 28 && MouseX < speedspellscoords[r].x + (28) && MouseY >= speedspellscoords[r].y - (28) && MouseY < speedspellscoords[r].y + 28) {
+	for (int r = 0; r < speedspellcount; r++) {
+		if (x >= speedspellscoords[r].x - SPLICONLENGTH / 2
+			&& x < speedspellscoords[r].x + SPLICONLENGTH / 2
+			&& y >= speedspellscoords[r].y - SPLICONLENGTH / 2
+			&& y < speedspellscoords[r].y + SPLICONLENGTH / 2
+		) {
 			return true;
 		}
 	}
@@ -651,8 +690,10 @@ bool HSExists(int x, int y)
 
 void HotSpellMove(MoveDirection dir)
 {
-	int x = 0;
-	int y = 0;
+	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
+		invmove = 0;
+		return;
+	}
 
 	DWORD ticks = SDL_GetTicks();
 	if (ticks - invmove < repeatRate) {
@@ -660,67 +701,55 @@ void HotSpellMove(MoveDirection dir)
 	}
 	invmove = ticks;
 
-	for (int r = 0; r < speedspellcount; r++) { // speedbook cells are 56x56
-		// our 3 rows by y axis
-		if (speedspellscoords[r].y == 307)
-			hsr[0]++;
-		if (speedspellscoords[r].y == 251)
-			hsr[1]++;
-		if (speedspellscoords[r].y == 195)
-			hsr[2]++;
-		if (MouseX >= speedspellscoords[r].x - 28 && MouseX < speedspellscoords[r].x + (28) && MouseY >= speedspellscoords[r].y - (28) && MouseY < speedspellscoords[r].y + 28) {
+	int spbslot = plr[myplr]._pRSpell;
+	for (int r = 0; r < speedspellcount; r++) {
+		if (MouseX >= speedspellscoords[r].x - SPLICONLENGTH / 2
+			&& MouseX < speedspellscoords[r].x + SPLICONLENGTH / 2
+			&& MouseY >= speedspellscoords[r].y - SPLICONLENGTH / 2
+			&& MouseY < speedspellscoords[r].y + SPLICONLENGTH / 2
+		) {
 			spbslot = r;
-			//sprintf(tempstr, "IN HOT SPELL CELL NUM:%i", r);
-			//NetSendCmdString(1 << myplr, tempstr);
+			break;
+		}
+	}
+
+	int x = speedspellscoords[spbslot].x;
+	int y = speedspellscoords[spbslot].y;
+
+	if (dir.x == MoveDirectionX_LEFT) {
+		if (spbslot < speedspellcount - 1) {
+			x = speedspellscoords[spbslot + 1].x;
+			y = speedspellscoords[spbslot + 1].y;
+		}
+	} else if (dir.x == MoveDirectionX_RIGHT) {
+		if (spbslot > 0) {
+			x = speedspellscoords[spbslot - 1].x;
+			y = speedspellscoords[spbslot - 1].y;
 		}
 	}
 
 	if (dir.y == MoveDirectionY_UP) {
-		if (speedspellscoords[spbslot].y == 307 && hsr[1] > 0) { // we're in row 1, check if row 2 has spells
-			if (HSExists(MouseX, 251)) {
-				x = MouseX;
-				y = 251;
-			}
-		} else if (speedspellscoords[spbslot].y == 251 && hsr[2] > 0) { // we're in row 2, check if row 3 has spells
-			if (HSExists(MouseX, 195)) {
-				x = MouseX;
-				y = 195;
-			}
+		if (HSExists(x, y - SPLICONLENGTH)) {
+			y -= SPLICONLENGTH;
 		}
 	} else if (dir.y == MoveDirectionY_DOWN) {
-		if (speedspellscoords[spbslot].y == 251) { // we're in row 2
-			if (HSExists(MouseX, 307)) {
-				x = MouseX;
-				y = 307;
-			}
-		} else if (speedspellscoords[spbslot].y == 195) { // we're in row 3
-			if (HSExists(MouseX, 251)) {
-				x = MouseX;
-				y = 251;
-			}
+		if (HSExists(x, y + SPLICONLENGTH)) {
+			y += SPLICONLENGTH;
 		}
 	}
-	if (dir.x == MoveDirectionX_LEFT) {
-		if (spbslot >= speedspellcount - 1)
-			return;
-		spbslot++;
-		x = speedspellscoords[spbslot].x;
-		y = speedspellscoords[spbslot].y;
-	} else if (dir.x == MoveDirectionX_RIGHT) {
-		if (spbslot <= 0)
-			return;
-		spbslot--;
-		x = speedspellscoords[spbslot].x;
-		y = speedspellscoords[spbslot].y;
-	}
 
-	if (x > 0 && y > 0) {
+	if (x != MouseX || y != MouseY) {
 		SetCursorPos(x, y);
 	}
 }
 
 void SpellBookMove(MoveDirection dir)
 {
+	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
+		invmove = 0;
+		return;
+	}
+
 	DWORD ticks = SDL_GetTicks();
 	if (ticks - invmove < repeatRate) {
 		return;
@@ -806,7 +835,7 @@ void WalkInDir(MoveDirection dir)
 
 	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
 		if (sgbControllerActive && plr[myplr].walkpath[0] != WALK_NONE && plr[myplr].destAction == ACTION_NONE)
-			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
+			NetSendCmdLoc(TRUE, CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
 
@@ -818,7 +847,7 @@ void WalkInDir(MoveDirection dir)
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
 
-	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
+	NetSendCmdLoc(TRUE, CMD_WALKXY, dx, dy);
 }
 
 void Movement()
@@ -880,9 +909,62 @@ struct RightStickAccumulator {
 
 } // namespace
 
+void StoreSpellCoords()
+{
+	const int START_X = PANEL_LEFT + 12 + SPLICONLENGTH / 2;
+	const int END_X = START_X + SPLICONLENGTH * SPLROWICONLS;
+	const int END_Y = PANEL_TOP - 17 - SPLICONLENGTH / 2;
+	speedspellcount = 0;
+	int xo = END_X;
+	int yo = END_Y;
+	for (int i = 0; i < 4; i++) {
+		std::uint64_t spells;
+		switch (i) {
+		case RSPLTYPE_SKILL:
+			spells = plr[myplr]._pAblSpells;
+			break;
+		case RSPLTYPE_SPELL:
+			spells = plr[myplr]._pMemSpells;
+			break;
+		case RSPLTYPE_SCROLL:
+			spells = plr[myplr]._pScrlSpells;
+			break;
+		case RSPLTYPE_CHARGES:
+			spells = plr[myplr]._pISpells;
+			break;
+		default:
+			continue;
+		}
+		std::uint64_t spell = 1;
+		for (int j = 1; j < MAX_SPELLS; j++) {
+			if ((spell & spells)) {
+				speedspellscoords[speedspellcount] = { xo, yo };
+				++speedspellcount;
+				xo -= SPLICONLENGTH;
+				if (xo < START_X) {
+					xo = END_X;
+					yo -= SPLICONLENGTH;
+				}
+			}
+			spell <<= 1;
+		}
+		if (spells && xo != END_X)
+			xo -= SPLICONLENGTH;
+		if (xo < START_X) {
+			xo = END_X;
+			yo -= SPLICONLENGTH;
+		}
+	}
+}
+
 bool IsAutomapActive()
 {
 	return automapflag && leveltype != DTYPE_TOWN;
+}
+
+bool IsMovingMouseCursorWithController()
+{
+	return rightStickX != 0 || rightStickY != 0;
 }
 
 void HandleRightStickMotion()
@@ -918,7 +1000,7 @@ void HandleRightStickMotion()
  */
 void FocusOnInventory()
 {
-	SetCursorPos(InvRect[25].X + (INV_SLOT_SIZE_PX / 2), InvRect[25].Y - (INV_SLOT_SIZE_PX / 2));
+	SetCursorPos(InvRect[25].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2), InvRect[25].Y - (INV_SLOT_SIZE_PX / 2));
 }
 
 void plrctrls_after_check_curs_move()
@@ -954,16 +1036,17 @@ void plrctrls_after_game_logic()
 
 void UseBeltItem(int type)
 {
-	for (int i = 0; i < MAXBELTITEMS; i++) {
-		const int id = AllItemsList[plr[myplr].SpdList[i].IDidx].iMiscId;
-		const int spellId = AllItemsList[plr[myplr].SpdList[i].IDidx].iSpell;
+	ItemStruct *pi;
+
+	pi = plr[myplr].SpdList;
+	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
+		const int id = AllItemsList[pi->IDidx].iMiscId;
+		const int spellId = AllItemsList[pi->IDidx].iSpell;
 		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (plr[myplr].SpdList[i]._itype > -1) {
-				UseInvItem(myplr, INVITEM_BELT_FIRST + i);
+			if (UseInvItem(myplr, INVITEM_BELT_FIRST + i))
 				break;
-			}
 		}
 	}
 }
@@ -972,8 +1055,8 @@ void PerformPrimaryAction()
 {
 	if (invflag) { // inventory is open
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-			TryIconCurs();
-			SetCursor_(CURSOR_HAND);
+			TryIconCurs(FALSE);
+			NewCursor(CURSOR_HAND);
 		} else {
 			CheckInvItem();
 		}
@@ -985,25 +1068,15 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (chrflag && !chrbtnactive && plr[myplr]._pStatPts > 0) {
-		CheckChrBtns();
-		for (int i = 0; i < 4; i++) {
-			if (MouseX >= ChrBtnsRect[i].x
-			    && MouseX <= ChrBtnsRect[i].x + ChrBtnsRect[i].w
-			    && MouseY >= ChrBtnsRect[i].y
-			    && MouseY <= ChrBtnsRect[i].h + ChrBtnsRect[i].y) {
-				chrbtn[i] = 1;
-				chrbtnactive = true;
-				ReleaseChrBtns();
-			}
-		}
+	if (chrflag && CheckChrBtns()) {
+		ReleaseChrBtns();
 		return;
 	}
 
 	Interact();
 }
 
-bool SpellHasActorTarget()
+static bool SpellHasActorTarget()
 {
 	int spl = plr[myplr]._pRSpell;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
@@ -1017,7 +1090,7 @@ bool SpellHasActorTarget()
 	return pcursplr != -1 || pcursmonst != -1;
 }
 
-void UpdateSpellTarget()
+static void UpdateSpellTarget()
 {
 	if (SpellHasActorTarget())
 		return;
@@ -1042,14 +1115,7 @@ bool TryDropItem()
 {
 	cursmx = plr[myplr]._pfutx + 1;
 	cursmy = plr[myplr]._pfuty;
-	if (!DropItemBeforeTrig()) {
-		// Try to drop on the other side
-		cursmx = plr[myplr]._pfutx;
-		cursmy = plr[myplr]._pfuty + 1;
-		DropItemBeforeTrig();
-	}
-
-	return pcurs == CURSOR_HAND;
+	return DropItem();
 }
 
 void PerformSpellAction()
@@ -1061,8 +1127,8 @@ void PerformSpellAction()
 		if (pcurs >= CURSOR_FIRSTITEM)
 			TryDropItem();
 		else if (pcurs > CURSOR_HAND) {
-			TryIconCurs();
-			SetCursor_(CURSOR_HAND);
+			TryIconCurs(FALSE);
+			NewCursor(CURSOR_HAND);
 		}
 		return;
 	}
@@ -1070,7 +1136,7 @@ void PerformSpellAction()
 	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
 		return;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 
 	if (spselflag) {
 		SetSpell();
@@ -1080,15 +1146,7 @@ void PerformSpellAction()
 	int spl = plr[myplr]._pRSpell;
 	if ((pcursplr == -1 && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
 	    || (pcursobj == -1 && spl == SPL_DISARM)) {
-		if (plr[myplr]._pClass == PC_WARRIOR) {
-			PlaySFX(PS_WARR27);
-#ifndef SPAWN
-		} else if (plr[myplr]._pClass == PC_ROGUE) {
-			PlaySFX(PS_ROGUE27);
-		} else if (plr[myplr]._pClass == PC_SORCERER) {
-			PlaySFX(PS_MAGE27);
-#endif
-		}
+		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
 		return;
 	}
 
@@ -1096,19 +1154,19 @@ void PerformSpellAction()
 	CheckPlrSpell();
 }
 
-void CtrlUseInvItem()
+static void CtrlUseInvItem()
 {
-	ItemStruct *Item;
+	ItemStruct *is;
 
 	if (pcursinvitem == -1)
 		return;
 
 	if (pcursinvitem <= INVITEM_INV_LAST)
-		Item = &plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
+		is = &plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
 	else
-		Item = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
+		is = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
 
-	if ((Item->_iMiscId == IMISC_SCROLLT || Item->_iMiscId == IMISC_SCROLL) && spelldata[Item->_iSpell].sTargeted) {
+	if ((is->_iMiscId == IMISC_SCROLLT || is->_iMiscId == IMISC_SCROLL) && spelldata[is->_iSpell].sTargeted) {
 		return;
 	}
 
@@ -1125,22 +1183,24 @@ void PerformSecondaryAction()
 	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
 		return;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 
 	if (pcursitem != -1) {
-		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(TRUE, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 	} else if (pcursobj != -1) {
-		NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+		NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcursmissile != -1) {
-		MakePlrPath(myplr, missile[pcursmissile]._mix, missile[pcursmissile]._miy, true);
+		MakePlrPath(myplr, missile[pcursmissile]._mix, missile[pcursmissile]._miy, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	} else if (pcurstrig != -1) {
-		MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, true);
+		MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	} else if (pcursquest != -1) {
-		MakePlrPath(myplr, quests[pcursquest]._qtx, quests[pcursquest]._qty, true);
+		MakePlrPath(myplr, quests[pcursquest]._qtx, quests[pcursquest]._qty, TRUE);
 		plr[myplr].destAction = ACTION_WALK;
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
+
+#endif

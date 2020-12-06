@@ -25,12 +25,23 @@
 
 namespace dvl {
 
+inline FILE* FileOpen(const char *path, const char *mode)
+{
+	FILE *file;
+#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
+	fopen_s(&file, path, mode);
+#else
+	file = std::fopen(path, mode);
+#endif
+	return file;
+}
+
 inline bool FileExists(const char *path)
 {
 #if _POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)
 	return ::access(path, F_OK) == 0;
 #else
-	FILE *file = std::fopen(path, "rb");
+	FILE *file = FileOpen(path, "rb");
 	if (file == NULL) return false;
 	std::fclose(file);
 	return true;
@@ -52,7 +63,7 @@ inline bool GetFileSize(const char *path, std::uintmax_t *size)
 		return false;
 	}
 	delete[] path_utf16;
-	*size = (attr.nFileSizeHigh) << (sizeof(attr.nFileSizeHigh) * 8) | attr.nFileSizeLow;
+	*size = (std::uintmax_t)(attr.nFileSizeHigh) << (sizeof(attr.nFileSizeHigh) * 8) | attr.nFileSizeLow;
 	return true;
 #else
 	struct ::stat stat_result;
@@ -94,15 +105,14 @@ inline bool ResizeFile(const char *path, std::uintmax_t size)
 #endif
 }
 
-inline void RemoveFile(char *lpFileName)
+inline void RemoveFile(const char *lpFileName)
 {
 	std::string name = lpFileName;
 	std::replace(name.begin(), name.end(), '\\', '/');
-	FILE *f = fopen(name.c_str(), "r+");
-	if (f) {
+	FILE *f = FileOpen(name.c_str(), "r+");
+	if (f != NULL) {
 		fclose(f);
 		remove(name.c_str());
-		f = NULL;
 		SDL_Log("Removed file: %s", name.c_str());
 	} else {
 		SDL_Log("Failed to remove file: %s", name.c_str());

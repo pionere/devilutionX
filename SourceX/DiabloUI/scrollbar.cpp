@@ -1,6 +1,6 @@
 #include "scrollbar.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 Art ArtScrollBarBackground;
 Art ArtScrollBarThumb;
@@ -18,4 +18,4 @@ void UnloadScrollBar() {
 	ArtScrollBarBackground.Unload();
 }
 
-} // namespace
+DEVILUTION_END_NAMESPACE

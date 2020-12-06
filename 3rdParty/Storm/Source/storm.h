@@ -4,9 +4,6 @@
 #include <string>
 namespace dvl {
 
-extern std::string basePath;
-extern std::string prefPath;
-
 // Note to self: Linker error => forgot a return value in cpp
 
 // Storm API definition
@@ -22,7 +19,7 @@ struct CCritSect {
 	{
 		m_critsect = SDL_CreateMutex();
 		if (m_critsect == NULL) {
-			ErrSdl();
+			app_fatal("Failed to create mutex. (%s)", SDL_GetError());
 		}
 	}
 	~CCritSect()
@@ -32,23 +29,37 @@ struct CCritSect {
 	void Enter()
 	{
 		if (SDL_LockMutex(m_critsect) < 0) {
-			ErrSdl();
+			app_fatal("Failed to lock mutex. (%s)", SDL_GetError());
 		}
 	}
 	void Leave()
 	{
 		if (SDL_UnlockMutex(m_critsect) < 0) {
-			ErrSdl();
+			app_fatal("Failed to unlock mutex. (%s)", SDL_GetError());
 		}
 	}
 };
 #endif
 
+// Game states
+#define GAMESTATE_PRIVATE 0x01
+#define GAMESTATE_FULL    0x02
+#define GAMESTATE_ACTIVE  0x04
+#define GAMESTATE_STARTED 0x08
+#define GAMESTATE_REPLAY  0x80
+
+#define PS_CONNECTED 0x10000
+#define PS_TURN_ARRIVED 0x20000
+#define PS_ACTIVE 0x40000
+
+#define LEAVE_ENDING 0x40000004
+#define LEAVE_DROP 0x40000006
+
 #if defined(__GNUC__) || defined(__cplusplus)
 extern "C" {
 #endif
 
-BOOL STORMAPI SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, char *creatorName, char *a11, int *playerID);
+BOOL STORMAPI SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, const char *creatorName, const char *a11, int *playerID);
 BOOL STORMAPI SNetDestroy();
 
 /*  SNetDropPlayer @ 106
@@ -74,7 +85,6 @@ SNetDropPlayer(
  *  type:         The type of data to retrieve. See GAMEINFO_ flags.
  *  dst:          The destination buffer for the data.
  *  length:       The maximum size of the destination buffer.
- *  byteswritten: The number of bytes written to the destination buffer.
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
@@ -83,8 +93,7 @@ STORMAPI
 SNetGetGameInfo(
     int type,
     void *dst,
-    unsigned int length,
-    unsigned int *byteswritten);
+    unsigned int length);
 
 /*  SNetGetTurnsInTransit @ 115
  *
@@ -98,7 +107,7 @@ SNetGetGameInfo(
 BOOL
 STORMAPI
 SNetGetTurnsInTransit(
-      int *turns);
+      DWORD *turns);
 
 // Network provider structures
 typedef struct _client_info
@@ -259,7 +268,7 @@ void *
     STORMAPI
     SMemAlloc(
         unsigned int amount,
-        char *logfilename,
+        const char *logfilename,
         int logline,
         int defaultValue);
 
@@ -279,19 +288,17 @@ BOOL
 STORMAPI
 SMemFree(
     void *location,
-    char *logfilename,
+    const char *logfilename,
     int  logline,
     char defaultValue);
 
-void GetBasePath(char *buffer, size_t size);
-void GetPrefPath(char *buffer, size_t size);
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue = false);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize = NULL);
 void setIniValue(const char *sectionName, const char *keyName, char *value, int len = 0);
 BOOL STORMAPI SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *value);
 BOOL STORMAPI SRegSaveValue(const char *keyname, const char *valuename, BYTE flags, DWORD result);
 
-void SVidPlayBegin(char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video);
+void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video);
 void SVidPlayEnd(HANDLE video);
 
 /*  SErrGetLastError @ 463
@@ -332,16 +339,15 @@ SErrSetLastError(
  *  src:          The source array.
  *  max_length:   The maximum length of dest.
  *
- *  Returns the number of characters copied.
  */
-int
+void
 STORMAPI
 SStrCopy(
     char *dest,
     const char *src,
     int max_length);
 
-BOOL SFileSetBasePath(char *);
+BOOL SFileSetBasePath(const char *);
 BOOL SVidPlayContinue(void);
 BOOL SNetGetOwnerTurnsWaiting(DWORD *);
 BOOL SNetUnregisterEventHandler(int, SEVTHANDLER);

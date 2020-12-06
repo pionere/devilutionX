@@ -299,7 +299,8 @@ bool STORMAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSear
         if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0)
         {
             // Check the pseudo-file name
-            if((bOpenByIndex = IsPseudoFileName(szFileName, &dwFileIndex)) == true)
+			bOpenByIndex = IsPseudoFileName(szFileName, &dwFileIndex);
+			if (bOpenByIndex)
             {
                 // Get the file entry for the file
                 if(dwFileIndex < ha->dwFileTableSize)

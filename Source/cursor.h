@@ -15,9 +15,10 @@ extern "C" {
 extern int cursW;
 extern int cursH;
 extern int pcursmonst;
-extern int icursW28;
-extern int icursH28;
 extern BYTE *pCursCels;
+#ifdef HELLFIRE
+extern BYTE *pCursCels2;
+#endif
 extern int icursH;
 extern char pcursinvitem;
 extern int icursW;
@@ -26,20 +27,17 @@ extern char pcursobj;
 extern char pcursplr;
 extern int cursmx;
 extern int cursmy;
-extern int pcurstemp;
 extern int pcurs;
 
 void InitCursor();
 void FreeCursor();
-void SetICursor(int i);
-void SetCursor_(int i);
 void NewCursor(int i);
 void InitLevelCursor();
-void CheckTown();
-void CheckRportal();
+void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */
+#define MAX_CURSOR_AREA		8192
 extern const int InvItemWidth[];
 extern const int InvItemHeight[];
 

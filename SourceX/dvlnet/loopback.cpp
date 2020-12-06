@@ -1,7 +1,7 @@
-#include "dvlnet/loopback.h"
+#include "loopback.h"
 #include "stubs.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 int loopback::create(std::string addrstr, std::string passwd)
@@ -99,11 +99,11 @@ bool loopback::SNetGetOwnerTurnsWaiting(DWORD *turns)
 	return true;
 }
 
-bool loopback::SNetGetTurnsInTransit(int *turns)
+bool loopback::SNetGetTurnsInTransit(DWORD *turns)
 {
 	*turns = 0;
 	return true;
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

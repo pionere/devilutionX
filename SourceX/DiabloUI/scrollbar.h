@@ -3,12 +3,12 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern Art ArtScrollBarBackground;
 extern Art ArtScrollBarThumb;
 extern Art ArtScrollBarArrow;
-const Uint16 SCROLLBAR_BG_WIDTH = 25;
+const int SCROLLBAR_BG_WIDTH = 25;
 
 extern Art ArtScrollBarArrow;
 enum ScrollBarArrowFrame {
@@ -19,7 +19,7 @@ enum ScrollBarArrowFrame {
 };
 
 extern Art ArtScrollBarThumb;
-const Uint16 SCROLLBAR_ARROW_WIDTH = 25;
+const int SCROLLBAR_ARROW_WIDTH = 25;
 
 inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 {
@@ -77,4 +77,4 @@ inline SDL_Rect ThumbRect(const UiScrollBar *sb, std::size_t selected_index, std
 void LoadScrollBar();
 void UnloadScrollBar();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

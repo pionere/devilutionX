@@ -1,4 +1,4 @@
-#include "dvlnet/tcp_client.h"
+#include "tcp_client.h"
 
 #include <functional>
 #include <exception>
@@ -10,7 +10,7 @@
 
 #include <asio/connect.hpp>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 int tcp_client::create(std::string addrstr, std::string passwd)
@@ -130,4 +130,4 @@ tcp_client::~tcp_client()
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

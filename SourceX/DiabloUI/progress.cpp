@@ -6,7 +6,7 @@
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/fonts.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 Art dialogArt;
 char dialogText[256];
@@ -31,7 +31,7 @@ void DialogActionCancel()
 //	UiImage(&progressArt, { PANEL_LEFT + 205, 220, 228, 38 }),
 //};
 
-void progress_Load(char *msg)
+void progress_Load(const char *msg)
 {
 	LoadBackgroundArt("ui_art\\black.pcx");
 	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
@@ -92,7 +92,7 @@ void progress_Render(BYTE progress)
 	}
 }
 
-BOOL UiProgressDialog(char *msg, int enable, int (*fnfunc)(), int rate)
+BOOL UiProgressDialog(const char *msg, int enable, int (*fnfunc)(), int rate)
 {
 	progress_Load(msg);
 	SetFadeLevel(256);
@@ -133,4 +133,4 @@ BOOL UiProgressDialog(char *msg, int enable, int (*fnfunc)(), int rate)
 	return progress == 100;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

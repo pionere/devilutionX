@@ -19,7 +19,6 @@ BOOL dolighting;
 BYTE lightblock[64][16][16];
 int visionid;
 BYTE *pLightTbl;
-BOOL lightflag;
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -45,262 +44,262 @@ BOOL lightflag;
  *    +-------> x
  */
 char CrawlTable[2749] = {
-	1,
-	0, 0,
-	4,
-	0, 1, 0, -1, -1, 0, 1, 0,
-	16,
-	0, 2, 0, -2, -1, 2, 1, 2,
-	-1, -2, 1, -2, -1, 1, 1, 1,
-	-1, -1, 1, -1, -2, 1, 2, 1,
-	-2, -1, 2, -1, -2, 0, 2, 0,
-	24,
-	0, 3, 0, -3, -1, 3, 1, 3,
-	-1, -3, 1, -3, -2, 3, 2, 3,
-	-2, -3, 2, -3, -2, 2, 2, 2,
-	-2, -2, 2, -2, -3, 2, 3, 2,
-	-3, -2, 3, -2, -3, 1, 3, 1,
-	-3, -1, 3, -1, -3, 0, 3, 0,
-	32,
-	0, 4, 0, -4, -1, 4, 1, 4,
-	-1, -4, 1, -4, -2, 4, 2, 4,
-	-2, -4, 2, -4, -3, 4, 3, 4,
-	-3, -4, 3, -4, -3, 3, 3, 3,
-	-3, -3, 3, -3, -4, 3, 4, 3,
-	-4, -3, 4, -3, -4, 2, 4, 2,
-	-4, -2, 4, -2, -4, 1, 4, 1,
-	-4, -1, 4, -1, -4, 0, 4, 0,
-	40,
-	0, 5, 0, -5, -1, 5, 1, 5,
-	-1, -5, 1, -5, -2, 5, 2, 5,
-	-2, -5, 2, -5, -3, 5, 3, 5,
-	-3, -5, 3, -5, -4, 5, 4, 5,
-	-4, -5, 4, -5, -4, 4, 4, 4,
-	-4, -4, 4, -4, -5, 4, 5, 4,
-	-5, -4, 5, -4, -5, 3, 5, 3,
-	-5, -3, 5, -3, -5, 2, 5, 2,
-	-5, -2, 5, -2, -5, 1, 5, 1,
-	-5, -1, 5, -1, -5, 0, 5, 0,
-	48,
-	0, 6, 0, -6, -1, 6, 1, 6,
-	-1, -6, 1, -6, -2, 6, 2, 6,
-	-2, -6, 2, -6, -3, 6, 3, 6,
-	-3, -6, 3, -6, -4, 6, 4, 6,
-	-4, -6, 4, -6, -5, 6, 5, 6,
-	-5, -6, 5, -6, -5, 5, 5, 5,
-	-5, -5, 5, -5, -6, 5, 6, 5,
-	-6, -5, 6, -5, -6, 4, 6, 4,
-	-6, -4, 6, -4, -6, 3, 6, 3,
-	-6, -3, 6, -3, -6, 2, 6, 2,
-	-6, -2, 6, -2, -6, 1, 6, 1,
-	-6, -1, 6, -1, -6, 0, 6, 0,
-	56,
-	0, 7, 0, -7, -1, 7, 1, 7,
-	-1, -7, 1, -7, -2, 7, 2, 7,
-	-2, -7, 2, -7, -3, 7, 3, 7,
-	-3, -7, 3, -7, -4, 7, 4, 7,
-	-4, -7, 4, -7, -5, 7, 5, 7,
-	-5, -7, 5, -7, -6, 7, 6, 7,
-	-6, -7, 6, -7, -6, 6, 6, 6,
-	-6, -6, 6, -6, -7, 6, 7, 6,
-	-7, -6, 7, -6, -7, 5, 7, 5,
-	-7, -5, 7, -5, -7, 4, 7, 4,
-	-7, -4, 7, -4, -7, 3, 7, 3,
-	-7, -3, 7, -3, -7, 2, 7, 2,
-	-7, -2, 7, -2, -7, 1, 7, 1,
-	-7, -1, 7, -1, -7, 0, 7, 0,
-	64,
-	0, 8, 0, -8, -1, 8, 1, 8,
-	-1, -8, 1, -8, -2, 8, 2, 8,
-	-2, -8, 2, -8, -3, 8, 3, 8,
-	-3, -8, 3, -8, -4, 8, 4, 8,
-	-4, -8, 4, -8, -5, 8, 5, 8,
-	-5, -8, 5, -8, -6, 8, 6, 8,
-	-6, -8, 6, -8, -7, 8, 7, 8,
-	-7, -8, 7, -8, -7, 7, 7, 7,
-	-7, -7, 7, -7, -8, 7, 8, 7,
-	-8, -7, 8, -7, -8, 6, 8, 6,
-	-8, -6, 8, -6, -8, 5, 8, 5,
-	-8, -5, 8, -5, -8, 4, 8, 4,
-	-8, -4, 8, -4, -8, 3, 8, 3,
-	-8, -3, 8, -3, -8, 2, 8, 2,
-	-8, -2, 8, -2, -8, 1, 8, 1,
-	-8, -1, 8, -1, -8, 0, 8, 0,
-	72,
-	0, 9, 0, -9, -1, 9, 1, 9,
-	-1, -9, 1, -9, -2, 9, 2, 9,
-	-2, -9, 2, -9, -3, 9, 3, 9,
-	-3, -9, 3, -9, -4, 9, 4, 9,
-	-4, -9, 4, -9, -5, 9, 5, 9,
-	-5, -9, 5, -9, -6, 9, 6, 9,
-	-6, -9, 6, -9, -7, 9, 7, 9,
-	-7, -9, 7, -9, -8, 9, 8, 9,
-	-8, -9, 8, -9, -8, 8, 8, 8,
-	-8, -8, 8, -8, -9, 8, 9, 8,
-	-9, -8, 9, -8, -9, 7, 9, 7,
-	-9, -7, 9, -7, -9, 6, 9, 6,
-	-9, -6, 9, -6, -9, 5, 9, 5,
-	-9, -5, 9, -5, -9, 4, 9, 4,
-	-9, -4, 9, -4, -9, 3, 9, 3,
-	-9, -3, 9, -3, -9, 2, 9, 2,
-	-9, -2, 9, -2, -9, 1, 9, 1,
-	-9, -1, 9, -1, -9, 0, 9, 0,
-	80,
-	0, 10, 0, -10, -1, 10, 1, 10,
-	-1, -10, 1, -10, -2, 10, 2, 10,
-	-2, -10, 2, -10, -3, 10, 3, 10,
-	-3, -10, 3, -10, -4, 10, 4, 10,
-	-4, -10, 4, -10, -5, 10, 5, 10,
-	-5, -10, 5, -10, -6, 10, 6, 10,
-	-6, -10, 6, -10, -7, 10, 7, 10,
-	-7, -10, 7, -10, -8, 10, 8, 10,
-	-8, -10, 8, -10, -9, 10, 9, 10,
-	-9, -10, 9, -10, -9, 9, 9, 9,
-	-9, -9, 9, -9, -10, 9, 10, 9,
-	-10, -9, 10, -9, -10, 8, 10, 8,
-	-10, -8, 10, -8, -10, 7, 10, 7,
-	-10, -7, 10, -7, -10, 6, 10, 6,
-	-10, -6, 10, -6, -10, 5, 10, 5,
-	-10, -5, 10, -5, -10, 4, 10, 4,
-	-10, -4, 10, -4, -10, 3, 10, 3,
-	-10, -3, 10, -3, -10, 2, 10, 2,
-	-10, -2, 10, -2, -10, 1, 10, 1,
-	-10, -1, 10, -1, -10, 0, 10, 0,
-	88,
-	0, 11, 0, -11, -1, 11, 1, 11,
-	-1, -11, 1, -11, -2, 11, 2, 11,
-	-2, -11, 2, -11, -3, 11, 3, 11,
-	-3, -11, 3, -11, -4, 11, 4, 11,
-	-4, -11, 4, -11, -5, 11, 5, 11,
-	-5, -11, 5, -11, -6, 11, 6, 11,
-	-6, -11, 6, -11, -7, 11, 7, 11,
-	-7, -11, 7, -11, -8, 11, 8, 11,
-	-8, -11, 8, -11, -9, 11, 9, 11,
-	-9, -11, 9, -11, -10, 11, 10, 11,
-	-10, -11, 10, -11, -10, 10, 10, 10,
-	-10, -10, 10, -10, -11, 10, 11, 10,
-	-11, -10, 11, -10, -11, 9, 11, 9,
-	-11, -9, 11, -9, -11, 8, 11, 8,
-	-11, -8, 11, -8, -11, 7, 11, 7,
-	-11, -7, 11, -7, -11, 6, 11, 6,
-	-11, -6, 11, -6, -11, 5, 11, 5,
-	-11, -5, 11, -5, -11, 4, 11, 4,
-	-11, -4, 11, -4, -11, 3, 11, 3,
-	-11, -3, 11, -3, -11, 2, 11, 2,
-	-11, -2, 11, -2, -11, 1, 11, 1,
-	-11, -1, 11, -1, -11, 0, 11, 0,
-	96,
-	0, 12, 0, -12, -1, 12, 1, 12,
-	-1, -12, 1, -12, -2, 12, 2, 12,
-	-2, -12, 2, -12, -3, 12, 3, 12,
-	-3, -12, 3, -12, -4, 12, 4, 12,
-	-4, -12, 4, -12, -5, 12, 5, 12,
-	-5, -12, 5, -12, -6, 12, 6, 12,
-	-6, -12, 6, -12, -7, 12, 7, 12,
-	-7, -12, 7, -12, -8, 12, 8, 12,
-	-8, -12, 8, -12, -9, 12, 9, 12,
-	-9, -12, 9, -12, -10, 12, 10, 12,
-	-10, -12, 10, -12, -11, 12, 11, 12,
-	-11, -12, 11, -12, -11, 11, 11, 11,
-	-11, -11, 11, -11, -12, 11, 12, 11,
-	-12, -11, 12, -11, -12, 10, 12, 10,
-	-12, -10, 12, -10, -12, 9, 12, 9,
-	-12, -9, 12, -9, -12, 8, 12, 8,
-	-12, -8, 12, -8, -12, 7, 12, 7,
-	-12, -7, 12, -7, -12, 6, 12, 6,
-	-12, -6, 12, -6, -12, 5, 12, 5,
-	-12, -5, 12, -5, -12, 4, 12, 4,
-	-12, -4, 12, -4, -12, 3, 12, 3,
-	-12, -3, 12, -3, -12, 2, 12, 2,
-	-12, -2, 12, -2, -12, 1, 12, 1,
-	-12, -1, 12, -1, -12, 0, 12, 0,
-	104,
-	0, 13, 0, -13, -1, 13, 1, 13,
-	-1, -13, 1, -13, -2, 13, 2, 13,
-	-2, -13, 2, -13, -3, 13, 3, 13,
-	-3, -13, 3, -13, -4, 13, 4, 13,
-	-4, -13, 4, -13, -5, 13, 5, 13,
-	-5, -13, 5, -13, -6, 13, 6, 13,
-	-6, -13, 6, -13, -7, 13, 7, 13,
-	-7, -13, 7, -13, -8, 13, 8, 13,
-	-8, -13, 8, -13, -9, 13, 9, 13,
-	-9, -13, 9, -13, -10, 13, 10, 13,
-	-10, -13, 10, -13, -11, 13, 11, 13,
-	-11, -13, 11, -13, -12, 13, 12, 13,
-	-12, -13, 12, -13, -12, 12, 12, 12,
-	-12, -12, 12, -12, -13, 12, 13, 12,
-	-13, -12, 13, -12, -13, 11, 13, 11,
-	-13, -11, 13, -11, -13, 10, 13, 10,
-	-13, -10, 13, -10, -13, 9, 13, 9,
-	-13, -9, 13, -9, -13, 8, 13, 8,
-	-13, -8, 13, -8, -13, 7, 13, 7,
-	-13, -7, 13, -7, -13, 6, 13, 6,
-	-13, -6, 13, -6, -13, 5, 13, 5,
-	-13, -5, 13, -5, -13, 4, 13, 4,
-	-13, -4, 13, -4, -13, 3, 13, 3,
-	-13, -3, 13, -3, -13, 2, 13, 2,
-	-13, -2, 13, -2, -13, 1, 13, 1,
-	-13, -1, 13, -1, -13, 0, 13, 0,
-	112,
-	0, 14, 0, -14, -1, 14, 1, 14,
-	-1, -14, 1, -14, -2, 14, 2, 14,
-	-2, -14, 2, -14, -3, 14, 3, 14,
-	-3, -14, 3, -14, -4, 14, 4, 14,
-	-4, -14, 4, -14, -5, 14, 5, 14,
-	-5, -14, 5, -14, -6, 14, 6, 14,
-	-6, -14, 6, -14, -7, 14, 7, 14,
-	-7, -14, 7, -14, -8, 14, 8, 14,
-	-8, -14, 8, -14, -9, 14, 9, 14,
-	-9, -14, 9, -14, -10, 14, 10, 14,
-	-10, -14, 10, -14, -11, 14, 11, 14,
-	-11, -14, 11, -14, -12, 14, 12, 14,
-	-12, -14, 12, -14, -13, 14, 13, 14,
-	-13, -14, 13, -14, -13, 13, 13, 13,
-	-13, -13, 13, -13, -14, 13, 14, 13,
-	-14, -13, 14, -13, -14, 12, 14, 12,
-	-14, -12, 14, -12, -14, 11, 14, 11,
-	-14, -11, 14, -11, -14, 10, 14, 10,
-	-14, -10, 14, -10, -14, 9, 14, 9,
-	-14, -9, 14, -9, -14, 8, 14, 8,
-	-14, -8, 14, -8, -14, 7, 14, 7,
-	-14, -7, 14, -7, -14, 6, 14, 6,
-	-14, -6, 14, -6, -14, 5, 14, 5,
-	-14, -5, 14, -5, -14, 4, 14, 4,
-	-14, -4, 14, -4, -14, 3, 14, 3,
-	-14, -3, 14, -3, -14, 2, 14, 2,
-	-14, -2, 14, -2, -14, 1, 14, 1,
-	-14, -1, 14, -1, -14, 0, 14, 0,
-	120,
-	0, 15, 0, -15, -1, 15, 1, 15,
-	-1, -15, 1, -15, -2, 15, 2, 15,
-	-2, -15, 2, -15, -3, 15, 3, 15,
-	-3, -15, 3, -15, -4, 15, 4, 15,
-	-4, -15, 4, -15, -5, 15, 5, 15,
-	-5, -15, 5, -15, -6, 15, 6, 15,
-	-6, -15, 6, -15, -7, 15, 7, 15,
-	-7, -15, 7, -15, -8, 15, 8, 15,
-	-8, -15, 8, -15, -9, 15, 9, 15,
-	-9, -15, 9, -15, -10, 15, 10, 15,
-	-10, -15, 10, -15, -11, 15, 11, 15,
-	-11, -15, 11, -15, -12, 15, 12, 15,
-	-12, -15, 12, -15, -13, 15, 13, 15,
-	-13, -15, 13, -15, -14, 15, 14, 15,
-	-14, -15, 14, -15, -14, 14, 14, 14,
-	-14, -14, 14, -14, -15, 14, 15, 14,
-	-15, -14, 15, -14, -15, 13, 15, 13,
-	-15, -13, 15, -13, -15, 12, 15, 12,
-	-15, -12, 15, -12, -15, 11, 15, 11,
-	-15, -11, 15, -11, -15, 10, 15, 10,
-	-15, -10, 15, -10, -15, 9, 15, 9,
-	-15, -9, 15, -9, -15, 8, 15, 8,
-	-15, -8, 15, -8, -15, 7, 15, 7,
-	-15, -7, 15, -7, -15, 6, 15, 6,
-	-15, -6, 15, -6, -15, 5, 15, 5,
-	-15, -5, 15, -5, -15, 4, 15, 4,
-	-15, -4, 15, -4, -15, 3, 15, 3,
-	-15, -3, 15, -3, -15, 2, 15, 2,
-	-15, -2, 15, -2, -15, 1, 15, 1,
-	-15, -1, 15, -1, -15, 0, 15, 0,
+	1,										//  0 - 0
+	  0,  0,
+	4,										//  1 - 3
+	  0,  1,    0, -1,   -1,  0,    1,  0,
+	16,										//  2 - 12
+	  0,  2,    0, -2,   -1,  2,    1,  2,
+	 -1, -2,    1, -2,   -1,  1,    1,  1,
+	 -1, -1,    1, -1,   -2,  1,    2,  1,
+	 -2, -1,    2, -1,   -2,  0,    2,  0,
+	24,						 				//  3 - 45
+	  0,  3,    0, -3,   -1,  3,    1,  3,
+	 -1, -3,    1, -3,   -2,  3,    2,  3,
+	 -2, -3,    2, -3,   -2,  2,    2,  2,
+	 -2, -2,    2, -2,   -3,  2,    3,  2,
+	 -3, -2,    3, -2,   -3,  1,    3,  1,
+	 -3, -1,    3, -1,   -3,  0,    3,  0,
+	32,										//  4 - 94
+	  0,  4,    0, -4,   -1,  4,    1,  4,
+	 -1, -4,    1, -4,   -2,  4,    2,  4,
+	 -2, -4,    2, -4,   -3,  4,    3,  4,
+	 -3, -4,    3, -4,   -3,  3,    3,  3,
+	 -3, -3,    3, -3,   -4,  3,    4,  3,
+	 -4, -3,    4, -3,   -4,  2,    4,  2,
+	 -4, -2,    4, -2,   -4,  1,    4,  1,
+	 -4, -1,    4, -1,   -4,  0,    4,  0,
+	40,							 			//  5 - 159
+	  0,  5,    0, -5,   -1,  5,    1,  5,
+	 -1, -5,    1, -5,   -2,  5,    2,  5,
+	 -2, -5,    2, -5,   -3,  5,    3,  5,
+	 -3, -5,    3, -5,   -4,  5,    4,  5,
+	 -4, -5,    4, -5,   -4,  4,    4,  4,
+	 -4, -4,    4, -4,   -5,  4,    5,  4,
+	 -5, -4,    5, -4,   -5,  3,    5,  3,
+	 -5, -3,    5, -3,   -5,  2,    5,  2,
+	 -5, -2,    5, -2,   -5,  1,    5,  1,
+	 -5, -1,    5, -1,   -5,  0,    5,  0,
+	48,										//  6 - 240
+	  0,  6,    0, -6,   -1,  6,    1,  6,
+	 -1, -6,    1, -6,   -2,  6,    2,  6,
+	 -2, -6,    2, -6,   -3,  6,    3,  6,
+	 -3, -6,    3, -6,   -4,  6,    4,  6,
+	 -4, -6,    4, -6,   -5,  6,    5,  6,
+	 -5, -6,    5, -6,   -5,  5,    5,  5,
+	 -5, -5,    5, -5,   -6,  5,    6,  5,
+	 -6, -5,    6, -5,   -6,  4,    6,  4,
+	 -6, -4,    6, -4,   -6,  3,    6,  3,
+	 -6, -3,    6, -3,   -6,  2,    6,  2,
+	 -6, -2,    6, -2,   -6,  1,    6,  1,
+	 -6, -1,    6, -1,   -6,  0,    6,  0,
+	56,										//  7 - 337
+	  0,  7,    0, -7,   -1,  7,    1,  7,
+	 -1, -7,    1, -7,   -2,  7,    2,  7,
+	 -2, -7,    2, -7,   -3,  7,    3,  7,
+	 -3, -7,    3, -7,   -4,  7,    4,  7,
+	 -4, -7,    4, -7,   -5,  7,    5,  7,
+	 -5, -7,    5, -7,   -6,  7,    6,  7,
+	 -6, -7,    6, -7,   -6,  6,    6,  6,
+	 -6, -6,    6, -6,   -7,  6,    7,  6,
+	 -7, -6,    7, -6,   -7,  5,    7,  5,
+	 -7, -5,    7, -5,   -7,  4,    7,  4,
+	 -7, -4,    7, -4,   -7,  3,    7,  3,
+	 -7, -3,    7, -3,   -7,  2,    7,  2,
+	 -7, -2,    7, -2,   -7,  1,    7,  1,
+	 -7, -1,    7, -1,   -7,  0,    7,  0,
+	64,										//  8 - 450
+	  0,  8,    0, -8,   -1,  8,    1,  8,
+	 -1, -8,    1, -8,   -2,  8,    2,  8,
+	 -2, -8,    2, -8,   -3,  8,    3,  8,
+	 -3, -8,    3, -8,   -4,  8,    4,  8,
+	 -4, -8,    4, -8,   -5,  8,    5,  8,
+	 -5, -8,    5, -8,   -6,  8,    6,  8,
+	 -6, -8,    6, -8,   -7,  8,    7,  8,
+	 -7, -8,    7, -8,   -7,  7,    7,  7,
+	 -7, -7,    7, -7,   -8,  7,    8,  7,
+	 -8, -7,    8, -7,   -8,  6,    8,  6,
+	 -8, -6,    8, -6,   -8,  5,    8,  5,
+	 -8, -5,    8, -5,   -8,  4,    8,  4,
+	 -8, -4,    8, -4,   -8,  3,    8,  3,
+	 -8, -3,    8, -3,   -8,  2,    8,  2,
+	 -8, -2,    8, -2,   -8,  1,    8,  1,
+	 -8, -1,    8, -1,   -8,  0,    8,  0,
+	72,										//  9 - 579
+	  0,  9,    0, -9,   -1,  9,    1,  9,
+	 -1, -9,    1, -9,   -2,  9,    2,  9,
+	 -2, -9,    2, -9,   -3,  9,    3,  9,
+	 -3, -9,    3, -9,   -4,  9,    4,  9,
+	 -4, -9,    4, -9,   -5,  9,    5,  9,
+	 -5, -9,    5, -9,   -6,  9,    6,  9,
+	 -6, -9,    6, -9,   -7,  9,    7,  9,
+	 -7, -9,    7, -9,   -8,  9,    8,  9,
+	 -8, -9,    8, -9,   -8,  8,    8,  8,
+	 -8, -8,    8, -8,   -9,  8,    9,  8,
+	 -9, -8,    9, -8,   -9,  7,    9,  7,
+	 -9, -7,    9, -7,   -9,  6,    9,  6,
+	 -9, -6,    9, -6,   -9,  5,    9,  5,
+	 -9, -5,    9, -5,   -9,  4,    9,  4,
+	 -9, -4,    9, -4,   -9,  3,    9,  3,
+	 -9, -3,    9, -3,   -9,  2,    9,  2,
+	 -9, -2,    9, -2,   -9,  1,    9,  1,
+	 -9, -1,    9, -1,   -9,  0,    9,  0,
+	80,										// 10 - 724
+	  0, 10,    0,-10,   -1, 10,    1, 10,
+	 -1,-10,    1,-10,   -2, 10,    2, 10,
+	 -2,-10,    2,-10,   -3, 10,    3, 10,
+	 -3,-10,    3,-10,   -4, 10,    4, 10,
+	 -4,-10,    4,-10,   -5, 10,    5, 10,
+	 -5,-10,    5,-10,   -6, 10,    6, 10,
+	 -6,-10,    6,-10,   -7, 10,    7, 10,
+	 -7,-10,    7,-10,   -8, 10,    8, 10,
+	 -8,-10,    8,-10,   -9, 10,    9, 10,
+	 -9,-10,    9,-10,   -9,  9,    9,  9,
+	 -9, -9,    9, -9,  -10,  9,   10,  9,
+	-10, -9,   10, -9,  -10,  8,   10,  8,
+	-10, -8,   10, -8,  -10,  7,   10,  7,
+	-10, -7,   10, -7,  -10,  6,   10,  6,
+	-10, -6,   10, -6,  -10,  5,   10,  5,
+	-10, -5,   10, -5,  -10,  4,   10,  4,
+	-10, -4,   10, -4,  -10,  3,   10,  3,
+	-10, -3,   10, -3,  -10,  2,   10,  2,
+	-10, -2,   10, -2,  -10,  1,   10,  1,
+	-10, -1,   10, -1,  -10,  0,   10,  0,
+	88,										// 11 - 885
+	  0, 11,    0,-11,   -1, 11,    1, 11,
+	 -1,-11,    1,-11,   -2, 11,    2, 11,
+	 -2,-11,    2,-11,   -3, 11,    3, 11,
+	 -3,-11,    3,-11,   -4, 11,    4, 11,
+	 -4,-11,    4,-11,   -5, 11,    5, 11,
+	 -5,-11,    5,-11,   -6, 11,    6, 11,
+	 -6,-11,    6,-11,   -7, 11,    7, 11,
+	 -7,-11,    7,-11,   -8, 11,    8, 11,
+	 -8,-11,    8,-11,   -9, 11,    9, 11,
+	 -9,-11,    9,-11,  -10, 11,   10, 11,
+	-10,-11,   10,-11,  -10, 10,   10, 10,
+	-10,-10,   10,-10,  -11, 10,   11, 10,
+	-11,-10,   11,-10,  -11,  9,   11,  9,
+	-11, -9,   11, -9,  -11,  8,   11,  8,
+	-11, -8,   11, -8,  -11,  7,   11,  7,
+	-11, -7,   11, -7,  -11,  6,   11,  6,
+	-11, -6,   11, -6,  -11,  5,   11,  5,
+	-11, -5,   11, -5,  -11,  4,   11,  4,
+	-11, -4,   11, -4,  -11,  3,   11,  3,
+	-11, -3,   11, -3,  -11,  2,   11,  2,
+	-11, -2,   11, -2,  -11,  1,   11,  1,
+	-11, -1,   11, -1,  -11,  0,   11,  0,
+	96,										// 12 - 1062
+	  0, 12,    0,-12,   -1, 12,    1, 12,
+	 -1,-12,    1,-12,   -2, 12,    2, 12,
+	 -2,-12,    2,-12,   -3, 12,    3, 12,
+	 -3,-12,    3,-12,   -4, 12,    4, 12,
+	 -4,-12,    4,-12,   -5, 12,    5, 12,
+	 -5,-12,    5,-12,   -6, 12,    6, 12,
+	 -6,-12,    6,-12,   -7, 12,    7, 12,
+	 -7,-12,    7,-12,   -8, 12,    8, 12,
+	 -8,-12,    8,-12,   -9, 12,    9, 12,
+	 -9,-12,    9,-12,  -10, 12,   10, 12,
+	-10,-12,   10,-12,  -11, 12,   11, 12,
+	-11,-12,   11,-12,  -11, 11,   11, 11,
+	-11,-11,   11,-11,  -12, 11,   12, 11,
+	-12,-11,   12,-11,  -12, 10,   12, 10,
+	-12,-10,   12,-10,  -12,  9,   12,  9,
+	-12, -9,   12, -9,  -12,  8,   12,  8,
+	-12, -8,   12, -8,  -12,  7,   12,  7,
+	-12, -7,   12, -7,  -12,  6,   12,  6,
+	-12, -6,   12, -6,  -12,  5,   12,  5,
+	-12, -5,   12, -5,  -12,  4,   12,  4,
+	-12, -4,   12, -4,  -12,  3,   12,  3,
+	-12, -3,   12, -3,  -12,  2,   12,  2,
+	-12, -2,   12, -2,  -12,  1,   12,  1,
+	-12, -1,   12, -1,  -12,  0,   12,  0,
+	104,									// 13 - 1255
+	  0, 13,    0,-13,   -1, 13,    1, 13,
+	 -1,-13,    1,-13,   -2, 13,    2, 13,
+	 -2,-13,    2,-13,   -3, 13,    3, 13,
+	 -3,-13,    3,-13,   -4, 13,    4, 13,
+	 -4,-13,    4,-13,   -5, 13,    5, 13,
+	 -5,-13,    5,-13,   -6, 13,    6, 13,
+	 -6,-13,    6,-13,   -7, 13,    7, 13,
+	 -7,-13,    7,-13,   -8, 13,    8, 13,
+	 -8,-13,    8,-13,   -9, 13,    9, 13,
+	 -9,-13,    9,-13,  -10, 13,   10, 13,
+	-10,-13,   10,-13,  -11, 13,   11, 13,
+	-11,-13,   11,-13,  -12, 13,   12, 13,
+	-12,-13,   12,-13,  -12, 12,   12, 12,
+	-12,-12,   12,-12,  -13, 12,   13, 12,
+	-13,-12,   13,-12,  -13, 11,   13, 11,
+	-13,-11,   13,-11,  -13, 10,   13, 10,
+	-13,-10,   13,-10,  -13,  9,   13,  9,
+	-13, -9,   13, -9,  -13,  8,   13,  8,
+	-13, -8,   13, -8,  -13,  7,   13,  7,
+	-13, -7,   13, -7,  -13,  6,   13,  6,
+	-13, -6,   13, -6,  -13,  5,   13,  5,
+	-13, -5,   13, -5,  -13,  4,   13,  4,
+	-13, -4,   13, -4,  -13,  3,   13,  3,
+	-13, -3,   13, -3,  -13,  2,   13,  2,
+	-13, -2,   13, -2,  -13,  1,   13,  1,
+	-13, -1,   13, -1,  -13,  0,   13,  0,
+	112,									// 14 - 1464
+	  0, 14,    0,-14,   -1, 14,    1, 14,
+	 -1,-14,    1,-14,   -2, 14,    2, 14,
+	 -2,-14,    2,-14,   -3, 14,    3, 14,
+	 -3,-14,    3,-14,   -4, 14,    4, 14,
+	 -4,-14,    4,-14,   -5, 14,    5, 14,
+	 -5,-14,    5,-14,   -6, 14,    6, 14,
+	 -6,-14,    6,-14,   -7, 14,    7, 14,
+	 -7,-14,    7,-14,   -8, 14,    8, 14,
+	 -8,-14,    8,-14,   -9, 14,    9, 14,
+	 -9,-14,    9,-14,  -10, 14,   10, 14,
+	-10,-14,   10,-14,  -11, 14,   11, 14,
+	-11,-14,   11,-14,  -12, 14,   12, 14,
+	-12,-14,   12,-14,  -13, 14,   13, 14,
+	-13,-14,   13,-14,  -13, 13,   13, 13,
+	-13,-13,   13,-13,  -14, 13,   14, 13,
+	-14,-13,   14,-13,  -14, 12,   14, 12,
+	-14,-12,   14,-12,  -14, 11,   14, 11,
+	-14,-11,   14,-11,  -14, 10,   14, 10,
+	-14,-10,   14,-10,  -14,  9,   14,  9,
+	-14, -9,   14, -9,  -14,  8,   14,  8,
+	-14, -8,   14, -8,  -14,  7,   14,  7,
+	-14, -7,   14, -7,  -14,  6,   14,  6,
+	-14, -6,   14, -6,  -14,  5,   14,  5,
+	-14, -5,   14, -5,  -14,  4,   14,  4,
+	-14, -4,   14, -4,  -14,  3,   14,  3,
+	-14, -3,   14, -3,  -14,  2,   14,  2,
+	-14, -2,   14, -2,  -14,  1,   14,  1,
+	-14, -1,   14, -1,  -14,  0,   14,  0,
+	120,									// 15 - 1689
+	  0, 15,    0,-15,   -1, 15,    1, 15,
+	 -1,-15,    1,-15,   -2, 15,    2, 15,
+	 -2,-15,    2,-15,   -3, 15,    3, 15,
+	 -3,-15,    3,-15,   -4, 15,    4, 15,
+	 -4,-15,    4,-15,   -5, 15,    5, 15,
+	 -5,-15,    5,-15,   -6, 15,    6, 15,
+	 -6,-15,    6,-15,   -7, 15,    7, 15,
+	 -7,-15,    7,-15,   -8, 15,    8, 15,
+	 -8,-15,    8,-15,   -9, 15,    9, 15,
+	 -9,-15,    9,-15,  -10, 15,   10, 15,
+	-10,-15,   10,-15,  -11, 15,   11, 15,
+	-11,-15,   11,-15,  -12, 15,   12, 15,
+	-12,-15,   12,-15,  -13, 15,   13, 15,
+	-13,-15,   13,-15,  -14, 15,   14, 15,
+	-14,-15,   14,-15,  -14, 14,   14, 14,
+	-14,-14,   14,-14,  -15, 14,   15, 14,
+	-15,-14,   15,-14,  -15, 13,   15, 13,
+	-15,-13,   15,-13,  -15, 12,   15, 12,
+	-15,-12,   15,-12,  -15, 11,   15, 11,
+	-15,-11,   15,-11,  -15, 10,   15, 10,
+	-15,-10,   15,-10,  -15,  9,   15,  9,
+	-15, -9,   15, -9,  -15,  8,   15,  8,
+	-15, -8,   15, -8,  -15,  7,   15,  7,
+	-15, -7,   15, -7,  -15,  6,   15,  6,
+	-15, -6,   15, -6,  -15,  5,   15,  5,
+	-15, -5,   15, -5,  -15,  4,   15,  4,
+	-15, -4,   15, -4,  -15,  3,   15,  3,
+	-15, -3,   15, -3,  -15,  2,   15,  2,
+	-15, -2,   15, -2,  -15,  1,   15,  1,
+	-15, -1,   15, -1,  -15,  0,   15,  0,
 	(char)128,
 	0, 16, 0, -16, -1, 16, 1, 16,
 	-1, -16, 1, -16, -2, 16, 2, 16,
@@ -481,7 +480,7 @@ BYTE byte_49463C[18][18] = {
 /** RadiusAdj maps from vCrawlTable index to lighting vision radius adjustment. */
 BYTE RadiusAdj[23] = { 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 4, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0 };
 
-void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
+static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
 {
 	int swap;
 
@@ -508,7 +507,7 @@ void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, i
 	}
 }
 
-void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
+void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 {
 	int x, y, v, xoff, yoff, mult, radius_block;
 	int min_x, max_x, min_y, max_y;
@@ -521,9 +520,9 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 	block_x = 0;
 	block_y = 0;
 
-	if (Lnum >= 0) {
-		xoff = LightList[Lnum]._xoff;
-		yoff = LightList[Lnum]._yoff;
+	if (lnum >= 0) {
+		xoff = LightList[lnum]._xoff;
+		yoff = LightList[lnum]._yoff;
 		if (xoff < 0) {
 			xoff += 8;
 			nXPos--;
@@ -558,9 +557,15 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 		max_y = 15;
 	}
 
-	if (nXPos >= 0 && nXPos < MAXDUNX && nYPos >= 0 && nYPos < MAXDUNY) {
+#ifdef HELLFIRE
+	if (currlevel < 17)
 		dLight[nXPos][nYPos] = 0;
-	}
+	else if (dLight[nXPos][nYPos] > lightradius[nRadius][0])
+		dLight[nXPos][nYPos] = lightradius[nRadius][0];
+#else
+	if (IN_DUNGEON_AREA(nXPos, nYPos))
+		dLight[nXPos][nYPos] = 0;
+#endif
 
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < min_y; y++) {
@@ -570,11 +575,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 				temp_x = nXPos + x;
 				temp_y = nYPos + y;
 				v = lightradius[nRadius][radius_block];
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY) {
-					if (v < dLight[temp_x][temp_y]) {
+#ifndef HELLFIRE
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
+#endif
+					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
-					}
-				}
 			}
 		}
 	}
@@ -587,11 +592,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 				temp_x = nXPos + y;
 				temp_y = nYPos - x;
 				v = lightradius[nRadius][radius_block];
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY) {
-					if (v < dLight[temp_x][temp_y]) {
+#ifndef HELLFIRE
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
+#endif
+					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
-					}
-				}
 			}
 		}
 	}
@@ -604,11 +609,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 				temp_x = nXPos - x;
 				temp_y = nYPos - y;
 				v = lightradius[nRadius][radius_block];
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY) {
-					if (v < dLight[temp_x][temp_y]) {
+#ifndef HELLFIRE
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
+#endif
+					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
-					}
-				}
 			}
 		}
 	}
@@ -621,17 +626,17 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum)
 				temp_x = nXPos - y;
 				temp_y = nYPos + x;
 				v = lightradius[nRadius][radius_block];
-				if (temp_x >= 0 && temp_x < MAXDUNX && temp_y >= 0 && temp_y < MAXDUNY) {
-					if (v < dLight[temp_x][temp_y]) {
+#ifndef HELLFIRE
+				if (IN_DUNGEON_AREA(temp_x, temp_y))
+#endif
+					if (v < dLight[temp_x][temp_y])
 						dLight[temp_x][temp_y] = v;
-					}
-				}
 			}
 		}
 	}
 }
 
-void DoUnLight(int nXPos, int nYPos, int nRadius)
+static void DoUnLight(int nXPos, int nYPos, int nRadius)
 {
 	int x, y, min_x, min_y, max_x, max_y;
 
@@ -656,8 +661,7 @@ void DoUnLight(int nXPos, int nYPos, int nRadius)
 
 	for (y = min_y; y < max_y; y++) {
 		for (x = min_x; x < max_x; x++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY)
-				dLight[x][y] = dPreLight[x][y];
+			dLight[x][y] = dPreLight[x][y];
 		}
 	}
 }
@@ -697,79 +701,71 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	BOOL nBlockerFlag;
 	int nCrawlX, nCrawlY, nLineLen, nTrans;
 	int j, k, v, x1adj, x2adj, y1adj, y2adj;
+	const char visFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
-	if (nXPos >= 0 && nXPos <= MAXDUNX && nYPos >= 0 && nYPos <= MAXDUNY) {
+	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
 		if (doautomap) {
-			if (dFlags[nXPos][nYPos] >= 0) {
+			if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
+				dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
 				SetAutomapView(nXPos, nXPos);
 			}
-			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
 		}
-		if (visible) {
-			dFlags[nXPos][nYPos] |= BFLAG_LIT;
-		}
-		dFlags[nXPos][nYPos] |= BFLAG_VISIBLE;
+		dFlags[nXPos][nYPos] |= visFlags;
 	}
 
 	for (v = 0; v < 4; v++) {
-		for (j = 0; j < 23; j++) {
+		for (j = 0; j < lengthof(RadiusAdj); j++) {
 			nBlockerFlag = FALSE;
 			nLineLen = 2 * (nRadius - RadiusAdj[j]);
 			for (k = 0; k < nLineLen && !nBlockerFlag; k += 2) {
-				x1adj = 0;
-				x2adj = 0;
-				y1adj = 0;
-				y2adj = 0;
+				x1adj = x2adj = y1adj = y2adj = 0;
+				nCrawlX = vCrawlTable[j][k];
+				nCrawlY = vCrawlTable[j][k + 1];
 				switch (v) {
 				case 0:
-					nCrawlX = nXPos + vCrawlTable[j][k];
-					nCrawlY = nYPos + vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						x1adj = -1;
 						y2adj = -1;
 					}
 					break;
 				case 1:
-					nCrawlX = nXPos - vCrawlTable[j][k];
-					nCrawlY = nYPos - vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						y1adj = 1;
 						x2adj = 1;
 					}
+					nCrawlX = -nCrawlX;
+					nCrawlY = -nCrawlY;
 					break;
 				case 2:
-					nCrawlX = nXPos + vCrawlTable[j][k];
-					nCrawlY = nYPos - vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						x1adj = -1;
 						y2adj = 1;
 					}
+					nCrawlY = -nCrawlY;
 					break;
-				case 3:
-					nCrawlX = nXPos - vCrawlTable[j][k];
-					nCrawlY = nYPos + vCrawlTable[j][k + 1];
-					if (vCrawlTable[j][k] > 0 && vCrawlTable[j][k + 1] > 0) {
+				default:
+					if (nCrawlX > 0 && nCrawlY > 0) {
 						y1adj = -1;
 						x2adj = 1;
 					}
+					nCrawlX = -nCrawlX;
 					break;
 				}
-				if (nCrawlX >= 0 && nCrawlX < MAXDUNX && nCrawlY >= 0 && nCrawlY < MAXDUNY) {
+				nCrawlX += nXPos;
+				nCrawlY += nYPos;
+				if (IN_DUNGEON_AREA(nCrawlX, nCrawlY)) {
 					nBlockerFlag = nBlockTable[dPiece[nCrawlX][nCrawlY]];
-					if ((x1adj + nCrawlX >= 0 && x1adj + nCrawlX < MAXDUNX && y1adj + nCrawlY >= 0 && y1adj + nCrawlY < MAXDUNY
+					if ((IN_DUNGEON_AREA(x1adj + nCrawlX, y1adj + nCrawlY)
 					        && !nBlockTable[dPiece[x1adj + nCrawlX][y1adj + nCrawlY]])
-					    || (x2adj + nCrawlX >= 0 && x2adj + nCrawlX < MAXDUNX && y2adj + nCrawlY >= 0 && y2adj + nCrawlY < MAXDUNY
+					    || (IN_DUNGEON_AREA(x2adj + nCrawlX, y2adj + nCrawlY)
 					           && !nBlockTable[dPiece[x2adj + nCrawlX][y2adj + nCrawlY]])) {
 						if (doautomap) {
-							if (dFlags[nCrawlX][nCrawlY] >= 0) {
+							if (!(dFlags[nCrawlX][nCrawlY] & BFLAG_EXPLORED)) {
+								dFlags[nCrawlX][nCrawlY] |= BFLAG_EXPLORED;
 								SetAutomapView(nCrawlX, nCrawlY);
 							}
-							dFlags[nCrawlX][nCrawlY] |= BFLAG_EXPLORED;
 						}
-						if (visible) {
-							dFlags[nCrawlX][nCrawlY] |= BFLAG_LIT;
-						}
-						dFlags[nCrawlX][nCrawlY] |= BFLAG_VISIBLE;
+						dFlags[nCrawlX][nCrawlY] |= visFlags;
 						if (!nBlockerFlag) {
 							nTrans = dTransVal[nCrawlX][nCrawlY];
 							if (nTrans != 0) {
@@ -790,7 +786,7 @@ void FreeLightTable()
 
 void InitLightTable()
 {
-	assert(!pLightTbl);
+	assert(pLightTbl == NULL);
 	pLightTbl = DiabloAllocPtr(LIGHTSIZE);
 }
 
@@ -804,12 +800,11 @@ void MakeLightTable()
 
 	tbl = pLightTbl;
 	shade = 0;
-
-	if (light4flag) {
+	lights = 15;
+#ifdef _DEBUG
+	if (light4flag)
 		lights = 3;
-	} else {
-		lights = 15;
-	}
+#endif
 
 	for (i = 0; i < lights; i++) {
 		*tbl++ = 0;
@@ -858,11 +853,12 @@ void MakeLightTable()
 				}
 			}
 		}
-		if (light4flag) {
+#ifdef _DEBUG
+		if (light4flag)
 			shade += 5;
-		} else {
+		else
+#endif
 			shade++;
-		}
 	}
 
 	for (i = 0; i < 256; i++) {
@@ -910,6 +906,22 @@ void MakeLightTable()
 		tbl += 224;
 	}
 
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		tbl = pLightTbl;
+		for (i = 0; i < lights; i++) {
+			*tbl++ = 0;
+			for (j = 1; j < 16; j++)
+				*tbl++ = j;
+			tbl += 240;
+		}
+		*tbl++ = 0;
+		for (j = 1; j < 16; j++)
+			*tbl++ = 1;
+		tbl += 240;
+	}
+#endif
+
 	trn = LoadFileInMem("PlrGFX\\Infra.TRN", NULL);
 	for (i = 0; i < 256; i++) {
 		*tbl++ = trn[i];
@@ -948,27 +960,41 @@ void MakeLightTable()
 		*tbl++ = 0;
 	}
 
-	for (k = 0; k < 16; k++) {
-		for (l = 0; l < 128; l++) {
-			if (l > (k + 1) * 8) {
-				lightradius[k][l] = 15;
-			} else {
-				lightradius[k][l] = l * 15.0 / ((k + 1) * 8.0) + 0.5;
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		for (i = 0; i < 16; i++) {
+			for (j = 128; j > 0; j--) {
+				k = 15 - ((i + 1) * (j * j)) / (128 * 128);
+				k -= i >> 1;
+				if (k < 0)
+					k = 0;
+				lightradius[i][128 - j] = k;
+			}
+		}
+	} else
+#endif
+	{
+		for (i = 0, k = 8; i < 16; i++, k += 8) {
+			for (j = 0; j < 128; j++) {
+				if (j > k) {
+					lightradius[i][j] = 15;
+				} else {
+					lightradius[i][j] = ((15 * j) + (k >> 1)) / k;
+				}
 			}
 		}
 	}
 
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (j = 0; j < 8; j++) {
+		for (i = 0; i < 8; i++) {
 			for (k = 0; k < 16; k++) {
+				fa = (8 * k - i);
+				fa *= fa;
 				for (l = 0; l < 16; l++) {
-					fs = (BYTE)sqrt((double)(8 * l - j) * (8 * l - j) + (8 * k - i) * (8 * k - i));
-					if (fs < 0.0) {
-						fa = -0.5;
-					} else {
-						fa = 0.5;
-					}
-					lightblock[i * 8 + j][k][l] = fs + fa;
+					fs = (8 * l - j);
+					fs *= fs;
+					fs = sqrt(fs + fa);
+					lightblock[j * 8 + i][k][l] = fs;
 				}
 			}
 		}
@@ -982,7 +1008,7 @@ void ToggleLighting()
 
 	lightflag ^= TRUE;
 
-	if (lightflag != 0) {
+	if (lightflag) {
 		memset(dLight, 0, sizeof(dLight));
 	} else {
 		memcpy(dLight, dPreLight, sizeof(dLight));
@@ -997,11 +1023,11 @@ void ToggleLighting()
 
 void InitLightMax()
 {
-	if (light4flag) {
+	lightmax = 15;
+#ifdef _DEBUG
+	if (light4flag)
 		lightmax = 3;
-	} else {
-		lightmax = 15;
-	}
+#endif
 }
 
 void InitLighting()
@@ -1010,7 +1036,9 @@ void InitLighting()
 
 	numlights = 0;
 	dolighting = FALSE;
+#ifdef _DEBUG
 	lightflag = FALSE;
+#endif
 
 	for (i = 0; i < MAXLIGHTS; i++) {
 		lightactive[i] = i;
@@ -1019,117 +1047,149 @@ void InitLighting()
 
 int AddLight(int x, int y, int r)
 {
-	int lid;
+	LightListStruct *lis;
+	int lnum;
 
-	if (lightflag != 0) {
+#ifdef _DEBUG
+	if (lightflag)
 		return -1;
-	}
+#endif
 
-	lid = -1;
+	lnum = -1;
 
 	if (numlights < MAXLIGHTS) {
-		lid = lightactive[numlights++];
-		LightList[lid]._lx = x;
-		LightList[lid]._ly = y;
-		LightList[lid]._lradius = r;
-		LightList[lid]._xoff = 0;
-		LightList[lid]._yoff = 0;
-		LightList[lid]._ldel = FALSE;
-		LightList[lid]._lunflag = FALSE;
+		lnum = lightactive[numlights++];
+		lis = &LightList[lnum];
+		lis->_lx = x;
+		lis->_ly = y;
+		lis->_lradius = r;
+		lis->_xoff = 0;
+		lis->_yoff = 0;
+		lis->_ldel = FALSE;
+		lis->_lunflag = FALSE;
 		dolighting = TRUE;
 	}
 
-	return lid;
+	return lnum;
 }
 
-void AddUnLight(int i)
+void AddUnLight(int lnum)
 {
-	if (lightflag || i == -1) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
+	if (lnum == -1)
+		return;
 
-	LightList[i]._ldel = TRUE;
+	LightList[lnum]._ldel = TRUE;
 	dolighting = TRUE;
 }
 
-void ChangeLightRadius(int i, int r)
+void ChangeLightRadius(int lnum, int r)
 {
-	if (lightflag || i == -1) {
-		return;
-	}
+	LightListStruct *lis;
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lradius = r;
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	if (lnum == -1)
+		return;
+
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lradius = r;
 	dolighting = TRUE;
 }
 
-void ChangeLightXY(int i, int x, int y)
+void ChangeLightXY(int lnum, int x, int y)
 {
-	if (lightflag || i == -1) {
-		return;
-	}
+	LightListStruct *lis;
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lx = x;
-	LightList[i]._ly = y;
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	if (lnum == -1)
+		return;
+
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lx = x;
+	lis->_ly = y;
 	dolighting = TRUE;
 }
 
-void ChangeLightOff(int i, int x, int y)
+void ChangeLightOff(int lnum, int x, int y)
 {
-	if (lightflag || i == -1) {
-		return;
-	}
+	LightListStruct *lis;
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._xoff = x;
-	LightList[i]._yoff = y;
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	if (lnum == -1)
+		return;
+
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_xoff = x;
+	lis->_yoff = y;
 	dolighting = TRUE;
 }
 
-void ChangeLight(int i, int x, int y, int r)
+void ChangeLight(int lnum, int x, int y, int r)
 {
-	if (lightflag || i == -1) {
-		return;
-	}
+	LightListStruct *lis;
 
-	LightList[i]._lunflag = TRUE;
-	LightList[i]._lunx = LightList[i]._lx;
-	LightList[i]._luny = LightList[i]._ly;
-	LightList[i]._lunr = LightList[i]._lradius;
-	LightList[i]._lx = x;
-	LightList[i]._ly = y;
-	LightList[i]._lradius = r;
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	if (lnum == -1)
+		return;
+
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lx = x;
+	lis->_ly = y;
+	lis->_lradius = r;
 	dolighting = TRUE;
 }
 
 void ProcessLightList()
 {
+	LightListStruct *lis;
 	int i, j;
 	BYTE temp;
 
-	if (lightflag != 0) {
+#ifdef _DEBUG
+	if (lightflag)
 		return;
-	}
+#endif
 
 	if (dolighting) {
 		for (i = 0; i < numlights; i++) {
-			j = lightactive[i];
-			if (LightList[j]._ldel) {
-				DoUnLight(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius);
+			lis = &LightList[lightactive[i]];
+			if (lis->_ldel) {
+				DoUnLight(lis->_lx, lis->_ly, lis->_lradius);
 			}
-			if (LightList[j]._lunflag) {
-				DoUnLight(LightList[j]._lunx, LightList[j]._luny, LightList[j]._lunr);
-				LightList[j]._lunflag = FALSE;
+			if (lis->_lunflag) {
+				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
+				lis->_lunflag = FALSE;
 			}
 		}
 		for (i = 0; i < numlights; i++) {
@@ -1174,52 +1234,58 @@ void InitVision()
 
 int AddVision(int x, int y, int r, BOOL mine)
 {
-	int vid; // BUGFIX: if numvision >= MAXVISION behavior is undefined
+	LightListStruct *vis;
+	int vnum; // BUGFIX: if numvision >= MAXVISION behavior is undefined
 
 	if (numvision < MAXVISION) {
-		VisionList[numvision]._lx = x;
-		VisionList[numvision]._ly = y;
-		VisionList[numvision]._lradius = r;
-		vid = visionid++;
-		VisionList[numvision]._lid = vid;
-		VisionList[numvision]._ldel = 0;
-		VisionList[numvision]._lunflag = 0;
-		VisionList[numvision]._lflags = mine != 0;
+		vis = &VisionList[numvision];
+		vis->_lx = x;
+		vis->_ly = y;
+		vis->_lradius = r;
+		vnum = visionid++;
+		vis->_lid = vnum;
+		vis->_ldel = FALSE;
+		vis->_lunflag = FALSE;
+		vis->_lflags = mine != 0;
 		numvision++;
 		dovision = TRUE;
 	}
 
-	return vid;
+	return vnum;
 }
 
-void ChangeVisionRadius(int id, int r)
+void ChangeVisionRadius(int vnum, int r)
 {
+	LightListStruct *vis;
 	int i;
 
-	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == id) {
-			VisionList[i]._lunflag = TRUE;
-			VisionList[i]._lunx = VisionList[i]._lx;
-			VisionList[i]._luny = VisionList[i]._ly;
-			VisionList[i]._lunr = VisionList[i]._lradius;
-			VisionList[i]._lradius = r;
+	vis = VisionList;
+	for (i = numvision; i > 0; i--, vis++) {
+		if (vis->_lid == vnum) {
+			vis->_lunflag = TRUE;
+			vis->_lunx = vis->_lx;
+			vis->_luny = vis->_ly;
+			vis->_lunr = vis->_lradius;
+			vis->_lradius = r;
 			dovision = TRUE;
 		}
 	}
 }
 
-void ChangeVisionXY(int id, int x, int y)
+void ChangeVisionXY(int vnum, int x, int y)
 {
+	LightListStruct *vis;
 	int i;
 
-	for (i = 0; i < numvision; i++) {
-		if (VisionList[i]._lid == id) {
-			VisionList[i]._lunflag = TRUE;
-			VisionList[i]._lunx = VisionList[i]._lx;
-			VisionList[i]._luny = VisionList[i]._ly;
-			VisionList[i]._lunr = VisionList[i]._lradius;
-			VisionList[i]._lx = x;
-			VisionList[i]._ly = y;
+	vis = VisionList;
+	for (i = numvision; i > 0; i--, vis++) {
+		if (vis->_lid == vnum) {
+			vis->_lunflag = TRUE;
+			vis->_lunx = vis->_lx;
+			vis->_luny = vis->_ly;
+			vis->_lunr = vis->_lradius;
+			vis->_lx = x;
+			vis->_ly = y;
 			dovision = TRUE;
 		}
 	}
@@ -1227,30 +1293,33 @@ void ChangeVisionXY(int id, int x, int y)
 
 void ProcessVisionList()
 {
+	LightListStruct *vis;
 	int i;
 	BOOL delflag;
 
 	if (dovision) {
-		for (i = 0; i < numvision; i++) {
-			if (VisionList[i]._ldel) {
-				DoUnVision(VisionList[i]._lx, VisionList[i]._ly, VisionList[i]._lradius);
+		vis = VisionList;
+		for (i = numvision; i > 0; i--, vis++) {
+			if (vis->_ldel) {
+				DoUnVision(vis->_lx, vis->_ly, vis->_lradius);
 			}
-			if (VisionList[i]._lunflag) {
-				DoUnVision(VisionList[i]._lunx, VisionList[i]._luny, VisionList[i]._lunr);
-				VisionList[i]._lunflag = FALSE;
+			if (vis->_lunflag) {
+				DoUnVision(vis->_lunx, vis->_luny, vis->_lunr);
+				vis->_lunflag = FALSE;
 			}
 		}
 		for (i = 0; i < TransVal; i++) {
 			TransList[i] = FALSE;
 		}
-		for (i = 0; i < numvision; i++) {
-			if (!VisionList[i]._ldel) {
+		vis = VisionList;
+		for (i = numvision; i > 0; i--, vis++) {
+			if (!vis->_ldel) {
 				DoVision(
-				    VisionList[i]._lx,
-				    VisionList[i]._ly,
-				    VisionList[i]._lradius,
-				    VisionList[i]._lflags & 1,
-				    VisionList[i]._lflags & 1);
+				    vis->_lx,
+				    vis->_ly,
+				    vis->_lradius,
+				    vis->_lflags & 1,
+				    vis->_lflags & 1);
 			}
 		}
 		do {
@@ -1259,7 +1328,7 @@ void ProcessVisionList()
 				if (VisionList[i]._ldel) {
 					numvision--;
 					if (numvision > 0 && i != numvision) {
-						VisionList[i] = VisionList[numvision];
+						copy_pod(VisionList[i], VisionList[numvision]);
 					}
 					delflag = TRUE;
 				}
@@ -1276,12 +1345,15 @@ void lighting_color_cycling()
 	BYTE col;
 	BYTE *tbl;
 
-	l = light4flag ? 4 : 16;
-
 	if (leveltype != DTYPE_HELL) {
 		return;
 	}
 
+	l = 16;
+#ifdef _DEBUG
+	if (light4flag)
+		l = 4;
+#endif
 	tbl = pLightTbl;
 
 	for (j = 0; j < l; j++) {

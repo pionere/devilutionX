@@ -1,3 +1,8 @@
+/**
+ * @file plrmsg.cpp
+ *
+ * Implementation of functionality for printing the ingame chat messages.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -15,26 +20,23 @@ void plrmsg_delay(BOOL delay)
 	static DWORD plrmsg_ticks;
 
 	if (delay) {
-		plrmsg_ticks = -SDL_GetTicks();
+		plrmsg_ticks = SDL_GetTicks();
 		return;
 	}
 
-	plrmsg_ticks += SDL_GetTicks();
+	plrmsg_ticks = SDL_GetTicks() - plrmsg_ticks;
 	pMsg = plr_msgs;
 	for (i = 0; i < PMSG_COUNT; i++, pMsg++)
 		pMsg->time += plrmsg_ticks;
 }
 
-char *ErrorPlrMsg(const char *pszMsg)
+void ErrorPlrMsg(const char *pszMsg)
 {
-	char *result;
 	_plrmsg *pMsg = &plr_msgs[plr_msg_slot];
 	plr_msg_slot = (plr_msg_slot + 1) & (PMSG_COUNT - 1);
 	pMsg->player = MAX_PLRS;
 	pMsg->time = SDL_GetTicks();
-	result = strncpy(pMsg->str, pszMsg, sizeof(pMsg->str));
-	pMsg->str[sizeof(pMsg->str) - 1] = '\0';
-	return result;
+	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
 }
 
 size_t EventPlrMsg(const char *pszFmt, ...)
@@ -47,7 +49,7 @@ size_t EventPlrMsg(const char *pszFmt, ...)
 	plr_msg_slot = (plr_msg_slot + 1) & (PMSG_COUNT - 1);
 	pMsg->player = MAX_PLRS;
 	pMsg->time = SDL_GetTicks();
-	vsprintf(pMsg->str, pszFmt, va);
+	vsnprintf(pMsg->str, sizeof(pMsg->str), pszFmt, va);
 	va_end(va);
 	return strlen(pMsg->str);
 }
@@ -60,7 +62,7 @@ void SendPlrMsg(int pnum, const char *pszStr)
 	pMsg->time = SDL_GetTicks();
 	strlen(plr[pnum]._pName); /* these are used in debug */
 	strlen(pszStr);
-	sprintf(pMsg->str, "%s (lvl %d): %s", plr[pnum]._pName, plr[pnum]._pLevel, pszStr);
+	snprintf(pMsg->str, sizeof(pMsg->str), "%s (lvl %d): %s", plr[pnum]._pName, plr[pnum]._pLevel, pszStr);
 }
 
 void ClearPlrMsg()
@@ -84,27 +86,24 @@ void InitPlrMsg()
 void DrawPlrMsg()
 {
 	int i;
-	DWORD x = 74;
-	DWORD y = 230;
+	DWORD x = 10 + SCREEN_X;
+	DWORD y = 70 + SCREEN_Y;
 	DWORD width = SCREEN_WIDTH - 20;
 	_plrmsg *pMsg;
 
 	if (chrflag || questlog) {
-		x = 394;
-		width -= 300;
+		x += SPANEL_WIDTH;
+		width -= SPANEL_WIDTH;
 	}
 	if (invflag || sbookflag)
-		width -= 300;
+		width -= SPANEL_WIDTH;
 
 	if (width < 300)
 		return;
 
-	if (width > 620)
-		width = 620;
-
 	pMsg = plr_msgs;
-	for (i = 0; i < 8; i++) {
-		if (pMsg->str[0])
+	for (i = 0; i < PMSG_COUNT; i++) {
+		if (pMsg->str[0] != '\0')
 			PrintPlrMsg(x, y, width, pMsg->str, text_color_from_player_num[pMsg->player]);
 		pMsg++;
 		y += 35;
@@ -115,7 +114,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 {
 	int line = 0;
 
-	while (*str) {
+	while (*str != '\0') {
 		BYTE c;
 		int sx = x;
 		DWORD len = 0;
@@ -123,11 +122,11 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		const char *endstr = sstr;
 
 		while (1) {
-			if (*sstr) {
+			if (*sstr != '\0') {
 				c = gbFontTransTbl[(BYTE)*sstr++];
 				c = fontframe[c];
 				len += fontkern[c] + 1;
-				if (!c) // allow wordwrap on blank glyph
+				if (c == '\0') // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
 					break;
@@ -140,7 +139,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		while (str < endstr) {
 			c = gbFontTransTbl[(BYTE)*str++];
 			c = fontframe[c];
-			if (c)
+			if (c != '\0')
 				PrintChar(sx, y, c, col);
 			sx += fontkern[c] + 1;
 		}

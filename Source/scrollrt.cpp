@@ -1,4 +1,10 @@
+/**
+ * @file plrmsg.cpp
+ *
+ * Implementation of functionality for rendering the dungeons, monsters and calling other render routines.
+ */
 #include "all.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -6,9 +12,23 @@ DEVILUTION_BEGIN_NAMESPACE
  * Specifies the current light entry.
  */
 int light_table_index;
-DWORD sgdwCursWdtOld;
-DWORD sgdwCursX;
-DWORD sgdwCursY;
+
+/**
+ * Cursor-size
+ */
+int sgCursHgt;
+int sgCursWdt;
+int sgCursHgtOld;
+int sgCursWdtOld;
+
+/**
+ * Cursor-position
+ */
+int sgCursX;
+int sgCursY;
+int sgCursXOld;
+int sgCursYOld;
+
 /**
  * Upper bound of back buffer.
  */
@@ -17,7 +37,6 @@ BYTE *gpBufStart;
  * Lower bound of back buffer.
  */
 BYTE *gpBufEnd;
-DWORD sgdwCursHgt;
 
 /**
  * Specifies the current MIN block of the level CEL file, as used during rendering of the level tiles.
@@ -26,8 +45,9 @@ DWORD sgdwCursHgt;
  * frameType := block & 0x7000 >> 12
  */
 DWORD level_cel_block;
-DWORD sgdwCursXOld;
-DWORD sgdwCursYOld;
+#ifdef HELLFIRE
+BOOLEAN AutoMapShowItems;
+#endif
 /**
  * Specifies the type of arches to render.
  */
@@ -39,22 +59,23 @@ int cel_transparency_active;
 /**
  * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
  */
-int cel_foliage_active = false;
+BOOL cel_foliage_active = FALSE;
 /**
  * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
  */
 int level_piece_id;
-DWORD sgdwCursWdt;
 void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
-BYTE sgSaveBack[8192];
-DWORD sgdwCursHgtOld;
+/**
+ * Buffer to store the cursor image.
+ */
+BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 bool dRendered[MAXDUNX][MAXDUNY];
 
 /* data */
 
 /* used in 1.00 debug */
-char *szMonModeAssert[18] = {
+const char *const szMonModeAssert[18] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -75,7 +96,7 @@ char *szMonModeAssert[18] = {
 	"talking"
 };
 
-char *szPlrModeAssert[12] = {
+const char *const szPlrModeAssert[12] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -95,8 +116,8 @@ char *szPlrModeAssert[12] = {
  */
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
-	sgdwCursWdt = 0;
-	sgdwCursWdtOld = 0;
+	sgCursWdt = 0;
+	sgCursWdtOld = 0;
 }
 
 /**
@@ -107,28 +128,24 @@ static void scrollrt_draw_cursor_back_buffer()
 	int i;
 	BYTE *src, *dst;
 
-	if (sgdwCursWdt == 0) {
+	if (sgCursWdt == 0) {
 		return;
 	}
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	src = sgSaveBack;
-	dst = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
-	i = sgdwCursHgt;
-
-	if (sgdwCursHgt != 0) {
-		while (i--) {
-			memcpy(dst, src, sgdwCursWdt);
-			src += sgdwCursWdt;
-			dst += BUFFER_WIDTH;
-		}
+	dst = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
+	for (i = sgCursHgt; i != 0; i--) {
+		memcpy(dst, src, sgCursWdt);
+		src += sgCursWdt;
+		dst += BUFFER_WIDTH;
 	}
 
-	sgdwCursXOld = sgdwCursX;
-	sgdwCursYOld = sgdwCursY;
-	sgdwCursWdtOld = sgdwCursWdt;
-	sgdwCursHgtOld = sgdwCursHgt;
-	sgdwCursWdt = 0;
+	sgCursXOld = sgCursX;
+	sgCursYOld = sgCursY;
+	sgCursWdtOld = sgCursWdt;
+	sgCursHgtOld = sgCursHgt;
+	sgCursWdt = 0;
 }
 
 /**
@@ -136,18 +153,20 @@ static void scrollrt_draw_cursor_back_buffer()
  */
 static void scrollrt_draw_cursor_item()
 {
-	int i, mx, my, col;
-	BYTE *src, *dst;
+	int i, mx, my, frame;
+	BYTE *src, *dst, *cCels;
+	BYTE col;
 
-	assert(!sgdwCursWdt);
+	assert(sgCursWdt == 0);
 
 	if (pcurs <= CURSOR_NONE || cursW == 0 || cursH == 0) {
 		return;
 	}
 
-	if (sgbControllerActive && pcurs != CURSOR_TELEPORT && !invflag && (!chrflag || plr[myplr]._pStatPts <= 0)) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !invflag && (!chrflag || plr[myplr]._pStatPts <= 0))
 		return;
-	}
+#endif
 
 	mx = MouseX - 1;
 	if (mx < 0 - cursW - 1) {
@@ -162,38 +181,40 @@ static void scrollrt_draw_cursor_item()
 		return;
 	}
 
-	sgdwCursX = mx;
-	sgdwCursWdt = sgdwCursX + cursW + 1;
-	if (sgdwCursWdt > SCREEN_WIDTH - 1) {
-		sgdwCursWdt = SCREEN_WIDTH - 1;
+	sgCursX = mx;
+	sgCursWdt = sgCursX + cursW + 1;
+	if (sgCursWdt > SCREEN_WIDTH - 1) {
+		sgCursWdt = SCREEN_WIDTH - 1;
 	}
-	sgdwCursX &= ~3;
-	sgdwCursWdt |= 3;
-	sgdwCursWdt -= sgdwCursX;
-	sgdwCursWdt++;
+	sgCursX &= ~3;
+	sgCursWdt |= 3;
+	sgCursWdt -= sgCursX;
+	sgCursWdt++;
 
-	sgdwCursY = my;
-	sgdwCursHgt = sgdwCursY + cursH + 1;
-	if (sgdwCursHgt > SCREEN_HEIGHT - 1) {
-		sgdwCursHgt = SCREEN_HEIGHT - 1;
+	sgCursY = my;
+	sgCursHgt = sgCursY + cursH + 1;
+	if (sgCursHgt > SCREEN_HEIGHT - 1) {
+		sgCursHgt = SCREEN_HEIGHT - 1;
 	}
-	sgdwCursHgt -= sgdwCursY;
-	sgdwCursHgt++;
+	sgCursHgt -= sgCursY;
+	sgCursHgt++;
 
-	assert(sgdwCursWdt * sgdwCursHgt < sizeof sgSaveBack);
-	assert(gpBuffer);
+	assert(sgCursWdt * sgCursHgt <= sizeof sgSaveBack);
+	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
-	src = &gpBuffer[SCREENXY(sgdwCursX, sgdwCursY)];
+	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
 
-	for (i = sgdwCursHgt; i != 0; i--, dst += sgdwCursWdt, src += BUFFER_WIDTH) {
-		memcpy(dst, src, sgdwCursWdt);
+	for (i = sgCursHgt; i != 0; i--, dst += sgCursWdt, src += BUFFER_WIDTH) {
+		memcpy(dst, src, sgCursWdt);
 	}
 
 	mx++;
 	my++;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y) - cursW - 2];
 
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	frame = pcurs;
+	cCels = pCursCels;
+	if (frame >= CURSOR_FIRSTITEM) {
 		col = PAL16_YELLOW + 5;
 		if (plr[myplr].HoldItem._iMagical != 0) {
 			col = PAL16_BLUE + 5;
@@ -201,51 +222,60 @@ static void scrollrt_draw_cursor_item()
 		if (!plr[myplr].HoldItem._iStatFlag) {
 			col = PAL16_RED + 5;
 		}
-		CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
+
+		i = 1;
+#ifdef HELLFIRE
+		if (frame > 179) {
+			frame -= 179;
+			cCels = pCursCels2;
+			i = 0;
+		}
+#endif
+		CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		if (col != PAL16_RED + 5) {
-			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
+			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		} else {
-			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW, 1);
+			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW, i);
 		}
 	} else {
-		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, pCursCels, pcurs, cursW);
+		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 	}
 }
 
 /**
  * @brief Render a missile sprite
- * @param m Pointer to MissileStruct struct
+ * @param mis Pointer to MissileStruct struct
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-void DrawMissilePrivate(MissileStruct *m, int sx, int sy, BOOL pre)
+static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 {
 	int mx, my, nCel, frames;
 	BYTE *pCelBuff;
 
-	if (m->_miPreFlag != pre || !m->_miDrawFlag)
+	if (mis->_miPreFlag != pre || !mis->_miDrawFlag)
 		return;
 
-	pCelBuff = m->_miAnimData;
-	if (!pCelBuff) {
-		// app_fatal("Draw Missile 2 type %d: NULL Cel Buffer", m->_mitype);
+	pCelBuff = mis->_miAnimData;
+	if (pCelBuff == NULL) {
+		// app_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_mitype);
 		return;
 	}
-	nCel = m->_miAnimFrame;
+	nCel = mis->_miAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		// app_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, m->_mitype);
+		// app_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_mitype);
 		return;
 	}
-	mx = sx + m->_mixoff - m->_miAnimWidth2;
-	my = sy + m->_miyoff;
-	if (m->_miUniqTrans)
-		Cl2DrawLightTbl(mx, my, m->_miAnimData, m->_miAnimFrame, m->_miAnimWidth, m->_miUniqTrans + 3);
-	else if (m->_miLightFlag)
-		Cl2DrawLight(mx, my, m->_miAnimData, m->_miAnimFrame, m->_miAnimWidth);
+	mx = sx + mis->_mixoff - mis->_miAnimWidth2;
+	my = sy + mis->_miyoff;
+	if (mis->_miUniqTrans)
+		Cl2DrawLightTbl(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth, mis->_miUniqTrans + 3);
+	else if (mis->_miLightFlag)
+		Cl2DrawLight(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth);
 	else
-		Cl2Draw(mx, my, m->_miAnimData, m->_miAnimFrame, m->_miAnimWidth);
+		Cl2Draw(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth);
 }
 
 /**
@@ -259,23 +289,23 @@ void DrawMissilePrivate(MissileStruct *m, int sx, int sy, BOOL pre)
 void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 {
 	int i;
-	MissileStruct *m;
+	MissileStruct *mis;
 
 	if (!(dFlags[x][y] & BFLAG_MISSILE))
 		return;
 
 	if (dMissile[x][y] != -1) {
-		m = &missile[dMissile[x][y] - 1];
-		DrawMissilePrivate(m, sx, sy, pre);
+		mis = &missile[dMissile[x][y] - 1];
+		DrawMissilePrivate(mis, sx, sy, pre);
 		return;
 	}
 
 	for (i = 0; i < nummissiles; i++) {
 		assert(missileactive[i] < MAXMISSILES);
-		m = &missile[missileactive[i]];
-		if (m->_mix != x || m->_miy != y)
+		mis = &missile[missileactive[i]];
+		if (mis->_mix != x || mis->_miy != y)
 			continue;
-		DrawMissilePrivate(m, sx, sy, pre);
+		DrawMissilePrivate(mis, sx, sy, pre);
 	}
 }
 
@@ -285,37 +315,38 @@ void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
  * @param y dPiece coordinate
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
- * @param m Id of monster
+ * @param mnum Id of monster
  */
-static void DrawMonster(int x, int y, int mx, int my, int m)
+static void DrawMonster(int x, int y, int mx, int my, int mnum)
 {
+	MonsterStruct *mon;
 	int nCel, frames;
 	char trans;
 	BYTE *pCelBuff;
 
-	if ((DWORD)m >= MAXMONSTERS) {
-		// app_fatal("Draw Monster: tried to draw illegal monster %d", m);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		// app_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
+		return;
+	}
+	mon = &monster[mnum];
+	pCelBuff = mon->_mAnimData;
+	if (pCelBuff == NULL) {
+		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
 		return;
 	}
 
-	pCelBuff = monster[m]._mAnimData;
-	if (!pCelBuff) {
-		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", monster[m].mName);
-		return;
-	}
-
-	nCel = monster[m]._mAnimFrame;
+	nCel = mon->_mAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		/*
 		const char *szMode = "unknown action";
-		if(monster[m]._mmode <= 17)
-			szMode = szMonModeAssert[monster[m]._mmode];
+		if(mon->_mmode <= 17)
+			szMode = szMonModeAssert[mon->_mmode];
 		app_fatal(
 			"Draw Monster \"%s\" %s: facing %d, frame %d of %d",
-			monster[m].mName,
+			mon->mName,
 			szMode,
-			monster[m]._mdir,
+			mon->_mdir,
 			nCel,
 			frames);
 		*/
@@ -323,19 +354,20 @@ static void DrawMonster(int x, int y, int mx, int my, int m)
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, monster[m]._mAnimData, monster[m]._mAnimFrame, monster[m].MType->width, 1);
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, 1);
 	} else {
-		trans = 0;
-		if (monster[m]._uniqtype)
-			trans = monster[m]._uniqtrans + 4;
-		if (monster[m]._mmode == MM_STONE)
-			trans = 2;
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
-		if (trans)
-			Cl2DrawLightTbl(mx, my, monster[m]._mAnimData, monster[m]._mAnimFrame, monster[m].MType->width, trans);
+		else if (mon->_mmode == MM_STONE)
+			trans = 2;
+		else if (mon->_uniqtype != 0)
+			trans = mon->_uniqtrans + 4;
 		else
-			Cl2DrawLight(mx, my, monster[m]._mAnimData, monster[m]._mAnimFrame, monster[m].MType->width);
+			trans = 0;
+		if (trans != 0)
+			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, trans);
+		else
+			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->MType->width);
 	}
 }
 
@@ -354,8 +386,8 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 {
 	int l, frames;
 
-	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || !setlevel && !currlevel) {
-		if (!pCelBuff) {
+	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || currlevel == 0) {
+		if (pCelBuff == NULL) {
 			// app_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 			return;
 		}
@@ -382,21 +414,23 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
 			if (plr[pnum].pManaShield)
 				Cl2Draw(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0]);
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);
 		} else if (!(dFlags[x][y] & BFLAG_LIT) || plr[myplr]._pInfraFlag && light_table_index > 8) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
+#ifndef HELLFIRE
 			if (plr[pnum].pManaShield)
 				Cl2DrawLightTbl(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0],
 				    1);
+#endif
 		} else {
 			l = light_table_index;
 			if (light_table_index < 5)
@@ -406,11 +440,11 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
 			if (plr[pnum].pManaShield)
 				Cl2DrawLight(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
 				    py,
-				    misfiledata[MFILE_MANASHLD].mAnimData[0],
+				    misfiledata[MFILE_MANASHLD].mfAnimData[0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mAnimWidth[0]);
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);
 			light_table_index = l;
 		}
 	}
@@ -433,9 +467,9 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		p = &plr[i];
-		if (p->plractive && !p->_pHitPoints && p->plrlevel == (BYTE)currlevel && p->_px == x && p->_py == y) {
+		if (p->plractive && p->_pHitPoints == 0 && p->plrlevel == currlevel && p->_px == x && p->_py == y) {
 			pCelBuff = p->_pAnimData;
-			if (!pCelBuff) {
+			if (pCelBuff == NULL) {
 				// app_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
 				break;
 			}
@@ -463,54 +497,56 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  */
 static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 {
+	ObjectStruct *os;
 	int sx, sy, xx, yy, nCel, frames;
-	char bv;
+	char oi;
 	BYTE *pCelBuff;
 
-	if (dObject[x][y] == 0 || light_table_index >= lightmax)
+	oi = dObject[x][y];
+	if (oi == 0 || light_table_index >= lightmax)
 		return;
 
-	if (dObject[x][y] > 0) {
-		bv = dObject[x][y] - 1;
-		if (object[bv]._oPreFlag != pre)
+	if (oi > 0) {
+		oi--;
+		os = &object[oi];
+		if (os->_oPreFlag != pre)
 			return;
-		sx = ox - object[bv]._oAnimWidth2;
+		sx = ox - os->_oAnimWidth2;
 		sy = oy;
 	} else {
-		bv = -(dObject[x][y] + 1);
-		if (object[bv]._oPreFlag != pre)
+		oi = -(oi + 1);
+		os = &object[oi];
+		if (os->_oPreFlag != pre)
 			return;
-		xx = object[bv]._ox - x;
-		yy = object[bv]._oy - y;
-		sx = (xx << 5) + ox - object[bv]._oAnimWidth2 - (yy << 5);
+		xx = os->_ox - x;
+		yy = os->_oy - y;
+		sx = (xx << 5) + ox - os->_oAnimWidth2 - (yy << 5);
 		sy = oy + (yy << 4) + (xx << 4);
 	}
 
-	assert((unsigned char)bv < MAXOBJECTS);
+	assert((unsigned char)oi < MAXOBJECTS);
 
-	pCelBuff = object[bv]._oAnimData;
-	if (!pCelBuff) {
-		// app_fatal("Draw Object type %d: NULL Cel Buffer", object[bv]._otype);
+	pCelBuff = os->_oAnimData;
+	if (pCelBuff == NULL) {
+		// app_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 		return;
 	}
 
-	nCel = object[bv]._oAnimFrame;
+	nCel = os->_oAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > (int)frames) {
-		// app_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, object[bv]._otype);
+		// app_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
 		return;
 	}
 
-	if (bv == pcursobj)
-		CelBlitOutline(194, sx, sy, object[bv]._oAnimData, object[bv]._oAnimFrame, object[bv]._oAnimWidth);
-	if (object[bv]._oLight) {
-		CelClippedDrawLight(sx, sy, object[bv]._oAnimData, object[bv]._oAnimFrame, object[bv]._oAnimWidth);
+	if (oi == pcursobj)
+		CelBlitOutline(194, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+	if (os->_oLight) {
+		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
-		CelClippedDraw(sx, sy, object[bv]._oAnimData, object[bv]._oAnimFrame, object[bv]._oAnimWidth);
+		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	}
 }
-
-static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy);
 
 /**
  * @brief Render a cell
@@ -529,20 +565,20 @@ static void drawCell(int x, int y, int sx, int sy)
 	level_piece_id = dPiece[x][y];
 	cel_transparency_active = (BYTE)(nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	cel_foliage_active = !nSolidTable[level_piece_id];
-	for (int i = 0; i<MicroTileLen>> 1; i++) {
-		level_cel_block = pMap->mt[2 * i];
+	for (int i = 0; i < MicroTileLen; i += 2) {
+		level_cel_block = pMap->mt[i];
 		if (level_cel_block != 0) {
 			arch_draw_type = i == 0 ? 1 : 0;
 			RenderTile(dst);
 		}
-		level_cel_block = pMap->mt[2 * i + 1];
+		level_cel_block = pMap->mt[i + 1];
 		if (level_cel_block != 0) {
 			arch_draw_type = i == 0 ? 2 : 0;
 			RenderTile(dst + TILE_WIDTH / 2);
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
-	cel_foliage_active = false;
+	cel_foliage_active = FALSE;
 }
 
 /**
@@ -580,26 +616,28 @@ static void drawFloor(int x, int y, int sx, int sy)
  */
 static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 {
-	char bItem = dItem[x][y];
-	ItemStruct *pItem;
+	char ii = dItem[x][y];
+	ItemStruct *is;
 
-	if (bItem == 0)
+	if (ii == 0)
 		return;
 
-	pItem = &item[bItem - 1];
-	if (pItem->_iPostDraw == pre)
+	ii--;
+
+	is = &item[ii];
+	if (is->_iPostDraw == pre)
 		return;
 
-	assert((unsigned char)bItem <= MAXITEMS);
-	int px = sx - pItem->_iAnimWidth2;
-	if (bItem - 1 == pcursitem) {
-		CelBlitOutline(181, px, sy, pItem->_iAnimData, pItem->_iAnimFrame, pItem->_iAnimWidth);
+	assert((unsigned char)ii < MAXITEMS);
+	sx -= is->_iAnimWidth2;
+	if (ii == pcursitem) {
+		CelBlitOutline(181, sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
 	}
-	CelClippedDrawLight(px, sy, pItem->_iAnimData, pItem->_iAnimFrame, pItem->_iAnimWidth);
+	CelClippedDrawLight(sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
 }
 
 /**
- * @brief Check if and how a mosnter should be rendered
+ * @brief Check if and how a monster should be rendered
  * @param y dPiece coordinate
  * @param x dPiece coordinate
  * @param oy dPiece Y offset
@@ -608,44 +646,46 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
  */
 static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 {
-	int mi, px, py;
-	MonsterStruct *pMonster;
+	int mnum, px, py;
+	MonsterStruct *mon;
+	TownerStruct *tw;
 
-	mi = dMonster[x][y + oy];
-	mi = mi > 0 ? mi - 1 : -(mi + 1);
+	mnum = dMonster[x][y + oy];
+	mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
 
 	if (leveltype == DTYPE_TOWN) {
-		px = sx - towner[mi]._tAnimWidth2;
-		if (mi == pcursmonst) {
-			CelBlitOutline(166, px, sy, towner[mi]._tAnimData, towner[mi]._tAnimFrame, towner[mi]._tAnimWidth);
+		tw = &towner[mnum];
+		px = sx - tw->_tAnimWidth2;
+		if (mnum == pcursmonst) {
+			CelBlitOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		}
-		assert(towner[mi]._tAnimData);
-		CelClippedDraw(px, sy, towner[mi]._tAnimData, towner[mi]._tAnimFrame, towner[mi]._tAnimWidth);
+		assert(tw->_tAnimData);
+		CelClippedDraw(px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		return;
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT) && !plr[myplr]._pInfraFlag)
 		return;
 
-	if ((DWORD)mi >= MAXMONSTERS) {
-		// app_fatal("Draw Monster: tried to draw illegal monster %d", mi);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		// app_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 
-	pMonster = &monster[mi];
-	if (pMonster->_mFlags & MFLAG_HIDDEN) {
+	mon = &monster[mnum];
+	if (mon->_mFlags & MFLAG_HIDDEN) {
 		return;
 	}
 
-	if (pMonster->MType != NULL) {
-		// app_fatal("Draw Monster \"%s\": uninitialized monster", pMonster->mName);
+	if (mon->MType != NULL) {
+		// app_fatal("Draw Monster \"%s\": uninitialized monster", mon->mName);
 	}
 
-	px = sx + pMonster->_mxoff - pMonster->MType->width2;
-	py = sy + pMonster->_myoff;
-	if (mi == pcursmonst) {
-		Cl2DrawOutline(233, px, py, pMonster->_mAnimData, pMonster->_mAnimFrame, pMonster->MType->width);
+	px = sx + mon->_mxoff - mon->MType->width2;
+	py = sy + mon->_myoff;
+	if (mnum == pcursmonst) {
+		Cl2DrawOutline(233, px, py, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width);
 	}
-	DrawMonster(x, y, px, py, mi);
+	DrawMonster(x, y, px, py, mnum);
 }
 
 /**
@@ -658,13 +698,13 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
  */
 static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
 {
-	int p = dPlayer[x][y + oy];
-	p = p > 0 ? p - 1 : -(p + 1);
-	PlayerStruct *pPlayer = &plr[p];
-	int px = sx + pPlayer->_pxoff - pPlayer->_pAnimWidth2;
-	int py = sy + pPlayer->_pyoff;
+	int pnum = dPlayer[x][y + oy];
+	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
+	PlayerStruct *p = &plr[pnum];
+	int px = sx + p->_pxoff - p->_pAnimWidth2;
+	int py = sy + p->_pyoff;
 
-	DrawPlayer(p, x, y + oy, px, py, pPlayer->_pAnimData, pPlayer->_pAnimFrame, pPlayer->_pAnimWidth);
+	DrawPlayer(pnum, x, y + oy, px, py, p->_pAnimData, p->_pAnimFrame, p->_pAnimWidth);
 }
 
 /**
@@ -676,8 +716,8 @@ static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int mi, px, py, nCel, nMon, negMon, frames;
-	char bFlag, bDead, bObj, bItem, bPlr, bArch, bMap, negPlr, dd;
+	int px, mnum;
+	char bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
 
@@ -696,13 +736,15 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	bDead = dDead[sx][sy];
 	bMap = dTransVal[sx][sy];
 
-	negMon = 0;
+	mnum = 0;
 	if (sy > 0) // check for OOB
-		negMon = dMonster[sx][sy - 1];
+		mnum = dMonster[sx][sy - 1];
 
+#ifdef _DEBUG
 	if (visiondebug && bFlag & BFLAG_LIT) {
 		CelClippedDraw(dx, dy, pSquareCel, 1, 64);
 	}
+#endif
 
 	if (MissilePreFlag) {
 		DrawMissile(sx, sy, dx, dy, TRUE);
@@ -713,7 +755,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		dd = (bDead >> 5) & 7;
 		px = dx - pDeadGuy->_deadWidth2;
 		pCelBuff = pDeadGuy->_deadData[dd];
-		assert(pDeadGuy->_deadData[dd] != NULL);
+		assert(pCelBuff != NULL);
 		if (pCelBuff != NULL) {
 			if (pDeadGuy->_deadtrans != 0) {
 				Cl2DrawLightTbl(px, dy, pCelBuff, pDeadGuy->_deadFrame, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
@@ -722,13 +764,13 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 			}
 		}
 	}
-	DrawObject(sx, sy, dx, dy, 1);
-	DrawItem(sx, sy, dx, dy, 1);
+	DrawObject(sx, sy, dx, dy, TRUE);
+	DrawItem(sx, sy, dx, dy, TRUE);
 	if (bFlag & BFLAG_PLAYERLR) {
 		assert((DWORD)(sy - 1) < MAXDUNY);
 		DrawPlayerHelper(sx, sy, -1, dx, dy);
 	}
-	if (bFlag & BFLAG_MONSTLR && negMon < 0) {
+	if (bFlag & BFLAG_MONSTLR && mnum < 0) {
 		DrawMonsterHelper(sx, sy, -1, dx, dy);
 	}
 	if (bFlag & BFLAG_DEAD_PLAYER) {
@@ -741,8 +783,8 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawMonsterHelper(sx, sy, 0, dx, dy);
 	}
 	DrawMissile(sx, sy, dx, dy, FALSE);
-	DrawObject(sx, sy, dx, dy, 0);
-	DrawItem(sx, sy, dx, dy, 0);
+	DrawObject(sx, sy, dx, dy, FALSE);
+	DrawItem(sx, sy, dx, dy, FALSE);
 
 	if (leveltype != DTYPE_TOWN) {
 		bArch = dSpecial[sx][sy];
@@ -751,8 +793,8 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 			CelClippedBlitLightTrans(&gpBuffer[dx + BUFFER_WIDTH * dy], pSpecialCels, bArch, 64);
 		}
 	} else {
-		// Tree leafs should always cover player when entering or leaving the tile,
-		// So delay the rendering untill after the next row is being drawn.
+		// Tree leaves should always cover player when entering or leaving the tile,
+		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0 && dy > TILE_HEIGHT + SCREEN_Y) {
 			bArch = dSpecial[sx - 1][sy - 1];
@@ -764,7 +806,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 }
 
 /**
- * @brief Render a row of floor tiles
+ * @brief Render a row of tiles
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
@@ -774,11 +816,11 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
  */
 static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int columns)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY) {
+			if (IN_DUNGEON_AREA(x, y)) {
 				level_piece_id = dPiece[x][y];
 				if (level_piece_id != 0) {
 					if (!nSolidTable[level_piece_id])
@@ -824,7 +866,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
  */
 static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 {
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	// Keep evaluating until MicroTiles can't affect screen
 	rows += MicroTileLen;
@@ -832,7 +874,7 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns ; j++) {
-			if (x >= 0 && x < MAXDUNX && y >= 0 && y < MAXDUNY) {
+			if (IN_DUNGEON_AREA(x, y)) {
 				if (x + 1 < MAXDUNX && y - 1 >= 0 && sx + TILE_WIDTH <= SCREEN_X + SCREEN_WIDTH) {
 					// Render objects behind walls first to prevent sprites, that are moving
 					// between tiles, from poking through the walls as they exceed the tile bounds.
@@ -910,7 +952,7 @@ static void Zoom()
  * @param horizontal Shift the screen left or right
  * @param vertical Shift the screen up or down
  */
-void ShiftGrid(int *x, int *y, int horizontal, int vertical)
+inline void ShiftGrid(int *x, int *y, int horizontal, int vertical)
 {
 	*x += vertical + horizontal;
 	*y += vertical - horizontal;
@@ -925,7 +967,7 @@ int RowsCoveredByPanel()
 		return 0;
 	}
 
-	int rows = PANEL_HEIGHT / TILE_HEIGHT * 2;
+	int rows = PANEL_HEIGHT / TILE_HEIGHT;
 	if (!zoomflag) {
 		rows /= 2;
 	}
@@ -947,12 +989,12 @@ void CalcTileOffset(int *offsetX, int *offsetY)
 		y = VIEWPORT_HEIGHT % TILE_HEIGHT;
 	} else {
 		x = (SCREEN_WIDTH / 2) % TILE_WIDTH;
-		y = (VIEWPORT_HEIGHT / 2 + TILE_HEIGHT / 2) % TILE_HEIGHT;
+		y = (VIEWPORT_HEIGHT / 2) % TILE_HEIGHT;
 	}
 
-	if (x)
+	if (x != 0)
 		x = (TILE_WIDTH - x) / 2;
-	if (y)
+	if (y != 0)
 		y = (TILE_HEIGHT - y) / 2;
 
 	*offsetX = x;
@@ -970,26 +1012,72 @@ void TilesInView(int *rcolumns, int *rrows)
 	if (SCREEN_WIDTH % TILE_WIDTH) {
 		columns++;
 	}
-	int rows = VIEWPORT_HEIGHT / (TILE_HEIGHT / 2);
-	if (VIEWPORT_HEIGHT % (TILE_HEIGHT / 2)) {
+	int rows = VIEWPORT_HEIGHT / TILE_HEIGHT;
+	if (VIEWPORT_HEIGHT % TILE_HEIGHT) {
 		rows++;
 	}
 
 	if (!zoomflag) {
 		// Half the number of tiles, rounded up
-		if (columns % 2) {
-			columns++;
-		}
-		columns /= 2;
-		if (rows % 2) {
-			rows++;
-		}
-		rows /= 2;
+		columns++;
+		columns >>= 1;
+		rows++;
+		rows >>= 1;
 	}
-	rows++; // Cover lower edge saw tooth, right edge accounted for in scrollrt_draw()
 
 	*rcolumns = columns;
 	*rrows = rows;
+}
+
+int tileOffsetX;
+int tileOffsetY;
+int tileShiftX;
+int tileShiftY;
+int tileColums;
+int tileRows;
+
+void CalcViewportGeometry()
+{
+	int xo, yo;
+	tileShiftX = 0;
+	tileShiftY = 0;
+
+	// Adjust by player offset and tile grid alignment
+	CalcTileOffset(&xo, &yo);
+	tileOffsetX = 0 - xo;
+	tileOffsetY = 0 - yo - 1 + TILE_HEIGHT / 2;
+
+	TilesInView(&tileColums, &tileRows);
+	int lrow = tileRows - RowsCoveredByPanel();
+
+	// Center player tile on screen
+	ShiftGrid(&tileShiftX, &tileShiftY, -tileColums / 2, -lrow / 2);
+
+	tileRows *= 2;
+
+	// Align grid
+	if ((tileColums & 1) == 0) {
+		tileShiftY--; // Shift player row to one that can be centered with out pixel offset
+		if ((lrow & 1) == 0) {
+			// Offset tile to vertically align the player when both rows and colums are even
+			tileRows++;
+			tileOffsetY -= TILE_HEIGHT / 2;
+		}
+	} else if (tileColums & 1 && lrow & 1) {
+		// Offset tile to vertically align the player when both rows and colums are odd
+		ShiftGrid(&tileShiftX, &tileShiftY, 0, -1);
+		tileRows++;
+		tileOffsetY -= TILE_HEIGHT / 2;
+	}
+
+	// Slightly lower the zoomed view
+	if (!zoomflag) {
+		tileOffsetY += TILE_HEIGHT / 4;
+		if (yo < TILE_HEIGHT / 4)
+			tileRows++;
+	}
+
+	tileRows++; // Cover lower edge saw tooth, right edge accounted for in scrollrt_draw()
 }
 
 /**
@@ -999,7 +1087,7 @@ void TilesInView(int *rcolumns, int *rrows)
  */
 static void DrawGame(int x, int y)
 {
-	int i, sx, sy, columns, rows, xo, yo;
+	int sx, sy, columns, rows;
 
 	// Limit rendering to the view area
 	if (zoomflag)
@@ -1008,16 +1096,14 @@ static void DrawGame(int x, int y)
 		gpBufEnd = &gpBuffer[BUFFER_WIDTH * (VIEWPORT_HEIGHT / 2 + SCREEN_Y)];
 
 	// Adjust by player offset and tile grid alignment
-	CalcTileOffset(&xo, &yo);
-	sx = ScrollInfo._sxoff - xo + SCREEN_X;
-	sy = ScrollInfo._syoff - yo + SCREEN_Y + (TILE_HEIGHT / 2 - 1);
+	sx = ScrollInfo._sxoff + tileOffsetX + SCREEN_X;
+	sy = ScrollInfo._syoff + tileOffsetY + SCREEN_Y;
 
-	// Center player tile on screen
-	TilesInView(&columns, &rows);
-	ShiftGrid(&x, &y, -columns / 2, -(rows - RowsCoveredByPanel()) / 4);
-	if ((columns % 2) == 0) {
-		y--;
-	}
+	columns = tileColums;
+	rows = tileRows;
+
+	x += tileShiftX;
+	y += tileShiftY;
 
 	// Skip rendering parts covered by the panels
 	if (PANELS_COVER) {
@@ -1100,9 +1186,6 @@ static void DrawGame(int x, int y)
 	}
 }
 
-// DevilutionX extension.
-extern void DrawControllerModifierHints();
-
 /**
  * @brief Start rendering of screen, town variation
  * @param StartX Center of view in dPiece coordinate
@@ -1133,7 +1216,8 @@ void DrawView(int StartX, int StartY)
 	    && (!questlog || SCREEN_HEIGHT >= SPANEL_HEIGHT + PANEL_HEIGHT + 74 || SCREEN_WIDTH >= 4 * SPANEL_WIDTH)) {
 		DrawLevelUpIcon();
 	}
-	if (uitemflag) {
+	if (uitemflag
+	 && ((!chrflag && !questlog) || SCREEN_WIDTH >= SPANEL_WIDTH * 3)) {
 		DrawUniqueInfo();
 	}
 	if (qtextflag) {
@@ -1157,7 +1241,9 @@ void DrawView(int StartX, int StartY)
 		gmenu_draw_pause();
 	}
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	DrawControllerModifierHints();
+#endif
 	DrawPlrMsg();
 	gmenu_draw();
 	doom_draw();
@@ -1202,12 +1288,12 @@ void ScrollView()
 	scroll = FALSE;
 
 	if (MouseX < 20) {
-		if (dmaxy - 1 <= ViewY || dminx >= ViewX) {
-			if (dmaxy - 1 > ViewY) {
+		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
+			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
 				scroll = TRUE;
 			}
-			if (dminx < ViewX) {
+			if (DBORDERX < ViewX) {
 				ViewX--;
 				scroll = TRUE;
 			}
@@ -1218,12 +1304,12 @@ void ScrollView()
 		}
 	}
 	if (MouseX > SCREEN_WIDTH - 20) {
-		if (dmaxx - 1 <= ViewX || dminy >= ViewY) {
-			if (dmaxx - 1 > ViewX) {
+		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
+			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
 				scroll = TRUE;
 			}
-			if (dminy < ViewY) {
+			if (DBORDERY < ViewY) {
 				ViewY--;
 				scroll = TRUE;
 			}
@@ -1234,12 +1320,12 @@ void ScrollView()
 		}
 	}
 	if (MouseY < 20) {
-		if (dminy >= ViewY || dminx >= ViewX) {
-			if (dminy < ViewY) {
+		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
+			if (DBORDERY < ViewY) {
 				ViewY--;
 				scroll = TRUE;
 			}
-			if (dminx < ViewX) {
+			if (DBORDERX < ViewX) {
 				ViewX--;
 				scroll = TRUE;
 			}
@@ -1250,12 +1336,12 @@ void ScrollView()
 		}
 	}
 	if (MouseY > SCREEN_HEIGHT - 20) {
-		if (dmaxy - 1 <= ViewY || dmaxx - 1 <= ViewX) {
-			if (dmaxy - 1 > ViewY) {
+		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
+			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
 				scroll = TRUE;
 			}
-			if (dmaxx - 1 > ViewX) {
+			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
 				scroll = TRUE;
 			}
@@ -1276,7 +1362,7 @@ void ScrollView()
  */
 void EnableFrameCount()
 {
-	frameflag = frameflag == 0;
+	frameflag = !frameflag;
 	framestart = SDL_GetTicks();
 }
 
@@ -1287,7 +1373,6 @@ static void DrawFPS()
 {
 	DWORD tc, frames;
 	char String[12];
-	HDC hdc;
 
 	if (frameflag && gbActive && pPanelText) {
 		frameend++;
@@ -1298,7 +1383,7 @@ static void DrawFPS()
 			framerate = 1000 * frameend / frames;
 			frameend = 0;
 		}
-		snprintf(String, 12, "%d FPS", framerate);
+		snprintf(String, sizeof(String), "%d FPS", framerate);
 		PrintGameStr(8, 65, String, COL_RED);
 	}
 }
@@ -1310,7 +1395,7 @@ static void DrawFPS()
  * @param dwWdt Back buffer coordinate
  * @param dwHgt Back buffer coordinate
  */
-static void DoBlitScreen(DWORD dwX, DWORD dwY, DWORD dwWdt, DWORD dwHgt)
+static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
 {
 	SDL_Rect SrcRect = {
 		dwX + SCREEN_X,
@@ -1329,10 +1414,10 @@ static void DoBlitScreen(DWORD dwX, DWORD dwY, DWORD dwWdt, DWORD dwHgt)
 }
 
 /**
- * @brief Check render pipline and blit indivudal screen parts
+ * @brief Check render pipeline and blit individual screen parts
  * @param dwHgt Section of screen to update from top to bottom
  * @param draw_desc Render info box
- * @param draw_hp Render halth bar
+ * @param draw_hp Render health bar
  * @param draw_mana Render mana bar
  * @param draw_sbar Render belt
  * @param draw_btn Render panel buttons
@@ -1340,8 +1425,6 @@ static void DoBlitScreen(DWORD dwX, DWORD dwY, DWORD dwWdt, DWORD dwHgt)
 static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BOOL draw_sbar, BOOL draw_btn)
 {
 	int ysize;
-	DWORD dwTicks;
-	BOOL retry;
 
 	ysize = dwHgt;
 
@@ -1371,16 +1454,16 @@ static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BO
 		if (draw_btn) {
 			DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
 			DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
-			if (gbMaxPlayers > 1) {
+			if (gbMaxPlayers != 1) {
 				DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
 				DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
 			}
 		}
-		if (sgdwCursWdtOld != 0) {
-			DoBlitScreen(sgdwCursXOld, sgdwCursYOld, sgdwCursWdtOld, sgdwCursHgtOld);
+		if (sgCursWdtOld != 0) {
+			DoBlitScreen(sgCursXOld, sgCursYOld, sgCursWdtOld, sgCursHgtOld);
 		}
-		if (sgdwCursWdt != 0) {
-			DoBlitScreen(sgdwCursX, sgdwCursY, sgdwCursWdt, sgdwCursHgt);
+		if (sgCursWdt != 0) {
+			DoBlitScreen(sgCursX, sgCursY, sgCursWdt, sgCursHgt);
 		}
 	}
 }

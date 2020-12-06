@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -12,11 +11,11 @@
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/fonts.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
-const SDL_Rect VIEWPORT = { 0, 114, SCREEN_WIDTH, 251 };
+const SDL_Rect VIEWPORT = { 0, 114, 640, 251 };
 const int SHADOW_OFFSET_X = 2;
 const int SHADOW_OFFSET_Y = 2;
 const int LINE_H = 22;
@@ -60,7 +59,7 @@ SDL_Surface *RenderText(const char *text, SDL_Color color)
 CachedLine PrepareLine(std::size_t index)
 {
 	const char *contents = CREDITS_LINES[index];
-	if (contents[0] == '\t')
+	while (contents[0] == '\t')
 		++contents;
 
 	const SDL_Color shadow_color = { 0, 0, 0, 0 };
@@ -145,7 +144,7 @@ void CreditsRenderer::Render()
 	prev_offset_y_ = offset_y;
 
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
-	DrawArt(PANEL_LEFT + 0, 0, &ArtBackground);
+	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);
 	if (font == NULL)
 		return;
 
@@ -162,11 +161,13 @@ void CreditsRenderer::Render()
 		lines_.push_back(PrepareLine(lines_.size()));
 
 	SDL_Rect viewport = VIEWPORT;
+	viewport.x += PANEL_LEFT;
+	viewport.y += UI_OFFSET_Y;
 	ScaleOutputRect(&viewport);
 	SDL_SetClipRect(GetOutputSurface(), &viewport);
 
 	// We use unscaled coordinates for calculation throughout.
-	Sint16 dest_y = VIEWPORT.y - (offset_y - lines_begin * LINE_H);
+	int dest_y = UI_OFFSET_Y + VIEWPORT.y - (offset_y - lines_begin * LINE_H);
 	for (std::size_t i = lines_begin; i < lines_end; ++i, dest_y += LINE_H) {
 		CachedLine &line = lines_[i];
 		if (line.m_surface == NULL)
@@ -178,8 +179,9 @@ void CreditsRenderer::Render()
 			line = PrepareLine(line.m_index);
 		}
 
-		Sint16 dest_x = PANEL_LEFT + VIEWPORT.x + 31;
-		if (CREDITS_LINES[line.m_index][0] == '\t')
+		int dest_x = PANEL_LEFT + VIEWPORT.x + 31;
+		int j = 0;
+		while (CREDITS_LINES[line.m_index][j++] == '\t')
 			dest_x += 40;
 
 		SDL_Rect dst_rect = { dest_x, dest_y, 0, 0 };
@@ -226,4 +228,4 @@ BOOL UiCreditsDialog(int a1)
 	return true;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

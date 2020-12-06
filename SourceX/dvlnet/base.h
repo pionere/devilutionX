@@ -6,19 +6,10 @@
 #include <array>
 #include <memory>
 
-#include "all.h"
 #include "dvlnet/abstract_net.h"
 #include "dvlnet/packet.h"
 
-#define PS_CONNECTED 0x10000
-#define PS_TURN_ARRIVED 0x20000
-#define PS_ACTIVE 0x40000
-
-#define LEAVE_NORMAL 3
-#define LEAVE_ENDING 0x40000004
-#define LEAVE_DROP 0x40000006
-
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class base : public abstract_net {
@@ -39,7 +30,7 @@ public:
 	virtual bool SNetLeaveGame(int type);
 	virtual bool SNetDropPlayer(int playerid, DWORD flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
-	virtual bool SNetGetTurnsInTransit(int *turns);
+	virtual bool SNetGetTurnsInTransit(DWORD *turns);
 
 	virtual void poll() = 0;
 	virtual void send(packet &pkt) = 0;
@@ -89,4 +80,4 @@ private:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

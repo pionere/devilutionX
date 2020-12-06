@@ -2,7 +2,7 @@
 
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 enum MenuAction {
 	MenuAction_NONE = 0,
@@ -21,4 +21,4 @@ enum MenuAction {
 
 MenuAction GetMenuAction(const SDL_Event &event);
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -13,7 +13,7 @@ char msgflag;
 char msgcnt;
 
 /** Maps from error_id to error message. */
-char *MsgStrings[] = {
+const char *const MsgStrings[] = {
 	"",
 	"No automap available in town",
 	"No multiplayer functions in demo",
@@ -58,6 +58,19 @@ char *MsgStrings[] = {
 	"You must be at least level 13 to use this.",
 	"You must be at least level 17 to use this.",
 	"Arcane knowledge gained!",
+#ifdef HELLFIRE
+	"That which does not kill you...",
+	"Knowledge is power.",
+	"Give and you shall receive.",
+	"Some experience is gained by touch.",
+	"There's no place like home.",
+	"Spirtual energy is restored.",
+	"You feel more agile.",
+	"You feel stronger.",
+	"You feel wiser.",
+	"You feel refreshed.",
+	"That which can break will.",
+#endif
 };
 
 void InitDiabloMsg(char e)
@@ -81,10 +94,7 @@ void InitDiabloMsg(char e)
 
 void ClrDiabloMsg()
 {
-	int i;
-
-	for (i = 0; i < sizeof(msgtable); i++)
-		msgtable[i] = 0;
+	memset(msgtable, 0, sizeof(msgtable));
 
 	msgflag = 0;
 	msgcnt = 0;
@@ -113,11 +123,11 @@ void DrawDiabloMsg()
 		sy += 12;
 	}
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	trans_rect(PANEL_LEFT + 104, DIALOG_TOP - 8, 432, 54);
 
-	strcpy(tempstr, MsgStrings[msgflag]);
+	SStrCopy(tempstr, MsgStrings[msgflag], sizeof(tempstr));
 	sx = PANEL_X + 101;
 	sy = DIALOG_Y + 24;
 	len = strlen(tempstr);

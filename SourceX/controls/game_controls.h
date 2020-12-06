@@ -1,8 +1,11 @@
 #pragma once
 
 #include "all.h"
+#include "controller.h"
 
-namespace dvl {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+
+DEVILUTION_BEGIN_NAMESPACE
 
 enum GameActionType {
 	GameActionType_NONE = 0,
@@ -65,7 +68,7 @@ struct GameAction {
 	};
 };
 
-bool GetGameAction(const SDL_Event &event, GameAction *action);
+bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, GameAction *action);
 
 enum MoveDirectionX {
 	MoveDirectionX_NONE = 0,
@@ -86,4 +89,6 @@ MoveDirection GetMoveDirection();
 extern bool start_modifier_active;
 extern bool select_modifier_active;
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
+
+#endif

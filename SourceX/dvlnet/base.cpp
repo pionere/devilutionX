@@ -1,9 +1,8 @@
-#include "dvlnet/base.h"
+#include "base.h"
 
-#include <algorithm>
 #include <cstring>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 void base::setup_gameinfo(buffer_t info)
@@ -19,7 +18,7 @@ void base::setup_password(std::string pw)
 void base::run_event_handler(_SNETEVENT &ev)
 {
 	auto f = registered_handlers[static_cast<event_type>(ev.eventid)];
-	if (f) {
+	if (f != NULL) {
 		f(&ev);
 	}
 }
@@ -146,8 +145,7 @@ bool base::SNetReceiveTurns(char **data, unsigned int *size, DWORD *status)
 		for (auto i = 0; i < MAX_PLRS; ++i) {
 			if (connected_table[i]) {
 				size[i] = sizeof(turn_t);
-				status[i] |= PS_ACTIVE;
-				status[i] |= PS_TURN_ARRIVED;
+				status[i] |= PS_ACTIVE | PS_TURN_ARRIVED;
 				turn_last[i] = turn_queue[i].front();
 				turn_queue[i].pop_front();
 				data[i] = reinterpret_cast<char *>(&turn_last[i]);
@@ -248,11 +246,11 @@ bool base::SNetGetOwnerTurnsWaiting(DWORD *turns)
 	return true;
 }
 
-bool base::SNetGetTurnsInTransit(int *turns)
+bool base::SNetGetTurnsInTransit(DWORD *turns)
 {
 	*turns = turn_queue[plr_self].size();
 	return true;
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

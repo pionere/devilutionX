@@ -4,11 +4,10 @@
  * Implementation of functions setting up the graphics pipeline.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 #include "display.h"
 #include <SDL.h>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 int sgdwLockCount;
 BYTE *gpBuffer;
@@ -31,9 +30,6 @@ SDL_Surface *renderer_texture_surface = NULL;
 
 /** 8-bit surface wrapper around #gpBuffer */
 SDL_Surface *pal_surface;
-
-/** To know if surfaces have been initialized or not */
-BOOL was_window_init = false;
 
 static void dx_create_back_buffer()
 {
@@ -91,8 +87,8 @@ static void lock_buf_priv()
 		return;
 	}
 
-	gpBufEnd += (uintptr_t)(BYTE *)pal_surface->pixels;
 	gpBuffer = (BYTE *)pal_surface->pixels;
+	gpBufEnd += (uintptr_t)(BYTE *)pal_surface->pixels;
 	sgdwLockCount++;
 }
 
@@ -176,12 +172,12 @@ void InitPalette()
 	}
 }
 
-void BltFast(SDL_Rect *src_rect, SDL_Rect *dst_rect)
+void BltFast(const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 {
 	Blit(pal_surface, src_rect, dst_rect);
 }
 
-void Blit(SDL_Surface *src, SDL_Rect *src_rect, SDL_Rect *dst_rect)
+void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
 {
 	SDL_Surface *dst = GetOutputSurface();
 #ifndef USE_SDL1
@@ -305,4 +301,4 @@ void PaletteGetEntries(DWORD dwNumEntries, SDL_Color *lpEntries)
 		lpEntries[i] = system_palette[i];
 	}
 }
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

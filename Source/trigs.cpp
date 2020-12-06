@@ -1,109 +1,168 @@
+/**
+ * @file trigs.cpp
+ *
+ * Implementation of functionality for triggering events when the player enters an area.
+ */
 #include "all.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BOOL townwarps[3];
 BOOL trigflag;
 int numtrigs;
 TriggerStruct trigs[MAXTRIGGERS];
+unsigned char townwarps;
 int TWarpFrom;
 
-int TownDownList[] = { 716, 715, 719, 720, 721, 723, 724, 725, 726, 727, -1 };
-int TownWarp1List[] = { 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1181, 1183, 1185, -1 };
-int L1UpList[] = { 127, 129, 130, 131, 132, 133, 135, 137, 138, 139, 140, -1 };
-int L1DownList[] = { 106, 107, 108, 109, 110, 112, 114, 115, 118, -1 };
-int L2UpList[] = { 266, 267, -1 };
-int L2DownList[] = { 269, 270, 271, 272, -1 };
-int L2TWarpUpList[] = { 558, 559, -1 };
-int L3UpList[] = { 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, -1 };
-int L3DownList[] = { 162, 163, 164, 165, 166, 167, 168, 169, -1 };
-int L3TWarpUpList[] = { 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, -1 };
-int L4UpList[] = { 82, 83, 90, -1 };
-int L4DownList[] = { 120, 130, 131, 132, 133, -1 };
-int L4TWarpUpList[] = { 421, 422, 429, -1 };
-int L4PentaList[] = { 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, -1 };
+#define PIECE dPiece[cursmx][cursmy]
+/** Specifies the dungeon piece IDs which constitute stairways leading down to the cathedral from town. */
+#define TOWN_L1_WARP		(PIECE == 716 || (PIECE >= 723 && PIECE <= 728))
+/** Specifies the dungeon piece IDs which constitute stairways leading down to the catacombs from town. */
+#define TOWN_L2_WARP		(PIECE >= 1175 && PIECE <= 1178)
+/** Specifies the dungeon piece IDs which constitute stairways leading down to the caves from town. */
+#define TOWN_L3_WARP		(PIECE >= 1199 && PIECE <= 1220)
+/** Specifies the dungeon piece IDs which constitute stairways leading down to hell from town. */
+#define TOWN_L4_WARP		(PIECE >= 1240 && PIECE <= 1255)
+/** Specifies the dungeon piece IDs which constitute stairways leading down to the hive from town. */
+#define TOWN_L5_WARP		(PIECE >= 1307 && PIECE <= 1310)
+/** Specifies the dungeon piece IDs which constitute stairways leading down to the crypt from town. */
+#define TOWN_L6_WARP		(PIECE >= 1331 && PIECE <= 1338)
+/** Specifies the dungeon piece IDs which constitute stairways leading up from the cathedral. */
+#define L1_UP_WARP			(PIECE >= 127 && PIECE <= 140 && PIECE != 128 && PIECE != 134 && PIECE != 136)
+/** Specifies the dungeon piece IDs which constitute stairways leading down from the cathedral. */
+//							{ 106, 107, 108, 109, 110, /*111,*/ 112, /*113,*/ 114, 115, /*116, 117,*/ 118, }
+#define L1_DOWN_WARP		((PIECE >= 106 && PIECE <= 115 && PIECE != 111 && PIECE != 113) || PIECE == 118)
+/** Specifies the dungeon piece IDs which constitute stairways leading up from the catacombs. */
+#define L2_UP_WARP			(PIECE == 266 || PIECE == 267)
+/** Specifies the dungeon piece IDs which constitute stairways leading down from the catacombs. */
+#define L2_DOWN_WARP		(PIECE >= 269 && PIECE <= 272)
+/** Specifies the dungeon piece IDs which constitute stairways leading up to town from the catacombs. */
+#define L2_TOWN_WARP		(PIECE == 558 || PIECE == 559)
+/** Specifies the dungeon piece IDs which constitute stairways leading up from the caves. */
+#define L3_UP_WARP			(PIECE == 170 || PIECE == 171)
+#define L3_UP_WARPx(x)		(x == 170 || x == 171)
+/** Specifies the dungeon piece IDs which constitute stairways leading down from the caves. */
+#define L3_DOWN_WARP		(PIECE == 168)
+#define L3_DOWN_WARPx(x)	(x == 168)
+/** Specifies the dungeon piece IDs which constitute stairways leading up to town from the caves. */
+//#define L3_TOWN_WARP		(PIECE == 548 || PIECE == 549 || PIECE == 559 || PIECE == 560)
+#define L3_TOWN_WARP		(PIECE >= 548 && PIECE <= 560 && (PIECE <= 549 || PIECE >= 559))
+#define L3_TOWN_WARPx(x)	(x >= 548 && x <= 560 && (x <= 549 || x >= 559))
+/** Specifies the dungeon piece IDs which constitute stairways leading up from hell. */
+#define L4_UP_WARP			(PIECE == 82 || (PIECE >= 90 && PIECE <= 97 && PIECE != 91 && PIECE != 93))
+/** Specifies the dungeon piece IDs which constitute stairways leading down from hell. */
+#define L4_DOWN_WARP		(PIECE >= 130 && PIECE <= 133 || PIECE == 120)
+/** Specifies the dungeon piece IDs which constitute stairways leading up to town from hell. */
+#define L4_TOWN_WARP		(PIECE == 421 || (PIECE >= 429 && PIECE <= 436 && PIECE != 430 && PIECE != 432))
+/** Specifies the dungeon piece IDs which constitute stairways leading down to Diablo from hell. */
+#define L4_PENTA_WARP		(PIECE >= 353 && PIECE <= 384)
+#ifdef HELLFIRE
+/** Specifies the dungeon piece IDs which constitute stairways leading up to town from crypt. */
+#define L5_TOWN_WARP		(PIECE >= 172 && PIECE <= 185 && (PIECE <= 179 || PIECE >= 184))
+/** Specifies the dungeon piece IDs which constitute stairways leading up from crypt. */
+#define L5_UP_WARP			(PIECE >= 149 && PIECE <= 159 && (PIECE <= 153 || PIECE >= 158))
+/** Specifies the dungeon piece IDs which constitute stairways leading down from crypt. */
+#define L5_DOWN_WARP		(PIECE >= 125 && PIECE <= 126)
+#define L5_DOWN_WARPx(x)	(x >= 125 && x <= 126)
+/** Specifies the dungeon piece IDs which constitute stairways leading up to town from nest. */
+#define L6_TOWN_WARP		(PIECE >= 79 && PIECE <= 80)
+#define L6_TOWN_WARPx(x)	(x >= 79 && x <= 80)
+/** Specifies the dungeon piece IDs which constitute stairways leading up from nest. */
+#define L6_UP_WARP			(PIECE >= 65 && PIECE <= 66)
+#define L6_UP_WARPx(x)		(x >= 65 && x <= 66)
+/** Specifies the dungeon piece IDs which constitute stairways leading down from nest. */
+#define L6_DOWN_WARPx(x)	(x == 61 || x == 63)
+#define TR_CORNERSTONE		(PIECE == 317)
+#endif
 
-#ifndef SPAWN
 void InitNoTriggers()
 {
-	numtrigs = 0;
 	trigflag = FALSE;
+	numtrigs = 0;
 }
-#endif
 
+/*
+ * Initialize the triggers in town.
+ * Only the available triggers are set up correctly (numtrigs won't reflect this!).
+ */
 void InitTownTriggers()
 {
-	int i;
+	trigflag = FALSE;
 
-	numtrigs = 0;
+	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
+	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
+	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABNEXTLVL;
 
-	trigs[numtrigs]._tx = 25;
-	trigs[numtrigs]._ty = 29;
-	trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-	numtrigs++;
+	townwarps = GetOpenWarps();
 
-
-#ifndef SPAWN
-	if (gbMaxPlayers == MAX_PLRS) {
-		for (i = 0; i < sizeof(townwarps) / sizeof(townwarps[0]); i++) {
-			townwarps[i] = TRUE;
-		}
-		trigs[numtrigs]._tx = 49;
-		trigs[numtrigs]._ty = 21;
-		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-		trigs[numtrigs]._tlvl = 5;
-		numtrigs++;
-		trigs[numtrigs]._tx = 17;
-		trigs[numtrigs]._ty = 69;
-		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-		trigs[numtrigs]._tlvl = 9;
-		numtrigs++;
-		trigs[numtrigs]._tx = 41;
-		trigs[numtrigs]._ty = 80;
-		trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-		trigs[numtrigs]._tlvl = 13;
-		numtrigs++;
-	} else {
-#endif
-		for (i = 0; i < MAX_PLRS - 1; i++) {
-			townwarps[i] = FALSE;
-		}
-#ifndef SPAWN
-		if (plr[myplr].pTownWarps & 1) {
-			trigs[numtrigs]._tx = 49;
-			trigs[numtrigs]._ty = 21;
-			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-			trigs[numtrigs]._tlvl = 5;
-			numtrigs++;
-			townwarps[0] = TRUE;
-		}
-		if (plr[myplr].pTownWarps & 2) {
-			townwarps[1] = TRUE;
-			trigs[numtrigs]._tx = 17;
-			trigs[numtrigs]._ty = 69;
-			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-			trigs[numtrigs]._tlvl = 9;
-			numtrigs++;
-		}
-		if (plr[myplr].pTownWarps & 4) {
-			townwarps[2] = TRUE;
-			trigs[numtrigs]._tx = 41;
-			trigs[numtrigs]._ty = 80;
-			trigs[numtrigs]._tmsg = WM_DIABTOWNWARP;
-			trigs[numtrigs]._tlvl = 13;
-			numtrigs++;
-		}
+	if (townwarps & (1 << TWARP_CATACOMB)) {
+		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
+		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
+		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CATACOMB]._tlvl = 5;
+	}
+	if (townwarps & (1 << TWARP_CAVES)) {
+		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
+		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
+		trigs[TWARP_CAVES]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CAVES]._tlvl = 9;
+	}
+	if (townwarps & (1 << TWARP_HELL)) {
+		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
+		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
+		trigs[TWARP_HELL]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_HELL]._tlvl = 13;
+	}
+#ifdef HELLFIRE
+	if (townwarps & (1 << TWARP_HIVE)) {
+		trigs[TWARP_HIVE]._tx = 70 + DBORDERX;
+		trigs[TWARP_HIVE]._ty = 52 + DBORDERY;
+		trigs[TWARP_HIVE]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_HIVE]._tlvl = 17;
+	}
+	if (townwarps & (1 << TWARP_CRYPT)) {
+		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
+		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
+		trigs[TWARP_CRYPT]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CRYPT]._tlvl = 21;
 	}
 #endif
-
-	trigflag = FALSE;
+	static_assert(NUM_TWARP <= MAXTRIGGERS, "Too many trigger in town.");
+	numtrigs = NUM_TWARP;
 }
 
 void InitL1Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++) {
+				if (dPiece[i][j] == 184) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+					trigs[numtrigs]._tlvl = 0;
+					numtrigs++;
+				} else if (dPiece[i][j] == 158) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+					numtrigs++;
+				} else if (dPiece[i][j] == 126) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+					numtrigs++;
+				}
+			}
+		}
+		return;
+	}
+#endif
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			if (dPiece[i][j] == 129) {
@@ -111,8 +170,7 @@ void InitL1Triggers()
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-			if (dPiece[i][j] == 115) {
+			} else if (dPiece[i][j] == 115) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -120,14 +178,13 @@ void InitL1Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
-#ifndef SPAWN
 void InitL2Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
@@ -136,17 +193,13 @@ void InitL2Triggers()
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 559) {
+			} else if (dPiece[i][j] == 559) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
 				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 271) {
+			} else if (dPiece[i][j] == 271) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -154,14 +207,39 @@ void InitL2Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
 void InitL3Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		for (j = 0; j < MAXDUNY; j++) {
+			for (i = 0; i < MAXDUNX; i++) {
+				if (dPiece[i][j] == 66) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+					numtrigs++;
+				} else if (dPiece[i][j] == 63) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+					numtrigs++;
+				} else if (dPiece[i][j] == 80) {
+					trigs[numtrigs]._tx = i;
+					trigs[numtrigs]._ty = j;
+					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+					numtrigs++;
+				}
+			}
+		}
+		return;
+	}
+#endif
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			if (dPiece[i][j] == 171) {
@@ -169,16 +247,12 @@ void InitL3Triggers()
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 168) {
+			} else if (dPiece[i][j] == 168) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 549) {
+			} else if (dPiece[i][j] == 549) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
@@ -186,32 +260,28 @@ void InitL3Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
 void InitL4Triggers()
 {
 	int i, j;
 
+	trigflag = FALSE;
 	numtrigs = 0;
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 83) {
+			if (dPiece[i][j] == 82) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 422) {
+			} else if (dPiece[i][j] == 421) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
 				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
-			}
-
-			if (dPiece[i][j] == 120) {
+			} else if (dPiece[i][j] == 120) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
@@ -230,7 +300,6 @@ void InitL4Triggers()
 			}
 		}
 	}
-	trigflag = FALSE;
 }
 
 void InitSKingTriggers()
@@ -268,141 +337,171 @@ void InitVPTriggers()
 	trigs[0]._ty = 32;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
-#endif
 
-BOOL ForceTownTrig()
+static BOOL ForceTownTrig()
 {
-	int i, j, k, l;
+	if (TOWN_L1_WARP) {
+		copy_cstr(infostr, "Down to dungeon");
+		cursmx = trigs[TWARP_CATHEDRAL]._tx;
+		cursmy = trigs[TWARP_CATHEDRAL]._ty;
+		return TRUE;
+	}
 
-	for (i = 0; TownDownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == TownDownList[i]) {
-			strcpy(infostr, "Down to dungeon");
-			cursmx = 25;
-			cursmy = 29;
+	if (townwarps & (1 << TWARP_CATACOMB)) {
+		if (TOWN_L2_WARP) {
+			copy_cstr(infostr, "Down to catacombs");
+			cursmx = trigs[TWARP_CATACOMB]._tx;
+			cursmy = trigs[TWARP_CATACOMB]._ty;
 			return TRUE;
 		}
 	}
 
-	if (townwarps[0]) {
-		for (j = 0; TownWarp1List[j] != -1; j++) {
-			if (dPiece[cursmx][cursmy] == TownWarp1List[j]) {
-				strcpy(infostr, "Down to catacombs");
-				cursmx = 49;
-				cursmy = 21;
-				return TRUE;
-			}
+	if (townwarps & (1 << TWARP_CAVES)) {
+		if (TOWN_L3_WARP) {
+			copy_cstr(infostr, "Down to caves");
+			cursmx = trigs[TWARP_CAVES]._tx;
+			cursmy = trigs[TWARP_CAVES]._ty;
+			return TRUE;
 		}
 	}
 
-	if (townwarps[1]) {
-		for (k = 1199; k <= 1220; k++) {
-			if (dPiece[cursmx][cursmy] == k) {
-				strcpy(infostr, "Down to caves");
-				cursmx = 17;
-				cursmy = 69;
-				return TRUE;
-			}
+	if (townwarps & (1 << TWARP_HELL)) {
+		if (TOWN_L4_WARP) {
+			copy_cstr(infostr, "Down to hell");
+			cursmx = trigs[TWARP_HELL]._tx;
+			cursmy = trigs[TWARP_HELL]._ty;
+			return TRUE;
 		}
 	}
 
-	if (townwarps[2]) {
-		for (l = 1240; l <= 1255; l++) {
-			if (dPiece[cursmx][cursmy] == l) {
-				strcpy(infostr, "Down to hell");
-				cursmx = 41;
-				cursmy = 80;
-				return TRUE;
-			}
+#ifdef HELLFIRE
+	if (townwarps & (1 << TWARP_HIVE)) {
+		if (TOWN_L5_WARP) {
+			copy_cstr(infostr, "Down to Hive");
+			cursmx = trigs[TWARP_HIVE]._tx;
+			cursmy = trigs[TWARP_HIVE]._ty;
+			return TRUE;
 		}
 	}
+	if (townwarps & (1 << TWARP_CRYPT)) {
+		if (TOWN_L6_WARP) {
+			copy_cstr(infostr, "Down to Crypt");
+			cursmx = trigs[TWARP_CRYPT]._tx;
+			cursmy = trigs[TWARP_CRYPT]._ty;
+			return TRUE;
+		}
+	}
+#endif
 
 	return FALSE;
 }
 
-BOOL ForceL1Trig()
+static BOOL ForceL1Trig()
 {
-	int i, j;
+	int i;
+#ifdef HELLFIRE
 
-	for (i = 0; L1UpList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L1UpList[i]) {
-			if (currlevel > 1)
-				sprintf(infostr, "Up to level %i", currlevel - 1);
-			else
-				strcpy(infostr, "Up to town");
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
+	if (currlevel >= 17) {
+		if (L5_UP_WARP) {
+			snprintf(infostr, sizeof(infostr), "Up to Crypt level %i", currlevel - 21);
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
 					return TRUE;
 				}
 			}
 		}
-	}
-
-	for (i = 0; L1DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L1DownList[i]) {
-			sprintf(infostr, "Down to level %i", currlevel + 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
+		if (TR_CORNERSTONE) {
+			copy_cstr(infostr, "Cornerstone of the World");
+			return TRUE;
+		}
+		if (L5_DOWN_WARP
+		 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
+			snprintf(infostr, sizeof(infostr), "Down to Crypt level %i", currlevel - 19);
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
 					return TRUE;
 				}
 			}
 		}
-	}
-
-	return FALSE;
-}
-
-BOOL ForceL2Trig()
-{
-	int i, j, dx, dy;
-
-	for (i = 0; L2UpList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L2UpList[i]) {
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-					dx = abs(trigs[j]._tx - cursmx);
-					dy = abs(trigs[j]._ty - cursmy);
-					if (dx < 4 && dy < 4) {
-						sprintf(infostr, "Up to level %i", currlevel - 1);
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
+		if (currlevel == 21) {
+			if (L5_TOWN_WARP) {
+				for (i = 0; i < numtrigs; i++) {
+					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+						copy_cstr(infostr, "Up to town");
+						cursmx = trigs[i]._tx;
+						cursmy = trigs[i]._ty;
 						return TRUE;
 					}
 				}
 			}
 		}
+		return FALSE;
+	}
+#endif
+	if (L1_UP_WARP) {
+		if (currlevel > 1)
+			snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+		else
+			copy_cstr(infostr, "Up to town");
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
+			}
+		}
+	}
+	if (L1_DOWN_WARP) {
+		snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+static BOOL ForceL2Trig()
+{
+	int i;
+
+	if (L2_UP_WARP) {
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+				snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
+			}
+		}
 	}
 
-	for (i = 0; L2DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L2DownList[i]) {
-			sprintf(infostr, "Down to level %i", currlevel + 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
-					return TRUE;
-				}
+	if (L2_DOWN_WARP) {
+		snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
 			}
 		}
 	}
 
 	if (currlevel == 5) {
-		for (i = 0; L2TWarpUpList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L2TWarpUpList[i]) {
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABTWARPUP) {
-						dx = abs(trigs[j]._tx - cursmx);
-						dy = abs(trigs[j]._ty - cursmy);
-						if (dx < 4 && dy < 4) {
-							strcpy(infostr, "Up to town");
-							cursmx = trigs[j]._tx;
-							cursmy = trigs[j]._ty;
-							return TRUE;
-						}
-					}
+		if (L2_TOWN_WARP) {
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+					copy_cstr(infostr, "Up to town");
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return TRUE;
 				}
 			}
 		}
@@ -411,119 +510,141 @@ BOOL ForceL2Trig()
 	return FALSE;
 }
 
-BOOL ForceL3Trig()
+static BOOL ForceL3Trig()
 {
-	int i, j, dx, dy;
+	int i;
 
-	for (i = 0; L3UpList[i] != -1; ++i) {
-		if (dPiece[cursmx][cursmy] == L3UpList[i]) {
-			sprintf(infostr, "Up to level %i", currlevel - 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		if (L6_UP_WARP
+		 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
+			snprintf(infostr, sizeof(infostr), "Up to Nest level %i", currlevel - 17);
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
 					return TRUE;
 				}
 			}
 		}
-	}
 
-	for (i = 0; L3DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L3DownList[i]
-		    || dPiece[cursmx + 1][cursmy] == L3DownList[i]
-		    || dPiece[cursmx + 2][cursmy] == L3DownList[i]) {
-			sprintf(infostr, "Down to level %i", currlevel + 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
+		if (L6_DOWN_WARPx(dPiece[cursmx][cursmy])
+		 || L6_DOWN_WARPx(dPiece[cursmx + 1][cursmy])) {
+			snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel - 15);
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
 					return TRUE;
 				}
+			}
+		}
+
+		if (currlevel == 17) {
+			if (L6_TOWN_WARP
+			 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
+				for (i = 0; i < numtrigs; i++) {
+					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+						copy_cstr(infostr, "Up to town");
+						cursmx = trigs[i]._tx;
+						cursmy = trigs[i]._ty;
+						return TRUE;
+					}
+				}
+			}
+		}
+		return FALSE;
+	}
+#endif
+	if (L3_UP_WARP
+	 || L3_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
+		snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
+			}
+		}
+	}
+
+	if (L3_DOWN_WARP
+	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy])
+	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy + 1])
+	 || L3_DOWN_WARPx(dPiece[cursmx + 2][cursmy + 1])) {
+		snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
 			}
 		}
 	}
 
 	if (currlevel == 9) {
-		for (i = 0; L3TWarpUpList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L3TWarpUpList[i]) {
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABTWARPUP) {
-						dx = abs(trigs[j]._tx - cursmx);
-						dy = abs(trigs[j]._ty - cursmy);
-						if (dx < 4 && dy < 4) {
-							strcpy(infostr, "Up to town");
-							cursmx = trigs[j]._tx;
-							cursmy = trigs[j]._ty;
-							return TRUE;
-						}
-					}
+		if (L3_TOWN_WARP
+		 || L3_TOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+					copy_cstr(infostr, "Up to town");
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return TRUE;
 				}
 			}
 		}
 	}
-
 	return FALSE;
 }
 
-BOOL ForceL4Trig()
+static BOOL ForceL4Trig()
 {
-	int i, j, dx, dy;
+	int i;
 
-	for (i = 0; L4UpList[i] != -1; ++i) {
-		if (dPiece[cursmx][cursmy] == L4UpList[i]) {
-			sprintf(infostr, "Up to level %i", currlevel - 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABPREVLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
-					return TRUE;
-				}
+	if (L4_UP_WARP) {
+		snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
 			}
 		}
 	}
 
-	for (i = 0; L4DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L4DownList[i]) {
-			sprintf(infostr, "Down to level %i", currlevel + 1);
-			for (j = 0; j < numtrigs; j++) {
-				if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[j]._tx;
-					cursmy = trigs[j]._ty;
-					return TRUE;
-				}
+	if (L4_DOWN_WARP) {
+		snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+		for (i = 0; i < numtrigs; i++) {
+			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return TRUE;
 			}
 		}
 	}
 
 	if (currlevel == 13) {
-		for (i = 0; L4TWarpUpList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L4TWarpUpList[i]) {
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABTWARPUP) {
-						dx = abs(trigs[j]._tx - cursmx);
-						dy = abs(trigs[j]._ty - cursmy);
-						if (dx < 4 && dy < 4) {
-							strcpy(infostr, "Up to town");
-							cursmx = trigs[j]._tx;
-							cursmy = trigs[j]._ty;
-							return TRUE;
-						}
-					}
+		if (L4_TOWN_WARP) {
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+					copy_cstr(infostr, "Up to town");
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return TRUE;
 				}
 			}
 		}
 	}
 
 	if (currlevel == 15) {
-		for (i = 0; L4PentaList[i] != -1; i++) {
-			if (dPiece[cursmx][cursmy] == L4PentaList[i]) {
-				strcpy(infostr, "Down to Diablo");
-				for (j = 0; j < numtrigs; j++) {
-					if (trigs[j]._tmsg == WM_DIABNEXTLVL) {
-						cursmx = trigs[j]._tx;
-						cursmy = trigs[j]._ty;
-						return TRUE;
-					}
+		if (L4_PENTA_WARP) {
+			copy_cstr(infostr, "Down to Diablo");
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return TRUE;
 				}
 			}
 		}
@@ -548,52 +669,37 @@ void Freeupstairs()
 	}
 }
 
-BOOL ForceSKingTrig()
+static BOOL ForceSKingTrig()
 {
-	int i;
-
-	for (i = 0; L1UpList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L1UpList[i]) {
-			sprintf(infostr, "Back to Level %i", quests[Q_SKELKING]._qlevel);
-			cursmx = trigs[0]._tx;
-			cursmy = trigs[0]._ty;
-
-			return TRUE;
-		}
+	if (L1_UP_WARP) {
+		snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[Q_SKELKING]._qlevel);
+		cursmx = trigs[0]._tx;
+		cursmy = trigs[0]._ty;
+		return TRUE;
 	}
 
 	return FALSE;
 }
 
-BOOL ForceSChambTrig()
+static BOOL ForceSChambTrig()
 {
-	int i;
-
-	for (i = 0; L2DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L2DownList[i]) {
-			sprintf(infostr, "Back to Level %i", quests[Q_SCHAMB]._qlevel);
-			cursmx = trigs[0]._tx;
-			cursmy = trigs[0]._ty;
-
-			return TRUE;
-		}
+	if (L2_DOWN_WARP) {
+		snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[Q_SCHAMB]._qlevel);
+		cursmx = trigs[0]._tx;
+		cursmy = trigs[0]._ty;
+		return TRUE;
 	}
 
 	return FALSE;
 }
 
-BOOL ForcePWaterTrig()
+static BOOL ForcePWaterTrig()
 {
-	int i;
-
-	for (i = 0; L3DownList[i] != -1; i++) {
-		if (dPiece[cursmx][cursmy] == L3DownList[i]) {
-			sprintf(infostr, "Back to Level %i", quests[Q_PWATER]._qlevel);
-			cursmx = trigs[0]._tx;
-			cursmy = trigs[0]._ty;
-
-			return TRUE;
-		}
+	if (L3_DOWN_WARP) {
+		snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[Q_PWATER]._qlevel);
+		cursmx = trigs[0]._tx;
+		cursmy = trigs[0]._ty;
+		return TRUE;
 	}
 
 	return FALSE;
@@ -602,8 +708,11 @@ BOOL ForcePWaterTrig()
 void CheckTrigForce()
 {
 	trigflag = FALSE;
-
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (!sgbControllerActive && MouseY > PANEL_TOP - 1) {
+#else
+	if (MouseY > PANEL_TOP - 1) {
+#endif
 		return;
 	}
 
@@ -649,15 +758,16 @@ void CheckTrigForce()
 
 void CheckTriggers()
 {
+	PlayerStruct *p;
 	int x, y, i;
-	BOOL abort;
 	char abortflag;
 
-	if (plr[myplr]._pmode != PM_STAND)
+	p = &plr[myplr];
+	if (p->_pmode != PM_STAND)
 		return;
 
 	for (i = 0; i < numtrigs; i++) {
-		if (plr[myplr]._px != trigs[i]._tx || plr[myplr]._py != trigs[i]._ty) {
+		if (p->_px != trigs[i]._tx || p->_py != trigs[i]._ty) {
 			continue;
 		}
 
@@ -665,73 +775,61 @@ void CheckTriggers()
 		case WM_DIABNEXTLVL:
 #ifdef SPAWN
 			if (currlevel >= 2) {
-				NetSendCmdLoc(TRUE, CMD_WALKXY, plr[myplr]._px, plr[myplr]._py + 1);
+				NetSendCmdLoc(TRUE, CMD_WALKXY, p->_px, p->_py + 1);
 				PlaySFX(PS_WARR18);
 				InitDiabloMsg(EMSG_NOT_IN_SHAREWARE);
-			} else {
-#endif
-				if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
-					return;
-				StartNewLvl(myplr, trigs[i]._tmsg, currlevel + 1);
-#ifdef SPAWN
+				break;
 			}
 #endif
+			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
+				return;
+			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);
 			break;
 		case WM_DIABPREVLVL:
-			if (pcurs >= CURSOR_FIRSTITEM && DropItemBeforeTrig())
+			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
 				return;
-			StartNewLvl(myplr, trigs[i]._tmsg, currlevel - 1);
+			StartNewLvl(myplr, WM_DIABPREVLVL, currlevel - 1);
 			break;
 		case WM_DIABRTNLVL:
-			StartNewLvl(myplr, trigs[i]._tmsg, ReturnLvl);
+			StartNewLvl(myplr, WM_DIABRTNLVL, ReturnLvl);
 			break;
 		case WM_DIABTOWNWARP:
+			if (!(townwarps & (1 << i)))
+				continue;
 			if (gbMaxPlayers != 1) {
-				abort = FALSE;
+				abortflag = EMSG_NONE;
 
-				if (trigs[i]._tlvl == 5 && plr[myplr]._pLevel < 8) {
-					abort = TRUE;
-					x = plr[myplr]._px;
-					y = plr[myplr]._py + 1;
+				if (i == TWARP_CATACOMB && p->_pLevel < 8) {
+					x = p->_px;
+					y = p->_py + 1;
 					abortflag = EMSG_REQUIRES_LVL_8;
 				}
 
-				if (trigs[i]._tlvl == 9 && plr[myplr]._pLevel < 13) {
-					abort = TRUE;
-					x = plr[myplr]._px + 1;
-					y = plr[myplr]._py;
+				if (i == TWARP_CAVES && p->_pLevel < 13) {
+					x = p->_px + 1;
+					y = p->_py;
 					abortflag = EMSG_REQUIRES_LVL_13;
 				}
 
-				if (trigs[i]._tlvl == 13 && plr[myplr]._pLevel < 17) {
-					abort = TRUE;
-					x = plr[myplr]._px;
-					y = plr[myplr]._py + 1;
+				if (i == TWARP_HELL && p->_pLevel < 17) {
+					x = p->_px;
+					y = p->_py + 1;
 					abortflag = EMSG_REQUIRES_LVL_17;
 				}
 
-				if (abort) {
-					if (plr[myplr]._pClass == PC_WARRIOR) {
-						PlaySFX(PS_WARR43);
-#ifndef SPAWN
-					} else if (plr[myplr]._pClass == PC_ROGUE) {
-						PlaySFX(PS_ROGUE43);
-					} else if (plr[myplr]._pClass == PC_SORCERER) {
-						PlaySFX(PS_MAGE43);
-#endif
-					}
-
+				if (abortflag != EMSG_NONE) {
+					PlaySFX(sgSFXSets[SFXS_PLR_43][p->_pClass]);
 					InitDiabloMsg(abortflag);
 					NetSendCmdLoc(TRUE, CMD_WALKXY, x, y);
 					return;
 				}
 			}
 
-			StartNewLvl(myplr, trigs[i]._tmsg, trigs[i]._tlvl);
+			StartNewLvl(myplr, WM_DIABTOWNWARP, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:
 			TWarpFrom = currlevel;
-			StartNewLvl(myplr, trigs[i]._tmsg, 0);
+			StartNewLvl(myplr, WM_DIABTWARPUP, 0);
 			break;
 		default:
 			app_fatal("Unknown trigger msg");

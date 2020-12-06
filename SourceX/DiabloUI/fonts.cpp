@@ -1,7 +1,7 @@
-#include "DiabloUI/fonts.h"
+#include "fonts.h"
 #include "file_util.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 TTF_Font *font = NULL;
 BYTE *FontTables[4];
@@ -9,14 +9,10 @@ Art ArtFonts[4][2];
 /** This is so we know ttf has been init when we get to the diablo_deinit() function */
 BOOL was_fonts_init = false;
 
-namespace {
-
-void LoadArtFont(const char *pszFile, int size, int color)
+static void LoadArtFont(const char *pszFile, int size, int color)
 {
 	LoadMaskedArt(pszFile, &ArtFonts[size][color], 256, 32);
 }
-
-} // namespace
 
 void LoadArtFonts()
 {
@@ -92,4 +88,4 @@ void FontsCleanup() {
 	TTF_Quit();	
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

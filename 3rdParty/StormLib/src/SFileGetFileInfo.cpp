@@ -138,7 +138,9 @@ bool STORMAPI SFileGetFileInfo(
     DWORD cbFileInfo,
     LPDWORD pcbLengthNeeded)
 {
+#ifdef FULL
     MPQ_SIGNATURE_INFO SignatureInfo;
+#endif
     TMPQArchive * ha = NULL;
     TFileEntry * pFileEntry = NULL;
     ULONGLONG Int64Value = 0;

@@ -6,9 +6,8 @@
 #include <exception>
 
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 typedef std::vector<unsigned char> buffer_t;
@@ -45,7 +44,7 @@ public:
 	virtual bool SNetLeaveGame(int type) = 0;
 	virtual bool SNetDropPlayer(int playerid, DWORD flags) = 0;
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns) = 0;
-	virtual bool SNetGetTurnsInTransit(int *turns) = 0;
+	virtual bool SNetGetTurnsInTransit(DWORD *turns) = 0;
 	virtual void setup_gameinfo(buffer_t info) = 0;
 	virtual ~abstract_net() = default;
 
@@ -53,4 +52,4 @@ public:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

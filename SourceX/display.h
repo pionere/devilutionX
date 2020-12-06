@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <type_traits>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern int vsyncEnabled;
 extern int refreshDelay; // Screen refresh rate in nanoseconds
@@ -21,7 +21,7 @@ extern unsigned int pal_surface_palette_version;
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
 bool IsFullScreen();
-void SetVideoModeToPrimary(bool fullscreen = IsFullScreen());
+void SetVideoModeToPrimary(bool fullscreen, int width, int height);
 #endif
 
 // Returns:
@@ -51,8 +51,8 @@ void OutputToLogical(T *x, T *y)
 		return;
 	float scaleX;
 	SDL_RenderGetScale(renderer, &scaleX, NULL);
-	*x /= scaleX;
-	*y /= scaleX;
+	*x = (T)(*x / scaleX);
+	*y = (T)(*y / scaleX);
 
 	SDL_Rect view;
 	SDL_RenderGetViewport(renderer, &view);
@@ -82,8 +82,8 @@ void LogicalToOutput(T *x, T *y)
 
 	float scaleX;
 	SDL_RenderGetScale(renderer, &scaleX, NULL);
-	*x *= scaleX;
-	*y *= scaleX;
+	*x = (T)(*x * scaleX);
+	*y = (T)(*y * scaleX);
 #else
 	if (!OutputRequiresScaling())
 		return;
@@ -93,4 +93,4 @@ void LogicalToOutput(T *x, T *y)
 #endif
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

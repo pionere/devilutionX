@@ -1,9 +1,9 @@
+#include "docking.h"
+
 #include <switch.h>
 #include <SDL.h>
-#include "display.h"
-#include "platform/switch/docking.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static int currently_docked = -1; // keep track of docked or handheld mode
 
@@ -46,4 +46,4 @@ void HandleDocking()
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

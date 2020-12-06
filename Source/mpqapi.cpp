@@ -13,7 +13,6 @@
 
 #include "all.h"
 #include "../SourceS/file_util.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -84,7 +83,14 @@ public:
 	bool Open(const char *path, std::ios::openmode mode)
 	{
 		s_.reset(new std::fstream(path, mode));
-		return CheckError("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+#endif
+			return true;
+		}
+		PrintError("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+		return false;
 	}
 
 	void Close()
@@ -100,77 +106,134 @@ public:
 	bool seekg(std::streampos pos)
 	{
 		s_->seekg(pos);
-		return CheckError("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+#endif
+			return true;
+		}
+		PrintError("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		return false;
 	}
 
 	bool seekg(std::streamoff pos, std::ios::seekdir dir)
 	{
 		s_->seekg(pos, dir);
-		return CheckError("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+#endif
+			return true;
+		}
+		PrintError("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		return false;
 	}
 
 	bool seekp(std::streampos pos)
 	{
 		s_->seekp(pos);
-		return CheckError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+#endif
+			return true;
+		}
+		PrintError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
+		return false;
 	}
 
 	bool seekp(std::streamoff pos, std::ios::seekdir dir)
 	{
 		s_->seekp(pos, dir);
-		return CheckError("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+#endif
+			return true;
+		}
+		PrintError("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		return false;
 	}
 
 	bool tellg(std::streampos *result)
 	{
 		*result = s_->tellg();
-		return CheckError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+#endif
+			return true;
+		}
+		PrintError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		return false;
 	}
 
 	bool tellp(std::streampos *result)
 	{
 		*result = s_->tellp();
-		return CheckError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+#endif
+			return true;
+		}
+		PrintError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
+		return false;
 	}
 
 	bool write(const char *data, std::streamsize size)
 	{
 		s_->write(data, size);
-		return CheckError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+			return true;
+		}
+		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
 	}
 
 	bool read(char *out, std::streamsize size)
 	{
 		s_->read(out, size);
-		return CheckError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		if (!s_->fail()) {
+#ifdef _DEBUG
+			SDL_Log("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+			return true;
+		}
+		PrintError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
 	}
 
 private:
 	template <typename... PrintFArgs>
-	bool CheckError(const char *fmt, PrintFArgs... args)
+	void PrintError(const char *fmt, PrintFArgs... args)
 	{
-		if (s_->fail()) {
-			std::string fmt_with_error = fmt;
-			fmt_with_error.append(": failed with \"%s\"");
-			const char *error_message = std::strerror(errno);
-			if (error_message == NULL)
-				error_message = "";
-			SDL_Log(fmt_with_error.c_str(), args..., error_message);
+		std::string fmt_with_error = fmt;
 #ifdef _DEBUG
-		} else {
-			SDL_Log(fmt, args...);
+		fmt_with_error.append(": failed with \"%s\"");
+		const char *error_message = std::strerror(errno);
+		if (error_message == NULL)
+			error_message = "";
+		SDL_Log(fmt_with_error.c_str(), args..., error_message);
+#else
+		fmt_with_error.append(" failed (%d)");
+		SDL_Log(fmt_with_error.c_str(), args..., errno);
 #endif
-		}
-		return !s_->fail();
 	}
 
 	std::unique_ptr<std::fstream> s_;
 };
 
-constexpr std::size_t kBlockEntrySize = 0x8000;
-constexpr std::size_t kHashEntrySize = 0x8000;
-constexpr std::ios::off_type kMpqBlockEntryOffset = sizeof(_FILEHEADER);
-constexpr std::ios::off_type kMpqHashEntryOffset = kMpqBlockEntryOffset + kBlockEntrySize;
+#define MPQ_BLOCK_SIZE			0x8000
+#define MPQ_HASH_SIZE			0x8000
+
+constexpr DWORD MPQ_BLOCK_COUNT = MPQ_BLOCK_SIZE / sizeof(_BLOCKENTRY);
+constexpr DWORD MPQ_HASH_COUNT = MPQ_HASH_SIZE / sizeof(_HASHENTRY);
+constexpr std::ios::off_type MPQ_BLOCK_OFFSET = sizeof(_FILEHEADER);
+constexpr std::ios::off_type MPQ_HASH_OFFSET = MPQ_BLOCK_OFFSET + MPQ_BLOCK_SIZE;
 
 struct Archive {
 	FStreamWrapper stream;
@@ -195,14 +258,19 @@ struct Archive {
 		exists = FileExists(name);
 		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
 		if (exists) {
-			if (GetFileSize(name, &size) == 0) {
+#ifdef _DEBUG
+			if (!GetFileSize(name, &size)) {
 				SDL_Log("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
 				return false;
-#ifdef _DEBUG
 			} else {
 				SDL_Log("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
-#endif
 			}
+#else
+			if (!GetFileSize(name, &size)) {
+				SDL_Log("GetFileSize(\"%s\") failed. (%d)", name, errno);
+				return false;
+			}
+#endif
 		} else {
 			mode |= std::ios::trunc;
 		}
@@ -265,36 +333,34 @@ private:
 		fhdr.filesize = SDL_SwapLE32(static_cast<uint32_t>(size));
 		fhdr.version = SDL_SwapLE16(0);
 		fhdr.sectorsizeid = SDL_SwapLE16(3);
-		fhdr.hashoffset = SDL_SwapLE32(static_cast<uint32_t>(kMpqHashEntryOffset));
-		fhdr.blockoffset = SDL_SwapLE32(static_cast<uint32_t>(kMpqBlockEntryOffset));
-		fhdr.hashcount = SDL_SwapLE32(2048);
-		fhdr.blockcount = SDL_SwapLE32(2048);
+		fhdr.hashoffset = SDL_SwapLE32(static_cast<uint32_t>(MPQ_HASH_OFFSET));
+		fhdr.blockoffset = SDL_SwapLE32(static_cast<uint32_t>(MPQ_BLOCK_OFFSET));
+		fhdr.hashcount = SDL_SwapLE32(MPQ_HASH_COUNT);
+		fhdr.blockcount = SDL_SwapLE32(MPQ_BLOCK_COUNT);
 
-		if (!stream.write(reinterpret_cast<const char *>(&fhdr), sizeof(fhdr)))
-			return false;
-		return true;
+		return stream.write(reinterpret_cast<const char *>(&fhdr), sizeof(fhdr));
 	}
 
 	bool WriteBlockTable()
 	{
-		Encrypt((DWORD *)sgpBlockTbl, kBlockEntrySize, Hash("(block table)", 3));
-		const bool success = stream.write(reinterpret_cast<const char *>(sgpBlockTbl), kBlockEntrySize);
-		Decrypt((DWORD *)sgpBlockTbl, kBlockEntrySize, Hash("(block table)", 3));
+		Encrypt((DWORD *)sgpBlockTbl, MPQ_BLOCK_SIZE, Hash("(block table)", 3));
+		const bool success = stream.write(reinterpret_cast<const char *>(sgpBlockTbl), MPQ_BLOCK_SIZE);
+		Decrypt((DWORD *)sgpBlockTbl, MPQ_BLOCK_SIZE, Hash("(block table)", 3));
 		return success;
 	}
 
 	bool WriteHashTable()
 	{
-		Encrypt((DWORD *)sgpHashTbl, kHashEntrySize, Hash("(hash table)", 3));
-		const bool success = stream.write(reinterpret_cast<const char *>(sgpHashTbl), kHashEntrySize);
-		Decrypt((DWORD *)sgpHashTbl, kHashEntrySize, Hash("(hash table)", 3));
+		Encrypt((DWORD *)sgpHashTbl, MPQ_HASH_SIZE, Hash("(hash table)", 3));
+		const bool success = stream.write(reinterpret_cast<const char *>(sgpHashTbl), MPQ_HASH_SIZE);
+		Decrypt((DWORD *)sgpHashTbl, MPQ_HASH_SIZE, Hash("(hash table)", 3));
 		return success;
 	}
 };
 
 Archive cur_archive;
 
-void ByteSwapHdr(_FILEHEADER *hdr)
+static void ByteSwapHdr(_FILEHEADER *hdr)
 {
 	hdr->signature = SDL_SwapLE32(hdr->signature);
 	hdr->headersize = SDL_SwapLE32(hdr->headersize);
@@ -307,31 +373,31 @@ void ByteSwapHdr(_FILEHEADER *hdr)
 	hdr->blockcount = SDL_SwapLE32(hdr->blockcount);
 }
 
-void InitDefaultMpqHeader(Archive *archive, _FILEHEADER *hdr)
+static void InitDefaultMpqHeader(Archive *archive, _FILEHEADER *hdr)
 {
 	std::memset(hdr, 0, sizeof(*hdr));
 	hdr->signature = '\x1AQPM';
 	hdr->headersize = 32;
 	hdr->sectorsizeid = 3;
 	hdr->version = 0;
-	archive->size = kMpqHashEntryOffset + kHashEntrySize;
+	archive->size = MPQ_HASH_OFFSET + MPQ_HASH_SIZE;
 	archive->modified = true;
 }
 
-bool IsValidMPQHeader(const Archive &archive, _FILEHEADER *hdr)
+static bool IsValidMPQHeader(const Archive &archive, _FILEHEADER *hdr)
 {
 	return hdr->signature == '\x1AQPM'
 	    && hdr->headersize == 32
 	    && hdr->version <= 0
 	    && hdr->sectorsizeid == 3
 	    && hdr->filesize == archive.size
-	    && hdr->hashoffset == kMpqHashEntryOffset
+	    && hdr->hashoffset == MPQ_HASH_OFFSET
 	    && hdr->blockoffset == sizeof(_FILEHEADER)
-	    && hdr->hashcount == 2048
-	    && hdr->blockcount == 2048;
+	    && hdr->hashcount == MPQ_HASH_COUNT
+	    && hdr->blockcount == MPQ_BLOCK_COUNT;
 }
 
-bool ReadMPQHeader(Archive *archive, _FILEHEADER *hdr)
+static bool ReadMPQHeader(Archive *archive, _FILEHEADER *hdr)
 {
 	const bool has_hdr = archive->size >= sizeof(*hdr);
 	if (has_hdr) {
@@ -347,49 +413,46 @@ bool ReadMPQHeader(Archive *archive, _FILEHEADER *hdr)
 
 } // namespace
 
-void mpqapi_remove_hash_entry(const char *pszName)
+static _BLOCKENTRY *mpqapi_new_block(int *block_index)
 {
-	_HASHENTRY *pHashTbl;
-	_BLOCKENTRY *blockEntry;
-	int hIdx, block_offset, block_size;
+	_BLOCKENTRY *pBlock;
+	DWORD i;
 
-	hIdx = FetchHandle(pszName);
-	if (hIdx != -1) {
-		pHashTbl = &cur_archive.sgpHashTbl[hIdx];
-		blockEntry = &cur_archive.sgpBlockTbl[pHashTbl->block];
-		pHashTbl->block = -2;
-		block_offset = blockEntry->offset;
-		block_size = blockEntry->sizealloc;
-		memset(blockEntry, 0, sizeof(*blockEntry));
-		mpqapi_alloc_block(block_offset, block_size);
-		cur_archive.modified = true;
+	pBlock = cur_archive.sgpBlockTbl;
+	for (i = 0; i < MPQ_BLOCK_COUNT; i++, pBlock++) {
+		if ((pBlock->offset | pBlock->sizealloc | pBlock->flags | pBlock->sizefile) == 0) {
+			if (block_index != NULL)
+				*block_index = i;
+			return pBlock;
+		}
 	}
+
+	app_fatal("Out of free block entries");
+	return NULL;
 }
 
-void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
+static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 {
-	_BLOCKENTRY *block;
-	int i;
+	_BLOCKENTRY *pBlock;
+	DWORD i;
 
-	block = cur_archive.sgpBlockTbl;
-	i = 2048;
-	while (i-- != 0) {
-		if (block->offset && !block->flags && !block->sizefile) {
-			if (block->offset + block->sizealloc == block_offset) {
-				block_offset = block->offset;
-				block_size += block->sizealloc;
-				memset(block, 0, sizeof(_BLOCKENTRY));
+	pBlock = cur_archive.sgpBlockTbl;
+	for (i = MPQ_BLOCK_COUNT; i != 0; i--, pBlock++) {
+		if (pBlock->offset != 0 && pBlock->flags == 0 && pBlock->sizefile == 0) {
+			if (pBlock->offset + pBlock->sizealloc == block_offset) {
+				block_offset = pBlock->offset;
+				block_size += pBlock->sizealloc;
+				memset(pBlock, 0, sizeof(*pBlock));
 				mpqapi_alloc_block(block_offset, block_size);
 				return;
 			}
-			if (block_offset + block_size == block->offset) {
-				block_size += block->sizealloc;
-				memset(block, 0, sizeof(_BLOCKENTRY));
+			if (block_offset + block_size == pBlock->offset) {
+				block_size += pBlock->sizealloc;
+				memset(pBlock, 0, sizeof(*pBlock));
 				mpqapi_alloc_block(block_offset, block_size);
 				return;
 			}
 		}
-		block++;
 	}
 	if (block_offset + block_size > cur_archive.size) {
 		app_fatal("MPQ free list error");
@@ -397,114 +460,124 @@ void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 	if (block_offset + block_size == cur_archive.size) {
 		cur_archive.size = block_offset;
 	} else {
-		block = mpqapi_new_block(NULL);
-		block->offset = block_offset;
-		block->sizealloc = block_size;
-		block->sizefile = 0;
-		block->flags = 0;
+		pBlock = mpqapi_new_block(NULL);
+		pBlock->offset = block_offset;
+		pBlock->sizealloc = block_size;
+		pBlock->sizefile = 0;
+		pBlock->flags = 0;
 	}
 }
 
-_BLOCKENTRY *mpqapi_new_block(int *block_index)
+static DWORD mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 {
-	_BLOCKENTRY *blockEntry;
-	DWORD i;
+	_BLOCKENTRY *pBlock;
+	DWORD i, result;
 
-	blockEntry = cur_archive.sgpBlockTbl;
+	pBlock = cur_archive.sgpBlockTbl;
+	for (i = MPQ_BLOCK_COUNT; i != 0; i--, pBlock++) {
+		result = pBlock->offset;
+		if (result != 0 && pBlock->flags == 0
+		 && pBlock->sizefile == 0 && pBlock->sizealloc >= size) {
+			*block_size = size;
+			pBlock->offset += size;
+			pBlock->sizealloc -= size;
 
-	i = 0;
-	while (blockEntry->offset || blockEntry->sizealloc || blockEntry->flags || blockEntry->sizefile) {
-		i++;
-		blockEntry++;
-		if (i >= 2048) {
-			app_fatal("Out of free block entries");
-			return NULL;
+			if (pBlock->sizealloc == 0)
+				memset(pBlock, 0, sizeof(*pBlock));
+
+			return result;
 		}
 	}
-	if (block_index)
-		*block_index = i;
 
-	return blockEntry;
+	*block_size = size;
+	result = cur_archive.size;
+	cur_archive.size += size;
+	return result;
 }
 
-int FetchHandle(const char *pszName)
+static int mpqapi_get_hash_index(short index, int hash_a, int hash_b, int locale)
 {
-	return mpqapi_get_hash_index(Hash(pszName, 0), Hash(pszName, 1), Hash(pszName, 2), 0);
-}
+	DWORD idx, i;
+	_HASHENTRY *pHash;
 
-int mpqapi_get_hash_index(short index, int hash_a, int hash_b, int locale)
-{
-	int idx, i;
-
-	i = 2048;
-	for (idx = index & 0x7FF; cur_archive.sgpHashTbl[idx].block != -1; idx = (idx + 1) & 0x7FF) {
-		if (!i--)
+	idx = index;
+	for (i = MPQ_HASH_COUNT; i != 0; i--, idx++) {
+		idx &= MPQ_HASH_COUNT - 1;
+		pHash = &cur_archive.sgpHashTbl[idx];
+		if (pHash->block == -1)
 			break;
-		if (cur_archive.sgpHashTbl[idx].hashcheck[0] == hash_a && cur_archive.sgpHashTbl[idx].hashcheck[1] == hash_b
-		    && cur_archive.sgpHashTbl[idx].lcid == locale
-		    && cur_archive.sgpHashTbl[idx].block != -2)
+		if (pHash->hashcheck[0] == hash_a && pHash->hashcheck[1] == hash_b
+		    && pHash->lcid == locale && pHash->block != -2)
 			return idx;
 	}
 
 	return -1;
 }
 
-void mpqapi_remove_hash_entries(BOOL (*fnGetName)(DWORD, char *))
+static int FetchHandle(const char *pszName)
 {
-	DWORD dwIndex, i;
+	return mpqapi_get_hash_index(Hash(pszName, 0), Hash(pszName, 1), Hash(pszName, 2), 0);
+}
+
+void mpqapi_remove_hash_entry(const char *pszName)
+{
+	_HASHENTRY *pHash;
+	_BLOCKENTRY *pBlock;
+	int hIdx, block_offset, block_size;
+
+	hIdx = FetchHandle(pszName);
+	if (hIdx != -1) {
+		pHash = &cur_archive.sgpHashTbl[hIdx];
+		pBlock = &cur_archive.sgpBlockTbl[pHash->block];
+		pHash->block = -2;
+		block_offset = pBlock->offset;
+		block_size = pBlock->sizealloc;
+		memset(pBlock, 0, sizeof(*pBlock));
+		mpqapi_alloc_block(block_offset, block_size);
+		cur_archive.modified = true;
+	}
+}
+
+void mpqapi_remove_hash_entries(BOOL (*fnGetName)(DWORD, char (&)[MAX_PATH]))
+{
+	DWORD i;
 	char pszFileName[MAX_PATH];
 
-	dwIndex = 1;
-	for (i = fnGetName(0, pszFileName); i; i = fnGetName(dwIndex++, pszFileName)) {
+	for (i = 0; fnGetName(i, pszFileName); i++)
 		mpqapi_remove_hash_entry(pszFileName);
-	}
 }
 
-BOOL mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen)
+static _BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int block_index)
 {
-	_BLOCKENTRY *blockEntry;
-
-	cur_archive.modified = true;
-	mpqapi_remove_hash_entry(pszName);
-	blockEntry = mpqapi_add_file(pszName, 0, 0);
-	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, blockEntry)) {
-		mpqapi_remove_hash_entry(pszName);
-		return FALSE;
-	}
-	return TRUE;
-}
-
-_BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int block_index)
-{
-	DWORD h1, h2, h3;
-	int i, hIdx;
+	_HASHENTRY *pHash;
+	DWORD i, h1, h2, h3;
 
 	h1 = Hash(pszName, 0);
 	h2 = Hash(pszName, 1);
 	h3 = Hash(pszName, 2);
 	if (mpqapi_get_hash_index(h1, h2, h3, 0) != -1)
 		app_fatal("Hash collision between \"%s\" and existing file\n", pszName);
-	hIdx = h1 & 0x7FF;
-	i = 2048;
-	while (i--) {
-		if (cur_archive.sgpHashTbl[hIdx].block == -1 || cur_archive.sgpHashTbl[hIdx].block == -2)
-			break;
-		hIdx = (hIdx + 1) & 0x7FF;
+
+	for (i = MPQ_HASH_COUNT; i != 0; i--, h1++) {
+		h1 &= MPQ_BLOCK_COUNT - 1;
+		pHash = &cur_archive.sgpHashTbl[h1];
+		if (pHash->block == -1 || pHash->block == -2) {
+			if (pBlk == NULL)
+				pBlk = mpqapi_new_block(&block_index);
+
+			pHash->hashcheck[0] = h2;
+			pHash->hashcheck[1] = h3;
+			pHash->lcid = 0;
+			pHash->block = block_index;
+			return pBlk;
+		}
 	}
-	if (i < 0)
-		app_fatal("Out of hash space");
-	if (!pBlk)
-		pBlk = mpqapi_new_block(&block_index);
 
-	cur_archive.sgpHashTbl[hIdx].hashcheck[0] = h2;
-	cur_archive.sgpHashTbl[hIdx].hashcheck[1] = h3;
-	cur_archive.sgpHashTbl[hIdx].lcid = 0;
-	cur_archive.sgpHashTbl[hIdx].block = block_index;
-
-	return pBlk;
+	app_fatal("Out of hash space");
+	return NULL;
 }
 
-BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, DWORD dwLen, _BLOCKENTRY *pBlk)
+static BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, DWORD dwLen, _BLOCKENTRY *pBlk)
 {
 	const char *str_ptr = pszName;
 	const char *tmp;
@@ -586,50 +659,33 @@ BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, DWORD d
 	return TRUE;
 }
 
-int mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
+BOOL mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen)
 {
-	_BLOCKENTRY *pBlockTbl;
-	int i, result;
+	_BLOCKENTRY *pBlock;
 
-	pBlockTbl = cur_archive.sgpBlockTbl;
-	i = 2048;
-	while (1) {
-		i--;
-		if (pBlockTbl->offset && !pBlockTbl->flags && !pBlockTbl->sizefile && (DWORD)pBlockTbl->sizealloc >= size)
-			break;
-		pBlockTbl++;
-		if (!i) {
-			*block_size = size;
-			result = cur_archive.size;
-			cur_archive.size += size;
-			return result;
-		}
+	cur_archive.modified = true;
+	mpqapi_remove_hash_entry(pszName);
+	pBlock = mpqapi_add_file(pszName, 0, 0);
+	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, pBlock)) {
+		mpqapi_remove_hash_entry(pszName);
+		return FALSE;
 	}
-
-	result = pBlockTbl->offset;
-	*block_size = size;
-	pBlockTbl->offset += size;
-	pBlockTbl->sizealloc -= size;
-
-	if (!pBlockTbl->sizealloc)
-		memset(pBlockTbl, 0, sizeof(*pBlockTbl));
-
-	return result;
+	return TRUE;
 }
 
 void mpqapi_rename(char *pszOld, char *pszNew)
 {
 	int index, block;
-	_HASHENTRY *hashEntry;
-	_BLOCKENTRY *blockEntry;
+	_HASHENTRY *pHash;
+	_BLOCKENTRY *pBlock;
 
 	index = FetchHandle(pszOld);
 	if (index != -1) {
-		hashEntry = &cur_archive.sgpHashTbl[index];
-		block = hashEntry->block;
-		blockEntry = &cur_archive.sgpBlockTbl[block];
-		hashEntry->block = -2;
-		mpqapi_add_file(pszNew, blockEntry, block);
+		pHash = &cur_archive.sgpHashTbl[index];
+		block = pHash->block;
+		pBlock = &cur_archive.sgpBlockTbl[block];
+		pHash->block = -2;
+		mpqapi_add_file(pszNew, pBlock, block);
 		cur_archive.modified = true;
 	}
 }
@@ -641,7 +697,6 @@ BOOL mpqapi_has_file(const char *pszName)
 
 BOOL OpenMPQ(const char *pszArchive, DWORD dwChar)
 {
-	DWORD dwFlagsAndAttributes;
 	DWORD key;
 	_FILEHEADER fhdr;
 
@@ -656,21 +711,21 @@ BOOL OpenMPQ(const char *pszArchive, DWORD dwChar)
 		} else if (!ReadMPQHeader(&cur_archive, &fhdr)) {
 			goto on_error;
 		}
-		cur_archive.sgpBlockTbl = new _BLOCKENTRY[kBlockEntrySize / sizeof(_BLOCKENTRY)];
-		std::memset(cur_archive.sgpBlockTbl, 0, kBlockEntrySize);
+		cur_archive.sgpBlockTbl = new _BLOCKENTRY[MPQ_BLOCK_SIZE / sizeof(_BLOCKENTRY)];
+		std::memset(cur_archive.sgpBlockTbl, 0, MPQ_BLOCK_SIZE);
 		if (fhdr.blockcount) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), kBlockEntrySize))
+			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), MPQ_BLOCK_SIZE))
 				goto on_error;
 			key = Hash("(block table)", 3);
-			Decrypt((DWORD *)cur_archive.sgpBlockTbl, kBlockEntrySize, key);
+			Decrypt((DWORD *)cur_archive.sgpBlockTbl, MPQ_BLOCK_SIZE, key);
 		}
-		cur_archive.sgpHashTbl = new _HASHENTRY[kHashEntrySize / sizeof(_HASHENTRY)];
-		std::memset(cur_archive.sgpHashTbl, 255, kHashEntrySize);
+		cur_archive.sgpHashTbl = new _HASHENTRY[MPQ_HASH_SIZE / sizeof(_HASHENTRY)];
+		std::memset(cur_archive.sgpHashTbl, 255, MPQ_HASH_SIZE);
 		if (fhdr.hashcount) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), kHashEntrySize))
+			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), MPQ_HASH_SIZE))
 				goto on_error;
 			key = Hash("(hash table)", 3);
-			Decrypt((DWORD *)cur_archive.sgpHashTbl, kHashEntrySize, key);
+			Decrypt((DWORD *)cur_archive.sgpHashTbl, MPQ_HASH_SIZE, key);
 		}
 
 #ifndef CAN_SEEKP_BEYOND_EOF

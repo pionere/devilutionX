@@ -1,10 +1,12 @@
 /**
  * @file all.h
  *
- * Include all aplication headers.
+ * Include all application headers.
  */
 #ifndef __ALL_H__
 #define __ALL_H__
+
+#include <algorithm>
 
 #include <SDL.h>
 
@@ -88,5 +90,7 @@
 #include "trigs.h"
 #include "wave.h"
 #include "render.h" // linked last, likely .s/.asm
+
+#include "../3rdParty/Storm/Source/storm.h"
 
 #endif /* __ALL_H__ */

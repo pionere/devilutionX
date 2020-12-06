@@ -4,12 +4,85 @@
  * Global definitions and Macros.
  */
 
+#ifdef USE_SDL1
+// SDL1 controllers
+#ifndef HAS_JOYSTICK
+#define HAS_JOYSTICK	1
+#endif
+#ifndef HAS_DPAD
+#define HAS_DPAD		1
+#endif
+#define HAS_GAMECTRL	0
+#define HAS_TOUCHPAD	0
+#else
+// SDL2 controllers
+#ifndef HAS_JOYSTICK
+#define HAS_JOYSTICK	1
+#endif
+#ifndef HAS_DPAD
+#define HAS_DPAD		1
+#endif
+#ifndef HAS_GAMECTRL
+#define HAS_GAMECTRL	1
+#endif
+#ifndef HAS_TOUCHPAD
+#define HAS_TOUCHPAD	1
+#endif
+//#ifndef HAS_KBCTRL
+//#define HAS_KBCTRL		1
+//#endif
+#endif
+
+#ifdef SPAWN
+#define MAIN_DATA_ARCHIVE		"spawn.mpq"
+#define MENU_ART				"ui_art\\swmmenu.pcx"
+#else
+#define MAIN_DATA_ARCHIVE		"diabdat.mpq"
+#define MENU_ART				"ui_art\\mainmenu.pcx"
+#endif
+
+#ifdef HELLFIRE
+#define DIABOOL					BOOLEAN
+#define GAME_NAME				"HELLFIRE"
+#define APP_NAME				"Hellfire"
+#define LOGO_DATA				"Data\\hf_logo3.CEL"
+#define LOGO_WIDTH				430
+#define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
+#define GAME_ID					((int)'HRTL')
+#define GAME_VERSION			34
+#define HELP_TITLE				"Hellfire Help"
+#ifdef SPAWN
+#define PROGRAM_NAME			"Diablo Shareware"
+#else
+#define PROGRAM_NAME			"Hellfire Retail"
+#endif
+#else
 #define DIABOOL					BOOL
 #define GAME_NAME				"DIABLO"
 #define APP_NAME				"Diablo"
+#define LOGO_DATA				"Data\\Diabsmal.CEL"
+#define LOGO_WIDTH				296
+#define INTRO_ARCHIVE			"gendata\\diablo1.smk"
+#define GAME_ID					((int)'DRTL')
+#define GAME_VERSION			42
+#define HELP_TITLE				"Diablo Help"
+#ifdef SPAWN
+#define PROGRAM_NAME			"Diablo Shareware"
+#else
+#define PROGRAM_NAME			"Diablo Retail"
+#endif
+#endif
 
+// MAXDUN = DSIZE + 2 * DBORDER
+// DSIZE = 2 * DMAX
 #define DMAXX					40
 #define DMAXY					40
+#define DBORDERX				16
+#define DBORDERY				16
+#define DSIZEX					80
+#define DSIZEY					80
+#define MAXDUNX					112
+#define MAXDUNY					112
 
 #define LIGHTSIZE				6912 // 27 * 256
 
@@ -20,31 +93,51 @@
 #define MAX_PLRS				4
 
 #define MAX_CHARACTERS			10
+#ifdef HELLFIRE
+#define NUMLEVELS				25
+#define MAX_LVLS				24
+#define MAX_LVLMTYPES			24
+#define MAXQUESTS				24
+#define MAXMULTIQUESTS			10
+#define MAXTRIGGERS				7
+#define MAX_SPELLS				52
+#else
+#define NUMLEVELS				17
+#define MAX_LVLS				16
 #define MAX_LVLMTYPES			16
+#define MAXQUESTS				16
+#define MAXMULTIQUESTS			4
+#define MAXTRIGGERS				5
+#define MAX_SPELLS				37
+#endif
+
+#define MAX_CHUNKS				(MAX_LVLS + 5)
+
 // #define MAX_PATH				260
 #define MAX_SEND_STR_LEN		80
-#define MAX_SPELLS				37
 
 #define MAXDEAD					31
-#define MAXDUNX					112
-#define MAXDUNY					112
 #define MAXITEMS				127
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
 #define MAXMONSTERS				200
-#define MAXMULTIQUESTS			4
 #define MAXOBJECTS				127
-#define MAXPORTAL				4
-#define MAXQUESTS				16
+#define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
 #define MAXTILES				2048
-#define MAXTRIGGERS				5
 #define MAXVISION				32
 #define MDMAXX					40
 #define MDMAXY					40
-#define MAXCHARLEVEL			51
+#define MAXCHARLEVEL			50
+#define MAXSPLLEVEL				15
+#ifdef HELLFIRE
+#define ITEMTYPES				43
+#define BASESTAFFCHARGES		18
+#else
 #define ITEMTYPES				35
+#define BASESTAFFCHARGES		40
+#endif
 
 // number of inventory grid cells
 #define NUM_INV_GRID_ELEM		40
@@ -59,11 +152,23 @@
 #define NUM_TOWNERS				16
 
 // todo: enums
-#define NUMLEVELS				17
+#ifdef HELLFIRE
+#define HEALER_ITEMS			20
+#define WITCH_ITEMS				25
+#define SMITH_ITEMS				25
+#define SMITH_PREMIUM_ITEMS		15
+#define SMITH_MAX_VALUE			200000
+#define SMITH_MAX_PREMIUM_VALUE 200000
+#define STORE_LINES				104
+#else
+#define HEALER_ITEMS			20
+#define WITCH_ITEMS				20
 #define SMITH_ITEMS				20
 #define SMITH_PREMIUM_ITEMS		6
 #define SMITH_MAX_VALUE			140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
+#define STORE_LINES				24
+#endif
 
 // from diablo 2 beta
 #define MAXEXP					2000000000
@@ -85,9 +190,6 @@
 
 #define PMSG_COUNT				8
 
-// Diablo Retail Version Game ID
-#define GAME_ID					((int)'DRTL')
-
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
 // Entry 128-255 (0x80-0xFF) are global
@@ -108,8 +210,8 @@
 #define PAL16_RED		224
 #define PAL16_GRAY		240
 
-#define SCREEN_WIDTH	640
-#define SCREEN_HEIGHT	480
+#define SCREEN_WIDTH	dvl::screenWidth
+#define SCREEN_HEIGHT	dvl::screenHeight
 
 // If defined, use 32-bit colors instead of 8-bit [Default -> Undefined]
 //#define RGBMODE
@@ -122,7 +224,7 @@
 
 #define BORDER_LEFT		64
 #define BORDER_TOP		160
-#define BORDER_RIGHT	64
+#define BORDER_RIGHT	dvl::borderRight
 #define BORDER_BOTTOM	16
 
 #define SCREEN_X		BORDER_LEFT
@@ -130,6 +232,8 @@
 
 #define BUFFER_WIDTH	(BORDER_LEFT + SCREEN_WIDTH + BORDER_RIGHT)
 #define BUFFER_HEIGHT	(BORDER_TOP + SCREEN_HEIGHT + BORDER_BOTTOM)
+
+#define UI_OFFSET_Y		((SCREEN_HEIGHT - 480) / 2)
 
 #define TILE_WIDTH		64
 #define TILE_HEIGHT		32
@@ -148,16 +252,38 @@
 #define RIGHT_PANEL		(SCREEN_WIDTH - SPANEL_WIDTH)
 #define RIGHT_PANEL_X	(SCREEN_X + RIGHT_PANEL)
 
-#if SCREEN_WIDTH <= PANEL_WIDTH
-#define VIEWPORT_HEIGHT	(SCREEN_HEIGHT - PANEL_HEIGHT)
-#else
-#define VIEWPORT_HEIGHT	SCREEN_HEIGHT
-#endif
+#define VIEWPORT_HEIGHT dvl::viewportHeight
 
 #define DIALOG_TOP		((SCREEN_HEIGHT - PANEL_HEIGHT) / 2 - 18)
 #define DIALOG_Y		(SCREEN_Y + DIALOG_TOP)
 
 #define SCREENXY(x, y)	((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
+
+#define SPLICONLENGTH 56
+#define SPLROWICONLS 10
+#ifdef HELLFIRE
+#define SPLICONLAST 52
+#else
+#define SPLICONLAST 43
+#endif
+
+#ifdef SPAWN
+#define MONST_AVAILABILITY_MASK	1
+#else
+#define MONST_AVAILABILITY_MASK	3
+#endif
+
+#define NIGHTMARE_TO_HIT_BONUS  85
+#define HELL_TO_HIT_BONUS      120
+
+#define NIGHTMARE_AC_BONUS 50
+#define HELL_AC_BONUS      80
+
+#define IN_DUNGEON_AREA(x, y) \
+	(x >= 0                   \
+	&& x < MAXDUNX            \
+	&& y >= 0                 \
+	&& y < MAXDUNY)
 
 #define MemFreeDbg(p)	\
 {						\

@@ -11,7 +11,7 @@
 #include "dvlnet/abstract_net.h"
 #include "stubs.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 enum packet_type : uint8_t {
@@ -308,4 +308,4 @@ std::unique_ptr<packet> packet_factory::make_packet(Args... args)
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

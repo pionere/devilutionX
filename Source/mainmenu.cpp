@@ -4,8 +4,7 @@
  * Implementation of functions for interacting with the main menu.
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
-#include "../DiabloUI/diabloui.h"
+#include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -16,15 +15,65 @@ char gszHero[16];
 /** The active music track id for the main menu. */
 int menu_music_track_id = TMUSIC_INTRO;
 
-void mainmenu_refresh_music()
+static void mainmenu_refresh_music()
 {
 	music_start(menu_music_track_id);
-#ifndef SPAWN
+
+#ifdef SPAWN
+	return;
+#endif
+
 	do {
 		menu_music_track_id++;
 		if (menu_music_track_id == NUM_MUSIC)
 			menu_music_track_id = TMUSIC_TOWN;
 	} while (menu_music_track_id == TMUSIC_TOWN || menu_music_track_id == TMUSIC_L1);
+}
+
+static BOOL mainmenu_init_menu(int type)
+{
+	BOOL success;
+
+	if (type == SELHERO_PREVIOUS)
+		return TRUE;
+
+	music_stop();
+
+	success = StartGame(type != SELHERO_CONTINUE, type != SELHERO_CONNECT);
+	if (success)
+		mainmenu_refresh_music();
+
+	return success;
+}
+
+static BOOL mainmenu_single_player()
+{
+#ifdef HELLFIRE
+	if (!SRegLoadValue(APP_NAME, jogging_title, 0, &jogging_opt)) {
+		jogging_opt = TRUE;
+	}
+#endif
+	gbMaxPlayers = 1;
+
+	if (!SRegLoadValue("devilutionx", "game speed", 0, &ticks_per_sec)) {
+		SRegSaveValue("devilutionx", "game speed", 0, ticks_per_sec);
+	}
+
+	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
+}
+
+static BOOL mainmenu_multi_player()
+{
+	gbMaxPlayers = MAX_PLRS;
+	return mainmenu_init_menu(SELHERO_CONNECT);
+}
+
+static void mainmenu_play_intro()
+{
+#if defined(HELLFIRE) || !defined(SPAWN)
+	music_stop();
+	play_movie(INTRO_ARCHIVE, TRUE);
+	mainmenu_refresh_music();
 #endif
 }
 
@@ -56,11 +105,9 @@ BOOL mainmenu_select_hero_dialog(
 		        gszHero,
 		        &gnDifficulty))
 			app_fatal("Unable to display SelHeroSing");
+		client_info->initdata->bDiff = gnDifficulty;
 
-		if (dlgresult == SELHERO_CONTINUE)
-			gbLoadGame = TRUE;
-		else
-			gbLoadGame = FALSE;
+		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 
 	} else if (!UiSelHeroMultDialog(
 	               pfile_ui_set_hero_infos,
@@ -95,8 +142,8 @@ void mainmenu_loop()
 	BOOL done;
 	int menu;
 
-	done = FALSE;
 	mainmenu_refresh_music();
+	done = FALSE;
 
 	do {
 		menu = 0;
@@ -112,18 +159,19 @@ void mainmenu_loop()
 			if (!mainmenu_multi_player())
 				done = TRUE;
 			break;
-		case MAINMENU_REPLAY_INTRO:
 		case MAINMENU_ATTRACT_MODE:
-#ifdef SPAWN
-			done = FALSE;
-#else
+ 		case MAINMENU_REPLAY_INTRO:
 			if (gbActive)
 				mainmenu_play_intro();
-#endif
 			break;
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog(16);
 			break;
+#ifdef HELLFIRE
+		case MAINMENU_SHOW_SUPPORT:
+			//UiSupportDialog(16);
+			break;
+#endif
 		case MAINMENU_EXIT_DIABLO:
 			done = TRUE;
 			break;
@@ -132,42 +180,5 @@ void mainmenu_loop()
 
 	music_stop();
 }
-
-BOOL mainmenu_single_player()
-{
-	gbMaxPlayers = 1;
-	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
-}
-
-BOOL mainmenu_init_menu(int type)
-{
-	BOOL success;
-
-	if (type == SELHERO_PREVIOUS)
-		return TRUE;
-
-	music_stop();
-
-	success = StartGame(type != SELHERO_CONTINUE, type != SELHERO_CONNECT);
-	if (success)
-		mainmenu_refresh_music();
-
-	return success;
-}
-
-BOOL mainmenu_multi_player()
-{
-	gbMaxPlayers = MAX_PLRS;
-	return mainmenu_init_menu(SELHERO_CONNECT);
-}
-
-#ifndef SPAWN
-void mainmenu_play_intro()
-{
-	music_stop();
-	play_movie("gendata\\diablo1.smk", TRUE);
-	mainmenu_refresh_music();
-}
-#endif
 
 DEVILUTION_END_NAMESPACE

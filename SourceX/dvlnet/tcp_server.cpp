@@ -1,11 +1,11 @@
-#include "dvlnet/tcp_server.h"
+#include "tcp_server.h"
 
 #include <functional>
 #include <chrono>
 
 #include "dvlnet/base.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 tcp_server::tcp_server(asio::io_context &ioc, std::string bindaddr,
@@ -216,4 +216,4 @@ tcp_server::~tcp_server()
 }
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

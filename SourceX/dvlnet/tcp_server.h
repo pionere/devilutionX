@@ -12,7 +12,7 @@
 #include "dvlnet/abstract_net.h"
 #include "dvlnet/frame_queue.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class server_exception : public dvlnet_exception {
@@ -75,4 +75,4 @@ private:
 };
 
 } //namespace net
-} //namespace dvl
+DEVILUTION_END_NAMESPACE

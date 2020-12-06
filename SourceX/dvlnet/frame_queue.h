@@ -4,7 +4,7 @@
 
 #include "dvlnet/abstract_net.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class frame_queue_exception : public dvlnet_exception {
@@ -38,4 +38,4 @@ public:
 };
 
 } // namespace net
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

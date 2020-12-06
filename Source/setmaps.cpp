@@ -1,3 +1,8 @@
+/**
+ * @file setmaps.cpp
+ *
+ * Implementation of functionality the special quest dungeons.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -57,19 +62,18 @@ BYTE SkelChamTrans3[] = {
 };
 
 /** Maps from quest level to quest level names. */
-char *quest_level_names[] = {
+const char *const quest_level_names[] = {
 	"",
 	"Skeleton King's Lair",
-	"Bone Chamber",
+	"Chamber of Bone",
 	"Maze",
 	"Poisoned Water Supply",
 	"Archbishop Lazarus' Lair",
 };
 
-int ObjIndex(int x, int y)
+static int ObjIndex(int x, int y)
 {
-	int i;
-	int oi;
+	int i, oi;
 
 	for (i = 0; i < nobjects; i++) {
 		oi = objectactive[i];
@@ -80,8 +84,7 @@ int ObjIndex(int x, int y)
 	return -1;
 }
 
-#ifndef SPAWN
-void AddSKingObjs()
+static void AddSKingObjs()
 {
 	SetObjMapRange(ObjIndex(64, 34), 20, 7, 23, 10, 1);
 	SetObjMapRange(ObjIndex(64, 59), 20, 14, 21, 16, 2);
@@ -91,20 +94,20 @@ void AddSKingObjs()
 	SetObjMapRange(ObjIndex(27, 53), 8, 1, 15, 11, 3);
 }
 
-void AddSChamObjs()
+static void AddSChamObjs()
 {
 	SetObjMapRange(ObjIndex(37, 30), 17, 0, 21, 5, 1);
 	SetObjMapRange(ObjIndex(37, 46), 13, 0, 16, 5, 2);
 }
 
-void AddVileObjs()
+static void AddVileObjs()
 {
 	SetObjMapRange(ObjIndex(26, 45), 1, 1, 9, 10, 1);
 	SetObjMapRange(ObjIndex(45, 46), 11, 1, 20, 10, 2);
 	SetObjMapRange(ObjIndex(35, 36), 7, 11, 13, 18, 3);
 }
 
-void DRLG_SetMapTrans(char *sFileName)
+static void DRLG_SetMapTrans(const char *sFileName)
 {
 	int x, y;
 	int i, j;
@@ -122,15 +125,20 @@ void DRLG_SetMapTrans(char *sFileName)
 	dwOffset += 3 * x * y * 2;
 	d += dwOffset;
 
-	for (j = 0; j < y; j++) {
-		for (i = 0; i < x; i++) {
-			dTransVal[16 + i][16 + j] = *d;
+	x += DBORDERX;
+	y += DBORDERY;
+	for (j = DBORDERY; j < y; j++) {
+		for (i = DBORDERX; i < x; i++) {
+			dTransVal[i][j] = *d;
 			d += 2;
 		}
 	}
 	mem_free_dbg(pLevelMap);
 }
 
+/**
+ * @brief Load a quest map, the given map is specified via the global setlvlnum
+ */
 void LoadSetMap()
 {
 	switch (setlvlnum) {
@@ -192,6 +200,5 @@ void LoadSetMap()
 		break;
 	}
 }
-#endif
 
 DEVILUTION_END_NAMESPACE

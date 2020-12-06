@@ -16,7 +16,7 @@ static int AutoMapX;
 static int AutoMapY;
 /** Specifies whether the automap is enabled. */
 BOOL automapflag;
-char AmShiftTab[31];
+char AmShiftTab[32];
 /** Tracks the explored areas of the map. */
 BOOLEAN automapview[DMAXX][DMAXY];
 /** Specifies the scale of the automap. */
@@ -35,6 +35,10 @@ int AmLine4;
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
 #define COLOR_DIM (PAL16_YELLOW + 8)
+#ifdef HELLFIRE
+// color for items on automap
+#define COLOR_ITEM (PAL8_BLUE + 1)
+#endif
 
 #define MAPFLAG_TYPE 0x000F
 /** these are in the second byte */
@@ -70,19 +74,29 @@ void InitAutomap()
 	DWORD dwTiles;
 	int x, y;
 	BYTE *pAFile, *pTmp;
-	int i;
+	DWORD i;
 
 	memset(automaptype, 0, sizeof(automaptype));
 
 	switch (leveltype) {
 	case DTYPE_CATHEDRAL:
-		pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
+#ifdef HELLFIRE
+		if (currlevel >= 21)
+			pAFile = LoadFileInMem("NLevels\\L5Data\\L5.AMP", &dwTiles);
+		else
+#endif
+			pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
 		break;
 	case DTYPE_CATACOMBS:
 		pAFile = LoadFileInMem("Levels\\L2Data\\L2.AMP", &dwTiles);
 		break;
 	case DTYPE_CAVES:
-		pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
+#ifdef HELLFIRE
+		if (currlevel >= 17)
+			pAFile = LoadFileInMem("NLevels\\L6Data\\L6.AMP", &dwTiles);
+		else
+#endif
+			pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
 		break;
 	case DTYPE_HELL:
 		pAFile = LoadFileInMem("Levels\\L4Data\\L4.AMP", &dwTiles);
@@ -186,106 +200,9 @@ void AutomapZoomOut()
 }
 
 /**
- * @brief Renders the automap on screen.
- */
-void DrawAutomap()
-{
-	int cells;
-	int sx, sy;
-	int i, j, d;
-	int mapx, mapy;
-
-	if (leveltype == DTYPE_TOWN) {
-		DrawAutomapText();
-		return;
-	}
-
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
-
-	AutoMapX = (ViewX - 16) >> 1;
-	while (AutoMapX + AutoMapXOfs < 0)
-		AutoMapXOfs++;
-	while (AutoMapX + AutoMapXOfs >= DMAXX)
-		AutoMapXOfs--;
-	AutoMapX += AutoMapXOfs;
-
-	AutoMapY = (ViewY - 16) >> 1;
-	while (AutoMapY + AutoMapYOfs < 0)
-		AutoMapYOfs++;
-	while (AutoMapY + AutoMapYOfs >= DMAXY)
-		AutoMapYOfs--;
-	AutoMapY += AutoMapYOfs;
-
-	d = (AutoMapScale << 6) / 100;
-	cells = 2 * (SCREEN_WIDTH / 2 / d) + 1;
-	if ((SCREEN_WIDTH / 2) % d)
-		cells++;
-	if ((SCREEN_WIDTH / 2) % d >= (AutoMapScale << 5) / 100)
-		cells++;
-
-	if (ScrollInfo._sxoff + ScrollInfo._syoff)
-		cells++;
-	mapx = AutoMapX - cells;
-	mapy = AutoMapY - 1;
-
-	if (cells & 1) {
-		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * ((cells - 1) >> 1);
-		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * ((cells + 1) >> 1);
-	} else {
-		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * (cells >> 1) + AmLine32;
-		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * (cells >> 1) - AmLine16;
-	}
-	if (ViewX & 1) {
-		sx -= AmLine16;
-		sy -= AmLine8;
-	}
-	if (ViewY & 1) {
-		sx += AmLine16;
-		sy -= AmLine8;
-	}
-
-	sx += AutoMapScale * ScrollInfo._sxoff / 100 >> 1;
-	sy += AutoMapScale * ScrollInfo._syoff / 100 >> 1;
-	if (PANELS_COVER) {
-		if (invflag || sbookflag) {
-			sx -= SCREEN_WIDTH / 4;
-		}
-		if (chrflag || questlog) {
-			sx += SCREEN_WIDTH / 4;
-		}
-	}
-
-	for (i = 0; i <= cells + 1; i++) {
-		int x = sx;
-		int y;
-
-		for (j = 0; j < cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
-			if (maptype != 0)
-				DrawAutomapTile(x, sy, maptype);
-			x += AmLine64;
-		}
-		mapy++;
-		x = sx - AmLine32;
-		y = sy + AmLine16;
-		for (j = 0; j <= cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
-			if (maptype != 0)
-				DrawAutomapTile(x, y, maptype);
-			x += AmLine64;
-		}
-		mapx++;
-		sy += AmLine32;
-	}
-	DrawAutomapPlr();
-	DrawAutomapText();
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
-}
-
-/**
  * @brief Renders the given automap shape at the specified screen coordinates.
  */
-void DrawAutomapTile(int sx, int sy, WORD automap_type)
+static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 {
 	BOOL do_vert;
 	BOOL do_horz;
@@ -470,30 +387,114 @@ void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	}
 }
 
-/**
- * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
- */
-void DrawAutomapPlr()
+#ifdef HELLFIRE
+static void DrawAutomapItem(int x, int y, BYTE color)
 {
-	int px, py;
-	int x, y;
+	int x1, y1, x2, y2;
 
-	if (plr[myplr]._pmode == PM_WALK3) {
-		x = plr[myplr]._pfutx;
-		y = plr[myplr]._pfuty;
-		if (plr[myplr]._pdir == DIR_W)
+	x1 = x - AmLine32 / 2;
+	y1 = y - AmLine16 / 2;
+	x2 = x1 + AmLine64 / 2;
+	y2 = y1 + AmLine32 / 2;
+	DrawLine(x, y1, x1, y, color);
+	DrawLine(x, y1, x2, y, color);
+	DrawLine(x, y2, x1, y, color);
+	DrawLine(x, y2, x2, y, color);
+}
+
+static void SearchAutomapItem()
+{
+	PlayerStruct *p;
+	int x, y;
+	int x1, y1, x2, y2, xoff, yoff;
+	int i, j;
+
+	x = 2 * AutoMapXOfs + ViewX;
+	y = 2 * AutoMapYOfs + ViewY;
+	xoff = (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
+	yoff = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
+	if (PANELS_COVER) {
+		if (invflag || sbookflag)
+			xoff -= 160;
+		if (chrflag || questlog)
+			xoff += 160;
+	}
+
+	p = &plr[myplr];
+	if (p->_pmode == PM_WALK3) {
+		x = p->_pfutx;
+		y = p->_pfuty;
+		if (p->_pdir == DIR_W)
 			x++;
 		else
 			y++;
 	} else {
-		x = plr[myplr]._px;
-		y = plr[myplr]._py;
+		x = p->_px;
+		y = p->_py;
 	}
-	px = x - 2 * AutoMapXOfs - ViewX;
-	py = y - 2 * AutoMapYOfs - ViewY;
 
-	x = (plr[myplr]._pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	y = (plr[myplr]._pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
+	x1 = x - 8;
+	if (x1 < 0)
+		x1 = 0;
+	else if (x1 > MAXDUNX)
+		x1 = MAXDUNX;
+
+	y1 = y - 8;
+	if (y1 < 0)
+		y1 = 0;
+	else if (y1 > MAXDUNY)
+		y1 = MAXDUNY;
+
+	x2 = x + 8;
+	if (x2 < 0)
+		x2 = 0;
+	else if (x2 > MAXDUNX)
+		x2 = MAXDUNX;
+
+	y2 = y + 8;
+	if (y2 < 0)
+		y2 = 0;
+	else if (y2 > MAXDUNY)
+		y2 = MAXDUNY;
+
+	for (i = x1; i < x2; i++) {
+		for (j = y1; j < y2; j++) {
+			if (dItem[i][j] != 0){
+				x = xoff + (i - j) * AmLine16;
+				y = yoff + (i + j) * AmLine8;
+				DrawAutomapItem(x, y, COLOR_ITEM);
+			}
+		}
+	}
+}
+#endif
+
+/**
+ * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
+ */
+static void DrawAutomapPlr()
+{
+	PlayerStruct *p;
+	int px, py;
+	int x, y;
+
+	p = &plr[myplr];
+	if (p->_pmode == PM_WALK3) {
+		px = p->_pfutx;
+		py = p->_pfuty;
+		if (p->_pdir == DIR_W)
+			px++;
+		else
+			py++;
+	} else {
+		px = p->_px;
+		py = p->_py;
+	}
+	px -= 2 * AutoMapXOfs + ViewX;
+	py -= 2 * AutoMapYOfs + ViewY;
+
+	x = (p->_pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
+	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
 
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
@@ -503,7 +504,7 @@ void DrawAutomapPlr()
 	}
 	y -= AmLine8;
 
-	switch (plr[myplr]._pdir) {
+	switch (p->_pdir) {
 	case DIR_N:
 		DrawLine(x, y, x, y - AmLine16, COLOR_PLAYER);
 		DrawLine(x, y - AmLine16, x - AmLine4, y - AmLine8, COLOR_PLAYER);
@@ -550,7 +551,7 @@ void DrawAutomapPlr()
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-WORD GetAutomapType(int x, int y, BOOL view)
+static WORD GetAutomapType(int x, int y, BOOL view)
 {
 	WORD rv;
 
@@ -582,8 +583,8 @@ WORD GetAutomapType(int x, int y, BOOL view)
 
 	rv = automaptype[(BYTE)dungeon[x][y]];
 	if (rv == 7) {
-		if ((GetAutomapType(x - 1, y, FALSE) >> 8) & MAPFLAG_HORZARCH) {
-			if ((GetAutomapType(x, y - 1, FALSE) >> 8) & MAPFLAG_VERTARCH) {
+		if (GetAutomapType(x - 1, y, FALSE) & (MAPFLAG_HORZARCH << 8)) {
+			if (GetAutomapType(x, y - 1, FALSE) & (MAPFLAG_VERTARCH << 8)) {
 				rv = 1;
 			}
 		}
@@ -594,27 +595,136 @@ WORD GetAutomapType(int x, int y, BOOL view)
 /**
  * @brief Renders game info, such as the name of the current level, and in multi player the name of the game and the game password.
  */
-void DrawAutomapText()
+static void DrawAutomapText()
 {
 	char desc[256];
 	int nextline = 20;
 
-	if (gbMaxPlayers > 1) {
-		strcat(strcpy(desc, "game: "), szPlayerName);
+	if (gbMaxPlayers != 1) {
+		snprintf(desc, sizeof(desc), "game: %s", szPlayerName);
 		PrintGameStr(8, 20, desc, COL_GOLD);
 		nextline = 35;
-		if (szPlayerDescript[0]) {
-			strcat(strcpy(desc, "password: "), szPlayerDescript);
+		if (szPlayerDescript[0] != '\0') {
+			snprintf(desc, sizeof(desc), "password: %s", szPlayerDescript);
 			PrintGameStr(8, 35, desc, COL_GOLD);
 			nextline = 50;
 		}
 	}
 	if (setlevel) {
 		PrintGameStr(8, nextline, quest_level_names[(BYTE)setlvlnum], COL_GOLD);
-	} else if (currlevel) {
-		sprintf(desc, "Level: %i", currlevel);
+	} else if (currlevel != 0) {
+#ifdef HELLFIRE
+		if (currlevel >= 17 && currlevel <= 24) {
+			if (currlevel <= 20)
+				snprintf(desc, sizeof(desc), "Level: Nest %i", currlevel - 16);
+			else
+				snprintf(desc, sizeof(desc), "Level: Crypt %i", currlevel - 20);
+		} else
+#endif
+			snprintf(desc, sizeof(desc), "Level: %i", currlevel);
 		PrintGameStr(8, nextline, desc, COL_GOLD);
 	}
+}
+
+/**
+ * @brief Renders the automap on screen.
+ */
+void DrawAutomap()
+{
+	int cells;
+	int sx, sy;
+	int i, j, d;
+	int mapx, mapy;
+
+	if (leveltype == DTYPE_TOWN) {
+		DrawAutomapText();
+		return;
+	}
+
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
+
+	AutoMapX = (ViewX - DBORDERX) >> 1;
+	while (AutoMapX + AutoMapXOfs < 0)
+		AutoMapXOfs++;
+	while (AutoMapX + AutoMapXOfs >= DMAXX)
+		AutoMapXOfs--;
+	AutoMapX += AutoMapXOfs;
+
+	AutoMapY = (ViewY - DBORDERY) >> 1;
+	while (AutoMapY + AutoMapYOfs < 0)
+		AutoMapYOfs++;
+	while (AutoMapY + AutoMapYOfs >= DMAXY)
+		AutoMapYOfs--;
+	AutoMapY += AutoMapYOfs;
+
+	d = (AutoMapScale << 6) / 100;
+	cells = 2 * (SCREEN_WIDTH / 2 / d) + 1;
+	if ((SCREEN_WIDTH / 2) % d)
+		cells++;
+	if ((SCREEN_WIDTH / 2) % d >= (AutoMapScale << 5) / 100)
+		cells++;
+
+	if (ScrollInfo._sxoff + ScrollInfo._syoff)
+		cells++;
+	mapx = AutoMapX - cells;
+	mapy = AutoMapY - 1;
+
+	if (cells & 1) {
+		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * ((cells - 1) >> 1);
+		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * ((cells + 1) >> 1);
+	} else {
+		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * (cells >> 1) + AmLine32;
+		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * (cells >> 1) - AmLine16;
+	}
+	if (ViewX & 1) {
+		sx -= AmLine16;
+		sy -= AmLine8;
+	}
+	if (ViewY & 1) {
+		sx += AmLine16;
+		sy -= AmLine8;
+	}
+
+	sx += AutoMapScale * ScrollInfo._sxoff / 100 >> 1;
+	sy += AutoMapScale * ScrollInfo._syoff / 100 >> 1;
+	if (PANELS_COVER) {
+		if (invflag || sbookflag) {
+			sx -= SCREEN_WIDTH / 4;
+		}
+		if (chrflag || questlog) {
+			sx += SCREEN_WIDTH / 4;
+		}
+	}
+
+	for (i = 0; i <= cells + 1; i++) {
+		int x = sx;
+		int y;
+
+		for (j = 0; j < cells; j++) {
+			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
+			if (maptype != 0)
+				DrawAutomapTile(x, sy, maptype);
+			x += AmLine64;
+		}
+		mapy++;
+		x = sx - AmLine32;
+		y = sy + AmLine16;
+		for (j = 0; j <= cells; j++) {
+			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
+			if (maptype != 0)
+				DrawAutomapTile(x, y, maptype);
+			x += AmLine64;
+		}
+		mapx++;
+		sy += AmLine32;
+	}
+	DrawAutomapPlr();
+#ifdef HELLFIRE
+	if (AutoMapShowItems)
+		SearchAutomapItem();
+#endif
+	DrawAutomapText();
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 }
 
 /**
@@ -625,8 +735,8 @@ void SetAutomapView(int x, int y)
 	WORD maptype, solid;
 	int xx, yy;
 
-	xx = (x - 16) >> 1;
-	yy = (y - 16) >> 1;
+	xx = (x - DBORDERX) >> 1;
+	yy = (y - DBORDERY) >> 1;
 
 	if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY) {
 		return;
@@ -635,57 +745,57 @@ void SetAutomapView(int x, int y)
 	automapview[xx][yy] = TRUE;
 
 	maptype = GetAutomapType(xx, yy, FALSE);
-	solid = maptype & 0x4000;
+	solid = maptype & (MAPFLAG_DIRT << 8);
 
-	switch (maptype & 0xF) {
+	switch (maptype & MAPFLAG_TYPE) {
 	case 2:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 3:
 		if (solid) {
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
 	case 4:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
-			if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
 	case 5:
 		if (solid) {
-			if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000)
+			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, FALSE) == 0x4007)
+			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 6:
 		if (solid) {
-			if (GetAutomapType(xx - 1, yy, FALSE) & 0x4000)
+			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == 0x4007)
+			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & 0x4000) {
+		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;

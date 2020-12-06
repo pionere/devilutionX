@@ -1,3 +1,8 @@
+/**
+ * @file tmsg.cpp
+ *
+ * Implementation of functionality transmitting chat messages.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -9,7 +14,7 @@ int tmsg_get(BYTE *pbMsg, DWORD dwMaxLen)
 	int len;
 	TMsg *head;
 
-	if (!sgpTimedMsgHead)
+	if (sgpTimedMsgHead == NULL)
 		return 0;
 
 	if ((int)(sgpTimedMsgHead->hdr.dwTime - SDL_GetTicks()) >= 0)
@@ -29,7 +34,7 @@ void tmsg_add(BYTE *pbMsg, BYTE bLen)
 
 	TMsg *msg = (TMsg *)DiabloAllocPtr(bLen + sizeof(*msg));
 	msg->hdr.pNext = NULL;
-	msg->hdr.dwTime = SDL_GetTicks() + 500;
+	msg->hdr.dwTime = SDL_GetTicks() + tick_delay * 10;
 	msg->hdr.bLen = bLen;
 	memcpy(msg->body, pbMsg, bLen);
 	for (tail = &sgpTimedMsgHead; *tail; tail = &(*tail)->hdr.pNext) {
@@ -40,14 +45,14 @@ void tmsg_add(BYTE *pbMsg, BYTE bLen)
 
 void tmsg_start()
 {
-	assert(!sgpTimedMsgHead);
+	assert(sgpTimedMsgHead == NULL);
 }
 
 void tmsg_cleanup()
 {
 	TMsg *next;
 
-	while (sgpTimedMsgHead) {
+	while (sgpTimedMsgHead != NULL) {
 		next = sgpTimedMsgHead->hdr.pNext;
 		MemFreeDbg(sgpTimedMsgHead);
 		sgpTimedMsgHead = next;

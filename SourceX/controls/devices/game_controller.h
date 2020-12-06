@@ -1,22 +1,51 @@
-
 #pragma once
 
+#include "../../types.h"
+
+#ifndef HAS_GAMECTRL
+#define HAS_GAMECTRL 0
+#endif
+
+#if HAS_GAMECTRL == 1
+#ifdef USE_SDL1
+static_assert(FALSE, "GameController is not supported in SDL1.");
+#endif
+
+#include <vector>
+
 #include <SDL.h>
-#include "controls/controller_buttons.h"
 
-#ifndef USE_SDL1
-namespace dvl {
+#include "../controller_buttons.h"
 
-ControllerButton GameControllerToControllerButton(const SDL_Event &event);
+DEVILUTION_BEGIN_NAMESPACE
 
-bool IsGameControllerButtonPressed(ControllerButton button);
+class GameController {
+	static std::vector<GameController> *const controllers_;
 
-bool ProcessGameControllerAxisMotion(const SDL_Event &event);
+public:
+	static void Add(int joystick_index);
+	static void Remove(SDL_JoystickID instance_id);
+	static GameController *Get(SDL_JoystickID instance_id);
+	static GameController *Get(const SDL_Event &event);
+	static const std::vector<GameController> &All();
+	static bool IsPressedOnAnyController(ControllerButton button);
 
-SDL_GameController *CurrentGameController();
+	// NOTE: Not idempotent.
+	// Must be called exactly once for each SDL input event.
+	ControllerButton ToControllerButton(const SDL_Event &event);
 
-// Must be called after InitJoystick().
-void InitGameController();
+	bool IsPressed(ControllerButton button) const;
+	bool ProcessAxisMotion(const SDL_Event &event);
 
-} // namespace dvl
+private:
+	SDL_GameControllerButton ToSdlGameControllerButton(ControllerButton button) const;
+
+	SDL_GameController *sdl_game_controller_ = NULL;
+	SDL_JoystickID instance_id_ = -1;
+
+	bool trigger_left_is_down_ = false;
+	bool trigger_right_is_down_ = false;
+};
+
+DEVILUTION_END_NAMESPACE
 #endif

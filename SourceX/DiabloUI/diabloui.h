@@ -6,9 +6,10 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern int SelectedItem;
+extern bool textInputActive;
 
 typedef enum _artFocus {
 	FOCUS_SMALL,
@@ -27,24 +28,22 @@ extern Art ArtFocus[3];
 extern Art ArtBackground;
 extern Art ArtCursor;
 extern Art ArtHero;
-extern bool gbSpawned;
 
-extern void (*gfnSoundFunction)(char *file);
+extern void (*gfnSoundFunction)(const char *file);
 extern BOOL (*gfnHeroInfo)(BOOL (*fninfofunc)(_uiheroinfo *));
 
 void UiFadeIn();
 void UiHandleEvents(SDL_Event *event);
 bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items);
 int GetCenterOffset(int w, int bw = 0);
-void LoadPalInMem(const SDL_Color *pPal);
 void DrawMouse();
-void LoadBackgroundArt(const char *pszFile);
+void LoadBackgroundArt(const char *pszFile, int frames = 1);
 void UiAddBackground(std::vector<UiItemBase *> *vecDialog);
-void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int height = 0);
+void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int y = 0);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(int min, int max, void (*fnFocus)(int value), void (*fnSelect)(int value), void (*fnEsc)(), std::vector<UiItemBase *> items, bool wraps = false, bool (*fnYesNo)() = NULL);
+void UiInitList(int count, void (*fnFocus)(int value), void (*fnSelect)(int value), void (*fnEsc)(), std::vector<UiItemBase *> items, bool wraps = false, bool (*fnYesNo)() = NULL);
 void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size, const std::size_t *current_offset);
 void UiClearScreen();
 void UiPollAndRender();
@@ -55,4 +54,6 @@ void DvlIntSetting(const char *valuename, int *value);
 void DvlStringSetting(const char *valuename, char *string, int len);
 
 void mainmenu_restart_repintro();
-} // namespace dvl
+BOOL UiValidPlayerName(const char *name);
+
+DEVILUTION_END_NAMESPACE

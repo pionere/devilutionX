@@ -1,3 +1,8 @@
+/**
+ * @file render.cpp
+ *
+ * Implementation of functionality for rendering the level tiles.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -13,6 +18,7 @@ enum {
 	RT_RTRAPEZOID
 };
 
+/** Specifies the draw masks used to render transparency of the right side of tiles. */
 static DWORD RightMask[TILE_HEIGHT] = {
 	0xEAAAAAAA, 0xF5555555,
 	0xFEAAAAAA, 0xFF555555,
@@ -31,7 +37,7 @@ static DWORD RightMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF
 };
-
+/** Specifies the draw masks used to render transparency of the left side of tiles. */
 static DWORD LeftMask[TILE_HEIGHT] = {
 	0xAAAAAAAB, 0x5555555F,
 	0xAAAAAABF, 0x555555FF,
@@ -50,7 +56,7 @@ static DWORD LeftMask[TILE_HEIGHT] = {
 	0xFFFFFFFF, 0xFFFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF
 };
-
+/** Specifies the draw masks used to render transparency of wall tiles. */
 static DWORD WallMask[TILE_HEIGHT] = {
 	0xAAAAAAAA, 0x55555555,
 	0xAAAAAAAA, 0x55555555,
@@ -129,52 +135,50 @@ static DWORD LeftFoliageMask[TILE_HEIGHT] = {
 
 inline static void RenderLine(BYTE **dst, BYTE **src, int n, BYTE *tbl, DWORD mask)
 {
-	int i;
-
 #ifdef NO_OVERDRAW
-	if (*dst < gpBufStart || *dst > gpBufEnd) {
-		*src += n;
-		*dst += n;
-		return;
-	}
+	if (*dst >= gpBufStart && *dst <= gpBufEnd)
 #endif
-
-	if (mask == 0xFFFFFFFF) {
-		if (light_table_index == lightmax) {
-			memset(*dst, 0, n);
-			(*src) += n;
-			(*dst) += n;
-		} else if (light_table_index == 0) {
-			memcpy(*dst, *src, n);
-			(*src) += n;
-			(*dst) += n;
-		} else {
-			for (i = 0; i < n; i++, (*src)++, (*dst)++) {
-				(*dst)[0] = tbl[(*src)[0]];
-			}
-		}
-	} else {
-		if (light_table_index == lightmax) {
-			(*src) += n;
-			for (i = 0; i < n; i++, (*dst)++, mask <<= 1) {
-				if (mask & 0x80000000) {
-					(*dst)[0] = 0;
-				}
-			}
-		} else if (light_table_index == 0) {
-			for (i = 0; i < n; i++, (*src)++, (*dst)++, mask <<= 1) {
-				if (mask & 0x80000000) {
-					(*dst)[0] = (*src)[0];
+	{
+		int i = ((sizeof(DWORD) * CHAR_BIT) - n);
+		// Add the lower bits about we don't care.
+		mask |= (1 << i) - 1;
+		if (mask == 0xFFFFFFFF) {
+			if (light_table_index == lightmax) {
+				memset(*dst, 0, n);
+			} else if (light_table_index == 0) {
+				memcpy(*dst, *src, n);
+			} else {
+				for (i = 0; i < n; i++) {
+					(*dst)[i] = tbl[(*src)[i]];
 				}
 			}
 		} else {
-			for (i = 0; i < n; i++, (*src)++, (*dst)++, mask <<= 1) {
-				if (mask & 0x80000000) {
-					(*dst)[0] = tbl[(*src)[0]];
+			// Clear the lower bits of the mask to avoid testing i < n in the loops.
+			mask = (mask >> i) << i;
+			if (light_table_index == lightmax) {
+				for (i = 0; mask != 0; i++, mask <<= 1) {
+					if (mask & 0x80000000) {
+						(*dst)[i] = 0;
+					}
+				}
+			} else if (light_table_index == 0) {
+				for (i = 0; mask != 0; i++, mask <<= 1) {
+					if (mask & 0x80000000) {
+						(*dst)[i] = (*src)[i];
+					}
+				}
+			} else {
+				for (i = 0; mask != 0; i++, mask <<= 1) {
+					if (mask & 0x80000000) {
+						(*dst)[i] = tbl[(*src)[i]];
+					}
 				}
 			}
 		}
 	}
+
+	(*src) += n;
+	(*dst) += n;
 }
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -308,10 +312,10 @@ void RenderTile(BYTE *pBuff)
  */
 void world_draw_black_tile(int sx, int sy)
 {
-	int i, j, k;
+	int i, j;
 	BYTE *dst;
 
-	if (sx >= SCREEN_X + SCREEN_WIDTH || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_WIDTH / 2)
+	if (sx >= SCREEN_X + SCREEN_WIDTH || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
 		return;
 
 	if (sx < SCREEN_X - (TILE_WIDTH - 4) || sy < SCREEN_Y)

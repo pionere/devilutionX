@@ -11,20 +11,24 @@
  * - Video playback
  */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-char gbPixelCol;  // automap pixel color 8-bit (palette entry)
-BOOL gbRotateMap; // flip - if y < x
+/** automap pixel color 8-bit (palette entry) */
+char gbPixelCol;
+/** flip - if y < x */
+BOOL gbRotateMap;
+/** Seed value before the most recent call to SetRndSeed() */
 int orgseed;
 /** Width of sprite being blitted */
 int sgnWidth;
 /** Current game seed */
 int sglGameSeed;
 static CCritSect sgMemCrit;
+/** Number of times the current seed has been fetched */
 int SeedCount;
-BOOL gbNotInView; // valid - if x/y are in bounds
+/** valid - if x/y are in bounds */
+BOOL gbNotInView;
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
@@ -81,7 +85,7 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	BYTE *pRLEBytes;
 	int nDataSize;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
@@ -100,19 +104,20 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
+ * @param tbl Palette translation table
  */
 void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tbl)
 {
 	int nDataSize;
 	BYTE *pDecodeTo, *pRLEBytes;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_table_index || tbl)
+	if (light_table_index != 0 || tbl != NULL)
 		CelBlitLightSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth, tbl);
 	else
 		CelBlitSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth);
@@ -131,16 +136,32 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	int nDataSize;
 	BYTE *pRLEBytes, *pDecodeTo;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_table_index)
+	if (light_table_index != 0)
 		CelBlitLightSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth, NULL);
 	else
 		CelBlitSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth);
+}
+
+static inline int lightidx(char light)
+{
+	int idx;
+
+	idx = 4096;
+#ifdef _DEBUG
+	if (light4flag)
+		idx = 1024;
+#endif
+	if (light == 2)
+		idx += 256; // gray colors
+	if (light >= 4)
+		idx += (light - 1) << 8;
+	return idx;
 }
 
 /**
@@ -154,25 +175,17 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, w, idx;
-	BYTE *pRLEBytes, *dst, *tbl;
+	int nDataSize, w;
+	BYTE *pRLEBytes, *dst, *tbl, *end;
+	BYTE width;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
-
-	BYTE width;
-	BYTE *end;
-
-	tbl = &pLightTbl[idx];
+	tbl = &pLightTbl[lightidx(light)];
 	end = &pRLEBytes[nDataSize];
 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
@@ -210,7 +223,7 @@ void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 
 	assert(pDecodeTo != NULL);
 	assert(pRLEBytes != NULL);
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
@@ -248,7 +261,7 @@ void CelClippedDrawSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	BYTE *pRLEBytes;
 	int nDataSize;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
@@ -276,7 +289,7 @@ void CelBlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidt
 
 	assert(pDecodeTo != NULL);
 	assert(pRLEBytes != NULL);
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
@@ -339,7 +352,7 @@ void CelBlitLightTransSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int 
 
 	assert(pDecodeTo != NULL);
 	assert(pRLEBytes != NULL);
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	int i;
 	BYTE width;
@@ -449,25 +462,17 @@ void CelClippedBlitLightTrans(BYTE *pBuff, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, w, idx;
-	BYTE *pRLEBytes, *dst, *tbl;
+	int nDataSize, w;
+	BYTE *pRLEBytes, *dst, *tbl, *end;
+	BYTE width;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
-
-	tbl = &pLightTbl[idx];
-
-	BYTE width;
-	BYTE *end;
+	tbl = &pLightTbl[lightidx(light)];
 
 	end = &pRLEBytes[nDataSize];
 
@@ -546,14 +551,14 @@ void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int nCel, 
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */
-void CelBlitOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
+void CelBlitOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize, w;
 	BYTE *src, *dst, *end;
 	BYTE width;
 
 	assert(pCelBuff != NULL);
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	src = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	end = &src[nDataSize];
@@ -566,7 +571,7 @@ void CelBlitOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 				w -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					if (dst >= gpBufEnd - BUFFER_WIDTH) {
-						while (width) {
+						while (width != 0) {
 							if (*src++) {
 								dst[-BUFFER_WIDTH] = col;
 								dst[-1] = col;
@@ -576,7 +581,7 @@ void CelBlitOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 							width--;
 						}
 					} else {
-						while (width) {
+						while (width != 0) {
 							if (*src++) {
 								dst[-BUFFER_WIDTH] = col;
 								dst[-1] = col;
@@ -610,7 +615,7 @@ void ENG_set_pixel(int sx, int sy, BYTE col)
 {
 	BYTE *dst;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	if (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X)
 		return;
@@ -630,7 +635,7 @@ void engine_draw_pixel(int sx, int sy)
 {
 	BYTE *dst;
 
-	assert(gpBuffer);
+	assert(gpBuffer != NULL);
 
 	if (gbRotateMap) {
 		if (gbNotInView && (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X))
@@ -656,19 +661,31 @@ void engine_draw_pixel(int sx, int sy)
  */
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 {
-	int i, dx, dy, steps;
-	float ix, iy, sx, sy;
+	int di, ip, dx, dy, ax, ay, steps;
+	float df, fp;
 
 	dx = x1 - x0;
 	dy = y1 - y0;
-	steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-	ix = dx / (float)steps;
-	iy = dy / (float)steps;
-	sx = x0;
-	sy = y0;
-
-	for (i = 0; i <= steps; i++, sx += ix, sy += iy) {
-		ENG_set_pixel(sx, sy, col);
+	ax = abs(dx);
+	ay = abs(dy);
+	if (ax > ay) {
+		steps = ax;
+		di = dx / ax;
+		df = dy / (float)steps;
+		ip = x0;
+		fp = (float)y0;
+		for ( ; steps >= 0; steps--, ip += di, fp += df) {
+			ENG_set_pixel(ip, (int)fp, col);
+		}
+	} else {
+		steps = ay;
+		di = dy / ay;
+		df = dx / float(steps);
+		fp = (float)x0;
+		ip = y0;
+		for ( ; steps >= 0; steps--, fp += df, ip += di) {
+			ENG_set_pixel((int)fp, ip, col);
+		}
 	}
 }
 
@@ -683,7 +700,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 int GetDirection(int x1, int y1, int x2, int y2)
 {
 	int mx, my;
-	int md, ny;
+	int md;
 
 	mx = x2 - x1;
 	my = y2 - y1;
@@ -692,30 +709,29 @@ int GetDirection(int x1, int y1, int x2, int y2)
 		if (my >= 0) {
 			md = DIR_S;
 			if (2 * mx < my)
-				md = DIR_SW;
+				return DIR_SW;
 		} else {
 			my = -my;
 			md = DIR_E;
 			if (2 * mx < my)
-				md = DIR_NE;
+				return DIR_NE;
 		}
 		if (2 * my < mx)
-			return DIR_SE;
+			md = DIR_SE;
 	} else {
+		mx = -mx;
 		if (my >= 0) {
-			ny = -mx;
 			md = DIR_W;
-			if (2 * ny < my)
-				md = DIR_SW;
+			if (2 * mx < my)
+				return DIR_SW;
 		} else {
-			ny = -mx;
 			my = -my;
 			md = DIR_N;
-			if (2 * ny < my)
-				md = DIR_NE;
+			if (2 * mx < my)
+				return DIR_NE;
 		}
-		if (2 * my < ny)
-			return DIR_NW;
+		if (2 * my < mx)
+			md = DIR_NW;
 	}
 
 	return md;
@@ -785,7 +801,7 @@ BYTE *DiabloAllocPtr(DWORD dwBytes)
  */
 void mem_free_dbg(void *p)
 {
-	if (p) {
+	if (p != NULL) {
 		sgMemCrit.Enter();
 		SMemFree(p, __FILE__, __LINE__, 0);
 		sgMemCrit.Leave();
@@ -798,7 +814,7 @@ void mem_free_dbg(void *p)
  * @param pdwFileLen Will be set to file size if non-NULL
  * @return Buffer with content of file
  */
-BYTE *LoadFileInMem(char *pszName, DWORD *pdwFileLen)
+BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
 {
 	HANDLE file;
 	BYTE *buf;
@@ -807,10 +823,10 @@ BYTE *LoadFileInMem(char *pszName, DWORD *pdwFileLen)
 	WOpenFile(pszName, &file, FALSE);
 	fileLen = WGetFileSize(file, NULL, pszName);
 
-	if (pdwFileLen)
+	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
 
-	if (!fileLen)
+	if (fileLen == 0)
 		app_fatal("Zero length SFILE:\n%s", pszName);
 
 	buf = (BYTE *)DiabloAllocPtr(fileLen);
@@ -832,7 +848,7 @@ DWORD LoadFileWithMem(const char *pszName, BYTE *p)
 	DWORD dwFileLen;
 	HANDLE hsFile;
 
-	assert(pszName);
+	assert(pszName != NULL);
 	if (p == NULL) {
 		app_fatal("LoadFileWithMem(NULL):\n%s", pszName);
 	}
@@ -868,7 +884,7 @@ void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel)
 	for (i = 1; i <= nCel; i++) {
 		dst = CelGetFrame(p, i, &nDataSize) + 10;
 		nDataSize -= 10;
-		while (nDataSize) {
+		while (nDataSize != 0) {
 			width = *dst++;
 			nDataSize--;
 			assert(nDataSize >= 0);
@@ -888,6 +904,249 @@ void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel)
 						width--;
 					}
 				}
+			}
+		}
+	}
+}
+
+/**
+ * @brief Blit CL2 sprite to the given buffer
+ * @param pDecodeTo The output buffer
+ * @param pRLEBytes CL2 pixel stream (run-length encoded)
+ * @param nDataSize Size of CL2 in bytes
+ * @param nWidth Width of sprite
+ */
+static void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
+{
+	int w;
+	char width;
+	BYTE fill;
+	BYTE *src, *dst;
+
+	src = pRLEBytes;
+	dst = pDecodeTo;
+	w = nWidth;
+
+	while (nDataSize != 0) {
+		width = *src++;
+		nDataSize--;
+		if (width < 0) {
+			width = -width;
+			if (width > 65) {
+				width -= 65;
+				nDataSize--;
+				fill = *src++;
+				if (dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					while (width != 0) {
+						*dst = fill;
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = nWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				}
+			} else {
+				nDataSize -= width;
+				if (dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					while (width != 0) {
+						*dst = *src;
+						src++;
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = nWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				} else {
+					src += width;
+				}
+			}
+		}
+		while (width != 0) {
+			if (width > w) {
+				dst += w;
+				width -= w;
+				w = 0;
+			} else {
+				dst += width;
+				w -= width;
+				width = 0;
+			}
+			if (w == 0) {
+				w = nWidth;
+				dst -= BUFFER_WIDTH + w;
+			}
+		}
+	}
+}
+
+/**
+ * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the given buffer
+ * @param pDecodeTo The output buffer
+ * @param pRLEBytes CL2 pixel stream (run-length encoded)
+ * @param nDataSize Size of CL2 in bytes
+ * @param nWidth Width of sprite
+ * @param col Color index from current palette
+ */
+static void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE col)
+{
+	int w;
+	char width;
+	BYTE *src, *dst;
+
+	src = pRLEBytes;
+	dst = pDecodeTo;
+	w = nWidth;
+
+	while (nDataSize != 0) {
+		width = *src++;
+		nDataSize--;
+		if (width < 0) {
+			width = -width;
+			if (width > 65) {
+				width -= 65;
+				nDataSize--;
+				if (*src++ && dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					dst[-1] = col;
+					dst[width] = col;
+					while (width != 0) {
+						dst[-BUFFER_WIDTH] = col;
+						dst[BUFFER_WIDTH] = col;
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = nWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				}
+			} else {
+				nDataSize -= width;
+				if (dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					while (width != 0) {
+						if (*src++) {
+							dst[-1] = col;
+							dst[1] = col;
+							dst[-BUFFER_WIDTH] = col;
+							// BUGFIX: only set `if (dst+BUFFER_WIDTH < gpBufEnd)`
+							dst[BUFFER_WIDTH] = col;
+						}
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = nWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				} else {
+					src += width;
+				}
+			}
+		}
+		while (width != 0) {
+			if (width > w) {
+				dst += w;
+				width -= w;
+				w = 0;
+			} else {
+				dst += width;
+				w -= width;
+				width = 0;
+			}
+			if (w == 0) {
+				w = nWidth;
+				dst -= BUFFER_WIDTH + w;
+			}
+		}
+	}
+}
+
+/**
+ * @brief Blit CL2 sprite, and apply lighting, to the given buffer
+ * @param pDecodeTo The output buffer
+ * @param pRLEBytes CL2 pixel stream (run-length encoded)
+ * @param nDataSize Size of CL2 in bytes
+ * @param nWidth With of CL2 sprite
+ * @param pTable Light color table
+ */
+static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *pTable)
+{
+	int w;
+	char width;
+	BYTE fill;
+	BYTE *src, *dst;
+
+	src = pRLEBytes;
+	dst = pDecodeTo;
+	w = nWidth;
+	sgnWidth = nWidth;
+
+	while (nDataSize != 0) {
+		width = *src++;
+		nDataSize--;
+		if (width < 0) {
+			width = -width;
+			if (width > 65) {
+				width -= 65;
+				nDataSize--;
+				fill = pTable[*src++];
+				if (dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					while (width != 0) {
+						*dst = fill;
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = sgnWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				}
+			} else {
+				nDataSize -= width;
+				if (dst < gpBufEnd && dst > gpBufStart) {
+					w -= width;
+					while (width != 0) {
+						*dst = pTable[*src];
+						src++;
+						dst++;
+						width--;
+					}
+					if (w == 0) {
+						w = sgnWidth;
+						dst -= BUFFER_WIDTH + w;
+					}
+					continue;
+				} else {
+					src += width;
+				}
+			}
+		}
+		while (width != 0) {
+			if (width > w) {
+				dst += w;
+				width -= w;
+				w = 0;
+			} else {
+				dst += width;
+				w -= width;
+				width = 0;
+			}
+			if (w == 0) {
+				w = sgnWidth;
+				dst -= BUFFER_WIDTH + w;
 			}
 		}
 	}
@@ -920,84 +1179,6 @@ void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 }
 
 /**
- * @brief Blit CL2 sprite to the given buffer
- * @param pDecodeTo The output buffer
- * @param pRLEBytes CL2 pixel stream (run-length encoded)
- * @param nDataSize Size of CL2 in bytes
- * @param nWidth Width of sprite
- */
-void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
-{
-	int w;
-	char width;
-	BYTE fill;
-	BYTE *src, *dst;
-
-	src = pRLEBytes;
-	dst = pDecodeTo;
-	w = nWidth;
-
-	while (nDataSize) {
-		width = *src++;
-		nDataSize--;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				nDataSize--;
-				fill = *src++;
-				if (dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					while (width) {
-						*dst = fill;
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = nWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				}
-			} else {
-				nDataSize -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					while (width) {
-						*dst = *src;
-						src++;
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = nWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				} else {
-					src += width;
-				}
-			}
-		}
-		while (width) {
-			if (width > w) {
-				dst += w;
-				width -= w;
-				w = 0;
-			} else {
-				dst += width;
-				w -= width;
-				width = 0;
-			}
-			if (!w) {
-				w = nWidth;
-				dst -= BUFFER_WIDTH + w;
-			}
-		}
-	}
-}
-
-/**
  * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordianates
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
@@ -1006,7 +1187,7 @@ void Cl2BlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
-void Cl2DrawOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
+void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize;
 	BYTE *pRLEBytes;
@@ -1028,90 +1209,6 @@ void Cl2DrawOutline(char col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 }
 
 /**
- * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the given buffer
- * @param pDecodeTo The output buffer
- * @param pRLEBytes CL2 pixel stream (run-length encoded)
- * @param nDataSize Size of CL2 in bytes
- * @param nWidth Width of sprite
- * @param col Color index from current palette
- */
-void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, char col)
-{
-	int w;
-	char width;
-	BYTE *src, *dst;
-
-	src = pRLEBytes;
-	dst = pDecodeTo;
-	w = nWidth;
-
-	while (nDataSize) {
-		width = *src++;
-		nDataSize--;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				nDataSize--;
-				if (*src++ && dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					dst[-1] = col;
-					dst[width] = col;
-					while (width) {
-						dst[-BUFFER_WIDTH] = col;
-						dst[BUFFER_WIDTH] = col;
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = nWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				}
-			} else {
-				nDataSize -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					while (width) {
-						if (*src++) {
-							dst[-1] = col;
-							dst[1] = col;
-							dst[-BUFFER_WIDTH] = col;
-							dst[BUFFER_WIDTH] = col;
-						}
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = nWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				} else {
-					src += width;
-				}
-			}
-		}
-		while (width) {
-			if (width > w) {
-				dst += w;
-				width -= w;
-				w = 0;
-			} else {
-				dst += width;
-				w -= width;
-				width = 0;
-			}
-			if (!w) {
-				w = nWidth;
-				dst -= BUFFER_WIDTH + w;
-			}
-		}
-	}
-}
-
-/**
  * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordianates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -1122,8 +1219,8 @@ void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
  */
 void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
-	int nDataSize, idx;
-	BYTE *pRLEBytes, *pDecodeTo;
+	int nDataSize;
+	BYTE *pRLEBytes, *pDecodeTo, *tbl;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -1131,99 +1228,14 @@ void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-
-	idx = light4flag ? 1024 : 4096;
-	if (light == 2)
-		idx += 256; // gray colors
-	if (light >= 4)
-		idx += (light - 1) << 8;
+	tbl = &pLightTbl[lightidx(light)];
 
 	Cl2BlitLightSafe(
 	    pDecodeTo,
 	    pRLEBytes,
 	    nDataSize,
 	    nWidth,
-	    &pLightTbl[idx]);
-}
-
-/**
- * @brief Blit CL2 sprite, and apply lighting, to the given buffer
- * @param pDecodeTo The output buffer
- * @param pRLEBytes CL2 pixel stream (run-length encoded)
- * @param nDataSize Size of CL2 in bytes
- * @param nWidth With of CL2 sprite
- * @param pTable Light color table
- */
-void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *pTable)
-{
-	int w;
-	char width;
-	BYTE fill;
-	BYTE *src, *dst;
-
-	src = pRLEBytes;
-	dst = pDecodeTo;
-	w = nWidth;
-	sgnWidth = nWidth;
-
-	while (nDataSize) {
-		width = *src++;
-		nDataSize--;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				nDataSize--;
-				fill = pTable[*src++];
-				if (dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					while (width) {
-						*dst = fill;
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = sgnWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				}
-			} else {
-				nDataSize -= width;
-				if (dst < gpBufEnd && dst > gpBufStart) {
-					w -= width;
-					while (width) {
-						*dst = pTable[*src];
-						src++;
-						dst++;
-						width--;
-					}
-					if (!w) {
-						w = sgnWidth;
-						dst -= BUFFER_WIDTH + w;
-					}
-					continue;
-				} else {
-					src += width;
-				}
-			}
-		}
-		while (width) {
-			if (width > w) {
-				dst += w;
-				width -= w;
-				w = 0;
-			} else {
-				dst += width;
-				w -= width;
-				width = 0;
-			}
-			if (!w) {
-				w = sgnWidth;
-				dst -= BUFFER_WIDTH + w;
-			}
-		}
-	}
+	    tbl);
 }
 
 /**
@@ -1256,14 +1268,14 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  * @brief Fade to black and play a video
  * @param pszMovie file path of movie
  */
-void PlayInGameMovie(char *pszMovie)
+void PlayInGameMovie(const char *pszMovie)
 {
-	PaletteFadeOut(8);
+	PaletteFadeOut();
 	play_movie(pszMovie, FALSE);
 	ClearScreenBuffer();
 	force_redraw = 255;
 	scrollrt_draw_game_screen(TRUE);
-	PaletteFadeIn(8);
+	PaletteFadeIn();
 	force_redraw = 255;
 }
 

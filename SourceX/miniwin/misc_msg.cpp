@@ -23,7 +23,7 @@
  * Windows message handling and keyboard event conversion for SDL.
  */
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 static std::deque<MSG> message_queue;
 
@@ -264,56 +264,9 @@ bool false_avail(const char *name, int value)
 	return true;
 }
 
-void StoreSpellCoords()
-{
-	const int START_X = 20;
-	const int END_X = 636;
-	const int END_Y = 495;
-	const int BOX_SIZE = 56;
-	speedspellcount = 0;
-	int xo = END_X, yo = END_Y;
-	for (int i = 0; i < 4; i++) {
-		std::uint64_t spells;
-		switch (i) {
-		case RSPLTYPE_SKILL:
-			spells = plr[myplr]._pAblSpells;
-			break;
-		case RSPLTYPE_SPELL:
-			spells = plr[myplr]._pMemSpells;
-			break;
-		case RSPLTYPE_SCROLL:
-			spells = plr[myplr]._pScrlSpells;
-			break;
-		case RSPLTYPE_CHARGES:
-			spells = plr[myplr]._pISpells;
-			break;
-		default:
-			continue;
-		}
-		std::uint64_t spell = 1;
-		for (int j = 1; j < MAX_SPELLS; j++) {
-			if ((spell & spells)) {
-				speedspellscoords[speedspellcount] = { xo - 36, yo - 188 };
-				++speedspellcount;
-				xo -= BOX_SIZE;
-				if (xo == START_X) {
-					xo = END_X;
-					yo -= BOX_SIZE;
-				}
-			}
-			spell <<= 1;
-		}
-		if (spells && xo != END_X)
-			xo -= BOX_SIZE;
-		if (xo == START_X) {
-			xo = END_X;
-			yo -= BOX_SIZE;
-		}
-	}
-}
-
 } // namespace
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 /**
  * @brief Try to clean the inventory related cursor states.
  * @return True if it is safe to close the inventory
@@ -322,27 +275,21 @@ bool BlurInventory()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (!TryDropItem()) {
-			if (plr[myplr]._pClass == PC_WARRIOR) {
-				PlaySFX(PS_WARR16); // "Where would I put this?"
-#ifndef SPAWN
-			} else if (plr[myplr]._pClass == PC_ROGUE) {
-				PlaySFX(PS_ROGUE16);
-			} else if (plr[myplr]._pClass == PC_SORCERER) {
-				PlaySFX(PS_MAGE16);
-#endif
-			}
+			int pc = plr[myplr]._pClass;
+			PlaySFX(sgSFXSets[SFXS_PLR_16][pc], sgSFXSets[SFXS_PLR_16][pc] == PS_WARR16 ? 3 : 1);
 			return false;
 		}
 	}
 
 	invflag = false;
 	if (pcurs > CURSOR_HAND)
-		SetCursor_(CURSOR_HAND);
+		NewCursor(CURSOR_HAND);
 	if (chrflag)
 		FocusOnCharInfo();
 
 	return true;
 }
+#endif
 
 bool PeekMessage(LPMSG lpMsg)
 {
@@ -370,7 +317,7 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 
-#ifndef USE_SDL1
+#if HAS_TOUCHPAD == 1
 	handle_touch(&e, MouseX, MouseY);
 #endif
 
@@ -387,13 +334,16 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 
-	if (ProcessControllerMotion(e)) {
-		ScaleJoysticks();
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (HandleControllerAddedOrRemovedEvent(e))
 		return true;
-	}
+
+	const ControllerButtonEvent ctrl_event = ToControllerButtonEvent(e);
+	if (ProcessControllerMotion(e, ctrl_event))
+		return true;
 
 	GameAction action;
-	if (GetGameAction(e, &action)) {
+	if (GetGameAction(e, ctrl_event, &action)) {
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
 
@@ -441,7 +391,7 @@ bool PeekMessage(LPMSG lpMsg)
 				questlog = false;
 				spselflag = false;
 				if (pcurs == CURSOR_DISARM)
-					SetCursor_(CURSOR_HAND);
+					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
 			}
 			break;
@@ -462,7 +412,7 @@ bool PeekMessage(LPMSG lpMsg)
 				spselflag = false;
 				invflag = true;
 				if (pcurs == CURSOR_DISARM)
-					SetCursor_(CURSOR_HAND);
+					NewCursor(CURSOR_HAND);
 				FocusOnInventory();
 			}
 			break;
@@ -491,23 +441,18 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		}
 		return true;
-	} else if (e.type < SDL_JOYAXISMOTION || e.type >= 0x700) {
+	}
+#endif
+	if (e.type < SDL_JOYAXISMOTION || e.type >= 0x700) {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
+#endif
 		if (mouseWarping && e.type == SDL_MOUSEMOTION)
 			mouseWarping = false;
 	}
 
 	switch (e.type) {
-#ifndef USE_SDL1
-	case SDL_CONTROLLERDEVICEADDED:
-	case SDL_CONTROLLERDEVICEREMOVED:
-		break;
-	case SDL_JOYDEVICEADDED:
-	case SDL_JOYDEVICEREMOVED:
-		InitController();
-		break;
-#endif
 	case SDL_QUIT:
 		lpMsg->message = DVL_WM_QUIT;
 		break;
@@ -632,7 +577,7 @@ bool TranslateMessage(const MSG *lpMsg)
 		unsigned mod = (DWORD)lpMsg->lParam >> 16;
 
 		bool shift = (mod & KMOD_SHIFT) != 0;
-		bool upper = shift != (mod & KMOD_CAPS);
+		bool upper = shift != ((mod & KMOD_CAPS) != 0);
 
 		bool is_alpha = (key >= 'A' && key <= 'Z');
 		bool is_numeric = (key >= '0' && key <= '9');
@@ -758,11 +703,11 @@ SHORT GetAsyncKeyState(int vKey)
 	}
 }
 
-LRESULT DispatchMessage(const MSG *lpMsg)
+void DispatchMessage(const MSG *lpMsg)
 {
-	assert(CurrentProc);
+	assert(CurrentProc != NULL);
 
-	return CurrentProc(NULL, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
+	CurrentProc(NULL, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
 }
 
 bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -777,4 +722,4 @@ bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 	return true;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

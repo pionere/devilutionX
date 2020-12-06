@@ -1,23 +1,28 @@
+/**
+ * @file restrict.cpp
+ *
+ * Implementation of functionality for checking if the game will be able run on the system.
+ */
 #include "all.h"
-#include "../3rdParty/Storm/Source/storm.h"
+#include "paths.h"
+#include "file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/**
+ * @brief Check that we have write access to the game install folder
+
+ */
 void ReadOnlyTest()
 {
-	FILE *f;
-	char path[MAX_PATH], Filename[MAX_PATH];
-
-	GetPrefPath(path, MAX_PATH);
-	snprintf(Filename, MAX_PATH, "%sDiablo1ReadOnlyTest.foo", path);
-
-	f = fopen(Filename, "wt");
-	if (!f) {
-		DirErrorDlg(path);
+	const std::string path = GetPrefPath() + "Diablo1ReadOnlyTest.foo";
+	FILE *f = FileOpen(path.c_str(), "wt");
+	if (f == NULL) {
+		DirErrorDlg(GetPrefPath().c_str());
 	}
 
 	fclose(f);
-	remove(Filename);;
+	remove(path.c_str());
 }
 
 DEVILUTION_END_NAMESPACE

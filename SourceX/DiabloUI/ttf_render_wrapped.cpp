@@ -1,8 +1,8 @@
-#include "DiabloUI/ttf_render_wrapped.h"
+#include "ttf_render_wrapped.h"
 
 #include <cstddef>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 namespace {
 
@@ -133,7 +133,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 	SDLC_SetColorKey(textbuf, 0);
 
 	// Reduced space between lines to roughly match Diablo.
-	const int lineskip = 0.7 * TTF_FontLineSkip(font);
+	const int lineskip = (int)(0.7 * TTF_FontLineSkip(font));
 	SDL_Rect dest = { 0, 0, 0, 0 };
 	for (std::size_t line = 0; line < numLines; line++) {
 		text = strLines[line];
@@ -173,4 +173,4 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 	return textbuf;
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

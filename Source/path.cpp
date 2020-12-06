@@ -27,8 +27,8 @@ PATHNODE *path_2_nodes;
 PATHNODE path_unusednodes[MAXPATHNODES];
 
 /** For iterating over the 8 possible movement directions */
-const char pathxdir[8] = { -1, -1, 1, 1, -1, 0, 1, 0 };
-const char pathydir[8] = { -1, 1, -1, 1, 0, -1, 0, 1 };
+const char pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
+const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
 
 /* data */
 
@@ -114,7 +114,7 @@ int path_get_h_cost(int sx, int sy, int dx, int dy)
  * of sqrt(2). That's approximately 1.5, so they multiply all step costs by 2,
  * except diagonal steps which are times 3
  */
-int path_check_equal(PATHNODE *pPath, int dx, int dy)
+static int path_check_equal(PATHNODE *pPath, int dx, int dy)
 {
 	if (pPath->x == dx || pPath->y == dy)
 		return 2;
@@ -181,7 +181,8 @@ BOOL path_get_path(BOOL (*PosOk)(int, int, int), int PosOkArg, PATHNODE *pPath, 
 	int i;
 	BOOL ok;
 
-	for (i = 0; i < 8; i++) {
+	static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
+	for (i = 0; i < lengthof(pathxdir); i++) {
 		dx = pPath->x + pathxdir[i];
 		dy = pPath->y + pathydir[i];
 		ok = PosOk(PosOkArg, dx, dy);
@@ -211,7 +212,7 @@ BOOL path_parent_path(PATHNODE *pPath, int dx, int dy, int sx, int sy)
 	// case 1: (dx,dy) is already on the frontier
 	dxdy = path_get_node1(dx, dy);
 	if (dxdy != NULL) {
-		for (i = 0; i < 8; i++) {
+		for (i = 0; i < lengthof(pPath->Child); i++) {
 			if (pPath->Child[i] == NULL)
 				break;
 		}
@@ -228,7 +229,7 @@ BOOL path_parent_path(PATHNODE *pPath, int dx, int dy, int sx, int sy)
 		// case 2: (dx,dy) was already visited
 		dxdy = path_get_node2(dx, dy);
 		if (dxdy != NULL) {
-			for (i = 0; i < 8; i++) {
+			for (i = 0; i < lengthof(pPath->Child); i++) {
 				if (pPath->Child[i] == NULL)
 					break;
 			}
@@ -255,7 +256,7 @@ BOOL path_parent_path(PATHNODE *pPath, int dx, int dy, int sx, int sy)
 			// add it to the frontier
 			path_next_node(dxdy);
 
-			for (i = 0; i < 8; i++) {
+			for (i = 0; i < lengthof(pPath->Child); i++) {
 				if (pPath->Child[i] == NULL)
 					break;
 			}
@@ -271,9 +272,12 @@ BOOL path_parent_path(PATHNODE *pPath, int dx, int dy, int sx, int sy)
 PATHNODE *path_get_node1(int dx, int dy)
 {
 	PATHNODE *result = path_2_nodes->NextNode;
-	while (result != NULL && (result->x != dx || result->y != dy))
+	while (result != NULL) {
+		if (result->x == dx && result->y == dy)
+			return result;
 		result = result->NextNode;
-	return result;
+	}
+	return NULL;
 }
 
 /**
@@ -282,9 +286,12 @@ PATHNODE *path_get_node1(int dx, int dy)
 PATHNODE *path_get_node2(int dx, int dy)
 {
 	PATHNODE *result = pnode_ptr->NextNode;
-	while (result != NULL && (result->x != dx || result->y != dy))
+	while (result != NULL) {
+		if (result->x == dx && result->y == dy)
+			return result;
 		result = result->NextNode;
-	return result;
+	}
+	return NULL;
 }
 
 /**
@@ -321,9 +328,9 @@ void path_set_coords(PATHNODE *pPath)
 	int i;
 
 	path_push_active_step(pPath);
-	while (gdwCurPathStep) {
+	while (gdwCurPathStep != 0) {
 		PathOld = path_pop_active_step();
-		for (i = 0; i < 8; i++) {
+		for (i = 0; i < lengthof(PathOld->Child); i++) {
 			PathAct = PathOld->Child[i];
 			if (PathAct == NULL)
 				break;

@@ -1,21 +1,53 @@
 #pragma once
 
+#include "../../types.h"
+
+#ifndef HAS_JOYSTICK
+#define HAS_JOYSTICK 0
+#endif
+
+#if HAS_JOYSTICK == 1
 // Joystick mappings for SDL1 and additional buttons on SDL2.
 
+#include <vector>
+
 #include <SDL.h>
-#include "controls/controller_buttons.h"
 
-namespace dvl {
+#ifdef USE_SDL1
+#include "sdl2_to_1_2_backports.h"
+#endif
 
-ControllerButton JoyButtonToControllerButton(const SDL_Event &event);
+#include "../controller_buttons.h"
 
-bool IsJoystickButtonPressed(ControllerButton button);
+DEVILUTION_BEGIN_NAMESPACE
 
-bool ProcessJoystickAxisMotion(const SDL_Event &event);
+class Joystick {
+	static std::vector<Joystick> *const joysticks_;
 
-SDL_Joystick *CurrentJoystick();
-int CurrentJoystickIndex();
+public:
+	static void Add(int device_index);
+	static void Remove(SDL_JoystickID instance_id);
+	static Joystick *Get(SDL_JoystickID instance_id);
+	static Joystick *Get(const SDL_Event &event);
+	static const std::vector<Joystick> &All();
+	static bool IsPressedOnAnyJoystick(ControllerButton button);
 
-void InitJoystick();
+	ControllerButton ToControllerButton(const SDL_Event &event) const;
+	bool IsPressed(ControllerButton button) const;
+	bool ProcessAxisMotion(const SDL_Event &event);
 
-} // namespace dvl
+	SDL_JoystickID instance_id() const
+	{
+		return instance_id_;
+	}
+
+private:
+	int ToSdlJoyButton(ControllerButton button) const;
+	bool IsHatButtonPressed(ControllerButton button) const;
+
+	SDL_Joystick *sdl_joystick_ = NULL;
+	SDL_JoystickID instance_id_ = -1;
+};
+
+DEVILUTION_END_NAMESPACE
+#endif

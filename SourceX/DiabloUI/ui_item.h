@@ -11,7 +11,7 @@
 #include "DiabloUI/art.h"
 #include "DiabloUI/text_draw.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType {
 	UI_TEXT,
@@ -46,7 +46,7 @@ public:
 		m_iFlags = flags;
 	};
 
-	UiItemBase(Sint16 x, Sint16 y, Uint16 item_width, Uint16 item_height, int flags)
+	UiItemBase(int x, int y, int item_width, int item_height, int flags)
 	{
 		SDL_Rect tmp;
 		tmp.x = x;
@@ -330,12 +330,12 @@ public:
 		return tmp;
 	}
 
-	UiListItem *itemAt(Sint16 y) const
+	int indexAt(Sint16 y) const
 	{
 		ASSERT(y >= m_rect.y);
 		const std::size_t index = (y - m_rect.y) / m_height;
 		ASSERT(index < m_vecItems.size());
-		return m_vecItems[index];
+		return index;
 	}
 
 	UiListItem *GetItem(int i) const
@@ -348,4 +348,4 @@ public:
 	Uint16 m_width, m_height;
 	std::vector<UiListItem *> m_vecItems;
 };
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

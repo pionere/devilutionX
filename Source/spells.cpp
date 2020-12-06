@@ -1,74 +1,78 @@
+/**
+ * @file spells.cpp
+ *
+ * Implementation of functionality for casting player spells.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int GetManaAmount(int id, int sn)
+int GetManaAmount(int pnum, int sn)
 {
-	int ma; // mana amount
+	// mana amount, spell level, adjustment, min mana
+	int ma, sl, adj, mm;
 
-	// mana adjust
-	int adj = 0;
-
-	// spell level
-	int sl = plr[id]._pSplLvl[sn] + plr[id]._pISplLvlAdd - 1;
-
-	if (sl < 0) {
-		sl = 0;
-	}
-
-	if (sn == SPL_FIREBOLT) {
-		adj >>= 1;
-	} else if (sn == SPL_RESURRECT && sl > 0) {
-		adj = sl * (spelldata[SPL_RESURRECT].sManaCost / 8);
-	} else if (sl > 0) {
-		adj = sl * spelldata[sn].sManaAdj;
-	}
-
+	ma = spelldata[sn].sManaCost;
 	if (sn == SPL_HEAL || sn == SPL_HEALOTHER) {
-		ma = (spelldata[SPL_HEAL].sManaCost + 2 * plr[id]._pLevel - adj);
-	} else if (spelldata[sn].sManaCost == 255) {
-		ma = ((BYTE)plr[id]._pMaxManaBase - adj);
-	} else {
-		ma = (spelldata[sn].sManaCost - adj);
+		ma += 2 * plr[pnum]._pLevel;
+	} else if (ma == 255) {
+		ma = (BYTE)plr[pnum]._pMaxManaBase;
 	}
 
+	sl = plr[pnum]._pSplLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
+	if (sl < 0)
+		sl = 0;
+	if (sn == SPL_RESURRECT) {
+		adj = sl * (ma >> 3);
+	} else {
+		adj = sl * spelldata[sn].sManaAdj;
+		if (sn == SPL_FIREBOLT) {
+			adj >>= 1;
+		}
+	}
+	ma -= adj;
 	if (ma < 0)
 		ma = 0;
 	ma <<= 6;
 
-	if (plr[id]._pClass == PC_ROGUE) {
+	if (plr[pnum]._pClass == PC_ROGUE)
 		ma -= ma >> 2;
-	}
+#ifdef HELLFIRE
+	else if (plr[pnum]._pClass == PC_SORCERER)
+		ma >>= 1;
+	else if (plr[pnum]._pClass == PC_MONK || plr[pnum]._pClass == PC_BARD)
+		ma -= ma >> 2;
+#endif
 
-	if (spelldata[sn].sMinMana > ma >> 6) {
-		ma = spelldata[sn].sMinMana << 6;
-	}
+	mm = spelldata[sn].sMinMana << 6;
+	if (mm > ma)
+		ma = mm;
 
-	return ma * (100 - plr[id]._pISplCost) / 100;
+	return ma * (100 - plr[pnum]._pISplCost) / 100;
 }
 
-void UseMana(int id, int sn)
+void UseMana(int pnum, int sn)
 {
 	int ma; // mana cost
 
-	if (id == myplr) {
-		switch (plr[id]._pSplType) {
+	if (pnum == myplr) {
+		switch (plr[pnum]._pSplType) {
 		case RSPLTYPE_SKILL:
 		case RSPLTYPE_INVALID:
 			break;
 		case RSPLTYPE_SCROLL:
-			RemoveScroll(id);
+			RemoveScroll(pnum);
 			break;
 		case RSPLTYPE_CHARGES:
-			UseStaffCharge(id);
+			UseStaffCharge(pnum);
 			break;
 		case RSPLTYPE_SPELL:
 #ifdef _DEBUG
 			if (!debug_mode_key_inverted_v) {
 #endif
-				ma = GetManaAmount(id, sn);
-				plr[id]._pMana -= ma;
-				plr[id]._pManaBase -= ma;
+				ma = GetManaAmount(pnum, sn);
+				plr[pnum]._pMana -= ma;
+				plr[pnum]._pManaBase -= ma;
 				drawmanaflag = TRUE;
 #ifdef _DEBUG
 			}
@@ -78,7 +82,7 @@ void UseMana(int id, int sn)
 	}
 }
 
-BOOL CheckSpell(int id, int sn, char st, BOOL manaonly)
+BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly)
 {
 	BOOL result;
 
@@ -92,10 +96,10 @@ BOOL CheckSpell(int id, int sn, char st, BOOL manaonly)
 		result = FALSE;
 	} else {
 		if (st != RSPLTYPE_SKILL) {
-			if (GetSpellLevel(id, sn) <= 0) {
+			if (GetSpellLevel(pnum, sn) <= 0) {
 				result = FALSE;
 			} else {
-				result = plr[id]._pMana >= GetManaAmount(id, sn);
+				result = plr[pnum]._pMana >= GetManaAmount(pnum, sn);
 			}
 		}
 	}
@@ -103,179 +107,167 @@ BOOL CheckSpell(int id, int sn, char st, BOOL manaonly)
 	return result;
 }
 
-void CastSpell(int id, int spl, int sx, int sy, int dx, int dy, int caster, int spllvl)
+void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, int spllvl)
 {
 	int i;
 	int dir; // missile direction
 
-	switch (caster) {
-	case 1:
-		dir = monster[id]._mdir;
-		break;
-	case 0:
-		// caster must be 0 already in this case, but oh well,
-		// it's needed to generate the right code
-		caster = 0;
-		dir = plr[id]._pdir;
-
-		if (spl == SPL_FIREWALL) {
-			dir = plr[id]._pVar3;
-		}
-		break;
+	if (caster == 0) {
+		dir = plr[mpnum]._pdir;
+	} else {
+		dir = monster[mpnum]._mdir;
 	}
 
-	for (i = 0; spelldata[spl].sMissiles[i] != MIS_ARROW && i < 3; i++) {
-		AddMissile(sx, sy, dx, dy, dir, spelldata[spl].sMissiles[i], caster, id, 0, spllvl);
+	for (i = 0; spelldata[sn].sMissiles[i] != 0 && i < 3; i++) {
+		AddMissile(sx, sy, dx, dy, dir, spelldata[sn].sMissiles[i], caster, mpnum, 0, spllvl);
 	}
 
-	if (spelldata[spl].sMissiles[0] == MIS_TOWN) {
-		UseMana(id, SPL_TOWN);
+	if (spelldata[sn].sMissiles[0] == MIS_TOWN) {
+		UseMana(mpnum, SPL_TOWN);
 	}
-	if (spelldata[spl].sMissiles[0] == MIS_CBOLT) {
-		UseMana(id, SPL_CBOLT);
+	if (spelldata[sn].sMissiles[0] == MIS_CBOLT) {
+		UseMana(mpnum, SPL_CBOLT);
 
 		for (i = (spllvl >> 1) + 3; i > 0; i--) {
-			AddMissile(sx, sy, dx, dy, dir, MIS_CBOLT, caster, id, 0, spllvl);
+			AddMissile(sx, sy, dx, dy, dir, MIS_CBOLT, caster, mpnum, 0, spllvl);
 		}
 	}
 }
 
-static void PlacePlayer(int pnum)
+/*
+ * @brief Find a place for the given player starting from its current location.
+ *
+ * TODO: In the original code it was possible to auto-townwarp after resurrection.
+ *       The new solution prevents this, but in some cases it could be useful
+ *       (in some cases it is annoying).
+ *
+ * @return TRUE if the player had to be displaced.
+ */
+BOOL PlacePlayer(int pnum)
 {
-	int nx, ny, max, min, x, y;
-	DWORD i;
+	int i, nx, ny, x, y;
 	BOOL done;
 
-	if (plr[pnum].plrlevel == currlevel) {
-		for (i = 0; i < 8; i++) {
-			nx = plr[pnum]._px + plrxoff2[i];
-			ny = plr[pnum]._py + plryoff2[i];
+	for (i = 0; i < lengthof(plrxoff2); i++) {
+		nx = plr[pnum]._px + plrxoff2[i];
+		ny = plr[pnum]._py + plryoff2[i];
 
-			if (PosOkPlayer(pnum, nx, ny)) {
-				break;
-			}
+		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+			break;
 		}
+	}
 
-		if (!PosOkPlayer(pnum, nx, ny)) {
-			done = FALSE;
+	if (i == 0)
+		return FALSE;
 
-			for (max = 1, min = -1; min > -50 && !done; max++, min--) {
-				for (y = min; y <= max && !done; y++) {
-					ny = plr[pnum]._py + y;
+	if (i == lengthof(plrxoff2)) {
+		done = FALSE;
 
-					for (x = min; x <= max && !done; x++) {
-						nx = plr[pnum]._px + x;
+		for (i = 1; i < 50 && !done; i++) {
+			for (y = -i; y <= i && !done; y++) {
+				ny = plr[pnum]._py + y;
 
-						if (PosOkPlayer(pnum, nx, ny)) {
-							done = TRUE;
-						}
+				for (x = -i; x <= i && !done; x++) {
+					nx = plr[pnum]._px + x;
+
+					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+						done = TRUE;
 					}
 				}
 			}
 		}
-
-		plr[pnum]._px = nx;
-		plr[pnum]._py = ny;
-
-		dPlayer[nx][ny] = pnum + 1;
-
-		if (pnum == myplr) {
-			ViewX = nx;
-			ViewY = ny;
-		}
 	}
+
+	plr[pnum]._px = nx;
+	plr[pnum]._py = ny;
+	return TRUE;
 }
 
 /**
  * @param pnum player index
- * @param rid target player index
+ * @param tnum target player index
  */
-void DoResurrect(int pnum, int rid)
+void DoResurrect(int pnum, int tnum)
 {
-	int hp;
+	PlayerStruct *tp;
 
-	if ((char)rid != -1) {
-		AddMissile(plr[rid]._px, plr[rid]._py, plr[rid]._px, plr[rid]._py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
-	}
+	if ((DWORD)tnum >= MAX_PLRS)
+		return;
 
-	if (pnum == myplr) {
-		NewCursor(CURSOR_HAND);
-	}
+	tp = &plr[tnum];
+	AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
 
-	if ((char)rid != -1 && plr[rid]._pHitPoints == 0) {
-		if (rid == myplr) {
+	if (tp->_pHitPoints == 0) {
+		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();
 			drawhpflag = TRUE;
 			drawmanaflag = TRUE;
 		}
 
-		ClrPlrPath(rid);
-		plr[rid].destAction = ACTION_NONE;
-		plr[rid]._pInvincible = FALSE;
-		PlacePlayer(rid);
+		ClrPlrPath(tnum);
+		tp->destAction = ACTION_NONE;
+		tp->_pInvincible = FALSE;
 
-		hp = 640;
-		if (plr[rid]._pMaxHPBase < 640) {
-			hp = plr[rid]._pMaxHPBase;
-		}
-		SetPlayerHitPoints(rid, hp);
+		tp->_pHitPoints = std::min(640, tp->_pMaxHPBase);
+		tp->_pHPBase = tp->_pHitPoints + (tp->_pMaxHPBase - tp->_pMaxHP);
+		tp->_pMana = 0;
+		tp->_pManaBase = tp->_pMana + (tp->_pMaxManaBase - tp->_pMaxMana);
 
-		plr[rid]._pHPBase = plr[rid]._pHitPoints + (plr[rid]._pMaxHPBase - plr[rid]._pMaxHP);
-		plr[rid]._pMana = 0;
-		plr[rid]._pManaBase = plr[rid]._pMana + (plr[rid]._pMaxManaBase - plr[rid]._pMaxMana);
+		CalcPlrInv(tnum, TRUE);
 
-		CalcPlrInv(rid, TRUE);
-
-		if (plr[rid].plrlevel == currlevel) {
-			StartStand(rid, plr[rid]._pdir);
+		if (tp->plrlevel == currlevel) {
+			PlacePlayer(tnum);
+			PlrStartStand(tnum, tp->_pdir);
 		} else {
-			plr[rid]._pmode = PM_STAND;
+			tp->_pmode = PM_STAND;
 		}
 	}
 }
 
-void DoHealOther(int pnum, int rid)
+void DoHealOther(int pnum, int tnum)
 {
-	int i, j, hp;
+	PlayerStruct *tp;
+	int i, hp;
 
-	if (pnum == myplr) {
-		NewCursor(CURSOR_HAND);
+	if ((DWORD)tnum >= MAX_PLRS)
+		return;
+
+	tp = &plr[tnum];
+	if ((tp->_pHitPoints >> 6) <= 0)
+		return; // too late, the target is dead
+
+	hp = random_(57, 10) + 1;
+
+	for (i = plr[pnum]._pLevel; i > 0; i--) {
+		hp += random_(57, 4) + 1;
 	}
 
-	if ((char)rid != -1 && (plr[rid]._pHitPoints >> 6) > 0) {
-		hp = (random_(57, 10) + 1) << 6;
-
-		for (i = 0; i < plr[pnum]._pLevel; i++) {
-			hp += (random_(57, 4) + 1) << 6;
-		}
-
-		for (j = 0; j < GetSpellLevel(pnum, SPL_HEALOTHER); ++j) {
-			hp += (random_(57, 6) + 1) << 6;
-		}
-
-		if (plr[pnum]._pClass == PC_WARRIOR) {
-			hp <<= 1;
-		}
-
-		if (plr[pnum]._pClass == PC_ROGUE) {
-			hp += hp >> 1;
-		}
-
-		plr[rid]._pHitPoints += hp;
-
-		if (plr[rid]._pHitPoints > plr[rid]._pMaxHP) {
-			plr[rid]._pHitPoints = plr[rid]._pMaxHP;
-		}
-
-		plr[rid]._pHPBase += hp;
-
-		if (plr[rid]._pHPBase > plr[rid]._pMaxHPBase) {
-			plr[rid]._pHPBase = plr[rid]._pMaxHPBase;
-		}
-
-		drawhpflag = TRUE;
+	for (i = GetSpellLevel(pnum, SPL_HEALOTHER); i > 0; i--) {
+		hp += random_(57, 6) + 1;
 	}
+	hp <<= 6;
+
+	switch (plr[pnum]._pClass) {
+	case PC_WARRIOR: hp <<= 1;    break;
+#ifdef HELLFIRE
+	case PC_MONK: hp *= 3;        break;
+	case PC_BARBARIAN: hp <<= 1;  break;
+	case PC_BARD:
+#endif
+	case PC_ROGUE: hp += hp >> 1; break;
+	}
+	tp->_pHitPoints += hp;
+	if (tp->_pHitPoints > tp->_pMaxHP) {
+		tp->_pHitPoints = tp->_pMaxHP;
+	}
+
+	tp->_pHPBase += hp;
+	if (tp->_pHPBase > tp->_pMaxHPBase) {
+		tp->_pHPBase = tp->_pMaxHPBase;
+	}
+
+	drawhpflag = TRUE;
 }
 
 DEVILUTION_END_NAMESPACE

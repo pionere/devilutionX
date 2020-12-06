@@ -1,75 +1,84 @@
+/**
+ * @file pack.cpp
+ *
+ * Implementation of functions for minifying player data structure.
+ */
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void PackItem(PkItemStruct *id, ItemStruct *is)
+void PackItem(PkItemStruct *pis, ItemStruct *is)
 {
 	if (is->_itype == ITYPE_NONE) {
-		id->idx = 0xFFFF;
+		pis->idx = 0xFFFF;
 	} else {
-		id->idx = SwapLE16(is->IDidx);
+		pis->idx = SwapLE16(is->IDidx);
 		if (is->IDidx == IDI_EAR) {
-			id->iCreateInfo = is->_iName[8] | (is->_iName[7] << 8);
-			id->iSeed = SwapLE32(is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8));
-			id->bId = is->_iName[13];
-			id->bDur = is->_iName[14];
-			id->bMDur = is->_iName[15];
-			id->bCh = is->_iName[16];
-			id->bMCh = is->_iName[17];
-			id->wValue = SwapLE16(is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - 19) << 6));
-			id->dwBuff = SwapLE32(is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8));
+			pis->iCreateInfo = is->_iName[8] | (is->_iName[7] << 8);
+			pis->iSeed = SwapLE32(is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8));
+			pis->bId = is->_iName[13];
+			pis->bDur = is->_iName[14];
+			pis->bMDur = is->_iName[15];
+			pis->bCh = is->_iName[16];
+			pis->bMCh = is->_iName[17];
+			pis->wValue = SwapLE16(is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6));
+			pis->dwBuff = SwapLE32(is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8));
 		} else {
-			id->iSeed = SwapLE32(is->_iSeed);
-			id->iCreateInfo = SwapLE16(is->_iCreateInfo);
-			id->bId = is->_iIdentified + 2 * is->_iMagical;
-			id->bDur = is->_iDurability;
-			id->bMDur = is->_iMaxDur;
-			id->bCh = is->_iCharges;
-			id->bMCh = is->_iMaxCharges;
+			pis->iSeed = SwapLE32(is->_iSeed);
+			pis->iCreateInfo = SwapLE16(is->_iCreateInfo);
+			pis->bId = is->_iIdentified + 2 * is->_iMagical;
+			pis->bDur = is->_iDurability;
+			pis->bMDur = is->_iMaxDur;
+			pis->bCh = is->_iCharges;
+			pis->bMCh = is->_iMaxCharges;
 			if (is->IDidx == IDI_GOLD)
-				id->wValue = SwapLE16(is->_ivalue);
+				pis->wValue = SwapLE16(is->_ivalue);
 		}
 	}
 }
 
 void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 {
-	PlayerStruct *pPlayer;
+	PlayerStruct *p;
 	int i;
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
 	memset(pPack, 0, sizeof(*pPack));
-	pPlayer = &plr[pnum];
-	pPack->destAction = pPlayer->destAction;
-	pPack->destParam1 = pPlayer->destParam1;
-	pPack->destParam2 = pPlayer->destParam2;
-	pPack->plrlevel = pPlayer->plrlevel;
-	pPack->px = pPlayer->_px;
-	pPack->py = pPlayer->_py;
-	pPack->targx = pPlayer->_ptargx;
-	pPack->targy = pPlayer->_ptargy;
-	strcpy(pPack->pName, pPlayer->_pName);
-	pPack->pClass = pPlayer->_pClass;
-	pPack->pBaseStr = pPlayer->_pBaseStr;
-	pPack->pBaseMag = pPlayer->_pBaseMag;
-	pPack->pBaseDex = pPlayer->_pBaseDex;
-	pPack->pBaseVit = pPlayer->_pBaseVit;
-	pPack->pLevel = pPlayer->_pLevel;
-	pPack->pStatPts = pPlayer->_pStatPts;
-	pPack->pExperience = SwapLE32(pPlayer->_pExperience);
-	pPack->pGold = SwapLE32(pPlayer->_pGold);
-	pPack->pHPBase = SwapLE32(pPlayer->_pHPBase);
-	pPack->pMaxHPBase = SwapLE32(pPlayer->_pMaxHPBase);
-	pPack->pManaBase = SwapLE32(pPlayer->_pManaBase);
-	pPack->pMaxManaBase = SwapLE32(pPlayer->_pMaxManaBase);
-	pPack->pMemSpells = SDL_SwapLE64(pPlayer->_pMemSpells);
+	p = &plr[pnum];
+	pPack->destAction = p->destAction;
+	pPack->destParam1 = p->destParam1;
+	pPack->destParam2 = p->destParam2;
+	pPack->plrlevel = p->plrlevel;
+	pPack->px = p->_px;
+	pPack->py = p->_py;
+	pPack->targx = p->_ptargx;
+	pPack->targy = p->_ptargy;
+	copy_str(pPack->pName, p->_pName);
+	pPack->pClass = p->_pClass;
+	pPack->pBaseStr = p->_pBaseStr;
+	pPack->pBaseMag = p->_pBaseMag;
+	pPack->pBaseDex = p->_pBaseDex;
+	pPack->pBaseVit = p->_pBaseVit;
+	pPack->pLevel = p->_pLevel;
+	pPack->pStatPts = p->_pStatPts;
+	pPack->pExperience = SwapLE32(p->_pExperience);
+	pPack->pGold = SwapLE32(p->_pGold);
+	pPack->pHPBase = SwapLE32(p->_pHPBase);
+	pPack->pMaxHPBase = SwapLE32(p->_pMaxHPBase);
+	pPack->pManaBase = SwapLE32(p->_pManaBase);
+	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
+	pPack->pMemSpells = SDL_SwapLE64(p->_pMemSpells);
 
-	for (i = 0; i < MAX_SPELLS; i++)
-		pPack->pSplLvl[i] = pPlayer->_pSplLvl[i];
+	for (i = 0; i < 37; i++) // Should be MAX_SPELLS but set to 37 to make save games compatible
+		pPack->pSplLvl[i] = p->_pSplLvl[i];
+#ifdef HELLFIRE
+	for (i = 37; i < 47; i++)
+		pPack->pSplLvl2[i - 37] = p->_pSplLvl[i];
+#endif
 
 	pki = &pPack->InvBody[0];
-	pi = &pPlayer->InvBody[0];
+	pi = &p->InvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
 		PackItem(pki, pi);
@@ -78,7 +87,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 	}
 
 	pki = &pPack->InvList[0];
-	pi = &pPlayer->InvList[0];
+	pi = &p->InvList[0];
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		PackItem(pki, pi);
@@ -87,11 +96,11 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		pPack->InvGrid[i] = pPlayer->InvGrid[i];
+		pPack->InvGrid[i] = p->InvGrid[i];
 
-	pPack->_pNumInv = pPlayer->_pNumInv;
+	pPack->_pNumInv = p->_pNumInv;
 	pki = &pPack->SpdList[0];
-	pi = &pPlayer->SpdList[0];
+	pi = &p->SpdList[0];
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		PackItem(pki, pi);
@@ -99,10 +108,15 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 		pi++;
 	}
 
-	pPack->pDiabloKillLevel = SwapLE32(pPlayer->pDiabloKillLevel);
+#ifdef HELLFIRE
+	pPack->wReflection = p->wReflection;
+	pPack->pDifficulty = p->pDifficulty;
+	pPack->pDamAcFlags = p->pDamAcFlags;
+#endif
+	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
 
 	if (gbMaxPlayers == 1 || manashield)
-		pPack->pManaShield = SwapLE32(pPlayer->pManaShield);
+		pPack->pManaShield = SwapLE32(p->pManaShield);
 	else
 		pPack->pManaShield = FALSE;
 }
@@ -110,53 +124,59 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 /**
  * Expand a PkItemStruct in to a ItemStruct
  *
- * Note: last slot of item[MAXITEMS+1] used as temporary buffer
+ * Note: last slot of item[MAXITEMS] used as temporary buffer
  * find real name reference below, possibly [sizeof(item[])/sizeof(ItemStruct)]
- * @param is The source packed item
- * @param id The distination item
+ * @param pis The source packed item
+ * @param is The distination item
  */
-static void UnPackItem(PkItemStruct *is, ItemStruct *id)
+#ifndef HELLFIRE
+static
+#endif
+void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 {
-	WORD idx = SwapLE16(is->idx);
+	WORD idx = SwapLE16(pis->idx);
 
 	if (idx == 0xFFFF) {
-		id->_itype = ITYPE_NONE;
+		is->_itype = ITYPE_NONE;
 	} else {
 		if (idx == IDI_EAR) {
 			RecreateEar(
-			    MAXITEMS,
-			    SwapLE16(is->iCreateInfo),
-			    SwapLE32(is->iSeed),
-			    is->bId,
-			    is->bDur,
-			    is->bMDur,
-			    is->bCh,
-			    is->bMCh,
-			    SwapLE16(is->wValue),
-			    SwapLE32(is->dwBuff));
+			    SwapLE16(pis->iCreateInfo),
+			    SwapLE32(pis->iSeed),
+			    pis->bId,
+			    pis->bDur,
+			    pis->bMDur,
+			    pis->bCh,
+			    pis->bMCh,
+			    SwapLE16(pis->wValue),
+			    SwapLE32(pis->dwBuff));
 		} else {
-			RecreateItem(MAXITEMS, idx, SwapLE16(is->iCreateInfo), SwapLE32(is->iSeed), SwapLE16(is->wValue));
-			item[MAXITEMS]._iMagical = is->bId >> 1;
-			item[MAXITEMS]._iIdentified = is->bId & 1;
-			item[MAXITEMS]._iDurability = is->bDur;
-			item[MAXITEMS]._iMaxDur = is->bMDur;
-			item[MAXITEMS]._iCharges = is->bCh;
-			item[MAXITEMS]._iMaxCharges = is->bMCh;
+			RecreateItem(
+				idx,
+				SwapLE16(pis->iCreateInfo),
+				SwapLE32(pis->iSeed),
+				SwapLE16(pis->wValue));
+			item[MAXITEMS]._iMagical = pis->bId >> 1;
+			item[MAXITEMS]._iIdentified = pis->bId & 1;
+			item[MAXITEMS]._iDurability = pis->bDur;
+			item[MAXITEMS]._iMaxDur = pis->bMDur;
+			item[MAXITEMS]._iCharges = pis->bCh;
+			item[MAXITEMS]._iMaxCharges = pis->bMCh;
 		}
-		*id = item[MAXITEMS];
+		copy_pod(*is, item[MAXITEMS]);
 	}
 }
 
-void VerifyGoldSeeds(PlayerStruct *pPlayer)
+static void VerifyGoldSeeds(PlayerStruct *p)
 {
 	int i, j;
 
-	for (i = 0; i < pPlayer->_pNumInv; i++) {
-		if (pPlayer->InvList[i].IDidx == IDI_GOLD) {
-			for (j = 0; j < pPlayer->_pNumInv; j++) {
+	for (i = 0; i < p->_pNumInv; i++) {
+		if (p->InvList[i].IDidx == IDI_GOLD) {
+			for (j = 0; j < p->_pNumInv; j++) {
 				if (i != j) {
-					if (pPlayer->InvList[j].IDidx == IDI_GOLD && pPlayer->InvList[i]._iSeed == pPlayer->InvList[j]._iSeed) {
-						pPlayer->InvList[i]._iSeed = GetRndSeed();
+					if (p->InvList[j].IDidx == IDI_GOLD && p->InvList[i]._iSeed == p->InvList[j]._iSeed) {
+						p->InvList[i]._iSeed = GetRndSeed();
 						j = -1;
 					}
 				}
@@ -167,52 +187,55 @@ void VerifyGoldSeeds(PlayerStruct *pPlayer)
 
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 {
-	PlayerStruct *pPlayer;
+	PlayerStruct *p;
 	int i;
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
-	pPlayer = &plr[pnum];
-	ClearPlrRVars(pPlayer);
-	pPlayer->_px = pPack->px;
-	pPlayer->_py = pPack->py;
-	pPlayer->_pfutx = pPack->px;
-	pPlayer->_pfuty = pPack->py;
-	pPlayer->_ptargx = pPack->targx;
-	pPlayer->_ptargy = pPack->targy;
-	pPlayer->plrlevel = pPack->plrlevel;
+	p = &plr[pnum];
+	p->_px = pPack->px;
+	p->_py = pPack->py;
+	p->_pfutx = pPack->px;
+	p->_pfuty = pPack->py;
+	p->_ptargx = pPack->targx;
+	p->_ptargy = pPack->targy;
+	p->plrlevel = pPack->plrlevel;
 	ClrPlrPath(pnum);
-	pPlayer->destAction = ACTION_NONE;
-	strcpy(pPlayer->_pName, pPack->pName);
-	pPlayer->_pClass = pPack->pClass;
+	p->destAction = ACTION_NONE;
+	copy_str(p->_pName, pPack->pName);
+	p->_pClass = pPack->pClass;
+	p->_pLevel = pPack->pLevel;
 	InitPlayer(pnum, TRUE);
-	pPlayer->_pBaseStr = pPack->pBaseStr;
-	pPlayer->_pStrength = pPack->pBaseStr;
-	pPlayer->_pBaseMag = pPack->pBaseMag;
-	pPlayer->_pMagic = pPack->pBaseMag;
-	pPlayer->_pBaseDex = pPack->pBaseDex;
-	pPlayer->_pDexterity = pPack->pBaseDex;
-	pPlayer->_pBaseVit = pPack->pBaseVit;
-	pPlayer->_pVitality = pPack->pBaseVit;
-	pPlayer->_pLevel = pPack->pLevel;
-	pPlayer->_pStatPts = pPack->pStatPts;
-	pPlayer->_pExperience = SwapLE32(pPack->pExperience);
-	pPlayer->_pGold = SwapLE32(pPack->pGold);
-	pPlayer->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
-	pPlayer->_pHPBase = SwapLE32(pPack->pHPBase);
+	p->_pBaseStr = pPack->pBaseStr;
+	p->_pStrength = pPack->pBaseStr;
+	p->_pBaseMag = pPack->pBaseMag;
+	p->_pMagic = pPack->pBaseMag;
+	p->_pBaseDex = pPack->pBaseDex;
+	p->_pDexterity = pPack->pBaseDex;
+	p->_pBaseVit = pPack->pBaseVit;
+	p->_pVitality = pPack->pBaseVit;
+	p->_pStatPts = pPack->pStatPts;
+	p->_pExperience = SwapLE32(pPack->pExperience);
+	p->_pGold = SwapLE32(pPack->pGold);
+	p->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
+	p->_pHPBase = SwapLE32(pPack->pHPBase);
 	if (!killok)
-		if ((int)(pPlayer->_pHPBase & 0xFFFFFFC0) < 64)
-			pPlayer->_pHPBase = 64;
+		if (p->_pHPBase < 64)
+			p->_pHPBase = 64;
 
-	pPlayer->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
-	pPlayer->_pManaBase = SwapLE32(pPack->pManaBase);
-	pPlayer->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
+	p->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
+	p->_pManaBase = SwapLE32(pPack->pManaBase);
+	p->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
 
-	for (i = 0; i < MAX_SPELLS; i++)
-		pPlayer->_pSplLvl[i] = pPack->pSplLvl[i];
+	for (i = 0; i < 37; i++) // Should be MAX_SPELLS but set to 37 to make save games compatible
+		p->_pSplLvl[i] = pPack->pSplLvl[i];
+#ifdef HELLFIRE
+	for (i = 37; i < 47; i++)
+		p->_pSplLvl[i] = pPack->pSplLvl2[i - 37];
+#endif
 
 	pki = &pPack->InvBody[0];
-	pi = &pPlayer->InvBody[0];
+	pi = &p->InvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
 		UnPackItem(pki, pi);
@@ -221,7 +244,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	}
 
 	pki = &pPack->InvList[0];
-	pi = &pPlayer->InvList[0];
+	pi = &p->InvList[0];
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		UnPackItem(pki, pi);
@@ -230,13 +253,13 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		pPlayer->InvGrid[i] = pPack->InvGrid[i];
+		p->InvGrid[i] = pPack->InvGrid[i];
 
-	pPlayer->_pNumInv = pPack->_pNumInv;
-	VerifyGoldSeeds(pPlayer);
+	p->_pNumInv = pPack->_pNumInv;
+	VerifyGoldSeeds(p);
 
 	pki = &pPack->SpdList[0];
-	pi = &pPlayer->SpdList[0];
+	pi = &p->SpdList[0];
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		UnPackItem(pki, pi);
@@ -244,18 +267,18 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 		pi++;
 	}
 
-	if (pnum == myplr) {
-		for (i = 0; i < 20; i++)
-			witchitem[i]._itype = ITYPE_NONE;
-	}
-
 	CalcPlrInv(pnum, FALSE);
-	pPlayer->pTownWarps = 0;
-	pPlayer->pDungMsgs = 0;
-	pPlayer->pLvlLoad = 0;
-	pPlayer->pDiabloKillLevel = SwapLE32(pPack->pDiabloKillLevel);
-	pPlayer->pBattleNet = pPack->pBattleNet;
-	pPlayer->pManaShield = SwapLE32(pPack->pManaShield);
+
+	p->wReflection = pPack->wReflection;
+	p->pTownWarps = 0;
+	p->pDungMsgs = 0;
+	p->pDungMsgs2 = 0;
+	p->pLvlLoad = 0;
+	p->pDiabloKillLevel = SwapLE32(pPack->pDiabloKillLevel);
+	p->pBattleNet = pPack->pBattleNet;
+	p->pManaShield = pPack->pManaShield;
+	p->pDifficulty = SwapLE32(pPack->pDifficulty);
+	p->pDamAcFlags = SwapLE32(pPack->pDamAcFlags);
 }
 
 DEVILUTION_END_NAMESPACE

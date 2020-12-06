@@ -14,7 +14,7 @@
 #define TTF_FONT_NAME "CharisSILB.ttf"
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 enum _artFontTables {
 	AFT_SMALL,
@@ -39,4 +39,4 @@ void LoadTtfFont();
 void UnloadTtfFont();
 void FontsCleanup();
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

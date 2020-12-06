@@ -9,7 +9,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef _DEBUG
 BOOL update_seed_check = FALSE;
-#endif
 
 #define DEBUGSEEDS 4096
 int seed_index;
@@ -30,6 +29,7 @@ void FreeDebugGFX()
 {
 	MemFreeDbg(pSquareCel);
 }
+#endif
 
 void CheckDungeonClear()
 {
@@ -42,8 +42,10 @@ void CheckDungeonClear()
 			if (dPlayer[i][j] != 0)
 				app_fatal("Players not cleared");
 
+#ifdef _DEBUG
 			dMonsDbg[currlevel][i][j] = dFlags[i][j] & BFLAG_VISIBLE;
 			dFlagDbg[currlevel][i][j] = dFlags[i][j] & BFLAG_POPULATED;
+#endif
 		}
 	}
 }
@@ -51,17 +53,17 @@ void CheckDungeonClear()
 #ifdef _DEBUG
 void GiveGoldCheat()
 {
-	int i, ni;
+	ItemStruct *pi;
+	int i;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (!plr[myplr].InvGrid[i]) {
-			ni = plr[myplr]._pNumInv++;
-			SetPlrHandItem(&plr[myplr].InvList[ni], IDI_GOLD);
-			GetPlrHandSeed(&plr[myplr].InvList[ni]);
-			plr[myplr].InvList[ni]._ivalue = GOLD_MAX_LIMIT;
-			plr[myplr].InvList[ni]._iCurs = ICURS_GOLD_LARGE;
+		if (plr[myplr].InvGrid[i] == 0) {
+			pi = &plr[myplr].InvList[plr[myplr]._pNumInv];
+			SetItemData(pi, IDI_GOLD);
+			GetItemSeed(pi);
+			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			plr[myplr]._pGold += GOLD_MAX_LIMIT;
-			plr[myplr].InvGrid[i] = plr[myplr]._pNumInv;
+			plr[myplr].InvGrid[i] = ++plr[myplr]._pNumInv;
 		}
 	}
 }
@@ -77,7 +79,7 @@ void StoresCheat()
 
 	SpawnPremium(30);
 
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < WITCH_ITEMS; i++)
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SpawnWitch(30);
@@ -108,7 +110,7 @@ void MaxSpellsCheat()
 
 	for (i = 1; i < MAX_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != -1) {
-			plr[myplr]._pMemSpells |= (__int64)1 << (i - 1);
+			plr[myplr]._pMemSpells |= SPELL_MASK(i);
 			plr[myplr]._pSplLvl[i] = 10;
 		}
 	}
@@ -116,7 +118,7 @@ void MaxSpellsCheat()
 
 void SetSpellLevelCheat(char spl, int spllvl)
 {
-	plr[myplr]._pMemSpells |= (__int64)1 << (spl - 1);
+	plr[myplr]._pMemSpells |= SPELL_MASK(spl);
 	plr[myplr]._pSplLvl[spl] = spllvl;
 }
 
@@ -148,34 +150,30 @@ void SetAllSpellsCheat()
 
 void PrintDebugPlayer(BOOL bNextPlayer)
 {
-	char dstr[128];
-
 	if (bNextPlayer)
 		dbgplr = ((BYTE)dbgplr + 1) & 3;
 
-	sprintf(dstr, "Plr %i : Active = %i", dbgplr, plr[dbgplr].plractive);
-	NetSendCmdString(1 << myplr, dstr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, plr[dbgplr].plractive);
+	NetSendCmdString(1 << myplr);
 
 	if (plr[dbgplr].plractive) {
-		sprintf(dstr, "  Plr %i is %s", dbgplr, plr[dbgplr]._pName);
-		NetSendCmdString(1 << myplr, dstr);
-		sprintf(dstr, "  Lvl = %i : Change = %i", plr[dbgplr].plrlevel, plr[dbgplr]._pLvlChanging);
-		NetSendCmdString(1 << myplr, dstr);
-		sprintf(dstr, "  x = %i, y = %i : tx = %i, ty = %i", plr[dbgplr]._px, plr[dbgplr]._py, plr[dbgplr]._ptargx, plr[dbgplr]._ptargy);
-		NetSendCmdString(1 << myplr, dstr);
-		sprintf(dstr, "  mode = %i : daction = %i : walk[0] = %i", plr[dbgplr]._pmode, plr[dbgplr].destAction, plr[dbgplr].walkpath[0]);
-		NetSendCmdString(1 << myplr, dstr);
-		sprintf(dstr, "  inv = %i : hp = %i", plr[dbgplr]._pInvincible, plr[dbgplr]._pHitPoints);
-		NetSendCmdString(1 << myplr, dstr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, plr[dbgplr]._pName);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", plr[dbgplr].plrlevel, plr[dbgplr]._pLvlChanging);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : tx = %i, ty = %i", plr[dbgplr]._px, plr[dbgplr]._py, plr[dbgplr]._ptargx, plr[dbgplr]._ptargy);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %i : daction = %i : walk[0] = %i", plr[dbgplr]._pmode, plr[dbgplr].destAction, plr[dbgplr].walkpath[0]);
+		NetSendCmdString(1 << myplr);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %i : hp = %i", plr[dbgplr]._pInvincible, plr[dbgplr]._pHitPoints);
+		NetSendCmdString(1 << myplr);
 	}
 }
 
 void PrintDebugQuest()
 {
-	char dstr[128];
-
-	sprintf(dstr, "Quest %i :  Active = %i, Var1 = %i", dbgqst, quests[dbgqst]._qactive, quests[dbgqst]._qvar1);
-	NetSendCmdString(1 << myplr, dstr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Quest %i :  Active = %i, Var1 = %i", dbgqst, quests[dbgqst]._qactive, quests[dbgqst]._qvar1);
+	NetSendCmdString(1 << myplr);
 
 	dbgqst++;
 	if (dbgqst == MAXQUESTS)
@@ -186,16 +184,15 @@ void PrintDebugMonster(int m)
 {
 	BOOL bActive;
 	int i;
-	char dstr[128];
 
-	sprintf(dstr, "Monster %i = %s", m, monster[m].mName);
-	NetSendCmdString(1 << myplr, dstr);
-	sprintf(dstr, "X = %i, Y = %i", monster[m]._mx, monster[m]._my);
-	NetSendCmdString(1 << myplr, dstr);
-	sprintf(dstr, "Enemy = %i, HP = %i", monster[m]._menemy, monster[m]._mhitpoints);
-	NetSendCmdString(1 << myplr, dstr);
-	sprintf(dstr, "Mode = %i, Var1 = %i", monster[m]._mmode, monster[m]._mVar1);
-	NetSendCmdString(1 << myplr, dstr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %i = %s", m, monster[m].mName);
+	NetSendCmdString(1 << myplr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %i, Y = %i", monster[m]._mx, monster[m]._my);
+	NetSendCmdString(1 << myplr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Enemy = %i, HP = %i", monster[m]._menemy, monster[m]._mhitpoints);
+	NetSendCmdString(1 << myplr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %i, Var1 = %i", monster[m]._mmode, monster[m]._mVar1);
+	NetSendCmdString(1 << myplr);
 
 	bActive = FALSE;
 
@@ -204,8 +201,8 @@ void PrintDebugMonster(int m)
 			bActive = TRUE;
 	}
 
-	sprintf(dstr, "Active List = %i, Squelch = %i", bActive, monster[m]._msquelch);
-	NetSendCmdString(1 << myplr, dstr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %i, Squelch = %i", bActive, monster[m]._msquelch);
+	NetSendCmdString(1 << myplr);
 }
 
 void GetDebugMonster()
@@ -228,14 +225,12 @@ void GetDebugMonster()
 
 void NextDebugMonster()
 {
-	char dstr[128];
-
 	dbgmon++;
 	if (dbgmon == MAXMONSTERS)
 		dbgmon = 0;
 
-	sprintf(dstr, "Current debug monster = %i", dbgmon);
-	NetSendCmdString(1 << myplr, dstr);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Current debug monster = %i", dbgmon);
+	NetSendCmdString(1 << myplr);
 }
 #endif
 

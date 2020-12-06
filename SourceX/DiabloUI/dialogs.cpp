@@ -1,4 +1,4 @@
-#include "DiabloUI/dialogs.h"
+#include "dialogs.h"
 
 #include "controls/menu_controls.h"
 #include "all.h"
@@ -9,7 +9,7 @@
 #include "DiabloUI/errorart.h"
 #include "display.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 extern HANDLE diabdat_mpq;
 extern SDL_Surface *pal_surface;
@@ -18,7 +18,6 @@ namespace {
 
 Art dialogArt;
 bool fontWasLoaded;
-bool textInputWasActive;
 
 bool dialogEnd;
 
@@ -160,26 +159,26 @@ void LoadFallbackPalette()
 void Init(const char *text, const char *caption, bool error, bool renderBehind)
 {
 	if (caption == NULL) {
-		SDL_Rect rect1 = { PANEL_LEFT + 180, 168, 280, 144 };
+		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, rect1));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 200, 211, 240, 80 };
+		SDL_Rect rect2 = { PANEL_LEFT + 200, (UI_OFFSET_Y + 211), 240, 80 };
 		vecOkDialog.push_back(new UiText(text, rect2, UIS_CENTER));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 265, 265, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect3 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 265), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect3, 0));
 	} else {
-		SDL_Rect rect1 = { PANEL_LEFT + 127, 100, 385, 280 };
+		SDL_Rect rect1 = { PANEL_LEFT + 127, (UI_OFFSET_Y + 100), 385, 280 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, rect1));
 
 		SDL_Color color = { 255, 255, 0, 0 };
-		SDL_Rect rect2 = { PANEL_LEFT + 147, 110, 345, 20 };
+		SDL_Rect rect2 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 110), 345, 20 };
 		vecOkDialog.push_back(new UiText(text, color, rect2, UIS_CENTER));
 
-		SDL_Rect rect3 = { PANEL_LEFT + 147, 141, 345, 190 };
+		SDL_Rect rect3 = { PANEL_LEFT + 147, (UI_OFFSET_Y + 141), 345, 190 };
 		vecOkDialog.push_back(new UiText(caption, rect3, UIS_CENTER));
 
-		SDL_Rect rect4 = { PANEL_LEFT + 264, 335, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect4, 0));
 	}
 
@@ -204,8 +203,6 @@ void Init(const char *text, const char *caption, bool error, bool renderBehind)
 	fontWasLoaded = font != NULL;
 	if (!fontWasLoaded)
 		LoadTtfFont();
-	textInputWasActive = SDL_IsTextInputActive();
-	SDL_StopTextInput();
 }
 
 void Deinit()
@@ -214,8 +211,6 @@ void Deinit()
 	UnloadSmlButtonArt();
 	if (!fontWasLoaded)
 		UnloadTtfFont();
-	if (textInputWasActive)
-		SDL_StartTextInput();
 
 	for (std::size_t i = 0; i < vecOkDialog.size(); i++) {
 		UiItemBase *pUIItem = vecOkDialog[i];
@@ -266,27 +261,31 @@ void UiOkDialog(const char *text, const char *caption, bool error, std::vector<U
 {
 	static bool inDialog = false;
 
-	if (!gbActive || inDialog) {
-		if (SDL_ShowCursor(SDL_ENABLE) <= -1) {
-			SDL_Log(SDL_GetError());
+	if (gbActive && !inDialog) {
+		inDialog = true;
+		Init(text, caption, error, renderBehind.size() > 0);
+		if (font != NULL) {
+			DialogLoop(vecOkDialog, renderBehind);
+			Deinit();
+			inDialog = false;
+			return;
 		}
-#ifndef RUN_TESTS
-		if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, text, caption, NULL) <= -1) {
-			SDL_Log(SDL_GetError());
-#else
-		{
-#endif
-			SDL_Log(text);
-			SDL_Log(caption);
-		}
-		return;
+		Deinit();
+		inDialog = false;
 	}
 
-	inDialog = true;
-	Init(text, caption, error, renderBehind.size() > 0);
-	DialogLoop(vecOkDialog, renderBehind);
-	Deinit();
-	inDialog = false;
+	if (SDL_ShowCursor(SDL_ENABLE) <= -1) {
+		SDL_Log(SDL_GetError());
+	}
+#ifndef RUN_TESTS
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, text, caption, NULL) <= -1) {
+		SDL_Log(SDL_GetError());
+#else
+	{
+#endif
+		SDL_Log(text);
+		SDL_Log(caption);
+	}
 }
 
 void UiErrorOkDialog(const char *text, const char *caption, std::vector<UiItemBase *> renderBehind)
@@ -304,4 +303,4 @@ void UiErrorOkDialog(const char *text, std::vector<UiItemBase *> renderBehind)
 	UiErrorOkDialog(text, NULL, renderBehind);
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

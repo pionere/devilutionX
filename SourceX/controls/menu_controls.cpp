@@ -1,12 +1,14 @@
-#include "controls/menu_controls.h"
+#include "menu_controls.h"
 
-#include "controls/controller.h"
+#include "controls/plrctrls.h"
 #include "controls/remap_keyboard.h"
+#include "DiabloUI/diabloui.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 MenuAction GetMenuAction(const SDL_Event &event)
 {
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	const ControllerButtonEvent ctrl_event = ToControllerButtonEvent(event);
 	if (ctrl_event.button != ControllerButton_NONE)
 		sgbControllerActive = true;
@@ -39,10 +41,13 @@ MenuAction GetMenuAction(const SDL_Event &event)
 			break;
 		}
 	}
+#endif
 
 #if HAS_KBCTRL == 0
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION)
 		sgbControllerActive = false;
+#endif
 
 	if (event.type == SDL_KEYDOWN) {
 		auto sym = event.key.keysym.sym;
@@ -71,7 +76,7 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case SDLK_KP_ENTER:
 			return MenuAction_SELECT;
 		case SDLK_SPACE:
-			if (!SDL_IsTextInputActive()) {
+			if (!textInputActive) {
 				return MenuAction_SELECT;
 			}
 			break;
@@ -90,6 +95,6 @@ MenuAction GetMenuAction(const SDL_Event &event)
 #endif
 
 	return MenuAction_NONE;
-} // namespace dvl
+}
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
