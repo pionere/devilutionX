@@ -1392,7 +1392,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 							if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
 								if (!(mon->mMagicRes & IMMUNE_MAGIC)) {
 									if ((!(mon->mMagicRes & RESIST_MAGIC) || random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
-										mon->_mFlags |= MFLAG_UNUSED | MFLAG_GOLEM;
+										mon->_mFlags |= MFLAG_BERSERK | MFLAG_GOLEM;
 										mon->mMinDamage = mon->mMinDamage * RandRange(120, 129) / 100 + spllvl;
 										mon->mMaxDamage = mon->mMaxDamage * RandRange(120, 129) / 100 + spllvl;
 										mon->mMinDamage2 = mon->mMinDamage2 * RandRange(120, 129) / 100 + spllvl;

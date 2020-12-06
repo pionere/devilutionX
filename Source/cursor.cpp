@@ -426,7 +426,7 @@ void CheckCursMove()
 				if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
 				 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
 #ifdef HELLFIRE
-					&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+					&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
 #else
 					)
 #endif
@@ -508,7 +508,7 @@ void CheckCursMove()
 			if ((monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
 			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
 #ifdef HELLFIRE
-				&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+				&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
 #else
 				)
 #endif
@@ -548,7 +548,7 @@ void CheckCursMove()
 			if (!towner[pcursmonst]._tSelFlag
 			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM)
 #ifdef HELLFIRE
-				&& !(monster[pcursmonst]._mFlags & MFLAG_UNUSED))
+				&& !(monster[pcursmonst]._mFlags & MFLAG_BERSERK))
 #else
 				)
 #endif
