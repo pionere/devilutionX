@@ -407,11 +407,7 @@ static void S_ScrollSBuy()
 			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
-			} else {
-				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
-			}
+			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
@@ -697,11 +693,7 @@ static void S_ScrollWBuy()
 			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
-			if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-				AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
-			} else {
-				AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
-			}
+			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
@@ -844,7 +836,6 @@ static void S_StartNoRoom()
 
 static void S_StartConfirm()
 {
-	BOOL idprint;
 	char iclr;
 
 	StartStore(stextshold);
@@ -852,24 +843,9 @@ static void S_StartConfirm()
 	ClearSText(5, 23);
 	iclr = StoreItemColor(&plr[myplr].HoldItem);
 
-	idprint = plr[myplr].HoldItem._iMagical != ITEM_QUALITY_NORMAL;
-
-	if (stextshold == STORE_SIDENTIFY)
-		idprint = FALSE;
-	if (plr[myplr].HoldItem._iMagical != ITEM_QUALITY_NORMAL && !plr[myplr].HoldItem._iIdentified) {
-		if (stextshold == STORE_SSELL)
-			idprint = FALSE;
-		if (stextshold == STORE_WSELL)
-			idprint = FALSE;
-		if (stextshold == STORE_SREPAIR)
-			idprint = FALSE;
-		if (stextshold == STORE_WRECHARGE)
-			idprint = FALSE;
-	}
-	if (idprint)
-		AddSText(20, 8, FALSE, plr[myplr].HoldItem._iIName, iclr, FALSE);
-	else
-		AddSText(20, 8, FALSE, plr[myplr].HoldItem._iName, iclr, FALSE);
+	AddSText(20, 8, FALSE,
+		plr[myplr].HoldItem._iIdentified ? plr[myplr].HoldItem._iIName : plr[myplr].HoldItem._iName,
+		iclr, FALSE);
 
 	AddSTextVal(8, plr[myplr].HoldItem._iIvalue);
 	PrintStoreItem(&plr[myplr].HoldItem, 9, iclr);
@@ -936,10 +912,7 @@ static void S_StartBBoy()
 	ItemStatOk(myplr, &boyitem);
 	iclr = StoreItemColor(&boyitem);
 
-	if (boyitem._iMagical != ITEM_QUALITY_NORMAL)
-		AddSText(20, 10, FALSE, boyitem._iIName, iclr, TRUE);
-	else
-		AddSText(20, 10, FALSE, boyitem._iName, iclr, TRUE);
+	AddSText(20, 10, FALSE, boyitem._iIName, iclr, TRUE);
 
 #ifdef HELLFIRE
 	AddSTextVal(10, boyitem._iIvalue - (boyitem._iIvalue >> 2));
@@ -994,7 +967,7 @@ static void S_ScrollHBuy()
 			ItemStatOk(myplr, is);
 			iclr = StoreItemColor(is);
 
-			AddSText(20, l, FALSE, is->_iName, iclr, TRUE);
+			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
