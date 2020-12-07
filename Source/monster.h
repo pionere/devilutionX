@@ -113,7 +113,7 @@ int MonSpawnSkel(int x, int y, int dir);
 BOOL SpawnSkeleton(int mnum, int x, int y);
 int PreSpawnSkeleton();
 void TalktoMonster(int mnum);
-void SpawnGolum(int mnum, int x, int y, int mi);
+void SpawnGolum(int mnum, int x, int y, int level);
 BOOL CanTalkToMonst(int mnum);
 BOOL CheckMonsterHit(int mnum, BOOL *ret);
 int encode_enemy(int mnum);

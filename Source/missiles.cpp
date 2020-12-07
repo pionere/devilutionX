@@ -3642,7 +3642,7 @@ void MI_Golem(int mi)
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
 					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
 						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-							SpawnGolum(src, tx, ty, mi);
+							SpawnGolum(src, tx, ty, mis->_miSpllvl);
 							return;
 						}
 					}

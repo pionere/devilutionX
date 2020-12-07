@@ -5760,7 +5760,7 @@ void TalktoMonster(int mnum)
 	}
 }
 
-void SpawnGolum(int mnum, int x, int y, int mi)
+void SpawnGolum(int mnum, int x, int y, int level)
 {
 	MonsterStruct *mon;
 
@@ -5777,11 +5777,11 @@ void SpawnGolum(int mnum, int x, int y, int mi)
 	mon->_pathcount = 0;
 	mon->_mFlags |= MFLAG_GOLEM;
 	mon->mArmorClass = 25;
-	mon->_mmaxhp = 2 * (320 * missile[mi]._miSpllvl + plr[mnum]._pMaxMana / 3);
+	mon->_mmaxhp = 2 * (320 * level + plr[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->mHit = 5 * (missile[mi]._miSpllvl + 8) + 2 * plr[mnum]._pLevel;
-	mon->mMinDamage = 2 * (missile[mi]._miSpllvl + 4);
-	mon->mMaxDamage = 2 * (missile[mi]._miSpllvl + 8);
+	mon->mHit = 5 * (level + 8) + 2 * plr[mnum]._pLevel;
+	mon->mMinDamage = 2 * (level + 4);
+	mon->mMaxDamage = 2 * (level + 8);
 	MonStartSpStand(mnum, 0);
 	MonEnemy(mnum);
 	if (mnum == myplr) {
