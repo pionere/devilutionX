@@ -4095,7 +4095,7 @@ static void OperateCauldron(int pnum, int oi)
 	force_redraw = 255;
 }
 
-static DIABOOL OperateFountains(int pnum, int oi)
+static void OperateFountains(int pnum, int oi)
 {
 	PlayerStruct *p;
 	ObjectStruct *os;
@@ -4106,15 +4106,15 @@ static DIABOOL OperateFountains(int pnum, int oi)
 	switch (os->_otype) {
 	case OBJ_BLOODFTN:
 		if (deltaload)
-			return FALSE;
+			return;
 		if (pnum != myplr)
-			return FALSE;
+			return;
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		p = &plr[pnum];
 		if (p->_pHitPoints >= p->_pMaxHP)
-			return FALSE;
+			return;
 
 		p->_pHitPoints += 64;
 		p->_pHPBase += 64;
@@ -4125,15 +4125,15 @@ static DIABOOL OperateFountains(int pnum, int oi)
 		break;
 	case OBJ_PURIFYINGFTN:
 		if (deltaload)
-			return FALSE;
+			return;
 		if (pnum != myplr)
-			return FALSE;
+			return;
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		p = &plr[pnum];
 		if ((p->_pIFlags & ISPL_NOMANA) || p->_pMana >= p->_pMaxMana)
-			return FALSE;
+			return;
 
 		p->_pMana += 64;
 		p->_pManaBase += 64;
@@ -4147,7 +4147,7 @@ static DIABOOL OperateFountains(int pnum, int oi)
 			break;
 		os->_oSelFlag = 0;
 		if (deltaload)
-			return FALSE;
+			return;
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
@@ -4171,12 +4171,12 @@ static DIABOOL OperateFountains(int pnum, int oi)
 			break;
 		os->_oSelFlag = 0;
 		if (deltaload)
-			return FALSE;
+			return;
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		if (pnum != myplr)
-			return FALSE;
+			return;
 
 		for (add = -1; add <= 1; add += 2) {
 			if (add == 1)
@@ -4202,7 +4202,6 @@ static DIABOOL OperateFountains(int pnum, int oi)
 		break;
 	}
 	force_redraw = 255;
-	return TRUE;
 }
 
 static void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)

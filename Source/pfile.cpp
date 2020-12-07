@@ -153,7 +153,7 @@ void pfile_write_hero()
 	}
 }
 
-BOOL pfile_create_player_description(char *dst, DWORD len)
+void pfile_create_player_description(char *dst, DWORD len)
 {
 	char desc[128];
 	_uiheroinfo uihero;
@@ -165,10 +165,9 @@ BOOL pfile_create_player_description(char *dst, DWORD len)
 
 	if (dst != NULL && len != 0) {
 		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
-			return FALSE;
+			return;
 		SStrCopy(dst, desc, len);
 	}
-	return TRUE;
 }
 
 BOOL pfile_rename_hero(const char *name_1, const char *name_2)
