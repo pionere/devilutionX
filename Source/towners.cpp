@@ -905,8 +905,7 @@ void TalkToTowner(int pnum, int tnum)
 				tw->_tMsgSaid = TRUE;
 				quests[Q_DIABLO]._qlog = TRUE;
 			}
-		}
-		if (gbMaxPlayers != 1) {
+		} else {
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
 				tw->_tbtcnt = 150;
 				tw->_tVar1 = pnum;
@@ -941,47 +940,22 @@ void TalkToTowner(int pnum, int tnum)
 		if (!qtextflag) {
 			switch (quests[Q_FARMER]._qactive) {
 			case QUEST_NOTAVAIL:
-				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
-					qt = TEXT_FARMER2;
-					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qlog = TRUE;
-					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-				} else if (!plr[pnum]._pLvlVisited[9] && plr[pnum]._pLevel < 15) {
-					qt = TEXT_FARMER8;
-					if (plr[pnum]._pLvlVisited[2])
-						qt = TEXT_FARMER5;
-					if (plr[pnum]._pLvlVisited[5])
-						qt = TEXT_FARMER7;
-					if (plr[pnum]._pLvlVisited[7])
-						qt = TEXT_FARMER9;
-				} else {
-					qt = TEXT_FARMER1;
-					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qlog = TRUE;
-					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
-				}
-				break;
 			case QUEST_INIT:
 				if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 					qt = TEXT_FARMER2;
 					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 					quests[Q_FARMER]._qvar1 = 1;
-					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 					quests[Q_FARMER]._qlog = TRUE;
+					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				} else if (!plr[pnum]._pLvlVisited[9] && plr[pnum]._pLevel < 15) {
-					qt = TEXT_FARMER8;
-					if (plr[pnum]._pLvlVisited[2]) {
-						qt = TEXT_FARMER5;
-					}
-					if (plr[pnum]._pLvlVisited[5]) {
-						qt = TEXT_FARMER7;
-					}
-					if (plr[pnum]._pLvlVisited[7]) {
+					if (plr[pnum]._pLvlVisited[7])
 						qt = TEXT_FARMER9;
-					}
+					else if (plr[pnum]._pLvlVisited[5])
+						qt = TEXT_FARMER7;
+					else if (plr[pnum]._pLvlVisited[2])
+						qt = TEXT_FARMER5;
+					else
+						qt = TEXT_FARMER8;
 				} else {
 					qt = TEXT_FARMER1;
 					quests[Q_FARMER]._qactive = QUEST_ACTIVE;
@@ -1035,9 +1009,6 @@ void TalkToTowner(int pnum, int tnum)
 			} else {
 				switch (quests[Q_JERSEY]._qactive) {
 				case QUEST_NOTAVAIL:
-					qt = TEXT_JERSEY1;
-					quests[Q_JERSEY]._qactive = 7;
-					break;
 				case QUEST_INIT:
 					qt = TEXT_JERSEY1;
 					quests[Q_JERSEY]._qactive = 7;
@@ -1101,18 +1072,12 @@ void TalkToTowner(int pnum, int tnum)
 			if (!PlrHasItem(pnum, IDI_THEODORE, &i) || quests[Q_GIRL]._qactive == QUEST_DONE) {
 				switch (quests[Q_GIRL]._qactive) {
 				case QUEST_NOTAVAIL:
-					qt = TEXT_GIRL2;
-					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
-					quests[Q_GIRL]._qvar1 = 1;
-					quests[Q_GIRL]._qlog = TRUE;
-					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
-					break;
 				case QUEST_INIT:
 					qt = TEXT_GIRL2;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					quests[Q_GIRL]._qvar1 = 1;
 					quests[Q_GIRL]._qlog = TRUE;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
-					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					break;
 				case QUEST_ACTIVE:
 					qt = TEXT_GIRL3;

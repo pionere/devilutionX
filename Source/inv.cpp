@@ -418,8 +418,9 @@ void DrawInv()
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (p->InvGrid[i] > 0) { // first slot of an item
-			ii = p->InvGrid[i] - 1;
+		ii = p->InvGrid[i];
+		if (ii > 0) { // first slot of an item
+			ii--;
 			is = &p->InvList[ii];
 
 			screen_x = InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
@@ -1104,7 +1105,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (p->InvGrid[i] == it)
 						p->InvGrid[i] = 0;
-					if (p->InvGrid[i] == -it)
+					else if (p->InvGrid[i] == -it)
 						p->InvGrid[i] = 0;
 				}
 			}

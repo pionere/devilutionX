@@ -5094,7 +5094,7 @@ BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
 				y1 += xyinc;
 			}
 			x1++;
-			if (x1 == x2 && y1 == y2)
+			if (x1 == x2)
 				return TRUE;
 		} while (Clear(x1, y1));
 	} else {
@@ -5123,7 +5123,7 @@ BOOL LineClearF(BOOL (*Clear)(int, int), int x1, int y1, int x2, int y2)
 				x1 += xyinc;
 			}
 			y1++;
-			if (x1 == x2 && y1 == y2)
+			if (y1 == y2)
 				return TRUE;
 		} while (Clear(x1, y1));
 	}
@@ -5176,7 +5176,7 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 				y1 += xyinc;
 			}
 			x1++;
-			if (x1 == x2 && y1 == y2)
+			if (x1 == x2)
 				return TRUE;
 		} while (Clear(mnum, x1, y1));
 	} else {
@@ -5205,7 +5205,7 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 				x1 += xyinc;
 			}
 			y1++;
-			if (x1 == x2 && y1 == y2)
+			if (y1 == y2)
 				return TRUE;
 		} while (Clear(mnum, x1, y1));
 	}

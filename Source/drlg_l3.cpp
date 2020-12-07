@@ -1594,12 +1594,12 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview)
 	while (TRUE) {
 		done = TRUE;
 		ii = 2;
-		for (yy = 0; yy < sh && done; yy++) {
-			for (xx = 0; xx < sw && done; xx++) {
-				if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+		for (yy = sy; yy < sy + sh && done; yy++) {
+			for (xx = sx; xx < sx + sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = FALSE;
 				}
-				if (dflags[xx + sx][yy + sy] != 0) {
+				if (dflags[xx][yy] != 0) {
 					done = FALSE;
 				}
 				ii++;
@@ -1619,10 +1619,10 @@ static BOOL DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		return FALSE;
 
 	ii = sw * sh + 2;
-	for (yy = 0; yy < sh; yy++) {
-		for (xx = 0; xx < sw; xx++) {
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
-				dungeon[xx + sx][yy + sy] = miniset[ii];
+				dungeon[xx][yy] = miniset[ii];
 			}
 			ii++;
 		}
@@ -1648,12 +1648,12 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXY - sw; sx++) {
 			found = TRUE;
 			ii = 2;
-			for (yy = 0; yy < sh && found; yy++) {
-				for (xx = 0; xx < sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+			for (yy = sy; yy < sy + sh && found; yy++) {
+				for (xx = sx; xx < sx + sw && found; xx++) {
+					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = FALSE;
 					}
-					if (dflags[xx + sx][yy + sy] != 0) {
+					if (dflags[xx][yy] != 0) {
 						found = FALSE;
 					}
 					ii++;
@@ -1677,10 +1677,10 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 				}
 			}
 			if (found && random_(0, 100) < rndper) {
-				for (yy = 0; yy < sh; yy++) {
-					for (xx = 0; xx < sw; xx++) {
+				for (yy = sy; yy < sy + sh; yy++) {
+					for (xx = sx; xx < sx + sw; xx++) {
 						if (miniset[kk] != 0) {
-							dungeon[xx + sx][yy + sy] = miniset[kk];
+							dungeon[xx][yy] = miniset[kk];
 						}
 						kk++;
 					}
@@ -1691,7 +1691,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 }
 
 #ifdef HELLFIRE
-BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
+static BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
 	BOOL found;
@@ -1705,12 +1705,12 @@ BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXY - sw; sx++) {
 			found = TRUE;
 			ii = 2;
-			for (yy = 0; yy < sh && found; yy++) {
-				for (xx = 0; xx < sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
+			for (yy = sy; yy < sy + sh && found; yy++) {
+				for (xx = sx; xx < sx + sw && found; xx++) {
+					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = FALSE;
 					}
-					if (dflags[xx + sx][yy + sy] != 0) {
+					if (dflags[xx][yy] != 0) {
 						found = FALSE;
 					}
 					ii++;
@@ -1735,10 +1735,10 @@ BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
 			}
 			if (found && random_(0, 100) < rndper) {
 				placed = TRUE;
-				for (yy = 0; yy < sh; yy++) {
-					for (xx = 0; xx < sw; xx++) {
+				for (yy = sy; yy < sy + sh; yy++) {
+					for (xx = sx; xx < sx + sw; xx++) {
 						if (miniset[kk] != 0) {
-							dungeon[xx + sx][yy + sy] = miniset[kk];
+							dungeon[xx][yy] = miniset[kk];
 						}
 						kk++;
 					}

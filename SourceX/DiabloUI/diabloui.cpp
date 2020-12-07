@@ -500,8 +500,8 @@ BOOL UiValidPlayerName(const char *name)
 
 	char tmpname[PLR_NAME_LEN];
 	snprintf(tmpname, PLR_NAME_LEN, name);
-	for (size_t i = 0, n = strlen(tmpname); i < n; i++)
-		tmpname[i]++;
+	for (BYTE *letter = (BYTE *)tmpname; *letter; letter++)
+		*letter++;
 
 	for (int i = 0; i < lengthof(reserved); i++) {
 		if (strstr(tmpname, reserved[i]))

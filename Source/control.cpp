@@ -1830,29 +1830,19 @@ static char GetSBookTrans(int sn, BOOL townok)
 	char st;
 
 	p = &plr[myplr];
-#ifdef HELLFIRE
-	if ((p->_pClass == PC_MONK) && (sn == SPL_SEARCH))
-		return RSPLTYPE_SKILL;
-#endif
-	st = RSPLTYPE_SPELL;
-	if (p->_pISpells & SPELL_MASK(sn)) {
-		st = RSPLTYPE_CHARGES;
-	}
 	if (p->_pAblSpells & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
 		st = RSPLTYPE_SKILL;
+	} else if (p->_pISpells & SPELL_MASK(sn)) {
+		st = RSPLTYPE_CHARGES;
+	} else if (CheckSpell(myplr, sn, RSPLTYPE_SPELL, TRUE)
+	 && (p->_pSplLvl[sn] + p->_pISplLvlAdd) > 0) {
+		st = RSPLTYPE_SPELL;
+	} else {
+		return RSPLTYPE_INVALID;
 	}
-	if (st == RSPLTYPE_SPELL) {
-		if (!CheckSpell(myplr, sn, RSPLTYPE_SPELL, TRUE)) {
-			st = RSPLTYPE_INVALID;
-		}
-		if ((char)(p->_pSplLvl[sn] + p->_pISplLvlAdd) <= 0) {
-			st = RSPLTYPE_INVALID;
-		}
-	}
-	if (townok && currlevel == 0 && st != RSPLTYPE_INVALID && !spelldata[sn].sTownSpell) {
+	if (townok && currlevel == 0 && !spelldata[sn].sTownSpell) {
 		st = RSPLTYPE_INVALID;
 	}
-
 	return st;
 }
 

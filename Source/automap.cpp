@@ -436,30 +436,22 @@ static void SearchAutomapItem()
 	x1 = x - 8;
 	if (x1 < 0)
 		x1 = 0;
-	else if (x1 > MAXDUNX)
-		x1 = MAXDUNX;
 
 	y1 = y - 8;
 	if (y1 < 0)
 		y1 = 0;
-	else if (y1 > MAXDUNY)
-		y1 = MAXDUNY;
 
 	x2 = x + 8;
-	if (x2 < 0)
-		x2 = 0;
-	else if (x2 > MAXDUNX)
+	if (x2 > MAXDUNX)
 		x2 = MAXDUNX;
 
 	y2 = y + 8;
-	if (y2 < 0)
-		y2 = 0;
-	else if (y2 > MAXDUNY)
+	if (y2 > MAXDUNY)
 		y2 = MAXDUNY;
 
 	for (i = x1; i < x2; i++) {
 		for (j = y1; j < y2; j++) {
-			if (dItem[i][j] != 0){
+			if (dItem[i][j] != 0) {
 				x = xoff + (i - j) * AmLine16;
 				y = yoff + (i + j) * AmLine8;
 				DrawAutomapItem(x, y, COLOR_ITEM);
@@ -644,18 +636,24 @@ void DrawAutomap()
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
 
 	AutoMapX = (ViewX - DBORDERX) >> 1;
-	while (AutoMapX + AutoMapXOfs < 0)
-		AutoMapXOfs++;
-	while (AutoMapX + AutoMapXOfs >= DMAXX)
-		AutoMapXOfs--;
 	AutoMapX += AutoMapXOfs;
+	if (AutoMapX < 0) {
+		AutoMapXOfs -= AutoMapX;
+		AutoMapX = 0;
+	} else if (AutoMapX > DMAXX - 1) {
+		AutoMapXOfs -= AutoMapX - DMAXX - 1;
+		AutoMapX = DMAXX - 1;
+	}
 
 	AutoMapY = (ViewY - DBORDERY) >> 1;
-	while (AutoMapY + AutoMapYOfs < 0)
-		AutoMapYOfs++;
-	while (AutoMapY + AutoMapYOfs >= DMAXY)
-		AutoMapYOfs--;
 	AutoMapY += AutoMapYOfs;
+	if (AutoMapY < 0) {
+		AutoMapYOfs -= AutoMapY;
+		AutoMapY = 0;
+	} else if (AutoMapY > DMAXY - 1) {
+		AutoMapYOfs -= AutoMapY - DMAXY - 1;
+		AutoMapY = DMAXY - 1;
+	}
 
 	d = (AutoMapScale << 6) / 100;
 	cells = 2 * (SCREEN_WIDTH / 2 / d) + 1;
@@ -669,12 +667,13 @@ void DrawAutomap()
 	mapx = AutoMapX - cells;
 	mapy = AutoMapY - 1;
 
+	sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * (cells >> 1);
+	sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * (cells >> 1);
 	if (cells & 1) {
-		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * ((cells - 1) >> 1);
-		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * ((cells + 1) >> 1);
+		sy -= AmLine32;
 	} else {
-		sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * (cells >> 1) + AmLine32;
-		sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * (cells >> 1) - AmLine16;
+		sx += AmLine32;
+		sy -= AmLine16;
 	}
 	if (ViewX & 1) {
 		sx -= AmLine16;

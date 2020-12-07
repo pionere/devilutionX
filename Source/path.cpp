@@ -100,11 +100,8 @@ int path_get_h_cost(int sx, int sy, int dx, int dy)
 	int delta_x = abs(sx - dx);
 	int delta_y = abs(sy - dy);
 
-	int min = delta_x < delta_y ? delta_x : delta_y;
-	int max = delta_x > delta_y ? delta_x : delta_y;
-
 	// see path_check_equal for why this is times 2
-	return 2 * (min + max);
+	return 2 * (delta_x + delta_y);
 }
 
 /**
@@ -302,20 +299,17 @@ void path_next_node(PATHNODE *pPath)
 	PATHNODE *next, *current;
 	int f;
 
-	next = path_2_nodes;
-	if (!path_2_nodes->NextNode) {
-		path_2_nodes->NextNode = pPath;
-	} else {
-		current = path_2_nodes;
-		next = path_2_nodes->NextNode;
+	current = path_2_nodes;
+	next = path_2_nodes->NextNode;
+	if (next != NULL) {
 		f = pPath->f;
-		while (next && next->f < f) {
+		while (next != NULL && next->f < f) {
 			current = next;
 			next = next->NextNode;
 		}
 		pPath->NextNode = next;
-		current->NextNode = pPath;
 	}
+	current->NextNode = pPath;
 }
 
 /**

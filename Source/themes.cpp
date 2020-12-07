@@ -334,7 +334,8 @@ static BOOL CheckThemeRoom(int tv)
 		}
 	}
 
-	if (leveltype == DTYPE_CATHEDRAL && (tarea < 9 || tarea > 100))
+	assert(leveltype == DTYPE_CATHEDRAL);
+	if (tarea < 9 || tarea > 100)
 		return FALSE;
 
 	for (j = 0; j < MAXDUNY; j++) {
@@ -371,6 +372,7 @@ void InitThemes()
 	bCrossFlag = FALSE;
 	weaponFlag = TRUE;
 
+	assert(leveltype != DTYPE_TOWN);
 	if (currlevel == 16)
 		return;
 
@@ -388,13 +390,13 @@ void InitThemes()
 				numthemes++;
 			}
 		}
-	}
-	if (leveltype == DTYPE_CATACOMBS || leveltype == DTYPE_CAVES || leveltype == DTYPE_HELL) {
-		for (i = 0; i < themeCount; i++)
+	} else {
+		for (i = 0; i < themeCount; i++) {
 			themes[i].ttype = THEME_NONE;
+			themes[i].ttval = themeLoc[i].ttval;
+		}
 		if (QuestStatus(Q_ZHAR)) {
 			for (i = 0; i < themeCount; i++) {
-				themes[i].ttval = themeLoc[i].ttval;
 				if (SpecialThemeFit(i, THEME_LIBRARY)) {
 					themes[i].ttype = THEME_LIBRARY;
 					zharlib = i;
@@ -404,7 +406,6 @@ void InitThemes()
 		}
 		for (i = 0; i < themeCount; i++) {
 			if (themes[i].ttype == THEME_NONE) {
-				themes[i].ttval = themeLoc[i].ttval;
 				j = ThemeGood[random_(0, 4)];
 				while (!SpecialThemeFit(i, j))
 					j = random_(0, 17);

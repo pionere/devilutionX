@@ -1257,24 +1257,13 @@ static void L4firstRoom()
 		h = 14;
 	}
 
-	xmin = (20 - w) >> 1;
 	xmax = 19 - w;
+	xmin = (xmax + 1) >> 1;
 	rndx = RandRange(xmin, xmax);
-	if (rndx + w > 19) {
-		tx = w + rndx - 19;
-		x = rndx - tx + 1;
-	} else {
-		x = rndx;
-	}
-	ymin = (20 - h) >> 1;
+
 	ymax = 19 - h;
+	ymin = (ymax + 1) >> 1;
 	rndy = RandRange(ymin, ymax);
-	if (rndy + h > 19) {
-		ty = h + rndy - 19;
-		y = rndy - ty + 1;
-	} else {
-		y = rndy;
-	}
 
 	if (currlevel == 16) {
 		l4holdx = x;

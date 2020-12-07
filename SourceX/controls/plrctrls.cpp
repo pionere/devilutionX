@@ -109,11 +109,11 @@ void FindItemOrObject()
 	// As the player can not stand on the edge fo the map this is safe from OOB
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
-			if (dItem[mx + xx][my + yy] <= 0)
+			int i = dItem[mx + xx][my + yy];
+			if (i <= 0)
 				continue;
-			int i = dItem[mx + xx][my + yy] - 1;
-			if (item[i]._itype == ITYPE_NONE
-			    || item[i]._iSelFlag == 0)
+			i--;
+			if (item[i]._itype == ITYPE_NONE || item[i]._iSelFlag == 0)
 				continue;
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)
@@ -132,9 +132,10 @@ void FindItemOrObject()
 
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
-			if (dObject[mx + xx][my + yy] == 0)
+			int o = dObject[mx + xx][my + yy];
+			if (o == 0)
 				continue;
-			int o = dObject[mx + xx][my + yy] >= 0 ? dObject[mx + xx][my + yy] - 1 : -(dObject[mx + xx][my + yy] + 1);
+			o = o >= 0 ? o - 1 : -(o + 1);
 			if (object[o]._oSelFlag == 0)
 				continue;
 			if (xx == 0 && yy == 0 && object[o]._oDoorFlag)
@@ -263,8 +264,9 @@ void FindMeleeTarget()
 			if (!PosOkPlayer(myplr, dx, dy)) {
 				visited[dx][dy] = true;
 
-				if (dMonster[dx][dy] != 0) {
-					const int mi = dMonster[dx][dy] >= 0 ? dMonster[dx][dy] - 1 : -(dMonster[dx][dy] + 1);
+				int mi = dMonster[dx][dy];
+				if (mi != 0) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
 					if (CanTargetMonster(mi)) {
 						const bool newCanTalk = CanTalkToMonst(mi);
 						if (pcursmonst != -1 && !canTalk && newCanTalk)

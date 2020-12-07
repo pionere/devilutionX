@@ -660,11 +660,10 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		return FALSE;
 	}
 	mds = &missiledata[mitype];
-	if ((p->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
-		return FALSE;
-	}
-
 	if (mds->mType == 0) {
+		if (p->_pSpellFlags & PSE_ETHERALIZED) {
+			return FALSE;
+		}
 		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
 		hper = 100 - (tmp >> 1);
 		hper -= dist << 1;
@@ -771,12 +770,12 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	}
 
 	mds = &missiledata[mitype];
-	if ((p->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
-		return FALSE;
-	}
 
 	mon = &monster[mnum];
 	if (mds->mType == 0) {
+		if (p->_pSpellFlags & PSE_ETHERALIZED) {
+			return FALSE;
+		}
 		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
 		hper = 30 + mon->mHit
 		    + (mon->mLevel << 1)
@@ -894,12 +893,11 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		return FALSE;
 	}
 
-	if ((dps->_pSpellFlags & PSE_ETHERALIZED) && mds->mType == 0) {
-		return FALSE;
-	}
-
 	ops = &plr[offp];
 	if (mds->mType == 0) {
+		if (dps->_pSpellFlags & PSE_ETHERALIZED) {
+			return FALSE;
+		}
 		hper = 50 + ops->_pIBonusToHit + ops->_pDexterity + ops->_pLevel
 		    - (dist * dist >> 1)
 		    - dps->_pDexterity / 5
@@ -2436,7 +2434,7 @@ static BOOL CheckIfTrig(int x, int y)
 	int i;
 
 	for (i = 0; i < numtrigs; i++) {
-		if ((x == trigs[i]._tx && y == trigs[i]._ty) || (abs(trigs[i]._tx - x) < 2 && abs(trigs[i]._ty - y) < 2))
+		if (abs(trigs[i]._tx - x) < 2 && abs(trigs[i]._ty - y) < 2)
 			return TRUE;
 	}
 	return FALSE;
@@ -2465,6 +2463,13 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 					if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 						if (!CheckIfTrig(tx, ty)) {
 							mis->_miDelFlag = FALSE;
+							if (misource == myplr) {
+								if (!setlevel) {
+									NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
+								} else {
+									NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
+								}
+							}
 							i = 6;
 							break;
 						}
@@ -2487,13 +2492,6 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			bmis->_miRange = 0;
 	}
 	PutMissile(mi);
-	if (misource == myplr && !mis->_miDelFlag && currlevel != 0) {
-		if (!setlevel) {
-			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
-		} else {
-			NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
-		}
-	}
 }
 
 void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -4184,17 +4182,18 @@ void MI_Flashfr(int mi)
 
 	mis = &missile[mi];
 	pnum = mis->_miSource;
-	if (mis->_miCaster == 0 && pnum != -1) {
-		mis->_mix = plr[pnum]._px;
-		mis->_miy = plr[pnum]._py;
-		mis->_mitxoff = plr[pnum]._pxoff << 16;
-		mis->_mityoff = plr[pnum]._pyoff << 16;
-	}
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		if (mis->_miCaster == 0 && pnum != -1) {
 			plr[pnum]._pBaseToBlk -= 50;
+		}
+	} else {
+		if (mis->_miCaster == 0 && pnum != -1) {
+			mis->_mix = plr[pnum]._px;
+			mis->_miy = plr[pnum]._py;
+			mis->_mitxoff = plr[pnum]._pxoff << 16;
+			mis->_mityoff = plr[pnum]._pyoff << 16;
 		}
 	}
 	PutMissile(mi);
@@ -4432,17 +4431,6 @@ void MI_LightningC(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 
-	mpnum = mis->_miSource;
-	if (mpnum != -1) {
-		if (mis->_miCaster == 0) {
-			dam = (random_(79, 2) + random_(79, plr[mpnum]._pLevel) + 2) << 6;
-		} else {
-			dam = 2 * RandRange(monster[mpnum].mMinDamage, monster[mpnum].mMaxDamage);
-		}
-	} else {
-		dam = random_(81, currlevel) + 2 * currlevel;
-	}
-
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
@@ -4453,6 +4441,17 @@ void MI_LightningC(int mi)
 	assert((DWORD)my < MAXDUNY);
 	if (!nMissileTable[dPiece[mx][my]]) {
 		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
+			mpnum = mis->_miSource;
+			if (mpnum != -1) {
+				if (mis->_miCaster == 0) {
+					dam = (random_(79, 2) + random_(79, plr[mpnum]._pLevel) + 2) << 6;
+				} else {
+					dam = 2 * RandRange(monster[mpnum].mMinDamage, monster[mpnum].mMaxDamage);
+				}
+			} else {
+				dam = random_(81, currlevel) + 2 * currlevel;
+			}
+
 			AddMissile(
 			    mx,
 			    my,
@@ -4727,8 +4726,9 @@ void MI_FireWave(int mi)
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
+		return;
 	}
-	if (mis->_miDir != 0 || mis->_miRange == 0) {
+	if (mis->_miDir != 0) {
 		if (mis->_mix != mis->_miVar3 || mis->_miy != mis->_miVar4) {
 			mis->_miVar3 = mis->_mix;
 			mis->_miVar4 = mis->_miy;

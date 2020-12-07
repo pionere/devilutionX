@@ -984,11 +984,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		break;
 	}
 
-	if (wLeft->_itype == ITYPE_SHIELD && wLeft->_iStatFlag) {
-		p->_pBlockFlag = TRUE;
-		g++;
-	}
-	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
+	if ((wLeft->_itype == ITYPE_SHIELD && wLeft->_iStatFlag)
+	 || (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag)) {
 		p->_pBlockFlag = TRUE;
 		g++;
 	}
@@ -1013,8 +1010,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #else
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_MEDIUM_ARMOR;
-	}
-	if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
+	} else if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_HEAVY_ARMOR;
 	}
 #endif
