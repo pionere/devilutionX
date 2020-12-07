@@ -384,9 +384,7 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 
 	do {
 		fExitProgram = FALSE;
-#ifndef HELLFIRE
 		gbLoadGame = FALSE;
-#endif
 
 		if (!NetInit(bSinglePlayer, &fExitProgram)) {
 			gbRunGameResult = !fExitProgram;
@@ -400,25 +398,16 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 			InitQuests();
 			InitPortals();
 			InitDungMsgs(myplr);
-#ifdef HELLFIRE
-			if (!gbValidSaveFile && gbLoadGame)
-				inv_diablo_to_hellfire(myplr);
-#else
 		}
 		if (!gbValidSaveFile || !gbLoadGame) {
-#endif
 			uMsg = WM_DIABNEWGAME;
 		} else {
 			uMsg = WM_DIABLOADGAME;
 		}
 		run_game_loop(uMsg);
 		NetClose();
-#ifdef HELLFIRE
-	} while (gbMaxPlayers == 1 || !gbRunGameResult);
-#else
 		pfile_create_player_description(NULL, 0);
 	} while (gbRunGameResult);
-#endif
 
 	SNetDestroy();
 	return gbRunGameResult;
