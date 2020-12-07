@@ -1238,7 +1238,7 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 
 static void L4firstRoom()
 {
-	int x, y, w, h, rndx, rndy, xmin, xmax, ymin, ymax, tx, ty;
+	int x, y, w, h, xmin, xmax, ymin, ymax;
 
 	if (currlevel != 16) {
 		if (currlevel == quests[Q_WARLORD]._qlevel && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL) {
@@ -1259,11 +1259,11 @@ static void L4firstRoom()
 
 	xmax = 19 - w;
 	xmin = (xmax + 1) >> 1;
-	rndx = RandRange(xmin, xmax);
+	x = RandRange(xmin, xmax);
 
 	ymax = 19 - h;
 	ymin = (ymax + 1) >> 1;
-	rndy = RandRange(ymin, ymax);
+	y = RandRange(ymin, ymax);
 
 	if (currlevel == 16) {
 		l4holdx = x;
