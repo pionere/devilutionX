@@ -45,7 +45,7 @@ std::string GetSavePath(DWORD save_num)
 	const char* fmt = gbMaxPlayers != 1 ? SAVE_FILE_FORMAT_MULTI : SAVE_FILE_FORMAT_SINGLE;
 
 	char save_file_name[21];
-	snprintf(save_file_name, sizeof(save_file_name) / sizeof(char), fmt, save_num);
+	snprintf(save_file_name, sizeof(save_file_name), fmt, save_num);
 	path.append(save_file_name);
 	return path;
 }
