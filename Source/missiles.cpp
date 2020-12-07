@@ -1670,7 +1670,7 @@ void AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
 	mis->_miRange = 255 * (spllvl + 1);
-	mis->_miAnimFrame = random_(63, 8) + 1;
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -1788,7 +1788,7 @@ void AddLightArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miVar2 = sy;
 	mis->_miDam <<= 6;
 	mis->_miRange = 255;
-	mis->_miAnimFrame = random_(52, 8) + 1;
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 void AddFlashfr(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -1821,12 +1821,12 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	if (p->_pIFlags & ISPL_NOMANA)
 		return;
 
-	ManaAmount = random_(57, 10) + 1;
+	ManaAmount = RandRange(1, 10);
 	for (i = p->_pLevel; i > 0; i--) {
-		ManaAmount += random_(57, 4) + 1;
+		ManaAmount += RandRange(1, 4);
 	}
 	for (i = spllvl; i > 0; i--) {
-		ManaAmount += random_(57, 6) + 1;
+		ManaAmount += RandRange(1, 6);
 	}
 	ManaAmount <<= 6;
 	if (p->_pClass == PC_SORCERER)
@@ -1920,8 +1920,8 @@ void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miVar2 = midir;
 	//mis->_miVar3 = 0;
 	mis->_miRange = 256;
-	mis->_miRnd = random_(63, 15) + 1;
-	mis->_miAnimFrame = random_(63, 8) + 1;
+	mis->_miRnd = RandRange(1, 15);
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 /**
@@ -2247,7 +2247,7 @@ void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miRange = 255;
-	mis->_miAnimFrame = random_(63, 8) + 1;
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 /**
@@ -2261,7 +2261,7 @@ void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
-	mis->_miDam = (random_(53, 10) + random_(53, 10) + plr[misource]._pLevel + 2) << 4;
+	mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + plr[misource]._pLevel) << 4;
 	mis->_miDam >>= 1;
 	range = 10;
 	i = spllvl;
@@ -2325,7 +2325,7 @@ void AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	if (mis->_miDam == 0 && micaster == 0)
 		UseMana(misource, SPL_LIGHTNING);
 	mis->_miRange = 256;
-	mis->_miAnimFrame = random_(52, 8) + 1;
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -2348,7 +2348,7 @@ void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	else
 		range = (spllvl >> 1) + 6;
 	mis->_miRange = range;
-	mis->_miAnimFrame = random_(52, 8) + 1;
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 /**
@@ -2505,7 +2505,7 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			UseMana(misource, SPL_FLASH);
 			dam = 0;
 			for (i = plr[misource]._pLevel; i >= 0; i--) {
-				dam += random_(55, 20) + 1;
+				dam += RandRange(1, 20);
 			}
 			for (i = spllvl; i > 0; i--) {
 				dam += dam >> 3;
@@ -2531,7 +2531,7 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		if (misource != -1) {
 			dam = 0;
 			for (i = plr[misource]._pLevel; i >= 0; i--) {
-				dam += random_(56, 2) + 1;
+				dam += RandRange(1, 2);
 			}
 			for (i = spllvl; i > 0; i--) {
 				dam += dam >> 3;
@@ -2581,7 +2581,7 @@ void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
-	mis->_miDam = random_(59, 10) + plr[misource]._pLevel + 1;
+	mis->_miDam = RandRange(1, 10) + plr[misource]._pLevel;
 	mis->_miRange = 255;
 	//mis->_miVar1 = 0;
 	//mis->_miVar2 = 0;
@@ -2621,7 +2621,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_miLid = AddLight(tx, ty, 1);
 
 						UseMana(misource, SPL_GUARDIAN);
-						dam = random_(62, 10) + (plr[misource]._pLevel >> 1) + 1;
+						dam = RandRange(1, 10) + (plr[misource]._pLevel >> 1);
 						for (i = spllvl; i > 0; i--) {
 							dam += dam >> 3;
 						}
@@ -3012,12 +3012,12 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	UseMana(misource, SPL_HEAL);
 
 	p = &plr[misource];
-	HealAmount = random_(57, 10) + 1;
+	HealAmount = RandRange(1, 10);
 	for (i = p->_pLevel; i > 0; i--) {
-		HealAmount += random_(57, 4) + 1;
+		HealAmount += RandRange(1, 4);
 	}
 	for (i = spllvl; i > 0; i--) {
-		HealAmount += random_(57, 6) + 1;
+		HealAmount += RandRange(1, 6);
 	}
 	HealAmount <<= 6;
 
@@ -3081,7 +3081,7 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
 	mis->_miLid = AddLight(sx, sy, 8);
-	dam = 2 * (plr[misource]._pLevel + random_(60, 10) + random_(60, 10)) + 4;
+	dam = 2 * (plr[misource]._pLevel + RandRange(1, 10) + RandRange(1, 10));
 	for (i = spllvl; i > 0; i--) {
 		dam += dam >> 3;
 	}
@@ -3311,7 +3311,7 @@ void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miVar5 = std::min(sx + RAD, MAXDUNX - 1);
 	mis->_miVar6 = mis->_miVar4;
 	for (i = plr[misource]._pLevel; i > 0; i--) {
-		mis->_miDam += random_(67, 6) + 1;
+		mis->_miDam += RandRange(1, 6);
 	}
 	mis->_miRange = 255;
 	UseMana(misource, SPL_APOCA);
@@ -3400,8 +3400,8 @@ void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		mis->_miDam = 15;
 	}
 	mis->_miRange = 256;
-	mis->_miRnd = random_(63, 15) + 1;
-	mis->_miAnimFrame = random_(63, 8) + 1;
+	mis->_miRnd = RandRange(1, 15);
+	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 /**
@@ -3432,7 +3432,7 @@ void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
-	mis->_miDam = random_(69, 10) + plr[misource]._pLevel + 9;
+	mis->_miDam = RandRange(9, 18) + plr[misource]._pLevel;
 }
 
 void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -3868,7 +3868,7 @@ void MI_Firewall(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
-		mis->_miAnimFrame = random_(83, 11) + 1;
+		mis->_miAnimFrame = RandRange(1, 11);
 	}
 	if (mis->_miRange == mis->_miAnimLen - 1) {
 		SetMissDir(mi, 0);
@@ -4261,7 +4261,7 @@ void MI_FireRing(int mi)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
-	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
+	dam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 3;
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
@@ -4293,7 +4293,7 @@ void MI_LightRing(int mi)
 		lvl = plr[src]._pLevel;
 	else
 		lvl = currlevel;
-	dam = (random_(53, 10) + random_(53, 10) + lvl + 2) << 3;
+	dam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 3;
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
@@ -4340,7 +4340,7 @@ void MI_LightwallC(int mi)
 			lvl = plr[src]._pLevel;
 		else
 			lvl = currlevel;
-		dam = 16 * (random_(53, 10) + random_(53, 10) + lvl + 2);
+		dam = 16 * (RandRange(1, 10) + RandRange(1, 10) + lvl);
 		if (!mis->_miVar8) {
 			tx = mis->_miVar1;
 			ty = mis->_miVar2;
@@ -4444,7 +4444,7 @@ void MI_LightningC(int mi)
 			mpnum = mis->_miSource;
 			if (mpnum != -1) {
 				if (mis->_miCaster == 0) {
-					dam = (random_(79, 2) + random_(79, plr[mpnum]._pLevel) + 2) << 6;
+					dam = (RandRange(2, 3) + random_(79, plr[mpnum]._pLevel)) << 6;
 				} else {
 					dam = 2 * RandRange(monster[mpnum].mMinDamage, monster[mpnum].mMaxDamage);
 				}
@@ -4715,7 +4715,7 @@ void MI_FireWave(int mi)
 	mis->_miVar1++;
 	if (mis->_miVar1 == mis->_miAnimLen) {
 		SetMissDir(mi, 1);
-		mis->_miAnimFrame = random_(82, 11) + 1;
+		mis->_miAnimFrame = RandRange(1, 11);
 	}
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;

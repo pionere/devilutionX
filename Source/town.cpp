@@ -314,7 +314,7 @@ void T_Pass3()
 	}
 	if (!(twarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x++) {
-			T_FillTile(P3Tiles, x, 68 + DBORDERY, random_(0, 4) + 1);
+			T_FillTile(P3Tiles, x, 68 + DBORDERY, RandRange(1, 4));
 		}
 	}
 #ifdef HELLFIRE

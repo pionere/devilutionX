@@ -359,7 +359,7 @@ static void L4HorizWall(int i, int j, int dx)
 	else if (dungeon[i + dx][j] == 22)
 		dungeon[i + dx][j] = 29;
 
-	xx = random_(0, dx - 3) + 1;
+	xx = RandRange(1, dx - 3);
 	dungeon[i + xx][j] = 57;
 	dungeon[i + xx + 2][j] = 56;
 	dungeon[i + xx + 1][j] = 60;
@@ -398,7 +398,7 @@ static void L4VertWall(int i, int j, int dy)
 	else if (dungeon[i][j + dy] == 23)
 		dungeon[i][j + dy] = 29;
 
-	yy = random_(0, dy - 3) + 1;
+	yy = RandRange(1, dy - 3);
 	dungeon[i][j + yy] = 53;
 	dungeon[i][j + yy + 2] = 52;
 	dungeon[i][j + yy + 1] = 6;
@@ -1002,7 +1002,7 @@ static void DRLG_L4Subs()
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 10) == 0) {
 				if (L4BTYPES[dungeon[x][y]] == 6 && dflags[x][y] == 0) {
-					dungeon[x][y] = random_(0, 3) + 95;
+					dungeon[x][y] = RandRange(95, 97);
 				}
 			}
 		}
@@ -1074,7 +1074,7 @@ static void uShape()
 		}
 	}
 
-	rv = random_(0, 19) + 1;
+	rv = RandRange(1, 19);
 	do {
 		if (hallok[rv]) {
 			for (i = 19; i >= 0; i--) {
@@ -1112,7 +1112,7 @@ static void uShape()
 		}
 	}
 
-	rv = random_(0, 19) + 1;
+	rv = RandRange(1, 19);
 	do {
 		if (hallok[rv]) {
 			for (j = 19; j >= 0; j--) {
@@ -1195,8 +1195,8 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
 		for (i = 20; i != 0; i--) {
-			width = (random_(0, 5) + 2) & ~1;
-			height = (random_(0, 5) + 2) & ~1;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
 			if (L4checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
@@ -1215,8 +1215,8 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			L4roomGen(rxy2, ry, width, height, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
-			width = (random_(0, 5) + 2) & ~1;
-			height = (random_(0, 5) + 2) & ~1;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
 			if (L4checkRoom(rx - 1, ry - 1, width + 2, height + 1))
@@ -1249,8 +1249,8 @@ static void L4firstRoom()
 			w = 11;
 			h = 11;
 		} else {
-			w = random_(0, 5) + 2;
-			h = random_(0, 5) + 2;
+			w = RandRange(2, 6);
+			h = RandRange(2, 6);
 		}
 	} else {
 		w = 14;

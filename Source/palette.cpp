@@ -112,7 +112,7 @@ void LoadRndLvlPal(int lvl)
 	if (lvl == DTYPE_TOWN) {
 		LoadPalette("Levels\\TownData\\Town.pal");
 	} else {
-		rv = random_(0, 4) + 1;
+		rv = RandRange(1, 4);
 #ifdef HELLFIRE
 		if (lvl == 5) {
 			copy_cstr(szFileName, "NLevels\\L5Data\\L5Base.PAL");

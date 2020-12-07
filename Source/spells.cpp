@@ -237,14 +237,14 @@ void DoHealOther(int pnum, int tnum)
 	if ((tp->_pHitPoints >> 6) <= 0)
 		return; // too late, the target is dead
 
-	hp = random_(57, 10) + 1;
+	hp = RandRange(1, 10);
 
 	for (i = plr[pnum]._pLevel; i > 0; i--) {
-		hp += random_(57, 4) + 1;
+		hp += RandRange(1, 4);
 	}
 
 	for (i = GetSpellLevel(pnum, SPL_HEALOTHER); i > 0; i--) {
-		hp += random_(57, 6) + 1;
+		hp += RandRange(1, 6);
 	}
 	hp <<= 6;
 

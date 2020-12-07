@@ -1977,16 +1977,16 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	}
 
 	if (nAw > Room_Max) {
-		nRw = random_(0, Room_Max - Room_Min) + Room_Min;
+		nRw = RandRange(Room_Min, Room_Max - 1);
 	} else if (nAw > Room_Min) {
-		nRw = random_(0, nAw - Room_Min) + Room_Min;
+		nRw = RandRange(Room_Min, nAw - 1);
 	} else {
 		nRw = nAw;
 	}
 	if (nAh > Room_Max) {
-		nRh = random_(0, Room_Max - Room_Min) + Room_Min;
+		nRh = RandRange(Room_Min, Room_Max - 1);
 	} else if (nAh > Room_Min) {
-		nRh = random_(0, nAh - Room_Min) + Room_Min;
+		nRh = RandRange(Room_Min, nAh - 1);
 	} else {
 		nRh = nAh;
 	}
@@ -1996,8 +1996,8 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRh = nH;
 	}
 
-	nRx1 = random_(0, nX2 - nX1) + nX1;
-	nRy1 = random_(0, nY2 - nY1) + nY1;
+	nRx1 = RandRange(nX1, nX2 - 1);
+	nRy1 = RandRange(nY1, nY2 - 1);
 	nRx2 = nRw + nRx1;
 	nRy2 = nRh + nRy1;
 	if (nRx2 > nX2) {
@@ -2047,14 +2047,14 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 
 	if (nRDest != 0) {
 		if (nHDir == 1) {
-			nHx1 = random_(0, nRx2 - nRx1 - 2) + nRx1 + 1;
+			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy1;
 			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
 			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
 			nHy2 = RoomList[nRDest].nRoomy2;
 		}
 		if (nHDir == 3) {
-			nHx1 = random_(0, nRx2 - nRx1 - 2) + nRx1 + 1;
+			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy2;
 			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
 			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
@@ -2062,14 +2062,14 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		}
 		if (nHDir == 2) {
 			nHx1 = nRx2;
-			nHy1 = random_(0, nRy2 - nRy1 - 2) + nRy1 + 1;
+			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
 			nHx2 = RoomList[nRDest].nRoomx1;
 			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
 			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
 		}
 		if (nHDir == 4) {
 			nHx1 = nRx1;
-			nHy1 = random_(0, nRy2 - nRy1 - 2) + nRy1 + 1;
+			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
 			nHx2 = RoomList[nRDest].nRoomx2;
 			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
 			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
@@ -2421,8 +2421,8 @@ static BOOL DL2_FillVoids()
 
 	for (tries = 0; DL2_NumNoChar() > 700 && tries < 100; tries++) {
 		do {
-			xx = random_(0, 38) + 1;
-			yy = random_(0, 38) + 1;
+			xx = RandRange(1, 38);
+			yy = RandRange(1, 38);
 		} while (predungeon[xx][yy] != 35);
 		xf1 = xf2 = yf1 = yf2 = FALSE;
 		if (predungeon[xx - 1][yy] == 32 && predungeon[xx + 1][yy] == 46) {

@@ -206,7 +206,7 @@ static void InitCowAnim(int tnum, int dir)
 	tw->_tAnimLen = 12;
 	tw->_tAnimCnt = 0;
 	tw->_tAnimDelay = 3;
-	tw->_tAnimFrame = random_(0, 11) + 1;
+	tw->_tAnimFrame = RandRange(1, 11);
 }
 
 static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)

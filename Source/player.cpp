@@ -994,7 +994,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		if (p->_pHitPoints >> 6 > 0) {
 			p->_pmode = PM_STAND;
 			NewPlrAnim(pnum, p->_pNAnim[DIR_S], p->_pNFrames, 3, p->_pNWidth);
-			p->_pAnimFrame = random_(2, p->_pNFrames - 1) + 1;
+			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
 			p->_pAnimCnt = random_(2, 3);
 		} else {
 			p->_pmode = PM_DEATH;

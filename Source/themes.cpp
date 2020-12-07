@@ -108,7 +108,7 @@ static BOOL TFit_Obj5(int tidx)
 
 	xx = 0;
 	yy = 0;
-	r = random_(0, 5) + 1;
+	r = RandRange(1, 5);
 	rs = r;
 	while (r > 0) {
 		found = FALSE;
@@ -539,7 +539,7 @@ static void Theme_MonstPit(int tidx)
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 	const char tv = themes[tidx].ttval;
 
-	r = random_(0, 100) + 1;
+	r = RandRange(1, 100);
 	xx = 0;
 	yy = 0;
 	while (TRUE) {

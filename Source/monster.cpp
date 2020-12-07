@@ -478,7 +478,7 @@ static void InitMonster(int mnum, int dir, int mtype, int x, int y)
 	mon->_mAnimDelay = cmon->Anims[MA_STAND].Rate;
 	mon->_mAnimCnt = random_(88, mon->_mAnimDelay - 1);
 	mon->_mAnimLen = cmon->Anims[MA_STAND].Frames;
-	mon->_mAnimFrame = random_(88, mon->_mAnimLen - 1) + 1;
+	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
 
 	mon->_mmaxhp = RandRange(cmon->mMinHP, cmon->mMaxHP) << 6;
 
@@ -848,7 +848,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 
 	if (mon->_mAi != AI_GARG) {
 		mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[mon->_mdir];
-		mon->_mAnimFrame = random_(88, mon->_mAnimLen - 1) + 1;
+		mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
 		mon->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
 		mon->_mmode = MM_STAND;
 	}
@@ -1019,7 +1019,7 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 
 				if (monster[nummonsters]._mAi != AI_GARG) {
 					monster[nummonsters]._mAnimData = monster[nummonsters].MType->Anims[MA_STAND].Data[monster[nummonsters]._mdir];
-					monster[nummonsters]._mAnimFrame = random_(88, monster[nummonsters]._mAnimLen - 1) + 1;
+					monster[nummonsters]._mAnimFrame = RandRange(1, monster[nummonsters]._mAnimLen - 1);
 					monster[nummonsters]._mFlags &= ~MFLAG_ALLOW_SPECIAL;
 					monster[nummonsters]._mmode = MM_STAND;
 				}
@@ -5675,7 +5675,7 @@ BOOL SpawnSkeleton(int mnum, int x, int y)
 		return FALSE;
 	}
 
-	rs = random_(137, 15) + 1;
+	rs = RandRange(1, 15);
 	xx = 0;
 	yy = 0;
 	while (rs > 0) {

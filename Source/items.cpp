@@ -3356,12 +3356,12 @@ BOOL DoOil(int pnum, int cii)
 	switch (p->_pOilType) {
 	case IMISC_OILACC:
 		if (is->_iPLToHit < 50) {
-			is->_iPLToHit += random_(68, 2) + 1;
+			is->_iPLToHit += RandRange(1, 2);
 		}
 		break;
 	case IMISC_OILMAST:
 		if (is->_iPLToHit < 100) {
-			is->_iPLToHit += random_(68, 3) + 3;
+			is->_iPLToHit += RandRange(3, 5);
 		}
 		break;
 	case IMISC_OILSHARP:

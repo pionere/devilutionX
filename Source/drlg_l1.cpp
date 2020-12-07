@@ -1362,8 +1362,8 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
 		for (i = 20; i != 0; i--) {
-			width = (random_(0, 5) + 2) & 0xFFFFFFFE;
-			height = (random_(0, 5) + 2) & 0xFFFFFFFE;
+			width = RandRange(2, 6) & 0xFFFFFFFE;
+			height = RandRange(2, 6) & 0xFFFFFFFE;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
 			if (L5checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1")
@@ -1382,8 +1382,8 @@ static void L5roomGen(int x, int y, int w, int h, int dir)
 			L5roomGen(rxy2, ry, width, height, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
-			width = (random_(0, 5) + 2) & 0xFFFFFFFE;
-			height = (random_(0, 5) + 2) & 0xFFFFFFFE;
+			width = RandRange(2, 6) & 0xFFFFFFFE;
+			height = RandRange(2, 6) & 0xFFFFFFFE;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
 			if (L5checkRoom(rx - 1, ry - 1, width + 2, height + 1))
@@ -1627,7 +1627,7 @@ static void L5HorizWall(int i, int j, char pn, int dx)
 		dungeon[i + xx][j] = dt;
 	}
 
-	xx = random_(0, dx - 1) + 1;
+	xx = RandRange(1, dx - 1);
 
 	if (wt == 12) {
 		dungeon[i + xx][j] = 12;
@@ -1676,7 +1676,7 @@ static void L5VertWall(int i, int j, char pn, int dy)
 		dungeon[i][j + yy] = dt;
 	}
 
-	yy = random_(0, dy - 1) + 1;
+	yy = RandRange(1, dy - 1);
 
 	if (wt == 11) {
 		dungeon[i][j + yy] = 11;

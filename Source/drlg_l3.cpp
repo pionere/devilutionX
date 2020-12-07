@@ -919,8 +919,8 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 {
 	int blksizex, blksizey, x1, y1, x2, y2;
 
-	blksizex = random_(0, 2) + 3;
-	blksizey = random_(0, 2) + 3;
+	blksizex = RandRange(3, 4);
+	blksizey = RandRange(3, 4);
 
 	switch (dir) {
 	case 0:
@@ -1251,10 +1251,9 @@ static void DRLG_L3River()
 				if (dungeon[rx][ry] == 7) {
 					dircheck = 0;
 					if (dir < 2) {
-						river[2][riveramt] = (BYTE)random_(0, 2) + 17;
-					}
-					if (dir > 1) {
-						river[2][riveramt] = (BYTE)random_(0, 2) + 15;
+						river[2][riveramt] = RandRange(17, 18);
+					} else {
+						river[2][riveramt] = RandRange(15, 16);
 					}
 					river[0][riveramt] = rx;
 					river[1][riveramt] = ry;
@@ -1969,7 +1968,7 @@ static void DRLG_L3Wood()
 					}
 					y2--;
 					if (y2 - y1 > 1 && dungeon[i][y1] != 7 && dungeon[i][y2] != 7) {
-						rp = random_(0, y2 - y1 - 1) + y1 + 1;
+						rp = RandRange(y1 + 1, y2 - 1);
 						for (y = y1; y <= y2; y++) {
 							if (y == rp) {
 								continue;
@@ -2016,7 +2015,7 @@ static void DRLG_L3Wood()
 					}
 					x2--;
 					if (x2 - x1 > 1 && dungeon[x1][j] != 7 && dungeon[x2][j] != 7) {
-						rp = random_(0, x2 - x1 - 1) + x1 + 1;
+						rp = RandRange(x1 + 1, x2 - 1);
 						for (x = x1; x <= x2; x++) {
 							if (x == rp) {
 								continue;

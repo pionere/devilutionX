@@ -316,7 +316,7 @@ static void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = random_(139, max - min) + min;
+	numobjs = RandRange(min, max - 1);
 
 	for (i = 0; i < numobjs; i++) {
 		while (1) {
@@ -342,7 +342,7 @@ static void InitRndLocBigObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = random_(140, max - min) + min;
+	numobjs = RandRange(min, max - 1);
 	for (i = 0; i < numobjs; i++) {
 		while (1) {
 			xp = random_(140, DSIZEX) + DBORDERX;
@@ -371,7 +371,7 @@ static void InitRndLocObj5x5(int min, int max, int objtype)
 	DIABOOL exit;
 	int xp, yp, numobjs, i, tries, m, n;
 
-	numobjs = min + random_(139, max - min);
+	numobjs = RandRange(min, max - 1);
 	for (i = 0; i < numobjs; i++) {
 		tries = 0;
 		exit = FALSE;
@@ -1157,7 +1157,7 @@ static void SetupObject(int oi, int x, int y, int type)
 		os->_oAnimDelay = ods->oAnimDelay;
 		os->_oAnimCnt = random_(146, ods->oAnimDelay);
 		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = random_(146, ods->oAnimLen - 1) + 1;
+		os->_oAnimFrame = RandRange(1, ods->oAnimLen - 1);
 	} else {
 		os->_oAnimDelay = 1000;
 		os->_oAnimCnt = 0;
@@ -1458,7 +1458,7 @@ static void AddDecap(int oi)
 
 	os = &object[oi];
 	os->_oRndSeed = GetRndSeed();
-	os->_oAnimFrame = random_(151, 8) + 1;
+	os->_oAnimFrame = RandRange(1, 8);
 	os->_oPreFlag = TRUE;
 }
 
@@ -1535,7 +1535,7 @@ static void AddTorturedBody(int oi)
 
 	os = &object[oi];
 	os->_oRndSeed = GetRndSeed();
-	os->_oAnimFrame = random_(0, 4) + 1;
+	os->_oAnimFrame = RandRange(1, 4);
 	os->_oPreFlag = TRUE;
 }
 
