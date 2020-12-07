@@ -39,7 +39,7 @@ static BOOL mainmenu_init_menu(int type)
 
 	music_stop();
 
-	success = StartGame(type != SELHERO_CONTINUE, type != SELHERO_CONNECT);
+	success = StartGame(type != SELHERO_CONNECT);
 	if (success)
 		mainmenu_refresh_music();
 

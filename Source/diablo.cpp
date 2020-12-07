@@ -375,14 +375,13 @@ static void run_game_loop(unsigned int uMsg)
 	}
 }
 
-BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
+BOOL StartGame(BOOL bSinglePlayer)
 {
 	BOOL fExitProgram;
-	unsigned int uMsg;
 
 	gbSelectProvider = TRUE;
 
-	do {
+	while (TRUE) {
 		fExitProgram = FALSE;
 		gbLoadGame = FALSE;
 
@@ -393,21 +392,12 @@ BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer)
 
 		gbSelectProvider = FALSE;
 
-		if (bNewGame || !gbValidSaveFile) {
-			InitLevels();
-			InitQuests();
-			InitPortals();
-			InitDungMsgs(myplr);
-		}
-		if (!gbValidSaveFile || !gbLoadGame) {
-			uMsg = WM_DIABNEWGAME;
-		} else {
-			uMsg = WM_DIABLOADGAME;
-		}
-		run_game_loop(uMsg);
+		run_game_loop(!gbLoadGame || !gbValidSaveFile ? WM_DIABNEWGAME : WM_DIABLOADGAME);
 		NetClose();
+		if (!gbRunGameResult)
+			break;
 		pfile_create_player_description(NULL, 0);
-	} while (gbRunGameResult);
+	}
 
 	SNetDestroy();
 	return gbRunGameResult;
@@ -790,7 +780,7 @@ void RightMouseDown(BOOL bShift)
 	}
 }
 
-void diablo_pause_game()
+static void diablo_pause_game()
 {
 	if (gbMaxPlayers == 1) {
 		if (PauseMode) {
@@ -1589,6 +1579,13 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 {
 	int i, j;
 	BOOL visited;
+
+	if (firstflag && lvldir == ENTRY_MAIN) {
+		InitLevels();
+		InitQuests();
+		InitPortals();
+		InitDungMsgs(myplr);
+	}
 
 #ifdef _DEBUG
 	if (setseed)
