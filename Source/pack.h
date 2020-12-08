@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield);
+void PackPlayer(PkPlayerStruct *pPack, int pnum);
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok);
 #ifdef HELLFIRE
 void PackItem(PkItemStruct *pis, ItemStruct *is);

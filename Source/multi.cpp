@@ -575,7 +575,7 @@ static void multi_send_pinfo(int pnum, char cmd)
 {
 	PkPlayerStruct pkplr;
 
-	PackPlayer(&pkplr, myplr, TRUE);
+	PackPlayer(&pkplr, myplr);
 	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
 }
 

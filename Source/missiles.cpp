@@ -1208,6 +1208,7 @@ void InitMissiles()
 	AutoMapShowItems = FALSE;
 #endif
 	p = &plr[myplr];
+	p->pManaShield = FALSE;
 	p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
@@ -1219,6 +1220,7 @@ void InitMissiles()
 	}
 
 #ifdef HELLFIRE
+	p->wReflection = FALSE;
 	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY)) {
 		p->_pSpellFlags &= ~(PSE_BLOOD_BOIL | PSE_LETHARGY);
 		for (i = 0; i < nummissiles; ++i) {
@@ -1245,9 +1247,6 @@ void InitMissiles()
 			dFlags[i][j] &= ~BFLAG_MISSILE;
 		}
 	}
-#ifdef HELLFIRE
-	p->wReflection = FALSE;
-#endif
 }
 
 #ifdef HELLFIRE

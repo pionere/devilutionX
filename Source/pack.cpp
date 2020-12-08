@@ -37,7 +37,7 @@ void PackItem(PkItemStruct *pis, ItemStruct *is)
 	}
 }
 
-void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
+void PackPlayer(PkPlayerStruct *pPack, int pnum)
 {
 	PlayerStruct *p;
 	int i;
@@ -119,11 +119,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 	pPack->wReflection = p->wReflection;
 #endif
 	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
-
-	if (gbMaxPlayers == 1 || manashield)
-		pPack->pManaShield = SwapLE32(p->pManaShield);
-	else
-		pPack->pManaShield = FALSE;
+	pPack->pManaShield = p->pManaShield;
 }
 
 /**

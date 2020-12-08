@@ -147,7 +147,7 @@ void pfile_write_hero()
 
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	if (pfile_open_archive(TRUE, save_num)) {
-		PackPlayer(&pkplr, myplr, gbMaxPlayers == 1);
+		PackPlayer(&pkplr, myplr);
 		pfile_encode_hero(&pkplr);
 		pfile_flush(gbMaxPlayers == 1, save_num);
 	}
@@ -344,7 +344,7 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	cl = pfile_get_player_class(heroinfo->heroclass);
 	CreatePlayer(0, cl);
 	copy_str(plr[0]._pName, heroinfo->name);
-	PackPlayer(&pkplr, 0, TRUE);
+	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);
 	game_2_ui_player(&plr[0], heroinfo, FALSE);
 	pfile_flush(TRUE, save_num);
