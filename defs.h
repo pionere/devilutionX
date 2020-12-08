@@ -301,6 +301,12 @@
 #define assert(exp) (void)( (exp) || (assert_fail(__LINE__, __FILE__, #exp), 0) )
 #endif
 
+#ifdef _DEVMODE
+#define dev_fatal	app_fatal
+#else
+#define dev_fatal(exp) ((void)0)
+#endif
+
 #define ERR_DLG(title, text) ErrDlg(title, text, __FILE__, __LINE__)
 
 // To apply to certain functions which have local variables aligned by 1 for unknown yet reason

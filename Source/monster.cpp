@@ -1750,11 +1750,9 @@ static void M2MStartHit(int defm, int offm, int dam)
 {
 	MonsterStruct *dmon;
 	if ((DWORD)defm >= MAXMONSTERS) {
-		app_fatal("Invalid monster %d getting hit by monster", defm);
+		dev_fatal("Invalid monster %d getting hit by monster", defm);
 	}
-
 	dmon = &monster[defm];
-
 	if ((DWORD)offm < MAX_PLRS)
 		dmon->mWhoHit |= 1 << offm;
 
@@ -1792,15 +1790,9 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 	MonsterStruct *mon;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonstStartKill: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
-
 	mon = &monster[mnum];
-
 	monstkills[mon->MType->mtype]++;
 	mon->_mhitpoints = 0;
 
@@ -1901,13 +1893,8 @@ static void M2MStartKill(int offm, int defm)
 void MonStartKill(int mnum, int pnum)
 {
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartKill: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MonStartKill: Invalid monster %d", mnum);
 	}
-
 	if (myplr == pnum) {
 		delta_kill_monster(mnum, monster[mnum]._mx, monster[mnum]._my, currlevel);
 		if (mnum != pnum) {
@@ -1922,13 +1909,9 @@ void MonStartKill(int mnum, int pnum)
 
 void MonSyncStartKill(int mnum, int x, int y, int pnum)
 {
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonSyncStartKill: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonSyncStartKill: Invalid monster %d", mnum);
+	}
 	if (monster[mnum]._mhitpoints == 0 || monster[mnum]._mmode == MM_DEATH) {
 		return;
 	}
@@ -1948,12 +1931,9 @@ static void MonStartFadein(int mnum, int md, BOOL backwards)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartFadein: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonStartFadein: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_SPECIAL], md);
@@ -1973,14 +1953,10 @@ static void MonStartFadeout(int mnum, int md, BOOL backwards)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartFadeout: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonStartFadeout: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	NewMonsterAnim(mnum, &mon->MType->Anims[MA_SPECIAL], md);
 	mon->_mmode = MM_FADEOUT;
 	mon->_mxoff = 0;
@@ -1997,14 +1973,10 @@ static void MonStartHeal(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonStartHeal: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonStartHeal: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	mon->_mAnimData = mon->MType->Anims[MA_SPECIAL].Data[mon->_mdir];
 	mon->_mAnimFrame = mon->MType->Anims[MA_SPECIAL].Frames;
 	mon->_mFlags |= MFLAG_LOCK_ANIMATION;
@@ -2017,12 +1989,9 @@ static void MonChangeLightOffset(int mnum)
 	MonsterStruct *mon;
 	int lx, ly, _mxoff, _myoff, sign;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonChangeLightOffset: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonChangeLightOffset: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	lx = mon->_mxoff + 2 * mon->_myoff;
 	ly = 2 * mon->_myoff - mon->_mxoff;
@@ -2050,14 +2019,10 @@ static BOOL MonDoStand(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoStand: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoStand: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->MType->mtype == MT_GOLEM)
 		mon->_mAnimData = mon->MType->Anims[MA_WALK].Data[mon->_mdir];
 	else
@@ -2076,14 +2041,10 @@ static BOOL MonDoWalk(int mnum)
 	MonsterStruct *mon;
 	BOOL rv;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoWalk: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
 		mon->_mx += mon->_mVar1;
@@ -2119,14 +2080,10 @@ static BOOL MonDoWalk2(int mnum)
 	MonsterStruct *mon;
 	BOOL rv;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk2: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoWalk2: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
@@ -2158,14 +2115,10 @@ static BOOL MonDoWalk3(int mnum)
 	MonsterStruct *mon;
 	BOOL rv;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoWalk3: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoWalk3: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mVar8 == mon->MType->Anims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
 		mon->_mx = mon->_mVar1;
@@ -2202,9 +2155,8 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	BOOL ret;
 
 	if ((DWORD)defm >= MAXMONSTERS) {
-		app_fatal("MonTryM2MHit: Invalid monster %d", defm);
+		dev_fatal("MonTryM2MHit: Invalid monster %d", defm);
 	}
-
 	if (CheckMonsterHit(defm, &ret))
 		return;
 
@@ -2229,8 +2181,9 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	int i, newx, newy;
 	MissileStruct *mis, *shmis;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonTryH2HHit: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonTryH2HHit: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 
 	if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
@@ -2340,11 +2293,10 @@ static BOOL MonDoAttack(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoAttack: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoAttack: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit, mon->mMinDamage, mon->mMaxDamage);
 		if (mon->_mAi != AI_SNAKE)
@@ -2372,10 +2324,10 @@ static BOOL MonDoRAttack(int mnum)
 	MonsterStruct *mon;
 	int multimissiles, i;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoRAttack: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoRAttack: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		if (mon->_mVar1 != -1) {
 			if (mon->_mVar1 != MIS_CBOLT)
@@ -2411,10 +2363,10 @@ static int MonDoRSpAttack(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
 		    mon->_mx,
@@ -2452,10 +2404,10 @@ static BOOL MonDoSAttack(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoSAttack: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoSAttack: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mAnimFrame == mon->MData->mAFNum2)
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit2, mon->mMinDamage2, mon->mMaxDamage2);
 
@@ -2471,9 +2423,9 @@ static BOOL MonDoFadein(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoFadein: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoFadein: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if ((!(mon->_mFlags & MFLAG_LOCK_ANIMATION) || mon->_mAnimFrame != 1)
 	    && (mon->_mFlags & MFLAG_LOCK_ANIMATION || mon->_mAnimFrame != mon->_mAnimLen)) {
@@ -2490,8 +2442,9 @@ static BOOL MonDoFadeout(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoFadeout: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoFadeout: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if ((!(mon->_mFlags & MFLAG_LOCK_ANIMATION) || mon->_mAnimFrame != 1)
 	    && (mon->_mFlags & MFLAG_LOCK_ANIMATION || mon->_mAnimFrame != mon->_mAnimLen)) {
@@ -2512,8 +2465,9 @@ static int MonDoHeal(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoHeal: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoHeal: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mFlags & MFLAG_NOHEAL) {
 		mon->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
@@ -2540,9 +2494,9 @@ static int MonDoTalk(int mnum)
 	MonsterStruct *mon;
 	int tren;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoTalk: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	MonStartStand(mnum, mon->_mdir);
 	mon->_mgoal = MGOAL_TALKING;
@@ -2612,9 +2566,9 @@ void MonTeleport(int mnum)
 	MonsterStruct *mon;
 	int k, j, x, y, _mx, _my, rx, ry;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonTeleport: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonTeleport: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STONE)
 		return;
@@ -2647,9 +2601,9 @@ void MonTeleport(int mnum)
 
 static BOOL MonDoGotHit(int mnum)
 {
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonDoGotHit: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoGotHit: Invalid monster %d", mnum);
+	}
 	if (monster[mnum]._mAnimFrame == monster[mnum]._mAnimLen) {
 		MonStartStand(mnum, monster[mnum]._mdir);
 
@@ -2664,9 +2618,9 @@ void MonUpdateLeader(int mnum)
 	MonsterStruct *mon;
 	int i;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MonUpdateLeader: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
+	}
 	for (i = 0; i < nummonsters; i++) {
 		mon = &monster[monstactive[i]];
 		if (mon->leaderflag == 1 && mon->leader == mnum)
@@ -2761,14 +2715,10 @@ static BOOL MonDoDeath(int mnum)
 	MonsterStruct *mon;
 	int x, y;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoDeath: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoDeath: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->MType->mtype == MT_DIABLO) {
 		x = mon->_mx - ViewX;
 		if (x < 0)
@@ -2796,14 +2746,10 @@ static BOOL MonDoDeath(int mnum)
 static BOOL MonDoSpStand(int mnum)
 {
 	MonsterStruct *mon;
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoSpStand: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoSpStand: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	if (mon->_mAnimFrame == mon->MData->mAFNum2)
 		PlayEffect(mnum, 3);
 
@@ -2820,14 +2766,10 @@ static BOOL MonDoDelay(int mnum)
 	MonsterStruct *mon;
 	int mVar2, oFrame;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoDelay: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
-
 	mon->_mAnimData = mon->MType->Anims[MA_STAND].Data[MonGetDir(mnum)];
 	mVar2 = mon->_mVar2;
 	if (mon->_mAi == AI_LAZURUS) {
@@ -2850,12 +2792,9 @@ static BOOL MonDoStone(int mnum)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonDoStone: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonDoStone: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mhitpoints == 0) {
 		mon->_mDelFlag = TRUE;
@@ -2869,13 +2808,9 @@ void MonWalkDir(int mnum, int md)
 {
 	const int *mwi;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MonWalkDir: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
+	}
 	mwi = MWVel[monster[mnum].MType->Anims[MA_WALK].Frames - 1];
 	switch (md) {
 	case DIR_N:
@@ -2911,13 +2846,9 @@ static void GroupUnity(int mnum)
 	int i;
 	BOOL clear;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("GroupUnity: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("GroupUnity: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->leaderflag != 0) {
 		leader = &monster[mon->leader];
@@ -2999,13 +2930,9 @@ static BOOL MonPathWalk(int mnum)
 	BOOL(*Check)
 	(int, int, int);
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MonPathWalk: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonPathWalk: Invalid monster %d", mnum);
+	}
 	Check = PosOkMonst3;
 	if (!(monster[mnum]._mFlags & MFLAG_CAN_OPEN_DOOR))
 		Check = PosOkMonst;
@@ -3082,13 +3009,8 @@ void MAI_Zombie(int mnum)
 	int mx, my, md;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Zombie: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MAI_Zombie: Invalid monster %d", mnum);
 	}
-
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -3127,13 +3049,9 @@ void MAI_SkelSd(int mnum)
 	MonsterStruct *mon;
 	int mx, my, x, y, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_SkelSd: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_SkelSd: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
@@ -3168,13 +3086,9 @@ static BOOL MAI_Path(int mnum)
 	MonsterStruct *mon;
 	BOOL clear;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("MAI_Path: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Path: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->MType->mtype != MT_GOLEM) {
 		if (mon->_msquelch == 0)
@@ -3218,11 +3132,7 @@ void MAI_Snake(int mnum)
 	int tmp;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Snake: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MAI_Snake: Invalid monster %d", mnum);
 	}
 	char pattern[6] = { 1, 1, 0, -1, -1, 0 };
 	mon = &monster[mnum];
@@ -3302,13 +3212,9 @@ void MAI_Bat(int mnum)
 	int md, v, pnum;
 	int fx, fy, xd, yd;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Bat: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Bat: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
@@ -3370,13 +3276,9 @@ void MAI_SkelBow(int mnum)
 	int mx, my, md, v;
 	BOOL walking;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_SkelBow: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_SkelBow: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
@@ -3415,13 +3317,9 @@ void MAI_Fat(int mnum)
 	MonsterStruct *mon;
 	int mx, my, md, v;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Fat: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Fat: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
@@ -3456,13 +3354,8 @@ void MAI_Sneak(int mnum)
 	int dist, range, v;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Sneak: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MAI_Sneak: Invalid monster %d", mnum);
 	}
-
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND) {
 		mx = mon->_mx;
@@ -3528,13 +3421,9 @@ void MAI_Fireman(int mnum)
 	int fx, fy;
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Fireman: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Fireman: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
@@ -3592,11 +3481,7 @@ void MAI_Fallen(int mnum)
 	int x, y, mx, my, m, rad;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-#if HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Fallen: Invalid monster %d", mnum);
-#endif
+		dev_fatal("MAI_Fallen: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
 	if (mon->_mgoal == MGOAL_ATTACK2) {
@@ -3661,13 +3546,9 @@ void MAI_Cleaver(int mnum)
 	MonsterStruct *mon;
 	int x, y, mx, my, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Cleaver: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Cleaver: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
@@ -3697,12 +3578,9 @@ static void MAI_Round(int mnum, BOOL special)
 	int mx, my, md;
 	int dist, v;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Round: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Round: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		fy = mon->_menemyy;
@@ -3761,13 +3639,9 @@ static void MAI_Ranged(int mnum, int mitype, BOOL special)
 	int fx, fy, mx, my;
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Ranged: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Ranged: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -3859,12 +3733,9 @@ void MAI_Scav(int mnum)
 	int x, y;
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Scav: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Scav: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	done = FALSE;
 	if (mon->_mmode != MM_STAND)
@@ -3945,9 +3816,9 @@ void MAI_Garg(int mnum)
 	MonsterStruct *mon;
 	int mx, my, dx, dy, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Garg: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Garg: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	dx = mon->_mx - mon->_lastx;
 	dy = mon->_my - mon->_lasty;
@@ -3986,8 +3857,9 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 	int fx, fy;
 	int md, dist, v;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_RoundRanged: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_RoundRanged: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		fx = mon->_menemyx;
@@ -4078,9 +3950,9 @@ static void MAI_RR2(int mnum, int mitype)
 	int mx, my, fx, fy;
 	int dist, v, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_RR2: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_RR2: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
@@ -4151,9 +4023,9 @@ void MAI_Golum(int mnum)
 	MonsterStruct *mon, *tmon;
 	int md, j, k;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Golum: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Golum: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mx == 1 && mon->_my == 0) {
 		return;
@@ -4219,8 +4091,9 @@ void MAI_SkelKing(int mnum)
 	int mx, my, fx, fy, nx, ny;
 	int dist, v, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_SkelKing: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_SkelKing: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		mx = mon->_mx;
@@ -4283,8 +4156,9 @@ void MAI_Rhino(int mnum)
 	int mx, my, fx, fy;
 	int v, dist, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Rhino: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Rhino: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		mx = mon->_mx;
@@ -4415,8 +4289,9 @@ void MAI_Counselor(int mnum)
 	int mx, my, fx, fy;
 	int dist, md, v;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Counselor: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Counselor: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
 		fx = mon->_menemyx;
@@ -4483,13 +4358,9 @@ void MAI_Garbud(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Garbud: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Garbud: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4527,9 +4398,9 @@ void MAI_Zhar(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Zhar: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Zhar: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4566,9 +4437,9 @@ void MAI_SnotSpil(int mnum)
 	MonsterStruct *mon;
 	int mx, my, md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_SnotSpil: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_SnotSpil: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4616,9 +4487,9 @@ void MAI_Lazurus(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Lazurus: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Lazurus: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4664,8 +4535,9 @@ void MAI_Lazhelp(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MAI_Lazhelp: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Lazhelp: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND)
 		return;
@@ -4695,13 +4567,9 @@ void MAI_Lachdanan(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4735,13 +4603,9 @@ void MAI_Warlord(int mnum)
 	MonsterStruct *mon;
 	int md;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("MAI_Warlord: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MAI_Warlord: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND) {
 		return;
@@ -4845,21 +4709,13 @@ void ProcessMonsters()
 		_menemy = mon->_menemy;
 		if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
 			if ((DWORD)_menemy >= MAXMONSTERS) {
-#ifdef HELLFIRE
-				return;
-#else
-				app_fatal("Illegal enemy monster %d for monster \"%s\"", _menemy, mon->mName);
-#endif
+				dev_fatal("Illegal enemy monster %d for monster \"%s\"", _menemy, mon->mName);
 			}
 			mon->_lastx = mon->_menemyx = monster[_menemy]._mfutx;
 			mon->_lasty = mon->_menemyy = monster[_menemy]._mfuty;
 		} else {
 			if ((DWORD)_menemy >= MAX_PLRS) {
-#ifdef HELLFIRE
-				return;
-#else
-				app_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
-#endif
+				dev_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
 			}
 			mon->_menemyx = plr[_menemy]._pfutx;
 			mon->_menemyy = plr[_menemy]._pfuty;
@@ -4982,8 +4838,9 @@ BOOL DirOK(int mnum, int mdir)
 	int x, y;
 	int mcount, ma;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("DirOK: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("DirOK: Invalid monster %d", mnum);
+	}
 	fx = monster[mnum]._mx + offset_x[mdir];
 	fy = monster[mnum]._my + offset_y[mdir];
 	if (!IN_DUNGEON_AREA(fx, fy) || !PosOkMonst(mnum, fx, fy))
@@ -5210,13 +5067,15 @@ void SyncMonsterAnim(int mnum)
 	MonsterStruct *mon;
 	MON_ANIM anim;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("SyncMonsterAnim: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("SyncMonsterAnim: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	mon->MType = &Monsters[mon->_mMTidx];
 	MData = mon->MType->MData;
-	if (MData == NULL)
-		app_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mnum, mon->mName);
+	if (MData == NULL) {
+		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mnum, mon->mName);
+	}
 	mon->MData = MData;
 	if (mon->_uniqtype != 0)
 		mon->mName = UniqMonst[mon->_uniqtype - 1].mName;
@@ -5402,15 +5261,15 @@ void MissToMonst(int mi, int x, int y)
 	MissileStruct *mis;
 	MonsterStruct *mon;
 
-	if ((DWORD)mi >= MAXMISSILES)
-		app_fatal("MissToMonst: Invalid missile %d", mi);
-
+	if ((DWORD)mi >= MAXMISSILES) {
+		dev_fatal("MissToMonst: Invalid missile %d", mi);
+	}
 	mis = &missile[mi];
 	mnum = mis->_miSource;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("MissToMonst: Invalid monster %d", mnum);
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MissToMonst: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	oldx = mis->_mix;
 	oldy = mis->_miy;
@@ -5725,13 +5584,9 @@ void TalktoMonster(int mnum)
 	MonsterStruct *mon;
 	int pnum, iv;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return;
-#else
-		app_fatal("TalktoMonster: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("TalktoMonster: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 	mon->_mmode = MM_TALK;
 	if (mon->_mAi == AI_SNOTSPIL || mon->_mAi == AI_LACHDAN) {
@@ -5756,8 +5611,9 @@ void SpawnGolum(int mnum, int x, int y, int level)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-		app_fatal("SpawnGolum: Invalid monster %d", mnum);
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("SpawnGolum: Invalid monster %d", mnum);
+	}
 	dMonster[x][y] = mnum + 1;
 	mon = &monster[mnum];
 	mon->_mx = x;
@@ -5789,13 +5645,9 @@ void SpawnGolum(int mnum, int x, int y, int level)
 
 BOOL CanTalkToMonst(int mnum)
 {
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("CanTalkToMonst: Invalid monster %d", mnum);
-#endif
-
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
+	}
 	return monster[mnum]._mgoal == MGOAL_INQUIRING
 		|| monster[mnum]._mgoal == MGOAL_TALKING;
 }
@@ -5804,12 +5656,9 @@ BOOL CheckMonsterHit(int mnum, BOOL *ret)
 {
 	MonsterStruct *mon;
 
-	if ((DWORD)mnum >= MAXMONSTERS)
-#ifdef HELLFIRE
-		return FALSE;
-#else
-		app_fatal("CheckMonsterHit: Invalid monster %d", mnum);
-#endif
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("CheckMonsterHit: Invalid monster %d", mnum);
+	}
 	mon = &monster[mnum];
 
 	if (mon->mtalkmsg != 0 || mon->_mmode == MM_CHARGE || (mon->_mhitpoints >> 6) <= 0
