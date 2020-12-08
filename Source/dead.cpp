@@ -98,7 +98,7 @@ void SetDead()
 
 	for (i = 0; i < nummonsters; i++) {
 		mi = monstactive[i];
-		if (monster[mi]._uniqtype != 0) {
+		if (monster[mi].mlid != 0) {
 			for (dx = 0; dx < MAXDUNX; dx++) {
 				for (dy = 0; dy < MAXDUNY; dy++) {
 					if ((dDead[dx][dy] & 0x1F) == monster[mi]._udeadval)
