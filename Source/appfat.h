@@ -31,6 +31,15 @@ void DirErrorDlg(const char *error);
 }
 #endif
 
+#ifdef _DEVMODE
+template <typename... MsgArgs>
+void dev_fatal(const char *pszFmt, MsgArgs... args) {
+	app_fatal(pszFmt, args...);
+}
+#else
+inline void dev_fatal(const char *pszFmt, ...) {}
+#endif
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __APPFAT_H__ */
