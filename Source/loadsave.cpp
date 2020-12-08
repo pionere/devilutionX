@@ -17,12 +17,12 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE *tbuff;
 
-static char BLoad()
+static char LoadChar()
 {
 	return *tbuff++;
 }
 
-static int WLoad()
+static int LoadInt()
 {
 	int rv = *tbuff++ << 24;
 	rv |= *tbuff++ << 16;
@@ -32,17 +32,7 @@ static int WLoad()
 	return rv;
 }
 
-static int ILoad()
-{
-	int rv = *tbuff++ << 24;
-	rv |= *tbuff++ << 16;
-	rv |= *tbuff++ << 8;
-	rv |= *tbuff++;
-
-	return rv;
-}
-
-static BOOL OLoad()
+static BOOL LoadBool()
 {
 	if (*tbuff++)
 		return TRUE;
@@ -615,11 +605,11 @@ static void LoadQuest(int i)
 	tbuff += 3; // Alignment
 	CopyInt(tbuff, &pQuest->_qlog);
 
-	ReturnLvlX = WLoad();
-	ReturnLvlY = WLoad();
-	ReturnLvl = WLoad();
-	ReturnLvlT = WLoad();
-	DoomQuestState = WLoad();
+	ReturnLvlX = LoadInt();
+	ReturnLvlY = LoadInt();
+	ReturnLvl = LoadInt();
+	ReturnLvlT = LoadInt();
+	DoomQuestState = LoadInt();
 }
 
 static void LoadLighting(int lnum)
@@ -690,25 +680,25 @@ void LoadGame(BOOL firstflag)
 	LoadBuff = pfile_read(szName, &dwLen);
 	tbuff = LoadBuff;
 
-	if (ILoad() != SAVE_INITIAL)
+	if (LoadInt() != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 
-	setlevel = OLoad();
-	setlvlnum = WLoad();
-	currlevel = WLoad();
-	leveltype = WLoad();
-	_ViewX = WLoad();
-	_ViewY = WLoad();
-	invflag = OLoad();
-	chrflag = OLoad();
-	_nummonsters = WLoad();
-	_numitems = WLoad();
-	_nummissiles = WLoad();
-	_nobjects = WLoad();
+	setlevel = LoadBool();
+	setlvlnum = LoadInt();
+	currlevel = LoadInt();
+	leveltype = LoadInt();
+	_ViewX = LoadInt();
+	_ViewY = LoadInt();
+	invflag = LoadBool();
+	chrflag = LoadBool();
+	_nummonsters = LoadInt();
+	_numitems = LoadInt();
+	_nummissiles = LoadInt();
+	_nobjects = LoadInt();
 
 	for (i = 0; i < NUMLEVELS; i++) {
-		glSeedTbl[i] = ILoad();
-		gnLevelTypeTbl[i] = WLoad();
+		glSeedTbl[i] = LoadInt();
+		gnLevelTypeTbl[i] = LoadInt();
 	}
 
 	LoadPlayer(myplr);
@@ -734,111 +724,111 @@ void LoadGame(BOOL firstflag)
 	nobjects = _nobjects;
 
 	for (i = 0; i < MAXMONSTERS; i++)
-		monstkills[i] = ILoad();
+		monstkills[i] = LoadInt();
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			monstactive[i] = WLoad();
+			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
 			LoadMonster(monstactive[i]);
 		for (i = 0; i < MAXMISSILES; i++)
-			missileactive[i] = BLoad();
+			missileactive[i] = LoadChar();
 		for (i = 0; i < MAXMISSILES; i++)
-			missileavail[i] = BLoad();
+			missileavail[i] = LoadChar();
 		for (i = 0; i < nummissiles; i++)
 			LoadMissile(missileactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			objectactive[i] = BLoad();
+			objectactive[i] = LoadChar();
 		for (i = 0; i < MAXOBJECTS; i++)
-			objectavail[i] = BLoad();
+			objectavail[i] = LoadChar();
 		for (i = 0; i < nobjects; i++)
 			LoadObject(objectactive[i]);
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
 
-		numlights = WLoad();
+		numlights = LoadInt();
 
 		for (i = 0; i < MAXLIGHTS; i++)
-			lightactive[i] = BLoad();
+			lightactive[i] = LoadChar();
 		for (i = 0; i < numlights; i++)
 			LoadLighting(lightactive[i]);
 
-		visionid = WLoad();
-		numvision = WLoad();
+		visionid = LoadInt();
+		numvision = LoadInt();
 
 		for (i = 0; i < numvision; i++)
 			LoadVision(i);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
-		itemactive[i] = BLoad();
+		itemactive[i] = LoadChar();
 	for (i = 0; i < MAXITEMS; i++)
-		itemavail[i] = BLoad();
+		itemavail[i] = LoadChar();
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
-		UniqueItemFlag[i] = OLoad();
+		UniqueItemFlag[i] = LoadBool();
 	for ( ; i < 128; i++)
-		OLoad();
+		LoadBool();
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dLight[i][j] = BLoad();
+			dLight[i][j] = LoadChar();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dFlags[i][j] = BLoad();
+			dFlags[i][j] = LoadChar();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dPlayer[i][j] = BLoad();
+			dPlayer[i][j] = LoadChar();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dItem[i][j] = BLoad();
+			dItem[i][j] = LoadChar();
 	}
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dMonster[i][j] = WLoad();
+				dMonster[i][j] = LoadInt();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dDead[i][j] = BLoad();
+				dDead[i][j] = LoadChar();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dObject[i][j] = BLoad();
+				dObject[i][j] = LoadChar();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dLight[i][j] = BLoad();
+				dLight[i][j] = LoadChar();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dPreLight[i][j] = BLoad();
+				dPreLight[i][j] = LoadChar();
 		}
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++)
-				automapview[i][j] = OLoad();
+				automapview[i][j] = LoadBool();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dMissile[i][j] = BLoad();
+				dMissile[i][j] = LoadChar();
 		}
 	}
 
-	numpremium = WLoad();
-	premiumlevel = WLoad();
+	numpremium = LoadInt();
+	premiumlevel = LoadInt();
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		LoadItemData(&premiumitem[i]);
 
-	automapflag = OLoad();
-	AutoMapScale = WLoad();
+	automapflag = LoadBool();
+	AutoMapScale = LoadInt();
 	mem_free_dbg(LoadBuff);
 	AutomapZoomReset();
 	ResyncQuests();
@@ -855,20 +845,12 @@ void LoadGame(BOOL firstflag)
 }
 
 
-static void BSave(char v)
+static void SaveChar(char v)
 {
 	*tbuff++ = v;
 }
 
-static void WSave(int v)
-{
-	*tbuff++ = v >> 24;
-	*tbuff++ = v >> 16;
-	*tbuff++ = v >> 8;
-	*tbuff++ = v;
-}
-
-static void ISave(int v)
+static void SaveInt(int v)
 {
 	*tbuff++ = v >> 24;
 	*tbuff++ = v >> 16;
@@ -876,7 +858,7 @@ static void ISave(int v)
 	*tbuff++ = v;
 }
 
-static void OSave(BOOL v)
+static void SaveBool(BOOL v)
 {
 	if (v)
 		*tbuff++ = TRUE;
@@ -1376,11 +1358,11 @@ static void SaveQuest(int i)
 	tbuff += 3; // Alignment
 	CopyInt(&pQuest->_qlog, tbuff);
 
-	WSave(ReturnLvlX);
-	WSave(ReturnLvlY);
-	WSave(ReturnLvl);
-	WSave(ReturnLvlT);
-	WSave(DoomQuestState);
+	SaveInt(ReturnLvlX);
+	SaveInt(ReturnLvlY);
+	SaveInt(ReturnLvl);
+	SaveInt(ReturnLvlT);
+	SaveInt(DoomQuestState);
 }
 
 static void SaveLighting(int lnum)
@@ -1439,27 +1421,27 @@ void SaveGame()
 	char szName[MAX_PATH];
 
 	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
-	BYTE *SaveBuff = DiabloAllocPtr(dwLen);
-	tbuff = SaveBuff;
+	BYTE *fileBuff = DiabloAllocPtr(dwLen);
+	tbuff = fileBuff;
 
-	ISave(SAVE_INITIAL);
+	SaveInt(SAVE_INITIAL);
 
-	OSave(setlevel);
-	WSave(setlvlnum);
-	WSave(currlevel);
-	WSave(leveltype);
-	WSave(ViewX);
-	WSave(ViewY);
-	OSave(invflag);
-	OSave(chrflag);
-	WSave(nummonsters);
-	WSave(numitems);
-	WSave(nummissiles);
-	WSave(nobjects);
+	SaveBool(setlevel);
+	SaveInt(setlvlnum);
+	SaveInt(currlevel);
+	SaveInt(leveltype);
+	SaveInt(ViewX);
+	SaveInt(ViewY);
+	SaveBool(invflag);
+	SaveBool(chrflag);
+	SaveInt(nummonsters);
+	SaveInt(numitems);
+	SaveInt(nummissiles);
+	SaveInt(nobjects);
 
 	for (i = 0; i < NUMLEVELS; i++) {
-		ISave(glSeedTbl[i]);
-		WSave(gnLevelTypeTbl[i]);
+		SaveInt(glSeedTbl[i]);
+		SaveInt(gnLevelTypeTbl[i]);
 	}
 
 	plr[myplr].pDifficulty = gnDifficulty;
@@ -1470,112 +1452,112 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	for (i = 0; i < MAXMONSTERS; i++)
-		ISave(monstkills[i]);
+		SaveInt(monstkills[i]);
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			WSave(monstactive[i]);
+			SaveInt(monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
 			SaveMonster(monstactive[i]);
 		for (i = 0; i < MAXMISSILES; i++)
-			BSave(missileactive[i]);
+			SaveChar(missileactive[i]);
 		for (i = 0; i < MAXMISSILES; i++)
-			BSave(missileavail[i]);
+			SaveChar(missileavail[i]);
 		for (i = 0; i < nummissiles; i++)
 			SaveMissile(missileactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectactive[i]);
+			SaveChar(objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectavail[i]);
+			SaveChar(objectavail[i]);
 		for (i = 0; i < nobjects; i++)
 			SaveObject(objectactive[i]);
 
-		WSave(numlights);
+		SaveInt(numlights);
 
 		for (i = 0; i < MAXLIGHTS; i++)
-			BSave(lightactive[i]);
+			SaveChar(lightactive[i]);
 		for (i = 0; i < numlights; i++)
 			SaveLighting(lightactive[i]);
 
-		WSave(visionid);
-		WSave(numvision);
+		SaveInt(visionid);
+		SaveInt(numvision);
 
 		for (i = 0; i < numvision; i++)
 			SaveVision(i);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemactive[i]);
+		SaveChar(itemactive[i]);
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemavail[i]);
+		SaveChar(itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&item[itemactive[i]]);
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
-		OSave(UniqueItemFlag[i]);
+		SaveBool(UniqueItemFlag[i]);
 	for ( ; i < 128; i++)
-		OSave(FALSE);
+		SaveBool(FALSE);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dLight[i][j]);
+			SaveChar(dLight[i][j]);
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
+			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dPlayer[i][j]);
+			SaveChar(dPlayer[i][j]);
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dItem[i][j]);
+			SaveChar(dItem[i][j]);
 	}
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				WSave(dMonster[i][j]);
+				SaveInt(dMonster[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dDead[i][j]);
+				SaveChar(dDead[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dObject[i][j]);
+				SaveChar(dObject[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dLight[i][j]);
+				SaveChar(dLight[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dPreLight[i][j]);
+				SaveChar(dPreLight[i][j]);
 		}
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++)
-				OSave(automapview[i][j]);
+				SaveBool(automapview[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dMissile[i][j]);
+				SaveChar(dMissile[i][j]);
 		}
 	}
 
-	WSave(numpremium);
-	WSave(premiumlevel);
+	SaveInt(numpremium);
+	SaveInt(premiumlevel);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		SaveItemData(&premiumitem[i]);
 
-	OSave(automapflag);
-	WSave(AutoMapScale);
+	SaveBool(automapflag);
+	SaveInt(AutoMapScale);
 	pfile_get_game_name(szName);
-	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
-	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
-	mem_free_dbg(SaveBuff);
+	dwLen = codec_get_encoded_len(tbuff - fileBuff);
+	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
+	mem_free_dbg(fileBuff);
 	gbValidSaveFile = TRUE;
 	pfile_rename_temp_to_perm();
 	pfile_write_hero();
@@ -1598,67 +1580,67 @@ void SaveLevel()
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dDead[i][j]);
+				SaveChar(dDead[i][j]);
 		}
 	}
 
-	WSave(nummonsters);
-	WSave(numitems);
-	WSave(nobjects);
+	SaveInt(nummonsters);
+	SaveInt(numitems);
+	SaveInt(nobjects);
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			WSave(monstactive[i]);
+			SaveInt(monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
 			SaveMonster(monstactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectactive[i]);
+			SaveChar(objectactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			BSave(objectavail[i]);
+			SaveChar(objectavail[i]);
 		for (i = 0; i < nobjects; i++)
 			SaveObject(objectactive[i]);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemactive[i]);
+		SaveChar(itemactive[i]);
 	for (i = 0; i < MAXITEMS; i++)
-		BSave(itemavail[i]);
+		SaveChar(itemavail[i]);
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&item[itemactive[i]]);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
+			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			BSave(dItem[i][j]);
+			SaveChar(dItem[i][j]);
 	}
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				WSave(dMonster[i][j]);
+				SaveInt(dMonster[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dObject[i][j]);
+				SaveChar(dObject[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dLight[i][j]);
+				SaveChar(dLight[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dPreLight[i][j]);
+				SaveChar(dPreLight[i][j]);
 		}
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++)
-				OSave(automapview[i][j]);
+				SaveBool(automapview[i][j]);
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				BSave(dMissile[i][j]);
+				SaveChar(dMissile[i][j]);
 		}
 	}
 
@@ -1678,33 +1660,33 @@ void LoadLevel()
 	int i, j;
 	DWORD dwLen;
 	char szName[MAX_PATH];
-	BYTE *LoadBuff;
+	BYTE *fileBuff;
 
 	GetPermLevelNames(szName);
-	LoadBuff = pfile_read(szName, &dwLen);
-	tbuff = LoadBuff;
+	fileBuff = pfile_read(szName, &dwLen);
+	tbuff = fileBuff;
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dDead[i][j] = BLoad();
+				dDead[i][j] = LoadChar();
 		}
 		SetDead();
 	}
 
-	nummonsters = WLoad();
-	numitems = WLoad();
-	nobjects = WLoad();
+	nummonsters = LoadInt();
+	numitems = LoadInt();
+	nobjects = LoadInt();
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
-			monstactive[i] = WLoad();
+			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
 			LoadMonster(monstactive[i]);
 		for (i = 0; i < MAXOBJECTS; i++)
-			objectactive[i] = BLoad();
+			objectactive[i] = LoadChar();
 		for (i = 0; i < MAXOBJECTS; i++)
-			objectavail[i] = BLoad();
+			objectavail[i] = LoadChar();
 		for (i = 0; i < nobjects; i++)
 			LoadObject(objectactive[i]);
 		for (i = 0; i < nobjects; i++)
@@ -1712,45 +1694,45 @@ void LoadLevel()
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
-		itemactive[i] = BLoad();
+		itemactive[i] = LoadChar();
 	for (i = 0; i < MAXITEMS; i++)
-		itemavail[i] = BLoad();
+		itemavail[i] = LoadChar();
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dFlags[i][j] = BLoad();
+			dFlags[i][j] = LoadChar();
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
-			dItem[i][j] = BLoad();
+			dItem[i][j] = LoadChar();
 	}
 
 	if (leveltype != DTYPE_TOWN) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dMonster[i][j] = WLoad();
+				dMonster[i][j] = LoadInt();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dObject[i][j] = BLoad();
+				dObject[i][j] = LoadChar();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dLight[i][j] = BLoad();
+				dLight[i][j] = LoadChar();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dPreLight[i][j] = BLoad();
+				dPreLight[i][j] = LoadChar();
 		}
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++)
-				automapview[i][j] = OLoad();
+				automapview[i][j] = LoadBool();
 		}
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++)
-				dMissile[i][j] = 0; /// BUGFIX: supposed to load saved missiles with "BLoad()"?
+				dMissile[i][j] = 0; /// BUGFIX: supposed to load saved missiles with "LoadChar()"?
 		}
 	}
 
@@ -1764,7 +1746,7 @@ void LoadLevel()
 			LightList[plr[i]._plid]._lunflag = TRUE;
 	}
 
-	mem_free_dbg(LoadBuff);
+	mem_free_dbg(fileBuff);
 }
 
 DEVILUTION_END_NAMESPACE
