@@ -381,7 +381,7 @@ static void LoadPlayer(int pnum)
 	CopyShorts(tbuff, 7, &p->wReserved);
 
 	CopyInt(tbuff, &p->pDiabloKillLevel);
-	CopyInt(tbuff, &p->pDifficulty);
+	tbuff += 4; // Skip pDifficulty
 	CopyInt(tbuff, &p->pDamAcFlags);
 	CopyInts(tbuff, 5, &p->dwReserved);
 
@@ -685,8 +685,13 @@ void LoadGame(BOOL firstflag)
 
 	setlevel = LoadBool();
 	setlvlnum = LoadInt();
-	currlevel = LoadInt();
-	leveltype = LoadInt();
+
+	i = LoadInt();
+	currlevel = i & 0xFF;
+	leveltype = gnLevelTypeTbl[currlevel];
+	gnDifficulty = (i >> 8) & 0xFF;
+	tbuff += 4; // Skip leveltype
+
 	_ViewX = LoadInt();
 	_ViewY = LoadInt();
 	invflag = LoadBool();
@@ -698,14 +703,10 @@ void LoadGame(BOOL firstflag)
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		glSeedTbl[i] = LoadInt();
-		gnLevelTypeTbl[i] = LoadInt();
+		tbuff += 4; // Skip gnLevelTypeTbl[i]
 	}
 
 	LoadPlayer(myplr);
-
-	gnDifficulty = plr[myplr].pDifficulty;
-	if (gnDifficulty < DIFF_NORMAL || gnDifficulty > DIFF_HELL)
-		gnDifficulty = DIFF_NORMAL;
 
 	for (i = 0; i < MAXQUESTS; i++)
 		LoadQuest(i);
@@ -1142,7 +1143,7 @@ static void SavePlayer(int pnum)
 	CopyShorts(&p->wReserved, 7, tbuff);
 
 	CopyInt(&p->pDiabloKillLevel, tbuff);
-	CopyInt(&p->pDifficulty, tbuff);
+	tbuff += 4; // Skip pDifficulty
 	CopyInt(&p->pDamAcFlags, tbuff);
 	CopyInts(&p->dwReserved, 5, tbuff);
 
@@ -1428,8 +1429,8 @@ void SaveGame()
 
 	SaveBool(setlevel);
 	SaveInt(setlvlnum);
-	SaveInt(currlevel);
-	SaveInt(leveltype);
+	SaveInt((gnDifficulty << 8) | currlevel);
+	tbuff += 4; // Skip leveltype
 	SaveInt(ViewX);
 	SaveInt(ViewY);
 	SaveBool(invflag);
@@ -1441,10 +1442,9 @@ void SaveGame()
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		SaveInt(glSeedTbl[i]);
-		SaveInt(gnLevelTypeTbl[i]);
+		tbuff += 4; // Skip gnLevelTypeTbl
 	}
 
-	plr[myplr].pDifficulty = gnDifficulty;
 	SavePlayer(myplr);
 
 	for (i = 0; i < MAXQUESTS; i++)
