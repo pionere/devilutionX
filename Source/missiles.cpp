@@ -81,9 +81,16 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = -1;
 		*maxd = -1;
 		break;
+#ifdef HELLFIRE
+	case SPL_LIGHTWALL:
+		*mind = (p->_pLevel + 2) << 2;
+		*maxd = (p->_pLevel + 20) << 2;
+		break;
+	case SPL_FIRERING:
+#endif
 	case SPL_FIREWALL:
-		*mind = (4 * p->_pLevel + 8) >> 1;
-		*maxd = (4 * p->_pLevel + 80) >> 1;
+		*mind = (p->_pLevel + 2) << 1;
+		*maxd = (p->_pLevel + 20) << 1;
 		break;
 	case SPL_FIREBALL:
 		*mind = 2 * p->_pLevel + 4;
@@ -113,6 +120,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = 6 * (p->_pLevel + 1);
 		*maxd = 6 * (p->_pLevel + 10);
 		break;
+#ifdef HELLFIRE
+	case SPL_IMMOLAT:
+#endif
 	case SPL_NOVA:
 		*mind = (p->_pLevel + 5) >> 1;
 		for (k = 0; k < sl; k++) {
@@ -1665,9 +1675,16 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 void AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	int lvl;
 
-	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
+	if (misource != -1) {
+		// TODO: bring it closer to AddFirewall? (_pISplDur, adjust damage)
+		lvl = plr[misource]._pLevel;
+	} else {
+		lvl = currlevel;
+	}
+	mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 4;
 	mis->_miRange = 255 * (spllvl + 1);
 	mis->_miAnimFrame = RandRange(1, 8);
 }
@@ -2250,26 +2267,25 @@ void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 }
 
 /**
- * Var1: range of the wall
+ * Var1: animation helper
  * Var2: light strength
  */
 void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int i, range;
+	int range;
 
-	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
-	mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + plr[misource]._pLevel) << 4;
-	mis->_miDam >>= 1;
-	range = 10;
-	i = spllvl;
-	if (i > 0)
-		range = 10 * (i + 1);
-	range += (plr[misource]._pISplDur * range) >> 7;
-	range <<= 4;
-	mis->_miRange = range;
-	mis->_miVar1 = range - mis->_miAnimLen;
+	if (misource != -1) {
+		mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + plr[misource]._pLevel) << 3;
+		range = 10 * (spllvl + 1);
+		range += (plr[misource]._pISplDur * range) >> 7;
+	} else {
+		mis->_miDam = 2 * currlevel + 2;
+		range = 10;
+	}
+	mis->_miRange = range << 4;
+	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
 }
 
@@ -4250,17 +4266,11 @@ void MI_Reflect(int mi)
 void MI_FireRing(int mi)
 {
 	MissileStruct *mis;
-	int src, lvl, tx, ty, dam, j, pn;
+	int tx, ty, j, pn;
 	char *cr;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-	src = mis->_miSource;
-	if (src != -1)
-		lvl = plr[src]._pLevel;
-	else
-		lvl = currlevel;
-	dam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 3;
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
@@ -4272,7 +4282,7 @@ void MI_FireRing(int mi)
 					if (nMissileTable[pn])
 						break;
 					else
-						AddMissile(tx, ty, tx, ty, 0, MIS_FIREWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
+						AddMissile(tx, ty, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				}
 			}
 		}
@@ -4282,17 +4292,11 @@ void MI_FireRing(int mi)
 void MI_LightRing(int mi)
 {
 	MissileStruct *mis;
-	int src, lvl, tx, ty, dam, j, pn;
+	int tx, ty, j, pn;
 	char *cr;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-	src = mis->_miSource;
-	if (src != -1)
-		lvl = plr[src]._pLevel;
-	else
-		lvl = currlevel;
-	dam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 3;
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = mis->_miVar1 + *++cr;
@@ -4304,7 +4308,7 @@ void MI_LightRing(int mi)
 					if (nMissileTable[pn])
 						break;
 					else
-						AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
+						AddMissile(tx, ty, 0, 0, 0, MIS_LIGHTWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				}
 			}
 		}
@@ -4327,24 +4331,18 @@ void MI_Search(int mi)
 void MI_LightwallC(int mi)
 {
 	MissileStruct *mis;
-	int src, lvl, dam, tx, ty;
+	int tx, ty;
 
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 	} else {
-		src = mis->_miSource;
-		if (src != -1)
-			lvl = plr[src]._pLevel;
-		else
-			lvl = currlevel;
-		dam = 16 * (RandRange(1, 10) + RandRange(1, 10) + lvl);
 		if (!mis->_miVar8) {
 			tx = mis->_miVar1;
 			ty = mis->_miVar2;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
+				AddMissile(tx, ty, 0, 0, 0, MIS_LIGHTWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				mis->_miVar1 += XDirAdd[mis->_miVar3];
 				mis->_miVar2 += YDirAdd[mis->_miVar3];
 			} else {
@@ -4355,7 +4353,7 @@ void MI_LightwallC(int mi)
 			tx = mis->_miVar5;
 			ty = mis->_miVar6;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, 0, MIS_LIGHTWALL, mis->_miCaster, src, dam, mis->_miSpllvl);
+				AddMissile(tx, ty, 0, 0, 0, MIS_LIGHTWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				mis->_miVar5 += XDirAdd[mis->_miVar4];
 				mis->_miVar6 += YDirAdd[mis->_miVar4];
 			} else {
@@ -5102,10 +5100,9 @@ void MI_Fireman(int mi)
 void MI_FirewallC(int mi)
 {
 	MissileStruct *mis;
-	int tx, ty, pnum;
+	int tx, ty;
 
 	mis = &missile[mi];
-	pnum = mis->_miSource;
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -5114,7 +5111,7 @@ void MI_FirewallC(int mi)
 			tx = mis->_miVar1;
 			ty = mis->_miVar2;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
+				AddMissile(tx, ty, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				mis->_miVar1 += XDirAdd[mis->_miVar3];
 				mis->_miVar2 += YDirAdd[mis->_miVar3];
 			} else {
@@ -5125,7 +5122,7 @@ void MI_FirewallC(int mi)
 			tx = mis->_miVar5;
 			ty = mis->_miVar6;
 			if (IN_DUNGEON_AREA(tx, ty) && !nMissileTable[dPiece[tx][ty]]) {
-				AddMissile(tx, ty, tx, ty, plr[pnum]._pdir, MIS_FIREWALL, 0, pnum, 0, mis->_miSpllvl);
+				AddMissile(tx, ty, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 				mis->_miVar5 += XDirAdd[mis->_miVar4];
 				mis->_miVar6 += YDirAdd[mis->_miVar4];
 			} else {

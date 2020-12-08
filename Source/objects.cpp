@@ -3824,13 +3824,13 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
-		    MIS_FIREWALL,
-		    1,
 		    0,
-		    2 * currlevel + 2,
+		    0,
+		    0,
+		    MIS_FIREWALL,
+		    0,
+		    -1,
+		    0,
 		    0);
 		break;
 	case SHRINE_GLOWING: {
