@@ -772,14 +772,13 @@ void DeltaSaveLevel()
 {
 	int i;
 
-	if (gbMaxPlayers != 1) {
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (i != myplr)
-				plr[i]._pGFXLoad = 0;
-		}
-		plr[myplr]._pLvlVisited[currlevel] = TRUE;
-		delta_leave_sync(currlevel);
+	assert(gbMaxPlayers != 1);
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (i != myplr)
+			plr[i]._pGFXLoad = 0;
 	}
+	plr[myplr]._pLvlVisited[currlevel] = TRUE;
+	delta_leave_sync(currlevel);
 }
 
 static void UnPackPItem(TCmdPItem *src)
