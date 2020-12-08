@@ -4149,9 +4149,7 @@ void MAI_Mega(int mnum)
 void MAI_Golum(int mnum)
 {
 	MonsterStruct *mon, *tmon;
-	int mx, my, _mex, _mey;
 	int md, j, k;
-	BOOL have_enemy;
 
 	if ((DWORD)mnum >= MAXMONSTERS)
 		app_fatal("MAI_Golum: Invalid monster %d", mnum);
@@ -4162,61 +4160,55 @@ void MAI_Golum(int mnum)
 	}
 
 	if (mon->_mmode == MM_DEATH
-	    || mon->_mmode == MM_SPSTAND
-	    || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3)) {
+	 || mon->_mmode == MM_SPSTAND
+	 || mon->_mmode == MM_ATTACK
+	 || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3)) {
 		return;
 	}
 
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
 		MonEnemy(mnum);
 
-	have_enemy = !(mon->_mFlags & MFLAG_NO_ENEMY);
+	if (!(mon->_mFlags & MFLAG_NO_ENEMY)) {
+		tmon = &monster[mon->_menemy];
 
-	if (mon->_mmode == MM_ATTACK) {
-		return;
-	}
-
-	tmon = &monster[mon->_menemy];
-
-	mx = mon->_mx;
-	my = mon->_my;
-	_mex = mx - tmon->_mfutx;
-	_mey = my - tmon->_mfuty;
-	md = GetDirection(mx, my, tmon->_mx, tmon->_my);
-	mon->_mdir = md;
-	if (abs(_mex) >= 2 || abs(_mey) >= 2) {
-		if (have_enemy && MAI_Path(mnum))
-			return;
-	} else if (have_enemy) {
-		mon->_menemyx = tmon->_mx;
-		mon->_menemyy = tmon->_my;
-		if (tmon->_msquelch == 0) {
-			tmon->_msquelch = UCHAR_MAX;
-			tmon->_lastx = mon->_mx;
-			tmon->_lasty = mon->_my;
-			for (j = -2; j <= 2; j++) {
-				for (k = -2; k <= 2; k++) {
-					md = dMonster[mon->_mx + k][mon->_my + j];
-					if (md > 0)
-						monster[md - 1]._msquelch = UCHAR_MAX;
-				}
+		if (abs(mon->_mx - tmon->_mfutx) >= 2 || abs(mon->_my - tmon->_mfuty) >= 2) {
+			if (MAI_Path(mnum)) {
+				return;
 			}
+		} else {
+			mon->_menemyx = tmon->_mx;
+			mon->_menemyy = tmon->_my;
+			if (tmon->_msquelch == 0) {
+				tmon->_msquelch = UCHAR_MAX;
+				tmon->_lastx = mon->_mx;
+				tmon->_lasty = mon->_my;
+				for (j = -2; j <= 2; j++) {
+					for (k = -2; k <= 2; k++) {
+						md = dMonster[mon->_mx + k][mon->_my + j];
+						if (md > 0)
+							monster[md - 1]._msquelch = UCHAR_MAX;
+					}
+				}
+
+			}
+			MonStartAttack(mnum);
+			return;
 		}
-		MonStartAttack(mnum);
-		return;
 	}
 
 	mon->_pathcount++;
 	if (mon->_pathcount > 8)
 		mon->_pathcount = 5;
 
-	if (!MonCallWalk(mnum, plr[mnum]._pdir)) {
+	md = plr[mnum]._pdir;
+	if (!MonCallWalk(mnum, md)) {
 		for (j = 0; j < 8; j++) {
+			md = (md + 1) & 7;
 			if (DirOK(mnum, md)) {
 				MonWalkDir(mnum, md);
 				break;
 			}
-			md = (md + 1) & 7;
 		}
 	}
 }
