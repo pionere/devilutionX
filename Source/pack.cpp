@@ -108,10 +108,15 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum, BOOL manashield)
 		pi++;
 	}
 
+	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
+	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
+	for (i = 0; i < 4; i++) {
+		pPack->pSplHotKey[i] = p->_pSplHotKey[i];
+		pPack->pSplTHotKey[i] = p->_pSplTHotKey[i];
+	}
+
 #ifdef HELLFIRE
 	pPack->wReflection = p->wReflection;
-	pPack->pDifficulty = p->pDifficulty;
-	pPack->pDamAcFlags = p->pDamAcFlags;
 #endif
 	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
 
@@ -267,6 +272,13 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 		pi++;
 	}
 
+	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
+	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
+	for (i = 0; i < 4; i++) {
+		p->_pSplHotKey[i] = pPack->pSplHotKey[i];
+		p->_pSplTHotKey[i] = pPack->pSplTHotKey[i];
+	}
+
 	CalcPlrInv(pnum, FALSE);
 
 	p->wReflection = pPack->wReflection;
@@ -277,8 +289,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->pDiabloKillLevel = SwapLE32(pPack->pDiabloKillLevel);
 	p->pBattleNet = pPack->pBattleNet;
 	p->pManaShield = pPack->pManaShield;
-	p->pDifficulty = SwapLE32(pPack->pDifficulty);
-	p->pDamAcFlags = SwapLE32(pPack->pDamAcFlags);
 }
 
 DEVILUTION_END_NAMESPACE

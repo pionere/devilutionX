@@ -1496,8 +1496,11 @@ typedef struct PkPlayerStruct {
 	char pSplLvl2[10]; // Hellfire spells
 	short wReserved8;
 	DWORD pDiabloKillLevel;
-	int pDifficulty;
-	int pDamAcFlags;
+	char pSplHotKey[4];
+	char pSplTHotKey[4];
+#if INT_MAX == INT64_MAX
+	int dwReserved0;
+#endif
 	int dwReserved[5];
 } PkPlayerStruct;
 #pragma pack(pop)
