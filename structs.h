@@ -350,7 +350,7 @@ typedef struct PlayerStruct {
 	short wReflection;
 	short wReserved[7];
 	DWORD pDiabloKillLevel;
-	int pDifficulty;
+	int dwReserved1;
 	int pDamAcFlags;
 	int dwReserved[5];
 	unsigned char *_pNData;
@@ -1484,13 +1484,10 @@ typedef struct PkPlayerStruct {
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE _pNumInv;
 	PkItemStruct SpdList[MAXBELTITEMS];
-	char pTownWarps;
-	char pDungMsgs;
-	char pLvlLoad;
+	char bReserved0[3];
 	char pBattleNet;
 	BOOLEAN pManaShield;
-	unsigned char pDungMsgs2;
-	char bReserved[2];
+	char bReserved1[3];
 	short wReflection;
 	short wReserved2;
 	char pSplLvl2[10]; // Hellfire spells
@@ -1501,7 +1498,7 @@ typedef struct PkPlayerStruct {
 #if INT_MAX == INT64_MAX
 	int dwReserved0;
 #endif
-	int dwReserved[5];
+	int dwReserved1[5];
 } PkPlayerStruct;
 #pragma pack(pop)
 
