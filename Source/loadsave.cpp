@@ -281,7 +281,7 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pMaxMana);
 	CopyInt(tbuff, &p->_pManaPer);
 	CopyChar(tbuff, &p->_pLevel);
-	CopyChar(tbuff, &p->_pMaxLvl);
+	CopyChar(tbuff, &p->_pLvlUp);
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &p->_pExperience);
 	CopyInt(tbuff, &p->_pMaxExp);
@@ -1047,7 +1047,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pMaxMana, tbuff);
 	CopyInt(&p->_pManaPer, tbuff);
 	CopyChar(&p->_pLevel, tbuff);
-	CopyChar(&p->_pMaxLvl, tbuff);
+	CopyChar(&p->_pLvlUp, tbuff);
 	tbuff += 2; // Alignment
 	CopyInt(&p->_pExperience, tbuff);
 	CopyInt(&p->_pMaxExp, tbuff);

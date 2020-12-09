@@ -753,7 +753,7 @@ void CreatePlayer(int pnum, char c)
 	p->_pMana = p->_pMaxMana = p->_pManaBase = p->_pMaxManaBase = mana;
 
 	p->_pLevel = 1;
-	p->_pMaxLvl = 1;
+	p->_pLvlUp = FALSE; // indicator whether the stat button should be shown
 	p->_pNextExper = ExpLvlsTbl[1];
 	p->_pLightRad = 10;
 
@@ -807,7 +807,6 @@ void NextPlrLevel(int pnum)
 	}
 	p = &plr[pnum];
 	p->_pLevel++;
-	p->_pMaxLvl++;
 
 #ifdef HELLFIRE
 	CalcPlrInv(pnum, TRUE);
@@ -818,6 +817,7 @@ void NextPlrLevel(int pnum)
 	} else {
 		p->_pStatPts += 5;
 	}
+	p->_pLvlUp = p->_pStatPts != 0;
 
 	p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 

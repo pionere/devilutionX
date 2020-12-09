@@ -1126,6 +1126,7 @@ static void PressChar(int vkey)
 	case 'c':
 		if (stextflag == STORE_NONE) {
 			questlog = FALSE;
+			plr[myplr]._pLvlUp = FALSE;
 			chrflag = !chrflag;
 			if (!chrflag || invflag) {
 				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {

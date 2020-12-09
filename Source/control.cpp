@@ -1133,6 +1133,7 @@ void CheckBtnUp()
 		switch (i) {
 		case PANBTN_CHARINFO:
 			questlog = FALSE;
+			plr[myplr]._pLvlUp = FALSE;
 			chrflag = !chrflag;
 			break;
 		case PANBTN_QLOG:
@@ -1601,15 +1602,17 @@ void DrawChr()
 
 BOOL CheckLvlBtn()
 {
-	if (plr[myplr]._pStatPts != 0 && MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
+	if (plr[myplr]._pLvlUp && MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
 		lvlbtndown = TRUE;
 	return lvlbtndown;
 }
 
 void ReleaseLvlBtn()
 {
-	if (MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
+	if (MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP) {
 		chrflag = TRUE;
+		plr[myplr]._pLvlUp = FALSE;
+	}
 	lvlbtndown = FALSE;
 }
 

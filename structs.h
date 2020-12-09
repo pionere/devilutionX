@@ -269,7 +269,7 @@ typedef struct PlayerStruct {
 	int _pMaxMana;
 	int _pManaPer;
 	char _pLevel;
-	char _pMaxLvl;
+	BOOLEAN _pLvlUp; // _pMaxLvl in vanilla code
 	int _pExperience;
 	int _pMaxExp;
 	int _pNextExper;
