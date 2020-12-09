@@ -103,14 +103,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		}
 		break;
 	case SPL_GUARDIAN:
-		*mind = (p->_pLevel >> 1) + 1;
-		for (k = 0; k < sl; k++) {
-			*mind += *mind >> 3;
-		}
-		*maxd = (p->_pLevel >> 1) + 10;
-		for (k = 0; k < sl; k++) {
-			*maxd += *maxd >> 3;
-		}
+		k = (p->_pMagic >> 3) + sl;
+		*mind = k + 1;
+		*maxd = k + 10;
 		break;
 	case SPL_CHAIN:
 		*mind = 4;
@@ -2615,7 +2610,7 @@ void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int i, pn, j, tx, ty, dam, range;
+	int i, pn, j, tx, ty, range;
 	char *cr;
 
 	mis = &missile[mi];
@@ -2636,11 +2631,6 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_miLid = AddLight(tx, ty, 1);
 
 						UseMana(misource, SPL_GUARDIAN);
-						dam = RandRange(1, 10) + (plr[misource]._pLevel >> 1);
-						for (i = spllvl; i > 0; i--) {
-							dam += dam >> 3;
-						}
-						mis->_miDam = dam;
 
 						range = spllvl + (plr[misource]._pLevel >> 1);
 						range += (range * plr[misource]._pISplDur) >> 7;
@@ -3613,14 +3603,12 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 static BOOL Sentfire(int mi, int sx, int sy)
 {
 	MissileStruct *mis;
-	int dir;
 
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 >= MAX_PLRS) {
-			dir = GetDirection(mis->_mix, mis->_miy, sx, sy);
 			mis->_miVar3 = missileavail[0];
-			AddMissile(mis->_mix, mis->_miy, sx, sy, dir, MIS_FIREBOLT, 0, mis->_miSource, mis->_miDam, GetSpellLevel(mis->_miSource, SPL_FIREBOLT));
+			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;
 			return TRUE;
