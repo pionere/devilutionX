@@ -2150,12 +2150,10 @@ void ProcessObjects()
 		if (object[oi]._oAnimFrame > object[oi]._oAnimLen)
 			object[oi]._oAnimFrame = 1;
 	}
-	i = 0;
-	while (i < nobjects) {
+	for (i = 0; i < nobjects; ) {
 		oi = objectactive[i];
 		if (object[oi]._oDelFlag) {
 			DeleteObject_(oi, i);
-			i = 0;
 		} else {
 			i++;
 		}

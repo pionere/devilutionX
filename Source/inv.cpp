@@ -1594,11 +1594,10 @@ void InvGetItem(int pnum, int ii)
 	copy_pod(p->HoldItem, *is);
 	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	pcursitem = -1;
-	i = 0;
-	while (i < numitems) {
+
+	for (i = 0; i < numitems; ) {
 		if (itemactive[i] == ii) {
 			DeleteItem(ii, i);
-			i = 0;
 		} else {
 			i++;
 		}
@@ -1653,11 +1652,9 @@ void AutoGetItem(int pnum, int ii)
 			CornerStone.item._iPostDraw = FALSE;
 		}
 #endif
-		i = 0;
-		while (i < numitems) {
+		for (i = 0; i < numitems; ) {
 			if (itemactive[i] == ii) {
 				DeleteItem(ii, i);
-				i = 0;
 			} else {
 				i++;
 			}
@@ -1719,11 +1716,9 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 			CornerStone.item._iPostDraw = FALSE;
 		}
 #endif
-		i = 0;
-		while (i < numitems) {
+		for (i = 0; i < numitems; ) {
 			if (itemactive[i] == ii) {
 				DeleteItem(ii, i);
-				i = 0;
 			} else {
 				i++;
 			}

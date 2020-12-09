@@ -4634,11 +4634,9 @@ void DeleteMonsterList()
 		}
 	}
 
-	i = MAX_PLRS;
-	while (i < nummonsters) {
+	for (i = MAX_PLRS; i < nummonsters; ) {
 		if (monster[monstactive[i]]._mDelFlag) {
 			DeleteMonster(i);
-			i = MAX_PLRS;
 		} else {
 			i++;
 		}

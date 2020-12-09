@@ -5568,7 +5568,6 @@ void ProcessMissiles()
 		mi = missileactive[i];
 		if (missile[mi]._miDelFlag) {
 			DeleteMissile(mi, i);
-			i = 0;
 		} else {
 			i++;
 		}
@@ -5606,7 +5605,6 @@ void ProcessMissiles()
 		mi = missileactive[i];
 		if (missile[mi]._miDelFlag) {
 			DeleteMissile(mi, i);
-			i = 0;
 		} else {
 			i++;
 		}
