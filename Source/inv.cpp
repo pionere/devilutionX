@@ -1541,13 +1541,10 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 				PlrHasItem(pnum, IDI_NOTE3, &nn);
 				RemoveInvItem(pnum, nn);
 			}
-			ItemStruct tmp;
-			nn = itemactive[0];
-			copy_pod(tmp, item[nn]);
-			GetItemAttrs(nn, IDI_FULLNOTE, 16);
-			SetupItem(nn);
-			copy_pod(*is, item[nn]);
-			copy_pod(item[nn], tmp);
+			GetItemAttrs(MAXITEMS, IDI_FULLNOTE, 16);
+			SetupItem(MAXITEMS);
+			copy_pod(*is, item[MAXITEMS]);
+			GetItemSeed(is);
 		}
 #endif
 	}
