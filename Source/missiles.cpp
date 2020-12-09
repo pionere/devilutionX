@@ -3009,10 +3009,6 @@ void AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_mix = dx;
-	mis->_miy = dy;
-	mis->_misx = dx;
-	mis->_misy = dy;
 	mis->_miRange = mis->_miAnimLen;
 	//mis->_miVar1 = FALSE;
 }
@@ -3544,7 +3540,7 @@ void AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		p = &plr[pnum];
 		if (p->plractive) {
 			if (LineClear(sx, sy, p->_pfutx, p->_pfuty)) {
-				AddMissile(0, 0, p->_pfutx, p->_pfuty, 0, MIS_EXAPOCA2, micaster, misource, dam, 0);
+				AddMissile(p->_pfutx, p->_pfuty, 0, 0, 0, MIS_EXAPOCA2, micaster, misource, dam, 0);
 			}
 		}
 	}
@@ -4996,12 +4992,12 @@ void MI_ApocaExp(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
+	if (mis->_miRange == 0)
+		mis->_miDelFlag = TRUE;
 	if (!mis->_miVar1) {
 		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, TRUE))
 			mis->_miVar1 = TRUE;
 	}
-	if (mis->_miRange == 0)
-		mis->_miDelFlag = TRUE;
 	PutMissile(mi);
 }
 
@@ -5149,7 +5145,7 @@ void MI_Infra(int mi)
 void MI_ApocaC(int mi)
 {
 	MissileStruct *mis;
-	int i, j, pnum;
+	int i, j;
 
 	mis = &missile[mi];
 	for (j = mis->_miVar2; j < mis->_miVar3; j++) {
@@ -5159,8 +5155,7 @@ void MI_ApocaC(int mi)
 				if (!LineClear(mis->_mix, mis->_miy, i, j))
 					continue;
 #endif
-				pnum = mis->_miSource;
-				AddMissile(i, j, i, j, plr[pnum]._pdir, MIS_EXAPOCA, 0, pnum, mis->_miDam, 0);
+				AddMissile(i, j, 0, 0, 0, MIS_EXAPOCA, mis->_miCaster, mis->_miSource, mis->_miDam, 0);
 				mis->_miVar2 = j;
 				mis->_miVar4 = i + 1;
 				return;
