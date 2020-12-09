@@ -35,6 +35,11 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 	int i;
 	double g;
 
+	if (gamma_correction == 100) {
+		memcpy(dst, src, sizeof(SDL_Color) * n);
+		return;
+	}
+
 	g = gamma_correction / 100.0;
 
 	for (i = 0; i < n; i++) {
@@ -241,13 +246,9 @@ void palette_update_crypt()
 	if (dword_6E2D58 > 1) {
 		col = system_palette[15];
 		for (i = 15; i > 1; i--) {
-			system_palette[i].r = system_palette[i - 1].r;
-			system_palette[i].g = system_palette[i - 1].g;
-			system_palette[i].b = system_palette[i - 1].b;
+			system_palette[i] = system_palette[i - 1];
 		}
-		system_palette[i].r = col.r;
-		system_palette[i].g = col.g;
-		system_palette[i].b = col.b;
+		system_palette[i] = col;
 
 		dword_6E2D58 = 0;
 	} else {
@@ -256,13 +257,10 @@ void palette_update_crypt()
 	if (dword_6E2D54 > 0) {
 		col = system_palette[31];
 		for (i = 31; i > 16; i--) {
-			system_palette[i].r = system_palette[i - 1].r;
-			system_palette[i].g = system_palette[i - 1].g;
-			system_palette[i].b = system_palette[i - 1].b;
+			system_palette[i] = system_palette[i - 1];
 		}
-		system_palette[i].r = col.r;
-		system_palette[i].g = col.g;
-		system_palette[i].b = col.b;
+		system_palette[i] = col;
+
 		palette_update();
 		dword_6E2D54++;
 	} else {
