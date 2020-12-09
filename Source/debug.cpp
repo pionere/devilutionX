@@ -71,9 +71,11 @@ void GiveGoldCheat()
 void StoresCheat()
 {
 	int i;
+	ItemStruct holditem;
+
+	copy_pod(holditem, item[0]);
 
 	numpremium = 0;
-
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		premiumitem[i]._itype = ITYPE_NONE;
 
@@ -83,6 +85,8 @@ void StoresCheat()
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SpawnWitch(30);
+
+	copy_pod(item[0], holditem);
 }
 
 void TakeGoldCheat()

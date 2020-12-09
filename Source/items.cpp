@@ -4388,10 +4388,6 @@ void SpawnSmith(int lvl)
 {
 	int i, iCnt, idata;
 
-#ifdef HELLFIRE
-	ItemStruct holditem;
-	copy_pod(holditem, item[0]);
-#endif
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
 	for (i = 0; i < iCnt; i++) {
 		do {
@@ -4408,9 +4404,6 @@ void SpawnSmith(int lvl)
 		smithitem[i]._itype = ITYPE_NONE;
 
 	SortSmith();
-#ifdef HELLFIRE
-	copy_pod(item[0], holditem);
-#endif
 }
 
 static BOOL PremiumItemOk(int i)
@@ -4451,9 +4444,7 @@ static int RndPremiumItem(int minlvl, int maxlvl)
 static void SpawnOnePremium(int i, int plvl)
 {
 	int itype;
-	ItemStruct holditem;
 
-	copy_pod(holditem, item[0]);
 	if (plvl > 30)
 		plvl = 30;
 	if (plvl < 1)
@@ -4468,7 +4459,6 @@ static void SpawnOnePremium(int i, int plvl)
 	copy_pod(premiumitem[i], item[0]);
 	premiumitem[i]._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumitem[i]._iIdentified = TRUE;
-	copy_pod(item[0], holditem);
 }
 
 void SpawnPremium(int lvl)
