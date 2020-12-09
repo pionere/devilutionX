@@ -3071,11 +3071,9 @@ void SpawnRewardItem(int itemid, int xx, int yy)
 	int i;
 
 	i = itemavail[0];
+	GetSuperItemSpace(xx, yy, i);
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = i;
-	item[i]._ix = xx;
-	item[i]._iy = yy;
-	dItem[xx][yy] = i + 1;
 	GetItemAttrs(i, itemid, items_get_currlevel());
 	SetupItem(i);
 	item[i]._iSelFlag = 2;
