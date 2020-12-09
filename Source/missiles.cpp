@@ -407,22 +407,14 @@ static void GetMissilePos(int mi)
 	mis = &missile[mi];
 	mx = mis->_mitxoff >> 16;
 	my = mis->_mityoff >> 16;
+
 	dx = mx + 2 * my;
 	dy = 2 * my - mx;
-	if (dx < 0) {
-		lx = -(-dx / 8);
-		dx = -(-dx / 64);
-	} else {
-		lx = dx / 8;
-		dx = dx / 64;
-	}
-	if (dy < 0) {
-		ly = -(-dy / 8);
-		dy = -(-dy / 64);
-	} else {
-		ly = dy / 8;
-		dy = dy / 64;
-	}
+	lx = dx / 8;
+	dx = dx / 64;
+	ly = dy / 8;
+	dy = dy / 64;
+
 	mis->_mix = dx + mis->_misx;
 	mis->_miy = dy + mis->_misy;
 	mis->_mixoff = mx + (dy * 32) - (dx * 32);

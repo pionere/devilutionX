@@ -1987,7 +1987,7 @@ static void MonStartHeal(int mnum)
 static void MonChangeLightOffset(int mnum)
 {
 	MonsterStruct *mon;
-	int lx, ly, _mxoff, _myoff, sign;
+	int lx, ly;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonChangeLightOffset: Invalid monster %d", mnum);
@@ -1996,23 +1996,10 @@ static void MonChangeLightOffset(int mnum)
 	lx = mon->_mxoff + 2 * mon->_myoff;
 	ly = 2 * mon->_myoff - mon->_mxoff;
 
-	if (lx < 0) {
-		sign = -1;
-		lx = -lx;
-	} else {
-		sign = 1;
-	}
+	lx = lx / 8;
+	ly = ly / 8;
 
-	_mxoff = sign * (lx >> 3);
-	if (ly < 0) {
-		_myoff = -1;
-		ly = -ly;
-	} else {
-		_myoff = 1;
-	}
-
-	_myoff *= (ly >> 3);
-	ChangeLightOff(mon->mlid, _mxoff, _myoff);
+	ChangeLightOff(mon->mlid, lx, ly);
 }
 
 static BOOL MonDoStand(int mnum)
