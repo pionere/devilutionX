@@ -962,7 +962,7 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_FARMER]._qvar1 = 1;
 					quests[Q_FARMER]._qlog = TRUE;
 					quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-					SpawnRuneBomb(tw->_tx + 1, tw->_ty);
+					SpawnRewardItem(IDI_RUNEBOMB, tw->_tx + 1, tw->_ty);
 				}
 				break;
 			case QUEST_ACTIVE:
@@ -1049,7 +1049,7 @@ void TalkToTowner(int pnum, int tnum)
 						quests[Q_JERSEY]._qvar1 = 1;
 						quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 						quests[Q_JERSEY]._qlog = TRUE;
-						SpawnRuneBomb(tw->_tx + 1, tw->_ty);
+						SpawnRewardItem(IDI_RUNEBOMB, tw->_tx + 1, tw->_ty);
 					}
 					break;
 				default:

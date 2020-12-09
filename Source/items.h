@@ -72,9 +72,6 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag);
 void SpawnRock();
 #ifdef HELLFIRE
 void SpawnRewardItem(int itemid, int xx, int yy);
-void SpawnMapOfDoom(int xx, int yy);
-void SpawnRuneBomb(int xx, int yy);
-void SpawnTheodore(int xx, int yy);
 #endif
 void RespawnItem(int ii, BOOL FlipFlag);
 void DeleteItem(int ii, int i);

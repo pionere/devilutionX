@@ -3085,21 +3085,6 @@ void SpawnRewardItem(int itemid, int xx, int yy)
 	item[i]._iIdentified = TRUE;
 	numitems++;
 }
-
-void SpawnMapOfDoom(int xx, int yy)
-{
-	SpawnRewardItem(IDI_MAPOFDOOM, xx, yy);
-}
-
-void SpawnRuneBomb(int xx, int yy)
-{
-	SpawnRewardItem(IDI_RUNEBOMB, xx, yy);
-}
-
-void SpawnTheodore(int xx, int yy)
-{
-	SpawnRewardItem(IDI_THEODORE, xx, yy);
-}
 #endif
 
 void RespawnItem(int ii, BOOL FlipFlag)
