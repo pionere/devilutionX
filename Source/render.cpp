@@ -139,10 +139,10 @@ inline static void RenderLine(BYTE **dst, BYTE **src, int n, BYTE *tbl, DWORD ma
 	if (*dst >= gpBufStart && *dst <= gpBufEnd)
 #endif
 	{
+		assert(n != 0);
 		int i = ((sizeof(DWORD) * CHAR_BIT) - n);
 		// Add the lower bits about we don't care.
-		static_assert(sizeof(DWORD) * CHAR_BIT < 64, "Undefined left-shift behaviour.");
-		mask |= ((__int64)1 << i) - 1;
+		mask |= (1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
 			if (light_table_index == lightmax) {
 				memset(*dst, 0, n);
@@ -239,6 +239,8 @@ void RenderTile(BYTE *pBuff)
 	}
 #endif
 
+	static_assert(TILE_HEIGHT - 2 < TILE_WIDTH / 2, "Line with negative or zero width.");
+	static_assert(TILE_WIDTH / 2 <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
 	switch (tile) {
 	case RT_SQUARE:
 		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
@@ -248,9 +250,10 @@ void RenderTile(BYTE *pBuff)
 	case RT_TRANSPARENT:
 		for (i = TILE_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + TILE_WIDTH / 2, mask--) {
 			m = *mask;
-			for (j = TILE_WIDTH / 2; j != 0; j -= v, v == TILE_WIDTH / 2 ? m = 0 : m <<= v) {
+			static_assert(TILE_WIDTH / 2 <= sizeof(m) * CHAR_BIT, "Undefined left-shift behavior.");
+			for (j = TILE_WIDTH / 2; j != 0; j -= v, m <<= v) {
 				v = *src++;
-				if (v >= 0) {
+				if (v > 0) {
 					RenderLine(&dst, &src, v, tbl, m);
 				} else {
 					v = -v;
