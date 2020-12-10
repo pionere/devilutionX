@@ -2144,7 +2144,7 @@ static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
+	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
 			SyncOpObject(pnum, CMD_OPENDOOR, cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_OPENDOOR, plr[pnum].plrlevel);
@@ -2159,7 +2159,7 @@ static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
+	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
 			SyncOpObject(pnum, CMD_CLOSEDOOR, cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_CLOSEDOOR, plr[pnum].plrlevel);
@@ -2174,7 +2174,7 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
+	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
 			SyncOpObject(pnum, CMD_OPERATEOBJ, cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr[pnum].plrlevel);
@@ -2189,7 +2189,7 @@ static DWORD On_PLROPOBJ(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
+	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
 			SyncOpObject(cmd->wParam1, CMD_PLROPOBJ, cmd->wParam2);
 		delta_sync_object(cmd->wParam2, CMD_PLROPOBJ, plr[pnum].plrlevel);
@@ -2204,7 +2204,7 @@ static DWORD On_BREAKOBJ(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
+	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
 			SyncBreakObj(cmd->wParam1, cmd->wParam2);
 		delta_sync_object(cmd->wParam2, CMD_BREAKOBJ, plr[pnum].plrlevel);

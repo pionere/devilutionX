@@ -4392,8 +4392,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 
 static void SyncOpL1Door(int pnum, int cmd, int oi)
 {
-	if (pnum == myplr)
-		return;
+	assert(pnum != myplr);
 
 	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
 	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
@@ -4406,8 +4405,7 @@ static void SyncOpL1Door(int pnum, int cmd, int oi)
 
 static void SyncOpL2Door(int pnum, int cmd, int oi)
 {
-	if (pnum == myplr)
-		return;
+	assert(pnum != myplr);
 
 	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
 	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
@@ -4420,8 +4418,7 @@ static void SyncOpL2Door(int pnum, int cmd, int oi)
 
 static void SyncOpL3Door(int pnum, int cmd, int oi)
 {
-	if (pnum == myplr)
-		return;
+	assert(pnum != myplr);
 
 	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
 	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
