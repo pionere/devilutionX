@@ -141,7 +141,8 @@ inline static void RenderLine(BYTE **dst, BYTE **src, int n, BYTE *tbl, DWORD ma
 	{
 		int i = ((sizeof(DWORD) * CHAR_BIT) - n);
 		// Add the lower bits about we don't care.
-		mask |= (1 << i) - 1;
+		static_assert(sizeof(DWORD) * CHAR_BIT < 64, "Undefined left-shift behaviour.");
+		mask |= ((__int64)1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
 			if (light_table_index == lightmax) {
 				memset(*dst, 0, n);
