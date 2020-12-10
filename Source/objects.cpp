@@ -4426,9 +4426,9 @@ static void SyncOpL3Door(int pnum, int cmd, int oi)
 	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
 	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
 		if (object[oi]._otype == OBJ_L3LDOOR)
-			OperateL2LDoor(oi, -1, -1, FALSE);
+			OperateL3LDoor(oi, -1, -1, FALSE);
 		else if (object[oi]._otype == OBJ_L3RDOOR)
-			OperateL2RDoor(oi, -1, -1, FALSE);
+			OperateL3RDoor(oi, -1, -1, FALSE);
 	}
 }
 
