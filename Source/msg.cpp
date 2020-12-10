@@ -1422,7 +1422,7 @@ static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SBSPELL(TCmd *pCmd, int pnum)
+/*static DWORD On_SBSPELL(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -1438,7 +1438,7 @@ static DWORD On_SBSPELL(TCmd *pCmd, int pnum)
 	}
 
 	return sizeof(*cmd);
-}
+}*/
 
 static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
@@ -1694,7 +1694,7 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
+/*static DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
 
@@ -1715,7 +1715,7 @@ static DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
 	}
 
 	return sizeof(*cmd);
-}
+}*/
 
 static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 {
@@ -2599,8 +2599,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_ADDMAG(pCmd, pnum);
 	case CMD_ADDVIT:
 		return On_ADDVIT(pCmd, pnum);
-	case CMD_SBSPELL:
-		return On_SBSPELL(pCmd, pnum);
+	//case CMD_SBSPELL:
+	//	return On_SBSPELL(pCmd, pnum);
 	case CMD_GOTOGETITEM:
 		return On_GOTOGETITEM(pCmd, pnum);
 	case CMD_REQUESTGITEM:
@@ -2627,8 +2627,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_SATTACKXY(pCmd, pnum);
 	case CMD_RATTACKXY:
 		return On_RATTACKXY(pCmd, pnum);
-	case CMD_SPELLXYD:
-		return On_SPELLXYD(pCmd, pnum);
+	//case CMD_SPELLXYD:
+	//	return On_SPELLXYD(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
 	case CMD_TSPELLXY:

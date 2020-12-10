@@ -3286,11 +3286,11 @@ static void CheckNewPath(int pnum)
 			StartSpell(pnum, d, p->destParam1, p->destParam2);
 			p->_pVar4 = p->destParam3;
 			break;
-		case ACTION_SPELLWALL:
+		/*case ACTION_SPELLWALL:
 			StartSpell(pnum, p->destParam3, p->destParam1, p->destParam2);
 			p->_pVar3 = p->destParam3;
 			p->_pVar4 = p->destParam4;
-			break;
+			break;*/
 		case ACTION_SPELLMON:
 			i = p->destParam1;
 			d = GetDirection(p->_px, p->_py, monster[i]._mfutx, monster[i]._mfuty);
