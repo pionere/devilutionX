@@ -1047,7 +1047,7 @@ void UseBeltItem(int type)
 		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (UseInvItem(myplr, INVITEM_BELT_FIRST + i))
+			if (UseInvItem(INVITEM_BELT_FIRST + i))
 				break;
 		}
 	}
@@ -1172,7 +1172,7 @@ static void CtrlUseInvItem()
 		return;
 	}
 
-	UseInvItem(myplr, pcursinvitem);
+	UseInvItem(pcursinvitem);
 }
 
 void PerformSecondaryAction()

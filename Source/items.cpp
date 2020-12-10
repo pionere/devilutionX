@@ -4090,12 +4090,12 @@ void PrintItemDetails(const ItemStruct *is)
 	pinfoflag = TRUE;
 }
 
-static void PlrAddHp(int pnum)
+static void PlrAddHp()
 {
 	PlayerStruct *p;
 	int hp;
 
-	p = &plr[pnum];
+	p = &plr[myplr];
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
 	if (p->_pClass == PC_WARRIOR)
@@ -4111,12 +4111,12 @@ static void PlrAddHp(int pnum)
 	drawhpflag = TRUE;
 }
 
-static void PlrAddMana(int pnum)
+static void PlrAddMana()
 {
 	PlayerStruct *p;
 	int mana;
 
-	p = &plr[pnum];
+	p = &plr[myplr];
 	if (p->_pIFlags & ISPL_NOMANA)
 		return;
 	mana = p->_pMaxMana >> 8;
@@ -4134,15 +4134,32 @@ static void PlrAddMana(int pnum)
 	drawmanaflag = TRUE;
 }
 
-static void PlrSetTSpell(int pnum, int spell)
+static void PlrSetTSpell(int spell)
 {
-	if (pnum == myplr)
+	//if (pnum == myplr)
 		NewCursor(CURSOR_TELEPORT);
-	plr[pnum]._pTSpell = spell;
-	plr[pnum]._pTSplType = RSPLTYPE_INVALID;
+	plr[myplr]._pTSpell = spell;
+	plr[myplr]._pTSplType = RSPLTYPE_INVALID;
 }
 
-void UseItem(int pnum, int Mid, int spl)
+static void PlrRefill(BOOL hp, BOOL mana)
+{
+	PlayerStruct *p;
+
+	p = &plr[myplr];
+	if (hp) {
+		p->_pHitPoints = p->_pMaxHP;
+		p->_pHPBase = p->_pMaxHPBase;
+		drawhpflag = TRUE;
+	}
+	if (mana && !(p->_pIFlags & ISPL_NOMANA)) {
+		p->_pMana = p->_pMaxMana;
+		p->_pManaBase = p->_pMaxManaBase;
+		drawmanaflag = TRUE;
+	}
+}
+
+void UseItem(int Mid, int spl)
 {
 	PlayerStruct *p;
 	int mana;
@@ -4150,58 +4167,42 @@ void UseItem(int pnum, int Mid, int spl)
 	switch (Mid) {
 	case IMISC_HEAL:
 	case IMISC_MEAT:
-		PlrAddHp(pnum);
+		PlrAddHp();
 		break;
 	case IMISC_FULLHEAL:
-		p = &plr[pnum];
-		p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase = p->_pMaxHPBase;
-		drawhpflag = TRUE;
+		PlrRefill(TRUE, FALSE);
 		break;
 	case IMISC_MANA:
-		PlrAddMana(pnum);
+		PlrAddMana();
 		break;
 	case IMISC_FULLMANA:
-		p = &plr[pnum];
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-			drawmanaflag = TRUE;
-		}
+		PlrRefill(FALSE, TRUE);
 		break;
 	case IMISC_ELIXSTR:
-		ModifyPlrStr(pnum, 1);
+		ModifyPlrStr(myplr, 1);
 		break;
 	case IMISC_ELIXMAG:
-		ModifyPlrMag(pnum, 1);
+		ModifyPlrMag(myplr, 1);
 		break;
 	case IMISC_ELIXDEX:
-		ModifyPlrDex(pnum, 1);
+		ModifyPlrDex(myplr, 1);
 		break;
 	case IMISC_ELIXVIT:
-		ModifyPlrVit(pnum, 1);
+		ModifyPlrVit(myplr, 1);
 		break;
 	case IMISC_REJUV:
-		PlrAddHp(pnum);
-		PlrAddMana(pnum);
+		PlrAddHp();
+		PlrAddMana();
 		break;
 	case IMISC_FULLREJUV:
-		p = &plr[pnum];
-		p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase = p->_pMaxHPBase;
-		drawhpflag = TRUE;
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-			drawmanaflag = TRUE;
-		}
+		PlrRefill(TRUE, TRUE);
 		break;
 	case IMISC_SCROLL:
 		if (spelldata[spl].sTargeted) {
-			PlrSetTSpell(pnum, spl);
+			PlrSetTSpell(spl);
 		} else {
-			ClrPlrPath(pnum);
-			p = &plr[pnum];
+			ClrPlrPath(myplr);
+			p = &plr[myplr];
 			p->_pSpell = spl;
 			p->_pSplType = RSPLTYPE_INVALID;
 			p->_pSplFrom = 3;
@@ -4209,17 +4210,18 @@ void UseItem(int pnum, int Mid, int spl)
 			p->destParam1 = cursmx;
 			p->destParam2 = cursmy;
 #ifndef HELLFIRE
-			if (pnum == myplr && spl == SPL_NOVA)
+			//if (pnum == myplr && spl == SPL_NOVA)
+			if (spl == SPL_NOVA)
 				NetSendCmdLoc(TRUE, CMD_NOVA, cursmx, cursmy);
 #endif
 		}
 		break;
 	case IMISC_SCROLLT:
 		if (spelldata[spl].sTargeted) {
-			PlrSetTSpell(pnum, spl);
+			PlrSetTSpell(spl);
 		} else {
-			ClrPlrPath(pnum);
-			p = &plr[pnum];
+			ClrPlrPath(myplr);
+			p = &plr[myplr];
 			p->_pSpell = spl;
 			p->_pSplType = RSPLTYPE_INVALID;
 			p->_pSplFrom = 3;
@@ -4229,7 +4231,7 @@ void UseItem(int pnum, int Mid, int spl)
 		}
 		break;
 	case IMISC_BOOK:
-		p = &plr[pnum];
+		p = &plr[myplr];
 		p->_pMemSpells |= SPELL_MASK(spl);
 		if (p->_pSplLvl[spl] < MAXSPLLEVEL)
 			p->_pSplLvl[spl]++;
@@ -4243,8 +4245,8 @@ void UseItem(int pnum, int Mid, int spl)
 				p->_pManaBase = p->_pMaxManaBase;
 			drawmanaflag = TRUE;
 		}
-		if (pnum == myplr)
-			CalcPlrBookVals(pnum);
+		//if (pnum == myplr)
+			CalcPlrBookVals(myplr);
 		break;
 	case IMISC_MAPOFDOOM:
 		doom_init();
@@ -4260,10 +4262,9 @@ void UseItem(int pnum, int Mid, int spl)
 	case IMISC_OILPERM:
 	case IMISC_OILHARD:
 	case IMISC_OILIMP:
-		plr[pnum]._pOilType = Mid;
-		if (pnum != myplr) {
-			return;
-		}
+		plr[myplr]._pOilType = Mid;
+		//if (pnum != myplr)
+		//	return;
 		if (sbookflag) {
 			sbookflag = FALSE;
 		}
@@ -4274,26 +4275,26 @@ void UseItem(int pnum, int Mid, int spl)
 		break;
 #endif
 	case IMISC_SPECELIX:
-		ModifyPlrStr(pnum, 3);
-		ModifyPlrMag(pnum, 3);
-		ModifyPlrDex(pnum, 3);
-		ModifyPlrVit(pnum, 3);
+		ModifyPlrStr(myplr, 3);
+		ModifyPlrMag(myplr, 3);
+		ModifyPlrDex(myplr, 3);
+		ModifyPlrVit(myplr, 3);
 		break;
 #ifdef HELLFIRE
 	case IMISC_RUNEF:
-		PlrSetTSpell(pnum, SPL_RUNEFIRE);
+		PlrSetTSpell(SPL_RUNEFIRE);
 		break;
 	case IMISC_RUNEL:
-		PlrSetTSpell(pnum, SPL_RUNELIGHT);
+		PlrSetTSpell(SPL_RUNELIGHT);
 		break;
 	case IMISC_GR_RUNEL:
-		PlrSetTSpell(pnum, SPL_RUNENOVA);
+		PlrSetTSpell(SPL_RUNENOVA);
 		break;
 	case IMISC_GR_RUNEF:
-		PlrSetTSpell(pnum, SPL_RUNEIMMOLAT);
+		PlrSetTSpell(SPL_RUNEIMMOLAT);
 		break;
 	case IMISC_RUNES:
-		PlrSetTSpell(pnum, SPL_RUNESTONE);
+		PlrSetTSpell(SPL_RUNESTONE);
 		break;
 #endif
 	}

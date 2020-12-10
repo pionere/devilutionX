@@ -774,7 +774,7 @@ void RightMouseDown(BOOL bShift)
 		return;
 
 	if (pcurs == CURSOR_HAND) {
-		if (pcursinvitem != -1 && UseInvItem(myplr, pcursinvitem))
+		if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
 			return;
 		CheckPlrSpell();
 	}
@@ -1196,31 +1196,31 @@ static void PressChar(int vkey)
 		return;
 	case '!':
 	case '1':
-		UseInvItem(myplr, INVITEM_BELT_FIRST);
+		UseInvItem(INVITEM_BELT_FIRST);
 		return;
 	case '@':
 	case '2':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 1);
+		UseInvItem(INVITEM_BELT_FIRST + 1);
 		return;
 	case '#':
 	case '3':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 2);
+		UseInvItem(INVITEM_BELT_FIRST + 2);
 		return;
 	case '$':
 	case '4':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 3);
+		UseInvItem(INVITEM_BELT_FIRST + 3);
 		return;
 	case '%':
 	case '5':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 4);
+		UseInvItem(INVITEM_BELT_FIRST + 4);
 		return;
 	case '^':
 	case '6':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 5);
+		UseInvItem(INVITEM_BELT_FIRST + 5);
 		return;
 	case '&':
 	case '7':
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 6);
+		UseInvItem(INVITEM_BELT_FIRST + 6);
 		return;
 	case '*':
 	case '8':
@@ -1230,7 +1230,7 @@ static void PressChar(int vkey)
 			return;
 		}
 #endif
-		UseInvItem(myplr, INVITEM_BELT_FIRST + 7);
+		UseInvItem(INVITEM_BELT_FIRST + 7);
 		return;
 #ifdef _DEBUG
 	case ')':

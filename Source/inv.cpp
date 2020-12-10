@@ -2152,13 +2152,14 @@ static void StartGoldDrop()
 		control_reset_talk();
 }
 
-BOOL UseInvItem(int pnum, int cii)
+BOOL UseInvItem(int cii)
 {
 	int iv;
 	ItemStruct *is;
 	BOOL speedlist;
+	int pnum = myplr;
 
-	if (plr[pnum]._pInvincible && plr[pnum]._pHitPoints == 0 && pnum == myplr)
+	if (plr[pnum]._pInvincible && plr[pnum]._pHitPoints == 0) // && pnum == myplr)
 		return TRUE;
 	if (pcurs != CURSOR_HAND)
 		return TRUE;
@@ -2226,10 +2227,10 @@ BOOL UseInvItem(int pnum, int cii)
 
 	if (is->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
-	else if (pnum == myplr)
+	else // if (pnum == myplr)
 		PlaySFX(ItemInvSnds[ItemCAnimTbl[is->_iCurs]]);
 
-	UseItem(pnum, is->_iMiscId, is->_iSpell);
+	UseItem(is->_iMiscId, is->_iSpell);
 
 #ifdef HELLFIRE
 	if (is->_iMiscId == IMISC_NOTE) {

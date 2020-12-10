@@ -49,7 +49,7 @@ void RemoveScroll(int pnum);
 BOOL UseScroll();
 void UseStaffCharge(int pnum);
 BOOL UseStaff();
-BOOL UseInvItem(int pnum, int cii);
+BOOL UseInvItem(int cii);
 int CalculateGold(int pnum);
 
 /* data */
