@@ -2061,19 +2061,12 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (currlevel != plr[pnum].plrlevel)
-		delta_sync_golem(cmd, pnum, cmd->_currlevel);
 	else if (pnum != myplr) {
-		int i;
-		// check if this player already has an active golem
-		for (i = 0; i < nummissiles; i++) {
-			MissileStruct *mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_GOLEM && mis->_miSource == pnum) {
-				break;
-			}
-		}
-		if (i == nummissiles)
+		if (currlevel == plr[pnum].plrlevel) {
+			// BUGFIX: is this even necessary? CMD_SPELLXY should have notified us already...
 			AddMissile(plr[pnum]._px, plr[pnum]._py, cmd->_mx, cmd->_my, cmd->_mdir, MIS_GOLEM, 0, pnum, 0, 1);
+		} else
+			delta_sync_golem(cmd, pnum, cmd->_currlevel);
 	}
 
 	return sizeof(*cmd);

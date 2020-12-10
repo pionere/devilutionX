@@ -2920,8 +2920,6 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 }
 
 /**
- * Var1: x coordinate of the source
- * Var2: y coordinate of the source
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
  */
@@ -2938,8 +2936,6 @@ void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			return;
 		}
 	}
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
 	if ((monster[misource]._mx != 1 || monster[misource]._my != 0) && misource == myplr)
@@ -3631,7 +3627,7 @@ void MI_Golem(int mi)
 				tx = mis->_miVar4 + *++cr;
 				ty = mis->_miVar5 + *++cr;
 				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-					if (LineClear(mis->_miVar1, mis->_miVar2, tx, ty)) {
+					if (LineClear(mis->_misx, mis->_misy, tx, ty)) {
 						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 							SpawnGolum(src, tx, ty, mis->_miSpllvl);
 							return;
