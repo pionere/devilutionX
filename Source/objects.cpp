@@ -4390,7 +4390,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 	}
 }
 
-static void SyncOpL1Door(int pnum, int cmd, int oi)
+static void SyncOpDoor(int pnum, int cmd, int oi)
 {
 	assert(pnum != myplr);
 
@@ -4400,29 +4400,11 @@ static void SyncOpL1Door(int pnum, int cmd, int oi)
 			OperateL1LDoor(oi, -1, -1, FALSE);
 		else if (object[oi]._otype == OBJ_L1RDOOR)
 			OperateL1RDoor(oi, -1, -1, FALSE);
-	}
-}
-
-static void SyncOpL2Door(int pnum, int cmd, int oi)
-{
-	assert(pnum != myplr);
-
-	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
-	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
-		if (object[oi]._otype == OBJ_L2LDOOR)
+		else if (object[oi]._otype == OBJ_L2LDOOR)
 			OperateL2LDoor(oi, -1, -1, FALSE);
 		else if (object[oi]._otype == OBJ_L2RDOOR)
 			OperateL2RDoor(oi, -1, -1, FALSE);
-	}
-}
-
-static void SyncOpL3Door(int pnum, int cmd, int oi)
-{
-	assert(pnum != myplr);
-
-	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
-	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
-		if (object[oi]._otype == OBJ_L3LDOOR)
+		else if (object[oi]._otype == OBJ_L3LDOOR)
 			OperateL3LDoor(oi, -1, -1, FALSE);
 		else if (object[oi]._otype == OBJ_L3RDOOR)
 			OperateL3RDoor(oi, -1, -1, FALSE);
@@ -4434,15 +4416,11 @@ void SyncOpObject(int pnum, int cmd, int oi)
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		SyncOpL1Door(pnum, cmd, oi);
-		break;
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		SyncOpL2Door(pnum, cmd, oi);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		SyncOpL3Door(pnum, cmd, oi);
+		SyncOpDoor(pnum, cmd, oi);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
