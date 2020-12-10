@@ -1618,8 +1618,9 @@ static void StartSpell(int pnum)
 	p->_pVar4 = spllvl;
 	p->_pVar8 = 1;
 
-	p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
 	sd = &spelldata[p->_pSpell];
+	if (sd->sTargeted)
+		p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
 	if (leveltype != DTYPE_TOWN) {
 		switch (sd->sType) {
 		case STYPE_FIRE:
