@@ -3323,9 +3323,7 @@ static void CheckNewPath(int pnum)
 			break;
 		case ACTION_OPERATETK:
 			i = p->destParam1;
-			if (object[i]._oBreak != 1) {
-				OperateObject(pnum, i, TRUE);
-			}
+			OperateObject(pnum, i, TRUE);
 			break;
 		case ACTION_PICKUPITEM:
 			if (pnum == myplr) {
