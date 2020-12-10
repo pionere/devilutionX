@@ -1580,9 +1580,14 @@ void PlrStartBlock(int pnum, int dir)
 	FixPlayerLocation(pnum);
 }
 
-static void StartSpell(int pnum, int dir, int cx, int cy)
+static void StartSpell(int pnum)
 {
 	PlayerStruct *p;
+	int i, dx, dy, spllvl;
+	player_graphic gfx;
+	unsigned char **anim;
+	SpellData *sd;
+
 	if ((DWORD)pnum >= MAX_PLRS)
 		app_fatal("StartSpell: illegal player %d", pnum);
 
@@ -1592,39 +1597,56 @@ static void StartSpell(int pnum, int dir, int cx, int cy)
 		return;
 	}
 
-	if (leveltype != DTYPE_TOWN) {
-		switch (spelldata[p->_pSpell].sType) {
-		case STYPE_FIRE:
-			if (!(p->_pGFXLoad & PFILE_FIRE)) {
-				LoadPlrGFX(pnum, PFILE_FIRE);
-			}
-			NewPlrAnim(pnum, p->_pFAnim[dir], p->_pSFrames, 0, p->_pSWidth);
-			break;
-		case STYPE_LIGHTNING:
-			if (!(p->_pGFXLoad & PFILE_LIGHTNING)) {
-				LoadPlrGFX(pnum, PFILE_LIGHTNING);
-			}
-			NewPlrAnim(pnum, p->_pLAnim[dir], p->_pSFrames, 0, p->_pSWidth);
-			break;
-		case STYPE_MAGIC:
-			if (!(p->_pGFXLoad & PFILE_MAGIC)) {
-				LoadPlrGFX(pnum, PFILE_MAGIC);
-			}
-			NewPlrAnim(pnum, p->_pTAnim[dir], p->_pSFrames, 0, p->_pSWidth);
-			break;
-		}
+	i = p->destParam1;
+	if (p->destAction == ACTION_SPELL) {
+		dx = i;
+		dy = p->destParam2;
+		spllvl = p->destParam3;
+	} else if (p->destAction == ACTION_SPELLMON) {
+		dx = monster[i]._mfutx;
+		dy = monster[i]._mfuty;
+		spllvl = p->destParam2;
+	} else if (p->destAction == ACTION_SPELLPLR) {
+		dx = plr[i]._pfutx;
+		dy = plr[i]._pfuty;
+		spllvl = p->destParam2;
 	}
 
-	PlaySfxLoc(spelldata[p->_pSpell].sSFX, p->_px, p->_py);
+	p->_pVar1 = dx;
+	p->_pVar2 = dy;
+	p->_pVar3 = p->_pSpell;
+	p->_pVar4 = spllvl;
+	p->_pVar8 = 1;
+
+	p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
+	sd = &spelldata[p->_pSpell];
+	if (leveltype != DTYPE_TOWN) {
+		switch (sd->sType) {
+		case STYPE_FIRE:
+			gfx = PFILE_FIRE;
+			anim = p->_pFAnim;
+			break;
+		case STYPE_LIGHTNING:
+			gfx = PFILE_LIGHTNING;
+			anim = p->_pLAnim;
+			break;
+		case STYPE_MAGIC:
+			gfx = PFILE_MAGIC;
+			anim = p->_pTAnim;
+			break;
+		default:
+			app_fatal("Unrecognized spell type %c.", sd->sType);
+		}
+		if (!(p->_pGFXLoad & gfx)) {
+			LoadPlrGFX(pnum, gfx);
+		}
+		NewPlrAnim(pnum, anim[p->_pdir], p->_pSFrames, 0, p->_pSWidth);
+	}
+
+	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
 	p->_pmode = PM_SPELL;
-	p->_pdir = dir;
 	FixPlayerLocation(pnum);
-
-	p->_pVar1 = cx;
-	p->_pVar2 = cy;
-	p->_pVar4 = GetSpellLevel(pnum, p->_pSpell);
-	p->_pVar8 = 1;
 }
 
 void RemovePlrFromMap(int pnum)
@@ -3002,7 +3024,7 @@ static BOOL PlrDoSpell(int pnum)
 	if (p->_pVar8 == p->_pSFNum) {
 		CastSpell(
 		    pnum,
-		    p->_pSpell,
+		    p->_pVar3,
 		    p->_px,
 		    p->_py,
 		    p->_pVar1,
@@ -3281,27 +3303,15 @@ static void CheckNewPath(int pnum)
 			d = GetDirection(p->_pfutx, p->_pfuty, plr[i]._pfutx, plr[i]._pfuty);
 			StartRangeAttack(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
 			break;
-		case ACTION_SPELL:
-			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
-			StartSpell(pnum, d, p->destParam1, p->destParam2);
-			p->_pVar4 = p->destParam3;
-			break;
 		/*case ACTION_SPELLWALL:
 			StartSpell(pnum, p->destParam3, p->destParam1, p->destParam2);
 			p->_pVar3 = p->destParam3;
 			p->_pVar4 = p->destParam4;
 			break;*/
+		case ACTION_SPELL:
 		case ACTION_SPELLMON:
-			i = p->destParam1;
-			d = GetDirection(p->_px, p->_py, monster[i]._mfutx, monster[i]._mfuty);
-			StartSpell(pnum, d, monster[i]._mfutx, monster[i]._mfuty);
-			p->_pVar4 = p->destParam2;
-			break;
 		case ACTION_SPELLPLR:
-			i = p->destParam1;
-			d = GetDirection(p->_px, p->_py, plr[i]._pfutx, plr[i]._pfuty);
-			StartSpell(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
-			p->_pVar4 = p->destParam2;
+			StartSpell(pnum);
 			break;
 		case ACTION_OPERATE:
 			x = p->destParam2;
@@ -3412,18 +3422,10 @@ static void CheckNewPath(int pnum)
 	}
 
 	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum) {
-		i = p->destParam1;
-		if (p->destAction == ACTION_SPELL) {
-			d = GetDirection(p->_px, p->_py, i, p->destParam2);
-			StartSpell(pnum, d, i, p->destParam2);
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_SPELLMON) {
-			d = GetDirection(p->_px, p->_py, monster[i]._mfutx, monster[i]._mfuty);
-			StartSpell(pnum, d, monster[i]._mfutx, monster[i]._mfuty);
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_SPELLPLR) {
-			d = GetDirection(p->_px, p->_py, plr[i]._pfutx, plr[i]._pfuty);
-			StartSpell(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
+		if (p->destAction == ACTION_SPELL
+		 || p->destAction == ACTION_SPELLMON
+		 || p->destAction == ACTION_SPELLPLR) {
+			StartSpell(pnum);
 			p->destAction = ACTION_NONE;
 		}
 	}
