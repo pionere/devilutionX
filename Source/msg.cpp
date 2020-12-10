@@ -2508,18 +2508,23 @@ static DWORD On_DEBUG(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_NOVA(TCmd *pCmd, int pnum)
+static DWORD On_SCROLL_SPELLXY(TCmd *pCmd, int pnum)
 {
-	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel && pnum != myplr) {
-		ClrPlrPath(pnum);
-		plr[pnum]._pSpell = SPL_NOVA;
-		plr[pnum]._pSplType = RSPLTYPE_INVALID;
-		plr[pnum]._pSplFrom = 3;
-		plr[pnum].destAction = ACTION_SPELL;
-		plr[pnum].destParam1 = cmd->x;
-		plr[pnum].destParam2 = cmd->y;
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam1;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELL;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = RSPLTYPE_INVALID;
+			plr[pnum]._pSplFrom = 3;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -2724,6 +2729,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
+	case CMD_SCROLL_SPELLXY:
+		return On_SCROLL_SPELLXY(pCmd, pnum);
 #ifdef HELLFIRE
 	case CMD_ENDREFLECT:
 		return On_ENDREFLECT(pCmd, pnum);
@@ -2734,8 +2741,6 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	case CMD_OPENCRYPT:
 		return On_OPENCRYPT(pCmd, pnum);
 #else
-	case CMD_NOVA:
-		return On_NOVA(pCmd, pnum);
 	case CMD_SETSHIELD:
 		return On_SETSHIELD(pCmd, pnum);
 	case CMD_REMSHIELD:

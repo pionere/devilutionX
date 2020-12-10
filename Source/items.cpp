@@ -4198,36 +4198,12 @@ void UseItem(int Mid, int spl)
 		PlrRefill(TRUE, TRUE);
 		break;
 	case IMISC_SCROLL:
-		if (spelldata[spl].sTargeted) {
-			PlrSetTSpell(spl);
-		} else {
-			ClrPlrPath(myplr);
-			p = &plr[myplr];
-			p->_pSpell = spl;
-			p->_pSplType = RSPLTYPE_INVALID;
-			p->_pSplFrom = 3;
-			p->destAction = ACTION_SPELL;
-			p->destParam1 = cursmx;
-			p->destParam2 = cursmy;
-#ifndef HELLFIRE
-			//if (pnum == myplr && spl == SPL_NOVA)
-			if (spl == SPL_NOVA)
-				NetSendCmdLoc(TRUE, CMD_NOVA, cursmx, cursmy);
-#endif
-		}
-		break;
 	case IMISC_SCROLLT:
 		if (spelldata[spl].sTargeted) {
 			PlrSetTSpell(spl);
 		} else {
-			ClrPlrPath(myplr);
-			p = &plr[myplr];
-			p->_pSpell = spl;
-			p->_pSplType = RSPLTYPE_INVALID;
-			p->_pSplFrom = 3;
-			p->destAction = ACTION_SPELL;
-			p->destParam1 = cursmx;
-			p->destParam2 = cursmy;
+			NetSendCmdLocParam2(TRUE, CMD_SCROLL_SPELLXY,
+				cursmx, cursmy, spl, GetSpellLevel(myplr, spl));
 		}
 		break;
 	case IMISC_BOOK:
