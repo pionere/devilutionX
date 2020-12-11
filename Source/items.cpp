@@ -4353,6 +4353,8 @@ void SpawnSmith(int lvl)
 	int i, iCnt, idata;
 
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
+	item[0]._iCreateInfo = lvl | CF_SMITH;
+	item[0]._iIdentified = TRUE;
 	for (i = 0; i < iCnt; i++) {
 		do {
 			item[0]._iSeed = GetRndSeed();
@@ -4361,8 +4363,6 @@ void SpawnSmith(int lvl)
 			GetItemAttrs(0, idata, lvl);
 		} while (item[0]._iIvalue > SMITH_MAX_VALUE);
 		copy_pod(smithitem[i], item[0]);
-		smithitem[i]._iCreateInfo = lvl | CF_SMITH;
-		smithitem[i]._iIdentified = TRUE;
 	}
 	for (i = iCnt; i < SMITH_ITEMS; i++)
 		smithitem[i]._itype = ITYPE_NONE;
@@ -4554,19 +4554,17 @@ void SpawnWitch(int lvl)
 	int i, iCnt;
 	int idata, minlvl;
 
+	item[0]._iCreateInfo = 0;
+	item[0]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_MANA, 1);
 	copy_pod(witchitem[0], item[0]);
-	witchitem[0]._iCreateInfo = lvl;
-	witchitem[0]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_FULLMANA, 1);
 	copy_pod(witchitem[1], item[0]);
-	witchitem[1]._iCreateInfo = lvl;
-	witchitem[1]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_PORTAL, 1);
 	copy_pod(witchitem[2], item[0]);
-	witchitem[2]._iCreateInfo = lvl;
-	witchitem[2]._iStatFlag = TRUE;
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
+	item[0]._iCreateInfo = lvl | CF_WITCH;
+	item[0]._iIdentified = TRUE;
 	for (i = 3; i < iCnt; i++) {
 		do {
 			item[0]._iSeed = GetRndSeed();
@@ -4582,8 +4580,6 @@ void SpawnWitch(int lvl)
 				GetItemBonus(0, minlvl, minlvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 140000);
 		copy_pod(witchitem[i], item[0]);
-		witchitem[i]._iCreateInfo = lvl | CF_WITCH;
-		witchitem[i]._iIdentified = TRUE;
 	}
 
 	for (i = iCnt; i < WITCH_ITEMS; i++)
@@ -4711,35 +4707,31 @@ void SpawnHealer(int lvl)
 {
 	int i, iCnt, srnd, itype;
 
+	item[0]._iCreateInfo = 0;
+	item[0]._iStatFlag = TRUE;
 	GetItemAttrs(0, IDI_HEAL, 1);
 	copy_pod(healitem[0], item[0]);
-	healitem[0]._iCreateInfo = lvl;
-	healitem[0]._iStatFlag = TRUE;
 
 	GetItemAttrs(0, IDI_FULLHEAL, 1);
 	copy_pod(healitem[1], item[0]);
-	healitem[1]._iCreateInfo = lvl;
-	healitem[1]._iStatFlag = TRUE;
 
 	if (gbMaxPlayers != 1) {
 		GetItemAttrs(0, IDI_RESURRECT, 1);
 		copy_pod(healitem[2], item[0]);
-		healitem[2]._iCreateInfo = lvl;
-		healitem[2]._iStatFlag = TRUE;
 
 		srnd = 3;
 	} else {
 		srnd = 2;
 	}
 	iCnt = RandRange(10, HEALER_ITEMS - 1);
+	item[0]._iCreateInfo = lvl | CF_HEALER;
+	item[0]._iIdentified = TRUE;
 	for (i = srnd; i < iCnt; i++) {
 		item[0]._iSeed = GetRndSeed();
 		SetRndSeed(item[0]._iSeed);
 		itype = RndHealerItem(lvl) - 1;
 		GetItemAttrs(0, itype, lvl);
 		copy_pod(healitem[i], item[0]);
-		healitem[i]._iCreateInfo = lvl | CF_HEALER;
-		healitem[i]._iIdentified = TRUE;
 	}
 	for (i = iCnt; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;
