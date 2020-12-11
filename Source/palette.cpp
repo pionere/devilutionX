@@ -278,13 +278,10 @@ void palette_update_hive()
 	if (dword_6E2D60 == 2) {
 		col = system_palette[8];
 		for (i = 8; i > 1; i--) {
-			system_palette[i].r = system_palette[i - 1].r;
-			system_palette[i].g = system_palette[i - 1].g;
-			system_palette[i].b = system_palette[i - 1].b;
+			system_palette[i] = system_palette[i - 1];
 		}
-		system_palette[i].r = col.r;
-		system_palette[i].g = col.g;
-		system_palette[i].b = col.b;
+		system_palette[i] = col;
+
 		dword_6E2D60 = 0;
 	} else {
 		dword_6E2D60++;
@@ -292,13 +289,10 @@ void palette_update_hive()
 	if (dword_6E2D5C == 2) {
 		col = system_palette[15];
 		for (i = 15; i > 9; i--) {
-			system_palette[i].r = system_palette[i - 1].r;
-			system_palette[i].g = system_palette[i - 1].g;
-			system_palette[i].b = system_palette[i - 1].b;
+			system_palette[i] = system_palette[i - 1];
 		}
-		system_palette[i].r = col.r;
-		system_palette[i].g = col.g;
-		system_palette[i].b = col.b;
+		system_palette[i] = col;
+
 		palette_update();
 		dword_6E2D5C = 0;
 	} else {
