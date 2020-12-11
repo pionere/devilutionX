@@ -27,7 +27,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	int k, sl;
 
 	assert((DWORD)myplr < MAX_PLRS);
-	assert((DWORD)sn < MAX_SPELLS);
+	assert((DWORD)sn < NUM_SPELLS);
 	p = &plr[myplr];
 	sl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 

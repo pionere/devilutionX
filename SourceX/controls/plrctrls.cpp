@@ -938,7 +938,7 @@ void StoreSpellCoords()
 			continue;
 		}
 		std::uint64_t spell = 1;
-		for (int j = 1; j < MAX_SPELLS; j++) {
+		for (int j = 1; j < NUM_SPELLS; j++) {
 			if ((spell & spells)) {
 				speedspellscoords[speedspellcount] = { xo, yo };
 				++speedspellcount;

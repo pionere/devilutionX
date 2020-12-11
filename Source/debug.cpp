@@ -112,8 +112,8 @@ void MaxSpellsCheat()
 {
 	int i;
 
-	for (i = 1; i < MAX_SPELLS; i++) {
-		if (spelldata[i].sBookLvl != -1) {
+	for (i = 1; i < NUM_SPELLS; i++) {
+		if (spelldata[i].sBookLvl != SPELL_NA) {
 			plr[myplr]._pMemSpells |= SPELL_MASK(i);
 			plr[myplr]._pSplLvl[i] = 10;
 		}

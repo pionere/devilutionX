@@ -127,7 +127,7 @@ const BYTE gbFontTransTbl[256] = {
 /* data */
 
 /** Maps from spell_id to spelicon.cel frame number. */
-char SpellITbl[MAX_SPELLS] = {
+char SpellITbl[NUM_SPELLS] = {
 #ifdef HELLFIRE
 	27,
 #else
@@ -365,7 +365,7 @@ void DrawSpellList()
 			c = SPLICONLAST + 2;
 			break;
 		}
-		for (spl = 1, j = 1; j < MAX_SPELLS; spl <<= 1, j++) {
+		for (spl = 1, j = 1; j < NUM_SPELLS; spl <<= 1, j++) {
 			if (!(mask & spl))
 				continue;
 			if (i == RSPLTYPE_SPELL) {
@@ -916,7 +916,7 @@ void DoSpeedBook()
 				spells = p->_pISpells;
 				break;
 			}
-			for (spell = 1, j = 1; j < MAX_SPELLS; spell <<= 1, j++) {
+			for (spell = 1, j = 1; j < NUM_SPELLS; spell <<= 1, j++) {
 				if (spell & spells) {
 					if (j == p->_pRSpell && i == p->_pRSplType) {
 						X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);

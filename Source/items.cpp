@@ -1559,7 +1559,7 @@ static void GetBookSpell(int ii, int lvl)
 
 	if (lvl == 0)
 		lvl = 1;
-	rv = random_(14, MAX_SPELLS);
+	rv = random_(14, NUM_SPELLS);
 
 #ifdef SPAWN
 	if (lvl > 5)
@@ -1580,7 +1580,7 @@ static void GetBookSpell(int ii, int lvl)
 			if (bs == SPL_HEALOTHER)
 				bs = SPL_FLARE;
 		}
-		if (bs == MAX_SPELLS)
+		if (bs == NUM_SPELLS)
 			bs = 1;
 	}
 	is = &item[ii];
@@ -1670,7 +1670,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 	l = lvl >> 1;
 	if (l == 0)
 		l = 1;
-	rv = random_(18, MAX_SPELLS);
+	rv = random_(18, NUM_SPELLS);
 
 #ifdef SPAWN
 	if (lvl > 10)
@@ -1679,7 +1679,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 
 	bs = SPL_FIREBOLT;
 	while (TRUE) {
-		if (spelldata[bs].sStaffLvl != -1 && l >= spelldata[bs].sStaffLvl) {
+		if (spelldata[bs].sStaffLvl != SPELL_NA && l >= spelldata[bs].sStaffLvl) {
 			if (rv == 0)
 				break;
 			rv--;
@@ -1691,7 +1691,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 			if (bs == SPL_HEALOTHER)
 				bs = SPL_FLARE;
 		}
-		if (bs == MAX_SPELLS)
+		if (bs == NUM_SPELLS)
 			bs = SPL_FIREBOLT;
 	}
 	is = &item[ii];
@@ -3293,7 +3293,7 @@ void DoRecharge(int pnum, int cii)
 	} else {
 		pi = &p->InvBody[cii];
 	}
-	if (pi->_itype == ITYPE_STAFF && pi->_iSpell) {
+	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
 		r = spelldata[pi->_iSpell].sBookLvl;
 		r = random_(38, p->_pLevel / r) + 1;
 		RechargeItem(pi, r);
@@ -4877,13 +4877,8 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl;
 
-#ifdef HELLFIRE
-	lvl = spelldata[ispell].sBookLvl + 1;
-	if (lvl < 1)
-		return;
-#else
-	lvl = currlevel;
-#endif
+	lvl = spelldata[ispell].sBookLvl;
+	assert(lvl != SPELL_NA);
 	lvl <<= 1;
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
@@ -4894,7 +4889,8 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 		itemactive[numitems] = ii;
 		while (TRUE) {
 			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
-			if (item[ii]._iMiscId == IMISC_BOOK && item[ii]._iSpell == ispell)
+			assert(item[ii]._iMiscId == IMISC_BOOK);
+			if (item[ii]._iSpell == ispell)
 				break;
 		}
 		if (sendmsg)

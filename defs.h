@@ -100,7 +100,6 @@
 #define MAXQUESTS				24
 #define MAXMULTIQUESTS			10
 #define MAXTRIGGERS				7
-#define MAX_SPELLS				52
 #else
 #define NUMLEVELS				17
 #define MAX_LVLS				16
@@ -108,7 +107,6 @@
 #define MAXQUESTS				16
 #define MAXMULTIQUESTS			4
 #define MAXTRIGGERS				5
-#define MAX_SPELLS				37
 #endif
 
 #define MAX_CHUNKS				(MAX_LVLS + 5)

@@ -3503,7 +3503,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		cnt = 0;
 		spell = 1;
 		spells = p->_pMemSpells;
-		for (i = 0; i < MAX_SPELLS; i++) {
+		for (i = 0; i < NUM_SPELLS; i++) {
 			if (spell & spells)
 				cnt++;
 			spell <<= 1;
@@ -3511,7 +3511,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (cnt > 1) {
 			r = random_(0, cnt);
 			spell = 1;
-			for (i = 1; i <= MAX_SPELLS; i++) {
+			for (i = 1; i <= NUM_SPELLS; i++) {
 				if (spell & spells) {
 					if (r == 0) {
 						if (p->_pSplLvl[i] != 0)

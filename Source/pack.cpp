@@ -70,7 +70,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
 	pPack->pMemSpells = SDL_SwapLE64(p->_pMemSpells);
 
-	for (i = 0; i < 37; i++) // Should be MAX_SPELLS but set to 37 to make save games compatible
+	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
 		pPack->pSplLvl[i] = p->_pSplLvl[i];
 #ifdef HELLFIRE
 	for (i = 37; i < 47; i++)
@@ -228,7 +228,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->_pManaBase = SwapLE32(pPack->pManaBase);
 	p->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
 
-	for (i = 0; i < 37; i++) // Should be MAX_SPELLS but set to 37 to make save games compatible
+	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
 		p->_pSplLvl[i] = pPack->pSplLvl[i];
 #ifdef HELLFIRE
 	for (i = 37; i < 47; i++)

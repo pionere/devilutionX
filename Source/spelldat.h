@@ -12,7 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern SpellData spelldata[];
+#define SPELL_NA		-1
+
+extern SpellData spelldata[NUM_SPELLS];
 
 #ifdef __cplusplus
 }
