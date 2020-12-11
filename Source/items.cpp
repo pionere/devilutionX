@@ -1566,22 +1566,17 @@ static void GetBookSpell(int ii, int lvl)
 		lvl = 5;
 #endif
 
-	bs = SPL_FIREBOLT;
+	bs = 0;
 	while (TRUE) {
-		if (spelldata[bs].sBookLvl != -1 && lvl >= spelldata[bs].sBookLvl) {
+		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
+		 && (gbMaxPlayers != 1
+			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
 			if (rv == 0)
 				break;
 			rv--;
 		}
-		bs++;
-		if (gbMaxPlayers == 1) {
-			if (bs == SPL_RESURRECT)
-				bs = SPL_TELEKINESIS;
-			if (bs == SPL_HEALOTHER)
-				bs = SPL_FLARE;
-		}
-		if (bs == NUM_SPELLS)
-			bs = 1;
+		if (++bs == NUM_SPELLS)
+			bs = 0;
 	}
 	is = &item[ii];
 	is->_iSpell = bs;
@@ -1658,7 +1653,7 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 {
 	SpellData *sd;
 	ItemStruct *is;
-	int l, rv, v, bs;
+	int rv, v, bs;
 	char istr[64];
 
 #ifndef HELLFIRE
@@ -1667,32 +1662,26 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 		return;
 	}
 #endif
-	l = lvl >> 1;
-	if (l == 0)
-		l = 1;
 	rv = random_(18, NUM_SPELLS);
 
+	if (lvl == 0)
+		lvl = 1;
 #ifdef SPAWN
 	if (lvl > 10)
 		lvl = 10;
 #endif
 
-	bs = SPL_FIREBOLT;
+	bs = 0;
 	while (TRUE) {
-		if (spelldata[bs].sStaffLvl != SPELL_NA && l >= spelldata[bs].sStaffLvl) {
+		if (spelldata[bs].sStaffLvl != SPELL_NA && lvl >= spelldata[bs].sStaffLvl
+		 && (gbMaxPlayers != 1
+			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
 			if (rv == 0)
 				break;
 			rv--;
 		}
-		bs++;
-		if (gbMaxPlayers == 1) {
-			if (bs == SPL_RESURRECT)
-				bs = SPL_TELEKINESIS;
-			if (bs == SPL_HEALOTHER)
-				bs = SPL_FLARE;
-		}
-		if (bs == NUM_SPELLS)
-			bs = SPL_FIREBOLT;
+		if (++bs == NUM_SPELLS)
+			bs = 0;
 	}
 	is = &item[ii];
 	sd = &spelldata[bs];
