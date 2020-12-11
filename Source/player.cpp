@@ -1507,9 +1507,11 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 }
 
-void StartAttack(int pnum, int dir)
+static BOOL StartAttack(int pnum)
 {
 	PlayerStruct *p;
+	int i, dx, dy, dir;
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartAttack: illegal player %d", pnum);
 	}
@@ -1517,22 +1519,63 @@ void StartAttack(int pnum, int dir)
 	p = &plr[pnum];
 	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
 		SyncPlrKill(pnum, -1);
-		return;
+		return FALSE;
 	}
+
+	i = p->destParam1;
+	if (p->destAction == ACTION_ATTACK) {
+		dx = i;
+		dy = p->destParam2;
+	} else if (p->destAction == ACTION_ATTACKMON) {
+		dx = monster[i]._mfutx;
+		dy = monster[i]._mfuty;
+		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
+			return FALSE;
+		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
+			TalktoMonster(i);
+			return TRUE;
+		}
+	} else if (p->destAction == ACTION_ATTACKPLR) {
+		dx = plr[i]._pfutx;
+		dy = plr[i]._pfuty;
+		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
+			return FALSE;
+	} else {
+		assert(p->destAction == ACTION_OPERATE || p->destAction == ACTION_DISARM);
+		dx = p->destParam2;
+		dy = p->destParam3;
+		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
+			return FALSE;
+		if (abs(dObject[dx][dy]) != i + 1) // this should always be false, but never trust the internet
+			return FALSE;
+		if (object[i]._oBreak != 1) {
+			if (p->destAction == ACTION_DISARM)
+				DisarmObject(pnum, i);
+			OperateObject(pnum, i, FALSE);
+			return TRUE;
+		}
+		if (p->destAction == ACTION_DISARM && pnum == myplr)
+			NewCursor(CURSOR_HAND);
+	}
+
+	dir = GetDirection(p->_px, p->_py, dx, dy);
+	p->_pdir = dir;
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
+
 	p->_pmode = PM_ATTACK;
-	p->_pdir = dir;
 	FixPlayerLocation(pnum);
+	return TRUE;
 }
 
-static void StartRangeAttack(int pnum, int dir, int cx, int cy)
+static void StartRangeAttack(int pnum)
 {
 	PlayerStruct *p;
+	int i, dx, dy, dir;
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartRangeAttack: illegal player %d", pnum);
 	}
@@ -1543,16 +1586,35 @@ static void StartRangeAttack(int pnum, int dir, int cx, int cy)
 		return;
 	}
 
+	i = p->destParam1;
+	if (p->destAction == ACTION_RATTACK) {
+		dx = i;
+		dy = p->destParam2;
+	} else if (p->destAction == ACTION_RATTACKMON) {
+		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
+			TalktoMonster(i);
+			return;
+		}
+		dx = monster[i]._mfutx;
+		dy = monster[i]._mfuty;
+	} else {
+		assert(p->destAction == ACTION_RATTACKPLR);
+		dx = plr[i]._pfutx;
+		dy = plr[i]._pfuty;
+	}
+	p->_pVar1 = dx;
+	p->_pVar2 = dy;
+
+	dir = GetDirection(p->_px, p->_py, dx, dy);
+	p->_pdir = dir;
+
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 
 	p->_pmode = PM_RATTACK;
-	p->_pdir = dir;
 	FixPlayerLocation(pnum);
-	p->_pVar1 = cx;
-	p->_pVar2 = cy;
 }
 
 void PlrStartBlock(int pnum, int dir)
@@ -1606,7 +1668,8 @@ static void StartSpell(int pnum)
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
 		spllvl = p->destParam2;
-	} else if (p->destAction == ACTION_SPELLPLR) {
+	} else {
+		assert(p->destAction == ACTION_SPELLPLR);
 		dx = plr[i]._pfutx;
 		dy = plr[i]._pfuty;
 		spllvl = p->destParam2;
@@ -3162,7 +3225,7 @@ static BOOL PlrDoNewLvl(int pnum)
 static void CheckNewPath(int pnum)
 {
 	PlayerStruct *p;
-	int i, x, y, d;
+	int i, x, y;
 	int xvel3, xvel, yvel;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -3179,26 +3242,10 @@ static void CheckNewPath(int pnum)
 		if (p->_pmode == PM_STAND) {
 			if (pnum == myplr) {
 				if (p->destAction == ACTION_ATTACKMON || p->destAction == ACTION_ATTACKPLR) {
-					i = p->destParam1;
-
-					if (p->destAction == ACTION_ATTACKMON) {
-						x = abs(p->_pfutx - monster[i]._mfutx);
-						y = abs(p->_pfuty - monster[i]._mfuty);
-						d = GetDirection(p->_pfutx, p->_pfuty, monster[i]._mfutx, monster[i]._mfuty);
-					} else {
-						x = abs(p->_pfutx - plr[i]._pfutx);
-						y = abs(p->_pfuty - plr[i]._pfuty);
-						d = GetDirection(p->_pfutx, p->_pfuty, plr[i]._pfutx, plr[i]._pfuty);
-					}
-
-					if (x < 2 && y < 2) {
+					if (StartAttack(pnum)) {
 						ClrPlrPath(pnum);
-						if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
-							TalktoMonster(i);
-						} else {
-							StartAttack(pnum, d);
-						}
 						p->destAction = ACTION_NONE;
+						return;
 					}
 				}
 			}
@@ -3240,8 +3287,8 @@ static void CheckNewPath(int pnum)
 				break;
 			}
 
-			for (i = 1; i < MAX_PATH_LENGTH; i++) {
-				p->walkpath[i - 1] = p->walkpath[i];
+			for (i = 0; i < MAX_PATH_LENGTH - 1; i++) {
+				p->walkpath[i] = p->walkpath[i + 1];
 			}
 
 			p->walkpath[MAX_PATH_LENGTH - 1] = WALK_NONE;
@@ -3261,48 +3308,16 @@ static void CheckNewPath(int pnum)
 	if (p->_pmode == PM_STAND) {
 		switch (p->destAction) {
 		case ACTION_ATTACK:
-			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
-			StartAttack(pnum, d);
-			break;
 		case ACTION_ATTACKMON:
-			i = p->destParam1;
-			x = abs(p->_px - monster[i]._mfutx);
-			y = abs(p->_py - monster[i]._mfuty);
-			if (x <= 1 && y <= 1) {
-				d = GetDirection(p->_pfutx, p->_pfuty, monster[i]._mfutx, monster[i]._mfuty);
-				if (monster[i].mtalkmsg && monster[i].mtalkmsg != TEXT_VILE14) {
-					TalktoMonster(i);
-				} else {
-					StartAttack(pnum, d);
-				}
-			}
-			break;
 		case ACTION_ATTACKPLR:
-			i = p->destParam1;
-			x = abs(p->_px - plr[i]._pfutx);
-			y = abs(p->_py - plr[i]._pfuty);
-			if (x <= 1 && y <= 1) {
-				d = GetDirection(p->_pfutx, p->_pfuty, plr[i]._pfutx, plr[i]._pfuty);
-				StartAttack(pnum, d);
-			}
+		case ACTION_OPERATE:
+		case ACTION_DISARM:
+			StartAttack(pnum);
 			break;
 		case ACTION_RATTACK:
-			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
-			StartRangeAttack(pnum, d, p->destParam1, p->destParam2);
-			break;
 		case ACTION_RATTACKMON:
-			i = p->destParam1;
-			d = GetDirection(p->_pfutx, p->_pfuty, monster[i]._mfutx, monster[i]._mfuty);
-			if (monster[i].mtalkmsg && monster[i].mtalkmsg != TEXT_VILE14) {
-				TalktoMonster(i);
-			} else {
-				StartRangeAttack(pnum, d, monster[i]._mfutx, monster[i]._mfuty);
-			}
-			break;
 		case ACTION_RATTACKPLR:
-			i = p->destParam1;
-			d = GetDirection(p->_pfutx, p->_pfuty, plr[i]._pfutx, plr[i]._pfuty);
-			StartRangeAttack(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
+			StartRangeAttack(pnum);
 			break;
 		/*case ACTION_SPELLWALL:
 			StartSpell(pnum, p->destParam3, p->destParam1, p->destParam2);
@@ -3313,24 +3328,6 @@ static void CheckNewPath(int pnum)
 		case ACTION_SPELLMON:
 		case ACTION_SPELLPLR:
 			StartSpell(pnum);
-			break;
-		case ACTION_OPERATE:
-			x = p->destParam2;
-			y = p->destParam3;
-			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
-				i = p->destParam1;
-				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
-					OperateObject(pnum, i, FALSE);
-			}
-			break;
-		case ACTION_DISARM:
-			x = p->destParam2;
-			y = p->destParam3;
-			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
-				i = p->destParam1;
-				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
-					DisarmObject(pnum, i);
-			}
 			break;
 		case ACTION_OPERATETK:
 			i = p->destParam1;
@@ -3371,58 +3368,22 @@ static void CheckNewPath(int pnum)
 	}
 
 	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > p->_pAFNum) {
-		if (p->destAction == ACTION_ATTACK) {
-			d = GetDirection(p->_pfutx, p->_pfuty, p->destParam1, p->destParam2);
-			StartAttack(pnum, d);
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_ATTACKMON) {
-			i = p->destParam1;
-			x = abs(p->_px - monster[i]._mfutx);
-			y = abs(p->_py - monster[i]._mfuty);
-			if (x <= 1 && y <= 1) {
-				d = GetDirection(p->_pfutx, p->_pfuty, monster[i]._mfutx, monster[i]._mfuty);
-				StartAttack(pnum, d);
-			}
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_ATTACKPLR) {
-			i = p->destParam1;
-			x = abs(p->_px - plr[i]._pfutx);
-			y = abs(p->_py - plr[i]._pfuty);
-			if (x <= 1 && y <= 1) {
-				d = GetDirection(p->_pfutx, p->_pfuty, plr[i]._pfutx, plr[i]._pfuty);
-				StartAttack(pnum, d);
-			}
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_OPERATE) {
-			x = p->destParam2;
-			y = p->destParam3;
-			if (abs(p->_px - x) <= 1 && abs(p->_py - y) <= 1) {
-				i = p->destParam1;
-				if (abs(dObject[x][y]) == i + 1) // this should always be true, but never trust the internet
-					OperateObject(pnum, i, FALSE);
-			}
-		}
-	}
-
-	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum) {
-		if (p->destAction == ACTION_RATTACK) {
-			d = GetDirection(p->_px, p->_py, p->destParam1, p->destParam2);
-			StartRangeAttack(pnum, d, p->destParam1, p->destParam2);
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_RATTACKMON) {
-			i = p->destParam1;
-			d = GetDirection(p->_px, p->_py, monster[i]._mfutx, monster[i]._mfuty);
-			StartRangeAttack(pnum, d, monster[i]._mfutx, monster[i]._mfuty);
-			p->destAction = ACTION_NONE;
-		} else if (p->destAction == ACTION_RATTACKPLR) {
-			i = p->destParam1;
-			d = GetDirection(p->_px, p->_py, plr[i]._pfutx, plr[i]._pfuty);
-			StartRangeAttack(pnum, d, plr[i]._pfutx, plr[i]._pfuty);
+		if (p->destAction == ACTION_ATTACK
+		 || p->destAction == ACTION_ATTACKMON
+		 || p->destAction == ACTION_ATTACKPLR
+		 || p->destAction == ACTION_OPERATE
+		 || p->destAction == ACTION_DISARM) {
+			StartAttack(pnum);
 			p->destAction = ACTION_NONE;
 		}
-	}
-
-	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum) {
+	} else if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum) {
+		if (p->destAction == ACTION_RATTACK
+		 || p->destAction == ACTION_RATTACKMON
+		 || p->destAction == ACTION_RATTACKPLR) {
+			StartRangeAttack(pnum);
+			p->destAction = ACTION_NONE;
+		}
+	} else if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum) {
 		if (p->destAction == ACTION_SPELL
 		 || p->destAction == ACTION_SPELLMON
 		 || p->destAction == ACTION_SPELLPLR) {

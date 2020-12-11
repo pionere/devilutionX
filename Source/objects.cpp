@@ -3246,7 +3246,6 @@ void DisarmObject(int pnum, int oi)
 #endif
 		}
 	}
-	OperateObject(pnum, oi, FALSE);
 }
 
 /** Reduce the maximum mana of the given player by 10%
@@ -4243,18 +4242,6 @@ static void OperateLazStand(int pnum, int oi)
 	}
 }
 
-static void OperateBrittle(int pnum, int oi)
-{
-	ObjectStruct *os;
-	int dir;
-
-	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		dir = GetDirection(plr[pnum]._px, plr[pnum]._py, os->_ox, os->_oy);
-		StartAttack(pnum, dir);
-	}
-}
-
 void OperateObject(int pnum, int oi, BOOL TeleFlag)
 {
 	BOOL sendmsg;
@@ -4300,14 +4287,6 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
 		OperateLever(pnum, oi);
-		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
-	case OBJ_BARREL:
-	case OBJ_BARRELEX:
-		if (!TeleFlag)
-			OperateBrittle(pnum, oi);
 		break;
 	case OBJ_BOOK2L:
 		OperateBook(pnum, oi);
