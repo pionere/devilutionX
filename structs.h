@@ -502,8 +502,8 @@ typedef struct MonsterData {
 	int Frames[6];
 	int Rate[6];
 	const char *mName;
-	char mMinDLvl;
-	char mMaxDLvl;
+	BYTE mMinDLvl;
+	BYTE mMaxDLvl;
 	char mLevel;
 	int mMinHP;
 	int mMaxHP;

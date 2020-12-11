@@ -210,7 +210,7 @@ void GetLevelMTypes()
 	int typelist[MAXMONSTERS];
 	int skeltypes[NUM_MTYPES];
 
-	int lvl, minlvl, maxlvl; // current, min and max levels
+	BYTE lvl;
 	const int numskeltypes = 19;
 
 	int nt; // number of types
@@ -260,10 +260,7 @@ void GetLevelMTypes()
 			nt = 0;
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
 				if (IsSkel(i)) {
-					minlvl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
-					maxlvl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
-
-					if (lvl >= minlvl && lvl <= maxlvl) {
+					if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
 						if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 							skeltypes[nt++] = i;
 						}
@@ -275,10 +272,7 @@ void GetLevelMTypes()
 
 		nt = 0;
 		for (i = 0; i < NUM_MTYPES; i++) {
-			minlvl = 15 * monsterdata[i].mMinDLvl / 30 + 1;
-			maxlvl = 15 * monsterdata[i].mMaxDLvl / 30 + 1;
-
-			if (lvl >= minlvl && lvl <= maxlvl) {
+			if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
 				if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
 					typelist[nt++] = i;
 				}
