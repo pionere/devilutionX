@@ -80,8 +80,6 @@ typedef struct ItemDataStruct {
 	char iMinStr;
 	char iMinMag;
 	char iMinDex;
-	// item_special_effect
-	int iFlags;
 	// item_misc_id
 	int iMiscId;
 	// spell_id

@@ -1754,9 +1754,6 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
 	is->_iAC = RandRange(ids->iMinAC, ids->iMaxAC);
-#ifndef HELLFIRE
-	is->_iFlags = ids->iFlags;
-#endif
 	is->_iMiscId = ids->iMiscId;
 	is->_iSpell = ids->iSpell;
 	is->_iMagical = ITEM_QUALITY_NORMAL;
@@ -1796,6 +1793,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	is->_iPLEnAc = 0;
 	is->_iPLMana = 0;
 	is->_iPLHP = 0;
+	is->_iFlags = 0;
 	is->_iPrePower = IPL_INVALID;
 	is->_iSufPower = IPL_INVALID;
 
@@ -1803,7 +1801,6 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		GetBookSpell(ii, lvl);
 
 #ifdef HELLFIRE
-	is->_iFlags = 0;
 	is->_iDamAcFlags = 0;
 
 	if (is->_iMiscId == IMISC_OILOF)
