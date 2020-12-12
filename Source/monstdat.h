@@ -15,10 +15,14 @@ extern "C" {
 extern MonsterData monsterdata[];
 #ifdef HELLFIRE
 extern int MonstConvTbl[];
+#ifdef SPAWN
 extern int MonstAvailTbl[];
+#endif
 #else
 extern BYTE MonstConvTbl[];
+#ifdef SPAWN
 extern BYTE MonstAvailTbl[];
+#endif
 #endif
 extern UniqMonstStruct UniqMonst[];
 

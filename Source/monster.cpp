@@ -261,9 +261,11 @@ void GetLevelMTypes()
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
 				if (IsSkel(i)) {
 					if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-						if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
+#ifdef SPAWN
+						if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
+							continue;
+#endif
 							skeltypes[nt++] = i;
-						}
 					}
 				}
 			}
@@ -273,9 +275,11 @@ void GetLevelMTypes()
 		nt = 0;
 		for (i = 0; i < NUM_MTYPES; i++) {
 			if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-				if (MonstAvailTbl[i] & MONST_AVAILABILITY_MASK) {
+#ifdef SPAWN
+				if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
+					continue;
+#endif
 					typelist[nt++] = i;
-				}
 			}
 		}
 
