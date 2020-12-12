@@ -528,48 +528,51 @@ void InitItemGFX()
 
 BOOL ItemPlace(int x, int y)
 {
-	if (dMonster[x][y] != 0)
-		return FALSE;
-	if (dPlayer[x][y] != 0)
-		return FALSE;
-	if (dItem[x][y] != 0)
-		return FALSE;
-	if (dObject[x][y] != 0)
-		return FALSE;
-	if (dFlags[x][y] & BFLAG_POPULATED)
-		return FALSE;
-	if (nSolidTable[dPiece[x][y]])
-		return FALSE;
+	return (dMonster[x][y] | dPlayer[x][y] | dItem[x][y] | dObject[x][y]
+	 | (dFlags[x][y] & BFLAG_POPULATED) | nSolidTable[dPiece[x][y]]) == 0;
+}
 
-	return TRUE;
+static void SetItemLoc(int ii, int x, int y)
+{
+	item[ii]._ix = x;
+	item[ii]._iy = y;
+	dItem[x][y] = ii + 1;
+}
+
+static void GetRandomItemSpace(int ii)
+{
+	int x, y;
+
+	do {
+		x = random_(12, DSIZEX) + DBORDERX;
+		y = random_(12, DSIZEY) + DBORDERY;
+	} while (!ItemPlace(x, y));
+	SetItemLoc(ii, x, y);
 }
 
 static void AddInitItems()
 {
-	int x, y, ii, i, lvl;
+	int ii, i, lvl, seed;
 
 	lvl = items_get_currlevel();
 
 	for (i = RandRange(3, 5); i != 0; i--) {
 		ii = itemavail[0];
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		do {
-			x = random_(12, DSIZEX) + DBORDERX;
-			y = random_(12, DSIZEY) + DBORDERY;
-		} while (!ItemPlace(x, y));
-		item[ii]._ix = x;
-		item[ii]._iy = y;
-		dItem[x][y] = ii + 1;
-		item[ii]._iSeed = GetRndSeed();
-		SetRndSeed(item[ii]._iSeed);
+		seed = GetRndSeed();
+		SetRndSeed(seed);
 		GetItemAttrs(ii, random_(12, 2) ? IDI_HEAL : IDI_MANA, lvl);
-		item[ii]._iCreateInfo = lvl - CF_PREGEN;
+		item[ii]._iSeed = seed;
+		item[ii]._iCreateInfo = lvl | CF_PREGEN;
 		SetupItem(ii);
 		item[ii]._iAnimFrame = item[ii]._iAnimLen;
 		item[ii]._iAnimFlag = FALSE;
 		item[ii]._iSelFlag = 1;
+
+		GetRandomItemSpace(ii);
 		DeltaAddItem(ii);
+
+		itemactive[numitems] = ii;
+		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -597,9 +600,9 @@ void InitItems()
 			SpawnQuestItem(IDI_ANVIL, 2 * setpc_x + 27, 2 * setpc_y + 27, 0, 1);
 #ifdef HELLFIRE
 		if (UseCowFarmer && currlevel == 20)
-			SpawnQuestItem(IDI_BROWNSUIT, 25, 25, 3, 1);
+			SpawnQuestItem(IDI_BROWNSUIT, 0, 0, 3, 1);
 		if (UseCowFarmer && currlevel == 19)
-			SpawnQuestItem(IDI_GREYSUIT, 25, 25, 3, 1);
+			SpawnQuestItem(IDI_GREYSUIT, 0, 0, 3, 1);
 #endif
 		if (currlevel > 0 && currlevel < 16)
 			AddInitItems();
@@ -1447,7 +1450,7 @@ BOOL ItemSpaceOk(int x, int y)
 	return TRUE;
 }
 
-static BOOL GetItemSpace(int x, int y, char ii)
+static BOOL GetItemSpace(int x, int y, int ii)
 {
 	int i, j, rs;
 	BOOL slist[9];
@@ -1485,14 +1488,11 @@ static BOOL GetItemSpace(int x, int y, char ii)
 	y--;
 	x += i % 3;
 	y += i / 3;
-	item[ii]._ix = x;
-	item[ii]._iy = y;
-	dItem[x][y] = ii + 1;
-
+	SetItemLoc(ii, x, y);
 	return TRUE;
 }
 
-static void GetSuperItemSpace(int x, int y, char ii)
+static void GetSuperItemSpace(int x, int y, int ii)
 {
 	int xx, yy;
 	int i, j, k;
@@ -1504,9 +1504,7 @@ static void GetSuperItemSpace(int x, int y, char ii)
 				for (i = -k; i <= k; i++) {
 					xx = i + x;
 					if (ItemSpaceOk(xx, yy)) {
-						item[ii]._ix = xx;
-						item[ii]._iy = yy;
-						dItem[xx][yy] = ii + 1;
+						SetItemLoc(ii, xx, yy);
 						return;
 					}
 				}
@@ -2623,19 +2621,19 @@ void SpawnUnique(int uid, int x, int y)
 	if (numitems >= MAXITEMS)
 		return;
 
-	ii = itemavail[0];
-	GetSuperItemSpace(x, y, ii);
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	itemactive[numitems] = ii;
-
 	idx = 0;
 	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
 		idx++;
 	}
 
+	ii = itemavail[0];
 	GetItemAttrs(ii, idx, items_get_currlevel());
 	GetUniqueItem(ii, uid);
 	SetupItem(ii);
+	GetSuperItemSpace(x, y, ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
@@ -2649,9 +2647,9 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 {
 	int iblvl, uid;
 
-	item[ii]._iSeed = iseed;
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl >> 1);
+	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl;
 
 	if (pregen)
@@ -2703,6 +2701,9 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 	int ii, idx;
 	BOOL onlygood;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	mon = &monster[mnum];
 	if ((mon->MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1) {
 		// fix drop in single player
@@ -2727,22 +2728,24 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
 	}
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		SetupAllItems(ii, idx, GetRndSeed(), mon->MData->mLevel,
-			mon->_uniqtype != 0 ? 15 : 1, onlygood, FALSE, FALSE);
-		numitems++;
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-	}
+	ii = itemavail[0];
+	SetupAllItems(ii, idx, GetRndSeed(), mon->MData->mLevel,
+		mon->_uniqtype != 0 ? 15 : 1, onlygood, FALSE, FALSE);
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 {
 	int idx, ii, lvl;
+
+	if (numitems >= MAXITEMS)
+		return;
 
 	lvl = items_get_currlevel();
 	lvl <<= 1;
@@ -2752,25 +2755,23 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 	else
 		idx = RndAllItems(lvl);
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
-		numitems++;
-	}
+	ii = itemavail[0];
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 static void SetupAllUseful(int ii, int iseed, int lvl)
 {
 	int idx;
 
-	item[ii]._iSeed = iseed;
 	SetRndSeed(iseed);
 
 #ifdef HELLFIRE
@@ -2805,6 +2806,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 #endif
 
 	GetItemAttrs(ii, idx, lvl);
+	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_USEFUL;
 	SetupItem(ii);
 }
@@ -2813,24 +2815,28 @@ void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg)
 {
 	int ii, lvl;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	lvl = items_get_currlevel();
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		SetupAllUseful(ii, GetRndSeed(), lvl);
-		if (sendmsg) {
-			NetSendCmdDItem(FALSE, ii);
-		}
-		numitems++;
+	ii = itemavail[0];
+	SetupAllUseful(ii, GetRndSeed(), lvl);
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg) {
+		NetSendCmdDItem(FALSE, ii);
 	}
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta)
 {
 	int idx, ii, lvl;
+
+	if (numitems >= MAXITEMS)
+		return;
 
 	lvl = items_get_currlevel();
 	lvl <<= 1;
@@ -2840,20 +2846,18 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 	else
 		idx = IDI_GOLD;
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
+	ii = itemavail[0];
+	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
+	GetSuperItemSpace(x, y, ii);
 
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
 
-		numitems++;
-	}
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
@@ -2966,21 +2970,20 @@ void LoadCornerStone(int x, int y)
 	if (getIniValue("Hellfire", off_4A5AC4, (char *)&PkSItem, sizeof(PkSItem), &dwSize)) {
 		if (dwSize == sizeof(PkSItem)) {
 			ii = itemavail[0];
-			dItem[x][y] = ii + 1;
-			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-			itemactive[numitems] = ii;
 			UnPackItem(&PkSItem, &item[ii]);
-			item[ii]._ix = x;
-			item[ii]._iy = y;
+			SetItemLoc(ii, x, y);
 			RespawnItem(ii, FALSE);
 			copy_pod(CornerStone.item, item[ii]);
+
+			itemactive[numitems] = ii;
+			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 			numitems++;
 		}
 	}
 }
 #endif
 
-void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
+static void GetRandomItemSpace(int x, int y, int randarea, int ii)
 {
 	BOOL failed;
 	int i, j, tries;
@@ -3004,29 +3007,35 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 		}
 	}
 
-	if (numitems < MAXITEMS) {
-		i = itemavail[0];
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = i;
-		item[i]._ix = x;
-		item[i]._iy = y;
-		dItem[x][y] = i + 1;
-		GetItemAttrs(i, itemid, items_get_currlevel());
-		SetupItem(i);
-		item[i]._iPostDraw = TRUE;
-		if (selflag != 0) {
-			item[i]._iSelFlag = selflag;
-			item[i]._iAnimFrame = item[i]._iAnimLen;
-			item[i]._iAnimFlag = FALSE;
-		}
-		numitems++;
+	SetItemLoc(ii, x, y);
+}
+
+void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
+{
+	int ii;
+
+	if (numitems >= MAXITEMS)
+		return;
+
+	ii = itemavail[0];
+	GetItemAttrs(ii, itemid, items_get_currlevel());
+	SetupItem(ii);
+	item[ii]._iPostDraw = TRUE;
+	if (selflag != 0) {
+		item[ii]._iSelFlag = selflag;
+		item[ii]._iAnimFrame = item[ii]._iAnimLen;
+		item[ii]._iAnimFlag = FALSE;
 	}
+	GetRandomItemSpace(x, y, randarea, ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 void SpawnRock()
 {
 	int i, oi;
-	int xx, yy;
 
 	for (i = 0; i < nobjects; i++) {
 		oi = objectactive[i];
@@ -3035,18 +3044,15 @@ void SpawnRock()
 	}
 	if (i != nobjects) {
 		i = itemavail[0];
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = i;
-		xx = object[oi]._ox;
-		yy = object[oi]._oy;
-		item[i]._ix = xx;
-		item[i]._iy = yy;
-		dItem[xx][yy] = i + 1;
 		GetItemAttrs(i, IDI_ROCK, items_get_currlevel());
 		SetupItem(i);
 		item[i]._iSelFlag = 2;
 		item[i]._iPostDraw = TRUE;
 		item[i]._iAnimFrame = 11;
+		SetItemLoc(ii, object[oi]._ox, object[oi]._oy);
+
+		itemactive[numitems] = i;
+		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 		numitems++;
 	}
 }
@@ -3054,19 +3060,20 @@ void SpawnRock()
 #ifdef HELLFIRE
 void SpawnRewardItem(int itemid, int xx, int yy)
 {
-	int i;
+	int ii;
 
-	i = itemavail[0];
-	GetSuperItemSpace(xx, yy, i);
+	ii = itemavail[0];
+	GetItemAttrs(ii, itemid, items_get_currlevel());
+	SetupItem(ii);
+	item[ii]._iSelFlag = 2;
+	item[ii]._iPostDraw = TRUE;
+	item[ii]._iAnimFrame = 1;
+	item[ii]._iAnimFlag = TRUE;
+	item[ii]._iIdentified = TRUE;
+	GetSuperItemSpace(xx, yy, ii);
+
+	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	itemactive[numitems] = i;
-	GetItemAttrs(i, itemid, items_get_currlevel());
-	SetupItem(i);
-	item[i]._iSelFlag = 2;
-	item[i]._iPostDraw = TRUE;
-	item[i]._iAnimFrame = 1;
-	item[i]._iAnimFlag = TRUE;
-	item[i]._iIdentified = TRUE;
 	numitems++;
 }
 #endif
@@ -4310,7 +4317,7 @@ static int RndSmithItem(int lvl)
 		}
 	}
 
-	return ril[random_(50, ri)] + 1;
+	return ril[random_(50, ri)];
 }
 
 static void BubbleSwapItem(ItemStruct *a, ItemStruct *b)
@@ -4347,21 +4354,21 @@ static void SortSmith()
 
 void SpawnSmith(int lvl)
 {
-	int i, iCnt, idata;
+	int i, iCnt, seed;
 
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
-	item[0]._iCreateInfo = lvl | CF_SMITH;
-	item[0]._iIdentified = TRUE;
 	for (i = 0; i < iCnt; i++) {
 		do {
-			item[0]._iSeed = GetRndSeed();
-			SetRndSeed(item[0]._iSeed);
-			idata = RndSmithItem(lvl) - 1;
-			GetItemAttrs(0, idata, lvl);
+			seed = GetRndSeed();
+			SetRndSeed(seed);
+			GetItemAttrs(0, RndSmithItem(lvl), lvl);
 		} while (item[0]._iIvalue > SMITH_MAX_VALUE);
+		item[0]._iSeed = seed;
+		item[0]._iCreateInfo = lvl | CF_SMITH;
+		item[0]._iIdentified = TRUE;
 		copy_pod(smithitem[i], item[0]);
 	}
-	for (i = iCnt; i < SMITH_ITEMS; i++)
+	for ( ; i < SMITH_ITEMS; i++)
 		smithitem[i]._itype = ITYPE_NONE;
 
 	SortSmith();
@@ -4399,27 +4406,25 @@ static int RndPremiumItem(int minlvl, int maxlvl)
 		}
 	}
 
-	return ril[random_(50, ri)] + 1;
+	return ril[random_(50, ri)];
 }
 
 static void SpawnOnePremium(int i, int plvl)
 {
-	int itype;
-
 	if (plvl > 30)
 		plvl = 30;
 	if (plvl < 1)
 		plvl = 1;
 	do {
-		item[0]._iSeed = GetRndSeed();
-		SetRndSeed(item[0]._iSeed);
-		itype = RndPremiumItem(plvl >> 2, plvl) - 1;
-		GetItemAttrs(0, itype, plvl);
+		seed = GetRndSeed();
+		SetRndSeed(seed);
+		GetItemAttrs(0, RndPremiumItem(plvl >> 2, plvl), plvl);
 		GetItemBonus(0, plvl >> 1, plvl, TRUE, FALSE);
 	} while (item[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
+	item[0]._iSeed = seed;
+	item[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
+	item[0]._iIdentified = TRUE;
 	copy_pod(premiumitem[i], item[0]);
-	premiumitem[i]._iCreateInfo = plvl | CF_SMITHPREMIUM;
-	premiumitem[i]._iIdentified = TRUE;
 }
 
 void SpawnPremium(int lvl)
@@ -4502,7 +4507,7 @@ static int RndWitchItem(int lvl)
 		}
 	}
 
-	return ril[random_(51, ri)] + 1;
+	return ril[random_(51, ri)];
 }
 
 static void SortWitch()
@@ -4549,7 +4554,7 @@ void SetBookLevel(int pnum, ItemStruct *is)
 void SpawnWitch(int lvl)
 {
 	int i, iCnt;
-	int idata, minlvl;
+	int seed;
 
 	item[0]._iCreateInfo = 0;
 	item[0]._iStatFlag = TRUE;
@@ -4560,26 +4565,21 @@ void SpawnWitch(int lvl)
 	GetItemAttrs(0, IDI_PORTAL, 1);
 	copy_pod(witchitem[2], item[0]);
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
-	item[0]._iCreateInfo = lvl | CF_WITCH;
-	item[0]._iIdentified = TRUE;
 	for (i = 3; i < iCnt; i++) {
 		do {
-			item[0]._iSeed = GetRndSeed();
-			SetRndSeed(item[0]._iSeed);
-			idata = RndWitchItem(lvl) - 1;
-			GetItemAttrs(0, idata, lvl);
-			minlvl = -1;
-			if (random_(51, 100) <= 5)
-				minlvl = lvl;
-			if (minlvl == -1 && item[0]._iMiscId == IMISC_STAFF)
-				minlvl = lvl;
-			if (minlvl != -1)
-				GetItemBonus(0, minlvl, minlvl << 1, TRUE, TRUE);
+			seed = GetRndSeed();
+			SetRndSeed(seed);
+			GetItemAttrs(0, RndWitchItem(lvl), lvl);
+			if (random_(51, 100) <= 5 || item[0]._iMiscId == IMISC_STAFF)
+				GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 140000);
+		item[0]._iSeed = seed;
+		item[0]._iCreateInfo = lvl | CF_WITCH;
+		item[0]._iIdentified = TRUE;
 		copy_pod(witchitem[i], item[0]);
 	}
 
-	for (i = iCnt; i < WITCH_ITEMS; i++)
+	for ( ; i < WITCH_ITEMS; i++)
 		witchitem[i]._itype = ITYPE_NONE;
 
 	SortWitch();
@@ -4602,24 +4602,24 @@ static int RndBoyItem(int lvl)
 		}
 	}
 
-	return ril[random_(49, ri)] + 1;
+	return ril[random_(49, ri)];
 }
 
 void SpawnBoy(int lvl)
 {
-	int itype;
+	int seed;
 
 	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
 		do {
-			item[0]._iSeed = GetRndSeed();
-			SetRndSeed(item[0]._iSeed);
-			itype = RndBoyItem(lvl) - 1;
-			GetItemAttrs(0, itype, lvl);
+			seed = GetRndSeed();
+			SetRndSeed(seed);
+			GetItemAttrs(0, RndBoyItem(lvl), lvl);
 			GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > 90000);
+		item[0]._iSeed = seed;
+		item[0]._iCreateInfo = lvl | CF_BOY;
+		item[0]._iIdentified = TRUE;
 		copy_pod(boyitem, item[0]);
-		boyitem._iCreateInfo = lvl | CF_BOY;
-		boyitem._iIdentified = TRUE;
 		boylevel = lvl >> 1;
 	}
 }
@@ -4674,7 +4674,7 @@ static int RndHealerItem(int lvl)
 		}
 	}
 
-	return ril[random_(50, ri)] + 1;
+	return ril[random_(50, ri)];
 }
 
 static void SortHealer()
@@ -4702,7 +4702,7 @@ static void SortHealer()
 
 void SpawnHealer(int lvl)
 {
-	int i, iCnt, srnd, itype;
+	int i, iCnt, srnd, seed;
 
 	item[0]._iCreateInfo = 0;
 	item[0]._iStatFlag = TRUE;
@@ -4721,16 +4721,16 @@ void SpawnHealer(int lvl)
 		srnd = 2;
 	}
 	iCnt = RandRange(10, HEALER_ITEMS - 1);
-	item[0]._iCreateInfo = lvl | CF_HEALER;
-	item[0]._iIdentified = TRUE;
 	for (i = srnd; i < iCnt; i++) {
-		item[0]._iSeed = GetRndSeed();
-		SetRndSeed(item[0]._iSeed);
-		itype = RndHealerItem(lvl) - 1;
-		GetItemAttrs(0, itype, lvl);
+		seed = GetRndSeed();
+		SetRndSeed(seed);
+		GetItemAttrs(0, RndHealerItem(lvl), lvl);
+		item[0]._iSeed = seed;
+		item[0]._iCreateInfo = lvl | CF_HEALER;
+		item[0]._iIdentified = TRUE;
 		copy_pod(healitem[i], item[0]);
 	}
-	for (i = iCnt; i < HEALER_ITEMS; i++) {
+	for ( ; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;
 	}
 	SortHealer();
@@ -4745,11 +4745,8 @@ void SpawnStoreGold()
 
 static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 {
-	int itype;
-
 	SetRndSeed(iseed);
-	itype = RndSmithItem(lvl) - 1;
-	GetItemAttrs(ii, itype, lvl);
+	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_SMITH;
@@ -4758,11 +4755,8 @@ static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 
 static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 {
-	int itype;
-
 	SetRndSeed(iseed);
-	itype = RndPremiumItem(plvl >> 2, plvl) - 1;
-	GetItemAttrs(ii, itype, plvl);
+	GetItemAttrs(ii, RndPremiumItem(plvl >> 2, plvl), plvl);
 	GetItemBonus(ii, plvl >> 1, plvl, TRUE, FALSE);
 
 	item[ii]._iSeed = iseed;
@@ -4772,11 +4766,8 @@ static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 
 static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 {
-	int itype;
-
 	SetRndSeed(iseed);
-	itype = RndBoyItem(lvl) - 1;
-	GetItemAttrs(ii, itype, lvl);
+	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
 	GetItemBonus(ii, lvl, 2 * lvl, TRUE, TRUE);
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_BOY;
@@ -4785,8 +4776,6 @@ static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 
 static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 {
-	int itype;
-
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
 #ifdef HELLFIRE
@@ -4797,8 +4786,7 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 #endif
 	} else {
 		SetRndSeed(iseed);
-		itype = RndWitchItem(lvl) - 1;
-		GetItemAttrs(ii, itype, lvl);
+		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		if (random_(51, 100) <= 5 || item[ii]._iMiscId == IMISC_STAFF)
 			GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	}
@@ -4810,14 +4798,11 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 
 static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
 {
-	int itype;
-
 	if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
 		GetItemAttrs(ii, idx, lvl);
 	} else {
 		SetRndSeed(iseed);
-		itype = RndHealerItem(lvl) - 1;
-		GetItemAttrs(ii, itype, lvl);
+		GetItemAttrs(ii, RndHealerItem(lvl), lvl);
 	}
 
 	item[ii]._iSeed = iseed;
@@ -4855,54 +4840,59 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	lvl = spelldata[ispell].sBookLvl;
 	assert(lvl != SPELL_NA);
 	lvl <<= 1;
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		while (TRUE) {
-			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
-			assert(item[ii]._iMiscId == IMISC_BOOK);
-			if (item[ii]._iSpell == ispell)
-				break;
-		}
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
-		numitems++;
+
+	ii = itemavail[0];
+	while (TRUE) {
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		assert(item[ii]._iMiscId == IMISC_BOOK);
+		if (item[ii]._iSpell == ispell)
+			break;
 	}
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	lvl = items_get_currlevel();
 	lvl <<= 1;
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		while (TRUE) {
-			idx = RndTypeItems(imisc, IMISC_NONE, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
-			if (item[ii]._iCurs == icurs)
-				break;
-		}
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
-		numitems++;
+	ii = itemavail[0];
+	while (TRUE) {
+		idx = RndTypeItems(imisc, IMISC_NONE, lvl);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		if (item[ii]._iCurs == icurs)
+			break;
 	}
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 #ifdef HELLFIRE
@@ -4910,31 +4900,36 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	lvl <<= 1;
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		while (TRUE) {
-			idx = RndTypeItems(ITYPE_AMULET, IMISC_AMULET, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
-			if (item[ii]._iCurs == ICURS_AMULET)
-				break;
-		}
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
-		numitems++;
+	ii = itemavail[0];
+	while (TRUE) {
+		idx = RndTypeItems(ITYPE_AMULET, IMISC_AMULET, lvl);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		if (item[ii]._iCurs == ICURS_AMULET)
+			break;
 	}
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 #endif
 
 void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl, imisc;
+
+	if (numitems >= MAXITEMS)
+		return;
 
 	imisc = IMISC_NONE;
 #ifdef HELLFIRE
@@ -4945,23 +4940,22 @@ void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL de
 	lvl = items_get_currlevel();
 	lvl <<= 1;
 
-	if (numitems < MAXITEMS) {
-		ii = itemavail[0];
-		GetSuperItemSpace(x, y, ii);
-		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-		itemactive[numitems] = ii;
-		while (TRUE) {
-			idx = RndTypeItems(itype, imisc, lvl);
-			SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
-			if (item[ii]._iCurs == icurs)
-				break;
-		}
-		if (sendmsg)
-			NetSendCmdDItem(FALSE, ii);
-		if (delta)
-			DeltaAddItem(ii);
-		numitems++;
+	ii = itemavail[0];
+	while (TRUE) {
+		idx = RndTypeItems(itype, imisc, lvl);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		if (item[ii]._iCurs == icurs)
+			break;
 	}
+	GetSuperItemSpace(x, y, ii);
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
 }
 
 static void NextItemRecord(int i)
