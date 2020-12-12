@@ -2991,9 +2991,6 @@ static void GetRandomItemSpace(int x, int y, int randarea, int ii)
 	if (randarea != 0) {
 		tries = 0;
 		while (1) {
-			tries++;
-			if (tries > 1000 && randarea > 1)
-				randarea--;
 			x = random_(0, MAXDUNX);
 			y = random_(0, MAXDUNY);
 			failed = FALSE;
@@ -3004,6 +3001,9 @@ static void GetRandomItemSpace(int x, int y, int randarea, int ii)
 			}
 			if (!failed)
 				break;
+			tries++;
+			if (tries > 1000 && randarea > 1)
+				randarea--;
 		}
 	}
 
@@ -3049,7 +3049,7 @@ void SpawnRock()
 		item[i]._iSelFlag = 2;
 		item[i]._iPostDraw = TRUE;
 		item[i]._iAnimFrame = 11;
-		SetItemLoc(ii, object[oi]._ox, object[oi]._oy);
+		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
 
 		itemactive[numitems] = i;
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
@@ -4411,6 +4411,8 @@ static int RndPremiumItem(int minlvl, int maxlvl)
 
 static void SpawnOnePremium(int i, int plvl)
 {
+	int seed;
+
 	if (plvl > 30)
 		plvl = 30;
 	if (plvl < 1)
