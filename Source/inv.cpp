@@ -1580,7 +1580,7 @@ void InvGetItem(int pnum, int ii)
 
 	p = &plr[pnum];
 	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
-		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, p->_px, p->_py);
+		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, &p->HoldItem, p->_px, p->_py);
 #ifdef HELLFIRE
 	if (is->_iUid != 0)
 #endif
@@ -1660,10 +1660,8 @@ void AutoGetItem(int pnum, int ii)
 		if (pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_14][p->_pClass], 3);
 		}
-		copy_pod(p->HoldItem, *is);
 		RespawnItem(ii, TRUE);
-		NetSendCmdPItem(TRUE, CMD_RESPAWNITEM, is->_ix, is->_iy);
-		p->HoldItem._itype = ITYPE_NONE;
+		NetSendCmdPItem(TRUE, CMD_RESPAWNITEM, is, is->_ix, is->_iy);
 		NewCursor(CURSOR_HAND);
 	}
 }
@@ -1822,7 +1820,7 @@ BOOL DropItem()
 	if (!FindItemLocation(plr[myplr]._px, plr[myplr]._py, &x, &y, 1))
 		return FALSE;
 
-	NetSendCmdPItem(TRUE, CMD_PUTITEM, cursmx, cursmy);
+	NetSendCmdPItem(TRUE, CMD_PUTITEM, &plr[myplr].HoldItem, cursmx, cursmy);
 	NewCursor(CURSOR_HAND);
 	return TRUE;
 }

@@ -1189,7 +1189,7 @@ static void NetSendCmdExtra(TCmdGItem *p)
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
+void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 {
 	TCmdPItem cmd;
 
@@ -1197,7 +1197,7 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 	cmd.x = x;
 	cmd.y = y;
 
-	PackPItem(&cmd, &plr[myplr].HoldItem);
+	PackPItem(&cmd, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
