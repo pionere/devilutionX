@@ -494,7 +494,7 @@ static void SpawnNote()
 		id = IDI_NOTE1;
 		break;
 	}
-	SpawnQuestItem(id, x, y, 0, 1);
+	SpawnQuestItemAt(id, x, y);
 }
 #endif
 
@@ -597,12 +597,12 @@ void InitItems()
 		if (QuestStatus(Q_ROCK))
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
-			SpawnQuestItem(IDI_ANVIL, 2 * setpc_x + 27, 2 * setpc_y + 27, 0, 1);
+			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + 27, 2 * setpc_y + 27);
 #ifdef HELLFIRE
 		if (UseCowFarmer && currlevel == 20)
-			SpawnQuestItem(IDI_BROWNSUIT, 0, 0, 3, 1);
+			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
 		if (UseCowFarmer && currlevel == 19)
-			SpawnQuestItem(IDI_GREYSUIT, 0, 0, 3, 1);
+			SpawnQuestItemInArea(IDI_GREYSUIT, 3);
 #endif
 		if (currlevel > 0 && currlevel < 16)
 			AddInitItems();
@@ -1513,16 +1513,18 @@ static void GetSuperItemSpace(int x, int y, int ii)
 	}
 }
 
-void GetSuperItemLoc(int x, int y, int *xx, int *yy)
+static void GetSuperItemLoc(int x, int y, int ii)
 {
+	int xx, yy;
 	int i, j, k;
 
 	for (k = 1; k < 50; k++) {
 		for (j = -k; j <= k; j++) {
-			*yy = y + j;
+			yy = y + j;
 			for (i = -k; i <= k; i++) {
-				*xx = i + x;
-				if (ItemSpaceOk(*xx, *yy)) {
+				xx = i + x;
+				if (ItemSpaceOk(xx, yy)) {
+					SetItemLoc(ii, xx, yy);
 					return;
 				}
 			}
@@ -2983,10 +2985,10 @@ void LoadCornerStone(int x, int y)
 }
 #endif
 
-static void GetRandomItemSpace(int x, int y, int randarea, int ii)
+static void GetRandomItemSpace(int randarea, int ii)
 {
 	BOOL failed;
-	int i, j, tries;
+	int x, y, i, j, tries;
 
 	if (randarea != 0) {
 		tries = 0;
@@ -3010,7 +3012,7 @@ static void GetRandomItemSpace(int x, int y, int randarea, int ii)
 	SetItemLoc(ii, x, y);
 }
 
-void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
+void SpawnQuestItemAt(int itemid, int x, int y)
 {
 	int ii;
 
@@ -3021,12 +3023,49 @@ void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag)
 	GetItemAttrs(ii, itemid, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
-	if (selflag != 0) {
-		item[ii]._iSelFlag = selflag;
-		item[ii]._iAnimFrame = item[ii]._iAnimLen;
-		item[ii]._iAnimFlag = FALSE;
-	}
-	GetRandomItemSpace(x, y, randarea, ii);
+	item[ii]._iSelFlag = 1;
+	item[ii]._iAnimFrame = item[ii]._iAnimLen;
+	item[ii]._iAnimFlag = FALSE;
+	SetItemLoc(ii, x, y);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
+}
+
+void SpawnQuestItemAround(int itemid, int x, int y)
+{
+	int ii;
+
+	if (numitems >= MAXITEMS)
+		return;
+
+	ii = itemavail[0];
+	GetItemAttrs(ii, itemid, items_get_currlevel());
+	SetupItem(ii);
+	item[ii]._iPostDraw = TRUE;
+	GetSuperItemLoc(x, y, ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
+}
+
+void SpawnQuestItemInArea(int itemid, int areasize)
+{
+	int ii;
+
+	if (numitems >= MAXITEMS)
+		return;
+
+	ii = itemavail[0];
+	GetItemAttrs(ii, itemid, items_get_currlevel());
+	SetupItem(ii);
+	item[ii]._iPostDraw = TRUE;
+	item[ii]._iSelFlag = 1;
+	item[ii]._iAnimFrame = item[ii]._iAnimLen;
+	item[ii]._iAnimFlag = FALSE;
+	GetRandomItemSpace(areasize, ii);
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];

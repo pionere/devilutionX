@@ -52,7 +52,6 @@ void GetGoldSeed(int pnum, ItemStruct *is);
 void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 BOOL ItemSpaceOk(int i, int j);
-void GetSuperItemLoc(int x, int y, int *xx, int *yy);
 void GetItemAttrs(int ii, int idata, int lvl);
 void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval);
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
@@ -68,10 +67,12 @@ void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch,
 void SaveCornerStone();
 void LoadCornerStone(int x, int y);
 #endif
-void SpawnQuestItem(int itemid, int x, int y, int randarea, int selflag);
+void SpawnQuestItemInArea(int idx, int areasize);
+void SpawnQuestItemAt(int idx, int x, int y);
+void SpawnQuestItemAround(int idx, int x, int y);
 void SpawnRock();
 #ifdef HELLFIRE
-void SpawnRewardItem(int itemid, int xx, int yy);
+void SpawnRewardItem(int idx, int xx, int yy);
 #endif
 void RespawnItem(int ii, BOOL FlipFlag);
 void DeleteItem(int ii, int i);

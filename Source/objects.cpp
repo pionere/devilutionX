@@ -2939,9 +2939,9 @@ static void OperateBookLever(int pnum, int oi)
 			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
 			quests[Q_BLOOD]._qlog = TRUE;
 			quests[Q_BLOOD]._qvar1 = 1;
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, 0, 1);
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, 0, 1);
-			SpawnQuestItem(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, 0, 1);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17);
 		}
 		if (os->_otype == OBJ_STEELTOME && quests[Q_WARLORD]._qvar1 == 0) {
 			quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
@@ -3053,7 +3053,6 @@ static void OperateChest(int pnum, int oi, DIABOOL sendmsg)
 static void OperateMushPatch(int pnum, int oi)
 {
 	ObjectStruct *os;
-	int x, y;
 
 	if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 < QS_TOMEGIVEN) {
 		if (!deltaload && pnum == myplr) {
@@ -3066,8 +3065,7 @@ static void OperateMushPatch(int pnum, int oi)
 			os->_oAnimFrame++;
 			if (!deltaload) {
 				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				GetSuperItemLoc(os->_ox, os->_oy, &x, &y);
-				SpawnQuestItem(IDI_MUSHROOM, x, y, 0, 0);
+				SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy);
 				quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
 			}
 		}
@@ -3077,7 +3075,6 @@ static void OperateMushPatch(int pnum, int oi)
 static void OperateInnSignChest(int pnum, int oi)
 {
 	ObjectStruct *os;
-	int x, y;
 
 	if (quests[Q_LTBANNER]._qvar1 != 2) {
 		if (!deltaload && pnum == myplr) {
@@ -3090,8 +3087,7 @@ static void OperateInnSignChest(int pnum, int oi)
 			os->_oAnimFrame += 2;
 			if (!deltaload) {
 				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				GetSuperItemLoc(os->_ox, os->_oy, &x, &y);
-				SpawnQuestItem(IDI_BANNER, x, y, 0, 0);
+				SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy);
 			}
 		}
 	}
@@ -4232,13 +4228,11 @@ static void OperateStoryBook(int pnum, int oi)
 static void OperateLazStand(int pnum, int oi)
 {
 	ObjectStruct *os = &object[oi];
-	int xx, yy;
 
 	if (os->_oSelFlag != 0 && !deltaload && !qtextflag && pnum == myplr) {
 		os->_oAnimFrame++;
 		os->_oSelFlag = 0;
-		GetSuperItemLoc(os->_ox, os->_oy, &xx, &yy);
-		SpawnQuestItem(IDI_LAZSTAFF, xx, yy, 0, 0);
+		SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy);
 	}
 }
 

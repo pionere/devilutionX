@@ -865,7 +865,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && !tw->_tMsgSaid) {
 				RemoveInvItem(pnum, i);
-				SpawnQuestItem(IDI_SPECELIX, tw->_tx, tw->_ty + 1, 0, 0);
+				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty);
 				InitQTextMsg(TEXT_MUSH4);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				Qtalklist[TOWN_HEALER]._qblkm = -1;
