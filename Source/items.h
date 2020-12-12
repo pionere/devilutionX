@@ -59,7 +59,7 @@ void SetupItem(int ii);
 void SpawnUnique(int uid, int x, int y);
 void SpawnItem(int mnum, int x, int y, BOOL sendmsg);
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta);
-void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg);
+void CreateRndUseful(int x, int y, BOOL sendmsg);
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta);
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
@@ -99,12 +99,12 @@ void SpawnHealer(int lvl);
 void SpawnStoreGold();
 void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue);
 int ItemNoFlippy();
-void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta);
-void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta);
+void CreateSpellBook(int ispell, int x, int y);
+void CreateMagicArmor(int imisc, int icurs, int x, int y);
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y, int curlv, BOOL sendmsg, BOOL delta);
+void CreateAmulet(int x, int y);
 #endif
-void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL delta);
+void CreateMagicWeapon(int itype, int icurs, int x, int y);
 BOOL GetItemRecord(int nSeed, WORD wCI, int nIndex);
 void SetItemRecord(int nSeed, WORD wCI, int nIndex);
 void PutItemRecord(int nSeed, WORD wCI, int nIndex);

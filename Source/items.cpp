@@ -2813,7 +2813,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 	SetupItem(ii);
 }
 
-void CreateRndUseful(int pnum, int x, int y, BOOL sendmsg)
+void CreateRndUseful(int x, int y, BOOL sendmsg)
 {
 	int ii, lvl;
 
@@ -2990,29 +2990,27 @@ static void GetRandomItemSpace(int randarea, int ii)
 	BOOL failed;
 	int x, y, i, j, tries;
 
-	if (randarea != 0) {
-		tries = 0;
-		while (1) {
-			x = random_(0, MAXDUNX);
-			y = random_(0, MAXDUNY);
-			failed = FALSE;
-			for (i = x; i < x + randarea && !failed; i++) {
-				for (j = y; j < y + randarea && !failed; j++) {
-					failed = !ItemSpaceOk(i, j);
-				}
+	tries = 0;
+	while (1) {
+		x = random_(0, MAXDUNX);
+		y = random_(0, MAXDUNY);
+		failed = FALSE;
+		for (i = x; i < x + randarea && !failed; i++) {
+			for (j = y; j < y + randarea && !failed; j++) {
+				failed = !ItemSpaceOk(i, j);
 			}
-			if (!failed)
-				break;
-			tries++;
-			if (tries > 1000 && randarea > 1)
-				randarea--;
 		}
+		if (!failed)
+			break;
+		tries++;
+		if (tries > 1000 && randarea > 1)
+			randarea--;
 	}
 
 	SetItemLoc(ii, x, y);
 }
 
-void SpawnQuestItemAt(int itemid, int x, int y)
+void SpawnQuestItemAt(int idx, int x, int y)
 {
 	int ii;
 
@@ -3020,7 +3018,7 @@ void SpawnQuestItemAt(int itemid, int x, int y)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, itemid, items_get_currlevel());
+	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 	item[ii]._iSelFlag = 1;
@@ -3033,7 +3031,7 @@ void SpawnQuestItemAt(int itemid, int x, int y)
 	numitems++;
 }
 
-void SpawnQuestItemAround(int itemid, int x, int y)
+void SpawnQuestItemAround(int idx, int x, int y)
 {
 	int ii;
 
@@ -3041,7 +3039,7 @@ void SpawnQuestItemAround(int itemid, int x, int y)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, itemid, items_get_currlevel());
+	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 	GetSuperItemLoc(x, y, ii);
@@ -3051,7 +3049,7 @@ void SpawnQuestItemAround(int itemid, int x, int y)
 	numitems++;
 }
 
-void SpawnQuestItemInArea(int itemid, int areasize)
+void SpawnQuestItemInArea(int idx, int areasize)
 {
 	int ii;
 
@@ -3059,7 +3057,7 @@ void SpawnQuestItemInArea(int itemid, int areasize)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, itemid, items_get_currlevel());
+	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 	item[ii]._iSelFlag = 1;
@@ -4877,7 +4875,7 @@ int ItemNoFlippy()
 	return ii;
 }
 
-void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
+void CreateSpellBook(int ispell, int x, int y)
 {
 	int ii, idx, lvl;
 
@@ -4892,23 +4890,20 @@ void CreateSpellBook(int x, int y, int ispell, BOOL sendmsg, BOOL delta)
 
 	ii = itemavail[0];
 	while (TRUE) {
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		assert(item[ii]._iMiscId == IMISC_BOOK);
 		if (item[ii]._iSpell == ispell)
 			break;
 	}
 	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
+	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	numitems++;
 }
 
-void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL delta)
+void CreateMagicArmor(int imisc, int icurs, int x, int y)
 {
 	int ii, idx, lvl;
 
@@ -4921,15 +4916,12 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(imisc, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		if (item[ii]._iCurs == icurs)
 			break;
 	}
 	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
+	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
@@ -4937,27 +4929,24 @@ void CreateMagicArmor(int x, int y, int imisc, int icurs, BOOL sendmsg, BOOL del
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
+void CreateAmulet(int x, int y)
 {
-	int ii, idx;
+	int ii, lvl, idx;
 
 	if (numitems >= MAXITEMS)
 		return;
 
-	lvl <<= 1;
+	lvl = 26; // BUGFIX: make sure there is an amulet which fits?
 
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_AMULET, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		if (item[ii]._iCurs == ICURS_AMULET)
 			break;
 	}
 	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
+	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
@@ -4965,7 +4954,7 @@ void CreateAmulet(int x, int y, int lvl, BOOL sendmsg, BOOL delta)
 }
 #endif
 
-void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL delta)
+void CreateMagicWeapon(int itype, int icurs, int x, int y)
 {
 	int ii, idx, lvl, imisc;
 
@@ -4984,15 +4973,12 @@ void CreateMagicWeapon(int x, int y, int itype, int icurs, BOOL sendmsg, BOOL de
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(itype, imisc, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, delta);
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		if (item[ii]._iCurs == icurs)
 			break;
 	}
 	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
+	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];

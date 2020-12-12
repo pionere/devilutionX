@@ -1721,7 +1721,7 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 		if (UseTheoQuest) {
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my);
 		} else {
-			CreateAmulet(mon->_mx, mon->_my, 13, FALSE, TRUE);
+			CreateAmulet(mon->_mx, mon->_my);
 		}
 		return;
 	case UMT_DEFILER:
@@ -1734,10 +1734,10 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 		stream_stop();
 		quests[Q_NAKRUL]._qlog = FALSE;
 		UberDiabloMonsterIndex = -2;
-		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_SWORD, ICURS_GREAT_SWORD, FALSE, TRUE);
-		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
-		CreateMagicWeapon(mon->_mx, mon->_my, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
-		CreateSpellBook(mon->_mx, mon->_my, SPL_APOCA, FALSE, TRUE);
+		CreateMagicWeapon(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my);
+		CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my);
+		CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my);
+		CreateSpellBook(SPL_APOCA, mon->_mx, mon->_my);
 		return;
 #endif
 	}

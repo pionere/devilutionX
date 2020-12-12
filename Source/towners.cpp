@@ -1094,7 +1094,7 @@ void TalkToTowner(int pnum, int tnum)
 			} else {
 				qt = TEXT_GIRL4;
 				RemoveInvItem(pnum, i);
-				CreateAmulet(tw->_tx, tw->_ty, 13, 0, 1);
+				CreateAmulet(tw->_tx, tw->_ty);
 				quests[Q_GIRL]._qlog = FALSE;
 				quests[Q_GIRL]._qactive = QUEST_DONE;
 			}

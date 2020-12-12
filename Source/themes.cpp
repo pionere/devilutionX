@@ -652,8 +652,8 @@ static void Theme_Treasure(int tidx)
 		for (xx = 0; xx < MAXDUNX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				int rv = random_(0, treasrnd);
-				// BUGFIX: the `2*` in `2*random_(0, treasrnd...) == 0` has no effect, should probably be `random_(0, 2*treasrnd...) == 0`
-				if ((2 * random_(0, treasrnd)) == 0) {
+				// BUGFIX: should probably be `random_(0, 2*treasrnd...) == 0`
+				if (random_(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, FALSE, ITYPE_GOLD, IMISC_NONE, FALSE, TRUE);
 					ItemNoFlippy();
 				}
@@ -661,9 +661,9 @@ static void Theme_Treasure(int tidx)
 					CreateRndItem(xx, yy, FALSE, FALSE, TRUE);
 					ItemNoFlippy();
 				}
-				if (rv == 0 || rv >= treasrnd - 2) {
-					ii = ItemNoFlippy();
-					if (rv >= treasrnd - 2 && leveltype != DTYPE_CATHEDRAL) {
+				if (rv >= treasrnd - 2) {
+					if (leveltype != DTYPE_CATHEDRAL) {
+						ii = ItemNoFlippy();	// BUGFIX: what if no item was created?
 						item[ii]._ivalue >>= 1;
 					}
 				}

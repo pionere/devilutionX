@@ -3011,7 +3011,7 @@ static void OperateChest(int pnum, int oi, DIABOOL sendmsg)
 					if (os->_oVar2 != 0)
 						CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
 					else
-						CreateRndUseful(pnum, os->_ox, os->_oy, sendmsg);
+						CreateRndUseful(os->_ox, os->_oy, sendmsg);
 				}
 			}
 			if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
@@ -3102,18 +3102,18 @@ static void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
 		os->_oSelFlag = 0;
 		if (!deltaload) {
 			if (plr[pnum]._pClass == PC_WARRIOR) {
-				CreateMagicArmor(os->_ox, os->_oy, ITYPE_HARMOR, ICURS_BREAST_PLATE, FALSE, TRUE);
+				CreateMagicArmor(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy);
 			} else if (plr[pnum]._pClass == PC_ROGUE) {
-				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_BOW, ICURS_LONG_WAR_BOW, FALSE, TRUE);
+				CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy);
 			} else if (plr[pnum]._pClass == PC_SORCERER) {
-				CreateSpellBook(os->_ox, os->_oy, SPL_LIGHTNING, FALSE, TRUE);
+				CreateSpellBook(SPL_LIGHTNING, os->_ox, os->_oy);
 #ifdef HELLFIRE
 			} else if (plr[pnum]._pClass == PC_MONK) {
-				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_STAFF, ICURS_WAR_STAFF, FALSE, TRUE);
+				CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy);
 			} else if (plr[pnum]._pClass == PC_BARD) {
-				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_SWORD, ICURS_BASTARD_SWORD, FALSE, TRUE);
+				CreateMagicWeapon(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy);
 			} else if (plr[pnum]._pClass == PC_BARBARIAN) {
-				CreateMagicWeapon(os->_ox, os->_oy, ITYPE_AXE, ICURS_BATTLE_AXE, FALSE, TRUE);
+				CreateMagicWeapon(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy);
 #endif
 			}
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][plr[myplr]._pClass], plr[myplr]._px, plr[myplr]._py);
@@ -4575,7 +4575,7 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 		SetRndSeed(os->_oRndSeed);
 		if (os->_oVar2 <= 1) {
 			if (os->_oVar3 == 0)
-				CreateRndUseful(pnum, os->_ox, os->_oy, sendmsg);
+				CreateRndUseful(os->_ox, os->_oy, sendmsg);
 			else
 				CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
 		} else if (os->_oVar2 >= 8)
