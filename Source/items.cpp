@@ -2056,22 +2056,19 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 #endif
 		break;
 	case IPL_FASTATTACK:
-		if (param1 == 1)
-			is->_iFlags |= ISPL_QUICKATTACK;
-		if (param1 == 2)
-			is->_iFlags |= ISPL_FASTATTACK;
-		if (param1 == 3)
-			is->_iFlags |= ISPL_FASTERATTACK;
-		if (param1 == 4)
-			is->_iFlags |= ISPL_FASTESTATTACK;
+		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like attack-speed modifiers.");
+		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers I.");
+		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers II.");
+		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers III.");
+		if ((unsigned)param1 <= 4)
+			is->_iFlags |= ISPL_QUICKATTACK << (param1 - 1);
 		break;
 	case IPL_FASTRECOVER:
-		if (param1 == 1)
-			is->_iFlags |= ISPL_FASTRECOVER;
-		if (param1 == 2)
-			is->_iFlags |= ISPL_FASTERRECOVER;
-		if (param1 == 3)
-			is->_iFlags |= ISPL_FASTESTRECOVER;
+		static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
+		static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
+		static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
+		if ((unsigned)param1 <= 3)
+			is->_iFlags |= ISPL_FASTRECOVER << (param1 - 1);
 		break;
 	case IPL_FASTBLOCK:
 		is->_iFlags |= ISPL_FASTBLOCK;
