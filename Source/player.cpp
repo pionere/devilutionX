@@ -61,7 +61,7 @@ const int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
 /** Specifies the Y-coordinate delta from a player, used for instanced when casting resurrect. */
 const int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
 /** Specifies the frame of each animation for which an action is triggered, for each player class. */
-const char PlrGFXAnimLens[NUM_CLASSES][11] = {
+const BYTE PlrGFXAnimLens[NUM_CLASSES][11] = {
 	{ 10, 16, 8, 2, 20, 20, 6, 20, 8, 9, 14 },
 	{ 8, 18, 8, 4, 20, 16, 7, 20, 8, 10, 12 },
 	{ 8, 16, 8, 6, 20, 12, 8, 20, 8, 12, 8 },
@@ -506,7 +506,7 @@ void FreePlayerGFX(int pnum)
 	p->_pGFXLoad = 0;
 }
 
-void NewPlrAnim(int pnum, BYTE *Peq, int numFrames, int Delay, int width)
+void NewPlrAnim(int pnum, BYTE *Peq, unsigned numFrames, int Delay, int width)
 {
 	PlayerStruct *p;
 
@@ -1246,7 +1246,6 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	p = &plr[pnum];
-	p->_pVar8++;
 	px = p->_pVar6 / 256;
 	py = p->_pVar7 / 256;
 
@@ -1325,7 +1324,6 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	p->_pdir = EndDir;
 	p->_pVar6 = 0;
 	p->_pVar7 = 0;
-	p->_pVar8 = 0;
 
 	if (pnum != myplr) {
 		return;
@@ -1404,7 +1402,6 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
 
 	p->_pdir = EndDir;
-	p->_pVar8 = 0;
 
 	if (pnum != myplr) {
 		return;
@@ -1488,7 +1485,6 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
 
 	p->_pdir = EndDir;
-	p->_pVar8 = 0;
 
 	if (pnum != myplr) {
 		return;
@@ -2227,7 +2223,6 @@ static BOOL PlrDoStand(int pnum)
 static BOOL PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
-	int anim_len;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk: illegal player %d", pnum);
@@ -2235,33 +2230,16 @@ static BOOL PlrDoWalk(int pnum)
 
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (currlevel == 0 && jogging_opt) {
-		if ((p->_pAnimFrame & 1) == 0) {
-			p->_pAnimFrame++;
-			p->_pVar8++;
-		}
-		if (p->_pAnimFrame >= p->_pWFrames) {
-			p->_pAnimFrame = 0;
-		}
+	if (leveltype == DTYPE_TOWN && jogging_opt) {
+		p->_pAnimFrame++;
 	}
 #else
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 #endif
 
-	anim_len = 8;
-	if (currlevel != 0) {
-		anim_len = AnimLenFromClass[p->_pClass];
-	}
-
-#ifdef HELLFIRE
-	if (p->_pVar8 >= anim_len) {
-#else
-	if (p->_pVar8 == anim_len) {
-#endif
+	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_px][p->_py] = 0;
 		p->_px += p->_pVar1;
 		p->_py += p->_pVar2;
@@ -2298,40 +2276,22 @@ static BOOL PlrDoWalk(int pnum)
 static BOOL PlrDoWalk2(int pnum)
 {
 	PlayerStruct *p;
-	int anim_len;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk2: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (currlevel == 0 && jogging_opt) {
-		if ((p->_pAnimFrame & 1) == 0) {
-			p->_pAnimFrame++;
-			p->_pVar8++;
-		}
-		if (p->_pAnimFrame >= p->_pWFrames) {
-			p->_pAnimFrame = 0;
-		}
+	if (leveltype == DTYPE_TOWN && jogging_opt) {
+		p->_pAnimFrame++;
 	}
 #else
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 #endif
 
-	anim_len = 8;
-	if (currlevel != 0) {
-		anim_len = AnimLenFromClass[p->_pClass];
-	}
-
-#ifdef HELLFIRE
-	if (p->_pVar8 >= anim_len) {
-#else
-	if (p->_pVar8 == anim_len) {
-#endif
+	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_pVar1][p->_pVar2] = 0;
 
 		if (leveltype != DTYPE_TOWN) {
@@ -2364,40 +2324,22 @@ static BOOL PlrDoWalk2(int pnum)
 static BOOL PlrDoWalk3(int pnum)
 {
 	PlayerStruct *p;
-	int anim_len;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoWalk3: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 #ifdef HELLFIRE
-	if (currlevel == 0 && jogging_opt) {
-		if ((p->_pAnimFrame & 1) == 0) {
-			p->_pAnimFrame++;
-			p->_pVar8++;
-		}
-		if (p->_pAnimFrame >= p->_pWFrames) {
-			p->_pAnimFrame = 0;
-		}
+	if (leveltype == DTYPE_TOWN && jogging_opt) {
+		p->_pAnimFrame++;
 	}
 #else
-	if (p->_pAnimFrame == 3
-	    || (p->_pWFrames == 8 && p->_pAnimFrame == 7)
-	    || (p->_pWFrames != 8 && p->_pAnimFrame == 4)) {
+	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 #endif
 
-	anim_len = 8;
-	if (currlevel != 0) {
-		anim_len = AnimLenFromClass[p->_pClass];
-	}
-
-#ifdef HELLFIRE
-	if (p->_pVar8 >= anim_len) {
-#else
-	if (p->_pVar8 == anim_len) {
-#endif
+	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_px][p->_py] = 0;
 		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
 		p->_px = p->_pVar1;
@@ -3111,7 +3053,7 @@ static BOOL PlrDoDeath(int pnum)
 	}
 
 	p = &plr[pnum];
-	if (p->_pVar8 >= 2 * p->_pDFrames) {
+	if ((unsigned)p->_pVar8 >= 2 * p->_pDFrames) {
 		if (deathdelay > 1 && pnum == myplr) {
 			deathdelay--;
 			if (deathdelay == 1) {
@@ -3125,9 +3067,7 @@ static BOOL PlrDoDeath(int pnum)
 		p->_pAnimDelay = 10000;
 		p->_pAnimFrame = p->_pAnimLen;
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
-	}
-
-	if (p->_pVar8 < 100) {
+	} else {
 		p->_pVar8++;
 	}
 
