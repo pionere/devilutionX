@@ -707,7 +707,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 		if (doautomap) {
 			if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
 				dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
-				SetAutomapView(nXPos, nXPos);
+				SetAutomapView(nXPos, nYPos);
 			}
 		}
 		dFlags[nXPos][nYPos] |= visFlags;
