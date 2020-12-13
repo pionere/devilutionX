@@ -301,25 +301,16 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			pAnim = &p->_pHAnim;
 			break;
 		case PFILE_LIGHTNING:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
 			szCel = "LM";
 			pData = p->_pLData;
 			pAnim = &p->_pLAnim;
 			break;
 		case PFILE_FIRE:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
 			szCel = "FM";
 			pData = p->_pFData;
 			pAnim = &p->_pFAnim;
 			break;
 		case PFILE_MAGIC:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
 			szCel = "QM";
 			pData = p->_pTData;
 			pAnim = &p->_pTAnim;
@@ -1675,33 +1666,30 @@ static void StartSpell(int pnum)
 	p->_pVar2 = dy;
 	p->_pVar3 = p->_pSpell;
 	p->_pVar4 = spllvl;
-	p->_pVar8 = 1;
 
 	sd = &spelldata[p->_pSpell];
 	if (sd->sTargeted)
 		p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
-	if (leveltype != DTYPE_TOWN) {
-		switch (sd->sType) {
-		case STYPE_FIRE:
-			gfx = PFILE_FIRE;
-			anim = p->_pFAnim;
-			break;
-		case STYPE_LIGHTNING:
-			gfx = PFILE_LIGHTNING;
-			anim = p->_pLAnim;
-			break;
-		case STYPE_MAGIC:
-			gfx = PFILE_MAGIC;
-			anim = p->_pTAnim;
-			break;
-		default:
-			app_fatal("Unrecognized spell type %c.", sd->sType);
-		}
-		if (!(p->_pGFXLoad & gfx)) {
-			LoadPlrGFX(pnum, gfx);
-		}
-		NewPlrAnim(pnum, anim[p->_pdir], p->_pSFrames, 0, p->_pSWidth);
+	switch (sd->sType) {
+	case STYPE_FIRE:
+		gfx = PFILE_FIRE;
+		anim = p->_pFAnim;
+		break;
+	case STYPE_LIGHTNING:
+		gfx = PFILE_LIGHTNING;
+		anim = p->_pLAnim;
+		break;
+	case STYPE_MAGIC:
+		gfx = PFILE_MAGIC;
+		anim = p->_pTAnim;
+		break;
+	default:
+		app_fatal("Unrecognized spell type %c.", sd->sType);
 	}
+	if (!(p->_pGFXLoad & gfx)) {
+		LoadPlrGFX(pnum, gfx);
+	}
+	NewPlrAnim(pnum, anim[p->_pdir], p->_pSFrames, 0, p->_pSWidth);
 
 	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
@@ -2966,7 +2954,7 @@ static BOOL PlrDoSpell(int pnum)
 		app_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (p->_pVar8 == p->_pSFNum) {
+	if (p->_pAnimFrame == p->_pSFNum) {
 		CastSpell(
 		    pnum,
 		    p->_pVar3,
@@ -2996,15 +2984,7 @@ static BOOL PlrDoSpell(int pnum)
 		}
 	}
 
-	p->_pVar8++;
-
-	if (leveltype == DTYPE_TOWN) {
-		if (p->_pVar8 > p->_pSFrames) {
-			StartWalkStand(pnum);
-			ClearPlrPVars(pnum);
-			return TRUE;
-		}
-	} else if (p->_pAnimFrame == p->_pSFrames) {
+	if (p->_pAnimFrame == p->_pSFrames) {
 		PlrStartStand(pnum, p->_pdir);
 		ClearPlrPVars(pnum);
 		return TRUE;
