@@ -1124,11 +1124,7 @@ static void NetSendCmdGItem2(BOOL usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdG
 	int ticks;
 	TCmdGItem cmd;
 
-#ifdef HELLFIRE
-	cmd = *p;
-#else
-	memcpy(&cmd, p, sizeof(cmd));
-#endif
+	copy_pod(cmd, *p);
 	cmd.bPnum = pnum;
 	cmd.bCmd = bCmd;
 	cmd.bMaster = mast;
@@ -1154,11 +1150,7 @@ static BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	int ticks;
 	TCmdGItem cmd;
 
-#ifdef HELLFIRE
-	cmd = *p;
-#else
-	memcpy(&cmd, p, sizeof(cmd));
-#endif
+	copy_pod(cmd, *p);
 	cmd.bCmd = bCmd;
 	cmd.bPnum = pnum;
 	cmd.bMaster = mast;
@@ -1179,11 +1171,7 @@ static void NetSendCmdExtra(TCmdGItem *p)
 {
 	TCmdGItem cmd;
 
-#ifdef HELLFIRE
-	cmd = *p;
-#else
-	memcpy(&cmd, p, sizeof(cmd));
-#endif
+	copy_pod(cmd, *p);
 	cmd.dwTime = 0;
 	cmd.bCmd = CMD_ITEMEXTRA;
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
