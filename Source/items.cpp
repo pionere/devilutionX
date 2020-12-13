@@ -1240,7 +1240,7 @@ void SetItemData(int ii, int idata)
 void SetItemSData(ItemStruct *is, int idata)
 {
 	SetItemData(MAXITEMS, idata);
-	copy_pod(is, &item[MAXITEMS]);
+	copy_pod(*is, item[MAXITEMS]);
 }
 
 void GetItemSeed(ItemStruct *is)
@@ -1331,14 +1331,12 @@ void CreatePlrItems(int pnum)
 		AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_ROGUE:
 		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_SORCERER:
@@ -1346,11 +1344,9 @@ void CreatePlrItems(int pnum)
 
 #ifdef HELLFIRE
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 #else
 		CreateBaseItem(&p->SpdList[0], IDI_MANA);
-
 		CreateBaseItem(&p->SpdList[1], IDI_MANA);
 #endif
 		break;
