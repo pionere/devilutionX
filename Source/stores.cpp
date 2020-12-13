@@ -1482,69 +1482,44 @@ void TakePlrsMoney(int cost)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int i;
+	int i, value, limit;
 
 	p = &plr[myplr];
-	p->_pGold = CalculateGold(myplr) - cost;
-	for (i = 0; i < MAXBELTITEMS && cost > 0; i++) {
-		pi = &p->SpdList[i];
-		if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
-			if (cost < pi->_ivalue) {
-				SetGoldItemValue(pi, pi->_ivalue - cost);
-				cost = 0;
-			} else {
-				cost -= pi->_ivalue;
-				RemoveSpdBarItem(myplr, i);
-				i = -1;
-			}
+	p->_pGold -= cost;
+#ifdef HELLFIRE
+	limit = MaxGold;
+#else
+	limit = GOLD_MAX_LIMIT;
+#endif
+	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
+		pi = &p->InvList[i];
+		if (pi->_itype != ITYPE_GOLD)
+			continue;
+		value = pi->_ivalue;
+		if (value == limit)
+			continue;
+		cost -= value;
+		if (cost < 0) {
+			SetGoldItemValue(pi, -cost);
+		} else {
+			RemoveInvItem(myplr, i);
+			i--;
 		}
 	}
-	if (cost > 0) {
-		for (i = 0; i < MAXBELTITEMS && cost > 0; i++) {
-			pi = &p->SpdList[i];
-			if (pi->_itype == ITYPE_GOLD) {
-				if (cost < pi->_ivalue) {
-					SetGoldItemValue(pi, pi->_ivalue - cost);
-					cost = 0;
-				} else {
-					cost -= pi->_ivalue;
-					RemoveSpdBarItem(myplr, i);
-					i = -1;
-				}
-			}
+	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
+		pi = &p->InvList[i];
+		if (pi->_itype != ITYPE_GOLD)
+			continue;
+		value = pi->_ivalue;
+		cost -= value;
+		if (cost < 0) {
+			SetGoldItemValue(pi, -cost);
+		} else {
+			RemoveInvItem(myplr, i);
+			i--;
 		}
 	}
 	force_redraw = 255;
-	if (cost > 0) {
-		for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-			pi = &p->InvList[i];
-			if (pi->_itype == ITYPE_GOLD && pi->_ivalue != GOLD_MAX_LIMIT) {
-				if (cost < pi->_ivalue) {
-					SetGoldItemValue(pi, pi->_ivalue - cost);
-					cost = 0;
-				} else {
-					cost -= pi->_ivalue;
-					RemoveInvItem(myplr, i);
-					i = -1;
-				}
-			}
-		}
-		if (cost > 0) {
-			for (i = 0; i < p->_pNumInv && cost > 0; i++) {
-				pi = &p->InvList[i];
-				if (pi->_itype == ITYPE_GOLD) {
-					if (cost < pi->_ivalue) {
-						SetGoldItemValue(pi, pi->_ivalue - cost);
-						cost = 0;
-					} else {
-						cost -= pi->_ivalue;
-						RemoveInvItem(myplr, i);
-						i = -1;
-					}
-				}
-			}
-		}
-	}
 }
 
 static BOOL StoreAutoPlace(BOOL saveflag)
