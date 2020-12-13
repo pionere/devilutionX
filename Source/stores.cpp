@@ -392,6 +392,14 @@ static char StoreItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
+static char StorePrepareItemSell(ItemStruct *is)
+{
+	ItemStatOk(myplr, is);
+	if (is->_iMagical != ITEM_QUALITY_NORMAL)
+		is->_iIdentified = TRUE;
+	return StoreItemColor(is);
+}
+
 static void S_ScrollSBuy()
 {
 	ItemStruct *is;
@@ -404,8 +412,7 @@ static void S_ScrollSBuy()
 	is = &smithitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			ItemStatOk(myplr, is);
-			iclr = StoreItemColor(is);
+			iclr = StorePrepareItemSell(is);
 
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 
@@ -457,8 +464,7 @@ static void S_ScrollSPBuy()
 	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitem[idx];
 		if (is->_itype != ITYPE_NONE) {
-			ItemStatOk(myplr, is);
-			iclr = StoreItemColor(is);
+			iclr = StorePrepareItemSell(is);
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
@@ -690,8 +696,7 @@ static void S_ScrollWBuy()
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			SetBookLevel(myplr, is);
-			ItemStatOk(myplr, is);
-			iclr = StoreItemColor(is);
+			iclr = StorePrepareItemSell(is);
 
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 
@@ -909,8 +914,7 @@ static void S_StartBBoy()
 	AddSLine(3);
 	AddSLine(21);
 
-	ItemStatOk(myplr, &boyitem);
-	iclr = StoreItemColor(&boyitem);
+	iclr = StorePrepareItemSell(&boyitem);
 
 	AddSText(20, 10, FALSE, boyitem._iIName, iclr, TRUE);
 
@@ -964,8 +968,7 @@ static void S_ScrollHBuy()
 	is = &healitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			ItemStatOk(myplr, is);
-			iclr = StoreItemColor(is);
+			iclr = StorePrepareItemSell(is);
 
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
 			AddSTextVal(l, is->_iIvalue);
@@ -1555,8 +1558,6 @@ static void SmithBuyItem()
 	int idx;
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
-		plr[myplr].HoldItem._iIdentified = FALSE;
 	StoreAutoPlace(TRUE);
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	do {
@@ -1594,8 +1595,6 @@ static void SmithBuyPItem()
 	int i, xx, idx;
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
-		plr[myplr].HoldItem._iIdentified = FALSE;
 	StoreAutoPlace(TRUE);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
@@ -1977,8 +1976,6 @@ static void HealerBuyItem()
 		plr[myplr].HoldItem._iSeed = GetRndSeed();
 
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
-	if (plr[myplr].HoldItem._iMagical == ITEM_QUALITY_NORMAL)
-		plr[myplr].HoldItem._iIdentified = FALSE;
 	StoreAutoPlace(TRUE);
 
 	if (infinite)

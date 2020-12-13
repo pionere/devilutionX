@@ -4332,7 +4332,6 @@ void SpawnSmith(int lvl)
 		} while (item[0]._iIvalue > SMITH_MAX_VALUE);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_SMITH;
-		item[0]._iIdentified = TRUE;
 		copy_pod(smithitem[i], item[0]);
 	}
 	for ( ; i < SMITH_ITEMS; i++)
@@ -4392,7 +4391,6 @@ static void SpawnOnePremium(int i, int plvl)
 	} while (item[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	item[0]._iSeed = seed;
 	item[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
-	item[0]._iIdentified = TRUE;
 	copy_pod(premiumitem[i], item[0]);
 }
 
@@ -4542,7 +4540,6 @@ void SpawnWitch(int lvl)
 		} while (item[0]._iIvalue > 140000);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_WITCH;
-		item[0]._iIdentified = TRUE;
 		copy_pod(witchitem[i], item[0]);
 	}
 
@@ -4585,7 +4582,6 @@ void SpawnBoy(int lvl)
 		} while (item[0]._iIvalue > 90000);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_BOY;
-		item[0]._iIdentified = TRUE;
 		copy_pod(boyitem, item[0]);
 		boylevel = lvl >> 1;
 	}
@@ -4692,7 +4688,6 @@ void SpawnHealer(int lvl)
 		GetItemAttrs(0, RndHealerItem(lvl), lvl);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_HEALER;
-		item[0]._iIdentified = TRUE;
 		copy_pod(healitem[i], item[0]);
 	}
 	for ( ; i < HEALER_ITEMS; i++) {
