@@ -52,7 +52,7 @@ void GetGoldSeed(int pnum, ItemStruct *is);
 void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 BOOL ItemSpaceOk(int i, int j);
-void SetItemData(int ii, int idata); // TODO: static
+void SetItemData(int ii, int idata);
 void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval);
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
 void SetupItem(int ii);

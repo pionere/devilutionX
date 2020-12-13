@@ -1541,7 +1541,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 				PlrHasItem(pnum, IDI_NOTE3, &nn);
 				RemoveInvItem(pnum, nn);
 			}
-			GetItemAttrs(MAXITEMS, IDI_FULLNOTE, 16);
+			SetItemData(MAXITEMS, IDI_FULLNOTE);
 			SetupItem(MAXITEMS);
 			copy_pod(*is, item[MAXITEMS]);
 			GetItemSeed(is);
