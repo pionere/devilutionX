@@ -68,15 +68,13 @@ void UseMana(int pnum, int sn)
 			break;
 		case RSPLTYPE_SPELL:
 #ifdef _DEBUG
-			if (!debug_mode_key_inverted_v) {
+			if (debug_mode_key_inverted_v)
+				break;
 #endif
-				ma = GetManaAmount(pnum, sn);
-				plr[pnum]._pMana -= ma;
-				plr[pnum]._pManaBase -= ma;
-				drawmanaflag = TRUE;
-#ifdef _DEBUG
-			}
-#endif
+			ma = GetManaAmount(pnum, sn);
+			plr[pnum]._pMana -= ma;
+			plr[pnum]._pManaBase -= ma;
+			drawmanaflag = TRUE;
 			break;
 		}
 	}

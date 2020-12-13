@@ -459,26 +459,27 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
  */
 void DrawDeadPlayer(int x, int y, int sx, int sy)
 {
-	int i, px, py, nCel, frames;
+	int i, px, py;
 	PlayerStruct *p;
-	BYTE *pCelBuff;
 
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		p = &plr[i];
 		if (p->plractive && p->_pHitPoints == 0 && p->plrlevel == currlevel && p->_px == x && p->_py == y) {
-			pCelBuff = p->_pAnimData;
+#ifdef _DEBUG
+			BYTE *pCelBuff = p->_pAnimData;
 			if (pCelBuff == NULL) {
 				// app_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
 				break;
 			}
-			nCel = p->_pAnimFrame;
-			frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
+			int nCel = p->_pAnimFrame;
+			int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
 				// app_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frame);
 				break;
 			}
+#endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
 			px = sx + p->_pxoff - p->_pAnimWidth2;
 			py = sy + p->_pyoff;
