@@ -3274,12 +3274,10 @@ static void ConvertPotion(ItemStruct *pi)
 	if (pi->_itype != ITYPE_MISC)
 		return;
 	if (pi->_iMiscId == IMISC_FULLHEAL || pi->_iMiscId == IMISC_FULLMANA) {
-		SetItemData(pi, IDI_FULLREJUV);
+		CreateBaseItem(pi, IDI_FULLREJUV);
 	} else if (pi->_iMiscId == IMISC_HEAL || pi->_iMiscId == IMISC_MANA) {
-		SetItemData(pi, IDI_REJUV);
-	} else
-		return;
-	GetItemSeed(pi);
+		CreateBaseItem(pi, IDI_REJUV);
+	}
 }
 
 static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)

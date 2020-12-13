@@ -560,7 +560,7 @@ static void AddInitItems()
 		ii = itemavail[0];
 		seed = GetRndSeed();
 		SetRndSeed(seed);
-		GetItemAttrs(ii, random_(12, 2) ? IDI_HEAL : IDI_MANA, lvl);
+		SetItemData(ii, random_(12, 2) ? IDI_HEAL : IDI_MANA);
 		item[ii]._iSeed = seed;
 		item[ii]._iCreateInfo = lvl | CF_PREGEN;
 		SetupItem(ii);
@@ -1196,15 +1196,17 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 	}
 }
 
-void SetItemData(ItemStruct *is, int idata)
+void SetItemData(int ii, int idata)
 {
+	ItemStruct *is;
 	ItemDataStruct *ids;
 
-	ids = &AllItemsList[idata];
-
+	is = &item[ii];
 	// zero-initialize struct
 	memset(is, 0, sizeof(*is));
 
+	is->IDidx = idata;
+	ids = &AllItemsList[idata];
 	is->_itype = ids->itype;
 	is->_iCurs = ids->iCurs;
 	strcpy(is->_iName, ids->iName);
@@ -1213,15 +1215,9 @@ void SetItemData(ItemStruct *is, int idata)
 	is->_iClass = ids->iClass;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
-	is->_iAC = ids->iMinAC;
+	is->_iAC = RandRange(ids->iMinAC, ids->iMaxAC); // TODO: should not be necessary for most of the items
 	is->_iMiscId = ids->iMiscId;
 	is->_iSpell = ids->iSpell;
-
-	if (ids->iMiscId == IMISC_STAFF) {
-		is->_iCharges = BASESTAFFCHARGES;
-	}
-
-	is->_iMaxCharges = is->_iCharges;
 	is->_iDurability = ids->iDurability;
 	is->_iMaxDur = ids->iDurability;
 	is->_iMinStr = ids->iMinStr;
@@ -1229,10 +1225,22 @@ void SetItemData(ItemStruct *is, int idata)
 	is->_iMinDex = ids->iMinDex;
 	is->_ivalue = ids->iValue;
 	is->_iIvalue = ids->iValue;
+
+	if (is->_iMiscId == IMISC_STAFF && is->_iSpell != SPL_NULL) {
+		is->_iCharges = BASESTAFFCHARGES;
+		is->_iMaxCharges = is->_iCharges;
+	}
+
 	is->_iPrePower = IPL_INVALID;
 	is->_iSufPower = IPL_INVALID;
-	is->_iMagical = ITEM_QUALITY_NORMAL;
-	is->IDidx = idata;
+	static_assert(ITEM_QUALITY_NORMAL == 0, "Zero-fill expects ITEM_QUALITY_NORMAL == 0.");
+	//is->_iMagical = ITEM_QUALITY_NORMAL;
+}
+
+void SetItemSData(ItemStruct *is, int idata)
+{
+	SetItemData(MAXITEMS, idata);
+	copy_pod(is, &item[MAXITEMS]);
 }
 
 void GetItemSeed(ItemStruct *is)
@@ -1262,6 +1270,12 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 	} while (!doneflag);
 
 	is->_iSeed = s;
+}
+
+void CreateBaseItem(ItemStruct *is, int idata)
+{
+	SetItemSData(is, idata);
+	GetItemSeed(is);
 }
 
 void SetGoldItemValue(ItemStruct *is, int value)
@@ -1309,89 +1323,62 @@ void CreatePlrItems(int pnum)
 
 	switch (p->_pClass) {
 	case PC_WARRIOR:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRIOR);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRIOR);
 
-		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		SetItemData(&p->HoldItem, IDI_WARRCLUB);
-		GetItemSeed(&p->HoldItem);
+		CreateBaseItem(&p->HoldItem, IDI_WARRCLUB);
 		AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_ROGUE:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
 
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_SORCERER:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCEROR);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCEROR);
 
 #ifdef HELLFIRE
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 #else
-		SetItemData(&p->SpdList[0], IDI_MANA);
-		GetItemSeed(&p->SpdList[0]);
+		CreateBaseItem(&p->SpdList[0], IDI_MANA);
 
-		SetItemData(&p->SpdList[1], IDI_MANA);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[1], IDI_MANA);
 #endif
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
 
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARD:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_SWORD);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SWORD);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_DAGGER);
 
-		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], IDI_DAGGER);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
-
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARBARIAN:
-		SetItemData(&p->InvBody[INVLOC_HAND_LEFT], IDI_FLAIL);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_LEFT]);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_FLAIL);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		SetItemData(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
-		GetItemSeed(&p->InvBody[INVLOC_HAND_RIGHT]);
-		SetItemData(&p->SpdList[0], IDI_HEAL);
-		GetItemSeed(&p->SpdList[0]);
-
-		SetItemData(&p->SpdList[1], IDI_HEAL);
-		GetItemSeed(&p->SpdList[1]);
+		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
+		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 #endif
 	}
 
-	SetItemData(&p->HoldItem, IDI_GOLD);
-	GetItemSeed(&p->HoldItem);
+	CreateBaseItem(&p->HoldItem, IDI_GOLD);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
@@ -1739,74 +1726,19 @@ static void GetOilType(int ii, int max_lvl)
 void GetItemAttrs(int ii, int idata, int lvl)
 {
 	ItemStruct *is;
-	ItemDataStruct *ids;
 	int rndv;
 
+	SetItemData(ii, idata);
+
 	is = &item[ii];
-	ids = &AllItemsList[idata];
-
-	is->_itype = ids->itype;
-	is->_iCurs = ids->iCurs;
-	strcpy(is->_iName, ids->iName);
-	strcpy(is->_iIName, ids->iName);
-	is->_iLoc = ids->iLoc;
-	is->_iClass = ids->iClass;
-	is->_iMinDam = ids->iMinDam;
-	is->_iMaxDam = ids->iMaxDam;
-	is->_iAC = RandRange(ids->iMinAC, ids->iMaxAC);
-	is->_iMiscId = ids->iMiscId;
-	is->_iSpell = ids->iSpell;
-	is->_iMagical = ITEM_QUALITY_NORMAL;
-	is->_ivalue = ids->iValue;
-	is->_iIvalue = ids->iValue;
-	is->_iVAdd1 = 0;
-	is->_iVMult1 = 0;
-	is->_iVAdd2 = 0;
-	is->_iVMult2 = 0;
-	is->_iPLDam = 0;
-	is->_iPLToHit = 0;
-	is->_iPLAC = 0;
-	is->_iPLStr = 0;
-	is->_iPLMag = 0;
-	is->_iPLDex = 0;
-	is->_iPLVit = 0;
-	is->_iCharges = 0;
-	is->_iMaxCharges = 0;
-	is->_iDurability = ids->iDurability;
-	is->_iMaxDur = ids->iDurability;
-	is->_iMinStr = ids->iMinStr;
-	is->_iMinMag = ids->iMinMag;
-	is->_iMinDex = ids->iMinDex;
-	is->_iPLFR = 0;
-	is->_iPLLR = 0;
-	is->_iPLMR = 0;
-	is->IDidx = idata;
-	is->_iPLDamMod = 0;
-	is->_iPLGetHit = 0;
-	is->_iPLLight = 0;
-	is->_iSplLvlAdd = 0;
-	is->_iRequest = FALSE;
-	is->_iFMinDam = 0;
-	is->_iFMaxDam = 0;
-	is->_iLMinDam = 0;
-	is->_iLMaxDam = 0;
-	is->_iPLEnAc = 0;
-	is->_iPLMana = 0;
-	is->_iPLHP = 0;
-	is->_iFlags = 0;
-	is->_iPrePower = IPL_INVALID;
-	is->_iSufPower = IPL_INVALID;
-
 	if (is->_iMiscId == IMISC_BOOK)
 		GetBookSpell(ii, lvl);
 
 #ifdef HELLFIRE
-	is->_iDamAcFlags = 0;
-
-	if (is->_iMiscId == IMISC_OILOF)
+	else if (is->_iMiscId == IMISC_OILOF)
 		GetOilType(ii, lvl);
 #endif
-	if (is->_itype == ITYPE_GOLD) {
+	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
 		if (gnDifficulty == DIFF_NORMAL)
 			rndv = 5 * lvl + random_(21, 10 * lvl);
@@ -2807,10 +2739,10 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 		idx = IDI_PORTAL;
 #endif
 
-	GetItemAttrs(ii, idx, lvl);
+	SetItemData(ii, idx);
+	SetupItem(ii);
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_USEFUL;
-	SetupItem(ii);
 }
 
 void CreateRndUseful(int x, int y, BOOL sendmsg)
@@ -2864,20 +2796,18 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 {
-	ItemStruct *is;
 	int uper;
 	BOOL onlygood, recreate, pregen;
 
-	is = &item[MAXITEMS];
 	if (idx == 0) {
-		SetItemData(is, IDI_GOLD);
-		is->_iSeed = iseed;
-		is->_iCreateInfo = icreateinfo;
-		SetGoldItemValue(is, ivalue);
+		SetItemData(MAXITEMS, IDI_GOLD);
+		item[MAXITEMS]._iSeed = iseed;
+		item[MAXITEMS]._iCreateInfo = icreateinfo;
+		SetGoldItemValue(&item[MAXITEMS], ivalue);
 	} else {
 		if (icreateinfo == 0) {
-			SetItemData(is, idx);
-			is->_iSeed = iseed;
+			SetItemData(MAXITEMS, idx);
+			item[MAXITEMS]._iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
 				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed, ivalue);
@@ -2906,7 +2836,7 @@ void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
 {
-	SetItemData(&item[MAXITEMS], IDI_EAR);
+	SetItemData(MAXITEMS, IDI_EAR);
 	tempstr[0] = (ic >> 8) & 0x7F;
 	tempstr[1] = ic & 0x7F;
 	tempstr[2] = (iseed >> 24) & 0x7F;
@@ -3081,7 +3011,7 @@ void SpawnRock()
 	}
 	if (i != nobjects) {
 		i = itemavail[0];
-		GetItemAttrs(i, IDI_ROCK, items_get_currlevel());
+		SetItemData(i, IDI_ROCK);
 		SetupItem(i);
 		item[i]._iSelFlag = 2;
 		item[i]._iPostDraw = TRUE;
@@ -3095,12 +3025,12 @@ void SpawnRock()
 }
 
 #ifdef HELLFIRE
-void SpawnRewardItem(int itemid, int xx, int yy)
+void SpawnRewardItem(int idx, int xx, int yy)
 {
 	int ii;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, itemid, items_get_currlevel());
+	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iSelFlag = 2;
 	item[ii]._iPostDraw = TRUE;
@@ -4595,13 +4525,11 @@ void SpawnWitch(int lvl)
 	int i, iCnt;
 	int seed;
 
-	item[0]._iCreateInfo = 0;
-	item[0]._iStatFlag = TRUE;
-	GetItemAttrs(0, IDI_MANA, 1);
+	SetItemData(0, IDI_MANA);
 	copy_pod(witchitem[0], item[0]);
-	GetItemAttrs(0, IDI_FULLMANA, 1);
+	SetItemData(0, IDI_FULLMANA);
 	copy_pod(witchitem[1], item[0]);
-	GetItemAttrs(0, IDI_PORTAL, 1);
+	SetItemData(0, IDI_PORTAL);
 	copy_pod(witchitem[2], item[0]);
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
 	for (i = 3; i < iCnt; i++) {
@@ -4743,16 +4671,14 @@ void SpawnHealer(int lvl)
 {
 	int i, iCnt, srnd, seed;
 
-	item[0]._iCreateInfo = 0;
-	item[0]._iStatFlag = TRUE;
-	GetItemAttrs(0, IDI_HEAL, 1);
+	SetItemData(0, IDI_HEAL);
 	copy_pod(healitem[0], item[0]);
 
-	GetItemAttrs(0, IDI_FULLHEAL, 1);
+	SetItemData(0, IDI_FULLHEAL);
 	copy_pod(healitem[1], item[0]);
 
 	if (gbMaxPlayers != 1) {
-		GetItemAttrs(0, IDI_RESURRECT, 1);
+		SetItemData(0, IDI_RESURRECT);
 		copy_pod(healitem[2], item[0]);
 
 		srnd = 3;
@@ -4777,9 +4703,8 @@ void SpawnHealer(int lvl)
 
 void SpawnStoreGold()
 {
-	GetItemAttrs(0, IDI_GOLD, 1);
+	SetItemData(0, IDI_GOLD);
 	copy_pod(golditem, item[0]);
-	golditem._iStatFlag = TRUE;
 }
 
 static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)

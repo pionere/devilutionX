@@ -46,13 +46,13 @@ void CalcPlrScrolls(int pnum);
 void CalcPlrStaff(int pnum);
 void ItemStatOk(int pnum, ItemStruct *is);
 void CalcPlrInv(int pnum, BOOL Loadgfx);
-void SetItemData(ItemStruct *is, int idata);
+void CreateBaseItem(ItemStruct *is, int idata);
 void GetItemSeed(ItemStruct *is);
 void GetGoldSeed(int pnum, ItemStruct *is);
 void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
 BOOL ItemSpaceOk(int i, int j);
-void GetItemAttrs(int ii, int idata, int lvl);
+void SetItemData(int ii, int idata); // TODO: static
 void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval);
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
 void SetupItem(int ii);

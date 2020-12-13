@@ -59,8 +59,7 @@ void GiveGoldCheat()
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr[myplr].InvGrid[i] == 0) {
 			pi = &plr[myplr].InvList[plr[myplr]._pNumInv];
-			SetItemData(pi, IDI_GOLD);
-			GetItemSeed(pi);
+			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 			plr[myplr]._pGold += GOLD_MAX_LIMIT;
 			plr[myplr].InvGrid[i] = ++plr[myplr]._pNumInv;

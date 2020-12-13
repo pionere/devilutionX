@@ -1930,7 +1930,7 @@ void StartPlrKill(int pnum, int earflag)
 				DropHalfPlayersGold(pnum);
 				if (earflag != -1) {
 					if (earflag != 0) {
-						SetItemData(&ear, IDI_EAR);
+						CreateBaseItem(&ear, IDI_EAR);
 						snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
 						int earSets[NUM_CLASSES] = {
 								ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCEROR
@@ -1998,8 +1998,7 @@ void DropHalfPlayersGold(int pnum)
 			RemoveInvItem(pnum, i);
 			i--;
 		}
-		SetItemData(holditem, IDI_GOLD);
-		GetGoldSeed(pnum, holditem);
+		CreateBaseItem(holditem, IDI_GOLD);
 		SetGoldItemValue(holditem, value);
 		PlrDeadItem(holditem, p);
 	}
@@ -2016,8 +2015,7 @@ void DropHalfPlayersGold(int pnum)
 			RemoveInvItem(pnum, i);
 			i--;
 		}
-		SetItemData(holditem, IDI_GOLD);
-		GetGoldSeed(pnum, holditem);
+		CreateBaseItem(holditem, IDI_GOLD);
 		SetGoldItemValue(holditem, value);
 		PlrDeadItem(holditem, p);
 	}
@@ -2045,8 +2043,7 @@ void StripTopGold(int pnum)
 			val = pi->_ivalue - MaxGold;
 			if (val > 0) {
 				SetGoldItemValue(pi, MaxGold);
-				SetItemData(holditem, IDI_GOLD);
-				GetGoldSeed(pnum, holditem);
+				CreateBaseItem(holditem, IDI_GOLD);
 				SetGoldItemValue(holditem, val);
 				if (!GoldAutoPlace(pnum, holditem))
 					PlrDeadItem(holditem, p);

@@ -1475,51 +1475,48 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				pnum = dPlayer[tx][ty];
 				if (pnum != 0) {
-					pnum = pnum > 0 ? pnum - 1 : -(pnum + 1);
+					pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
 
 					hasPlayedSFX = FALSE;
 					pi = plr[pnum].SpdList;
 					for (si = 0; si < MAXBELTITEMS; si++, pi++) {
 						ii = -1;
-						if (pi->_itype == ITYPE_MISC) {
-							if (random_(205, 2) != 0) {
-								switch (pi->_iMiscId) {
-								case IMISC_FULLHEAL:
-									ii = IDI_HEAL;
-									break;
-								case IMISC_HEAL:
-								case IMISC_MANA:
-									RemoveSpdBarItem(pnum, si);
-									continue;
-								case IMISC_FULLMANA:
+						if (pi->_itype == ITYPE_MISC && random_(205, 2) != 0) {
+							switch (pi->_iMiscId) {
+							case IMISC_FULLHEAL:
+								ii = IDI_HEAL;
+								break;
+							case IMISC_HEAL:
+							case IMISC_MANA:
+								RemoveSpdBarItem(pnum, si);
+								continue;
+							case IMISC_FULLMANA:
+								ii = IDI_MANA;
+								break;
+							case IMISC_REJUV:
+								if (random_(205, 2) != 0) {
 									ii = IDI_MANA;
+								} else {
+									ii = IDI_HEAL;
+								}
+								break;
+							case IMISC_FULLREJUV:
+								switch (random_(205, 3)) {
+								case 0:
+									ii = IDI_FULLMANA;
 									break;
-								case IMISC_REJUV:
-									if (random_(205, 2) != 0) {
-										ii = IDI_MANA;
-									} else {
-										ii = IDI_HEAL;
-									}
+								case 1:
+									ii = IDI_FULLHEAL;
 									break;
-								case IMISC_FULLREJUV:
-									switch (random_(205, 3)) {
-									case 0:
-										ii = IDI_FULLMANA;
-										break;
-									case 1:
-										ii = IDI_FULLHEAL;
-										break;
-									default:
-										ii = IDI_REJUV;
-										break;
-									}
+								default:
+									ii = IDI_REJUV;
 									break;
 								}
+								break;
 							}
 						}
 						if (ii != -1) {
-							SetItemData(pi, ii);
-							GetItemSeed(pi);
+							CreateBaseItem(pi, ii);
 							pi->_iStatFlag = TRUE;
 						}
 						if (!hasPlayedSFX) {
