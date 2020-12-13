@@ -619,7 +619,7 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 	if (done == 0)
 		return FALSE;
 
-	p->_pGold = CalculateGold(pnum);
+	CalculateGold(pnum);
 	if (done == 1) {
 		// partial placement
 		SetGoldItemValue(is, value);
@@ -1101,7 +1101,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 					p->_pGold += holditem->_ivalue;
 				cn = SwapItem(&p->InvList[il], holditem);
 				if (holditem->_itype == ITYPE_GOLD)
-					p->_pGold = CalculateGold(pnum);
+					CalculateGold(pnum);
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (p->InvGrid[i] == it)
 						p->InvGrid[i] = 0;
@@ -1165,7 +1165,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		} else {
 			cn = SwapItem(is, holditem);
 			if (holditem->_itype == ITYPE_GOLD)
-				p->_pGold = CalculateGold(pnum);
+				CalculateGold(pnum);
 		}
 		drawsbarflag = TRUE;
 		break;
@@ -1337,7 +1337,7 @@ static void CheckInvCut(int pnum, int mx, int my)
 	}
 
 	if (p->HoldItem._itype == ITYPE_GOLD) {
-		p->_pGold = CalculateGold(pnum);
+		CalculateGold(pnum);
 	}
 
 	CalcPlrInv(pnum, TRUE);
@@ -2246,26 +2246,19 @@ BOOL UseInvItem(int cii)
 	return TRUE;
 }
 
-int CalculateGold(int pnum)
+void CalculateGold(int pnum)
 {
 	ItemStruct *pi;
 	int i, gold;
 
 	gold = 0;
-	pi = plr[pnum].SpdList;
-	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD) {
-			gold += pi->_ivalue;
-			force_redraw = 255;
-		}
-	}
 	pi = plr[pnum].InvList;
 	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD)
 			gold += pi->_ivalue;
 	}
 
-	return gold;
+	plr[pnum]._pGold = gold;
 }
 
 DEVILUTION_END_NAMESPACE

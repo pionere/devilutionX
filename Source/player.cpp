@@ -2050,7 +2050,7 @@ void StripTopGold(int pnum)
 			}
 		}
 	}
-	p->_pGold = CalculateGold(pnum);
+	CalculateGold(pnum);
 	copy_pod(*holditem, tmpItem);
 }
 #endif

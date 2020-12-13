@@ -2059,7 +2059,7 @@ void control_remove_gold(int pnum, int gold_index)
 	CreateBaseItem(is, IDI_GOLD);
 	SetGoldItemValue(is, dropGoldValue);
 	NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
-	plr[pnum]._pGold = CalculateGold(pnum);
+	CalculateGold(pnum);
 	dropGoldValue = 0;
 }
 
