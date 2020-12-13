@@ -1798,7 +1798,6 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		NewPlrAnim(pnum, p->_pHAnim[p->_pdir], p->_pHFrames, 0, p->_pHWidth);
 
 		p->_pmode = PM_GOTHIT;
-		p->_pVar8 = 1;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
 		FixPlayerLocation(pnum);
@@ -3081,48 +3080,26 @@ static BOOL PlrDoGotHit(int pnum)
 		app_fatal("PlrDoGotHit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if (p->_pIFlags & (ISPL_FASTRECOVER | ISPL_FASTERRECOVER | ISPL_FASTESTRECOVER)) {
-		frame = 3;
-		if (p->_pIFlags & ISPL_FASTERRECOVER)
-			frame = 4;
-		if (p->_pIFlags & ISPL_FASTESTRECOVER)
-			frame = 5;
-		if (p->_pVar8 > 1 && p->_pVar8 < frame) {
-			p->_pVar8 = frame;
-		}
-		if (p->_pVar8 > p->_pHFrames)
-			p->_pVar8 = p->_pHFrames;
-	}
-
-	if (p->_pVar8 == p->_pHFrames) {
-#else
 	frame = p->_pAnimFrame;
-	if (p->_pIFlags & ISPL_FASTRECOVER && frame == 3) {
+	if (p->_pIFlags & ISPL_FASTESTRECOVER) {
 		p->_pAnimFrame++;
-	}
-	if (p->_pIFlags & ISPL_FASTERRECOVER && (frame == 3 || frame == 5)) {
-		p->_pAnimFrame++;
-	}
-	if (p->_pIFlags & ISPL_FASTESTRECOVER && (frame == 1 || frame == 3 || frame == 5)) {
-		p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTERRECOVER) {
+		if (frame == 1 || frame == 4)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTRECOVER) {
+		if (frame == 3)
+			p->_pAnimFrame++;
 	}
 
-	if (p->_pAnimFrame >= p->_pHFrames) {
-#endif
-		PlrStartStand(pnum, p->_pdir);
-		ClearPlrPVars(pnum);
-		if (random_(3, 4)) {
-			ArmorDur(pnum);
-		}
-
-		return TRUE;
+	if (p->_pAnimFrame < p->_pHFrames)
+		return FALSE;
+	PlrStartStand(pnum, p->_pdir);
+	ClearPlrPVars(pnum);
+	if (random_(3, 4) != 0) {
+		ArmorDur(pnum);
 	}
 
-#ifdef HELLFIRE
-	p->_pVar8++;
-#endif
-	return FALSE;
+	return TRUE;
 }
 
 static BOOL PlrDoDeath(int pnum)
