@@ -1557,6 +1557,26 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 }
 
+/*
+ * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
+ *  ISPL_QUICKATTACK:   +1
+ *  ISPL_FASTATTACK:    +2
+ *  ISPL_FASTERATTACK:  +4
+ *  ISPL_FASTESTATTACK: +8
+ */
+inline static int ArrowVelBonus(unsigned flags)
+{
+	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
+	if (flags != 0) {
+		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
+		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
+		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
+		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
+		flags /= ISPL_QUICKATTACK;
+	}
+	return flags;
+}
+
 /**
  * Var1: dx destination of the missile
  * Var2: dy destination of the missile
@@ -1601,14 +1621,7 @@ void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			av += (p->_pLevel - 1) >> 3;
 
 		flags = p->_pIFlags;
-		if (flags & ISPL_QUICKATTACK)
-			av++;
-		if (flags & ISPL_FASTATTACK)
-			av += 2;
-		if (flags & ISPL_FASTERATTACK)
-			av += 4;
-		if (flags & ISPL_FASTESTATTACK)
-			av += 8;
+		av += ArrowVelBonus(flags);
 	}
 	mis->_miVar4 = mitype;
 	mis->_miVar5 = av;
@@ -1979,14 +1992,7 @@ void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		if (flags & ISPL_RNDARROWVEL)
 			av = RandRange(16, 46);
 #ifdef HELLFIRE
-		if (flags & ISPL_QUICKATTACK)
-			av++;
-		if (flags & ISPL_FASTATTACK)
-			av += 2;
-		if (flags & ISPL_FASTERATTACK)
-			av += 4;
-		if (flags & ISPL_FASTESTATTACK)
-			av += 8;
+		av += ArrowVelBonus(flags);
 
 		if (p->_pClass == PC_ROGUE)
 			av += p->_pLevel >> 2;
