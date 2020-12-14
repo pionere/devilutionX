@@ -1192,14 +1192,7 @@ void ProcessLightList()
 				lis->_lunflag = FALSE;
 			}
 		}
-		for (i = 0; i < numlights; i++) {
-			j = lightactive[i];
-			if (!LightList[j]._ldel) {
-				DoLighting(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius, j);
-			}
-		}
-		i = 0;
-		while (i < numlights) {
+		for (i = 0; i < numlights; ) {
 			if (LightList[lightactive[i]]._ldel) {
 				numlights--;
 				temp = lightactive[numlights];
@@ -1209,9 +1202,13 @@ void ProcessLightList()
 				i++;
 			}
 		}
-	}
+		for (i = 0; i < numlights; i++) {
+			j = lightactive[i];
+			DoLighting(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius, j);
+		}
 
-	dolighting = FALSE;
+		dolighting = FALSE;
+	}
 }
 
 void SavePreLighting()
