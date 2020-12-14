@@ -1086,11 +1086,12 @@ typedef struct SpellData {
 	unsigned char sType;
 	const char *sNameText;
 	const char *sSkillText;
-	int sBookLvl;
-	int sStaffLvl;
-	BOOL sTargeted;
-	BOOL sTownSpell;
-	int sMinInt;
+	char sBookLvl;
+	char sStaffLvl;
+	char sScrollLvl;
+	BOOLEAN sTargeted;
+	BOOLEAN sTownSpell;
+	BYTE sMinInt;
 	unsigned char sSFX;
 	unsigned char sMissiles[3];
 	unsigned char sManaAdj;
@@ -1098,7 +1099,7 @@ typedef struct SpellData {
 	int sStaffMin;
 	int sStaffMax;
 	int sBookCost;
-	int sStaffCost;
+	int sStaffCost; // == sScrollCost
 } SpellData;
 
 //////////////////////////////////////////////////

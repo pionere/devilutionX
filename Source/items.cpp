@@ -1577,6 +1577,43 @@ static void GetBookSpell(int ii, int lvl)
 		is->_iCurs = ICURS_BOOK_GREY;
 }
 
+static void GetScrollSpell(int ii, int lvl)
+{
+	SpellData *sd;
+	ItemStruct *is;
+	int rv, bs;
+
+	rv = random_(14, NUM_SPELLS);
+
+#ifdef SPAWN
+	if (lvl > 5)
+		lvl = 5;
+#endif
+	if (lvl < SCRL_MIN)
+		lvl = SCRL_MIN;
+
+	bs = 0;
+	while (TRUE) {
+		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
+		 && (gbMaxPlayers != 1
+			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+			if (rv == 0)
+				break;
+			rv--;
+		}
+		if (++bs == NUM_SPELLS)
+			bs = 0;
+	}
+	is = &item[ii];
+	is->_iSpell = bs;
+	sd = &spelldata[bs];
+	strcat(is->_iName, sd->sNameText);
+	strcat(is->_iIName, sd->sNameText);
+	is->_iMinMag = sd->sMinInt > 20 ? sd->sMinInt - 20 : 0;
+	is->_ivalue += sd->sStaffCost;
+	is->_iIvalue += sd->sStaffCost;
+}
+
 static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 {
 	const PLStruct *l[256];
@@ -1729,7 +1766,8 @@ void GetItemAttrs(int ii, int idata, int lvl)
 	is = &item[ii];
 	if (is->_iMiscId == IMISC_BOOK)
 		GetBookSpell(ii, lvl);
-
+	else if (is->_iMiscId == IMISC_SCROLL)
+		GetScrollSpell(ii, lvl);
 #ifdef HELLFIRE
 	else if (is->_iMiscId == IMISC_OILOF)
 		GetOilType(ii, lvl);

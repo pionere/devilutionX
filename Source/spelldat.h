@@ -17,6 +17,8 @@ extern "C" {
 #define BOOK_MIN		 1
 /* Minimum level requirement of a staff. */
 #define STAFF_MIN		 2
+/* Minimum level requirement of a scroll. */
+#define SCRL_MIN		 1
 
 extern SpellData spelldata[NUM_SPELLS];
 
