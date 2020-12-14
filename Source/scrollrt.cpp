@@ -379,7 +379,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 {
 	int l, frames;
 
-	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || currlevel == 0) {
+	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag) {
 		if (pCelBuff == NULL) {
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 		}
