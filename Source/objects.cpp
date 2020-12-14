@@ -1539,13 +1539,12 @@ static void AddTorturedBody(int oi)
 	os->_oPreFlag = TRUE;
 }
 
-void GetRndObjLoc(int randarea, int *xx, int *yy)
+static void GetRndObjLoc(int randarea, int *xx, int *yy)
 {
 	DIABOOL failed;
 	int i, j, tries;
 
-	if (randarea == 0)
-		return;
+	assert(randarea > 0);
 
 	tries = 0;
 	while (TRUE) {

@@ -1838,10 +1838,10 @@ static void M2MStartKill(int offm, int defm)
 	int md;
 
 	if ((DWORD)offm >= MAXMONSTERS) {
-		app_fatal("M2MStartKill: Invalid monster (attacker) %d", offm);
+		dev_fatal("M2MStartKill: Invalid monster (attacker) %d", offm);
 	}
 	if ((DWORD)defm >= MAXMONSTERS) {
-		app_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
+		dev_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
 	}
 	dmon = &monster[defm];
 

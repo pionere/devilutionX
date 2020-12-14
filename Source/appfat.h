@@ -31,7 +31,7 @@ void DirErrorDlg(const char *error);
 }
 #endif
 
-#ifdef _DEVMODE
+#if defined(_DEVMODE) || defined(_DEBUG)
 template <typename... MsgArgs>
 void dev_fatal(const char *pszFmt, MsgArgs... args) {
 	app_fatal(pszFmt, args...);

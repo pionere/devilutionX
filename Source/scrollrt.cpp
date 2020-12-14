@@ -259,14 +259,12 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
-		// app_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_mitype);
-		return;
+		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		// app_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_mitype);
-		return;
+		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
 	}
 	mx = sx + mis->_mixoff - mis->_miAnimWidth2;
 	my = sy + mis->_miyoff;
@@ -325,32 +323,27 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	BYTE *pCelBuff;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-		// app_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
-		return;
+		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 	mon = &monster[mnum];
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		// app_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
-		return;
+		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
 	}
 
 	nCel = mon->_mAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		/*
 		const char *szMode = "unknown action";
-		if(mon->_mmode <= 17)
+		if (mon->_mmode < lengthof(szMonModeAssert))
 			szMode = szMonModeAssert[mon->_mmode];
-		app_fatal(
+		dev_fatal(
 			"Draw Monster \"%s\" %s: facing %d, frame %d of %d",
 			mon->mName,
 			szMode,
 			mon->_mdir,
 			nCel,
 			frames);
-		*/
-		return;
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
@@ -388,16 +381,14 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 
 	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag || currlevel == 0) {
 		if (pCelBuff == NULL) {
-			// app_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
-			return;
+			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 		}
 		frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
-			/*
 			const char *szMode = "unknown action";
-			if(plr[pnum]._pmode <= PM_QUIT)
+			if (plr[pnum]._pmode <= PM_QUIT)
 				szMode = szPlrModeAssert[plr[pnum]._pmode];
-			app_fatal(
+			dev_fatal(
 				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
 				pnum,
 				plr[pnum]._pName,
@@ -405,8 +396,6 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 				plr[pnum]._pdir,
 				nCel,
 				frames);
-			*/
-			return;
 		}
 		if (pnum == pcursplr)
 			Cl2DrawOutline(165, px, py, pCelBuff, nCel, nWidth);
@@ -470,14 +459,12 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 #ifdef _DEBUG
 			BYTE *pCelBuff = p->_pAnimData;
 			if (pCelBuff == NULL) {
-				// app_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
-				break;
+				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
 			}
 			int nCel = p->_pAnimFrame;
 			int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				// app_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frame);
-				break;
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frame);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -529,15 +516,13 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
-		// app_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
-		return;
+		dev_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 	}
 
 	nCel = os->_oAnimFrame;
 	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > (int)frames) {
-		// app_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
-		return;
+		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
 	}
 
 	if (oi == pcursobj)
@@ -669,7 +654,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 		return;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
-		// app_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
+		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 
 	mon = &monster[mnum];
@@ -677,8 +662,8 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 		return;
 	}
 
-	if (mon->MType != NULL) {
-		// app_fatal("Draw Monster \"%s\": uninitialized monster", mon->mName);
+	if (mon->MType == NULL) {
+		dev_fatal("Draw Monster \"%s\": uninitialized monster", mon->mName);
 	}
 
 	px = sx + mon->_mxoff - mon->MType->width2;

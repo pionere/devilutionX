@@ -2913,6 +2913,8 @@ static void GetRandomItemSpace(int randarea, int ii)
 	BOOL failed;
 	int x, y, i, j, tries;
 
+	assert(randarea > 0);
+
 	tries = 0;
 	while (TRUE) {
 		x = random_(0, MAXDUNX);
