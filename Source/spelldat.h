@@ -13,6 +13,10 @@ extern "C" {
 #endif
 
 #define SPELL_NA		-1
+/* Minimum level requirement of a book. */
+#define BOOK_MIN		 1
+/* Minimum level requirement of a staff. */
+#define STAFF_MIN		 2
 
 extern SpellData spelldata[NUM_SPELLS];
 

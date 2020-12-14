@@ -1540,14 +1540,14 @@ static void GetBookSpell(int ii, int lvl)
 	ItemStruct *is;
 	int rv, bs;
 
-	if (lvl == 0)
-		lvl = 1;
 	rv = random_(14, NUM_SPELLS);
 
 #ifdef SPAWN
 	if (lvl > 5)
 		lvl = 5;
 #endif
+	if (lvl < BOOK_MIN)
+		lvl = BOOK_MIN;
 
 	bs = 0;
 	while (TRUE) {
@@ -1647,12 +1647,12 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 #endif
 	rv = random_(18, NUM_SPELLS);
 
-	if (lvl == 0)
-		lvl = 1;
 #ifdef SPAWN
 	if (lvl > 10)
 		lvl = 10;
 #endif
+	if (lvl < STAFF_MIN)
+		lvl = STAFF_MIN;
 
 	bs = 0;
 	while (TRUE) {
