@@ -319,7 +319,7 @@ static void InitRndLocObj(int min, int max, int objtype)
 	numobjs = RandRange(min, max - 1);
 
 	for (i = 0; i < numobjs; i++) {
-		while (1) {
+		while (TRUE) {
 			xp = random_(139, DSIZEX) + DBORDERX;
 			yp = random_(139, DSIZEY) + DBORDERY;
 			if (RndLocOk(xp - 1, yp - 1)
@@ -344,7 +344,7 @@ static void InitRndLocBigObj(int min, int max, int objtype)
 
 	numobjs = RandRange(min, max - 1);
 	for (i = 0; i < numobjs; i++) {
-		while (1) {
+		while (TRUE) {
 			xp = random_(140, DSIZEX) + DBORDERX;
 			yp = random_(140, DSIZEY) + DBORDERY;
 			if (RndLocOk(xp - 1, yp - 2)
@@ -1548,7 +1548,7 @@ void GetRndObjLoc(int randarea, int *xx, int *yy)
 		return;
 
 	tries = 0;
-	while (1) {
+	while (TRUE) {
 		tries++;
 		if (tries > 1000 && randarea > 1)
 			randarea--;
@@ -4040,7 +4040,7 @@ static int FindValidShrine(int filter)
 	int rv;
 	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	while (1) {
+	while (TRUE) {
 		rv = random_(0, NUM_SHRINETYPE);
 		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
 		 && rv != filter && shrineavail[rv] != excl)
@@ -4967,7 +4967,7 @@ void AddUberLever()
 {
 	int xp, yp;
 
-	while (1) {
+	while (TRUE) {
 		xp = random_(141, DSIZEX) + DBORDERX;
 		yp = random_(141, DSIZEY) + DBORDERY;
 		if (RndLocOk(xp - 1, yp - 1)

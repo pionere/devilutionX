@@ -123,7 +123,7 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		const char *sstr = str;
 		const char *endstr = sstr;
 
-		while (1) {
+		while (TRUE) {
 			if (*sstr != '\0') {
 				c = gbFontTransTbl[(BYTE)*sstr++];
 				c = fontframe[c];

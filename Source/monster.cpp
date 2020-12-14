@@ -646,7 +646,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		}
 	}
 
-	while (1) {
+	while (TRUE) {
 		xp = random_(91, DSIZEX) + DBORDERX;
 		yp = random_(91, DSIZEY) + DBORDERY;
 		count2 = 0;

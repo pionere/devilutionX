@@ -741,7 +741,7 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 	_SNETUIDATA UiData;
 	_SNETPLAYERDATA plrdata;
 
-	while (1) {
+	while (TRUE) {
 		*pfExitProgram = FALSE;
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);

@@ -2914,7 +2914,7 @@ static void GetRandomItemSpace(int randarea, int ii)
 	int x, y, i, j, tries;
 
 	tries = 0;
-	while (1) {
+	while (TRUE) {
 		x = random_(0, MAXDUNX);
 		y = random_(0, MAXDUNY);
 		failed = FALSE;
