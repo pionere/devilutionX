@@ -20,7 +20,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag);
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
-void NewPlrAnim(int pnum, BYTE *Peq, unsigned numFrames, int Delay, int width);
+void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, int width);
 void SetPlrAnims(int pnum);
 void ClearPlrRVars(PlayerStruct *p);
 void CreatePlayer(int pnum, char c);

@@ -497,7 +497,7 @@ void FreePlayerGFX(int pnum)
 	p->_pGFXLoad = 0;
 }
 
-void NewPlrAnim(int pnum, BYTE *Peq, unsigned numFrames, int Delay, int width)
+void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, int width)
 {
 	PlayerStruct *p;
 
@@ -505,7 +505,8 @@ void NewPlrAnim(int pnum, BYTE *Peq, unsigned numFrames, int Delay, int width)
 		app_fatal("NewPlrAnim: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	p->_pAnimData = Peq;
+	p->_pdir = dir;
+	p->_pAnimData = anims[dir];
 	p->_pAnimLen = numFrames;
 	p->_pAnimFrame = 1;
 	p->_pAnimCnt = 0;
@@ -984,17 +985,15 @@ void InitPlayer(int pnum, BOOL FirstTime)
 
 		if (p->_pHitPoints >> 6 > 0) {
 			p->_pmode = PM_STAND;
-			NewPlrAnim(pnum, p->_pNAnim[DIR_S], p->_pNFrames, 3, p->_pNWidth);
+			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 3, p->_pNWidth);
 			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
 			p->_pAnimCnt = random_(2, 3);
 		} else {
 			p->_pmode = PM_DEATH;
-			NewPlrAnim(pnum, p->_pDAnim[DIR_S], p->_pDFrames, 1, p->_pDWidth);
+			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 1, p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
 			p->_pVar8 = 2 * p->_pAnimLen;
 		}
-
-		p->_pdir = DIR_S;
 
 		if (pnum == myplr) {
 			if (!FirstTime || currlevel != 0) {
@@ -1146,9 +1145,8 @@ void PlrStartStand(int pnum, int dir)
 			LoadPlrGFX(pnum, PFILE_STAND);
 		}
 
-		NewPlrAnim(pnum, p->_pNAnim[dir], p->_pNFrames, 3, p->_pNWidth);
+		NewPlrAnim(pnum, p->_pNAnim, dir, p->_pNFrames, 3, p->_pNWidth);
 		p->_pmode = PM_STAND;
-		p->_pdir = dir;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
 		FixPlayerLocation(pnum);
@@ -1301,13 +1299,12 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	p->_pVar6 = 0;
 	p->_pVar7 = 0;
 	p->_pVar8 = 0; // speed helper
-	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
-	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1380,12 +1377,11 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pVar7 = yoff * 256;
 	p->_pVar3 = EndDir;
 	p->_pVar8 = 0; // speed helper
-	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1463,12 +1459,11 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pVar7 = yoff * 256;
 	p->_pVar3 = EndDir;
 	p->_pVar8 = 0; // speed helper
-	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1539,7 +1534,6 @@ static BOOL StartAttack(int pnum)
 	}
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
-	p->_pdir = dir;
 	p->_pmode = PM_ATTACK;
 	p->_pVar7 = 0; // 'flags' of sfx and hit
 	p->_pVar8 = 0; // speed helper
@@ -1547,7 +1541,7 @@ static BOOL StartAttack(int pnum)
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth);
 
 	FixPlayerLocation(pnum);
 	return TRUE;
@@ -1586,16 +1580,15 @@ static void StartRangeAttack(int pnum)
 	}
 	p->_pVar1 = dx;
 	p->_pVar2 = dy;
+	p->_pVar8 = 0; // speed helper
+	p->_pmode = PM_RATTACK;
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
-	p->_pdir = dir;
-	p->_pmode = PM_RATTACK;
-	p->_pVar8 = 0; // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth);
 
 	FixPlayerLocation(pnum);
 }
@@ -1613,15 +1606,14 @@ void PlrStartBlock(int pnum, int dir)
 		return;
 	}
 
+	p->_pmode = PM_BLOCK;
 	PlaySfxLoc(IS_ISWORD, p->_px, p->_py);
 
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
-	NewPlrAnim(pnum, p->_pBAnim[dir], p->_pBFrames, 2, p->_pBWidth);
+	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 2, p->_pBWidth);
 
-	p->_pmode = PM_BLOCK;
-	p->_pdir = dir;
 	FixPlayerLocation(pnum);
 }
 
@@ -1688,7 +1680,7 @@ static void StartSpell(int pnum)
 	if (!(p->_pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
-	NewPlrAnim(pnum, anim[p->_pdir], p->_pSFrames, 0, p->_pSWidth);
+	NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 0, p->_pSWidth);
 
 	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
@@ -1777,7 +1769,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 		if (!(p->_pGFXLoad & PFILE_HIT)) {
 			LoadPlrGFX(pnum, PFILE_HIT);
 		}
-		NewPlrAnim(pnum, p->_pHAnim[p->_pdir], p->_pHFrames, 0, p->_pHWidth);
+		NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 0, p->_pHWidth);
 
 		p->_pmode = PM_GOTHIT;
 		RemovePlrFromMap(pnum);
@@ -1878,7 +1870,7 @@ void StartPlrKill(int pnum, int earflag)
 		LoadPlrGFX(pnum, PFILE_DEATH);
 	}
 
-	NewPlrAnim(pnum, p->_pDAnim[p->_pdir], p->_pDFrames, 1, p->_pDWidth);
+	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, 1, p->_pDWidth);
 
 	p->_pBlockFlag = FALSE;
 	p->_pmode = PM_DEATH;
@@ -3028,7 +3020,6 @@ static BOOL PlrDoSpell(int pnum)
 static BOOL PlrDoGotHit(int pnum)
 {
 	PlayerStruct *p;
-	unsigned frame;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoGotHit: illegal player %d", pnum);

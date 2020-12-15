@@ -2284,12 +2284,12 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 				LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
 				if ((p->_pHitPoints >> 6) > 0)
-					PlrStartStand(pnum, 0);
+					PlrStartStand(pnum, DIR_S);
 				else {
-					p->_pgfxnum = 0;
+					p->_pgfxnum = ANIM_ID_UNARMED;
 					LoadPlrGFX(pnum, PFILE_DEATH);
 					p->_pmode = PM_DEATH;
-					NewPlrAnim(pnum, p->_pDAnim[DIR_S], p->_pDFrames, 1, p->_pDWidth);
+					NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 1, p->_pDWidth);
 					p->_pAnimFrame = p->_pAnimLen - 1;
 					p->_pVar8 = p->_pAnimLen << 1;
 					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
