@@ -249,6 +249,138 @@ void T_CryptOpen()
 	SetDungeonMicros();
 }
 
+#define REPLACEMENT 341
+void InitTown()
+{
+	int i, j;
+
+	// make the whole town visible
+	for (i = 0; i < MAXDUNX; i++) {
+		for (j = 0; j < MAXDUNY; j++)
+			dFlags[i][j] |= BFLAG_LIT;
+	}
+
+	// prevent the player from teleporting inside of buildings
+	nSolidTable[521] = TRUE;
+	nSolidTable[522] = TRUE;
+	nSolidTable[523] = TRUE;
+	nSolidTable[524] = TRUE;
+	nSolidTable[539] = TRUE;
+	nSolidTable[551] = TRUE;
+	nSolidTable[552] = TRUE;
+
+	// player's home
+	dPiece[DBORDERX + 62][DBORDERY + 60] = REPLACEMENT;
+	dPiece[DBORDERX + 62][DBORDERY + 61] = REPLACEMENT;
+	dPiece[DBORDERX + 63][DBORDERY + 60] = REPLACEMENT;
+	dPiece[DBORDERX + 63][DBORDERY + 61] = REPLACEMENT;
+
+	// beggar
+	for (i = DBORDERX + 58; i <= DBORDERX + 61; i++)
+		for (j = DBORDERY + 70; j <= DBORDERY + 71; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERX + 60][DBORDERY + 69] = REPLACEMENT;
+	dPiece[DBORDERX + 61][DBORDERY + 69] = REPLACEMENT;
+
+	// healer
+	dPiece[DBORDERX + 40][DBORDERY + 68] = REPLACEMENT;
+	dPiece[DBORDERX + 40][DBORDERY + 69] = REPLACEMENT;
+	dPiece[DBORDERX + 41][DBORDERY + 68] = REPLACEMENT;
+	dPiece[DBORDERX + 41][DBORDERY + 69] = REPLACEMENT;
+	dPiece[DBORDERX + 42][DBORDERY + 66] = REPLACEMENT;
+	dPiece[DBORDERX + 42][DBORDERY + 67] = REPLACEMENT;
+	dPiece[DBORDERX + 43][DBORDERY + 66] = REPLACEMENT;
+	dPiece[DBORDERX + 43][DBORDERY + 67] = REPLACEMENT;
+
+	// barmaid
+	for (i = DBORDERX + 28; i <= DBORDERX + 31; i++)
+		for (j = DBORDERY + 56; j <= DBORDERY + 57; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERX + 30][DBORDERY + 54] = REPLACEMENT;
+	dPiece[DBORDERX + 30][DBORDERY + 55] = REPLACEMENT;
+	dPiece[DBORDERX + 31][DBORDERY + 54] = REPLACEMENT;
+	dPiece[DBORDERX + 31][DBORDERY + 55] = REPLACEMENT;
+
+	// ogden
+	for (i = DBORDERX + 38; i <= DBORDERX + 41; i++)
+		for (j = DBORDERY + 48; j <= DBORDERY + 49; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERX + 38][DBORDERY + 50] = REPLACEMENT;
+	dPiece[DBORDERX + 38][DBORDERY + 51] = REPLACEMENT;
+	dPiece[DBORDERX + 39][DBORDERY + 50] = REPLACEMENT;
+	dPiece[DBORDERX + 39][DBORDERY + 51] = REPLACEMENT;
+
+	// smith
+	for (i = DBORDERX + 53; i <= DBORDERX + 59; i++)
+		for (j = DBORDERY + 48; j <= DBORDERY + 49; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERY + 51][DBORDERY + 51] = REPLACEMENT;
+
+	dPiece[DBORDERX + 51][DBORDERY + 50] = REPLACEMENT;
+	dPiece[DBORDERX + 50][DBORDERY + 50] = REPLACEMENT;
+	dPiece[DBORDERX + 50][DBORDERY + 51] = REPLACEMENT;
+
+	// house at the portals
+	for (i = DBORDERX + 36; i <= DBORDERX + 43; i++)
+		for (j = DBORDERY + 34; j <= DBORDERY + 35; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERX + 38][DBORDERY + 32] = REPLACEMENT;
+	dPiece[DBORDERX + 38][DBORDERY + 33] = REPLACEMENT;
+	dPiece[DBORDERX + 39][DBORDERY + 32] = REPLACEMENT;
+	dPiece[DBORDERX + 39][DBORDERY + 33] = REPLACEMENT;
+
+	// witch
+	for (i = DBORDERX + 66; i <= DBORDERX + 67; i++)
+		for (j = DBORDERY + 8; j <= DBORDERY + 9; j++)
+			dPiece[i][j] = REPLACEMENT;
+
+	// cathedral - base
+	for (i = DBORDERX + 10; i <= DBORDERX + 19; i++)
+		for (j = DBORDERY + 6; j <= DBORDERY + 15; j++)
+			// skip (DBORDERX + 10:DBORDERY + 10)-(DBORDERX + 11:DBORDERY + 11),
+			//      (DBORDERX + 12:DBORDERX +  6)-(DBORDERX + 13:DBORDERY + 9),
+			//      (DBORDERX + 18:DBORDERY +  6)-(DBORDERX + 19:DBORDERY + 7)
+			if (dPiece[i][j] == 0) {
+				dPiece[i][j] = REPLACEMENT;
+			}
+	//           - front
+	for (i = DBORDERX + 12; i <= DBORDERX + 17; i++)
+		for (j = DBORDERY + 16; j <= DBORDERY + 17; j++)
+			dPiece[i][j] = REPLACEMENT;
+
+	//           - back
+	for (i = DBORDERX + 14; i <= DBORDERX + 15; i++)
+		for (j = DBORDERY + 3; j <= DBORDERY + 5; j++)
+			dPiece[i][j] = REPLACEMENT;
+	for (i = DBORDERX + 6; i <= DBORDERX + 11; i++)
+		for (j = DBORDERY + 3; j <= DBORDERY + 5; j++)
+			dPiece[i][j] = REPLACEMENT;
+
+	//            - tower
+	for (i = DBORDERX + 2; i <= DBORDERX + 4; i++)
+		for (j = DBORDERY; j <= DBORDERY + 1; j++)
+			dPiece[i][j] = 1018;
+	for (i = DBORDERX + 1; i <= DBORDERX + 3; i++)
+		for (j = DBORDERY + 2; j <= DBORDERY + 3; j++)
+			dPiece[i][j] = 1018;
+	for (i = DBORDERX + 4; i <= DBORDERX + 5; i++)
+		for (j = DBORDERY + 4; j <= DBORDERY + 5; j++)
+			dPiece[i][j] = 958;
+	for (i = DBORDERX + 6; i <= DBORDERX + 9; i++)
+		for (j = DBORDERY + 6; j <= DBORDERY + 7; j++)
+			dPiece[i][j] = REPLACEMENT;
+	dPiece[DBORDERX + 0][DBORDERY + 2] = 1026;
+	dPiece[DBORDERX + 5][DBORDERY + 1] = 1026;
+	dPiece[DBORDERX + 6][DBORDERY + 2] = 1027;
+	dPiece[DBORDERX + 4][DBORDERY + 6] = 958;
+	dPiece[DBORDERX + 5][DBORDERY + 6] = 958;
+	dPiece[DBORDERX + 7][DBORDERY + 8] = REPLACEMENT;
+
+	SetDungeonMicros();
+
+	InitTowners();
+}
+
 /**
  * Return the available town-warps for the current player
  */

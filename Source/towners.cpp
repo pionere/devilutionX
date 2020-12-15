@@ -233,6 +233,8 @@ static void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int
 	TownerStruct *tw;
 
 	dMonster[x][y] = tnum + 1;
+	monster[tnum]._mfutx = monster[tnum]._mx = x;
+	monster[tnum]._mfuty = monster[tnum]._my = y;
 	tw = &towner[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	tw->_tSelFlag = sel;

@@ -54,7 +54,7 @@ SpellData spelldata[NUM_SPELLS] = {
 #else
 	{ SPL_BLODBOIL,      0, STYPE_LIGHTNING, "Blood Boil",         NULL,             SPELL_NA,  SPELL_NA,   SPELL_NA, TRUE,      FALSE,            0, IS_CAST8, { 0,                 0,          0 },        0,        0,         0,         0,         0,          0 },
 #endif
-	{ SPL_TELEPORT,     35, STYPE_MAGIC,     "Teleport",           NULL,                   14,        24,         14, TRUE,      FALSE,          105, IS_CAST6, { MIS_TELEPORT,      0,          0 },        3,       15,        16,        32,     20000,       1250 },
+	{ SPL_TELEPORT,     35, STYPE_MAGIC,     "Teleport",           NULL,                   14,        24,         14, TRUE,      TRUE,           105, IS_CAST6, { MIS_TELEPORT,      0,          0 },        3,       15,        16,        32,     20000,       1250 },
 #ifdef SPAWN
 	{ SPL_APOCA,       150, STYPE_FIRE,      "Apocalypse",         NULL,             SPELL_NA,  SPELL_NA,         22, FALSE,     FALSE,          149, IS_CAST2, { MIS_APOCAC,        0,          0 },        6,       90,         8,        12,     30000,       2000 },
 #elif defined(HELLFIRE)

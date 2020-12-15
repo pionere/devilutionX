@@ -18,6 +18,7 @@ void T_Pass3();
 void T_HiveOpen();
 void T_CryptOpen();
 void CreateTown(int entry);
+void InitTown();
 unsigned char GetOpenWarps();
 
 #ifdef __cplusplus

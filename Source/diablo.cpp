@@ -1578,7 +1578,7 @@ static void CreateLevel(int lvldir)
 
 void LoadGameLevel(BOOL firstflag, int lvldir)
 {
-	int i, j;
+	int i;
 	BOOL visited;
 
 	if (firstflag && lvldir == ENTRY_MAIN) {
@@ -1710,12 +1710,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 				IncProgress();
 			}
 		} else {
-			for (i = 0; i < MAXDUNX; i++) {
-				for (j = 0; j < MAXDUNY; j++)
-					dFlags[i][j] |= BFLAG_LIT;
-			}
-
-			InitTowners();
+			InitTown();
 			InitItems();
 			InitMissiles();
 			IncProgress();
