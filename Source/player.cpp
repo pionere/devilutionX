@@ -516,7 +516,7 @@ void NewPlrAnim(int pnum, BYTE *Peq, unsigned numFrames, int Delay, int width)
 
 static void ClearPlrPVars(int pnum)
 {
-	PlayerStruct *p;
+	/*PlayerStruct *p;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ClearPlrPVars: illegal player %d", pnum);
@@ -529,7 +529,7 @@ static void ClearPlrPVars(int pnum)
 	p->_pVar5 = 0;
 	p->_pVar6 = 0;
 	p->_pVar7 = 0;
-	p->_pVar8 = 0;
+	p->_pVar8 = 0;*/
 }
 
 void SetPlrAnims(int pnum)
