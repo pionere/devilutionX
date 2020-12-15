@@ -2971,7 +2971,7 @@ static BOOL PlrDoSpell(int pnum)
 static BOOL PlrDoGotHit(int pnum)
 {
 	PlayerStruct *p;
-	int frame;
+	unsigned frame;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoGotHit: illegal player %d", pnum);
@@ -2981,10 +2981,10 @@ static BOOL PlrDoGotHit(int pnum)
 	if (p->_pIFlags & ISPL_FASTESTRECOVER) {
 		p->_pAnimFrame++;
 	} else if (p->_pIFlags & ISPL_FASTERRECOVER) {
-		if (frame == 1 || frame == 4)
+		if (frame == (p->_pHFrames / 4) || frame == ((3 * p->_pHFrames) / 4))
 			p->_pAnimFrame++;
 	} else if (p->_pIFlags & ISPL_FASTRECOVER) {
-		if (frame == 3)
+		if (frame == (p->_pHFrames / 2))
 			p->_pAnimFrame++;
 	}
 
