@@ -176,7 +176,7 @@ static void LoadItemData(ItemStruct *is)
 	tbuff += 1; // Alignment
 	CopyInt(tbuff, &is->_iStatFlag);
 	CopyInt(tbuff, &is->IDidx);
-	CopyInt(tbuff, &is->offs016C);
+	CopyInt(tbuff, &is->_iFlags2);
 }
 
 static void LoadItems(ItemStruct *pItem, const int n)
@@ -354,7 +354,7 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->_pISplLvlAdd);
 	CopyChar(tbuff, &p->_pISplCost);
 	tbuff += 2; // Alignment
-	CopyInt(tbuff, &p->_pISplDur);
+	CopyInt(tbuff, &p->_pIFlags2);
 	CopyInt(tbuff, &p->_pIEnAc);
 	CopyInt(tbuff, &p->_pIFMinDam);
 	CopyInt(tbuff, &p->_pIFMaxDam);
@@ -942,7 +942,7 @@ static void SaveItemData(ItemStruct *is)
 	tbuff += 1; // Alignment
 	CopyInt(&is->_iStatFlag, tbuff);
 	CopyInt(&is->IDidx, tbuff);
-	CopyInt(&is->offs016C, tbuff);
+	CopyInt(&is->_iFlags2, tbuff);
 }
 
 static void SaveItems(ItemStruct *pItem, const int n)
@@ -1121,7 +1121,7 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->_pISplLvlAdd, tbuff);
 	CopyChar(&p->_pISplCost, tbuff);
 	tbuff += 2; // Alignment
-	CopyInt(&p->_pISplDur, tbuff);
+	CopyInt(&p->_pIFlags2, tbuff);
 	CopyInt(&p->_pIEnAc, tbuff);
 	CopyInt(&p->_pIFMinDam, tbuff);
 	CopyInt(&p->_pIFMaxDam, tbuff);

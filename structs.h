@@ -168,7 +168,7 @@ typedef struct ItemStruct {
 	char _iMinDex;
 	BOOL _iStatFlag;
 	int IDidx;
-	int offs016C; // _oldlight or _iInvalid
+	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef HELLFIRE
 	int _iDamAcFlags;
 #endif
@@ -331,7 +331,7 @@ typedef struct PlayerStruct {
 	int _pIGetHit;
 	char _pISplLvlAdd;
 	char _pISplCost;
-	int _pISplDur;
+	int _pIFlags2; // _pISplDur in vanilla code
 	int _pIEnAc;
 	int _pIFMinDam;
 	int _pIFMaxDam;

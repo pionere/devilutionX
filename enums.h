@@ -149,22 +149,22 @@ typedef enum item_effect_type {
 	IPL_SETDUR           = 0x40,
 	IPL_NOMINSTR         = 0x41,
 	IPL_SPELL            = 0x42,
-	IPL_FASTSWING        = 0x43,
+	IPL_FASTSWING        = 0x43, /* unused */
 	IPL_ONEHAND          = 0x44,
 	IPL_3XDAMVDEM        = 0x45,
 	IPL_ALLRESZERO       = 0x46,
 	IPL_DRAINLIFE        = 0x48,
 	IPL_RNDSTEALLIFE     = 0x49,
-	IPL_INFRAVISION      = 0x4A,
+	IPL_INFRAVISION      = 0x4A, /* unused */
 	IPL_SETAC            = 0x4B,
 	IPL_ADDACLIFE        = 0x4C,
 	IPL_ADDMANAAC        = 0x4D,
-	IPL_FIRERESCLVL      = 0x4E,
+	IPL_FIRERESCLVL      = 0x4E, /* unused */
 	IPL_AC_CURSE         = 0x4F,
 	IPL_FIRERES_CURSE    = 0x50,
 	IPL_LIGHTRES_CURSE   = 0x51,
 	IPL_MAGICRES_CURSE   = 0x52,
-	IPL_ALLRES_CURSE     = 0x53,
+	IPL_ALLRES_CURSE     = 0x53, /* unused */
 	IPL_DEVASTATION      = 0x54,
 	IPL_DECAY            = 0x55,
 	IPL_PERIL            = 0x56,
@@ -175,6 +175,8 @@ typedef enum item_effect_type {
 	IPL_ACUNDEAD         = 0x5B,
 	IPL_MANATOLIFE       = 0x5C,
 	IPL_LIFETOMANA       = 0x5D,
+	IPL_FASTCAST         = 0x5E, /* unused */
+	IPL_FASTWALK         = 0x5F, /* unused */
 	IPL_INVALID          = -1,
 } item_effect_type;
 
@@ -3349,7 +3351,7 @@ typedef enum item_drop_rate {
 
 typedef enum item_special_effect {
 	ISPL_NONE           = 0x00000000,
-	ISPL_INFRAVISION    = 0x00000001,
+	ISPL_INFRAVISION    = 0x00000001, /* unused */ 
 	ISPL_RNDSTEALLIFE   = 0x00000002,
 	ISPL_RNDARROWVEL    = 0x00000004,
 	ISPL_FIRE_ARROWS    = 0x00000008,
@@ -3357,11 +3359,11 @@ typedef enum item_special_effect {
 	ISPL_LIGHTDAM       = 0x00000020,
 	ISPL_DRAINLIFE      = 0x00000040,
 	ISPL_UNKNOWN_1      = 0x00000080,
-	ISPL_NOHEALPLR      = 0x00000100,
-	ISPL_MULT_ARROWS    = 0x00000200,
+	ISPL_NOHEALPLR      = 0x00000100, /* unused */ 
+	ISPL_MULT_ARROWS    = 0x00000200, /* unsupported */
 	ISPL_UNKNOWN_3      = 0x00000400,
 	ISPL_KNOCKBACK      = 0x00000800,
-	ISPL_NOHEALMON      = 0x00001000,
+	ISPL_NOHEALMON      = 0x00001000, /* unused */ 
 	ISPL_STEALMANA_3    = 0x00002000,
 	ISPL_STEALMANA_5    = 0x00004000,
 	ISPL_STEALLIFE_3    = 0x00008000,
@@ -3384,13 +3386,20 @@ typedef enum item_special_effect {
 } item_special_effect;
 
 typedef enum item_added_effects {
-	ISPH_DEVASTATION    = 0x00000001,
+	ISPH_NONE           = 0x00000000,
+	ISPH_DEVASTATION    = 0x00000001, /* unsupported */
 	ISPH_DECAY          = 0x00000002,
-	ISPH_PERIL          = 0x00000004,
-	ISPH_JESTERS        = 0x00000008,
-	ISPH_DOPPELGANGER   = 0x00000010,
-	ISPH_ACDEMON        = 0x00000020,
-	ISPH_ACUNDEAD       = 0x00000040,
+	ISPH_PERIL          = 0x00000004, /* unsupported */
+	ISPH_JESTERS        = 0x00000008, /* unsupported */
+	ISPH_DOPPELGANGER   = 0x00000010, /* unsupported */
+	ISPH_ACDEMON        = 0x00000020, /* unsupported */
+	ISPH_ACUNDEAD       = 0x00000040, /* unsupported */
+	ISPH_FASTCAST       = 0x00000080, /* unused */ 
+	ISPH_FASTERCAST     = 0x00000100, /* unused */ 
+	ISPH_FASTESTCAST    = 0x00000200, /* unused */ 
+	ISPH_FASTWALK       = 0x00000400, /* unused */ 
+	ISPH_FASTERWALK     = 0x00000800, /* unused */ 
+	ISPH_FASTESTWALK    = 0x00001000, /* unused */ 
 } item_added_effects;
 
 // Logical equipment locations

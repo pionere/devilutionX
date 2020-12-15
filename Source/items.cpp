@@ -635,6 +635,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int bac = 0;    // bonus accuracy
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
+	int iflgs2 = ISPH_NONE;// item_special_effect flags2
 
 #ifdef HELLFIRE
 	int pDamAcFlags = 0;
@@ -690,6 +691,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 					bac += tmpac;
 				}
 				iflgs |= pi->_iFlags;
+				iflgs2 |= pi->_iFlags2;
 #ifdef HELLFIRE
 				pDamAcFlags |= pi->_iDamAcFlags;
 #endif
@@ -720,6 +722,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIBonusAC = bac;
 	p->_pIFlags = iflgs;
 	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
+	p->_pIFlags2 = iflgs2;
 #ifdef HELLFIRE
 	p->pDamAcFlags = pDamAcFlags;
 #endif
@@ -2214,6 +2217,20 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iPLMana += (r2 << 6);
 		break;
 #endif
+	case IPL_FASTCAST:
+		static_assert((ISPH_FASTCAST & (ISPH_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
+		static_assert(ISPH_FASTCAST == ISPH_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
+		static_assert(ISPH_FASTERCAST == ISPH_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
+		if ((unsigned)param1 <= 3)
+			is->_iFlags2 |= ISPH_FASTCAST << (param1 - 1);
+		break;
+	case IPL_FASTWALK:
+		static_assert((ISPH_FASTWALK & (ISPH_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
+		static_assert(ISPH_FASTWALK == ISPH_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
+		static_assert(ISPH_FASTERWALK == ISPH_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
+		if ((unsigned)param1 <= 3)
+			is->_iFlags2 |= ISPH_FASTWALK << (param1 - 1);
+		break;
 	}
 	if (is->_iVAdd1 || is->_iVMult1) {
 		is->_iVAdd2 = PLVal(r, param1, param2, minval, maxval);
@@ -3612,22 +3629,22 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 #endif
 		break;
 	case IPL_FASTATTACK:
-		if (is->_iFlags & ISPL_QUICKATTACK)
-			copy_cstr(tempstr, "quick attack");
-		if (is->_iFlags & ISPL_FASTATTACK)
-			copy_cstr(tempstr, "fast attack");
-		if (is->_iFlags & ISPL_FASTERATTACK)
-			copy_cstr(tempstr, "faster attack");
 		if (is->_iFlags & ISPL_FASTESTATTACK)
 			copy_cstr(tempstr, "fastest attack");
+		else if (is->_iFlags & ISPL_FASTERATTACK)
+			copy_cstr(tempstr, "faster attack");
+		else if (is->_iFlags & ISPL_FASTATTACK)
+			copy_cstr(tempstr, "fast attack");
+		else if (is->_iFlags & ISPL_QUICKATTACK)
+			copy_cstr(tempstr, "quick attack");
 		break;
 	case IPL_FASTRECOVER:
-		if (is->_iFlags & ISPL_FASTRECOVER)
-			copy_cstr(tempstr, "fast hit recovery");
-		if (is->_iFlags & ISPL_FASTERRECOVER)
-			copy_cstr(tempstr, "faster hit recovery");
 		if (is->_iFlags & ISPL_FASTESTRECOVER)
 			copy_cstr(tempstr, "fastest hit recovery");
+		else if (is->_iFlags & ISPL_FASTERRECOVER)
+			copy_cstr(tempstr, "faster hit recovery");
+		else if (is->_iFlags & ISPL_FASTRECOVER)
+			copy_cstr(tempstr, "fast hit recovery");
 		break;
 	case IPL_FASTBLOCK:
 		copy_cstr(tempstr, "fast block");
@@ -3717,6 +3734,22 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "40% Health moved to Mana");
 		break;
 #endif
+	case IPL_FASTCAST:
+		if (is->_iFlags2 & ISPH_FASTESTCAST)
+			copy_cstr(tempstr, "fastest cast");
+		else if (is->_iFlags2 & ISPH_FASTERCAST)
+			copy_cstr(tempstr, "faster cast");
+		else if (is->_iFlags2 & ISPH_FASTCAST)
+			copy_cstr(tempstr, "fast cast");
+		break;
+	case IPL_FASTWALK:
+		if (is->_iFlags2 & ISPH_FASTESTWALK)
+			copy_cstr(tempstr, "fastest walk");
+		else if (is->_iFlags2 & ISPH_FASTERWALK)
+			copy_cstr(tempstr, "faster walk");
+		else if (is->_iFlags2 & ISPH_FASTWALK)
+			copy_cstr(tempstr, "fast walk");
+		break;
 	default:
 		copy_cstr(tempstr, "Another ability (NW)");
 		break;

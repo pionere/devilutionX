@@ -1298,16 +1298,16 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	p->_pVar1 = xadd;
 	p->_pVar2 = yadd;
 	p->_pVar3 = EndDir;
+	p->_pVar6 = 0;
+	p->_pVar7 = 0;
+	p->_pVar8 = 0; // speed helper
+	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
 	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
-
-	p->_pdir = EndDir;
-	p->_pVar6 = 0;
-	p->_pVar7 = 0;
 
 	if (pnum != myplr) {
 		return;
@@ -1379,13 +1379,13 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pVar6 = xoff * 256;
 	p->_pVar7 = yoff * 256;
 	p->_pVar3 = EndDir;
+	p->_pVar8 = 0; // speed helper
+	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
-
-	p->_pdir = EndDir;
 
 	if (pnum != myplr) {
 		return;
@@ -1462,13 +1462,13 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pVar6 = xoff * 256;
 	p->_pVar7 = yoff * 256;
 	p->_pVar3 = EndDir;
+	p->_pVar8 = 0; // speed helper
+	p->_pdir = EndDir;
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 	NewPlrAnim(pnum, p->_pWAnim[EndDir], p->_pWFrames, 0, p->_pWWidth);
-
-	p->_pdir = EndDir;
 
 	if (pnum != myplr) {
 		return;
@@ -1662,6 +1662,9 @@ static void StartSpell(int pnum)
 	p->_pVar2 = dy;
 	p->_pVar3 = p->_pSpell;
 	p->_pVar4 = spllvl;
+	p->_pmode = PM_SPELL;
+	p->_pVar7 = FALSE; // 'flag' of cast
+	p->_pVar8 = 0; // speed helper
 
 	sd = &spelldata[p->_pSpell];
 	if (sd->sTargeted)
@@ -1689,7 +1692,6 @@ static void StartSpell(int pnum)
 
 	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
-	p->_pmode = PM_SPELL;
 	FixPlayerLocation(pnum);
 }
 
@@ -2213,42 +2215,53 @@ static BOOL PlrDoWalk(int pnum)
 	}
 
 	p = &plr[pnum];
+	p->_pVar8++;
+	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
+		p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	}
+
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 
-	if (p->_pAnimFrame >= p->_pWFrames) {
-		dPlayer[p->_px][p->_py] = 0;
-		p->_px += p->_pVar1;
-		p->_py += p->_pVar2;
-		dPlayer[p->_px][p->_py] = pnum + 1;
-
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightXY(p->_plid, p->_px, p->_py);
-			ChangeVisionXY(p->_pvid, p->_px, p->_py);
-		}
-
-		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
-			ViewX = p->_px - ScrollInfo._sdx;
-			ViewY = p->_py - ScrollInfo._sdy;
-		}
-
-		if (p->walkpath[0] != WALK_NONE) {
-			StartWalkStand(pnum);
-		} else {
-			PlrStartStand(pnum, p->_pVar3);
-		}
-
-		ClearPlrPVars(pnum);
-
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightOff(p->_plid, 0, 0);
-		}
-		return TRUE;
-	} else {
+	if (p->_pAnimFrame < p->_pWFrames) {
 		PlrChangeOffset(pnum);
 		return FALSE;
 	}
+
+	dPlayer[p->_px][p->_py] = 0;
+	p->_px += p->_pVar1;
+	p->_py += p->_pVar2;
+	dPlayer[p->_px][p->_py] = pnum + 1;
+
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightXY(p->_plid, p->_px, p->_py);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
+	}
+
+	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
+		ViewX = p->_px - ScrollInfo._sdx;
+		ViewY = p->_py - ScrollInfo._sdy;
+	}
+
+	if (p->walkpath[0] != WALK_NONE) {
+		StartWalkStand(pnum);
+	} else {
+		PlrStartStand(pnum, p->_pVar3);
+	}
+
+	ClearPlrPVars(pnum);
+
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightOff(p->_plid, 0, 0);
+	}
+	return TRUE;
 }
 
 static BOOL PlrDoWalk2(int pnum)
@@ -2259,38 +2272,48 @@ static BOOL PlrDoWalk2(int pnum)
 		app_fatal("PlrDoWalk2: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+	p->_pVar8++;
+	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
+		p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	}
+
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 
-	if (p->_pAnimFrame >= p->_pWFrames) {
-		dPlayer[p->_pVar1][p->_pVar2] = 0;
-
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightXY(p->_plid, p->_px, p->_py);
-			ChangeVisionXY(p->_pvid, p->_px, p->_py);
-		}
-
-		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
-			ViewX = p->_px - ScrollInfo._sdx;
-			ViewY = p->_py - ScrollInfo._sdy;
-		}
-
-		if (p->walkpath[0] != WALK_NONE) {
-			StartWalkStand(pnum);
-		} else {
-			PlrStartStand(pnum, p->_pVar3);
-		}
-
-		ClearPlrPVars(pnum);
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightOff(p->_plid, 0, 0);
-		}
-		return TRUE;
-	} else {
+	if (p->_pAnimFrame < p->_pWFrames) {
 		PlrChangeOffset(pnum);
 		return FALSE;
 	}
+	dPlayer[p->_pVar1][p->_pVar2] = 0;
+
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightXY(p->_plid, p->_px, p->_py);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
+	}
+
+	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
+		ViewX = p->_px - ScrollInfo._sdx;
+		ViewY = p->_py - ScrollInfo._sdy;
+	}
+
+	if (p->walkpath[0] != WALK_NONE) {
+		StartWalkStand(pnum);
+	} else {
+		PlrStartStand(pnum, p->_pVar3);
+	}
+
+	ClearPlrPVars(pnum);
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightOff(p->_plid, 0, 0);
+	}
+	return TRUE;
 }
 
 static BOOL PlrDoWalk3(int pnum)
@@ -2301,43 +2324,52 @@ static BOOL PlrDoWalk3(int pnum)
 		app_fatal("PlrDoWalk3: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+	p->_pVar8++;
+	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
+		p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	}
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
 
-	if (p->_pAnimFrame >= p->_pWFrames) {
-		dPlayer[p->_px][p->_py] = 0;
-		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
-		p->_px = p->_pVar1;
-		p->_py = p->_pVar2;
-		dPlayer[p->_px][p->_py] = pnum + 1;
-
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightXY(p->_plid, p->_px, p->_py);
-			ChangeVisionXY(p->_pvid, p->_px, p->_py);
-		}
-
-		if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
-			ViewX = p->_px - ScrollInfo._sdx;
-			ViewY = p->_py - ScrollInfo._sdy;
-		}
-
-		if (p->walkpath[0] != WALK_NONE) {
-			StartWalkStand(pnum);
-		} else {
-			PlrStartStand(pnum, p->_pVar3);
-		}
-
-		ClearPlrPVars(pnum);
-
-		if (leveltype != DTYPE_TOWN) {
-			ChangeLightOff(p->_plid, 0, 0);
-		}
-		return TRUE;
-	} else {
+	if (p->_pAnimFrame < p->_pWFrames) {
 		PlrChangeOffset(pnum);
 		return FALSE;
 	}
+	dPlayer[p->_px][p->_py] = 0;
+	dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
+	p->_px = p->_pVar1;
+	p->_py = p->_pVar2;
+	dPlayer[p->_px][p->_py] = pnum + 1;
+
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightXY(p->_plid, p->_px, p->_py);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
+	}
+
+	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
+		ViewX = p->_px - ScrollInfo._sdx;
+		ViewY = p->_py - ScrollInfo._sdy;
+	}
+
+	if (p->walkpath[0] != WALK_NONE) {
+		StartWalkStand(pnum);
+	} else {
+		PlrStartStand(pnum, p->_pVar3);
+	}
+
+	ClearPlrPVars(pnum);
+
+	if (leveltype != DTYPE_TOWN) {
+		ChangeLightOff(p->_plid, 0, 0);
+	}
+	return TRUE;
 }
 
 static BOOL WeaponDur(int pnum, int durrnd)
@@ -2758,13 +2790,12 @@ static BOOL PlrDoAttack(int pnum)
 		}
 	}
 
-	if (p->_pAnimFrame >= p->_pAFrames) {
-		PlrStartStand(pnum, p->_pdir);
-		ClearPlrPVars(pnum);
-		return TRUE;
-	} else {
+	if (p->_pAnimFrame < p->_pAFrames)
 		return FALSE;
-	}
+
+	PlrStartStand(pnum, p->_pdir);
+	ClearPlrPVars(pnum);
+	return TRUE;
 }
 
 static BOOL PlrDoRangeAttack(int pnum)
@@ -2819,13 +2850,12 @@ static BOOL PlrDoRangeAttack(int pnum)
 		}
 	}
 
-	if (p->_pAnimFrame >= p->_pAFrames) {
-		PlrStartStand(pnum, p->_pdir);
-		ClearPlrPVars(pnum);
-		return TRUE;
-	} else {
+	if (p->_pAnimFrame < p->_pAFrames)
 		return FALSE;
-	}
+
+	PlrStartStand(pnum, p->_pdir);
+	ClearPlrPVars(pnum);
+	return TRUE;
 }
 
 static void ShieldDur(int pnum)
@@ -2942,7 +2972,22 @@ static BOOL PlrDoSpell(int pnum)
 		app_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (p->_pAnimFrame == p->_pSFNum) {
+	p->_pVar8++;
+	if (p->_pIFlags2 & ISPH_FASTESTCAST) {
+		p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTERCAST) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags2 & ISPH_FASTCAST) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	}
+
+	if (p->_pAnimFrame < p->_pSFNum)
+		return FALSE;
+
+	if (!p->_pVar7) {
+		p->_pVar7 = TRUE;
 		CastSpell(
 		    pnum,
 		    p->_pVar3,
@@ -2972,13 +3017,12 @@ static BOOL PlrDoSpell(int pnum)
 		}
 	}
 
-	if (p->_pAnimFrame == p->_pSFrames) {
-		PlrStartStand(pnum, p->_pdir);
-		ClearPlrPVars(pnum);
-		return TRUE;
-	}
+	if (p->_pAnimFrame < p->_pSFrames)
+		return FALSE;
 
-	return FALSE;
+	PlrStartStand(pnum, p->_pdir);
+	ClearPlrPVars(pnum);
+	return TRUE;
 }
 
 static BOOL PlrDoGotHit(int pnum)
@@ -2990,14 +3034,14 @@ static BOOL PlrDoGotHit(int pnum)
 		app_fatal("PlrDoGotHit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	frame = p->_pAnimFrame;
+	p->_pVar8++;
 	if (p->_pIFlags & ISPL_FASTESTRECOVER) {
 		p->_pAnimFrame++;
 	} else if (p->_pIFlags & ISPL_FASTERRECOVER) {
-		if (frame == (p->_pHFrames / 4) || frame == ((3 * p->_pHFrames) / 4))
+		if ((p->_pVar8 & 1) == 1)
 			p->_pAnimFrame++;
 	} else if (p->_pIFlags & ISPL_FASTRECOVER) {
-		if (frame == (p->_pHFrames / 2))
+		if ((p->_pVar8 & 3) == 2)
 			p->_pAnimFrame++;
 	}
 

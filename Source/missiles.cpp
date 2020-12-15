@@ -2262,7 +2262,8 @@ void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	if (misource != -1) {
 		mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + plr[misource]._pLevel) << 3;
 		range = 10 * (spllvl + 1);
-		range += (plr[misource]._pISplDur * range) >> 7;
+		// TODO: add support for spell duration modifier
+		// range += (plr[misource]._pISplDur * range) >> 7;
 	} else {
 		mis->_miDam = 2 * currlevel + 2;
 		range = 10;
@@ -2621,7 +2622,8 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						UseMana(misource, SPL_GUARDIAN);
 
 						range = spllvl + (plr[misource]._pLevel >> 1);
-						range += (range * plr[misource]._pISplDur) >> 7;
+						// TODO: add support for spell duration modifier
+						//range += (range * plr[misource]._pISplDur) >> 7;
 						if (range > 30)
 							range = 30;
 						range <<= 4;
@@ -2898,7 +2900,8 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 						mis->_misy = mis->_miy;
 
 						range = spllvl + 6;
-						range += (range * plr[misource]._pISplDur) >> 7;
+						// TODO: add support for spell duration modifier
+						//range += (range * plr[misource]._pISplDur) >> 7;
 						if (range > 15)
 							range = 15;
 						range <<= 4;
@@ -2953,7 +2956,8 @@ void AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
 	}
-	range += range * p->_pISplDur >> 7;
+	// TODO: add support for spell duration modifier
+	//range += range * p->_pISplDur >> 7;
 	mis->_miRange = range;
 }
 
@@ -3149,7 +3153,8 @@ void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
 	}
-	range += range * plr[misource]._pISplDur >> 7;
+	// TODO: add support for spell duration modifier
+	//range += range * plr[misource]._pISplDur >> 7;
 	mis->_miRange = range;
 	if (micaster == 0)
 		UseMana(misource, SPL_INFRA);
