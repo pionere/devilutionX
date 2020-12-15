@@ -1540,13 +1540,15 @@ static BOOL StartAttack(int pnum)
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
 	p->_pdir = dir;
+	p->_pmode = PM_ATTACK;
+	p->_pVar7 = 0; // 'flags' of sfx and hit
+	p->_pVar8 = 0; // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 
-	p->_pmode = PM_ATTACK;
 	FixPlayerLocation(pnum);
 	return TRUE;
 }
@@ -1587,13 +1589,14 @@ static void StartRangeAttack(int pnum)
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
 	p->_pdir = dir;
+	p->_pmode = PM_RATTACK;
+	p->_pVar8 = 0; // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
 	NewPlrAnim(pnum, p->_pAAnim[dir], p->_pAFrames, 0, p->_pAWidth);
 
-	p->_pmode = PM_RATTACK;
 	FixPlayerLocation(pnum);
 }
 
@@ -2685,7 +2688,7 @@ static BOOL PlrHitObj(int pnum, int mx, int my)
 static BOOL PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
-	int frame, dir, dx, dy, mp;
+	int dx, dy, mp;
 	BOOL didhit;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -2693,33 +2696,37 @@ static BOOL PlrDoAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	frame = p->_pAnimFrame;
-	if (p->_pIFlags & ISPL_QUICKATTACK && frame == 1) {
+	p->_pVar8++;
+	if (p->_pIFlags & ISPL_FASTESTATTACK) {
 		p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTATTACK) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_QUICKATTACK) {
+		if ((p->_pVar8 & 7) == 4)
+			p->_pAnimFrame++;
 	}
-	if (p->_pIFlags & ISPL_FASTATTACK && (frame == 1 || frame == 3)) {
-		p->_pAnimFrame++;
-	}
-	if (p->_pIFlags & ISPL_FASTERATTACK && (frame == 1 || frame == 3 || frame == 5)) {
-		p->_pAnimFrame++;
-	}
-	if (p->_pIFlags & ISPL_FASTESTATTACK && (frame == 1 || frame == 4)) {
-		p->_pAnimFrame += 2;
-	}
-	if (p->_pAnimFrame == p->_pAFNum - 1) {
+	if (p->_pAnimFrame < p->_pAFNum - 1)
+		return FALSE;
+	if (p->_pVar7 == 0) {
+		p->_pVar7++;
 		PlaySfxLoc(PS_SWING, p->_px, p->_py, 2);
 	}
-
-	if (p->_pAnimFrame == p->_pAFNum) {
-		dir = p->_pdir;
-		dx = p->_px + offset_x[dir];
-		dy = p->_py + offset_y[dir];
+	if (p->_pAnimFrame == p->_pAFNum - 1) {
+		return FALSE;
+	}
+	if (p->_pVar7 == 1) {
+		p->_pVar7++;
+		dx = p->_px + offset_x[p->_pdir];
+		dy = p->_py + offset_y[p->_pdir];
 
 		mp = dMonster[dx][dy];
 		if (mp != 0) {
 			mp = mp >= 0 ? mp - 1 : -(mp + 1);
 			if (CanTalkToMonst(mp)) {
-				p->_pVar1 = 0;
 				return FALSE;
 			}
 		}
@@ -2751,7 +2758,7 @@ static BOOL PlrDoAttack(int pnum)
 		}
 	}
 
-	if (p->_pAnimFrame == p->_pAFrames) {
+	if (p->_pAnimFrame >= p->_pAFrames) {
 		PlrStartStand(pnum, p->_pdir);
 		ClearPlrPVars(pnum);
 		return TRUE;
@@ -2763,21 +2770,27 @@ static BOOL PlrDoAttack(int pnum)
 static BOOL PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
-	int frame, mitype;
+	int mitype;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoRangeAttack: illegal player %d", pnum);
 	}
-	p = &plr[pnum];
-	frame = p->_pAnimFrame;
-	if (p->_pIFlags & ISPL_QUICKATTACK && frame == 1) {
-		p->_pAnimFrame++;
-	}
-	if (p->_pIFlags & ISPL_FASTATTACK && (frame == 1 || frame == 3)) {
-		p->_pAnimFrame++;
-	}
 
-	if (p->_pAnimFrame == p->_pAFNum) {
+	p = &plr[pnum];
+	p->_pVar8++;
+	if (p->_pIFlags & ISPL_FASTESTATTACK) {
+		p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
+		if ((p->_pVar8 & 1) == 1)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_FASTATTACK) {
+		if ((p->_pVar8 & 3) == 2)
+			p->_pAnimFrame++;
+	} else if (p->_pIFlags & ISPL_QUICKATTACK) {
+		if ((p->_pVar8 & 7) == 4)
+			p->_pAnimFrame++;
+	}
+	if (p->_pAnimFrame >= p->_pAFNum) {
 		mitype = MIS_ARROW;
 		if (p->_pIFlags & ISPL_FIRE_ARROWS) {
 			mitype = MIS_FARROW;
@@ -2794,7 +2807,7 @@ static BOOL PlrDoRangeAttack(int pnum)
 		    mitype,
 		    0,
 		    pnum,
-		    4,
+		    0,
 		    0);
 
 		PlaySfxLoc(PS_BFIRE, p->_px, p->_py);

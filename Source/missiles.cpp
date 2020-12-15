@@ -2060,14 +2060,7 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			av = RandRange(16, 47);
 		}
 #ifdef HELLFIRE
-		if (flags & ISPL_QUICKATTACK)
-			av++;
-		if (flags & ISPL_FASTATTACK)
-			av += 2;
-		if (flags & ISPL_FASTERATTACK)
-			av += 4;
-		if (flags & ISPL_FASTESTATTACK)
-			av += 8;
+		av += ArrowVelBonus(flags);
 
 		if (p->_pClass == PC_ROGUE)
 			av += (p->_pLevel - 1) >> 2;
