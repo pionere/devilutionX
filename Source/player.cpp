@@ -1243,13 +1243,6 @@ static void PlrChangeOffset(int pnum)
 	p->_pVar6 += p->_pxvel;
 	p->_pVar7 += p->_pyvel;
 
-#ifdef HELLFIRE
-	if (currlevel == 0 && jogging_opt) {
-		p->_pVar6 += p->_pxvel;
-		p->_pVar7 += p->_pyvel;
-	}
-#endif
-
 	p->_pxoff = p->_pVar6 >> 8;
 	p->_pyoff = p->_pVar7 >> 8;
 
@@ -2217,15 +2210,9 @@ static BOOL PlrDoWalk(int pnum)
 	}
 
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if (leveltype == DTYPE_TOWN && jogging_opt) {
-		p->_pAnimFrame++;
-	}
-#else
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
-#endif
 
 	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_px][p->_py] = 0;
@@ -2269,15 +2256,9 @@ static BOOL PlrDoWalk2(int pnum)
 		app_fatal("PlrDoWalk2: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if (leveltype == DTYPE_TOWN && jogging_opt) {
-		p->_pAnimFrame++;
-	}
-#else
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
-#endif
 
 	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_pVar1][p->_pVar2] = 0;
@@ -2317,15 +2298,9 @@ static BOOL PlrDoWalk3(int pnum)
 		app_fatal("PlrDoWalk3: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if (leveltype == DTYPE_TOWN && jogging_opt) {
-		p->_pAnimFrame++;
-	}
-#else
 	if ((p->_pAnimFrame & 3) == 3) {
 		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
 	}
-#endif
 
 	if (p->_pAnimFrame >= p->_pWFrames) {
 		dPlayer[p->_px][p->_py] = 0;

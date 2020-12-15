@@ -48,11 +48,6 @@ static BOOL mainmenu_init_menu(int type)
 
 static BOOL mainmenu_single_player()
 {
-#ifdef HELLFIRE
-	if (!SRegLoadValue(APP_NAME, jogging_title, 0, &jogging_opt)) {
-		jogging_opt = TRUE;
-	}
-#endif
 	gbMaxPlayers = 1;
 
 	if (!SRegLoadValue("devilutionx", "game speed", 0, &ticks_per_sec)) {
