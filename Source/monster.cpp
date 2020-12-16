@@ -2372,10 +2372,7 @@ static BOOL MonDoRSpAttack(int mnum)
 		    mnum,
 		    mon->_mVar3,
 		    0);
-#ifdef HELLFIRE
-		if (Monsters[mnum].Snds[3][0] != 0) // BUGFIX: mon->_mMTidx ?
-#endif
-			PlayEffect(mnum, 3);
+		PlayEffect(mnum, 3);
 	}
 
 	if (mon->_mAi == AI_MEGA && mon->_mAnimFrame == 3) {
