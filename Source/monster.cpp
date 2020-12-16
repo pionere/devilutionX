@@ -2319,13 +2319,8 @@ static BOOL MonDoRAttack(int mnum)
 		if (mon->_mVar1 != -1) {
 			for (i = mon->_mVar1 != MIS_CBOLT ? 1 : 3; i != 0; i--) {
 				AddMissile(
-#ifdef HELLFIRE
-				    mon->_mx + HorkXAdd[mon->_mdir],
-				    mon->_my + HorkYAdd[mon->_mdir],
-#else
 				    mon->_mx,
 				    mon->_my,
-#endif
 				    mon->_menemyx,
 				    mon->_menemyy,
 				    mon->_mdir,
@@ -2357,13 +2352,8 @@ static BOOL MonDoRSpAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
-#ifdef HELLFIRE
-		    mon->_mx + HorkXAdd[mon->_mdir],
-		    mon->_my + HorkYAdd[mon->_mdir],
-#else
 		    mon->_mx,
 		    mon->_my,
-#endif
 		    mon->_menemyx,
 		    mon->_menemyy,
 		    mon->_mdir,
