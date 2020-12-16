@@ -272,9 +272,9 @@ static void L4makeDmt()
 	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
 		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {
 			val = 8 * L4dungeon[dmtx + 1][dmty + 1]
-				+ 4 * L4dungeon[dmtx][dmty + 1]
-				+ 2 * L4dungeon[dmtx + 1][dmty]
-				+ L4dungeon[dmtx][dmty];
+			    + 4 * L4dungeon[dmtx][dmty + 1]
+			    + 2 * L4dungeon[dmtx + 1][dmty]
+			    + L4dungeon[dmtx][dmty];
 			idx = L4ConvTbl[val];
 			dungeon[i][j] = idx;
 		}
@@ -1787,7 +1787,6 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 	DRLG_InitTrans();
 	InitL4Dungeon();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
-
 
 	lm = pLevelMap;
 	rw = *lm;

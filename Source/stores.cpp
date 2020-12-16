@@ -524,7 +524,12 @@ static void AddStoreSell(ItemStruct *is, int i)
 static BOOL SmithSellOk(const ItemStruct *is)
 {
 	return is->_itype != ITYPE_NONE
+#ifdef HELLFIRE
+		&& (is->_itype != ITYPE_MISC
+		 || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
+#else
 		&& is->_itype != ITYPE_MISC
+#endif
 		&& is->_itype != ITYPE_GOLD
 		&& is->_itype != ITYPE_MEAT
 		&& is->_itype != ITYPE_STAFF

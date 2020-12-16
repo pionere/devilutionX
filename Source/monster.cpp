@@ -28,10 +28,6 @@ int monstimgtot;
 int uniquetrans;
 int nummtypes;
 
-#ifdef HELLFIRE
-const int HorkXAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
-const int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
-#endif
 /** Maps from walking path step to facing direction. */
 const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
 /** Maps from monster intelligence factor to missile type. */
@@ -78,6 +74,11 @@ const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
 const int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+
+#ifdef HELLFIRE
+const int HorkXAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 }; // CODEFIX: same values as offset_x, remove it and use offset_x instead
+const int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 }; // CODEFIX: same values as offset_y, remove it and use offset_y instead
+#endif
 
 /** unused */
 int rnd5[4] = { 5, 10, 15, 20 };
@@ -1154,14 +1155,15 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	rw = SDL_SwapLE16(*lm);
 	lm++;
 	rh = SDL_SwapLE16(*lm);
-	lm += (rw * rh + 1);
+	lm++;
+	lm += rw * rh;
 	rw = rw << 1;
 	rh = rh << 1;
 	lm += rw * rh;
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
-			if (*lm) {
+			if (*lm != 0) {
 				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], PLACE_SPECIAL);
 				PlaceMonster(nummonsters++, mtype, i + startx + DBORDERX, j + starty + DBORDERY);
 			}
@@ -2307,7 +2309,7 @@ static BOOL MonDoAttack(int mnum)
 static BOOL MonDoRAttack(int mnum)
 {
 	MonsterStruct *mon;
-	int multimissiles, i;
+	int i;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoRAttack: Invalid monster %d", mnum);
@@ -2315,14 +2317,15 @@ static BOOL MonDoRAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		if (mon->_mVar1 != -1) {
-			if (mon->_mVar1 != MIS_CBOLT)
-				multimissiles = 1;
-			else
-				multimissiles = 3;
-			for (i = 0; i < multimissiles; i++) {
+			for (i = mon->_mVar1 != MIS_CBOLT ? 1 : 3; i != 0; i--) {
 				AddMissile(
+#ifdef HELLFIRE
+				    mon->_mx + HorkXAdd[mon->_mdir],
+				    mon->_my + HorkYAdd[mon->_mdir],
+#else
 				    mon->_mx,
 				    mon->_my,
+#endif
 				    mon->_menemyx,
 				    mon->_menemyy,
 				    mon->_mdir,
@@ -2344,7 +2347,7 @@ static BOOL MonDoRAttack(int mnum)
 	return FALSE;
 }
 
-static int MonDoRSpAttack(int mnum)
+static BOOL MonDoRSpAttack(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2354,8 +2357,13 @@ static int MonDoRSpAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
+#ifdef HELLFIRE
+		    mon->_mx + HorkXAdd[mon->_mdir],
+		    mon->_my + HorkYAdd[mon->_mdir],
+#else
 		    mon->_mx,
 		    mon->_my,
+#endif
 		    mon->_menemyx,
 		    mon->_menemyy,
 		    mon->_mdir,
@@ -2364,13 +2372,14 @@ static int MonDoRSpAttack(int mnum)
 		    mnum,
 		    mon->_mVar3,
 		    0);
-		PlayEffect(mnum, 3);
+#ifdef HELLFIRE
+		if (Monsters[mnum].Snds[3][0] != 0) // BUGFIX: mon->_mMTidx ?
+#endif
+			PlayEffect(mnum, 3);
 	}
 
 	if (mon->_mAi == AI_MEGA && mon->_mAnimFrame == 3) {
-		int hadV2 = mon->_mVar2;
-		mon->_mVar2++;
-		if (hadV2 == 0) {
+		if (mon->_mVar2++ == 0) {
 			mon->_mFlags |= MFLAG_ALLOW_SPECIAL;
 		} else if (mon->_mVar2 == 15) {
 			mon->_mFlags &= ~MFLAG_ALLOW_SPECIAL;
@@ -2446,7 +2455,7 @@ static BOOL MonDoFadeout(int mnum)
 	return TRUE;
 }
 
-static int MonDoHeal(int mnum)
+static BOOL MonDoHeal(int mnum)
 {
 	MonsterStruct *mon;
 
@@ -2474,7 +2483,7 @@ static int MonDoHeal(int mnum)
 	return FALSE;
 }
 
-static int MonDoTalk(int mnum)
+static BOOL MonDoTalk(int mnum)
 {
 	MonsterStruct *mon;
 	int tren;
@@ -2492,7 +2501,7 @@ static int MonDoTalk(int mnum)
 	case UMT_GARBUD:
 		if (mon->mtalkmsg == TEXT_GARBUD1)
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
-		quests[Q_GARBUD]._qlog = TRUE;
+		quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above
 		if (mon->mtalkmsg == TEXT_GARBUD2 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, TRUE);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
@@ -2524,9 +2533,9 @@ static int MonDoTalk(int mnum)
 		break;
 	case UMT_LAZURUS:
 		if (gbMaxPlayers != 1) {
+			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_msquelch = UCHAR_MAX;
 			mon->mtalkmsg = 0;
-			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	case UMT_LACHDAN:
@@ -2892,11 +2901,11 @@ static BOOL MonCallWalk(int mnum, int md)
 
 	mdtemp = md;
 	ok = DirOK(mnum, md);
-	if (random_(101, 2))
+	if (random_(101, 2) != 0)
 		ok = ok || (md = left[mdtemp], DirOK(mnum, md)) || (md = right[mdtemp], DirOK(mnum, md));
 	else
 		ok = ok || (md = right[mdtemp], DirOK(mnum, md)) || (md = left[mdtemp], DirOK(mnum, md));
-	if (random_(102, 2))
+	if (random_(102, 2) != 0)
 		ok = ok
 		    || (md = right[right[mdtemp]], DirOK(mnum, md))
 		    || (md = left[left[mdtemp]], DirOK(mnum, md));
@@ -3368,7 +3377,7 @@ void MAI_Sneak(int mnum)
 				else
 					md = GetDirection(plr[md]._px, plr[md]._py, mon->_mx, mon->_my);
 				if (mon->MType->mtype == MT_UNSEEN) {
-					if (random_(112, 2))
+					if (random_(112, 2) != 0)
 						md = left[md];
 					else
 						md = right[md];
@@ -3822,7 +3831,7 @@ void MAI_Garg(int mnum)
 		return;
 	}
 
-	if (mon->_mhitpoints<mon->_mmaxhp>> 1 && !(mon->_mFlags & MFLAG_NOHEAL))
+	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && !(mon->_mFlags & MFLAG_NOHEAL))
 		mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (abs(dx) >= mon->_mint + 2 || abs(dy) >= mon->_mint + 2) {
@@ -3865,7 +3874,7 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 				mon->_mgoal = MGOAL_MOVE;
 				if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) {
 					mon->_mgoal = MGOAL_NORMAL;
-				} else if (v<500 * (mon->_mint + 1)>> lessmissiles
+				} else if (v < ((500 * (mon->_mint + 1)) >> lessmissiles)
 				    && (LineClear(mon->_mx, mon->_my, fx, fy))) {
 					MonStartRSpAttack(mnum, mitype, dam);
 				} else {

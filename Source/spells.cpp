@@ -207,7 +207,7 @@ void DoResurrect(int pnum, int tnum)
 		tp->destAction = ACTION_NONE;
 		tp->_pInvincible = FALSE;
 
-		tp->_pHitPoints = std::min(640, tp->_pMaxHPBase);
+		tp->_pHitPoints = std::min(10 << 6, tp->_pMaxHPBase);
 		tp->_pHPBase = tp->_pHitPoints + (tp->_pMaxHPBase - tp->_pMaxHP);
 		tp->_pMana = 0;
 		tp->_pManaBase = tp->_pMana + (tp->_pMaxManaBase - tp->_pMaxMana);

@@ -1375,7 +1375,7 @@ static void AddShrine(int oi)
 	os = &object[oi];
 	os->_oPreFlag = TRUE;
 	os->_oVar1 = val;
-	if (random_(150, 2)) {
+	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
 	}
@@ -1508,9 +1508,9 @@ static void AddStoryBook(int oi)
 	os->_oVar1 = bookframe;
 	if (currlevel == 4)
 		os->_oVar2 = StoryText[bookframe][0];
-	if (currlevel == 8)
+	else if (currlevel == 8)
 		os->_oVar2 = StoryText[bookframe][1];
-	if (currlevel == 12)
+	else if (currlevel == 12)
 		os->_oVar2 = StoryText[bookframe][2];
 	os->_oVar3 = (currlevel >> 2) + 3 * bookframe - 1;
 	os->_oAnimFrame = 5 - 2 * bookframe;
@@ -4754,13 +4754,6 @@ void SyncObjectAnim(int oi)
 
 	object[oi]._oAnimData = pObjCels[i];
 	switch (object[oi]._otype) {
-	case OBJ_BOOK2R:
-	case OBJ_BLINDBOOK:
-	case OBJ_STEELTOME:
-		SyncQSTLever(oi);
-		break;
-	case OBJ_L1LIGHT:
-		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 		SyncL1Doors(oi);
@@ -4773,15 +4766,20 @@ void SyncObjectAnim(int oi)
 	case OBJ_L3RDOOR:
 		SyncL3Doors(oi);
 		break;
+	case OBJ_CRUX1:
+	case OBJ_CRUX2:
+	case OBJ_CRUX3:
+		SyncCrux(oi);
+		break;
 	case OBJ_LEVER:
 	case OBJ_BOOK2L:
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
 		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
-		SyncCrux(oi);
+	case OBJ_BOOK2R:
+	case OBJ_BLINDBOOK:
+	case OBJ_STEELTOME:
+		SyncQSTLever(oi);
 		break;
 	case OBJ_PEDISTAL:
 		SyncPedistal(oi);
@@ -4854,10 +4852,10 @@ void GetObjectStr(int oi)
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
-		if (currlevel >= 17 && currlevel <= 20) // for hive levels
-			copy_cstr(infostr, "Pod"); //Then a barrel is called a pod
+		if (currlevel >= 17 && currlevel <= 20)    // for hive levels
+			copy_cstr(infostr, "Pod");             //Then a barrel is called a pod
 		else if (currlevel > 20 && currlevel < 25) // for crypt levels
-			copy_cstr(infostr, "Urn"); //Then a barrel is called an urn
+			copy_cstr(infostr, "Urn");             //Then a barrel is called an urn
 		else
 #endif
 			copy_cstr(infostr, "Barrel");

@@ -293,11 +293,13 @@ const char *off_4A5AC4 = "SItem";
 int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
+	// clang-format off
 #ifdef HELLFIRE
 	-1, -1, -1,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  3,  3
 #else
 	-1, -1,  0,  0,  1,  2
 #endif
+	// clang-format on
 };
 
 #ifdef HELLFIRE
@@ -409,15 +411,15 @@ int items_42342E(int i)
 
 	res = 0;
 	for (j = 0; j < NUM_INVLOC; j++) {
-		if (plr[i].InvBody[j]._iClass != ITYPE_NONE &&
-			(plr[i].InvBody[j]._itype == ITYPE_LARMOR || plr[i].InvBody[j]._itype == ITYPE_MARMOR || plr[i].InvBody[j]._itype == ITYPE_HARMOR)
-			&& res < plr[i].InvBody[j]._iIvalue)
+		if (plr[i].InvBody[j]._iClass != ITYPE_NONE
+		 && (plr[i].InvBody[j]._itype == ITYPE_LARMOR || plr[i].InvBody[j]._itype == ITYPE_MARMOR || plr[i].InvBody[j]._itype == ITYPE_HARMOR)
+		 && res < plr[i].InvBody[j]._iIvalue)
 			res = plr[i].InvBody[j]._iIvalue;
 	}
 	for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-		if (plr[i].InvList[j]._iClass != ITYPE_NONE &&
-			(plr[i].InvList[j]._itype == ITYPE_LARMOR || plr[i].InvList[j]._itype == ITYPE_MARMOR || plr[i].InvList[j]._itype == ITYPE_HARMOR)
-		    && res < plr[i].InvList[j]._iIvalue)
+		if (plr[i].InvList[j]._iClass != ITYPE_NONE
+		 && (plr[i].InvList[j]._itype == ITYPE_LARMOR || plr[i].InvList[j]._itype == ITYPE_MARMOR || plr[i].InvList[j]._itype == ITYPE_HARMOR)
+		 && res < plr[i].InvList[j]._iIvalue)
 			res = plr[i].InvList[j]._iIvalue;
 	}
 
@@ -560,7 +562,7 @@ static void AddInitItems()
 		ii = itemavail[0];
 		seed = GetRndSeed();
 		SetRndSeed(seed);
-		SetItemData(ii, random_(12, 2) ? IDI_HEAL : IDI_MANA);
+		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		item[ii]._iSeed = seed;
 		item[ii]._iCreateInfo = lvl | CF_PREGEN;
 		SetupItem(ii);
@@ -864,9 +866,9 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 			else if (wRight->_itype == ITYPE_SHIELD)
 				p->_pIAC -= wRight->_iAC / 2;
 		} else if (wLeft->_itype != ITYPE_STAFF && wRight->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW && wRight->_itype != ITYPE_BOW) {
-				p->_pDamageMod += p->_pLevel * p->_pVitality / 100;
+			p->_pDamageMod += p->_pLevel * p->_pVitality / 100;
 		}
-		p->_pIAC += p->_pLevel/4;
+		p->_pIAC += p->_pLevel / 4;
 #endif
 	} else {
 		p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
@@ -1326,7 +1328,7 @@ void CreatePlrItems(int pnum)
 
 	switch (p->_pClass) {
 	case PC_WARRIOR:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRIOR);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
 
 		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
@@ -1337,13 +1339,13 @@ void CreatePlrItems(int pnum)
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_ROGUE:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUE);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUEBOW);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_SORCERER:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCEROR);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCSTAFF);
 
 #ifdef HELLFIRE
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
@@ -1361,14 +1363,14 @@ void CreatePlrItems(int pnum)
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARD:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SWORD);
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_DAGGER);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARBARIAN:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_FLAIL);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
 		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
@@ -2260,7 +2262,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	}
 	pres = NULL;
 	sufs = NULL;
-	goe = 0;
+	goe = GOE_ANY;
 	if (!onlygood && random_(0, 3) != 0)
 		onlygood = TRUE;
 	if (pre == 0) {
@@ -2269,7 +2271,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 			if ((flgs & pres->PLIType)
 			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
 			 && (!onlygood || pres->PLOk)
-			 && (flgs != 256 || pres->PLPower != 15)) {
+			 && (flgs != PLT_STAFF || pres->PLPower != IPL_CHARGES)) {
 				l[nl] = pres;
 				nl++;
 				if (pres->PLDouble) {
@@ -2301,7 +2303,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if (sufs->PLIType & flgs
 			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
-			    && (goe | sufs->PLGOE) != 0x11
+			    && (goe | sufs->PLGOE) != (GOE_GOOD | GOE_EVIL)
 			    && (!onlygood || sufs->PLOk)) {
 				l[nl] = sufs;
 				nl++;
@@ -2778,7 +2780,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 		break;
 	}
 #else
-	if (random_(34, 2))
+	if (random_(34, 2) != 0)
 		idx = IDI_HEAL;
 	else
 		idx = IDI_MANA;

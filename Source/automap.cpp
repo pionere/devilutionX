@@ -35,10 +35,8 @@ int AmLine4;
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
 #define COLOR_DIM (PAL16_YELLOW + 8)
-#ifdef HELLFIRE
 // color for items on automap
 #define COLOR_ITEM (PAL8_BLUE + 1)
-#endif
 
 #define MAPFLAG_TYPE 0x000F
 /** these are in the second byte */
@@ -387,7 +385,6 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	}
 }
 
-#ifdef HELLFIRE
 static void DrawAutomapItem(int x, int y, BYTE color)
 {
 	int x1, y1, x2, y2;
@@ -459,7 +456,6 @@ static void SearchAutomapItem()
 		}
 	}
 }
-#endif
 
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
@@ -718,10 +714,8 @@ void DrawAutomap()
 		sy += AmLine32;
 	}
 	DrawAutomapPlr();
-#ifdef HELLFIRE
 	if (AutoMapShowItems)
 		SearchAutomapItem();
-#endif
 	DrawAutomapText();
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 }

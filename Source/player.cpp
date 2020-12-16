@@ -106,6 +106,7 @@ const int StrengthTbl[NUM_CLASSES] = {
 };
 /** Maps from player_class to starting stat in magic. */
 const int MagicTbl[NUM_CLASSES] = {
+	// clang-format off
 	10,
 	15,
 	35,
@@ -114,6 +115,7 @@ const int MagicTbl[NUM_CLASSES] = {
 	20,
 	 0,
 #endif
+	// clang-format on
 };
 /** Maps from player_class to starting stat in dexterity. */
 const int DexterityTbl[NUM_CLASSES] = {
@@ -150,6 +152,7 @@ const int ToBlkTbl[NUM_CLASSES] = {
 };
 /** Maps from player_class to maximum stats. */
 const int MaxStats[NUM_CLASSES][4] = {
+	// clang-format off
 	{ 250,  50,  60, 100 },
 	{  55,  70, 250,  80 },
 	{  45, 250,  85,  80 },
@@ -158,6 +161,7 @@ const int MaxStats[NUM_CLASSES][4] = {
 	{ 120, 120, 120, 100 },
 	{ 255,   0,  55, 150 },
 #endif
+	// clang-format on
 };
 const int Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
@@ -3388,7 +3392,7 @@ void ProcessPlayers()
 				PlaySFX(sfxdnum);
 			}
 #else
-			PlaySFX(sfxdnum);
+				PlaySFX(sfxdnum);
 #endif
 		}
 	}

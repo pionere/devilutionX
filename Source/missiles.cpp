@@ -368,16 +368,20 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 {
 	double dxp, dyp, dr;
 
+#ifndef HELLFIRE
 	if (dx != sx || dy != sy) {
+#endif
 		dxp = (dx + sy - sx - dy) * (1 << 21);
 		dyp = (dy + dx - sx - sy) * (1 << 21);
 		dr = sqrt(dxp * dxp + dyp * dyp);
 		missile[mi]._mixvel = (dxp * (v << 16)) / dr;
 		missile[mi]._miyvel = (dyp * (v << 15)) / dr;
+#ifndef HELLFIRE
 	} else {
 		missile[mi]._mixvel = 0;
 		missile[mi]._miyvel = 0;
 	}
+#endif
 }
 
 static void PutMissile(int mi)
@@ -1201,9 +1205,7 @@ void InitMissiles()
 	PlayerStruct *p;
 	int i, j;
 
-#ifdef HELLFIRE
 	AutoMapShowItems = FALSE;
-#endif
 	p = &plr[myplr];
 	p->pManaShield = FALSE;
 	p->_pSpellFlags &= ~PSE_ETHERALIZED;
@@ -3927,12 +3929,12 @@ void MI_Fireball(int mi)
 			}
 			if (mis->_miyvel > 0
 			    && (TransList[dTransVal[mx + 1][my]] && nSolidTable[dPiece[mx + 1][my]]
-			           || TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]])) {
+			        || TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]])) {
 				mis->_miyoff -= 32;
 			}
 			if (mis->_mixvel > 0
 			    && (TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]
-			           || TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])) {
+			        || TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])) {
 				mis->_mixoff -= 32;
 			}
 			mis->_miDir = 0;
@@ -4099,12 +4101,12 @@ void MI_Fireball3(int mi)
 			}
 			if (mis->_miyvel > 0
 			    && (TransList[dTransVal[mx + 1][my]] && nSolidTable[dPiece[mx + 1][my]]
-			           || TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]])) {
+			        || TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]])) {
 				mis->_miyoff -= 32;
 			}
 			if (mis->_mixvel > 0
 			    && (TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]
-			           || TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])) {
+			        || TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])) {
 				mis->_mixoff -= 32;
 			}
 			mis->_miDir = 0;

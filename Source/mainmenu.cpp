@@ -155,7 +155,7 @@ void mainmenu_loop()
 				done = TRUE;
 			break;
 		case MAINMENU_ATTRACT_MODE:
- 		case MAINMENU_REPLAY_INTRO:
+		case MAINMENU_REPLAY_INTRO:
 			if (gbActive)
 				mainmenu_play_intro();
 			break;

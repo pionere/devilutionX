@@ -2106,7 +2106,7 @@ static void L5FillChambers()
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2))
+				if (random_(0, 2) != 0)
 					c = 0;
 				else
 					c = 2;
@@ -2135,7 +2135,7 @@ static void L5FillChambers()
 				c = 0;
 
 			if (HR1 && !HR2 && HR3) {
-				if (random_(0, 2))
+				if (random_(0, 2) != 0)
 					c = 0;
 				else
 					c = 2;
@@ -2166,7 +2166,7 @@ static void L5FillChambers()
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2))
+				if (random_(0, 2) != 0)
 					c = 0;
 				else
 					c = 2;
@@ -2228,7 +2228,7 @@ static void L5FillChambers()
 				c = 0;
 
 			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2))
+				if (random_(0, 2) != 0)
 					c = 0;
 				else
 					c = 2;
@@ -2257,7 +2257,7 @@ static void L5FillChambers()
 				c = 0;
 
 			if (HR1 && !HR2 && HR3) {
-				if (random_(0, 2))
+				if (random_(0, 2) != 0)
 					c = 0;
 				else
 					c = 2;

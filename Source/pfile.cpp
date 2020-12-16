@@ -270,7 +270,7 @@ void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSav
 #endif
 }
 
-BOOL pfile_ui_set_hero_infos(BOOL(*ui_add_hero_info)(_uiheroinfo *))
+BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))
 {
 	DWORD i;
 	BOOL showFixedMsg;
@@ -443,10 +443,10 @@ static BOOL GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
-	if (dwIndex < 17)
+	if (dwIndex < NUMLEVELS)
 		fmt = "perml%02d";
-	else if (dwIndex < 34) {
-		dwIndex -= 17;
+	else if (dwIndex < NUMLEVELS * 2) {
+		dwIndex -= NUMLEVELS;
 		fmt = "perms%02d";
 	} else
 		return FALSE;
@@ -459,10 +459,10 @@ static BOOL GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
-	if (dwIndex < 17)
+	if (dwIndex < NUMLEVELS)
 		fmt = "templ%02d";
-	else if (dwIndex < 34) {
-		dwIndex -= 17;
+	else if (dwIndex < NUMLEVELS * 2) {
+		dwIndex -= NUMLEVELS;
 		fmt = "temps%02d";
 	} else
 		return FALSE;

@@ -45,9 +45,7 @@ BYTE *gpBufEnd;
  * frameType := block & 0x7000 >> 12
  */
 DWORD level_cel_block;
-#ifdef HELLFIRE
 BOOLEAN AutoMapShowItems;
-#endif
 /**
  * Specifies the type of arches to render.
  */
@@ -602,24 +600,39 @@ static void drawFloor(int x, int y, int sx, int sy)
  */
 static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 {
-	char ii = dItem[x][y];
+	int nCel, ii;
 	ItemStruct *is;
+	BYTE *pCelBuff;
+	DWORD *pFrameTable;
 
+	ii = dItem[x][y];
 	if (ii == 0)
 		return;
 
 	ii--;
+	if ((DWORD)ii >= MAXITEMS) {
+		dev_fatal("Invalid item (%d) to draw.", ii);
+	}
 
 	is = &item[ii];
 	if (is->_iPostDraw == pre)
 		return;
 
-	assert((unsigned char)ii < MAXITEMS);
-	sx -= is->_iAnimWidth2;
-	if (ii == pcursitem) {
-		CelBlitOutline(181, sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
+	pCelBuff = is->_iAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iIName);
 	}
-	CelClippedDrawLight(sx, sy, is->_iAnimData, is->_iAnimFrame, is->_iAnimWidth);
+	pFrameTable = (DWORD *)pCelBuff;
+	nCel = is->_iAnimFrame;
+	if (nCel < 1 || pFrameTable[0] > 50 || nCel > (int)pFrameTable[0]) {
+		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iIName, nCel, pFrameTable[0], is->_itype);
+	}
+
+	sx -= is->_iAnimWidth2;
+	if (ii == pcursitem || AutoMapShowItems) {
+		CelBlitOutline(181, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+	}
+	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 }
 
 /**
@@ -686,6 +699,9 @@ static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
 {
 	int pnum = dPlayer[x][y + oy];
 	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("draw player: tried to draw illegal player %d", pnum);
+	}
 	PlayerStruct *p = &plr[pnum];
 	int px = sx + p->_pxoff - p->_pAnimWidth2;
 	int py = sy + p->_pyoff;
@@ -702,10 +718,11 @@ static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int px, mnum;
+	int px, mnum, nCel;
 	char bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
+	DWORD *pFrameTable;
 
 	assert((DWORD)sx < MAXDUNX);
 	assert((DWORD)sy < MAXDUNY);
@@ -741,13 +758,18 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		dd = (bDead >> 5) & 7;
 		px = dx - pDeadGuy->_deadWidth2;
 		pCelBuff = pDeadGuy->_deadData[dd];
-		assert(pCelBuff != NULL);
-		if (pCelBuff != NULL) {
-			if (pDeadGuy->_deadtrans != 0) {
-				Cl2DrawLightTbl(px, dy, pCelBuff, pDeadGuy->_deadFrame, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
-			} else {
-				Cl2DrawLight(px, dy, pCelBuff, pDeadGuy->_deadFrame, pDeadGuy->_deadWidth);
-			}
+		if (pCelBuff == NULL) {
+			dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
+		}
+		pFrameTable = (DWORD *)pCelBuff;
+		nCel = pDeadGuy->_deadFrame;
+		if (nCel < 1 || pFrameTable[0] > 50 || nCel > (int)pFrameTable[0]) {
+			dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, pFrameTable[0], bDead);
+		}
+		if (pDeadGuy->_deadtrans != 0) {
+			Cl2DrawLightTbl(px, dy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
+		} else {
+			Cl2DrawLight(px, dy, pCelBuff, nCel, pDeadGuy->_deadWidth);
 		}
 	}
 	DrawObject(sx, sy, dx, dy, TRUE);
@@ -859,7 +881,7 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 	memset(dRendered, 0, sizeof(dRendered));
 
 	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns ; j++) {
+		for (int j = 0; j < columns; j++) {
 			if (IN_DUNGEON_AREA(x, y)) {
 				if (x + 1 < MAXDUNX && y - 1 >= 0 && sx + TILE_WIDTH <= SCREEN_X + SCREEN_WIDTH) {
 					// Render objects behind walls first to prevent sprites, that are moving
@@ -867,7 +889,7 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
 					if (IsWall(x, y) && (IsWall(x + 1, y) || (x > 0 && IsWall(x - 1, y)))) { // Part of a wall aligned on the x-axis
-						if (IsWalkable(x + 1, y - 1) && IsWalkable(x, y - 1) ) { // Has walkable area behind it
+						if (IsWalkable(x + 1, y - 1) && IsWalkable(x, y - 1)) {              // Has walkable area behind it
 							scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
 						}
 					}
@@ -1118,8 +1140,8 @@ static void DrawGame(int x, int y)
 		}
 	}
 
- 	// Draw areas moving in and out of the screen
- 	switch (ScrollInfo._sdir) {
+	// Draw areas moving in and out of the screen
+	switch (ScrollInfo._sdir) {
 	case SDIR_N:
 		sy -= TILE_HEIGHT;
 		ShiftGrid(&x, &y, 0, -1);

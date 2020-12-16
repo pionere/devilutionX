@@ -53,38 +53,33 @@ static void msg_free_packets()
 static void msg_pre_packet()
 {
 	int i;
-	int spaceLeft, pktSize;
+	int dataLeft, pktSize;
 	TMegaPkt *pkt;
-	TFakeCmdPlr *cmd, *tmpCmd;
-	TFakeDropPlr *dropCmd;
 
 	i = -1;
 	for (pkt = sgpMegaPkt; pkt != NULL; pkt = pkt->pNext) {
-		spaceLeft = sizeof(pkt->data);
-		cmd = (TFakeCmdPlr *)pkt->data;
-		while (spaceLeft != pkt->dwSpaceLeft) {
-			if (cmd->bCmd == FAKE_CMD_SETID) {
-				tmpCmd = cmd;
-				cmd++;
-				i = tmpCmd->bPlr;
-				spaceLeft -= sizeof(*cmd);
-			} else if (cmd->bCmd == FAKE_CMD_DROPID) {
-				dropCmd = (TFakeDropPlr *)cmd;
-				cmd += 3;
-				spaceLeft -= sizeof(*dropCmd);
-				multi_player_left(dropCmd->bPlr, dropCmd->dwReason);
+		dataLeft = sizeof(pkt->data) - pkt->dwSpaceLeft;
+		BYTE *data = pkt->data;
+		while (dataLeft != 0) {
+			if (*data == FAKE_CMD_SETID) {
+				TFakeCmdPlr *cmd = (TFakeCmdPlr *)data;
+				i = cmd->bPlr;
+				pktSize = sizeof(*cmd);
+			} else if (*data == FAKE_CMD_DROPID) {
+				TFakeDropPlr *cmd = (TFakeDropPlr *)data;
+				multi_player_left(cmd->bPlr, cmd->dwReason);
+				pktSize = sizeof(*cmd);
 			} else {
-				pktSize = ParseCmd(i, (TCmd *)cmd);
-				cmd = (TFakeCmdPlr *)((char *)cmd + pktSize);
-				spaceLeft -= pktSize;
+				pktSize = ParseCmd(i, (TCmd *)data);
 			}
+			data += pktSize;
+			dataLeft -= pktSize;
 		}
 	}
 }
 
 static void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
 {
-	TMegaPkt *packeta;
 	TFakeCmdPlr cmd;
 
 	if (pnum != sgnCurrMegaPlayer) {
@@ -93,12 +88,10 @@ static void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
 		cmd.bPlr = pnum;
 		msg_send_packet(pnum, &cmd, sizeof(cmd));
 	}
-	packeta = sgpCurrPkt;
-	if (sgpCurrPkt->dwSpaceLeft < dwSize) {
+	if (sgpCurrPkt->dwSpaceLeft < dwSize)
 		msg_get_next_packet();
-		packeta = sgpCurrPkt;
-	}
-	memcpy((char *)&packeta[1] - packeta->dwSpaceLeft, packet, dwSize);
+
+	memcpy(sgpCurrPkt->data + sizeof(sgpCurrPkt->data) - sgpCurrPkt->dwSpaceLeft, packet, dwSize);
 	sgpCurrPkt->dwSpaceLeft -= dwSize;
 }
 
@@ -179,19 +172,20 @@ BOOL msg_wait_resync()
 
 void run_delta_info()
 {
-	if (gbMaxPlayers != 1) {
-		gbBufferMsgs = 2;
-		msg_pre_packet();
-		gbBufferMsgs = 0;
-		msg_free_packets();
-	}
+	if (gbMaxPlayers == 1)
+		return;
+
+	gbBufferMsgs = 2;
+	msg_pre_packet();
+	gbBufferMsgs = 0;
+	msg_free_packets();
 }
 
 static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
 {
 	int i;
 
-	for (i = 0; i < MAXITEMS; i++) {
+	for (i = 0; i < MAXITEMS; i++, src++) {
 		if (src->bCmd == 0xFF) {
 			*dst = 0xFF;
 			dst++;
@@ -199,7 +193,6 @@ static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
 			copy_pod(*reinterpret_cast<TCmdPItem *>(dst), *src);
 			dst += sizeof(TCmdPItem);
 		}
-		src++;
 	}
 
 	return dst;
@@ -209,7 +202,7 @@ static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
 {
 	int i;
 
-	for (i = 0; i < MAXITEMS; i++) {
+	for (i = 0; i < MAXITEMS; i++, dst++) {
 		if (*src == 0xFF) {
 			memset(dst, 0xFF, sizeof(TCmdPItem));
 			src++;
@@ -217,7 +210,6 @@ static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
 			copy_pod(*dst, *reinterpret_cast<TCmdPItem *>(src));
 			src += sizeof(TCmdPItem);
 		}
-		dst++;
 	}
 
 	return src;
@@ -239,7 +231,7 @@ static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
 {
 	int i;
 
-	for (i = 0; i < MAXMONSTERS; i++) {
+	for (i = 0; i < MAXMONSTERS; i++, src++) {
 		if (src->_mx == 0xFF) {
 			*dst = 0xFF;
 			dst++;
@@ -247,7 +239,6 @@ static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
 			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *src);
 			dst += sizeof(DMonsterStr);
 		}
-		src++;
 	}
 
 	return dst;
@@ -257,7 +248,7 @@ static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
 {
 	int i;
 
-	for (i = 0; i < MAXMONSTERS; i++) {
+	for (i = 0; i < MAXMONSTERS; i++, dst++) {
 		if (*src == 0xFF) {
 			memset(dst, 0xFF, sizeof(DMonsterStr));
 			src++;
@@ -265,7 +256,6 @@ static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
 			copy_pod(*dst, *reinterpret_cast<DMonsterStr *>(src));
 			src += sizeof(DMonsterStr);
 		}
-		dst++;
 	}
 
 	return src;
@@ -462,63 +452,66 @@ void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers != 1) {
-		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mnum];
-		pD->_mx = x;
-		pD->_my = y;
-		pD->_mdir = monster[mnum]._mdir;
-		pD->_mhitpoints = 0;
-	}
+	if (gbMaxPlayers == 1)
+		return;
+
+	sgbDeltaChanged = TRUE;
+	pD = &sgLevels[bLevel].monster[mnum];
+	pD->_mx = x;
+	pD->_my = y;
+	pD->_mdir = monster[mnum]._mdir;
+	pD->_mhitpoints = 0;
 }
 
 void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers != 1) {
-		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[mnum];
-		if (pD->_mhitpoints > hp)
-			pD->_mhitpoints = hp;
-	}
+	if (gbMaxPlayers == 1)
+		return;
+
+	sgbDeltaChanged = TRUE;
+	pD = &sgLevels[bLevel].monster[mnum];
+	if (pD->_mhitpoints > hp)
+		pD->_mhitpoints = hp;
 }
 
 void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers == 1) {
+	if (gbMaxPlayers == 1)
 		return;
-	}
 
 	/// ASSERT: assert(pSync != NULL);
 	/// ASSERT: assert(bLevel < NUMLEVELS);
 	sgbDeltaChanged = TRUE;
 
 	pD = &sgLevels[bLevel].monster[pSync->_mndx];
-	if (pD->_mhitpoints != 0) {
-		pD->_mx = pSync->_mx;
-		pD->_my = pSync->_my;
-		pD->_mactive = UCHAR_MAX;
-		pD->_menemy = pSync->_menemy;
-	}
+	if (pD->_mhitpoints == 0)
+		return;
+
+	pD->_mx = pSync->_mx;
+	pD->_my = pSync->_my;
+	pD->_mactive = UCHAR_MAX;
+	pD->_menemy = pSync->_menemy;
 }
 
 static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers != 1) {
-		sgbDeltaChanged = TRUE;
-		pD = &sgLevels[bLevel].monster[pnum];
-		pD->_mx = pG->_mx;
-		pD->_my = pG->_my;
-		pD->_mactive = UCHAR_MAX;
-		pD->_menemy = pG->_menemy;
-		pD->_mdir = pG->_mdir;
-		pD->_mhitpoints = pG->_mhitpoints;
-	}
+	if (gbMaxPlayers == 1)
+		return;
+
+	sgbDeltaChanged = TRUE;
+	pD = &sgLevels[bLevel].monster[pnum];
+	pD->_mx = pG->_mx;
+	pD->_my = pG->_my;
+	pD->_mactive = UCHAR_MAX;
+	pD->_menemy = pG->_menemy;
+	pD->_mdir = pG->_mdir;
+	pD->_mhitpoints = pG->_mhitpoints;
 }
 
 static void delta_leave_sync(BYTE bLevel)
@@ -526,34 +519,36 @@ static void delta_leave_sync(BYTE bLevel)
 	int i, mnum;
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers != 1) {
-		if (bLevel == 0) {
-			glSeedTbl[0] = GetRndSeed();
-		} else {
-			for (i = 0; i < nummonsters; ++i) {
-				mnum = monstactive[i];
-				if (monster[mnum]._mhitpoints != 0) {
-					sgbDeltaChanged = TRUE;
-					pD = &sgLevels[bLevel].monster[mnum];
-					pD->_mx = monster[mnum]._mx;
-					pD->_my = monster[mnum]._my;
-					pD->_mdir = monster[mnum]._mdir;
-					pD->_menemy = encode_enemy(mnum);
-					pD->_mhitpoints = monster[mnum]._mhitpoints;
-					pD->_mactive = monster[mnum]._msquelch;
-				}
-			}
-			memcpy(&sgLocals[bLevel], automapview, sizeof(automapview));
+	if (gbMaxPlayers == 1)
+		return;
+
+	if (bLevel == 0) {
+		glSeedTbl[0] = GetRndSeed();
+		return;
+	}
+	for (i = 0; i < nummonsters; i++) {
+		mnum = monstactive[i];
+		if (monster[mnum]._mhitpoints != 0) {
+			sgbDeltaChanged = TRUE;
+			pD = &sgLevels[bLevel].monster[mnum];
+			pD->_mx = monster[mnum]._mx;
+			pD->_my = monster[mnum]._my;
+			pD->_mdir = monster[mnum]._mdir;
+			pD->_menemy = encode_enemy(mnum);
+			pD->_mhitpoints = monster[mnum]._mhitpoints;
+			pD->_mactive = monster[mnum]._msquelch;
 		}
 	}
+	memcpy(&sgLocals[bLevel].automapsv, automapview, sizeof(automapview));
 }
 
 static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 {
-	if (gbMaxPlayers != 1) {
-		sgbDeltaChanged = TRUE;
-		sgLevels[bLevel].object[oi].bCmd = bCmd;
-	}
+	if (gbMaxPlayers == 1)
+		return;
+
+	sgbDeltaChanged = TRUE;
+	sgLevels[bLevel].object[oi].bCmd = bCmd;
 }
 
 static BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
@@ -626,16 +621,16 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	int i;
 	TCmdPItem *pD;
 
-	if (gbMaxPlayers == 1) {
+	if (gbMaxPlayers == 1)
 		return;
-	}
+
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != CMD_WALKXY
-			&& pD->bCmd != 0xFF
-			&& pD->wIndx == pI->wIndx
-			&& pD->wCI == pI->wCI
-			&& pD->dwSeed == pI->dwSeed) {
+		 && pD->bCmd != 0xFF
+		 && pD->wIndx == pI->wIndx
+		 && pD->wCI == pI->wCI
+		 && pD->dwSeed == pI->dwSeed) {
 			if (pD->bCmd == CMD_ACK_PLRINFO)
 				return;
 			app_fatal("Trying to drop a floor item?");
@@ -863,9 +858,8 @@ void DeltaLoadLevel()
 	int i;
 	int x, y;
 
-	if (gbMaxPlayers == 1) {
+	if (gbMaxPlayers == 1)
 		return;
-	}
 
 	deltaload = TRUE;
 	if (currlevel != 0) {
@@ -1156,11 +1150,10 @@ static BOOL NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	cmd.bMaster = mast;
 
 	ticks = SDL_GetTicks();
-	if (cmd.dwTime == 0) {
+	if (cmd.dwTime == 0)
 		cmd.dwTime = ticks;
-	} else if (ticks - cmd.dwTime > 5000) {
+	else if (ticks - cmd.dwTime > 5000)
 		return FALSE;
-	}
 
 	multi_msg_add((BYTE *)&cmd.bCmd, sizeof(cmd));
 
@@ -1246,12 +1239,11 @@ static BOOL i_own_level(int nReqLevel)
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive
-			&& !plr[i]._pLvlChanging
-			&& plr[i].plrlevel == nReqLevel
-			&& (i != myplr || gbBufferMsgs == 0))
+		 && !plr[i]._pLvlChanging
+		 && plr[i].plrlevel == nReqLevel
+		 && (i != myplr || gbBufferMsgs == 0))
 			break;
 	}
-
 	return i == myplr;
 }
 
@@ -2062,18 +2054,30 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 
 static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
+#ifdef HELLFIRE
+	TCmdMonDamage *cmd = (TCmdMonDamage *)pCmd;
+#else
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
+#endif
 	int mnum;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
+#ifdef HELLFIRE
+			mnum = cmd->wMon;
+#else
 			mnum = cmd->wParam1;
+#endif
 			monster[mnum].mWhoHit |= 1 << pnum;
-
+#ifdef HELLFIRE
+			if (monster[mnum]._mhitpoints >= 0) {
+				monster[mnum]._mhitpoints -= cmd->dwDam;
+#else
 			if (monster[mnum]._mhitpoints != 0) {
 				monster[mnum]._mhitpoints -= cmd->wParam2;
+#endif
 				if (monster[mnum]._mhitpoints < (1 << 6))
 					monster[mnum]._mhitpoints = 1 << 6;
 				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
@@ -2103,8 +2107,8 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	TCmdDamage *cmd = (TCmdDamage *)pCmd;
 	DWORD dam;
 
-	if (cmd->bPlr == myplr && currlevel != 0) {
-		if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (cmd->bPlr == myplr && gbBufferMsgs != 1) {
+		if (currlevel != 0 && currlevel == plr[pnum].plrlevel) {
 			dam = cmd->dwDam;
 			if ((plr[myplr]._pHitPoints >> 6) > 0 && dam <= 192000) {
 				drawhpflag = TRUE;
@@ -2269,7 +2273,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 	else {
 		p = &plr[pnum];
 		p->_pLvlChanging = FALSE;
-		if (p->_pName[0] && !p->plractive) {
+		if (p->_pName[0] != '\0' && !p->plractive) {
 			p->plractive = TRUE;
 			gbActivePlayers++;
 			EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);

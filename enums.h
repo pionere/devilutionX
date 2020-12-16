@@ -1861,11 +1861,11 @@ typedef enum monster_resistance {
 	RESIST_MAGIC     = 0x01,
 	RESIST_FIRE      = 0x02,
 	RESIST_LIGHTNING = 0x04,
-	IMMUNE_MAGIC      = 0x08,
-	IMMUNE_FIRE       = 0x10,
-	IMMUNE_LIGHTNING  = 0x20,
-	IMMUNE_NULL_40    = 0x40,
-	IMMUNE_ACID       = 0x80,
+	IMMUNE_MAGIC     = 0x08,
+	IMMUNE_FIRE      = 0x10,
+	IMMUNE_LIGHTNING = 0x20,
+	IMMUNE_NULL_40   = 0x40,
+	IMMUNE_ACID      = 0x80,
 } monster_resistance;
 
 typedef enum missile_resistance {
@@ -2136,10 +2136,10 @@ typedef enum _speech_id {
 	TEXT_BOOK32     = 0x100,
 	TEXT_BOOK33     = 0x101,
 	TEXT_INTRO      = 0x102,
-	TEXT_HBONER    = 0x103,
-	TEXT_HBLOODY   = 0x104,
-	TEXT_HBLINDING = 0x105,
-	TEXT_HBLOODWAR = 0x106,
+	TEXT_HBONER     = 0x103,
+	TEXT_HBLOODY    = 0x104,
+	TEXT_HBLINDING  = 0x105,
+	TEXT_HBLOODWAR  = 0x106,
 	TEXT_BBONER     = 0x107,
 	TEXT_BBLOODY    = 0x108,
 	TEXT_BBLINDING  = 0x109,
@@ -2323,7 +2323,16 @@ typedef enum placeflag {
 	PLACE_UNIQUE  = 4,
 } placeflag;
 
- /*
+/*
+Looks like someone treated hex values as binary, so 0x10 came after 0x01, that's why we have 1 and 16, they did the same thing with affix_item_type
+*/
+typedef enum goodorevil {
+	GOE_ANY  = 0x00,
+	GOE_EVIL = 0x01,
+	GOE_GOOD = 0x10,
+} goodorevil;
+
+/*
  First 5 bits store level
  6th bit stores onlygood flag
  7th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
@@ -3048,11 +3057,11 @@ typedef enum item_type {
 
 typedef enum _item_indexes {
 	IDI_GOLD,
-	IDI_WARRIOR,
+	IDI_WARRSWORD,
 	IDI_WARRSHLD,
 	IDI_WARRCLUB,
-	IDI_ROGUE,
-	IDI_SORCEROR,
+	IDI_ROGUEBOW,
+	IDI_SORCSTAFF,
 	IDI_CLEAVER,
 	IDI_FIRSTQUEST = IDI_CLEAVER,
 	IDI_SKCROWN,
@@ -3086,8 +3095,8 @@ typedef enum _item_indexes {
 	IDI_RESURRECT,
 	IDI_OIL,
 	IDI_SHORTSTAFF,
-	IDI_SWORD,
-	IDI_DAGGER,
+	IDI_BARDSWORD,
+	IDI_BARDDAGGER,
 	IDI_RUNEBOMB,
 	IDI_THEODORE,
 	IDI_AURIC,
@@ -3104,7 +3113,7 @@ typedef enum _item_indexes {
 	IDI_REJUV      = 0x51,
 	IDI_FULLREJUV  = 0x52,
 	// hellfire only
-	IDI_FLAIL      = 0x8B,
+	IDI_BARBCLUB   = 0x8B,
 } _item_indexes;
 
 typedef enum _setlevels {
@@ -3117,31 +3126,31 @@ typedef enum _setlevels {
 } _setlevels;
 
 typedef enum quest_id {
-	Q_ROCK      = 0x0,
-	Q_MUSHROOM  = 0x1,
-	Q_GARBUD    = 0x2,
-	Q_ZHAR      = 0x3,
-	Q_VEIL      = 0x4,
-	Q_DIABLO    = 0x5,
-	Q_BUTCHER   = 0x6,
-	Q_LTBANNER  = 0x7,
-	Q_BLIND     = 0x8,
-	Q_BLOOD     = 0x9,
-	Q_ANVIL     = 0xA,
-	Q_WARLORD   = 0xB,
-	Q_SKELKING  = 0xC,
-	Q_PWATER    = 0xD,
-	Q_SCHAMB    = 0xE,
-	Q_BETRAYER  = 0xF,
-	Q_GRAVE   = 0x10,
-	Q_FARMER  = 0x11,
-	Q_GIRL    = 0x12,
-	Q_TRADER  = 0x13,
-	Q_DEFILER = 0x14,
-	Q_NAKRUL  = 0x15,
-	Q_CORNSTN = 0x16,
-	Q_JERSEY  = 0x17,
-	Q_INVALID = -1,
+	Q_ROCK     = 0x00,
+	Q_MUSHROOM = 0x01,
+	Q_GARBUD   = 0x02,
+	Q_ZHAR     = 0x03,
+	Q_VEIL     = 0x04,
+	Q_DIABLO   = 0x05,
+	Q_BUTCHER  = 0x06,
+	Q_LTBANNER = 0x07,
+	Q_BLIND    = 0x08,
+	Q_BLOOD    = 0x09,
+	Q_ANVIL    = 0x0A,
+	Q_WARLORD  = 0x0B,
+	Q_SKELKING = 0x0C,
+	Q_PWATER   = 0x0D,
+	Q_SCHAMB   = 0x0E,
+	Q_BETRAYER = 0x0F,
+	Q_GRAVE    = 0x10,
+	Q_FARMER   = 0x11,
+	Q_GIRL     = 0x12,
+	Q_TRADER   = 0x13,
+	Q_DEFILER  = 0x14,
+	Q_NAKRUL   = 0x15,
+	Q_CORNSTN  = 0x16,
+	Q_JERSEY   = 0x17,
+	Q_INVALID  = -1,
 } quest_id;
 
 typedef enum quest_state {
@@ -3488,7 +3497,7 @@ typedef enum anim_weapon_id {
 } anim_weapon_id;
 
 typedef enum anim_armor_id {
-	ANIM_ID_LIGHT_ARMOR = 0x00,
+	ANIM_ID_LIGHT_ARMOR  = 0x00,
 	ANIM_ID_MEDIUM_ARMOR = 0x10,
 	ANIM_ID_HEAVY_ARMOR  = 0x20
 } anim_armor_id;

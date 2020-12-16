@@ -335,8 +335,8 @@ void DrawInv()
 				cel_transparency_active = TRUE;
 
 				pBuff = frame_width == INV_SLOT_SIZE_PX
-					? &gpBuffer[SCREENXY(RIGHT_PANEL_X + 197, SCREEN_Y)]
-					: &gpBuffer[SCREENXY(RIGHT_PANEL_X + 183, SCREEN_Y)];
+				    ? &gpBuffer[SCREENXY(RIGHT_PANEL_X + 197, SCREEN_Y)]
+				    : &gpBuffer[SCREENXY(RIGHT_PANEL_X + 183, SCREEN_Y)];
 
 				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
 
@@ -836,9 +836,8 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		if (r == SLOTXY_CHEST_LAST) {
 			if ((sx & 1) == 0)
 				i -= INV_SLOT_SIZE_PX / 2;
-			if ((sy & 1) == 0) {
+			if ((sy & 1) == 0)
 				j -= INV_SLOT_SIZE_PX / 2;
-			}
 		}
 		if (r == SLOTXY_INV_LAST && (sy & 1) == 0)
 			j += INV_SLOT_SIZE_PX / 2;
@@ -973,7 +972,11 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		if (r <= SLOTXY_HAND_LEFT_LAST) {
 			if (is->_itype == ITYPE_NONE) {
-				if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
+				if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass
+#ifdef HELLFIRE
+				 || (p->_pClass == PC_BARD && wRight->_iClass == ICLASS_WEAPON)
+#endif
+				) {
 					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 					copy_pod(*is, *holditem);
 				} else {
@@ -982,7 +985,11 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				}
 				break;
 			}
-			if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass) {
+			if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass
+#ifdef HELLFIRE
+			 || (p->_pClass == PC_BARD && wRight->_iClass == ICLASS_WEAPON)
+#endif
+			) {
 				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 				cn = SwapItem(is, holditem);
 				break;
@@ -993,8 +1000,16 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			break;
 		}
 		if (wRight->_itype == ITYPE_NONE) {
-			if (is->_itype == ITYPE_NONE || is->_iLoc != ILOC_TWOHAND) {
-				if (is->_itype == ITYPE_NONE || is->_iClass != holditem->_iClass) {
+			if (is->_itype == ITYPE_NONE || is->_iLoc != ILOC_TWOHAND
+#ifdef HELLFIRE
+			 || (p->_pClass == PC_BARBARIAN && (is->_itype == ITYPE_SWORD || is->_itype == ITYPE_MACE))
+#endif
+			) {
+				if (is->_itype == ITYPE_NONE || is->_iClass != holditem->_iClass
+#ifdef HELLFIRE
+				 || (p->_pClass == PC_BARD && is->_iClass == ICLASS_WEAPON)
+#endif
+				) {
 					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
 					copy_pod(*wRight, *holditem);
 					break;
@@ -1003,14 +1018,22 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				cn = SwapItem(is, holditem);
 				break;
 			}
+#ifdef HELLFIRE
+			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
+#else
 			NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
 			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+#endif
 			SwapItem(wRight, is);
 			cn = SwapItem(wRight, holditem);
 			break;
 		}
 
-		if (is->_itype != ITYPE_NONE && is->_iClass == holditem->_iClass) {
+		if (is->_itype != ITYPE_NONE && is->_iClass == holditem->_iClass
+#ifdef HELLFIRE
+		 && (p->_pClass != PC_BARD || is->_iClass != ICLASS_WEAPON)
+#endif
+		) {
 			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			cn = SwapItem(is, holditem);
 			break;
@@ -1041,7 +1064,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			copy_pod(*is, *holditem);
 		}
-		if (is->_itype == ITYPE_STAFF && is->_iSpell != 0 && is->_iCharges > 0) {
+		if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL && is->_iCharges > 0) {
 			p->_pRSpell = is->_iSpell;
 			p->_pRSplType = RSPLTYPE_CHARGES;
 			force_redraw = 255;
@@ -1074,11 +1097,11 @@ static void CheckInvPaste(int pnum, int mx, int my)
 					SetGoldItemValue(is, GOLD_MAX_LIMIT);
 					// BUGFIX: incorrect values here are leftover from beta
 					if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
-						cn = 18;
+						cn = ICURS_GOLD_LARGE + CURSOR_FIRSTITEM;
 					else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
-						cn = 16;
+						cn = ICURS_GOLD_SMALL + CURSOR_FIRSTITEM;
 					else
-						cn = 17;
+						cn = ICURS_GOLD_MEDIUM + CURSOR_FIRSTITEM;
 				}
 			} else {
 				il = p->_pNumInv;
@@ -1088,6 +1111,10 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				p->_pGold += holditem->_ivalue;
 				if (holditem->_ivalue <= GOLD_MAX_LIMIT) {
 					SetGoldItemValue(&p->InvList[il], holditem->_ivalue);
+#ifdef HELLFIRE
+				} else {
+					p->InvList[il]._iCurs = ICURS_GOLD_LARGE;
+#endif
 				}
 			}
 		} else {
@@ -1146,11 +1173,11 @@ static void CheckInvPaste(int pnum, int mx, int my)
 
 						// BUGFIX: incorrect values here are leftover from beta
 						if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
-							cn = 18;
+							cn = ICURS_GOLD_LARGE + CURSOR_FIRSTITEM;
 						else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
-							cn = 16;
+							cn = ICURS_GOLD_SMALL + CURSOR_FIRSTITEM;
 						else
-							cn = 17;
+							cn = ICURS_GOLD_MEDIUM + CURSOR_FIRSTITEM;
 					}
 				} else {
 					p->_pGold += holditem->_ivalue;
@@ -2108,7 +2135,7 @@ void UseStaffCharge(int pnum)
 #ifdef HELLFIRE
 	           || is->_iMiscId == IMISC_UNIQUE // BUGFIX: myplr->pnum (fixed)
 #endif
-	           )
+	        )
 	    && is->_iSpell == plr[pnum]._pRSpell
 	    && is->_iCharges > 0) {
 		is->_iCharges--;
