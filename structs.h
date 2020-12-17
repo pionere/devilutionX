@@ -865,11 +865,11 @@ typedef struct TCmdDelItem {
 	BYTE bLoc;
 } TCmdDelItem;
 
-typedef struct TCmdDamage {
+typedef struct TCmdDwParam2 {
 	BYTE bCmd;
-	BYTE bPlr;
-	DWORD dwDam;
-} TCmdDamage;
+	DWORD dwParam1;
+	DWORD dwParam2;
+} TCmdDwParam2;
 
 #ifdef HELLFIRE
 typedef struct TCmdMonDamage {

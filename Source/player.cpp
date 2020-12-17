@@ -2692,7 +2692,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 		drawhpflag = TRUE;
 	}
 	if (offp == myplr) {
-		NetSendCmdDamage(TRUE, defp, dam);
+		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
 	}
 	StartPlrHit(defp, dam, FALSE);
 	return TRUE;

@@ -1247,33 +1247,18 @@ static BOOL i_own_level(int nReqLevel)
 	return i == myplr;
 }
 
-void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam)
+void NetSendCmdDwParam2(BOOL bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2)
 {
-	TCmdDamage cmd;
+	TCmdDwParam2 cmd;
 
-	cmd.bCmd = CMD_PLRDAMAGE;
-	cmd.bPlr = bPlr;
-	cmd.dwDam = dwDam;
+	cmd.bCmd = bCmd;
+	cmd.dwParam1 = dwParam1;
+	cmd.dwParam2 = dwParam2;
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
-
-#ifdef HELLFIRE
-void NetSendCmdMonDmg(BOOL bHiPri, WORD wMon, DWORD dwDam)
-{
-	TCmdMonDamage cmd;
-
-	cmd.bCmd = CMD_MONSTDAMAGE;
-	cmd.wMon = wMon;
-	cmd.dwDam = dwDam;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
-}
-#endif
 
 void NetSendCmdString(unsigned int pmask)
 {
@@ -2054,30 +2039,17 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 
 static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
-#ifdef HELLFIRE
-	TCmdMonDamage *cmd = (TCmdMonDamage *)pCmd;
-#else
-	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
-#endif
+	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 	int mnum;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
-#ifdef HELLFIRE
-			mnum = cmd->wMon;
-#else
-			mnum = cmd->wParam1;
-#endif
+			mnum = cmd->dwParam1;
 			monster[mnum].mWhoHit |= 1 << pnum;
-#ifdef HELLFIRE
-			if (monster[mnum]._mhitpoints >= 0) {
-				monster[mnum]._mhitpoints -= cmd->dwDam;
-#else
 			if (monster[mnum]._mhitpoints != 0) {
-				monster[mnum]._mhitpoints -= cmd->wParam2;
-#endif
+				monster[mnum]._mhitpoints -= cmd->dwParam2;
 				if (monster[mnum]._mhitpoints < (1 << 6))
 					monster[mnum]._mhitpoints = 1 << 6;
 				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
@@ -2104,16 +2076,14 @@ static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 
 static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
-	TCmdDamage *cmd = (TCmdDamage *)pCmd;
-	DWORD dam;
+	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 
-	if (cmd->bPlr == myplr && gbBufferMsgs != 1) {
+	if (cmd->dwParam1 == myplr && gbBufferMsgs != 1) {
 		if (currlevel != 0 && currlevel == plr[pnum].plrlevel) {
-			dam = cmd->dwDam;
-			if ((plr[myplr]._pHitPoints >> 6) > 0 && dam <= 192000) {
+			if ((plr[myplr]._pHitPoints >> 6) > 0 && cmd->dwParam2 <= 192000) {
 				drawhpflag = TRUE;
-				plr[myplr]._pHitPoints -= dam;
-				plr[myplr]._pHPBase -= dam;
+				plr[myplr]._pHitPoints -= cmd->dwParam2;
+				plr[myplr]._pHPBase -= cmd->dwParam2;
 				if ((plr[myplr]._pHitPoints >> 6) <= 0)
 					SyncPlrKill(myplr, 1);
 			}

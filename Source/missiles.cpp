@@ -977,14 +977,14 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	}
 	if (resper > 0) {
 		if (offp == myplr)
-			NetSendCmdDamage(TRUE, defp, dam - resper * dam / 100);
+			NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam - resper * dam / 100);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_69][ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
 		if (blk) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
 		} else {
 			if (offp == myplr)
-				NetSendCmdDamage(TRUE, defp, dam);
+				NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
 			StartPlrHit(defp, dam, FALSE);
 		}
 	}

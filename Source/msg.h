@@ -45,10 +45,7 @@ void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y);
 void NetSendCmdChItem(BOOL bHiPri, ItemStruct *is, BYTE bLoc);
 void NetSendCmdDelItem(BOOL bHiPri, BYTE bLoc);
 void NetSendCmdDItem(BOOL bHiPri, int ii);
-void NetSendCmdDamage(BOOL bHiPri, BYTE bPlr, DWORD dwDam);
-#ifdef HELLFIRE
-void NetSendCmdMonDmg(BOOL bHiPri, WORD bMon, DWORD dwDam);
-#endif
+void NetSendCmdDwParam2(BOOL bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2);
 void NetSendCmdString(unsigned int pmask);
 void delta_close_portal(int pnum);
 DWORD ParseCmd(int pnum, TCmd *pCmd);

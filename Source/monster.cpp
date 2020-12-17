@@ -1625,7 +1625,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 		mon->mWhoHit |= 1 << pnum;
 	if (pnum == myplr) {
 		delta_monster_hp(mnum, mon->_mhitpoints, currlevel);
-		NetSendCmdParam2(FALSE, CMD_MONSTDAMAGE, mnum, dam);
+		NetSendCmdDwParam2(FALSE, CMD_MONSTDAMAGE, mnum, dam);
 	}
 	PlayEffect(mnum, 1);
 	if (mon->MType->mtype >= MT_SNEAK && mon->MType->mtype <= MT_ILLWEAV || dam >> 6 >= mon->mLevel + 3) {
@@ -1757,7 +1757,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		dmon->mWhoHit |= 1 << offm;
 
 	delta_monster_hp(defm, dmon->_mhitpoints, currlevel);
-	NetSendCmdParam2(FALSE, CMD_MONSTDAMAGE, defm, dam);
+	NetSendCmdDwParam2(FALSE, CMD_MONSTDAMAGE, defm, dam);
 	PlayEffect(defm, 1);
 
 	if (dmon->MType->mtype >= MT_SNEAK && dmon->MType->mtype <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {
