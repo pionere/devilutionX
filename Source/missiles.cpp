@@ -566,7 +566,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 
 	mon = &monster[mnum];
 	mds = &missiledata[mitype];
-	if ((mds->mdFlags & MIFLAG_UNDEAD) && mon->MData->mMonstClass != MC_UNDEAD && mon->MType->mtype != MT_DIABLO)
+	if ((mds->mdFlags & MIFLAG_UNDEAD) && mon->MData->mMonstClass != MC_UNDEAD && mon->_mType != MT_DIABLO)
 		return TRUE;
 
 	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
@@ -2360,7 +2360,7 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	MissileStruct *mis, *bmis;
 
 	if (micaster != 0 && misource > 0) {
-		switch (monster[misource].MType->mtype) {
+		switch (monster[misource]._mType) {
 		case MT_SUCCUBUS:
 			SetMissAnim(mi, MFILE_FLAREEXP);
 			break;
@@ -2706,14 +2706,14 @@ void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	AnimStruct *anim;
 
 	mon = &monster[misource];
-	if (mon->MType->mtype < MT_HORNED || mon->MType->mtype > MT_OBLORD) {
-		if (mon->MType->mtype < MT_NSNAKE || mon->MType->mtype > MT_GSNAKE) {
-			anim = &mon->MType->Anims[MA_WALK];
+	if (mon->_mType < MT_HORNED || mon->_mType > MT_OBLORD) {
+		if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
+			anim = &mon->_mAnims[MA_WALK];
 		} else {
-			anim = &mon->MType->Anims[MA_ATTACK];
+			anim = &mon->_mAnims[MA_ATTACK];
 		}
 	} else {
-		anim = &mon->MType->Anims[MA_SPECIAL];
+		anim = &mon->_mAnims[MA_SPECIAL];
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, 18);
 	mis = &missile[mi];
@@ -2722,10 +2722,10 @@ void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miAnimData = anim->Data[midir];
 	mis->_miAnimDelay = anim->Rate;
 	mis->_miAnimLen = anim->Frames;
-	mis->_miAnimWidth = mon->MType->width;
-	mis->_miAnimWidth2 = mon->MType->width2;
+	mis->_miAnimWidth = mon->_mAnimWidth;
+	mis->_miAnimWidth2 = mon->_mAnimWidth2;
 	mis->_miAnimAdd = 1;
-	if (mon->MType->mtype >= MT_NSNAKE && mon->MType->mtype <= MT_GSNAKE)
+	if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE)
 		mis->_miAnimFrame = 7;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0) {
@@ -2748,15 +2748,15 @@ void AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mon = &monster[misource];
-	anim = &mon->MType->Anims[MA_WALK];
+	anim = &mon->_mAnims[MA_WALK];
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
 	mis->_miAnimData = anim->Data[midir];
 	mis->_miAnimDelay = anim->Rate;
 	mis->_miAnimLen = anim->Frames;
-	mis->_miAnimWidth = mon->MType->width;
-	mis->_miAnimWidth2 = mon->MType->width2;
+	mis->_miAnimWidth = mon->_mAnimWidth;
+	mis->_miAnimWidth2 = mon->_mAnimWidth2;
 	mis->_miAnimAdd = 1;
 	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = 0;
@@ -2792,7 +2792,7 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			SyncPlrKill(misource, 0);
 	} else {
 		if (misource > 0) {
-			switch (monster[misource].MType->mtype) {
+			switch (monster[misource]._mType) {
 			case MT_SUCCUBUS:
 				SetMissAnim(mi, MFILE_FLARE);
 				break;
@@ -2889,7 +2889,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 				mon = &monster[mid];
 				if (mon->_mAi != AI_DIABLO) {
 #ifdef HELLFIRE
-					if (mon->MType->mtype == MT_NAKRUL)
+					if (mon->_mType == MT_NAKRUL)
 						continue;
 #endif
 					if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE) {
@@ -5063,7 +5063,7 @@ void MI_Fireman(int mi)
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = opposite[mis->_miDir];
-		mis->_miAnimData = monster[mnum].MType->Anims[MA_WALK].Data[mis->_miDir];
+		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].Data[mis->_miDir];
 		mis->_miVar2++;
 		if (j > 0)
 			mis->_miVar1 = TRUE;
@@ -5612,7 +5612,7 @@ void ProcessMissiles()
 
 void missiles_process_charge()
 {
-	CMonster *mon;
+	MonsterStruct *mon;
 	AnimStruct *anim;
 	MissileStruct *mis;
 	int i;
@@ -5621,14 +5621,14 @@ void missiles_process_charge()
 		mis = &missile[missileactive[i]];
 		mis->_miAnimData = misfiledata[mis->_miAnimType].mfAnimData[mis->_miDir];
 		if (mis->_miType == MIS_RHINO) {
-			mon = monster[mis->_miSource].MType;
-			if (mon->mtype >= MT_HORNED && mon->mtype <= MT_OBLORD) {
-				anim = &mon->Anims[MA_SPECIAL];
+			mon = &monster[mis->_miSource];
+			if (mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) {
+				anim = &mon->_mAnims[MA_SPECIAL];
 			} else {
-				if (mon->mtype >= MT_NSNAKE && mon->mtype <= MT_GSNAKE)
-					anim = &mon->Anims[MA_ATTACK];
+				if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE)
+					anim = &mon->_mAnims[MA_ATTACK];
 				else
-					anim = &mon->Anims[MA_WALK];
+					anim = &mon->_mAnims[MA_WALK];
 			}
 			mis->_miAnimData = anim->Data[mis->_miDir];
 		}

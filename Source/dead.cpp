@@ -59,10 +59,10 @@ void InitDead()
 		mon = &monster[monstactive[i]];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-				dead[nd]._deadData[d] = mon->MType->Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = mon->MType->Anims[MA_DEATH].Frames;
-			dead[nd]._deadWidth = mon->MType->width;
-			dead[nd]._deadWidth2 = mon->MType->width2;
+				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].Data[d];
+			dead[nd]._deadFrame = mon->_mAnims[MA_DEATH].Frames;
+			dead[nd]._deadWidth = mon->_mAnimWidth;
+			dead[nd]._deadWidth2 = mon->_mAnimWidth2;
 			dead[nd]._deadtrans = mon->_uniqtrans + 4;
 			mon->_udeadval = nd + 1;
 			nd++;

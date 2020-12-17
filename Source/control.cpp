@@ -1318,7 +1318,7 @@ void DrawInfoBox()
 					infoclr = COL_GOLD;
 					PrintUniqueHistory(pcursmonst);
 				} else {
-					PrintMonstHistory(monster[pcursmonst].MType->mtype);
+					PrintMonstHistory(monster[pcursmonst]._mType);
 				}
 			} else if (pcursitem == -1) {
 				copy_str(infostr, towner[pcursmonst]._tName);

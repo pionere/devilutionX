@@ -628,6 +628,10 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	const char *mName;
 	CMonster *MType;
 	MonsterData *MData;
+	int _mType;
+	AnimStruct *_mAnims;
+	int _mAnimWidth;
+	int _mAnimWidth2;
 } MonsterStruct;
 
 typedef struct UniqMonstStruct {

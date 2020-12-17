@@ -345,7 +345,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, 1);
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, 1);
 	} else {
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
@@ -356,9 +356,9 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 		else
 			trans = 0;
 		if (trans != 0)
-			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->MType->width, trans);
+			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, trans);
 		else
-			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->MType->width);
+			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->_mAnimWidth);
 	}
 }
 
@@ -675,14 +675,10 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 		return;
 	}
 
-	if (mon->MType == NULL) {
-		dev_fatal("Draw Monster \"%s\": uninitialized monster", mon->mName);
-	}
-
-	px = sx + mon->_mxoff - mon->MType->width2;
+	px = sx + mon->_mxoff - mon->_mAnimWidth2;
 	py = sy + mon->_myoff;
 	if (mnum == pcursmonst) {
-		Cl2DrawOutline(233, px, py, mon->_mAnimData, mon->_mAnimFrame, mon->MType->width);
+		Cl2DrawOutline(233, px, py, mon->_mAnimData, mon->_mAnimFrame, mon->_mAnimWidth);
 	}
 	DrawMonster(x, y, px, py, mnum);
 }
