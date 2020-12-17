@@ -639,10 +639,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int iflgs = ISPL_NONE; // item_special_effect flags
 	int iflgs2 = ISPH_NONE;// item_special_effect flags2
 
-#ifdef HELLFIRE
-	int pDamAcFlags = 0;
-#endif
-
 	int sadd = 0; // added strength
 	int madd = 0; // added magic
 	int dadd = 0; // added dexterity
@@ -694,9 +690,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				}
 				iflgs |= pi->_iFlags;
 				iflgs2 |= pi->_iFlags2;
-#ifdef HELLFIRE
-				pDamAcFlags |= pi->_iDamAcFlags;
-#endif
+
 				sadd += pi->_iPLStr;
 				madd += pi->_iPLMag;
 				dadd += pi->_iPLDex;
@@ -725,9 +719,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIFlags = iflgs;
 	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
 	p->_pIFlags2 = iflgs2;
-#ifdef HELLFIRE
-	p->pDamAcFlags = pDamAcFlags;
-#endif
 	p->_pIBonusDamMod = dmod;
 	p->_pIGetHit = ghit;
 	p->_pIEnAc = enac;
@@ -1830,7 +1821,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 #ifdef HELLFIRE
 	case IPL_DOPPELGANGER:
-		is->_iDamAcFlags |= ISPH_DOPPELGANGER;
+		is->_iFlags2 |= ISPH_DOPPELGANGER;
 		// no break
 #endif
 	case IPL_TOHIT_DAMP:
@@ -2190,23 +2181,23 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iPLMR -= r;
 		break;
 	case IPL_DEVASTATION:
-		is->_iDamAcFlags |= ISPH_DEVASTATION;
+		is->_iFlags2 |= ISPH_DEVASTATION;
 		break;
 	case IPL_DECAY:
-		is->_iDamAcFlags |= ISPH_DECAY;
+		is->_iFlags2 |= ISPH_DECAY;
 		is->_iPLDam += r;
 		break;
 	case IPL_PERIL:
-		is->_iDamAcFlags |= ISPH_PERIL;
+		is->_iFlags2 |= ISPH_PERIL;
 		break;
 	case IPL_JESTERS:
-		is->_iDamAcFlags |= ISPH_JESTERS;
+		is->_iFlags2 |= ISPH_JESTERS;
 		break;
 	case IPL_ACDEMON:
-		is->_iDamAcFlags |= ISPH_ACDEMON;
+		is->_iFlags2 |= ISPH_ACDEMON;
 		break;
 	case IPL_ACUNDEAD:
-		is->_iDamAcFlags |= ISPH_ACUNDEAD;
+		is->_iFlags2 |= ISPH_ACUNDEAD;
 		break;
 	case IPL_MANATOLIFE:
 		r2 = ((plr[myplr]._pMaxManaBase >> 6) * 50 / 100);

@@ -2383,7 +2383,7 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	p = &plr[pnum];
 #ifdef HELLFIRE
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & ISPH_DECAY) {
+	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iFlags2 & ISPH_DECAY) {
 		pi->_iPLDam -= 5;
 		if (pi->_iPLDam <= -100) {
 			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
@@ -2395,7 +2395,7 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	}
 
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iDamAcFlags & ISPH_DECAY) {
+	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iFlags2 & ISPH_DECAY) {
 		pi->_iPLDam -= 5;
 		if (pi->_iPLDam <= -100) {
 			NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);

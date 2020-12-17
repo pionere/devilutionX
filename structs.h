@@ -169,9 +169,6 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int IDidx;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
-#ifdef HELLFIRE
-	int _iDamAcFlags;
-#endif
 } ItemStruct;
 
 //////////////////////////////////////////////////
