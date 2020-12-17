@@ -632,7 +632,16 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	AnimStruct *_mAnims;
 	int _mAnimWidth;
 	int _mAnimWidth2;
+#if INT_MAX == INT64_MAX
+	int alignment[0];
+#else
+	int alignment[3];
+#endif
 } MonsterStruct;
+
+#if INT_MAX == INT32_MAX
+static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
+#endif
 
 typedef struct UniqMonstStruct {
 #ifdef HELLFIRE
@@ -712,7 +721,16 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
+#if INT_MAX == INT64_MAX
+	int alignment[0];
+#else
+	int alignment[2];
+#endif
 } ObjectStruct;
+
+#if INT_MAX == INT32_MAX
+static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align ObjectStruct to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // portal
