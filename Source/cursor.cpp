@@ -229,9 +229,9 @@ void CheckCursMove()
 			}
 		}
 	}
-	if (sy > PANEL_TOP - 1 && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH && track_isscrolling()) {
-		sy = PANEL_TOP - 1;
-	}
+	//if (sy > PANEL_TOP - 1 && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH && track_isscrolling()) {
+	//	sy = PANEL_TOP - 1;
+	//}
 
 	if (!zoomflag) {
 		sx >>= 1;

@@ -256,7 +256,6 @@ add_library(devilution STATIC
   Source/tmsg.cpp
   Source/town.cpp
   Source/towners.cpp
-  Source/track.cpp
   Source/trigs.cpp
   Source/wave.cpp)
 

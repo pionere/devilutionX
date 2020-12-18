@@ -86,7 +86,6 @@
 #include "tmsg.h"
 #include "town.h"
 #include "towners.h"
-#include "track.h"
 #include "trigs.h"
 #include "wave.h"
 #include "render.h" // linked last, likely .s/.asm
