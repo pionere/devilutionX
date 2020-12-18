@@ -380,7 +380,11 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 	void *pReserved;
 #ifdef X86_32bit_COMP
+#ifdef HELLFIRE
 	int alignment[486];
+#else
+	int alignment[490];
+#endif
 #endif
 } PlayerStruct;
 
