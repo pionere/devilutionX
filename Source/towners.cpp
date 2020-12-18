@@ -38,7 +38,7 @@ const int snSFX[3][NUM_CLASSES] = {
 
 /* data */
 /** Specifies the animation frame sequence of a given NPC. */
-char AnimOrder[6][148] = {
+char AnimOrder[6][144] = {
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
 	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,

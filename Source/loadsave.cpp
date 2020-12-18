@@ -622,7 +622,7 @@ static void LoadLighting(int lnum)
 	CopyInt(tbuff, &pLight->_lid);
 	CopyInt(tbuff, &pLight->_ldel);
 	CopyInt(tbuff, &pLight->_lunflag);
-	CopyInt(tbuff, &pLight->field_18);
+	tbuff += 4; // Skip pointer field_18
 	CopyInt(tbuff, &pLight->_lunx);
 	CopyInt(tbuff, &pLight->_luny);
 	CopyInt(tbuff, &pLight->_lunr);
@@ -641,7 +641,7 @@ static void LoadVision(int vnum)
 	CopyInt(tbuff, &pVision->_lid);
 	CopyInt(tbuff, &pVision->_ldel);
 	CopyInt(tbuff, &pVision->_lunflag);
-	CopyInt(tbuff, &pVision->field_18);
+	tbuff += 4; // Skip pointer field_18
 	CopyInt(tbuff, &pVision->_lunx);
 	CopyInt(tbuff, &pVision->_luny);
 	CopyInt(tbuff, &pVision->_lunr);
@@ -1376,7 +1376,7 @@ static void SaveLighting(int lnum)
 	CopyInt(&pLight->_lid, tbuff);
 	CopyInt(&pLight->_ldel, tbuff);
 	CopyInt(&pLight->_lunflag, tbuff);
-	CopyInt(&pLight->field_18, tbuff);
+	tbuff += 4; // Skip pointer field_18
 	CopyInt(&pLight->_lunx, tbuff);
 	CopyInt(&pLight->_luny, tbuff);
 	CopyInt(&pLight->_lunr, tbuff);
@@ -1395,7 +1395,7 @@ static void SaveVision(int vnum)
 	CopyInt(&pVision->_lid, tbuff);
 	CopyInt(&pVision->_ldel, tbuff);
 	CopyInt(&pVision->_lunflag, tbuff);
-	CopyInt(&pVision->field_18, tbuff);
+	tbuff += 4; // Skip pointer field_18
 	CopyInt(&pVision->_lunx, tbuff);
 	CopyInt(&pVision->_luny, tbuff);
 	CopyInt(&pVision->_lunr, tbuff);

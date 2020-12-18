@@ -6,6 +6,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX
+#define X86_32bit_COMP
+#endif
 //////////////////////////////////////////////////
 // control
 //////////////////////////////////////////////////
@@ -35,6 +38,10 @@ typedef struct PLStruct {
 	int PLMaxVal;
 	int PLMultVal;
 } PLStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(PLStruct) & (sizeof(PLStruct) - 1)) == 32, "Align PLStruct closer to power of 2 for better performance.");
+#endif
 
 typedef struct UItemStruct {
 	const char *UIName;
@@ -72,7 +79,7 @@ typedef struct ItemDataStruct {
 	const char *iName;
 	const char *iSName;
 	char iMinMLvl;
-	int iDurability;
+	short iDurability;
 	int iMinDam;
 	int iMaxDam;
 	int iMinAC;
@@ -84,10 +91,13 @@ typedef struct ItemDataStruct {
 	int iMiscId;
 	// spell_id
 	int iSpell;
-	BOOL iUsable;
+	BOOLEAN iUsable;
 	int iValue;
-	int iMaxValue;
 } ItemDataStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ItemDataStruct) & (sizeof(ItemDataStruct) - 1)) == 0, "Align ItemDataStruct to power of 2 for better performance.");
+#endif
 
 typedef struct ItemGetRecordStruct {
 	int nSeed;
@@ -95,6 +105,10 @@ typedef struct ItemGetRecordStruct {
 	int nIndex;
 	unsigned int dwTimestamp;
 } ItemGetRecordStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ItemGetRecordStruct) & (sizeof(ItemGetRecordStruct) - 1)) == 0, "Align ItemGetRecordStruct to power of 2 for better performance.");
+#endif
 
 typedef struct ItemStruct {
 	int _iSeed;
@@ -169,7 +183,14 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int IDidx;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
+#ifdef X86_32bit_COMP
+	int alignment[4];
+#endif
 } ItemStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 256, "Align ItemStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // player
@@ -189,10 +210,10 @@ typedef struct PlayerStruct {
 	int _py;
 	int _pfutx;
 	int _pfuty;
-	int _ptargx;
-	int _ptargy;
-	int _pownerx;
-	int _pownery;
+	int _ptargx; // unused
+	int _ptargy; // unused
+	int _pownerx; // unused
+	int _pownery; // unused
 	int _poldx;
 	int _poldy;
 	int _pxoff;
@@ -200,7 +221,7 @@ typedef struct PlayerStruct {
 	int _pxvel;
 	int _pyvel;
 	int _pdir;
-	int _nextdir;
+	int _nextdir; // unused
 	int _pgfxnum;
 	unsigned char *_pAnimData;
 	int _pAnimDelay;
@@ -209,7 +230,7 @@ typedef struct PlayerStruct {
 	unsigned _pAnimFrame;
 	int _pAnimWidth;
 	int _pAnimWidth2;
-	int _peflag;
+	int _peflag; // unused
 	int _plid;
 	int _pvid;
 	int _pSpell;
@@ -220,8 +241,8 @@ typedef struct PlayerStruct {
 	int _pRSpell;
 	// enum spell_type
 	char _pRSplType;
-	int _pSBkSpell;
-	char _pSBkSplType;
+	int _pSBkSpell; // unused
+	char _pSBkSplType; // unused
 	char _pSplLvl[64];
 	uint64_t _pMemSpells;
 	uint64_t _pAblSpells;
@@ -266,7 +287,7 @@ typedef struct PlayerStruct {
 	char _pLevel;
 	BOOLEAN _pLvlUp; // _pMaxLvl in vanilla code
 	int _pExperience;
-	int _pMaxExp;
+	int _pMaxExp; // unused
 	int _pNextExper;
 	char _pArmorClass;
 	char _pMagResist;
@@ -327,7 +348,7 @@ typedef struct PlayerStruct {
 	int _pIFlags;
 	int _pIGetHit;
 	char _pISplLvlAdd;
-	char _pISplCost;
+	char _pISplCost; // 'unused'
 	int _pIFlags2; // _pISplDur in vanilla code
 	int _pIEnAc;
 	int _pIFMinDam;
@@ -346,7 +367,7 @@ typedef struct PlayerStruct {
 	short wReserved[7];
 	DWORD pDiabloKillLevel;
 	int dwReserved1;
-	int pDamAcFlags;
+	int pDamAcFlags; // unused
 	int dwReserved[5];
 	unsigned char *_pNData;
 	unsigned char *_pWData;
@@ -358,7 +379,14 @@ typedef struct PlayerStruct {
 	unsigned char *_pDData;
 	unsigned char *_pBData;
 	void *pReserved;
+#ifdef X86_32bit_COMP
+	int alignment[486];
+#endif
 } PlayerStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 16384, "Align PlayerStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // textdat
@@ -393,9 +421,12 @@ typedef struct MissileData {
 	unsigned char miSFXCnt;
 } MissileData;
 
+#ifdef X86_32bit_COMP
+static_assert((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align MissileData to power of 2 for better performance.");
+#endif
+
 typedef struct MisFileData {
-	unsigned char mfAnimName;
-	unsigned char mfAnimFAmt;
+	int mfAnimFAmt;
 	const char *mfName;
 	int mfFlags;
 	unsigned char *mfAnimData[16];
@@ -403,13 +434,13 @@ typedef struct MisFileData {
 	unsigned char mfAnimLen[16];
 	int mfAnimWidth[16];
 	int mfAnimWidth2[16];
+#ifdef X86_32bit_COMP
+	int alignment[5];
+#endif
 } MisFileData;
-
-typedef struct ChainStruct {
-	int idx;
-	int _mitype;
-	int _mirange;
-} ChainStruct;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
+#endif
 
 typedef struct MissileStruct {
 	int _miType;
@@ -456,7 +487,14 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7;
 	int _miVar8;
+#ifdef X86_32bit_COMP
+	int alignment[4];
+#endif
 } MissileStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Align MissileStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // effects/sound
@@ -483,7 +521,13 @@ typedef struct AnimStruct {
 	BYTE *Data[8];
 	int Frames;
 	int Rate;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } AnimStruct;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align AnimStruct closer to power of 2 for better performance.");
+#endif
 
 typedef struct MonsterData {
 	int width;
@@ -500,9 +544,9 @@ typedef struct MonsterData {
 	BYTE mMinDLvl;
 	BYTE mMaxDLvl;
 	char mLevel;
+	char mAi;
 	int mMinHP;
 	int mMaxHP;
-	char mAi;
 	int mFlags;
 	unsigned char mInt;
 	unsigned short mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
@@ -521,34 +565,33 @@ typedef struct MonsterData {
 	char mSelFlag;
 	unsigned short mExp;
 } MonsterData;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
+#endif
 
 typedef struct CMonster {
-#ifdef HELLFIRE
 	int mtype;
-#else
-	unsigned char mtype;
-#endif
-	// TODO: Add enum for place flags
-	unsigned char mPlaceFlags;
+	int mPlaceFlags;
 	AnimStruct Anims[6];
 	TSnd *Snds[4][2];
 	int width;
 	int width2;
-#ifdef HELLFIRE
 	int mMinHP;
 	int mMaxHP;
-#else
-	unsigned char mMinHP;
-	unsigned char mMaxHP;
-#endif
 	BOOL has_special;
-	unsigned char mAFNum;
+	unsigned char mAFNum; // unused
 	char mdeadval;
 	MonsterData *MData;
 	// A TRN file contains a sequence of colour transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	BYTE *trans_file;
+#ifdef X86_32bit_COMP
+	int alignment[6];
+#endif
 } CMonster;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(CMonster) & (sizeof(CMonster) - 1)) == 256, "Align CMonster closer to power of 2 for better performance.");
+#endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mMTidx;
@@ -629,23 +672,17 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	AnimStruct *_mAnims;
 	int _mAnimWidth;
 	int _mAnimWidth2;
-#if INT_MAX == INT64_MAX
-	int alignment[0];
-#else
+#ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
 } MonsterStruct;
 
-#if INT_MAX == INT32_MAX
+#ifdef X86_32bit_COMP
 static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
 
 typedef struct UniqMonstStruct {
-#ifdef HELLFIRE
 	int mtype;
-#else
-	char mtype;
-#endif
 	const char *mName;
 	const char *mTrnName;
 	unsigned char mlevel;
@@ -662,6 +699,10 @@ typedef struct UniqMonstStruct {
 	unsigned char mUnqVar2;
 	int mtalkmsg;
 } UniqMonstStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(UniqMonstStruct) & (sizeof(UniqMonstStruct) - 1)) == 0, "Align UniqMonstStruct to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // objects
@@ -685,7 +726,14 @@ typedef struct ObjDataStruct {
 	char oBreak;
 	char oSelFlag;
 	BOOL oTrapFlag;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } ObjDataStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ObjDataStruct) & (sizeof(ObjDataStruct) - 1)) == 32, "Align ObjDataStruct closer to power of 2 for better performance.");
+#endif
 
 typedef struct ObjectStruct {
 	int _otype;
@@ -718,14 +766,12 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-#if INT_MAX == INT64_MAX
-	int alignment[0];
-#else
+#ifdef X86_32bit_COMP
 	int alignment[2];
 #endif
 } ObjectStruct;
 
-#if INT_MAX == INT32_MAX
+#ifdef X86_32bit_COMP
 static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align ObjectStruct to power of 2 for better performance.");
 #endif
 
@@ -741,6 +787,10 @@ typedef struct PortalStruct {
 	int ltype;
 	BOOL setlvl;
 } PortalStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 16, "Align PortalStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // msg
@@ -1050,15 +1100,18 @@ typedef struct QuestStruct {
 	int _qty;
 	unsigned char _qslvl;
 	unsigned char _qidx;
-#ifndef HELLFIRE
-	unsigned char _qmsg;
-#else
 	unsigned int _qmsg;
-#endif
 	unsigned char _qvar1;
 	unsigned char _qvar2;
 	BOOL _qlog;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } QuestStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align QuestStruct to power of 2 for better performance.");
+#endif
 
 typedef struct QuestData {
 	unsigned char _qdlvl;
@@ -1260,6 +1313,10 @@ typedef struct ThemeStruct {
 	int ttval;
 } ThemeStruct;
 
+#ifdef X86_32bit_COMP
+static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
+#endif
+
 //////////////////////////////////////////////////
 // inv
 //////////////////////////////////////////////////
@@ -1280,7 +1337,6 @@ typedef struct LightListStruct {
 	int _lid;
 	int _ldel;
 	int _lunflag;
-	int field_18;
 	int _lunx;
 	int _luny;
 	int _lunr;
@@ -1288,6 +1344,10 @@ typedef struct LightListStruct {
 	int _yoff;
 	int _lflags;
 } LightListStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 32, "Align LightListStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // dead
@@ -1300,6 +1360,10 @@ typedef struct DeadStruct {
 	int _deadWidth2;
 	char _deadtrans;
 } DeadStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align DeadStruct closer to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // diabloui
