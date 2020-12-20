@@ -734,7 +734,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	 && !(spl & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
-		force_redraw = 255;
+		// unnecessary since MANA_FLASK is always set to redraw, which triggers the redraw of the spell-icon as well
+		// gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 
 	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
@@ -1056,8 +1057,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 #endif
 
-	drawmanaflag = TRUE;
-	drawhpflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
 
 void CalcPlrScrolls(int pnum)
@@ -1089,7 +1089,7 @@ void CalcPlrScrolls(int pnum)
 	 && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
-		force_redraw = 255;
+		gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
 
@@ -1973,11 +1973,9 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_MANA:
 		is->_iPLMana += r << 6;
-		drawmanaflag = TRUE;
 		break;
 	case IPL_MANA_CURSE:
 		is->_iPLMana -= r << 6;
-		drawmanaflag = TRUE;
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
@@ -2044,7 +2042,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_NOMANA:
 		is->_iFlags |= ISPL_NOMANA;
-		drawmanaflag = TRUE;
 		break;
 	case IPL_NOHEALPLR:
 		is->_iFlags |= ISPL_NOHEALPLR;
@@ -2069,14 +2066,12 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 			is->_iFlags |= ISPL_STEALMANA_3;
 		if (param1 == 5)
 			is->_iFlags |= ISPL_STEALMANA_5;
-		drawmanaflag = TRUE;
 		break;
 	case IPL_STEALLIFE:
 		if (param1 == 3)
 			is->_iFlags |= ISPL_STEALLIFE_3;
 		if (param1 == 5)
 			is->_iFlags |= ISPL_STEALLIFE_5;
-		drawhpflag = TRUE;
 		break;
 	case IPL_TARGAC:
 #ifdef HELLFIRE
@@ -4130,7 +4125,7 @@ static void PlrAddHp()
 	p->_pHPBase += hp;
 	if (p->_pHPBase > p->_pMaxHPBase)
 		p->_pHPBase = p->_pMaxHPBase;
-	drawhpflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK;
 }
 
 static void PlrAddMana()
@@ -4153,7 +4148,7 @@ static void PlrAddMana()
 	p->_pManaBase += mana;
 	if (p->_pManaBase > p->_pMaxManaBase)
 		p->_pManaBase = p->_pMaxManaBase;
-	drawmanaflag = TRUE;
+	gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
 static void PlrSetTSpell(int spell)
@@ -4172,12 +4167,12 @@ static void PlrRefill(BOOL hp, BOOL mana)
 	if (hp) {
 		p->_pHitPoints = p->_pMaxHP;
 		p->_pHPBase = p->_pMaxHPBase;
-		drawhpflag = TRUE;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 	}
 	if (mana && !(p->_pIFlags & ISPL_NOMANA)) {
 		p->_pMana = p->_pMaxMana;
 		p->_pManaBase = p->_pMaxManaBase;
-		drawmanaflag = TRUE;
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
 	}
 }
 
@@ -4241,7 +4236,7 @@ void UseItem(int Mid, int spl)
 			p->_pManaBase += mana;
 			if (p->_pManaBase > p->_pMaxManaBase)
 				p->_pManaBase = p->_pMaxManaBase;
-			drawmanaflag = TRUE;
+			gbRedrawFlags |= REDRAW_MANA_FLASK;
 		}
 		//if (pnum == myplr)
 			CalcPlrBookVals(myplr);

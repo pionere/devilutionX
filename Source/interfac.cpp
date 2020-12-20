@@ -270,7 +270,7 @@ static void DrawCutscene()
 	DrawProgress();
 
 	unlock_buf(1);
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(FALSE);
 }
 

@@ -24,7 +24,7 @@ extern BOOL gbProcessPlayers;
 extern BOOL gbLoadGame;
 extern HINSTANCE ghInst;
 extern BOOLEAN cineflag;
-extern int force_redraw;
+extern int gbRedrawFlags;
 /* These are defined in fonts.h */
 extern BOOL was_fonts_init;
 extern void FontsCleanup();

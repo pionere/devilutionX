@@ -47,7 +47,7 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 		dst[i].g = pow(src[i].g / 256.0, g) * 256.0;
 		dst[i].b = pow(src[i].b / 256.0, g) * 256.0;
 	}
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 void SaveGamma()

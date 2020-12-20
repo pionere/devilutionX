@@ -161,7 +161,7 @@ void dx_reinit()
 	}
 #endif
 	fullscreen = !fullscreen;
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 void InitPalette()

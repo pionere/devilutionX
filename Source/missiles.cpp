@@ -732,12 +732,12 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		if (pnum == myplr) {
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
+			gbRedrawFlags |= REDRAW_HP_FLASK;
 		}
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, 0);
 		} else {
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-			drawhpflag = TRUE;
 		}
 	} else {
 		if (blk) {
@@ -746,6 +746,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
 				p->_pHPBase -= dam;
+				gbRedrawFlags |= REDRAW_HP_FLASK;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
 				SyncPlrKill(pnum, 0);
@@ -851,12 +852,12 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		if (pnum == myplr) {
 			p->_pHitPoints -= dam;
 			p->_pHPBase -= dam;
+			gbRedrawFlags |= REDRAW_HP_FLASK;
 		}
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, 0);
 		} else {
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-			drawhpflag = TRUE;
 		}
 	} else {
 		if (blk) {
@@ -866,6 +867,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 			if (pnum == myplr) {
 				p->_pHitPoints -= dam;
 				p->_pHPBase -= dam;
+				gbRedrawFlags |= REDRAW_HP_FLASK;
 			}
 			if (p->_pHitPoints >> 6 <= 0) {
 				SyncPlrKill(pnum, 0);
@@ -1526,7 +1528,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 							hasPlayedSFX = TRUE;
 						}
 					}
-					force_redraw = 255;
+					gbRedrawFlags |= REDRAW_SPEED_BAR;
 				}
 			}
 		}
@@ -1551,7 +1553,7 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					plr[pnum]._pMana = 0;
 					plr[pnum]._pManaBase = plr[pnum]._pMana + plr[pnum]._pMaxManaBase - plr[pnum]._pMaxMana;
 					CalcPlrInv(pnum, FALSE);
-					drawmanaflag = TRUE;
+					gbRedrawFlags |= REDRAW_MANA_FLASK;
 					PlaySfxLoc(TSFX_COW7, tx, ty);
 				}
 			}
@@ -1854,7 +1856,7 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	p->_pManaBase += ManaAmount;
 	if (p->_pManaBase > p->_pMaxManaBase)
 		p->_pManaBase = p->_pMaxManaBase;
-	drawmanaflag = TRUE;
+	gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
 void AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -1869,7 +1871,7 @@ void AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 
 	p->_pMana = p->_pMaxMana;
 	p->_pManaBase = p->_pMaxManaBase;
-	drawmanaflag = TRUE;
+	gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
 /**
@@ -2787,7 +2789,7 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		UseMana(misource, SPL_FLARE);
 		plr[misource]._pHitPoints -= 320;
 		plr[misource]._pHPBase -= 320;
-		drawhpflag = TRUE;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 		if (plr[misource]._pHitPoints <= 0)
 			SyncPlrKill(misource, 0);
 	} else {
@@ -3030,7 +3032,7 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	if (p->_pHPBase > p->_pMaxHPBase)
 		p->_pHPBase = p->_pMaxHPBase;
 
-	drawhpflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK;
 }
 
 void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -3225,7 +3227,6 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			lvl = 1;
 		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
-		force_redraw = 255;
 	}
 }
 #endif
@@ -3489,7 +3490,7 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 		UseMana(misource, SPL_BONESPIRIT);
 		plr[misource]._pHitPoints -= 384;
 		plr[misource]._pHPBase -= 384;
-		drawhpflag = TRUE;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 		if (plr[misource]._pHitPoints <= 0)
 			SyncPlrKill(misource, 0);
 	}
@@ -4599,8 +4600,7 @@ static void MI_Manashield(int mi)
 #endif
 			diff -= diff / div;
 
-			drawmanaflag = TRUE;
-			drawhpflag = TRUE;
+			gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 
 			if (p->_pMana >= diff) {
 				p->_pHitPoints = mis->_miVar1;
@@ -5239,7 +5239,8 @@ void MI_Bloodboil(int mi)
 		p->_pHitPoints -= hpdif;
 		if (p->_pHitPoints < 64)
 			p->_pHitPoints = 64;
-		force_redraw = 255;
+		// unnecessary since CalcPlrItemVals always asks for a redraw of hp and mana
+		// gbRedrawFlags |= REDRAW_HP_FLASK;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_72][p->_pClass], p->_px, p->_py);
 	}
 }

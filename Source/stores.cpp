@@ -937,11 +937,11 @@ static void S_StartHealer()
 {
 #ifdef HELLFIRE
 	if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
+		plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
+		plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 		PlaySFX(IS_CAST8);
 	}
-	plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-	plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-	drawhpflag = TRUE;
 #endif
 	stextsize = FALSE;
 	stextscrl = FALSE;
@@ -1524,7 +1524,6 @@ void TakePlrsMoney(int cost)
 			i--;
 		}
 	}
-	force_redraw = 255;
 }
 
 static BOOL StoreAutoPlace(BOOL saveflag)
@@ -2072,11 +2071,12 @@ static void S_HealerEnter()
 		break;
 #else
 	case 14:
-		if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP)
+		if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
+			plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
+			plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
+			gbRedrawFlags |= REDRAW_HP_FLASK;
 			PlaySFX(IS_CAST8);
-		drawhpflag = TRUE;
-		plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-		plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
+		}
 		break;
 	case 16:
 		StartStore(STORE_HBUY);

@@ -1272,10 +1272,10 @@ void PlayInGameMovie(const char *pszMovie)
 	PaletteFadeOut();
 	play_movie(pszMovie, FALSE);
 	ClearScreenBuffer();
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(TRUE);
 	PaletteFadeIn();
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 DEVILUTION_END_NAMESPACE

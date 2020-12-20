@@ -2081,11 +2081,11 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	if (cmd->dwParam1 == myplr && gbBufferMsgs != 1) {
 		if (currlevel != 0 && currlevel == plr[pnum].plrlevel) {
 			if ((plr[myplr]._pHitPoints >> 6) > 0 && cmd->dwParam2 <= 192000) {
-				drawhpflag = TRUE;
 				plr[myplr]._pHitPoints -= cmd->dwParam2;
 				plr[myplr]._pHPBase -= cmd->dwParam2;
 				if ((plr[myplr]._pHitPoints >> 6) <= 0)
 					SyncPlrKill(myplr, 1);
+				gbRedrawFlags |= REDRAW_HP_FLASK;
 			}
 		}
 	}

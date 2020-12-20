@@ -2072,7 +2072,7 @@ static void Obj_BCrossDamage(int oi)
 	} else {
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_68][p->_pClass], p->_px, p->_py);
 	}
-	drawhpflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK;
 }
 
 void ProcessObjects()
@@ -3927,7 +3927,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	}
 
 	CalcPlrInv(pnum, TRUE);
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 
 	if (pnum == myplr)
 		NetSendCmdParam2(FALSE, CMD_PLROPOBJ, pnum, oi);
@@ -4054,7 +4054,6 @@ static void OperateGoatShrine(int pnum, int oi)
 	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 	OperateShrine(pnum, oi, LS_GSHRINE, 1);
 	object[oi]._oAnimDelay = 2;
-	force_redraw = 255;
 }
 
 static void OperateCauldron(int pnum, int oi)
@@ -4064,7 +4063,6 @@ static void OperateCauldron(int pnum, int oi)
 	OperateShrine(pnum, oi, LS_CALDRON, 1);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;
-	force_redraw = 255;
 }
 
 static void OperateFountains(int pnum, int oi)
@@ -4173,7 +4171,7 @@ static void OperateFountains(int pnum, int oi)
 		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		break;
 	}
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 static void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)

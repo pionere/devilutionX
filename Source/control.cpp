@@ -11,7 +11,6 @@ BYTE sgbNextTalkSave;
 BYTE sgbTalkSavePos;
 BYTE *pDurIcons;
 BYTE *pChrButtons;
-BOOL drawhpflag;
 BOOL dropGoldFlag;
 BOOL panbtn[8];
 BOOL chrbtn[4];
@@ -21,7 +20,6 @@ BYTE *pChrPanel;
 BOOL lvlbtndown;
 char sgszTalkSave[8][80];
 int dropGoldValue;
-BOOL drawmanaflag;
 BOOL chrbtnactive;
 char sgszTalkMsg[MAX_SEND_STR_LEN];
 BYTE *pPanelText;
@@ -47,7 +45,6 @@ BOOL talkflag;
 BYTE *pSBkIconCels;
 BOOL sbookflag;
 BOOL chrflag;
-BOOL drawbtnflag;
 BYTE *pSpellBkCel;
 char infostr[256];
 int numpanbtns;
@@ -469,7 +466,7 @@ void SetSpell()
 		ClearPanel();
 		plr[myplr]._pRSpell = pSpell;
 		plr[myplr]._pRSplType = pSplType;
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 	}
 }
 
@@ -517,7 +514,7 @@ void ToggleSpell(int slot)
 	if (spells & SPELL_MASK(p->_pSplHotKey[slot])) {
 		p->_pRSpell = p->_pSplHotKey[slot];
 		p->_pRSplType = p->_pSplTHotKey[slot];
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 	}
 }
 
@@ -673,7 +670,7 @@ void DrawLifeFlask()
 	int filled, height;
 	int maxHP, hp;
 
-	if (drawhpflag) {
+	if (gbRedrawFlags & REDRAW_HP_FLASK) {
 		maxHP = plr[myplr]._pMaxHP;
 		hp = plr[myplr]._pHitPoints;
 		if (hp <= 0 || maxHP <= 0)
@@ -719,7 +716,7 @@ void DrawManaFlask()
 	int filled, height;
 	int maxMana, mana;
 
-	if (drawmanaflag) {
+	if (gbRedrawFlags & REDRAW_MANA_FLASK) {
 		maxMana = plr[myplr]._pMaxMana;
 		mana = plr[myplr]._pMana;
 
@@ -821,8 +818,7 @@ void InitControlPan()
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
 	infostr[0] = '\0';
 	ClearPanel();
-	drawhpflag = TRUE;
-	drawmanaflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 	chrflag = FALSE;
 	spselflag = FALSE;
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL", NULL);
@@ -926,7 +922,7 @@ void DoSpeedBook()
 static void control_set_button_down(int btn_id)
 {
 	panbtn[btn_id] = TRUE;
-	drawbtnflag = TRUE;
+	gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 	panbtndown = TRUE;
 }
 
@@ -1094,7 +1090,7 @@ void CheckBtnUp()
 	BOOLEAN gamemenuOff;
 
 	gamemenuOff = TRUE;
-	drawbtnflag = TRUE;
+	gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 	panbtndown = FALSE;
 
 	static_assert(lengthof(panbtn) == lengthof(PanBtnPos), "Mismatching panbtn and panbtnpos tables.");
@@ -1932,7 +1928,7 @@ void CheckSBook()
 					st = RSPLTYPE_SPELL;
 				p->_pRSpell = sn;
 				p->_pRSplType = st;
-				force_redraw = 255;
+				gbRedrawFlags = REDRAW_ALL;
 			}		
 		}
 	} else {
@@ -2184,7 +2180,7 @@ void control_type_message()
 		talkbtndown[i] = FALSE;
 	}
 	sgbPlrTalkTbl = PANEL_HEIGHT + 16;
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 }
 
@@ -2192,7 +2188,7 @@ void control_reset_talk()
 {
 	talkflag = FALSE;
 	sgbPlrTalkTbl = 0;
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 }
 
 static void control_press_enter()

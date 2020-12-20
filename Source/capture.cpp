@@ -203,7 +203,7 @@ void CaptureScreen()
 		system_palette[i] = palette[i];
 	}
 	palette_update();
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	delete out;
 }
 

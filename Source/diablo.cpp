@@ -34,7 +34,7 @@ BOOL zoomflag;
 BOOL gbProcessPlayers;
 BOOL gbLoadGame;
 BOOLEAN cineflag;
-int force_redraw;
+int gbRedrawFlags;
 int PauseMode;
 #ifdef HELLFIRE
 BOOLEAN UseTheoQuest;
@@ -281,11 +281,7 @@ static BOOL ProcessInput()
 	}
 
 	if (gmenu_is_active()) {
-		if (gbMaxPlayers == 1) {
-			force_redraw |= 1;
-			return FALSE;
-		}
-		return TRUE;
+		return gbMaxPlayers != 1;
 	}
 
 	if (sgnTimeoutCurs == CURSOR_NONE) {
@@ -323,10 +319,10 @@ static void run_game_loop(unsigned int uMsg)
 	gbRunGame = TRUE;
 	gbProcessPlayers = TRUE;
 	gbRunGameResult = TRUE;
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	PaletteFadeIn();
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	gbGameLoopStartup = TRUE;
 	nthread_ignore_mutex(FALSE);
 
@@ -362,7 +358,7 @@ static void run_game_loop(unsigned int uMsg)
 	PaletteFadeOut();
 	NewCursor(CURSOR_NONE);
 	ClearScreenBuffer();
-	force_redraw = 255;
+	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(TRUE);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GM_Game);
@@ -788,7 +784,7 @@ static void diablo_pause_game()
 			PauseMode = 2;
 			sound_stop();
 		}
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 	}
 }
 
@@ -1435,7 +1431,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		music_stop();
 		sgbMouseDown = CLICK_NONE;
 		ShowProgress(uMsg);
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 		DrawAndBlit();
 		if (gbRunGame)
 			PaletteFadeIn();
@@ -1851,7 +1847,6 @@ static void game_logic()
 	ClearPlrMsg();
 	CheckTriggers();
 	CheckQuests();
-	force_redraw |= 1;
 	pfile_update(FALSE);
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -1869,14 +1864,14 @@ static void timeout_cursor(BOOL bTimeout)
 			AddPanelString("-- Network timeout --", TRUE);
 			AddPanelString("-- Waiting for players --", TRUE);
 			NewCursor(CURSOR_HOURGLASS);
-			force_redraw = 255;
+			gbRedrawFlags = REDRAW_ALL;
 		}
 		scrollrt_draw_game_screen(TRUE);
 	} else if (sgnTimeoutCurs != CURSOR_NONE) {
 		NewCursor(sgnTimeoutCurs);
 		sgnTimeoutCurs = CURSOR_NONE;
 		ClearPanel();
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 	}
 }
 

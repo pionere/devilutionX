@@ -14,13 +14,11 @@ extern "C" {
 
 #define MAX_CTRL_PANEL_LINES 4
 
-extern BOOL drawhpflag;
 extern BOOL dropGoldFlag;
 extern BOOL panbtn[8];
 extern BOOL chrbtn[4];
 extern BOOL lvlbtndown;
 extern int dropGoldValue;
-extern BOOL drawmanaflag;
 extern BOOL chrbtnactive;
 extern BYTE *pPanelText;
 extern int pnumlines;
@@ -35,7 +33,6 @@ extern int initialDropGoldIndex;
 extern BOOL talkflag;
 extern BOOL sbookflag;
 extern BOOL chrflag;
-extern BOOL drawbtnflag;
 extern char infostr[256];
 extern char panelstr[MAX_CTRL_PANEL_LINES][64];
 extern BOOL panelflag;

@@ -714,7 +714,7 @@ BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
 					if (pi != NULL) {
 						copy_pod(plr[pnum].SpdList[i], *pi);
 						CalcPlrScrolls(pnum);
-						drawsbarflag = TRUE;
+						gbRedrawFlags |= REDRAW_SPEED_BAR;
 					}
 					return TRUE;
 				}
@@ -1067,7 +1067,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL && is->_iCharges > 0) {
 			p->_pRSpell = is->_iSpell;
 			p->_pRSplType = RSPLTYPE_CHARGES;
-			force_redraw = 255;
+			gbRedrawFlags |= REDRAW_SPELL_ICON;
 		}
 		break;
 	case ILOC_ARMOR:
@@ -1194,7 +1194,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			if (holditem->_itype == ITYPE_GOLD)
 				CalculateGold(pnum);
 		}
-		drawsbarflag = TRUE;
+		gbRedrawFlags |= REDRAW_SPEED_BAR;
 		break;
 	}
 	CalcPlrInv(pnum, TRUE);
@@ -1360,7 +1360,7 @@ static void CheckInvCut(int pnum, int mx, int my)
 			return;
 		copy_pod(p->HoldItem, *pi);
 		pi->_itype = ITYPE_NONE;
-		drawsbarflag = TRUE;
+		gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 
 	if (p->HoldItem._itype == ITYPE_GOLD) {
@@ -1478,7 +1478,7 @@ void RemoveSpdBarItem(int pnum, int iv)
 
 	CalcPlrScrolls(pnum);
 
-	force_redraw = 255;
+	gbRedrawFlags |= REDRAW_SPEED_BAR;
 }
 
 void CheckInvItem()
@@ -2027,11 +2027,11 @@ char CheckInvHLight()
 		pi = &p->InvList[ii];
 	} else if (r >= SLOTXY_BELT_FIRST) {
 		r -= SLOTXY_BELT_FIRST;
-		drawsbarflag = TRUE;
 		pi = &p->SpdList[r];
 		if (pi->_itype == ITYPE_NONE)
 			return -1;
 		rv = r + INVITEM_BELT_FIRST;
+		gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 
 	if (pi->_itype == ITYPE_NONE)

@@ -1418,13 +1418,9 @@ static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
 /**
  * @brief Check render pipeline and blit individual screen parts
  * @param dwHgt Section of screen to update from top to bottom
- * @param draw_desc Render info box
- * @param draw_hp Render health bar
- * @param draw_mana Render mana bar
- * @param draw_sbar Render belt
- * @param draw_btn Render panel buttons
+ * @param drawFlags Render parts of the screen
  */
-static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BOOL draw_sbar, BOOL draw_btn)
+static void DrawMain(int dwHgt, BOOL drawFlags)
 {
 	int ysize;
 
@@ -1440,20 +1436,20 @@ static void DrawMain(int dwHgt, BOOL draw_desc, BOOL draw_hp, BOOL draw_mana, BO
 		DoBlitScreen(0, 0, SCREEN_WIDTH, ysize);
 	}
 	if (ysize < SCREEN_HEIGHT) {
-		if (draw_sbar) {
+		if (drawFlags & REDRAW_SPEED_BAR) {
 			DoBlitScreen(PANEL_LEFT + 204, PANEL_TOP + 5, 232, 28);
 		}
-		if (draw_desc) {
+		//if (drawFlags & REDRAW_DESCRIPTION) {
 			DoBlitScreen(PANEL_LEFT + 176, PANEL_TOP + 46, 288, 60);
-		}
-		if (draw_mana) {
+		//}
+		if (drawFlags & REDRAW_MANA_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 460, PANEL_TOP, 88, 72);
 			DoBlitScreen(PANEL_LEFT + 564, PANEL_TOP + 64, 56, 56);
 		}
-		if (draw_hp) {
+		if (drawFlags & REDRAW_HP_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 96, PANEL_TOP, 88, 72);
 		}
-		if (draw_btn) {
+		if (drawFlags & REDRAW_CTRL_BUTTONS) {
 			DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
 			DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
 			if (gbMaxPlayers != 1) {
@@ -1478,8 +1474,8 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
 {
 	int hgt;
 
-	if (force_redraw == 255) {
-		force_redraw = 0;
+	if (gbRedrawFlags == REDRAW_ALL) {
+		gbRedrawFlags = 0;
 		hgt = SCREEN_HEIGHT;
 	} else {
 		hgt = 0;
@@ -1491,7 +1487,7 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
 		unlock_buf(0);
 	}
 
-	DrawMain(hgt, FALSE, FALSE, FALSE, FALSE, FALSE);
+	DrawMain(hgt, 0);
 
 	if (draw_cursor) {
 		lock_buf(0);
@@ -1506,44 +1502,35 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
  */
 void DrawAndBlit()
 {
-	int hgt;
-	BOOL ddsdesc, ctrlPan;
+	int drawFlags, hgt;
 
 	if (!gbRunGame) {
 		return;
 	}
 
-	if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > VIEWPORT_HEIGHT + PANEL_HEIGHT || force_redraw == 255) {
-		drawhpflag = TRUE;
-		drawmanaflag = TRUE;
-		drawbtnflag = TRUE;
-		drawsbarflag = TRUE;
-		ddsdesc = FALSE;
-		ctrlPan = TRUE;
+	drawFlags = gbRedrawFlags;
+	if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > VIEWPORT_HEIGHT + PANEL_HEIGHT || drawFlags == REDRAW_ALL) {
+		drawFlags = REDRAW_ALL;
 		hgt = SCREEN_HEIGHT;
 	} else {
-		ddsdesc = TRUE;
-		ctrlPan = FALSE;
 		hgt = VIEWPORT_HEIGHT;
 	}
 
-	force_redraw = 0;
-
 	lock_buf(0);
 	DrawView(ViewX, ViewY);
-	if (ctrlPan) {
+	if (drawFlags & REDRAW_CTRL_PANEL) {
 		DrawCtrlPan();
 	}
 	DrawLifeFlask();
 	DrawManaFlask();
-	if (drawmanaflag) {
+	if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		// Update the spell icon.
 		DrawSpell();
 	}
-	if (drawbtnflag) {
+	if (drawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	}
-	if (drawsbarflag) {
+	if (drawFlags & REDRAW_SPEED_BAR) {
 		DrawInvBelt();
 	}
 	if (talkflag) {
@@ -1556,17 +1543,14 @@ void DrawAndBlit()
 
 	unlock_buf(0);
 
-	DrawMain(hgt, ddsdesc, drawhpflag, drawmanaflag, drawsbarflag, drawbtnflag);
+	DrawMain(hgt, drawFlags);
 
 	lock_buf(0);
 	scrollrt_draw_cursor_back_buffer();
 	unlock_buf(0);
 	RenderPresent();
 
-	drawhpflag = FALSE;
-	drawmanaflag = FALSE;
-	drawbtnflag = FALSE;
-	drawsbarflag = FALSE;
+	gbRedrawFlags = 0;
 }
 
 DEVILUTION_END_NAMESPACE

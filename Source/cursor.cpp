@@ -310,7 +310,7 @@ void CheckCursMove()
 	pcursobj = -1;
 	pcursitem = -1;
 	if (pcursinvitem != -1) {
-		drawsbarflag = TRUE;
+		gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 	pcursinvitem = -1;
 	pcursplr = -1;

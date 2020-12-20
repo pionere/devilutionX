@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern BOOL invflag;
-extern BOOL drawsbarflag;
 extern const InvXY InvRect[NUM_XY_SLOTS];
 
 void FreeInvGFX();

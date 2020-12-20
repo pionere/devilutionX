@@ -167,7 +167,7 @@ void MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (Msg) {
 	case DVL_WM_PAINT:
-		force_redraw = 255;
+		gbRedrawFlags = REDRAW_ALL;
 		break;
 	case DVL_WM_QUERYENDSESSION:
 		diablo_quit(0);

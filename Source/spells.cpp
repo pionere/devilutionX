@@ -74,7 +74,7 @@ void UseMana(int pnum, int sn)
 			ma = GetManaAmount(pnum, sn);
 			plr[pnum]._pMana -= ma;
 			plr[pnum]._pManaBase -= ma;
-			drawmanaflag = TRUE;
+			gbRedrawFlags |= REDRAW_MANA_FLASK;
 			break;
 		}
 	}
@@ -199,8 +199,7 @@ void DoResurrect(int pnum, int tnum)
 		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();
-			drawhpflag = TRUE;
-			drawmanaflag = TRUE;
+			gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 		}
 
 		ClrPlrPath(tnum);
@@ -265,7 +264,7 @@ void DoHealOther(int pnum, int tnum)
 		tp->_pHPBase = tp->_pMaxHPBase;
 	}
 
-	drawhpflag = TRUE;
+	gbRedrawFlags |= REDRAW_HP_FLASK;
 }
 
 DEVILUTION_END_NAMESPACE

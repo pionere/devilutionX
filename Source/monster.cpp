@@ -2258,6 +2258,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (pnum == myplr) {
 		p->_pHitPoints -= dam;
 		p->_pHPBase -= dam;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 		if (p->_pHitPoints >> 6 <= 0) {
 			SyncPlrKill(pnum, 0);
 			return;
