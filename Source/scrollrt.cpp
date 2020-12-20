@@ -1195,7 +1195,7 @@ static void DrawGame(int x, int y)
  * @param StartX Center of view in dPiece coordinate
  * @param StartY Center of view in dPiece coordinate
  */
-void DrawView(int StartX, int StartY)
+static void DrawView(int StartX, int StartY)
 {
 	DrawGame(StartX, StartY);
 	if (automapflag) {
@@ -1252,8 +1252,6 @@ void DrawView(int StartX, int StartY)
 	gmenu_draw();
 	doom_draw();
 	DrawInfoBox();
-	DrawLifeFlask();
-	DrawManaFlask();
 }
 
 extern SDL_Surface *pal_surface;
@@ -1536,11 +1534,11 @@ void DrawAndBlit()
 	if (ctrlPan) {
 		DrawCtrlPan();
 	}
-	if (drawhpflag) {
-		UpdateLifeFlask();
-	}
+	DrawLifeFlask();
+	DrawManaFlask();
 	if (drawmanaflag) {
-		UpdateManaFlask();
+		// Update the spell icon.
+		DrawSpell();
 	}
 	if (drawbtnflag) {
 		DrawCtrlBtns();

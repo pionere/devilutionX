@@ -305,7 +305,7 @@ static void SetSpellTrans(char st)
 /**
  * Sets the spell frame to draw and its position then draws it.
  */
-static void DrawSpell()
+void DrawSpell()
 {
 	PlayerStruct *p;
 	char st;
@@ -645,17 +645,18 @@ static void SetFlaskHeight(BYTE *pCelBuff, int min, int max, int sx, int sy)
  * @param pCelBuff The flask cel buffer.
  * @param w Width of the cel.
  * @param nSrcOff Offset of the source buffer from where the bytes will start to be copied from.
- * @param pBuff Target buffer.
  * @param nDstOff Offset of the target buffer where the bytes will start to be copied to.
  * @param h How many lines of the source buffer that will be copied.
  */
-static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstOff, int h)
+static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, int nDstOff, int h)
 {
 	int wdt, hgt;
 	BYTE *src, *dst;
 
+	assert(gpBuffer != NULL);
+
 	src = &pCelBuff[nSrcOff];
-	dst = &pBuff[nDstOff];
+	dst = &gpBuffer[nDstOff];
 
 	for (hgt = h; hgt != 0; hgt--, src += w - 59, dst += BUFFER_WIDTH - 59) {
 		for (wdt = 59; wdt != 0; wdt--) {
@@ -667,115 +668,96 @@ static void DrawFlask(BYTE *pCelBuff, int w, int nSrcOff, BYTE *pBuff, int nDstO
 	}
 }
 
-/**
- * Draws the top dome of the life flask (that part that protrudes out of the control panel).
- * First it draws the empty flask cel and then draws the filled part on top if needed.
- */
 void DrawLifeFlask()
 {
-	int filled = plr[myplr]._pHPPer;
+	int filled, height;
+	int maxHP, hp;
 
-	if (filled > 80)
-		filled = 80;
+	if (drawhpflag) {
+		maxHP = plr[myplr]._pMaxHP;
+		hp = plr[myplr]._pHitPoints;
+		if (hp <= 0 || maxHP <= 0)
+			filled = 0;
+		else
+			filled = 80 * hp / maxHP;
+		if (filled > 80)
+			filled = 80;
+		plr[myplr]._pHPPer = filled;
 
-	filled = 80 - filled;
-	if (filled > 12)
-		filled = 12;
-	filled += 1;
+		/**
+		 * Draw the life flask within the control panel.
+		 * First sets the fill amount then draws the empty flask cel portion then the filled
+		 * flask portion.
+		 */
+		height = filled;
+		if (height > 69)
+			height = 69;
+		if (height != 69)
+			SetFlaskHeight(pLifeBuff, 16, 85 - height, 96 + PANEL_X, PANEL_Y);
+		if (height != 0)
+			DrawPanelBox(96, 85 - height, 88, height, 96 + PANEL_X, PANEL_Y + 69 - height);
+	} else {
+		filled = plr[myplr]._pHPPer;
+	}
 
-	DrawFlask(pLifeBuff, 88, 88 * 3 + 13, gpBuffer, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13), filled);
-	if (filled != 13)
-		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (filled + 3) + 109, gpBuffer, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13 + filled), 13 - filled);
-}
+	/**
+	 * Draw the top dome of the life flask (that part that protrudes out of the control panel).
+	 * First it draws the empty flask cel and then draws the filled part on top if needed.
+	 */
+	height = 80 - filled;
+	if (height > 12)
+		height = 12;
+	height += 1;
 
-/**
- * Controls the drawing of the area of the life flask within the control panel.
- * First sets the fill amount then draws the empty flask cel portion then the filled
- * flask portion.
- */
-void UpdateLifeFlask()
-{
-	int filled;
-	int maxHP = plr[myplr]._pMaxHP;
-	int hp = plr[myplr]._pHitPoints;
-
-	if (hp <= 0 || maxHP <= 0)
-		filled = 0;
-	else
-		filled = 80 * hp / maxHP;
-	plr[myplr]._pHPPer = filled;
-
-	if (filled > 69)
-		filled = 69;
-	if (filled != 69)
-		SetFlaskHeight(pLifeBuff, 16, 85 - filled, 96 + PANEL_X, PANEL_Y);
-	if (filled != 0)
-		DrawPanelBox(96, 85 - filled, 88, filled, 96 + PANEL_X, PANEL_Y + 69 - filled);
+	DrawFlask(pLifeBuff, 88, 88 * 3 + 13, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13), height);
+	if (height != 13)
+		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 109, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13 + height), 13 - height);
 }
 
 void DrawManaFlask()
 {
-	int filled = plr[myplr]._pManaPer;
+	int filled, height;
+	int maxMana, mana;
 
-	if (filled > 80)
-		filled = 80;
+	if (drawmanaflag) {
+		maxMana = plr[myplr]._pMaxMana;
+		mana = plr[myplr]._pMana;
 
-	filled = 80 - filled;
-	if (filled > 12)
-		filled = 12;
-	filled += 1;
+		if (mana <= 0 || maxMana <= 0)
+			filled = 0;
+		else
+			filled = 80 * mana / maxMana;
+		if (filled > 80)
+			filled = 80;
+		plr[myplr]._pManaPer = filled;
 
-	DrawFlask(pManaBuff, 88, 88 * 3 + 13, gpBuffer, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13), filled);
-	if (filled != 13)
-		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (filled + 3) + 475, gpBuffer, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13 + filled), 13 - filled);
-}
+		/**
+		 * Draw the mana flask within the control panel.
+		 * First sets the fill amount then draws the empty flask cel portion then the filled
+		 * flask portion.
+		 */
+		height = filled;
+		if (height > 69)
+			height = 69;
+		if (height != 69)
+			SetFlaskHeight(pManaBuff, 16, 85 - height, PANEL_X + 464, PANEL_Y);
+		if (height != 0)
+			DrawPanelBox(464, 85 - height, 88, height, PANEL_X + 464, PANEL_Y + 69 - height);
+	} else {
+		filled = plr[myplr]._pManaPer;
+	}
 
-void control_update_life_mana()
-{
-	int per;
-	int maxVal = plr[myplr]._pMaxMana;
-	int val = plr[myplr]._pMana;
-
-	if (val <= 0 || maxVal <= 0)
-		per = 0;
-	else
-		per = 80 * val / maxVal;
-	plr[myplr]._pManaPer = per;
-
-	maxVal = plr[myplr]._pMaxHP;
-	val = plr[myplr]._pHitPoints;
-
-	if (val <= 0 || maxVal <= 0)
-		per = 0;
-	else
-		per = 80 * val / maxVal;
-	plr[myplr]._pHPPer = per;
-}
-
-/**
- * Controls the drawing of the area of the life flask within the control panel.
- * Also for some reason draws the current right mouse button spell.
- */
-void UpdateManaFlask()
-{
-	int filled;
-	int maxMana = plr[myplr]._pMaxMana;
-	int mana = plr[myplr]._pMana;
-
-	if (mana <= 0 || maxMana <= 0)
-		filled = 0;
-	else
-		filled = 80 * mana / maxMana;
-	plr[myplr]._pManaPer = filled;
-
-	if (filled > 69)
-		filled = 69;
-	if (filled != 69)
-		SetFlaskHeight(pManaBuff, 16, 85 - filled, PANEL_X + 464, PANEL_Y);
-	if (filled != 0)
-		DrawPanelBox(464, 85 - filled, 88, filled, PANEL_X + 464, PANEL_Y + 69 - filled);
-
-	DrawSpell();
+	/**
+	 * Draw the top dome of the mana flask (that part that protrudes out of the control panel).
+	 * First it draws the empty flask cel and then draws the filled part on top if needed.
+	 */
+	height = 80 - filled;
+	if (height > 12)
+		height = 12;
+	height += 1;
+	DrawFlask(pManaBuff, 88, 88 * 3 + 13, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13), height);
+	if (height != 13)
+		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 475, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13 + height), 13 - height);
 }
 
 void InitControlPan()

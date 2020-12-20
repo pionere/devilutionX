@@ -35,7 +35,6 @@ int RowsCoveredByPanel();
 void CalcTileOffset(int *offsetX, int *offsetY);
 void TilesInView(int *columns, int *rows);
 void CalcViewportGeometry();
-void DrawView(int StartX, int StartY);
 void ClearScreenBuffer();
 #ifdef _DEBUG
 void ScrollView();
