@@ -3807,31 +3807,31 @@ void DrawUniqueInfo()
 
 	uis = &UniqueItemList[curruitem._iUid];
 	DrawUTextBack();
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, 2, TRUE, uis->UIName, 3);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, 2, TRUE, uis->UIName, COL_GOLD);
 	DrawULine(5);
 	PrintItemPower(uis->UIPower1, &curruitem);
 	y = 6 - uis->UINumPL + 8;
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, COL_WHITE);
 	if (y > 12) // uis->UINumPL <= 1
 		return;
 	PrintItemPower(uis->UIPower2, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, COL_WHITE);
 	if (y > 11) // uis->UINumPL <= 2
 		return;
 	PrintItemPower(uis->UIPower3, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, COL_WHITE);
 	if (y > 10) // uis->UINumPL <= 3
 		return;
 	PrintItemPower(uis->UIPower4, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, COL_WHITE);
 	if (y > 9) // uis->UINumPL <= 4
 		return;
 	PrintItemPower(uis->UIPower5, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, COL_WHITE);
 	if (y > 8) // uis->UINumPL <= 5
 		return;
 	PrintItemPower(uis->UIPower6, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, 0);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, COL_WHITE);
 }
 
 static void PrintItemMisc(const ItemStruct *is)
