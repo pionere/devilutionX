@@ -2562,21 +2562,24 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 static void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
+	char numPL;
 
 	UniqueItemFlag[uid] = TRUE;
 	ui = &UniqueItemList[uid];
 	SaveItemPower(ii, ui->UIPower1, ui->UIParam1, ui->UIParam2, 0, 0, 1);
 
-	if (ui->UINumPL > 1)
+	numPL = ui->UINumPL;
+	if (numPL > 1) {
 		SaveItemPower(ii, ui->UIPower2, ui->UIParam3, ui->UIParam4, 0, 0, 1);
-	if (ui->UINumPL > 2)
+	if (numPL > 2) {
 		SaveItemPower(ii, ui->UIPower3, ui->UIParam5, ui->UIParam6, 0, 0, 1);
-	if (ui->UINumPL > 3)
+	if (numPL > 3) {
 		SaveItemPower(ii, ui->UIPower4, ui->UIParam7, ui->UIParam8, 0, 0, 1);
-	if (ui->UINumPL > 4)
+	if (numPL > 4) {
 		SaveItemPower(ii, ui->UIPower5, ui->UIParam9, ui->UIParam10, 0, 0, 1);
-	if (ui->UINumPL > 5)
+	if (numPL > 5) {
 		SaveItemPower(ii, ui->UIPower6, ui->UIParam11, ui->UIParam12, 0, 0, 1);
+	}}}}}
 
 	strcpy(item[ii]._iIName, ui->UIName);
 	item[ii]._iIvalue = ui->UIValue;
@@ -3809,26 +3812,26 @@ void DrawUniqueInfo()
 	PrintItemPower(uis->UIPower1, &curruitem);
 	y = 6 - uis->UINumPL + 8;
 	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, 0);
-	if (uis->UINumPL > 1) {
-		PrintItemPower(uis->UIPower2, &curruitem);
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, 0);
-	}
-	if (uis->UINumPL > 2) {
-		PrintItemPower(uis->UIPower3, &curruitem);
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, 0);
-	}
-	if (uis->UINumPL > 3) {
-		PrintItemPower(uis->UIPower4, &curruitem);
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, 0);
-	}
-	if (uis->UINumPL > 4) {
-		PrintItemPower(uis->UIPower5, &curruitem);
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, 0);
-	}
-	if (uis->UINumPL > 5) {
-		PrintItemPower(uis->UIPower6, &curruitem);
-		PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, 0);
-	}
+	if (y > 12) // uis->UINumPL <= 1
+		return;
+	PrintItemPower(uis->UIPower2, &curruitem);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, 0);
+	if (y > 11) // uis->UINumPL <= 2
+		return;
+	PrintItemPower(uis->UIPower3, &curruitem);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, 0);
+	if (y > 10) // uis->UINumPL <= 3
+		return;
+	PrintItemPower(uis->UIPower4, &curruitem);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, 0);
+	if (y > 9) // uis->UINumPL <= 4
+		return;
+	PrintItemPower(uis->UIPower5, &curruitem);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, 0);
+	if (y > 8) // uis->UINumPL <= 5
+		return;
+	PrintItemPower(uis->UIPower6, &curruitem);
+	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, 0);
 }
 
 static void PrintItemMisc(const ItemStruct *is)
