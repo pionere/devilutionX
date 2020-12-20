@@ -39,10 +39,6 @@ typedef struct PLStruct {
 	int PLMultVal;
 } PLStruct;
 
-#ifdef X86_32bit_COMP
-static_assert((sizeof(PLStruct) & (sizeof(PLStruct) - 1)) == 32, "Align PLStruct closer to power of 2 for better performance.");
-#endif
-
 typedef struct UItemStruct {
 	const char *UIName;
 	char UIItemId;
@@ -67,7 +63,14 @@ typedef struct UItemStruct {
 	char UIPower6;
 	int UIParam11;
 	int UIParam12;
+#ifdef X86_32bit_COMP
+	int alignment[3];
+#endif
 } UItemStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(UItemStruct) & (sizeof(UItemStruct) - 1)) == 64, "Align UItemStruct to power of 2 for better performance.");
+#endif
 
 typedef struct ItemDataStruct {
 	int iRnd;
@@ -1161,7 +1164,6 @@ typedef struct SpellData {
 	unsigned char sManaCost;
 	unsigned char sType;
 	const char *sNameText;
-	const char *sSkillText;
 	char sBookLvl;
 	char sStaffLvl;
 	char sScrollLvl;
@@ -1172,11 +1174,14 @@ typedef struct SpellData {
 	unsigned char sMissiles[3];
 	unsigned char sManaAdj;
 	unsigned char sMinMana;
-	int sStaffMin;
-	int sStaffMax;
+	WORD sStaffMin;
+	WORD sStaffMax;
 	int sBookCost;
 	int sStaffCost; // == sScrollCost
 } SpellData;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // towners
@@ -1223,6 +1228,9 @@ typedef struct TownerStruct {
 	int _tNFrames;
 	unsigned char *_tNData;
 } TownerStruct;
+#ifdef X86_32bit_COMP
+static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
+#endif
 
 typedef struct QuestTalkData {
 	int _qinfra;

@@ -391,7 +391,7 @@ void DrawSpellList()
 				switch (i) {
 #endif
 				case RSPLTYPE_SKILL:
-					snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[j].sSkillText);
+					snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[j].sNameText);
 					break;
 				case RSPLTYPE_SPELL:
 					snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[j].sNameText);
@@ -1046,7 +1046,7 @@ void CheckPanelInfo()
 		if (sn != SPL_INVALID) {
 			switch (p->_pRSplType) {
 			case RSPLTYPE_SKILL:
-				snprintf(tempstr, sizeof(tempstr), "%s Skill", spelldata[sn].sSkillText);
+				snprintf(tempstr, sizeof(tempstr), "%s Skill", spelldata[sn].sNameText);
 				AddPanelString(tempstr, TRUE);
 				break;
 			case RSPLTYPE_SPELL:
