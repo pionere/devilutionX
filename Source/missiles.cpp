@@ -2121,13 +2121,14 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 			if (dx <= MAXDUNX && dx >= 0 && dy <= MAXDUNY && dy >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
 #endif
 				pn = dPiece[dx][dy];
-		} while ((nSolidTable[pn] | dObject[dx][dy] | dMonster[dx][dy]) != 0);
+		} while ((nSolidTable[pn] | dObject[dx][dy] | dMonster[dx][dy] | dPlayer[dx][dy]) != 0);
 	}
 
 	mis = &missile[mi];
 	mis->_miRange = 2;
 	mis->_mix = dx;
 	mis->_miy = dy;
+	dPlayer[dx][dy] = -(misource + 1);
 	if (micaster == 0)
 		UseMana(misource, SPL_RNDTELEPORT);
 }
@@ -2223,6 +2224,7 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					mis->_miy = ty;
 					mis->_misx = tx;
 					mis->_misy = ty;
+					dPlayer[tx][ty] = -(misource + 1);
 					UseMana(misource, SPL_TELEPORT);
 					mis->_miRange = 2;
 					return;
@@ -4907,10 +4909,11 @@ void MI_Teleport(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	if (mis->_miRange <= 0) {
+	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
+	assert(mis->_miRange == 1);
 	p = &plr[mis->_miSource];
 	px = p->_px;
 	py = p->_py;
