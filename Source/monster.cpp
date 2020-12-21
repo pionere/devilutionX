@@ -2632,25 +2632,14 @@ void DoEnding()
 		SDL_Delay(1000);
 	}
 
-#ifdef SPAWN
-	return;
-#endif
-
+#ifndef SPAWN
+	const char* vicSets[NUM_CLASSES] = {
+		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
 #ifdef HELLFIRE
-	if (plr[myplr]._pClass == PC_WARRIOR || plr[myplr]._pClass == PC_BARBARIAN) {
-#else
-	if (plr[myplr]._pClass == PC_WARRIOR) {
+		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
-		play_movie("gendata\\DiabVic2.smk", FALSE);
-	} else if (plr[myplr]._pClass == PC_SORCERER) {
-		play_movie("gendata\\DiabVic1.smk", FALSE);
-#ifdef HELLFIRE
-	} else if (plr[myplr]._pClass == PC_MONK) {
-		play_movie("gendata\\DiabVic1.smk", FALSE);
-#endif
-	} else {
-		play_movie("gendata\\DiabVic3.smk", FALSE);
-	}
+	};
+	play_movie(vicSets[plr[myplr]._pClass], FALSE);
 	play_movie("gendata\\Diabend.smk", FALSE);
 
 	bMusicOn = gbMusicOn;
@@ -2667,6 +2656,7 @@ void DoEnding()
 
 	sound_get_or_set_music_volume(musicVolume);
 	gbMusicOn = bMusicOn;
+#endif
 }
 
 void PrepDoEnding()
