@@ -539,27 +539,6 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	dist_x = xoff;
 	dist_y = yoff;
 
-	if (nXPos - 15 < 0) {
-		min_x = nXPos + 1;
-	} else {
-		min_x = 15;
-	}
-	if (nXPos + 15 > MAXDUNX) {
-		max_x = MAXDUNX - nXPos;
-	} else {
-		max_x = 15;
-	}
-	if (nYPos - 15 < 0) {
-		min_y = nYPos + 1;
-	} else {
-		min_y = 15;
-	}
-	if (nYPos + 15 > MAXDUNY) {
-		max_y = MAXDUNY - nYPos;
-	} else {
-		max_y = 15;
-	}
-
 #ifdef HELLFIRE
 	if (currlevel < 17)
 		dLight[nXPos][nYPos] = 0;
@@ -570,53 +549,35 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 		dLight[nXPos][nYPos] = 0;
 #endif
 
+	max_x = std::min(15, MAXDUNX - nXPos);
+	max_y = std::min(15, MAXDUNY - nYPos);
+	min_x = std::min(15, nXPos + 1);
+	min_y = std::min(15, nYPos + 1);
+
 	mult = xoff + 8 * yoff;
-	for (y = 0; y < min_y; y++) {
+	for (y = 0; y < max_y; y++) {
 		for (x = 1; x < max_x; x++) {
 			radius_block = lightblock[mult][y][x];
 			if (radius_block < 128) {
 				temp_x = nXPos + x;
 				temp_y = nYPos + y;
 				v = lightradius[nRadius][radius_block];
-#ifndef HELLFIRE
-				if (IN_DUNGEON_AREA(temp_x, temp_y))
-#endif
-					if (v < dLight[temp_x][temp_y])
-						dLight[temp_x][temp_y] = v;
+				if (v < dLight[temp_x][temp_y])
+					dLight[temp_x][temp_y] = v;
 			}
 		}
 	}
 	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
 	mult = xoff + 8 * yoff;
-	for (y = 0; y < max_y; y++) {
-		for (x = 1; x < max_x; x++) {
+	for (y = 0; y < max_x; y++) {
+		for (x = 1; x < min_y; x++) {
 			radius_block = lightblock[mult][y + block_y][x + block_x];
 			if (radius_block < 128) {
 				temp_x = nXPos + y;
 				temp_y = nYPos - x;
 				v = lightradius[nRadius][radius_block];
-#ifndef HELLFIRE
-				if (IN_DUNGEON_AREA(temp_x, temp_y))
-#endif
-					if (v < dLight[temp_x][temp_y])
-						dLight[temp_x][temp_y] = v;
-			}
-		}
-	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
-	mult = xoff + 8 * yoff;
-	for (y = 0; y < max_y; y++) {
-		for (x = 1; x < min_x; x++) {
-			radius_block = lightblock[mult][y + block_y][x + block_x];
-			if (radius_block < 128) {
-				temp_x = nXPos - x;
-				temp_y = nYPos - y;
-				v = lightradius[nRadius][radius_block];
-#ifndef HELLFIRE
-				if (IN_DUNGEON_AREA(temp_x, temp_y))
-#endif
-					if (v < dLight[temp_x][temp_y])
-						dLight[temp_x][temp_y] = v;
+				if (v < dLight[temp_x][temp_y])
+					dLight[temp_x][temp_y] = v;
 			}
 		}
 	}
@@ -626,14 +587,25 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 		for (x = 1; x < min_x; x++) {
 			radius_block = lightblock[mult][y + block_y][x + block_x];
 			if (radius_block < 128) {
+				temp_x = nXPos - x;
+				temp_y = nYPos - y;
+				v = lightradius[nRadius][radius_block];
+				if (v < dLight[temp_x][temp_y])
+					dLight[temp_x][temp_y] = v;
+			}
+		}
+	}
+	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	mult = xoff + 8 * yoff;
+	for (y = 0; y < min_x; y++) {
+		for (x = 1; x < max_y; x++) {
+			radius_block = lightblock[mult][y + block_y][x + block_x];
+			if (radius_block < 128) {
 				temp_x = nXPos - y;
 				temp_y = nYPos + x;
 				v = lightradius[nRadius][radius_block];
-#ifndef HELLFIRE
-				if (IN_DUNGEON_AREA(temp_x, temp_y))
-#endif
-					if (v < dLight[temp_x][temp_y])
-						dLight[temp_x][temp_y] = v;
+				if (v < dLight[temp_x][temp_y])
+					dLight[temp_x][temp_y] = v;
 			}
 		}
 	}
