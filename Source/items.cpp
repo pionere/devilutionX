@@ -4795,7 +4795,7 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
 #ifdef HELLFIRE
-	} else if (idx >= 114 && idx <= 117) {
+	} else if (idx >= IDI_BOOK1 && idx <= IDI_BOOK4) {
 		SetRndSeed(iseed);
 		volatile int hi_predelnik = random_(0, 1);
 		GetItemAttrs(ii, idx, lvl);

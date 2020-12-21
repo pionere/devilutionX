@@ -3113,6 +3113,8 @@ typedef enum _item_indexes {
 	IDI_REJUV      = 0x51,
 	IDI_FULLREJUV  = 0x52,
 	// hellfire only
+	IDI_BOOK1      = 0x72,
+	IDI_BOOK4      = 0x75,
 	IDI_BARBCLUB   = 0x8B,
 } _item_indexes;
 
