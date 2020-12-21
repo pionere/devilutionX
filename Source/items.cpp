@@ -622,7 +622,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	PlayerStruct *p;
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
-	int pvid, d;
+	int pvid;
 
 	int mind = 0; // min damage
 	int maxd = 0; // max damage
@@ -1021,17 +1021,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		LoadPlrGFX(pnum, PFILE_STAND);
 		SetPlrAnims(pnum);
 
-		d = p->_pdir;
-
-		assert(p->_pNAnim[d]);
-		p->_pAnimData = p->_pNAnim[d];
-
-		p->_pAnimLen = p->_pNFrames;
-		p->_pAnimFrame = 1;
-		p->_pAnimCnt = 0;
-		p->_pAnimDelay = 3;
-		p->_pAnimWidth = p->_pNWidth;
-		p->_pAnimWidth2 = (p->_pNWidth - 64) >> 1;
+		NewPlrAnim(pnum, p->_pNAnim, p->_pdir, p->_pNFrames, 3, p->_pNWidth);
 	} else {
 		p->_pgfxnum = g;
 	}
