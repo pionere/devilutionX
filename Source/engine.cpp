@@ -699,7 +699,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
  */
 int GetDirection(int x1, int y1, int x2, int y2)
 {
-	int mx, my;
+	/*int mx, my;
 	int md;
 
 	mx = x2 - x1;
@@ -734,7 +734,21 @@ int GetDirection(int x1, int y1, int x2, int y2)
 			md = DIR_NW;
 	}
 
-	return md;
+	return md;*/
+	// The implementation of above with fewer branches
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+	unsigned adx = abs(dx);
+	unsigned ady = abs(dy);
+	//                        SE  NE  SW  NW
+	const int BaseDirs[4] = {  7,  5,  1,  3 };
+	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
+	//const int DeltaDir[2][4] = {{0, 1, 2}, {2, 1, 0}};
+	const int DeltaDirs[2][4] = {{1, 0, 2}, {1, 2, 0}};
+	const int (&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	//dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 0 : 1)];
+	dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 1 : 0)];
+	return dir & 7;
 }
 
 /**

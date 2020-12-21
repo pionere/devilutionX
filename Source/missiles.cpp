@@ -238,7 +238,7 @@ int GetSpellLevel(int pnum, int sn)
 */
 static int GetDirection8(int x1, int y1, int x2, int y2)
 {
-	int mx, my, md;
+	/*int mx, my, md;
 
 	mx = x2 - x1;
 	my = y2 - y1;
@@ -270,7 +270,21 @@ static int GetDirection8(int x1, int y1, int x2, int y2)
 		if (5 * my <= (mx << 1))
 			md = 3; // DIR_NW
 	}
-	return md;
+	return md;*/
+	// The implementation of above with fewer branches
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+	unsigned adx = abs(dx);
+	unsigned ady = abs(dy);
+	//                        SE  NE  SW  NW
+	const int BaseDirs[4] = {  7,  5,  1,  3 };
+	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
+	//const int DeltaDir[2][4] = {{0, 1, 2}, {2, 1, 0}};
+	const int DeltaDirs[2][4] = {{1, 0, 2}, {1, 2, 0}};
+	const int (&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	//dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 0 : 1)];
+	dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 1 : 0)];
+	return dir & 7;
 }
 
 /**
@@ -294,8 +308,7 @@ static int GetDirection8(int x1, int y1, int x2, int y2)
 */
 static int GetDirection16(int x1, int y1, int x2, int y2)
 {
-	int mx, my, md;
-
+	/*int mx, my, md;
 	mx = x2 - x1;
 	my = y2 - y1;
 	if (mx >= 0) {
@@ -344,7 +357,24 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 			return md == 4 ? 5 : 7; // DIR_W ? DIR_nW : DIR_Nw;
 		}
 	}
-	return md;
+	return md;*/
+	// The implementation of above with fewer branches
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+	unsigned adx = abs(dx);
+	unsigned ady = abs(dy);
+	//                        SE  NE  SW  NW
+	const int BaseDirs[4] = { 14, 10,  2,  6 };
+	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
+	const int DeltaDirs[2][8] = {{ 0, 1, 2, 3, 4 }, { 4, 3, 2, 1, 0 }};
+	const int (&DeltaDir)[8] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	if (3 * adx <= (ady << 1)) {
+		dir += DeltaDir[5 * adx < ady ? 4 : 3];
+	} else if (3 * ady <= (adx << 1)) {
+		dir += DeltaDir[5 * ady < adx ? 0 : 1];
+	} else
+		dir += DeltaDir[2];
+	return dir & 15;
 }
 
 void DeleteMissile(int mi, int idx)
