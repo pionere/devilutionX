@@ -1377,13 +1377,12 @@ void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 {
 	int lvl;
 
-	if (misource >= 0) {
-		lvl = spllvl;
-		if (lvl == 0)
-			lvl = 2;
-		plr[misource].wReflection += lvl * plr[misource]._pLevel;
-		UseMana(misource, SPL_REFLECT);
-	}
+	assert((DWORD)misource < MAX_PLRS);
+	lvl = spllvl;
+	if (lvl == 0)
+		lvl = 2;
+	plr[misource].wReflection += lvl * plr[misource]._pLevel;
+	UseMana(misource, SPL_REFLECT);
 }
 
 void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -1394,34 +1393,33 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	missile[mi]._miDelFlag = TRUE;
 
-	if (misource >= 0) {
-		for (i = 0; i < 6; i++) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = *cr; j > 0; j--) {
-				tx = dx + *++cr;
-				ty = dy + *++cr;
-				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					dm = dMonster[tx][ty];
-					dm = dm >= 0 ? dm - 1 : -(dm + 1);
-					if (dm >= MAX_PLRS) {
-						mon = &monster[dm];
-						if (mon->_uniqtype == 0 && mon->_mAi != AI_DIABLO) {
-							if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
-								if (!(mon->mMagicRes & IMMUNE_MAGIC)) {
-									if ((!(mon->mMagicRes & RESIST_MAGIC) || random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
-										mon->_mFlags |= MFLAG_BERSERK;
-										mon->mMinDamage = mon->mMinDamage * RandRange(120, 129) / 100 + spllvl;
-										mon->mMaxDamage = mon->mMaxDamage * RandRange(120, 129) / 100 + spllvl;
-										mon->mMinDamage2 = mon->mMinDamage2 * RandRange(120, 129) / 100 + spllvl;
-										mon->mMaxDamage2 = mon->mMaxDamage2 * RandRange(120, 129) / 100 + spllvl;
-										if (currlevel < 17 || currlevel > 20)
-											r = 3;
-										else
-											r = 9;
-										mon->mlid = AddLight(mon->_mx, mon->_my, r);
-										UseMana(misource, SPL_BERSERK);
-										return;
-									}
+	assert((DWORD)misource < MAX_PLRS);
+	for (i = 0; i < 6; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = *cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
+				dm = dMonster[tx][ty];
+				dm = dm >= 0 ? dm - 1 : -(dm + 1);
+				if (dm >= MAX_PLRS) {
+					mon = &monster[dm];
+					if (mon->_uniqtype == 0 && mon->_mAi != AI_DIABLO) {
+						if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT) {
+							if (!(mon->mMagicRes & IMMUNE_MAGIC)) {
+								if ((!(mon->mMagicRes & RESIST_MAGIC) || random_(99, 2) == 0) && mon->_mmode != MM_CHARGE) {
+									mon->_mFlags |= MFLAG_BERSERK;
+									mon->mMinDamage = mon->mMinDamage * RandRange(120, 129) / 100 + spllvl;
+									mon->mMaxDamage = mon->mMaxDamage * RandRange(120, 129) / 100 + spllvl;
+									mon->mMinDamage2 = mon->mMinDamage2 * RandRange(120, 129) / 100 + spllvl;
+									mon->mMaxDamage2 = mon->mMaxDamage2 * RandRange(120, 129) / 100 + spllvl;
+									if (currlevel < 17 || currlevel > 20)
+										r = 3;
+									else
+										r = 9;
+									mon->mlid = AddLight(mon->_mx, mon->_my, r);
+									UseMana(misource, SPL_BERSERK);
+									return;
 								}
 							}
 						}
@@ -1621,31 +1619,31 @@ void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	av = 0;
 	mitype = 0;
-	if (misource != -1) {
-		p = &plr[misource];
-		switch (p->_pILMinDam) {
-		case 0:
-			mitype = MIS_FIREBALL2;
-			break;
-		case 1:
-			mitype = MIS_LIGHTARROW;
-			break;
-		case 2:
-			mitype = MIS_CBOLTARROW;
-			break;
-		case 3:
-			mitype = MIS_HBOLTARROW;
-			break;
-		}
-
-		if (p->_pClass == PC_ROGUE)
-			av += (p->_pLevel - 1) >> 2;
-		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-			av += (p->_pLevel - 1) >> 3;
-
-		flags = p->_pIFlags;
-		av += ArrowVelBonus(flags);
+	assert((DWORD)misource < MAX_PLRS);
+	p = &plr[misource];
+	switch (p->_pILMinDam) {
+	case 0:
+		mitype = MIS_FIREBALL2;
+		break;
+	case 1:
+		mitype = MIS_LIGHTARROW;
+		break;
+	case 2:
+		mitype = MIS_CBOLTARROW;
+		break;
+	case 3:
+		mitype = MIS_HBOLTARROW;
+		break;
 	}
+
+	if (p->_pClass == PC_ROGUE)
+		av += (p->_pLevel - 1) >> 2;
+	else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+		av += (p->_pLevel - 1) >> 3;
+
+	flags = p->_pIFlags;
+	av += ArrowVelBonus(flags);
+
 	mis->_miVar4 = mitype;
 	mis->_miVar5 = av;
 }
@@ -1657,7 +1655,7 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	TriggerStruct *trg;
 
 	dist = INT_MAX;
-	assert(misource >= 0);
+	assert((DWORD)misource < MAX_PLRS);
 	tx = sx = plr[misource]._px;
 	ty = sy = plr[misource]._py;
 
@@ -2116,6 +2114,7 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	MissileStruct *mis;
 	int pn, nTries;
 
+	assert((DWORD)misource < MAX_PLRS);
 	if (micaster == 0 || (dx == 0 && dy == 0)) {
 		nTries = 0;
 		do {
@@ -2163,14 +2162,14 @@ void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		dy += YDirAdd[midir];
 	}
 	if (micaster == 0) {
-		for (i = 0; i < nummissiles; i++) {
-			mx = missileactive[i];
-			if (missile[mx]._miType == MIS_GUARDIAN && missile[mx]._miSource == misource && missile[mx]._miVar3 == mi)
-				break;
-		}
-		if (i == nummissiles)
-			UseMana(misource, SPL_FIREBOLT);
 		if (misource != -1) {
+			for (i = 0; i < nummissiles; i++) {
+				mx = missileactive[i];
+				if (missile[mx]._miType == MIS_GUARDIAN && missile[mx]._miSource == misource && missile[mx]._miVar3 == mi)
+					break;
+			}
+			if (i == nummissiles)
+				UseMana(misource, SPL_FIREBOLT);
 			av = 2 * spllvl + 16;
 			if (av > 63)
 				av = 63;
@@ -2228,6 +2227,7 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	int i, j, tx, ty;
 	char *cr;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -2422,6 +2422,7 @@ void AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	MissileStruct *mis;
 	PlayerStruct *p;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//mis->_miVar1 = 0;
 	p = &plr[misource];
@@ -2441,6 +2442,7 @@ void AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	MissileStruct *mis;
 	PlayerStruct *p;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//mis->_miVar1 = 0;
 	p = &plr[misource];
@@ -2577,6 +2579,7 @@ void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	MissileStruct *mis;
 	PlayerStruct *p;
 
+	assert((DWORD)misource < MAX_PLRS);
 	if (micaster == 0)
 		UseMana(misource, SPL_MANASHIELD);
 	if (misource == myplr)
@@ -2600,6 +2603,7 @@ void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 
+	assert((DWORD)misource < MAX_PLRS);
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
 	mis->_miDam = RandRange(1, 10) + plr[misource]._pLevel;
@@ -2624,6 +2628,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	int i, pn, j, tx, ty, range;
 	char *cr;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 
 	for (i = 0; i < 6; i++) {
@@ -2674,6 +2679,7 @@ void AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 {
 	MissileStruct *mis;
 
+	assert((DWORD)misource < MAX_PLRS);
 	UseMana(misource, SPL_CHAIN);
 
 	mis = &missile[mi];
@@ -2895,6 +2901,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	int i, j, tx, ty, mid, range;
 	char *cr;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -2949,6 +2956,7 @@ void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	MissileStruct *mis, *tmis;
 	int i;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < nummissiles; i++) {
 		tmis = &missile[missileactive[i]];
@@ -2970,6 +2978,7 @@ void AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	PlayerStruct *p;
 	int i, range;
 
+	assert((DWORD)misource < MAX_PLRS);
 	if (micaster == 0)
 		UseMana(misource, SPL_ETHEREALIZE);
 	mis = &missile[mi];
@@ -3018,6 +3027,7 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	PlayerStruct *p;
 	int i, HealAmount;
 
+	assert((DWORD)misource < MAX_PLRS);
 	missile[mi]._miDelFlag = TRUE;
 
 	UseMana(misource, SPL_HEAL);
@@ -3078,6 +3088,7 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	MissileStruct *mis;
 	int i, dam;
 
+	assert((DWORD)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -3104,6 +3115,7 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	missile[mi]._miDelFlag = TRUE;
+	assert((DWORD)misource < MAX_PLRS);
 	UseMana(misource, SPL_IDENTIFY);
 	if (misource == myplr) {
 		if (sbookflag)
@@ -3135,6 +3147,7 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	int i, j, tx, ty;
 	char *cr;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -3170,6 +3183,7 @@ void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	MissileStruct *mis;
 	int i, range;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	range = 1584;
 	for (i = spllvl; i > 0; i--) {
@@ -3190,6 +3204,7 @@ void AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	MissileStruct *mis;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
@@ -3231,9 +3246,10 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	PlayerStruct *p;
 	int lvl;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	p = &plr[misource];
-	if (misource == -1 || p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
+	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
 		mis->_miDelFlag = TRUE;
 	} else {
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
@@ -3251,6 +3267,8 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	assert((DWORD)misource < MAX_PLRS);
+
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(misource, SPL_REPAIR);
 	if (misource == myplr) {
@@ -3269,6 +3287,8 @@ void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	assert((DWORD)misource < MAX_PLRS);
+
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(misource, SPL_RECHARGE);
 	if (misource == myplr) {
@@ -3287,6 +3307,8 @@ void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	assert((DWORD)misource < MAX_PLRS);
+
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(misource, SPL_DISARM);
 	if (misource == myplr) {
@@ -3315,6 +3337,7 @@ void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	int i;
 	const int RAD = 8;
 
+	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	mis->_miVar2 = std::max(sy - RAD, 1);
 	mis->_miVar3 = std::min(sy + RAD, MAXDUNY - 1);
@@ -3448,6 +3471,8 @@ void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 
 void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	assert((DWORD)misource < MAX_PLRS);
+
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(misource, SPL_RESURRECT);
 	if (misource == myplr) {
@@ -3473,6 +3498,8 @@ void AddResurrectBeam(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 
 void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	assert((DWORD)misource < MAX_PLRS);
+
 	missile[mi]._miDelFlag = TRUE;
 	UseMana(misource, SPL_TELEKINESIS);
 	if (misource == myplr)
