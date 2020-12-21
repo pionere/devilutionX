@@ -1161,12 +1161,7 @@ void LoadMissileGFX(BYTE midx)
 	MisFileData *mfd;
 
 	mfd = &misfiledata[midx];
-	if (mfd->mfFlags & MFLAG_ALLOW_SPECIAL) {
-		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", mfd->mfName);
-		file = LoadFileInMem(pszName, NULL);
-		for (i = 0; i < mfd->mfAnimFAmt; i++)
-			mfd->mfAnimData[i] = CelGetFrameStart(file, i);
-	} else if (mfd->mfAnimFAmt == 1) {
+	if (mfd->mfAnimFAmt == 1) {
 		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", mfd->mfName);
 		if (mfd->mfAnimData[0] == NULL)
 			mfd->mfAnimData[0] = LoadFileInMem(pszName, NULL);
@@ -1198,16 +1193,6 @@ static void FreeMissileGFX(int midx)
 	DWORD *p;
 
 	mfd = &misfiledata[midx];
-	if (mfd->mfFlags & MFLAG_ALLOW_SPECIAL) {
-		if (mfd->mfAnimData[0] != NULL) {
-			p = (DWORD *)mfd->mfAnimData[0];
-			p -= mfd->mfAnimFAmt;
-			MemFreeDbg(p);
-			mfd->mfAnimData[0] = NULL;
-		}
-		return;
-	}
-
 	for (i = 0; i < mfd->mfAnimFAmt; i++) {
 		if (mfd->mfAnimData[i] != NULL) {
 			MemFreeDbg(mfd->mfAnimData[i]);
