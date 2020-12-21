@@ -1668,19 +1668,16 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	TriggerStruct *trg;
 
 	dist = INT_MAX;
-	if (misource >= 0) {
-		sx = plr[misource]._px;
-		sy = plr[misource]._py;
-	}
-	tx = sx;
-	ty = sy;
+	assert(misource >= 0);
+	tx = sx = plr[misource]._px;
+	ty = sy = plr[misource]._py;
 
 	trg = trigs;
 	for (i = std::min(numtrigs, MAXTRIGGERS); i > 0; i--, trg++) {
 		if (trg->_tmsg == WM_DIABTWARPUP || trg->_tmsg == WM_DIABPREVLVL || trg->_tmsg == WM_DIABNEXTLVL || trg->_tmsg == WM_DIABRTNLVL) {
 			fx = trg->_tx;
 			fy = trg->_ty;
-			if ((leveltype == DTYPE_CATHEDRAL || leveltype == DTYPE_CATACOMBS) && (trg->_tmsg == WM_DIABNEXTLVL || trg->_tmsg == WM_DIABPREVLVL || trg->_tmsg == WM_DIABRTNLVL)) {
+			if ((leveltype == DTYPE_CATHEDRAL || leveltype == DTYPE_CATACOMBS) && trg->_tmsg != WM_DIABTWARPUP) {
 				fy++;
 			} else {
 				fx++;
