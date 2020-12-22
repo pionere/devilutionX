@@ -1190,7 +1190,6 @@ static void FreeMissileGFX(int midx)
 {
 	MisFileData *mfd;
 	int i;
-	DWORD *p;
 
 	mfd = &misfiledata[midx];
 	for (i = 0; i < mfd->mfAnimFAmt; i++) {

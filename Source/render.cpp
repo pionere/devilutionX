@@ -316,7 +316,7 @@ void RenderTile(BYTE *pBuff)
  */
 void world_draw_black_tile(int sx, int sy)
 {
-	int i, j;
+	int i;
 	BYTE *dst;
 
 	if (sx >= SCREEN_X + SCREEN_WIDTH || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
@@ -327,14 +327,14 @@ void world_draw_black_tile(int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy] + TILE_WIDTH / 2 - 2;
 
-	for (i = TILE_HEIGHT - 2, j = 1; i >= 0; i -= 2, j++, dst -= BUFFER_WIDTH + 2) {
+	for (i = 1; i <= TILE_HEIGHT / 2; i++, dst -= BUFFER_WIDTH + 2) {
 		if (dst < gpBufEnd)
-			memset(dst, 0, 4 * j);
+			memset(dst, 0, 4 * i);
 	}
 	dst += 4;
-	for (i = 2, j = TILE_HEIGHT / 2 - 1; i != TILE_HEIGHT; i += 2, j--, dst -= BUFFER_WIDTH - 2) {
+	for (i = TILE_HEIGHT / 2 - 1; i >= 1; i--, dst -= BUFFER_WIDTH - 2) {
 		if (dst < gpBufEnd)
-			memset(dst, 0, 4 * j);
+			memset(dst, 0, 4 * i);
 	}
 }
 
