@@ -32,13 +32,14 @@ void base::handle_accept(packet &pkt)
 		plr_self = pkt.newplr();
 		connected_table[plr_self] = true;
 	}
-	if (game_init_info != pkt.info()) {
+	auto &pkt_info = pkt.info();
+	if (game_init_info != pkt_info) {
 		// we joined and did not create
 		_SNETEVENT ev;
 		ev.eventid = EVENT_TYPE_PLAYER_CREATE_GAME;
 		ev.playerid = plr_self;
-		ev.data = const_cast<unsigned char *>(pkt.info().data());
-		ev.databytes = pkt.info().size();
+		ev.data = const_cast<unsigned char *>(pkt_info.data());
+		ev.databytes = pkt_info.size();
 		run_event_handler(ev);
 	}
 }
@@ -55,15 +56,16 @@ void base::clear_msg(plr_t plr)
 
 void base::recv_local(packet &pkt)
 {
-	if (pkt.src() < MAX_PLRS) {
-		connected_table[pkt.src()] = true;
+	plr_t pkt_plr = pkt.src();
+	if (pkt_plr < MAX_PLRS) {
+		connected_table[pkt_plr] = true;
 	}
 	switch (pkt.type()) {
 	case PT_MESSAGE:
-		message_queue.push_back(message_t(pkt.src(), pkt.message()));
+		message_queue.push_back(message_t(pkt_plr, pkt.message()));
 		break;
 	case PT_TURN:
-		turn_queue[pkt.src()].push_back(pkt.turn());
+		turn_queue[pkt_plr].push_back(pkt.turn());
 		break;
 	case PT_JOIN_ACCEPT:
 		handle_accept(pkt);
@@ -72,18 +74,20 @@ void base::recv_local(packet &pkt)
 		connected_table[pkt.newplr()] = true; // this can probably be removed
 		break;
 	case PT_DISCONNECT:
-		if (pkt.newplr() != plr_self) {
-			if (connected_table[pkt.newplr()]) {
+		pkt_plr = pkt.newplr();
+		if (pkt_plr != plr_self) {
+			if (connected_table[pkt_plr]) {
 				auto leaveinfo = pkt.leaveinfo();
 				_SNETEVENT ev;
 				ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
-				ev.playerid = pkt.newplr();
+				ev.playerid = pkt_plr;
+				// TODO: how does this work?? leaveinfo is an int (local)...
 				ev.data = reinterpret_cast<unsigned char *>(&leaveinfo);
 				ev.databytes = sizeof(leaveinfo_t);
 				run_event_handler(ev);
-				connected_table[pkt.newplr()] = false;
-				clear_msg(pkt.newplr());
-				turn_queue[pkt.newplr()].clear();
+				connected_table[pkt_plr] = false;
+				clear_msg(pkt_plr);
+				turn_queue[pkt_plr].clear();
 			}
 		} else {
 			ABORT(); // we were dropped by the owner?!?
