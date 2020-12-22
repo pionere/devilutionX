@@ -224,8 +224,6 @@ const int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	1310707109,
 	1583495809
 };
-/** Unused local of PlrChangeLightOff, originally for computing light radius. */
-BYTE fix[9] = { 0, 0, 3, 3, 3, 6, 6, 6, 8 };
 
 static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 {
@@ -674,7 +672,7 @@ void SetPlrAnims(int pnum)
 	}
 }
 
-void ClearPlrRVars(PlayerStruct *p)
+static void ClearPlrRVars(PlayerStruct *p)
 {
 	// TODO: Missing debug assert p != NULL
 	p->bReserved[0] = 0;
@@ -778,7 +776,7 @@ void CreatePlayer(int pnum, char c)
 	SetRndSeed(0);
 }
 
-int CalcStatDiff(int pnum)
+static int CalcStatDiff(int pnum)
 {
 	const int *stats;
 
@@ -3719,7 +3717,7 @@ void SyncInitPlr(int pnum)
 	SyncInitPlrPos(pnum);
 }
 
-void CheckStats(int pnum)
+/*void CheckStats(int pnum)
 {
 	PlayerStruct *p;
 	const int *stats;
@@ -3749,7 +3747,7 @@ void CheckStats(int pnum)
 	} else if (p->_pBaseVit < 0) {
 		p->_pBaseVit = 0;
 	}
-}
+}*/
 
 void ModifyPlrStr(int pnum, int v)
 {
@@ -4036,22 +4034,5 @@ void PlayDungMsgs()
 #endif
 	}
 }
-
-#ifdef HELLFIRE
-int player_45EFA1(int pc)
-{
-	return MaxStats[pc][ATTRIB_STR];
-}
-
-int player_45EFAB(int pc)
-{
-	return MaxStats[pc][ATTRIB_MAG];
-}
-
-int player_45EFB5(int pc)
-{
-	return MaxStats[pc][ATTRIB_DEX];
-}
-#endif
 
 DEVILUTION_END_NAMESPACE

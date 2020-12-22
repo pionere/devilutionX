@@ -10,7 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BOOL invflag;
 BYTE *pInvCels;
-BOOL drawsbarflag;
 int sgdwLastTime; // check name
 
 /**
@@ -132,7 +131,6 @@ void InitInv()
 
 	pInvCels = LoadFileInMem(invSets[plr[myplr]._pClass], NULL);
 	invflag = FALSE;
-	drawsbarflag = FALSE;
 }
 
 static void InvDrawSlotBack(int X, int Y, int W, int H)
@@ -788,7 +786,7 @@ BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
 	return FALSE;
 }
 
-int SwapItem(ItemStruct *a, ItemStruct *b)
+static int SwapItem(ItemStruct *a, ItemStruct *b)
 {
 	ItemStruct h;
 
@@ -1158,41 +1156,10 @@ static void CheckInvPaste(int pnum, int mx, int my)
 	case ILOC_BELT:
 		ii = r - SLOTXY_BELT_FIRST;
 		is = &p->SpdList[ii];
-		if (holditem->_itype == ITYPE_GOLD) {
-			if (is->_itype != ITYPE_NONE) {
-				if (is->_itype == ITYPE_GOLD) {
-					i = holditem->_ivalue + is->_ivalue;
-					if (i <= GOLD_MAX_LIMIT) {
-						SetGoldItemValue(is, i);
-						p->_pGold += holditem->_ivalue;
-					} else {
-						i = GOLD_MAX_LIMIT - is->_ivalue;
-						p->_pGold += i;
-						holditem->_ivalue -= i;
-						SetGoldItemValue(is, GOLD_MAX_LIMIT);
-
-						// BUGFIX: incorrect values here are leftover from beta
-						if (holditem->_ivalue >= GOLD_MEDIUM_LIMIT)
-							cn = ICURS_GOLD_LARGE + CURSOR_FIRSTITEM;
-						else if (holditem->_ivalue <= GOLD_SMALL_LIMIT)
-							cn = ICURS_GOLD_SMALL + CURSOR_FIRSTITEM;
-						else
-							cn = ICURS_GOLD_MEDIUM + CURSOR_FIRSTITEM;
-					}
-				} else {
-					p->_pGold += holditem->_ivalue;
-					cn = SwapItem(is, holditem);
-				}
-			} else {
-				copy_pod(*is, *holditem);
-				p->_pGold += holditem->_ivalue;
-			}
-		} else if (is->_itype == ITYPE_NONE) {
+		if (is->_itype == ITYPE_NONE) {
 			copy_pod(*is, *holditem);
 		} else {
 			cn = SwapItem(is, holditem);
-			if (holditem->_itype == ITYPE_GOLD)
-				CalculateGold(pnum);
 		}
 		gbRedrawFlags |= REDRAW_SPEED_BAR;
 		break;
@@ -1424,53 +1391,6 @@ void RemoveInvItem(int pnum, int iv)
 
 	CalcPlrScrolls(pnum);
 }
-
-#ifdef HELLFIRE
-/**
- * @brief This destroyes all items except gold
- */
-BOOL inv_diablo_to_hellfire(int pnum)
-{
-	PlayerStruct *p;
-	ItemStruct tmp;
-	ItemStruct *pi;
-	int i, old_item_cnt, new_item_index;
-
-	p = &plr[pnum];
-	if (p->_pgfxnum != 0) {
-		p->_pgfxnum = 0;
-		p->_pGFXLoad = 0;
-		SetPlrAnims(pnum);
-	}
-	pi = p->InvBody;
-	for (i = NUM_INVLOC; i != 0; i--, pi++) {
-		pi->_itype = ITYPE_NONE;
-	}
-	old_item_cnt = p->_pNumInv;
-	memset(p->InvGrid, 0, sizeof(p->InvGrid));
-	p->_pNumInv = 0;
-	pi = p->InvList;
-	for (i = 0; i < old_item_cnt; i++, pi++) {
-		if (pi->_itype == ITYPE_GOLD) {
-			new_item_index = p->_pNumInv;
-			// BUGFIX: new_item_index may be greater or equal to NUM_INV_GRID_ELEM
-			copy_pod(tmp, *pi);
-			pi->_itype = ITYPE_NONE;
-			copy_pod(p->InvList[new_item_index], tmp);
-			p->_pNumInv++;
-			p->InvGrid[i] = p->_pNumInv;
-		} else {
-			pi->_itype = ITYPE_NONE;
-		}
-	}
-	pi = p->SpdList;
-	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		pi->_itype = ITYPE_NONE;
-	}
-	CalcPlrItemVals(pnum, FALSE);
-	return FALSE;
-}
-#endif
 
 void RemoveSpdBarItem(int pnum, int iv)
 {

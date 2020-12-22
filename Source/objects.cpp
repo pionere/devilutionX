@@ -4937,6 +4937,7 @@ void GetObjectStr(int oi)
 	}
 }
 
+#ifdef HELLFIRE
 void operate_lv24_lever()
 {
 	if (currlevel == 24) {
@@ -5005,5 +5006,6 @@ BOOL OpenUberLevel(int bookidx)
 	}
 	return FALSE;
 }
+#endif
 
 DEVILUTION_END_NAMESPACE

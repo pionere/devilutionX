@@ -22,15 +22,14 @@ void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
 void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, int width);
 void SetPlrAnims(int pnum);
-void ClearPlrRVars(PlayerStruct *p);
 void CreatePlayer(int pnum, char c);
-int CalcStatDiff(int pnum);
+#ifdef _DEBUG
 void NextPlrLevel(int pnum);
+#endif
 void AddPlrExperience(int pnum, int lvl, int exp);
 void AddPlrMonstExper(int lvl, int exp, char pmask);
 void InitPlayer(int pnum, BOOL FirstTime);
 void InitMultiView();
-void CheckEFlag(int pnum, BOOL flag);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
@@ -56,7 +55,6 @@ void CheckPlrSpell();
 void SyncPlrAnim(int pnum);
 void SyncInitPlrPos(int pnum);
 void SyncInitPlr(int pnum);
-void CheckStats(int pnum);
 void ModifyPlrStr(int pnum, int v);
 void ModifyPlrMag(int pnum, int v);
 void ModifyPlrDex(int pnum, int v);
@@ -68,11 +66,6 @@ void SetPlrDex(int pnum, int v);
 void SetPlrVit(int pnum, int v);
 void InitDungMsgs(int pnum);
 void PlayDungMsgs();
-#ifdef HELLFIRE
-int player_45EFA1(int pc);
-int player_45EFAB(int pc);
-int player_45EFB5(int pc);
-#endif
 
 inline void SetPlayerOld(PlayerStruct *p)
 {

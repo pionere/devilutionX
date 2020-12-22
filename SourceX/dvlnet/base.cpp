@@ -81,7 +81,6 @@ void base::recv_local(packet &pkt)
 				_SNETEVENT ev;
 				ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 				ev.playerid = pkt_plr;
-				// TODO: how does this work?? leaveinfo is an int (local)...
 				ev.data = reinterpret_cast<unsigned char *>(&leaveinfo);
 				ev.databytes = sizeof(leaveinfo_t);
 				run_event_handler(ev);

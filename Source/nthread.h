@@ -17,7 +17,6 @@ extern DWORD gdwMsgLenTbl[MAX_PLRS];
 extern DWORD gdwDeltaBytesSec;
 extern DWORD gdwTurnsInTransit;
 extern uintptr_t glpMsgTbl[MAX_PLRS];
-extern int turn_upper_bit;
 extern DWORD gdwLargestMsgSize;
 extern DWORD gdwNormalMsgSize;
 

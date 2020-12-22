@@ -44,7 +44,6 @@ BOOLEAN UseNestArt;
 int sgnTimeoutCurs;
 char sgbMouseDown;              // flags to remember the pressed mouse buttons (left/right)
 DWORD sgdwLastLMD, sgdwLastRMD; // tick counter when the last time one of the mouse-buttons were pressed down
-int color_cycle_timer;
 int ticks_per_sec = 20;
 WORD tick_delay = 50;
 
@@ -81,10 +80,6 @@ int dbgqst;
 int dbgmon;
 int arrowdebug;
 #endif
-BOOL frameflag;
-int frameend;
-int framerate;
-int framestart;
 /** Specifies whether players are in non-PvP mode. */
 BOOL FriendlyMode = TRUE;
 /** Default quick messages */
@@ -1574,7 +1569,6 @@ static void CreateLevel(int lvldir)
 void LoadGameLevel(BOOL firstflag, int lvldir)
 {
 	int i;
-	BOOL visited;
 
 	if (firstflag && lvldir == ENTRY_MAIN) {
 		InitLevels();
@@ -1663,12 +1657,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		PlayDungMsgs();
 		InitMultiView();
 		IncProgress();
-
-		visited = FALSE;
-		for (i = 0; i < gbMaxPlayers; i++) {
-			if (plr[i].plractive)
-				visited = visited || plr[i]._pLvlVisited[currlevel];
-		}
 
 		SetRndSeed(glSeedTbl[currlevel]);
 

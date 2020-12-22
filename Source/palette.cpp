@@ -50,7 +50,7 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 	gbRedrawFlags = REDRAW_ALL;
 }
 
-void SaveGamma()
+static void SaveGamma()
 {
 	SRegSaveValue(APP_NAME, "Gamma Correction", 0, gamma_correction);
 #ifndef HELLFIRE
@@ -236,6 +236,7 @@ void palette_update_caves()
 	palette_update();
 }
 
+#ifdef HELLFIRE
 int dword_6E2D58;
 int dword_6E2D54;
 void palette_update_crypt()
@@ -299,6 +300,7 @@ void palette_update_hive()
 		dword_6E2D5C++;
 	}
 }
+#endif
 
 void palette_update_quest_palette(int n)
 {

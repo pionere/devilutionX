@@ -8,9 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int help_select_line;
-int dword_634494;
 BOOL helpflag;
-int displayinghelp[22]; /* check, does nothing? */
 int HelpTop;
 
 const char gszHelpText[] = {
@@ -445,8 +443,6 @@ const char gszHelpText[] = {
 void InitHelp()
 {
 	helpflag = FALSE;
-	dword_634494 = 0;
-	displayinghelp[0] = 0;
 }
 
 static void DrawHelpLine(int x, int y, char *text, char color)

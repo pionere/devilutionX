@@ -144,7 +144,7 @@ inline static void RenderLine(BYTE **dst, BYTE **src, int n, BYTE *tbl, DWORD ma
 		// Add the lower bits about we don't care.
 		mask |= (1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
-			if (light_table_index == lightmax) {
+			if (light_table_index == LIGHTMAX) {
 				memset(*dst, 0, n);
 			} else if (light_table_index == 0) {
 				memcpy(*dst, *src, n);
@@ -156,7 +156,7 @@ inline static void RenderLine(BYTE **dst, BYTE **src, int n, BYTE *tbl, DWORD ma
 		} else {
 			// Clear the lower bits of the mask to avoid testing i < n in the loops.
 			mask = (mask >> i) << i;
-			if (light_table_index == lightmax) {
+			if (light_table_index == LIGHTMAX) {
 				for (i = 0; mask != 0; i++, mask <<= 1) {
 					if (mask & 0x80000000) {
 						(*dst)[i] = 0;

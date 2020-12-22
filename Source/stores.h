@@ -16,7 +16,6 @@ extern ItemStruct boyitem;
 extern ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
 extern BYTE *pSTextBoxCels;
 extern int premiumlevel;
-extern int talker;
 extern ItemStruct witchitem[WITCH_ITEMS];
 extern int numpremium;
 extern ItemStruct healitem[HEALER_ITEMS];
@@ -25,7 +24,6 @@ extern BYTE *pSTextSlidCels;
 extern BYTE *pSPentSpn2Cels;
 extern int boylevel;
 extern ItemStruct smithitem[SMITH_ITEMS];
-extern int stextdown;
 extern char stextflag;
 
 void InitStores();

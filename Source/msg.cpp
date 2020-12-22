@@ -24,7 +24,6 @@ static BYTE sgbDeltaChunks;
 BOOL deltaload;
 BYTE gbBufferMsgs;
 char gbNetMsg[MAX_SEND_STR_LEN];
-int dwRecCount;
 
 static void msg_get_next_packet()
 {

@@ -449,7 +449,6 @@ void multi_process_network_packets()
 	multi_clear_left_tbl();
 	multi_process_tmsgs();
 	while (SNetReceiveMessage(&pnum, (char **)&pkt, (int *)&dwMsgSize)) {
-		dwRecCount++;
 		multi_clear_left_tbl();
 		if (dwMsgSize < sizeof(TPktHdr))
 			continue;

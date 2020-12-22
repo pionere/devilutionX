@@ -15,7 +15,6 @@ extern "C" {
 extern BOOL deltaload;
 extern BYTE gbBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
-extern int dwRecCount;
 
 void msg_send_drop_pkt(int pnum, int reason);
 BOOL msg_wait_resync();

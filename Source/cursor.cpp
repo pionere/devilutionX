@@ -21,10 +21,6 @@ BYTE *pCursCels2;
 
 /** inv_item value */
 char pcursinvitem;
-/** Pixel width of the current cursor image */
-int icursW;
-/** Pixel height of the current cursor image */
-int icursH;
 /** Current highlighted item */
 char pcursitem;
 /** Current highlighted object */

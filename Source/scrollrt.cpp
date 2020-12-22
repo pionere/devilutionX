@@ -70,9 +70,15 @@ BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 bool dRendered[MAXDUNX][MAXDUNY];
 
+BOOL frameflag;
+int frameend;
+int framerate;
+int framestart;
+
 /* data */
 
 /* used in 1.00 debug */
+#ifdef _DEBUG
 const char *const szMonModeAssert[18] = {
 	"standing",
 	"walking (1)",
@@ -108,6 +114,7 @@ const char *const szPlrModeAssert[12] = {
 	"changing levels",
 	"quitting"
 };
+#endif
 
 /**
  * @brief Clear cursor state
@@ -330,7 +337,8 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 
 	nCel = mon->_mAnimFrame;
-	frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
+#ifdef _DEBUG
+	int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char *szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
@@ -343,6 +351,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 			nCel,
 			frames);
 	}
+#endif
 
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, 1);
@@ -375,13 +384,14 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
  */
 static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, int nCel, int nWidth)
 {
-	int l, frames;
+	int l;
 
 	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag) {
 		if (pCelBuff == NULL) {
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
 		}
-		frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
+#ifdef _DEBUG
+		int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
 			if (plr[pnum]._pmode <= PM_QUIT)
@@ -395,6 +405,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 				nCel,
 				frames);
 		}
+#endif
 		if (pnum == pcursplr)
 			Cl2DrawOutline(165, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == myplr) {
@@ -489,7 +500,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	BYTE *pCelBuff;
 
 	oi = dObject[x][y];
-	if (oi == 0 || light_table_index >= lightmax)
+	if (oi == 0 || light_table_index >= LIGHTMAX)
 		return;
 
 	if (oi > 0) {
@@ -749,7 +760,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawMissile(sx, sy, dx, dy, TRUE);
 	}
 
-	if (light_table_index < lightmax && bDead != 0) {
+	if (light_table_index < LIGHTMAX && bDead != 0) {
 		pDeadGuy = &dead[(bDead & 0x1F) - 1];
 		dd = (bDead >> 5) & 7;
 		px = dx - pDeadGuy->_deadWidth2;

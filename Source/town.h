@@ -12,11 +12,10 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void T_FillSector(BYTE *P3Tiles, BYTE *pSector, int xi, int yi, int w, int h);
-void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t);
-void T_Pass3();
+#ifdef HELLFIRE
 void T_HiveOpen();
 void T_CryptOpen();
+#endif
 void CreateTown(int entry);
 void InitTown();
 unsigned char GetOpenWarps();

@@ -31,9 +31,6 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader);
 void InitMonsters();
 void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtype, BOOL InMap);
-#ifdef HELLFIRE
-void monster_43C785(int mnum);
-#endif
 BOOL MonTalker(int mnum);
 void MonStartStand(int mnum, int md);
 void MonClearSquares(int mnum);

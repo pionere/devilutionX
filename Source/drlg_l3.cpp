@@ -10,8 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** This will be true if a lava pool has been generated for the level */
 BOOLEAN lavapool;
-/** unused */
-int abyssx;
 int lockoutcnt;
 BOOLEAN lockout[DMAXX][DMAXY];
 
@@ -2550,7 +2548,6 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 		}
 	}
 
-	abyssx = MAXDUNX; // Unused
 	DRLG_L3Pass3();
 	DRLG_Init_Globals();
 	ViewX = vx;

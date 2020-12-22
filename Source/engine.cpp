@@ -14,21 +14,21 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef _DEBUG
 /** automap pixel color 8-bit (palette entry) */
 char gbPixelCol;
 /** flip - if y < x */
 BOOL gbRotateMap;
+/** valid - if x/y are in bounds */
+BOOL gbNotInView;
+#endif
 /** Seed value before the most recent call to SetRndSeed() */
 int orgseed;
-/** Width of sprite being blitted */
-int sgnWidth;
 /** Current game seed */
 int sglGameSeed;
 static CCritSect sgMemCrit;
 /** Number of times the current seed has been fetched */
 int SeedCount;
-/** valid - if x/y are in bounds */
-BOOL gbNotInView;
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
@@ -626,6 +626,7 @@ void ENG_set_pixel(int sx, int sy, BYTE col)
 		*dst = col;
 }
 
+#ifdef _DEBUG
 /**
  * @brief Set the value of a single pixel in the back buffer to that of gbPixelCol, checks bounds
  * @param sx Back buffer coordinate
@@ -650,6 +651,7 @@ void engine_draw_pixel(int sx, int sy)
 	if (dst < gpBufEnd && dst > gpBufStart)
 		*dst = gbPixelCol;
 }
+#endif
 
 /**
  * @brief Draw a line on the back buffer
@@ -1095,7 +1097,7 @@ static void Cl2BlitOutlineSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, 
  */
 static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *pTable)
 {
-	int w;
+	int w, spriteWidth;
 	char width;
 	BYTE fill;
 	BYTE *src, *dst;
@@ -1103,7 +1105,7 @@ static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 	src = pRLEBytes;
 	dst = pDecodeTo;
 	w = nWidth;
-	sgnWidth = nWidth;
+	spriteWidth = nWidth;
 
 	while (nDataSize != 0) {
 		width = *src++;
@@ -1122,7 +1124,7 @@ static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 						width--;
 					}
 					if (w == 0) {
-						w = sgnWidth;
+						w = spriteWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
 					continue;
@@ -1138,7 +1140,7 @@ static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 						width--;
 					}
 					if (w == 0) {
-						w = sgnWidth;
+						w = spriteWidth;
 						dst -= BUFFER_WIDTH + w;
 					}
 					continue;
@@ -1158,7 +1160,7 @@ static void Cl2BlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 				width = 0;
 			}
 			if (w == 0) {
-				w = sgnWidth;
+				w = spriteWidth;
 				dst -= BUFFER_WIDTH + w;
 			}
 		}

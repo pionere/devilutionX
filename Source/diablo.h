@@ -22,7 +22,6 @@ extern BOOL gbRunGameResult;
 extern BOOL zoomflag;
 extern BOOL gbProcessPlayers;
 extern BOOL gbLoadGame;
-extern HINSTANCE ghInst;
 extern BOOLEAN cineflag;
 extern int gbRedrawFlags;
 /* These are defined in fonts.h */
@@ -55,7 +54,6 @@ void diablo_color_cyc_logic();
 /* rdata */
 
 extern BOOL fullscreen;
-extern BOOL showintro;
 #ifdef _DEBUG
 extern int DebugMonsters[10];
 extern BOOL visiondebug;
@@ -75,10 +73,6 @@ extern int dbgplr;
 extern int dbgqst;
 extern int dbgmon;
 #endif
-extern BOOL frameflag;
-extern int frameend;
-extern int framerate;
-extern int framestart;
 extern BOOL FriendlyMode;
 
 #ifdef __cplusplus

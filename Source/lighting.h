@@ -16,10 +16,13 @@ extern LightListStruct VisionList[MAXVISION];
 extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
-extern BYTE lightradius[16][128];
-extern BOOL dovision;
 extern int numvision;
+#ifdef _DEBUG
 extern char lightmax;
+#define LIGHTMAX lightmax
+#else
+#define LIGHTMAX 15
+#endif
 extern BOOL dolighting;
 extern int visionid;
 extern BYTE *pLightTbl;
@@ -52,8 +55,8 @@ void lighting_color_cycling();
 
 /* rdata */
 
-extern char CrawlTable[2749];
-extern BYTE vCrawlTable[23][32];
+extern const char CrawlTable[2749];
+extern const BYTE vCrawlTable[23][32];
 
 #ifdef __cplusplus
 }

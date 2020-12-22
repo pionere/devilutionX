@@ -15,7 +15,6 @@ extern "C" {
 extern int itemactive[MAXITEMS];
 extern BOOL uitemflag;
 extern int itemavail[MAXITEMS];
-extern ItemGetRecordStruct itemrecord[MAXITEMS];
 extern ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
 extern CornerStoneStruct CornerStone;
@@ -26,18 +25,6 @@ extern int auricGold;
 #endif
 extern int numitems;
 
-#ifdef HELLFIRE
-int items_4231CA(int i);
-int items_423230(int i);
-int items_423296(int i);
-int items_4232FC(int i);
-int items_423362(int i);
-int items_4233C8(int i);
-int items_42342E(int i);
-int items_4234B2(int i);
-int items_423518(int i);
-int items_42357E(int i);
-#endif
 void InitItemGFX();
 BOOL ItemPlace(int xp, int yp);
 void InitItems();

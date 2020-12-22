@@ -17,7 +17,6 @@ extern SDL_Color system_palette[256];
 extern SDL_Color orig_palette[256];
 
 void palette_update();
-void SaveGamma();
 void palette_init();
 void LoadPalette(const char *pszFileName);
 void LoadRndLvlPal(int l);

@@ -18,14 +18,15 @@ BOOL HR1;
 BOOL HR2;
 /** Specifies whether to generate a horizontal room at position 3 in the Cathedral. */
 BOOL HR3;
+#ifdef HELLFIRE
 int UberRow;
 int UberCol;
-int dword_577368;
 BOOL IsUberRoomOpened;
 int UberLeverRow;
 int UberLeverCol;
 BOOL IsUberLeverActivated;
 int UberDiabloMonsterIndex;
+#endif
 /** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
 BOOL VR1;
 /** Specifies whether to generate a vertical room at position 2 in the Cathedral. */
@@ -2297,7 +2298,6 @@ void drlg_l1_set_crypt_room(int rx1, int ry1)
 	setpc_w = rw;
 	setpc_h = rh;
 	IsUberRoomOpened = FALSE;
-	dword_577368 = 0;
 	IsUberLeverActivated = FALSE;
 
 	sp = 2;
@@ -2788,7 +2788,6 @@ void CreateL5Dungeon(DWORD rseed, int entry)
 	UberRow = 0;
 	UberCol = 0;
 	IsUberRoomOpened = FALSE;
-	dword_577368 = 0;
 	UberLeverRow = 0;
 	UberLeverCol = 0;
 	IsUberLeverActivated = FALSE;

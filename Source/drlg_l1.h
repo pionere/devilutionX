@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#ifdef HELLFIRE
 extern int UberRow;
 extern int UberCol;
 extern BOOL IsUberRoomOpened;
@@ -19,6 +20,7 @@ extern int UberLeverRow;
 extern int UberLeverCol;
 extern BOOL IsUberLeverActivated;
 extern int UberDiabloMonsterIndex;
+#endif
 
 void DRLG_Init_Globals();
 void LoadL1Dungeon(const char *sFileName, int vx, int vy);

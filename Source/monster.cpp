@@ -19,11 +19,6 @@ BOOLEAN sgbSaveSoundOn;
 MonsterStruct monster[MAXMONSTERS];
 int totalmonsters;
 CMonster Monsters[MAX_LVLMTYPES];
-#ifdef HELLFIRE
-int GraphicTable[NUMLEVELS][MAX_LVLMTYPES];
-#else
-BYTE GraphicTable[NUMLEVELS][MAX_LVLMTYPES];
-#endif
 int monstimgtot;
 int uniquetrans;
 int nummtypes;
@@ -440,18 +435,6 @@ void InitMonsterGFX(int midx)
 	if (mtype == MT_DIABLO) {
 		LoadMissileGFX(MFILE_FIREPLAR);
 	}
-}
-
-static void ClearMVars(int mnum)
-{
-	monster[mnum]._mVar1 = 0;
-	monster[mnum]._mVar2 = 0;
-	monster[mnum]._mVar3 = 0;
-	monster[mnum]._mVar4 = 0;
-	monster[mnum]._mVar5 = 0;
-	monster[mnum]._mVar6 = 0;
-	monster[mnum]._mVar7 = 0;
-	monster[mnum]._mVar8 = 0;
 }
 
 static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
@@ -1198,40 +1181,6 @@ int AddMonster(int x, int y, int dir, int mtype, BOOL InMap)
 
 	return -1;
 }
-
-#ifdef HELLFIRE
-void monster_43C785(int mnum)
-{
-	MonsterStruct *mon;
-	int i, x, y, oi, mx, my;
-
-	mon = &monster[mnum];
-
-	mx = mon->_mx;
-	my = mon->_my;
-	static_assert(lengthof(offset_x) == lengthof(offset_y), "Mismatching offset tables.");
-	for (i = 0; i < lengthof(offset_x); i++) {
-		x = mx + offset_x[i];
-		y = my + offset_y[i];
-		if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) == 0) {
-			oi = dObject[x][y];
-			if (oi == 0)
-				break;
-			oi = oi >= 0 ? oi - 1 : -(oi + 1);
-			if (!object[oi]._oSolidFlag)
-				break;
-		}
-	}
-	if (i < lengthof(offset_x)) {
-		for (i = 0; i < MAX_LVLMTYPES; i++) {
-			if (Monsters[i].mtype == mon->_mType) {
-				AddMonster(x, y, mon->_mdir, i, TRUE);
-				break;
-			}
-		}
-	}
-}
-#endif
 
 static void NewMonsterAnim(int mnum, AnimStruct *anim, int md)
 {
@@ -3335,7 +3284,7 @@ void MAI_Sneak(int mnum)
 	if (mon->_mmode == MM_STAND) {
 		mx = mon->_mx;
 		my = mon->_my;
-		if (dLight[mx][my] != lightmax) {
+		if (dLight[mx][my] != LIGHTMAX) {
 			mx -= mon->_menemyx;
 			my -= mon->_menemyy;
 

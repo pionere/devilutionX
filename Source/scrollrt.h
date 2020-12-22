@@ -22,14 +22,7 @@ extern BOOL cel_foliage_active;
 extern int level_piece_id;
 extern BOOLEAN AutoMapShowItems;
 
-extern int tileOffsetX;
-extern int tileOffsetY;
-extern int tileShiftX;
-extern int tileShiftY;
-
 void ClearCursor();
-void DrawMissile(int x, int y, int sx, int sy, BOOL pre);
-void DrawDeadPlayer(int x, int y, int sx, int sy);
 void ShiftGrid(int *x, int *y, int horizontal, int vertical);
 int RowsCoveredByPanel();
 void CalcTileOffset(int *offsetX, int *offsetY);

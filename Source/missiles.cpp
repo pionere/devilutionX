@@ -16,10 +16,10 @@ BOOL ManashieldFlag;
 BOOL MissilePreFlag;
 
 /** Maps from direction to X-offset. */
-int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
+const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
-int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
-int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
+const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
 void GetDamageAmt(int sn, int *mind, int *maxd)
 {
@@ -180,7 +180,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 static int FindClosest(int sx, int sy, int rad)
 {
 	int j, i, mid, tx, ty;
-	char *cr;
+	const char *cr;
 
 	if (rad > 19)
 		rad = 19;
@@ -1282,7 +1282,7 @@ void AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 static BOOL place_rune(int mi, int dx, int dy, int mitype)
 {
 	int i, j, tx, ty;
-	char *cr;
+	const char *cr;
 
 	for (i = 0; i < 10; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -1388,7 +1388,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 {
 	MonsterStruct *mon;
 	int i, j, tx, ty, dm, r;
-	char *cr;
+	const char *cr;
 
 	missile[mi]._miDelFlag = TRUE;
 
@@ -1483,7 +1483,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	ItemStruct *pi;
 	int i, j, tx, ty, si, ii, pnum;
-	char *cr;
+	const char *cr;
 	BOOL hasPlayedSFX;
 
 	missile[mi]._miDelFlag = TRUE;
@@ -1554,7 +1554,7 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int i, j, tx, ty, pnum;
-	char *cr;
+	const char *cr;
 
 	missile[mi]._miDelFlag = TRUE;
 	for (i = 0; i < 3; i++) {
@@ -2224,7 +2224,7 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
-	char *cr;
+	const char *cr;
 
 	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2470,7 +2470,7 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 {
 	MissileStruct *mis, *bmis;
 	int i, j, tx, ty, pn;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	if (currlevel != 0) {
@@ -2625,7 +2625,7 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 	int i, pn, j, tx, ty, range;
-	char *cr;
+	const char *cr;
 
 	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2898,7 +2898,7 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	MissileStruct *mis;
 	MonsterStruct *mon;
 	int i, j, tx, ty, mid, range;
-	char *cr;
+	const char *cr;
 
 	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -3144,7 +3144,7 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
-	char *cr;
+	const char *cr;
 
 	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -3663,7 +3663,7 @@ void MI_Golem(int mi)
 {
 	MissileStruct *mis;
 	int tx, ty, i, j, src;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
@@ -4000,7 +4000,7 @@ void MI_HorkSpawn(int mi)
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -4287,7 +4287,7 @@ void MI_FireRing(int mi)
 {
 	MissileStruct *mis;
 	int tx, ty, j, pn;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
@@ -4313,7 +4313,7 @@ void MI_LightRing(int mi)
 {
 	MissileStruct *mis;
 	int tx, ty, j, pn;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
@@ -4835,7 +4835,7 @@ void MI_Chain(int mi)
 {
 	MissileStruct *mis;
 	int sx, sy, src, i, j, rad, tx, ty, dir;
-	char *cr;
+	const char *cr;
 
 	mis = &missile[mi];
 	src = mis->_miSource;

@@ -33,7 +33,7 @@ static void doom_play_movie()
 }
 */
 
-int doom_get_frame_from_time()
+static int doom_get_frame_from_time()
 {
 	if (DoomQuestState == 36001) {
 		return 31;

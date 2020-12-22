@@ -46,10 +46,12 @@ void BreakObject(int pnum, int oi);
 void SyncBreakObj(int pnum, int oi);
 void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);
+#ifdef HELLFIRE
 void operate_lv24_lever();
 void objects_454BA8();
 void AddUberLever();
 BOOL OpenUberLevel(int bookidx);
+#endif
 
 #ifdef __cplusplus
 }

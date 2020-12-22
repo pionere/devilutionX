@@ -48,14 +48,12 @@ BOOL chrflag;
 BYTE *pSpellBkCel;
 char infostr[256];
 int numpanbtns;
-BYTE *pStatusPanel;
 char panelstr[MAX_CTRL_PANEL_LINES][64];
 BOOL panelflag;
 BYTE SplTransTbl[256];
 int initialDropGoldValue;
 BYTE *pSpellCels;
 BOOL panbtndown;
-BYTE *pTalkPanel;
 BOOL spselflag;
 
 /** Maps from font index to smaltext.cel frame number. */
@@ -760,6 +758,7 @@ void DrawManaFlask()
 void InitControlPan()
 {
 	int i;
+	BYTE *tBuff;
 
 	if (gbMaxPlayers == 1) {
 		pBtmBuff = DiabloAllocPtr((PANEL_HEIGHT + 16) * PANEL_WIDTH);
@@ -780,18 +779,18 @@ void InitControlPan()
 	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL", NULL);
 #endif
 	SetSpellTrans(RSPLTYPE_SKILL);
-	pStatusPanel = LoadFileInMem("CtrlPan\\Panel8.CEL", NULL);
-	CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) - 1, PANEL_WIDTH, pStatusPanel, 1, PANEL_WIDTH);
-	MemFreeDbg(pStatusPanel);
-	pStatusPanel = LoadFileInMem("CtrlPan\\P8Bulbs.CEL", NULL);
-	CelBlitWidth(pLifeBuff, 0, 87, 88, pStatusPanel, 1, 88);
-	CelBlitWidth(pManaBuff, 0, 87, 88, pStatusPanel, 2, 88);
-	MemFreeDbg(pStatusPanel);
+	tBuff = LoadFileInMem("CtrlPan\\Panel8.CEL", NULL);
+	CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) - 1, PANEL_WIDTH, tBuff, 1, PANEL_WIDTH);
+	MemFreeDbg(tBuff);
+	tBuff = LoadFileInMem("CtrlPan\\P8Bulbs.CEL", NULL);
+	CelBlitWidth(pLifeBuff, 0, 87, 88, tBuff, 1, 88);
+	CelBlitWidth(pManaBuff, 0, 87, 88, tBuff, 2, 88);
+	MemFreeDbg(tBuff);
 	talkflag = FALSE;
 	if (gbMaxPlayers != 1) {
-		pTalkPanel = LoadFileInMem("CtrlPan\\TalkPanl.CEL", NULL);
-		CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) * 2 - 1, PANEL_WIDTH, pTalkPanel, 1, PANEL_WIDTH);
-		MemFreeDbg(pTalkPanel);
+		tBuff = LoadFileInMem("CtrlPan\\TalkPanl.CEL", NULL);
+		CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) * 2 - 1, PANEL_WIDTH, tBuff, 1, PANEL_WIDTH);
+		MemFreeDbg(tBuff);
 		pMultiBtns = LoadFileInMem("CtrlPan\\P8But2.CEL", NULL);
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
 		sgbPlrTalkTbl = 0;
