@@ -1227,6 +1227,11 @@ typedef struct TownerStruct {
 	unsigned char *_tNAnim[8];
 	int _tNFrames;
 	unsigned char *_tNData;
+#ifdef X86_32bit_COMP
+#ifndef HELLFIRE
+	int alignment[6];
+#endif
+#endif
 } TownerStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
