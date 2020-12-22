@@ -3095,27 +3095,29 @@ static void OperateInnSignChest(int pnum, int oi)
 static void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
 {
 	ObjectStruct *os;
+	char pc;
 
 	os = &object[oi];
 	if (os->_oSelFlag != 0) {
 		os->_oSelFlag = 0;
 		if (!deltaload) {
-			if (plr[pnum]._pClass == PC_WARRIOR) {
+			pc = plr[pnum]._pClass;
+			if (pc == PC_WARRIOR) {
 				CreateMagicArmor(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy);
-			} else if (plr[pnum]._pClass == PC_ROGUE) {
+			} else if (pc == PC_ROGUE) {
 				CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy);
-			} else if (plr[pnum]._pClass == PC_SORCERER) {
+			} else if (pc == PC_SORCERER) {
 				CreateSpellBook(SPL_LIGHTNING, os->_ox, os->_oy);
 #ifdef HELLFIRE
-			} else if (plr[pnum]._pClass == PC_MONK) {
+			} else if (pc == PC_MONK) {
 				CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy);
-			} else if (plr[pnum]._pClass == PC_BARD) {
+			} else if (pc == PC_BARD) {
 				CreateMagicWeapon(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy);
-			} else if (plr[pnum]._pClass == PC_BARBARIAN) {
+			} else if (pc == PC_BARBARIAN) {
 				CreateMagicWeapon(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy);
 #endif
 			}
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][plr[myplr]._pClass], plr[myplr]._px, plr[myplr]._py);
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 			if (pnum == myplr)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
