@@ -2424,30 +2424,30 @@ static void DRLG_L5TransFix()
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			case 18:
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			case 19:
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			case 20:
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			case 23:
 				// BUGFIX: Should check for `j > 0` first. (fixed)
 				if (j > 0 && dungeon[i][j - 1] == 18) {
-					dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx + 1, yy);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 				break;
 			case 24:
 				// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
 				if (i < DMAXX - 1 && dungeon[i + 1][j] == 19) {
-					dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx, yy + 1);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 				break;
 			}

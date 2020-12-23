@@ -266,11 +266,6 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 	TransVal++;
 }
 
-void DRLG_CopyTrans(int sx, int sy, int dx, int dy)
-{
-	dTransVal[dx][dy] = dTransVal[sx][sy];
-}
-
 void DRLG_ListTrans(int num, BYTE *List)
 {
 	int i;

@@ -1517,30 +1517,30 @@ static void DRLG_L4TransFix()
 		for (i = 0; i < DMAXX; i++) {
 			if (IsDURWall(dungeon[i][j])) {
 				if (dungeon[i][j - 1] == 18) {
-					dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx + 1, yy);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 			} else if (IsDLLWall(dungeon[i][j])) {
 				if (dungeon[i + 1][j] == 19) {
-					dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx, yy + 1);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 			} else if (dungeon[i][j] == 18) {
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 			} else if (dungeon[i][j] == 19) {
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 			} else if (dungeon[i][j] == 24) {
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 			} else if (dungeon[i][j] == 57) {
-				dTransVal[xx - 1][yy] = dTransVal[xx][yy + 1];
-				dTransVal[xx][yy] = dTransVal[xx][yy + 1];
+				DRLG_CopyTrans(xx, yy + 1, xx - 1, yy);
+				DRLG_CopyTrans(xx, yy + 1, xx, yy);
 			} else if (dungeon[i][j] == 53) {
-				dTransVal[xx][yy - 1] = dTransVal[xx + 1][yy];
-				dTransVal[xx][yy] = dTransVal[xx + 1][yy];
+				DRLG_CopyTrans(xx + 1, yy, xx, yy - 1);
+				DRLG_CopyTrans(xx + 1, yy, xx, yy);
 			}
 			xx += 2;
 		}

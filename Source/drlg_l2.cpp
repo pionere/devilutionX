@@ -2870,29 +2870,29 @@ static void DRLG_L2TransFix()
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			case 10:
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			case 11:
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			case 14:
 				if (dungeon[i][j - 1] == 10) {
-					dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx + 1, yy);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 				break;
 			case 15:
 				if (dungeon[i + 1][j] == 11) {
-					dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-					dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+					DRLG_CopyTrans(xx, yy, xx, yy + 1);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
 				break;
 			case 16:
-				dTransVal[xx + 1][yy] = dTransVal[xx][yy];
-				dTransVal[xx][yy + 1] = dTransVal[xx][yy];
-				dTransVal[xx + 1][yy + 1] = dTransVal[xx][yy];
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
 			}
 			xx += 2;
