@@ -3193,7 +3193,7 @@ static void DRLG_InitL2Vals()
 	}
 }
 
-void LoadL2Dungeon(const char *sFileName, int vx, int vy)
+static BYTE *LoadL2DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm, *pTmp;
@@ -3203,7 +3203,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	memset(dflags, 0, sizeof(dflags));
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2Dungeon.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, 12, sizeof(dungeon));
 
 	lm = pLevelMap;
@@ -3223,11 +3223,18 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2Dungeon II.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData II.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		if (*pTmp == 0)
 			*pTmp = 12;
+
+	return pLevelMap;
+}
+
+void LoadL2Dungeon(const char *sFileName, int vx, int vy)
+{
+	BYTE *pLevelMap = LoadL2DungeonData(sFileName);
 
 	DRLG_L2Pass3();
 	DRLG_Init_Globals();
@@ -3242,39 +3249,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 
 void LoadPreL2Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm, *pTmp;
-
-	InitDungeon();
-	DRLG_InitTrans();
-	pLevelMap = LoadFileInMem(sFileName, NULL);
-
-	memset(dflags, 0, sizeof(dflags));
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL2Dungeon.");
-	memset(dungeon, 12, sizeof(dungeon));
-
-	lm = pLevelMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = *lm;
-				dflags[i][j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 3;
-			}
-			lm += 2;
-		}
-	}
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL2Dungeon II.");
-	pTmp = &dungeon[0][0];
-	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 0)
-			*pTmp = 12;
+	BYTE *pLevelMap = LoadL2DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 

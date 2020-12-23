@@ -1773,12 +1773,12 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 	DRLG_SetPC();
 }
 
-static void LoadL4Dungeon(char *sFileName, int vx, int vy)
+static BYTE *LoadL4DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	DRLG_InitTrans();
+	//DRLG_InitTrans();
 	InitL4Dungeon();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
@@ -1799,6 +1799,16 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
+	return pLevelMap;
+}
+
+static void LoadL4Dungeon(char *sFileName, int vx, int vy)
+{
+	BYTE *pLevelMap;
+
+	DRLG_InitTrans();
+
+	pLevelMap = LoadL4DungeonData(sFileName);
 
 	ViewX = vx;
 	ViewY = vy;
@@ -1812,30 +1822,8 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 
 static void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
+	BYTE *pLevelMap = LoadL4DungeonData(sFileName);
 
-	InitL4Dungeon();
-
-	pLevelMap = LoadFileInMem(sFileName, NULL);
-
-	lm = pLevelMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = *lm;
-				dflags[i][j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 6;
-			}
-			lm += 2;
-		}
-	}
 	mem_free_dbg(pLevelMap);
 }
 

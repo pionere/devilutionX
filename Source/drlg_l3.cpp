@@ -2513,7 +2513,7 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	DRLG_SetPC();
 }
 
-void LoadL3Dungeon(const char *sFileName, int vx, int vy)
+static BYTE *LoadL3DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm, *pTmp;
@@ -2539,11 +2539,18 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3Dungeon.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3DungeonData.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		if (*pTmp == 0)
 			*pTmp = 8;
+	return pLevelMap;
+}
+
+void LoadL3Dungeon(const char *sFileName, int vx, int vy)
+{
+	int i, j;
+	BYTE *pLevelMap = LoadL3DungeonData(sFileName);
 
 	DRLG_L3Pass3();
 	DRLG_Init_Globals();
@@ -2571,34 +2578,7 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 
 void LoadPreL3Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm, *pTmp;
-
-	InitL3Dungeon();
-	DRLG_InitTrans();
-	pLevelMap = LoadFileInMem(sFileName, NULL);
-
-	lm = pLevelMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = *lm;
-			} else {
-				dungeon[i][j] = 7;
-			}
-			lm += 2;
-		}
-	}
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3Dungeon.");
-	pTmp = &dungeon[0][0];
-	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 0)
-			*pTmp = 8;
+	BYTE *pLevelMap = LoadL3DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 	mem_free_dbg(pLevelMap);

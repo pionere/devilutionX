@@ -1216,20 +1216,18 @@ static void DRLG_InitL1Vals()
 			continue;
 		*dsp = pc;
 	}
-
 }
 
-void LoadL1Dungeon(const char *sFileName, int vx, int vy)
+static BYTE *LoadL1DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
 
-	DRLG_InitTrans();
+	//DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	memset(L5dflags, 0, sizeof(L5dflags));
-
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1Dungeon.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, 22, sizeof(dungeon));
 
 	lm = pLevelMap;
@@ -1251,6 +1249,17 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	}
 
 	DRLG_L1Floor();
+	return pLevelMap;
+}
+
+void LoadL1Dungeon(const char *sFileName, int vx, int vy)
+{
+	BYTE *pLevelMap;
+
+	DRLG_InitTrans();
+
+	pLevelMap = LoadL1DungeonData(sFileName);
+
 	ViewX = vx;
 	ViewY = vy;
 	DRLG_L1Pass3();
@@ -1266,34 +1275,7 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 
 void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
-
-	pLevelMap = LoadFileInMem(sFileName, NULL);
-
-	memset(L5dflags, 0, sizeof(L5dflags));
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL1Dungeon.");
-	memset(dungeon, 22, sizeof(dungeon));
-
-	lm = pLevelMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = *lm;
-				L5dflags[i][j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 13;
-			}
-			lm += 2;
-		}
-	}
-
-	DRLG_L1Floor();
+	BYTE *pLevelMap = LoadL1DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
