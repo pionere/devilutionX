@@ -1286,7 +1286,7 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 void PlayInGameMovie(const char *pszMovie)
 {
 	PaletteFadeOut();
-	play_movie(pszMovie, FALSE);
+	play_movie(pszMovie, 0);
 	ClearScreenBuffer();
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(TRUE);

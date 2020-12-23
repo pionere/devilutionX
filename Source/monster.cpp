@@ -2588,8 +2588,8 @@ void DoEnding()
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
 	};
-	play_movie(vicSets[plr[myplr]._pClass], FALSE);
-	play_movie("gendata\\Diabend.smk", FALSE);
+	play_movie(vicSets[plr[myplr]._pClass], 0);
+	play_movie("gendata\\Diabend.smk", 0);
 
 	bMusicOn = gbMusicOn;
 	gbMusicOn = TRUE;
@@ -2598,9 +2598,7 @@ void DoEnding()
 	sound_get_or_set_music_volume(0);
 
 	music_start(TMUSIC_L2);
-	loop_movie = TRUE;
-	play_movie("gendata\\loopdend.smk", TRUE);
-	loop_movie = FALSE;
+	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 	music_stop();
 
 	sound_get_or_set_music_volume(musicVolume);

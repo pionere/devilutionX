@@ -9,46 +9,50 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Should the movie continue playing. */
-BYTE movie_playing;
-/** Should the movie play in a loop. */
-BOOL loop_movie;
+BOOLEAN movie_playing;
 
 /**
  * @brief Start playback of a given video.
  * @param pszMovie The file name of the video
- * @param user_can_close Set to false to make the video unskippable.
+ * @param movieFlags flags to control the playback, see movie_flags enum.
  */
-void play_movie(const char *pszMovie, BOOL user_can_close)
+void play_movie(const char *pszMovie, int movieFlags)
 {
-	HANDLE video_stream;
+	HANDLE video_stream = NULL;
 
 	movie_playing = TRUE;
 	sound_disable_music(TRUE);
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
 
-	SVidPlayBegin(pszMovie, 0, 0, 0, 0, loop_movie ? 0x100C0808 : 0x10280808, &video_stream);
+	SVidPlayBegin(pszMovie, 0, 0, 0, 0, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808, &video_stream);
 	MSG Msg;
-	while (video_stream && movie_playing) {
-		while (movie_playing && PeekMessage(&Msg)) {
+	while (video_stream != NULL) {
+		while (PeekMessage(&Msg)) {
 			switch (Msg.message) {
 			case DVL_WM_KEYDOWN:
+				if (Msg.wParam == DVL_VK_ESCAPE)
+					break;
 			case DVL_WM_LBUTTONDOWN:
 			case DVL_WM_RBUTTONDOWN:
-				if (user_can_close || (Msg.message == DVL_WM_KEYDOWN && Msg.wParam == DVL_VK_ESCAPE))
-					movie_playing = FALSE;
-				break;
+				if (movieFlags & MOV_SKIP)
+					break;
+				continue;
 			case DVL_WM_QUIT:
 				SVidPlayEnd(video_stream);
 				diablo_quit(0);
 				break;
+			default:
+				continue;
 			}
-		}
-		if (!SVidPlayContinue())
+			movie_playing = FALSE;
 			break;
+		}
+		if (!SVidPlayContinue() || !movie_playing) {
+			SVidPlayEnd(video_stream);
+			break;
+		}
 	}
-	if (video_stream)
-		SVidPlayEnd(video_stream);
 	sound_disable_music(FALSE);
 	movie_playing = FALSE;
 	SDL_GetMouseState(&MouseX, &MouseY);

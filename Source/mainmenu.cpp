@@ -67,7 +67,7 @@ static void mainmenu_play_intro()
 {
 #if defined(HELLFIRE) || !defined(SPAWN)
 	music_stop();
-	play_movie(INTRO_ARCHIVE, TRUE);
+	play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	mainmenu_refresh_music();
 #endif
 }

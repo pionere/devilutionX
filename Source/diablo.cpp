@@ -439,11 +439,11 @@ static void diablo_splash()
 	if (!showintro)
 		return;
 
-	play_movie("gendata\\logo.smk", TRUE);
+	play_movie("gendata\\logo.smk", MOV_SKIP);
 
 #if defined(HELLFIRE) || !defined(SPAWN)
 	if (getIniBool(APP_NAME, "Intro", true)) {
-		play_movie(INTRO_ARCHIVE, TRUE);
+		play_movie(INTRO_ARCHIVE, MOV_SKIP);
 		setIniValue(APP_NAME, "Intro", "0");
 	}
 #endif
