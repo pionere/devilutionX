@@ -323,7 +323,7 @@ void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 static void DrawMonster(int x, int y, int mx, int my, int mnum)
 {
 	MonsterStruct *mon;
-	int nCel, frames;
+	int nCel;
 	char trans;
 	BYTE *pCelBuff;
 
