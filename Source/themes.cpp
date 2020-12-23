@@ -963,15 +963,14 @@ static void Theme_WeaponRack(int tidx)
  */
 static void UpdateL4Trans()
 {
-	int i, j;
+	int i;
+	char *pTmp;
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			if (dTransVal[i][j] != 0) {
-				dTransVal[i][j] = 1;
-			}
-		}
-	}
+	static_assert(sizeof(dTransVal) == MAXDUNX * MAXDUNY, "Linear traverse of dTransVal does not work in UpdateL4Trans.");
+	pTmp = &dTransVal[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
+		if (*pTmp != 0)
+			*pTmp = 1;
 }
 
 /**

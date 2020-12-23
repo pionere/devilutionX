@@ -1111,17 +1111,16 @@ static void DRLG_L3Edges()
 
 static int DRLG_L3GetFloorArea()
 {
-	int i, j, gfa;
+	int i, rv;
+	BYTE *pTmp;
 
-	gfa = 0;
+	rv = 0;
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetFloorArea.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		rv += *pTmp;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			gfa += dungeon[i][j];
-		}
-	}
-
-	return gfa;
+	return rv;
 }
 
 static void DRLG_L3MakeMegas()
@@ -2517,7 +2516,7 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
+	BYTE *pLevelMap, *lm, *pTmp;
 
 	InitL3Dungeon();
 
@@ -2540,13 +2539,11 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 0) {
-				dungeon[i][j] = 8;
-			}
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3Dungeon.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 0)
+			*pTmp = 8;
 
 	DRLG_L3Pass3();
 	DRLG_Init_Globals();
@@ -2575,7 +2572,7 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 void LoadPreL3Dungeon(const char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
+	BYTE *pLevelMap, *lm, *pTmp;
 
 	InitL3Dungeon();
 	DRLG_InitTrans();
@@ -2597,13 +2594,11 @@ void LoadPreL3Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 0) {
-				dungeon[i][j] = 8;
-			}
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL3Dungeon.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 0)
+			*pTmp = 8;
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 	mem_free_dbg(pLevelMap);

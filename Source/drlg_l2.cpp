@@ -1787,15 +1787,10 @@ static void DRLG_L2Shadows()
 
 void InitDungeon()
 {
-	int i, j;
-
 	memset(dflags, 0, sizeof(dflags));
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			predungeon[i][j] = 32;
-		}
-	}
+	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in InitDungeon.");
+	memset(predungeon, 32, sizeof(predungeon));
 }
 
 static void DRLG_LoadL2SP()
@@ -2323,18 +2318,17 @@ static void L2TileFix()
 
 static int DL2_NumNoChar()
 {
-	int n, i, j;
+	int i, rv;
+	BYTE *pTmp;
 
-	n = 0;
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (predungeon[i][j] == 32) {
-				n++;
-			}
-		}
-	}
+	rv = 0;
+	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in DL2_NumNoChar.");
+	pTmp = &predungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 32)
+			rv++;
 
-	return n;
+	return rv;
 }
 
 static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
@@ -3170,19 +3164,21 @@ static void DRLG_L2(int entry)
 
 static void DRLG_InitL2Vals()
 {
-	int i, j, pn;
+	int i, j, *dp;
+	char pc, *dsp;
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			pn = dPiece[i][j];
-			if (pn == 541 || pn == 178 || pn == 551 || pn == 13)
-				pn = 5;
-			else if (pn == 542 || pn == 553 || pn == 17)
-				pn = 6;
-			else
-				continue;
-			dSpecial[i][j] = pn;
-		}
+	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL2Vals.");
+	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL2Vals.");
+	dsp = &dSpecial[0][0];
+	dp = &dPiece[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
+		if (*dp == 541 || *dp == 178 || *dp == 551 || *dp == 13)
+			pc = 5;
+		else if (*dp == 542 || *dp == 553 || *dp == 17)
+			pc = 6;
+		else
+			continue;
+		*dsp = pc;
 	}
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
@@ -3199,20 +3195,16 @@ static void DRLG_InitL2Vals()
 
 void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j, rw, rh, pn;
-	BYTE *pLevelMap, *lm;
+	int i, j, rw, rh;
+	BYTE *pLevelMap, *lm, *pTmp;
 
 	InitDungeon();
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	memset(dflags, 0, sizeof(dflags));
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 12;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2Dungeon.");
+	memset(dungeon, 12, sizeof(dungeon));
 
 	lm = pLevelMap;
 	rw = *lm;
@@ -3231,40 +3223,15 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 0) {
-				dungeon[i][j] = 12;
-			}
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2Dungeon II.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 0)
+			*pTmp = 12;
 
 	DRLG_L2Pass3();
 	DRLG_Init_Globals();
-
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			pn = dPiece[i][j];
-			if (pn == 541 || pn == 178 || pn == 551 || pn == 13)
-				pn = 5;
-			else if (pn == 542 || pn == 553 || pn == 17)
-				pn = 6;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
-		}
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 132) {
-				dSpecial[i][j + 1] = 2;
-				dSpecial[i][j + 2] = 1;
-			} else if (dPiece[i][j] == 135 || dPiece[i][j] == 139) {
-				dSpecial[i + 1][j] = 3;
-				dSpecial[i + 2][j] = 4;
-			}
-		}
-	}
+	DRLG_InitL2Vals();
 
 	ViewX = vx;
 	ViewY = vy;
@@ -3276,19 +3243,15 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 void LoadPreL2Dungeon(const char *sFileName, int vx, int vy)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
+	BYTE *pLevelMap, *lm, *pTmp;
 
 	InitDungeon();
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	memset(dflags, 0, sizeof(dflags));
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 12;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL2Dungeon.");
+	memset(dungeon, 12, sizeof(dungeon));
 
 	lm = pLevelMap;
 	rw = *lm;
@@ -3307,13 +3270,12 @@ void LoadPreL2Dungeon(const char *sFileName, int vx, int vy)
 			lm += 2;
 		}
 	}
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 0) {
-				dungeon[i][j] = 12;
-			}
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL2Dungeon II.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 0)
+			*pTmp = 12;
+
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	mem_free_dbg(pLevelMap);

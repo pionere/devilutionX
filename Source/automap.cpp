@@ -69,7 +69,6 @@ void InitAutomap()
 {
 	BYTE b1, b2;
 	DWORD dwTiles;
-	int x, y;
 	BYTE *pAFile, *pTmp;
 	DWORD i;
 
@@ -114,10 +113,10 @@ void InitAutomap()
 	mem_free_dbg(pAFile);
 	memset(automapview, 0, sizeof(automapview));
 
-	for (y = 0; y < MAXDUNY; y++) {
-		for (x = 0; x < MAXDUNX; x++)
-			dFlags[x][y] &= ~BFLAG_EXPLORED;
-	}
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitAutomap.");
+	pTmp = (BYTE*)&dFlags[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
+		*pTmp &= ~BFLAG_EXPLORED;
 }
 
 /**

@@ -544,19 +544,21 @@ BYTE L5ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13
 #ifdef HELLFIRE
 static void DRLG_InitL5Vals()
 {
-	int i, j, pc;
+	int i, *dp;
+	char pc, *dsp;
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] == 77) {
-				pc = 1;
-			} else if (dPiece[i][j] == 80) {
-				pc = 2;
-			} else {
-				continue;
-			}
-			dSpecial[i][j] = pc;
-		}
+	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
+	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
+	dsp = &dSpecial[0][0];
+	dp = &dPiece[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
+		if (*dp == 77)
+			pc = 1;
+		else if (*dp == 80)
+			pc = 2;
+		else
+			continue;
+		*dsp = pc;
 	}
 }
 #endif
@@ -1171,49 +1173,50 @@ void DRLG_Init_Globals()
 
 static void DRLG_InitL1Vals()
 {
-	int i, j, pc;
-
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			pc = dPiece[i][j];
-			if (pc == 12) {
-				pc = 1;
-			} else if (pc == 11) {
-				pc = 2;
-			} else if (pc == 71) {
-				pc = 1;
-			} else if (pc == 253) {
-				pc = 3;
-			} else if (pc == 267) {
-				pc = 6;
-			} else if (pc == 259) {
-				pc = 5;
-			} else if (pc == 249) {
-				pc = 2;
-			} else if (pc == 325) {
-				pc = 2;
-			} else if (pc == 321) {
-				pc = 1;
-			} else if (pc == 255) {
-				pc = 4;
-			} else if (pc == 211) {
-				pc = 1;
-			} else if (pc == 344) {
-				pc = 2;
-			} else if (pc == 341) {
-				pc = 1;
-			} else if (pc == 331) {
-				pc = 2;
-			} else if (pc == 418) {
-				pc = 1;
-			} else if (pc == 421) {
-				pc = 2;
-			} else {
-				continue;
-			}
-			dSpecial[i][j] = pc;
-		}
+	int i, pc, *dp;
+	char *dsp;
+	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL1Vals.");
+	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL1Vals.");
+	dsp = &dSpecial[0][0];
+	dp = &dPiece[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
+		if (*dp == 12)
+			pc = 1;
+		else if (*dp == 11)
+			pc = 2;
+		else if (*dp == 71)
+			pc = 1;
+		else if (*dp == 253)
+			pc = 3;
+		else if (*dp == 267)
+			pc = 6;
+		else if (*dp == 259)
+			pc = 5;
+		else if (*dp == 249)
+			pc = 2;
+		else if (*dp == 325)
+			pc = 2;
+		else if (*dp == 321)
+			pc = 1;
+		else if (*dp == 255)
+			pc = 4;
+		else if (*dp == 211)
+			pc = 1;
+		else if (*dp == 344)
+			pc = 2;
+		else if (*dp == 341)
+			pc = 1;
+		else if (*dp == 331)
+			pc = 2;
+		else if (*dp == 418)
+			pc = 1;
+		else if (*dp == 421)
+			pc = 2;
+		else
+			continue;
+		*dsp = pc;
 	}
+
 }
 
 void LoadL1Dungeon(const char *sFileName, int vx, int vy)
@@ -1226,11 +1229,8 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 
 	memset(L5dflags, 0, sizeof(L5dflags));
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 22;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1Dungeon.");
+	memset(dungeon, 22, sizeof(dungeon));
 
 	lm = pLevelMap;
 	rw = *lm;
@@ -1272,12 +1272,8 @@ void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	memset(L5dflags, 0, sizeof(L5dflags));
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 22;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadPreL1Dungeon.");
+	memset(dungeon, 22, sizeof(dungeon));
 
 	lm = pLevelMap;
 	rw = *lm;
@@ -1312,13 +1308,13 @@ static void InitL5Dungeon()
 
 static void L5ClearFlags()
 {
-	int i, j;
+	int i;
+	BYTE* pTmp;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			L5dflags[i][j] &= 0xBF;
-		}
-	}
+	static_assert(sizeof(L5dflags) == DMAXX * DMAXY, "Linear traverse of L5dflags does not work in L5ClearFlags.");
+	pTmp = &L5dflags[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		*pTmp &= 0xBF;
 }
 
 static void L5drawRoom(int x, int y, int w, int h)
@@ -1496,17 +1492,17 @@ static void L5firstRoom()
 
 static int L5GetArea()
 {
-	int i, j;
+	int i;
+	BYTE* pTmp;
 	int rv;
 
 	rv = 0;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 1)
-				rv++;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L5GetArea.");
+	pTmp = &dungeon[0][0];
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+		if (*pTmp == 1)
+			rv++;
 
 	return rv;
 }
@@ -1533,11 +1529,8 @@ static void L5makeDmt()
 {
 	int i, j, idx, val, dmtx, dmty;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 22;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L5makeDmt.");
+	memset(dungeon, 22, sizeof(dungeon));
 
 	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
 		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {

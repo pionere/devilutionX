@@ -1223,7 +1223,8 @@ void InitMissiles()
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int i, j;
+	int i;
+	char *pTmp;
 
 	AutoMapShowItems = FALSE;
 	p = &plr[myplr];
@@ -1261,11 +1262,10 @@ void InitMissiles()
 	for (i = 0; i < MAXMISSILES; i++) {
 		missileavail[i] = i;
 	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			dFlags[i][j] &= ~BFLAG_MISSILE;
-		}
-	}
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitMissiles.");
+	pTmp = &dFlags[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
+		*pTmp &= ~BFLAG_MISSILE;
 }
 
 #ifdef HELLFIRE

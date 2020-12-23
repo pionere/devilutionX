@@ -205,17 +205,12 @@ static void DRLG_L4Shadows()
 
 static void InitL4Dungeon()
 {
-	int i, j;
-
 	memset(dung, 0, sizeof(dung));
 	memset(L4dungeon, 0, sizeof(L4dungeon));
 	memset(dflags, 0, sizeof(dflags));
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			dungeon[i][j] = 30;
-		}
-	}
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in InitL4Dungeon.");
+	memset(dungeon, 30, sizeof(dungeon));
 }
 
 static void DRLG_LoadL4SP()
@@ -1135,17 +1130,16 @@ static void uShape()
 
 static int GetArea()
 {
-	int i, j, rv;
+	int i, rv;
+	BYTE *pTmp;
 
 	rv = 0;
 
-	for (j = 0; j < 20; j++) {
-		for (i = 0; i < 20; i++) {
-			if (dung[i][j] == 1) {
-				rv++;
-			}
-		}
-	}
+	static_assert(sizeof(dung) == 20 * 20, "Linear traverse of dung does not work in GetArea.");
+	pTmp = &dung[0][0];
+	for (i = 0; i < 20 * 20; i++, pTmp++)
+		if (*pTmp == 1)
+			rv++;
 
 	return rv;
 }

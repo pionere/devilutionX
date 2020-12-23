@@ -253,12 +253,13 @@ void T_CryptOpen()
 void InitTown()
 {
 	int i, j;
+	char *pTmp;
 
 	// make the whole town visible
-	for (i = 0; i < MAXDUNX; i++) {
-		for (j = 0; j < MAXDUNY; j++)
-			dFlags[i][j] |= BFLAG_LIT;
-	}
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitTown.");
+	pTmp = &dFlags[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
+		*pTmp |= BFLAG_LIT;
 
 	// prevent the player from teleporting inside of buildings
 	nSolidTable[521] = TRUE;
@@ -475,7 +476,8 @@ void T_Pass3()
  */
 void CreateTown(int entry)
 {
-	int x, y, pn;
+	int i, *dp;
+	char pc, *dsp;
 
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
@@ -516,41 +518,44 @@ void CreateTown(int entry)
 	memset(dItem, 0, sizeof(dItem));
 	memset(dSpecial, 0, sizeof(dSpecial));
 
-	for (y = 0; y < MAXDUNY; y++) {
-		for (x = 0; x < MAXDUNX; x++) {
-			pn = dPiece[x][y];
-			if (pn == 360) {
-				dSpecial[x][y] = 1;
-			} else if (pn == 358) {
-				dSpecial[x][y] = 2;
-			} else if (pn == 129) {
-				dSpecial[x][y] = 6;
-			} else if (pn == 130) {
-				dSpecial[x][y] = 7;
-			} else if (pn == 128) {
-				dSpecial[x][y] = 8;
-			} else if (pn == 117) {
-				dSpecial[x][y] = 9;
-			} else if (pn == 157) {
-				dSpecial[x][y] = 10;
-			} else if (pn == 158) {
-				dSpecial[x][y] = 11;
-			} else if (pn == 156) {
-				dSpecial[x][y] = 12;
-			} else if (pn == 162) {
-				dSpecial[x][y] = 13;
-			} else if (pn == 160) {
-				dSpecial[x][y] = 14;
-			} else if (pn == 214) {
-				dSpecial[x][y] = 15;
-			} else if (pn == 212) {
-				dSpecial[x][y] = 16;
-			} else if (pn == 217) {
-				dSpecial[x][y] = 17;
-			} else if (pn == 216) {
-				dSpecial[x][y] = 18;
-			}
-		}
+	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in CreateTown.");
+	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in CreateTown.");
+	dsp = &dSpecial[0][0];
+	dp = &dPiece[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
+		if (*dp == 360)
+			pc = 1;
+		else if (*dp == 358)
+			pc = 2;
+		else if (*dp == 129)
+			pc = 6;
+		else if (*dp == 130)
+			pc = 7;
+		else if (*dp == 128)
+			pc = 8;
+		else if (*dp == 117)
+			pc = 9;
+		else if (*dp == 157)
+			pc = 10;
+		else if (*dp == 158)
+			pc = 11;
+		else if (*dp == 156)
+			pc = 12;
+		else if (*dp == 162)
+			pc = 13;
+		else if (*dp == 160)
+			pc = 14;
+		else if (*dp == 214)
+			pc = 15;
+		else if (*dp == 212)
+			pc = 16;
+		else if (*dp == 217)
+			pc = 17;
+		else if (*dp == 216)
+			pc = 18;
+		else
+			continue;
+		*dsp = pc;
 	}
 }
 
