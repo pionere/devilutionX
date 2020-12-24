@@ -3410,6 +3410,24 @@ void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miRange = 256;
 }
 
+void AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	int i = 3;
+
+	missile[mi]._miDelFlag = TRUE;
+
+	if (misource != -1) {
+		if (micaster == 0) {
+			UseMana(misource, SPL_CBOLT);
+			i += (spllvl >> 1);
+		}
+	}
+
+	while (i-- != 0) {
+		AddMissile(sx, sy, dx, dy, midir, MIS_CBOLT, micaster, misource, 0, spllvl);
+	}
+}
+
 /**
  * Var1: light strength
  * Var2: base direction

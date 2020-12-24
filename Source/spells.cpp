@@ -123,13 +123,6 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 	if (spelldata[sn].sMissiles[0] == MIS_TOWN) {
 		UseMana(mpnum, SPL_TOWN);
 	}
-	if (spelldata[sn].sMissiles[0] == MIS_CBOLT) {
-		UseMana(mpnum, SPL_CBOLT);
-
-		for (i = (spllvl >> 1) + 3; i > 0; i--) {
-			AddMissile(sx, sy, dx, dy, dir, MIS_CBOLT, caster, mpnum, 0, spllvl);
-		}
-	}
 }
 
 /*

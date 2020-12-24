@@ -1468,6 +1468,7 @@ typedef enum missile_id {
 	MIS_FLAMEC,
 	MIS_FIREMAN,	// TODO: Check beta
 	MIS_KRULL,		// TODO: Check beta
+	MIS_CBOLTC,
 	MIS_CBOLT,
 	MIS_HBOLT,
 	MIS_RESURRECT,

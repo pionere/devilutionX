@@ -26,7 +26,7 @@ int nummtypes;
 /** Maps from walking path step to facing direction. */
 const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
 /** Maps from monster intelligence factor to missile type. */
-const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLT, MIS_LIGHTNINGC, MIS_FIREBALL };
+const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 
 /* data */
 
@@ -2262,7 +2262,6 @@ static BOOL MonDoAttack(int mnum)
 static BOOL MonDoRAttack(int mnum)
 {
 	MonsterStruct *mon;
-	int i;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoRAttack: Invalid monster %d", mnum);
@@ -2270,19 +2269,17 @@ static BOOL MonDoRAttack(int mnum)
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
 		if (mon->_mVar1 != -1) {
-			for (i = mon->_mVar1 != MIS_CBOLT ? 1 : 3; i != 0; i--) {
-				AddMissile(
-				    mon->_mx,
-				    mon->_my,
-				    mon->_menemyx,
-				    mon->_menemyy,
-				    mon->_mdir,
-				    mon->_mVar1,
-				    1,
-				    mnum,
-				    mon->_mVar2,
-				    0);
-			}
+			AddMissile(
+			    mon->_mx,
+			    mon->_my,
+			    mon->_menemyx,
+			    mon->_menemyy,
+			    mon->_mdir,
+			    mon->_mVar1,
+			    1,
+			    mnum,
+			    mon->_mVar2,
+			    0);
 		}
 		PlayEffect(mnum, 0);
 	}

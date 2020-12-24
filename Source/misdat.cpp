@@ -71,6 +71,7 @@ MissileData missiledata[] = {
 	{  MIS_FLAMEC,        &AddFlameC,                 &MI_FlameC,         FALSE,     1,                            0, MISR_FIRE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_FIREMAN,       &AddFireman,                &MI_Fireman,        TRUE,      2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_KRULL,         &AddKrull,                  &MI_Krull,          TRUE,      0,                            0, MISR_FIRE,      MFILE_KRULL,     -1,          -1,          1,        1        },
+	{  MIS_CBOLTC,        &AddCboltC,                 &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_CBOLT,         &AddCbolt,                  &MI_Cbolt,          TRUE,      1,                            0, MISR_LIGHTNING, MFILE_MINILTNG,  LS_CBOLT,    -1,          1,        1        },
 	{  MIS_HBOLT,         &AddHbolt,                  &MI_Hbolt,          TRUE,      1,                MIFLAG_UNDEAD, MISR_NONE,      MFILE_HOLY,      LS_HOLYBOLT, LS_ELECIMP1, 1,        1        },
 	{  MIS_RESURRECT,     &AddResurrect,              &MI_Dummy,          FALSE,     1,                            0, MISR_MAGIC,     MFILE_NONE,      -1,          LS_RESUR,    1,        1        },

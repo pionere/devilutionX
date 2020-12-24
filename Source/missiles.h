@@ -111,6 +111,7 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+void AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);

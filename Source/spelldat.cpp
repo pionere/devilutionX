@@ -71,7 +71,7 @@ SpellData spelldata[NUM_SPELLS] = {
 #else
 	{ SPL_ELEMENT,      35, STYPE_FIRE,      "Elemental",                 8,        12,   SPELL_NA, FALSE,     FALSE,           68, IS_CAST2, { MIS_ELEMENT,       0,          0 },        2,       20,        20,        60,     10500,        700 },
 #endif
-	{ SPL_CBOLT,         6, STYPE_LIGHTNING, "Charged Bolt",       BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      FALSE,           25, IS_CAST2, { MIS_CBOLT,         0,          0 },        1,        6,        40,        80,      1000,         50 },
+	{ SPL_CBOLT,         6, STYPE_LIGHTNING, "Charged Bolt",       BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      FALSE,           25, IS_CAST2, { MIS_CBOLTC,         0,          0 },        1,        6,        40,        80,      1000,         50 },
 	{ SPL_HBOLT,         7, STYPE_MAGIC,     "Holy Bolt",          BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      FALSE,           20, IS_CAST2, { MIS_HBOLT,         0,          0 },        1,        3,        40,        80,      1000,         50 },
 	{ SPL_RESURRECT,    20, STYPE_MAGIC,     "Resurrect",          SPELL_NA,        10,   SCRL_MIN, FALSE,     TRUE,            20, IS_CAST8, { MIS_RESURRECT,     0,          0 },        0,       20,         4,        10,      4000,        250 },
 	{ SPL_TELEKINESIS,  15, STYPE_MAGIC,     "Telekinesis",               2,         4,   SPELL_NA, FALSE,     FALSE,           33, IS_CAST2, { MIS_TELEKINESIS,   0,          0 },        2,        8,        20,        40,      2500,        200 },
