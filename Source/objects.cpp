@@ -3844,13 +3844,13 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
-		    MIS_FLASH,
-		    1,
 		    0,
-		    3 * currlevel + 2,
+		    0,
+		    0,
+		    MIS_FLASH,
+		    0,
+		    -1,
+		    0,
 		    0);
 		break;
 	case SHRINE_TOWN:

@@ -4263,8 +4263,7 @@ void MAI_Counselor(int mnum)
 				} else if (mon->_mVar1 == MM_DELAY
 				    || random_(105, 100) < 2 * mon->_mint + 20) {
 					MonStartRAttack(mnum, -1, 0);
-					AddMissile(mon->_mx, mon->_my, 0, 0, mon->_mdir, MIS_FLASH, 1, mnum, 4, 0);
-					AddMissile(mon->_mx, mon->_my, 0, 0, mon->_mdir, MIS_FLASH2, 1, mnum, 4, 0);
+					AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_FLASH, 1, mnum, 0, 0);
 				} else
 					MonStartDelay(mnum, random_(105, 10) + 2 * (5 - mon->_mint));
 			}

@@ -2521,9 +2521,11 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	MissileStruct *mis;
 	int i, dam;
 
+	AddMissile(sx, sy, 0, 0, 0, MIS_FLASH2, micaster, misource, 0, spllvl);
+
 	mis = &missile[mi];
-	if (micaster == 0) {
-		if (misource != -1) {
+	if (misource != -1) {
+		if (micaster == 0) {
 			UseMana(misource, SPL_FLASH);
 			dam = 0;
 			for (i = plr[misource]._pLevel; i >= 0; i--) {
@@ -2534,10 +2536,10 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 			}
 			dam += dam >> 1;
 		} else {
-			dam = currlevel >> 1;
+			dam = monster[misource].mLevel << 1;
 		}
 	} else {
-		dam = monster[misource].mLevel << 1;
+		dam = currlevel >> 1;
 	}
 	mis->_miDam = dam;
 	mis->_miRange = 19;
@@ -2549,23 +2551,25 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	int i, dam;
 
 	mis = &missile[mi];
-	if (micaster == 0) {
-		if (misource != -1) {
+	if (misource != -1) {
+		if (micaster == 0) {
 			dam = 0;
 			for (i = plr[misource]._pLevel; i >= 0; i--) {
-				dam += RandRange(1, 2);
+				dam += RandRange(1, 20);
 			}
 			for (i = spllvl; i > 0; i--) {
 				dam += dam >> 3;
 			}
 			dam += dam >> 1;
 		} else {
-			dam = currlevel >> 1;
+			dam = monster[misource].mLevel << 1;
 		}
-		mis->_miDam = dam;
+	} else {
+		dam = currlevel >> 1;
 	}
-	mis->_miPreFlag = TRUE;
+	mis->_miDam = dam;
 	mis->_miRange = 19;
+	mis->_miPreFlag = TRUE;
 }
 
 /**
@@ -4555,7 +4559,6 @@ void MI_Flash(int mi)
 		if (mis->_miSource != -1)
 			plr[mis->_miSource]._pInvincible = TRUE;
 	}
-	mis->_miRange--;
 	dam = mis->_miDam;
 	mx = mis->_mix;
 	my = mis->_miy;
@@ -4565,6 +4568,7 @@ void MI_Flash(int mi)
 	CheckMissileCol(mi, dam, dam, TRUE, mx - 1, my + 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx, my + 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx + 1, my + 1, TRUE);
+	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		if (mis->_miCaster == 0) {
@@ -4581,24 +4585,16 @@ void MI_Flash2(int mi)
 	int dam, mx, my;
 
 	mis = &missile[mi];
-	if (mis->_miCaster == 0) {
-		if (mis->_miSource != -1)
-			plr[mis->_miSource]._pInvincible = TRUE;
-	}
 	mis->_miRange--;
+	if (mis->_miRange == 0) {
+		mis->_miDelFlag = TRUE;
+	}
 	dam = mis->_miDam;
 	mx = mis->_mix;
 	my = mis->_miy;
 	CheckMissileCol(mi, dam, dam, TRUE, mx - 1, my - 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx, my - 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx + 1, my - 1, TRUE);
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		if (mis->_miCaster == 0) {
-			if (mis->_miSource != -1)
-				plr[mis->_miSource]._pInvincible = FALSE;
-		}
-	}
 	PutMissile(mi);
 }
 
