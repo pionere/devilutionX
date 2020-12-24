@@ -1269,14 +1269,14 @@ void InitMissiles()
 }
 
 #ifdef HELLFIRE
-void AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int i, j;
 
 	for (i = sx; i <= dx; i++)
 		for (j = sy; j <= dy; j++)
 			AddMissile(i, j, 0, 0, 0, MIS_HIVEEXP, micaster, misource, 0, 0);
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_DELETE;
 }
 
 static BOOL place_rune(int mi, int dx, int dy, int mitype)
@@ -1305,74 +1305,64 @@ static BOOL place_rune(int mi, int dx, int dy, int mitype)
 /**
  * Var1: mitype to fire upon impact
  */
-void AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNEFIRE);
 		if (place_rune(mi, dx, dy, MIS_HIVEEXP))
-			return;
+			return MIRES_DONE;
 	}
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: mitype to fire upon impact
  */
-void AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNELIGHT);
 		if (place_rune(mi, dx, dy, MIS_LIGHTBALL))
-			return;
+			return MIRES_DONE;
 	}
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: mitype to fire upon impact
  */
-void AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNENOVA);
 		if (place_rune(mi, dx, dy, MIS_LIGHTNOVAC))
-			return;
+			return MIRES_DONE;
 	}
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: mitype to fire upon impact
  */
-void AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNEIMMOLAT);
 		if (place_rune(mi, dx, dy, MIS_FIRENOVAC))
-			return;
+			return MIRES_DONE;
 	}
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: mitype to fire upon impact
  */
-void AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (misource >= 0)
-			UseMana(misource, SPL_RUNESTONE);
 		if (place_rune(mi, dx, dy, MIS_STONE))
-			return;
+			return MIRES_DONE;
 	}
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
-void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int lvl;
 
@@ -1381,16 +1371,14 @@ void AddReflection(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	if (lvl == 0)
 		lvl = 2;
 	plr[misource].wReflection += lvl * plr[misource]._pLevel;
-	UseMana(misource, SPL_REFLECT);
+	return MIRES_DONE;
 }
 
-void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MonsterStruct *mon;
 	int i, j, tx, ty, dm, r;
 	const char *cr;
-
-	missile[mi]._miDelFlag = TRUE;
 
 	assert((DWORD)misource < MAX_PLRS);
 	for (i = 0; i < 6; i++) {
@@ -1417,8 +1405,7 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 									else
 										r = 9;
 									mon->mlid = AddLight(mon->_mx, mon->_my, r);
-									UseMana(misource, SPL_BERSERK);
-									return;
+									return MIRES_DELETE;
 								}
 							}
 						}
@@ -1427,24 +1414,25 @@ void AddBerserk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			}
 		}
 	}
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: direction to place the spawn
  */
-void AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, 8);
 	missile[mi]._miRange = 9;
 	missile[mi]._miVar1 = midir;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
-void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int spell;
 
-	missile[mi]._miDelFlag = TRUE;
 	switch (random_(255, 10)) {
 	case 0:
 	case 1:
@@ -1464,7 +1452,6 @@ void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		break;
 	case 6:
 		spell = MIS_TOWN;
-		UseMana(misource, SPL_TOWN);
 		break;
 	case 7:
 		spell = MIS_TELEPORT;
@@ -1477,16 +1464,16 @@ void AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		break;
 	}
 	AddMissile(sx, sy, dx, dy, midir, spell, micaster, misource, 0, spllvl);
+	return MIRES_DELETE;
 }
 
-void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	ItemStruct *pi;
 	int i, j, tx, ty, si, ii, pnum;
 	const char *cr;
 	BOOL hasPlayedSFX;
 
-	missile[mi]._miDelFlag = TRUE;
 	for (i = 0; i < 3; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
@@ -1549,14 +1536,14 @@ void AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			}
 		}
 	}
+	return MIRES_DELETE;
 }
 
-void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int i, j, tx, ty, pnum;
 	const char *cr;
 
-	missile[mi]._miDelFlag = TRUE;
 	for (i = 0; i < 3; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
@@ -1575,6 +1562,7 @@ void AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 			}
 		}
 	}
+	return MIRES_DELETE;
 }
 
 /*
@@ -1604,7 +1592,7 @@ inline static int ArrowVelBonus(unsigned flags)
  * Var4: the arrow type
  * Var5: the arrow velocity bonus
  */
-void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -1645,9 +1633,10 @@ void AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	mis->_miVar4 = mitype;
 	mis->_miVar5 = av;
+	return MIRES_DONE;
 }
 
-void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int tx, ty, fx, fy, i, dist;
@@ -1682,11 +1671,10 @@ void AddWarp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miRange = 2;
 	mis->_mix = tx;
 	mis->_miy = ty;
-	if (micaster == 0)
-		UseMana(misource, SPL_WARP);
+	return MIRES_DONE;
 }
 
-void AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int lvl;
@@ -1701,9 +1689,10 @@ void AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + lvl) << 4;
 	mis->_miRange = 255 * (spllvl + 1);
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
-void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -1725,6 +1714,7 @@ void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	CheckMissileCol(mi, dam, dam, FALSE, sx - 1, sy + 1, TRUE);
 	CheckMissileCol(mi, dam, dam, FALSE, sx, sy + 1, TRUE);
 	CheckMissileCol(mi, dam, dam, FALSE, sx + 1, sy + 1, TRUE);
+	return MIRES_DONE;
 }
 
 /**
@@ -1733,7 +1723,7 @@ void AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
  * Var6: animation + direction
  * Var7: animation + direction
  */
-void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -1751,7 +1741,6 @@ void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		i = 2 * spllvl + 16;
 		if (i > 50)
 			i = 50;
-		UseMana(misource, SPL_FIREBALL);
 	} else {
 		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 		i = 16;
@@ -1766,13 +1755,14 @@ void AddFireball3(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar7 = 2;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int av = 16;
@@ -1794,13 +1784,14 @@ void AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile
  * Var2: y coordinate of the missile
  */
-void AddLightArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -1819,13 +1810,15 @@ void AddLightArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miDam <<= 6;
 	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
-void AddFlashfr(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlashfr(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
+	return MIRES_DONE;
 }
 
-void AddFlashbk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlashbk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int lvl;
 
@@ -1837,19 +1830,17 @@ void AddFlashbk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			lvl = 1;
 		missile[mi]._miRange = lvl + 10 * spllvl + 245;
 	}
+	return MIRES_DONE;
 }
 
-void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	PlayerStruct *p;
 	int i, ManaAmount;
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_MANA);
-
 	p = &plr[misource];
 	if (p->_pIFlags & ISPL_NOMANA)
-		return;
+		return MIRES_DELETE;
 
 	ManaAmount = RandRange(1, 10);
 	for (i = p->_pLevel; i > 0; i--) {
@@ -1870,40 +1861,39 @@ void AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char mic
 	if (p->_pManaBase > p->_pMaxManaBase)
 		p->_pManaBase = p->_pMaxManaBase;
 	gbRedrawFlags |= REDRAW_MANA_FLASK;
+	return MIRES_DELETE;
 }
 
-void AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	PlayerStruct *p;
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_MAGI);
 	p = &plr[misource];
 	if (p->_pIFlags & ISPL_NOMANA)
-		return;
+		return MIRES_DELETE;
 
 	p->_pMana = p->_pMaxMana;
 	p->_pManaBase = p->_pMaxManaBase;
 	gbRedrawFlags |= REDRAW_MANA_FLASK;
+	return MIRES_DELETE;
 }
 
 /**
  * Var1: x coordinate of the missile
  * Var2: y coordinate of the missile
  */
-void AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddElementalRing(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	if (micaster == 0)
-		UseMana(misource, SPL_FIRERING);
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miRange = 7;
+	return MIRES_DONE;
 }
 
-void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int lvl, i, range;
 	MissileStruct *mis, *tmis;
@@ -1916,18 +1906,16 @@ void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		lvl = 1;
 	range = lvl + 10 * spllvl + 245;
 	mis->_miRange = range;
-	if (micaster == 0)
-		UseMana(misource, SPL_SEARCH);
 
 	for (i = 0; i < nummissiles; i++) {
 		tmis = &missile[missileactive[i]];
 		if (tmis->_miType == MIS_SEARCH && mis != tmis && tmis->_miSource == misource) {
 			if (tmis->_miRange < INT_MAX - range)
 				tmis->_miRange += range;
-			mis->_miDelFlag = TRUE;
-			break;
+			return MIRES_DELETE;
 		}
 	}
+	return MIRES_DONE;
 }
 
 /**
@@ -1935,7 +1923,7 @@ void AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var2: base direction
  * Var3: movement counter
  */
-void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -1952,13 +1940,14 @@ void AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miRange = 256;
 	mis->_miRnd = RandRange(1, 15);
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int av = 16;
@@ -1981,6 +1970,7 @@ void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 #endif
 
@@ -1993,7 +1983,7 @@ void AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micas
  * Var6: max damage of the elemental hit
  * Var7: the mitype of the elemental hit
  */
-void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2054,13 +2044,14 @@ void AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		mis->_miVar4 = mis->_miVar6 = 10 + currlevel * 2;
 	}
 	mis->_miVar7 = mis->_miType == MIS_LARROW ? MFILE_MINILTNG : MFILE_MAGBLOS;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: min damage of the arrow
  * Var2: max damage of the arrow
  */
-void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2106,9 +2097,10 @@ void AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		mis->_miVar1 = currlevel;
 		mis->_miVar2 = 2 * currlevel;
 	}
+	return MIRES_DONE;
 }
 
-void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int pn, nTries;
@@ -2119,9 +2111,7 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 		do {
 			nTries++;
 			if (nTries > 500) {
-				dx = 0;
-				dy = 0;
-				break; //BUGFIX: warps player to 0/0 in hellfire, change to return or use 1.09's version of the code
+				return MIRES_DELETE;
 			}
 			dx = RandRange(4, 6);
 			dy = RandRange(4, 6);
@@ -2143,18 +2133,17 @@ void AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	mis->_mix = dx;
 	mis->_miy = dy;
 	dPlayer[dx][dy] = -(misource + 1);
-	if (micaster == 0)
-		UseMana(misource, SPL_RNDTELEPORT);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int i, mx, av;
+	int av;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2162,13 +2151,6 @@ void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 	if (micaster == 0) {
 		if (misource != -1) {
-			for (i = 0; i < nummissiles; i++) {
-				mx = missileactive[i];
-				if (missile[mx]._miType == MIS_GUARDIAN && missile[mx]._miSource == misource && missile[mx]._miVar3 == mi)
-					break;
-			}
-			if (i == nummissiles)
-				UseMana(misource, SPL_FIREBOLT);
 			av = 2 * spllvl + 16;
 			if (av > 63)
 				av = 63;
@@ -2185,13 +2167,14 @@ void AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2211,16 +2194,18 @@ void AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
+	return MIRES_DONE;
 }
 
-void AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	missile[mi]._miRange = 256;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
-void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
@@ -2240,21 +2225,20 @@ void AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 					mis->_misx = tx;
 					mis->_misy = ty;
 					dPlayer[tx][ty] = -(misource + 1);
-					UseMana(misource, SPL_TELEPORT);
 					mis->_miRange = 2;
-					return;
+					return MIRES_DONE;
 				}
 			}
 		}
 	}
-	mis->_miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: origin to check for a shrine
  * Var2: origin to check for a shrine
  */
-void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2268,13 +2252,14 @@ void AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar2 = sy;
 	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: animation helper
  * Var2: light strength
  */
-void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int range;
@@ -2292,13 +2277,14 @@ void AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miRange = range << 4;
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -2316,7 +2302,6 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		i = 2 * spllvl + 16;
 		if (i > 50)
 			i = 50;
-		UseMana(misource, SPL_FIREBALL);
 	} else {
 		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 		i = 16;
@@ -2328,13 +2313,14 @@ void AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile
  * Var2: y coordinate of the missile
  */
-void AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2342,12 +2328,11 @@ void AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	if (mis->_miDam == 0 && micaster == 0)
-		UseMana(misource, SPL_LIGHTNING);
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
-void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int range;
@@ -2368,12 +2353,13 @@ void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		range = (spllvl >> 1) + 6;
 	mis->_miRange = range;
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: light strength
  */
-void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
 
@@ -2408,6 +2394,7 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miyvel = 0;
 	mis->_miRange = mis->_miAnimLen;
 	//mis->_miVar1 = 0;
+	return MIRES_DONE;
 }
 
 /**
@@ -2415,7 +2402,7 @@ void AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var2: min damage
  * Var3: max damage
  */
-void AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2428,6 +2415,7 @@ void AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar3 = p->_pIFMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
+	return MIRES_DONE;
 }
 
 /**
@@ -2435,7 +2423,7 @@ void AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var2: min damage
  * Var3: max damage
  */
-void AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -2448,6 +2436,7 @@ void AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar3 = p->_pILMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
+	return MIRES_DONE;
 }
 
 static BOOL CheckIfTrig(int x, int y)
@@ -2465,7 +2454,7 @@ static BOOL CheckIfTrig(int x, int y)
  * Var1: animation
  * Var2: light strength
  */
-void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *bmis;
 	int i, j, tx, ty, pn;
@@ -2513,9 +2502,10 @@ void AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			bmis->_miRange = 0;
 	}
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
-void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -2525,7 +2515,6 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis = &missile[mi];
 	if (misource != -1) {
 		if (micaster == 0) {
-			UseMana(misource, SPL_FLASH);
 			dam = 0;
 			for (i = plr[misource]._pLevel; i >= 0; i--) {
 				dam += RandRange(1, 20);
@@ -2542,9 +2531,10 @@ void AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 	mis->_miDam = dam;
 	mis->_miRange = 19;
+	return MIRES_DONE;
 }
 
-void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -2569,6 +2559,7 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miDam = dam;
 	mis->_miRange = 19;
 	mis->_miPreFlag = TRUE;
+	return MIRES_DONE;
 }
 
 /**
@@ -2576,14 +2567,12 @@ void AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var2: last base hp
  * Var8: earflag
  */
-void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
 
 	assert((DWORD)misource < MAX_PLRS);
-	if (micaster == 0)
-		UseMana(misource, SPL_MANASHIELD);
 	if (misource == myplr)
 		NetSendCmd(TRUE, CMD_SETSHIELD);
 	mis = &missile[mi];
@@ -2593,6 +2582,7 @@ void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miVar2 = p->_pHPBase;
 	mis->_miVar8 = -1;
 	p->pManaShield = TRUE;
+	return MIRES_DONE;
 }
 
 /**
@@ -2601,7 +2591,7 @@ void AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micas
  * Var3: x coordinate of the missile-light
  * Var4: y coordinate of the missile-light
  */
-void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2617,6 +2607,7 @@ void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_mix++;
 	mis->_miy++;
 	mis->_miyoff -= 32;
+	return MIRES_DONE;
 }
 
 /**
@@ -2624,7 +2615,7 @@ void AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var2: animation
  * Var3: light strength
  */
-void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, pn, j, tx, ty, range;
@@ -2648,8 +2639,6 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_misy = ty;
 						mis->_miLid = AddLight(tx, ty, 1);
 
-						UseMana(misource, SPL_GUARDIAN);
-
 						range = spllvl + (plr[misource]._pLevel >> 1);
 						// TODO: add support for spell duration modifier
 						//range += (range * plr[misource]._pISplDur) >> 7;
@@ -2663,34 +2652,33 @@ void AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_miVar1 = range - mis->_miAnimLen;
 						//mis->_miVar2 = 0;
 						mis->_miVar3 = 1;
-						return;
+						return MIRES_DONE;
 					}
 				}
 			}
 		}
 	}
-
-	mis->_miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var1: dx direction of the missile
  * Var2: dy direction of the missile
  */
-void AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
 	assert((DWORD)misource < MAX_PLRS);
-	UseMana(misource, SPL_CHAIN);
 
 	mis = &missile[mi];
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miRange = 1;
+	return MIRES_DONE;
 }
 
-void miss_null_11(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_11(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2699,9 +2687,10 @@ void miss_null_11(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miDam = 0;
 	mis->_miLightFlag = TRUE;
 	mis->_miRange = 250;
+	return MIRES_DONE;
 }
 
-void miss_null_12(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_12(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2712,9 +2701,10 @@ void miss_null_12(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miDam = 0;
 	mis->_miLightFlag = TRUE;
 	mis->_miRange = 250;
+	return MIRES_DONE;
 }
 
-void miss_null_13(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_13(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2725,9 +2715,10 @@ void miss_null_13(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miDam = 0;
 	mis->_miLightFlag = TRUE;
 	mis->_miRange = mis->_miAnimLen;
+	return MIRES_DONE;
 }
 
-void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	MonsterStruct *mon;
@@ -2762,13 +2753,14 @@ void AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 	mis->_miRange = 256;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: target found
  * Var2: attempts to find a target
  */
-void AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	AnimStruct *anim;
@@ -2794,13 +2786,14 @@ void AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	dMonster[mon->_mx][mon->_my] = 0;
 	mis->_miRange = 256;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2812,7 +2805,6 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	missile[mi]._miVar2 = sy;
 	missile[mi]._miLid = AddLight(sx, sy, 8);
 	if (micaster == 0) {
-		UseMana(misource, SPL_FLARE);
 		plr[misource]._pHitPoints -= 320;
 		plr[misource]._pHPBase -= 320;
 		gbRedrawFlags |= REDRAW_HP_FLASK;
@@ -2841,13 +2833,14 @@ void AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	}
 #endif
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2866,13 +2859,14 @@ void AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 #endif
 	//mis->_miLid = -1;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: animation
  * Var2: light strength
  */
-void miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2880,9 +2874,10 @@ void miss_null_1D(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miRange = 50;
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
+	return MIRES_DONE;
 }
 
-void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -2890,13 +2885,14 @@ void AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miRange = 40 * (monster[misource]._mint + 1) + random_(50, 15);
 	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: mmode of the monster
  * Var2: mnum of the monster
  */
-void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	MonsterStruct *mon;
@@ -2938,22 +2934,20 @@ void AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 						range <<= 4;
 
 						mis->_miRange = range;
-						UseMana(misource, SPL_STONE);
-						return;
+						return MIRES_DONE;
 					}
 				}
 			}
 		}
 	}
-
-	mis->_miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
  */
-void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis, *tmis;
 	int i;
@@ -2963,26 +2957,23 @@ void AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	for (i = 0; i < nummissiles; i++) {
 		tmis = &missile[missileactive[i]];
 		if (tmis->_miType == MIS_GOLEM && tmis != mis && tmis->_miSource == misource) {
-			mis->_miDelFlag = TRUE;
-			return;
+			return MIRES_FAIL_DELETE;
 		}
 	}
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
 	if ((monster[misource]._mx != 1 || monster[misource]._my != 0) && misource == myplr)
 		MonStartKill(misource, misource);
-	UseMana(misource, SPL_GOLEM);
+	return MIRES_DONE;
 }
 
-void AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
 	int i, range;
 
 	assert((DWORD)misource < MAX_PLRS);
-	if (micaster == 0)
-		UseMana(misource, SPL_ETHEREALIZE);
 	mis = &missile[mi];
 	p = &plr[misource];
 	range = p->_pLevel << 3;
@@ -2992,14 +2983,15 @@ void AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char mica
 	// TODO: add support for spell duration modifier
 	//range += range * p->_pISplDur >> 7;
 	mis->_miRange = range;
+	return MIRES_DONE;
 }
 
-void miss_null_1F(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_1F(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	missile[mi]._miDelFlag = TRUE;
+	return MIRES_DELETE;
 }
 
-void miss_null_23(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int miss_null_23(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3010,29 +3002,28 @@ void miss_null_23(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		SetMissDir(mi, 1);
 	mis->_miLightFlag = TRUE;
 	mis->_miRange = mis->_miAnimLen;
+	return MIRES_DONE;
 }
 
 /**
  * Var1: target hit
  */
-void AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
 	mis = &missile[mi];
 	mis->_miRange = mis->_miAnimLen;
 	//mis->_miVar1 = FALSE;
+	return MIRES_DONE;
 }
 
-void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	PlayerStruct *p;
 	int i, HealAmount;
 
 	assert((DWORD)misource < MAX_PLRS);
-	missile[mi]._miDelFlag = TRUE;
-
-	UseMana(misource, SPL_HEAL);
 
 	p = &plr[misource];
 	HealAmount = RandRange(1, 10);
@@ -3063,12 +3054,11 @@ void AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		p->_pHPBase = p->_pMaxHPBase;
 
 	gbRedrawFlags |= REDRAW_HP_FLASK;
+	return MIRES_DELETE;
 }
 
-void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_HEALOTHER);
 	if (misource == myplr) {
 		NewCursor(CURSOR_HEALOTHER);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -3076,6 +3066,7 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			TryIconCurs(FALSE);
 #endif
 	}
+	return MIRES_DELETE;
 }
 
 /**
@@ -3085,7 +3076,7 @@ void AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micast
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
  */
-void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
@@ -3097,7 +3088,6 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
-	UseMana(misource, SPL_ELEMENT);
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
@@ -3112,13 +3102,12 @@ void AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	dam >>= 1;
 	mis->_miDam = dam;
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
-void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	missile[mi]._miDelFlag = TRUE;
 	assert((DWORD)misource < MAX_PLRS);
-	UseMana(misource, SPL_IDENTIFY);
 	if (misource == myplr) {
 		if (sbookflag)
 			sbookflag = FALSE;
@@ -3131,6 +3120,7 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		}
 		NewCursor(CURSOR_IDENTIFY);
 	}
+	return MIRES_DELETE;
 }
 
 /**
@@ -3143,7 +3133,7 @@ void AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var7: first wave stopped
  * Var8: second wave stopped
  */
-void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
@@ -3169,18 +3159,16 @@ void AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 						mis->_miVar7 = FALSE;
 						mis->_miVar8 = FALSE;
 						mis->_miRange = 7;
-						UseMana(misource, SPL_FIREWALL);
-						return;
+						return MIRES_DONE;
 					}
 				}
 			}
 		}
 	}
-
-	mis->_miDelFlag = TRUE;
+	return MIRES_FAIL_DELETE;
 }
 
-void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, range;
@@ -3194,15 +3182,14 @@ void AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	// TODO: add support for spell duration modifier
 	//range += range * plr[misource]._pISplDur >> 7;
 	mis->_miRange = range;
-	if (micaster == 0)
-		UseMana(misource, SPL_INFRA);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: dx coordinate of the wave
  * Var2: dy coordinate of the wave
  */
-void AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3211,18 +3198,16 @@ void AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miRange = 1;
-	UseMana(misource, SPL_WAVE);
+	return MIRES_DONE;
 }
 
-void AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i, dam;
 
 	mis = &missile[mi];
 	if (misource != -1) {
-		if (micaster == 0)
-			UseMana(misource, SPL_NOVA);
 		dam = (random_(66, 6) + random_(66, 6) + random_(66, 6) + random_(66, 6) + random_(66, 6));
 		dam += plr[misource]._pLevel + 5;
 		dam >>= 1;
@@ -3234,6 +3219,7 @@ void AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 	mis->_miDam = dam;
 	mis->_miRange = 1;
+	return MIRES_DONE;
 }
 
 #ifdef HELLFIRE
@@ -3241,7 +3227,7 @@ void AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var1: length of the effect
  * Var2: hp penalty
  */
-void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -3251,27 +3237,25 @@ void AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis = &missile[mi];
 	p = &plr[misource];
 	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
-		mis->_miDelFlag = TRUE;
+		return MIRES_FAIL_DELETE;
 	} else {
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][p->_pClass], p->_px, p->_py);
 		p->_pSpellFlags |= PSE_BLOOD_BOIL;
-		UseMana(misource, SPL_BLODBOIL);
 		lvl = p->_pLevel;
 		mis->_miVar2 = (3 * lvl) << 7;
 		if (misource <= 0)
 			lvl = 1;
 		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
+		return MIRES_DONE;
 	}
 }
 #endif
 
-void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_REPAIR);
 	if (misource == myplr) {
 		if (sbookflag)
 			sbookflag = FALSE;
@@ -3284,14 +3268,13 @@ void AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		}
 		NewCursor(CURSOR_REPAIR);
 	}
+	return MIRES_DELETE;
 }
 
-void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_RECHARGE);
 	if (misource == myplr) {
 		if (sbookflag)
 			sbookflag = FALSE;
@@ -3304,14 +3287,13 @@ void AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		}
 		NewCursor(CURSOR_RECHARGE);
 	}
+	return MIRES_DELETE;
 }
 
-void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_DISARM);
 	if (misource == myplr) {
 		NewCursor(CURSOR_DISARM);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -3323,6 +3305,7 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		}
 #endif
 	}
+	return MIRES_DELETE;
 }
 
 /**
@@ -3332,7 +3315,7 @@ void AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var5: x1 of the affected area
  * Var6: x0 of the affected area
  */
-void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int i;
@@ -3349,13 +3332,13 @@ void AddApocaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		mis->_miDam += RandRange(1, 6);
 	}
 	mis->_miRange = 255;
-	UseMana(misource, SPL_APOCA);
+	return MIRES_DONE;
 }
 
 /**
  * Var2: animation timer
  */
-void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	MissileStruct *bmis;
@@ -3383,6 +3366,7 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		dam = RandRange(monster[misource].mMinDamage, monster[misource].mMaxDamage);
 	}
 	mis->_miDam = dam;
+	return MIRES_DONE;
 }
 
 /**
@@ -3390,7 +3374,7 @@ void AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
  * Var2: y coordinate of the missile
  * Var3: timer to dissipate
  */
-void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3399,24 +3383,20 @@ void AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 		dy += YDirAdd[midir];
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, 32);
-	if (micaster == 0)
-		UseMana(misource, SPL_FLAME);
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	//mis->_miVar3 = 0;
 	mis->_miRange = 256;
+	return MIRES_DONE;
 }
 
-void AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int i = 3;
 
-	missile[mi]._miDelFlag = TRUE;
-
 	if (misource != -1) {
 		if (micaster == 0) {
-			UseMana(misource, SPL_CBOLT);
 			i += (spllvl >> 1);
 		}
 	}
@@ -3424,6 +3404,7 @@ void AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	while (i-- != 0) {
 		AddMissile(sx, sy, dx, dy, midir, MIS_CBOLT, micaster, misource, 0, spllvl);
 	}
+	return MIRES_DELETE;
 }
 
 /**
@@ -3431,7 +3412,7 @@ void AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
  * Var2: base direction
  * Var3: movement counter
  */
-void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	assert((DWORD)mi < MAXMISSILES);
@@ -3455,18 +3436,17 @@ void AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miRange = 256;
 	mis->_miRnd = RandRange(1, 15);
 	mis->_miAnimFrame = RandRange(1, 8);
+	return MIRES_DONE;
 }
 
 /**
  * Var1: x coordinate of the missile-light
  * Var2: y coordinate of the missile-light
  */
-void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int av = 16;
-
-	UseMana(misource, SPL_HBOLT);
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -3486,14 +3466,13 @@ void AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	mis->_miDam = RandRange(9, 18) + plr[misource]._pLevel;
+	return MIRES_DONE;
 }
 
-void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_RESURRECT);
 	if (misource == myplr) {
 		NewCursor(CURSOR_RESURRECT);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -3501,9 +3480,10 @@ void AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			TryIconCurs(FALSE);
 #endif
 	}
+	return MIRES_DELETE;
 }
 
-void AddResurrectBeam(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddResurrectBeam(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3513,16 +3493,16 @@ void AddResurrectBeam(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 	mis->_misx = mis->_mix;
 	mis->_misy = mis->_miy;
 	mis->_miRange = misfiledata[MFILE_RESSUR1].mfAnimLen[0];
+	return MIRES_DONE;
 }
 
-void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
 
-	missile[mi]._miDelFlag = TRUE;
-	UseMana(misource, SPL_TELEKINESIS);
 	if (misource == myplr)
 		NewCursor(CURSOR_TELEKINESIS);
+	return MIRES_DELETE;
 }
 
 /**
@@ -3532,7 +3512,7 @@ void AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char mica
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
  */
-void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3551,20 +3531,20 @@ void AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	if (micaster == 0) {
-		UseMana(misource, SPL_BONESPIRIT);
 		plr[misource]._pHitPoints -= 384;
 		plr[misource]._pHPBase -= 384;
 		gbRedrawFlags |= REDRAW_HP_FLASK;
 		if (plr[misource]._pHitPoints <= 0)
 			SyncPlrKill(misource, 0);
 	}
+	return MIRES_DONE;
 }
 
 /**
  * Var1: animation
  * Var2: light strength
  */
-void AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3573,14 +3553,14 @@ void AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis->_miVar1 = 100 - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
 	PutMissile(mi);
+	return MIRES_DONE;
 }
 
-void AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	PlayerStruct *p;
 	int pnum, dam;
 
-	missile[mi]._miDelFlag = TRUE;
 	dam = missile[mi]._miDam;
 	for (pnum = 0; pnum < gbMaxPlayers; pnum++) {
 		p = &plr[pnum];
@@ -3590,18 +3570,20 @@ void AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			}
 		}
 	}
+	return MIRES_DELETE;
 }
 
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micaster, int misource, int midam, int spllvl)
 {
 	MissileStruct *mis;
 	MissileData *mds;
-	int i, mi;
+	int idx, j, mi, res;
 
+	idx = nummissiles;
 #ifdef HELLFIRE
-	if (nummissiles >= MAXMISSILES - 1)
+	if (idx >= MAXMISSILES - 1)
 #else
-	if (nummissiles >= MAXMISSILES)
+	if (idx >= MAXMISSILES)
 #endif
 		return -1;
 
@@ -3609,8 +3591,8 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 		if (currlevel != plr[misource].plrlevel)
 			return -1;
 
-		for (i = 0; i < nummissiles; i++) {
-			mis = &missile[missileactive[i]];
+		for (j = 0; j < idx; j++) {
+			mis = &missile[missileactive[j]];
 			if (mis->_miType == MIS_MANASHIELD && mis->_miSource == misource)
 				return -1;
 		}
@@ -3618,8 +3600,8 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 
 	mi = missileavail[0];
 
-	missileavail[0] = missileavail[MAXMISSILES - nummissiles - 1];
-	missileactive[nummissiles] = mi;
+	missileavail[0] = missileavail[MAXMISSILES - idx - 1];
+	missileactive[idx] = mi;
 	nummissiles++;
 
 	mis = &missile[mi];
@@ -3651,8 +3633,17 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
 	}
 
-	mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);
+	res = mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);
+	if (res != MIRES_DONE) {
+		assert(res == MIRES_FAIL_DELETE || res == MIRES_DELETE);
+		missileavail[MAXMISSILES - nummissiles] = mi;
+		nummissiles--;
+		if (/* nummissiles > 0 && */idx != nummissiles)
+			missileactive[idx] = missileactive[nummissiles];
 
+		if (res == MIRES_FAIL_DELETE)
+			mi = -1;
+	}
 	return mi;
 }
 
@@ -3663,7 +3654,6 @@ static BOOL Sentfire(int mi, int sx, int sy)
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 >= MAX_PLRS) {
-			mis->_miVar3 = missileavail[0];
 			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;

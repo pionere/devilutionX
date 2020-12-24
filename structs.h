@@ -415,7 +415,7 @@ typedef struct TextDataStruct {
 
 typedef struct MissileData {
 	unsigned char mName;
-	void (*mAddProc)(int, int, int, int, int, int, char, int, int);
+	int (*mAddProc)(int, int, int, int, int, int, char, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
 	unsigned char mType;

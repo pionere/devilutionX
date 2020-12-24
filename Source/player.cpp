@@ -2973,11 +2973,9 @@ static BOOL PlrDoSpell(int pnum)
 	if (!p->_pVar7) {
 		p->_pVar7 = TRUE;
 
-		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
-			spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4);
-
-		if (spelldata[p->_pVar3].sMissile == MIS_TOWN) {
-			UseMana(pnum, SPL_TOWN);
+		if (AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
+			spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4) != -1) {
+			UseMana(pnum, p->_pVar3);
 		}
 
 		if (p->_pSplFrom == 0) {

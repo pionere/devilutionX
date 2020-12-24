@@ -1603,6 +1603,12 @@ typedef enum missile_flags {
 	MIFLAG_UNDEAD  = 1 << 2,
 } missile_flags;
 
+typedef enum missile_add_result {
+	MIRES_DONE,
+	MIRES_DELETE,
+	MIRES_FAIL_DELETE,
+} missile_add_result;
+
 typedef enum _mai_id {
 	AI_ZOMBIE,
 	AI_FAT,
