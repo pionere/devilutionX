@@ -2972,15 +2972,13 @@ static BOOL PlrDoSpell(int pnum)
 
 	if (!p->_pVar7) {
 		p->_pVar7 = TRUE;
-		CastSpell(
-		    pnum,
-		    p->_pVar3,
-		    p->_px,
-		    p->_py,
-		    p->_pVar1,
-		    p->_pVar2,
-		    0,
-		    p->_pVar4);
+
+		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
+			spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4);
+
+		if (spelldata[p->_pVar3].sMissile == MIS_TOWN) {
+			UseMana(pnum, SPL_TOWN);
+		}
 
 		if (p->_pSplFrom == 0) {
 			if (p->_pRSplType == RSPLTYPE_SCROLL) {

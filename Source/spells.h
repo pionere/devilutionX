@@ -17,7 +17,6 @@ extern "C" {
 int GetManaAmount(int pnum, int sn);
 void UseMana(int pnum, int sn);
 BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly);
-void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, int spllvl);
 BOOL PlacePlayer(int pnum);
 void DoResurrect(int pnum, int tnum);
 void DoHealOther(int pnum, int tnum);

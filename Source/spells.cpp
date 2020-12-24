@@ -105,23 +105,6 @@ BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly)
 	return result;
 }
 
-void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, int spllvl)
-{
-	int dir; // missile direction
-
-	if (caster == 0) {
-		dir = plr[mpnum]._pdir;
-	} else {
-		dir = monster[mpnum]._mdir;
-	}
-
-	AddMissile(sx, sy, dx, dy, dir, spelldata[sn].sMissile, caster, mpnum, 0, spllvl);
-
-	if (spelldata[sn].sMissile == MIS_TOWN) {
-		UseMana(mpnum, SPL_TOWN);
-	}
-}
-
 /*
  * @brief Find a place for the given player starting from its current location.
  *
