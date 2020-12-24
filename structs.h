@@ -1171,7 +1171,7 @@ typedef struct SpellData {
 	BOOLEAN sTownSpell;
 	BYTE sMinInt;
 	unsigned char sSFX;
-	unsigned char sMissiles[3];
+	unsigned char sMissile;
 	unsigned char sManaAdj;
 	unsigned char sMinMana;
 	WORD sStaffMin;

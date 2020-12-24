@@ -107,7 +107,6 @@ BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly)
 
 void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, int spllvl)
 {
-	int i;
 	int dir; // missile direction
 
 	if (caster == 0) {
@@ -116,11 +115,9 @@ void CastSpell(int mpnum, int sn, int sx, int sy, int dx, int dy, int caster, in
 		dir = monster[mpnum]._mdir;
 	}
 
-	for (i = 0; spelldata[sn].sMissiles[i] != 0 && i < 3; i++) {
-		AddMissile(sx, sy, dx, dy, dir, spelldata[sn].sMissiles[i], caster, mpnum, 0, spllvl);
-	}
+	AddMissile(sx, sy, dx, dy, dir, spelldata[sn].sMissile, caster, mpnum, 0, spllvl);
 
-	if (spelldata[sn].sMissiles[0] == MIS_TOWN) {
+	if (spelldata[sn].sMissile == MIS_TOWN) {
 		UseMana(mpnum, SPL_TOWN);
 	}
 }
