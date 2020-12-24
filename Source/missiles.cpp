@@ -2345,7 +2345,6 @@ void AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	if (mis->_miDam == 0 && micaster == 0)
 		UseMana(misource, SPL_LIGHTNING);
 	mis->_miRange = 256;
-	mis->_miAnimFrame = RandRange(1, 8);
 }
 
 void AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
@@ -3212,7 +3211,6 @@ void AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miRange = 1;
-	mis->_miAnimFrame = 4;
 	UseMana(misource, SPL_WAVE);
 }
 

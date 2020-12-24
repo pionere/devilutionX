@@ -2268,19 +2268,17 @@ static BOOL MonDoRAttack(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->MData->mAFNum) {
-		if (mon->_mVar1 != -1) {
-			AddMissile(
-			    mon->_mx,
-			    mon->_my,
-			    mon->_menemyx,
-			    mon->_menemyy,
-			    mon->_mdir,
-			    mon->_mVar1,
-			    1,
-			    mnum,
-			    mon->_mVar2,
-			    0);
-		}
+		AddMissile(
+		    mon->_mx,
+		    mon->_my,
+		    mon->_menemyx,
+		    mon->_menemyy,
+		    mon->_mdir,
+		    mon->_mVar1,
+		    1,
+		    mnum,
+		    mon->_mVar2,
+		    0);
 		PlayEffect(mnum, 0);
 	}
 
@@ -4259,8 +4257,7 @@ void MAI_Counselor(int mnum)
 					MonStartFadeout(mnum, md, FALSE);
 				} else if (mon->_mVar1 == MM_DELAY
 				    || random_(105, 100) < 2 * mon->_mint + 20) {
-					MonStartRAttack(mnum, -1, 0);
-					AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_FLASH, 1, mnum, 0, 0);
+					MonStartRAttack(mnum, MIS_FLASH, 0);
 				} else
 					MonStartDelay(mnum, random_(105, 10) + 2 * (5 - mon->_mint));
 			}
