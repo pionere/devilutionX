@@ -4396,7 +4396,8 @@ void MI_LightwallC(int mi)
 void MI_FireNovaC(int mi)
 {
 	MissileStruct *mis;
-	int i, sx, sy, cx, cy, caster, source, dam, spllvl;
+	int i, sx, sy, tx, ty, caster, source, dam, spllvl;
+	const char *cr;
 
 	mis = &missile[mi];
 	caster = mis->_miCaster;
@@ -4405,17 +4406,12 @@ void MI_FireNovaC(int mi)
 	spllvl = mis->_miSpllvl;
 	sx = mis->_mix;
 	sy = mis->_miy;
-	cx = 0;
-	cy = 0;
-	for (i = 0; i < lengthof(vCrawlTable); i++) {
-		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
-			cx = vCrawlTable[i][6];
-			cy = vCrawlTable[i][7];
-			AddMissile(sx, sy, sx + cx, sy + cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy - cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy + cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
-			AddMissile(sx, sy, sx + cx, sy - cy, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
-		}
+
+	cr = &CrawlTable[CrawlNum[4]];
+	for (i = *cr; i > 0; i--) {
+		tx = sx + *++cr;
+		ty = sy + *++cr;
+		AddMissile(sx, sy, tx, ty, 0, MIS_FIREBALL2, caster, source, dam, spllvl);
 	}
 	mis->_miRange--;
 	if (mis->_miRange == 0)
@@ -4768,8 +4764,9 @@ void MI_FireWave(int mi)
 void MI_Guardian(int mi)
 {
 	MissileStruct *mis;
-	int i, j, cx, cy;
+	int i, j, tx, ty;
 	BOOL ex;
+	const char *cr;
 
 	assert((DWORD)mi < MAXMISSILES);
 
@@ -4785,28 +4782,14 @@ void MI_Guardian(int mi)
 
 	if (!(mis->_miRange % 16)) {
 		ex = FALSE;
-		for (i = 0; i < lengthof(vCrawlTable) && !ex; i++) {
-			for (j = 10; j >= 0; j -= 2) {
-				cx = vCrawlTable[i][j];
-				cy = vCrawlTable[i][j + 1];
-				if (cx == 0 && cy == 0)
-					continue;
-				ex = Sentfire(mi, mis->_mix + cx, mis->_miy + cy);
-				if (ex) {
+		for (i = 6; i >= 0 && !ex; i--) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = *cr; j > 0; j--) {
+				tx = mis->_mix + *++cr;
+				ty = mis->_miy + *++cr;
+				ex = Sentfire(mi, tx, ty);
+				if (ex)
 					break;
-				}
-				ex = Sentfire(mi, mis->_mix - cx, mis->_miy - cy);
-				if (ex) {
-					break;
-				}
-				ex = Sentfire(mi, mis->_mix + cx, mis->_miy - cy);
-				if (ex) {
-					break;
-				}
-				ex = Sentfire(mi, mis->_mix - cx, mis->_miy + cy);
-				if (ex) {
-					break;
-				}
 			}
 		}
 	}
@@ -5234,7 +5217,8 @@ void MI_FireWaveC(int mi)
 void MI_LightNovaC(int mi)
 {
 	MissileStruct *mis;
-	int i, sx, sy, cx, cy, micaster, misource, midam, spllvl;
+	int i, sx, sy, tx, ty, micaster, misource, midam, spllvl;
+	const char *cr;
 
 	mis = &missile[mi];
 	micaster = mis->_miCaster;
@@ -5243,17 +5227,12 @@ void MI_LightNovaC(int mi)
 	spllvl = mis->_miSpllvl;
 	sx = mis->_mix;
 	sy = mis->_miy;
-	cx = 0;
-	cy = 0;
-	for (i = 0; i < lengthof(vCrawlTable); i++) {
-		if (cx != vCrawlTable[i][6] || cy != vCrawlTable[i][7]) {
-			cx = vCrawlTable[i][6];
-			cy = vCrawlTable[i][7];
-			AddMissile(sx, sy, sx + cx, sy + cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy - cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
-			AddMissile(sx, sy, sx - cx, sy + cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
-			AddMissile(sx, sy, sx + cx, sy - cy, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
-		}
+
+	cr = &CrawlTable[CrawlNum[4]];
+	for (i = *cr; i > 0; i--) {
+		tx = sx + *++cr;
+		ty = sy + *++cr;
+		AddMissile(sx, sy, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, midam, spllvl);
 	}
 	mis->_miRange--;
 	if (mis->_miRange == 0)
