@@ -2097,12 +2097,82 @@ static void StartGoldDrop()
 		control_reset_talk();
 }
 
+static void PlrAddHp()
+{
+	PlayerStruct *p;
+	int hp;
+
+	p = &plr[myplr];
+	hp = p->_pMaxHP >> 8;
+	hp = ((hp >> 1) + random_(39, hp)) << 6;
+	if (p->_pClass == PC_WARRIOR)
+		hp <<= 1;
+	else if (p->_pClass == PC_ROGUE)
+		hp += hp >> 1;
+	p->_pHitPoints += hp;
+	if (p->_pHitPoints > p->_pMaxHP)
+		p->_pHitPoints = p->_pMaxHP;
+	p->_pHPBase += hp;
+	if (p->_pHPBase > p->_pMaxHPBase)
+		p->_pHPBase = p->_pMaxHPBase;
+	gbRedrawFlags |= REDRAW_HP_FLASK;
+}
+
+static void PlrAddMana()
+{
+	PlayerStruct *p;
+	int mana;
+
+	p = &plr[myplr];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+	mana = p->_pMaxMana >> 8;
+	mana = ((mana >> 1) + random_(40, mana)) << 6;
+	if (p->_pClass == PC_SORCERER)
+		mana <<= 1;
+	else if (p->_pClass == PC_ROGUE)
+		mana += mana >> 1;
+	p->_pMana += mana;
+	if (p->_pMana > p->_pMaxMana)
+		p->_pMana = p->_pMaxMana;
+	p->_pManaBase += mana;
+	if (p->_pManaBase > p->_pMaxManaBase)
+		p->_pManaBase = p->_pMaxManaBase;
+	gbRedrawFlags |= REDRAW_MANA_FLASK;
+}
+
+static void PlrSetTSpell(int spell)
+{
+	//if (pnum == myplr)
+		NewCursor(CURSOR_TELEPORT);
+	plr[myplr]._pTSpell = spell;
+	plr[myplr]._pTSplType = RSPLTYPE_INVALID;
+}
+
+static void PlrRefill(BOOL hp, BOOL mana)
+{
+	PlayerStruct *p;
+
+	p = &plr[myplr];
+	if (hp) {
+		p->_pHitPoints = p->_pMaxHP;
+		p->_pHPBase = p->_pMaxHPBase;
+		gbRedrawFlags |= REDRAW_HP_FLASK;
+	}
+	if (mana && !(p->_pIFlags & ISPL_NOMANA)) {
+		p->_pMana = p->_pMaxMana;
+		p->_pManaBase = p->_pMaxManaBase;
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+	}
+}
+
 BOOL UseInvItem(int cii)
 {
-	int iv;
+	int iv, mana;
 	ItemStruct *is;
 	BOOL speedlist;
 	int pnum = myplr;
+	PlayerStruct *p;
 
 	if (plr[pnum]._pInvincible && plr[pnum]._pHitPoints == 0) // && pnum == myplr)
 		return TRUE;
@@ -2110,10 +2180,10 @@ BOOL UseInvItem(int cii)
 		return TRUE;
 	if (stextflag != STORE_NONE)
 		return TRUE;
-	if (cii < INVITEM_INV_FIRST)
-		return FALSE;
 
 	if (cii <= INVITEM_INV_LAST) {
+		if (cii < INVITEM_INV_FIRST)
+			return FALSE;
 		iv = cii - INVITEM_INV_FIRST;
 		is = &plr[pnum].InvList[iv];
 		speedlist = FALSE;
@@ -2169,25 +2239,132 @@ BOOL UseInvItem(int cii)
 		return TRUE;
 	}
 #endif
-
+	// add sfx
 	if (is->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else // if (pnum == myplr)
 		PlaySFX(ItemInvSnds[ItemCAnimTbl[is->_iCurs]]);
 
-	UseItem(is->_iMiscId, is->_iSpell);
-
+	// use the item
+	switch (is->_iMiscId) {
+	case IMISC_HEAL:
+	case IMISC_MEAT:
+		PlrAddHp();
+		break;
+	case IMISC_FULLHEAL:
+		PlrRefill(TRUE, FALSE);
+		break;
+	case IMISC_MANA:
+		PlrAddMana();
+		break;
+	case IMISC_FULLMANA:
+		PlrRefill(FALSE, TRUE);
+		break;
+	case IMISC_ELIXSTR:
+		ModifyPlrStr(pnum, 1);
+		break;
+	case IMISC_ELIXMAG:
+		ModifyPlrMag(pnum, 1);
+		break;
+	case IMISC_ELIXDEX:
+		ModifyPlrDex(pnum, 1);
+		break;
+	case IMISC_ELIXVIT:
+		ModifyPlrVit(pnum, 1);
+		break;
+	case IMISC_REJUV:
+		PlrAddHp();
+		PlrAddMana();
+		break;
+	case IMISC_FULLREJUV:
+		PlrRefill(TRUE, TRUE);
+		break;
+	case IMISC_SCROLL:
+	case IMISC_SCROLLT:
+		if (spelldata[is->_iSpell].sTargeted) {
+			PlrSetTSpell(is->_iSpell);
+		} else {
+			NetSendCmdLocParam2(TRUE, CMD_SCROLL_SPELLXY,
+				cursmx, cursmy, is->_iSpell, GetSpellLevel(pnum, is->_iSpell));
+		}
+		break;
+	case IMISC_BOOK:
+		p = &plr[pnum];
+		p->_pMemSpells |= SPELL_MASK(is->_iSpell);
+		if (p->_pSplLvl[is->_iSpell] < MAXSPLLEVEL)
+			p->_pSplLvl[is->_iSpell]++;
+		if (!(p->_pIFlags & ISPL_NOMANA)) {
+			mana = spelldata[is->_iSpell].sManaCost << 6;
+			p->_pMana += mana;
+			if (p->_pMana > p->_pMaxMana)
+				p->_pMana = p->_pMaxMana;
+			p->_pManaBase += mana;
+			if (p->_pManaBase > p->_pMaxManaBase)
+				p->_pManaBase = p->_pMaxManaBase;
+			gbRedrawFlags |= REDRAW_MANA_FLASK;
+		}
+		//if (pnum == myplr)
+			CalcPlrBookVals(pnum);
+		break;
+	case IMISC_MAPOFDOOM:
+		doom_init();
+		return TRUE;
 #ifdef HELLFIRE
-	if (is->_iMiscId == IMISC_NOTE) {
+	case IMISC_OILACC:
+	case IMISC_OILMAST:
+	case IMISC_OILSHARP:
+	case IMISC_OILDEATH:
+	case IMISC_OILSKILL:
+	case IMISC_OILBSMTH:
+	case IMISC_OILFORT:
+	case IMISC_OILPERM:
+	case IMISC_OILHARD:
+	case IMISC_OILIMP:
+		plr[pnum]._pOilType = is->_iMiscId;
+		//if (pnum != myplr)
+		//	return;
+		if (sbookflag) {
+			sbookflag = FALSE;
+		}
+		if (!invflag) {
+			invflag = TRUE;
+		}
+		NewCursor(CURSOR_OIL);
+		break;
+#endif
+	case IMISC_SPECELIX:
+		ModifyPlrStr(pnum, 3);
+		ModifyPlrMag(pnum, 3);
+		ModifyPlrDex(pnum, 3);
+		ModifyPlrVit(pnum, 3);
+		break;
+#ifdef HELLFIRE
+	case IMISC_RUNEF:
+		PlrSetTSpell(SPL_RUNEFIRE);
+		break;
+	case IMISC_RUNEL:
+		PlrSetTSpell(SPL_RUNELIGHT);
+		break;
+	case IMISC_GR_RUNEL:
+		PlrSetTSpell(SPL_RUNENOVA);
+		break;
+	case IMISC_GR_RUNEF:
+		PlrSetTSpell(SPL_RUNEIMMOLAT);
+		break;
+	case IMISC_RUNES:
+		PlrSetTSpell(SPL_RUNESTONE);
+		break;
+	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);
 		invflag = FALSE;
 		return TRUE;
-	}
 #endif
+	}
+
+	// consume the item
 	if (speedlist) {
 		RemoveSpdBarItem(pnum, iv);
-		return TRUE;
-	} else if (is->_iMiscId != IMISC_MAPOFDOOM) {
+	} else {
 		RemoveInvItem(pnum, iv);
 	}
 	return TRUE;
