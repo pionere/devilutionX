@@ -56,7 +56,6 @@ void lighting_color_cycling();
 /* rdata */
 
 extern const char CrawlTable[2749];
-extern const BYTE vCrawlTable[23][32];
 
 #ifdef __cplusplus
 }

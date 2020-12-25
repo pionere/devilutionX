@@ -409,38 +409,8 @@ const char CrawlTable[2749] = {
 	-18, -1, 18, -1, -18, 0, 18, 0
 };
 
-/*
- * vCrawlTable specifies the X- Y-coordinate offsets of lighting visions.
- *  The last entry-pair is only for alignment.
- */
-const BYTE vCrawlTable[23][32] = {
-	{ 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0 },
-	{ 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 1, 9, 1, 10, 1, 11, 1, 12, 1, 13, 1, 14, 1, 15, 1 },
-	{ 1, 0, 2, 0, 3, 0, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 11, 1, 12, 2, 13, 2, 14, 2, 15, 2 },
-	{ 1, 0, 2, 0, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 2, 9, 2, 10, 2, 11, 2, 12, 2, 13, 3, 14, 3, 15, 3 },
-	{ 1, 0, 2, 1, 3, 1, 4, 1, 5, 1, 6, 2, 7, 2, 8, 2, 9, 3, 10, 3, 11, 3, 12, 3, 13, 4, 14, 4, 0, 0 },
-	{ 1, 0, 2, 1, 3, 1, 4, 1, 5, 2, 6, 2, 7, 3, 8, 3, 9, 3, 10, 4, 11, 4, 12, 4, 13, 5, 14, 5, 0, 0 },
-	{ 1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 3, 9, 4, 10, 4, 11, 5, 12, 5, 13, 6, 14, 6, 0, 0 },
-	{ 1, 1, 2, 1, 3, 2, 4, 2, 5, 3, 6, 3, 7, 4, 8, 4, 9, 5, 10, 5, 11, 6, 12, 6, 13, 7, 0, 0, 0, 0 },
-	{ 1, 1, 2, 1, 3, 2, 4, 2, 5, 3, 6, 4, 7, 4, 8, 5, 9, 6, 10, 6, 11, 7, 12, 7, 12, 8, 13, 8, 0, 0 },
-	{ 1, 1, 2, 2, 3, 2, 4, 3, 5, 4, 6, 5, 7, 5, 8, 6, 9, 7, 10, 7, 10, 8, 11, 8, 12, 9, 0, 0, 0, 0 },
-	{ 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 9, 11, 10, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 9, 11, 10, 11, 0, 0, 0, 0, 0, 0 },
-	{ 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 5, 7, 6, 8, 7, 9, 7, 10, 8, 10, 8, 11, 9, 12, 0, 0, 0, 0 },
-	{ 1, 1, 1, 2, 2, 3, 2, 4, 3, 5, 4, 6, 4, 7, 5, 8, 6, 9, 6, 10, 7, 11, 7, 12, 8, 12, 8, 13, 0, 0 },
-	{ 1, 1, 1, 2, 2, 3, 2, 4, 3, 5, 3, 6, 4, 7, 4, 8, 5, 9, 5, 10, 6, 11, 6, 12, 7, 13, 0, 0, 0, 0 },
-	{ 0, 1, 1, 2, 1, 3, 2, 4, 2, 5, 3, 6, 3, 7, 3, 8, 4, 9, 4, 10, 5, 11, 5, 12, 6, 13, 6, 14, 0, 0 },
-	{ 0, 1, 1, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 3, 9, 4, 10, 4, 11, 4, 12, 5, 13, 5, 14, 0, 0 },
-	{ 0, 1, 1, 2, 1, 3, 1, 4, 1, 5, 2, 6, 2, 7, 2, 8, 3, 9, 3, 10, 3, 11, 3, 12, 4, 13, 4, 14, 0, 0 },
-	{ 0, 1, 0, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 2, 8, 2, 9, 2, 10, 2, 11, 2, 12, 3, 13, 3, 14, 3, 15 },
-	{ 0, 1, 0, 2, 0, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 11, 2, 12, 2, 13, 2, 14, 2, 15 },
-	{ 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 1, 8, 1, 9, 1, 10, 1, 11, 1, 12, 1, 13, 1, 14, 1, 15 },
-	{ 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15 }
-};
-
-/** RadiusAdj maps from vCrawlTable index to lighting vision radius adjustment. */
-const BYTE RadiusAdj[23] = { 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 4, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0 };
+/** Indices of CrawlTable to select the entries at a given distance. */
+const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
 static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
 {
@@ -630,85 +600,95 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 	}
 }
 
+static BOOL LightPos(int x1, int y1, BOOL doautomap, const char visFlags)
+{
+	int nTrans;
+
+	assert(IN_DUNGEON_AREA(x1, y1));
+	if (doautomap) {
+		if (!(dFlags[x1][y1] & BFLAG_EXPLORED)) {
+			dFlags[x1][y1] |= BFLAG_EXPLORED;
+			SetAutomapView(x1, y1);
+		}
+	}
+	dFlags[x1][y1] |= visFlags;
+	if (nBlockTable[dPiece[x1][y1]])
+		return FALSE;
+	nTrans = dTransVal[x1][y1];
+	if (nTrans != 0) {
+		TransList[nTrans] = TRUE;
+	}
+	return TRUE;
+}
+
 void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 {
-	BOOL nBlockerFlag;
-	int nCrawlX, nCrawlY, nLineLen, nTrans;
-	int j, k, v, x1adj, x2adj, y1adj, y2adj;
+	const char* cr;
+	int i, x1, x2, y1, y2, limit;
+	int d, dx, dy, xinc, yinc;
 	const char visFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
-	if (IN_DUNGEON_AREA(nXPos, nYPos)) {
-		if (doautomap) {
-			if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
-				dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
-				SetAutomapView(nXPos, nYPos);
-			}
+	if (!(IN_DUNGEON_AREA(nXPos, nYPos)))
+		return;
+	if (doautomap) {
+		if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
+			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
+			SetAutomapView(nXPos, nYPos);
 		}
-		dFlags[nXPos][nYPos] |= visFlags;
 	}
+	dFlags[nXPos][nYPos] |= visFlags;
 
-	for (v = 0; v < 4; v++) {
-		for (j = 0; j < lengthof(RadiusAdj); j++) {
-			nBlockerFlag = FALSE;
-			nLineLen = 2 * (nRadius - RadiusAdj[j]);
-			for (k = 0; k < nLineLen && !nBlockerFlag; k += 2) {
-				x1adj = x2adj = y1adj = y2adj = 0;
-				nCrawlX = vCrawlTable[j][k];
-				nCrawlY = vCrawlTable[j][k + 1];
-				switch (v) {
-				case 0:
-					if (nCrawlX > 0 && nCrawlY > 0) {
-						x1adj = -1;
-						y2adj = -1;
-					}
-					break;
-				case 1:
-					if (nCrawlX > 0 && nCrawlY > 0) {
-						y1adj = 1;
-						x2adj = 1;
-					}
-					nCrawlX = -nCrawlX;
-					nCrawlY = -nCrawlY;
-					break;
-				case 2:
-					if (nCrawlX > 0 && nCrawlY > 0) {
-						x1adj = -1;
-						y2adj = 1;
-					}
-					nCrawlY = -nCrawlY;
-					break;
-				default:
-					if (nCrawlX > 0 && nCrawlY > 0) {
-						y1adj = -1;
-						x2adj = 1;
-					}
-					nCrawlX = -nCrawlX;
-					break;
+	nRadius = 2 * (nRadius + 1);
+	cr = &CrawlTable[CrawlNum[15]];
+	for (i = (BYTE)*cr; i > 0; i--) {
+		x1 = nXPos;
+		y1 = nYPos;
+		limit = nRadius;
+		x2 = x1 + *++cr;
+		y2 = y1 + *++cr;
+
+		dx = x2 - x1;
+		dy = y2 - y1;
+		// find out step size and direction on the y coordinate
+		xinc = dx < 0 ? -1 : 1;
+		yinc = dy < 0 ? -1 : 1;
+
+		dy = abs(dy);
+		dx = abs(dx);
+		if (dx >= dy) {
+			assert(dx != 0);
+
+			// multiply by 2 so we round up
+			dy *= 2;
+			d = 0;
+			do {
+				d += dy;
+				if (d >= dx) {
+					d -= 2 * dx; // multiply by 2 to support rounding
+					y1 += yinc;
+					limit--;
 				}
-				nCrawlX += nXPos;
-				nCrawlY += nYPos;
-				if (IN_DUNGEON_AREA(nCrawlX, nCrawlY)) {
-					nBlockerFlag = nBlockTable[dPiece[nCrawlX][nCrawlY]];
-					if ((IN_DUNGEON_AREA(x1adj + nCrawlX, y1adj + nCrawlY)
-					        && !nBlockTable[dPiece[x1adj + nCrawlX][y1adj + nCrawlY]])
-					    || (IN_DUNGEON_AREA(x2adj + nCrawlX, y2adj + nCrawlY)
-					        && !nBlockTable[dPiece[x2adj + nCrawlX][y2adj + nCrawlY]])) {
-						if (doautomap) {
-							if (!(dFlags[nCrawlX][nCrawlY] & BFLAG_EXPLORED)) {
-								dFlags[nCrawlX][nCrawlY] |= BFLAG_EXPLORED;
-								SetAutomapView(nCrawlX, nCrawlY);
-							}
-						}
-						dFlags[nCrawlX][nCrawlY] |= visFlags;
-						if (!nBlockerFlag) {
-							nTrans = dTransVal[nCrawlX][nCrawlY];
-							if (nTrans != 0) {
-								TransList[nTrans] = TRUE;
-							}
-						}
-					}
+				x1 += xinc;
+				limit -= 2;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, doautomap, visFlags));
+		} else {
+			// multiply by 2 so we round up
+			dx *= 2;
+			d = 0;
+			do {
+				d += dx;
+				if (d >= dy) {
+					d -= 2 * dy; // multiply by 2 to support rounding
+					x1 += xinc;
+					limit--;
 				}
-			}
+				y1 += yinc;
+				limit -= 2;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, doautomap, visFlags));
 		}
 	}
 }

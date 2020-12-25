@@ -19,6 +19,8 @@ BOOL MissilePreFlag;
 const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
 const int YDirAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+/** Indices of CrawlTable to select the entries at a given distance. */
+/*  Copy paste from lightning.cpp for faster(?) access.*/
 const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
 void GetDamageAmt(int sn, int *mind, int *maxd)
