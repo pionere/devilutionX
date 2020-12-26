@@ -635,7 +635,7 @@ void DrawAutomap()
 		AutoMapXOfs -= AutoMapX;
 		AutoMapX = 0;
 	} else if (AutoMapX > DMAXX - 1) {
-		AutoMapXOfs -= AutoMapX - DMAXX - 1;
+		AutoMapXOfs -= AutoMapX - (DMAXX - 1);
 		AutoMapX = DMAXX - 1;
 	}
 
@@ -645,7 +645,7 @@ void DrawAutomap()
 		AutoMapYOfs -= AutoMapY;
 		AutoMapY = 0;
 	} else if (AutoMapY > DMAXY - 1) {
-		AutoMapYOfs -= AutoMapY - DMAXY - 1;
+		AutoMapYOfs -= AutoMapY - (DMAXY - 1);
 		AutoMapY = DMAXY - 1;
 	}
 
