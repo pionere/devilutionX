@@ -817,7 +817,7 @@ void InitControlPan()
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
 	infostr[0] = '\0';
 	ClearPanel();
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	chrflag = FALSE;
 	spselflag = FALSE;
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL", NULL);
