@@ -57,12 +57,12 @@ QuestData questlist[MAXQUESTS] = {
  * Specifies a delta in X-coordinates from the quest entrance for
  * which the hover text of the cursor will be visible.
  */
-char questxoff[7] = { 0, -1, 0, -1, -2, -1, -2 };
+const char questxoff[7] = { 0, -1, 0, -1, -2, -1, -2 };
 /**
  * Specifies a delta in Y-coordinates from the quest entrance for
  * which the hover text of the cursor will be visible.
  */
-char questyoff[7] = { 0, 0, -1, -1, -1, -2, -2 };
+const char questyoff[7] = { 0, 0, -1, -1, -1, -2, -2 };
 const char *const questtrigstr[5] = {
 	"King Leoric's Tomb",
 	"The Chamber of Bone",
@@ -157,10 +157,10 @@ void InitQuests()
 		else
 			quests[Q_SKELKING]._qactive = QUEST_NOTAVAIL;
 
-		quests[QuestGroup1[random_(0, sizeof(QuestGroup1) / sizeof(int))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup2[random_(0, sizeof(QuestGroup2) / sizeof(int))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup3[random_(0, sizeof(QuestGroup3) / sizeof(int))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup4[random_(0, sizeof(QuestGroup4) / sizeof(int))]]._qactive = QUEST_NOTAVAIL;
+		quests[QuestGroup1[random_(0, lengthof(QuestGroup1))]]._qactive = QUEST_NOTAVAIL;
+		quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
+		quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
+		quests[QuestGroup4[random_(0, lengthof(QuestGroup4))]]._qactive = QUEST_NOTAVAIL;
 	}
 #ifdef _DEBUG
 	if (questdebug != -1)

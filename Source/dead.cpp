@@ -17,14 +17,14 @@ void InitDead()
 	MonsterStruct *mon;
 	CMonster *cmon;
 	int i, d, nd;
-	int mtypes[MAXMONSTERS];
+	BOOL mtypes[NUM_MTYPES];
 
 	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
 	cmon = Monsters;
 	for (i = nummtypes; i > 0; i--, cmon++) {
-		if (mtypes[cmon->mtype] == 0) {
+		if (!mtypes[cmon->mtype]) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 				dead[nd]._deadData[d] = cmon->Anims[MA_DEATH].Data[d];
 			dead[nd]._deadFrame = cmon->Anims[MA_DEATH].Frames;
@@ -32,7 +32,7 @@ void InitDead()
 			dead[nd]._deadWidth2 = cmon->width2;
 			dead[nd]._deadtrans = 0;
 			cmon->mdeadval = nd + 1;
-			mtypes[cmon->mtype] = nd + 1;
+			mtypes[cmon->mtype] = TRUE;
 			nd++;
 		}
 	}

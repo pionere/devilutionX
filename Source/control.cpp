@@ -122,7 +122,7 @@ const BYTE gbFontTransTbl[256] = {
 /* data */
 
 /** Maps from spell_id to spelicon.cel frame number. */
-char SpellITbl[NUM_SPELLS] = {
+const char SpellITbl[NUM_SPELLS] = {
 #ifdef HELLFIRE
 	27,
 #else
@@ -1928,7 +1928,7 @@ void CheckSBook()
 				p->_pRSpell = sn;
 				p->_pRSplType = st;
 				gbRedrawFlags = REDRAW_ALL;
-			}		
+			}
 		}
 	} else {
 		dy -= SPANEL_HEIGHT - SBOOK_TOP_BORDER - SBOOK_BOTTOM_BORDER - SBOOK_PAGER_HEIGHT;
@@ -2256,7 +2256,7 @@ static void control_up_down(int v)
 	static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in control_up_down.");
 	for (i = 0; i < lengthof(sgszTalkSave); i++) {
 		sgbTalkSavePos = (v + sgbTalkSavePos) & 7;
-		if (sgszTalkSave[sgbTalkSavePos][0]) {
+		if (sgszTalkSave[sgbTalkSavePos][0] != '\0') {
 			copy_str(sgszTalkMsg, sgszTalkSave[sgbTalkSavePos]);
 			return;
 		}

@@ -527,19 +527,35 @@ const BYTE byte_48A3C8[4] = { 1, 1, 1, 199 };
 const BYTE byte_48A3CC[4] = { 1, 1, 1, 201 };
 const BYTE byte_48A3D0[4] = { 1, 1, 2, 200 };
 const BYTE byte_48A3D4[4] = { 1, 1, 2, 202 };
+
+const BYTE UberRoomPattern[] = {
+	// clang-format off
+	4, 6,					// width, height
+	115, 130,   6,  13,
+	129, 108,   1,  13,
+	  1, 107, 103,  13,
+	146, 106, 102,  13,
+	129, 168,   1,  13,
+	  7,   2,   3,  13
+	// clang-format on
+};
+const BYTE CornerstoneRoomPattern[] = {
+	// clang-format off
+	5, 5,					// width, height
+	  4,   2,   2,  2,  6,
+	  1, 111, 172,  0,  1,
+	  1, 172,   0,  0, 25,
+	  1,   0,   0,  0,  1,
+	  7,   2,   2,  2,  3
+	// clang-format on
+};
 #endif
 
-/* data */
-
-#ifdef HELLFIRE
-BYTE UberRoomPattern[32] = { 4, 6, 115, 130, 6, 13, 129, 108, 1, 13, 1, 107, 103, 13, 146, 106, 102, 13, 129, 168, 1, 13, 7, 2, 3, 13, 0, 0, 0, 0, 0, 0 };
-BYTE CornerstoneRoomPattern[32] = { 5, 5, 4, 2, 2, 2, 6, 1, 111, 172, 0, 1, 1, 172, 0, 0, 25, 1, 0, 0, 0, 1, 7, 2, 2, 2, 3, 0, 0, 0, 0, 0 };
-#endif
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-BYTE L5ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
+const BYTE L5ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
 
 #ifdef HELLFIRE
 static void DRLG_InitL5Vals()
@@ -1291,7 +1307,7 @@ static void InitL5Dungeon()
 static void L5ClearFlags()
 {
 	int i;
-	BYTE* pTmp;
+	BYTE *pTmp;
 
 	static_assert(sizeof(L5dflags) == DMAXX * DMAXY, "Linear traverse of L5dflags does not work in L5ClearFlags.");
 	pTmp = &L5dflags[0][0];
@@ -1475,7 +1491,7 @@ static void L5firstRoom()
 static int L5GetArea()
 {
 	int i;
-	BYTE* pTmp;
+	BYTE *pTmp;
 	int rv;
 
 	rv = 0;
@@ -2277,14 +2293,13 @@ void drlg_l1_set_crypt_room(int rx1, int ry1)
 
 	sp = 2;
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (UberRoomPattern[sp]) {
-				dungeon[rx1 + i][ry1 + j] = UberRoomPattern[sp];
-				L5dflags[rx1 + i][ry1 + j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[rx1 + i][ry1 + j] = 13;
-			}
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
+			assert(UberRoomPattern[sp] != 0);
+			dungeon[i][j] = UberRoomPattern[sp];
+			L5dflags[i][j] |= DLRG_PROTECTED;
 			sp++;
 		}
 	}
@@ -2304,13 +2319,15 @@ void drlg_l1_set_corner_room(int rx1, int ry1)
 
 	sp = 2;
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (CornerstoneRoomPattern[sp]) {
-				dungeon[rx1 + i][ry1 + j] = CornerstoneRoomPattern[sp];
-				L5dflags[rx1 + i][ry1 + j] |= DLRG_PROTECTED;
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
+			if (CornerstoneRoomPattern[sp] != 0) {
+				dungeon[i][j] = CornerstoneRoomPattern[sp];
+				L5dflags[i][j] |= DLRG_PROTECTED;
 			} else {
-				dungeon[rx1 + i][ry1 + j] = 13;
+				dungeon[i][j] = 13;
 			}
 			sp++;
 		}
@@ -2741,7 +2758,7 @@ static void DRLG_L5(int entry)
 #endif
 	{
 		DRLG_L1Shadows();
-		DRLG_PlaceMiniSet(LAMPS, 5 + random_(0, 5), FALSE);
+		DRLG_PlaceMiniSet(LAMPS, RandRange(5, 9), FALSE);
 		DRLG_L1Floor();
 	}
 

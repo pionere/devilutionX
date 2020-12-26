@@ -261,7 +261,7 @@ void GetLevelMTypes()
 						if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
 							continue;
 #endif
-							skeltypes[nt++] = i;
+						skeltypes[nt++] = i;
 					}
 				}
 			}
@@ -275,7 +275,7 @@ void GetLevelMTypes()
 				if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
 					continue;
 #endif
-					typelist[nt++] = i;
+				typelist[nt++] = i;
 			}
 		}
 
@@ -957,7 +957,7 @@ static void PlaceQuestMonsters()
 
 void PlaceGroup(int mtype, int num, int leaderf, int leader)
 {
-	int placed, try1, try2;
+	int placed, offset, try1, try2;
 	int xp, yp, x1, y1;
 
 	if (num + nummonsters > totalmonsters) {
@@ -973,7 +973,7 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 		}
 
 		if (leaderf & 1) {
-			int offset = random_(92, 8);
+			offset = random_(92, 8);
 			x1 = xp = monster[leader]._mx + offset_x[offset];
 			y1 = yp = monster[leader]._my + offset_y[offset];
 		} else {
@@ -1263,7 +1263,7 @@ static void MonEnemy(int mnum)
 				continue;
 			if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
 				continue;
-			if (MonTalker(tnum) && monster[tnum].mtalkmsg)
+			if (MonTalker(tnum) && monster[tnum].mtalkmsg != 0)
 				continue;
 			dist = std::max(abs(mon->_mx - monster[tnum]._mx), abs(mon->_my - monster[tnum]._my));
 			sameroom = tv == dTransVal[monster[tnum]._mx][monster[tnum]._my];
@@ -1562,8 +1562,6 @@ void MonGetKnockback(int mnum)
 		mon->_myoff = 0;
 		mon->_mx = mon->_mfutx = mon->_moldx;
 		mon->_my = mon->_mfuty = mon->_moldy;
-		mon->_moldx = mon->_mx; // CODEFIX: useless assignment
-		mon->_moldy = mon->_my; // CODEFIX: useless assignment
 		MonClearSquares(mnum);
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 	}
@@ -2577,7 +2575,7 @@ void DoEnding()
 	}
 
 #ifndef SPAWN
-	const char* vicSets[NUM_CLASSES] = {
+	const char *vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
 #ifdef HELLFIRE
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"

@@ -851,7 +851,7 @@ static void SaveChar(char v)
 	*tbuff++ = v;
 }
 
-static void SaveInt(int v)
+static void SaveInt(unsigned v)
 {
 	*tbuff++ = v >> 24;
 	*tbuff++ = v >> 16;

@@ -273,7 +273,7 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 	}
 	mx = sx + mis->_mixoff - mis->_miAnimWidth2;
 	my = sy + mis->_miyoff;
-	if (mis->_miUniqTrans)
+	if (mis->_miUniqTrans != 0)
 		Cl2DrawLightTbl(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth, mis->_miUniqTrans + 3);
 	else if (mis->_miLightFlag)
 		Cl2DrawLight(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth);

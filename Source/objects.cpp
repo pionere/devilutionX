@@ -1115,10 +1115,14 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	}
 
 	lm = h;
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	startx += DBORDERX;
+	starty += DBORDERY;
+	rw += startx;
+	rh += starty;
+	for (j = starty; j < rh; j++) {
+		for (i = startx; i < rw; i++) {
 			if (*lm != 0)
-				AddObject(ObjTypeConv[*lm], startx + DBORDERX + i, starty + DBORDERY + j);
+				AddObject(ObjTypeConv[*lm], i, j);
 			lm += 2;
 		}
 	}
@@ -1788,10 +1792,9 @@ void Obj_Light(int oi, int lr)
 		tr = lr + 10;
 		turnon = FALSE;
 #ifdef _DEBUG
-		if (!lightflag) {
-#else
-		{
+		if (!lightflag)
 #endif
+		{
 			for (i = 0; i < MAX_PLRS && !turnon; i++) {
 				if (plr[i].plractive && currlevel == plr[i].plrlevel) {
 					dx = abs(plr[i]._px - ox);
@@ -1975,17 +1978,15 @@ static void Obj_FlameTrap(int oi)
 		if (os->_oVar4 != 0)
 			ActivateTrapLine(os->_otype, os->_oVar1);
 	} else {
-		int damage[4] = { 6, 8, 10, 12 };
-
-		int mindam = damage[leveltype - 1];
+		int mindam = 2 + leveltype;
 		int maxdam = mindam * 2;
 
 		x = os->_ox;
 		y = os->_oy;
 		if (dMonster[x][y] > 0)
-			MonsterTrapHit(dMonster[x][y] - 1, mindam / 2, maxdam / 2, 0, MIS_FIREWALLC, FALSE);
+			MonsterTrapHit(dMonster[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALLC, FALSE);
 		if (dPlayer[x][y] > 0)
-			PlayerTrapHit(dPlayer[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALLC, FALSE);
+			PlayerTrapHit(dPlayer[x][y] - 1, mindam * 2, maxdam * 2, 0, MIS_FIREWALLC, FALSE);
 
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
@@ -3969,7 +3970,7 @@ static void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
 			if (QuestStatus(Q_ZHAR)
 			    && (monster[MAX_PLRS]._uniqtype - 1) == UMT_ZHAR
 			    && monster[MAX_PLRS]._msquelch == UCHAR_MAX
-			    && monster[MAX_PLRS]._mhitpoints) {
+			    && monster[MAX_PLRS]._mhitpoints != 0) {
 				monster[MAX_PLRS].mtalkmsg = TEXT_ZHAR2;
 				MonStartStand(0, monster[MAX_PLRS]._mdir);
 				monster[MAX_PLRS]._mgoal = MGOAL_ATTACK2;

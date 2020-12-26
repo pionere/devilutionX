@@ -382,7 +382,7 @@ BOOL StartGame(BOOL bSinglePlayer)
 
 		gbSelectProvider = FALSE;
 
-		run_game_loop(!gbLoadGame || !gbValidSaveFile ? WM_DIABNEWGAME : WM_DIABLOADGAME);
+		run_game_loop((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
 		NetClose();
 		if (!gbRunGameResult)
 			break;
@@ -773,7 +773,7 @@ void RightMouseDown(BOOL bShift)
 static void diablo_pause_game()
 {
 	if (gbMaxPlayers == 1) {
-		if (PauseMode) {
+		if (PauseMode != 0) {
 			PauseMode = 0;
 		} else {
 			PauseMode = 2;

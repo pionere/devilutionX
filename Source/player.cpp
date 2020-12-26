@@ -1649,9 +1649,9 @@ static void StartSpell(int pnum)
 	p->_pVar2 = dy;
 	p->_pVar3 = p->_pSpell;
 	p->_pVar4 = spllvl;
-	p->_pmode = PM_SPELL;
 	p->_pVar7 = FALSE; // 'flag' of cast
 	p->_pVar8 = 0; // speed helper
+	p->_pmode = PM_SPELL;
 
 	sd = &spelldata[p->_pSpell];
 	if (sd->sTargeted)
@@ -1898,7 +1898,7 @@ void StartPlrKill(int pnum, int earflag)
 					if (earflag != 0) {
 						CreateBaseItem(&ear, IDI_EAR);
 						snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
-						int earSets[NUM_CLASSES] = {
+						const int earSets[NUM_CLASSES] = {
 								ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCEROR
 #ifdef HELLFIRE
 								, ICURS_EAR_SORCEROR, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR

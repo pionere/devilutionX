@@ -448,7 +448,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	PlayerStruct *p;
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
-	int pvid;
 
 	int mind = 0; // min damage
 	int maxd = 0; // max damage
@@ -605,24 +604,11 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIMaxDam = maxd;
 	p->_pIAC = tac;
 
-	if (lrad < 2) {
-		lrad = 2;
-	}
-	if (lrad > 15) {
-		lrad = 15;
-	}
-
+	lrad = std::max(2, std::min(15, lrad));
 	if (p->_pLightRad != lrad && pnum == myplr) {
-		ChangeLightRadius(p->_plid, lrad);
-
-		pvid = p->_pvid;
-		if (lrad >= 10) {
-			ChangeVisionRadius(pvid, lrad);
-		} else {
-			ChangeVisionRadius(pvid, 10);
-		}
-
 		p->_pLightRad = lrad;
+		ChangeLightRadius(p->_plid, lrad);
+		ChangeVisionRadius(p->_pvid, std::max(10, lrad));
 	}
 
 	p->_pStrength = sadd + p->_pBaseStr;

@@ -31,12 +31,12 @@ void AddSlainHero();
 void AddHBooks(int bookidx, int ox, int oy);
 void SetupHBook(int oi, int bookidx);
 #endif
-int AddObject(int ot, int ox, int oy);
+int AddObject(int type, int ox, int oy);
 void Obj_Trap(int oi);
 void ProcessObjects();
 void ObjSetMicro(int dx, int dy, int pn);
 void RedoPlayerVision();
-void MonstCheckDoors(int m);
+void MonstCheckDoors(int mnum);
 void ObjChangeMap(int x1, int y1, int x2, int y2);
 void ObjChangeMapResync(int x1, int y1, int x2, int y2);
 void DisarmObject(int pnum, int oi);

@@ -1564,7 +1564,6 @@ static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
 			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
-		return sizeof(*cmd);
 	} else {
 		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
@@ -1588,7 +1587,6 @@ static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
-		return sizeof(*cmd);
 	} else {
 		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
