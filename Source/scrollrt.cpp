@@ -1431,7 +1431,7 @@ static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
  * @param dwHgt Section of screen to update from top to bottom
  * @param drawFlags Render parts of the screen
  */
-static void DrawMain(int dwHgt, BOOL drawFlags)
+static void DrawMain(int dwHgt, int drawFlags)
 {
 	int ysize;
 
