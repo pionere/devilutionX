@@ -1901,14 +1901,14 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers I.");
 		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers II.");
 		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers III.");
-		if ((unsigned)param1 <= 4)
+		if ((unsigned)(param1 - 1) < 4)
 			is->_iFlags |= ISPL_QUICKATTACK << (param1 - 1);
 		break;
 	case IPL_FASTRECOVER:
 		static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
 		static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
 		static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
-		if ((unsigned)param1 <= 3)
+		if ((unsigned)(param1 - 1) < 3)
 			is->_iFlags |= ISPL_FASTRECOVER << (param1 - 1);
 		break;
 	case IPL_FASTBLOCK:
@@ -2025,14 +2025,14 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		static_assert((ISPH_FASTCAST & (ISPH_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
 		static_assert(ISPH_FASTCAST == ISPH_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
 		static_assert(ISPH_FASTERCAST == ISPH_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
-		if ((unsigned)param1 <= 3)
+		if ((unsigned)(param1 - 1) < 3)
 			is->_iFlags2 |= ISPH_FASTCAST << (param1 - 1);
 		break;
 	case IPL_FASTWALK:
 		static_assert((ISPH_FASTWALK & (ISPH_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
 		static_assert(ISPH_FASTWALK == ISPH_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
 		static_assert(ISPH_FASTERWALK == ISPH_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
-		if ((unsigned)param1 <= 3)
+		if ((unsigned)(param1 - 1) < 3)
 			is->_iFlags2 |= ISPH_FASTWALK << (param1 - 1);
 		break;
 	}
