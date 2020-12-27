@@ -2302,12 +2302,6 @@ BOOL UseInvItem(int cii)
 		plr[pnum]._pOilType = is->_iMiscId;
 		//if (pnum != myplr)
 		//	return;
-		if (sbookflag) {
-			sbookflag = FALSE;
-		}
-		if (!invflag) {
-			invflag = TRUE;
-		}
 		NewCursor(CURSOR_OIL);
 		break;
 #endif

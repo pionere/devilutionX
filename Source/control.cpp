@@ -4,6 +4,7 @@
  * Implementation of the character and main control panels
  */
 #include "all.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -913,7 +914,10 @@ void DoSpeedBook()
 		}
 	}
 
-	SetCursorPos(X, Y);
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (sgbControllerActive)
+		SetCursorPos(X, Y);
+#endif
 }
 
 static void control_set_button_down(int btn_id)
