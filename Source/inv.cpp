@@ -2045,11 +2045,6 @@ void UseStaffCharge(int pnum)
 
 	is = &plr[pnum].InvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE
-	    && (is->_iMiscId == IMISC_STAFF
-#ifdef HELLFIRE
-	           || is->_iMiscId == IMISC_UNIQUE // BUGFIX: myplr->pnum (fixed)
-#endif
-	        )
 	    && is->_iSpell == plr[pnum]._pRSpell
 	    && is->_iCharges > 0) {
 		is->_iCharges--;
@@ -2063,11 +2058,6 @@ BOOL UseStaff()
 
 	pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE
-#ifdef HELLFIRE
-	    && (pi->_iMiscId == IMISC_STAFF || pi->_iMiscId == IMISC_UNIQUE)
-#else
-	    && pi->_iMiscId == IMISC_STAFF
-#endif
 	    && pi->_iSpell == plr[myplr]._pRSpell
 	    && pi->_iCharges > 0) {
 		return TRUE;
