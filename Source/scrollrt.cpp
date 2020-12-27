@@ -1455,7 +1455,9 @@ static void DrawMain(int dwHgt, int drawFlags)
 		//}
 		if (drawFlags & REDRAW_MANA_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 460, PANEL_TOP, 88, 72);
-			DoBlitScreen(PANEL_LEFT + 564, PANEL_TOP + 64, 56, 56);
+		}
+		if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+			DoBlitScreen(PANEL_LEFT + 564, PANEL_TOP + 64, SPLICONLENGTH, SPLICONLENGTH);
 		}
 		if (drawFlags & REDRAW_HP_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 96, PANEL_TOP, 88, 72);
