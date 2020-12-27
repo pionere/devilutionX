@@ -1985,8 +1985,7 @@ void RemoveScroll(int pnum)
 	p = &plr[pnum];
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 #ifdef HELLFIRE
 		    && pi->_iSpell == p->_pSpell) {
 #else
@@ -1999,8 +1998,7 @@ void RemoveScroll(int pnum)
 	}
 	pi = p->SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 #ifdef HELLFIRE
 			&& pi->_iSpell == p->_pSpell) {
 #else
@@ -2027,16 +2025,14 @@ BOOL UseScroll()
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 		    && pi->_iSpell == p->_pRSpell) {
 			return TRUE;
 		}
 	}
 	pi = p->SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 		    && pi->_iSpell == p->_pRSpell) {
 			return TRUE;
 		}
@@ -2227,15 +2223,13 @@ BOOL UseInvItem(int cii)
 		dropGoldValue = 0;
 	}
 
-	if (currlevel == 0
-	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_SCROLLT)
+	if (currlevel == 0 && is->_iMiscId == IMISC_SCROLL
 	 && !spelldata[is->_iSpell].sTownSpell) {
 		return TRUE;
 	}
 
 #ifdef HELLFIRE
-	if (currlevel == 0
-	 && is->_iMiscId > IMISC_RUNEFIRST && is->_iMiscId < IMISC_RUNELAST) {
+	if (currlevel == 0 && is->_iMiscId == IMISC_RUNE) {
 		return TRUE;
 	}
 #endif
@@ -2280,7 +2274,6 @@ BOOL UseInvItem(int cii)
 		PlrRefill(TRUE, TRUE);
 		break;
 	case IMISC_SCROLL:
-	case IMISC_SCROLLT:
 		if (spelldata[is->_iSpell].sTargeted) {
 			PlrSetTSpell(is->_iSpell);
 		} else {
@@ -2339,20 +2332,8 @@ BOOL UseInvItem(int cii)
 		ModifyPlrVit(pnum, 3);
 		break;
 #ifdef HELLFIRE
-	case IMISC_RUNEF:
-		PlrSetTSpell(SPL_RUNEFIRE);
-		break;
-	case IMISC_RUNEL:
-		PlrSetTSpell(SPL_RUNELIGHT);
-		break;
-	case IMISC_GR_RUNEL:
-		PlrSetTSpell(SPL_RUNENOVA);
-		break;
-	case IMISC_GR_RUNEF:
-		PlrSetTSpell(SPL_RUNEIMMOLAT);
-		break;
-	case IMISC_RUNES:
-		PlrSetTSpell(SPL_RUNESTONE);
+	case IMISC_RUNE:
+		PlrSetTSpell(is->_iSpell);
 		break;
 	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);

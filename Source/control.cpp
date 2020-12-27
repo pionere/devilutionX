@@ -405,16 +405,14 @@ void DrawSpellList()
 					v = 0;
 					pi = p->InvList;
 					for (t = p->_pNumInv; t > 0; t--, pi++) {
-						if (pi->_itype != ITYPE_NONE
-						    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+						if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 						    && pi->_iSpell == j) {
 							v++;
 						}
 					}
 					pi = p->SpdList;
 					for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-						if (pi->_itype != ITYPE_NONE
-						    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+						if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 						    && pi->_iSpell == j) {
 							v++;
 						}
@@ -1042,16 +1040,14 @@ void CheckPanelInfo()
 				c = 0;
 				pi = p->InvList;
 				for (i = p->_pNumInv; i > 0; i--, pi++) {
-					if (pi->_itype != ITYPE_NONE
-					    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+					if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 					    && pi->_iSpell == sn) {
 						c++;
 					}
 				}
 				pi = p->SpdList;
 				for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-					if (pi->_itype != ITYPE_NONE
-					    && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+					if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 					    && pi->_iSpell == sn) {
 						c++;
 					}

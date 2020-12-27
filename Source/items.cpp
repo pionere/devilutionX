@@ -873,16 +873,14 @@ void CalcPlrScrolls(int pnum)
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 		 && pi->_iStatFlag) {
 			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
 		}
 	}
 	pi = p->SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE
-		 && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_SCROLLT)
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
 		 && pi->_iStatFlag) {
 			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
 		}
@@ -3713,12 +3711,12 @@ static void PrintItemMisc(const ItemStruct *is)
 		desc = "Right-click to read";
 		AddPanelString(desc, TRUE);
 		return;
-	case IMISC_SCROLLT:
+	/*case IMISC_SCROLLT:
 		desc = "Right-click to read, then";
 		AddPanelString(desc, TRUE);
 		desc = "left-click to target";
 		AddPanelString(desc, TRUE);
-		return;
+		return;*/
 	case IMISC_STAFF:
 		return;
 	case IMISC_BOOK:
@@ -3806,29 +3804,11 @@ static void PrintItemMisc(const ItemStruct *is)
 	case IMISC_SPECELIX:
 		return;
 #ifdef HELLFIRE
-	case IMISC_RUNEFIRST:
-		return;
-	case IMISC_RUNEF:
-		desc = "sets fire trap";
+	case IMISC_RUNE:
+		desc = "Right-click to activate, then";
 		AddPanelString(desc, TRUE);
-		break;
-	case IMISC_RUNEL:
-		desc = "sets lightning trap";
+		desc = "left-click to place";
 		AddPanelString(desc, TRUE);
-		break;
-	case IMISC_GR_RUNEL:
-		desc = "sets lightning trap";
-		AddPanelString(desc, TRUE);
-		break;
-	case IMISC_GR_RUNEF:
-		desc = "sets fire trap";
-		AddPanelString(desc, TRUE);
-		break;
-	case IMISC_RUNES:
-		desc = "sets petrification trap";
-		AddPanelString(desc, TRUE);
-		break;
-	case IMISC_RUNELAST:
 		return;
 	case IMISC_AURIC:
 		desc = "Doubles gold capacity";
@@ -4286,9 +4266,8 @@ static BOOL HealerItemOk(int i)
 	case IMISC_FULLREJUV:
 		return TRUE;
 	case IMISC_SCROLL:
-		return AllItemsList[i].iSpell == SPL_HEAL;
-	case IMISC_SCROLLT:
-		return gbMaxPlayers != 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER);
+		return AllItemsList[i].iSpell == SPL_HEAL ||
+			((AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER) && gbMaxPlayers != 1);
 	}
 	return FALSE;
 }

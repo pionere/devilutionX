@@ -1168,7 +1168,7 @@ static void CtrlUseInvItem()
 	else
 		is = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
 
-	if ((is->_iMiscId == IMISC_SCROLLT || is->_iMiscId == IMISC_SCROLL) && spelldata[is->_iSpell].sTargeted) {
+	if (is->_iMiscId == IMISC_SCROLL && spelldata[is->_iSpell].sTargeted) {
 		return;
 	}
 
