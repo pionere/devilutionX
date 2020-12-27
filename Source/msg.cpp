@@ -1688,9 +1688,9 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->x;
-			plr[pnum].destParam2 = cmd->y;
-			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum].destParam1 = cmd->wParam2;
+			plr[pnum].destParam2 = cmd->x;
+			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pRSplType;
 			plr[pnum]._pSplFrom = 0;
@@ -1710,9 +1710,9 @@ static DWORD On_TSPELLXY(TCmd *pCmd, int pnum)
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->x;
-			plr[pnum].destParam2 = cmd->y;
-			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum].destParam1 = cmd->wParam2;
+			plr[pnum].destParam2 = cmd->x;
+			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pTSplType;
 			plr[pnum]._pSplFrom = 2;
@@ -1909,6 +1909,28 @@ static DWORD On_TSPELLPID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static DWORD On_TSPELLTID(TCmd *pCmd, int pnum)
+{
+	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		int spell = cmd->wParam2;
+		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+			ClrPlrPath(pnum);
+			plr[pnum].destAction = ACTION_SPELL;
+			plr[pnum].destParam1 = cmd->wParam1;
+			plr[pnum].destParam2 = cmd->x;
+			plr[pnum].destParam3 = cmd->y;
+			plr[pnum]._pSpell = spell;
+			plr[pnum]._pSplType = plr[pnum]._pTSplType;
+			plr[pnum]._pSplFrom = 2;
+		} else
+			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
 static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
@@ -1917,30 +1939,6 @@ static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
 		MonGetKnockback(cmd->wParam1);
 		MonStartHit(cmd->wParam1, pnum, 0);
 	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_RESURRECT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
-		DoResurrect(pnum, cmd->wParam1);
-		check_update_plr(pnum);
-	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_HEALOTHER(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel)
-		DoHealOther(pnum, cmd->wParam1);
 
 	return sizeof(*cmd);
 }
@@ -2476,9 +2474,9 @@ static DWORD On_SCROLL_SPELLXY(TCmd *pCmd, int pnum)
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->x;
-			plr[pnum].destParam2 = cmd->y;
-			plr[pnum].destParam3 = cmd->wParam2;
+			plr[pnum].destParam1 = cmd->wParam2;
+			plr[pnum].destParam2 = cmd->x;
+			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = RSPLTYPE_INVALID;
 			plr[pnum]._pSplFrom = 3;
@@ -2614,12 +2612,10 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_TSPELLID(pCmd, pnum);
 	case CMD_TSPELLPID:
 		return On_TSPELLPID(pCmd, pnum);
+	case CMD_TSPELLTID:
+		return On_TSPELLTID(pCmd, pnum);
 	case CMD_KNOCKBACK:
 		return On_KNOCKBACK(pCmd, pnum);
-	case CMD_RESURRECT:
-		return On_RESURRECT(pCmd, pnum);
-	case CMD_HEALOTHER:
-		return On_HEALOTHER(pCmd, pnum);
 	case CMD_TALKXY:
 		return On_TALKXY(pCmd, pnum);
 	case CMD_DEBUG:

@@ -2728,7 +2728,7 @@ typedef enum _cmd_id {
 	CMD_SPELLPID,
 	CMD_TSPELLID,
 	CMD_TSPELLPID,
-	CMD_RESURRECT,
+	CMD_TSPELLTID, // CMD_RESURRECT in vanilla
 	CMD_OPOBJT,
 	CMD_KNOCKBACK,
 	CMD_TALKXY,
@@ -2779,7 +2779,7 @@ typedef enum _cmd_id {
 	CMD_DLEVEL_16,
 	CMD_DLEVEL_JUNK,
 	CMD_DLEVEL_END,
-	CMD_HEALOTHER,
+	OBSOLETE_CMD2, // CMD_HEALOTHER in vanilla
 	CMD_STRING,
 	CMD_SETSTR,
 	CMD_SETMAG,
@@ -3575,7 +3575,7 @@ typedef enum action_id {
 	ACTION_RATTACKPLR  = 23,
 	ACTION_SPELLMON    = 24,
 	ACTION_SPELLPLR    = 25,
-	//ACTION_SPELLWALL   = 26,
+	//ACTION_SPELLWALL = 26,
 } action_id;
 
 typedef enum dlrg_flag {

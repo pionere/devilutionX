@@ -3061,12 +3061,14 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 
 int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	if (misource == myplr) {
-		NewCursor(CURSOR_HEALOTHER);
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-		if (sgbControllerActive)
-			TryIconCurs(FALSE);
-#endif
+	int i;
+	assert((DWORD)misource < MAX_PLRS);
+
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (i != misource && plr[i]._px == dx && plr[i]._py == dy) {
+			DoHealOther(misource, i, spllvl);
+			break;
+		}
 	}
 	return MIRES_DELETE;
 }
@@ -3110,18 +3112,7 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 int AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
-	if (misource == myplr) {
-		if (sbookflag)
-			sbookflag = FALSE;
-		if (!invflag) {
-			invflag = TRUE;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-			if (sgbControllerActive)
-				FocusOnInventory();
-#endif
-		}
-		NewCursor(CURSOR_IDENTIFY);
-	}
+	CheckIdentify(misource, spllvl);
 	return MIRES_DELETE;
 }
 
@@ -3257,38 +3248,14 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
-
-	if (misource == myplr) {
-		if (sbookflag)
-			sbookflag = FALSE;
-		if (!invflag) {
-			invflag = TRUE;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-			if (sgbControllerActive)
-				FocusOnInventory();
-#endif
-		}
-		NewCursor(CURSOR_REPAIR);
-	}
+	DoRepair(misource, spllvl);
 	return MIRES_DELETE;
 }
 
 int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
-
-	if (misource == myplr) {
-		if (sbookflag)
-			sbookflag = FALSE;
-		if (!invflag) {
-			invflag = TRUE;
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-			if (sgbControllerActive)
-				FocusOnInventory();
-#endif
-		}
-		NewCursor(CURSOR_RECHARGE);
-	}
+	DoRecharge(misource, spllvl);
 	return MIRES_DELETE;
 }
 
@@ -3300,10 +3267,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		NewCursor(CURSOR_DISARM);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive) {
-			if (pcursobj != -1)
-				NetSendCmdLocParam1(TRUE, CMD_DISARMXY, cursmx, cursmy, pcursobj);
-			else
-				NewCursor(CURSOR_HAND);
+			TryIconCurs(FALSE);
 		}
 #endif
 	}
@@ -3474,14 +3438,7 @@ int AddHbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);
-
-	if (misource == myplr) {
-		NewCursor(CURSOR_RESURRECT);
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-		if (sgbControllerActive)
-			TryIconCurs(FALSE);
-#endif
-	}
+	DoResurrect(misource, spllvl);
 	return MIRES_DELETE;
 }
 

@@ -195,7 +195,7 @@ void DoResurrect(int pnum, int tnum)
 	}
 }
 
-void DoHealOther(int pnum, int tnum)
+void DoHealOther(int pnum, int tnum, int spllvl)
 {
 	PlayerStruct *tp;
 	int i, hp;
@@ -213,7 +213,7 @@ void DoHealOther(int pnum, int tnum)
 		hp += RandRange(1, 4);
 	}
 
-	for (i = GetSpellLevel(pnum, SPL_HEALOTHER); i > 0; i--) {
+	for (i = spllvl; i > 0; i--) {
 		hp += RandRange(1, 6);
 	}
 	hp <<= 6;

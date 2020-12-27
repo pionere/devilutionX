@@ -2137,10 +2137,10 @@ static void PlrAddMana()
 	gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
-static void PlrSetTSpell(int spell)
+static void PlrSetTSpell(int spell, int curs)
 {
 	//if (pnum == myplr)
-		NewCursor(CURSOR_TELEPORT);
+		NewCursor(curs);
 	plr[myplr]._pTSpell = spell;
 	plr[myplr]._pTSplType = RSPLTYPE_INVALID;
 }
@@ -2274,8 +2274,8 @@ BOOL UseInvItem(int cii)
 		PlrRefill(TRUE, TRUE);
 		break;
 	case IMISC_SCROLL:
-		if (spelldata[is->_iSpell].sTargeted) {
-			PlrSetTSpell(is->_iSpell);
+		if (spelldata[is->_iSpell].sCurs != CURSOR_NONE) {
+			PlrSetTSpell(is->_iSpell, spelldata[is->_iSpell].sCurs);
 		} else {
 			NetSendCmdLocParam2(TRUE, CMD_SCROLL_SPELLXY,
 				cursmx, cursmy, is->_iSpell, GetSpellLevel(pnum, is->_iSpell));
@@ -2333,7 +2333,7 @@ BOOL UseInvItem(int cii)
 		break;
 #ifdef HELLFIRE
 	case IMISC_RUNE:
-		PlrSetTSpell(is->_iSpell);
+		PlrSetTSpell(is->_iSpell, spelldata[is->_iSpell].sCurs);
 		break;
 	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);

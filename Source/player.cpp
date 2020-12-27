@@ -1631,9 +1631,9 @@ static void StartSpell(int pnum)
 
 	i = p->destParam1;
 	if (p->destAction == ACTION_SPELL) {
-		dx = i;
-		dy = p->destParam2;
-		spllvl = p->destParam3;
+		dx = p->destParam2;
+		dy = p->destParam3;
+		spllvl = i;
 	} else if (p->destAction == ACTION_SPELLMON) {
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
@@ -3601,9 +3601,18 @@ void CheckPlrSpell()
 			return;
 		}
 
-	addflag = FALSE;
 	switch (plr[myplr]._pRSplType) {
 	case RSPLTYPE_SKILL:
+		if (pcurs != CURSOR_HAND)
+			return;
+		if (spelldata[rspell].sCurs != CURSOR_NONE) {
+			NewCursor(spelldata[rspell].sCurs);
+			plr[myplr]._pTSpell = rspell;
+			plr[myplr]._pTSplType = RSPLTYPE_SKILL;
+			return;
+		}
+		addflag = TRUE;
+		break;
 	case RSPLTYPE_SPELL:
 		addflag = CheckSpell(myplr, rspell, plr[myplr]._pRSplType, FALSE);
 		break;
@@ -3612,6 +3621,9 @@ void CheckPlrSpell()
 		break;
 	case RSPLTYPE_CHARGES:
 		addflag = UseStaff();
+		break;
+	case RSPLTYPE_INVALID:
+		addflag = FALSE;
 		break;
 	}
 

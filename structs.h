@@ -1168,6 +1168,7 @@ typedef struct SpellData {
 	char sStaffLvl;
 	char sScrollLvl;
 	BOOLEAN sTargeted;
+	BYTE sCurs;
 	BOOLEAN sTownSpell;
 	BYTE sMinInt;
 	unsigned char sSFX;
