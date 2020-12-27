@@ -16,7 +16,7 @@ extern "C" {
 
 int GetManaAmount(int pnum, int sn);
 void UseMana(int pnum, int sn);
-BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly);
+BOOL CheckSpell(int pnum, int sn, char st);
 BOOL PlacePlayer(int pnum);
 void DoResurrect(int pnum, int tnum);
 void DoHealOther(int pnum, int tnum, int spllvl);

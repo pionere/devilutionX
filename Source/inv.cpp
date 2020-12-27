@@ -2018,8 +2018,6 @@ BOOL UseScroll()
 	int i;
 
 	p = &plr[myplr];
-	if (pcurs != CURSOR_HAND)
-		return FALSE;
 	if (leveltype == DTYPE_TOWN && !spelldata[p->_pRSpell].sTownSpell)
 		return FALSE;
 
@@ -2063,18 +2061,16 @@ BOOL UseStaff()
 {
 	ItemStruct *pi;
 
-	if (pcurs == CURSOR_HAND) {
-		pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
-		if (pi->_itype != ITYPE_NONE
+	pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
+	if (pi->_itype != ITYPE_NONE
 #ifdef HELLFIRE
-		    && (pi->_iMiscId == IMISC_STAFF || pi->_iMiscId == IMISC_UNIQUE)
+	    && (pi->_iMiscId == IMISC_STAFF || pi->_iMiscId == IMISC_UNIQUE)
 #else
-		    && pi->_iMiscId == IMISC_STAFF
+	    && pi->_iMiscId == IMISC_STAFF
 #endif
-		    && pi->_iSpell == plr[myplr]._pRSpell
-		    && pi->_iCharges > 0) {
-			return TRUE;
-		}
+	    && pi->_iSpell == plr[myplr]._pRSpell
+	    && pi->_iCharges > 0) {
+		return TRUE;
 	}
 
 	return FALSE;

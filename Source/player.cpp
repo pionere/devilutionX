@@ -3586,25 +3586,22 @@ void CheckPlrSpell()
 		return;
 	}
 
+	if (pcurs >= CURSOR_FIRSTITEM)
+		return;
+
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (!sgbControllerActive)
 #endif
-		if (pcurs != CURSOR_HAND
-		    || (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)     // inside main panel
-		    || ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) // inside left panel
-		    || ((invflag || sbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) // inside right panel
-		        && rspell != SPL_HEAL
-		        && rspell != SPL_IDENTIFY
-		        && rspell != SPL_REPAIR
-		        && rspell != SPL_INFRA
-		        && rspell != SPL_RECHARGE) {
+		if (PANELS_COVER && spelldata[rspell].sTargeted
+		 && ((MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
+		   || ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
+		   || ((invflag || sbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)) // inside right panel
+		       ) {
 			return;
 		}
 
 	switch (plr[myplr]._pRSplType) {
 	case RSPLTYPE_SKILL:
-		if (pcurs != CURSOR_HAND)
-			return;
 		if (spelldata[rspell].sCurs != CURSOR_NONE) {
 			NewCursor(spelldata[rspell].sCurs);
 			plr[myplr]._pTSpell = rspell;
@@ -3614,7 +3611,7 @@ void CheckPlrSpell()
 		addflag = TRUE;
 		break;
 	case RSPLTYPE_SPELL:
-		addflag = CheckSpell(myplr, rspell, plr[myplr]._pRSplType, FALSE);
+		addflag = CheckSpell(myplr, rspell, plr[myplr]._pRSplType);
 		break;
 	case RSPLTYPE_SCROLL:
 		addflag = UseScroll();

@@ -80,7 +80,7 @@ void UseMana(int pnum, int sn)
 	}
 }
 
-BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly)
+BOOL CheckSpell(int pnum, int sn, char st)
 {
 	BOOL result;
 
@@ -90,15 +90,11 @@ BOOL CheckSpell(int pnum, int sn, char st, BOOL manaonly)
 #endif
 
 	result = TRUE;
-	if (!manaonly && pcurs != CURSOR_HAND) {
-		result = FALSE;
-	} else {
-		if (st != RSPLTYPE_SKILL) {
-			if (GetSpellLevel(pnum, sn) <= 0) {
-				result = FALSE;
-			} else {
-				result = plr[pnum]._pMana >= GetManaAmount(pnum, sn);
-			}
+	if (st != RSPLTYPE_SKILL) {
+		if (GetSpellLevel(pnum, sn) <= 0) {
+			result = FALSE;
+		} else {
+			result = plr[pnum]._pMana >= GetManaAmount(pnum, sn);
 		}
 	}
 
