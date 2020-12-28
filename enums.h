@@ -3474,16 +3474,29 @@ typedef enum inv_xy_slot {
 	NUM_XY_SLOTS      = 73
 } inv_xy_slot;
 
+typedef enum player_graphic_idx {
+	PFIDX_STAND,
+	PFIDX_WALK,
+	PFIDX_ATTACK,
+	PFIDX_HIT,
+	PFIDX_LIGHTNING,
+	PFIDX_FIRE,
+	PFIDX_MAGIC,
+	PFIDX_DEATH,
+	PFIDX_BLOCK,
+	NUM_PFIDXs
+} player_graphic_idx;
+
 typedef enum player_graphic {
-	PFILE_STAND     = 1 << 0,
-	PFILE_WALK      = 1 << 1,
-	PFILE_ATTACK    = 1 << 2,
-	PFILE_HIT       = 1 << 3,
-	PFILE_LIGHTNING = 1 << 4,
-	PFILE_FIRE      = 1 << 5,
-	PFILE_MAGIC     = 1 << 6,
-	PFILE_DEATH     = 1 << 7,
-	PFILE_BLOCK     = 1 << 8,
+	PFILE_STAND     = 1 << PFIDX_STAND,
+	PFILE_WALK      = 1 << PFIDX_WALK,
+	PFILE_ATTACK    = 1 << PFIDX_ATTACK,
+	PFILE_HIT       = 1 << PFIDX_HIT,
+	PFILE_LIGHTNING = 1 << PFIDX_LIGHTNING,
+	PFILE_FIRE      = 1 << PFIDX_FIRE,
+	PFILE_MAGIC     = 1 << PFIDX_MAGIC,
+	PFILE_DEATH     = 1 << PFIDX_DEATH,
+	PFILE_BLOCK     = 1 << PFIDX_BLOCK,
 	// everything except PFILE_DEATH
 	// 0b1_0111_1111
 	PFILE_NONDEATH = 0x17F
