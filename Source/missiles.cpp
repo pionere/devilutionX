@@ -2272,6 +2272,10 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
 	if (misource >= 0) {
@@ -4031,24 +4035,15 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct *mis;
-	int mid, pid, dir, mx, my;
+	int mx, my;
 
 	mis = &missile[mi];
 	mx = mis->_mix;
 	my = mis->_miy;
-	mid = dMonster[mx][my];
-	pid = dPlayer[mx][my];
-	if (mid != 0 || pid != 0) {
-		if (mid != 0) {
-			mid = mid >= 0 ? mid - 1 : -(mid + 1);
-			dir = GetDirection(mx, my, monster[mid]._mx, monster[mid]._my);
-		} else {
-			pid = pid >= 0 ? pid - 1 : -(pid + 1);
-			dir = GetDirection(mx, my, plr[pid]._px, plr[pid]._py);
-		}
+	if ((dMonster[mx][my] | dPlayer[mx][my]) != 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
-		AddMissile(mx, my, mx, my, dir, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miDam, mis->_miSpllvl);
+		AddMissile(mx, my, mx, my, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miDam, mis->_miSpllvl);
 	}
 	PutMissile(mi);
 }
