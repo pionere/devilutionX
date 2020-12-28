@@ -955,14 +955,6 @@ typedef struct TCmdDwParam2 {
 	DWORD dwParam2;
 } TCmdDwParam2;
 
-#ifdef HELLFIRE
-typedef struct TCmdMonDamage {
-	BYTE bCmd;
-	WORD wMon;
-	DWORD dwDam;
-} TCmdMonDamage;
-#endif
-
 typedef struct TCmdPlrInfoHdr {
 	BYTE bCmd;
 	WORD wOffset;
@@ -1140,14 +1132,12 @@ typedef struct QuestData {
 	const char *_qlstr;
 } QuestData;
 
-#ifdef HELLFIRE
 typedef struct CornerStoneStruct {
 	int x;
 	int y;
 	BOOL activated;
 	ItemStruct item;
 } CornerStoneStruct;
-#endif
 
 //////////////////////////////////////////////////
 // gamemenu/gmenu

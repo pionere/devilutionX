@@ -205,9 +205,7 @@ typedef enum item_cursor_graphic {
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
-#ifdef HELLFIRE
 	ICURS_OIL                         = 30,
-#endif
 	ICURS_ELIXIR_OF_VITALITY          = 31,
 	ICURS_POTION_OF_HEALING           = 32,
 	ICURS_POTION_OF_FULL_REJUVENATION = 33,
@@ -2856,9 +2854,7 @@ typedef enum _mainmenu_selections {
 	MAINMENU_SINGLE_PLAYER = 1,
 	MAINMENU_MULTIPLAYER,
 	MAINMENU_REPLAY_INTRO,
-#ifdef HELLFIRE
 	MAINMENU_SHOW_SUPPORT,
-#endif
 	MAINMENU_SHOW_CREDITS,
 	MAINMENU_EXIT_DIABLO,
 	MAINMENU_ATTRACT_MODE,

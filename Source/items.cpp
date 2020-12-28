@@ -579,10 +579,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 #ifdef HELLFIRE
 		if (p->_pClass == PC_MONK) {
-			if (p->_pLevel >> 1 >= 1)
-				mind = p->_pLevel >> 1;
-			if (maxd <= p->_pLevel)
-				maxd = p->_pLevel;
+			mind = std::max(mind, p->_pLevel >> 1);
+			maxd = std::max(maxd, (int)p->_pLevel);
 		}
 #endif
 	}
@@ -701,14 +699,26 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	if (mr > MAXRESIST)
 		mr = MAXRESIST;
+#ifdef HELLFIRE
+	else if (mr < 0)
+		mr = 0;
+#endif
 	p->_pMagResist = mr;
 
 	if (fr > MAXRESIST)
 		fr = MAXRESIST;
+#ifdef HELLFIRE
+	else if (fr < 0)
+		fr = 0;
+#endif
 	p->_pFireResist = fr;
 
 	if (lr > MAXRESIST)
 		lr = MAXRESIST;
+#ifdef HELLFIRE
+	else if (lr < 0)
+		lr = 0;
+#endif
 	p->_pLghtResist = lr;
 
 	switch (p->_pClass) {
@@ -3368,6 +3378,14 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		else
 			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
 		break;
+#ifdef HELLFIRE
+	case IPL_FIREBALL:
+		if (is->_iFMinDam != is->_iFMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i", is->_iFMinDam);
+		break;
+#endif
 	case IPL_THORNS:
 		copy_cstr(tempstr, "attacker takes 1-3 damage");
 		break;
@@ -3377,14 +3395,6 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	case IPL_NOHEALPLR:
 		copy_cstr(tempstr, "you can't heal");
 		break;
-#ifdef HELLFIRE
-	case IPL_FIREBALL:
-		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i", is->_iFMinDam);
-		break;
-#endif
 	case IPL_ABSHALFTRAP:
 		copy_cstr(tempstr, "absorbs half of trap damage");
 		break;
@@ -3414,7 +3424,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 		break;
 	case IPL_TARGAC:
 #ifdef HELLFIRE
-		copy_cstr(tempstr, "penetrates target\'s armor");
+		copy_cstr(tempstr, "penetrates target's armor");
 #else
 		copy_cstr(tempstr, "damages target's armor");
 #endif
@@ -3733,7 +3743,7 @@ static void PrintItemMisc(const ItemStruct *is)
 	case IMISC_OILOF:
 		break;
 	case IMISC_OILACC:
-		desc = "increases a weapon\'s";
+		desc = "increases a weapon's";
 		AddPanelString(desc, TRUE);
 		desc = "chance to hit";
 		AddPanelString(desc, TRUE);
@@ -3741,17 +3751,17 @@ static void PrintItemMisc(const ItemStruct *is)
 	case IMISC_OILMAST:
 		desc = "greatly increases a";
 		AddPanelString(desc, TRUE);
-		desc = "weapon\'s chance to hit";
+		desc = "weapon's chance to hit";
 		AddPanelString(desc, TRUE);
 		break;
 	case IMISC_OILSHARP:
-		desc = "increases a weapon\'s";
+		desc = "increases a weapon's";
 		AddPanelString(desc, TRUE);
 		desc = "damage potential";
 		AddPanelString(desc, TRUE);
 		break;
 	case IMISC_OILDEATH:
-		desc = "greatly increases a weapon\'s";
+		desc = "greatly increases a weapon's";
 		AddPanelString(desc, TRUE);
 		desc = "damage potential - not bows";
 		AddPanelString(desc, TRUE);
@@ -3765,11 +3775,11 @@ static void PrintItemMisc(const ItemStruct *is)
 	case IMISC_OILBSMTH:
 		desc = "restores 20% of an";
 		AddPanelString(desc, TRUE);
-		desc = "item\'s durability";
+		desc = "item's durability";
 		AddPanelString(desc, TRUE);
 		break;
 	case IMISC_OILFORT:
-		desc = "increases an item\'s";
+		desc = "increases an item's";
 		AddPanelString(desc, TRUE);
 		desc = "current and max durability";
 		AddPanelString(desc, TRUE);
@@ -4190,7 +4200,7 @@ void SpawnWitch(int lvl)
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			if (random_(51, 100) <= 5 || item[0]._iMiscId == IMISC_STAFF)
 				GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
-		} while (item[0]._iIvalue > 140000);
+		} while (item[0]._iIvalue > WITCH_MAX_VALUE);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_WITCH;
 		copy_pod(witchitem[i], item[0]);
@@ -4232,7 +4242,7 @@ void SpawnBoy(int lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndBoyItem(lvl), lvl);
 			GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
-		} while (item[0]._iIvalue > 90000);
+		} while (item[0]._iIvalue > BOY_MAX_VALUE);
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_BOY;
 		copy_pod(boyitem, item[0]);
@@ -4389,12 +4399,6 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 {
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
-#ifdef HELLFIRE
-	} else if (idx >= IDI_BOOK1 && idx <= IDI_BOOK4) {
-		SetRndSeed(iseed);
-		volatile int hi_predelnik = random_(0, 1);
-		GetItemAttrs(ii, idx, lvl);
-#endif
 	} else {
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);

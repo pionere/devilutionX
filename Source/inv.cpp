@@ -1997,10 +1997,17 @@ static void PlrAddHp()
 	p = &plr[myplr];
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
+#ifdef HELLFIRE
+	if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
+		hp <<= 1;
+	else if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD)
+		hp += hp >> 1;
+#else
 	if (p->_pClass == PC_WARRIOR)
 		hp <<= 1;
 	else if (p->_pClass == PC_ROGUE)
 		hp += hp >> 1;
+#endif
 	p->_pHitPoints += hp;
 	if (p->_pHitPoints > p->_pMaxHP)
 		p->_pHitPoints = p->_pMaxHP;
@@ -2022,7 +2029,11 @@ static void PlrAddMana()
 	mana = ((mana >> 1) + random_(40, mana)) << 6;
 	if (p->_pClass == PC_SORCERER)
 		mana <<= 1;
+#ifdef HELLFIRE
 	else if (p->_pClass == PC_ROGUE)
+#else
+	else if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD)
+#endif
 		mana += mana >> 1;
 	p->_pMana += mana;
 	if (p->_pMana > p->_pMaxMana)
@@ -2155,12 +2166,14 @@ BOOL UseInvItem(int cii)
 		break;
 	case IMISC_ELIXMAG:
 		ModifyPlrMag(pnum, 1);
+		PlrRefill(FALSE, TRUE);
 		break;
 	case IMISC_ELIXDEX:
 		ModifyPlrDex(pnum, 1);
 		break;
 	case IMISC_ELIXVIT:
 		ModifyPlrVit(pnum, 1);
+		PlrRefill(TRUE, FALSE);
 		break;
 	case IMISC_REJUV:
 		PlrAddHp();

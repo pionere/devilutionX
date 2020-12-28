@@ -129,14 +129,14 @@ void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int v
 	char valstr[32];
 
 	s = y * 12 + stext[y]._syoff;
-	if (stextsize)
+	if (stextsize != 0)
 		xx = PANEL_X + 32;
 	else
 		xx = PANEL_X + 352;
 	sx = xx + x;
 	sy = s + 44 + SCREEN_Y + UI_OFFSET_Y;
 	len = strlen(str);
-	if (stextsize)
+	if (stextsize != 0)
 		yy = 577;
 	else
 		yy = 257;
@@ -738,7 +738,13 @@ static void S_StartWBuy()
 
 static BOOL WitchSellOk(const ItemStruct *is)
 {
+#ifdef HELLFIRE
+	return ((is->_itype == ITYPE_MISC && (is->_iMiscId < IMISC_OILFIRST || is->_iMiscId > IMISC_OILLAST))
+	 || (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL))
+		&& is->_iClass != ICLASS_QUEST
+#else
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
+#endif
 		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
 		&& is->IDidx != IDI_LAZSTAFF;
 }
@@ -778,7 +784,12 @@ static void S_StartWSell()
 
 static BOOL WitchRechargeOk(const ItemStruct *is)
 {
-	return is->_itype == ITYPE_STAFF && is->_iCharges != is->_iMaxCharges;
+#ifdef HELLFIRE
+	return (is->_itype == ITYPE_STAFF || is->_iMiscId == IMISC_UNIQUE)
+#else
+	return is->_itype == ITYPE_STAFF
+#endif
+	 && is->_iCharges != is->_iMaxCharges;
 }
 
 static void AddStoreHoldRecharge(const ItemStruct *is, int i)
