@@ -15,8 +15,11 @@ extern "C" {
 #endif
 
 int GetManaAmount(int pnum, int sn);
-void UseMana(int pnum, int sn);
-BOOL CheckSpell(int pnum, int sn, char st);
+void UseMana(int pnum, int sn, int sf);
+BOOL HasMana(int pnum, int sn, int sf);
+int SpellSourceInv(int sn);
+int SpellSourceEquipment(int sn);
+BOOL CheckSpell(int pnum, int sn);
 BOOL PlacePlayer(int pnum);
 void DoResurrect(int pnum, int tnum);
 void DoHealOther(int pnum, int tnum, int spllvl);

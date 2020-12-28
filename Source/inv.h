@@ -40,10 +40,6 @@ void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y);
 int SyncPutItem(int pnum, int x, int y, ItemStruct *is);
 char CheckInvHLight();
-void RemoveScroll(int pnum);
-BOOL UseScroll();
-void UseStaffCharge(int pnum);
-BOOL UseStaff();
 BOOL UseInvItem(int cii);
 void CalculateGold(int pnum);
 

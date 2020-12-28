@@ -229,17 +229,17 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pvid);
 
 	CopyInt(tbuff, &p->_pSpell);
-	CopyChar(tbuff, &p->_pSplType);
+	tbuff += 1; // Skip _pSplType
 	CopyChar(tbuff, &p->_pSplFrom);
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &p->_pTSpell);
-	CopyChar(tbuff, &p->_pTSplType);
+	tbuff += 1; // Skip _pTSplType
 	tbuff += 3; // Alignment
 	CopyInt(tbuff, &p->_pRSpell);
 	CopyChar(tbuff, &p->_pRSplType);
 	tbuff += 3; // Alignment
-	CopyInt(tbuff, &p->_pSBkSpell);
-	CopyChar(tbuff, &p->_pSBkSplType);
+	tbuff += 4; // Skip _pSBkSpell
+	tbuff += 1; // Skip _pSBkSplType
 	CopyBytes(tbuff, 64, &p->_pSplLvl);
 	tbuff += 7; // Alignment
 	CopyInt64(tbuff, &p->_pMemSpells);
@@ -995,17 +995,17 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pvid, tbuff);
 
 	CopyInt(&p->_pSpell, tbuff);
-	CopyChar(&p->_pSplType, tbuff);
+	tbuff += 1; // Skip _pSplType
 	CopyChar(&p->_pSplFrom, tbuff);
 	tbuff += 2; // Alignment
 	CopyInt(&p->_pTSpell, tbuff);
-	CopyChar(&p->_pTSplType, tbuff);
+	tbuff += 1; // Skip _pTSplType
 	tbuff += 3; // Alignment
 	CopyInt(&p->_pRSpell, tbuff);
 	CopyChar(&p->_pRSplType, tbuff);
 	tbuff += 3; // Alignment
-	CopyInt(&p->_pSBkSpell, tbuff);
-	CopyChar(&p->_pSBkSplType, tbuff);
+	tbuff += 4; // Skip _pSBkSpell
+	tbuff += 1; // Skip _pSBkSplType
 	CopyBytes(&p->_pSplLvl, 64, tbuff);
 	tbuff += 7; // Alignment
 	CopyInt64(&p->_pMemSpells, tbuff);

@@ -38,6 +38,7 @@ void NetSendCmdLocParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, W
 void NetSendCmdParam1(BOOL bHiPri, BYTE bCmd, WORD wParam1);
 void NetSendCmdParam2(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2);
 void NetSendCmdParam3(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD wParam3);
+void NetSendCmdParam4(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD wParam3, WORD wParam4);
 void NetSendCmdQuest(BOOL bHiPri, BYTE q);
 void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii);
 void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y);

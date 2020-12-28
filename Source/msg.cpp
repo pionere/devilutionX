@@ -1074,6 +1074,21 @@ void NetSendCmdParam3(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD w
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdParam4(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD wParam3, WORD wParam4)
+{
+	TCmdParam4 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.wParam1 = wParam1;
+	cmd.wParam2 = wParam2;
+	cmd.wParam3 = wParam3;
+	cmd.wParam4 = wParam4;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdQuest(BOOL bHiPri, BYTE q)
 {
 	TCmdQuest cmd;
@@ -1656,7 +1671,7 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-/*static DWORD On_SPELLXYD(TCmd *pCmd, int pnum)
+static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
 
@@ -1664,58 +1679,12 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 		int spell = cmd->wParam1;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLWALL;
-			plr[pnum].destParam1 = cmd->x;
-			plr[pnum].destParam2 = cmd->y;
-			plr[pnum].destParam3 = cmd->wParam2;
-			plr[pnum].destParam4 = cmd->wParam3;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}*/
-
-static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam1;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->wParam2;
+			plr[pnum].destParam1 = cmd->wParam3; // spllvl
 			plr[pnum].destParam2 = cmd->x;
 			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_TSPELLXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam1;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->wParam2;
-			plr[pnum].destParam2 = cmd->x;
-			plr[pnum].destParam3 = cmd->y;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
+			plr[pnum]._pSplFrom = cmd->wParam2; // invloc 0;
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1827,18 +1796,17 @@ static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 
 static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 {
-	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+	TCmdParam4 *cmd = (TCmdParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int spell = cmd->wParam2;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1 = cmd->wParam1;
-			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum].destParam1 = cmd->wParam1; // mnum
+			plr[pnum].destParam2 = cmd->wParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
+			plr[pnum]._pSplFrom = cmd->wParam3; // invloc 0;
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1848,82 +1816,17 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 
 static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 {
-	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+	TCmdParam4 *cmd = (TCmdParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int spell = cmd->wParam2;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1 = cmd->wParam1;
-			plr[pnum].destParam2 = cmd->wParam3;
+			plr[pnum].destParam1 = cmd->wParam1; // pnum
+			plr[pnum].destParam2 = cmd->wParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pRSplType;
-			plr[pnum]._pSplFrom = 0;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_TSPELLID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam2;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1 = cmd->wParam1;
-			plr[pnum].destParam2 = cmd->wParam3;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_TSPELLPID(TCmd *pCmd, int pnum)
-{
-	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam2;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1 = cmd->wParam1;
-			plr[pnum].destParam2 = cmd->wParam3;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_TSPELLTID(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam2;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->wParam1;
-			plr[pnum].destParam2 = cmd->x;
-			plr[pnum].destParam3 = cmd->y;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pTSplType;
-			plr[pnum]._pSplFrom = 2;
+			plr[pnum]._pSplFrom = cmd->wParam3; // invloc 0;
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -2465,28 +2368,6 @@ static DWORD On_DEBUG(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_SCROLL_SPELLXY(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
-
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam1;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
-			ClrPlrPath(pnum);
-			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->wParam2;
-			plr[pnum].destParam2 = cmd->x;
-			plr[pnum].destParam3 = cmd->y;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = RSPLTYPE_INVALID;
-			plr[pnum]._pSplFrom = 3;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}
-
 static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1)
@@ -2588,8 +2469,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	//	return On_SPELLXYD(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
-	case CMD_TSPELLXY:
-		return On_TSPELLXY(pCmd, pnum);
+	//case CMD_TSPELLXY:
+	//	return On_TSPELLXY(pCmd, pnum);
 	case CMD_OPOBJXY:
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:
@@ -2608,12 +2489,12 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_SPELLID(pCmd, pnum);
 	case CMD_SPELLPID:
 		return On_SPELLPID(pCmd, pnum);
-	case CMD_TSPELLID:
-		return On_TSPELLID(pCmd, pnum);
-	case CMD_TSPELLPID:
-		return On_TSPELLPID(pCmd, pnum);
-	case CMD_TSPELLTID:
-		return On_TSPELLTID(pCmd, pnum);
+	//case CMD_TSPELLID:
+	//	return On_TSPELLID(pCmd, pnum);
+	//case CMD_TSPELLPID:
+	//	return On_TSPELLPID(pCmd, pnum);
+	//case CMD_TSPELLTID:
+	//	return On_TSPELLTID(pCmd, pnum);
 	case CMD_KNOCKBACK:
 		return On_KNOCKBACK(pCmd, pnum);
 	case CMD_TALKXY:
@@ -2684,8 +2565,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
-	case CMD_SCROLL_SPELLXY:
-		return On_SCROLL_SPELLXY(pCmd, pnum);
+	//case CMD_SCROLL_SPELLXY:
+	//	return On_SCROLL_SPELLXY(pCmd, pnum);
 #ifdef HELLFIRE
 	case CMD_ENDREFLECT:
 		return On_ENDREFLECT(pCmd, pnum);

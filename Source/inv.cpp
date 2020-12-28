@@ -1976,96 +1976,6 @@ char CheckInvHLight()
 	return rv;
 }
 
-void RemoveScroll(int pnum)
-{
-	PlayerStruct *p;
-	ItemStruct *pi;
-	int i;
-
-	p = &plr[pnum];
-	pi = p->InvList;
-	for (i = 0; i < p->_pNumInv; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-#ifdef HELLFIRE
-		    && pi->_iSpell == p->_pSpell) {
-#else
-		    && pi->_iSpell == p->_pRSpell) {
-#endif
-			RemoveInvItem(pnum, i);
-			CalcPlrScrolls(pnum);
-			return;
-		}
-	}
-	pi = p->SpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-#ifdef HELLFIRE
-			&& pi->_iSpell == p->_pSpell) {
-#else
-		    && pi->_iSpell == p->_pRSpell) {
-#endif
-			RemoveSpdBarItem(pnum, i);
-			CalcPlrScrolls(pnum);
-			return;
-		}
-	}
-}
-
-BOOL UseScroll()
-{
-	PlayerStruct *p;
-	ItemStruct *pi;
-	int i;
-
-	p = &plr[myplr];
-	if (leveltype == DTYPE_TOWN && !spelldata[p->_pRSpell].sTownSpell)
-		return FALSE;
-
-	pi = p->InvList;
-	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-		    && pi->_iSpell == p->_pRSpell) {
-			return TRUE;
-		}
-	}
-	pi = p->SpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-		    && pi->_iSpell == p->_pRSpell) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-void UseStaffCharge(int pnum)
-{
-	ItemStruct *is;
-
-	is = &plr[pnum].InvBody[INVLOC_HAND_LEFT];
-	if (is->_itype != ITYPE_NONE
-	    && is->_iSpell == plr[pnum]._pRSpell
-	    && is->_iCharges > 0) {
-		is->_iCharges--;
-		CalcPlrStaff(pnum);
-	}
-}
-
-BOOL UseStaff()
-{
-	ItemStruct *pi;
-
-	pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE
-	    && pi->_iSpell == plr[myplr]._pRSpell
-	    && pi->_iCharges > 0) {
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 static void StartGoldDrop()
 {
 	initialDropGoldIndex = pcursinvitem;
@@ -2123,12 +2033,12 @@ static void PlrAddMana()
 	gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
-static void PlrSetTSpell(int spell, int curs)
+static void PlrSetTSpell(int spell, int sf, int curs)
 {
 	//if (pnum == myplr)
 		NewCursor(curs);
 	plr[myplr]._pTSpell = spell;
-	plr[myplr]._pTSplType = RSPLTYPE_INVALID;
+	plr[myplr]._pSplFrom = sf;
 }
 
 static void PlrRefill(BOOL hp, BOOL mana)
@@ -2260,13 +2170,16 @@ BOOL UseInvItem(int cii)
 		PlrRefill(TRUE, TRUE);
 		break;
 	case IMISC_SCROLL:
-		if (spelldata[is->_iSpell].sCurs != CURSOR_NONE) {
-			PlrSetTSpell(is->_iSpell, spelldata[is->_iSpell].sCurs);
+#ifdef HELLFIRE
+	case IMISC_RUNE:
+#endif
+		if (spelldata[is->_iSpell].scCurs != CURSOR_NONE) {
+			PlrSetTSpell(is->_iSpell, cii, spelldata[is->_iSpell].scCurs);
 		} else {
-			NetSendCmdLocParam2(TRUE, CMD_SCROLL_SPELLXY,
-				cursmx, cursmy, is->_iSpell, GetSpellLevel(pnum, is->_iSpell));
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXY,
+				cursmx, cursmy, is->_iSpell, cii, GetSpellLevel(pnum, is->_iSpell));
 		}
-		break;
+		return TRUE;
 	case IMISC_BOOK:
 		p = &plr[pnum];
 		p->_pMemSpells |= SPELL_MASK(is->_iSpell);
@@ -2312,9 +2225,6 @@ BOOL UseInvItem(int cii)
 		ModifyPlrVit(pnum, 3);
 		break;
 #ifdef HELLFIRE
-	case IMISC_RUNE:
-		PlrSetTSpell(is->_iSpell, spelldata[is->_iSpell].sCurs);
-		break;
 	case IMISC_NOTE:
 		InitQTextMsg(TEXT_BOOK9);
 		invflag = FALSE;

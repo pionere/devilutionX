@@ -563,7 +563,8 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != -1) {
 			int sn = plr[myplr]._pTSpell;
-			NetSendCmdLocParam2(TRUE, CMD_TSPELLTID, 0, 0, pcursinvitem, sn);
+			int sf = plr[myplr]._pSplFrom;
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, 0, 0, sn, sf, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -594,23 +595,27 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_RESURRECT:
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
-			NetSendCmdLocParam2(TRUE, CMD_TSPELLTID, plr[pcursplr]._px, plr[pcursplr]._py, pcursplr, sn);
+			int sf = plr[myplr]._pSplFrom;
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, plr[pcursplr]._px, plr[pcursplr]._py, sn, sf, pcursplr);
 		}
 		break;
 	case CURSOR_TELEPORT: {
 		int sn = plr[myplr]._pTSpell;
+		int sf = plr[myplr]._pSplFrom;
 		int sl = GetSpellLevel(myplr, sn);
 		if (pcursmonst != -1)
-			NetSendCmdParam3(TRUE, CMD_TSPELLID, pcursmonst, sn, sl);
+			NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, sn, sf, sl);
 		else if (pcursplr != -1)
-			NetSendCmdParam3(TRUE, CMD_TSPELLPID, pcursplr, sn, sl);
+			NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		else
-			NetSendCmdLocParam2(TRUE, CMD_TSPELLXY, cursmx, cursmy, sn, sl);
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, sn, sf, sl);
 	} break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
-			NetSendCmdParam3(TRUE, CMD_TSPELLPID, pcursplr, sn, GetSpellLevel(myplr, sn));
+			int sf = plr[myplr]._pSplFrom;
+			int sl = GetSpellLevel(myplr, sn);
+			NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		}
 		break;
 	default:

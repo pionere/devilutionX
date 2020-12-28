@@ -237,10 +237,10 @@ typedef struct PlayerStruct {
 	int _plid;
 	int _pvid;
 	int _pSpell;
-	char _pSplType;
+	char _pSplType; // unused
 	char _pSplFrom;
 	int _pTSpell;
-	char _pTSplType;
+	char _pTSplType; // unused
 	int _pRSpell;
 	// enum spell_type
 	char _pRSplType;
@@ -856,6 +856,14 @@ typedef struct TCmdParam3 {
 	WORD wParam3;
 } TCmdParam3;
 
+typedef struct TCmdParam4 {
+	BYTE bCmd;
+	WORD wParam1;
+	WORD wParam2;
+	WORD wParam3;
+	WORD wParam4;
+} TCmdParam4;
+
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE _mx;
@@ -1168,7 +1176,8 @@ typedef struct SpellData {
 	char sStaffLvl;
 	char sScrollLvl;
 	BOOLEAN sTargeted;
-	BYTE sCurs;
+	BYTE scCurs; // cursor for scrolls/runes
+	BYTE spCurs; // cursor for spells
 	BOOLEAN sTownSpell;
 	BYTE sMinInt;
 	unsigned char sSFX;

@@ -2567,6 +2567,12 @@ typedef enum spell_type {
 	RSPLTYPE_INVALID = 0x4,
 } spell_type;
 
+typedef enum spell_from_type {
+	SPLFROM_INVALID =  0,
+	SPLFROM_SKILL   = -1,
+	SPLFROM_MANA    = -2,
+} spell_from_type;
+
 typedef enum cursor_id {
 	CURSOR_NONE        = 0x0,
 	CURSOR_HAND        = 0x1,
@@ -2717,7 +2723,7 @@ typedef enum _cmd_id {
 	CMD_ATTACKXY,
 	CMD_RATTACKXY,
 	CMD_SPELLXY,
-	CMD_TSPELLXY,
+	OBSOLETE_CMD3, // CMD_TSPELLXY in vanilla
 	CMD_OPOBJXY,
 	CMD_DISARMXY,
 	CMD_ATTACKID,
@@ -2726,9 +2732,9 @@ typedef enum _cmd_id {
 	CMD_RATTACKPID,
 	CMD_SPELLID,
 	CMD_SPELLPID,
-	CMD_TSPELLID,
-	CMD_TSPELLPID,
-	CMD_TSPELLTID, // CMD_RESURRECT in vanilla
+	OBSOLETE_CMD6, // CMD_TSPELLID in vanilla
+	OBSOLETE_CMD5, // CMD_TSPELLPID in vanilla
+	OBSOLETE_CMD4, //CMD_TSPELLTID, // CMD_RESURRECT in vanilla
 	CMD_OPOBJT,
 	CMD_KNOCKBACK,
 	CMD_TALKXY,
@@ -2793,7 +2799,7 @@ typedef enum _cmd_id {
 	CMD_SYNCQUEST,
 	CMD_ENDSHIELD,
 	CMD_AWAKEGOLEM,
-	CMD_SCROLL_SPELLXY,
+	OBSOLETE_CMD7, // CMD_NOVA in vanilla
 	CMD_SETSHIELD,
 	CMD_REMSHIELD,
 	FAKE_CMD_SETID,

@@ -318,7 +318,7 @@ void DrawSpell()
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
 		tlvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
-		if (tlvl <= 0 || !CheckSpell(myplr, spl, RSPLTYPE_SPELL))
+		if (tlvl <= 0 || !CheckSpell(myplr, spl))
 			st = RSPLTYPE_INVALID;
 	}
 	SetSpellTrans(st);
@@ -1814,7 +1814,7 @@ static char GetSBookTrans(int sn, BOOL townok)
 		st = RSPLTYPE_SKILL;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
-	} else if (CheckSpell(myplr, sn, RSPLTYPE_SPELL)
+	} else if (CheckSpell(myplr, sn)
 	 && (p->_pSplLvl[sn] + p->_pISplLvlAdd) > 0) {
 		st = RSPLTYPE_SPELL;
 	} else {

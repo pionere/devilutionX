@@ -950,7 +950,6 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	if (FirstTime) {
 		p->_pRSplType = p->_pSplType = RSPLTYPE_INVALID;
 		p->_pRSpell = p->_pSpell = SPL_INVALID;
-		p->_pSBkSpell = SPL_INVALID;
 		// TODO: BUGFIX: does not seem to be the best place to set this
 		if ((p->_pgfxnum & 0xF) == ANIM_ID_BOW) {
 			p->_pwtype = WT_RANGED;
@@ -1649,6 +1648,7 @@ static void StartSpell(int pnum)
 	p->_pVar2 = dy;
 	p->_pVar3 = p->_pSpell;
 	p->_pVar4 = spllvl;
+	p->_pVar5 = p->_pSplFrom;
 	p->_pVar7 = FALSE; // 'flag' of cast
 	p->_pVar8 = 0; // speed helper
 	p->_pmode = PM_SPELL;
@@ -2973,27 +2973,10 @@ static BOOL PlrDoSpell(int pnum)
 	if (!p->_pVar7) {
 		p->_pVar7 = TRUE;
 
-		if (AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
-			spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4) != -1) {
-			UseMana(pnum, p->_pVar3);
-		}
-
-		if (p->_pSplFrom == 0) {
-			if (p->_pRSplType == RSPLTYPE_SCROLL) {
-				if (!(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
-					p->_pRSpell = SPL_INVALID;
-					p->_pRSplType = RSPLTYPE_INVALID;
-					gbRedrawFlags |= REDRAW_SPELL_ICON;
-				}
-			}
-
-			if (p->_pRSplType == RSPLTYPE_CHARGES) {
-				if (!(p->_pISpells & SPELL_MASK(p->_pRSpell))) {
-					p->_pRSpell = SPL_INVALID;
-					p->_pRSplType = RSPLTYPE_INVALID;
-					gbRedrawFlags |= REDRAW_SPELL_ICON;
-				}
-			}
+		if (HasMana(pnum, p->_pVar3, p->_pVar5)
+		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
+				spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4) != -1) {
+			UseMana(pnum, p->_pVar3, p->_pVar5);
 		}
 	}
 
@@ -3568,12 +3551,15 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 
 void CheckPlrSpell()
 {
-	BOOL addflag;
-	int rspell, sl;
+	int rspell, sf, sl;
+	const int *sfx;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("CheckPlrSpell: illegal player %d", myplr);
 	}
+
+	if (pcurs >= CURSOR_FIRSTITEM)
+		return;
 
 	rspell = plr[myplr]._pRSpell;
 	if (rspell == SPL_INVALID) {
@@ -3586,9 +3572,6 @@ void CheckPlrSpell()
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM)
-		return;
-
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (!sgbControllerActive)
 #endif
@@ -3600,44 +3583,45 @@ void CheckPlrSpell()
 			return;
 		}
 
+	sfx = NULL;
 	switch (plr[myplr]._pRSplType) {
 	case RSPLTYPE_SKILL:
-		if (spelldata[rspell].sCurs != CURSOR_NONE) {
-			NewCursor(spelldata[rspell].sCurs);
-			plr[myplr]._pTSpell = rspell;
-			plr[myplr]._pTSplType = RSPLTYPE_SKILL;
-			return;
-		}
-		addflag = TRUE;
+		sf = SPLFROM_SKILL;
 		break;
 	case RSPLTYPE_SPELL:
-		addflag = CheckSpell(myplr, rspell, plr[myplr]._pRSplType);
+		sf = CheckSpell(myplr, rspell) ? SPLFROM_MANA : SPLFROM_INVALID;
+		sfx = sgSFXSets[SFXS_PLR_35];
 		break;
 	case RSPLTYPE_SCROLL:
-		addflag = UseScroll();
+		sf = SpellSourceInv(rspell);
 		break;
 	case RSPLTYPE_CHARGES:
-		addflag = UseStaff();
+		sf = SpellSourceEquipment(rspell);
 		break;
 	case RSPLTYPE_INVALID:
-		addflag = FALSE;
+		sf = SPLFROM_INVALID;
 		break;
 	}
-
-	if (addflag) {
-		sl = GetSpellLevel(myplr, rspell);
-		if (pcursmonst != -1) {
-			NetSendCmdParam3(TRUE, CMD_SPELLID, pcursmonst, rspell, sl);
-		} else if (pcursplr != -1) {
-			NetSendCmdParam3(TRUE, CMD_SPELLPID, pcursplr, rspell, sl);
-		} else { //145
-			NetSendCmdLocParam2(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sl);
-		}
+	if (sf == SPLFROM_INVALID) {
+		if (sfx != NULL)
+			PlaySFX(sfx[plr[myplr]._pClass]);
 		return;
 	}
 
-	if (plr[myplr]._pRSplType == RSPLTYPE_SPELL) {
-		PlaySFX(sgSFXSets[SFXS_PLR_35][plr[myplr]._pClass]);
+	if (spelldata[rspell].spCurs != CURSOR_NONE) {
+		NewCursor(spelldata[rspell].spCurs);
+		plr[myplr]._pTSpell = rspell;
+		plr[myplr]._pSplFrom = sf;
+		return;
+	}
+
+	sl = GetSpellLevel(myplr, rspell);
+	if (pcursmonst != -1) {
+		NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, rspell, sf, sl);
+	} else if (pcursplr != -1) {
+		NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, rspell, sf, sl);
+	} else { //145
+		NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
 	}
 }
 
