@@ -2574,8 +2574,11 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 	case 5:
 		idx = IDI_MANA;
 		break;
-	default:
+	case 6:
 		idx = IDI_OIL;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 #else

@@ -777,14 +777,14 @@ void DrawQuestLog()
 {
 	int y, i;
 
-	PrintQLString(0, 2, TRUE, "Quest Log", 3);
+	PrintQLString(0, 2, TRUE, "Quest Log", COL_GOLD);
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
 	y = qtopline;
 	for (i = 0; i < numqlines; i++) {
-		PrintQLString(0, y, TRUE, questlist[qlist[i]]._qlstr, 0);
+		PrintQLString(0, y, TRUE, questlist[qlist[i]]._qlstr, COL_WHITE);
 		y += 2;
 	}
-	PrintQLString(0, 22, TRUE, "Close Quest Log", 0);
+	PrintQLString(0, 22, TRUE, "Close Quest Log", COL_WHITE);
 }
 
 void StartQuestlog()

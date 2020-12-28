@@ -2752,6 +2752,9 @@ void MonWalkDir(int mnum, int md)
 	case DIR_NW:
 		MonStartWalk(mnum, -mwi[1], -mwi[0], -1, 0, DIR_NW);
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
@@ -4698,6 +4701,9 @@ void ProcessMonsters()
 				break;
 			case MM_TALK:
 				raflag = MonDoTalk(mnum);
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			if (raflag) {

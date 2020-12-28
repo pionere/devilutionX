@@ -1456,6 +1456,9 @@ static void DRLG_L4FTVR(int i, int j, int x, int y, int dir)
 		case 8:
 			dTransVal[x][y] = TransVal;
 			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 	} else {
 		dTransVal[x][y] = TransVal;

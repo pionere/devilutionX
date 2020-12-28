@@ -254,6 +254,8 @@ static void SetSpellTrans(char st)
 	SplTransTbl[255] = 0;
 
 	switch (st) {
+	case RSPLTYPE_SKILL:
+		break;
 	case RSPLTYPE_SPELL:
 		SplTransTbl[PAL8_YELLOW] = PAL16_BLUE + 1;
 		SplTransTbl[PAL8_YELLOW + 1] = PAL16_BLUE + 3;
@@ -294,6 +296,9 @@ static void SetSpellTrans(char st)
 		SplTransTbl[PAL16_BEIGE + 15] = 0;
 		SplTransTbl[PAL16_YELLOW + 15] = 0;
 		SplTransTbl[PAL16_ORANGE + 15] = 0;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
@@ -359,6 +364,9 @@ void DrawSpellList()
 			SetSpellTrans(RSPLTYPE_CHARGES);
 			mask = p->_pISpells;
 			c = SPLICONLAST + 2;
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 		for (spl = 1, j = 1; j < NUM_SPELLS; spl <<= 1, j++) {
@@ -432,6 +440,9 @@ void DrawSpellList()
 						snprintf(tempstr, sizeof(tempstr), "%i Charges", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
 					AddPanelString(tempstr, TRUE);
 					break;
+				default:
+					ASSUME_UNREACHABLE
+					break;
 				}
 				for (t = 0; t < 4; t++) {
 					if (p->_pSplHotKey[t] == j && p->_pSplTHotKey[t] == pSplType) {
@@ -475,8 +486,10 @@ void SetSpeedSpell(int slot)
 	if (pSpell != SPL_INVALID) {
 		p = &plr[myplr];
 		for (i = 0; i < lengthof(p->_pSplHotKey); ++i) {
-			if (p->_pSplHotKey[i] == pSpell && p->_pSplTHotKey[i] == pSplType)
+			if (p->_pSplHotKey[i] == pSpell && p->_pSplTHotKey[i] == pSplType) {
 				p->_pSplHotKey[i] = SPL_INVALID;
+				p->_pSplTHotKey[i] = RSPLTYPE_INVALID;
+			}
 		}
 		p->_pSplHotKey[slot] = pSpell;
 		p->_pSplTHotKey[slot] = pSplType;
@@ -489,10 +502,6 @@ void ToggleSpell(int slot)
 	unsigned __int64 spells;
 
 	p = &plr[myplr];
-	if (p->_pSplHotKey[slot] == SPL_INVALID) {
-		return;
-	}
-
 	switch (p->_pSplTHotKey[slot]) {
 	case RSPLTYPE_SKILL:
 		spells = p->_pAblSpells;
@@ -505,6 +514,11 @@ void ToggleSpell(int slot)
 		break;
 	case RSPLTYPE_CHARGES:
 		spells = p->_pISpells;
+		break;
+	case RSPLTYPE_INVALID:
+		return;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -552,7 +566,7 @@ void PrintChar(int sx, int sy, int nCel, char col)
 			tbl[i] = pix;
 		}
 		break;
-	default:
+	case COL_GOLD:
 		for (i = 0; i < lengthof(tbl); i++) {
 			pix = i;
 			if (pix >= PAL16_GRAY) {
@@ -563,6 +577,9 @@ void PrintChar(int sx, int sy, int nCel, char col)
 			}
 			tbl[i] = pix;
 		}
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	CelDrawLight(sx, sy, pPanelText, nCel, 13, tbl);
@@ -891,6 +908,9 @@ void DoSpeedBook()
 			case RSPLTYPE_CHARGES:
 				spells = p->_pISpells;
 				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
 			for (spell = 1, j = 1; j < NUM_SPELLS; spell <<= 1, j++) {
 				if (spell & spells) {
@@ -1022,7 +1042,6 @@ void CheckPanelInfo()
 		AddPanelString(tempstr, TRUE);
 		p = &plr[myplr];
 		sn = p->_pRSpell;
-		if (sn != SPL_INVALID) {
 			switch (p->_pRSplType) {
 			case RSPLTYPE_SKILL:
 				snprintf(tempstr, sizeof(tempstr), "%s Skill", spelldata[sn].sNameText);
@@ -1072,8 +1091,12 @@ void CheckPanelInfo()
 					snprintf(tempstr, sizeof(tempstr), "%i Charges", c);
 				AddPanelString(tempstr, TRUE);
 				break;
+			case RSPLTYPE_INVALID:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
-		}
 	}
 	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT && MouseY > 4 + PANEL_TOP && MouseY < 33 + PANEL_TOP)
 		pcursinvitem = CheckInvHLight();
@@ -1144,6 +1167,9 @@ void CheckBtnUp()
 			break;
 		case PANBTN_FRIENDLY:
 			FriendlyMode = !FriendlyMode;
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 	}
@@ -1623,9 +1649,12 @@ BOOL CheckChrBtns()
 				if (p->_pBaseDex >= MaxStats[p->_pClass][ATTRIB_DEX])
 					return FALSE;
 				break;
-			default:
+			case 3:
 				if (p->_pBaseVit >= MaxStats[p->_pClass][ATTRIB_VIT])
 					return FALSE;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			chrbtn[i] = TRUE;
@@ -1660,8 +1689,11 @@ void ReleaseChrBtns()
 				case 2:
 					NetSendCmdParam1(TRUE, CMD_ADDDEX, 1);
 					break;
-				default:
+				case 3:
 					NetSendCmdParam1(TRUE, CMD_ADDVIT, 1);
+					break;
+				default:
+					ASSUME_UNREACHABLE
 					break;
 				}
 				plr[myplr]._pStatPts--;
@@ -1865,7 +1897,8 @@ void DrawSpellBook()
 			case RSPLTYPE_CHARGES:
 				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
 				break;
-			default:
+			case RSPLTYPE_SPELL:
+			case RSPLTYPE_INVALID:
 				mana = GetManaAmount(myplr, sn) >> 6;
 				GetDamageAmt(sn, &min, &max);
 				if (min != -1) {
@@ -1883,6 +1916,9 @@ void DrawSpellBook()
 				} else {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
 				}
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			PrintSBookStr(sx, yp - 12, FALSE, tempstr, COL_WHITE);
@@ -2077,7 +2113,7 @@ void DrawTalkPan()
 	msg = sgszTalkMsg;
 	for (i = 0; i < 39; i += 13) {
 		x = 0 + PANEL_LEFT;
-		msg = control_print_talk_msg(msg, &x, i, 0);
+		msg = control_print_talk_msg(msg, &x, i, COL_WHITE);
 		if (msg == NULL)
 			break;
 	}

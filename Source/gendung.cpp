@@ -169,7 +169,8 @@ void FillSolidBlockTbls()
 		pSBFile = LoadFileInMem("Levels\\L4Data\\L4.SOL", &dwTiles);
 		break;
 	default:
-		app_fatal("FillSolidBlockTbls");
+		ASSUME_UNREACHABLE
+		break;
 	}
 
 	pTmp = pSBFile;

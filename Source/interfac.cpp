@@ -229,6 +229,9 @@ static void InitCutscene(unsigned int uMsg)
 			LoadPalette("Gendata\\Cut4.pal");
 			progress_id = 1;
 			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 		break;
 	case WM_DIABRETOWN:
@@ -237,7 +240,7 @@ static void InitCutscene(unsigned int uMsg)
 		progress_id = 1;
 		break;
 	default:
-		app_fatal("Unknown progress mode");
+		ASSUME_UNREACHABLE
 		break;
 	}
 

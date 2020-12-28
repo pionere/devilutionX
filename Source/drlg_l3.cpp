@@ -951,7 +951,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
 		break;
-	default: // dir == 3
+	case 3:
 		x2 = x - 1;
 		x1 = x2 - blksizex;
 		y1 = y;
@@ -960,6 +960,9 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 		else if (blksizey > obs)
 			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 

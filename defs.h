@@ -303,6 +303,23 @@
 #define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
 #endif
 
+#ifdef _MSC_VER
+#define ASSUME_UNREACHABLE __assume(0);
+#elif defined(__clang__)
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#elif defined(__GNUC__)
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 405
+#define ASSUME_UNREACHABLE __builtin_unreachable();
+#else
+#define ASSUME_UNREACHABLE assert(0);
+#endif
+#endif
+
+#ifdef _DEBUG
+#undef ASSUME_UNREACHABLE
+#define ASSUME_UNREACHABLE assert(0);
+#endif
+
 #define ERR_DLG(title, text) ErrDlg(title, text, __FILE__, __LINE__)
 
 // To apply to certain functions which have local variables aligned by 1 for unknown yet reason

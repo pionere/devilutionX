@@ -1513,7 +1513,7 @@ static void LoadLvlGFX()
 		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
 		break;
 	default:
-		app_fatal("LoadLvlGFX");
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
@@ -1576,7 +1576,7 @@ static void CreateLevel(int lvldir)
 		LoadRndLvlPal(DTYPE_HELL);
 		break;
 	default:
-		app_fatal("CreateLevel");
+		ASSUME_UNREACHABLE
 		break;
 	}
 }

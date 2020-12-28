@@ -1597,12 +1597,15 @@ static void L5HorizWall(int i, int j, char pn, int dx)
 		if (pn == 4)
 			pn = 10;
 		break;
-	default:
+	case 3:
 		dt = 36;
 		if (pn == 2)
 			pn = 36;
 		if (pn == 4)
 			pn = 27;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -1646,12 +1649,15 @@ static void L5VertWall(int i, int j, char pn, int dy)
 		if (pn == 4)
 			pn = 14;
 		break;
-	default:
+	case 3:
 		dt = 35;
 		if (pn == 1)
 			pn = 35;
 		if (pn == 4)
 			pn = 37;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -2114,8 +2120,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			drlg_l1_set_crypt_room(16, c);
@@ -2143,8 +2152,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			drlg_l1_set_crypt_room(c, 16);
@@ -2174,8 +2186,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			drlg_l1_set_corner_room(16, c);
@@ -2203,8 +2218,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			drlg_l1_set_corner_room(c, 16);
@@ -2236,8 +2254,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			DRLG_L5SetRoom(16, c);
@@ -2265,8 +2286,11 @@ static void L5FillChambers()
 			case 1:
 				c = 16;
 				break;
-			default:
+			case 2:
 				c = 30;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			DRLG_L5SetRoom(c, 16);
@@ -2366,6 +2390,9 @@ static void DRLG_L5FTVR(int i, int j, int x, int y, int dir)
 			break;
 		case 8:
 			dTransVal[x][y] = TransVal;
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 	} else {

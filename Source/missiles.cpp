@@ -72,12 +72,20 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_DISARM:
 	case SPL_RESURRECT:
 	case SPL_TELEKINESIS:
+	case SPL_HEALOTHER:
 	case SPL_BONESPIRIT:
 #ifdef HELLFIRE
+	case SPL_MANA:
+	case SPL_MAGI:
+	case SPL_JESTER:
 	case SPL_WARP:
 	case SPL_REFLECT:
 	case SPL_BERSERK:
 	case SPL_SEARCH:
+	case SPL_RUNEFIRE:
+	case SPL_RUNELIGHT:
+	case SPL_RUNENOVA:
+	case SPL_RUNEIMMOLAT:
 	case SPL_RUNESTONE:
 #endif
 		*mind = -1;
@@ -168,13 +176,12 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = p->_pLevel + 9;
 		*maxd = p->_pLevel + 18;
 		break;
-	case SPL_HEALOTHER:
-		*mind = -1;
-		*maxd = -1;
-		break;
 	case SPL_FLARE:
 		*mind = (p->_pMagic >> 1) + 3 * sl - (p->_pMagic >> 3);
 		*maxd = *mind;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
@@ -501,6 +508,9 @@ static void MoveMissilePos(int mi)
 		dx = 1;
 		dy = 1;
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 	x = mis->_mix + dx;
 	y = mis->_miy + dy;
@@ -534,8 +544,11 @@ static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist
 		if (mor & IMMUNE_ACID)
 			return TRUE;
 		// BUGFIX: TODO player is resistant against ACID with RESIST_MAGIC, monsters should behave the same
-	default:
+	case MISR_NONE:
 		*resist = FALSE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	return FALSE;
@@ -759,8 +772,11 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	case MISR_ACID:
 		resper = p->_pMagResist;
 		break;
-	default:
+	case MISR_NONE:
 		resper = 0;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	if (resper > 0) {
@@ -879,8 +895,11 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	case MISR_ACID:
 		resper = p->_pMagResist;
 		break;
-	default:
+	case MISR_NONE:
 		resper = 0;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	if (resper > 0) {
@@ -1009,8 +1028,11 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	case MISR_ACID:
 		resper = dps->_pMagResist;
 		break;
-	default:
+	case MISR_NONE:
 		resper = 0;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	if (resper > 0) {
@@ -1461,8 +1483,11 @@ int AddJester(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	case 8:
 		spell = MIS_APOCAC;
 		break;
-	default:
+	case 9:
 		spell = MIS_STONE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	AddMissile(sx, sy, dx, dy, midir, spell, micaster, misource, 0, spllvl);
@@ -1517,8 +1542,11 @@ int AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 								case 1:
 									ii = IDI_FULLHEAL;
 									break;
-								default:
+								case 2:
 									ii = IDI_REJUV;
+									break;
+								default:
+									ASSUME_UNREACHABLE
 									break;
 								}
 								break;

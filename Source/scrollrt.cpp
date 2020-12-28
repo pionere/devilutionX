@@ -1149,6 +1149,8 @@ static void DrawGame(int x, int y)
 
 	// Draw areas moving in and out of the screen
 	switch (ScrollInfo._sdir) {
+	case SDIR_NONE:
+		break;
 	case SDIR_N:
 		sy -= TILE_HEIGHT;
 		ShiftGrid(&x, &y, 0, -1);
@@ -1187,6 +1189,9 @@ static void DrawGame(int x, int y)
 		x--;
 		columns++;
 		rows++;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 

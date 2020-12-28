@@ -837,10 +837,13 @@ static void AddLvl24Books()
 		AddHBooks(6, UberRow + 2, UberCol - 3);
 		AddHBooks(5, UberRow + 2, UberCol + 2);
 		break;
-	default:
+	case 5:
 		AddHBooks(7, UberRow + 3, UberCol);
 		AddHBooks(5, UberRow + 2, UberCol - 3);
 		AddHBooks(6, UberRow + 2, UberCol + 2);
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
@@ -901,8 +904,11 @@ static void AddHookedBodies(int freq)
 				case 1:
 					AddObject(OBJ_TORTURE2, ii + 1, jj);
 					break;
-				default:
+				case 2:
 					AddObject(OBJ_TORTURE5, ii + 1, jj);
+					break;
+				default:
+					ASSUME_UNREACHABLE
 					break;
 				}
 			} else if (dungeon[i][j] == 2 && dungeon[i][j + 1] == 6) {
@@ -3323,7 +3329,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		case 0: v1 = 5; break;
 		case 1: v2 = 5; break;
 		case 2: v3 = 5; break;
-		default:v4 = 5; break;
+		case 3: v4 = 5; break;
+		default: ASSUME_UNREACHABLE break;
 		}
 		ModifyPlrStr(pnum, v1);
 		ModifyPlrMag(pnum, v2);
@@ -3752,7 +3759,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			case 0:  v1 = 1; break;
 			case 1:  v2 = 1; break;
 			case 2:  v3 = 1; break;
-			default: v4 = 1; break;
+			case 3:  v4 = 1; break;
+			default: ASSUME_UNREACHABLE break;
 			}
 
 			ModifyPlrStr(myplr, v1);
@@ -4161,8 +4169,11 @@ static void OperateFountains(int pnum, int oi)
 			case 2:
 				ModifyPlrDex(pnum, add);
 				break;
-			default:
+			case 3:
 				ModifyPlrVit(pnum, add);
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 		}

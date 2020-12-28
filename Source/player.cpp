@@ -338,7 +338,7 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			pAnim = &p->_pBAnim;
 			break;
 		default:
-			app_fatal("PLR:2");
+			ASSUME_UNREACHABLE
 			break;
 		}
 
@@ -757,10 +757,10 @@ void CreatePlayer(int pnum, char c)
 		p->_pSplLvl[SPL_FIREBOLT] = 2;
 		p->_pMemSpells = SPELL_MASK(SPL_FIREBOLT);
 	}
-
-	for (i = 0; i < lengthof(p->_pSplHotKey); i++) {
-		p->_pSplHotKey[i] = -1;
-	}
+	for (i = 0; i < lengthof(p->_pSplHotKey); i++)
+		p->_pSplHotKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(p->_pSplTHotKey); i++)
+		p->_pSplTHotKey[i] = RSPLTYPE_INVALID;
 
 	// TODO: BUGFIX: is this necessary? does not seem to work with hellfire...
 	if (c == PC_WARRIOR) {
@@ -1670,7 +1670,8 @@ static void StartSpell(int pnum)
 		anim = p->_pTAnim;
 		break;
 	default:
-		app_fatal("Unrecognized spell type %c.", sd->sType);
+		ASSUME_UNREACHABLE
+		break;
 	}
 	if (!(p->_pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
@@ -3116,6 +3117,9 @@ static void CheckNewPath(int pnum)
 			case WALK_NW:
 				StartWalk(pnum, -xvel, -yvel, -1, 0, DIR_NW, SDIR_NW);
 				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
 
 			for (i = 0; i < MAX_PATH_LENGTH - 1; i++) {
@@ -3540,6 +3544,9 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 			xx++;
 			yy--;
 			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 
 		plr[pnum]._ptargx = xx;
@@ -3600,6 +3607,9 @@ void CheckPlrSpell()
 		break;
 	case RSPLTYPE_INVALID:
 		sf = SPLFROM_INVALID;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	if (sf == SPLFROM_INVALID) {

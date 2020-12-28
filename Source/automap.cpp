@@ -75,6 +75,8 @@ void InitAutomap()
 	memset(automaptype, 0, sizeof(automaptype));
 
 	switch (leveltype) {
+	case DTYPE_TOWN:
+		return;
 	case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
 		if (currlevel >= 21)
@@ -98,7 +100,8 @@ void InitAutomap()
 		pAFile = LoadFileInMem("Levels\\L4Data\\L4.AMP", &dwTiles);
 		break;
 	default:
-		return;
+		ASSUME_UNREACHABLE
+		break;
 	}
 
 	dwTiles /= 2;
@@ -530,6 +533,9 @@ static void DrawAutomapPlr()
 		DrawLine(x, y, x - AmLine16, y - AmLine8, COLOR_PLAYER);
 		DrawLine(x - AmLine16, y - AmLine8, x - AmLine8, y - AmLine8, COLOR_PLAYER);
 		DrawLine(x - AmLine16, y - AmLine8, x - AmLine4 - AmLine8, y, COLOR_PLAYER);
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
