@@ -784,12 +784,7 @@ static void S_StartWSell()
 
 static BOOL WitchRechargeOk(const ItemStruct *is)
 {
-#ifdef HELLFIRE
-	return (is->_itype == ITYPE_STAFF || is->_iMiscId == IMISC_UNIQUE)
-#else
-	return is->_itype == ITYPE_STAFF
-#endif
-	 && is->_iCharges != is->_iMaxCharges;
+	return is->_iCharges != is->_iMaxCharges;
 }
 
 static void AddStoreHoldRecharge(const ItemStruct *is, int i)
