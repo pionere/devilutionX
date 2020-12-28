@@ -627,6 +627,11 @@ BOOL TryIconCurs(BOOL bShift)
 
 void LeftMouseDown(BOOL bShift)
 {
+	if (dropGoldFlag) {
+		dropGoldFlag = FALSE;
+		dropGoldValue = 0;
+	}
+
 	if (gmenu_left_mouse(TRUE) || sgnTimeoutCurs != CURSOR_NONE)
 		return;
 
@@ -726,6 +731,11 @@ static void LeftMouseUp()
 
 void RightMouseDown(BOOL bShift)
 {
+	if (dropGoldFlag) {
+		dropGoldFlag = FALSE;
+		dropGoldValue = 0;
+	}
+
 	if (gmenu_is_active() || sgnTimeoutCurs != CURSOR_NONE)
 		return;
 

@@ -1131,17 +1131,9 @@ void CheckBtnUp()
 		case PANBTN_INVENTORY:
 			sbookflag = FALSE;
 			invflag = !invflag;
-			if (dropGoldFlag) {
-				dropGoldFlag = FALSE;
-				dropGoldValue = 0;
-			}
 			break;
 		case PANBTN_SPELLBOOK:
 			invflag = FALSE;
-			if (dropGoldFlag) {
-				dropGoldFlag = FALSE;
-				dropGoldValue = 0;
-			}
 			sbookflag = !sbookflag;
 			break;
 		case PANBTN_SENDMSG:

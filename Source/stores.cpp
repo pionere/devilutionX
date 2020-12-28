@@ -1184,7 +1184,7 @@ void StartStore(char s)
 		invflag = FALSE;
 		chrflag = FALSE;
 		questlog = FALSE;
-		dropGoldFlag = FALSE;
+		dropGoldFlag = FALSE; // should not be necessary, but ...
 		ClearSText(0, STORE_LINES);
 		ReleaseStoreBtn();
 		switch (t) {

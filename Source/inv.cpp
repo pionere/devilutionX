@@ -1210,11 +1210,6 @@ static void CheckInvCut(int pnum, int mx, int my)
 		return;
 	}
 
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-	}
-
 	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
 		int xo = RIGHT_PANEL;
 		int yo = 0;
@@ -1503,11 +1498,6 @@ void InvGetItem(int pnum, int ii)
 	ItemStruct *is;
 	int i;
 
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-	}
-
 	is = &item[ii];
 	if (dItem[is->_ix][is->_iy] == 0)
 		return;
@@ -1557,11 +1547,6 @@ void AutoGetItem(int pnum, int ii)
 
 	if (pcurs != CURSOR_HAND) {
 		return;
-	}
-
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
 	}
 
 	is = &item[ii];
@@ -1978,15 +1963,13 @@ char CheckInvHLight()
 
 static void StartGoldDrop()
 {
+	if (talkflag || plr[myplr]._pmode != PM_STAND)
+		return;
 	initialDropGoldIndex = pcursinvitem;
-	if (pcursinvitem <= INVITEM_INV_LAST)
-		initialDropGoldValue = plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST]._ivalue;
-	else
-		initialDropGoldValue = plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST]._ivalue;
+	assert(pcursinvitem >= INVITEM_INV_FIRST && pcursinvitem <= INVITEM_INV_LAST);
+	initialDropGoldValue = plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST]._ivalue;
 	dropGoldFlag = TRUE;
 	dropGoldValue = 0;
-	if (talkflag)
-		control_reset_talk();
 }
 
 static void PlrAddHp()
@@ -2123,11 +2106,6 @@ BOOL UseInvItem(int cii)
 	if (!is->_iStatFlag) {
 		PlaySFX(sgSFXSets[SFXS_PLR_13][plr[pnum]._pClass]);
 		return TRUE;
-	}
-
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
 	}
 
 	if (currlevel == 0 && is->_iMiscId == IMISC_SCROLL
