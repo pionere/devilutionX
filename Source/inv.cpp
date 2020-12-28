@@ -1062,11 +1062,6 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
 			copy_pod(*is, *holditem);
 		}
-		if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL && is->_iCharges > 0) {
-			p->_pRSpell = is->_iSpell;
-			p->_pRSplType = RSPLTYPE_CHARGES;
-			gbRedrawFlags |= REDRAW_SPELL_ICON;
-		}
 		break;
 	case ILOC_ARMOR:
 		NetSendCmdChItem(FALSE, holditem, INVLOC_CHEST);

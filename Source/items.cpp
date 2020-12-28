@@ -883,20 +883,16 @@ void CalcPlrScrolls(int pnum)
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-		 && pi->_iStatFlag) {
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
-		}
 	}
 	pi = p->SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-		 && pi->_iStatFlag) {
+		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
-		}
 	}
-	if (p->_pRSplType == RSPLTYPE_SCROLL && p->_pRSpell != SPL_INVALID
-	 && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
+	// check if the current RSplType is a valid/allowed spell
+	if (p->_pRSplType == RSPLTYPE_SCROLL && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
 		gbRedrawFlags |= REDRAW_SPELL_ICON;
@@ -905,11 +901,20 @@ void CalcPlrScrolls(int pnum)
 
 void CalcPlrStaff(int pnum)
 {
-	plr[pnum]._pISpells = 0;
-	if (plr[pnum].InvBody[INVLOC_HAND_LEFT]._itype != ITYPE_NONE
-	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iStatFlag
-	    && plr[pnum].InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
-		plr[pnum]._pISpells |= SPELL_MASK(plr[pnum].InvBody[INVLOC_HAND_LEFT]._iSpell);
+	PlayerStruct *p;
+	ItemStruct *pi;
+
+	p = &plr[pnum];
+	p->_pISpells = 0;
+	pi = &p->InvBody[INVLOC_HAND_LEFT];
+	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
+		p->_pISpells |= SPELL_MASK(pi->_iSpell);
+	}
+	// check if the current RSplType is a valid/allowed spell
+	if (p->_pRSplType == RSPLTYPE_CHARGES && !(p->_pISpells & SPELL_MASK(p->_pRSpell))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
 
