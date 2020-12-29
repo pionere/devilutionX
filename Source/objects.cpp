@@ -3919,9 +3919,17 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		InitDiabloMsg(EMSG_SHRINE_MURPHYS);
 		pi = p->InvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_itype != ITYPE_NONE && random_(0, 3) == 0
-			 && pi->_iDurability != DUR_INDESTRUCTIBLE && pi->_iDurability != 0) {
-				pi->_iDurability /= 2;
+			if (pi->_itype == ITYPE_NONE || random_(0, 3) != 0)
+				continue;
+			r = pi->_iDurability;
+			if (r != DUR_INDESTRUCTIBLE && r != 0) {
+				r /= 2;
+				if (r == 0) {
+					NetSendCmdDelItem(TRUE, i);
+					pi->_itype = ITYPE_NONE;
+				}
+				else
+					pi->_iDurability = r;
 				break;
 			}
 		}

@@ -3050,10 +3050,6 @@ static void RepairItem(ItemStruct *is, int lvl)
 	}
 
 	is->_iMaxDur = md;
-	if (md == 0) {
-		is->_itype = ITYPE_NONE;
-		return;
-	}
 	if (rep > md)
 		rep = md;
 	is->_iDurability = rep;
@@ -3074,6 +3070,10 @@ void DoRepair(int pnum, int cii)
 	}
 
 	RepairItem(pi, p->_pLevel);
+	if (pi->_iMaxDur == 0) {
+		// NetSendCmdDelItem(TRUE, cii);
+		pi->_itype = ITYPE_NONE;
+	}
 	CalcPlrInv(pnum, TRUE);
 }
 
@@ -3090,8 +3090,6 @@ static void RechargeItem(ItemStruct *is, int r)
 	}
 
 	is->_iMaxCharges = mc;
-	if (mc == 0)
-		return;
 	if (cc > mc)
 		cc = mc;
 	is->_iCharges = cc;
