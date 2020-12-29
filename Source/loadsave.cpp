@@ -103,6 +103,8 @@ static void CopyInt64(const void *src, void *dst)
 
 static void LoadItemData(ItemStruct *is)
 {
+	int tmp;
+
 	CopyInt(tbuff, &is->_iSeed);
 	CopyShort(tbuff, &is->_iCreateInfo);
 	tbuff += 2; // Alignment
@@ -175,7 +177,8 @@ static void LoadItemData(ItemStruct *is)
 	CopyChar(tbuff, &is->_iMinDex);
 	tbuff += 1; // Alignment
 	CopyInt(tbuff, &is->_iStatFlag);
-	CopyInt(tbuff, &is->IDidx);
+	CopyInt(tbuff, &tmp); 	// TODO: convert to CopyShort when backwards compatibility is not a concern
+	is->_iIdx = tmp;
 	CopyInt(tbuff, &is->_iFlags2);
 }
 
@@ -869,6 +872,8 @@ static void SaveBool(BOOL v)
 
 static void SaveItemData(ItemStruct *is)
 {
+	int tmp;
+
 	CopyInt(&is->_iSeed, tbuff);
 	CopyShort(&is->_iCreateInfo, tbuff);
 	tbuff += 2; // Alignment
@@ -941,7 +946,8 @@ static void SaveItemData(ItemStruct *is)
 	CopyChar(&is->_iMinDex, tbuff);
 	tbuff += 1; // Alignment
 	CopyInt(&is->_iStatFlag, tbuff);
-	CopyInt(&is->IDidx, tbuff);
+	tmp = is->_iIdx;
+	CopyInt(&tmp, tbuff); // TODO: convert to CopyShort when backwards compatibility is not a concern
 	CopyInt(&is->_iFlags2, tbuff);
 }
 

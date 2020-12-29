@@ -12,8 +12,8 @@ void PackItem(PkItemStruct *pis, ItemStruct *is)
 	if (is->_itype == ITYPE_NONE) {
 		pis->idx = 0xFFFF;
 	} else {
-		pis->idx = SwapLE16(is->IDidx);
-		if (is->IDidx == IDI_EAR) {
+		pis->idx = SwapLE16(is->_iIdx);
+		if (is->_iIdx == IDI_EAR) {
 			pis->iCreateInfo = is->_iName[8] | (is->_iName[7] << 8);
 			pis->iSeed = SwapLE32(is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8));
 			pis->bId = is->_iName[13];
@@ -31,7 +31,7 @@ void PackItem(PkItemStruct *pis, ItemStruct *is)
 			pis->bMDur = is->_iMaxDur;
 			pis->bCh = is->_iCharges;
 			pis->bMCh = is->_iMaxCharges;
-			if (is->IDidx == IDI_GOLD)
+			if (is->_iIdx == IDI_GOLD)
 				pis->wValue = SwapLE16(is->_ivalue);
 		}
 	}
@@ -170,10 +170,10 @@ static void VerifyGoldSeeds(PlayerStruct *p)
 	int i, j;
 
 	for (i = 0; i < p->_pNumInv; i++) {
-		if (p->InvList[i].IDidx == IDI_GOLD) {
+		if (p->InvList[i]._iIdx == IDI_GOLD) {
 			for (j = 0; j < p->_pNumInv; j++) {
 				if (i != j) {
-					if (p->InvList[j].IDidx == IDI_GOLD && p->InvList[i]._iSeed == p->InvList[j]._iSeed) {
+					if (p->InvList[j]._iIdx == IDI_GOLD && p->InvList[i]._iSeed == p->InvList[j]._iSeed) {
 						p->InvList[i]._iSeed = GetRndSeed();
 						j = -1;
 					}

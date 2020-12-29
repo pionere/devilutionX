@@ -855,7 +855,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 #ifdef HELLFIRE
 	pi = &p->InvBody[INVLOC_AMULET];
-	if (pi->_itype == ITYPE_NONE || pi->IDidx != IDI_AURIC) {
+	if (pi->_itype == ITYPE_NONE || pi->_iIdx != IDI_AURIC) {
 		int half = MaxGold;
 		MaxGold = auricGold / 2;
 
@@ -1013,7 +1013,7 @@ void SetItemData(int ii, int idata)
 	// zero-initialize struct
 	memset(is, 0, sizeof(*is));
 
-	is->IDidx = idata;
+	is->_iIdx = idata;
 	ids = &AllItemsList[idata];
 	is->_itype = ids->itype;
 	is->_iCurs = ids->iCurs;
@@ -1464,7 +1464,7 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 	}
 	iname = &item[ii]._iIName;
 	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
-		strcpy(*iname, AllItemsList[item[ii].IDidx].iSName);
+		strcpy(*iname, AllItemsList[item[ii]._iIdx].iSName);
 		if (pres != NULL) {
 			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
 			copy_str(*iname, istr);
@@ -2119,7 +2119,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	}
 	iname = &item[ii]._iIName;
 	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
-		strcpy(*iname, AllItemsList[item[ii].IDidx].iSName);
+		strcpy(*iname, AllItemsList[item[ii]._iIdx].iSName);
 		if (pres != NULL) {
 			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
 			copy_str(*iname, istr);
@@ -2328,7 +2328,7 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	if (random_(28, 100) > uper)
 		return UITYPE_INVALID;
 
-	uid = AllItemsList[item[ii].IDidx].iItemId;
+	uid = AllItemsList[item[ii]._iIdx].iItemId;
 	uniq = !recreate && gbMaxPlayers == 1;
 	ui = 0;
 	memset(uok, 0, sizeof(uok));
@@ -3969,7 +3969,7 @@ static void SortSmith()
 	while (j > 0 && !sorted) {
 		sorted = TRUE;
 		for (k = 0; k < j; k++) {
-			if (smithitem[k].IDidx > smithitem[k + 1].IDidx) {
+			if (smithitem[k]._iIdx > smithitem[k + 1]._iIdx) {
 				BubbleSwapItem(&smithitem[k], &smithitem[k + 1]);
 				sorted = FALSE;
 			}
@@ -4150,7 +4150,7 @@ static void SortWitch()
 	while (j > 3 && !sorted) {
 		sorted = TRUE;
 		for (k = 3; k < j; k++) {
-			if (witchitem[k].IDidx > witchitem[k + 1].IDidx) {
+			if (witchitem[k]._iIdx > witchitem[k + 1]._iIdx) {
 				BubbleSwapItem(&witchitem[k], &witchitem[k + 1]);
 				sorted = FALSE;
 			}
@@ -4312,7 +4312,7 @@ static void SortHealer()
 	while (j > 2 && !sorted) {
 		sorted = TRUE;
 		for (k = 2; k < j; k++) {
-			if (healitem[k].IDidx > healitem[k + 1].IDidx) {
+			if (healitem[k]._iIdx > healitem[k + 1]._iIdx) {
 				BubbleSwapItem(&healitem[k], &healitem[k + 1]);
 				sorted = FALSE;
 			}

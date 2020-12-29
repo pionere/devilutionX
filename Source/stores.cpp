@@ -533,8 +533,8 @@ static BOOL SmithSellOk(const ItemStruct *is)
 		&& is->_itype != ITYPE_GOLD
 		&& is->_itype != ITYPE_MEAT
 		&& is->_itype != ITYPE_STAFF
-		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
-		&& is->IDidx != IDI_LAZSTAFF;
+		&& (is->_iIdx < IDI_FIRSTQUEST || is->_iIdx > IDI_LASTQUEST)
+		&& is->_iIdx != IDI_LAZSTAFF;
 }
 
 static void S_ScrollSSell()
@@ -741,8 +741,8 @@ static BOOL WitchSellOk(const ItemStruct *is)
 #else
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
 #endif
-		&& (is->IDidx < IDI_FIRSTQUEST || is->IDidx > IDI_LASTQUEST)
-		&& is->IDidx != IDI_LAZSTAFF;
+		&& (is->_iIdx < IDI_FIRSTQUEST || is->_iIdx > IDI_LASTQUEST)
+		&& is->_iIdx != IDI_LAZSTAFF;
 }
 
 static void S_StartWSell()

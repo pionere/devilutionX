@@ -966,7 +966,7 @@ static void PressKey(int vkey)
 			    gbNetMsg,
 				sizeof(gbNetMsg),
 			    "IDX = %i  :  Seed = %i  :  CF = %i",
-			    item[pcursitem].IDidx,
+			    item[pcursitem]._iIdx,
 			    item[pcursitem]._iSeed,
 			    item[pcursitem]._iCreateInfo);
 			NetSendCmdString(1 << myplr);

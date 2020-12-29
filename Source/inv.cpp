@@ -500,7 +500,7 @@ void DrawInvBelt()
 			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
 		}
 
-		if (is->_iStatFlag && AllItemsList[is->IDidx].iUsable) {
+		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {
 			fi = i + 49;
 			ff = fontframe[gbFontTransTbl[fi]];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, COL_WHITE);
@@ -706,7 +706,7 @@ BOOL AutoPlaceInv(int pnum, ItemStruct *is, BOOL saveflag)
 
 	pi = saveflag ? is : NULL;
 	if (w == 1 && h == 1) {
-		if (AllItemsList[is->IDidx].iUsable && is->_iStatFlag) {
+		if (AllItemsList[is->_iIdx].iUsable && is->_iStatFlag) {
 			for (i = 0; i < MAXBELTITEMS; i++) {
 				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
 					if (pi != NULL) {
@@ -868,7 +868,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 	}
 	if (holditem->_iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {
 		if (sx == 1 && sy == 1) {
-			done = AllItemsList[holditem->IDidx].iUsable && holditem->_iStatFlag;
+			done = AllItemsList[holditem->_iIdx].iUsable && holditem->_iStatFlag;
 		}
 	}
 
@@ -1417,7 +1417,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	int idx;
 
 	p = &plr[pnum];
-	idx = is->IDidx;
+	idx = is->_iIdx;
 	if (idx == IDI_OPTAMULET)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
 	else if (idx == IDI_MUSHROOM) {
@@ -1579,13 +1579,13 @@ void AutoGetItem(int pnum, int ii)
 	}
 }
 
-int FindGetItem(int idx, WORD ci, int iseed)
+int FindGetItem(WORD idx, WORD ci, int iseed)
 {
 	int i, ii;
 
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		if (item[ii].IDidx == idx && item[ii]._iSeed == iseed && item[ii]._iCreateInfo == ci)
+		if (item[ii]._iIdx == idx && item[ii]._iSeed == iseed && item[ii]._iCreateInfo == ci)
 			return ii;
 	}
 
@@ -1600,7 +1600,7 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	ii = dItem[x][y];
 	if (ii != 0) {
 		ii--;
-		if (item[ii].IDidx != idx
+		if (item[ii]._iIdx != idx
 		 || item[ii]._iSeed != iseed
 		 || item[ii]._iCreateInfo != ci) {
 			ii = FindGetItem(idx, ci, iseed);
@@ -1749,9 +1749,9 @@ int InvPutItem(int pnum, int x, int y)
 	if (numitems >= MAXITEMS)
 		return -1;
 
-	if (FindGetItem(plr[pnum].HoldItem.IDidx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed) != -1) {
+	if (FindGetItem(plr[pnum].HoldItem._iIdx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed) != -1) {
 		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
-		SyncGetItem(x, y, plr[pnum].HoldItem.IDidx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed);
+		SyncGetItem(x, y, plr[pnum].HoldItem._iIdx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed);
 	}
 
 	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
@@ -1767,7 +1767,7 @@ int InvPutItem(int pnum, int x, int y)
 			}
 			return -1;
 		}
-		if (plr[pnum].HoldItem.IDidx == IDI_MAPOFDOOM && cursmx >= DBORDERX + 25  && cursmx <= DBORDERX + 28 && cursmy >= DBORDERY + 10 && cursmy <= DBORDERY + 14) {
+		if (plr[pnum].HoldItem._iIdx == IDI_MAPOFDOOM && cursmx >= DBORDERX + 25  && cursmx <= DBORDERX + 28 && cursmy >= DBORDERY + 10 && cursmy <= DBORDERY + 14) {
 			NetSendCmd(FALSE, CMD_OPENCRYPT);
 			quests[Q_GRAVE]._qactive = QUEST_DONE;
 			if (gbMaxPlayers != 1) {
@@ -1805,9 +1805,9 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 	if (numitems >= MAXITEMS)
 		return -1;
 
-	if (FindGetItem(is->IDidx, is->_iCreateInfo, is->_iSeed) != -1) {
+	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) != -1) {
 		DrawInvMsg("A duplicate item has been detected from another player.");
-		SyncGetItem(x, y, is->IDidx, is->_iCreateInfo, is->_iSeed);
+		SyncGetItem(x, y, is->_iIdx, is->_iCreateInfo, is->_iSeed);
 	}
 
 	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
@@ -2057,23 +2057,23 @@ BOOL UseInvItem(int cii)
 		speedlist = TRUE;
 	}
 
-	if (is->IDidx == IDI_GOLD) {
+	if (is->_iIdx == IDI_GOLD) {
 		StartGoldDrop();
 		return TRUE;
 	}
-	if (is->IDidx == IDI_MUSHROOM) {
+	if (is->_iIdx == IDI_MUSHROOM) {
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_95][plr[pnum]._pClass];
 		return TRUE;
 	}
-	if (is->IDidx == IDI_FUNGALTM) {
+	if (is->_iIdx == IDI_FUNGALTM) {
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
 		sfxdnum = sgSFXSets[SFXS_PLR_29][plr[pnum]._pClass];
 		return TRUE;
 	}
 
-	if (!AllItemsList[is->IDidx].iUsable) {
+	if (!AllItemsList[is->_iIdx].iUsable) {
 		return FALSE;
 	}
 

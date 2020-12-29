@@ -115,6 +115,7 @@ static_assert((sizeof(ItemGetRecordStruct) & (sizeof(ItemGetRecordStruct) - 1)) 
 
 typedef struct ItemStruct {
 	int _iSeed;
+	WORD _iIdx;
 	WORD _iCreateInfo;
 	int _itype;
 	int _ix;
@@ -181,10 +182,9 @@ typedef struct ItemStruct {
 	unsigned char _iMinMag;
 	char _iMinDex;
 	BOOL _iStatFlag;
-	int IDidx;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[7];
+	int alignment[8];
 #endif
 } ItemStruct;
 

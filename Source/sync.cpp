@@ -108,8 +108,8 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 		is = &item[ii];
 		pHdr->bItemX = is->_ix;
 		pHdr->bItemY = is->_iy;
-		pHdr->wItemIndx = is->IDidx;
-		if (is->IDidx == IDI_EAR) {
+		pHdr->wItemIndx = is->_iIdx;
+		if (is->_iIdx == IDI_EAR) {
 			pHdr->wItemCI = (is->_iName[7] << 8) | is->_iName[8];
 			pHdr->dwItemSeed = (is->_iName[9] << 24) | (is->_iName[10] << 16) | (is->_iName[11] << 8) | is->_iName[12];
 			pHdr->bItemId = is->_iName[13];
@@ -127,7 +127,7 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 			pHdr->bItemMDur = is->_iMaxDur;
 			pHdr->bItemCh = is->_iCharges;
 			pHdr->bItemMCh = is->_iMaxCharges;
-			if (is->IDidx == IDI_GOLD) {
+			if (is->_iIdx == IDI_GOLD) {
 				pHdr->wItemVal = is->_ivalue;
 			}
 		}
@@ -139,7 +139,7 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 	is = &plr[myplr].InvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;
-		pHdr->wPInvIndx = is->IDidx;
+		pHdr->wPInvIndx = is->_iIdx;
 		pHdr->wPInvCI = is->_iCreateInfo;
 		pHdr->dwPInvSeed = is->_iSeed;
 		pHdr->bPInvId = is->_iIdentified;

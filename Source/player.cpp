@@ -1780,9 +1780,9 @@ static void RespawnDeadItem(ItemStruct *is, int x, int y)
 		return;
 	}
 
-	if (FindGetItem(is->IDidx, is->_iCreateInfo, is->_iSeed) >= 0) {
+	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) >= 0) {
 		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
-		SyncGetItem(x, y, is->IDidx, is->_iCreateInfo, is->_iSeed);
+		SyncGetItem(x, y, is->_iIdx, is->_iCreateInfo, is->_iSeed);
 	}
 
 	ii = itemavail[0];

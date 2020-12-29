@@ -661,9 +661,9 @@ BOOL delta_quest_inited(int i)
 
 static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 {
-	dest->wIndx = src->IDidx;
+	dest->wIndx = src->_iIdx;
 
-	if (src->IDidx == IDI_EAR) {
+	if (src->_iIdx == IDI_EAR) {
 		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
 		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
 		dest->bId = src->_iName[13];
@@ -695,9 +695,9 @@ static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 
 static void PackGItem(TCmdGItem *dest, ItemStruct *src)
 {
-	dest->wIndx = src->IDidx;
+	dest->wIndx = src->_iIdx;
 
-	if (src->IDidx == IDI_EAR) {
+	if (src->_iIdx == IDI_EAR) {
 		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
 		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
 		dest->bId = src->_iName[13];
@@ -740,7 +740,7 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-			&& pD->wIndx == is->IDidx
+			&& pD->wIndx == is->_iIdx
 			&& pD->wCI == is->_iCreateInfo
 			&& pD->dwSeed == is->_iSeed
 			&& (pD->bCmd == CMD_WALKXY || pD->bCmd == CMD_STAND)) {
@@ -1206,7 +1206,7 @@ void NetSendCmdChItem(BOOL bHiPri, ItemStruct *is, BYTE bLoc)
 
 	cmd.bCmd = CMD_CHANGEPLRITEMS;
 	cmd.bLoc = bLoc;
-	cmd.wIndx = is->IDidx;
+	cmd.wIndx = is->_iIdx;
 	cmd.wCI = is->_iCreateInfo;
 	cmd.dwSeed = is->_iSeed;
 	cmd.bId = is->_iIdentified;

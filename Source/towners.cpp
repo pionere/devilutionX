@@ -537,7 +537,7 @@ BOOL PlrHasItem(int pnum, int item, int *outidx)
 
 	pi = plr[pnum].InvList;
 	for (i = 0; i < plr[pnum]._pNumInv; i++, pi++) {
-		if (pi->IDidx == item) {
+		if (pi->_iIdx == item) {
 			*outidx = i;
 			return TRUE;
 		}

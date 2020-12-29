@@ -1042,8 +1042,8 @@ void UseBeltItem(int type)
 
 	pi = plr[myplr].SpdList;
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
-		const int id = AllItemsList[pi->IDidx].iMiscId;
-		const int spellId = AllItemsList[pi->IDidx].iSpell;
+		const int id = AllItemsList[pi->_iIdx].iMiscId;
+		const int spellId = AllItemsList[pi->_iIdx].iSpell;
 		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
