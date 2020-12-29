@@ -610,11 +610,7 @@ static void S_StartSSell()
 
 static BOOL SmithRepairOk(const ItemStruct *is)
 {
-	return is->_itype != ITYPE_NONE
-		&& is->_itype != ITYPE_MISC
-		&& is->_itype != ITYPE_GOLD
-		&& is->_itype != ITYPE_MEAT
-		&& is->_iDurability != is->_iMaxDur;
+	return is->_itype != ITYPE_NONE && is->_iDurability != is->_iMaxDur;
 }
 
 static void AddStoreHoldRepair(const ItemStruct *is, int i)
