@@ -2326,13 +2326,13 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	char uid;
 
 	if (random_(28, 100) > uper)
-		return UITYPE_INVALID;
+		return -1;
 
 	uid = AllItemsList[item[ii]._iIdx].iItemId;
 	uniq = !recreate && gbMaxPlayers == 1;
 	ui = 0;
 	memset(uok, 0, sizeof(uok));
-	for (i = 0; UniqueItemList[i].UIItemId != UITYPE_INVALID; i++) {
+	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIItemId == uid
 		 && lvl >= UniqueItemList[i].UIMinLvl
 		 && (!uniq || !UniqueItemFlag[i])) {
@@ -2342,7 +2342,7 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	}
 
 	if (ui == 0)
-		return UITYPE_INVALID;
+		return -1;
 
 	random_(29, 10); /// BUGFIX: unused, last unique in array always gets chosen
 	idata = 0;
@@ -2453,7 +2453,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 			iblvl = lvl + 4;
 		if (iblvl != -1) {
 			uid = CheckUnique(ii, iblvl, uper, recreate);
-			if (uid == UITYPE_INVALID) {
+			if (uid < 0) {
 				GetItemBonus(ii, iblvl >> 1, iblvl, onlygood, TRUE);
 			} else {
 				GetUniqueItem(ii, uid);
@@ -2464,7 +2464,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 	} else {
 		if (item[ii]._iLoc != ILOC_UNEQUIPABLE) {
 			//uid = CheckUnique(ii, iblvl, uper, recreate);
-			//if (uid != UITYPE_INVALID) {
+			//if (uid >= 0) {
 			//	GetUniqueItem(ii, uid);
 			//}
 			GetUniqueItem(ii, iseed); // BUG: the second argument to GetUniqueItem should be uid.

@@ -473,7 +473,7 @@ const PLStruct PL_Suffix[] = {
 };
 
 /** Contains the data related to each unique item ID. */
-const UItemStruct UniqueItemList[] = {
+const UItemStruct UniqueItemList[NUM_UITEM] = {
 	// clang-format off
 	// UIName,                    UIItemId,     UIMinLvl, UINumPL, UIValue, UIPower1,     UIParam1, UIParam2, UIPower2,      UIParam3, UIParam4, UIPower3,      UIParam5, UIParam6, UIPower4,      UIParam7, UIParam8, UIPower5,      UIParam9, UIParam10, UIPower6,      UIParam11, UIParam12
 	{  "The Butcher's Cleaver",   UITYPE_CLEAVER,      1,       3,    3650, IPL_STR,            10,       10, IPL_SETDAM,           4,       24, IPL_SETDUR,          10,       10, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,         0, IPL_TOHIT,             0,         0 },
@@ -592,7 +592,6 @@ const UItemStruct UniqueItemList[] = {
 	{  "Acolyte's Amulet",        UITYPE_AMULET,      10,       2,   10000, IPL_MANATOLIFE,     50,       50, IPL_INVCURS,        183,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,         0, IPL_TOHIT,             0,         0 },
 	{  "Gladiator's Ring",        UITYPE_RING,        10,       2,   10000, IPL_LIFETOMANA,     40,       40, IPL_INVCURS,        186,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,         0, IPL_TOHIT,             0,         0 },
 #endif
-	{  "",                        UITYPE_INVALID,      0,       0,       0, IPL_TOHIT,           0,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,        0, IPL_TOHIT,            0,         0, IPL_TOHIT,             0,         0 },
 	// clang-format on
 };
 

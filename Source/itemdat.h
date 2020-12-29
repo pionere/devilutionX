@@ -15,7 +15,7 @@ extern "C" {
 extern ItemDataStruct AllItemsList[];
 extern const PLStruct PL_Prefix[];
 extern const PLStruct PL_Suffix[];
-extern const UItemStruct UniqueItemList[];
+extern const UItemStruct UniqueItemList[NUM_UITEM];
 
 #ifdef __cplusplus
 }
