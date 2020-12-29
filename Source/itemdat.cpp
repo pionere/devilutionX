@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Contains the data related to each item ID. */
-ItemDataStruct AllItemsList[] = {
+ItemDataStruct AllItemsList[NUM_IDI] = {
 	// clang-format off
 //_item_index          iRnd,          iClass,        iLoc,             iCurs,                             itype,        iItemId,            iName,                         iSName, iMinMLvl, iDurability, iMinDam, iMaxDam, iMinAC, iMaxAC, iMinStr, iMinMag, iMinDex, iMiscId,         iSpell,          iUsable, iValue
 /*IDI_GOLD       */ {  IDROP_REGULAR, ICLASS_GOLD,   ILOC_UNEQUIPABLE, ICURS_GOLD,                        ITYPE_GOLD,   UITYPE_NONE,        "Gold",                        NULL,          1,           0,       0,       0,      0,      0,       0,       0,       0, IMISC_NONE,      SPL_NULL,        FALSE,        0 },
@@ -211,7 +211,6 @@ ItemDataStruct AllItemsList[] = {
 /*               */ {  IDROP_REGULAR, ICLASS_MISC,   ILOC_UNEQUIPABLE, ICURS_GREATER_RUNE_OF_LIGHTNING,   ITYPE_MISC,   UITYPE_NONE,        "Greater Rune of Lightning",   "Rune",        7,           0,       0,       0,      0,      0,       0,      42,       0, IMISC_RUNE,      SPL_RUNENOVA,    TRUE,       500 },
 /*               */ {  IDROP_REGULAR, ICLASS_MISC,   ILOC_UNEQUIPABLE, ICURS_RUNE_OF_STONE,               ITYPE_MISC,   UITYPE_NONE,        "Rune of Stone",               "Rune",        7,           0,       0,       0,      0,      0,       0,      25,       0, IMISC_RUNE,      SPL_RUNESTONE,   TRUE,       300 },
 #endif
-/*               */ {  IDROP_NEVER,   ICLASS_NONE,   ILOC_INVALID,     ICURS_POTION_OF_FULL_MANA,         ITYPE_MISC,   UITYPE_NONE,        NULL,                          NULL,          0,           0,       0,       0,      0,      0,       0,       0,       0, IMISC_NONE,      SPL_NULL,        FALSE,        0 },
 	// clang-format on
 };
 

@@ -1409,7 +1409,6 @@ typedef enum item_equip_type {
 	ILOC_AMULET      = 0x6,
 	ILOC_UNEQUIPABLE = 0x7,
 	ILOC_BELT        = 0x8,
-	ILOC_INVALID     = -1,
 } item_equip_type;
 
 typedef enum missile_id {
@@ -3124,6 +3123,11 @@ typedef enum _item_indexes {
 	IDI_BOOK1      = 0x72,
 	IDI_BOOK4      = 0x75,
 	IDI_BARBCLUB   = 0x8B,
+#ifdef HELLFIRE
+	NUM_IDI        = 0xA7
+#else
+	NUM_IDI        = 0x9C
+#endif
 } _item_indexes;
 
 typedef enum _setlevels {
