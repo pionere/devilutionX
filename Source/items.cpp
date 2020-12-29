@@ -1800,9 +1800,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		// no break
 #endif
 	case IPL_DUR_CURSE:
-		is->_iMaxDur -= r * is->_iMaxDur / 100;
-		if (is->_iMaxDur < 1)
-			is->_iMaxDur = 1;
+		is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		is->_iDurability = is->_iMaxDur;
 		break;
 	case IPL_INDESTRUCTIBLE:
@@ -2424,7 +2422,7 @@ void SpawnUnique(int uid, int x, int y)
 
 static void ItemRndDur(int ii)
 {
-	if (item[ii]._iDurability && item[ii]._iDurability != DUR_INDESTRUCTIBLE)
+	if (item[ii]._iDurability != 0 && item[ii]._iDurability != DUR_INDESTRUCTIBLE)
 		item[ii]._iDurability = random_(0, item[ii]._iMaxDur >> 1) + (item[ii]._iMaxDur >> 2) + 1;
 }
 

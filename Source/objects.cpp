@@ -3360,19 +3360,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
 				 && pi->_iMaxDur != 0) {
 					if (r == 0) {
-						pi->_iDurability -= 10;
-						pi->_iMaxDur -= 10;
-						if (pi->_iDurability <= 0)
-							pi->_iDurability = 1;
-						if (pi->_iMaxDur <= 0)
-							pi->_iMaxDur = 1;
+						pi->_iMaxDur = pi->_iMaxDur > 10 ? pi->_iMaxDur - 10 : 1;
+						pi->_iDurability = pi->_iDurability > 10 ? pi->_iDurability - 10 : 1;
 					} else {
-						pi->_iDurability += 10;
-						pi->_iMaxDur += 10;
-						if (pi->_iMaxDur >= DUR_INDESTRUCTIBLE)
-							pi->_iMaxDur = DUR_INDESTRUCTIBLE - 1;
-						if (pi->_iDurability > pi->_iMaxDur)
-							pi->_iDurability = pi->_iMaxDur;
+						pi->_iMaxDur = std::min(pi->_iMaxDur + 10, DUR_INDESTRUCTIBLE - 1);
+						pi->_iDurability = std::min(pi->_iDurability + 10, pi->_iMaxDur);
 					}
 					r--;
 				}

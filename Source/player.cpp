@@ -2406,11 +2406,7 @@ static BOOL WeaponDur(int pnum, int durrnd)
 		}
 
 		pi->_iDurability--;
-#ifdef HELLFIRE
-		if (pi->_iDurability <= 0) {
-#else
 		if (pi->_iDurability == 0) {
-#endif
 			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
 			CalcPlrInv(pnum, TRUE);
