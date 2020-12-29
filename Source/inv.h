@@ -31,7 +31,7 @@ void CheckInvItem();
 void CheckInvScrn();
 void InvGetItem(int pnum, int ii);
 void AutoGetItem(int pnum, int ii);
-int FindGetItem(int idx, WORD ci, int iseed);
+int FindGetItem(WORD idx, WORD ci, int iseed);
 void SyncGetItem(int x, int y, int idx, WORD ci, int iseed);
 BOOL CanPut(int x, int y);
 BOOL FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
