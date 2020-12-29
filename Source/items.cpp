@@ -1329,13 +1329,13 @@ static void CalcItemValue(int ii)
 	int v;
 
 	is = &item[ii];
-	v = is->_iVMult1 + is->_iVMult2;
+	v = is->_iVMult;
 	if (v >= 0) {
 		v *= is->_ivalue;
 	} else {
 		v = is->_ivalue / v;
 	}
-	v += is->_iVAdd1 + is->_iVAdd2;
+	v += is->_iVAdd;
 	if (v <= 0) {
 		v = 1;
 	}
@@ -2030,13 +2030,8 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 			is->_iFlags2 |= ISPH_FASTWALK << (param1 - 1);
 		break;
 	}
-	if (is->_iVAdd1 || is->_iVMult1) {
-		is->_iVAdd2 = PLVal(r, param1, param2, minval, maxval);
-		is->_iVMult2 = multval;
-	} else {
-		is->_iVAdd1 = PLVal(r, param1, param2, minval, maxval);
-		is->_iVMult1 = multval;
-	}
+	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
+	is->_iVMult += multval;
 }
 
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)

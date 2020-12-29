@@ -115,7 +115,7 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iAnimFrame);
 	CopyInt(tbuff, &is->_iAnimWidth);
 	CopyInt(tbuff, &is->_iAnimWidth2);
-	CopyInt(tbuff, &is->_iDelFlag);
+	tbuff += 4; // Skip _iDelFlag
 	CopyChar(tbuff, &is->_iSelFlag);
 	tbuff += 3; // Alignment
 	CopyInt(tbuff, &is->_iPostDraw);
@@ -166,10 +166,10 @@ static void LoadItemData(ItemStruct *is)
 	CopyChar(tbuff, &is->_iPrePower);
 	CopyChar(tbuff, &is->_iSufPower);
 	tbuff += 2; // Alignment
-	CopyInt(tbuff, &is->_iVAdd1);
-	CopyInt(tbuff, &is->_iVMult1);
-	CopyInt(tbuff, &is->_iVAdd2);
-	CopyInt(tbuff, &is->_iVMult2);
+	CopyInt(tbuff, &is->_iVAdd);
+	CopyInt(tbuff, &is->_iVMult);
+	tbuff += 4; // Skip _iVAdd2
+	tbuff += 4; // Skip _iVMult2
 	CopyChar(tbuff, &is->_iMinStr);
 	CopyChar(tbuff, &is->_iMinMag);
 	CopyChar(tbuff, &is->_iMinDex);
@@ -881,7 +881,7 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iAnimFrame, tbuff);
 	CopyInt(&is->_iAnimWidth, tbuff);
 	CopyInt(&is->_iAnimWidth2, tbuff);
-	CopyInt(&is->_iDelFlag, tbuff);
+	tbuff += 4; // Skip _iDelFlag
 	CopyChar(&is->_iSelFlag, tbuff);
 	tbuff += 3; // Alignment
 	CopyInt(&is->_iPostDraw, tbuff);
@@ -932,10 +932,10 @@ static void SaveItemData(ItemStruct *is)
 	CopyChar(&is->_iPrePower, tbuff);
 	CopyChar(&is->_iSufPower, tbuff);
 	tbuff += 2; // Alignment
-	CopyInt(&is->_iVAdd1, tbuff);
-	CopyInt(&is->_iVMult1, tbuff);
-	CopyInt(&is->_iVAdd2, tbuff);
-	CopyInt(&is->_iVMult2, tbuff);
+	CopyInt(&is->_iVAdd, tbuff);
+	CopyInt(&is->_iVMult, tbuff);
+	tbuff += 4; // Skip _iVAdd2
+	tbuff += 4; // Skip _iVMult2
 	CopyChar(&is->_iMinStr, tbuff);
 	CopyChar(&is->_iMinMag, tbuff);
 	CopyChar(&is->_iMinDex, tbuff);

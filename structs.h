@@ -125,7 +125,6 @@ typedef struct ItemStruct {
 	int _iAnimFrame;
 	int _iAnimWidth;
 	int _iAnimWidth2; // width 2?
-	BOOL _iDelFlag;   // set when item is flagged for deletion, deprecated in 1.02
 	char _iSelFlag;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
@@ -176,10 +175,8 @@ typedef struct ItemStruct {
 	int _iPLEnAc;
 	char _iPrePower;
 	char _iSufPower;
-	int _iVAdd1;
-	int _iVMult1;
-	int _iVAdd2;
-	int _iVMult2;
+	int _iVAdd;
+	int _iVMult;
 	char _iMinStr;
 	unsigned char _iMinMag;
 	char _iMinDex;
@@ -187,7 +184,7 @@ typedef struct ItemStruct {
 	int IDidx;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[4];
+	int alignment[7];
 #endif
 } ItemStruct;
 
