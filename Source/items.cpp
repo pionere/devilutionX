@@ -3884,11 +3884,11 @@ void PrintItemDetails(const ItemStruct *is)
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Required:");
-		if (is->_iMinStr)
+		if (is->_iMinStr != 0)
 			cat_str(tempstr, cursor, " %i Str", is->_iMinStr);
-		if (is->_iMinMag)
+		if (is->_iMinMag != 0)
 			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
-		if (is->_iMinDex)
+		if (is->_iMinDex != 0)
 			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
 		AddPanelString(tempstr, TRUE);
 	}
@@ -4169,8 +4169,8 @@ void SetBookLevel(int pnum, ItemStruct *is)
 		while (slvl != 0) {
 			is->_iMinMag += 20 * is->_iMinMag / 100;
 			slvl--;
-			if (is->_iMinMag + 20 * is->_iMinMag / 100 > 255) {
-				is->_iMinMag = 255;
+			if (is->_iMinMag + 20 * is->_iMinMag / 100 > UCHAR_MAX) {
+				is->_iMinMag = UCHAR_MAX;
 				slvl = 0;
 			}
 		}

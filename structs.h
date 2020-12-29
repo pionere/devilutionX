@@ -74,8 +74,8 @@ static_assert((sizeof(UItemStruct) & (sizeof(UItemStruct) - 1)) == 64, "Align UI
 
 typedef struct ItemDataStruct {
 	int iRnd;
-	char iClass;
-	char iLoc;
+	BYTE iClass;
+	BYTE iLoc;
 	int iCurs;
 	char itype;
 	char iItemId;
@@ -87,9 +87,9 @@ typedef struct ItemDataStruct {
 	int iMaxDam;
 	int iMinAC;
 	int iMaxAC;
-	char iMinStr;
-	char iMinMag;
-	char iMinDex;
+	BYTE iMinStr;
+	BYTE iMinMag;
+	BYTE iMinDex;
 	// item_misc_id
 	int iMiscId;
 	// spell_id
@@ -126,15 +126,15 @@ typedef struct ItemStruct {
 	int _iAnimFrame;
 	int _iAnimWidth;
 	int _iAnimWidth2; // width 2?
-	char _iSelFlag;
+	BYTE _iSelFlag;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
-	char _iMagical;
+	BYTE _iMagical;
 	char _iName[64];
 	char _iIName[64];
-	char _iLoc;
+	BYTE _iLoc;
 	// item_class enum
-	char _iClass;
+	BYTE _iClass;
 	int _iCurs;
 	int _ivalue;
 	int _iIvalue;
@@ -178,9 +178,9 @@ typedef struct ItemStruct {
 	char _iSufPower;
 	int _iVAdd;
 	int _iVMult;
-	char _iMinStr;
-	unsigned char _iMinMag;
-	char _iMinDex;
+	BYTE _iMinStr;
+	BYTE _iMinMag;
+	BYTE _iMinDex;
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
