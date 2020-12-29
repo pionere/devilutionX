@@ -286,9 +286,6 @@ const int ItemInvSnds[] = {
 	IS_ILARM,
 #endif
 };
-#ifdef HELLFIRE
-const char *off_4A5AC4 = "SItem";
-#endif
 /** Specifies the current Y-coordinate used for validation of items on ground. */
 int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
@@ -2723,11 +2720,11 @@ void SaveCornerStone()
 {
 	PkItemStruct id;
 	if (CornerStone.activated) {
-		if (CornerStone.item.IDidx >= 0) {
+		if (CornerStone.item._itype != ITYPE_NONE) {
 			PackItem(&id, &CornerStone.item);
-			setIniValue("Hellfire", off_4A5AC4, (char *)&id, 19);
+			setIniValue("Hellfire", "SItem", (char *)&id, sizeof(id));
 		} else {
-			setIniValue("Hellfire", off_4A5AC4, (char *)"", 1);
+			setIniValue("Hellfire", "SItem", (char *)"", 1);
 		}
 	}
 }
@@ -2742,7 +2739,7 @@ void LoadCornerStone(int x, int y)
 		return;
 	}
 
-	CornerStone.item.IDidx = IDI_GOLD;
+	CornerStone.item._itype = ITYPE_NONE;
 	CornerStone.activated = TRUE;
 	ii = dItem[x][y];
 	if (ii != 0) {
@@ -2756,7 +2753,7 @@ void LoadCornerStone(int x, int y)
 		dItem[x][y] = 0;
 	}
 	dwSize = 0;
-	if (getIniValue("Hellfire", off_4A5AC4, (char *)&PkSItem, sizeof(PkSItem), &dwSize)) {
+	if (getIniValue("Hellfire", "SItem", (char *)&PkSItem, sizeof(PkSItem), &dwSize)) {
 		if (dwSize == sizeof(PkSItem)) {
 			ii = itemavail[0];
 			UnPackItem(&PkSItem, &item[ii]);

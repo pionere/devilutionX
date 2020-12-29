@@ -1499,14 +1499,7 @@ void InvGetItem(int pnum, int ii)
 	dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
 	if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-		CornerStone.item.IDidx = -1;
-		CornerStone.item._itype = ITYPE_MISC;
-		CornerStone.item._iSelFlag = FALSE;
-		CornerStone.item._ix = 0;
-		CornerStone.item._iy = 0;
-		CornerStone.item._iAnimFlag = FALSE;
-		CornerStone.item._iIdentified = FALSE;
-		CornerStone.item._iPostDraw = FALSE;
+		CornerStone.item._itype = ITYPE_NONE;
 	}
 #endif
 
@@ -1566,14 +1559,7 @@ void AutoGetItem(int pnum, int ii)
 		dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
 		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-			CornerStone.item.IDidx = -1;
-			CornerStone.item._itype = ITYPE_MISC;
-			CornerStone.item._iSelFlag = FALSE;
-			CornerStone.item._ix = 0;
-			CornerStone.item._iy = 0;
-			CornerStone.item._iAnimFlag = FALSE;
-			CornerStone.item._iIdentified = FALSE;
-			CornerStone.item._iPostDraw = FALSE;
+			CornerStone.item._itype = ITYPE_NONE;
 		}
 #endif
 		for (i = 0; i < numitems; ) {
@@ -1628,14 +1614,7 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 		dItem[is->_ix][is->_iy] = 0;
 #ifdef HELLFIRE
 		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-			CornerStone.item.IDidx = -1;
-			CornerStone.item._itype = ITYPE_MISC;
-			CornerStone.item._iSelFlag = FALSE;
-			CornerStone.item._ix = 0;
-			CornerStone.item._iy = 0;
-			CornerStone.item._iAnimFlag = FALSE;
-			CornerStone.item._iIdentified = FALSE;
-			CornerStone.item._iPostDraw = FALSE;
+			CornerStone.item._itype = ITYPE_NONE;
 		}
 #endif
 		for (i = 0; i < numitems; ) {
@@ -1808,7 +1787,7 @@ int InvPutItem(int pnum, int x, int y)
 	RespawnItem(ii, TRUE);
 	numitems++;
 #ifdef HELLFIRE
-	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y) {
+	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y && gbMaxPlayers == 1) {
 		copy_pod(CornerStone.item, item[ii]);
 		InitQTextMsg(TEXT_CORNSTN);
 		quests[Q_CORNSTN]._qlog = FALSE;
@@ -1844,7 +1823,7 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 	RespawnItem(ii, TRUE);
 	numitems++;
 #ifdef HELLFIRE
-	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y) {
+	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y && gbMaxPlayers == 1) {
 		copy_pod(CornerStone.item, item[ii]);
 		InitQTextMsg(TEXT_CORNSTN);
 		quests[Q_CORNSTN]._qlog = FALSE;
