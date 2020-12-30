@@ -824,9 +824,9 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		}
 
 		if (i >= InvRect[r].X + xo
-		 && i < InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX - 1
-		 && j < InvRect[r].Y + yo) {
+		 && i <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
+		 && j <= InvRect[r].Y + yo) {
 			break;
 		}
 		if (r == SLOTXY_CHEST_LAST) {
@@ -1213,9 +1213,9 @@ static void CheckInvCut(int pnum, int mx, int my)
 
 		// check which inventory rectangle the mouse is in, if any
 		if (mx >= InvRect[r].X + xo
-		    && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		    && my >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
-		    && my < InvRect[r].Y + yo) {
+		 && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && my >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
+		 && my <= InvRect[r].Y + yo) {
 			break;
 		}
 	}
@@ -1847,9 +1847,9 @@ char CheckInvHLight()
 		}
 
 		if (mx >= InvRect[r].X + xo
-		    && mx < InvRect[r].X + xo + (INV_SLOT_SIZE_PX + 1)
-		    && my >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
-		    && my < InvRect[r].Y + yo) {
+		 && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
+		 && my >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
+		 && my <= InvRect[r].Y + yo) {
 			break;
 		}
 	}

@@ -517,8 +517,8 @@ void InvMove(MoveDirection dir)
 
 		if (x >= InvRect[r].X + xo
 		 && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && y >= InvRect[r].Y + yo - (INV_SLOT_SIZE_PX + 1)
-		 && y < InvRect[r].Y + yo) {
+		 && y >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
+		 && y <= InvRect[r].Y + yo) {
 			slot = r;
 			break;
 		}
