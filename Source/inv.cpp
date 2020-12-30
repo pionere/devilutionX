@@ -184,8 +184,8 @@ void DrawInv()
 	p = &plr[myplr];
 	is = &p->InvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 133;
-		screen_y = 59 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X + 1;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -210,8 +210,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_RING_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 48;
-		screen_y = 205 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_LEFT].X + 3;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_LEFT].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -237,8 +237,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_RING_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 249;
-		screen_y = 205 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_RIGHT].X + 2;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_RIGHT].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -264,8 +264,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_AMULET];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 205;
-		screen_y = 60 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_AMULET].X + 1;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_AMULET].Y + 1;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -291,8 +291,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 17;
-		screen_y = 160 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_LEFT_FIRST].X;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_LEFT_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -345,8 +345,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 248;
-		screen_y = 160 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + 1;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -380,8 +380,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + 133;
-		screen_y = 160 + SCREEN_Y;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X + 1;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
