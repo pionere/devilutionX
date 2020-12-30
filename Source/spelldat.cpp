@@ -67,9 +67,9 @@ SpellData spelldata[NUM_SPELLS] = {
 	{ SPL_RECHARGE,      0, STYPE_MAGIC,     "Staff Recharge",     SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_RECHARGE,    CURSOR_RECHARGE,    TRUE,             0, IS_CAST6, MIS_RECHARGE,      0,        0,        40,        80,         0,          0 },
 	{ SPL_DISARM,        0, STYPE_MAGIC,     "Trap Disarm",        SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_DISARM,      CURSOR_DISARM,      FALSE,            0, IS_CAST6, MIS_DISARM,        0,        0,        40,        80,         0,          0 },
 #ifdef HELLFIRE
-	{ SPL_ELEMENT,      35, STYPE_FIRE,      "Elemental",          SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,           68, IS_CAST2, MIS_ELEMENT,       2,       20,        20,        60,     10500,        700 },
+	{ SPL_ELEMENT,      35, STYPE_FIRE,      "Elemental",          SPELL_NA,  SPELL_NA,   SPELL_NA, TRUE,      CURSOR_NONE,        CURSOR_NONE,        FALSE,           68, IS_CAST2, MIS_ELEMENT,       2,       20,        20,        60,     10500,        700 },
 #else
-	{ SPL_ELEMENT,      35, STYPE_FIRE,      "Elemental",                 8,        12,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,           68, IS_CAST2, MIS_ELEMENT,       2,       20,        20,        60,     10500,        700 },
+	{ SPL_ELEMENT,      35, STYPE_FIRE,      "Elemental",                 8,        12,   SPELL_NA, TRUE,      CURSOR_NONE,        CURSOR_NONE,        FALSE,           68, IS_CAST2, MIS_ELEMENT,       2,       20,        20,        60,     10500,        700 },
 #endif
 	{ SPL_CBOLT,         6, STYPE_LIGHTNING, "Charged Bolt",       BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           25, IS_CAST2, MIS_CBOLTC,        1,        6,        40,        80,      1000,         50 },
 	{ SPL_HBOLT,         7, STYPE_MAGIC,     "Holy Bolt",          BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           20, IS_CAST2, MIS_HBOLT,         1,        3,        40,        80,      1000,         50 },
