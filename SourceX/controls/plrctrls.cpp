@@ -532,14 +532,14 @@ void InvMove(MoveDirection dir)
 	// when item is on cursor, this is the real cursor XY
 	if (dir.x == MoveDirectionX_LEFT) {
 		if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_AMULET) {
-			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
 		} else if (slot == SLOTXY_RING_RIGHT) {
 			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
@@ -567,10 +567,10 @@ void InvMove(MoveDirection dir)
 			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) { // head to amulet
 			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
@@ -598,19 +598,19 @@ void InvMove(MoveDirection dir)
 			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= 28 && slot <= 32) { // middle 4 general slots
-			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= 33 && slot < 35) { // last 3 general slots
 			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) { // chest to head
-			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
 		} else if (slot == SLOTXY_RING_LEFT) { // left ring to left hand
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_RING_RIGHT) { // right ring to right hand
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) { // right hand to amulet
 			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
@@ -618,8 +618,8 @@ void InvMove(MoveDirection dir)
 		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
 			// do nothing
 		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) { // left hand to head
-			x = InvRect[SLOTXY_HEAD_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_HEAD_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
 		} else if (slot == SLOTXY_AMULET) {
 			// do nothing
 		} else if (slot >= (SLOTXY_INV_FIRST + 10)) { // general inventory
@@ -629,8 +629,8 @@ void InvMove(MoveDirection dir)
 		}
 	} else if (dir.y == MoveDirectionY_DOWN) {
 		if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_CHEST_FIRST].Y - (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
 			x = InvRect[30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[30].Y - (INV_SLOT_SIZE_PX / 2);
@@ -644,7 +644,7 @@ void InvMove(MoveDirection dir)
 			x = InvRect[34].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[34].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot == SLOTXY_AMULET) {
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
 			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
