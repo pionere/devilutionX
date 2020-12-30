@@ -31,79 +31,79 @@ int sgdwLastTime; // check name
 const InvXY InvRect[] = {
 	// clang-format off
 	//  X,   Y
-	{ 132,  31 }, // helmet
-	{ 160,  31 }, // helmet
-	{ 132,  59 }, // helmet
-	{ 160,  59 }, // helmet
-	{  45, 205 }, // left ring
-	{ 247, 205 }, // right ring
-	{ 204,  59 }, // amulet
-	{  17, 104 }, // left hand
-	{  46, 104 }, // left hand
-	{  17, 132 }, // left hand
-	{  46, 132 }, // left hand
-	{  17, 160 }, // left hand
-	{  46, 160 }, // left hand
-	{ 247, 104 }, // right hand
-	{ 276, 104 }, // right hand
-	{ 247, 132 }, // right hand
-	{ 276, 132 }, // right hand
-	{ 247, 160 }, // right hand
-	{ 276, 160 }, // right hand
-	{ 132, 104 }, // chest
-	{ 160, 104 }, // chest
-	{ 132, 132 }, // chest
-	{ 160, 132 }, // chest
-	{ 132, 160 }, // chest
-	{ 160, 160 }, // chest
-	{  17, 250 }, // inv row 1
-	{  46, 250 }, // inv row 1
-	{  75, 250 }, // inv row 1
-	{ 104, 250 }, // inv row 1
-	{ 133, 250 }, // inv row 1
-	{ 162, 250 }, // inv row 1
-	{ 191, 250 }, // inv row 1
-	{ 220, 250 }, // inv row 1
-	{ 249, 250 }, // inv row 1
-	{ 278, 250 }, // inv row 1
-	{  17, 279 }, // inv row 2
-	{  46, 279 }, // inv row 2
-	{  75, 279 }, // inv row 2
-	{ 104, 279 }, // inv row 2
-	{ 133, 279 }, // inv row 2
-	{ 162, 279 }, // inv row 2
-	{ 191, 279 }, // inv row 2
-	{ 220, 279 }, // inv row 2
-	{ 249, 279 }, // inv row 2
-	{ 278, 279 }, // inv row 2
-	{  17, 308 }, // inv row 3
-	{  46, 308 }, // inv row 3
-	{  75, 308 }, // inv row 3
-	{ 104, 308 }, // inv row 3
-	{ 133, 308 }, // inv row 3
-	{ 162, 308 }, // inv row 3
-	{ 191, 308 }, // inv row 3
-	{ 220, 308 }, // inv row 3
-	{ 249, 308 }, // inv row 3
-	{ 278, 308 }, // inv row 3
-	{  17, 337 }, // inv row 4
-	{  46, 337 }, // inv row 4
-	{  75, 337 }, // inv row 4
-	{ 104, 337 }, // inv row 4
-	{ 133, 337 }, // inv row 4
-	{ 162, 337 }, // inv row 4
-	{ 191, 337 }, // inv row 4
-	{ 220, 337 }, // inv row 4
-	{ 249, 337 }, // inv row 4
-	{ 278, 337 }, // inv row 4
-	{ 205,  33 }, // belt
-	{ 234,  33 }, // belt
-	{ 263,  33 }, // belt
-	{ 292,  33 }, // belt
-	{ 321,  33 }, // belt
-	{ 350,  33 }, // belt
-	{ 379,  33 }, // belt
-	{ 408,  33 }  // belt
+	{ 133,                    31 },                       // helmet
+	{ 133 + INV_SLOT_SIZE_PX, 31 },                       // helmet
+	{ 133,                    31 +    INV_SLOT_SIZE_PX }, // helmet
+	{ 133 + INV_SLOT_SIZE_PX, 31 +    INV_SLOT_SIZE_PX }, // helmet
+	{  48, 205 }, // left ring
+	{ 249, 205 }, // right ring
+	{ 205,  60 }, // amulet
+	{  17,                    104 },                      // left hand
+	{  17 + INV_SLOT_SIZE_PX, 104 },                      // left hand
+	{  17,                    104 +   INV_SLOT_SIZE_PX }, // left hand
+	{  17 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // left hand
+	{  17,                    104 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{  17 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{ 249,                    104 },                      // right hand
+	{ 249 + INV_SLOT_SIZE_PX, 104 },                      // right hand
+	{ 249,                    104 +   INV_SLOT_SIZE_PX }, // right hand
+	{ 249 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // right hand
+	{ 249,                    104 + 2*INV_SLOT_SIZE_PX }, // right hand
+	{ 249 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // right hand
+	{ 133,                    104 },                      // chest
+	{ 133 + INV_SLOT_SIZE_PX, 104 },                      // chest
+	{ 133,                    104 +   INV_SLOT_SIZE_PX }, // chest
+	{ 133 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // chest
+	{ 133,                    104 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 133 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // chest
+	{  17, 249 }, // inv row 1
+	{  46, 249 }, // inv row 1
+	{  75, 249 }, // inv row 1
+	{ 104, 249 }, // inv row 1
+	{ 133, 249 }, // inv row 1
+	{ 162, 249 }, // inv row 1
+	{ 191, 249 }, // inv row 1
+	{ 220, 249 }, // inv row 1
+	{ 249, 249 }, // inv row 1
+	{ 278, 249 }, // inv row 1
+	{  17, 278 }, // inv row 2
+	{  46, 278 }, // inv row 2
+	{  75, 278 }, // inv row 2
+	{ 104, 278 }, // inv row 2
+	{ 133, 278 }, // inv row 2
+	{ 162, 278 }, // inv row 2
+	{ 191, 278 }, // inv row 2
+	{ 220, 278 }, // inv row 2
+	{ 249, 278 }, // inv row 2
+	{ 278, 278 }, // inv row 2
+	{  17, 307 }, // inv row 3
+	{  46, 307 }, // inv row 3
+	{  75, 307 }, // inv row 3
+	{ 104, 307 }, // inv row 3
+	{ 133, 307 }, // inv row 3
+	{ 162, 307 }, // inv row 3
+	{ 191, 307 }, // inv row 3
+	{ 220, 307 }, // inv row 3
+	{ 249, 307 }, // inv row 3
+	{ 278, 307 }, // inv row 3
+	{  17, 336 }, // inv row 4
+	{  46, 336 }, // inv row 4
+	{  75, 336 }, // inv row 4
+	{ 104, 336 }, // inv row 4
+	{ 133, 336 }, // inv row 4
+	{ 162, 336 }, // inv row 4
+	{ 191, 336 }, // inv row 4
+	{ 220, 336 }, // inv row 4
+	{ 249, 336 }, // inv row 4
+	{ 278, 336 }, // inv row 4
+	{ 205,  32 }, // belt
+	{ 234,  32 }, // belt
+	{ 263,  32 }, // belt
+	{ 292,  32 }, // belt
+	{ 321,  32 }, // belt
+	{ 350,  32 }, // belt
+	{ 379,  32 }, // belt
+	{ 408,  32 }  // belt
 	// clang-format on
 };
 
@@ -184,7 +184,7 @@ void DrawInv()
 	p = &plr[myplr];
 	is = &p->InvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X + 1;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X;
 		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
@@ -210,7 +210,7 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_RING_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_LEFT].X + 3;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_LEFT].X;
 		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_LEFT].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
@@ -237,7 +237,7 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_RING_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_RIGHT].X + 2;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_RIGHT].X;
 		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_RIGHT].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
@@ -264,8 +264,8 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_AMULET];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_AMULET].X + 1;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_AMULET].Y + 1;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_AMULET].X;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_AMULET].Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -299,9 +299,9 @@ void DrawInv()
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += 14;
+			screen_x += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != (3 * INV_SLOT_SIZE_PX))
-			screen_y -= 14;
+			screen_y -= INV_SLOT_SIZE_PX / 2;
 
 #ifdef HELLFIRE
 		if (frame > 179) {
@@ -345,7 +345,7 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + 1;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
 		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
@@ -353,11 +353,9 @@ void DrawInv()
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += 13;
-		else
-			screen_x++;
+			screen_x += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
-			screen_y -= 14;
+			screen_y -= INV_SLOT_SIZE_PX / 2;
 
 #ifdef HELLFIRE
 		if (frame > 179) {
@@ -380,7 +378,7 @@ void DrawInv()
 
 	is = &p->InvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X + 1;
+		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X;
 		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_LAST].Y;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
@@ -409,7 +407,7 @@ void DrawInv()
 		if (p->InvGrid[i] != 0) {
 			InvDrawSlotBack(
 			    InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-			    InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1,
+			    InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y,
 			    INV_SLOT_SIZE_PX,
 			    INV_SLOT_SIZE_PX);
 		}
@@ -422,7 +420,7 @@ void DrawInv()
 			is = &p->InvList[ii];
 
 			screen_x = InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
-			screen_y = InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y - 1;
+			screen_y = InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y;
 
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
@@ -476,7 +474,7 @@ void DrawInvBelt()
 			continue;
 		}
 		screen_x = InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X;
-		screen_y = InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y - 1;
+		screen_y = InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
