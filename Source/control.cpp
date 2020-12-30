@@ -1615,11 +1615,9 @@ void DrawLevelUpIcon()
 {
 	int nCel;
 
-	if (stextflag == STORE_NONE) {
-		nCel = lvlbtndown ? 3 : 2;
-		ADD_PlrStringXY(PANEL_LEFT + 0, PANEL_TOP - 49, PANEL_LEFT + 120, "Level Up", COL_WHITE);
-		CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, nCel, 41);
-	}
+	nCel = lvlbtndown ? 3 : 2;
+	ADD_PlrStringXY(PANEL_LEFT + 0, PANEL_TOP - 49, PANEL_LEFT + 120, "Level Up", COL_WHITE);
+	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, nCel, 41);
 }
 
 BOOL CheckChrBtns()

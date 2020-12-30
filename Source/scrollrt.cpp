@@ -1217,7 +1217,7 @@ static void DrawView(int StartX, int StartY)
 	if (automapflag) {
 		DrawAutomap();
 	}
-	if (stextflag && !qtextflag)
+	if (stextflag != STORE_NONE && !qtextflag)
 		DrawSText();
 	if (invflag) {
 		DrawInv();
@@ -1232,7 +1232,7 @@ static void DrawView(int StartX, int StartY)
 	} else if (questlog) {
 		DrawQuestLog();
 	}
-	if (!chrflag && plr[myplr]._pLvlUp && !spselflag
+	if (plr[myplr]._pLvlUp && !chrflag && !spselflag && stextflag == STORE_NONE
 	    && (!questlog || SCREEN_HEIGHT >= SPANEL_HEIGHT + PANEL_HEIGHT + 74 || SCREEN_WIDTH >= 4 * SPANEL_WIDTH)) {
 		DrawLevelUpIcon();
 	}
