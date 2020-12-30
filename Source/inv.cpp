@@ -1506,10 +1506,9 @@ void InvGetItem(int pnum, int ii)
 	p = &plr[pnum];
 	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
 		NetSendCmdPItem(TRUE, CMD_SYNCPUTITEM, &p->HoldItem, p->_px, p->_py);
-#ifdef HELLFIRE
-	if (is->_iUid != 0)
-#endif
-		is->_iCreateInfo &= ~CF_PREGEN;
+	// always mask CF_PREGEN to make life of RecreateItem easier later on
+	// otherwise this should not have an effect, since the item is already in 'delta'
+	is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
 	SetBookLevel(pnum, is);
 	ItemStatOk(pnum, is);
@@ -1542,10 +1541,9 @@ void AutoGetItem(int pnum, int ii)
 		return;
 
 	p = &plr[pnum];
-#ifdef HELLFIRE
-	if (is->_iUid != 0)
-#endif
-		is->_iCreateInfo &= ~CF_PREGEN;
+	// always mask CF_PREGEN to make life of RecreateItem easier later on
+	// otherwise this should not have an effect, since the item is already in 'delta'
+	is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
 	SetBookLevel(pnum, is);
 	ItemStatOk(pnum, is);
