@@ -1236,6 +1236,11 @@ static void DrawView(int StartX, int StartY)
 	    && (!questlog || SCREEN_HEIGHT >= SPANEL_HEIGHT + PANEL_HEIGHT + 74 || SCREEN_WIDTH >= 4 * SPANEL_WIDTH)) {
 		DrawLevelUpIcon();
 	}
+
+	if (GetAsyncKeyState(DVL_VK_MENU)) {
+		DrawInfoStr();
+	}
+
 	if (uitemflag
 	 && ((!chrflag && !questlog) || SCREEN_WIDTH >= SPANEL_WIDTH * 3)) {
 		DrawUniqueInfo();

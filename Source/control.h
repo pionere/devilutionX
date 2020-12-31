@@ -62,6 +62,7 @@ void DrawChr();
 BOOL CheckLvlBtn();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
+void DrawInfoStr();
 BOOL CheckChrBtns();
 void ReleaseChrBtns();
 void DrawDurIcon();

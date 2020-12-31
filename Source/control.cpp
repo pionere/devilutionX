@@ -1213,54 +1213,75 @@ BOOL control_WriteStringToBuffer(BYTE *str)
 	return TRUE;
 }
 
-static void CPrintString(int y, const char *str, BOOL center, int lines)
+static int StringWidth(const char *str)
+{
+	BYTE c;
+	int strWidth;
+
+	strWidth = 0;
+	while (*str != '\0') {
+		c = gbFontTransTbl[(BYTE)*str++];
+		strWidth += fontkern[fontframe[c]] + 1; // + kern
+	}
+	return strWidth;
+}
+
+/**
+ * @brief Render text string to back buffer
+ * @param x Screen coordinate
+ * @param y Screen coordinate
+ * @param endX End of line in screen coordinate
+ * @param pszStr String to print, in Windows-1252 encoding
+ * @param center 
+ * @param col text_color color value
+ * @param kern Letter spacing
+ */
+static void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, int col, int kern)
 {
 	BYTE c;
 	const char *tmp;
-	int lineOffset, strWidth, sx, sy;
+	int strEnd;
+	int cw;
 
-	lineOffset = 0;
-	sx = 177 + PANEL_X;
-	sy = lineOffsets[lines][y] + PANEL_Y;
 	if (center) {
-		strWidth = 0;
-		tmp = str;
+		strEnd = x;
+		tmp = pszStr;
 		while (*tmp != '\0') {
 			c = gbFontTransTbl[(BYTE)*tmp++];
-			strWidth += fontkern[fontframe[c]] + 2;
+			strEnd += fontkern[fontframe[c]] + kern;
 		}
-		if (strWidth < 288)
-			lineOffset = (288 - strWidth) >> 1;
-		sx += lineOffset;
+		if (strEnd < endX) {
+			x += (endX - strEnd) >> 1;
+		}
 	}
-	while (*str != '\0') {
-		c = gbFontTransTbl[(BYTE)*str++];
+	while (*pszStr != '\0') {
+		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = fontframe[c];
-		lineOffset += fontkern[c] + 2;
-		if (c != '\0') {
-			if (lineOffset < 288) {
-				PrintChar(sx, sy, c, infoclr);
-			}
+		cw = fontkern[c] + kern;
+		if (x + cw < endX && c != '\0') {
+			PrintChar(x, y, c, col);
 		}
-		sx += fontkern[c] + 2;
+		x += cw;
 	}
 }
 
 static void PrintInfo()
 {
-	int yo, lo, i;
+	int i, j, x, y;
 
 	if (!talkflag) {
-		yo = 0;
-		lo = 1;
+		x = 177 + PANEL_LEFT + SCREEN_X;
+		y = PANEL_TOP + SCREEN_Y;
+		j = 0;
+		const int *los = lineOffsets[pnumlines - 1];
 		if (infostr[0] != '\0') {
-			CPrintString(0, infostr, TRUE, pnumlines);
-			yo = 1;
-			lo = 0;
+			los = lineOffsets[pnumlines];
+			PrintString(x, y + los[0], x + 287, infostr, TRUE, infoclr, 2);
+			j = 1;
 		}
 
-		for (i = 0; i < pnumlines; i++) {
-			CPrintString(i + yo, panelstr[i], pstrjust[i], pnumlines - lo);
+		for (i = 0; i < pnumlines; i++, j++) {
+			PrintString(x, y + los[j], x + 287, panelstr[i], pstrjust[i], infoclr, 2);
 		}
 	}
 }
@@ -1338,7 +1359,7 @@ void DrawInfoBox()
 		PrintInfo();
 }
 
-#define ADD_PlrStringXY(x, y, width, pszStr, col) MY_PlrStringXY(x, y, width, pszStr, col, 1)
+#define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, TRUE, col, 1)
 
 void PrintGameStr(int x, int y, const char *str, int color)
 {
@@ -1352,46 +1373,6 @@ void PrintGameStr(int x, int y, const char *str, int color)
 		if (c != '\0')
 			PrintChar(sx, sy, c, color);
 		sx += fontkern[c] + 1;
-	}
-}
-
-/**
- * @brief Render text string to back buffer
- * @param x Screen coordinate
- * @param y Screen coordinate
- * @param endX End of line in screen coordinate
- * @param pszStr String to print, in Windows-1252 encoding
- * @param col text_color color value
- * @param base Letter spacing
- */
-static void MY_PlrStringXY(int x, int y, int endX, const char *pszStr, char col, int base)
-{
-	BYTE c;
-	const char *tmp;
-	int sx, sy, screen_x, line, widthOffset;
-
-	sx = x + SCREEN_X;
-	sy = y + SCREEN_Y;
-	widthOffset = endX - x + 1;
-	line = 0;
-	screen_x = 0;
-	tmp = pszStr;
-	while (*tmp != '\0') {
-		c = gbFontTransTbl[(BYTE)*tmp++];
-		screen_x += fontkern[fontframe[c]] + base;
-	}
-	if (screen_x < widthOffset)
-		line = (widthOffset - screen_x) >> 1;
-	sx += line;
-	while (*pszStr != '\0') {
-		c = gbFontTransTbl[(BYTE)*pszStr++];
-		c = fontframe[c];
-		line += fontkern[c] + base;
-		if (c != '\0') {
-			if (line < widthOffset)
-				PrintChar(sx, sy, c, col);
-		}
-		sx += fontkern[c] + base;
 	}
 }
 
@@ -1469,9 +1450,9 @@ void DrawChr()
 	}
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
-		MY_PlrStringXY(254, 239, 305, chrstr, col, -1);
+		PrintString(254 + SCREEN_X, 239 + SCREEN_Y, 305 + SCREEN_X, chrstr, TRUE, col, -1);
 	else
-		MY_PlrStringXY(258, 239, 301, chrstr, col, 0);
+		PrintString(258 + SCREEN_X, 239 + SCREEN_Y, 301 + SCREEN_X, chrstr, TRUE, col, 0);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
@@ -1613,12 +1594,119 @@ void ReleaseLvlBtn()
 
 void DrawLevelUpIcon()
 {
-	int nCel;
-
-	nCel = lvlbtndown ? 3 : 2;
 	ADD_PlrStringXY(PANEL_LEFT + 0, PANEL_TOP - 49, PANEL_LEFT + 120, "Level Up", COL_WHITE);
-	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, nCel, 41);
+	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, lvlbtndown + 2, 41);
 }
+
+/*
+ * Return the screen position of the given tile (x;y).
+ *
+ * @param x the x index of the tile
+ * @param y the y index of the tile
+ * @param outx the screen x-coordinate of the tile
+ * @param outy the screen y-coordinate of the tile
+ */
+static void GetMousePos(int x, int y, int *outx, int *outy)
+{
+	int px, py;
+
+	x -= ViewX;
+	y -= ViewY;
+	
+	px = 0;
+	py = 0;
+	ShiftGrid(&px, &py, -y, x);
+
+	px *= TILE_WIDTH / 2;
+	py *= TILE_HEIGHT / 2;
+
+	if (!zoomflag) {
+		px <<= 1;
+		py <<= 1;
+	}
+
+	if (PANELS_COVER) {
+		if (chrflag | questlog) {
+			px += SPANEL_WIDTH / 2;
+		} else if (invflag | sbookflag) {
+			px -= SPANEL_WIDTH / 2;
+		}
+	}
+
+	px += SCREEN_WIDTH / 2;
+	py += PANEL_TOP / 2;
+
+	*outx = px;
+	*outy = py;
+}
+
+char DrawItemColor(ItemStruct *is)
+{
+	if (is->_iMagical == ITEM_QUALITY_NORMAL)
+		return COL_WHITE;
+	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
+}
+
+void DrawInfoStr()
+{
+	int x, y, xx, yy, width;
+	const char* text;
+	BYTE *dst;
+	char col;
+
+	if (pcursitem != -1) {
+		ItemStruct* is = &item[pcursitem];
+		x = is->_ix;
+		y = is->_iy;
+		col = DrawItemColor(is);
+	} else if (pcursobj != -1) {
+		ObjectStruct* os = &object[pcursobj];
+		x = os->_ox;
+		y = os->_oy;
+		col = COL_WHITE;
+	} else if (pcursmonst != -1) {
+		MonsterStruct* mon = &monster[pcursmonst];
+		x = mon->_mx - 2;
+		y = mon->_my - 2;
+		col = COL_WHITE;
+	} else if (pcursplr != -1) {
+		PlayerStruct* p = &plr[pcursplr];
+		x = p->_px;
+		y = p->_py;
+		col = COL_WHITE;
+	} else {
+		return;
+	}
+	text = infostr;
+
+	GetMousePos(x, y, &xx, &yy);
+	const int border = 4, height = 16;
+
+	width = StringWidth(text) + 2 * border;
+
+	yy -= TILE_HEIGHT;
+	if (yy < 0)
+		return;
+	xx -= width / 2;
+	if (xx < 0)
+		xx = 0;
+	else if (xx > SCREEN_WIDTH - width)
+		xx = SCREEN_WIDTH - width;
+
+	// draw gray border
+	dst = &gpBuffer[SCREENXY(xx, yy)];
+	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_GRAY + 2, width);
+
+	// draw background
+	dst = &gpBuffer[SCREENXY(xx + 1, yy + 1)];
+	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_ORANGE + 14, width - 2);
+
+	// print the info
+	PrintGameStr(xx + border, yy + height - 3, text, col);
+}
+
 
 BOOL CheckChrBtns()
 {
@@ -1795,37 +1883,6 @@ void RedBack()
 	}
 }
 
-static void PrintSBookStr(int x, int y, BOOL cjustflag, const char *pszStr, char col)
-{
-	BYTE c;
-	const char *tmp;
-	int screen_x, line;
-
-	x += SPLICONLENGTH;
-	line = 0;
-	if (cjustflag) {
-		screen_x = 0;
-		tmp = pszStr;
-		while (*tmp != '\0') {
-			c = gbFontTransTbl[(BYTE)*tmp++];
-			screen_x += fontkern[fontframe[c]] + 1;
-		}
-		if (screen_x < 222)
-			line = (222 - screen_x) >> 1;
-		x += line;
-	}
-	while (*pszStr != '\0') {
-		c = gbFontTransTbl[(BYTE)*pszStr++];
-		c = fontframe[c];
-		line += fontkern[c] + 1;
-		if (c != '\0') {
-			if (line <= 222)
-				PrintChar(x, y, c, col);
-		}
-		x += fontkern[c] + 1;
-	}
-}
-
 static char GetSBookTrans(int sn, BOOL townok)
 {
 	PlayerStruct *p;
@@ -1854,6 +1911,7 @@ static char GetSBookTrans(int sn, BOOL townok)
 #define SBOOK_LEFT_BORDER	 7
 #define SBOOK_BOTTOM_BORDER	 3
 #define SBOOK_PAGER_HEIGHT	29
+#define SBOOK_LINE_LENGTH  222
 #ifdef HELLFIRE
 #define SBOOK_PAGER_WIDTH	61
 #else
@@ -1887,7 +1945,7 @@ void DrawSpellBook()
 				SetSpellTrans(RSPLTYPE_SKILL);
 				DrawSpellCel(sx + 1, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELSIZE);
 			}
-			PrintSBookStr(sx, yp - 23, FALSE, spelldata[sn].sNameText, COL_WHITE);
+			PrintString(sx + SPLICONLENGTH, yp - 23, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, FALSE, COL_WHITE, 1);
 			switch (GetSBookTrans(sn, FALSE)) {
 			case RSPLTYPE_SKILL:
 				copy_cstr(tempstr, "Skill");
@@ -1907,7 +1965,7 @@ void DrawSpellBook()
 				if (sn == SPL_BONESPIRIT) {
 					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: 1/3 tgt hp", mana);
 				}
-				PrintSBookStr(sx, yp - 1, FALSE, tempstr, COL_WHITE);
+				PrintString(sx + SPLICONLENGTH, yp - 1, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
 				lvl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 				if (lvl <= 0) {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
@@ -1919,7 +1977,7 @@ void DrawSpellBook()
 				ASSUME_UNREACHABLE
 				break;
 			}
-			PrintSBookStr(sx, yp - 12, FALSE, tempstr, COL_WHITE);
+			PrintString(sx + SPLICONLENGTH, yp - 12, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
 		}
 		yp += 2 * SBOOK_CELBORDER + SBOOK_CELSIZE;
 	}
