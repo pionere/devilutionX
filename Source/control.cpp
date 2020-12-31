@@ -52,6 +52,12 @@ int numpanbtns;
 char panelstr[MAX_CTRL_PANEL_LINES][64];
 BOOL panelflag;
 BYTE SplTransTbl[256];
+static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
+static_assert(RSPLTYPE_SCROLL != -1, "Cached value of spellTrans must not be -1.");
+static_assert(RSPLTYPE_SKILL != -1, "Cached value of spellTrans must not be -1.");
+static_assert(RSPLTYPE_SPELL != -1, "Cached value of spellTrans must not be -1.");
+static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1.");
+char lastSt = -1;
 int initialDropGoldValue;
 BYTE *pSpellCels;
 BOOL panbtndown;
@@ -244,6 +250,9 @@ static void DrawSpellCel(int xp, int yp, BYTE *Trans, int nCel, int w)
 static void SetSpellTrans(char st)
 {
 	int i;
+
+	if (lastSt == st)
+		return;
 
 	if (st == RSPLTYPE_SKILL) {
 		for (i = 0; i < 128; i++)
