@@ -353,7 +353,7 @@ void trans_rect(int sx, int sy, int width, int height)
 	BYTE *pix = &gpBuffer[SCREENXY(sx, sy)];
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
-			if ((row & 1 && col & 1) || (!(row & 1) && !(col & 1)))
+			if (((row ^ col) & 1) == 0)
 				*pix = 0;
 			pix++;
 		}
