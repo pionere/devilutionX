@@ -372,12 +372,12 @@ void DrawSpellList()
 		for (spl = 1, j = 1; j < NUM_SPELLS; spl <<= 1, j++) {
 			if (!(mask & spl))
 				continue;
-			if (i == RSPLTYPE_SPELL) {
+			if (currlevel == 0 && !spelldata[j].sTownSpell)
+				SetSpellTrans(RSPLTYPE_INVALID);
+			else if (i == RSPLTYPE_SPELL) {
 				s = p->_pISplLvlAdd + p->_pSplLvl[j];
 				SetSpellTrans(s > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID);
 			}
-			if (currlevel == 0 && !spelldata[j].sTownSpell)
-				SetSpellTrans(RSPLTYPE_INVALID);
 			DrawSpellCel(x, y, pSpellCels, SpellITbl[j], SPLICONLENGTH);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
@@ -1921,7 +1921,7 @@ static char GetSBookTrans(int sn, BOOL townok)
 void DrawSpellBook()
 {
 	PlayerStruct* p;
-	int i, sn, mana, lvl, sx, yp, min, max;
+	int i, sn, mana, lvl, sx, yp, offset, min, max;
 	char st;
 	unsigned __int64 spl;
 
@@ -1945,39 +1945,43 @@ void DrawSpellBook()
 				SetSpellTrans(RSPLTYPE_SKILL);
 				DrawSpellCel(sx + 1, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELSIZE);
 			}
-			PrintString(sx + SPLICONLENGTH, yp - 23, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, FALSE, COL_WHITE, 1);
 			switch (GetSBookTrans(sn, FALSE)) {
 			case RSPLTYPE_SKILL:
 				copy_cstr(tempstr, "Skill");
+				mana = 0;
 				break;
 			case RSPLTYPE_CHARGES:
 				snprintf(tempstr, sizeof(tempstr), "Staff (%i charges)", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
+				mana = 0;
 				break;
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
-				mana = GetManaAmount(myplr, sn) >> 6;
-				GetDamageAmt(sn, &min, &max);
-				if (min != -1) {
-					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: %i - %i", mana, min, max);
-				} else {
-					snprintf(tempstr, sizeof(tempstr), "Mana: %i   Dam: n/a", mana);
-				}
-				if (sn == SPL_BONESPIRIT) {
-					snprintf(tempstr, sizeof(tempstr), "Mana: %i  Dam: 1/3 tgt hp", mana);
-				}
-				PrintString(sx + SPLICONLENGTH, yp - 1, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
-				lvl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
+				lvl = GetSpellLevel(myplr, sn);
 				if (lvl <= 0) {
 					copy_cstr(tempstr, "Spell Level 0 - Unusable");
 				} else {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
 				}
+				mana = GetManaAmount(myplr, sn) >> 6;
 				break;
 			default:
 				ASSUME_UNREACHABLE
 				break;
 			}
-			PrintString(sx + SPLICONLENGTH, yp - 12, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
+			GetDamageAmt(sn, &min, &max);
+			offset = mana == 0 && min == -1 && sn != SPL_BONESPIRIT ? 5 : 0;
+			PrintString(sx + SPLICONLENGTH, yp - 23 + offset, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, FALSE, COL_WHITE, 1);
+			PrintString(sx + SPLICONLENGTH, yp - 12 + offset, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
+
+			if (offset == 0) {
+				if (mana != 0)
+					cat_str(tempstr, offset, "Mana: %i  ", mana);
+				if (min != -1)
+					cat_str(tempstr, offset, "Dam: %i - %i", min, max);
+				else if (sn == SPL_BONESPIRIT)
+					cat_cstr(tempstr, offset, "Dam: 1/3 tgt hp");
+				PrintString(sx + SPLICONLENGTH, yp - 1, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
+			}
 		}
 		yp += 2 * SBOOK_CELBORDER + SBOOK_CELSIZE;
 	}
