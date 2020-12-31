@@ -58,7 +58,7 @@ static void snd_get_volume(const char *value_name, int *value)
 {
 	int v;
 
-	if (SRegLoadValue(APP_NAME, value_name, 0, value)) {
+	if (SRegLoadValue("Diablo", value_name, 0, value)) {
 		v = *value;
 		if (v < VOLUME_MIN) {
 			v = VOLUME_MIN;
@@ -74,7 +74,7 @@ static void snd_get_volume(const char *value_name, int *value)
 
 static void snd_set_volume(const char *key, int value)
 {
-	SRegSaveValue(APP_NAME, key, 0, value);
+	SRegSaveValue("Diablo", key, 0, value);
 }
 
 BOOL snd_playing(TSnd *pSnd)

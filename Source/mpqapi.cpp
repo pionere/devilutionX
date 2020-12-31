@@ -495,7 +495,7 @@ static DWORD mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 	return result;
 }
 
-static int mpqapi_get_hash_index(short index, int hash_a, int hash_b, int locale)
+static int mpqapi_get_hash_index(int index, int hash_a, int hash_b, int locale)
 {
 	DWORD idx, i;
 	_HASHENTRY *pHash;
@@ -579,13 +579,12 @@ static _BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int 
 
 static BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, DWORD dwLen, _BLOCKENTRY *pBlk)
 {
-	const char *str_ptr = pszName;
 	const char *tmp;
-	while ((tmp = strchr(str_ptr, ':')))
-		str_ptr = tmp + 1;
-	while ((tmp = strchr(str_ptr, '\\')))
-		str_ptr = tmp + 1;
-	Hash(str_ptr, 3);
+	while ((tmp = strchr(pszName, ':')))
+		pszName = tmp + 1;
+	while ((tmp = strchr(pszName, '\\')))
+		pszName = tmp + 1;
+	Hash(pszName, 3);
 
 	constexpr uint32_t kSectorSize = 4096;
 	const uint32_t num_sectors = (dwLen + (kSectorSize - 1)) / kSectorSize;
@@ -622,14 +621,13 @@ static BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 	}
 #endif
 
-	const BYTE *src = pbData;
 	uint32_t destsize = offset_table_bytesize;
 	BYTE mpq_buf[kSectorSize];
 	std::size_t cur_sector = 0;
 	while (true) {
 		uint32_t len = std::min(dwLen, kSectorSize);
-		memcpy(mpq_buf, src, len);
-		src += len;
+		memcpy(mpq_buf, pbData, len);
+		pbData += len;
 		len = PkwareCompress(mpq_buf, len);
 		if (!cur_archive.stream.write((char *)mpq_buf, len))
 			return FALSE;

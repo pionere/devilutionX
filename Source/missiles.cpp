@@ -634,7 +634,11 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		    + p->_pIEnAc;
 		if (p->_pClass == PC_ROGUE)
 			hper += 20;
+#ifdef HELLFIRE
+		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+#else
 		else if (p->_pClass == PC_WARRIOR)
+#endif
 			hper += 10;
 	} else {
 		hper = 50 + p->_pMagic
@@ -642,6 +646,10 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 			- dist;
 		if (p->_pClass == PC_SORCERER)
 			hper += 20;
+#ifdef HELLFIRE
+		else if (p->_pClass == PC_BARD)
+			hper += 10;
+#endif
 	}
 	if (hper < 5)
 		hper = 5;
@@ -963,7 +971,11 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		    - dps->_pIAC;
 		if (ops->_pClass == PC_ROGUE)
 			hper += 20;
-		if (ops->_pClass == PC_WARRIOR)
+#ifdef HELLFIRE
+		else if (ops->_pClass == PC_WARRIOR || ops->_pClass == PC_BARD)
+#else
+		else if (ops->_pClass == PC_WARRIOR)
+#endif
 			hper += 10;
 	} else {
 		if (mds->mdFlags & MIFLAG_AREA) {
@@ -976,6 +988,10 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 				- dist;
 			if (ops->_pClass == PC_SORCERER)
 				hper += 20;
+#ifdef HELLFIRE
+			else if (ops->_pClass == PC_BARD)
+				hper += 10;
+#endif
 		}
 	}
 	if (hper < 5)
@@ -2296,18 +2312,19 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int range;
+	int range, dam;
 
 	mis = &missile[mi];
+	dam = RandRange(1, 10) + RandRange(1, 10);
+	range = 10 * (spllvl + 1);
 	if (misource != -1) {
-		mis->_miDam = (RandRange(1, 10) + RandRange(1, 10) + plr[misource]._pLevel) << 3;
-		range = 10 * (spllvl + 1);
+		dam += plr[misource]._pLevel;
 		// TODO: add support for spell duration modifier
 		// range += (plr[misource]._pISplDur * range) >> 7;
 	} else {
-		mis->_miDam = 2 * currlevel + 2;
-		range = 10;
+		dam += currlevel;
 	}
+	mis->_miDam = dam << 3;
 	mis->_miRange = range << 4;
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
