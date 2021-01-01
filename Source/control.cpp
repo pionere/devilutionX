@@ -2100,7 +2100,6 @@ static void control_remove_gold()
 	SetGoldItemValue(is, dropGoldValue);
 	NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
 	CalculateGold(pnum);
-	dropGoldValue = 0;
 }
 
 void control_drop_gold(char vkey)
@@ -2109,28 +2108,30 @@ void control_drop_gold(char vkey)
 
 	if (plr[myplr]._pHitPoints >> 6 <= 0) {
 		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
 		return;
 	}
 
 	if (vkey == DVL_VK_RETURN) {
 		if (dropGoldValue > 0)
 			control_remove_gold();
-		dropGoldFlag = FALSE;
-	} else if (vkey == DVL_VK_ESCAPE) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
 	} else if (vkey == DVL_VK_BACK) {
 		dropGoldValue /= 10;
+		return;
+	} else if (vkey == DVL_VK_DELETE) {
+		dropGoldValue = 0;
+		return;
 	} else if (vkey >= DVL_VK_0 && vkey <= DVL_VK_9) {
 		newValue = dropGoldValue * 10 + vkey - DVL_VK_0;
 		if (newValue <= initialDropGoldValue)
 			dropGoldValue = newValue;
+		return;
 	} else if (vkey >= DVL_VK_NUMPAD0 && vkey <= DVL_VK_NUMPAD9) {
 		newValue = dropGoldValue * 10 + vkey - DVL_VK_NUMPAD0;
 		if (newValue <= initialDropGoldValue)
 			dropGoldValue = newValue;
+		return;
 	}
+	dropGoldFlag = FALSE;
 }
 
 static char *control_print_talk_msg(char *msg, int *x, int y, int color)
@@ -2372,6 +2373,8 @@ BOOL control_presskeys(int vkey)
 		control_up_down(1);
 	} else if (vkey == DVL_VK_UP) {
 		control_up_down(-1);
+	} else if (vkey == DVL_VK_LBUTTON) {
+		return control_check_talk_btn();
 	} else {
 		return FALSE;
 	}

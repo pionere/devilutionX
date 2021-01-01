@@ -261,6 +261,8 @@ static void gmenu_left_right(BOOL isRight)
 BOOL gmenu_presskeys(int vkey)
 {
 	switch (vkey) {
+	case DVL_VK_LBUTTON:
+		return gmenu_left_mouse(TRUE);
 	case DVL_VK_RETURN:
 		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
 			PlaySFX(IS_TITLEMOV);
@@ -268,11 +270,10 @@ BOOL gmenu_presskeys(int vkey)
 		}
 		break;
 	case DVL_VK_ESCAPE:
+	case DVL_VK_SPACE:
 		PlaySFX(IS_TITLEMOV);
 		gmenu_set_items(NULL, NULL);
 		break;
-	case DVL_VK_SPACE:
-		return FALSE;
 	case DVL_VK_LEFT:
 		gmenu_left_right(FALSE);
 		break;

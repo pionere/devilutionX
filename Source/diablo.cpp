@@ -273,6 +273,8 @@ static void free_game()
 	FreeGameMem();
 }
 
+static void PressKey(int vkey);
+
 static BOOL ProcessInput()
 {
 	if (PauseMode == 2) {
@@ -292,13 +294,13 @@ static BOOL ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		DWORD tick = SDL_GetTicks();
-		if ((sgbMouseDown & 1) != 0 && (tick - sgdwLastLMD) >= 200) {
-			sgdwLastLMD = tick;
-			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT));
+		if ((sgbMouseDown & CLICK_LEFT) != 0 && (tick - sgdwLastLMD) >= 200) {
+			sgbMouseDown &= ~CLICK_LEFT;
+			PressKey(DVL_VK_LBUTTON);
 		}
-		if ((sgbMouseDown & 2) != 0 && (tick - sgdwLastRMD) >= 200) {
-			sgdwLastRMD = tick;
-			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT));
+		if ((sgbMouseDown & CLICK_RIGHT) != 0 && (tick - sgdwLastRMD) >= 200) {
+			sgbMouseDown &= ~CLICK_RIGHT;
+			PressKey(DVL_VK_RBUTTON);
 		}
 	}
 
@@ -631,29 +633,13 @@ BOOL TryIconCurs(BOOL bShift)
 
 void LeftMouseDown(BOOL bShift)
 {
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-	}
-
-	if (gmenu_left_mouse(TRUE) || sgnTimeoutCurs != CURSOR_NONE)
-		return;
-
-	if (talkflag && control_check_talk_btn())
-		return;
-
-	if (deathflag) {
-		control_check_btn_press();
-		return;
-	}
-
-	if (PauseMode == 2) {
-		return;
-	}
-	if (doomflag) {
-		doom_close();
-		return;
-	}
+	assert(!dropGoldFlag);
+	assert(!gmenu_left_mouse(TRUE));
+	assert(sgnTimeoutCurs == CURSOR_NONE);
+	assert(!talkflag || !control_check_talk_btn());
+	assert(!deathflag);
+	assert(PauseMode != 2);
+	assert(!doomflag);
 
 	if (spselflag) {
 		SetSpell();
@@ -735,24 +721,13 @@ static void LeftMouseUp()
 
 void RightMouseDown(BOOL bShift)
 {
-	if (dropGoldFlag) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-	}
-
-	if (gmenu_is_active() || sgnTimeoutCurs != CURSOR_NONE)
-		return;
-
-	if (PauseMode == 2)
-		return;
+	assert(!gmenu_is_active());
+	assert(sgnTimeoutCurs == CURSOR_NONE);
+	assert(PauseMode != 2);
+	assert(!doomflag);
 
 	if (plr[myplr]._pInvincible)
 		return;
-
-	if (doomflag) {
-		doom_close();
-		return;
-	}
 
 	if (spselflag) {
 		SetSpell();
@@ -821,6 +796,14 @@ static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_SNAPSHOT)
 		CaptureScreen();
+	else if (vkey == DVL_VK_LBUTTON) {
+		if (sgbMouseDown & CLICK_LEFT) {
+			sgbMouseDown &= ~CLICK_LEFT;
+			LeftMouseUp();
+		}
+	} else if (vkey == DVL_VK_RBUTTON) {
+		sgbMouseDown &= ~CLICK_RIGHT;
+	}
 }
 
 BOOL PressEscKey()
@@ -865,9 +848,27 @@ BOOL PressEscKey()
 	return rv;
 }
 
+static void ClearUI()
+{
+	helpflag = FALSE;
+	invflag = FALSE;
+	chrflag = FALSE;
+	sbookflag = FALSE;
+	spselflag = FALSE;
+	if (qtextflag && leveltype == DTYPE_TOWN) {
+		qtextflag = FALSE;
+		stream_stop();
+	}
+	questlog = FALSE;
+	automapflag = FALSE;
+	msgdelay = 0;
+	gamemenu_off();
+	//doom_close();
+}
+
 static void PressKey(int vkey)
 {
-	if (sgpCurrentMenu != NULL) {
+	if (gmenu_is_active()) {
 		if (gmenu_presskeys(vkey))
 			return;
 	}
@@ -908,6 +909,9 @@ static void PressKey(int vkey)
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
 		}
+		if (vkey == DVL_VK_LBUTTON) {
+			control_check_btn_press();
+		}
 		return;
 	}
 
@@ -945,20 +949,8 @@ static void PressKey(int vkey)
 			AddPanelString("No help available", TRUE); /// BUGFIX: message isn't displayed
 			AddPanelString("while in stores", TRUE);
 		} else {
-			invflag = FALSE;
-			chrflag = FALSE;
-			sbookflag = FALSE;
-			spselflag = FALSE;
-			if (qtextflag && leveltype == DTYPE_TOWN) {
-				qtextflag = FALSE;
-				stream_stop();
-			}
-			questlog = FALSE;
-			automapflag = FALSE;
-			msgdelay = 0;
-			gamemenu_off();
+			ClearUI();
 			DisplayHelp();
-			doom_close();
 		}
 	}
 #ifdef _DEBUG
@@ -1063,20 +1055,7 @@ static void PressKey(int vkey)
 		if (!invflag && chrflag && MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
 			SetCursorPos(MouseX - 160, MouseY);
 		}
-		helpflag = FALSE;
-		invflag = FALSE;
-		chrflag = FALSE;
-		sbookflag = FALSE;
-		spselflag = FALSE;
-		if (qtextflag && leveltype == DTYPE_TOWN) {
-			qtextflag = FALSE;
-			stream_stop();
-		}
-		questlog = FALSE;
-		automapflag = FALSE;
-		msgdelay = 0;
-		gamemenu_off();
-		doom_close();
+		ClearUI();
 	} else if (vkey == DVL_VK_I) {
 		if (stextflag == STORE_NONE) {
 			sbookflag = FALSE;
@@ -1174,6 +1153,18 @@ static void PressKey(int vkey)
 			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
 			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
 			NetSendCmdString(1 << myplr);
+		}
+	} else if (vkey == DVL_VK_RBUTTON) {
+		if (!(sgbMouseDown & CLICK_RIGHT)) {
+			sgbMouseDown |= CLICK_RIGHT;
+			sgdwLastRMD = SDL_GetTicks();
+			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+		}
+	} else if (vkey == DVL_VK_LBUTTON) {
+		if (!(sgbMouseDown & CLICK_LEFT)) {
+			sgbMouseDown |= CLICK_LEFT;
+			sgdwLastLMD = SDL_GetTicks();
+			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 	}
 }
@@ -1355,30 +1346,19 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		GetMousePos(lParam);
-		if (!(sgbMouseDown & CLICK_LEFT)) {
-			sgbMouseDown |= CLICK_LEFT;
-			sgdwLastLMD = SDL_GetTicks();
-			LeftMouseDown((wParam & DVL_MK_SHIFT) != 0);
-		}
+		PressKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_LBUTTONUP:
 		GetMousePos(lParam);
-		if (sgbMouseDown & CLICK_LEFT) {
-			sgbMouseDown &= ~CLICK_LEFT;
-			LeftMouseUp();
-		}
+		ReleaseKey(DVL_VK_LBUTTON);
 		return;
 	case DVL_WM_RBUTTONDOWN:
 		GetMousePos(lParam);
-		if (!(sgbMouseDown & CLICK_RIGHT)) {
-			sgbMouseDown |= CLICK_RIGHT;
-			sgdwLastRMD = SDL_GetTicks();
-			RightMouseDown((wParam & DVL_MK_SHIFT) != 0);
-		}
+		PressKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_RBUTTONUP:
 		GetMousePos(lParam);
-		sgbMouseDown &= ~CLICK_RIGHT;
+		ReleaseKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_CAPTURECHANGED:
 		if (hWnd != (HWND)lParam) {
@@ -1801,7 +1781,7 @@ static void game_logic()
 	}
 
 #ifdef _DEBUG
-	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT) & 0x8000) {
+	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
 		ScrollView();
 	}
 #endif
