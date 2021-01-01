@@ -1877,7 +1877,8 @@ static void Obj_Circle(int oi)
 				GetVileMissPos(&dx, &dy);
 			}
 			AddMissile(plr[myplr]._px, plr[myplr]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0);
-			sgbMouseDown = CLICK_NONE;
+			sgbActionBtnDown = FALSE;
+			sgbAltActionBtnDown = FALSE;
 			ClrPlrPath(myplr);
 			PlrStartStand(myplr, 0);
 		}

@@ -33,7 +33,8 @@ extern BOOLEAN UseTheoQuest;
 extern BOOLEAN UseCowFarmer;
 extern BOOLEAN UseNestArt;
 #endif
-extern char sgbMouseDown;
+extern BOOL sgbActionBtnDown;
+extern BOOL sgbAltActionBtnDown;
 extern int ticks_per_sec;
 extern WORD tick_delay;
 

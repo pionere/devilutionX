@@ -43,8 +43,9 @@ BOOLEAN UseCowFarmer;
 BOOLEAN UseNestArt;
 #endif
 int sgnTimeoutCurs;
-char sgbMouseDown;              // flags to remember the pressed mouse buttons (left/right)
-DWORD sgdwLastLMD, sgdwLastRMD; // tick counter when the last time one of the mouse-buttons were pressed down
+BOOL sgbActionBtnDown;
+BOOL sgbAltActionBtnDown;
+DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
 int ticks_per_sec = 20;
 WORD tick_delay = 50;
 
@@ -248,7 +249,8 @@ static void start_game(unsigned int uMsg)
 	gmenu_init_menu();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
-	sgbMouseDown = CLICK_NONE;
+	sgbActionBtnDown = FALSE;
+	sgbAltActionBtnDown = FALSE;
 }
 
 static void free_game()
@@ -294,12 +296,12 @@ static BOOL ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		DWORD tick = SDL_GetTicks();
-		if ((sgbMouseDown & CLICK_LEFT) != 0 && (tick - sgdwLastLMD) >= 200) {
-			sgbMouseDown &= ~CLICK_LEFT;
+		if (sgbActionBtnDown && (tick - sgdwLastABD) >= 200) {
+			sgbActionBtnDown = FALSE;
 			PressKey(DVL_VK_LBUTTON);
 		}
-		if ((sgbMouseDown & CLICK_RIGHT) != 0 && (tick - sgdwLastRMD) >= 200) {
-			sgbMouseDown &= ~CLICK_RIGHT;
+		if (sgbAltActionBtnDown && (tick - sgdwLastAABD) >= 200) {
+			sgbAltActionBtnDown = FALSE;
 			PressKey(DVL_VK_RBUTTON);
 		}
 	}
@@ -797,12 +799,12 @@ static void ReleaseKey(int vkey)
 	if (vkey == DVL_VK_SNAPSHOT)
 		CaptureScreen();
 	else if (vkey == DVL_VK_LBUTTON) {
-		if (sgbMouseDown & CLICK_LEFT) {
-			sgbMouseDown &= ~CLICK_LEFT;
+		if (sgbActionBtnDown) {
+			sgbActionBtnDown = FALSE;
 			LeftMouseUp();
 		}
 	} else if (vkey == DVL_VK_RBUTTON) {
-		sgbMouseDown &= ~CLICK_RIGHT;
+		sgbAltActionBtnDown = FALSE;
 	}
 }
 
@@ -1155,15 +1157,15 @@ static void PressKey(int vkey)
 			NetSendCmdString(1 << myplr);
 		}
 	} else if (vkey == DVL_VK_RBUTTON) {
-		if (!(sgbMouseDown & CLICK_RIGHT)) {
-			sgbMouseDown |= CLICK_RIGHT;
-			sgdwLastRMD = SDL_GetTicks();
+		if (!sgbAltActionBtnDown) {
+			sgbAltActionBtnDown = TRUE;
+			sgdwLastAABD = SDL_GetTicks();
 			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 	} else if (vkey == DVL_VK_LBUTTON) {
-		if (!(sgbMouseDown & CLICK_LEFT)) {
-			sgbMouseDown |= CLICK_LEFT;
-			sgdwLastLMD = SDL_GetTicks();
+		if (!sgbActionBtnDown) {
+			sgbActionBtnDown = TRUE;
+			sgdwLastABD = SDL_GetTicks();
 			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 	}
@@ -1297,20 +1299,22 @@ void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		sgbMouseDown |= CLICK_LEFT;
+		sgbActionBtnDown = TRUE;
 		return;
 	case DVL_WM_LBUTTONUP:
-		sgbMouseDown &= ~CLICK_LEFT;
+		sgbActionBtnDown = FALSE;
 		return;
 	case DVL_WM_RBUTTONDOWN:
-		sgbMouseDown |= CLICK_RIGHT;
+		sgbAltActionBtnDown = TRUE;
 		return;
 	case DVL_WM_RBUTTONUP:
-		sgbMouseDown &= ~CLICK_RIGHT;
+		sgbAltActionBtnDown = FALSE;
 		return;
 	case DVL_WM_CAPTURECHANGED:
-		if (hWnd != (HWND)lParam)
-			sgbMouseDown = CLICK_NONE;
+		if (hWnd != (HWND)lParam) {
+			sgbActionBtnDown = FALSE;
+			sgbAltActionBtnDown = FALSE;
+		}
 		return;
 	}
 
@@ -1362,7 +1366,8 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	case DVL_WM_CAPTURECHANGED:
 		if (hWnd != (HWND)lParam) {
-			sgbMouseDown = CLICK_NONE;
+			sgbActionBtnDown = FALSE;
+			sgbAltActionBtnDown = FALSE;
 		}
 		break;
 	case WM_DIABNEXTLVL:
@@ -1379,7 +1384,8 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PaletteFadeOut();
 		sound_stop();
 		music_stop();
-		sgbMouseDown = CLICK_NONE;
+		sgbActionBtnDown = FALSE;
+		sgbAltActionBtnDown = FALSE;
 		ShowProgress(uMsg);
 		gbRedrawFlags = REDRAW_ALL;
 		DrawAndBlit();
@@ -1800,7 +1806,8 @@ static void game_logic()
 static void timeout_cursor(BOOL bTimeout)
 {
 	if (bTimeout) {
-		if (sgnTimeoutCurs == CURSOR_NONE && sgbMouseDown == CLICK_NONE) {
+		static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
+		if ((sgnTimeoutCurs | sgbActionBtnDown | sgbAltActionBtnDown) == 0) {
 			sgnTimeoutCurs = pcurs;
 			multi_net_ping();
 			ClearPanel();
