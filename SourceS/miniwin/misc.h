@@ -47,7 +47,7 @@ typedef struct tagMSG {
 
 void SetCursorPos(int X, int Y);
 
-SHORT GetAsyncKeyState(int vKey);
+BYTE GetAsyncKeyState(int vKey);
 
 bool PeekMessage(LPMSG lpMsg);
 

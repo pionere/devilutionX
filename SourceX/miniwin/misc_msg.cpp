@@ -676,31 +676,40 @@ bool TranslateMessage(const MSG *lpMsg)
 	return true;
 }
 
-SHORT GetAsyncKeyState(int vKey)
+BYTE GetAsyncKeyState(int vKey)
 {
-	if (vKey == DVL_MK_LBUTTON)
+	/*if (vKey == DVL_MK_LBUTTON)
 		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
 	if (vKey == DVL_MK_RBUTTON)
 		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 	const Uint8 *state = SDLC_GetKeyState();
 	switch (vKey) {
 	case DVL_VK_CONTROL:
-		return state[SDLC_KEYSTATE_LEFTCTRL] || state[SDLC_KEYSTATE_RIGHTCTRL] ? 0x8000 : 0;
+		return (state[SDLC_KEYSTATE(LCTRL)] || state[SDLC_KEYSTATE(RCTRL)]) ? 0x8000 : 0;
 	case DVL_VK_SHIFT:
-		return state[SDLC_KEYSTATE_LEFTSHIFT] || state[SDLC_KEYSTATE_RIGHTSHIFT] ? 0x8000 : 0;
+		return (state[SDLC_KEYSTATE(LSHIFT)] || state[SDLC_KEYSTATE(RSHIFT)]) ? 0x8000 : 0;
 	case DVL_VK_MENU:
-		return state[SDLC_KEYSTATE_LALT] || state[SDLC_KEYSTATE_RALT] ? 0x8000 : 0;
+		return (state[SDLC_KEYSTATE(LALT)] || state[SDLC_KEYSTATE(RALT)]) ? 0x8000 : 0;
 	case DVL_VK_LEFT:
-		return state[SDLC_KEYSTATE_LEFT] ? 0x8000 : 0;
+		return state[SDLC_KEYSTATE(LEFT)] ? 0x8000 : 0;
 	case DVL_VK_UP:
-		return state[SDLC_KEYSTATE_UP] ? 0x8000 : 0;
+		return state[SDLC_KEYSTATE(UP)] ? 0x8000 : 0;
 	case DVL_VK_RIGHT:
-		return state[SDLC_KEYSTATE_RIGHT] ? 0x8000 : 0;
+		return state[SDLC_KEYSTATE(RIGHT)] ? 0x8000 : 0;
 	case DVL_VK_DOWN:
-		return state[SDLC_KEYSTATE_DOWN] ? 0x8000 : 0;
+		return state[SDLC_KEYSTATE(DOWN)] ? 0x8000 : 0;
 	default:
 		return 0;
+	}*/
+	const Uint8 *state = SDLC_GetKeyState();
+	if (vKey == DVL_VK_SHIFT) {
+		return state[SDLC_KEYSTATE(LSHIFT)] | state[SDLC_KEYSTATE(RSHIFT)];
 	}
+	if (vKey == DVL_VK_MENU) {
+		return state[SDLC_KEYSTATE(LALT)] | state[SDLC_KEYSTATE(RALT)];
+	}
+	assert(vKey == DVL_VK_CONTROL);
+	return state[SDLC_KEYSTATE(LCTRL)] | state[SDLC_KEYSTATE(RCTRL)];
 }
 
 void DispatchMessage(const MSG *lpMsg)
