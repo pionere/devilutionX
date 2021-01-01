@@ -260,8 +260,6 @@ static void gmenu_left_right(BOOL isRight)
 
 BOOL gmenu_presskeys(int vkey)
 {
-	if (sgpCurrentMenu == NULL)
-		return FALSE;
 	switch (vkey) {
 	case DVL_VK_RETURN:
 		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {

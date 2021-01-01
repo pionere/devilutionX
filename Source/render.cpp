@@ -234,7 +234,7 @@ void RenderTile(BYTE *pBuff)
 	}
 
 #ifdef _DEBUG
-	if (GetAsyncKeyState(DVL_VK_MENU) & 0x8000) {
+	if (GetAsyncKeyState(DVL_VK_MENU)) {
 		mask = &SolidMask[TILE_HEIGHT - 1];
 	}
 #endif

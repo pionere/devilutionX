@@ -671,7 +671,7 @@ void LeftMouseDown(BOOL bShift)
 	}
 
 	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
-		if (!talkflag && !dropGoldFlag)
+		if (!talkflag)
 			CheckInvScrn();
 		DoPanBtn();
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
@@ -776,17 +776,9 @@ void RightMouseDown(BOOL bShift)
 		return;
 	}
 
-	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)
+	if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
 		return;
-
-	if (sbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)
-		return;
-
-	if (pcurs == CURSOR_HAND) {
-		if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
-			return;
-		CheckPlrSpell();
-	}
+	CheckPlrSpell();
 }
 
 static void diablo_pause_game()
@@ -875,14 +867,32 @@ BOOL PressEscKey()
 
 static void PressKey(int vkey)
 {
-	if (gmenu_presskeys(vkey) || control_presskeys(vkey)) {
+	if (sgpCurrentMenu != NULL) {
+		if (gmenu_presskeys(vkey))
+			return;
+	}
+	if (talkflag) {
+		if (control_presskeys(vkey))
+			return;
+	}
+
+	if (vkey == DVL_VK_ESCAPE) {
+		if (!PressEscKey()) {
+			gamemenu_on();
+		}
+		return;
+	}
+
+	if (sgnTimeoutCurs != CURSOR_NONE) {
+		return;
+	}
+
+	if (vkey == DVL_VK_RETURN && GetAsyncKeyState(DVL_VK_MENU)) {
+		dx_reinit();
 		return;
 	}
 
 	if (deathflag) {
-		if (sgnTimeoutCurs != CURSOR_NONE) {
-			return;
-		}
 		if (vkey == DVL_VK_F9) {
 			diablo_hotkey_msg(0);
 		}
@@ -896,39 +906,30 @@ static void PressKey(int vkey)
 			diablo_hotkey_msg(3);
 		}
 		if (vkey == DVL_VK_RETURN) {
-			if (GetAsyncKeyState(DVL_VK_MENU) & 0x8000)
-				dx_reinit();
-			else
-				control_type_message();
-		}
-		if (vkey != DVL_VK_ESCAPE) {
-			return;
-		}
-	}
-	if (vkey == DVL_VK_ESCAPE) {
-		if (!PressEscKey()) {
-			gamemenu_on();
+			control_type_message();
 		}
 		return;
 	}
 
-	if (sgnTimeoutCurs != CURSOR_NONE || dropGoldFlag) {
-		return;
-	}
-	if (vkey == DVL_VK_PAUSE) {
+	if (vkey == DVL_VK_PAUSE || vkey == DVL_VK_P) {
 		diablo_pause_game();
 		return;
 	}
 	if (PauseMode == 2) {
-		if ((vkey == DVL_VK_RETURN) && (GetAsyncKeyState(DVL_VK_MENU) & 0x8000))
-			dx_reinit();
+		return;
+	}
+
+	if (dropGoldFlag) {
+		return;
+	}
+
+	if (doomflag) {
+		doom_close();
 		return;
 	}
 
 	if (vkey == DVL_VK_RETURN) {
-		if (GetAsyncKeyState(DVL_VK_MENU) & 0x8000) {
-			dx_reinit();
-		} else if (stextflag) {
+		if (stextflag) {
 			STextEnter();
 		} else if (questlog) {
 			QuestlogEnter();
@@ -962,8 +963,6 @@ static void PressKey(int vkey)
 #ifdef _DEBUG
 	else if (vkey == DVL_VK_F2) {
 	}
-#endif
-#ifdef _DEBUG
 	else if (vkey == DVL_VK_F3) {
 		if (pcursitem != -1) {
 			snprintf(
@@ -978,8 +977,6 @@ static void PressKey(int vkey)
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %i", numitems);
 		NetSendCmdString(1 << myplr);
 	}
-#endif
-#ifdef _DEBUG
 	else if (vkey == DVL_VK_F4) {
 		PrintDebugQuest();
 	}
@@ -1079,44 +1076,7 @@ static void PressKey(int vkey)
 		msgdelay = 0;
 		gamemenu_off();
 		doom_close();
-	}
-}
-
-/**
- * @internal `return` must be used instead of `break` to be bin exact as C++
- */
-static void PressChar(WPARAM vkey)
-{
-	if (gmenu_is_active() || control_talk_last_key(vkey) || sgnTimeoutCurs != CURSOR_NONE || deathflag) {
-		return;
-	}
-	if ((char)vkey == 'p' || (char)vkey == 'P') {
-		diablo_pause_game();
-		return;
-	}
-	if (PauseMode == 2) {
-		return;
-	}
-	if (doomflag) {
-		doom_close();
-		return;
-	}
-	if (dropGoldFlag) {
-		control_drop_gold(vkey);
-		return;
-	}
-
-	switch (vkey) {
-	case 'G':
-	case 'g':
-		DecreaseGamma();
-		return;
-	case 'F':
-	case 'f':
-		IncreaseGamma();
-		return;
-	case 'I':
-	case 'i':
+	} else if (vkey == DVL_VK_I) {
 		if (stextflag == STORE_NONE) {
 			sbookflag = FALSE;
 			invflag = !invflag;
@@ -1130,9 +1090,11 @@ static void PressChar(WPARAM vkey)
 				}
 			}
 		}
-		return;
-	case 'C':
-	case 'c':
+	} else if (vkey == DVL_VK_G) {
+		DecreaseGamma();
+	} else if (vkey == DVL_VK_F) {
+		IncreaseGamma();
+	} else if (vkey == DVL_VK_C) {
 		if (stextflag == STORE_NONE) {
 			questlog = FALSE;
 			plr[myplr]._pLvlUp = FALSE;
@@ -1147,9 +1109,7 @@ static void PressChar(WPARAM vkey)
 				}
 			}
 		}
-		return;
-	case 'Q':
-	case 'q':
+	} else if (vkey == DVL_VK_Q) {
 		if (stextflag == STORE_NONE) {
 			chrflag = FALSE;
 			if (!questlog) {
@@ -1158,14 +1118,10 @@ static void PressChar(WPARAM vkey)
 				questlog = FALSE;
 			}
 		}
-		return;
-	case 'Z':
-	case 'z':
+	} else if (vkey == DVL_VK_Z) {
 		zoomflag = !zoomflag;
 		CalcViewportGeometry();
-		return;
-	case 'S':
-	case 's':
+	} else if (vkey == DVL_VK_S) {
 		if (stextflag == STORE_NONE) {
 			invflag = FALSE;
 			if (!spselflag) {
@@ -1174,65 +1130,26 @@ static void PressChar(WPARAM vkey)
 				spselflag = FALSE;
 			}
 		}
-		return;
-	case 'B':
-	case 'b':
+	} else if (vkey == DVL_VK_B) {
 		if (stextflag == STORE_NONE) {
 			invflag = FALSE;
 			sbookflag = !sbookflag;
 		}
-		return;
-	case '+':
-	case '=':
-		if (automapflag) {
-			AutomapZoomIn();
-		}
-		return;
-	case '-':
-	case '_':
-		if (automapflag) {
-			AutomapZoomOut();
-		}
-		return;
-	case 'v': {
-		const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
-		NetSendCmdString(1 << myplr);
-	} return;
-	case 'V':
-		copy_str(gbNetMsg, gszVersionNumber);
-		NetSendCmdString(1 << myplr);
-		return;
-	case '!':
-	case '1':
+	} else if (vkey == DVL_VK_1) {
 		UseInvItem(INVITEM_BELT_FIRST);
-		return;
-	case '@':
-	case '2':
+	} else if (vkey == DVL_VK_2) {
 		UseInvItem(INVITEM_BELT_FIRST + 1);
-		return;
-	case '#':
-	case '3':
+	} else if (vkey == DVL_VK_3) {
 		UseInvItem(INVITEM_BELT_FIRST + 2);
-		return;
-	case '$':
-	case '4':
+	} else if (vkey == DVL_VK_4) {
 		UseInvItem(INVITEM_BELT_FIRST + 3);
-		return;
-	case '%':
-	case '5':
+	} else if (vkey == DVL_VK_5) {
 		UseInvItem(INVITEM_BELT_FIRST + 4);
-		return;
-	case '^':
-	case '6':
+	} else if (vkey == DVL_VK_6) {
 		UseInvItem(INVITEM_BELT_FIRST + 5);
-		return;
-	case '&':
-	case '7':
+	} else if (vkey == DVL_VK_7) {
 		UseInvItem(INVITEM_BELT_FIRST + 6);
-		return;
-	case '*':
-	case '8':
+	} else if (vkey == DVL_VK_8) {
 #ifdef _DEBUG
 		if (debug_mode_key_inverted_v || debug_mode_key_w) {
 			NetSendCmd(TRUE, CMD_CHEAT_EXPERIENCE);
@@ -1240,8 +1157,51 @@ static void PressChar(WPARAM vkey)
 		}
 #endif
 		UseInvItem(INVITEM_BELT_FIRST + 7);
+	} else if (vkey == DVL_VK_OEM_PLUS) {
+		if (automapflag) {
+			AutomapZoomIn();
+		}
+	} else if (vkey == DVL_VK_OEM_MINUS) {
+		if (automapflag) {
+			AutomapZoomOut();
+		}
+	} else if (vkey == DVL_VK_V) {
+		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
+			copy_str(gbNetMsg, gszVersionNumber);
+			NetSendCmdString(1 << myplr);
+		} else {
+			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
+			NetSendCmdString(1 << myplr);
+		}
+	}
+}
+
+/**
+ * @internal `return` must be used instead of `break` to be bin exact as C++
+ */
+static void PressChar(WPARAM vkey)
+{
+	if (gmenu_is_active()) {
 		return;
+	}
+	if (talkflag) {
+		if (control_talk_last_key(vkey))
+			return;
+	}
+	if (sgnTimeoutCurs != CURSOR_NONE || deathflag)
+		return;
+
+	if (PauseMode == 2) {
+		return;
+	}
+	if (dropGoldFlag) {
+		control_drop_gold(vkey);
+		return;
+	}
+
 #ifdef _DEBUG
+	switch (vkey) {
 	case ')':
 	case '0':
 		if (debug_mode_key_inverted_v) {
@@ -1328,8 +1288,8 @@ static void PressChar(WPARAM vkey)
 			StoresCheat();
 		}
 		return;
-#endif
 	}
+#endif
 }
 
 static void GetMousePos(LPARAM lParam)

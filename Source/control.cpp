@@ -2329,11 +2329,8 @@ BOOL control_talk_last_key(int vkey)
 {
 	int result;
 
-	if (gbMaxPlayers == 1)
-		return FALSE;
-
-	if (!talkflag)
-		return FALSE;
+	assert(talkflag);
+	assert(gbMaxPlayers != 1);
 
 	if ((DWORD)vkey < DVL_VK_SPACE)
 		return FALSE;
@@ -2364,8 +2361,8 @@ BOOL control_presskeys(int vkey)
 {
 	int len;
 
-	if (gbMaxPlayers == 1 || !talkflag)
-		return FALSE;
+	assert(talkflag);
+
 	if (vkey == DVL_VK_SPACE) {
 	} else if (vkey == DVL_VK_ESCAPE) {
 		control_reset_talk();

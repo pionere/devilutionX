@@ -119,6 +119,24 @@ bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 #define DVL_VK_DELETE 0x2E   // DEL key
 // DVL_VK_0 through DVL_VK_9 correspond to '0' - '9'
 // DVL_VK_A through DVL_VK_Z correspond to 'A' - 'Z'
+#define DVL_VK_1 0x31
+#define DVL_VK_2 0x32
+#define DVL_VK_3 0x33
+#define DVL_VK_4 0x34
+#define DVL_VK_5 0x35
+#define DVL_VK_6 0x36
+#define DVL_VK_7 0x37
+#define DVL_VK_8 0x38
+#define DVL_VK_B 0x42
+#define DVL_VK_C 0x43
+#define DVL_VK_F 0x46
+#define DVL_VK_G 0x47
+#define DVL_VK_I 0x49
+#define DVL_VK_P 0x50
+#define DVL_VK_Q 0x51
+#define DVL_VK_S 0x53
+#define DVL_VK_V 0x56
+#define DVL_VK_Z 0x5A
 #define DVL_VK_LWIN 0x5B       // Left Windows key (Natural keyboard)
 #define DVL_VK_RWIN 0x5C       // Right Windows key (Natural keyboard)
 #define DVL_VK_NUMPAD0 0x60    // Numeric keypad 0 key
