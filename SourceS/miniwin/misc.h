@@ -119,6 +119,7 @@ bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 #define DVL_VK_DELETE 0x2E   // DEL key
 // DVL_VK_0 through DVL_VK_9 correspond to '0' - '9'
 // DVL_VK_A through DVL_VK_Z correspond to 'A' - 'Z'
+#define DVL_VK_0 0x30
 #define DVL_VK_1 0x31
 #define DVL_VK_2 0x32
 #define DVL_VK_3 0x33
@@ -127,6 +128,7 @@ bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 #define DVL_VK_6 0x36
 #define DVL_VK_7 0x37
 #define DVL_VK_8 0x38
+#define DVL_VK_9 0x39
 #define DVL_VK_B 0x42
 #define DVL_VK_C 0x43
 #define DVL_VK_F 0x46

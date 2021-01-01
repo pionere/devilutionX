@@ -920,6 +920,7 @@ static void PressKey(int vkey)
 	}
 
 	if (dropGoldFlag) {
+		control_drop_gold(vkey);
 		return;
 	}
 
@@ -1189,18 +1190,13 @@ static void PressChar(WPARAM vkey)
 		if (control_talk_last_key(vkey))
 			return;
 	}
+#ifdef _DEBUG
 	if (sgnTimeoutCurs != CURSOR_NONE || deathflag)
 		return;
 
 	if (PauseMode == 2) {
 		return;
 	}
-	if (dropGoldFlag) {
-		control_drop_gold(vkey);
-		return;
-	}
-
-#ifdef _DEBUG
 	switch (vkey) {
 	case ')':
 	case '0':

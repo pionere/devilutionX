@@ -72,7 +72,6 @@ void CheckSBook();
 const char *get_pieces_str(int nGold);
 void DrawGoldSplit(int amount);
 void control_drop_gold(char vkey);
-void control_remove_gold(int pnum, int gold_index);
 void DrawTalkPan();
 BOOL control_check_talk_btn();
 void control_release_talk_btn();

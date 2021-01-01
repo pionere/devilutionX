@@ -2071,46 +2071,11 @@ void DrawGoldSplit(int amount)
 	CelDraw(screen_x, 140 + SCREEN_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 }
 
-void control_drop_gold(char vkey)
-{
-	char input[6];
-
-	if (plr[myplr]._pHitPoints >> 6 <= 0) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-		return;
-	}
-
-	memset(input, 0, sizeof(input));
-	snprintf(input, sizeof(input), "%d", dropGoldValue);
-	if (vkey == DVL_VK_RETURN) {
-		if (dropGoldValue > 0)
-			control_remove_gold(myplr, initialDropGoldIndex);
-		dropGoldFlag = FALSE;
-	} else if (vkey == DVL_VK_ESCAPE) {
-		dropGoldFlag = FALSE;
-		dropGoldValue = 0;
-	} else if (vkey == DVL_VK_BACK) {
-		input[strlen(input) - 1] = '\0';
-		dropGoldValue = atoi(input);
-	} else if (vkey - '0' >= 0 && vkey - '0' <= 9) {
-		if (dropGoldValue != 0 || atoi(input) <= initialDropGoldValue) {
-			input[strlen(input)] = vkey;
-			if (atoi(input) > initialDropGoldValue)
-				return;
-			if (strlen(input) > strlen(input))
-				return;
-		} else {
-			input[0] = vkey;
-		}
-		dropGoldValue = atoi(input);
-	}
-}
-
-void control_remove_gold(int pnum, int gold_index)
+static void control_remove_gold()
 {
 	ItemStruct *is;
 	int gi, val;
+	int pnum = myplr, gold_index = initialDropGoldIndex;
 
 	if (gold_index <= INVITEM_INV_LAST) {
 		gi = gold_index - INVITEM_INV_FIRST;
@@ -2131,10 +2096,41 @@ void control_remove_gold(int pnum, int gold_index)
 	}
 	is = &plr[pnum].HoldItem;
 	CreateBaseItem(is, IDI_GOLD);
+	is->_iStatFlag = TRUE;
 	SetGoldItemValue(is, dropGoldValue);
 	NewCursor(is->_iCurs + CURSOR_FIRSTITEM);
 	CalculateGold(pnum);
 	dropGoldValue = 0;
+}
+
+void control_drop_gold(char vkey)
+{
+	int newValue;
+
+	if (plr[myplr]._pHitPoints >> 6 <= 0) {
+		dropGoldFlag = FALSE;
+		dropGoldValue = 0;
+		return;
+	}
+
+	if (vkey == DVL_VK_RETURN) {
+		if (dropGoldValue > 0)
+			control_remove_gold();
+		dropGoldFlag = FALSE;
+	} else if (vkey == DVL_VK_ESCAPE) {
+		dropGoldFlag = FALSE;
+		dropGoldValue = 0;
+	} else if (vkey == DVL_VK_BACK) {
+		dropGoldValue /= 10;
+	} else if (vkey >= DVL_VK_0 && vkey <= DVL_VK_9) {
+		newValue = dropGoldValue * 10 + vkey - DVL_VK_0;
+		if (newValue <= initialDropGoldValue)
+			dropGoldValue = newValue;
+	} else if (vkey >= DVL_VK_NUMPAD0 && vkey <= DVL_VK_NUMPAD9) {
+		newValue = dropGoldValue * 10 + vkey - DVL_VK_NUMPAD0;
+		if (newValue <= initialDropGoldValue)
+			dropGoldValue = newValue;
+	}
 }
 
 static char *control_print_talk_msg(char *msg, int *x, int y, int color)
