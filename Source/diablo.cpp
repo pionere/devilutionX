@@ -850,6 +850,63 @@ BOOL PressEscKey()
 	return rv;
 }
 
+// clang-format off
+BYTE WMButtonInputTransTbl[] = { ACT_NONE,
+// LBUTTON, RBUTTON,    CANCEL,   MBUTTON,  X1BUTTON, X2BUTTON, UNDEF,    BACK,     TAB,         UNDEF,
+  ACT_ACT,  ACT_ALTACT, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_AUTOMAP, ACT_NONE,
+// UNDEF,   CLEAR,    RETURN,     UNDEF,    UNDEF,    SHIFT,    CONTROL,  ALT,      PAUSE,     CAPS,
+  ACT_NONE, ACT_NONE, ACT_RETURN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE, ACT_NONE,
+// KANAH,   IMEON,    JUNJA,    FINAL,    HANJA,    IMEOFF,   ESCAPE,     CONVERT,  NONCONV,  ACCEPT,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ESCAPE, ACT_NONE, ACT_NONE, ACT_NONE,
+// CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
+  ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
+// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
+// 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
+  ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SPLBOOK, ACT_CHAR, ACT_NONE, ACT_NONE, ACT_GAMMA_INC,
+// G,            H,        I,       J,        K,        L,        M,        N,        O,        P,
+  ACT_GAMMA_DEC, ACT_NONE, ACT_INV, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE,
+// Q,         R,        S,           T,        U,        V,       W,        X,        Y,        Z,
+  ACT_QUESTS, ACT_NONE, ACT_SPLLIST, ACT_NONE, ACT_NONE, ACT_VER, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ZOOM,
+// LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// NUM5,    NUM6,     NUM7,     NUM8,     NUM9,     MULT,     ADD,      SEP,      SUB,      DEC,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// DIV,     F1,       F2,       F3,       F4,       F5,       F6,       F7,       F8,       F9,
+  ACT_NONE, ACT_HELP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SPL0, ACT_SPL1, ACT_SPL2, ACT_SPL3, ACT_MSG0,
+// F10,     F11,      F12,      F13,      F14,      F15,      F16,      F17,      F18,      F19,
+  ACT_MSG1, ACT_MSG2, ACT_MSG3, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// F20,     F21,      F22,      F23,      F24,      UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    NUMLOCK,  SCRLLOCK, UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    LSHIFT,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// RSHIFT,  LCTRL,    RCTRL,    LMENU,    RMENU,    BBACK,    BFWD,     BREFRESH, BSTOP,    BSEARCH,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// BFAV,    BHOME,    MUTE,     VOL_UP,   VOL_DOWN, NTRACK,   PTRACK,   STOP,     PLAYP,    MAIL,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// MSEL,    APP1,     APP2,     UNDEF,    UNDEF,    OEM_1,    OPLUS,       OCOMMA,   OMINUS,       OPERIOD,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE, ACT_MAPZ_OUT, ACT_NONE,
+// OEM_2,   OEM_3,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    OEM_4,    OEM_5,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// OEM_6,   OEM_7,    OEM_8,    UNDEF,    UNDEF,    OEM_102,  UNDEF,    UNDEF,    PROC,     UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// PACKET,  UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    ATTN,     CRSEL,    EREOF,    PLAY,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+// ZOOM,    UNDEF,    PA1,      OCLEAR,   UNDEF,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+};
+// clang-format on
+
 static void ClearUI()
 {
 	helpflag = FALSE;
@@ -935,7 +992,189 @@ static void PressKey(int vkey)
 		return;
 	}
 
-	if (vkey == DVL_VK_RETURN) {
+	switch (WMButtonInputTransTbl[vkey]) {
+	case ACT_NONE:
+		break;
+	case ACT_ACT:
+		if (!sgbActionBtnDown) {
+			sgbActionBtnDown = TRUE;
+			sgdwLastABD = SDL_GetTicks();
+			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+		}
+		break;
+	case ACT_ALTACT:
+		if (!sgbAltActionBtnDown) {
+			sgbAltActionBtnDown = TRUE;
+			sgdwLastAABD = SDL_GetTicks();
+			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+		}
+		break;
+	case ACT_SPL0:
+		if (spselflag)
+			SetSpeedSpell(0);
+		else
+			ToggleSpell(0);
+		break;
+	case ACT_SPL1:
+		if (spselflag)
+			SetSpeedSpell(1);
+		else
+			ToggleSpell(1);
+		break;
+	case ACT_SPL2:
+		if (spselflag)
+			SetSpeedSpell(2);
+		else
+			ToggleSpell(2);
+		break;
+	case ACT_SPL3:
+		if (spselflag)
+			SetSpeedSpell(3);
+		else
+			ToggleSpell(3);
+		break;
+	case ACT_INV:
+		if (stextflag == STORE_NONE) {
+			sbookflag = FALSE;
+			invflag = !invflag;
+			if (!invflag || chrflag) {
+				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
+					SetCursorPos(MouseX + 160, MouseY);
+				}
+			} else {
+				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
+					SetCursorPos(MouseX - 160, MouseY);
+				}
+			}
+		}
+		break;
+	case ACT_CHAR:
+		if (stextflag == STORE_NONE) {
+			questlog = FALSE;
+			plr[myplr]._pLvlUp = FALSE;
+			chrflag = !chrflag;
+			if (!chrflag || invflag) {
+				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
+					SetCursorPos(MouseX - 160, MouseY);
+				}
+			} else {
+				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
+					SetCursorPos(MouseX + 160, MouseY);
+				}
+			}
+		}
+		break;
+	case ACT_SPLBOOK:
+		if (stextflag == STORE_NONE) {
+			invflag = FALSE;
+			sbookflag = !sbookflag;
+		}
+		break;
+	case ACT_SPLLIST:
+		if (stextflag == STORE_NONE) {
+			invflag = FALSE;
+			if (!spselflag) {
+				DoSpeedBook();
+			} else {
+				spselflag = FALSE;
+			}
+		}
+		break;
+	case ACT_ITEM0:
+		UseInvItem(INVITEM_BELT_FIRST + 0);
+		break;
+	case ACT_ITEM1:
+		UseInvItem(INVITEM_BELT_FIRST + 1);
+		break;
+	case ACT_ITEM2:
+		UseInvItem(INVITEM_BELT_FIRST + 2);
+		break;
+	case ACT_ITEM3:
+		UseInvItem(INVITEM_BELT_FIRST + 3);
+		break;
+	case ACT_ITEM4:
+		UseInvItem(INVITEM_BELT_FIRST + 4);
+		break;
+	case ACT_ITEM5:
+		UseInvItem(INVITEM_BELT_FIRST + 5);
+		break;
+	case ACT_ITEM6:
+		UseInvItem(INVITEM_BELT_FIRST + 6);
+		break;
+	case ACT_ITEM7:
+#ifdef _DEBUG
+		if (debug_mode_key_inverted_v || debug_mode_key_w) {
+			NetSendCmd(TRUE, CMD_CHEAT_EXPERIENCE);
+			return;
+		}
+#endif
+		UseInvItem(INVITEM_BELT_FIRST + 7);
+		break;
+	case ACT_AUTOMAP:
+		DoAutoMap();
+		break;
+	case ACT_MAPZ_IN:
+		if (automapflag) {
+			AutomapZoomIn();
+		}
+		break;
+	case ACT_MAPZ_OUT:
+		if (automapflag) {
+			AutomapZoomOut();
+		}
+		break;
+	case ACT_CLEARUI:
+		if (!chrflag && invflag && MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
+			SetCursorPos(MouseX + 160, MouseY);
+		}
+		if (!invflag && chrflag && MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
+			SetCursorPos(MouseX - 160, MouseY);
+		}
+		ClearUI();
+		break;
+	case ACT_UP:
+		if (stextflag) {
+			STextUp();
+		} else if (questlog) {
+			QuestlogUp();
+		} else if (helpflag) {
+			HelpScrollUp();
+		} else if (automapflag) {
+			AutomapUp();
+		}
+		break;
+	case ACT_DOWN:
+		if (stextflag) {
+			STextDown();
+		} else if (questlog) {
+			QuestlogDown();
+		} else if (helpflag) {
+			HelpScrollDown();
+		} else if (automapflag) {
+			AutomapDown();
+		}
+		break;
+	case ACT_LEFT:
+		if (automapflag) {
+			AutomapLeft();
+		}
+		break;
+	case ACT_RIGHT:
+		if (automapflag) {
+			AutomapRight();
+		}
+		break;
+	case ACT_PGUP:
+		if (stextflag) {
+			STextPrior();
+		}
+		break;
+	case ACT_PGDOWN:
+		if (stextflag) {
+			STextNext();
+		}
+		break;
+	case ACT_RETURN:
 		if (stextflag) {
 			STextEnter();
 		} else if (questlog) {
@@ -943,7 +1182,50 @@ static void PressKey(int vkey)
 		} else {
 			control_type_message();
 		}
-	} else if (vkey == DVL_VK_F1) {
+		break;
+	case ACT_QUESTS:
+		if (stextflag == STORE_NONE) {
+			chrflag = FALSE;
+			if (!questlog) {
+				StartQuestlog();
+			} else {
+				questlog = FALSE;
+			}
+		}
+		break;
+	case ACT_MSG0:
+		diablo_hotkey_msg(0);
+		break;
+	case ACT_MSG1:
+		diablo_hotkey_msg(1);
+		break;
+	case ACT_MSG2:
+		diablo_hotkey_msg(2);
+		break;
+	case ACT_MSG3:
+		diablo_hotkey_msg(3);
+		break;
+	case ACT_GAMMA_DEC:
+		DecreaseGamma();
+		break;
+	case ACT_GAMMA_INC:
+		IncreaseGamma();
+		break;
+	case ACT_ZOOM:
+		zoomflag = !zoomflag;
+		CalcViewportGeometry();
+		break;
+	case ACT_VER:
+		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
+			copy_str(gbNetMsg, gszVersionNumber);
+			NetSendCmdString(1 << myplr);
+		} else {
+			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
+			NetSendCmdString(1 << myplr);
+		}
+		break;
+	case ACT_HELP:
 		if (helpflag) {
 			helpflag = FALSE;
 		} else if (stextflag != STORE_NONE) {
@@ -954,9 +1236,17 @@ static void PressKey(int vkey)
 			ClearUI();
 			DisplayHelp();
 		}
+		break;
+	case ACT_PAUSE:
+		break;
+	case ACT_ESCAPE:
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
+
 #ifdef _DEBUG
-	else if (vkey == DVL_VK_F2) {
+	if (vkey == DVL_VK_F2) {
 	}
 	else if (vkey == DVL_VK_F3) {
 		if (pcursitem != -1) {
@@ -976,199 +1266,6 @@ static void PressKey(int vkey)
 		PrintDebugQuest();
 	}
 #endif
-	else if (vkey == DVL_VK_F5) {
-		if (spselflag) {
-			SetSpeedSpell(0);
-			return;
-		}
-		ToggleSpell(0);
-		return;
-	} else if (vkey == DVL_VK_F6) {
-		if (spselflag) {
-			SetSpeedSpell(1);
-			return;
-		}
-		ToggleSpell(1);
-		return;
-	} else if (vkey == DVL_VK_F7) {
-		if (spselflag) {
-			SetSpeedSpell(2);
-			return;
-		}
-		ToggleSpell(2);
-		return;
-	} else if (vkey == DVL_VK_F8) {
-		if (spselflag) {
-			SetSpeedSpell(3);
-			return;
-		}
-		ToggleSpell(3);
-		return;
-	} else if (vkey == DVL_VK_F9) {
-		diablo_hotkey_msg(0);
-	} else if (vkey == DVL_VK_F10) {
-		diablo_hotkey_msg(1);
-	} else if (vkey == DVL_VK_F11) {
-		diablo_hotkey_msg(2);
-	} else if (vkey == DVL_VK_F12) {
-		diablo_hotkey_msg(3);
-	} else if (vkey == DVL_VK_UP) {
-		if (stextflag) {
-			STextUp();
-		} else if (questlog) {
-			QuestlogUp();
-		} else if (helpflag) {
-			HelpScrollUp();
-		} else if (automapflag) {
-			AutomapUp();
-		}
-	} else if (vkey == DVL_VK_DOWN) {
-		if (stextflag) {
-			STextDown();
-		} else if (questlog) {
-			QuestlogDown();
-		} else if (helpflag) {
-			HelpScrollDown();
-		} else if (automapflag) {
-			AutomapDown();
-		}
-	} else if (vkey == DVL_VK_PRIOR) {
-		if (stextflag) {
-			STextPrior();
-		}
-	} else if (vkey == DVL_VK_NEXT) {
-		if (stextflag) {
-			STextNext();
-		}
-	} else if (vkey == DVL_VK_LEFT) {
-		if (automapflag && !talkflag) {
-			AutomapLeft();
-		}
-	} else if (vkey == DVL_VK_RIGHT) {
-		if (automapflag && !talkflag) {
-			AutomapRight();
-		}
-	} else if (vkey == DVL_VK_TAB) {
-		DoAutoMap();
-	} else if (vkey == DVL_VK_SPACE) {
-		if (!chrflag && invflag && MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-			SetCursorPos(MouseX + 160, MouseY);
-		}
-		if (!invflag && chrflag && MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-			SetCursorPos(MouseX - 160, MouseY);
-		}
-		ClearUI();
-	} else if (vkey == DVL_VK_I) {
-		if (stextflag == STORE_NONE) {
-			sbookflag = FALSE;
-			invflag = !invflag;
-			if (!invflag || chrflag) {
-				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX + 160, MouseY);
-				}
-			} else {
-				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX - 160, MouseY);
-				}
-			}
-		}
-	} else if (vkey == DVL_VK_G) {
-		DecreaseGamma();
-	} else if (vkey == DVL_VK_F) {
-		IncreaseGamma();
-	} else if (vkey == DVL_VK_C) {
-		if (stextflag == STORE_NONE) {
-			questlog = FALSE;
-			plr[myplr]._pLvlUp = FALSE;
-			chrflag = !chrflag;
-			if (!chrflag || invflag) {
-				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX - 160, MouseY);
-				}
-			} else {
-				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX + 160, MouseY);
-				}
-			}
-		}
-	} else if (vkey == DVL_VK_Q) {
-		if (stextflag == STORE_NONE) {
-			chrflag = FALSE;
-			if (!questlog) {
-				StartQuestlog();
-			} else {
-				questlog = FALSE;
-			}
-		}
-	} else if (vkey == DVL_VK_Z) {
-		zoomflag = !zoomflag;
-		CalcViewportGeometry();
-	} else if (vkey == DVL_VK_S) {
-		if (stextflag == STORE_NONE) {
-			invflag = FALSE;
-			if (!spselflag) {
-				DoSpeedBook();
-			} else {
-				spselflag = FALSE;
-			}
-		}
-	} else if (vkey == DVL_VK_B) {
-		if (stextflag == STORE_NONE) {
-			invflag = FALSE;
-			sbookflag = !sbookflag;
-		}
-	} else if (vkey == DVL_VK_1) {
-		UseInvItem(INVITEM_BELT_FIRST);
-	} else if (vkey == DVL_VK_2) {
-		UseInvItem(INVITEM_BELT_FIRST + 1);
-	} else if (vkey == DVL_VK_3) {
-		UseInvItem(INVITEM_BELT_FIRST + 2);
-	} else if (vkey == DVL_VK_4) {
-		UseInvItem(INVITEM_BELT_FIRST + 3);
-	} else if (vkey == DVL_VK_5) {
-		UseInvItem(INVITEM_BELT_FIRST + 4);
-	} else if (vkey == DVL_VK_6) {
-		UseInvItem(INVITEM_BELT_FIRST + 5);
-	} else if (vkey == DVL_VK_7) {
-		UseInvItem(INVITEM_BELT_FIRST + 6);
-	} else if (vkey == DVL_VK_8) {
-#ifdef _DEBUG
-		if (debug_mode_key_inverted_v || debug_mode_key_w) {
-			NetSendCmd(TRUE, CMD_CHEAT_EXPERIENCE);
-			return;
-		}
-#endif
-		UseInvItem(INVITEM_BELT_FIRST + 7);
-	} else if (vkey == DVL_VK_OEM_PLUS) {
-		if (automapflag) {
-			AutomapZoomIn();
-		}
-	} else if (vkey == DVL_VK_OEM_MINUS) {
-		if (automapflag) {
-			AutomapZoomOut();
-		}
-	} else if (vkey == DVL_VK_V) {
-		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
-			copy_str(gbNetMsg, gszVersionNumber);
-			NetSendCmdString(1 << myplr);
-		} else {
-			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
-			NetSendCmdString(1 << myplr);
-		}
-	} else if (vkey == DVL_VK_RBUTTON) {
-		if (!sgbAltActionBtnDown) {
-			sgbAltActionBtnDown = TRUE;
-			sgdwLastAABD = SDL_GetTicks();
-			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
-		}
-	} else if (vkey == DVL_VK_LBUTTON) {
-		if (!sgbActionBtnDown) {
-			sgbActionBtnDown = TRUE;
-			sgdwLastABD = SDL_GetTicks();
-			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
-		}
-	}
 }
 
 /**

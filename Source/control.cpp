@@ -2360,8 +2360,7 @@ BOOL control_presskeys(int vkey)
 
 	assert(talkflag);
 
-	if (vkey == DVL_VK_SPACE) {
-	} else if (vkey == DVL_VK_ESCAPE) {
+	if (vkey == DVL_VK_ESCAPE) {
 		control_reset_talk();
 	} else if (vkey == DVL_VK_RETURN) {
 		control_press_enter();
@@ -2375,7 +2374,7 @@ BOOL control_presskeys(int vkey)
 		control_up_down(-1);
 	} else if (vkey == DVL_VK_LBUTTON) {
 		return control_check_talk_btn();
-	} else {
+	} else if (vkey == DVL_VK_RBUTTON) {
 		return FALSE;
 	}
 	return TRUE;
