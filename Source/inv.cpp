@@ -1983,9 +1983,9 @@ static void PlrAddMana()
 	if (p->_pClass == PC_SORCERER)
 		mana <<= 1;
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_ROGUE)
-#else
 	else if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD)
+#else
+	else if (p->_pClass == PC_ROGUE)
 #endif
 		mana += mana >> 1;
 	p->_pMana += mana;
