@@ -180,6 +180,9 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &tmp); 	// TODO: convert to CopyShort when backwards compatibility is not a concern
 	is->_iIdx = tmp;
 	CopyInt(tbuff, &is->_iFlags2);
+#ifdef HELLFIRE
+	tbuff += 4; // Skip _iDamAcFlags
+#endif
 }
 
 static void LoadItems(ItemStruct *pItem, const int n)
@@ -374,12 +377,7 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->pBattleNet);
 #endif
 	CopyChar(tbuff, &p->pManaShield);
-#ifdef HELLFIRE
-	CopyChar(tbuff, &p->pDungMsgs2);
-	CopyBytes(tbuff, 2, &p->bReserved);
-#else
 	CopyBytes(tbuff, 3, &p->bReserved);
-#endif
 	CopyShort(tbuff, &p->wReflection);
 	CopyShorts(tbuff, 7, &p->wReserved);
 
@@ -602,10 +600,19 @@ static void LoadQuest(int i)
 	CopyInt(tbuff, &pQuest->_qty);
 	CopyChar(tbuff, &pQuest->_qslvl);
 	CopyChar(tbuff, &pQuest->_qidx);
+#ifdef HELLFIRE
+	tbuff += 2; // Alignment
+	CopyInt(tbuff, &pQuest->_qmsg);
+#else
 	CopyChar(tbuff, &pQuest->_qmsg);
+#endif
 	CopyChar(tbuff, &pQuest->_qvar1);
 	CopyChar(tbuff, &pQuest->_qvar2);
+#ifdef HELLFIRE
+	tbuff += 2; // Alignment
+#else
 	tbuff += 3; // Alignment
+#endif
 	CopyInt(tbuff, &pQuest->_qlog);
 
 	ReturnLvlX = LoadInt();
@@ -949,6 +956,9 @@ static void SaveItemData(ItemStruct *is)
 	tmp = is->_iIdx;
 	CopyInt(&tmp, tbuff); // TODO: convert to CopyShort when backwards compatibility is not a concern
 	CopyInt(&is->_iFlags2, tbuff);
+#ifdef HELLFIRE
+	tbuff += 4; // Skip _iDamAcFlags
+#endif
 }
 
 static void SaveItems(ItemStruct *pItem, const int n)
@@ -1359,10 +1369,19 @@ static void SaveQuest(int i)
 	CopyInt(&pQuest->_qty, tbuff);
 	CopyChar(&pQuest->_qslvl, tbuff);
 	CopyChar(&pQuest->_qidx, tbuff);
+#ifdef HELLFIRE
+	tbuff += 2; // Alignment
+	CopyInt(&pQuest->_qmsg, tbuff);
+#else
 	CopyChar(&pQuest->_qmsg, tbuff);
+#endif
 	CopyChar(&pQuest->_qvar1, tbuff);
 	CopyChar(&pQuest->_qvar2, tbuff);
+#ifdef HELLFIRE
+	tbuff += 2; // Alignment
+#else
 	tbuff += 3; // Alignment
+#endif
 	CopyInt(&pQuest->_qlog, tbuff);
 
 	SaveInt(ReturnLvlX);

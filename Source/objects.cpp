@@ -699,8 +699,9 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 
 	InitObjFlag = TRUE;
 
-	lm = pMap + 2;
-	rw = pMap[0];
+	lm = pMap;
+	rw = lm[0];
+	lm += 2;
 	rh = *lm;
 	mapoff = (rw * rh + 1) * 2;
 	rw <<= 1;

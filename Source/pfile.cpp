@@ -29,7 +29,7 @@ const char *PASSWORD_MULTI = "szqnlsk1";
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "hrinfo_%d.drv"
+#define SAVE_FILE_FORMAT_MULTI "multi_%d.hsv"
 #else
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
 #define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
@@ -329,12 +329,20 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	PkPlayerStruct pkplr;
 
 	save_num = pfile_get_save_num_from_name(heroinfo->name);
+#ifdef HELLFIRE
+	if (save_num >= MAX_CHARACTERS) {
+#else
 	if (save_num == MAX_CHARACTERS) {
+#endif
 		for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
 			if (!hero_names[save_num][0])
 				break;
 		}
+#ifdef HELLFIRE
+		if (save_num >= MAX_CHARACTERS)
+#else
 		if (save_num == MAX_CHARACTERS)
+#endif
 			return FALSE;
 	}
 	if (!pfile_open_archive(FALSE, save_num))
@@ -360,14 +368,14 @@ BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 			return FALSE;
 		fmt = "hero";
 	} else {
-		if (lvl < 17)
+		if (lvl < NUMLEVELS)
 			fmt = "perml%02d";
-		else if (lvl < 34) {
-			lvl -= 17;
+		else if (lvl < NUMLEVELS * 2) {
+			lvl -= NUMLEVELS;
 			fmt = "perms%02d";
-		} else if (lvl == 34)
+		} else if (lvl == NUMLEVELS * 2)
 			fmt = "game";
-		else if (lvl == 35)
+		else if (lvl == NUMLEVELS * 2 + 1)
 			fmt = "hero";
 		else
 			return FALSE;
@@ -521,7 +529,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
 	if (!pfile_open_archive(FALSE, save_num))
-		app_fatal("Unable to write so save file archive");
+		app_fatal("Unable to write to save file archive");
 	mpqapi_write_file(pszName, pbData, qwLen);
 	pfile_flush(TRUE, save_num);
 }
@@ -544,7 +552,7 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	if (*pdwLen == 0)
 		app_fatal("Invalid save file");
 
-	buf = (BYTE *)DiabloAllocPtr(*pdwLen);
+	buf = DiabloAllocPtr(*pdwLen);
 	if (!SFileReadFile(save, buf, *pdwLen, &nread, NULL))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
@@ -563,11 +571,11 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 
 void pfile_update(BOOL force_save)
 {
-	// BUGFIX: these tick values should be treated as unsigned to handle overflows correctly
-	static int save_prev_tc;
+	// BUGFIX: these tick values should be treated as unsigned to handle overflows correctly (fixed)
+	static DWORD save_prev_tc;
 
 	if (gbMaxPlayers != 1) {
-		int tick = SDL_GetTicks();
+		DWORD tick = SDL_GetTicks();
 		if (force_save || tick - save_prev_tc > 60000) {
 			save_prev_tc = tick;
 			pfile_write_hero();
