@@ -852,46 +852,27 @@ BOOL SFileEnableDirectAccess(BOOL enable)
 void SLoadKeyMap(BYTE (&map)[256])
 {
 	char entryKey[16];
-	char entryValue[8];
 	int i;
-	std::string value;
-	BOOL changed = FALSE;
-	radon::File& ini = getIni();
 	radon::Section *section;
 	radon::Key *key;
 
 	// load controls
-	section = ini.getSection("Controls");
+	section = getIni().getSection("Controls");
 	if (section == NULL) {
-		ini.addSection("Controls");
-		section = ini.getSection("Controls");
-		changed = TRUE;
+		return;
 	}
 
 	for (i = 1; i < lengthof(map); i++) {
 		snprintf(entryKey, sizeof(entryKey), "Button%02X", i);
 		key = section->getKey(entryKey);
 		if (key == NULL) {
-			snprintf(entryValue, sizeof(entryValue), "%d", map[i]);
-			section->addKey(radon::Key(entryKey, entryValue));
-			changed = TRUE;
 			continue;
 		}
 		std::string value = key->getStringValue();
 		char* tmp;
 		int act = strtol(value.c_str(), &tmp, 10);
-		if (*tmp != '\0' || act >= NUM_ACTS) {
-			snprintf(entryValue, sizeof(entryValue), "%d", map[i]);
-			value = entryValue;
-			key->setValue(value);
-			changed = TRUE;
-			continue;
-		}
-		map[i] = act;
-	}
-
-	if (changed) {
-		ini.saveToFile();
+		if (*tmp == '\0' && act < NUM_ACTS)
+			map[i] = act;
 	}
 }
 

@@ -46,6 +46,7 @@ int sgnTimeoutCurs;
 BOOL sgbActionBtnDown;
 BOOL sgbAltActionBtnDown;
 DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
+int actionBtnKey, altActionBtnKey;
 int ticks_per_sec = 20;
 WORD tick_delay = 50;
 
@@ -346,11 +347,11 @@ static BOOL ProcessInput()
 		DWORD tick = SDL_GetTicks();
 		if (sgbActionBtnDown && (tick - sgdwLastABD) >= 200) {
 			sgbActionBtnDown = FALSE;
-			PressKey(DVL_VK_LBUTTON);
+			PressKey(actionBtnKey);
 		}
 		if (sgbAltActionBtnDown && (tick - sgdwLastAABD) >= 200) {
 			sgbAltActionBtnDown = FALSE;
-			PressKey(DVL_VK_RBUTTON);
+			PressKey(altActionBtnKey);
 		}
 	}
 
@@ -466,6 +467,24 @@ static void diablo_init_screen()
 	ClrDiabloMsg();
 }
 
+static void InitControls()
+{
+	int i;
+
+	// load key-configuration from diablo.ini
+	SLoadKeyMap(WMButtonInputTransTbl);
+
+	// find the action-keys to trigger when the button is held down
+	actionBtnKey = ACT_NONE;
+	altActionBtnKey = ACT_NONE;
+	for (i = 0; i < lengthof(WMButtonInputTransTbl); i++) {
+		if (WMButtonInputTransTbl[i] == ACT_ACT)
+			actionBtnKey = i;
+		else if (WMButtonInputTransTbl[i] == ACT_ALTACT)
+			altActionBtnKey = i;
+	}
+}
+
 static void diablo_init()
 {
 	init_create_window();
@@ -489,8 +508,7 @@ static void diablo_init()
 
 	ui_sound_init();
 
-	// init controls
-	SLoadKeyMap(WMButtonInputTransTbl);
+	InitControls();
 }
 
 static void diablo_splash()
@@ -946,28 +964,27 @@ static void PressKey(int vkey)
 	}
 
 	if (deathflag) {
-		if (vkey == DVL_VK_F9) {
-			diablo_hotkey_msg(0);
-		}
-		if (vkey == DVL_VK_F10) {
-			diablo_hotkey_msg(1);
-		}
-		if (vkey == DVL_VK_F11) {
-			diablo_hotkey_msg(2);
-		}
-		if (vkey == DVL_VK_F12) {
-			diablo_hotkey_msg(3);
-		}
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
-		}
-		if (vkey == DVL_VK_LBUTTON) {
+		} else if (vkey == DVL_VK_LBUTTON) {
 			control_check_btn_press();
+		} else {
+			int transKey = WMButtonInputTransTbl[vkey];
+			if (transKey == ACT_MSG0) {
+				diablo_hotkey_msg(0);
+			} else if (transKey == ACT_MSG1) {
+				diablo_hotkey_msg(1);
+			} else if (transKey == ACT_MSG2) {
+				diablo_hotkey_msg(2);
+			} else if (transKey == ACT_MSG3) {
+				diablo_hotkey_msg(3);
+			}
 		}
 		return;
 	}
 
-	if (vkey == DVL_VK_PAUSE || vkey == DVL_VK_P) {
+	int transKey = WMButtonInputTransTbl[vkey];
+	if (transKey == ACT_PAUSE) {
 		diablo_pause_game();
 		return;
 	}
@@ -985,7 +1002,7 @@ static void PressKey(int vkey)
 		return;
 	}
 
-	switch (WMButtonInputTransTbl[vkey]) {
+	switch (transKey) {
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
@@ -1003,28 +1020,16 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_SPL0:
-		if (spselflag)
-			SetSpeedSpell(0);
-		else
-			ToggleSpell(0);
-		break;
 	case ACT_SPL1:
-		if (spselflag)
-			SetSpeedSpell(1);
-		else
-			ToggleSpell(1);
-		break;
 	case ACT_SPL2:
-		if (spselflag)
-			SetSpeedSpell(2);
-		else
-			ToggleSpell(2);
-		break;
 	case ACT_SPL3:
+		static_assert(ACT_SPL0 + 1 == ACT_SPL1, "PressKey expects a continuous assignment of ACT_SPLx 1.");
+		static_assert(ACT_SPL1 + 1 == ACT_SPL2, "PressKey expects a continuous assignment of ACT_SPLx 2.");
+		static_assert(ACT_SPL2 + 1 == ACT_SPL3, "PressKey expects a continuous assignment of ACT_SPLx 3.");
 		if (spselflag)
-			SetSpeedSpell(3);
+			SetSpeedSpell(transKey - ACT_SPL0);
 		else
-			ToggleSpell(3);
+			ToggleSpell(transKey - ACT_SPL0);
 		break;
 	case ACT_INV:
 		if (stextflag == STORE_NONE) {
@@ -1074,34 +1079,21 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_ITEM0:
-		UseInvItem(INVITEM_BELT_FIRST + 0);
-		break;
 	case ACT_ITEM1:
-		UseInvItem(INVITEM_BELT_FIRST + 1);
-		break;
 	case ACT_ITEM2:
-		UseInvItem(INVITEM_BELT_FIRST + 2);
-		break;
 	case ACT_ITEM3:
-		UseInvItem(INVITEM_BELT_FIRST + 3);
-		break;
 	case ACT_ITEM4:
-		UseInvItem(INVITEM_BELT_FIRST + 4);
-		break;
 	case ACT_ITEM5:
-		UseInvItem(INVITEM_BELT_FIRST + 5);
-		break;
 	case ACT_ITEM6:
-		UseInvItem(INVITEM_BELT_FIRST + 6);
-		break;
 	case ACT_ITEM7:
-#ifdef _DEBUG
-		if (debug_mode_key_inverted_v || debug_mode_key_w) {
-			NetSendCmd(TRUE, CMD_CHEAT_EXPERIENCE);
-			return;
-		}
-#endif
-		UseInvItem(INVITEM_BELT_FIRST + 7);
+		static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
+		static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
+		static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
+		static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
+		static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
+		static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
+		static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
+		UseInvItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		break;
 	case ACT_AUTOMAP:
 		DoAutoMap();
@@ -1187,16 +1179,13 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_MSG0:
-		diablo_hotkey_msg(0);
-		break;
 	case ACT_MSG1:
-		diablo_hotkey_msg(1);
-		break;
 	case ACT_MSG2:
-		diablo_hotkey_msg(2);
-		break;
 	case ACT_MSG3:
-		diablo_hotkey_msg(3);
+		static_assert(ACT_MSG0 + 1 == ACT_MSG1, "PressKey expects a continuous assignment of ACT_MSGx 1.");
+		static_assert(ACT_MSG1 + 1 == ACT_MSG2, "PressKey expects a continuous assignment of ACT_MSGx 2.");
+		static_assert(ACT_MSG2 + 1 == ACT_MSG3, "PressKey expects a continuous assignment of ACT_MSGx 3.");
+		diablo_hotkey_msg(transKey - ACT_MSG0);
 		break;
 	case ACT_GAMMA_DEC:
 		DecreaseGamma();
@@ -1295,46 +1284,51 @@ static void PressChar(WPARAM vkey)
 			}
 			arrowdebug++;
 		}
-		return;
+		break;
+	case '9':
+		if (debug_mode_key_inverted_v || debug_mode_key_w) {
+			NetSendCmd(TRUE, CMD_CHEAT_EXPERIENCE);
+		}
+		break;
 	case ':':
 		if (currlevel == 0 && debug_mode_key_w) {
 			SetAllSpellsCheat();
 		}
-		return;
+		break;
 	case '[':
 		if (currlevel == 0 && debug_mode_key_w) {
 			TakeGoldCheat();
 		}
-		return;
+		break;
 	case ']':
 		if (currlevel == 0 && debug_mode_key_w) {
 			MaxSpellsCheat();
 		}
-		return;
+		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
 			spelldata[SPL_TELEPORT].sTownSpell = 1;
 			plr[myplr]._pSplLvl[plr[myplr]._pSpell]++;
 		}
-		return;
+		break;
 	case 'D':
 		PrintDebugPlayer(TRUE);
-		return;
+		break;
 	case 'd':
 		PrintDebugPlayer(FALSE);
-		return;
+		break;
 	case 'L':
 	case 'l':
 		if (debug_mode_key_inverted_v) {
 			ToggleLighting();
 		}
-		return;
+		break;
 	case 'M':
 		NextDebugMonster();
-		return;
+		break;
 	case 'm':
 		GetDebugMonster();
-		return;
+		break;
 	case 'R':
 	case 'r':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currlevel]);
@@ -1343,7 +1337,7 @@ static void PressChar(WPARAM vkey)
 		NetSendCmdString(1 << myplr);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "End = %i", glEndSeed[currlevel]);
 		NetSendCmdString(1 << myplr);
-		return;
+		break;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
@@ -1352,17 +1346,17 @@ static void PressChar(WPARAM vkey)
 			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
 			NetSendCmdString(1 << myplr);
 		}
-		return;
+		break;
 	case '|':
 		if (currlevel == 0 && debug_mode_key_w) {
 			GiveGoldCheat();
 		}
-		return;
+		break;
 	case '~':
 		if (currlevel == 0 && debug_mode_key_w) {
 			StoresCheat();
 		}
-		return;
+		break;
 	}
 #endif
 }
