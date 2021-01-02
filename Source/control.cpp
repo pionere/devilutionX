@@ -202,8 +202,6 @@ int PanBtnPos[8][5] = {
 	{ 527,  91, 33, 32, TRUE  }, // friendly fire button
 	// clang-format on
 };
-/** Maps from panel_button_id to hotkey name. */
-const char *const PanBtnHotKey[8] = { "'c'", "'q'", "Tab", "Esc", "'i'", "'b'", "Enter", NULL };
 /** Maps from panel_button_id to panel button description. */
 const char PanBtnStr[8][24] = {
 	"Character Information",
@@ -1033,10 +1031,6 @@ void CheckPanelInfo()
 				else
 					copy_cstr(infostr, "Player attack");
 			}
-			if (PanBtnHotKey[i] != NULL) {
-				snprintf(tempstr, sizeof(tempstr), "Hotkey : %s", PanBtnHotKey[i]);
-				AddPanelString(tempstr, TRUE);
-			}
 			infoclr = COL_WHITE;
 			panelflag = TRUE;
 			pinfoflag = TRUE;
@@ -1047,8 +1041,6 @@ void CheckPanelInfo()
 		infoclr = COL_WHITE;
 		panelflag = TRUE;
 		pinfoflag = TRUE;
-		copy_cstr(tempstr, "Hotkey : 's'");
-		AddPanelString(tempstr, TRUE);
 		p = &plr[myplr];
 		sn = p->_pRSpell;
 			switch (p->_pRSplType) {
