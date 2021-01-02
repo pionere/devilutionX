@@ -362,6 +362,8 @@ void setIniValue(const char *sectionName, const char *keyName, char *value, int 
 	if (key == NULL) {
 		section->addKey(radon::Key(keyName, stringValue));
 	} else {
+		if (key->getStringValue().compare(stringValue) == 0)
+			return;
 		key->setValue(stringValue);
 	}
 
