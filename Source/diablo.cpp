@@ -501,9 +501,9 @@ static void diablo_splash()
 	play_movie("gendata\\logo.smk", MOV_SKIP);
 
 #if defined(HELLFIRE) || !defined(SPAWN)
-	if (getIniBool(APP_NAME, "Intro", true)) {
+	if (getIniBool("Diablo", "Intro", true)) {
 		play_movie(INTRO_ARCHIVE, MOV_SKIP);
-		setIniValue(APP_NAME, "Intro", "0");
+		setIniValue("Diablo", "Intro", "0");
 	}
 #endif
 
