@@ -113,6 +113,7 @@
 
 // #define MAX_PATH				260
 #define MAX_SEND_STR_LEN		80
+#define MAX_QUICK_MSGS			4
 
 #define MAXDEAD					31
 #define MAXITEMS				127

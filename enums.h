@@ -3684,6 +3684,7 @@ typedef enum input_key {
 	ACT_HELP,
 	ACT_PAUSE,
 	ACT_ESCAPE,
+	NUM_ACTS
 } input_key;
 
 DEVILUTION_END_NAMESPACE

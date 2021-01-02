@@ -357,6 +357,7 @@ int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNE
 int SNetGetProviderCaps(struct _SNETCAPS *);
 int SFileSetFilePointer(HANDLE, int, HANDLE, int);
 BOOL SFileEnableDirectAccess(BOOL enable);
+void SLoadKeyMap(BYTE (&map)[256]);
 
 #if defined(__GNUC__) || defined(__cplusplus)
 }

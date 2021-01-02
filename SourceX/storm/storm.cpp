@@ -846,4 +846,70 @@ BOOL SFileEnableDirectAccess(BOOL enable)
 	directFileAccess = enable;
 	return true;
 }
+
+void SLoadKeyMap(BYTE (&map)[256])
+{
+	char entryKey[16];
+	char entryValue[MAX_SEND_STR_LEN];
+	int i;
+	std::string value;
+	BOOL changed = FALSE;
+	radon::File& ini = getIni();
+	radon::Section *section;
+	radon::Key *key;
+
+	// load quick message texts
+	section = ini.getSection("NetMsg");
+	if (section == NULL) {
+		ini.addSection("NetMsg");
+		section = ini.getSection("NetMsg");
+		changed = TRUE;
+	}
+
+	for (i = 0; i < MAX_QUICK_MSGS; i++) {
+		snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", i);
+		key = section->getKey(entryKey);
+		if (key == NULL) {
+			section->addKey(radon::Key(entryKey, spszMsgTbl[i]));
+			changed = TRUE;
+			continue;
+		}
+		SStrCopy(spszMsgTbl[i], key->getStringValue().c_str(), sizeof(spszMsgTbl[i]));
+	}
+
+	// load controls
+	section = ini.getSection("Controls");
+	if (section == NULL) {
+		ini.addSection("Controls");
+		section = ini.getSection("Controls");
+		changed = TRUE;
+	}
+
+	for (i = 1; i < lengthof(map); i++) {
+		snprintf(entryKey, sizeof(entryKey), "Button%02X", i);
+		key = section->getKey(entryKey);
+		if (key == NULL) {
+			snprintf(entryValue, sizeof(entryValue), "%d", map[i]);
+			section->addKey(radon::Key(entryKey, entryValue));
+			changed = TRUE;
+			continue;
+		}
+		std::string value = key->getStringValue();
+		char* tmp;
+		int act = strtol(value.c_str(), &tmp, 10);
+		if (*tmp != '\0' || act >= NUM_ACTS) {
+			snprintf(entryValue, sizeof(entryValue), "%d", map[i]);
+			value = entryValue;
+			key->setValue(value);
+			changed = TRUE;
+			continue;
+		}
+		map[i] = act;
+	}
+
+	if (changed) {
+		ini.saveToFile();
+	}
+}
+
 DEVILUTION_END_NAMESPACE
