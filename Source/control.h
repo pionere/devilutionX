@@ -19,7 +19,6 @@ extern BOOL lvlbtndown;
 extern int dropGoldValue;
 extern BOOL chrbtnactive;
 extern BYTE *pPanelText;
-extern BOOL pinfoflag;
 extern char infoclr;
 extern char tempstr[256];
 extern int sbooktab;

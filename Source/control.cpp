@@ -29,7 +29,6 @@ BYTE *pBtmBuff;
 BYTE *pTalkBtns;
 BOOL pstrjust[MAX_CTRL_PANEL_LINES];
 int pnumlines;
-BOOL pinfoflag;
 BOOL talkbtndown[MAX_PLRS - 1];
 int pSpell;
 BYTE *pManaBuff;
@@ -604,7 +603,6 @@ void AddPanelString(const char *str, BOOL just)
 void ClearPanel()
 {
 	pnumlines = 0;
-	pinfoflag = FALSE;
 }
 
 void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
@@ -1033,14 +1031,12 @@ void CheckPanelInfo()
 			}
 			infoclr = COL_WHITE;
 			panelflag = TRUE;
-			pinfoflag = TRUE;
 		}
 	}
 	if (!spselflag && MouseX >= 565 + PANEL_LEFT && MouseX < 621 + PANEL_LEFT && MouseY >= 64 + PANEL_TOP && MouseY < 120 + PANEL_TOP) {
 		copy_cstr(infostr, "Select current spell button");
 		infoclr = COL_WHITE;
 		panelflag = TRUE;
-		pinfoflag = TRUE;
 		p = &plr[myplr];
 		sn = p->_pRSpell;
 			switch (p->_pRSplType) {
@@ -1310,7 +1306,6 @@ void DrawInfoBox()
 		} else if (!is->_iStatFlag) {
 			ClearPanel();
 			AddPanelString("Requirements not met", TRUE);
-			pinfoflag = TRUE;
 		} else {
 			if (is->_iIdentified)
 				copy_str(infostr, is->_iIName);
@@ -1648,11 +1643,40 @@ char DrawItemColor(ItemStruct *is)
 	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
 }
 
+static void DrawTooltip(const char* text, int x, int y, char col)
+{
+	int width;
+	BYTE *dst;
+	const int border = 4, height = 16;
+
+	width = StringWidth(text) + 2 * border;
+
+	y -= TILE_HEIGHT;
+	if (y < 0)
+		return;
+	x -= width / 2;
+	if (x < 0)
+		x = 0;
+	else if (x > SCREEN_WIDTH - width)
+		x = SCREEN_WIDTH - width;
+
+	// draw gray border
+	dst = &gpBuffer[SCREENXY(x, y)];
+	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_GRAY + 2, width);
+
+	// draw background
+	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
+	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_ORANGE + 14, width - 2);
+
+	// print the info
+	PrintGameStr(x + border, y + height - 3, text, col);
+}
+
 void DrawInfoStr()
 {
-	int x, y, xx, yy, width;
-	const char* text;
-	BYTE *dst;
+	int x, y, xx, yy;
 	char col;
 
 	if (pcursitem != -1) {
@@ -1675,37 +1699,19 @@ void DrawInfoStr()
 		x = p->_px;
 		y = p->_py;
 		col = COL_WHITE;
+	} else if (spselflag) {
+		if (pSpell == SPL_INVALID)
+			return;
+		xx = MouseX;
+		yy = MouseY;
+		col = COL_WHITE;
+		DrawTooltip(infostr, xx, yy, col);
+		return;
 	} else {
 		return;
 	}
-	text = infostr;
-
 	GetMousePos(x, y, &xx, &yy);
-	const int border = 4, height = 16;
-
-	width = StringWidth(text) + 2 * border;
-
-	yy -= TILE_HEIGHT;
-	if (yy < 0)
-		return;
-	xx -= width / 2;
-	if (xx < 0)
-		xx = 0;
-	else if (xx > SCREEN_WIDTH - width)
-		xx = SCREEN_WIDTH - width;
-
-	// draw gray border
-	dst = &gpBuffer[SCREENXY(xx, yy)];
-	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 2, width);
-
-	// draw background
-	dst = &gpBuffer[SCREENXY(xx + 1, yy + 1)];
-	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_ORANGE + 14, width - 2);
-
-	// print the info
-	PrintGameStr(xx + border, yy + height - 3, text, col);
+	DrawTooltip(infostr, xx, yy, col);
 }
 
 

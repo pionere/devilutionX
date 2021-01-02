@@ -3892,7 +3892,6 @@ void PrintItemDetails(const ItemStruct *is)
 			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
 		AddPanelString(tempstr, TRUE);
 	}
-	pinfoflag = TRUE;
 }
 
 void ItemStatOk(int pnum, ItemStruct *is)

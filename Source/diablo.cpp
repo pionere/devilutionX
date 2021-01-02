@@ -1221,11 +1221,7 @@ static void PressKey(int vkey)
 	case ACT_HELP:
 		if (helpflag) {
 			helpflag = FALSE;
-		} else if (stextflag != STORE_NONE) {
-			ClearPanel();
-			AddPanelString("No help available", TRUE); /// BUGFIX: message isn't displayed
-			AddPanelString("while in stores", TRUE);
-		} else {
+		} else if (stextflag == STORE_NONE) {
 			ClearUI();
 			DisplayHelp();
 		}

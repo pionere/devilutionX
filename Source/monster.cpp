@@ -5149,7 +5149,6 @@ void PrintMonstHistory(int mt)
 			}
 		}
 	}
-	pinfoflag = TRUE;
 }
 
 void PrintUniqueHistory(int mnum)
@@ -5174,7 +5173,6 @@ void PrintUniqueHistory(int mnum)
 		}
 	}
 	AddPanelString(tempstr, TRUE);
-	pinfoflag = TRUE;
 }
 
 void MissToMonst(int mi, int x, int y)
