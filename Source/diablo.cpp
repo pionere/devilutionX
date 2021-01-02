@@ -141,13 +141,6 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 };
 // clang-format on
-/** Default quick messages */
-char spszMsgTbl[MAX_QUICK_MSGS][MAX_SEND_STR_LEN] = {
-	"I need help! Come Here!",
-	"Follow me.",
-	"Here's something for you.",
-	"Now you DIE!"
-};
 
 /** To know if these things have been done when we get to the diablo_deinit() function */
 BOOL was_archives_init = FALSE;
@@ -835,8 +828,10 @@ static void diablo_hotkey_msg(DWORD dwMsg)
 		return;
 	}
 
-	assert(dwMsg < lengthof(spszMsgTbl));
-	copy_str(gbNetMsg, spszMsgTbl[dwMsg]);
+	char entryKey[16];
+	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", dwMsg);
+	if (!getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)))
+		return;
 
 	NetSendCmdString(-1);
 }

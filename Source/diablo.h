@@ -75,7 +75,6 @@ extern int dbgqst;
 extern int dbgmon;
 #endif
 extern BOOL FriendlyMode;
-extern char spszMsgTbl[MAX_QUICK_MSGS][MAX_SEND_STR_LEN];
 
 #ifdef __cplusplus
 }

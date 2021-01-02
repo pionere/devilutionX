@@ -850,32 +850,13 @@ BOOL SFileEnableDirectAccess(BOOL enable)
 void SLoadKeyMap(BYTE (&map)[256])
 {
 	char entryKey[16];
-	char entryValue[MAX_SEND_STR_LEN];
+	char entryValue[8];
 	int i;
 	std::string value;
 	BOOL changed = FALSE;
 	radon::File& ini = getIni();
 	radon::Section *section;
 	radon::Key *key;
-
-	// load quick message texts
-	section = ini.getSection("NetMsg");
-	if (section == NULL) {
-		ini.addSection("NetMsg");
-		section = ini.getSection("NetMsg");
-		changed = TRUE;
-	}
-
-	for (i = 0; i < MAX_QUICK_MSGS; i++) {
-		snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", i);
-		key = section->getKey(entryKey);
-		if (key == NULL) {
-			section->addKey(radon::Key(entryKey, spszMsgTbl[i]));
-			changed = TRUE;
-			continue;
-		}
-		SStrCopy(spszMsgTbl[i], key->getStringValue().c_str(), sizeof(spszMsgTbl[i]));
-	}
 
 	// load controls
 	section = ini.getSection("Controls");
