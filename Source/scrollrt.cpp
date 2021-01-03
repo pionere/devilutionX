@@ -1242,7 +1242,7 @@ static void DrawView(int StartX, int StartY)
 	if (spselflag) {
 		DrawSpellList();
 	}
-	if (GetAsyncKeyState(DVL_VK_MENU)) {
+	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
 		DrawInfoStr();
 	}
 	if (dropGoldFlag) {

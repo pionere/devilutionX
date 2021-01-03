@@ -58,6 +58,7 @@ WORD tick_delay = 50;
  */
 BOOL fullscreen = TRUE;
 BOOL showintro = TRUE;
+BOOL gbShowTooltip = FALSE;
 #ifdef _DEBUG
 int DebugMonsters[10];
 BOOL visiondebug;
@@ -104,8 +105,8 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SPLBOOK, ACT_CHAR, ACT_NONE, ACT_NONE, ACT_GAMMA_INC,
 // G,            H,        I,       J,        K,        L,        M,        N,        O,        P,
   ACT_GAMMA_DEC, ACT_NONE, ACT_INV, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE,
-// Q,         R,        S,           T,        U,        V,       W,        X,        Y,        Z,
-  ACT_QUESTS, ACT_NONE, ACT_SPLLIST, ACT_NONE, ACT_NONE, ACT_VER, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ZOOM,
+// Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
+  ACT_QUESTS, ACT_NONE, ACT_SPLLIST, ACT_TOOLTIP, ACT_NONE, ACT_VER, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // NUM5,    NUM6,     NUM7,     NUM8,     NUM9,     MULT,     ADD,      SEP,      SUB,      DEC,
@@ -1214,6 +1215,9 @@ static void PressKey(int vkey)
 	case ACT_PAUSE:
 		break;
 	case ACT_ESCAPE:
+		break;
+	case ACT_TOOLTIP:
+		gbShowTooltip = !gbShowTooltip;
 		break;
 	default:
 		ASSUME_UNREACHABLE

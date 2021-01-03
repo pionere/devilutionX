@@ -3684,6 +3684,7 @@ typedef enum input_key {
 	ACT_HELP,
 	ACT_PAUSE,
 	ACT_ESCAPE,
+	ACT_TOOLTIP,
 	NUM_ACTS
 } input_key;
 

@@ -55,6 +55,7 @@ void diablo_color_cyc_logic();
 /* rdata */
 
 extern BOOL fullscreen;
+extern BOOL gbShowTooltip;
 #ifdef _DEBUG
 extern int DebugMonsters[10];
 extern BOOL visiondebug;
