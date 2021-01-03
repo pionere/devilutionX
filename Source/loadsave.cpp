@@ -604,7 +604,9 @@ static void LoadQuest(int i)
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &pQuest->_qmsg);
 #else
-	CopyChar(tbuff, &pQuest->_qmsg);
+	BYTE tmp;
+	CopyChar(tbuff, &tmp);
+	pQuest->_qmsg = tmp;
 #endif
 	CopyChar(tbuff, &pQuest->_qvar1);
 	CopyChar(tbuff, &pQuest->_qvar2);
@@ -1373,7 +1375,8 @@ static void SaveQuest(int i)
 	tbuff += 2; // Alignment
 	CopyInt(&pQuest->_qmsg, tbuff);
 #else
-	CopyChar(&pQuest->_qmsg, tbuff);
+	BYTE tmp = pQuest->_qmsg;
+	CopyChar(&tmp, tbuff);
 #endif
 	CopyChar(&pQuest->_qvar1, tbuff);
 	CopyChar(&pQuest->_qvar2, tbuff);

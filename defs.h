@@ -43,8 +43,6 @@
 
 #ifdef HELLFIRE
 #define DIABOOL					BOOLEAN
-#define GAME_NAME				"HELLFIRE"
-#define APP_NAME				"Hellfire"
 #define LOGO_DATA				"Data\\hf_logo3.CEL"
 #define LOGO_WIDTH				430
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
@@ -58,8 +56,6 @@
 #endif
 #else
 #define DIABOOL					BOOL
-#define GAME_NAME				"DIABLO"
-#define APP_NAME				"Diablo"
 #define LOGO_DATA				"Data\\Diabsmal.CEL"
 #define LOGO_WIDTH				296
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
