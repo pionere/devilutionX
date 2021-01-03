@@ -775,21 +775,6 @@ void LeftMouseDown(BOOL bShift)
 	LeftMouseCmd(bShift);
 }
 
-static void LeftMouseUp()
-{
-	gmenu_left_mouse(FALSE);
-	if (talkflag)
-		control_release_talk_btn();
-	if (panbtndown)
-		CheckBtnUp();
-	if (chrbtnactive)
-		ReleaseChrBtns();
-	if (lvlbtndown)
-		ReleaseLvlBtn();
-	if (stextflag != STORE_NONE)
-		ReleaseStoreBtn();
-}
-
 void RightMouseDown(BOOL bShift)
 {
 	assert(!gmenu_is_active());
@@ -864,14 +849,25 @@ static BOOL PressSysKey(int wParam)
 
 static void ReleaseKey(int vkey)
 {
-	if (vkey == DVL_VK_SNAPSHOT)
+	if (vkey == DVL_VK_LBUTTON) {
+		gmenu_left_mouse(FALSE);
+		if (talkflag)
+			control_release_talk_btn();
+		if (panbtndown)
+			CheckBtnUp();
+		if (chrbtnactive)
+			ReleaseChrBtns();
+		if (lvlbtndown)
+			ReleaseLvlBtn();
+		if (stextflag != STORE_NONE)
+			ReleaseStoreBtn();
+	} else if (vkey == DVL_VK_SNAPSHOT) {
 		CaptureScreen();
-	else if (vkey == DVL_VK_LBUTTON) {
-		if (sgbActionBtnDown) {
-			sgbActionBtnDown = FALSE;
-			LeftMouseUp();
-		}
-	} else if (vkey == DVL_VK_RBUTTON) {
+	}
+
+	if (WMButtonInputTransTbl[vkey] == ACT_ACT) {
+		sgbActionBtnDown = FALSE;
+	} else if (WMButtonInputTransTbl[vkey] == ACT_ALTACT) {
 		sgbAltActionBtnDown = FALSE;
 	}
 }

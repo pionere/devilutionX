@@ -869,9 +869,8 @@ void SLoadKeyMap(BYTE (&map)[256])
 			continue;
 		}
 		std::string value = key->getStringValue();
-		char* tmp;
-		int act = strtol(value.c_str(), &tmp, 10);
-		if (*tmp == '\0' && act < NUM_ACTS)
+		BYTE act = strtol(value.c_str(), NULL, 10);
+		if (act < NUM_ACTS)
 			map[i] = act;
 	}
 }
