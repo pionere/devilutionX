@@ -2403,6 +2403,7 @@ void SpawnUnique(int uid, int x, int y)
 	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
 		idx++;
 	}
+	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
 	ii = itemavail[0];
 	GetItemAttrs(ii, idx, items_get_currlevel());
@@ -2462,13 +2463,12 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 		if (item[ii]._iMagical != ITEM_QUALITY_UNIQUE)
 			ItemRndDur(ii);
 	} else {
-		if (item[ii]._iLoc != ILOC_UNEQUIPABLE) {
+		assert(item[ii]._iLoc != ILOC_UNEQUIPABLE);
 			//uid = CheckUnique(ii, iblvl, uper, recreate);
 			//if (uid >= 0) {
 			//	GetUniqueItem(ii, uid);
 			//}
-			GetUniqueItem(ii, iseed); // BUG: the second argument to GetUniqueItem should be uid.
-		}
+			GetUniqueItem(ii, iseed);
 	}
 	SetupItem(ii);
 }
