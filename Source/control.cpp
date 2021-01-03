@@ -2163,8 +2163,7 @@ void DrawTalkPan()
 	int i, off, talk_btn, color, nCel, x;
 	char *msg;
 
-	if (!talkflag)
-		return;
+	assert(talkflag);
 
 	DrawPanelBox(175, sgbPlrTalkTbl + 20, 294, 5, PANEL_X + 175, PANEL_Y + 4);
 	off = 0;
@@ -2224,13 +2223,9 @@ BOOL control_check_talk_btn()
 {
 	int i;
 
-	if (MouseX < 172 + PANEL_LEFT)
+	if (MouseX < PANEL_LEFT + 172 || MouseX > PANEL_LEFT + 233)
 		return FALSE;
-	if (MouseY < 69 + PANEL_TOP)
-		return FALSE;
-	if (MouseX > 233 + PANEL_LEFT)
-		return FALSE;
-	if (MouseY > 123 + PANEL_TOP)
+	if (MouseY < PANEL_TOP + 69 || MouseY > PANEL_TOP + 69 + 18 * lengthof(talkbtndown))
 		return FALSE;
 
 	for (i = 0; i < lengthof(talkbtndown); i++) {
@@ -2244,19 +2239,20 @@ BOOL control_check_talk_btn()
 
 void control_release_talk_btn()
 {
-	int i, p, off;
+	int i, y;
 
-	for (i = 0; i < lengthof(talkbtndown); i++)
-		talkbtndown[i] = FALSE;
-	if (MouseX >= 172 + PANEL_LEFT && MouseY >= 69 + PANEL_TOP && MouseX <= 233 + PANEL_LEFT && MouseY <= 123 + PANEL_TOP) {
-		off = (MouseY - (69 + PANEL_TOP)) / 18;
-
-		for (p = 0; p < MAX_PLRS && off != -1; p++) {
-			if (p != myplr)
-				off--;
+	if (MouseX >= PANEL_LEFT + 172  && MouseX <= PANEL_LEFT + 233) {
+		y = MouseY - (PANEL_TOP + 69);
+		for (i = 0; i < lengthof(talkbtndown); i++, y -= 18) {
+			if (talkbtndown[i] && y >= 0 && y <= 18) {
+				if (i >= myplr)
+					i++;
+				whisper[i] = !whisper[i];
+			}
 		}
-		if (p <= MAX_PLRS)
-			whisper[p - 1] = !whisper[p - 1];
+	}
+	for (i = 0; i < lengthof(talkbtndown); i++) {
+		talkbtndown[i] = FALSE;
 	}
 }
 
