@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern int itemactive[MAXITEMS];
-extern BOOL uitemflag;
 extern int itemavail[MAXITEMS];
 extern ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
@@ -75,7 +74,7 @@ BOOL DoOil(int pnum, int cii);
 #endif
 void PrintItemPower(char plidx, const ItemStruct *is);
 void DrawUniqueInfo();
-void PrintItemDetails(const ItemStruct *is);
+void DrawItemInfo();
 void SpawnSmith(int lvl);
 void SpawnPremium(int lvl);
 void SetBookLevel(int pnum, ItemStruct *is);

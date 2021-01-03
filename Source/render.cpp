@@ -342,15 +342,15 @@ void world_draw_black_tile(int sx, int sy)
  * Draws a half-transparent rectangle by blacking out odd pixels on odd lines,
  * even pixels on even lines.
  * @brief Render a transparent black rectangle
- * @param sx Screen coordinate
- * @param sy Screen coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  * @param width Rectangle width
  * @param height Rectangle height
  */
 void trans_rect(int sx, int sy, int width, int height)
 {
 	int row, col;
-	BYTE *pix = &gpBuffer[SCREENXY(sx, sy)];
+	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
 			if (((row ^ col) & 1) == 0)

@@ -125,7 +125,7 @@ void DrawDiabloMsg()
 
 	assert(gpBuffer != NULL);
 
-	trans_rect(PANEL_LEFT + 104, DIALOG_TOP - 8, 432, 54);
+	trans_rect(PANEL_X + 104, DIALOG_Y - 8, 432, 54);
 
 	SStrCopy(tempstr, MsgStrings[msgflag], sizeof(tempstr));
 	sx = PANEL_X + 101;

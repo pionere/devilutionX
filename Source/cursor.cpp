@@ -310,7 +310,6 @@ void CheckCursMove()
 	}
 	pcursinvitem = -1;
 	pcursplr = -1;
-	uitemflag = FALSE;
 	panelflag = FALSE;
 	trigflag = FALSE;
 

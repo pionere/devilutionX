@@ -8,9 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int itemactive[MAXITEMS];
-BOOL uitemflag;
 int itemavail[MAXITEMS];
-ItemStruct curruitem;
 ItemGetRecordStruct itemrecord[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct item[MAXITEMS + 1];
@@ -436,8 +434,6 @@ void InitItems()
 			SpawnNote();
 #endif
 	}
-
-	uitemflag = FALSE;
 }
 
 void CalcPlrItemVals(int pnum, BOOL Loadgfx)
@@ -3565,41 +3561,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	}
 }
 
-static void DrawUTextBack()
-{
-	CelDraw(RIGHT_PANEL_X - SPANEL_WIDTH + 24, SCREEN_Y + 327, pSTextBoxCels, 1, 271);
-	trans_rect(RIGHT_PANEL - SPANEL_WIDTH + 27, 28, 265, 297);
-}
-
-static void PrintUString(int x, int y, BOOL cjustflag, const char *str, int col)
-{
-	int len, width, sx, sy, i, k;
-	BYTE c;
-
-	sx = x + 32 + SCREEN_X;
-	sy = y * 12 + 44 + SCREEN_Y;
-	len = strlen(str);
-	k = 0;
-	if (cjustflag) {
-		width = 0;
-		for (i = 0; i < len; i++)
-			width += fontkern[fontframe[gbFontTransTbl[(BYTE)str[i]]]] + 1;
-		if (width < 257)
-			k = (257 - width) >> 1;
-		sx += k;
-	}
-
-	for (i = 0; i < len; i++) {
-		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
-		k += fontkern[c] + 1;
-		if (c != '\0' && k <= 257) {
-			PrintChar(sx, sy, c, col);
-		}
-		sx += fontkern[c] + 1;
-	}
-}
-
-static void DrawULine(int y)
+static void DrawULine()
 {
 	assert(gpBuffer != NULL);
 
@@ -3607,47 +3569,71 @@ static void DrawULine(int y)
 	BYTE *src, *dst;
 
 	src = &gpBuffer[SCREENXY(26 + RIGHT_PANEL - SPANEL_WIDTH, 25)];
-	dst = &gpBuffer[BUFFER_WIDTH * (y * 12 + 38 + SCREEN_Y) + 26 + RIGHT_PANEL_X - SPANEL_WIDTH];
+	dst = &gpBuffer[SCREENXY(26 + RIGHT_PANEL - SPANEL_WIDTH, 5 * 12 + 38)];
 
 	for (i = 0; i < 3; i++, src += BUFFER_WIDTH, dst += BUFFER_WIDTH)
-		memcpy(dst, src, 266); // BUGFIX: should be 267
+		memcpy(dst, src, 267);
 }
 
-void DrawUniqueInfo()
+static void PrintItemString(int x, int &y)
+{
+	PrintString(x, y, x + 257, tempstr, TRUE, COL_WHITE, 1);
+	y += 24;
+}
+
+static void PrintItemString(int x, int &y, const char* str)
+{
+	PrintString(x, y, x + 257, str, TRUE, COL_WHITE, 1);
+	y += 24;
+}
+
+static void PrintItemString(int x, int &y, const char* str, int col)
+{
+	PrintString(x, y, x + 257, str, TRUE, col, 1);
+	y += 24;
+}
+
+void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 {
 	const UItemStruct *uis;
-	int y;
+	char numPL;
 
-	uis = &UniqueItemList[curruitem._iUid];
-	DrawUTextBack();
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, 2, TRUE, uis->UIName, COL_GOLD);
-	DrawULine(5);
-	PrintItemPower(uis->UIPower1, &curruitem);
-	y = 6 - uis->UINumPL + 8;
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y, TRUE, tempstr, COL_WHITE);
-	if (y > 12) // uis->UINumPL <= 1
+	uis = &UniqueItemList[is->_iUid];
+	PrintItemPower(uis->UIPower1, is);
+	PrintItemString(x, y);
+	numPL = uis->UINumPL;
+	if (numPL <= 1)
 		return;
-	PrintItemPower(uis->UIPower2, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 2, TRUE, tempstr, COL_WHITE);
-	if (y > 11) // uis->UINumPL <= 2
+	PrintItemPower(uis->UIPower2, is);
+	PrintItemString(x, y);
+	if (numPL <= 2)
 		return;
-	PrintItemPower(uis->UIPower3, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 4, TRUE, tempstr, COL_WHITE);
-	if (y > 10) // uis->UINumPL <= 3
+	PrintItemPower(uis->UIPower3, is);
+	PrintItemString(x, y);
+	if (numPL <= 3)
 		return;
-	PrintItemPower(uis->UIPower4, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 6, TRUE, tempstr, COL_WHITE);
-	if (y > 9) // uis->UINumPL <= 4
+	PrintItemPower(uis->UIPower4, is);
+	PrintItemString(x, y);
+	if (numPL <= 4)
 		return;
-	PrintItemPower(uis->UIPower5, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 8, TRUE, tempstr, COL_WHITE);
-	if (y > 8) // uis->UINumPL <= 5
+	PrintItemPower(uis->UIPower5, is);
+	PrintItemString(x, y);
+	if (numPL <= 5)
 		return;
-	PrintItemPower(uis->UIPower6, &curruitem);
-	PrintUString(0 + RIGHT_PANEL - SPANEL_WIDTH, y + 10, TRUE, tempstr, COL_WHITE);
+	PrintItemPower(uis->UIPower6, is);
+	PrintItemString(x, y);
 }
 
-static void PrintItemMisc(const ItemStruct *is)
+static int ItemColor(ItemStruct *is)
+{
+	if (is->_iMagical == ITEM_QUALITY_MAGIC)
+		return COL_BLUE;
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
+		return COL_GOLD;
+	return COL_WHITE;
+}
+
+static void PrintItemMiscInfo(const ItemStruct *is, int x, int y)
 {
 	const char *desc;
 
@@ -3658,88 +3644,88 @@ static void PrintItemMisc(const ItemStruct *is)
 		break;
 	case IMISC_FULLHEAL:
 		desc = "fully recover life";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_HEAL:
 		desc = "recover partial life";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OLDHEAL:
 		desc = "recover life";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_DEADHEAL:
 		desc = "deadly heal";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_MANA:
 		desc = "recover mana";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_FULLMANA:
 		desc = "fully recover mana";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_POTEXP:
 	case IMISC_POTFORG:
 		break;
 	case IMISC_ELIXSTR:
 		desc = "increase strength";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXMAG:
 		desc = "increase magic";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXDEX:
 		desc = "increase dexterity";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXVIT:
 		desc = "increase vitality";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXWEAK:
 		desc = "decrease strength";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXDIS:
 		desc = "decrease strength";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXCLUM:
 		desc = "decrease dexterity";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_ELIXSICK:
 		desc = "decrease vitality";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_REJUV:
 		desc = "recover life and mana";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_FULLREJUV:
 		desc = "fully recover life and mana";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_USELAST:
 		break;
 	case IMISC_SCROLL:
 		desc = "Right-click to read";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 	/*case IMISC_SCROLLT:
 		desc = "Right-click to read, then";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "left-click to target";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;*/
 	case IMISC_STAFF:
 		return;
 	case IMISC_BOOK:
 		desc = "Right-click to read";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 	case IMISC_RING:
 	case IMISC_AMULET:
@@ -3752,89 +3738,89 @@ static void PrintItemMisc(const ItemStruct *is)
 		break;
 	case IMISC_OILACC:
 		desc = "increases a weapon's";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "chance to hit";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILMAST:
 		desc = "greatly increases a";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "weapon's chance to hit";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILSHARP:
 		desc = "increases a weapon's";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "damage potential";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILDEATH:
 		desc = "greatly increases a weapon's";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "damage potential - not bows";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILSKILL:
 		desc = "reduces attributes needed";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "to use armor or weapons";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILBSMTH:
 		desc = "restores 20% of an";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "item's durability";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILFORT:
 		desc = "increases an item's";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "current and max durability";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILPERM:
 		desc = "makes an item indestructible";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILHARD:
 		desc = "increases the armor class";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "of armor and shields";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILIMP:
 		desc = "greatly increases the armor";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "class of armor and shields";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		break;
 	case IMISC_OILLAST:
 		return;
 	case IMISC_MAPOFDOOM:
 		desc = "Right-click to view";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 #endif
 	case IMISC_EAR:
 		snprintf(tempstr, sizeof(tempstr), "Level : %i", is->_ivalue);
-		AddPanelString(tempstr, TRUE);
+		PrintItemString(x, y);
 		return;
 	case IMISC_SPECELIX:
 		return;
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 		desc = "Right-click to activate, then";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		desc = "left-click to place";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 	case IMISC_AURIC:
 		desc = "Doubles gold capacity";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 	case IMISC_NOTE:
 		desc = "Right click to read";
-		AddPanelString(desc, TRUE);
+		PrintItemString(x, y, desc);
 		return;
 #endif
 	default:
@@ -3842,57 +3828,72 @@ static void PrintItemMisc(const ItemStruct *is)
 	}
 
 	desc = "Right click to use";
-	AddPanelString(desc, TRUE);
+	PrintItemString(x, y, desc);
 	return;
 }
 
-void PrintItemDetails(const ItemStruct *is)
+void DrawItemInfo()
 {
-	if (is->_iClass == ICLASS_WEAPON) {
-#ifdef HELLFIRE
-		if (is->_iMinDam == is->_iMaxDam) {
-			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				snprintf(tempstr, sizeof(tempstr), "Damage: %i  Dur: %i/%i", is->_iMinDam, is->_iDurability, is->_iMaxDur);
-			else
-				snprintf(tempstr, sizeof(tempstr), "Damage: %i  Indestructible", is->_iMinDam);
-		} else
-#endif
-			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i  Dur: %i/%i", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
-			else
-				snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i  Indestructible", is->_iMinDam, is->_iMaxDam);
-		AddPanelString(tempstr, TRUE);
+	ItemStruct* is = PlrItem(myplr, pcursinvitem);
+	int x = RIGHT_PANEL_X - SPANEL_WIDTH + 32;
+	int y = SCREEN_Y + 44 + 24;
+
+	assert((DWORD)pcursinvitem < MAXITEMS);
+
+	// draw the background
+	CelDraw(x - 8, SCREEN_Y + 327, pSTextBoxCels, 1, 271);
+	trans_rect(x - 5, SCREEN_Y + 28, 265, 297);
+
+	// print the name as title
+	PrintItemString(x, y, 
+		is->_iIdentified ? is->_iIName : is->_iName, ItemColor(is));
+
+	// add separator
+	DrawULine();
+	y += 12 * 3;
+	if (is->_iClass == ICLASS_GOLD) {
+		snprintf(tempstr, sizeof(tempstr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+		PrintItemString(x, y);
+	} else if (is->_iClass == ICLASS_WEAPON) {
+		if (is->_iMinDam == is->_iMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "Damage: %i", is->_iMinDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i", is->_iMinDam, is->_iMaxDam);
+		PrintItemString(x, y);
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
 		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
 			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
-			AddPanelString(tempstr, TRUE);
+			PrintItemString(x, y);
 		}
 	} else if (is->_iClass == ICLASS_ARMOR) {
+		snprintf(tempstr, sizeof(tempstr), "Armor: %i", is->_iAC);
+		PrintItemString(x, y);
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-			snprintf(tempstr, sizeof(tempstr), "Armor: %i  Dur: %i/%i", is->_iAC, is->_iDurability, is->_iMaxDur);
-		else
-			snprintf(tempstr, sizeof(tempstr), "Armor: %i  Indestructible", is->_iAC);
-		AddPanelString(tempstr, TRUE);
+			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
+		PrintItemString(x, y);
+	} else {
+		y += 12 * 2;
 	}
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 		if (is->_iIdentified) {
 			if (is->_iPrePower != IPL_INVALID) {
 				PrintItemPower(is->_iPrePower, is);
-				AddPanelString(tempstr, TRUE);
+				PrintItemString(x, y);
 			}
 			if (is->_iSufPower != IPL_INVALID) {
 				PrintItemPower(is->_iSufPower, is);
-				AddPanelString(tempstr, TRUE);
+				PrintItemString(x, y);
 			}
 			if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-				AddPanelString("Unique Item", TRUE);
-				uitemflag = TRUE;
-				copy_pod(curruitem, *is);
+				DrawUniqueInfo(is, x, y);
 			}
 		} else {
-			AddPanelString("Not Identified", TRUE);
+			copy_cstr(tempstr, "Not Identified");
+			PrintItemString(x, y);
 		}
 	}
-	PrintItemMisc(is);
+	PrintItemMiscInfo(is, x, y);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Required:");
@@ -3902,7 +3903,7 @@ void PrintItemDetails(const ItemStruct *is)
 			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
 		if (is->_iMinDex != 0)
 			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
-		AddPanelString(tempstr, TRUE);
+		PrintItemString(x, y);
 	}
 }
 

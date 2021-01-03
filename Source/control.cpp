@@ -1233,7 +1233,7 @@ static int StringWidth(const char *str)
  * @param col text_color color value
  * @param kern Letter spacing
  */
-static void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, int col, int kern)
+void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, int col, int kern)
 {
 	BYTE c;
 	const char *tmp;
@@ -1706,6 +1706,9 @@ void DrawInfoStr()
 		yy = MouseY;
 		col = COL_WHITE;
 		DrawTooltip(infostr, xx, yy, col);
+		return;
+	} else if (pcursinvitem != -1) {
+		DrawItemInfo();
 		return;
 	} else {
 		return;

@@ -1831,7 +1831,7 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 
 char CheckInvHLight()
 {
-	int mx, my, r, ii, nGold;
+	int mx, my, r, ii;
 	ItemStruct *pi;
 	PlayerStruct *p;
 	char rv;
@@ -1911,22 +1911,6 @@ char CheckInvHLight()
 
 	if (pi->_itype == ITYPE_NONE)
 		return -1;
-
-	if (pi->_itype == ITYPE_GOLD) {
-		nGold = pi->_ivalue;
-		snprintf(infostr, sizeof(infostr), "%i gold %s", nGold, get_pieces_str(nGold));
-	} else {
-		if (pi->_iMagical == ITEM_QUALITY_MAGIC) {
-			infoclr = COL_BLUE;
-		} else if (pi->_iMagical == ITEM_QUALITY_UNIQUE) {
-			infoclr = COL_GOLD;
-		}
-		if (pi->_iIdentified)
-			copy_str(infostr, pi->_iIName);
-		else
-			copy_str(infostr, pi->_iName);
-		PrintItemDetails(pi);
-	}
 
 	return rv;
 }
