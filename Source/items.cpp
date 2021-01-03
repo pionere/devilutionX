@@ -3108,16 +3108,28 @@ void DoRecharge(int pnum, int cii)
 	}
 }
 
+static ItemStruct* PlrItem(int pnum, int cii)
+{
+	if (cii <= INVITEM_INV_LAST) {
+		if (cii < INVITEM_INV_FIRST) {
+			return &plr[pnum].InvBody[cii];
+		} else
+			return &plr[pnum].InvList[cii - INVITEM_INV_FIRST];
+	} else {
+		return &plr[pnum].SpdList[cii - INVITEM_BELT_FIRST];
+	}
+}
+
 #ifdef HELLFIRE
 BOOL DoOil(int pnum, int cii)
 {
-	PlayerStruct *p;
 	ItemStruct *is;
 	int dur, r;
 
-	p = &plr[pnum];
-	is = &p->InvBody[cii];
-	switch (p->_pOilType) {
+	is = PlrItem(pnum, cii);
+	assert(is->_itype != ITYPE_NONE);
+
+	switch (plr[pnum]._pOilType) {
 	case IMISC_OILACC:
 	case IMISC_OILMAST:
 	case IMISC_OILSHARP:
@@ -3143,7 +3155,7 @@ BOOL DoOil(int pnum, int cii)
 		break;
 	}
 
-	switch (p->_pOilType) {
+	switch (plr[pnum]._pOilType) {
 	case IMISC_OILACC:
 		if (is->_iPLToHit < 50) {
 			is->_iPLToHit += RandRange(1, 2);
