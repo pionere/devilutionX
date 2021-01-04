@@ -1259,9 +1259,6 @@ void DrawInfoBox()
 		is = &plr[myplr].HoldItem;
 		if (is->_itype == ITYPE_GOLD) {
 			snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
-		} else if (!is->_iStatFlag) {
-			ClearPanel();
-			AddPanelString("Requirements not met", TRUE);
 		} else {
 			if (is->_iIdentified)
 				copy_str(infostr, is->_iIName);

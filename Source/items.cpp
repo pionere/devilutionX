@@ -3903,7 +3903,7 @@ void DrawItemInfo()
 			cat_str(tempstr, cursor, " %i Mag", is->_iMinMag);
 		if (is->_iMinDex != 0)
 			cat_str(tempstr, cursor, " %i Dex", is->_iMinDex);
-		PrintItemString(x, y);
+		PrintItemString(x, y, tempstr, is->_iStatFlag ? COL_WHITE : COL_RED);
 	}
 }
 
