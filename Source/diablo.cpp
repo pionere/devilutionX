@@ -756,7 +756,7 @@ void LeftMouseDown(BOOL bShift)
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		if (!dropGoldFlag)
-			CheckInvItem();
+			CheckInvClick();
 		return;
 	}
 

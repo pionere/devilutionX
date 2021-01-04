@@ -329,7 +329,7 @@ void CheckCursMove()
 		return;
 	}
 	if (invflag && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		pcursinvitem = CheckInvHLight();
+		pcursinvitem = CheckInvItem();
 		return;
 	}
 	if (sbookflag && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {

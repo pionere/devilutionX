@@ -1002,7 +1002,7 @@ void HandleRightStickMotion()
  */
 void FocusOnInventory()
 {
-	SetCursorPos(InvRect[25].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2), InvRect[25].Y - (INV_SLOT_SIZE_PX / 2));
+	SetCursorPos(InvRect[SLOTXY_INV_FIRST].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2), InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
 }
 
 void plrctrls_after_check_curs_move()
@@ -1060,7 +1060,7 @@ void PerformPrimaryAction()
 			TryIconCurs(FALSE);
 			NewCursor(CURSOR_HAND);
 		} else {
-			CheckInvItem();
+			CheckInvClick();
 		}
 		return;
 	}

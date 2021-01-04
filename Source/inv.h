@@ -27,7 +27,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId);
 void inv_update_rem_item(int pnum, BYTE iv);
 void RemoveInvItem(int pnum, int iv);
 void RemoveSpdBarItem(int pnum, int iv);
-void CheckInvItem();
+void CheckInvClick();
 void CheckInvScrn();
 void InvGetItem(int pnum, int ii);
 void AutoGetItem(int pnum, int ii);
@@ -39,7 +39,8 @@ BOOL DropItem();
 void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y);
 int SyncPutItem(int pnum, int x, int y, ItemStruct *is);
-char CheckInvHLight();
+char CheckInvItem();
+char CheckInvBelt();
 BOOL UseInvItem(int cii);
 void CalculateGold(int pnum);
 

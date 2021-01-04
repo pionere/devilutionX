@@ -185,7 +185,7 @@ void DrawInv()
 	is = &p->InvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
 		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_LAST].Y;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_FIRST].Y + INV_SLOT_SIZE_PX;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -292,7 +292,7 @@ void DrawInv()
 	is = &p->InvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE) {
 		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_LEFT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_LEFT_LAST].Y;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_LEFT_FIRST].Y + 2 * INV_SLOT_SIZE_PX;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -346,7 +346,7 @@ void DrawInv()
 	is = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
 		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_FIRST].Y + 2 * INV_SLOT_SIZE_PX;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -379,7 +379,7 @@ void DrawInv()
 	is = &p->InvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
 		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_LAST].Y;
+		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_FIRST].Y + 2 * INV_SLOT_SIZE_PX;
 		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
@@ -1389,7 +1389,7 @@ void RemoveSpdBarItem(int pnum, int iv)
 	gbRedrawFlags |= REDRAW_SPEED_BAR;
 }
 
-void CheckInvItem()
+void CheckInvClick()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		CheckInvPaste(myplr, MouseX, MouseY);
@@ -1405,7 +1405,7 @@ void CheckInvScrn()
 {
 	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT
 	    && MouseY > PANEL_TOP && MouseY < 33 + PANEL_TOP) {
-		CheckInvItem();
+		CheckInvClick();
 	}
 }
 
@@ -1829,39 +1829,51 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 	return ii;
 }
 
-char CheckInvHLight()
+char CheckInvBelt()
 {
-	int mx, my, r, ii;
+	int i, x;
+
+	if (MouseY < PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y
+	 || MouseY > PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y + INV_SLOT_SIZE_PX)
+		
+	x = MouseX - (PANEL_LEFT + InvRect[SLOTXY_BELT_FIRST].X);
+	for (i = 0; i < MAXBELTITEMS && x >= 0; i++, x -= INV_SLOT_SIZE_PX) {
+		if (x < INV_SLOT_SIZE_PX) {
+			//infoclr = COL_WHITE;
+			//ClearPanel();
+			if (plr[myplr].SpdList[i]._itype != ITYPE_NONE) {
+				gbRedrawFlags |= REDRAW_SPEED_BAR;
+				return INVITEM_BELT_FIRST + i;
+			}
+		}
+	}
+	return -1;
+}
+
+static char CheckInvBody()
+{
+	int mx, my, r;
 	ItemStruct *pi;
 	PlayerStruct *p;
 	char rv;
 
 	mx = MouseX;
 	my = MouseY;
-	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
-		int xo = RIGHT_PANEL;
-		int yo = 0;
-		if (r >= SLOTXY_BELT_FIRST) {
-			xo = PANEL_LEFT;
-			yo = PANEL_TOP;
-		}
-
-		if (mx >= InvRect[r].X + xo
-		 && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && my >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
-		 && my <= InvRect[r].Y + yo) {
+	for (r = 0; r < SLOTXY_INV_FIRST; r++) {
+		if (mx >= InvRect[r].X + RIGHT_PANEL
+		 && mx <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
+		 && my >= InvRect[r].Y - INV_SLOT_SIZE_PX
+		 && my <= InvRect[r].Y) {
 			break;
 		}
 	}
 
-	if ((DWORD)r >= NUM_XY_SLOTS)
+	if (r == SLOTXY_INV_FIRST)
 		return -1;
 
-	rv = -1;
-	infoclr = COL_WHITE;
-	pi = NULL;
+	//infoclr = COL_WHITE;
+	//ClearPanel();
 	p = &plr[myplr];
-	ClearPanel();
 	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST) {
 		rv = INVLOC_HEAD;
 		pi = &p->InvBody[rv];
@@ -1890,29 +1902,57 @@ char CheckInvHLight()
 		} else {
 			rv = INVLOC_HAND_LEFT;
 		}
-	} else if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST) {
+	} else { // if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST) {
 		rv = INVLOC_CHEST;
 		pi = &p->InvBody[rv];
-	} else if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
-		r = abs(p->InvGrid[r - SLOTXY_INV_FIRST]);
-		if (r == 0)
-			return -1;
-		ii = r - 1;
-		rv = ii + INVITEM_INV_FIRST;
-		pi = &p->InvList[ii];
-	} else if (r >= SLOTXY_BELT_FIRST) {
-		r -= SLOTXY_BELT_FIRST;
-		pi = &p->SpdList[r];
-		if (pi->_itype == ITYPE_NONE)
-			return -1;
-		rv = r + INVITEM_BELT_FIRST;
-		gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 
 	if (pi->_itype == ITYPE_NONE)
 		return -1;
 
 	return rv;
+}
+
+static char CheckInvGrid()
+{
+	PlayerStruct *p;
+	int i, j, x, y;
+
+	y = MouseY - (InvRect[SLOTXY_INV_FIRST].Y - INV_SLOT_SIZE_PX);
+	assert(y >= 0);
+	for (j = 0; j < 40; j += 10, y -= INV_SLOT_SIZE_PX) {
+		if (y < INV_SLOT_SIZE_PX)
+			break;
+	}
+	if (j == 40)
+		return -1;
+	x = MouseX - (RIGHT_PANEL + InvRect[SLOTXY_INV_FIRST].X);
+	if (x < 0)
+		return -1;
+	for (i = 0; i < 10; i++, x -= INV_SLOT_SIZE_PX) {
+		if (x < INV_SLOT_SIZE_PX)
+			break;
+	}
+	if (i == 10)
+		return -1;
+
+	//infoclr = COL_WHITE;
+	//ClearPanel();
+	p = &plr[myplr];
+	i = abs(p->InvGrid[j + i]);
+	if (i == 0)
+		return -1;
+	return INVITEM_INV_FIRST + i - 1;
+}
+
+char CheckInvItem()
+{
+	assert(MouseX >= RIGHT_PANEL && MouseY >= SPANEL_HEIGHT);
+	if (MouseY >= InvRect[SLOTXY_INV_FIRST].Y - INV_SLOT_SIZE_PX) {
+		return CheckInvGrid();
+	} else {
+		return CheckInvBody();
+	}
 }
 
 static void StartGoldDrop()
