@@ -1793,12 +1793,14 @@ char CheckInvBelt()
 {
 	int i, x;
 
-	if (MouseY < PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y
-	 || MouseY > PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y + INV_SLOT_SIZE_PX)
+	if (MouseY < PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX
+	 || MouseY > PANEL_TOP + InvRect[SLOTXY_BELT_FIRST].Y) {
+		return -1;
+	}
 		
 	x = MouseX - (PANEL_LEFT + InvRect[SLOTXY_BELT_FIRST].X);
-	for (i = 0; i < MAXBELTITEMS && x >= 0; i++, x -= INV_SLOT_SIZE_PX) {
-		if (x < INV_SLOT_SIZE_PX) {
+	for (i = 0; i < MAXBELTITEMS && x >= 0; i++, x -= INV_SLOT_SIZE_PX + 1) {
+		if (x <= INV_SLOT_SIZE_PX) {
 			//infoclr = COL_WHITE;
 			//ClearPanel();
 			if (plr[myplr].SpdList[i]._itype != ITYPE_NONE) {
