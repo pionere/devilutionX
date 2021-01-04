@@ -3850,7 +3850,7 @@ void DrawItemInfo()
 
 	// add separator
 	DrawULine();
-	y += 12 * 3;
+	y += 30;
 	if (is->_iClass == ICLASS_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 		PrintItemString(x, y);
@@ -3860,8 +3860,10 @@ void DrawItemInfo()
 		else
 			snprintf(tempstr, sizeof(tempstr), "Damage: %i-%i", is->_iMinDam, is->_iMaxDam);
 		PrintItemString(x, y);
-		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
 			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
+			PrintItemString(x, y);
+		}
 		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
 			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 			PrintItemString(x, y);
@@ -3869,9 +3871,10 @@ void DrawItemInfo()
 	} else if (is->_iClass == ICLASS_ARMOR) {
 		snprintf(tempstr, sizeof(tempstr), "Armor: %i", is->_iAC);
 		PrintItemString(x, y);
-		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
 			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
-		PrintItemString(x, y);
+			PrintItemString(x, y);
+		}
 	} else {
 		y += 12 * 2;
 	}
