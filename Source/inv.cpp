@@ -1191,145 +1191,105 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
 	CalcPlrInv(pnum, TRUE);
 }
 
-static void CheckInvCut(int pnum, int mx, int my)
+static void CheckInvCut()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
 	char ii;
-	int r, i, j, offs;
+	int r, i, j;
 
-	p = &plr[pnum];
+	p = &plr[myplr];
 	if (p->_pmode > PM_WALK3) {
 		return;
 	}
 
-	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
-		int xo = RIGHT_PANEL;
-		int yo = 0;
-		if (r >= SLOTXY_BELT_FIRST) {
-			xo = PANEL_LEFT;
-			yo = PANEL_TOP;
-		}
-
-		// check which inventory rectangle the mouse is in, if any
-		if (mx >= InvRect[r].X + xo
-		 && mx <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && my >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
-		 && my <= InvRect[r].Y + yo) {
-			break;
-		}
-	}
-
-	if (r == NUM_XY_SLOTS) {
-		// not on an inventory slot rectangle
+	r = pcursinvitem;
+	if (r == -1)
 		return;
-	}
 
-	p->HoldItem._itype = ITYPE_NONE;
+	//p->HoldItem._itype = ITYPE_NONE;
 
-	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST) {
+	switch (r) {
+	case INVITEM_HEAD:
 		pi = &p->InvBody[INVLOC_HEAD];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_HEAD);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r == SLOTXY_RING_LEFT) {
+		break;
+	case INVITEM_RING_LEFT:
 		pi = &p->InvBody[INVLOC_RING_LEFT];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_RING_LEFT);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r == SLOTXY_RING_RIGHT) {
+		break;
+	case INVITEM_RING_RIGHT:
 		pi = &p->InvBody[INVLOC_RING_RIGHT];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_RING_RIGHT);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r == SLOTXY_AMULET) {
+		break;
+	case INVITEM_AMULET:
 		pi = &p->InvBody[INVLOC_AMULET];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_AMULET);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r >= SLOTXY_HAND_LEFT_FIRST && r <= SLOTXY_HAND_LEFT_LAST) {
+		break;
+	case INVITEM_HAND_LEFT:
 		pi = &p->InvBody[INVLOC_HAND_LEFT];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r >= SLOTXY_HAND_RIGHT_FIRST && r <= SLOTXY_HAND_RIGHT_LAST) {
+		break;
+	case INVITEM_HAND_RIGHT:
 		pi = &p->InvBody[INVLOC_HAND_RIGHT];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_HAND_RIGHT);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST) {
+		break;
+	case INVITEM_CHEST:
 		pi = &p->InvBody[INVLOC_CHEST];
-		if (pi->_itype == ITYPE_NONE)
-			return;
+		assert(pi->_itype != ITYPE_NONE);
 		NetSendCmdDelItem(FALSE, INVLOC_CHEST);
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-	} else if (r >= SLOTXY_INV_FIRST && r <= SLOTXY_INV_LAST) {
-		ii = p->InvGrid[r - SLOTXY_INV_FIRST];
-		if (ii == 0)
-			return;
-		if (ii < 0) {
-			ii = -ii;
-		}
-
-		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (p->InvGrid[i] == ii || p->InvGrid[i] == -ii) {
-				p->InvGrid[i] = 0;
-			}
-		}
-
-		ii--;
-
-		copy_pod(p->HoldItem, p->InvList[ii]);
-		p->_pNumInv--;
-		i = p->_pNumInv;
-		if (i > 0 && i != ii) {
-			copy_pod(p->InvList[ii], p->InvList[i]);
-
-			i++;
-			ii++;
-			for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
-				if (p->InvGrid[j] == i) {
-					p->InvGrid[j] = ii;
-				} else if (p->InvGrid[j] == -i) {
-					p->InvGrid[j] = -ii;
+		break;
+	default:
+		if (r >= INVITEM_INV_FIRST && r <= INVITEM_INV_LAST) {
+			ii = r - INVITEM_INV_FIRST;
+			for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+				if (abs(p->InvGrid[i]) == ii + 1) {
+					p->InvGrid[i] = 0;
 				}
 			}
+
+			pi = &p->InvList[ii];
+			p->_pNumInv--;
+			i = p->_pNumInv;
+			if (i > 0 && i != ii) {
+				pi = &p->InvList[i];
+				SwapItem(&p->InvList[ii], pi);
+
+				i++;
+				ii++;
+				for (j = 0; j < NUM_INV_GRID_ELEM; j++) {
+					if (p->InvGrid[j] == i) {
+						p->InvGrid[j] = ii;
+					} else if (p->InvGrid[j] == -i) {
+						p->InvGrid[j] = -ii;
+					}
+				}
+			}
+		} else { // r >= INVITEM_BELT_FIRST
+			pi = &p->SpdList[r - INVITEM_BELT_FIRST];
+			assert(pi->_itype != ITYPE_NONE);
+			gbRedrawFlags |= REDRAW_SPEED_BAR;
 		}
-	} else { // r >= SLOTXY_BELT_FIRST
-		offs = r - SLOTXY_BELT_FIRST;
-		pi = &p->SpdList[offs];
-		if (pi->_itype == ITYPE_NONE)
-			return;
-		copy_pod(p->HoldItem, *pi);
-		pi->_itype = ITYPE_NONE;
-		gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 
-	if (p->HoldItem._itype == ITYPE_GOLD) {
-		CalculateGold(pnum);
+	copy_pod(p->HoldItem, *pi);
+	if (pi->_itype == ITYPE_GOLD) {
+		CalculateGold(myplr);
 	}
+	pi->_itype = ITYPE_NONE;
 
-	CalcPlrInv(pnum, TRUE);
-	ItemStatOk(pnum, &p->HoldItem);
+	CalcPlrInv(myplr, TRUE);
+	ItemStatOk(myplr, &p->HoldItem);
 
-	if (pnum == myplr) {
-		PlaySFX(IS_IGRAB);
-		NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
-		SetCursorPos(mx - (cursW >> 1), MouseY - (cursH >> 1));
-	}
+	PlaySFX(IS_IGRAB);
+	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
+	SetCursorPos(MouseX - (cursW >> 1), MouseY - (cursH >> 1));
 }
 
 void inv_update_rem_item(int pnum, BYTE iv)
@@ -1394,7 +1354,7 @@ void CheckInvClick()
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		CheckInvPaste(myplr, MouseX, MouseY);
 	} else {
-		CheckInvCut(myplr, MouseX, MouseY);
+		CheckInvCut();
 	}
 }
 
