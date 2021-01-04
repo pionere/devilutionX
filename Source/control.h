@@ -33,7 +33,7 @@ extern int initialDropGoldValue;
 extern BOOL panbtndown;
 extern BOOL spselflag;
 
-void DrawSpellList();
+void DrawSpeedBook();
 void SetSpell();
 void SetSpeedSpell(int slot);
 void ToggleSpell(int slot);

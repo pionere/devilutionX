@@ -309,6 +309,63 @@ static void SetSpellTrans(char st)
 	}
 }
 
+static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
+{
+	PlayerStruct *p;
+	ItemStruct *pi;
+	int t, v;
+
+	p = &plr[myplr];
+	switch (st) {
+	case RSPLTYPE_SKILL:
+		snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[sn].sNameText);
+		break;
+	case RSPLTYPE_SPELL:
+		snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[sn].sNameText);
+		if (lvl > 0) {
+			snprintf(tempstr, sizeof(tempstr), "lvl%02d", lvl);
+			t = COL_WHITE;
+		} else {
+			snprintf(tempstr, sizeof(tempstr), "X");
+			t = COL_RED;
+		}
+		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, TRUE, t, 1);
+		break;
+	case RSPLTYPE_SCROLL:
+		snprintf(infostr, sizeof(infostr), "Scroll of %s", spelldata[sn].sNameText);
+		v = 0;
+		pi = p->InvList;
+		for (t = p->_pNumInv; t > 0; t--, pi++) {
+			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
+			    && pi->_iSpell == sn) {
+				v++;
+			}
+		}
+		pi = p->SpdList;
+		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
+			if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
+			    && pi->_iSpell == sn) {
+				v++;
+			}
+		}
+		snprintf(tempstr, sizeof(tempstr), "%d", v);
+		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, TRUE, COL_WHITE, 1);
+		break;
+	case RSPLTYPE_CHARGES:
+		snprintf(infostr, sizeof(infostr), "Staff of %s", spelldata[sn].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%d/%d",
+			p->InvBody[INVLOC_HAND_LEFT]._iCharges,
+			p->InvBody[INVLOC_HAND_LEFT]._iMaxCharges);
+		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, TRUE, COL_WHITE, 1);
+		break;
+	case RSPLTYPE_INVALID:
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
 /**
  * Sets the spell frame to draw and its position then draws it.
  */
@@ -316,7 +373,7 @@ void DrawSpell()
 {
 	PlayerStruct *p;
 	char st;
-	int spl, tlvl;
+	int spl, lvl;
 
 	p = &plr[myplr];
 	spl = p->_pRSpell;
@@ -328,20 +385,20 @@ void DrawSpell()
 	else if (currlevel == 0 && !spelldata[spl].sTownSpell)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		tlvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
-		if (tlvl <= 0 || !CheckSpell(myplr, spl))
+		lvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
+		if (lvl <= 0 || !CheckSpell(myplr, spl))
 			st = RSPLTYPE_INVALID;
 	}
 	SetSpellTrans(st);
 	DrawSpellCel(PANEL_X + 565, PANEL_Y + 119, pSpellCels,
 		spl != SPL_INVALID ? SpellITbl[spl] : 27, SPLICONLENGTH);
+	DrawSpellIconOverlay(spl, st, lvl, PANEL_X + 565, PANEL_Y + 119);
 }
 
-void DrawSpellList()
+void DrawSpeedBook()
 {
 	PlayerStruct *p;
-	ItemStruct *pi;
-	int i, j, x, y, c, s, t, v, lx, ly;
+	int i, j, x, y, /*c,*/ s, t, lx, ly;
 	unsigned __int64 mask, spl;
 
 	pSpell = SPL_INVALID;
@@ -350,26 +407,30 @@ void DrawSpellList()
 	y = PANEL_Y - 17;
 	ClearPanel();
 	p = &plr[myplr];
+	static_assert(RSPLTYPE_SKILL == 0, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 1.");
+	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 2.");
+	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 3.");
+	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 4.");
 	for (i = 0; i < 4; i++) {
-		switch ((spell_type)i) {
+		switch (i) {
 		case RSPLTYPE_SKILL:
 			SetSpellTrans(RSPLTYPE_SKILL);
 			mask = p->_pAblSpells;
-			c = SPLICONLAST + 3;
+			//c = SPLICONLAST + 3;
 			break;
 		case RSPLTYPE_SPELL:
 			mask = p->_pMemSpells;
-			c = SPLICONLAST + 4;
+			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_SCROLL:
 			SetSpellTrans(RSPLTYPE_SCROLL);
 			mask = p->_pScrlSpells;
-			c = SPLICONLAST + 1;
+			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
 			SetSpellTrans(RSPLTYPE_CHARGES);
 			mask = p->_pISpells;
-			c = SPLICONLAST + 2;
+			//c = SPLICONLAST + 2;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -388,73 +449,23 @@ void DrawSpellList()
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
+				//DrawSpellCel(x, y, pSpellCels, c, SPLICONLENGTH);
+				DrawSpellCel(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH);
+
 				pSpell = j;
 				pSplType = i;
 #ifdef HELLFIRE
-				if (p->_pClass == PC_MONK && j == SPL_SEARCH)
+				if (j == SPL_SEARCH && p->_pClass == PC_MONK)
 					pSplType = RSPLTYPE_SKILL;
 #endif
-				DrawSpellCel(x, y, pSpellCels, c, SPLICONLENGTH);
-#ifdef HELLFIRE
-				switch (pSplType) {
-#else
-				switch (i) {
-#endif
-				case RSPLTYPE_SKILL:
-					snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[j].sNameText);
-					break;
-				case RSPLTYPE_SPELL:
-					snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[j].sNameText);
-					if (j == SPL_HBOLT) {
-						copy_cstr(tempstr, "Damages undead only");
-						AddPanelString(tempstr, TRUE);
-					}
-					if (s <= 0)
-						copy_cstr(tempstr, "Spell Level 0 - Unusable");
-					else
-						snprintf(tempstr, sizeof(tempstr), "Spell Level %i", s);
-					AddPanelString(tempstr, TRUE);
-					break;
-				case RSPLTYPE_SCROLL:
-					snprintf(infostr, sizeof(infostr), "Scroll of %s", spelldata[j].sNameText);
-					v = 0;
-					pi = p->InvList;
-					for (t = p->_pNumInv; t > 0; t--, pi++) {
-						if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-						    && pi->_iSpell == j) {
-							v++;
-						}
-					}
-					pi = p->SpdList;
-					for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-						if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-						    && pi->_iSpell == j) {
-							v++;
-						}
-					}
-					if (v == 1)
-						copy_cstr(tempstr, "1 Scroll");
-					else
-						snprintf(tempstr, sizeof(tempstr), "%i Scrolls", v);
-					AddPanelString(tempstr, TRUE);
-					break;
-				case RSPLTYPE_CHARGES:
-					snprintf(infostr, sizeof(infostr), "Staff of %s", spelldata[j].sNameText);
-					if (p->InvBody[INVLOC_HAND_LEFT]._iCharges == 1)
-						copy_cstr(tempstr, "1 Charge");
-					else
-						snprintf(tempstr, sizeof(tempstr), "%i Charges", p->InvBody[INVLOC_HAND_LEFT]._iCharges);
-					AddPanelString(tempstr, TRUE);
-					break;
-				default:
-					ASSUME_UNREACHABLE
-					break;
-				}
+
+				DrawSpellIconOverlay(j, pSplType, s, x, y);
+
 				for (t = 0; t < 4; t++) {
 					if (p->_pSplHotKey[t] == j && p->_pSplTHotKey[t] == pSplType) {
-						DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
-						snprintf(tempstr, sizeof(tempstr), "Spell Hot Key #F%i", t + 5);
-						AddPanelString(tempstr, TRUE);
+						//DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
+						snprintf(tempstr, sizeof(tempstr), "#%d", t + 1);
+						PrintString(x + SPLICONLENGTH - 18, y - SPLICONLENGTH + 16, x + SPLICONLENGTH, tempstr, FALSE, COL_GOLD, 1);
 					}
 				}
 			}
@@ -883,7 +894,7 @@ void DrawCtrlBtns()
 }
 
 /**
- * Draws the "Speed Book": the rows of known spells for quick-setting a spell that
+ * Opens the "Speed Book": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
  */
 void DoSpeedBook()
@@ -899,6 +910,10 @@ void DoSpeedBook()
 	X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
 	Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
 	if (p->_pRSpell != SPL_INVALID) {
+		static_assert(RSPLTYPE_SKILL == 0, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 1.");
+		static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 2.");
+		static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 3.");
+		static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 4.");
 		for (i = 0; i < 4; i++) {
 			switch (i) {
 			case RSPLTYPE_SKILL:
@@ -1010,9 +1025,7 @@ void DoAutoMap()
  */
 void CheckPanelInfo()
 {
-	PlayerStruct *p;
-	ItemStruct *pi;
-	int i, c, sn;
+	int i;
 
 	panelflag = FALSE;
 	ClearPanel();
@@ -1037,63 +1050,6 @@ void CheckPanelInfo()
 		copy_cstr(infostr, "Select current spell button");
 		infoclr = COL_WHITE;
 		panelflag = TRUE;
-		p = &plr[myplr];
-		sn = p->_pRSpell;
-			switch (p->_pRSplType) {
-			case RSPLTYPE_SKILL:
-				snprintf(tempstr, sizeof(tempstr), "%s Skill", spelldata[sn].sNameText);
-				AddPanelString(tempstr, TRUE);
-				break;
-			case RSPLTYPE_SPELL:
-				snprintf(tempstr, sizeof(tempstr), "%s Spell", spelldata[sn].sNameText);
-				AddPanelString(tempstr, TRUE);
-				c = p->_pISplLvlAdd + p->_pSplLvl[sn];
-				if (c <= 0)
-					copy_cstr(tempstr, "Spell Level 0 - Unusable");
-				else
-					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", c);
-				AddPanelString(tempstr, TRUE);
-				break;
-			case RSPLTYPE_SCROLL:
-				snprintf(tempstr, sizeof(tempstr), "Scroll of %s", spelldata[sn].sNameText);
-				AddPanelString(tempstr, TRUE);
-				c = 0;
-				pi = p->InvList;
-				for (i = p->_pNumInv; i > 0; i--, pi++) {
-					if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-					    && pi->_iSpell == sn) {
-						c++;
-					}
-				}
-				pi = p->SpdList;
-				for (i = 0; i < MAXBELTITEMS; i++, pi++) {
-					if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL
-					    && pi->_iSpell == sn) {
-						c++;
-					}
-				}
-				if (c == 1)
-					copy_cstr(tempstr, "1 Scroll");
-				else
-					snprintf(tempstr, sizeof(tempstr), "%i Scrolls", c);
-				AddPanelString(tempstr, TRUE);
-				break;
-			case RSPLTYPE_CHARGES:
-				snprintf(tempstr, sizeof(tempstr), "Staff of %s", spelldata[sn].sNameText);
-				AddPanelString(tempstr, TRUE);
-				c = p->InvBody[INVLOC_HAND_LEFT]._iCharges;
-				if (c == 1)
-					copy_cstr(tempstr, "1 Charge");
-				else
-					snprintf(tempstr, sizeof(tempstr), "%i Charges", c);
-				AddPanelString(tempstr, TRUE);
-				break;
-			case RSPLTYPE_INVALID:
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
 	}
 	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT && MouseY > 4 + PANEL_TOP && MouseY < 33 + PANEL_TOP)
 		pcursinvitem = CheckInvHLight();
@@ -1688,12 +1644,12 @@ void DrawInfoStr()
 		ObjectStruct* os = &object[pcursobj];
 		x = os->_ox;
 		y = os->_oy;
-		col = COL_WHITE;
+		col = infoclr;
 	} else if (pcursmonst != -1) {
 		MonsterStruct* mon = &monster[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
-		col = COL_WHITE;
+		col = infoclr;
 	} else if (pcursplr != -1) {
 		PlayerStruct* p = &plr[pcursplr];
 		x = p->_px;
@@ -1987,7 +1943,7 @@ void DrawSpellBook()
 				if (mana != 0)
 					cat_str(tempstr, offset, "Mana: %i  ", mana);
 				if (min != -1)
-					cat_str(tempstr, offset, "Dam: %i - %i", min, max);
+					cat_str(tempstr, offset, "Dam: %i-%i", min, max);
 				else if (sn == SPL_BONESPIRIT)
 					cat_cstr(tempstr, offset, "Dam: 1/3 tgt hp");
 				PrintString(sx + SPLICONLENGTH, yp - 1, sx + SPLICONLENGTH + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);

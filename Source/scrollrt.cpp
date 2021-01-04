@@ -1240,7 +1240,7 @@ static void DrawView(int StartX, int StartY)
 		DrawQText();
 	}
 	if (spselflag) {
-		DrawSpellList();
+		DrawSpeedBook();
 	}
 	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
 		DrawInfoStr();
