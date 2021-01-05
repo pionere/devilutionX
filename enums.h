@@ -3442,17 +3442,6 @@ typedef enum item_added_effects {
 } item_added_effects;
 
 // Logical equipment locations
-typedef enum inv_body_loc {
-	INVLOC_HEAD       = 0,
-	INVLOC_RING_LEFT  = 1,
-	INVLOC_RING_RIGHT = 2,
-	INVLOC_AMULET     = 3,
-	INVLOC_HAND_LEFT  = 4,
-	INVLOC_HAND_RIGHT = 5,
-	INVLOC_CHEST      = 6,
-	NUM_INVLOC,
-} inv_body_loc;
-
 typedef enum inv_item {
 	INVITEM_HEAD       = 0,
 	INVITEM_RING_LEFT  = 1,
@@ -3467,6 +3456,17 @@ typedef enum inv_item {
 	INVITEM_BELT_LAST  = 54,
 	NUM_INVELEM
 } inv_item;
+
+typedef enum inv_body_loc {
+	INVLOC_HEAD       = INVITEM_HEAD,
+	INVLOC_RING_LEFT  = INVITEM_RING_LEFT,
+	INVLOC_RING_RIGHT = INVITEM_RING_RIGHT,
+	INVLOC_AMULET     = INVITEM_AMULET,
+	INVLOC_HAND_LEFT  = INVITEM_HAND_LEFT,
+	INVLOC_HAND_RIGHT = INVITEM_HAND_RIGHT,
+	INVLOC_CHEST      = INVITEM_CHEST,
+	NUM_INVLOC,
+} inv_body_loc;
 
 // identifiers for each of the inventory squares
 // see https://github.com/sanctuary/graphics/blob/master/inventory.png
@@ -3492,6 +3492,18 @@ typedef enum inv_xy_slot {
 	SLOTXY_BELT_LAST  = 72,
 	NUM_XY_SLOTS      = 73
 } inv_xy_slot;
+
+typedef enum inv_slot {
+	SLOT_HEAD,
+	SLOT_RING_LEFT,
+	SLOT_RING_RIGHT,
+	SLOT_AMULET,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_RIGHT,
+	SLOT_CHEST,
+	SLOT_STORAGE,
+	SLOT_BELT
+} inv_slot;
 
 typedef enum player_graphic_idx {
 	PFIDX_STAND,

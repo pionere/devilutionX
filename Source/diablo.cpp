@@ -730,7 +730,7 @@ void LeftMouseDown(BOOL bShift)
 
 	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
 		if (!talkflag)
-			CheckInvScrn();
+			CheckBeltClick();
 		DoPanBtn();
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
 			NewCursor(CURSOR_HAND);
@@ -755,8 +755,7 @@ void LeftMouseDown(BOOL bShift)
 	}
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
-		if (!dropGoldFlag)
-			CheckInvClick();
+		CheckInvClick();
 		return;
 	}
 

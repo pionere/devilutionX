@@ -531,132 +531,183 @@ void InvMove(MoveDirection dir)
 
 	// when item is on cursor, this is the real cursor XY
 	if (dir.x == MoveDirectionX_LEFT) {
-		if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_AMULET) {
-			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
-		} else if (slot == SLOTXY_RING_RIGHT) {
+		switch (InvSlotTbl[slot]) {
+		case SLOT_HEAD:			// head
+			break;				// do nothing
+		case SLOT_RING_LEFT:	// left ring
+			break;				// do nothing
+		case SLOT_RING_RIGHT:
 			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_BELT_FIRST) {
-			// do nothing
-		} else if (slot == SLOTXY_RING_LEFT) {                                        // left ring
-			                                                                          // do nothing
-		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) { // left hand
-			                                                                          // do nothing
-		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {           // head
-			                                                                          // do nothing
-		} else if (slot > SLOTXY_INV_FIRST && slot <= SLOTXY_INV_LAST) {              // general inventory
-			if (slot != SLOTXY_INV_FIRST && slot != 35 && slot != 45 && slot != 55) { // left bounds
+			break;
+		case SLOT_AMULET:
+			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
+			break;
+		case SLOT_HAND_LEFT:	// left hand
+			break;				// do nothing
+		case SLOT_HAND_RIGHT:
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_CHEST:
+			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_STORAGE:		// general inventory
+			if (((slot - SLOTXY_INV_FIRST) % 10) != 0) {
 				slot -= 1;
 				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
 			}
-		} else if (slot > SLOTXY_BELT_FIRST && slot <= SLOTXY_BELT_LAST) {            // belt
+		case SLOT_BELT: // belt
+			if (slot == SLOTXY_BELT_FIRST)
+				break;
 			slot -= 1;
 			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
 	} else if (dir.x == MoveDirectionX_RIGHT) {
-		if (slot == SLOTXY_RING_LEFT) {
-			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) {
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) { // head to amulet
+		switch (InvSlotTbl[slot]) {
+		case SLOT_HEAD: // head to amulet
 			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) { // right hand
-			                                                                            // do nothing
-		} else if (slot == SLOTXY_AMULET) {
-			// do nothing
-		} else if (slot == SLOTXY_RING_RIGHT) {
-			// do nothing
-		} else if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_LAST) {            // general inventory
-			if (slot != 34 && slot != 44 && slot != 54 && slot != SLOTXY_INV_LAST) { // right bounds
+			break;
+		case SLOT_RING_LEFT:
+			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_RING_RIGHT:
+			break;				// do nothing
+		case SLOT_AMULET:
+			break;				// do nothing
+		case SLOT_HAND_LEFT:
+			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_HAND_RIGHT:	// right hand
+			break;				// do nothing
+		case SLOT_CHEST:
+			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_STORAGE:		// general inventory
+			if (((SLOTXY_INV_LAST - slot) % 10) != 0) {
 				slot += 1;
 				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
 			}
-		} else if (slot >= SLOTXY_BELT_FIRST && slot < SLOTXY_BELT_LAST) {           // belt
-			slot += 1;
-			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_BELT:			// belt
+			if (slot == SLOTXY_BELT_LAST) {
+				x = InvRect[SLOTXY_INV_FIRST + 30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[SLOTXY_INV_FIRST + 30].Y - (INV_SLOT_SIZE_PX / 2);
+			} else {
+				slot += 1;
+				x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			}
+			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
 	}
 	if (dir.y == MoveDirectionY_UP) {
-		if (slot > 24 && slot <= 27) { // first 3 general slots
-			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= 28 && slot <= 32) { // middle 4 general slots
-			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= 33 && slot < 35) { // last 3 general slots
-			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) { // chest to head
-			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
-			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
-		} else if (slot == SLOTXY_RING_LEFT) { // left ring to left hand
+		switch (InvSlotTbl[slot]) {
+		case SLOT_HEAD:
+			break;				// do nothing
+		case SLOT_RING_LEFT: // left ring to left hand
 			x = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_LEFT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_RING_RIGHT) { // right ring to right hand
+			break;
+		case SLOT_RING_RIGHT:	// right ring to right hand
 			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) { // right hand to amulet
-			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
-			// do nothing
-		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) { // left hand to head
+			break;
+		case SLOT_AMULET:
+			break;				// do nothing
+		case SLOT_HAND_LEFT:	// left hand to head
 			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
-		} else if (slot == SLOTXY_AMULET) {
-			// do nothing
-		} else if (slot >= (SLOTXY_INV_FIRST + 10)) { // general inventory
-			slot -= 10;
-			x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_HAND_RIGHT: // right hand to amulet
+			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_CHEST: // chest to head
+			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
+			break;
+		case SLOT_STORAGE:			// general inventory
+			if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_FIRST + 2) { // first 3 general slots
+				x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
+			} else if (slot >= SLOTXY_INV_FIRST + 3 && slot <= SLOTXY_INV_FIRST + 6) { // middle 4 general slots
+				x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
+				y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
+			} else if (slot >= SLOTXY_INV_FIRST + 7 && slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
+				x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
+			} else {
+				slot -= 10;
+				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+			}
+			break;
+		case SLOT_BELT:			// belt to general inventory
+			x = InvRect[SLOTXY_INV_FIRST + 30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_INV_FIRST + 30].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
 	} else if (dir.y == MoveDirectionY_DOWN) {
-		if (slot >= SLOTXY_HEAD_FIRST && slot <= SLOTXY_HEAD_LAST) {
+		switch (InvSlotTbl[slot]) {
+		case SLOT_HEAD:
 			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_CHEST_FIRST && slot <= SLOTXY_CHEST_LAST) {
-			x = InvRect[30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[30].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HAND_LEFT_FIRST && slot <= SLOTXY_HAND_LEFT_LAST) {
-			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_RING_LEFT) {
-			x = InvRect[26].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[26].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_RING_RIGHT) {
-			x = InvRect[34].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[34].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot == SLOTXY_AMULET) {
+			break;
+		case SLOT_RING_LEFT:
+			x = InvRect[SLOTXY_INV_FIRST + 1].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_INV_FIRST + 1].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_RING_RIGHT:
+			x = InvRect[SLOTXY_INV_FIRST + 8].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_INV_FIRST + 8].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_AMULET:
 			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot >= SLOTXY_HAND_RIGHT_FIRST && slot <= SLOTXY_HAND_RIGHT_LAST) {
+			break;
+		case SLOT_HAND_LEFT:
+			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_HAND_RIGHT:
 			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
 			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
-			slot += 10;
-			x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
-		} else if (slot <= (SLOTXY_BELT_LAST - 10)) { // general inventory
-			slot += 10;
-			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_CHEST:
+			x = InvRect[SLOTXY_INV_FIRST + 5].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+			y = InvRect[SLOTXY_INV_FIRST + 5].Y - (INV_SLOT_SIZE_PX / 2);
+			break;
+		case SLOT_STORAGE:
+			if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
+				slot += 10;
+				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+			} else {
+				x = InvRect[SLOTXY_BELT_LAST].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
+				y = InvRect[SLOTXY_BELT_LAST].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			}
+			break;
+		case SLOT_BELT:
+			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
 	}
 
@@ -1055,13 +1106,22 @@ void UseBeltItem(int type)
 
 void PerformPrimaryAction()
 {
-	if (invflag) { // inventory is open
-		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
-			TryIconCurs(FALSE);
+	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
+		// panel area
+		if (!talkflag)
+			CheckBeltClick();
+		DoPanBtn();
+		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
 			NewCursor(CURSOR_HAND);
-		} else {
-			CheckInvClick();
-		}
+		return;
+	}
+
+	if (TryIconCurs(FALSE))
+		return;
+
+	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		// in inventory
+		CheckInvClick();
 		return;
 	}
 

@@ -107,9 +107,87 @@ const InvXY InvRect[] = {
 	// clang-format on
 };
 
-/* data */
+/* InvSlotXY to InvSlot map. */
+const BYTE InvSlotTbl[] = {
+	// clang-format off
+	SLOT_HEAD,
+	SLOT_HEAD,
+	SLOT_HEAD,
+	SLOT_HEAD,
+	SLOT_RING_LEFT,
+	SLOT_RING_RIGHT,
+	SLOT_AMULET,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_LEFT,
+	SLOT_HAND_RIGHT,
+	SLOT_HAND_RIGHT,
+	SLOT_HAND_RIGHT,
+	SLOT_HAND_RIGHT,
+	SLOT_HAND_RIGHT,
+	SLOT_HAND_RIGHT,
+	SLOT_CHEST,
+	SLOT_CHEST,
+	SLOT_CHEST,
+	SLOT_CHEST,
+	SLOT_CHEST,
+	SLOT_CHEST,
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 1
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 2
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 3
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_STORAGE, // inv row 4
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT,
+	SLOT_BELT 
+	// clang-format on
+};
+
 /** Specifies the starting inventory slots for placement of 2x2 items. */
-int AP2x2Tbl[10] = { 8, 28, 6, 26, 4, 24, 2, 22, 0, 20 };
+const int AP2x2Tbl[10] = { 8, 28, 6, 26, 4, 24, 2, 22, 0, 20 };
 
 void FreeInvGFX()
 {
@@ -461,23 +539,21 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE *cCels;
 
-	if (talkflag)
-		return;
-
 	DrawPanelBox(205, 21, 232, 28, PANEL_X + 205, PANEL_Y + 5);
 
 	cCels = pCursCels;
 
 	is = plr[myplr].SpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, is++) {
+	screen_x = InvRect[SLOTXY_BELT_FIRST].X + PANEL_X;
+	screen_y = InvRect[SLOTXY_BELT_FIRST].Y + PANEL_Y;
+	for (i = 0; i < MAXBELTITEMS; i++, is++, screen_x += INV_SLOT_SIZE_PX + 1) {
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-		screen_x = InvRect[i + SLOTXY_BELT_FIRST].X + PANEL_X;
-		screen_y = InvRect[i + SLOTXY_BELT_FIRST].Y + PANEL_Y;
 		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
-		frame_width = InvItemWidth[frame];
+		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
+		frame_width = INV_SLOT_SIZE_PX;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
@@ -499,7 +575,7 @@ void DrawInvBelt()
 		}
 
 		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {
-			fi = i + 49;
+			fi = i + 49; // '1' + i;
 			ff = fontframe[gbFontTransTbl[fi]];
 			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, COL_WHITE);
 		}
@@ -795,7 +871,7 @@ static int SwapItem(ItemStruct *a, ItemStruct *b)
 	return h._iCurs + CURSOR_FIRSTITEM;
 }
 
-static void CheckInvPaste(int pnum, int mx, int my)
+static void CheckInvPaste()
 {
 	PlayerStruct *p;
 	ItemStruct *holditem, *is, *wRight;
@@ -804,29 +880,22 @@ static void CheckInvPaste(int pnum, int mx, int my)
 	BOOL done;
 	int il, cn, it, iv, ig, gt;
 
-	p = &plr[pnum];
+	p = &plr[myplr];
 	holditem = &p->HoldItem;
 
-	r = holditem->_iCurs + CURSOR_FIRSTITEM;
-	sx = InvItemWidth[r];
-	sy = InvItemHeight[r];
-	i = mx + (sx >> 1);
-	j = my + (sy >> 1);
+	//r = holditem->_iCurs + CURSOR_FIRSTITEM;
+	sx = cursW; // InvItemWidth[r];
+	sy = cursH; // InvItemHeight[r];
+	i = MouseX + (sx >> 1);
+	j = MouseY + (sy >> 1);
 	sx /= INV_SLOT_SIZE_PX;
 	sy /= INV_SLOT_SIZE_PX;
 
-	for (r = 0; (DWORD)r < NUM_XY_SLOTS; r++) {
-		int xo = RIGHT_PANEL;
-		int yo = 0;
-		if (r >= SLOTXY_BELT_FIRST) {
-			xo = PANEL_LEFT;
-			yo = PANEL_TOP;
-		}
-
-		if (i >= InvRect[r].X + xo
-		 && i <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && j >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
-		 && j <= InvRect[r].Y + yo) {
+	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
+		if (i >= InvRect[r].X + RIGHT_PANEL
+		 && i <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
+		 && j >= InvRect[r].Y - INV_SLOT_SIZE_PX
+		 && j <= InvRect[r].Y) {
 			break;
 		}
 		if (r == SLOTXY_CHEST_LAST) {
@@ -835,41 +904,35 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			if ((sy & 1) == 0)
 				j -= INV_SLOT_SIZE_PX / 2;
 		}
-		if (r == SLOTXY_INV_LAST && (sy & 1) == 0)
-			j += INV_SLOT_SIZE_PX / 2;
 	}
-	if (r == NUM_XY_SLOTS)
+	if (r == SLOTXY_BELT_FIRST)
 		return;
-	il = ILOC_UNEQUIPABLE;
-	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST)
-		il = ILOC_HELM;
-	if (r >= SLOTXY_RING_LEFT && r <= SLOTXY_RING_RIGHT)
-		il = ILOC_RING;
-	if (r == SLOTXY_AMULET)
-		il = ILOC_AMULET;
-	if (r >= SLOTXY_HAND_LEFT_FIRST && r <= SLOTXY_HAND_RIGHT_LAST)
-		il = ILOC_ONEHAND;
-	if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST)
-		il = ILOC_ARMOR;
-	if (r >= SLOTXY_BELT_FIRST && r <= SLOTXY_BELT_LAST)
-		il = ILOC_BELT;
-	done = FALSE;
-	if (holditem->_iLoc == il)
-		done = TRUE;
-	if (il == ILOC_ONEHAND && holditem->_iLoc == ILOC_TWOHAND) {
-#ifdef HELLFIRE
-		if (p->_pClass != PC_BARBARIAN
-			|| (holditem->_itype != ITYPE_SWORD && holditem->_itype != ITYPE_MACE))
-#endif
-			il = ILOC_TWOHAND;
-		done = TRUE;
-	}
-	if (holditem->_iLoc == ILOC_UNEQUIPABLE && il == ILOC_BELT) {
-		if (sx == 1 && sy == 1) {
-			done = AllItemsList[holditem->_iIdx].iUsable && holditem->_iStatFlag;
-		}
-	}
 
+	switch (InvSlotTbl[r]) {
+	case SLOT_HEAD:
+		il = ILOC_HELM;
+		break;
+	case SLOT_RING_LEFT:
+	case SLOT_RING_RIGHT:
+		il = ILOC_RING;
+		break;
+	case SLOT_AMULET:
+		il = ILOC_AMULET;
+		break;
+	case SLOT_HAND_LEFT:
+	case SLOT_HAND_RIGHT:
+		il = ILOC_ONEHAND;
+		break;
+	case SLOT_CHEST:
+		il = ILOC_ARMOR;
+		break;
+	case SLOT_STORAGE:
+		il = ILOC_UNEQUIPABLE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	done = FALSE;
 	if (il == ILOC_UNEQUIPABLE) {
 		done = TRUE;
 		it = 0;
@@ -915,18 +978,26 @@ static void CheckInvPaste(int pnum, int mx, int my)
 				yy += 10;
 			}
 		}
+	} else if (il == holditem->_iLoc) {
+		done = TRUE;
+	} else if (il == ILOC_ONEHAND && holditem->_iLoc == ILOC_TWOHAND) {
+#ifdef HELLFIRE
+		if (p->_pClass != PC_BARBARIAN
+			|| (holditem->_itype != ITYPE_SWORD && holditem->_itype != ITYPE_MACE))
+#endif
+			il = ILOC_TWOHAND;
+		done = TRUE;
 	}
 
 	if (!done)
 		return;
 
-	if (il != ILOC_UNEQUIPABLE && il != ILOC_BELT && !holditem->_iStatFlag) {
+	if (il != ILOC_UNEQUIPABLE && !holditem->_iStatFlag) {
 		PlaySFX(sgSFXSets[SFXS_PLR_13][p->_pClass]);
 		return;
 	}
 
-	if (pnum == myplr)
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
+	PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
 
 	cn = CURSOR_HAND;
 	switch (il) {
@@ -1044,7 +1115,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
 			if (wRight->_itype != ITYPE_SHIELD)
 				wRight = is;
-			if (!AutoPlaceInv(pnum, wRight, TRUE))
+			if (!AutoPlaceInv(myplr, wRight, TRUE))
 				return;
 
 			wRight->_itype = ITYPE_NONE;
@@ -1119,7 +1190,7 @@ static void CheckInvPaste(int pnum, int mx, int my)
 					p->_pGold += holditem->_ivalue;
 				cn = SwapItem(&p->InvList[il], holditem);
 				if (holditem->_itype == ITYPE_GOLD)
-					CalculateGold(pnum);
+					CalculateGold(myplr);
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (p->InvGrid[i] == it)
 						p->InvGrid[i] = 0;
@@ -1146,23 +1217,59 @@ static void CheckInvPaste(int pnum, int mx, int my)
 			}
 		}
 		break;
-	case ILOC_BELT:
-		ii = r - SLOTXY_BELT_FIRST;
-		is = &p->SpdList[ii];
-		if (is->_itype == ITYPE_NONE) {
-			copy_pod(*is, *holditem);
-		} else {
-			cn = SwapItem(is, holditem);
+	default:
+		ASSUME_UNREACHABLE
+	}
+	CalcPlrInv(myplr, TRUE);
+	if (cn == CURSOR_HAND)
+		SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+	NewCursor(cn);
+}
+
+static void CheckBeltPaste()
+{
+	ItemStruct *holditem, *is;
+	int r, i, j, cn;
+
+	i = MouseX + INV_SLOT_SIZE_PX / 2;
+	j = MouseY + INV_SLOT_SIZE_PX / 2;
+
+	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
+		if (i >= InvRect[r].X + PANEL_LEFT
+		 && i <= InvRect[r].X + PANEL_LEFT + INV_SLOT_SIZE_PX
+		 && j >= InvRect[r].Y + PANEL_TOP - INV_SLOT_SIZE_PX
+		 && j <= InvRect[r].Y + PANEL_TOP) {
+			break;
 		}
-		gbRedrawFlags |= REDRAW_SPEED_BAR;
-		break;
 	}
-	CalcPlrInv(pnum, TRUE);
-	if (pnum == myplr) {
-		if (cn == CURSOR_HAND)
-			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
-		NewCursor(cn);
+	if (r > SLOTXY_BELT_LAST)
+		return;
+
+	holditem = &plr[myplr].HoldItem;
+
+	// BUGFIX: TODO why is _iLoc not set to ILOC_BELT?
+	if (holditem->_iLoc != ILOC_BELT
+	 && (holditem->_iLoc != ILOC_UNEQUIPABLE
+		 || cursW != INV_SLOT_SIZE_PX || cursH != INV_SLOT_SIZE_PX
+		 || !AllItemsList[holditem->_iIdx].iUsable)) {
+		return;
 	}
+	
+	PlaySFX(ItemInvSnds[ItemCAnimTbl[holditem->_iCurs]]);
+
+	is = &plr[myplr].SpdList[r - SLOTXY_BELT_FIRST];
+	cn = CURSOR_HAND;
+	if (is->_itype == ITYPE_NONE) {
+		copy_pod(*is, *holditem);
+	} else {
+		cn = SwapItem(is, holditem);
+	}
+	gbRedrawFlags |= REDRAW_SPEED_BAR;
+	CalcPlrScrolls(myplr);
+	//CalcPlrInv(myplr, TRUE);
+	if (cn == CURSOR_HAND)
+		SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+	NewCursor(cn);
 }
 
 void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, BOOL bId)
@@ -1352,7 +1459,7 @@ void RemoveSpdBarItem(int pnum, int iv)
 void CheckInvClick()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
-		CheckInvPaste(myplr, MouseX, MouseY);
+		CheckInvPaste();
 	} else {
 		CheckInvCut();
 	}
@@ -1361,11 +1468,12 @@ void CheckInvClick()
 /**
  * Check for interactions with belt
  */
-void CheckInvScrn()
+void CheckBeltClick()
 {
-	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT
-	    && MouseY > PANEL_TOP && MouseY < 33 + PANEL_TOP) {
-		CheckInvClick();
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		CheckBeltPaste();
+	} else {
+		CheckInvCut();
 	}
 }
 
@@ -1812,109 +1920,84 @@ char CheckInvBelt()
 	return -1;
 }
 
-static char CheckInvBody()
+char CheckInvItem()
 {
-	int mx, my, r;
+	int r;
 	ItemStruct *pi;
 	PlayerStruct *p;
 	char rv;
 
-	mx = MouseX;
-	my = MouseY;
-	for (r = 0; r < SLOTXY_INV_FIRST; r++) {
-		if (mx >= InvRect[r].X + RIGHT_PANEL
-		 && mx <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && my >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && my <= InvRect[r].Y) {
+	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
+		if (MouseX >= InvRect[r].X + RIGHT_PANEL
+		 && MouseX <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
+		 && MouseY >= InvRect[r].Y - INV_SLOT_SIZE_PX
+		 && MouseY <= InvRect[r].Y) {
 			break;
 		}
 	}
 
-	if (r == SLOTXY_INV_FIRST)
-		return -1;
-
 	//infoclr = COL_WHITE;
 	//ClearPanel();
 	p = &plr[myplr];
-	if (r >= SLOTXY_HEAD_FIRST && r <= SLOTXY_HEAD_LAST) {
-		rv = INVLOC_HEAD;
+	switch (InvSlotTbl[r]) {
+	case SLOT_HEAD:
+		rv = INVITEM_HEAD;
+		static_assert(INVLOC_HEAD == INVITEM_HEAD, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		break;
+	case SLOT_RING_LEFT:
+		rv = INVITEM_RING_LEFT;
+		static_assert(INVLOC_RING_LEFT == INVITEM_RING_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		break;
+	case SLOT_RING_RIGHT:
+		rv = INVITEM_RING_RIGHT;
+		static_assert(INVLOC_RING_RIGHT == INVITEM_RING_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		break;
+	case SLOT_AMULET:
+		rv = INVITEM_AMULET;
+		static_assert(INVLOC_AMULET == INVITEM_AMULET, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		break;
+	case SLOT_HAND_LEFT:
+		rv = INVITEM_HAND_LEFT;
+		static_assert(INVLOC_HAND_LEFT == INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		break;
+	case SLOT_HAND_RIGHT:
+		rv = INVITEM_HAND_LEFT;
+		static_assert(INVLOC_HAND_LEFT == INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		pi = &p->InvBody[rv];
-	} else if (r == SLOTXY_RING_LEFT) {
-		rv = INVLOC_RING_LEFT;
-		pi = &p->InvBody[rv];
-	} else if (r == SLOTXY_RING_RIGHT) {
-		rv = INVLOC_RING_RIGHT;
-		pi = &p->InvBody[rv];
-	} else if (r == SLOTXY_AMULET) {
-		rv = INVLOC_AMULET;
-		pi = &p->InvBody[rv];
-	} else if (r >= SLOTXY_HAND_LEFT_FIRST && r <= SLOTXY_HAND_LEFT_LAST) {
-		rv = INVLOC_HAND_LEFT;
-		pi = &p->InvBody[rv];
-	} else if (r >= SLOTXY_HAND_RIGHT_FIRST && r <= SLOTXY_HAND_RIGHT_LAST) {
-		pi = &p->InvBody[INVLOC_HAND_LEFT];
 #ifdef HELLFIRE
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND
 		    || (p->_pClass == PC_BARBARIAN && (pi->_itype == ITYPE_SWORD || pi->_itype == ITYPE_MACE))) {
 #else
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND) {
 #endif
-			rv = INVLOC_HAND_RIGHT;
-			pi = &p->InvBody[rv];
-		} else {
-			rv = INVLOC_HAND_LEFT;
+			rv = INVITEM_HAND_RIGHT;
+			static_assert(INVLOC_HAND_RIGHT == INVITEM_HAND_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		}
-	} else { // if (r >= SLOTXY_CHEST_FIRST && r <= SLOTXY_CHEST_LAST) {
-		rv = INVLOC_CHEST;
+		break;
+	case SLOT_CHEST:
+		rv = INVITEM_CHEST;
+		static_assert(INVLOC_CHEST == INVITEM_CHEST, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		pi = &p->InvBody[rv];
+		break;
+	case SLOT_STORAGE:
+		r = p->InvGrid[r - SLOTXY_INV_FIRST];
+		if (r == 0)
+			return -1;
+		r = abs(r) - 1;
+		rv = INVITEM_INV_FIRST + r;
+		pi = &p->InvList[rv];
+		return pi->_itype == ITYPE_NONE ? -1 : rv;
+	case SLOT_BELT:
+		return -1;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
+	pi = &p->InvBody[rv];
 	if (pi->_itype == ITYPE_NONE)
 		return -1;
 
 	return rv;
-}
-
-static char CheckInvGrid()
-{
-	PlayerStruct *p;
-	int i, j, x, y;
-
-	y = MouseY - (InvRect[SLOTXY_INV_FIRST].Y - INV_SLOT_SIZE_PX);
-	assert(y >= 0);
-	for (j = 0; j < 40; j += 10, y -= INV_SLOT_SIZE_PX) {
-		if (y < INV_SLOT_SIZE_PX)
-			break;
-	}
-	if (j == 40)
-		return -1;
-	x = MouseX - (RIGHT_PANEL + InvRect[SLOTXY_INV_FIRST].X);
-	if (x < 0)
-		return -1;
-	for (i = 0; i < 10; i++, x -= INV_SLOT_SIZE_PX) {
-		if (x < INV_SLOT_SIZE_PX)
-			break;
-	}
-	if (i == 10)
-		return -1;
-
-	//infoclr = COL_WHITE;
-	//ClearPanel();
-	p = &plr[myplr];
-	i = abs(p->InvGrid[j + i]);
-	if (i == 0)
-		return -1;
-	return INVITEM_INV_FIRST + i - 1;
-}
-
-char CheckInvItem()
-{
-	assert(MouseX >= RIGHT_PANEL && MouseY >= SPANEL_HEIGHT);
-	if (MouseY >= InvRect[SLOTXY_INV_FIRST].Y - INV_SLOT_SIZE_PX) {
-		return CheckInvGrid();
-	} else {
-		return CheckInvBody();
-	}
 }
 
 static void StartGoldDrop()

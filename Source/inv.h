@@ -14,6 +14,7 @@ extern "C" {
 
 extern BOOL invflag;
 extern const InvXY InvRect[NUM_XY_SLOTS];
+extern const BYTE InvSlotTbl[NUM_XY_SLOTS];
 
 void FreeInvGFX();
 void InitInv();
@@ -28,7 +29,7 @@ void inv_update_rem_item(int pnum, BYTE iv);
 void RemoveInvItem(int pnum, int iv);
 void RemoveSpdBarItem(int pnum, int iv);
 void CheckInvClick();
-void CheckInvScrn();
+void CheckBeltClick();
 void InvGetItem(int pnum, int ii);
 void AutoGetItem(int pnum, int ii);
 int FindGetItem(WORD idx, WORD ci, int iseed);
