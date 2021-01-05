@@ -737,7 +737,7 @@ void LoadGame(BOOL firstflag)
 	nobjects = _nobjects;
 
 	for (i = 0; i < MAXMONSTERS; i++)
-		monstkills[i] = LoadInt();
+		tbuff += 4; // Skip monstkills[i]
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
@@ -1470,7 +1470,7 @@ void SaveGame()
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		SaveInt(glSeedTbl[i]);
-		tbuff += 4; // Skip gnLevelTypeTbl
+		tbuff += 4; // Skip gnLevelTypeTbl[i]
 	}
 
 	SavePlayer(myplr);
@@ -1480,7 +1480,7 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);
 	for (i = 0; i < MAXMONSTERS; i++)
-		SaveInt(monstkills[i]);
+		tbuff += 4; // Skip monstkills[i]
 
 	if (leveltype != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)

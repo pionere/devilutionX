@@ -10,9 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Tracks which missile files are already loaded */
 int MissileFileFlag;
 
-// BUGFIX: replace monstkills[MAXMONSTERS] with monstkills[NUM_MTYPES].
-/** Tracks the total number of monsters killed per monster_id. */
-int monstkills[MAXMONSTERS];
 int monstactive[MAXMONSTERS];
 int nummonsters;
 BOOLEAN sgbSaveSoundOn;
@@ -1743,7 +1740,6 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	monstkills[mon->_mType]++;
 	mon->_mhitpoints = 0;
 
 	if (mnum >= MAX_PLRS) {
@@ -1800,7 +1796,6 @@ static void M2MStartKill(int offm, int defm)
 	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
 	NetSendCmdLocParam1(FALSE, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
 
-	monstkills[dmon->_mType]++;
 	dmon->_mhitpoints = 0;
 
 	if (defm >= MAX_PLRS) {
@@ -5085,94 +5080,6 @@ void MonFallenFear(int x, int y)
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
 		}
 	}
-}
-
-void PrintMonstHistory(int mt)
-{
-	int minHP, maxHP, res;
-
-	snprintf(tempstr, sizeof(tempstr), "Total kills: %i", monstkills[mt]);
-	AddPanelString(tempstr, TRUE);
-	if (monstkills[mt] >= 30) {
-		minHP = monsterdata[mt].mMinHP;
-		maxHP = monsterdata[mt].mMaxHP;
-		if (gbMaxPlayers == 1) {
-			minHP >>= 1;
-			maxHP >>= 1;
-		}
-		if (minHP < 1)
-			minHP = 1;
-		if (maxHP < 1)
-			maxHP = 1;
-		if (gnDifficulty == DIFF_NIGHTMARE) {
-			minHP = 3 * minHP + 1;
-			maxHP = 3 * maxHP + 1;
-		}
-		if (gnDifficulty == DIFF_HELL) {
-			minHP = 4 * minHP + 3;
-			maxHP = 4 * maxHP + 3;
-		}
-		snprintf(tempstr, sizeof(tempstr), "Hit Points: %i-%i", minHP, maxHP);
-		AddPanelString(tempstr, TRUE);
-	}
-	if (monstkills[mt] >= 15) {
-		if (gnDifficulty != DIFF_HELL)
-			res = monsterdata[mt].mMagicRes;
-		else
-			res = monsterdata[mt].mMagicRes2;
-		res = res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
-		if (!res) {
-			copy_cstr(tempstr, "No magic resistance");
-			AddPanelString(tempstr, TRUE);
-		} else {
-			if (res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING)) {
-				int cursor = 0;
-				cat_cstr(tempstr, cursor, "Resists:");
-				if (res & RESIST_MAGIC)
-					cat_cstr(tempstr, cursor, " Magic");
-				if (res & RESIST_FIRE)
-					cat_cstr(tempstr, cursor, " Fire");
-				if (res & RESIST_LIGHTNING)
-					cat_cstr(tempstr, cursor, " Lightning");
-				AddPanelString(tempstr, TRUE);
-			}
-			if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
-				int cursor = 0;
-				cat_cstr(tempstr, cursor, "Immune:");
-				if (res & IMMUNE_MAGIC)
-					cat_cstr(tempstr, cursor, " Magic");
-				if (res & IMMUNE_FIRE)
-					cat_cstr(tempstr, cursor, " Fire");
-				if (res & IMMUNE_LIGHTNING)
-					cat_cstr(tempstr, cursor, " Lightning");
-				AddPanelString(tempstr, TRUE);
-			}
-		}
-	}
-}
-
-void PrintUniqueHistory(int mnum)
-{
-	int res;
-
-	res = monster[mnum].mMagicRes & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING | IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING);
-	if (!res) {
-		copy_cstr(tempstr, "No resistances");
-		AddPanelString(tempstr, TRUE);
-		copy_cstr(tempstr, "No Immunities");
-	} else {
-		if (res & (RESIST_MAGIC | RESIST_FIRE | RESIST_LIGHTNING))
-			copy_cstr(tempstr, "Some Magic Resistances");
-		else
-			copy_cstr(tempstr, "No resistances");
-		AddPanelString(tempstr, TRUE);
-		if (res & (IMMUNE_MAGIC | IMMUNE_FIRE | IMMUNE_LIGHTNING)) {
-			copy_cstr(tempstr, "Some Magic Immunities");
-		} else {
-			copy_cstr(tempstr, "No Immunities");
-		}
-	}
-	AddPanelString(tempstr, TRUE);
 }
 
 void MissToMonst(int mi, int x, int y)
