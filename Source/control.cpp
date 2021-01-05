@@ -1627,6 +1627,40 @@ static void DrawTooltip(const char* text, int x, int y, char col)
 	PrintGameStr(x + border, y + height - 3, text, col);
 }
 
+static void DrawHealthBar(int hp, int maxhp, int x, int y)
+{
+	BYTE *dst;
+	const int height = 5, width = 66;
+	int h, dhp, w, dw;
+
+	if (maxhp == 0)
+		return;
+
+	y -= TILE_HEIGHT / 2 + 1;
+	if (y < 0)
+		return;
+	x -= width / 2;
+	if (x < 0)
+		x = 0;
+	else if (x > SCREEN_WIDTH - width)
+		x = SCREEN_WIDTH - width;
+
+	// draw gray border
+	dst = &gpBuffer[SCREENXY(x, y)];
+	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_GRAY + 2, width);
+
+	// draw the bar
+	//width = (width - 2) * hp / maxhp;
+	dhp = maxhp >> 3;
+	dw = ((width - 2) >> 3);
+	for (w = 0, h = 0; h < hp; h += dhp, w += dw) {
+	}
+	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
+	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_RED + 6, w);
+}
+
 void DrawInfoStr()
 {
 	int x, y, xx, yy;
@@ -1639,14 +1673,18 @@ void DrawInfoStr()
 		col = DrawItemColor(is);
 	} else if (pcursobj != -1) {
 		ObjectStruct* os = &object[pcursobj];
-		x = os->_ox;
-		y = os->_oy;
+		x = os->_ox - 1;
+		y = os->_oy - 1;
 		col = infoclr;
 	} else if (pcursmonst != -1) {
 		MonsterStruct* mon = &monster[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
 		col = infoclr;
+		GetMousePos(x, y, &xx, &yy);
+		DrawTooltip(infostr, xx, yy, col);
+		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
+		return;
 	} else if (pcursplr != -1) {
 		PlayerStruct* p = &plr[pcursplr];
 		x = p->_px;
