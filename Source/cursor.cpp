@@ -27,6 +27,13 @@ char pcursitem;
 char pcursobj;
 /** Current highlighted player */
 char pcursplr;
+/* Current highlighted trigger
+ * 0 - MAXTRIGGERS : standard triggers
+ *  MAXTRIGGERS    : cornerstone
+ * MAXTRIGGERS+1...: missile-id of townportals
+ * -2 ...          : quest-id
+ */
+int pcurstrig;
 /** Current highlighted tile row */
 int cursmx;
 /** Current highlighted tile column */
@@ -181,19 +188,7 @@ void CheckTownPortal()
 			int dy = cursmy - (mis->_miy - 1);
 			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
 				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
-				trigflag = TRUE;
-				ClearPanel();
-				if (mis->_miType == MIS_TOWN) {
-					copy_cstr(infostr, "Town Portal");
-					snprintf(tempstr, sizeof(tempstr), "from %s", plr[mis->_miSource]._pName);
-				} else {
-					copy_cstr(infostr, "Portal to");
-					if (!setlevel)
-						copy_cstr(tempstr, "The Unholy Altar");
-					else
-						copy_cstr(tempstr, "level 15");
-				}
-				AddPanelString(tempstr, TRUE);
+				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				cursmx = mis->_mix;
 				cursmy = mis->_miy;
 			}
@@ -310,8 +305,8 @@ void CheckCursMove()
 	}
 	pcursinvitem = -1;
 	pcursplr = -1;
+	pcurstrig = -1;
 	panelflag = FALSE;
-	trigflag = FALSE;
 
 	if (plr[myplr]._pInvincible) {
 		return;

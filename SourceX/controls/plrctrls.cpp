@@ -361,10 +361,6 @@ void FindActor()
 		CheckPlayerNearby();
 }
 
-int pcursmissile;
-int pcurstrig;
-int pcursquest;
-
 void FindTrigger()
 {
 	int rotations;
@@ -381,20 +377,20 @@ void FindTrigger()
 			const int newDdistance = GetDistance(mix, miy, 2);
 			if (newDdistance == 0)
 				continue;
-			if (pcursmissile != -1 && distance < newDdistance)
+			if (pcurstrig != -1 && distance < newDdistance)
 				continue;
 			const int newRotations = GetRotaryDistance(mix, miy);
-			if (pcursmissile != -1 && distance == newDdistance && rotations < newRotations)
+			if (pcurstrig != -1 && distance == newDdistance && rotations < newRotations)
 				continue;
 			cursmx = mix;
 			cursmy = miy;
-			pcursmissile = mi;
+			pcurstrig = MAXTRIGGERS + mi + 1;
 			distance = newDdistance;
 			rotations = newRotations;
 		}
 	}
 
-	if (pcursmissile == -1) {
+	if (pcurstrig == -1) {
 		for (int i = 0; i < numtrigs; i++) {
 			int tx = trigs[i]._tx;
 			int ty = trigs[i]._ty;
@@ -417,7 +413,7 @@ void FindTrigger()
 					continue;
 				cursmx = quests[i]._qtx;
 				cursmy = quests[i]._qty;
-				pcursquest = i;
+				pcurstrig = -2 - i;
 			}
 		}
 	}
@@ -1067,9 +1063,7 @@ void plrctrls_after_check_curs_move()
 		pcursmonst = -1;
 		pcursitem = -1;
 		pcursobj = -1;
-		pcursmissile = -1;
 		pcurstrig = -1;
-		pcursquest = -1;
 		cursmx = -1;
 		cursmy = -1;
 		if (!invflag) {
@@ -1251,14 +1245,16 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(TRUE, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 	} else if (pcursobj != -1) {
 		NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
-	} else if (pcursmissile != -1) {
-		MakePlrPath(myplr, missile[pcursmissile]._mix, missile[pcursmissile]._miy, TRUE);
-		plr[myplr].destAction = ACTION_WALK;
 	} else if (pcurstrig != -1) {
-		MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
-		plr[myplr].destAction = ACTION_WALK;
-	} else if (pcursquest != -1) {
-		MakePlrPath(myplr, quests[pcursquest]._qtx, quests[pcursquest]._qty, TRUE);
+		if (pcurstrig >= MAXTRIGGERS + 1) {
+			int mi = pcurstrig - (MAXTRIGGERS + 1);
+			MakePlrPath(myplr, missile[mi]._mix, missile[mi]._miy, TRUE);
+		} else if (pcurstrig >= 0) {
+			MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
+		} else {
+			int qn = 2 - pcurstrig;
+			MakePlrPath(myplr, quests[qn]._qtx, quests[qn]._qty, TRUE);
+		}
 		plr[myplr].destAction = ACTION_WALK;
 	}
 }

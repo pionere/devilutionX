@@ -23,6 +23,7 @@ extern char pcursinvitem;
 extern char pcursitem;
 extern char pcursobj;
 extern char pcursplr;
+extern int pcurstrig;
 extern int cursmx;
 extern int cursmy;
 extern int pcurs;

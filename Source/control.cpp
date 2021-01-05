@@ -1248,12 +1248,12 @@ void DrawInfoBox()
 	ItemStruct *is;
 
 	DrawPanelBox(177, 62, 288, 60, PANEL_X + 177, PANEL_Y + 46);
-	if (!panelflag && !trigflag && pcursinvitem == -1 && !spselflag) {
+	if (!panelflag && pcurstrig == -1 && pcursinvitem == -1 && !spselflag) {
 		infostr[0] = '\0';
 		infoclr = COL_WHITE;
 		ClearPanel();
 	}
-	if (spselflag || trigflag) {
+	if (spselflag || pcurstrig != -1) {
 		infoclr = COL_WHITE;
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
 		is = &plr[myplr].HoldItem;
@@ -1544,6 +1544,50 @@ void DrawLevelUpIcon()
 	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, lvlbtndown + 2, 41);
 }
 
+static void DrawTpTooltip(int x, int y)
+{
+	int width;
+	BYTE *dst;
+	const int border = 4, height = 24;
+	const int col = COL_WHITE;
+	char* text1 = infostr;
+	char* text2 = tempstr;
+	int w1 = StringWidth(text1);
+	int w2 = StringWidth(text2);
+
+	width = std::max(w1, w2) + 2 * border;
+
+	y -= TILE_HEIGHT;
+	if (y < 0)
+		return;
+	x -= width / 2;
+	if (x < 0)
+		x = 0;
+	else if (x > SCREEN_WIDTH - width)
+		x = SCREEN_WIDTH - width;
+
+	// draw gray border
+	dst = &gpBuffer[SCREENXY(x, y)];
+	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_GRAY + 2, width);
+
+	// draw background
+	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
+	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+		memset(dst, PAL16_ORANGE + 14, width - 2);
+
+	// print the info
+	if (w1 > w2) {
+		w2 = (w1 - w2) >> 1;
+		w1 = 0;
+	} else {
+		w1 = (w2 - w1) >> 1;
+		w2 = 0;
+	}
+	PrintGameStr(x + border + w1, y + height - 12, text1, col);
+	PrintGameStr(x + border + w2, y + height - 2, text2, col);
+}
+
 /*
  * Return the screen position of the given tile (x;y).
  *
@@ -1658,6 +1702,136 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 		memset(dst, PAL16_RED + 6, w);
 }
 
+static void DrawTrigInfo()
+{
+	int xx, yy;
+
+	if (pcurstrig >= MAXTRIGGERS + 1) {
+		// portal
+		MissileStruct *mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
+		if (mis->_miType == MIS_TOWN) {
+			copy_cstr(infostr, "Town Portal");
+			snprintf(tempstr, sizeof(tempstr), "(%s)", plr[mis->_miSource]._pName);
+			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
+			DrawTpTooltip(xx, yy);
+		} else {
+			if (!setlevel) {
+				copy_cstr(infostr, "Portal to The Unholy Altar");
+			} else {
+				copy_cstr(infostr, "Portal to level 15");
+			}
+			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
+			DrawTooltip(infostr, xx, yy, COL_WHITE);
+		}
+		return;
+	} else if (pcurstrig == MAXTRIGGERS) {
+		// cornerstone
+		copy_cstr(infostr, "Cornerstone of the World");
+	} else if (pcurstrig >= 0) {
+		// standard trigger
+		switch (trigs[pcurstrig]._tmsg) {
+		case WM_DIABNEXTLVL:
+			if (currlevel == 0)
+				copy_cstr(infostr, "Down to dungeon");
+			else if (currlevel == 15)
+				copy_cstr(infostr, "Down to Diablo");
+#ifdef HELLFIRE
+			else if (currlevel >= 21)
+				snprintf(infostr, sizeof(infostr), "Down to Crypt level %i", currlevel - 19);
+			else if (currlevel >= 17)
+				snprintf(infostr, sizeof(infostr), "Down to Nest level %i", currlevel - 15);
+#endif
+			else
+				snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+			break;
+		case WM_DIABPREVLVL:
+			if (currlevel == 1)
+				copy_cstr(infostr, "Up to town");
+#ifdef HELLFIRE
+			else if (currlevel >= 21)
+				snprintf(infostr, sizeof(infostr), "Up to Crypt level %i", currlevel - 21);
+			else if (currlevel >= 17)
+				snprintf(infostr, sizeof(infostr), "Up to Nest level %i", currlevel - 17);
+#endif
+			else
+				snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+			break;
+		case WM_DIABRTNLVL:
+			assert(setlevel);
+			switch (setlvlnum) {
+			case SL_SKELKING:
+				xx = Q_SKELKING;
+				break;
+			case SL_BONECHAMB:
+				xx = Q_SCHAMB;
+				break;
+			case SL_POISONWATER:
+				xx = Q_PWATER;
+				break;
+			default:
+				app_fatal("Unrecognized setlevel %d to return.", setlvlnum);
+			}
+			snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[xx]._qlevel);
+			break;
+		case WM_DIABTOWNWARP:
+			switch (pcurstrig) {
+			/*case TWARP_CATHEDRAL:
+				copy_cstr(infostr, "Down to dungeon");
+				break;*/
+			case TWARP_CATACOMB:
+				copy_cstr(infostr, "Down to catacombs");
+				break;
+			case TWARP_CAVES:
+				copy_cstr(infostr, "Down to caves");
+				break;
+			case TWARP_HELL:
+				copy_cstr(infostr, "Down to hell");
+				break;
+#ifdef HELLFIRE
+			case TWARP_HIVE:
+				copy_cstr(infostr, "Down to Hive");
+				break;
+			case TWARP_CRYPT:
+				copy_cstr(infostr, "Down to Crypt");
+				break;
+#endif
+			default:
+				ASSUME_UNREACHABLE
+			}
+			break;
+		case WM_DIABTWARPUP:
+			copy_cstr(infostr, "Up to town");
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+	} else {
+		// quest trigger
+		switch (quests[quests[2 - pcurstrig]._qidx]._qslvl) {
+		case 1:
+			copy_cstr(infostr, "To King Leoric's Tomb");
+			break;
+		case 2:
+			copy_cstr(infostr, "To The Chamber of Bone");
+			break;
+		case 3:
+			copy_cstr(infostr, "To Maze");
+			break;
+		case 4:
+			copy_cstr(infostr, "To A Dark Passage");
+			break;
+		case 5:
+			copy_cstr(infostr, "To Unholy Altar");
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+	}
+
+	GetMousePos(cursmx - 1, cursmy - 1, &xx, &yy);
+	DrawTooltip(infostr, xx, yy, COL_WHITE);
+}
+
 void DrawInfoStr()
 {
 	int x, y, xx, yy;
@@ -1697,6 +1871,9 @@ void DrawInfoStr()
 		return;
 	} else if (pcursinvitem != -1) {
 		DrawItemInfo();
+		return;
+	} else if (pcurstrig != -1) {
+		DrawTrigInfo();
 		return;
 	} else {
 		return;

@@ -63,13 +63,6 @@ const char questxoff[7] = { 0, -1, 0, -1, -2, -1, -2 };
  * which the hover text of the cursor will be visible.
  */
 const char questyoff[7] = { 0, 0, -1, -1, -1, -2, -2 };
-const char *const questtrigstr[5] = {
-	"King Leoric's Tomb",
-	"The Chamber of Bone",
-	"Maze",
-	"A Dark Passage",
-	"Unholy Altar"
-};
 /**
  * A quest group containing the three quests the Butcher,
  * Ogden's Sign and Gharbad the Weak, which ensures that exactly
@@ -261,37 +254,35 @@ void CheckQuests()
 	}
 }
 
-BOOL ForceQuests()
+int ForceQuests()
 {
-	int i, j, qx, qy, ql;
+	int i, j, qx, qy;
 
 #ifdef SPAWN
-	return FALSE;
+	return -1;
 #endif
 
 	if (gbMaxPlayers != 1) {
-		return FALSE;
+		return -1;
 	}
 
 	for (i = 0; i < MAXQUESTS; i++) {
 		if (i != Q_BETRAYER && currlevel == quests[i]._qlevel && quests[i]._qslvl != 0) {
-			ql = quests[quests[i]._qidx]._qslvl - 1;
 			qx = quests[i]._qtx;
 			qy = quests[i]._qty;
 
 			static_assert(lengthof(questxoff) == lengthof(questyoff), "Mismatching questoff tables.");
 			for (j = 0; j < lengthof(questxoff); j++) {
 				if (qx + questxoff[j] == cursmx && qy + questyoff[j] == cursmy) {
-					snprintf(infostr, sizeof(infostr), "To %s", questtrigstr[ql]);
 					cursmx = qx;
 					cursmy = qy;
-					return TRUE;
+					return -2 - i;
 				}
 			}
 		}
 	}
 
-	return FALSE;
+	return -1;
 }
 
 BOOL QuestStatus(int qn)

@@ -23,7 +23,7 @@ extern int ReturnLvl;
 
 void InitQuests();
 void CheckQuests();
-BOOL ForceQuests();
+int ForceQuests();
 BOOL QuestStatus(int qn);
 void CheckQuestKill(int mnum, BOOL sendmsg);
 void DRLG_CheckQuests(int x, int y);
