@@ -13,9 +13,9 @@ extern "C" {
 #endif
 
 extern DWORD msgdelay;
-extern char msgflag;
+extern BYTE currmsg;
 
-void InitDiabloMsg(char e);
+void InitDiabloMsg(BYTE e);
 void ClrDiabloMsg();
 void DrawDiabloMsg();
 

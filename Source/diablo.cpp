@@ -894,7 +894,7 @@ BOOL PressEscKey()
 		rv = TRUE;
 	}
 
-	if (msgflag) {
+	if (currmsg != EMSG_NONE) {
 		msgdelay = 0;
 		rv = TRUE;
 	}
@@ -1092,7 +1092,7 @@ static void PressKey(int vkey)
 		UseInvItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		break;
 	case ACT_AUTOMAP:
-		DoAutoMap();
+		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
 		if (automapflag) {

@@ -1251,7 +1251,7 @@ static void DrawView(int StartX, int StartY)
 	if (helpflag) {
 		DrawHelp();
 	}
-	if (msgflag) {
+	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
 	}
 	if (deathflag) {

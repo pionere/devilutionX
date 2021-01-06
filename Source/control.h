@@ -51,7 +51,6 @@ void DrawCtrlBtns();
 void DoSpeedBook();
 void DoPanBtn();
 void control_check_btn_press();
-void DoAutoMap();
 void CheckPanelInfo();
 void CheckBtnUp();
 void FreeControlPan();

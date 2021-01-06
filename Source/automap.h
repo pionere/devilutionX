@@ -25,7 +25,7 @@ extern int AmLine4;
 
 void InitAutomapOnce();
 void InitAutomap();
-void StartAutomap();
+void ToggleAutomap();
 void AutomapUp();
 void AutomapDown();
 void AutomapLeft();

@@ -1007,18 +1007,6 @@ void control_check_btn_press()
 	}
 }
 
-void DoAutoMap()
-{
-	if (currlevel != 0 || gbMaxPlayers != 1) {
-		if (!automapflag)
-			StartAutomap();
-		else
-			automapflag = FALSE;
-	} else {
-		InitDiabloMsg(EMSG_NO_AUTOMAP_IN_TOWN);
-	}
-}
-
 /**
  * Checks the mouse cursor position within the control panel and sets information
  * strings if needed.
@@ -1097,7 +1085,7 @@ void CheckBtnUp()
 				questlog = FALSE;
 			break;
 		case PANBTN_AUTOMAP:
-			DoAutoMap();
+			ToggleAutomap();
 			break;
 		case PANBTN_MAINMENU:
 			qtextflag = FALSE;

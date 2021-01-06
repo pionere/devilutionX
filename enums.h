@@ -2432,6 +2432,7 @@ typedef enum diablo_message {
 	EMSG_SHRINE_SOLAR3          = 52,
 	EMSG_SHRINE_SOLAR4          = 53,
 	EMSG_SHRINE_MURPHYS         = 54,
+	NUM_EMSGS
 } diablo_message;
 
 typedef enum magic_type {

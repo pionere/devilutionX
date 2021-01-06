@@ -7,9 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-char msgtable[MAX_SEND_STR_LEN];
+char msgtable[NUM_EMSGS];
 DWORD msgdelay;
-char msgflag;
+BYTE currmsg;
 char msgcnt;
 
 /** Maps from error_id to error message. */
@@ -73,7 +73,7 @@ const char *const MsgStrings[] = {
 #endif
 };
 
-void InitDiabloMsg(char e)
+void InitDiabloMsg(BYTE e)
 {
 	int i;
 
@@ -88,7 +88,7 @@ void InitDiabloMsg(char e)
 	msgtable[msgcnt] = e;
 	msgcnt++;
 
-	msgflag = msgtable[0];
+	currmsg = msgtable[0];
 	msgdelay = SDL_GetTicks();
 }
 
@@ -96,7 +96,7 @@ void ClrDiabloMsg()
 {
 	memset(msgtable, 0, sizeof(msgtable));
 
-	msgflag = 0;
+	currmsg = EMSG_NONE;
 	msgcnt = 0;
 }
 
@@ -127,7 +127,7 @@ void DrawDiabloMsg()
 
 	trans_rect(PANEL_X + 104, DIALOG_Y - 8, 432, 54);
 
-	SStrCopy(tempstr, MsgStrings[msgflag], sizeof(tempstr));
+	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
 	sx = PANEL_X + 101;
 	sy = DIALOG_Y + 24;
 	len = strlen(tempstr);
@@ -155,9 +155,9 @@ void DrawDiabloMsg()
 	if (msgdelay == 0) {
 		msgcnt--;
 		if (msgcnt == 0) {
-			msgflag = 0;
+			currmsg = EMSG_NONE;
 		} else {
-			msgflag = msgtable[msgcnt];
+			currmsg = msgtable[msgcnt];
 			msgdelay = SDL_GetTicks();
 		}
 	}

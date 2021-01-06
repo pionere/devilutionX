@@ -123,13 +123,17 @@ void InitAutomap()
 }
 
 /**
- * @brief Displays the automap.
+ * @brief Display/Hides the automap.
  */
-void StartAutomap()
+void ToggleAutomap()
 {
-	AutoMapXOfs = 0;
-	AutoMapYOfs = 0;
-	automapflag = TRUE;
+	if (!automapflag) {
+		AutoMapXOfs = 0;
+		AutoMapYOfs = 0;
+		automapflag = TRUE;
+	} else {
+		automapflag = FALSE;
+	}
 }
 
 /**
@@ -591,19 +595,20 @@ static void DrawAutomapText()
 {
 	char desc[256];
 	int nextline = 20;
+	const char *dstr;
 
 	if (gbMaxPlayers != 1) {
 		snprintf(desc, sizeof(desc), "game: %s", szPlayerName);
-		PrintGameStr(8, 20, desc, COL_GOLD);
-		nextline = 35;
+		PrintGameStr(8, nextline, desc, COL_GOLD);
+		nextline += 15;
 		if (szPlayerDescript[0] != '\0') {
 			snprintf(desc, sizeof(desc), "password: %s", szPlayerDescript);
-			PrintGameStr(8, 35, desc, COL_GOLD);
-			nextline = 50;
+			PrintGameStr(8, nextline, desc, COL_GOLD);
+			nextline += 15;
 		}
 	}
 	if (setlevel) {
-		PrintGameStr(8, nextline, quest_level_names[(BYTE)setlvlnum], COL_GOLD);
+		dstr = quest_level_names[setlvlnum];
 	} else if (currlevel != 0) {
 #ifdef HELLFIRE
 		if (currlevel >= 17 && currlevel <= 24) {
@@ -614,8 +619,11 @@ static void DrawAutomapText()
 		} else
 #endif
 			snprintf(desc, sizeof(desc), "Level: %i", currlevel);
-		PrintGameStr(8, nextline, desc, COL_GOLD);
+		dstr = desc;
+	} else {
+		dstr = "Tristram";
 	}
+	PrintGameStr(8, nextline, dstr, COL_GOLD);
 }
 
 /**
