@@ -1889,9 +1889,7 @@ static void timeout_cursor(BOOL bTimeout)
 		if ((sgnTimeoutCurs | sgbActionBtnDown | sgbAltActionBtnDown) == 0) {
 			sgnTimeoutCurs = pcurs;
 			multi_net_ping();
-			ClearPanel();
-			AddPanelString("-- Network timeout --", TRUE);
-			AddPanelString("-- Waiting for players --", TRUE);
+			InitDiabloMsg(EMSG_DESYNC);
 			NewCursor(CURSOR_HOURGLASS);
 			gbRedrawFlags = REDRAW_ALL;
 		}
