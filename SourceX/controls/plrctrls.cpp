@@ -1252,7 +1252,7 @@ void PerformSecondaryAction()
 		} else if (pcurstrig >= 0) {
 			MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
 		} else {
-			int qn = 2 - pcurstrig;
+			int qn = -2 - pcurstrig;
 			MakePlrPath(myplr, quests[qn]._qtx, quests[qn]._qty, TRUE);
 		}
 		plr[myplr].destAction = ACTION_WALK;

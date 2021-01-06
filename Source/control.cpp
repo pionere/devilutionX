@@ -1807,20 +1807,20 @@ static void DrawTrigInfo()
 		}
 	} else {
 		// quest trigger
-		switch (quests[quests[2 - pcurstrig]._qidx]._qslvl) {
-		case 1:
+		switch (quests[quests[-2 - pcurstrig]._qidx]._qslvl) {
+		case SL_SKELKING:
 			copy_cstr(infostr, "To King Leoric's Tomb");
 			break;
-		case 2:
+		case SL_BONECHAMB:
 			copy_cstr(infostr, "To The Chamber of Bone");
 			break;
-		case 3:
+		case SL_MAZE:
 			copy_cstr(infostr, "To Maze");
 			break;
-		case 4:
+		case SL_POISONWATER:
 			copy_cstr(infostr, "To A Dark Passage");
 			break;
-		case 5:
+		case SL_VILEBETRAYER:
 			copy_cstr(infostr, "To Unholy Altar");
 			break;
 		default:
