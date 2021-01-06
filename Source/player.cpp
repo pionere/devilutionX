@@ -1021,9 +1021,9 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	if (debug_mode_key_inverted_v && FirstTime) {
 		p->_pMemSpells = SPL_INVALID;
 	} else if (debug_mode_god_mode && FirstTime) {
-		p->_pMemSpells |= 1 << (SPL_TELEPORT - 1);
-		if (plr[myplr]._pSplLvl[SPL_TELEPORT] == 0) {
-			plr[myplr]._pSplLvl[SPL_TELEPORT] = 1;
+		p->_pMemSpells |= SPELL_MASK(SPL_TELEPORT);
+		if (p->_pSplLvl[SPL_TELEPORT] == 0) {
+			p->_pSplLvl[SPL_TELEPORT] = 1;
 		}
 	}
 #endif

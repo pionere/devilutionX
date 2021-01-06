@@ -2257,8 +2257,6 @@ static void DRLG_L3(int entry)
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 2);
 				if (entry == ENTRY_PREV) {
-					if (currlevel == 20)
-						app_fatal("Entry Prev in l3 lvl 20?");
 					ViewX += 2;
 					ViewY -= 2;
 				}

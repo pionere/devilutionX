@@ -32,14 +32,15 @@ char storehidx[STORAGE_LIMIT];
 BYTE *pSTextSlidCels;
 int stextvhold;
 int stextsel;
-char stextscrldbtn;
 int gossipend;
 BYTE *pSPentSpn2Cels;
 int stextsidx;
 int boylevel;
 ItemStruct smithitem[SMITH_ITEMS];
 int stextdown;
+/* Animation helpers for the slider buttons. */
 char stextscrlubtn;
+char stextscrldbtn;
 char stextflag;
 
 /** Maps from towner IDs to NPC names. */
