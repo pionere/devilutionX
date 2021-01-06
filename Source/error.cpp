@@ -85,7 +85,7 @@ void InitDiabloMsg(BYTE e)
 			return;
 	}
 
-	msgtable[msgcnt] = e;
+	msgtable[msgcnt] = e; // BUGFIX: missing out-of-bounds check (fixed)
 	msgcnt++;
 
 	currmsg = msgtable[0];

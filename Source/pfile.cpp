@@ -207,55 +207,12 @@ void pfile_flush_W()
 	pfile_flush(TRUE, pfile_get_save_num_from_name(plr[myplr]._pName));
 }
 
-static char pfile_get_player_class(unsigned int player_class_nr)
-{
-	char pc_class;
-
-	if (player_class_nr == UI_WARRIOR)
-		pc_class = PC_WARRIOR;
-	else if (player_class_nr == UI_ROGUE)
-		pc_class = PC_ROGUE;
-#ifdef HELLFIRE
-	else if (player_class_nr == UI_MONK)
-		pc_class = PC_MONK;
-	else if (player_class_nr == UI_BARD)
-		pc_class = PC_BARD;
-	else if (player_class_nr == UI_BARBARIAN)
-		pc_class = PC_BARBARIAN;
-#endif
-	else
-		pc_class = PC_SORCERER;
-	return pc_class;
-}
-
-
-static BYTE game_2_ui_class(const PlayerStruct *p)
-{
-	BYTE uiclass;
-	if (p->_pClass == PC_WARRIOR)
-		uiclass = UI_WARRIOR;
-	else if (p->_pClass == PC_ROGUE)
-		uiclass = UI_ROGUE;
-#ifdef HELLFIRE
-	else if (p->_pClass == PC_MONK)
-		uiclass = UI_MONK;
-	else if (p->_pClass == PC_BARD)
-		uiclass = UI_BARD;
-	else if (p->_pClass == PC_BARBARIAN)
-		uiclass = UI_BARBARIAN;
-#endif
-	else
-		uiclass = UI_SORCERER;
-
-	return uiclass;
-}
-
 void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile)
 {
 	memset(heroinfo, 0, sizeof(*heroinfo));
 	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
 	heroinfo->level = p->_pLevel;
-	heroinfo->heroclass = game_2_ui_class(p);
+	heroinfo->heroclass = p->_pClass;
 	heroinfo->strength = p->_pStrength;
 	heroinfo->magic = p->_pMagic;
 	heroinfo->dexterity = p->_pDexterity;
@@ -310,22 +267,17 @@ BOOL pfile_archive_contains_game(HANDLE hsArchive, DWORD save_num)
 	return TRUE;
 }
 
-BOOL pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
+void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
 {
-	int c;
-
-	c = pfile_get_player_class(player_class_nr);
-	class_stats->strength = StrengthTbl[c];
-	class_stats->magic = MagicTbl[c];
-	class_stats->dexterity = DexterityTbl[c];
-	class_stats->vitality = VitalityTbl[c];
-	return TRUE;
+	class_stats->strength = StrengthTbl[player_class_nr];
+	class_stats->magic = MagicTbl[player_class_nr];
+	class_stats->dexterity = DexterityTbl[player_class_nr];
+	class_stats->vitality = VitalityTbl[player_class_nr];
 }
 
 BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 {
 	DWORD save_num;
-	char cl;
 	PkPlayerStruct pkplr;
 
 	save_num = pfile_get_save_num_from_name(heroinfo->name);
@@ -349,8 +301,7 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 		return FALSE;
 	mpqapi_remove_hash_entries(pfile_get_file_name);
 	copy_str(hero_names[save_num], heroinfo->name);
-	cl = pfile_get_player_class(heroinfo->heroclass);
-	CreatePlayer(0, cl);
+	CreatePlayer(0, heroinfo->heroclass);
 	copy_str(plr[0]._pName, heroinfo->name);
 	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);

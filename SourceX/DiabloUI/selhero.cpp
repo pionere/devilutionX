@@ -90,8 +90,8 @@ static void selhero_SetStats()
 {
 	int heroclass = selhero_heroInfo.heroclass;
 #ifdef HELLFIRE
-	if (heroclass == UI_BARBARIAN)
-		heroclass = UI_WARRIOR;
+	if (heroclass == PC_BARBARIAN)
+		heroclass = PC_WARRIOR; // The graphics is missing from heros.pcx
 #endif
 	SELHERO_DIALOG_HERO_IMG->m_frame = heroclass;
 	snprintf(textStats[0], sizeof(textStats[0]), "%d", selhero_heroInfo.level);
@@ -147,7 +147,11 @@ void selhero_Init()
 	vecSelHeroDialog.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 30, (UI_OFFSET_Y + 211), 180, 76 };
-	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, UI_NUM_CLASSES, rect2);
+#ifdef HELLFIRE
+	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, 5, rect2);
+#else
+	SELHERO_DIALOG_HERO_IMG = new UiImage(&ArtHero, NUM_CLASSES, rect2);
+#endif
 	vecSelHeroDialog.push_back(SELHERO_DIALOG_HERO_IMG);
 
 	SDL_Rect rect3 = { PANEL_LEFT + 39, (UI_OFFSET_Y + 323), 110, 21 };
@@ -231,7 +235,7 @@ void selhero_List_Focus(int value)
 #ifdef HELLFIRE
 	SELHERO_DIALOG_HERO_IMG->m_frame = 5;
 #else
-	SELHERO_DIALOG_HERO_IMG->m_frame = UI_NUM_CLASSES;
+	SELHERO_DIALOG_HERO_IMG->m_frame = NUM_CLASSES;
 #endif
 	snprintf(textStats[0], sizeof(textStats[0]), "--");
 	snprintf(textStats[1], sizeof(textStats[1]), "--");
@@ -259,13 +263,13 @@ void selhero_List_Select(int value)
 
 		selhero_FreeListItems();
 		int itemH = 33;
-		vecSelHeroDlgItems.push_back(new UiListItem("Warrior", UI_WARRIOR));
-		vecSelHeroDlgItems.push_back(new UiListItem("Rogue", UI_ROGUE));
-		vecSelHeroDlgItems.push_back(new UiListItem("Sorcerer", UI_SORCERER));
+		vecSelHeroDlgItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
+		vecSelHeroDlgItems.push_back(new UiListItem("Rogue", PC_ROGUE));
+		vecSelHeroDlgItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
 #ifdef HELLFIRE
-		vecSelHeroDlgItems.push_back(new UiListItem("Monk", UI_MONK));
-		vecSelHeroDlgItems.push_back(new UiListItem("Bard", UI_BARD));
-		vecSelHeroDlgItems.push_back(new UiListItem("Barbarian", UI_BARBARIAN));
+		vecSelHeroDlgItems.push_back(new UiListItem("Monk", PC_MONK));
+		vecSelHeroDlgItems.push_back(new UiListItem("Bard", PC_BARD));
+		vecSelHeroDlgItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 
 		itemH = 26;
 #endif
@@ -336,7 +340,7 @@ void selhero_ClassSelector_Select(int value)
 {
 	int hClass = vecSelHeroDlgItems[value]->m_value;
 #ifdef SPAWN
-	if (hClass != UI_WARRIOR) {
+	if (hClass != PC_WARRIOR) {
 		ArtBackground.Unload();
 		UiSelOkDialog(NULL, "The Rogue and Sorcerer are only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.", false);
 		LoadBackgroundArt("ui_art\\selhero.pcx");

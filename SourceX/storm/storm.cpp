@@ -31,9 +31,10 @@ std::string *SBasePath = NULL;
 static bool IsSVidVideoMode = false;
 #endif
 
-radon::File& getIni() {
-  static radon::File ini(GetConfigPath() + "diablo.ini");
-  return ini;
+radon::File &getIni()
+{
+	static radon::File ini(GetConfigPath() + "diablo.ini");
+	return ini;
 }
 
 static Mix_Chunk *SFileChunk = NULL;
@@ -348,7 +349,7 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 
 void setIniValue(const char *sectionName, const char *keyName, char *value, int len)
 {
-	radon::File& ini = getIni();
+	radon::File &ini = getIni();
 
 	radon::Section *section = ini.getSection(sectionName);
 	if (section == NULL) {
@@ -707,7 +708,7 @@ BOOL SVidPlayContinue(void)
 			return false;
 		}
 #else
-	sVidAudioQueue->Enqueue(smk_get_audio(SVidSMK, 0), smk_get_audio_size(SVidSMK, 0));
+		sVidAudioQueue->Enqueue(smk_get_audio(SVidSMK, 0), smk_get_audio_size(SVidSMK, 0));
 #endif
 	}
 
@@ -815,7 +816,8 @@ void SVidPlayEnd(HANDLE video)
 		}
 	}
 #else
-	if (IsSVidVideoMode) SetVideoModeToPrimary(IsFullScreen(), screenWidth, screenHeight);
+	if (IsSVidVideoMode)
+		SetVideoModeToPrimary(IsFullScreen(), screenWidth, screenHeight);
 #endif
 }
 
@@ -838,7 +840,8 @@ void SStrCopy(char *dest, const char *src, int max_length)
 
 BOOL SFileSetBasePath(const char *path)
 {
-	if (SBasePath == NULL) SBasePath = new std::string;
+	if (SBasePath == NULL)
+		SBasePath = new std::string;
 	*SBasePath = path;
 	return true;
 }

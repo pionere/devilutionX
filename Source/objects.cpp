@@ -291,7 +291,7 @@ void FreeObjectGFX()
 	numobjfiles = 0;
 }
 
-static DIABOOL RndLocOk(int xp, int yp)
+static BOOLEAN RndLocOk(int xp, int yp)
 {
 	if ((dMonster[xp][yp] | dPlayer[xp][yp] | dObject[xp][yp]
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
@@ -301,7 +301,7 @@ static DIABOOL RndLocOk(int xp, int yp)
 	return FALSE;
 }
 
-static DIABOOL WallTrapLocOk(int xp, int yp)
+static BOOLEAN WallTrapLocOk(int xp, int yp)
 {
 	if (dFlags[xp][yp] & BFLAG_POPULATED)
 		return FALSE;
@@ -368,7 +368,7 @@ static void InitRndLocBigObj(int min, int max, int objtype)
 
 static void InitRndLocObj5x5(int min, int max, int objtype)
 {
-	DIABOOL exit;
+	BOOLEAN exit;
 	int xp, yp, numobjs, i, tries, m, n;
 
 	numobjs = RandRange(min, max - 1);
@@ -448,7 +448,7 @@ static void AddCandles()
 
 static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int msg)
 {
-	DIABOOL exit;
+	BOOLEAN exit;
 	int xp, yp, oi, tries, m, n;
 
 	tries = 0;
@@ -580,7 +580,7 @@ static void AddL3Objs(int x1, int y1, int x2, int y2)
 	}
 }
 
-static DIABOOL TorchLocOk(int xp, int yp)
+static BOOLEAN TorchLocOk(int xp, int yp)
 {
 	return (dFlags[xp][yp] & BFLAG_POPULATED) == 0;
 }
@@ -700,7 +700,7 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 	InitObjFlag = TRUE;
 
 	lm = pMap;
-	rw = lm[0];
+	rw = *lm;
 	lm += 2;
 	rh = *lm;
 	mapoff = (rw * rh + 1) * 2;
@@ -778,7 +778,7 @@ static void AddDiabObjs()
 #ifdef HELLFIRE
 static void AddLvl2xBooks(int bookidx)
 {
-	DIABOOL exit;
+	BOOLEAN exit;
 	int xp, yp, tries, i, j;
 
 	tries = 0;
@@ -853,7 +853,7 @@ static void AddLvl24Books()
 static void AddStoryBooks()
 {
 	int xp, yp, xx, yy, tries;
-	DIABOOL done;
+	BOOLEAN done;
 
 	tries = 0;
 	done = FALSE;
@@ -940,7 +940,7 @@ static void AddL4Goodies()
 static void AddLazStand()
 {
 	int xp, yp, xx, yy, tries;
-	DIABOOL found;
+	BOOLEAN found;
 
 	tries = 0;
 	found = FALSE;
@@ -1368,7 +1368,7 @@ static void AddShrine(int oi)
 {
 	ObjectStruct *os;
 	int i, val;
-	DIABOOL slist[NUM_SHRINETYPE];
+	BOOLEAN slist[NUM_SHRINETYPE];
 	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
 	for (i = 0; i < NUM_SHRINETYPE; i++) {
@@ -1552,7 +1552,7 @@ static void AddTorturedBody(int oi)
 
 static void GetRndObjLoc(int randarea, int *xx, int *yy)
 {
-	DIABOOL failed;
+	BOOLEAN failed;
 	int i, j, tries;
 
 	assert(randarea > 0);
@@ -1790,7 +1790,7 @@ void Obj_Light(int oi, int lr)
 {
 	ObjectStruct *os;
 	int ox, oy, dx, dy, i, tr;
-	DIABOOL turnon;
+	BOOLEAN turnon;
 
 	os = &object[oi];
 	if (os->_oVar1 != -1) {
@@ -2833,7 +2833,7 @@ static void OperateLever(int pnum, int oi)
 {
 	ObjectStruct *os, *on;
 	int i;
-	DIABOOL mapflag;
+	BOOLEAN mapflag;
 
 	os = &object[oi];
 	if (os->_oSelFlag != 0) {
@@ -2871,7 +2871,7 @@ static void OperateBook(int pnum, int oi)
 	ObjectStruct *os, *on;
 	int i;
 	int dx, dy;
-	DIABOOL missile_added;
+	BOOLEAN missile_added;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
@@ -2997,7 +2997,7 @@ static void OperateSChambBk(int pnum, int oi)
 	}
 }
 
-static void OperateChest(int pnum, int oi, DIABOOL sendmsg)
+static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 	int i, mdir, mtype;
@@ -3101,7 +3101,7 @@ static void OperateInnSignChest(int pnum, int oi)
 	}
 }
 
-static void OperateSlainHero(int pnum, int oi, DIABOOL sendmsg)
+static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 	char pc;
@@ -3166,7 +3166,7 @@ static void OperateTrapLvr(int oi)
 	}
 }
 
-static void OperateSarc(int pnum, int oi, DIABOOL sendmsg)
+static void OperateSarc(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3887,22 +3887,19 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			return;
 		time_t tm = time(0);
 		int hour = localtime(&tm)->tm_hour;
+		// BUGFIX: no change if hour is 4?
 		if (hour > 20 || hour < 4) {
 			InitDiabloMsg(EMSG_SHRINE_SOLAR4);
 			ModifyPlrVit(myplr, 2);
-		} else if (hour <= 18) {
-			if (hour <= 12) {
-				if (hour > 4) {
-					InitDiabloMsg(EMSG_SHRINE_SOLAR1);
-					ModifyPlrDex(myplr, 2);
-				}
-			} else {
-				InitDiabloMsg(EMSG_SHRINE_SOLAR2);
-				ModifyPlrStr(myplr, 2);
-			}
-		} else {
+		} else if (hour > 18) {
 			InitDiabloMsg(EMSG_SHRINE_SOLAR3);
 			ModifyPlrMag(myplr, 2);
+		} else if (hour > 12) {
+			InitDiabloMsg(EMSG_SHRINE_SOLAR2);
+			ModifyPlrStr(myplr, 2);
+		} else if (hour > 4) {
+			InitDiabloMsg(EMSG_SHRINE_SOLAR1);
+			ModifyPlrDex(myplr, 2);
 		}
 	} break;
 	case SHRINE_MURPHYS:
@@ -3941,7 +3938,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		NetSendCmdParam2(FALSE, CMD_PLROPOBJ, pnum, oi);
 }
 
-static void OperateSkelBook(int pnum, int oi, DIABOOL sendmsg)
+static void OperateSkelBook(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3960,7 +3957,7 @@ static void OperateSkelBook(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-static void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
+static void OperateBookCase(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3987,7 +3984,7 @@ static void OperateBookCase(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-static void OperateDecap(int pnum, int oi, DIABOOL sendmsg)
+static void OperateDecap(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -4003,7 +4000,7 @@ static void OperateDecap(int pnum, int oi, DIABOOL sendmsg)
 	}
 }
 
-static void OperateArmorStand(int pnum, int oi, DIABOOL sendmsg)
+static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 	int itype;
@@ -4185,7 +4182,7 @@ static void OperateFountains(int pnum, int oi)
 	gbRedrawFlags = REDRAW_ALL;
 }
 
-static void OperateWeaponRack(int pnum, int oi, DIABOOL sendmsg)
+static void OperateWeaponRack(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -4627,19 +4624,36 @@ static void SyncL1Doors(int oi)
 	y = os->_oy;
 	os->_oMissFlag = TRUE;
 	os->_oSelFlag = 2;
-	if (os->_otype == OBJ_L1LDOOR) {
-		if (os->_oVar1 == 214)
-			ObjSetMicro(x, y, 408);
-		else
-			ObjSetMicro(x, y, 393);
-		dSpecial[x][y] = 7;
-		objects_set_door_piece(x - 1, y);
-		y--;
-	} else {
-		ObjSetMicro(x, y, 395);
-		dSpecial[x][y] = 8;
-		objects_set_door_piece(x, y - 1);
-		x--;
+#ifdef HELLFIRE
+	if (currlevel >= 17) {
+		if (os->_otype == OBJ_L1LDOOR) {
+			ObjSetMicro(x, y, 206);
+			dSpecial[x][y] = 1;
+			objects_set_door_piece(x - 1, y);
+			y--;
+		} else {
+			ObjSetMicro(x, y, 209);
+			dSpecial[x][y] = 2;
+			objects_set_door_piece(x, y - 1);
+			x--;
+		}
+	} else
+#endif
+	{
+		if (os->_otype == OBJ_L1LDOOR) {
+			if (os->_oVar1 == 214)
+				ObjSetMicro(x, y, 408);
+			else
+				ObjSetMicro(x, y, 393);
+			dSpecial[x][y] = 7;
+			objects_set_door_piece(x - 1, y);
+			y--;
+		} else {
+			ObjSetMicro(x, y, 395);
+			dSpecial[x][y] = 8;
+			objects_set_door_piece(x, y - 1);
+			x--;
+		}
 	}
 	DoorSet(oi, x, y);
 }
@@ -4861,10 +4875,10 @@ void GetObjectStr(int oi)
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
-		if (currlevel >= 17 && currlevel <= 20)    // for hive levels
-			copy_cstr(infostr, "Pod");             //Then a barrel is called a pod
-		else if (currlevel > 20 && currlevel < 25) // for crypt levels
-			copy_cstr(infostr, "Urn");             //Then a barrel is called an urn
+		if (currlevel >= 17 && currlevel <= 20)      // for hive levels
+			copy_cstr(infostr, "Pod");               //Then a barrel is called a pod
+		else if (currlevel >= 21 && currlevel <= 24) // for crypt levels
+			copy_cstr(infostr, "Urn");               //Then a barrel is called an urn
 		else
 #endif
 			copy_cstr(infostr, "Barrel");
