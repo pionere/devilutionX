@@ -595,7 +595,7 @@ static void LoadQuest(int i)
 	CopyChar(tbuff, &pQuest->_qlevel);
 	CopyChar(tbuff, &pQuest->_qtype);
 	CopyChar(tbuff, &pQuest->_qactive);
-	CopyChar(tbuff, &pQuest->_qlvltype);
+	tbuff += 1; // Skip _qlvltype
 	CopyInt(tbuff, &pQuest->_qtx);
 	CopyInt(tbuff, &pQuest->_qty);
 	CopyChar(tbuff, &pQuest->_qslvl);
@@ -620,7 +620,7 @@ static void LoadQuest(int i)
 	ReturnLvlX = LoadInt();
 	ReturnLvlY = LoadInt();
 	ReturnLvl = LoadInt();
-	ReturnLvlT = LoadInt();
+	tbuff += 4; // Skip ReturnLvlT
 	DoomQuestState = LoadInt();
 }
 
@@ -700,7 +700,10 @@ void LoadGame(BOOL firstflag)
 
 	i = LoadInt();
 	currlevel = i & 0xFF;
-	leveltype = gnLevelTypeTbl[currlevel];
+	if (!setlevel)
+		leveltype = gnLevelTypeTbl[currlevel];
+	else
+		leveltype = gnSetLevelTypeTbl[setlvlnum];
 	gnDifficulty = (i >> 8) & 0xFF;
 	tbuff += 4; // Skip leveltype
 
@@ -1366,7 +1369,7 @@ static void SaveQuest(int i)
 	CopyChar(&pQuest->_qlevel, tbuff);
 	CopyChar(&pQuest->_qtype, tbuff);
 	CopyChar(&pQuest->_qactive, tbuff);
-	CopyChar(&pQuest->_qlvltype, tbuff);
+	tbuff += 1; // Skip _qlvltype
 	CopyInt(&pQuest->_qtx, tbuff);
 	CopyInt(&pQuest->_qty, tbuff);
 	CopyChar(&pQuest->_qslvl, tbuff);
@@ -1390,7 +1393,7 @@ static void SaveQuest(int i)
 	SaveInt(ReturnLvlX);
 	SaveInt(ReturnLvlY);
 	SaveInt(ReturnLvl);
-	SaveInt(ReturnLvlT);
+	tbuff += 4; // Skip ReturnLvlT
 	SaveInt(DoomQuestState);
 }
 

@@ -36,7 +36,6 @@ extern BYTE leveltype;
 extern BYTE currlevel;
 extern BOOLEAN setlevel;
 extern BYTE setlvlnum;
-extern char setlvltype;
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;

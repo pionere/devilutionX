@@ -87,7 +87,8 @@ void InitTownTriggers()
 {
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
-	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABNEXTLVL;
+	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTOWNWARP;
+	trigs[TWARP_CATHEDRAL]._tlvl = 1;
 
 	townwarps = GetOpenWarps();
 
@@ -140,7 +141,6 @@ void InitL1Triggers()
 					trigs[numtrigs]._tx = i;
 					trigs[numtrigs]._ty = j;
 					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-					trigs[numtrigs]._tlvl = 0;
 					numtrigs++;
 				} else if (dPiece[i][j] == 158) {
 					trigs[numtrigs]._tx = i;
@@ -163,7 +163,7 @@ void InitL1Triggers()
 			if (dPiece[i][j] == 129) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				trigs[numtrigs]._tmsg = currlevel != 0 ? WM_DIABPREVLVL : WM_DIABTWARPUP;
 				numtrigs++;
 			} else if (dPiece[i][j] == 115) {
 				trigs[numtrigs]._tx = i;
@@ -191,7 +191,6 @@ void InitL2Triggers()
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
 			} else if (dPiece[i][j] == 271) {
 				trigs[numtrigs]._tx = i;
@@ -271,7 +270,6 @@ void InitL4Triggers()
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
 				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-				trigs[numtrigs]._tlvl = 0;
 				numtrigs++;
 			} else if (dPiece[i][j] == 120) {
 				trigs[numtrigs]._tx = i;

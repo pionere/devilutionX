@@ -1099,7 +1099,6 @@ typedef struct QuestStruct {
 	unsigned char _qlevel;
 	unsigned char _qtype;
 	unsigned char _qactive;
-	unsigned char _qlvltype;
 	int _qtx;
 	int _qty;
 	unsigned char _qslvl;
@@ -1120,7 +1119,6 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 typedef struct QuestData {
 	unsigned char _qdlvl;
 	char _qdmultlvl;
-	unsigned char _qlvlt;
 	unsigned char _qdtype;
 	unsigned char _qdrnd;
 	unsigned char _qslvl;

@@ -1289,7 +1289,7 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	mem_free_dbg(pLevelMap);
 }
 
-void LoadPreL1Dungeon(const char *sFileName, int vx, int vy)
+void LoadPreL1Dungeon(const char *sFileName)
 {
 	BYTE *pLevelMap = LoadL1DungeonData(sFileName);
 
@@ -2571,6 +2571,23 @@ static void DRLG_L5CornerFix()
 	}
 }
 
+struct mini_set {
+	const BYTE* data;
+	BOOL setview;
+};
+static BOOL DRLG_PlaceMiniSets(mini_set* minisets, int n)
+{
+	int i;
+	BOOL result = TRUE;
+
+	for (i = 0; i < n; i++) {
+		if (minisets[i].data != NULL && !DRLG_PlaceMiniSet(minisets[i].data, 1, minisets[i].setview)) {
+			result = FALSE;
+		}
+	}
+	return result;
+}
+
 static void DRLG_L5(int entry)
 {
 	int i, j;
@@ -2628,78 +2645,59 @@ static void DRLG_L5(int entry)
 				}
 			}
 #ifdef HELLFIRE
-		} else if (entry == ENTRY_MAIN) {
-			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
-					doneflag = FALSE;
-			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
-					doneflag = FALSE;
+		} else if (currlevel >= 21) {
+			mini_set stairs[2] = {
+				{ currlevel != 21 ? L5STAIRSUP : L5STAIRSTOWN, entry != ENTRY_PREV },
+				{ currlevel != 24 ? L5STAIRSDOWN : NULL, entry == ENTRY_PREV },
+			};
+			doneflag = DRLG_PlaceMiniSets(stairs, 2);
+			if (entry == ENTRY_MAIN) {
 				ViewY++;
-			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
-					doneflag = FALSE;
-				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
-						doneflag = FALSE;
-				}
-				ViewY++;
-			}
-		} else if (entry == ENTRY_PREV) {
-			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
-					doneflag = FALSE;
-				ViewY--;
-			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, FALSE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE))
-					doneflag = FALSE;
-				ViewY += 3;
-			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
-					doneflag = FALSE;
-				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, TRUE))
-						doneflag = FALSE;
-				}
+			} else if (entry == ENTRY_PREV) {
 				ViewY += 3;
 			}
 		} else {
-			if (currlevel < 21) {
-				if (!DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
-					doneflag = FALSE;
-			} else if (currlevel == 21) {
-				if (!DRLG_PlaceMiniSet(L5STAIRSTOWN, 1, TRUE))
-					doneflag = FALSE;
-				if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
-					doneflag = FALSE;
-			} else {
-				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE))
-					doneflag = FALSE;
-				if (currlevel != 24) {
-					if (!DRLG_PlaceMiniSet(L5STAIRSDOWN, 1, FALSE))
-						doneflag = FALSE;
-				}
+			// currlevel < 21
+			mini_set stairs[2] = {
+				{ STAIRSUP, entry != ENTRY_PREV },
+				{ STAIRSDOWN, entry == ENTRY_PREV },
+			};
+			doneflag &= DRLG_PlaceMiniSets(stairs, 2);
+			if (entry == ENTRY_PREV) {
+				ViewY--;
 			}
 #else
-		} else if (entry == ENTRY_MAIN) {
-			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE)
-			 || !DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
-				doneflag = FALSE;
 		} else {
-			if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, FALSE)
-			|| !DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
-				doneflag = FALSE;
-			ViewY--;
+			/*mini_set stairs[2] = {
+				{ L5STAIRSUP, entry != ENTRY_PREV },
+				{ STAIRSDOWN, entry == ENTRY_PREV },
+			};
+			doneflag = DRLG_PlaceMiniSets(stairs, 2);
+			if (entry == ENTRY_PREV) {
+				ViewY--;
+			}*/
+
+			if (entry == ENTRY_PREV) {
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, FALSE)
+				|| !DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
+					doneflag = FALSE;
+				ViewY--;
+			} else {
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE)
+				 || !DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
+					doneflag = FALSE;
+			}
+
+			/*if (entry == ENTRY_MAIN) {
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, TRUE)
+				 || !DRLG_PlaceMiniSet(STAIRSDOWN, 1, FALSE))
+					doneflag = FALSE;
+			} else {
+				if (!DRLG_PlaceMiniSet(L5STAIRSUP, 1, FALSE)
+				|| !DRLG_PlaceMiniSet(STAIRSDOWN, 1, TRUE))
+					doneflag = FALSE;
+				ViewY--;
+			}*/
 #endif
 		}
 	} while (!doneflag);

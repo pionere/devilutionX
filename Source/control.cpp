@@ -1731,9 +1731,9 @@ static void DrawTrigInfo()
 		// standard trigger
 		switch (trigs[pcurstrig]._tmsg) {
 		case WM_DIABNEXTLVL:
-			if (currlevel == 0)
+			/*if (currlevel == 0)
 				copy_cstr(infostr, "Down to dungeon");
-			else if (currlevel == 15)
+			else*/ if (currlevel == 15)
 				copy_cstr(infostr, "Down to Diablo");
 #ifdef HELLFIRE
 			else if (currlevel >= 21)
@@ -1775,9 +1775,9 @@ static void DrawTrigInfo()
 			break;
 		case WM_DIABTOWNWARP:
 			switch (pcurstrig) {
-			/*case TWARP_CATHEDRAL:
+			case TWARP_CATHEDRAL:
 				copy_cstr(infostr, "Down to dungeon");
-				break;*/
+				break;
 			case TWARP_CATACOMB:
 				copy_cstr(infostr, "Down to catacombs");
 				break;

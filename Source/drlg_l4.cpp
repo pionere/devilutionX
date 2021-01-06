@@ -1587,6 +1587,22 @@ static void DRLG_L4GeneralFix()
 	}
 }
 
+struct mini_set {
+	const BYTE* data;
+	BOOL setview;
+};
+static BOOL DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		if (minisets[i].data != NULL && !DRLG_L4PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static void DRLG_L4(int entry)
 {
 	int i, j, ar;
@@ -1626,55 +1642,35 @@ static void DRLG_L4(int entry)
 			DRLG_LoadDiabQuads(TRUE);
 		}
 		if (QuestStatus(Q_WARLORD)) {
-			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
-			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
+			mini_set stairs[2] = {
+				{ L4USTAIRS, entry == ENTRY_MAIN },
+				{ currlevel != 13 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+			};
+			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
+			if (entry == ENTRY_PREV) {
 				ViewX = 2 * setpc_x + DBORDERX + 6;
 				ViewY = 2 * setpc_y + DBORDERY + 6;
-			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE));
 			}
 		} else if (currlevel != 15) {
-			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
-			} else if (entry == ENTRY_PREV) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, TRUE))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, FALSE));
+			mini_set stairs[3] = {
+				{ L4USTAIRS, entry == ENTRY_MAIN },
+				{ currlevel != 16 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
+				{ currlevel != 13 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+			};
+			doneflag = DRLG_L4PlaceMiniSets(stairs, 3);
+			if (entry == ENTRY_PREV) {
 				ViewX++;
 				ViewY -= 2;
-			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE)
-					&& (currlevel == 16 || DRLG_L4PlaceMiniSet(L4DSTAIRS, FALSE))
-					&& (currlevel != 13 || DRLG_L4PlaceMiniSet(L4TWARP, TRUE));
 			}
 		} else {
-			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, TRUE);
-				if (doneflag) {
-					if (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, FALSE);
-					} else {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, FALSE);
-					}
-				}
-			} else {
-				doneflag = DRLG_L4PlaceMiniSet(L4USTAIRS, FALSE);
-				if (doneflag) {
-					if (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA, TRUE);
-					} else {
-						doneflag = DRLG_L4PlaceMiniSet(L4PENTA2, TRUE);
-					}
-				}
+			mini_set stairs[2] = {
+				{ L4USTAIRS, entry == ENTRY_MAIN },
+				{ (gbMaxPlayers == 1 && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ?
+					L4PENTA : L4PENTA2, entry != ENTRY_MAIN }
+			};
+			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
+			if (entry == ENTRY_MAIN)
 				ViewY++;
-			}
 		}
 	} while (!doneflag);
 
@@ -1805,7 +1801,7 @@ static BYTE *LoadL4DungeonData(const char *sFileName)
 	return pLevelMap;
 }
 
-static void LoadL4Dungeon(char *sFileName, int vx, int vy)
+/*static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
 	BYTE *pLevelMap;
 
@@ -1828,6 +1824,6 @@ static void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
 	BYTE *pLevelMap = LoadL4DungeonData(sFileName);
 
 	mem_free_dbg(pLevelMap);
-}
+}*/
 
 DEVILUTION_END_NAMESPACE

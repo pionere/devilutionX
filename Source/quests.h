@@ -16,9 +16,9 @@ extern bool allquests;
 extern BOOL questlog;
 extern BYTE *pQLogCel;
 extern QuestStruct quests[MAXQUESTS];
+extern int gnSetLevelTypeTbl[NUM_SETLVL];
 extern int ReturnLvlX;
 extern int ReturnLvlY;
-extern int ReturnLvlT;
 extern int ReturnLvl;
 
 void InitQuests();

@@ -2121,13 +2121,12 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		setlvlnum = lvl;
 		break;
 	case WM_DIABTWARPUP:
-		plr[myplr].pTownWarps |= 1 << (leveltype - 2);
+		if (pnum == myplr)
+			plr[pnum].pTownWarps |= 1 << (leveltype - 2);
 		plr[pnum].plrlevel = lvl;
 		break;
-	case WM_DIABRETOWN:
-		break;
 	default:
-		app_fatal("StartNewLvl");
+		app_fatal("StartNewLvl %d", fom);
 		break;
 	}
 

@@ -12,44 +12,52 @@ BOOL questlog;
 BYTE *pQLogCel;
 /** Contains the quests of the current game. */
 QuestStruct quests[MAXQUESTS];
+/** map from setlevel to setleveltype. */
+int gnSetLevelTypeTbl[NUM_SETLVL] = {
+	DTYPE_NONE,			// //SL_BUTCHCHAMB = 0x0,
+	DTYPE_CATHEDRAL,	// SL_SKELKING     = 0x1,
+	DTYPE_CATACOMBS,	// SL_BONECHAMB    = 0x2,
+	DTYPE_NONE,			// //SL_MAZE         = 0x3,
+	DTYPE_CAVES,		// SL_POISONWATER  = 0x4,
+	DTYPE_CATHEDRAL,	// SL_VILEBETRAYER = 0x5,
+};
 int qline;
 int qlist[MAXQUESTS];
 int numqlines;
 int WaterDone;
 int ReturnLvlX;
 int ReturnLvlY;
-int ReturnLvlT;
 int ReturnLvl;
 
 /** Contains the data related to each quest_id. */
 QuestData questlist[MAXQUESTS] = {
 	// clang-format off
-	// _qdlvl, _qdmultlvl, _qlvlt,          _qdtype,     _qdrnd,   _qslvl,  _qflags,       _qdmsg,        _qlstr
-	{       5,         -1, DTYPE_NONE,      Q_ROCK,      100,      0,       QUEST_SINGLE,  TEXT_INFRA5,   "The Magic Rock"           },
-	{       9,         -1, DTYPE_NONE,      Q_MUSHROOM,  100,      0,       QUEST_SINGLE,  TEXT_MUSH8,    "Black Mushroom"           },
-	{       4,         -1, DTYPE_NONE,      Q_GARBUD,    100,      0,       QUEST_SINGLE,  TEXT_GARBUD1,  "Gharbad The Weak"         },
-	{       8,         -1, DTYPE_NONE,      Q_ZHAR,      100,      0,       QUEST_SINGLE,  TEXT_ZHAR1,    "Zhar the Mad"             },
-	{      14,         -1, DTYPE_NONE,      Q_VEIL,      100,      0,       QUEST_SINGLE,  TEXT_VEIL9,    "Lachdanan"                },
-	{      15,         -1, DTYPE_NONE,      Q_DIABLO,    100,      0,       QUEST_ANY,     TEXT_VILE3,    "Diablo"                   },
-	{       2,          2, DTYPE_NONE,      Q_BUTCHER,   100,      0,       QUEST_ANY,     TEXT_BUTCH9,   "The Butcher"              },
-	{       4,         -1, DTYPE_NONE,      Q_LTBANNER,  100,      0,       QUEST_SINGLE,  TEXT_BANNER2,  "Ogden's Sign"             },
-	{       7,         -1, DTYPE_NONE,      Q_BLIND,     100,      0,       QUEST_SINGLE,  TEXT_BLINDING, "Halls of the Blind"       },
-	{       5,         -1, DTYPE_NONE,      Q_BLOOD,     100,      0,       QUEST_SINGLE,  TEXT_BLOODY,   "Valor"                    },
-	{      10,         -1, DTYPE_NONE,      Q_ANVIL,     100,      0,       QUEST_SINGLE,  TEXT_ANVIL5,   "Anvil of Fury"            },
-	{      13,         -1, DTYPE_NONE,      Q_WARLORD,   100,      0,       QUEST_SINGLE,  TEXT_BLOODWAR, "Warlord of Blood"         },
-	{       3,          3, DTYPE_CATHEDRAL, Q_SKELKING,  100,      1,       QUEST_ANY,     TEXT_KING2,    "The Curse of King Leoric" },
-	{       2,         -1, DTYPE_CAVES,     Q_PWATER,    100,      4,       QUEST_SINGLE,  TEXT_POISON3,  "Poisoned Water Supply"    },
-	{       6,         -1, DTYPE_CATACOMBS, Q_SCHAMB,    100,      2,       QUEST_SINGLE,  TEXT_BONER,    "The Chamber of Bone"      },
-	{      15,         15, DTYPE_CATHEDRAL, Q_BETRAYER,  100,      5,       QUEST_ANY,     TEXT_VILE1,    "Archbishop Lazarus"       },
+	// _qdlvl, _qdmultlvl, _qdtype,     _qdrnd, _qslvl,          _qflags,       _qdmsg,        _qlstr
+	{       5,         -1, Q_ROCK,      100,    0,               QUEST_SINGLE,  TEXT_INFRA5,   "The Magic Rock"           },
+	{       9,         -1, Q_MUSHROOM,  100,    0,               QUEST_SINGLE,  TEXT_MUSH8,    "Black Mushroom"           },
+	{       4,         -1, Q_GARBUD,    100,    0,               QUEST_SINGLE,  TEXT_GARBUD1,  "Gharbad The Weak"         },
+	{       8,         -1, Q_ZHAR,      100,    0,               QUEST_SINGLE,  TEXT_ZHAR1,    "Zhar the Mad"             },
+	{      14,         -1, Q_VEIL,      100,    0,               QUEST_SINGLE,  TEXT_VEIL9,    "Lachdanan"                },
+	{      15,         -1, Q_DIABLO,    100,    0,               QUEST_ANY,     TEXT_VILE3,    "Diablo"                   },
+	{       2,          2, Q_BUTCHER,   100,    0,               QUEST_ANY,     TEXT_BUTCH9,   "The Butcher"              },
+	{       4,         -1, Q_LTBANNER,  100,    0,               QUEST_SINGLE,  TEXT_BANNER2,  "Ogden's Sign"             },
+	{       7,         -1, Q_BLIND,     100,    0,               QUEST_SINGLE,  TEXT_BLINDING, "Halls of the Blind"       },
+	{       5,         -1, Q_BLOOD,     100,    0,               QUEST_SINGLE,  TEXT_BLOODY,   "Valor"                    },
+	{      10,         -1, Q_ANVIL,     100,    0,               QUEST_SINGLE,  TEXT_ANVIL5,   "Anvil of Fury"            },
+	{      13,         -1, Q_WARLORD,   100,    0,               QUEST_SINGLE,  TEXT_BLOODWAR, "Warlord of Blood"         },
+	{       3,          3, Q_SKELKING,  100,    SL_SKELKING,     QUEST_ANY,     TEXT_KING2,    "The Curse of King Leoric" },
+	{       2,         -1, Q_PWATER,    100,    SL_POISONWATER,  QUEST_SINGLE,  TEXT_POISON3,  "Poisoned Water Supply"    },
+	{       6,         -1, Q_SCHAMB,    100,    SL_BONECHAMB,    QUEST_SINGLE,  TEXT_BONER,    "The Chamber of Bone"      },
+	{      15,         15, Q_BETRAYER,  100,    SL_VILEBETRAYER, QUEST_ANY,     TEXT_VILE1,    "Archbishop Lazarus"       },
 #ifdef HELLFIRE
-	{      17,         17, DTYPE_NONE,      Q_GRAVE,     100,      0,       QUEST_ANY,     TEXT_GRAVE7,   "Grave Matters"            },
-	{       9,          9, DTYPE_NONE,      Q_FARMER,    100,      0,       QUEST_ANY,     TEXT_FARMER1,  "Farmer's Orchard"         },
-	{      17,         -1, DTYPE_NONE,      Q_GIRL,      100,      0,       QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
-	{      19,         -1, DTYPE_NONE,      Q_TRADER,    100,      0,       QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
-	{      17,         17, DTYPE_NONE,      Q_DEFILER,   100,      0,       QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
-	{      21,         21, DTYPE_NONE,      Q_NAKRUL,    100,      0,       QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
-	{      21,         -1, DTYPE_NONE,      Q_CORNSTN,   100,      0,       QUEST_SINGLE,  TEXT_CORNSTN,  "Cornerstone of the World" },
-	{       9,          9, DTYPE_NONE,      Q_JERSEY,    100,      0,       QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
+	{      17,         17, Q_GRAVE,     100,    0,               QUEST_ANY,     TEXT_GRAVE7,   "Grave Matters"            },
+	{       9,          9, Q_FARMER,    100,    0,               QUEST_ANY,     TEXT_FARMER1,  "Farmer's Orchard"         },
+	{      17,         -1, Q_GIRL,      100,    0,               QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
+	{      19,         -1, Q_TRADER,    100,    0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
+	{      17,         17, Q_DEFILER,   100,    0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
+	{      21,         21, Q_NAKRUL,    100,    0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
+	{      21,         -1, Q_CORNSTN,   100,    0,               QUEST_SINGLE,  TEXT_CORNSTN,  "Cornerstone of the World" },
+	{       9,          9, Q_JERSEY,    100,    0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
 #endif
 	// clang-format on
 };
@@ -138,7 +146,6 @@ void InitQuests()
 			qs->_qtx = 0;
 			qs->_qty = 0;
 			qs->_qidx = i;
-			qs->_qlvltype = qdata->_qlvlt;
 			qs->_qvar2 = 0;
 			qs->_qmsg = qdata->_qdmsg;
 	}
@@ -185,49 +192,59 @@ void CheckQuests()
 	int i, rportx, rporty;
 
 	qs = &quests[Q_BETRAYER];
-	if (QuestStatus(Q_BETRAYER) && gbMaxPlayers != 1 && qs->_qvar1 == 2) {
-		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
-		qs->_qvar1 = 3;
-		NetSendCmdQuest(TRUE, Q_BETRAYER);
-	}
 
 	if (gbMaxPlayers != 1) {
+		if (QuestStatus(Q_BETRAYER) && qs->_qvar1 == 2) {
+			AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
+			qs->_qvar1 = 3;
+			NetSendCmdQuest(TRUE, Q_BETRAYER);
+		}
 		return;
 	}
 
-	if (currlevel == qs->_qlevel
-	    && !setlevel
-	    && qs->_qvar1 >= 2
-	    && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
-	    && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
-		qs->_qtx = 2 * qs->_qtx + DBORDERX;
-		qs->_qty = 2 * qs->_qty + DBORDERY;
-		rportx = qs->_qtx;
-		rporty = qs->_qty;
-		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
-		qs->_qvar2 = 1;
-		if (qs->_qactive == QUEST_ACTIVE) {
-			qs->_qvar1 = 3;
+	if (!setlevel) {
+		if (currlevel == qs->_qlevel
+		 && qs->_qvar1 >= 2
+		 && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
+		 && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
+			qs->_qtx = 2 * qs->_qtx + DBORDERX;
+			qs->_qty = 2 * qs->_qty + DBORDERY;
+			rportx = qs->_qtx;
+			rporty = qs->_qty;
+			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
+			qs->_qvar2 = 1;
+			if (qs->_qactive == QUEST_ACTIVE) {
+				qs->_qvar1 = 3;
+			}
 		}
-	}
+		if (plr[myplr]._pmode == PM_STAND) {
+			qs = quests;
+			for (i = MAXQUESTS; i != 0; i--, qs++) {
+				if (currlevel == qs->_qlevel
+				 && qs->_qslvl != 0
+				 && qs->_qactive != QUEST_NOTAVAIL
+				 && plr[myplr]._px == qs->_qtx
+				 && plr[myplr]._py == qs->_qty) {
+					StartNewLvl(myplr, WM_DIABSETLVL, qs->_qslvl);
+				}
+			}
+		}
+	} else {
+		if (qs->_qactive == QUEST_DONE
+		 && setlvlnum == SL_VILEBETRAYER
+		 && qs->_qvar2 == 4) {
+			rportx = DBORDERX + 19;
+			rporty = DBORDERY + 16;
+			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
+			qs->_qvar2 = 3;
+		}
 
-	if (qs->_qactive == QUEST_DONE
-	    && setlevel
-	    && setlvlnum == SL_VILEBETRAYER
-	    && qs->_qvar2 == 4) {
-		rportx = DBORDERX + 19;
-		rporty = DBORDERY + 16;
-		AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
-		qs->_qvar2 = 3;
-	}
-
-	if (setlevel) {
 		qs = &quests[Q_PWATER];
 		if (setlvlnum == qs->_qslvl
-		    && qs->_qactive != QUEST_INIT
-		    && leveltype == qs->_qlvltype
-		    && nummonsters == MAX_PLRS
-		    && qs->_qactive != QUEST_DONE) {
+		 && qs->_qactive != QUEST_INIT
+		 //&& leveltype == qs->_qlvltype
+		 && nummonsters == MAX_PLRS
+		 && qs->_qactive != QUEST_DONE) {
 			qs->_qactive = QUEST_DONE;
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
@@ -236,20 +253,6 @@ void CheckQuests()
 		if (WaterDone > 0) {
 			palette_update_quest_palette(WaterDone);
 			WaterDone--;
-		}
-	} else if (plr[myplr]._pmode == PM_STAND) {
-		qs = quests;
-		for (i = MAXQUESTS; i != 0; i--, qs++) {
-			if (currlevel == qs->_qlevel
-			    && qs->_qslvl != 0
-			    && qs->_qactive != QUEST_NOTAVAIL
-			    && plr[myplr]._px == qs->_qtx
-			    && plr[myplr]._py == qs->_qty) {
-				if (qs->_qlvltype != DTYPE_NONE) {
-					setlvltype = qs->_qlvltype;
-				}
-				StartNewLvl(myplr, WM_DIABSETLVL, qs->_qslvl);
-			}
 		}
 	}
 }
@@ -570,25 +573,21 @@ void SetReturnLvlPos()
 		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
 		ReturnLvlY = quests[Q_SKELKING]._qty;
 		ReturnLvl = quests[Q_SKELKING]._qlevel;
-		ReturnLvlT = DTYPE_CATHEDRAL;
 		break;
 	case SL_BONECHAMB:
 		ReturnLvlX = quests[Q_SCHAMB]._qtx + 1;
 		ReturnLvlY = quests[Q_SCHAMB]._qty;
 		ReturnLvl = quests[Q_SCHAMB]._qlevel;
-		ReturnLvlT = DTYPE_CATACOMBS;
 		break;
 	case SL_POISONWATER:
 		ReturnLvlX = quests[Q_PWATER]._qtx;
 		ReturnLvlY = quests[Q_PWATER]._qty + 1;
 		ReturnLvl = quests[Q_PWATER]._qlevel;
-		ReturnLvlT = DTYPE_CATHEDRAL;
 		break;
 	case SL_VILEBETRAYER:
 		ReturnLvlX = quests[Q_BETRAYER]._qtx + 1;
 		ReturnLvlY = quests[Q_BETRAYER]._qty - 1;
 		ReturnLvl = quests[Q_BETRAYER]._qlevel;
-		ReturnLvlT = DTYPE_HELL;
 		break;
 	}
 }
@@ -600,7 +599,7 @@ void GetReturnLvlPos()
 	ViewX = ReturnLvlX;
 	ViewY = ReturnLvlY;
 	currlevel = ReturnLvl;
-	leveltype = ReturnLvlT;
+	leveltype = gnLevelTypeTbl[currlevel];
 }
 
 void ResyncMPQuests()
@@ -650,7 +649,7 @@ void ResyncQuests()
 #ifndef SPAWN
 	int i, tren, x, y;
 
-	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT && leveltype == quests[Q_PWATER]._qlvltype) {
+	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT) { // && leveltype == quests[Q_PWATER]._qlvltype) {
 		if (quests[Q_PWATER]._qactive == QUEST_DONE)
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 		else

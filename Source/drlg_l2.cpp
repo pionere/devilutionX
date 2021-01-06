@@ -3009,6 +3009,22 @@ static void L2DoorFix()
 	}
 }
 
+struct mini_set {
+	const BYTE* data;
+	BOOL setview;
+};
+static BOOL DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		if (minisets[i].data != NULL && !DRLG_L2PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static void DRLG_L2(int entry)
 {
 	BOOL doneflag;
@@ -3025,20 +3041,18 @@ static void DRLG_L2(int entry)
 		}
 		DRLG_L2FloodTVal();
 		DRLG_L2TransFix();
+
+		mini_set stairs[3] = {
+				{ USTAIRS, entry == ENTRY_MAIN },
+				{ DSTAIRS, entry == ENTRY_PREV },
+				{ currlevel != 5 ? NULL : WARPSTAIRS, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+		};
+		doneflag = DRLG_L2PlaceMiniSets(stairs, 3);
 		if (entry == ENTRY_MAIN) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, TRUE)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE));
 			ViewY -= 2;
 		} else if (entry == ENTRY_PREV) {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, TRUE)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, FALSE));
 			ViewX--;
 		} else {
-			doneflag = DRLG_L2PlaceMiniSet(USTAIRS, FALSE)
-				&& DRLG_L2PlaceMiniSet(DSTAIRS, FALSE)
-				&& (currlevel != 5 || DRLG_L2PlaceMiniSet(WARPSTAIRS, TRUE));
 			ViewY -= 2;
 		}
 	} while (!doneflag);
@@ -3250,7 +3264,7 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	mem_free_dbg(pLevelMap);
 }
 
-void LoadPreL2Dungeon(const char *sFileName, int vx, int vy)
+void LoadPreL2Dungeon(const char *sFileName)
 {
 	BYTE *pLevelMap = LoadL2DungeonData(sFileName);
 

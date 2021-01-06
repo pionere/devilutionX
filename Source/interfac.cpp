@@ -30,11 +30,11 @@ static void InitCutscene(unsigned int uMsg)
 	switch (uMsg) {
 	case WM_DIABNEXTLVL:
 		switch (gnLevelTypeTbl[currlevel]) {
-		case DTYPE_TOWN:
+		/*case DTYPE_TOWN:
 			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
 			LoadPalette("Gendata\\Cuttt.pal");
 			progress_id = 1;
-			break;
+			break;*/
 		case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
 			if (currlevel >= 17) {
@@ -78,24 +78,21 @@ static void InitCutscene(unsigned int uMsg)
 			}
 			break;
 		default:
-			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-			LoadPalette("Gendata\\Cutl1d.pal");
-			progress_id = 0;
-			break;
+			ASSUME_UNREACHABLE
 		}
 		break;
 	case WM_DIABPREVLVL:
-		if (gnLevelTypeTbl[currlevel - 1] == DTYPE_TOWN) {
+		/*if (gnLevelTypeTbl[currlevel - 1] == DTYPE_TOWN) {
 			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
 			LoadPalette("Gendata\\Cuttt.pal");
 			progress_id = 1;
-		} else {
+		} else {*/
 			switch (gnLevelTypeTbl[currlevel]) {
-			case DTYPE_TOWN:
+			/*case DTYPE_TOWN:
 				sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
 				LoadPalette("Gendata\\Cuttt.pal");
 				progress_id = 1;
-				break;
+				break;*/
 			case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
 				if (currlevel >= 17) {
@@ -133,28 +130,11 @@ static void InitCutscene(unsigned int uMsg)
 				progress_id = 1;
 				break;
 			default:
-				sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-				LoadPalette("Gendata\\Cutl1d.pal");
-				progress_id = 0;
-				break;
+				ASSUME_UNREACHABLE
 			}
-		}
+		//}
 		break;
 	case WM_DIABSETLVL:
-		if (setlvlnum == SL_BONECHAMB) {
-			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
-			LoadPalette("Gendata\\Cut2.pal");
-			progress_id = 2;
-		} else if (setlvlnum == SL_VILEBETRAYER) {
-			sgpBackCel = LoadFileInMem("Gendata\\Cutportr.CEL", NULL);
-			LoadPalette("Gendata\\Cutportr.pal");
-			progress_id = 1;
-		} else {
-			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-			LoadPalette("Gendata\\Cutl1d.pal");
-			progress_id = 0;
-		}
-		break;
 	case WM_DIABRTNLVL:
 		if (setlvlnum == SL_BONECHAMB) {
 			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
@@ -176,10 +156,6 @@ static void InitCutscene(unsigned int uMsg)
 		progress_id = 1;
 		break;
 	case WM_DIABLOADGAME:
-		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL", NULL);
-		LoadPalette("Gendata\\Cutstart.pal");
-		progress_id = 1;
-		break;
 	case WM_DIABNEWGAME:
 		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL", NULL);
 		LoadPalette("Gendata\\Cutstart.pal");
@@ -187,25 +163,26 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case WM_DIABTOWNWARP:
 	case WM_DIABTWARPUP:
-		switch (gnLevelTypeTbl[plr[myplr].plrlevel]) {
+	case WM_DIABRETOWN: {
+		int destlvl = plr[myplr].plrlevel;
+		switch (gnLevelTypeTbl[destlvl]) {
 		case DTYPE_TOWN:
 			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
 			LoadPalette("Gendata\\Cuttt.pal");
 			progress_id = 1;
 			break;
-#ifdef HELLFIRE
 		case DTYPE_CATHEDRAL:
-			if (plr[myplr].plrlevel < 17) {
-				sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-				LoadPalette("Gendata\\Cutl1d.pal");
-				progress_id = 0;
-			} else {
+#ifdef HELLFIRE
+			if (destlvl >= 17) {
 				sgpBackCel = LoadFileInMem("Nlevels\\Cutl5.CEL", NULL);
 				LoadPalette("Nlevels\\Cutl5.pal");
 				progress_id = 1;
 			}
-			break;
 #endif
+			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
+			LoadPalette("Gendata\\Cutl1d.pal");
+			progress_id = 0;
+			break;
 		case DTYPE_CATACOMBS:
 			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
 			LoadPalette("Gendata\\Cut2.pal");
@@ -213,7 +190,7 @@ static void InitCutscene(unsigned int uMsg)
 			break;
 		case DTYPE_CAVES:
 #ifdef HELLFIRE
-			if (plr[myplr].plrlevel >= 17) {
+			if (destlvl >= 17) {
 				sgpBackCel = LoadFileInMem("Nlevels\\Cutl6.CEL", NULL);
 				LoadPalette("Nlevels\\Cutl6.pal");
 				progress_id = 1;
@@ -233,12 +210,7 @@ static void InitCutscene(unsigned int uMsg)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		break;
-	case WM_DIABRETOWN:
-		sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
-		LoadPalette("Gendata\\Cuttt.pal");
-		progress_id = 1;
-		break;
+	} break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -381,7 +353,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		setlevel = TRUE;
-		leveltype = setlvltype;
+		leveltype = gnSetLevelTypeTbl[setlvlnum];
 		FreeGameMem();
 		IncProgress();
 		LoadGameLevel(FALSE, ENTRY_SETLVL);

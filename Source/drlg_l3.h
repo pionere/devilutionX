@@ -15,7 +15,7 @@ extern "C" {
 void AddFenceDoors();
 void CreateL3Dungeon(DWORD rseed, int entry);
 void LoadL3Dungeon(const char *sFileName, int vx, int vy);
-void LoadPreL3Dungeon(const char *sFileName, int vx, int vy);
+void LoadPreL3Dungeon(const char *sFileName);
 
 #ifdef __cplusplus
 }

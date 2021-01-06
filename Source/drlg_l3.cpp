@@ -2200,13 +2200,28 @@ static BOOL DRLG_L3Lockout()
 	return t == lockoutcnt;
 }
 
+struct mini_set {
+	const BYTE* data;
+	BOOL setview;
+};
+static BOOL DRLG_L3PlaceMiniSets(mini_set* minisets, int n)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		if (minisets[i].data != NULL && !DRLG_L3PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static void DRLG_L3(int entry)
 {
 	int x1, y1, x2, y2;
 	BOOL doneflag;
 
 	lavapool = FALSE;
-
 	do {
 		do {
 			do {
@@ -2234,55 +2249,32 @@ static void DRLG_L3(int entry)
 				DRLG_L3Edges();
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
-			if (entry == ENTRY_MAIN) {
 #ifdef HELLFIRE
-				if (currlevel >= 17) {
-					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, TRUE);
-					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE);
-					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE);
-				} else
-#endif
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, TRUE)
-					 && DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE)
-					 && (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE));
-			} else if (entry == ENTRY_PREV) {
-#ifdef HELLFIRE
-				if (currlevel >= 17) {
-					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE);
-					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, FALSE);
-					if (doneflag && currlevel != 20) {
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, TRUE);
-						ViewX += 2;
-						ViewY -= 2;
-					}
-				} else
-#endif
-				{
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE)
-						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, TRUE)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, FALSE));
+			if (currlevel >= 17) {
+				mini_set stairs[2] = {
+					{ currlevel != 17 ? L6USTAIRS : L6TWARP, entry != ENTRY_PREV },
+					{ currlevel != 20 ? L6DSTAIRS : NULL, entry == ENTRY_PREV }
+				};
+				doneflag = DRLG_L3PlaceMiniSets(stairs, 2);
+				if (entry == ENTRY_PREV) {
+					if (currlevel == 20)
+						app_fatal("Entry Prev in l3 lvl 20?");
 					ViewX += 2;
 					ViewY -= 2;
 				}
-			} else {
-#ifdef HELLFIRE
-				if (currlevel >= 17) {
-					if (currlevel != 17)
-						doneflag = DRLG_L3PlaceMiniSet(L6USTAIRS, FALSE);
-					else
-						doneflag = DRLG_L3PlaceMiniSet(L6TWARP, TRUE);
-					if (doneflag && currlevel != 20)
-						doneflag = DRLG_L3PlaceMiniSet(L6DSTAIRS, FALSE);
-				} else
+			} else
 #endif
-					doneflag = DRLG_L3PlaceMiniSet(L3USTAIRS, FALSE)
-						&& DRLG_L3PlaceMiniSet(L3DSTAIRS, FALSE)
-						&& (currlevel != 9 || DRLG_L3PlaceMiniSet(L3TWARP, TRUE));
+			{
+				mini_set stairs[3] = {
+					{ L3USTAIRS,  entry == ENTRY_MAIN },
+					{ L3DSTAIRS, entry == ENTRY_PREV },
+					{ currlevel != 9 ? NULL : L3TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV },
+				};
+				doneflag = DRLG_L3PlaceMiniSets(stairs, 3);
+				if (entry == ENTRY_PREV) {
+					ViewX += 2;
+					ViewY -= 2;
+				}
 			}
 			if (doneflag && QuestStatus(Q_ANVIL)) {
 				doneflag = DRLG_L3Anvil();
@@ -2579,7 +2571,7 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	mem_free_dbg(pLevelMap);
 }
 
-void LoadPreL3Dungeon(const char *sFileName, int vx, int vy)
+void LoadPreL3Dungeon(const char *sFileName)
 {
 	BYTE *pLevelMap = LoadL3DungeonData(sFileName);
 

@@ -24,7 +24,7 @@ extern int UberDiabloMonsterIndex;
 
 void DRLG_Init_Globals();
 void LoadL1Dungeon(const char *sFileName, int vx, int vy);
-void LoadPreL1Dungeon(const char *sFileName, int vx, int vy);
+void LoadPreL1Dungeon(const char *sFileName);
 void CreateL5Dungeon(DWORD rseed, int entry);
 #ifdef HELLFIRE
 void drlg_l1_set_crypt_room(int rx1, int ry1);
