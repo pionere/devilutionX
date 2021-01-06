@@ -1984,9 +1984,8 @@ char CheckInvItem()
 		if (r == 0)
 			return -1;
 		r = abs(r) - 1;
-		rv = INVITEM_INV_FIRST + r;
-		pi = &p->InvList[rv];
-		return pi->_itype == ITYPE_NONE ? -1 : rv;
+		assert(p->InvList[r]._itype != ITYPE_NONE);
+		return INVITEM_INV_FIRST + r;
 	case SLOT_BELT:
 		return -1;
 	default:
