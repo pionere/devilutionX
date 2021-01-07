@@ -42,7 +42,6 @@
 #endif
 
 #ifdef HELLFIRE
-#define DIABOOL					BOOLEAN
 #define LOGO_DATA				"Data\\hf_logo3.CEL"
 #define LOGO_WIDTH				430
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
@@ -55,7 +54,6 @@
 #define PROGRAM_NAME			"Hellfire Retail"
 #endif
 #else
-#define DIABOOL					BOOL
 #define LOGO_DATA				"Data\\Diabsmal.CEL"
 #define LOGO_WIDTH				296
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
@@ -293,14 +291,20 @@
 
 #undef assert
 
-#ifndef _DEBUG
-#define assert(exp) ((void)0)
-#else
+#ifdef _DEBUG
 #define assert(exp) (void)((exp) || (assert_fail(__LINE__, __FILE__, #exp), 0))
+#elif defined(_DEVMODE)
+#define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
+#else
+#define assert(exp) ((void)0)
 #endif
 
 #ifdef _MSC_VER
+#ifdef _DEVMODE
+#define ASSUME_UNREACHABLE assert(0);
+#else
 #define ASSUME_UNREACHABLE __assume(0);
+#endif
 #elif defined(__clang__)
 #define ASSUME_UNREACHABLE __builtin_unreachable();
 #elif defined(__GNUC__)

@@ -2421,6 +2421,7 @@ typedef enum diablo_message {
 	EMSG_REQUIRES_LVL_13        = 41,
 	EMSG_REQUIRES_LVL_17        = 42,
 	EMSG_BONECHAMB              = 43,
+#ifdef HELLFIRE
 	EMSG_SHRINE_OILY            = 44,
 	EMSG_SHRINE_GLOWING         = 45,
 	EMSG_SHRINE_MENDICANT       = 46,
@@ -2432,6 +2433,7 @@ typedef enum diablo_message {
 	EMSG_SHRINE_SOLAR3          = 52,
 	EMSG_SHRINE_SOLAR4          = 53,
 	EMSG_SHRINE_MURPHYS         = 54,
+#endif
 	NUM_EMSGS
 } diablo_message;
 

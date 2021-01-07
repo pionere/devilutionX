@@ -815,9 +815,7 @@ void NextPlrLevel(int pnum)
 	p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 
 	hp = p->_pClass == PC_SORCERER ? 64 : 128;
-	if (gbMaxPlayers == 1) {
-		hp++;
-	}
+
 	p->_pMaxHP += hp;
 	p->_pHitPoints = p->_pMaxHP;
 	p->_pMaxHPBase += hp;
@@ -832,9 +830,6 @@ void NextPlrLevel(int pnum)
 	else
 		mana = 128;
 
-	if (gbMaxPlayers == 1) {
-		mana++;
-	}
 	p->_pMaxMana += mana;
 	p->_pMaxManaBase += mana;
 

@@ -13,7 +13,7 @@ BYTE currmsg;
 char msgcnt;
 
 /** Maps from error_id to error message. */
-const char *const MsgStrings[] = {
+const char *const MsgStrings[NUM_EMSGS] = {
 	"",
 	"No automap available in town",
 	"No multiplayer functions in demo",
@@ -77,15 +77,12 @@ void InitDiabloMsg(BYTE e)
 {
 	int i;
 
-	if (msgcnt >= sizeof(msgtable))
-		return;
-
 	for (i = 0; i < msgcnt; i++) {
 		if (msgtable[i] == e)
 			return;
 	}
 
-	msgtable[msgcnt] = e; // BUGFIX: missing out-of-bounds check (fixed)
+	msgtable[msgcnt] = e;
 	msgcnt++;
 
 	currmsg = msgtable[0];
