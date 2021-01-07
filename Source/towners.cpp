@@ -628,12 +628,7 @@ void TalkToTowner(int pnum, int tnum)
 					InitQTextMsg(TEXT_BANNER2);
 					tw->_tMsgSaid = TRUE;
 				}
-#ifdef HELLFIRE
-			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_BANNER, &i)) {
-#else
 				if (quests[Q_LTBANNER]._qvar2 == 1 && PlrHasItem(pnum, IDI_BANNER, &i) && !tw->_tMsgSaid) {
-#endif
 					quests[Q_LTBANNER]._qactive = QUEST_DONE;
 					quests[Q_LTBANNER]._qvar1 = 3;
 					RemoveInvItem(pnum, i);
@@ -642,9 +637,7 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_BANNER3);
 					tw->_tMsgSaid = TRUE;
-#ifndef HELLFIRE
 				}
-#endif
 			}
 		}
 		if (!qtextflag) {
@@ -696,12 +689,7 @@ void TalkToTowner(int pnum, int tnum)
 					InitQTextMsg(TEXT_INFRA5);
 					tw->_tMsgSaid = TRUE;
 				}
-#ifdef HELLFIRE
-			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ROCK, &i)) {
-#else
 				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) && !tw->_tMsgSaid) {
-#endif
 					quests[Q_ROCK]._qactive = QUEST_DONE;
 					quests[Q_ROCK]._qvar2 = 2;
 					quests[Q_ROCK]._qvar1 = 2;
@@ -711,9 +699,7 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_INFRA7);
 					tw->_tMsgSaid = TRUE;
-#ifndef HELLFIRE
 				}
-#endif
 			}
 			if (plr[pnum]._pLvlVisited[9] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 				if ((quests[Q_ANVIL]._qactive == QUEST_INIT || quests[Q_ANVIL]._qactive == QUEST_ACTIVE) && quests[Q_ANVIL]._qvar2 == 0 && !tw->_tMsgSaid) {
@@ -730,12 +716,7 @@ void TalkToTowner(int pnum, int tnum)
 						tw->_tMsgSaid = TRUE;
 					}
 				}
-#ifdef HELLFIRE
-			}
-			if (!tw->_tMsgSaid && PlrHasItem(pnum, IDI_ANVIL, &i)) {
-#else
 				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) && !tw->_tMsgSaid) {
-#endif
 					quests[Q_ANVIL]._qactive = QUEST_DONE;
 					quests[Q_ANVIL]._qvar2 = 2;
 					quests[Q_ANVIL]._qvar1 = 2;
@@ -745,9 +726,7 @@ void TalkToTowner(int pnum, int tnum)
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_ANVIL7);
 					tw->_tMsgSaid = TRUE;
-#ifndef HELLFIRE
 				}
-#endif
 			}
 		}
 		if (!qtextflag) {

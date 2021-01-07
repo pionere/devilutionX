@@ -116,7 +116,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 #ifdef HELLFIRE
-	pPack->wReflection = p->wReflection;
+	pPack->wReflection = SwapLE16(p->wReflection);
 #endif
 	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
 	pPack->pManaShield = p->pManaShield;
@@ -274,7 +274,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 
 	CalcPlrInv(pnum, FALSE);
 
-	p->wReflection = pPack->wReflection;
+	p->wReflection = SwapLE16(pPack->wReflection);
 	p->pTownWarps = 0;
 	p->pDungMsgs = 0;
 	p->pDungMsgs2 = 0;

@@ -411,20 +411,16 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 {
 	double dxp, dyp, dr;
 
-#ifndef HELLFIRE
 	if (dx != sx || dy != sy) {
-#endif
 		dxp = (dx + sy - sx - dy) * (1 << 21);
 		dyp = (dy + dx - sx - sy) * (1 << 21);
 		dr = sqrt(dxp * dxp + dyp * dyp);
 		missile[mi]._mixvel = (dxp * (v << 16)) / dr;
 		missile[mi]._miyvel = (dyp * (v << 15)) / dr;
-#ifndef HELLFIRE
 	} else {
 		missile[mi]._mixvel = 0;
 		missile[mi]._miyvel = 0;
 	}
-#endif
 }
 
 static void PutMissile(int mi)

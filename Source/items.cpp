@@ -723,7 +723,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #endif
 	case PC_ROGUE:	   vadd += vadd >> 1; break;
 	}
-	ihp += (vadd << 6);
+	ihp += (vadd << 6); // BUGFIX: blood boil can cause negative shifts here (see line 757)
 
 	switch (p->_pClass) {
 	case PC_SORCERER: madd *= 2;                     break;
