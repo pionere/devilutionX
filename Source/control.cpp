@@ -28,11 +28,10 @@ BYTE *pLifeBuff;
 BYTE *pBtmBuff;
 BYTE *pTalkBtns;
 BOOL pstrjust[MAX_CTRL_PANEL_LINES];
-int pnumlines;
 BOOL talkbtndown[MAX_PLRS - 1];
 int pSpell;
 BYTE *pManaBuff;
-char infoclr;
+BYTE infoclr;
 int sgbPlrTalkTbl;
 BYTE *pGBoxBuff;
 BYTE *pSBkBtnCel;
@@ -48,7 +47,6 @@ BOOL chrflag;
 BYTE *pSpellBkCel;
 char infostr[256];
 int numpanbtns;
-char panelstr[MAX_CTRL_PANEL_LINES][64];
 BOOL panelflag;
 BYTE SplTransTbl[256];
 static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
@@ -87,16 +85,6 @@ const BYTE fontkern[68] = {
 	3, 3, 4, 3, 6, 6, 3, 3, 3, 3,
 	3, 2, 7, 6, 3, 10, 10, 6, 6, 7,
 	4, 4, 9, 6, 6, 12, 3, 7
-};
-/**
- * Line start position for info box text when displaying 1, 2, 3, 4 and 5 lines respectivly
- */
-const int lineOffsets[5][5] = {
-	{ 82 },
-	{ 70, 94 },
-	{ 64, 82, 100 },
-	{ 60, 75, 89, 104 },
-	{ 58, 70, 82, 94, 105 },
 };
 
 /**
@@ -318,10 +306,8 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 	p = &plr[myplr];
 	switch (st) {
 	case RSPLTYPE_SKILL:
-		snprintf(infostr, sizeof(infostr), "%s Skill", spelldata[sn].sNameText);
 		break;
 	case RSPLTYPE_SPELL:
-		snprintf(infostr, sizeof(infostr), "%s Spell", spelldata[sn].sNameText);
 		if (lvl > 0) {
 			snprintf(tempstr, sizeof(tempstr), "lvl%02d", lvl);
 			t = COL_WHITE;
@@ -332,7 +318,6 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, TRUE, t, 1);
 		break;
 	case RSPLTYPE_SCROLL:
-		snprintf(infostr, sizeof(infostr), "Scroll of %s", spelldata[sn].sNameText);
 		v = 0;
 		pi = p->InvList;
 		for (t = p->_pNumInv; t > 0; t--, pi++) {
@@ -352,7 +337,6 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 		PrintString(x + 4, y, x + SPLICONLENGTH, tempstr, TRUE, COL_WHITE, 1);
 		break;
 	case RSPLTYPE_CHARGES:
-		snprintf(infostr, sizeof(infostr), "Staff of %s", spelldata[sn].sNameText);
 		snprintf(tempstr, sizeof(tempstr), "%d/%d",
 			p->InvBody[INVLOC_HAND_LEFT]._iCharges,
 			p->InvBody[INVLOC_HAND_LEFT]._iMaxCharges);
@@ -402,10 +386,8 @@ void DrawSpeedBook()
 	unsigned __int64 mask, spl;
 
 	pSpell = SPL_INVALID;
-	infostr[0] = '\0';
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	y = PANEL_Y - 17;
-	ClearPanel();
 	p = &plr[myplr];
 	static_assert(RSPLTYPE_SKILL == 0, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 2.");
@@ -488,7 +470,6 @@ void SetSpell()
 {
 	spselflag = FALSE;
 	if (pSpell != SPL_INVALID) {
-		ClearPanel();
 		plr[myplr]._pRSpell = pSpell;
 		plr[myplr]._pRSplType = pSplType;
 		gbRedrawFlags = REDRAW_ALL;
@@ -600,20 +581,6 @@ void PrintChar(int sx, int sy, int nCel, char col)
 		break;
 	}
 	CelDrawLight(sx, sy, pPanelText, nCel, 13, tbl);
-}
-
-void AddPanelString(const char *str, BOOL just)
-{
-	SStrCopy(panelstr[pnumlines], str, sizeof(panelstr[pnumlines]));
-	pstrjust[pnumlines] = just;
-
-	if (pnumlines < MAX_CTRL_PANEL_LINES)
-		pnumlines++;
-}
-
-void ClearPanel()
-{
-	pnumlines = 0;
 }
 
 void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
@@ -848,7 +815,6 @@ void InitControlPan()
 	chrbtnactive = FALSE;
 	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
 	infostr[0] = '\0';
-	ClearPanel();
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	chrflag = FALSE;
 	spselflag = FALSE;
@@ -1016,7 +982,6 @@ void CheckPanelInfo()
 	int i;
 
 	panelflag = FALSE;
-	ClearPanel();
 	for (i = 0; i < numpanbtns; i++) {
 		if (MouseX >= PanBtnPos[i][0] + PANEL_LEFT
 		 && MouseX <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
@@ -1177,7 +1142,7 @@ static int StringWidth(const char *str)
  * @param col text_color color value
  * @param kern Letter spacing
  */
-void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, int col, int kern)
+void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, BYTE col, int kern)
 {
 	BYTE c;
 	const char *tmp;
@@ -1208,22 +1173,11 @@ void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, int co
 
 static void PrintInfo()
 {
-	int i, j, x, y;
+	int x;
 
-	if (!talkflag) {
+	if (!talkflag && infostr[0] != '\0') {
 		x = 177 + PANEL_LEFT + SCREEN_X;
-		y = PANEL_TOP + SCREEN_Y;
-		j = 0;
-		const int *los = lineOffsets[pnumlines - 1];
-		if (infostr[0] != '\0') {
-			los = lineOffsets[pnumlines];
-			PrintString(x, y + los[0], x + 287, infostr, TRUE, infoclr, 2);
-			j = 1;
-		}
-
-		for (i = 0; i < pnumlines; i++, j++) {
-			PrintString(x, y + los[j], x + 287, panelstr[i], pstrjust[i], infoclr, 2);
-		}
+		PrintString(x, PANEL_TOP + SCREEN_Y + 82, x + 287, infostr, TRUE, infoclr, 2);
 	}
 }
 
@@ -1232,70 +1186,18 @@ static void PrintInfo()
  */
 void DrawInfoBox()
 {
-	PlayerStruct *p;
-	ItemStruct *is;
-
 	DrawPanelBox(177, 62, 288, 60, PANEL_X + 177, PANEL_Y + 46);
 	if (!panelflag && pcurstrig == -1 && pcursinvitem == -1 && !spselflag) {
 		infostr[0] = '\0';
 		infoclr = COL_WHITE;
-		ClearPanel();
+		return;
 	}
-	if (spselflag || pcurstrig != -1) {
-		infoclr = COL_WHITE;
-	} else if (pcurs >= CURSOR_FIRSTITEM) {
-		is = &plr[myplr].HoldItem;
-		if (is->_itype == ITYPE_GOLD) {
-			snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
-		} else {
-			if (is->_iIdentified)
-				copy_str(infostr, is->_iIName);
-			else
-				copy_str(infostr, is->_iName);
-			if (is->_iMagical == ITEM_QUALITY_MAGIC)
-				infoclr = COL_BLUE;
-			else if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-				infoclr = COL_GOLD;
-		}
-	} else {
-		if (pcursitem != -1)
-			GetItemStr(pcursitem);
-		else if (pcursobj != -1)
-			GetObjectStr(pcursobj);
-		if (pcursmonst != -1) {
-			if (leveltype != DTYPE_TOWN) {
-				infoclr = COL_WHITE;
-				strcpy(infostr, monster[pcursmonst].mName);
-				ClearPanel();
-				if (monster[pcursmonst]._uniqtype != 0) {
-					infoclr = COL_GOLD;
-				}
-			} else if (pcursitem == -1) {
-				copy_str(infostr, towner[pcursmonst]._tName);
-			}
-		}
-		if (pcursplr != -1) {
-			infoclr = COL_GOLD;
-			p = &plr[pcursplr];
-			copy_str(infostr, p->_pName);
-			ClearPanel();
-#ifdef HELLFIRE
-			snprintf(tempstr, sizeof(tempstr), "%s, Level : %i", ClassStrTbl[p->_pClass], p->_pLevel);
-#else
-			snprintf(tempstr, sizeof(tempstr), "Level : %i", p->_pLevel);
-#endif
-			AddPanelString(tempstr, TRUE);
-			snprintf(tempstr, sizeof(tempstr), "Hit Points %i of %i", p->_pHitPoints >> 6, p->_pMaxHP >> 6);
-			AddPanelString(tempstr, TRUE);
-		}
-	}
-	if (infostr[0] != '\0' || pnumlines != 0)
-		PrintInfo();
+	PrintInfo();
 }
 
 #define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, TRUE, col, 1)
 
-void PrintGameStr(int x, int y, const char *str, int color)
+void PrintGameStr(int x, int y, const char *str, BYTE color)
 {
 	BYTE c;
 	int sx, sy;
@@ -1313,7 +1215,7 @@ void PrintGameStr(int x, int y, const char *str, int color)
 void DrawChr()
 {
 	PlayerStruct *p;
-	char col;
+	BYTE col;
 	char chrstr[64];
 	int pc, val, mindam, maxdam;
 	BOOL bow;
@@ -1532,14 +1434,11 @@ void DrawLevelUpIcon()
 	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, lvlbtndown + 2, 41);
 }
 
-static void DrawTpTooltip(int x, int y)
+static void DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE col)
 {
 	int width;
 	BYTE *dst;
-	const int border = 4, height = 24;
-	const int col = COL_WHITE;
-	char* text1 = infostr;
-	char* text2 = tempstr;
+	const int border = 4, height = 26;
 	int w1 = StringWidth(text1);
 	int w2 = StringWidth(text2);
 
@@ -1572,8 +1471,8 @@ static void DrawTpTooltip(int x, int y)
 		w1 = (w2 - w1) >> 1;
 		w2 = 0;
 	}
-	PrintGameStr(x + border + w1, y + height - 12, text1, col);
-	PrintGameStr(x + border + w2, y + height - 2, text2, col);
+	PrintGameStr(x + border + w1, y + height - 14, text1, col);
+	PrintGameStr(x + border + w2, y + height - 3, text2, COL_WHITE);
 }
 
 /*
@@ -1618,14 +1517,27 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	*outy = py;
 }
 
-char DrawItemColor(ItemStruct *is)
+static BYTE DrawItemColor(ItemStruct *is)
 {
 	if (is->_iMagical == ITEM_QUALITY_NORMAL)
 		return COL_WHITE;
 	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
 }
 
-static void DrawTooltip(const char* text, int x, int y, char col)
+static void GetItemInfo(ItemStruct *is)
+{
+	infoclr = DrawItemColor(is);
+	if (is->_itype != ITYPE_GOLD) {
+		if (is->_iIdentified)
+			copy_str(infostr, is->_iIName);
+		else
+			copy_str(infostr, is->_iName);
+	} else {
+		snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
+	}
+}
+
+static void DrawTooltip(const char* text, int x, int y, BYTE col)
 {
 	int width;
 	BYTE *dst;
@@ -1659,13 +1571,13 @@ static void DrawTooltip(const char* text, int x, int y, char col)
 static void DrawHealthBar(int hp, int maxhp, int x, int y)
 {
 	BYTE *dst;
-	const int height = 5, width = 66;
+	const int height = 4, width = 66;
 	int h, dhp, w, dw;
 
-	if (maxhp == 0)
+	if (maxhp <= 0)
 		return;
 
-	y -= TILE_HEIGHT / 2 + 1;
+	y -= TILE_HEIGHT / 2 + 2;
 	if (y < 0)
 		return;
 	x -= width / 2;
@@ -1681,7 +1593,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 
 	// draw the bar
 	//width = (width - 2) * hp / maxhp;
-	dhp = maxhp >> 3;
+	dhp = (maxhp + 7) >> 3;
 	dw = ((width - 2) >> 3);
 	for (w = 0, h = 0; h < hp; h += dhp, w += dw) {
 	}
@@ -1701,7 +1613,7 @@ static void DrawTrigInfo()
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", plr[mis->_miSource]._pName);
 			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
-			DrawTpTooltip(xx, yy);
+			DrawTooltip2(infostr, tempstr, xx, yy, COL_WHITE);
 		} else {
 			if (!setlevel) {
 				copy_cstr(infostr, "Portal to The Unholy Altar");
@@ -1823,51 +1735,80 @@ static void DrawTrigInfo()
 void DrawInfoStr()
 {
 	int x, y, xx, yy;
-	char col;
+	BYTE col;
 
 	if (pcursitem != -1) {
 		ItemStruct* is = &item[pcursitem];
+		GetItemInfo(is);
 		x = is->_ix;
 		y = is->_iy;
-		col = DrawItemColor(is);
+		GetMousePos(x, y, &xx, &yy);
+		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursobj != -1) {
+		GetObjectStr(pcursobj);
 		ObjectStruct* os = &object[pcursobj];
 		x = os->_ox - 1;
 		y = os->_oy - 1;
-		col = infoclr;
+		GetMousePos(x, y, &xx, &yy);
+		DrawTooltip(infostr, xx, yy, infoclr);
 	} else if (pcursmonst != -1) {
 		MonsterStruct* mon = &monster[pcursmonst];
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
-		col = infoclr;
+		col = COL_WHITE;
+		if (leveltype != DTYPE_TOWN) {
+			strcpy(infostr, mon->mName);
+			if (mon->_uniqtype != 0) {
+				col = COL_GOLD;
+			}
+		} else if (pcursitem == -1) {
+			copy_str(infostr, towner[pcursmonst]._tName);
+		}
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
-		return;
 	} else if (pcursplr != -1) {
 		PlayerStruct* p = &plr[pcursplr];
-		x = p->_px;
-		y = p->_py;
-		col = COL_WHITE;
+		x = p->_px - 2;
+		y = p->_py - 2;
+		GetMousePos(x, y, &xx, &yy);
+		snprintf(infostr, sizeof(infostr), "%s(%i)", ClassStrTbl[p->_pClass], p->_pLevel);
+		DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
+		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
 	} else if (spselflag) {
 		if (pSpell == SPL_INVALID)
 			return;
-		xx = MouseX;
-		yy = MouseY;
-		col = COL_WHITE;
-		DrawTooltip(infostr, xx, yy, col);
-		return;
+		const char* fmt;
+		switch (pSplType) {
+		case RSPLTYPE_SKILL:
+			fmt = "%s Skill";
+			break;
+		case RSPLTYPE_SPELL:
+			fmt = "%s Spell";
+			break;
+		case RSPLTYPE_SCROLL:
+			fmt = "Scroll of %s";
+			break;
+		case RSPLTYPE_CHARGES:
+			fmt = "Staff of %s";
+			break;
+		//case RSPLTYPE_INVALID:
+		//	break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		snprintf(infostr, sizeof(infostr), fmt, spelldata[pSpell].sNameText);
+		DrawTooltip(infostr, MouseX, MouseY - 8, COL_WHITE);
 	} else if (pcursinvitem != -1) {
-		DrawItemInfo();
-		return;
+		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
-		return;
-	} else {
-		return;
+	} else if (pcurs >= CURSOR_FIRSTITEM) {
+		ItemStruct *is = &plr[myplr].HoldItem;
+		GetItemInfo(is);
+		DrawTooltip(infostr, MouseX + cursW / 2, MouseY, infoclr);
 	}
-	GetMousePos(x, y, &xx, &yy);
-	DrawTooltip(infostr, xx, yy, col);
 }
 
 

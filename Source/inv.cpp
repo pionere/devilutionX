@@ -1909,8 +1909,6 @@ char CheckInvBelt()
 	x = MouseX - (PANEL_LEFT + InvRect[SLOTXY_BELT_FIRST].X);
 	for (i = 0; i < MAXBELTITEMS && x >= 0; i++, x -= INV_SLOT_SIZE_PX + 1) {
 		if (x <= INV_SLOT_SIZE_PX) {
-			//infoclr = COL_WHITE;
-			//ClearPanel();
 			if (plr[myplr].SpdList[i]._itype != ITYPE_NONE) {
 				gbRedrawFlags |= REDRAW_SPEED_BAR;
 				return INVITEM_BELT_FIRST + i;
@@ -1936,8 +1934,6 @@ char CheckInvItem()
 		}
 	}
 
-	//infoclr = COL_WHITE;
-	//ClearPanel();
 	p = &plr[myplr];
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:

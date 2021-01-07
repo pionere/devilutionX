@@ -1068,7 +1068,6 @@ void plrctrls_after_check_curs_move()
 		cursmy = -1;
 		if (!invflag) {
 			*infostr = '\0';
-			ClearPanel();
 			FindActor();
 			FindItemOrObject();
 			FindTrigger();

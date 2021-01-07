@@ -702,7 +702,7 @@ void CheckTrigForce()
 		switch (leveltype) {
 		case DTYPE_TOWN:
 			pcurstrig = ForceTownTrig();
-			break;
+			return;
 		case DTYPE_CATHEDRAL:
 			pcurstrig = ForceL1Trig();
 			break;
@@ -715,8 +715,10 @@ void CheckTrigForce()
 		case DTYPE_HELL:
 			pcurstrig = ForceL4Trig();
 			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
-		if (leveltype != DTYPE_TOWN && pcurstrig == -1) {
+		if (pcurstrig == -1) {
 			pcurstrig = ForceQuests();
 		}
 	} else {
@@ -731,10 +733,6 @@ void CheckTrigForce()
 			pcurstrig = ForcePWaterTrig();
 			break;
 		}
-	}
-
-	if (pcurstrig != -1) {
-		ClearPanel();
 	}
 }
 

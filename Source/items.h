@@ -65,7 +65,6 @@ void DeleteItem(int ii, int i);
 void ProcessItems();
 void FreeItemGFX();
 void GetItemFrm(int ii);
-void GetItemStr(int ii);
 void CheckIdentify(int pnum, int cii);
 void DoRepair(int pnum, int cii);
 void DoRecharge(int pnum, int cii);
@@ -74,7 +73,7 @@ BOOL DoOil(int pnum, int cii);
 #endif
 void PrintItemPower(char plidx, const ItemStruct *is);
 void DrawUniqueInfo();
-void DrawItemInfo();
+void DrawInvItemDetails();
 void SpawnSmith(int lvl);
 void SpawnPremium(int lvl);
 void SetBookLevel(int pnum, ItemStruct *is);

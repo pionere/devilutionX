@@ -1897,7 +1897,6 @@ static void timeout_cursor(BOOL bTimeout)
 	} else if (sgnTimeoutCurs != CURSOR_NONE) {
 		NewCursor(sgnTimeoutCurs);
 		sgnTimeoutCurs = CURSOR_NONE;
-		ClearPanel();
 		gbRedrawFlags = REDRAW_ALL;
 	}
 }

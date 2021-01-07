@@ -2990,26 +2990,6 @@ void GetItemFrm(int ii)
 	item[ii]._iAnimData = itemanims[ItemCAnimTbl[item[ii]._iCurs]];
 }
 
-void GetItemStr(int ii)
-{
-	ItemStruct *is;
-
-	is = &item[ii];
-	if (is->_itype != ITYPE_GOLD) {
-		if (is->_iIdentified)
-			copy_str(infostr, is->_iIName);
-		else
-			copy_str(infostr, is->_iName);
-
-		if (is->_iMagical == ITEM_QUALITY_MAGIC)
-			infoclr = COL_BLUE;
-		if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-			infoclr = COL_GOLD;
-	} else {
-		snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
-	}
-}
-
 void CheckIdentify(int pnum, int cii)
 {
 	ItemStruct *pi;
@@ -3832,7 +3812,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int y)
 	return;
 }
 
-void DrawItemInfo()
+void DrawInvItemDetails()
 {
 	ItemStruct* is = PlrItem(myplr, pcursinvitem);
 	int x = RIGHT_PANEL_X - SPANEL_WIDTH + 32;
