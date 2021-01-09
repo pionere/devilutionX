@@ -398,7 +398,7 @@ static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 16384, "Ali
 
 typedef struct TextDataStruct {
 	const char *txtstr;
-	int scrlltxt;
+	BOOL scrlltxt;
 	int txtspd;
 	int sfxnr;
 } TextDataStruct;

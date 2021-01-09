@@ -47,12 +47,6 @@ const BYTE mfontkern[56] = {
 
 /* data */
 
-/**
- * Text scroll speeds. Positive numbers will delay scrolling 1 out of n frames,
- * negative numbers will scroll 1+(-n) pixels.
- */
-int qscroll_spd_tbl[9] = { 2, 4, 6, 8, 0, -1, -2, -3, -4 };
-
 void FreeQuestText()
 {
 	MemFreeDbg(pMedTextCels);
@@ -77,7 +71,7 @@ void InitQTextMsg(int m)
 		qtextptr = alltext[m].txtstr;
 		qtextflag = TRUE;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
-		speed = qscroll_spd_tbl[alltext[m].txtspd - 1];
+		speed = alltext[m].txtspd;
 		if (speed <= 0)
 			scrolltexty = 50 / -(speed - 1);
 		else

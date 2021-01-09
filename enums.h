@@ -2139,6 +2139,7 @@ typedef enum _speech_id {
 	TEXT_BOOK32     = 0x100,
 	TEXT_BOOK33     = 0x101,
 	TEXT_INTRO      = 0x102,
+#ifdef HELLFIRE
 	TEXT_HBONER     = 0x103,
 	TEXT_HBLOODY    = 0x104,
 	TEXT_HBLINDING  = 0x105,
@@ -2218,6 +2219,8 @@ typedef enum _speech_id {
 	TEXT_BBOOKA     = 0x14F,
 	TEXT_BBOOKB     = 0x150,
 	TEXT_BBOOKC     = 0x151,
+#endif
+	NUM_TEXTS
 } _speech_id;
 
 typedef enum object_graphic_id {

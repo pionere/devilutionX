@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const TextDataStruct alltext[];
+extern const TextDataStruct alltext[NUM_TEXTS];
 
 #ifdef __cplusplus
 }
