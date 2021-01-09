@@ -124,65 +124,70 @@ const BYTE gbFontTransTbl[256] = {
 
 /* data */
 
-/** Maps from spell_id to spelicon.cel frame number. */
-const char SpellITbl[NUM_SPELLS] = {
+/** Maps from spell_id to spelicon.cel frame number.
+  unused ones : 17 (white burning eye),
+				31 (red skull),
+				32 (red star),
+				33 (red burning stair?),
+				34 (bull-head),
+  unavailables: 19 (3-bladed fan?),
+				20 (teleport?),
+				22 (fan)
+ */
+const BYTE SpellITbl[NUM_SPELLS] = {
+	27,// SPL_NULL
+	1, // SPL_FIREBOLT
+	2, // SPL_HEAL
+	3, // SPL_LIGHTNING
+	4, // SPL_FLASH
+	5, // SPL_IDENTIFY
+	6, // SPL_FIREWALL
+	7, // SPL_TOWN
+	8, // SPL_STONE
+	9, // SPL_INFRA
+	28,// SPL_RNDTELEPORT
+	13,// SPL_MANASHIELD
+	12,// SPL_FIREBALL
+	18,// SPL_GUARDIAN
+	16,// SPL_CHAIN
+	14,// SPL_WAVE
+	18,// SPL_DOOMSERP
+	19,// SPL_BLODRIT
+	11,// SPL_NOVA
+	20,// SPL_INVISIBIL
+	15,// SPL_FLAME
+	21,// SPL_GOLEM
+	23,// SPL_BLODBOIL
+	24,// SPL_TELEPORT
+	25,// SPL_APOCA
+	22,// SPL_ETHEREALIZE
+	26,// SPL_REPAIR
+	29,// SPL_RECHARGE
+	37,// SPL_DISARM
+	38,// SPL_ELEMENT
+	39,// SPL_CBOLT
+	42,// SPL_HBOLT
+	41,// SPL_RESURRECT
+	40,// SPL_TELEKINESIS
+	10,// SPL_HEALOTHER
+	36,// SPL_FLARE
+	30,// SPL_BONESPIRIT
 #ifdef HELLFIRE
-	27,
-#else
-	1,
-#endif
-	1,
-	2,
-	3,
-	4,
-	5,
-	6,
-	7,
-	8,
-	9,
-	28,
-	13,
-	12,
-	18,
-	16,
-	14,
-	18,
-	19,
-	11,
-	20,
-	15,
-	21,
-	23,
-	24,
-	25,
-	22,
-	26,
-	29,
-	37,
-	38,
-	39,
-	42,
-	41,
-	40,
-	10,
-	36,
-	30,
-#ifdef HELLFIRE
-	51,
-	51,
-	50,
-	46,
-	47,
-	43,
-	45,
-	48,
-	49,
-	44,
-	35,
-	35,
-	35,
-	35,
-	35,
+	51,// SPL_MANA
+	51,// SPL_MAGI
+	50,// SPL_JESTER
+	46,// SPL_LIGHTWALL
+	47,// SPL_IMMOLAT
+	43,// SPL_WARP
+	45,// SPL_REFLECT
+	48,// SPL_BERSERK
+	49,// SPL_FIRERING
+	44,// SPL_SEARCH
+	35,// SPL_RUNEFIRE
+	35,// SPL_RUNELIGHT
+	35,// SPL_RUNENOVA
+	35,// SPL_RUNEIMMOLAT
+	35,// SPL_RUNESTONE
 #endif
 };
 /** Maps from panel_button_id to the position and dimensions of a panel button. */
@@ -390,9 +395,10 @@ void DrawSpell()
 	st = p->_pRSplType;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
-	if (spl == SPL_INVALID)
+	if (spl == SPL_INVALID) {
 		st = RSPLTYPE_INVALID;
-	else if (currlevel == 0 && !spelldata[spl].sTownSpell)
+		spl = SPL_NULL;
+	} else if (currlevel == 0 && !spelldata[spl].sTownSpell)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
 		lvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
@@ -401,7 +407,7 @@ void DrawSpell()
 	}
 	SetSpellTrans(st);
 	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1, pSpellCels,
-		spl != SPL_INVALID ? SpellITbl[spl] : 27, SPLICONLENGTH);
+		SpellITbl[spl], SPLICONLENGTH);
 	DrawSpellIconOverlay(spl, st, lvl, SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1);
 }
 
