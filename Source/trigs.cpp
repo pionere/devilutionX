@@ -690,14 +690,6 @@ static int ForcePWaterTrig()
 
 void CheckTrigForce()
 {
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (!sgbControllerActive && MouseY > PANEL_TOP - 1) {
-#else
-	if (MouseY > PANEL_TOP - 1) {
-#endif
-		return;
-	}
-
 	if (!setlevel) {
 		switch (leveltype) {
 		case DTYPE_TOWN:

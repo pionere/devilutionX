@@ -13,9 +13,20 @@ BYTE sgbTalkSavePos;
 BYTE *pDurIcons;
 BYTE *pChrButtons;
 BOOL dropGoldFlag;
-BOOL panbtn[8];
+BOOL panbtn[NUM_PANBTNS];
 BOOL chrbtn[4];
+// icons of the multiplayer buttons (width 33)
+// 1-2: chat (mouth)
+// 3-4: friendly mode (parallel swords)
+// 5-6: hostile mode (crossed swords)
 BYTE *pMultiBtns;
+// icons of the pressed panel buttons (width 71)
+// 1: char button
+// 2: quests button
+// 3: map button
+// 4: menu button
+// 5: inv button
+// 6: spells button
 BYTE *pPanelButtons;
 BYTE *pChrPanel;
 BOOL lvlbtndown;
@@ -47,7 +58,6 @@ BOOL chrflag;
 BYTE *pSpellBkCel;
 char infostr[256];
 int numpanbtns;
-BOOL panelflag;
 BYTE SplTransTbl[256];
 static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_SCROLL != -1, "Cached value of spellTrans must not be -1.");
@@ -57,7 +67,6 @@ static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1
 char lastSt = -1;
 int initialDropGoldValue;
 BYTE *pSpellCels;
-BOOL panbtndown;
 BOOL spselflag;
 
 /** Maps from font index to smaltext.cel frame number. */
@@ -177,35 +186,52 @@ const char SpellITbl[NUM_SPELLS] = {
 #endif
 };
 /** Maps from panel_button_id to the position and dimensions of a panel button. */
-int PanBtnPos[8][5] = {
+/*int PanBtnPos[8][4] = {
 	// clang-format off
-	{   9,   9, 71, 19, TRUE  }, // char button
-	{   9,  35, 71, 19, FALSE }, // quests button
-	{   9,  75, 71, 19, TRUE  }, // map button
-	{   9, 101, 71, 19, FALSE }, // menu button
-	{ 560,   9, 71, 19, TRUE  }, // inv button
-	{ 560,  35, 71, 19, FALSE }, // spells button
-	{  87,  91, 33, 32, TRUE  }, // chat button
-	{ 527,  91, 33, 32, TRUE  }, // friendly fire button
+	{   9,   9, 71, 19 }, // char button
+	{   9,  35, 71, 19 }, // quests button
+	{   9,  75, 71, 19 }, // map button
+	{   9, 101, 71, 19 }, // menu button
+	{ 560,   9, 71, 19 }, // inv button
+	{ 560,  35, 71, 19 }, // spells button
+	{  87,  91, 33, 32 }, // chat button
+	{ 527,  91, 33, 32 }, // friendly fire button
+	// clang-format on
+};*/
+const int PanBtnPos[NUM_PANBTNS][2] = {
+	// clang-format off
+	{   0, 20 + 0 * MENUBTN_HEIGHT }, // menu button
+	{   0, 20 + 1 * MENUBTN_HEIGHT }, // options button
+	{   0, 20 + 2 * MENUBTN_HEIGHT }, // char button
+	{   0, 20 + 3 * MENUBTN_HEIGHT }, // inv button
+	{   0, 20 + 4 * MENUBTN_HEIGHT }, // spells button
+	{   0, 20 + 5 * MENUBTN_HEIGHT }, // quests button
+	{   0, 20 + 6 * MENUBTN_HEIGHT }, // map button
+	{   0, 20 + 7 * MENUBTN_HEIGHT }, // chat button
+	{   0, 20 + 8 * MENUBTN_HEIGHT }, // pvp button
 	// clang-format on
 };
-/** Maps from panel_button_id to panel button description. */
-const char PanBtnStr[8][24] = {
-	"Character Information",
-	"Quests log",
-	"Automap",
-	"Main Menu",
-	"Inventory",
-	"Spell book",
-	"Send Message",
-	"Player Attack"
+const char *PanBtnTxt[NUM_PANBTNS] = {
+	// clang-format off
+	"Menu",
+	"Options",
+	"Char",
+	"Inv",
+	"Spells",
+	"Quests",
+	"Map",
+	"Chat",
+	"PvP"
+	// clang-format on
 };
 /** Maps from attribute_id to the rectangle on screen used for attribute increment buttons. */
-RECT32 ChrBtnsRect[4] = {
-	{ 137, 138, 41, 22 },
-	{ 137, 166, 41, 22 },
-	{ 137, 195, 41, 22 },
-	{ 137, 223, 41, 22 }
+const RECT32 ChrBtnsRect[4] = {
+	// clang-format off
+	{ 137, 138, CHRBTN_WIDTH, CHRBTN_HEIGHT },
+	{ 137, 166, CHRBTN_WIDTH, CHRBTN_HEIGHT },
+	{ 137, 195, CHRBTN_WIDTH, CHRBTN_HEIGHT },
+	{ 137, 223, CHRBTN_WIDTH, CHRBTN_HEIGHT }
+	// clang-format on
 };
 
 /** Maps from spellbook page number and position to spell_id. */
@@ -374,9 +400,9 @@ void DrawSpell()
 			st = RSPLTYPE_INVALID;
 	}
 	SetSpellTrans(st);
-	DrawSpellCel(PANEL_X + 565, PANEL_Y + 119, pSpellCels,
+	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1, pSpellCels,
 		spl != SPL_INVALID ? SpellITbl[spl] : 27, SPLICONLENGTH);
-	DrawSpellIconOverlay(spl, st, lvl, PANEL_X + 565, PANEL_Y + 119);
+	DrawSpellIconOverlay(spl, st, lvl, SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1);
 }
 
 void DrawSpeedBook()
@@ -472,7 +498,7 @@ void SetSpell()
 	if (pSpell != SPL_INVALID) {
 		plr[myplr]._pRSpell = pSpell;
 		plr[myplr]._pRSplType = pSplType;
-		gbRedrawFlags = REDRAW_ALL;
+		//gbRedrawFlags = REDRAW_ALL;
 	}
 }
 
@@ -523,7 +549,7 @@ void ToggleSpell(int slot)
 	if (spells & SPELL_MASK(p->_pSplHotKey[slot])) {
 		p->_pRSpell = p->_pSplHotKey[slot];
 		p->_pRSplType = p->_pSplTHotKey[slot];
-		gbRedrawFlags = REDRAW_ALL;
+		//gbRedrawFlags = REDRAW_ALL;
 	}
 }
 
@@ -666,6 +692,7 @@ void DrawLifeFlask()
 {
 	int filled, height;
 	int maxHP, hp;
+	int x, y;
 
 	if (gbRedrawFlags & REDRAW_HP_FLASK) {
 		maxHP = plr[myplr]._pMaxHP;
@@ -677,6 +704,13 @@ void DrawLifeFlask()
 		if (filled > 80)
 			filled = 80;
 		plr[myplr]._pHPPer = filled;
+	} else {
+		filled = plr[myplr]._pHPPer;
+	}
+
+	x = 80 + PANEL_X - 28;
+	y = PANEL_Y + 28 + 17;
+	DrawPanelBox(80, 16, 118, 83, x, y);
 
 		/**
 		 * Draw the life flask within the control panel.
@@ -687,12 +721,9 @@ void DrawLifeFlask()
 		if (height > 69)
 			height = 69;
 		if (height != 69)
-			SetFlaskHeight(pLifeBuff, 16, 85 - height, 96 + PANEL_X, PANEL_Y);
+			SetFlaskHeight(pLifeBuff, 16, 85 - height, x + 16, y);
 		if (height != 0)
-			DrawPanelBox(96, 85 - height, 88, height, 96 + PANEL_X, PANEL_Y + 69 - height);
-	} else {
-		filled = plr[myplr]._pHPPer;
-	}
+			DrawPanelBox(96, 85 - height, 88, height, x + 16, y + 69 - height);
 
 	/**
 	 * Draw the top dome of the life flask (that part that protrudes out of the control panel).
@@ -703,15 +734,16 @@ void DrawLifeFlask()
 		height = 12;
 	height += 1;
 
-	DrawFlask(pLifeBuff, 88, 88 * 3 + 13, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13), height);
+	DrawFlask(pLifeBuff, 88, 88 * 3 + 13, x + 29 + BUFFER_WIDTH * (y - 13), height);
 	if (height != 13)
-		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 109, SCREENXY(PANEL_LEFT + 109, PANEL_TOP - 13 + height), 13 - height);
+		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 109, x + 29 + BUFFER_WIDTH * (y - 13 + height), 13 - height);
 }
 
 void DrawManaFlask()
 {
 	int filled, height;
 	int maxMana, mana;
+	int x, y;
 
 	if (gbRedrawFlags & REDRAW_MANA_FLASK) {
 		maxMana = plr[myplr]._pMaxMana;
@@ -724,6 +756,13 @@ void DrawManaFlask()
 		if (filled > 80)
 			filled = 80;
 		plr[myplr]._pManaPer = filled;
+	} else {
+		filled = plr[myplr]._pManaPer;
+	}
+
+	x = 457 + PANEL_X + 35;
+	y = PANEL_Y + 28 + 17;
+	DrawPanelBox(457, 16, 92, 83, x, y);
 
 		/**
 		 * Draw the mana flask within the control panel.
@@ -734,12 +773,9 @@ void DrawManaFlask()
 		if (height > 69)
 			height = 69;
 		if (height != 69)
-			SetFlaskHeight(pManaBuff, 16, 85 - height, PANEL_X + 464, PANEL_Y);
+			SetFlaskHeight(pManaBuff, 16, 85 - height, x + 7, y);
 		if (height != 0)
-			DrawPanelBox(464, 85 - height, 88, height, PANEL_X + 464, PANEL_Y + 69 - height);
-	} else {
-		filled = plr[myplr]._pManaPer;
-	}
+			DrawPanelBox(464, 85 - height, 88, height, x + 7, y + 69 - height);
 
 	/**
 	 * Draw the top dome of the mana flask (that part that protrudes out of the control panel).
@@ -749,9 +785,9 @@ void DrawManaFlask()
 	if (height > 12)
 		height = 12;
 	height += 1;
-	DrawFlask(pManaBuff, 88, 88 * 3 + 13, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13), height);
+	DrawFlask(pManaBuff, 88, 88 * 3 + 13, (x + 18) + BUFFER_WIDTH * (y - 13), height);
 	if (height != 13)
-		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 475, SCREENXY(PANEL_LEFT + 475, PANEL_TOP - 13 + height), 13 - height);
+		DrawFlask(pBtmBuff, PANEL_WIDTH, PANEL_WIDTH * (height + 3) + 475, (x + 18) + BUFFER_WIDTH * (y - 13 + height), 13 - height);
 }
 
 void InitControlPan()
@@ -799,16 +835,11 @@ void InitControlPan()
 		for (i = 0; i < lengthof(talkbtndown); i++)
 			talkbtndown[i] = FALSE;
 	}
-	panelflag = FALSE;
 	lvlbtndown = FALSE;
 	pPanelButtons = LoadFileInMem("CtrlPan\\Panel8bu.CEL", NULL);
 	for (i = 0; i < lengthof(panbtn); i++)
 		panbtn[i] = FALSE;
-	panbtndown = FALSE;
-	if (gbMaxPlayers == 1)
-		numpanbtns = 6;
-	else
-		numpanbtns = 8;
+	numpanbtns = gbMaxPlayers == 1 ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	pChrButtons = LoadFileInMem("Data\\CharBut.CEL", NULL);
 	for (i = 0; i < lengthof(chrbtn); i++)
 		chrbtn[i] = FALSE;
@@ -832,30 +863,37 @@ void InitControlPan()
 	initialDropGoldIndex = 0;
 }
 
-void DrawCtrlPan()
-{
-	DrawPanelBox(0, sgbPlrTalkTbl + 16, PANEL_WIDTH, PANEL_HEIGHT, PANEL_X, PANEL_Y);
-	DrawInfoBox();
-}
-
 /**
  * Draws the control panel buttons in their current state. If the button is in the default
  * state draw it from the panel cel(extract its sub-rect). Else draw it from the buttons cel.
  */
 void DrawCtrlBtns()
 {
-	int i;
+	int i, x, y;
+	BOOLEAN pb;
+	const char* text;
 
-	for (i = 0; i < 6; i++) {
-		if (!panbtn[i])
-			DrawPanelBox(PanBtnPos[i][0], PanBtnPos[i][1] + 16, 71, 20, PanBtnPos[i][0] + PANEL_X, PanBtnPos[i][1] + PANEL_Y);
-		else
-			CelDraw(PanBtnPos[i][0] + PANEL_X, PanBtnPos[i][1] + PANEL_Y + 18, pPanelButtons, i + 1, 71);
+	i = 0;
+	x = SCREEN_X + PanBtnPos[i][0];
+	if (!panbtn[PANBTN_MAINMENU]) {
+		DrawPanelBox(9, 101 + 16, 71, 20, x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1]);
+		return;
 	}
-	if (numpanbtns == 8) {
-		CelDraw(87 + PANEL_X, 122 + PANEL_Y, pMultiBtns, panbtn[6] + 1, 33);
-		CelDraw(527 + PANEL_X, 122 + PANEL_Y, pMultiBtns,
-			panbtn[7] + FriendlyMode ? 3 : 5, 33);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + 18, pPanelButtons, 3 + 1, 71);
+	for (i = 1; i < numpanbtns; i++) {
+		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
+		pb = panbtn[i];
+		// draw a pressed "Inv" button
+		CelDraw(x, y + 18, pPanelButtons, 4 + 1, 71);
+		// hide the "Inv" text of the button
+		BYTE *dst = &gpBuffer[(x + 18) + BUFFER_WIDTH * (y + 4)];
+		for (int j = -5; j <= 5; j++, dst += BUFFER_WIDTH)
+			memset(dst + abs(j), PAL16_YELLOW + 9 + pb, 35 - 2 * abs(j));
+		// print the real text of the button
+		text = PanBtnTxt[i];
+		if (i == PANBTN_FRIENDLY)
+			text = FriendlyMode ? "PvP:Off" : "PvP:On";
+		PrintString(x + 3, y + 15, x + 70, text, TRUE, pb ? COL_GOLD : COL_WHITE, 1);
 	}
 }
 
@@ -926,86 +964,145 @@ void DoSpeedBook()
 #endif
 }
 
-static void control_set_button_down(int btn_id)
+void HandleSpellBtn()
 {
-	panbtn[btn_id] = TRUE;
-	gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
-	panbtndown = TRUE;
+	if (!spselflag) {
+		invflag = FALSE;
+		chrflag = FALSE;
+		questlog = FALSE;
+		sbookflag = FALSE;
+		helpflag = FALSE;
+		DoSpeedBook();
+	} else {
+		spselflag = FALSE;
+	}
+	gamemenu_off();
 }
 
+static void control_set_button_down(int btn_id)
+{
+	if (btn_id == PANBTN_MAINMENU) {
+		panbtn[PANBTN_MAINMENU] = !panbtn[PANBTN_MAINMENU];
+	} else {
+		assert(panbtn[PANBTN_MAINMENU]);
+		panbtn[btn_id] = TRUE;
+	}
+	//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+}
+
+static BOOL InLvlUpRect()
+{
+	return MouseX >= 175
+		&& MouseX <= 175 + CHRBTN_WIDTH
+		&& MouseY >= SCREEN_HEIGHT - 24 - CHRBTN_HEIGHT
+		&& MouseY <= SCREEN_HEIGHT - 24;
+}
+
+void ReleaseLvlBtn()
+{
+	if (InLvlUpRect()) {
+		HandlePanBtn(PANBTN_CHARINFO);
+	}
+	lvlbtndown = FALSE;
+}
 /**
  * Checks if the mouse cursor is within any of the panel buttons and flag it if so.
  */
-void DoPanBtn()
+BOOL DoPanBtn()
 {
 	int i, mx, my;
 
 	mx = MouseX;
 	my = MouseY;
-	for (i = 0; i < numpanbtns; i++) {
-		if (mx >= PanBtnPos[i][0] + PANEL_LEFT
-		 && mx <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
-		 && my >= PanBtnPos[i][1] + PANEL_TOP
-		 && my <= PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
+	for (i = panbtn[PANBTN_MAINMENU] ? numpanbtns - 1 : 0; i >= 0; i--) {
+		if (mx >= PanBtnPos[i][0]
+		 && mx <= PanBtnPos[i][0] + MENUBTN_WIDTH
+		 && my >= SCREEN_HEIGHT - PanBtnPos[i][1]
+		 && my <= SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT) {
 			control_set_button_down(i);
-			return;
+			return TRUE;
 		}
 	}
-	if (mx >= 565 + PANEL_LEFT && mx < 621 + PANEL_LEFT && my >= 64 + PANEL_TOP && my < 120 + PANEL_TOP) {
-		DoSpeedBook();
-		gamemenu_off();
+	if (mx >= SCREEN_WIDTH - (SPLICONLENGTH + 4)
+	 && mx <= SCREEN_WIDTH - 4
+	 && my >= SCREEN_HEIGHT - (SPLICONLENGTH + 4)
+	 && my <= SCREEN_HEIGHT - 4) {
+		HandleSpellBtn();
+		return TRUE;
+	}
+	if (plr[myplr]._pLvlUp && InLvlUpRect())
+		lvlbtndown = TRUE;
+	return lvlbtndown;
+}
+
+void DoLimitedPanBtn()
+{
+	if (MouseX >= PanBtnPos[PANBTN_MAINMENU][0]
+	 && MouseX <= PanBtnPos[PANBTN_MAINMENU][0] + MENUBTN_WIDTH
+	 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1]
+	 && MouseY <= SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1] + MENUBTN_HEIGHT) {
+		control_set_button_down(PANBTN_MAINMENU);
+	} else if (panbtn[PANBTN_MAINMENU] && gbMaxPlayers != 1) {
+		if (MouseX >= PanBtnPos[PANBTN_SENDMSG][0]
+		 && MouseX <= PanBtnPos[PANBTN_SENDMSG][0] + MENUBTN_WIDTH
+		 && MouseY >= SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1]
+		 && MouseY <= SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1] + MENUBTN_HEIGHT) {
+			control_set_button_down(PANBTN_SENDMSG);
+		}
 	}
 }
 
-void control_check_btn_press()
+void HandlePanBtn(int i)
 {
-	if (MouseX >= PanBtnPos[3][0] + PANEL_LEFT
-	 && MouseX <= PanBtnPos[3][0] + PANEL_LEFT + PanBtnPos[3][2]
-	 && MouseY >= PanBtnPos[3][1] + PANEL_TOP
-	 && MouseY <= PanBtnPos[3][1] + PANEL_TOP + PanBtnPos[3][3]) {
-		control_set_button_down(3);
+	switch (i) {
+	case PANBTN_MAINMENU:
+		qtextflag = FALSE;
+		break;
+	case PANBTN_OPTIONS:
+		gamemenu_on();
+		return;
+	case PANBTN_CHARINFO:
+		questlog = FALSE;
+		spselflag = FALSE;
+		plr[myplr]._pLvlUp = FALSE;
+		chrflag = !chrflag;
+		break;
+	case PANBTN_INVENTORY:
+		sbookflag = FALSE;
+		spselflag = FALSE;
+		invflag = !invflag;
+		break;
+	case PANBTN_SPELLBOOK:
+		invflag = FALSE;
+		spselflag = FALSE;
+		sbookflag = !sbookflag;
+		break;
+	case PANBTN_QLOG:
+		chrflag = FALSE;
+		spselflag = FALSE;
+		if (!questlog)
+			StartQuestlog();
+		else
+			questlog = FALSE;
+		break;
+	case PANBTN_AUTOMAP:
+		ToggleAutomap();
+		break;
+	case PANBTN_SENDMSG:
+		if (talkflag)
+			control_reset_talk();
+		else
+			control_type_message();
+		break;
+	case PANBTN_FRIENDLY:
+		FriendlyMode = !FriendlyMode;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
-	if (MouseX >= PanBtnPos[6][0] + PANEL_LEFT
-	 && MouseX <= PanBtnPos[6][0] + PANEL_LEFT + PanBtnPos[6][2]
-	 && MouseY >= PanBtnPos[6][1] + PANEL_TOP
-	 && MouseY <= PanBtnPos[6][1] + PANEL_TOP + PanBtnPos[6][3]) {
-		control_set_button_down(6);
-	}
-}
-
-/**
- * Checks the mouse cursor position within the control panel and sets information
- * strings if needed.
- */
-void CheckPanelInfo()
-{
-	int i;
-
-	panelflag = FALSE;
-	for (i = 0; i < numpanbtns; i++) {
-		if (MouseX >= PanBtnPos[i][0] + PANEL_LEFT
-		 && MouseX <= PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
-		 && MouseY >= PanBtnPos[i][1] + PANEL_TOP
-		 && MouseY <= PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
-			if (i != PANBTN_FRIENDLY) {
-				copy_cstr(infostr, PanBtnStr[i]);
-			} else {
-				if (FriendlyMode)
-					copy_cstr(infostr, "Player friendly");
-				else
-					copy_cstr(infostr, "Player attack");
-			}
-			infoclr = COL_WHITE;
-			panelflag = TRUE;
-		}
-	}
-	if (!spselflag && MouseX >= 565 + PANEL_LEFT && MouseX < 621 + PANEL_LEFT && MouseY >= 64 + PANEL_TOP && MouseY < 120 + PANEL_TOP) {
-		copy_cstr(infostr, "Select current spell button");
-		infoclr = COL_WHITE;
-		panelflag = TRUE;
-	}
-	if (MouseX > 190 + PANEL_LEFT && MouseX < 437 + PANEL_LEFT && MouseY > 4 + PANEL_TOP && MouseY < 33 + PANEL_TOP)
-		pcursinvitem = CheckInvBelt();
+	helpflag = FALSE;
+	gamemenu_off();
 }
 
 /**
@@ -1015,73 +1112,27 @@ void CheckPanelInfo()
 void CheckBtnUp()
 {
 	int i;
-	BOOLEAN gamemenuOff;
-
-	gamemenuOff = TRUE;
-	gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
-	panbtndown = FALSE;
 
 	static_assert(lengthof(panbtn) == lengthof(PanBtnPos), "Mismatching panbtn and panbtnpos tables.");
-	for (i = 0; i < lengthof(panbtn); i++) {
+	static_assert(PANBTN_MAINMENU == 0, "CheckBtnUp needs to skip the mainmenu-button.");
+	for (i = 1; i < lengthof(panbtn); i++) {
 		if (!panbtn[i]) {
 			continue;
 		}
 
 		panbtn[i] = FALSE;
-
-		if (MouseX < PanBtnPos[i][0] + PANEL_LEFT
-		 || MouseX > PanBtnPos[i][0] + PANEL_LEFT + PanBtnPos[i][2]
-		 || MouseY < PanBtnPos[i][1] + PANEL_TOP
-		 || MouseY > PanBtnPos[i][1] + PANEL_TOP + PanBtnPos[i][3]) {
+		if (MouseX < PanBtnPos[i][0]
+		 || MouseX > PanBtnPos[i][0] + MENUBTN_WIDTH
+		 || MouseY < SCREEN_HEIGHT - PanBtnPos[i][1]
+		 || MouseY > SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT) {
 			continue;
 		}
 
-		switch (i) {
-		case PANBTN_CHARINFO:
-			questlog = FALSE;
-			plr[myplr]._pLvlUp = FALSE;
-			chrflag = !chrflag;
-			break;
-		case PANBTN_QLOG:
-			chrflag = FALSE;
-			if (!questlog)
-				StartQuestlog();
-			else
-				questlog = FALSE;
-			break;
-		case PANBTN_AUTOMAP:
-			ToggleAutomap();
-			break;
-		case PANBTN_MAINMENU:
-			qtextflag = FALSE;
-			gamemenu_handle_previous();
-			gamemenuOff = FALSE;
-			break;
-		case PANBTN_INVENTORY:
-			sbookflag = FALSE;
-			invflag = !invflag;
-			break;
-		case PANBTN_SPELLBOOK:
-			invflag = FALSE;
-			sbookflag = !sbookflag;
-			break;
-		case PANBTN_SENDMSG:
-			if (talkflag)
-				control_reset_talk();
-			else
-				control_type_message();
-			break;
-		case PANBTN_FRIENDLY:
-			FriendlyMode = !FriendlyMode;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	}
+		HandlePanBtn(i);
 
-	if (gamemenuOff)
-		gamemenu_off();
+		panbtn[PANBTN_MAINMENU] = FALSE;
+		//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+	}
 }
 
 void FreeControlPan()
@@ -1169,30 +1220,6 @@ void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, BYTE c
 		}
 		x += cw;
 	}
-}
-
-static void PrintInfo()
-{
-	int x;
-
-	if (!talkflag && infostr[0] != '\0') {
-		x = 177 + PANEL_LEFT + SCREEN_X;
-		PrintString(x, PANEL_TOP + SCREEN_Y + 82, x + 287, infostr, TRUE, infoclr, 2);
-	}
-}
-
-/**
- * Sets a string to be drawn in the info box and then draws it.
- */
-void DrawInfoBox()
-{
-	DrawPanelBox(177, 62, 288, 60, PANEL_X + 177, PANEL_Y + 46);
-	if (!panelflag && pcurstrig == -1 && pcursinvitem == -1 && !spselflag) {
-		infostr[0] = '\0';
-		infoclr = COL_WHITE;
-		return;
-	}
-	PrintInfo();
 }
 
 #define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, TRUE, col, 1)
@@ -1384,13 +1411,13 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%i", p->_pStatPts);
 		ADD_PlrStringXY(95, 266, 126, chrstr, COL_RED);
 		if (p->_pBaseStr < MaxStats[pc][ATTRIB_STR])
-			CelDraw(137 + SCREEN_X, 159 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_STR] + 2, 41);
+			CelDraw(137 + SCREEN_X, 159 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_STR] + 2, CHRBTN_WIDTH);
 		if (p->_pBaseMag < MaxStats[pc][ATTRIB_MAG])
-			CelDraw(137 + SCREEN_X, 187 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_MAG] + 4, 41);
+			CelDraw(137 + SCREEN_X, 187 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_MAG] + 4, CHRBTN_WIDTH);
 		if (p->_pBaseDex < MaxStats[pc][ATTRIB_DEX])
-			CelDraw(137 + SCREEN_X, 216 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_DEX] + 6, 41);
+			CelDraw(137 + SCREEN_X, 216 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_DEX] + 6, CHRBTN_WIDTH);
 		if (p->_pBaseVit < MaxStats[pc][ATTRIB_VIT])
-			CelDraw(137 + SCREEN_X, 244 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_VIT] + 8, 41);
+			CelDraw(137 + SCREEN_X, 244 + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_VIT] + 8, CHRBTN_WIDTH);
 	}
 
 	val = p->_pMaxHP;
@@ -1412,26 +1439,10 @@ void DrawChr()
 	ADD_PlrStringXY(143, 332, 174, chrstr, col);
 }
 
-BOOL CheckLvlBtn()
-{
-	if (plr[myplr]._pLvlUp && MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP)
-		lvlbtndown = TRUE;
-	return lvlbtndown;
-}
-
-void ReleaseLvlBtn()
-{
-	if (MouseX >= 40 + PANEL_LEFT && MouseX <= 81 + PANEL_LEFT && MouseY >= -39 + PANEL_TOP && MouseY <= -17 + PANEL_TOP) {
-		chrflag = TRUE;
-		plr[myplr]._pLvlUp = FALSE;
-	}
-	lvlbtndown = FALSE;
-}
-
 void DrawLevelUpIcon()
 {
-	ADD_PlrStringXY(PANEL_LEFT + 0, PANEL_TOP - 49, PANEL_LEFT + 120, "Level Up", COL_WHITE);
-	CelDraw(40 + PANEL_X, -17 + PANEL_Y, pChrButtons, lvlbtndown + 2, 41);
+	ADD_PlrStringXY(137, SCREEN_HEIGHT - 4, 137 + 120, "Level Up", COL_WHITE);
+	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtons, lvlbtndown + 2, CHRBTN_WIDTH);
 }
 
 static void DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE col)
@@ -1511,7 +1522,7 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	}
 
 	px += SCREEN_WIDTH / 2;
-	py += PANEL_TOP / 2;
+	py += VIEWPORT_HEIGHT / 2;
 
 	*outx = px;
 	*outy = py;
@@ -2119,7 +2130,7 @@ void CheckSBook()
 					st = RSPLTYPE_SPELL;
 				p->_pRSpell = sn;
 				p->_pRSplType = st;
-				gbRedrawFlags = REDRAW_ALL;
+				//gbRedrawFlags = REDRAW_ALL;
 			}
 		}
 	} else {
@@ -2364,7 +2375,7 @@ void control_type_message()
 		talkbtndown[i] = FALSE;
 	}
 	sgbPlrTalkTbl = PANEL_HEIGHT + 16;
-	gbRedrawFlags = REDRAW_ALL;
+	//gbRedrawFlags = REDRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 }
 
@@ -2372,7 +2383,7 @@ void control_reset_talk()
 {
 	talkflag = FALSE;
 	sgbPlrTalkTbl = 0;
-	gbRedrawFlags = REDRAW_ALL;
+	//gbRedrawFlags = REDRAW_ALL;
 }
 
 static void control_press_enter()

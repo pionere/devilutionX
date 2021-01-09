@@ -2863,14 +2863,16 @@ typedef enum _selhero_selections {
 } _selhero_selections;
 
 typedef enum panel_button_id {
-	PANBTN_CHARINFO  = 0,
-	PANBTN_QLOG      = 1,
-	PANBTN_AUTOMAP   = 2,
-	PANBTN_MAINMENU  = 3,
-	PANBTN_INVENTORY = 4,
-	PANBTN_SPELLBOOK = 5,
-	PANBTN_SENDMSG   = 6,
-	PANBTN_FRIENDLY  = 7,
+	PANBTN_MAINMENU,
+	PANBTN_OPTIONS,
+	PANBTN_CHARINFO,
+	PANBTN_INVENTORY,
+	PANBTN_SPELLBOOK,
+	PANBTN_QLOG,
+	PANBTN_AUTOMAP,
+	PANBTN_SENDMSG,
+	PANBTN_FRIENDLY,
+	NUM_PANBTNS
 } panel_button_id;
 
 typedef enum attribute_id {

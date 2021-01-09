@@ -221,7 +221,7 @@ static void scrollrt_draw_cursor_item()
 	cCels = pCursCels;
 	if (frame >= CURSOR_FIRSTITEM) {
 		col = PAL16_YELLOW + 5;
-		if (plr[myplr].HoldItem._iMagical != 0) {
+		if (plr[myplr].HoldItem._iMagical != ITEM_QUALITY_NORMAL) {
 			col = PAL16_BLUE + 5;
 		}
 		if (!plr[myplr].HoldItem._iStatFlag) {
@@ -1097,13 +1097,13 @@ void CalcViewportGeometry()
 
 /**
  * @brief Configure render and process screen rows
- * @param x Center of view in dPiece coordinate
- * @param y Center of view in dPiece coordinate
  */
-static void DrawGame(int x, int y)
+static void DrawGame()
 {
-	int sx, sy, columns, rows;
+	int x, y, sx, sy, columns, rows;
 
+	x = ViewX;
+	y = ViewY;
 	// Limit rendering to the view area
 	if (zoomflag)
 		gpBufEnd = &gpBuffer[BUFFER_WIDTH * (VIEWPORT_HEIGHT + SCREEN_Y)];
@@ -1208,15 +1208,19 @@ static void DrawGame(int x, int y)
 
 /**
  * @brief Start rendering of screen, town variation
- * @param StartX Center of view in dPiece coordinate
- * @param StartY Center of view in dPiece coordinate
  */
-static void DrawView(int StartX, int StartY)
+static void DrawView()
 {
-	DrawGame(StartX, StartY);
+	DrawGame();
 	if (automapflag) {
 		DrawAutomap();
 	}
+	//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+		DrawSpell();
+	//}
+	DrawLifeFlask();
+	DrawManaFlask();
+
 	if (stextflag != STORE_NONE && !qtextflag)
 		DrawSText();
 	if (invflag) {
@@ -1227,13 +1231,16 @@ static void DrawView(int StartX, int StartY)
 
 	DrawDurIcon();
 
+	//if (drawFlags & REDRAW_SPEED_BAR) {
+		DrawInvBelt();
+	//}
+
 	if (chrflag) {
 		DrawChr();
 	} else if (questlog) {
 		DrawQuestLog();
 	}
-	if (plr[myplr]._pLvlUp && !chrflag && !spselflag && stextflag == STORE_NONE
-	    && (!questlog || SCREEN_HEIGHT >= SPANEL_HEIGHT + PANEL_HEIGHT + 74 || SCREEN_WIDTH >= 4 * SPANEL_WIDTH)) {
+	if (plr[myplr]._pLvlUp && stextflag == STORE_NONE) {
 		DrawLevelUpIcon();
 	}
 	if (qtextflag) {
@@ -1264,9 +1271,17 @@ static void DrawView(int StartX, int StartY)
 	DrawControllerModifierHints();
 #endif
 	DrawPlrMsg();
-	gmenu_draw();
-	doom_draw();
-	DrawInfoBox();
+	if (gmenu_is_active())
+		gmenu_draw();
+	if (doomflag) {
+		doom_draw();
+	}
+	if (talkflag) {
+		DrawTalkPan();
+	}
+	//if (drawFlags & REDRAW_CTRL_BUTTONS) {
+		DrawCtrlBtns();
+	//}
 }
 
 extern SDL_Surface *pal_surface;
@@ -1389,20 +1404,17 @@ void EnableFrameCount()
 static void DrawFPS()
 {
 	DWORD tc, frames;
-	char String[12];
 
-	if (frameflag && gbActive && pPanelText) {
-		frameend++;
-		tc = SDL_GetTicks();
-		frames = tc - framestart;
-		if (tc - framestart >= 1000) {
-			framestart = tc;
-			framerate = 1000 * frameend / frames;
-			frameend = 0;
-		}
-		snprintf(String, sizeof(String), "%d FPS", framerate);
-		PrintGameStr(8, 65, String, COL_RED);
+	frameend++;
+	tc = SDL_GetTicks();
+	frames = tc - framestart;
+	if (tc - framestart >= 1000) {
+		framestart = tc;
+		framerate = 1000 * frameend / frames;
+		frameend = 0;
 	}
+	snprintf(tempstr, sizeof(tempstr), "%d FPS", framerate);
+	PrintGameStr(8, 65, tempstr, COL_RED);
 }
 
 /**
@@ -1412,7 +1424,7 @@ static void DrawFPS()
  * @param dwWdt Back buffer coordinate
  * @param dwHgt Back buffer coordinate
  */
-static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
+/*static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
 {
 	SDL_Rect SrcRect = {
 		dwX + SCREEN_X,
@@ -1428,6 +1440,23 @@ static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
 	};
 
 	BltFast(&SrcRect, &DstRect);
+}*/
+static void DoBlitScreen()
+{
+	SDL_Rect SrcRect = {
+		SCREEN_X,
+		SCREEN_Y,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+	SDL_Rect DstRect = {
+		0,
+		0,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+	};
+
+	BltFast(&SrcRect, &DstRect);
 }
 
 /**
@@ -1435,7 +1464,7 @@ static void DoBlitScreen(int dwX, int dwY, int dwWdt, int dwHgt)
  * @param dwHgt Section of screen to update from top to bottom
  * @param drawFlags Render parts of the screen
  */
-static void DrawMain(int dwHgt, int drawFlags)
+/*static void DrawMain(int dwHgt, int drawFlags)
 {
 	int ysize;
 
@@ -1446,34 +1475,38 @@ static void DrawMain(int dwHgt, int drawFlags)
 	}
 
 	assert(ysize >= 0 && ysize <= SCREEN_HEIGHT);
-
+	//ysize = SCREEN_HEIGHT;
 	if (ysize > 0) {
 		DoBlitScreen(0, 0, SCREEN_WIDTH, ysize);
 	}
 	if (ysize < SCREEN_HEIGHT) {
-		if (drawFlags & REDRAW_SPEED_BAR) {
-			DoBlitScreen(PANEL_LEFT + 204, PANEL_TOP + 5, 232, 28);
-		}
-		//if (drawFlags & REDRAW_DESCRIPTION) {
-			DoBlitScreen(PANEL_LEFT + 176, PANEL_TOP + 46, 288, 60);
+		//if (drawFlags & REDRAW_SPEED_BAR) {
+			//DoBlitScreen(PANEL_LEFT + 204, PANEL_TOP + 5, 232, 28);
+			DoBlitScreen(InvRect[SLOTXY_BELT_FIRST].X, SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - (INV_SLOT_SIZE_PX + 1), 2 * (INV_SLOT_SIZE_PX + 1), 4 * (INV_SLOT_SIZE_PX + 1));
 		//}
-		if (drawFlags & REDRAW_MANA_FLASK) {
+		//if (drawFlags & REDRAW_DESCRIPTION) {
+		//	DoBlitScreen(PANEL_LEFT + 176, PANEL_TOP + 46, 288, 60);
+		//}
+		//if (drawFlags & REDRAW_MANA_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 460, PANEL_TOP, 88, 72);
-		}
-		if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-			DoBlitScreen(PANEL_LEFT + 564, PANEL_TOP + 64, SPLICONLENGTH, SPLICONLENGTH);
-		}
-		if (drawFlags & REDRAW_HP_FLASK) {
+		//}
+		//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+			DoBlitScreen(SCREEN_WIDTH - SPLICONLENGTH, SCREEN_HEIGHT - SPLICONLENGTH, SPLICONLENGTH, SPLICONLENGTH);
+		//}
+		//if (drawFlags & REDRAW_HP_FLASK) {
 			DoBlitScreen(PANEL_LEFT + 96, PANEL_TOP, 88, 72);
-		}
-		if (drawFlags & REDRAW_CTRL_BUTTONS) {
-			DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
-			DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
-			if (gbMaxPlayers != 1) {
-				DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
-				DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
-			}
-		}
+		//}
+		//if (drawFlags & REDRAW_CTRL_BUTTONS) {
+			//DoBlitScreen(PANEL_LEFT + 8, PANEL_TOP + 5, 72, 119);
+			//DoBlitScreen(PANEL_LEFT + 556, PANEL_TOP + 5, 72, 48);
+			//if (gbMaxPlayers != 1) {
+			//	DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
+			//	DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
+			//}
+			int y = (!panbtn[PANBTN_MAINMENU] && !(drawFlags & REDRAW_CTRL_BUTTONS) ? 1 : numpanbtns) * MENUBTN_HEIGHT;
+			DoBlitScreen(0, SCREEN_HEIGHT - 1 - y, MENUBTN_WIDTH, y);
+		//}
+
 		if (sgCursWdtOld != 0) {
 			DoBlitScreen(sgCursXOld, sgCursYOld, sgCursWdtOld, sgCursHgtOld);
 		}
@@ -1481,7 +1514,7 @@ static void DrawMain(int dwHgt, int drawFlags)
 			DoBlitScreen(sgCursX, sgCursY, sgCursWdt, sgCursHgt);
 		}
 	}
-}
+}*/
 
 /**
  * @brief Redraw screen
@@ -1489,13 +1522,16 @@ static void DrawMain(int dwHgt, int drawFlags)
  */
 void scrollrt_draw_game_screen(BOOL draw_cursor)
 {
-	int hgt;
+	//int hgt;
+	BOOL redraw;
 
 	if (gbRedrawFlags == REDRAW_ALL) {
 		gbRedrawFlags = 0;
-		hgt = SCREEN_HEIGHT;
+		//hgt = SCREEN_HEIGHT;
+		redraw = TRUE;
 	} else {
-		hgt = 0;
+		//hgt = 0;
+		redraw = FALSE;
 	}
 
 	if (draw_cursor) {
@@ -1504,7 +1540,10 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
 		unlock_buf(0);
 	}
 
-	DrawMain(hgt, 0);
+	//DrawMain(hgt, 0);
+	if (gbActive && redraw) {
+		DoBlitScreen();
+	}
 
 	if (draw_cursor) {
 		lock_buf(0);
@@ -1519,48 +1558,23 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
  */
 void DrawAndBlit()
 {
-	int drawFlags, hgt;
-
 	if (!gbRunGame) {
 		return;
 	}
 
-	drawFlags = gbRedrawFlags;
-	if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > VIEWPORT_HEIGHT + PANEL_HEIGHT || drawFlags == REDRAW_ALL) {
-		drawFlags = REDRAW_ALL;
-		hgt = SCREEN_HEIGHT;
-	} else {
-		hgt = VIEWPORT_HEIGHT;
-	}
-
 	lock_buf(0);
-	DrawView(ViewX, ViewY);
-	if (drawFlags & REDRAW_CTRL_PANEL) {
-		DrawCtrlPan();
-	}
-	DrawLifeFlask();
-	DrawManaFlask();
-	if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-		// Update the spell icon.
-		DrawSpell();
-	}
-	if (drawFlags & REDRAW_CTRL_BUTTONS) {
-		DrawCtrlBtns();
-	}
-	if (drawFlags & REDRAW_SPEED_BAR) {
-		DrawInvBelt();
-	}
-	if (talkflag) {
-		DrawTalkPan();
-		hgt = SCREEN_HEIGHT;
-	}
+	DrawView();
 	scrollrt_draw_cursor_item();
 
-	DrawFPS();
+	if (frameflag)
+		DrawFPS();
 
 	unlock_buf(0);
 
-	DrawMain(hgt, drawFlags);
+	//DrawMain(hgt, drawFlags);
+	if (gbActive) {
+		DoBlitScreen();
+	}
 
 	lock_buf(0);
 	scrollrt_draw_cursor_back_buffer();

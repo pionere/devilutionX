@@ -12,7 +12,7 @@ TMenuItem sgSingleMenu[] = {
 	// clang-format off
 	// dwFlags,      pszStr,          fnMenu
 	{ GMENU_ENABLED, "Save Game",     &gamemenu_save_game  },
-	{ GMENU_ENABLED, "Options",       &gamemenu_options    },
+	{ GMENU_ENABLED, "Settings",      &gamemenu_settings   },
 	{ GMENU_ENABLED, "New Game",      &gamemenu_new_game   },
 	{ GMENU_ENABLED, "Load Game",     &gamemenu_load_game  },
 #ifdef HELLFIRE
@@ -27,7 +27,7 @@ TMenuItem sgSingleMenu[] = {
 TMenuItem sgMultiMenu[] = {
 	// clang-format off
 	// dwFlags,      pszStr,            fnMenu
-	{ GMENU_ENABLED, "Options",         &gamemenu_options      },
+	{ GMENU_ENABLED, "Settings",        &gamemenu_settings     },
 	{ GMENU_ENABLED, "New Game",        &gamemenu_new_game     },
 	{ GMENU_ENABLED, "Restart In Town", &gamemenu_restart_town },
 #ifdef HELLFIRE
@@ -95,14 +95,6 @@ void gamemenu_on()
 void gamemenu_off()
 {
 	gmenu_set_items(NULL, NULL);
-}
-
-void gamemenu_handle_previous()
-{
-	if (gmenu_is_active())
-		gamemenu_off();
-	else
-		gamemenu_on();
 }
 
 void gamemenu_previous(BOOL bActivate)
@@ -258,7 +250,7 @@ static int gamemenu_slider_gamma()
 	return gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
 }
 
-void gamemenu_options(BOOL bActivate)
+void gamemenu_settings(BOOL bActivate)
 {
 	gamemenu_get_music();
 	gamemenu_get_sound();

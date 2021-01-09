@@ -32,6 +32,10 @@ void gmenu_slider_steps(TMenuItem *pItem, int dwTicks);
 }
 #endif
 
+inline BOOL gmenu_is_active() {
+	return sgpCurrentMenu != NULL;
+}
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __GMENU_H__ */

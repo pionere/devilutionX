@@ -99,11 +99,6 @@ void gmenu_init_menu()
 	optbar_cel = LoadFileInMem("Data\\optbar.CEL", NULL);
 }
 
-BOOL gmenu_is_active()
-{
-	return sgpCurrentMenu != NULL;
-}
-
 static void gmenu_up_down(BOOL isDown)
 {
 	int i;
@@ -213,7 +208,8 @@ void gmenu_draw()
 	int nCel, y;
 	TMenuItem *i;
 
-	if (sgpCurrentMenu != NULL) {
+	assert(sgpCurrentMenu != NULL);
+
 		if (gmUpdateFunc != NULL)
 			gmUpdateFunc(sgpCurrentMenu);
 #ifdef HELLFIRE
@@ -232,7 +228,6 @@ void gmenu_draw()
 		y = 160 + SCREEN_Y + UI_OFFSET_Y;
 		for (i = sgpCurrentMenu; i->fnMenu != NULL; i++, y += 45)
 			gmenu_draw_menu_item(i, y);
-	}
 }
 
 static void gmenu_left_right(BOOL isRight)

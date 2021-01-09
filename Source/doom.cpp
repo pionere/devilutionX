@@ -123,9 +123,7 @@ void doom_close()
 
 void doom_draw()
 {
-	if (!doomflag) {
-		return;
-	}
+	assert(doomflag);
 #ifndef HELLFIRE
 	if (doom_quest_time != 31) {
 		doom_stars_drawn++;

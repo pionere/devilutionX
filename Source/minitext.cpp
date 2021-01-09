@@ -72,6 +72,8 @@ void InitQTextMsg(int m)
 
 	if (alltext[m].scrlltxt) {
 		questlog = FALSE;
+		invflag = FALSE;
+		sbookflag = FALSE;
 		qtextptr = alltext[m].txtstr;
 		qtextflag = TRUE;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;

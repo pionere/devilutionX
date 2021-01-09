@@ -482,6 +482,18 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 	SetCursorPos(x, y);
 }
 
+#define SELECT_INV_SLOT(s)									\
+{															\
+	x = InvRect[s].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);\
+	y = InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);				\
+}
+
+#define SELECT_BELT_SLOT(s)										\
+{																\
+	x = InvRect[s].X + (INV_SLOT_SIZE_PX / 2);					\
+	y = SCREEN_HEIGHT - InvRect[s].Y - (INV_SLOT_SIZE_PX / 2);	\
+}
+
 /**
  * Move the cursor around in our inventory
  * If mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
@@ -501,29 +513,32 @@ void InvMove(MoveDirection dir)
 	invmove = ticks;
 	int x = MouseX;
 	int y = MouseY;
+	int r;
 
 	// check which inventory rectangle the mouse is in, if any
-	for (int r = 0; r < NUM_XY_SLOTS; r++) {
-		int xo = RIGHT_PANEL;
-		int yo = 0;
-		if (r >= SLOTXY_BELT_FIRST) {
-			xo = PANEL_LEFT;
-			yo = PANEL_TOP;
-		}
-
-		if (x >= InvRect[r].X + xo
-		 && x <= InvRect[r].X + xo + INV_SLOT_SIZE_PX
-		 && y >= InvRect[r].Y + yo - INV_SLOT_SIZE_PX
-		 && y <= InvRect[r].Y + yo) {
-			slot = r;
+	// standard inventory
+	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
+		if (x >= InvRect[r].X + RIGHT_PANEL
+		 && x <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
+		 && y >= InvRect[r].Y - INV_SLOT_SIZE_PX
+		 && y <= InvRect[r].Y) {
 			break;
 		}
 	}
-
-	if (slot < 0)
-		slot = 0;
-	if (slot > SLOTXY_BELT_LAST)
-		slot = SLOTXY_BELT_LAST;
+	// belt
+	if (r == SLOTXY_BELT_FIRST) {
+		for ( ; r <= SLOTXY_BELT_LAST; r++) {
+			if (x >= InvRect[r].X
+			 && x <= InvRect[r].X + INV_SLOT_SIZE_PX
+			 && y >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
+			 && y <= SCREEN_HEIGHT - InvRect[r].Y) {
+				break;
+			}
+		}
+	}
+	if (r > SLOTXY_BELT_LAST)
+		r = SLOTXY_INV_FIRST;
+	slot = r;
 
 	// when item is on cursor, this is the real cursor XY
 	if (dir.x == MoveDirectionX_LEFT) {
@@ -533,8 +548,7 @@ void InvMove(MoveDirection dir)
 		case SLOT_RING_LEFT:	// left ring
 			break;				// do nothing
 		case SLOT_RING_RIGHT:
-			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
 			break;
 		case SLOT_AMULET:
 			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
@@ -553,15 +567,13 @@ void InvMove(MoveDirection dir)
 		case SLOT_STORAGE:		// general inventory
 			if (((slot - SLOTXY_INV_FIRST) % 10) != 0) {
 				slot -= 1;
-				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(slot)
 			}
 		case SLOT_BELT: // belt
-			if (slot == SLOTXY_BELT_FIRST)
+			if (slot < SLOTXY_BELT_FIRST + 4)
 				break;
-			slot -= 1;
-			x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+			slot -= 4;
+			SELECT_BELT_SLOT(slot)
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -569,12 +581,10 @@ void InvMove(MoveDirection dir)
 	} else if (dir.x == MoveDirectionX_RIGHT) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD: // head to amulet
-			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_AMULET)
 			break;
 		case SLOT_RING_LEFT:
-			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
 			break;
 		case SLOT_RING_RIGHT:
 			break;				// do nothing
@@ -593,18 +603,15 @@ void InvMove(MoveDirection dir)
 		case SLOT_STORAGE:		// general inventory
 			if (((SLOTXY_INV_LAST - slot) % 10) != 0) {
 				slot += 1;
-				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(slot)
 			}
 			break;
 		case SLOT_BELT:			// belt
-			if (slot == SLOTXY_BELT_LAST) {
-				x = InvRect[SLOTXY_INV_FIRST + 30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[SLOTXY_INV_FIRST + 30].Y - (INV_SLOT_SIZE_PX / 2);
+			if (slot >= SLOTXY_BELT_FIRST + 4) {
+				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
 			} else {
-				slot += 1;
-				x = InvRect[slot].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[slot].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+				slot += 4;
+				SELECT_BELT_SLOT(slot)
 			}
 			break;
 		default:
@@ -630,8 +637,7 @@ void InvMove(MoveDirection dir)
 			y = InvRect[SLOTXY_HEAD_FIRST + 2].Y - INV_SLOT_SIZE_PX;
 			break;
 		case SLOT_HAND_RIGHT: // right hand to amulet
-			x = InvRect[SLOTXY_AMULET].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_AMULET].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_AMULET)
 			break;
 		case SLOT_CHEST: // chest to head
 			x = InvRect[SLOTXY_HEAD_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
@@ -639,23 +645,24 @@ void InvMove(MoveDirection dir)
 			break;
 		case SLOT_STORAGE:			// general inventory
 			if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_FIRST + 2) { // first 3 general slots
-				x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(SLOTXY_RING_LEFT)
 			} else if (slot >= SLOTXY_INV_FIRST + 3 && slot <= SLOTXY_INV_FIRST + 6) { // middle 4 general slots
 				x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 				y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 			} else if (slot >= SLOTXY_INV_FIRST + 7 && slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
-				x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
 			} else {
 				slot -= 10;
-				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(slot)
 			}
 			break;
 		case SLOT_BELT:			// belt to general inventory
-			x = InvRect[SLOTXY_INV_FIRST + 30].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_INV_FIRST + 30].Y - (INV_SLOT_SIZE_PX / 2);
+			if (slot == SLOTXY_BELT_FIRST || slot == SLOTXY_BELT_FIRST + 4) {
+				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
+			} else {
+				slot -= 1;
+				SELECT_BELT_SLOT(slot)
+			}
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -667,40 +674,37 @@ void InvMove(MoveDirection dir)
 			y = InvRect[SLOTXY_CHEST_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 			break;
 		case SLOT_RING_LEFT:
-			x = InvRect[SLOTXY_INV_FIRST + 1].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_INV_FIRST + 1].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 1)
 			break;
 		case SLOT_RING_RIGHT:
-			x = InvRect[SLOTXY_INV_FIRST + 8].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_INV_FIRST + 8].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 8)
 			break;
 		case SLOT_AMULET:
 			x = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
 			y = InvRect[SLOTXY_HAND_RIGHT_FIRST + 2].Y - (INV_SLOT_SIZE_PX / 2);
 			break;
 		case SLOT_HAND_LEFT:
-			x = InvRect[SLOTXY_RING_LEFT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_LEFT].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
 			break;
 		case SLOT_HAND_RIGHT:
-			x = InvRect[SLOTXY_RING_RIGHT].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_RING_RIGHT].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
 			break;
 		case SLOT_CHEST:
-			x = InvRect[SLOTXY_INV_FIRST + 5].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-			y = InvRect[SLOTXY_INV_FIRST + 5].Y - (INV_SLOT_SIZE_PX / 2);
+			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 5)
 			break;
 		case SLOT_STORAGE:
 			if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
 				slot += 10;
-				x = InvRect[slot].X + RIGHT_PANEL + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[slot].Y - (INV_SLOT_SIZE_PX / 2);
+				SELECT_INV_SLOT(slot)
 			} else {
-				x = InvRect[SLOTXY_BELT_LAST].X + PANEL_LEFT + (INV_SLOT_SIZE_PX / 2);
-				y = InvRect[SLOTXY_BELT_LAST].Y + PANEL_TOP - (INV_SLOT_SIZE_PX / 2);
+				SELECT_BELT_SLOT(SLOTXY_BELT_FIRST + 4)
 			}
 			break;
 		case SLOT_BELT:
+			if (slot == SLOTXY_BELT_LAST || slot == SLOTXY_BELT_LAST - 4)
+				break;
+			slot += 1;
+			SELECT_BELT_SLOT(slot)
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -1099,15 +1103,11 @@ void UseBeltItem(int type)
 
 void PerformPrimaryAction()
 {
-	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
-		// panel area
-		if (!talkflag)
-			CheckBeltClick();
-		DoPanBtn();
-		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
-			NewCursor(CURSOR_HAND);
+	if (DoPanBtn())
 		return;
-	}
+
+	if (CheckBeltClick())
+		return;
 
 	if (TryIconCurs(FALSE))
 		return;

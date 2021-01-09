@@ -3572,8 +3572,8 @@ void CheckPlrSpell()
 	if (!sgbControllerActive)
 #endif
 		if (PANELS_COVER && spelldata[rspell].sTargeted
-		 && ((MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
-		   || ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
+		 && (/*(MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
+		   ||*/ ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
 		   || ((invflag || sbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)) // inside right panel
 		       ) {
 			return;

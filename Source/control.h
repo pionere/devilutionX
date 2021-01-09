@@ -28,9 +28,9 @@ extern BOOL talkflag;
 extern BOOL sbookflag;
 extern BOOL chrflag;
 extern char infostr[256];
-extern BOOL panelflag;
 extern int initialDropGoldValue;
-extern BOOL panbtndown;
+extern BOOL panbtn[NUM_PANBTNS];
+extern int numpanbtns;
 extern BOOL spselflag;
 
 void DrawSpeedBook();
@@ -44,19 +44,17 @@ void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSpell();
 void InitControlPan();
-void DrawCtrlPan();
 void DrawCtrlBtns();
 void DoSpeedBook();
-void DoPanBtn();
-void control_check_btn_press();
-void CheckPanelInfo();
+BOOL DoPanBtn();
+void DoLimitedPanBtn();
 void CheckBtnUp();
+void HandlePanBtn(int i);
+void HandleSpellBtn();
 void FreeControlPan();
 BOOL control_WriteStringToBuffer(BYTE *str);
-void DrawInfoBox();
 void PrintGameStr(int x, int y, const char *str, BYTE color);
 void DrawChr();
-BOOL CheckLvlBtn();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
 void DrawInfoStr();
@@ -84,7 +82,7 @@ extern const BYTE gbFontTransTbl[256];
 
 /* data */
 
-extern RECT32 ChrBtnsRect[4];
+extern const RECT32 ChrBtnsRect[4];
 
 #ifdef __cplusplus
 }

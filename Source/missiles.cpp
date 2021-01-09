@@ -1573,7 +1573,7 @@ int AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 							hasPlayedSFX = TRUE;
 						}
 					}
-					gbRedrawFlags |= REDRAW_SPEED_BAR;
+					//gbRedrawFlags |= REDRAW_SPEED_BAR;
 				}
 			}
 		}

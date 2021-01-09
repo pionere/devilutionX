@@ -29,7 +29,7 @@ void inv_update_rem_item(int pnum, BYTE iv);
 void RemoveInvItem(int pnum, int iv);
 void RemoveSpdBarItem(int pnum, int iv);
 void CheckInvClick();
-void CheckBeltClick();
+BOOL CheckBeltClick();
 void InvGetItem(int pnum, int ii);
 void AutoGetItem(int pnum, int ii);
 int FindGetItem(WORD idx, WORD ci, int iseed);

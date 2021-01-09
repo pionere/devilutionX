@@ -300,37 +300,35 @@ void CheckCursMove()
 	pcursmonst = -1;
 	pcursobj = -1;
 	pcursitem = -1;
-	if (pcursinvitem != -1) {
-		gbRedrawFlags |= REDRAW_SPEED_BAR;
-	}
+	//if (pcursinvitem != -1) {
+	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
+	//}
 	pcursinvitem = -1;
 	pcursplr = -1;
 	pcurstrig = -1;
-	panelflag = FALSE;
 
-	if (plr[myplr]._pInvincible) {
+	if (plr[myplr]._pInvincible | doomflag | spselflag) {
 		return;
 	}
-	if (pcurs >= CURSOR_FIRSTITEM || spselflag) {
+	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
 		cursmy = my;
 		return;
 	}
-	if (MouseY > PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= PANEL_LEFT + PANEL_WIDTH) {
-		CheckPanelInfo();
+	if ((invflag | sbookflag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
+		if (invflag)
+			pcursinvitem = CheckInvItem();
 		return;
 	}
-	if (doomflag) {
+	if ((chrflag | questlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
 		return;
 	}
-	if (invflag && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		pcursinvitem = CheckInvItem();
-		return;
-	}
-	if (sbookflag && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		return;
-	}
-	if ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
+
+	if (MouseX >= InvRect[SLOTXY_BELT_FIRST].X
+	 && MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX
+	 && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y  - INV_SLOT_SIZE_PX
+	 && MouseY <= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y) {
+		pcursinvitem = CheckInvBelt();
 		return;
 	}
 

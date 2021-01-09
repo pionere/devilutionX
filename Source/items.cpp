@@ -888,7 +888,7 @@ void CalcPlrScrolls(int pnum)
 	if (p->_pRSplType == RSPLTYPE_SCROLL && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
-		gbRedrawFlags |= REDRAW_SPELL_ICON;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
 
@@ -907,7 +907,7 @@ void CalcPlrStaff(int pnum)
 	if (p->_pRSplType == RSPLTYPE_CHARGES && !(p->_pISpells & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
-		gbRedrawFlags |= REDRAW_SPELL_ICON;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
 

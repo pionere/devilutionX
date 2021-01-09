@@ -724,18 +724,15 @@ void LeftMouseDown(BOOL bShift)
 	}
 
 	if (gmenu_is_active()) {
-		DoPanBtn();
+		DoLimitedPanBtn();
 		return;
 	}
 
-	if (MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH) {
-		if (!talkflag)
-			CheckBeltClick();
-		DoPanBtn();
-		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
-			NewCursor(CURSOR_HAND);
+	if (DoPanBtn())
 		return;
-	}
+
+	if (CheckBeltClick())
+		return;
 
 	if (TryIconCurs(bShift))
 		return;
@@ -768,9 +765,6 @@ void LeftMouseDown(BOOL bShift)
 		DropItem();
 		return;
 	}
-
-	if (CheckLvlBtn())
-		return;
 
 	LeftMouseCmd(bShift);
 }
@@ -853,7 +847,7 @@ static void ReleaseKey(int vkey)
 		gmenu_left_mouse(FALSE);
 		if (talkflag)
 			control_release_talk_btn();
-		if (panbtndown)
+		if (panbtn[PANBTN_MAINMENU])
 			CheckBtnUp();
 		if (chrbtnactive)
 			ReleaseChrBtns();
@@ -928,6 +922,7 @@ static void ClearUI()
 	questlog = FALSE;
 	automapflag = FALSE;
 	msgdelay = 0;
+	panbtn[PANBTN_MAINMENU] = FALSE;
 	gamemenu_off();
 	//doom_close();
 }
@@ -963,7 +958,7 @@ static void PressKey(int vkey)
 		if (vkey == DVL_VK_RETURN) {
 			control_type_message();
 		} else if (vkey == DVL_VK_LBUTTON) {
-			control_check_btn_press();
+			DoLimitedPanBtn();
 		} else {
 			int transKey = WMButtonInputTransTbl[vkey];
 			if (transKey == ACT_MSG0) {
@@ -1029,8 +1024,7 @@ static void PressKey(int vkey)
 		break;
 	case ACT_INV:
 		if (stextflag == STORE_NONE) {
-			sbookflag = FALSE;
-			invflag = !invflag;
+			HandlePanBtn(PANBTN_INVENTORY);
 			if (!invflag || chrflag) {
 				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
 					SetCursorPos(MouseX + 160, MouseY);
@@ -1044,9 +1038,7 @@ static void PressKey(int vkey)
 		break;
 	case ACT_CHAR:
 		if (stextflag == STORE_NONE) {
-			questlog = FALSE;
-			plr[myplr]._pLvlUp = FALSE;
-			chrflag = !chrflag;
+			HandlePanBtn(PANBTN_CHARINFO);
 			if (!chrflag || invflag) {
 				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
 					SetCursorPos(MouseX - 160, MouseY);
@@ -1060,18 +1052,12 @@ static void PressKey(int vkey)
 		break;
 	case ACT_SPLBOOK:
 		if (stextflag == STORE_NONE) {
-			invflag = FALSE;
-			sbookflag = !sbookflag;
+			HandlePanBtn(PANBTN_SPELLBOOK);
 		}
 		break;
 	case ACT_SPLLIST:
 		if (stextflag == STORE_NONE) {
-			invflag = FALSE;
-			if (!spselflag) {
-				DoSpeedBook();
-			} else {
-				spselflag = FALSE;
-			}
+			HandleSpellBtn();
 		}
 		break;
 	case ACT_ITEM0:
@@ -1092,7 +1078,7 @@ static void PressKey(int vkey)
 		UseInvItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		break;
 	case ACT_AUTOMAP:
-		ToggleAutomap();
+		HandlePanBtn(PANBTN_AUTOMAP);
 		break;
 	case ACT_MAPZ_IN:
 		if (automapflag) {
@@ -1166,12 +1152,7 @@ static void PressKey(int vkey)
 		break;
 	case ACT_QUESTS:
 		if (stextflag == STORE_NONE) {
-			chrflag = FALSE;
-			if (!questlog) {
-				StartQuestlog();
-			} else {
-				questlog = FALSE;
-			}
+			HandlePanBtn(PANBTN_QLOG);
 		}
 		break;
 	case ACT_MSG0:
@@ -1882,40 +1863,32 @@ static void game_logic()
 #endif
 }
 
-static void timeout_cursor(BOOL bTimeout)
-{
-	if (bTimeout) {
-		static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
-		if ((sgnTimeoutCurs | sgbActionBtnDown | sgbAltActionBtnDown) == 0) {
-			sgnTimeoutCurs = pcurs;
-			multi_net_ping();
-			InitDiabloMsg(EMSG_DESYNC);
-			NewCursor(CURSOR_HOURGLASS);
-			gbRedrawFlags = REDRAW_ALL;
-		}
-		scrollrt_draw_game_screen(TRUE);
-	} else if (sgnTimeoutCurs != CURSOR_NONE) {
-		NewCursor(sgnTimeoutCurs);
-		sgnTimeoutCurs = CURSOR_NONE;
-		gbRedrawFlags = REDRAW_ALL;
-	}
-}
-
 void game_loop(BOOL bStartup)
 {
 	int i;
 
-	i = bStartup ? ticks_per_sec * 3 : 3;
+	i = gbMaxPlayers == 1 ? 1 : (bStartup ? ticks_per_sec * 3 : 3);
 
 	while (i--) {
 		if (!multi_handle_delta()) {
-			timeout_cursor(TRUE);
+			static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
+			if ((sgnTimeoutCurs | sgbActionBtnDown | sgbAltActionBtnDown) == 0) {
+				sgnTimeoutCurs = pcurs;
+				multi_net_ping();
+				InitDiabloMsg(EMSG_DESYNC);
+				NewCursor(CURSOR_HOURGLASS);
+				gbRedrawFlags = REDRAW_ALL;
+			}
+			scrollrt_draw_game_screen(TRUE);
 			break;
-		} else {
-			timeout_cursor(FALSE);
-			game_logic();
 		}
-		if (!gbRunGame || gbMaxPlayers == 1 || !nthread_has_500ms_passed(TRUE))
+		if (sgnTimeoutCurs != CURSOR_NONE) {
+			NewCursor(sgnTimeoutCurs);
+			sgnTimeoutCurs = CURSOR_NONE;
+			gbRedrawFlags = REDRAW_ALL;
+		}
+		game_logic();
+		if (!gbRunGame || !nthread_has_500ms_passed(TRUE))
 			break;
 	}
 }

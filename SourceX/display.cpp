@@ -71,10 +71,10 @@ void AdjustToScreenGeometry(int width, int height)
 	}
 
 	viewportHeight = screenHeight;
-	if (screenWidth <= PANEL_WIDTH) {
+	/*if (screenWidth <= PANEL_WIDTH) {
 		// Part of the screen is fully obscured by the UI
 		viewportHeight -= PANEL_HEIGHT;
-	}
+	}*/
 }
 
 void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerScaling)
