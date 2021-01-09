@@ -304,9 +304,8 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 		}
 		if (flags & MAPFLAG_VERTGRATE) { // right-facing half-wall
 			DrawLine(sx - AmLine16, sy - AmLine8, sx - AmLine32, sy, COLOR_DIM);
-			flags |= MAPFLAG_VERTARCH;
 		}
-		if (flags & MAPFLAG_VERTARCH) { // window or passable column
+		if (flags & (MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) { // window or passable column
 			x1 = sx - AmLine16;
 			y1 = sy - AmLine16;
 			x2 = x1 + AmLine32;
@@ -337,9 +336,8 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 		}
 		if (flags & MAPFLAG_HORZGRATE) {
 			DrawLine(sx + AmLine16, sy - AmLine8, sx + AmLine32, sy, COLOR_DIM);
-			flags |= MAPFLAG_HORZARCH;
 		}
-		if (flags & MAPFLAG_HORZARCH) {
+		if (flags & (MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) {
 			x1 = sx - AmLine16;
 			y1 = sy - AmLine16;
 			x2 = x1 + AmLine32;
