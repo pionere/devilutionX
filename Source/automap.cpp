@@ -414,7 +414,7 @@ static void SearchAutomapItem()
 	x = 2 * AutoMapXOfs + ViewX;
 	y = 2 * AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
-	yoff = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
+	yoff = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
 			xoff -= 160;
@@ -487,7 +487,7 @@ static void DrawAutomapPlr()
 	py -= 2 * AutoMapYOfs + ViewY;
 
 	x = (p->_pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y;
+	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
@@ -676,7 +676,7 @@ void DrawAutomap()
 	mapy = AutoMapY - 1;
 
 	sx = SCREEN_WIDTH / 2 + SCREEN_X - AmLine64 * (cells >> 1);
-	sy = (SCREEN_HEIGHT - PANEL_HEIGHT) / 2 + SCREEN_Y - AmLine32 * (cells >> 1);
+	sy = VIEWPORT_HEIGHT / 2 + SCREEN_Y - AmLine32 * (cells >> 1);
 	if (cells & 1) {
 		sy -= AmLine32;
 	} else {
