@@ -1839,6 +1839,9 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iLMaxDam = 0;
 		break;
 #endif
+	case IPL_INVCURS:
+		is->_iCurs = param1;
+		break;
 	case IPL_THORNS:
 		is->_iFlags |= ISPL_THORNS;
 		break;
@@ -1876,11 +1879,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 			is->_iFlags |= ISPL_STEALLIFE_5;
 		break;
 	case IPL_TARGAC:
-#ifdef HELLFIRE
-		is->_iPLEnAc = param1;
-#else
 		is->_iPLEnAc += r;
-#endif
 		break;
 	case IPL_FASTATTACK:
 		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like attack-speed modifiers.");
@@ -1932,36 +1931,27 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
 		break;
-	case IPL_INVCURS:
-		is->_iCurs = param1;
-		break;
-	case IPL_ADDACLIFE:
 #ifdef HELLFIRE
+	case IPL_ADDACLIFE:
 		is->_iFlags |= (ISPL_LIGHT_ARROWS | ISPL_FIRE_ARROWS);
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
 		is->_iLMinDam = 1;
 		is->_iLMaxDam = 0;
-#else
-		is->_iPLHP = (plr[myplr]._pIBonusAC + plr[myplr]._pIAC + plr[myplr]._pDexterity / 5) << 6;
-#endif
 		break;
 	case IPL_ADDMANAAC:
-#ifdef HELLFIRE
 		is->_iFlags |= (ISPL_LIGHTDAM | ISPL_FIREDAM);
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
 		is->_iLMinDam = 2;
 		is->_iLMaxDam = 0;
-#else
-		is->_iAC += (plr[myplr]._pMaxManaBase >> 6) / 10;
-#endif
 		break;
-	case IPL_FIRERESCLVL:
+#endif
+	/*case IPL_FIRERESCLVL:
 		is->_iPLFR = 30 - plr[myplr]._pLevel;
 		if (is->_iPLFR < 0)
 			is->_iPLFR = 0;
-		break;
+		break;*/
 #ifdef HELLFIRE
 	case IPL_FIRERES_CURSE:
 		is->_iPLFR -= r;
@@ -2021,6 +2011,8 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		if ((unsigned)(param1 - 1) < 3)
 			is->_iFlags2 |= ISPH_FASTWALK << (param1 - 1);
 		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
 	is->_iVMult += multval;
@@ -2354,23 +2346,21 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 static void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
-	char numPL;
 
 	UniqueItemFlag[uid] = TRUE;
 	ui = &UniqueItemList[uid];
-	SaveItemPower(ii, ui->UIPower1, ui->UIParam1, ui->UIParam2, 0, 0, 1);
+	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b, 0, 0, 1);
 
-	numPL = ui->UINumPL;
-	if (numPL > 1) {
-		SaveItemPower(ii, ui->UIPower2, ui->UIParam3, ui->UIParam4, 0, 0, 1);
-	if (numPL > 2) {
-		SaveItemPower(ii, ui->UIPower3, ui->UIParam5, ui->UIParam6, 0, 0, 1);
-	if (numPL > 3) {
-		SaveItemPower(ii, ui->UIPower4, ui->UIParam7, ui->UIParam8, 0, 0, 1);
-	if (numPL > 4) {
-		SaveItemPower(ii, ui->UIPower5, ui->UIParam9, ui->UIParam10, 0, 0, 1);
-	if (numPL > 5) {
-		SaveItemPower(ii, ui->UIPower6, ui->UIParam11, ui->UIParam12, 0, 0, 1);
+	if (ui->UIPower2 != IPL_INVALID) {
+		SaveItemPower(ii, ui->UIPower2, ui->UIParam2a, ui->UIParam2b, 0, 0, 1);
+	if (ui->UIPower3 != IPL_INVALID) {
+		SaveItemPower(ii, ui->UIPower3, ui->UIParam3a, ui->UIParam3b, 0, 0, 1);
+	if (ui->UIPower4 != IPL_INVALID) {
+		SaveItemPower(ii, ui->UIPower4, ui->UIParam4a, ui->UIParam4b, 0, 0, 1);
+	if (ui->UIPower5 != IPL_INVALID) {
+		SaveItemPower(ii, ui->UIPower5, ui->UIParam5a, ui->UIParam5b, 0, 0, 1);
+	if (ui->UIPower6 != IPL_INVALID) {
+		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b, 0, 0, 1);
 	}}}}}
 
 	strcpy(item[ii]._iIName, ui->UIName);
@@ -3211,7 +3201,7 @@ BOOL DoOil(int pnum, int cii)
 }
 #endif
 
-void PrintItemPower(char plidx, const ItemStruct *is)
+void PrintItemPower(BYTE plidx, const ItemStruct *is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
@@ -3463,29 +3453,23 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 	case IPL_INVCURS:
 		copy_cstr(tempstr, " ");
 		break;
-	case IPL_ADDACLIFE:
 #ifdef HELLFIRE
+	case IPL_ADDACLIFE:
 		if (is->_iFMinDam != is->_iFMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "lightning: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		else
 			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iFMinDam);
-#else
-		copy_cstr(tempstr, "Armor class added to life");
-#endif
 		break;
 	case IPL_ADDMANAAC:
-#ifdef HELLFIRE
 		copy_cstr(tempstr, "charged bolts on hits");
-#else
-		copy_cstr(tempstr, "10% of mana added to armor");
-#endif
 		break;
-	case IPL_FIRERESCLVL:
+#endif
+	/*case IPL_FIRERESCLVL:
 		if (is->_iPLFR <= 0)
 			copy_cstr(tempstr, " ");
 		else
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
-		break;
+		break;*/
 #ifdef HELLFIRE
 	case IPL_DEVASTATION:
 		copy_cstr(tempstr, "occasional triple damage");
@@ -3532,8 +3516,7 @@ void PrintItemPower(char plidx, const ItemStruct *is)
 			copy_cstr(tempstr, "fast walk");
 		break;
 	default:
-		copy_cstr(tempstr, "Another ability (NW)");
-		break;
+		ASSUME_UNREACHABLE
 	}
 }
 
@@ -3569,35 +3552,35 @@ static void PrintItemString(int x, int &y, const char* str, int col)
 	y += 24;
 }
 
+static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
+{
+	if (plidx != IPL_INVCURS) {
+		PrintItemPower(plidx, is);
+		PrintItemString(x, y);
+	}
+}
+
 void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 {
 	const UItemStruct *uis;
-	char numPL;
 
 	uis = &UniqueItemList[is->_iUid];
-	PrintItemPower(uis->UIPower1, is);
-	PrintItemString(x, y);
-	numPL = uis->UINumPL;
-	if (numPL <= 1)
+	PrintUniquePower(uis->UIPower1, is, x, y);
+	if (uis->UIPower2 == IPL_INVALID)
 		return;
-	PrintItemPower(uis->UIPower2, is);
-	PrintItemString(x, y);
-	if (numPL <= 2)
+	PrintUniquePower(uis->UIPower2, is, x, y);
+	if (uis->UIPower3 == IPL_INVALID)
 		return;
-	PrintItemPower(uis->UIPower3, is);
-	PrintItemString(x, y);
-	if (numPL <= 3)
+	PrintUniquePower(uis->UIPower3, is, x, y);
+	if (uis->UIPower4 == IPL_INVALID)
 		return;
-	PrintItemPower(uis->UIPower4, is);
-	PrintItemString(x, y);
-	if (numPL <= 4)
+	PrintUniquePower(uis->UIPower4, is, x, y);
+	if (uis->UIPower5 == IPL_INVALID)
 		return;
-	PrintItemPower(uis->UIPower5, is);
-	PrintItemString(x, y);
-	if (numPL <= 5)
+	PrintUniquePower(uis->UIPower5, is, x, y);
+	if (uis->UIPower6 == IPL_INVALID)
 		return;
-	PrintItemPower(uis->UIPower6, is);
-	PrintItemString(x, y);
+	PrintUniquePower(uis->UIPower6, is, x, y);
 }
 
 static int ItemColor(ItemStruct *is)

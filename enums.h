@@ -131,11 +131,11 @@ typedef enum item_effect_type {
 	IPL_INVCURS          = 0x2C,
 	IPL_THORNS           = 0x2D,
 	IPL_NOMANA           = 0x2E,
-	IPL_NOHEALPLR        = 0x2F,
+	IPL_NOHEALPLR        = 0x2F, /* unused */
 	IPL_FIREBALL         = 0x32, /* only used in hellfire */
 	IPL_ABSHALFTRAP      = 0x34,
 	IPL_KNOCKBACK        = 0x35,
-	IPL_NOHEALMON        = 0x36,
+	IPL_NOHEALMON        = 0x36, /* unused */
 	IPL_STEALMANA        = 0x37,
 	IPL_STEALLIFE        = 0x38,
 	IPL_TARGAC           = 0x39,
@@ -156,10 +156,11 @@ typedef enum item_effect_type {
 	IPL_RNDSTEALLIFE     = 0x49,
 	IPL_INFRAVISION      = 0x4A, /* unused */
 	IPL_SETAC            = 0x4B,
-	IPL_ADDACLIFE        = 0x4C,
-	IPL_ADDMANAAC        = 0x4D,
+	IPL_ADDACLIFE        = 0x4C, /* only used in hellfire */
+	IPL_ADDMANAAC        = 0x4D, /* only used in hellfire */
 	IPL_FIRERESCLVL      = 0x4E, /* unused */
 	IPL_AC_CURSE         = 0x4F,
+	// hellfire only
 	IPL_FIRERES_CURSE    = 0x50,
 	IPL_LIGHTRES_CURSE   = 0x51,
 	IPL_MAGICRES_CURSE   = 0x52,
@@ -176,7 +177,7 @@ typedef enum item_effect_type {
 	IPL_LIFETOMANA       = 0x5D,
 	IPL_FASTCAST         = 0x5E, /* unused */
 	IPL_FASTWALK         = 0x5F, /* unused */
-	IPL_INVALID          = -1,
+	IPL_INVALID          = 0xFF,
 } item_effect_type;
 
 typedef enum affix_item_type {

@@ -26,10 +26,10 @@ typedef struct RECT32 {
 
 typedef struct PLStruct {
 	const char *PLName;
-	int PLPower;
+	BYTE PLPower;
 	int PLParam1;
 	int PLParam2;
-	char PLMinLvl;
+	BYTE PLMinLvl;
 	int PLIType;
 	BYTE PLGOE;
 	BOOL PLDouble;
@@ -42,27 +42,26 @@ typedef struct PLStruct {
 typedef struct UItemStruct {
 	const char *UIName;
 	char UIItemId;
-	char UIMinLvl;
-	char UINumPL;
+	BYTE UIMinLvl;
 	int UIValue;
-	char UIPower1;
-	int UIParam1;
-	int UIParam2;
-	char UIPower2;
-	int UIParam3;
-	int UIParam4;
-	char UIPower3;
-	int UIParam5;
-	int UIParam6;
-	char UIPower4;
-	int UIParam7;
-	int UIParam8;
-	char UIPower5;
-	int UIParam9;
-	int UIParam10;
-	char UIPower6;
-	int UIParam11;
-	int UIParam12;
+	BYTE UIPower1;
+	int UIParam1a;
+	int UIParam1b;
+	BYTE UIPower2;
+	int UIParam2a;
+	int UIParam2b;
+	BYTE UIPower3;
+	int UIParam3a;
+	int UIParam3b;
+	BYTE UIPower4;
+	int UIParam4a;
+	int UIParam4b;
+	BYTE UIPower5;
+	int UIParam5a;
+	int UIParam5b;
+	BYTE UIPower6;
+	int UIParam6a;
+	int UIParam6b;
 #ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
@@ -174,8 +173,8 @@ typedef struct ItemStruct {
 	int _iLMinDam;
 	int _iLMaxDam;
 	int _iPLEnAc;
-	char _iPrePower;
-	char _iSufPower;
+	BYTE _iPrePower;
+	BYTE _iSufPower;
 	int _iVAdd;
 	int _iVMult;
 	BYTE _iMinStr;
