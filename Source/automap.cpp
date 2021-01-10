@@ -19,14 +19,14 @@ BOOL automapflag;
 /** Tracks the explored areas of the map. */
 BOOLEAN automapview[DMAXX][DMAXY];
 /** Specifies the scale of the automap. */
-int AutoMapScale;
+unsigned AutoMapScale;
 int AutoMapXOfs;
 int AutoMapYOfs;
-int AmLine64;
-int AmLine32;
-int AmLine16;
-int AmLine8;
-int AmLine4;
+unsigned AmLine64;
+unsigned AmLine32;
+unsigned AmLine16;
+unsigned AmLine8;
+unsigned AmLine4;
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
@@ -54,7 +54,7 @@ int AmLine4;
 void InitAutomapOnce()
 {
 	automapflag = FALSE;
-	AutoMapScale = 50;
+	AutoMapScale = 64;
 	AmLine64 = 32;
 	AmLine32 = 16;
 	AmLine16 = 8;
@@ -177,9 +177,9 @@ void AutomapRight()
  */
 void AutomapZoomIn()
 {
-	if (AutoMapScale < 200) {
-		AutoMapScale += 5;
-		AmLine64 = (AutoMapScale << 6) / 100;
+	if (AutoMapScale < 256) {
+		AutoMapScale += 12;
+		AmLine64 = (AutoMapScale << 6) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
 		AmLine8 = AmLine16 >> 1;
@@ -192,9 +192,9 @@ void AutomapZoomIn()
  */
 void AutomapZoomOut()
 {
-	if (AutoMapScale > 50) {
-		AutoMapScale -= 5;
-		AmLine64 = (AutoMapScale << 6) / 100;
+	if (AutoMapScale > 64) {
+		AutoMapScale -= 12;
+		AmLine64 = (AutoMapScale << 6) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
 		AmLine8 = AmLine16 >> 1;
@@ -411,8 +411,8 @@ static void SearchAutomapItem()
 
 	x = 2 * AutoMapXOfs + ViewX;
 	y = 2 * AutoMapYOfs + ViewY;
-	xoff = (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
-	yoff = (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
+	xoff = (ScrollInfo._sxoff * AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
+	yoff = (ScrollInfo._syoff * AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
 			xoff -= 160;
@@ -484,8 +484,8 @@ static void DrawAutomapPlr()
 	px -= 2 * AutoMapXOfs + ViewX;
 	py -= 2 * AutoMapYOfs + ViewY;
 
-	x = (p->_pxoff * AutoMapScale / 100 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 100 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	y = (p->_pyoff * AutoMapScale / 100 >> 1) + (ScrollInfo._syoff * AutoMapScale / 100 >> 1) + (px + py) * AmLine8 + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
+	x = (p->_pxoff * AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * AutoMapScale / 128 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
+	y = (p->_pyoff * AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * AutoMapScale / 128 >> 1) + (px + py) * AmLine8 + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
 	if (PANELS_COVER) {
 		if (invflag || sbookflag)
@@ -631,8 +631,8 @@ void DrawAutomap()
 {
 	int cells;
 	int sx, sy;
-	int i, j, d;
-	int mapx, mapy;
+	int i, j, mapx, mapy;
+	unsigned d;
 
 	if (leveltype == DTYPE_TOWN) {
 		DrawAutomapText();
@@ -661,11 +661,11 @@ void DrawAutomap()
 		AutoMapY = DMAXY - 1;
 	}
 
-	d = (AutoMapScale << 6) / 100;
+	d = (AutoMapScale << 6) / 128;
 	cells = 2 * (SCREEN_WIDTH / 2 / d) + 1;
 	if ((SCREEN_WIDTH / 2) % d)
 		cells++;
-	if ((SCREEN_WIDTH / 2) % d >= (AutoMapScale << 5) / 100)
+	if ((SCREEN_WIDTH / 2) % d >= (AutoMapScale << 5) / 128)
 		cells++;
 
 	if (ScrollInfo._sxoff + ScrollInfo._syoff)
@@ -690,8 +690,8 @@ void DrawAutomap()
 		sy -= AmLine8;
 	}
 
-	sx += AutoMapScale * ScrollInfo._sxoff / 100 >> 1;
-	sy += AutoMapScale * ScrollInfo._syoff / 100 >> 1;
+	sx += AutoMapScale * ScrollInfo._sxoff / 128 >> 1;
+	sy += AutoMapScale * ScrollInfo._syoff / 128 >> 1;
 	if (PANELS_COVER) {
 		if (invflag || sbookflag) {
 			sx -= SCREEN_WIDTH / 4;
@@ -812,7 +812,7 @@ void AutomapZoomReset()
 {
 	AutoMapXOfs = 0;
 	AutoMapYOfs = 0;
-	AmLine64 = (AutoMapScale << 6) / 100;
+	AmLine64 = (AutoMapScale << 6) / 128;
 	AmLine32 = AmLine64 >> 1;
 	AmLine16 = AmLine32 >> 1;
 	AmLine8 = AmLine16 >> 1;

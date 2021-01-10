@@ -14,14 +14,14 @@ extern "C" {
 
 extern BOOL automapflag;
 extern BOOLEAN automapview[DMAXX][DMAXY];
-extern int AutoMapScale;
+extern unsigned AutoMapScale;
 extern int AutoMapXOfs;
 extern int AutoMapYOfs;
-extern int AmLine64;
-extern int AmLine32;
-extern int AmLine16;
-extern int AmLine8;
-extern int AmLine4;
+extern unsigned AmLine64;
+extern unsigned AmLine32;
+extern unsigned AmLine16;
+extern unsigned AmLine8;
+extern unsigned AmLine4;
 
 void InitAutomapOnce();
 void InitAutomap();
