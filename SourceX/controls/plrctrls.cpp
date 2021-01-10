@@ -811,11 +811,7 @@ void SpellBookMove(MoveDirection dir)
 		if (sbooktab > 0)
 			sbooktab--;
 	} else if (dir.x == MoveDirectionX_RIGHT) {
-#ifdef HELLFIRE
-		if (sbooktab < 4)
-#else
-		if (sbooktab < 3)
-#endif
+		if (sbooktab < SPLBOOKTABS - 1)
 			sbooktab++;
 	}
 }

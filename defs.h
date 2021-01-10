@@ -264,8 +264,10 @@
 #define SPLROWICONLS	10
 #ifdef HELLFIRE
 #define SPLICONLAST		52
+#define SPLBOOKTABS		5
 #else
 #define SPLICONLAST		43
+#define SPLBOOKTABS		4
 #endif
 
 #ifdef SPAWN
