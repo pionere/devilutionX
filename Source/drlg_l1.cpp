@@ -2482,34 +2482,7 @@ static void DRLG_L5DirtFix()
 #ifdef HELLFIRE
 	BYTE bv;
 
-	if (currlevel < 21) {
-		for (j = 0; j < DMAXY - 1; j++) {
-			for (i = 0; i < DMAXX - 1; i++) {
-				switch (dungeon[i][j]) {
-				case 18:
-					if (dungeon[i][j + 1] != 18)
-						dungeon[i][j] = 199;
-					break;
-				case 19:
-					if (dungeon[i + 1][j] != 19)
-						dungeon[i][j] = 200;
-					break;
-				case 21:
-					if (dungeon[i + 1][j] != 19 || dungeon[i][j + 1] != 18)
-						dungeon[i][j] = 202;
-					break;
-				case 23:
-					if (dungeon[i][j + 1] != 18)
-						dungeon[i][j] = 204;
-					break;
-				case 24:
-					if (dungeon[i + 1][j] != 19)
-						dungeon[i][j] = 205;
-					break;
-				}
-			}
-		}
-	} else {
+	if (currlevel >= 21) {
 		for (j = 0; j < DMAXY - 1; j++) {
 			for (i = 0; i < DMAXX - 1; i++) {
 				switch (dungeon[i][j]) {
@@ -2523,10 +2496,11 @@ static void DRLG_L5DirtFix()
 				dungeon[i][j] = bv;
 			}
 		}
+		return;
 	}
-#else
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+#endif
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
 			switch (dungeon[i][j]) {
 			case 18:
 				if (dungeon[i][j + 1] != 18)
@@ -2551,7 +2525,6 @@ static void DRLG_L5DirtFix()
 			}
 		}
 	}
-#endif
 }
 
 static void DRLG_L5CornerFix()

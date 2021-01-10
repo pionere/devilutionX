@@ -532,7 +532,7 @@ static BOOL SmithSellOk(const ItemStruct *is)
 		&& is->_itype != ITYPE_MISC
 #endif
 		&& is->_itype != ITYPE_GOLD
-		&& is->_itype != ITYPE_MEAT
+		&& is->_itype != ITYPE_FOOD
 		&& is->_itype != ITYPE_STAFF
 		&& (is->_iIdx < IDI_FIRSTQUEST || is->_iIdx > IDI_LASTQUEST)
 		&& is->_iIdx != IDI_LAZSTAFF;

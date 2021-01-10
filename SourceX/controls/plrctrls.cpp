@@ -731,10 +731,9 @@ bool HSExists(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (x >= speedspellscoords[r].x - SPLICONLENGTH / 2
-			&& x < speedspellscoords[r].x + SPLICONLENGTH / 2
-			&& y >= speedspellscoords[r].y - SPLICONLENGTH / 2
-			&& y < speedspellscoords[r].y + SPLICONLENGTH / 2
-		) {
+		 && x <= speedspellscoords[r].x + SPLICONLENGTH / 2
+		 && y >= speedspellscoords[r].y - SPLICONLENGTH / 2
+		 && y <= speedspellscoords[r].y + SPLICONLENGTH / 2) {
 			return true;
 		}
 	}
@@ -757,10 +756,9 @@ void HotSpellMove(MoveDirection dir)
 	int spbslot = plr[myplr]._pRSpell;
 	for (int r = 0; r < speedspellcount; r++) {
 		if (MouseX >= speedspellscoords[r].x - SPLICONLENGTH / 2
-			&& MouseX < speedspellscoords[r].x + SPLICONLENGTH / 2
-			&& MouseY >= speedspellscoords[r].y - SPLICONLENGTH / 2
-			&& MouseY < speedspellscoords[r].y + SPLICONLENGTH / 2
-		) {
+		 && MouseX <= speedspellscoords[r].x + SPLICONLENGTH / 2
+		 && MouseY >= speedspellscoords[r].y - SPLICONLENGTH / 2
+		 && MouseY <= speedspellscoords[r].y + SPLICONLENGTH / 2) {
 			spbslot = r;
 			break;
 		}
@@ -813,7 +811,11 @@ void SpellBookMove(MoveDirection dir)
 		if (sbooktab > 0)
 			sbooktab--;
 	} else if (dir.x == MoveDirectionX_RIGHT) {
+#ifdef HELLFIRE
+		if (sbooktab < 4)
+#else
 		if (sbooktab < 3)
+#endif
 			sbooktab++;
 	}
 }

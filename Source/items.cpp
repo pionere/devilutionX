@@ -1704,11 +1704,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_SPELL:
 		is->_iSpell = param1;
-#ifdef HELLFIRE
 		is->_iCharges = param2;
-#else
-		is->_iCharges = param1; // BUGFIX: should be param2. This code was correct in v1.04, and the bug was introduced between 1.04 and 1.09b.
-#endif
 		is->_iMaxCharges = param2;
 		break;
 	case IPL_FIREDAM:
@@ -2245,7 +2241,7 @@ static int RndUItem(int lvl)
 			okflag = FALSE;
 		if (AllItemsList[i].itype == ITYPE_GOLD)
 			okflag = FALSE;
-		if (AllItemsList[i].itype == ITYPE_MEAT)
+		if (AllItemsList[i].itype == ITYPE_FOOD)
 			okflag = FALSE;
 		if (AllItemsList[i].iMiscId == IMISC_BOOK)
 			okflag = TRUE;
@@ -3710,7 +3706,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int y)
 	case IMISC_RING:
 	case IMISC_AMULET:
 	case IMISC_UNIQUE:
-	case IMISC_MEAT:
+	case IMISC_FOOD:
 	case IMISC_OILFIRST:
 		return;
 #ifdef HELLFIRE
@@ -3910,7 +3906,7 @@ static BOOL SmithItemOk(int i)
 #endif
 	 && AllItemsList[i].itype != ITYPE_RING
 	 && AllItemsList[i].itype != ITYPE_AMULET
-	 && AllItemsList[i].itype != ITYPE_MEAT;
+	 && AllItemsList[i].itype != ITYPE_FOOD;
 }
 
 static int RndSmithItem(int lvl)
@@ -3998,7 +3994,7 @@ static BOOL PremiumItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 		&& AllItemsList[i].itype != ITYPE_GOLD
-		&& AllItemsList[i].itype != ITYPE_MEAT
+		&& AllItemsList[i].itype != ITYPE_FOOD
 #ifdef HELLFIRE
 		&& (gbMaxPlayers == 1 || (AllItemsList[i].iMiscId != IMISC_OILOF && AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #else

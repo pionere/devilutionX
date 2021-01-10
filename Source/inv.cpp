@@ -2164,7 +2164,7 @@ BOOL UseInvItem(int cii)
 	// use the item
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
-	case IMISC_MEAT:
+	case IMISC_FOOD:
 		PlrAddHp();
 		break;
 	case IMISC_FULLHEAL:
