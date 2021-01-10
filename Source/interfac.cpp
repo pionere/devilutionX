@@ -177,6 +177,7 @@ static void InitCutscene(unsigned int uMsg)
 				sgpBackCel = LoadFileInMem("Nlevels\\Cutl5.CEL", NULL);
 				LoadPalette("Nlevels\\Cutl5.pal");
 				progress_id = 1;
+				break;
 			}
 #endif
 			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
