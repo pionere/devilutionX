@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define MAX_CTRL_PANEL_LINES 4
-
 extern BOOL dropGoldFlag;
 extern BOOL lvlbtndown;
 extern int dropGoldValue;

@@ -1394,9 +1394,11 @@ typedef enum text_set {
 	TXTS_BLOODY,
 	TXTS_BLOODWAR,
 	TXTS_BONER,
+#ifdef HELLFIRE
 	TXTS_BOOKA,
 	TXTS_BOOKB,
 	TXTS_BOOKC,
+#endif
 	NUM_TXTSets
 } text_set;
 

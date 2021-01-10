@@ -71,7 +71,7 @@ void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
 BOOL DoOil(int pnum, int cii);
 #endif
-void PrintItemPower(char plidx, const ItemStruct *is);
+void PrintItemPower(BYTE plidx, const ItemStruct *is);
 void DrawUniqueInfo();
 void DrawInvItemDetails();
 void SpawnSmith(int lvl);

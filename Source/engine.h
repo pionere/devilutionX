@@ -144,18 +144,27 @@ inline void copy_cstr(char (&dest)[N1], const char (&src)[N2])
 	memcpy(dest, src, std::min(N1, ((N2 + sizeof(int) - 1) / sizeof(int)) * sizeof(int)));
 }
 
+/*
+ * Copy POD (Plain-Old-Data) from source to dest.
+ */
 template<class T>
 inline void copy_pod(T &dest, T &src)
 {
 	memcpy(&dest, &src, sizeof(T));
 }
 
+/*
+ * Copy POD (Plain-Old-Data) from constant source to dest.
+ */
 template<class T>
 inline void copy_pod(T &dest, const T &src)
 {
 	memcpy(&dest, &src, sizeof(T));
 }
 
+/*
+ * Concatenate strings using the provided format with the help of pos as a cursor.
+ */
 template<int N>
 inline void cat_str(char (&dest)[N], int &pos, const char* fmt, ...)
 {
@@ -170,6 +179,9 @@ inline void cat_str(char (&dest)[N], int &pos, const char* fmt, ...)
 	va_end(va);
 }
 
+/*
+ * Concatenate constant string to the dest with the help of pos as a cursor.
+ */
 template<int N1, int N2>
 inline void cat_cstr(char (&dest)[N1], int &pos, const char (&src)[N2])
 {
@@ -187,6 +199,9 @@ inline void cat_cstr(char (&dest)[N1], int &pos, const char (&src)[N2])
 	}
 }
 
+/*
+ * Helper function to simplify 'sizeof(list) / sizeof(list[0])' expressions.
+ */
 template<class T, int N>
 inline constexpr int lengthof(T (&array)[N])
 {

@@ -38,7 +38,6 @@ BYTE *pPanelText;
 BYTE *pLifeBuff;
 BYTE *pBtmBuff;
 BYTE *pTalkBtns;
-BOOL pstrjust[MAX_CTRL_PANEL_LINES];
 BOOL talkbtndown[MAX_PLRS - 1];
 int pSpell;
 BYTE *pManaBuff;
