@@ -1878,7 +1878,12 @@ static void FenceDoorFix()
 
 static void DRLG_L3Wood()
 {
-	int i, j, x, y, xx, yy, rp, x1, y1, x2, y2;
+#if (_MSC_VER >= 1920) 
+	volatile int j;// visual studio 2019 throws internal compiler error without it, see #708
+#else
+	int j;
+#endif
+	int i, x, y, xx, yy, rp, x1, y1, x2, y2;
 	BYTE bv;
 
 	for (j = 1; j < DMAXY - 1; j++) {     // BUGFIX: Change '0' to '1' (fixed)
