@@ -229,6 +229,62 @@ void SetDungeonMicros()
 	}
 }
 
+void DRLG_PlaceMegaTiles(int lv)
+{
+	int i, j, xx, yy;
+	int v1, v2, v3, v4;
+	WORD *MegaTiles;
+
+	/*int cursor = 0;
+	char tmpstr[1024];
+	long lvs[] = { 22, 56, 57, 58, 59, 60, 61 };
+	for (i = 0; i < lengthof(lvs); i++) {
+		lv = lvs[i];
+		MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+		v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
+		v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
+		v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
+		v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
+		cat_str(tmpstr, cursor, "- %d: %d, %d, %d, %d", lv, v1, v2, v3, v4);
+	}
+	app_fatal(tmpstr);*/
+
+	MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+	v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
+	v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
+	v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
+	v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
+
+	for (j = 0; j < MAXDUNY; j += 2) {
+		for (i = 0; i < MAXDUNX; i += 2) {
+			dPiece[i][j] = v1;
+			dPiece[i + 1][j] = v2;
+			dPiece[i][j + 1] = v3;
+			dPiece[i + 1][j + 1] = v4;
+		}
+	}
+
+	yy = DBORDERY;
+	for (j = 0; j < DMAXY; j++) {
+		xx = DBORDERX;
+		for (i = 0; i < DMAXX; i++) {
+			lv = dungeon[i][j] - 1;
+			assert(lv >= 0);
+			MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+			v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
+			v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
+			v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
+			v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
+			dPiece[xx][yy] = v1;
+			dPiece[xx + 1][yy] = v2;
+			dPiece[xx][yy + 1] = v3;
+			dPiece[xx + 1][yy + 1] = v4;
+			xx += 2;
+		}
+		yy += 2;
+	}
+}
+
 void DRLG_InitTrans()
 {
 	memset(dTransVal, 0, sizeof(dTransVal));

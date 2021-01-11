@@ -7,6 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/** Starting position of the megatiles. */
+#define BASE_MEGATILE_L4 (30 - 1)
+
 int diabquad1x;
 int diabquad1y;
 int diabquad2x;
@@ -1707,56 +1710,6 @@ static void DRLG_L4(int entry)
 	}
 }
 
-static void DRLG_L4Pass3()
-{
-	int i, j, xx, yy;
-	long v1, v2, v3, v4, lv;
-	WORD *MegaTiles;
-
-	lv = 30 - 1;
-
-	MegaTiles = (WORD *)&pMegaTiles[lv * 8];
-	v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
-	v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
-	v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
-	v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
-
-	for (j = 0; j < MAXDUNY; j += 2) {
-		for (i = 0; i < MAXDUNX; i += 2) {
-			dPiece[i][j] = v1;
-			dPiece[i + 1][j] = v2;
-			dPiece[i][j + 1] = v3;
-			dPiece[i + 1][j + 1] = v4;
-		}
-	}
-
-	yy = DBORDERY;
-	for (j = 0; j < DMAXY; j++) {
-		xx = DBORDERX;
-		for (i = 0; i < DMAXX; i++) {
-			lv = dungeon[i][j] - 1;
-			if (lv >= 0) {
-				MegaTiles = (WORD *)&pMegaTiles[lv * 8];
-				v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
-				v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
-				v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
-				v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
-			} else {
-				v1 = 0;
-				v2 = 0;
-				v3 = 0;
-				v4 = 0;
-			}
-			dPiece[xx][yy] = v1;
-			dPiece[xx + 1][yy] = v2;
-			dPiece[xx][yy + 1] = v3;
-			dPiece[xx + 1][yy + 1] = v4;
-			xx += 2;
-		}
-		yy += 2;
-	}
-}
-
 void CreateL4Dungeon(DWORD rseed, int entry)
 {
 	SetRndSeed(rseed);
@@ -1767,7 +1720,7 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 	DRLG_InitSetPC();
 	DRLG_LoadL4SP();
 	DRLG_L4(entry);
-	DRLG_L4Pass3();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 	DRLG_FreeL4SP();
 	DRLG_SetPC();
 }
@@ -1811,7 +1764,7 @@ static BYTE *LoadL4DungeonData(const char *sFileName)
 
 	ViewX = vx;
 	ViewY = vy;
-	DRLG_L4Pass3();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 	DRLG_Init_Globals();
 
 	SetMapMonsters(pLevelMap, 0, 0);
