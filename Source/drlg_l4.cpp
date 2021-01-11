@@ -25,7 +25,6 @@ int SP4x1;
 int SP4y1;
 int SP4x2;
 int SP4y2;
-BYTE L4dungeon[DSIZEX][DSIZEY];
 BYTE dung[20][20];
 //int dword_52A4DC;
 
@@ -209,11 +208,10 @@ static void DRLG_L4Shadows()
 static void InitL4Dungeon()
 {
 	memset(dung, 0, sizeof(dung));
-	memset(L4dungeon, 0, sizeof(L4dungeon));
 	memset(dflags, 0, sizeof(dflags));
 
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in InitL4Dungeon.");
-	memset(dungeon, 30, sizeof(dungeon));
+	//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in InitL4Dungeon.");
+	//memset(dungeon, 30, sizeof(dungeon));
 }
 
 static void DRLG_LoadL4SP()
@@ -263,20 +261,25 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	}
 }
 
-static void L4makeDmt()
+static void DRLG_L4MakeMegas()
 {
-	int i, j, idx, val, dmtx, dmty;
+	int i, j;
+	BYTE v;
 
-	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
-		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {
-			val = 8 * L4dungeon[dmtx + 1][dmty + 1]
-			    + 4 * L4dungeon[dmtx][dmty + 1]
-			    + 2 * L4dungeon[dmtx + 1][dmty]
-			    + L4dungeon[dmtx][dmty];
-			idx = L4ConvTbl[val];
-			dungeon[i][j] = idx;
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
+			assert(dungeon[i][j] <= 1);
+			v = dungeon[i][j]
+			 | (dungeon[i + 1][j] << 1)
+			 | (dungeon[i][j + 1] << 2)
+			 | (dungeon[i + 1][j + 1] << 3);
+			dungeon[i][j] = L4ConvTbl[v];
 		}
 	}
+	for (j = 0; j < DMAXY; j++)
+		dungeon[DMAXX - 1][j] = 30;
+	for (i = 0; i < DMAXX - 1; i++)
+		dungeon[i][DMAXY - 1] = 30;
 }
 
 static int L4HWallOk(int x, int y)
@@ -1010,42 +1013,24 @@ static void DRLG_L4Subs()
 static void L4makeDungeon()
 {
 	int i, j;
-	BYTE bv;
-
-	for (j = 0; j < 40; j += 2) {
-		for (i = 0; i < 40; i += 2) {
-			bv = dung[i >> 1][j >> 1];
-			L4dungeon[i][j] = bv;
-			L4dungeon[i][j + 1] = bv;
-			L4dungeon[i + 1][j] = bv;
-			L4dungeon[i + 1][j + 1] = bv;
+	for (j = 0; j < 20; j++) {
+		for (i = 0; i < 20; i++) {
+			dungeon[i][j] = dung[i][j];
 		}
 	}
-	for (j = 0; j < 40; j += 2) {
-		for (i = 0; i < 40; i += 2) {
-			bv = dung[i >> 1][19 - (j >> 1)];
-			L4dungeon[i][j + 40] = bv;
-			L4dungeon[i][j + 41] = bv;
-			L4dungeon[i + 1][j + 40] = bv;
-			L4dungeon[i + 1][j + 41] = bv;
+	for (j = 0; j < 20; j++) {
+		for (i = 0; i < 20; i++) {
+			dungeon[i][j + 20] = dung[i][19 - j];
 		}
 	}
-	for (j = 0; j < 40; j += 2) {
-		for (i = 0; i < 40; i += 2) {
-			bv = dung[19 - (i >> 1)][j >> 1];
-			L4dungeon[i + 40][j] = bv;
-			L4dungeon[i + 40][j + 1] = bv;
-			L4dungeon[i + 41][j] = bv;
-			L4dungeon[i + 41][j + 1] = bv;
+	for (j = 0; j < 20; j++) {
+		for (i = 0; i < 20; i++) {
+			dungeon[i + 20][j] = dung[19 - i][j];
 		}
 	}
-	for (j = 0; j < 40; j += 2) {
-		for (i = 0; i < 40; i += 2) {
-			bv = dung[19 - (i >> 1)][19 - (j >> 1)];
-			L4dungeon[i + 40][j + 40] = bv;
-			L4dungeon[i + 40][j + 41] = bv;
-			L4dungeon[i + 41][j + 40] = bv;
-			L4dungeon[i + 41][j + 41] = bv;
+	for (j = 0; j < 20; j++) {
+		for (i = 0; i < 20; i++) {
+			dungeon[i + 20][j + 20] = dung[19 - i][19 - j];
 		}
 	}
 }
@@ -1137,12 +1122,12 @@ static int GetArea()
 	BYTE *pTmp;
 
 	rv = 0;
-
 	static_assert(sizeof(dung) == 20 * 20, "Linear traverse of dung does not work in GetArea.");
 	pTmp = &dung[0][0];
-	for (i = 0; i < 20 * 20; i++, pTmp++)
-		if (*pTmp == 1)
-			rv++;
+	for (i = 0; i < 20 * 20; i++, pTmp++) {
+		assert(*pTmp <= 1);
+		rv += *pTmp;
+	}
 
 	return rv;
 }
@@ -1623,7 +1608,7 @@ static void DRLG_L4(int entry)
 			}
 		} while (ar < 173);
 		L4makeDungeon();
-		L4makeDmt();
+		DRLG_L4MakeMegas();
 		L4tileFix();
 		if (currlevel == 16) {
 			L4SaveQuads();
@@ -1714,8 +1699,8 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 {
 	SetRndSeed(rseed);
 
-	ViewX = DSIZEX / 2;
-	ViewY = DSIZEY / 2;
+	//ViewX = DSIZEX / 2;
+	//ViewY = DSIZEY / 2;
 
 	DRLG_InitSetPC();
 	DRLG_LoadL4SP();
@@ -1725,7 +1710,7 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 	DRLG_SetPC();
 }
 
-static BYTE *LoadL4DungeonData(const char *sFileName)
+/*static BYTE *LoadL4DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm;
@@ -1754,7 +1739,7 @@ static BYTE *LoadL4DungeonData(const char *sFileName)
 	return pLevelMap;
 }
 
-/*static void LoadL4Dungeon(char *sFileName, int vx, int vy)
+static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
 	BYTE *pLevelMap;
 

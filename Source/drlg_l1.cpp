@@ -11,7 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define BASE_MEGATILE_L1 (22 - 1)
 
 /** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
-BYTE L1dungeon[DSIZEX][DSIZEY];
 BYTE L1dflags[DMAXX][DMAXY];
 /** Specifies whether a single player quest DUN has been loaded. */
 BOOL L1setloadflag;
@@ -1413,56 +1412,39 @@ static void L1firstRoom()
 
 static int L1GetArea()
 {
-	int i;
+	int i, rv;
 	BYTE *pTmp;
-	int rv;
 
 	rv = 0;
-
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L1GetArea.");
 	pTmp = &dungeon[0][0];
-	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 1)
-			rv++;
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
+		assert(*pTmp <= 1);
+		rv += *pTmp;
+	}
 
 	return rv;
 }
 
-static void L1makeDungeon()
+static void DRLG_L1MakeMegas()
 {
-	int i, j, x, y;
-	BYTE bv;
+	int i, j;
+	BYTE v;
 
-	for (j = 0; j < DMAXY; j++) {
-		y = j << 1;
-		for (i = 0; i < DMAXX; i++) {
-			x = i << 1;
-			bv = dungeon[i][j];
-			L1dungeon[x][y] = bv;
-			L1dungeon[x][y + 1] = bv;
-			L1dungeon[x + 1][y] = bv;
-			L1dungeon[x + 1][y + 1] = bv;
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
+			assert(dungeon[i][j] <= 1);
+			v = dungeon[i][j]
+			 | (dungeon[i + 1][j] << 1)
+			 | (dungeon[i][j + 1] << 2)
+			 | (dungeon[i + 1][j + 1] << 3);
+			dungeon[i][j] = L1ConvTbl[v];
 		}
 	}
-}
-
-static void L1makeDmt()
-{
-	int i, j, idx, val, dmtx, dmty;
-
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L1makeDmt.");
-	memset(dungeon, 22, sizeof(dungeon));
-
-	for (j = 0, dmty = 1; dmty <= DSIZEY - 3; j++, dmty += 2) {
-		for (i = 0, dmtx = 1; dmtx <= DSIZEX - 3; i++, dmtx += 2) {
-			val = 8 * L1dungeon[dmtx + 1][dmty + 1]
-			    + 4 * L1dungeon[dmtx][dmty + 1]
-			    + 2 * L1dungeon[dmtx + 1][dmty]
-			    + L1dungeon[dmtx][dmty];
-			idx = L1ConvTbl[val];
-			dungeon[i][j] = idx;
-		}
-	}
+	for (j = 0; j < DMAXY; j++)
+		dungeon[DMAXX - 1][j] = 22;
+	for (i = 0; i < DMAXX - 1; i++)
+		dungeon[i][DMAXY - 1] = 22;
 }
 
 static int L1HWallOk(int i, int j)
@@ -2634,8 +2616,7 @@ static void DRLG_L1(int entry)
 			L1firstRoom();
 		} while (L1GetArea() < minarea);
 
-		L1makeDungeon();
-		L1makeDmt();
+		DRLG_L1MakeMegas();
 		L1FillChambers();
 		L1tileFix();
 		L1AddWall();

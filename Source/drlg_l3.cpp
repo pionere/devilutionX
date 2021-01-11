@@ -1001,7 +1001,11 @@ static void DRLG_L3FillDiags()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			v = dungeon[i + 1][j + 1] + 2 * dungeon[i][j + 1] + 4 * dungeon[i + 1][j] + 8 * dungeon[i][j];
+			assert(dungeon[i][j] <= 1);
+			v = dungeon[i + 1][j + 1]
+			 | (dungeon[i][j + 1] << 1)
+			 | (dungeon[i + 1][j] << 2)
+			 | (dungeon[i][j] << 3);
 			if (v == 6) {
 				if (random_(0, 2) == 0) {
 					dungeon[i][j] = 1;
@@ -1026,10 +1030,11 @@ static void DRLG_L3FillSingles()
 
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
+			assert(dungeon[i][j] <= 1);
 			if (dungeon[i][j] == 0
-			    && dungeon[i][j - 1] + dungeon[i - 1][j - 1] + dungeon[i + 1][j - 1] == 3
-			    && dungeon[i + 1][j] + dungeon[i - 1][j] == 2
-			    && dungeon[i][j + 1] + dungeon[i - 1][j + 1] + dungeon[i + 1][j + 1] == 3) {
+			 && (dungeon[i][j - 1] & dungeon[i - 1][j - 1] & dungeon[i + 1][j - 1])
+			 && (dungeon[i + 1][j] & dungeon[i - 1][j])
+			 && (dungeon[i][j + 1] & dungeon[i - 1][j + 1] & dungeon[i + 1][j + 1])) {
 				dungeon[i][j] = 1;
 			}
 		}
@@ -1122,19 +1127,26 @@ static int DRLG_L3GetFloorArea()
 	rv = 0;
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetFloorArea.");
 	pTmp = &dungeon[0][0];
-	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
+	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
+		assert(*pTmp <= 1);
 		rv += *pTmp;
+	}
 
 	return rv;
 }
 
 static void DRLG_L3MakeMegas()
 {
-	int i, j, v;
+	int i, j;
+	BYTE v;
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			v = dungeon[i + 1][j + 1] + 2 * dungeon[i][j + 1] + 4 * dungeon[i + 1][j] + 8 * dungeon[i][j];
+			assert(dungeon[i][j] <= 1);
+			v = dungeon[i + 1][j + 1]
+			 | (dungeon[i][j + 1] << 1)
+			 | (dungeon[i + 1][j] << 2)
+			 | (dungeon[i][j] << 3);
 			if (v == 6) {
 				if (random_(0, 2) == 0) {
 					v = 12;
@@ -1151,11 +1163,11 @@ static void DRLG_L3MakeMegas()
 			}
 			dungeon[i][j] = L3ConvTbl[v];
 		}
+	}
+	for (j = 0; j < DMAXY; j++)
 		dungeon[DMAXX - 1][j] = 8;
-	}
-	for (i = 0; i < DMAXX; i++) {
+	for (i = 0; i < DMAXX - 1; i++)
 		dungeon[i][DMAXY - 1] = 8;
-	}
 }
 
 static void DRLG_L3River()
