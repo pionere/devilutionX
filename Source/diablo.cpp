@@ -1347,28 +1347,41 @@ static void GetMousePos(LPARAM lParam)
 	MouseY = (short)((lParam >> 16) & 0xffff);
 }
 
+static void UpdateActionBtnState(int vKey, BOOL dir)
+{
+	if (vKey == actionBtnKey)
+		sgbActionBtnDown = dir;
+	if (vKey == altActionBtnKey)
+		sgbAltActionBtnDown = dir;
+}
+
 void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
+		UpdateActionBtnState(wParam, TRUE);
+		return;
 	case DVL_WM_KEYUP:
+		UpdateActionBtnState(wParam, FALSE);
+		return;
 	case DVL_WM_CHAR:
 	case DVL_WM_SYSKEYDOWN:
 	case DVL_WM_SYSCOMMAND:
+		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(lParam);
 		return;
 	case DVL_WM_LBUTTONDOWN:
-		sgbActionBtnDown = TRUE;
+		UpdateActionBtnState(DVL_VK_LBUTTON, TRUE);
 		return;
 	case DVL_WM_LBUTTONUP:
-		sgbActionBtnDown = FALSE;
+		UpdateActionBtnState(DVL_VK_LBUTTON, FALSE);
 		return;
 	case DVL_WM_RBUTTONDOWN:
-		sgbAltActionBtnDown = TRUE;
+		UpdateActionBtnState(DVL_VK_RBUTTON, TRUE);
 		return;
 	case DVL_WM_RBUTTONUP:
-		sgbAltActionBtnDown = FALSE;
+		UpdateActionBtnState(DVL_VK_RBUTTON, FALSE);
 		return;
 	case DVL_WM_CAPTURECHANGED:
 		if (hWnd != (HWND)lParam) {
