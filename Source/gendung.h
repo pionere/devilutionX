@@ -58,6 +58,7 @@ extern char dSpecial[MAXDUNX][MAXDUNY];
 extern int themeCount;
 extern THEME_LOC themeLoc[MAXTHEMES];
 
+void DRLG_Init_Globals();
 void FillSolidBlockTbls();
 void SetDungeonMicros();
 void DRLG_PlaceMegaTiles(int idx);

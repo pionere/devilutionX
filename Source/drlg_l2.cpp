@@ -1136,7 +1136,7 @@ const BYTE HARCH40[] = {
 	// clang-format on
 };
 /** Miniset: Stairs up. */
-const BYTE USTAIRS[] = {
+const BYTE L2USTAIRS[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -1152,7 +1152,7 @@ const BYTE USTAIRS[] = {
 	// clang-format on
 };
 /** Miniset: Stairs down. */
-const BYTE DSTAIRS[] = {
+const BYTE L2DSTAIRS[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -1168,7 +1168,7 @@ const BYTE DSTAIRS[] = {
 	// clang-format on
 };
 /** Miniset: Stairs to town. */
-const BYTE WARPSTAIRS[] = {
+const BYTE L2TWARP[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -1788,11 +1788,11 @@ static void DRLG_L2Shadows()
 	}
 }
 
-void InitDungeon()
+static void DRLG_L2InitDungeon()
 {
 	memset(dflags, 0, sizeof(dflags));
 
-	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in InitDungeon.");
+	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in DRLG_L2InitDungeon.");
 	memset(predungeon, 32, sizeof(predungeon));
 }
 
@@ -2655,7 +2655,7 @@ static BOOL DL2_FillVoids()
 	return DL2_NumNoChar() <= 700;
 }
 
-static BOOL CreateDungeon()
+static BOOL DRLG_L2CreateDungeon()
 {
 	int i, j, nHx1, nHy1, nHx2, nHy2, nHd, ForceH, ForceW;
 	BOOL ForceHW;
@@ -2992,9 +2992,9 @@ static void DRLG_L2(int entry)
 	do {
 		do {
 			nRoomCnt = 0;
-			InitDungeon();
+			DRLG_L2InitDungeon();
 			DRLG_InitTrans();
-		} while (!CreateDungeon());
+		} while (!DRLG_L2CreateDungeon());
 		L2TileFix();
 		if (setloadflag) {
 			DRLG_L2SetRoom(nSx1, nSy1);
@@ -3003,9 +3003,9 @@ static void DRLG_L2(int entry)
 		DRLG_L2TransFix();
 
 		mini_set stairs[3] = {
-				{ USTAIRS, entry == ENTRY_MAIN },
-				{ DSTAIRS, entry == ENTRY_PREV },
-				{ currlevel != 5 ? NULL : WARPSTAIRS, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ L2USTAIRS, entry == ENTRY_MAIN },
+				{ L2DSTAIRS, entry == ENTRY_PREV },
+				{ currlevel != 5 ? NULL : L2TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
 		};
 		doneflag = DRLG_L2PlaceMiniSets(stairs, 3);
 		if (entry == ENTRY_MAIN) {
@@ -3175,7 +3175,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	int i, j, rw, rh;
 	BYTE *pLevelMap, *lm, *pTmp;
 
-	InitDungeon();
+	DRLG_L2InitDungeon();
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 

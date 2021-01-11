@@ -1559,7 +1559,7 @@ static void CreateLevel(int lvldir)
 		LoadRndLvlPal(DTYPE_TOWN);
 		break;
 	case DTYPE_CATHEDRAL:
-		CreateL5Dungeon(glSeedTbl[currlevel], lvldir);
+		CreateL1Dungeon(glSeedTbl[currlevel], lvldir);
 		InitL1Triggers();
 		Freeupstairs();
 #ifdef HELLFIRE

@@ -14,7 +14,6 @@ extern "C" {
 
 extern BYTE predungeon[DMAXX][DMAXY];
 
-void InitDungeon();
 void LoadL2Dungeon(const char *sFileName, int vx, int vy);
 void LoadPreL2Dungeon(const char *sFileName);
 void CreateL2Dungeon(DWORD rseed, int entry);

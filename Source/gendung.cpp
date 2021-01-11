@@ -123,6 +123,28 @@ char dSpecial[MAXDUNX][MAXDUNY];
 int themeCount;
 THEME_LOC themeLoc[MAXTHEMES];
 
+void DRLG_Init_Globals()
+{
+	char c;
+
+	memset(dFlags, 0, sizeof(dFlags));
+	memset(dPlayer, 0, sizeof(dPlayer));
+	memset(dMonster, 0, sizeof(dMonster));
+	memset(dDead, 0, sizeof(dDead));
+	memset(dObject, 0, sizeof(dObject));
+	memset(dItem, 0, sizeof(dItem));
+	memset(dMissile, 0, sizeof(dMissile));
+	memset(dSpecial, 0, sizeof(dSpecial));
+	c = 15;
+#ifdef _DEBUG
+	if (lightflag)
+		c = 0;
+	else if (light4flag)
+		c = 3;
+#endif
+	memset(dLight, c, sizeof(dLight));
+}
+
 void FillSolidBlockTbls()
 {
 	BYTE bv;

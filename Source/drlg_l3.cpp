@@ -1679,7 +1679,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 }
 
 #ifdef HELLFIRE
-static BOOLEAN drlg_l3_hive_rnd_piece(const BYTE *miniset, int rndper)
+static BOOLEAN DRLG_L6Hive_rnd_piece(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
 	BOOL found;
@@ -1795,7 +1795,7 @@ static BOOL WoodHorizR(int x, int j)
 	return bv == 7 || bv == 4 || bv == 135 || bv == 137;
 }
 
-void AddFenceDoors()
+static void AddFenceDoors()
 {
 	int i, j;
 
@@ -2274,10 +2274,10 @@ static void DRLG_L3(int entry)
 		} while (!doneflag);
 #ifdef HELLFIRE
 		if (currlevel >= 17) {
-			lavapool += drlg_l3_hive_rnd_piece(byte_48A998, 30);
-			lavapool += drlg_l3_hive_rnd_piece(byte_48A9C8, 40);
-			lavapool += drlg_l3_hive_rnd_piece(byte_48A948, 50);
-			lavapool += drlg_l3_hive_rnd_piece(byte_48A970, 60);
+			lavapool += DRLG_L6Hive_rnd_piece(byte_48A998, 30);
+			lavapool += DRLG_L6Hive_rnd_piece(byte_48A9C8, 40);
+			lavapool += DRLG_L6Hive_rnd_piece(byte_48A948, 50);
+			lavapool += DRLG_L6Hive_rnd_piece(byte_48A970, 60);
 			if (lavapool < 3)
 				lavapool = FALSE;
 		} else
