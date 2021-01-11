@@ -1162,26 +1162,25 @@ static void DRLG_L3River()
 	int river[3][100];
 	int rivercnt, riveramt;
 	int i, tries, found, bridge, lpcnt;
-	BOOL bail;
+	BOOL done;
 
 	rivercnt = 0;
-	bail = FALSE;
 	tries = 0;
 	/// BUGFIX: pdir is uninitialized, add code `pdir = -1;`(fixed)
 	pdir = -1;
 
 	while (tries < 200 && rivercnt < 4) {
-		bail = FALSE;
-		while (!bail && tries < 200) {
+		done = FALSE;
+		while (!done && tries < 200) {
 			tries++;
 			rx = 0;
 			ry = 0;
-			i = 0;
+			lpcnt = 0;
 			// BUGFIX: Replace with `(ry >= DMAXY || dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) && i < 100` (fixed)
-			while ((ry >= DMAXY || dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) && i < 100) {
+			while ((ry >= DMAXY || dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) && lpcnt < 100) {
 				rx = random_(0, DMAXX);
 				ry = random_(0, DMAXY);
-				i++;
+				lpcnt++;
 				while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
 					if (++rx == DMAXX) {
 						rx = 0;
@@ -1193,7 +1192,7 @@ static void DRLG_L3River()
 			// BUGFIX: Continue if `ry >= DMAXY` (fixed)
 			if (ry >= DMAXY)
 				continue;
-			if (i >= 100) {
+			if (lpcnt >= 100) {
 				return;
 			}
 			switch (dungeon[rx][ry]) {
@@ -1217,6 +1216,8 @@ static void DRLG_L3River()
 				nodir = 3;
 				river[2][0] = 39;
 				break;
+			default:
+				ASSUME_UNREACHABLE
 			}
 			river[0][0] = rx;
 			river[1][0] = ry;
@@ -1236,67 +1237,55 @@ static void DRLG_L3River()
 					dir = (dir + 1) & 3;
 					dircheck++;
 				}
-				if (dir == 0 && ry > 0) {
-					ry--;
-				}
-				if (dir == 1 && ry < DMAXY) {
-					ry++;
-				}
-				if (dir == 2 && rx < DMAXX) {
-					rx++;
-				}
-				if (dir == 3 && rx > 0) {
-					rx--;
+				switch (dir) {
+				case 0:
+					if (ry > 0)
+						ry--;
+					break;
+				case 1:
+					if (ry < DMAXY)
+						ry++;
+					break;
+				case 2:
+					if (rx < DMAXX)
+						rx++;
+					break;
+				case 3:
+					if (rx > 0)
+						rx--;
+					break;
+				default:
+					ASSUME_UNREACHABLE
 				}
 				if (dungeon[rx][ry] == 7) {
 					dircheck = 0;
-					if (dir < 2) {
-						river[2][riveramt] = RandRange(17, 18);
-					} else {
-						river[2][riveramt] = RandRange(15, 16);
-					}
 					river[0][riveramt] = rx;
 					river[1][riveramt] = ry;
+					river[2][riveramt] = RandRange(15, 16) + (dir < 2) * 2;
 					riveramt++;
 					if (dir == 0 && pdir == 2 || dir == 3 && pdir == 1) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 22;
 						}
-						if (dir == 0) {
-							nodir2 = 1;
-						} else {
-							nodir2 = 2;
-						}
+						nodir2 = dir == 0 ? 1 : 2;
 					}
 					if (dir == 0 && pdir == 3 || dir == 2 && pdir == 1) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 21;
 						}
-						if (dir == 0) {
-							nodir2 = 1;
-						} else {
-							nodir2 = 3;
-						}
+						nodir2 = dir + 1; // dir == 0 ? 1 : 3;
 					}
 					if (dir == 1 && pdir == 2 || dir == 3 && pdir == 0) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 20;
 						}
-						if (dir == 1) {
-							nodir2 = 0;
-						} else {
-							nodir2 = 2;
-						}
+						nodir2 = dir - 1; // dir == 1 ? 0 : 2;
 					}
 					if (dir == 1 && pdir == 3 || dir == 2 && pdir == 0) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 19;
 						}
-						if (dir == 1) {
-							nodir2 = 0;
-						} else {
-							nodir2 = 3;
-						}
+						nodir2 = dir == 1 ? 0 : 3;
 					}
 					pdir = dir;
 				} else {
@@ -1304,103 +1293,101 @@ static void DRLG_L3River()
 					ry = py;
 				}
 			}
-			// BUGFIX: Check `ry >= 2` (fixed)
-			if (dir == 0 && ry >= 2 && dungeon[rx][ry - 1] == 10 && dungeon[rx][ry - 2] == 8) {
-				river[0][riveramt] = rx;
-				river[1][riveramt] = ry - 1;
-				river[2][riveramt] = 24;
-				if (pdir == 2) {
-					river[2][riveramt - 1] = 22;
+			switch (dir) {
+			case 0:
+				// BUGFIX: Check `ry >= 2` (fixed)
+				if (ry >= 2 && dungeon[rx][ry - 1] == 10 && dungeon[rx][ry - 2] == 8) {
+					river[0][riveramt] = rx;
+					river[1][riveramt] = ry - 1;
+					river[2][riveramt] = 24;
+					if (pdir == 2) {
+						river[2][riveramt - 1] = 22;
+					} else if (pdir == 3) {
+						river[2][riveramt - 1] = 21;
+					}
+					done = TRUE;
 				}
-				if (pdir == 3) {
-					river[2][riveramt - 1] = 21;
+				break;
+			case 1:
+				// BUGFIX: Check `ry + 2 < DMAXY` (fixed)
+				if (ry + 2 < DMAXY && dungeon[rx][ry + 1] == 2 && dungeon[rx][ry + 2] == 8) {
+					river[0][riveramt] = rx;
+					river[1][riveramt] = ry + 1;
+					river[2][riveramt] = 42;
+					if (pdir == 2) {
+						river[2][riveramt - 1] = 20;
+					} else if (pdir == 3) {
+						river[2][riveramt - 1] = 19;
+					}
+					done = TRUE;
 				}
-				bail = TRUE;
-			}
-			// BUGFIX: Check `ry + 2 < DMAXY` (fixed)
-			if (dir == 1 && ry + 2 < DMAXY && dungeon[rx][ry + 1] == 2 && dungeon[rx][ry + 2] == 8) {
-				river[0][riveramt] = rx;
-				river[1][riveramt] = ry + 1;
-				river[2][riveramt] = 42;
-				if (pdir == 2) {
-					river[2][riveramt - 1] = 20;
+				break;
+			case 2:
+				// BUGFIX: Check `rx + 2 < DMAXX` (fixed)
+				if (rx + 2 < DMAXX && dungeon[rx + 1][ry] == 4 && dungeon[rx + 2][ry] == 8) {
+					river[0][riveramt] = rx + 1;
+					river[1][riveramt] = ry;
+					river[2][riveramt] = 43;
+					if (pdir == 0) {
+						river[2][riveramt - 1] = 19;
+					} else if (pdir == 1) {
+						river[2][riveramt - 1] = 21;
+					}
+					done = TRUE;
 				}
-				if (pdir == 3) {
-					river[2][riveramt - 1] = 19;
+				break;
+			case 3:
+				// BUGFIX: Check `rx >= 2` (fixed)
+				if (rx >= 2 && dungeon[rx - 1][ry] == 9 && dungeon[rx - 2][ry] == 8) {
+					river[0][riveramt] = rx - 1;
+					river[1][riveramt] = ry;
+					river[2][riveramt] = 23;
+					if (pdir == 0) {
+						river[2][riveramt - 1] = 20;
+					} else if (pdir == 1) {
+						river[2][riveramt - 1] = 22;
+					}
+					done = TRUE;
 				}
-				bail = TRUE;
-			}
-			// BUGFIX: Check `rx + 2 < DMAXX` (fixed)
-			if (dir == 2 && rx + 2 < DMAXX && dungeon[rx + 1][ry] == 4 && dungeon[rx + 2][ry] == 8) {
-				river[0][riveramt] = rx + 1;
-				river[1][riveramt] = ry;
-				river[2][riveramt] = 43;
-				if (pdir == 0) {
-					river[2][riveramt - 1] = 19;
-				}
-				if (pdir == 1) {
-					river[2][riveramt - 1] = 21;
-				}
-				bail = TRUE;
-			}
-			// BUGFIX: Check `rx >= 2` (fixed)
-			if (dir == 3 && rx >= 2 && dungeon[rx - 1][ry] == 9 && dungeon[rx - 2][ry] == 8) {
-				river[0][riveramt] = rx - 1;
-				river[1][riveramt] = ry;
-				river[2][riveramt] = 23;
-				if (pdir == 0) {
-					river[2][riveramt - 1] = 20;
-				}
-				if (pdir == 1) {
-					river[2][riveramt - 1] = 22;
-				}
-				bail = TRUE;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 			}
 		}
-		if (bail && riveramt < 7) {
-			bail = FALSE;
-		}
-		if (bail) {
-			found = 0;
-			lpcnt = 0;
-			while (found == 0 && lpcnt < 30) {
-				lpcnt++;
-				bridge = random_(0, riveramt);
-				if ((river[2][bridge] == 15 || river[2][bridge] == 16)
-				    && dungeon[river[0][bridge]][river[1][bridge] - 1] == 7
-				    && dungeon[river[0][bridge]][river[1][bridge] + 1] == 7) {
-					found = 1;
-				}
-				if ((river[2][bridge] == 17 || river[2][bridge] == 18)
-				    && dungeon[river[0][bridge] - 1][river[1][bridge]] == 7
-				    && dungeon[river[0][bridge] + 1][river[1][bridge]] == 7) {
-					found = 2;
-				}
+		if (!done || riveramt < 7)
+			continue;
+		found = 0;
+		lpcnt = 0;
+		while (found == 0 && lpcnt < 30) {
+			lpcnt++;
+			bridge = random_(0, riveramt);
+			if ((river[2][bridge] == 15 || river[2][bridge] == 16)
+			 && dungeon[river[0][bridge]][river[1][bridge] - 1] == 7
+			 && dungeon[river[0][bridge]][river[1][bridge] + 1] == 7) {
+				found = 44;
 				for (i = 0; i < riveramt && found != 0; i++) {
-					if (found == 1
-					    && (river[1][bridge] - 1 == river[1][i] || river[1][bridge] + 1 == river[1][i])
-					    && river[0][bridge] == river[0][i]) {
+					if ((river[1][bridge] - 1 == river[1][i] || river[1][bridge] + 1 == river[1][i])
+					 && river[0][bridge] == river[0][i]) {
 						found = 0;
 					}
-					if (found == 2
-					    && (river[0][bridge] - 1 == river[0][i] || river[0][bridge] + 1 == river[0][i])
-					    && river[1][bridge] == river[1][i]) {
+				}
+			} else if ((river[2][bridge] == 17 || river[2][bridge] == 18)
+			 && dungeon[river[0][bridge] - 1][river[1][bridge]] == 7
+			 && dungeon[river[0][bridge] + 1][river[1][bridge]] == 7) {
+				found = 45;
+				for (i = 0; i < riveramt && found != 0; i++) {
+					if ((river[0][bridge] - 1 == river[0][i] || river[0][bridge] + 1 == river[0][i])
+					 && river[1][bridge] == river[1][i]) {
 						found = 0;
 					}
 				}
 			}
-			if (found != 0) {
-				if (found == 1) {
-					river[2][bridge] = 44;
-				} else {
-					river[2][bridge] = 45;
-				}
-				rivercnt++;
-				for (bridge = 0; bridge <= riveramt; bridge++) {
-					dungeon[river[0][bridge]][river[1][bridge]] = river[2][bridge];
-				}
-			} else {
-				bail = FALSE;
+		}
+		if (found != 0) {
+			river[2][bridge] = found;
+			rivercnt++;
+			for (i = 0; i <= riveramt; i++) {
+				dungeon[river[0][i]][river[1][i]] = river[2][i];
 			}
 		}
 	}
