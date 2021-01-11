@@ -27,7 +27,7 @@ void nthread_set_turn_upper_bit();
 void nthread_start(BOOL set_turn_upper_bit);
 void nthread_cleanup();
 void nthread_ignore_mutex(BOOL bStart);
-BOOL nthread_has_500ms_passed(BOOL unused);
+BOOL nthread_has_500ms_passed();
 
 #ifdef __cplusplus
 }

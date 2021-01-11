@@ -221,7 +221,7 @@ void nthread_ignore_mutex(BOOL bStart)
  * @param unused
  * @return True if the engine should tick
  */
-BOOL nthread_has_500ms_passed(BOOL unused)
+BOOL nthread_has_500ms_passed()
 {
 	DWORD currentTickCount;
 	int ticksElapsed;

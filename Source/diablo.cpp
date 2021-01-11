@@ -391,7 +391,7 @@ static void run_game_loop(unsigned int uMsg)
 		}
 		if (!gbRunGame)
 			break;
-		if (!nthread_has_500ms_passed(FALSE)) {
+		if (!nthread_has_500ms_passed()) {
 			ProcessInput();
 			DrawAndBlit();
 			continue;
@@ -1882,7 +1882,7 @@ void game_loop(BOOL bStartup)
 
 	i = gbMaxPlayers == 1 ? 1 : (bStartup ? ticks_per_sec * 3 : 3);
 
-	while (i--) {
+	do {
 		if (!multi_handle_delta()) {
 			static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
 			if ((sgnTimeoutCurs | sgbActionBtnDown | sgbAltActionBtnDown) == 0) {
@@ -1901,9 +1901,7 @@ void game_loop(BOOL bStartup)
 			gbRedrawFlags = REDRAW_ALL;
 		}
 		game_logic();
-		if (!gbRunGame || !nthread_has_500ms_passed(TRUE))
-			break;
-	}
+	} while (--i != 0 && gbRunGame && nthread_has_500ms_passed());
 }
 
 void diablo_color_cyc_logic()
