@@ -2071,14 +2071,8 @@ static void Obj_BCrossDamage(int oi)
 	if (fire_resist > 0)
 		damage -= fire_resist * damage / 100;
 
-	p->_pHitPoints -= damage;
-	p->_pHPBase -= damage;
-	if (p->_pHitPoints >> 6 <= 0) {
-		SyncPlrKill(myplr, 0);
-	} else {
+	if (!PlrDecHp(myplr, damage, 0))
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_68][p->_pClass], p->_px, p->_py);
-	}
-	gbRedrawFlags |= REDRAW_HP_FLASK;
 }
 
 void ProcessObjects()
@@ -3564,10 +3558,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    2 * leveltype);
 		if (pnum != myplr)
 			return;
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-		}
+		PlrFillMana(pnum);
 		InitDiabloMsg(EMSG_SHRINE_CRYPTIC);
 		break;
 	case SHRINE_ELDRITCH: /// BUGFIX: change `p->HoldItem` to use a temporary buffer to prevent deleting item in hand
@@ -3603,12 +3594,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			CreateTypeItem(os->_ox, os->_oy, FALSE, ITYPE_MISC, IMISC_FULLREJUV, FALSE, TRUE);
 			CreateTypeItem(os->_ox, os->_oy, FALSE, ITYPE_MISC, IMISC_FULLREJUV, FALSE, TRUE);
 		}
-		p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase = p->_pMaxHPBase;
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-		}
+		PlrFillHp(pnum);
+		PlrFillMana(pnum);
 		InitDiabloMsg(EMSG_SHRINE_DIVINE);
 		break;
 	case SHRINE_HOLY:
@@ -3658,12 +3645,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			InitDiabloMsg(EMSG_SHRINE_SPOOKY1);
 		} else {
 			InitDiabloMsg(EMSG_SHRINE_SPOOKY2);
-			plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-			plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-			if (!(plr[myplr]._pIFlags & ISPL_NOMANA)) {
-				plr[myplr]._pMana = plr[myplr]._pMaxMana;
-				plr[myplr]._pManaBase = plr[myplr]._pMaxManaBase;
-			}
+			PlrFillHp(myplr);
+			PlrFillMana(myplr);
 		}
 		break;
 	case SHRINE_ABANDONED:
@@ -3872,10 +3855,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-		}
+		PlrFillMana(pnum);
 		break;
 	case SHRINE_SOLAR: {
 		if (deltaload)
@@ -4088,12 +4068,7 @@ static void OperateFountains(int pnum, int oi)
 		if (p->_pHitPoints >= p->_pMaxHP)
 			return;
 
-		p->_pHitPoints += 64;
-		p->_pHPBase += 64;
-		if (p->_pHitPoints > p->_pMaxHP) {
-			p->_pHitPoints = p->_pMaxHP;
-			p->_pHPBase = p->_pMaxHPBase;
-		}
+		PlrIncHp(pnum, 64);
 		break;
 	case OBJ_PURIFYINGFTN:
 		if (deltaload)
@@ -4107,12 +4082,7 @@ static void OperateFountains(int pnum, int oi)
 		if ((p->_pIFlags & ISPL_NOMANA) || p->_pMana >= p->_pMaxMana)
 			return;
 
-		p->_pMana += 64;
-		p->_pManaBase += 64;
-		if (p->_pMana > p->_pMaxMana) {
-			p->_pMana = p->_pMaxMana;
-			p->_pManaBase = p->_pMaxManaBase;
-		}
+		PlrIncMana(pnum, 64);
 		break;
 	case OBJ_MURKYFTN:
 		if (os->_oSelFlag == 0)

@@ -2198,13 +2198,8 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (mon->_mFlags & MFLAG_LIFESTEAL)
 		mon->_mhitpoints += dam;
 	if (pnum == myplr) {
-		p->_pHitPoints -= dam;
-		p->_pHPBase -= dam;
-		gbRedrawFlags |= REDRAW_HP_FLASK;
-		if (p->_pHitPoints >> 6 <= 0) {
-			SyncPlrKill(pnum, 0);
+		if (PlrDecHp(pnum, dam, 0))
 			return;
-		}
 	}
 	StartPlrHit(pnum, dam, FALSE);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {

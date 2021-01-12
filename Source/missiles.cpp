@@ -785,30 +785,14 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	}
 	if (resper > 0) {
 		dam -= dam * resper / 100;
-		if (pnum == myplr) {
-			p->_pHitPoints -= dam;
-			p->_pHPBase -= dam;
-			gbRedrawFlags |= REDRAW_HP_FLASK;
-		}
-		if (p->_pHitPoints >> 6 <= 0) {
-			SyncPlrKill(pnum, 0);
-		} else {
+		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-		}
 	} else {
 		if (blk) {
 			PlrStartBlock(pnum, p->_pdir);
 		} else {
-			if (pnum == myplr) {
-				p->_pHitPoints -= dam;
-				p->_pHPBase -= dam;
-				gbRedrawFlags |= REDRAW_HP_FLASK;
-			}
-			if (p->_pHitPoints >> 6 <= 0) {
-				SyncPlrKill(pnum, 0);
-			} else {
+			if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 				StartPlrHit(pnum, dam, FALSE);
-			}
 		}
 	}
 	return TRUE;
@@ -908,31 +892,15 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	}
 	if (resper > 0) {
 		dam -= dam * resper / 100;
-		if (pnum == myplr) {
-			p->_pHitPoints -= dam;
-			p->_pHPBase -= dam;
-			gbRedrawFlags |= REDRAW_HP_FLASK;
-		}
-		if (p->_pHitPoints >> 6 <= 0) {
-			SyncPlrKill(pnum, 0);
-		} else {
+		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-		}
 	} else {
 		if (blk) {
 			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
 			PlrStartBlock(pnum, tmp);
 		} else {
-			if (pnum == myplr) {
-				p->_pHitPoints -= dam;
-				p->_pHPBase -= dam;
-				gbRedrawFlags |= REDRAW_HP_FLASK;
-			}
-			if (p->_pHitPoints >> 6 <= 0) {
-				SyncPlrKill(pnum, 0);
-			} else {
+			if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 				StartPlrHit(pnum, dam, FALSE);
-			}
 		}
 	}
 	return TRUE;
@@ -1595,10 +1563,8 @@ int AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 				pnum = dPlayer[tx][ty];
 				if (pnum != 0) {
 					pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
-					plr[pnum]._pMana = 0;
-					plr[pnum]._pManaBase = plr[pnum]._pMana + plr[pnum]._pMaxManaBase - plr[pnum]._pMaxMana;
+					PlrSetMana(pnum, 0);
 					CalcPlrInv(pnum, FALSE);
-					gbRedrawFlags |= REDRAW_MANA_FLASK;
 					PlaySfxLoc(TSFX_COW7, tx, ty);
 				}
 			}
@@ -1877,46 +1843,34 @@ int AddFlashbk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 int AddManaRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	PlayerStruct *p;
 	int i, ManaAmount;
 
-	p = &plr[misource];
-	if (p->_pIFlags & ISPL_NOMANA)
-		return MIRES_DELETE;
-
 	ManaAmount = RandRange(1, 10);
-	for (i = p->_pLevel; i > 0; i--) {
+	for (i = plr[misource]._pLevel; i > 0; i--) {
 		ManaAmount += RandRange(1, 4);
 	}
 	for (i = spllvl; i > 0; i--) {
 		ManaAmount += RandRange(1, 6);
 	}
 	ManaAmount <<= 6;
-	if (p->_pClass == PC_SORCERER)
-		ManaAmount <<= 1;
-	if (p->_pClass == PC_ROGUE || p->_pClass == PC_BARD)
-		ManaAmount += ManaAmount >> 1;
-	p->_pMana += ManaAmount;
-	if (p->_pMana > p->_pMaxMana)
-		p->_pMana = p->_pMaxMana;
-	p->_pManaBase += ManaAmount;
-	if (p->_pManaBase > p->_pMaxManaBase)
-		p->_pManaBase = p->_pMaxManaBase;
-	gbRedrawFlags |= REDRAW_MANA_FLASK;
+	switch (plr[misource]._pClass) {
+	case PC_WARRIOR: break;
+	case PC_SORCERER: ManaAmount <<= 1; break;
+	case PC_ROGUE:
+	case PC_MONK:
+	case PC_BARD:
+		ManaAmount += ManaAmount >> 1; break;
+	case PC_BARBARIAN: break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	PlrIncMana(misource, ManaAmount);
 	return MIRES_DELETE;
 }
 
 int AddMagiRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	PlayerStruct *p;
-
-	p = &plr[misource];
-	if (p->_pIFlags & ISPL_NOMANA)
-		return MIRES_DELETE;
-
-	p->_pMana = p->_pMaxMana;
-	p->_pManaBase = p->_pMaxManaBase;
-	gbRedrawFlags |= REDRAW_MANA_FLASK;
+	PlrFillMana(misource);
 	return MIRES_DELETE;
 }
 
@@ -2852,11 +2806,7 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	missile[mi]._miVar2 = sy;
 	missile[mi]._miLid = AddLight(sx, sy, 8);
 	if (micaster == 0) {
-		plr[misource]._pHitPoints -= 320;
-		plr[misource]._pHPBase -= 320;
-		gbRedrawFlags |= REDRAW_HP_FLASK;
-		if (plr[misource]._pHitPoints <= 0)
-			SyncPlrKill(misource, 0);
+		PlrDecHp(misource, 320, 0);
 	} else {
 		if (misource > 0) {
 			switch (monster[misource]._mType) {
@@ -3067,14 +3017,12 @@ int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	PlayerStruct *p;
 	int i, HealAmount;
 
 	assert((DWORD)misource < MAX_PLRS);
 
-	p = &plr[misource];
 	HealAmount = RandRange(1, 10);
-	for (i = p->_pLevel; i > 0; i--) {
+	for (i = plr[misource]._pLevel; i > 0; i--) {
 		HealAmount += RandRange(1, 4);
 	}
 	for (i = spllvl; i > 0; i--) {
@@ -3082,7 +3030,7 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	}
 	HealAmount <<= 6;
 
-	switch (p->_pClass) {
+	switch (plr[misource]._pClass) {
 	case PC_WARRIOR: HealAmount <<= 1;            break;
 #ifdef HELLFIRE
 	case PC_BARBARIAN:
@@ -3090,17 +3038,11 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	case PC_BARD:
 #endif
 	case PC_ROGUE: HealAmount += HealAmount >> 1; break;
+	case PC_SORCERER: break;
+	default:
+		ASSUME_UNREACHABLE
 	}
-
-	p->_pHitPoints += HealAmount;
-	if (p->_pHitPoints > p->_pMaxHP)
-		p->_pHitPoints = p->_pMaxHP;
-
-	p->_pHPBase += HealAmount;
-	if (p->_pHPBase > p->_pMaxHPBase)
-		p->_pHPBase = p->_pMaxHPBase;
-
-	gbRedrawFlags |= REDRAW_HP_FLASK;
+	PlrIncHp(misource, HealAmount);
 	return MIRES_DELETE;
 }
 
@@ -3535,11 +3477,7 @@ int AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	if (micaster == 0) {
-		plr[misource]._pHitPoints -= 384;
-		plr[misource]._pHPBase -= 384;
-		gbRedrawFlags |= REDRAW_HP_FLASK;
-		if (plr[misource]._pHitPoints <= 0)
-			SyncPlrKill(misource, 0);
+		PlrDecHp(misource, 384, 0);
 	}
 	return MIRES_DONE;
 }
@@ -4652,7 +4590,7 @@ static void MI_Manashield(int mi)
 				mis->_miRange = 0;
 				mis->_miDelFlag = TRUE;
 				if (p->_pHitPoints < 0)
-					SetPlayerHitPoints(pnum, 0);
+					PlrSetHp(pnum, 0);
 				if ((p->_pHitPoints >> 6) == 0 && pnum == myplr) {
 					SyncPlrKill(pnum, mis->_miVar8);
 				}

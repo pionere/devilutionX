@@ -855,9 +855,7 @@ void NextPlrLevel(int pnum)
 	hp = p->_pClass == PC_SORCERER ? 64 : 128;
 
 	p->_pMaxHP += hp;
-	p->_pHitPoints = p->_pMaxHP;
 	p->_pMaxHPBase += hp;
-	p->_pHPBase = p->_pMaxHPBase;
 
 	if (p->_pClass == PC_WARRIOR)
 		mana = 64;
@@ -871,14 +869,9 @@ void NextPlrLevel(int pnum)
 	p->_pMaxMana += mana;
 	p->_pMaxManaBase += mana;
 
-	if (!(p->_pIFlags & ISPL_NOMANA)) {
-		p->_pMana = p->_pMaxMana;
-		p->_pManaBase = p->_pMaxManaBase;
-	}
+	PlrFillHp(pnum);
+	PlrFillMana(pnum);
 
-	if (pnum == myplr) {
-		gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
-	}
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
 		FocusOnCharInfo();
@@ -1911,7 +1904,7 @@ void StartPlrKill(int pnum, int earflag)
 	p->_pBlockFlag = FALSE;
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;
-	SetPlayerHitPoints(pnum, 0);
+	PlrSetHp(pnum, 0);
 	p->_pVar8 = 1;
 
 	if (pnum != myplr && !earflag && !diablolevel) {
@@ -1968,7 +1961,7 @@ void StartPlrKill(int pnum, int earflag)
 		}
 	}
 #ifndef HELLFIRE
-	SetPlayerHitPoints(pnum, 0);
+	PlrSetHp(pnum, 0);
 #endif
 }
 
@@ -2067,12 +2060,8 @@ void SyncPlrKill(int pnum, int earflag)
 	MissileStruct *mis;
 	int i;
 
-#ifdef HELLFIRE
-	if (plr[pnum]._pHitPoints <= 0 && currlevel == 0) {
-#else
-	if (plr[pnum]._pHitPoints == 0 && currlevel == 0) {
-#endif
-		SetPlayerHitPoints(pnum, 64);
+	if (currlevel == 0) {
+		PlrSetHp(pnum, 64);
 		return;
 	}
 
@@ -2087,7 +2076,7 @@ void SyncPlrKill(int pnum, int earflag)
 		}
 	}
 
-	SetPlayerHitPoints(pnum, 0);
+	PlrSetHp(pnum, 0);
 	StartPlrKill(pnum, earflag);
 }
 
@@ -2192,10 +2181,9 @@ void RestartTownLvl(int pnum)
 	plr[pnum].plrlevel = 0;
 	plr[pnum]._pInvincible = FALSE;
 
-	SetPlayerHitPoints(pnum, 64);
+	PlrSetHp(pnum, 64);
 
-	plr[pnum]._pMana = 0;
-	plr[pnum]._pManaBase = plr[pnum]._pMana - (plr[pnum]._pMaxMana - plr[pnum]._pMaxManaBase);
+	PlrSetMana(pnum, 0);
 
 	CalcPlrInv(pnum, FALSE);
 
@@ -2667,12 +2655,9 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 			if (dam2 >= 0) {
 				dam2 <<= 6;
 				if (p->_pHitPoints > dam2) {
-					p->_pHitPoints -= dam2;
-					p->_pHPBase -= dam2;
+					PlrDecHp(pnum, dam2, 0);
 				} else {
-					dam2 = (1 << 6);
-					p->_pHPBase -= p->_pHitPoints - dam2;
-					p->_pHitPoints = dam2;
+					PlrSetHp(pnum, 64);
 				}
 			}
 			dam <<= 1;
@@ -2684,31 +2669,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 
 	if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
-		p->_pHitPoints += skdam;
-		if (p->_pHitPoints > p->_pMaxHP) {
-			p->_pHitPoints = p->_pMaxHP;
-		}
-		p->_pHPBase += skdam;
-		if (p->_pHPBase > p->_pMaxHPBase) {
-			p->_pHPBase = p->_pMaxHPBase;
-		}
-		gbRedrawFlags |= REDRAW_HP_FLASK;
-	}
-	if (p->_pIFlags & (ISPL_STEALMANA_3 | ISPL_STEALMANA_5) && !(p->_pIFlags & ISPL_NOMANA)) {
-		if (p->_pIFlags & ISPL_STEALMANA_5) {
-			skdam = 5 * dam / 100;
-		} else {
-			skdam = 3 * dam / 100;
-		}
-		p->_pMana += skdam;
-		if (p->_pMana > p->_pMaxMana) {
-			p->_pMana = p->_pMaxMana;
-		}
-		p->_pManaBase += skdam;
-		if (p->_pManaBase > p->_pMaxManaBase) {
-			p->_pManaBase = p->_pMaxManaBase;
-		}
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		PlrIncHp(pnum, skdam);
 	}
 	if (p->_pIFlags & (ISPL_STEALLIFE_3 | ISPL_STEALLIFE_5)) {
 		if (p->_pIFlags & ISPL_STEALLIFE_5) {
@@ -2716,15 +2677,15 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		} else {
 			skdam = 3 * dam / 100;
 		}
-		p->_pHitPoints += skdam;
-		if (p->_pHitPoints > p->_pMaxHP) {
-			p->_pHitPoints = p->_pMaxHP;
+		PlrIncHp(pnum, skdam);
+	}
+	if (p->_pIFlags & (ISPL_STEALMANA_3 | ISPL_STEALMANA_5)) {
+		if (p->_pIFlags & ISPL_STEALMANA_5) {
+			skdam = 5 * dam / 100;
+		} else {
+			skdam = 3 * dam / 100;
 		}
-		p->_pHPBase += skdam;
-		if (p->_pHPBase > p->_pMaxHPBase) {
-			p->_pHPBase = p->_pMaxHPBase;
-		}
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		PlrIncMana(pnum, skdam);
 	}
 	if (p->_pIFlags & ISPL_NOHEALMON) {
 		mon->_mFlags |= MFLAG_NOHEAL;
@@ -2794,15 +2755,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 	dam <<= 6;
 	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
-		ops->_pHitPoints += skdam;
-		if (ops->_pHitPoints > ops->_pMaxHP) {
-			ops->_pHitPoints = ops->_pMaxHP;
-		}
-		ops->_pHPBase += skdam;
-		if (ops->_pHPBase > ops->_pMaxHPBase) {
-			ops->_pHPBase = ops->_pMaxHPBase;
-		}
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		PlrIncHp(offp, skdam);
 	}
 	if (offp == myplr) {
 		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
@@ -3504,17 +3457,10 @@ void ProcessPlayers()
 
 			if (pnum == myplr) {
 				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currlevel != 0) {
-					plr[pnum]._pHitPoints -= 4;
-					plr[pnum]._pHPBase -= 4;
-					if ((plr[pnum]._pHitPoints >> 6) <= 0) {
-						SyncPlrKill(pnum, 0);
-					}
-					gbRedrawFlags |= REDRAW_HP_FLASK;
+					PlrDecHp(pnum, 4, 0);
 				}
 				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pMana > 0) {
-					plr[pnum]._pManaBase -= plr[pnum]._pMana;
-					plr[pnum]._pMana = 0;
-					gbRedrawFlags |= REDRAW_MANA_FLASK;
+					PlrSetMana(pnum, 0);
 				}
 			}
 
@@ -3872,6 +3818,133 @@ void SyncInitPlr(int pnum)
 	}
 }*/
 
+void PlrSetHp(int pnum, int val)
+{
+	PlayerStruct *p;
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("PlrSetHp: illegal player %d", pnum);
+	}
+	p = &plr[pnum];
+	p->_pHitPoints = val;
+	p->_pHPBase = val + p->_pMaxHPBase - p->_pMaxHP;
+
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_HP_FLASK;
+}
+
+void PlrSetMana(int pnum, int val)
+{
+	PlayerStruct *p;
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("PlrSetMana: illegal player %d", pnum);
+	}
+	p = &plr[pnum];
+	if (p->_pIFlags & ISPL_NOMANA)
+		val = 0;
+	p->_pMana = val;
+	p->_pManaBase = val - (p->_pMaxMana - p->_pMaxManaBase);
+
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+}
+
+void PlrFillHp(int pnum)
+{
+	PlayerStruct *p;
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("PlrFillHp: illegal player %d", pnum);
+	}
+	p = &plr[pnum];
+	p->_pHitPoints = p->_pMaxHP;
+	p->_pHPBase = p->_pMaxHPBase;
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_HP_FLASK;
+}
+
+void PlrFillMana(int pnum)
+{
+	PlayerStruct *p;
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("PlrSetMana: illegal player %d", pnum);
+	}
+	p = &plr[pnum];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+	p->_pMana = p->_pMaxMana;
+	p->_pManaBase = p->_pMaxManaBase;
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+}
+
+void PlrIncHp(int pnum, int hp)
+{
+	PlayerStruct *p;
+
+	assert(hp >= 0);
+	p = &plr[pnum];
+	p->_pHitPoints += hp;
+	if (p->_pHitPoints > p->_pMaxHP)
+		p->_pHitPoints = p->_pMaxHP;
+	p->_pHPBase += hp;
+	if (p->_pHPBase > p->_pMaxHPBase)
+		p->_pHPBase = p->_pMaxHPBase;
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_HP_FLASK;
+}
+
+void PlrIncMana(int pnum, int mana)
+{
+	PlayerStruct *p;
+
+	assert(mana >= 0);
+	p = &plr[pnum];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+
+	p->_pMana += mana;
+	if (p->_pMana > p->_pMaxMana) {
+		p->_pMana = p->_pMaxMana;
+	}
+	p->_pManaBase += mana;
+	if (p->_pManaBase > p->_pMaxManaBase) {
+		p->_pManaBase = p->_pMaxManaBase;
+	}
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+}
+
+BOOL PlrDecHp(int pnum, int hp, int earflag)
+{
+	PlayerStruct *p;
+
+	assert(hp >= 0);
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_HP_FLASK;
+	p = &plr[pnum];
+	p->_pHPBase -= hp;
+	p->_pHitPoints -= hp;
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, earflag);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void PlrDecMana(int pnum, int mana)
+{
+	PlayerStruct *p;
+
+	assert(mana >= 0);
+	p = &plr[pnum];
+	if (p->_pIFlags & ISPL_NOMANA)
+		return;
+
+	p->_pMana -= mana;
+	p->_pManaBase -= mana;
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+}
+
 void ModifyPlrStr(int pnum, int v)
 {
 	PlayerStruct *p;
@@ -3987,21 +4060,6 @@ void ModifyPlrVit(int pnum, int v)
 
 	if (pnum == myplr) {
 		NetSendCmdParam1(FALSE, CMD_SETVIT, p->_pBaseVit);
-	}
-}
-
-void SetPlayerHitPoints(int pnum, int val)
-{
-	PlayerStruct *p;
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlayerHitPoints: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-	p->_pHitPoints = val;
-	p->_pHPBase = val + p->_pMaxHPBase - p->_pMaxHP;
-
-	if (pnum == myplr) {
-		gbRedrawFlags |= REDRAW_HP_FLASK;
 	}
 }
 

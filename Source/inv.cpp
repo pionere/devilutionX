@@ -2009,7 +2009,7 @@ static void StartGoldDrop()
 	dropGoldValue = 0;
 }
 
-static void PlrAddHp()
+static void InvAddHp()
 {
 	PlayerStruct *p;
 	int hp;
@@ -2017,51 +2017,46 @@ static void PlrAddHp()
 	p = &plr[myplr];
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
+	switch (p->_pClass) {
 #ifdef HELLFIRE
-	if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
-		hp <<= 1;
-	else if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD)
-		hp += hp >> 1;
+	case PC_WARRIOR:
+	case PC_BARBARIAN: hp <<= 1; break;
+	case PC_ROGUE:
+	case PC_MONK:
+	case PC_BARD: hp += hp >> 1; break;
 #else
-	if (p->_pClass == PC_WARRIOR)
-		hp <<= 1;
-	else if (p->_pClass == PC_ROGUE)
-		hp += hp >> 1;
+	case PC_WARRIOR: hp <<= 1;    break;
+	case PC_ROGUE: hp += hp >> 1; break;
 #endif
-	p->_pHitPoints += hp;
-	if (p->_pHitPoints > p->_pMaxHP)
-		p->_pHitPoints = p->_pMaxHP;
-	p->_pHPBase += hp;
-	if (p->_pHPBase > p->_pMaxHPBase)
-		p->_pHPBase = p->_pMaxHPBase;
-	gbRedrawFlags |= REDRAW_HP_FLASK;
+	case PC_SORCERER: break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	PlrIncHp(myplr, hp);
 }
 
-static void PlrAddMana()
+static void InvAddMana()
 {
 	PlayerStruct *p;
 	int mana;
 
 	p = &plr[myplr];
-	if (p->_pIFlags & ISPL_NOMANA)
-		return;
 	mana = p->_pMaxMana >> 8;
 	mana = ((mana >> 1) + random_(40, mana)) << 6;
-	if (p->_pClass == PC_SORCERER)
-		mana <<= 1;
+	switch (p->_pClass) {
+	case PC_WARRIOR:				break;
+	case PC_SORCERER: mana <<= 1;	break;
 #ifdef HELLFIRE
-	else if (p->_pClass == PC_ROGUE || p->_pClass == PC_MONK || p->_pClass == PC_BARD)
-#else
-	else if (p->_pClass == PC_ROGUE)
+	case PC_BARBARIAN:				break;
+	case PC_MONK:
+	case PC_BARD:
 #endif
-		mana += mana >> 1;
-	p->_pMana += mana;
-	if (p->_pMana > p->_pMaxMana)
-		p->_pMana = p->_pMaxMana;
-	p->_pManaBase += mana;
-	if (p->_pManaBase > p->_pMaxManaBase)
-		p->_pManaBase = p->_pMaxManaBase;
-	gbRedrawFlags |= REDRAW_MANA_FLASK;
+	case PC_ROGUE:
+		mana += mana >> 1;			break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	PlrIncHp(myplr, mana);
 }
 
 static void PlrSetTSpell(int spell, int sf, int curs)
@@ -2072,26 +2067,9 @@ static void PlrSetTSpell(int spell, int sf, int curs)
 	plr[myplr]._pSplFrom = sf;
 }
 
-static void PlrRefill(BOOL hp, BOOL mana)
-{
-	PlayerStruct *p;
-
-	p = &plr[myplr];
-	if (hp) {
-		p->_pHitPoints = p->_pMaxHP;
-		p->_pHPBase = p->_pMaxHPBase;
-		gbRedrawFlags |= REDRAW_HP_FLASK;
-	}
-	if (mana && !(p->_pIFlags & ISPL_NOMANA)) {
-		p->_pMana = p->_pMaxMana;
-		p->_pManaBase = p->_pMaxManaBase;
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
-	}
-}
-
 BOOL UseInvItem(int cii)
 {
-	int iv, mana;
+	int iv;
 	ItemStruct *is;
 	BOOL speedlist;
 	int pnum = myplr;
@@ -2165,37 +2143,38 @@ BOOL UseInvItem(int cii)
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
 	case IMISC_FOOD:
-		PlrAddHp();
+		InvAddHp();
 		break;
 	case IMISC_FULLHEAL:
-		PlrRefill(TRUE, FALSE);
+		PlrFillHp(pnum);
 		break;
 	case IMISC_MANA:
-		PlrAddMana();
+		InvAddMana();
 		break;
 	case IMISC_FULLMANA:
-		PlrRefill(FALSE, TRUE);
+		PlrFillMana(pnum);
 		break;
 	case IMISC_ELIXSTR:
 		ModifyPlrStr(pnum, 1);
 		break;
 	case IMISC_ELIXMAG:
 		ModifyPlrMag(pnum, 1);
-		PlrRefill(FALSE, TRUE);
+		PlrFillMana(pnum);
 		break;
 	case IMISC_ELIXDEX:
 		ModifyPlrDex(pnum, 1);
 		break;
 	case IMISC_ELIXVIT:
 		ModifyPlrVit(pnum, 1);
-		PlrRefill(TRUE, FALSE);
+		PlrFillHp(pnum);
 		break;
 	case IMISC_REJUV:
-		PlrAddHp();
-		PlrAddMana();
+		InvAddHp();
+		InvAddMana();
 		break;
 	case IMISC_FULLREJUV:
-		PlrRefill(TRUE, TRUE);
+		PlrFillHp(pnum);
+		PlrFillMana(pnum);
 		break;
 	case IMISC_SCROLL:
 #ifdef HELLFIRE
@@ -2213,16 +2192,7 @@ BOOL UseInvItem(int cii)
 		p->_pMemSpells |= SPELL_MASK(is->_iSpell);
 		if (p->_pSplLvl[is->_iSpell] < MAXSPLLEVEL)
 			p->_pSplLvl[is->_iSpell]++;
-		if (!(p->_pIFlags & ISPL_NOMANA)) {
-			mana = spelldata[is->_iSpell].sManaCost << 6;
-			p->_pMana += mana;
-			if (p->_pMana > p->_pMaxMana)
-				p->_pMana = p->_pMaxMana;
-			p->_pManaBase += mana;
-			if (p->_pManaBase > p->_pMaxManaBase)
-				p->_pManaBase = p->_pMaxManaBase;
-			gbRedrawFlags |= REDRAW_MANA_FLASK;
-		}
+		PlrIncMana(pnum, spelldata[is->_iSpell].sManaCost << 6);
 		//if (pnum == myplr)
 			CalcPlrBookVals(pnum);
 		break;

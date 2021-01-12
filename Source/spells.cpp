@@ -241,17 +241,14 @@ void DoResurrect(int pnum, int tnum)
 		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();
-			gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 		}
 
 		ClrPlrPath(tnum);
 		tp->destAction = ACTION_NONE;
 		tp->_pInvincible = FALSE;
 
-		tp->_pHitPoints = std::min(10 << 6, tp->_pMaxHPBase);
-		tp->_pHPBase = tp->_pHitPoints + (tp->_pMaxHPBase - tp->_pMaxHP);
-		tp->_pMana = 0;
-		tp->_pManaBase = tp->_pMana + (tp->_pMaxManaBase - tp->_pMaxMana);
+		PlrSetHp(tnum, std::min(10 << 6, tp->_pMaxHPBase));
+		PlrSetMana(tnum, 0);
 
 		CalcPlrInv(tnum, TRUE);
 
@@ -266,14 +263,12 @@ void DoResurrect(int pnum, int tnum)
 
 void DoHealOther(int pnum, int tnum, int spllvl)
 {
-	PlayerStruct *tp;
 	int i, hp;
 
 	if ((DWORD)tnum >= MAX_PLRS)
 		return;
 
-	tp = &plr[tnum];
-	if ((tp->_pHitPoints >> 6) <= 0)
+	if (plr[tnum]._pHitPoints < (1 << 6))
 		return; // too late, the target is dead
 
 	hp = RandRange(1, 10);
@@ -295,18 +290,11 @@ void DoHealOther(int pnum, int tnum, int spllvl)
 	case PC_BARD:
 #endif
 	case PC_ROGUE: hp += hp >> 1; break;
+	case PC_SORCERER: break;
+	default:
+		ASSUME_UNREACHABLE
 	}
-	tp->_pHitPoints += hp;
-	if (tp->_pHitPoints > tp->_pMaxHP) {
-		tp->_pHitPoints = tp->_pMaxHP;
-	}
-
-	tp->_pHPBase += hp;
-	if (tp->_pHPBase > tp->_pMaxHPBase) {
-		tp->_pHPBase = tp->_pMaxHPBase;
-	}
-
-	gbRedrawFlags |= REDRAW_HP_FLASK;
+	PlrIncHp(tnum, hp);
 }
 
 DEVILUTION_END_NAMESPACE

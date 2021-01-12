@@ -722,16 +722,23 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	case PC_BARD:
 #endif
 	case PC_ROGUE:	   vadd += vadd >> 1; break;
+	case PC_SORCERER: break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	ihp += (vadd << 6); // BUGFIX: blood boil can cause negative shifts here (see line 757)
 
 	switch (p->_pClass) {
 	case PC_SORCERER: madd *= 2;                     break;
 #ifdef HELLFIRE
+	case PC_BARBARIAN: break;
 	case PC_BARD: madd += (madd >> 2) + (madd >> 1); break;
 	case PC_MONK:
 #endif
 	case PC_ROGUE: madd += madd >> 1;                break;
+	case PC_WARRIOR: break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	imana += (madd << 6);
 
@@ -739,7 +746,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pMaxHP = ihp + p->_pMaxHPBase;
 
 	if (pnum == myplr && (p->_pHitPoints >> 6) <= 0) {
-		SetPlayerHitPoints(pnum, 0);
+		PlrSetHp(pnum, 0);
 	}
 
 	p->_pMana = imana + p->_pManaBase;

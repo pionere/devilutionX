@@ -940,9 +940,7 @@ static void S_StartHealer()
 {
 #ifdef HELLFIRE
 	if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
-		plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-		plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		PlrFillHp(myplr);
 		PlaySFX(IS_CAST8);
 	}
 #endif
@@ -2075,9 +2073,7 @@ static void S_HealerEnter()
 #else
 	case 14:
 		if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
-			plr[myplr]._pHitPoints = plr[myplr]._pMaxHP;
-			plr[myplr]._pHPBase = plr[myplr]._pMaxHPBase;
-			gbRedrawFlags |= REDRAW_HP_FLASK;
+			PlrFillHp(myplr);
 			PlaySFX(IS_CAST8);
 		}
 		break;
