@@ -1638,7 +1638,7 @@ int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int av, mitype, flags;
+	int av, flags;
 
 	mis = &missile[mi];
 	mis->_miRange = 1;

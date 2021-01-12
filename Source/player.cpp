@@ -1261,8 +1261,8 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	p = &plr[pnum];
-	px = p->_pVar6 / 256;
-	py = p->_pVar7 / 256;
+	px = p->_pVar6 >> 8;
+	py = p->_pVar7 >> 8;
 
 	p->_pVar6 += p->_pxvel;
 	p->_pVar7 += p->_pyvel;
@@ -1270,8 +1270,8 @@ static void PlrChangeOffset(int pnum)
 	p->_pxoff = p->_pVar6 >> 8;
 	p->_pyoff = p->_pVar7 >> 8;
 
-	px -= p->_pVar6 >> 8;
-	py -= p->_pVar7 >> 8;
+	px -= p->_pxoff;
+	py -= p->_pyoff;
 
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ScrollInfo._sxoff += px;
@@ -2841,7 +2841,7 @@ static BOOL PlrTryHit(int pnum, int dx, int dy)
 static BOOL PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
-	int dx, dy, mp;
+	int dx, dy;
 	BOOL didhit;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -2875,14 +2875,6 @@ static BOOL PlrDoAttack(int pnum)
 		p->_pVar7++;
 		dx = p->_px + offset_x[p->_pdir];
 		dy = p->_py + offset_y[p->_pdir];
-
-		mp = dMonster[dx][dy];
-		if (mp != 0) {
-			mp = mp >= 0 ? mp - 1 : -(mp + 1);
-			if (CanTalkToMonst(mp)) {
-				return FALSE;
-			}
-		}
 
 		if (p->_pIFlags & ISPL_FIREDAM) {
 			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, pnum, 0, 0);
