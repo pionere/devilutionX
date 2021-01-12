@@ -4504,9 +4504,7 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 		os->_oVar1 = 0;
 	} else {
 		if (pnum != -1) {
-			// BUGFIX: use PlrAtkDam instead?
-			dam = RandRange(plr[pnum]._pIMinDam, plr[pnum]._pIMaxDam);
-			dam += plr[pnum]._pDamageMod + plr[pnum]._pIBonusDamMod + dam * plr[pnum]._pIBonusDam / 100;
+			dam = PlrAtkDam(pnum);
 		} else {
 			dam = 10;
 		}

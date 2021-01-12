@@ -47,6 +47,7 @@ void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
 void StartWarpLvl(int pnum, int pidx);
+int PlrAtkDam(int pnum);
 void ProcessPlayers();
 void ClrPlrPath(int pnum);
 BOOL PosOkPlayer(int pnum, int x, int y);

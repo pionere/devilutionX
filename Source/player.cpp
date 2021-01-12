@@ -2502,7 +2502,7 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	return FALSE;
 }
 
-static int PlrAtkDam(int pnum)
+int PlrAtkDam(int pnum)
 {
 	PlayerStruct *p;
 	int dam;
