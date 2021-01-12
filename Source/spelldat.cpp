@@ -26,7 +26,7 @@ SpellData spelldata[NUM_SPELLS] = {
 #endif
 	{ SPL_INFRA,        40, STYPE_MAGIC,     "Infravision",        SPELL_NA,  SPELL_NA,          8, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,           43, IS_CAST8, MIS_INFRA,         5,       20,         0,         0,         0,        600 },
 	{ SPL_RNDTELEPORT,  12, STYPE_MAGIC,     "Phasing",                   7,        12,          6, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,           39, IS_CAST2, MIS_RNDTELEPORT,   2,        4,        40,        80,      3500,        200 },
-	{ SPL_MANASHIELD,   33, STYPE_MAGIC,     "Mana Shield",               6,        10,          8, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,           25, IS_CAST2, MIS_MANASHIELD,    0,       33,         4,        10,     16000,       1200 },
+	{ SPL_MANASHIELD,   33, STYPE_MAGIC,     "Mana Shield",               6,        10,          8, FALSE,     CURSOR_NONE,        CURSOR_NONE,        TRUE,            25, IS_CAST2, MIS_MANASHIELD,    0,       33,         4,        10,     16000,       1200 },
 	{ SPL_FIREBALL,     16, STYPE_FIRE,      "Fireball",                  8,        14,          8, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           48, IS_CAST2, MIS_FIREBALL,      1,       10,        40,        80,      8000,        300 },
 #ifdef SPAWN
 	{ SPL_GUARDIAN,     50, STYPE_FIRE,      "Guardian",           SPELL_NA,  SPELL_NA,         12, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           61, IS_CAST2, MIS_GUARDIAN,      2,       30,        16,        32,     14000,        950 },

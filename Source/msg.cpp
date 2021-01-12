@@ -2318,23 +2318,6 @@ static DWORD On_ENDREFLECT(TCmd *pCmd, int pnum)
 }
 #endif
 
-static DWORD On_ENDSHIELD(TCmd *pCmd, int pnum)
-{
-	int i;
-
-	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
-		for (i = 0; i < nummissiles; i++) {
-			int mi = missileactive[i];
-			if (missile[mi]._miType == MIS_MANASHIELD && missile[mi]._miSource == pnum) {
-				ClearMissileSpot(mi);
-				DeleteMissile(mi, i);
-			}
-		}
-	}
-
-	return sizeof(*pCmd);
-}
-
 static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
@@ -2366,16 +2349,18 @@ static DWORD On_DEBUG(TCmd *pCmd, int pnum)
 
 static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1)
-		plr[pnum].pManaShield = TRUE;
+	TCmdParam1 *p = (TCmdParam1*)pCmd;
 
-	return sizeof(*pCmd);
+	if (gbBufferMsgs != 1)
+		plr[pnum].pManaShield = p->wParam1;
+
+	return sizeof(*p);
 }
 
 static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1)
-		plr[pnum].pManaShield = FALSE;
+		plr[pnum].pManaShield = 0;
 
 	return sizeof(*pCmd);
 }
@@ -2555,8 +2540,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_STRING(pCmd, pnum);
 	case CMD_SYNCQUEST:
 		return On_SYNCQUEST(pCmd, pnum);
-	case CMD_ENDSHIELD:
-		return On_ENDSHIELD(pCmd, pnum);
+	//case CMD_ENDSHIELD:
+	//	return On_ENDSHIELD(pCmd, pnum);
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
@@ -2572,12 +2557,11 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_OPENHIVE(pCmd, pnum);
 	case CMD_OPENCRYPT:
 		return On_OPENCRYPT(pCmd, pnum);
-#else
+#endif
 	case CMD_SETSHIELD:
 		return On_SETSHIELD(pCmd, pnum);
 	case CMD_REMSHIELD:
 		return On_REMSHIELD(pCmd, pnum);
-#endif
 	}
 
 	if (sbLastCmd < CMD_DLEVEL_0 || sbLastCmd > CMD_DLEVEL_END) {

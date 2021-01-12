@@ -24,11 +24,7 @@ MissileData missiledata[] = {
 	{  MIS_TOWN,          &AddTown,                   &MI_Town,           TRUE,      1,                            0, MISR_MAGIC,     MFILE_PORTAL,    LS_SENTINEL, LS_ELEMENTL, 1,        1        },
 	{  MIS_FLASH,         &AddFlash,                  &MI_Flash,          TRUE,      1,               MIFLAG_NOBLOCK, MISR_MAGIC,     MFILE_BLUEXFR,   LS_NOVA,     LS_ELECIMP1, 1,        1        },
 	{  MIS_FLASH2,        &AddFlash2,                 &MI_Flash2,         TRUE,      1,               MIFLAG_NOBLOCK, MISR_MAGIC,     MFILE_BLUEXBK,   -1,          -1,          1,        1        },
-#ifdef HELLFIRE
-	{  MIS_MANASHIELD,    &AddManashield,             &MI_SetManashield,  TRUE,      1,                            0, MISR_MAGIC,     MFILE_MANASHLD,  LS_MSHIELD,  -1,          1,        1        },
-#else
-	{  MIS_MANASHIELD,    &AddManashield,             &MI_SetManashield,  FALSE,     1,                            0, MISR_MAGIC,     MFILE_MANASHLD,  LS_MSHIELD,  -1,          1,        1        },
-#endif
+	{  MIS_MANASHIELD,    &AddManashield,             &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      LS_MSHIELD,  -1,          1,        1        },
 	{  MIS_FIREWAVE,      &AddFireWave,               &MI_FireWave,       TRUE,      1,                  MIFLAG_AREA, MISR_FIRE,      MFILE_FIREWAL,   -1,          -1,          1,        1        },
 	{  MIS_CHAIN,         &AddChain,                  &MI_Chain,          TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1        },
 	{  MIS_SENTINAL,      NULL,                       NULL,               TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   -1,          -1,          1,        1        },

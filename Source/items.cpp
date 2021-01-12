@@ -448,7 +448,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	int g;
 	int i;
-	MissileStruct* mi;
 
 	int bdam = 0;   // bonus damage
 	int btohit = 0; // bonus chance to hit
@@ -854,14 +853,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		p->_pgfxnum = g;
 	}
 
-	for (i = 0; i < nummissiles; i++) {
-		mi = &missile[missileactive[i]];
-		if (mi->_miType == MIS_MANASHIELD && mi->_miSource == pnum) {
-			mi->_miVar1 = p->_pHitPoints;
-			mi->_miVar2 = p->_pHPBase;
-			break;
-		}
-	}
 #ifdef HELLFIRE
 	pi = &p->InvBody[INVLOC_AMULET];
 	if (pi->_itype == ITYPE_NONE || pi->_iIdx != IDI_AURIC) {

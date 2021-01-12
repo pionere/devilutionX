@@ -12,7 +12,6 @@ int missileactive[MAXMISSILES];
 int missileavail[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
-BOOL ManashieldFlag;
 BOOL MissilePreFlag;
 
 /** Maps from direction to X-offset. */
@@ -392,15 +391,6 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 
 void DeleteMissile(int mi, int idx)
 {
-	int src;
-
-	if (missile[mi]._miType == MIS_MANASHIELD) {
-		src = missile[mi]._miSource;
-		if (src == myplr)
-			NetSendCmd(TRUE, CMD_REMSHIELD);
-		plr[src].pManaShield = FALSE;
-	}
-
 	missileavail[MAXMISSILES - nummissiles] = mi;
 	nummissiles--;
 	if (nummissiles > 0 && idx != nummissiles)
@@ -1232,7 +1222,6 @@ void InitMissiles()
 
 	AutoMapShowItems = FALSE;
 	p = &plr[myplr];
-	p->pManaShield = FALSE;
 	p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
@@ -2563,27 +2552,17 @@ int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	return MIRES_DONE;
 }
 
-/**
- * Var1: last hp
- * Var2: last base hp
- * Var8: earflag
- */
 int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	PlayerStruct *p;
-
 	assert((DWORD)misource < MAX_PLRS);
-	if (misource == myplr)
-		NetSendCmd(TRUE, CMD_SETSHIELD);
-	mis = &missile[mi];
-	p = &plr[misource];
-	mis->_miRange = 48 * p->_pLevel;
-	mis->_miVar1 = p->_pHitPoints;
-	mis->_miVar2 = p->_pHPBase;
-	mis->_miVar8 = -1;
-	p->pManaShield = TRUE;
-	return MIRES_DONE;
+
+	if (misource == myplr) {
+		if (plr[misource].pManaShield == 0)
+			NetSendCmdParam1(TRUE, CMD_SETSHIELD, spllvl);
+		else
+			NetSendCmd(TRUE, CMD_REMSHIELD);
+	}
+	return MIRES_DELETE;
 }
 
 /**
@@ -3519,7 +3498,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 {
 	MissileStruct *mis;
 	MissileData *mds;
-	int idx, j, mi, res;
+	int idx, mi, res;
 
 	idx = nummissiles;
 #ifdef HELLFIRE
@@ -3528,17 +3507,6 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	if (idx >= MAXMISSILES)
 #endif
 		return -1;
-
-	if (mitype == MIS_MANASHIELD && plr[misource].pManaShield) {
-		if (currlevel != plr[misource].plrlevel)
-			return -1;
-
-		for (j = 0; j < idx; j++) {
-			mis = &missile[missileactive[j]];
-			if (mis->_miType == MIS_MANASHIELD && mis->_miSource == misource)
-				return -1;
-		}
-	}
 
 	mi = missileavail[0];
 
@@ -3637,11 +3605,6 @@ void MI_Golem(int mi)
 			}
 		}
 	}
-}
-
-void MI_SetManashield(int mi)
-{
-	ManashieldFlag = TRUE;
 }
 
 void MI_LArrow(int mi)
@@ -4530,87 +4493,6 @@ void MI_Flash2(int mi)
 	CheckMissileCol(mi, dam, dam, TRUE, mx - 1, my - 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx, my - 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx + 1, my - 1, TRUE);
-	PutMissile(mi);
-}
-
-static void MI_Manashield(int mi)
-{
-	MissileStruct *mis;
-	PlayerStruct *p;
-	int pnum, diff, div;
-
-	mis = &missile[mi];
-	pnum = mis->_miSource;
-	p = &plr[pnum];
-	mis->_mix = p->_px;
-	mis->_miy = p->_py;
-	mis->_mitxoff = p->_pxoff << 16;
-	mis->_mityoff = p->_pyoff << 16;
-	if (p->_pmode == PM_WALK3) {
-		mis->_misx = p->_pfutx;
-		mis->_misy = p->_pfuty;
-	} else {
-		mis->_misx = p->_px;
-		mis->_misy = p->_py;
-	}
-	GetMissilePos(mi);
-	if (p->_pmode == PM_WALK3) {
-		if (p->_pdir == DIR_W)
-			mis->_mix++;
-		else
-			mis->_miy++;
-	}
-	if (pnum != myplr) {
-		if (currlevel != p->plrlevel)
-			mis->_miDelFlag = TRUE;
-	} else {
-		if (p->_pMana <= 0 || !p->plractive)
-			mis->_miRange = 0;
-		diff = mis->_miVar1 - p->_pHitPoints;
-		if (diff > 0) {
-#ifdef HELLFIRE
-			div = 19 - (std::min(mis->_miSpllvl, 8) << 1);
-#else
-			div = 3;
-#endif
-			diff -= diff / div;
-
-			gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
-
-			if (p->_pMana >= diff) {
-				p->_pHitPoints = mis->_miVar1;
-				p->_pHPBase = mis->_miVar2;
-				p->_pMana -= diff;
-				p->_pManaBase -= diff;
-			} else {
-				p->_pHitPoints = p->_pMana + mis->_miVar1 - diff;
-				p->_pHPBase = p->_pMana + mis->_miVar2 - diff;
-				p->_pMana = 0;
-				p->_pManaBase = p->_pMaxManaBase - p->_pMaxMana;
-				mis->_miRange = 0;
-				mis->_miDelFlag = TRUE;
-				if (p->_pHitPoints < 0)
-					PlrSetHp(pnum, 0);
-				if ((p->_pHitPoints >> 6) == 0 && pnum == myplr) {
-					SyncPlrKill(pnum, mis->_miVar8);
-				}
-			}
-		}
-
-#ifndef HELLFIRE
-		if (pnum == myplr && p->_pHitPoints == 0 && mis->_miVar1 == 0 && p->_pmode != PM_DEATH) {
-			mis->_miRange = 0;
-			mis->_miDelFlag = TRUE;
-			SyncPlrKill(pnum, -1);
-		}
-#endif
-		mis->_miVar1 = p->_pHitPoints;
-		mis->_miVar2 = p->_pHPBase;
-		if (mis->_miRange == 0) {
-			mis->_miDelFlag = TRUE;
-			NetSendCmd(TRUE, CMD_ENDSHIELD);
-		}
-	}
 	PutMissile(mi);
 }
 
@@ -5533,7 +5415,6 @@ void ProcessMissiles()
 	}
 
 	MissilePreFlag = FALSE;
-	ManashieldFlag = FALSE;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
@@ -5548,14 +5429,6 @@ void ProcessMissiles()
 					mis->_miAnimFrame = 1;
 				if (mis->_miAnimFrame < 1)
 					mis->_miAnimFrame = mis->_miAnimLen;
-			}
-		}
-	}
-
-	if (ManashieldFlag) {
-		for (i = 0; i < nummissiles; i++) {
-			if (missile[missileactive[i]]._miType == MIS_MANASHIELD) {
-				MI_Manashield(missileactive[i]);
 			}
 		}
 	}

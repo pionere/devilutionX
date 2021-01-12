@@ -981,7 +981,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		} else {
 			p->_pwtype = WT_MELEE;
 		}
-		p->pManaShield = FALSE;
+		p->pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 		p->_pAblSpells = SPELL_MASK(Abilities[p->_pClass]);
@@ -2057,23 +2057,9 @@ void StripTopGold(int pnum)
 
 void SyncPlrKill(int pnum, int earflag)
 {
-	MissileStruct *mis;
-	int i;
-
 	if (currlevel == 0) {
 		PlrSetHp(pnum, 64);
 		return;
-	}
-
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_MANASHIELD && mis->_miSource == pnum && !mis->_miDelFlag) {
-			if (earflag != -1) {
-				mis->_miVar8 = earflag;
-			}
-
-			return;
-		}
 	}
 
 	PlrSetHp(pnum, 0);
@@ -2096,8 +2082,7 @@ void RemovePlrMissiles(int pnum)
 			continue;
 		if (missile[mi]._miType == MIS_STONE) {
 			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
-		} else if (missile[mi]._miType == MIS_MANASHIELD
-				|| missile[mi]._miType == MIS_ETHEREALIZE) {
+		} else if (missile[mi]._miType == MIS_ETHEREALIZE) {
 			ClearMissileSpot(mi);
 			DeleteMissile(mi, i);
 			i--;
@@ -3918,15 +3903,31 @@ BOOL PlrDecHp(int pnum, int hp, int earflag)
 	PlayerStruct *p;
 
 	assert(hp >= 0);
-	if (pnum == myplr)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
 	p = &plr[pnum];
+	if (p->pManaShield != 0) {
+#ifdef HELLFIRE
+		int div = 19 - (std::min((int)p->pManaShield, 8) << 1);
+#else
+		int div = 3;
+#endif
+		hp -= hp / div;
+		if (p->_pMana >= hp) {
+			PlrDecMana(pnum, hp);
+			return FALSE;
+		}
+		hp -= p->_pMana;
+		PlrSetMana(pnum, 0);
+		if (pnum == myplr)
+			NetSendCmd(TRUE, CMD_REMSHIELD);
+	}
 	p->_pHPBase -= hp;
 	p->_pHitPoints -= hp;
 	if (p->_pHitPoints < (1 << 6)) {
 		SyncPlrKill(pnum, earflag);
 		return TRUE;
 	}
+	if (pnum == myplr)
+		gbRedrawFlags |= REDRAW_HP_FLASK;
 	return FALSE;
 }
 

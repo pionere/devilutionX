@@ -359,7 +359,7 @@ typedef struct PlayerStruct {
 	unsigned char pDungMsgs;
 	unsigned char pLvlLoad;
 	unsigned char pBattleNet;
-	BOOLEAN pManaShield;
+	BYTE pManaShield;
 	unsigned char pDungMsgs2;
 	char bReserved[2];
 	short wReflection;

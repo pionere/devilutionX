@@ -2110,8 +2110,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	MonsterStruct *mon;
 	PlayerStruct *p;
 	int tmp, dam, hper, blkper;
-	int i, newx, newy;
-	MissileStruct *mis, *shmis;
+	int newx, newy;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonTryH2HHit: Invalid monster %d", mnum);
@@ -2159,26 +2158,16 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		}
 	}
 	if (mon->_mType == MT_YZOMBIE && pnum == myplr) {
-		shmis = NULL;
-		for (i = 0; i < nummissiles; i++) {
-			mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_MANASHIELD && mis->_miSource == pnum)
-				shmis = mis;
-		}
 		if (p->_pMaxHP > 64 && p->_pMaxHPBase > 64) {
 			tmp = p->_pMaxHP - 64;
 			p->_pMaxHP = tmp;
 			if (p->_pHitPoints > tmp) {
 				p->_pHitPoints = tmp;
-				if (shmis != NULL)
-					shmis->_miVar1 = tmp;
 			}
 			tmp = p->_pMaxHPBase - 64;
 			p->_pMaxHPBase = tmp;
 			if (p->_pHPBase > tmp) {
 				p->_pHPBase = tmp;
-				if (shmis != NULL)
-					shmis->_miVar2 = tmp;
 			}
 		}
 	}
