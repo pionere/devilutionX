@@ -2523,38 +2523,6 @@ static int PlrAtkDam(int pnum)
 	return dam;
 }
 
-void monster_43C785(int i)
-{
-	int x, y, d, j, oi, dir, mx, my;
-
-	if (monster[i].MType) {
-		mx = monster[i]._mx;
-		my = monster[i]._my;
-		dir = monster[i]._mdir;
-		for (d = 0; d < 8; d++) {
-			x = mx + offset_x[d];
-			y = my + offset_y[d];
-			if (!SolidLoc(x, y)) {
-				if (dPlayer[x][y] == 0 && dMonster[x][y] == 0) {
-					if (dObject[x][y] == 0)
-						break;
-					oi = dObject[x][y] > 0 ? dObject[x][y] - 1 : -(dObject[x][y] + 1);
-					if (!object[oi]._oSolidFlag)
-						break;
-				}
-			}
-		}
-		if (d < 8) {
-			for (j = 0; j < MAX_LVLMTYPES; j++) {
-				if (Monsters[j].mtype == monster[i].MType->mtype)
-					break;
-			}
-			if (j < MAX_LVLMTYPES)
-				AddMonster(x, y, dir, j, TRUE);
-		}
-	}
-}
-
 static BOOL PlrHitMonst(int pnum, int mnum)
 {
 	PlayerStruct *p;
@@ -2576,7 +2544,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 #ifdef HELLFIRE
 	if (pnum < 0) {
 		adjacentDamage = TRUE;
-		pnum = -pnum;
+		pnum = -(pnum + 1);
 	}
 #endif
 
@@ -2630,30 +2598,11 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 #endif
 			return FALSE;
 
-#ifdef HELLFIRE
-	if ((p->_pIFlags & (ISPL_FIREDAM | ISPL_LIGHTDAM)) == (ISPL_FIREDAM | ISPL_LIGHTDAM)) {
-		int midam = p->_pIFMinDam + random_(3, p->_pIFMaxDam - p->_pIFMinDam);
-		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_SPECARROW, 0, pnum, midam, 0);
-	}
-#endif
+	dam = PlrAtkDam(pnum);
 
-	dam = RandRange(p->_pIMinDam, p->_pIMaxDam);
-	dam += dam * p->_pIBonusDam / 100;
-	dam += p->_pIBonusDamMod;
 #ifdef HELLFIRE
 	int dam2 = dam;
 #endif
-	dam += p->_pDamageMod;
-
-#ifdef HELLFIRE
-	if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN) {
-#else
-	if (p->_pClass == PC_WARRIOR) {
-#endif
-		if (random_(6, 100) < p->_pLevel) {
-			dam <<= 1;
-		}
-	}
 
 	phanditype = ITYPE_NONE;
 	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
@@ -2688,23 +2637,23 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 
 #ifdef HELLFIRE
-	if (p->_pIFlags2 & 0x01 && random_(6, 100) < 5) {
+	if (p->_pIFlags2 & ISPH_DEVASTATION && random_(6, 100) < 5) {
 		dam *= 3;
 	}
 
-	if (p->_pIFlags2 & 0x10 && mon->MType->mtype != MT_DIABLO && mon->_uniqtype == 0 && random_(6, 100) < 10) {
-		monster_43C785(mnum);
+	if ((p->_pIFlags2 & ISPH_DOPPELGANGER) && mon->MType->mtype != MT_DIABLO && mon->_uniqtype == 0 && random_(6, 100) < 10) {
+		MonDoppel(mnum);
 	}
 #endif
 
 	dam <<= 6;
 
 #ifdef HELLFIRE
-	if (p->_pIFlags2 & 0x08) {
-		int r = random_(6, 201);
-		if (r >= 100)
-			r = 100 + (r - 100) * 5;
-		dam = dam * r / 100;
+	if (p->_pIFlags2 & ISPH_JESTERS) {
+		int r = random_(6, 257);
+		if (r >= 128)
+			r = 128 + (r - 128) * 5;
+		dam = dam * r / 128;
 	}
 
 	if (adjacentDamage)
@@ -2713,7 +2662,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 
 	if (pnum == myplr) {
 #ifdef HELLFIRE
-		if (p->_pIFlags2 & 0x04) {
+		if (p->_pIFlags2 & ISPH_PERIL) {
 			dam2 += p->_pIGetHit;
 			if (dam2 >= 0) {
 				dam2 <<= 6;
@@ -2862,18 +2811,30 @@ static BOOL PlrHitPlr(int offp, char defp)
 	return TRUE;
 }
 
-static BOOL PlrHitObj(int pnum, int mx, int my)
+static BOOL PlrTryHit(int pnum, int dx, int dy)
 {
-	int oi;
+	int mpo;
 
-	oi = dObject[mx][my];
-	oi = oi >= 0 ? oi - 1 : -(oi + 1);
-
-	if (object[oi]._oBreak == 1) {
-		BreakObject(pnum, oi);
-		return TRUE;
+	mpo = dMonster[dx][dy];
+	if (mpo != 0) {
+		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, mpo);
 	}
-
+	if (pnum < 0)
+		return FALSE;
+	mpo = dPlayer[dx][dy];
+	if (mpo != 0 && !FriendlyMode) {
+		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		return PlrHitPlr(pnum, mpo);
+	}
+	mpo = dObject[dx][dy];
+	if (mpo != 0) {
+		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		if (object[mpo]._oBreak == 1) {
+			BreakObject(pnum, mpo);
+			return TRUE;
+		}
+	}
 	return FALSE;
 }
 
@@ -2923,10 +2884,6 @@ static BOOL PlrDoAttack(int pnum)
 			}
 		}
 
-#ifdef HELLFIRE
-		if (!(p->_pIFlags & ISPL_FIREDAM) || !(p->_pIFlags & ISPL_LIGHTDAM)) {
-#endif
-
 		if (p->_pIFlags & ISPL_FIREDAM) {
 			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, pnum, 0, 0);
 		}
@@ -2934,53 +2891,22 @@ static BOOL PlrDoAttack(int pnum)
 			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, 0, pnum, 0, 0);
 		}
 #ifdef HELLFIRE
+		if (p->_pIFlags & ISPL_SPECDAM) {
+			int midam = RandRange(p->_pILMinDam, p->_pILMaxDam);
+			AddMissile(p->_px, p->_py, dx, dy, p->_pdir, MIS_SPECARROW, 0, pnum, midam, MIS_CBOLTARROW);
 		}
 #endif
 
-		didhit = FALSE;
-		mp = dMonster[dx][dy];
-		if (mp != 0) {
-			mp = mp >= 0 ? mp - 1 : -(mp + 1);
-			didhit = PlrHitMonst(pnum, mp);
-		} else if (dPlayer[dx][dy] != 0 && !FriendlyMode) {
-			mp = dPlayer[dx][dy];
-			mp = mp >= 0 ? mp - 1 : -(mp + 1);
-			didhit = PlrHitPlr(pnum, mp);
-		} else if (dObject[dx][dy] > 0) {
-			didhit = PlrHitObj(pnum, dx, dy);
-		}
+		didhit = PlrTryHit(pnum, dx, dy);
 #ifdef HELLFIRE
-		if ((p->_pClass == PC_MONK
-		        && (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_STAFF || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_STAFF))
-		    || (p->_pClass == PC_BARD
-		        && p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD && p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD)
-		    || (p->_pClass == PC_BARBARIAN
-		        && (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_AXE || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_AXE
-		            || (((p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_MACE && p->InvBody[INVLOC_HAND_LEFT]._iLoc == ILOC_TWOHAND)
-		                    || (p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_MACE && p->InvBody[INVLOC_HAND_RIGHT]._iLoc == ILOC_TWOHAND)
-		                    || (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD && p->InvBody[INVLOC_HAND_LEFT]._iLoc == ILOC_TWOHAND)
-		                    || (p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD && p->InvBody[INVLOC_HAND_RIGHT]._iLoc == ILOC_TWOHAND))
-		                && !(p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SHIELD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SHIELD))))) {
+		if (p->_pIFlags2 & ISPH_SWIPE) {
 			dx = p->_px + offset_x[(p->_pdir + 1) % 8];
 			dy = p->_py + offset_y[(p->_pdir + 1) % 8];
-			mp = dMonster[dx][dy];
-			if (mp != 0) {
-				mp = mp >= 0 ? mp - 1 : -(mp + 1);
-				if (!CanTalkToMonst(mp)
-				 && monster[mp]._moldx == dx && monster[mp]._moldy == dy
-				 && PlrHitMonst(-pnum, mp))
-					didhit = TRUE;
-			}
+			didhit |= PlrTryHit(-(pnum + 1), dx, dy);
+
 			dx = p->_px + offset_x[(p->_pdir + 7) % 8];
 			dy = p->_py + offset_y[(p->_pdir + 7) % 8];
-			mp = dMonster[dx][dy];
-			if (mp != 0) {
-				mp = mp >= 0 ? mp - 1 : -(mp + 1);
-				if (!CanTalkToMonst(mp)
-				 && monster[mp]._moldx == dx && monster[mp]._moldy == dy
-				 && PlrHitMonst(-pnum, mp))
-					didhit = TRUE;
-			}
+			didhit |= PlrTryHit(-(pnum + 1), dx, dy);
 		}
 #endif
 
@@ -3030,17 +2956,7 @@ static BOOL PlrDoRangeAttack(int pnum)
 		if (p->_pIFlags & ISPL_LIGHT_ARROWS) {
 			mitype = MIS_LARROW;
 		}
-		AddMissile(
-		    p->_px,
-		    p->_py,
-		    p->_pVar1,
-		    p->_pVar2,
-		    p->_pdir,
-		    mitype,
-		    0,
-		    pnum,
-		    0,
-		    0);
+		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, mitype, 0, pnum, 0, 0);
 
 		PlaySfxLoc(PS_BFIRE, p->_px, p->_py);
 

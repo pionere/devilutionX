@@ -97,6 +97,7 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 void SyncMonsterAnim(int mnum);
 void MonFallenFear(int x, int y);
 void MissToMonst(int mnum, int x, int y);
+void MonDoppel(int mnum);
 BOOL monster_posok(int mnum, int x, int y);
 BOOL PosOkMonst(int mnum, int x, int y);
 BOOL PosOkMonst2(int mnum, int x, int y);

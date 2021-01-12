@@ -1645,26 +1645,28 @@ int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miVar3 = midir;
+	mis->_miVar4 = mis->_miSpllvl;
 
-	av = 0;
-	mitype = 0;
 	assert((DWORD)misource < MAX_PLRS);
 	p = &plr[misource];
-	switch (p->_pILMinDam) {
+	/*switch (p->_pILMinDam) {
+	switch () {
 	case 0:
-		mitype = MIS_FIREBALL2;
+		mitype = MIS_FIREBALL2; // uses spllvl as arrow vel bonus
 		break;
 	case 1:
-		mitype = MIS_LIGHTARROW;
+		mitype = MIS_LIGHTARROW; // uses spllvl as range bonus
 		break;
 	case 2:
-		mitype = MIS_CBOLTARROW;
+		mitype = MIS_CBOLTARROW; // does not use spllvl
 		break;
 	case 3:
-		mitype = MIS_HBOLTARROW;
+		mitype = MIS_HBOLTARROW; // uses spllvl*2 as arrow vel bonus
 		break;
-	}
-
+	default:
+		ASSUME_UNREACHABLE
+	}*/
+	av = 0;
 	if (p->_pClass == PC_ROGUE)
 		av += (p->_pLevel - 1) >> 2;
 	else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
@@ -1672,8 +1674,6 @@ int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	flags = p->_pIFlags;
 	av += ArrowVelBonus(flags);
-
-	mis->_miVar4 = mitype;
 	mis->_miVar5 = av;
 	return MIRES_DONE;
 }

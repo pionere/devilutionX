@@ -132,7 +132,7 @@ typedef enum item_effect_type {
 	IPL_THORNS           = 0x2D,
 	IPL_NOMANA           = 0x2E,
 	IPL_NOHEALPLR        = 0x2F, /* unused */
-	IPL_FIREBALL         = 0x32, /* only used in hellfire */
+	IPL_SARROW_FBALL     = 0x32, /* only used in hellfire IPL_FIREBALL in vanilla */
 	IPL_ABSHALFTRAP      = 0x34,
 	IPL_KNOCKBACK        = 0x35,
 	IPL_NOHEALMON        = 0x36, /* unused */
@@ -156,8 +156,8 @@ typedef enum item_effect_type {
 	IPL_RNDSTEALLIFE     = 0x49,
 	IPL_INFRAVISION      = 0x4A, /* unused */
 	IPL_SETAC            = 0x4B,
-	IPL_ADDACLIFE        = 0x4C, /* only used in hellfire */
-	IPL_ADDMANAAC        = 0x4D, /* only used in hellfire */
+	IPL_SARROW_LIGHT     = 0x4C, /* only used in hellfire IPL_ADDACLIFE in vanilla */
+	IPL_SPECDAM          = 0x4D, /* only used in hellfire IPL_ADDMANAAC in vanilla */
 	IPL_FIRERESCLVL      = 0x4E, /* unused */
 	IPL_AC_CURSE         = 0x4F,
 	// hellfire only
@@ -3419,26 +3419,30 @@ typedef enum item_special_effect {
 	ISPL_THORNS         = 0x04000000,
 	ISPL_NOMANA         = 0x08000000,
 	ISPL_ABSHALFTRAP    = 0x10000000,
-	ISPL_UNKNOWN_4      = 0x20000000,
+	ISPL_SPECDAM        = 0x20000000, // only in hellfire
 	ISPL_3XDAMVDEM      = 0x40000000,
 	ISPL_ALLRESZERO     = 0x80000000,
 } item_special_effect;
 
+// only in hellfire
 typedef enum item_added_effects {
 	ISPH_NONE           = 0x00000000,
-	ISPH_DEVASTATION    = 0x00000001, /* unsupported */
+	ISPH_DEVASTATION    = 0x00000001,
 	ISPH_DECAY          = 0x00000002,
-	ISPH_PERIL          = 0x00000004, /* unsupported */
-	ISPH_JESTERS        = 0x00000008, /* unsupported */
-	ISPH_DOPPELGANGER   = 0x00000010, /* unsupported */
+	ISPH_PERIL          = 0x00000004,
+	ISPH_JESTERS        = 0x00000008,
+	ISPH_DOPPELGANGER   = 0x00000010,
 	ISPH_ACDEMON        = 0x00000020, /* unsupported */
 	ISPH_ACUNDEAD       = 0x00000040, /* unsupported */
-	ISPH_FASTCAST       = 0x00000080, /* unused */ 
-	ISPH_FASTERCAST     = 0x00000100, /* unused */ 
-	ISPH_FASTESTCAST    = 0x00000200, /* unused */ 
-	ISPH_FASTWALK       = 0x00000400, /* unused */ 
-	ISPH_FASTERWALK     = 0x00000800, /* unused */ 
-	ISPH_FASTESTWALK    = 0x00001000, /* unused */ 
+	ISPH_FASTCAST       = 0x00000080, /* unused */
+	ISPH_FASTERCAST     = 0x00000100, /* unused */
+	ISPH_FASTESTCAST    = 0x00000200, /* unused */
+	ISPH_FASTWALK       = 0x00000400, /* unused */
+	ISPH_FASTERWALK     = 0x00000800, /* unused */
+	ISPH_FASTESTWALK    = 0x00001000, /* unused */
+	ISPH_SWIPE          = 0x00002000,
+	ISPH_SPECARROW      = 0x00004000, /* unsupported maybe later from IPL_SARROW_LIGHT*/
+	ISPH_SARROWFB       = 0x00008000, /* unsupported maybe later from IPL_SARROW_FBALL*/
 } item_added_effects;
 
 // Logical equipment locations

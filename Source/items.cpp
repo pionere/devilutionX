@@ -748,20 +748,26 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pBlockFlag = FALSE;
 #ifdef HELLFIRE
 	if (p->_pClass == PC_MONK) {
-		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
+		if ((wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag)
+		|| (wRight->_itype == ITYPE_STAFF && wRight->_iStatFlag)) {
 			p->_pBlockFlag = TRUE;
 			p->_pIFlags |= ISPL_FASTBLOCK;
-		}
-		if (wRight->_itype == ITYPE_STAFF && wRight->_iStatFlag) {
+			p->_pIFlags2 |= ISPH_SWIPE;
+		} else if ((wLeft->_itype == ITYPE_NONE && wRight->_itype == ITYPE_NONE)
+			|| (wLeft->_iClass == ICLASS_WEAPON && wLeft->_iLoc != ILOC_TWOHAND && wRight->_itype == ITYPE_NONE)
+			|| (wRight->_iClass == ICLASS_WEAPON && wRight->_iLoc != ILOC_TWOHAND && wLeft->_itype == ITYPE_NONE))
 			p->_pBlockFlag = TRUE;
-			p->_pIFlags |= ISPL_FASTBLOCK;
-		}
-		if (wLeft->_itype == ITYPE_NONE && wRight->_itype == ITYPE_NONE)
-			p->_pBlockFlag = TRUE;
-		if (wLeft->_iClass == ICLASS_WEAPON && wLeft->_iLoc != ILOC_TWOHAND && wRight->_itype == ITYPE_NONE)
-			p->_pBlockFlag = TRUE;
-		if (wRight->_iClass == ICLASS_WEAPON && wRight->_iLoc != ILOC_TWOHAND && wLeft->_itype == ITYPE_NONE)
-			p->_pBlockFlag = TRUE;
+	} else 
+	if ((p->_pClass == PC_BARD
+		 && wLeft->_itype == ITYPE_SWORD && wRight->_itype == ITYPE_SWORD)
+	 || (p->_pClass == PC_BARBARIAN
+		 && (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE
+			|| (((wLeft->_itype == ITYPE_MACE && wLeft->_iLoc == ILOC_TWOHAND)
+			  || (wRight->_itype == ITYPE_MACE && wRight->_iLoc == ILOC_TWOHAND)
+			  || (wLeft->_itype == ITYPE_SWORD && wLeft->_iLoc == ILOC_TWOHAND)
+			  || (wRight->_itype == ITYPE_SWORD && wRight->_iLoc == ILOC_TWOHAND))
+			 && !(wLeft->_itype == ITYPE_SHIELD || wRight->_itype == ITYPE_SHIELD))))) {
+		p->_pIFlags2 |= ISPH_SWIPE;
 	}
 #endif
 	p->_pwtype = WT_MELEE;
@@ -1709,21 +1715,11 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_FIREDAM:
 		is->_iFlags |= ISPL_FIREDAM;
-#ifdef HELLFIRE
-		is->_iFlags &= ~ISPL_LIGHTDAM;
-		is->_iLMinDam = 0;
-		is->_iLMaxDam = 0;
-#endif
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
 		break;
 	case IPL_LIGHTDAM:
 		is->_iFlags |= ISPL_LIGHTDAM;
-#ifdef HELLFIRE
-		is->_iFlags &= ~ISPL_FIREDAM;
-		is->_iFMinDam = 0;
-		is->_iFMaxDam = 0;
-#endif
 		is->_iLMinDam = param1;
 		is->_iLMaxDam = param2;
 		break;
@@ -1812,31 +1808,21 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 #endif
 	case IPL_FIRE_ARROWS:
 		is->_iFlags |= ISPL_FIRE_ARROWS;
-#ifdef HELLFIRE
-		is->_iFlags &= ~ISPL_LIGHT_ARROWS;
-		is->_iLMinDam = 0;
-		is->_iLMaxDam = 0;
-#endif
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
 		break;
 	case IPL_LIGHT_ARROWS:
 		is->_iFlags |= ISPL_LIGHT_ARROWS;
-#ifdef HELLFIRE
-		is->_iFlags &= ~ISPL_FIRE_ARROWS;
-		is->_iFMinDam = 0;
-		is->_iFMaxDam = 0;
-#endif
 		is->_iLMinDam = param1;
 		is->_iLMaxDam = param2;
 		break;
 #ifdef HELLFIRE
-	case IPL_FIREBALL:
-		is->_iFlags |= (ISPL_LIGHT_ARROWS | ISPL_FIRE_ARROWS);
+	// TODO: merge with IPL_FIRE_ARROWS?
+	case IPL_SARROW_FBALL:
+		is->_iFlags |= ISPL_FIRE_ARROWS;
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
-		is->_iLMinDam = 0;
-		is->_iLMaxDam = 0;
+		//is->_iSAType = MIS_FIREBALL2;
 		break;
 #endif
 	case IPL_INVCURS:
@@ -1932,19 +1918,18 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iMinStr = 0;
 		break;
 #ifdef HELLFIRE
-	case IPL_ADDACLIFE:
-		is->_iFlags |= (ISPL_LIGHT_ARROWS | ISPL_FIRE_ARROWS);
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-		is->_iLMinDam = 1;
-		is->_iLMaxDam = 0;
+	// TODO: merge with IPL_LIGHT_ARROWS?
+	case IPL_SARROW_LIGHT:
+		is->_iFlags |= ISPL_LIGHT_ARROWS;
+		is->_iLMinDam = param1;
+		is->_iLMaxDam = param2;
+		//is->_iSAType = MIS_LIGHTARROW;
 		break;
-	case IPL_ADDMANAAC:
-		is->_iFlags |= (ISPL_LIGHTDAM | ISPL_FIREDAM);
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-		is->_iLMinDam = 2;
-		is->_iLMaxDam = 0;
+	case IPL_SPECDAM:
+		is->_iFlags |= ISPL_SPECDAM;
+		is->_iLMinDam = param1;
+		is->_iLMaxDam = param2;
+		//is->_iSAType = MIS_CBOLTARROW;
 		break;
 #endif
 	/*case IPL_FIRERESCLVL:
@@ -3349,7 +3334,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
 		break;
 #ifdef HELLFIRE
-	case IPL_FIREBALL:
+	case IPL_SARROW_FBALL:
 		if (is->_iFMinDam != is->_iFMaxDam)
 			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		else
@@ -3454,13 +3439,13 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, " ");
 		break;
 #ifdef HELLFIRE
-	case IPL_ADDACLIFE:
-		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+	case IPL_SARROW_LIGHT:
+		if (is->_iLMinDam != is->_iLMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "lightning: %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
 		break;
-	case IPL_ADDMANAAC:
+	case IPL_SPECDAM:
 		copy_cstr(tempstr, "charged bolts on hits");
 		break;
 #endif

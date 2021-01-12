@@ -5162,6 +5162,35 @@ void MissToMonst(int mi, int x, int y)
 	}
 }
 
+void MonDoppel(int mnum)
+{
+	MonsterStruct *mon;
+	int x, y, d, i, oi, mx, my;
+
+	mon = &monster[mnum];
+	mx = mon->_mx;
+	my = mon->_my;
+	for (d = 0; d < 8; d++) {
+		x = mx + offset_x[d];
+		y = my + offset_y[d];
+		if ((dPlayer[x][y] | dMonster[x][y] | nSolidTable[dPiece[x][y]]) == 0) {
+			oi = dObject[x][y];
+			if (oi != 0) {
+				oi = oi >= 0 ? oi - 1 : -(oi + 1);
+				if (object[oi]._oSolidFlag)
+					continue;
+			}
+			for (i = 0; i < MAX_LVLMTYPES; i++) {
+				if (Monsters[i].mtype == mon->MType->mtype) {
+					AddMonster(x, y, mon->_mdir, i, TRUE);
+					break;
+				}
+			}
+			break;
+		}
+	}
+}
+
 BOOL PosOkMonst(int mnum, int x, int y)
 {
 	int oi;
