@@ -4139,12 +4139,10 @@ void SpawnWitch(int lvl)
 	int i, iCnt;
 	int seed;
 
-	SetItemData(0, IDI_MANA);
-	copy_pod(witchitem[0], item[0]);
-	SetItemData(0, IDI_FULLMANA);
-	copy_pod(witchitem[1], item[0]);
-	SetItemData(0, IDI_PORTAL);
-	copy_pod(witchitem[2], item[0]);
+	SetItemSData(&witchitem[0], IDI_MANA);
+	SetItemSData(&witchitem[1], IDI_FULLMANA);
+	SetItemSData(&witchitem[2], IDI_PORTAL);
+
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
 	for (i = 3; i < iCnt; i++) {
 		do {
@@ -4282,15 +4280,11 @@ void SpawnHealer(int lvl)
 {
 	int i, iCnt, srnd, seed;
 
-	SetItemData(0, IDI_HEAL);
-	copy_pod(healitem[0], item[0]);
-
-	SetItemData(0, IDI_FULLHEAL);
-	copy_pod(healitem[1], item[0]);
+	SetItemSData(&healitem[0], IDI_HEAL);
+	SetItemSData(&healitem[1], IDI_FULLHEAL);
 
 	if (gbMaxPlayers != 1) {
-		SetItemData(0, IDI_RESURRECT);
-		copy_pod(healitem[2], item[0]);
+		SetItemSData(&healitem[2], IDI_RESURRECT);
 
 		srnd = 3;
 	} else {
@@ -4313,8 +4307,7 @@ void SpawnHealer(int lvl)
 
 void SpawnStoreGold()
 {
-	SetItemData(0, IDI_GOLD);
-	copy_pod(golditem, item[0]);
+	SetItemSData(&golditem, IDI_GOLD);
 }
 
 static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
