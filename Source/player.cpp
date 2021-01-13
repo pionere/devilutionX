@@ -246,7 +246,7 @@ static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 	*cs = ClassStrTbl[pc];
 }
 
-void LoadPlrGFX(int pnum, player_graphic gfxflag)
+void LoadPlrGFX(int pnum, unsigned gfxflag)
 {
 	char prefix[16];
 	char pszName[256];
@@ -270,33 +270,21 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 		switch (i) {
 		case PFIDX_STAND:
-			szCel = "AS";
-			if (leveltype == DTYPE_TOWN) {
-				szCel = "ST";
-			}
+			szCel = leveltype != DTYPE_TOWN ? "AS" : "ST";
 			pData = p->_pNData;
 			pAnim = &p->_pNAnim;
 			break;
 		case PFIDX_WALK:
-			szCel = "AW";
-			if (leveltype == DTYPE_TOWN) {
-				szCel = "WL";
-			}
+			szCel = leveltype != DTYPE_TOWN ? "AW" : "WL";
 			pData = p->_pWData;
 			pAnim = &p->_pWAnim;
 			break;
 		case PFIDX_ATTACK:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
 			szCel = "AT";
 			pData = p->_pAData;
 			pAnim = &p->_pAAnim;
 			break;
 		case PFIDX_HIT:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
 			szCel = "HT";
 			pData = p->_pHData;
 			pAnim = &p->_pHAnim;
@@ -317,21 +305,12 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 			pAnim = &p->_pTAnim;
 			break;
 		case PFIDX_DEATH:
-			if (p->_pgfxnum & 0xF) {
-				continue;
-			}
+			assert((p->_pgfxnum & 0xF) == ANIM_ID_UNARMED);
 			szCel = "DT";
 			pData = p->_pDData;
 			pAnim = &p->_pDAnim;
 			break;
 		case PFIDX_BLOCK:
-			if (leveltype == DTYPE_TOWN) {
-				continue;
-			}
-			if (!p->_pBlockFlag) {
-				continue;
-			}
-
 			szCel = "BL";
 			pData = p->_pBData;
 			pAnim = &p->_pBAnim;
@@ -350,16 +329,22 @@ void LoadPlrGFX(int pnum, player_graphic gfxflag)
 
 void InitPlayerGFX(int pnum)
 {
+	unsigned gfxflag;
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
 
-	if (plr[pnum]._pHitPoints >> 6 == 0) {
+	if (plr[pnum]._pHitPoints < (1 << 6)) {
 		plr[pnum]._pgfxnum = ANIM_ID_UNARMED;
-		LoadPlrGFX(pnum, PFILE_DEATH);
+		gfxflag = PFILE_DEATH;
 	} else {
-		LoadPlrGFX(pnum, PFILE_NONDEATH);
+		gfxflag = PFILE_NONDEATH;
+		if (leveltype == DTYPE_TOWN)
+			gfxflag &= ~(PFILE_ATTACK | PFILE_HIT | PFILE_BLOCK);
+		else if (!plr[pnum]._pBlockFlag)
+			gfxflag &= ~PFILE_BLOCK;
 	}
+	LoadPlrGFX(pnum, gfxflag);
 }
 
 static DWORD GetPlrGFXSize(const char *szCel)
@@ -3622,59 +3607,56 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 void SyncPlrAnim(int pnum)
 {
 	PlayerStruct *p;
-	int dir, sType;
+	int sType;
+	unsigned char** anim;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SyncPlrAnim: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	dir = p->_pdir;
 	switch (p->_pmode) {
 	case PM_STAND:
-		p->_pAnimData = p->_pNAnim[dir];
+		anim = p->_pNAnim;
 		break;
 	case PM_WALK:
 	case PM_WALK2:
 	case PM_WALK3:
-		p->_pAnimData = p->_pWAnim[dir];
+		anim = p->_pWAnim;
 		break;
 	case PM_ATTACK:
-		p->_pAnimData = p->_pAAnim[dir];
-		break;
 	case PM_RATTACK:
-		p->_pAnimData = p->_pAAnim[dir];
+		anim = p->_pAAnim;
 		break;
 	case PM_BLOCK:
-		p->_pAnimData = p->_pBAnim[dir];
+		anim = p->_pBAnim;
+		break;
+	case PM_GOTHIT:
+		anim = p->_pHAnim;
+		break;
+	case PM_DEATH:
+		anim = p->_pDAnim;
 		break;
 	case PM_SPELL:
 		if (pnum == myplr)
 			sType = spelldata[p->_pSpell].sType;
 		else
 			sType = STYPE_FIRE;
-		if (sType == STYPE_FIRE)
-			p->_pAnimData = p->_pFAnim[dir];
-		if (sType == STYPE_LIGHTNING)
-			p->_pAnimData = p->_pLAnim[dir];
-		if (sType == STYPE_MAGIC)
-			p->_pAnimData = p->_pTAnim[dir];
-		break;
-	case PM_GOTHIT:
-		p->_pAnimData = p->_pHAnim[dir];
+		switch (sType) {
+		case STYPE_FIRE:      anim = p->_pFAnim; break;
+		case STYPE_LIGHTNING: anim = p->_pLAnim; break;
+		case STYPE_MAGIC:     anim = p->_pTAnim; break;
+		default: ASSUME_UNREACHABLE;
+		}
 		break;
 	case PM_NEWLVL:
-		p->_pAnimData = p->_pNAnim[dir];
-		break;
-	case PM_DEATH:
-		p->_pAnimData = p->_pDAnim[dir];
-		break;
 	case PM_QUIT:
-		p->_pAnimData = p->_pNAnim[dir];
+		anim = p->_pNAnim;
 		break;
 	default:
-		app_fatal("SyncPlrAnim");
+		ASSUME_UNREACHABLE
 		break;
 	}
+	p->_pAnimData = anim[p->_pdir];
 }
 
 void SyncInitPlrPos(int pnum)

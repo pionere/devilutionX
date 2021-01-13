@@ -16,7 +16,7 @@ extern int myplr;
 extern PlayerStruct plr[MAX_PLRS];
 extern BOOL deathflag;
 
-void LoadPlrGFX(int pnum, player_graphic gfxflag);
+void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
