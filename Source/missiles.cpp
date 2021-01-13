@@ -29,8 +29,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 
 	assert((DWORD)myplr < MAX_PLRS);
 	assert((DWORD)sn < NUM_SPELLS);
+	sl = GetSpellLevel(myplr, sn);
 	p = &plr[myplr];
-	sl = p->_pSplLvl[sn] + p->_pISplLvlAdd;
 
 	switch (sn) {
 	case SPL_FIREBOLT:
@@ -210,21 +210,6 @@ static int FindClosest(int sx, int sy, int rad)
 		}
 	}
 	return -1;
-}
-
-int GetSpellLevel(int pnum, int sn)
-{
-	int result;
-
-	if (pnum == myplr)
-		result = plr[pnum]._pISplLvlAdd + plr[pnum]._pSplLvl[sn];
-	else
-		result = 1;
-
-	if (result < 0)
-		result = 0;
-
-	return result;
 }
 
 /**

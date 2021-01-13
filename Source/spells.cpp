@@ -164,6 +164,16 @@ int SpellSourceEquipment(int sn)
 	return SPLFROM_INVALID;
 }
 
+int GetSpellLevel(int pnum, int sn)
+{
+	int result;
+
+	result = plr[pnum]._pISplLvlAdd + plr[pnum]._pSplLvl[sn];
+	if (result < 0)
+		result = 0;
+	return result;
+}
+
 BOOL CheckSpell(int pnum, int sn)
 {
 #ifdef _DEBUG

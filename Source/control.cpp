@@ -385,13 +385,11 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
  */
 void DrawSpell()
 {
-	PlayerStruct *p;
 	char st;
 	int spl, lvl;
 
-	p = &plr[myplr];
-	spl = p->_pRSpell;
-	st = p->_pRSplType;
+	spl = plr[myplr]._pRSpell;
+	st = plr[myplr]._pRSplType;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
 	if (spl == SPL_INVALID) {
@@ -400,7 +398,7 @@ void DrawSpell()
 	} else if (currlevel == 0 && !spelldata[spl].sTownSpell)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
-		lvl = p->_pISplLvlAdd + p->_pSplLvl[spl];
+		lvl = GetSpellLevel(myplr, spl);
 		if (lvl <= 0 || !CheckSpell(myplr, spl))
 			st = RSPLTYPE_INVALID;
 	}
@@ -413,8 +411,8 @@ void DrawSpell()
 void DrawSpeedBook()
 {
 	PlayerStruct *p;
-	int i, j, x, y, /*c,*/ s, t, lx, ly;
-	unsigned __int64 mask, spl;
+	int i, sn, x, y, /*c,*/ s, t, lx, ly;
+	unsigned __int64 mask;
 
 	pSpell = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -427,7 +425,6 @@ void DrawSpeedBook()
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_SKILL:
-			SetSpellTrans(RSPLTYPE_SKILL);
 			mask = p->_pAblSpells;
 			//c = SPLICONLAST + 3;
 			break;
@@ -436,12 +433,10 @@ void DrawSpeedBook()
 			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_SCROLL:
-			SetSpellTrans(RSPLTYPE_SCROLL);
 			mask = p->_pScrlSpells;
 			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
-			SetSpellTrans(RSPLTYPE_CHARGES);
 			mask = p->_pISpells;
 			//c = SPLICONLAST + 2;
 			break;
@@ -449,33 +444,35 @@ void DrawSpeedBook()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		for (spl = 1, j = 1; j < NUM_SPELLS; spl <<= 1, j++) {
-			if (!(mask & spl))
+		for (sn = 1; mask != 0 && sn < NUM_SPELLS; mask >>= 1, sn++) {
+			if (!(mask & 1))
 				continue;
-			if (currlevel == 0 && !spelldata[j].sTownSpell)
-				SetSpellTrans(RSPLTYPE_INVALID);
-			else if (i == RSPLTYPE_SPELL) {
-				s = p->_pISplLvlAdd + p->_pSplLvl[j];
-				SetSpellTrans(s > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID);
+			t = i;
+			if (i == RSPLTYPE_SPELL) {
+				s = GetSpellLevel(myplr, sn);
+				t = s > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
-			DrawSpellCel(x, y, pSpellCels, SpellITbl[j], SPLICONLENGTH);
+			if (currlevel == 0 && !spelldata[sn].sTownSpell)
+				t = RSPLTYPE_INVALID;
+			SetSpellTrans(t);
+			DrawSpellCel(x, y, pSpellCels, SpellITbl[sn], SPLICONLENGTH);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
 				//DrawSpellCel(x, y, pSpellCels, c, SPLICONLENGTH);
 				DrawSpellCel(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH);
 
-				pSpell = j;
+				pSpell = sn;
 				pSplType = i;
 #ifdef HELLFIRE
-				if (j == SPL_SEARCH && p->_pClass == PC_MONK)
+				if (sn == SPL_SEARCH && p->_pClass == PC_MONK)
 					pSplType = RSPLTYPE_SKILL;
 #endif
 
-				DrawSpellIconOverlay(j, pSplType, s, x, y);
+				DrawSpellIconOverlay(sn, pSplType, s, x, y);
 
 				for (t = 0; t < 4; t++) {
-					if (p->_pSplHotKey[t] == j && p->_pSplTHotKey[t] == pSplType) {
+					if (p->_pSplHotKey[t] == sn && p->_pSplTHotKey[t] == pSplType) {
 						//DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
 						snprintf(tempstr, sizeof(tempstr), "#%d", t + 1);
 						PrintString(x + SPLICONLENGTH - 18, y - SPLICONLENGTH + 16, x + SPLICONLENGTH, tempstr, FALSE, COL_GOLD, 1);
@@ -488,7 +485,7 @@ void DrawSpeedBook()
 				y -= SPLICONLENGTH;
 			}
 		}
-		if (mask != 0 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
+		if (sn != 1 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
 			x -= SPLICONLENGTH;
 		if (x == PANEL_X + 12 - SPLICONLENGTH) {
 			x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -2013,8 +2010,7 @@ static char GetSBookTrans(int sn, BOOL townok)
 		st = RSPLTYPE_SKILL;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
-	} else if (CheckSpell(myplr, sn)
-	 && (p->_pSplLvl[sn] + p->_pISplLvlAdd) > 0) {
+	} else if (CheckSpell(myplr, sn)) {
 		st = RSPLTYPE_SPELL;
 	} else {
 		return RSPLTYPE_INVALID;
@@ -2077,10 +2073,10 @@ void DrawSpellBook()
 			case RSPLTYPE_SPELL:
 			case RSPLTYPE_INVALID:
 				lvl = GetSpellLevel(myplr, sn);
-				if (lvl <= 0) {
-					copy_cstr(tempstr, "Spell Level 0 - Unusable");
-				} else {
+				if (lvl > 0) {
 					snprintf(tempstr, sizeof(tempstr), "Spell Level %i", lvl);
+				} else {
+					copy_cstr(tempstr, "Spell Level 0 - Unusable");
 				}
 				mana = GetManaAmount(myplr, sn) >> 6;
 				break;

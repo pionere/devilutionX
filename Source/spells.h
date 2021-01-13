@@ -19,6 +19,7 @@ void UseMana(int pnum, int sn, int sf);
 BOOL HasMana(int pnum, int sn, int sf);
 int SpellSourceInv(int sn);
 int SpellSourceEquipment(int sn);
+int GetSpellLevel(int pnum, int sn);
 BOOL CheckSpell(int pnum, int sn);
 BOOL PlacePlayer(int pnum);
 void DoResurrect(int pnum, int tnum);
