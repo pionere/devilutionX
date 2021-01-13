@@ -667,7 +667,7 @@ BOOL TryIconCurs(BOOL bShift)
 			NetSendCmdParam1(TRUE, CMD_OPOBJT, pcursobj);
 		if (pcursitem != -1)
 			NetSendCmdGItem(TRUE, CMD_REQUESTAGITEM, myplr, myplr, pcursitem);
-		if (pcursmonst != -1 && !MonTalker(pcursmonst) && monster[pcursmonst].mtalkmsg == 0)
+		if (pcursmonst != -1 && !MonTalker(pcursmonst))
 			NetSendCmdParam1(TRUE, CMD_KNOCKBACK, pcursmonst);
 		break;
 	case CURSOR_RESURRECT:

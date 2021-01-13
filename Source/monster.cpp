@@ -761,10 +761,6 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 
 	if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZHELP)
 		mon->mtalkmsg = 0;
-#ifndef HELLFIRE
-	else if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZURUS && quests[Q_BETRAYER]._qvar1 > 3)
-		mon->_mgoal = MGOAL_NORMAL;
-#endif
 	else if (mon->mtalkmsg != 0)
 		mon->_mgoal = MGOAL_INQUIRING;
 
@@ -1200,14 +1196,15 @@ static BOOL MonRanged(int mnum)
 
 BOOL MonTalker(int mnum)
 {
-	char ai = monster[mnum]._mAi;
+	return monster[mnum].mtalkmsg != 0;
+	/*char ai = monster[mnum]._mAi;
 	return ai == AI_LAZURUS
 	    || ai == AI_WARLORD
 	    || ai == AI_GARBUD
 	    || ai == AI_ZHAR
 	    || ai == AI_SNOTSPIL
 	    || ai == AI_LACHDAN
-	    || ai == AI_LAZHELP;
+	    || ai == AI_LAZHELP;*/
 }
 
 static void MonEnemy(int mnum)
@@ -1260,7 +1257,7 @@ static void MonEnemy(int mnum)
 				continue;
 			if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
 				continue;
-			if (MonTalker(tnum) && monster[tnum].mtalkmsg != 0)
+			if (MonTalker(tnum))
 				continue;
 			dist = std::max(abs(mon->_mx - monster[tnum]._mx), abs(mon->_my - monster[tnum]._my));
 			sameroom = tv == dTransVal[monster[tnum]._mx][monster[tnum]._my];
@@ -2440,7 +2437,7 @@ static BOOL MonDoTalk(int mnum)
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		if (quests[Q_LTBANNER]._qvar1 < 2) {
-			app_fatal("SS Talk = %i, Flags = %i", mon->mtalkmsg, mon->_mFlags);
+			dev_fatal("SS Talk = %i, Flags = %i", mon->mtalkmsg, mon->_mFlags);
 		}
 		break;
 	case UMT_LAZURUS:
@@ -4262,20 +4259,18 @@ void MAI_Garbud(int mnum)
 	}
 
 	md = MonGetDir(mnum);
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-		if (mon->mtalkmsg == TEXT_GARBUD4) {
-			if (!effect_is_playing(USFX_GARBUD4) && mon->_mgoal == MGOAL_TALKING) {
+	if (mon->_mgoal == MGOAL_TALKING) {
+		if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE)) {
+			if (mon->mtalkmsg == TEXT_GARBUD4 && !effect_is_playing(USFX_GARBUD4)) {
 				mon->_mgoal = MGOAL_NORMAL;
 				mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
 			}
-		}
-	} else {
-		if (mon->mtalkmsg < TEXT_GARBUD4
-			&& mon->mtalkmsg > TEXT_DOOM10
-			&& mon->_mgoal == MGOAL_TALKING) {
-			mon->_mgoal = MGOAL_INQUIRING;
-			mon->mtalkmsg++;
+		} else {
+			if (mon->mtalkmsg < TEXT_GARBUD4 && mon->mtalkmsg >= TEXT_GARBUD1) {
+				mon->_mgoal = MGOAL_INQUIRING;
+				mon->mtalkmsg++;
+			}
 		}
 	}
 
@@ -4303,18 +4298,18 @@ void MAI_Zhar(int mnum)
 
 	md = MonGetDir(mnum);
 
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-		if (mon->mtalkmsg == TEXT_ZHAR2) {
-			if (!effect_is_playing(USFX_ZHAR2) && mon->_mgoal == MGOAL_TALKING) {
+	if (mon->_mgoal == MGOAL_TALKING) {
+		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
+			if (mon->mtalkmsg == TEXT_ZHAR2 && !effect_is_playing(USFX_ZHAR2)) {
 				mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
-		}
-	} else {
-		if (mon->mtalkmsg == TEXT_ZHAR1 && mon->_mgoal == MGOAL_TALKING) {
-			mon->mtalkmsg = TEXT_ZHAR2;
-			mon->_mgoal = MGOAL_INQUIRING;
+		} else {
+			if (mon->mtalkmsg == TEXT_ZHAR1) {
+				mon->mtalkmsg = TEXT_ZHAR2;
+				mon->_mgoal = MGOAL_INQUIRING;
+			}
 		}
 	}
 
@@ -4356,7 +4351,7 @@ void MAI_SnotSpil(int mnum)
 
 	if (dFlags[mx][my] & BFLAG_VISIBLE) {
 		if (mon->mtalkmsg == TEXT_BANNER12) {
-			if (!effect_is_playing(USFX_SNOT3) && mon->_mgoal == MGOAL_TALKING) {
+			if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_SNOT3)) {
 				ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1);
 				quests[Q_LTBANNER]._qvar1 = 3;
 				RedoPlayerVision();
@@ -4391,15 +4386,13 @@ void MAI_Lazurus(int mnum)
 	}
 
 	md = MonGetDir(mnum);
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
+	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
-			if (mon->mtalkmsg == TEXT_VILE13 && mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == 35 && plr[myplr]._py == 46) {
+			if (mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == DBORDERX + 19 && plr[myplr]._py == DBORDERY + 30) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
 				quests[Q_BETRAYER]._qvar1 = 5;
-			}
-
-			if (mon->mtalkmsg == TEXT_VILE13 && !effect_is_playing(USFX_LAZ1) && mon->_mgoal == MGOAL_TALKING) {
+			} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_LAZ1)) {
 				ObjChangeMapResync(1, 18, 20, 24);
 				RedoPlayerVision();
 				mon->_msquelch = UCHAR_MAX;
@@ -4407,10 +4400,9 @@ void MAI_Lazurus(int mnum)
 				quests[Q_BETRAYER]._qvar1 = 6;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
-		}
-
-		if (gbMaxPlayers != 1 && mon->mtalkmsg == TEXT_VILE13 && mon->_mgoal == MGOAL_INQUIRING && quests[Q_BETRAYER]._qvar1 <= 3) {
-			mon->_mmode = MM_TALK;
+		} else {
+			if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_BETRAYER]._qvar1 <= 3)
+				mon->_mmode = MM_TALK;
 		}
 	}
 
@@ -4472,18 +4464,18 @@ void MAI_Lachdanan(int mnum)
 
 	md = MonGetDir(mnum);
 
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-		if (mon->mtalkmsg == TEXT_VEIL11) {
-			if (!effect_is_playing(USFX_LACH3) && mon->_mgoal == MGOAL_TALKING) {
+	if (mon->_mgoal == MGOAL_TALKING) {
+		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
+			if (mon->mtalkmsg == TEXT_VEIL11 && !effect_is_playing(USFX_LACH3)) {
 				mon->mtalkmsg = 0;
 				quests[Q_VEIL]._qactive = QUEST_DONE;
 				MonStartKill(mnum, -1);
 			}
-		}
-	} else {
-		if (mon->mtalkmsg == TEXT_VEIL9 && mon->_mgoal == MGOAL_TALKING) {
-			mon->mtalkmsg = TEXT_VEIL10;
-			mon->_mgoal = MGOAL_INQUIRING;
+		} else {
+			if (mon->mtalkmsg == TEXT_VEIL9) {
+				mon->mtalkmsg = TEXT_VEIL10;
+				mon->_mgoal = MGOAL_INQUIRING;
+			}
 		}
 	}
 
@@ -4507,10 +4499,10 @@ void MAI_Warlord(int mnum)
 	}
 
 	md = MonGetDir(mnum);
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-		if (mon->mtalkmsg == TEXT_WARLRD9 && mon->_mgoal == MGOAL_INQUIRING)
+	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_WARLRD9) {
+		if (mon->_mgoal == MGOAL_INQUIRING)
 			mon->_mmode = MM_TALK;
-		if (mon->mtalkmsg == TEXT_WARLRD9 && !effect_is_playing(USFX_WARLRD1) && mon->_mgoal == MGOAL_TALKING) {
+		else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_WARLRD1)) {
 			mon->_msquelch = UCHAR_MAX;
 			mon->mtalkmsg = 0;
 			mon->_mgoal = MGOAL_NORMAL;
@@ -5490,6 +5482,7 @@ BOOL CanTalkToMonst(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
+	assert(monster[mnum].mtalkmsg != 0);
 	return monster[mnum]._mgoal == MGOAL_INQUIRING
 		|| monster[mnum]._mgoal == MGOAL_TALKING;
 }
