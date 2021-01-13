@@ -3617,12 +3617,10 @@ void CheckPlrSpell()
 	const int *sfx;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
-		app_fatal("CheckPlrSpell: illegal player %d", myplr);
+		dev_fatal("CheckPlrSpell: illegal player %d", myplr);
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM)
-		return;
-
+	assert(pcurs == CURSOR_HAND);
 	rspell = plr[myplr]._pRSpell;
 	if (rspell == SPL_INVALID) {
 		PlaySFX(sgSFXSets[SFXS_PLR_34][plr[myplr]._pClass]);

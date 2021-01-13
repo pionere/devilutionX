@@ -568,9 +568,13 @@ static void LeftMouseCmd(BOOL bShift)
 {
 	BOOL bNear;
 
+	assert(pcurs == CURSOR_HAND);
+
+	if (pcursitem != -1 && !bShift) {
+		NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		return;
+	}
 	if (leveltype == DTYPE_TOWN) {
-		if (pcursitem != -1 && pcurs == CURSOR_HAND)
-			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 		if (pcursmonst != -1) {
 			NetSendCmdLocParam1(TRUE, CMD_TALKXY, cursmx, cursmy, pcursmonst);
 			return;
@@ -579,10 +583,6 @@ static void LeftMouseCmd(BOOL bShift)
 			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
 	} else {
 		bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
-		if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {
-			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-			return;
-		}
 		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
@@ -789,6 +789,10 @@ void RightMouseDown(BOOL bShift)
 
 	if (TryIconCurs(bShift))
 		return;
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		DropItem();
+		return;
+	}
 
 	if (questlog) {
 		questlog = FALSE;

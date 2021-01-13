@@ -1176,23 +1176,15 @@ void PerformSpellAction()
 	if (InGameMenu() || questlog || sbookflag)
 		return;
 
-	if (invflag) {
-		if (pcurs >= CURSOR_FIRSTITEM)
-			TryDropItem();
-		else if (pcurs > CURSOR_HAND) {
-			TryIconCurs(FALSE);
-			NewCursor(CURSOR_HAND);
-		}
+	if (spselflag) {
+		SetSpell();
 		return;
 	}
 
-	if (pcurs >= CURSOR_FIRSTITEM && !TryDropItem())
+	if (TryIconCurs(FALSE))
 		return;
-	if (pcurs > CURSOR_HAND)
-		NewCursor(CURSOR_HAND);
-
-	if (spselflag) {
-		SetSpell();
+	if (pcurs >= CURSOR_FIRSTITEM) {
+		TryDropItem();
 		return;
 	}
 
