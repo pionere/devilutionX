@@ -564,7 +564,53 @@ int DiabloMain(int argc, char **argv)
 	return 0;
 }
 
-static void LeftMouseCmd(BOOL bShift)
+static BOOL AttackCmd(BOOL bShift)
+{
+	if (plr[myplr]._pwtype == WT_RANGED) {
+		if (bShift) {
+			NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
+			return TRUE;
+		}
+		if (pcursmonst != -1) {
+			if (CanTalkToMonst(pcursmonst)) {
+				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+			} else {
+				NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
+			}
+			return TRUE;
+		}
+		if (pcursplr != -1) {
+			if (!FriendlyMode)
+				NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
+			return TRUE;
+		}
+	} else {
+		if (bShift) {
+			if (pcursmonst != -1) {
+				if (CanTalkToMonst(pcursmonst)) {
+					NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+				} else {
+					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
+				}
+			} else {
+				NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
+			}
+			return TRUE;
+		}
+		if (pcursmonst != -1) {
+			NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+			return TRUE;
+		}
+		if (pcursplr != -1) {
+			if (!FriendlyMode)
+				NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static void ActionBtnCmd(BOOL bShift)
 {
 	BOOL bNear;
 
@@ -587,47 +633,10 @@ static void LeftMouseCmd(BOOL bShift)
 			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}
-		if (plr[myplr]._pwtype == WT_RANGED) {
-			if (bShift) {
-				NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
-				return;
-			}
-			if (pcursmonst != -1) {
-				if (CanTalkToMonst(pcursmonst)) {
-					NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-				} else {
-					NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
-				}
-				return;
-			}
-			if (pcursplr != -1) {
-				if (!FriendlyMode)
-					NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
-				return;
-			}
-		} else {
-			if (bShift) {
-				if (pcursmonst != -1) {
-					if (CanTalkToMonst(pcursmonst)) {
-						NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-					} else {
-						NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
-					}
-				} else {
-					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
-				}
-				return;
-			}
-			if (pcursmonst != -1) {
-				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-				return;
-			}
-			if (pcursplr != -1) {
-				if (!FriendlyMode)
-					NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
-				return;
-			}
-		}
+		if (AttackCmd(bShift))
+			return;
+		assert(pcursplr == -1);
+		assert(pcursmonst == -1);
 		if (pcursitem == -1 && pcursobj == -1)
 			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
 	}
@@ -703,7 +712,7 @@ BOOL TryIconCurs(BOOL bShift)
 	return TRUE;
 }
 
-void LeftMouseDown(BOOL bShift)
+static void ActionBtnDown(BOOL bShift)
 {
 	assert(!dropGoldFlag);
 	assert(!gmenu_left_mouse(TRUE));
@@ -766,10 +775,105 @@ void LeftMouseDown(BOOL bShift)
 		return;
 	}
 
-	LeftMouseCmd(bShift);
+	ActionBtnCmd(bShift);
 }
 
-void RightMouseDown(BOOL bShift)
+void AltActionBtnCmd(BOOL bShift)
+{
+	int rspell, sf, sl;
+	const int *sfx;
+
+	if ((DWORD)myplr >= MAX_PLRS) {
+		dev_fatal("AltActionBtnCmd: illegal player %d", myplr);
+	}
+
+	assert(pcurs == CURSOR_HAND);
+	rspell = plr[myplr]._pRSpell;
+	if (rspell == SPL_INVALID) {
+		PlaySFX(sgSFXSets[SFXS_PLR_34][plr[myplr]._pClass]);
+		return;
+	}
+
+	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
+		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
+		return;
+	}
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	if (!sgbControllerActive)
+#endif
+		if (PANELS_COVER && spelldata[rspell].sTargeted
+		 && (/*(MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
+		   ||*/ ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
+		   || ((invflag || sbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)) // inside right panel
+		       ) {
+			return;
+		}
+
+	sfx = NULL;
+	switch (plr[myplr]._pRSplType) {
+	case RSPLTYPE_SKILL:
+		if (rspell == SPL_WATTACK) {
+			if (AttackCmd(bShift))
+				return;
+			rspell = SPL_WALK;
+		}
+		if (rspell == SPL_WALK) {
+			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
+			return;
+		}
+		if (rspell == SPL_ATTACK) {
+			AttackCmd(bShift);
+			return;
+		}
+		if (rspell == SPL_BLOCK) {
+			int dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
+			PlrStartBlock(myplr, dir);
+			return;
+		}
+		sf = SPLFROM_SKILL;
+		break;
+	case RSPLTYPE_SPELL:
+		sf = CheckSpell(myplr, rspell) ? SPLFROM_MANA : SPLFROM_INVALID;
+		sfx = sgSFXSets[SFXS_PLR_35];
+		break;
+	case RSPLTYPE_SCROLL:
+		sf = SpellSourceInv(rspell);
+		break;
+	case RSPLTYPE_CHARGES:
+		sf = SpellSourceEquipment(rspell);
+		break;
+	case RSPLTYPE_INVALID:
+		sf = SPLFROM_INVALID;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (sf == SPLFROM_INVALID) {
+		if (sfx != NULL)
+			PlaySFX(sfx[plr[myplr]._pClass]);
+		return;
+	}
+
+	if (spelldata[rspell].spCurs != CURSOR_NONE) {
+		NewCursor(spelldata[rspell].spCurs);
+		plr[myplr]._pTSpell = rspell;
+		plr[myplr]._pSplFrom = sf;
+		return;
+	}
+
+	sl = GetSpellLevel(myplr, rspell);
+	if (pcursmonst != -1) {
+		NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, rspell, sf, sl);
+	} else if (pcursplr != -1) {
+		NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, rspell, sf, sl);
+	} else { //145
+		NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
+	}
+}
+
+static void AltActionBtnDown(BOOL bShift)
 {
 	assert(!gmenu_is_active());
 	assert(sgnTimeoutCurs == CURSOR_NONE);
@@ -807,7 +911,7 @@ void RightMouseDown(BOOL bShift)
 
 	if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
 		return;
-	CheckPlrSpell();
+	AltActionBtnCmd(bShift);
 }
 
 static void diablo_pause_game()
@@ -1004,14 +1108,14 @@ static void PressKey(int vkey)
 		if (!sgbActionBtnDown) {
 			sgbActionBtnDown = TRUE;
 			sgdwLastABD = SDL_GetTicks();
-			LeftMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+			ActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 		break;
 	case ACT_ALTACT:
 		if (!sgbAltActionBtnDown) {
 			sgbAltActionBtnDown = TRUE;
 			sgdwLastAABD = SDL_GetTicks();
-			RightMouseDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
+			AltActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 		break;
 	case ACT_SPL0:

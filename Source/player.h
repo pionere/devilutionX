@@ -60,7 +60,6 @@ void ProcessPlayers();
 void ClrPlrPath(int pnum);
 BOOL PosOkPlayer(int pnum, int x, int y);
 void MakePlrPath(int pnum, int xx, int yy, BOOL endspace);
-void CheckPlrSpell();
 void SyncPlrAnim(int pnum);
 void SyncInitPlrPos(int pnum);
 void SyncInitPlr(int pnum);

@@ -188,6 +188,10 @@ const BYTE SpellITbl[NUM_SPELLS] = {
 	35,// SPL_RUNEIMMOLAT
 	35,// SPL_RUNESTONE
 #endif
+	28,// SPL_WALK
+	32,// SPL_WATTACK
+	48,// SPL_ATTACK
+	45,// SPL_BLOCK
 };
 /** Maps from panel_button_id to the position and dimensions of a panel button. */
 /*int PanBtnPos[8][4] = {

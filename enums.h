@@ -2702,6 +2702,10 @@ typedef enum spell_id {
 	SPL_RUNEIMMOLAT,
 	SPL_RUNESTONE,
 #endif
+	SPL_WALK,
+	SPL_WATTACK,
+	SPL_ATTACK,
+	SPL_BLOCK,
 	NUM_SPELLS,
 	SPL_INVALID     = -1,
 } spell_id;

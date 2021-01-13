@@ -869,6 +869,24 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
 
+static void CalcPlrAbilities(int pnum)
+{
+	PlayerStruct *p;
+
+	p = &plr[pnum];
+	if (p->_pBlockFlag) {
+		p->_pAblSpells |= SPELL_MASK(SPL_BLOCK);
+	} else {
+		p->_pAblSpells &= ~SPELL_MASK(SPL_BLOCK);
+		// check if the current RSplType is a valid/allowed ability
+		if (p->_pRSpell == SPL_BLOCK) {
+			p->_pRSpell = SPL_INVALID;
+			p->_pRSplType = RSPLTYPE_INVALID;
+			//gbRedrawFlags |= REDRAW_SPELL_ICON;
+		}
+	}
+}
+
 void CalcPlrScrolls(int pnum)
 {
 	PlayerStruct *p;
@@ -998,6 +1016,7 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 	CalcPlrItemVals(pnum, Loadgfx);
 	CalcPlrItemMin(pnum);
 	if (pnum == myplr) {
+		CalcPlrAbilities(pnum);
 		CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
 		CalcPlrStaff(pnum);

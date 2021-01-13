@@ -772,6 +772,9 @@ void CreatePlayer(int pnum, char c)
 	p->_pLightRad = 10;
 
 	p->_pAblSpells = SPELL_MASK(Abilities[c]);
+	p->_pAblSpells |= SPELL_MASK(SPL_WALK);
+	p->_pAblSpells |= SPELL_MASK(SPL_WATTACK);
+	p->_pAblSpells |= SPELL_MASK(SPL_ATTACK);
 
 	if (c == PC_SORCERER) {
 		p->_pSplLvl[SPL_FIREBOLT] = 2;
@@ -984,7 +987,12 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
+
 		p->_pAblSpells = SPELL_MASK(Abilities[p->_pClass]);
+		p->_pAblSpells |= SPELL_MASK(SPL_WALK);
+		p->_pAblSpells |= SPELL_MASK(SPL_WATTACK);
+		p->_pAblSpells |= SPELL_MASK(SPL_ATTACK);
+
 		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 	}
 
@@ -3609,83 +3617,6 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 	}
 
 	plr[pnum].walkpath[path] = WALK_NONE;
-}
-
-void CheckPlrSpell()
-{
-	int rspell, sf, sl;
-	const int *sfx;
-
-	if ((DWORD)myplr >= MAX_PLRS) {
-		dev_fatal("CheckPlrSpell: illegal player %d", myplr);
-	}
-
-	assert(pcurs == CURSOR_HAND);
-	rspell = plr[myplr]._pRSpell;
-	if (rspell == SPL_INVALID) {
-		PlaySFX(sgSFXSets[SFXS_PLR_34][plr[myplr]._pClass]);
-		return;
-	}
-
-	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
-		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
-		return;
-	}
-
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (!sgbControllerActive)
-#endif
-		if (PANELS_COVER && spelldata[rspell].sTargeted
-		 && (/*(MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
-		   ||*/ ((chrflag || questlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
-		   || ((invflag || sbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)) // inside right panel
-		       ) {
-			return;
-		}
-
-	sfx = NULL;
-	switch (plr[myplr]._pRSplType) {
-	case RSPLTYPE_SKILL:
-		sf = SPLFROM_SKILL;
-		break;
-	case RSPLTYPE_SPELL:
-		sf = CheckSpell(myplr, rspell) ? SPLFROM_MANA : SPLFROM_INVALID;
-		sfx = sgSFXSets[SFXS_PLR_35];
-		break;
-	case RSPLTYPE_SCROLL:
-		sf = SpellSourceInv(rspell);
-		break;
-	case RSPLTYPE_CHARGES:
-		sf = SpellSourceEquipment(rspell);
-		break;
-	case RSPLTYPE_INVALID:
-		sf = SPLFROM_INVALID;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (sf == SPLFROM_INVALID) {
-		if (sfx != NULL)
-			PlaySFX(sfx[plr[myplr]._pClass]);
-		return;
-	}
-
-	if (spelldata[rspell].spCurs != CURSOR_NONE) {
-		NewCursor(spelldata[rspell].spCurs);
-		plr[myplr]._pTSpell = rspell;
-		plr[myplr]._pSplFrom = sf;
-		return;
-	}
-
-	sl = GetSpellLevel(myplr, rspell);
-	if (pcursmonst != -1) {
-		NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, rspell, sf, sl);
-	} else if (pcursplr != -1) {
-		NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, rspell, sf, sl);
-	} else { //145
-		NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
-	}
 }
 
 void SyncPlrAnim(int pnum)

@@ -100,6 +100,10 @@ SpellData spelldata[NUM_SPELLS] = {
 	{ SPL_RUNEIMMOLAT, 255, STYPE_MAGIC,     "Rune of Immolation", SPELL_NA,  SPELL_NA,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_TELEPORT,    FALSE,           48, IS_CAST8, MIS_RUNEIMMOLAT,   1,       10,        40,        80,      8000,        300 },
 	{ SPL_RUNESTONE,   255, STYPE_MAGIC,     "Rune of Stone",      SPELL_NA,  SPELL_NA,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_TELEPORT,    FALSE,           48, IS_CAST8, MIS_RUNESTONE,     1,       10,        40,        80,      8000,        300 },
 #endif
+	{ SPL_WALK,          0, STYPE_MAGIC,     "Walk",               SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        TRUE,             0, IS_CAST6, 0,                 0,        0,         0,         0,         0,          0 },
+	{ SPL_WATTACK,       0, STYPE_MAGIC,     "Walk/Attack",        SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        TRUE,             0, IS_CAST6, 0,                 0,        0,         0,         0,         0,          0 },
+	{ SPL_ATTACK,        0, STYPE_MAGIC,     "Attack",             SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, IS_CAST6, 0,                 0,        0,         0,         0,         0,          0 },
+	{ SPL_BLOCK,         0, STYPE_MAGIC,     "Block",              SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, IS_CAST6, 0,                 0,        0,         0,         0,         0,          0 },
 	// clang-format on
 };
 

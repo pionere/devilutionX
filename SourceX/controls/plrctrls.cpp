@@ -1196,7 +1196,7 @@ void PerformSpellAction()
 	}
 
 	UpdateSpellTarget();
-	CheckPlrSpell();
+	AltActionBtnCmd(FALSE);
 }
 
 static void CtrlUseInvItem()
