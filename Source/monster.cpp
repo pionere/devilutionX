@@ -5482,7 +5482,9 @@ BOOL CanTalkToMonst(int mnum)
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
-	assert(monster[mnum].mtalkmsg != 0);
+	assert((monster[mnum]._mgoal != MGOAL_INQUIRING
+		&& monster[mnum]._mgoal != MGOAL_TALKING)
+		|| monster[mnum].mtalkmsg != 0);
 	return monster[mnum]._mgoal == MGOAL_INQUIRING
 		|| monster[mnum]._mgoal == MGOAL_TALKING;
 }
