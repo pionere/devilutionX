@@ -27,6 +27,7 @@ void InitItemGFX();
 BOOL ItemPlace(int xp, int yp);
 void InitItems();
 void CalcPlrItemVals(int pnum, BOOL Loadgfx);
+void CalcPlrAbilities(int pnum);
 void CalcPlrBookVals(int pnum);
 void CalcPlrScrolls(int pnum);
 void CalcPlrStaff(int pnum);

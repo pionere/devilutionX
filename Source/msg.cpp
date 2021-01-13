@@ -1418,6 +1418,17 @@ static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 
 	return sizeof(*cmd);
 }*/
+static DWORD On_BLOCK(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+		ClrPlrPath(pnum);
+		plr[pnum].destAction = ACTION_BLOCK;
+		plr[pnum].destParam1 = cmd->wParam1; // direction
+	}
+	return sizeof(*cmd);
+}
 
 static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
@@ -1684,7 +1695,7 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 			plr[pnum].destParam2 = cmd->x;
 			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam2; // invloc 0;
+			plr[pnum]._pSplFrom = cmd->wParam2; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1806,7 +1817,7 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 			plr[pnum].destParam1 = cmd->wParam1; // mnum
 			plr[pnum].destParam2 = cmd->wParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam3; // invloc 0;
+			plr[pnum]._pSplFrom = cmd->wParam3; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1826,7 +1837,7 @@ static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 			plr[pnum].destParam1 = cmd->wParam1; // pnum
 			plr[pnum].destParam2 = cmd->wParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam3; // invloc 0;
+			plr[pnum]._pSplFrom = cmd->wParam3; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -2420,6 +2431,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_ADDVIT(pCmd, pnum);
 	//case CMD_SBSPELL:
 	//	return On_SBSPELL(pCmd, pnum);
+	case CMD_BLOCK:
+		return On_BLOCK(pCmd, pnum);
 	case CMD_GOTOGETITEM:
 		return On_GOTOGETITEM(pCmd, pnum);
 	case CMD_REQUESTGITEM:

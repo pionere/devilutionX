@@ -869,7 +869,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
 
-static void CalcPlrAbilities(int pnum)
+void CalcPlrAbilities(int pnum)
 {
 	PlayerStruct *p;
 

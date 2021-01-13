@@ -2718,7 +2718,7 @@ typedef enum _cmd_id {
 	CMD_ADDMAG,
 	CMD_ADDDEX,
 	CMD_ADDVIT,
-	OBSOLETE_CMD0, // CMD_SBSPELL in vanilla
+	CMD_BLOCK, // CMD_SBSPELL in vanilla
 	CMD_GETITEM,
 	CMD_AGETITEM,
 	CMD_PUTITEM,
@@ -3629,7 +3629,7 @@ typedef enum action_id {
 	ACTION_RATTACKPLR  = 23,
 	ACTION_SPELLMON    = 24,
 	ACTION_SPELLPLR    = 25,
-	//ACTION_SPELLWALL = 26,
+	ACTION_BLOCK       = 26, //ACTION_SPELLWALL in vanilla
 } action_id;
 
 typedef enum dlrg_flag {

@@ -2145,7 +2145,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			return;
 
 	if (p->_pBlockFlag
-	 && (p->_pmode == PM_STAND || p->_pmode == PM_ATTACK)) {
+	 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		blkper = p->_pDexterity + p->_pBaseToBlk
 			+ (p->_pLevel << 1)
 			- (mon->mLevel << 1);

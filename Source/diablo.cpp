@@ -828,7 +828,7 @@ void AltActionBtnCmd(BOOL bShift)
 		}
 		if (rspell == SPL_BLOCK) {
 			int dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
-			PlrStartBlock(myplr, dir);
+			NetSendCmdParam1(TRUE, CMD_BLOCK, dir);
 			return;
 		}
 		sf = SPLFROM_SKILL;

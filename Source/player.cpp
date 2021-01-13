@@ -977,6 +977,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		p->_pAblSpells |= SPELL_MASK(SPL_WALK);
 		p->_pAblSpells |= SPELL_MASK(SPL_WATTACK);
 		p->_pAblSpells |= SPELL_MASK(SPL_ATTACK);
+		CalcPlrAbilities(pnum);
 
 		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 	}
@@ -1605,11 +1606,11 @@ static void StartRangeAttack(int pnum)
 	FixPlayerLocation(pnum);
 }
 
-void PlrStartBlock(int pnum, int dir)
+static void StartBlock(int pnum, int dir)
 {
 	PlayerStruct *p;
 	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("PlrStartBlock: illegal player %d", pnum);
+		dev_fatal("StartBlock: illegal player %d", pnum);
 	}
 
 	p = &plr[pnum];
@@ -1619,8 +1620,7 @@ void PlrStartBlock(int pnum, int dir)
 	}
 
 	p->_pmode = PM_BLOCK;
-	PlaySfxLoc(IS_ISWORD, p->_px, p->_py);
-
+	p->_pVar1 = 0; // extended blocking
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
@@ -2718,7 +2718,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 		return FALSE;
 
 	if (dps->_pBlockFlag
-	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_ATTACK)) {
+	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
 			+ (dps->_pLevel << 1)
 			- (ops->_pLevel << 1);
@@ -2937,6 +2937,21 @@ static void ShieldDur(int pnum)
 	}
 }
 
+void PlrStartBlock(int pnum, int dir)
+{
+	if ((DWORD)pnum >= MAX_PLRS) {
+		dev_fatal("PlrStartBlock: illegal player %d", pnum);
+	}
+
+	if (plr[pnum]._pmode != PM_BLOCK)
+		StartBlock(pnum, dir);
+
+	PlaySfxLoc(IS_ISWORD, plr[pnum]._px, plr[pnum]._py);
+	if (random_(3, 10) == 0) {
+		ShieldDur(pnum);
+	}
+}
+
 static BOOL PlrDoBlock(int pnum)
 {
 	PlayerStruct *p;
@@ -2945,18 +2960,26 @@ static BOOL PlrDoBlock(int pnum)
 		app_fatal("PlrDoBlock: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (p->_pIFlags & ISPL_FASTBLOCK && p->_pAnimFrame != 1) {
-		p->_pAnimFrame = p->_pBFrames;
+	if (p->_pIFlags & ISPL_FASTBLOCK) {
+		p->_pAnimFrame++;
 	}
 
 	if (p->_pAnimFrame >= p->_pBFrames) {
-		PlrStartStand(pnum, p->_pdir);
-		ClearPlrPVars(pnum);
-
-		if (random_(3, 10) == 0) {
-			ShieldDur(pnum);
+		if (p->_pVar1 == 0) {
+			if (p->destAction == ACTION_BLOCK) {
+				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
+				p->destAction = ACTION_NONE;
+				p->_pAnimData = p->_pBAnim[p->destParam1];
+				p->_pAnimDelay = 0;
+				p->_pVar1 = p->_pBFrames + 1;
+			} else {
+				PlrStartStand(pnum, p->_pdir);
+				//ClearPlrPVars(pnum);
+				return TRUE;
+			}
 		}
-		return TRUE;
+		p->_pVar1--;
+		p->_pAnimFrame = p->_pBFrames - 1;
 	}
 
 	return FALSE;
@@ -3219,10 +3242,6 @@ static void CheckNewPath(int pnum)
 		case ACTION_SPELLPLR:
 			StartSpell(pnum);
 			break;
-		case ACTION_OPERATETK:
-			i = p->destParam1;
-			OperateObject(pnum, i, TRUE);
-			break;
 		case ACTION_PICKUPITEM:
 			if (pnum == myplr) {
 				i = p->destParam1;
@@ -3249,6 +3268,17 @@ static void CheckNewPath(int pnum)
 				TalkToTowner(pnum, p->destParam1);
 			}
 			break;
+		case ACTION_OPERATETK:
+			i = p->destParam1;
+			OperateObject(pnum, i, TRUE);
+			break;
+		case ACTION_BLOCK:
+			StartBlock(pnum, p->destParam1);
+			break;
+		case ACTION_WALK:
+			break;
+		default:
+			ASSUME_UNREACHABLE
 		}
 
 		FixPlayerLocation(pnum);

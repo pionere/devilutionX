@@ -716,7 +716,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			return FALSE;
 
 	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_BLOCK)) {
 		blk = FALSE;
 	} else {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
@@ -822,7 +822,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 			return FALSE;
 
 	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_ATTACK)) {
+	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_BLOCK)) {
 		blk = FALSE;
 	} else {
 		tmp = p->_pBaseToBlk + p->_pDexterity
@@ -941,7 +941,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		return FALSE;
 
 	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !dps->_pBlockFlag || (dps->_pmode != PM_STAND && dps->_pmode != PM_ATTACK)) {
+	 || !dps->_pBlockFlag || (dps->_pmode != PM_STAND && dps->_pmode != PM_BLOCK)) {
 		blk = FALSE;
 	} else {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
