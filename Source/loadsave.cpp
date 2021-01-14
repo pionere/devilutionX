@@ -687,7 +687,7 @@ void LoadGame(BOOL firstflag)
 
 	FreeGameMem();
 	pfile_remove_temp_files();
-	LoadBuff = pfile_read("game", &dwLen);
+	LoadBuff = pfile_read(SAVEFILE_GAME, &dwLen);
 	tbuff = LoadBuff;
 
 	if (LoadInt() != SAVE_INITIAL)
@@ -1583,7 +1583,7 @@ void SaveGame()
 	SaveBool(automapflag);
 	SaveInt(AutoMapScale);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
-	pfile_write_save_file("game", fileBuff, tbuff - fileBuff, dwLen);
+	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
 	gbValidSaveFile = TRUE;
 	pfile_rename_temp_to_perm();

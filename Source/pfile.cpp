@@ -74,7 +74,7 @@ static BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 	DWORD dwlen;
 	BYTE *buf;
 
-	if (!SFileOpenFileEx(archive, "hero", 0, &file)) {
+	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, 0, &file)) {
 		return FALSE;
 	} else {
 		BOOL ret = FALSE;
@@ -109,7 +109,7 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 	packed = (BYTE *)DiabloAllocPtr(packed_len);
 	memcpy(packed, pPack, sizeof(*pPack));
 	codec_encode(packed, sizeof(*pPack), packed_len, password);
-	mpqapi_write_file("hero", packed, packed_len);
+	mpqapi_write_file(SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
 }
 
@@ -260,7 +260,7 @@ BOOL pfile_archive_contains_game(HANDLE hsArchive, DWORD save_num)
 	if (gbMaxPlayers != 1)
 		return FALSE;
 
-	if (!SFileOpenFileEx(hsArchive, "game", 0, &file))
+	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, 0, &file))
 		return FALSE;
 
 	SFileCloseFile(file);
@@ -309,7 +309,7 @@ BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 	if (gbMaxPlayers != 1) {
 		if (lvl != 0)
 			return FALSE;
-		fmt = "hero";
+		fmt = SAVEFILE_HERO;
 	} else {
 		if (lvl < NUMLEVELS)
 			fmt = "perml%02d";
@@ -317,9 +317,9 @@ BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 			lvl -= NUMLEVELS;
 			fmt = "perms%02d";
 		} else if (lvl == NUMLEVELS * 2)
-			fmt = "game";
+			fmt = SAVEFILE_GAME;
 		else if (lvl == NUMLEVELS * 2 + 1)
-			fmt = "hero";
+			fmt = SAVEFILE_HERO;
 		else
 			return FALSE;
 	}

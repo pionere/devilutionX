@@ -8,6 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define SAVEFILE_GAME	"game"
+#define SAVEFILE_HERO	"hero"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
