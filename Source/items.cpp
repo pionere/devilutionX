@@ -744,7 +744,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pHitPoints = ihp + p->_pHPBase;
 	p->_pMaxHP = ihp + p->_pMaxHPBase;
 
-	if (pnum == myplr && (p->_pHitPoints >> 6) <= 0) {
+	if (pnum == myplr && p->_pHitPoints < (1 << 6)) {
 		PlrSetHp(pnum, 0);
 	}
 

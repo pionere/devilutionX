@@ -468,7 +468,7 @@ void multi_process_network_packets()
 			p->_pBaseStr = pkt->bstr;
 			p->_pBaseMag = pkt->bmag;
 			p->_pBaseDex = pkt->bdex;
-			if (gbBufferMsgs != 1 && p->plractive && p->_pHitPoints != 0) {
+			if (gbBufferMsgs != 1 && p->plractive && p->_pHitPoints >= (1 << 6)) {
 				if (currlevel == p->plrlevel && !p->_pLvlChanging) {
 					dx = abs(p->_px - pkt->px);
 					dy = abs(p->_py - pkt->py);
@@ -922,11 +922,12 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv)
 	}
 	EventPlrMsg(szEvent, plr[pnum]._pName, plr[pnum]._pLevel);
 
-	LoadPlrGFX(pnum, PFILE_STAND);
-	SyncInitPlr(pnum);
-
 	if (plr[pnum].plrlevel == currlevel) {
-		if (plr[pnum]._pHitPoints >> 6 > 0) {
+		SyncInitPlr(pnum);
+		PlrStartStand(pnum, DIR_S);
+		/*LoadPlrGFX(pnum, PFILE_STAND);
+		SyncInitPlr(pnum);
+		if (plr[pnum]._pHitPoints >= (1 << 6)) {
 			PlrStartStand(pnum, DIR_S);
 		} else {
 			plr[pnum]._pgfxnum = ANIM_ID_UNARMED;
@@ -936,7 +937,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv)
 			plr[pnum]._pAnimFrame = plr[pnum]._pAnimLen - 1;
 			plr[pnum]._pVar8 = 2 * plr[pnum]._pAnimLen;
 			dFlags[plr[pnum]._px][plr[pnum]._py] |= BFLAG_DEAD_PLAYER;
-		}
+		}*/
 	}
 }
 

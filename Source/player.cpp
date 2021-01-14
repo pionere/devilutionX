@@ -880,7 +880,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints <= 0) {
+	if (p->_pHitPoints < (1 << 6)) {
 		return;
 	}
 
@@ -996,7 +996,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 
 		ClearPlrPVars(pnum);
 
-		if (p->_pHitPoints >> 6 > 0) {
+		if (p->_pHitPoints >= (1 << 6)) {
 			p->_pmode = PM_STAND;
 			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 3, p->_pNWidth);
 			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
@@ -1153,7 +1153,7 @@ void PlrStartStand(int pnum, int dir)
 		app_fatal("PlrStartStand: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (!p->_pInvincible || p->_pHitPoints != 0 || pnum != myplr) {
+	if (p->_pHitPoints >= (1 << 6)) {
 		if (!(p->_pGFXLoad & PFILE_STAND)) {
 			LoadPlrGFX(pnum, PFILE_STAND);
 		}
@@ -1278,8 +1278,8 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1349,8 +1349,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1426,8 +1426,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1505,8 +1505,8 @@ static BOOL StartAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return FALSE;
 	}
 
@@ -1570,8 +1570,8 @@ static void StartRangeAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1614,8 +1614,8 @@ static void StartBlock(int pnum, int dir)
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1641,8 +1641,8 @@ static void StartSpell(int pnum)
 		app_fatal("StartSpell: illegal player %d", pnum);
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1771,8 +1771,8 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	}
 
 	p = &plr[pnum];
-	if (p->_pInvincible && p->_pHitPoints == 0 && pnum == myplr) {
-		SyncPlrKill(pnum, -1);
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1800,36 +1800,11 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	FixPlayerLocation(pnum);
 }
 
-static void RespawnDeadItem(ItemStruct *is, int x, int y)
-{
-	int ii;
-
-	if (numitems >= MAXITEMS) {
-		return;
-	}
-
-	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) >= 0) {
-		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
-		SyncGetItem(x, y, is->_iIdx, is->_iCreateInfo, is->_iSeed);
-	}
-
-	ii = itemavail[0];
-	dItem[x][y] = ii + 1;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	itemactive[numitems] = ii;
-	copy_pod(item[ii], *is);
-	item[ii]._ix = x;
-	item[ii]._iy = y;
-	RespawnItem(ii, TRUE);
-	numitems++;
-	is->_itype = ITYPE_NONE;
-}
-
 static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 {
 	int dir, x, y, i, xx, yy;
 
-	if (is->_itype == ITYPE_NONE)
+	if (is->_itype == ITYPE_NONE || numitems >= MAXITEMS)
 		return;
 
 	dir = p->_pdir;
@@ -1847,11 +1822,32 @@ static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 		dir = (dir + 1) & 7;
 	}
 
-	if (i == lengthof(offset_x) && !FindItemLocation(x, y, &x, &y, DSIZEX / 2))
-		return;
+	if (i == lengthof(offset_x)) {
+		if (!FindItemLocation(x, y, &x, &y, DSIZEX / 2))
+			return;
+		xx = x;
+		yy = y;
+	}
 
-	RespawnDeadItem(is, xx, yy);
+	// RespawnDeadItem
+	assert(numitems < MAXITEMS);
+	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) >= 0) {
+		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
+		SyncGetItem(xx, yy, is->_iIdx, is->_iCreateInfo, is->_iSeed);
+	}
+
+	i = itemavail[0];
+	dItem[xx][yy] = i + 1;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	itemactive[numitems] = i;
+	copy_pod(item[i], *is);
+	item[i]._ix = xx;
+	item[i]._iy = yy;
+	RespawnItem(i, TRUE);
+	numitems++;
 	NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, is, xx, yy);
+
+	is->_itype = ITYPE_NONE;
 }
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -1870,7 +1866,7 @@ void StartPlrKill(int pnum, int earflag)
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints <= 0 && p->_pmode == PM_DEATH) {
+	if (p->_pmode == PM_DEATH) {
 		return;
 	}
 
@@ -1894,10 +1890,8 @@ void StartPlrKill(int pnum, int earflag)
 
 	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, 1, p->_pDWidth);
 
-	p->_pBlockFlag = FALSE;
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;
-	PlrSetHp(pnum, 0);
 	p->_pVar8 = 1;
 
 	if (pnum != myplr && !earflag && !diablolevel) {
@@ -1953,9 +1947,7 @@ void StartPlrKill(int pnum, int earflag)
 			}
 		}
 	}
-#ifndef HELLFIRE
 	PlrSetHp(pnum, 0);
-#endif
 }
 
 void DropHalfPlayersGold(int pnum)
@@ -2055,7 +2047,6 @@ void SyncPlrKill(int pnum, int earflag)
 		return;
 	}
 
-	PlrSetHp(pnum, 0);
 	StartPlrKill(pnum, earflag);
 }
 
@@ -2630,7 +2621,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 #ifdef HELLFIRE
 		if (p->_pIFlags2 & ISPH_PERIL) {
 			dam2 += p->_pIGetHit;
-			if (dam2 >= 0) {
+			if (dam2 >= 0 && !p->_pInvincible) {
 				dam2 <<= 6;
 				if (p->_pHitPoints > dam2) {
 					PlrDecHp(pnum, dam2, 0);
@@ -3460,12 +3451,12 @@ void ProcessPlayers()
 		if (plr[pnum].plractive && currlevel == plr[pnum].plrlevel && (pnum == myplr || !plr[pnum]._pLvlChanging)) {
 			CheckCheatStats(pnum);
 
-			if (!PlrDeathModeOK(pnum) && (plr[pnum]._pHitPoints >> 6) <= 0) {
+			if (!PlrDeathModeOK(pnum) && plr[pnum]._pHitPoints < (1 << 6)) {
 				SyncPlrKill(pnum, -1);
 			}
 
 			if (pnum == myplr) {
-				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currlevel != 0) {
+				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currlevel != 0 && !plr[pnum]._pInvincible) {
 					PlrDecHp(pnum, 4, 0);
 				}
 				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pMana > 0) {
@@ -3542,7 +3533,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-			if (mpo != pnum && plr[mpo]._pHitPoints != 0) {
+			if (mpo != pnum && plr[mpo]._pHitPoints >= (1 << 6)) {
 				return FALSE;
 			}
 		}

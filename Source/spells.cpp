@@ -247,7 +247,7 @@ void DoResurrect(int pnum, int tnum)
 	tp = &plr[tnum];
 	AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
 
-	if (tp->_pHitPoints == 0) {
+	if (tp->_pHitPoints < (1 << 6)) {
 		if (tnum == myplr) {
 			deathflag = FALSE;
 			gamemenu_off();

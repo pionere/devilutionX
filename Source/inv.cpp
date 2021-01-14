@@ -2075,7 +2075,7 @@ BOOL UseInvItem(int cii)
 	int pnum = myplr;
 	PlayerStruct *p;
 
-	if (plr[pnum]._pInvincible && plr[pnum]._pHitPoints == 0) // && pnum == myplr)
+	if (plr[pnum]._pHitPoints < (1 << 6))
 		return TRUE;
 	if (pcurs != CURSOR_HAND)
 		return TRUE;

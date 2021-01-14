@@ -685,7 +685,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	BOOL blk;
 
 	p = &plr[pnum];
-	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
+	if (p->_pInvincible) {
 		return FALSE;
 	}
 	mds = &missiledata[mitype];
@@ -782,7 +782,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	BOOL blk;
 
 	p = &plr[pnum];
-	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible) {
+	if (p->_pInvincible) {
 		return FALSE;
 	}
 
@@ -1227,8 +1227,8 @@ void InitMissiles()
 				int missingHP = p->_pMaxHP - p->_pHitPoints;
 				CalcPlrItemVals(myplr, TRUE);
 				p->_pHitPoints -= missingHP + mis->_miVar2;
-				if (p->_pHitPoints < 64) {
-					p->_pHitPoints = 64;
+				if (p->_pHitPoints < (1 << 6)) {
+					p->_pHitPoints = (1 << 6);
 				}
 			}
 		}
@@ -2770,7 +2770,8 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	missile[mi]._miVar2 = sy;
 	missile[mi]._miLid = AddLight(sx, sy, 8);
 	if (micaster == 0) {
-		PlrDecHp(misource, 320, 0);
+		if (!plr[misource]._pInvincible)
+			PlrDecHp(misource, 320, 0);
 	} else {
 		if (misource > 0) {
 			switch (monster[misource]._mType) {
@@ -3441,7 +3442,8 @@ int AddBoneSpirit(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 256;
 	if (micaster == 0) {
-		PlrDecHp(misource, 384, 0);
+		if (!plr[misource]._pInvincible)
+			PlrDecHp(misource, 384, 0);
 	}
 	return MIRES_DONE;
 }
@@ -4400,7 +4402,7 @@ void MI_Town(int mi)
 {
 	MissileStruct *mis;
 	int ExpLight[17] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 15 };
-	int i;
+	PlayerStruct *p;
 
 	mis = &missile[mi];
 	if (mis->_miRange > 1)
@@ -4415,14 +4417,9 @@ void MI_Town(int mi)
 		mis->_miVar2++;
 	}
 
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currlevel == plr[i].plrlevel && !plr[i]._pLvlChanging && plr[i]._pmode == PM_STAND && plr[i]._px == mis->_mix && plr[i]._py == mis->_miy) {
-			ClrPlrPath(i);
-			if (i == myplr) {
-				NetSendCmdParam1(TRUE, CMD_WARP, mis->_miSource);
-				plr[i]._pmode = PM_NEWLVL;
-			}
-		}
+	p = &plr[myplr];
+	if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
+		NetSendCmdParam1(TRUE, CMD_WARP, mis->_miSource);
 	}
 
 	if (mis->_miRange == 0) {
@@ -4507,7 +4504,7 @@ void MI_Etherealize(int mi)
 		else
 			mis->_miy++;
 	}
-	if (mis->_miRange == 0 || p->_pHitPoints <= 0) {
+	if (mis->_miRange == 0 || p->_pHitPoints < (1 << 6)) {
 		mis->_miDelFlag = TRUE;
 		p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	} else {
@@ -5063,8 +5060,8 @@ void MI_Bloodboil(int mi)
 		}
 		CalcPlrItemVals(pnum, TRUE);
 		p->_pHitPoints -= hpdif;
-		if (p->_pHitPoints < 64)
-			p->_pHitPoints = 64;
+		if (p->_pHitPoints < (1 << 6))
+			p->_pHitPoints = (1 << 6);
 		// unnecessary since CalcPlrItemVals always asks for a redraw of hp and mana
 		// gbRedrawFlags |= REDRAW_HP_FLASK;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_72][p->_pClass], p->_px, p->_py);

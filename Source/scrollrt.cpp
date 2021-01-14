@@ -462,7 +462,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		p = &plr[i];
-		if (p->plractive && p->_pHitPoints == 0 && p->plrlevel == currlevel && p->_px == x && p->_py == y) {
+		if (p->plractive && p->_pHitPoints < (1 << 6) && p->plrlevel == currlevel && p->_px == x && p->_py == y) {
 #ifdef _DEBUG
 			BYTE *pCelBuff = p->_pAnimData;
 			if (pCelBuff == NULL) {

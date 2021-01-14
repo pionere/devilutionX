@@ -533,7 +533,7 @@ void CheckCursMove()
 		bv = dPlayer[mx + 1][my];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
+			if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursplr = bv;
@@ -543,7 +543,7 @@ void CheckCursMove()
 		bv = dPlayer[mx][my + 1];
 		if (bv != 0) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != myplr && plr[bv]._pHitPoints != 0) {
+			if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursplr = bv;
@@ -586,7 +586,7 @@ void CheckCursMove()
 	bv = dPlayer[mx + 1][my + 1];
 	if (bv != 0) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (bv != myplr && plr[bv]._pHitPoints != 0) {
+		if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursplr = bv;

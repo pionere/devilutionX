@@ -2061,7 +2061,7 @@ static void Obj_BCrossDamage(int oi)
 	int fire_resist, damage;
 
 	p = &plr[myplr];
-	if (p->_pmode == PM_DEATH)
+	if (p->_pInvincible)
 		return;
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
 		return;

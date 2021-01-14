@@ -1220,7 +1220,7 @@ static void MonEnemy(int mnum)
 	bestsameroom = FALSE;
 	if (!(mon->_mFlags & (MFLAG_GOLEM | MFLAG_BERSERK))) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || (plr[i]._pHitPoints == 0 && gbMaxPlayers != 1))
+			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || (plr[i]._pHitPoints < (1 << 6) && gbMaxPlayers != 1))
 				continue;
 			sameroom = tv == dTransVal[plr[i]._px][plr[i]._py];
 			dist = std::max(abs(mon->_mx - plr[i]._px), abs(mon->_my - plr[i]._py));
@@ -2119,7 +2119,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		return;
 	}
 	p = &plr[pnum];
-	if (p->_pHitPoints >> 6 <= 0 || p->_pInvincible || p->_pSpellFlags & PSE_ETHERALIZED)
+	if (p->_pInvincible || p->_pSpellFlags & PSE_ETHERALIZED)
 		return;
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
@@ -2593,10 +2593,8 @@ void PrepDoEnding()
 		plr[i]._pmode = PM_QUIT;
 		plr[i]._pInvincible = TRUE;
 		if (gbMaxPlayers != 1) {
-			if (plr[i]._pHitPoints >> 6 == 0)
-				plr[i]._pHitPoints = 64;
-			if (plr[i]._pMana >> 6 == 0)
-				plr[i]._pMana = 64;
+			if (plr[i]._pHitPoints < (1 << 6))
+				plr[i]._pHitPoints = (1 << 6);
 		}
 	}
 }

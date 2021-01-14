@@ -2217,7 +2217,7 @@ void control_drop_gold(char vkey)
 {
 	int newValue;
 
-	if (plr[myplr]._pHitPoints >> 6 <= 0) {
+	if (plr[myplr]._pHitPoints < (1 << 6)) {
 		dropGoldFlag = FALSE;
 		return;
 	}

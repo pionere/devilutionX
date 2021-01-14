@@ -1989,7 +1989,7 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 
 	if (cmd->dwParam1 == myplr && gbBufferMsgs != 1) {
 		if (currlevel != 0 && currlevel == plr[pnum].plrlevel) {
-			if ((plr[myplr]._pHitPoints >> 6) > 0 && cmd->dwParam2 <= 192000) {
+			if (!plr[myplr]._pInvincible && cmd->dwParam2 <= 192000) {
 				PlrDecHp(myplr, cmd->dwParam2, 1);
 			}
 		}
@@ -2160,9 +2160,11 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 			p->plrlevel = cmd->wParam1;
 			p->_pGFXLoad = 0;
 			if (currlevel == p->plrlevel) {
-				LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
-				if ((p->_pHitPoints >> 6) > 0)
+				PlrStartStand(pnum, DIR_S);
+				/*LoadPlrGFX(pnum, PFILE_STAND);
+				SyncInitPlr(pnum);
+				if (p->_pHitPoints >= (1 << 6))
 					PlrStartStand(pnum, DIR_S);
 				else {
 					p->_pgfxnum = ANIM_ID_UNARMED;
@@ -2172,7 +2174,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 					p->_pAnimFrame = p->_pAnimLen - 1;
 					p->_pVar8 = p->_pAnimLen << 1;
 					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
-				}
+				}*/
 
 				p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
 				p->_plid = -1;

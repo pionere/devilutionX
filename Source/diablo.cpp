@@ -1896,7 +1896,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive && plr[i].plrlevel == currlevel && (!plr[i]._pLvlChanging || i == myplr)) {
-			if (plr[i]._pHitPoints > 0) {
+			if (plr[i]._pHitPoints >= (1 << 6)) {
 				if (gbMaxPlayers == 1)
 					dPlayer[plr[i]._px][plr[i]._py] = i + 1;
 				else
