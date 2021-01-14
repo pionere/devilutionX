@@ -8,7 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern int SelectedItem;
+extern std::size_t SelectedItem;
+extern std::size_t ListOffset;
 extern bool textInputActive;
 
 typedef enum _artFocus {
@@ -43,8 +44,8 @@ void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int y 
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(int count, void (*fnFocus)(int value), void (*fnSelect)(int value), void (*fnEsc)(), std::vector<UiItemBase *> items, bool wraps = false, bool (*fnYesNo)() = NULL);
-void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size, const std::size_t *current_offset);
+void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index) = NULL, void (*fnSelect)(std::size_t index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
+void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
 void UiRenderItems(std::vector<UiItemBase *> items);

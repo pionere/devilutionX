@@ -12,9 +12,9 @@ std::vector<UiListItem *> vecMenuItems;
 
 int MainMenuResult;
 
-void UiMainMenuSelect(int value)
+void UiMainMenuSelect(std::size_t index)
 {
-	MainMenuResult = vecMenuItems[value]->m_value;
+	MainMenuResult = vecMenuItems[index]->m_value;
 }
 
 void mainmenu_Esc()
@@ -58,7 +58,7 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 
 	LoadBackgroundArt(MENU_ART);
 
-	UiInitList(vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, vecMainMenuDialog, true);
+	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, NULL, true);
 }
 
 void mainmenu_Free()

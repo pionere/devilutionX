@@ -22,9 +22,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int SelectedItemMax;
+std::size_t SelectedItem = 0;
+std::size_t SelectedItemMax;
 std::size_t ListViewportSize = 1;
-const std::size_t *ListOffset = NULL;
+std::size_t ListOffset = 0;
 
 Art ArtLogos[3];
 Art ArtFocus[3];
@@ -33,8 +34,8 @@ Art ArtCursor;
 Art ArtHero;
 
 void (*gfnSoundFunction)(const char *file);
-void (*gfnListFocus)(int value);
-void (*gfnListSelect)(int value);
+void (*gfnListFocus)(std::size_t index);
+void (*gfnListSelect)(std::size_t index);
 void (*gfnListEsc)();
 bool (*gfnListYesNo)();
 std::vector<UiItemBase *> gUiItems;
@@ -42,8 +43,6 @@ bool UiItemsWraps;
 char *UiTextInput;
 int UiTextInputLen;
 bool textInputActive = true;
-
-int SelectedItem = 0;
 
 static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)]);
 
@@ -72,11 +71,12 @@ void UiDestroy()
 	UnloadArtFonts();
 }
 
-void UiInitList(int count, void (*fnFocus)(int value), void (*fnSelect)(int value), void (*fnEsc)(), std::vector<UiItemBase *> items, bool itemsWraps, bool (*fnYesNo)())
+void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index), void (*fnSelect)(std::size_t index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
 	SelectedItem = 0;
-	SelectedItemMax = std::max(count - 1, 0);
-	ListViewportSize = count;
+	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
+	ListViewportSize = listSize;
+	ListOffset = 0;
 	gfnListFocus = fnFocus;
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
@@ -106,11 +106,10 @@ void UiInitList(int count, void (*fnFocus)(int value), void (*fnSelect)(int valu
 	}
 }
 
-void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size, const std::size_t *current_offset)
+void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size)
 {
 	ListViewportSize = viewport_size;
-	ListOffset = current_offset;
-	if (ListViewportSize >= static_cast<std::size_t>(SelectedItemMax + 1)) {
+	if (ListViewportSize > SelectedItemMax) {
 		ui_sb->add_flag(UIS_HIDDEN);
 	} else {
 		ui_sb->remove_flag(UIS_HIDDEN);
@@ -142,7 +141,7 @@ void UiPlaySelectSound()
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
-void UiFocus(int itemIndex)
+void UiFocus(std::size_t itemIndex)
 {
 	if (SelectedItem == itemIndex)
 		return;
@@ -175,33 +174,34 @@ void UiFocusDown()
 
 void UiFocusPageUp()
 {
-	if (ListOffset == NULL || *ListOffset == 0) {
+	std::size_t page_start = ListOffset;
+	if (page_start == 0) {
 		UiFocus(0);
 	} else {
-		const std::size_t relpos = SelectedItem - *ListOffset;
-		std::size_t prev_page_start = SelectedItem - relpos;
-		if (prev_page_start >= ListViewportSize)
-			prev_page_start -= ListViewportSize;
+		std::size_t relpos = SelectedItem - page_start;
+		if (page_start >= ListViewportSize)
+			page_start -= ListViewportSize;
 		else
-			prev_page_start = 0;
-		UiFocus(prev_page_start);
-		UiFocus(*ListOffset + relpos);
+			page_start = 0;
+		UiFocus(page_start);
+		UiFocus(page_start + relpos);
 	}
 }
 
 void UiFocusPageDown()
 {
-	if (ListOffset == NULL || *ListOffset + ListViewportSize > static_cast<std::size_t>(SelectedItemMax)) {
+	std::size_t page_end = ListOffset + ListViewportSize;
+	if (page_end > SelectedItemMax || page_end == 0) {
 		UiFocus(SelectedItemMax);
 	} else {
-		const std::size_t relpos = SelectedItem - *ListOffset;
-		std::size_t next_page_end = SelectedItem + (ListViewportSize - relpos - 1);
-		if (next_page_end + ListViewportSize <= static_cast<std::size_t>(SelectedItemMax))
-			next_page_end += ListViewportSize;
+		page_end--;
+		std::size_t relpos = page_end - SelectedItem;
+		if (page_end + ListViewportSize <= SelectedItemMax)
+			page_end += ListViewportSize;
 		else
-			next_page_end = SelectedItemMax;
-		UiFocus(next_page_end);
-		UiFocus(*ListOffset + relpos);
+			page_end = SelectedItemMax;
+		UiFocus(page_end);
+		UiFocus(page_end - relpos);
 	}
 }
 
@@ -716,7 +716,7 @@ void Render(const UiList *ui_list)
 	for (std::size_t i = 0; i < ui_list->m_vecItems.size(); ++i) {
 		SDL_Rect rect = ui_list->itemRect(i);
 		const UiListItem *item = ui_list->GetItem(i);
-		if (i == SelectedItem)
+		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
 		DrawArtStr(item->m_text, rect, ui_list->m_iFlags);
 	}
@@ -813,7 +813,7 @@ bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
 
-	const int index = ui_list->indexAt(event.button.y);
+	const int index = ui_list->indexAt(event.button.y) + ListOffset;
 
 	if (gfnListFocus != NULL && SelectedItem != index) {
 		UiFocus(index);

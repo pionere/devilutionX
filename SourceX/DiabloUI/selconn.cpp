@@ -69,7 +69,7 @@ void selconn_Load()
 	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecConnItems.size(), selconn_Focus, selconn_Select, selconn_Esc, vecSelConnDlg);
+	UiInitList(vecSelConnDlg, vecConnItems.size(), selconn_Focus, selconn_Select, selconn_Esc);
 }
 
 void selconn_Free()
@@ -96,10 +96,10 @@ void selconn_Esc()
 	selconn_EndMenu = true;
 }
 
-void selconn_Focus(int value)
+void selconn_Focus(std::size_t index)
 {
 	int players = MAX_PLRS;
-	switch (vecConnItems[value]->m_value) {
+	switch (vecConnItems[index]->m_value) {
 	case SELCONN_TCP:
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
 		players = MAX_PLRS;
@@ -118,9 +118,9 @@ void selconn_Focus(int value)
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
 }
 
-void selconn_Select(int value)
+void selconn_Select(std::size_t index)
 {
-	provider = vecConnItems[value]->m_value;
+	provider = vecConnItems[index]->m_value;
 
 	selconn_Free();
 	selconn_EndMenu = SNetInitializeProvider(provider, selconn_ClientInfo, selconn_UserInfo, selconn_UiInfo, selconn_FileInfo);

@@ -98,12 +98,12 @@ void selgame_GameSelection_Init()
 	SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelGameDlgItems.size(), selgame_GameSelection_Focus, selgame_GameSelection_Select, selgame_GameSelection_Esc, vecSelGameDialog);
+	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_GameSelection_Focus, selgame_GameSelection_Select, selgame_GameSelection_Esc);
 }
 
-void selgame_GameSelection_Focus(int value)
+void selgame_GameSelection_Focus(std::size_t index)
 {
-	switch (vecSelGameDlgItems[value]->m_value) {
+	switch (vecSelGameDlgItems[index]->m_value) {
 	case 0:
 		snprintf(selgame_Description, sizeof(selgame_Description), "Create a new game with a difficulty setting of your choice.");
 		break;
@@ -127,10 +127,10 @@ BOOL UpdateHeroLevel(_uiheroinfo *pInfo)
 	return TRUE;
 }
 
-void selgame_GameSelection_Select(int value)
+void selgame_GameSelection_Select(std::size_t index)
 {
 	selgame_enteringGame = true;
-	selgame_selectedGame = value;
+	selgame_selectedGame = index;
 
 	gfnHeroInfo(UpdateHeroLevel);
 
@@ -148,7 +148,7 @@ void selgame_GameSelection_Select(int value)
 	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
 	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
 
-	switch (value) {
+	switch (index) {
 	case 0: {
 		snprintf(title, sizeof(title), "Create Game");
 
@@ -167,9 +167,8 @@ void selgame_GameSelection_Select(int value)
 		SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelGameDlgItems.size(), selgame_Diff_Focus, selgame_Diff_Select, selgame_Diff_Esc, vecSelGameDialog, true);
-		break;
-	}
+		UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_Diff_Focus, selgame_Diff_Select, selgame_Diff_Esc, NULL, true);
+	} break;
 	case 1: {
 		snprintf(title, sizeof(title), "Join TCP Games");
 
@@ -185,9 +184,8 @@ void selgame_GameSelection_Select(int value)
 		SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(0, NULL, selgame_Password_Init, selgame_GameSelection_Init, vecSelGameDialog);
-		break;
-	}
+		UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Init, selgame_GameSelection_Init);
+	} break;
 	}
 }
 
@@ -198,9 +196,9 @@ void selgame_GameSelection_Esc()
 	selgame_endMenu = true;
 }
 
-void selgame_Diff_Focus(int value)
+void selgame_Diff_Focus(std::size_t index)
 {
-	switch (vecSelGameDlgItems[value]->m_value) {
+	switch (vecSelGameDlgItems[index]->m_value) {
 	case DIFF_NORMAL:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
@@ -235,14 +233,14 @@ static bool IsDifficultyAllowed(int value)
 	return false;
 }
 
-void selgame_Diff_Select(int value)
+void selgame_Diff_Select(std::size_t index)
 {
-	if (selhero_isMultiPlayer && !IsDifficultyAllowed(vecSelGameDlgItems[value]->m_value)) {
+	if (selhero_isMultiPlayer && !IsDifficultyAllowed(vecSelGameDlgItems[index]->m_value)) {
 		selgame_GameSelection_Select(0);
 		return;
 	}
 
-	gbDifficulty = value;
+	gbDifficulty = index;
 
 	if (!selhero_isMultiPlayer) {
 		selhero_endMenu = true;
@@ -304,12 +302,12 @@ void selgame_GameSpeedSelection()
 	SDL_Rect rect6 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelGameDlgItems.size(), selgame_Speed_Focus, selgame_Speed_Select, selgame_Speed_Esc, vecSelGameDialog, true);
+	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_Speed_Focus, selgame_Speed_Select, selgame_Speed_Esc, NULL, true);
 }
 
-void selgame_Speed_Focus(int value)
+void selgame_Speed_Focus(std::size_t index)
 {
-	switch (vecSelGameDlgItems[value]->m_value) {
+	switch (vecSelGameDlgItems[index]->m_value) {
 	case 20:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
@@ -335,9 +333,9 @@ void selgame_Speed_Esc()
 	selgame_GameSelection_Select(0);
 }
 
-void selgame_Speed_Select(int value)
+void selgame_Speed_Select(std::size_t index)
 {
-	gbTickRate = vecSelGameDlgItems[value]->m_value;
+	gbTickRate = vecSelGameDlgItems[index]->m_value;
 
 	if (provider == SELCONN_LOOPBACK) {
 		selgame_Password_Select(0);
@@ -347,7 +345,7 @@ void selgame_Speed_Select(int value)
 	selgame_Password_Init(0);
 }
 
-void selgame_Password_Init(int value)
+void selgame_Password_Init(std::size_t index)
 {
 	memset(&selgame_Password, 0, sizeof(selgame_Password));
 
@@ -377,10 +375,10 @@ void selgame_Password_Init(int value)
 	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, selgame_Password_Select, selgame_Password_Esc, vecSelGameDialog);
+	UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Select, selgame_Password_Esc);
 }
 
-void selgame_Password_Select(int value)
+void selgame_Password_Select(std::size_t index)
 {
 	if (selgame_selectedGame) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);

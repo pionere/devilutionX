@@ -32,9 +32,9 @@ void selyesno_Free()
 	vecSelYesNoDialog.clear();
 }
 
-void selyesno_Select(int value)
+void selyesno_Select(std::size_t index)
 {
-	selyesno_value = vecSelYesNoDialogItems[value]->m_value == 0;
+	selyesno_value = vecSelYesNoDialogItems[index]->m_value == 0;
 	selyesno_endMenu = true;
 }
 
@@ -63,7 +63,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH);
 
-	UiInitList(vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, vecSelYesNoDialog, true, NULL);
+	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, NULL, true);
 
 	selyesno_value = true;
 	selyesno_endMenu = false;

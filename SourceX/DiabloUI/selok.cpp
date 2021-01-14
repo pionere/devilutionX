@@ -36,7 +36,7 @@ void selok_Free()
 	vecSelOkDialog.clear();
 }
 
-void selok_Select(int value)
+void selok_Select(std::size_t index)
 {
 	selok_endMenu = true;
 }
@@ -74,7 +74,7 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 	snprintf(dialogText, sizeof(dialogText), body);
 	WordWrapArtStr(dialogText, MESSAGE_WIDTH);
 
-	UiInitList(0, NULL, selok_Select, selok_Esc, vecSelOkDialog, false, NULL);
+	UiInitList(vecSelOkDialog, 0, NULL, selok_Select, selok_Esc);
 
 	selok_endMenu = false;
 	while (!selok_endMenu) {
