@@ -682,14 +682,12 @@ void LoadGame(BOOL firstflag)
 {
 	int i, j;
 	DWORD dwLen;
-	char szName[MAX_PATH];
 	BYTE *LoadBuff;
 	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
 
 	FreeGameMem();
 	pfile_remove_temp_files();
-	pfile_get_game_name(szName);
-	LoadBuff = pfile_read(szName, &dwLen);
+	LoadBuff = pfile_read("game", &dwLen);
 	tbuff = LoadBuff;
 
 	if (LoadInt() != SAVE_INITIAL)
@@ -1450,7 +1448,6 @@ static void SavePortal(int i)
 void SaveGame()
 {
 	int i, j;
-	char szName[MAX_PATH];
 
 	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
 	BYTE *fileBuff = DiabloAllocPtr(dwLen);
@@ -1585,9 +1582,8 @@ void SaveGame()
 
 	SaveBool(automapflag);
 	SaveInt(AutoMapScale);
-	pfile_get_game_name(szName);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
-	pfile_write_save_file(szName, fileBuff, tbuff - fileBuff, dwLen);
+	pfile_write_save_file("game", fileBuff, tbuff - fileBuff, dwLen);
 	mem_free_dbg(fileBuff);
 	gbValidSaveFile = TRUE;
 	pfile_rename_temp_to_perm();

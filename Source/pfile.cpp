@@ -385,11 +385,6 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 	}
 }
 
-void pfile_get_game_name(char (&dst)[MAX_PATH])
-{
-	copy_cstr(dst, "game");
-}
-
 static BOOL GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
