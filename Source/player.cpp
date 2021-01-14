@@ -2960,7 +2960,7 @@ static BOOL PlrDoBlock(int pnum)
 		app_fatal("PlrDoBlock: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	if (p->_pIFlags & ISPL_FASTBLOCK) {
+	if (p->_pIFlags & ISPL_FASTBLOCK && p->_pAnimCnt == 0 && p->_pAnimFrame != 1) {
 		p->_pAnimFrame++;
 	}
 
@@ -2970,8 +2970,10 @@ static BOOL PlrDoBlock(int pnum)
 				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
 				p->destAction = ACTION_NONE;
 				p->_pAnimData = p->_pBAnim[p->destParam1];
-				p->_pAnimDelay = 0;
-				p->_pVar1 = p->_pBFrames + 1;
+				// _pVar1 = _pBFrames * (BASE_DELAY + 1) / 2 (+ 1)
+				p->_pVar1 = p->_pBFrames + (p->_pBFrames >> 1) + 1;
+				p->_pAnimDelay = p->_pVar1;
+				p->_pAnimCnt = 0;
 			} else {
 				PlrStartStand(pnum, p->_pdir);
 				//ClearPlrPVars(pnum);
@@ -2979,7 +2981,6 @@ static BOOL PlrDoBlock(int pnum)
 			}
 		}
 		p->_pVar1--;
-		p->_pAnimFrame = p->_pBFrames - 1;
 	}
 
 	return FALSE;
