@@ -1599,7 +1599,6 @@ typedef enum missile_graphic_id {
 typedef enum missile_flags {
 	MIFLAG_AREA    = 1 << 0,
 	MIFLAG_NOBLOCK = 1 << 1,
-	MIFLAG_UNDEAD  = 1 << 2,
 } missile_flags;
 
 typedef enum missile_add_result {
@@ -1870,8 +1869,8 @@ typedef enum monster_resistance {
 	IMMUNE_MAGIC     = 0x08,
 	IMMUNE_FIRE      = 0x10,
 	IMMUNE_LIGHTNING = 0x20,
-	IMMUNE_NULL_40   = 0x40,
-	IMMUNE_ACID      = 0x80,
+	RESIST_HOLY      = 0x40,
+	IMMUNE_HOLY      = 0x80,
 } monster_resistance;
 
 typedef enum missile_resistance {
@@ -1879,7 +1878,7 @@ typedef enum missile_resistance {
 	MISR_FIRE      = 1,
 	MISR_LIGHTNING = 2,
 	MISR_MAGIC     = 3,
-	MISR_ACID      = 4,
+	MISR_HOLY      = 4,
 } missile_resistance;
 
 typedef enum _speech_id {

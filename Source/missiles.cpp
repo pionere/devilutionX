@@ -496,6 +496,9 @@ static void MoveMissilePos(int mi)
 static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist)
 {
 	switch (mRes) {
+	case MISR_NONE:
+		*resist = FALSE;
+		break;
 	case MISR_FIRE:
 		if (mor & IMMUNE_FIRE)
 			return TRUE;
@@ -511,12 +514,10 @@ static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist
 			return TRUE;
 		*resist = (mor & RESIST_MAGIC) != 0;
 		break;
-	case MISR_ACID:
-		if (mor & IMMUNE_ACID)
+	case MISR_HOLY:
+		if (mor & IMMUNE_HOLY)
 			return TRUE;
-		// BUGFIX: TODO player is resistant against ACID with RESIST_MAGIC, monsters should behave the same
-	case MISR_NONE:
-		*resist = FALSE;
+		*resist = (mor & RESIST_HOLY) != 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -586,9 +587,6 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 
 	mon = &monster[mnum];
 	mds = &missiledata[mitype];
-	if ((mds->mdFlags & MIFLAG_UNDEAD) && mon->MData->mMonstClass != MC_UNDEAD && mon->_mType != MT_DIABLO)
-		return TRUE;
-
 	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
 		return FALSE;
 
@@ -677,11 +675,36 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
+BOOL CheckPlrRes(PlayerStruct *p, int mRes, char *resist)
+{
+	switch (mRes) {
+	case MISR_NONE:
+		*resist = 0;
+		break;
+	case MISR_FIRE:
+		*resist = p->_pFireResist;
+		break;
+	case MISR_LIGHTNING:
+		*resist = p->_pLghtResist;
+		break;
+	case MISR_MAGIC:
+		*resist = p->_pMagResist;
+		break;
+	case MISR_HOLY:
+		return TRUE; // TODO: add dps->_pHolyResist
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	return FALSE;
+}
+
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift)
 {
 	PlayerStruct *p;
 	MissileData *mds;
-	int hper, tmp, dam, resper;
+	int hper, tmp, dam;
+	char resist;
 	BOOL blk;
 
 	p = &plr[pnum];
@@ -740,26 +763,11 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 			dam = 64;
 	}
 
-	switch (mds->mResist) {
-	case MISR_FIRE:
-		resper = p->_pFireResist;
-		break;
-	case MISR_LIGHTNING:
-		resper = p->_pLghtResist;
-		break;
-	case MISR_MAGIC:
-	case MISR_ACID:
-		resper = p->_pMagResist;
-		break;
-	case MISR_NONE:
-		resper = 0;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (resper > 0) {
-		dam -= dam * resper / 100;
+	if (CheckPlrRes(p, mds->mResist, &resist))
+		return FALSE;
+
+	if (resist > 0) {
+		dam -= dam * resist / 100;
 		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 	} else {
@@ -778,7 +786,8 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	MissileData *mds;
-	int hper, tmp, dam, resper;
+	int hper, tmp, dam;
+	char resist;
 	BOOL blk;
 
 	p = &plr[pnum];
@@ -847,26 +856,11 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 			dam = 64;
 	}
 
-	switch (mds->mResist) {
-	case MISR_FIRE:
-		resper = p->_pFireResist;
-		break;
-	case MISR_LIGHTNING:
-		resper = p->_pLghtResist;
-		break;
-	case MISR_MAGIC:
-	case MISR_ACID:
-		resper = p->_pMagResist;
-		break;
-	case MISR_NONE:
-		resper = 0;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (resper > 0) {
-		dam -= dam * resper / 100;
+	if (CheckPlrRes(p, mds->mResist, &resist))
+		return FALSE;
+
+	if (resist > 0) {
+		dam -= dam * resist / 100;
 		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 	} else {
@@ -885,7 +879,8 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 {
 	PlayerStruct *ops, *dps;
 	MissileData *mds;
-	int resper, dam, blkper, hper;
+	int dam, blkper, hper;
+	char resist;
 	BOOL blk;
 
 	dps = &plr[defp];
@@ -894,9 +889,6 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	}
 
 	mds = &missiledata[mitype];
-	if (mds->mdFlags & MIFLAG_UNDEAD) {
-		return FALSE;
-	}
 
 	ops = &plr[offp];
 	if (mds->mType == 0) {
@@ -972,27 +964,12 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	if (mds->mType != 0)
 		dam >>= 1;
 
-	switch (mds->mResist) {
-	case MISR_FIRE:
-		resper = dps->_pFireResist;
-		break;
-	case MISR_LIGHTNING:
-		resper = dps->_pLghtResist;
-		break;
-	case MISR_MAGIC:
-	case MISR_ACID:
-		resper = dps->_pMagResist;
-		break;
-	case MISR_NONE:
-		resper = 0;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (resper > 0) {
+	if (CheckPlrRes(dps, mds->mResist, &resist))
+		return FALSE;
+
+	if (resist > 0) {
 		if (offp == myplr)
-			NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam - resper * dam / 100);
+			NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam - resist * dam / 100);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_69][ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
 		if (blk) {
