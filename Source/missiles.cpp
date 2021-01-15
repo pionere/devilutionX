@@ -4435,15 +4435,10 @@ void MI_Flash(int mi)
 	int dam, mx, my;
 
 	mis = &missile[mi];
-	if (mis->_miCaster == 0) {
-		if (mis->_miSource != -1)
-			plr[mis->_miSource]._pInvincible = TRUE;
-	}
 	dam = mis->_miDam;
 	mx = mis->_mix;
 	my = mis->_miy;
 	CheckMissileCol(mi, dam, dam, TRUE, mx - 1, my, TRUE);
-	CheckMissileCol(mi, dam, dam, TRUE, mx, my, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx + 1, my, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx - 1, my + 1, TRUE);
 	CheckMissileCol(mi, dam, dam, TRUE, mx, my + 1, TRUE);
@@ -4451,10 +4446,6 @@ void MI_Flash(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		if (mis->_miCaster == 0) {
-			if (mis->_miSource != -1)
-				plr[mis->_miSource]._pInvincible = FALSE;
-		}
 	}
 	PutMissile(mi);
 }
