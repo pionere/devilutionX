@@ -274,7 +274,7 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pVitality);
 	CopyInt(tbuff, &p->_pBaseVit);
 	CopyInt(tbuff, &p->_pStatPts);
-	CopyInt(tbuff, &p->_pDamageMod);
+	tbuff += 4; // Skip _pDamageMod
 	CopyInt(tbuff, &p->_pBaseToBlk);
 	CopyInt(tbuff, &p->_pHPBase);
 	CopyInt(tbuff, &p->_pMaxHPBase);
@@ -349,17 +349,19 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pIMaxDam);
 	CopyInt(tbuff, &p->_pIAC);
 	CopyInt(tbuff, &p->_pIBonusDam);
-	CopyInt(tbuff, &p->_pIBonusToHit);
-	CopyInt(tbuff, &p->_pIBonusAC);
+	CopyInt(tbuff, &p->_pIHitChance);
+	CopyChar(tbuff, &p->_pIBaseACBonus);
+	tbuff += 3; // Alignment
 	CopyInt(tbuff, &p->_pIBonusDamMod);
-	tbuff += 4; // Alignment
+	CopyInt(tbuff, &p->_pIMagToHit);
 
 	CopyInt64(tbuff, &p->_pISpells);
 	CopyInt(tbuff, &p->_pIFlags);
 	CopyInt(tbuff, &p->_pIGetHit);
 	CopyChar(tbuff, &p->_pISplLvlAdd);
 	CopyChar(tbuff, &p->_pISplCost);
-	tbuff += 2; // Alignment
+	CopyChar(tbuff, &p->_pIBaseHitBonus);
+	CopyChar(tbuff, &p->_pCritChance);
 	CopyInt(tbuff, &p->_pIFlags2);
 	CopyInt(tbuff, &p->_pIEnAc);
 	CopyInt(tbuff, &p->_pIFMinDam);
@@ -1053,7 +1055,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pVitality, tbuff);
 	CopyInt(&p->_pBaseVit, tbuff);
 	CopyInt(&p->_pStatPts, tbuff);
-	CopyInt(&p->_pDamageMod, tbuff);
+	tbuff += 4; // Skip _pDamageMod
 	CopyInt(&p->_pBaseToBlk, tbuff);
 	CopyInt(&p->_pHPBase, tbuff);
 	CopyInt(&p->_pMaxHPBase, tbuff);
@@ -1128,10 +1130,11 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pIMaxDam, tbuff);
 	CopyInt(&p->_pIAC, tbuff);
 	CopyInt(&p->_pIBonusDam, tbuff);
-	CopyInt(&p->_pIBonusToHit, tbuff);
-	CopyInt(&p->_pIBonusAC, tbuff);
+	CopyInt(&p->_pIHitChance, tbuff);
+	CopyChar(&p->_pIBaseACBonus, tbuff);
+	tbuff += 3; // Alignment
 	CopyInt(&p->_pIBonusDamMod, tbuff);
-	tbuff += 4; // Alignment
+	CopyInt(&p->_pIMagToHit, tbuff);
 
 	CopyInt64(&p->_pISpells, tbuff);
 	CopyInt(&p->_pIFlags, tbuff);
@@ -1139,7 +1142,8 @@ static void SavePlayer(int pnum)
 
 	CopyChar(&p->_pISplLvlAdd, tbuff);
 	CopyChar(&p->_pISplCost, tbuff);
-	tbuff += 2; // Alignment
+	CopyChar(&p->_pIBaseHitBonus, tbuff);
+	CopyChar(&p->_pCritChance, tbuff);
 	CopyInt(&p->_pIFlags2, tbuff);
 	CopyInt(&p->_pIEnAc, tbuff);
 	CopyInt(&p->_pIFMinDam, tbuff);

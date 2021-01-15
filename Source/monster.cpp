@@ -2124,7 +2124,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
 
-	tmp = p->_pIBonusAC + p->_pIAC + p->_pDexterity / 5;
+	tmp = p->_pIAC;
 	hper = 30 + Hit
 		+ (mon->mLevel << 1)
 		- (p->_pLevel << 1)

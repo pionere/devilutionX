@@ -271,7 +271,6 @@ typedef struct PlayerStruct {
 	int _pVitality;
 	int _pBaseVit;
 	int _pStatPts;
-	int _pDamageMod;
 	int _pBaseToBlk;
 	int _pHPBase;
 	int _pMaxHPBase;
@@ -340,14 +339,17 @@ typedef struct PlayerStruct {
 	int _pIMaxDam;
 	int _pIAC;
 	int _pIBonusDam;
-	int _pIBonusToHit;
-	int _pIBonusAC;
+	int _pIHitChance;
+	BYTE _pIBaseACBonus; // indicator whether the base ACBonus of the items is positive/negative/neutral
 	int _pIBonusDamMod;
+	int _pIMagToHit;
 	uint64_t _pISpells;
 	int _pIFlags;
 	int _pIGetHit;
 	char _pISplLvlAdd;
 	char _pISplCost; // 'unused'
+	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
+	BYTE _pCritChance; // 200 == 100%
 	int _pIFlags2; // _pISplDur in vanilla code
 	int _pIEnAc;
 	int _pIFMinDam;

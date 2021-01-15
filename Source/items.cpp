@@ -467,7 +467,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int lr = 0; // lightning resistance
 	int mr = 0; // magic resistance
 
-	int dmod = 0; // bonus damage mod?
+	int dmod = 0; // bonus damage mod
+	int pdmod;    // player damage mod 
 	int ghit = 0; // increased damage from enemies
 
 	int lrad = 10; // light radius
@@ -531,8 +532,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 
 	p->_pIBonusDam = bdam;
-	p->_pIBonusToHit = btohit;
-	p->_pIBonusAC = bac;
 	p->_pIFlags = iflgs;
 	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
 	p->_pIFlags2 = iflgs2;
@@ -592,7 +591,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	p->_pIMinDam = mind;
 	p->_pIMaxDam = maxd;
-	p->_pIAC = tac;
 
 	lrad = std::max(2, std::min(15, lrad));
 	if (p->_pLightRad != lrad && pnum == myplr) {
@@ -619,53 +617,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pVitality = vadd + p->_pBaseVit;
 	if (p->_pVitality < 0) {
 		p->_pVitality = 0;
-	}
-
-	if (p->_pClass == PC_ROGUE) {
-		p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_MONK) {
-		if (wLeft->_itype != ITYPE_STAFF) {
-			if (wRight->_itype != ITYPE_STAFF && (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE)) {
-				p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 300;
-			} else {
-				p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-			}
-		} else {
-			p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-		}
-	} else if (p->_pClass == PC_BARD) {
-		if (wLeft->_itype == ITYPE_SWORD || wRight->_itype == ITYPE_SWORD)
-			p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-		else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
-			p->_pDamageMod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 250;
-		} else {
-			p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
-		}
-	} else if (p->_pClass == PC_BARBARIAN) {
-
-		if (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE) {
-			p->_pDamageMod = p->_pLevel * p->_pStrength / 75;
-		} else if (wLeft->_itype == ITYPE_MACE || wRight->_itype == ITYPE_MACE) {
-			p->_pDamageMod = p->_pLevel * p->_pStrength / 75;
-		} else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
-			p->_pDamageMod = p->_pLevel * p->_pStrength / 300;
-		} else {
-			p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
-		}
-
-		if (wLeft->_itype == ITYPE_SHIELD || wRight->_itype == ITYPE_SHIELD) {
-			if (wLeft->_itype == ITYPE_SHIELD)
-				p->_pIAC -= wLeft->_iAC / 2;
-			else if (wRight->_itype == ITYPE_SHIELD)
-				p->_pIAC -= wRight->_iAC / 2;
-		} else if (wLeft->_itype != ITYPE_STAFF && wRight->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW && wRight->_itype != ITYPE_BOW) {
-			p->_pDamageMod += p->_pLevel * p->_pVitality / 100;
-		}
-		p->_pIAC += p->_pLevel / 4;
-#endif
-	} else {
-		p->_pDamageMod = p->_pLevel * p->_pStrength / 100;
 	}
 
 #ifdef HELLFIRE
@@ -821,18 +772,18 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #ifdef HELLFIRE
 	if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
 		if (p->_pClass == PC_MONK && pi->_iMagical == ITEM_QUALITY_UNIQUE)
-			p->_pIAC += p->_pLevel >> 1;
+			tac += p->_pLevel >> 1;
 		g += ANIM_ID_HEAVY_ARMOR;
 	} else if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
 		if (p->_pClass == PC_MONK) {
 			if (pi->_iMagical == ITEM_QUALITY_UNIQUE)
-				p->_pIAC += p->_pLevel << 1;
+				tac += p->_pLevel << 1;
 			else
-				p->_pIAC += p->_pLevel >> 1;
+				tac += p->_pLevel >> 1;
 		}
 		g += ANIM_ID_MEDIUM_ARMOR;
 	} else if (p->_pClass == PC_MONK) {
-		p->_pIAC += p->_pLevel << 1;
+		tac += p->_pLevel << 1;
 	}
 #else
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
@@ -864,6 +815,88 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	} else {
 		MaxGold = auricGold;
 	}
+#endif
+
+	// add class bonuses as item bonus
+	if (p->_pClass == PC_ROGUE) {
+		pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
+#ifdef HELLFIRE
+	} else if (p->_pClass == PC_MONK) {
+		if (wLeft->_itype != ITYPE_STAFF) {
+			if (wRight->_itype != ITYPE_STAFF && (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE)) {
+				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 300;
+			} else {
+				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
+			}
+		} else {
+			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
+		}
+	} else if (p->_pClass == PC_BARD) {
+		if (wLeft->_itype == ITYPE_SWORD || wRight->_itype == ITYPE_SWORD)
+			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
+		else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
+			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 250;
+		} else {
+			pdmod = p->_pLevel * p->_pStrength / 100;
+		}
+	} else if (p->_pClass == PC_BARBARIAN) {
+
+		if (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE) {
+			pdmod = p->_pLevel * p->_pStrength / 75;
+		} else if (wLeft->_itype == ITYPE_MACE || wRight->_itype == ITYPE_MACE) {
+			pdmod = p->_pLevel * p->_pStrength / 75;
+		} else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
+			pdmod = p->_pLevel * p->_pStrength / 300;
+		} else {
+			pdmod = p->_pLevel * p->_pStrength / 100;
+		}
+
+		if (wLeft->_itype == ITYPE_SHIELD || wRight->_itype == ITYPE_SHIELD) {
+			if (wLeft->_itype == ITYPE_SHIELD)
+				tac -= wLeft->_iAC / 2;
+			else if (wRight->_itype == ITYPE_SHIELD)
+				tac -= wRight->_iAC / 2;
+		} else if (wLeft->_itype != ITYPE_STAFF && wRight->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW && wRight->_itype != ITYPE_BOW) {
+			pdmod += p->_pLevel * p->_pVitality / 100;
+		}
+		tac += p->_pLevel / 4;
+#endif
+	} else {
+		pdmod = p->_pLevel * p->_pStrength / 100;
+	}
+	p->_pIBaseACBonus = bac == 0 ? IBONUS_NONE : (bac >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	p->_pIAC = tac + bac + p->_pDexterity / 5;
+	p->_pCritChance = 0;
+	btohit += 50 + p->_pLevel;
+	if (p->_pwtype == WT_MELEE) {
+		btohit += p->_pDexterity >> 1;
+		if (p->_pClass == PC_WARRIOR)
+			btohit += 20;
+		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
+			p->_pCritChance = p->_pLevel * 2;
+	} else {
+		assert(p->_pwtype == WT_RANGED);
+		btohit += p->_pDexterity;
+		if (p->_pClass == PC_ROGUE)
+			btohit += 20;
+#ifdef HELLFIRE
+		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+#else
+		else if (p->_pClass == PC_WARRIOR)
+#endif
+			btohit += 10;
+		if (p->_pClass != PC_ROGUE)
+			pdmod >>= 1;
+	}
+	p->_pIBonusDamMod += pdmod;
+	p->_pIHitChance = btohit;
+	p->_pIMagToHit = 50 + p->_pMagic;
+	if (p->_pClass == PC_SORCERER)
+		p->_pIMagToHit += 20;
+#ifdef HELLFIRE
+	else if (p->_pClass == PC_BARD)
+		p->_pIMagToHit += 10;
 #endif
 
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;

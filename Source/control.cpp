@@ -1280,22 +1280,21 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pGold);
 	ADD_PlrStringXY(216, 146, 300, chrstr, COL_WHITE);
 
-	val = p->_pIBonusAC;
 	col = COL_WHITE;
-	if (val > 0)
+	if (p->_pIBaseACBonus == IBONUS_POSITIVE)
 		col = COL_BLUE;
-	if (val < 0)
+	else if (p->_pIBaseACBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
-	snprintf(chrstr, sizeof(chrstr), "%i", val + p->_pIAC + p->_pDexterity / 5);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pIAC);
 	ADD_PlrStringXY(258, 183, 301, chrstr, col);
 
-	val = p->_pIBonusToHit;
+	val = p->_pIHitChance;
 	col = COL_WHITE;
-	if (val > 0)
+	if (p->_pIBaseHitBonus == IBONUS_POSITIVE)
 		col = COL_BLUE;
-	if (val < 0)
+	else if (p->_pIBaseHitBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
-	snprintf(chrstr, sizeof(chrstr), "%i%%", val + (p->_pDexterity >> 1) + 50);
+	snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	ADD_PlrStringXY(258, 211, 301, chrstr, col);
 
 	val = p->_pIBonusDam;
@@ -1310,13 +1309,6 @@ void DrawChr()
 	maxdam += val * maxdam / 100;
 	mindam += p->_pIBonusDamMod;
 	maxdam += p->_pIBonusDamMod;
-	if (bow && pc != PC_ROGUE) {
-		mindam += p->_pDamageMod >> 1;
-		maxdam += p->_pDamageMod >> 1;
-	} else {
-		mindam += p->_pDamageMod;
-		maxdam += p->_pDamageMod;
-	}
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
 		PrintString(254 + SCREEN_X, 239 + SCREEN_Y, 305 + SCREEN_X, chrstr, TRUE, col, -1);

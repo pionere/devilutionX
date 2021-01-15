@@ -2472,16 +2472,7 @@ int PlrAtkDam(int pnum)
 	p = &plr[pnum];
 	dam = RandRange(p->_pIMinDam, p->_pIMaxDam);
 	dam += dam * p->_pIBonusDam / 100;
-	dam += p->_pDamageMod + p->_pIBonusDamMod;
-#ifdef HELLFIRE
-	if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN) {
-#else
-	if (p->_pClass == PC_WARRIOR) {
-#endif
-		if (random_(6, 100) < p->_pLevel) {
-			dam <<= 1;
-		}
-	}
+	dam += p->_pIBonusDamMod;
 	return dam;
 }
 
@@ -2536,8 +2527,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 #else
 	tmac -= p->_pIEnAc;
 #endif
-	hper = 50 + (p->_pDexterity >> 1) + p->_pIBonusToHit + p->_pLevel
-		- tmac;
+	hper = p->_pIHitChance - tmac;
 
 #ifdef HELLFIRE
 	if (adjacentDamage) {
@@ -2548,8 +2538,6 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 #endif
 
-	if (p->_pClass == PC_WARRIOR)
-		hper += 20;
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
@@ -2561,10 +2549,13 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 			return FALSE;
 
 	dam = PlrAtkDam(pnum);
-
 #ifdef HELLFIRE
 	int dam2 = dam;
 #endif
+
+	if (random_(6, 200) < p->_pCritChance) {
+		dam <<= 1;
+	}
 
 	phanditype = ITYPE_NONE;
 	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
@@ -2702,10 +2693,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 		app_fatal("PlrHitPlr: illegal attacking player %d", offp);
 	}
 	ops = &plr[offp];
-	hper = 50 + (ops->_pDexterity >> 1) + ops->_pLevel + ops->_pIBonusToHit
-		- (dps->_pIBonusAC + dps->_pIAC + dps->_pDexterity / 5);
-	if (ops->_pClass == PC_WARRIOR)
-		hper += 20;
+	hper = ops->_pIHitChance - dps->_pIAC;
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
@@ -2726,6 +2714,9 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 
 	dam = PlrAtkDam(offp);
+	if (random_(6, 200) < ops->_pCritChance) {
+		dam <<= 1;
+	}
 	dam <<= 6;
 	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);

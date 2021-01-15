@@ -595,30 +595,14 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 
 	p = &plr[pnum];
 	if (mds->mType == 0) {
-		hper = 50 + p->_pDexterity
-		    + p->_pIBonusToHit
-		    + p->_pLevel
+		hper = p->_pIHitChance
 		    - mon->mArmorClass
 		    - (dist * dist >> 1)
 		    + p->_pIEnAc;
-		if (p->_pClass == PC_ROGUE)
-			hper += 20;
-#ifdef HELLFIRE
-		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-#else
-		else if (p->_pClass == PC_WARRIOR)
-#endif
-			hper += 10;
 	} else {
-		hper = 50 + p->_pMagic
+		hper = p->_pIMagToHit
 			- (mon->mLevel << 1)
 			- dist;
-		if (p->_pClass == PC_SORCERER)
-			hper += 20;
-#ifdef HELLFIRE
-		else if (p->_pClass == PC_BARD)
-			hper += 10;
-#endif
 	}
 	if (hper < 5)
 		hper = 5;
@@ -636,10 +620,6 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
 			dam += p->_pIBonusDamMod + dam * p->_pIBonusDam / 100;
-			if (p->_pClass == PC_ROGUE)
-				dam += p->_pDamageMod;
-			else
-				dam += p->_pDamageMod >> 1;
 			if ((p->_pIFlags & ISPL_3XDAMVDEM) && mon->MData->mMonstClass == MC_DEMON)
 				dam *= 3;
 			if (p->_pIFlags & ISPL_NOHEALMON)
@@ -716,7 +696,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		if (p->_pSpellFlags & PSE_ETHERALIZED) {
 			return FALSE;
 		}
-		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
+		tmp = p->_pIAC;
 		hper = 100 - (tmp >> 1);
 		hper -= dist << 1;
 	} else {
@@ -802,7 +782,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		if (p->_pSpellFlags & PSE_ETHERALIZED) {
 			return FALSE;
 		}
-		tmp = p->_pIAC + p->_pIBonusAC + p->_pDexterity / 5;
+		tmp = p->_pIAC;
 		hper = 30 + mon->mHit
 		    + (mon->mLevel << 1)
 			- (p->_pLevel << 1)
@@ -895,34 +875,18 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		if (dps->_pSpellFlags & PSE_ETHERALIZED) {
 			return FALSE;
 		}
-		hper = 50 + ops->_pIBonusToHit + ops->_pDexterity + ops->_pLevel
+		hper = ops->_pIHitChance
 		    - (dist * dist >> 1)
-		    - dps->_pDexterity / 5
-		    - dps->_pIBonusAC
 		    - dps->_pIAC;
-		if (ops->_pClass == PC_ROGUE)
-			hper += 20;
-#ifdef HELLFIRE
-		else if (ops->_pClass == PC_WARRIOR || ops->_pClass == PC_BARD)
-#else
-		else if (ops->_pClass == PC_WARRIOR)
-#endif
-			hper += 10;
 	} else {
 		if (mds->mdFlags & MIFLAG_AREA) {
 			hper = 40
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
 		} else {
-			hper = 50 + ops->_pMagic
+			hper = ops->_pIMagToHit
 				- (dps->_pLevel << 1)
 				- dist;
-			if (ops->_pClass == PC_SORCERER)
-				hper += 20;
-#ifdef HELLFIRE
-			else if (ops->_pClass == PC_BARD)
-				hper += 10;
-#endif
 		}
 	}
 	if (hper < 5)
@@ -953,10 +917,6 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
 			dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
-			if (ops->_pClass == PC_ROGUE)
-				dam += ops->_pDamageMod;
-			else
-				dam += ops->_pDamageMod >> 1;
 		}
 		if (!shift)
 			dam <<= 6;

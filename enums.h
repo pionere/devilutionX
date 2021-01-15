@@ -3391,6 +3391,12 @@ typedef enum item_drop_rate {
 	IDROP_DOUBLE  = 2,
 } item_drop_rate;
 
+typedef enum item_base_bonus {
+	IBONUS_NONE,
+	IBONUS_POSITIVE,
+	IBONUS_NEGATIVE
+} item_base_bonus;
+
 typedef enum item_special_effect {
 	ISPL_NONE           = 0x00000000,
 	ISPL_INFRAVISION    = 0x00000001, /* unused */ 
