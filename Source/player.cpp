@@ -1048,10 +1048,14 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	}
 #endif
 
-	// TODO: BUGFIX: should be set on FirstTime only?
-	p->_pInvincible = FALSE;
+	// TODO: BUGFIX: should only be set if p->plrlevel == currlevel?
+	if (p->_pmode != PM_DEATH)
+		p->_pInvincible = FALSE;
 
 	if (pnum == myplr) {
+		// TODO: BUGFIX: sure?
+		//    - what if we just joined with a dead player?
+		//    - what if the player was killed while entering a portal?
 		deathdelay = 0;
 		deathflag = FALSE;
 		ScrollInfo._sxoff = 0;
@@ -2151,12 +2155,13 @@ void RestartTownLvl(int pnum)
 	plr[pnum]._pInvincible = FALSE;
 
 	PlrSetHp(pnum, 64);
-
 	PlrSetMana(pnum, 0);
 
 	CalcPlrInv(pnum, FALSE);
 
 	if (pnum == myplr) {
+		deathflag = FALSE;
+		gamemenu_off();
 		plr[pnum]._pmode = PM_NEWLVL;
 		plr[pnum]._pInvincible = TRUE;
 		PostMessage(WM_DIABRETOWN, 0, 0);

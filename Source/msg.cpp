@@ -2234,10 +2234,6 @@ static DWORD On_RETOWN(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else {
-		if (pnum == myplr) {
-			deathflag = FALSE;
-			gamemenu_off();
-		}
 		RestartTownLvl(pnum);
 	}
 
