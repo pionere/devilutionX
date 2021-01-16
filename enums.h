@@ -3441,8 +3441,8 @@ typedef enum item_added_effects {
 	ISPH_PERIL          = 0x00000004,
 	ISPH_JESTERS        = 0x00000008,
 	ISPH_DOPPELGANGER   = 0x00000010,
-	ISPH_ACDEMON        = 0x00000020, /* unsupported */
-	ISPH_ACUNDEAD       = 0x00000040, /* unsupported */
+	ISPH_ACDEMON        = 0x00000020,
+	ISPH_ACUNDEAD       = 0x00000040,
 	ISPH_FASTCAST       = 0x00000080, /* unused */
 	ISPH_FASTERCAST     = 0x00000100, /* unused */
 	ISPH_FASTESTCAST    = 0x00000200, /* unused */

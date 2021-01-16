@@ -1879,7 +1879,7 @@ static void FenceDoorFix()
 
 static void DRLG_L3Wood()
 {
-#if (_MSC_VER >= 1920) 
+#if (_MSC_VER >= 1920)
 	volatile int j;// visual studio 2019 throws internal compiler error without it, see #708
 #else
 	int j;

@@ -1218,7 +1218,7 @@ void InitMissiles()
 	}
 
 #ifdef HELLFIRE
-	p->wReflection = FALSE;
+	p->wReflection = 0;
 	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY)) {
 		p->_pSpellFlags &= ~(PSE_BLOOD_BOIL | PSE_LETHARGY);
 		for (i = 0; i < nummissiles; ++i) {
@@ -4177,7 +4177,7 @@ void MI_Reflect(int mi)
 	}
 	if (mis->_miSource != myplr && currlevel != p->plrlevel)
 		mis->_miDelFlag = TRUE;
-	if ((WORD)p->wReflection <= 0) {
+	if (p->wReflection <= 0) {
 		mis->_miDelFlag = TRUE;
 		NetSendCmd(TRUE, CMD_ENDREFLECT);
 	}
@@ -4689,7 +4689,7 @@ void MI_Misexp(int mi)
 #ifdef HELLFIRE
 	int ExpLight[] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2, 1, 0, 0, 0, 0 };
 #else
-	int ExpLight[10] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2 };
+	int ExpLight[] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2 };
 #endif
 
 	mis = &missile[mi];

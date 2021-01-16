@@ -1218,9 +1218,13 @@ static void MonEnemy(int mnum)
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
 	bestsameroom = FALSE;
-	if (!(mon->_mFlags & (MFLAG_GOLEM | MFLAG_BERSERK))) {
+	if (!(mon->_mFlags & MFLAG_GOLEM)
+#ifdef HELLFIRE
+		|| (mon->_mFlags & MFLAG_BERSERK)
+#endif
+		) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || (plr[i]._pHitPoints < (1 << 6) && gbMaxPlayers != 1))
+			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
 				continue;
 			sameroom = tv == dTransVal[plr[i]._px][plr[i]._py];
 			dist = std::max(abs(mon->_mx - plr[i]._px), abs(mon->_my - plr[i]._py));
@@ -1233,7 +1237,18 @@ static void MonEnemy(int mnum)
 			best_dist = dist;
 			bestsameroom = sameroom;
 		}
+	}
+
+#ifdef HELLFIRE
+	if (!(mon->_mFlags & (MFLAG_GOLEM | MFLAG_BERSERK))) {
+#else
+	if (!(mon->_mFlags & MFLAG_GOLEM)) {
+#endif
 		for (i = 0; i < MAX_PLRS; i++) {
+#ifdef HELLFIRE
+			if (monster[i]._mhitpoints < (1 << 6))
+				continue;
+#endif
 			if (monster[i]._mx == 1 && monster[i]._my == 0)
 				continue;
 			dist = std::max(abs(mon->_mx - monster[i]._mx), abs(mon->_my - monster[i]._my));
@@ -1255,6 +1270,10 @@ static void MonEnemy(int mnum)
 			tnum = monstactive[i];
 			if (tnum == mnum)
 				continue;
+#ifdef HELLFIRE
+			if (monster[tnum]._mhitpoints < (1 << 6))
+				continue;
+#endif
 			if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
 				continue;
 			if (MonTalker(tnum))
@@ -1583,8 +1602,16 @@ void MonStartHit(int mnum, int pnum, int dam)
 		}
 		if (mon->_mType == MT_BLINK) {
 			MonTeleport(mnum);
-		} else if (mon->_mType >= MT_NSCAV && mon->_mType <= MT_YSCAV) {
+		} else if ((mon->_mType >= MT_NSCAV && mon->_mType <= MT_YSCAV)
+#ifdef HELLFIRE
+				 || mon->_mType == MT_GRAVEDIG
+#endif
+			) {
 			mon->_mgoal = MGOAL_NORMAL;
+#ifdef HELLFIRE
+			mon->_mgoalvar1 = 0;
+			mon->_mgoalvar2 = 0;
+#endif
 		}
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(mnum, &mon->_mAnims[MA_GOTHIT], mon->_mdir);
@@ -1707,8 +1734,16 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if (dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
-		} else if (dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV) {
+		} else if ((dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV)
+#ifdef HELLFIRE
+				 || dmon->_mType == MT_GRAVEDIG
+#endif
+		) {
 			dmon->_mgoal = MGOAL_NORMAL;
+#ifdef HELLFIRE
+			dmon->_mgoalvar1 = 0;
+			dmon->_mgoalvar2 = 0;
+#endif
 		}
 
 		if (dmon->_mmode != MM_STONE) {
@@ -1824,12 +1859,16 @@ static void M2MStartKill(int offm, int defm)
 	dMonster[dmon->_mx][dmon->_my] = defm + 1;
 	CheckQuestKill(defm, TRUE);
 	MonFallenFear(dmon->_mx, dmon->_my);
+	if ((dmon->_mType >= MT_NACID && dmon->_mType <= MT_XACID)
 #ifdef HELLFIRE
-	if (dmon->_mType >= MT_NACID && dmon->_mType <= MT_XACID || dmon->_mType == MT_SPIDLORD)
-#else
-	if (dmon->_mType >= MT_NACID && dmon->_mType <= MT_XACID)
+	 || dmon->_mType == MT_SPIDLORD
 #endif
+	)
 		AddMissile(dmon->_mx, dmon->_my, 0, 0, 0, MIS_ACIDPUD, 1, defm, dmon->_mint + 1, 0);
+
+#ifdef HELLFIRE
+	MonStartStand(offm, monster[offm]._mdir);
+#endif
 }
 
 void MonStartKill(int mnum, int pnum)
@@ -2125,6 +2164,13 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		return;
 
 	tmp = p->_pIAC;
+#ifdef HELLFIRE
+	if (p->_pIFlags2 & ISPH_ACDEMON && mon->MData->mMonstClass == MC_DEMON)
+		tmp += 40;
+	if (p->_pIFlags2 & ISPH_ACUNDEAD && mon->MData->mMonstClass == MC_UNDEAD)
+		tmp += 20;
+#endif
+
 	hper = 30 + Hit
 		+ (mon->mLevel << 1)
 		- (p->_pLevel << 1)
@@ -2151,11 +2197,31 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			- (mon->mLevel << 1);
 		if (blkper >= 100 || blkper > random_(98, 100)) {
 			PlrStartBlock(pnum, GetDirection(p->_px, p->_py, mon->_mx, mon->_my));
+#ifdef HELLFIRE
+			if (pnum == myplr && p->wReflection > 0) {
+				p->wReflection--;
+				dam = RandRange(MinDam, MaxDam);
+				dam += p->_pIGetHit;
+				if (dam < 0)
+					dam = 1;
+				dam <<= 6;
+				dam = dam * RandRange(20, 29) / 100;
+				mon->_mhitpoints -= dam;
+				if (mon->_mhitpoints < (1 << 6))
+					MonStartKill(mnum, pnum);
+				else
+					MonStartHit(mnum, pnum, dam);
+			}
+#endif
 			return;
 		}
 	}
 	if (mon->_mType == MT_YZOMBIE && pnum == myplr) {
+#ifdef HELLFIRE
+		if (p->_pMaxHP > 64) {
+#else
 		if (p->_pMaxHP > 64 && p->_pMaxHPBase > 64) {
+#endif
 			tmp = p->_pMaxHP - 64;
 			p->_pMaxHP = tmp;
 			if (p->_pHitPoints > tmp) {
@@ -2184,8 +2250,23 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (mon->_mFlags & MFLAG_LIFESTEAL)
 		mon->_mhitpoints += dam;
 	if (pnum == myplr) {
-		if (PlrDecHp(pnum, dam, 0))
+#ifdef HELLFIRE
+		if (p->wReflection > 0) {
+			p->wReflection--;
+			int mdam = dam * RandRange(20, 29) / 100;
+			mon->_mhitpoints -= mdam;
+			if (mon->_mhitpoints < (1 << 6))
+				MonStartKill(mnum, pnum);
+			else
+				MonStartHit(mnum, pnum, mdam);
+		}
+#endif
+		if (PlrDecHp(pnum, dam, 0)) {
+#ifdef HELLFIRE
+			MonStartStand(mnum, mon->_mdir);
+#endif
 			return;
+		}
 	}
 	StartPlrHit(pnum, dam, FALSE);
 	if (mon->_mFlags & MFLAG_KNOCKBACK) {
@@ -3644,9 +3725,25 @@ void MAI_Scav(int mnum)
 		mon->_mgoalvar3--;
 		if (dDead[mon->_mx][mon->_my] != 0) {
 			MonStartEat(mnum);
-			if (!(mon->_mFlags & MFLAG_NOHEAL))
+			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+#ifdef HELLFIRE
+				int mMaxHP = mon->MType->mMaxHP << 6;
+				if (gbMaxPlayers == 1)
+					mMaxHP >>= 1;
+				mon->_mhitpoints += mMaxHP >> 3;
+				if (mon->_mhitpoints > mMaxHP)
+					mon->_mhitpoints = mMaxHP;
+				if (mon->_mmaxhp < mon->_mhitpoints)
+					mon->_mmaxhp = mon->_mhitpoints;
+				if (mon->_mgoalvar3 <= 0 || mon->_mhitpoints == mMaxHP)
+					dDead[mon->_mx][mon->_my] = 0;
+			}
+			if (mon->_mhitpoints == mon->_mmaxhp) {
+#else
 				mon->_mhitpoints += 64;
+			}
 			if (mon->_mhitpoints >= (mon->_mmaxhp >> 1) + (mon->_mmaxhp >> 2)) {
+#endif
 				mon->_mgoal = MGOAL_NORMAL;
 				mon->_mgoalvar1 = 0;
 				mon->_mgoalvar2 = 0;
@@ -3699,7 +3796,11 @@ void MAI_Scav(int mnum)
 			}
 		}
 	}
+#ifdef HELLFIRE
+	else
+#else
 	if (mon->_mmode == MM_STAND)
+#endif
 		MAI_SkelSd(mnum);
 }
 
@@ -3729,8 +3830,11 @@ void MAI_Garg(int mnum)
 		return;
 	}
 
-	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && !(mon->_mFlags & MFLAG_NOHEAL))
-		mon->_mgoal = MGOAL_RETREAT;
+	if (mon->_mhitpoints < (mon->_mmaxhp >> 1))
+#ifndef HELLFIRE
+		if (!(mon->_mFlags & MFLAG_NOHEAL))
+#endif
+			mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (abs(dx) >= mon->_mint + 2 || abs(dy) >= mon->_mint + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
@@ -4405,7 +4509,9 @@ void MAI_Lazurus(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE) {
+#ifndef HELLFIRE
 		mon->mtalkmsg = 0;
+#endif
 		MAI_Counselor(mnum);
 	}
 
@@ -4734,16 +4840,13 @@ BOOL DirOK(int mnum, int mdir)
 	if (mdir == DIR_E) {
 		if (nSolidTable[dPiece[fx][fy + 1]] || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
 			return FALSE;
-	}
-	if (mdir == DIR_W) {
+	} else if (mdir == DIR_W) {
 		if (nSolidTable[dPiece[fx + 1][fy]] || dFlags[fx + 1][fy] & BFLAG_MONSTLR)
 			return FALSE;
-	}
-	if (mdir == DIR_N) {
+	} else if (mdir == DIR_N) {
 		if (nSolidTable[dPiece[fx + 1][fy]] || nSolidTable[dPiece[fx][fy + 1]])
 			return FALSE;
-	}
-	if (mdir == DIR_S)
+	} else if (mdir == DIR_S)
 		if (nSolidTable[dPiece[fx - 1][fy]] || nSolidTable[dPiece[fx][fy - 1]])
 			return FALSE;
 	if (monster[mnum].leaderflag == 1) {
