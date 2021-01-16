@@ -2133,7 +2133,7 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	if (hit < hper) {
 		int dam = RandRange(mind, maxd) << 6;
 		dmon->_mhitpoints -= dam;
-		if (dmon->_mhitpoints >> 6 <= 0) {
+		if (dmon->_mhitpoints < (1 << 6)) {
 			M2MStartKill(offm, defm);
 		} else {
 			M2MStartHit(defm, offm, dam);
@@ -2237,7 +2237,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (p->_pIFlags & ISPL_THORNS) {
 		tmp = RandRange(1, 3) << 6;
 		mon->_mhitpoints -= tmp;
-		if (mon->_mhitpoints >> 6 <= 0)
+		if (mon->_mhitpoints < (1 << 6))
 			MonStartKill(mnum, pnum);
 		else
 			MonStartHit(mnum, pnum, tmp);
@@ -3736,7 +3736,7 @@ void MAI_Scav(int mnum)
 			}
 			if (mon->_mhitpoints == maxhp) {
 #else
-				mon->_mhitpoints += 64;
+				mon->_mhitpoints += 1 << 6;
 				if (mon->_mhitpoints > maxhp)
 					mon->_mhitpoints = maxhp;
 			}
@@ -4662,12 +4662,10 @@ void ProcessMonsters()
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
 		}
-		if (!(mon->_mFlags & MFLAG_NOHEAL) && mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >> 6 > 0) {
-			if (mon->mLevel > 1) {
-				mon->_mhitpoints += mon->mLevel >> 1;
-			} else {
-				mon->_mhitpoints += mon->mLevel;
-			}
+		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) && !(mon->_mFlags & MFLAG_NOHEAL)) {
+			mon->_mhitpoints += (mon->mLevel + 1) >> 1;
+			if (mon->_mhitpoints > mon->_mmaxhp)
+				mon->_mhitpoints = mon->_mmaxhp;
 		}
 		mx = mon->_mx;
 		my = mon->_my;
@@ -5149,7 +5147,7 @@ void MonFallenFear(int x, int y)
 		if (mon->_mAi == AI_FALLEN
 		    && abs(x - mon->_mx) < 5
 		    && abs(y - mon->_my) < 5
-		    && mon->_mhitpoints >> 6 > 0) {
+		    && mon->_mhitpoints >= (1 << 6)) {
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = rundist;
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
@@ -5597,7 +5595,7 @@ BOOL CheckMonsterHit(int mnum, BOOL *ret)
 	}
 	mon = &monster[mnum];
 
-	if (mon->mtalkmsg != 0 || mon->_mmode == MM_CHARGE || (mon->_mhitpoints >> 6) <= 0
+	if (mon->mtalkmsg != 0 || mon->_mmode == MM_CHARGE || mon->_mhitpoints < (1 << 6)
 	 || (mon->_mType == MT_ILLWEAV && mon->_mgoal == MGOAL_RETREAT)
 	 || ((mon->_mType >= MT_COUNSLR && mon->_mType <= MT_ADVOCATE)
 				&& mon->_mgoal != MGOAL_NORMAL)) {

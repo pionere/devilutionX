@@ -2690,7 +2690,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		mon->_mhitpoints = 0; /* double check */
 	}
 #endif
-	if ((mon->_mhitpoints >> 6) <= 0) {
+	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
 		if (mon->_mmode != MM_STONE && p->_pIFlags & ISPL_KNOCKBACK) {
@@ -3568,7 +3568,7 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 			if (mpo < 0) {
 				return FALSE;
 			}
-			if ((monster[mpo - 1]._mhitpoints >> 6) > 0) {
+			if (monster[mpo - 1]._mhitpoints >= (1 << 6)) {
 				return FALSE;
 			}
 			if (currlevel == 0) {

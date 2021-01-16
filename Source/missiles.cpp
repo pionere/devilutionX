@@ -577,7 +577,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	if (debug_mode_god_mode)
 		mon->_mhitpoints = 0;
 #endif
-	if (mon->_mhitpoints >> 6 <= 0) {
+	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, -1);
 	} else {
 		if (resist) {
@@ -671,7 +671,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	if (pnum == myplr)
 		mon->_mhitpoints -= dam;
 
-	if (mon->_mhitpoints >> 6 <= 0) {
+	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
 		if (resist) {
@@ -3558,7 +3558,7 @@ static BOOL Sentfire(int mi, int sx, int sy)
 
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
-		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >> 6 > 0 && dMonster[sx][sy] - 1 >= MAX_PLRS) {
+		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_PLRS) {
 			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;
@@ -4775,14 +4775,14 @@ void MI_Stone(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		if (mon->_mhitpoints > 0)
+		if (mon->_mhitpoints >= (1 << 6))
 			mon->_mmode = mis->_miVar1;
 		else
 			AddDead(mis->_miVar2);
 		return;
 	}
 
-	if (mon->_mhitpoints == 0) {
+	if (mon->_mhitpoints < (1 << 6)) {
 		if (mis->_miAnimType != MFILE_SHATTER1) {
 			//mis->_miDir = 0;
 			mis->_miDrawFlag = TRUE;
