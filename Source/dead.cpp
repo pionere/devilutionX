@@ -38,7 +38,7 @@ void InitDead()
 	}
 
 	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_BLODBUR].mfAnimData[0];
+		dead[nd]._deadData[d] = misanimdata[MFILE_BLODBUR][0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;
@@ -47,7 +47,7 @@ void InitDead()
 	nd++;
 
 	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-		dead[nd]._deadData[d] = misfiledata[MFILE_SHATTER1].mfAnimData[0];
+		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
 	dead[nd]._deadFrame = 12;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;

@@ -12,8 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern MissileData missiledata[];
-extern MisFileData misfiledata[];
+extern const MissileData missiledata[];
+extern const MisFileData misfiledata[NUM_MFILE + 1];
+extern unsigned char *misanimdata[NUM_MFILE + 1][16];
 
 #ifdef __cplusplus
 }

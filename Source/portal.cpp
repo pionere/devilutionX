@@ -39,20 +39,8 @@ void SetPortalStats(int i, BOOL o, int x, int y, int lvl, int lvltype)
 
 void AddWarpMissile(int i, int x, int y)
 {
-	int mi;
-
-	missiledata[MIS_TOWN].mlSFX = -1;
 	dMissile[x][y] = 0;
-	mi = AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, 0);
-
-	if (mi != -1) {
-		SetMissDir(mi, 1);
-
-		if (currlevel != 0)
-			missile[mi]._miLid = AddLight(missile[mi]._mix, missile[mi]._miy, 15);
-
-		missiledata[MIS_TOWN].mlSFX = LS_SENTINEL;
-	}
+	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, -1);
 }
 
 void SyncPortals()

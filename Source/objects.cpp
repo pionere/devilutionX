@@ -3020,7 +3020,7 @@ static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 					mtype = MIS_ARROW;
 					break;
 				case 1:
-					mtype = MIS_FARROW;
+					mtype = MIS_FIREBOLT;
 					break;
 				case 2:
 					mtype = MIS_LIGHTNOVAC;

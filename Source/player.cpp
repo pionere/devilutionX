@@ -2599,6 +2599,30 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 #endif
 
+	int fdam = 0;
+	if (p->_pIFlags & ISPL_FIREDAM) {
+		BOOL resist = FALSE;
+		if (!CheckMonsterRes(mon->mMagicRes, MISR_FIRE, &resist)) {
+			fdam = RandRange(p->_pIFMinDam, p->_pIFMaxDam);
+			if (resist)
+				fdam >>= 2;
+		}
+	}
+	int ldam = 0;
+	if (p->_pIFlags & ISPL_LIGHTDAM) {
+		BOOL resist = FALSE;
+		if (!CheckMonsterRes(mon->mMagicRes, MISR_LIGHTNING, &resist)) {
+			ldam = RandRange(p->_pILMinDam, p->_pILMaxDam);
+			if (resist)
+				ldam >>= 2;
+		}
+	}
+
+	if ((fdam | ldam) != 0) {
+		dam += fdam + ldam;
+		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam);
+	}
+
 	dam <<= 6;
 
 #ifdef HELLFIRE
@@ -2632,6 +2656,12 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		mon->_mhitpoints -= dam;
 	}
 
+#ifdef HELLFIRE
+	if (p->_pIFlags & ISPL_SPECDAM) {
+		int midam = RandRange(p->_pILMinDam, p->_pILMaxDam);
+		AddMissile(p->_px, p->_py, mon->_mx, mon->_my, p->_pdir, MIS_SPECARROW, 0, pnum, midam, MIS_CBOLTARROW);
+	}
+#endif
 	if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
 		PlrIncHp(pnum, skdam);
@@ -2717,6 +2747,29 @@ static BOOL PlrHitPlr(int offp, char defp)
 	if (random_(6, 200) < ops->_pCritChance) {
 		dam <<= 1;
 	}
+
+	int fdam = 0;
+	if (ops->_pIFlags & ISPL_FIREDAM) {
+		char resist;
+		if (!CheckPlrRes(dps, MISR_FIRE, &resist)) {
+			fdam = RandRange(ops->_pIFMinDam, ops->_pIFMaxDam);
+			if (resist != 0)
+				fdam -= fdam * resist / 100;
+		}
+	}
+	int ldam = 0;
+	if (ops->_pIFlags & ISPL_LIGHTDAM) {
+		char resist;
+		if (!CheckPlrRes(dps, MISR_LIGHTNING, &resist)) {
+			ldam = RandRange(ops->_pILMinDam, ops->_pILMaxDam);
+			if (resist != 0)
+				ldam -= ldam * resist / 100;
+		}
+	}
+	if ((fdam | ldam) != 0) {
+		AddElementalExplosion(dps->_px, dps->_py, dam, fdam, ldam);
+	}
+
 	dam <<= 6;
 	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
@@ -2794,19 +2847,6 @@ static BOOL PlrDoAttack(int pnum)
 		dx = p->_px + offset_x[p->_pdir];
 		dy = p->_py + offset_y[p->_pdir];
 
-		if (p->_pIFlags & ISPL_FIREDAM) {
-			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, pnum, 0, 0);
-		}
-		if (p->_pIFlags & ISPL_LIGHTDAM) {
-			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, 0, pnum, 0, 0);
-		}
-#ifdef HELLFIRE
-		if (p->_pIFlags & ISPL_SPECDAM) {
-			int midam = RandRange(p->_pILMinDam, p->_pILMaxDam);
-			AddMissile(p->_px, p->_py, dx, dy, p->_pdir, MIS_SPECARROW, 0, pnum, midam, MIS_CBOLTARROW);
-		}
-#endif
-
 		didhit = PlrTryHit(pnum, dx, dy);
 #ifdef HELLFIRE
 		if (p->_pIFlags2 & ISPH_SWIPE) {
@@ -2838,7 +2878,6 @@ static BOOL PlrDoAttack(int pnum)
 static BOOL PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
-	int mitype;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoRangeAttack: illegal player %d", pnum);
@@ -2859,16 +2898,7 @@ static BOOL PlrDoRangeAttack(int pnum)
 			p->_pAnimFrame++;
 	}
 	if (p->_pAnimFrame >= p->_pAFNum) {
-		mitype = MIS_ARROW;
-		if (p->_pIFlags & ISPL_FIRE_ARROWS) {
-			mitype = MIS_FARROW;
-		}
-		if (p->_pIFlags & ISPL_LIGHT_ARROWS) {
-			mitype = MIS_LARROW;
-		}
-		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, mitype, 0, pnum, 0, 0);
-
-		PlaySfxLoc(PS_BFIRE, p->_px, p->_py);
+		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_ARROW, 0, pnum, 0, 0);
 
 		if (WeaponDur(pnum, 40)) {
 			PlrStartStand(pnum, p->_pdir);

@@ -19,6 +19,9 @@ extern int nummissiles;
 extern BOOL MissilePreFlag;
 
 void GetDamageAmt(int sn, int *mind, int *maxd);
+BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist);
+BOOL CheckPlrRes(PlayerStruct *p, int mRes, char *resist);
+void AddElementalExplosion(int dx, int dy, int fdam, int ldam);
 void DeleteMissile(int mi, int idx);
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift);
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift);
@@ -58,7 +61,7 @@ int AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 int AddCboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 #endif
-int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+//int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -122,7 +125,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micaster, int misource, int midam, int spllvl);
 void MI_Dummy(int mi);
 void MI_Golem(int mi);
-void MI_LArrow(int mi);
+//void MI_LArrow(int mi);
 void MI_Arrow(int mi);
 void MI_Firebolt(int mi);
 void MI_Lightball(int mi);

@@ -434,7 +434,6 @@ typedef struct MisFileData {
 	int mfAnimFAmt;
 	const char *mfName;
 	int mfFlags;
-	unsigned char *mfAnimData[16];
 	unsigned char mfAnimDelay[16];
 	unsigned char mfAnimLen[16];
 	int mfAnimWidth[16];
@@ -444,7 +443,7 @@ typedef struct MisFileData {
 #endif
 } MisFileData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
+static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 128, "Align MisFileData to power of 2 for better performance.");
 #endif
 
 typedef struct MissileStruct {

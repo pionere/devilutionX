@@ -493,7 +493,7 @@ static void MoveMissilePos(int mi)
 	}
 }
 
-static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist)
+BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist)
 {
 	switch (mRes) {
 	case MISR_NONE:
@@ -526,10 +526,23 @@ static BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist
 	return FALSE;
 }
 
+void AddElementalExplosion(int dx, int dy, int fdam, int ldam)
+{
+	AddMissile(dx, dy, 0, 0, 0, fdam >= ldam ? MIS_WEAPFEXP : MIS_WEAPLEXP, 0, 0, 0, 0);
+	/*int gfx = random_(8, dam);
+	if (gfx >= dam - (fdam + ldam)) {
+		if (gfx < dam - ldam) {
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPFEXP, 0, 0, 0, 0);
+		} else {
+			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, 0, 0, 0, 0);
+		}
+	}*/
+}
+
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift)
 {
 	MonsterStruct *mon;
-	MissileData *mds;
+	const MissileData *mds;
 	int hper, dam;
 	BOOL resist, ret;
 
@@ -581,7 +594,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	MissileData *mds;
+	const MissileData *mds;
 	int hper, dam;
 	BOOL resist, ret;
 
@@ -620,6 +633,31 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
 			dam += p->_pIBonusDamMod + dam * p->_pIBonusDam / 100;
+			int fdam = 0;
+			if (p->_pIFlags & ISPL_FIRE_ARROWS) {
+				BOOL resist = FALSE;
+				if (!CheckMonsterRes(mon->mMagicRes, MISR_FIRE, &resist)) {
+					fdam = RandRange(p->_pIFMinDam, p->_pIFMaxDam);
+					if (resist)
+						fdam >>= 2;
+					dam += fdam;
+				}
+			}
+			int ldam = 0;
+			if (p->_pIFlags & ISPL_LIGHT_ARROWS) {
+				BOOL resist = FALSE;
+				if (!CheckMonsterRes(mon->mMagicRes, MISR_LIGHTNING, &resist)) {
+					ldam = RandRange(p->_pILMinDam, p->_pILMaxDam);
+					if (resist)
+						ldam >>= 2;
+					dam += ldam;
+				}
+			}
+			if ((ldam | fdam) != 0) {
+				dam += fdam + ldam;
+				AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam);
+			}
+
 			if ((p->_pIFlags & ISPL_3XDAMVDEM) && mon->MData->mMonstClass == MC_DEMON)
 				dam *= 3;
 			if (p->_pIFlags & ISPL_NOHEALMON)
@@ -682,7 +720,7 @@ BOOL CheckPlrRes(PlayerStruct *p, int mRes, char *resist)
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift)
 {
 	PlayerStruct *p;
-	MissileData *mds;
+	const MissileData *mds;
 	int hper, tmp, dam;
 	char resist;
 	BOOL blk;
@@ -765,7 +803,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	MissileData *mds;
+	const MissileData *mds;
 	int hper, tmp, dam;
 	char resist;
 	BOOL blk;
@@ -858,7 +896,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, int mitype, BOOLEAN shift)
 {
 	PlayerStruct *ops, *dps;
-	MissileData *mds;
+	const MissileData *mds;
 	int dam, blkper, hper;
 	char resist;
 	BOOL blk;
@@ -872,9 +910,6 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 
 	ops = &plr[offp];
 	if (mds->mType == 0) {
-		if (dps->_pSpellFlags & PSE_ETHERALIZED) {
-			return FALSE;
-		}
 		hper = ops->_pIHitChance
 		    - (dist * dist >> 1)
 		    - dps->_pIAC;
@@ -916,7 +951,34 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	} else {
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
-			dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
+			if (!(dps->_pSpellFlags & PSE_ETHERALIZED))
+				dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
+			else
+				dam = 0;
+			int fdam = 0;
+			if (ops->_pIFlags & ISPL_FIRE_ARROWS) {
+				char resist;
+				if (!CheckPlrRes(dps, MISR_FIRE, &resist)) {
+					fdam = RandRange(ops->_pIFMinDam, ops->_pIFMaxDam);
+					if (resist != 0)
+						fdam -= fdam * resist / 100;
+					dam += fdam;
+				}
+			}
+			int ldam = 0;
+			if (ops->_pIFlags & ISPL_LIGHT_ARROWS) {
+				char resist = FALSE;
+				if (!CheckPlrRes(dps, MISR_LIGHTNING, &resist)) {
+					ldam = RandRange(ops->_pILMinDam, ops->_pILMaxDam);
+					if (resist != 0)
+						ldam -= ldam * resist / 100;
+					dam += ldam;
+				}
+			}
+			if ((ldam | fdam) != 0) {
+				AddElementalExplosion(dps->_px, dps->_py, dam, fdam, ldam);
+			} else if (dam == 0)
+				return FALSE;
 		}
 		if (!shift)
 			dam <<= 6;
@@ -991,7 +1053,7 @@ static BOOL PlrMissHit(int pnum, int mi, int mindam, int maxdam, int shift)
 static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, int my, BOOLEAN nodel)
 {
 	MissileStruct *mis;
-	MissileData *mds;
+	const MissileData *mds;
 	int oi, mnum, pnum;
 	int hit = 0;
 
@@ -1046,15 +1108,15 @@ static BOOL CheckMissileCol(int mi, int mindam, int maxdam, BOOL shift, int mx, 
 void SetMissAnim(int mi, int animtype)
 {
 	MissileStruct *mis;
-	MisFileData *mfd;
+	const MisFileData *mfd;
 	int dir;
 
 	mis = &missile[mi];
 	mis->_miAnimType = animtype;
-	mfd = &misfiledata[animtype];
 	dir = mis->_miDir;
+	mis->_miAnimData = misanimdata[animtype][dir];
+	mfd = &misfiledata[animtype];
 	mis->_miAnimFlags = mfd->mfFlags;
-	mis->_miAnimData = mfd->mfAnimData[dir];
 	mis->_miAnimDelay = mfd->mfAnimDelay[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth[dir];
@@ -1072,21 +1134,22 @@ void SetMissDir(int mi, int dir)
 void LoadMissileGFX(BYTE midx)
 {
 	char pszName[256];
-	int i;
-	BYTE *file;
-	MisFileData *mfd;
+	int i, n;
+	unsigned char **mad;
+	const char *name;
 
-	mfd = &misfiledata[midx];
-	if (mfd->mfAnimFAmt == 1) {
-		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", mfd->mfName);
-		if (mfd->mfAnimData[0] == NULL)
-			mfd->mfAnimData[0] = LoadFileInMem(pszName, NULL);
+	n = misfiledata[midx].mfAnimFAmt;
+	name = misfiledata[midx].mfName;
+	mad = misanimdata[midx];
+	if (n == 1) {
+		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", name);
+		if (mad[0] == NULL)
+			mad[0] = LoadFileInMem(pszName, NULL);
 	} else {
-		for (i = 0; i < mfd->mfAnimFAmt; i++) {
-			snprintf(pszName, sizeof(pszName), "Missiles\\%s%i.CL2", mfd->mfName, i + 1);
-			if (mfd->mfAnimData[i] == NULL) {
-				file = LoadFileInMem(pszName, NULL);
-				mfd->mfAnimData[i] = file;
+		for (i = 0; i < n; i++) {
+			snprintf(pszName, sizeof(pszName), "Missiles\\%s%i.CL2", name, i + 1);
+			if (mad[i] == NULL) {
+				mad[i] = LoadFileInMem(pszName, NULL);
 			}
 		}
 	}
@@ -1102,15 +1165,15 @@ void InitMissileGFX()
 	}
 }
 
-static void FreeMissileGFX(int midx)
+static void FreeMissileGFX(int midx, int n)
 {
-	MisFileData *mfd;
+	unsigned char **mad;
 	int i;
 
-	mfd = &misfiledata[midx];
-	for (i = 0; i < mfd->mfAnimFAmt; i++) {
-		if (mfd->mfAnimData[i] != NULL) {
-			MemFreeDbg(mfd->mfAnimData[i]);
+	mad = misanimdata[midx];
+	for (i = 0; i < n; i++) {
+		if (mad[i] != NULL) {
+			MemFreeDbg(mad[i]);
 		}
 	}
 }
@@ -1121,7 +1184,7 @@ void FreeMissiles()
 
 	for (i = 0; i < NUM_MFILE; i++) {
 		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
-			FreeMissileGFX(i);
+			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
 	}
 }
 
@@ -1131,7 +1194,7 @@ void FreeMissiles2()
 
 	for (i = 0; i < NUM_MFILE; i++) {
 		if (misfiledata[i].mfFlags & MFLAG_HIDDEN)
-			FreeMissileGFX(i);
+			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
 	}
 }
 
@@ -1890,7 +1953,7 @@ int AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
  * Var6: max damage of the elemental hit
  * Var7: the mitype of the elemental hit
  */
-int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -1952,7 +2015,7 @@ int AddLArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 	mis->_miVar7 = mis->_miType == MIS_LARROW ? MFILE_MINILTNG : MFILE_MAGBLOS;
 	return MIRES_DONE;
-}
+}*/
 
 /**
  * Var1: min damage of the arrow
@@ -1987,6 +2050,22 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		else if (p->_pClass == PC_WARRIOR)
 			av += (p->_pLevel - 1) >> 3;
 #endif
+		//int dam = p->_pIMaxDam + p->_pIMinDam;
+		int fdam = p->_pIFMaxDam + p->_pIFMinDam;
+		int ldam = p->_pILMaxDam + p->_pILMinDam;
+		if ((ldam | fdam) != 0) {
+			SetMissAnim(mi, fdam >= ldam ? MFILE_FARROW : MFILE_LARROW);
+			SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
+			/*dam += fdam + ldam;
+			int gfx = random_(8, dam);
+			if (gfx >= dam - (fdam + ldam)) {
+				if (gfx < dam - ldam) {
+					SetMissAnim(mi, MFILE_FARROW);
+				} else {
+					SetMissAnim(mi, MFILE_LARROW);
+				}
+			}*/
+		}
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	mis = &missile[mi];
@@ -2311,20 +2390,13 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 
 /**
  * Var1: light strength
- * Var2: min damage
- * Var3: max damage
  */
 int AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	PlayerStruct *p;
 
-	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//mis->_miVar1 = 0;
-	p = &plr[misource];
-	mis->_miVar2 = p->_pIFMinDam;
-	mis->_miVar3 = p->_pIFMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 	return MIRES_DONE;
@@ -2332,20 +2404,13 @@ int AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 /**
  * Var1: light strength
- * Var2: min damage
- * Var3: max damage
  */
 int AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	PlayerStruct *p;
 
-	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//mis->_miVar1 = 0;
-	p = &plr[misource];
-	mis->_miVar2 = p->_pILMinDam;
-	mis->_miVar3 = p->_pILMaxDam;
 	mis->_miDir = 0;
 	mis->_miRange = mis->_miAnimLen - 1;
 	return MIRES_DONE;
@@ -2406,8 +2471,14 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis->_mix = mis->_misx = tx;
 	mis->_miy = mis->_misy = ty;
 	mis->_miRange = 100;
-	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
-	//mis->_miVar2 = 0;
+	if (spllvl >= 0) {
+		PlaySfxLoc(LS_SENTINEL, tx, ty);
+		mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
+		// mis->_miVar2 = 0;
+	} else {
+		// a portal recreated by AddWarpMissile
+		mis->_miVar1 = mis->_miRange - 1;
+	}
 	for (i = 0; i < nummissiles; i++) {
 		bmis = &missile[missileactive[i]];
 		if (bmis->_miType == MIS_TOWN && bmis != mis && bmis->_miSource == misource)
@@ -3421,7 +3492,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micaster, int misource, int midam, int spllvl)
 {
 	MissileStruct *mis;
-	MissileData *mds;
+	const MissileData *mds;
 	int idx, mi, res;
 
 	idx = nummissiles;
@@ -3531,7 +3602,7 @@ void MI_Golem(int mi)
 	}
 }
 
-void MI_LArrow(int mi)
+/*void MI_LArrow(int mi)
 {
 	MissileStruct *mis;
 	int rst;
@@ -3573,7 +3644,7 @@ void MI_LArrow(int mi)
 		AddUnLight(mis->_miLid);
 	}
 	PutMissile(mi);
-}
+}*/
 
 void MI_Arrow(int mi)
 {
@@ -4342,11 +4413,18 @@ void MI_Town(int mi)
 	PlayerStruct *p;
 
 	mis = &missile[mi];
+	if (mis->_miRange == 0) {
+		mis->_miDelFlag = TRUE;
+		AddUnLight(mis->_miLid);
+		return;
+	}
 	if (mis->_miRange > 1)
 		mis->_miRange--;
-	if (mis->_miRange == mis->_miVar1)
+	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
-	if (currlevel != 0 && mis->_miDir != 1 && mis->_miRange != 0) {
+		if (currlevel != 0 && mis->_miLid == -1)
+			mis->_miLid = AddLight(mis->_mix, mis->_miy, 15);
+	} else if (mis->_miDir != 1 && currlevel != 0) {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
 		else
@@ -4359,10 +4437,6 @@ void MI_Town(int mi)
 		NetSendCmdParam1(TRUE, CMD_WARP, mis->_miSource);
 	}
 
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
-	}
 	PutMissile(mi);
 }
 
@@ -4596,7 +4670,6 @@ void MI_WeapExp(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	CheckMissileCol(mi, mis->_miVar2, mis->_miVar3, FALSE, mis->_mix, mis->_miy, FALSE);
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
@@ -5362,7 +5435,7 @@ void missiles_process_charge()
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		mis->_miAnimData = misfiledata[mis->_miAnimType].mfAnimData[mis->_miDir];
+		mis->_miAnimData = misanimdata[mis->_miAnimType][mis->_miDir];
 		if (mis->_miType == MIS_RHINO) {
 			mon = &monster[mis->_miSource];
 			if (mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) {
