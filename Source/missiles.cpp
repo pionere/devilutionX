@@ -976,7 +976,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 				}
 			}
 			if ((ldam | fdam) != 0) {
-				AddElementalExplosion(dps->_px, dps->_py, dam, fdam, ldam);
+				AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
 			} else if (dam == 0)
 				return FALSE;
 		}

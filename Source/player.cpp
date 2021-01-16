@@ -2767,7 +2767,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 		}
 	}
 	if ((fdam | ldam) != 0) {
-		AddElementalExplosion(dps->_px, dps->_py, dam, fdam, ldam);
+		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
 	}
 
 	dam <<= 6;
