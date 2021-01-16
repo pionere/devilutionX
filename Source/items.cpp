@@ -3627,7 +3627,7 @@ static int ItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-static void PrintItemMiscInfo(const ItemStruct *is, int x, int y)
+static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 {
 	const char *desc;
 
@@ -4360,6 +4360,7 @@ void SpawnHealer(int lvl)
 void SpawnStoreGold()
 {
 	SetItemSData(&golditem, IDI_GOLD);
+	golditem._iStatFlag = TRUE;
 }
 
 static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)

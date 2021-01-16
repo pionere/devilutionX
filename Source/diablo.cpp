@@ -737,14 +737,16 @@ static void ActionBtnDown(BOOL bShift)
 		return;
 	}
 
-	if (DoPanBtn())
+	if (DoPanBtn()) {
 		return;
-
-	if (CheckBeltClick())
-		return;
+	}
 
 	if (TryIconCurs(bShift))
 		return;
+
+	if (CheckBeltClick()) {
+		return;
+	}
 
 	if (questlog && CheckQuestlog())
 		return;

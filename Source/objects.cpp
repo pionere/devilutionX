@@ -4916,6 +4916,7 @@ void GetObjectStr(int oi)
 		copy_cstr(infostr, "Slain Hero");
 		break;
 	}
+	infoclr = COL_WHITE;
 	if (plr[myplr]._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
 			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);

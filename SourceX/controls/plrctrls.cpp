@@ -1104,10 +1104,10 @@ void PerformPrimaryAction()
 	if (DoPanBtn())
 		return;
 
-	if (CheckBeltClick())
+	if (TryIconCurs(FALSE))
 		return;
 
-	if (TryIconCurs(FALSE))
+	if (CheckBeltClick())
 		return;
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
