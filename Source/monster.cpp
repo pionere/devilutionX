@@ -3703,7 +3703,7 @@ void MAI_Torchant(int mnum)
 void MAI_Scav(int mnum)
 {
 	BOOL done;
-	int x, y;
+	int x, y, maxhp;
 	MonsterStruct *mon;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
@@ -3725,24 +3725,22 @@ void MAI_Scav(int mnum)
 		mon->_mgoalvar3--;
 		if (dDead[mon->_mx][mon->_my] != 0) {
 			MonStartEat(mnum);
+			maxhp = mon->_mmaxhp;
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
-				int mMaxHP = mon->MType->mMaxHP << 6;
-				if (gbMaxPlayers == 1)
-					mMaxHP >>= 1;
-				mon->_mhitpoints += mMaxHP >> 3;
-				if (mon->_mhitpoints > mMaxHP)
-					mon->_mhitpoints = mMaxHP;
-				if (mon->_mmaxhp < mon->_mhitpoints)
-					mon->_mmaxhp = mon->_mhitpoints;
-				if (mon->_mgoalvar3 <= 0 || mon->_mhitpoints == mMaxHP)
+				mon->_mhitpoints += maxhp >> 3;
+				if (mon->_mhitpoints > maxhp)
+					mon->_mhitpoints = maxhp;
+				if (mon->_mhitpoints == maxhp || mon->_mgoalvar3 <= 0)
 					dDead[mon->_mx][mon->_my] = 0;
 			}
-			if (mon->_mhitpoints == mon->_mmaxhp) {
+			if (mon->_mhitpoints == maxhp) {
 #else
 				mon->_mhitpoints += 64;
+				if (mon->_mhitpoints > maxhp)
+					mon->_mhitpoints = maxhp;
 			}
-			if (mon->_mhitpoints >= (mon->_mmaxhp >> 1) + (mon->_mmaxhp >> 2)) {
+			if (mon->_mhitpoints >= (maxhp >> 1) + (maxhp >> 2)) {
 #endif
 				mon->_mgoal = MGOAL_NORMAL;
 				mon->_mgoalvar1 = 0;
