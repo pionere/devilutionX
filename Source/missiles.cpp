@@ -632,7 +632,6 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	} else {
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
-			dam += p->_pIBonusDamMod + dam * p->_pIBonusDam / 100;
 			int fdam = 0;
 			if (p->_pIFlags & ISPL_FIRE_ARROWS) {
 				BOOL resist = FALSE;
@@ -951,9 +950,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	} else {
 		dam = RandRange(mindam, maxdam);
 		if (mds->mType == 0) {
-			if (!(dps->_pSpellFlags & PSE_ETHERALIZED))
-				dam += ops->_pIBonusDamMod + dam * ops->_pIBonusDam / 100;
-			else
+			if (dps->_pSpellFlags & PSE_ETHERALIZED)
 				dam = 0;
 			int fdam = 0;
 			if (ops->_pIFlags & ISPL_FIRE_ARROWS) {
@@ -3657,7 +3654,7 @@ void MI_Arrow(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_miVar1, mis->_miVar2, FALSE, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mis->_miVar1, mis->_miVar2, TRUE, mis->_mix, mis->_miy, FALSE);
 	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;

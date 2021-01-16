@@ -338,10 +338,9 @@ typedef struct PlayerStruct {
 	int _pIMinDam;
 	int _pIMaxDam;
 	int _pIAC;
-	int _pIBonusDam;
 	int _pIHitChance;
 	BYTE _pIBaseACBonus; // indicator whether the base ACBonus of the items is positive/negative/neutral
-	int _pIBonusDamMod;
+	BYTE _pIBaseDamBonus; // indicator whether the base DamageBonus of the items is positive/negative/neutral
 	int _pIMagToHit;
 	uint64_t _pISpells;
 	int _pIFlags;
@@ -382,9 +381,9 @@ typedef struct PlayerStruct {
 	void *pReserved;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[486];
+	int alignment[487];
 #else
-	int alignment[490];
+	int alignment[491];
 #endif
 #endif
 } PlayerStruct;

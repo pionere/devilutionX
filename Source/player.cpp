@@ -2466,14 +2466,7 @@ static BOOL WeaponDur(int pnum, int durrnd)
 
 int PlrAtkDam(int pnum)
 {
-	PlayerStruct *p;
-	int dam;
-
-	p = &plr[pnum];
-	dam = RandRange(p->_pIMinDam, p->_pIMaxDam);
-	dam += dam * p->_pIBonusDam / 100;
-	dam += p->_pIBonusDamMod;
-	return dam;
+	return RandRange(plr[pnum]._pIMinDam, plr[pnum]._pIMaxDam);
 }
 
 static BOOL PlrHitMonst(int pnum, int mnum)
@@ -2623,8 +2616,6 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam);
 	}
 
-	dam <<= 6;
-
 #ifdef HELLFIRE
 	if (p->_pIFlags2 & ISPH_JESTERS) {
 		int r = random_(6, 257);
@@ -2770,7 +2761,6 @@ static BOOL PlrHitPlr(int offp, char defp)
 		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
 	}
 
-	dam <<= 6;
 	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
 		PlrIncHp(offp, skdam);

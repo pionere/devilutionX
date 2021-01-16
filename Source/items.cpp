@@ -531,17 +531,15 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		}
 	}
 
-	p->_pIBonusDam = bdam;
 	p->_pIFlags = iflgs;
 	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
 	p->_pIFlags2 = iflgs2;
-	p->_pIBonusDamMod = dmod;
 	p->_pIGetHit = ghit;
 	p->_pIEnAc = enac;
-	p->_pIFMinDam = fmin;
-	p->_pIFMaxDam = fmax;
-	p->_pILMinDam = lmin;
-	p->_pILMaxDam = lmax;
+	p->_pIFMinDam = fmin << 6;
+	p->_pIFMaxDam = fmax << 6;
+	p->_pILMinDam = lmin << 6;
+	p->_pILMaxDam = lmax << 6;
 	p->_pISplLvlAdd = spllvladd;
 	p->_pISpells = spl;
 
@@ -588,9 +586,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		vadd -= 2 * p->_pLevel;
 	}
 #endif
-
-	p->_pIMinDam = mind;
-	p->_pIMaxDam = maxd;
 
 	lrad = std::max(2, std::min(15, lrad));
 	if (p->_pLightRad != lrad && pnum == myplr) {
@@ -866,6 +861,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 	p->_pIBaseACBonus = bac == 0 ? IBONUS_NONE : (bac >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
 	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	p->_pIBaseDamBonus = bdam == 0 ? IBONUS_NONE : (bdam >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
 	p->_pIAC = tac + bac + p->_pDexterity / 5;
 	p->_pCritChance = 0;
 	btohit += 50 + p->_pLevel;
@@ -889,7 +885,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		if (p->_pClass != PC_ROGUE)
 			pdmod >>= 1;
 	}
-	p->_pIBonusDamMod += pdmod;
+	p->_pIMinDam = (mind << 6) * (100 + bdam) / 100 + (pdmod << 6);
+	p->_pIMaxDam = (maxd << 6) * (100 + bdam) / 100 + (pdmod << 6);
 	p->_pIHitChance = btohit;
 	p->_pIMagToHit = 50 + p->_pMagic;
 	if (p->_pClass == PC_SORCERER)

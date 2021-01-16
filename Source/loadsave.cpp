@@ -348,11 +348,12 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pIMinDam);
 	CopyInt(tbuff, &p->_pIMaxDam);
 	CopyInt(tbuff, &p->_pIAC);
-	CopyInt(tbuff, &p->_pIBonusDam);
+	tbuff += 4; // Skip _pIBonusDam
 	CopyInt(tbuff, &p->_pIHitChance);
 	CopyChar(tbuff, &p->_pIBaseACBonus);
-	tbuff += 3; // Alignment
-	CopyInt(tbuff, &p->_pIBonusDamMod);
+	CopyChar(tbuff, &p->_pIBaseDamBonus);
+	tbuff += 2; // Alignment
+	tbuff += 4; // Skip _pIBonusDamMod
 	CopyInt(tbuff, &p->_pIMagToHit);
 
 	CopyInt64(tbuff, &p->_pISpells);
@@ -1129,11 +1130,12 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pIMinDam, tbuff);
 	CopyInt(&p->_pIMaxDam, tbuff);
 	CopyInt(&p->_pIAC, tbuff);
-	CopyInt(&p->_pIBonusDam, tbuff);
+	tbuff += 4; // Skip _pIBonusDam
 	CopyInt(&p->_pIHitChance, tbuff);
 	CopyChar(&p->_pIBaseACBonus, tbuff);
-	tbuff += 3; // Alignment
-	CopyInt(&p->_pIBonusDamMod, tbuff);
+	CopyChar(&p->_pIBaseDamBonus, tbuff);	
+	tbuff += 2; // Alignment
+	tbuff += 4; // Skip _pIBonusDamMod
 	CopyInt(&p->_pIMagToHit, tbuff);
 
 	CopyInt64(&p->_pISpells, tbuff);

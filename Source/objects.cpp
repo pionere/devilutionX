@@ -4474,7 +4474,7 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 		os->_oVar1 = 0;
 	} else {
 		if (pnum != -1) {
-			dam = PlrAtkDam(pnum);
+			dam = PlrAtkDam(pnum) >> 6;
 		} else {
 			dam = 10;
 		}

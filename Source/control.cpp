@@ -1297,18 +1297,13 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%i%%", val);
 	ADD_PlrStringXY(258, 211, 301, chrstr, col);
 
-	val = p->_pIBonusDam;
 	col = COL_WHITE;
-	if (val > 0)
+	if (p->_pIBaseDamBonus == IBONUS_POSITIVE)
 		col = COL_BLUE;
-	if (val < 0)
+	else if (p->_pIBaseDamBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
-	mindam = p->_pIMinDam;
-	mindam += val * mindam / 100;
-	maxdam = p->_pIMaxDam;
-	maxdam += val * maxdam / 100;
-	mindam += p->_pIBonusDamMod;
-	maxdam += p->_pIBonusDamMod;
+	mindam = p->_pIMinDam >> 6;
+	maxdam = p->_pIMaxDam >> 6;
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
 		PrintString(254 + SCREEN_X, 239 + SCREEN_Y, 305 + SCREEN_X, chrstr, TRUE, col, -1);
