@@ -136,7 +136,7 @@ void init_archives()
 	diabdat_mpq = init_test_access("diabdat.mpq", "DiabloCD", 1000, FS_CD);
 	patch_rt_mpq = init_test_access("patch_rt.mpq", "DiabloInstall", 2000, FS_PC);
 #endif
-	if (diabdat_mpq == NULL || !SFileOpenFile("ui_art\\title.pcx", &fh))
+	if (!SFileOpenFile("ui_art\\title.pcx", &fh))
 		InsertCDDlg();
 	SFileCloseFile(fh);
 
