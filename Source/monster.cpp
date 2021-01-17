@@ -474,6 +474,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mmode = MM_STAND;
+	mon->_mVar1 = MM_STAND;
+	mon->_mVar2 = 0;
 	mon->_mgoal = MGOAL_NORMAL;
 	mon->_mgoalvar1 = 0;
 	mon->_mgoalvar2 = 0;
@@ -1323,12 +1325,6 @@ void MonStartStand(int mnum, int md)
 	NewMonsterAnim(mnum, &mon->_mAnims[mon->_mType == MT_GOLEM ? MA_WALK : MA_STAND], md);
 	mon->_mVar1 = mon->_mmode;
 	mon->_mVar2 = 0;
-	mon->_mVar3 = 0;
-	mon->_mVar4 = 0;
-	mon->_mVar5 = 0;
-	mon->_mVar6 = 0;
-	mon->_mVar7 = 0;
-	mon->_mVar8 = 0;
 	mon->_mmode = MM_STAND;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
@@ -1384,7 +1380,6 @@ static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int E
 	mon->_myvel = yvel;
 	mon->_mVar1 = xadd;
 	mon->_mVar2 = yadd;
-	mon->_mVar3 = EndDir;
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
 	mon->_mVar6 = 0;
 	mon->_mVar7 = 0;
@@ -1414,7 +1409,6 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mmode = MM_WALK2;
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
-	mon->_mVar3 = EndDir;
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
 	mon->_mVar6 = 16 * xoff;
 	mon->_mVar7 = 16 * yoff;
@@ -1448,7 +1442,6 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_myvel = yvel;
 	mon->_mVar1 = fx;
 	mon->_mVar2 = fy;
-	mon->_mVar3 = EndDir;
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
 	mon->_mVar6 = 16 * xoff;
 	mon->_mVar7 = 16 * yoff;
@@ -1629,7 +1622,6 @@ void MonStartHit(int mnum, int pnum, int dam)
 static void MonDiabloDeath(int mnum, BOOL sendmsg)
 {
 	MonsterStruct *mon, *pmonster;
-	int dist;
 	int i, j;
 	int _moldx, _moldy;
 
@@ -1652,7 +1644,6 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 		NewMonsterAnim(j, &pmonster->_mAnims[MA_DEATH], pmonster->_mdir);
 		pmonster->_mxoff = 0;
 		pmonster->_myoff = 0;
-		pmonster->_mVar1 = 0;
 		pmonster->_mmode = MM_DEATH;
 		MonClearSquares(j);
 		_moldx = pmonster->_moldx;
@@ -1665,15 +1656,7 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 	}
 	AddLight(mon->_mx, mon->_my, 8);
 	DoVision(mon->_mx, mon->_my, 8, FALSE, TRUE);
-	dist = std::max(abs(ViewX - mon->_mx), abs(ViewY - mon->_my));
-	if (dist > 20)
-		dist = 20;
-	i = ViewX << 16;
-	j = ViewY << 16;
-	mon->_mVar3 = i;
-	mon->_mVar4 = j;
-	mon->_mVar5 = (int)((i - (mon->_mx << 16)) / (double)dist);
-	mon->_mVar6 = (int)((j - (mon->_my << 16)) / (double)dist);
+	mon->_mVar1 = 0;
 }
 
 static void SpawnLoot(int mnum, BOOL sendmsg)
@@ -1797,7 +1780,6 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 #endif
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
-	mon->_mVar1 = 0;
 	mon->_mx = mon->_mfutx = mon->_moldx;
 	mon->_my = mon->_mfuty = mon->_moldy;
 	MonClearSquares(mnum);
@@ -2734,21 +2716,15 @@ static BOOL MonDoSpStand(int mnum)
 static BOOL MonDoDelay(int mnum)
 {
 	MonsterStruct *mon;
-	int mVar2, oFrame;
+	int oFrame;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
 	mon->_mAnimData = mon->_mAnims[MA_STAND].Data[MonGetDir(mnum)];
-	mVar2 = mon->_mVar2;
-	if (mon->_mAi == AI_LAZURUS) {
-		if (mVar2 > 8 || mVar2 < 0)
-			mVar2 = 8;
-	}
 
-	mon->_mVar2 = mVar2 - 1;
-	if (mVar2 == 0) {
+	if (mon->_mVar2-- == 0) {
 		oFrame = mon->_mAnimFrame;
 		MonStartStand(mnum, mon->_mdir);
 		mon->_mAnimFrame = oFrame;
@@ -4194,7 +4170,7 @@ void MAI_Rhino(int mnum)
 					v = random_(134, 100);
 					if (v >= 2 * mon->_mint + 33
 					    && (mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3
-					           || mon->_mVar2
+					           || mon->_mVar2 != 0
 					           || v >= 2 * mon->_mint + 83)) {
 						MonStartDelay(mnum, RandRange(10, 19));
 					} else {
@@ -5056,7 +5032,7 @@ void SyncMonsterAnim(int mnum)
 		dev_fatal("SyncMonsterAnim: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mMTidx >= MAX_LVLMTYPES) {
+	if ((DWORD)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
 	mon->MType = &Monsters[mon->_mMTidx];
