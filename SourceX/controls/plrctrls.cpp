@@ -1107,8 +1107,12 @@ void PerformPrimaryAction()
 	if (TryIconCurs(FALSE))
 		return;
 
-	if (CheckBeltClick())
+	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
+		// in belt
+		// assert(!DoPanBtn());
+		CheckBeltClick();
 		return;
+	}
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		// in inventory

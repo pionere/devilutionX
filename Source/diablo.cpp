@@ -744,10 +744,6 @@ static void ActionBtnDown(BOOL bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (CheckBeltClick()) {
-		return;
-	}
-
 	if (questlog && CheckQuestlog())
 		return;
 
@@ -757,12 +753,20 @@ static void ActionBtnDown(BOOL bShift)
 		return;
 	}
 
+	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
+		// in belt
+		// assert(!DoPanBtn());
+		CheckBeltClick();
+		return;
+	}
+
 	if (chrflag && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
 		CheckChrBtns();
 		return;
 	}
 
 	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		// in inventory
 		CheckInvClick();
 		return;
 	}
