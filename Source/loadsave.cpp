@@ -256,8 +256,8 @@ static void LoadPlayer(int pnum)
 	CopyInts(tbuff, 4, &p->_pSplHotKey);
 	CopyBytes(tbuff, 4, &p->_pSplTHotKey);
 
-	CopyInt(tbuff, &p->_pwtype);
-	CopyChar(tbuff, &p->_pBlockFlag);
+	tbuff += 4; // Skip to Calc _pwtype
+	tbuff += 1; // Skip to Calc _pBlockFlag
 	CopyChar(tbuff, &p->_pInvincible);
 	CopyChar(tbuff, &p->_pLightRad);
 	CopyChar(tbuff, &p->_pLvlChanging);
@@ -293,9 +293,9 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pMaxExp);
 	CopyInt(tbuff, &p->_pNextExper);
 	CopyChar(tbuff, &p->_pArmorClass);
-	CopyChar(tbuff, &p->_pMagResist);
-	CopyChar(tbuff, &p->_pFireResist);
-	CopyChar(tbuff, &p->_pLghtResist);
+	tbuff += 1; // Skip to Calc _pMagResist
+	tbuff += 1; // Skip to Calc _pFireResist
+	tbuff += 1; // Skip to Calc _pLghtResist
 	CopyInt(tbuff, &p->_pGold);
 
 	CopyInt(tbuff, &p->_pInfraFlag);
@@ -345,30 +345,30 @@ static void LoadPlayer(int pnum)
 	LoadItems(p->SpdList, MAXBELTITEMS);
 	LoadItemData(&p->HoldItem);
 
-	CopyInt(tbuff, &p->_pIMinDam);
-	CopyInt(tbuff, &p->_pIMaxDam);
-	CopyInt(tbuff, &p->_pIAC);
+	tbuff += 4; // Skip to Calc _pIMinDam
+	tbuff += 4; // Skip to Calc _pIMaxDam
+	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip _pIBonusDam
-	CopyInt(tbuff, &p->_pIHitChance);
-	CopyChar(tbuff, &p->_pIBaseACBonus);
-	CopyChar(tbuff, &p->_pIBaseDamBonus);
+	tbuff += 4; // Skip to Calc _pIHitChance
+	tbuff += 1; // Skip to Calc _pIBaseACBonus
+	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 2; // Alignment
 	tbuff += 4; // Skip _pIBonusDamMod
-	CopyInt(tbuff, &p->_pIMagToHit);
+	tbuff += 4; // Skip to Calc _pIMagToHit
 
-	CopyInt64(tbuff, &p->_pISpells);
-	CopyInt(tbuff, &p->_pIFlags);
-	CopyInt(tbuff, &p->_pIGetHit);
-	CopyChar(tbuff, &p->_pISplLvlAdd);
+	tbuff += 8; // Skip to Calc _pISpells
+	tbuff += 4; // Skip to Calc _pIFlags
+	tbuff += 4; // Skip to Calc _pIGetHit
+	tbuff += 1; // Skip to Calc _pISplLvlAdd);
 	CopyChar(tbuff, &p->_pISplCost);
-	CopyChar(tbuff, &p->_pIBaseHitBonus);
-	CopyChar(tbuff, &p->_pCritChance);
-	CopyInt(tbuff, &p->_pIFlags2);
-	CopyInt(tbuff, &p->_pIEnAc);
-	CopyInt(tbuff, &p->_pIFMinDam);
-	CopyInt(tbuff, &p->_pIFMaxDam);
-	CopyInt(tbuff, &p->_pILMinDam);
-	CopyInt(tbuff, &p->_pILMaxDam);
+	tbuff += 1; // Skip to Calc _pIBaseHitBonus
+	tbuff += 1; // Skip to Calc _pCritChance
+	tbuff += 4; // Skip to Calc _pIFlags2
+	tbuff += 4; // Skip to Calc _pIEnAc
+	tbuff += 4; // Skip to Calc _pIFMinDam
+	tbuff += 4; // Skip to Calc _pIFMaxDam
+	tbuff += 4; // Skip to Calc _pILMinDam
+	tbuff += 4; // Skip to Calc _pILMaxDam
 	CopyInt(tbuff, &p->_pOilType);
 	CopyChar(tbuff, &p->pTownWarps);
 	CopyChar(tbuff, &p->pDungMsgs);
@@ -386,8 +386,10 @@ static void LoadPlayer(int pnum)
 
 	CopyInt(tbuff, &p->pDiabloKillLevel);
 	tbuff += 4; // Skip pDifficulty
-	CopyInt(tbuff, &p->pDamAcFlags);
+	tbuff += 4; // Skip pDamAcFlags
 	CopyInts(tbuff, 5, &p->dwReserved);
+
+	CalcPlrInv(pnum, FALSE);
 
 	// Omit pointer _pNData
 	// Omit pointer _pWData
@@ -1038,8 +1040,8 @@ static void SavePlayer(int pnum)
 	CopyInts(&p->_pSplHotKey, 4, tbuff);
 	CopyBytes(&p->_pSplTHotKey, 4, tbuff);
 
-	CopyInt(&p->_pwtype, tbuff);
-	CopyChar(&p->_pBlockFlag, tbuff);
+	tbuff += 4; // Skip to Calc _pwtype
+	tbuff += 1; // Skip to Calc _pBlockFlag
 	CopyChar(&p->_pInvincible, tbuff);
 	CopyChar(&p->_pLightRad, tbuff);
 	CopyChar(&p->_pLvlChanging, tbuff);
@@ -1075,9 +1077,9 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pMaxExp, tbuff);
 	CopyInt(&p->_pNextExper, tbuff);
 	CopyChar(&p->_pArmorClass, tbuff);
-	CopyChar(&p->_pMagResist, tbuff);
-	CopyChar(&p->_pFireResist, tbuff);
-	CopyChar(&p->_pLghtResist, tbuff);
+	tbuff += 1; // Skip to Calc _pMagResist
+	tbuff += 1; // Skip to Calc _pFireResist
+	tbuff += 1; // Skip to Calc _pLghtResist
 	CopyInt(&p->_pGold, tbuff);
 
 	CopyInt(&p->_pInfraFlag, tbuff);
@@ -1127,31 +1129,31 @@ static void SavePlayer(int pnum)
 	SaveItems(p->SpdList, MAXBELTITEMS);
 	SaveItemData(&p->HoldItem);
 
-	CopyInt(&p->_pIMinDam, tbuff);
-	CopyInt(&p->_pIMaxDam, tbuff);
-	CopyInt(&p->_pIAC, tbuff);
+	tbuff += 4; // Skip to Calc _pIMinDam
+	tbuff += 4; // Skip to Calc _pIMaxDam
+	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip _pIBonusDam
-	CopyInt(&p->_pIHitChance, tbuff);
-	CopyChar(&p->_pIBaseACBonus, tbuff);
-	CopyChar(&p->_pIBaseDamBonus, tbuff);	
+	tbuff += 4; // Skip to Calc _pIHitChance
+	tbuff += 1; // Skip to Calc _pIBaseACBonus
+	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 2; // Alignment
 	tbuff += 4; // Skip _pIBonusDamMod
-	CopyInt(&p->_pIMagToHit, tbuff);
+	tbuff += 4; // Skip to Calc _pIMagToHit
 
-	CopyInt64(&p->_pISpells, tbuff);
-	CopyInt(&p->_pIFlags, tbuff);
-	CopyInt(&p->_pIGetHit, tbuff);
+	tbuff += 8; // Skip to Calc _pISpells
+	tbuff += 4; // Skip to Calc _pIFlags
+	tbuff += 4; // Skip to Calc _pIGetHit
 
-	CopyChar(&p->_pISplLvlAdd, tbuff);
+	tbuff += 1; // Skip to Calc _pISplLvlAdd
 	CopyChar(&p->_pISplCost, tbuff);
-	CopyChar(&p->_pIBaseHitBonus, tbuff);
-	CopyChar(&p->_pCritChance, tbuff);
-	CopyInt(&p->_pIFlags2, tbuff);
-	CopyInt(&p->_pIEnAc, tbuff);
-	CopyInt(&p->_pIFMinDam, tbuff);
-	CopyInt(&p->_pIFMaxDam, tbuff);
-	CopyInt(&p->_pILMinDam, tbuff);
-	CopyInt(&p->_pILMaxDam, tbuff);
+	tbuff += 1; // Skip to Calc _pIBaseHitBonus
+	tbuff += 1; // Skip to Calc _pCritChance
+	tbuff += 4; // Skip to Calc _pIFlags2
+	tbuff += 4; // Skip to Calc _pIEnAc
+	tbuff += 4; // Skip to Calc _pIFMinDam
+	tbuff += 4; // Skip to Calc _pIFMaxDam
+	tbuff += 4; // Skip to Calc _pILMinDam
+	tbuff += 4; // Skip to Calc _pILMaxDam
 	CopyInt(&p->_pOilType, tbuff);
 	CopyChar(&p->pTownWarps, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);
@@ -1169,7 +1171,7 @@ static void SavePlayer(int pnum)
 
 	CopyInt(&p->pDiabloKillLevel, tbuff);
 	tbuff += 4; // Skip pDifficulty
-	CopyInt(&p->pDamAcFlags, tbuff);
+	tbuff += 4; // Skip pDamAcFlags
 	CopyInts(&p->dwReserved, 5, tbuff);
 
 	// Omit pointer _pNData
