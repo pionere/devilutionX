@@ -150,7 +150,11 @@ void InitQuests()
 			qs->_qmsg = qdata->_qdmsg;
 	}
 
+#ifdef _DEBUG
 	if (gbMaxPlayers == 1 && !allquests) {
+#else
+	if (gbMaxPlayers == 1) {
+#endif
 		SetRndSeed(glSeedTbl[15]);
 		if (random_(0, 2) != 0)
 			quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;

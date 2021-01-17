@@ -64,6 +64,7 @@ extern BOOL leveldebug;
 extern BOOL monstdebug;
 /** unused */
 extern int debugmonsttypes;
+extern bool allquests;
 extern int questdebug;
 extern int debug_mode_key_w;
 extern int debug_mode_key_inverted_v;

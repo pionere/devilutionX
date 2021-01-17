@@ -11,7 +11,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool allquests;
 SDL_Window *ghMainWnd;
 DWORD glSeedTbl[NUMLEVELS];
 int gnLevelTypeTbl[NUMLEVELS];
@@ -72,6 +71,7 @@ BOOL monstdebug;
 BOOL trigdebug;
 int setseed;
 int debugmonsttypes;
+bool allquests;
 int questdebug = -1;
 int debug_mode_key_s;
 int debug_mode_key_w;
