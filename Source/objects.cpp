@@ -233,7 +233,7 @@ const int textSets[NUM_TXTSets][NUM_CLASSES] = {
 
 void InitObjectGFX()
 {
-	ObjDataStruct *ods;
+	const ObjDataStruct *ods;
 	BOOLEAN fileload[NUM_OFILE_TYPES];
 	char filestr[32];
 	int i;
@@ -1145,7 +1145,7 @@ static void DeleteObject_(int oi, int idx)
 static void SetupObject(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
-	ObjDataStruct *ods;
+	const ObjDataStruct *ods;
 	int ofi, i;
 
 	os = &object[oi];
@@ -1825,9 +1825,7 @@ static void GetVileMissPos(int *dx, int *dy)
 	int xx, yy, k, j, i;
 
 	i = dObject[*dx][*dy] - 1;
-	// BUGFIX: should only run magic circle check if dObject[dx][dy] is non-zero.
-	if (object[i]._otype != OBJ_MCIRCLE1 && object[i]._otype != OBJ_MCIRCLE2)
-		return;
+	assert(object[i]._otype == OBJ_MCIRCLE1 || object[i]._otype == OBJ_MCIRCLE2);
 
 	for (k = 0; k < 50; k++) {
 		for (j = -k; j <= k; j++) {
@@ -1855,26 +1853,28 @@ static void Obj_Circle(int oi)
 	if (plr[myplr]._px == ox && plr[myplr]._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 2;
-		if (os->_otype == OBJ_MCIRCLE2)
+		else {
+			assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 4;
-		if (ox == 45 && oy == 47) {
+		}
+		if (ox == DBORDERX + 29 && oy == DBORDERY + 31) {
 			os->_oVar6 = 2;
-		} else if (ox == 26 && oy == 46) {
+		} else if (ox == DBORDERX + 10 && oy == DBORDERY + 30) {
 			os->_oVar6 = 1;
 		} else {
 			os->_oVar6 = 0;
 		}
-		if (ox == 35 && oy == 36 && os->_oVar5 == 3) {
+		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 3) {
 			os->_oVar6 = 4;
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
 			if (setlevel && setlvlnum == SL_VILEBETRAYER) {
-				dx = 35; dy = 46;
+				dx = DBORDERX + 19; dy = DBORDERY + 30;
 				GetVileMissPos(&dx, &dy);
 			}
-			AddMissile(plr[myplr]._px, plr[myplr]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0);
+			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0);
 			sgbActionBtnDown = FALSE;
 			sgbAltActionBtnDown = FALSE;
 			ClrPlrPath(myplr);
@@ -1883,8 +1883,10 @@ static void Obj_Circle(int oi)
 	} else {
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 1;
-		if (os->_otype == OBJ_MCIRCLE2)
+		else {
+			assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 3;
+		}
 		os->_oVar6 = 0;
 	}
 }
@@ -2874,16 +2876,16 @@ static void OperateBook(int pnum, int oi)
 			if (on->_otype != OBJ_MCIRCLE2)
 				continue;
 			if (on->_oVar6 == 1) {
-				dx = 27;
-				dy = 29;
+				dx = DBORDERX + 11;
+				dy = DBORDERY + 13;
 			} else if (on->_oVar6 == 2) {
-				dx = 43;
-				dy = 29;
+				dx = DBORDERX + 27;
+				dy = DBORDERY + 13;
 			} else {
 				continue;
 			}
 			on->_oVar6 = 4;
-			object[dObject[35][36] - 1]._oVar5++;
+			object[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++;
 			GetVileMissPos(&dx, &dy);
 			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0);
 			missile_added = TRUE;

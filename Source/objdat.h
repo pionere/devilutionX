@@ -12,12 +12,12 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int ObjTypeConv[];
-extern ObjDataStruct AllObjects[];
+extern const int ObjTypeConv[];
+extern const ObjDataStruct AllObjects[];
 extern const char *const ObjMasterLoadList[];
 #ifdef HELLFIRE
-extern char *ObjCryptLoadList[];
-extern char *ObjHiveLoadList[];
+extern const char *const ObjCryptLoadList[];
+extern const char *const ObjHiveLoadList[];
 #endif
 
 #ifdef __cplusplus
