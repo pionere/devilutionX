@@ -1816,8 +1816,6 @@ static void L1tileFix()
 				v2 = dungeon[i][j - 1];
 				if (v1 == 6 && v2 == 22)
 					dungeon[i][j - 1] = 7;
-				if (v1 == 6 && v2 == 22)
-					dungeon[i][j - 1] = 24;
 				if (v1 == 7 && v2 == 24)
 					dungeon[i][j - 1] = 21;
 				if (v1 == 18 && v2 == 24)
