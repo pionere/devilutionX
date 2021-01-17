@@ -15,11 +15,7 @@ TMenuItem sgSingleMenu[] = {
 	{ GMENU_ENABLED, "Settings",      &gamemenu_settings   },
 	{ GMENU_ENABLED, "New Game",      &gamemenu_new_game   },
 	{ GMENU_ENABLED, "Load Game",     &gamemenu_load_game  },
-#ifdef HELLFIRE
-	{ GMENU_ENABLED, "Quit Hellfire", &gamemenu_quit_game  },
-#else
-	{ GMENU_ENABLED, "Quit Diablo",   &gamemenu_quit_game  },
-#endif
+	{ GMENU_ENABLED, "Quit Game",     &gamemenu_quit_game  },
 	{ GMENU_ENABLED, NULL,            NULL }
 	// clang-format on
 };
@@ -30,11 +26,7 @@ TMenuItem sgMultiMenu[] = {
 	{ GMENU_ENABLED, "Settings",        &gamemenu_settings     },
 	{ GMENU_ENABLED, "New Game",        &gamemenu_new_game     },
 	{ GMENU_ENABLED, "Restart In Town", &gamemenu_restart_town },
-#ifdef HELLFIRE
-	{ GMENU_ENABLED, "Quit Hellfire",   &gamemenu_quit_game    },
-#else
-	{ GMENU_ENABLED, "Quit Diablo",     &gamemenu_quit_game    },
-#endif
+	{ GMENU_ENABLED, "Quit Game",       &gamemenu_quit_game    },
 	{ GMENU_ENABLED, NULL,              NULL                   },
 	// clang-format on
 };

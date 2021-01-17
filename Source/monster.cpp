@@ -67,11 +67,6 @@ const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
 const int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-#ifdef HELLFIRE
-const int HorkXAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 }; // CODEFIX: same values as offset_x, remove it and use offset_x instead
-const int HorkYAdd[8] = { 1, 1, 1, 0, -1, -1, -1, 0 }; // CODEFIX: same values as offset_y, remove it and use offset_y instead
-#endif
-
 /** unused */
 int rnd5[4] = { 5, 10, 15, 20 };
 int rnd10[4] = { 10, 15, 20, 30 };
@@ -4229,7 +4224,7 @@ void MAI_Horkdemon(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 3 && v < 2 * mon->_mint + 43) {
-			if (PosOkMonst(mnum, mon->_mx + HorkXAdd[mon->_mdir], mon->_my + HorkYAdd[mon->_mdir]) && nummonsters < MAXMONSTERS) {
+			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
 				MonStartRSpAttack(mnum, MIS_HORKDMN, 0);
 			}
 		} else if (dist < 2) {
