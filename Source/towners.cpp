@@ -772,7 +772,6 @@ void TalkToTowner(int pnum, int tnum)
 					InitQTextMsg(TEXT_MUSH12);
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
 					tw->_tMsgSaid = TRUE;
-					AllItemsList[IDI_SPECELIX].iUsable = TRUE;
 				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;

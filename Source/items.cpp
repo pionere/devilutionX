@@ -1056,7 +1056,7 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 void SetItemData(int ii, int idata)
 {
 	ItemStruct *is;
-	ItemDataStruct *ids;
+	const ItemDataStruct *ids;
 
 	is = &item[ii];
 	// zero-initialize struct
@@ -3797,6 +3797,8 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		PrintItemString(x, y);
 		return;
 	case IMISC_SPECELIX:
+		desc = "strange glowing liquid";
+		PrintItemString(x, y, desc);
 		return;
 #ifdef HELLFIRE
 	case IMISC_RUNE:
