@@ -616,7 +616,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	int count;
 
 	count = 0;
-	uniqm = UniqMonst + uniqindex;
+	uniqm = &UniqMonst[uniqindex];
 
 	if ((uniquetrans + 19) << 8 >= LIGHTSIZE) {
 		return;
@@ -1817,9 +1817,7 @@ static void M2MStartKill(int offm, int defm)
 	if (dmon->_mType == MT_DIABLO)
 		MonDiabloDeath(defm, TRUE);
 	else
-		PlayEffect(offm, 2);
-
-	PlayEffect(defm, 2);
+		PlayEffect(defm, 2);
 
 	if (dmon->_mmode != MM_STONE) {
 		dmon->_mmode = MM_DEATH;
