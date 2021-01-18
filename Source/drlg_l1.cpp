@@ -587,7 +587,7 @@ static void DRLG_L1PlaceDoor(int x, int y)
 		BYTE df = L1dflags[x][y] & 0x7F;
 		BYTE c = dungeon[x][y];
 
-		if (df == 1) {
+		if (df == DLRG_HDOOR) {
 			if (y != 1 && c == 2)
 				dungeon[x][y] = 26;
 			if (y != 1 && c == 7)
@@ -602,8 +602,7 @@ static void DRLG_L1PlaceDoor(int x, int y)
 				dungeon[x][y] = 40;
 			if (x != 1 && c == 6)
 				dungeon[x][y] = 30;
-		}
-		if (df == 2) {
+		} else if (df == DLRG_VDOOR) {
 			if (x != 1 && c == 1)
 				dungeon[x][y] = 25;
 			if (x != 1 && c == 6)
@@ -618,8 +617,7 @@ static void DRLG_L1PlaceDoor(int x, int y)
 				dungeon[x][y] = 42;
 			if (y != 1 && c == 7)
 				dungeon[x][y] = 31;
-		}
-		if (df == 3) {
+		} else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
 			if (x != 1 && y != 1 && c == 4)
 				dungeon[x][y] = 28;
 			if (x != 1 && c == 10)

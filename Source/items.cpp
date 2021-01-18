@@ -745,7 +745,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #endif
 	p->_pwtype = WT_MELEE;
 
-	g = 0;
+	g = ANIM_ID_UNARMED;
 
 	if (wLeft->_itype != ITYPE_NONE
 	    && wLeft->_iClass == ICLASS_WEAPON

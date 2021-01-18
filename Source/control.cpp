@@ -30,7 +30,7 @@ BYTE *pMultiBtns;
 BYTE *pPanelButtons;
 BYTE *pChrPanel;
 BOOL lvlbtndown;
-char sgszTalkSave[8][80];
+char sgszTalkSave[8][MAX_SEND_STR_LEN];
 int dropGoldValue;
 BOOL chrbtnactive;
 char sgszTalkMsg[MAX_SEND_STR_LEN];
