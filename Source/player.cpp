@@ -869,14 +869,14 @@ void NextPlrLevel(int pnum)
 void AddPlrExperience(int pnum, int lvl, int exp)
 {
 	PlayerStruct *p;
-	int powerLvlCap, expCap, newLvl, i;
+	int powerLvlCap, expCap, dLvl;
 
 	if (pnum != myplr) {
 		return;
 	}
 
 	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("AddPlrExperience: illegal player %d", pnum);
+		dev_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
 	p = &plr[pnum];
@@ -885,50 +885,38 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 
 	// Adjust xp based on difference in level between player and monster
-	exp = exp * (10 + (lvl - p->_pLevel)) / 10;
-	if (exp < 0) {
-		exp = 0;
+	dLvl = 8 + lvl - p->_pLevel;
+	if (dLvl <= 0) {
+		return;
 	}
+	exp = exp * dLvl / 8;
 
 	// Prevent power leveling
 	if (gbMaxPlayers != 1) {
-		powerLvlCap = p->_pLevel < 0 ? 0 : p->_pLevel;
-		if (powerLvlCap > MAXCHARLEVEL) {
-			powerLvlCap = MAXCHARLEVEL;
+		assert(p->_pLevel >= 0 && p->_pLevel <= MAXCHARLEVEL);
+		// cap to 1/32 of current levels xp
+		expCap = p->_pNextExper / 32;
+		if (exp > expCap) {
+			exp = expCap;
 		}
-		// cap to 1/20 of current levels xp
-		if (exp > ExpLvlsTbl[powerLvlCap] / 20) {
-			exp = ExpLvlsTbl[powerLvlCap] / 20;
-		}
-		// cap to 200 * current level
-		expCap = 200 * powerLvlCap;
+		// cap to 128 * current level
+		expCap = 128 * p->_pLevel;
 		if (exp > expCap) {
 			exp = expCap;
 		}
 	}
 
 	p->_pExperience += exp;
-	if ((DWORD)p->_pExperience > MAXEXP) {
-		p->_pExperience = MAXEXP;
-	}
-
-	if (p->_pExperience >= ExpLvlsTbl[MAXCHARLEVEL - 1]) {
-		p->_pLevel = MAXCHARLEVEL;
-		return;
+	if (p->_pExperience > ExpLvlsTbl[MAXCHARLEVEL] - 1) {
+		p->_pExperience = ExpLvlsTbl[MAXCHARLEVEL] - 1;
 	}
 
 	// Increase player level if applicable
-	newLvl = 0;
-	while (p->_pExperience >= ExpLvlsTbl[newLvl]) {
-		newLvl++;
+	while (p->_pExperience >= p->_pNextExper) {
+		assert(p->_pLevel < MAXCHARLEVEL);
+		NextPlrLevel(pnum);
+		NetSendCmdParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
 	}
-	if (newLvl != p->_pLevel) {
-		for (i = newLvl - p->_pLevel; i > 0; i--) {
-			NextPlrLevel(pnum);
-		}
-	}
-
-	NetSendCmdParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
 }
 
 void AddPlrMonstExper(int lvl, int exp, char pmask)

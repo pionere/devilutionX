@@ -167,7 +167,6 @@
 #endif
 
 // from diablo 2 beta
-#define MAXEXP					2000000000
 #define MAXRESIST				75
 
 #define GOLD_SMALL_LIMIT		1000
