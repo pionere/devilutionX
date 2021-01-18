@@ -60,7 +60,7 @@ const MissileData missiledata[] = {
 	{  MIS_BLODBOIL,      &miss_null_1F,              &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 #endif
 	{  MIS_APOCAC,        &AddApocaC,                 &MI_ApocaC,         FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      LS_APOC,     -1,          1,        1        },
-	{  MIS_REPAIR,        &AddRepair,                 &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
+	{  MIS_REPAIR,        &AddRepair,                 &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      IS_REPAIR,   -1,          1,        1        },
 	{  MIS_RECHARGE,      &AddRecharge,               &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 	{  MIS_DISARM,        &AddDisarm,                 &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      LS_TRAPDIS,  -1,          1,        1        },
 	{  MIS_FLAME,         &AddFlame,                  &MI_Flame,          TRUE,      1,               MIFLAG_NOBLOCK, MISR_FIRE,      MFILE_INFERNO,   LS_SPOUTSTR, -1,          1,        1        },
@@ -127,6 +127,7 @@ const MissileData missiledata[] = {
 	{  MIS_EXBL2,         &AddMisexp,                 &MI_Misexp,         TRUE,      2,                            0, MISR_NONE,      MFILE_EXBL2,     LS_FIRIMP2,  -1,          1,        1        },
 	{  MIS_EXBL3,         &AddMisexp,                 &MI_Misexp,         TRUE,      2,                            0, MISR_NONE,      MFILE_EXBL3,     LS_FIRIMP2,  -1,          1,        1        },
 	{  MIS_EXORA1,        &AddMisexp,                 &MI_Misexp,         TRUE,      2,                            0, MISR_NONE,      MFILE_EXORA1,    LS_FIRIMP2,  -1,          1,        1        },
+	{  MIS_WHITTLE,       &AddWhittle,                &MI_Dummy,          FALSE,     2,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },
 #endif
 	// clang-format on
 };

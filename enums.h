@@ -1527,6 +1527,7 @@ typedef enum missile_id {
 	MIS_EXBL2,
 	MIS_EXBL3,
 	MIS_EXORA1,
+	MIS_WHITTLE,
 #endif
 } missile_id;
 
@@ -2700,6 +2701,7 @@ typedef enum spell_id {
 	SPL_RUNENOVA,
 	SPL_RUNEIMMOLAT,
 	SPL_RUNESTONE,
+	SPL_WHITTLE,
 #endif
 	SPL_WALK,
 	SPL_WATTACK,

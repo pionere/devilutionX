@@ -70,6 +70,7 @@ void CheckIdentify(int pnum, int cii);
 void DoRepair(int pnum, int cii);
 void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
+void DoWhittle(int pnum, int cii);
 BOOL DoOil(int pnum, int cii);
 #endif
 void PrintItemPower(BYTE plidx, const ItemStruct *is);

@@ -3082,7 +3082,6 @@ void DoRepair(int pnum, int cii)
 	ItemStruct *pi;
 
 	p = &plr[pnum];
-	PlaySfxLoc(IS_REPAIR, p->_px, p->_py);
 
 	if (cii >= NUM_INVLOC) {
 		pi = &p->InvList[cii - NUM_INVLOC];
@@ -3135,6 +3134,36 @@ void DoRecharge(int pnum, int cii)
 		CalcPlrInv(pnum, TRUE);
 	}
 }
+
+#ifdef HELLFIRE
+void DoWhittle(int pnum, int cii)
+{
+	PlayerStruct *p;
+	ItemStruct *pi;
+	int seed, lvl;
+
+	p = &plr[pnum];
+	if (cii >= NUM_INVLOC) {
+		pi = &p->InvList[cii - NUM_INVLOC];
+	} else {
+		pi = &p->InvBody[cii];
+	}
+
+	if (pi->_itype == ITYPE_STAFF
+	 && (pi->_iSpell != SPL_NULL || pi->_iMagical != ITEM_QUALITY_NORMAL)) {
+		seed = pi->_iSeed;
+		lvl = pi->_iCreateInfo & CF_LEVEL;
+		SetRndSeed(seed);
+		GetItemAttrs(MAXITEMS, pi->_iIdx, lvl);
+		assert(item[MAXITEMS]._iSpell == SPL_NULL);
+		item[MAXITEMS]._iSeed = seed;
+		item[MAXITEMS]._iCreateInfo = lvl | CF_SMITH;
+		item[MAXITEMS]._iDurability = std::min(pi->_iDurability, item[MAXITEMS]._iDurability);
+		copy_pod(*pi, item[MAXITEMS]);
+		CalcPlrInv(pnum, TRUE);
+	}
+}
+#endif
 
 static ItemStruct* PlrItem(int pnum, int cii)
 {

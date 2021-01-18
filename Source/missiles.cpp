@@ -3161,6 +3161,15 @@ int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DELETE;
 }
 
+#ifdef HELLFIRE
+int AddWhittle(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	assert((DWORD)misource < MAX_PLRS);
+	DoWhittle(misource, spllvl);
+	return MIRES_DELETE;
+}
+#endif
+
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	assert((DWORD)misource < MAX_PLRS);

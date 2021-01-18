@@ -187,6 +187,7 @@ const BYTE SpellITbl[NUM_SPELLS] = {
 	35,// SPL_RUNENOVA
 	35,// SPL_RUNEIMMOLAT
 	35,// SPL_RUNESTONE
+	40,// SPL_WHITTLE
 #endif
 	28,// SPL_WALK
 	32,// SPL_WATTACK
@@ -468,15 +469,11 @@ void DrawSpeedBook()
 
 				pSpell = sn;
 				pSplType = i;
-#ifdef HELLFIRE
-				if (sn == SPL_SEARCH && p->_pClass == PC_MONK)
-					pSplType = RSPLTYPE_SKILL;
-#endif
 
-				DrawSpellIconOverlay(sn, pSplType, s, x, y);
+				DrawSpellIconOverlay(sn, i, s, x, y);
 
 				for (t = 0; t < 4; t++) {
-					if (p->_pSplHotKey[t] == sn && p->_pSplTHotKey[t] == pSplType) {
+					if (p->_pSplHotKey[t] == sn && p->_pSplTHotKey[t] == i) {
 						//DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
 						snprintf(tempstr, sizeof(tempstr), "#%d", t + 1);
 						PrintString(x + SPLICONLENGTH - 18, y - SPLICONLENGTH + 16, x + SPLICONLENGTH, tempstr, FALSE, COL_GOLD, 1);

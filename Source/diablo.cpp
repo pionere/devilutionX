@@ -649,9 +649,8 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != -1) {
-			int sn = plr[myplr]._pTSpell;
-			int sf = plr[myplr]._pSplFrom;
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, 0, 0, sn, sf, pcursinvitem);
+			PlayerStruct *p = &plr[myplr];
+			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
