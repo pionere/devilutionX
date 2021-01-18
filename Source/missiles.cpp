@@ -774,6 +774,7 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 		dam = RandRange(mind, maxd);
 		if (p->_pIFlags & ISPL_ABSHALFTRAP)
 			dam >>= 1;
+		dam += p->_pIGetHit;
 		if (!shift)
 			dam <<= 6;
 		if (dam < 64)
