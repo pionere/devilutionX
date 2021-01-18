@@ -9,8 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int trapid;
 int trapdir;
-BYTE *pObjCels[40];
-char ObjFileList[40];
+BYTE *pObjCels[NUM_OFILE_TYPES] = { 0 };
 int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int nobjects;
@@ -18,7 +17,6 @@ int leverid;
 int objectavail[MAXOBJECTS];
 ObjectStruct object[MAXOBJECTS];
 BOOL InitObjFlag;
-int numobjfiles;
 int UberLeverProgress;
 
 /** Specifies the X-coordinate delta between barrels. */
@@ -263,7 +261,6 @@ void InitObjectGFX()
 
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
-			ObjFileList[numobjfiles] = i;
 #ifdef HELLFIRE
 			if (currlevel >= 17 && currlevel < 21)
 				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjHiveLoadList[i]);
@@ -272,8 +269,7 @@ void InitObjectGFX()
 			else
 #endif
 				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
-			pObjCels[numobjfiles] = LoadFileInMem(filestr, NULL);
-			numobjfiles++;
+			pObjCels[i] = LoadFileInMem(filestr, NULL);
 		}
 	}
 }
@@ -282,10 +278,11 @@ void FreeObjectGFX()
 {
 	int i;
 
-	for (i = 0; i < numobjfiles; i++) {
-		MemFreeDbg(pObjCels[i]);
+	for (i = 0; i < NUM_OFILE_TYPES; i++) {
+		if (pObjCels[i] != NULL) {
+			MemFreeDbg(pObjCels[i]);
+		}
 	}
-	numobjfiles = 0;
 }
 
 static BOOLEAN RndLocOk(int xp, int yp)
@@ -1112,10 +1109,8 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 		if (!fileload[i])
 			continue;
 
-		ObjFileList[numobjfiles] = i;
 		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
-		pObjCels[numobjfiles] = LoadFileInMem(filestr, NULL);
-		numobjfiles++;
+		pObjCels[i] = LoadFileInMem(filestr, NULL);
 	}
 
 	lm = h;
@@ -1146,20 +1141,13 @@ static void SetupObject(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
 	const ObjDataStruct *ods;
-	int ofi, i;
 
 	os = &object[oi];
-	os->_otype = type;
-
-	ods = &AllObjects[type];
-	ofi = ods->ofindex;
 	os->_ox = x;
 	os->_oy = y;
-	i = 0;
-	while (ObjFileList[i] != ofi) {
-		i++;
-	}
-	os->_oAnimData = pObjCels[i];
+	os->_otype = type;
+	ods = &AllObjects[type];
+	os->_oAnimData = pObjCels[ods->ofindex];
 	os->_oAnimFlag = ods->oAnimFlag;
 	if (ods->oAnimFlag) {
 		os->_oAnimDelay = ods->oAnimDelay;
@@ -4735,14 +4723,10 @@ static void SyncL3Doors(int oi)
 
 void SyncObjectAnim(int oi)
 {
-	int i, ofindex;
+	int type;
 
-	ofindex = AllObjects[object[oi]._otype].ofindex;
-	i = 0;
-	while (ObjFileList[i] != ofindex)
-		i++;
-
-	object[oi]._oAnimData = pObjCels[i];
+	type = object[oi]._otype;
+	object[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
