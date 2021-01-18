@@ -463,13 +463,17 @@ static void SearchAutomapItem()
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
-static void DrawAutomapPlr()
+static void DrawAutomapPlr(int pnum)
 {
 	PlayerStruct *p;
 	int px, py;
 	int x, y;
+	int playerColor;
 
-	p = &plr[myplr];
+	//static_assert(8 * MAX_PLRS < 128, "Not enough color to differentiate between the players.");
+	playerColor = COLOR_PLAYER + (8 * pnum) % 128;
+
+	p = &plr[pnum];
 	if (p->_pmode == PM_WALK3) {
 		px = p->_pfutx;
 		py = p->_pfuty;
@@ -497,44 +501,44 @@ static void DrawAutomapPlr()
 
 	switch (p->_pdir) {
 	case DIR_N:
-		DrawLine(x, y, x, y - AmLine16, COLOR_PLAYER);
-		DrawLine(x, y - AmLine16, x - AmLine4, y - AmLine8, COLOR_PLAYER);
-		DrawLine(x, y - AmLine16, x + AmLine4, y - AmLine8, COLOR_PLAYER);
+		DrawLine(x, y, x, y - AmLine16, playerColor);
+		DrawLine(x, y - AmLine16, x - AmLine4, y - AmLine8, playerColor);
+		DrawLine(x, y - AmLine16, x + AmLine4, y - AmLine8, playerColor);
 		break;
 	case DIR_NE:
-		DrawLine(x, y, x + AmLine16, y - AmLine8, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y - AmLine8, x + AmLine8, y - AmLine8, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y - AmLine8, x + AmLine8 + AmLine4, y, COLOR_PLAYER);
+		DrawLine(x, y, x + AmLine16, y - AmLine8, playerColor);
+		DrawLine(x + AmLine16, y - AmLine8, x + AmLine8, y - AmLine8, playerColor);
+		DrawLine(x + AmLine16, y - AmLine8, x + AmLine8 + AmLine4, y, playerColor);
 		break;
 	case DIR_E:
-		DrawLine(x, y, x + AmLine16, y, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y, x + AmLine8, y - AmLine4, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y, x + AmLine8, y + AmLine4, COLOR_PLAYER);
+		DrawLine(x, y, x + AmLine16, y, playerColor);
+		DrawLine(x + AmLine16, y, x + AmLine8, y - AmLine4, playerColor);
+		DrawLine(x + AmLine16, y, x + AmLine8, y + AmLine4, playerColor);
 		break;
 	case DIR_SE:
-		DrawLine(x, y, x + AmLine16, y + AmLine8, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y + AmLine8, x + AmLine8 + AmLine4, y, COLOR_PLAYER);
-		DrawLine(x + AmLine16, y + AmLine8, x + AmLine8, y + AmLine8, COLOR_PLAYER);
+		DrawLine(x, y, x + AmLine16, y + AmLine8, playerColor);
+		DrawLine(x + AmLine16, y + AmLine8, x + AmLine8 + AmLine4, y, playerColor);
+		DrawLine(x + AmLine16, y + AmLine8, x + AmLine8, y + AmLine8, playerColor);
 		break;
 	case DIR_S:
-		DrawLine(x, y, x, y + AmLine16, COLOR_PLAYER);
-		DrawLine(x, y + AmLine16, x + AmLine4, y + AmLine8, COLOR_PLAYER);
-		DrawLine(x, y + AmLine16, x - AmLine4, y + AmLine8, COLOR_PLAYER);
+		DrawLine(x, y, x, y + AmLine16, playerColor);
+		DrawLine(x, y + AmLine16, x + AmLine4, y + AmLine8, playerColor);
+		DrawLine(x, y + AmLine16, x - AmLine4, y + AmLine8, playerColor);
 		break;
 	case DIR_SW:
-		DrawLine(x, y, x - AmLine16, y + AmLine8, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y + AmLine8, x - AmLine4 - AmLine8, y, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y + AmLine8, x - AmLine8, y + AmLine8, COLOR_PLAYER);
+		DrawLine(x, y, x - AmLine16, y + AmLine8, playerColor);
+		DrawLine(x - AmLine16, y + AmLine8, x - AmLine4 - AmLine8, y, playerColor);
+		DrawLine(x - AmLine16, y + AmLine8, x - AmLine8, y + AmLine8, playerColor);
 		break;
 	case DIR_W:
-		DrawLine(x, y, x - AmLine16, y, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y, x - AmLine8, y - AmLine4, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y, x - AmLine8, y + AmLine4, COLOR_PLAYER);
+		DrawLine(x, y, x - AmLine16, y, playerColor);
+		DrawLine(x - AmLine16, y, x - AmLine8, y - AmLine4, playerColor);
+		DrawLine(x - AmLine16, y, x - AmLine8, y + AmLine4, playerColor);
 		break;
 	case DIR_NW:
-		DrawLine(x, y, x - AmLine16, y - AmLine8, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y - AmLine8, x - AmLine8, y - AmLine8, COLOR_PLAYER);
-		DrawLine(x - AmLine16, y - AmLine8, x - AmLine4 - AmLine8, y, COLOR_PLAYER);
+		DrawLine(x, y, x - AmLine16, y - AmLine8, playerColor);
+		DrawLine(x - AmLine16, y - AmLine8, x - AmLine8, y - AmLine8, playerColor);
+		DrawLine(x - AmLine16, y - AmLine8, x - AmLine4 - AmLine8, y, playerColor);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -723,7 +727,12 @@ void DrawAutomap()
 		mapx++;
 		sy += AmLine32;
 	}
-	DrawAutomapPlr();
+
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive) {
+			DrawAutomapPlr(pnum);
+		}
+	}
 	if (AutoMapShowItems)
 		SearchAutomapItem();
 	DrawAutomapText();
