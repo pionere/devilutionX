@@ -2692,10 +2692,15 @@ void PrepDoEnding()
 	if (killLevel > plr[myplr].pDiabloKillLevel)
 		plr[myplr].pDiabloKillLevel = killLevel;
 
-	for (i = 0; i < MAX_PLRS; i++) {
-		plr[i]._pmode = PM_QUIT;
-		plr[i]._pInvincible = TRUE;
-		if (gbMaxPlayers != 1) {
+	if (gbMaxPlayers == 1) {
+		// save the hero + items
+		pfile_write_hero();
+		// delete the game
+		pfile_delete_save_file(SAVEFILE_GAME);
+	} else {
+		for (i = 0; i < MAX_PLRS; i++) {
+			plr[i]._pmode = PM_QUIT;
+			plr[i]._pInvincible = TRUE;
 			if (plr[i]._pHitPoints < (1 << 6))
 				plr[i]._pHitPoints = (1 << 6);
 		}

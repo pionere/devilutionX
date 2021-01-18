@@ -472,6 +472,17 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	pfile_flush(TRUE, save_num);
 }
 
+void pfile_delete_save_file(const char *pszName)
+{
+	DWORD save_num;
+
+	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
+	if (!pfile_open_archive(FALSE, save_num))
+		app_fatal("Unable to write to save file archive");
+	mpqapi_remove_hash_entry(pszName);
+	pfile_flush(TRUE, save_num);
+}
+
 BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 {
 	DWORD save_num, nread;

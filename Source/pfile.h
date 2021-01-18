@@ -34,6 +34,7 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH]);
 void pfile_remove_temp_files();
 void pfile_rename_temp_to_perm();
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen);
+void pfile_delete_save_file(const char *pszName);
 BYTE *pfile_read(const char *pszName, DWORD *pdwLen);
 void pfile_update(BOOL force_save);
 
