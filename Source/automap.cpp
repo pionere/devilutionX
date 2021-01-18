@@ -471,7 +471,9 @@ static void DrawAutomapPlr(int pnum)
 	int playerColor;
 
 	//static_assert(8 * MAX_PLRS < 128, "Not enough color to differentiate between the players.");
-	playerColor = COLOR_PLAYER + (8 * pnum) % 128;
+	// TODO: add this if the drawing of other players is enabled
+	//playerColor = COLOR_PLAYER + (8 * pnum) % 128;
+	playerColor = COLOR_PLAYER;
 
 	p = &plr[pnum];
 	if (p->_pmode == PM_WALK3) {
@@ -728,11 +730,13 @@ void DrawAutomap()
 		sy += AmLine32;
 	}
 
+	/* disable this feature for the moment, since the other players should consent to this...
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive) {
 			DrawAutomapPlr(pnum);
 		}
-	}
+	}*/
+	DrawAutomapPlr(myplr);
 	if (AutoMapShowItems)
 		SearchAutomapItem();
 	DrawAutomapText();
