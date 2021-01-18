@@ -4130,7 +4130,7 @@ void PlayDungMsgs()
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_99][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_HELL;
-	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[15] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
+	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[16] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
 		sfxdnum = PS_DIABLVLINT;
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
