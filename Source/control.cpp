@@ -822,16 +822,16 @@ void InitControlPan()
 	SetSpellTrans(RSPLTYPE_SKILL);
 	tBuff = LoadFileInMem("CtrlPan\\Panel8.CEL", NULL);
 	CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) - 1, PANEL_WIDTH, tBuff, 1, PANEL_WIDTH);
-	MemFreeDbg(tBuff);
+	mem_free_dbg(tBuff);
 	tBuff = LoadFileInMem("CtrlPan\\P8Bulbs.CEL", NULL);
 	CelBlitWidth(pLifeBuff, 0, 87, 88, tBuff, 1, 88);
 	CelBlitWidth(pManaBuff, 0, 87, 88, tBuff, 2, 88);
-	MemFreeDbg(tBuff);
+	mem_free_dbg(tBuff);
 	talkflag = FALSE;
 	if (gbMaxPlayers != 1) {
 		tBuff = LoadFileInMem("CtrlPan\\TalkPanl.CEL", NULL);
 		CelBlitWidth(pBtmBuff, 0, (PANEL_HEIGHT + 16) * 2 - 1, PANEL_WIDTH, tBuff, 1, PANEL_WIDTH);
-		MemFreeDbg(tBuff);
+		mem_free_dbg(tBuff);
 		pMultiBtns = LoadFileInMem("CtrlPan\\P8But2.CEL", NULL);
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
 		sgbPlrTalkTbl = 0;

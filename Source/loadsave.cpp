@@ -626,7 +626,11 @@ static void LoadQuest(int i)
 	ReturnLvlY = LoadInt();
 	ReturnLvl = LoadInt();
 	tbuff += 4; // Skip ReturnLvlT
+#ifdef  HELLFIRE
+	tbuff += 4; // Skip DoomQuestState
+#else
 	DoomQuestState = LoadInt();
+#endif
 }
 
 static void LoadLighting(int lnum)
@@ -1400,7 +1404,11 @@ static void SaveQuest(int i)
 	SaveInt(ReturnLvlY);
 	SaveInt(ReturnLvl);
 	tbuff += 4; // Skip ReturnLvlT
+#ifdef  HELLFIRE
+	tbuff += 4; // Skip DoomQuestState
+#else
 	SaveInt(DoomQuestState);
+#endif
 }
 
 static void SaveLighting(int lnum)

@@ -7,10 +7,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+BYTE *pDoomCel = NULL;
+BOOLEAN doomflag;
+
+#ifdef HELLFIRE
+#define DOOM_CELSIZE 0x39000
+#else
+#define DOOM_CELSIZE 0x38000
+
 int doom_quest_time;
 int doom_stars_drawn;
-BYTE *pDoomCel;
-BOOLEAN doomflag;
 int DoomQuestState;
 
 /*
@@ -41,45 +47,12 @@ static int doom_get_frame_from_time()
 
 	return DoomQuestState / 1200;
 }
-
-static void doom_cleanup()
-{
-#ifdef HELLFIRE
-	if (pDoomCel != NULL) {
-		MemFreeDbg(pDoomCel);
-		pDoomCel = NULL;
-	}
-#else
-	MemFreeDbg(pDoomCel);
 #endif
-}
 
-#ifdef HELLFIRE
-static BOOLEAN doom_alloc_cel()
-#else
-static void doom_alloc_cel()
-#endif
-{
-#ifdef HELLFIRE
-	doom_cleanup();
-	pDoomCel = DiabloAllocPtr(0x39000);
-	return pDoomCel ? TRUE : FALSE;
-#else
-	pDoomCel = DiabloAllocPtr(0x38000);
-#endif
-}
-
-#ifdef HELLFIRE
 static BOOLEAN doom_load_graphics()
-#else
-static void doom_load_graphics()
-#endif
 {
 #ifdef HELLFIRE
 	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL");
-	if (LoadFileWithMem(tempstr, pDoomCel))
-		return TRUE;
-	return FALSE;
 #else
 	if (doom_quest_time == 31) {
 		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL");
@@ -88,37 +61,31 @@ static void doom_load_graphics()
 	} else {
 		snprintf(tempstr, sizeof(tempstr), "Items\\Map\\MapZ00%i.CEL", doom_quest_time);
 	}
-	LoadFileWithMem(tempstr, pDoomCel);
 #endif
+	return LoadFileWithMem(tempstr, pDoomCel) != NULL;
 }
 
 void doom_init()
 {
-#ifdef HELLFIRE
-	if (doom_alloc_cel()) {
-		doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
-		if (doom_load_graphics()) {
-			doomflag = TRUE;
-		} else {
-			doom_close();
-		}
-	}
-#else
-	doomflag = TRUE;
-	doom_alloc_cel();
+	doom_close();
+
+	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
+	if (pDoomCel == NULL)
+		return;
+#ifndef  HELLFIRE
 	doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
-	doom_load_graphics();
 #endif
+	if (!doom_load_graphics()) {
+		doom_close();
+		return;
+	}
+	doomflag = TRUE;
 }
 
 void doom_close()
 {
-#ifndef HELLFIRE
-	if (!doomflag)
-		return;
-#endif
 	doomflag = FALSE;
-	doom_cleanup();
+	MemFreeDbg(pDoomCel);
 }
 
 void doom_draw()

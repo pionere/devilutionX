@@ -13,7 +13,9 @@ extern "C" {
 #endif
 
 extern BOOLEAN doomflag;
+#ifndef HELLFIRE
 extern int DoomQuestState;
+#endif
 
 void doom_init();
 void doom_close();

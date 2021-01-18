@@ -869,7 +869,7 @@ void NextPlrLevel(int pnum)
 void AddPlrExperience(int pnum, int lvl, int exp)
 {
 	PlayerStruct *p;
-	int powerLvlCap, expCap, dLvl;
+	int expCap, dLvl;
 
 	if (pnum != myplr) {
 		return;
