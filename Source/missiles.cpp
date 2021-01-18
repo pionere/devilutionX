@@ -1544,26 +1544,6 @@ int AddManaTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DELETE;
 }
 
-/*
- * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
- *  ISPL_QUICKATTACK:   +1
- *  ISPL_FASTATTACK:    +2
- *  ISPL_FASTERATTACK:  +4
- *  ISPL_FASTESTATTACK: +8
- */
-inline static int ArrowVelBonus(unsigned flags)
-{
-	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
-	if (flags != 0) {
-		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
-		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
-		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
-		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
-		flags /= ISPL_QUICKATTACK;
-	}
-	return flags;
-}
-
 /**
  * Var1: dx destination of the missile
  * Var2: dy destination of the missile
@@ -1574,8 +1554,6 @@ inline static int ArrowVelBonus(unsigned flags)
 int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	PlayerStruct *p;
-	int av, flags;
 
 	mis = &missile[mi];
 	mis->_miRange = 1;
@@ -1585,8 +1563,8 @@ int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miVar4 = mis->_miSpllvl;
 
 	assert((DWORD)misource < MAX_PLRS);
-	p = &plr[misource];
-	/*switch (p->_pILMinDam) {
+	/*p = &plr[misource];
+	switch (p->_pILMinDam) {
 	switch () {
 	case 0:
 		mitype = MIS_FIREBALL2; // uses spllvl as arrow vel bonus
@@ -1603,15 +1581,7 @@ int AddSpecArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	default:
 		ASSUME_UNREACHABLE
 	}*/
-	av = 0;
-	if (p->_pClass == PC_ROGUE)
-		av += (p->_pLevel - 1) >> 2;
-	else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-		av += (p->_pLevel - 1) >> 3;
-
-	flags = p->_pIFlags;
-	av += ArrowVelBonus(flags);
-	mis->_miVar5 = av;
+	mis->_miVar5 = plr[misource]._pIArrowVelBonus;
 	return MIRES_DONE;
 }
 
@@ -1954,7 +1924,7 @@ int AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int av = 31, flags;
+	int av = 31;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -1962,22 +1932,9 @@ int AddHboltArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	}
 	if (micaster == 0) {
 		p = &plr[misource];
-		flags = p->_pIFlags;
-		if (flags & ISPL_RNDARROWVEL)
+		if (p->_pIFlags & ISPL_RNDARROWVEL)
 			av = RandRange(16, 46);
-#ifdef HELLFIRE
-		av += ArrowVelBonus(flags);
-
-		if (p->_pClass == PC_ROGUE)
-			av += p->_pLevel >> 2;
-		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-			av += p->_pLevel >> 3;
-#else
-		if (p->_pClass == PC_ROGUE)
-			av += p->_pLevel >> 2;
-		else if (p->_pClass == PC_WARRIOR)
-			av += p->_pLevel >> 3;
-#endif
+		av += p->_pIArrowVelBonus;
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 
@@ -2022,7 +1979,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int av = 32, flags;
+	int av = 32;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2030,23 +1987,10 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	if (micaster == 0) {
 		p = &plr[misource];
-		flags = p->_pIFlags;
-		if (flags & ISPL_RNDARROWVEL) {
+		if (p->_pIFlags & ISPL_RNDARROWVEL) {
 			av = RandRange(16, 47);
 		}
-#ifdef HELLFIRE
-		av += ArrowVelBonus(flags);
-
-		if (p->_pClass == PC_ROGUE)
-			av += (p->_pLevel - 1) >> 2;
-		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-			av += (p->_pLevel - 1) >> 3;
-#else
-		if (p->_pClass == PC_ROGUE)
-			av += (p->_pLevel - 1) >> 2;
-		else if (p->_pClass == PC_WARRIOR)
-			av += (p->_pLevel - 1) >> 3;
-#endif
+		av += p->_pIArrowVelBonus;
 		//int dam = p->_pIMaxDam + p->_pIMinDam;
 		int fdam = p->_pIFMaxDam + p->_pIFMinDam;
 		int ldam = p->_pILMaxDam + p->_pILMinDam;
@@ -5426,7 +5370,7 @@ void ProcessMissiles()
 void missiles_process_charge()
 {
 	MonsterStruct *mon;
-	AnimStruct *anim;
+	int anim;
 	MissileStruct *mis;
 	int i;
 
@@ -5436,14 +5380,14 @@ void missiles_process_charge()
 		if (mis->_miType == MIS_RHINO) {
 			mon = &monster[mis->_miSource];
 			if (mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) {
-				anim = &mon->_mAnims[MA_SPECIAL];
+				anim = MA_SPECIAL;
 			} else {
 				if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE)
-					anim = &mon->_mAnims[MA_ATTACK];
+					anim = MA_ATTACK;
 				else
-					anim = &mon->_mAnims[MA_WALK];
+					anim = MA_WALK;
 			}
-			mis->_miAnimData = anim->Data[mis->_miDir];
+			mis->_miAnimData = mon->_mAnims[anim].Data[mis->_miDir];
 		}
 	}
 }

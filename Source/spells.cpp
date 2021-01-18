@@ -48,7 +48,8 @@ int GetManaAmount(int pnum, int sn)
 	if (mm > ma)
 		ma = mm;
 
-	return ma * (100 - plr[pnum]._pISplCost) / 100;
+	//return ma * (100 - plr[pnum]._pISplCost) / 100;
+	return ma;
 }
 
 void UseMana(int pnum, int sn, int sf)
@@ -62,7 +63,7 @@ void UseMana(int pnum, int sn, int sf)
 			if (debug_mode_key_inverted_v)
 				return;
 #endif
-			ma = GetManaAmount(pnum, sn);
+			ma = 0; // REMOVEME GetManaAmount(pnum, sn);
 			plr[pnum]._pMana -= ma;
 			plr[pnum]._pManaBase -= ma;
 			gbRedrawFlags |= REDRAW_MANA_FLASK;

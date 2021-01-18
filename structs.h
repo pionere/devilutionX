@@ -346,7 +346,7 @@ typedef struct PlayerStruct {
 	int _pIFlags;
 	int _pIGetHit;
 	char _pISplLvlAdd;
-	char _pISplCost; // 'unused'
+	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pCritChance; // 200 == 100%
 	int _pIFlags2; // _pISplDur in vanilla code

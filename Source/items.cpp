@@ -436,6 +436,26 @@ void InitItems()
 	}
 }
 
+/*
+ * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
+ *  ISPL_QUICKATTACK:   +1
+ *  ISPL_FASTATTACK:    +2
+ *  ISPL_FASTERATTACK:  +4
+ *  ISPL_FASTESTATTACK: +8
+ */
+inline static int ArrowVelBonus(unsigned flags)
+{
+	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
+	if (flags != 0) {
+		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
+		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
+		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
+		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
+		flags /= ISPL_QUICKATTACK;
+	}
+	return flags;
+}
+
 void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 {
 	PlayerStruct *p;
@@ -452,6 +472,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int bdam = 0;   // bonus damage
 	int btohit = 0; // bonus chance to hit
 	int bac = 0;    // bonus accuracy
+	int av;			// arrow velocity bonus
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
 	int iflgs2 = ISPH_NONE;// item_special_effect flags2
@@ -835,7 +856,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 			pdmod = p->_pLevel * p->_pStrength / 100;
 		}
 	} else if (p->_pClass == PC_BARBARIAN) {
-
 		if (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE) {
 			pdmod = p->_pLevel * p->_pStrength / 75;
 		} else if (wLeft->_itype == ITYPE_MACE || wRight->_itype == ITYPE_MACE) {
@@ -895,6 +915,20 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	else if (p->_pClass == PC_BARD)
 		p->_pIMagToHit += 10;
 #endif
+	// calculate arrow velocity bonus
+	av = ArrowVelBonus(p->_pIFlags);
+#ifdef HELLFIRE
+	if (p->_pClass == PC_ROGUE)
+		av += (p->_pLevel - 1) >> 2;
+	else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
+		av += (p->_pLevel - 1) >> 3;
+#else
+	if (p->_pClass == PC_ROGUE)
+		av += (p->_pLevel - 1) >> 2;
+	else if (p->_pClass == PC_WARRIOR)
+		av += (p->_pLevel - 1) >> 3;
+#endif
+	p->_pIArrowVelBonus = av;
 
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }

@@ -360,7 +360,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIFlags
 	tbuff += 4; // Skip to Calc _pIGetHit
 	tbuff += 1; // Skip to Calc _pISplLvlAdd);
-	CopyChar(tbuff, &p->_pISplCost);
+	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pCritChance
 	tbuff += 4; // Skip to Calc _pIFlags2
@@ -1145,7 +1145,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIGetHit
 
 	tbuff += 1; // Skip to Calc _pISplLvlAdd
-	CopyChar(&p->_pISplCost, tbuff);
+	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pCritChance
 	tbuff += 4; // Skip to Calc _pIFlags2
