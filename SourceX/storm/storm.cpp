@@ -148,6 +148,9 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 	}
 #ifdef HELLFIRE
 	if (!result) {
+		result = SFileOpenFileEx((HANDLE)devilutionx_mpq, filename, 0, phFile);
+	}
+	if (!result) {
 		result = SFileOpenFileEx((HANDLE)hfopt2_mpq, filename, 0, phFile);
 	}
 	if (!result) {

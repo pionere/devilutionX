@@ -1260,6 +1260,9 @@ static void PlrChangeOffset(int pnum)
 	PlrChangeLightOff(pnum);
 }
 
+/**
+ * @brief Starting a move action towards NW, N, or NE
+ */
 static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int sdir)
 {
 	PlayerStruct *p;
@@ -1298,12 +1301,12 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	p->_pyvel = yvel;
 	p->_pxoff = 0;
 	p->_pyoff = 0;
-	p->_pVar1 = xadd;
-	p->_pVar2 = yadd;
-	p->_pVar3 = EndDir;
-	p->_pVar6 = 0;
-	p->_pVar7 = 0;
-	p->_pVar8 = 0; // speed helper
+	p->_pVar1 = xadd;   // dx after the movement
+	p->_pVar2 = yadd;   // dy after the movement
+	p->_pVar3 = EndDir; // Player's direction when ending movement.
+	p->_pVar6 = 0;      // Same as _pxoff but contains the value in a higher range
+	p->_pVar7 = 0;      // Same as _pyoff but contains the value in a higher range
+	p->_pVar8 = 0;      // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
@@ -1328,6 +1331,9 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	}
 }
 
+/**
+ * @brief Starting a move action towards SW, S, or SE
+ */
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
@@ -1364,12 +1370,12 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	dPlayer[p->_px][p->_py] = -(pnum + 1);
-	p->_pVar1 = p->_px;
-	p->_pVar2 = p->_py;
-	p->_px = px;
+	p->_pVar1 = p->_px;  // the starting x-coordinate of the player
+	p->_pVar2 = p->_py;  // the starting y-coordinate of the player
+	p->_px = px; // Move player to the next tile to maintain correct render order
 	p->_py = py;
 	dPlayer[p->_px][p->_py] = pnum + 1;
-	p->_pxoff = xoff;
+	p->_pxoff = xoff; // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
 
 	ChangeLightXY(p->_plid, p->_px, p->_py);
@@ -1378,10 +1384,10 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pmode = PM_WALK2;
 	p->_pxvel = xvel;
 	p->_pyvel = yvel;
-	p->_pVar6 = xoff * 256;
-	p->_pVar7 = yoff * 256;
-	p->_pVar3 = EndDir;
-	p->_pVar8 = 0; // speed helper
+	p->_pVar6 = xoff * 256; // Same as _pxoff but contains the value in a higher range
+	p->_pVar7 = yoff * 256; // Same as _pyoff but contains the value in a higher range
+	p->_pVar3 = EndDir;     // Player's direction when ending movement.
+	p->_pVar8 = 0;          // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
@@ -1405,6 +1411,9 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 }
 
+/**
+ * @brief Starting a move action towards W or E
+ */
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
@@ -1444,10 +1453,10 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 
 	dPlayer[p->_px][p->_py] = -(pnum + 1);
 	dPlayer[px][py] = -(pnum + 1);
-	p->_pVar4 = x;
-	p->_pVar5 = y;
+	p->_pVar4 = x; // Used for storing X-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
+	p->_pVar5 = y; // Used for storing Y-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
 	dFlags[x][y] |= BFLAG_PLAYERLR;
-	p->_pxoff = xoff;
+	p->_pxoff = xoff; // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
 
 	if (leveltype != DTYPE_TOWN) {
@@ -1458,12 +1467,12 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pmode = PM_WALK3;
 	p->_pxvel = xvel;
 	p->_pyvel = yvel;
-	p->_pVar1 = px;
-	p->_pVar2 = py;
-	p->_pVar6 = xoff * 256;
-	p->_pVar7 = yoff * 256;
-	p->_pVar3 = EndDir;
-	p->_pVar8 = 0; // speed helper
+	p->_pVar1 = px;         // the Player's x-coordinate after the movement
+	p->_pVar2 = py;         // the Player's y-coordinate after the movement
+	p->_pVar6 = xoff * 256; // Same as _pxoff but contains the value in a higher range
+	p->_pVar7 = yoff * 256; // Same as _pyoff but contains the value in a higher range
+	p->_pVar3 = EndDir;     // Player's direction when ending movement.
+	p->_pVar8 = 0;          // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
@@ -1654,13 +1663,13 @@ static void StartSpell(int pnum)
 		spllvl = p->destParam2;
 	}
 
-	p->_pVar1 = dx;
-	p->_pVar2 = dy;
-	p->_pVar3 = p->_pSpell;
-	p->_pVar4 = spllvl;
-	p->_pVar5 = p->_pSplFrom;
-	p->_pVar7 = FALSE; // 'flag' of cast
-	p->_pVar8 = 0; // speed helper
+	p->_pVar1 = dx;           // x-tile of the target
+	p->_pVar2 = dy;           // y-tile of the target
+	p->_pVar3 = p->_pSpell;   // the spell to be cast
+	p->_pVar4 = spllvl;       // the level of the spell to be used
+	p->_pVar5 = p->_pSplFrom; // source of the spell
+	p->_pVar7 = FALSE;        // 'flag' of cast
+	p->_pVar8 = 0;            // speed helper
 	p->_pmode = PM_SPELL;
 
 	sd = &spelldata[p->_pSpell];
@@ -2181,7 +2190,10 @@ static BOOL PlrDoStand(int pnum)
 	return FALSE;
 }
 
-static BOOL PlrDoWalk(int pnum)
+/**
+ * @brief Movement towards NW, N, and NE
+ */
+static BOOL PM_DoWalk(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2239,7 +2251,10 @@ static BOOL PlrDoWalk(int pnum)
 	return TRUE;
 }
 
-static BOOL PlrDoWalk2(int pnum)
+/**
+ * @brief Movement towards SW, S, and SE
+ */
+static BOOL PM_DoWalk2(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2291,7 +2306,10 @@ static BOOL PlrDoWalk2(int pnum)
 	return TRUE;
 }
 
-static BOOL PlrDoWalk3(int pnum)
+/**
+ * @brief Movement towards W and E
+ */
+static BOOL PM_DoWalk3(int pnum)
 {
 	PlayerStruct *p;
 

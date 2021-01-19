@@ -372,6 +372,9 @@ static void multi_begin_timeout()
 	}
 }
 
+/**
+ * @return Always true for singleplayer
+ */
 int multi_handle_delta()
 {
 	int i;

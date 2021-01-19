@@ -1365,8 +1365,8 @@ void MonStartStand(int mnum, int md)
 
 	mon = &monster[mnum];
 	NewMonsterAnim(mnum, &mon->_mAnims[mon->_mType == MT_GOLEM ? MA_WALK : MA_STAND], md);
-	mon->_mVar1 = mon->_mmode;
-	mon->_mVar2 = 0;
+	mon->_mVar1 = mon->_mmode; // preserve the previous mode of the monster
+	mon->_mVar2 = 0;           // the time spent on standing
 	mon->_mmode = MM_STAND;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
@@ -1385,7 +1385,7 @@ static void MonStartDelay(int mnum, int len)
 
 	mon = &monster[mnum];
 	if (mon->_mAi != AI_LAZURUS) {
-		mon->_mVar2 = len;
+		mon->_mVar2 = len;      // length of the delay
 		mon->_mmode = MM_DELAY;
 	}
 }
@@ -1420,12 +1420,12 @@ static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int E
 	mon->_mmode = MM_WALK;
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
-	mon->_mVar1 = xadd;
-	mon->_mVar2 = yadd;
+	mon->_mVar1 = xadd; // dx after the movement
+	mon->_mVar2 = yadd; // dy after the movement
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
-	mon->_mVar6 = 0;
-	mon->_mVar7 = 0;
-	mon->_mVar8 = 0;
+	mon->_mVar6 = 0;    // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = 0;    // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
 }
 
 static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir)
@@ -1436,8 +1436,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mx = mon->_mx;
 	my = mon->_my;
 	dMonster[mx][my] = -(mnum + 1);
-	mon->_mVar1 = mon->_moldx = mx;
-	mon->_mVar2 = mon->_moldy = my;
+	mon->_mVar1 = mon->_moldx = mx; // the starting x-coordinate of the monster
+	mon->_mVar2 = mon->_moldy = my; // the starting y-coordinate of the monster
 
 	mx += xadd;
 	my += yadd;
@@ -1452,9 +1452,9 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
-	mon->_mVar6 = 16 * xoff;
-	mon->_mVar7 = 16 * yoff;
-	mon->_mVar8 = 0;
+	mon->_mVar6 = 16 * xoff; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = 16 * yoff; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 }
 
 static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir)
@@ -1470,8 +1470,8 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 
 	dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 	dMonster[fx][fy] = -(mnum + 1);
-	mon->_mVar4 = mapx;
-	mon->_mVar5 = mapy;
+	mon->_mVar4 = mapx; // Used for storing X-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
+	mon->_mVar5 = mapy; // Used for storing Y-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
 	dFlags[mapx][mapy] |= BFLAG_MONSTLR;
 	mon->_moldx = mon->_mx;
 	mon->_moldy = mon->_my;
@@ -1482,12 +1482,12 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mmode = MM_WALK3;
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
-	mon->_mVar1 = fx;
-	mon->_mVar2 = fy;
+	mon->_mVar1 = fx;        // the Monster's x-coordinate after the movement
+	mon->_mVar2 = fy;        // the Monster's y-coordinate after the movement
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_WALK], EndDir);
-	mon->_mVar6 = 16 * xoff;
-	mon->_mVar7 = 16 * yoff;
-	mon->_mVar8 = 0;
+	mon->_mVar6 = 16 * xoff; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = 16 * yoff; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 }
 
 static void MonStartAttack(int mnum)
@@ -1526,7 +1526,7 @@ static void MonStartRSpAttack(int mnum, int mitype, int dam)
 	NewMonsterAnim(mnum, &mon->_mAnims[MA_SPECIAL], md);
 	mon->_mmode = MM_RSPATTACK;
 	mon->_mVar1 = mitype;
-	mon->_mVar2 = 0;
+	mon->_mVar2 = 0;      // counter to enable/disable MFLAG_ALLOW_SPECIAL for certain monsters
 	mon->_mVar3 = dam;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
@@ -1984,7 +1984,7 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].Frames;
 	mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8));
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8)); // the healing speed of the monster
 }
 
 static void MonChangeLightOffset(int mnum)

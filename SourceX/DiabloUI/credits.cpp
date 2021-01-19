@@ -104,6 +104,7 @@ class CreditsRenderer {
 public:
 	CreditsRenderer()
 	{
+		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 		LoadBackgroundArt("ui_art\\credits.pcx");
 		LoadTtfFont();
 		ticks_begin_ = SDL_GetTicks();
@@ -113,6 +114,7 @@ public:
 
 	~CreditsRenderer()
 	{
+		ArtBackgroundWidescreen.Unload();
 		ArtBackground.Unload();
 		UnloadTtfFont();
 
@@ -144,6 +146,7 @@ void CreditsRenderer::Render()
 	prev_offset_y_ = offset_y;
 
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
+	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);
 	if (font == NULL)
 		return;

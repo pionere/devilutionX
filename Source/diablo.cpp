@@ -31,6 +31,7 @@ BOOL gbGameLoopStartup;
 BOOL gbRunGame;
 BOOL gbRunGameResult;
 BOOL zoomflag;
+/** Enable updating of player character, set to false once Diablo dies */
 BOOL gbProcessPlayers;
 BOOL gbLoadGame;
 BOOLEAN cineflag;
@@ -1989,6 +1990,9 @@ static void game_logic()
 #endif
 }
 
+/**
+ * @param bStartup Process additional ticks before returning
+ */
 void game_loop(BOOL bStartup)
 {
 	int i;

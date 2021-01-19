@@ -48,6 +48,11 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	vecMenuItems.push_back(new UiListItem("Exit Diablo", MAINMENU_EXIT_DIABLO));
 #endif
 
+#ifdef HELLFIRE
+	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
+#endif
+	LoadBackgroundArt(MENU_ART);
+
 	UiAddBackground(&vecMainMenuDialog);
 	UiAddLogo(&vecMainMenuDialog);
 
@@ -56,13 +61,12 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	SDL_Rect rect = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
 	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
 
-	LoadBackgroundArt(MENU_ART);
-
 	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, NULL, true);
 }
 
 void mainmenu_Free()
 {
+	ArtBackgroundWidescreen.Unload();
 	ArtBackground.Unload();
 
 	for (std::size_t i = 0; i < vecMainMenuDialog.size(); i++) {

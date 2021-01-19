@@ -26,6 +26,7 @@ extern HANDLE hfmusic_mpq;
 extern HANDLE hfvoice_mpq;
 extern HANDLE hfopt1_mpq;
 extern HANDLE hfopt2_mpq;
+extern HANDLE devilutionx_mpq;
 #endif
 
 void init_cleanup();
