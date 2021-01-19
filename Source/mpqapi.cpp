@@ -693,7 +693,7 @@ BOOL mpqapi_has_file(const char *pszName)
 	return FetchHandle(pszName) != -1;
 }
 
-BOOL OpenMPQ(const char *pszArchive, DWORD dwChar)
+BOOL OpenMPQ(const char *pszArchive)
 {
 	DWORD key;
 	_FILEHEADER fhdr;
@@ -746,7 +746,7 @@ on_error:
 	return FALSE;
 }
 
-BOOL mpqapi_flush_and_close(const char *pszArchive, BOOL bFree, DWORD dwChar)
+BOOL mpqapi_flush_and_close(BOOL bFree)
 {
 	return cur_archive.Close(/*clear_tables=*/bFree);
 }
