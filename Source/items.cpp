@@ -889,7 +889,11 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		btohit += p->_pDexterity >> 1;
 		if (p->_pClass == PC_WARRIOR)
 			btohit += 20;
+#ifdef HELLFIRE
 		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
+#else
+		if (p->_pClass == PC_WARRIOR)
+#endif
 			p->_pCritChance = p->_pLevel * 2;
 	} else {
 		assert(p->_pwtype == WT_RANGED);

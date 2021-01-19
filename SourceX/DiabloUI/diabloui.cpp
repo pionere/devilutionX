@@ -29,7 +29,9 @@ std::size_t ListOffset = 0;
 
 Art ArtLogos[3];
 Art ArtFocus[3];
+#ifdef HELLFIRE
 Art ArtBackgroundWidescreen;
+#endif
 Art ArtBackground;
 Art ArtCursor;
 Art ArtHero;
@@ -616,10 +618,12 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 
 void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
 {
+#ifdef HELLFIRE
 	if (ArtBackgroundWidescreen.surface != NULL) {
 		SDL_Rect rectw = { 0, UI_OFFSET_Y, 0, 0 };
 		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, /*animated=*/false, /*frame=*/0, rectw, UIS_CENTER));
 	}
+#endif
 
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
 	vecDialog->push_back(new UiImage(&ArtBackground, /*animated=*/false, /*frame=*/0, rect, UIS_CENTER));

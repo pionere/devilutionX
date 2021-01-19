@@ -20,7 +20,9 @@ void title_Load()
 void title_Free()
 {
 	ArtBackground.Unload();
+#ifdef HELLFIRE
 	ArtBackgroundWidescreen.Unload();
+#endif
 	ArtLogos[LOGO_BIG].Unload();
 
 	for (std::size_t i = 0; i < vecTitleScreen.size(); i++) {

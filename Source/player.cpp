@@ -2193,7 +2193,7 @@ static BOOL PlrDoStand(int pnum)
 /**
  * @brief Movement towards NW, N, and NE
  */
-static BOOL PM_DoWalk(int pnum)
+static BOOL PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2254,7 +2254,7 @@ static BOOL PM_DoWalk(int pnum)
 /**
  * @brief Movement towards SW, S, and SE
  */
-static BOOL PM_DoWalk2(int pnum)
+static BOOL PlrDoWalk2(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2309,7 +2309,7 @@ static BOOL PM_DoWalk2(int pnum)
 /**
  * @brief Movement towards W and E
  */
-static BOOL PM_DoWalk3(int pnum)
+static BOOL PlrDoWalk3(int pnum)
 {
 	PlayerStruct *p;
 

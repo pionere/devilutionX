@@ -66,7 +66,9 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 
 void mainmenu_Free()
 {
+#ifdef HELLFIRE
 	ArtBackgroundWidescreen.Unload();
+#endif
 	ArtBackground.Unload();
 
 	for (std::size_t i = 0; i < vecMainMenuDialog.size(); i++) {
