@@ -3657,6 +3657,23 @@ typedef enum conn_type {
 	SELCONN_LOOPBACK,
 } conn_type;
 
+typedef enum mpq_files {
+#ifdef HELLFIRE
+	MPQ_DEVILUTIONX,
+	MPQ_HF_OPT2,
+	MPQ_HF_OPT1,
+	MPQ_HF_VOICE,
+	MPQ_HF_MUSIC,
+	MPQ_HF_BARB,
+	MPQ_HF_BARD,
+	MPQ_HF_MONK,
+	MPQ_HELLFIRE,
+#endif
+	MPQ_PATCH_RT,
+	MPQ_DIABDAT,
+	NUM_MPQS
+} mpq_files;
+
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,
 	REDRAW_MANA_FLASK    = 1 << 1,

@@ -138,50 +138,24 @@ unsigned char AsciiToLowerTable_Path[256] = {
 
 BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 {
+	unsigned i;
 	bool result = false;
 
 	if (directFileAccess && SBasePath != NULL) {
 		std::string path = *SBasePath + filename;
-		for (std::size_t i = SBasePath->size(); i < path.size(); ++i)
+		for (i = SBasePath->size(); i < path.size(); ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		result = SFileOpenFileEx((HANDLE)0, path.c_str(), SFILE_OPEN_LOCAL_FILE, phFile);
-	}
-#ifdef HELLFIRE
-	if (!result && devilutionx_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)devilutionx_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfopt2_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfopt2_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfopt1_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfopt1_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfvoice_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfvoice_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfmusic_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfmusic_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfbarb_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfbarb_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfbard_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfbard_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result && hfmonk_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)hfmonk_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
+		result = SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, phFile);
 	}
 	if (!result) {
-		result = SFileOpenFileEx((HANDLE)hellfire_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
+		for (i = 0; i < NUM_MPQS; i++) {
+			if (diabdat_mpqs[i] != NULL
+			 && SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, phFile)) {
+				result = true;
+				break;
+			}
+		}
 	}
-#endif
-	if (!result && patch_rt_mpq != NULL) {
-		result = SFileOpenFileEx((HANDLE)patch_rt_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-	if (!result) {
-		result = SFileOpenFileEx((HANDLE)diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
-	}
-
 	if (!result || *phFile == NULL) {
 		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);
 	}

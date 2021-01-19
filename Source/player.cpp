@@ -237,9 +237,9 @@ static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 {
 #ifdef HELLFIRE
-	if (pc == PC_BARD && hfbard_mpq == NULL)
+	if (pc == PC_BARD && diabdat_mpqs[MPQ_HF_BARD] == NULL)
 		pc = PC_ROGUE;
-	else if (pc == PC_BARBARIAN && hfbarb_mpq == NULL)
+	else if (pc == PC_BARBARIAN && diabdat_mpqs[MPQ_HF_BARB] == NULL)
 		pc = PC_WARRIOR;
 #endif
 	*szCel = &CharChar[pc];
