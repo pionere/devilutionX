@@ -126,8 +126,7 @@ void init_archives()
 	int entryCount = 0;
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
-			HANDLE hFile;
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
 				entryCount++;
 				break;
 			}
@@ -156,6 +155,7 @@ void init_archives()
 				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
 				mem_free_dbg(buf);
+				SFileCloseFile(hFile);
 				break;
 			}
 		}
