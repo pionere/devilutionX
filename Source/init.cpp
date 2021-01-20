@@ -143,7 +143,7 @@ void init_archives()
 	// create the mpq file
 	input.open("listfiles.txt");
 	std::string path = GetBasePath() + MPQONE;
-	if (!OpenMPQ(path.c_str(), hashCount, entryCount))
+	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {

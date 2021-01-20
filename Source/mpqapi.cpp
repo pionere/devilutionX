@@ -714,6 +714,9 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		return FALSE;
 	}
 	if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL) {
+		// hashCount and blockCount must be a power of two
+		assert((hashCount & (hashCount - 1)) == 0);
+		assert((blockCount & (blockCount - 1)) == 0);
 		cur_archive.hashCount = hashCount;
 		cur_archive.blockCount = blockCount;
 		if (!ReadMPQHeader(&cur_archive, &fhdr)) {
