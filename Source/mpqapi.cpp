@@ -713,10 +713,9 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 	if (!cur_archive.Open(pszArchive)) {
 		return FALSE;
 	}
-	cur_archive.hashCount = hashCount;
-	cur_archive.blockCount = blockCount;
-	assert(cur_archive.sgpBlockTbl == NULL && cur_archive.sgpHashTbl == NULL);
-	//if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL) {
+	if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL) {
+		cur_archive.hashCount = hashCount;
+		cur_archive.blockCount = blockCount;
 		if (!ReadMPQHeader(&cur_archive, &fhdr)) {
 			goto on_error;
 		}
@@ -750,7 +749,7 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		if (!cur_archive.exists)
 			cur_archive.WriteHeaderAndTables();
 #endif
-	//}
+	}
 	return TRUE;
 on_error:
 	cur_archive.Close(/*clear_tables=*/true);
