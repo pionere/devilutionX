@@ -258,7 +258,7 @@ const ObjDataStruct AllObjects[] = {
 };
 
 /** Maps from object_graphic_id to object CEL name. */
-const char *const ObjMasterLoadList[] = { // length might be const
+const char *const ObjMasterLoadList[NUM_OFILE_TYPES] = {
 	"L1Braz",
 	"L1Doors",
 	"Lever",
@@ -318,7 +318,7 @@ const char *const ObjMasterLoadList[] = { // length might be const
 };
 #ifdef HELLFIRE
 /** Maps from object_graphic_id to object CEL name (Hellfire Crypt overwrite). */
-const char *const ObjCryptLoadList[] = {
+const char *const ObjCryptLoadList[NUM_OFILE_TYPES] = {
 	"L1Braz",
 	"L5Door",
 	"L5Lever",
@@ -377,7 +377,7 @@ const char *const ObjCryptLoadList[] = {
 	"LzStand",
 };
 /** Maps from object_graphic_id to object CEL name (Hellfire Hive overwrite). */
-const char *const ObjHiveLoadList[] = {
+const char *const ObjHiveLoadList[NUM_OFILE_TYPES] = {
 	"L1Braz",
 	"L1Doors",
 	"Lever",

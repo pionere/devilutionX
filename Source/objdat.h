@@ -14,10 +14,10 @@ extern "C" {
 
 extern const int ObjTypeConv[];
 extern const ObjDataStruct AllObjects[];
-extern const char *const ObjMasterLoadList[];
+extern const char *const ObjMasterLoadList[NUM_OFILE_TYPES];
 #ifdef HELLFIRE
-extern const char *const ObjCryptLoadList[];
-extern const char *const ObjHiveLoadList[];
+extern const char *const ObjCryptLoadList[NUM_OFILE_TYPES];
+extern const char *const ObjHiveLoadList[NUM_OFILE_TYPES];
 #endif
 
 #ifdef __cplusplus
