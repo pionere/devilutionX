@@ -1322,17 +1322,9 @@ static void AddTrap(int oi)
 	os->_oVar4 = 0;
 }
 
-static void AddObjLight(int oi, int r)
+static void AddObjLight(int oi)
 {
-	ObjectStruct *os;
-
-	os = &object[oi];
-	if (InitObjFlag) {
-		DoLighting(os->_ox, os->_oy, r, -1);
-		os->_oVar1 = -1;
-	} else {
-		os->_oVar1 = 0;
-	}
+	object[oi]._olid = -1;
 }
 
 static void AddBarrel(int oi, int type)
@@ -1637,22 +1629,16 @@ int AddObject(int type, int ox, int oy)
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
 	case OBJ_L1LIGHT:
-		AddObjLight(oi, 5);
-		break;
 	case OBJ_SKFIRE:
 	case OBJ_CANDLE1:
 	case OBJ_CANDLE2:
 	case OBJ_BOOKCANDLE:
-		AddObjLight(oi, 5);
-		break;
 	case OBJ_STORYCANDLE:
-		AddObjLight(oi, 3);
-		break;
 	case OBJ_TORCHL:
 	case OBJ_TORCHR:
 	case OBJ_TORCHL2:
 	case OBJ_TORCHR2:
-		AddObjLight(oi, 8);
+		AddObjLight(oi);
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -1755,7 +1741,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_BCROSS:
 	case OBJ_TBCROSS:
 		AddBrnCross(oi);
-		AddObjLight(oi, 5);
+		AddObjLight(oi);
 		break;
 	case OBJ_PEDISTAL:
 		AddPedistal(oi);
@@ -1778,32 +1764,30 @@ void Obj_Light(int oi, int lr)
 	BOOLEAN turnon;
 
 	os = &object[oi];
-	if (os->_oVar1 != -1) {
-		ox = os->_ox;
-		oy = os->_oy;
-		tr = lr + 10;
-		turnon = FALSE;
+	ox = os->_ox;
+	oy = os->_oy;
+	tr = lr + 10;
+	turnon = FALSE;
 #ifdef _DEBUG
-		if (!lightflag)
+	if (!lightflag)
 #endif
-		{
-			for (i = 0; i < MAX_PLRS && !turnon; i++) {
-				if (plr[i].plractive && currlevel == plr[i].plrlevel) {
-					dx = abs(plr[i]._px - ox);
-					dy = abs(plr[i]._py - oy);
-					if (dx < tr && dy < tr)
-						turnon = TRUE;
-				}
+	{
+		for (i = 0; i < MAX_PLRS && !turnon; i++) {
+			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+				dx = abs(plr[i]._px - ox);
+				dy = abs(plr[i]._py - oy);
+				if (dx < tr && dy < tr)
+					turnon = TRUE;
 			}
 		}
-		if (turnon) {
-			if (os->_oVar1 == 0)
-				os->_olid = AddLight(ox, oy, lr);
-			os->_oVar1 = 1;
-		} else {
-			if (os->_oVar1 == 1)
-				AddUnLight(os->_olid);
-			os->_oVar1 = 0;
+	}
+	if (turnon) {
+		if (os->_olid == -1)
+			os->_olid = AddLight(ox, oy, lr);
+	} else {
+		if (os->_olid != -1) {
+			AddUnLight(os->_olid);
+			os->_olid = -1;
 		}
 	}
 }
