@@ -147,13 +147,12 @@ LCID STORMAPI SFileSetLocale(LCID lcNewLocale)
 // SFileOpenArchive
 //
 //   szFileName - MPQ archive file name to open
-//   dwPriority - When SFileOpenFileEx called, this contains the search priority for searched archives
+////   dwPriority - When SFileOpenFileEx called, this contains the search priority for searched archives
 //   dwFlags    - See MPQ_OPEN_XXX in StormLib.h
 //   phMpq      - Pointer to store open archive handle
 
 bool STORMAPI SFileOpenArchive(
     const TCHAR * szMpqName,
-    DWORD dwPriority,
     DWORD dwFlags,
     HANDLE * phMpq)
 {
@@ -176,7 +175,6 @@ bool STORMAPI SFileOpenArchive(
 
     // One time initialization of MPQ cryptography
     InitializeMpqCryptography();
-    dwPriority = dwPriority;
 
     // If not forcing MPQ v 1.0, also use file bitmap
     dwStreamFlags |= (dwFlags & MPQ_OPEN_FORCE_MPQ_V1) ? 0 : STREAM_FLAG_USE_BITMAP;

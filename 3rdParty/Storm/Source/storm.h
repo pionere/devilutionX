@@ -186,9 +186,10 @@ SNetSendMessage(
 #define SNPLAYER_ALL    -1
 #define SNPLAYER_OTHERS -2
 
-#define MPQ_FLAG_READ_ONLY 1
-#define SFILE_OPEN_FROM_MPQ 0
-#define SFILE_OPEN_LOCAL_FILE 0xFFFFFFFF
+#define MPQ_FLAG_READ_ONLY          1
+#define SFILE_OPEN_FROM_MPQ         0
+#define SFILE_OPEN_LOCAL_FILE       0xFFFFFFFF
+#define SFILE_OPEN_CHECK_EXISTS     0xFFFFFFFC
 
 /*  SNetSendTurn @ 128
  *
@@ -219,7 +220,7 @@ BOOL STORMAPI SFileDdaGetPos(HANDLE hFile, DWORD *current, DWORD *end);
 BOOL STORMAPI SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume);
 
 LONG STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-BOOL STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwPriority, DWORD dwFlags, HANDLE *phMpq);
+BOOL STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 
 BOOL STORMAPI SFileOpenFile(const char *filename, HANDLE *phFile);
 BOOL STORMAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);

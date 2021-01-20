@@ -148,6 +148,9 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 		result = SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, phFile);
 	}
 	if (!result) {
+#ifdef MPQONE
+		result = SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, phFile);
+#else
 		for (i = 0; i < NUM_MPQS; i++) {
 			if (diabdat_mpqs[i] != NULL
 			 && SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, phFile)) {
@@ -155,6 +158,7 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 				break;
 			}
 		}
+#endif
 	}
 	if (!result || *phFile == NULL) {
 		SDL_Log("%s: Not found: %s", __FUNCTION__, filename);

@@ -15,7 +15,11 @@ extern "C" {
 extern _SNETVERSIONDATA fileinfo;
 extern int gbActive;
 extern WNDPROC CurrentProc;
+#ifdef MPQONE
+extern HANDLE diabdat_mpq;
+#else
 extern HANDLE diabdat_mpqs[NUM_MPQS];
+#endif
 
 void init_cleanup();
 void init_archives();

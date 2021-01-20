@@ -12,6 +12,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PFILE_SAVE_MPQ_HASHCOUNT	2048
+#define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
+
 #ifdef SPAWN
 const char *PASSWORD_SINGLE = "adslhfb1";
 const char *PASSWORD_MULTI = "lshbkfg1";
@@ -115,7 +118,7 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 
 static BOOL pfile_open_save_mpq(DWORD save_num)
 {
-	return OpenMPQ(GetSavePath(save_num).c_str());
+	return OpenMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
 }
 
 static BOOL pfile_open_archive()
@@ -136,7 +139,7 @@ static HANDLE pfile_open_save_archive(DWORD save_num)
 {
 	HANDLE archive;
 
-	if (SFileOpenArchive(GetSavePath(save_num).c_str(), 0x7000, FS_PC, &archive))
+	if (SFileOpenArchive(GetSavePath(save_num).c_str(), 0, &archive))
 		return archive;
 	return NULL;
 }

@@ -9,6 +9,8 @@
 #include "paths.h"
 #include <SDL.h>
 #include <config.h>
+#include <string>
+#include <fstream>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -18,11 +20,15 @@ int gbActive;
 /** The current input handler function */
 WNDPROC CurrentProc;
 /** A handle to the mpq archives. */
+#ifdef MPQONE
+HANDLE diabdat_mpq;
+#else
 HANDLE diabdat_mpqs[NUM_MPQS];
+#endif
 
 namespace {
 
-HANDLE init_test_access(const char *mpq_name, const char *reg_loc, int dwPriority, int fs)
+HANDLE init_test_access(const char *mpq_name)
 {
 	HANDLE archive;
 	const std::string *paths[2] = { &GetBasePath(), &GetPrefPath() };
@@ -33,7 +39,7 @@ HANDLE init_test_access(const char *mpq_name, const char *reg_loc, int dwPriorit
 #endif
 	for (int i = 0; i < 2; i++) {
 		mpq_abspath = *paths[i] + mpq_name;
-		if (SFileOpenArchive(mpq_abspath.c_str(), dwPriority, mpq_flags, &archive)) {
+		if (SFileOpenArchive(mpq_abspath.c_str(), mpq_flags, &archive)) {
 			SFileSetBasePath(paths[i]->c_str());
 			return archive;
 		}
@@ -51,17 +57,20 @@ char gszProductName[MAX_SEND_STR_LEN] = "Diablo v1.09";
 
 void init_cleanup()
 {
-	int i;
-
 	pfile_flush_W();
 
+#ifdef MPQONE
+	SFileCloseArchive(diabdat_mpq);
+	diabdat_mpq = NULL;
+#else
+	int i;
 	for (i = 0; i < NUM_MPQS; i++) {
 		if (diabdat_mpqs[i] != NULL) {
 			SFileCloseArchive(diabdat_mpqs[i]);
 			diabdat_mpqs[i] = NULL;
 		}
 	}
-
+#endif
 	NetClose();
 }
 
@@ -82,27 +91,86 @@ void init_archives()
 	fileinfo.patcharchivefile = "";
 	init_get_file_info();
 
-#ifdef SPAWN
-	diabdat_mpqs[MPQ_DIABDAT] = init_test_access("spawn.mpq", "DiabloSpawn", 1000, FS_PC);
-	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access("patch_sh.mpq", "DiabloSpawn", 2000, FS_PC);
-#else
-	diabdat_mpqs[MPQ_DIABDAT] = init_test_access("diabdat.mpq", "DiabloCD", 1000, FS_CD);
-	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access("patch_rt.mpq", "DiabloInstall", 2000, FS_PC);
+#ifdef MPQONE
+	diabdat_mpq = init_test_access(MPQONE);
+	if (diabdat_mpq != NULL)
+		return;
+
+	HANDLE diabdat_mpqs[NUM_MPQS];
 #endif
-	if (!SFileOpenFile("ui_art\\title.pcx", &fh))
+	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
+	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
+	if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
 		InsertCDDlg();
-	SFileCloseFile(fh);
 
 #ifdef HELLFIRE
-	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq", "DiabloInstall", 8000, FS_PC);
-	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq", "DiabloInstall", 8100, FS_PC);
-	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq", "DiabloInstall", 8110, FS_PC);
-	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq", "DiabloInstall", 8120, FS_PC);
-	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq", "DiabloInstall", 8200, FS_PC);
-	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq", "DiabloInstall", 8500, FS_PC);
-	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq", "DiabloInstall", 8600, FS_PC);
-	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq", "DiabloInstall", 8610, FS_PC);
-	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq", "DiabloInstall", 9000, FS_PC);
+	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq");
+	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq");
+	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq");
+	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq");
+	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq");
+	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq");
+	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
+	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
+	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq");
+#endif
+
+#ifdef MPQONE
+	int i;
+	// first round - read the content and prepare the metadata
+	std::ifstream input("listfiles.txt");
+	if (input.fail()) {
+		app_fatal("To create a merged MPQ, place the 'listfiles.txt' in the game folder.");
+	}
+	std::string line;
+	int entryCount = 0;
+	while (std::getline(input, line)) {
+		for (i = 0; i < NUM_MPQS; i++) {
+			HANDLE hFile;
+			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+				entryCount++;
+				break;
+			}
+		}
+	}
+	input.close();
+
+	// calculate the required number of hashes
+	int hashCount = 1;
+	while (hashCount <= entryCount) {
+		hashCount <<= 1;
+	}
+	// create the mpq file
+	input.open("listfiles.txt");
+	std::string path = GetBasePath() + MPQONE;
+	if (!OpenMPQ(path.c_str(), hashCount, entryCount))
+		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	while (std::getline(input, line)) {
+		for (i = 0; i < NUM_MPQS; i++) {
+			HANDLE hFile;
+			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+				DWORD dwLen = SFileGetFileSize(hFile, NULL);
+				BYTE *buf = DiabloAllocPtr(dwLen);
+				if (!SFileReadFile(hFile, buf, dwLen, NULL, NULL))
+					app_fatal("Unable to read save file");
+				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
+					app_fatal("Unable to write %s to the MPQ.", line.c_str());
+				mem_free_dbg(buf);
+				break;
+			}
+		}
+	}
+	input.close();
+	mpqapi_flush_and_close(TRUE);
+
+	// cleanup
+	for (i = 0; i < NUM_MPQS; i++) {
+		if (diabdat_mpqs[i] != NULL) {
+			SFileCloseArchive(diabdat_mpqs[i]);
+		}
+	}
+	diabdat_mpq = init_test_access(MPQONE);
+	assert(diabdat_mpq != NULL);
 #endif
 }
 

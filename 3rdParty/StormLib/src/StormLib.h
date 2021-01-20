@@ -988,7 +988,7 @@ LCID   STORMAPI SFileSetLocale(LCID lcNewLocale);
 //-----------------------------------------------------------------------------
 // Functions for archive manipulation
 
-bool   STORMAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwPriority, DWORD dwFlags, HANDLE * phMpq);
+bool   STORMAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwFlags, HANDLE * phMpq);
 bool   STORMAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
 bool   STORMAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
 

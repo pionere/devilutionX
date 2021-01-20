@@ -29,24 +29,23 @@ const char ArmourChar[4] = { 'L', 'M', 'H', 0 };
 /** Maps from weapon animation to letter used in graphic files. */
 const char WepChar[10] = { 'N', 'U', 'S', 'D', 'B', 'A', 'M', 'H', 'T', 0 };
 /** Maps from player class to letter used in graphic files. */
-const char CharChar[NUM_CLASSES] = {
-	'W',
-	'R',
-	'S',
+const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #ifdef HELLFIRE
-	'M',
-	'B',
-	'C'
+//	'M', 'B', 'C'
+	'M', 'R', 'W'
 #endif
 };
-const char *const ClassStrTbl[NUM_CLASSES] = {
-	"Warrior",
-	"Rogue",
-	"Sorceror",
+/** Maps from player class to the folder of graphic files. */
+const char *const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
-	"Monk",
-	"Bard",
-	"Barbarian"
+//	"Monk", "Bard", "Barbarian"
+	"Monk", "Rogue", "Warrior"
+#endif
+};
+/** Maps from player class to the string shown to the player. */
+const char *const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
+#ifdef HELLFIRE
+	"Monk", "Bard", "Barbarian"
 #endif
 };
 
@@ -236,14 +235,14 @@ static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 
 static inline void GetPlrGFXCells(int pc, const char **szCel, const char **cs)
 {
-#ifdef HELLFIRE
+/*#ifdef HELLFIRE
 	if (pc == PC_BARD && diabdat_mpqs[MPQ_HF_BARD] == NULL)
 		pc = PC_ROGUE;
 	else if (pc == PC_BARBARIAN && diabdat_mpqs[MPQ_HF_BARB] == NULL)
 		pc = PC_WARRIOR;
-#endif
+#endif*/
 	*szCel = &CharChar[pc];
-	*cs = ClassStrTbl[pc];
+	*cs = gfxClassTbl[pc];
 }
 
 void LoadPlrGFX(int pnum, unsigned gfxflag)

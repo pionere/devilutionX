@@ -150,7 +150,7 @@ void InsertCDDlg()
 	    "Unable to open %s.\n"
 	    "\n"
 	    "Make sure that it is in the game folder and that the file name is in all lowercase.",
-	    MAIN_DATA_ARCHIVE);
+	    DATA_ARCHIVE_MAIN);
 
 	UiErrorOkDialog("Data File Error", text);
 	app_fatal(NULL);
