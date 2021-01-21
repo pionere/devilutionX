@@ -469,7 +469,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	dist_x = xoff;
 	dist_y = yoff;
 
-#ifdef HELLFIRE
+/*#ifdef HELLFIRE
 	if (currlevel < 17)
 		dLight[nXPos][nYPos] = 0;
 	else if (dLight[nXPos][nYPos] > dark[0])
@@ -477,7 +477,10 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 #else
 	if (IN_DUNGEON_AREA(nXPos, nYPos))
 		dLight[nXPos][nYPos] = 0;
-#endif
+#endif*/
+	assert(IN_DUNGEON_AREA(nXPos, nYPos));
+	assert(dark[0] == 0);
+	dLight[nXPos][nYPos] = 0;
 
 	max_x = std::min(15, MAXDUNX - nXPos);
 	max_y = std::min(15, MAXDUNY - nYPos);
@@ -875,7 +878,7 @@ void MakeLightTable()
 		*tbl++ = 0;
 	}
 
-#ifdef HELLFIRE
+/*#ifdef HELLFIRE
 	if (currlevel >= 17) {
 		for (i = 0; i < 16; i++) {
 			for (j = 128; j > 0; j--) {
@@ -887,11 +890,11 @@ void MakeLightTable()
 			}
 		}
 	} else
-#endif
+#endif*/
 	{
 		for (i = 0, k = 8; i < 16; i++, k += 8) {
 			for (j = 0; j < 128; j++) {
-				if (j > k) {
+				if (j >= k) {
 					darkness[i][j] = 15;
 				} else {
 					darkness[i][j] = ((15 * j) + (k >> 1)) / k;
