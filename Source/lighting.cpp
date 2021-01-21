@@ -11,14 +11,14 @@ LightListStruct VisionList[MAXVISION];
 BYTE lightactive[MAXLIGHTS];
 LightListStruct LightList[MAXLIGHTS];
 int numlights;
-BYTE lightradius[16][128];
+BYTE darkness[16][128];
 BOOL dovision;
 int numvision;
 #ifdef _DEBUG
 char lightmax;
 #endif
 BOOL dolighting;
-BYTE lightblock[64][16][16];
+BYTE distance[64][16][16];
 int visionid;
 BYTE *pLightTbl;
 
@@ -444,6 +444,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	int x, y, v, xoff, yoff, mult, radius_block;
 	int min_x, max_x, min_y, max_y;
 	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
+	BYTE (&dark)[128] = darkness[nRadius];
 
 	xoff = 0;
 	yoff = 0;
@@ -471,8 +472,8 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 #ifdef HELLFIRE
 	if (currlevel < 17)
 		dLight[nXPos][nYPos] = 0;
-	else if (dLight[nXPos][nYPos] > lightradius[nRadius][0])
-		dLight[nXPos][nYPos] = lightradius[nRadius][0];
+	else if (dLight[nXPos][nYPos] > dark[0])
+		dLight[nXPos][nYPos] = dark[0];
 #else
 	if (IN_DUNGEON_AREA(nXPos, nYPos))
 		dLight[nXPos][nYPos] = 0;
@@ -486,11 +487,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < max_y; y++) {
 		for (x = 1; x < max_x; x++) {
-			radius_block = lightblock[mult][y][x];
+			radius_block = distance[mult][y][x];
 			if (radius_block < 128) {
 				temp_x = nXPos + x;
 				temp_y = nYPos + y;
-				v = lightradius[nRadius][radius_block];
+				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
 			}
@@ -500,11 +501,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < max_x; y++) {
 		for (x = 1; x < min_y; x++) {
-			radius_block = lightblock[mult][y + block_y][x + block_x];
+			radius_block = distance[mult][y + block_y][x + block_x];
 			if (radius_block < 128) {
 				temp_x = nXPos + y;
 				temp_y = nYPos - x;
-				v = lightradius[nRadius][radius_block];
+				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
 			}
@@ -514,11 +515,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < min_y; y++) {
 		for (x = 1; x < min_x; x++) {
-			radius_block = lightblock[mult][y + block_y][x + block_x];
+			radius_block = distance[mult][y + block_y][x + block_x];
 			if (radius_block < 128) {
 				temp_x = nXPos - x;
 				temp_y = nYPos - y;
-				v = lightradius[nRadius][radius_block];
+				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
 			}
@@ -528,11 +529,11 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	mult = xoff + 8 * yoff;
 	for (y = 0; y < min_x; y++) {
 		for (x = 1; x < max_y; x++) {
-			radius_block = lightblock[mult][y + block_y][x + block_x];
+			radius_block = distance[mult][y + block_y][x + block_x];
 			if (radius_block < 128) {
 				temp_x = nXPos - y;
 				temp_y = nYPos + x;
-				v = lightradius[nRadius][radius_block];
+				v = dark[radius_block];
 				if (v < dLight[temp_x][temp_y])
 					dLight[temp_x][temp_y] = v;
 			}
@@ -882,7 +883,7 @@ void MakeLightTable()
 				k -= i >> 1;
 				if (k < 0)
 					k = 0;
-				lightradius[i][128 - j] = k;
+				darkness[i][128 - j] = k;
 			}
 		}
 	} else
@@ -891,9 +892,9 @@ void MakeLightTable()
 		for (i = 0, k = 8; i < 16; i++, k += 8) {
 			for (j = 0; j < 128; j++) {
 				if (j > k) {
-					lightradius[i][j] = 15;
+					darkness[i][j] = 15;
 				} else {
-					lightradius[i][j] = ((15 * j) + (k >> 1)) / k;
+					darkness[i][j] = ((15 * j) + (k >> 1)) / k;
 				}
 			}
 		}
@@ -908,7 +909,7 @@ void MakeLightTable()
 					fs = (8 * l - j);
 					fs *= fs;
 					fs = sqrt(fs + fa);
-					lightblock[j * 8 + i][k][l] = fs;
+					distance[j * 8 + i][k][l] = fs;
 				}
 			}
 		}
@@ -1041,7 +1042,7 @@ void ChangeLightXY(int lnum, int x, int y)
 	dolighting = TRUE;
 }
 
-void ChangeLightOff(int lnum, int x, int y)
+void ChangeLightOff(int lnum, int xoff, int yoff)
 {
 	LightListStruct *lis;
 
@@ -1057,8 +1058,8 @@ void ChangeLightOff(int lnum, int x, int y)
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
-	lis->_xoff = x;
-	lis->_yoff = y;
+	lis->_xoff = xoff;
+	lis->_yoff = yoff;
 	dolighting = TRUE;
 }
 
