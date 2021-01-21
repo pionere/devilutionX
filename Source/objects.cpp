@@ -229,6 +229,11 @@ const int textSets[NUM_TXTSets][NUM_CLASSES] = {
 #endif
 };
 
+const int flickers[1][32] = {
+	{ 1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1 },
+	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
+};
+
 void InitObjectGFX()
 {
 	const ObjDataStruct *ods;
@@ -1322,9 +1327,16 @@ static void AddTrap(int oi)
 	os->_oVar4 = 0;
 }
 
-static void AddObjLight(int oi)
+static void AddObjLight(int oi, int diffr)
 {
-	object[oi]._olid = -1;
+	ObjectStruct *os;
+
+	os = &object[oi];
+	if (InitObjFlag) {
+		if (diffr != 0)
+			DoLighting(os->_ox, os->_oy, diffr, -1);
+		os->_olid = -1;
+	}
 }
 
 static void AddBarrel(int oi, int type)
@@ -1629,16 +1641,22 @@ int AddObject(int type, int ox, int oy)
 	SetupObject(oi, ox, oy, type);
 	switch (type) {
 	case OBJ_L1LIGHT:
+		AddObjLight(oi, 0);
+		break;
 	case OBJ_SKFIRE:
 	case OBJ_CANDLE1:
 	case OBJ_CANDLE2:
 	case OBJ_BOOKCANDLE:
+		AddObjLight(oi, 5);
+		break;
 	case OBJ_STORYCANDLE:
+		AddObjLight(oi, 3);
+		break;
 	case OBJ_TORCHL:
 	case OBJ_TORCHR:
 	case OBJ_TORCHL2:
 	case OBJ_TORCHR2:
-		AddObjLight(oi);
+		AddObjLight(oi, 8);
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -1741,7 +1759,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_BCROSS:
 	case OBJ_TBCROSS:
 		AddBrnCross(oi);
-		AddObjLight(oi);
+		AddObjLight(oi, 10);
 		break;
 	case OBJ_PEDISTAL:
 		AddPedistal(oi);
@@ -1757,7 +1775,7 @@ int AddObject(int type, int ox, int oy)
 	return oi;
 }
 
-void Obj_Light(int oi, int lr)
+static void Obj_Light(int oi, int lr, const int *flicker)
 {
 	ObjectStruct *os;
 	int ox, oy, dx, dy, i, tr;
@@ -1782,8 +1800,14 @@ void Obj_Light(int oi, int lr)
 		}
 	}
 	if (turnon) {
+		tr -= 10;
+		tr += flicker[os->_oAnimFrame];
 		if (os->_olid == -1)
-			os->_olid = AddLight(ox, oy, lr);
+			os->_olid = AddLight(ox, oy, tr);
+		else {
+			if (LightList[os->_olid]._lradius != tr)
+				ChangeLight(os->_olid, ox, oy, tr);
+		}
 	} else {
 		if (os->_olid != -1) {
 			AddUnLight(os->_olid);
@@ -2057,16 +2081,17 @@ void ProcessObjects()
 		oi = objectactive[i];
 		switch (object[oi]._otype) {
 		case OBJ_L1LIGHT:
-			Obj_Light(oi, 10);
+			Obj_Light(oi, 8, flickers[0]);
 			break;
-		case OBJ_SKFIRE:
+		/*case OBJ_SKFIRE:
+		case OBJ_CANDLE1:
 		case OBJ_CANDLE2:
 		case OBJ_BOOKCANDLE:
 			Obj_Light(oi, 5);
 			break;
 		case OBJ_STORYCANDLE:
 			Obj_Light(oi, 3);
-			break;
+			break;*/
 		case OBJ_CRUX1:
 		case OBJ_CRUX2:
 		case OBJ_CRUX3:
@@ -2084,12 +2109,12 @@ void ProcessObjects()
 		case OBJ_L3RDOOR:
 			Obj_Door(oi);
 			break;
-		case OBJ_TORCHL:
+		/*case OBJ_TORCHL:
 		case OBJ_TORCHR:
 		case OBJ_TORCHL2:
 		case OBJ_TORCHR2:
-			Obj_Light(oi, 8);
-			break;
+			Obj_Light(oi, 5, flickers[1]);
+			break;*/
 		case OBJ_SARC:
 			Obj_Sarc(oi);
 			break;
@@ -2106,7 +2131,7 @@ void ProcessObjects()
 			break;
 		case OBJ_BCROSS:
 		case OBJ_TBCROSS:
-			Obj_Light(oi, 10);
+			//Obj_Light(oi, 5);
 			Obj_BCrossDamage(oi);
 			break;
 		}
