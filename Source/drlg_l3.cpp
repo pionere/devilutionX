@@ -2425,8 +2425,7 @@ static void DRLG_L3(int entry)
 
 void CreateL3Dungeon(DWORD rseed, int entry)
 {
-	int i, j;
-	BYTE bv;
+	int i, j, pn;
 
 	SetRndSeed(rseed);
 
@@ -2449,10 +2448,9 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	{
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
-				bv = dPiece[i][j];
-				if ((bv >= 56 && bv <= 147)
-				 || (bv >= 154 && bv <= 161)
-				 || bv == 150 || bv == 152) {
+				pn = dPiece[i][j];
+				if (pn >= 56 && pn <= 161
+				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
 					DoLighting(i, j, 7, -1);
 				}
 			}
