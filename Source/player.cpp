@@ -1186,47 +1186,18 @@ static void PlrChangeLightOff(int pnum)
 {
 	PlayerStruct *p;
 	int x, y;
-	int xmul, ymul;
-	int lx, ly;
-	int offx, offy;
-	const LightListStruct *l;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("PlrChangeLightOff: illegal player %d", pnum);
+		dev_fatal("PlrChangeLightOff: illegal player %d", pnum);
 	}
-
 	p = &plr[pnum];
-	// check if issue is upstream
-	if (p->_plid == -1)
-		return;
-
-	l = &LightList[p->_plid];
-	x = 2 * p->_pyoff + p->_pxoff;
+	x = p->_pxoff + 2 * p->_pyoff;
 	y = 2 * p->_pyoff - p->_pxoff;
-	if (x < 0) {
-		xmul = -1;
-		x = -x;
-	} else {
-		xmul = 1;
-	}
-	if (y < 0) {
-		ymul = -1;
-		y = -y;
-	} else {
-		ymul = 1;
-	}
 
-	x = (x >> 3) * xmul;
-	y = (y >> 3) * ymul;
-	lx = x + (l->_lx << 3);
-	ly = y + (l->_ly << 3);
-	offx = l->_xoff + (l->_lx << 3);
-	offy = l->_yoff + (l->_ly << 3);
+	x = x / 8;
+	y = y / 8;
 
-	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
-		return;
-
-	ChangeLightOff(p->_plid, x, y);
+	CondChangeLightOff(p->_plid, x, y);
 }
 
 static void PlrChangeOffset(int pnum)
@@ -1256,7 +1227,8 @@ static void PlrChangeOffset(int pnum)
 		ScrollInfo._syoff += py;
 	}
 
-	PlrChangeLightOff(pnum);
+	if (p->_plid != -1)
+		PlrChangeLightOff(pnum);
 }
 
 /**
@@ -1377,8 +1349,10 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pxoff = xoff; // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
 
-	ChangeLightXY(p->_plid, p->_px, p->_py);
-	PlrChangeLightOff(pnum);
+	if (p->_plid != -1) {
+		ChangeLightXY(p->_plid, p->_px, p->_py);
+		PlrChangeLightOff(pnum);
+	}
 
 	p->_pmode = PM_WALK2;
 	p->_pxvel = xvel;
@@ -1458,8 +1432,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pxoff = xoff; // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightXY(p->_plid, x, y);
+	if (p->_plid != -1) {
+		//ChangeLightXY(p->_plid, p->_pVar4, p->_pVar5);
 		PlrChangeLightOff(pnum);
 	}
 
@@ -2226,11 +2200,6 @@ static BOOL PlrDoWalk(int pnum)
 	p->_py += p->_pVar2;
 	dPlayer[p->_px][p->_py] = pnum + 1;
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightXY(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
-
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ViewX = p->_px - ScrollInfo._sdx;
 		ViewY = p->_py - ScrollInfo._sdy;
@@ -2244,8 +2213,9 @@ static BOOL PlrDoWalk(int pnum)
 
 	ClearPlrPVars(pnum);
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightOff(p->_plid, 0, 0);
+	if (p->_plid != -1) {
+		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;
 }
@@ -2282,11 +2252,6 @@ static BOOL PlrDoWalk2(int pnum)
 	}
 	dPlayer[p->_pVar1][p->_pVar2] = 0;
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightXY(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
-
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ViewX = p->_px - ScrollInfo._sdx;
 		ViewY = p->_py - ScrollInfo._sdy;
@@ -2299,8 +2264,9 @@ static BOOL PlrDoWalk2(int pnum)
 	}
 
 	ClearPlrPVars(pnum);
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightOff(p->_plid, 0, 0);
+	if (p->_plid != -1) {
+		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;
 }
@@ -2340,11 +2306,6 @@ static BOOL PlrDoWalk3(int pnum)
 	p->_py = p->_pVar2;
 	dPlayer[p->_px][p->_py] = pnum + 1;
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightXY(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
-
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ViewX = p->_px - ScrollInfo._sdx;
 		ViewY = p->_py - ScrollInfo._sdy;
@@ -2358,8 +2319,9 @@ static BOOL PlrDoWalk3(int pnum)
 
 	ClearPlrPVars(pnum);
 
-	if (leveltype != DTYPE_TOWN) {
-		ChangeLightOff(p->_plid, 0, 0);
+	if (p->_plid != -1) {
+		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;
 }

@@ -1402,6 +1402,24 @@ static void MonStartSpStand(int mnum, int md)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
+static void MonChangeLightOff(int mnum)
+{
+	MonsterStruct *mon;
+	int lx, ly;
+
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("MonChangeLightOff: Invalid monster %d", mnum);
+	}
+	mon = &monster[mnum];
+	lx = mon->_mxoff + 2 * mon->_myoff;
+	ly = 2 * mon->_myoff - mon->_mxoff;
+
+	lx = lx / 8;
+	ly = ly / 8;
+
+	CondChangeLightOff(mon->mlid, lx, ly);
+}
+
 static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
 {
 	MonsterStruct *mon = &monster[mnum];
@@ -1444,10 +1462,12 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXY(mon->mlid, mx, my);
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		ChangeLightXY(mon->mlid, mx, my);
+		MonChangeLightOff(mnum);
+	}
 	mon->_mmode = MM_WALK2;
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
@@ -1465,9 +1485,6 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mapx += mon->_mx;
 	mapy += mon->_my;
 
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXY(mon->mlid, mapx, mapy);
-
 	dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 	dMonster[fx][fy] = -(mnum + 1);
 	mon->_mVar4 = mapx; // Used for storing X-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
@@ -1479,6 +1496,10 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mfuty = fy;
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
+	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		//ChangeLightXY(mon->mlid, mon->_mVar4, mon->_mVar5);
+		MonChangeLightOff(mnum);
+	}
 	mon->_mmode = MM_WALK3;
 	mon->_mxvel = xvel;
 	mon->_myvel = yvel;
@@ -1987,24 +2008,6 @@ static void MonStartHeal(int mnum)
 	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8)); // the healing speed of the monster
 }
 
-static void MonChangeLightOffset(int mnum)
-{
-	MonsterStruct *mon;
-	int lx, ly;
-
-	if ((DWORD)mnum >= MAXMONSTERS) {
-		dev_fatal("MonChangeLightOffset: Invalid monster %d", mnum);
-	}
-	mon = &monster[mnum];
-	lx = mon->_mxoff + 2 * mon->_myoff;
-	ly = 2 * mon->_myoff - mon->_mxoff;
-
-	lx = lx / 8;
-	ly = ly / 8;
-
-	ChangeLightOff(mon->mlid, lx, ly);
-}
-
 static BOOL MonDoStand(int mnum)
 {
 	MonsterStruct *mon;
@@ -2041,7 +2044,7 @@ static BOOL MonDoWalk(int mnum)
 		mon->_my += mon->_mVar2;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
@@ -2060,7 +2063,7 @@ static BOOL MonDoWalk(int mnum)
 	}
 
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOffset(mnum);
+		MonChangeLightOff(mnum);
 
 	return rv;
 }
@@ -2077,7 +2080,7 @@ static BOOL MonDoWalk2(int mnum)
 	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
@@ -2095,7 +2098,7 @@ static BOOL MonDoWalk2(int mnum)
 		rv = FALSE;
 	}
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOffset(mnum);
+		MonChangeLightOff(mnum);
 
 	return rv;
 }
@@ -2116,7 +2119,7 @@ static BOOL MonDoWalk3(int mnum)
 		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
@@ -2134,7 +2137,7 @@ static BOOL MonDoWalk3(int mnum)
 		rv = FALSE;
 	}
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOffset(mnum);
+		MonChangeLightOff(mnum);
 
 	return rv;
 }

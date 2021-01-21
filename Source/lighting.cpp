@@ -1063,6 +1063,59 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 	dolighting = TRUE;
 }
 
+void ChangeLightXYOff(int lnum, int x, int y, int xoff, int yoff)
+{
+	LightListStruct *lis;
+
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	if (lnum == -1)
+		return;
+
+	lis = &LightList[lnum];
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_lx = x;
+	lis->_ly = y;
+	lis->_xoff = xoff;
+	lis->_yoff = yoff;
+	dolighting = TRUE;
+}
+
+void CondChangeLightOff(int lnum, int xoff, int yoff)
+{
+	LightListStruct *lis;
+	int lx, ly;
+	int offx, offy;
+
+#ifdef _DEBUG
+	if (lightflag)
+		return;
+#endif
+	assert(lnum != -1);
+
+	lis = &LightList[lnum];
+	lx = xoff + (lis->_lx << 3);
+	ly = yoff + (lis->_ly << 3);
+	offx = lis->_xoff + (lis->_lx << 3);
+	offy = lis->_yoff + (lis->_ly << 3);
+
+	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
+		return;
+
+	lis->_lunflag = TRUE;
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	lis->_xoff = xoff;
+	lis->_yoff = yoff;
+	dolighting = TRUE;
+}
+
 void ChangeLight(int lnum, int x, int y, int r)
 {
 	LightListStruct *lis;
