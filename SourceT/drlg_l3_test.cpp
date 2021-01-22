@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 #include "all.h"
 
+namespace dvl {
+extern void AddFenceDoors();
+}
+
 TEST(Drlg_l3, AddFenceDoors_x) {
 	memset(dvl::dungeon, 0, sizeof(dvl::dungeon));
 	dvl::dungeon[5][5] = 7;

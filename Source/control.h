@@ -20,7 +20,6 @@ extern BYTE *pPanelText;
 extern BYTE infoclr;
 extern char tempstr[256];
 extern int sbooktab;
-extern int pSplType;
 extern int initialDropGoldIndex;
 extern BOOL talkflag;
 extern BOOL sbookflag;

@@ -17,11 +17,6 @@ extern BOOLEAN automapview[DMAXX][DMAXY];
 extern unsigned AutoMapScale;
 extern int AutoMapXOfs;
 extern int AutoMapYOfs;
-extern unsigned AmLine64;
-extern unsigned AmLine32;
-extern unsigned AmLine16;
-extern unsigned AmLine8;
-extern unsigned AmLine4;
 
 void InitAutomapOnce();
 void InitAutomap();
