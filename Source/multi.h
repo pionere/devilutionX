@@ -21,7 +21,7 @@ extern BOOLEAN gbSelectProvider;
 extern BYTE gbMaxPlayers;
 extern char szPlayerName[128];
 extern BYTE gbDeltaSender;
-extern int player_state[MAX_PLRS];
+extern DWORD player_state[MAX_PLRS];
 
 void multi_msg_add(BYTE *pbMsg, BYTE bLen);
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
@@ -30,7 +30,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
 void multi_msg_countdown();
 void multi_player_left(int pnum, int reason);
 void multi_net_ping();
-int multi_handle_delta();
+BOOL multi_handle_delta();
 void multi_process_network_packets();
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen);
 void NetClose();

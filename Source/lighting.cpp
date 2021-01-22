@@ -1066,7 +1066,10 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 	dolighting = TRUE;
 }
 
-void ChangeLightXYOff(int lnum, int x, int y, int xoff, int yoff)
+/*
+ * Same as ChangeLightXY, but also sets the x/y-offsets to zero.
+ */
+void ChangeLightXYOff(int lnum, int x, int y)
 {
 	LightListStruct *lis;
 
@@ -1074,8 +1077,7 @@ void ChangeLightXYOff(int lnum, int x, int y, int xoff, int yoff)
 	if (lightflag)
 		return;
 #endif
-	if (lnum == -1)
-		return;
+	assert(lnum != -1);
 
 	lis = &LightList[lnum];
 	lis->_lunflag = TRUE;
@@ -1084,8 +1086,8 @@ void ChangeLightXYOff(int lnum, int x, int y, int xoff, int yoff)
 	lis->_lunr = lis->_lradius;
 	lis->_lx = x;
 	lis->_ly = y;
-	lis->_xoff = xoff;
-	lis->_yoff = yoff;
+	lis->_xoff = 0;
+	lis->_yoff = 0;
 	dolighting = TRUE;
 }
 

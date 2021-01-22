@@ -72,9 +72,9 @@ DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 	return new_cur_turn;
 }
 
-BOOL nthread_recv_turns(BOOL *pfSendAsync)
+BOOL nthread_recv_turns(BOOL *received)
 {
-	*pfSendAsync = FALSE;
+	*received = FALSE;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown) {
 		last_tick += tick_delay;
@@ -84,11 +84,11 @@ BOOL nthread_recv_turns(BOOL *pfSendAsync)
 	sgbPacketCountdown = sgbNetUpdateRate;
 	if (sgbSyncCountdown != 0) {
 
-		*pfSendAsync = TRUE;
+		*received = TRUE;
 		last_tick += tick_delay;
 		return TRUE;
 	}
-	if (!SNetReceiveTurns(0, MAX_PLRS, (char **)glpMsgTbl, gdwMsgLenTbl, (LPDWORD)player_state)) {
+	if (!SNetReceiveTurns((char*(&)[MAX_PLRS])glpMsgTbl, gdwMsgLenTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
 		sgbTicsOutOfSync = FALSE;
@@ -102,7 +102,7 @@ BOOL nthread_recv_turns(BOOL *pfSendAsync)
 		}
 		sgbSyncCountdown = 4;
 		multi_msg_countdown();
-		*pfSendAsync = TRUE;
+		*received = TRUE;
 		last_tick += tick_delay;
 		return TRUE;
 	}

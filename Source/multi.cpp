@@ -35,7 +35,7 @@ BOOLEAN sgbTimeout;
 char szPlayerName[128];
 BYTE gbDeltaSender;
 BOOL sgbNetInited;
-int player_state[MAX_PLRS];
+DWORD player_state[MAX_PLRS];
 
 /**
  * Contains the set of supported event types supported by the multiplayer
@@ -375,7 +375,7 @@ static void multi_begin_timeout()
 /**
  * @return Always true for singleplayer
  */
-int multi_handle_delta()
+BOOL multi_handle_delta()
 {
 	int i;
 	BOOL received;
@@ -436,7 +436,7 @@ static void multi_process_tmsgs()
 	int cnt;
 	TPkt pkt;
 
-	while (cnt = tmsg_get((BYTE *)&pkt, 512)) {
+	while (cnt = tmsg_get((BYTE *)&pkt, sizeof(TPkt))) {
 		multi_handle_all_packets(myplr, (BYTE *)&pkt, cnt);
 	}
 }

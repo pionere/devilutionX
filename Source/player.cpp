@@ -2214,7 +2214,7 @@ static BOOL PlrDoWalk(int pnum)
 	ClearPlrPVars(pnum);
 
 	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeLightXYOff(p->_plid, p->_px, p->_py);
 		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;
@@ -2265,7 +2265,7 @@ static BOOL PlrDoWalk2(int pnum)
 
 	ClearPlrPVars(pnum);
 	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeLightXYOff(p->_plid, p->_px, p->_py);
 		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;
@@ -2320,7 +2320,7 @@ static BOOL PlrDoWalk3(int pnum)
 	ClearPlrPVars(pnum);
 
 	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py, 0, 0);
+		ChangeLightXYOff(p->_plid, p->_px, p->_py);
 		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
 	return TRUE;

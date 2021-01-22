@@ -155,7 +155,7 @@ SNetLeaveGame(
 
 BOOL STORMAPI SNetPerformUpgrade(DWORD *upgradestatus);
 BOOL STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-BOOL STORMAPI SNetReceiveTurns(int a1, int arraysize, char **arraydata, DWORD *arraydatabytes, DWORD *arrayplayerstatus);
+BOOL STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 
 typedef void (STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
 

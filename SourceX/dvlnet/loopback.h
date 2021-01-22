@@ -25,8 +25,7 @@ public:
 	virtual int join(std::string addrstr, std::string passwd);
 	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
 	virtual bool SNetSendMessage(int dest, void *data, unsigned int size);
-	virtual bool SNetReceiveTurns(char **data, unsigned int *size,
-		DWORD *status);
+	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 	virtual bool SNetSendTurn(char *data, unsigned int size);
 	virtual int SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual bool SNetRegisterEventHandler(event_type evtype,

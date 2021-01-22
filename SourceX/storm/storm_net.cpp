@@ -24,14 +24,10 @@ BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes)
 	return dvlnet_inst->SNetSendMessage(playerID, data, databytes);
 }
 
-BOOL SNetReceiveTurns(int a1, int arraysize, char **arraydata, unsigned int *arraydatabytes,
-    DWORD *arrayplayerstatus)
+BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
+    DWORD (&status)[MAX_PLRS])
 {
-	if (a1 != 0)
-		UNIMPLEMENTED();
-	if (arraysize != MAX_PLRS)
-		UNIMPLEMENTED();
-	if (!dvlnet_inst->SNetReceiveTurns(arraydata, arraydatabytes, arrayplayerstatus)) {
+	if (!dvlnet_inst->SNetReceiveTurns(data, size, status)) {
 		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);
 		return false;
 	}

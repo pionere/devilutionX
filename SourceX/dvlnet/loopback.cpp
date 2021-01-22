@@ -36,7 +36,7 @@ bool loopback::SNetSendMessage(int dest, void *data, unsigned int size)
 	return true;
 }
 
-bool loopback::SNetReceiveTurns(char **data, unsigned int *size, DWORD *status)
+bool loopback::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS])
 {
 	// todo: check that this is safe
 	return true;

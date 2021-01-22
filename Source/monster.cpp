@@ -2044,7 +2044,7 @@ static BOOL MonDoWalk(int mnum)
 		mon->_my += mon->_mVar2;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
@@ -2080,7 +2080,7 @@ static BOOL MonDoWalk2(int mnum)
 	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
 		dMonster[mon->_mVar1][mon->_mVar2] = 0;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
@@ -2119,7 +2119,7 @@ static BOOL MonDoWalk3(int mnum)
 		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my, 0, 0);
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
 		rv = TRUE;
 	} else {
