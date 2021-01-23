@@ -1086,12 +1086,8 @@ static void CheckInvPaste()
 				cn = SwapItem(is, holditem);
 				break;
 			}
-#ifdef HELLFIRE
-			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
-#else
 			NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
 			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-#endif
 			SwapItem(wRight, is);
 			cn = SwapItem(wRight, holditem);
 			break;
