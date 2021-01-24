@@ -1152,8 +1152,6 @@ void stream_stop()
 
 static void stream_play(TSFX *pSFX, int lVolume, int lPan)
 {
-	BOOL success;
-
 	assert(pSFX != NULL);
 	assert(pSFX->bFlags & sfx_STREAM);
 	stream_stop();

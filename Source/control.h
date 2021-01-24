@@ -36,7 +36,6 @@ void SetSpeedSpell(int slot);
 void ToggleSpell(int slot);
 void PrintChar(int sx, int sy, int nCel, char col);
 void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, BYTE col, int kern);
-void DrawPanelBox(int x, int y, int w, int h, int sx, int sy);
 void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSpell();

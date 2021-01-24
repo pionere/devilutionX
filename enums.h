@@ -3658,6 +3658,7 @@ typedef enum conn_type {
 } conn_type;
 
 typedef enum mpq_files {
+	MPQ_DEVILX,
 #ifdef HELLFIRE
 	MPQ_DEVILUTIONX,
 	MPQ_HF_OPT2,

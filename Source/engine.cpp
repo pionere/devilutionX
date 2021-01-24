@@ -177,7 +177,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 {
 	int nDataSize, w;
 	BYTE *pRLEBytes, *dst, *tbl, *end;
-	BYTE width;
+	char width;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -191,18 +191,17 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (w = nWidth; w;) {
 			width = *pRLEBytes++;
-			if (!(width & 0x80)) {
+			if (width >= 0) {
 				w -= width;
-				while (width) {
+				while (width != 0) {
 					*dst = tbl[*pRLEBytes];
 					pRLEBytes++;
 					dst++;
 					width--;
 				}
 			} else {
-				width = -(char)width;
-				dst += width;
-				w -= width;
+				dst -= width;
+				w += width;
 			}
 		}
 	}
@@ -218,7 +217,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 {
 	int i, w;
-	BYTE width;
+	char width;
 	BYTE *src, *dst;
 
 	assert(pDecodeTo != NULL);
@@ -230,9 +229,9 @@ void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 	w = nWidth;
 
 	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w) {
-		for (i = w; i;) {
+		for (i = w; i != 0;) {
 			width = *src++;
-			if (!(width & 0x80)) {
+			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					memcpy(dst, src, width);
@@ -240,9 +239,8 @@ void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 				src += width;
 				dst += width;
 			} else {
-				width = -(char)width;
-				dst += width;
-				i -= width;
+				dst -= width;
+				i += width;
 			}
 		}
 	}

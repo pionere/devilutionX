@@ -10,6 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BOOL invflag;
 BYTE *pInvCels;
+BYTE *pBeltCels;
 int sgdwLastTime; // check name
 
 /**
@@ -96,14 +97,14 @@ const InvXY InvRect[NUM_XY_SLOTS] = {
 	{ 220, 336 }, // inv row 4
 	{ 249, 336 }, // inv row 4
 	{ 278, 336 }, // inv row 4
-	{ 1                   ,  MENUBTN_HEIGHT + 2 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 2 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 2 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 2 + 0 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 2 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 2 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 2 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 2 + 0 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
+	{ 1                   ,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
 	// clang-format on
 };
 
@@ -192,6 +193,7 @@ const int AP2x2Tbl[10] = { 8, 28, 6, 26, 4, 24, 2, 22, 0, 20 };
 void FreeInvGFX()
 {
 	MemFreeDbg(pInvCels);
+	MemFreeDbg(pBeltCels);
 }
 
 void InitInv()
@@ -208,6 +210,7 @@ void InitInv()
 	};
 
 	pInvCels = LoadFileInMem(invSets[plr[myplr]._pClass], NULL);
+	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL", NULL);
 	invflag = FALSE;
 }
 
@@ -538,9 +541,7 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE *cCels;
 
-	//DrawPanelBox(205, 21, 232, 28, PANEL_X + 205, PANEL_Y + 5);
-	for (i = 0; i < 4; i++)
-		DrawPanelBox(205, 20, 2 * (INV_SLOT_SIZE_PX + 1), INV_SLOT_SIZE_PX + 1, SCREEN_X + InvRect[SLOTXY_BELT_FIRST + i].X, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST + i].Y - INV_SLOT_SIZE_PX);
+	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1, 60);
 
 	cCels = pCursCels;
 

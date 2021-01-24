@@ -601,7 +601,7 @@ static BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 	const uint32_t offset_table_bytesize = sizeof(uint32_t) * (num_sectors + 1);
 	pBlk->offset = mpqapi_find_free_block(dwLen + offset_table_bytesize, &pBlk->sizealloc);
 	pBlk->sizefile = dwLen;
-	pBlk->flags = 0x80000100;
+	pBlk->flags = MPQ_FILE_EXISTS | MPQ_FILE_IMPLODE; //0x80000100
 
 	// We populate the table of sector offset while we write the data.
 	// We can't pre-populate it because we don't know the compressed sector sizes yet.

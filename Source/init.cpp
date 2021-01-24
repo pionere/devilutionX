@@ -100,8 +100,10 @@ void init_archives()
 #endif
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
-	if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
-		InsertCDDlg();
+	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
+		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
+	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
+	//	InsertCDDlg();
 
 #ifdef HELLFIRE
 	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq");
@@ -114,6 +116,9 @@ void init_archives()
 	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 	diabdat_mpqs[MPQ_DEVILUTIONX] = init_test_access("devilutionx.mpq");
 #endif
+	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
+	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
+		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
 
 #ifdef MPQONE
 	int i;
