@@ -87,7 +87,6 @@
 #include "town.h"
 #include "towners.h"
 #include "trigs.h"
-#include "wave.h"
 #include "render.h" // linked last, likely .s/.asm
 
 #include "../3rdParty/Storm/Source/storm.h"

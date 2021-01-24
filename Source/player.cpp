@@ -377,10 +377,10 @@ static DWORD GetPlrGFXSize(const char *szCel)
 				}
 				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
-				if (WOpenFile(pszName, &hsFile, TRUE)) {
+				if (SFileOpenFile(pszName, &hsFile)) {
 					/// ASSERT: assert(hsFile != NULL);
-					dwSize = WGetFileSize(hsFile, NULL, pszName);
-					WCloseFile(hsFile);
+					dwSize = SFileGetFileSize(hsFile, NULL);
+					SFileCloseFile(hsFile);
 					if (dwMaxSize < dwSize) {
 						dwMaxSize = dwSize;
 					}

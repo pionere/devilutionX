@@ -3844,7 +3844,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    p->_pdir,
 		    MIS_TOWN,
 		    1,
-		    0,
+		    pnum,
 		    0,
 		    0);
 		break;

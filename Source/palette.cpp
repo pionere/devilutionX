@@ -95,9 +95,9 @@ void LoadPalette(const char *pszFileName)
 
 	assert(pszFileName != NULL);
 
-	WOpenFile(pszFileName, &pBuf, FALSE);
-	WReadFile(pBuf, PalData, sizeof(PalData), pszFileName);
-	WCloseFile(pBuf);
+	SFileOpenFile(pszFileName, &pBuf);
+	SFileReadFile(pBuf, PalData, sizeof(PalData), NULL, NULL);
+	SFileCloseFile(pBuf);
 
 	for (i = 0; i < 256; i++) {
 		orig_palette[i].r = PalData[i][0];

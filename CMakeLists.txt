@@ -256,8 +256,7 @@ add_library(devilution STATIC
   Source/tmsg.cpp
   Source/town.cpp
   Source/towners.cpp
-  Source/trigs.cpp
-  Source/wave.cpp)
+  Source/trigs.cpp)
 
 set(devilutionx_SRCS
   SourceX/dx.cpp
