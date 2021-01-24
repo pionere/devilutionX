@@ -11,6 +11,9 @@
 #include <config.h>
 #include <string>
 #include <fstream>
+#ifdef _DEVMODE
+#include <sys/stat.h>
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -80,6 +83,52 @@ static void init_get_file_info()
 	snprintf(gszVersionNumber, sizeof(gszVersionNumber), "version %s", PROJECT_VERSION);
 }
 
+#ifdef _DEVMODE
+static void CreateMpq(const char* destMpqName, const char* folder, const char *files)
+{
+	std::string basePath = GetBasePath() + folder;
+	std::ifstream input(GetBasePath() + files);
+
+	int entryCount = 0;
+	std::string line;
+	while (std::getline(input, line)) {
+		std::string path = basePath + line.c_str();
+		FILE *fp = fopen(path.c_str(), "r");
+		if (fp != NULL) {
+			fclose(fp);
+			entryCount++;
+		}
+	}
+	input.close();
+	int hashCount = 1;
+	while (hashCount < entryCount) {
+		hashCount <<= 1;
+	}
+	
+	std::string path = GetBasePath() + destMpqName;
+	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
+		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	
+	input = std::ifstream(GetBasePath() + files);
+	while (std::getline(input, line)) {
+		std::string path = basePath + line.c_str();
+		FILE *fp = fopen(path.c_str(), "rb");
+		if (fp != NULL) {
+			struct stat st;
+			stat(path.c_str(), &st);
+			BYTE* buf = DiabloAllocPtr(st.st_size);
+			int readBytes = fread(buf, 1, st.st_size, fp);
+			fclose(fp);
+			if (!mpqapi_write_file(line.c_str(), buf, st.st_size))
+				app_fatal("Unable to write %s to the MPQ.", line.c_str());
+			mem_free_dbg(buf);
+		}
+	}
+	input.close();
+	mpqapi_flush_and_close(TRUE);
+}
+#endif
+
 void init_archives()
 {
 	HANDLE fh = NULL;
@@ -91,6 +140,7 @@ void init_archives()
 	fileinfo.patcharchivefile = "";
 	init_get_file_info();
 
+	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
 #ifdef MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
