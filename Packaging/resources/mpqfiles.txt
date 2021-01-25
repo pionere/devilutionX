@@ -2,3 +2,5 @@ CtrlPan\Flasks.CEL
 CtrlPan\Menu.CEL
 CtrlPan\TalkPnl.CEL
 Data\Inv\Belt.CEL
+Levels\TownData\Town.SOL
+Levels\TownData\Town.RDUN

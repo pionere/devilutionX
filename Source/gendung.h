@@ -60,7 +60,7 @@ extern THEME_LOC themeLoc[MAXTHEMES];
 
 void DRLG_Init_Globals();
 void FillSolidBlockTbls();
-void SetDungeonMicros();
+void SetDungeonMicros(int x1, int y1, int x2, int y2);
 void DRLG_PlaceMegaTiles(int idx);
 void DRLG_InitTrans();
 void DRLG_MRectTrans(int x1, int y1, int x2, int y2);

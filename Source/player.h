@@ -29,7 +29,6 @@ void NextPlrLevel(int pnum);
 void AddPlrExperience(int pnum, int lvl, int exp);
 void AddPlrMonstExper(int lvl, int exp, char pmask);
 void InitPlayer(int pnum, BOOL FirstTime);
-void InitMultiView();
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);

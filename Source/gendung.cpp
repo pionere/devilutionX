@@ -159,11 +159,7 @@ void FillSolidBlockTbls()
 
 	switch (leveltype) {
 	case DTYPE_TOWN:
-#ifdef HELLFIRE
-		pSBFile = LoadFileInMem("NLevels\\TownData\\Town.SOL", &dwTiles);
-#else
 		pSBFile = LoadFileInMem("Levels\\TownData\\Town.SOL", &dwTiles);
-#endif
 		break;
 	case DTYPE_CATHEDRAL:
 #ifdef HELLFIRE
@@ -214,7 +210,7 @@ void FillSolidBlockTbls()
 	mem_free_dbg(pSBFile);
 }
 
-void SetDungeonMicros()
+void SetDungeonMicros(int x1, int y1, int x2, int y2)
 {
 	int i, x, y, lv, blocks;
 	WORD *pPiece;
@@ -231,8 +227,8 @@ void SetDungeonMicros()
 		blocks = 16;
 	}
 
-	for (y = 0; y < MAXDUNY; y++) {
-		for (x = 0; x < MAXDUNX; x++) {
+	for (y = y1; y < y2; y++) {
+		for (x = x1; x < x2; x++) {
 			lv = dPiece[x][y];
 			pMap = &dpiece_defs_map_2[x][y];
 			if (lv != 0) {

@@ -4931,7 +4931,7 @@ void operate_lv24_lever()
 		dPiece[UberRow][UberCol - 1] = 301;
 		dPiece[UberRow][UberCol - 2] = 300;
 		dPiece[UberRow][UberCol + 1] = 299;
-		SetDungeonMicros();
+		SetDungeonMicros(UberRow, UberCol - 1, UberRow + 1, UberCol + 2);
 	}
 }
 
@@ -4942,7 +4942,7 @@ void objects_454BA8()
 	dPiece[UberRow][UberCol - 2] = 300;
 	dPiece[UberRow][UberCol + 1] = 299;
 
-	SetDungeonMicros();
+	SetDungeonMicros(UberRow, UberCol - 1, UberRow + 1, UberCol + 2);
 }
 
 void AddUberLever()

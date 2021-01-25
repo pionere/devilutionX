@@ -996,10 +996,8 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		}
 
 		if (pnum == myplr) {
-			if (!FirstTime || currlevel != 0) {
-				p->_px = ViewX;
-				p->_py = ViewY;
-			}
+			p->_px = ViewX;
+			p->_py = ViewY;
 			p->_ptargx = p->_px;
 			p->_ptargy = p->_py;
 		} else {
@@ -1049,16 +1047,6 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
 	}
-}
-
-void InitMultiView()
-{
-	if ((DWORD)myplr >= MAX_PLRS) {
-		app_fatal("InitPlayer: illegal player %d", myplr);
-	}
-
-	ViewX = plr[myplr]._px;
-	ViewY = plr[myplr]._py;
 }
 
 static BOOL PlrDirOK(int pnum, int dir)

@@ -8,66 +8,18 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
- * @brief Load level data into dPiece
- * @param P3Tiles Tile set
- * @param pSector Sector data
- * @param xi upper left destination
- * @param yi upper left destination
- * @param w width of sector
- * @param h height of sector
- */
-void T_FillSector(BYTE *P3Tiles, BYTE *pSector, int xi, int yi, int w, int h)
-{
-	int i, j, xx, yy, nMap;
-	long v1, v2, v3, v4, ii;
-	WORD *Sector;
-
-	ii = 4;
-	yy = yi;
-	for (j = 0; j < h; j++) {
-		xx = xi;
-		for (i = 0; i < w; i++) {
-			WORD *Map;
-
-			Map = (WORD *)&pSector[ii];
-			nMap = SDL_SwapLE16(*Map);
-			if (nMap) {
-				Sector = (((WORD *)&P3Tiles[(nMap - 1) * 8]));
-				v1 = SDL_SwapLE16(*(Sector + 0)) + 1;
-				v2 = SDL_SwapLE16(*(Sector + 1)) + 1;
-				v3 = SDL_SwapLE16(*(Sector + 2)) + 1;
-				v4 = SDL_SwapLE16(*(Sector + 3)) + 1;
-
-			} else {
-				v1 = 0;
-				v2 = 0;
-				v3 = 0;
-				v4 = 0;
-			}
-			dPiece[xx][yy] = v1;
-			dPiece[xx + 1][yy] = v2;
-			dPiece[xx][yy + 1] = v3;
-			dPiece[xx + 1][yy + 1] = v4;
-			xx += 2;
-			ii += 2;
-		}
-		yy += 2;
-	}
-}
-
-/**
  * @brief Load a tile in to dPiece
  * @param P3Tiles Tile set
  * @param xx upper left destination
  * @param yy upper left destination
- * @param t tile id
+ * @param t tile id (-1)
  */
 void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t)
 {
 	long v1, v2, v3, v4;
 	WORD *Tiles;
 
-	Tiles = ((WORD *)&P3Tiles[(t - 1) * 8]);
+	Tiles = ((WORD *)&P3Tiles[t * 8]);
 	v1 = SDL_SwapLE16(*(Tiles + 0)) + 1;
 	v2 = SDL_SwapLE16(*(Tiles + 1)) + 1;
 	v3 = SDL_SwapLE16(*(Tiles + 2)) + 1;
@@ -139,7 +91,7 @@ void T_HiveOpen()
 	dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
 	dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
 	dPiece[74 + DBORDERX][54 + DBORDERY] = 0x118;
-	SetDungeonMicros();
+	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 77 + DBORDERX, 56 + DBORDERY);
 }
 
 static void T_HiveClosed()
@@ -202,7 +154,7 @@ static void T_HiveClosed()
 	dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
 	dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
 	dPiece[74 + DBORDERX][54 + DBORDERY] = 0x118;
-	SetDungeonMicros();
+	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 77 + DBORDERX, 56 + DBORDERY);
 }
 
 static void T_CryptClosed()
@@ -224,7 +176,7 @@ static void T_CryptClosed()
 	dPiece[27 + DBORDERX][14 + DBORDERY] = 0x532;
 	dPiece[25 + DBORDERX][11 + DBORDERY] = 0x53b;
 	dPiece[24 + DBORDERX][11 + DBORDERY] = 0x53c;
-	SetDungeonMicros();
+	SetDungeonMicros(24 + DBORDERX, 11 + DBORDERY, 28 + DBORDERX, 15 + DBORDERY);
 }
 
 void T_CryptOpen()
@@ -246,140 +198,7 @@ void T_CryptOpen()
 	dPiece[27 + DBORDERX][14 + DBORDERY] = 0x53a;
 	dPiece[25 + DBORDERX][11 + DBORDERY] = 0x53b;
 	dPiece[24 + DBORDERX][11 + DBORDERY] = 0x53c;
-	SetDungeonMicros();
-}
-
-#define REPLACEMENT 341
-void InitTown()
-{
-	int i, j;
-	char *pTmp;
-
-	// make the whole town visible
-	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitTown.");
-	pTmp = &dFlags[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
-		*pTmp |= BFLAG_LIT;
-
-	// prevent the player from teleporting inside of buildings
-	nSolidTable[521] = TRUE;
-	nSolidTable[522] = TRUE;
-	nSolidTable[523] = TRUE;
-	nSolidTable[524] = TRUE;
-	nSolidTable[539] = TRUE;
-	nSolidTable[551] = TRUE;
-	nSolidTable[552] = TRUE;
-
-	// player's home
-	dPiece[DBORDERX + 62][DBORDERY + 60] = REPLACEMENT;
-	dPiece[DBORDERX + 62][DBORDERY + 61] = REPLACEMENT;
-	dPiece[DBORDERX + 63][DBORDERY + 60] = REPLACEMENT;
-	dPiece[DBORDERX + 63][DBORDERY + 61] = REPLACEMENT;
-
-	// beggar
-	for (i = DBORDERX + 58; i <= DBORDERX + 61; i++)
-		for (j = DBORDERY + 70; j <= DBORDERY + 71; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERX + 60][DBORDERY + 69] = REPLACEMENT;
-	dPiece[DBORDERX + 61][DBORDERY + 69] = REPLACEMENT;
-
-	// healer
-	dPiece[DBORDERX + 40][DBORDERY + 68] = REPLACEMENT;
-	dPiece[DBORDERX + 40][DBORDERY + 69] = REPLACEMENT;
-	dPiece[DBORDERX + 41][DBORDERY + 68] = REPLACEMENT;
-	dPiece[DBORDERX + 41][DBORDERY + 69] = REPLACEMENT;
-	dPiece[DBORDERX + 42][DBORDERY + 66] = REPLACEMENT;
-	dPiece[DBORDERX + 42][DBORDERY + 67] = REPLACEMENT;
-	dPiece[DBORDERX + 43][DBORDERY + 66] = REPLACEMENT;
-	dPiece[DBORDERX + 43][DBORDERY + 67] = REPLACEMENT;
-
-	// barmaid
-	for (i = DBORDERX + 28; i <= DBORDERX + 31; i++)
-		for (j = DBORDERY + 56; j <= DBORDERY + 57; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERX + 30][DBORDERY + 54] = REPLACEMENT;
-	dPiece[DBORDERX + 30][DBORDERY + 55] = REPLACEMENT;
-	dPiece[DBORDERX + 31][DBORDERY + 54] = REPLACEMENT;
-	dPiece[DBORDERX + 31][DBORDERY + 55] = REPLACEMENT;
-
-	// ogden
-	for (i = DBORDERX + 38; i <= DBORDERX + 41; i++)
-		for (j = DBORDERY + 48; j <= DBORDERY + 49; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERX + 38][DBORDERY + 50] = REPLACEMENT;
-	dPiece[DBORDERX + 38][DBORDERY + 51] = REPLACEMENT;
-	dPiece[DBORDERX + 39][DBORDERY + 50] = REPLACEMENT;
-	dPiece[DBORDERX + 39][DBORDERY + 51] = REPLACEMENT;
-
-	// smith
-	for (i = DBORDERX + 53; i <= DBORDERX + 59; i++)
-		for (j = DBORDERY + 48; j <= DBORDERY + 49; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERY + 51][DBORDERY + 51] = REPLACEMENT;
-
-	dPiece[DBORDERX + 51][DBORDERY + 50] = REPLACEMENT;
-	dPiece[DBORDERX + 50][DBORDERY + 50] = REPLACEMENT;
-	dPiece[DBORDERX + 50][DBORDERY + 51] = REPLACEMENT;
-
-	// house at the portals
-	for (i = DBORDERX + 36; i <= DBORDERX + 43; i++)
-		for (j = DBORDERY + 34; j <= DBORDERY + 35; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERX + 38][DBORDERY + 32] = REPLACEMENT;
-	dPiece[DBORDERX + 38][DBORDERY + 33] = REPLACEMENT;
-	dPiece[DBORDERX + 39][DBORDERY + 32] = REPLACEMENT;
-	dPiece[DBORDERX + 39][DBORDERY + 33] = REPLACEMENT;
-
-	// witch
-	for (i = DBORDERX + 66; i <= DBORDERX + 67; i++)
-		for (j = DBORDERY + 8; j <= DBORDERY + 9; j++)
-			dPiece[i][j] = REPLACEMENT;
-
-	// cathedral - base
-	for (i = DBORDERX + 10; i <= DBORDERX + 19; i++)
-		for (j = DBORDERY + 6; j <= DBORDERY + 15; j++)
-			// skip (DBORDERX + 10:DBORDERY + 10)-(DBORDERX + 11:DBORDERY + 11),
-			//      (DBORDERX + 12:DBORDERX +  6)-(DBORDERX + 13:DBORDERY + 9),
-			//      (DBORDERX + 18:DBORDERY +  6)-(DBORDERX + 19:DBORDERY + 7)
-			if (dPiece[i][j] == 0) {
-				dPiece[i][j] = REPLACEMENT;
-			}
-	//           - front
-	for (i = DBORDERX + 12; i <= DBORDERX + 17; i++)
-		for (j = DBORDERY + 16; j <= DBORDERY + 17; j++)
-			dPiece[i][j] = REPLACEMENT;
-
-	//           - back
-	for (i = DBORDERX + 14; i <= DBORDERX + 15; i++)
-		for (j = DBORDERY + 3; j <= DBORDERY + 5; j++)
-			dPiece[i][j] = REPLACEMENT;
-	for (i = DBORDERX + 6; i <= DBORDERX + 11; i++)
-		for (j = DBORDERY + 3; j <= DBORDERY + 5; j++)
-			dPiece[i][j] = REPLACEMENT;
-
-	//            - tower
-	for (i = DBORDERX + 2; i <= DBORDERX + 4; i++)
-		for (j = DBORDERY; j <= DBORDERY + 1; j++)
-			dPiece[i][j] = 1018;
-	for (i = DBORDERX + 1; i <= DBORDERX + 3; i++)
-		for (j = DBORDERY + 2; j <= DBORDERY + 3; j++)
-			dPiece[i][j] = 1018;
-	for (i = DBORDERX + 4; i <= DBORDERX + 5; i++)
-		for (j = DBORDERY + 4; j <= DBORDERY + 5; j++)
-			dPiece[i][j] = 958;
-	for (i = DBORDERX + 6; i <= DBORDERX + 9; i++)
-		for (j = DBORDERY + 6; j <= DBORDERY + 7; j++)
-			dPiece[i][j] = REPLACEMENT;
-	dPiece[DBORDERX + 0][DBORDERY + 2] = 1026;
-	dPiece[DBORDERX + 5][DBORDERY + 1] = 1026;
-	dPiece[DBORDERX + 6][DBORDERY + 2] = 1027;
-	dPiece[DBORDERX + 4][DBORDERY + 6] = 958;
-	dPiece[DBORDERX + 5][DBORDERY + 6] = 958;
-	dPiece[DBORDERX + 7][DBORDERY + 8] = REPLACEMENT;
-
-	SetDungeonMicros();
-
-	InitTowners();
+	SetDungeonMicros(24 + DBORDERX, 11 + DBORDERY, 28 + DBORDERX, 15 + DBORDERY);
 }
 
 /**
@@ -419,37 +238,39 @@ unsigned char GetOpenWarps()
 void T_Pass3()
 {
 	int x;
-	BYTE *P3Tiles, *pSector;
+	BYTE *P3Tiles;
 	unsigned char twarps;
 
-	memset(dPiece, 0, sizeof(dPiece));
+	LoadFileWithMem("Levels\\TownData\\Town.RDUN", (BYTE*)&dPiece[0][0]);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	for (x = 0; x < MAXDUNX; x++) {
+		for (int y = 0; y < MAXDUNY; y++) {
+			dPiece[x][y] = SDL_SwapLE32(dPiece[x][y]);
+		}
+	}
+#endif
 
 	P3Tiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
-	pSector = LoadFileInMem("Levels\\TownData\\Sector1s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 36 + DBORDERX, 36 + DBORDERY, 25, 25);
-	mem_free_dbg(pSector);
-	pSector = LoadFileInMem("Levels\\TownData\\Sector2s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, 36 + DBORDERX, -10 + DBORDERY, 25, 23);
-	mem_free_dbg(pSector);
-	pSector = LoadFileInMem("Levels\\TownData\\Sector3s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, -10 + DBORDERX, 36 + DBORDERY, 23, 25);
-	mem_free_dbg(pSector);
-	pSector = LoadFileInMem("Levels\\TownData\\Sector4s.DUN", NULL);
-	T_FillSector(P3Tiles, pSector, -10 + DBORDERX, -10 + DBORDERY, 23, 23);
-	mem_free_dbg(pSector);
+
+	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive != QUEST_NOTAVAIL) {
+		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 342 - 1);
+	}
 
 	twarps = GetOpenWarps();
 	if (!(twarps & (1 << TWARP_CATACOMB)))
-		T_FillTile(P3Tiles, 38 + DBORDERX, 10 + DBORDERY, 320);
+		T_FillTile(P3Tiles, 38 + DBORDERX, 10 + DBORDERY, 320 - 1);
 	if (!(twarps & (1 << TWARP_CAVES))) {
-		T_FillTile(P3Tiles, 6 + DBORDERX, 58 + DBORDERY, 332);
-		T_FillTile(P3Tiles, 6 + DBORDERX, 60 + DBORDERY, 331);
+		T_FillTile(P3Tiles, 6 + DBORDERX, 58 + DBORDERY, 332 - 1);
+		T_FillTile(P3Tiles, 6 + DBORDERX, 60 + DBORDERY, 331 - 1);
 	}
 	if (!(twarps & (1 << TWARP_HELL))) {
-		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x++) {
-			T_FillTile(P3Tiles, x, 68 + DBORDERY, RandRange(1, 4));
+		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
+			T_FillTile(P3Tiles, x, 68 + DBORDERY, random_(0, 4));
 		}
 	}
+
+	mem_free_dbg(P3Tiles);
+
 #ifdef HELLFIRE
 	if (!(twarps & (1 << TWARP_HIVE)))
 		T_HiveClosed();
@@ -460,14 +281,6 @@ void T_Pass3()
 	else
 		T_CryptOpen();
 #endif
-
-	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive != QUEST_NOTAVAIL) {
-		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 342);
-	} else {
-		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 71);
-	}
-
-	mem_free_dbg(P3Tiles);
 }
 
 /**
@@ -482,9 +295,9 @@ void CreateTown(int entry)
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
 
-	if (entry == ENTRY_MAIN) { // New game
-		ViewX = 65 + DBORDERX;
-		ViewY = 58 + DBORDERY;
+	if (entry == ENTRY_MAIN) { // New game - set by SetupLocalCoords in multi.cpp
+		ViewX = plr[myplr]._px; // ViewX = 65 + DBORDERX;
+		ViewY = plr[myplr]._py; // ViewY = 58 + DBORDERY;
 	} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;
@@ -510,13 +323,10 @@ void CreateTown(int entry)
 	}
 
 	T_Pass3();
+
+	// make the whole town visible
 	memset(dLight, 0, sizeof(dLight));
-	memset(dFlags, 0, sizeof(dFlags));
-	memset(dPlayer, 0, sizeof(dPlayer));
-	memset(dMonster, 0, sizeof(dMonster));
-	memset(dObject, 0, sizeof(dObject));
-	memset(dItem, 0, sizeof(dItem));
-	memset(dSpecial, 0, sizeof(dSpecial));
+	memset(dFlags, BFLAG_LIT, sizeof(dFlags));
 
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in CreateTown.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in CreateTown.");

@@ -1803,7 +1803,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		}
 
 		PlayDungMsgs();
-		InitMultiView();
 		IncProgress();
 
 		SetRndSeed(glSeedTbl[currlevel]);
@@ -1841,7 +1840,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 				IncProgress();
 			}
 		} else {
-			InitTown();
+			InitTowners();
 			InitItems();
 			InitMissiles();
 			IncProgress();
@@ -1883,8 +1882,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			}
 		}
 		IncProgress();
-
-		InitMultiView();
 		IncProgress();
 
 		if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pSLvlVisited[setlvlnum]) {
@@ -1913,7 +1910,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		}
 	}
 
-	SetDungeonMicros();
+	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
 
 	InitLightMax();
 	IncProgress();
