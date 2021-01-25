@@ -79,23 +79,17 @@ static void snd_set_volume(const char *key, int value)
 
 BOOL snd_playing(TSnd *pSnd)
 {
-	if (pSnd == NULL || pSnd->DSB == NULL)
+	if (pSnd == NULL)
 		return false;
-
+	assert(pSnd->DSB != NULL);
 	return pSnd->DSB->IsPlaying();
 }
 
 void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 {
-	SoundSample *DSB;
 	DWORD tc;
 
 	if (pSnd == NULL || !gbSoundOn) {
-		return;
-	}
-
-	DSB = pSnd->DSB;
-	if (DSB == NULL) {
 		return;
 	}
 
@@ -110,7 +104,8 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 	} else if (lVolume > VOLUME_MAX) {
 		lVolume = VOLUME_MAX;
 	}
-	DSB->Play(lVolume, lPan);
+	assert(pSnd->DSB != NULL);
+	pSnd->DSB->Play(lVolume, lPan);
 	pSnd->start_tc = tc;
 }
 
@@ -145,13 +140,12 @@ TSnd *sound_file_load(const char *path)
 
 void sound_file_cleanup(TSnd *sound_file)
 {
-	if (sound_file) {
-		if (sound_file->DSB) {
-			sound_file->DSB->Stop();
-			sound_file->DSB->Release();
-			delete sound_file->DSB;
-			sound_file->DSB = NULL;
-		}
+	if (sound_file != NULL) {
+		assert(sound_file->DSB != NULL);
+		sound_file->DSB->Stop();
+		sound_file->DSB->Release();
+		delete sound_file->DSB;
+		sound_file->DSB = NULL;
 
 		mem_free_dbg(sound_file);
 	}
@@ -187,7 +181,7 @@ void sound_cleanup()
 
 void music_stop()
 {
-	if (sghMusic) {
+	if (sghMusic != NULL) {
 		Mix_HaltMusic();
 		SFileCloseFile(sghMusic);
 		sghMusic = NULL;

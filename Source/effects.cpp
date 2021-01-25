@@ -1143,7 +1143,6 @@ BOOL effect_is_playing(int nSFX)
 void stream_stop()
 {
 	if (sgpStreamSFX != NULL) {
-		sgpStreamSFX->pSnd->DSB->Stop();
 		sound_file_cleanup(sgpStreamSFX->pSnd);
 		sgpStreamSFX->pSnd = NULL;
 		sgpStreamSFX = NULL;
@@ -1437,13 +1436,6 @@ void effects_play_sound(const char *snd_file)
 			return;
 		}
 	}
-}
-
-int GetSFXLength(int nSFX)
-{
-	if (sgSFX[nSFX].pSnd == NULL)
-		sgSFX[nSFX].pSnd = sound_file_load(sgSFX[nSFX].pszName);
-	return sgSFX[nSFX].pSnd->DSB->GetLength();
 }
 
 DEVILUTION_END_NAMESPACE

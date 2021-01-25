@@ -10,7 +10,6 @@ public:
 	void Play(int lVolume, int lPan, int channel = -1);
 	void Stop();
 	int SetChunk(BYTE *fileData, DWORD dwBytes);
-	int GetLength();
 
 private:
 	Mix_Chunk *chunk;
