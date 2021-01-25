@@ -808,6 +808,30 @@ static void AddLvl2xBooks(int bookidx)
 	AddObject(OBJ_STORYCANDLE, xp + 2, yp + 1);
 }
 
+static void AddUberLever()
+{
+	int xp, yp;
+
+	while (TRUE) {
+		xp = random_(141, DSIZEX) + DBORDERX;
+		yp = random_(141, DSIZEY) + DBORDERY;
+		if (RndLocOk(xp - 1, yp - 1)
+		    && RndLocOk(xp, yp - 1)
+		    && RndLocOk(xp + 1, yp - 1)
+		    && RndLocOk(xp - 1, yp)
+		    && RndLocOk(xp, yp)
+		    && RndLocOk(xp + 1, yp)
+		    && RndLocOk(xp - 1, yp + 1)
+		    && RndLocOk(xp, yp + 1)
+		    && RndLocOk(xp + 1, yp + 1)) {
+			break;
+		}
+	}
+	UberLeverRow = UberRow + 3;
+	UberLeverCol = UberCol - 1;
+	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
+}
+
 static void AddLvl24Books()
 {
 	AddUberLever();
@@ -846,6 +870,28 @@ static void AddLvl24Books()
 		ASSUME_UNREACHABLE
 		break;
 	}
+}
+
+static BOOL ProgressUberLever(int bookidx)
+{
+	switch (bookidx) {
+	case 6:
+		UberLeverProgress = 1;
+		break;
+	case 7:
+		if (UberLeverProgress == 1) {
+			UberLeverProgress = 2;
+		} else {
+			UberLeverProgress = 0;
+		}
+		break;
+	case 8:
+		if (UberLeverProgress == 2)
+			return TRUE;
+		UberLeverProgress = 0;
+		break;
+	}
+	return FALSE;
 }
 #endif
 
@@ -2843,10 +2889,11 @@ static void OperateLever(int pnum, int oi)
 		}
 #ifdef HELLFIRE
 		if (currlevel == 24) {
-			operate_lv24_lever();
+			DoOpenUberRoom();
 			IsUberLeverActivated = TRUE;
 			mapflag = FALSE;
 			quests[Q_NAKRUL]._qactive = QUEST_DONE;
+			//quests[Q_NAKRUL]._qlog = FALSE;
 		}
 #endif
 		if (mapflag)
@@ -4179,7 +4226,7 @@ static void OperateStoryBook(int pnum, int oi)
 		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
 		if (os->_oVar8 != 0 && currlevel == 24) {
-			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && OpenUberLevel(os->_oVar8)) {
+			if (!IsUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
 				NetSendCmd(FALSE, CMD_NAKRUL);
 				return;
 			}
@@ -4922,20 +4969,7 @@ void GetObjectStr(int oi)
 }
 
 #ifdef HELLFIRE
-void operate_lv24_lever()
-{
-	if (currlevel == 24) {
-		PlaySfxLoc(IS_CROPEN, UberRow, UberCol);
-		//the part below is the same as objects_454BA8
-		dPiece[UberRow][UberCol] = 298;
-		dPiece[UberRow][UberCol - 1] = 301;
-		dPiece[UberRow][UberCol - 2] = 300;
-		dPiece[UberRow][UberCol + 1] = 299;
-		SetDungeonMicros(UberRow, UberCol - 1, UberRow + 1, UberCol + 2);
-	}
-}
-
-void objects_454BA8()
+void OpenUberRoom()
 {
 	dPiece[UberRow][UberCol] = 298;
 	dPiece[UberRow][UberCol - 1] = 301;
@@ -4945,50 +4979,12 @@ void objects_454BA8()
 	SetDungeonMicros(UberRow, UberCol - 1, UberRow + 1, UberCol + 2);
 }
 
-void AddUberLever()
+void DoOpenUberRoom()
 {
-	int xp, yp;
-
-	while (TRUE) {
-		xp = random_(141, DSIZEX) + DBORDERX;
-		yp = random_(141, DSIZEY) + DBORDERY;
-		if (RndLocOk(xp - 1, yp - 1)
-		    && RndLocOk(xp, yp - 1)
-		    && RndLocOk(xp + 1, yp - 1)
-		    && RndLocOk(xp - 1, yp)
-		    && RndLocOk(xp, yp)
-		    && RndLocOk(xp + 1, yp)
-		    && RndLocOk(xp - 1, yp + 1)
-		    && RndLocOk(xp, yp + 1)
-		    && RndLocOk(xp + 1, yp + 1)) {
-			break;
-		}
+	if (currlevel == 24) {
+		PlaySfxLoc(IS_CROPEN, UberRow, UberCol);
+		OpenUberRoom();
 	}
-	UberLeverRow = UberRow + 3;
-	UberLeverCol = UberCol - 1;
-	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
-}
-
-BOOL OpenUberLevel(int bookidx)
-{
-	switch (bookidx) {
-	case 6:
-		UberLeverProgress = 1;
-		break;
-	case 7:
-		if (UberLeverProgress == 1) {
-			UberLeverProgress = 2;
-		} else {
-			UberLeverProgress = 0;
-		}
-		break;
-	case 8:
-		if (UberLeverProgress == 2)
-			return TRUE;
-		UberLeverProgress = 0;
-		break;
-	}
-	return FALSE;
 }
 #endif
 

@@ -24,7 +24,7 @@ void GetLevelMTypes();
 void InitMonsterGFX(int midx);
 void ClrAllMonsters();
 #ifdef HELLFIRE
-void monster_some_crypt();
+void WakeUberDiablo();
 #endif
 void PlaceGroup(int mtype, int num, int leaderf, int leader);
 void InitMonsters();

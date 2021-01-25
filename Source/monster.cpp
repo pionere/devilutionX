@@ -616,20 +616,17 @@ static BOOL MonstPlace(int xp, int yp)
 }
 
 #ifdef HELLFIRE
-void monster_some_crypt()
+void WakeUberDiablo()
 {
 	MonsterStruct *mon;
-	int hp;
 
-	if (currlevel == 24 && UberDiabloMonsterIndex >= 0 && UberDiabloMonsterIndex < nummonsters) {
+	if (currlevel == 24 && UberDiabloMonsterIndex >= 0) {
 		mon = &monster[UberDiabloMonsterIndex];
 		PlayEffect(UberDiabloMonsterIndex, 2);
-		quests[Q_NAKRUL]._qlog = FALSE;
 		mon->mArmorClass -= 50;
-		hp = mon->_mmaxhp / 2;
 		mon->mMagicRes = 0;
-		mon->_mhitpoints = hp;
-		mon->_mmaxhp = hp;
+		mon->_mmaxhp /= 2;
+		mon->_mhitpoints = mon->_mmaxhp;
 	}
 }
 #endif
@@ -1751,7 +1748,7 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 		return;
 	case UMT_NAKRUL:
 		stream_stop();
-		quests[Q_NAKRUL]._qlog = FALSE;
+		quests[Q_NAKRUL]._qlog = FALSE; // TODO: instead of _qlog the _qactive should be set to QUEST_DONE?
 		UberDiabloMonsterIndex = -2;
 		CreateMagicWeapon(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my);
 		CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my);

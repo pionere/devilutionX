@@ -2378,10 +2378,11 @@ static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
-		operate_lv24_lever();
+		DoOpenUberRoom();
 		IsUberRoomOpened = TRUE;
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		monster_some_crypt();
+		//quests[Q_NAKRUL]._qlog = FALSE;
+		WakeUberDiablo();
 	}
 	return sizeof(*pCmd);
 }

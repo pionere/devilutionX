@@ -1929,7 +1929,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	if (currlevel == 21) {
 		LoadCornerStone(CornerStone.x, CornerStone.y);
 	} else if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
-		objects_454BA8();
+		OpenUberRoom();
 	}
 #endif
 
