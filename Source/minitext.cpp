@@ -7,12 +7,19 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/** Current y position of text in px */
 int qtexty;
+/** Pointer to the current text being displayed */
 const char *qtextptr;
+/** Time of last rendering of the text */
 DWORD qtextTime;
+/** Specify if the quest dialog window is being shown */
 BOOLEAN qtextflag;
+/** Vertical speed of the scrolling text in ms/px */
 DWORD scrolltexty;
+/** Graphics for the medium size font */
 BYTE *pMedTextCels;
+/** Graphics for the window border */
 BYTE *pTextBoxCels;
 
 /** Maps from font index to medtexts.cel frame number. */
@@ -81,12 +88,22 @@ void InitQTextMsg(int m)
 	PlaySFX(alltext[m].sfxnr);
 }
 
+/**
+ * @brief Draw the quest dialog window decoration and background
+ */
 void DrawQTextBack()
 {
 	CelDraw(PANEL_X + 24, SCREEN_Y + 327 + UI_OFFSET_Y, pTextBoxCels, 1, 591);
 	trans_rect(PANEL_X + 27, SCREEN_Y + UI_OFFSET_Y + 28, 585, 297);
 }
 
+/**
+ * @brief Print a character
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
+ * @param pCelBuff Cel data
+ * @param nCel CEL frame number
+ */
 static void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
 {
 	BYTE *pStart, *pEnd;
@@ -129,14 +146,11 @@ void DrawQText()
 			if (c != '\0') {
 				tempstr[l] = c;
 				w += mfontkern[mfontframe[c]] + 2;
-			} else {
-				l--;
+				l++;
 			}
-			l++;
 		}
 		tempstr[l] = '\0';
 		if (*s == '|') {
-			tempstr[l] = '\0';
 			doneflag = TRUE;
 		} else if (*s != '\n') {
 			while (tempstr[l] != ' ' && l > 0) {
@@ -144,7 +158,7 @@ void DrawQText()
 				l--;
 			}
 		}
-		for (i = 0; tempstr[i]; i++) {
+		for (i = 0; tempstr[i] != '\0'; i++) {
 			p++;
 			c = mfontframe[gbFontTransTbl[(BYTE)tempstr[i]]];
 			if (*p == '\n') {
