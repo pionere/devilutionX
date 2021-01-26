@@ -3815,11 +3815,8 @@ void MAI_Scav(int mnum)
 			}
 		}
 	}
-#ifdef HELLFIRE
-	else
-#else
+
 	if (mon->_mmode == MM_STAND)
-#endif
 		MAI_SkelSd(mnum);
 }
 
