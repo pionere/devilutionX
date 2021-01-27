@@ -1255,7 +1255,7 @@ int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DELETE;
 }
 
-static BOOL place_rune(int mi, int dx, int dy, int mitype)
+static BOOL place_rune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
 	const char *cr;
@@ -1270,6 +1270,8 @@ static BOOL place_rune(int mi, int dx, int dy, int mitype)
 				missile[mi]._mix = tx;
 				missile[mi]._miy = ty;
 				missile[mi]._miVar1 = mitype;
+				missile[mi]._miVar2 = mirange;		// trigger range
+				missile[mi]._miRange = 16 + 1584;	// delay + ttl
 				missile[mi]._miLid = AddLight(tx, ty, 8);
 				return TRUE;
 			}
@@ -1280,11 +1282,12 @@ static BOOL place_rune(int mi, int dx, int dy, int mitype)
 
 /**
  * Var1: mitype to fire upon impact
+ * Var2: range of the rune
  */
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_HIVEEXP))
+		if (place_rune(mi, dx, dy, MIS_HIVEEXP, 0))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1292,11 +1295,12 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 /**
  * Var1: mitype to fire upon impact
+ * Var2: range of the rune
  */
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_LIGHTBALL))
+		if (place_rune(mi, dx, dy, MIS_LIGHTNINGC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1304,11 +1308,12 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 /**
  * Var1: mitype to fire upon impact
+ * Var2: range of the rune
  */
 int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_LIGHTNOVAC))
+		if (place_rune(mi, dx, dy, MIS_LIGHTNOVAC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1316,11 +1321,12 @@ int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 
 /**
  * Var1: mitype to fire upon impact
+ * Var2: range of the rune
  */
 int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_FIRENOVAC))
+		if (place_rune(mi, dx, dy, MIS_FIRENOVAC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1328,11 +1334,12 @@ int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 
 /**
  * Var1: mitype to fire upon impact
+ * Var2: range of the rune
  */
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_STONE))
+		if (place_rune(mi, dx, dy, MIS_STONE, 0))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -2162,10 +2169,6 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_FAIL_DELETE;
 }
 
-/**
- * Var1: origin to check for a shrine
- * Var2: origin to check for a shrine
- */
 int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -2176,12 +2179,6 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
-	if (misource >= 0) {
-		sx = plr[misource]._px;
-		sy = plr[misource]._py;
-	}
-	mis->_miVar1 = sx;
-	mis->_miVar2 = sy;
 	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, 8);
 	return MIRES_DONE;
@@ -3699,22 +3696,16 @@ void MI_Firebolt(int mi)
 void MI_Lightball(int mi)
 {
 	MissileStruct *mis;
-	int tx, ty, range, oi;
+	int range;
 
 	mis = &missile[mi];
-	tx = mis->_miVar1;
-	ty = mis->_miVar2;
 	mis->_miRange--;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
-		mis->_miRange = range;
-	oi = dObject[tx][ty];
-	if (oi != 0 && tx == mis->_mix && ty == mis->_miy) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._otype == OBJ_SHRINEL || object[oi]._otype == OBJ_SHRINER)
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		range = mis->_miRange;
+		if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
 			mis->_miRange = range;
 	}
 	if (mis->_miRange == 0)
@@ -3895,15 +3886,26 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct *mis;
-	int mx, my;
+	int j, tx, ty;
+	const char *cr;
 
 	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
-	if ((dMonster[mx][my] | dPlayer[mx][my]) != 0) {
+	if (--mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
-		AddMissile(mx, my, mx, my, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miDam, mis->_miSpllvl);
+		return;
+	}
+	if (mis->_miRange <= 1584) { // ttl of the rune
+		cr = &CrawlTable[CrawlNum[mis->_miVar2]];
+		for (j = *cr; j > 0; j--) {
+			tx = mis->_mix + *++cr;
+			ty = mis->_miy + *++cr;
+			if ((dMonster[tx][ty] | dPlayer[tx][ty]) != 0) {
+				mis->_miDelFlag = TRUE;
+				AddUnLight(mis->_miLid);
+				AddMissile(mis->_mix, mis->_miy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miDam, mis->_miSpllvl);
+				return;
+			}
+		}
 	}
 	PutMissile(mi);
 }

@@ -15,7 +15,7 @@ const MissileData missiledata[] = {
 	{  MIS_FIREBOLT,      &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                            0, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1        },
 	{  MIS_GUARDIAN,      &AddGuardian,               &MI_Guardian,       TRUE,      1,                            0, MISR_NONE,      MFILE_GUARD,     LS_GUARD,    LS_GUARDLAN, 1,        1        },
 	{  MIS_RNDTELEPORT,   &AddRndTeleport,            &MI_Teleport,       FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      LS_TELEPORT, -1,          1,        1        },
-	{  MIS_LIGHTBALL,     &AddLightball,              &MI_Lightball,      TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   -1,          -1,          1,        1        },
+	{  MIS_LIGHTBALL,     &AddLightball,              &MI_Lightball,      TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1        },
 	{  MIS_FIREWALL,      &AddFirewall,               &MI_Firewall,       TRUE,      1, MIFLAG_NOBLOCK | MIFLAG_AREA, MISR_FIRE,      MFILE_FIREWAL,   LS_WALLLOOP, LS_FIRIMP2,  1,        1        },
 	{  MIS_FIREBALL,      &AddFireball,               &MI_Fireball,       TRUE,      1,                            0, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1        },
 	{  MIS_LIGHTNINGC,    &AddLightningC,             &MI_LightningC,     FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      -1,          -1,          1,        1        },

@@ -3473,11 +3473,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (deltaload)
 			return;
 		AddMissile(
-		    p->_px,
-		    p->_py,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
+		    0,
+		    0,
+		    0,
+		    0,
+		    0,
 		    MIS_MANASHIELD,
 		    -1,
 		    pnum,
@@ -3592,16 +3592,16 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (deltaload)
 			return;
 		AddMissile(
-		    p->_px,
-		    p->_py,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
-		    MIS_LIGHTNOVAC,
-		    -1,
-		    pnum,
+		    os->_ox,
+		    os->_oy,
 		    0,
-		    2 * leveltype);
+		    0,
+		    0,
+		    MIS_LIGHTNOVAC,
+		    0,
+		    -1,
+		    0,
+		    0);
 		if (pnum != myplr)
 			return;
 		PlrFillMana(pnum);
@@ -4141,11 +4141,11 @@ static void OperateFountains(int pnum, int oi)
 
 		p = &plr[pnum];
 		AddMissile(
-		    p->_px,
-		    p->_py,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
+		    0,
+		    0,
+		    0,
+		    0,
+		    0,
 		    MIS_INFRA,
 		    -1,
 		    pnum,
