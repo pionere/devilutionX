@@ -17,8 +17,8 @@ Data\Diabsmal.CEL
 Data\hf_logo3.CEL
 Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
-Data\Inv\Inv_rog.CEL
-Data\Inv\Inv_Sor.CEL
+_Data\Inv\Inv_rog.CEL
+_Data\Inv\Inv_Sor.CEL
 Data\Inv\Objcurs.CEL
 Data\Inv\Objcurs2.CEL
 Data\MedTextS.CEL
@@ -29,7 +29,7 @@ Data\PentSpn2.CEL
 Data\Quest.CEL
 Data\SpelIcon.CEL
 Data\SpellBk.CEL
-Data\SpellBkB.CEL
+_Data\SpellBkB.CEL
 Data\SpellI2.CEL
 Data\Square.CEL
 Data\TextBox.CEL

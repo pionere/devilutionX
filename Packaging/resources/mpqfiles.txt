@@ -1,6 +1,11 @@
 CtrlPan\Flasks.CEL
 CtrlPan\Menu.CEL
 CtrlPan\TalkPnl.CEL
+Data\Char.CEL
 Data\Inv\Belt.CEL
+Data\Inv\Inv.CEL
+Data\SpellBk.CEL
+Data\SpellBkB.CEL
+Data\Quest.CEL
 Levels\TownData\Town.SOL
 Levels\TownData\Town.RDUN

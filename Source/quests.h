@@ -35,7 +35,7 @@ void StartQuestlog();
 void QuestlogUp();
 void QuestlogDown();
 void QuestlogEnter();
-BOOL CheckQuestlog();
+void CheckQuestlog();
 void SetMultiQuest(int qn, int qa, int qlog, int qvar);
 
 /* rdata */

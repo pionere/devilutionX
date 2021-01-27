@@ -739,16 +739,16 @@ static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col
 	int len, width, i, k, sx, sy;
 	BYTE c;
 
-	sx = x + 32 + SCREEN_X;
-	sy = y * 12 + 44 + SCREEN_Y;
+	sx = x + 12 + SCREEN_X;
+	sy = y * 24 + 10 + 12 + SCREEN_Y;
 	len = strlen(str);
 	k = 0;
 	if (cjustflag) {
 		width = 0;
 		for (i = 0; i < len; i++)
 			width += fontkern[fontframe[gbFontTransTbl[(BYTE)str[i]]]] + 1;
-		if (width < 257)
-			k = (257 - width) >> 1;
+		if (width < 270)
+			k = (270 - width) >> 1;
 		sx += k;
 	}
 	if (qline == y) {
@@ -757,28 +757,25 @@ static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col
 	for (i = 0; i < len; i++) {
 		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
 		k += fontkern[c] + 1;
-		if (c != '\0' && k <= 257) {
+		if (c != '\0' && k <= 270) {
 			PrintChar(sx, sy, c, col);
 		}
 		sx += fontkern[c] + 1;
 	}
 	if (qline == y) {
-		CelDraw(cjustflag ? x + k + 36 + SCREEN_X : 276 + SCREEN_X - x, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
+		CelDraw(cjustflag ? x + k + 36 + SCREEN_X : 294 - 12 + SCREEN_X - x, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
 	}
 }
 
 void DrawQuestLog()
 {
-	int y, i;
+	int i;
 
-	PrintQLString(0, 2, TRUE, "Quest Log", COL_GOLD);
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
-	y = qtopline;
 	for (i = 0; i < numqlines; i++) {
-		PrintQLString(0, y, TRUE, questlist[qlist[i]]._qlstr, COL_WHITE);
-		y += 2;
+		PrintQLString(0, qtopline + i, TRUE, questlist[qlist[i]]._qlstr, COL_WHITE);
 	}
-	PrintQLString(0, 22, TRUE, "Close Quest Log", COL_WHITE);
+	PrintQLString(0, 11, TRUE, "Close Quest Log", COL_WHITE);
 }
 
 void StartQuestlog()
@@ -792,14 +789,13 @@ void StartQuestlog()
 			numqlines++;
 		}
 	}
-	if (numqlines > 5) {
+	if (numqlines != 0) {
 		qtopline = 5 - (numqlines >> 1);
-	} else {
-		qtopline = 8;
-	}
-	qline = 22;
-	if (numqlines != 0)
 		qline = qtopline;
+	} else {
+		// qtopline = 11;
+		qline = 11;
+	}
 	questlog = TRUE;
 }
 
@@ -807,11 +803,11 @@ void QuestlogUp()
 {
 	if (numqlines != 0) {
 		if (qline == qtopline) {
-			qline = 22;
-		} else if (qline == 22) {
-			qline = qtopline + 2 * numqlines - 2;
+			qline = 11;
+		} else if (qline == 11) {
+			qline = qtopline + numqlines - 1;
 		} else {
-			qline -= 2;
+			qline--;
 		}
 		PlaySFX(IS_TITLEMOV);
 	}
@@ -820,12 +816,12 @@ void QuestlogUp()
 void QuestlogDown()
 {
 	if (numqlines != 0) {
-		if (qline == 22) {
+		if (qline == 11) {
 			qline = qtopline;
-		} else if (qline == qtopline + 2 * numqlines - 2) {
-			qline = 22;
+		} else if (qline == qtopline + numqlines - 1) {
+			qline = 11;
 		} else {
-			qline += 2;
+			qline++;
 		}
 		PlaySFX(IS_TITLEMOV);
 	}
@@ -834,41 +830,34 @@ void QuestlogDown()
 void QuestlogEnter()
 {
 	PlaySFX(IS_TITLSLCT);
-	if (numqlines != 0 && qline != 22)
-		InitQTextMsg(quests[qlist[(qline - qtopline) >> 1]]._qmsg);
+	if (numqlines != 0 && qline != 11)
+		InitQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	questlog = FALSE;
 }
 
-BOOL CheckQuestlog()
+void CheckQuestlog()
 {
-	int y, i;
+	int y;
 
-	if (MouseX <= 32 || MouseX >= 288 || MouseY <= 32 || MouseY >= 308)
-		return FALSE;
-
-	y = (MouseY - 32) / 12;
-	for (i = 0; i < numqlines; i++) {
-		if (y == qtopline + 2 * i) {
-			qline = y;
-			QuestlogEnter();
-		}
-	}
-	if (y == 22) {
-		qline = 22;
+	y = (MouseY - 10) / 24;
+	if (y == 11 || (y >= qtopline && y < qtopline + numqlines)) {
+		qline = y;
 		QuestlogEnter();
 	}
-	return TRUE;
 }
 
 void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 {
 #ifndef SPAWN
-	if (quests[qn]._qactive != QUEST_DONE) {
-		if (qa > quests[qn]._qactive)
-			quests[qn]._qactive = qa;
-		quests[qn]._qlog |= qlog;
-		if (qvar > quests[qn]._qvar1)
-			quests[qn]._qvar1 = qvar;
+	QuestStruct *qs;
+
+	qs = &quests[qn];
+	if (qs->_qactive != QUEST_DONE) {
+		if (qa > qs->_qactive)
+			qs->_qactive = qa;
+		qs->_qlog |= qlog;
+		if (qvar > qs->_qvar1)
+			qs->_qvar1 = qvar;
 	}
 #endif
 }

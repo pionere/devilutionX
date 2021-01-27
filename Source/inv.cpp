@@ -32,71 +32,71 @@ int sgdwLastTime; // check name
 const InvXY InvRect[NUM_XY_SLOTS] = {
 	// clang-format off
 	//  X,   Y
-	{ 133,                    31 },                       // helmet
-	{ 133 + INV_SLOT_SIZE_PX, 31 },                       // helmet
-	{ 133,                    31 +    INV_SLOT_SIZE_PX }, // helmet
-	{ 133 + INV_SLOT_SIZE_PX, 31 +    INV_SLOT_SIZE_PX }, // helmet
-	{  48, 205 }, // left ring
-	{ 249, 205 }, // right ring
-	{ 205,  60 }, // amulet
-	{  17,                    104 },                      // left hand
-	{  17 + INV_SLOT_SIZE_PX, 104 },                      // left hand
-	{  17,                    104 +   INV_SLOT_SIZE_PX }, // left hand
-	{  17 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // left hand
-	{  17,                    104 + 2*INV_SLOT_SIZE_PX }, // left hand
-	{  17 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // left hand
-	{ 249,                    104 },                      // right hand
-	{ 249 + INV_SLOT_SIZE_PX, 104 },                      // right hand
-	{ 249,                    104 +   INV_SLOT_SIZE_PX }, // right hand
-	{ 249 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // right hand
-	{ 249,                    104 + 2*INV_SLOT_SIZE_PX }, // right hand
-	{ 249 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // right hand
-	{ 133,                    104 },                      // chest
-	{ 133 + INV_SLOT_SIZE_PX, 104 },                      // chest
-	{ 133,                    104 +   INV_SLOT_SIZE_PX }, // chest
-	{ 133 + INV_SLOT_SIZE_PX, 104 +   INV_SLOT_SIZE_PX }, // chest
-	{ 133,                    104 + 2*INV_SLOT_SIZE_PX }, // chest
-	{ 133 + INV_SLOT_SIZE_PX, 104 + 2*INV_SLOT_SIZE_PX }, // chest
-	{  17, 249 }, // inv row 1
-	{  46, 249 }, // inv row 1
-	{  75, 249 }, // inv row 1
-	{ 104, 249 }, // inv row 1
-	{ 133, 249 }, // inv row 1
-	{ 162, 249 }, // inv row 1
-	{ 191, 249 }, // inv row 1
-	{ 220, 249 }, // inv row 1
-	{ 249, 249 }, // inv row 1
-	{ 278, 249 }, // inv row 1
-	{  17, 278 }, // inv row 2
-	{  46, 278 }, // inv row 2
-	{  75, 278 }, // inv row 2
-	{ 104, 278 }, // inv row 2
-	{ 133, 278 }, // inv row 2
-	{ 162, 278 }, // inv row 2
-	{ 191, 278 }, // inv row 2
-	{ 220, 278 }, // inv row 2
-	{ 249, 278 }, // inv row 2
-	{ 278, 278 }, // inv row 2
-	{  17, 307 }, // inv row 3
-	{  46, 307 }, // inv row 3
-	{  75, 307 }, // inv row 3
-	{ 104, 307 }, // inv row 3
-	{ 133, 307 }, // inv row 3
-	{ 162, 307 }, // inv row 3
-	{ 191, 307 }, // inv row 3
-	{ 220, 307 }, // inv row 3
-	{ 249, 307 }, // inv row 3
-	{ 278, 307 }, // inv row 3
-	{  17, 336 }, // inv row 4
-	{  46, 336 }, // inv row 4
-	{  75, 336 }, // inv row 4
-	{ 104, 336 }, // inv row 4
-	{ 133, 336 }, // inv row 4
-	{ 162, 336 }, // inv row 4
-	{ 191, 336 }, // inv row 4
-	{ 220, 336 }, // inv row 4
-	{ 249, 336 }, // inv row 4
-	{ 278, 336 }, // inv row 4
+	{ 121,                    29 },                       // helmet
+	{ 121 + INV_SLOT_SIZE_PX, 29 },                       // helmet
+	{ 121,                    29 +    INV_SLOT_SIZE_PX }, // helmet
+	{ 121 + INV_SLOT_SIZE_PX, 29 +    INV_SLOT_SIZE_PX }, // helmet
+	{  61, 171 }, // left ring
+	{ 206, 171 }, // right ring
+	{ 187,  45 }, // amulet
+	{  47,                    82 },                      // left hand
+	{  47 + INV_SLOT_SIZE_PX, 82 },                      // left hand
+	{  47,                    82 +   INV_SLOT_SIZE_PX }, // left hand
+	{  47 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // left hand
+	{  57,                    82 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{  47 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{ 192,                    82 },                      // right hand
+	{ 192 + INV_SLOT_SIZE_PX, 82 },                      // right hand
+	{ 192,                    82 +   INV_SLOT_SIZE_PX }, // right hand
+	{ 192 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // right hand
+	{ 192,                    82 + 2*INV_SLOT_SIZE_PX }, // right hand
+	{ 192 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // right hand
+	{ 121,                    93 },                      // chest
+	{ 121 + INV_SLOT_SIZE_PX, 93 },                      // chest
+	{ 121,                    93 +   INV_SLOT_SIZE_PX }, // chest
+	{ 121 + INV_SLOT_SIZE_PX, 93 +   INV_SLOT_SIZE_PX }, // chest
+	{ 121,                    93 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 121 + INV_SLOT_SIZE_PX, 93 + 2*INV_SLOT_SIZE_PX }, // chest
+	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 3 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 4 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 5 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 6 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
+	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 3 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 4 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 5 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 6 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 + 1 * (INV_SLOT_SIZE_PX + 1) }, // inv row 2
+	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 3 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 4 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 5 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 6 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 + 2 * (INV_SLOT_SIZE_PX + 1) }, // inv row 3
+	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 3 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 4 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 5 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 6 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
+	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
 	{ 1                   ,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
 	{ 1                   ,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
 	{ 1                   ,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
@@ -198,18 +198,7 @@ void FreeInvGFX()
 
 void InitInv()
 {
-	const char *const invSets[NUM_CLASSES] = {
-		"Data\\Inv\\Inv.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv_Sor.CEL"
-#ifdef HELLFIRE
-#ifdef SPAWN
-		, "Data\\Inv\\Inv.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv.CEL"
-#else
-		, "Data\\Inv\\Inv_Sor.CEL", "Data\\Inv\\Inv_rog.CEL", "Data\\Inv\\Inv.CEL"
-#endif
-#endif
-	};
-
-	pInvCels = LoadFileInMem(invSets[plr[myplr]._pClass], NULL);
+	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
 	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL", NULL);
 	invflag = FALSE;
 }

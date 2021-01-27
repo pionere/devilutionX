@@ -744,12 +744,14 @@ static void ActionBtnDown(BOOL bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (questlog && CheckQuestlog())
-		return;
-
 	if (qtextflag) {
 		qtextflag = FALSE;
 		stream_stop();
+		return;
+	}
+
+	if (questlog && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT) {
+		CheckQuestlog();
 		return;
 	}
 
