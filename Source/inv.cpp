@@ -634,27 +634,22 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int limit, free, value, ii, done;
+	int free, value, ii, done;
 
-#ifdef HELLFIRE
-	limit = MaxGold;
-#else
-	limit = GOLD_MAX_LIMIT;
-#endif
 	p = &plr[pnum];
 	value = is->_ivalue;
 	pi = p->InvList;
 	done = 0;
 	for (int i = p->_pNumInv; i > 0 && done < 2; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-			free = limit - pi->_ivalue;
+			free = GOLD_MAX_LIMIT - pi->_ivalue;
 			if (free > 0) {
 				value -= free;
 				if (value <= 0) {
-					SetGoldItemValue(pi, limit + value);
+					SetGoldItemValue(pi, GOLD_MAX_LIMIT + value);
 					done |= 2;
 				} else {
-					SetGoldItemValue(pi, limit);
+					SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 					done |= 1;
 				}			
 			}
@@ -667,12 +662,12 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 			p->InvGrid[i] = ii + 1;
 			pi = &p->InvList[ii];
 			copy_pod(*pi, *is);
-			value -= limit;
+			value -= GOLD_MAX_LIMIT;
 			if (value <= 0) {
-				SetGoldItemValue(pi, value + limit);
+				SetGoldItemValue(pi, value + GOLD_MAX_LIMIT);
 				done |= 2;
 			} else {
-				SetGoldItemValue(pi, limit);
+				SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 				GetItemSeed(is);
 				done |= 1;
 			}

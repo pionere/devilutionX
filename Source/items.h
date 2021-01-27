@@ -17,8 +17,6 @@ extern int itemavail[MAXITEMS];
 extern ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
 extern CornerStoneStruct CornerStone;
-extern int auricGold;
-extern int MaxGold;
 #endif
 extern BOOL UniqueItemFlag[NUM_UITEM];
 extern int numitems;

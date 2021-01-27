@@ -938,7 +938,7 @@ void TalkToTowner(int pnum, int tnum)
 				break;
 			case QUEST_DONE:
 				qt = TEXT_FARMER4;
-				SpawnRewardItem(IDI_AURIC, tw->_tx, tw->_ty);
+				CreateAmulet(tw->_tx, tw->_ty);
 				quests[Q_FARMER]._qactive = 10;
 				quests[Q_FARMER]._qlog = FALSE;
 				break;

@@ -14,8 +14,6 @@ ItemGetRecordStruct itemrecord[MAXITEMS];
 ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
 CornerStoneStruct CornerStone;
-int auricGold = 2 * GOLD_MAX_LIMIT;
-int MaxGold = GOLD_MAX_LIMIT;
 #endif
 BYTE *itemanims[ITEMTYPES];
 BOOL UniqueItemFlag[NUM_UITEM];
@@ -819,19 +817,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	} else {
 		p->_pgfxnum = g;
 	}
-
-#ifdef HELLFIRE
-	pi = &p->InvBody[INVLOC_AMULET];
-	if (pi->_itype == ITYPE_NONE || pi->_iIdx != IDI_AURIC) {
-		int half = MaxGold;
-		MaxGold = auricGold / 2;
-
-		if (half != MaxGold)
-			StripTopGold(pnum);
-	} else {
-		MaxGold = auricGold;
-	}
-#endif
 
 	// add class bonuses as item bonus
 	if (p->_pClass == PC_ROGUE) {
@@ -3860,10 +3845,6 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		desc = "Right-click to activate, then";
 		PrintItemString(x, y, desc);
 		desc = "left-click to place";
-		PrintItemString(x, y, desc);
-		return;
-	case IMISC_AURIC:
-		desc = "Doubles gold capacity";
 		PrintItemString(x, y, desc);
 		return;
 	case IMISC_NOTE:

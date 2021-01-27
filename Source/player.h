@@ -38,9 +38,6 @@ void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, BOOL forcehit);
 void StartPlrKill(int pnum, int earflag);
 void DropHalfPlayersGold(int pnum);
-#ifdef HELLFIRE
-void StripTopGold(int pnum);
-#endif
 void SyncPlrKill(int pnum, int earflag);
 void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);

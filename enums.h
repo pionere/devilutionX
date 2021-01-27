@@ -3048,7 +3048,7 @@ typedef enum item_misc_id {
 	//IMISC_GR_RUNEF  = 0x32,
 	//IMISC_RUNES     = 0x33,
 	//IMISC_RUNELAST  = 0x34,
-	IMISC_AURIC     = 0x35,
+	//IMISC_AURIC     = 0x35,
 	IMISC_NOTE      = 0x36,
 	IMISC_INVALID   = -1,
 } item_misc_id;

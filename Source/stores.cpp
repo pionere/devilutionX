@@ -1479,21 +1479,16 @@ void TakePlrsMoney(int cost)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int i, value, limit;
+	int i, value;
 
 	p = &plr[myplr];
 	p->_pGold -= cost;
-#ifdef HELLFIRE
-	limit = MaxGold;
-#else
-	limit = GOLD_MAX_LIMIT;
-#endif
 	for (i = 0; i < p->_pNumInv && cost > 0; i++) {
 		pi = &p->InvList[i];
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
-		if (value == limit)
+		if (value == GOLD_MAX_LIMIT)
 			continue;
 		cost -= value;
 		if (cost < 0) {

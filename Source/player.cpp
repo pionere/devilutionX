@@ -1908,7 +1908,7 @@ void DropHalfPlayersGold(int pnum)
 {
 	PlayerStruct *p;
 	ItemStruct *pi, *holditem;
-	int i, hGold, limit, value;
+	int i, hGold, value;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("DropHalfPlayersGold: illegal player %d", pnum);
@@ -1918,17 +1918,12 @@ void DropHalfPlayersGold(int pnum)
 	hGold = p->_pGold >> 1;
 	p->_pGold -= hGold;
 	holditem = &p->HoldItem;
-#ifdef HELLFIRE
-	limit = MaxGold;
-#else
-	limit = GOLD_MAX_LIMIT;
-#endif
 	for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
 		pi = &p->InvList[i];
 		if (pi->_itype != ITYPE_GOLD)
 			continue;
 		value = pi->_ivalue;
-		if (value == limit)
+		if (value == GOLD_MAX_LIMIT)
 			continue;
 		hGold -= value;
 		if (hGold < 0) {
@@ -1960,39 +1955,6 @@ void DropHalfPlayersGold(int pnum)
 		PlrDeadItem(holditem, p);
 	}
 }
-
-#ifdef HELLFIRE
-void StripTopGold(int pnum)
-{
-	PlayerStruct *p;
-	ItemStruct *pi, *holditem;
-	ItemStruct tmpItem;
-	int i, val;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("StripTopGold: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-	holditem = &p->HoldItem;
-	copy_pod(tmpItem, *holditem);
-
-	pi = p->InvList;
-	for (i = p->_pNumInv; i > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_GOLD) {
-			val = pi->_ivalue - MaxGold;
-			if (val > 0) {
-				SetGoldItemValue(pi, MaxGold);
-				CreateBaseItem(holditem, IDI_GOLD);
-				SetGoldItemValue(holditem, val);
-				if (!GoldAutoPlace(pnum, holditem))
-					PlrDeadItem(holditem, p);
-			}
-		}
-	}
-	CalculateGold(pnum);
-	copy_pod(*holditem, tmpItem);
-}
-#endif
 
 void SyncPlrKill(int pnum, int earflag)
 {
@@ -3289,7 +3251,7 @@ static void ValidatePlayer()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	__int64 msk;
-	int gt, pc, i, limit;
+	int gt, pc, i;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ValidatePlayer: illegal player %d", myplr);
@@ -3300,17 +3262,12 @@ static void ValidatePlayer()
 	if (p->_pExperience > p->_pNextExper)
 		p->_pExperience = p->_pNextExper;
 
-#ifdef HELLFIRE
-	limit = auricGold; // BUGFIX: change to MaxGold? Why would auricGold be used here?
-#else
-	limit = GOLD_MAX_LIMIT;
-#endif
 	gt = 0;
 	pi = p->InvList;
 	for (i = p->_pNumInv; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-			if (pi->_ivalue > limit)
-				pi->_ivalue = limit;
+			if (pi->_ivalue > GOLD_MAX_LIMIT)
+				pi->_ivalue = GOLD_MAX_LIMIT;
 			gt += pi->_ivalue;
 		}
 	}
