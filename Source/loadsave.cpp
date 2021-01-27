@@ -9,8 +9,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef HELLFIRE
 #define SAVE_INITIAL 'HELF'
-#elif defined(SPAWN)
-#define SAVE_INITIAL 'SHAR'
 #else
 #define SAVE_INITIAL 'RETL'
 #endif

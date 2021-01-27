@@ -1504,9 +1504,9 @@ Music\DLvlD.wav
 Music\DLvlE.wav
 Music\DLvlF.wav
 Music\DTowne.wav
-Music\sintro.wav
-Music\sLvlA.wav
-Music\sTowne.wav
+_Music\sintro.wav
+_Music\sLvlA.wav
+_Music\sTowne.wav
 NLevels\cutl5.CEL
 NLevels\Cutl5.CEL
 Nlevels\cutl5.pal

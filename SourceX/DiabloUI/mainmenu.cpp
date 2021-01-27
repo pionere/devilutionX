@@ -97,21 +97,12 @@ BOOL UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 		while (MainMenuResult == 0) {
 			UiClearScreen();
 			UiPollAndRender();
-#ifndef SPAWN
 			if (SDL_GetTicks() >= dwAttractTicks) {
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
 			}
-#endif
 		}
 
 		mainmenu_Free();
-
-#ifdef SPAWN
-		if (MainMenuResult == MAINMENU_REPLAY_INTRO) {
-			UiSelOkDialog(NULL, "The Diablo introduction cinematic is only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.", true);
-			MainMenuResult = 0;
-		}
-#endif
 	}
 
 	*pdwResult = MainMenuResult;

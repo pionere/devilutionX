@@ -745,14 +745,6 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-#ifdef SPAWN
-			if (currlevel >= 2) {
-				NetSendCmdLoc(TRUE, CMD_WALKXY, p->_px, p->_py + 1);
-				PlaySFX(PS_WARR18);
-				InitDiabloMsg(EMSG_NOT_IN_SHAREWARE);
-				break;
-			}
-#endif
 			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
 				return;
 			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);

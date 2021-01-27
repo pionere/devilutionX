@@ -19,10 +19,6 @@ static void mainmenu_refresh_music()
 {
 	music_start(menu_music_track_id);
 
-#ifdef SPAWN
-	return;
-#endif
-
 	do {
 		menu_music_track_id++;
 		if (menu_music_track_id == NUM_MUSIC)
@@ -65,11 +61,9 @@ static BOOL mainmenu_multi_player()
 
 static void mainmenu_play_intro()
 {
-#if defined(HELLFIRE) || !defined(SPAWN)
 	music_stop();
 	play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	mainmenu_refresh_music();
-#endif
 }
 
 void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)

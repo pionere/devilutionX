@@ -15,18 +15,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PFILE_SAVE_MPQ_HASHCOUNT	2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
 
-#ifdef SPAWN
-const char *PASSWORD_SINGLE = "adslhfb1";
-const char *PASSWORD_MULTI = "lshbkfg1";
-
-#ifdef HELLFIRE
-#define SAVE_FILE_FORMAT_SINGLE "spawn%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "share_%d.hsv"
-#else
-#define SAVE_FILE_FORMAT_SINGLE "spawn%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "share_%d.sv"
-#endif
-#else
 const char *PASSWORD_SINGLE = "xrgyrkj1";
 const char *PASSWORD_MULTI = "szqnlsk1";
 
@@ -36,7 +24,6 @@ const char *PASSWORD_MULTI = "szqnlsk1";
 #else
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
 #define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
-#endif
 #endif
 
 namespace {
@@ -227,11 +214,6 @@ void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSav
 	heroinfo->gold = p->_pGold;
 	heroinfo->hassaved = bHasSaveFile;
 	heroinfo->herorank = p->pDiabloKillLevel;
-#ifdef SPAWN
-	heroinfo->spawned = TRUE;
-#else
-	heroinfo->spawned = FALSE;
-#endif
 }
 
 BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))

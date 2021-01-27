@@ -519,12 +519,10 @@ static void diablo_splash()
 
 	play_movie("gendata\\logo.smk", MOV_SKIP);
 
-#if defined(HELLFIRE) || !defined(SPAWN)
 	if (getIniBool("Diablo", "Intro", true)) {
 		play_movie(INTRO_ARCHIVE, MOV_SKIP);
 		setIniValue("Diablo", "Intro", "0");
 	}
-#endif
 
 	UiTitleDialog();
 }
@@ -1944,10 +1942,8 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	while (!IncProgress())
 		;
 
-#ifndef SPAWN
 	if (setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
 		PlaySFX(USFX_SKING1);
-#endif
 }
 
 static void game_logic()

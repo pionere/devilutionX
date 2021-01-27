@@ -207,7 +207,6 @@ void T_CryptOpen()
 unsigned char GetOpenWarps()
 {
 	unsigned char twarps = 1 << TWARP_CATHEDRAL;
-#ifndef SPAWN
 	if (gbMaxPlayers == 1) {
 		twarps |= plr[myplr].pTownWarps << 1;
 #ifdef HELLFIRE
@@ -221,7 +220,6 @@ unsigned char GetOpenWarps()
 	} else {
 		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
 	}
-#endif
 #ifdef HELLFIRE
 	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
 	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)

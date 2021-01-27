@@ -171,12 +171,6 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-#ifdef SPAWN
-	for (i = 0; i < MAXQUESTS; i++) {
-		quests[i]._qactive = QUEST_NOTAVAIL;
-	}
-#endif
-
 	if (quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
 		quests[Q_SKELKING]._qvar2 = 2;
 	if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
@@ -188,10 +182,6 @@ void InitQuests()
 
 void CheckQuests()
 {
-#ifdef SPAWN
-	return;
-#endif
-
 	QuestStruct *qs;
 	int i, rportx, rporty;
 
@@ -265,10 +255,6 @@ int ForceQuests()
 {
 	int i, j, qx, qy;
 
-#ifdef SPAWN
-	return -1;
-#endif
-
 	if (gbMaxPlayers != 1) {
 		return -1;
 	}
@@ -303,10 +289,6 @@ BOOL QuestStatus(int qn)
 void CheckQuestKill(int mnum, BOOL sendmsg)
 {
 	int i, j;
-
-#ifdef SPAWN
-	return;
-#endif
 
 	switch (monster[mnum]._uniqtype - 1) {
 	case UMT_GARBUD: //"Gharbad the Weak"
@@ -608,7 +590,6 @@ void GetReturnLvlPos()
 
 void ResyncMPQuests()
 {
-#ifndef SPAWN
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
 	    && currlevel >= quests[Q_SKELKING]._qlevel - 1
 	    && currlevel <= quests[Q_SKELKING]._qlevel + 1) {
@@ -645,12 +626,10 @@ void ResyncMPQuests()
 		NetSendCmdQuest(TRUE, Q_JERSEY);
 	}
 #endif
-#endif
 }
 
 void ResyncQuests()
 {
-#ifndef SPAWN
 	int i, tren, x, y;
 
 	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT) { // && leveltype == quests[Q_PWATER]._qlvltype) {
@@ -731,7 +710,6 @@ void ResyncQuests()
 	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)) {
 		quests[Q_BETRAYER]._qvar2 = 2;
 	}
-#endif
 }
 
 static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
@@ -848,7 +826,6 @@ void CheckQuestlog()
 
 void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 {
-#ifndef SPAWN
 	QuestStruct *qs;
 
 	qs = &quests[qn];
@@ -859,7 +836,6 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 		if (qvar > qs->_qvar1)
 			qs->_qvar1 = qvar;
 	}
-#endif
 }
 
 DEVILUTION_END_NAMESPACE

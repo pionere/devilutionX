@@ -249,10 +249,6 @@ void GetLevelMTypes()
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
 				if (IsSkel(i)) {
 					if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-#ifdef SPAWN
-						if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
-							continue;
-#endif
 						skeltypes[nt++] = i;
 					}
 				}
@@ -263,10 +259,6 @@ void GetLevelMTypes()
 		nt = 0;
 		for (i = 0; i < NUM_MTYPES; i++) {
 			if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-#ifdef SPAWN
-				if (!(MonstAvailTbl[i] & MONST_AVAILABILITY_MASK))
-					continue;
-#endif
 				typelist[nt++] = i;
 			}
 		}
@@ -1092,10 +1084,8 @@ void InitMonsters()
 		for (i = 0; i < MAX_PLRS; i++)
 			AddMonster(1, 0, 0, 0, FALSE);
 
-#ifndef SPAWN
 		if (currlevel == 16)
 			LoadDiabMonsts();
-#endif
 	}
 	nt = numtrigs;
 	if (currlevel == 15)
@@ -1106,13 +1096,10 @@ void InitMonsters()
 				DoVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15, FALSE, FALSE);
 		}
 	}
-#ifndef SPAWN
 	PlaceQuestMonsters();
-#endif
 	if (!setlevel) {
-#ifndef SPAWN
 		PlaceUniques();
-#endif
+
 		na = 0;
 		for (xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
 			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
@@ -2653,7 +2640,6 @@ void DoEnding()
 		SDL_Delay(1000);
 	}
 
-#ifndef SPAWN
 	const char *vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
 #ifdef HELLFIRE
@@ -2675,7 +2661,6 @@ void DoEnding()
 
 	sound_get_or_set_music_volume(musicVolume);
 	gbMusicOn = bMusicOn;
-#endif
 }
 
 void PrepDoEnding()

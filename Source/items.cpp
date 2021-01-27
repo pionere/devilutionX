@@ -1437,10 +1437,6 @@ static void GetBookSpell(int ii, int lvl)
 
 	rv = random_(14, NUM_SPELLS);
 
-#ifdef SPAWN
-	if (lvl > 5)
-		lvl = 5;
-#endif
 	if (lvl < BOOK_MIN)
 		lvl = BOOK_MIN;
 
@@ -1480,10 +1476,6 @@ static void GetScrollSpell(int ii, int lvl)
 
 	rv = random_(14, NUM_SPELLS);
 
-#ifdef SPAWN
-	if (lvl > 5)
-		lvl = 5;
-#endif
 	if (lvl < SCRL_MIN)
 		lvl = SCRL_MIN;
 
@@ -1579,10 +1571,6 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 #endif
 	rv = random_(18, NUM_SPELLS);
 
-#ifdef SPAWN
-	if (lvl > 10)
-		lvl = 10;
-#endif
 	if (lvl < STAFF_MIN)
 		lvl = STAFF_MIN;
 

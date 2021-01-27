@@ -358,16 +358,8 @@ static DWORD GetPlrGFXSize(const char *szCel)
 	dwMaxSize = 0;
 
 	for (c = 0; c < NUM_CLASSES; c++) {
-#ifdef SPAWN
-		if (c != PC_WARRIOR)
-			continue;
-#endif
 		GetPlrGFXCells(c, &cc, &cst);
 		for (a = &ArmourChar[0]; *a; a++) {
-#ifdef SPAWN
-			if (a != &ArmourChar[0])
-				break;
-#endif
 			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animations; DT is only for N, BT is only for U, D & H (fixed)
 				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
 					continue; //Death has no weapon

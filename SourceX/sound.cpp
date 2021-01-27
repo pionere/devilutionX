@@ -29,18 +29,6 @@ BOOLEAN gbSoundOn = true;
 int sgnMusicTrack = NUM_MUSIC;
 /** Maps from track ID to track name. */
 const char *const sgszMusicTracks[NUM_MUSIC] = {
-#ifdef SPAWN
-	"Music\\sTowne.wav",
-	"Music\\sLvlA.wav",
-	"Music\\sLvlA.wav",
-	"Music\\sLvlA.wav",
-	"Music\\sLvlA.wav",
-#ifdef HELLFIRE
-	"Music\\sLvlA.wav",
-	"Music\\sLvlA.wav",
-#endif
-	"Music\\sintro.wav",
-#else
 	"Music\\DTowne.wav",
 	"Music\\DLvlA.wav",
 	"Music\\DLvlB.wav",
@@ -51,7 +39,6 @@ const char *const sgszMusicTracks[NUM_MUSIC] = {
 	"Music\\DLvlF.wav",
 #endif
 	"Music\\Dintro.wav",
-#endif
 };
 
 static void snd_get_volume(const char *value_name, int *value)

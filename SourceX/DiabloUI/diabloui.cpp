@@ -458,7 +458,7 @@ char connect_categorystr[128];
 void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
 {
 	SStrCopy(connect_plrinfostr, infostr, sizeof(connect_plrinfostr));
-	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
+	const char fmt[] = " %d %d %d %d %d %d %d %d";
 	char format[sizeof(DWORD) + sizeof(fmt)];
 	*(DWORD *)format = type;
 	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
@@ -474,8 +474,7 @@ void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
 	    pInfo->magic,
 	    pInfo->dexterity,
 	    pInfo->vitality,
-	    pInfo->gold,
-	    pInfo->spawned);
+	    pInfo->gold);
 }
 
 BOOL UiValidPlayerName(const char *name)
@@ -568,7 +567,7 @@ BOOL UiArtCallback(int game_type, unsigned int art_code, SDL_Color *pPalette, BY
 
 BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 {
-	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
+	const char fmt[] = " %d %d %d %d %d %d %d %d";
 	char format[sizeof(DWORD) + sizeof(fmt)];
 	*(DWORD *)format = mode;
 	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
@@ -584,8 +583,7 @@ BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 	    info->magic,
 	    info->dexterity,
 	    info->vitality,
-	    info->gold,
-	    info->spawned);
+	    info->gold);
 
 	return true;
 }

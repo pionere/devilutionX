@@ -1407,7 +1407,6 @@ typedef struct _uiheroinfo {
 	WORD vitality;
 	int gold;
 	int hassaved;
-	BOOL spawned;
 } _uiheroinfo;
 
 // TPDEF PTR FCN UCHAR ENUMHEROPROC

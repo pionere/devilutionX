@@ -165,14 +165,6 @@ static void CowSFX(int pnum)
 	sgdwCowClicks++;
 
 	p = &plr[pnum];
-#ifdef SPAWN
-	if (sgdwCowClicks == 4) {
-		sgdwCowClicks = 0;
-		CowPlaying = TSFX_COW2;
-	} else {
-		CowPlaying = TSFX_COW1;
-	}
-#else
 	if (sgdwCowClicks >= 8) {
 		PlaySfxLoc(TSFX_COW1, p->_px, p->_py + 5);
 		sgdwCowClicks = 4;
@@ -183,7 +175,6 @@ static void CowSFX(int pnum)
 	} else {
 		CowPlaying = sgdwCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
 	}
-#endif
 
 	PlaySfxLoc(CowPlaying, p->_px, p->_py);
 }
