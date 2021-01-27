@@ -350,17 +350,19 @@ private:
 
 	bool WriteBlockTable()
 	{
-		Encrypt((DWORD *)sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), Hash("(block table)", 3));
+		DWORD key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+		EncryptMpqBlock(sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
 		const bool success = stream.write(reinterpret_cast<const char *>(sgpBlockTbl), blockCount * sizeof(_BLOCKENTRY));
-		Decrypt((DWORD *)sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), Hash("(block table)", 3));
+		DecryptMpqBlock(sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
 		return success;
 	}
 
 	bool WriteHashTable()
 	{
-		Encrypt((DWORD *)sgpHashTbl, hashCount * sizeof(_HASHENTRY), Hash("(hash table)", 3));
+		DWORD key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+		EncryptMpqBlock(sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
 		const bool success = stream.write(reinterpret_cast<const char *>(sgpHashTbl), hashCount * sizeof(_HASHENTRY));
-		Decrypt((DWORD *)sgpHashTbl, hashCount * sizeof(_HASHENTRY), Hash("(hash table)", 3));
+		DecryptMpqBlock(sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
 		return success;
 	}
 };
@@ -525,7 +527,7 @@ static int mpqapi_get_hash_index(int index, int hash_a, int hash_b, int locale)
 
 static int FetchHandle(const char *pszName)
 {
-	return mpqapi_get_hash_index(Hash(pszName, 0), Hash(pszName, 1), Hash(pszName, 2), 0);
+	return mpqapi_get_hash_index(HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX), HashStringSlash(pszName, MPQ_HASH_NAME_A), HashStringSlash(pszName, MPQ_HASH_NAME_B), 0);
 }
 
 void mpqapi_remove_hash_entry(const char *pszName)
@@ -561,9 +563,9 @@ static _BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int 
 	_HASHENTRY *pHash;
 	DWORD i, h1, h2, h3, hashCount;
 
-	h1 = Hash(pszName, 0);
-	h2 = Hash(pszName, 1);
-	h3 = Hash(pszName, 2);
+	h1 = HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX);
+	h2 = HashStringSlash(pszName, MPQ_HASH_NAME_A);
+	h3 = HashStringSlash(pszName, MPQ_HASH_NAME_B);
 	if (mpqapi_get_hash_index(h1, h2, h3, 0) != -1)
 		app_fatal("Hash collision between \"%s\" and existing file\n", pszName);
 
@@ -594,7 +596,6 @@ static BOOL mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 		pszName = tmp + 1;
 	while ((tmp = strchr(pszName, '\\')))
 		pszName = tmp + 1;
-	Hash(pszName, 3);
 
 	constexpr uint32_t kSectorSize = 4096;
 	const uint32_t num_sectors = (dwLen + (kSectorSize - 1)) / kSectorSize;
@@ -708,8 +709,6 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 	DWORD key;
 	_FILEHEADER fhdr;
 
-	InitHash();
-
 	if (!cur_archive.Open(pszArchive)) {
 		return FALSE;
 	}
@@ -727,16 +726,16 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		if (fhdr.blockcount != 0) {
 			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), blockCount * sizeof(_BLOCKENTRY)))
 				goto on_error;
-			key = Hash("(block table)", 3);
-			Decrypt((DWORD *)cur_archive.sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
+			key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
 		}
 		cur_archive.sgpHashTbl = new _HASHENTRY[hashCount];
 		std::memset(cur_archive.sgpHashTbl, 255, hashCount * sizeof(_HASHENTRY));
 		if (fhdr.hashcount != 0) {
 			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), hashCount * sizeof(_HASHENTRY)))
 				goto on_error;
-			key = Hash("(hash table)", 3);
-			Decrypt((DWORD *)cur_archive.sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
+			key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+			DecryptMpqBlock(cur_archive.sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
 		}
 
 #ifndef CAN_SEEKP_BEYOND_EOF

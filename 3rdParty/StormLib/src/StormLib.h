@@ -1097,6 +1097,14 @@ int    STORMAPI SCompDecompress (void * pvOutBuffer, int * pcbOutBuffer, void * 
 int    STORMAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
 
 //-----------------------------------------------------------------------------
+// Encryption
+
+void  InitializeMpqCryptography();
+void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
+void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
+DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
+
+//-----------------------------------------------------------------------------
 // Non-Windows support for SetLastError/GetLastError
 
 #ifdef FULL

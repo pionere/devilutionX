@@ -100,6 +100,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 		}
 	}
 	input.close();
+	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
 	int hashCount = 1;
 	while (hashCount < entryCount) {
 		hashCount <<= 1;
@@ -190,6 +191,7 @@ void init_archives()
 	input.close();
 
 	// calculate the required number of hashes
+	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
 	int hashCount = 1;
 	while (hashCount <= entryCount) {
 		hashCount <<= 1;

@@ -296,7 +296,7 @@ DWORD HashStringLower(const char * szFileName, DWORD dwHashType)
     while(*pbKey != 0)
     {
         // Convert the input character to lower
-        // DON'T convert slash (0x2F) to backslash (0x5C)
+        // Convert slash (0x2F) to backslash (0x5C)
         ch = AsciiToLowerTable[*pbKey++];
 
         dwSeed1 = StormBuffer[dwHashType + ch] ^ (dwSeed1 + dwSeed2);

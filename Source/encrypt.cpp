@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-DWORD hashtable[5][256];
+/*DWORD hashtable[5][256];
 
 void Decrypt(DWORD *castBlock, DWORD size, DWORD key)
 {
@@ -38,7 +38,7 @@ void Encrypt(DWORD *castBlock, DWORD size, DWORD key)
 		*castBlock = SwapLE32(t);
 		castBlock++;
 		seed += ch + (seed << 5) + 3;
-		key = ((key << 0x15) ^ 0xFFE00000) + 0x11111111 | (key >> 0x0B);
+		key = (((key << 0x15) ^ 0xFFE00000) + 0x11111111) | (key >> 0x0B);
 	}
 }
 
@@ -49,7 +49,7 @@ DWORD Hash(const char *s, int type)
 
 	seed1 = 0x7FED7FED;
 	seed2 = 0xEEEEEEEE;
-	while (s != NULL && *s != '\0') {
+	while (*s != '\0') {
 		ch = *s++;
 		ch = toupper(ch);
 		seed1 = hashtable[type][ch] ^ (seed1 + seed2);
@@ -73,7 +73,7 @@ void InitHash()
 			hashtable[j][i] = ch << 16 | (seed & 0xFFFF);
 		}
 	}
-}
+}*/
 
 static unsigned int PkwareBufferRead(char *buf, unsigned int *size, void *param)
 {
@@ -112,8 +112,8 @@ DWORD PkwareCompress(BYTE *srcData, DWORD size)
 	ptr = (char *)DiabloAllocPtr(CMP_BUFFER_SIZE);
 
 	destSize = 2 * size;
-	if (destSize < 2 * 4096)
-		destSize = 2 * 4096;
+	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
+		destSize = 2 * CMP_IMPLODE_DICT_SIZE3;
 
 	destData = (BYTE *)DiabloAllocPtr(destSize);
 
@@ -124,7 +124,7 @@ DWORD PkwareCompress(BYTE *srcData, DWORD size)
 	param.size = size;
 
 	type = 0;
-	dsize = 4096;
+	dsize = CMP_IMPLODE_DICT_SIZE3;
 	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &param, &type, &dsize);
 
 	if (param.destOffset < size) {

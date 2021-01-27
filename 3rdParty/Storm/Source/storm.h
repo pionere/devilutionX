@@ -189,6 +189,10 @@ SNetSendMessage(
 #define MPQ_FLAG_READ_ONLY          1
 #define MPQ_FILE_IMPLODE			0x00000100
 #define MPQ_FILE_EXISTS				0x80000000
+#define MPQ_HASH_TABLE_INDEX		0x000
+#define MPQ_HASH_NAME_A				0x100
+#define MPQ_HASH_NAME_B				0x200
+#define MPQ_HASH_FILE_KEY			0x300
 #define SFILE_OPEN_FROM_MPQ         0
 #define SFILE_OPEN_LOCAL_FILE       0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS     0xFFFFFFFC
@@ -354,6 +358,11 @@ BOOLEAN SNetSetBasePlayer(int);
 int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
 int SNetGetProviderCaps(struct _SNETCAPS *);
 int SFileSetFilePointer(HANDLE, int, HANDLE, int);
+
+void  InitializeMpqCryptography();
+void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
+void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
+DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
 BOOL SFileEnableDirectAccess(BOOL enable);
 void SLoadKeyMap(BYTE (&map)[256]);
 

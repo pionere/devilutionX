@@ -492,6 +492,7 @@ static void diablo_init()
 	init_create_window();
 	was_window_init = TRUE;
 
+	InitializeMpqCryptography();
 	SFileEnableDirectAccess(TRUE);
 	init_archives();
 	was_archives_init = TRUE;
@@ -500,8 +501,6 @@ static void diablo_init()
 	was_ui_init = TRUE;
 
 	ReadOnlyTest();
-
-	InitHash();
 
 	diablo_init_screen();
 
