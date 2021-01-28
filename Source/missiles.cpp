@@ -1466,9 +1466,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	if (micaster == 0) {
 		p = &plr[misource];
-		if (p->_pIFlags & ISPL_RNDARROWVEL) {
-			av = RandRange(16, 47);
-		}
 		av += p->_pIArrowVelBonus;
 		//int dam = p->_pIMaxDam + p->_pIMinDam;
 		int fdam = p->_pIFMaxDam + p->_pIFMinDam;

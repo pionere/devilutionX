@@ -1872,9 +1872,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_DAMMOD:
 		is->_iPLDamMod += r;
 		break;
-	case IPL_RNDARROWVEL:
-		is->_iFlags |= ISPL_RNDARROWVEL;
-		break;
 	case IPL_SETDAM:
 		is->_iMinDam = param1;
 		is->_iMaxDam = param2;
@@ -3239,9 +3236,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_DAMMOD:
 		snprintf(tempstr, sizeof(tempstr), "adds %i points to damage", is->_iPLDamMod);
-		break;
-	case IPL_RNDARROWVEL:
-		copy_cstr(tempstr, "fires random speed arrows");
 		break;
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
