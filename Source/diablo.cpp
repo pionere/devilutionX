@@ -754,7 +754,7 @@ static void ActionBtnDown(BOOL bShift)
 		return;
 	}
 
-	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
+	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
 		// in belt
 		// assert(!DoPanBtn());
 		CheckBeltClick();
