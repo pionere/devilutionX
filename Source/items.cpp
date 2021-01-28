@@ -1092,7 +1092,7 @@ void SetItemData(int ii, int idata)
 	is->_iClass = ids->iClass;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
-	is->_iAC = RandRange(ids->iMinAC, ids->iMaxAC); // TODO: should not be necessary for most of the items
+	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
 	is->_iMiscId = ids->iMiscId;
 	is->_iSpell = ids->iSpell;
 	is->_iDurability = ids->iDurability;
@@ -1402,7 +1402,7 @@ static void CalcItemValue(int ii)
 	if (v >= 0) {
 		v *= is->_ivalue;
 	} else {
-		v = is->_ivalue / v;
+		v = is->_ivalue / -v;
 	}
 	v += is->_iVAdd;
 	if (v <= 0) {
@@ -1675,21 +1675,16 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 
 	is = &item[ii];
 	r = RandRange(param1, param2);
+	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
+	is->_iVMult += multval;
 	switch (power) {
 	case IPL_TOHIT:
 		is->_iPLToHit += r;
 		break;
-	case IPL_TOHIT_CURSE:
-		is->_iPLToHit -= r;
-		break;
 	case IPL_DAMP:
 		is->_iPLDam += r;
 		break;
-	case IPL_DAMP_CURSE:
-		is->_iPLDam -= r;
-		break;
 	case IPL_TOHIT_DAMP:
-		r = RandRange(param1, param2);
 		is->_iPLDam += r;
 		if (param1 == 20)
 			r2 = RandRange(1, 5);
@@ -1721,9 +1716,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_ACP:
 		is->_iPLAC += r;
-		break;
-	case IPL_ACP_CURSE:
-		is->_iPLAC -= r;
 		break;
 	case IPL_SETAC:
 		is->_iAC = r;
@@ -1776,26 +1768,14 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_STR:
 		is->_iPLStr += r;
 		break;
-	case IPL_STR_CURSE:
-		is->_iPLStr -= r;
-		break;
 	case IPL_MAG:
 		is->_iPLMag += r;
-		break;
-	case IPL_MAG_CURSE:
-		is->_iPLMag -= r;
 		break;
 	case IPL_DEX:
 		is->_iPLDex += r;
 		break;
-	case IPL_DEX_CURSE:
-		is->_iPLDex -= r;
-		break;
 	case IPL_VIT:
 		is->_iPLVit += r;
-		break;
-	case IPL_VIT_CURSE:
-		is->_iPLVit -= r;
 		break;
 	case IPL_ATTRIBS:
 		is->_iPLStr += r;
@@ -1803,29 +1783,14 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iPLDex += r;
 		is->_iPLVit += r;
 		break;
-	case IPL_ATTRIBS_CURSE:
-		is->_iPLStr -= r;
-		is->_iPLMag -= r;
-		is->_iPLDex -= r;
-		is->_iPLVit -= r;
-		break;
-	case IPL_GETHIT_CURSE:
-		is->_iPLGetHit += r;
-		break;
 	case IPL_GETHIT:
 		is->_iPLGetHit -= r;
 		break;
 	case IPL_LIFE:
 		is->_iPLHP += r << 6;
 		break;
-	case IPL_LIFE_CURSE:
-		is->_iPLHP -= r << 6;
-		break;
 	case IPL_MANA:
 		is->_iPLMana += r << 6;
-		break;
-	case IPL_MANA_CURSE:
-		is->_iPLMana -= r << 6;
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
@@ -1847,9 +1812,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_LIGHT:
 		is->_iPLLight += param1;
-		break;
-	case IPL_LIGHT_CURSE:
-		is->_iPLLight -= param1;
 		break;
 #ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
@@ -1921,9 +1883,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iDurability = param1;
 		is->_iMaxDur = param1;
 		break;
-	case IPL_FASTSWING:
-		is->_iFlags |= ISPL_FASTERATTACK;
-		break;
 	case IPL_ONEHAND:
 		is->_iLoc = ILOC_ONEHAND;
 		break;
@@ -1939,26 +1898,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
 		break;
-	/*case IPL_FIRERESCLVL:
-		is->_iPLFR = 30 - plr[myplr]._pLevel;
-		if (is->_iPLFR < 0)
-			is->_iPLFR = 0;
-		break;*/
 #ifdef HELLFIRE
-	case IPL_FIRERES_CURSE:
-		is->_iPLFR -= r;
-		break;
-	case IPL_LIGHTRES_CURSE:
-		is->_iPLLR -= r;
-		break;
-	case IPL_MAGICRES_CURSE:
-		is->_iPLMR -= r;
-		break;
-	case IPL_ALLRES_CURSE:
-		is->_iPLFR -= r;
-		is->_iPLLR -= r;
-		is->_iPLMR -= r;
-		break;
 	case IPL_MANATOLIFE:
 		r2 = ((plr[myplr]._pMaxManaBase >> 6) * 50 / 100);
 		is->_iPLMana -= (r2 << 6);
@@ -1987,8 +1927,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	default:
 		ASSUME_UNREACHABLE
 	}
-	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
-	is->_iVMult += multval;
 }
 
 void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
@@ -2398,15 +2336,14 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 
 	if (item[ii]._iMiscId != IMISC_UNIQUE) {
 		iblvl = -1;
-		if ((random_(32, 100) <= 10 || random_(33, 100) <= lvl)
-		 || item[ii]._iMiscId == IMISC_STAFF
-		 || item[ii]._iMiscId == IMISC_RING
-		 || item[ii]._iMiscId == IMISC_AMULET)
-			iblvl = lvl;
-		if (onlygood)
-			iblvl = lvl;
 		if (uper == 15)
 			iblvl = lvl + 4;
+		else if (onlygood
+		 || item[ii]._iMiscId == IMISC_STAFF
+		 || item[ii]._iMiscId == IMISC_RING
+		 || item[ii]._iMiscId == IMISC_AMULET
+		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl)
+			iblvl = lvl;
 		if (iblvl != -1) {
 			uid = CheckUnique(ii, iblvl, uper, recreate);
 			if (uid < 0) {
@@ -2432,7 +2369,7 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 {
 	MonsterStruct* mon;
 	int ii, idx;
-	BOOL onlygood;
+	BOOL onlygood = FALSE;
 
 	if (numitems >= MAXITEMS)
 		return;
@@ -2455,7 +2392,6 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 		idx = RndItem(mon->mLevel);
 		if (idx < 0)
 			return;
-		onlygood = FALSE;
 	} else {
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
@@ -2463,7 +2399,7 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), mon->MData->mLevel,
-		mon->_uniqtype != 0 ? 15 : 1, onlygood, FALSE, FALSE);
+		onlygood ? 15 : 1, onlygood, FALSE, FALSE);
 	GetSuperItemSpace(x, y, ii);
 	if (sendmsg)
 		NetSendCmdDItem(FALSE, ii);
@@ -3153,11 +3089,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
-	case IPL_TOHIT_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+i%%", is->_iPLToHit);
 		break;
 	case IPL_DAMP:
-	case IPL_DAMP_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i%% damage", is->_iPLDam);
 		break;
 	case IPL_TOHIT_DAMP:
@@ -3165,7 +3099,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
-	case IPL_ACP_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
@@ -3173,36 +3106,24 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
 		break;
 	case IPL_FIRERES:
-#ifdef HELLFIRE
-	case IPL_FIRERES_CURSE:
-#endif
 		if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		else
 			copy_cstr(tempstr, "Resist Fire: 75% MAX");
 		break;
 	case IPL_LIGHTRES:
-#ifdef HELLFIRE
-	case IPL_LIGHTRES_CURSE:
-#endif
 		if (is->_iPLLR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Lightning: %+i%%", is->_iPLLR);
 		else
 			copy_cstr(tempstr, "Resist Lightning: 75% MAX");
 		break;
 	case IPL_MAGICRES:
-#ifdef HELLFIRE
-	case IPL_MAGICRES_CURSE:
-#endif
 		if (is->_iPLMR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist Magic: %+i%%", is->_iPLMR);
 		else
 			copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
 	case IPL_ALLRES:
-#ifdef HELLFIRE
-	case IPL_ALLRES_CURSE:
-#endif
 		if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
 		else
@@ -3230,35 +3151,27 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
 		break;
 	case IPL_STR:
-	case IPL_STR_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);
 		break;
 	case IPL_MAG:
-	case IPL_MAG_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i to magic", is->_iPLMag);
 		break;
 	case IPL_DEX:
-	case IPL_DEX_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i to dexterity", is->_iPLDex);
 		break;
 	case IPL_VIT:
-	case IPL_VIT_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i to vitality", is->_iPLVit);
 		break;
 	case IPL_ATTRIBS:
-	case IPL_ATTRIBS_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "%+i to all attributes", is->_iPLStr);
 		break;
-	case IPL_GETHIT_CURSE:
 	case IPL_GETHIT:
 		snprintf(tempstr, sizeof(tempstr), "%+i damage from enemies", is->_iPLGetHit);
 		break;
 	case IPL_LIFE:
-	case IPL_LIFE_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "Hit Points: %+i", is->_iPLHP >> 6);
 		break;
 	case IPL_MANA:
-	case IPL_MANA_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "Mana: %+i", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
@@ -3271,10 +3184,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "indestructible");
 		break;
 	case IPL_LIGHT:
-		snprintf(tempstr, sizeof(tempstr), "+%i%% light radius", 10 * is->_iPLLight);
-		break;
-	case IPL_LIGHT_CURSE:
-		snprintf(tempstr, sizeof(tempstr), "-%i%% light radius", -10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "%+i%% light radius", 10 * is->_iPLLight);
 		break;
 #ifdef HELLFIRE
 	case IPL_MULT_ARROWS:
@@ -3348,9 +3258,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_SETDUR:
 		copy_cstr(tempstr, "altered durability");
 		break;
-	case IPL_FASTSWING:
-		copy_cstr(tempstr, "Faster attack swing");
-		break;
 	case IPL_ONEHAND:
 		copy_cstr(tempstr, "one handed sword");
 		break;
@@ -3369,12 +3276,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_INVCURS:
 		copy_cstr(tempstr, " ");
 		break;
-	/*case IPL_FIRERESCLVL:
-		if (is->_iPLFR <= 0)
-			copy_cstr(tempstr, " ");
-		else
-			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
-		break;*/
 #ifdef HELLFIRE
 	case IPL_CRYSTALLINE:
 		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);

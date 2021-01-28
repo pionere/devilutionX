@@ -125,12 +125,12 @@ typedef struct ItemStruct {
 	int _iAnimFrame;           // Current frame of animation.
 	int _iAnimWidth;
 	int _iAnimWidth2; // width 2?
-	BYTE _iSelFlag;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
-	BYTE _iMagical;
 	char _iName[64];
 	char _iIName[64];
+	BYTE _iSelFlag;
+	BYTE _iMagical;
 	BYTE _iLoc;
 	// item_class enum
 	BYTE _iClass;
@@ -183,7 +183,7 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[8];
+	int alignment[9];
 #endif
 } ItemStruct;
 
@@ -234,7 +234,7 @@ typedef struct PlayerStruct {
 	int _pvid;
 	int _pSpell;
 	char _pSplType; // unused
-	char _pSplFrom;
+	short _pSplFrom; // char should suffice, increased only to get rid of some warnings...
 	int _pTSpell;
 	char _pTSplType; // unused
 	int _pRSpell;
