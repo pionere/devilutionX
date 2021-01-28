@@ -56,7 +56,6 @@ QuestData questlist[MAXQUESTS] = {
 	{      19,         -1, Q_TRADER,    100,    0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
 	{      17,         17, Q_DEFILER,   100,    0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
 	{      21,         21, Q_NAKRUL,    100,    0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
-	{      21,         -1, Q_CORNSTN,   100,    0,               QUEST_SINGLE,  TEXT_CORNSTN,  "Cornerstone of the World" },
 	{       9,          9, Q_JERSEY,    100,    0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
 #endif
 	// clang-format on

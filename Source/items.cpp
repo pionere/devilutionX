@@ -12,9 +12,6 @@ int itemavail[MAXITEMS];
 ItemGetRecordStruct itemrecord[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct item[MAXITEMS + 1];
-#ifdef HELLFIRE
-CornerStoneStruct CornerStone;
-#endif
 BYTE *itemanims[ITEMTYPES];
 BOOL UniqueItemFlag[NUM_UITEM];
 int numitems;
@@ -2665,60 +2662,6 @@ void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch,
 	item[MAXITEMS]._iCreateInfo = ic;
 	item[MAXITEMS]._iSeed = iseed;
 }
-
-#ifdef HELLFIRE
-void SaveCornerStone()
-{
-	PkItemStruct id;
-	if (CornerStone.activated) {
-		if (CornerStone.item._itype != ITYPE_NONE) {
-			PackItem(&id, &CornerStone.item);
-			setIniValue("Hellfire", "SItem", (char *)&id, sizeof(id));
-		} else {
-			setIniValue("Hellfire", "SItem", (char *)"", 1);
-		}
-	}
-}
-
-void LoadCornerStone(int x, int y)
-{
-	int i, ii;
-	int dwSize;
-	PkItemStruct PkSItem;
-
-	if (CornerStone.activated || x == 0 || y == 0) {
-		return;
-	}
-
-	CornerStone.item._itype = ITYPE_NONE;
-	CornerStone.activated = TRUE;
-	ii = dItem[x][y];
-	if (ii != 0) {
-		ii--;
-		for (i = 0; i < numitems; i++) {
-			if (itemactive[i] == ii) {
-				DeleteItem(ii, i);
-				break;
-			}
-		}
-		dItem[x][y] = 0;
-	}
-	dwSize = 0;
-	if (getIniValue("Hellfire", "SItem", (char *)&PkSItem, sizeof(PkSItem), &dwSize)) {
-		if (dwSize == sizeof(PkSItem)) {
-			ii = itemavail[0];
-			UnPackItem(&PkSItem, &item[ii]);
-			SetItemLoc(ii, x, y);
-			RespawnItem(ii, FALSE);
-			copy_pod(CornerStone.item, item[ii]);
-
-			itemactive[numitems] = ii;
-			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-			numitems++;
-		}
-	}
-}
-#endif
 
 static void GetRandomItemSpace(int randarea, int ii)
 {

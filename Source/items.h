@@ -15,9 +15,6 @@ extern "C" {
 extern int itemactive[MAXITEMS];
 extern int itemavail[MAXITEMS];
 extern ItemStruct item[MAXITEMS + 1];
-#ifdef HELLFIRE
-extern CornerStoneStruct CornerStone;
-#endif
 extern BOOL UniqueItemFlag[NUM_UITEM];
 extern int numitems;
 
@@ -48,10 +45,6 @@ void CreateRndUseful(int x, int y, BOOL sendmsg);
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta);
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
-#ifdef HELLFIRE
-void SaveCornerStone();
-void LoadCornerStone(int x, int y);
-#endif
 void SpawnQuestItemInArea(int idx, int areasize);
 void SpawnQuestItemAt(int idx, int x, int y);
 void SpawnQuestItemAround(int idx, int x, int y);

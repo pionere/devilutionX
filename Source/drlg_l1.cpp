@@ -541,7 +541,7 @@ const BYTE UberRoomPattern[] = {
 	  7,   2,   3,  13
 	// clang-format on
 };
-const BYTE CornerstoneRoomPattern[] = {
+/*const BYTE CornerstoneRoomPattern[] = {
 	// clang-format off
 	5, 5,					// width, height
 	  4,   2,   2,  2,  6,
@@ -550,7 +550,7 @@ const BYTE CornerstoneRoomPattern[] = {
 	  1,   0,   0,  0,  1,
 	  7,   2,   2,  2,  3
 	// clang-format on
-};
+};*/
 #endif
 
 /**
@@ -1920,7 +1920,7 @@ static void DRLG_L5CryptSetRoom(int rx1, int ry1)
 	}
 }
 
-static void DRLG_L5CryptSetCornerRoom(int rx1, int ry1)
+/*static void DRLG_L5CryptSetCornerRoom(int rx1, int ry1)
 {
 	int rw, rh, i, j, sp;
 
@@ -1947,7 +1947,7 @@ static void DRLG_L5CryptSetCornerRoom(int rx1, int ry1)
 			sp++;
 		}
 	}
-}
+}*/
 
 #endif
 
@@ -2122,7 +2122,7 @@ static void L1FillChambers()
 			}
 			DRLG_L5CryptSetRoom(c, 16);
 		}
-	} else if (currlevel == 21) {
+	}/* else if (currlevel == 21) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
 			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
@@ -2188,7 +2188,7 @@ static void L1FillChambers()
 			}
 			DRLG_L5CryptSetCornerRoom(c, 16);
 		}
-	}
+	}*/
 #endif
 	if (L1setloadflag) {
 		if (VR1 || VR2 || VR3) {
@@ -2818,10 +2818,10 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 					UberRow = i;
 					UberCol = j;
 				}
-				if (dPiece[i][j] == 317) {
+				/*if (dPiece[i][j] == 317) {
 					CornerStone.x = i;
 					CornerStone.y = j;
-				}
+				}*/
 			}
 		}
 	} else

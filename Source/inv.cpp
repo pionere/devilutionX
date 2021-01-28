@@ -1550,11 +1550,6 @@ void InvGetItem(int pnum, int ii)
 	if (dItem[is->_ix][is->_iy] == 0)
 		return;
 	dItem[is->_ix][is->_iy] = 0;
-#ifdef HELLFIRE
-	if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-		CornerStone.item._itype = ITYPE_NONE;
-	}
-#endif
 
 	p = &plr[pnum];
 	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
@@ -1608,11 +1603,6 @@ void AutoGetItem(int pnum, int ii)
 	}
 	if (done) {
 		dItem[is->_ix][is->_iy] = 0;
-#ifdef HELLFIRE
-		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-			CornerStone.item._itype = ITYPE_NONE;
-		}
-#endif
 		for (i = 0; i < numitems; ) {
 			if (itemactive[i] == ii) {
 				DeleteItem(ii, i);
@@ -1663,11 +1653,6 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	if (ii != -1) {
 		is = &item[ii];
 		dItem[is->_ix][is->_iy] = 0;
-#ifdef HELLFIRE
-		if (currlevel == 21 && is->_ix == CornerStone.x && is->_iy == CornerStone.y) {
-			CornerStone.item._itype = ITYPE_NONE;
-		}
-#endif
 		for (i = 0; i < numitems; ) {
 			if (itemactive[i] == ii) {
 				DeleteItem(ii, i);
@@ -1837,14 +1822,6 @@ int InvPutItem(int pnum, int x, int y)
 	item[ii]._iy = y;
 	RespawnItem(ii, TRUE);
 	numitems++;
-#ifdef HELLFIRE
-	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y && gbMaxPlayers == 1) {
-		copy_pod(CornerStone.item, item[ii]);
-		InitQTextMsg(TEXT_CORNSTN);
-		quests[Q_CORNSTN]._qlog = FALSE;
-		quests[Q_CORNSTN]._qactive = QUEST_DONE;
-	}
-#endif
 	NewCursor(CURSOR_HAND);
 	return ii;
 }
@@ -1873,14 +1850,6 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 	item[ii]._iy = y;
 	RespawnItem(ii, TRUE);
 	numitems++;
-#ifdef HELLFIRE
-	if (currlevel == 21 && x == CornerStone.x && y == CornerStone.y && gbMaxPlayers == 1) {
-		copy_pod(CornerStone.item, item[ii]);
-		InitQTextMsg(TEXT_CORNSTN);
-		quests[Q_CORNSTN]._qlog = FALSE;
-		quests[Q_CORNSTN]._qactive = QUEST_DONE;
-	}
-#endif
 	return ii;
 }
 

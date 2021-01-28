@@ -106,9 +106,6 @@ void gamemenu_new_game(BOOL bActivate)
 	deathflag = FALSE;
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(TRUE);
-#ifdef HELLFIRE
-	CornerStone.activated = FALSE;
-#endif
 	gbRunGame = FALSE;
 	gamemenu_off();
 }
@@ -129,9 +126,6 @@ void gamemenu_load_game(BOOL bActivate)
 	DrawAndBlit();
 	LoadGame(FALSE);
 	ClrDiabloMsg();
-#ifdef HELLFIRE
-	CornerStone.activated = FALSE;
-#endif
 	PaletteFadeOut();
 	deathflag = FALSE;
 	gbRedrawFlags = REDRAW_ALL;
@@ -163,9 +157,6 @@ void gamemenu_save_game(BOOL bActivate)
 	ClrDiabloMsg();
 	gbRedrawFlags = REDRAW_ALL;
 	NewCursor(CURSOR_HAND);
-#ifdef HELLFIRE
-	SaveCornerStone();
-#endif
 	interface_msg_pump();
 	SetWindowProc(saveProc);
 }

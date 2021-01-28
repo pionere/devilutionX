@@ -1925,9 +1925,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel == 21) {
-		LoadCornerStone(CornerStone.x, CornerStone.y);
-	} else if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
+	if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
 		OpenUberRoom();
 	}
 #endif

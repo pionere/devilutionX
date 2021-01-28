@@ -1123,13 +1123,6 @@ typedef struct QuestData {
 	const char *_qlstr;
 } QuestData;
 
-typedef struct CornerStoneStruct {
-	int x;
-	int y;
-	BOOL activated;
-	ItemStruct item;
-} CornerStoneStruct;
-
 //////////////////////////////////////////////////
 // gamemenu/gmenu
 //////////////////////////////////////////////////
