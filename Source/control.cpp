@@ -1568,9 +1568,6 @@ static void DrawTrigInfo()
 			DrawTooltip(infostr, xx, yy, COL_WHITE);
 		}
 		return;
-	} else if (pcurstrig == MAXTRIGGERS) {
-		// cornerstone
-		copy_cstr(infostr, "Cornerstone of the World");
 	} else if (pcurstrig >= 0) {
 		// standard trigger
 		switch (trigs[pcurstrig]._tmsg) {

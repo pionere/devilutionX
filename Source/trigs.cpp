@@ -71,7 +71,6 @@ int TWarpFrom;
 #define L6_UP_WARPx(x)		(x >= 65 && x <= 66)
 /** Specifies the dungeon piece IDs which constitute stairways leading down from nest. */
 #define L6_DOWN_WARPx(x)	(x == 61 || x == 63)
-#define TR_CORNERSTONE		(PIECE == 317)
 #endif
 
 void InitNoTriggers()
@@ -397,10 +396,6 @@ static int ForceL1Trig()
 					return i;
 				}
 			}
-		}
-		if (TR_CORNERSTONE) {
-			// Cornerstone of the World
-			return MAXTRIGGERS;
 		}
 		if (L5_DOWN_WARP
 		 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
