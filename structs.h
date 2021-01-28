@@ -167,6 +167,8 @@ typedef struct ItemStruct {
 	int _iPLLight;
 	char _iSplLvlAdd;
 	char _iRequest;
+	BYTE _iManaSteal;
+	BYTE _iLifeSteal;
 	int _iUid;
 	int _iFMinDam;
 	int _iFMaxDam;
@@ -341,14 +343,16 @@ typedef struct PlayerStruct {
 	int _pIHitChance;
 	BYTE _pIBaseACBonus; // indicator whether the base ACBonus of the items is positive/negative/neutral
 	BYTE _pIBaseDamBonus; // indicator whether the base DamageBonus of the items is positive/negative/neutral
+	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
+	BYTE _pICritChance; // 200 == 100%
 	int _pIMagToHit;
 	uint64_t _pISpells; // Bitmask of staff spell
 	int _pIFlags;
 	int _pIGetHit;
 	char _pISplLvlAdd;
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
-	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
-	BYTE _pCritChance; // 200 == 100%
+	BYTE _pILifeSteal;
+	BYTE _pIManaSteal;
 	int _pIFlags2; // _pISplDur in vanilla code
 	int _pIEnAc;
 	int _pIFMinDam;

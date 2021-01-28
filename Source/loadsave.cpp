@@ -156,7 +156,8 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iPLLight);
 	CopyChar(tbuff, &is->_iSplLvlAdd);
 	CopyChar(tbuff, &is->_iRequest);
-	tbuff += 2; // Alignment
+	CopyChar(tbuff, &is->_iLifeSteal);
+	CopyChar(tbuff, &is->_iManaSteal);
 	CopyInt(tbuff, &is->_iUid);
 	CopyInt(tbuff, &is->_iFMinDam);
 	CopyInt(tbuff, &is->_iFMaxDam);
@@ -350,7 +351,8 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseACBonus
 	tbuff += 1; // Skip to Calc _pIBaseDamBonus
-	tbuff += 2; // Alignment
+	tbuff += 1; // Skip to Calc _pIBaseHitBonus
+	tbuff += 1; // Skip to Calc _pICritChance
 	tbuff += 4; // Skip _pIBonusDamMod
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
@@ -359,8 +361,8 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIGetHit
 	tbuff += 1; // Skip to Calc _pISplLvlAdd);
 	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
-	tbuff += 1; // Skip to Calc _pIBaseHitBonus
-	tbuff += 1; // Skip to Calc _pCritChance
+	tbuff += 1; // Skip to Calc _pILifeSteal
+	tbuff += 1; // Skip to Calc _pIManaSteal
 	tbuff += 4; // Skip to Calc _pIFlags2
 	tbuff += 4; // Skip to Calc _pIEnAc
 	tbuff += 4; // Skip to Calc _pIFMinDam
@@ -942,7 +944,8 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iPLLight, tbuff);
 	CopyChar(&is->_iSplLvlAdd, tbuff);
 	CopyChar(&is->_iRequest, tbuff);
-	tbuff += 2; // Alignment
+	CopyChar(&is->_iLifeSteal, tbuff);
+	CopyChar(&is->_iManaSteal, tbuff);
 	CopyInt(&is->_iUid, tbuff);
 	CopyInt(&is->_iFMinDam, tbuff);
 	CopyInt(&is->_iFMaxDam, tbuff);
@@ -1136,7 +1139,8 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseACBonus
 	tbuff += 1; // Skip to Calc _pIBaseDamBonus
-	tbuff += 2; // Alignment
+	tbuff += 1; // Skip to Calc _pIBaseHitBonus
+	tbuff += 1; // Skip to Calc _pICritChance
 	tbuff += 4; // Skip _pIBonusDamMod
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
@@ -1146,8 +1150,8 @@ static void SavePlayer(int pnum)
 
 	tbuff += 1; // Skip to Calc _pISplLvlAdd
 	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
-	tbuff += 1; // Skip to Calc _pIBaseHitBonus
-	tbuff += 1; // Skip to Calc _pCritChance
+	tbuff += 1; // Skip to Calc _pILifeSteal
+	tbuff += 1; // Skip to Calc _pIManaSteal
 	tbuff += 4; // Skip to Calc _pIFlags2
 	tbuff += 4; // Skip to Calc _pIEnAc
 	tbuff += 4; // Skip to Calc _pIFMinDam

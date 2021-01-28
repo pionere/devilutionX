@@ -2429,7 +2429,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	int dam2 = dam;
 #endif
 
-	if (random_(6, 200) < p->_pCritChance) {
+	if (random_(6, 200) < p->_pICritChance) {
 		dam <<= 1;
 	}
 
@@ -2493,24 +2493,12 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		mon->_mhitpoints -= dam;
 	}
 
-	if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
-		skdam = random_(7, dam >> 3);
+	if (p->_pILifeSteal != 0) {
+		skdam = (dam * 100 * p->_pILifeSteal) >> 7;
 		PlrIncHp(pnum, skdam);
 	}
-	if (p->_pIFlags & (ISPL_STEALLIFE_3 | ISPL_STEALLIFE_5)) {
-		if (p->_pIFlags & ISPL_STEALLIFE_5) {
-			skdam = 5 * dam / 100;
-		} else {
-			skdam = 3 * dam / 100;
-		}
-		PlrIncHp(pnum, skdam);
-	}
-	if (p->_pIFlags & (ISPL_STEALMANA_3 | ISPL_STEALMANA_5)) {
-		if (p->_pIFlags & ISPL_STEALMANA_5) {
-			skdam = 5 * dam / 100;
-		} else {
-			skdam = 3 * dam / 100;
-		}
+	if (p->_pIManaSteal != 0) {
+		skdam = (dam * 100 * p->_pIManaSteal) >> 7;
 		PlrIncMana(pnum, skdam);
 	}
 	if (p->_pIFlags & ISPL_NOHEALMON) {
@@ -2575,7 +2563,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 
 	dam = PlrAtkDam(offp);
-	if (random_(6, 200) < ops->_pCritChance) {
+	if (random_(6, 200) < ops->_pICritChance) {
 		dam <<= 1;
 	}
 
@@ -2601,8 +2589,8 @@ static BOOL PlrHitPlr(int offp, char defp)
 		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
 	}
 
-	if (ops->_pIFlags & ISPL_RNDSTEALLIFE) {
-		skdam = random_(7, dam >> 3);
+	if (ops->_pILifeSteal != 0) {
+		skdam = (dam * 100 * ops->_pILifeSteal) >> 7;
 		PlrIncHp(offp, skdam);
 	}
 	if (offp == myplr) {

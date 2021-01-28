@@ -486,6 +486,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int dmod = 0; // bonus damage mod
 	int pdmod;    // player damage mod 
 	int ghit = 0; // increased damage from enemies
+	BYTE manasteal = 0;
+	BYTE lifesteal = 0;
 
 	int lrad = 10; // light radius
 
@@ -538,6 +540,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				ihp += pi->_iPLHP;
 				imana += pi->_iPLMana;
 				spllvladd += pi->_iSplLvlAdd;
+				lifesteal += pi->_iLifeSteal;
+				manasteal += pi->_iManaSteal;
 				enac += pi->_iPLEnAc;
 				fmin += pi->_iFMinDam;
 				fmax += pi->_iFMaxDam;
@@ -557,6 +561,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pILMinDam = lmin << 6;
 	p->_pILMaxDam = lmax << 6;
 	p->_pISplLvlAdd = spllvladd;
+	p->_pILifeSteal = lifesteal;
+	p->_pIManaSteal = manasteal;
 	p->_pISpells = spl;
 
 	// check if the current RSplType is a valid/allowed spell
@@ -865,7 +871,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
 	p->_pIBaseDamBonus = bdam == 0 ? IBONUS_NONE : (bdam >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
 	p->_pIAC = tac + bac + p->_pDexterity / 5;
-	p->_pCritChance = 0;
+	p->_pICritChance = 0;
 	btohit += 50 + p->_pLevel;
 	if (p->_pwtype == WT_MELEE) {
 		btohit += p->_pDexterity >> 1;
@@ -876,7 +882,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #else
 		if (p->_pClass == PC_WARRIOR)
 #endif
-			p->_pCritChance = p->_pLevel * 2;
+			p->_pICritChance = p->_pLevel * 2;
 	} else {
 		assert(p->_pwtype == WT_RANGED);
 		btohit += p->_pDexterity;
@@ -1837,16 +1843,10 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iFlags |= ISPL_NOHEALMON;
 		break;
 	case IPL_STEALMANA:
-		if (param1 == 3)
-			is->_iFlags |= ISPL_STEALMANA_3;
-		if (param1 == 5)
-			is->_iFlags |= ISPL_STEALMANA_5;
+		is->_iManaSteal = r;
 		break;
 	case IPL_STEALLIFE:
-		if (param1 == 3)
-			is->_iFlags |= ISPL_STEALLIFE_3;
-		if (param1 == 5)
-			is->_iFlags |= ISPL_STEALLIFE_5;
+		is->_iLifeSteal = r;
 		break;
 	case IPL_TARGAC:
 		is->_iPLEnAc += r;
@@ -1888,9 +1888,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_DRAINLIFE:
 		is->_iFlags |= ISPL_DRAINLIFE;
-		break;
-	case IPL_RNDSTEALLIFE:
-		is->_iFlags |= ISPL_RNDSTEALLIFE;
 		break;
 	case IPL_INFRAVISION:
 		is->_iFlags |= ISPL_INFRAVISION;
@@ -3207,16 +3204,10 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "hit monster doesn't heal");
 		break;
 	case IPL_STEALMANA:
-		if (is->_iFlags & ISPL_STEALMANA_3)
-			copy_cstr(tempstr, "hit steals 3% mana");
-		if (is->_iFlags & ISPL_STEALMANA_5)
-			copy_cstr(tempstr, "hit steals 5% mana");
+		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% mana", (is->_iManaSteal * 100) >> 7);
 		break;
 	case IPL_STEALLIFE:
-		if (is->_iFlags & ISPL_STEALLIFE_3)
-			copy_cstr(tempstr, "hit steals 3% life");
-		if (is->_iFlags & ISPL_STEALLIFE_5)
-			copy_cstr(tempstr, "hit steals 5% life");
+		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% life", (is->_iLifeSteal * 100) >> 7);
 		break;
 	case IPL_TARGAC:
 #ifdef HELLFIRE
@@ -3263,9 +3254,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_DRAINLIFE:
 		copy_cstr(tempstr, "constantly lose hit points");
-		break;
-	case IPL_RNDSTEALLIFE:
-		copy_cstr(tempstr, "life stealing");
 		break;
 	case IPL_NOMINSTR:
 		copy_cstr(tempstr, "no strength requirement");
