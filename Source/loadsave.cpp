@@ -378,14 +378,12 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->pBattleNet);
 #endif
 	CopyChar(tbuff, &p->pManaShield);
-	CopyBytes(tbuff, 3, &p->bReserved);
-	CopyShort(tbuff, &p->wReflection);
+	CopyBytes(tbuff, 4, &p->bReserved);
+	tbuff += 1;
 	CopyShorts(tbuff, 7, &p->wReserved);
 
 	CopyInt(tbuff, &p->pDiabloKillLevel);
-	tbuff += 4; // Skip pDifficulty
-	tbuff += 4; // Skip pDamAcFlags
-	CopyInts(tbuff, 5, &p->dwReserved);
+	CopyInts(tbuff, 7, &p->dwReserved);
 
 	CalcPlrInv(pnum, FALSE);
 
@@ -1166,15 +1164,12 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->pBattleNet, tbuff);
 #endif
 	CopyChar(&p->pManaShield, tbuff);
-	CopyChar(&p->pDungMsgs2, tbuff);
-	CopyBytes(&p->bReserved, 2, tbuff);
-	CopyShort(&p->wReflection, tbuff);
+	CopyBytes(&p->bReserved, 4, tbuff);
+	tbuff += 1;
 	CopyShorts(&p->wReserved, 7, tbuff);
 
 	CopyInt(&p->pDiabloKillLevel, tbuff);
-	tbuff += 4; // Skip pDifficulty
-	tbuff += 4; // Skip pDamAcFlags
-	CopyInts(&p->dwReserved, 5, tbuff);
+	CopyInts(&p->dwReserved, 7, tbuff);
 
 	// Omit pointer _pNData
 	// Omit pointer _pWData

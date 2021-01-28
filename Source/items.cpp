@@ -1691,11 +1691,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_DAMP_CURSE:
 		is->_iPLDam -= r;
 		break;
-#ifdef HELLFIRE
-	case IPL_DOPPELGANGER:
-		is->_iFlags2 |= ISPH_DOPPELGANGER;
-		// no break
-#endif
 	case IPL_TOHIT_DAMP:
 		r = RandRange(param1, param2);
 		is->_iPLDam += r;
@@ -1864,25 +1859,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iFlags |= ISPL_MULT_ARROWS;
 		break;
 #endif
-	case IPL_FIRE_ARROWS:
-		is->_iFlags |= ISPL_FIRE_ARROWS;
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-		break;
-	case IPL_LIGHT_ARROWS:
-		is->_iFlags |= ISPL_LIGHT_ARROWS;
-		is->_iLMinDam = param1;
-		is->_iLMaxDam = param2;
-		break;
-#ifdef HELLFIRE
-	// TODO: merge with IPL_FIRE_ARROWS?
-	case IPL_SARROW_FBALL:
-		is->_iFlags |= ISPL_FIRE_ARROWS;
-		is->_iFMinDam = param1;
-		is->_iFMaxDam = param2;
-		//is->_iSAType = MIS_FIREBALL2;
-		break;
-#endif
 	case IPL_INVCURS:
 		is->_iCurs = param1;
 		break;
@@ -1892,17 +1868,8 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_NOMANA:
 		is->_iFlags |= ISPL_NOMANA;
 		break;
-	case IPL_NOHEALPLR:
-		is->_iFlags |= ISPL_NOHEALPLR;
-		break;
-	case IPL_ABSHALFTRAP:
-		is->_iFlags |= ISPL_ABSHALFTRAP;
-		break;
 	case IPL_KNOCKBACK:
 		is->_iFlags |= ISPL_KNOCKBACK;
-		break;
-	case IPL_3XDAMVDEM:
-		is->_iFlags |= ISPL_3XDAMVDEM;
 		break;
 	case IPL_ALLRESZERO:
 		is->_iFlags |= ISPL_ALLRESZERO;
@@ -1975,21 +1942,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
 		break;
-#ifdef HELLFIRE
-	// TODO: merge with IPL_LIGHT_ARROWS?
-	case IPL_SARROW_LIGHT:
-		is->_iFlags |= ISPL_LIGHT_ARROWS;
-		is->_iLMinDam = param1;
-		is->_iLMaxDam = param2;
-		//is->_iSAType = MIS_LIGHTARROW;
-		break;
-	case IPL_SPECDAM:
-		is->_iFlags |= ISPL_SPECDAM;
-		is->_iLMinDam = param1;
-		is->_iLMaxDam = param2;
-		//is->_iSAType = MIS_CBOLTARROW;
-		break;
-#endif
 	/*case IPL_FIRERESCLVL:
 		is->_iPLFR = 30 - plr[myplr]._pLevel;
 		if (is->_iPLFR < 0)
@@ -2009,25 +1961,6 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iPLFR -= r;
 		is->_iPLLR -= r;
 		is->_iPLMR -= r;
-		break;
-	case IPL_DEVASTATION:
-		is->_iFlags2 |= ISPH_DEVASTATION;
-		break;
-	case IPL_DECAY:
-		is->_iFlags2 |= ISPH_DECAY;
-		is->_iPLDam += r;
-		break;
-	case IPL_PERIL:
-		is->_iFlags2 |= ISPH_PERIL;
-		break;
-	case IPL_JESTERS:
-		is->_iFlags2 |= ISPH_JESTERS;
-		break;
-	case IPL_ACDEMON:
-		is->_iFlags2 |= ISPH_ACDEMON;
-		break;
-	case IPL_ACUNDEAD:
-		is->_iFlags2 |= ISPH_ACUNDEAD;
 		break;
 	case IPL_MANATOLIFE:
 		r2 = ((plr[myplr]._pMaxManaBase >> 6) * 50 / 100);
@@ -3286,9 +3219,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_TOHIT_DAMP:
 	case IPL_TOHIT_DAMP_CURSE:
-#ifdef HELLFIRE
-	case IPL_DOPPELGANGER:
-#endif
 		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
@@ -3346,15 +3276,15 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_FIREDAM:
 		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "Fire hit damage: %i", is->_iFMinDam);
+			snprintf(tempstr, sizeof(tempstr), "fire damage: %i", is->_iFMinDam);
 		break;
 	case IPL_LIGHTDAM:
 		if (is->_iLMinDam != is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "Lightning hit damage: %i", is->_iLMinDam);
+			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
 		break;
 	case IPL_STR:
 	case IPL_STR_CURSE:
@@ -3408,43 +3338,14 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "multiple arrows per shot");
 		break;
 #endif
-	case IPL_FIRE_ARROWS:
-		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "fire arrows damage: %i", is->_iFMinDam);
-		break;
-	case IPL_LIGHT_ARROWS:
-		if (is->_iLMinDam != is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i-%i", is->_iLMinDam, is->_iLMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "lightning arrows damage %i", is->_iLMinDam);
-		break;
-#ifdef HELLFIRE
-	case IPL_SARROW_FBALL:
-		if (is->_iFMinDam != is->_iFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i-%i", is->_iFMinDam, is->_iFMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "fireball damage: %i", is->_iFMinDam);
-		break;
-#endif
 	case IPL_THORNS:
 		copy_cstr(tempstr, "attacker takes 1-3 damage");
 		break;
 	case IPL_NOMANA:
 		copy_cstr(tempstr, "user loses all mana");
 		break;
-	case IPL_NOHEALPLR:
-		copy_cstr(tempstr, "you can't heal");
-		break;
-	case IPL_ABSHALFTRAP:
-		copy_cstr(tempstr, "absorbs half of trap damage");
-		break;
 	case IPL_KNOCKBACK:
 		copy_cstr(tempstr, "knocks target back");
-		break;
-	case IPL_3XDAMVDEM:
-		copy_cstr(tempstr, "+200% damage vs. demons");
 		break;
 	case IPL_ALLRESZERO:
 		copy_cstr(tempstr, "All Resistance equals 0");
@@ -3525,17 +3426,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_INVCURS:
 		copy_cstr(tempstr, " ");
 		break;
-#ifdef HELLFIRE
-	case IPL_SARROW_LIGHT:
-		if (is->_iLMinDam != is->_iLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning: %i-%i", is->_iLMinDam, is->_iLMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
-		break;
-	case IPL_SPECDAM:
-		copy_cstr(tempstr, "charged bolts on hits");
-		break;
-#endif
 	/*case IPL_FIRERESCLVL:
 		if (is->_iPLFR <= 0)
 			copy_cstr(tempstr, " ");
@@ -3543,26 +3433,8 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "Resist Fire: %+i%%", is->_iPLFR);
 		break;*/
 #ifdef HELLFIRE
-	case IPL_DEVASTATION:
-		copy_cstr(tempstr, "occasional triple damage");
-		break;
-	case IPL_DECAY:
-		snprintf(tempstr, sizeof(tempstr), "decaying %+i%% damage", is->_iPLDam);
-		break;
-	case IPL_PERIL:
-		copy_cstr(tempstr, "2x dmg to monst, 1x to you");
-		break;
-	case IPL_JESTERS:
-		copy_cstr(tempstr, "Random 0 - 500% damage");
-		break;
 	case IPL_CRYSTALLINE:
 		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
-		break;
-	case IPL_ACDEMON:
-		copy_cstr(tempstr, "extra AC vs demons");
-		break;
-	case IPL_ACUNDEAD:
-		copy_cstr(tempstr, "extra AC vs undead");
 		break;
 	case IPL_MANATOLIFE:
 		copy_cstr(tempstr, "50% Mana moved to Health");

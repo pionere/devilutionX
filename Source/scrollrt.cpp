@@ -45,7 +45,7 @@ BYTE *gpBufEnd;
  * frameType := block & 0x7000 >> 12
  */
 DWORD level_cel_block;
-BOOLEAN AutoMapShowItems;
+
 /**
  * Specifies the type of arches to render.
  */
@@ -638,7 +638,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 	}
 
 	sx -= is->_iAnimWidth2;
-	if (ii == pcursitem || AutoMapShowItems) {
+	if (ii == pcursitem) {
 		CelBlitOutline(181, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);

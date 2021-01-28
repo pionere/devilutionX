@@ -737,8 +737,8 @@ void DrawAutomap()
 		}
 	}*/
 	DrawAutomapPlr(myplr);
-	if (AutoMapShowItems)
-		SearchAutomapItem();
+	//if (AutoMapShowItems)
+	//	SearchAutomapItem();
 	DrawAutomapText();
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 }

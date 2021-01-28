@@ -2280,37 +2280,11 @@ static BOOL WeaponDur(int pnum, int durrnd)
 		app_fatal("WeaponDur: illegal player %d", pnum);
 	}
 
-	p = &plr[pnum];
-#ifdef HELLFIRE
-	pi = &p->InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iFlags2 & ISPH_DECAY) {
-		pi->_iPLDam -= 5;
-		if (pi->_iPLDam <= -100) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
-			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
-		}
-		CalcPlrInv(pnum, TRUE);
-	}
-
-	pi = &p->InvBody[INVLOC_HAND_RIGHT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && pi->_iFlags2 & ISPH_DECAY) {
-		pi->_iPLDam -= 5;
-		if (pi->_iPLDam <= -100) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);
-			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
-		}
-		CalcPlrInv(pnum, TRUE);
-	}
-#endif
-
 	if (random_(3, durrnd) != 0) {
 		return FALSE;
 	}
 
+	p = &plr[pnum];
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
@@ -2476,11 +2450,6 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 			dam += dam >> 1;
 		}
 		break;
-	case MC_DEMON:
-		if (p->_pIFlags & ISPL_3XDAMVDEM) {
-			dam *= 3;
-		}
-		break;
 	case MC_ANIMAL:
 		if (phanditype == ITYPE_MACE) {
 			dam -= dam >> 1;
@@ -2490,16 +2459,6 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		}
 		break;
 	}
-
-#ifdef HELLFIRE
-	if (p->_pIFlags2 & ISPH_DEVASTATION && random_(6, 100) < 5) {
-		dam *= 3;
-	}
-
-	if ((p->_pIFlags2 & ISPH_DOPPELGANGER) && mon->MType->mtype != MT_DIABLO && mon->_uniqtype == 0 && random_(6, 100) < 10) {
-		MonDoppel(mnum);
-	}
-#endif
 
 	int fdam = 0;
 	if (p->_pIFlags & ISPL_FIREDAM) {
@@ -2526,42 +2485,14 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 
 #ifdef HELLFIRE
-	if (p->_pIFlags2 & ISPH_JESTERS) {
-		int r = random_(6, 257);
-		if (r >= 128)
-			r = 128 + (r - 128) * 5;
-		dam = dam * r / 128;
-	}
-
 	if (adjacentDamage)
 		dam >>= 2;
 #endif
 
 	if (pnum == myplr) {
-#ifdef HELLFIRE
-		if (p->_pIFlags2 & ISPH_PERIL) {
-			dam2 += p->_pIGetHit;
-			if (dam2 >= 0 && !p->_pInvincible) {
-				dam2 <<= 6;
-				if (p->_pHitPoints > dam2) {
-					PlrDecHp(pnum, dam2, 0);
-				} else {
-					PlrSetHp(pnum, 64);
-				}
-			}
-			dam <<= 1;
-		}
-#endif
-
 		mon->_mhitpoints -= dam;
 	}
 
-#ifdef HELLFIRE
-	if (p->_pIFlags & ISPL_SPECDAM) {
-		int midam = RandRange(p->_pILMinDam, p->_pILMaxDam);
-		AddMissile(p->_px, p->_py, mon->_mx, mon->_my, p->_pdir, MIS_SPECARROW, 0, pnum, midam, MIS_CBOLTARROW);
-	}
-#endif
 	if (p->_pIFlags & ISPL_RNDSTEALLIFE) {
 		skdam = random_(7, dam >> 3);
 		PlrIncHp(pnum, skdam);

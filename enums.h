@@ -126,14 +126,14 @@ typedef enum item_effect_type {
 	IPL_LIGHT            = 0x26,
 	IPL_LIGHT_CURSE      = 0x27,
 	IPL_MULT_ARROWS      = 0x29, /* only used in hellfire */
-	IPL_FIRE_ARROWS      = 0x2A,
-	IPL_LIGHT_ARROWS     = 0x2B,
+	//IPL_FIRE_ARROWS      = 0x2A,
+	//IPL_LIGHT_ARROWS     = 0x2B,
 	IPL_INVCURS          = 0x2C,
 	IPL_THORNS           = 0x2D,
 	IPL_NOMANA           = 0x2E,
-	IPL_NOHEALPLR        = 0x2F, /* unused */
-	IPL_SARROW_FBALL     = 0x32, /* only used in hellfire IPL_FIREBALL in vanilla */
-	IPL_ABSHALFTRAP      = 0x34,
+	//IPL_NOHEALPLR        = 0x2F, /* unused */
+	//IPL_SARROW_FBALL     = 0x32, /* only used in hellfire IPL_FIREBALL in vanilla */
+	//IPL_ABSHALFTRAP      = 0x34,
 	IPL_KNOCKBACK        = 0x35,
 	IPL_NOHEALMON        = 0x36, /* unused */
 	IPL_STEALMANA        = 0x37,
@@ -150,14 +150,14 @@ typedef enum item_effect_type {
 	IPL_SPELL            = 0x42,
 	IPL_FASTSWING        = 0x43, /* unused */
 	IPL_ONEHAND          = 0x44,
-	IPL_3XDAMVDEM        = 0x45,
+	//IPL_3XDAMVDEM        = 0x45,
 	IPL_ALLRESZERO       = 0x46,
 	IPL_DRAINLIFE        = 0x48,
 	IPL_RNDSTEALLIFE     = 0x49,
 	IPL_INFRAVISION      = 0x4A, /* unused */
 	IPL_SETAC            = 0x4B,
-	IPL_SARROW_LIGHT     = 0x4C, /* only used in hellfire IPL_ADDACLIFE in vanilla */
-	IPL_SPECDAM          = 0x4D, /* only used in hellfire IPL_ADDMANAAC in vanilla */
+	//IPL_SARROW_LIGHT     = 0x4C, /* only used in hellfire IPL_ADDACLIFE in vanilla */
+	//IPL_SPECDAM          = 0x4D, /* only used in hellfire IPL_ADDMANAAC in vanilla */
 	IPL_FIRERESCLVL      = 0x4E, /* unused */
 	IPL_AC_CURSE         = 0x4F,
 	// hellfire only
@@ -165,14 +165,14 @@ typedef enum item_effect_type {
 	IPL_LIGHTRES_CURSE   = 0x51,
 	IPL_MAGICRES_CURSE   = 0x52,
 	IPL_ALLRES_CURSE     = 0x53, /* unused */
-	IPL_DEVASTATION      = 0x54,
-	IPL_DECAY            = 0x55,
-	IPL_PERIL            = 0x56,
-	IPL_JESTERS          = 0x57,
+	//IPL_DEVASTATION      = 0x54,
+	//IPL_DECAY            = 0x55,
+	//IPL_PERIL            = 0x56,
+	//IPL_JESTERS          = 0x57,
 	IPL_CRYSTALLINE      = 0x58,
-	IPL_DOPPELGANGER     = 0x59,
-	IPL_ACDEMON          = 0x5A,
-	IPL_ACUNDEAD         = 0x5B,
+	//IPL_DOPPELGANGER     = 0x59,
+	//IPL_ACDEMON          = 0x5A,
+	//IPL_ACUNDEAD         = 0x5B,
 	IPL_MANATOLIFE       = 0x5C,
 	IPL_LIFETOMANA       = 0x5D,
 	IPL_FASTCAST         = 0x5E, /* unused */
@@ -1431,10 +1431,10 @@ typedef enum missile_id {
 	MIS_MANASHIELD,
 	MIS_FIREWAVE,
 	MIS_CHAIN,
-	MIS_SENTINAL,	// TODO: Check beta
-	MIS_BLODSTAR,	// TODO: Check beta
-	MIS_BONE,		// TODO: Check beta
-	MIS_METLHIT,	// TODO: Check beta
+	//MIS_SENTINAL,	// TODO: Check beta
+	//MIS_BLODSTAR,	// TODO: Check beta
+	//MIS_BONE,		// TODO: Check beta
+	//MIS_METLHIT,	// TODO: Check beta
 	MIS_RHINO,
 	MIS_MAGMABALL,
 	MIS_LIGHTNINGC2,
@@ -1443,23 +1443,22 @@ typedef enum missile_id {
 	MIS_EXFLARE,
 	MIS_TELEPORT,
 	//MIS_FARROW,
-	MIS_DOOMSERP,
-	MIS_FIREWALLA,	// TODO: Check beta
+	//MIS_DOOMSERP,
+	//MIS_FIREWALLA,	// TODO: Check beta
 	MIS_STONE,
-	MIS_NULL_1F,
+	//MIS_NULL_1F,
 	MIS_INVISIBL,
 	MIS_GOLEM,
 	MIS_ETHEREALIZE,
-	MIS_BLODBUR,	// TODO: Check beta
-	MIS_EXAPOCA,
+	//MIS_BLODBUR,	// TODO: Check beta
+	//MIS_EXAPOCA,
 	MIS_HEAL,
 	MIS_FIREWALLC,
 	MIS_INFRA,
 	MIS_IDENTIFY,
 	MIS_FIREWAVEC,
 	MIS_LIGHTNOVAC,
-	MIS_BLODBOIL,
-	MIS_APOCAC,
+	//MIS_APOCAC,
 	MIS_REPAIR,
 	MIS_RECHARGE,
 	MIS_DISARM,
@@ -1480,33 +1479,34 @@ typedef enum missile_id {
 	MIS_ELEMENT,
 	MIS_EXELE,
 	MIS_RESURRECTBEAM,
-	MIS_BONESPIRIT,
+	//MIS_BONESPIRIT,
 	MIS_WEAPFEXP,
 	MIS_WEAPLEXP,
 	MIS_RPORTAL,
 	MIS_EXAPOCA2,
 	MIS_APOCAC2,
 #ifdef HELLFIRE
-	MIS_MANA,
-	MIS_MAGI,
+	MIS_BLODBOIL,
+	//MIS_MANA,
+	//MIS_MAGI,
 	MIS_LIGHTWALL,
 	MIS_LIGHTWALLC,
 	MIS_FIRENOVAC,
-	MIS_SPECARROW,
+	//MIS_SPECARROW,
 	MIS_FIREBALL2,
-	MIS_LIGHTARROW,
-	MIS_CBOLTARROW,
-	MIS_HBOLTARROW,
-	MIS_WARP,
-	MIS_REFLECT,
-	MIS_BERSERK,
+	//MIS_LIGHTARROW,
+	//MIS_CBOLTARROW,
+	//MIS_HBOLTARROW,
+	//MIS_WARP,
+	//MIS_REFLECT,
+	//MIS_BERSERK,
 	MIS_FIRERING,
-	MIS_STEALPOTS,
-	MIS_MANATRAP,
+	//MIS_STEALPOTS,
+	//MIS_MANATRAP,
 	MIS_LIGHTRING,
-	MIS_SEARCH,
-	MIS_FLASHFR,
-	MIS_FLASHBK,
+	//MIS_SEARCH,
+	//MIS_FLASHFR,
+	//MIS_FLASHBK,
 	MIS_FIREBALL3,
 	MIS_RUNEFIRE,
 	MIS_RUNELIGHT,
@@ -1515,7 +1515,7 @@ typedef enum missile_id {
 	MIS_RUNESTONE,
 	MIS_HIVEEXP,
 	MIS_HORKDMN,
-	MIS_JESTER,
+	//MIS_JESTER,
 	MIS_HIVEEXPC,
 	MIS_LICH,
 	MIS_PSYCHORB,
@@ -1849,7 +1849,7 @@ typedef enum monster_flag {
 	MFLAG_SEARCH          = 0x100,
 	MFLAG_CAN_OPEN_DOOR   = 0x200,
 	MFLAG_NO_ENEMY        = 0x400,
-	MFLAG_BERSERK         = 0x800,
+	//MFLAG_BERSERK         = 0x800,
 	MFLAG_LIFESTEAL       = 0x1000
 } monster_flag;
 
@@ -2664,15 +2664,12 @@ typedef enum spell_id {
 	SPL_GUARDIAN,
 	SPL_CHAIN,
 	SPL_WAVE,
-	SPL_DOOMSERP,
-	SPL_BLODRIT,
 	SPL_NOVA,
 	SPL_INVISIBIL,
 	SPL_FLAME,
 	SPL_GOLEM,
 	SPL_BLODBOIL,
 	SPL_TELEPORT,
-	SPL_APOCA,
 	SPL_ETHEREALIZE,
 	SPL_REPAIR,
 	SPL_RECHARGE,
@@ -2684,18 +2681,10 @@ typedef enum spell_id {
 	SPL_TELEKINESIS,
 	SPL_HEALOTHER,
 	SPL_FLARE,
-	SPL_BONESPIRIT,
 #ifdef HELLFIRE
-	SPL_MANA,
-	SPL_MAGI,
-	SPL_JESTER,
 	SPL_LIGHTWALL,
 	SPL_IMMOLAT,
-	SPL_WARP,
-	SPL_REFLECT,
-	SPL_BERSERK,
 	SPL_FIRERING,
-	SPL_SEARCH,
 	SPL_RUNEFIRE,
 	SPL_RUNELIGHT,
 	SPL_RUNENOVA,
@@ -2814,7 +2803,7 @@ typedef enum _cmd_id {
 	OBSOLETE_CMD7, // CMD_NOVA in vanilla
 	CMD_SETSHIELD,
 	CMD_REMSHIELD,
-	CMD_ENDREFLECT,
+	OBSOLETE_CMD9, // CMD_ENDREFLECT in vanilla
 	CMD_NAKRUL,
 	CMD_OPENHIVE,
 	CMD_OPENCRYPT,
@@ -3247,7 +3236,7 @@ typedef enum _unique_items {
 	UITEM_RIFTBOW,
 	UITEM_NEEDLER,
 	UITEM_CELESTBOW,
-	UITEM_DEADLYHUNT,
+	//UITEM_DEADLYHUNT,
 	UITEM_BOWOFDEAD,
 	UITEM_BLKOAKBOW,
 	UITEM_FLAMEDART,
@@ -3272,7 +3261,7 @@ typedef enum _unique_items {
 	UITEM_GRANDFATHER,
 	UITEM_MANGLER,
 	UITEM_SHARPBEAK,
-	UITEM_BLOODLSLAYER,
+	//UITEM_BLOODLSLAYER,
 	UITEM_CELESTAXE,
 	UITEM_WICKEDAXE,
 	UITEM_STONECLEAV,
@@ -3281,7 +3270,7 @@ typedef enum _unique_items {
 	UITEM_MESSERREAVER,
 	UITEM_CRACKRUST,
 	UITEM_JHOLMHAMM,
-	UITEM_CIVERBS,
+	//UITEM_CIVERBS,
 	UITEM_CELESTSTAR,
 	UITEM_BARANSTAR,
 	UITEM_GNARLROOT,
@@ -3341,8 +3330,8 @@ typedef enum _unique_items {
 	UITEM_SHIROTACHI,
 	UITEM_SOULEATER,
 	UITEM_DIAMONDEDGE,
-	UITEM_BONEARMOR,
-	UITEM_DEMONARMOR,
+	//UITEM_BONEARMOR,
+	//UITEM_DEMONARMOR,
 	UITEM_ACOLYTEAMU,
 	UITEM_GLADIATORING,
 #endif
@@ -3404,14 +3393,14 @@ typedef enum item_special_effect {
 	ISPL_INFRAVISION    = 0x00000001, /* unused */ 
 	ISPL_RNDSTEALLIFE   = 0x00000002,
 	ISPL_RNDARROWVEL    = 0x00000004,
-	ISPL_FIRE_ARROWS    = 0x00000008,
+	//ISPL_FIRE_ARROWS    = 0x00000008,
 	ISPL_FIREDAM        = 0x00000010,
 	ISPL_LIGHTDAM       = 0x00000020,
 	ISPL_DRAINLIFE      = 0x00000040,
-	ISPL_UNKNOWN_1      = 0x00000080,
-	ISPL_NOHEALPLR      = 0x00000100, /* unused */ 
+	//ISPL_UNKNOWN_1      = 0x00000080,
+	//ISPL_NOHEALPLR      = 0x00000100, /* unused */ 
 	ISPL_MULT_ARROWS    = 0x00000200, /* unsupported */
-	ISPL_UNKNOWN_3      = 0x00000400,
+	//ISPL_UNKNOWN_3      = 0x00000400,
 	ISPL_KNOCKBACK      = 0x00000800,
 	ISPL_NOHEALMON      = 0x00001000, /* unused */ 
 	ISPL_STEALMANA_3    = 0x00002000,
@@ -3426,25 +3415,25 @@ typedef enum item_special_effect {
 	ISPL_FASTERRECOVER  = 0x00400000,
 	ISPL_FASTESTRECOVER = 0x00800000,
 	ISPL_FASTBLOCK      = 0x01000000,
-	ISPL_LIGHT_ARROWS   = 0x02000000,
+	//ISPL_LIGHT_ARROWS   = 0x02000000,
 	ISPL_THORNS         = 0x04000000,
 	ISPL_NOMANA         = 0x08000000,
-	ISPL_ABSHALFTRAP    = 0x10000000,
-	ISPL_SPECDAM        = 0x20000000, // only in hellfire
-	ISPL_3XDAMVDEM      = 0x40000000,
+	//ISPL_ABSHALFTRAP    = 0x10000000,
+	//ISPL_SPECDAM        = 0x20000000, // only in hellfire
+	//ISPL_3XDAMVDEM      = 0x40000000,
 	ISPL_ALLRESZERO     = 0x80000000,
 } item_special_effect;
 
 // only in hellfire
 typedef enum item_added_effects {
 	ISPH_NONE           = 0x00000000,
-	ISPH_DEVASTATION    = 0x00000001,
-	ISPH_DECAY          = 0x00000002,
-	ISPH_PERIL          = 0x00000004,
-	ISPH_JESTERS        = 0x00000008,
-	ISPH_DOPPELGANGER   = 0x00000010,
-	ISPH_ACDEMON        = 0x00000020,
-	ISPH_ACUNDEAD       = 0x00000040,
+	//ISPH_DEVASTATION    = 0x00000001,
+	//ISPH_DECAY          = 0x00000002,
+	//ISPH_PERIL          = 0x00000004,
+	//ISPH_JESTERS        = 0x00000008,
+	//ISPH_DOPPELGANGER   = 0x00000010,
+	//ISPH_ACDEMON        = 0x00000020,
+	//ISPH_ACUNDEAD       = 0x00000040,
 	ISPH_FASTCAST       = 0x00000080, /* unused */
 	ISPH_FASTERCAST     = 0x00000100, /* unused */
 	ISPH_FASTESTCAST    = 0x00000200, /* unused */
@@ -3452,8 +3441,8 @@ typedef enum item_added_effects {
 	ISPH_FASTERWALK     = 0x00000800, /* unused */
 	ISPH_FASTESTWALK    = 0x00001000, /* unused */
 	ISPH_SWIPE          = 0x00002000,
-	ISPH_SPECARROW      = 0x00004000, /* unsupported maybe later from IPL_SARROW_LIGHT*/
-	ISPH_SARROWFB       = 0x00008000, /* unsupported maybe later from IPL_SARROW_FBALL*/
+	//ISPH_SPECARROW      = 0x00004000, /* unsupported maybe later from IPL_SARROW_LIGHT*/
+	//ISPH_SARROWFB       = 0x00008000, /* unsupported maybe later from IPL_SARROW_FBALL*/
 } item_added_effects;
 
 // Logical equipment locations

@@ -664,7 +664,7 @@ static void AddObjTraps()
 
 static void AddChestTraps()
 {
-	int i, j;
+	int i, j, r;
 	char oi;
 
 	for (j = 0; j < MAXDUNY; j++) {
@@ -676,14 +676,41 @@ static void AddChestTraps()
 					object[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
 					object[oi]._oTrapFlag = TRUE;
 					if (leveltype == DTYPE_CATACOMBS) {
-						object[oi]._oVar4 = random_(0, 2);
+						r = random_(0, 2);
 					} else {
 #ifdef HELLFIRE
-						object[oi]._oVar4 = random_(0, 6);
+						r = random_(0, 4);
 #else
-						object[oi]._oVar4 = random_(0, 3);
+						r = random_(0, 3);
 #endif
 					}
+
+					switch (r) {
+					case 0:
+						r = MIS_ARROW;
+						break;
+					case 1:
+						r = MIS_FIREBOLT;
+						break;
+					case 2:
+						r = MIS_LIGHTNOVAC;
+						break;
+#ifdef HELLFIRE
+					case 3:
+						r = MIS_FIRERING;
+						break;
+					/*case 4:
+						mtype = MIS_STEALPOTS;
+						break;
+					case 5:
+						mtype = MIS_MANATRAP;
+						break;*/
+					default:
+						ASSUME_UNREACHABLE;
+#endif
+					}
+					object[oi]._oVar4 = r;
+
 				}
 			}
 		}
@@ -3037,7 +3064,7 @@ static void OperateSChambBk(int pnum, int oi)
 static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
-	int i, mdir, mtype;
+	int i, mdir;
 
 	os = &object[oi];
 	if (os->_oSelFlag != 0) {
@@ -3061,31 +3088,7 @@ static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 			}
 			if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
 				mdir = GetDirection(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py);
-				switch (os->_oVar4) {
-				case 0:
-					mtype = MIS_ARROW;
-					break;
-				case 1:
-					mtype = MIS_FIREBOLT;
-					break;
-				case 2:
-					mtype = MIS_LIGHTNOVAC;
-					break;
-#ifdef HELLFIRE
-				case 3:
-					mtype = MIS_FIRERING;
-					break;
-				case 4:
-					mtype = MIS_STEALPOTS;
-					break;
-				case 5:
-					mtype = MIS_MANATRAP;
-					break;
-				default:
-					mtype = MIS_ARROW;
-#endif
-				}
-				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, mtype, 1, -1, 0, 0);
+				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0);
 				os->_oTrapFlag = FALSE;
 			}
 			if (pnum == myplr)

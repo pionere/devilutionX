@@ -2308,25 +2308,6 @@ static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-#ifdef HELLFIRE
-static DWORD On_ENDREFLECT(TCmd *pCmd, int pnum)
-{
-	int i, mi;
-
-	if (gbBufferMsgs != 1 && pnum != myplr && currlevel == plr[pnum].plrlevel) {
-		for (i = 0; i < nummissiles; i++) {
-			mi = missileactive[i];
-			if (missile[mi]._miType == MIS_REFLECT && missile[mi]._miSource == pnum) {
-				ClearMissileSpot(mi);
-				DeleteMissile(mi, i);
-			}
-		}
-	}
-
-	return sizeof(*pCmd);
-}
-#endif
-
 static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
@@ -2561,8 +2542,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	//case CMD_SCROLL_SPELLXY:
 	//	return On_SCROLL_SPELLXY(pCmd, pnum);
 #ifdef HELLFIRE
-	case CMD_ENDREFLECT:
-		return On_ENDREFLECT(pCmd, pnum);
+	//case CMD_ENDREFLECT:
+	//	return On_ENDREFLECT(pCmd, pnum);
 	case CMD_NAKRUL:
 		return On_NAKRUL(pCmd, pnum);
 	case CMD_OPENHIVE:

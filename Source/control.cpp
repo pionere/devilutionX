@@ -136,15 +136,15 @@ const BYTE SpellITbl[NUM_SPELLS] = {
 	18,// SPL_GUARDIAN
 	16,// SPL_CHAIN
 	14,// SPL_WAVE
-	18,// SPL_DOOMSERP
-	19,// SPL_BLODRIT
+	//18,// SPL_DOOMSERP
+	//19,// SPL_BLODRIT
 	11,// SPL_NOVA
 	20,// SPL_INVISIBIL
 	15,// SPL_FLAME
 	21,// SPL_GOLEM
 	23,// SPL_BLODBOIL
 	24,// SPL_TELEPORT
-	25,// SPL_APOCA
+	//25,// SPL_APOCA
 	22,// SPL_ETHEREALIZE
 	26,// SPL_REPAIR
 	29,// SPL_RECHARGE
@@ -156,18 +156,18 @@ const BYTE SpellITbl[NUM_SPELLS] = {
 	40,// SPL_TELEKINESIS
 	10,// SPL_HEALOTHER
 	36,// SPL_FLARE
-	30,// SPL_BONESPIRIT
+	//30,// SPL_BONESPIRIT
 #ifdef HELLFIRE
-	51,// SPL_MANA
-	51,// SPL_MAGI
-	50,// SPL_JESTER
+	//51,// SPL_MANA
+	//51,// SPL_MAGI
+	//50,// SPL_JESTER
 	46,// SPL_LIGHTWALL
 	47,// SPL_IMMOLAT
-	43,// SPL_WARP
-	45,// SPL_REFLECT
-	48,// SPL_BERSERK
+	//43,// SPL_WARP
+	//45,// SPL_REFLECT
+	//48,// SPL_BERSERK
 	49,// SPL_FIRERING
-	44,// SPL_SEARCH
+	//44,// SPL_SEARCH
 	35,// SPL_RUNEFIRE
 	35,// SPL_RUNELIGHT
 	35,// SPL_RUNENOVA
@@ -221,9 +221,9 @@ int SpellPages[SPLBOOKTABS][7] = {
 	{ SPL_NULL, SPL_FIREBOLT, SPL_CBOLT, SPL_HBOLT, SPL_HEAL, SPL_HEALOTHER, SPL_FLAME },
 	{ SPL_RESURRECT, SPL_FIREWALL, SPL_TELEKINESIS, SPL_LIGHTNING, SPL_TOWN, SPL_FLASH, SPL_STONE },
 	{ SPL_RNDTELEPORT, SPL_MANASHIELD, SPL_ELEMENT, SPL_FIREBALL, SPL_WAVE, SPL_CHAIN, SPL_GUARDIAN },
-	{ SPL_NOVA, SPL_GOLEM, SPL_TELEPORT, SPL_APOCA, SPL_BONESPIRIT, SPL_FLARE, SPL_ETHEREALIZE },
+	{ SPL_NOVA, SPL_GOLEM, SPL_TELEPORT, SPL_FLARE, SPL_ETHEREALIZE },
 #ifdef HELLFIRE
-	{ SPL_LIGHTWALL, SPL_IMMOLAT, SPL_WARP, SPL_REFLECT, SPL_BERSERK, SPL_FIRERING, SPL_SEARCH },
+	{ SPL_LIGHTWALL, SPL_IMMOLAT, SPL_FIRERING },
 #endif
 };
 
@@ -2002,7 +2002,7 @@ void DrawSpellBook()
 				break;
 			}
 			GetDamageAmt(sn, &min, &max);
-			offset = mana == 0 && min == -1 && sn != SPL_BONESPIRIT ? 5 : 0;
+			offset = mana == 0 && min == -1 ? 5 : 0;
 			PrintString(sx + SBOOK_LINE_TAB, yp - 23 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, spelldata[sn].sNameText, FALSE, COL_WHITE, 1);
 			PrintString(sx + SBOOK_LINE_TAB, yp - 12 + offset, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
 
@@ -2011,8 +2011,6 @@ void DrawSpellBook()
 					cat_str(tempstr, offset, "Mana: %i  ", mana);
 				if (min != -1)
 					cat_str(tempstr, offset, "Dam: %i-%i", min, max);
-				else if (sn == SPL_BONESPIRIT)
-					cat_cstr(tempstr, offset, "Dam: 1/3 tgt hp");
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
 			}
 		}

@@ -362,13 +362,10 @@ typedef struct PlayerStruct {
 	unsigned char pBattleNet;
 	BYTE pManaShield;
 	unsigned char pDungMsgs2;
-	char bReserved[2];
-	WORD wReflection;
+	char bReserved[4];
 	short wReserved[7];
 	DWORD pDiabloKillLevel;
-	int dwReserved1;
-	int pDamAcFlags; // unused
-	int dwReserved[5];
+	int dwReserved[7];
 	unsigned char *_pNData;
 	unsigned char *_pWData;
 	unsigned char *_pAData;
@@ -1584,9 +1581,7 @@ typedef struct PkPlayerStruct {
 	char bReserved0[3];
 	char pBattleNet;
 	BOOLEAN pManaShield;
-	char bReserved1[3];
-	WORD wReflection;
-	short wReserved2;
+	char bReserved1[7];
 	char pSplLvl2[10]; // Hellfire spells
 	short wReserved8;
 	DWORD pDiabloKillLevel;

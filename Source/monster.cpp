@@ -1246,11 +1246,7 @@ static void MonEnemy(int mnum)
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
 	bestsameroom = FALSE;
-	if (!(mon->_mFlags & MFLAG_GOLEM)
-#ifdef HELLFIRE
-		|| (mon->_mFlags & MFLAG_BERSERK)
-#endif
-		) {
+	if (!(mon->_mFlags & MFLAG_GOLEM)) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
 				continue;
@@ -1265,13 +1261,6 @@ static void MonEnemy(int mnum)
 			best_dist = dist;
 			bestsameroom = sameroom;
 		}
-	}
-
-#ifdef HELLFIRE
-	if (!(mon->_mFlags & (MFLAG_GOLEM | MFLAG_BERSERK))) {
-#else
-	if (!(mon->_mFlags & MFLAG_GOLEM)) {
-#endif
 		for (i = 0; i < MAX_PLRS; i++) {
 #ifdef HELLFIRE
 			if (monster[i]._mhitpoints < (1 << 6))
@@ -1740,7 +1729,6 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 		CreateMagicWeapon(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my);
 		CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my);
 		CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my);
-		CreateSpellBook(SPL_APOCA, mon->_mx, mon->_my);
 		return;
 #endif
 	}
@@ -2173,13 +2161,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		return;
 
 	tmp = p->_pIAC;
-#ifdef HELLFIRE
-	if (p->_pIFlags2 & ISPH_ACDEMON && mon->MData->mMonstClass == MC_DEMON)
-		tmp += 40;
-	if (p->_pIFlags2 & ISPH_ACUNDEAD && mon->MData->mMonstClass == MC_UNDEAD)
-		tmp += 20;
-#endif
-
 	hper = 30 + Hit
 		+ (mon->mLevel << 1)
 		- (p->_pLevel << 1)
@@ -2206,22 +2187,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			- (mon->mLevel << 1);
 		if (blkper >= 100 || blkper > random_(98, 100)) {
 			PlrStartBlock(pnum, GetDirection(p->_px, p->_py, mon->_mx, mon->_my));
-#ifdef HELLFIRE
-			if (pnum == myplr && p->wReflection > 0) {
-				p->wReflection--;
-				dam = RandRange(MinDam, MaxDam);
-				dam += p->_pIGetHit;
-				if (dam < 0)
-					dam = 1;
-				dam <<= 6;
-				dam = dam * RandRange(20, 29) / 100;
-				mon->_mhitpoints -= dam;
-				if (mon->_mhitpoints < (1 << 6))
-					MonStartKill(mnum, pnum);
-				else
-					MonStartHit(mnum, pnum, dam);
-			}
-#endif
 			return;
 		}
 	}
@@ -2259,17 +2224,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (mon->_mFlags & MFLAG_LIFESTEAL)
 		mon->_mhitpoints += dam;
 	if (pnum == myplr) {
-#ifdef HELLFIRE
-		if (p->wReflection > 0) {
-			p->wReflection--;
-			int mdam = dam * RandRange(20, 29) / 100;
-			mon->_mhitpoints -= mdam;
-			if (mon->_mhitpoints < (1 << 6))
-				MonStartKill(mnum, pnum);
-			else
-				MonStartHit(mnum, pnum, mdam);
-		}
-#endif
 		if (PlrDecHp(pnum, dam, 0)) {
 #ifdef HELLFIRE
 			MonStartStand(mnum, mon->_mdir);
@@ -5234,35 +5188,6 @@ void MissToMonst(int mi, int x, int y)
 					}
 				}
 			}
-		}
-	}
-}
-
-void MonDoppel(int mnum)
-{
-	MonsterStruct *mon;
-	int x, y, d, i, oi, mx, my;
-
-	mon = &monster[mnum];
-	mx = mon->_mx;
-	my = mon->_my;
-	for (d = 0; d < 8; d++) {
-		x = mx + offset_x[d];
-		y = my + offset_y[d];
-		if ((dPlayer[x][y] | dMonster[x][y] | nSolidTable[dPiece[x][y]]) == 0) {
-			oi = dObject[x][y];
-			if (oi != 0) {
-				oi = oi >= 0 ? oi - 1 : -(oi + 1);
-				if (object[oi]._oSolidFlag)
-					continue;
-			}
-			for (i = 0; i < MAX_LVLMTYPES; i++) {
-				if (Monsters[i].mtype == mon->MType->mtype) {
-					AddMonster(x, y, mon->_mdir, i, TRUE);
-					break;
-				}
-			}
-			break;
 		}
 	}
 }

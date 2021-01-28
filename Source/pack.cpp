@@ -115,9 +115,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->pSplTHotKey[i] = p->_pSplTHotKey[i];
 	}
 
-#ifdef HELLFIRE
-	pPack->wReflection = SwapLE16(p->wReflection);
-#endif
 	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
 	pPack->pManaShield = p->pManaShield;
 }
@@ -274,7 +271,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 
 	CalcPlrInv(pnum, FALSE);
 
-	p->wReflection = SwapLE16(pPack->wReflection);
 	p->pTownWarps = 0;
 	p->pDungMsgs = 0;
 	p->pDungMsgs2 = 0;
