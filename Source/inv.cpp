@@ -397,14 +397,17 @@ void DrawInv()
 			        && is->_itype != ITYPE_MACE)
 #endif
 			{
-				InvDrawSlotBack(RIGHT_PANEL_X + 248, 160 + SCREEN_Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
+				screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_FIRST].Y + 2 * INV_SLOT_SIZE_PX;
+				InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 				light_table_index = 0;
 				cel_transparency_active = TRUE;
 
-				pBuff = frame_width == INV_SLOT_SIZE_PX
-				    ? &gpBuffer[SCREENXY(RIGHT_PANEL_X + 197, SCREEN_Y)]
-				    : &gpBuffer[SCREENXY(RIGHT_PANEL_X + 183, SCREEN_Y)];
-
+				if (frame_width == INV_SLOT_SIZE_PX)
+					screen_x += INV_SLOT_SIZE_PX / 2;
+				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
+					screen_y -= INV_SLOT_SIZE_PX / 2;
+				pBuff = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];				
 				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
 
 				cel_transparency_active = FALSE;
