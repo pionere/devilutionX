@@ -1069,9 +1069,6 @@ void InitMonsters()
 	if (!setlevel) {
 		for (i = 0; i < MAX_PLRS; i++)
 			AddMonster(1, 0, 0, 0, FALSE);
-
-		if (currlevel == 16)
-			LoadDiabMonsts();
 	}
 	nt = numtrigs;
 	if (currlevel == 15)
@@ -1968,10 +1965,7 @@ static BOOL MonDoStand(int mnum)
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mType == MT_GOLEM)
-		mon->_mAnimData = mon->_mAnims[MA_WALK].Data[mon->_mdir];
-	else
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[mon->_mType != MT_GOLEM ? MA_STAND : MA_WALK].Data[mon->_mdir];
 
 	if (mon->_mAnimFrame == mon->_mAnimLen)
 		MonEnemy(mnum);
@@ -2952,9 +2946,6 @@ void MAI_Zombie(int mnum)
 			MonStartAttack(mnum);
 		}
 	}
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[mon->_mdir];
 }
 
 void MAI_SkelSd(int mnum)
@@ -2989,9 +2980,6 @@ void MAI_SkelSd(int mnum)
 			MonStartDelay(mnum, 2 * (5 - mon->_mint) + random_(105, 10));
 		}
 	}
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 static BOOL MAI_Path(int mnum)
@@ -3009,8 +2997,6 @@ static BOOL MAI_Path(int mnum)
 		if (mon->_mmode != MM_STAND)
 			return FALSE;
 		if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
-			return FALSE;
-		if (mon->_mx == 1 && mon->_my == 0)
 			return FALSE;
 	}
 
@@ -3115,8 +3101,6 @@ void MAI_Snake(int mnum)
 		} else
 			MonStartDelay(mnum, 10 - mon->_mint + random_(105, 10));
 	}
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[mon->_mdir];
 }
 
 void MAI_Bat(int mnum)
@@ -3178,9 +3162,6 @@ void MAI_Bat(int mnum)
 			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, RandRange(1, 10), 0);
 		}
 	}
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_SkelBow(int mnum)
@@ -3220,9 +3201,6 @@ void MAI_SkelBow(int mnum)
 				MonStartRAttack(mnum, MIS_ARROW, 0);
 		}
 	}
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Fat(int mnum)
@@ -3255,9 +3233,6 @@ void MAI_Fat(int mnum)
 	} else if (v < 4 * mon->_mint + 20) {
 		MonStartSpAttack(mnum);
 	}
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Sneak(int mnum)
@@ -3317,10 +3292,8 @@ void MAI_Sneak(int mnum)
 					}
 				}
 			}
-			if (mon->_mmode == MM_STAND) {
-				if (dist >= 2 || v >= 4 * mon->_mint + 10)
-					mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
-				else
+			if (mon->_mmode == MM_STAND
+			 && (dist < 2 && v < 4 * mon->_mint + 10)) {
 					MonStartAttack(mnum);
 			}
 		}
@@ -3479,9 +3452,6 @@ void MAI_Cleaver(int mnum)
 		MonCallWalk(mnum, md);
 	else
 		MonStartAttack(mnum);
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 static void MAI_Round(int mnum, BOOL special)
@@ -3536,8 +3506,6 @@ static void MAI_Round(int mnum, BOOL special)
 					MonStartAttack(mnum);
 			}
 		}
-		if (mon->_mmode == MM_STAND)
-			mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 	}
 }
 
@@ -3581,8 +3549,6 @@ static void MAI_Ranged(int mnum, int mitype, BOOL special)
 					MonStartRSpAttack(mnum, mitype, 0);
 				else
 					MonStartRAttack(mnum, mitype, 0);
-			} else {
-				mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 			}
 		}
 	} else if (mon->_msquelch != 0) {
@@ -4076,8 +4042,6 @@ void MAI_SkelKing(int mnum)
 				}
 			}
 		}
-		if (mon->_mmode == MM_STAND)
-			mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 	}
 }
 
@@ -4143,8 +4107,6 @@ void MAI_Rhino(int mnum)
 				}
 			}
 		}
-		if (mon->_mmode == MM_STAND)
-			mon->_mAnimData = mon->_mAnims[MA_STAND].Data[mon->_mdir];
 	}
 }
 
@@ -4207,9 +4169,6 @@ void MAI_Horkdemon(int mnum)
 				MonStartDelay(mnum, RandRange(10, 19));
 			}
 		}
-	}
-	if (mon->_mmode == MM_STAND) {
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[mon->_mdir];
 	}
 }
 #endif
@@ -4315,9 +4274,6 @@ void MAI_Garbud(int mnum)
 		MAI_Round(mnum, TRUE);
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Zhar(int mnum)
@@ -4354,9 +4310,6 @@ void MAI_Zhar(int mnum)
 		MAI_Counselor(mnum);
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_SnotSpil(int mnum)
@@ -4404,9 +4357,6 @@ void MAI_SnotSpil(int mnum)
 	}
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Lazurus(int mnum)
@@ -4451,9 +4401,6 @@ void MAI_Lazurus(int mnum)
 	}
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND || mon->_mmode == MM_TALK)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Lazhelp(int mnum)
@@ -4484,8 +4431,6 @@ void MAI_Lazhelp(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL)
 		MAI_Succ(mnum);
 	mon->_mdir = md;
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Lachdanan(int mnum)
@@ -4519,9 +4464,6 @@ void MAI_Lachdanan(int mnum)
 	}
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void MAI_Warlord(int mnum)
@@ -4552,9 +4494,6 @@ void MAI_Warlord(int mnum)
 		MAI_SkelSd(mnum);
 
 	mon->_mdir = md;
-
-	if (mon->_mmode == MM_STAND || mon->_mmode == MM_TALK)
-		mon->_mAnimData = mon->_mAnims[MA_STAND].Data[md];
 }
 
 void DeleteMonsterList()
@@ -4594,7 +4533,6 @@ void ProcessMonsters()
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		mon = &monster[mnum];
-		raflag = FALSE;
 		if (gbMaxPlayers != 1) {
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = GetRndSeed();
@@ -4649,7 +4587,7 @@ void ProcessMonsters()
 				mon->_msquelch--;
 			}
 		}
-		do {
+		while (TRUE) {
 			if (!(mon->_mFlags & MFLAG_SEARCH)) {
 				AiProc[mon->_mAi](mnum);
 			} else if (!MAI_Path(mnum)) {
@@ -4712,12 +4650,15 @@ void ProcessMonsters()
 				break;
 			default:
 				ASSUME_UNREACHABLE
+				raflag = FALSE;
 				break;
 			}
 			if (raflag) {
 				GroupUnity(mnum);
+				continue;
 			}
-		} while (raflag);
+			break;
+		}
 		if (mon->_mmode != MM_STONE) {
 			mon->_mAnimCnt++;
 			if (!(mon->_mFlags & MFLAG_ALLOW_SPECIAL) && mon->_mAnimCnt >= mon->_mAnimDelay) {
