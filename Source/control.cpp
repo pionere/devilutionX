@@ -174,11 +174,16 @@ const BYTE SpellITbl[NUM_SPELLS] = {
 	35,// SPL_RUNEIMMOLAT
 	35,// SPL_RUNESTONE
 	40,// SPL_WHITTLE
-#endif
 	28,// SPL_WALK
 	32,// SPL_WATTACK
 	48,// SPL_ATTACK
 	45,// SPL_BLOCK
+#else
+	28,// SPL_WALK
+	32,// SPL_WATTACK
+	22,// SPL_ATTACK
+	19,// SPL_BLOCK
+#endif
 };
 const int PanBtnPos[NUM_PANBTNS][2] = {
 	// clang-format off
