@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void CheckDungeonClear();
 #ifdef _DEBUG
+void CheckDungeonClear();
 extern BYTE *pSquareCel;
 
 void LoadDebugGFX();

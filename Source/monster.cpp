@@ -627,13 +627,6 @@ static void PlaceMonster(int mnum, int mtype, int x, int y)
 {
 	int dir;
 
-#ifdef HELLFIRE
-	if (Monsters[mtype].mtype == MT_NAKRUL) {
-		for (int i = 0; i < nummonsters; i++)
-			if (monster[i]._mMTidx == mtype || monster[i]._mType == MT_NAKRUL)
-				return;
-	}
-#endif
 	dMonster[x][y] = mnum + 1;
 
 	dir = random_(90, 8);
@@ -647,7 +640,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	int count2;
 	char filestr[64];
 	BOOL done;
-	UniqMonstStruct *uniqm;
+	const UniqMonstStruct *uniqm;
 	MonsterStruct *mon;
 	int count;
 
@@ -664,30 +657,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		}
 	}
 
-	while (TRUE) {
-		xp = random_(91, DSIZEX) + DBORDERX;
-		yp = random_(91, DSIZEY) + DBORDERY;
-		count2 = 0;
-		for (x = xp - 3; x < xp + 3; x++) {
-			for (y = yp - 3; y < yp + 3; y++) {
-				if (MonstPlace(x, y)) {
-					count2++;
-				}
-			}
-		}
-
-		if (count2 < 9) {
-			count++;
-			if (count < 1000) {
-				continue;
-			}
-		}
-
-		if (MonstPlace(xp, yp)) {
-			break;
-		}
-	}
-
+	xp = -1;
 	switch (uniqindex) {
 	case UMT_SKELKING:
 		if (gbMaxPlayers == 1) {
@@ -755,6 +725,32 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		UberDiabloMonsterIndex = nummonsters;
 		break;
 #endif
+	}
+
+	if (xp == -1) {
+		while (TRUE) {
+			xp = random_(91, DSIZEX) + DBORDERX;
+			yp = random_(91, DSIZEY) + DBORDERY;
+			count2 = 0;
+			for (x = xp - 3; x < xp + 3; x++) {
+				for (y = yp - 3; y < yp + 3; y++) {
+					if (MonstPlace(x, y)) {
+						count2++;
+					}
+				}
+			}
+
+			if (count2 < 9) {
+				count++;
+				if (count < 1000) {
+					continue;
+				}
+			}
+
+			if (MonstPlace(xp, yp)) {
+				break;
+			}
+		}
 	}
 
 	PlaceMonster(nummonsters, uniqtype, xp, yp);
@@ -946,38 +942,44 @@ static void PlaceQuestMonsters()
 		}
 
 		if (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
-			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
-			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
-			PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
-			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
-			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
-		}
-#ifdef HELLFIRE
-		if (currlevel == 24) {
-			UberDiabloMonsterIndex = -1;
-			int i1;
-			for (i1 = 0; i1 < nummtypes; i1++) {
-				if (Monsters[i1].mtype == UniqMonst[UMT_NAKRUL].mtype)
-					break;
-			}
 
-			if (i1 < nummtypes) {
-				for (int i2 = 0; i2 < nummonsters; i2++) {
-					if (monster[i2]._uniqtype != 0 || monster[i2]._mMTidx == i1) {
-						UberDiabloMonsterIndex = i2;
-						break;
-					}
-				}
-			}
-			if (UberDiabloMonsterIndex == -1)
-				PlaceUniqueMonst(UMT_NAKRUL, 0, 0);
+			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
+			assert(UniqMonst[UMT_RED_VEX].mtype == UniqMonst[UMT_BLACKJADE].mtype);
+			PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
+			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
+			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 		}
+		if (currlevel == 16) {
+			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
+			SetMapMonsters(setp, 2 * diabquad1x, 2 * diabquad1y);
+			mem_free_dbg(setp);
+			setp = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
+			SetMapMonsters(setp, 2 * diabquad2x, 2 * diabquad2y);
+			mem_free_dbg(setp);
+			setp = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
+			SetMapMonsters(setp, 2 * diabquad3x, 2 * diabquad3y);
+			mem_free_dbg(setp);
+			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
+			SetMapMonsters(setp, 2 * diabquad4x, 2 * diabquad4y);
+			mem_free_dbg(setp);
+#ifdef HELLFIRE
+		} else if (currlevel == 24) {
+			PlaceUniqueMonst(UMT_NAKRUL, 0, 0);
 #endif
+		}
 	} else if (setlvlnum == SL_SKELKING) {
 		PlaceUniqueMonst(UMT_SKELKING, 0, 0);
+	} else if (setlvlnum == SL_VILEBETRAYER) {
+		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
+		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
+		assert(UniqMonst[UMT_RED_VEX].mtype == UniqMonst[UMT_BLACKJADE].mtype);
+		PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
+		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
+		PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 	}
 }
 
@@ -1050,24 +1052,6 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 	}
 }
 
-static void LoadDiabMonsts()
-{
-	BYTE *lpSetPiece;
-
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
-	SetMapMonsters(lpSetPiece, 2 * diabquad1x, 2 * diabquad1y);
-	mem_free_dbg(lpSetPiece);
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
-	SetMapMonsters(lpSetPiece, 2 * diabquad2x, 2 * diabquad2y);
-	mem_free_dbg(lpSetPiece);
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
-	SetMapMonsters(lpSetPiece, 2 * diabquad3x, 2 * diabquad3y);
-	mem_free_dbg(lpSetPiece);
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
-	SetMapMonsters(lpSetPiece, 2 * diabquad4x, 2 * diabquad4y);
-	mem_free_dbg(lpSetPiece);
-}
-
 void InitMonsters()
 {
 	int na, nt;
@@ -1078,8 +1062,10 @@ void InitMonsters()
 	int scattertypes[NUM_MTYPES];
 
 	numscattypes = 0;
+#ifdef _DEBUG
 	if (gbMaxPlayers != 1)
 		CheckDungeonClear();
+#endif
 	if (!setlevel) {
 		for (i = 0; i < MAX_PLRS; i++)
 			AddMonster(1, 0, 0, 0, FALSE);
@@ -1148,16 +1134,10 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	int i, j;
 	int mtype;
 
-	AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
-	for (i = 0; i < MAX_PLRS; i++)
-		AddMonster(1, 0, 0, 0, FALSE);
-	if (setlevel && setlvlnum == SL_VILEBETRAYER) {
-		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
-		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
-		AddMonsterType(UniqMonst[UMT_BLACKJADE].mtype, PLACE_UNIQUE);
-		PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
-		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
-		PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
+	if (setlevel) {
+		AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
+		for (i = 0; i < MAX_PLRS; i++)
+			AddMonster(1, 0, 0, 0, FALSE);
 	}
 	lm = (WORD *)pMap;
 	rw = SDL_SwapLE16(*lm);

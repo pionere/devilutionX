@@ -18,7 +18,7 @@ extern int MonstConvTbl[];
 #else
 extern BYTE MonstConvTbl[];
 #endif
-extern UniqMonstStruct UniqMonst[];
+extern const UniqMonstStruct UniqMonst[];
 
 #ifdef __cplusplus
 }
