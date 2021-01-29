@@ -410,7 +410,7 @@ void CheckCursMove()
 				}
 			}
 			if (pcursmonst != -1) {
-				if (monster[pcursmonst]._mFlags & (MFLAG_HIDDEN | MFLAG_GOLEM))
+				if (pcursmonst < MAX_MINIONS || monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
 					pcursmonst = -1;
 				else
 					return;
@@ -486,7 +486,7 @@ void CheckCursMove()
 			}
 		}
 		if (pcursmonst != -1) {
-			if (monster[pcursmonst]._mFlags & (MFLAG_HIDDEN | MFLAG_GOLEM))
+			if (pcursmonst < MAX_MINIONS || monster[pcursmonst]._mFlags & MFLAG_HIDDEN)
 				pcursmonst = -1;
 			else
 				return;
@@ -520,8 +520,7 @@ void CheckCursMove()
 			cursmy = my + 1;
 		}
 		if (pcursmonst != -1) {
-			if (!towner[pcursmonst]._tSelFlag
-			 || (monster[pcursmonst]._mFlags & MFLAG_GOLEM))
+			if (pcursmonst < MAX_MINIONS || !towner[pcursmonst]._tSelFlag)
 				pcursmonst = -1;
 			else
 				return;

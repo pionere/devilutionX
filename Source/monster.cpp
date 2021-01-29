@@ -1067,8 +1067,8 @@ void InitMonsters()
 		CheckDungeonClear();
 #endif
 	if (!setlevel) {
-		for (i = 0; i < MAX_PLRS; i++)
-			AddMonster(1, 0, 0, 0, FALSE);
+		for (i = 0; i < MAX_MINIONS; i++)
+			AddMonster(0, 0, 0, 0, FALSE);
 	}
 	nt = numtrigs;
 	if (currlevel == 15)
@@ -1091,8 +1091,8 @@ void InitMonsters()
 		numplacemonsters = na / 30;
 		if (gbMaxPlayers != 1)
 			numplacemonsters += numplacemonsters >> 1;
-		if (numplacemonsters > MAXMONSTERS - (MAX_PLRS + 6) - nummonsters)
-			numplacemonsters = MAXMONSTERS - (MAX_PLRS + 6) - nummonsters;
+		if (numplacemonsters > MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters)
+			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
 			if (Monsters[i].mPlaceFlags & PLACE_SCATTER) {
@@ -1133,8 +1133,8 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 
 	if (setlevel) {
 		AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
-		for (i = 0; i < MAX_PLRS; i++)
-			AddMonster(1, 0, 0, 0, FALSE);
+		for (i = 0; i < MAX_MINIONS; i++)
+			AddMonster(0, 0, 0, 0, FALSE);
 	}
 	lm = (WORD *)pMap;
 	rw = SDL_SwapLE16(*lm);
@@ -1217,13 +1217,13 @@ static void MonEnemy(int mnum)
 	int i, tnum;
 	int enemy, dist, best_dist;
 	BOOL sameroom, bestsameroom;
-	MonsterStruct *mon = &monster[mnum];
+	MonsterStruct *mon = &monster[mnum], *tmon;
 	const char tv = dTransVal[mon->_mx][mon->_my];
 
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
 	bestsameroom = FALSE;
-	if (!(mon->_mFlags & MFLAG_GOLEM)) {
+	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
 				continue;
@@ -1238,18 +1238,19 @@ static void MonEnemy(int mnum)
 			best_dist = dist;
 			bestsameroom = sameroom;
 		}
-		for (i = 0; i < MAX_PLRS; i++) {
+		for (i = 0; i < MAX_MINIONS; i++) {
+			tmon = &monster[i];
 #ifdef HELLFIRE
-			if (monster[i]._mhitpoints < (1 << 6))
+			if (tmon->_mhitpoints < (1 << 6))
 				continue;
 #endif
-			if (monster[i]._mx == 1 && monster[i]._my == 0)
+			if (MINION_INACTIVE(tmon))
 				continue;
-			dist = std::max(abs(mon->_mx - monster[i]._mx), abs(mon->_my - monster[i]._my));
+			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			if (dist >= 2 && !MonRanged(mnum)) {
 				continue;
 			}
-			sameroom = tv == dTransVal[monster[i]._mx][monster[i]._my];
+			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
 			if (sameroom == bestsameroom) {
 				if (dist >= best_dist)
 					continue;
@@ -1264,16 +1265,17 @@ static void MonEnemy(int mnum)
 			tnum = monstactive[i];
 			if (tnum == mnum)
 				continue;
+			tmon = &monster[tnum];
 #ifdef HELLFIRE
-			if (monster[tnum]._mhitpoints < (1 << 6))
+			if (tmon->_mhitpoints < (1 << 6))
 				continue;
 #endif
-			if (monster[tnum]._mx == 1 && monster[tnum]._my == 0)
+			if (MINION_INACTIVE(tmon))
 				continue;
 			if (MonTalker(tnum))
 				continue;
-			dist = std::max(abs(mon->_mx - monster[tnum]._mx), abs(mon->_my - monster[tnum]._my));
-			sameroom = tv == dTransVal[monster[tnum]._mx][monster[tnum]._my];
+			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
+			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
 			if (sameroom == bestsameroom) {
 				if (dist >= best_dist)
 					continue;
@@ -1719,8 +1721,10 @@ static void M2MStartHit(int defm, int offm, int dam)
 		dev_fatal("Invalid monster %d getting hit by monster", defm);
 	}
 	dmon = &monster[defm];
-	if ((DWORD)offm < MAX_PLRS)
+	if ((DWORD)offm < MAX_MINIONS) {
+		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->mWhoHit |= 1 << offm;
+	}
 
 	delta_monster_hp(defm, dmon->_mhitpoints, currlevel);
 	NetSendCmdDwParam2(FALSE, CMD_MONSTDAMAGE, defm, dam);
@@ -1769,7 +1773,7 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 	mon = &monster[mnum];
 	mon->_mhitpoints = 0;
 
-	if (mnum >= MAX_PLRS) {
+	if (mnum >= MAX_MINIONS) {
 		if ((DWORD)pnum < MAX_PLRS)
 			mon->mWhoHit |= 1 << pnum;
 		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->mWhoHit);
@@ -1825,8 +1829,10 @@ static void M2MStartKill(int offm, int defm)
 	dmon->_mhitpoints = 0;
 
 	if (defm >= MAX_PLRS) {
-		if (offm < MAX_PLRS)
+		if (offm < MAX_MINIONS) {
+			static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartKill requires that owner of a monster has the same id as the monster itself.");
 			dmon->mWhoHit |= 1 << offm;
+		}
 		AddPlrMonstExper(dmon->mLevel, dmon->mExp, dmon->mWhoHit);
 		SpawnLoot(defm, TRUE);
 	}
@@ -3294,7 +3300,7 @@ void MAI_Sneak(int mnum)
 			}
 			if (mon->_mmode == MM_STAND
 			 && (dist < 2 && v < 4 * mon->_mint + 10)) {
-					MonStartAttack(mnum);
+				MonStartAttack(mnum);
 			}
 		}
 	}
@@ -3924,9 +3930,7 @@ void MAI_Golum(int mnum)
 		dev_fatal("MAI_Golum: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mx == 1 && mon->_my == 0) {
-		return;
-	}
+	assert(!MINION_INACTIVE(mon));
 
 	if (mon->_mmode == MM_DEATH
 	 || mon->_mmode == MM_SPSTAND
@@ -4500,19 +4504,20 @@ void DeleteMonsterList()
 {
 	int i;
 
-	for (i = 0; i < MAX_PLRS; i++) {
+	for (i = 0; i < MAX_MINIONS; i++) {
 		if (monster[i]._mDelFlag) {
-			monster[i]._mx = 1;
+			monster[i]._mx = 0;
 			monster[i]._my = 0;
 			monster[i]._mfutx = 0;
 			monster[i]._mfuty = 0;
 			monster[i]._moldx = 0;
 			monster[i]._moldy = 0;
 			monster[i]._mDelFlag = FALSE;
+			assert(MINION_NR_INACTIVE(i));
 		}
 	}
 
-	for (i = MAX_PLRS; i < nummonsters; ) {
+	for (i = MAX_MINIONS; i < nummonsters; ) {
 		if (monster[monstactive[i]]._mDelFlag) {
 			DeleteMonster(i);
 		} else {
@@ -4531,6 +4536,8 @@ void ProcessMonsters()
 
 	assert((DWORD)nummonsters <= MAXMONSTERS);
 	for (i = 0; i < nummonsters; i++) {
+		if (i < MAX_MINIONS && MINION_NR_INACTIVE(i))
+			continue;
 		mnum = monstactive[i];
 		mon = &monster[mnum];
 		if (gbMaxPlayers != 1) {
@@ -5391,6 +5398,7 @@ void SpawnGolum(int mnum, int x, int y, int level)
 {
 	MonsterStruct *mon;
 
+	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolum requires that owner of a monster has the same id as the monster itself.");
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolum: Invalid monster %d", mnum);
 	}
@@ -5403,7 +5411,6 @@ void SpawnGolum(int mnum, int x, int y, int level)
 	mon->_moldx = x;
 	mon->_moldy = y;
 	mon->_pathcount = 0;
-	mon->_mFlags |= MFLAG_GOLEM;
 	mon->mArmorClass = 25;
 	mon->_mmaxhp = 2 * (320 * level + plr[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;

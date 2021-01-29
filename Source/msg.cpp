@@ -496,7 +496,7 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 	pD->_menemy = pSync->_menemy;
 }
 
-static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
+static void delta_sync_golem(TCmdGolem *pG, int mnum, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
@@ -504,7 +504,7 @@ static void delta_sync_golem(TCmdGolem *pG, int pnum, BYTE bLevel)
 		return;
 
 	sgbDeltaChanged = TRUE;
-	pD = &sgLevels[bLevel].monster[pnum];
+	pD = &sgLevels[bLevel].monster[mnum];
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
 	pD->_mactive = UCHAR_MAX;
@@ -881,14 +881,9 @@ void DeltaLoadLevel()
 					AddDead(i);
 				} else {
 					decode_enemy(i, mstr->_menemy);
-					if (mon->_mx && mon->_mx != 1 || mon->_my)
+					if (i >= MAX_MINIONS || !(MINION_INACTIVE(mon)))
 						dMonster[mon->_mx][mon->_my] = i + 1;
-					if (i < MAX_PLRS) {
-						MAI_Golum(i);
-						mon->_mFlags |= (MFLAG_TARGETS_MONSTER | MFLAG_GOLEM);
-					} else {
-						MonStartStand(i, mon->_mdir);
-					}
+					MonStartStand(i, mon->_mdir);
 					mon->_msquelch = mstr->_mactive;
 				}
 			}

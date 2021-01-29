@@ -87,6 +87,7 @@
 
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS				4
+#define MAX_MINIONS				MAX_PLRS
 
 #define MAX_CHARACTERS			10
 #ifdef HELLFIRE

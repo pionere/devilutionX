@@ -1970,9 +1970,10 @@ void RemovePlrMissiles(int pnum)
 {
 	int i, mi;
 
-	if (currlevel != 0 && pnum == myplr && (monster[myplr]._mx != 1 || monster[myplr]._my != 0)) {
-		MonStartKill(myplr, myplr);
-		AddDead(myplr);
+	static_assert(MAX_MINIONS == MAX_PLRS, "RemovePlrMissiles requires that owner of a monster has the same id as the monster itself.");
+	if (currlevel != 0 && pnum == myplr && !(MINION_NR_INACTIVE(pnum))) {
+		MonStartKill(pnum, pnum);
+		AddDead(pnum);
 		DeleteMonsterList();
 	}
 

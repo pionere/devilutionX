@@ -568,7 +568,7 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 		if (resist) {
 			PlayEffect(mnum, 1);
 		} else {
-			if (mnum >= MAX_PLRS)
+			if (mnum >= MAX_MINIONS)
 				MonStartHit(mnum, -1, dam);
 		}
 	}
@@ -659,7 +659,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 			if (mon->_mmode != MM_STONE && mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
 				MonGetKnockback(mnum);
 			}
-			if (mnum >= MAX_PLRS)
+			if (mnum >= MAX_MINIONS)
 				MonStartHit(mnum, pnum, dam);
 		}
 	}
@@ -981,7 +981,7 @@ static BOOL MonMissHit(int mnum, int mi, int mindam, int maxdam, int shift)
 					mis->_miDist, mis->_miType, shift);
 		} else {
 			// monster vs. golem
-			return mnum < MAX_PLRS && MonsterTrapHit(mnum, mindam, maxdam,
+			return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mindam, maxdam,
 				mis->_miDist, mis->_miType, shift);
 		}
 	} else {
@@ -2231,7 +2231,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 				mid = dMonster[tx][ty];
 				mid = mid >= 0 ? mid - 1 : -1 - mid;
-				if (mid < MAX_PLRS)
+				if (mid < MAX_MINIONS)
 					continue;
 				mon = &monster[mid];
 				if (mon->_mAi != AI_DIABLO) {
@@ -2284,7 +2284,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
-	if ((monster[misource]._mx != 1 || monster[misource]._my != 0) && misource == myplr)
+	if (!(MINION_NR_INACTIVE(misource)) && misource == myplr)
 		MonStartKill(misource, misource);
 	return MIRES_DONE;
 }
@@ -2841,7 +2841,7 @@ static BOOL Sentfire(int mi, int sx, int sy)
 
 	mis = &missile[mi];
 	if (LineClear(mis->_mix, mis->_miy, sx, sy)) {
-		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_PLRS) {
+		if (dMonster[sx][sy] > 0 && monster[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6) && dMonster[sx][sy] - 1 >= MAX_MINIONS) {
 			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;
@@ -2866,7 +2866,7 @@ void MI_Golem(int mi)
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
 	src = mis->_miSource;
-	if (monster[src]._mx == 1 && monster[src]._my == 0) {
+	if (MINION_NR_INACTIVE(src)) {
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
