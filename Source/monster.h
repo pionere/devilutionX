@@ -8,6 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MINION_INACTIVE(x)		((x->_mx | x->_my) == 0)
+#define MINION_NR_INACTIVE(x)		((monster[x]._mx | monster[x]._my) == 0)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,7 +25,6 @@ extern int nummtypes;
 void InitLevelMonsters();
 void GetLevelMTypes();
 void InitMonsterGFX(int midx);
-void ClrAllMonsters();
 #ifdef HELLFIRE
 void WakeUberDiablo();
 #endif

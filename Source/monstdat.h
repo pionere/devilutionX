@@ -24,7 +24,7 @@ extern BYTE MonstConvTbl[];
 extern BYTE MonstAvailTbl[];
 #endif
 #endif
-extern UniqMonstStruct UniqMonst[];
+extern const UniqMonstStruct UniqMonst[];
 
 #ifdef __cplusplus
 }

@@ -1843,7 +1843,7 @@ typedef enum monster_flag {
 	MFLAG_ALLOW_SPECIAL   = 0x04,
 	MFLAG_NOHEAL          = 0x08,
 	MFLAG_TARGETS_MONSTER = 0x10,
-	MFLAG_GOLEM           = 0x20,
+	//MFLAG_GOLEM           = 0x20,
 	MFLAG_QUEST_COMPLETE  = 0x40,
 	MFLAG_KNOCKBACK       = 0x80,
 	MFLAG_SEARCH          = 0x100,

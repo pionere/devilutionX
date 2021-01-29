@@ -55,7 +55,7 @@ void InitDead()
 	stonendx = nd + 1;
 	nd++;
 
-	for (i = 0; i < nummonsters; i++) {
+	for (i = MAX_MINIONS; i < nummonsters; i++) {
 		mon = &monster[monstactive[i]];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
@@ -77,7 +77,7 @@ void AddDead(int mnum)
 	MonsterStruct *mon;
 	int dx, dy, dir, dv;
 
-	if (mnum >= MAX_PLRS)
+	if (mnum >= MAX_MINIONS)
 		MonUpdateLeader(mnum);
 
 	mon = &monster[mnum];
@@ -93,16 +93,17 @@ void AddDead(int mnum)
 
 void SetDead()
 {
-	int i, mi;
+	MonsterStruct *mon;
+	int i;
 	int dx, dy;
 
 	for (i = 0; i < nummonsters; i++) {
-		mi = monstactive[i];
-		if (monster[mi].mlid != 0) {
+		mon = &monster[monstactive[i]];
+		if (mon->mlid != 0 && mon->_mDelFlag) {
 			for (dx = 0; dx < MAXDUNX; dx++) {
 				for (dy = 0; dy < MAXDUNY; dy++) {
-					if ((dDead[dx][dy] & 0x1F) == monster[mi]._udeadval)
-						ChangeLightXY(monster[mi].mlid, dx, dy);
+					if ((dDead[dx][dy] & 0x1F) == mon->_udeadval)
+						ChangeLightXY(mon->mlid, dx, dy);
 				}
 			}
 		}

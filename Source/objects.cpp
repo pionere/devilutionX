@@ -3993,13 +3993,13 @@ static void OperateBookCase(int pnum, int oi, BOOLEAN sendmsg)
 			SetRndSeed(os->_oRndSeed);
 			CreateTypeItem(os->_ox, os->_oy, FALSE, ITYPE_MISC, IMISC_BOOK, sendmsg, FALSE);
 			if (QuestStatus(Q_ZHAR)
-			    && (monster[MAX_PLRS]._uniqtype - 1) == UMT_ZHAR
-			    && monster[MAX_PLRS]._msquelch == UCHAR_MAX
-			    && monster[MAX_PLRS]._mhitpoints != 0) {
-				monster[MAX_PLRS].mtalkmsg = TEXT_ZHAR2;
-				MonStartStand(0, monster[MAX_PLRS]._mdir);
-				monster[MAX_PLRS]._mgoal = MGOAL_ATTACK2;
-				monster[MAX_PLRS]._mmode = MM_TALK;
+			    && (monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR
+			    && monster[MAX_MINIONS]._msquelch == UCHAR_MAX
+			    && monster[MAX_MINIONS]._mhitpoints != 0) {
+				monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
+				MonStartStand(0, monster[MAX_MINIONS]._mdir);
+				monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
+				monster[MAX_MINIONS]._mmode = MM_TALK;
 			}
 			if (pnum == myplr)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);

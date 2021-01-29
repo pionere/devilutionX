@@ -1733,7 +1733,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 
 	music_stop();
 	NewCursor(CURSOR_HAND);
-	SetRndSeed(glSeedTbl[currlevel]);
+	//SetRndSeed(glSeedTbl[currlevel]);
 	IncProgress();
 	MakeLightTable();
 	LoadLvlGFX();
@@ -1750,12 +1750,10 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		InitStores();
 		InitAutomapOnce();
 		InitHelp();
+		InitControlPan();
 	}
 
-	SetRndSeed(glSeedTbl[currlevel]);
-
-	if (leveltype == DTYPE_TOWN)
-		SetupTownStores();
+	//SetRndSeed(glSeedTbl[currlevel]);
 
 	IncProgress();
 	InitAutomap();
@@ -1772,13 +1770,13 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		CreateLevel(lvldir);
 		IncProgress();
 		FillSolidBlockTbls();
-		SetRndSeed(glSeedTbl[currlevel]);
-
 		if (leveltype != DTYPE_TOWN) {
+			SetRndSeed(glSeedTbl[currlevel]);
 			GetLevelMTypes();
 			InitThemes();
 			LoadAllGFX();
 		} else {
+			SetupTownStores();
 			IncProgress();
 			IncProgress();
 			InitMissileGFX();
@@ -1846,10 +1844,10 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			InitMissiles();
 			IncProgress();
 
-			if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currlevel] && gbMaxPlayers == 1)
-				LoadLevel();
 			if (gbMaxPlayers != 1)
 				DeltaLoadLevel();
+			else if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currlevel])
+				LoadLevel();
 
 			IncProgress();
 		}
@@ -1882,6 +1880,13 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 					InitPlayer(i, firstflag);
 			}
 		}
+#ifndef SPAWN
+		//PlayDungMsgs();
+		if (setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE) {
+			sfxdelay = 30;
+			sfxdnum = USFX_SKING1;
+		}
+#endif
 		IncProgress();
 		IncProgress();
 
@@ -1917,9 +1922,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	IncProgress();
 	IncProgress();
 
-	if (firstflag) {
-		InitControlPan();
-	}
 	IncProgress();
 	if (leveltype != DTYPE_TOWN) {
 		ProcessLightList();
@@ -1943,11 +1945,6 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 
 	while (!IncProgress())
 		;
-
-#ifndef SPAWN
-	if (setlevel && setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
-		PlaySFX(USFX_SKING1);
-#endif
 }
 
 static void game_logic()

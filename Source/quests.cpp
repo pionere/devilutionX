@@ -247,7 +247,7 @@ void CheckQuests()
 		if (setlvlnum == qs->_qslvl
 		 && qs->_qactive != QUEST_INIT
 		 //&& leveltype == qs->_qlvltype
-		 && nummonsters == MAX_PLRS
+		 && nummonsters == MAX_MINIONS
 		 && qs->_qactive != QUEST_DONE) {
 			qs->_qactive = QUEST_DONE;
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
