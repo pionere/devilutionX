@@ -2494,11 +2494,11 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	}
 
 	if (p->_pILifeSteal != 0) {
-		skdam = (dam * 100 * p->_pILifeSteal) >> 7;
+		skdam = (dam * p->_pILifeSteal) >> 7;
 		PlrIncHp(pnum, skdam);
 	}
 	if (p->_pIManaSteal != 0) {
-		skdam = (dam * 100 * p->_pIManaSteal) >> 7;
+		skdam = (dam * p->_pIManaSteal) >> 7;
 		PlrIncMana(pnum, skdam);
 	}
 	if (p->_pIFlags & ISPL_NOHEALMON) {
@@ -2590,7 +2590,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 
 	if (ops->_pILifeSteal != 0) {
-		skdam = (dam * 100 * ops->_pILifeSteal) >> 7;
+		skdam = (dam * ops->_pILifeSteal) >> 7;
 		PlrIncHp(offp, skdam);
 	}
 	if (offp == myplr) {
