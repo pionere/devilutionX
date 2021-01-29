@@ -152,23 +152,18 @@ void InitLevelMonsters()
 {
 	int i;
 
+	nummonsters = 0;
 	nummtypes = 0;
 	monstimgtot = 0;
 	MissileFileFlag = 0;
+	uniquetrans = 0;
 
-	for (i = 0; i < MAX_LVLMTYPES; i++) {
-		Monsters[i].mPlaceFlags = 0;
-	}
+	memset(monster, 0, sizeof(monster));
 
-	ClrAllMonsters();
-	nummonsters = 0;
 	totalmonsters = MAXMONSTERS;
-
 	for (i = 0; i < MAXMONSTERS; i++) {
 		monstactive[i] = i;
 	}
-
-	uniquetrans = 0;
 }
 
 static int AddMonsterType(int type, int placeflag)
@@ -181,6 +176,7 @@ static int AddMonsterType(int type, int placeflag)
 	if (i == nummtypes) {
 		nummtypes++;
 		Monsters[i].mtype = type;
+		Monsters[i].mPlaceFlags = 0;
 		monstimgtot += monsterdata[type].mImage;
 		InitMonsterGFX(i);
 		InitMonsterSND(i);
@@ -578,23 +574,6 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
 		mon->mArmorClass += HELL_AC_BONUS;
 		mon->mMagicRes = cmon->MData->mMagicRes2;
-	}
-}
-
-void ClrAllMonsters()
-{
-	int i;
-	MonsterStruct *mon;
-
-	memset(monster, 0, sizeof(monster));
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		mon = &monster[i];
-		mon->mName = "Invalid Monster";
-		mon->_mdir = random_(89, 8);
-		mon->_menemy = random_(89, gbActivePlayers);
-		mon->_menemyx = plr[mon->_menemy]._pfutx;
-		mon->_menemyy = plr[mon->_menemy]._pfuty;
 	}
 }
 

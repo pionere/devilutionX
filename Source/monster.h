@@ -25,7 +25,6 @@ extern int nummtypes;
 void InitLevelMonsters();
 void GetLevelMTypes();
 void InitMonsterGFX(int midx);
-void ClrAllMonsters();
 #ifdef HELLFIRE
 void WakeUberDiablo();
 #endif
