@@ -26,7 +26,7 @@ const MissileData missiledata[] = {
 	{  MIS_FLASH2,        &AddFlash2,                 &MI_Flash2,         TRUE,      1,               MIFLAG_NOBLOCK, MISR_MAGIC,     MFILE_BLUEXBK,   -1,          -1,          1,        1        },
 	{  MIS_MANASHIELD,    &AddManashield,             &MI_Dummy,          FALSE,     1,                            0, MISR_NONE,      MFILE_NONE,      LS_MSHIELD,  -1,          1,        1        },
 	{  MIS_FIREWAVE,      &AddFireWave,               &MI_FireWave,       TRUE,      1,                  MIFLAG_AREA, MISR_FIRE,      MFILE_FIREWAL,   -1,          -1,          1,        1        },
-	{  MIS_CHAIN,         &AddChain,                  &MI_Chain,          TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1        },
+	{  MIS_CHAIN,         &AddChain,                  &MI_Chain,          TRUE,      1,               MIFLAG_NOBLOCK, MISR_LIGHTNING, MFILE_LGHNING,   LS_LNING1,   LS_ELECIMP1, 1,        1        },
 //	{  MIS_SENTINAL,      NULL,                       NULL,               TRUE,      1,                            0, MISR_LIGHTNING, MFILE_LGHNING,   -1,          -1,          1,        1        },
 	//{  MIS_BLODSTAR,      &miss_null_11,              &mi_null_11,        TRUE,      2,                            0, MISR_NONE,      MFILE_BLOOD,     LS_BLODSTAR, LS_BLSIMPT,  1,        1        },
 	//{  MIS_BONE,          &miss_null_12,              &mi_null_11,        TRUE,      2,                            0, MISR_NONE,      MFILE_BONE,      -1,          -1,          1,        1        },

@@ -43,7 +43,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*maxd = -1;
 		break;
 	case SPL_LIGHTNING:
-		*mind = 2;
+		*mind = 1;
 		*maxd = p->_pLevel + 2;
 		break;
 	case SPL_FLASH:
@@ -107,8 +107,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*maxd = k + 10;
 		break;
 	case SPL_CHAIN:
-		*mind = 4;
-		*maxd = 2 * p->_pLevel + 4;
+		*mind = 1;
+		*maxd = p->_pLevel + 2;
 		break;
 	case SPL_WAVE:
 		*mind = 6 * (p->_pLevel + 1);
@@ -170,31 +170,53 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	}
 }
 
-static int FindClosest(int sx, int sy, int rad)
+static BOOLEAN FindClosest(int sx, int sy, int &dx, int &dy)
 {
 	int j, i, mid, tx, ty;
 	const char *cr;
 
-	if (rad > 19)
-		rad = 19;
-
-	for (i = 1; i < rad; i++) {
+	for (i = 1; i < 16; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-		for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
 		for (j = (BYTE)*cr; j > 0; j--) {
-#endif
 			tx = sx + *++cr;
 			ty = sy + *++cr;
-			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				mid = dMonster[tx][ty];
-				if (mid > 0 && LineClearF(CheckNoSolid, sx, sy, tx, ty))
-					return mid - 1;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			mid = dMonster[tx][ty];
+			if (mid > 0
+			 && monster[mid - 1]._mhitpoints >= (1 << 6)
+			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
+				dx = tx;
+				dy = ty;
+				return TRUE;
 			}
 		}
 	}
-	return -1;
+	return FALSE;
+}
+
+static BOOLEAN FindClosestChain(int sx, int sy, int &dx, int &dy)
+{
+	int j, i, mid, tx, ty;
+	const char *cr;
+	
+	for (i = 1; i < 8; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = sx + *++cr;
+			ty = sy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			mid = dMonster[tx][ty];
+			if (mid > 0
+			 && !(monster[mid - 1].mMagicRes & IMMUNE_LIGHTNING)
+			 && monster[mid - 1]._mhitpoints >= (1 << 6)
+			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
+				dx = tx;
+				dy = ty;
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
 }
 
 /**
@@ -371,9 +393,11 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 {
 	double dxp, dyp, dr;
 
-	if (dx != sx || dy != sy) {
-		dxp = (dx + sy - sx - dy) * (1 << 21);
-		dyp = (dy + dx - sx - sy) * (1 << 21);
+	dx -= sx;
+	dy -= sy;
+	if (dx != 0 || dy != 0) {
+		dxp = (dx - dy) << 21;
+		dyp = (dy + dx) << 21;
 		dr = sqrt(dxp * dxp + dyp * dyp);
 		missile[mi]._mixvel = (dxp * (v << 16)) / dr;
 		missile[mi]._miyvel = (dyp * (v << 15)) / dr;
@@ -409,10 +433,10 @@ static void GetMissilePos(int mi)
 
 	mis = &missile[mi];
 	mx = mis->_mitxoff >> 16;
-	my = mis->_mityoff >> 16;
+	my = mis->_mityoff >> 15;
 
-	dx = mx + 2 * my;
-	dy = 2 * my - mx;
+	dx = mx + my;
+	dy = my - mx;
 	lx = dx / 8;
 	dx = dx / 64;
 	ly = dy / 8;
@@ -421,7 +445,7 @@ static void GetMissilePos(int mi)
 	mis->_mix = dx + mis->_misx;
 	mis->_miy = dy + mis->_misy;
 	mis->_mixoff = mx + (dy * 32) - (dx * 32);
-	mis->_miyoff = my - (dx * 16) - (dy * 16);
+	mis->_miyoff = (my >> 1) - (dx * 16) - (dy * 16);
 	ChangeLightOff(mis->_miLid, lx - (dx * 8), ly - (dy * 8));
 }
 
@@ -2042,19 +2066,44 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 }
 
 /**
- * Var1: dx direction of the missile
- * Var2: dy direction of the missile
+ * Var1: remaining jumps
+ * Var2: min damage
+ * Var3: max damage
  */
 int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
+	int mindam, maxdam;
 
 	assert((DWORD)misource < MAX_PLRS);
 
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	GetMissileVel(mi, sx, sy, dx, dy, 32);
+
+	//if (misource != -1) {
+	//	if (micaster == 0) {
+			mindam = 1;
+			maxdam = plr[misource]._pLevel + 2;
+	//	} else {
+	//		mindam = 1;
+	//		maxdam = monster[misource].mMaxDamage;
+	//	}
+	//} else {
+	//	mindam = 1;
+	//	maxdam = 2 * currlevel;
+	//}
+
 	mis = &missile[mi];
-	mis->_miVar1 = dx;
-	mis->_miVar2 = dy;
-	mis->_miRange = 1;
+	mis->_miLid = AddLight(sx, sy, 4);
+	//assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+	mis->_miAnimFrame = random_(0, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+	mis->_miVar1 = spllvl;
+	mis->_miVar2 = mindam;
+	mis->_miVar3 = maxdam;
+	mis->_miRange = 256;
 	return MIRES_DONE;
 }
 
@@ -2654,7 +2703,6 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	assert((DWORD)mi < MAXMISSILES);
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -3434,7 +3482,6 @@ void MI_LightningC(int mi)
 	MissileStruct *mis;
 	int dam, mpnum, mx, my;
 
-	assert((DWORD)mi < MAXMISSILES);
 	mis = &missile[mi];
 	mis->_miRange--;
 
@@ -3444,20 +3491,20 @@ void MI_LightningC(int mi)
 
 	mx = mis->_mix;
 	my = mis->_miy;
-	assert((DWORD)mx < MAXDUNX);
-	assert((DWORD)my < MAXDUNY);
+	assert(IN_DUNGEON_AREA(mx, my));
 	if (!nMissileTable[dPiece[mx][my]]) {
-		if ((mx != mis->_miVar1 || my != mis->_miVar2) && mx > 0 && my > 0 && mx < MAXDUNX && my < MAXDUNY) {
+		if (mx != mis->_miVar1 || my != mis->_miVar2) {
 			mpnum = mis->_miSource;
 			if (mpnum != -1) {
 				if (mis->_miCaster == 0) {
-					dam = (RandRange(2, 3) + random_(79, plr[mpnum]._pLevel)) << 6;
+					dam = 2 + plr[mpnum]._pLevel;
 				} else {
-					dam = 2 * RandRange(monster[mpnum].mMinDamage, monster[mpnum].mMaxDamage);
+					dam = monster[mpnum].mMaxDamage;
 				}
 			} else {
-				dam = random_(81, currlevel) + 2 * currlevel;
+				dam = 2 * currlevel;
 			}
+			dam = RandRange(1, dam);
 
 			AddMissile(
 			    mx,
@@ -3477,7 +3524,7 @@ void MI_LightningC(int mi)
 		if (mis->_miSource != -1 || mx != mis->_misx || my != mis->_misy)
 			mis->_miRange = 0;
 	}
-	if (mis->_miRange == 0 || mx <= 0 || my <= 0 || mx >= MAXDUNX || my > MAXDUNY) {
+	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 	}
 }
@@ -3490,7 +3537,7 @@ void MI_Lightning(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -3661,8 +3708,6 @@ void MI_Guardian(int mi)
 	BOOL ex;
 	const char *cr;
 
-	assert((DWORD)mi < MAXMISSILES);
-
 	mis = &missile[mi];
 	mis->_miRange--;
 
@@ -3712,36 +3757,51 @@ void MI_Guardian(int mi)
 void MI_Chain(int mi)
 {
 	MissileStruct *mis;
-	int sx, sy, src, i, j, rad, tx, ty, dir;
-	const char *cr;
+	int mx, my, range, sd, dx, dy;
 
 	mis = &missile[mi];
-	src = mis->_miSource;
-	sx = mis->_mix;
-	sy = mis->_miy;
-	dir = GetDirection(sx, sy, mis->_miVar1, mis->_miVar2);
-	AddMissile(sx, sy, mis->_miVar1, mis->_miVar2, dir, MIS_LIGHTNINGC, 0, src, 1, mis->_miSpllvl);
-	rad = mis->_miSpllvl + 3;
-	if (rad > 19)
-		rad = 19;
-	for (i = 1; i < rad; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-#ifdef HELLFIRE
-		for (j = *cr; j > 0; j--) { // BUGFIX: should cast to BYTE or CrawlTable header will be wrong
-#else
-		for (j = (BYTE)*cr; j > 0; j--) {
-#endif
-			tx = sx + *++cr;
-			ty = sy + *++cr;
-			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY && dMonster[tx][ty] > 0) {
-				dir = GetDirection(sx, sy, tx, ty);
-				AddMissile(sx, sy, tx, ty, dir, MIS_LIGHTNINGC, 0, src, 1, mis->_miSpllvl);
+	mis->_miRange--;
+
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+
+	mx = mis->_mix;
+	my = mis->_miy;
+	if (mx != mis->_misx || my != mis->_misy) {
+		if (!nMissileTable[dPiece[mx][my]]) {
+			range = mis->_miRange;
+			if (CheckMissileCol(mi, mis->_miVar2, mis->_miVar3, FALSE, mis->_mix, mis->_miy, FALSE)) {
+				if (mis->_miVar1-- != 0) {
+					// set the new position as the starting point
+					mis->_misx = mx;
+					mis->_misy = my;
+					mis->_mixoff = 0;
+					mis->_miyoff = 0;
+					mis->_mitxoff = 0;
+					mis->_mityoff = 0;
+					// restore base range
+					mis->_miRange = 256;
+					// find new target
+					if (!FindClosestChain(mx, my, dx, dy)) {
+						sd = random_(0, lengthof(offset_x));
+						dx = mx + offset_x[sd];
+						dy = my + offset_y[sd];
+					}
+					//SetMissDir(mi, sd);
+					GetMissileVel(mi, mx, my, dx, dy, 32);
+				}
 			}
+		} else {
+			mis->_miRange = 0;
 		}
 	}
-	mis->_miRange--;
-	if (mis->_miRange == 0)
+	if (mis->_miRange != 0)
+		PutMissile(mi);
+	else {
+		AddUnLight(mis->_miLid);
 		mis->_miDelFlag = TRUE;
+	}
 }
 
 void MI_WeapExp(int mi)
@@ -4036,8 +4096,6 @@ void MI_FireWaveC(int mi)
 	int sx, sy, sd, nx, ny, dir;
 	int i, j, pnum;
 
-	assert((DWORD)mi < MAXMISSILES);
-
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	sx = mis->_mix;
@@ -4273,7 +4331,7 @@ void MI_Hbolt(int mi)
 void MI_Element(int mi)
 {
 	MissileStruct *mis;
-	int mid, sd, cx, cy;
+	int sd, cx, cy, dx, dy;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -4286,16 +4344,15 @@ void MI_Element(int mi)
 	if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
 		mis->_miVar3 = TRUE;
 		mis->_miRange = 255;
-		mid = FindClosest(cx, cy, 19);
-		if (mid > 0) {
-			sd = GetDirection8(cx, cy, monster[mid]._mx, monster[mid]._my);
-			SetMissDir(mi, sd);
-			GetMissileVel(mi, cx, cy, monster[mid]._mx, monster[mid]._my, 16);
+		if (FindClosest(cx, cy, dx, dy)) {
+			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
 			sd = plr[mis->_miSource]._pdir;
-			SetMissDir(mi, sd);
-			GetMissileVel(mi, cx, cy, cx + XDirAdd[sd], cy + YDirAdd[sd], 16);
+			dx = cx + XDirAdd[sd];
+			dy = cy + YDirAdd[sd];
 		}
+		SetMissDir(mi, sd);
+		GetMissileVel(mi, cx, cy, dx, dy, 16);
 	}
 	if (cx != mis->_miVar1 || cy != mis->_miVar2) {
 		mis->_miVar1 = cx;
