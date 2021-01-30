@@ -2444,7 +2444,7 @@ int AddFirewallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 						mis->_miVar6 = ty;
 						mis->_miVar7 = FALSE;
 						mis->_miVar8 = FALSE;
-						mis->_miRange = 7;
+						mis->_miRange = 1 + (spllvl >> 1);
 						return MIRES_DONE;
 					}
 				}
@@ -2472,8 +2472,7 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 }
 
 /**
- * Var1: dx coordinate of the wave
- * Var2: dy coordinate of the wave
+ * Var1: direction of the wave
  */
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -2481,8 +2480,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	assert((DWORD)misource < MAX_PLRS);
 	mis = &missile[mi];
-	mis->_miVar1 = dx;
-	mis->_miVar2 = dy;
+	mis->_miVar1 = GetDirection8(sx, sy, dx, dy);
 	mis->_miRange = 1;
 	return MIRES_DONE;
 }
@@ -3040,29 +3038,34 @@ void MI_Acidpud(int mi)
 void MI_Firewall(int mi)
 {
 	MissileStruct *mis;
-	int ExpLight[14] = { 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
+	int ExpLight[] = { 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
 
 	mis = &missile[mi];
 	mis->_miRange--;
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
-		mis->_miAnimFrame = RandRange(1, 11);
+		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+		mis->_miAnimFrame = random_(0, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 	}
 	if (mis->_miRange == mis->_miAnimLen - 1) {
 		SetMissDir(mi, 0);
-		mis->_miAnimFrame = 13;
+		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
+		mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 		mis->_miAnimAdd = -1;
 	}
 	CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, TRUE);
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
-	} else if (mis->_miDir != 0 && mis->_miAnimAdd != -1 && mis->_miVar2 < 12) {
-		if (mis->_miVar2 == 0)
+	} else if (mis->_miDir == 0) {
+		if (mis->_miVar2 == 0) {
+			//assert(mis->_miLid == -1);
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, ExpLight[0]);
-		else
+		} else {
+			//assert(mis->_miVar2 < sizeof(ExpLight));
 			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
-		mis->_miVar2++;
+		}
+		mis->_miVar2 += mis->_miAnimAdd;
 	}
 	PutMissile(mi);
 }
@@ -3618,7 +3621,8 @@ void MI_FireWave(int mi)
 	mis->_miVar1++;
 	if (mis->_miVar1 == mis->_miAnimLen) {
 		SetMissDir(mi, 1);
-		mis->_miAnimFrame = RandRange(1, 11);
+		//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+		mis->_miAnimFrame = random_(0, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 	}
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
@@ -4038,11 +4042,11 @@ void MI_FireWaveC(int mi)
 	pnum = mis->_miSource;
 	sx = mis->_mix;
 	sy = mis->_miy;
-	sd = GetDirection(sx, sy, mis->_miVar1, mis->_miVar2);
+	sd = mis->_miVar1;
 	sx += XDirAdd[sd];
 	sy += YDirAdd[sd];
 	if (!nMissileTable[dPiece[sx][sy]]) {
-		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
+		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
 
 		for (i = -2; i <= 2; i += 4) {
 			dir = (sd + i) & 7;
@@ -4055,7 +4059,7 @@ void MI_FireWaveC(int mi)
 					break;
 				if (nMissileTable[dPiece[nx][ny]])
 					break;
-				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], plr[pnum]._pdir, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
+				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, 0, pnum, 0, mis->_miSpllvl);
 			}
 		}
 	}

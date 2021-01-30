@@ -2060,9 +2060,9 @@ static void Obj_FlameTrap(int oi)
 		x = os->_ox;
 		y = os->_oy;
 		if (dMonster[x][y] > 0)
-			MonsterTrapHit(dMonster[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALLC, FALSE);
+			MonsterTrapHit(dMonster[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALL, FALSE);
 		if (dPlayer[x][y] > 0)
-			PlayerTrapHit(dPlayer[x][y] - 1, mindam * 2, maxdam * 2, 0, MIS_FIREWALLC, FALSE);
+			PlayerTrapHit(dPlayer[x][y] - 1, mindam * 2, maxdam * 2, 0, MIS_FIREWALL, FALSE);
 
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
