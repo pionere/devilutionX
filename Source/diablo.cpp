@@ -648,7 +648,7 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != -1) {
 			PlayerStruct *p = &plr[myplr];
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pSplFrom, pcursinvitem);
+			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -680,7 +680,7 @@ BOOL TryIconCurs(BOOL bShift)
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
 			int sf = plr[myplr]._pSplFrom;
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, plr[pcursplr]._px, plr[pcursplr]._py, sn, sf, pcursplr);
+			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, plr[pcursplr]._px, plr[pcursplr]._py, sn, sf, pcursplr);
 		}
 		break;
 	case CURSOR_TELEPORT: {
@@ -688,18 +688,18 @@ BOOL TryIconCurs(BOOL bShift)
 		int sf = plr[myplr]._pSplFrom;
 		int sl = GetSpellLevel(myplr, sn);
 		if (pcursmonst != -1)
-			NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, sn, sf, sl);
+			NetSendCmdWBParam4(TRUE, CMD_SPELLID, pcursmonst, sn, sf, sl);
 		else if (pcursplr != -1)
-			NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
+			NetSendCmdWBParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		else
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, sn, sf, sl);
+			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, sn, sf, sl);
 	} break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
 			int sf = plr[myplr]._pSplFrom;
 			int sl = GetSpellLevel(myplr, sn);
-			NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
+			NetSendCmdWBParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		}
 		break;
 	default:
@@ -870,11 +870,11 @@ void AltActionBtnCmd(BOOL bShift)
 
 	sl = GetSpellLevel(myplr, rspell);
 	if (pcursmonst != -1) {
-		NetSendCmdParam4(TRUE, CMD_SPELLID, pcursmonst, rspell, sf, sl);
+		NetSendCmdWBParam4(TRUE, CMD_SPELLID, pcursmonst, rspell, sf, sl);
 	} else if (pcursplr != -1) {
-		NetSendCmdParam4(TRUE, CMD_SPELLPID, pcursplr, rspell, sf, sl);
+		NetSendCmdWBParam4(TRUE, CMD_SPELLPID, pcursplr, rspell, sf, sl);
 	} else { //145
-		NetSendCmdLocParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
+		NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
 	}
 }
 

@@ -236,7 +236,7 @@ typedef struct PlayerStruct {
 	int _pvid;
 	int _pSpell;
 	char _pSplType; // unused
-	short _pSplFrom; // char should suffice, increased only to get rid of some warnings...
+	char _pSplFrom;
 	int _pTSpell;
 	char _pTSplType; // unused
 	int _pRSpell;
@@ -826,14 +826,14 @@ typedef struct TCmdLocParam2 {
 	WORD wParam2;
 } TCmdLocParam2;
 
-typedef struct TCmdLocParam3 {
+typedef struct TCmdLocBParam3 {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
-	WORD wParam1;
-	WORD wParam2;
-	WORD wParam3;
-} TCmdLocParam3;
+	BYTE bParam1;
+	BYTE bParam2;
+	BYTE bParam3;
+} TCmdLocBParam3;
 
 typedef struct TCmdParam1 {
 	BYTE bCmd;
@@ -853,13 +853,18 @@ typedef struct TCmdParam3 {
 	WORD wParam3;
 } TCmdParam3;
 
-typedef struct TCmdParam4 {
+typedef struct TCmdWBParam4 {
 	BYTE bCmd;
 	WORD wParam1;
-	WORD wParam2;
-	WORD wParam3;
-	WORD wParam4;
-} TCmdParam4;
+	BYTE bParam2;
+	BYTE bParam3;
+	BYTE bParam4;
+} TCmdWBParam4;
+
+typedef struct TCmdBParam1 {
+	BYTE bCmd;
+	BYTE bParam1;
+} TCmdBParam1;
 
 typedef struct TCmdGolem {
 	BYTE bCmd;

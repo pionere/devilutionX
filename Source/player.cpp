@@ -906,7 +906,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	while (p->_pExperience >= p->_pNextExper) {
 		assert(p->_pLevel < MAXCHARLEVEL);
 		NextPlrLevel(pnum);
-		NetSendCmdParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
+		NetSendCmdBParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
 	}
 }
 

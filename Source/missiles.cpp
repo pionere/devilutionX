@@ -1859,9 +1859,9 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 							mis->_miDelFlag = FALSE;
 							if (misource == myplr) {
 								if (!setlevel) {
-									NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
+									NetSendCmdLocBParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
 								} else {
-									NetSendCmdLocParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
+									NetSendCmdLocBParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
 								}
 							}
 							i = 6;
@@ -1958,7 +1958,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	if (misource == myplr) {
 		if (plr[misource].pManaShield == 0)
-			NetSendCmdParam1(TRUE, CMD_SETSHIELD, spllvl);
+			NetSendCmdBParam1(TRUE, CMD_SETSHIELD, spllvl);
 		else
 			NetSendCmd(TRUE, CMD_REMSHIELD);
 	}

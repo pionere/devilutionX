@@ -1014,16 +1014,16 @@ void NetSendCmdLocParam2(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, W
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, WORD wParam2, WORD wParam3)
+void NetSendCmdLocBParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2, BYTE bParam3)
 {
-	TCmdLocParam3 cmd;
+	TCmdLocBParam3 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.x = x;
 	cmd.y = y;
-	cmd.wParam1 = wParam1;
-	cmd.wParam2 = wParam2;
-	cmd.wParam3 = wParam3;
+	cmd.bParam1 = bParam1;
+	cmd.bParam2 = bParam2;
+	cmd.bParam3 = bParam3;
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1069,15 +1069,27 @@ void NetSendCmdParam3(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD w
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdParam4(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD wParam3, WORD wParam4)
+void NetSendCmdWBParam4(BOOL bHiPri, BYTE bCmd, WORD wParam1, BYTE bParam2, BYTE bParam3, BYTE bParam4)
 {
-	TCmdParam4 cmd;
+	TCmdWBParam4 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.wParam1 = wParam1;
-	cmd.wParam2 = wParam2;
-	cmd.wParam3 = wParam3;
-	cmd.wParam4 = wParam4;
+	cmd.bParam2 = bParam2;
+	cmd.bParam3 = bParam3;
+	cmd.bParam4 = bParam4;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdBParam1(BOOL bHiPri, BYTE bCmd, BYTE bParam1)
+{
+	TCmdBParam1 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.bParam1 = bParam1;
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1679,18 +1691,18 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
+	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam1;
+		int spell = cmd->bParam1;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->wParam3; // spllvl
+			plr[pnum].destParam1 = cmd->bParam3; // spllvl
 			plr[pnum].destParam2 = cmd->x;
 			plr[pnum].destParam3 = cmd->y;
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam2; // invloc
+			plr[pnum]._pSplFrom = cmd->bParam2; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1802,17 +1814,17 @@ static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 
 static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 {
-	TCmdParam4 *cmd = (TCmdParam4 *)pCmd;
+	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam2;
+		int spell = cmd->bParam2;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLMON;
 			plr[pnum].destParam1 = cmd->wParam1; // mnum
-			plr[pnum].destParam2 = cmd->wParam4; // spllvl
+			plr[pnum].destParam2 = cmd->bParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam3; // invloc
+			plr[pnum]._pSplFrom = cmd->bParam3; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1822,17 +1834,17 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 
 static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 {
-	TCmdParam4 *cmd = (TCmdParam4 *)pCmd;
+	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->wParam2;
+		int spell = cmd->bParam2;
 		if (currlevel != 0 || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLPLR;
 			plr[pnum].destParam1 = cmd->wParam1; // pnum
-			plr[pnum].destParam2 = cmd->wParam4; // spllvl
+			plr[pnum].destParam2 = cmd->bParam4; // spllvl
 			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->wParam3; // invloc
+			plr[pnum]._pSplFrom = cmd->bParam3; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -2094,12 +2106,12 @@ static DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
 
 static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->wParam1 <= MAXCHARLEVEL && pnum != myplr)
-		plr[pnum]._pLevel = cmd->wParam1;
+	else if (cmd->bParam1 <= MAXCHARLEVEL && pnum != myplr)
+		plr[pnum]._pLevel = cmd->bParam1;
 
 	return sizeof(*cmd);
 }
@@ -2182,12 +2194,12 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 
 static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam3 *cmd = (TCmdLocParam3 *)pCmd;
+	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		ActivatePortal(pnum, cmd->x, cmd->y, cmd->wParam1, cmd->wParam2, cmd->wParam3);
+		ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1, cmd->bParam2, cmd->bParam3);
 		if (pnum != myplr) {
 			if (currlevel == 0)
 				AddInTownPortal(pnum);
@@ -2204,7 +2216,7 @@ static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 			} else
 				RemovePortalMissile(pnum);
 		}
-		delta_open_portal(pnum, cmd->x, cmd->y, cmd->wParam1, cmd->wParam2, cmd->wParam3);
+		delta_open_portal(pnum, cmd->x, cmd->y, cmd->bParam1, cmd->bParam2, cmd->bParam3);
 	}
 
 	return sizeof(*cmd);
@@ -2334,10 +2346,10 @@ static DWORD On_DEBUG(TCmd *pCmd, int pnum)
 
 static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *p = (TCmdParam1*)pCmd;
+	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
 
 	if (gbBufferMsgs != 1)
-		plr[pnum].pManaShield = p->wParam1;
+		plr[pnum].pManaShield = p->bParam1;
 
 	return sizeof(*p);
 }

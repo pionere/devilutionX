@@ -2136,7 +2136,7 @@ BOOL UseInvItem(int cii)
 		if (spelldata[is->_iSpell].scCurs != CURSOR_NONE) {
 			PlrSetTSpell(is->_iSpell, cii, spelldata[is->_iSpell].scCurs);
 		} else {
-			NetSendCmdLocParam3(TRUE, CMD_SPELLXY,
+			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY,
 				cursmx, cursmy, is->_iSpell, cii, GetSpellLevel(pnum, is->_iSpell));
 		}
 		return TRUE;
