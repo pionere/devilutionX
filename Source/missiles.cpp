@@ -44,7 +44,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		break;
 	case SPL_LIGHTNING:
 		*mind = 1;
-		*maxd = p->_pLevel + 2;
+		*maxd = (p->_pLevel + 2) << 3;
 		break;
 	case SPL_FLASH:
 		*mind = p->_pLevel;
@@ -108,7 +108,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		break;
 	case SPL_CHAIN:
 		*mind = 1;
-		*maxd = p->_pLevel + 2;
+		*maxd = (p->_pLevel + 2) << 3;
 		break;
 	case SPL_WAVE:
 		*mind = 6 * (p->_pLevel + 1);
@@ -1774,6 +1774,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	else
 		range = (spllvl >> 1) + 6;
 	mis->_miRange = range;
+	mis->_miDam <<= 3;
 	mis->_miAnimFrame = RandRange(1, 8);
 	return MIRES_DONE;
 }
@@ -2086,7 +2087,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	//if (misource != -1) {
 	//	if (micaster == 0) {
 			mindam = 1;
-			maxdam = plr[misource]._pLevel + 2;
+			maxdam = (plr[misource]._pLevel + 2) << 3;
 	//	} else {
 	//		mindam = 1;
 	//		maxdam = monster[misource].mMaxDamage;
@@ -2100,7 +2101,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miLid = AddLight(sx, sy, 4);
 	//assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miAnimFrame = random_(0, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
-	mis->_miVar1 = spllvl;
+	mis->_miVar1 = 1 + (spllvl >> 1);
 	mis->_miVar2 = mindam;
 	mis->_miVar3 = maxdam;
 	mis->_miRange = 256;
@@ -3497,7 +3498,7 @@ void MI_LightningC(int mi)
 			mpnum = mis->_miSource;
 			if (mpnum != -1) {
 				if (mis->_miCaster == 0) {
-					dam = 2 + plr[mpnum]._pLevel;
+					dam = (plr[mpnum]._pLevel + 2) << 3;
 				} else {
 					dam = monster[mpnum].mMaxDamage;
 				}
@@ -3537,7 +3538,7 @@ void MI_Lightning(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, FALSE, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_miDam, mis->_miDam, TRUE, mis->_mix, mis->_miy, FALSE))
 		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
