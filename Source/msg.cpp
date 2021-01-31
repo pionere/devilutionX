@@ -603,7 +603,8 @@ static BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
 			pD->dwBuff = pI->dwBuff;
 #ifdef HELLFIRE
 			pD->wToHit = pI->wToHit;
-			pD->wMaxDam = pI->wMaxDam;
+			pD->bMinDam = pI->bMinDam;
+			pD->bMaxDam = pI->bMaxDam;
 			pD->bMinStr = pI->bMinStr;
 			pD->bMinMag = pI->bMinMag;
 			pD->bMinDex = pI->bMinDex;
@@ -684,7 +685,8 @@ static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 		dest->wValue = src->_ivalue;
 #ifdef HELLFIRE
 		dest->wToHit = src->_iPLToHit;
-		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinDam = src->_iMinDam;
+		dest->bMaxDam = src->_iMaxDam;
 		dest->bMinStr = src->_iMinStr;
 		dest->bMinMag = src->_iMinMag;
 		dest->bMinDex = src->_iMinDex;
@@ -718,7 +720,8 @@ static void PackGItem(TCmdGItem *dest, ItemStruct *src)
 		dest->wValue = src->_ivalue;
 #ifdef HELLFIRE
 		dest->wToHit = src->_iPLToHit;
-		dest->wMaxDam = src->_iMaxDam;
+		dest->bMinDam = src->_iMinDam;
+		dest->bMaxDam = src->_iMaxDam;
 		dest->bMinStr = src->_iMinStr;
 		dest->bMinMag = src->_iMinMag;
 		dest->bMinDex = src->_iMinDex;
@@ -802,7 +805,8 @@ static void UnPackPItem(TCmdPItem *src)
 		item[MAXITEMS]._iMaxCharges = src->bMCh;
 #ifdef HELLFIRE
 		item[MAXITEMS]._iPLToHit = src->wToHit;
-		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinDam = src->bMinDam;
+		item[MAXITEMS]._iMaxDam = src->bMaxDam;
 		item[MAXITEMS]._iMinStr = src->bMinStr;
 		item[MAXITEMS]._iMinMag = src->bMinMag;
 		item[MAXITEMS]._iMinDex = src->bMinDex;
@@ -838,7 +842,8 @@ static void UnPackGItem(TCmdGItem *src)
 		item[MAXITEMS]._iMaxCharges = src->bMCh;
 #ifdef HELLFIRE
 		item[MAXITEMS]._iPLToHit = src->wToHit;
-		item[MAXITEMS]._iMaxDam = src->wMaxDam;
+		item[MAXITEMS]._iMinDam = src->bMinDam;
+		item[MAXITEMS]._iMaxDam = src->bMaxDam;
 		item[MAXITEMS]._iMinStr = src->bMinStr;
 		item[MAXITEMS]._iMinMag = src->bMinMag;
 		item[MAXITEMS]._iMinDex = src->bMinDex;
