@@ -1547,6 +1547,7 @@ static void StartRangeAttack(int pnum)
 	}
 	p->_pVar1 = dx;
 	p->_pVar2 = dy;
+	p->_pVar7 = 0; // 'flag' of launch
 	p->_pVar8 = 0; // speed helper
 	p->_pmode = PM_RATTACK;
 
@@ -2685,7 +2686,11 @@ static BOOL PlrDoRangeAttack(int pnum)
 		if ((p->_pVar8 & 7) == 4)
 			p->_pAnimFrame++;
 	}
-	if (p->_pAnimFrame >= p->_pAFNum) {
+	if (p->_pAnimFrame < p->_pAFNum)
+		return FALSE;
+
+	if (p->_pVar7 == 0) {
+		p->_pVar7++;
 		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_ARROW, 0, pnum, 0, 0);
 
 		if (WeaponDur(pnum, 40)) {
