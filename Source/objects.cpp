@@ -1936,7 +1936,7 @@ static void Obj_Circle(int oi)
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 3) {
 			os->_oVar6 = 4;
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE)
+			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
 			if (setlevel && setlvlnum == SL_VILEBETRAYER) {
