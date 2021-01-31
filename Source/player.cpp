@@ -1733,14 +1733,8 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 
 	if (!forcehit) {
-#ifdef HELLFIRE
-		if (p->_pClass == PC_BARBARIAN) {
-			if (dam >> 6 < p->_pLevel + p->_pLevel / 4)
-				return;
-		} else
-#endif
-			if (dam >> 6 < p->_pLevel)
-				return;
+		if (p->pManaShield || (dam >> (6 - 2)) < p->_pMaxHP)
+			return;
 	}
 
 	if (!(p->_pGFXLoad & PFILE_HIT)) {
@@ -2348,27 +2342,18 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	return FALSE;
 }
 
-int PlrAtkDam(int pnum)
-{
-	return RandRange(plr[pnum]._pIMinDam, plr[pnum]._pIMaxDam);
-}
-
 static BOOL PlrHitMonst(int pnum, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	BOOL ret;
-	int hper, tmac, dam, skdam, phanditype;
+	int hper, tmac, dam, skdam, damsl, dambl, dampc;
 #ifdef HELLFIRE
 	BOOL adjacentDamage = FALSE;
 #endif
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
-	}
-
-	if (CheckMonsterHit(mnum, &ret)) {
-		return ret;
 	}
 
 #ifdef HELLFIRE
@@ -2425,64 +2410,41 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 #endif
 			return FALSE;
 
-	dam = PlrAtkDam(pnum);
-#ifdef HELLFIRE
-	int dam2 = dam;
-#endif
+	if (CheckMonsterHit(mnum, &ret)) {
+		return ret;
+	}
+
+	dam = 0;
+	damsl = p->_pISlMaxDam;
+	if (damsl != 0)
+		dam += CalcMonsterDam(mon->mMagicRes, MISR_SLASH, p->_pISlMinDam, damsl);
+	dambl = p->_pIBlMaxDam;
+	if (dambl != 0)
+		dam += CalcMonsterDam(mon->mMagicRes, MISR_BLUNT, p->_pIBlMinDam, dambl);
+	dampc = p->_pIPcMaxDam;
+	if (dampc != 0)
+		dam += CalcMonsterDam(mon->mMagicRes, MISR_PUNCTURE, p->_pIPcMinDam, dampc);
 
 	if (random_(6, 200) < p->_pICritChance) {
 		dam <<= 1;
 	}
 
-	phanditype = ITYPE_NONE;
-	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_SWORD || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_SWORD) {
-		phanditype = ITYPE_SWORD;
-	}
-	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_MACE || p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_MACE) {
-		phanditype = ITYPE_MACE;
-	}
+	int fdam = p->_pIFMaxDam;
+	if (fdam != 0)
+		fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, p->_pIFMinDam, fdam);
+	int ldam = p->_pILMaxDam;
+	if (ldam != 0)
+		ldam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, p->_pILMinDam, ldam);
+	int mdam = p->_pIMMaxDam;
+	if (mdam != 0)
+		mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, p->_pIMMinDam, mdam);
+	int hdam = 0;
+	if (hdam != 0)
+		hdam = CalcMonsterDam(mon->mMagicRes, MISR_HOLY, p->_pIHMinDam, hdam);
 
-	switch (mon->MData->mMonstClass) {
-	case MC_UNDEAD:
-		if (phanditype == ITYPE_SWORD) {
-			dam -= dam >> 1;
-		}
-		if (phanditype == ITYPE_MACE) {
-			dam += dam >> 1;
-		}
-		break;
-	case MC_ANIMAL:
-		if (phanditype == ITYPE_MACE) {
-			dam -= dam >> 1;
-		}
-		if (phanditype == ITYPE_SWORD) {
-			dam += dam >> 1;
-		}
-		break;
-	}
-
-	int fdam = 0;
-	if (p->_pIFlags & ISPL_FIREDAM) {
-		BOOL resist = FALSE;
-		if (!CheckMonsterRes(mon->mMagicRes, MISR_FIRE, &resist)) {
-			fdam = RandRange(p->_pIFMinDam, p->_pIFMaxDam);
-			if (resist)
-				fdam >>= 2;
-		}
-	}
-	int ldam = 0;
-	if (p->_pIFlags & ISPL_LIGHTDAM) {
-		BOOL resist = FALSE;
-		if (!CheckMonsterRes(mon->mMagicRes, MISR_LIGHTNING, &resist)) {
-			ldam = RandRange(p->_pILMinDam, p->_pILMaxDam);
-			if (resist)
-				ldam >>= 2;
-		}
-	}
-
-	if ((fdam | ldam) != 0) {
-		dam += fdam + ldam;
-		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam);
+	if ((fdam | ldam | mdam | hdam) != 0) {
+		dam += fdam + ldam + mdam + hdam;
+		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, hdam);
 	}
 
 #ifdef HELLFIRE
@@ -2524,7 +2486,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 static BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	int hper, blkper, dir, dam, skdam;
+	int hper, blkper, dir, dam, skdam, damsl, dambl, dampc;
 
 	if ((DWORD)defp >= MAX_PLRS) {
 		app_fatal("PlrHitPlr: illegal target player %d", defp);
@@ -2532,10 +2494,6 @@ static BOOL PlrHitPlr(int offp, char defp)
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
-		return FALSE;
-	}
-
-	if (dps->_pSpellFlags & PSE_ETHERALIZED) {
 		return FALSE;
 	}
 
@@ -2563,40 +2521,51 @@ static BOOL PlrHitPlr(int offp, char defp)
 		}
 	}
 
-	dam = PlrAtkDam(offp);
+	dam = 0;
+	if (!(dps->_pSpellFlags & PSE_ETHERALIZED)) {
+		damsl = ops->_pISlMaxDam;
+		if (damsl != 0)
+			dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, damsl);
+		dambl = ops->_pIBlMaxDam;
+		if (dambl != 0)
+			dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, dambl);
+		dampc = ops->_pIPcMaxDam;
+		if (dampc != 0)
+			dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, dampc);
+	}
 	if (random_(6, 200) < ops->_pICritChance) {
 		dam <<= 1;
 	}
 
-	int fdam = 0;
-	if (ops->_pIFlags & ISPL_FIREDAM) {
-		char resist;
-		if (!CheckPlrRes(dps, MISR_FIRE, &resist)) {
-			fdam = RandRange(ops->_pIFMinDam, ops->_pIFMaxDam);
-			if (resist != 0)
-				fdam -= fdam * resist / 100;
-		}
+	int fdam = ops->_pIFMaxDam;
+	if (fdam != 0) {
+		fdam = CalcPlrDam(dps, MISR_FIRE, ops->_pIFMinDam, fdam);
 	}
-	int ldam = 0;
-	if (ops->_pIFlags & ISPL_LIGHTDAM) {
-		char resist;
-		if (!CheckPlrRes(dps, MISR_LIGHTNING, &resist)) {
-			ldam = RandRange(ops->_pILMinDam, ops->_pILMaxDam);
-			if (resist != 0)
-				ldam -= ldam * resist / 100;
-		}
+	int ldam = ops->_pILMaxDam;
+	if (ldam != 0) {
+		ldam = CalcPlrDam(dps, MISR_LIGHTNING, ops->_pILMinDam, ldam);
 	}
-	if ((fdam | ldam) != 0) {
-		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
+	int mdam = ops->_pIMMaxDam;
+	if (mdam != 0) {
+		mdam = CalcPlrDam(dps, MISR_LIGHTNING, ops->_pIMMinDam, mdam);
+	}
+	int hdam = ops->_pIHMaxDam;
+	if (hdam != 0) {
+		hdam = CalcPlrDam(dps, MISR_HOLY, ops->_pIHMinDam, hdam);
+	}
+	if ((fdam | ldam | mdam | hdam) != 0) {
+		dam += fdam + ldam + mdam + hdam;
+		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, hdam);
+	} else if (dam == 0) {
+		return FALSE;
 	}
 
 	if (ops->_pILifeSteal != 0) {
 		skdam = (dam * ops->_pILifeSteal) >> 7;
 		PlrIncHp(offp, skdam);
 	}
-	if (offp == myplr) {
+	if (offp == myplr)
 		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
-	}
 	StartPlrHit(defp, dam, FALSE);
 	return TRUE;
 }

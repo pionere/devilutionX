@@ -4514,15 +4514,20 @@ static void BreakCrux(int oi)
 static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 {
 	ObjectStruct *os = &object[oi];
-	int mpo, dam;
+	int mpo;
 	int xp, yp;
 
 	if (os->_oSelFlag == 0)
 		return;
-	if (forcebreak) {
-		os->_oVar1 = 0;
-	} else {
-		if (pnum != -1) {
+	if (!forcebreak) {
+		if (pnum != myplr) {
+			if (deltaload)
+				return;
+
+			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
+			return;
+		}
+		/*if (pnum != -1) {
 			dam = PlrAtkDam(pnum) >> 6;
 		} else {
 			dam = 10;
@@ -4530,13 +4535,13 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 		os->_oVar1 -= dam;
 		if (pnum != myplr && os->_oVar1 <= 0)
 			os->_oVar1 = 1;
-	}
-	if (os->_oVar1 > 0) {
-		if (deltaload)
-			return;
+		if (os->_oVar1 > 0) {
+			if (deltaload)
+				return;
 
-		PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
-		return;
+			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
+			return;
+		}*/
 	}
 
 	os->_oVar1 = 0;

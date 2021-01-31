@@ -82,8 +82,9 @@ typedef struct ItemDataStruct {
 	const char *iSName;
 	char iMinMLvl;
 	short iDurability;
-	int iMinDam;
-	int iMaxDam;
+	BYTE iDamType;
+	BYTE iMinDam;
+	BYTE iMaxDam;
 	int iMinAC;
 	int iMaxAC;
 	BYTE iMinStr;
@@ -95,6 +96,9 @@ typedef struct ItemDataStruct {
 	int iSpell;
 	BOOLEAN iUsable;
 	int iValue;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } ItemDataStruct;
 
 #ifdef X86_32bit_COMP
@@ -137,8 +141,8 @@ typedef struct ItemStruct {
 	int _iCurs;
 	int _ivalue;
 	int _iIvalue;
-	int _iMinDam;
-	int _iMaxDam;
+	BYTE _iMinDam;
+	BYTE _iMaxDam;
 	int _iAC;
 	// item_special_effect
 	int _iFlags;
@@ -164,16 +168,21 @@ typedef struct ItemStruct {
 	int _iPLHP;
 	int _iPLDamMod;
 	int _iPLGetHit;
-	int _iPLLight;
+	char _iPLLight;
+	BYTE _iDamType;
 	char _iSplLvlAdd;
 	char _iRequest;
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
 	int _iUid;
-	int _iFMinDam;
-	int _iFMaxDam;
-	int _iLMinDam;
-	int _iLMaxDam;
+	BYTE _iFMinDam;
+	BYTE _iFMaxDam;
+	BYTE _iLMinDam;
+	BYTE _iLMaxDam;
+	BYTE _iMMinDam;
+	BYTE _iMMaxDam;
+	BYTE _iHMinDam;
+	BYTE _iHMaxDam;
 	int _iPLEnAc;
 	BYTE _iPrePower;
 	BYTE _iSufPower;
@@ -185,7 +194,7 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[9];
+	int alignment[12];
 #endif
 } ItemStruct;
 
@@ -337,8 +346,12 @@ typedef struct PlayerStruct {
 	char InvGrid[NUM_INV_GRID_ELEM];
 	ItemStruct SpdList[MAXBELTITEMS];
 	ItemStruct HoldItem;
-	int _pIMinDam;
-	int _pIMaxDam;
+	int _pISlMinDam;
+	int _pISlMaxDam;
+	int _pIBlMinDam;
+	int _pIBlMaxDam;
+	int _pIPcMinDam;
+	int _pIPcMaxDam;
 	int _pIAC;
 	int _pIHitChance;
 	BYTE _pIBaseACBonus; // indicator whether the base ACBonus of the items is positive/negative/neutral
@@ -359,6 +372,10 @@ typedef struct PlayerStruct {
 	int _pIFMaxDam;
 	int _pILMinDam;
 	int _pILMaxDam;
+	int _pIMMinDam;
+	int _pIMMaxDam;
+	int _pIHMinDam;
+	int _pIHMaxDam;
 	int _pOilType;
 	unsigned char pTownWarps;
 	unsigned char pDungMsgs;
@@ -382,9 +399,9 @@ typedef struct PlayerStruct {
 	void *pReserved;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[487];
+	int alignment[479];
 #else
-	int alignment[491];
+	int alignment[483];
 #endif
 #endif
 } PlayerStruct;

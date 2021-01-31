@@ -43,7 +43,6 @@ void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
 void StartWarpLvl(int pnum, int pidx);
-int PlrAtkDam(int pnum);
 void PlrFillHp(int pnum);
 void PlrFillMana(int pnum);
 void PlrSetHp(int pnum, int hp);

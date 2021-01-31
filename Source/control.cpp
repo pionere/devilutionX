@@ -1247,8 +1247,8 @@ void DrawChr()
 		col = COL_BLUE;
 	else if (p->_pIBaseDamBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
-	mindam = p->_pIMinDam >> 6;
-	maxdam = p->_pIMaxDam >> 6;
+	mindam = (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
+	maxdam = (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
 		PrintString(241 + SCREEN_X, 205 + SCREEN_Y, 292 + SCREEN_X, chrstr, TRUE, col, -1);

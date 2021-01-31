@@ -19,9 +19,9 @@ extern int nummissiles;
 extern BOOL MissilePreFlag;
 
 void GetDamageAmt(int sn, int *mind, int *maxd);
-BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist);
-BOOL CheckPlrRes(PlayerStruct *p, int mRes, char *resist);
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam);
+unsigned CalcMonsterDam(unsigned short mor, BYTE mRes, unsigned mindam, unsigned maxdam);
+int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam);
+void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
 void DeleteMissile(int mi, int idx);
 BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL shift);
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift);

@@ -153,7 +153,9 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iPLHP);
 	CopyInt(tbuff, &is->_iPLDamMod);
 	CopyInt(tbuff, &is->_iPLGetHit);
-	CopyInt(tbuff, &is->_iPLLight);
+	CopyChar(tbuff, &is->_iPLLight);
+	CopyChar(tbuff, &is->_iDamType);
+	tbuff += 2; // Alignment
 	CopyChar(tbuff, &is->_iSplLvlAdd);
 	CopyChar(tbuff, &is->_iRequest);
 	CopyChar(tbuff, &is->_iLifeSteal);
@@ -941,7 +943,9 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iPLHP, tbuff);
 	CopyInt(&is->_iPLDamMod, tbuff);
 	CopyInt(&is->_iPLGetHit, tbuff);
-	CopyInt(&is->_iPLLight, tbuff);
+	CopyChar(&is->_iPLLight, tbuff);
+	CopyChar(&is->_iDamType, tbuff);
+	tbuff += 2; // Alignment
 	CopyChar(&is->_iSplLvlAdd, tbuff);
 	CopyChar(&is->_iRequest, tbuff);
 	CopyChar(&is->_iLifeSteal, tbuff);

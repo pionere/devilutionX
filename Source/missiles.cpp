@@ -207,7 +207,7 @@ static BOOLEAN FindClosestChain(int sx, int sy, int &dx, int &dy)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
 			if (mid > 0
-			 && !(monster[mid - 1].mMagicRes & IMMUNE_LIGHTNING)
+			 && (monster[mid - 1].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE
 			 && monster[mid - 1]._mhitpoints >= (1 << 6)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
@@ -502,40 +502,79 @@ static void MoveMissilePos(int mi)
 	}
 }
 
-BOOL CheckMonsterRes(unsigned short mor, unsigned char mRes, BOOL *resist)
+unsigned CalcMonsterDam(unsigned short mor, unsigned char mRes, unsigned mindam, unsigned maxdam)
 {
+	unsigned dam;
+	BYTE resist;
+
 	switch (mRes) {
 	case MISR_NONE:
-		*resist = FALSE;
+		resist = MORT_NONE;
+		break;
+	case MISR_SLASH:
+		mor &= MORS_SLASH_IMMUNE;
+		if (mor == MORS_SLASH_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_SLASH;
+		break;
+	case MISR_BLUNT:
+		mor &= MORS_BLUNT_IMMUNE;
+		if (mor == MORS_BLUNT_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_BLUNT;
+		break;
+	case MISR_PUNCTURE:
+		mor &= MORS_PUNCTURE_IMMUNE;
+		if (mor == MORS_PUNCTURE_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_PUNCTURE;
 		break;
 	case MISR_FIRE:
-		if (mor & IMMUNE_FIRE)
-			return TRUE;
-		*resist = (mor & RESIST_FIRE) != 0;
+		mor &= MORS_FIRE_IMMUNE;
+		if (mor == MORS_FIRE_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_FIRE;
 		break;
 	case MISR_LIGHTNING:
-		if (mor & IMMUNE_LIGHTNING)
-			return TRUE;
-		*resist = (mor & RESIST_LIGHTNING) != 0;
+		mor &= MORS_LIGHTNING_IMMUNE;
+		if (mor == MORS_LIGHTNING_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_LIGHTNING;
 		break;
 	case MISR_MAGIC:
-		if (mor & IMMUNE_MAGIC)
-			return TRUE;
-		*resist = (mor & RESIST_MAGIC) != 0;
+		mor &= MORS_MAGIC_IMMUNE;
+		if (mor == MORS_MAGIC_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_MAGIC;
 		break;
 	case MISR_HOLY:
-		if (mor & IMMUNE_HOLY)
-			return TRUE;
-		*resist = (mor & RESIST_HOLY) != 0;
+		mor &= MORS_HOLY_IMMUNE;
+		if (mor == MORS_HOLY_IMMUNE)
+			return 0;
+		resist = mor >> MORS_IDX_HOLY;
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		resist = MORT_NONE;
 		break;
 	}
-	return FALSE;
+	dam = RandRange(mindam, maxdam);
+	switch (resist) {
+	case MORT_NONE:
+		break;
+	case MORT_PROTECTED:
+		dam >>= 1;
+		dam += dam >> 2;
+		break;
+	case MORT_RESIST:
+		dam >>= 2;
+		break;
+	default: ASSUME_UNREACHABLE;
+	}
+	return dam;
 }
 
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam)
+void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam)
 {
 	AddMissile(dx, dy, 0, 0, 0, fdam >= ldam ? MIS_WEAPFEXP : MIS_WEAPLEXP, 0, 0, 0, 0);
 	/*int gfx = random_(8, dam);
@@ -553,17 +592,9 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	MonsterStruct *mon;
 	const MissileData *mds;
 	int hper, dam;
-	BOOL resist, ret;
+	BOOL ret;
 
 	mon = &monster[mnum];
-	mds = &missiledata[mitype];
-	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
-		return FALSE;
-
-	if (CheckMonsterHit(mnum, &ret)) {
-		return ret;
-	}
-
 	hper = 90 - mon->mArmorClass - dist;
 	if (hper < 5)
 		hper = 5;
@@ -575,11 +606,18 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 #endif
 			return FALSE;
 
-	dam = RandRange(mindam, maxdam);
-	if (!shift)
-		dam <<= 6;
-	if (resist)
-		dam >>= 2;
+	if (!shift) {
+		mindam <<= 6;
+		maxdam <<= 6;
+	}
+	mds = &missiledata[mitype];
+	dam = CalcMonsterDam(mon->mMagicRes, mds->mResist, mindam, maxdam);
+	if (dam == 0)
+		return FALSE;
+
+	if (CheckMonsterHit(mnum, &ret)) {
+		return ret;
+	}
 
 	mon->_mhitpoints -= dam;
 #ifdef _DEBUG
@@ -589,12 +627,12 @@ BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype, BOOL
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, -1);
 	} else {
-		if (resist) {
+		/*if (resist) {
 			PlayEffect(mnum, 1);
-		} else {
+		} else {*/
 			if (mnum >= MAX_MINIONS)
 				MonStartHit(mnum, -1, dam);
-		}
+		//}
 	}
 	return TRUE;
 }
@@ -605,16 +643,10 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	MonsterStruct *mon;
 	const MissileData *mds;
 	int hper, dam;
-	BOOL resist, ret;
+	BOOL ret;
 
 	mon = &monster[mnum];
 	mds = &missiledata[mitype];
-	if (CheckMonsterRes(mon->mMagicRes, mds->mResist, &resist))
-		return FALSE;
-
-	if (CheckMonsterHit(mnum, &ret))
-		return ret;
-
 	p = &plr[pnum];
 	if (mds->mType == 0) {
 		hper = p->_pIHitChance
@@ -636,56 +668,71 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 #endif
 			return FALSE;
 
-	dam = RandRange(mindam, maxdam);
+	if (CheckMonsterHit(mnum, &ret))
+		return ret;
+
 	if (mds->mType == 0) {
-		int fdam = 0;
-		if (p->_pIFlags & ISPL_FIREDAM) {
-			BOOL resist = FALSE;
-			if (!CheckMonsterRes(mon->mMagicRes, MISR_FIRE, &resist)) {
-				fdam = RandRange(p->_pIFMinDam, p->_pIFMaxDam);
-				if (resist)
-					fdam >>= 2;
-				dam += fdam;
-			}
+		dam = 0;
+		int sldam = p->_pISlMaxDam;
+		if (sldam != 0) {
+			dam += CalcMonsterDam(mon->mMagicRes, MISR_SLASH, p->_pISlMinDam, sldam);
 		}
-		int ldam = 0;
-		if (p->_pIFlags & ISPL_LIGHTDAM) {
-			BOOL resist = FALSE;
-			if (!CheckMonsterRes(mon->mMagicRes, MISR_LIGHTNING, &resist)) {
-				ldam = RandRange(p->_pILMinDam, p->_pILMaxDam);
-				if (resist)
-					ldam >>= 2;
-				dam += ldam;
-			}
+		int bldam = p->_pIBlMaxDam;
+		if (bldam != 0) {
+			dam += CalcMonsterDam(mon->mMagicRes, MISR_BLUNT, p->_pIBlMinDam, bldam);
 		}
-		if ((ldam | fdam) != 0) {
-			dam += fdam + ldam;
-			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam);
+		int pcdam = p->_pIPcMaxDam;
+		if (pcdam != 0) {
+			dam += CalcMonsterDam(mon->mMagicRes, MISR_PUNCTURE, p->_pIPcMinDam, pcdam);
+		}
+		int fdam = p->_pIFMaxDam;
+		if (fdam != 0) {
+			fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, p->_pIFMinDam, fdam);
+		}
+		int ldam = p->_pILMaxDam;
+		if (ldam != 0) {
+			ldam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, p->_pILMinDam, ldam);
+		}
+		int mdam = p->_pIMMaxDam;
+		if (mdam != 0) {
+			mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, p->_pIMMinDam, mdam);
+		}
+		int hdam = p->_pIHMaxDam;
+		if (hdam != 0) {
+			hdam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, p->_pIHMinDam, hdam);
+		}
+		if ((ldam | fdam | mdam | hdam) != 0) {
+			dam += fdam + ldam + mdam + hdam;
+			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, hdam);
 		}
 
 		if (p->_pIFlags & ISPL_NOHEALMON)
 			mon->_mFlags |= MFLAG_NOHEAL;
+	} else {
+		if (!shift) {
+			mindam <<= 6;
+			maxdam <<= 6;
+		}
+		dam = CalcMonsterDam(mon->mMagicRes, mds->mResist, mindam, maxdam);
+		if (dam == 0)
+			return FALSE;
 	}
-	if (!shift)
-		dam <<= 6;
 
-	if (resist)
-		dam >>= 2;
 	if (pnum == myplr)
 		mon->_mhitpoints -= dam;
 
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
-		if (resist) {
+		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, 1);
-		} else {
-			if (mon->_mmode != MM_STONE && mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK) {
+		} else {*/
+			if (mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK && mon->_mmode != MM_STONE) {
 				MonGetKnockback(mnum);
 			}
 			if (mnum >= MAX_MINIONS)
 				MonStartHit(mnum, pnum, dam);
-		}
+		//}
 	}
 
 	if (mon->_msquelch == 0) {
@@ -696,28 +743,38 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	return TRUE;
 }
 
-BOOL CheckPlrRes(PlayerStruct *p, int mRes, char *resist)
+int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam)
 {
+	int dam;
+	char resist;
+
 	switch (mRes) {
 	case MISR_NONE:
-		*resist = 0;
+	case MISR_SLASH:  // TODO: add dps->_pSlash/Blunt/PunctureResist
+	case MISR_BLUNT:
+	case MISR_PUNCTURE:
+		resist = 0;
 		break;
 	case MISR_FIRE:
-		*resist = p->_pFireResist;
+		resist = p->_pFireResist;
 		break;
 	case MISR_LIGHTNING:
-		*resist = p->_pLghtResist;
+		resist = p->_pLghtResist;
 		break;
 	case MISR_MAGIC:
-		*resist = p->_pMagResist;
+		resist = p->_pMagResist;
 		break;
 	case MISR_HOLY:
-		return TRUE; // TODO: add dps->_pHolyResist
+		return 0; // TODO: add dps->_pHolyResist
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	return FALSE;
+
+	dam = RandRange(mindam, maxdam);
+	if (resist != 0)
+		dam -= dam * resist / 100;
+	return dam;
 }
 
 BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shift)
@@ -725,8 +782,6 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 	PlayerStruct *p;
 	const MissileData *mds;
 	int hper, tmp, dam;
-	char resist;
-	BOOL blk;
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
@@ -759,41 +814,29 @@ BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype, BOOL shif
 #endif
 			return FALSE;
 
-	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_BLOCK)) {
-		blk = FALSE;
-	} else {
+	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
-		if (tmp <= 0)
-			blk = FALSE;
-		else if (tmp >= 100)
-			blk = TRUE;
-		else
-			blk = random_(73, 100) < tmp;
+		if (tmp >= 100 || random_(73, 100) < tmp) {
+			PlrStartBlock(pnum, p->_pdir);
+			return TRUE;
+		}
 	}
 
-	dam = RandRange(mind, maxd);
+	if (!shift) {
+		mind <<= 6;
+		maxd <<= 6;
+	}
+	dam = CalcPlrDam(p, mds->mResist, mind, maxd);
+	if (dam == 0)
+		return FALSE;
+
 	dam += p->_pIGetHit;
-	if (!shift)
-		dam <<= 6;
 	if (dam < 64)
 		dam = 64;
 
-	if (CheckPlrRes(p, mds->mResist, &resist))
-		return FALSE;
-
-	if (resist > 0) {
-		dam -= dam * resist / 100;
-		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-	} else {
-		if (blk) {
-			PlrStartBlock(pnum, p->_pdir);
-		} else {
-			if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-				StartPlrHit(pnum, dam, FALSE);
-		}
-	}
+	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
+		StartPlrHit(pnum, dam, FALSE);
 	return TRUE;
 }
 
@@ -803,8 +846,6 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	MonsterStruct *mon;
 	const MissileData *mds;
 	int hper, tmp, dam;
-	char resist;
-	BOOL blk;
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
@@ -846,44 +887,31 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 #endif
 			return FALSE;
 
-	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !p->_pBlockFlag || (p->_pmode != PM_STAND && p->_pmode != PM_BLOCK)) {
-		blk = FALSE;
-	} else {
+	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity
 			+ (p->_pLevel << 1)
 			- (mon->mLevel << 1);
-		if (tmp <= 0)
-			blk = FALSE;
-		else if (tmp >= 100)
-			blk = TRUE;
-		else
-			blk = random_(73, 100) < tmp;
+		if (tmp >= 100 || random_(73, 100) < tmp) {
+			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
+			PlrStartBlock(pnum, tmp);
+			return TRUE;
+		}
 	}
 
-	dam = RandRange(mind, maxd);
+	if (!shift) {
+		mind <<= 6;
+		maxd <<= 6;
+	}
+	dam = CalcPlrDam(p, mds->mResist, mind, maxd);
+	if (dam == 0)
+		return FALSE;
 	dam += p->_pIGetHit;
-	if (!shift)
-		dam <<= 6;
 	if (dam < 64)
 		dam = 64;
 
-	if (CheckPlrRes(p, mds->mResist, &resist))
-		return FALSE;
-
-	if (resist > 0) {
-		dam -= dam * resist / 100;
-		if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
-	} else {
-		if (blk) {
-			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
-			PlrStartBlock(pnum, tmp);
-		} else {
-			if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-				StartPlrHit(pnum, dam, FALSE);
-		}
-	}
+	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
+		StartPlrHit(pnum, dam, FALSE);
 	return TRUE;
 }
 
@@ -892,8 +920,6 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	PlayerStruct *ops, *dps;
 	const MissileData *mds;
 	int dam, blkper, hper;
-	char resist;
-	BOOL blk;
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
@@ -925,71 +951,68 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	if (random_(69, 100) >= hper)
 		return FALSE;
 
-	if ((mds->mdFlags & MIFLAG_NOBLOCK)
-	 || !dps->_pBlockFlag || (dps->_pmode != PM_STAND && dps->_pmode != PM_BLOCK)) {
-		blk = FALSE;
-	} else {
+	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	 && dps->_pBlockFlag && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
 			+ (dps->_pLevel << 1)
 			- (ops->_pLevel << 1);
-		if (blkper <= 0)
-			blk = FALSE;
-		else if (blkper >= 100)
-			blk = TRUE;
-		else
-			blk = random_(73, 100) < blkper;
+		if (blkper >= 100 || random_(73, 100) < blkper) {
+			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
+			return TRUE;
+		}
 	}
 
-	dam = RandRange(mindam, maxdam);
 	if (mds->mType == 0) {
-		if (dps->_pSpellFlags & PSE_ETHERALIZED)
-			dam = 0;
-		int fdam = 0;
-		if (ops->_pIFlags & ISPL_FIREDAM) {
-			char resist;
-			if (!CheckPlrRes(dps, MISR_FIRE, &resist)) {
-				fdam = RandRange(ops->_pIFMinDam, ops->_pIFMaxDam);
-				if (resist != 0)
-					fdam -= fdam * resist / 100;
-				dam += fdam;
+		dam = 0;
+		if (!(dps->_pSpellFlags & PSE_ETHERALIZED)) {
+			int sldam = ops->_pISlMaxDam;
+			if (sldam != 0) {
+				dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, sldam);
+			}
+			int bldam = ops->_pIBlMaxDam;
+			if (bldam != 0) {
+				dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, bldam);
+			}
+			int pcdam = ops->_pIPcMaxDam;
+			if (pcdam != 0) {
+				dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, pcdam);
 			}
 		}
-		int ldam = 0;
-		if (ops->_pIFlags & ISPL_LIGHTDAM) {
-			char resist = FALSE;
-			if (!CheckPlrRes(dps, MISR_LIGHTNING, &resist)) {
-				ldam = RandRange(ops->_pILMinDam, ops->_pILMaxDam);
-				if (resist != 0)
-					ldam -= ldam * resist / 100;
-				dam += ldam;
-			}
+		int fdam = ops->_pIFMaxDam;
+		if (fdam != 0) {
+			fdam = CalcPlrDam(dps, MISR_FIRE, ops->_pIFMinDam, fdam);
 		}
-		if ((ldam | fdam) != 0) {
-			AddElementalExplosion(dps->_px, dps->_py, fdam, ldam);
+		int ldam = ops->_pILMaxDam;
+		if (ldam != 0) {
+			ldam = CalcPlrDam(dps, MISR_LIGHTNING, ops->_pILMinDam, ldam);
+		}
+		int mdam = ops->_pIMMaxDam;
+		if (mdam != 0) {
+			mdam = CalcPlrDam(dps, MISR_MAGIC, ops->_pIMMinDam, mdam);
+		}
+		int hdam = ops->_pIHMaxDam;
+		if (hdam != 0) {
+			hdam = CalcPlrDam(dps, MISR_HOLY, ops->_pIHMinDam, hdam);
+		}
+		if ((ldam | fdam | mdam | hdam) != 0) {
+			dam += ldam + fdam + mdam + hdam;
+			AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, hdam);
 		} else if (dam == 0)
 			return FALSE;
-	}
-	if (!shift)
-		dam <<= 6;
-	if (mds->mType != 0)
-		dam >>= 1;
-
-	if (CheckPlrRes(dps, mds->mResist, &resist))
-		return FALSE;
-
-	if (resist > 0) {
-		if (offp == myplr)
-			NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam - resist * dam / 100);
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_69][ops->_pClass], ops->_px, ops->_py, 2);
 	} else {
-		if (blk) {
-			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
-		} else {
-			if (offp == myplr)
-				NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
-			StartPlrHit(defp, dam, FALSE);
+		if (!shift) {
+			mindam <<= 6;
+			maxdam <<= 6;
 		}
+		dam = CalcPlrDam(dps, mds->mResist, mindam, maxdam);
+		if (dam == 0)
+			return FALSE;
+		dam >>= 1;
 	}
+
+	if (offp == myplr)
+		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
+	StartPlrHit(defp, dam, FALSE);
 	return TRUE;
 }
 
@@ -1514,8 +1537,8 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miRange = 256;
 	if (misource != -1) {
 		if (micaster == 0) {
-			mis->_miVar1 = plr[misource]._pIMinDam;
-			mis->_miVar2 = plr[misource]._pIMaxDam;
+			; // mis->_miVar1 = plr[misource]._pIPcMinDam;
+			// mis->_miVar2 = plr[misource]._pIPcMaxDam;
 		} else {
 			mis->_miVar1 = monster[misource].mMinDamage;
 			mis->_miVar2 = monster[misource].mMaxDamage;

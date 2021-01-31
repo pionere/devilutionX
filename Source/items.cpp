@@ -457,11 +457,9 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
 
-	int mind = 0; // min damage
-	int maxd = 0; // max damage
 	int tac = 0;  // accuracy
 
-	int g;
+	unsigned g;
 	int i;
 
 	int bdam = 0;   // bonus damage
@@ -484,7 +482,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int mr = 0; // magic resistance
 
 	int dmod = 0; // bonus damage mod
-	int pdmod;    // player damage mod 
+	int pdmod;    // player damage mod
+	BYTE dms;     // number of damage types
 	int ghit = 0; // increased damage from enemies
 	BYTE manasteal = 0;
 	BYTE lifesteal = 0;
@@ -497,19 +496,49 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int spllvladd = 0; // increased spell level
 	int enac = 0;      // enhanced accuracy
 
-	int fmin = 0; // minimum fire damage
-	int fmax = 0; // maximum fire damage
-	int lmin = 0; // minimum lightning damage
-	int lmax = 0; // maximum lightning damage
+	unsigned minsl = 0; // min slash-damage
+	unsigned maxsl = 0; // max slash-damage
+	unsigned minbl = 0; // min blunt-damage
+	unsigned maxbl = 0; // max blunt-damage
+	unsigned minpc = 0; // min puncture-damage
+	unsigned maxpc = 0; // max puncture-damage
+	unsigned fmin = 0;  // min fire damage
+	unsigned fmax = 0;  // max fire damage
+	unsigned lmin = 0;  // min lightning damage
+	unsigned lmax = 0;  // max lightning damage
+	unsigned mmin = 0;  // min magic damage
+	unsigned mmax = 0;  // max magic damage
+	unsigned hmin = 0;  // min holy damage
+	unsigned hmax = 0;  // max holy damage
 
 	p = &plr[pnum];
 	pi = p->InvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-
 			tac += pi->_iAC;
-			mind += pi->_iMinDam;
-			maxd += pi->_iMaxDam;
+			switch (pi->_iDamType) {
+			case IDAM_NONE: break;
+			case IDAM_SLASH:
+				minsl += (unsigned)pi->_iMinDam << 1;
+				maxsl += (unsigned)pi->_iMaxDam << 1;
+				break;
+			case IDAM_BLUNT:
+				minbl += (unsigned)pi->_iMinDam << 1;
+				maxbl += (unsigned)pi->_iMaxDam << 1;
+				break;
+			case IDAM_SB_MIX:
+				minsl += pi->_iMinDam;
+				minbl += pi->_iMinDam;
+				maxsl += pi->_iMaxDam;
+				maxbl += pi->_iMaxDam;
+				break;
+			case IDAM_PUNCTURE:
+				minpc += (unsigned)pi->_iMinDam << 1;
+				maxpc += (unsigned)pi->_iMaxDam << 1;
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
 
 			if (pi->_iSpell != SPL_NULL) {
 				spl |= SPELL_MASK(pi->_iSpell);
@@ -547,6 +576,10 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				fmax += pi->_iFMaxDam;
 				lmin += pi->_iLMinDam;
 				lmax += pi->_iLMaxDam;
+				mmin += pi->_iMMinDam;
+				mmax += pi->_iMMaxDam;
+				hmin += pi->_iHMinDam;
+				hmax += pi->_iHMaxDam;
 			}
 		}
 	}
@@ -560,6 +593,10 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIFMaxDam = fmax << 6;
 	p->_pILMinDam = lmin << 6;
 	p->_pILMaxDam = lmax << 6;
+	p->_pIMMinDam = mmin << 6;
+	p->_pIMMaxDam = mmax << 6;
+	p->_pIHMinDam = hmin << 6;
+	p->_pIHMaxDam = hmax << 6;
 	p->_pISplLvlAdd = spllvladd;
 	p->_pILifeSteal = lifesteal;
 	p->_pIManaSteal = manasteal;
@@ -572,28 +609,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		p->_pRSplType = RSPLTYPE_INVALID;
 		// unnecessary since MANA_FLASK is always set to redraw, which triggers the redraw of the spell-icon as well
 		// gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-
-	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
-	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
-	if (mind == 0 && maxd == 0) {
-		mind = 1;
-		maxd = 1;
-
-		if (wLeft->_itype == ITYPE_SHIELD && wLeft->_iStatFlag) {
-			maxd = 3;
-		}
-
-		if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
-			maxd = 3;
-		}
-
-#ifdef HELLFIRE
-		if (p->_pClass == PC_MONK) {
-			mind = std::max(mind, p->_pLevel >> 1);
-			maxd = std::max(maxd, (int)p->_pLevel);
-		}
-#endif
 	}
 
 #ifdef HELLFIRE
@@ -720,6 +735,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pMaxMana = imana + p->_pMaxManaBase;
 
 	p->_pBlockFlag = FALSE;
+	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
+	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 #ifdef HELLFIRE
 	if (p->_pClass == PC_MONK) {
 		if ((wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag)
@@ -783,6 +800,22 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	 || (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag)) {
 		p->_pBlockFlag = TRUE;
 		g++;
+	}
+
+	if (g == ANIM_ID_UNARMED || g == ANIM_ID_UNARMED_SHIELD) {
+		if (g == ANIM_ID_UNARMED_SHIELD) {
+			minbl = 3;
+			maxbl = 3;
+		} else {
+			minbl = 1;
+			maxbl = 1;
+		}
+#ifdef HELLFIRE
+		if (p->_pClass == PC_MONK) {
+			minbl = std::max(minbl, (unsigned)p->_pLevel >> 1);
+			maxbl = std::max(maxbl, (unsigned)p->_pLevel);
+		}
+#endif
 	}
 
 	pi = &p->InvBody[INVLOC_CHEST];
@@ -897,8 +930,45 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		if (p->_pClass != PC_ROGUE)
 			pdmod >>= 1;
 	}
-	p->_pIMinDam = (mind << 6) * (100 + bdam) / 100 + (pdmod << 6);
-	p->_pIMaxDam = (maxd << 6) * (100 + bdam) / 100 + (pdmod << 6);
+	// calculate the damages for each type
+	bdam += 100;
+	bdam <<= 6;
+	pdmod <<= 6 + 1;
+	dms = 0;
+	if (maxsl != 0)
+		dms++;
+	if (maxbl != 0)
+		dms++;
+	if (maxpc != 0)
+		dms++;
+	if (dms > 1) {
+		if (dms == 2)
+			pdmod >>= 1;
+		else
+			// assert(dms == 3);
+			pdmod /= 3;
+	}
+	if (maxsl == 0) {
+		p->_pISlMinDam = 0;
+		p->_pISlMaxDam = 0;
+	} else {
+		p->_pISlMinDam = minsl * bdam / 100 + pdmod;
+		p->_pISlMaxDam = maxsl * bdam / 100 + pdmod;
+	}
+	if (maxbl == 0) {
+		p->_pIBlMinDam = 0;
+		p->_pIBlMaxDam = 0;
+	} else {
+		p->_pIBlMinDam = minbl * bdam / 100 + pdmod;
+		p->_pIBlMaxDam = maxbl * bdam / 100 + pdmod;
+	}
+	if (maxpc == 0) {
+		p->_pIPcMinDam = 0;
+		p->_pIPcMaxDam = 0;
+	} else {
+		p->_pIPcMinDam = minpc * bdam / 100 + pdmod;
+		p->_pIPcMaxDam = maxpc * bdam / 100 + pdmod;
+	}
 	p->_pIHitChance = btohit;
 	p->_pIMagToHit = 50 + p->_pMagic;
 	if (p->_pClass == PC_SORCERER)
@@ -1096,6 +1166,7 @@ void SetItemData(int ii, int idata)
 	strcpy(is->_iIName, ids->iName);
 	is->_iLoc = ids->iLoc;
 	is->_iClass = ids->iClass;
+	is->_iDamType = ids->iDamType;
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
 	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRange(ids->iMinAC, ids->iMaxAC);
@@ -1770,6 +1841,16 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iFlags |= ISPL_LIGHTDAM;
 		is->_iLMinDam = param1;
 		is->_iLMaxDam = param2;
+		break;
+	case IPL_MAGICDAM:
+		is->_iFlags |= ISPL_MAGICDAM;
+		is->_iMMinDam = param1;
+		is->_iMMaxDam = param2;
+		break;
+	case IPL_HOLYDAM:
+		is->_iFlags |= ISPL_HOLYDAM;
+		is->_iHMinDam = param1;
+		is->_iHMaxDam = param2;
 		break;
 	case IPL_STR:
 		is->_iPLStr += r;
@@ -3143,6 +3224,18 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i-%i", is->_iLMinDam, is->_iLMaxDam);
 		else
 			snprintf(tempstr, sizeof(tempstr), "lightning damage: %i", is->_iLMinDam);
+		break;
+	case IPL_MAGICDAM:
+		if (is->_iMMinDam != is->_iMMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %i-%i", is->_iMMinDam, is->_iMMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "magic damage: %i", is->_iMMinDam);
+		break;
+	case IPL_HOLYDAM:
+		if (is->_iHMinDam != is->_iHMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "holy damage: %i-%i", is->_iHMinDam, is->_iHMaxDam);
+		else
+			snprintf(tempstr, sizeof(tempstr), "holy damage: %i", is->_iHMinDam);
 		break;
 	case IPL_STR:
 		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);

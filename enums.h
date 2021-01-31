@@ -101,6 +101,8 @@ typedef enum item_effect_type {
 	IPL_CHARGES,
 	IPL_FIREDAM,
 	IPL_LIGHTDAM,
+	IPL_MAGICDAM, // unused
+	IPL_HOLYDAM,  // unused
 	IPL_STR,
 	IPL_MAG,
 	IPL_DEX,
@@ -1828,23 +1830,56 @@ typedef enum monster_goal {
 	MGOAL_TALKING   = 7,
 } monster_goal;
 
+typedef enum monster_resistance_type {
+	MORT_NONE,
+	MORT_PROTECTED,
+	MORT_RESIST,
+	MORT_IMMUNE,
+} monster_resistance_type;
+
+typedef enum monster_resistance_idx {
+	MORS_IDX_SLASH     = 0,
+	MORS_IDX_BLUNT     = 2,
+	MORS_IDX_PUNCTURE  = 4,
+	MORS_IDX_FIRE      = 6,
+	MORS_IDX_LIGHTNING = 8,
+	MORS_IDX_MAGIC     = 10,
+	MORS_IDX_HOLY      = 12,
+} monster_resistance_idx;
+
 typedef enum monster_resistance {
-	RESIST_MAGIC     = 0x01,
-	RESIST_FIRE      = 0x02,
-	RESIST_LIGHTNING = 0x04,
-	IMMUNE_MAGIC     = 0x08,
-	IMMUNE_FIRE      = 0x10,
-	IMMUNE_LIGHTNING = 0x20,
-	RESIST_HOLY      = 0x40,
-	IMMUNE_HOLY      = 0x80,
+	MORS_SLASH_PROTECTED     = 0x01 << MORS_IDX_SLASH,
+	MORS_SLASH_RESIST        = 0x02 << MORS_IDX_SLASH,
+	MORS_SLASH_IMMUNE        = 0x03 << MORS_IDX_SLASH,
+	MORS_BLUNT_PROTECTED     = 0x01 << MORS_IDX_BLUNT,
+	MORS_BLUNT_RESIST        = 0x02 << MORS_IDX_BLUNT,
+	MORS_BLUNT_IMMUNE        = 0x03 << MORS_IDX_BLUNT,
+	MORS_PUNCTURE_PROTECTED  = 0x01 << MORS_IDX_PUNCTURE,
+	MORS_PUNCTURE_RESIST     = 0x02 << MORS_IDX_PUNCTURE,
+	MORS_PUNCTURE_IMMUNE     = 0x03 << MORS_IDX_PUNCTURE,
+	MORS_FIRE_PROTECTED      = 0x01 << MORS_IDX_FIRE,
+	MORS_FIRE_RESIST         = 0x02 << MORS_IDX_FIRE,
+	MORS_FIRE_IMMUNE         = 0x03 << MORS_IDX_FIRE,
+	MORS_LIGHTNING_PROTECTED = 0x01 << MORS_IDX_LIGHTNING,
+	MORS_LIGHTNING_RESIST    = 0x02 << MORS_IDX_LIGHTNING,
+	MORS_LIGHTNING_IMMUNE    = 0x03 << MORS_IDX_LIGHTNING,
+	MORS_MAGIC_PROTECTED     = 0x01 << MORS_IDX_MAGIC,
+	MORS_MAGIC_RESIST        = 0x02 << MORS_IDX_MAGIC,
+	MORS_MAGIC_IMMUNE        = 0x03 << MORS_IDX_MAGIC,
+	MORS_HOLY_PROTECTED      = 0x01 << MORS_IDX_HOLY,
+	MORS_HOLY_RESIST         = 0x02 << MORS_IDX_HOLY,
+	MORS_HOLY_IMMUNE         = 0x03 << MORS_IDX_HOLY,
 } monster_resistance;
 
 typedef enum missile_resistance {
-	MISR_NONE      = 0,
-	MISR_FIRE      = 1,
-	MISR_LIGHTNING = 2,
-	MISR_MAGIC     = 3,
-	MISR_HOLY      = 4,
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_HOLY,
 } missile_resistance;
 
 typedef enum _speech_id {
@@ -3094,6 +3129,14 @@ typedef enum _item_indexes {
 #endif
 } _item_indexes;
 
+typedef enum _item_damage_type {
+	IDAM_NONE       = 0x00,
+	IDAM_SLASH      = 0x01,
+	IDAM_BLUNT      = 0x02,
+	IDAM_SB_MIX     = 0x03,
+	IDAM_PUNCTURE   = 0x04,
+} _item_damage_type;
+
 typedef enum _setlevels {
 	//SL_BUTCHCHAMB = 0x0,
 	SL_SKELKING     = 0x1,
@@ -3357,10 +3400,10 @@ typedef enum item_special_effect {
 	ISPL_NONE           = 0x00000000,
 	ISPL_INFRAVISION    = 0x00000001, /* unused */ 
 	//ISPL_RNDSTEALLIFE   = 0x00000002,
-	//ISPL_RNDARROWVEL    = 0x00000004,
-	//ISPL_FIRE_ARROWS    = 0x00000008,
-	ISPL_FIREDAM        = 0x00000010,
-	ISPL_LIGHTDAM       = 0x00000020,
+	ISPL_FIREDAM        = 0x00000004,
+	ISPL_LIGHTDAM       = 0x00000008,
+	ISPL_MAGICDAM       = 0x00000010,
+	ISPL_HOLYDAM        = 0x00000020,
 	ISPL_DRAINLIFE      = 0x00000040,
 	//ISPL_UNKNOWN_1      = 0x00000080,
 	//ISPL_NOHEALPLR      = 0x00000100, /* unused */ 

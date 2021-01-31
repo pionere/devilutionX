@@ -5152,9 +5152,9 @@ BOOL monster_posok(int mnum, int x, int y)
 			}
 		}
 	}
-	if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
+	if (fire && (monster[mnum].mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
 		ret = FALSE;
-	if (lightning && !(monster[mnum].mMagicRes & IMMUNE_LIGHTNING))
+	if (lightning && (monster[mnum].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
 		ret = FALSE;
 #else
 	if (mi > 0) {
@@ -5168,7 +5168,7 @@ BOOL monster_posok(int mnum, int x, int y)
 				fire = TRUE;
 		}
 	}
-	if (fire && !(monster[mnum].mMagicRes & IMMUNE_FIRE))
+	if (fire && (monster[mnum].mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
 		ret = FALSE;
 #endif
 	return ret;
