@@ -2470,9 +2470,10 @@ static BOOL MonDoTalk(int mnum)
 	InitQTextMsg(mon->mtalkmsg);
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
-		if (mon->mtalkmsg == TEXT_GARBUD1)
+		if (mon->mtalkmsg == TEXT_GARBUD1) {
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
-		quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above
+			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
+		}
 		if (mon->mtalkmsg == TEXT_GARBUD2 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, TRUE);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
@@ -4438,6 +4439,11 @@ void MAI_Lazurus(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE) {
+		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 == 4 && mon->mtalkmsg == 0) { // Fix save games affected by teleport bug
+			ObjChangeMapResync(1, 18, 20, 24);
+			RedoPlayerVision();
+			quests[Q_BETRAYER]._qvar1 = 6;
+		}
 #ifndef HELLFIRE
 		mon->mtalkmsg = 0;
 #endif
