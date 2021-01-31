@@ -1563,10 +1563,8 @@ static void GetScrollSpell(int ii, int lvl)
 static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 {
 	const PLStruct *l[256];
-	char istr[64];
 	int nl;
 	const PLStruct *pres;
-	char (* iname)[64];
 
 	pres = NULL;
 	if (random_(15, 10) == 0 || onlygood) {
@@ -1586,8 +1584,6 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 		pres = NULL;
 		if (nl != 0) {
 			pres = l[random_(16, nl)];
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
-			copy_str(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -1599,18 +1595,6 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 			    pres->PLMultVal);
 			item[ii]._iPrePower = pres->PLPower;
 		}
-	}
-	iname = &item[ii]._iIName;
-	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
-		strcpy(*iname, AllItemsList[item[ii]._iIdx].iSName);
-		if (pres != NULL) {
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
-			copy_str(*iname, istr);
-		}
-		snprintf(istr, sizeof(istr), "%s of %s", *iname, spelldata[bs].sNameText);
-		copy_str(*iname, istr);
-		if (item[ii]._iMagical == ITEM_QUALITY_NORMAL)
-			copy_str(item[ii]._iName, *iname);
 	}
 	CalcItemValue(ii);
 }
@@ -2009,9 +1993,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	int pre, post, nl;
 	const PLStruct *pres, *sufs;
 	const PLStruct *l[256];
-	char istr[64];
 	BYTE goe;
-	char (* iname)[64];
 
 	pre = random_(23, 4);
 	post = random_(23, 3);
@@ -2044,8 +2026,6 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		pres = NULL;
 		if (nl != 0) {
 			pres = l[random_(23, nl)];
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, item[ii]._iIName);
-			copy_str(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -2073,8 +2053,6 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		sufs = NULL;
 		if (nl != 0) {
 			sufs = l[random_(23, nl)];
-			snprintf(istr, sizeof(istr), "%s of %s", item[ii]._iIName, sufs->PLName);
-			copy_str(item[ii]._iIName, istr);
 			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			SaveItemPower(
 			    ii,
@@ -2085,18 +2063,6 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 			    sufs->PLMaxVal,
 			    sufs->PLMultVal);
 			item[ii]._iSufPower = sufs->PLPower;
-		}
-	}
-	iname = &item[ii]._iIName;
-	if (!control_WriteStringToBuffer((BYTE *)*iname)) {
-		strcpy(*iname, AllItemsList[item[ii]._iIdx].iSName);
-		if (pres != NULL) {
-			snprintf(istr, sizeof(istr), "%s %s", pres->PLName, *iname);
-			copy_str(*iname, istr);
-		}
-		if (sufs != NULL) {
-			snprintf(istr, sizeof(istr), "%s of %s", *iname, sufs->PLName);
-			copy_str(*iname, istr);
 		}
 	}
 	if (pres != NULL || sufs != NULL)
