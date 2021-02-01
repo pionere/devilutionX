@@ -740,32 +740,6 @@ void CreatePlayer(int pnum, char c)
 	for (i = 0; i < lengthof(p->_pSplTHotKey); i++)
 		p->_pSplTHotKey[i] = RSPLTYPE_INVALID;
 
-	// TODO: BUGFIX: is this necessary? does not seem to work with hellfire...
-	switch (c) {
-	case PC_WARRIOR:
-		p->_pgfxnum = ANIM_ID_SWORD_SHIELD;
-		break;
-	case PC_ROGUE:
-		p->_pgfxnum = ANIM_ID_BOW;
-		break;
-	case PC_SORCERER:
-		p->_pgfxnum = ANIM_ID_STAFF;
-		break;
-#ifdef HELLFIRE
-	case PC_MONK:
-		p->_pgfxnum = ANIM_ID_STAFF;
-		break;
-	case PC_BARD:
-		p->_pgfxnum = ANIM_ID_SWORD_SHIELD;
-		break;
-	case PC_BARBARIAN:
-		p->_pgfxnum = ANIM_ID_SWORD_SHIELD;
-		break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-	}
-
 	InitDungMsgs(pnum);
 	CreatePlrItems(pnum);
 	SetRndSeed(0);
@@ -920,12 +894,6 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 	if (FirstTime) {
 		p->_pRSplType = RSPLTYPE_INVALID;
 		p->_pRSpell = p->_pSpell = SPL_INVALID;
-		// TODO: BUGFIX: does not seem to be the best place to set this
-		if ((p->_pgfxnum & 0xF) == ANIM_ID_BOW) {
-			p->_pwtype = WT_RANGED;
-		} else {
-			p->_pwtype = WT_MELEE;
-		}
 		p->pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
