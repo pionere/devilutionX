@@ -9,17 +9,16 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /**
  * @brief Load a tile in to dPiece
- * @param P3Tiles Tile set
  * @param xx upper left destination
  * @param yy upper left destination
  * @param t tile id (-1)
  */
-void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t)
+static void T_FillTile(int xx, int yy, int t)
 {
 	long v1, v2, v3, v4;
 	WORD *Tiles;
 
-	Tiles = ((WORD *)&P3Tiles[t * 8]);
+	Tiles = ((WORD *)&pMegaTiles[t * 8]);
 	v1 = SDL_SwapLE16(*(Tiles + 0)) + 1;
 	v2 = SDL_SwapLE16(*(Tiles + 1)) + 1;
 	v3 = SDL_SwapLE16(*(Tiles + 2)) + 1;
@@ -236,7 +235,6 @@ unsigned char GetOpenWarps()
 void T_Pass3()
 {
 	int x;
-	BYTE *P3Tiles;
 	unsigned char twarps;
 
 	LoadFileWithMem("Levels\\TownData\\Town.RDUN", (BYTE*)&dPiece[0][0]);
@@ -248,26 +246,22 @@ void T_Pass3()
 	}
 #endif
 
-	P3Tiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
-
 	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive != QUEST_NOTAVAIL) {
-		T_FillTile(P3Tiles, 50 + DBORDERX, 60 + DBORDERY, 342 - 1);
+		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
 	}
 
 	twarps = GetOpenWarps();
 	if (!(twarps & (1 << TWARP_CATACOMB)))
-		T_FillTile(P3Tiles, 38 + DBORDERX, 10 + DBORDERY, 320 - 1);
+		T_FillTile(38 + DBORDERX, 10 + DBORDERY, 320 - 1);
 	if (!(twarps & (1 << TWARP_CAVES))) {
-		T_FillTile(P3Tiles, 6 + DBORDERX, 58 + DBORDERY, 332 - 1);
-		T_FillTile(P3Tiles, 6 + DBORDERX, 60 + DBORDERY, 331 - 1);
+		T_FillTile(6 + DBORDERX, 58 + DBORDERY, 332 - 1);
+		T_FillTile(6 + DBORDERX, 60 + DBORDERY, 331 - 1);
 	}
 	if (!(twarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
-			T_FillTile(P3Tiles, x, 68 + DBORDERY, random_(0, 4));
+			T_FillTile(x, 68 + DBORDERY, random_(0, 4));
 		}
 	}
-
-	mem_free_dbg(P3Tiles);
 
 #ifdef HELLFIRE
 	if (!(twarps & (1 << TWARP_HIVE)))
