@@ -32,6 +32,7 @@ void DeltaLoadLevel();
 void NetSendCmd(BOOL bHiPri, BYTE bCmd);
 void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl);
 void NetSendCmdLoc(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y);
+void NetSendCmdLocBParam1(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE wParam1);
 void NetSendCmdLocParam1(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1);
 void NetSendCmdLocParam2(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, WORD wParam2);
 void NetSendCmdLocBParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE wParam1, BYTE wParam2, BYTE wParam3);

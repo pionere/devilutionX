@@ -52,16 +52,15 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->plrlevel = p->plrlevel;
 	pPack->px = p->_px;
 	pPack->py = p->_py;
-	pPack->targx = p->_ptargx;
-	pPack->targy = p->_ptargy;
 	copy_str(pPack->pName, p->_pName);
 	pPack->pClass = p->_pClass;
-	pPack->pBaseStr = p->_pBaseStr;
-	pPack->pBaseMag = p->_pBaseMag;
-	pPack->pBaseDex = p->_pBaseDex;
-	pPack->pBaseVit = p->_pBaseVit;
+	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
+	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
+	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
+	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
 	pPack->pLevel = p->_pLevel;
-	pPack->pStatPts = p->_pStatPts;
+	pPack->pDiabloKillLevel = p->_pDiabloKillLevel;
+	pPack->pStatPts = SwapLE16(p->_pStatPts);
 	pPack->pExperience = SwapLE32(p->_pExperience);
 	pPack->pGold = SwapLE32(p->_pGold);
 	pPack->pHPBase = SwapLE32(p->_pHPBase);
@@ -70,17 +69,23 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
 	pPack->pMemSpells = SDL_SwapLE64(p->_pMemSpells);
 
-	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
-		pPack->pSplLvl[i] = p->_pSplLvl[i];
-#ifdef HELLFIRE
-	for (i = 37; i < 47; i++)
-		pPack->pSplLvl2[i - 37] = p->_pSplLvl[i];
-#endif
+	static_assert(sizeof(p->_pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
+	static_assert(sizeof(pPack->pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
+	memcpy(pPack->pSplLvl, p->_pSplLvl, sizeof(p->_pSplLvl));
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
+		PackItem(pki, pi);
+		pki++;
+		pi++;
+	}
+
+	pki = &pPack->SpdList[0];
+	pi = &p->SpdList[0];
+
+	for (i = 0; i < MAXBELTITEMS; i++) {
 		PackItem(pki, pi);
 		pki++;
 		pi++;
@@ -99,14 +104,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
 	pPack->_pNumInv = p->_pNumInv;
-	pki = &pPack->SpdList[0];
-	pi = &p->SpdList[0];
-
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		PackItem(pki, pi);
-		pki++;
-		pi++;
-	}
+	pPack->pManaShield = p->pManaShield;
 
 	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
 	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
@@ -114,9 +112,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->pSplHotKey[i] = p->_pSplHotKey[i];
 		pPack->pSplTHotKey[i] = p->_pSplTHotKey[i];
 	}
-
-	pPack->pDiabloKillLevel = SwapLE32(p->pDiabloKillLevel);
-	pPack->pManaShield = p->pManaShield;
 }
 
 /**
@@ -180,7 +175,7 @@ static void VerifyGoldSeeds(PlayerStruct *p)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
+void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL active)
 {
 	PlayerStruct *p;
 	int i;
@@ -192,29 +187,24 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->_py = pPack->py;
 	p->_pfutx = pPack->px;
 	p->_pfuty = pPack->py;
-	p->_ptargx = pPack->targx;
-	p->_ptargy = pPack->targy;
 	p->plrlevel = pPack->plrlevel;
 	ClrPlrPath(pnum);
 	p->destAction = ACTION_NONE;
 	copy_str(p->_pName, pPack->pName);
 	p->_pClass = pPack->pClass;
 	p->_pLevel = pPack->pLevel;
-	InitPlayer(pnum, TRUE);
-	p->_pBaseStr = pPack->pBaseStr;
-	p->_pStrength = pPack->pBaseStr;
-	p->_pBaseMag = pPack->pBaseMag;
-	p->_pMagic = pPack->pBaseMag;
-	p->_pBaseDex = pPack->pBaseDex;
-	p->_pDexterity = pPack->pBaseDex;
-	p->_pBaseVit = pPack->pBaseVit;
-	p->_pVitality = pPack->pBaseVit;
-	p->_pStatPts = pPack->pStatPts;
+	p->_pDiabloKillLevel = pPack->pDiabloKillLevel;
+	p->_pStatPts = SwapLE16(pPack->pStatPts);
+	InitPlayer(pnum, TRUE, active);
+	p->_pStrength = p->_pBaseStr = SwapLE16(pPack->pBaseStr);
+	p->_pMagic = p->_pBaseMag = SwapLE16(pPack->pBaseMag);
+	p->_pDexterity = p->_pBaseDex = SwapLE16(pPack->pBaseDex);
+	p->_pVitality = p->_pBaseVit = SwapLE16(pPack->pBaseVit);
 	p->_pExperience = SwapLE32(pPack->pExperience);
 	p->_pGold = SwapLE32(pPack->pGold);
 	p->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
 	p->_pHPBase = SwapLE32(pPack->pHPBase);
-	if (!killok)
+	if (!active)
 		if (p->_pHPBase < 64)
 			p->_pHPBase = 64;
 
@@ -222,17 +212,23 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 	p->_pManaBase = SwapLE32(pPack->pManaBase);
 	p->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
 
-	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
-		p->_pSplLvl[i] = pPack->pSplLvl[i];
-#ifdef HELLFIRE
-	for (i = 37; i < 47; i++)
-		p->_pSplLvl[i] = pPack->pSplLvl2[i - 37];
-#endif
+	static_assert(sizeof(p->_pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy III.");
+	static_assert(sizeof(pPack->pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy IV.");
+	memcpy(p->_pSplLvl, pPack->pSplLvl, sizeof(pPack->pSplLvl));
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
+		UnPackItem(pki, pi);
+		pki++;
+		pi++;
+	}
+
+	pki = &pPack->SpdList[0];
+	pi = &p->SpdList[0];
+
+	for (i = 0; i < MAXBELTITEMS; i++) {
 		UnPackItem(pki, pi);
 		pki++;
 		pi++;
@@ -251,16 +247,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 		p->InvGrid[i] = pPack->InvGrid[i];
 
 	p->_pNumInv = pPack->_pNumInv;
-	VerifyGoldSeeds(p);
-
-	pki = &pPack->SpdList[0];
-	pi = &p->SpdList[0];
-
-	for (i = 0; i < MAXBELTITEMS; i++) {
-		UnPackItem(pki, pi);
-		pki++;
-		pi++;
-	}
+	p->pManaShield = pPack->pManaShield;
+	p->pBattleNet = pPack->pBattleNet;
 
 	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
 	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
@@ -269,15 +257,13 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 		p->_pSplTHotKey[i] = pPack->pSplTHotKey[i];
 	}
 
+	VerifyGoldSeeds(p);
 	CalcPlrInv(pnum, FALSE);
 
 	p->pTownWarps = 0;
 	p->pDungMsgs = 0;
 	p->pDungMsgs2 = 0;
 	p->pLvlLoad = 0;
-	p->pDiabloKillLevel = SwapLE32(pPack->pDiabloKillLevel);
-	p->pBattleNet = pPack->pBattleNet;
-	p->pManaShield = pPack->pManaShield;
 }
 
 DEVILUTION_END_NAMESPACE

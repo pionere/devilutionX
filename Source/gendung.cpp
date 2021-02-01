@@ -306,7 +306,7 @@ void DRLG_PlaceMegaTiles(int lv)
 void DRLG_InitTrans()
 {
 	memset(dTransVal, 0, sizeof(dTransVal));
-	memset(TransList, 0, sizeof(TransList));
+	//memset(TransList, 0, sizeof(TransList));
 	TransVal = 1;
 }
 

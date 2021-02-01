@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];
 extern BYTE lightactive[MAXLIGHTS];
 extern LightListStruct LightList[MAXLIGHTS];
@@ -24,7 +25,6 @@ extern char lightmax;
 #define LIGHTMAX 15
 #endif
 extern BOOL dolighting;
-extern int visionid;
 extern BYTE *pLightTbl;
 
 void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum);
@@ -50,6 +50,7 @@ void ProcessLightList();
 void SavePreLighting();
 void InitVision();
 int AddVision(int x, int y, int r, BOOL mine);
+void AddUnVision(int vnum);
 void ChangeVisionRadius(int vnum, int r);
 void ChangeVisionXY(int vnum, int x, int y);
 void ProcessVisionList();

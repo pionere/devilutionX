@@ -213,7 +213,7 @@ void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSav
 	heroinfo->vitality = p->_pVitality;
 	heroinfo->gold = p->_pGold;
 	heroinfo->hassaved = bHasSaveFile;
-	heroinfo->herorank = p->pDiabloKillLevel;
+	heroinfo->herorank = p->_pDiabloKillLevel;
 }
 
 BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))

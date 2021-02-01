@@ -1756,7 +1756,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	IncProgress();
 	InitAutomap();
 
-	if (leveltype != DTYPE_TOWN && lvldir != ENTRY_LOAD) {
+	if (lvldir != ENTRY_LOAD) {
 		InitLighting();
 		InitVision();
 	}
@@ -1795,7 +1795,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag);
+					InitPlayer(i, firstflag, TRUE);
 			}
 		}
 
@@ -1875,7 +1875,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag);
+					InitPlayer(i, firstflag, TRUE);
 			}
 		}
 

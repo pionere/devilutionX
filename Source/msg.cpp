@@ -990,6 +990,20 @@ void NetSendCmdLoc(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdLocBParam1(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
+{
+	TCmdLocBParam1 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.x = x;
+	cmd.y = y;
+	cmd.bParam1 = bParam1;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdLocParam1(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 {
 	TCmdLocParam1 cmd;
@@ -2152,7 +2166,7 @@ static DWORD On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 
 static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
 	PlayerStruct* p;
 
 	if (gbBufferMsgs == 1)
@@ -2169,7 +2183,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 		if (p->plractive && myplr != pnum) {
 			p->_px = cmd->x;
 			p->_py = cmd->y;
-			p->plrlevel = cmd->wParam1;
+			p->plrlevel = cmd->bParam1;
 			p->_pGFXLoad = 0;
 			if (currlevel == p->plrlevel) {
 				SyncInitPlr(pnum);

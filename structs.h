@@ -209,21 +209,19 @@ static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 256, "Align Ite
 typedef struct PlayerStruct {
 	int _pmode;
 	char walkpath[MAX_PATH_LENGTH];
-	BOOLEAN plractive;
 	int destAction;
 	int destParam1;
 	int destParam2;
 	int destParam3;
 	int destParam4;
-	int plrlevel;
+	BOOLEAN plractive;
+	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
+	BYTE plrlevel;
+	BYTE _pBaseToBlk;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
 	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
 	int _pfuty;   // Future tile Y-position of player. Set at start of walking animation
-	int _ptargx;  // unused
-	int _ptargy;  // unused
-	int _pownerx; // unused
-	int _pownery; // unused
 	int _poldx;   // Most recent X-position in dPlayer.
 	int _poldy;   // Most recent Y-position in dPlayer.
 	int _pxoff;   // Player sprite's pixel X-offset from tile.
@@ -240,31 +238,25 @@ typedef struct PlayerStruct {
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
 	int _pAnimWidth2;
-	int _peflag; // unused
 	int _plid;
 	int _pvid;
 	int _pSpell;
-	char _pSplType; // unused
-	char _pSplFrom;
 	int _pTSpell;
-	char _pTSplType; // unused
 	int _pRSpell;
+	char _pSplFrom;
 	// enum spell_type
 	char _pRSplType;
-	int _pSBkSpell; // unused
-	char _pSBkSplType; // unused
-	char _pSplLvl[64];
+	BYTE _pSplLvl[64];
 	uint64_t _pMemSpells;  // Bitmask of learned spells
 	uint64_t _pAblSpells;  // Bitmask of abilities
 	uint64_t _pScrlSpells; // Bitmask of spells avalible via scrolls
 	UCHAR _pSpellFlags;
 	int _pSplHotKey[4];
 	char _pSplTHotKey[4];
-	int _pwtype;
+	BYTE _pwtype;
 	BOOLEAN _pBlockFlag;
 	BOOLEAN _pInvincible;
 	char _pLightRad;
-	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	char _pName[PLR_NAME_LEN];
 	// plr_class enum value.
 	// TODO: this could very well be `enum plr_class _pClass`
@@ -273,16 +265,14 @@ typedef struct PlayerStruct {
 	// the higher bytes by using byte instructions, since all possible values
 	// of plr_class fit into one byte.
 	char _pClass;
+	WORD _pBaseStr;
+	WORD _pBaseMag;
+	WORD _pBaseDex;
+	WORD _pBaseVit;
 	int _pStrength;
-	int _pBaseStr;
 	int _pMagic;
-	int _pBaseMag;
 	int _pDexterity;
-	int _pBaseDex;
 	int _pVitality;
-	int _pBaseVit;
-	int _pStatPts;
-	int _pBaseToBlk;
 	int _pHPBase;
 	int _pMaxHPBase;
 	int _pHitPoints;
@@ -293,12 +283,12 @@ typedef struct PlayerStruct {
 	int _pMana;
 	int _pMaxMana;
 	int _pManaPer;
-	char _pLevel;
-	BOOLEAN _pLvlUp; // _pMaxLvl in vanilla code
+	BYTE _pLevel;
+	BYTE _pDiabloKillLevel;
+	WORD _pStatPts;
+	BOOLEAN _pLvlUp;
 	int _pExperience;
-	int _pMaxExp; // unused
 	int _pNextExper;
-	char _pArmorClass;
 	char _pMagResist;
 	char _pFireResist;
 	char _pLghtResist;
@@ -341,10 +331,10 @@ typedef struct PlayerStruct {
 	unsigned _pBFrames;
 	int _pBWidth;
 	ItemStruct InvBody[NUM_INVLOC];
-	ItemStruct InvList[NUM_INV_GRID_ELEM];
-	int _pNumInv;
-	char InvGrid[NUM_INV_GRID_ELEM];
 	ItemStruct SpdList[MAXBELTITEMS];
+	ItemStruct InvList[NUM_INV_GRID_ELEM];
+	char InvGrid[NUM_INV_GRID_ELEM];
+	int _pNumInv;
 	ItemStruct HoldItem;
 	int _pISlMinDam;
 	int _pISlMaxDam;
@@ -377,16 +367,12 @@ typedef struct PlayerStruct {
 	int _pIHMinDam;
 	int _pIHMaxDam;
 	int _pOilType;
-	unsigned char pTownWarps;
-	unsigned char pDungMsgs;
-	unsigned char pLvlLoad;
-	unsigned char pBattleNet;
+	BYTE pTownWarps;
+	BYTE pDungMsgs;
+	BYTE pLvlLoad;
+	BYTE pBattleNet;
 	BYTE pManaShield;
-	unsigned char pDungMsgs2;
-	char bReserved[4];
-	short wReserved[7];
-	DWORD pDiabloKillLevel;
-	int dwReserved[7];
+	BYTE pDungMsgs2;
 	unsigned char *_pNData;
 	unsigned char *_pWData;
 	unsigned char *_pAData;
@@ -396,12 +382,11 @@ typedef struct PlayerStruct {
 	unsigned char *_pHData;
 	unsigned char *_pDData;
 	unsigned char *_pBData;
-	void *pReserved;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[479];
+	int alignment[509];
 #else
-	int alignment[483];
+	int alignment[513];
 #endif
 #endif
 } PlayerStruct;
@@ -828,6 +813,13 @@ typedef struct TCmdLoc {
 	BYTE y;
 } TCmdLoc;
 
+typedef struct TCmdLocBParam1 {
+	BYTE bCmd;
+	BYTE x;
+	BYTE y;
+	BYTE bParam1;
+} TCmdLocBParam1;
+
 typedef struct TCmdLocParam1 {
 	BYTE bCmd;
 	BYTE x;
@@ -1041,15 +1033,12 @@ typedef struct TSyncMonster {
 } TSyncMonster;
 
 typedef struct TPktHdr {
-	BYTE px;
-	BYTE py;
-	BYTE targx;
-	BYTE targy;
 	int php;
 	int pmhp;
-	BYTE bstr;
-	BYTE bmag;
-	BYTE bdex;
+	int pmp;
+	int pmmp;
+	BYTE px;
+	BYTE py;
 	WORD wCheck;
 	WORD wLen;
 } TPktHdr;
@@ -1362,20 +1351,19 @@ typedef struct InvXY {
 typedef struct LightListStruct {
 	int _lx;
 	int _ly;
-	int _lradius;
-	int _lid;
-	int _ldel;
-	int _lunflag;
 	int _lunx;
 	int _luny;
-	int _lunr;
+	BYTE _lradius;
+	BYTE _lunr;
+	BOOLEAN _ldel;
+	BOOLEAN _lunflag;
+	BOOL _lmine;
 	int _xoff;
 	int _yoff;
-	int _lflags;
 } LightListStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 32, "Align LightListStruct closer to power of 2 for better performance.");
+static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "Align LightListStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1576,42 +1564,34 @@ typedef struct PkPlayerStruct {
 	BYTE plrlevel;
 	BYTE px;
 	BYTE py;
-	BYTE targx;
-	BYTE targy;
 	char pName[PLR_NAME_LEN];
 	char pClass;
-	BYTE pBaseStr;
-	BYTE pBaseMag;
-	BYTE pBaseDex;
-	BYTE pBaseVit;
-	char pLevel;
-	BYTE pStatPts;
+	WORD pBaseStr;
+	WORD pBaseMag;
+	WORD pBaseDex;
+	WORD pBaseVit;
+	BYTE pLevel;
+	BYTE pDiabloKillLevel;
+	WORD pStatPts;
 	int pExperience;
 	int pGold;
 	int pHPBase;
 	int pMaxHPBase;
 	int pManaBase;
 	int pMaxManaBase;
-	char pSplLvl[37]; // Should be MAX_SPELLS but set to 37 to make save games compatible
+	BYTE pSplLvl[64];
 	uint64_t pMemSpells;
 	PkItemStruct InvBody[NUM_INVLOC];
+	PkItemStruct SpdList[MAXBELTITEMS];
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE _pNumInv;
-	PkItemStruct SpdList[MAXBELTITEMS];
-	char bReserved0[3];
+	BYTE pManaShield;
 	char pBattleNet;
-	BOOLEAN pManaShield;
-	char bReserved1[7];
-	char pSplLvl2[10]; // Hellfire spells
-	short wReserved8;
-	DWORD pDiabloKillLevel;
 	char pSplHotKey[4];
 	char pSplTHotKey[4];
-#if INT_MAX == INT64_MAX
-	int dwReserved0;
-#endif
-	int dwReserved1[5];
+	char bReserved1[8];
+	int dwReserved1[8];
 } PkPlayerStruct;
 #pragma pack(pop)
 

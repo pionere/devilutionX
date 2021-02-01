@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void PackPlayer(PkPlayerStruct *pPack, int pnum);
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok);
+void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL active);
 #ifdef HELLFIRE
 void PackItem(PkItemStruct *pis, ItemStruct *is);
 void UnPackItem(PkItemStruct *pis, ItemStruct *is);

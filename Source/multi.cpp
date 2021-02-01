@@ -98,21 +98,18 @@ static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, DWORD *size)
 	return body;
 }
 
-static void NetRecvPlrData(TPkt *pkt)
+static void NetRecvPlrData(TPktHdr &pktHdr)
 {
 	PlayerStruct *p;
 
 	p = &plr[myplr];
-	pkt->hdr.wCheck = 'ip';
-	pkt->hdr.px = p->_px;
-	pkt->hdr.py = p->_py;
-	pkt->hdr.targx = p->_ptargx;
-	pkt->hdr.targy = p->_ptargy;
-	pkt->hdr.php = p->_pHitPoints;
-	pkt->hdr.pmhp = p->_pMaxHP;
-	pkt->hdr.bstr = p->_pBaseStr;
-	pkt->hdr.bmag = p->_pBaseMag;
-	pkt->hdr.bdex = p->_pBaseDex;
+	pktHdr.wCheck = 'ip';
+	pktHdr.px = p->_px;
+	pktHdr.py = p->_py;
+	pktHdr.php = p->_pHitPoints;
+	pktHdr.pmhp = p->_pMaxHP;
+	pktHdr.pmp = p->_pMana;
+	pktHdr.pmmp = p->_pMaxMana;
 }
 
 void multi_msg_add(BYTE *pbMsg, BYTE bLen)
@@ -126,7 +123,7 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 {
 	TPkt pkt;
 
-	NetRecvPlrData(&pkt);
+	NetRecvPlrData(pkt.hdr);
 	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
 	memcpy(pkt.body, packet, dwSize);
 	if (!SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen))
@@ -140,7 +137,7 @@ static void validate_package()
 	DWORD size, len;
 	TPkt pkt;
 
-	NetRecvPlrData(&pkt);
+	NetRecvPlrData(pkt.hdr);
 	size = gdwNormalMsgSize - sizeof(TPktHdr);
 	hipri_body = multi_recv_packet(&sgHiPriBuf, pkt.body, &size);
 	lowpri_body = multi_recv_packet(&sgLoPriBuf, hipri_body, &size);
@@ -173,7 +170,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 	DWORD i, msglen;
 	TPkt pkt;
 
-	NetRecvPlrData(&pkt);
+	NetRecvPlrData(pkt.hdr);
 	msglen = len + sizeof(pkt.hdr);
 	pkt.hdr.wLen = msglen;
 	memcpy(pkt.body, src, len);
@@ -241,16 +238,20 @@ void multi_msg_countdown()
 	}
 }
 
-static void multi_player_left_msg(int pnum, int left)
+static void multi_player_left_msg(int pnum, BOOLEAN left)
 {
 	const char *pszFmt;
 
 	if (plr[pnum].plractive) {
-		RemovePlrFromMap(pnum);
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
-		RemovePlrMissiles(pnum);
+		if (plr[pnum].plrlevel == currlevel) {
+			AddUnLight(plr[pnum]._plid);
+			AddUnVision(plr[pnum]._pvid);
+			RemovePlrFromMap(pnum);
+			RemovePlrMissiles(pnum);
+		}
 		if (left) {
 			pszFmt = "Player '%s' just left the game";
 			switch (sgdwPlayerLeftReasonTbl[pnum]) {
@@ -279,7 +280,7 @@ static void multi_clear_left_tbl()
 			if (gbBufferMsgs == 1)
 				msg_send_drop_pkt(i, sgdwPlayerLeftReasonTbl[i]);
 			else
-				multi_player_left_msg(i, 1);
+				multi_player_left_msg(i, TRUE);
 
 			sgbPlayerLeftGameTbl[i] = FALSE;
 			sgdwPlayerLeftReasonTbl[i] = 0;
@@ -462,15 +463,12 @@ void multi_process_network_packets()
 		if (pkt->wLen != dwMsgSize)
 			continue;
 		p = &plr[pnum];
-		p->_pownerx = pkt->px;
-		p->_pownery = pkt->py;
 		if (pnum != myplr) {
 			// ASSERT: gbBufferMsgs != BUFFER_PROCESS (2)
 			p->_pHitPoints = pkt->php;
 			p->_pMaxHP = pkt->pmhp;
-			p->_pBaseStr = pkt->bstr;
-			p->_pBaseMag = pkt->bmag;
-			p->_pBaseDex = pkt->bdex;
+			p->_pMana = pkt->pmp;
+			p->_pMaxMana = pkt->pmmp;
 			if (gbBufferMsgs != 1 && p->plractive && p->_pHitPoints >= (1 << 6)) {
 				if (currlevel == p->plrlevel && !p->_pLvlChanging) {
 					dx = abs(p->_px - pkt->px);
@@ -491,14 +489,11 @@ void multi_process_network_packets()
 						p->_pfutx = p->_px;
 						p->_pfuty = p->_py;
 					}
-					MakePlrPath(pnum, pkt->targx, pkt->targy, TRUE);
 				} else {
 					p->_px = pkt->px;
 					p->_py = pkt->py;
 					p->_pfutx = pkt->px;
 					p->_pfuty = pkt->py;
-					p->_ptargx = pkt->targx;
-					p->_ptargy = pkt->targy;
 				}
 			}
 		}
@@ -522,15 +517,12 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 
 	while (dwLen != 0) {
 		pkt.hdr.wCheck = 'ip';
-		pkt.hdr.px = 0;
-		pkt.hdr.py = 0;
-		pkt.hdr.targx = 0;
-		pkt.hdr.targy = 0;
 		pkt.hdr.php = 0;
 		pkt.hdr.pmhp = 0;
-		pkt.hdr.bstr = 0;
-		pkt.hdr.bmag = 0;
-		pkt.hdr.bdex = 0;
+		pkt.hdr.pmp = 0;
+		pkt.hdr.pmmp = 0;
+		pkt.hdr.px = 0;
+		pkt.hdr.py = 0;
 		p = (TCmdPlrInfoHdr *)pkt.body;
 		p->bCmd = bCmd;
 		p->wOffset = dwOffset;
@@ -635,8 +627,6 @@ static void SetupLocalCoords()
 	p->_py = y;
 	p->_pfutx = x;
 	p->_pfuty = y;
-	p->_ptargx = x;
-	p->_ptargy = y;
 	p->plrlevel = currlevel;
 	p->_pLvlChanging = TRUE;
 	p->pLvlLoad = 0;
@@ -907,10 +897,10 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv)
 	}
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
-	multi_player_left_msg(pnum, 0);
+	multi_player_left_msg(pnum, FALSE);
 	plr[pnum]._pGFXLoad = 0;
-	UnPackPlayer(&netplr[pnum], pnum, TRUE);
-
+	UnPackPlayer(&netplr[pnum], pnum, recv); // active was TRUE, but if recv is FALSE,
+											 //  the player is not activated -> do not kill/load lid,vid,anims...
 	if (!recv) {
 		return;
 	}

@@ -101,11 +101,9 @@ static void CopyInt64(const void *src, void *dst)
 
 static void LoadItemData(ItemStruct *is)
 {
-	int tmp;
-
 	CopyInt(tbuff, &is->_iSeed);
 	CopyShort(tbuff, &is->_iCreateInfo);
-	tbuff += 2; // Alignment
+	CopyShort(tbuff, &is->_iIdx);
 	CopyInt(tbuff, &is->_itype);
 	CopyInt(tbuff, &is->_ix);
 	CopyInt(tbuff, &is->_iy);
@@ -115,22 +113,20 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iAnimFrame);
 	CopyInt(tbuff, &is->_iAnimWidth);
 	CopyInt(tbuff, &is->_iAnimWidth2);
-	tbuff += 4; // Skip _iDelFlag
-	CopyChar(tbuff, &is->_iSelFlag);
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &is->_iPostDraw);
 	CopyInt(tbuff, &is->_iIdentified);
-	CopyChar(tbuff, &is->_iMagical);
 	CopyBytes(tbuff, 64, &is->_iName);
 	CopyBytes(tbuff, 64, &is->_iIName);
+	CopyChar(tbuff, &is->_iSelFlag);
+	CopyChar(tbuff, &is->_iMagical);
 	CopyChar(tbuff, &is->_iLoc);
 	CopyChar(tbuff, &is->_iClass);
-	tbuff += 1; // Alignment
 	CopyInt(tbuff, &is->_iCurs);
 	CopyInt(tbuff, &is->_ivalue);
 	CopyInt(tbuff, &is->_iIvalue);
-	CopyInt(tbuff, &is->_iMinDam);
-	CopyInt(tbuff, &is->_iMaxDam);
+	CopyChar(tbuff, &is->_iMinDam);
+	CopyChar(tbuff, &is->_iMaxDam);
+	tbuff += 2; // Alignment
 	CopyInt(tbuff, &is->_iAC);
 	CopyInt(tbuff, &is->_iFlags);
 	CopyInt(tbuff, &is->_iMiscId);
@@ -155,35 +151,32 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iPLGetHit);
 	CopyChar(tbuff, &is->_iPLLight);
 	CopyChar(tbuff, &is->_iDamType);
-	tbuff += 2; // Alignment
 	CopyChar(tbuff, &is->_iSplLvlAdd);
 	CopyChar(tbuff, &is->_iRequest);
-	CopyChar(tbuff, &is->_iLifeSteal);
 	CopyChar(tbuff, &is->_iManaSteal);
+	CopyChar(tbuff, &is->_iLifeSteal);
+	tbuff += 2; // Alignment
 	CopyInt(tbuff, &is->_iUid);
-	CopyInt(tbuff, &is->_iFMinDam);
-	CopyInt(tbuff, &is->_iFMaxDam);
-	CopyInt(tbuff, &is->_iLMinDam);
-	CopyInt(tbuff, &is->_iLMaxDam);
+	CopyChar(tbuff, &is->_iFMinDam);
+	CopyChar(tbuff, &is->_iFMaxDam);
+	CopyChar(tbuff, &is->_iLMinDam);
+	CopyChar(tbuff, &is->_iLMaxDam);
+	CopyChar(tbuff, &is->_iMMinDam);
+	CopyChar(tbuff, &is->_iMMaxDam);
+	CopyChar(tbuff, &is->_iHMinDam);
+	CopyChar(tbuff, &is->_iHMaxDam);
 	CopyInt(tbuff, &is->_iPLEnAc);
 	CopyChar(tbuff, &is->_iPrePower);
 	CopyChar(tbuff, &is->_iSufPower);
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &is->_iVAdd);
 	CopyInt(tbuff, &is->_iVMult);
-	tbuff += 4; // Skip _iVAdd2
-	tbuff += 4; // Skip _iVMult2
 	CopyChar(tbuff, &is->_iMinStr);
 	CopyChar(tbuff, &is->_iMinMag);
 	CopyChar(tbuff, &is->_iMinDex);
 	tbuff += 1; // Alignment
 	CopyInt(tbuff, &is->_iStatFlag);
-	CopyInt(tbuff, &tmp); 	// TODO: convert to CopyShort when backwards compatibility is not a concern
-	is->_iIdx = tmp;
 	CopyInt(tbuff, &is->_iFlags2);
-#ifdef HELLFIRE
-	tbuff += 4; // Skip _iDamAcFlags
-#endif
 }
 
 static void LoadItems(ItemStruct *pItem, const int n)
@@ -199,22 +192,19 @@ static void LoadPlayer(int pnum)
 
 	CopyInt(tbuff, &p->_pmode);
 	CopyBytes(tbuff, MAX_PATH_LENGTH, p->walkpath);
-	CopyBytes(tbuff, 1, &p->plractive);
-	tbuff += 2; // Alignment
 	CopyInt(tbuff, &p->destAction);
 	CopyInt(tbuff, &p->destParam1);
 	CopyInt(tbuff, &p->destParam2);
 	CopyInt(tbuff, &p->destParam3);
 	CopyInt(tbuff, &p->destParam4);
-	CopyInt(tbuff, &p->plrlevel);
+	CopyChar(tbuff, &p->plractive);
+	CopyChar(tbuff, &p->_pLvlChanging);
+	CopyChar(tbuff, &p->plrlevel);
+	CopyChar(tbuff, &p->_pBaseToBlk);
 	CopyInt(tbuff, &p->_px);
 	CopyInt(tbuff, &p->_py);
 	CopyInt(tbuff, &p->_pfutx);
 	CopyInt(tbuff, &p->_pfuty);
-	CopyInt(tbuff, &p->_ptargx);
-	CopyInt(tbuff, &p->_ptargy);
-	CopyInt(tbuff, &p->_pownerx);
-	CopyInt(tbuff, &p->_pownery);
 	CopyInt(tbuff, &p->_poldx);
 	CopyInt(tbuff, &p->_poldy);
 	CopyInt(tbuff, &p->_pxoff);
@@ -231,24 +221,16 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pAnimFrame);
 	CopyInt(tbuff, &p->_pAnimWidth);
 	CopyInt(tbuff, &p->_pAnimWidth2);
-	tbuff += 4; // Skip _peflag
 	CopyInt(tbuff, &p->_plid);
 	CopyInt(tbuff, &p->_pvid);
 
 	CopyInt(tbuff, &p->_pSpell);
-	tbuff += 1; // Skip _pSplType
-	CopyChar(tbuff, &p->_pSplFrom);
-	tbuff += 2; // Alignment
 	CopyInt(tbuff, &p->_pTSpell);
-	tbuff += 1; // Skip _pTSplType
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &p->_pRSpell);
+	CopyChar(tbuff, &p->_pSplFrom);
 	CopyChar(tbuff, &p->_pRSplType);
-	tbuff += 3; // Alignment
-	tbuff += 4; // Skip _pSBkSpell
-	tbuff += 1; // Skip _pSBkSplType
+	tbuff += 2; // Alignment
 	CopyBytes(tbuff, 64, &p->_pSplLvl);
-	tbuff += 7; // Alignment
 	CopyInt64(tbuff, &p->_pMemSpells);
 	CopyInt64(tbuff, &p->_pAblSpells);
 	CopyInt64(tbuff, &p->_pScrlSpells);
@@ -257,26 +239,22 @@ static void LoadPlayer(int pnum)
 	CopyInts(tbuff, 4, &p->_pSplHotKey);
 	CopyBytes(tbuff, 4, &p->_pSplTHotKey);
 
-	tbuff += 4; // Skip to Calc _pwtype
+	tbuff += 1; // Skip to Calc _pwtype
 	tbuff += 1; // Skip to Calc _pBlockFlag
 	CopyChar(tbuff, &p->_pInvincible);
 	CopyChar(tbuff, &p->_pLightRad);
-	CopyChar(tbuff, &p->_pLvlChanging);
 
 	CopyBytes(tbuff, PLR_NAME_LEN, &p->_pName);
 	CopyChar(tbuff, &p->_pClass);
 	tbuff += 3; // Alignment
+	CopyShort(tbuff, &p->_pBaseStr);
+	CopyShort(tbuff, &p->_pBaseMag);
+	CopyShort(tbuff, &p->_pBaseDex);
+	CopyShort(tbuff, &p->_pBaseVit);
 	CopyInt(tbuff, &p->_pStrength);
-	CopyInt(tbuff, &p->_pBaseStr);
 	CopyInt(tbuff, &p->_pMagic);
-	CopyInt(tbuff, &p->_pBaseMag);
 	CopyInt(tbuff, &p->_pDexterity);
-	CopyInt(tbuff, &p->_pBaseDex);
 	CopyInt(tbuff, &p->_pVitality);
-	CopyInt(tbuff, &p->_pBaseVit);
-	CopyInt(tbuff, &p->_pStatPts);
-	tbuff += 4; // Skip _pDamageMod
-	CopyInt(tbuff, &p->_pBaseToBlk);
 	CopyInt(tbuff, &p->_pHPBase);
 	CopyInt(tbuff, &p->_pMaxHPBase);
 	CopyInt(tbuff, &p->_pHitPoints);
@@ -288,15 +266,16 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pMaxMana);
 	CopyInt(tbuff, &p->_pManaPer);
 	CopyChar(tbuff, &p->_pLevel);
+	CopyChar(tbuff, &p->_pDiabloKillLevel);
+	CopyShort(tbuff, &p->_pStatPts);
 	CopyChar(tbuff, &p->_pLvlUp);
-	tbuff += 2; // Alignment
+	tbuff += 3; // Alignment
 	CopyInt(tbuff, &p->_pExperience);
-	CopyInt(tbuff, &p->_pMaxExp);
 	CopyInt(tbuff, &p->_pNextExper);
-	CopyChar(tbuff, &p->_pArmorClass);
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
+	tbuff += 1; // Alignment
 	CopyInt(tbuff, &p->_pGold);
 
 	CopyInt(tbuff, &p->_pInfraFlag);
@@ -340,29 +319,31 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pBWidth);
 
 	LoadItems(p->InvBody, NUM_INVLOC);
-	LoadItems(p->InvList, NUM_INV_GRID_ELEM);
-	CopyInt(tbuff, &p->_pNumInv);
-	CopyBytes(tbuff, NUM_INV_GRID_ELEM, p->InvGrid);
 	LoadItems(p->SpdList, MAXBELTITEMS);
+	LoadItems(p->InvList, NUM_INV_GRID_ELEM);
+	CopyBytes(tbuff, NUM_INV_GRID_ELEM, p->InvGrid);
+	CopyInt(tbuff, &p->_pNumInv);
 	LoadItemData(&p->HoldItem);
 
-	tbuff += 4; // Skip to Calc _pIMinDam
-	tbuff += 4; // Skip to Calc _pIMaxDam
+	tbuff += 4; // Skip to Calc _pISlMinDam
+	tbuff += 4; // Skip to Calc _pISlMaxDam
+	tbuff += 4; // Skip to Calc _pIBlMinDam
+	tbuff += 4; // Skip to Calc _pIBlMaxDam
+	tbuff += 4; // Skip to Calc _pIPcMinDam
+	tbuff += 4; // Skip to Calc _pIPcMaxDam
 	tbuff += 4; // Skip to Calc _pIAC
-	tbuff += 4; // Skip _pIBonusDam
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseACBonus
 	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pICritChance
-	tbuff += 4; // Skip _pIBonusDamMod
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
 	tbuff += 8; // Skip to Calc _pISpells
 	tbuff += 4; // Skip to Calc _pIFlags
 	tbuff += 4; // Skip to Calc _pIGetHit
-	tbuff += 1; // Skip to Calc _pISplLvlAdd);
-	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
+	tbuff += 1; // Skip to Calc _pISplLvlAdd
+	tbuff += 1; // Skip to Calc _pIArrowVelBonus
 	tbuff += 1; // Skip to Calc _pILifeSteal
 	tbuff += 1; // Skip to Calc _pIManaSteal
 	tbuff += 4; // Skip to Calc _pIFlags2
@@ -371,23 +352,17 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIFMaxDam
 	tbuff += 4; // Skip to Calc _pILMinDam
 	tbuff += 4; // Skip to Calc _pILMaxDam
+	tbuff += 4; // Skip to Calc _pIMMinDam
+	tbuff += 4; // Skip to Calc _pIMMaxDam
+	tbuff += 4; // Skip to Calc _pIHMinDam
+	tbuff += 4; // Skip to Calc _pIHMaxDam
 	CopyInt(tbuff, &p->_pOilType);
 	CopyChar(tbuff, &p->pTownWarps);
 	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pLvlLoad);
-#ifdef HELLFIRE
-	CopyChar(tbuff, &p->pDungMsgs2);
-	p->pBattleNet = false;
-#else
 	CopyChar(tbuff, &p->pBattleNet);
-#endif
 	CopyChar(tbuff, &p->pManaShield);
-	CopyBytes(tbuff, 4, &p->bReserved);
-	tbuff += 1;
-	CopyShorts(tbuff, 7, &p->wReserved);
-
-	CopyInt(tbuff, &p->pDiabloKillLevel);
-	CopyInts(tbuff, 7, &p->dwReserved);
+	CopyChar(tbuff, &p->pDungMsgs2);
 
 	CalcPlrInv(pnum, FALSE);
 
@@ -400,7 +375,7 @@ static void LoadPlayer(int pnum)
 	// Omit pointer _pHData
 	// Omit pointer _pDData
 	// Omit pointer _pBData
-	// Omit pointer pReserved
+	// Omit pointer alignment
 }
 
 static void LoadMonster(int mnum)
@@ -633,42 +608,19 @@ static void LoadQuest(int i)
 #endif
 }
 
-static void LoadLighting(int lnum)
+static void LoadLight(LightListStruct *pLight)
 {
-	LightListStruct *pLight = &LightList[lnum];
-
 	CopyInt(tbuff, &pLight->_lx);
 	CopyInt(tbuff, &pLight->_ly);
-	CopyInt(tbuff, &pLight->_lradius);
-	CopyInt(tbuff, &pLight->_lid);
-	CopyInt(tbuff, &pLight->_ldel);
-	CopyInt(tbuff, &pLight->_lunflag);
-	tbuff += 4; // Skip pointer field_18
 	CopyInt(tbuff, &pLight->_lunx);
 	CopyInt(tbuff, &pLight->_luny);
-	CopyInt(tbuff, &pLight->_lunr);
+	CopyChar(tbuff, &pLight->_lradius);
+	CopyChar(tbuff, &pLight->_lunr);
+	CopyChar(tbuff, &pLight->_ldel);
+	CopyChar(tbuff, &pLight->_lunflag);
+	CopyInt(tbuff, &pLight->_lmine);
 	CopyInt(tbuff, &pLight->_xoff);
 	CopyInt(tbuff, &pLight->_yoff);
-	CopyInt(tbuff, &pLight->_lflags);
-}
-
-static void LoadVision(int vnum)
-{
-	LightListStruct *pVision = &VisionList[vnum];
-
-	CopyInt(tbuff, &pVision->_lx);
-	CopyInt(tbuff, &pVision->_ly);
-	CopyInt(tbuff, &pVision->_lradius);
-	CopyInt(tbuff, &pVision->_lid);
-	CopyInt(tbuff, &pVision->_ldel);
-	CopyInt(tbuff, &pVision->_lunflag);
-	tbuff += 4; // Skip pointer field_18
-	CopyInt(tbuff, &pVision->_lunx);
-	CopyInt(tbuff, &pVision->_luny);
-	CopyInt(tbuff, &pVision->_lunr);
-	CopyInt(tbuff, &pVision->_xoff);
-	CopyInt(tbuff, &pVision->_yoff);
-	CopyInt(tbuff, &pVision->_lflags);
 }
 
 static void LoadPortal(int i)
@@ -689,7 +641,7 @@ static void LoadPortal(int i)
  */
 void LoadGame(BOOL firstflag)
 {
-	int i, j;
+	int i;
 	DWORD dwLen;
 	BYTE *LoadBuff;
 	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
@@ -770,17 +722,16 @@ void LoadGame(BOOL firstflag)
 			SyncObjectAnim(objectactive[i]);
 
 		numlights = LoadInt();
-
 		for (i = 0; i < MAXLIGHTS; i++)
 			lightactive[i] = LoadChar();
 		for (i = 0; i < numlights; i++)
-			LoadLighting(lightactive[i]);
+			LoadLight(&LightList[lightactive[i]]);
 
-		visionid = LoadInt();
 		numvision = LoadInt();
-
+		for (i = 0; i < MAXVISION; i++)
+			visionactive[i] = LoadChar();
 		for (i = 0; i < numvision; i++)
-			LoadVision(i);
+			LoadLight(&VisionList[visionactive[i]]);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
@@ -796,52 +747,19 @@ void LoadGame(BOOL firstflag)
 	for ( ; i < 128; i++)
 		LoadBool();
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dLight[i][j] = LoadChar();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dFlags[i][j] = LoadChar();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dPlayer[i][j] = LoadChar();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dItem[i][j] = LoadChar();
-	}
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMonster[i][j] = LoadInt();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dDead[i][j] = LoadChar();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dObject[i][j] = LoadChar();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dLight[i][j] = LoadChar();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dPreLight[i][j] = LoadChar();
-		}
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++)
-				automapview[i][j] = LoadBool();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMissile[i][j] = LoadChar();
-		}
+		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
+		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
 	}
 
 	numpremium = LoadInt();
@@ -891,11 +809,9 @@ static void SaveBool(BOOL v)
 
 static void SaveItemData(ItemStruct *is)
 {
-	int tmp;
-
 	CopyInt(&is->_iSeed, tbuff);
 	CopyShort(&is->_iCreateInfo, tbuff);
-	tbuff += 2; // Alignment
+	CopyShort(&is->_iIdx, tbuff);
 	CopyInt(&is->_itype, tbuff);
 	CopyInt(&is->_ix, tbuff);
 	CopyInt(&is->_iy, tbuff);
@@ -905,22 +821,20 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iAnimFrame, tbuff);
 	CopyInt(&is->_iAnimWidth, tbuff);
 	CopyInt(&is->_iAnimWidth2, tbuff);
-	tbuff += 4; // Skip _iDelFlag
-	CopyChar(&is->_iSelFlag, tbuff);
-	tbuff += 3; // Alignment
 	CopyInt(&is->_iPostDraw, tbuff);
 	CopyInt(&is->_iIdentified, tbuff);
-	CopyChar(&is->_iMagical, tbuff);
 	CopyBytes(&is->_iName, 64, tbuff);
 	CopyBytes(&is->_iIName, 64, tbuff);
+	CopyChar(&is->_iSelFlag, tbuff);
+	CopyChar(&is->_iMagical, tbuff);
 	CopyChar(&is->_iLoc, tbuff);
 	CopyChar(&is->_iClass, tbuff);
-	tbuff += 1; // Alignment
 	CopyInt(&is->_iCurs, tbuff);
 	CopyInt(&is->_ivalue, tbuff);
 	CopyInt(&is->_iIvalue, tbuff);
-	CopyInt(&is->_iMinDam, tbuff);
-	CopyInt(&is->_iMaxDam, tbuff);
+	CopyChar(&is->_iMinDam, tbuff);
+	CopyChar(&is->_iMaxDam, tbuff);
+	tbuff += 2; // Alignment
 	CopyInt(&is->_iAC, tbuff);
 	CopyInt(&is->_iFlags, tbuff);
 	CopyInt(&is->_iMiscId, tbuff);
@@ -945,35 +859,32 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iPLGetHit, tbuff);
 	CopyChar(&is->_iPLLight, tbuff);
 	CopyChar(&is->_iDamType, tbuff);
-	tbuff += 2; // Alignment
 	CopyChar(&is->_iSplLvlAdd, tbuff);
 	CopyChar(&is->_iRequest, tbuff);
-	CopyChar(&is->_iLifeSteal, tbuff);
 	CopyChar(&is->_iManaSteal, tbuff);
+	CopyChar(&is->_iLifeSteal, tbuff);
+	tbuff += 2; // Alignment
 	CopyInt(&is->_iUid, tbuff);
-	CopyInt(&is->_iFMinDam, tbuff);
-	CopyInt(&is->_iFMaxDam, tbuff);
-	CopyInt(&is->_iLMinDam, tbuff);
-	CopyInt(&is->_iLMaxDam, tbuff);
+	CopyChar(&is->_iFMinDam, tbuff);
+	CopyChar(&is->_iFMaxDam, tbuff);
+	CopyChar(&is->_iLMinDam, tbuff);
+	CopyChar(&is->_iLMaxDam, tbuff);
+	CopyChar(&is->_iMMinDam, tbuff);
+	CopyChar(&is->_iMMaxDam, tbuff);
+	CopyChar(&is->_iHMinDam, tbuff);
+	CopyChar(&is->_iHMaxDam, tbuff);
 	CopyInt(&is->_iPLEnAc, tbuff);
 	CopyChar(&is->_iPrePower, tbuff);
 	CopyChar(&is->_iSufPower, tbuff);
 	tbuff += 2; // Alignment
 	CopyInt(&is->_iVAdd, tbuff);
 	CopyInt(&is->_iVMult, tbuff);
-	tbuff += 4; // Skip _iVAdd2
-	tbuff += 4; // Skip _iVMult2
 	CopyChar(&is->_iMinStr, tbuff);
 	CopyChar(&is->_iMinMag, tbuff);
 	CopyChar(&is->_iMinDex, tbuff);
 	tbuff += 1; // Alignment
 	CopyInt(&is->_iStatFlag, tbuff);
-	tmp = is->_iIdx;
-	CopyInt(&tmp, tbuff); // TODO: convert to CopyShort when backwards compatibility is not a concern
 	CopyInt(&is->_iFlags2, tbuff);
-#ifdef HELLFIRE
-	tbuff += 4; // Skip _iDamAcFlags
-#endif
 }
 
 static void SaveItems(ItemStruct *pItem, const int n)
@@ -989,22 +900,19 @@ static void SavePlayer(int pnum)
 
 	CopyInt(&p->_pmode, tbuff);
 	CopyBytes(&p->walkpath, MAX_PATH_LENGTH, tbuff);
-	CopyBytes(&p->plractive, 1, tbuff);
-	tbuff += 2; // Alignment
 	CopyInt(&p->destAction, tbuff);
 	CopyInt(&p->destParam1, tbuff);
 	CopyInt(&p->destParam2, tbuff);
 	CopyInt(&p->destParam3, tbuff);
 	CopyInt(&p->destParam4, tbuff);
-	CopyInt(&p->plrlevel, tbuff);
+	CopyChar(&p->plractive, tbuff);
+	CopyChar(&p->_pLvlChanging, tbuff);
+	CopyChar(&p->plrlevel, tbuff);
+	CopyChar(&p->_pBaseToBlk, tbuff);
 	CopyInt(&p->_px, tbuff);
 	CopyInt(&p->_py, tbuff);
 	CopyInt(&p->_pfutx, tbuff);
 	CopyInt(&p->_pfuty, tbuff);
-	CopyInt(&p->_ptargx, tbuff);
-	CopyInt(&p->_ptargy, tbuff);
-	CopyInt(&p->_pownerx, tbuff);
-	CopyInt(&p->_pownery, tbuff);
 	CopyInt(&p->_poldx, tbuff);
 	CopyInt(&p->_poldy, tbuff);
 	CopyInt(&p->_pxoff, tbuff);
@@ -1021,24 +929,16 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pAnimFrame, tbuff);
 	CopyInt(&p->_pAnimWidth, tbuff);
 	CopyInt(&p->_pAnimWidth2, tbuff);
-	tbuff += 4; // Skip _peflag
 	CopyInt(&p->_plid, tbuff);
 	CopyInt(&p->_pvid, tbuff);
 
 	CopyInt(&p->_pSpell, tbuff);
-	tbuff += 1; // Skip _pSplType
-	CopyChar(&p->_pSplFrom, tbuff);
-	tbuff += 2; // Alignment
 	CopyInt(&p->_pTSpell, tbuff);
-	tbuff += 1; // Skip _pTSplType
-	tbuff += 3; // Alignment
 	CopyInt(&p->_pRSpell, tbuff);
+	CopyChar(&p->_pSplFrom, tbuff);
 	CopyChar(&p->_pRSplType, tbuff);
-	tbuff += 3; // Alignment
-	tbuff += 4; // Skip _pSBkSpell
-	tbuff += 1; // Skip _pSBkSplType
+	tbuff += 2; // Alignment
 	CopyBytes(&p->_pSplLvl, 64, tbuff);
-	tbuff += 7; // Alignment
 	CopyInt64(&p->_pMemSpells, tbuff);
 	CopyInt64(&p->_pAblSpells, tbuff);
 	CopyInt64(&p->_pScrlSpells, tbuff);
@@ -1047,26 +947,22 @@ static void SavePlayer(int pnum)
 	CopyInts(&p->_pSplHotKey, 4, tbuff);
 	CopyBytes(&p->_pSplTHotKey, 4, tbuff);
 
-	tbuff += 4; // Skip to Calc _pwtype
+	tbuff += 1; // Skip to Calc _pwtype
 	tbuff += 1; // Skip to Calc _pBlockFlag
 	CopyChar(&p->_pInvincible, tbuff);
 	CopyChar(&p->_pLightRad, tbuff);
-	CopyChar(&p->_pLvlChanging, tbuff);
 
 	CopyBytes(&p->_pName, PLR_NAME_LEN, tbuff);
 	CopyChar(&p->_pClass, tbuff);
 	tbuff += 3; // Alignment
+	CopyShort(&p->_pBaseStr, tbuff);
+	CopyShort(&p->_pBaseMag, tbuff);
+	CopyShort(&p->_pBaseDex, tbuff);
+	CopyShort(&p->_pBaseVit, tbuff);
 	CopyInt(&p->_pStrength, tbuff);
-	CopyInt(&p->_pBaseStr, tbuff);
 	CopyInt(&p->_pMagic, tbuff);
-	CopyInt(&p->_pBaseMag, tbuff);
 	CopyInt(&p->_pDexterity, tbuff);
-	CopyInt(&p->_pBaseDex, tbuff);
 	CopyInt(&p->_pVitality, tbuff);
-	CopyInt(&p->_pBaseVit, tbuff);
-	CopyInt(&p->_pStatPts, tbuff);
-	tbuff += 4; // Skip _pDamageMod
-	CopyInt(&p->_pBaseToBlk, tbuff);
 	CopyInt(&p->_pHPBase, tbuff);
 	CopyInt(&p->_pMaxHPBase, tbuff);
 	CopyInt(&p->_pHitPoints, tbuff);
@@ -1078,15 +974,16 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pMaxMana, tbuff);
 	CopyInt(&p->_pManaPer, tbuff);
 	CopyChar(&p->_pLevel, tbuff);
+	CopyChar(&p->_pDiabloKillLevel, tbuff);
+	CopyShort(&p->_pStatPts, tbuff);
 	CopyChar(&p->_pLvlUp, tbuff);
-	tbuff += 2; // Alignment
+	tbuff += 3; // Alignment
 	CopyInt(&p->_pExperience, tbuff);
-	CopyInt(&p->_pMaxExp, tbuff);
 	CopyInt(&p->_pNextExper, tbuff);
-	CopyChar(&p->_pArmorClass, tbuff);
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
+	tbuff += 1; // Alignment
 	CopyInt(&p->_pGold, tbuff);
 
 	CopyInt(&p->_pInfraFlag, tbuff);
@@ -1130,22 +1027,24 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pBWidth, tbuff);
 
 	SaveItems(p->InvBody, NUM_INVLOC);
-	SaveItems(p->InvList, NUM_INV_GRID_ELEM);
-	CopyInt(&p->_pNumInv, tbuff);
-	CopyBytes(p->InvGrid, NUM_INV_GRID_ELEM, tbuff);
 	SaveItems(p->SpdList, MAXBELTITEMS);
+	SaveItems(p->InvList, NUM_INV_GRID_ELEM);
+	CopyBytes(p->InvGrid, NUM_INV_GRID_ELEM, tbuff);
+	CopyInt(&p->_pNumInv, tbuff);
 	SaveItemData(&p->HoldItem);
 
-	tbuff += 4; // Skip to Calc _pIMinDam
-	tbuff += 4; // Skip to Calc _pIMaxDam
+	tbuff += 4; // Skip to Calc _pISlMinDam
+	tbuff += 4; // Skip to Calc _pISlMaxDam
+	tbuff += 4; // Skip to Calc _pIBlMinDam
+	tbuff += 4; // Skip to Calc _pIBlMaxDam
+	tbuff += 4; // Skip to Calc _pIPcMinDam
+	tbuff += 4; // Skip to Calc _pIPcMaxDam
 	tbuff += 4; // Skip to Calc _pIAC
-	tbuff += 4; // Skip _pIBonusDam
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseACBonus
 	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pICritChance
-	tbuff += 4; // Skip _pIBonusDamMod
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
 	tbuff += 8; // Skip to Calc _pISpells
@@ -1162,22 +1061,17 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIFMaxDam
 	tbuff += 4; // Skip to Calc _pILMinDam
 	tbuff += 4; // Skip to Calc _pILMaxDam
+	tbuff += 4; // Skip to Calc _pIMMinDam
+	tbuff += 4; // Skip to Calc _pIMMaxDam
+	tbuff += 4; // Skip to Calc _pIHMinDam
+	tbuff += 4; // Skip to Calc _pIHMaxDam
 	CopyInt(&p->_pOilType, tbuff);
 	CopyChar(&p->pTownWarps, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pLvlLoad, tbuff);
-#ifdef HELLFIRE
-	CopyChar(&p->pDungMsgs2, tbuff);
-#else
 	CopyChar(&p->pBattleNet, tbuff);
-#endif
 	CopyChar(&p->pManaShield, tbuff);
-	CopyBytes(&p->bReserved, 4, tbuff);
-	tbuff += 1;
-	CopyShorts(&p->wReserved, 7, tbuff);
-
-	CopyInt(&p->pDiabloKillLevel, tbuff);
-	CopyInts(&p->dwReserved, 7, tbuff);
+	CopyChar(&p->pDungMsgs2, tbuff);
 
 	// Omit pointer _pNData
 	// Omit pointer _pWData
@@ -1188,7 +1082,7 @@ static void SavePlayer(int pnum)
 	// Omit pointer _pHData
 	// Omit pointer _pDData
 	// Omit pointer _pBData
-	// Omit pointer pReserved
+	// Omit pointer alignment
 }
 
 static void SaveMonster(int mnum)
@@ -1412,42 +1306,19 @@ static void SaveQuest(int i)
 #endif
 }
 
-static void SaveLighting(int lnum)
+static void SaveLight(LightListStruct *pLight)
 {
-	LightListStruct *pLight = &LightList[lnum];
-
 	CopyInt(&pLight->_lx, tbuff);
 	CopyInt(&pLight->_ly, tbuff);
-	CopyInt(&pLight->_lradius, tbuff);
-	CopyInt(&pLight->_lid, tbuff);
-	CopyInt(&pLight->_ldel, tbuff);
-	CopyInt(&pLight->_lunflag, tbuff);
-	tbuff += 4; // Skip pointer field_18
 	CopyInt(&pLight->_lunx, tbuff);
 	CopyInt(&pLight->_luny, tbuff);
-	CopyInt(&pLight->_lunr, tbuff);
+	CopyChar(&pLight->_lradius, tbuff);
+	CopyChar(&pLight->_lunr, tbuff);
+	CopyChar(&pLight->_ldel, tbuff);
+	CopyChar(&pLight->_lunflag, tbuff);
+	CopyInt(&pLight->_lmine, tbuff);
 	CopyInt(&pLight->_xoff, tbuff);
 	CopyInt(&pLight->_yoff, tbuff);
-	CopyInt(&pLight->_lflags, tbuff);
-}
-
-static void SaveVision(int vnum)
-{
-	LightListStruct *pVision = &VisionList[vnum];
-
-	CopyInt(&pVision->_lx, tbuff);
-	CopyInt(&pVision->_ly, tbuff);
-	CopyInt(&pVision->_lradius, tbuff);
-	CopyInt(&pVision->_lid, tbuff);
-	CopyInt(&pVision->_ldel, tbuff);
-	CopyInt(&pVision->_lunflag, tbuff);
-	tbuff += 4; // Skip pointer field_18
-	CopyInt(&pVision->_lunx, tbuff);
-	CopyInt(&pVision->_luny, tbuff);
-	CopyInt(&pVision->_lunr, tbuff);
-	CopyInt(&pVision->_xoff, tbuff);
-	CopyInt(&pVision->_yoff, tbuff);
-	CopyInt(&pVision->_lflags, tbuff);
 }
 
 static void SavePortal(int i)
@@ -1518,17 +1389,16 @@ void SaveGame()
 			SaveObject(objectactive[i]);
 
 		SaveInt(numlights);
-
 		for (i = 0; i < MAXLIGHTS; i++)
 			SaveChar(lightactive[i]);
 		for (i = 0; i < numlights; i++)
-			SaveLighting(lightactive[i]);
+			SaveLight(&LightList[lightactive[i]]);
 
-		SaveInt(visionid);
 		SaveInt(numvision);
-
+		for (i = 0; i < MAXVISION; i++)
+			SaveChar(visionactive[i]);
 		for (i = 0; i < numvision; i++)
-			SaveVision(i);
+			SaveLight(&VisionList[visionactive[i]]);
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
@@ -1543,52 +1413,22 @@ void SaveGame()
 	for ( ; i < 128; i++)
 		SaveBool(FALSE);
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			SaveChar(dLight[i][j]);
-	}
+	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++)
 			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
 	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			SaveChar(dPlayer[i][j]);
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			SaveChar(dItem[i][j]);
-	}
+	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveInt(dMonster[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dDead[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dObject[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dLight[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dPreLight[i][j]);
-		}
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++)
-				SaveBool(automapview[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dMissile[i][j]);
-		}
+		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
+		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
 
 	SaveInt(numpremium);
@@ -1622,10 +1462,7 @@ void SaveLevel()
 	tbuff = SaveBuff;
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dDead[i][j]);
-		}
+		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
 	}
 
 	SaveInt(nummonsters);
@@ -1656,36 +1493,15 @@ void SaveLevel()
 		for (i = 0; i < MAXDUNX; i++)
 			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
 	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			SaveChar(dItem[i][j]);
-	}
+	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveInt(dMonster[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dObject[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dLight[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dPreLight[i][j]);
-		}
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++)
-				SaveBool(automapview[i][j]);
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				SaveChar(dMissile[i][j]);
-		}
+		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
+		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
+		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
 
 	GetTempLevelNames(szName);
@@ -1701,7 +1517,7 @@ void SaveLevel()
 
 void LoadLevel()
 {
-	int i, j;
+	int i;
 	DWORD dwLen;
 	char szName[MAX_PATH];
 	BYTE *fileBuff;
@@ -1711,10 +1527,7 @@ void LoadLevel()
 	tbuff = fileBuff;
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dDead[i][j] = LoadChar();
-		}
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
 		SetDead();
 	}
 
@@ -1744,40 +1557,16 @@ void LoadLevel()
 	for (i = 0; i < numitems; i++)
 		LoadItem(itemactive[i]);
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dFlags[i][j] = LoadChar();
-	}
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			dItem[i][j] = LoadChar();
-	}
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
 
 	if (leveltype != DTYPE_TOWN) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMonster[i][j] = LoadInt();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dObject[i][j] = LoadChar();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dLight[i][j] = LoadChar();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dPreLight[i][j] = LoadChar();
-		}
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++)
-				automapview[i][j] = LoadBool();
-		}
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++)
-				dMissile[i][j] = 0; /// BUGFIX: supposed to load saved missiles with "LoadChar()"?
-		}
+		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
+		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
+		memset(dMissile, 0, MAXDUNX * MAXDUNY); /// BUGFIX: supposed to load saved missiles with "CopyBytes"?
 	}
 
 	AutomapZoomReset();

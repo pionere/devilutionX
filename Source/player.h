@@ -28,7 +28,7 @@ void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, int exp);
 void AddPlrMonstExper(int lvl, int exp, char pmask);
-void InitPlayer(int pnum, BOOL FirstTime);
+void InitPlayer(int pnum, BOOL FirstTime, BOOL active);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);

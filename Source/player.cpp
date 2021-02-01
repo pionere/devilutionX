@@ -139,7 +139,7 @@ const int VitalityTbl[NUM_CLASSES] = {
 #endif
 };
 /** Specifies the chance to block bonus of each player class.*/
-const int ToBlkTbl[NUM_CLASSES] = {
+const BYTE ToBlkTbl[NUM_CLASSES] = {
 	30,
 	20,
 	10,
@@ -647,27 +647,6 @@ void SetPlrAnims(int pnum)
 	}
 }
 
-static void ClearPlrRVars(PlayerStruct *p)
-{
-	// TODO: Missing debug assert p != NULL
-	p->bReserved[0] = 0;
-	p->bReserved[1] = 0;
-
-	p->wReserved[0] = 0;
-	p->wReserved[1] = 0;
-	p->wReserved[2] = 0;
-	p->wReserved[3] = 0;
-	p->wReserved[4] = 0;
-	p->wReserved[5] = 0;
-	p->wReserved[6] = 0;
-
-	p->dwReserved[0] = 0;
-	p->dwReserved[1] = 0;
-	p->dwReserved[2] = 0;
-	p->dwReserved[3] = 0;
-	p->dwReserved[4] = 0;
-}
-
 /**
  * @param c plr_classes value
  */
@@ -928,7 +907,7 @@ void AddPlrMonstExper(int lvl, int exp, char pmask)
 	AddPlrExperience(myplr, lvl, e);
 }
 
-void InitPlayer(int pnum, BOOL FirstTime)
+void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 {
 	PlayerStruct *p;
 	DWORD i;
@@ -937,10 +916,9 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		app_fatal("InitPlayer: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	ClearPlrRVars(p);
 
 	if (FirstTime) {
-		p->_pRSplType = p->_pSplType = RSPLTYPE_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
 		p->_pRSpell = p->_pSpell = SPL_INVALID;
 		// TODO: BUGFIX: does not seem to be the best place to set this
 		if ((p->_pgfxnum & 0xF) == ANIM_ID_BOW) {
@@ -962,9 +940,9 @@ void InitPlayer(int pnum, BOOL FirstTime)
 	}
 
 #ifdef _DEBUG
-	if (p->plrlevel == currlevel || leveldebug) {
+	if (active && (p->plrlevel == currlevel || leveldebug)) {
 #else
-	if (p->plrlevel == currlevel) {
+	if (active && p->plrlevel == currlevel) {
 #endif
 		SetPlrAnims(pnum);
 
@@ -990,11 +968,7 @@ void InitPlayer(int pnum, BOOL FirstTime)
 		if (pnum == myplr) {
 			p->_px = ViewX;
 			p->_py = ViewY;
-			p->_ptargx = p->_px;
-			p->_ptargy = p->_py;
 		} else {
-			p->_ptargx = p->_px;
-			p->_ptargy = p->_py;
 			for (i = 0; i < 8 && !PosOkPlayer(pnum, plrxoff2[i] + p->_px, plryoff2[i] + p->_py); i++)
 				;
 			p->_px += plrxoff2[i];
@@ -1103,8 +1077,8 @@ void FixPlayerLocation(int pnum)
 		app_fatal("FixPlayerLocation: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	p->_pfutx = p->_ptargx = p->_poldx = p->_px;
-	p->_pfuty = p->_ptargy = p->_poldy = p->_py;
+	p->_pfutx = p->_poldx = p->_px;
+	p->_pfuty = p->_poldy = p->_py;
 	p->_pxoff = 0;
 	p->_pyoff = 0;
 	if (pnum == myplr) {
@@ -1734,7 +1708,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 
 	if (!forcehit) {
-		if (p->pManaShield || (dam >> (6 - 2)) < p->_pMaxHP)
+		if (p->pManaShield != 0 || (dam >> (6 - 2)) < p->_pMaxHP)
 			return;
 	}
 
@@ -1990,17 +1964,20 @@ static void InitLevelChange(int pnum)
 {
 	PlayerStruct *p;
 
-	RemovePlrMissiles(pnum);
-	if (pnum == myplr && qtextflag) {
-		qtextflag = FALSE;
-		stream_stop();
-	}
-
-	RemovePlrFromMap(pnum);
 	ClrPlrPath(pnum);
 	p = &plr[pnum];
+	if (p->plrlevel == currlevel) {
+		AddUnLight(p->_plid);
+		//AddUnVision(p->_pvid);
+		RemovePlrMissiles(pnum);
+		RemovePlrFromMap(pnum);
+	}
 	SetPlayerOld(p);
 	if (pnum == myplr) {
+		if (qtextflag) {
+			qtextflag = FALSE;
+			stream_stop();
+		}
 		p->pLvlLoad = 10;
 		dPlayer[p->_px][p->_py] = pnum + 1;
 	} else {
@@ -3385,8 +3362,6 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 		app_fatal("MakePlrPath: illegal player %d", pnum);
 	}
 
-	plr[pnum]._ptargx = xx;
-	plr[pnum]._ptargy = yy;
 	if (plr[pnum]._pfutx == xx && plr[pnum]._pfuty == yy) {
 		return;
 	}
@@ -3432,9 +3407,6 @@ void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
 			ASSUME_UNREACHABLE
 			break;
 		}
-
-		plr[pnum]._ptargx = xx;
-		plr[pnum]._ptargy = yy;
 	}
 
 	plr[pnum].walkpath[path] = WALK_NONE;
@@ -3497,9 +3469,6 @@ void SyncPlrAnim(int pnum)
 
 void SyncInitPlrPos(int pnum)
 {
-	plr[pnum]._ptargx = plr[pnum]._px;
-	plr[pnum]._ptargy = plr[pnum]._py;
-
 	if (gbMaxPlayers == 1 || plr[pnum].plrlevel != currlevel)
 		return;
 

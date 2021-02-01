@@ -2588,8 +2588,8 @@ void PrepDoEnding()
 	cineflag = TRUE;
 
 	killLevel = gnDifficulty + 1;
-	if (killLevel > plr[myplr].pDiabloKillLevel)
-		plr[myplr].pDiabloKillLevel = killLevel;
+	if (killLevel > plr[myplr]._pDiabloKillLevel)
+		plr[myplr]._pDiabloKillLevel = killLevel;
 
 	if (gbMaxPlayers == 1) {
 		// save the hero + items
