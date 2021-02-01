@@ -1149,7 +1149,7 @@ static BOOL L4checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
-	if (x <= 0 || y <= 0)
+	if (x < 0 || y < 0)
 		return FALSE;
 
 	x2 = x + width;
@@ -1181,7 +1181,7 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L4checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1")
+			if (L4checkRoom(rx - 1, ry - 1, width + 2, height + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
 				break;
 		}
 
