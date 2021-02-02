@@ -53,7 +53,7 @@ char arch_draw_type;
 /**
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
-int cel_transparency_active;
+BOOLEAN cel_transparency_active;
 /**
  * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
  */
@@ -236,7 +236,7 @@ static void scrollrt_draw_cursor_item()
 			i = 0;
 		}
 #endif
-		CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+		CelDrawOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		if (col != PAL16_RED + 5) {
 			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		} else {
@@ -533,7 +533,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	}
 
 	if (oi == pcursobj)
-		CelBlitOutline(194, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelDrawOutline(194, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	if (os->_oLight) {
 		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
@@ -556,7 +556,7 @@ static void drawCell(int x, int y, int sx, int sy)
 	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
 	pMap = &dpiece_defs_map_2[x][y];
 	level_piece_id = dPiece[x][y];
-	cel_transparency_active = (BYTE)(nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
+	cel_transparency_active = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	cel_foliage_active = !nSolidTable[level_piece_id];
 	for (int i = 0; i < MicroTileLen; i += 2) {
 		level_cel_block = pMap->mt[i];
@@ -583,7 +583,7 @@ static void drawCell(int x, int y, int sx, int sy)
  */
 static void drawFloor(int x, int y, int sx, int sy)
 {
-	cel_transparency_active = 0;
+	cel_transparency_active = FALSE;
 	light_table_index = dLight[x][y];
 
 	BYTE *dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
@@ -639,7 +639,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 
 	sx -= is->_iAnimWidth2;
 	if (ii == pcursitem) {
-		CelBlitOutline(181, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+		CelDrawOutline(181, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 }
@@ -665,7 +665,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 		tw = &towner[mnum];
 		px = sx - tw->_tAnimWidth2;
 		if (mnum == pcursmonst) {
-			CelBlitOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
+			CelDrawOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		}
 		assert(tw->_tAnimData);
 		CelClippedDraw(px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
@@ -803,7 +803,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		bArch = dSpecial[sx][sy];
 		if (bArch != 0) {
 			cel_transparency_active = TransList[bMap];
-			CelClippedBlitLightTrans(&gpBuffer[dx + BUFFER_WIDTH * dy], pSpecialCels, bArch, 64);
+			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bArch, 64);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
@@ -812,7 +812,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (sx > 0 && sy > 0 && dy > TILE_HEIGHT + SCREEN_Y) {
 			bArch = dSpecial[sx - 1][sy - 1];
 			if (bArch != 0) {
-				CelBlitFrame(&gpBuffer[dx + BUFFER_WIDTH * (dy - TILE_HEIGHT)], pSpecialCels, bArch, 64);
+				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bArch, 64);
 			}
 		}
 	}

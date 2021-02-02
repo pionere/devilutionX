@@ -244,7 +244,7 @@ void DrawInv()
 	PlayerStruct *p;
 	ItemStruct *is;
 	int frame, frame_width, screen_x, screen_y, i, ii;
-	BYTE *pBuff, *cCels;
+	BYTE *cCels;
 
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1, SPANEL_WIDTH);
 
@@ -267,7 +267,7 @@ void DrawInv()
 			cCels = pCursCels;
 #endif
 		if (pcursinvitem == INVITEM_HEAD) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -294,7 +294,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_RING_LEFT) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -321,7 +321,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_RING_RIGHT) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -348,7 +348,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_AMULET) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -381,7 +381,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_HAND_LEFT) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -407,8 +407,7 @@ void DrawInv()
 					screen_x += INV_SLOT_SIZE_PX / 2;
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
 					screen_y -= INV_SLOT_SIZE_PX / 2;
-				pBuff = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];				
-				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
+				CelClippedDrawLightTrans(screen_x, screen_y, cCels, frame, frame_width);
 
 				cel_transparency_active = FALSE;
 			}
@@ -438,7 +437,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_HAND_RIGHT) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -465,7 +464,7 @@ void DrawInv()
 #endif
 
 		if (pcursinvitem == INVITEM_CHEST) {
-			CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {
@@ -504,7 +503,7 @@ void DrawInv()
 				cCels = pCursCels;
 #endif
 			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
-				CelBlitOutline(
+				CelDrawOutline(
 				    InvItemColor(is),
 				    screen_x,
 				    screen_y,
@@ -559,7 +558,7 @@ void DrawInvBelt()
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			if (!sgbControllerActive || invflag)
 #endif
-				CelBlitOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
+				CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag) {

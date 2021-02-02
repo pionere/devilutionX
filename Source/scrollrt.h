@@ -17,7 +17,7 @@ extern BYTE *gpBufStart;
 extern BYTE *gpBufEnd;
 extern DWORD level_cel_block;
 extern char arch_draw_type;
-extern int cel_transparency_active;
+extern BOOLEAN cel_transparency_active;
 extern BOOL cel_foliage_active;
 extern int level_piece_id;
 
