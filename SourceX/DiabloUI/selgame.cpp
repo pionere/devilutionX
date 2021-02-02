@@ -217,19 +217,30 @@ void selgame_Diff_Focus(std::size_t index)
 
 static bool IsDifficultyAllowed(int value)
 {
-	if (value == 0 || (value == 1 && heroLevel >= 20) || (value == 2 && heroLevel >= 30)) {
-		return true;
+	int limit = 0;
+	const char* mode;
+
+	switch (value) {
+	case DIFF_NORMAL:					break;
+	case DIFF_NIGHTMARE:	limit = 20;	break;
+	case DIFF_HELL:			limit = 30; break;
+	default:
+		ASSUME_UNREACHABLE
 	}
+
+	if (heroLevel >= limit)
+		return true;
 
 	selgame_Free();
 
-	if (value == 1)
-		UiSelOkDialog(title, "Your character must reach level 20 before you can enter a multiplayer game of Nightmare difficulty.", false);
-	if (value == 2)
-		UiSelOkDialog(title, "Your character must reach level 30 before you can enter a multiplayer game of Hell difficulty.", false);
+	if (value == DIFF_NIGHTMARE)
+		mode = "Nightmare";
+	else // if (value == DIFF_HELL)
+		mode = "Hell";
 
+	snprintf(tempstr, sizeof(tempstr), "Your character must reach level %d before you can enter a multiplayer game of %s difficulty.", limit, mode);
+	UiSelOkDialog(title, tempstr, false);
 	LoadBackgroundArt("ui_art\\selgame.pcx");
-
 	return false;
 }
 
@@ -289,10 +300,10 @@ void selgame_GameSpeedSelection()
 	SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
 	vecSelGameDialog.push_back(new UiArtText("Select Game Speed", rect4, UIS_CENTER | UIS_BIG));
 
-	vecSelGameDlgItems.push_back(new UiListItem("Normal", 20));
-	vecSelGameDlgItems.push_back(new UiListItem("Fast", 30));
-	vecSelGameDlgItems.push_back(new UiListItem("Faster", 40));
-	vecSelGameDlgItems.push_back(new UiListItem("Fastest", 50));
+	vecSelGameDlgItems.push_back(new UiListItem("Normal", SPEED_NORMAL));
+	vecSelGameDlgItems.push_back(new UiListItem("Fast", SPEED_FAST));
+	vecSelGameDlgItems.push_back(new UiListItem("Faster", SPEED_FASTER));
+	vecSelGameDlgItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
 
 	vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 300, (UI_OFFSET_Y + 279), 295, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
 
@@ -308,22 +319,24 @@ void selgame_GameSpeedSelection()
 void selgame_Speed_Focus(std::size_t index)
 {
 	switch (vecSelGameDlgItems[index]->m_value) {
-	case 20:
+	case SPEED_NORMAL:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Normal");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
-	case 30:
+	case SPEED_FAST:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Fast");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only.");
 		break;
-	case 40:
+	case SPEED_FASTER:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Faster");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed.");
 		break;
-	case 50:
+	case SPEED_FASTEST:
 		snprintf(selgame_Label, sizeof(selgame_Label), "Fastest");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace.");
 		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
 }

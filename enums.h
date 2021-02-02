@@ -2507,11 +2507,17 @@ typedef enum item_color {
 } item_color;
 
 typedef enum _difficulty {
-	DIFF_NORMAL      = 0x0,
-	DIFF_NIGHTMARE   = 0x1,
-	DIFF_HELL        = 0x2,
-	NUM_DIFFICULTIES = 0x3,
+	DIFF_NORMAL,
+	DIFF_NIGHTMARE,
+	DIFF_HELL,
 } _difficulty;
+
+typedef enum _speed {
+	SPEED_NORMAL  = 25,
+	SPEED_FAST    = 30,
+	SPEED_FASTER  = 40,
+	SPEED_FASTEST = 50,
+} _speed;
 
 typedef enum MON_MODE {
 	MM_STAND     = 0,
