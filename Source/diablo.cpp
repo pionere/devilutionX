@@ -14,17 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 SDL_Window *ghMainWnd;
 DWORD glSeedTbl[NUMLEVELS];
 int gnLevelTypeTbl[NUMLEVELS];
-#ifdef HELLFIRE
-int glEndSeed[NUMLEVELS + 1];
-int glMid1Seed[NUMLEVELS + 1];
-int glMid2Seed[NUMLEVELS + 1];
-int glMid3Seed[NUMLEVELS + 1];
-#else
-int glEndSeed[NUMLEVELS];
-int glMid1Seed[NUMLEVELS];
-int glMid2Seed[NUMLEVELS];
-int glMid3Seed[NUMLEVELS];
-#endif
 int MouseX;
 int MouseY;
 BOOL gbGameLoopStartup;
@@ -1426,10 +1415,6 @@ static void PressChar(WPARAM vkey)
 	case 'r':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currlevel]);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Mid1 = %i : Mid2 = %i : Mid3 = %i", glMid1Seed[currlevel], glMid2Seed[currlevel], glMid3Seed[currlevel]);
-		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "End = %i", glEndSeed[currlevel]);
-		NetSendCmdString(1 << myplr);
 		break;
 	case 'T':
 	case 't':
@@ -1807,9 +1792,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 		if (leveltype != DTYPE_TOWN) {
 			if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currlevel] || gbMaxPlayers != 1) {
 				HoldThemeRooms();
-				glMid1Seed[currlevel] = GetRndSeed();
 				InitMonsters();
-				glMid2Seed[currlevel] = GetRndSeed();
 				IncProgress();
 				InitObjects();
 				InitItems();
@@ -1818,10 +1801,8 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 #endif
 					CreateThemeRooms();
 				IncProgress();
-				glMid3Seed[currlevel] = GetRndSeed();
 				InitMissiles();
 				InitDead();
-				glEndSeed[currlevel] = GetRndSeed();
 
 				if (gbMaxPlayers != 1)
 					DeltaLoadLevel();
@@ -1829,6 +1810,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 				IncProgress();
 				SavePreLighting();
 			} else {
+				HoldThemeRooms();
 				InitMonsters();
 				InitMissiles();
 				InitDead();
