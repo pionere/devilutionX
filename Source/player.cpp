@@ -953,7 +953,7 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 		} else {
 			p->_plid = -1;
 		}
-		p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
+		p->_pvid = AddVision(p->_px, p->_py, std::max(PLR_MIN_VISRAD, (int)p->_pLightRad), pnum == myplr);
 	}
 
 #ifdef _DEBUG

@@ -171,6 +171,7 @@
 
 // from diablo 2 beta
 #define MAXRESIST				75
+#define PLR_MIN_VISRAD			10
 
 #define GOLD_SMALL_LIMIT		1000
 #define GOLD_MEDIUM_LIMIT		2500

@@ -628,7 +628,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	if (p->_pLightRad != lrad && pnum == myplr) {
 		p->_pLightRad = lrad;
 		ChangeLightRadius(p->_plid, lrad);
-		ChangeVisionRadius(p->_pvid, std::max(10, lrad));
+		ChangeVisionRadius(p->_pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
 	p->_pStrength = sadd + p->_pBaseStr;
