@@ -1476,7 +1476,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 
 	p = &plr[pnum];
 	idx = is->_iIdx;
-	if (idx == IDI_OPTAMULET)
+	if (idx == IDI_OPTAMULET && quests[Q_BLIND]._qactive == QUEST_ACTIVE)
 		quests[Q_BLIND]._qactive = QUEST_DONE;
 	else if (idx == IDI_MUSHROOM) {
 		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
@@ -1485,7 +1485,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			sfxdnum = sgSFXSets[SFXS_PLR_95][p->_pClass];
 			quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
 		}
-	} else if (idx == IDI_ANVIL) {
+	} else if (idx == IDI_ANVIL && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
@@ -1494,10 +1494,10 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			sfxdelay = 10;
 			sfxdnum = sgSFXSets[SFXS_PLR_89][p->_pClass];
 		}
-	} else if (idx == IDI_GLDNELIX) {
+	} else if (idx == IDI_GLDNELIX && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL) {
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_88][p->_pClass];
-	} else if (idx == IDI_ROCK) {
+	} else if (idx == IDI_ROCK && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
@@ -1506,7 +1506,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			sfxdelay = 10;
 			sfxdnum = sgSFXSets[SFXS_PLR_87][p->_pClass];
 		}
-	} else if (idx == IDI_ARMOFVAL) {
+	} else if (idx == IDI_ARMOFVAL && quests[Q_BLOOD]._qactive == QUEST_ACTIVE) {
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 		sfxdelay = 20;
 		sfxdnum = sgSFXSets[SFXS_PLR_91][p->_pClass];
