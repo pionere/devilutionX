@@ -11,8 +11,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int stextup;
 int storenumh;
+/** Remember currently selected store item while displaying a dialog */
 int stextlhold;
 ItemStruct boyitem;
+/** Remember list scroll position while displaying a dialog */
 int stextshold;
 ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
 BYTE *pSTextBoxCels;
@@ -31,9 +33,11 @@ ItemStruct golditem;
 char storehidx[STORAGE_LIMIT];
 BYTE *pSTextSlidCels;
 int stextvhold;
+/** Currently selected text line */
 int stextsel;
 int gossipend;
 BYTE *pSPentSpn2Cels;
+/** Scroll position */
 int stextsidx;
 int boylevel;
 ItemStruct smithitem[SMITH_ITEMS];
@@ -1519,6 +1523,9 @@ static BOOL StoreAutoPlace(BOOL saveflag)
 		|| AutoPlaceInv(myplr, &plr[myplr].HoldItem, saveflag);
 }
 
+/**
+ * @brief Purchases an item from the smith.
+ */
 static void SmithBuyItem()
 {
 	int idx;
@@ -1556,6 +1563,9 @@ static void S_SBuyEnter()
 	}
 }
 
+/**
+ * @brief Purchases a premium item from the smith.
+ */
 static void SmithBuyPItem()
 {
 	int i, xx, idx;
@@ -1662,6 +1672,9 @@ static void PlaceStoreGold(int v)
 	}
 }
 
+/**
+ * @brief Sells an item from the player's inventory or belt.
+ */
 static void StoreSellItem()
 {
 	PlayerStruct *p;
@@ -1727,6 +1740,9 @@ static void S_SSellEnter()
 	}
 }
 
+/**
+ * @brief Repairs an item in the player's inventory or body in the smith.
+ */
 static void SmithRepairItem()
 {
 	ItemStruct *pi;
@@ -1792,6 +1808,9 @@ static void S_WitchEnter()
 	}
 }
 
+/**
+ * @brief Purchases an item from the witch.
+ */
 static void WitchBuyItem()
 {
 	int idx;
@@ -1857,6 +1876,9 @@ static void S_WSellEnter()
 	}
 }
 
+/**
+ * @brief Recharges an item in the player's inventory or body in the witch.
+ */
 static void WitchRechargeItem()
 {
 	ItemStruct *pi;
@@ -1931,6 +1953,9 @@ static void BoyBuyItem()
 	stextshold = STORE_BOY;
 }
 
+/**
+ * @brief Purchases an item from the healer.
+ */
 static void HealerBuyItem()
 {
 	int idx;
@@ -2030,11 +2055,18 @@ static void S_ConfirmEnter()
 			SmithBuyPItem();
 			break;
 		}
-		StartStore(stextshold);
-	} else {
-		StartStore(stextshold);
-		stextsel = stextlhold;
-		stextsidx = stextvhold;
+	}
+
+	StartStore(stextshold);
+
+	if (stextsel == 22)
+		return;
+
+	stextsel = stextlhold;
+	stextsidx = std::min(stextvhold, stextsmax);
+
+	while (!stext[stextsel]._ssel) {
+		stextsel--;
 	}
 }
 
