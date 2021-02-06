@@ -2,7 +2,11 @@
 #include <zlib.h>
 
 typedef unsigned int DWORD;
+typedef unsigned short WORD;
 typedef unsigned char BYTE;
+
+#define PNG_TRANSFORM_VFLIP 0x10000
+#define PNG_TRANSFORM_HFLIP 0x20000
 
 BYTE diapal[128][3] = {
 { 159, 159, 255}, { 87, 87, 255}, { 36, 36, 254}, { 1, 1, 239}, 
@@ -46,7 +50,7 @@ struct RGBA {
 	BYTE a;
 };
 
-static BYTE GetColor(RGBA &data, BYTE *palette, int numcolors)
+static BYTE GetPalColor(RGBA &data, BYTE *palette, int numcolors)
 {
 	BYTE res = 0;
 	int best = INT_MAX;
@@ -64,7 +68,13 @@ static BYTE GetColor(RGBA &data, BYTE *palette, int numcolors)
 	return res;
 }
 
-static bool PNG2Cel(const char *pngname, const char *celname)
+struct png_image_data {
+	png_uint_32 width;
+	png_uint_32 height;
+	png_bytep *row_pointers;
+};
+
+static bool ReadPNG(const char *pngname, png_image_data &data)
 {
 	const int alphaByte = 255;
 	FILE *fp;
@@ -75,25 +85,27 @@ static bool PNG2Cel(const char *pngname, const char *celname)
 	const int number = 8;
 
 	if (fread(&header, 1, number, fp) != number) {
-       return 0;
-    }
+		return 0;
+	}
 
 	if (!png_sig_cmp(header, 0, number)) {
 		return 0;
 	}*/
 
 	png_structp png_ptr = png_create_read_struct
-        (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+		(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-    if (!png_ptr)
-       return false;
+	if (!png_ptr) {
+		fclose(fp);
+		return false;
+	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-       png_destroy_read_struct(&png_ptr,
-           (png_infopp)NULL, (png_infopp)NULL);
-       return false;
-    }
+	if (!info_ptr) {
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		fclose(fp);
+		return false;
+	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		png_infop end_info;
@@ -101,7 +113,7 @@ static bool PNG2Cel(const char *pngname, const char *celname)
 			&end_info);
 		fclose(fp);
 		return false;
-    }
+	}
 
 	png_init_io(png_ptr, fp);
 
@@ -109,11 +121,10 @@ static bool PNG2Cel(const char *pngname, const char *celname)
 
 	png_read_info(png_ptr, info_ptr);
 
-	png_uint_32 width, height;
 	png_int_32 bit_depth, color_type, interlace_type, compression_type, filter_method;
-	png_get_IHDR(png_ptr, info_ptr, &width, &height,
-       &bit_depth, &color_type, &interlace_type,
-       &compression_type, &filter_method);
+	png_get_IHDR(png_ptr, info_ptr, &data.width, &data.height,
+		&bit_depth, &color_type, &interlace_type,
+		&compression_type, &filter_method);
 
 	// tell libpng to strip 16 bit/color files down to 8 bits/color
 	png_set_strip_16(png_ptr);
@@ -153,55 +164,239 @@ static bool PNG2Cel(const char *pngname, const char *celname)
 	// update structure with the above settings
 	png_read_update_info(png_ptr, info_ptr);
 
-	png_bytep buffer = (png_bytep)png_malloc(png_ptr, height * width * 4);
+	png_bytep buffer = (png_bytep)png_malloc(png_ptr, data.height * data.width * sizeof(RGBA));
 
-	png_bytep *row_pointers = (png_bytep*)malloc(height * sizeof(void*));
-	for (int i = 0; i < height; i++)
-		row_pointers[i] = buffer + i * width * 4;
+	png_bytep *row_pointers = (png_bytep*)malloc(data.height * sizeof(void*));
+	for (int i = 0; i < data.height; i++)
+		row_pointers[i] = buffer + i * data.width * sizeof(RGBA);
 
 	png_read_image(png_ptr, row_pointers);
 
 	png_read_end(png_ptr, (png_infop)NULL);
 
-	png_destroy_read_struct(&png_ptr, &info_ptr,
-       (png_infopp)NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
-	// convert to cel
-	BYTE *buf = (BYTE *)malloc(12 + height * (2 * width));
-	memset(buf, 0, 12 + height * (2 * width));
-	buf[0] = 1;
-	buf[4] = 0xC;
-	BYTE *pBuf = &buf[12];
-	BYTE *pHead;
-	for (int i = 1; i <= height; i++) {
-		pHead = pBuf;
-		pBuf++;
-		bool alpha = false;
-		RGBA* data = (RGBA*)row_pointers[height - i];
-		for (int j = 0; j < width; j++) {
-			if (data[j].a == 255) {
-				if (alpha || *pHead >= 126) {
-					pHead = pBuf;
-					pBuf++;
-				}
-				++*pHead;
-				*pBuf = GetColor(data[j], &diapal[0][0], 128) + 128;
-				pBuf++;
-				alpha = false;
-			} else {
-				if ((!alpha && j != 0) || (char)*pHead <= -127) {
-					pHead = pBuf;
-					pBuf++;
-				}
-				--*pHead;
-				alpha = true;
+	fclose(fp);
+	data.row_pointers = row_pointers;
+	return true;
+}
+
+void PNGFlip(png_image_data &imagedata, bool vertical)
+{
+	if (vertical) {
+		RGBA tmp;
+		for (int j = 0; j < imagedata.height; j++) {
+			RGBA *imagerow = (RGBA *)imagedata.row_pointers[j];
+			for (int i = 0; i < imagedata.width / 2; i++) {
+				tmp = imagerow[i];
+				imagerow[i] = imagerow[imagedata.width - i - 1];
+				imagerow[imagedata.width - i - 1] = tmp;
 			}
 		}
+	} else {
+		png_bytep tmp;
+		for (int i = 0; i < imagedata.height / 2; i++) {
+			tmp = imagedata.row_pointers[i];
+			imagedata.row_pointers[i] = imagedata.row_pointers[imagedata.height - i - 1];
+			imagedata.row_pointers[imagedata.height - i - 1] = tmp;
+		}
 	}
-	*(DWORD*)&buf[8] = pBuf - buf;
-	fp = fopen(celname, "wb");
+}
+
+static bool PNG2Cel(const char** pngnames, int numimage, const char *celname, BYTE *palette, int numcolors, int coloroffset)
+{
+	int HEADER_SIZE = 4 + 4 + numimage * 4;
+
+	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		if (!ReadPNG(pngnames[n], imagedata[n])) {
+			free(imagedata);
+			return false;
+		}
+	}
+
+	int maxsize = HEADER_SIZE;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		maxsize += image_data->height * (2 * image_data->width);
+	}
+
+	BYTE *buf = (BYTE *)malloc(maxsize);
+	memset(buf, 0, maxsize);
+	buf[0] = numimage;
+	buf[4] = HEADER_SIZE;
+	BYTE *pBuf = &buf[HEADER_SIZE];
+	for (int n = 0; n < numimage; n++) {
+		// convert to cel
+		png_image_data *image_data = &imagedata[n];
+		BYTE *pHead;
+		for (int i = 1; i <= image_data->height; i++) {
+			pHead = pBuf;
+			pBuf++;
+			bool alpha = false;
+			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
+			for (int j = 0; j < image_data->width; j++) {
+				if (data[j].a == 255) {
+					// add opaque pixel
+					if (alpha || *pHead >= 126) {
+						pHead = pBuf;
+						pBuf++;
+					}
+					++*pHead;
+					*pBuf = GetPalColor(data[j], palette, numcolors) + coloroffset;
+					pBuf++;
+					alpha = false;
+				} else {
+					// add transparent pixel
+					if (j != 0 && (!alpha || (char)*pHead <= -127)) {
+						pHead = pBuf;
+						pBuf++;
+					}
+					--*pHead;
+					alpha = true;
+				}
+			}
+		}
+		*(DWORD*)&buf[4 + 4 * (n + 1)] = pBuf - buf;
+	}
+
+	// write to file
+	FILE *fp = fopen(celname, "wb");
 	fwrite(buf, 1, pBuf - buf, fp);
 	fclose(fp);
+
+	// cleanup
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+
+		free(image_data->row_pointers);
+	}
+	free(imagedata);
+	return true;
+}
+
+static bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+{
+	const int SUB_HEADER_SIZE = 10;
+	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+
+	int HEADER_SIZE = 4 + 4 + numimage * 4;
+
+	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
+	for (int n = 0; n < numimage; n++) {
+		if (!ReadPNG(pngnames[n], imagedata[n])) {
+			free(imagedata);
+			return false;
+		}
+		if (transform & PNG_TRANSFORM_HFLIP)
+			PNGFlip(imagedata[n], false);
+		if (transform & PNG_TRANSFORM_VFLIP)
+			PNGFlip(imagedata[n], true);
+	}
+
+	int maxsize = HEADER_SIZE;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		maxsize += image_data->height * (2 * image_data->width);
+	}
+
+	BYTE *buf = (BYTE *)malloc(maxsize);
+	memset(buf, 0, maxsize);
+
+	// convert to cl2
+	buf[0] = numimage;
+	buf[4] = HEADER_SIZE;
+
+	BYTE *pBuf = &buf[HEADER_SIZE];
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		BYTE *pHeader = pBuf;
+		memset(pBuf, 0, SUB_HEADER_SIZE);
+		pBuf[0] = SUB_HEADER_SIZE;
+		pBuf += SUB_HEADER_SIZE;
+
+		BYTE *pHead = pBuf;
+		BYTE col, lastCol;
+		BYTE colMatches = 0;
+		bool alpha = false;
+		bool first = TRUE;
+		for (int i = 1; i <= image_data->height; i++) {
+			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
+			if (i == 32 + 1) {
+				pHead = pBuf;
+				*(WORD*)(&pHeader[2]) = pHead - pHeader;//pHead - buf - SUB_HEADER_SIZE;
+
+				colMatches = 0;
+				alpha = false;
+				first = TRUE;
+			}
+			if (i == image_data->height - (32 - 1)) {
+				pHead = pBuf;
+				*(WORD*)(&pHeader[4]) = pHead - pHeader;//pHead - buf - SUB_HEADER_SIZE;
+
+				colMatches = 0;
+				alpha = false;
+				first = TRUE;
+			}
+			for (int j = 0; j < image_data->width; j++) {
+				if (data[j].a == 255) {
+					// add opaque pixel
+					col = GetPalColor(data[j], palette, numcolors) + coloroffset;
+					if (alpha || first || col != lastCol)
+						colMatches = 1;
+					else
+						colMatches++;
+					if (colMatches < RLE_LEN || (char)*pHead <= -127) {
+						// bmp encoding
+						if (alpha || (char)*pHead <= -65) {
+							pHead = pBuf;
+							pBuf++;
+						}
+						*pBuf = col;
+						pBuf++;
+					} else {
+						// RLE encoding
+						if (colMatches == RLE_LEN) {
+							memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
+							*pHead += RLE_LEN - 1;
+							if (*pHead != 0) {
+								pHead = pBuf - (RLE_LEN - 1);
+							}
+							*pHead = -65 - (RLE_LEN - 1);
+							pBuf = pHead + 1;
+							*pBuf = col;
+							pBuf++;
+						}
+					}
+					--*pHead;
+
+					lastCol = col;
+					alpha = false;
+				} else {
+					// add transparent pixel
+					if (!alpha || (char)*pHead >= 127) {
+						pHead = pBuf;
+						pBuf++;
+					}
+					++*pHead;
+					alpha = true;
+				}
+				first = FALSE;
+			}
+		}
+		*(DWORD*)&buf[4 + 4 * (n + 1)] = pBuf - buf;
+	}
+	// write to file
+	FILE *fp = fopen(celname, "wb");
+	fwrite(buf, 1, pBuf - buf, fp);
+	fclose(fp);
+	// cleanup
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+
+		free(image_data->row_pointers);
+	}
+	free(imagedata);
 	return true;
 }
 
@@ -304,15 +499,486 @@ bool Cel2Cel(const char* destCelName, int nCel,
 	return true;
 }
 
+static bool WritePNG(const char *pngname, png_image_data &data)
+{
+	const int alphaByte = 255;
+	const int bitDepth = 8;
+	FILE *fp;
+
+	fp = fopen(pngname, "wb");
+	if (fp == NULL)
+		return false;
+
+	png_structp png_ptr = png_create_write_struct
+		(PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
+
+	if (png_ptr == NULL) {
+		fclose(fp);
+		return false;
+	}
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		fclose(fp);
+		return false;
+	}
+
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		fclose(fp);
+		return false;
+	}
+
+	png_init_io(png_ptr, fp);
+
+	/* turn on or off filtering, and/or choose
+       specific filters.  You can use either a single
+       PNG_FILTER_VALUE_NAME or the bitwise OR of one
+       or more PNG_FILTER_NAME masks.
+     */
+    /*png_set_filter(png_ptr, 0,
+       PNG_FILTER_NONE  | PNG_FILTER_VALUE_NONE |
+       PNG_FILTER_SUB   | PNG_FILTER_VALUE_SUB  |
+       PNG_FILTER_UP    | PNG_FILTER_VALUE_UP   |
+       PNG_FILTER_AVG   | PNG_FILTER_VALUE_AVG  |
+       PNG_FILTER_PAETH | PNG_FILTER_VALUE_PAETH|
+       PNG_ALL_FILTERS  | PNG_FAST_FILTERS);*/
+	png_set_IHDR(png_ptr, info_ptr, data.width, data.height,
+       bitDepth, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+       PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); /* PNG_INTRAPIXEL_DIFFERENCING for MNG */
+
+	// png_set_PLTE(png_ptr, info_ptr, palette, num_palette);
+
+	/*png_write_info(png_ptr, info_ptr);
+
+	png_write_image(png_ptr, data.row_pointers);
+
+	png_write_end(png_ptr, info_ptr);*/
+	png_set_rows(png_ptr, info_ptr, data.row_pointers);
+	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+
+	fclose(fp);
+	return true;
+}
+
+static RGBA GetPNGColor(BYTE col, BYTE *palette, int coloroffset)
+{
+	RGBA result;
+
+	col -= coloroffset;
+	result.r = palette[col * 3 + 0];
+	result.g = palette[col * 3 + 1];
+	result.b = palette[col * 3 + 2];
+	result.a = 255;
+	return result;
+}
+
+static void CelBlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *palette, int coloroffset)
+{
+	int i, w, BUFFER_WIDTH;
+	char width;
+	BYTE *src;
+	RGBA* dst;
+
+	src = pRLEBytes;
+	dst = pDecodeTo;
+	w = BUFFER_WIDTH = nWidth;
+
+	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w) {
+		for (i = w; i != 0;) {
+			width = *src++;
+			if (width >= 0) {
+				i -= width;
+				while (width-- != 0) {
+					*dst = GetPNGColor(*src++, palette, coloroffset);
+					dst++;
+				}
+			} else {
+				while (width++ != 0) {
+					*dst = { 0 };
+					i--;
+					dst++;
+				}
+			}
+		}
+	}
+}
+
+static void Cl2BlitSafe(RGBA *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *palette, int coloroffset)
+{
+	int w, BUFFER_WIDTH;
+	char width;
+	BYTE fill;
+	BYTE *src;
+	RGBA *dst;
+
+	src = pRLEBytes;
+	dst = pDecodeTo;
+	w = BUFFER_WIDTH = nWidth;
+
+	while (nDataSize != 0) { 
+		width = *src++;
+		nDataSize--;
+		if (width < 0) {
+			width = -width;
+			if (width > 65) {
+				width -= 65;
+				nDataSize--;
+				RGBA fill = GetPNGColor(*src++, palette, coloroffset);
+				w -= width;
+				while (width != 0) {
+					*dst = fill;
+					dst++;
+					width--;
+				}
+				if (w == 0) {
+					w = nWidth;
+					dst -= BUFFER_WIDTH + w;
+				}
+			} else {
+				nDataSize -= width;
+				w -= width;
+				while (width != 0) {
+					*dst = GetPNGColor(*src, palette, coloroffset);
+					src++;
+					dst++;
+					width--;
+				}
+				if (w == 0) {
+					w = nWidth;
+					dst -= BUFFER_WIDTH + w;
+				}
+			}
+			continue;
+		}
+		while (width != 0) {
+			if (width > w) {
+				for ( ; w != 0; w--) {
+					*dst = { 0 };
+					dst++;
+					width--;
+				}
+			} else {
+				for ( ; width != 0; width--) {
+					*dst = { 0 };
+					dst++;
+					w--;
+				}
+			}
+			if (w == 0) {
+				w = nWidth;
+				dst -= BUFFER_WIDTH + w;
+			}
+		}
+	}
+}
+
+struct cel_image_data {
+	DWORD dataSize;
+	DWORD width;
+	DWORD height;
+	BYTE* data;
+};
+bool Cel2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+{
+	FILE *f = fopen(celname, "rb");
+
+	// read the file into memory
+	int numimage;
+	fread(&numimage, 4, 1, f);
+
+	int headerSize = 4 + 4 + 4 *numimage;
+	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * numimage);
+	DWORD dataSize;
+	for (int i = 0; i <= numimage; i++) {
+		fread(&dataSize, 4, 1, f);
+		celdata[i].dataSize = dataSize;
+	}
+
+	BYTE *buf = (BYTE *)malloc(dataSize);
+	fread(buf, 1, dataSize - headerSize, f);
+
+	fclose(f);
+
+	// prepare celdata info
+	BYTE *src = buf;
+	for (int i = 0; i < numimage; i++) {
+		celdata[i].data = src;
+		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+		celdata[i].width = nWidth;
+		int pixels = 0;
+		while (src < &celdata[i].data[celdata[i].dataSize]) {
+			char width = *src++;
+			if (width >= 0) {
+				pixels += width;
+				src += width;
+			} else {
+				pixels -= width;
+			}
+		}
+		if (src != &celdata[i].data[celdata[i].dataSize]) {
+			free(buf);
+			free(celdata);
+			return false;
+		}
+		if (pixels % nWidth != 0) {
+			free(buf);
+			free(celdata);
+			return false;
+		}
+		celdata[i].height = pixels / nWidth;
+	}
+
+	// write the png(s)
+	nCel--;
+	png_image_data imagedata;
+	for (int i = 0; i < numimage; i++) {
+		if (i == nCel || nCel < 0) {
+			// prepare pngdata
+			imagedata.width = celdata[i].width;
+			imagedata.height = celdata[i].height;
+			RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
+			imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
+			for (int n = 0; n < imagedata.height; n++) {
+				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+			}
+			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+			CelBlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, palette, coloroffset);
+
+			// write a single png
+			char destFile[256];
+			int idx = strlen(celname) - 1;
+			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+				idx--;
+			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			destFile[fnc - 4] = '_';
+			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
+			
+			if (!WritePNG(destFile, imagedata)) {
+				free(imagedata.row_pointers);
+				free(imagerows);
+				free(buf);
+				free(celdata);
+				return false;
+			}
+			free(imagedata.row_pointers);
+			free(imagerows);
+		}
+	}
+
+	// cleanup
+	free(buf);
+	free(celdata);
+	return true;
+}
+
+bool Cl2PNG(const char* celname, int nCel, int nWidth, const char* destFolder, BYTE *palette, int coloroffset)
+{
+	FILE *f = fopen(celname, "rb");
+	// read the file into memory
+	int numimage;
+	fread(&numimage, 4, 1, f);
+
+	int headerSize = 4 + 4 + 4 *numimage;
+	cel_image_data *celdata = (cel_image_data *)malloc(sizeof(cel_image_data) * (numimage + 1));
+	DWORD dataSize;
+	for (int i = 0; i <= numimage; i++) {
+		fread(&dataSize, 4, 1, f);
+		celdata[i].dataSize = dataSize;
+	}
+
+	BYTE *buf = (BYTE *)malloc(dataSize);
+	fread(buf, 1, dataSize - headerSize, f);
+
+	fclose(f);
+
+	// prepare celdata info
+	BYTE *src = buf;
+	for (int i = 0; i < numimage; i++) {
+		celdata[i].data = src;
+		celdata[i].dataSize = celdata[i + 1].dataSize - celdata[i].dataSize;
+		celdata[i].width = nWidth;
+		// skip frame-header
+		WORD subHeaderSize = *(WORD*)src;
+		src += subHeaderSize;
+		celdata[i].data += subHeaderSize;
+		celdata[i].dataSize -= subHeaderSize;
+
+		int pixels = 0;
+		while (src < &celdata[i].data[celdata[i].dataSize]) {
+			char width = *src++;
+			if (width >= 0) {
+				pixels += width;
+			} else {
+				width = -width;
+				if (width > 65) {
+					// fill
+					pixels += width - 65;
+					src++;
+				} else {
+					// bmp
+					pixels += width;
+					src += width;
+				}
+			}
+		}
+		if (src != &celdata[i].data[celdata[i].dataSize]) {
+			free(buf);
+			free(celdata);
+			return false;
+		}
+		if (pixels % nWidth != 0) {
+			free(buf);
+			free(celdata);
+			return false;
+		}
+		celdata[i].height = pixels / nWidth;
+	}
+
+	// write the png(s)
+	nCel--;
+	png_image_data imagedata;
+	for (int i = 0; i < numimage; i++) {
+		if (i == nCel || nCel < 0) {
+			// prepare pngdata
+			imagedata.width = celdata[i].width;
+			imagedata.height = celdata[i].height;
+			RGBA *imagerows = (RGBA *)malloc(sizeof(RGBA) * imagedata.height * imagedata.width);
+			imagedata.row_pointers = (png_bytep*)malloc(imagedata.height * sizeof(void*));
+			for (int n = 0; n < imagedata.height; n++) {
+				imagedata.row_pointers[n] = (png_bytep)&imagerows[imagedata.width * n];
+			}
+
+			RGBA* lastLine = (RGBA*)imagedata.row_pointers[imagedata.height - 1];
+			//lastLine += imagedata.width * (imagedata.height - 1);
+			Cl2BlitSafe(lastLine, celdata[i].data, celdata[i].dataSize, imagedata.width, palette, coloroffset);
+			
+			// write a single png
+			char destFile[256];
+			int idx = strlen(celname) - 1;
+			while (idx > 0 && celname[idx] != '\\' && celname[idx] != '/')
+				idx--;
+			int fnc = snprintf(destFile, 256, "%s%s", destFolder, &celname[idx + 1]);
+			destFile[fnc - 4] = '_';
+			snprintf(&destFile[fnc], 256, "_frame%04d.png", i);
+			
+			if (!WritePNG(destFile, imagedata)) {
+				free(imagedata.row_pointers);
+				free(imagerows);
+				free(buf);
+				free(celdata);
+				return false;
+			}
+			free(imagedata.row_pointers);
+			free(imagerows);
+		}
+	}
+
+	// cleanup
+	free(buf);
+	free(celdata);
+	return true;
+}
+
 int main()
 {
-	//PNG2Cel("f:\\menu.png", "f:\\menu.cel");
+	//Cl2PNG("f:\\Farrow1.CL2", 0, 96, "f:\\", &diapal[0][0], 128);
 
-	//Cel2Cel("f:\\menu.cel", 1, "f:\\menu_.cel", "f:\\menu__.cel");
-	//Cel2Cel("f:\\menu__.cel", 3, "f:\\menum_.cel", "f:\\menum__.cel");
-	//Cel2Cel("f:\\menum__.cel", 4, "f:\\menum.cel", "f:\\menum___.cel");
+	/*const char* sffilenames[] = {
+		"f:\\Splash_CL2_frame0000.png",
+		"f:\\Splash_CL2_frame0001.png",
+		"f:\\Splash_CL2_frame0002.png",
+		"f:\\Splash_CL2_frame0003.png",
+		"f:\\Splash_CL2_frame0004.png",
+		"f:\\Splash_CL2_frame0005.png",
+		"f:\\Splash_CL2_frame0006.png",
+		"f:\\Splash_CL2_frame0007.png"};
+	PNG2Cl2(sffilenames, 8, PNG_TRANSFORM_IDENTITY, "f:\\Splash.CL2", &diapal[0][0], 128, 128);*/
 
-	//Cel2Cel("f:\\lifeflask.cel", 1, "f:\\lifeflask_.cel", "f:\\lifeflask__.cel");
-	//Cel2Cel("f:\\manaflask.cel", 1, "f:\\manaflask_.cel", "f:\\manaflask__.cel");
-	//Cel2Cel("f:\\lifeflask__.cel", 3, "f:\\manaflask__.cel", "f:\\lifemana___.cel");
+	/*for (int n = 1; n < 10; n++) {
+		char pffiles[4][256];
+		const char* pps[4];
+		for (int m = 0; m < 4; m++) {
+			snprintf(pffiles[m], 256, "f:\\Marrow%d_CL2_frame%04d.png", n, m);
+			pps[m] = &pffiles[m][0];
+		}
+		char pname[256];
+		snprintf(pname, 256, "f:\\Marrow%d.CL2", n);
+		PNG2Cl2(&pps[0], 4, PNG_TRANSFORM_IDENTITY, pname, &diapal[0][0], 128, 128);
+	}*/
+
+	/*for (int n = 2; n < 9; n++) {
+		char pffiles[4][256];
+		const char* pps[4];
+		for (int m = 0; m < 4; m++) {
+			snprintf(pffiles[m], 256, "f:\\Marrow%d_CL2_frame%04d.png", n, m);
+			pps[m] = &pffiles[m][0];
+		}
+		char pname[256];
+		snprintf(pname, 256, "f:\\Marrow%d.CL2", (18 - n));
+		PNG2Cl2(&pps[0], 4, PNG_TRANSFORM_VFLIP, pname, &diapal[0][0], 128, 128);
+	}
+
+	const char* ffilenames[] = {
+		"f:\\Farrow1_CL2_frame0000_.png",
+		"f:\\Farrow1_CL2_frame0001_.png",
+		"f:\\Farrow1_CL2_frame0002_.png",
+		"f:\\Farrow1_CL2_frame0003_.png"};
+	PNG2Cl2(ffilenames, 4, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1__.CL2", &diapal[0][0], 128, 128);
+
+	Cel2PNG("f:\\SpellBkB.CEL", 0, 76, "f:\\", &diapal[0][0], 128);
+
+	const char* filenames[] = { "f:\\Farrow1.png" };
+	PNG2Cl2(filenames, 1, PNG_TRANSFORM_IDENTITY, "f:\\Farrow1.CL2", &diapal[0][0], 128, 128);
+	/*FILE *fa = fopen("f:\\Farrow1.CL2", "rb");
+	int srcCount;
+	fread(&srcCount, 1, 4, fa);
+	int srcDataSize;
+	for (int i = 0; i <= srcCount; i++)
+		fread(&srcDataSize, 1, 4, fa);
+	fclose(fa);
+	BYTE *bufy = (BYTE*)malloc(srcDataSize);
+	fa = fopen("f:\\Farrow1.CL2", "rb");
+	fread(bufy, 1, srcDataSize, fa);
+	fclose(fa);
+	BYTE *bufo = (BYTE*)malloc(srcDataSize);
+	memset(bufo, 0, srcDataSize);
+	Cl2Draw(bufo, bufy, 1, 96);*/
+
+	/*FILE *f = fopen("f:\\town.sol", "rb");
+	BYTE *bufy = (BYTE*)malloc(0x4F0);
+	int lenn = fread(bufy, 1, 1264, f);
+	fclose(f);
+	bufy[521] |= 1;
+	bufy[522] |= 1;
+	bufy[523] |= 1;
+	bufy[524] |= 1;
+	bufy[539] |= 1;
+	bufy[551] |= 1;
+	bufy[552] |= 1;
+	f = fopen("f:\\town_.sol", "wb");
+	fwrite(bufy, 1, lenn, f);
+	fclose(f);
+	f = NULL;*/
+
+	//PNG2Cel("f:\\inv.png", "f:\\inv.cel", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\quest.png", "f:\\quest.cel", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\char.png", "f:\\char.cel", &diapal[0][0], 128, 128);
+	const char* fsb0[] = { "f:\\SpellBk.png" };
+	PNG2Cel(fsb0, 1, "f:\\SpellBk.CEL", &diapal[0][0], 128, 128);
+
+	const char* fsb1[] = { "f:\\SpellBkB1.png", "f:\\SpellBkB2.png",
+		"f:\\SpellBkB3.png", "f:\\SpellBkB4.png"};
+	PNG2Cel(fsb1, 4, "f:\\SpellBkB__.CEL", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB1.png", "f:\\SpellBkB1.CEL", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB2.png", "f:\\SpellBkB2.CEL", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB3.png", "f:\\SpellBkB3.CEL", &diapal[0][0], 128, 128);
+	//PNG2Cel("f:\\SpellBkB4.png", 1, "f:\\SpellBkB4.CEL", &diapal[0][0], 128, 128);
+
+	Cel2Cel("f:\\SpellBkB1.cel", 2, "f:\\SpellBkB2.cel", "f:\\SpellBkB12.cel");
+	Cel2Cel("f:\\SpellBkB3.cel", 2, "f:\\SpellBkB4.cel", "f:\\SpellBkB34.cel");
+	Cel2Cel("f:\\SpellBkB12.cel", 3, "f:\\SpellBkB34.cel", "f:\\SpellBkB_.cel");
 }
