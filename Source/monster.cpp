@@ -1562,6 +1562,8 @@ void MonGetKnockback(int mnum)
 		mon->_myoff = 0;
 		mon->_mx = mon->_mfutx = mon->_moldx;
 		mon->_my = mon->_mfuty = mon->_moldy;
+		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonClearSquares(mnum);
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
 	}
@@ -1989,12 +1991,11 @@ static BOOL MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_myvel;
 			mon->_mxoff = mon->_mVar6 >> 4;
 			mon->_myoff = mon->_mVar7 >> 4;
+			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+				MonChangeLightOff(mnum);
 		}
 		rv = FALSE;
 	}
-
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOff(mnum);
 
 	return rv;
 }
@@ -2025,11 +2026,11 @@ static BOOL MonDoWalk2(int mnum)
 			mon->_mVar7 += mon->_myvel;
 			mon->_mxoff = mon->_mVar6 >> 4;
 			mon->_myoff = mon->_mVar7 >> 4;
+			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+				MonChangeLightOff(mnum);
 		}
 		rv = FALSE;
 	}
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOff(mnum);
 
 	return rv;
 }
@@ -2064,11 +2065,11 @@ static BOOL MonDoWalk3(int mnum)
 			mon->_mVar7 += mon->_myvel;
 			mon->_mxoff = mon->_mVar6 >> 4;
 			mon->_myoff = mon->_mVar7 >> 4;
+			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
+				MonChangeLightOff(mnum);
 		}
 		rv = FALSE;
 	}
-	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-		MonChangeLightOff(mnum);
 
 	return rv;
 }
