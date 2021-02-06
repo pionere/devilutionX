@@ -1149,7 +1149,7 @@ static BOOL L4checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
-	if (x < 0 || y < 0)
+	if (x <= 0 || y <= 0)
 		return FALSE;
 
 	x2 = x + width;
@@ -1181,7 +1181,7 @@ static void L4roomGen(int x, int y, int w, int h, int dir)
 			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L4checkRoom(rx - 1, ry - 1, width + 2, height + 1)) /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
+			if (L4checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
 				break;
 		}
 
@@ -1593,7 +1593,7 @@ static BOOL DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
 
 static void DRLG_L4(int entry)
 {
-	int i, j, ar;
+	int i, j;
 	BOOL doneflag;
 
 	do {
@@ -1602,24 +1602,22 @@ static void DRLG_L4(int entry)
 			InitL4Dungeon();
 			L4firstRoom();
 			L4FixRim();
-			ar = GetArea();
-			if (ar >= 173) {
-				uShape();
-			}
-		} while (ar < 173);
+		} while (GetArea() < 173);
+		uShape();
+
 		L4makeDungeon();
 		DRLG_L4MakeMegas();
 		L4tileFix();
 		if (currlevel == 16) {
 			L4SaveQuads();
 		}
-		if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		//if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 			for (i = SP4x1; i < SP4x2; i++) {
 				for (j = SP4y1; j < SP4y2; j++) {
 					dflags[i][j] = 1;
 				}
 			}
-		}
+		//}
 		L4AddWall();
 		DRLG_L4FloodTVal();
 		DRLG_L4TransFix();
