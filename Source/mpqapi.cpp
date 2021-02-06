@@ -275,6 +275,7 @@ struct Archive {
 #endif
 		} else {
 			mode |= std::ios::trunc;
+			this->size = 0;
 		}
 		if (!stream.Open(name, mode)) {
 			stream.Close();
