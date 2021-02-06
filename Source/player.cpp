@@ -1676,7 +1676,7 @@ void StartPlrHit(int pnum, int dam, BOOL forcehit)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 
 	if (!forcehit) {
-		if (p->pManaShield != 0 || (dam >> (6 - 2)) < p->_pMaxHP)
+		if (p->pManaShield != 0 || (dam << 2) < p->_pMaxHP)
 			return;
 	}
 
