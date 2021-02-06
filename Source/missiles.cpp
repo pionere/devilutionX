@@ -547,11 +547,11 @@ unsigned CalcMonsterDam(unsigned short mor, unsigned char mRes, unsigned mindam,
 			return 0;
 		resist = mor >> MORS_IDX_MAGIC;
 		break;
-	case MISR_HOLY:
-		mor &= MORS_HOLY_IMMUNE;
-		if (mor == MORS_HOLY_IMMUNE)
+	case MISR_ACID:
+		mor &= MORS_ACID_IMMUNE;
+		if (mor == MORS_ACID_IMMUNE)
 			return 0;
-		resist = mor >> MORS_IDX_HOLY;
+		resist = mor >> MORS_IDX_ACID;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -574,9 +574,16 @@ unsigned CalcMonsterDam(unsigned short mor, unsigned char mRes, unsigned mindam,
 	return dam;
 }
 
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam)
+void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam)
 {
-	AddMissile(dx, dy, 0, 0, 0, fdam >= ldam ? MIS_WEAPFEXP : MIS_WEAPLEXP, 0, 0, 0, 0);
+	int mtype;
+
+	if ((fdam | ldam) >= (mdam | adam)) {
+		mtype = fdam >= ldam ? MIS_EXFIRE : MIS_EXLGHT;
+	} else {
+		mtype = mdam >= adam ? MIS_EXMAGIC : MIS_EXACID;
+	}
+	AddMissile(dx, dy, -1, 0, 0, mtype, 0, 0, 0, 0);
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
@@ -697,13 +704,13 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		if (mdam != 0) {
 			mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, p->_pIMMinDam, mdam);
 		}
-		int hdam = p->_pIHMaxDam;
-		if (hdam != 0) {
-			hdam = CalcMonsterDam(mon->mMagicRes, MISR_LIGHTNING, p->_pIHMinDam, hdam);
+		int adam = p->_pIAMaxDam;
+		if (adam != 0) {
+			adam = CalcMonsterDam(mon->mMagicRes, MISR_ACID, p->_pIAMinDam, adam);
 		}
-		if ((ldam | fdam | mdam | hdam) != 0) {
-			dam += fdam + ldam + mdam + hdam;
-			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, hdam);
+		if ((ldam | fdam | mdam | adam) != 0) {
+			dam += fdam + ldam + mdam + adam;
+			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 		}
 
 		if (p->_pIFlags & ISPL_NOHEALMON)
@@ -764,8 +771,8 @@ int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam)
 	case MISR_MAGIC:
 		resist = p->_pMagResist;
 		break;
-	case MISR_HOLY:
-		return 0; // TODO: add dps->_pHolyResist
+	case MISR_ACID:
+		return p->_pAcidResist;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -990,13 +997,13 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		if (mdam != 0) {
 			mdam = CalcPlrDam(dps, MISR_MAGIC, ops->_pIMMinDam, mdam);
 		}
-		int hdam = ops->_pIHMaxDam;
-		if (hdam != 0) {
-			hdam = CalcPlrDam(dps, MISR_HOLY, ops->_pIHMinDam, hdam);
+		int adam = ops->_pIAMaxDam;
+		if (adam != 0) {
+			adam = CalcPlrDam(dps, MISR_ACID, ops->_pIAMinDam, adam);
 		}
-		if ((ldam | fdam | mdam | hdam) != 0) {
-			dam += ldam + fdam + mdam + hdam;
-			AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, hdam);
+		if ((ldam | fdam | mdam | adam) != 0) {
+			dam += ldam + fdam + mdam + adam;
+			AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, adam);
 		} else if (dam == 0)
 			return FALSE;
 	} else {
@@ -1505,21 +1512,29 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
-	int av = 32;
+	int av = 32, mtype;
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
+	midir = GetDirection16(sx, sy, dx, dy);
 	if (micaster == 0) {
 		p = &plr[misource];
 		av += p->_pIArrowVelBonus;
 		//int dam = p->_pIMaxDam + p->_pIMinDam;
-		int fdam = p->_pIFMaxDam + p->_pIFMinDam;
-		int ldam = p->_pILMaxDam + p->_pILMinDam;
-		if ((ldam | fdam) != 0) {
-			SetMissAnim(mi, fdam >= ldam ? MFILE_FARROW : MFILE_LARROW);
-			SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
+		int fdam = p->_pIFMaxDam;
+		int ldam = p->_pILMaxDam;
+		int mdam = p->_pIMMaxDam;
+		int adam = p->_pIAMaxDam;
+		if ((ldam | fdam | mdam | adam) != 0) {
+			if ((fdam | ldam) >= (mdam | adam)) {
+				mtype = fdam >= ldam ? MFILE_FARROW : MFILE_LARROW;
+			} else {
+				mtype = mdam >= adam ? MFILE_MARROW : MFILE_PARROW;
+			}
+			missile[mi]._miDir = midir;
+			SetMissAnim(mi, mtype);
 			/*dam += fdam + ldam;
 			int gfx = random_(8, dam);
 			if (gfx >= dam - (fdam + ldam)) {
@@ -1533,7 +1548,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	mis = &missile[mi];
-	mis->_miAnimFrame = GetDirection16(sx, sy, dx, dy) + 1;
+	mis->_miAnimFrame = midir + 1; // only for normal arrows
 	mis->_miRange = 256;
 	if (misource != -1) {
 		if (micaster == 0) {
@@ -1827,47 +1842,21 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	}
 
 	mis = &missile[mi];
-	bmis = &missile[dx];
-	mis->_mix = bmis->_mix;
-	mis->_miy = bmis->_miy;
-	mis->_misx = bmis->_misx;
-	mis->_misy = bmis->_misy;
-	mis->_mixoff = bmis->_mixoff;
-	mis->_miyoff = bmis->_miyoff;
-	mis->_mitxoff = bmis->_mitxoff;
-	mis->_mityoff = bmis->_mityoff;
+	if (dx != -1) {
+		bmis = &missile[dx];
+		mis->_mix = bmis->_mix;
+		mis->_miy = bmis->_miy;
+		mis->_misx = bmis->_misx;
+		mis->_misy = bmis->_misy;
+		mis->_mixoff = bmis->_mixoff;
+		mis->_miyoff = bmis->_miyoff;
+		mis->_mitxoff = bmis->_mitxoff;
+		mis->_mityoff = bmis->_mityoff;
+	}
 	mis->_mixvel = 0;
 	mis->_miyvel = 0;
 	mis->_miRange = mis->_miAnimLen;
 	//mis->_miVar1 = 0;
-	return MIRES_DONE;
-}
-
-/**
- * Var1: light strength
- */
-int AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	//mis->_miVar1 = 0;
-	mis->_miDir = 0;
-	mis->_miRange = mis->_miAnimLen - 1;
-	return MIRES_DONE;
-}
-
-/**
- * Var1: light strength
- */
-int AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	//mis->_miVar1 = 0;
-	mis->_miDir = 0;
-	mis->_miRange = mis->_miAnimLen - 1;
 	return MIRES_DONE;
 }
 
@@ -3023,7 +3012,7 @@ void MI_Firebolt(int mi)
 			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXFLARE, mis->_miCaster, mis->_miSource, 0, 0);
 			break;
 		case MIS_ACID:
-			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXACID, mis->_miCaster, mis->_miSource, 0, 0);
+			AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXACIDP, mis->_miCaster, mis->_miSource, 0, 0);
 			break;
 #ifdef HELLFIRE
 		case MIS_LICH:
@@ -3828,34 +3817,10 @@ void MI_Chain(int mi)
 	}
 }
 
-void MI_WeapExp(int mi)
-{
-	MissileStruct *mis;
-	int ExpLight[10] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2 };
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
-	} else {
-		if (mis->_miVar1 == 0)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 9);
-		else
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar1]);
-		mis->_miVar1++;
-		PutMissile(mi);
-	}
-}
-
 void MI_Misexp(int mi)
 {
 	MissileStruct *mis;
-#ifdef HELLFIRE
 	int ExpLight[] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2, 1, 0, 0, 0, 0 };
-#else
-	int ExpLight[] = { 9, 10, 11, 12, 11, 10, 8, 6, 4, 2 };
-#endif
 
 	mis = &missile[mi];
 	mis->_miRange--;

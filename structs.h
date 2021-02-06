@@ -164,6 +164,7 @@ typedef struct ItemStruct {
 	int _iPLFR;
 	int _iPLLR;
 	int _iPLMR;
+	int _iPLAR;
 	int _iPLMana;
 	int _iPLHP;
 	int _iPLDamMod;
@@ -181,8 +182,8 @@ typedef struct ItemStruct {
 	BYTE _iLMaxDam;
 	BYTE _iMMinDam;
 	BYTE _iMMaxDam;
-	BYTE _iHMinDam;
-	BYTE _iHMaxDam;
+	BYTE _iAMinDam;
+	BYTE _iAMaxDam;
 	int _iPLEnAc;
 	BYTE _iPrePower;
 	BYTE _iSufPower;
@@ -194,7 +195,7 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[12];
+	int alignment[11];
 #endif
 } ItemStruct;
 
@@ -292,6 +293,7 @@ typedef struct PlayerStruct {
 	char _pMagResist;
 	char _pFireResist;
 	char _pLghtResist;
+	char _pAcidResist;
 	int _pGold;
 	BOOL _pInfraFlag;
 	int _pVar1;
@@ -364,8 +366,8 @@ typedef struct PlayerStruct {
 	int _pILMaxDam;
 	int _pIMMinDam;
 	int _pIMMaxDam;
-	int _pIHMinDam;
-	int _pIHMaxDam;
+	int _pIAMinDam;
+	int _pIAMaxDam;
 	int _pOilType;
 	BYTE pTownWarps;
 	BYTE pDungMsgs;

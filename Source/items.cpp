@@ -480,6 +480,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int fr = 0; // fire resistance
 	int lr = 0; // lightning resistance
 	int mr = 0; // magic resistance
+	int ar = 0; // acid resistance
 
 	int dmod = 0; // bonus damage mod
 	int pdmod;    // player damage mod
@@ -508,8 +509,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	unsigned lmax = 0;  // max lightning damage
 	unsigned mmin = 0;  // min magic damage
 	unsigned mmax = 0;  // max magic damage
-	unsigned hmin = 0;  // min holy damage
-	unsigned hmax = 0;  // max holy damage
+	unsigned amin = 0;  // min acid damage
+	unsigned amax = 0;  // max acid damage
 
 	p = &plr[pnum];
 	pi = p->InvBody;
@@ -563,6 +564,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				fr += pi->_iPLFR;
 				lr += pi->_iPLLR;
 				mr += pi->_iPLMR;
+				ar += pi->_iPLAR;
 				dmod += pi->_iPLDamMod;
 				ghit += pi->_iPLGetHit;
 				lrad += pi->_iPLLight;
@@ -578,8 +580,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				lmax += pi->_iLMaxDam;
 				mmin += pi->_iMMinDam;
 				mmax += pi->_iMMaxDam;
-				hmin += pi->_iHMinDam;
-				hmax += pi->_iHMaxDam;
+				amin += pi->_iAMinDam;
+				amax += pi->_iAMaxDam;
 			}
 		}
 	}
@@ -595,8 +597,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pILMaxDam = lmax << 6;
 	p->_pIMMinDam = mmin << 6;
 	p->_pIMMaxDam = mmax << 6;
-	p->_pIHMinDam = hmin << 6;
-	p->_pIHMaxDam = hmax << 6;
+	p->_pIAMinDam = amin << 6;
+	p->_pIAMaxDam = amax << 6;
 	p->_pISplLvlAdd = spllvladd;
 	p->_pILifeSteal = lifesteal;
 	p->_pIManaSteal = manasteal;
@@ -653,32 +655,27 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 #ifdef HELLFIRE
 	if (p->_pClass == PC_BARBARIAN) {
-		mr += p->_pLevel;
 		fr += p->_pLevel;
 		lr += p->_pLevel;
+		mr += p->_pLevel;
+		ar += p->_pLevel;
 	}
 
 	if (p->_pSpellFlags & PSE_LETHARGY) {
-		mr -= p->_pLevel;
 		fr -= p->_pLevel;
 		lr -= p->_pLevel;
+		mr -= p->_pLevel;
+		ar -= p->_pLevel;
 	}
 #endif
 
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
-		mr = 0;
 		fr = 0;
 		lr = 0;
-	}
-
-	if (mr > MAXRESIST)
-		mr = MAXRESIST;
-#ifdef HELLFIRE
-	else if (mr < 0)
 		mr = 0;
-#endif
-	p->_pMagResist = mr;
+		ar = 0;
+	}
 
 	if (fr > MAXRESIST)
 		fr = MAXRESIST;
@@ -695,6 +692,22 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		lr = 0;
 #endif
 	p->_pLghtResist = lr;
+
+	if (mr > MAXRESIST)
+		mr = MAXRESIST;
+#ifdef HELLFIRE
+	else if (mr < 0)
+		mr = 0;
+#endif
+	p->_pMagResist = mr;
+
+	if (ar > MAXRESIST)
+		ar = MAXRESIST;
+#ifdef HELLFIRE
+	else if (ar < 0)
+		ar = 0;
+#endif
+	p->_pAcidResist = ar;
 
 	switch (p->_pClass) {
 	case PC_WARRIOR:   vadd *= 2;         break;
@@ -1793,16 +1806,22 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_MAGICRES:
 		is->_iPLMR += r;
 		break;
+	case IPL_ACIDRES:
+		is->_iPLAR += r;
+		break;
 	case IPL_ALLRES:
 		is->_iPLFR += r;
-		is->_iPLLR += r;
-		is->_iPLMR += r;
 		if (is->_iPLFR < 0)
 			is->_iPLFR = 0;
+		is->_iPLLR += r;
 		if (is->_iPLLR < 0)
 			is->_iPLLR = 0;
+		is->_iPLMR += r;
 		if (is->_iPLMR < 0)
 			is->_iPLMR = 0;
+		is->_iPLAR += r;
+		if (is->_iPLAR < 0)
+			is->_iPLAR = 0;
 		break;
 	case IPL_SPLLVLADD:
 		is->_iSplLvlAdd = r;
@@ -1817,24 +1836,20 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iMaxCharges = param2;
 		break;
 	case IPL_FIREDAM:
-		is->_iFlags |= ISPL_FIREDAM;
 		is->_iFMinDam = param1;
 		is->_iFMaxDam = param2;
 		break;
 	case IPL_LIGHTDAM:
-		is->_iFlags |= ISPL_LIGHTDAM;
 		is->_iLMinDam = param1;
 		is->_iLMaxDam = param2;
 		break;
 	case IPL_MAGICDAM:
-		is->_iFlags |= ISPL_MAGICDAM;
 		is->_iMMinDam = param1;
 		is->_iMMaxDam = param2;
 		break;
-	case IPL_HOLYDAM:
-		is->_iFlags |= ISPL_HOLYDAM;
-		is->_iHMinDam = param1;
-		is->_iHMaxDam = param2;
+	case IPL_ACIDDAM:
+		is->_iAMinDam = param1;
+		is->_iAMaxDam = param2;
 		break;
 	case IPL_STR:
 		is->_iPLStr += r;
@@ -3164,6 +3179,12 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		else
 			copy_cstr(tempstr, "Resist Magic: 75% MAX");
 		break;
+	case IPL_ACIDRES:
+		if (is->_iPLAR < 75)
+			snprintf(tempstr, sizeof(tempstr), "Resist Acid: %+i%%", is->_iPLAR);
+		else
+			copy_cstr(tempstr, "Resist Acid: 75% MAX");
+		break;
 	case IPL_ALLRES:
 		if (is->_iPLFR < 75)
 			snprintf(tempstr, sizeof(tempstr), "Resist All: %+i%%", is->_iPLFR);
@@ -3197,11 +3218,11 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		else
 			snprintf(tempstr, sizeof(tempstr), "magic damage: %i", is->_iMMinDam);
 		break;
-	case IPL_HOLYDAM:
-		if (is->_iHMinDam != is->_iHMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "holy damage: %i-%i", is->_iHMinDam, is->_iHMaxDam);
+	case IPL_ACIDDAM:
+		if (is->_iAMinDam != is->_iAMaxDam)
+			snprintf(tempstr, sizeof(tempstr), "holy damage: %i-%i", is->_iAMinDam, is->_iAMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "holy damage: %i", is->_iHMinDam);
+			snprintf(tempstr, sizeof(tempstr), "holy damage: %i", is->_iAMinDam);
 		break;
 	case IPL_STR:
 		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);

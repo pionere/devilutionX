@@ -145,6 +145,7 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iPLFR);
 	CopyInt(tbuff, &is->_iPLLR);
 	CopyInt(tbuff, &is->_iPLMR);
+	CopyInt(tbuff, &is->_iPLAR);
 	CopyInt(tbuff, &is->_iPLMana);
 	CopyInt(tbuff, &is->_iPLHP);
 	CopyInt(tbuff, &is->_iPLDamMod);
@@ -163,8 +164,8 @@ static void LoadItemData(ItemStruct *is)
 	CopyChar(tbuff, &is->_iLMaxDam);
 	CopyChar(tbuff, &is->_iMMinDam);
 	CopyChar(tbuff, &is->_iMMaxDam);
-	CopyChar(tbuff, &is->_iHMinDam);
-	CopyChar(tbuff, &is->_iHMaxDam);
+	CopyChar(tbuff, &is->_iAMinDam);
+	CopyChar(tbuff, &is->_iAMaxDam);
 	CopyInt(tbuff, &is->_iPLEnAc);
 	CopyChar(tbuff, &is->_iPrePower);
 	CopyChar(tbuff, &is->_iSufPower);
@@ -275,7 +276,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
-	tbuff += 1; // Alignment
+	tbuff += 1; // Skip to Calc _pAcidResist
 	CopyInt(tbuff, &p->_pGold);
 
 	CopyInt(tbuff, &p->_pInfraFlag);
@@ -354,8 +355,8 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pILMaxDam
 	tbuff += 4; // Skip to Calc _pIMMinDam
 	tbuff += 4; // Skip to Calc _pIMMaxDam
-	tbuff += 4; // Skip to Calc _pIHMinDam
-	tbuff += 4; // Skip to Calc _pIHMaxDam
+	tbuff += 4; // Skip to Calc _pIAMinDam
+	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyInt(tbuff, &p->_pOilType);
 	CopyChar(tbuff, &p->pTownWarps);
 	CopyChar(tbuff, &p->pDungMsgs);
@@ -853,6 +854,7 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iPLFR, tbuff);
 	CopyInt(&is->_iPLLR, tbuff);
 	CopyInt(&is->_iPLMR, tbuff);
+	CopyInt(&is->_iPLAR, tbuff);
 	CopyInt(&is->_iPLMana, tbuff);
 	CopyInt(&is->_iPLHP, tbuff);
 	CopyInt(&is->_iPLDamMod, tbuff);
@@ -871,8 +873,8 @@ static void SaveItemData(ItemStruct *is)
 	CopyChar(&is->_iLMaxDam, tbuff);
 	CopyChar(&is->_iMMinDam, tbuff);
 	CopyChar(&is->_iMMaxDam, tbuff);
-	CopyChar(&is->_iHMinDam, tbuff);
-	CopyChar(&is->_iHMaxDam, tbuff);
+	CopyChar(&is->_iAMinDam, tbuff);
+	CopyChar(&is->_iAMaxDam, tbuff);
 	CopyInt(&is->_iPLEnAc, tbuff);
 	CopyChar(&is->_iPrePower, tbuff);
 	CopyChar(&is->_iSufPower, tbuff);
@@ -983,7 +985,7 @@ static void SavePlayer(int pnum)
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
-	tbuff += 1; // Alignment
+	tbuff += 1; // Skip to Calc _pAcidResist
 	CopyInt(&p->_pGold, tbuff);
 
 	CopyInt(&p->_pInfraFlag, tbuff);
@@ -1063,8 +1065,8 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pILMaxDam
 	tbuff += 4; // Skip to Calc _pIMMinDam
 	tbuff += 4; // Skip to Calc _pIMMaxDam
-	tbuff += 4; // Skip to Calc _pIHMinDam
-	tbuff += 4; // Skip to Calc _pIHMaxDam
+	tbuff += 4; // Skip to Calc _pIAMinDam
+	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyInt(&p->_pOilType, tbuff);
 	CopyChar(&p->pTownWarps, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);

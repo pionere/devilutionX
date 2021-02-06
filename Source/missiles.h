@@ -60,8 +60,6 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddWeapFExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddWeapLExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -131,7 +129,6 @@ void MI_Etherealize(int mi);
 void MI_FireWave(int mi);
 void MI_Guardian(int mi);
 void MI_Chain(int mi);
-void MI_WeapExp(int mi);
 void MI_Misexp(int mi);
 void MI_Acidsplat(int mi);
 void MI_Teleport(int mi);

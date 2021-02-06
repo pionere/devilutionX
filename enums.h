@@ -94,6 +94,7 @@ typedef enum item_effect_type {
 	IPL_FIRERES,
 	IPL_LIGHTRES,
 	IPL_MAGICRES,
+	IPL_ACIDRES,
 	IPL_ALLRES,
 	IPL_SPLCOST,		/* only used in beta */
 	IPL_SPLDUR,			/* only used in beta */
@@ -102,7 +103,7 @@ typedef enum item_effect_type {
 	IPL_FIREDAM,
 	IPL_LIGHTDAM,
 	IPL_MAGICDAM, // unused
-	IPL_HOLYDAM,  // unused
+	IPL_ACIDDAM,  // unused
 	IPL_STR,
 	IPL_MAG,
 	IPL_DEX,
@@ -1392,6 +1393,9 @@ typedef enum missile_id {
 	MIS_LIGHTNINGC,
 	MIS_LIGHTNING,
 	MIS_EXFIRE,
+	MIS_EXLGHT,
+	MIS_EXMAGIC,
+	MIS_EXACID,
 	MIS_TOWN,
 	MIS_FLASH,
 	MIS_FLASH2,
@@ -1440,15 +1444,13 @@ typedef enum missile_id {
 	MIS_TELEKINESIS,
 	//MIS_LARROW,
 	MIS_ACID,
-	MIS_EXACID,
+	MIS_EXACIDP,
 	MIS_ACIDPUD,
 	MIS_HEALOTHER,
 	MIS_ELEMENT,
 	MIS_EXELE,
 	MIS_RESURRECTBEAM,
 	//MIS_BONESPIRIT,
-	MIS_WEAPFEXP,
-	MIS_WEAPLEXP,
 	MIS_RPORTAL,
 	MIS_EXAPOCA2,
 	MIS_APOCAC2,
@@ -1513,8 +1515,12 @@ typedef enum missile_graphic_id {
 	MFILE_BONE,
 	MFILE_METLHIT,
 	MFILE_FARROW,
+	MFILE_LARROW,
+	MFILE_MARROW,
+	MFILE_PARROW,
+	MFILE_MAGICEXP,
+	MFILE_GREENEXP,
 	MFILE_DOOM,
-	MFILE_0F,
 	MFILE_BLODBUR,
 	MFILE_NEWEXP,
 	MFILE_SHATTER1,
@@ -1528,7 +1534,6 @@ typedef enum missile_graphic_id {
 	MFILE_MINILTNG,
 	MFILE_HOLY,
 	MFILE_HOLYEXPL,
-	MFILE_LARROW,
 	MFILE_FIRARWEX,
 	MFILE_ACIDBF,
 	MFILE_ACIDSPLA,
@@ -1844,7 +1849,7 @@ typedef enum monster_resistance_idx {
 	MORS_IDX_FIRE      = 6,
 	MORS_IDX_LIGHTNING = 8,
 	MORS_IDX_MAGIC     = 10,
-	MORS_IDX_HOLY      = 12,
+	MORS_IDX_ACID      = 12,
 } monster_resistance_idx;
 
 typedef enum monster_resistance {
@@ -1866,9 +1871,9 @@ typedef enum monster_resistance {
 	MORS_MAGIC_PROTECTED     = 0x01 << MORS_IDX_MAGIC,
 	MORS_MAGIC_RESIST        = 0x02 << MORS_IDX_MAGIC,
 	MORS_MAGIC_IMMUNE        = 0x03 << MORS_IDX_MAGIC,
-	MORS_HOLY_PROTECTED      = 0x01 << MORS_IDX_HOLY,
-	MORS_HOLY_RESIST         = 0x02 << MORS_IDX_HOLY,
-	MORS_HOLY_IMMUNE         = 0x03 << MORS_IDX_HOLY,
+	MORS_ACID_PROTECTED      = 0x01 << MORS_IDX_ACID,
+	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
+	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } monster_resistance;
 
 typedef enum missile_resistance {
@@ -1879,7 +1884,7 @@ typedef enum missile_resistance {
 	MISR_FIRE,
 	MISR_LIGHTNING,
 	MISR_MAGIC,
-	MISR_HOLY,
+	MISR_ACID,
 } missile_resistance;
 
 typedef enum _speech_id {
@@ -3406,10 +3411,10 @@ typedef enum item_special_effect {
 	ISPL_NONE           = 0x00000000,
 	ISPL_INFRAVISION    = 0x00000001, /* unused */ 
 	//ISPL_RNDSTEALLIFE   = 0x00000002,
-	ISPL_FIREDAM        = 0x00000004,
-	ISPL_LIGHTDAM       = 0x00000008,
-	ISPL_MAGICDAM       = 0x00000010,
-	ISPL_HOLYDAM        = 0x00000020,
+	//ISPL_FIREDAM        = 0x00000004,
+	//ISPL_LIGHTDAM       = 0x00000008,
+	//ISPL_MAGICDAM       = 0x00000010,
+	//ISPL_ACIDDAM        = 0x00000020,
 	ISPL_DRAINLIFE      = 0x00000040,
 	//ISPL_UNKNOWN_1      = 0x00000080,
 	//ISPL_NOHEALPLR      = 0x00000100, /* unused */ 

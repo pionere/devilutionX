@@ -2384,13 +2384,13 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	int mdam = p->_pIMMaxDam;
 	if (mdam != 0)
 		mdam = CalcMonsterDam(mon->mMagicRes, MISR_MAGIC, p->_pIMMinDam, mdam);
-	int hdam = 0;
-	if (hdam != 0)
-		hdam = CalcMonsterDam(mon->mMagicRes, MISR_HOLY, p->_pIHMinDam, hdam);
+	int adam = 0;
+	if (adam != 0)
+		adam = CalcMonsterDam(mon->mMagicRes, MISR_ACID, p->_pIAMinDam, adam);
 
-	if ((fdam | ldam | mdam | hdam) != 0) {
-		dam += fdam + ldam + mdam + hdam;
-		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, hdam);
+	if ((fdam | ldam | mdam | adam) != 0) {
+		dam += fdam + ldam + mdam + adam;
+		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 	}
 
 #ifdef HELLFIRE
@@ -2495,13 +2495,13 @@ static BOOL PlrHitPlr(int offp, char defp)
 	if (mdam != 0) {
 		mdam = CalcPlrDam(dps, MISR_LIGHTNING, ops->_pIMMinDam, mdam);
 	}
-	int hdam = ops->_pIHMaxDam;
-	if (hdam != 0) {
-		hdam = CalcPlrDam(dps, MISR_HOLY, ops->_pIHMinDam, hdam);
+	int adam = ops->_pIAMaxDam;
+	if (adam != 0) {
+		adam = CalcPlrDam(dps, MISR_ACID, ops->_pIAMinDam, adam);
 	}
-	if ((fdam | ldam | mdam | hdam) != 0) {
-		dam += fdam + ldam + mdam + hdam;
-		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, hdam);
+	if ((fdam | ldam | mdam | adam) != 0) {
+		dam += fdam + ldam + mdam + adam;
+		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, adam);
 	} else if (dam == 0) {
 		return FALSE;
 	}

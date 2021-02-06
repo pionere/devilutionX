@@ -1263,7 +1263,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(245, 233, 288, chrstr, col);
+	ADD_PlrStringXY(190, 254, 233, chrstr, col);
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
@@ -1273,7 +1273,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(245, 261, 288, chrstr, col);
+	ADD_PlrStringXY(246, 254, 289, chrstr, col);
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
@@ -1283,7 +1283,17 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	ADD_PlrStringXY(245, 289, 288, chrstr, col);
+	ADD_PlrStringXY(190, 289, 233, chrstr, col);
+
+	val = p->_pAcidResist;
+	if (val < MAXRESIST) {
+		col = val == 0 ? COL_WHITE : COL_BLUE;
+		snprintf(chrstr, sizeof(chrstr), "%i%%", val);
+	} else {
+		col = COL_GOLD;
+		copy_cstr(chrstr, "MAX");
+	}
+	ADD_PlrStringXY(246, 289, 289, chrstr, col);
 
 	col = COL_WHITE;
 	if (MaxStats[pc][ATTRIB_STR] == p->_pBaseStr)
