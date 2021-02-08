@@ -1922,9 +1922,10 @@ void RemovePlrMissiles(int pnum)
 			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
 		} else if (missile[mi]._miType == MIS_ETHEREALIZE) {
 			ClearMissileSpot(mi);
-			DeleteMissile(mi, i);
-			i--;
-		}
+		} else
+			continue;
+		DeleteMissile(mi, i);
+		i--;
 	}
 }
 

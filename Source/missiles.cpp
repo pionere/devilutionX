@@ -2301,7 +2301,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 					if (mon->_mType == MT_NAKRUL)
 						continue;
 #endif
-					if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE) {
+					if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
 						mis->_miVar1 = mon->_mmode;
 						mis->_miVar2 = mid;
 						mon->_mmode = MM_STONE;
@@ -3898,10 +3898,7 @@ void MI_Stone(int mi)
 
 	mis = &missile[mi];
 	mon = &monster[mis->_miVar2];
-	if (mon->_mmode != MM_STONE) {
-		mis->_miDelFlag = TRUE;
-		return;
-	}
+	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
