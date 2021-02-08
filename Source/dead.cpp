@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** unused, this was probably for blood boil/burn */
-int spurtndx;
+//int spurtndx;
 DeadStruct dead[MAXDEAD];
 int stonendx;
 
@@ -37,14 +37,14 @@ void InitDead()
 		}
 	}
 
-	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
+	/*for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 		dead[nd]._deadData[d] = misanimdata[MFILE_BLODBUR][0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
 	dead[nd]._deadWidth2 = 32;
 	dead[nd]._deadtrans = 0;
 	spurtndx = nd + 1;
-	nd++;
+	nd++;*/
 
 	for (d = 0; d < lengthof(dead[nd]._deadData); d++)
 		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
