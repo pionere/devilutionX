@@ -447,7 +447,7 @@ const PLStruct PL_Suffix[] = {
 	{  "balance",       IPL_FASTRECOVER,      1,        1,        1, PLT_ARMO |                                              PLT_MISC,     GOE_ANY,  FALSE,    TRUE,      2000,     2000,         2 },
 	{  "stability",     IPL_FASTRECOVER,      2,        2,       10, PLT_ARMO |                                              PLT_MISC,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,         4 },
 	{  "harmony",       IPL_FASTRECOVER,      3,        3,       20, PLT_ARMO |                                              PLT_MISC,     GOE_ANY,  FALSE,    TRUE,      8000,     8000,         8 },
-	{  "blocking",      IPL_FASTBLOCK,        0,        0,        5,            PLT_SHLD                                             ,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,         4 },
+	{  "blocking",      IPL_FASTBLOCK,        1,        1,        5,            PLT_SHLD                                             ,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,         4 },
 	{  "",              IPL_INVALID,          0,        0,        0, 0                                                               ,     GOE_ANY,  FALSE,    FALSE,        0,        0,         0 },
 	// clang-format on
 };
