@@ -1583,7 +1583,7 @@ static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
 	if (random_(15, 10) == 0 || onlygood) {
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-			if (pres->PLIType & PLT_STAFF && pres->PLMinLvl <= lvl) {
+			if (((PLT_STAFF | PLT_CHRG) & pres->PLIType) && pres->PLMinLvl <= lvl) {
 				if (!onlygood || pres->PLOk) {
 					l[nl] = pres;
 					nl++;
@@ -1760,33 +1760,8 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		break;
 	case IPL_TOHIT_DAMP:
 		is->_iPLDam += r;
-		if (param1 == 20)
-			r2 = RandRange(1, 5);
-		if (param1 == 36)
-			r2 = RandRange(6, 10);
-		if (param1 == 51)
-			r2 = RandRange(11, 15);
-		if (param1 == 66)
-			r2 = RandRange(16, 20);
-		if (param1 == 81)
-			r2 = RandRange(21, 30);
-		if (param1 == 96)
-			r2 = RandRange(31, 40);
-		if (param1 == 111)
-			r2 = RandRange(41, 50);
-		if (param1 == 126)
-			r2 = RandRange(51, 75);
-		if (param1 == 151)
-			r2 = RandRange(76, 100);
-		is->_iPLToHit += r2;
-		break;
-	case IPL_TOHIT_DAMP_CURSE:
-		is->_iPLDam -= r;
-		if (param1 == 25)
-			r2 = RandRange(1, 5);
-		if (param1 == 50)
-			r2 = RandRange(6, 10);
-		is->_iPLToHit -= r2;
+		r = RandRange(param1 >> 2, param2 >> 2);
+		is->_iPLToHit += r;
 		break;
 	case IPL_ACP:
 		is->_iPLAC += r;
@@ -1794,8 +1769,8 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 	case IPL_SETAC:
 		is->_iAC = r;
 		break;
-	case IPL_AC_CURSE:
-		is->_iAC -= r;
+	case IPL_AC:
+		is->_iAC += r;
 		break;
 	case IPL_FIRERES:
 		is->_iPLFR += r;
@@ -2028,8 +2003,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
 			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
-			 && (!onlygood || pres->PLOk)
-			 && (flgs != PLT_STAFF || pres->PLPower != IPL_CHARGES)) {
+			 && (!onlygood || pres->PLOk) {
 				l[nl] = pres;
 				nl++;
 				if (pres->PLDouble) {
@@ -2086,40 +2060,55 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 
 static void GetItemBonus(int ii, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN allowspells)
 {
-	if (item[ii]._iClass != ICLASS_GOLD) {
-		if (minlvl > 25)
-			minlvl = 25;
+	int flgs;
 
-		switch (item[ii]._itype) {
-		case ITYPE_SWORD:
-		case ITYPE_AXE:
-		case ITYPE_MACE:
-			GetItemPower(ii, minlvl, maxlvl, PLT_WEAP, onlygood);
-			break;
-		case ITYPE_BOW:
-			GetItemPower(ii, minlvl, maxlvl, PLT_BOW, onlygood);
-			break;
-		case ITYPE_SHIELD:
-			GetItemPower(ii, minlvl, maxlvl, PLT_SHLD, onlygood);
-			break;
-		case ITYPE_LARMOR:
-		case ITYPE_HELM:
-		case ITYPE_MARMOR:
-		case ITYPE_HARMOR:
-			GetItemPower(ii, minlvl, maxlvl, PLT_ARMO, onlygood);
-			break;
-		case ITYPE_STAFF:
-			if (allowspells)
-				GetStaffSpell(ii, maxlvl, onlygood);
-			else
-				GetItemPower(ii, minlvl, maxlvl, PLT_STAFF, onlygood);
-			break;
-		case ITYPE_RING:
-		case ITYPE_AMULET:
-			GetItemPower(ii, minlvl, maxlvl, PLT_MISC, onlygood);
-			break;
+	switch (item[ii]._itype) {
+	case ITYPE_MISC:
+		return;
+	case ITYPE_SWORD:
+	case ITYPE_AXE:
+	case ITYPE_MACE:
+		flgs = PLT_MELEE;
+		break;
+	case ITYPE_BOW:
+		flgs = PLT_BOW;
+		break;
+	case ITYPE_SHIELD:
+		flgs = PLT_SHLD;
+		break;
+	case ITYPE_LARMOR:
+		flgs = PLT_ARMO | PLT_LARMOR;
+		break;
+	case ITYPE_HELM:
+		flgs = PLT_ARMO;
+		break;
+	case ITYPE_MARMOR:
+		flgs = PLT_ARMO | PLT_MARMOR;
+		break;
+	case ITYPE_HARMOR:
+		flgs = PLT_ARMO | PLT_HARMOR;
+		break;
+	case ITYPE_STAFF:
+		if (allowspells) {
+			GetStaffSpell(ii, maxlvl, onlygood);
+			return;
 		}
+		flgs = PLT_STAFF;
+		break;
+	case ITYPE_GOLD:
+		return;
+	case ITYPE_RING:
+	case ITYPE_AMULET:
+		flgs = PLT_MISC;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		return;
 	}
+
+	if (minlvl > 25)
+		minlvl = 25;
+	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
 }
 
 void SetupItem(int ii)
@@ -2200,8 +2189,6 @@ static int RndUItem(int lvl)
 			okflag = FALSE;
 		if (AllItemsList[i].itype == ITYPE_GOLD)
 			okflag = FALSE;
-		if (AllItemsList[i].itype == ITYPE_FOOD)
-			okflag = FALSE;
 		if (AllItemsList[i].iMiscId == IMISC_BOOK)
 			okflag = TRUE;
 		if (AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1)
@@ -2227,7 +2214,7 @@ static int RndAllItems(int lvl)
 	int ril[512];
 
 	if (random_(26, 100) > 25)
-		return 0;
+		return IDI_GOLD;
 
 	ri = 0;
 	for (i = 0; i < NUM_IDI; i++) {
@@ -3151,14 +3138,13 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "%+i%% damage", is->_iPLDam);
 		break;
 	case IPL_TOHIT_DAMP:
-	case IPL_TOHIT_DAMP_CURSE:
 		snprintf(tempstr, sizeof(tempstr), "to hit: %+i%%, %+i%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
 		snprintf(tempstr, sizeof(tempstr), "%+i%% armor", is->_iPLAC);
 		break;
 	case IPL_SETAC:
-	case IPL_AC_CURSE:
+	case IPL_AC:
 		snprintf(tempstr, sizeof(tempstr), "armor class: %i", is->_iAC);
 		break;
 	case IPL_FIRERES:
@@ -3736,8 +3722,7 @@ static BOOL SmithItemOk(int i)
 	 && AllItemsList[i].itype != ITYPE_STAFF
 #endif
 	 && AllItemsList[i].itype != ITYPE_RING
-	 && AllItemsList[i].itype != ITYPE_AMULET
-	 && AllItemsList[i].itype != ITYPE_FOOD;
+	 && AllItemsList[i].itype != ITYPE_AMULET;
 }
 
 static int RndSmithItem(int lvl)
@@ -3825,7 +3810,6 @@ static BOOL PremiumItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 		&& AllItemsList[i].itype != ITYPE_GOLD
-		&& AllItemsList[i].itype != ITYPE_FOOD
 #ifdef HELLFIRE
 		&& (gbMaxPlayers == 1 || (AllItemsList[i].iMiscId != IMISC_OILOF && AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
 #else
@@ -4201,7 +4185,7 @@ static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
-	GetItemBonus(ii, lvl, 2 * lvl, TRUE, TRUE);
+	GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_BOY;
 	item[ii]._iIdentified = TRUE;

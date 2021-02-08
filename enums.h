@@ -89,7 +89,6 @@ typedef enum item_effect_type {
 	IPL_TOHIT ,
 	IPL_DAMP,
 	IPL_TOHIT_DAMP,
-	IPL_TOHIT_DAMP_CURSE,
 	IPL_ACP,
 	IPL_FIRERES,
 	IPL_LIGHTRES,
@@ -138,7 +137,7 @@ typedef enum item_effect_type {
 	IPL_DRAINLIFE,
 	IPL_INFRAVISION,	/* unused */
 	IPL_SETAC,
-	IPL_AC_CURSE,
+	IPL_AC,
 	// hellfire only
 	IPL_CRYSTALLINE,
 	IPL_MANATOLIFE,
@@ -149,12 +148,16 @@ typedef enum item_effect_type {
 } item_effect_type;
 
 typedef enum affix_item_type {
-	PLT_MISC  = 0x1,
-	PLT_BOW   = 0x10,
-	PLT_STAFF = 0x100,
-	PLT_WEAP  = 0x1000,
-	PLT_SHLD  = 0x10000,
-	PLT_ARMO  = 0x100000,
+	PLT_MISC   = 1 << 1,
+	PLT_BOW    = 1 << 2,
+	PLT_STAFF  = 1 << 3,
+	PLT_MELEE  = 1 << 4,
+	PLT_SHLD   = 1 << 5,
+	PLT_ARMO   = 1 << 6,
+	PLT_CHRG   = 1 << 7,
+	PLT_LARMOR = 1 << 8,
+	PLT_MARMOR = 1 << 9,
+	PLT_HARMOR = 1 << 10,
 } affix_item_type;
 
 /// Item graphic IDs; frame_num-11 of objcurs.cel.
@@ -3065,7 +3068,6 @@ typedef enum item_type {
 	ITYPE_GOLD   = 0xB,
 	ITYPE_RING   = 0xC,
 	ITYPE_AMULET = 0xD,
-	ITYPE_FOOD   = 0xE, /* used in demo */
 	ITYPE_NONE   = -1,
 } item_type;
 
@@ -3453,12 +3455,12 @@ typedef enum item_added_effects {
 	//ISPH_DOPPELGANGER   = 0x00000010,
 	//ISPH_ACDEMON        = 0x00000020,
 	//ISPH_ACUNDEAD       = 0x00000040,
-	ISPH_FASTCAST       = 0x00000080, /* unused */
-	ISPH_FASTERCAST     = 0x00000100, /* unused */
-	ISPH_FASTESTCAST    = 0x00000200, /* unused */
-	ISPH_FASTWALK       = 0x00000400, /* unused */
-	ISPH_FASTERWALK     = 0x00000800, /* unused */
-	ISPH_FASTESTWALK    = 0x00001000, /* unused */
+	ISPH_FASTCAST       = 0x00000080,
+	ISPH_FASTERCAST     = 0x00000100,
+	ISPH_FASTESTCAST    = 0x00000200,
+	ISPH_FASTWALK       = 0x00000400,
+	ISPH_FASTERWALK     = 0x00000800,
+	ISPH_FASTESTWALK    = 0x00001000,
 	ISPH_SWIPE          = 0x00002000,
 	//ISPH_SPECARROW      = 0x00004000, /* unsupported maybe later from IPL_SARROW_LIGHT*/
 	//ISPH_SARROWFB       = 0x00008000, /* unsupported maybe later from IPL_SARROW_FBALL*/
