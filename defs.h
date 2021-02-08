@@ -90,18 +90,20 @@
 #define MAX_MINIONS				MAX_PLRS
 
 #define MAX_CHARACTERS			10
+#define MAX_TOWNERS				16
+#define STORE_TOWNERS			8
+
 #ifdef HELLFIRE
 #define NUMLEVELS				25
 #define MAX_LVLS				24
 #define MAX_LVLMTYPES			24
-#define MAXQUESTS				24
 #define MAXMULTIQUESTS			10
 #define MAXTRIGGERS				7
 #else
+#define MAXTOWNERS				16
 #define NUMLEVELS				17
 #define MAX_LVLS				16
 #define MAX_LVLMTYPES			16
-#define MAXQUESTS				16
 #define MAXMULTIQUESTS			4
 #define MAXTRIGGERS				5
 #endif
@@ -143,8 +145,6 @@
 
 #define VOLUME_MIN				-1600
 #define VOLUME_MAX				0
-
-#define NUM_TOWNERS				16
 
 // todo: enums
 #ifdef HELLFIRE

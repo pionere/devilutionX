@@ -683,7 +683,7 @@ void LoadGame(BOOL firstflag)
 
 	LoadPlayer(myplr);
 
-	for (i = 0; i < MAXQUESTS; i++)
+	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
 	for (i = 0; i < MAXPORTAL; i++)
 		LoadPortal(i);
@@ -1365,7 +1365,7 @@ void SaveGame()
 
 	SavePlayer(myplr);
 
-	for (i = 0; i < MAXQUESTS; i++)
+	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);
 	for (i = 0; i < MAXPORTAL; i++)
 		SavePortal(i);

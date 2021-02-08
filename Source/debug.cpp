@@ -175,7 +175,7 @@ void PrintDebugQuest()
 	NetSendCmdString(1 << myplr);
 
 	dbgqst++;
-	if (dbgqst == MAXQUESTS)
+	if (dbgqst == NUM_QUESTS)
 		dbgqst = 0;
 }
 

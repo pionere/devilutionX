@@ -1102,8 +1102,8 @@ static void S_StartTalk()
 	AddSText(0, 2, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(5);
 	sn = 0;
-	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog)
+	for (i = 0; i < NUM_QUESTS; i++) {
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog)
 			sn++;
 	}
 
@@ -1117,8 +1117,8 @@ static void S_StartTalk()
 
 	sn2 = sn - 2;
 
-	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog) {
+	for (i = 0; i < NUM_QUESTS; i++) {
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog) {
 			AddSText(0, sn, TRUE, questlist[i]._qlstr, COL_WHITE, TRUE);
 			sn += la;
 		}
@@ -1170,11 +1170,6 @@ void StartStore(char s)
 	int i;
 
 	for (t = s;; t = STORE_SMITH) {
-		sbookflag = FALSE;
-		invflag = FALSE;
-		chrflag = FALSE;
-		questlog = FALSE;
-		dropGoldFlag = FALSE; // should not be necessary, but ...
 		ClearSText(0, STORE_LINES);
 		ReleaseStoreBtn();
 		switch (t) {
@@ -2180,8 +2175,8 @@ static void S_TalkEnter()
 	}
 
 	sn = 0;
-	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog)
+	for (i = 0; i < NUM_QUESTS; i++) {
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog)
 			sn++;
 	}
 	if (sn > 6) {
@@ -2199,10 +2194,10 @@ static void S_TalkEnter()
 		return;
 	}
 
-	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog) {
+	for (i = 0; i < NUM_QUESTS; i++) {
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog) {
 			if (sn == stextsel) {
-				InitQTextMsg(((DWORD *)&Qtalklist[talker])[i]);
+				InitQTextMsg(Qtalklist[talker][i]);
 			}
 			sn += la;
 		}

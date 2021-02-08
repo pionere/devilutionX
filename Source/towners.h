@@ -12,7 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern TownerStruct towner[NUM_TOWNERS];
+extern TownerStruct towner[MAX_TOWNERS];
+extern int numtowners;
 
 void InitTowners();
 void FreeTownerGFX();
@@ -22,7 +23,7 @@ void TalkToTowner(int pnum, int tnum);
 
 /* data */
 
-extern QuestTalkData Qtalklist[];
+extern int Qtalklist[STORE_TOWNERS][NUM_QUESTS];
 #ifdef __cplusplus
 }
 #endif

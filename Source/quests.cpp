@@ -11,7 +11,7 @@ int qtopline;
 BOOL questlog;
 BYTE *pQLogCel;
 /** Contains the quests of the current game. */
-QuestStruct quests[MAXQUESTS];
+QuestStruct quests[NUM_QUESTS];
 /** map from setlevel to setleveltype. */
 int gnSetLevelTypeTbl[NUM_SETLVL] = {
 	DTYPE_NONE,			// //SL_BUTCHCHAMB = 0x0,
@@ -22,7 +22,7 @@ int gnSetLevelTypeTbl[NUM_SETLVL] = {
 	DTYPE_CATHEDRAL,	// SL_VILEBETRAYER = 0x5,
 };
 int qline;
-int qlist[MAXQUESTS];
+int qlist[NUM_QUESTS];
 int numqlines;
 int WaterDone;
 int ReturnLvlX;
@@ -30,33 +30,33 @@ int ReturnLvlY;
 int ReturnLvl;
 
 /** Contains the data related to each quest_id. */
-QuestData questlist[MAXQUESTS] = {
+const QuestData questlist[NUM_QUESTS] = {
 	// clang-format off
-	// _qdlvl, _qdmultlvl, _qdtype,     _qdrnd, _qslvl,          _qflags,       _qdmsg,        _qlstr
-	{       5,         -1, Q_ROCK,      100,    0,               QUEST_SINGLE,  TEXT_INFRA5,   "The Magic Rock"           },
-	{       9,         -1, Q_MUSHROOM,  100,    0,               QUEST_SINGLE,  TEXT_MUSH8,    "Black Mushroom"           },
-	{       4,         -1, Q_GARBUD,    100,    0,               QUEST_SINGLE,  TEXT_GARBUD1,  "Gharbad The Weak"         },
-	{       8,         -1, Q_ZHAR,      100,    0,               QUEST_SINGLE,  TEXT_ZHAR1,    "Zhar the Mad"             },
-	{      14,         -1, Q_VEIL,      100,    0,               QUEST_SINGLE,  TEXT_VEIL9,    "Lachdanan"                },
-	{      15,         -1, Q_DIABLO,    100,    0,               QUEST_ANY,     TEXT_VILE3,    "Diablo"                   },
-	{       2,          2, Q_BUTCHER,   100,    0,               QUEST_ANY,     TEXT_BUTCH9,   "The Butcher"              },
-	{       4,         -1, Q_LTBANNER,  100,    0,               QUEST_SINGLE,  TEXT_BANNER2,  "Ogden's Sign"             },
-	{       7,         -1, Q_BLIND,     100,    0,               QUEST_SINGLE,  TEXT_BLINDING, "Halls of the Blind"       },
-	{       5,         -1, Q_BLOOD,     100,    0,               QUEST_SINGLE,  TEXT_BLOODY,   "Valor"                    },
-	{      10,         -1, Q_ANVIL,     100,    0,               QUEST_SINGLE,  TEXT_ANVIL5,   "Anvil of Fury"            },
-	{      13,         -1, Q_WARLORD,   100,    0,               QUEST_SINGLE,  TEXT_BLOODWAR, "Warlord of Blood"         },
-	{       3,          3, Q_SKELKING,  100,    SL_SKELKING,     QUEST_ANY,     TEXT_KING2,    "The Curse of King Leoric" },
-	{       2,         -1, Q_PWATER,    100,    SL_POISONWATER,  QUEST_SINGLE,  TEXT_POISON3,  "Poisoned Water Supply"    },
-	{       6,         -1, Q_SCHAMB,    100,    SL_BONECHAMB,    QUEST_SINGLE,  TEXT_BONER,    "The Chamber of Bone"      },
-	{      15,         15, Q_BETRAYER,  100,    SL_VILEBETRAYER, QUEST_ANY,     TEXT_VILE1,    "Archbishop Lazarus"       },
+	          // _qdlvl, _qdmultlvl, _qslvl,          _qflags,       _qdmsg,        _qlstr
+/*Q_ROCK*/	  {       5,         -1, 0,               QUEST_SINGLE,  TEXT_INFRA5,   "The Magic Rock"           },
+/*Q_MUSHROOM*/{       9,         -1, 0,               QUEST_SINGLE,  TEXT_MUSH8,    "Black Mushroom"           },
+/*Q_GARBUD*/  {       4,         -1, 0,               QUEST_SINGLE,  TEXT_GARBUD1,  "Gharbad The Weak"         },
+/*Q_ZHAR*/    {       8,         -1, 0,               QUEST_SINGLE,  TEXT_ZHAR1,    "Zhar the Mad"             },
+/*Q_VEIL*/    {      14,         -1, 0,               QUEST_SINGLE,  TEXT_VEIL9,    "Lachdanan"                },
+/*Q_DIABLO*/  {      15,         -1, 0,               QUEST_ANY,     TEXT_VILE3,    "Diablo"                   },
+/*Q_BUTCHER*/ {       2,          2, 0,               QUEST_ANY,     TEXT_BUTCH9,   "The Butcher"              },
+/*Q_LTBANNER*/{       4,         -1, 0,               QUEST_SINGLE,  TEXT_BANNER2,  "Ogden's Sign"             },
+/*Q_BLIND*/   {       7,         -1, 0,               QUEST_SINGLE,  TEXT_BLINDING, "Halls of the Blind"       },
+/*Q_BLOOD*/   {       5,         -1, 0,               QUEST_SINGLE,  TEXT_BLOODY,   "Valor"                    },
+/*Q_ANVIL*/   {      10,         -1, 0,               QUEST_SINGLE,  TEXT_ANVIL5,   "Anvil of Fury"            },
+/*Q_WARLORD*/ {      13,         -1, 0,               QUEST_SINGLE,  TEXT_BLOODWAR, "Warlord of Blood"         },
+/*Q_SKELKING*/{       3,          3, SL_SKELKING,     QUEST_ANY,     TEXT_KING2,    "The Curse of King Leoric" },
+/*Q_PWATER*/  {       2,         -1, SL_POISONWATER,  QUEST_SINGLE,  TEXT_POISON3,  "Poisoned Water Supply"    },
+/*Q_SCHAMB*/  {       6,         -1, SL_BONECHAMB,    QUEST_SINGLE,  TEXT_BONER,    "The Chamber of Bone"      },
+/*Q_BETRAYER*/{      15,         15, SL_VILEBETRAYER, QUEST_ANY,     TEXT_VILE1,    "Archbishop Lazarus"       },
 #ifdef HELLFIRE
-	{      17,         17, Q_GRAVE,     100,    0,               QUEST_ANY,     TEXT_GRAVE7,   "Grave Matters"            },
-	{       9,          9, Q_FARMER,    100,    0,               QUEST_ANY,     TEXT_FARMER1,  "Farmer's Orchard"         },
-	{      17,         -1, Q_GIRL,      100,    0,               QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
-	{      19,         -1, Q_TRADER,    100,    0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
-	{      17,         17, Q_DEFILER,   100,    0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
-	{      21,         21, Q_NAKRUL,    100,    0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
-	{       9,          9, Q_JERSEY,    100,    0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
+/*Q_GRAVE*/   {      17,         17, 0,               QUEST_ANY,     TEXT_GRAVE7,   "Grave Matters"            },
+/*Q_FARMER*/  {       9,          9, 0,               QUEST_ANY,     TEXT_FARMER1,  "Farmer's Orchard"         },
+/*Q_GIRL*/    {      17,         -1, 0,               QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
+/*Q_TRADER*/  {      19,         -1, 0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
+/*Q_DEFILER*/ {      17,         17, 0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
+/*Q_NAKRUL*/  {      21,         21, 0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
+/*Q_JERSEY*/  {       9,          9, 0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
 #endif
 	// clang-format on
 };
@@ -98,18 +98,18 @@ int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 void InitQuests()
 {
 	QuestStruct *qs;
-	QuestData *qdata;
+	const QuestData *qdata;
 	int i, initiatedQuests;
 
 	if (gbMaxPlayers == 1) {
 		qs = quests;
-		for (i = MAXQUESTS; i != 0; i--, qs++) {
+		for (i = NUM_QUESTS; i != 0; i--, qs++) {
 			qs->_qactive = QUEST_NOTAVAIL;
 		}
 	} else {
 		qs = quests;
 		qdata = questlist;
-		for (i = MAXQUESTS; i != 0; i--, qs++, qdata++) {
+		for (i = NUM_QUESTS; i != 0; i--, qs++, qdata++) {
 			if (!(qdata->_qflags & QUEST_ANY)) {
 				qs->_qactive = QUEST_NOTAVAIL;
 			}
@@ -122,10 +122,10 @@ void InitQuests()
 
 	qs = quests;
 	qdata = questlist;
-	for (i = 0; i < MAXQUESTS; i++, qs++, qdata++) {
+	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
 		if (gbMaxPlayers != 1 && !(qdata->_qflags & QUEST_ANY))
 			continue;
-			qs->_qtype = qdata->_qdtype;
+			qs->_qtype = i;
 			if (gbMaxPlayers != 1) {
 				qs->_qlevel = qdata->_qdmultlvl;
 				if (!delta_quest_inited(initiatedQuests)) {
@@ -212,7 +212,7 @@ void CheckQuests()
 		}
 		if (plr[myplr]._pmode == PM_STAND) {
 			qs = quests;
-			for (i = MAXQUESTS; i != 0; i--, qs++) {
+			for (i = NUM_QUESTS; i != 0; i--, qs++) {
 				if (currlevel == qs->_qlevel
 				 && qs->_qslvl != 0
 				 && qs->_qactive != QUEST_NOTAVAIL
@@ -258,7 +258,7 @@ int ForceQuests()
 		return -1;
 	}
 
-	for (i = 0; i < MAXQUESTS; i++) {
+	for (i = 0; i < NUM_QUESTS; i++) {
 		if (i != Q_BETRAYER && currlevel == quests[i]._qlevel && quests[i]._qslvl != 0) {
 			qx = quests[i]._qtx;
 			qy = quests[i]._qty;
@@ -522,7 +522,7 @@ void DRLG_CheckQuests(int x, int y)
 {
 	int i;
 
-	for (i = 0; i < MAXQUESTS; i++) {
+	for (i = 0; i < NUM_QUESTS; i++) {
 		if (QuestStatus(i)) {
 			switch (quests[i]._qtype) {
 			case Q_BUTCHER:
@@ -681,10 +681,10 @@ void ResyncQuests()
 		} else {
 			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 				if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN) {
-					Qtalklist[TOWN_WITCH]._qblkm = -1;
-					Qtalklist[TOWN_HEALER]._qblkm = TEXT_MUSH3;
+					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = -1;
+					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
 				} else if (quests[Q_MUSHROOM]._qvar1 >= QS_BRAINGIVEN) {
-					Qtalklist[TOWN_HEALER]._qblkm = -1;
+					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = -1;
 				}
 			}
 		}
@@ -760,7 +760,7 @@ void StartQuestlog()
 	DWORD i;
 
 	numqlines = 0;
-	for (i = 0; i < MAXQUESTS; i++) {
+	for (i = 0; i < NUM_QUESTS; i++) {
 		if (quests[i]._qactive == QUEST_ACTIVE && quests[i]._qlog) {
 			qlist[numqlines] = i;
 			numqlines++;

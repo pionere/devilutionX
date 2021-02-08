@@ -155,7 +155,7 @@ void FindItemOrObject()
 
 void CheckTownersNearby()
 {
-	for (int i = 0; i < NUM_TOWNERS; i++) {
+	for (int i = 0; i < numtowners; i++) {
 		int distance = GetDistance(towner[i]._tx, towner[i]._ty, 2);
 		if (distance == 0)
 			continue;
@@ -407,7 +407,7 @@ void FindTrigger()
 		}
 
 		if (pcurstrig == -1) {
-			for (int i = 0; i < MAXQUESTS; i++) {
+			for (int i = 0; i < NUM_QUESTS; i++) {
 				if (i == Q_BETRAYER || currlevel != quests[i]._qlevel || quests[i]._qslvl == 0)
 					continue;
 				const int newDdistance = GetDistance(quests[i]._qtx, quests[i]._qty, 2);

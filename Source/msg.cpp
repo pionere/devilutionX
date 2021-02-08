@@ -278,7 +278,7 @@ static BYTE *DeltaExportJunk(BYTE *dst)
 	}
 
 	mq = sgJunk.quests;
-	for (i = 0; i < MAXQUESTS; i++) {
+	for (i = 0; i < NUM_QUESTS; i++) {
 		if (questlist[i]._qflags & QUEST_ANY) {
 			mq->qlog = quests[i]._qlog;
 			mq->qstate = quests[i]._qactive;
@@ -318,7 +318,7 @@ static void DeltaImportJunk(BYTE *src)
 	}
 
 	mq = sgJunk.quests;
-	for (i = 0; i < MAXQUESTS; i++) {
+	for (i = 0; i < NUM_QUESTS; i++) {
 		if (questlist[i]._qflags & QUEST_ANY) {
 			copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
 			src += sizeof(*mq);
@@ -517,9 +517,6 @@ static void delta_leave_sync(BYTE bLevel)
 {
 	int i, mnum;
 	DMonsterStr *pD;
-
-	if (gbMaxPlayers == 1)
-		return;
 
 	if (bLevel == 0) {
 		glSeedTbl[0] = GetRndSeed();
@@ -862,8 +859,7 @@ void DeltaLoadLevel()
 	int i;
 	int x, y;
 
-	if (gbMaxPlayers == 1)
-		return;
+	assert(gbMaxPlayers != 1);
 
 	deltaload = TRUE;
 	if (currlevel != 0) {

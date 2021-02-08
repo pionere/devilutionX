@@ -1134,8 +1134,6 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 typedef struct QuestData {
 	unsigned char _qdlvl;
 	char _qdmultlvl;
-	unsigned char _qdtype;
-	unsigned char _qdrnd;
 	unsigned char _qslvl;
 	int _qflags; /* unsigned char */
 	int _qdmsg;
@@ -1197,7 +1195,6 @@ typedef struct TNQ {
 } TNQ;
 
 typedef struct TownerStruct {
-	int _tmode;
 	int _ttype;
 	int _tx;    // Tile X-position of NPC
 	int _ty;    // Tile Y-position of NPC
@@ -1215,59 +1212,20 @@ typedef struct TownerStruct {
 	char _tAnimOrder;
 	int _tAnimWidth;
 	int _tAnimWidth2;
-	int _tTenPer;
-	int _teflag;
-	int _tbtcnt;
-	int _tSelFlag;
-	BOOL _tMsgSaid;
-	TNQ qsts[MAXQUESTS];
+	int _tListener;
+	BOOL _tSelFlag;
 	int _tSeed;
-	int _tVar1;
-	int _tVar2;
-	int _tVar3;
-	int _tVar4;
-	char _tName[PLR_NAME_LEN];
+	char *_tName;
 	unsigned char *_tNAnim[8];
 	int _tNFrames;
 	unsigned char *_tNData;
 #ifdef X86_32bit_COMP
-#ifndef HELLFIRE
-	int alignment[6];
-#endif
+	int alignment[1];
 #endif
 } TownerStruct;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(TownerStruct) & (sizeof(TownerStruct) - 1)) == 0, "Align TownerStruct to power of 2 for better performance.");
 #endif
-
-typedef struct QuestTalkData {
-	int _qinfra;
-	int _qblkm;
-	int _qgarb;
-	int _qzhar;
-	int _qveil;
-	int _qmod;
-	int _qbutch;
-	int _qbol;
-	int _qblind;
-	int _qblood;
-	int _qanvil;
-	int _qwarlrd;
-	int _qking;
-	int _qpw;
-	int _qbone;
-	int _qvb;
-#ifdef HELLFIRE
-	int _qgrv;
-	int _qfarm;
-	int _qgirl;
-	int _qtrade;
-	int _qdefiler;
-	int _qnakrul;
-	int _qjersy;
-	int _qhf8;
-#endif
-} QuestTalkData;
 
 //////////////////////////////////////////////////
 // gendung

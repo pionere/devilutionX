@@ -1718,7 +1718,7 @@ void DrawInfoStr()
 				col = COL_GOLD;
 			}
 		} else if (pcursitem == -1) {
-			copy_str(infostr, towner[pcursmonst]._tName);
+			strcpy(infostr, towner[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, col);
