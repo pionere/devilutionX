@@ -1178,7 +1178,7 @@ void InitMissileGFX()
 	int i;
 
 	for (i = 0; i < NUM_MFILE; i++) {
-		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
+		if (!(misfiledata[i].mfFlags & MAFLAG_HIDDEN))
 			LoadMissileGFX(i);
 	}
 }
@@ -1201,7 +1201,7 @@ void FreeMissiles()
 	int i;
 
 	for (i = 0; i < NUM_MFILE; i++) {
-		if (!(misfiledata[i].mfFlags & MFLAG_HIDDEN))
+		if (!(misfiledata[i].mfFlags & MAFLAG_HIDDEN))
 			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
 	}
 }
@@ -1211,7 +1211,7 @@ void FreeMissiles2()
 	int i;
 
 	for (i = 0; i < NUM_MFILE; i++) {
-		if (misfiledata[i].mfFlags & MFLAG_HIDDEN)
+		if (misfiledata[i].mfFlags & MAFLAG_HIDDEN)
 			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
 	}
 }
@@ -4502,7 +4502,7 @@ void ProcessMissiles()
 		mi = missileactive[i];
 		mis = &missile[mi];
 		missiledata[mis->_miType].mProc(mi);
-		if (!(mis->_miAnimFlags & MFLAG_LOCK_ANIMATION)) {
+		if (!(mis->_miAnimFlags & MAFLAG_LOCK_ANIMATION)) {
 			mis->_miAnimCnt++;
 			if (mis->_miAnimCnt >= mis->_miAnimDelay) {
 				mis->_miAnimCnt = 0;

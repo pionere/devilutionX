@@ -1574,6 +1574,11 @@ typedef enum missile_flags {
 	MIFLAG_NOBLOCK = 1 << 1,
 } missile_flags;
 
+typedef enum missile_anim_flags {
+	MAFLAG_HIDDEN         = 1 << 0,
+	MAFLAG_LOCK_ANIMATION = 1 << 1,
+} missile_anim_flags;
+
 typedef enum missile_add_result {
 	MIRES_DONE,
 	MIRES_DELETE,
@@ -1631,22 +1636,6 @@ typedef enum _mc_id {
 	MC_DEMON  = 1,
 	MC_ANIMAL = 2,
 } _mc_id;
-
-typedef enum FILE_SYSTEM {
-	FS_PC = 0,
-	FS_CD = 1,
-} FILE_SYSTEM;
-
-typedef enum _artfonts {
-	AF_SMALL     = 0,
-	AF_SMALLGRAY = 1,
-	AF_MED       = 2,
-	AF_MEDGRAY   = 3,
-	AF_BIG       = 4,
-	AF_BIGGRAY   = 5,
-	AF_HUGE      = 6,
-	AF_HUGEGRAY  = 7,
-} _artfonts;
 
 typedef enum _monster_id {
 	MT_NZOMBIE  = 0x0,
@@ -3667,6 +3656,17 @@ typedef enum conn_type {
 	SELCONN_UDP,
 	SELCONN_LOOPBACK,
 } conn_type;
+
+typedef enum _artfonts {
+	AF_SMALL     = 0,
+	AF_SMALLGRAY = 1,
+	AF_MED       = 2,
+	AF_MEDGRAY   = 3,
+	AF_BIG       = 4,
+	AF_BIGGRAY   = 5,
+	AF_HUGE      = 6,
+	AF_HUGEGRAY  = 7,
+} _artfonts;
 
 typedef enum mpq_files {
 	MPQ_DEVILX,
