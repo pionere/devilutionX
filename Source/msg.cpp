@@ -1978,7 +1978,7 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
 			mnum = cmd->dwParam1;
-			monster[mnum].mWhoHit |= 1 << pnum;
+			monster[mnum]._mWhoHit |= 1 << pnum;
 			if (monster[mnum]._mhitpoints != 0) {
 				monster[mnum]._mhitpoints -= cmd->dwParam2;
 				if (monster[mnum]._mhitpoints < (1 << 6))

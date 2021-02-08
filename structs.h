@@ -551,22 +551,22 @@ typedef struct MonsterData {
 	const char *mName;
 	BYTE mMinDLvl;
 	BYTE mMaxDLvl;
-	char mLevel;
-	char mAi;
+	BYTE mLevel;
+	BYTE mAi;
 	int mMinHP;
 	int mMaxHP;
 	int mFlags;
-	unsigned char mInt;
+	BYTE mInt;
 	unsigned short mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
-	unsigned char mAFNum;
-	unsigned char mMinDamage;
-	unsigned char mMaxDamage;
+	BYTE mAFNum;
+	BYTE mMinDamage;
+	BYTE mMaxDamage;
 	unsigned short mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
-	unsigned char mAFNum2;
-	unsigned char mMinDamage2;
-	unsigned char mMaxDamage2;
-	unsigned char mArmorClass;
-	char mMonstClass;
+	BYTE mAFNum2;
+	BYTE mMinDamage2;
+	BYTE mMaxDamage2;
+	BYTE mArmorClass;
+	BYTE mMonstClass; // unused
 	unsigned short mMagicRes;
 	unsigned short mMagicRes2;
 	unsigned short mTreasure;
@@ -588,7 +588,7 @@ typedef struct CMonster {
 	int mMaxHP;
 	BOOL has_special;
 	unsigned char mAFNum; // unused
-	char mdeadval;
+	BYTE mdeadval;
 	MonsterData *MData;
 	// A TRN file contains a sequence of colour transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
@@ -604,12 +604,13 @@ static_assert((sizeof(CMonster) & (sizeof(CMonster) - 1)) == 256, "Align CMonste
 typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mMTidx;
 	int _mmode; /* MON_MODE */
-	unsigned char _mgoal;
+	BYTE _msquelch;
+	BYTE _mpathcount;
+	BYTE _mWhoHit;
+	BYTE _mgoal;
 	int _mgoalvar1;
 	int _mgoalvar2;
 	int _mgoalvar3;
-	int field_18;
-	unsigned char _pathcount;
 	int _mx;                // Tile X-position of monster
 	int _my;                // Tile Y-position of monster
 	int _mfutx;             // Future tile X-position of monster. Set at start of walking animation
@@ -621,16 +622,14 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mxvel;             // Pixel X-velocity while walking. Applied to _mxoff
 	int _myvel;             // Pixel Y-velocity while walking. Applied to _myoff
 	int _mdir;              // Direction faced by monster (direction enum)
-	int _menemy;            // The current target of the mosnter. An index in to either the plr or monster array based on the _meflag value.
-	unsigned char _menemyx; // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	unsigned char _menemyy; // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	short falign_52;        // probably _mAFNum (unused)
+	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
+	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
+	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	unsigned char *_mAnimData;
 	int _mAnimDelay; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
 	int _mAnimLen;   // Number of frames in current animation
 	int _mAnimFrame; // Current frame of animation.
-	BOOL _meflag; // unused
 	BOOL _mDelFlag;
 	int _mVar1;
 	int _mVar2;
@@ -642,37 +641,32 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mVar8; // Value used to measure progress for moving from one tile to another
 	int _mmaxhp;
 	int _mhitpoints;
-	unsigned char _mAi;
-	unsigned char _mint;
-	short falign_9A;
 	int _mFlags;
-	BYTE _msquelch;
-	int falign_A4;
 	int _lastx;
 	int _lasty;
 	int _mRndSeed;
 	int _mAISeed;
-	int falign_B8;
-	unsigned char _uniqtype;
-	unsigned char _uniqtrans;
-	char _udeadval;
-	char mWhoHit;
-	char mLevel;
-	unsigned short mExp;
+	BYTE _uniqtype;
+	BYTE _uniqtrans;
+	BYTE _udeadval;
+	BYTE mlid;
+	BYTE falign_CB;
+	BYTE leader;
+	BYTE leaderflag;
+	BYTE packsize;
+	BYTE mLevel;
+	BYTE _mAi;
+	BYTE _mint;
+	BYTE mArmorClass;
+	BYTE mMinDamage;
+	BYTE mMaxDamage;
+	BYTE mMinDamage2;
+	BYTE mMaxDamage2;
 	unsigned short mHit;
-	unsigned char mMinDamage;
-	unsigned char mMaxDamage;
 	unsigned short mHit2;
-	unsigned char mMinDamage2;
-	unsigned char mMaxDamage2;
-	unsigned char mArmorClass;
-	char falign_CB;
 	unsigned short mMagicRes;
+	unsigned short mExp;
 	int mtalkmsg;
-	unsigned char leader;
-	unsigned char leaderflag;
-	unsigned char packsize;
-	unsigned char mlid;
 	const char *mName;
 	CMonster *MType;
 	MonsterData *MData;
@@ -681,7 +675,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mAnimWidth;
 	int _mAnimWidth2;
 #ifdef X86_32bit_COMP
-	int alignment[3];
+	int alignment[10];
 #endif
 } MonsterStruct;
 
@@ -693,18 +687,19 @@ typedef struct UniqMonstStruct {
 	int mtype;
 	const char *mName;
 	const char *mTrnName;
-	unsigned char mlevel;
+	BYTE mlevel;
+	char mQuestId;
 	unsigned short mmaxhp;
-	unsigned char mAi;
-	unsigned char mint;
-	unsigned char mMinDamage;
-	unsigned char mMaxDamage;
-	unsigned char mMinDamage2;
-	unsigned char mMaxDamage2;
+	BYTE mAi;
+	BYTE mint;
+	BYTE mMinDamage;
+	BYTE mMaxDamage;
+	BYTE mMinDamage2;
+	BYTE mMaxDamage2;
 	unsigned short mMagicRes;
 	unsigned short mUnqAttr;
-	unsigned char mUnqVar1;
-	unsigned char mUnqVar2;
+	BYTE mUnqVar1;
+	BYTE mUnqVar2;
 	int mtalkmsg;
 } UniqMonstStruct;
 

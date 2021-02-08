@@ -385,14 +385,13 @@ static void LoadMonster(int mnum)
 
 	CopyInt(tbuff, &mon->_mMTidx);
 	CopyInt(tbuff, &mon->_mmode);
+	CopyChar(tbuff, &mon->_msquelch);
+	CopyChar(tbuff, &mon->_mpathcount);
+	CopyChar(tbuff, &mon->_mWhoHit);
 	CopyChar(tbuff, &mon->_mgoal);
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &mon->_mgoalvar1);
 	CopyInt(tbuff, &mon->_mgoalvar2);
 	CopyInt(tbuff, &mon->_mgoalvar3);
-	CopyInt(tbuff, &mon->field_18);
-	CopyChar(tbuff, &mon->_pathcount);
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &mon->_mx);
 	CopyInt(tbuff, &mon->_my);
 	CopyInt(tbuff, &mon->_mfutx);
@@ -407,14 +406,13 @@ static void LoadMonster(int mnum)
 	CopyInt(tbuff, &mon->_menemy);
 	CopyChar(tbuff, &mon->_menemyx);
 	CopyChar(tbuff, &mon->_menemyy);
-	CopyShort(tbuff, &mon->falign_52);
+	tbuff += 2; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
 	CopyInt(tbuff, &mon->_mAnimDelay);
 	CopyInt(tbuff, &mon->_mAnimCnt);
 	CopyInt(tbuff, &mon->_mAnimLen);
 	CopyInt(tbuff, &mon->_mAnimFrame);
-	tbuff += 4; // Skip _meflag
 	CopyInt(tbuff, &mon->_mDelFlag);
 	CopyInt(tbuff, &mon->_mVar1);
 	CopyInt(tbuff, &mon->_mVar2);
@@ -426,45 +424,37 @@ static void LoadMonster(int mnum)
 	CopyInt(tbuff, &mon->_mVar8);
 	CopyInt(tbuff, &mon->_mmaxhp);
 	CopyInt(tbuff, &mon->_mhitpoints);
-
-	CopyChar(tbuff, &mon->_mAi);
-	CopyChar(tbuff, &mon->_mint);
-	CopyShort(tbuff, &mon->falign_9A);
 	CopyInt(tbuff, &mon->_mFlags);
-	CopyChar(tbuff, &mon->_msquelch);
-	tbuff += 3; // Alignment
-	CopyInt(tbuff, &mon->falign_A4);
 	CopyInt(tbuff, &mon->_lastx);
 	CopyInt(tbuff, &mon->_lasty);
 	CopyInt(tbuff, &mon->_mRndSeed);
 	CopyInt(tbuff, &mon->_mAISeed);
-	CopyInt(tbuff, &mon->falign_B8);
 
 	CopyChar(tbuff, &mon->_uniqtype);
 	CopyChar(tbuff, &mon->_uniqtrans);
 	CopyChar(tbuff, &mon->_udeadval);
+	CopyChar(tbuff, &mon->mlid);
 
-	CopyChar(tbuff, &mon->mWhoHit);
-	CopyChar(tbuff, &mon->mLevel);
-	tbuff += 1; // Alignment
-	CopyShort(tbuff, &mon->mExp);
-
-	tbuff += 1; // Skip mHit as it's already initialized
-	CopyChar(tbuff, &mon->mMinDamage);
-	CopyChar(tbuff, &mon->mMaxDamage);
-	tbuff += 1; // Skip mHit2 as it's already initialized
-	CopyChar(tbuff, &mon->mMinDamage2);
-	CopyChar(tbuff, &mon->mMaxDamage2);
-	CopyChar(tbuff, &mon->mArmorClass);
-	CopyChar(tbuff, &mon->falign_CB);
-	CopyShort(tbuff, &mon->mMagicRes);
-	tbuff += 2; // Alignment
-
-	CopyInt(tbuff, &mon->mtalkmsg);
 	CopyChar(tbuff, &mon->leader);
 	CopyChar(tbuff, &mon->leaderflag);
 	CopyChar(tbuff, &mon->packsize);
-	CopyChar(tbuff, &mon->mlid);
+	CopyChar(tbuff, &mon->falign_CB); // Alignment
+
+	CopyChar(tbuff, &mon->mLevel);
+	CopyChar(tbuff, &mon->_mAi);
+	CopyChar(tbuff, &mon->_mint);
+	CopyChar(tbuff, &mon->mArmorClass);
+
+	CopyChar(tbuff, &mon->mMinDamage);
+	CopyChar(tbuff, &mon->mMaxDamage);
+	CopyChar(tbuff, &mon->mMinDamage2);
+	CopyChar(tbuff, &mon->mMaxDamage2);
+	tbuff += 2; // Skip mHit as it's already initialized
+	tbuff += 2; // Skip mHit2 as it's already initialized
+	CopyShort(tbuff, &mon->mMagicRes);
+	CopyShort(tbuff, &mon->mExp);
+
+	CopyInt(tbuff, &mon->mtalkmsg);
 
 	// Omit pointer mName;
 	// Omit pointer MType;
@@ -1093,14 +1083,13 @@ static void SaveMonster(int mnum)
 
 	CopyInt(&mon->_mMTidx, tbuff);
 	CopyInt(&mon->_mmode, tbuff);
+	CopyChar(&mon->_msquelch, tbuff);
+	CopyChar(&mon->_mpathcount, tbuff);
+	CopyChar(&mon->_mWhoHit, tbuff);
 	CopyChar(&mon->_mgoal, tbuff);
-	tbuff += 3; // Alignment
 	CopyInt(&mon->_mgoalvar1, tbuff);
 	CopyInt(&mon->_mgoalvar2, tbuff);
 	CopyInt(&mon->_mgoalvar3, tbuff);
-	CopyInt(&mon->field_18, tbuff);
-	CopyChar(&mon->_pathcount, tbuff);
-	tbuff += 3; // Alignment
 	CopyInt(&mon->_mx, tbuff);
 	CopyInt(&mon->_my, tbuff);
 	CopyInt(&mon->_mfutx, tbuff);
@@ -1115,14 +1104,13 @@ static void SaveMonster(int mnum)
 	CopyInt(&mon->_menemy, tbuff);
 	CopyChar(&mon->_menemyx, tbuff);
 	CopyChar(&mon->_menemyy, tbuff);
-	CopyShort(&mon->falign_52, tbuff);
+	tbuff += 2; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
 	CopyInt(&mon->_mAnimDelay, tbuff);
 	CopyInt(&mon->_mAnimCnt, tbuff);
 	CopyInt(&mon->_mAnimLen, tbuff);
 	CopyInt(&mon->_mAnimFrame, tbuff);
-	tbuff += 4; // Skip _meflag
 	CopyInt(&mon->_mDelFlag, tbuff);
 	CopyInt(&mon->_mVar1, tbuff);
 	CopyInt(&mon->_mVar2, tbuff);
@@ -1134,45 +1122,37 @@ static void SaveMonster(int mnum)
 	CopyInt(&mon->_mVar8, tbuff);
 	CopyInt(&mon->_mmaxhp, tbuff);
 	CopyInt(&mon->_mhitpoints, tbuff);
-
-	CopyChar(&mon->_mAi, tbuff);
-	CopyChar(&mon->_mint, tbuff);
-	CopyShort(&mon->falign_9A, tbuff);
 	CopyInt(&mon->_mFlags, tbuff);
-	CopyChar(&mon->_msquelch, tbuff);
-	tbuff += 3; // Alignment
-	CopyInt(&mon->falign_A4, tbuff);
 	CopyInt(&mon->_lastx, tbuff);
 	CopyInt(&mon->_lasty, tbuff);
 	CopyInt(&mon->_mRndSeed, tbuff);
 	CopyInt(&mon->_mAISeed, tbuff);
-	CopyInt(&mon->falign_B8, tbuff);
 
 	CopyChar(&mon->_uniqtype, tbuff);
 	CopyChar(&mon->_uniqtrans, tbuff);
 	CopyChar(&mon->_udeadval, tbuff);
+	CopyChar(&mon->mlid, tbuff);
 
-	CopyChar(&mon->mWhoHit, tbuff);
-	CopyChar(&mon->mLevel, tbuff);
-	tbuff += 1; // Alignment
-	CopyShort(&mon->mExp, tbuff);
-
-	tbuff += 1; // Skip mHit
-	CopyChar(&mon->mMinDamage, tbuff);
-	CopyChar(&mon->mMaxDamage, tbuff);
-	tbuff += 1; // Skip mHit2
-	CopyChar(&mon->mMinDamage2, tbuff);
-	CopyChar(&mon->mMaxDamage2, tbuff);
-	CopyChar(&mon->mArmorClass, tbuff);
-	CopyChar(&mon->falign_CB, tbuff);
-	CopyShort(&mon->mMagicRes, tbuff);
-	tbuff += 2; // Alignment
-
-	CopyInt(&mon->mtalkmsg, tbuff);
 	CopyChar(&mon->leader, tbuff);
 	CopyChar(&mon->leaderflag, tbuff);
 	CopyChar(&mon->packsize, tbuff);
-	CopyChar(&mon->mlid, tbuff);
+	CopyChar(&mon->falign_CB, tbuff); // Alignment
+
+	CopyChar(&mon->mLevel, tbuff);
+	CopyChar(&mon->_mAi, tbuff);
+	CopyChar(&mon->_mint, tbuff);
+	CopyChar(&mon->mArmorClass, tbuff);
+
+	CopyChar(&mon->mMinDamage, tbuff);
+	CopyChar(&mon->mMaxDamage, tbuff);
+	CopyChar(&mon->mMinDamage2, tbuff);
+	CopyChar(&mon->mMaxDamage2, tbuff);
+	tbuff += 2; // Skip mHit
+	tbuff += 2; // Skip mHit2
+	CopyShort(&mon->mMagicRes, tbuff);
+	CopyShort(&mon->mExp, tbuff);
+
+	CopyInt(&mon->mtalkmsg, tbuff);
 
 	// Omit pointer mName;
 	// Omit pointer MType;

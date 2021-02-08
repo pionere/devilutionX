@@ -1793,6 +1793,7 @@ typedef enum {
 	UMT_LACHDAN   = 7,
 	UMT_WARLORD   = 8,
 	UMT_BUTCHER   = 9,
+	// hellfire only
 	UMT_HORKDMN   = 10,
 	UMT_DEFILER   = 11,
 	UMT_NAKRUL    = 12,
@@ -1800,8 +1801,8 @@ typedef enum {
 
 typedef enum monster_flag {
 	MFLAG_HIDDEN          = 0x01,
-	MFLAG_LOCK_ANIMATION  = 0x02,
-	MFLAG_ALLOW_SPECIAL   = 0x04,
+	MFLAG_REV_ANIMATION   = 0x02,
+	MFLAG_LOCK_ANIMATION  = 0x04,
 	MFLAG_NOHEAL          = 0x08,
 	MFLAG_TARGETS_MONSTER = 0x10,
 	//MFLAG_GOLEM           = 0x20,
@@ -1811,18 +1812,25 @@ typedef enum monster_flag {
 	MFLAG_CAN_OPEN_DOOR   = 0x200,
 	MFLAG_NO_ENEMY        = 0x400,
 	//MFLAG_BERSERK         = 0x800,
-	MFLAG_LIFESTEAL       = 0x1000
+	MFLAG_LIFESTEAL       = 0x1000,
+	MFLAG_GARG_STONE      = 0x2000,
 } monster_flag;
 
 typedef enum monster_goal {
-	MGOAL_NORMAL    = 1,
-	MGOAL_RETREAT   = 2,
-	MGOAL_HEALING   = 3,
-	MGOAL_MOVE      = 4,
-	MGOAL_ATTACK2   = 5,
-	MGOAL_INQUIRING = 6,
-	MGOAL_TALKING   = 7,
+	MGOAL_NORMAL,
+	MGOAL_RETREAT,
+	MGOAL_HEALING,
+	MGOAL_MOVE,
+	MGOAL_ATTACK2,
+	MGOAL_INQUIRING,
+	MGOAL_TALKING,
 } monster_goal;
+
+typedef enum monster_leaderflag {
+	MLEADER_NONE    = 0,
+	MLEADER_PRESENT = 1,
+	MLEADER_AWAY    = 2,
+} monster_leaderflag;
 
 typedef enum monster_resistance_type {
 	MORT_NONE,
