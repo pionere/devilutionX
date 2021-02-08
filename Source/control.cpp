@@ -769,7 +769,7 @@ void DrawManaFlask()
 	}
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92);
-	DrawFlask2(x, filled, 3, 4, 93);
+	DrawFlask2(x, filled, 3, plr[myplr].pManaShield == 0 ? 4 : 5, 93);
 }
 
 void InitControlPan()
@@ -1728,7 +1728,7 @@ void DrawInfoStr()
 		x = p->_px - 2;
 		y = p->_py - 2;
 		GetMousePos(x, y, &xx, &yy);
-		snprintf(infostr, sizeof(infostr), "%s(%i)", ClassStrTbl[p->_pClass], p->_pLevel);
+		snprintf(infostr, sizeof(infostr), p->pManaShield == 0 ? "%s(%i)" : "%s(%i)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
 	} else if (spselflag) {
