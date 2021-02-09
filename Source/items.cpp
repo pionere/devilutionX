@@ -1809,6 +1809,7 @@ void SaveItemPower(int ii, int power, int param1, int param2, int minval, int ma
 		is->_iSpell = param1;
 		is->_iCharges = param2;
 		is->_iMaxCharges = param2;
+		// TODO: is->_iMinMag = spelldata[param1].sMinInt; ?
 		break;
 	case IPL_FIREDAM:
 		is->_iFMinDam = param1;
@@ -3356,15 +3357,15 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	}
 }
 
-static void DrawULine()
+static void DrawULine(int x)
 {
 	assert(gpBuffer != NULL);
 
 	int i;
 	BYTE *src, *dst;
 
-	src = &gpBuffer[SCREENXY(26 + RIGHT_PANEL - SPANEL_WIDTH, 25)];
-	dst = &gpBuffer[SCREENXY(26 + RIGHT_PANEL - SPANEL_WIDTH, 5 * 12 + 38)];
+	src = &gpBuffer[x - 6 + (SCREEN_Y + 25) * BUFFER_WIDTH];
+	dst = &gpBuffer[x - 6 + (SCREEN_Y + 5 * 12 + 38) * BUFFER_WIDTH];
 
 	for (i = 0; i < 3; i++, src += BUFFER_WIDTH, dst += BUFFER_WIDTH)
 		memcpy(dst, src, 267);
@@ -3628,7 +3629,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 void DrawInvItemDetails()
 {
 	ItemStruct* is = PlrItem(myplr, pcursinvitem);
-	int x = RIGHT_PANEL_X - SPANEL_WIDTH + 32;
+	int x = SCREEN_X + (RIGHT_PANEL - 271) / 2 + 8;
 	int y = SCREEN_Y + 44 + 24;
 
 	assert((DWORD)pcursinvitem < MAXITEMS);
@@ -3642,7 +3643,7 @@ void DrawInvItemDetails()
 		is->_iIdentified ? is->_iIName : is->_iName, ItemColor(is));
 
 	// add separator
-	DrawULine();
+	DrawULine(x);
 	y += 30;
 	if (is->_iClass == ICLASS_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
