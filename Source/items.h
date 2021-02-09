@@ -88,8 +88,8 @@ void PutItemRecord(int nSeed, WORD wCI, int nIndex);
 
 /* data */
 
-extern const BYTE ItemCAnimTbl[];
-extern const int ItemInvSnds[];
+extern const BYTE ItemCAnimTbl[NUM_ICURS];
+extern const int ItemInvSnds[ITEMTYPES];
 
 #ifdef __cplusplus
 }

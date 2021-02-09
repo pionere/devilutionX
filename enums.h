@@ -298,7 +298,7 @@ typedef enum item_cursor_graphic {
 	ICURS_SHORT_WAR_BOW               = 165,
 	ICURS_COMPOSITE_STAFF             = 166,
 	ICURS_SHORT_BATTLE_BOW            = 167,
-	// hellfire only
+#ifdef HELLFIRE
 	ICURS_RING_XORINE                 = 168,
 	ICURS_AMULET_WARDING              = 170,
 	ICURS_RING_KARIK                  = 173,
@@ -333,6 +333,8 @@ typedef enum item_cursor_graphic {
 	ICURS_BLITZEN                     = 219,
 	ICURS_DEMONARMOR                  = 225,
 	ICURS_BOVINE                      = 226,
+#endif
+	NUM_ICURS
 } item_cursor_graphic;
 
 typedef enum _sfx_id {
