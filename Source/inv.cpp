@@ -259,13 +259,6 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
 		if (pcursinvitem == INVITEM_HEAD) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
@@ -273,7 +266,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -285,13 +278,6 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
 
 		if (pcursinvitem == INVITEM_RING_LEFT) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
@@ -300,7 +286,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -312,13 +298,6 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
 
 		if (pcursinvitem == INVITEM_RING_RIGHT) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
@@ -327,7 +306,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -339,13 +318,6 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
 
 		if (pcursinvitem == INVITEM_AMULET) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
@@ -354,7 +326,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -372,14 +344,6 @@ void DrawInv()
 		if (InvItemHeight[frame] != (3 * INV_SLOT_SIZE_PX))
 			screen_y -= INV_SLOT_SIZE_PX / 2;
 
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
-
 		if (pcursinvitem == INVITEM_HAND_LEFT) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
@@ -387,7 +351,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iLoc == ILOC_TWOHAND) {
@@ -428,14 +392,6 @@ void DrawInv()
 		if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
 			screen_y -= INV_SLOT_SIZE_PX / 2;
 
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
-
 		if (pcursinvitem == INVITEM_HAND_RIGHT) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 		}
@@ -443,7 +399,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -455,13 +411,6 @@ void DrawInv()
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
 
 		if (pcursinvitem == INVITEM_CHEST) {
 			CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
@@ -470,7 +419,7 @@ void DrawInv()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 	}
 
@@ -495,31 +444,15 @@ void DrawInv()
 
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
-#ifdef HELLFIRE
-			if (frame > 179) {
-				frame -= 179;
-				cCels = pCursCels2;
-			} else
-				cCels = pCursCels;
-#endif
+
 			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
-				CelDrawOutline(
-				    InvItemColor(is),
-				    screen_x,
-				    screen_y,
-				    cCels, frame, frame_width);
+				CelDrawOutline(InvItemColor(is), screen_x, screen_y, cCels, frame, frame_width);
 			}
 
 			if (is->_iStatFlag) {
-				CelClippedDraw(
-				    screen_x,
-				    screen_y,
-				    cCels, frame, frame_width);
+				CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 			} else {
-				CelDrawLightRed(
-				    screen_x,
-				    screen_y,
-				    cCels, frame, frame_width, 1);
+				CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 			}
 		}
 	}
@@ -547,13 +480,7 @@ void DrawInvBelt()
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
 		frame_width = INV_SLOT_SIZE_PX;
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-		} else
-			cCels = pCursCels;
-#endif
+
 		if (pcursinvitem == i + INVITEM_BELT_FIRST) {
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 			if (!sgbControllerActive || invflag)
@@ -564,7 +491,7 @@ void DrawInvBelt()
 		if (is->_iStatFlag) {
 			CelClippedDraw(screen_x, screen_y, cCels, frame, frame_width);
 		} else {
-			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width, 1);
+			CelDrawLightRed(screen_x, screen_y, cCels, frame, frame_width);
 		}
 
 		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {

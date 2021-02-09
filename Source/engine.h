@@ -54,9 +54,9 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tbl);
 void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light);
+void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelClippedDrawSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light);
+void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void ENG_set_pixel(int sx, int sy, BYTE col);
 #ifdef _DEBUG
@@ -77,6 +77,9 @@ void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light);
 void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+
+BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB);
+
 void PlayInGameMovie(const char *pszMovie);
 
 inline int RandRange(int minVal, int maxVal)

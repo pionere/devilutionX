@@ -15,9 +15,6 @@ int cursH;
 int pcursmonst = -1;
 /** Cursor images CEL */
 BYTE *pCursCels;
-#ifdef HELLFIRE
-BYTE *pCursCels2;
-#endif
 
 /** inv_item value */
 char pcursinvitem;
@@ -132,9 +129,20 @@ static_assert(validateCursorAreas(), "One of the cursor area does not fit to the
 void InitCursor()
 {
 	assert(pCursCels == NULL);
-	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", NULL);
+	
 #ifdef HELLFIRE
-	pCursCels2 = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", NULL);
+	DWORD sizeA, sizeB;
+	BYTE *aCursCels, *bCursCels;
+
+	aCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", &sizeA);
+	bCursCels = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", &sizeB);
+
+	pCursCels = CelMerge(aCursCels, sizeA, bCursCels, sizeB);
+
+	mem_free_dbg(aCursCels);
+	mem_free_dbg(bCursCels);
+#else
+	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", NULL);
 #endif
 	ClearCursor();
 }
@@ -142,9 +150,6 @@ void InitCursor()
 void FreeCursor()
 {
 	MemFreeDbg(pCursCels);
-#ifdef HELLFIRE
-	MemFreeDbg(pCursCels2);
-#endif
 	ClearCursor();
 }
 

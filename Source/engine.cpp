@@ -274,9 +274,9 @@ static inline int lightidx(char light)
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
- * @param light Light shade to use
+ * @param light Light shade to use -- disabled for the moment
  */
-void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
+void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize, w;
 	BYTE *pRLEBytes, *dst, *tbl, *end;
@@ -288,7 +288,8 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	tbl = &pLightTbl[lightidx(light)];
+	//tbl = &pLightTbl[lightidx(light)];
+	tbl = &pLightTbl[lightidx(0)];
 	end = &pRLEBytes[nDataSize];
 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
@@ -459,9 +460,9 @@ void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
  * @param pCelBuff Cel data
  * @param nCel CEL frame number
  * @param nWidth Width of cel
- * @param light Light shade to use
+ * @param light Light shade to use -- disabled for the moment
  */
-void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
+void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize, w;
 	BYTE *pRLEBytes, *dst, *tbl, *end;
@@ -473,7 +474,8 @@ void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, c
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	tbl = &pLightTbl[lightidx(light)];
+	//tbl = &pLightTbl[lightidx(light)];
+	tbl = &pLightTbl[lightidx(0)];
 
 	end = &pRLEBytes[nDataSize];
 
@@ -1278,6 +1280,49 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 		Cl2BlitLightSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth, &pLightTbl[light_table_index * 256]);
 	else
 		Cl2BlitSafe(pDecodeTo, pRLEBytes, nDataSize, nWidth);
+}
+
+BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB)
+{
+	DWORD nDataSize, i, nCelA, nCelB, cData, nData;
+	BYTE *cel, *pBuf;
+	DWORD *pHead;
+
+	nDataSize = nDataSizeA + nDataSizeB - 4 * 2;
+	cel = DiabloAllocPtr(nDataSize);
+	*(DWORD*)cel = 0;
+	pBuf = cel;
+	nCelA = LOAD_LE32(celA);
+	nCelB = LOAD_LE32(celB);
+	pHead = (DWORD*)pBuf;
+	pHead++;
+	pBuf += 4 * (nCelA + nCelB + 2);
+
+	nData = LOAD_LE32(celA + 4);
+	for (i = 1; i <= nCelA; i++) {
+		cData = nData;
+		nData = LOAD_LE32(celA + 4 * (i + 1));
+		*pHead = SDL_SwapLE32(pBuf - cel);
+		memcpy(pBuf, &celA[cData], nData - cData);
+		pBuf += nData - cData;
+		++*cel;
+		pHead++;
+	}
+
+	nData = LOAD_LE32(celB + 4);
+	for (i = 1; i <= nCelB; i++) {
+		cData = nData;
+		nData = LOAD_LE32(celB + 4 * (i + 1));
+		*pHead = SDL_SwapLE32(pBuf - cel);
+		memcpy(pBuf, &celB[cData], nData - cData);
+		pBuf += nData - cData;
+		++*cel;
+		pHead++;
+	}
+
+	*pHead = SDL_SwapLE32(pBuf - cel);
+	// assert(*pHead == nDataSize);
+	return cel;
 }
 
 /**

@@ -228,19 +228,11 @@ static void scrollrt_draw_cursor_item()
 			col = PAL16_RED + 5;
 		}
 
-		i = 1;
-#ifdef HELLFIRE
-		if (frame > 179) {
-			frame -= 179;
-			cCels = pCursCels2;
-			i = 0;
-		}
-#endif
 		CelDrawOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		if (col != PAL16_RED + 5) {
 			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		} else {
-			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW, i);
+			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		}
 	} else {
 		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
@@ -407,7 +399,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 		}
 #endif
 		if (pnum == pcursplr)
-			Cl2DrawOutline(165, px, py, pCelBuff, nCel, nWidth);
+			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == myplr) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
 		} else if (!(dFlags[x][y] & BFLAG_LIT) || plr[myplr]._pInfraFlag && light_table_index > 8) {
@@ -518,7 +510,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 	}
 
 	if (oi == pcursobj)
-		CelDrawOutline(194, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+		CelDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	if (os->_oLight) {
 		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
 	} else {
@@ -624,7 +616,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 
 	sx -= is->_iAnimWidth2;
 	if (ii == pcursitem) {
-		CelDrawOutline(181, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+		CelDrawOutline(PAL16_BLUE + 5, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 }
@@ -650,7 +642,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 		tw = &towner[mnum];
 		px = sx - tw->_tAnimWidth2;
 		if (mnum == pcursmonst) {
-			CelDrawOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
+			CelDrawOutline(PAL16_BEIGE + 6, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
 		}
 		assert(tw->_tAnimData);
 		CelClippedDraw(px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);

@@ -16,9 +16,6 @@ extern int cursW;
 extern int cursH;
 extern int pcursmonst;
 extern BYTE *pCursCels;
-#ifdef HELLFIRE
-extern BYTE *pCursCels2;
-#endif
 extern char pcursinvitem;
 extern char pcursitem;
 extern char pcursobj;
