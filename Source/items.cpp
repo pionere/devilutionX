@@ -1987,7 +1987,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
 			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
-			 && (!onlygood || pres->PLOk) {
+			 && (!onlygood || pres->PLOk)) {
 				l[nl] = pres;
 				nl++;
 				if (pres->PLDouble) {
@@ -2015,7 +2015,7 @@ void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood)
 	if (post != 0) {
 		nl = 0;
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
-			if (sufs->PLIType & flgs
+			if ((sufs->PLIType & flgs)
 			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
 			    && (goe | sufs->PLGOE) != (GOE_GOOD | GOE_EVIL)
 			    && (!onlygood || sufs->PLOk)) {
