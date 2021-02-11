@@ -62,10 +62,7 @@ void ModifyPlrStr(int pnum, int v);
 void ModifyPlrMag(int pnum, int v);
 void ModifyPlrDex(int pnum, int v);
 void ModifyPlrVit(int pnum, int v);
-void SetPlrStr(int pnum, int v);
-void SetPlrMag(int pnum, int v);
-void SetPlrDex(int pnum, int v);
-void SetPlrVit(int pnum, int v);
+void RestorePlrHpVit(int pnum);
 void InitDungMsgs(int pnum);
 void PlayDungMsgs();
 

@@ -129,13 +129,13 @@ const int DexterityTbl[NUM_CLASSES] = {
 };
 /** Maps from player_class to starting stat in vitality. */
 const int VitalityTbl[NUM_CLASSES] = {
-	25,
-	20,
-	20,
+	35,
+	30,
+	30,
 #ifdef HELLFIRE
-	20,
-	20,
-	25,
+	30,
+	30,
+	35,
 #endif
 };
 /** Specifies the chance to block bonus of each player class.*/
@@ -152,13 +152,13 @@ const BYTE ToBlkTbl[NUM_CLASSES] = {
 /** Maps from player_class to maximum stats. */
 const int MaxStats[NUM_CLASSES][4] = {
 	// clang-format off
-	{ 250,  50,  60, 100 },
-	{  55,  70, 250,  80 },
-	{  45, 250,  85,  80 },
+	{ 250,  50,  60, 110 },
+	{  55,  70, 250,  90 },
+	{  45, 250,  85,  90 },
 #ifdef HELLFIRE
-	{ 150,  80, 150,  80 },
-	{ 120, 120, 120, 100 },
-	{ 255,   0,  55, 150 },
+	{ 150,  80, 150,  90 },
+	{ 120, 120, 120, 110 },
+	{ 255,   0,  55, 160 },
 #endif
 	// clang-format on
 };
@@ -684,7 +684,7 @@ void CreatePlayer(int pnum, char c)
 	p->_pVitality = val;
 	p->_pBaseVit = val;
 
-	hp = (val + 10) << 6;
+	hp = val << 6;
 
 	switch (c) {
 	case PC_WARRIOR: hp <<= 1;		break;
@@ -3126,6 +3126,9 @@ static void ValidatePlayer()
 	if (p->_pBaseVit > MaxStats[pc][ATTRIB_VIT]) {
 		p->_pBaseVit = MaxStats[pc][ATTRIB_VIT];
 	}
+	if (p->_pBaseVit < VitalityTbl[pc]) {
+		p->_pBaseVit = VitalityTbl[pc];
+	}
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
@@ -3647,10 +3650,6 @@ void ModifyPlrStr(int pnum, int v)
 	p->_pBaseStr += v;
 
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr) {
-		NetSendCmdParam1(FALSE, CMD_SETSTR, p->_pBaseStr); //60
-	}
 }
 
 void ModifyPlrMag(int pnum, int v)
@@ -3685,10 +3684,6 @@ void ModifyPlrMag(int pnum, int v)
 	}
 
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr) {
-		NetSendCmdParam1(FALSE, CMD_SETMAG, p->_pBaseMag);
-	}
 }
 
 void ModifyPlrDex(int pnum, int v)
@@ -3707,10 +3702,6 @@ void ModifyPlrDex(int pnum, int v)
 	p->_pBaseDex += v;
 
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr) {
-		NetSendCmdParam1(FALSE, CMD_SETDEX, p->_pBaseDex);
-	}
 }
 
 void ModifyPlrVit(int pnum, int v)
@@ -3743,100 +3734,64 @@ void ModifyPlrVit(int pnum, int v)
 	p->_pMaxHP += ms;
 
 	CalcPlrInv(pnum, TRUE);
-
-	if (pnum == myplr) {
-		NetSendCmdParam1(FALSE, CMD_SETVIT, p->_pBaseVit);
-	}
 }
 
-void SetPlrStr(int pnum, int v)
+void RestorePlrHpVit(int pnum)
 {
 	PlayerStruct *p;
+	int val, hp;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlrStr: illegal player %d", pnum);
+		app_fatal("RestorePlrHpVit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 
-	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_STR]));
+	// base hp
+	val = VitalityTbl[p->_pClass];
+	hp = val << 6;
 
-	p->_pBaseStr = v;
-
-	CalcPlrInv(pnum, TRUE);
-}
-
-void SetPlrMag(int pnum, int v)
-{
-	PlayerStruct *p;
-	int m;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlrMag: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-
-	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_MAG]));
-
-	p->_pBaseMag = v;
-
-	m = v << 6;
-	if (p->_pClass == PC_SORCERER) {
-		m <<= 1;
+	switch (p->_pClass) {
+	case PC_WARRIOR: hp <<= 1;		break;
+	case PC_ROGUE: hp += hp >> 1;	break;
+	case PC_SORCERER:				break;
 #ifdef HELLFIRE
-	} else if (p->_pClass == PC_BARD) {
-		m += m >> 1;
+	case PC_MONK:
+	case PC_BARD: hp += hp >> 1;	break;
+	case PC_BARBARIAN: hp <<= 1;	break;
 #endif
+	default: ASSUME_UNREACHABLE
 	}
 
-	p->_pMaxManaBase = m;
-	p->_pMaxMana = m;
+	// hp bonus from level
+	if (p->_pClass == PC_SORCERER)
+		hp += (p->_pLevel - 1) * 64;
+	else
+		hp += (p->_pLevel - 1) * 128;
 
-	CalcPlrInv(pnum, TRUE);
-}
-
-void SetPlrDex(int pnum, int v)
-{
-	PlayerStruct *p;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlrDex: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-
-	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_DEX]));
-
-	p->_pBaseDex = v;
-
-	CalcPlrInv(pnum, TRUE);
-}
-
-void SetPlrVit(int pnum, int v)
-{
-	PlayerStruct *p;
-	int hp;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("SetPlrVit: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-
-	v = std::max(0, std::min(v, MaxStats[p->_pClass][ATTRIB_VIT]));
-
-	p->_pBaseVit = v;
-
-	hp = v << 6;
+	// hp bonus from stat-points
+	val = p->_pBaseVit - val;
+	val = val << 6;
 	if (p->_pClass == PC_WARRIOR) {
-		hp <<= 1;
+		val <<= 1;
 #ifdef HELLFIRE
 	} else if (p->_pClass == PC_BARBARIAN) {
-		hp <<= 1;
+		val <<= 1;
 #endif
 	}
+	hp += val;
 
-	p->_pHPBase = hp;
-	p->_pMaxHPBase = hp;
+	// check the delta
+	hp -= p->_pMaxHPBase;
+	assert(hp >= 0);
 
-	CalcPlrInv(pnum, TRUE);
+	// restore the lost hp
+	p->_pMaxHPBase += hp;
+	p->_pMaxHP += hp;
+
+	// fill hp
+	PlrFillHp(pnum);
+
+	// CalcPlrInv(pnum, TRUE);
 }
 
 void InitDungMsgs(int pnum)

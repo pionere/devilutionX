@@ -2286,54 +2286,6 @@ static DWORD On_RETOWN(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_SETSTR(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr)
-		SetPlrStr(pnum, cmd->wParam1);
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_SETDEX(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr)
-		SetPlrDex(pnum, cmd->wParam1);
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_SETMAG(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr)
-		SetPlrMag(pnum, cmd->wParam1);
-
-	return sizeof(*cmd);
-}
-
-static DWORD On_SETVIT(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr)
-		SetPlrVit(pnum, cmd->wParam1);
-
-	return sizeof(*cmd);
-}
-
 static DWORD On_STRING(TCmd *pCmd, int pnum)
 {
 	return On_STRING2(pnum, pCmd);
@@ -2398,6 +2350,13 @@ static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 	if (gbBufferMsgs != 1)
 		plr[pnum].pManaShield = 0;
 
+	return sizeof(*pCmd);
+}
+
+static DWORD On_RESTOREHPVIT(TCmd *pCmd, int pnum)
+{
+	if (gbBufferMsgs != 1)
+		RestorePlrHpVit(pnum);
 	return sizeof(*pCmd);
 }
 
@@ -2567,14 +2526,6 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_DEACTIVATEPORTAL(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
-	case CMD_SETSTR:
-		return On_SETSTR(pCmd, pnum);
-	case CMD_SETMAG:
-		return On_SETMAG(pCmd, pnum);
-	case CMD_SETDEX:
-		return On_SETDEX(pCmd, pnum);
-	case CMD_SETVIT:
-		return On_SETVIT(pCmd, pnum);
 	case CMD_STRING:
 		return On_STRING(pCmd, pnum);
 	case CMD_SYNCQUEST:
@@ -2588,8 +2539,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	//case CMD_SCROLL_SPELLXY:
 	//	return On_SCROLL_SPELLXY(pCmd, pnum);
 #ifdef HELLFIRE
-	//case CMD_ENDREFLECT:
-	//	return On_ENDREFLECT(pCmd, pnum);
+	case CMD_RESTOREHPVIT:
+		return On_RESTOREHPVIT(pCmd, pnum);
 	case CMD_NAKRUL:
 		return On_NAKRUL(pCmd, pnum);
 	case CMD_OPENHIVE:

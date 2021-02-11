@@ -2071,10 +2071,7 @@ BOOL UseInvItem(int cii)
 		NewCursor(CURSOR_OIL);
 		return TRUE;
 	case IMISC_SPECELIX:
-		ModifyPlrStr(pnum, 3);
-		ModifyPlrMag(pnum, 3);
-		ModifyPlrDex(pnum, 3);
-		ModifyPlrVit(pnum, 3);
+		NetSendCmd(TRUE, CMD_RESTOREHPVIT);
 		break;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
