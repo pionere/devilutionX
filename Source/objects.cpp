@@ -1426,28 +1426,27 @@ static void AddBarrel(int oi, int type)
 		os->_oVar4 = PreSpawnSkeleton();
 }
 
+static int FindValidShrine(int filter)
+{
+	int rv;
+	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
+
+	while (TRUE) {
+		rv = random_(0, NUM_SHRINETYPE);
+		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
+		 && rv != filter && shrineavail[rv] != excl)
+			break;
+	}
+	return rv;
+}
+
 static void AddShrine(int oi)
 {
 	ObjectStruct *os;
-	int i, val;
-	BOOLEAN slist[NUM_SHRINETYPE];
-	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
-
-	for (i = 0; i < NUM_SHRINETYPE; i++) {
-		if (currlevel < shrinemin[i] || currlevel > shrinemax[i]
-		 || shrineavail[i] == excl) {
-			slist[i] = FALSE;
-		} else {
-			slist[i] = TRUE;
-		}
-	}
-	do {
-		val = random_(150, NUM_SHRINETYPE);
-	} while (!slist[val]);
 
 	os = &object[oi];
 	os->_oPreFlag = TRUE;
-	os->_oVar1 = val;
+	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE);
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
@@ -4063,20 +4062,6 @@ static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
 			return;
 		}
 	}
-}
-
-static int FindValidShrine(int filter)
-{
-	int rv;
-	BYTE excl = gbMaxPlayers != 1 ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
-
-	while (TRUE) {
-		rv = random_(0, NUM_SHRINETYPE);
-		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
-		 && rv != filter && shrineavail[rv] != excl)
-			break;
-	}
-	return rv;
 }
 
 static void OperateGoatShrine(int pnum, int oi)
