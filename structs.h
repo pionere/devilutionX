@@ -247,6 +247,7 @@ typedef struct PlayerStruct {
 	char _pSplFrom;
 	// enum spell_type
 	char _pRSplType;
+	char _pOilFrom;
 	BYTE _pSplLvl[64];
 	uint64_t _pMemSpells;  // Bitmask of learned spells
 	uint64_t _pAblSpells;  // Bitmask of abilities
@@ -368,7 +369,6 @@ typedef struct PlayerStruct {
 	int _pIMMaxDam;
 	int _pIAMinDam;
 	int _pIAMaxDam;
-	int _pOilType;
 	BYTE pTownWarps;
 	BYTE pDungMsgs;
 	BYTE pLvlLoad;
@@ -871,6 +871,12 @@ typedef struct TCmdBParam1 {
 	BYTE bCmd;
 	BYTE bParam1;
 } TCmdBParam1;
+
+typedef struct TCmdBParam2 {
+	BYTE bCmd;
+	BYTE bParam1;
+	BYTE bParam2;
+} TCmdBParam2;
 
 typedef struct TCmdGolem {
 	BYTE bCmd;

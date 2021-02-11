@@ -17,30 +17,6 @@ BOOL UniqueItemFlag[NUM_UITEM];
 int numitems;
 int gnNumGetRecords;
 
-/* data */
-
-#ifdef HELLFIRE
-struct OilStruct {
-	int type;
-	const char name[24];
-	int level;
-	int value;
-};
-const OilStruct oildata[10] = {
-	// type,          name,                 level, value
-	{ IMISC_OILACC,   "Oil of Accuracy",        1,   500 },
-	{ IMISC_OILMAST,  "Oil of Mastery",        10,  2500 },
-	{ IMISC_OILSHARP, "Oil of Sharpness",       1,   500 },
-	{ IMISC_OILDEATH, "Oil of Death",          10,  2500 },
-	{ IMISC_OILSKILL, "Oil of Skill",           4,  1500 },
-	{ IMISC_OILBSMTH, "Blacksmith Oil",         1,   100 },
-	{ IMISC_OILFORT,  "Oil of Fortitude",       5,  2500 },
-	{ IMISC_OILPERM,  "Oil of Permanence",     17, 15000 },
-	{ IMISC_OILHARD,  "Oil of Hardening",       1,   500 },
-	{ IMISC_OILIMP,   "Oil of Imperviousness", 10,  2500 },
-};
-#endif
-
 /** Maps from item_cursor_graphic to in-memory item (drop) type. */
 const BYTE ItemCAnimTbl[NUM_ICURS] = {
 	20, 16, 16, 16,  4,  4,  4, 12, 12, 12,
@@ -1176,7 +1152,7 @@ void SetItemData(int ii, int idata)
 	is->_ivalue = ids->iValue;
 	is->_iIvalue = ids->iValue;
 
-	if (is->_iMiscId == IMISC_STAFF && is->_iSpell != SPL_NULL) {
+	if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
 		is->_iCharges = BASESTAFFCHARGES;
 		is->_iMaxCharges = is->_iCharges;
 	}
@@ -1556,58 +1532,16 @@ static void GetScrollSpell(int ii, int lvl)
 	is->_iIvalue += sd->sStaffCost;
 }
 
-static void GetStaffPower(int ii, int lvl, int bs, BOOL onlygood)
-{
-	const PLStruct *l[256];
-	int nl;
-	const PLStruct *pres;
-
-	pres = NULL;
-	if (random_(15, 10) == 0 || onlygood) {
-		nl = 0;
-		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-			if (((PLT_STAFF | PLT_CHRG) & pres->PLIType) && pres->PLMinLvl <= lvl) {
-				if (!onlygood || pres->PLOk) {
-					l[nl] = pres;
-					nl++;
-					if (pres->PLDouble) {
-						l[nl] = pres;
-						nl++;
-					}
-				}
-			}
-		}
-		pres = NULL;
-		if (nl != 0) {
-			pres = l[random_(16, nl)];
-			item[ii]._iMagical = ITEM_QUALITY_MAGIC;
-			SaveItemPower(
-			    ii,
-			    pres->PLPower,
-			    pres->PLParam1,
-			    pres->PLParam2,
-			    pres->PLMinVal,
-			    pres->PLMaxVal,
-			    pres->PLMultVal);
-			item[ii]._iPrePower = pres->PLPower;
-		}
-	}
-	CalcItemValue(ii);
-}
-
-static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
+static BOOL GetStaffSpell(int ii, int lvl)
 {
 	SpellData *sd;
 	ItemStruct *is;
 	int rv, v, bs;
 	char istr[64];
 
-#ifndef HELLFIRE
 	if (random_(17, 4) == 0) {
-		GetItemPower(ii, lvl >> 1, lvl, PLT_STAFF, onlygood);
-		return;
+		return FALSE;
 	}
-#endif
 	rv = random_(18, NUM_SPELLS);
 
 	if (lvl < STAFF_MIN)
@@ -1641,42 +1575,8 @@ static void GetStaffSpell(int ii, int lvl, BOOL onlygood)
 	v = is->_iCharges * sd->sStaffCost / 5;
 	is->_ivalue += v;
 	is->_iIvalue += v;
-	GetStaffPower(ii, lvl, bs, onlygood);
+	return TRUE;
 }
-
-#ifdef HELLFIRE
-static void GetOilType(int ii, int max_lvl)
-{
-	const OilStruct *oil;
-	ItemStruct *is;
-	int cnt, type, i;
-	char rnd[lengthof(oildata)];
-
-	if (gbMaxPlayers == 1) {
-		if (max_lvl == 0)
-			max_lvl = 1;
-		cnt = 0;
-
-		for (i = 0; i < lengthof(oildata); i++) {
-			if (oildata[i].level <= max_lvl) {
-				rnd[cnt] = i;
-				cnt++;
-			}
-		}
-		type = rnd[random_(165, cnt)];
-	} else {
-		type = random_(165, 2) != 0 ? (IMISC_OILFORT - IMISC_OILACC) : (IMISC_OILBSMTH - IMISC_OILACC);
-	}
-
-	oil = &oildata[type];
-	is = &item[ii];
-	copy_cstr(is->_iName, oil->name);
-	copy_cstr(is->_iIName, oil->name);
-	is->_iMiscId = oil->type;
-	is->_ivalue = oil->value;
-	is->_iIvalue = oil->value;
-}
-#endif
 
 void GetItemAttrs(int ii, int idata, int lvl)
 {
@@ -1690,10 +1590,6 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		GetBookSpell(ii, lvl);
 	else if (is->_iMiscId == IMISC_SCROLL)
 		GetScrollSpell(ii, lvl);
-#ifdef HELLFIRE
-	else if (is->_iMiscId == IMISC_OILOF)
-		GetOilType(ii, lvl);
-#endif
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
 		if (gnDifficulty == DIFF_NORMAL)
@@ -2073,11 +1969,12 @@ static void GetItemBonus(int ii, int minlvl, int maxlvl, BOOL onlygood, BOOLEAN 
 		flgs = PLT_ARMO | PLT_HARMOR;
 		break;
 	case ITYPE_STAFF:
-		if (allowspells) {
-			GetStaffSpell(ii, maxlvl, onlygood);
-			return;
-		}
 		flgs = PLT_STAFF;
+		if (allowspells && GetStaffSpell(ii, maxlvl)) {
+			if (random_(51, 2) != 0)
+				return;
+			flgs |= PLT_CHRG;
+		}
 		break;
 	case ITYPE_GOLD:
 		return;
@@ -2366,9 +2263,9 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, BOOL on
 		if (uper == 15)
 			iblvl = lvl + 4;
 		else if (onlygood
-		 || item[ii]._iMiscId == IMISC_STAFF
-		 || item[ii]._iMiscId == IMISC_RING
-		 || item[ii]._iMiscId == IMISC_AMULET
+		 || item[ii]._itype == ITYPE_STAFF
+		 || item[ii]._itype == ITYPE_RING
+		 || item[ii]._itype == ITYPE_AMULET
 		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl)
 			iblvl = lvl;
 		if (iblvl != -1) {
@@ -2564,7 +2461,7 @@ void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 	int uper;
 	BOOL onlygood, recreate, pregen;
 
-	if (idx == 0) {
+	if (idx == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
 		item[MAXITEMS]._iSeed = iseed;
 		item[MAXITEMS]._iCreateInfo = icreateinfo;
@@ -2575,7 +2472,7 @@ void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 			item[MAXITEMS]._iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
-				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed, ivalue);
+				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed);
 			} else if ((icreateinfo & CF_USEFUL) == CF_USEFUL) {
 				SetupAllUseful(MAXITEMS, iseed, icreateinfo & CF_LEVEL);
 			} else {
@@ -2951,12 +2848,41 @@ void DoRecharge(int pnum, int cii)
 	}
 }
 
+void DoClean(ItemStruct *pi, BOOL whittle)
+{
+	int seed, spell;
+	WORD ci, idx;
+
+	seed = pi->_iSeed;
+	spell = pi->_iSpell;
+	idx = pi->_iIdx;
+
+	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
+	if (whittle) {
+		if (idx == IDI_SORCSTAFF)
+			idx = IDI_DROPSHSTAFF;
+		spell = SPL_NULL;
+	}
+
+	while (TRUE) {
+		RecreateItem(idx, ci, seed, 0);
+		assert(item[MAXITEMS]._iIdx == idx);
+		if (item[MAXITEMS]._iPrePower == IPL_INVALID
+		 && item[MAXITEMS]._iSufPower == IPL_INVALID
+		 && item[MAXITEMS]._iSpell == spell)
+			break;
+		seed = GetRndSeed();
+	}
+	item[MAXITEMS]._iDurability = std::min(pi->_iDurability, item[MAXITEMS]._iDurability);
+	item[MAXITEMS]._iCharges = std::min(pi->_iCharges, item[MAXITEMS]._iCharges);
+	copy_pod(*pi, item[MAXITEMS]);
+}
+
 #ifdef HELLFIRE
 void DoWhittle(int pnum, int cii)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int seed, lvl;
 
 	p = &plr[pnum];
 	if (cii >= NUM_INVLOC) {
@@ -2967,15 +2893,7 @@ void DoWhittle(int pnum, int cii)
 
 	if (pi->_itype == ITYPE_STAFF
 	 && (pi->_iSpell != SPL_NULL || pi->_iMagical != ITEM_QUALITY_NORMAL)) {
-		seed = pi->_iSeed;
-		lvl = pi->_iCreateInfo & CF_LEVEL;
-		SetRndSeed(seed);
-		GetItemAttrs(MAXITEMS, pi->_iIdx, lvl);
-		assert(item[MAXITEMS]._iSpell == SPL_NULL);
-		item[MAXITEMS]._iSeed = seed;
-		item[MAXITEMS]._iCreateInfo = lvl | CF_SMITH;
-		item[MAXITEMS]._iDurability = std::min(pi->_iDurability, item[MAXITEMS]._iDurability);
-		copy_pod(*pi, item[MAXITEMS]);
+		DoClean(pi, TRUE);
 		CalcPlrInv(pnum, TRUE);
 	}
 }
@@ -2993,124 +2911,125 @@ static ItemStruct* PlrItem(int pnum, int cii)
 	}
 }
 
-#ifdef HELLFIRE
-BOOL DoOil(int pnum, int cii)
+static void RemovePlrItem(int pnum, int cii)
 {
-	ItemStruct *is;
-	int dur, r;
-
-	is = PlrItem(pnum, cii);
-	assert(is->_itype != ITYPE_NONE);
-
-	switch (plr[pnum]._pOilType) {
-	case IMISC_OILACC:
-	case IMISC_OILMAST:
-	case IMISC_OILSHARP:
-		if (is->_iClass != ICLASS_WEAPON)
-			return FALSE;
-		break;
-	case IMISC_OILDEATH:
-		if (is->_iClass != ICLASS_WEAPON || is->_itype == ITYPE_BOW)
-			return FALSE;
-		break;
-	case IMISC_OILSKILL:
-	case IMISC_OILBSMTH:
-	case IMISC_OILFORT:
-	case IMISC_OILPERM:
-		if (is->_iClass != ICLASS_WEAPON && is->_iClass != ICLASS_ARMOR)
-			return FALSE;
-		break;
-	case IMISC_OILHARD:
-	case IMISC_OILIMP:
-		if (is->_iClass != ICLASS_ARMOR) {
-			return FALSE;
-		}
-		break;
+	if (cii <= INVITEM_INV_LAST) {
+		if (cii < INVITEM_INV_FIRST) {
+			plr[pnum].InvBody[cii]._itype = ITYPE_NONE;
+		} else
+			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
+	} else {
+		RemoveSpdBarItem(pnum, cii - INVITEM_BELT_FIRST);
 	}
-
-	switch (plr[pnum]._pOilType) {
-	case IMISC_OILACC:
-		if (is->_iPLToHit < 50) {
-			is->_iPLToHit += RandRange(1, 2);
-		}
-		break;
-	case IMISC_OILMAST:
-		if (is->_iPLToHit < 100) {
-			is->_iPLToHit += RandRange(3, 5);
-		}
-		break;
-	case IMISC_OILSHARP:
-		if (is->_iMaxDam - is->_iMinDam < 30) {
-			is->_iMaxDam++;
-		}
-		break;
-	case IMISC_OILDEATH:
-		if (is->_iMaxDam - is->_iMinDam < 30) {
-			is->_iMinDam++;
-			is->_iMaxDam += 2;
-		}
-		break;
-	case IMISC_OILSKILL:
-		r = RandRange(5, 10);
-		if (is->_iMinStr > r) {
-			is->_iMinStr -= r;
-		} else {
-			is->_iMinStr = 0;
-		}
-		if (is->_iMinMag > r) {
-			is->_iMinMag -= r;
-		} else {
-			is->_iMinMag = 0;
-		}
-		if (is->_iMinDex > r) {
-			is->_iMinDex -= r;
-		} else {
-			is->_iMinDex = 0;
-		}
-		break;
-	case IMISC_OILBSMTH:
-		dur = is->_iMaxDur;
-		if (dur != DUR_INDESTRUCTIBLE) {
-			if (is->_iDurability < dur) {
-				r = (dur + 4) / 5 + is->_iDurability;
-				if (r > dur)
-					r = dur;
-			} else {
-				if (dur >= 100)
-					break;
-				r = dur + 1;
-				is->_iMaxDur = r;
-			}
-			is->_iDurability = r;
-		}
-		break;
-	case IMISC_OILFORT:
-		if (is->_iMaxDur != DUR_INDESTRUCTIBLE && is->_iMaxDur < 200) {
-			r = RandRange(10, 50);
-			is->_iMaxDur += r;
-			is->_iDurability += r;
-		}
-		break;
-	case IMISC_OILPERM:
-		is->_iDurability = DUR_INDESTRUCTIBLE;
-		is->_iMaxDur = DUR_INDESTRUCTIBLE;
-		break;
-	case IMISC_OILHARD:
-		if (is->_iAC < 60) {
-			is->_iAC += RandRange(1, 2);
-		}
-		break;
-	case IMISC_OILIMP:
-		if (is->_iAC < 120) {
-			is->_iAC += RandRange(3, 5);
-		}
-		break;
-	}
-
-	CalcPlrInv(pnum, TRUE);
-	return TRUE;
 }
-#endif
+
+void DoOil(int pnum, int from, int cii)
+{
+	ItemStruct *pi, *is;
+	int oilType, seed, spell;
+	WORD idx, ci;
+	BYTE targetPowerFrom, targetPowerTo;
+
+	is = PlrItem(pnum, from);
+	if (is->_itype == ITYPE_NONE)
+		return;
+	oilType = is->_iMiscId;
+	if (oilType < IMISC_OILFIRST || oilType > IMISC_OILLAST)
+		return;
+
+	pi = PlrItem(pnum, cii);
+	assert(pi->_itype != ITYPE_NONE);
+	if (pi->_itype == ITYPE_MISC || pi->_itype == ITYPE_GOLD)
+		return;
+
+	if (oilType == IMISC_OILCLEAN) {
+		if (pi->_iMagical != ITEM_QUALITY_MAGIC)
+			return;
+
+		DoClean(pi, FALSE);
+		RemovePlrItem(pnum, from);
+		CalcPlrInv(pnum, TRUE);
+		return;
+	}
+	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+		return;
+
+	switch (oilType) {
+	case IMISC_OILQLTY:
+		static_assert(IPL_TOHIT < IPL_DAMP, "DoOil requires a given order of TOHIT and DAMP affixes.");
+		static_assert(IPL_TOHIT < IPL_TOHIT_DAMP, "DoOil requires a given order of TOHIT and TOHIT_DAMP affixes.");
+		static_assert(IPL_DAMP < IPL_ACP, "DoOil requires a given order of DAMP and ACP affixes.");
+		static_assert(IPL_TOHIT_DAMP < IPL_ACP, "DoOil requires a given order of TOHIT_DAMP and ACP affixes.");
+		targetPowerFrom = IPL_TOHIT;
+		targetPowerTo = IPL_ACP;
+		break;
+	case IMISC_OILZEN:
+		static_assert(IPL_STR < IPL_VIT, "DoOil requires a given order of STR and VIT, affixes.");
+		static_assert(IPL_STR < IPL_DEX, "DoOil requires a given order of STR and DEX affixes.");
+		static_assert(IPL_STR < IPL_MAG, "DoOil requires a given order of STR and MAG affixes.");
+		static_assert(IPL_VIT < IPL_ATTRIBS, "DoOil requires a given order of VIT, and ATTRIBS affixes.");
+		static_assert(IPL_DEX < IPL_ATTRIBS, "DoOil requires a given order of DEX and ATTRIBS affixes.");
+		static_assert(IPL_MAG < IPL_ATTRIBS, "DoOil requires a given order of MAG and ATTRIBS affixes.");
+		targetPowerFrom = IPL_STR;
+		targetPowerTo = IPL_ATTRIBS;
+		break;
+	case IMISC_OILSTR:
+		targetPowerFrom = targetPowerTo = IPL_STR;
+		break;
+	case IMISC_OILDEX:
+		targetPowerFrom = targetPowerTo = IPL_DEX;
+		break;
+	case IMISC_OILVIT:
+		targetPowerFrom = targetPowerTo = IPL_VIT;
+		break;
+	case IMISC_OILMAG:
+		targetPowerFrom = targetPowerTo = IPL_MAG;
+		break;
+	case IMISC_OILRESIST:
+		static_assert(IPL_FIRERES < IPL_LIGHTRES, "DoOil requires a given order of FIRERES and LIGHTRES, affixes.");
+		static_assert(IPL_FIRERES < IPL_MAGICRES, "DoOil requires a given order of FIRERES and MAGICRES affixes.");
+		static_assert(IPL_FIRERES < IPL_ACIDRES, "DoOil requires a given order of FIRERES and ACIDRES affixes.");
+		static_assert(IPL_LIGHTRES < IPL_ALLRES, "DoOil requires a given order of LIGHTRES, and ALLRES affixes.");
+		static_assert(IPL_MAGICRES < IPL_ALLRES, "DoOil requires a given order of MAGICRES and ALLRES affixes.");
+		static_assert(IPL_ACIDRES < IPL_ALLRES, "DoOil requires a given order of ACIDRES and ALLRES affixes.");
+		targetPowerFrom = IPL_FIRERES;
+		targetPowerTo = IPL_ALLRES;
+		break;
+	case IMISC_OILCHANCE:
+		targetPowerFrom = 0;
+		static_assert(IPL_INVALID >= UCHAR_MAX, "DoOil requires the invalid to be the last.");
+		targetPowerTo = UCHAR_MAX - 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		targetPowerFrom = 0;
+		targetPowerTo = UCHAR_MAX;
+		break;
+	}
+
+	idx = pi->_iIdx;
+	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED | CF_ONLYGOOD;
+	spell = pi->_iSpell;
+	seed = pi->_iSeed;
+
+	while (TRUE) {
+		RecreateItem(idx, ci, seed, 0);
+		assert(item[MAXITEMS]._iIdx == idx);
+		if (item[MAXITEMS]._iSpell == spell
+		 && ((item[MAXITEMS]._iPrePower >= targetPowerFrom && item[MAXITEMS]._iPrePower <= targetPowerTo)
+		  || (item[MAXITEMS]._iSufPower >= targetPowerFrom && item[MAXITEMS]._iSufPower <= targetPowerTo)))
+			break;
+		seed = GetRndSeed();
+	}
+
+	item[MAXITEMS]._iDurability = std::min(pi->_iDurability, item[MAXITEMS]._iDurability);
+	item[MAXITEMS]._iCharges = std::min(pi->_iCharges, item[MAXITEMS]._iCharges);
+	copy_pod(*pi, item[MAXITEMS]);
+
+	pi->_iIdentified = TRUE;
+	RemovePlrItem(pnum, from);
+	CalcPlrInv(pnum, TRUE);
+}
 
 void PrintItemPower(BYTE plidx, const ItemStruct *is)
 {
@@ -3419,22 +3338,12 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 	switch (is->_iMiscId) {
 	case IMISC_NONE:
 		return;
-	case IMISC_USEFIRST:
-		break;
-	case IMISC_FULLHEAL:
-		desc = "fully recover life";
-		PrintItemString(x, y, desc);
-		break;
 	case IMISC_HEAL:
 		desc = "recover partial life";
 		PrintItemString(x, y, desc);
 		break;
-	case IMISC_OLDHEAL:
-		desc = "recover life";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_DEADHEAL:
-		desc = "deadly heal";
+	case IMISC_FULLHEAL:
+		desc = "fully recover life";
 		PrintItemString(x, y, desc);
 		break;
 	case IMISC_MANA:
@@ -3445,41 +3354,6 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		desc = "fully recover mana";
 		PrintItemString(x, y, desc);
 		break;
-	case IMISC_POTEXP:
-	case IMISC_POTFORG:
-		break;
-	case IMISC_ELIXSTR:
-		desc = "increase strength";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXMAG:
-		desc = "increase magic";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXDEX:
-		desc = "increase dexterity";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXVIT:
-		desc = "increase vitality";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXWEAK:
-		desc = "decrease strength";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXDIS:
-		desc = "decrease strength";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXCLUM:
-		desc = "decrease dexterity";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_ELIXSICK:
-		desc = "decrease vitality";
-		PrintItemString(x, y, desc);
-		break;
 	case IMISC_REJUV:
 		desc = "recover life and mana";
 		PrintItemString(x, y, desc);
@@ -3487,8 +3361,6 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 	case IMISC_FULLREJUV:
 		desc = "fully recover life and mana";
 		PrintItemString(x, y, desc);
-		break;
-	case IMISC_USELAST:
 		break;
 	case IMISC_SCROLL:
 		desc = "Right-click to read";
@@ -3500,86 +3372,12 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		desc = "left-click to target";
 		PrintItemString(x, y, desc);
 		return;*/
-	case IMISC_STAFF:
-		return;
 	case IMISC_BOOK:
 		desc = "Right-click to read";
 		PrintItemString(x, y, desc);
 		return;
-	case IMISC_RING:
-	case IMISC_AMULET:
 	case IMISC_UNIQUE:
-	case IMISC_FOOD:
-	case IMISC_OILFIRST:
 		return;
-#ifdef HELLFIRE
-	case IMISC_OILOF:
-		break;
-	case IMISC_OILACC:
-		desc = "increases a weapon's";
-		PrintItemString(x, y, desc);
-		desc = "chance to hit";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILMAST:
-		desc = "greatly increases a";
-		PrintItemString(x, y, desc);
-		desc = "weapon's chance to hit";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILSHARP:
-		desc = "increases a weapon's";
-		PrintItemString(x, y, desc);
-		desc = "damage potential";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILDEATH:
-		desc = "greatly increases a weapon's";
-		PrintItemString(x, y, desc);
-		desc = "damage potential - not bows";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILSKILL:
-		desc = "reduces attributes needed";
-		PrintItemString(x, y, desc);
-		desc = "to use armor or weapons";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILBSMTH:
-		desc = "restores 20% of an";
-		PrintItemString(x, y, desc);
-		desc = "item's durability";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILFORT:
-		desc = "increases an item's";
-		PrintItemString(x, y, desc);
-		desc = "current and max durability";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILPERM:
-		desc = "makes an item indestructible";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILHARD:
-		desc = "increases the armor class";
-		PrintItemString(x, y, desc);
-		desc = "of armor and shields";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILIMP:
-		desc = "greatly increases the armor";
-		PrintItemString(x, y, desc);
-		desc = "class of armor and shields";
-		PrintItemString(x, y, desc);
-		break;
-	case IMISC_OILLAST:
-		return;
-	case IMISC_MAPOFDOOM:
-		desc = "Right-click to view";
-		PrintItemString(x, y, desc);
-		return;
-#endif
 	case IMISC_EAR:
 		snprintf(tempstr, sizeof(tempstr), "Level : %i", is->_ivalue);
 		PrintItemString(x, y);
@@ -3588,7 +3386,67 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		desc = "strange glowing liquid";
 		PrintItemString(x, y, desc);
 		return;
+	case IMISC_OILQLTY:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase its potential";
+		PrintItemString(x, y, desc);
+		desc = "(damage/defense)";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILZEN:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase inner potential";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILSTR:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase inner strength";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILDEX:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase inner dexterity";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILVIT:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase inner vitality";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILMAG:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "increase inner magic";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILCLEAN:
+		desc = "removes the affixes";
+		PrintItemString(x, y, desc);
+		desc = "of a magic item";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILRESIST:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "protect against magic";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILCHANCE:
+		desc = "imbues a normal item to";
+		PrintItemString(x, y, desc);
+		desc = "a magic item";
+		PrintItemString(x, y, desc);
+		break;
 #ifdef HELLFIRE
+	case IMISC_MAPOFDOOM:
+		desc = "Right-click to view";
+		PrintItemString(x, y, desc);
+		return;
 	case IMISC_RUNE:
 		desc = "Right-click to activate, then";
 		PrintItemString(x, y, desc);
@@ -3601,6 +3459,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 		return;
 #endif
 	default:
+		ASSUME_UNREACHABLE;
 		return;
 	}
 
@@ -3614,8 +3473,6 @@ void DrawInvItemDetails()
 	ItemStruct* is = PlrItem(myplr, pcursinvitem);
 	int x = SCREEN_X + (RIGHT_PANEL - 271) / 2 + 8;
 	int y = SCREEN_Y + 44 + 24;
-
-	assert((DWORD)pcursinvitem < MAXITEMS);
 
 	// draw the background
 	CelDraw(x - 8, SCREEN_Y + 327, pSTextBoxCels, 1, 271);
@@ -3641,7 +3498,7 @@ void DrawInvItemDetails()
 			snprintf(tempstr, sizeof(tempstr), "Durability: %i/%i", is->_iDurability, is->_iMaxDur);
 			PrintItemString(x, y);
 		}
-		if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
+		if (is->_iMaxCharges != 0) {
 			snprintf(tempstr, sizeof(tempstr), "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);
 			PrintItemString(x, y);
 		}
@@ -3700,11 +3557,6 @@ static BOOL SmithItemOk(int i)
 {
 	return AllItemsList[i].itype != ITYPE_MISC
 	 && AllItemsList[i].itype != ITYPE_GOLD
-#ifdef HELLFIRE
-	 && (AllItemsList[i].itype != ITYPE_STAFF || AllItemsList[i].iSpell == SPL_NULL)
-#else
-	 && AllItemsList[i].itype != ITYPE_STAFF
-#endif
 	 && AllItemsList[i].itype != ITYPE_RING
 	 && AllItemsList[i].itype != ITYPE_AMULET;
 }
@@ -3790,18 +3642,6 @@ void SpawnSmith(int lvl)
 	SortSmith();
 }
 
-static BOOL PremiumItemOk(int i)
-{
-	return AllItemsList[i].itype != ITYPE_MISC
-		&& AllItemsList[i].itype != ITYPE_GOLD
-#ifdef HELLFIRE
-		&& (gbMaxPlayers == 1 || (AllItemsList[i].iMiscId != IMISC_OILOF && AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
-#else
-		&& AllItemsList[i].itype != ITYPE_STAFF
-		&& (gbMaxPlayers == 1 || (AllItemsList[i].itype != ITYPE_RING && AllItemsList[i].itype != ITYPE_AMULET));
-#endif
-}
-
 static int RndPremiumItem(int minlvl, int maxlvl)
 {
 	int i, ri;
@@ -3809,7 +3649,7 @@ static int RndPremiumItem(int minlvl, int maxlvl)
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i)) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i)) {
 			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl) {
 #ifdef HELLFIRE
 				if (ri == 512)
@@ -3888,19 +3728,16 @@ static BOOL WitchItemOk(int i)
 	BOOL rv;
 
 	rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_MISC || AllItemsList[i].itype == ITYPE_STAFF)
+	if (AllItemsList[i].itype == ITYPE_STAFF
+	 || (AllItemsList[i].itype == ITYPE_MISC
+	  && (AllItemsList[i].iMiscId == IMISC_BOOK
+	   || AllItemsList[i].iMiscId == IMISC_SCROLL
+	   || AllItemsList[i].iMiscId == IMISC_RUNE
+	   || AllItemsList[i].iMiscId == IMISC_REJUV
+	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV)))
 		rv = TRUE;
-	if (AllItemsList[i].iMiscId == IMISC_MANA || AllItemsList[i].iMiscId == IMISC_FULLMANA)
-		rv = FALSE;
+	// TODO: BUGFIX: might not be set yet
 	if (AllItemsList[i].iSpell == SPL_TOWN)
-		rv = FALSE;
-	if (AllItemsList[i].iMiscId == IMISC_FULLHEAL || AllItemsList[i].iMiscId == IMISC_HEAL)
-		rv = FALSE;
-#ifdef HELLFIRE
-	if (AllItemsList[i].iMiscId > IMISC_OILFIRST && AllItemsList[i].iMiscId < IMISC_OILLAST)
-		rv = FALSE;
-#endif
-	if (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER))
 		rv = FALSE;
 
 	return rv;
@@ -3982,7 +3819,7 @@ void SpawnWitch(int lvl)
 			seed = GetRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
-			if (random_(51, 100) <= 5 || item[0]._iMiscId == IMISC_STAFF)
+			if (random_(51, 100) <= 5 || item[0]._itype == ITYPE_STAFF)
 				GetItemBonus(0, lvl, lvl << 1, TRUE, TRUE);
 		} while (item[0]._iIvalue > WITCH_MAX_VALUE);
 		item[0]._iSeed = seed;
@@ -4003,7 +3840,7 @@ static int RndBoyItem(int lvl)
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd != IDROP_NEVER && PremiumItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
+		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
 #ifdef HELLFIRE
 			if (ri == 512)
 				break;
@@ -4040,26 +3877,11 @@ static BOOL HealerItemOk(int i)
 		return FALSE;
 
 	switch (AllItemsList[i].iMiscId) {
-#ifdef HELLFIRE
-	case IMISC_ELIXSTR:
-		return gbMaxPlayers == 1 && plr[myplr]._pBaseStr < MaxStats[plr[myplr]._pClass][ATTRIB_STR];
-	case IMISC_ELIXMAG:
-		return gbMaxPlayers == 1 && plr[myplr]._pBaseMag < MaxStats[plr[myplr]._pClass][ATTRIB_MAG];
-	case IMISC_ELIXDEX:
-		return gbMaxPlayers == 1 && plr[myplr]._pBaseDex < MaxStats[plr[myplr]._pClass][ATTRIB_DEX];
-	case IMISC_ELIXVIT:
-		return gbMaxPlayers == 1 && plr[myplr]._pBaseVit < MaxStats[plr[myplr]._pClass][ATTRIB_VIT];
-#else
-	case IMISC_ELIXSTR:
-	case IMISC_ELIXMAG:
-	case IMISC_ELIXDEX:
-	case IMISC_ELIXVIT:
-		return gbMaxPlayers == 1;
-#endif
 	case IMISC_REJUV:
 	case IMISC_FULLREJUV:
 		return TRUE;
 	case IMISC_SCROLL:
+		// TODO: BUGFIX: might not be set yet
 		return AllItemsList[i].iSpell == SPL_HEAL ||
 			((AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER) && gbMaxPlayers != 1);
 	}
@@ -4151,7 +3973,6 @@ static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_SMITH;
-	item[ii]._iIdentified = TRUE;
 }
 
 static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
@@ -4162,7 +3983,6 @@ static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = plvl | CF_SMITHPREMIUM;
-	item[ii]._iIdentified = TRUE;
 }
 
 static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
@@ -4172,7 +3992,6 @@ static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 	GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_BOY;
-	item[ii]._iIdentified = TRUE;
 }
 
 static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
@@ -4182,13 +4001,12 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 	} else {
 		SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
-		if (random_(51, 100) <= 5 || item[ii]._iMiscId == IMISC_STAFF)
+		if (random_(51, 100) <= 5 || item[ii]._itype == ITYPE_STAFF)
 			GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	}
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_WITCH;
-	item[ii]._iIdentified = TRUE;
 }
 
 static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
@@ -4202,21 +4020,48 @@ static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
 
 	item[ii]._iSeed = iseed;
 	item[ii]._iCreateInfo = lvl | CF_HEALER;
-	item[ii]._iIdentified = TRUE;
 }
 
-void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
+static void RecreateCraftedItem(int ii, int idx, int lvl, int iseed)
 {
-	if (icreateinfo & CF_SMITH)
-		RecreateSmithItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
-	else if (icreateinfo & CF_SMITHPREMIUM)
-		RecreatePremiumItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
-	else if (icreateinfo & CF_BOY)
-		RecreateBoyItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
-	else if (icreateinfo & CF_WITCH)
-		RecreateWitchItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
-	else if (icreateinfo & CF_HEALER)
-		RecreateHealerItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
+	SetRndSeed(iseed);
+	GetItemAttrs(ii, idx, lvl);
+	if (random_(51, 2) != 0)
+		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, TRUE, TRUE);
+
+	item[ii]._iSeed = iseed;
+	item[ii]._iCreateInfo = lvl | CF_CRAFTED;
+}
+
+void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed)
+{
+	int loc, lvl;
+
+	loc = (icreateinfo & CF_TOWN) >> 10;
+	lvl = icreateinfo & CF_LEVEL;
+	switch (loc) {
+	case CFL_SMITH:
+		RecreateSmithItem(ii, idx, lvl, iseed);
+		break;
+	case CFL_SMITHPREMIUM:
+		RecreatePremiumItem(ii, idx, lvl, iseed);
+		break;
+	case CFL_BOY:
+		RecreateBoyItem(ii, idx, lvl, iseed);
+		break;
+	case CFL_WITCH:
+		RecreateWitchItem(ii, idx, lvl, iseed);
+		break;
+	case CFL_HEALER:
+		RecreateHealerItem(ii, idx, lvl, iseed);
+		break;
+	case CFL_CRAFTED:
+		RecreateCraftedItem(ii, idx, lvl, iseed);
+		break;
+	default:
+		ASSUME_UNREACHABLE;
+		break;
+	}
 }
 
 int ItemNoFlippy()
@@ -4296,7 +4141,7 @@ void CreateAmulet(int x, int y)
 
 	ii = itemavail[0];
 	while (TRUE) {
-		idx = RndTypeItems(ITYPE_AMULET, IMISC_AMULET, lvl);
+		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		if (item[ii]._iCurs == ICURS_AMULET)
 			break;
@@ -4312,23 +4157,17 @@ void CreateAmulet(int x, int y)
 
 void CreateMagicWeapon(int itype, int icurs, int x, int y)
 {
-	int ii, idx, lvl, imisc;
+	int ii, idx, lvl;
 
 	if (numitems >= MAXITEMS)
 		return;
-
-	imisc = IMISC_NONE;
-#ifdef HELLFIRE
-	if (itype == ITYPE_STAFF)
-		imisc = IMISC_STAFF;
-#endif
 
 	lvl = items_get_currlevel();
 	lvl <<= 1;
 
 	ii = itemavail[0];
 	while (TRUE) {
-		idx = RndTypeItems(itype, imisc, lvl);
+		idx = RndTypeItems(itype, IMISC_NONE, lvl);
 		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
 		if (item[ii]._iCurs == icurs)
 			break;

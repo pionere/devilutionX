@@ -1111,6 +1111,19 @@ void NetSendCmdBParam1(BOOL bHiPri, BYTE bCmd, BYTE bParam1)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdBParam2(BOOL bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2)
+{
+	TCmdBParam2 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.bParam1 = bParam1;
+	cmd.bParam2 = bParam2;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdQuest(BOOL bHiPri, BYTE q)
 {
 	TCmdQuest cmd;
@@ -1720,6 +1733,17 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 			plr[pnum]._pSplFrom = cmd->bParam2; // invloc
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_DOOIL(TCmd *pCmd, int pnum)
+{
+	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
+
+	if (gbBufferMsgs != 1) {
+		DoOil(pnum, cmd->bParam1, cmd->bParam2);
 	}
 
 	return sizeof(*cmd);
@@ -2465,8 +2489,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 	//	return On_SPELLXYD(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
-	//case CMD_TSPELLXY:
-	//	return On_TSPELLXY(pCmd, pnum);
+	case CMD_DOOIL:
+		return On_DOOIL(pCmd, pnum);
 	case CMD_OPOBJXY:
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:

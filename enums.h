@@ -175,21 +175,23 @@ typedef enum item_cursor_graphic {
 	ICURS_RING_OF_ENGAGEMENT          = 13,
 	ICURS_RING_CONSTRICTING           = 14,
 	ICURS_SPECTRAL_ELIXIR             = 15,
+	ICURS_OIL_OF_CHANCE               = 16,
 	ICURS_GOLDEN_ELIXIR               = 17,
 	ICURS_EMPYREAN_BAND               = 18,
 	ICURS_EAR_SORCEROR                = 19,
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
-	ICURS_OIL                         = 30,
-	ICURS_ELIXIR_OF_VITALITY          = 31,
+	ICURS_OIL_OF_DEXTERITY            = 29,
+	ICURS_OIL_OF_STRENGTH             = 30,
+	ICURS_OIL_OF_CLEANSING            = 31,
 	ICURS_POTION_OF_HEALING           = 32,
 	ICURS_POTION_OF_FULL_REJUVENATION = 33,
-	ICURS_ELIXIR_OF_MAGIC             = 34,
+	ICURS_OIL_OF_VITALITY             = 34,
 	ICURS_POTION_OF_FULL_HEALING      = 35,
-	ICURS_ELIXIR_OF_DEXTERITY         = 36,
+	ICURS_OIL_OF_DAM_ATTR             = 36,
 	ICURS_POTION_OF_REJUVENATION      = 37,
-	ICURS_ELIXIR_OF_STRENGTH          = 38,
+	ICURS_OIL_OF_MAGIC                = 38,
 	ICURS_POTION_OF_MANA              = 39,
 	ICURS_BRAIN                       = 40,
 	ICURS_OPTIC_AMULET                = 44,
@@ -2399,31 +2401,37 @@ typedef enum goodorevil {
  7th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
  8th bit stores uper1 flag - this is loot from normal monsters, which has 1% to become unique
  9th bit stores info if item is unique
- 10th bit stores info if item is a basic one from griswold
- 11th bit stores info if item is a premium one from griswold
- 12th bit stores info if item is from wirt
- 13th bit stores info if item is from adria
- 14th bit stores info if item is from pepin
+ 10-12th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
  15th bit stores pregen flag
 
  combining CF_UPER15 and CF_UPER1 flags (CF_USEFUL) is used to mark potions and town portal scrolls created on the ground
- CF_TOWN is combining all store flags and indicates if item has been bought from a NPC
+ CF_TOWN is combining all source flags and indicates if item has been bought from a NPC or created via crafting
  */
+typedef enum icreateinfo_loc {
+	CFL_DUNGEON,
+	CFL_SMITH,
+	CFL_SMITHPREMIUM,
+	CFL_BOY,
+	CFL_WITCH,
+	CFL_HEALER,
+	CFL_CRAFTED,
+} icreateinfo_loc;
 typedef enum icreateinfo_flag {
 	CF_LEVEL        = (1 << 6) - 1,
 	CF_ONLYGOOD     = 1 << 6,
 	CF_UPER15       = 1 << 7,
 	CF_UPER1        = 1 << 8,
 	CF_UNIQUE       = 1 << 9,
-	CF_SMITH        = 1 << 10,
-	CF_SMITHPREMIUM = 1 << 11,
-	CF_BOY          = 1 << 12,
-	CF_WITCH        = 1 << 13,
-	CF_HEALER       = 1 << 14,
+	CF_SMITH        = CFL_SMITH << 10,
+	CF_SMITHPREMIUM = CFL_SMITHPREMIUM << 10,
+	CF_BOY          = CFL_BOY << 10,
+	CF_WITCH        = CFL_WITCH << 10,
+	CF_HEALER       = CFL_HEALER << 10,
+	CF_CRAFTED      = CFL_CRAFTED << 10,
 	CF_PREGEN       = 1 << 15,
 
 	CF_USEFUL = CF_UPER15 | CF_UPER1,
-	CF_TOWN   = CF_SMITH | CF_SMITHPREMIUM | CF_BOY | CF_WITCH | CF_HEALER,
+	CF_TOWN   = 7 << 10,
 } icreateinfo_flag;
 
 typedef enum dungeon_message {
@@ -2780,7 +2788,7 @@ typedef enum _cmd_id {
 	CMD_ATTACKXY,
 	CMD_RATTACKXY,
 	CMD_SPELLXY,
-	OBSOLETE_CMD3, // CMD_TSPELLXY in vanilla
+	CMD_DOOIL, // CMD_TSPELLXY in vanilla
 	CMD_OPOBJXY,
 	CMD_DISARMXY,
 	CMD_ATTACKID,
@@ -3049,60 +3057,32 @@ typedef enum _object_id {
 } _object_id;
 
 typedef enum item_misc_id {
-	IMISC_NONE      = 0x0,
-	IMISC_USEFIRST  = 0x1,
-	IMISC_FULLHEAL  = 0x2,
-	IMISC_HEAL      = 0x3,
-	IMISC_OLDHEAL   = 0x4,
-	IMISC_DEADHEAL  = 0x5,
-	IMISC_MANA      = 0x6,
-	IMISC_FULLMANA  = 0x7,
-	IMISC_POTEXP    = 0x8, /* add experience */
-	IMISC_POTFORG   = 0x9, /* remove experience */
-	IMISC_ELIXSTR   = 0xA,
-	IMISC_ELIXMAG   = 0xB,
-	IMISC_ELIXDEX   = 0xC,
-	IMISC_ELIXVIT   = 0xD,
-	IMISC_ELIXWEAK  = 0xE, /* double check with alpha */
-	IMISC_ELIXDIS   = 0xF,
-	IMISC_ELIXCLUM  = 0x10,
-	IMISC_ELIXSICK  = 0x11,
-	IMISC_REJUV     = 0x12,
-	IMISC_FULLREJUV = 0x13,
-	IMISC_USELAST   = 0x14,
-	IMISC_SCROLL    = 0x15,
-	//IMISC_SCROLLT   = 0x16,
-	IMISC_STAFF     = 0x17,
-	IMISC_BOOK      = 0x18,
-	IMISC_RING      = 0x19,
-	IMISC_AMULET    = 0x1A,
-	IMISC_UNIQUE    = 0x1B,
-	IMISC_FOOD      = 0x1C, /* from demo/PSX */
-	IMISC_OILFIRST  = 0x1D,
-	IMISC_OILOF     = 0x1E, /* oils are beta or hellfire only */
-	IMISC_OILACC    = 0x1F,
-	IMISC_OILMAST   = 0x20,
-	IMISC_OILSHARP  = 0x21,
-	IMISC_OILDEATH  = 0x22,
-	IMISC_OILSKILL  = 0x23,
-	IMISC_OILBSMTH  = 0x24,
-	IMISC_OILFORT   = 0x25,
-	IMISC_OILPERM   = 0x26,
-	IMISC_OILHARD   = 0x27,
-	IMISC_OILIMP    = 0x28,
-	IMISC_OILLAST   = 0x29,
-	IMISC_MAPOFDOOM = 0x2A,
-	IMISC_EAR       = 0x2B,
-	IMISC_SPECELIX  = 0x2C,
-	IMISC_RUNE      = 0x2E,
-	//IMISC_RUNEF     = 0x2F,
-	//IMISC_RUNEL     = 0x30,
-	//IMISC_GR_RUNEL  = 0x31,
-	//IMISC_GR_RUNEF  = 0x32,
-	//IMISC_RUNES     = 0x33,
-	//IMISC_RUNELAST  = 0x34,
-	//IMISC_AURIC     = 0x35,
-	IMISC_NOTE      = 0x36,
+	IMISC_NONE,
+	IMISC_HEAL,
+	IMISC_FULLHEAL,
+	IMISC_MANA,
+	IMISC_FULLMANA,
+	IMISC_REJUV,
+	IMISC_FULLREJUV,
+	IMISC_SCROLL,
+	IMISC_BOOK,
+	IMISC_UNIQUE,
+	IMISC_EAR,
+	IMISC_SPECELIX,
+	IMISC_OILQLTY,
+	IMISC_OILFIRST  = IMISC_OILQLTY,
+	IMISC_OILZEN,
+	IMISC_OILSTR,
+	IMISC_OILDEX,
+	IMISC_OILVIT,
+	IMISC_OILMAG,
+	IMISC_OILRESIST,
+	IMISC_OILCHANCE,
+	IMISC_OILCLEAN,
+	IMISC_OILLAST = IMISC_OILCLEAN,
+	IMISC_MAPOFDOOM,
+	IMISC_RUNE,
+	IMISC_NOTE,
 	IMISC_INVALID   = -1,
 } item_misc_id;
 
@@ -3185,6 +3165,7 @@ typedef enum _item_indexes {
 	IDI_BOOK1      = 0x72,
 	IDI_BOOK4      = 0x75,
 	IDI_BARBCLUB   = 0x8B,
+	IDI_DROPSHSTAFF= 0x97,
 #ifdef HELLFIRE
 	NUM_IDI        = 0xA7
 #else

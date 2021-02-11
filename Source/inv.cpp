@@ -1938,14 +1938,6 @@ static void InvAddMana()
 	PlrIncHp(myplr, mana);
 }
 
-static void PlrSetTSpell(int spell, int sf, int curs)
-{
-	//if (pnum == myplr)
-		NewCursor(curs);
-	plr[myplr]._pTSpell = spell;
-	plr[myplr]._pSplFrom = sf;
-}
-
 BOOL UseInvItem(int cii)
 {
 	int iv;
@@ -2021,9 +2013,6 @@ BOOL UseInvItem(int cii)
 	// use the item
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
-	case IMISC_FOOD:
-		InvAddHp();
-		break;
 	case IMISC_FULLHEAL:
 		PlrFillHp(pnum);
 		break;
@@ -2032,20 +2021,6 @@ BOOL UseInvItem(int cii)
 		break;
 	case IMISC_FULLMANA:
 		PlrFillMana(pnum);
-		break;
-	case IMISC_ELIXSTR:
-		ModifyPlrStr(pnum, 1);
-		break;
-	case IMISC_ELIXMAG:
-		ModifyPlrMag(pnum, 1);
-		PlrFillMana(pnum);
-		break;
-	case IMISC_ELIXDEX:
-		ModifyPlrDex(pnum, 1);
-		break;
-	case IMISC_ELIXVIT:
-		ModifyPlrVit(pnum, 1);
-		PlrFillHp(pnum);
 		break;
 	case IMISC_REJUV:
 		InvAddHp();
@@ -2060,7 +2035,10 @@ BOOL UseInvItem(int cii)
 	case IMISC_RUNE:
 #endif
 		if (spelldata[is->_iSpell].scCurs != CURSOR_NONE) {
-			PlrSetTSpell(is->_iSpell, cii, spelldata[is->_iSpell].scCurs);
+			//if (pnum == myplr)
+				NewCursor(spelldata[is->_iSpell].scCurs);
+			plr[pnum]._pTSpell = is->_iSpell;
+			plr[pnum]._pSplFrom = cii;
 		} else {
 			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY,
 				cursmx, cursmy, is->_iSpell, cii, GetSpellLevel(pnum, is->_iSpell));
@@ -2078,23 +2056,20 @@ BOOL UseInvItem(int cii)
 	case IMISC_MAPOFDOOM:
 		doom_init();
 		return TRUE;
-#ifdef HELLFIRE
-	case IMISC_OILACC:
-	case IMISC_OILMAST:
-	case IMISC_OILSHARP:
-	case IMISC_OILDEATH:
-	case IMISC_OILSKILL:
-	case IMISC_OILBSMTH:
-	case IMISC_OILFORT:
-	case IMISC_OILPERM:
-	case IMISC_OILHARD:
-	case IMISC_OILIMP:
-		plr[pnum]._pOilType = is->_iMiscId;
+	case IMISC_OILQLTY:
+	case IMISC_OILZEN:
+	case IMISC_OILSTR:
+	case IMISC_OILDEX:
+	case IMISC_OILVIT:
+	case IMISC_OILMAG:
+	case IMISC_OILRESIST:
+	case IMISC_OILCHANCE:
+	case IMISC_OILCLEAN:
+		plr[pnum]._pOilFrom = cii;
 		//if (pnum != myplr)
 		//	return;
 		NewCursor(CURSOR_OIL);
-		break;
-#endif
+		return TRUE;
 	case IMISC_SPECELIX:
 		ModifyPlrStr(pnum, 3);
 		ModifyPlrMag(pnum, 3);

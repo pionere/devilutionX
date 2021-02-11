@@ -319,7 +319,7 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 			cat_cstr(sstr, cursor, "Unique Item");
 		}
 	}
-	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
+	if (is->_iMaxCharges != 0) {
 		if (cursor != 0)
 			cat_cstr(sstr, cursor, ",  ");
 		cat_str(sstr, cursor, "Charges: %i/%i", is->_iCharges, is->_iMaxCharges);

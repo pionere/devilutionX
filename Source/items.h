@@ -62,8 +62,8 @@ void DoRepair(int pnum, int cii);
 void DoRecharge(int pnum, int cii);
 #ifdef HELLFIRE
 void DoWhittle(int pnum, int cii);
-BOOL DoOil(int pnum, int cii);
 #endif
+void DoOil(int pnum, int from, int cii);
 void PrintItemPower(BYTE plidx, const ItemStruct *is);
 void DrawUniqueInfo();
 void DrawInvItemDetails();
@@ -74,7 +74,7 @@ void SpawnWitch(int lvl);
 void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);
 void SpawnStoreGold();
-void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue);
+void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
 void CreateMagicArmor(int imisc, int icurs, int x, int y);

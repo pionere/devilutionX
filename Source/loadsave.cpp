@@ -230,7 +230,8 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pRSpell);
 	CopyChar(tbuff, &p->_pSplFrom);
 	CopyChar(tbuff, &p->_pRSplType);
-	tbuff += 2; // Alignment
+	CopyChar(tbuff, &p->_pOilFrom);
+	tbuff += 1; // Alignment
 	CopyBytes(tbuff, 64, &p->_pSplLvl);
 	CopyInt64(tbuff, &p->_pMemSpells);
 	CopyInt64(tbuff, &p->_pAblSpells);
@@ -357,7 +358,6 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIMMaxDam
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
-	CopyInt(tbuff, &p->_pOilType);
 	CopyChar(tbuff, &p->pTownWarps);
 	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pLvlLoad);
@@ -929,7 +929,8 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pRSpell, tbuff);
 	CopyChar(&p->_pSplFrom, tbuff);
 	CopyChar(&p->_pRSplType, tbuff);
-	tbuff += 2; // Alignment
+	CopyChar(&p->_pOilFrom, tbuff);
+	tbuff += 1; // Alignment
 	CopyBytes(&p->_pSplLvl, 64, tbuff);
 	CopyInt64(&p->_pMemSpells, tbuff);
 	CopyInt64(&p->_pAblSpells, tbuff);
@@ -1057,7 +1058,6 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIMMaxDam
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
-	CopyInt(&p->_pOilType, tbuff);
 	CopyChar(&p->pTownWarps, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pLvlLoad, tbuff);

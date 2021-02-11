@@ -41,6 +41,7 @@ void NetSendCmdParam2(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2);
 void NetSendCmdParam3(BOOL bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD wParam3);
 void NetSendCmdWBParam4(BOOL bHiPri, BYTE bCmd, WORD wParam1, BYTE wParam2, BYTE wParam3, BYTE wParam4);
 void NetSendCmdBParam1(BOOL bHiPri, BYTE bCmd, BYTE bParam1);
+void NetSendCmdBParam2(BOOL bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdQuest(BOOL bHiPri, BYTE q);
 void NetSendCmdGItem(BOOL bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii);
 void NetSendCmdPItem(BOOL bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y);

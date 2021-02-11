@@ -650,12 +650,8 @@ BOOL TryIconCurs(BOOL bShift)
 		}
 		break;
 	case CURSOR_OIL:
-#ifdef HELLFIRE
-		if (pcursinvitem != -1) {
-			if (!DoOil(myplr, pcursinvitem))
-				return TRUE;
-		}
-#endif
+		if (pcursinvitem != -1)
+			NetSendCmdBParam2(TRUE, CMD_DOOIL, plr[myplr]._pOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
 		if (pcursobj != -1)
