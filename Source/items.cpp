@@ -2020,7 +2020,7 @@ void SetupItem(int ii)
 static int RndItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI * 2];
 
 	if (random_(24, 100) > 40)
 		return -1;
@@ -2030,21 +2030,11 @@ static int RndItem(int lvl)
 
 	ri = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER
-		 || lvl < AllItemsList[i].iMinMLvl
-		 || (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER)))
+		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
 			continue;
-#ifdef HELLFIRE
-		if (ri == 512)
-			break;
-#endif
 		ril[ri] = i;
 		ri++;
 		if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
 			ril[ri] = i;
 			ri++;
 		}
@@ -2056,34 +2046,16 @@ static int RndItem(int lvl)
 static int RndUItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
-	BOOL okflag;
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		okflag = TRUE;
-		if (AllItemsList[i].iRnd == IDROP_NEVER)
-			okflag = FALSE;
-		if (lvl < AllItemsList[i].iMinMLvl)
-			okflag = FALSE;
-		if (AllItemsList[i].itype == ITYPE_MISC)
-			okflag = FALSE;
-		if (AllItemsList[i].itype == ITYPE_GOLD)
-			okflag = FALSE;
-		if (AllItemsList[i].iMiscId == IMISC_BOOK)
-			okflag = TRUE;
-		if (AllItemsList[i].iSpell == SPL_RESURRECT && gbMaxPlayers == 1)
-			okflag = FALSE;
-		if (AllItemsList[i].iSpell == SPL_HEALOTHER && gbMaxPlayers == 1)
-			okflag = FALSE;
-		if (okflag) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
-			ril[ri] = i;
-			ri++;
-		}
+		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
+		 || AllItemsList[i].itype == ITYPE_GOLD
+		 || (AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK))
+			continue;
+		ril[ri] = i;
+		ri++;
 	}
 
 	return ril[random_(25, ri)];
@@ -2092,21 +2064,15 @@ static int RndUItem(int lvl)
 static int RndAllItems(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	if (random_(26, 100) > 25)
 		return IDI_GOLD;
 
 	ri = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER
-		 || lvl < AllItemsList[i].iMinMLvl
-		 || (gbMaxPlayers == 1 && (AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER)))
+		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl)
 			continue;
-#ifdef HELLFIRE
-		if (ri == 512)
-			break;
-#endif
 		ril[ri] = i;
 		ri++;
 	}
@@ -2117,19 +2083,14 @@ static int RndAllItems(int lvl)
 static int RndTypeItems(int itype, int imid, int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		if (AllItemsList[i].iRnd == IDROP_NEVER
-		 || lvl < AllItemsList[i].iMinMLvl
+		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
 		 || AllItemsList[i].itype != itype
 		 || (imid != -1 && AllItemsList[i].iMiscId != imid))
 			continue;
-#ifdef HELLFIRE
-		if (ri == 512)
-			break;
-#endif
 		ril[ri] = i;
 		ri++;
 	}
@@ -2139,23 +2100,24 @@ static int RndTypeItems(int itype, int imid, int lvl)
 
 static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 {
-	int i, idata, ui;
-	BOOLEAN uok[NUM_UITEM];
+	int i, ui;
+	BYTE uok[NUM_UITEM];
 	BOOL uniq;
 	char uid;
 
 	if (random_(28, 100) > uper)
 		return -1;
 
+	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
+
 	uid = AllItemsList[item[ii]._iIdx].iItemId;
 	uniq = !recreate && gbMaxPlayers == 1;
 	ui = 0;
-	memset(uok, 0, sizeof(uok));
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIItemId == uid
 		 && lvl >= UniqueItemList[i].UIMinLvl
 		 && (!uniq || !UniqueItemFlag[i])) {
-			uok[i] = TRUE;
+			uok[ui] = i;
 			ui++;
 		}
 	}
@@ -2163,19 +2125,7 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	if (ui == 0)
 		return -1;
 
-	random_(29, 10); /// BUGFIX: unused, last unique in array always gets chosen
-	idata = 0;
-	while (TRUE) {
-		if (uok[idata]) {
-			ui--;
-			if (ui == 0)
-				break;
-		}
-		if (++idata == NUM_UITEM)
-			idata = 0;
-	}
-
-	return idata;
+	return uok[random_(29, ui)];
 }
 
 static void GetUniqueItem(int ii, int uid)
@@ -3564,22 +3514,14 @@ static BOOL SmithItemOk(int i)
 static int RndSmithItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI * 2];
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
 			ril[ri] = i;
 			ri++;
 			if (AllItemsList[i].iRnd == IDROP_DOUBLE) {
-#ifdef HELLFIRE
-				if (ri == 512)
-					break;
-#endif
 				ril[ri] = i;
 				ri++;
 			}
@@ -3645,16 +3587,12 @@ void SpawnSmith(int lvl)
 static int RndPremiumItem(int minlvl, int maxlvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i)) {
 			if (AllItemsList[i].iMinMLvl >= minlvl && AllItemsList[i].iMinMLvl <= maxlvl) {
-#ifdef HELLFIRE
-				if (ri == 512)
-					break;
-#endif
 				ril[ri] = i;
 				ri++;
 			}
@@ -3725,36 +3663,23 @@ void SpawnPremium(int lvl)
 
 static BOOL WitchItemOk(int i)
 {
-	BOOL rv;
-
-	rv = FALSE;
-	if (AllItemsList[i].itype == ITYPE_STAFF
+	return AllItemsList[i].itype == ITYPE_STAFF
 	 || (AllItemsList[i].itype == ITYPE_MISC
 	  && (AllItemsList[i].iMiscId == IMISC_BOOK
 	   || AllItemsList[i].iMiscId == IMISC_SCROLL
 	   || AllItemsList[i].iMiscId == IMISC_RUNE
 	   || AllItemsList[i].iMiscId == IMISC_REJUV
-	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV)))
-		rv = TRUE;
-	// TODO: BUGFIX: might not be set yet
-	if (AllItemsList[i].iSpell == SPL_TOWN)
-		rv = FALSE;
-
-	return rv;
+	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV));
 }
 
 static int RndWitchItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && WitchItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
 			ril[ri] = i;
 			ri++;
 		}
@@ -3836,15 +3761,11 @@ void SpawnWitch(int lvl)
 static int RndBoyItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && SmithItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
 			ril[ri] = i;
 			ri++;
 		}
@@ -3873,33 +3794,19 @@ void SpawnBoy(int lvl)
 
 static BOOL HealerItemOk(int i)
 {
-	if (AllItemsList[i].itype != ITYPE_MISC)
-		return FALSE;
-
-	switch (AllItemsList[i].iMiscId) {
-	case IMISC_REJUV:
-	case IMISC_FULLREJUV:
-		return TRUE;
-	case IMISC_SCROLL:
-		// TODO: BUGFIX: might not be set yet
-		return AllItemsList[i].iSpell == SPL_HEAL ||
-			((AllItemsList[i].iSpell == SPL_RESURRECT || AllItemsList[i].iSpell == SPL_HEALOTHER) && gbMaxPlayers != 1);
-	}
-	return FALSE;
+	return AllItemsList[i].iMiscId == IMISC_REJUV
+		|| AllItemsList[i].iMiscId == IMISC_FULLREJUV
+		|| AllItemsList[i].iMiscId == IMISC_SCROLL;
 }
 
 static int RndHealerItem(int lvl)
 {
 	int i, ri;
-	int ril[512];
+	int ril[NUM_IDI];
 
 	ri = 0;
 	for (i = 1; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd != IDROP_NEVER && HealerItemOk(i) && lvl >= AllItemsList[i].iMinMLvl) {
-#ifdef HELLFIRE
-			if (ri == 512)
-				break;
-#endif
 			ril[ri] = i;
 			ri++;
 		}
@@ -3947,9 +3854,12 @@ void SpawnHealer(int lvl)
 	}
 	iCnt = RandRange(10, HEALER_ITEMS - 1);
 	for (i = srnd; i < iCnt; i++) {
-		seed = GetRndSeed();
-		SetRndSeed(seed);
-		GetItemAttrs(0, RndHealerItem(lvl), lvl);
+		do {
+			seed = GetRndSeed();
+			SetRndSeed(seed);
+			GetItemAttrs(0, RndHealerItem(lvl), lvl);
+		} while (item[0]._iSpell != SPL_NULL && item[0]._iSpell != SPL_HEAL
+			&& (item[0]._iSpell != SPL_HEALOTHER || gbMaxPlayers == 1));
 		item[0]._iSeed = seed;
 		item[0]._iCreateInfo = lvl | CF_HEALER;
 		copy_pod(healitem[i], item[0]);
