@@ -1235,13 +1235,15 @@ static void L1ClearFlags()
 		*pTmp &= 0xBF;
 }
 
-static void L1drawRoom(int x, int y, int w, int h)
+static void L1drawRoom(int x, int y, int width, int height)
 {
-	int i, j;
+	int i, j, x2, y2;
 
-	for (j = 0; j < h; j++) {
-		for (i = 0; i < w; i++) {
-			dungeon[x + i][y + j] = 1;
+	x2 = x + width;
+	y2 = y + height;
+	for (j = y; j < y2; j++) {
+		for (i = x; i < x2; i++) {
+			dungeon[i][j] = 1;
 		}
 	}
 }
@@ -1277,11 +1279,11 @@ static void L1roomGen(int x, int y, int w, int h, int dir)
 
 	if (dir == 1 ? dirProb == 0 : dirProb != 0) {
 		for (i = 20; i != 0; i--) {
-			width = RandRange(2, 6) & 0xFFFFFFFE;
-			height = RandRange(2, 6) & 0xFFFFFFFE;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
-			if (L1checkRoom(rx - 1, ry - 1, height + 2, width + 1)) /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1")
+			if (L1checkRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
 				break;
 		}
 
@@ -1297,8 +1299,8 @@ static void L1roomGen(int x, int y, int w, int h, int dir)
 			L1roomGen(rxy2, ry, width, height, 1);
 	} else {
 		for (i = 20; i != 0; i--) {
-			width = RandRange(2, 6) & 0xFFFFFFFE;
-			height = RandRange(2, 6) & 0xFFFFFFFE;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
 			rx = w / 2 + x - width / 2;
 			ry = y - height;
 			if (L1checkRoom(rx - 1, ry - 1, width + 2, height + 1))
