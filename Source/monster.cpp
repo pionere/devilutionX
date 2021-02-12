@@ -719,25 +719,17 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	PlaceMonster(nummonsters, uniqtype, xp, yp);
 	mon = &monster[nummonsters];
 	mon->_uniqtype = uniqindex + 1;
+#ifdef HELLFIRE
+	if (uniqindex != UMT_HORKDMN)
+#endif
+		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
-	if (uniqm->mlevel) {
-		mon->mLevel = 2 * uniqm->mlevel;
-	} else {
-		mon->mLevel += 5;
-	}
+	mon->mLevel = 2 * uniqm->mlevel;
 
 	mon->mExp *= 2;
 	mon->mName = uniqm->mName;
 	mon->_mmaxhp = uniqm->mmaxhp << 6;
 
-	if (gbMaxPlayers == 1) {
-		mon->_mmaxhp = mon->_mmaxhp >> 1;
-		if (mon->_mmaxhp < 64) {
-			mon->_mmaxhp = 64;
-		}
-	}
-
-	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mAi = uniqm->mAi;
 	mon->_mint = uniqm->mint;
 	mon->mMinDamage = uniqm->mMinDamage;
@@ -746,43 +738,10 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
-#ifdef HELLFIRE
-	if (uniqindex != UMT_HORKDMN)
-#endif
-		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
-
 	if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZHELP)
 		mon->mtalkmsg = 0;
 	else if (mon->mtalkmsg != 0)
 		mon->_mgoal = MGOAL_INQUIRING;
-
-	if (gnDifficulty == DIFF_NIGHTMARE) {
-#ifdef HELLFIRE
-		mon->_mmaxhp = 3 * mon->_mmaxhp + ((gbMaxPlayers != 1 ? 100 : 50) << 6);
-#else
-		mon->_mmaxhp = 3 * mon->_mmaxhp + 64;
-#endif
-		mon->mLevel += 15;
-		mon->_mhitpoints = mon->_mmaxhp;
-		mon->mExp = 2 * (mon->mExp + 1000);
-		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
-		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
-		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
-		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
-	} else if (gnDifficulty == DIFF_HELL) {
-#ifdef HELLFIRE
-		mon->_mmaxhp = 4 * mon->_mmaxhp + ((gbMaxPlayers != 1 ? 200 : 100) << 6);
-#else
-		mon->_mmaxhp = 4 * mon->_mmaxhp + 192;
-#endif
-		mon->mLevel += 30;
-		mon->_mhitpoints = mon->_mmaxhp;
-		mon->mExp = 4 * (mon->mExp + 1000);
-		mon->mMinDamage = 4 * mon->mMinDamage + 6;
-		mon->mMaxDamage = 4 * mon->mMaxDamage + 6;
-		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
-		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
-	}
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, &pLightTbl[256 * (uniquetrans + 19)]);
@@ -810,6 +769,29 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 			mon->mArmorClass += HELL_AC_BONUS;
 		}
 	}
+
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		mon->_mmaxhp = 3 * mon->_mmaxhp + (100 << 6);
+		mon->mLevel += 15;
+		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
+		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
+		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
+		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
+	} else if (gnDifficulty == DIFF_HELL) {
+		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
+		mon->mLevel += 30;
+		mon->mMinDamage = 4 * mon->mMinDamage + 6;
+		mon->mMaxDamage = 4 * mon->mMaxDamage + 6;
+		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
+		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
+	}
+	if (gbMaxPlayers == 1) {
+		mon->_mmaxhp = mon->_mmaxhp >> 1;
+		if (mon->_mmaxhp < 64) {
+			mon->_mmaxhp = 64;
+		}
+	}
+	mon->_mhitpoints = mon->_mmaxhp;
 
 	nummonsters++;
 
