@@ -711,25 +711,20 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 #ifdef HELLFIRE
 	if (p->_pClass == PC_MONK) {
-		if ((wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag)
-		|| (wRight->_itype == ITYPE_STAFF && wRight->_iStatFlag)) {
+		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
 			p->_pBlockFlag = TRUE;
 			p->_pIFlags |= ISPL_FASTBLOCK;
 			p->_pIFlags2 |= ISPH_SWIPE;
-		} else if ((wLeft->_itype == ITYPE_NONE && wRight->_itype == ITYPE_NONE)
-			|| (wLeft->_iClass == ICLASS_WEAPON && wLeft->_iLoc != ILOC_TWOHAND && wRight->_itype == ITYPE_NONE)
-			|| (wRight->_iClass == ICLASS_WEAPON && wRight->_iLoc != ILOC_TWOHAND && wLeft->_itype == ITYPE_NONE))
+		} else if (wRight->_itype == ITYPE_NONE
+		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
 			p->_pBlockFlag = TRUE;
 	} else 
 	if ((p->_pClass == PC_BARD
 		 && wLeft->_itype == ITYPE_SWORD && wRight->_itype == ITYPE_SWORD)
 	 || (p->_pClass == PC_BARBARIAN
 		 && (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE
-			|| (((wLeft->_itype == ITYPE_MACE && wLeft->_iLoc == ILOC_TWOHAND)
-			  || (wRight->_itype == ITYPE_MACE && wRight->_iLoc == ILOC_TWOHAND)
-			  || (wLeft->_itype == ITYPE_SWORD && wLeft->_iLoc == ILOC_TWOHAND)
-			  || (wRight->_itype == ITYPE_SWORD && wRight->_iLoc == ILOC_TWOHAND))
-			 && !(wLeft->_itype == ITYPE_SHIELD || wRight->_itype == ITYPE_SHIELD))))) {
+		 || ((wLeft->_itype == ITYPE_MACE || wLeft->_itype == ITYPE_SWORD) && wLeft->_iLoc == ILOC_TWOHAND)
+			 ))) {
 		p->_pIFlags2 |= ISPH_SWIPE;
 	}
 #endif
@@ -737,16 +732,16 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	g = ANIM_ID_UNARMED;
 
-	if (wLeft->_itype != ITYPE_NONE
-	    && wLeft->_iClass == ICLASS_WEAPON
-	    && wLeft->_iStatFlag) {
-		g = wLeft->_itype;
-	}
-
 	if (wRight->_itype != ITYPE_NONE
 	    && wRight->_iClass == ICLASS_WEAPON
 	    && wRight->_iStatFlag) {
 		g = wRight->_itype;
+	}
+
+	if (wLeft->_itype != ITYPE_NONE
+	    && wLeft->_iClass == ICLASS_WEAPON
+	    && wLeft->_iStatFlag) {
+		g = wLeft->_itype;
 	}
 
 	switch (g) {
@@ -768,8 +763,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		break;
 	}
 
-	if ((wLeft->_itype == ITYPE_SHIELD && wLeft->_iStatFlag)
-	 || (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag)) {
+	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
 		p->_pBlockFlag = TRUE;
 		g++;
 	}
@@ -832,7 +826,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #ifdef HELLFIRE
 	} else if (p->_pClass == PC_MONK) {
 		if (wLeft->_itype != ITYPE_STAFF) {
-			if (wRight->_itype != ITYPE_STAFF && (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE)) {
+			if (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
 				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 300;
 			} else {
 				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
@@ -843,7 +837,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	} else if (p->_pClass == PC_BARD) {
 		if (wLeft->_itype == ITYPE_SWORD || wRight->_itype == ITYPE_SWORD)
 			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-		else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
+		else if (wLeft->_itype == ITYPE_BOW) {
 			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 250;
 		} else {
 			pdmod = p->_pLevel * p->_pStrength / 100;
@@ -853,18 +847,15 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 			pdmod = p->_pLevel * p->_pStrength / 75;
 		} else if (wLeft->_itype == ITYPE_MACE || wRight->_itype == ITYPE_MACE) {
 			pdmod = p->_pLevel * p->_pStrength / 75;
-		} else if (wLeft->_itype == ITYPE_BOW || wRight->_itype == ITYPE_BOW) {
+		} else if (wLeft->_itype == ITYPE_BOW) {
 			pdmod = p->_pLevel * p->_pStrength / 300;
 		} else {
 			pdmod = p->_pLevel * p->_pStrength / 100;
 		}
 
-		if (wLeft->_itype == ITYPE_SHIELD || wRight->_itype == ITYPE_SHIELD) {
-			if (wLeft->_itype == ITYPE_SHIELD)
-				tac -= wLeft->_iAC / 2;
-			else if (wRight->_itype == ITYPE_SHIELD)
-				tac -= wRight->_iAC / 2;
-		} else if (wLeft->_itype != ITYPE_STAFF && wRight->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW && wRight->_itype != ITYPE_BOW) {
+		if (wRight->_itype == ITYPE_SHIELD) {
+			tac -= wRight->_iAC / 2;
+		} else if (wLeft->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW) {
 			pdmod += p->_pLevel * p->_pVitality / 100;
 		}
 		tac += p->_pLevel / 4;

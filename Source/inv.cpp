@@ -952,72 +952,52 @@ static void CheckInvPaste()
 	case ILOC_ONEHAND:
 		is = &p->InvBody[INVLOC_HAND_LEFT];
 		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
-		if (r <= SLOTXY_HAND_LEFT_LAST) {
+		if (holditem->_iClass == ICLASS_WEAPON) {
+			// place a weapon
 			if (is->_itype == ITYPE_NONE) {
-				if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass
-#ifdef HELLFIRE
-				 || (p->_pClass == PC_BARD && wRight->_iClass == ICLASS_WEAPON)
-#endif
-				) {
+				// always place the weapon in the left hand if possible
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
+				copy_pod(*is, *holditem);
+			} else {
+				if (r <= SLOTXY_HAND_LEFT_LAST) {
+					// in the left hand - replace the current item
 					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
-					copy_pod(*is, *holditem);
+					cn = SwapItem(is, holditem);
 				} else {
-					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-					cn = SwapItem(wRight, holditem);
+					// in the right hand
+					if (/*is->_itype != ITYPE_NONE &&*/ is->_iLoc == ILOC_TWOHAND) {
+						// replace two-handed weapons and place the weapon in the left hand
+						NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
+						cn = SwapItem(is, holditem);
+					} else if (wRight->_itype != ITYPE_NONE) {
+						// replace item in the right hand
+						NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+						cn = SwapItem(wRight, holditem);
+					} else {
+						// place weapon in the right hand
+						NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+						copy_pod(*wRight, *holditem);
+					}
 				}
-				break;
 			}
-			if (wRight->_itype == ITYPE_NONE || wRight->_iClass != holditem->_iClass
-#ifdef HELLFIRE
-			 || (p->_pClass == PC_BARD && wRight->_iClass == ICLASS_WEAPON)
-#endif
-			) {
-				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
-				cn = SwapItem(is, holditem);
-				break;
+		} else {
+			// place a shield
+			if (wRight->_itype != ITYPE_NONE) {
+				// replace if there was something
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+				cn = SwapItem(wRight, holditem);
+			} else if (is->_itype != ITYPE_NONE && is->_iLoc == ILOC_TWOHAND) {
+				// pick two-handed weapons and place the shield in the right hand
+				NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+				SwapItem(wRight, is);
+				cn = SwapItem(wRight, holditem);
+			} else {
+				// place the shield in the right hand
+				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
+				copy_pod(*wRight, *holditem);
 			}
-
-			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-			cn = SwapItem(wRight, holditem);
-			break;
 		}
-		if (wRight->_itype == ITYPE_NONE) {
-			if (is->_itype == ITYPE_NONE || is->_iLoc != ILOC_TWOHAND
-#ifdef HELLFIRE
-			 || (p->_pClass == PC_BARBARIAN && (is->_itype == ITYPE_SWORD || is->_itype == ITYPE_MACE))
-#endif
-			) {
-				if (is->_itype == ITYPE_NONE || is->_iClass != holditem->_iClass
-#ifdef HELLFIRE
-				 || (p->_pClass == PC_BARD && is->_iClass == ICLASS_WEAPON)
-#endif
-				) {
-					NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-					copy_pod(*wRight, *holditem);
-					break;
-				}
-				NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
-				cn = SwapItem(is, holditem);
-				break;
-			}
-			NetSendCmdDelItem(FALSE, INVLOC_HAND_LEFT);
-			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-			SwapItem(wRight, is);
-			cn = SwapItem(wRight, holditem);
-			break;
-		}
-
-		if (is->_itype != ITYPE_NONE && is->_iClass == holditem->_iClass
-#ifdef HELLFIRE
-		 && (p->_pClass != PC_BARD || is->_iClass != ICLASS_WEAPON)
-#endif
-		) {
-			NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_LEFT);
-			cn = SwapItem(is, holditem);
-			break;
-		}
-		NetSendCmdChItem(FALSE, holditem, INVLOC_HAND_RIGHT);
-		cn = SwapItem(wRight, holditem);
 		break;
 	case ILOC_TWOHAND:
 		is = &p->InvBody[INVLOC_HAND_LEFT];
