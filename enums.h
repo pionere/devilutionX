@@ -3161,15 +3161,14 @@ typedef enum _item_indexes {
 	IDI_FULLMANA   = 0x50,
 	IDI_REJUV      = 0x51,
 	IDI_FULLREJUV  = 0x52,
-	// hellfire only
 	IDI_BOOK1      = 0x72,
 	IDI_BOOK4      = 0x75,
-	IDI_BARBCLUB   = 0x8B,
+	IDI_BARBCLUB   = 0x8B, // hellfire only
 	IDI_DROPSHSTAFF= 0x97,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA7
+	NUM_IDI        = 0xA6
 #else
-	NUM_IDI        = 0x9C
+	NUM_IDI        = 0xA1
 #endif
 } _item_indexes;
 
