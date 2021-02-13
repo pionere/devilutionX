@@ -1540,6 +1540,7 @@ static void AddPedistal(int oi)
 	os->_oVar2 = setpc_y;
 	os->_oVar3 = setpc_x + setpc_w;
 	os->_oVar4 = setpc_y + setpc_h;
+	os->_oVar6 = 0;
 }
 
 static void AddStoryBook(int oi)
@@ -2973,6 +2974,9 @@ static void OperateBookLever(int pnum, int oi)
 	ObjectStruct *os;
 	int tren;
 
+	if (numitems >= MAXITEMS) {
+		return;
+	}
 	os = &object[oi];
 	if (os->_oSelFlag != 0 && !qtextflag) {
 		if (os->_otype == OBJ_BLINDBOOK && quests[Q_BLIND]._qvar1 == 0) {
@@ -2984,8 +2988,6 @@ static void OperateBookLever(int pnum, int oi)
 			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
 			quests[Q_BLOOD]._qlog = TRUE;
 			quests[Q_BLOOD]._qvar1 = 1;
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10);
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17);
 		}
 		if (os->_otype == OBJ_STEELTOME && quests[Q_WARLORD]._qvar1 == 0) {
@@ -3099,6 +3101,9 @@ static void OperateMushPatch(int pnum, int oi)
 {
 	ObjectStruct *os;
 
+	if (numitems >= MAXITEMS) {
+		return;
+	}
 	if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 < QS_TOMEGIVEN) {
 		if (!deltaload && pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_13][plr[myplr]._pClass]);
@@ -3121,6 +3126,9 @@ static void OperateInnSignChest(int pnum, int oi)
 {
 	ObjectStruct *os;
 
+	if (numitems >= MAXITEMS) {
+		return;
+	}
 	if (quests[Q_LTBANNER]._qvar1 != 2) {
 		if (!deltaload && pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[myplr]._pClass]);
@@ -3234,22 +3242,26 @@ static void OperatePedistal(int pnum, int oi)
 	BYTE *mem;
 	int iv;
 
+	if (numitems >= MAXITEMS) {
+		return;
+	}
 	os = &object[oi];
-	if (os->_oVar6 != 3) {
-		if (PlrHasItem(pnum, IDI_BLDSTONE, &iv)) {
-			RemoveInvItem(pnum, iv);
-			os->_oAnimFrame++;
-			os->_oVar6++;
-		}
+	if (os->_oVar6 != 3 && PlrHasItem(pnum, IDI_BLDSTONE, &iv)) {
+		RemoveInvItem(pnum, iv);
+		os->_oAnimFrame++;
+		os->_oVar6++;
+
 		if (os->_oVar6 == 1) {
 			if (!deltaload)
 				PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10);
 		}
 		if (os->_oVar6 == 2) {
 			if (!deltaload)
 				PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10);
 		}
 		if (os->_oVar6 == 3) {
 			if (!deltaload)
@@ -4245,6 +4257,9 @@ static void OperateLazStand(int pnum, int oi)
 {
 	ObjectStruct *os = &object[oi];
 
+	if (numitems >= MAXITEMS) {
+		return;
+	}
 	if (os->_oSelFlag != 0 && !deltaload && !qtextflag && pnum == myplr) {
 		os->_oAnimFrame++;
 		os->_oSelFlag = 0;

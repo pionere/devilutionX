@@ -826,10 +826,6 @@ void NextPlrLevel(int pnum)
 	p = &plr[pnum];
 	p->_pLevel++;
 
-#ifdef HELLFIRE
-	CalcPlrInv(pnum, TRUE);
-#endif
-
 	if (CalcStatDiff(pnum) < 5) {
 		p->_pStatPts = CalcStatDiff(pnum);
 	} else {
@@ -858,6 +854,8 @@ void NextPlrLevel(int pnum)
 
 	PlrFillHp(pnum);
 	PlrFillMana(pnum);
+
+	CalcPlrInv(pnum, TRUE);
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
