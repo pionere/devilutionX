@@ -619,23 +619,23 @@ static BOOL SmithRepairOk(const ItemStruct *is)
 
 static void AddStoreHoldRepair(const ItemStruct *is, int i)
 {
-	ItemStruct *holditem;
-	int v;
+	ItemStruct *itm;
+	int due, v;
 
-	holditem = &storehold[storenumh];
-	copy_pod(*holditem, *is);
-	if (holditem->_iMagical != ITEM_QUALITY_NORMAL && holditem->_iIdentified)
-		holditem->_ivalue = 30 * holditem->_iIvalue / 100;
-	v = holditem->_ivalue * (100 * (holditem->_iMaxDur - holditem->_iDurability) / holditem->_iMaxDur) / 100;
-	if (v == 0) {
-		if (holditem->_iMagical != ITEM_QUALITY_NORMAL && holditem->_iIdentified)
+	itm = &storehold[storenumh];
+	copy_pod(*itm, *is);
+
+	due = itm->_iMaxDur - itm->_iDurability;
+	if (itm->_iMagical != ITEM_QUALITY_NORMAL && itm->_iIdentified) {
+		v = 30 * itm->_iIvalue * due / (itm->_iMaxDur * 100 * 2);
+		if (v == 0)
 			return;
-		v = 1;
+	} else {
+		v = itm->_ivalue * due / (itm->_iMaxDur * 2);
+		v = std::max(v, 1);
 	}
-	if (v > 1)
-		v >>= 1;
-	holditem->_iIvalue = v;
-	holditem->_ivalue = v;
+	itm->_iIvalue = v;
+	itm->_ivalue = v;
 	storehidx[storenumh] = i;
 	storenumh++;
 }
@@ -789,13 +789,13 @@ static BOOL WitchRechargeOk(const ItemStruct *is)
 
 static void AddStoreHoldRecharge(const ItemStruct *is, int i)
 {
-	ItemStruct *holditem;
+	ItemStruct *itm;
 
-	holditem = &storehold[storenumh];
-	copy_pod(*holditem, *is);
-	holditem->_ivalue += spelldata[holditem->_iSpell].sStaffCost;
-	holditem->_ivalue = holditem->_ivalue * (100 * (holditem->_iMaxCharges - holditem->_iCharges) / holditem->_iMaxCharges) / 100 >> 1;
-	holditem->_iIvalue = holditem->_ivalue;
+	itm = &storehold[storenumh];
+	copy_pod(*itm, *is);
+	itm->_ivalue += spelldata[itm->_iSpell].sStaffCost;
+	itm->_ivalue = itm->_ivalue * (itm->_iMaxCharges - itm->_iCharges) / (itm->_iMaxCharges * 2);
+	itm->_iIvalue = itm->_ivalue;
 	storehidx[storenumh] = i;
 	storenumh++;
 }
