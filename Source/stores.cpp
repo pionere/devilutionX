@@ -620,20 +620,16 @@ static BOOL SmithRepairOk(const ItemStruct *is)
 static void AddStoreHoldRepair(const ItemStruct *is, int i)
 {
 	ItemStruct *itm;
-	int due, v;
+	int v;
 
 	itm = &storehold[storenumh];
 	copy_pod(*itm, *is);
 
-	due = itm->_iMaxDur - itm->_iDurability;
-	if (itm->_iMagical != ITEM_QUALITY_NORMAL && itm->_iIdentified) {
-		v = 30 * itm->_iIvalue * due / (itm->_iMaxDur * 100 * 2);
-		if (v == 0)
-			return;
-	} else {
-		v = itm->_ivalue * due / (itm->_iMaxDur * 2);
-		v = std::max(v, 1);
-	}
+	v = std::max(itm->_ivalue, itm->_iIvalue / 3);
+	v = v * (itm->_iMaxDur - itm->_iDurability) / (itm->_iMaxDur * 2);
+	if (v == 0)
+		v = 1;
+
 	itm->_iIvalue = v;
 	itm->_ivalue = v;
 	storehidx[storenumh] = i;
