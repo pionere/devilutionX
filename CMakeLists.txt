@@ -344,7 +344,7 @@ if(RUN_TESTS)
     SourceT/file_util_test.cpp
     SourceT/player_test.cpp
     SourceT/lighting_test.cpp
-    SourceT/scrollrt_test.cpp,
+    SourceT/scrollrt_test.cpp
     SourceT/stores_test.cpp)
 endif()
 
