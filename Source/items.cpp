@@ -2311,39 +2311,23 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 
 	SetRndSeed(iseed);
 
-#ifdef HELLFIRE
-	idx = random_(34, 7);
+	idx = random_(34, lvl > 1 ? 5 : 4);
 	switch (idx) {
 	case 0:
-		idx = lvl <= 1 ? IDI_HEAL : IDI_PORTAL;
-		break;
 	case 1:
-	case 2:
 		idx = IDI_HEAL;
 		break;
+	case 2:
 	case 3:
-		idx = lvl <= 1 ? IDI_MANA : IDI_PORTAL;
-		break;
-	case 4:
-	case 5:
 		idx = IDI_MANA;
 		break;
-	case 6:
-		idx = IDI_OIL;
+	case 4:
+		idx = IDI_PORTAL;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-#else
-	if (random_(34, 2) != 0)
-		idx = IDI_HEAL;
-	else
-		idx = IDI_MANA;
-
-	if (lvl > 1 && random_(34, 3) == 0)
-		idx = IDI_PORTAL;
-#endif
 
 	SetItemData(ii, idx);
 	SetupItem(ii);
