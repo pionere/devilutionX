@@ -709,6 +709,7 @@ void CreatePlayer(int pnum, char c)
 		p->_pMagResist = 1;
 		p->_pFireResist = 1;
 		p->_pLghtResist = 1;
+		p->_pAcidResist = 1;
 	}
 #endif
 	p->_pLightRad = 10;
