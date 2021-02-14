@@ -3136,20 +3136,29 @@ static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 		os->_oSelFlag = 0;
 		if (!deltaload) {
 			pc = plr[pnum]._pClass;
-			if (pc == PC_WARRIOR) {
+			switch (pc) {
+			case PC_WARRIOR:
 				CreateMagicArmor(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy);
-			} else if (pc == PC_ROGUE) {
+				break;
+			case PC_ROGUE:
 				CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy);
-			} else if (pc == PC_SORCERER) {
+				break;
+			case PC_SORCERER:
 				CreateSpellBook(SPL_LIGHTNING, os->_ox, os->_oy);
+				break;
 #ifdef HELLFIRE
-			} else if (pc == PC_MONK) {
+			case PC_MONK:
 				CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy);
-			} else if (pc == PC_BARD) {
+				break;
+			case PC_BARD:
 				CreateMagicWeapon(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy);
-			} else if (pc == PC_BARBARIAN) {
+				break;
+			case PC_BARBARIAN:
 				CreateMagicWeapon(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy);
+				break;
 #endif
+			default:
+				ASSUME_UNREACHABLE
 			}
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 			if (pnum == myplr)
