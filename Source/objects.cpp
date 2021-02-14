@@ -25,117 +25,99 @@ const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 const int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 /** Maps from shrine_id to shrine name. */
 const char *const shrinestrs[NUM_SHRINETYPE] = {
-	"Mysterious",
 	"Hidden",
 	"Gloomy",
 	"Weird",
+	"Religious",
 	"Magical",
 	"Stone",
-	"Religious",
+	"Creepy",
 	"Enchanted",
 	"Thaumaturgic",
 	"Fascinating",
+	"Shimmering",
 	"Cryptic",
-	"Magical",
 	"Eldritch",
 	"Eerie",
+	"Spooky",
+	"Quiet",
 	"Divine",
 	"Holy",
 	"Sacred",
-	"Spiritual",
-	"Spooky",
-	"Abandoned",
-	"Creepy",
-	"Quiet",
-	"Secluded",
 	"Ornate",
+	"Spiritual",
+	"Secluded",
 	"Glimmering",
 	"Tainted",
+	"Glistening",
 #ifdef HELLFIRE
-	"Oily",
-	"Glowing",
-	"Mendicant's",
 	"Sparkling",
-	"Town",
-	"Shimmering",
 	"Solar",
 	"Murphy's",
 #endif
 };
 /** Specifies the minimum dungeon level on which each shrine will appear. */
 const char shrinemin[NUM_SHRINETYPE] = {
-	1, // Mysterious
 	1, // Hidden
 	1, // Gloomy
 	1, // Weird
+	1, // Religious
 	1, // Magical
 	1, // Stone
-	1, // Religious
+	1, // Creepy
 	1, // Enchanted
 	1, // Thaumaturgic
 	1, // Fascinating
+	1, // Shimmering
 	1, // Cryptic
-	1, // Magical
 	1, // Eldritch
 	1, // Eerie
+	1, // Spooky
+	1, // Quiet
 	1, // Divine
 	1, // Holy
 	1, // Sacred
-	1, // Spiritual
-	1, // Spooky
-	1, // Abandoned
-	1, // Creepy
-	1, // Quiet
-	1, // Secluded
 	1, // Ornate
+	1, // Spiritual
+	1, // Secluded
 	1, // Glimmering
 	1, // Tainted
+	1, // Glistening
 #ifdef HELLFIRE
-	1, // Oily
-	1, // Glowing
-	1, // Mendicant's
 	1, // Sparkling
-	1, // Town
-	1, // Shimmering
 	1, // Solar,
 	1, // Murphy's
 #endif
 };
 /** Specifies the maximum dungeon level on which each shrine will appear. */
 const char shrinemax[NUM_SHRINETYPE] = {
-	MAX_LVLS, // Mysterious
 	MAX_LVLS, // Hidden
 	MAX_LVLS, // Gloomy
 	MAX_LVLS, // Weird
+	MAX_LVLS, // Religious
 	MAX_LVLS, // Magical
 	MAX_LVLS, // Stone
-	MAX_LVLS, // Religious
+	MAX_LVLS, // Creepy
 	8,        // Enchanted
 	MAX_LVLS, // Thaumaturgic
 	MAX_LVLS, // Fascinating
+	MAX_LVLS, // Shimmering
 	MAX_LVLS, // Cryptic
-	MAX_LVLS, // Magical
 	MAX_LVLS, // Eldritch
 	MAX_LVLS, // Eerie
+	MAX_LVLS, // Spooky
+	MAX_LVLS, // Quiet
 	MAX_LVLS, // Divine
 	MAX_LVLS, // Holy
 	MAX_LVLS, // Sacred
-	MAX_LVLS, // Spiritual
-	MAX_LVLS, // Spooky
-	MAX_LVLS, // Abandoned
-	MAX_LVLS, // Creepy
-	MAX_LVLS, // Quiet
-	MAX_LVLS, // Secluded
 	MAX_LVLS, // Ornate
+	MAX_LVLS, // Spiritual
+	MAX_LVLS, // Secluded
 	MAX_LVLS, // Glimmering
 	MAX_LVLS, // Tainted
+	MAX_LVLS, // Glistening
 #ifdef HELLFIRE
-	MAX_LVLS, // Oily
-	MAX_LVLS, // Glowing
-	MAX_LVLS, // Mendicant's
 	MAX_LVLS, // Sparkling
-	MAX_LVLS, // Town
-	MAX_LVLS, // Shimmering
 	MAX_LVLS, // Solar,
 	MAX_LVLS, // Murphy's
 #endif
@@ -147,40 +129,34 @@ const char shrinemax[NUM_SHRINETYPE] = {
  * SHRINETYPE_MULTI - 2 - mp only
  */
 const BYTE shrineavail[NUM_SHRINETYPE] = {
-	SHRINETYPE_ANY,    // SHRINE_MYSTERIOUS
 	SHRINETYPE_ANY,    // SHRINE_HIDDEN
-	SHRINETYPE_SINGLE, // SHRINE_GLOOMY
-	SHRINETYPE_SINGLE, // SHRINE_WEIRD
+	SHRINETYPE_ANY,    // SHRINE_GLOOMY
+	SHRINETYPE_ANY,    // SHRINE_WEIRD
+	SHRINETYPE_ANY,    // SHRINE_RELIGIOUS
 	SHRINETYPE_ANY,    // SHRINE_MAGICAL
 	SHRINETYPE_ANY,    // SHRINE_STONE
-	SHRINETYPE_ANY,    // SHRINE_RELIGIOUS
+	SHRINETYPE_ANY,    // SHRINE_CREEPY
 	SHRINETYPE_ANY,    // SHRINE_ENCHANTED
 	SHRINETYPE_SINGLE, // SHRINE_THAUMATURGIC
 	SHRINETYPE_ANY,    // SHRINE_FASCINATING
+	SHRINETYPE_ANY,    // SHRINE_SHIMMERING
 	SHRINETYPE_ANY,    // SHRINE_CRYPTIC
-	SHRINETYPE_ANY,    // SHRINE_MAGICAL2
 	SHRINETYPE_ANY,    // SHRINE_ELDRITCH
-	SHRINETYPE_ANY,    // SHRINE_EERIE
+	SHRINETYPE_MULTI,  // SHRINE_EERIE
+	SHRINETYPE_MULTI,  // SHRINE_SPOOKY
+	SHRINETYPE_MULTI,  // SHRINE_QUIET
 	SHRINETYPE_ANY,    // SHRINE_DIVINE
 	SHRINETYPE_ANY,    // SHRINE_HOLY
 	SHRINETYPE_ANY,    // SHRINE_SACRED
-	SHRINETYPE_ANY,    // SHRINE_SPIRITUAL
-	SHRINETYPE_MULTI,  // SHRINE_SPOOKY
-	SHRINETYPE_ANY,    // SHRINE_ABANDONED
-	SHRINETYPE_ANY,    // SHRINE_CREEPY
-	SHRINETYPE_ANY,    // SHRINE_QUIET
-	SHRINETYPE_ANY,    // SHRINE_SECLUDED
 	SHRINETYPE_ANY,    // SHRINE_ORNATE
+	SHRINETYPE_ANY,    // SHRINE_SPIRITUAL
+	SHRINETYPE_ANY,    // SHRINE_SECLUDED
 	SHRINETYPE_ANY,    // SHRINE_GLIMMERING
 	SHRINETYPE_MULTI,  // SHRINE_TAINTED
+	SHRINETYPE_ANY,    // SHRINE_GLISTENING
 #ifdef HELLFIRE
-	SHRINETYPE_ANY,    // SHRINE_OILY
-	SHRINETYPE_ANY,    // SHRINE_GLOWING
-	SHRINETYPE_ANY,    // SHRINE_MENDICANT
 	SHRINETYPE_ANY,    // SHRINE_SPARKLING
-	SHRINETYPE_ANY,    // SHRINE_TOWN
-	SHRINETYPE_ANY,    // SHRINE_SHIMMERING
-	SHRINETYPE_SINGLE, // SHRINE_SOLAR
+	SHRINETYPE_ANY,    // SHRINE_SOLAR
 	SHRINETYPE_ANY,    // SHRINE_MURPHYS
 #endif
 };
@@ -3348,10 +3324,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	ObjectStruct *os;
 	PlayerStruct *p;
 	ItemStruct *pi;
-	int cnt;
-	int r, i;
+	int i, r, cnt;
 	int xx, yy;
-	int v1, v2, v3, v4;
 	unsigned __int64 spell, spells;
 
 	assert((DWORD)oi < MAXOBJECTS);
@@ -3373,27 +3347,6 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	}
 	p = &plr[pnum];
 	switch (os->_oVar1) {
-	case SHRINE_MYSTERIOUS:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-
-		v1 = v2 = v3 = v4 = -1;
-		switch (random_(0, 4)) {
-		case 0: v1 = 5; break;
-		case 1: v2 = 5; break;
-		case 2: v3 = 5; break;
-		case 3: v4 = 5; break;
-		default: ASSUME_UNREACHABLE break;
-		}
-		ModifyPlrStr(pnum, v1);
-		ModifyPlrMag(pnum, v2);
-		ModifyPlrDex(pnum, v3);
-		ModifyPlrVit(pnum, v4);
-
-		InitDiabloMsg(EMSG_SHRINE_MYSTERIOUS);
-		break;
 	case SHRINE_HIDDEN:
 		if (deltaload)
 			return;
@@ -3431,61 +3384,49 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
-		if (p->InvBody[INVLOC_HEAD]._itype != ITYPE_NONE)
-			p->InvBody[INVLOC_HEAD]._iAC += 2;
-		if (p->InvBody[INVLOC_CHEST]._itype != ITYPE_NONE)
-			p->InvBody[INVLOC_CHEST]._iAC += 2;
+			return;
+
 		pi = &p->InvBody[INVLOC_HAND_LEFT];
-		if (pi->_itype != ITYPE_NONE) {
-			if (pi->_itype == ITYPE_SHIELD) {
-				pi->_iAC += 2;
-			} else {
-				if (pi->_iMaxDam > pi->_iMinDam)
-					pi->_iMaxDam--;
-			}
-		}
+		pi->_iDurability = pi->_iMaxDur;
+
 		pi = &p->InvBody[INVLOC_HAND_RIGHT];
-		if (pi->_itype != ITYPE_NONE) {
-			if (pi->_itype == ITYPE_SHIELD) {
-				pi->_iAC += 2;
-			} else {
-				if (pi->_iMaxDam > pi->_iMinDam)
-					pi->_iMaxDam--;
-			}
-		}
-		pi = p->InvList;
-		for (i = p->_pNumInv; i > 0; i--, pi++) {
-			if (pi->_iClass == ICLASS_WEAPON) {
-				if (pi->_iMaxDam > pi->_iMinDam)
-					pi->_iMaxDam--;
-			} else if (pi->_iClass == ICLASS_ARMOR) {
-				pi->_iAC += 2;
-			}
-		}
+		if (pi->_iClass == ICLASS_WEAPON)
+			pi->_iDurability = pi->_iMaxDur;
+
 		InitDiabloMsg(EMSG_SHRINE_GLOOMY);
 		break;
 	case SHRINE_WEIRD:
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
+			return;
 
-		pi = &p->InvBody[INVLOC_HAND_LEFT];
-		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_SHIELD)
-			pi->_iMaxDam++;
-		pi = &p->InvBody[INVLOC_HAND_RIGHT];
-		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_SHIELD)
-			pi->_iMaxDam++;
-		pi = p->InvList;
-		for (i = p->_pNumInv; i > 0; i--, pi++)
-			if (pi->_iClass == ICLASS_WEAPON)
-				pi->_iMaxDam++;
+		pi = &p->InvBody[INVLOC_HEAD];
+		pi->_iDurability = pi->_iMaxDur;
+		
+		pi = &p->InvBody[INVLOC_CHEST];
+		pi->_iDurability = std::max(1, pi->_iDurability >> 1);
+
 		InitDiabloMsg(EMSG_SHRINE_WEIRD);
 		break;
-	case SHRINE_MAGICAL:
+	case SHRINE_RELIGIOUS:
+		if (deltaload)
+			return;
+		if (pnum != myplr)
+			return;
 
-	case SHRINE_MAGICAL2:
+		pi = p->InvBody;
+		for (i = NUM_INVLOC; i != 0; i--, pi++)
+			pi->_iDurability = pi->_iMaxDur;
+		pi = p->InvList;
+		for (i = p->_pNumInv; i > 0; i--, pi++)
+			pi->_iDurability = pi->_iMaxDur;
+		pi = p->SpdList;
+		for (i = MAXBELTITEMS; i != 0; i--, pi++)
+			pi->_iDurability = pi->_iMaxDur; // belt items don't have durability?
+		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
+		break;
+	case SHRINE_MAGICAL:
 		if (deltaload)
 			return;
 		AddMissile(
@@ -3507,38 +3448,29 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
+			return;
 
 		pi = p->InvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++)
-			if (pi->_itype == ITYPE_STAFF)
-				pi->_iCharges = pi->_iMaxCharges;
+			pi->_iCharges = pi->_iMaxCharges;
 		pi = p->InvList;
 		for (i = p->_pNumInv; i > 0; i--, pi++)
-			if (pi->_itype == ITYPE_STAFF)
-				pi->_iCharges = pi->_iMaxCharges;
+			pi->_iCharges = pi->_iMaxCharges;
 		pi = p->SpdList;
 		for (i = MAXBELTITEMS; i != 0; i--, pi++)
-			if (pi->_itype == ITYPE_STAFF)
-				pi->_iCharges = pi->_iMaxCharges; // belt items don't have charges?
+			pi->_iCharges = pi->_iMaxCharges; // belt items don't have charges?
 		InitDiabloMsg(EMSG_SHRINE_STONE);
 		break;
-	case SHRINE_RELIGIOUS:
+	case SHRINE_CREEPY:
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
+			return;
 
-		pi = p->InvBody;
-		for (i = NUM_INVLOC; i != 0; i--, pi++)
-			pi->_iDurability = pi->_iMaxDur;
-		pi = p->InvList;
-		for (i = p->_pNumInv; i > 0; i--, pi++)
-			pi->_iDurability = pi->_iMaxDur;
-		pi = p->SpdList;
-		for (i = MAXBELTITEMS; i != 0; i--, pi++)
-			pi->_iDurability = pi->_iMaxDur; // belt items don't have durability?
-		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
+		pi = &p->InvBody[INVLOC_HAND_LEFT];
+		pi->_iCharges = pi->_iMaxCharges;
+
+		InitDiabloMsg(EMSG_SHRINE_CREEPY);
 		break;
 	case SHRINE_ENCHANTED:
 		if (deltaload)
@@ -3604,6 +3536,14 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 
 		InitDiabloMsg(EMSG_SHRINE_FASCINATING);
 		break;
+	case SHRINE_SHIMMERING:
+		if (deltaload)
+			return;
+		if (pnum != myplr)
+			return;
+		PlrFillMana(pnum);
+		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
+		break;
 	case SHRINE_CRYPTIC:
 		if (deltaload)
 			return;
@@ -3623,11 +3563,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		PlrFillMana(pnum);
 		InitDiabloMsg(EMSG_SHRINE_CRYPTIC);
 		break;
-	case SHRINE_ELDRITCH: /// BUGFIX: change `p->HoldItem` to use a temporary buffer to prevent deleting item in hand
+	case SHRINE_ELDRITCH:
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
+			return;
 		pi = p->InvList;
 		for (i = p->_pNumInv; i > 0; i--, pi++)
 			ConvertPotion(pi);
@@ -3639,10 +3579,35 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	case SHRINE_EERIE:
 		if (deltaload)
 			return;
-		if (pnum != myplr)
+		if (pnum == myplr) {
+			InitDiabloMsg(EMSG_SHRINE_EERIE1);
+		} else {
+			InitDiabloMsg(EMSG_SHRINE_EERIE2);
+
+			PlrFillMana(myplr);
+		}
+		break;
+	case SHRINE_SPOOKY:
+		if (deltaload)
 			return;
-		ModifyPlrMag(pnum, 2);
-		InitDiabloMsg(EMSG_SHRINE_EERIE);
+		if (pnum == myplr) {
+			InitDiabloMsg(EMSG_SHRINE_SPOOKY1);
+		} else {
+			InitDiabloMsg(EMSG_SHRINE_SPOOKY2);
+			PlrFillHp(myplr);
+			PlrFillMana(myplr);
+		}
+		break;
+	case SHRINE_QUIET:
+		if (deltaload)
+			return;
+		if (pnum == myplr) {
+			InitDiabloMsg(EMSG_SHRINE_QUIET1);
+		} else {
+			InitDiabloMsg(EMSG_SHRINE_QUIET2);
+
+			PlrFillHp(myplr);
+		}
 		break;
 	case SHRINE_DIVINE:
 		if (deltaload)
@@ -3681,6 +3646,19 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 
 		InitDiabloMsg(EMSG_SHRINE_SACRED);
 		break;
+	case SHRINE_ORNATE:
+		if (deltaload || pnum != myplr)
+			return;
+		p->_pMemSpells |= SPELL_MASK(SPL_HBOLT);
+		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
+			p->_pSplLvl[SPL_HBOLT]++;
+		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
+			p->_pSplLvl[SPL_HBOLT]++;
+
+		ReducePlrMana10(p);
+
+		InitDiabloMsg(EMSG_SHRINE_ORNATE);
+		break;
 	case SHRINE_SPIRITUAL:
 		if (deltaload)
 			return;
@@ -3700,46 +3678,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		}
 		InitDiabloMsg(EMSG_SHRINE_SPIRITUAL);
 		break;
-	case SHRINE_SPOOKY:
-		if (deltaload)
-			return;
-		if (pnum == myplr) {
-			InitDiabloMsg(EMSG_SHRINE_SPOOKY1);
-		} else {
-			InitDiabloMsg(EMSG_SHRINE_SPOOKY2);
-			PlrFillHp(myplr);
-			PlrFillMana(myplr);
-		}
-		break;
-	case SHRINE_ABANDONED:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		ModifyPlrDex(pnum, 2);
-		InitDiabloMsg(EMSG_SHRINE_ABANDONED);
-		break;
-	case SHRINE_CREEPY:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		ModifyPlrStr(pnum, 2);
-		InitDiabloMsg(EMSG_SHRINE_CREEPY);
-		break;
-	case SHRINE_QUIET:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		ModifyPlrVit(pnum, 2);
-		InitDiabloMsg(EMSG_SHRINE_QUIET);
-		break;
 	case SHRINE_SECLUDED:
 		if (deltaload)
 			return;
 		if (pnum != myplr)
-			break;
+			return;
 
 		for (yy = 0; yy < DMAXY; yy++) {
 			for (xx = 0; xx < DMAXX; xx++) {
@@ -3747,21 +3690,6 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			}
 		}
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
-		break;
-	case SHRINE_ORNATE:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		p->_pMemSpells |= SPELL_MASK(SPL_HBOLT);
-		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_HBOLT]++;
-		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_HBOLT]++;
-
-		ReducePlrMana10(p);
-
-		InitDiabloMsg(EMSG_SHRINE_ORNATE);
 		break;
 	case SHRINE_GLIMMERING:
 		if (deltaload)
@@ -3785,95 +3713,42 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	case SHRINE_TAINTED:
 		if (deltaload)
 			return;
-		if (pnum == myplr) {
-			InitDiabloMsg(EMSG_SHRINE_TAINTED1);
-		} else {
-			InitDiabloMsg(EMSG_SHRINE_TAINTED2);
-
-			v1 = v2 = v3 = v4 = -1;
-			switch (random_(155, 4)) {
-			case 0:  v1 = 1; break;
-			case 1:  v2 = 1; break;
-			case 2:  v3 = 1; break;
-			case 3:  v4 = 1; break;
-			default: ASSUME_UNREACHABLE break;
-			}
-
-			ModifyPlrStr(myplr, v1);
-			ModifyPlrMag(myplr, v2);
-			ModifyPlrDex(myplr, v3);
-			ModifyPlrVit(myplr, v4);
+		if (MINION_NR_INACTIVE(myplr)) {
+			AddMissile(
+				plr[myplr]._px,
+				plr[myplr]._py,
+				plr[myplr]._px,
+				plr[myplr]._py,
+				0,
+				MIS_GOLEM,
+				0,
+				myplr,
+				0,
+				currlevel);
 		}
+		if (pnum != myplr)
+			return;
+		InitDiabloMsg(EMSG_SHRINE_TAINTED);
 		break;
-#ifdef HELLFIRE
-	case SHRINE_OILY:
+	case SHRINE_GLISTENING:
 		if (deltaload)
 			return;
 		if (pnum != myplr)
 			return;
-		InitDiabloMsg(EMSG_SHRINE_OILY);
-
-		switch (p->_pClass) {
-		case PC_WARRIOR:
-			ModifyPlrStr(myplr, 2);
-			break;
-		case PC_ROGUE:
-			ModifyPlrDex(myplr, 2);
-			break;
-		case PC_SORCERER:
-			ModifyPlrMag(myplr, 2);
-			break;
-		case PC_MONK:
-			ModifyPlrStr(myplr, 1);
-			ModifyPlrDex(myplr, 1);
-			break;
-		case PC_BARD:
-			ModifyPlrDex(myplr, 1);
-			ModifyPlrMag(myplr, 1);
-			break;
-		case PC_BARBARIAN:
-			ModifyPlrVit(myplr, 2);
-			break;
-		}
+		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
-		    0,
-		    0,
-		    0,
-		    MIS_FIREWALL,
-		    0,
-		    -1,
+		    p->_px,
+		    p->_py,
+		    p->_pdir,
+		    MIS_TOWN,
+		    1,
+		    pnum,
 		    0,
 		    0);
 		break;
-	case SHRINE_GLOWING: {
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		InitDiabloMsg(EMSG_SHRINE_GLOWING);
-		int playerXP = p->_pExperience;
-		int xpLoss, magicGain;
-		if (playerXP > 5000) {
-			magicGain = 5;
-			xpLoss = (int)((double)playerXP * 0.95);
-		} else {
-			xpLoss = 0;
-			magicGain = playerXP / 1000;
-		}
-		ModifyPlrMag(myplr, magicGain);
-		p->_pExperience = xpLoss;
-	} break;
-	case SHRINE_MENDICANT:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		InitDiabloMsg(EMSG_SHRINE_MENDICANT);
-		AddPlrExperience(myplr, p->_pLevel, p->_pGold / 2);
-		TakePlrsMoney(p->_pGold / 2);
-		break;
+#ifdef HELLFIRE
 	case SHRINE_SPARKLING:
 		if (deltaload)
 			return;
@@ -3893,53 +3768,27 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    0,
 		    0);
 		break;
-	case SHRINE_TOWN:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		InitDiabloMsg(EMSG_SHRINE_TOWN);
-		AddMissile(
-		    os->_ox,
-		    os->_oy,
-		    p->_px,
-		    p->_py,
-		    p->_pdir,
-		    MIS_TOWN,
-		    1,
-		    pnum,
-		    0,
-		    0);
-		break;
-	case SHRINE_SHIMMERING:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
-		PlrFillMana(pnum);
-		break;
 	case SHRINE_SOLAR: {
 		if (deltaload)
 			return;
+
+		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
+		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
+		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEIMMOLAT, "SHRINE_SOLAR expects runes in a given order III.");
+		const char *cr = &CrawlTable[CrawlNum[3]];
+		for (i = (BYTE)*cr; i > 0; i--) {
+			xx = plr[pnum]._px + *++cr;
+			yy = plr[pnum]._py + *++cr;
+			if (!ItemSpaceOk(xx, yy))
+				continue;
+			if (random_(0, 3) == 0)
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, currlevel);
+			else
+				CreateTypeItem(xx, yy, FALSE, ITYPE_MISC, IMISC_RUNE, FALSE, TRUE);
+		}
 		if (pnum != myplr)
 			return;
-		time_t tm = time(0);
-		int hour = localtime(&tm)->tm_hour;
-		// BUGFIX: no change if hour is 4?
-		if (hour > 20 || hour < 4) {
-			InitDiabloMsg(EMSG_SHRINE_SOLAR4);
-			ModifyPlrVit(myplr, 2);
-		} else if (hour > 18) {
-			InitDiabloMsg(EMSG_SHRINE_SOLAR3);
-			ModifyPlrMag(myplr, 2);
-		} else if (hour > 12) {
-			InitDiabloMsg(EMSG_SHRINE_SOLAR2);
-			ModifyPlrStr(myplr, 2);
-		} else if (hour > 4) {
-			InitDiabloMsg(EMSG_SHRINE_SOLAR1);
-			ModifyPlrDex(myplr, 2);
-		}
+		InitDiabloMsg(EMSG_SHRINE_SOLAR);
 	} break;
 	case SHRINE_MURPHYS:
 		if (deltaload)
@@ -3968,6 +3817,8 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		}
 		break;
 #endif
+	default:
+		ASSUME_UNREACHABLE
 	}
 
 	CalcPlrInv(pnum, TRUE);
@@ -4099,7 +3950,6 @@ static void OperateFountains(int pnum, int oi)
 {
 	PlayerStruct *p;
 	ObjectStruct *os;
-	int add, rnd;
 
 	os = &object[oi];
 	SetRndSeed(os->_oRndSeed);
@@ -4107,29 +3957,19 @@ static void OperateFountains(int pnum, int oi)
 	case OBJ_BLOODFTN:
 		if (deltaload)
 			return;
-		if (pnum != myplr)
-			return;
-
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		p = &plr[pnum];
-		if (p->_pHitPoints >= p->_pMaxHP)
+		if (pnum != myplr)
 			return;
-
 		PlrIncHp(pnum, 64);
 		break;
 	case OBJ_PURIFYINGFTN:
 		if (deltaload)
 			return;
-		if (pnum != myplr)
-			return;
-
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		p = &plr[pnum];
-		if ((p->_pIFlags & ISPL_NOMANA) || p->_pMana >= p->_pMaxMana)
+		if (pnum != myplr)
 			return;
-
 		PlrIncMana(pnum, 64);
 		break;
 	case OBJ_MURKYFTN:
@@ -4157,9 +3997,6 @@ static void OperateFountains(int pnum, int oi)
 			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		break;
 	case OBJ_TEARFTN:
-		if (os->_oSelFlag == 0)
-			break;
-		os->_oSelFlag = 0;
 		if (deltaload)
 			return;
 
@@ -4167,31 +4004,9 @@ static void OperateFountains(int pnum, int oi)
 
 		if (pnum != myplr)
 			return;
-
-		for (add = -1; add <= 1; add += 2) {
-			if (add == 1)
-				rnd = (rnd + 1 + random_(0, 3)) % 4;
-			else
-				rnd = random_(0, 4);
-			switch (rnd) {
-			case 0:
-				ModifyPlrStr(pnum, add);
-				break;
-			case 1:
-				ModifyPlrMag(pnum, add);
-				break;
-			case 2:
-				ModifyPlrDex(pnum, add);
-				break;
-			case 3:
-				ModifyPlrVit(pnum, add);
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-		}
-		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
+		PlrIncHp(pnum, 64);
+		if (plr[pnum]._pMana >= 64)
+			PlrDecMana(pnum, 64);
 		break;
 	}
 	gbRedrawFlags = REDRAW_ALL;
