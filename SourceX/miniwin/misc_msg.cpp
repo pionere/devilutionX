@@ -46,35 +46,8 @@ void FocusOnCharInfo()
 	if (invflag || plr[myplr]._pStatPts <= 0)
 		return;
 
-	// Find the first incrementable stat.
-	int pc = plr[myplr]._pClass;
-	int stat = -1;
-	for (int i = 4; i >= 0; --i) {
-		switch (i) {
-		case ATTRIB_STR:
-			if (plr[myplr]._pBaseStr >= MaxStats[pc][ATTRIB_STR])
-				continue;
-			break;
-		case ATTRIB_MAG:
-			if (plr[myplr]._pBaseMag >= MaxStats[pc][ATTRIB_MAG])
-				continue;
-			break;
-		case ATTRIB_DEX:
-			if (plr[myplr]._pBaseDex >= MaxStats[pc][ATTRIB_DEX])
-				continue;
-			break;
-		case ATTRIB_VIT:
-			if (plr[myplr]._pBaseVit >= MaxStats[pc][ATTRIB_VIT])
-				continue;
-			break;
-		default:
-			continue;
-		}
-		stat = i;
-	}
-	if (stat == -1)
-		return;
-	const RECT32 &rect = ChrBtnsRect[stat];
+	// Jump to the first incrementable stat.
+	const RECT32 &rect = ChrBtnsRect[0];
 	SetCursorPos(rect.x + (rect.w / 2), rect.y + (rect.h / 2));
 }
 

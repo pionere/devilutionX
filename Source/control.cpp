@@ -1296,26 +1296,18 @@ void DrawChr()
 	ADD_PlrStringXY(246, 289, 289, chrstr, col);
 
 	col = COL_WHITE;
-	if (MaxStats[pc][ATTRIB_STR] == p->_pBaseStr)
-		col = COL_GOLD;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseStr);
 	ADD_PlrStringXY(90, 119, 121, chrstr, col);
 
 	col = COL_WHITE;
-	if (MaxStats[pc][ATTRIB_MAG] == p->_pBaseMag)
-		col = COL_GOLD;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseMag);
 	ADD_PlrStringXY(90, 147, 121, chrstr, col);
 
 	col = COL_WHITE;
-	if (MaxStats[pc][ATTRIB_DEX] == p->_pBaseDex)
-		col = COL_GOLD;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseDex);
 	ADD_PlrStringXY(90, 175, 121, chrstr, col);
 
 	col = COL_WHITE;
-	if (MaxStats[pc][ATTRIB_VIT] == p->_pBaseVit)
-		col = COL_GOLD;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pBaseVit);
 	ADD_PlrStringXY(90, 203, 121, chrstr, col);
 
@@ -1358,14 +1350,10 @@ void DrawChr()
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%i", p->_pStatPts);
 		ADD_PlrStringXY(90, 231, 121, chrstr, COL_RED);
-		if (p->_pBaseStr < MaxStats[pc][ATTRIB_STR])
-			CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_STR] + 2, CHRBTN_WIDTH);
-		if (p->_pBaseMag < MaxStats[pc][ATTRIB_MAG])
-			CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_MAG] + 4, CHRBTN_WIDTH);
-		if (p->_pBaseDex < MaxStats[pc][ATTRIB_DEX])
-			CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_DEX] + 6, CHRBTN_WIDTH);
-		if (p->_pBaseVit < MaxStats[pc][ATTRIB_VIT])
-			CelDraw(ChrBtnsRect[ATTRIB_VIT].x + SCREEN_X, ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_VIT] + 8, CHRBTN_WIDTH);
+		CelDraw(ChrBtnsRect[ATTRIB_STR].x + SCREEN_X, ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_STR] + 2, CHRBTN_WIDTH);
+		CelDraw(ChrBtnsRect[ATTRIB_MAG].x + SCREEN_X, ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_MAG] + 4, CHRBTN_WIDTH);
+		CelDraw(ChrBtnsRect[ATTRIB_DEX].x + SCREEN_X, ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_DEX] + 6, CHRBTN_WIDTH);
+		CelDraw(ChrBtnsRect[ATTRIB_VIT].x + SCREEN_X, ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT + SCREEN_Y, pChrButtons, chrbtn[ATTRIB_VIT] + 8, CHRBTN_WIDTH);
 	}
 
 	val = p->_pMaxHP;
@@ -1770,7 +1758,6 @@ void DrawInfoStr()
 
 BOOL CheckChrBtns()
 {
-	PlayerStruct *p;
 	int i;
 
 	if (plr[myplr]._pStatPts != 0 && !chrbtnactive) {
@@ -1781,28 +1768,6 @@ BOOL CheckChrBtns()
 			 || MouseY > ChrBtnsRect[i].y + ChrBtnsRect[i].h)
 				continue;
 
-			p = &plr[myplr];
-			switch (i) {
-			case 0:
-				if (p->_pBaseStr >= MaxStats[p->_pClass][ATTRIB_STR])
-					return FALSE;
-				break;
-			case 1:
-				if (p->_pBaseMag >= MaxStats[p->_pClass][ATTRIB_MAG])
-					return FALSE;
-				break;
-			case 2:
-				if (p->_pBaseDex >= MaxStats[p->_pClass][ATTRIB_DEX])
-					return FALSE;
-				break;
-			case 3:
-				if (p->_pBaseVit >= MaxStats[p->_pClass][ATTRIB_VIT])
-					return FALSE;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
 			chrbtn[i] = TRUE;
 			chrbtnactive = TRUE;
 			return TRUE;

@@ -149,19 +149,6 @@ const BYTE ToBlkTbl[NUM_CLASSES] = {
 	30,
 #endif
 };
-/** Maps from player_class to maximum stats. */
-const int MaxStats[NUM_CLASSES][4] = {
-	// clang-format off
-	{ 250,  50,  60, 110 },
-	{  55,  70, 250,  90 },
-	{  45, 250,  85,  90 },
-#ifdef HELLFIRE
-	{ 150,  80, 150,  90 },
-	{ 120, 120, 120, 110 },
-	{ 255,   0,  55, 160 },
-#endif
-	// clang-format on
-};
 const int Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
 #ifdef HELLFIRE
@@ -745,21 +732,6 @@ void CreatePlayer(int pnum, char c)
 	SetRndSeed(0);
 }
 
-static int CalcStatDiff(int pnum)
-{
-	const int *stats;
-
-	stats = MaxStats[plr[pnum]._pClass];
-	return stats[ATTRIB_STR]
-	    - plr[pnum]._pBaseStr
-	    + stats[ATTRIB_MAG]
-	    - plr[pnum]._pBaseMag
-	    + stats[ATTRIB_DEX]
-	    - plr[pnum]._pBaseDex
-	    + stats[ATTRIB_VIT]
-	    - plr[pnum]._pBaseVit;
-}
-
 void NextPlrLevel(int pnum)
 {
 	PlayerStruct *p;
@@ -771,12 +743,8 @@ void NextPlrLevel(int pnum)
 	p = &plr[pnum];
 	p->_pLevel++;
 
-	if (CalcStatDiff(pnum) < 5) {
-		p->_pStatPts = CalcStatDiff(pnum);
-	} else {
-		p->_pStatPts += 5;
-	}
-	p->_pLvlUp = p->_pStatPts != 0;
+	p->_pStatPts += 8;
+	p->_pLvlUp = TRUE;
 
 	p->_pNextExper = ExpLvlsTbl[p->_pLevel];
 
@@ -3089,7 +3057,7 @@ static void ValidatePlayer()
 	PlayerStruct *p;
 	ItemStruct *pi;
 	__int64 msk;
-	int gt, pc, i;
+	int gt, i;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ValidatePlayer: illegal player %d", myplr);
@@ -3110,23 +3078,6 @@ static void ValidatePlayer()
 		}
 	}
 	p->_pGold = gt;
-
-	pc = p->_pClass;
-	if (p->_pBaseStr > MaxStats[pc][ATTRIB_STR]) {
-		p->_pBaseStr = MaxStats[pc][ATTRIB_STR];
-	}
-	if (p->_pBaseMag > MaxStats[pc][ATTRIB_MAG]) {
-		p->_pBaseMag = MaxStats[pc][ATTRIB_MAG];
-	}
-	if (p->_pBaseDex > MaxStats[pc][ATTRIB_DEX]) {
-		p->_pBaseDex = MaxStats[pc][ATTRIB_DEX];
-	}
-	if (p->_pBaseVit > MaxStats[pc][ATTRIB_VIT]) {
-		p->_pBaseVit = MaxStats[pc][ATTRIB_VIT];
-	}
-	if (p->_pBaseVit < VitalityTbl[pc]) {
-		p->_pBaseVit = VitalityTbl[pc];
-	}
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
@@ -3635,14 +3586,11 @@ void PlrDecMana(int pnum, int mana)
 void ModifyPlrStr(int pnum, int v)
 {
 	PlayerStruct *p;
-	int val;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrStr: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	val = p->_pBaseStr;
-	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_STR] - val), -val);
 
 	p->_pStrength += v;
 	p->_pBaseStr += v;
@@ -3653,14 +3601,12 @@ void ModifyPlrStr(int pnum, int v)
 void ModifyPlrMag(int pnum, int v)
 {
 	PlayerStruct *p;
-	int val, ms;
+	int ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrMag: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	val = p->_pBaseMag;
-	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_MAG] - val), -val);
 
 	p->_pMagic += v;
 	p->_pBaseMag += v;
@@ -3671,6 +3617,8 @@ void ModifyPlrMag(int pnum, int v)
 #ifdef HELLFIRE
 	} else if (p->_pClass == PC_BARD) {
 		ms += ms >> 1;
+	} else if (p->_pClass == PC_BARBARIAN) {
+		ms >>= 1;
 #endif
 	}
 
@@ -3687,14 +3635,11 @@ void ModifyPlrMag(int pnum, int v)
 void ModifyPlrDex(int pnum, int v)
 {
 	PlayerStruct *p;
-	int val;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrDex: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	val = p->_pBaseDex;
-	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_DEX] - val), -val);
 
 	p->_pDexterity += v;
 	p->_pBaseDex += v;
@@ -3705,14 +3650,12 @@ void ModifyPlrDex(int pnum, int v)
 void ModifyPlrVit(int pnum, int v)
 {
 	PlayerStruct *p;
-	int val, ms;
+	int ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrVit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	val = p->_pBaseVit;
-	v = std::max(std::min(v, MaxStats[p->_pClass][ATTRIB_VIT] - val), -val);
 
 	p->_pVitality += v;
 	p->_pBaseVit += v;

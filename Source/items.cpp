@@ -822,7 +822,10 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	// add class bonuses as item bonus
 	if (p->_pClass == PC_ROGUE) {
-		pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
+		if (wLeft->_itype == ITYPE_BOW)
+			pdmod = p->_pLevel * ((p->_pStrength >> 1) + p->_pDexterity) / 200;
+		else
+			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
 #ifdef HELLFIRE
 	} else if (p->_pClass == PC_MONK) {
 		if (wLeft->_itype != ITYPE_STAFF) {

@@ -82,7 +82,6 @@ extern const int StrengthTbl[NUM_CLASSES];
 extern const int MagicTbl[NUM_CLASSES];
 extern const int DexterityTbl[NUM_CLASSES];
 extern const int VitalityTbl[NUM_CLASSES];
-extern const int MaxStats[NUM_CLASSES][4];
 extern const int Abilities[NUM_CLASSES];
 extern const char *const ClassStrTbl[NUM_CLASSES];
 
