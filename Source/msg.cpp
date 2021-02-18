@@ -1984,7 +1984,7 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
 			// BUGFIX: is this even necessary? CMD_SPELLXY should have notified us already...
-			AddMissile(plr[pnum]._px, plr[pnum]._py, cmd->_mx, cmd->_my, cmd->_mdir, MIS_GOLEM, 0, pnum, 0, 1);
+			AddMissile(plr[pnum]._px, plr[pnum]._py, cmd->_mx, cmd->_my, cmd->_mdir, MIS_GOLEM, 0, pnum, 0, 0, 1);
 		} else
 			delta_sync_golem(cmd, pnum, cmd->_currlevel);
 	}
@@ -2376,7 +2376,7 @@ static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (gbBufferMsgs != 1) {
-		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0);
+		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
 		T_HiveOpen();
 		InitTownTriggers();
 	}

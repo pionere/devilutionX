@@ -1919,7 +1919,7 @@ static void Obj_Circle(int oi)
 				dx = DBORDERX + 19; dy = DBORDERY + 30;
 				GetVileMissPos(&dx, &dy);
 			}
-			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0);
+			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0, 0);
 			sgbActionBtnDown = FALSE;
 			sgbAltActionBtnDown = FALSE;
 			ClrPlrPath(myplr);
@@ -2030,19 +2030,11 @@ static void Obj_FlameTrap(int oi)
 		if (os->_oVar4 != 0)
 			ActivateTrapLine(os->_otype, os->_oVar1);
 	} else {
-		int mindam = 2 + leveltype;
-		int maxdam = mindam * 2;
-
-		x = os->_ox;
-		y = os->_oy;
-		if (dMonster[x][y] > 0)
-			MonsterTrapHit(dMonster[x][y] - 1, mindam, maxdam, 0, MIS_FIREWALL, FALSE);
-		if (dPlayer[x][y] > 0)
-			PlayerTrapHit(dPlayer[x][y] - 1, mindam * 2, maxdam * 2, 0, MIS_FIREWALL, FALSE);
-
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
-		if (os->_oAnimFrame <= 5)
+		if (os->_oAnimFrame == 11)
+			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, -1, -1, 0, 0, 0);
+		else if (os->_oAnimFrame <= 5)
 			ChangeLightRadius(os->_olid, os->_oAnimFrame);
 	}
 }
@@ -2094,7 +2086,7 @@ void Obj_Trap(int oi)
 				sx = os->_ox;
 				sy = os->_oy;
 				dir = GetDirection(sx, sy, dx, dy);
-				AddMissile(sx, sy, dx, dy, dir, os->_oVar3, 1, -1, 0, 0);
+				AddMissile(sx, sy, dx, dy, dir, os->_oVar3, 1, -1, 0, 0, 0);
 				PlaySfxLoc(IS_TRAP, on->_ox, on->_oy);
 			}
 			on->_oTrapFlag = FALSE;
@@ -2934,7 +2926,7 @@ static void OperateBook(int pnum, int oi)
 			on->_oVar6 = 4;
 			object[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++;
 			GetVileMissPos(&dx, &dy);
-			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0);
+			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
 			missile_added = TRUE;
 		}
 		if (!missile_added)
@@ -2962,6 +2954,7 @@ static void OperateBook(int pnum, int oi)
 		    MIS_GUARDIAN,
 		    0,
 		    pnum,
+		    0,
 		    0,
 		    0);
 	} else if (setlvlnum == SL_VILEBETRAYER) {
@@ -3065,7 +3058,7 @@ static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 			}
 			if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
 				mdir = GetDirection(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py);
-				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0);
+				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0);
 				os->_oTrapFlag = FALSE;
 			}
 			if (pnum == myplr)
@@ -3448,6 +3441,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    -1,
 		    pnum,
 		    0,
+		    0,
 		    2 * leveltype);
 		if (pnum != myplr)
 			return;
@@ -3566,6 +3560,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    0,
 		    -1,
 		    0,
+		    0,
 		    0);
 		if (pnum != myplr)
 			return;
@@ -3637,7 +3632,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	case SHRINE_HOLY:
 		if (deltaload)
 			return;
-		AddMissile(p->_px, p->_py, 0, 0, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0);
+		AddMissile(p->_px, p->_py, 0, 0, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
@@ -3733,6 +3728,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 				0,
 				myplr,
 				0,
+				0,
 				currlevel);
 		}
 		if (pnum != myplr)
@@ -3755,6 +3751,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    1,
 		    pnum,
 		    0,
+		    0,
 		    0);
 		break;
 #ifdef HELLFIRE
@@ -3775,6 +3772,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		    0,
 		    -1,
 		    0,
+		    0,
 		    0);
 		break;
 	case SHRINE_SOLAR: {
@@ -3791,7 +3789,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, currlevel);
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currlevel);
 			else
 				CreateTypeItem(xx, yy, FALSE, ITYPE_MISC, IMISC_RUNE, FALSE, TRUE);
 		}
@@ -4000,6 +3998,7 @@ static void OperateFountains(int pnum, int oi)
 		    MIS_INFRA,
 		    -1,
 		    pnum,
+		    0,
 		    0,
 		    2 * leveltype);
 		if (pnum == myplr)
@@ -4397,12 +4396,7 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 			PlaySfxLoc(IS_BARLFIRE, os->_ox, os->_oy);
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				mpo = dMonster[xp][yp];
-				if (mpo > 0)
-					MonsterTrapHit(mpo - 1, 1, 4, 0, MIS_FIREBOLT, FALSE);
-				mpo = dPlayer[xp][yp];
-				if (mpo > 0)
-					PlayerTrapHit(mpo - 1, 8, 16, 0, MIS_FIREBOLT, FALSE);
+				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, -1, -1, 0, 0, 0);
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;

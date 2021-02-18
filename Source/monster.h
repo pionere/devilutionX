@@ -57,6 +57,9 @@ void MAI_Cleaver(int mnum);
 void MAI_GoatMc(int mnum);
 void MAI_GoatBow(int mnum);
 void MAI_Succ(int mnum);
+void MAI_SnowWich(int mnum);
+void MAI_HlSpwn(int mnum);
+void MAI_SolBrnr(int mnum);
 void MAI_AcidUniq(int mnum);
 #ifdef HELLFIRE
 void MAI_Firebat(int mnum);

@@ -204,7 +204,7 @@ void CheckQuests()
 			qs->_qty = 2 * qs->_qty + DBORDERY;
 			rportx = qs->_qtx;
 			rporty = qs->_qty;
-			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
+			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
 			qs->_qvar2 = 1;
 			if (qs->_qactive == QUEST_ACTIVE) {
 				qs->_qvar1 = 3;
@@ -228,7 +228,7 @@ void CheckQuests()
 		 && qs->_qvar2 == 4) {
 			rportx = DBORDERX + 19;
 			rporty = DBORDERY + 16;
-			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0);
+			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
 			qs->_qvar2 = 3;
 		}
 
@@ -333,7 +333,7 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 			quests[Q_BETRAYER]._qvar1 = 7;
 			quests[Q_BETRAYER]._qvar2 = 4;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			AddMissile(35, 32, 35, 32, 0, MIS_RPORTAL, 0, myplr, 0, 0);
+			AddMissile(35, 32, 35, 32, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
 		}
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];

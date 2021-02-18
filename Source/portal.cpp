@@ -40,7 +40,7 @@ void SetPortalStats(int i, BOOL o, int x, int y, int lvl, int lvltype)
 void AddWarpMissile(int i, int x, int y)
 {
 	dMissile[x][y] = 0;
-	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, -1);
+	AddMissile(0, 0, x, y, 0, MIS_TOWN, 0, i, 0, 0, -1);
 }
 
 void SyncPortals()

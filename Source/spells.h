@@ -21,9 +21,6 @@ int SpellSourceInv(int sn);
 int SpellSourceEquipment(int sn);
 int GetSpellLevel(int pnum, int sn);
 BOOL CheckSpell(int pnum, int sn);
-BOOL PlacePlayer(int pnum);
-void DoResurrect(int pnum, int tnum);
-void DoHealOther(int pnum, int tnum, int spllvl);
 
 #ifdef __cplusplus
 }

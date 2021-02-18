@@ -34,6 +34,7 @@ void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);
+BOOL PlacePlayer(int pnum);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, BOOL forcehit);
 void StartPlrKill(int pnum, int earflag);

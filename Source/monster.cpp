@@ -87,6 +87,9 @@ void (*AiProc[])(int i) = {
 	&MAI_Garg,
 	&MAI_Cleaver,
 	&MAI_Succ,
+	&MAI_SnowWich,
+	&MAI_HlSpwn,
+	&MAI_SolBrnr,
 	&MAI_Sneak,
 	&MAI_Storm,
 	&MAI_Fireman,
@@ -1403,7 +1406,7 @@ static void MonStartAttack(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-static void MonStartRAttack(int mnum, int mitype, int dam)
+static void MonStartRAttack(int mnum, int mitype)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon;
@@ -1412,14 +1415,13 @@ static void MonStartRAttack(int mnum, int mitype, int dam)
 	mon = &monster[mnum];
 	mon->_mmode = MM_RATTACK;
 	mon->_mVar1 = mitype;
-	mon->_mVar2 = dam;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-static void MonStartRSpAttack(int mnum, int mitype, int dam)
+static void MonStartRSpAttack(int mnum, int mitype)
 {
 	int md = MonGetDir(mnum);
 	MonsterStruct *mon;
@@ -1429,7 +1431,6 @@ static void MonStartRSpAttack(int mnum, int mitype, int dam)
 	mon->_mmode = MM_RSPATTACK;
 	mon->_mVar1 = mitype;
 	mon->_mVar2 = 0;      // counter to enable/disable MFLAG_LOCK_ANIMATION for certain monsters
-	mon->_mVar3 = dam;
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
@@ -1728,7 +1729,7 @@ static void MonstStartKill(int mnum, int pnum, BOOL sendmsg)
 #else
 	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID)
 #endif
-		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, 1, mnum, mon->_mint + 1, 0);
+		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, 1, mnum, mon->_mint + 1, mon->_mint + 1, 0);
 }
 
 static void M2MStartKill(int offm, int defm)
@@ -1783,7 +1784,7 @@ static void M2MStartKill(int offm, int defm)
 	 || dmon->_mType == MT_SPIDLORD
 #endif
 	)
-		AddMissile(dmon->_mx, dmon->_my, 0, 0, 0, MIS_ACIDPUD, 1, defm, dmon->_mint + 1, 0);
+		AddMissile(dmon->_mx, dmon->_my, 0, 0, 0, MIS_ACIDPUD, 1, defm, dmon->_mint + 1, dmon->_mint + 1, 0);
 
 #ifdef HELLFIRE
 	MonStartStand(offm, monster[offm]._mdir);
@@ -2204,7 +2205,8 @@ static BOOL MonDoRAttack(int mnum)
 		    mon->_mVar1,
 		    1,
 		    mnum,
-		    mon->_mVar2,
+		    0,
+		    0,
 		    0);
 		PlayEffect(mnum, 0);
 	}
@@ -2235,7 +2237,8 @@ static BOOL MonDoRSpAttack(int mnum)
 		    mon->_mVar1,
 		    1,
 		    mnum,
-		    mon->_mVar3,
+		    0,
+		    0,
 		    0);
 		PlayEffect(mnum, 3);
 	}
@@ -2970,7 +2973,7 @@ void MAI_Snake(int mnum)
 	mon->_mdir = md;
 	if (abs(mx) >= 2 || abs(my) >= 2) {
 		if (abs(mx) < 3 && abs(my) < 3 && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
+			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 				PlayEffect(mnum, 0);
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 				mon->_mmode = MM_CHARGE;
@@ -3067,7 +3070,7 @@ void MAI_Bat(int mnum)
 	    && (abs(xd) >= 5 || abs(yd) >= 5)
 	    && v < 4 * mon->_mint + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
+		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			mon->_mmode = MM_CHARGE;
 		}
@@ -3083,7 +3086,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0;
 		if (mon->_mType == MT_FAMILIAR) {
-			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, RandRange(1, 10), 0);
+			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, 1, mnum, 1, 10, 0);
 		}
 	}
 }
@@ -3122,7 +3125,7 @@ void MAI_SkelBow(int mnum)
 	if (!walking) {
 		if (random_(110, 100) < 2 * mon->_mint + 3) {
 			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
-				MonStartRAttack(mnum, MIS_ARROW, 0);
+				MonStartRAttack(mnum, MIS_ARROW);
 		}
 	}
 }
@@ -3247,7 +3250,7 @@ void MAI_Fireman(int mnum)
 	md = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (LineClear(mon->_mx, mon->_my, fx, fy)
-		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0) != -1) {
+		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK2;
 			mon->_mgoalvar1 = 0;
@@ -3257,7 +3260,7 @@ void MAI_Fireman(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadeout(mnum, md, TRUE);
 		} else if (LineClear(mon->_mx, mon->_my, fx, fy)) {
-			MonStartRAttack(mnum, MIS_KRULL, 4);
+			MonStartRAttack(mnum, MIS_KRULL);
 			mon->_mgoalvar1++;
 		} else {
 			MonStartDelay(mnum, RandRange(5, 14));
@@ -3470,9 +3473,9 @@ static void MAI_Ranged(int mnum, int mitype, BOOL special)
 		if (mon->_mmode == MM_STAND) {
 			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
 				if (special)
-					MonStartRSpAttack(mnum, mitype, 0);
+					MonStartRSpAttack(mnum, mitype);
 				else
-					MonStartRAttack(mnum, mitype, 0);
+					MonStartRAttack(mnum, mitype);
 			}
 		}
 	} else if (mon->_msquelch != 0) {
@@ -3489,6 +3492,21 @@ void MAI_GoatBow(int mnum)
 void MAI_Succ(int mnum)
 {
 	MAI_Ranged(mnum, MIS_FLARE, FALSE);
+}
+
+void MAI_SnowWich(int mnum)
+{
+	MAI_Ranged(mnum, MIS_SNOWWICH, FALSE);
+}
+
+void MAI_HlSpwn(int mnum)
+{
+	MAI_Ranged(mnum, MIS_HLSPWN, FALSE);
+}
+
+void MAI_SolBrnr(int mnum)
+{
+	MAI_Ranged(mnum, MIS_SOLBRNR, FALSE);
 }
 
 #ifdef HELLFIRE
@@ -3680,7 +3698,7 @@ void MAI_Garg(int mnum)
 	MAI_Round(mnum, FALSE);
 }
 
-static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int lessmissiles)
+static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int lessmissiles)
 {
 	MonsterStruct *mon;
 	int mx, my;
@@ -3712,7 +3730,7 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (v < ((500 * (mon->_mint + 1)) >> lessmissiles)
 				    && (LineClear(mon->_mx, mon->_my, fx, fy))) {
-					MonStartRSpAttack(mnum, mitype, dam);
+					MonStartRSpAttack(mnum, mitype);
 				} else {
 					MonRoundWalk(mnum, md, &mon->_mgoalvar2);
 				}
@@ -3724,7 +3742,7 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 			if ((dist >= 3 && v < ((500 * (mon->_mint + 2)) >> lessmissiles)
 			        || v < ((500 * (mon->_mint + 1)) >> lessmissiles))
 			    && LineClear(mon->_mx, mon->_my, fx, fy)) {
-				MonStartRSpAttack(mnum, mitype, dam);
+				MonStartRSpAttack(mnum, mitype);
 			} else if (dist >= 2) {
 				v = random_(124, 100);
 				if (v < 1000 * (mon->_mint + 5)
@@ -3744,34 +3762,34 @@ static void MAI_RoundRanged(int mnum, int mitype, BOOL checkdoors, int dam, int 
 
 void MAI_Magma(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_MAGMABALL, TRUE, 0, 0);
+	MAI_RoundRanged(mnum, MIS_MAGMABALL, TRUE, 0);
 }
 
 void MAI_Storm(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, TRUE, 0, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, TRUE, 0);
 }
 
 void MAI_Storm2(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 0, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, TRUE, 0);
 }
 
 #ifdef HELLFIRE
 void MAI_BoneDemon(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_BONEDEMON, TRUE, 0, 0);
+	MAI_RoundRanged(mnum, MIS_BONEDEMON, TRUE, 0);
 }
 #endif
 
 void MAI_Acid(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_ACID, FALSE, 0, 1);
+	MAI_RoundRanged(mnum, MIS_ACID, FALSE, 1);
 }
 
 void MAI_Diablo(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_APOCAC2, FALSE, 40, 0);
+	MAI_RoundRanged(mnum, MIS_APOCAC2, FALSE, 0);
 }
 
 static void MAI_RR2(int mnum, int mitype)
@@ -3819,7 +3837,7 @@ static void MAI_RR2(int mnum, int mitype)
 			mon->_mgoal = MGOAL_NORMAL;
 		if (mon->_mgoal == MGOAL_NORMAL) {
 			if ((dist >= 3 && v < 5 * (mon->_mint + 2) || v < 5 * (mon->_mint + 1) || mon->_mgoalvar3 == 4) && LineClear(mon->_mx, mon->_my, fx, fy)) {
-				MonStartRSpAttack(mnum, mitype, 0);
+				MonStartRSpAttack(mnum, mitype);
 			} else if (dist >= 2) {
 				v = random_(124, 100);
 				if (v < 2 * (5 * mon->_mint + 25)
@@ -3834,7 +3852,7 @@ static void MAI_RR2(int mnum, int mitype)
 					if (random_(124, 2) != 0)
 						MonStartAttack(mnum);
 					else
-						MonStartRSpAttack(mnum, mitype, 0);
+						MonStartRSpAttack(mnum, mitype);
 				}
 			}
 			mon->_mgoalvar3 = 1;
@@ -4016,7 +4034,7 @@ void MAI_Rhino(int mnum)
 			if (dist >= 5
 			    && v < 2 * mon->_mint + 43
 			    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
-				if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0) != -1) {
+				if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 					if (mon->MData->snd_special)
 						PlayEffect(mnum, 3);
 					mon->_mmode = MM_CHARGE;
@@ -4085,7 +4103,7 @@ void MAI_Horkdemon(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 3 && v < 2 * mon->_mint + 43) {
 			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
-				MonStartRSpAttack(mnum, MIS_HORKDMN, 0);
+				MonStartRSpAttack(mnum, MIS_HORKDMN);
 			}
 		} else if (dist < 2) {
 			if (v < 2 * mon->_mint + 28) {
@@ -4147,7 +4165,7 @@ void MAI_Counselor(int mnum)
 		} else if (mon->_mgoal == MGOAL_NORMAL) {
 			if (abs(mx) >= 2 || abs(my) >= 2) {
 				if (v < 5 * (mon->_mint + 10) && LineClear(mon->_mx, mon->_my, fx, fy)) {
-					MonStartRAttack(mnum, counsmiss[mon->_mint], 0);
+					MonStartRAttack(mnum, counsmiss[mon->_mint]);
 				} else if (random_(124, 100) < 30) {
 					mon->_mgoal = MGOAL_MOVE;
 					mon->_mgoalvar1 = 0;
@@ -4162,7 +4180,7 @@ void MAI_Counselor(int mnum)
 					MonStartFadeout(mnum, md, FALSE);
 				} else if (mon->_mVar1 == MM_DELAY
 				    || random_(105, 100) < 2 * mon->_mint + 20) {
-					MonStartRAttack(mnum, MIS_FLASH, 0);
+					MonStartRAttack(mnum, MIS_FLASH);
 				} else
 					MonStartDelay(mnum, random_(105, 10) + 2 * (5 - mon->_mint));
 			}
@@ -4366,7 +4384,7 @@ void MAI_Lazhelp(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 	}
 	if (mon->_mgoal == MGOAL_NORMAL)
-		MAI_Succ(mnum);
+		MAI_HlSpwn(mnum);
 	mon->_mdir = md;
 }
 

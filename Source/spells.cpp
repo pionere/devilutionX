@@ -15,38 +15,18 @@ int GetManaAmount(int pnum, int sn)
 	ma = spelldata[sn].sManaCost;
 	if (sn == SPL_HEAL || sn == SPL_HEALOTHER) {
 		ma += 2 * plr[pnum]._pLevel;
-	} else if (ma == 255) {
-		ma = (BYTE)plr[pnum]._pMaxManaBase;
 	}
 
 	sl = plr[pnum]._pSplLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
 	if (sl < 0)
 		sl = 0;
-	if (sn == SPL_RESURRECT) {
-		adj = sl * (ma >> 3);
-	} else {
-		adj = sl * spelldata[sn].sManaAdj;
-		if (sn == SPL_FIREBOLT) {
-			adj >>= 1;
-		}
-	}
+	adj = sl * spelldata[sn].sManaAdj;
+	adj >>= 1;
 	ma -= adj;
-	if (ma < 0)
-		ma = 0;
-	ma <<= 6;
-
-	if (plr[pnum]._pClass == PC_ROGUE)
-		ma -= ma >> 2;
-#ifdef HELLFIRE
-	else if (plr[pnum]._pClass == PC_SORCERER)
-		ma >>= 1;
-	else if (plr[pnum]._pClass == PC_MONK || plr[pnum]._pClass == PC_BARD)
-		ma -= ma >> 2;
-#endif
-
-	mm = spelldata[sn].sMinMana << 6;
+	mm = spelldata[sn].sMinMana;
 	if (mm > ma)
 		ma = mm;
+	ma <<= 6;
 
 	//return ma * (100 - plr[pnum]._pISplCost) / 100;
 	return ma;
@@ -113,11 +93,10 @@ BOOL HasMana(int pnum, int sn, int sf)
 				return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
 			} else if (sf < INVITEM_BELT_FIRST) {
 				is = &plr[pnum].InvList[sf - INVITEM_INV_FIRST];
-				return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 			} else {
 				is = &plr[pnum].SpdList[sf - INVITEM_BELT_FIRST];
-				return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 			}
+			return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 		}
 	}
 	return TRUE;
@@ -183,129 +162,6 @@ BOOL CheckSpell(int pnum, int sn)
 #endif
 
 	return GetSpellLevel(pnum, sn) > 0 && plr[pnum]._pMana >= GetManaAmount(pnum, sn);
-}
-
-/*
- * @brief Find a place for the given player starting from its current location.
- *
- * TODO: In the original code it was possible to auto-townwarp after resurrection.
- *       The new solution prevents this, but in some cases it could be useful
- *       (in some cases it is annoying).
- *
- * @return TRUE if the player had to be displaced.
- */
-BOOL PlacePlayer(int pnum)
-{
-	int i, nx, ny, x, y;
-	BOOL done;
-
-	for (i = 0; i < lengthof(plrxoff2); i++) {
-		nx = plr[pnum]._px + plrxoff2[i];
-		ny = plr[pnum]._py + plryoff2[i];
-
-		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-			break;
-		}
-	}
-
-	if (i == 0)
-		return FALSE;
-
-	if (i == lengthof(plrxoff2)) {
-		done = FALSE;
-
-		for (i = 1; i < 50 && !done; i++) {
-			for (y = -i; y <= i && !done; y++) {
-				ny = plr[pnum]._py + y;
-
-				for (x = -i; x <= i && !done; x++) {
-					nx = plr[pnum]._px + x;
-
-					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-						done = TRUE;
-					}
-				}
-			}
-		}
-	}
-
-	plr[pnum]._px = nx;
-	plr[pnum]._py = ny;
-	return TRUE;
-}
-
-/**
- * @param pnum player index
- * @param tnum target player index
- */
-void DoResurrect(int pnum, int tnum)
-{
-	PlayerStruct *tp;
-
-	if ((DWORD)tnum >= MAX_PLRS)
-		return;
-
-	tp = &plr[tnum];
-	AddMissile(tp->_px, tp->_py, tp->_px, tp->_py, 0, MIS_RESURRECTBEAM, 0, pnum, 0, 0);
-
-	if (tp->_pHitPoints < (1 << 6)) {
-		if (tnum == myplr) {
-			deathflag = FALSE;
-			gamemenu_off();
-		}
-
-		ClrPlrPath(tnum);
-		tp->destAction = ACTION_NONE;
-		tp->_pInvincible = FALSE;
-
-		PlrSetHp(tnum, std::min(10 << 6, tp->_pMaxHPBase));
-		PlrSetMana(tnum, 0);
-
-		CalcPlrInv(tnum, TRUE);
-
-		if (tp->plrlevel == currlevel) {
-			PlacePlayer(tnum);
-			PlrStartStand(tnum, tp->_pdir);
-		} else {
-			tp->_pmode = PM_STAND;
-		}
-	}
-}
-
-void DoHealOther(int pnum, int tnum, int spllvl)
-{
-	int i, hp;
-
-	if ((DWORD)tnum >= MAX_PLRS)
-		return;
-
-	if (plr[tnum]._pHitPoints < (1 << 6))
-		return; // too late, the target is dead
-
-	hp = RandRange(1, 10);
-
-	for (i = plr[pnum]._pLevel; i > 0; i--) {
-		hp += RandRange(1, 4);
-	}
-
-	for (i = spllvl; i > 0; i--) {
-		hp += RandRange(1, 6);
-	}
-	hp <<= 6;
-
-	switch (plr[pnum]._pClass) {
-	case PC_WARRIOR: hp <<= 1;    break;
-#ifdef HELLFIRE
-	case PC_MONK: hp *= 3;        break;
-	case PC_BARBARIAN: hp <<= 1;  break;
-	case PC_BARD:
-#endif
-	case PC_ROGUE: hp += hp >> 1; break;
-	case PC_SORCERER: break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-	PlrIncHp(tnum, hp);
 }
 
 DEVILUTION_END_NAMESPACE

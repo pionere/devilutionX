@@ -1565,6 +1565,55 @@ static void StartSpell(int pnum)
 	FixPlayerLocation(pnum);
 }
 
+/*
+ * @brief Find a place for the given player starting from its current location.
+ *
+ * TODO: In the original code it was possible to auto-townwarp after resurrection.
+ *       The new solution prevents this, but in some cases it could be useful
+ *       (in some cases it is annoying).
+ *
+ * @return TRUE if the player had to be displaced.
+ */
+BOOL PlacePlayer(int pnum)
+{
+	int i, nx, ny, x, y;
+	BOOL done;
+
+	for (i = 0; i < lengthof(plrxoff2); i++) {
+		nx = plr[pnum]._px + plrxoff2[i];
+		ny = plr[pnum]._py + plryoff2[i];
+
+		if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+			break;
+		}
+	}
+
+	if (i == 0)
+		return FALSE;
+
+	if (i == lengthof(plrxoff2)) {
+		done = FALSE;
+
+		for (i = 1; i < 50 && !done; i++) {
+			for (y = -i; y <= i && !done; y++) {
+				ny = plr[pnum]._py + y;
+
+				for (x = -i; x <= i && !done; x++) {
+					nx = plr[pnum]._px + x;
+
+					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
+						done = TRUE;
+					}
+				}
+			}
+		}
+	}
+
+	plr[pnum]._px = nx;
+	plr[pnum]._py = ny;
+	return TRUE;
+}
+
 void RemovePlrFromMap(int pnum)
 {
 	int pp, pn;
@@ -2604,7 +2653,7 @@ static BOOL PlrDoRangeAttack(int pnum)
 
 	if (p->_pVar7 == 0) {
 		p->_pVar7++;
-		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_ARROW, 0, pnum, 0, 0);
+		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_ARROW, 0, pnum, 0, 0, 0);
 
 		if (WeaponDur(pnum, 40)) {
 			PlrStartStand(pnum, p->_pdir);
@@ -2778,7 +2827,7 @@ static BOOL PlrDoSpell(int pnum)
 
 		if (HasMana(pnum, p->_pVar3, p->_pVar5)
 		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
-				spelldata[p->_pVar3].sMissile, 0, pnum, 0, p->_pVar4) != -1) {
+				spelldata[p->_pVar3].sMissile, 0, pnum, 0, 0, p->_pVar4) != -1) {
 			UseMana(pnum, p->_pVar3, p->_pVar5);
 		}
 	}

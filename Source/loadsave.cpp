@@ -499,11 +499,10 @@ static void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_miRange);
 	CopyInt(tbuff, &mis->_miSource);
 	CopyInt(tbuff, &mis->_miCaster);
-	CopyInt(tbuff, &mis->_miDam);
-	CopyInt(tbuff, &mis->_miHitFlag);
+	CopyInt(tbuff, &mis->_miMinDam);
+	CopyInt(tbuff, &mis->_miMaxDam);
 	CopyInt(tbuff, &mis->_miDist);
 	CopyInt(tbuff, &mis->_miLid);
-	CopyInt(tbuff, &mis->_miRnd);
 	CopyInt(tbuff, &mis->_miVar1);
 	CopyInt(tbuff, &mis->_miVar2);
 	CopyInt(tbuff, &mis->_miVar3);
@@ -1195,11 +1194,10 @@ static void SaveMissile(int mi)
 	CopyInt(&mis->_miRange, tbuff);
 	CopyInt(&mis->_miSource, tbuff);
 	CopyInt(&mis->_miCaster, tbuff);
-	CopyInt(&mis->_miDam, tbuff);
-	CopyInt(&mis->_miHitFlag, tbuff);
+	CopyInt(&mis->_miMinDam, tbuff);
+	CopyInt(&mis->_miMaxDam, tbuff);
 	CopyInt(&mis->_miDist, tbuff);
 	CopyInt(&mis->_miLid, tbuff);
-	CopyInt(&mis->_miRnd, tbuff);
 	CopyInt(&mis->_miVar1, tbuff);
 	CopyInt(&mis->_miVar2, tbuff);
 	CopyInt(&mis->_miVar3, tbuff);
