@@ -248,10 +248,12 @@ typedef struct PlayerStruct {
 	// enum spell_type
 	char _pRSplType;
 	char _pOilFrom;
-	BYTE _pSplLvl[64];
-	uint64_t _pMemSpells;  // Bitmask of learned spells
-	uint64_t _pAblSpells;  // Bitmask of abilities
-	uint64_t _pScrlSpells; // Bitmask of spells avalible via scrolls
+	BYTE _pSkillLvl[64];
+	BYTE _pSkillActivity[64];
+	unsigned _pSkillExp[64];
+	uint64_t _pMemSkills;  // Bitmask of learned skills
+	uint64_t _pAblSkills;  // Bitmask of abilities
+	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
 	UCHAR _pSpellFlags;
 	int _pSplHotKey[4];
 	char _pSplTHotKey[4];
@@ -289,8 +291,8 @@ typedef struct PlayerStruct {
 	BYTE _pDiabloKillLevel;
 	WORD _pStatPts;
 	BOOLEAN _pLvlUp;
-	int _pExperience;
-	int _pNextExper;
+	unsigned _pExperience;
+	unsigned _pNextExper;
 	char _pMagResist;
 	char _pFireResist;
 	char _pLghtResist;
@@ -386,9 +388,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[509];
+	int alignment[429];
 #else
-	int alignment[513];
+	int alignment[433];
 #endif
 #endif
 } PlayerStruct;
@@ -1533,14 +1535,16 @@ typedef struct PkPlayerStruct {
 	BYTE pLevel;
 	BYTE pDiabloKillLevel;
 	WORD pStatPts;
-	int pExperience;
+	DWORD pExperience;
 	int pGold;
 	int pHPBase;
 	int pMaxHPBase;
 	int pManaBase;
 	int pMaxManaBase;
-	BYTE pSplLvl[64];
-	uint64_t pMemSpells;
+	BYTE pSkillLvl[64];
+	BYTE pSkillActivity[64];
+	DWORD pSkillExp[64];
+	uint64_t pMemSkills;
 	PkItemStruct InvBody[NUM_INVLOC];
 	PkItemStruct SpdList[MAXBELTITEMS];
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];

@@ -696,7 +696,6 @@ static void S_ScrollWBuy()
 	is = &witchitem[stextsidx];
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
-			SetBookLevel(myplr, is);
 			iclr = StorePrepareItemSell(is);
 
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);

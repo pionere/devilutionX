@@ -973,14 +973,14 @@ void StoreSpellCoords()
 	for (int i = 0; i < 4; i++) {
 		std::uint64_t spells;
 		switch (i) {
-		case RSPLTYPE_SKILL:
-			spells = plr[myplr]._pAblSpells;
+		case RSPLTYPE_ABILITY:
+			spells = plr[myplr]._pAblSkills;
 			break;
 		case RSPLTYPE_SPELL:
-			spells = plr[myplr]._pMemSpells;
+			spells = plr[myplr]._pMemSkills;
 			break;
 		case RSPLTYPE_SCROLL:
-			spells = plr[myplr]._pScrlSpells;
+			spells = plr[myplr]._pScrlSkills;
 			break;
 		case RSPLTYPE_CHARGES:
 			spells = plr[myplr]._pISpells;

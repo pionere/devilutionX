@@ -1460,7 +1460,6 @@ void InvGetItem(int pnum, int ii)
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
-	SetBookLevel(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(p->HoldItem, *is);
 	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
@@ -1495,7 +1494,6 @@ void AutoGetItem(int pnum, int ii)
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	is->_iCreateInfo &= ~CF_PREGEN;
 	CheckQuestItem(pnum, is);
-	SetBookLevel(pnum, is);
 	ItemStatOk(pnum, is);
 	if (is->_itype == ITYPE_GOLD) {
 		done = GoldAutoPlace(pnum, is);
@@ -1916,7 +1914,7 @@ static void InvAddMana()
 
 BOOL UseInvItem(int cii)
 {
-	int iv;
+	int iv, sn;
 	ItemStruct *is;
 	BOOL speedlist;
 	int pnum = myplr;
@@ -2010,24 +2008,31 @@ BOOL UseInvItem(int cii)
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 #endif
-		if (spelldata[is->_iSpell].scCurs != CURSOR_NONE) {
+		sn = is->_iSpell;
+		if (spelldata[sn].scCurs != CURSOR_NONE) {
 			//if (pnum == myplr)
-				NewCursor(spelldata[is->_iSpell].scCurs);
-			plr[pnum]._pTSpell = is->_iSpell;
+				NewCursor(spelldata[sn].scCurs);
+			plr[pnum]._pTSpell = sn;
 			plr[pnum]._pSplFrom = cii;
 		} else {
 			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY,
-				cursmx, cursmy, is->_iSpell, cii, GetSpellLevel(pnum, is->_iSpell));
+				cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
 		}
 		return TRUE;
 	case IMISC_BOOK:
 		p = &plr[pnum];
-		p->_pMemSpells |= SPELL_MASK(is->_iSpell);
-		if (p->_pSplLvl[is->_iSpell] < MAXSPLLEVEL)
-			p->_pSplLvl[is->_iSpell]++;
-		PlrIncMana(pnum, spelldata[is->_iSpell].sManaCost << 6);
-		//if (pnum == myplr)
-			CalcPlrBookVals(pnum);
+		sn = is->_iSpell;
+		p->_pMemSkills |= SPELL_MASK(sn);
+		p->_pSkillExp[sn] += SkillExpLvlsTbl[0];
+		if (p->_pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
+			p->_pSkillExp[sn] = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
+		}
+
+		if (p->_pSkillExp[sn] >= SkillExpLvlsTbl[p->_pSkillLvl[sn]]) {
+			p->_pSkillLvl[sn]++;
+			NetSendCmdBParam2(FALSE, CMD_PLRSKILLLVL, sn, p->_pSkillLvl[sn]);
+		}
+		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		break;
 	case IMISC_MAPOFDOOM:
 		doom_init();

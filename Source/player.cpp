@@ -156,8 +156,8 @@ const int Abilities[NUM_CLASSES] = {
 #endif
 };
 
-/** Specifies the experience point limit of each level. */
-const int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
+/** Specifies the experience point limit of each player level. */
+const unsigned PlrExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	0,
 	2000,
 	4620,
@@ -209,6 +209,26 @@ const int ExpLvlsTbl[MAXCHARLEVEL + 1] = {
 	1082908612,
 	1310707109,
 	1583495809
+};
+
+/** Specifies the experience point limit of skill-level. */
+const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
+	8040,
+	25712,
+	63364,
+	141086,
+	313656,
+	766569,
+	1814568,
+	4166200,
+	9281874,
+	20066900,
+	42095202,
+	85670061,
+	169122009,
+	323800420,
+	601170414,
+	1082908612,
 };
 
 static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
@@ -703,7 +723,7 @@ void CreatePlayer(int pnum, char c)
 
 	p->_pLevel = 1;
 	p->_pLvlUp = FALSE; // indicator whether the stat button should be shown
-	p->_pNextExper = ExpLvlsTbl[1];
+	p->_pNextExper = PlrExpLvlsTbl[1];
 #ifdef HELLFIRE
 	if (c == PC_BARBARIAN) {
 		p->_pMagResist = 1;
@@ -714,14 +734,15 @@ void CreatePlayer(int pnum, char c)
 #endif
 	p->_pLightRad = 10;
 
-	p->_pAblSpells = SPELL_MASK(Abilities[c]);
-	p->_pAblSpells |= SPELL_MASK(SPL_WALK);
-	p->_pAblSpells |= SPELL_MASK(SPL_WATTACK);
-	p->_pAblSpells |= SPELL_MASK(SPL_ATTACK);
+	p->_pAblSkills = SPELL_MASK(Abilities[c]);
+	p->_pAblSkills |= SPELL_MASK(SPL_WALK);
+	p->_pAblSkills |= SPELL_MASK(SPL_WATTACK);
+	p->_pAblSkills |= SPELL_MASK(SPL_ATTACK);
 
 	if (c == PC_SORCERER) {
-		p->_pSplLvl[SPL_FIREBOLT] = 2;
-		p->_pMemSpells = SPELL_MASK(SPL_FIREBOLT);
+		p->_pSkillLvl[SPL_FIREBOLT] = 2;
+		p->_pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
+		p->_pMemSkills = SPELL_MASK(SPL_FIREBOLT);
 	}
 	for (i = 0; i < lengthof(p->_pSplHotKey); i++)
 		p->_pSplHotKey[i] = SPL_INVALID;
@@ -747,7 +768,7 @@ void NextPlrLevel(int pnum)
 	p->_pStatPts += 8;
 	p->_pLvlUp = TRUE;
 
-	p->_pNextExper = ExpLvlsTbl[p->_pLevel];
+	p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
 
 	hp = p->_pClass == PC_SORCERER ? 64 : 128;
 
@@ -777,6 +798,56 @@ void NextPlrLevel(int pnum)
 #endif
 }
 
+static void AddPlrSkillExp(int pnum, int lvl, int exp)
+{
+	PlayerStruct *p;
+	int i, n = 0, dLvl;
+	BYTE shr, sn, sl;
+	unsigned xp;
+	BYTE skills[NUM_SPELLS];
+
+	p = &plr[pnum];
+	// collect the active skills
+	for (i = 0; i < NUM_SPELLS; i++) {
+		if (p->_pSkillActivity[i] != 0 && (4 * p->_pSkillLvl[i]) < lvl + 8) {
+			skills[n] = i;
+			n++;
+		}
+	}
+
+	// calculate modifier
+	static_assert(NUM_SPELLS < 64, "Optimization requires the highest bit to be free.");
+	shr = 3;
+	for (i = 1; i < n; i <<= 1) {
+		shr++;
+	}
+
+	// raise the exp of the active skills
+	for (i = 0; i < n; i++) {
+		sn = skills[i];
+		p->_pSkillActivity[sn]--;
+
+		sl = p->_pSkillLvl[sn];
+		dLvl = 8 + lvl - (4 * sl);
+		xp = (exp * dLvl) >> shr; // / (8 * n);
+
+		xp += p->_pSkillExp[sn];
+		if (xp > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
+			xp = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
+		}
+
+		p->_pSkillExp[sn] = xp;
+		while (xp >= SkillExpLvlsTbl[sl]) {
+			sl++;
+		}
+		if (sl == p->_pSkillLvl[sn])
+			continue;
+		assert(sl <= MAXSPLLEVEL);
+		p->_pSkillLvl[sn] = sl;
+		NetSendCmdBParam2(FALSE, CMD_PLRSKILLLVL, sn, sl);
+	}
+}
+
 void AddPlrExperience(int pnum, int lvl, int exp)
 {
 	PlayerStruct *p;
@@ -794,6 +865,9 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	if (p->_pHitPoints < (1 << 6)) {
 		return;
 	}
+
+	// Add xp to the used skills
+	AddPlrSkillExp(pnum, lvl, exp);
 
 	// Adjust xp based on difference in level between player and monster
 	dLvl = 8 + lvl - p->_pLevel;
@@ -818,8 +892,8 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 
 	p->_pExperience += exp;
-	if (p->_pExperience > ExpLvlsTbl[MAXCHARLEVEL] - 1) {
-		p->_pExperience = ExpLvlsTbl[MAXCHARLEVEL] - 1;
+	if (p->_pExperience > PlrExpLvlsTbl[MAXCHARLEVEL] - 1) {
+		p->_pExperience = PlrExpLvlsTbl[MAXCHARLEVEL] - 1;
 	}
 
 	// Increase player level if applicable
@@ -865,13 +939,13 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 
-		p->_pAblSpells = SPELL_MASK(Abilities[p->_pClass]);
-		p->_pAblSpells |= SPELL_MASK(SPL_WALK);
-		p->_pAblSpells |= SPELL_MASK(SPL_WATTACK);
-		p->_pAblSpells |= SPELL_MASK(SPL_ATTACK);
+		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
+		p->_pAblSkills |= SPELL_MASK(SPL_WALK);
+		p->_pAblSkills |= SPELL_MASK(SPL_WATTACK);
+		p->_pAblSkills |= SPELL_MASK(SPL_ATTACK);
 		CalcPlrAbilities(pnum);
 
-		p->_pNextExper = ExpLvlsTbl[p->_pLevel];
+		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
 	}
 
 #ifdef _DEBUG
@@ -3133,12 +3207,12 @@ static void ValidatePlayer()
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
-			if (p->_pSplLvl[i] > MAXSPLLEVEL)
-				p->_pSplLvl[i] = MAXSPLLEVEL;
+			if (p->_pSkillLvl[i] > MAXSPLLEVEL)
+				p->_pSkillLvl[i] = MAXSPLLEVEL;
 		}
 	}
 
-	p->_pMemSpells &= msk;
+	p->_pMemSkills &= msk;
 }
 
 static void CheckCheatStats(int pnum)

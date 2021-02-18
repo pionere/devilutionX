@@ -967,9 +967,9 @@ void CalcPlrAbilities(int pnum)
 
 	p = &plr[pnum];
 	if (p->_pBlockFlag) {
-		p->_pAblSpells |= SPELL_MASK(SPL_BLOCK);
+		p->_pAblSkills |= SPELL_MASK(SPL_BLOCK);
 	} else {
-		p->_pAblSpells &= ~SPELL_MASK(SPL_BLOCK);
+		p->_pAblSkills &= ~SPELL_MASK(SPL_BLOCK);
 		// check if the current RSplType is a valid/allowed ability
 		if (p->_pRSpell == SPL_BLOCK) {
 			p->_pRSpell = SPL_INVALID;
@@ -986,20 +986,20 @@ void CalcPlrScrolls(int pnum)
 	int i;
 
 	p = &plr[pnum];
-	p->_pScrlSpells = 0;
+	p->_pScrlSkills = 0;
 
 	pi = p->InvList;
 	for (i = p->_pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
-			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
+			p->_pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 	pi = p->SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
-			p->_pScrlSpells |= SPELL_MASK(pi->_iSpell);
+			p->_pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_SCROLL && !(p->_pScrlSpells & SPELL_MASK(p->_pRSpell))) {
+	if (p->_pRSplType == RSPLTYPE_SCROLL && !(p->_pScrlSkills & SPELL_MASK(p->_pRSpell))) {
 		p->_pRSpell = SPL_INVALID;
 		p->_pRSplType = RSPLTYPE_INVALID;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
@@ -1095,7 +1095,6 @@ void CalcPlrBookVals(int pnum)
 	pi = plr[pnum].InvList;
 	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
 		if (pi->_iMiscId == IMISC_BOOK) {
-			SetBookLevel(pnum, pi);
 			ItemStatOk(pnum, pi);
 		}
 	}
@@ -3692,24 +3691,6 @@ static void SortWitch()
 			}
 		}
 		j--;
-	}
-}
-
-void SetBookLevel(int pnum, ItemStruct *is)
-{
-	int slvl;
-
-	if (is->_iMiscId == IMISC_BOOK) {
-		is->_iMinMag = spelldata[is->_iSpell].sMinInt;
-		slvl = plr[pnum]._pSplLvl[is->_iSpell];
-		while (slvl != 0) {
-			is->_iMinMag += 20 * is->_iMinMag / 100;
-			slvl--;
-			if (is->_iMinMag + 20 * is->_iMinMag / 100 > UCHAR_MAX) {
-				is->_iMinMag = UCHAR_MAX;
-				slvl = 0;
-			}
-		}
 	}
 }
 

@@ -17,7 +17,7 @@ int GetManaAmount(int pnum, int sn)
 		ma += 2 * plr[pnum]._pLevel;
 	}
 
-	sl = plr[pnum]._pSplLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
+	sl = plr[pnum]._pSkillLvl[sn] + plr[pnum]._pISplLvlAdd - 1;
 	if (sl < 0)
 		sl = 0;
 	adj = sl * spelldata[sn].sManaAdj;
@@ -46,8 +46,9 @@ void UseMana(int pnum, int sn, int sf)
 			ma = 0; // REMOVEME GetManaAmount(pnum, sn);
 			plr[pnum]._pMana -= ma;
 			plr[pnum]._pManaBase -= ma;
+			plr[pnum]._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr[pnum]._pSkillActivity[sn], UCHAR_MAX);
 			gbRedrawFlags |= REDRAW_MANA_FLASK;
-		} else if (sf != SPLFROM_SKILL) {
+		} else if (sf != SPLFROM_ABILITY) {
 			static_assert(NUM_INVLOC == INVITEM_INV_FIRST, "Equipped items must preceed INV items in UseMana.");
 			static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in UseMana.");
 			if (sf < INVITEM_INV_FIRST) {
@@ -85,7 +86,7 @@ BOOL HasMana(int pnum, int sn, int sf)
 				return TRUE;
 #endif
 			return plr[pnum]._pMana >= GetManaAmount(pnum, sn);
-		} else if (sf != SPLFROM_SKILL) {
+		} else if (sf != SPLFROM_ABILITY) {
 			static_assert(NUM_INVLOC == INVITEM_INV_FIRST, "Equipped items must preceed INV items in HasMana.");
 			static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in HasMana.");
 			if (sf < INVITEM_INV_FIRST) {
@@ -111,7 +112,7 @@ int SpellSourceInv(int sn)
 	p = &plr[myplr];
 	static_assert(INVITEM_INV_FIRST > SPLFROM_INVALID || INVITEM_INV_LAST < SPLFROM_INVALID, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_INVALID.");
 	static_assert(INVITEM_INV_FIRST > SPLFROM_MANA || INVITEM_INV_LAST < SPLFROM_MANA, "SpellSourceInv expects the INV indices to be distinct from SPL_MANA.");
-	static_assert(INVITEM_INV_FIRST > SPLFROM_SKILL || INVITEM_INV_LAST < SPLFROM_SKILL, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_SKILL.");
+	static_assert(INVITEM_INV_FIRST > SPLFROM_ABILITY || INVITEM_INV_LAST < SPLFROM_ABILITY, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_ABILITY.");
 	pi = p->InvList;
 	for (i = 0; i < p->_pNumInv; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
@@ -119,7 +120,7 @@ int SpellSourceInv(int sn)
 	}
 	static_assert(INVITEM_BELT_FIRST > SPLFROM_INVALID || INVITEM_BELT_LAST < SPLFROM_INVALID, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_INVALID.");
 	static_assert(INVITEM_BELT_FIRST > SPLFROM_MANA || INVITEM_BELT_LAST < SPLFROM_MANA, "SpellSourceInv expects the BELT indices to be distinct from SPL_MANA.");
-	static_assert(INVITEM_BELT_FIRST > SPLFROM_SKILL || INVITEM_BELT_LAST < SPLFROM_SKILL, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_SKILL.");
+	static_assert(INVITEM_BELT_FIRST > SPLFROM_ABILITY || INVITEM_BELT_LAST < SPLFROM_ABILITY, "SpellSourceInv expects the BELT indices to be distinct from SPLFROM_ABILITY.");
 	pi = p->SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iSpell == sn)
@@ -135,7 +136,7 @@ int SpellSourceEquipment(int sn)
 
 	static_assert(INVITEM_HAND_LEFT != SPLFROM_INVALID, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_INVALID.");
 	static_assert(INVITEM_HAND_LEFT != SPLFROM_MANA, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPL_MANA.");
-	static_assert(INVITEM_HAND_LEFT != SPLFROM_SKILL, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_SKILL.");
+	static_assert(INVITEM_HAND_LEFT != SPLFROM_ABILITY, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_ABILITY.");
 	pi = &plr[myplr].InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0) {
 		return INVITEM_HAND_LEFT;
@@ -148,7 +149,7 @@ int GetSpellLevel(int pnum, int sn)
 {
 	int result;
 
-	result = plr[pnum]._pISplLvlAdd + plr[pnum]._pSplLvl[sn];
+	result = plr[pnum]._pISplLvlAdd + plr[pnum]._pSkillLvl[sn];
 	if (result < 0)
 		result = 0;
 	return result;

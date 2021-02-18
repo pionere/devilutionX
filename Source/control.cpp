@@ -46,7 +46,7 @@ int numpanbtns;
 BYTE SplTransTbl[256];
 static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_SCROLL != -1, "Cached value of spellTrans must not be -1.");
-static_assert(RSPLTYPE_SKILL != -1, "Cached value of spellTrans must not be -1.");
+static_assert(RSPLTYPE_ABILITY != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_SPELL != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1.");
 char lastSt = -1;
@@ -252,7 +252,7 @@ static void SetSpellTrans(char st)
 	if (lastSt == st)
 		return;
 
-	if (st == RSPLTYPE_SKILL) {
+	if (st == RSPLTYPE_ABILITY) {
 		for (i = 0; i < 128; i++)
 			SplTransTbl[i] = i;
 	}
@@ -261,7 +261,7 @@ static void SetSpellTrans(char st)
 	SplTransTbl[255] = 0;
 
 	switch (st) {
-	case RSPLTYPE_SKILL:
+	case RSPLTYPE_ABILITY:
 		break;
 	case RSPLTYPE_SPELL:
 		SplTransTbl[PAL8_YELLOW] = PAL16_BLUE + 1;
@@ -318,7 +318,7 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 
 	p = &plr[myplr];
 	switch (st) {
-	case RSPLTYPE_SKILL:
+	case RSPLTYPE_ABILITY:
 		break;
 	case RSPLTYPE_SPELL:
 		if (lvl > 0) {
@@ -401,22 +401,22 @@ void DrawSpeedBook()
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	y = PANEL_Y - 17;
 	p = &plr[myplr];
-	static_assert(RSPLTYPE_SKILL == 0, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 1.");
+	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 3.");
 	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 4.");
 	for (i = 0; i < 4; i++) {
 		switch (i) {
-		case RSPLTYPE_SKILL:
-			mask = p->_pAblSpells;
+		case RSPLTYPE_ABILITY:
+			mask = p->_pAblSkills;
 			//c = SPLICONLAST + 3;
 			break;
 		case RSPLTYPE_SPELL:
-			mask = p->_pMemSpells;
+			mask = p->_pMemSkills;
 			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_SCROLL:
-			mask = p->_pScrlSpells;
+			mask = p->_pScrlSkills;
 			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
@@ -508,14 +508,14 @@ void ToggleSpell(int slot)
 
 	p = &plr[myplr];
 	switch (p->_pSplTHotKey[slot]) {
-	case RSPLTYPE_SKILL:
-		spells = p->_pAblSpells;
+	case RSPLTYPE_ABILITY:
+		spells = p->_pAblSkills;
 		break;
 	case RSPLTYPE_SPELL:
-		spells = p->_pMemSpells;
+		spells = p->_pMemSkills;
 		break;
 	case RSPLTYPE_SCROLL:
-		spells = p->_pScrlSpells;
+		spells = p->_pScrlSkills;
 		break;
 	case RSPLTYPE_CHARGES:
 		spells = p->_pISpells;
@@ -784,7 +784,7 @@ void InitControlPan()
 #else
 	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL", NULL);
 #endif
-	SetSpellTrans(RSPLTYPE_SKILL);
+	SetSpellTrans(RSPLTYPE_ABILITY);
 	talkflag = FALSE;
 	if (gbMaxPlayers != 1) {
 		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL", NULL);
@@ -869,20 +869,20 @@ void DoSpeedBook()
 	X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
 	Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
 	if (p->_pRSpell != SPL_INVALID) {
-		static_assert(RSPLTYPE_SKILL == 0, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 1.");
+		static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 1.");
 		static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 2.");
 		static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 3.");
 		static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 4.");
 		for (i = 0; i < 4; i++) {
 			switch (i) {
-			case RSPLTYPE_SKILL:
-				spells = p->_pAblSpells;
+			case RSPLTYPE_ABILITY:
+				spells = p->_pAblSkills;
 				break;
 			case RSPLTYPE_SPELL:
-				spells = p->_pMemSpells;
+				spells = p->_pMemSkills;
 				break;
 			case RSPLTYPE_SCROLL:
-				spells = p->_pScrlSpells;
+				spells = p->_pScrlSkills;
 				break;
 			case RSPLTYPE_CHARGES:
 				spells = p->_pISpells;
@@ -1724,7 +1724,7 @@ void DrawInfoStr()
 			return;
 		const char* fmt;
 		switch (pSplType) {
-		case RSPLTYPE_SKILL:
+		case RSPLTYPE_ABILITY:
 			fmt = "%s Skill";
 			break;
 		case RSPLTYPE_SPELL:
@@ -1902,8 +1902,8 @@ static char GetSBookTrans(int sn, BOOL townok)
 	char st;
 
 	p = &plr[myplr];
-	if (p->_pAblSpells & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
-		st = RSPLTYPE_SKILL;
+	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
+		st = RSPLTYPE_ABILITY;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
 	} else if (CheckSpell(myplr, sn)) {
@@ -1941,7 +1941,7 @@ void DrawSpellBook()
 	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, TRUE, COL_WHITE, 0);
 
 	p = &plr[myplr];
-	spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
+	spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
 
 	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
@@ -1952,11 +1952,11 @@ void DrawSpellBook()
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, SpellITbl[sn], SBOOK_CELWIDTH);
 			if (sn == p->_pRSpell && st == p->_pRSplType) {
-				SetSpellTrans(RSPLTYPE_SKILL);
+				SetSpellTrans(RSPLTYPE_ABILITY);
 				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
 			}
 			switch (GetSBookTrans(sn, FALSE)) {
-			case RSPLTYPE_SKILL:
+			case RSPLTYPE_ABILITY:
 				copy_cstr(tempstr, "Skill");
 				mana = 0;
 				break;
@@ -2013,10 +2013,10 @@ void CheckSBook()
 		if (dx < 2 * SBOOK_CELBORDER + SBOOK_CELWIDTH) {
 			sn = SpellPages[sbooktab][dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT)];
 			p = &plr[myplr];
-			spl = p->_pMemSpells | p->_pISpells | p->_pAblSpells;
+			spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
 			if (sn != SPL_INVALID && spl & SPELL_MASK(sn)) {
-				if (p->_pAblSpells & SPELL_MASK(sn))
-					st = RSPLTYPE_SKILL;
+				if (p->_pAblSkills & SPELL_MASK(sn))
+					st = RSPLTYPE_ABILITY;
 				else if (p->_pISpells & SPELL_MASK(sn))
 					st = RSPLTYPE_CHARGES;
 				else

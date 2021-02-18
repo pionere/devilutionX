@@ -25,7 +25,6 @@ const char *const MsgStrings[NUM_EMSGS] = {
 	"While the spirit is vigilant the body thrives.",	// EMSG_SHRINE_MAGICAL
 	"The powers of mana refocused renews.",				// EMSG_SHRINE_STONE
 	"Beware of too much power in one hand.",	 		// EMSG_SHRINE_CREEPY
-	"Magic is not always what it seems to be.",			// EMSG_SHRINE_ENCHANTED
 	"What once was opened now is closed.",				// EMSG_SHRINE_THAUMATURGIC
 	"Intensity comes at the cost of wisdom.",			// EMSG_SHRINE_FASCINATING
 	"Let the spirits guide you.",						// EMSG_SHRINE_SHIMMERING
@@ -65,6 +64,7 @@ const char *const MsgStrings[NUM_EMSGS] = {
 // "No Pause in town",
 // "No pause in multiplayer",
 // "Those who defend seldom attack",
+// "Magic is not always what it seems to be."
 // "Knowledge and wisdom at the cost of self",
 // "The sword of justice is swift and sharp"
 // "Some are weakened as one grows strong",

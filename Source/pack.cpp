@@ -67,11 +67,18 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pMaxHPBase = SwapLE32(p->_pMaxHPBase);
 	pPack->pManaBase = SwapLE32(p->_pManaBase);
 	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
-	pPack->pMemSpells = SDL_SwapLE64(p->_pMemSpells);
 
-	static_assert(sizeof(p->_pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
-	static_assert(sizeof(pPack->pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
-	memcpy(pPack->pSplLvl, p->_pSplLvl, sizeof(p->_pSplLvl));
+	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy I.");
+	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy II.");
+	memcpy(pPack->pSkillLvl, p->_pSkillLvl, sizeof(p->_pSkillLvl));
+	static_assert(sizeof(p->_pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy III.");
+	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy IV.");
+	memcpy(pPack->pSkillActivity, p->_pSkillActivity, sizeof(p->_pSkillActivity));
+	static_assert(NUM_SPELLS <= 64, "Packing of PkPlayerStruct is no longer compatible.");
+	for (i = 0; i < 64; i++) {
+		pPack->pSkillExp[i] = SwapLE32(p->_pSkillExp[i]);
+	}
+	pPack->pMemSkills = SDL_SwapLE64(p->_pMemSkills);
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];
@@ -210,11 +217,18 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL active)
 
 	p->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
 	p->_pManaBase = SwapLE32(pPack->pManaBase);
-	p->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
 
-	static_assert(sizeof(p->_pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy III.");
-	static_assert(sizeof(pPack->pSplLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy IV.");
-	memcpy(p->_pSplLvl, pPack->pSplLvl, sizeof(pPack->pSplLvl));
+	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
+	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
+	memcpy(p->_pSkillLvl, pPack->pSkillLvl, sizeof(pPack->pSkillLvl));
+	static_assert(sizeof(p->_pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VII.");
+	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VIII.");
+	memcpy(p->_pSkillActivity, pPack->pSkillActivity, sizeof(pPack->pSkillActivity));
+	static_assert(NUM_SPELLS <= 64, "UnPacking of PkPlayerStruct is no longer compatible.");
+	for (i = 0; i < 64; i++) {
+		p->_pSkillExp[i] = SwapLE32(pPack->pSkillExp[i]);
+	}
+	p->_pMemSkills = SDL_SwapLE64(pPack->pMemSkills);
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];

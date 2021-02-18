@@ -802,7 +802,7 @@ void AltActionBtnCmd(BOOL bShift)
 
 	sfx = NULL;
 	switch (plr[myplr]._pRSplType) {
-	case RSPLTYPE_SKILL:
+	case RSPLTYPE_ABILITY:
 		if (rspell == SPL_WATTACK) {
 			if (AttackCmd(bShift))
 				return;
@@ -821,7 +821,7 @@ void AltActionBtnCmd(BOOL bShift)
 			NetSendCmdParam1(TRUE, CMD_BLOCK, dir);
 			return;
 		}
-		sf = SPLFROM_SKILL;
+		sf = SPLFROM_ABILITY;
 		break;
 	case RSPLTYPE_SPELL:
 		sf = CheckSpell(myplr, rspell) ? SPLFROM_MANA : SPLFROM_INVALID;

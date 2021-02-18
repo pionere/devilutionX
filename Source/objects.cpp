@@ -32,7 +32,6 @@ const char *const shrinestrs[NUM_SHRINETYPE] = {
 	"Magical",
 	"Stone",
 	"Creepy",
-	"Enchanted",
 	"Thaumaturgic",
 	"Fascinating",
 	"Shimmering",
@@ -65,7 +64,6 @@ const char shrinemin[NUM_SHRINETYPE] = {
 	1, // Magical
 	1, // Stone
 	1, // Creepy
-	1, // Enchanted
 	1, // Thaumaturgic
 	1, // Fascinating
 	1, // Shimmering
@@ -98,7 +96,6 @@ const char shrinemax[NUM_SHRINETYPE] = {
 	MAX_LVLS, // Magical
 	MAX_LVLS, // Stone
 	MAX_LVLS, // Creepy
-	8,        // Enchanted
 	MAX_LVLS, // Thaumaturgic
 	MAX_LVLS, // Fascinating
 	MAX_LVLS, // Shimmering
@@ -136,7 +133,6 @@ const BYTE shrineavail[NUM_SHRINETYPE] = {
 	SHRINETYPE_ANY,    // SHRINE_MAGICAL
 	SHRINETYPE_ANY,    // SHRINE_STONE
 	SHRINETYPE_ANY,    // SHRINE_CREEPY
-	SHRINETYPE_ANY,    // SHRINE_ENCHANTED
 	SHRINETYPE_SINGLE, // SHRINE_THAUMATURGIC
 	SHRINETYPE_ANY,    // SHRINE_FASCINATING
 	SHRINETYPE_ANY,    // SHRINE_SHIMMERING
@@ -2938,9 +2934,11 @@ static void OperateBook(int pnum, int oi)
 		return;
 
 	if (setlvlnum == SL_BONECHAMB) {
-		plr[pnum]._pMemSpells |= SPELL_MASK(SPL_GUARDIAN);
-		if (plr[pnum]._pSplLvl[SPL_GUARDIAN] < MAXSPLLEVEL)
-			plr[pnum]._pSplLvl[SPL_GUARDIAN]++;
+		if (plr[pnum]._pSkillLvl[SPL_GUARDIAN] == 0) {
+			plr[pnum]._pSkillLvl[SPL_GUARDIAN] = 1;
+			plr[pnum]._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
+			plr[pnum]._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
+		}
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (!deltaload)
 			PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
@@ -3321,6 +3319,15 @@ static void ConvertPotion(ItemStruct *pi)
 	}
 }
 
+static void AddRaiseSkill(PlayerStruct *p, int sn)
+{
+	p->_pMemSkills |= SPELL_MASK(sn);
+	if (p->_pSkillLvl[sn] < MAXSPLLEVEL) {
+		p->_pSkillExp[sn] = SkillExpLvlsTbl[p->_pSkillLvl[sn]];
+		p->_pSkillLvl[sn]++;
+	}
+}
+
 static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 {
 	ObjectStruct *os;
@@ -3328,7 +3335,6 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	ItemStruct *pi;
 	int i, r, cnt;
 	int xx, yy;
-	unsigned __int64 spell, spells;
 
 	assert((DWORD)oi < MAXOBJECTS);
 
@@ -3475,38 +3481,6 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 
 		InitDiabloMsg(EMSG_SHRINE_CREEPY);
 		break;
-	case SHRINE_ENCHANTED:
-		if (deltaload)
-			return;
-		if (pnum != myplr)
-			return;
-		cnt = 0;
-		spell = 1;
-		spells = p->_pMemSpells;
-		for (i = 0; i < NUM_SPELLS; i++) {
-			if (spell & spells)
-				cnt++;
-			spell <<= 1;
-		}
-		if (cnt > 1) {
-			r = random_(0, cnt);
-			spell = 1;
-			for (i = 1; i <= NUM_SPELLS; i++) {
-				if (spell & spells) {
-					if (r == 0) {
-						if (p->_pSplLvl[i] != 0)
-							p->_pSplLvl[i]--;
-					} else {
-						if (p->_pSplLvl[i] < MAXSPLLEVEL)
-							p->_pSplLvl[i]++;
-					}
-					r--;
-				}
-				spell <<= 1;
-			}
-		}
-		InitDiabloMsg(EMSG_SHRINE_ENCHANTED);
-		break;
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < nobjects; i++) {
 			os = &object[objectactive[i]];
@@ -3527,16 +3501,12 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	case SHRINE_FASCINATING:
 		if (deltaload)
 			return;
-		if (pnum != myplr)
-			return;
-		p->_pMemSpells |= SPELL_MASK(SPL_FIREBOLT);
-		if (p->_pSplLvl[SPL_FIREBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_FIREBOLT]++;
-		if (p->_pSplLvl[SPL_FIREBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_FIREBOLT]++;
 
+		AddRaiseSkill(p, SPL_FIREBOLT);
 		ReducePlrMana10(p);
 
+		if (pnum != myplr)
+			return;
 		InitDiabloMsg(EMSG_SHRINE_FASCINATING);
 		break;
 	case SHRINE_SHIMMERING:
@@ -3638,29 +3608,23 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
 		break;
 	case SHRINE_SACRED:
-		if (deltaload || pnum != myplr)
+		if (deltaload)
 			return;
-		p->_pMemSpells |= SPELL_MASK(SPL_CBOLT);
-		if (p->_pSplLvl[SPL_CBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_CBOLT]++;
-		if (p->_pSplLvl[SPL_CBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_CBOLT]++;
-
+		AddRaiseSkill(p, SPL_CBOLT);
 		ReducePlrMana10(p);
 
+		if (pnum != myplr)
+			return;
 		InitDiabloMsg(EMSG_SHRINE_SACRED);
 		break;
 	case SHRINE_ORNATE:
-		if (deltaload || pnum != myplr)
+		if (deltaload)
 			return;
-		p->_pMemSpells |= SPELL_MASK(SPL_HBOLT);
-		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_HBOLT]++;
-		if (p->_pSplLvl[SPL_HBOLT] < MAXSPLLEVEL)
-			p->_pSplLvl[SPL_HBOLT]++;
-
+		AddRaiseSkill(p, SPL_HBOLT);
 		ReducePlrMana10(p);
 
+		if (pnum != myplr)
+			return;
 		InitDiabloMsg(EMSG_SHRINE_ORNATE);
 		break;
 	case SHRINE_SPIRITUAL:

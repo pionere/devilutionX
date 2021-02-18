@@ -69,7 +69,6 @@ void DrawUniqueInfo();
 void DrawInvItemDetails();
 void SpawnSmith(int lvl);
 void SpawnPremium(int lvl);
-void SetBookLevel(int pnum, ItemStruct *is);
 void SpawnWitch(int lvl);
 void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);

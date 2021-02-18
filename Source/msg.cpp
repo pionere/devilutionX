@@ -2149,8 +2149,20 @@ static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs == 1)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (cmd->bParam1 <= MAXCHARLEVEL && pnum != myplr)
+	else if (pnum != myplr && cmd->bParam1 <= MAXCHARLEVEL)
 		plr[pnum]._pLevel = cmd->bParam1;
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_PLRSKILLLVL(TCmd *pCmd, int pnum)
+{
+	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr && cmd->bParam2 <= MAXSPLLEVEL)
+		plr[pnum]._pSkillLvl[cmd->bParam1] = cmd->bParam2;
 
 	return sizeof(*cmd);
 }
@@ -2512,6 +2524,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_DELPLRITEMS(pCmd, pnum);
 	case CMD_PLRLEVEL:
 		return On_PLRLEVEL(pCmd, pnum);
+	case CMD_PLRSKILLLVL:
+		return On_PLRSKILLLVL(pCmd, pnum);
 	case CMD_DROPITEM:
 		return On_DROPITEM(pCmd, pnum);
 	case CMD_ACK_PLRINFO:
