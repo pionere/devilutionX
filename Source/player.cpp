@@ -1792,10 +1792,6 @@ static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 
 	// RespawnDeadItem
 	assert(numitems < MAXITEMS);
-	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) >= 0) {
-		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
-		SyncGetItem(xx, yy, is->_iIdx, is->_iCreateInfo, is->_iSeed);
-	}
 
 	i = itemavail[0];
 	dItem[xx][yy] = i + 1;
