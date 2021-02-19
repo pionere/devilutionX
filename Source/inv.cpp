@@ -1805,11 +1805,6 @@ int InvPutItem(int pnum, int x, int y)
 	if (numitems >= MAXITEMS)
 		return -1;
 
-	if (FindGetItem(plr[pnum].HoldItem._iIdx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed) != -1) {
-		DrawInvMsg("A duplicate item has been detected.  Destroying duplicate...");
-		SyncGetItem(x, y, plr[pnum].HoldItem._iIdx, plr[pnum].HoldItem._iCreateInfo, plr[pnum].HoldItem._iSeed);
-	}
-
 	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
 		return -1;
 
@@ -1860,11 +1855,6 @@ int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
 
 	if (numitems >= MAXITEMS)
 		return -1;
-
-	if (FindGetItem(is->_iIdx, is->_iCreateInfo, is->_iSeed) != -1) {
-		DrawInvMsg("A duplicate item has been detected from another player.");
-		SyncGetItem(x, y, is->_iIdx, is->_iCreateInfo, is->_iSeed);
-	}
 
 	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
 		return -1;
