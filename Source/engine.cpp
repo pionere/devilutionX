@@ -337,7 +337,7 @@ void CelClippedDrawSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 }
 
 /**
- * @brief Same as CelBlitLightSafe, with transparancy applied
+ * @brief Same as CelBlitLightSafe, with stippled transparancy applied
  * @param pDecodeTo The output buffer
  * @param pRLEBytes CEL pixel stream (run-length encoded)
  * @param nDataSize Size of CEL in bytes

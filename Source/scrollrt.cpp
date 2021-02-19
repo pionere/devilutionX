@@ -673,13 +673,12 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
  * @brief Check if and how a player should be rendered
  * @param y dPiece coordinate
  * @param x dPiece coordinate
- * @param oy dPiece Y offset
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
+static void DrawPlayerHelper(int x, int y, int sx, int sy)
 {
-	int pnum = dPlayer[x][y + oy];
+	int pnum = dPlayer[x][y];
 	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
 	if ((DWORD)pnum >= MAX_PLRS) {
 		dev_fatal("draw player: tried to draw illegal player %d", pnum);
@@ -688,7 +687,7 @@ static void DrawPlayerHelper(int x, int y, int oy, int sx, int sy)
 	int px = sx + p->_pxoff - p->_pAnimWidth2;
 	int py = sy + p->_pyoff;
 
-	DrawPlayer(pnum, x, y + oy, px, py, p->_pAnimData, p->_pAnimFrame, p->_pAnimWidth);
+	DrawPlayer(pnum, x, y, px, py, p->_pAnimData, p->_pAnimFrame, p->_pAnimWidth);
 }
 
 /**
@@ -758,7 +757,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	DrawItem(sx, sy, dx, dy, TRUE);
 	if (bFlag & BFLAG_PLAYERLR) {
 		assert((DWORD)(sy - 1) < MAXDUNY);
-		DrawPlayerHelper(sx, sy, -1, dx, dy);
+		DrawPlayerHelper(sx, sy - 1, dx, dy);
 	}
 	if (bFlag & BFLAG_MONSTLR && mnum < 0) {
 		DrawMonsterHelper(sx, sy, -1, dx, dy);
@@ -767,7 +766,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
 	if (dPlayer[sx][sy] > 0) {
-		DrawPlayerHelper(sx, sy, 0, dx, dy);
+		DrawPlayerHelper(sx, sy, dx, dy);
 	}
 	if (dMonster[sx][sy] > 0) {
 		DrawMonsterHelper(sx, sy, 0, dx, dy);

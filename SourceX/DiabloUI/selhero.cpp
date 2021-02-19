@@ -32,8 +32,7 @@ BOOL(*gfnHeroInfo)
 (BOOL (*fninfofunc)(_uiheroinfo *));
 BOOL(*gfnHeroCreate)
 (_uiheroinfo *);
-void(*gfnHeroStats)
-(unsigned int, _uidefaultstats *);
+void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
 
 namespace {
 
