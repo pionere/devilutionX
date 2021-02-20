@@ -4972,9 +4972,9 @@ void MonFallenFear(int x, int y)
 			continue;
 		}
 		if (mon->_mAi == AI_FALLEN
-		    && abs(x - mon->_mx) < 5
-		    && abs(y - mon->_my) < 5
-		    && mon->_mhitpoints >= (1 << 6)) {
+		 && abs(x - mon->_mx) < 5
+		 && abs(y - mon->_my) < 5
+		 && mon->_mhitpoints >= (1 << 6)) {
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = rundist;
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
