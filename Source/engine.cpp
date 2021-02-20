@@ -21,14 +21,14 @@ char gbPixelCol;
 BOOL gbRotateMap;
 /** valid - if x/y are in bounds */
 BOOL gbNotInView;
+/** Number of times the current seed has been fetched */
+int SeedCount;
 #endif
 /** Seed value before the most recent call to SetRndSeed() */
 int orgseed;
 /** Current game seed */
 int sglGameSeed;
 static CCritSect sgMemCrit;
-/** Number of times the current seed has been fetched */
-int SeedCount;
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
@@ -757,7 +757,9 @@ int GetDirection(int x1, int y1, int x2, int y2)
  */
 void SetRndSeed(int s)
 {
+#ifdef _DEBUG
 	SeedCount = 0;
+#endif
 	sglGameSeed = s;
 	orgseed = s;
 }
@@ -768,7 +770,9 @@ void SetRndSeed(int s)
  */
 int GetRndSeed()
 {
+#ifdef _DEBUG
 	SeedCount++;
+#endif
 	sglGameSeed = static_cast<unsigned int>(RndMult) * sglGameSeed + RndInc;
 	return abs(sglGameSeed);
 }

@@ -67,12 +67,6 @@ const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
 const int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-/** unused */
-int rnd5[4] = { 5, 10, 15, 20 };
-int rnd10[4] = { 10, 15, 20, 30 };
-int rnd20[4] = { 20, 30, 40, 50 };
-int rnd60[4] = { 60, 70, 80, 90 };
-
 /** Maps from monster AI ID to monster AI function. */
 void (*AiProc[])(int i) = {
 	&MAI_Zombie,

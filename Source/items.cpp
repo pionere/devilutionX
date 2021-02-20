@@ -2905,6 +2905,9 @@ void SpawnRock()
 {
 	int i, oi;
 
+	if (numitems >= MAXITEMS)
+		return;
+
 	for (i = 0; i < nobjects; i++) {
 		oi = objectactive[i];
 		if (object[oi]._otype == OBJ_STAND)
@@ -2929,6 +2932,9 @@ void SpawnRock()
 void SpawnRewardItem(int idx, int xx, int yy)
 {
 	int ii;
+
+	if (numitems >= MAXITEMS)
+		return;
 
 	ii = itemavail[0];
 	GetItemAttrs(ii, idx, items_get_currlevel());
