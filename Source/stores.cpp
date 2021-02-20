@@ -537,8 +537,7 @@ static BOOL SmithSellOk(const ItemStruct *is)
 #endif
 		&& is->_itype != ITYPE_GOLD
 		&& is->_itype != ITYPE_STAFF
-		&& (is->_iIdx < IDI_FIRSTQUEST || is->_iIdx > IDI_LASTQUEST)
-		&& is->_iIdx != IDI_LAZSTAFF;
+		&& is->_iClass != ICLASS_QUEST;
 }
 
 static void S_ScrollSSell()
@@ -736,12 +735,10 @@ static BOOL WitchSellOk(const ItemStruct *is)
 #ifdef HELLFIRE
 	return ((is->_itype == ITYPE_MISC && (is->_iMiscId < IMISC_OILFIRST || is->_iMiscId > IMISC_OILLAST))
 	 || (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL))
-		&& is->_iClass != ICLASS_QUEST
 #else
 	return (is->_itype == ITYPE_MISC || is->_itype == ITYPE_STAFF)
 #endif
-		&& (is->_iIdx < IDI_FIRSTQUEST || is->_iIdx > IDI_LASTQUEST)
-		&& is->_iIdx != IDI_LAZSTAFF;
+		&& is->_iClass != ICLASS_QUEST;
 }
 
 static void S_StartWSell()

@@ -1243,11 +1243,7 @@ void CreatePlrItems(int pnum)
 	switch (p->_pClass) {
 	case PC_WARRIOR:
 		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
-
 		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
-
-		CreateBaseItem(&p->HoldItem, IDI_WARRCLUB);
-		AutoPlace(pnum, 0, 1, 3, &p->HoldItem);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
@@ -1271,7 +1267,7 @@ void CreatePlrItems(int pnum)
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
+		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_MONKSTAFF);
 
 		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
 		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
