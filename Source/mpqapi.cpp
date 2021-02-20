@@ -287,32 +287,31 @@ struct Archive {
 		return true;
 	}
 
-	bool Close(bool clear_tables = true)
+	void Close(bool clear_tables = true)
 	{
-		if (!stream.IsOpen())
-			return true;
+		if (stream.IsOpen()) {
 #ifdef _DEBUG
-		SDL_Log("Closing %s", name.c_str());
+			SDL_Log("Closing %s", name.c_str());
 #endif
 
-		bool result = true;
-		if (modified && !(stream.seekp(0, std::ios::beg) && WriteHeaderAndTables()))
-			result = false;
-		stream.Close();
-		if (modified && result && size != 0) {
+			bool result = true;
+			if (modified && !(stream.seekp(0, std::ios::beg) && WriteHeaderAndTables()))
+				result = false;
+			stream.Close();
+			if (modified && result && size != 0) {
 #ifdef _DEBUG
-			SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), size);
+				SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), size);
 #endif
-			result = ResizeFile(name.c_str(), size);
+				result = ResizeFile(name.c_str(), size);
+			}
+			name.clear();
 		}
-		name.clear();
 		if (clear_tables) {
 			delete[] sgpHashTbl;
 			sgpHashTbl = NULL;
 			delete[] sgpBlockTbl;
 			sgpBlockTbl = NULL;
 		}
-		return result;
 	}
 
 	bool WriteHeaderAndTables()
@@ -755,13 +754,13 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 	}
 	return TRUE;
 on_error:
-	cur_archive.Close(/*clear_tables=*/true);
+	cur_archive.Close();
 	return FALSE;
 }
 
-BOOL mpqapi_flush_and_close(BOOL bFree)
+void mpqapi_flush_and_close(BOOL bFree)
 {
-	return cur_archive.Close(/*clear_tables=*/bFree);
+	cur_archive.Close(/*clear_tables=*/bFree);
 }
 
 DEVILUTION_END_NAMESPACE
