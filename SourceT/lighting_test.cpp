@@ -23,7 +23,7 @@ TEST(Lighting, CrawlTables) {
 	int missed = 0;
 	for (int i = -18; i <= 18; i++) {
 		for (int j = -18; j <= 18; j++) {
-			if (added[i][j])
+			if (added[i + 20][j + 20])
 				continue;
 			missed++;
 			sprintf(dvl::tempstr, "while checking location %d:%d.", i, j);
