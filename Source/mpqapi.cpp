@@ -232,17 +232,17 @@ private:
 
 //constexpr DWORD MPQ_BLOCK_COUNT = MPQ_BLOCK_SIZE / sizeof(_BLOCKENTRY);
 //constexpr DWORD MPQ_HASH_COUNT = MPQ_HASH_SIZE / sizeof(_HASHENTRY);
-constexpr std::ios::off_type MPQ_BLOCK_OFFSET = sizeof(_FILEHEADER);
+constexpr uint32_t MPQ_BLOCK_OFFSET = sizeof(_FILEHEADER);
 //constexpr std::ios::off_type MPQ_HASH_OFFSET = MPQ_BLOCK_OFFSET + MPQ_BLOCK_COUNT * sizeof(_BLOCKENTRY);
 
 struct Archive {
 	FStreamWrapper stream;
 	std::string name;
-	std::uintmax_t size;
+	uint32_t archiveSize;
 	bool modified;
 	bool exists;
-	int blockCount;
-	int hashCount;
+	uint32_t blockCount;
+	uint32_t hashCount;
 
 #ifndef CAN_SEEKP_BEYOND_EOF
 	std::streampos stream_begin;
@@ -251,14 +251,15 @@ struct Archive {
 	_HASHENTRY *sgpHashTbl;
 	_BLOCKENTRY *sgpBlockTbl;
 
-	bool Open(const char *name)
+	bool OpenArchive(const char *name)
 	{
-		Close();
+		CloseArchive(this->name != name);
 #ifdef _DEBUG
 		SDL_Log("Opening %s", name);
 #endif
 		exists = FileExists(name);
 		std::ios::openmode mode = std::ios::in | std::ios::out | std::ios::binary;
+		std::uintmax_t size;
 		if (exists) {
 #ifdef _DEBUG
 			if (!GetFileSize(name, &size)) {
@@ -272,45 +273,44 @@ struct Archive {
 				SDL_Log("GetFileSize(\"%s\") failed. (%d)", name, errno);
 				return false;
 			}
+			if (size > UINT32_MAX) {
+				SDL_Log("OpenArchive(\"%s\") failed. File too large (%d).", name, size);
+				return false;
+			}
 #endif
 		} else {
 			mode |= std::ios::trunc;
-			this->size = 0;
+			size = 0;
 		}
 		if (!stream.Open(name, mode)) {
 			stream.Close();
 			return false;
 		}
-		modified = !exists;
-
+		this->archiveSize = static_cast<uint32_t>(size);
+		this->modified = !exists;
 		this->name = name;
 		return true;
 	}
 
-	void Close(bool clear_tables = true)
+	void CloseArchive(bool clear_tables)
 	{
 		if (stream.IsOpen()) {
 #ifdef _DEBUG
 			SDL_Log("Closing %s", name.c_str());
 #endif
 
-			bool result = true;
-			if (modified && !(stream.seekp(0, std::ios::beg) && WriteHeaderAndTables()))
-				result = false;
+			bool resize = modified && stream.seekp(0, std::ios::beg) && WriteHeaderAndTables();
 			stream.Close();
-			if (modified && result && size != 0) {
+			if (resize && archiveSize != 0) {
 #ifdef _DEBUG
-				SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), size);
+				SDL_Log("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
 #endif
-				result = ResizeFile(name.c_str(), size);
+				ResizeFile(name.c_str(), archiveSize);
 			}
-			name.clear();
 		}
 		if (clear_tables) {
-			delete[] sgpHashTbl;
-			sgpHashTbl = NULL;
-			delete[] sgpBlockTbl;
-			sgpBlockTbl = NULL;
+			MemFreeDbg(sgpHashTbl);
+			MemFreeDbg(sgpBlockTbl);
 		}
 	}
 
@@ -319,14 +319,14 @@ struct Archive {
 		return WriteHeader() && WriteBlockTable() && WriteHashTable();
 	}
 
-	std::ios::off_type HashOffset() const
+	uint32_t HashOffset() const
 	{
 		return MPQ_BLOCK_OFFSET + blockCount * sizeof(_BLOCKENTRY);
 	}
 
 	~Archive()
 	{
-		Close();
+		CloseArchive(TRUE);
 	}
 
 private:
@@ -337,11 +337,11 @@ private:
 		memset(&fhdr, 0, sizeof(fhdr));
 		fhdr.signature = SDL_SwapLE32('\x1AQPM');
 		fhdr.headersize = SDL_SwapLE32(32);
-		fhdr.filesize = SDL_SwapLE32(static_cast<uint32_t>(size));
+		fhdr.filesize = SDL_SwapLE32(archiveSize);
 		fhdr.version = SDL_SwapLE16(0);
 		fhdr.sectorsizeid = SDL_SwapLE16(3);
-		fhdr.hashoffset = SDL_SwapLE32(static_cast<uint32_t>(HashOffset()));
-		fhdr.blockoffset = SDL_SwapLE32(static_cast<uint32_t>(MPQ_BLOCK_OFFSET));
+		fhdr.hashoffset = SDL_SwapLE32(HashOffset());
+		fhdr.blockoffset = SDL_SwapLE32(MPQ_BLOCK_OFFSET);
 		fhdr.hashcount = SDL_SwapLE32(hashCount);
 		fhdr.blockcount = SDL_SwapLE32(blockCount);
 
@@ -350,19 +350,27 @@ private:
 
 	bool WriteBlockTable()
 	{
-		DWORD key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
-		EncryptMpqBlock(sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
-		const bool success = stream.write(reinterpret_cast<const char *>(sgpBlockTbl), blockCount * sizeof(_BLOCKENTRY));
-		DecryptMpqBlock(sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
+		DWORD blockSize, key;
+
+		key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+		blockSize = blockCount * sizeof(_BLOCKENTRY);
+
+		EncryptMpqBlock(sgpBlockTbl, blockSize, key);
+		const bool success = stream.write(reinterpret_cast<const char *>(sgpBlockTbl), blockSize);
+		DecryptMpqBlock(sgpBlockTbl, blockSize, key);
 		return success;
 	}
 
 	bool WriteHashTable()
 	{
-		DWORD key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
-		EncryptMpqBlock(sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
-		const bool success = stream.write(reinterpret_cast<const char *>(sgpHashTbl), hashCount * sizeof(_HASHENTRY));
-		DecryptMpqBlock(sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
+		DWORD hashSize, key;
+
+		key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+		hashSize = hashCount * sizeof(_HASHENTRY);
+
+		EncryptMpqBlock(sgpHashTbl, hashSize, key);
+		const bool success = stream.write(reinterpret_cast<const char *>(sgpHashTbl), hashSize);
+		DecryptMpqBlock(sgpHashTbl, hashSize, key);
 		return success;
 	}
 };
@@ -389,7 +397,7 @@ static void InitDefaultMpqHeader(Archive *archive, _FILEHEADER *hdr)
 	hdr->headersize = 32;
 	hdr->sectorsizeid = 3;
 	hdr->version = 0;
-	archive->size = archive->HashOffset() + archive->hashCount * sizeof(_HASHENTRY);
+	archive->archiveSize = archive->HashOffset() + archive->hashCount * sizeof(_HASHENTRY);
 	archive->modified = true;
 }
 
@@ -397,9 +405,9 @@ static bool IsValidMPQHeader(const Archive &archive, _FILEHEADER *hdr)
 {
 	return hdr->signature == '\x1AQPM'
 		&& hdr->headersize == 32
-		&& hdr->version <= 0
+		&& hdr->version == 0
 		&& hdr->sectorsizeid == 3
-		&& hdr->filesize == archive.size
+		&& hdr->filesize == archive.archiveSize
 		&& hdr->hashoffset == archive.HashOffset()
 		&& hdr->blockoffset == MPQ_BLOCK_OFFSET
 		&& hdr->hashcount == archive.hashCount
@@ -408,7 +416,7 @@ static bool IsValidMPQHeader(const Archive &archive, _FILEHEADER *hdr)
 
 static bool ReadMPQHeader(Archive *archive, _FILEHEADER *hdr)
 {
-	const bool has_hdr = archive->size >= sizeof(*hdr);
+	const bool has_hdr = archive->archiveSize >= sizeof(*hdr);
 	if (has_hdr) {
 		if (!archive->stream.read(reinterpret_cast<char *>(hdr), sizeof(*hdr)))
 			return false;
@@ -464,11 +472,11 @@ static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 			}
 		}
 	}
-	if (block_offset + block_size > cur_archive.size) {
+	if (block_offset + block_size > cur_archive.archiveSize) {
 		app_fatal("MPQ free list error");
 	}
-	if (block_offset + block_size == cur_archive.size) {
-		cur_archive.size = block_offset;
+	if (block_offset + block_size == cur_archive.archiveSize) {
+		cur_archive.archiveSize = block_offset;
 	} else {
 		pBlock = mpqapi_new_block(NULL);
 		pBlock->offset = block_offset;
@@ -478,10 +486,10 @@ static void mpqapi_alloc_block(uint32_t block_offset, uint32_t block_size)
 	}
 }
 
-static DWORD mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
+static uint32_t mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 {
 	_BLOCKENTRY *pBlock;
-	DWORD i, result;
+	uint32_t i, result;
 
 	pBlock = cur_archive.sgpBlockTbl;
 	for (i = cur_archive.blockCount; i != 0; i--, pBlock++) {
@@ -500,8 +508,8 @@ static DWORD mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 	}
 
 	*block_size = size;
-	result = cur_archive.size;
-	cur_archive.size += size;
+	result = cur_archive.archiveSize;
+	cur_archive.archiveSize += size;
 	return result;
 }
 
@@ -706,10 +714,10 @@ BOOL mpqapi_has_file(const char *pszName)
 
 BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 {
-	DWORD key;
+	DWORD blockSize, hashSize, key;
 	_FILEHEADER fhdr;
 
-	if (!cur_archive.Open(pszArchive)) {
+	if (!cur_archive.OpenArchive(pszArchive)) {
 		return FALSE;
 	}
 	if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL) {
@@ -721,21 +729,23 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 		if (!ReadMPQHeader(&cur_archive, &fhdr)) {
 			goto on_error;
 		}
-		cur_archive.sgpBlockTbl = new _BLOCKENTRY[blockCount];
-		std::memset(cur_archive.sgpBlockTbl, 0, blockCount * sizeof(_BLOCKENTRY));
+		blockSize = blockCount * sizeof(_BLOCKENTRY);
+		cur_archive.sgpBlockTbl = (_BLOCKENTRY*)DiabloAllocPtr(blockSize);
+		std::memset(cur_archive.sgpBlockTbl, 0, blockSize);
 		if (fhdr.blockcount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), blockCount * sizeof(_BLOCKENTRY)))
+			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpBlockTbl), blockSize))
 				goto on_error;
 			key = HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockCount * sizeof(_BLOCKENTRY), key);
+			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
 		}
-		cur_archive.sgpHashTbl = new _HASHENTRY[hashCount];
-		std::memset(cur_archive.sgpHashTbl, 255, hashCount * sizeof(_HASHENTRY));
+		hashSize = hashCount * sizeof(_HASHENTRY);
+		cur_archive.sgpHashTbl = (_HASHENTRY*)DiabloAllocPtr(hashSize);
+		std::memset(cur_archive.sgpHashTbl, 255, hashSize);
 		if (fhdr.hashcount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), hashCount * sizeof(_HASHENTRY)))
+			if (!cur_archive.stream.read(reinterpret_cast<char *>(cur_archive.sgpHashTbl), hashSize))
 				goto on_error;
 			key = HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpHashTbl, hashCount * sizeof(_HASHENTRY), key);
+			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
 		}
 
 #ifndef CAN_SEEKP_BEYOND_EOF
@@ -754,13 +764,13 @@ BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount)
 	}
 	return TRUE;
 on_error:
-	cur_archive.Close();
+	cur_archive.CloseArchive(TRUE);
 	return FALSE;
 }
 
 void mpqapi_flush_and_close(BOOL bFree)
 {
-	cur_archive.Close(/*clear_tables=*/bFree);
+	cur_archive.CloseArchive(bFree);
 }
 
 DEVILUTION_END_NAMESPACE

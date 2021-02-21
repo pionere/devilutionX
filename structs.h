@@ -1614,15 +1614,15 @@ typedef struct TMsg {
 //////////////////////////////////////////////////
 
 typedef struct _FILEHEADER {
-	int signature;
-	int headersize;
-	int filesize;
+	uint32_t signature;
+	uint32_t headersize;
+	uint32_t filesize;
 	WORD version;
-	short sectorsizeid;
-	int hashoffset;
-	int blockoffset;
-	int hashcount;
-	int blockcount;
+	WORD sectorsizeid;
+	uint32_t hashoffset;
+	uint32_t blockoffset;
+	uint32_t hashcount;
+	uint32_t blockcount;
 	char pad[72];
 } _FILEHEADER;
 
