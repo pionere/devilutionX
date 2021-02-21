@@ -1412,6 +1412,10 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 	return TRUE;
 }
 
+#if defined(__3DS__)
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#endif
 static void DRLG_L4FTVR(int i, int j, int x, int y, int dir)
 {
 	if (dTransVal[x][y] != 0 || dungeon[i][j] != 6) {
@@ -1481,6 +1485,9 @@ static void DRLG_L4FloodTVal()
 		yy += 2;
 	}
 }
+#if defined(__3DS__)
+#pragma GCC pop_options
+#endif
 
 static BOOL IsDURWall(BYTE dd)
 {

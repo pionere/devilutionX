@@ -7,6 +7,10 @@
 #include "display.h"
 #include <SDL.h>
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 DEVILUTION_BEGIN_NAMESPACE
 
 int sgdwLockCount;
@@ -288,6 +292,9 @@ void RenderPresent()
 		LimitFrameRate();
 	}
 #else
+#ifdef __3DS__
+	gspWaitForVBlank();
+#endif
 	if (SDL_Flip(surface) <= -1) {
 		ErrSdl();
 	}

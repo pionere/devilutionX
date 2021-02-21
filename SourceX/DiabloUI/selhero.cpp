@@ -10,6 +10,10 @@
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selgame.h"
 
+#ifdef __3DS__
+#include "../platform/ctr/keyboard.h"
+#endif
+
 DEVILUTION_BEGIN_NAMESPACE
 
 const char *selhero_GenerateName(uint8_t hero_class);
@@ -346,6 +350,8 @@ void selhero_ClassSelector_Select(std::size_t index)
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #ifdef PREFILL_PLAYER_NAME
 	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
+#elif defined __3DS__
+	ctr_vkbdInput("Enter Hero name..", selhero_GenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
 #endif
 	selhero_FreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
