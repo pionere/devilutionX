@@ -144,8 +144,10 @@ scePowerSetArmClockFrequency(444);
 	}
 #endif
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	dpad_hotkeys = getIniBool("controls","dpad_hotkeys");
 	switch_potions_and_clicks = getIniBool("controls","switch_potions_and_clicks");
+#endif
 
 #ifdef USE_SDL1
 	SDL_EnableUNICODE(1);
