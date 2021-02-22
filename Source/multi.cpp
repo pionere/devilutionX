@@ -722,7 +722,7 @@ void NetClose()
 	tmsg_cleanup();
 	multi_event_handler(FALSE);
 	SNetLeaveGame(3);
-	if (gbMaxPlayers != 1)
+	if (gbMaxPlayers != 1 && provider != SELCONN_LOOPBACK)
 		SDL_Delay(2000);
 }
 

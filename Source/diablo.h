@@ -24,9 +24,6 @@ extern BOOL gbProcessPlayers;
 extern BOOL gbLoadGame;
 extern BOOLEAN cineflag;
 extern int gbRedrawFlags;
-/* These are defined in fonts.h */
-extern BOOL was_fonts_init;
-extern void FontsCleanup();
 extern int PauseMode;
 #ifdef HELLFIRE
 extern BOOLEAN UseTheoQuest;

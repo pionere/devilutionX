@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1257,8 +1258,6 @@ static void DrawView()
 		DrawCtrlBtns();
 	//}
 }
-
-extern SDL_Surface *pal_surface;
 
 /**
  * @brief Render the whole screen black

@@ -27,6 +27,13 @@ int UiSelectProvider(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *use
 BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
 void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type);
 
+/* These are defined in fonts.h */
+extern BOOL was_fonts_init;
+extern void FontsCleanup();
+
+/* Defined in selconn.cpp */
+extern int provider;
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __DIABLOUI_H__ */
