@@ -1,6 +1,7 @@
 #include "controller_motion.h"
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#include "controls/game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -52,6 +53,8 @@ static void ScaleJoystickAxes(float *x, float *y)
 // SELECT + D-Pad to simulate right stick movement.
 static bool SimulateRightStickWithDpad(const SDL_Event &event, ControllerButtonEvent ctrl_event)
 {
+	if (dpad_hotkeys)
+		return false;
 	static bool simulating = false;
 	if (ctrl_event.button == ControllerButton_BUTTON_BACK) {
 		if (ctrl_event.up && simulating) {

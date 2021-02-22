@@ -364,6 +364,7 @@ static void run_game_loop(unsigned int uMsg)
 	gbRunGameResult = TRUE;
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
+	LoadPWaterPalette();
 	PaletteFadeIn();
 	gbRedrawFlags = REDRAW_ALL;
 	gbGameLoopStartup = TRUE;
@@ -1556,6 +1557,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ShowProgress(uMsg);
 		gbRedrawFlags = REDRAW_ALL;
 		DrawAndBlit();
+		LoadPWaterPalette();
 		if (gbRunGame)
 			PaletteFadeIn();
 		nthread_ignore_mutex(FALSE);

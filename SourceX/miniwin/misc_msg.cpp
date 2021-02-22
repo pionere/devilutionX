@@ -203,7 +203,10 @@ WPARAM keystate_for_mouse(WPARAM ret)
 
 bool false_avail(const char *name, int value)
 {
+#ifndef __vita__
+	// Logging on Vita is slow due slow IO, so disable spamming unhandled events to log
 	SDL_Log("Unhandled SDL event: %s %d", name, value);
+#endif
 	return true;
 }
 
@@ -385,7 +388,7 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 #endif
-	if (e.type < SDL_JOYAXISMOTION || e.type >= 0x700) {
+	if (e.type < SDL_JOYAXISMOTION || (e.type >= 0x700 && e.type < 0x800)) {
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;

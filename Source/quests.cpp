@@ -587,6 +587,18 @@ void GetReturnLvlPos()
 	leveltype = gnLevelTypeTbl[currlevel];
 }
 
+void LoadPWaterPalette()
+{
+	// TODO: this is ugly...
+	if (!setlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT || leveltype != quests[Q_PWATER]._qlvltype)
+		return;
+
+	if (quests[Q_PWATER]._qactive == QUEST_DONE)
+		LoadPalette("Levels\\L3Data\\L3pwater.pal");
+	else
+		LoadPalette("Levels\\L3Data\\L3pfoul.pal");
+}
+
 void ResyncMPQuests()
 {
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
@@ -630,16 +642,6 @@ void ResyncMPQuests()
 void ResyncQuests()
 {
 	int i, tren, x, y;
-
-	if (setlevel && setlvlnum == quests[Q_PWATER]._qslvl && quests[Q_PWATER]._qactive != QUEST_INIT) { // && leveltype == quests[Q_PWATER]._qlvltype) {
-		if (quests[Q_PWATER]._qactive == QUEST_DONE)
-			LoadPalette("Levels\\L3Data\\L3pwater.pal");
-		else
-			LoadPalette("Levels\\L3Data\\L3pfoul.pal");
-
-		for (i = 0; i <= 32; i++)
-			palette_update_quest_palette(i);
-	}
 
 	if (QuestStatus(Q_LTBANNER)) {
 		if (quests[Q_LTBANNER]._qvar1 == 1)

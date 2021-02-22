@@ -205,7 +205,7 @@ void CreditsRenderer::Render()
 
 } // namespace
 
-BOOL UiCreditsDialog(int a1)
+BOOL UiCreditsDialog()
 {
 	CreditsRenderer credits_renderer;
 	bool endMenu = false;
