@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <deque>
 #include <SDL.h>
+#include "utf8.h"
 
 #include "all.h"
 #include "display.h"
@@ -55,6 +56,402 @@ static int translate_sdl_key(SDL_Keysym key)
 {
 	// ref: https://wiki.libsdl.org/SDL_Keycode
 	// ref: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+	SDL_Scancode ksc = key.scancode;
+	switch (ksc) {
+	case SDL_SCANCODE_1:
+		return DVL_VK_1;
+	case SDL_SCANCODE_2:
+		return DVL_VK_2;
+	case SDL_SCANCODE_3:
+		return DVL_VK_3;
+	case SDL_SCANCODE_4:
+		return DVL_VK_4;
+	case SDL_SCANCODE_5:
+		return DVL_VK_5;
+	case SDL_SCANCODE_6:
+		return DVL_VK_6;
+	case SDL_SCANCODE_7:
+		return DVL_VK_7;
+	case SDL_SCANCODE_8:
+		return DVL_VK_8;
+	case SDL_SCANCODE_9:
+		return DVL_VK_9;
+	case SDL_SCANCODE_0:
+		return DVL_VK_0;
+	case SDL_SCANCODE_RETURN:
+		return DVL_VK_RETURN;
+	case SDL_SCANCODE_ESCAPE:
+		return DVL_VK_ESCAPE;
+	case SDL_SCANCODE_BACKSPACE:
+		return DVL_VK_BACK;
+	case SDL_SCANCODE_TAB:
+		return DVL_VK_TAB;
+	case SDL_SCANCODE_SPACE:
+		return DVL_VK_SPACE;
+	case SDL_SCANCODE_MINUS:
+		return DVL_VK_OEM_MINUS;
+	case SDL_SCANCODE_EQUALS:
+		return DVL_VK_OEM_PLUS;
+	case SDL_SCANCODE_LEFTBRACKET:
+		return DVL_VK_OEM_4;
+	case SDL_SCANCODE_RIGHTBRACKET:
+		return DVL_VK_OEM_6;
+	case SDL_SCANCODE_BACKSLASH:
+	case SDL_SCANCODE_NONUSHASH:
+		return DVL_VK_OEM_5;
+	case SDL_SCANCODE_SEMICOLON:
+		return DVL_VK_OEM_1;
+	case SDL_SCANCODE_APOSTROPHE:
+		return DVL_VK_OEM_7;
+	case SDL_SCANCODE_GRAVE:
+		return DVL_VK_OEM_3;
+	case SDL_SCANCODE_COMMA:
+		return DVL_VK_OEM_COMMA;
+	case SDL_SCANCODE_PERIOD:
+		return DVL_VK_OEM_PERIOD;
+	case SDL_SCANCODE_SLASH:
+		return DVL_VK_OEM_2;
+	case SDL_SCANCODE_CAPSLOCK:
+		return DVL_VK_CAPITAL;
+	case SDL_SCANCODE_PRINTSCREEN:
+		return DVL_VK_SNAPSHOT;
+	case SDL_SCANCODE_SCROLLLOCK:
+		return DVL_VK_SCROLL;
+	case SDL_SCANCODE_PAUSE:
+		return DVL_VK_PAUSE;
+	case SDL_SCANCODE_INSERT:
+		return DVL_VK_INSERT;
+	case SDL_SCANCODE_HOME:
+		return DVL_VK_HOME;
+	case SDL_SCANCODE_PAGEUP:
+		return DVL_VK_PRIOR;
+	case SDL_SCANCODE_DELETE:
+		return DVL_VK_DELETE;
+	case SDL_SCANCODE_END:
+		return DVL_VK_END;
+	case SDL_SCANCODE_PAGEDOWN:
+		return DVL_VK_NEXT;
+	case SDL_SCANCODE_RIGHT:
+		return DVL_VK_RIGHT;
+	case SDL_SCANCODE_LEFT:
+		return DVL_VK_LEFT;
+	case SDL_SCANCODE_DOWN:
+		return DVL_VK_DOWN;
+	case SDL_SCANCODE_UP:
+		return DVL_VK_UP;
+	case SDL_SCANCODE_NUMLOCKCLEAR:
+		return DVL_VK_NUMLOCK;
+	case SDL_SCANCODE_KP_DIVIDE:
+		return DVL_VK_DIVIDE;
+	case SDL_SCANCODE_KP_MULTIPLY:
+		return DVL_VK_MULTIPLY;
+	case SDL_SCANCODE_KP_MINUS:
+		return DVL_VK_SUBTRACT;
+	case SDL_SCANCODE_KP_PLUS:
+		return DVL_VK_ADD;
+	case SDL_SCANCODE_KP_ENTER:
+		return DVL_VK_RETURN;
+	case SDL_SCANCODE_KP_1:
+		return DVL_VK_NUMPAD1;
+	case SDL_SCANCODE_KP_2:
+		return DVL_VK_NUMPAD2;
+	case SDL_SCANCODE_KP_3:
+		return DVL_VK_NUMPAD3;
+	case SDL_SCANCODE_KP_4:
+		return DVL_VK_NUMPAD4;
+	case SDL_SCANCODE_KP_5:
+		return DVL_VK_NUMPAD5;
+	case SDL_SCANCODE_KP_6:
+		return DVL_VK_NUMPAD6;
+	case SDL_SCANCODE_KP_7:
+		return DVL_VK_NUMPAD7;
+	case SDL_SCANCODE_KP_8:
+		return DVL_VK_NUMPAD8;
+	case SDL_SCANCODE_KP_9:
+		return DVL_VK_NUMPAD9;
+	case SDL_SCANCODE_KP_0:
+		return DVL_VK_NUMPAD0;
+	case SDL_SCANCODE_KP_PERIOD:
+		return DVL_VK_DECIMAL;
+	case SDL_SCANCODE_NONUSBACKSLASH:
+		return DVL_VK_OEM_8;
+	case SDL_SCANCODE_APPLICATION:
+		return DVL_VK_APPS; // remap?
+	case SDL_SCANCODE_POWER:
+		return DVL_VK_OEM_12; // remap?
+	case SDL_SCANCODE_KP_EQUALS:
+		return DVL_VK_OEM_13; // remap?
+	case SDL_SCANCODE_EXECUTE:
+		return DVL_VK_EXECUTE;
+	case SDL_SCANCODE_HELP:
+		return DVL_VK_HELP;
+	case SDL_SCANCODE_MENU:
+		return DVL_VK_MENU;
+	case SDL_SCANCODE_SELECT:
+		return DVL_VK_SELECT;
+	case SDL_SCANCODE_STOP:
+		return DVL_VK_ATTN;	// remap?
+	case SDL_SCANCODE_AGAIN:
+		return DVL_VK_OEM_12; // remap?
+	case SDL_SCANCODE_UNDO:
+		return DVL_VK_OEM_13; // remap?
+	case SDL_SCANCODE_CUT:
+		return DVL_VK_OEM_14; // remap?
+	case SDL_SCANCODE_COPY:
+		return DVL_VK_OEM_15; // remap?
+	case SDL_SCANCODE_PASTE:
+		return DVL_VK_OEM_16; // remap?
+	case SDL_SCANCODE_FIND:
+		return DVL_VK_OEM_17; // remap?
+	case SDL_SCANCODE_MUTE:
+		return DVL_VK_VOLUME_MUTE;
+	case SDL_SCANCODE_VOLUMEUP:
+		return DVL_VK_VOLUME_UP;
+	case SDL_SCANCODE_VOLUMEDOWN:
+		return DVL_VK_VOLUME_DOWN;
+	case SDL_SCANCODE_KP_COMMA:
+		return DVL_VK_OEM_COMMA;
+	case SDL_SCANCODE_KP_EQUALSAS400:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_INTERNATIONAL1:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL2:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL3:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL4:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL5:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL6:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL7:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL8:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_INTERNATIONAL9:
+		return DVL_VK_IME_ON; // remap?
+	case SDL_SCANCODE_LANG1: /**< Hangul/English toggle */
+		return DVL_VK_HANGUL;
+	case SDL_SCANCODE_LANG2: /**< Hanja conversion */
+		return DVL_VK_HANJA;
+	case SDL_SCANCODE_LANG3: /**< Katakana */
+		return DVL_VK_HANGUL; // remap?
+	case SDL_SCANCODE_LANG4: /**< Hiragana */
+		return DVL_VK_JUNJA; // remap?
+	case SDL_SCANCODE_LANG5: /**< Zenkaku/Hankaku */
+		return DVL_VK_FINAL; // remap?
+	case SDL_SCANCODE_LANG6: /**< reserved */
+		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_LANG7: /**< reserved */
+		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_LANG8: /**< reserved */
+		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_LANG9: /**< reserved */
+		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_ALTERASE:
+		return DVL_VK_EREOF; // remap?
+	case SDL_SCANCODE_SYSREQ:
+		return DVL_VK_OEM_12; // remap?
+	case SDL_SCANCODE_CANCEL:
+		return DVL_VK_CANCEL;
+	case SDL_SCANCODE_CLEAR:
+		return DVL_VK_OEM_CLEAR;
+	case SDL_SCANCODE_PRIOR:
+		return DVL_VK_PRIOR;
+	case SDL_SCANCODE_RETURN2:
+		return DVL_VK_RETURN;
+	case SDL_SCANCODE_SEPARATOR:
+		return DVL_VK_SEPARATOR;
+	case SDL_SCANCODE_OUT:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_OPER:
+		return DVL_VK_OEM_23; // remap?
+	case SDL_SCANCODE_CLEARAGAIN:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_CRSEL:
+		return DVL_VK_CRSEL;
+	case SDL_SCANCODE_EXSEL:
+		return DVL_VK_EXSEL;
+	case SDL_SCANCODE_KP_00:
+	case SDL_SCANCODE_KP_000:
+		return DVL_VK_NUMPAD0;
+	case SDL_SCANCODE_THOUSANDSSEPARATOR:
+		return DVL_VK_OEM_17; // remap?
+	case SDL_SCANCODE_DECIMALSEPARATOR:
+		return DVL_VK_OEM_18; // remap?
+	case SDL_SCANCODE_CURRENCYUNIT:
+		return DVL_VK_OEM_19; // remap?
+	case SDL_SCANCODE_CURRENCYSUBUNIT:
+		return DVL_VK_OEM_20; // remap?
+	case SDL_SCANCODE_KP_LEFTPAREN:
+		return DVL_VK_OEM_21; // remap?
+	case SDL_SCANCODE_KP_RIGHTPAREN:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_KP_LEFTBRACE:
+		return DVL_VK_OEM_23; // remap?
+	case SDL_SCANCODE_KP_RIGHTBRACE:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_KP_TAB:
+		return DVL_VK_TAB;
+	case SDL_SCANCODE_KP_BACKSPACE:
+		return DVL_VK_BACK;
+	case SDL_SCANCODE_KP_A:
+		return DVL_VK_A;
+	case SDL_SCANCODE_KP_B:
+		return DVL_VK_B;
+	case SDL_SCANCODE_KP_C:
+		return DVL_VK_C;
+	case SDL_SCANCODE_KP_D:
+		return DVL_VK_D;
+	case SDL_SCANCODE_KP_E:
+		return DVL_VK_E;
+	case SDL_SCANCODE_KP_F:
+		return DVL_VK_F;
+	case SDL_SCANCODE_KP_XOR:
+		return DVL_VK_OEM_12; // remap?
+	case SDL_SCANCODE_KP_POWER:
+		return DVL_VK_OEM_13; // remap?
+	case SDL_SCANCODE_KP_PERCENT:
+		return DVL_VK_OEM_14; // remap?
+	case SDL_SCANCODE_KP_LESS:
+		return DVL_VK_OEM_15; // remap?
+	case SDL_SCANCODE_KP_GREATER:
+		return DVL_VK_OEM_16; // remap?
+	case SDL_SCANCODE_KP_AMPERSAND:
+		return DVL_VK_OEM_17; // remap?
+	case SDL_SCANCODE_KP_DBLAMPERSAND:
+		return DVL_VK_OEM_18; // remap?
+	case SDL_SCANCODE_KP_VERTICALBAR:
+		return DVL_VK_OEM_19; // remap?
+	case SDL_SCANCODE_KP_DBLVERTICALBAR:
+		return DVL_VK_OEM_20; // remap?
+	case SDL_SCANCODE_KP_COLON:
+		return DVL_VK_OEM_21; // remap?
+	case SDL_SCANCODE_KP_HASH:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_KP_SPACE:
+		return DVL_VK_SPACE; // remap?
+	case SDL_SCANCODE_KP_AT:
+		return DVL_VK_OEM_9; // remap?
+	case SDL_SCANCODE_KP_EXCLAM:
+		return DVL_VK_OEM_10; // remap?
+	case SDL_SCANCODE_KP_MEMSTORE:
+		return DVL_VK_OEM_11; // remap?
+	case SDL_SCANCODE_KP_MEMRECALL:
+		return DVL_VK_OEM_12; // remap?
+	case SDL_SCANCODE_KP_MEMCLEAR:
+		return DVL_VK_OEM_13; // remap?
+	case SDL_SCANCODE_KP_MEMADD:
+		return DVL_VK_OEM_14; // remap?
+	case SDL_SCANCODE_KP_MEMSUBTRACT:
+		return DVL_VK_OEM_15; // remap?
+	case SDL_SCANCODE_KP_MEMMULTIPLY:
+		return DVL_VK_OEM_16; // remap?
+	case SDL_SCANCODE_KP_MEMDIVIDE:
+		return DVL_VK_OEM_17; // remap?
+	case SDL_SCANCODE_KP_PLUSMINUS:
+		return DVL_VK_OEM_18; // remap?
+	case SDL_SCANCODE_KP_CLEAR:
+		return DVL_VK_OEM_19; // remap?
+	case SDL_SCANCODE_KP_CLEARENTRY:
+		return DVL_VK_OEM_20; // remap?
+	case SDL_SCANCODE_KP_BINARY:
+		return DVL_VK_OEM_21; // remap?
+	case SDL_SCANCODE_KP_OCTAL:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_KP_DECIMAL:
+		return DVL_VK_OEM_23; // remap?
+	case SDL_SCANCODE_KP_HEXADECIMAL:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_LCTRL:
+		return DVL_VK_LCONTROL;
+	case SDL_SCANCODE_LSHIFT:
+		return DVL_VK_LSHIFT;
+	case SDL_SCANCODE_LALT:
+		return DVL_VK_LMENU;
+	case SDL_SCANCODE_LGUI:
+		return DVL_VK_LWIN;
+	case SDL_SCANCODE_RCTRL:
+		return DVL_VK_RCONTROL;
+	case SDL_SCANCODE_RSHIFT:
+		return DVL_VK_RSHIFT;
+	case SDL_SCANCODE_RALT:
+		return DVL_VK_RMENU;
+	case SDL_SCANCODE_RGUI:
+		return DVL_VK_RWIN;
+	case SDL_SCANCODE_MODE:
+		return DVL_VK_MODECHANGE; // remap?
+	case SDL_SCANCODE_AUDIONEXT:
+		return DVL_VK_MEDIA_NEXT_TRACK;
+	case SDL_SCANCODE_AUDIOPREV:
+		return DVL_VK_MEDIA_PREV_TRACK;
+	case SDL_SCANCODE_AUDIOSTOP:
+		return DVL_VK_MEDIA_STOP;
+	case SDL_SCANCODE_AUDIOPLAY:
+		return DVL_VK_MEDIA_PLAY_PAUSE;
+	case SDL_SCANCODE_AUDIOMUTE:
+		return DVL_VK_VOLUME_MUTE; // remap?
+	case SDL_SCANCODE_MEDIASELECT:
+		return DVL_VK_LAUNCH_MEDIA_SELECT;
+	case SDL_SCANCODE_WWW:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_MAIL:
+		return DVL_VK_LAUNCH_MAIL;
+	case SDL_SCANCODE_CALCULATOR:
+		return DVL_VK_OEM_23; // remap?
+	case SDL_SCANCODE_COMPUTER:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_AC_SEARCH:
+		return DVL_VK_BROWSER_SEARCH;
+	case SDL_SCANCODE_AC_HOME:
+		return DVL_VK_BROWSER_HOME;
+	case SDL_SCANCODE_AC_BACK:
+		return DVL_VK_BROWSER_BACK;
+	case SDL_SCANCODE_AC_FORWARD:
+		return DVL_VK_BROWSER_FORWARD;
+	case SDL_SCANCODE_AC_STOP:
+		return DVL_VK_BROWSER_STOP;
+	case SDL_SCANCODE_AC_REFRESH:
+		return DVL_VK_BROWSER_REFRESH;
+	case SDL_SCANCODE_AC_BOOKMARKS:
+		return DVL_VK_BROWSER_FAVORITES;
+	case SDL_SCANCODE_BRIGHTNESSDOWN:
+		return DVL_VK_OEM_18; // remap?
+	case SDL_SCANCODE_BRIGHTNESSUP:
+		return DVL_VK_OEM_19; // remap?
+	case SDL_SCANCODE_DISPLAYSWITCH:
+		return DVL_VK_OEM_20; // remap?
+	case SDL_SCANCODE_KBDILLUMTOGGLE:
+		return DVL_VK_OEM_21; // remap?
+	case SDL_SCANCODE_KBDILLUMDOWN:
+		return DVL_VK_OEM_22; // remap?
+	case SDL_SCANCODE_KBDILLUMUP:
+		return DVL_VK_OEM_23; // remap?
+	case SDL_SCANCODE_EJECT:
+		return DVL_VK_OEM_24; // remap?
+	case SDL_SCANCODE_SLEEP:
+		return DVL_VK_SLEEP;
+	case SDL_SCANCODE_APP1:
+		return DVL_VK_LAUNCH_APP1;
+	case SDL_SCANCODE_APP2:
+		return DVL_VK_LAUNCH_APP2;
+	case SDL_SCANCODE_AUDIOREWIND:
+		return DVL_VK_MEDIA_PREV_TRACK;
+	case SDL_SCANCODE_AUDIOFASTFORWARD:
+		return DVL_VK_MEDIA_NEXT_TRACK;
+	default:
+		if (ksc <= SDL_SCANCODE_Z && ksc >= SDL_SCANCODE_A)
+			return DVL_VK_A + (ksc - SDL_SCANCODE_A);
+		if (ksc <= SDL_SCANCODE_F12 && ksc >= SDL_SCANCODE_F1)
+			return DVL_VK_F1 + (ksc - SDL_SCANCODE_F1);
+		if (ksc <= SDL_SCANCODE_F24 && ksc >= SDL_SCANCODE_F13)
+			return DVL_VK_F13 + (ksc - SDL_SCANCODE_F13);
+
+		ASSUME_UNREACHABLE
+		return DVL_VK_NONAME;
+	}
+	/*
 	SDL_Keycode sym = key.sym;
 	switch (sym) {
 	case SDLK_BACKSPACE:
@@ -184,7 +581,7 @@ static int translate_sdl_key(SDL_Keysym key)
 		SDL_Log("unknown key: name=%s sym=0x%X scan=%d mod=0x%X", SDL_GetKeyName(sym), sym, key.scancode, key.mod);
 #endif
 		return sym;
-	}
+	}*/
 }
 
 namespace {
@@ -408,8 +805,10 @@ bool PeekMessage(LPMSG lpMsg)
 		//	return false_avail(e.type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
 		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
 		lpMsg->wParam = (DWORD)key;
+#ifdef _DEBUG
 		// HACK: Encode modifier in lParam for TranslateMessage later
 		lpMsg->lParam = e.key.keysym.mod << 16;
+#endif
 	} break;
 	case SDL_MOUSEMOTION:
 		lpMsg->message = DVL_WM_MOUSEMOVE;
@@ -464,7 +863,9 @@ bool PeekMessage(LPMSG lpMsg)
 	case SDL_TEXTEDITING:
 		return false_avail("SDL_TEXTEDITING", e.edit.length);
 	case SDL_TEXTINPUT:
-		return false_avail("SDL_TEXTINPUT", e.text.windowID);
+		lpMsg->message = DVL_WM_CHAR;
+		lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
+		break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
@@ -517,13 +918,16 @@ bool PeekMessage(LPMSG lpMsg)
 
 /*
  * Translate keydown events to char events only if talkflag is set (or in debug mode).
+ *
+ * 'Translation' is no longer necessary. The input text is handled using
+ * SDL_StartTextInput/SDL_StopTextInput in case 'talkflag' is set.
+ *
+ * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
+ *  in a non-debug environment.
  */
 bool TranslateMessage(const MSG *lpMsg)
 {
-#ifndef _DEBUG
-	if (!talkflag)
-		return true;
-#endif
+#ifdef _DEBUG
 	if (lpMsg->message == DVL_WM_KEYDOWN) {
 		int key = lpMsg->wParam;
 		unsigned mod = (DWORD)lpMsg->lParam >> 16;
@@ -613,6 +1017,7 @@ bool TranslateMessage(const MSG *lpMsg)
 		PostMessage(DVL_WM_CHAR, key, 0);
 	}
 
+#endif
 	return true;
 }
 

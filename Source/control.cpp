@@ -2262,6 +2262,7 @@ void control_type_message()
 	}
 
 	talkflag = TRUE;
+	SDL_StartTextInput();
 	sgszTalkMsg[0] = '\0';
 	for (i = 0; i < lengthof(talkbtndown); i++) {
 		talkbtndown[i] = FALSE;
@@ -2273,6 +2274,7 @@ void control_type_message()
 void control_reset_talk()
 {
 	talkflag = FALSE;
+	SDL_StopTextInput();
 	//gbRedrawFlags = REDRAW_ALL;
 }
 

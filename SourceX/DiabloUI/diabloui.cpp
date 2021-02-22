@@ -321,9 +321,7 @@ void UiFocusNavigation(SDL_Event *event)
 		}
 #ifndef USE_SDL1
 		case SDL_TEXTINPUT:
-			if (textInputActive) {
-				selhero_CatToName(event->text.text, UiTextInput, UiTextInputLen);
-			}
+			selhero_CatToName(event->text.text, UiTextInput, UiTextInputLen);
 			return;
 #endif
 		default:
