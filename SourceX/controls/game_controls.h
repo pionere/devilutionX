@@ -88,6 +88,8 @@ MoveDirection GetMoveDirection();
 
 extern bool start_modifier_active;
 extern bool select_modifier_active;
+extern bool dpad_hotkeys;
+extern bool switch_potions_and_clicks;
 
 DEVILUTION_END_NAMESPACE
 

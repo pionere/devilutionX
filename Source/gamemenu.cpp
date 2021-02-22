@@ -136,6 +136,7 @@ void gamemenu_load_game(BOOL bActivate)
 	deathflag = FALSE;
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
+	LoadPWaterPalette();
 	PaletteFadeIn();
 	NewCursor(CURSOR_HAND);
 	interface_msg_pump();

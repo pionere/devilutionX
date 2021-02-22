@@ -216,12 +216,21 @@ cd build
 cmake .. -DNIGHTLY_BUILD=ON -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/3ds.cmake
 make -j$(nproc)
 ```
-*Note:*  Add `-DHELLFIRE=ON` to build the Hellfire binaries.
-
 The output-files will be generated in the build folder.
 
 [Nintendo 3DS manual](docs/manual/platforms/n3ds.md)
 </details>
+
+<details><summary>PlayStation Vita</summary>
+
+### Compiling
+```
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DVITA=1 ..
+make
+```
+</details>
+
 
 <details><summary>Haiku</summary>
 
