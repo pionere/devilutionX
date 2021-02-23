@@ -608,7 +608,7 @@ void GetReturnLvlPos()
 
 void LoadPWaterPalette()
 {
-	if (!setlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT || leveltype != quests[Q_PWATER]._qlvltype)
+	if (!setlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT) // || leveltype != quests[Q_PWATER]._qlvltype)
 		return;
 
 	if (quests[Q_PWATER]._qactive == QUEST_DONE)
