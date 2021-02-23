@@ -1596,8 +1596,8 @@ static void GetRndObjLoc(int randarea, int *xx, int *yy)
 		tries++;
 		if (tries > 1000 && randarea > 1)
 			randarea--;
-		*xx = random_(0, MAXDUNX);
-		*yy = random_(0, MAXDUNY);
+		*xx = random_(0, DSIZEX) + DBORDERX;
+		*yy = random_(0, DSIZEY) + DBORDERY;
 		failed = FALSE;
 		for (i = 0; i < randarea && !failed; i++) {
 			for (j = 0; j < randarea && !failed; j++) {

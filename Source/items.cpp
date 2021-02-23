@@ -370,11 +370,10 @@ void InitItems()
 	}
 
 	if (!setlevel) {
-		GetRndSeed(); /* unused */
 		if (QuestStatus(Q_ROCK))
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
-			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + 27, 2 * setpc_y + 27);
+			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11);
 #ifdef HELLFIRE
 		if (UseCowFarmer && currlevel == 20)
 			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
@@ -2455,8 +2454,8 @@ static void GetRandomItemSpace(int randarea, int ii)
 
 	tries = 0;
 	while (TRUE) {
-		x = random_(0, MAXDUNX);
-		y = random_(0, MAXDUNY);
+		x = random_(0, DSIZEX) + DBORDERX;
+		y = random_(0, DSIZEY) + DBORDERY;
 		failed = FALSE;
 		for (i = x; i < x + randarea && !failed; i++) {
 			for (j = y; j < y + randarea && !failed; j++) {

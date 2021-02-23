@@ -1073,11 +1073,15 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	rh = rh << 1;
 	lm += rw * rh;
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
+	startx += DBORDERX;
+	starty += DBORDERY;
+	rw += startx;
+	rh += starty;
+	for (j = starty; j < rh; j++) {
+		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
 				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], PLACE_SPECIAL);
-				PlaceMonster(nummonsters++, mtype, i + startx + DBORDERX, j + starty + DBORDERY);
+				PlaceMonster(nummonsters++, mtype, i, j);
 			}
 			lm++;
 		}
