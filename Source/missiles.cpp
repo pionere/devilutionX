@@ -1659,17 +1659,17 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 
 	mis = &missile[mi];
 	mis->_miRange = 160 * (spllvl + 1);
-	assert((DWORD)misource < MAX_PLRS);
-	//if (misource != -1) {
+	if (misource != -1) {
+		assert((DWORD)misource < MAX_PLRS);
 		p = &plr[misource];
 		// TODO: add support for spell duration modifier
 		// range += (p->_pISplDur * range) >> 7;
 		mis->_miMinDam = ((p->_pMagic >> 3) + spllvl + 5) << (-3 + 6);
 		mis->_miMaxDam = ((p->_pMagic >> 3) + spllvl * 2 + 10) << (-3 + 6);
-	//} else {
-	//	mis->_miMinDam = (15 + currlevel) << (-3 + 6);
-	//	mis->_miMaxDam = (25 + currlevel) << (-3 + 6);
-	//}
+	} else {
+		mis->_miMinDam = (15 + currlevel) << (-3 + 6);
+		mis->_miMaxDam = (25 + currlevel) << (-3 + 6);
+	}
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
 	return MIRES_DONE;

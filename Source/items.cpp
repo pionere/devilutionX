@@ -3037,9 +3037,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		break;
 	case IPL_ACIDDAM:
 		if (is->_iAMinDam != is->_iAMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "holy damage: %i-%i", is->_iAMinDam, is->_iAMaxDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %i-%i", is->_iAMinDam, is->_iAMaxDam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "holy damage: %i", is->_iAMinDam);
+			snprintf(tempstr, sizeof(tempstr), "acid damage: %i", is->_iAMinDam);
 		break;
 	case IPL_STR:
 		snprintf(tempstr, sizeof(tempstr), "%+i to strength", is->_iPLStr);
