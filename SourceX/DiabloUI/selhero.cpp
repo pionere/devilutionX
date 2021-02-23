@@ -1,7 +1,6 @@
 #include "selhero.h"
 
 #include <chrono>
-#include <random>
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
@@ -530,8 +529,8 @@ BOOL UiSelHeroMultDialog(
 
 const char *selhero_GenerateName(uint8_t hero_class)
 {
-	static const char *const kNames[3][10] = {
-		{
+	static const char *const kNames[NUM_CLASSES][10] = {
+		{ // WARRIOR
 		    "Aidan",
 		    "Qarak",
 		    "Born",
@@ -543,7 +542,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Myrdgar",
 		    "Rothat",
 		},
-		{
+		{ // ROGUE
 		    "Moreina",
 		    "Akara",
 		    "Kashya",
@@ -555,7 +554,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Basanti",
 		    "Elexa",
 		},
-		{
+		{ // SORCERER
 		    "Jazreth",
 		    "Drognan",
 		    "Armin",
@@ -566,10 +565,46 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Sarnakyle",
 		    "Valthek",
 		    "Horazon",
+		},
+		{ // MONK
+		    "Jazreth",
+		    "Drognan",
+		    "Armin",
+		    "Fauztin",
+		    "Jere",
+		    "Kazzulk",
+		    "Ranslor",
+		    "Sarnakyle",
+		    "Valthek",
+		    "Horazon",
+		},
+		{ // BARD
+		    "Moreina",
+		    "Akara",
+		    "Kashya",
+		    "Flavie",
+		    "Divo",
+		    "Oriana",
+		    "Iantha",
+		    "Shikha",
+		    "Basanti",
+		    "Elexa",
+		},
+		{ // BARBARIAN
+		    "Aidan",
+		    "Qarak",
+		    "Born",
+		    "Cathan",
+		    "Halbu",
+		    "Lenalas",
+		    "Maximus",
+		    "Vane",
+		    "Myrdgar",
+		    "Rothat",
 		}
 	};
-
-	int iRand = rand() % 9;
+	SetRndSeed(time(NULL));
+	int iRand = random_(0, lengthof(kNames[hero_class]));
 
 	return kNames[hero_class][iRand];
 }
