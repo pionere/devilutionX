@@ -1210,14 +1210,14 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pLevel);
 	ADD_PlrStringXY(53, 46, 96, chrstr, COL_WHITE);
 
-	snprintf(chrstr, sizeof(chrstr), "%li", p->_pExperience);
+	snprintf(chrstr, sizeof(chrstr), "%i", p->_pExperience);
 	ADD_PlrStringXY(203, 46, 288, chrstr, COL_WHITE);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		copy_cstr(chrstr, "None");
 		col = COL_GOLD;
 	} else {
-		snprintf(chrstr, sizeof(chrstr), "%li", p->_pNextExper);
+		snprintf(chrstr, sizeof(chrstr), "%i", p->_pNextExper);
 		col = COL_WHITE;
 	}
 	ADD_PlrStringXY(203, 74, 288, chrstr, col);

@@ -1,14 +1,5 @@
 cmake_minimum_required(VERSION 3.10) # CMP0083 NEW
 
-if(VITA)
-  if(DEFINED ENV{DOLCESDK})
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{DOLCESDK}/share/dolce.toolchain.cmake" CACHE PATH "toolchain file")
-  else()
-    message(FATAL_ERROR "Please define DOLCESDK to point to your SDK path!")
-  endif()
-  include("$ENV{DOLCESDK}/share/dolce.cmake" REQUIRED)
-endif()
-
 include(CMake/out_of_tree.cmake)
 include(CMake/genex.cmake)
 
@@ -94,6 +85,7 @@ if(SWITCH)
 endif()
 
 if(VITA)
+  include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
   include(vita_defs)
 endif()
 
@@ -565,28 +557,18 @@ foreach(target devilution ${BIN_TARGET} SourceS)
 
   if (VITA)
     target_link_libraries(${target} PRIVATE
-          pib
-          SceDisplay_stub
-          SceCtrl_stub
           SceAppMgr_stub
           SceAudio_stub
-          SceSysmodule_stub
-          SceSharedFb_stub
-          SceDisplay_stub
-          SceDisplayUser_stub
-          SceCtrl_stub
-          SceAppMgr_stub
-          SceAppMgrUser_stub
-          SceAudio_stub
-          SceIofilemgr_stub
-          SceSysmodule_stub
-          SceGxm_stub
-          SceGxmInternalForVsh_stub
           SceCommonDialog_stub
-          SceTouch_stub
+          SceCtrl_stub
+          SceDisplay_stub
+          SceGxm_stub
           SceHid_stub
+          SceIofilemgr_stub
           SceMotion_stub
           ScePower_stub
+          SceSysmodule_stub
+          SceTouch_stub
           freetype
           png
           m
@@ -646,12 +628,12 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Note: For Valgrind support.
   genex_for_option(DEBUG)
   target_compile_options(devilution PUBLIC $<${DEBUG_GENEX}:-fno-omit-frame-pointer>)
-  # Ignore serious warnings due to "quality" of decompiled code
-  # Currently, disable ignore all warnings (-w), to be removed later
-  target_compile_options(devilution PRIVATE -fpermissive -w)
+
+  # Warnings for devilution
+  target_compile_options(devilution PRIVATE -Wall -Wno-multichar -Wno-int-to-pointer-cast)
 
   # Warnings for devilutionX
-  target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wno-format-security)
+  target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-format-security)
 
   # For ARM and other default unsigned char platforms
   target_compile_options(devilution PRIVATE -fsigned-char)
@@ -712,10 +694,10 @@ if(VITA)
   set(VITA_APP_NAME "devilutionX")
   set(VITA_TITLEID  "DVLX00001")
   set(VITA_VERSION  "01.00")
-  set(DOLCE_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
-  set(DOLCE_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
-  dolce_create_self(devilutionx.self devilutionx UNSAFE)
-  dolce_create_vpk(devilutionx.vpk ${VITA_TITLEID} devilutionx.self
+  set(VITA_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
+  set(VITA_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
+  vita_create_self(devilutionx.self devilutionx UNSAFE)
+  vita_create_vpk(devilutionx.vpk ${VITA_TITLEID} devilutionx.self
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
     FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png

@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Contains the data related to each monster ID. */
-MonsterData monsterdata[] = {
+const MonsterData monsterdata[] = {
 	// clang-format off
 	// width, mImage, GraphicType,                        has_special, sndfile,                             snd_special, has_trans, TransFile,                         Frames[6],                  Rate[6],              mName,               mMinDLvl, mMaxDLvl, mLevel,       mAi, mMinHP, mMaxHP, mFlags                                                             , mInt, mHit, mAFNum, mMinDamage, mMaxDamage, mHit2, mAFNum2, mMinDamage2, mMaxDamage2, mArmorClass, mMonstClass, mMagicRes                                                     , mMagicRes2                                                    , mTreasure, mSelFlag,  mExp
 	{    128,    799, "Monsters\\Zombie\\Zombie%c.CL2",   FALSE,       "Monsters\\Zombie\\Zombie%c%i.WAV",  FALSE,       FALSE,     NULL,                              { 11, 24, 12,  6, 16,  0 }, { 4, 0, 0, 0, 0, 0 }, "Zombie",                   1,        2,      1, AI_ZOMBIE,      4,      7,    0                                                               ,    0,   10,      8,          2,          5,     0,       0,           0,           0,           5, MC_UNDEAD,   IMMUNE_MAGIC                                                  , IMMUNE_MAGIC                                                  ,         0,        3,    54 },
@@ -192,9 +192,9 @@ MonsterData monsterdata[] = {
  * Map between .DUN file value and monster type enum
  */
 #ifdef HELLFIRE
-int MonstConvTbl[] = {
+const int MonstConvTbl[] = {
 #else
-BYTE MonstConvTbl[] = {
+const BYTE MonstConvTbl[] = {
 #endif
 	MT_NZOMBIE,
 	MT_BZOMBIE,
@@ -365,9 +365,9 @@ BYTE MonstConvTbl[] = {
  * Define what version a monster type is available in
  */
 #ifdef HELLFIRE
-int MonstAvailTbl[] = {
+const int MonstAvailTbl[] = {
 #else
-BYTE MonstAvailTbl[] = {
+const BYTE MonstAvailTbl[] = {
 #endif
 	MAT_ALWAYS, // Zombie
 	MAT_ALWAYS, // Ghoul

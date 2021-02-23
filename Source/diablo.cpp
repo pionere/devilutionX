@@ -505,7 +505,7 @@ static void diablo_init()
 
 	diablo_init_screen();
 
-	snd_init(NULL);
+	snd_init();
 	was_snd_init = TRUE;
 
 	ui_sound_init();
@@ -1471,7 +1471,7 @@ static void UpdateActionBtnState(int vKey, BOOL dir)
 		sgbAltActionBtnDown = dir;
 }
 
-void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
@@ -1500,17 +1500,15 @@ void DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		UpdateActionBtnState(DVL_VK_RBUTTON, FALSE);
 		return;
 	case DVL_WM_CAPTURECHANGED:
-		if (hWnd != (HWND)lParam) {
-			sgbActionBtnDown = FALSE;
-			sgbAltActionBtnDown = FALSE;
-		}
+		sgbActionBtnDown = FALSE;
+		sgbAltActionBtnDown = FALSE;
 		return;
 	}
 
-	MainWndProc(hWnd, uMsg, wParam, lParam);
+	MainWndProc(uMsg, wParam, lParam);
 }
 
-void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+void GM_Game(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
@@ -1554,10 +1552,8 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ReleaseKey(DVL_VK_RBUTTON);
 		return;
 	case DVL_WM_CAPTURECHANGED:
-		if (hWnd != (HWND)lParam) {
-			sgbActionBtnDown = FALSE;
-			sgbAltActionBtnDown = FALSE;
-		}
+		sgbActionBtnDown = FALSE;
+		sgbAltActionBtnDown = FALSE;
 		break;
 	case WM_DIABNEXTLVL:
 	case WM_DIABPREVLVL:
@@ -1586,7 +1582,7 @@ void GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
-	MainWndProc(hWnd, uMsg, wParam, lParam);
+	MainWndProc(uMsg, wParam, lParam);
 }
 
 static void LoadLvlGFX()

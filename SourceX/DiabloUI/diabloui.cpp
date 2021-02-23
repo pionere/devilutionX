@@ -544,11 +544,6 @@ BOOL UiSoundCallback(int a1, int type, int a3)
 	UNIMPLEMENTED();
 }
 
-void UiMessageBoxCallback(HWND hWnd, char *lpText, const char *lpCaption, UINT uType)
-{
-	UNIMPLEMENTED();
-}
-
 BOOL UiDrawDescCallback(int game_type, DWORD color, const char *lpString, char *a4, int a5, UINT align, time_t a7,
     HDC *a8)
 {
@@ -976,7 +971,6 @@ void InitUICallbacks(_SNETUIDATA &UiData)
 	UiData.artcallback = (void (*)())UiArtCallback;
 	UiData.createcallback = (void (*)())UiCreateGameCallback;
 	UiData.drawdesccallback = (void (*)())UiDrawDescCallback;
-	UiData.messageboxcallback = (void (*)())UiMessageBoxCallback;
 	UiData.soundcallback = (void (*)())UiSoundCallback;
 	UiData.authcallback = (void (*)())UiAuthCallback;
 	UiData.getdatacallback = (void (*)())UiGetDataCallback;
