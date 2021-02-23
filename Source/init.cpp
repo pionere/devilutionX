@@ -26,7 +26,7 @@ _SNETVERSIONDATA fileinfo;
 /** True if the game is the current active window */
 int gbActive;
 /** The current input handler function */
-WNDPROC CurrentProc;
+WNDPROC CurrentWndProc;
 /** A handle to the mpq archives. */
 #ifdef MPQONE
 HANDLE diabdat_mpq;
@@ -259,13 +259,13 @@ void MainWndProc(UINT Msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-WNDPROC SetWindowProc(WNDPROC NewProc)
+WNDPROC SetWindowProc(WNDPROC newWndProc)
 {
-	WNDPROC OldProc;
+	WNDPROC oldWndProc;
 
-	OldProc = CurrentProc;
-	CurrentProc = NewProc;
-	return OldProc;
+	oldWndProc = CurrentWndProc;
+	CurrentWndProc = newWndProc;
+	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

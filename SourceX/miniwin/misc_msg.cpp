@@ -1061,9 +1061,9 @@ BYTE GetAsyncKeyState(int vKey)
 
 void DispatchMessage(const MSG *lpMsg)
 {
-	assert(CurrentProc != NULL);
+	assert(CurrentWndProc != NULL);
 
-	CurrentProc(lpMsg->message, lpMsg->wParam, lpMsg->lParam);
+	CurrentWndProc(lpMsg->message, lpMsg->wParam, lpMsg->lParam);
 }
 
 bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)

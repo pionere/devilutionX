@@ -43,7 +43,7 @@ void AltActionBtnCmd(BOOL bShift);
 BOOL TryIconCurs(BOOL bShift);
 BOOL PressEscKey();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-void GM_Game(UINT uMsg, WPARAM wParam, LPARAM lParam);
+void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void LoadGameLevel(BOOL firstflag, int lvldir);
 void game_loop(BOOL bStartup);
 void diablo_color_cyc_logic();

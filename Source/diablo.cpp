@@ -357,7 +357,7 @@ static void run_game_loop(unsigned int uMsg)
 	nthread_ignore_mutex(TRUE);
 	start_game(uMsg);
 	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(GM_Game);
+	saveProc = SetWindowProc(GameWndProc);
 	run_delta_info();
 	gbRunGame = TRUE;
 	gbProcessPlayers = TRUE;
@@ -405,7 +405,7 @@ static void run_game_loop(unsigned int uMsg)
 	gbRedrawFlags = REDRAW_ALL;
 	scrollrt_draw_game_screen(TRUE);
 	saveProc = SetWindowProc(saveProc);
-	assert(saveProc == GM_Game);
+	assert(saveProc == GameWndProc);
 	free_game();
 
 	if (cineflag) {
@@ -1487,7 +1487,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	MainWndProc(uMsg, wParam, lParam);
 }
 
-void GM_Game(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case DVL_WM_KEYDOWN:
