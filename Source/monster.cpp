@@ -5401,7 +5401,7 @@ BOOL CheckMonsterHit(int mnum, BOOL *ret)
 	}
 
 	if (mon->_mAi == AI_GARG && mon->_mFlags & MFLAG_GARG_STONE) {
-		mon->_mFlags &= ~MFLAG_GARG_STONE;
+		mon->_mFlags &= ~(MFLAG_GARG_STONE | MFLAG_LOCK_ANIMATION);
 		// mon->_mmode = MM_SATTACK;
 		*ret = TRUE;
 		return TRUE;
