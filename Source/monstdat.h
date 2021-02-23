@@ -12,11 +12,11 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern MonsterData monsterdata[];
+extern const MonsterData monsterdata[];
 #ifdef HELLFIRE
-extern int MonstConvTbl[];
+extern const int MonstConvTbl[];
 #else
-extern BYTE MonstConvTbl[];
+extern const BYTE MonstConvTbl[];
 #endif
 extern const UniqMonstStruct UniqMonst[];
 

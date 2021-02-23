@@ -590,7 +590,7 @@ typedef struct CMonster {
 	BOOL has_special;
 	unsigned char mAFNum; // unused
 	BYTE mdeadval;
-	MonsterData *MData;
+	const MonsterData *MData;
 	// A TRN file contains a sequence of colour transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	BYTE *trans_file;
@@ -670,7 +670,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int mtalkmsg;
 	const char *mName;
 	CMonster *MType;
-	MonsterData *MData;
+	const MonsterData *MData;
 	int _mType;
 	AnimStruct *_mAnims;
 	int _mAnimWidth;
@@ -1463,13 +1463,11 @@ typedef struct _SNETVERSIONDATA {
 typedef struct _SNETUIDATA {
 	int size;
 	int uiflags;
-	HWND parentwindow;
 	void (*artcallback)();
 	void (*authcallback)();
 	void (*createcallback)();
 	void (*drawdesccallback)();
 	void (*selectedcallback)();
-	void (*messageboxcallback)();
 	void (*soundcallback)();
 	void (*statuscallback)();
 	void (*getdatacallback)();
