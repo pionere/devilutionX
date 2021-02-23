@@ -292,7 +292,7 @@ void GetLevelMTypes()
 void InitMonsterGFX(int midx)
 {
 	CMonster *cmon;
-	MonsterData *mdata;
+	const MonsterData *mdata;
 	int mtype, anim, i;
 	char strBuff[256];
 	BYTE *celBuf;
@@ -4875,7 +4875,7 @@ BOOL LineClearF1(BOOL (*Clear)(int, int, int), int mnum, int x1, int y1, int x2,
 
 void SyncMonsterAnim(int mnum)
 {
-	MonsterData *MData;
+	const MonsterData *MData;
 	MonsterStruct *mon;
 	MON_ANIM anim;
 

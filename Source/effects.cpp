@@ -1177,7 +1177,7 @@ void InitMonsterSND(int midx)
 	char name[MAX_PATH];
 	int i, j;
 	CMonster *cmon;
-	MonsterData *mdata;
+	const MonsterData *mdata;
 
 	if (!gbSndInited) {
 		return;
