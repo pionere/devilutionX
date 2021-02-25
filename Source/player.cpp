@@ -1188,6 +1188,9 @@ static void PlrChangeOffset(int pnum)
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ScrollInfo._sxoff += px;
 		ScrollInfo._syoff += py;
+		// TODO: follow with the cursor if a monster is selected?
+		//if (sgbActionBtnDown && (px | py) != 0 && pcursmonst != -1)
+		//	SetCursorPos(MouseX + px, MouseY + py);
 	}
 
 	if (p->_plid != -1)
@@ -2133,9 +2136,6 @@ static BOOL PlrDoStand(int pnum)
 	return FALSE;
 }
 
-/**
- * @brief Movement towards NW, N, and NE
- */
 static BOOL PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
@@ -2165,116 +2165,27 @@ static BOOL PlrDoWalk(int pnum)
 		return FALSE;
 	}
 
-	dPlayer[p->_px][p->_py] = 0;
-	p->_px += p->_pVar1;
-	p->_py += p->_pVar2;
-	dPlayer[p->_px][p->_py] = pnum + 1;
-
-	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
-		ViewX = p->_px - ScrollInfo._sdx;
-		ViewY = p->_py - ScrollInfo._sdy;
+	switch (p->_pmode) {
+	case PM_WALK: // Movement towards NW, N, and NE
+		dPlayer[p->_px][p->_py] = 0;
+		p->_px += p->_pVar1;
+		p->_py += p->_pVar2;
+		dPlayer[p->_px][p->_py] = pnum + 1;
+		break;
+	case PM_WALK2: // Movement towards SW, S, and SE
+		dPlayer[p->_pVar1][p->_pVar2] = 0;
+		break;
+	case PM_WALK3: // Movement towards W and E
+		dPlayer[p->_px][p->_py] = 0;
+		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
+		p->_px = p->_pVar1;
+		p->_py = p->_pVar2;
+		dPlayer[p->_px][p->_py] = pnum + 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
-
-	if (p->walkpath[0] != WALK_NONE) {
-		StartWalkStand(pnum);
-	} else {
-		PlrStartStand(pnum, p->_pVar3);
-	}
-
-	ClearPlrPVars(pnum);
-
-	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
-	return TRUE;
-}
-
-/**
- * @brief Movement towards SW, S, and SE
- */
-static BOOL PlrDoWalk2(int pnum)
-{
-	PlayerStruct *p;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("PlrDoWalk2: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-	p->_pVar8++;
-	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
-		p->_pAnimFrame++;
-	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
-		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
-	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
-		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
-	}
-
-	if ((p->_pAnimFrame & 3) == 3) {
-		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
-	}
-
-	if (p->_pAnimFrame < p->_pWFrames) {
-		PlrChangeOffset(pnum);
-		return FALSE;
-	}
-	dPlayer[p->_pVar1][p->_pVar2] = 0;
-
-	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
-		ViewX = p->_px - ScrollInfo._sdx;
-		ViewY = p->_py - ScrollInfo._sdy;
-	}
-
-	if (p->walkpath[0] != WALK_NONE) {
-		StartWalkStand(pnum);
-	} else {
-		PlrStartStand(pnum, p->_pVar3);
-	}
-
-	ClearPlrPVars(pnum);
-	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
-	return TRUE;
-}
-
-/**
- * @brief Movement towards W and E
- */
-static BOOL PlrDoWalk3(int pnum)
-{
-	PlayerStruct *p;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("PlrDoWalk3: illegal player %d", pnum);
-	}
-	p = &plr[pnum];
-	p->_pVar8++;
-	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
-		p->_pAnimFrame++;
-	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
-		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
-	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
-		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
-	}
-	if ((p->_pAnimFrame & 3) == 3) {
-		PlaySfxLoc(PS_WALK1, p->_px, p->_py);
-	}
-
-	if (p->_pAnimFrame < p->_pWFrames) {
-		PlrChangeOffset(pnum);
-		return FALSE;
-	}
-	dPlayer[p->_px][p->_py] = 0;
-	dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
-	p->_px = p->_pVar1;
-	p->_py = p->_pVar2;
-	dPlayer[p->_px][p->_py] = pnum + 1;
 
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ViewX = p->_px - ScrollInfo._sdx;
@@ -3303,13 +3214,9 @@ void ProcessPlayers()
 					tplayer = PlrDoStand(pnum);
 					break;
 				case PM_WALK:
-					tplayer = PlrDoWalk(pnum);
-					break;
 				case PM_WALK2:
-					tplayer = PlrDoWalk2(pnum);
-					break;
 				case PM_WALK3:
-					tplayer = PlrDoWalk3(pnum);
+					tplayer = PlrDoWalk(pnum);
 					break;
 				case PM_ATTACK:
 					tplayer = PlrDoAttack(pnum);
