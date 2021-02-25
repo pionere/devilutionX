@@ -1456,10 +1456,6 @@ typedef struct _SNETVERSIONDATA {
 
 typedef struct _SNETUIDATA {
 	int size;
-	void (*selectedcallback)();
-	void (*statuscallback)();
-	void (*categorylistcallback)();
-	void (*newaccountcallback)();
 	const char **profilefields;
 	int (*selectnamecallback)(
 	    const struct _SNETPROGRAMDATA *,
@@ -1652,26 +1648,12 @@ typedef struct STextStruct {
 } STextStruct;
 
 //////////////////////////////////////////////////
-// wave
-//////////////////////////////////////////////////
-
-typedef struct MEMFILE {
-	DWORD end;
-	LONG offset;
-	DWORD buf_len;
-	DWORD dist;
-	DWORD bytes_to_read;
-	BYTE *buf;
-	HANDLE file;
-} MEMFILE;
-
-//////////////////////////////////////////////////
 // plrmsg
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
 	DWORD time;
-	unsigned char player;
+	BYTE player;
 	char str[144];
 } _plrmsg;
 
