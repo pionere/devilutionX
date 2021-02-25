@@ -866,7 +866,7 @@ typedef struct TCmdGolem {
 	BYTE _my;
 	BYTE _mdir;
 	char _menemy;
-	int _mhitpoints;
+	INT _mhitpoints;
 	BYTE _currlevel;
 } TCmdGolem;
 
@@ -888,7 +888,7 @@ typedef struct TCmdGItem {
 	BYTE y;
 	WORD wIndx;
 	WORD wCI;
-	int dwSeed;
+	INT dwSeed;
 	BYTE bId;
 	BYTE bDur;
 	BYTE bMDur;
@@ -896,7 +896,7 @@ typedef struct TCmdGItem {
 	BYTE bMCh;
 	WORD wValue;
 	DWORD dwBuff;
-	int dwTime;
+	INT dwTime;
 #ifdef HELLFIRE
 	WORD wToHit;
 	WORD wMaxDam;
@@ -913,7 +913,7 @@ typedef struct TCmdPItem {
 	BYTE y;
 	WORD wIndx;
 	WORD wCI;
-	int dwSeed;
+	INT dwSeed;
 	BYTE bId;
 	BYTE bDur;
 	BYTE bMDur;
@@ -936,7 +936,7 @@ typedef struct TCmdChItem {
 	BYTE bLoc;
 	WORD wIndx;
 	WORD wCI;
-	int dwSeed;
+	INT dwSeed;
 	BOOLEAN bId;
 } TCmdChItem;
 
@@ -1020,8 +1020,8 @@ typedef struct TPktHdr {
 	BYTE py;
 	BYTE targx;
 	BYTE targy;
-	int php;
-	int pmhp;
+	INT php;
+	INT pmhp;
 	BYTE bstr;
 	BYTE bmag;
 	BYTE bdex;
@@ -1040,7 +1040,7 @@ typedef struct DMonsterStr {
 	BYTE _mdir;
 	BYTE _menemy;
 	BYTE _mactive;
-	int _mhitpoints;
+	INT _mhitpoints;
 } DMonsterStr;
 
 typedef struct DObjectStr {
@@ -1464,7 +1464,6 @@ typedef struct _SNETPLAYERDATA {
 	int size;
 	char *playername;
 	char *playerdescription;
-	int reserved;
 } _SNETPLAYERDATA;
 
 typedef struct _SNETPROGRAMDATA {
@@ -1473,11 +1472,9 @@ typedef struct _SNETPROGRAMDATA {
 	const char *programdescription;
 	int programid;
 	int versionid;
-	int reserved1;
 	int maxplayers;
 	_gamedata *initdata;
 	int initdatabytes;
-	void *reserved2;
 	int optcategorybits;
 	char *cdkey;
 	char *registereduser;
@@ -1488,28 +1485,15 @@ typedef struct _SNETPROGRAMDATA {
 typedef struct _SNETVERSIONDATA {
 	int size;
 	const char *versionstring;
-	const char *executablefile;
-	const char *originalarchivefile;
-	const char *patcharchivefile;
 } _SNETVERSIONDATA;
 
 typedef struct _SNETUIDATA {
 	int size;
-	int uiflags;
-	void (*artcallback)();
-	void (*authcallback)();
-	void (*createcallback)();
-	void (*drawdesccallback)();
 	void (*selectedcallback)();
-	void (*soundcallback)();
 	void (*statuscallback)();
-	void (*getdatacallback)();
-	void (*categorycallback)();
 	void (*categorylistcallback)();
 	void (*newaccountcallback)();
-	void (*profilecallback)();
 	const char **profilefields;
-	void (*profilebitmapcallback)();
 	int (*selectnamecallback)(
 	    const struct _SNETPROGRAMDATA *,
 	    const struct _SNETPLAYERDATA *,
@@ -1567,12 +1551,12 @@ typedef struct PkPlayerStruct {
 	BYTE pBaseVit;
 	char pLevel;
 	BYTE pStatPts;
-	int pExperience;
-	int pGold;
-	int pHPBase;
-	int pMaxHPBase;
-	int pManaBase;
-	int pMaxManaBase;
+	INT pExperience;
+	INT pGold;
+	INT pHPBase;
+	INT pMaxHPBase;
+	INT pManaBase;
+	INT pMaxManaBase;
 	char pSplLvl[37]; // Should be MAX_SPELLS but set to 37 to make save games compatible
 	uint64_t pMemSpells;
 	PkItemStruct InvBody[NUM_INVLOC];
@@ -1580,21 +1564,18 @@ typedef struct PkPlayerStruct {
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE _pNumInv;
 	PkItemStruct SpdList[MAXBELTITEMS];
-	char bReserved0[3];
+	BYTE bReserved0[3];
 	char pBattleNet;
 	BOOLEAN pManaShield;
-	char bReserved1[3];
+	BYTE bReserved1[3];
 	WORD wReflection;
-	short wReserved2;
+	WORD wReserved2;
 	char pSplLvl2[10]; // Hellfire spells
-	short wReserved8;
+	WORD wReserved8;
 	DWORD pDiabloKillLevel;
 	char pSplHotKey[4];
 	char pSplTHotKey[4];
-#if INT_MAX == INT64_MAX
-	int dwReserved0;
-#endif
-	int dwReserved1[5];
+	DWORD dwReserved1[5];
 } PkPlayerStruct;
 #pragma pack(pop)
 
@@ -1636,7 +1617,7 @@ typedef struct TMsg TMsg;
 
 typedef struct TMsgHdr {
 	TMsg *pNext;
-	int dwTime;
+	INT dwTime;
 	BYTE bLen;
 } TMsgHdr;
 
@@ -1644,7 +1625,7 @@ typedef struct TMsg {
 	TMsgHdr hdr;
 	// this is actually alignment padding, but the message body is appended to the struct
 	// so it's convenient to use byte-alignment and name it "body"
-	unsigned char body[3];
+	BYTE body[3];
 } TMsg;
 #pragma pack(pop)
 

@@ -141,9 +141,6 @@ void init_archives()
 	memset(&fileinfo, 0, sizeof(fileinfo));
 	fileinfo.size = sizeof(fileinfo);
 	fileinfo.versionstring = gszVersionNumber;
-	fileinfo.executablefile = "";
-	fileinfo.originalarchivefile = "";
-	fileinfo.patcharchivefile = "";
 	init_get_file_info();
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
