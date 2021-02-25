@@ -536,7 +536,7 @@ static BOOL SmithSellOk(const ItemStruct *is)
 		&& is->_itype != ITYPE_MISC
 #endif
 		&& is->_itype != ITYPE_GOLD
-		&& is->_itype != ITYPE_STAFF
+		&& (is->_itype != ITYPE_STAFF || is->_iSpell == NULL)
 		&& is->_iClass != ICLASS_QUEST;
 }
 
