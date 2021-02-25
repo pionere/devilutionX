@@ -945,14 +945,9 @@ static void S_StartHealer()
 	AddSText(0, 3, TRUE, "Healer's home", COL_GOLD, FALSE);
 	AddSText(0, 9, TRUE, "Would you like to:", COL_GOLD, FALSE);
 	AddSText(0, 12, TRUE, "Talk to Pepin", COL_BLUE, TRUE);
-#ifdef HELLFIRE
-	AddSText(0, 14, TRUE, "Buy items", COL_WHITE, TRUE);
-	AddSText(0, 16, TRUE, "Leave Healer's home", COL_WHITE, TRUE);
-#else
 	AddSText(0, 14, TRUE, "Receive healing", COL_WHITE, TRUE);
 	AddSText(0, 16, TRUE, "Buy items", COL_WHITE, TRUE);
 	AddSText(0, 18, TRUE, "Leave Healer's home", COL_WHITE, TRUE);
-#endif
 	AddSLine(5);
 	storenumh = 20;
 }
@@ -2067,14 +2062,6 @@ static void S_HealerEnter()
 		gossipend = TEXT_PEPIN11;
 		StartStore(STORE_GOSSIP);
 		break;
-#ifdef HELLFIRE
-	case 14:
-		StartStore(STORE_HBUY);
-		break;
-	case 16:
-		stextflag = STORE_NONE;
-		break;
-#else
 	case 14:
 		if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
 			PlrFillHp(myplr);
@@ -2087,7 +2074,6 @@ static void S_HealerEnter()
 	case 18:
 		stextflag = STORE_NONE;
 		break;
-#endif
 	}
 }
 

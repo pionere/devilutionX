@@ -3,6 +3,7 @@
 namespace dvl {
 
 typedef uint16_t SHORT;
+typedef int32_t INT;
 typedef int32_t LONG;
 typedef uint8_t BOOLEAN;
 
