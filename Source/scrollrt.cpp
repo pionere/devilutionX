@@ -953,16 +953,16 @@ inline void ShiftGrid(int *x, int *y, int horizontal, int vertical)
  */
 int RowsCoveredByPanel()
 {
-	if (SCREEN_WIDTH <= PANEL_WIDTH) {
+	//if (SCREEN_WIDTH <= PANEL_WIDTH) {
 		return 0;
-	}
+	/*}
 
 	int rows = PANEL_HEIGHT / TILE_HEIGHT;
 	if (!zoomflag) {
 		rows /= 2;
 	}
 
-	return rows;
+	return rows;*/
 }
 
 /**

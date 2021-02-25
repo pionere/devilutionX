@@ -2142,17 +2142,18 @@ void control_drop_gold(char vkey)
 	dropGoldFlag = FALSE;
 }
 
+#define TALK_PNL_WIDTH		302
+#define TALK_PNL_HEIGHT		116
+#define TALK_PNL_TOP		(SCREEN_HEIGHT - 8 - TALK_PNL_HEIGHT)
+#define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
 static char *control_print_talk_msg(char *msg, int *x, int y, int color)
 {
 	BYTE c;
-	int width;
 
-	width = *x;
 	while (*msg != '\0') {
 		c = gbFontTransTbl[(BYTE)*msg];
 		c = fontframe[c];
-		width += fontkern[c] + 1;
-		if (width > 450 + PANEL_X)
+		if ((*x + fontkern[c] + 1) > SCREEN_X + TALK_PNL_LEFT + TALK_PNL_WIDTH - 15)
 			return msg;
 		msg++;
 		if (c != '\0') {
@@ -2170,17 +2171,17 @@ void DrawTalkPan()
 
 	assert(talkflag);
 
-	int sx = SCREEN_X + SCREEN_WIDTH / 2 - 151;
-	int sy = SCREEN_Y + SCREEN_HEIGHT - 8 - 116;
+	int sx = SCREEN_X + TALK_PNL_LEFT;
+	int sy = SCREEN_Y + TALK_PNL_TOP;
 
 	// add background
-	CelDraw(sx, sy + 116, pTalkPnl, 1, 302);
+	CelDraw(sx, sy + TALK_PNL_HEIGHT, pTalkPnl, 1, TALK_PNL_WIDTH);
 
 	// print the current (not sent) message
-	sy += 18;
+	sy += 17;
 	msg = sgszTalkMsg;
 	for (y = sy; ; y += 13) {
-		x = sx + 31;
+		x = sx + 15;
 		msg = control_print_talk_msg(msg, &x, y, COL_WHITE);
 		if (msg == NULL)
 			break;
@@ -2190,7 +2191,7 @@ void DrawTalkPan()
 	CelDraw(x, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
 
 	// add the party members
-	sy += 60;
+	sy += 61;
 	talk_btn = 0;
 	static_assert(lengthof(whisper) == MAX_PLRS, "Table whisper does not work with the current MAX_PLRS in DrawTalkPan.");
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -2220,16 +2221,16 @@ BOOL control_check_talk_btn()
 {
 	int i;
 
-	if (MouseX < PANEL_LEFT + 172 || MouseX > PANEL_LEFT + 233)
+	if (MouseX < TALK_PNL_LEFT + 3 || MouseX > TALK_PNL_LEFT + 64)
 		return FALSE;
-	if (MouseY < PANEL_TOP + 69 || MouseY > PANEL_TOP + 69 + 18 * lengthof(talkbtndown))
+	if (MouseY < TALK_PNL_TOP + 65 || MouseY > TALK_PNL_TOP + 65 + 18 * lengthof(talkbtndown))
 		return FALSE;
 
 	for (i = 0; i < lengthof(talkbtndown); i++) {
 		talkbtndown[i] = FALSE;
 	}
 
-	talkbtndown[(MouseY - (69 + PANEL_TOP)) / 18] = TRUE;
+	talkbtndown[(MouseY - (TALK_PNL_TOP + 65)) / 18] = TRUE;
 
 	return TRUE;
 }
@@ -2238,8 +2239,8 @@ void control_release_talk_btn()
 {
 	int i, y;
 
-	if (MouseX >= PANEL_LEFT + 172  && MouseX <= PANEL_LEFT + 233) {
-		y = MouseY - (PANEL_TOP + 69);
+	if (MouseX >= TALK_PNL_LEFT + 3  && MouseX <= TALK_PNL_LEFT + 64) {
+		y = MouseY - (TALK_PNL_TOP + 65);
 		for (i = 0; i < lengthof(talkbtndown); i++, y -= 18) {
 			if (talkbtndown[i] && y >= 0 && y <= 18) {
 				if (i >= myplr)
