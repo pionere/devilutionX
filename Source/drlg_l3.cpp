@@ -1180,21 +1180,15 @@ static void DRLG_L3River()
 
 	rivercnt = 0;
 	tries = 0;
-	/// BUGFIX: pdir is uninitialized, add code `pdir = -1;`(fixed)
-	pdir = -1;
 
 	while (tries < 200 && rivercnt < 4) {
 		done = FALSE;
 		while (!done && tries < 200) {
 			tries++;
-			rx = 0;
-			ry = 0;
 			lpcnt = 0;
-			// BUGFIX: Replace with `(ry >= DMAXY || dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) && i < 100` (fixed)
-			while ((ry >= DMAXY || dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) && lpcnt < 100) {
+			do {
 				rx = random_(0, DMAXX);
 				ry = random_(0, DMAXY);
-				lpcnt++;
 				while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
 					if (++rx == DMAXX) {
 						rx = 0;
@@ -1202,13 +1196,10 @@ static void DRLG_L3River()
 							break;
 					}
 				}
-			}
-			// BUGFIX: Continue if `ry >= DMAXY` (fixed)
-			if (ry >= DMAXY)
+			} while (ry == DMAXY && ++lpcnt < 100);
+			if (lpcnt == 100)
 				continue;
-			if (lpcnt >= 100) {
-				return;
-			}
+
 			switch (dungeon[rx][ry]) {
 			case 25:
 				dir = 3;
@@ -1235,6 +1226,8 @@ static void DRLG_L3River()
 			}
 			river[0][0] = rx;
 			river[1][0] = ry;
+			/// BUGFIX: pdir is uninitialized, add code `pdir = -1;`(fixed)
+			pdir = -1;
 			riveramt = 1;
 			nodir2 = 4;
 			dircheck = 0;
@@ -1257,11 +1250,11 @@ static void DRLG_L3River()
 						ry--;
 					break;
 				case 1:
-					if (ry < DMAXY)
+					if (ry < DMAXY - 1)
 						ry++;
 					break;
 				case 2:
-					if (rx < DMAXX)
+					if (rx < DMAXX - 1)
 						rx++;
 					break;
 				case 3:
@@ -1275,7 +1268,7 @@ static void DRLG_L3River()
 					dircheck = 0;
 					river[0][riveramt] = rx;
 					river[1][riveramt] = ry;
-					river[2][riveramt] = RandRange(15, 16) + (dir < 2) * 2;
+					river[2][riveramt] = RandRange(15, 16) + (1 - (dir >> 1)) * 2;
 					riveramt++;
 					if (dir == 0 && pdir == 2 || dir == 3 && pdir == 1) {
 						if (riveramt > 2) {
