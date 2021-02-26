@@ -200,6 +200,7 @@ typedef enum item_cursor_graphic {
 	ICURS_DAGGER                      = 51,
 	ICURS_BLACK_RAZOR                 = 53,
 	ICURS_GONNAGAL_DIRK               = 54,
+	ICURS_KATAR                       = 55,
 	ICURS_BLADE                       = 56,
 	ICURS_BASTARD_SWORD               = 57,
 	ICURS_EXECUTIONER_BLADE           = 58,
@@ -3149,11 +3150,11 @@ typedef enum _item_indexes {
 	IDI_FULLREJUV  = 0x4C,
 	IDI_BOOK1      = 0x6A,
 	IDI_BOOK4      = 0x6D,
-	IDI_DROPSHSTAFF= 0x8F,
+	IDI_DROPSHSTAFF= 0x91,
 #ifdef HELLFIRE
-	NUM_IDI        = 0x9E
+	NUM_IDI        = 0xA0
 #else
-	NUM_IDI        = 0x99
+	NUM_IDI        = 0x9B
 #endif
 } _item_indexes;
 

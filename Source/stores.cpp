@@ -513,15 +513,17 @@ static BOOL S_StartSPBuy()
 
 static void AddStoreSell(ItemStruct *is, int i)
 {
+	int value;
+
 	copy_pod(storehold[storenumh], *is);
 
 	is = &storehold[storenumh];
-	if (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified)
-		is->_ivalue = is->_iIvalue;
+	value = (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) ? is->_iIvalue : is->_ivalue;
 
-	if ((is->_ivalue >>= 2) == 0)
-		is->_ivalue = 1;
-	is->_iIvalue = is->_ivalue;
+	value >>= 3;
+	if (value == 0)
+		value = 1;
+	is->_iIvalue = is->_ivalue = value;
 
 	storehidx[storenumh++] = i;
 }

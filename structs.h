@@ -349,11 +349,8 @@ typedef struct PlayerStruct {
 	int _pIPcMaxDam;
 	int _pIAC;
 	int _pIHitChance;
-	BYTE _pIBaseACBonus; // indicator whether the base ACBonus of the items is positive/negative/neutral
-	BYTE _pIBaseDamBonus; // indicator whether the base DamageBonus of the items is positive/negative/neutral
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
-	int _pIMagToHit;
 	uint64_t _pISpells; // Bitmask of staff spell
 	int _pIFlags;
 	int _pIGetHit;

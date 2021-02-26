@@ -415,14 +415,13 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
 
-	int tac = 0;  // accuracy
+	int tac = 0;  // armor class
 
 	unsigned g;
 	int i;
 
 	int bdam = 0;   // bonus damage
 	int btohit = 0; // bonus chance to hit
-	int bac = 0;    // bonus accuracy
 	int av;			// arrow velocity bonus
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
@@ -440,10 +439,10 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int mr = 0; // magic resistance
 	int ar = 0; // acid resistance
 
-	int dmod = 0; // bonus damage mod
-	int pdmod;    // player damage mod
-	BYTE dms;     // number of damage types
-	int ghit = 0; // increased damage from enemies
+	// temporary values to calculate armor class/damage of the current item
+	int cac, cdmod, cdmodp, mindam, maxdam;
+	unsigned pdmod; // player damage mod
+	int ghit = 0;   // increased damage from enemies
 	BYTE manasteal = 0;
 	BYTE lifesteal = 0;
 
@@ -474,44 +473,17 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	pi = p->InvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-			tac += pi->_iAC;
-			switch (pi->_iDamType) {
-			case IDAM_NONE: break;
-			case IDAM_SLASH:
-				minsl += (unsigned)pi->_iMinDam << 1;
-				maxsl += (unsigned)pi->_iMaxDam << 1;
-				break;
-			case IDAM_BLUNT:
-				minbl += (unsigned)pi->_iMinDam << 1;
-				maxbl += (unsigned)pi->_iMaxDam << 1;
-				break;
-			case IDAM_SB_MIX:
-				minsl += pi->_iMinDam;
-				minbl += pi->_iMinDam;
-				maxsl += pi->_iMaxDam;
-				maxbl += pi->_iMaxDam;
-				break;
-			case IDAM_PUNCTURE:
-				minpc += (unsigned)pi->_iMinDam << 1;
-				maxpc += (unsigned)pi->_iMaxDam << 1;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-			}
-
 			if (pi->_iSpell != SPL_NULL) {
 				spl |= SPELL_MASK(pi->_iSpell);
 			}
+			cac = pi->_iAC;
+			mindam = pi->_iMinDam;
+			maxdam = pi->_iMaxDam;
+			cdmod = 0;
+			cdmodp = 0;
 
-			if (pi->_iMagical == ITEM_QUALITY_NORMAL || pi->_iIdentified) {
-				bdam += pi->_iPLDam;
+			if (pi->_iMagical != ITEM_QUALITY_NORMAL && pi->_iIdentified) {
 				btohit += pi->_iPLToHit;
-				if (pi->_iPLAC != 0) {
-					int tmpac = pi->_iPLAC * pi->_iAC / 100;
-					if (tmpac == 0)
-						tmpac = pi->_iPLAC >= 0 ? 1 : -1;
-					bac += tmpac;
-				}
 				iflgs |= pi->_iFlags;
 				iflgs2 |= pi->_iFlags2;
 
@@ -523,7 +495,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				lr += pi->_iPLLR;
 				mr += pi->_iPLMR;
 				ar += pi->_iPLAR;
-				dmod += pi->_iPLDamMod;
 				ghit += pi->_iPLGetHit;
 				lrad += pi->_iPLLight;
 				ihp += pi->_iPLHP;
@@ -540,35 +511,47 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 				mmax += pi->_iMMaxDam;
 				amin += pi->_iAMinDam;
 				amax += pi->_iAMaxDam;
+
+				cdmod = pi->_iPLDamMod;
+				cdmodp = pi->_iPLDam;
+				if (pi->_iPLAC != 0) {
+					int tmpac = pi->_iPLAC * cac / 100;
+					if (tmpac == 0)
+						tmpac = pi->_iPLAC >= 0 ? 1 : -1;
+					cac += tmpac;
+				}
+			}
+
+			tac += cac;
+			if (maxdam == 0)
+				continue;
+			cdmodp += 100;
+			mindam = mindam * cdmodp + cdmod * 100;
+			maxdam = maxdam * cdmodp + cdmod * 100;
+			switch (pi->_iDamType) {
+			case IDAM_NONE: break;
+			case IDAM_SLASH:
+				minsl += (unsigned)mindam << 1;
+				maxsl += (unsigned)maxdam << 1;
+				break;
+			case IDAM_BLUNT:
+				minbl += (unsigned)mindam << 1;
+				maxbl += (unsigned)maxdam << 1;
+				break;
+			case IDAM_SB_MIX:
+				minsl += mindam;
+				minbl += mindam;
+				maxsl += maxdam;
+				maxbl += maxdam;
+				break;
+			case IDAM_PUNCTURE:
+				minpc += (unsigned)mindam << 1;
+				maxpc += (unsigned)maxdam << 1;
+				break;
+			default:
+				ASSUME_UNREACHABLE
 			}
 		}
-	}
-
-	p->_pIFlags = iflgs;
-	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
-	p->_pIFlags2 = iflgs2;
-	p->_pIGetHit = ghit;
-	p->_pIEnAc = enac;
-	p->_pIFMinDam = fmin << 6;
-	p->_pIFMaxDam = fmax << 6;
-	p->_pILMinDam = lmin << 6;
-	p->_pILMaxDam = lmax << 6;
-	p->_pIMMinDam = mmin << 6;
-	p->_pIMMaxDam = mmax << 6;
-	p->_pIAMinDam = amin << 6;
-	p->_pIAMaxDam = amax << 6;
-	p->_pISplLvlAdd = spllvladd;
-	p->_pILifeSteal = lifesteal;
-	p->_pIManaSteal = manasteal;
-	p->_pISpells = spl;
-
-	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_CHARGES
-	 && !(spl & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		// unnecessary since MANA_FLASK is always set to redraw, which triggers the redraw of the spell-icon as well
-		// gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 
 #ifdef HELLFIRE
@@ -583,6 +566,39 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		vadd -= 2 * p->_pLevel;
 	}
 #endif
+	p->_pStrength = std::max(0, sadd + p->_pBaseStr);
+	p->_pMagic = std::max(0, madd + p->_pBaseMag);
+	p->_pDexterity = std::max(0, dadd + p->_pBaseDex);
+	p->_pVitality = std::max(0, vadd + p->_pBaseVit);
+
+	p->_pIFlags = iflgs;
+	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
+	p->_pIFlags2 = iflgs2;
+	p->_pIGetHit = ghit;
+	p->_pIEnAc = enac;
+	p->_pISplLvlAdd = spllvladd;
+	p->_pILifeSteal = lifesteal;
+	p->_pIManaSteal = manasteal;
+
+	pdmod = (1 << 9) + (8 * p->_pMagic);
+	p->_pIFMinDam = fmin * pdmod >> (-6 + 9);
+	p->_pIFMaxDam = fmax * pdmod >> (-6 + 9);
+	p->_pILMinDam = lmin * pdmod >> (-6 + 9);
+	p->_pILMaxDam = lmax * pdmod >> (-6 + 9);
+	p->_pIMMinDam = mmin * pdmod >> (-6 + 9);
+	p->_pIMMaxDam = mmax * pdmod >> (-6 + 9);
+	p->_pIAMinDam = amin * pdmod >> (-6 + 9);
+	p->_pIAMaxDam = amax * pdmod >> (-6 + 9);
+
+	p->_pISpells = spl;
+	// check if the current RSplType is a valid/allowed spell
+	if (p->_pRSplType == RSPLTYPE_CHARGES
+	 && !(spl & SPELL_MASK(p->_pRSpell))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		// unnecessary since MANA_FLASK is always set to redraw, which triggers the redraw of the spell-icon as well
+		// gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
 
 	lrad = std::max(2, std::min(15, lrad));
 	if (p->_pLightRad != lrad && pnum == myplr) {
@@ -591,34 +607,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		ChangeVisionRadius(p->_pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
-	p->_pStrength = sadd + p->_pBaseStr;
-	if (p->_pStrength < 0) {
-		p->_pStrength = 0;
-	}
-
-	p->_pMagic = madd + p->_pBaseMag;
-	if (p->_pMagic < 0) {
-		p->_pMagic = 0;
-	}
-
-	p->_pDexterity = dadd + p->_pBaseDex;
-	if (p->_pDexterity < 0) {
-		p->_pDexterity = 0;
-	}
-
-	p->_pVitality = vadd + p->_pBaseVit;
-	if (p->_pVitality < 0) {
-		p->_pVitality = 0;
-	}
-
 #ifdef HELLFIRE
-	if (p->_pClass == PC_BARBARIAN) {
-		fr += p->_pLevel;
-		lr += p->_pLevel;
-		mr += p->_pLevel;
-		ar += p->_pLevel;
-	}
-
 	if (p->_pSpellFlags & PSE_LETHARGY) {
 		fr -= p->_pLevel;
 		lr -= p->_pLevel;
@@ -667,33 +656,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 #endif
 	p->_pAcidResist = ar;
 
-	switch (p->_pClass) {
-	case PC_WARRIOR:   vadd *= 2;         break;
-#ifdef HELLFIRE
-	case PC_BARBARIAN: vadd *= 3;         break;
-	case PC_MONK:
-	case PC_BARD:
-#endif
-	case PC_ROGUE:	   vadd += vadd >> 1; break;
-	case PC_SORCERER: break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-	ihp += (vadd << 6); // BUGFIX: blood boil can cause negative shifts here (see line 757)
-
-	switch (p->_pClass) {
-	case PC_SORCERER: madd *= 2;                     break;
-#ifdef HELLFIRE
-	case PC_BARBARIAN: break;
-	case PC_BARD: madd += (madd >> 2) + (madd >> 1); break;
-	case PC_MONK:
-#endif
-	case PC_ROGUE: madd += madd >> 1;                break;
-	case PC_WARRIOR: break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-	imana += (madd << 6);
+	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
+	imana += madd << (6 + 1);
 
 	p->_pHitPoints = ihp + p->_pHPBase;
 	p->_pMaxHP = ihp + p->_pMaxHPBase;
@@ -731,12 +695,6 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	g = ANIM_ID_UNARMED;
 
-	if (wRight->_itype != ITYPE_NONE
-	    && wRight->_iClass == ICLASS_WEAPON
-	    && wRight->_iStatFlag) {
-		g = wRight->_itype;
-	}
-
 	if (wLeft->_itype != ITYPE_NONE
 	    && wLeft->_iClass == ICLASS_WEAPON
 	    && wLeft->_iStatFlag) {
@@ -744,6 +702,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 
 	switch (g) {
+	case ANIM_ID_UNARMED:
+		break;
 	case ITYPE_SWORD:
 		g = ANIM_ID_SWORD;
 		break;
@@ -760,53 +720,37 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	case ITYPE_STAFF:
 		g = ANIM_ID_STAFF;
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
+		tac += ((p->_pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		p->_pBlockFlag = TRUE;
 		g++;
 	}
 
 	if (g == ANIM_ID_UNARMED || g == ANIM_ID_UNARMED_SHIELD) {
 		if (g == ANIM_ID_UNARMED_SHIELD) {
-			minbl = 3;
-			maxbl = 3;
+			minbl = 3 << 1;
+			maxbl = 3 << 1;
 		} else {
-			minbl = 1;
-			maxbl = 1;
+			minbl = 1 << 1;
+			maxbl = 1 << 1;
 		}
-#ifdef HELLFIRE
-		if (p->_pClass == PC_MONK) {
-			minbl = std::max(minbl, (unsigned)p->_pLevel >> 1);
-			maxbl = std::max(maxbl, (unsigned)p->_pLevel);
-		}
-#endif
+		minbl += p->_pLevel >> (2 - 1);
+		maxbl += p->_pLevel >> (1 - 1);
+		minbl *= 100;
+		maxbl *= 100;
 	}
 
 	pi = &p->InvBody[INVLOC_CHEST];
-#ifdef HELLFIRE
-	if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
-		if (p->_pClass == PC_MONK && pi->_iMagical == ITEM_QUALITY_UNIQUE)
-			tac += p->_pLevel >> 1;
-		g += ANIM_ID_HEAVY_ARMOR;
-	} else if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
-		if (p->_pClass == PC_MONK) {
-			if (pi->_iMagical == ITEM_QUALITY_UNIQUE)
-				tac += p->_pLevel << 1;
-			else
-				tac += p->_pLevel >> 1;
-		}
-		g += ANIM_ID_MEDIUM_ARMOR;
-	} else if (p->_pClass == PC_MONK) {
-		tac += p->_pLevel << 1;
-	}
-#else
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_MEDIUM_ARMOR;
 	} else if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_HEAVY_ARMOR;
 	}
-#endif
 
 	if (p->_pgfxnum != g && Loadgfx) {
 		p->_pgfxnum = g;
@@ -820,61 +764,12 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	}
 
 	// add class bonuses as item bonus
-	if (p->_pClass == PC_ROGUE) {
-		if (wLeft->_itype == ITYPE_BOW)
-			pdmod = p->_pLevel * ((p->_pStrength >> 1) + p->_pDexterity) / 200;
-		else
-			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 200;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_MONK) {
-		if (wLeft->_itype != ITYPE_STAFF) {
-			if (wLeft->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
-				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 300;
-			} else {
-				pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-			}
-		} else {
-			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-		}
-	} else if (p->_pClass == PC_BARD) {
-		if (wLeft->_itype == ITYPE_SWORD || wRight->_itype == ITYPE_SWORD)
-			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 150;
-		else if (wLeft->_itype == ITYPE_BOW) {
-			pdmod = p->_pLevel * (p->_pStrength + p->_pDexterity) / 250;
-		} else {
-			pdmod = p->_pLevel * p->_pStrength / 100;
-		}
-	} else if (p->_pClass == PC_BARBARIAN) {
-		if (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE) {
-			pdmod = p->_pLevel * p->_pStrength / 75;
-		} else if (wLeft->_itype == ITYPE_MACE || wRight->_itype == ITYPE_MACE) {
-			pdmod = p->_pLevel * p->_pStrength / 75;
-		} else if (wLeft->_itype == ITYPE_BOW) {
-			pdmod = p->_pLevel * p->_pStrength / 300;
-		} else {
-			pdmod = p->_pLevel * p->_pStrength / 100;
-		}
-
-		if (wRight->_itype == ITYPE_SHIELD) {
-			tac -= wRight->_iAC / 2;
-		} else if (wLeft->_itype != ITYPE_STAFF && wLeft->_itype != ITYPE_BOW) {
-			pdmod += p->_pLevel * p->_pVitality / 100;
-		}
-		tac += p->_pLevel / 4;
-#endif
-	} else {
-		pdmod = p->_pLevel * p->_pStrength / 100;
-	}
-	p->_pIBaseACBonus = bac == 0 ? IBONUS_NONE : (bac >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
 	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	p->_pIBaseDamBonus = bdam == 0 ? IBONUS_NONE : (bdam >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	p->_pIAC = tac + bac + p->_pDexterity / 5;
+	p->_pIAC = tac + p->_pDexterity / 5;
 	p->_pICritChance = 0;
 	btohit += 50 + p->_pLevel;
 	if (p->_pwtype == WT_MELEE) {
-		btohit += p->_pDexterity >> 1;
-		if (p->_pClass == PC_WARRIOR)
-			btohit += 20;
+		btohit += 20 + (p->_pDexterity >> 1);
 #ifdef HELLFIRE
 		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
 #else
@@ -884,64 +779,53 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	} else {
 		assert(p->_pwtype == WT_RANGED);
 		btohit += p->_pDexterity;
-		if (p->_pClass == PC_ROGUE)
-			btohit += 20;
-#ifdef HELLFIRE
-		else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-#else
-		else if (p->_pClass == PC_WARRIOR)
-#endif
-			btohit += 10;
-		if (p->_pClass != PC_ROGUE)
-			pdmod >>= 1;
-	}
-	// calculate the damages for each type
-	bdam += 100;
-	bdam <<= 6;
-	pdmod <<= 6 + 1;
-	dms = 0;
-	if (maxsl != 0)
-		dms++;
-	if (maxbl != 0)
-		dms++;
-	if (maxpc != 0)
-		dms++;
-	if (dms > 1) {
-		if (dms == 2)
-			pdmod >>= 1;
-		else
-			// assert(dms == 3);
-			pdmod /= 3;
-	}
-	if (maxsl == 0) {
-		p->_pISlMinDam = 0;
-		p->_pISlMaxDam = 0;
-	} else {
-		p->_pISlMinDam = minsl * bdam / 100 + pdmod;
-		p->_pISlMaxDam = maxsl * bdam / 100 + pdmod;
-	}
-	if (maxbl == 0) {
-		p->_pIBlMinDam = 0;
-		p->_pIBlMaxDam = 0;
-	} else {
-		p->_pIBlMinDam = minbl * bdam / 100 + pdmod;
-		p->_pIBlMaxDam = maxbl * bdam / 100 + pdmod;
-	}
-	if (maxpc == 0) {
-		p->_pIPcMinDam = 0;
-		p->_pIPcMaxDam = 0;
-	} else {
-		p->_pIPcMinDam = minpc * bdam / 100 + pdmod;
-		p->_pIPcMaxDam = maxpc * bdam / 100 + pdmod;
 	}
 	p->_pIHitChance = btohit;
-	p->_pIMagToHit = 50 + p->_pMagic;
-	if (p->_pClass == PC_SORCERER)
-		p->_pIMagToHit += 20;
-#ifdef HELLFIRE
-	else if (p->_pClass == PC_BARD)
-		p->_pIMagToHit += 10;
-#endif
+
+	// calculate the damages for each type
+	if (maxsl != 0) {
+		pdmod = 512 + p->_pStrength * 6 + p->_pDexterity * 2;
+		minsl = minsl * pdmod / (100 * 512 / 64);
+		maxsl = maxsl * pdmod / (100 * 512 / 64);
+	}
+	if (maxbl != 0) {
+		if (wLeft->_itype == ITYPE_STAFF)
+			pdmod = 512 + p->_pStrength * 4 + p->_pDexterity * 4;
+		else
+			pdmod = 512 + p->_pStrength * 6 + p->_pVitality * 2;
+		minbl = minbl * pdmod / (100 * 512 / 64);
+		maxbl = maxbl * pdmod / (100 * 512 / 64);
+	}
+	if (maxpc != 0) {
+		if (wLeft->_itype == ITYPE_BOW)
+			pdmod = 512 + p->_pDexterity * 8;
+		else // dagger
+			pdmod = 512 + p->_pStrength * 2 + p->_pDexterity * 6;
+		minpc = minpc * pdmod / (100 * 512 / 64);
+		maxpc = maxpc * pdmod / (100 * 512 / 64);
+	}
+	if (wRight->_itype != ITYPE_NONE && wRight->_itype != ITYPE_SHIELD) {
+		// adjust dual-wield damage
+		if (maxsl != 0) {
+			minsl = minsl * 5 / 8;
+			maxsl = maxsl * 5 / 8;
+		}
+		if (maxbl != 0) {
+			minbl = minbl * 5 / 8;
+			maxbl = maxbl * 5 / 8;
+		}
+		if (maxpc != 0) {
+			minpc = minpc * 5 / 8;
+			maxpc = maxpc * 5 / 8;
+		}
+	}
+	p->_pISlMinDam = minsl;
+	p->_pISlMaxDam = maxsl;
+	p->_pIBlMinDam = minbl;
+	p->_pIBlMaxDam = maxbl;
+	p->_pIPcMinDam = minpc;
+	p->_pIPcMaxDam = maxpc;
+
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(p->_pIFlags);
 #ifdef HELLFIRE

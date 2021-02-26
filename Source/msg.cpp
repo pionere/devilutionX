@@ -1390,50 +1390,42 @@ static DWORD On_WALKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
 	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		ModifyPlrStr(pnum, cmd->wParam1);
+		IncreasePlrStr(pnum);
 
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
 	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		ModifyPlrMag(pnum, cmd->wParam1);
+		IncreasePlrMag(pnum);
 
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd= (TCmdParam1 *)pCmd;
-
 	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		ModifyPlrDex(pnum, cmd->wParam1);
+		IncreasePlrDex(pnum);
 
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
 	if (gbBufferMsgs == 1)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		ModifyPlrVit(pnum, cmd->wParam1);
+		IncreasePlrVit(pnum);
 
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 /*static DWORD On_SBSPELL(TCmd *pCmd, int pnum)

@@ -646,7 +646,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		    - (dist * dist >> 1)
 		    + p->_pIEnAc;
 	} else {
-		hper = p->_pIMagToHit
+		hper = 50 + p->_pMagic
 			- (mon->mLevel << 1)
 			/*- dist*/; // TODO: either don't care about it, or set it!
 	}
@@ -920,7 +920,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
 		} else {
-			hper = ops->_pIMagToHit
+			hper = 50 + ops->_pMagic
 				- (dps->_pLevel << 1)
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}

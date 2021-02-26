@@ -94,21 +94,21 @@ const int AnimLenFromClass[NUM_CLASSES] = {
 };
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
-	30,
 	20,
 	15,
+	10,
 #ifdef HELLFIRE
-	25,
 	20,
-	40,
+	15,
+	35,
 #endif
 };
 /** Maps from player_class to starting stat in magic. */
 const int MagicTbl[NUM_CLASSES] = {
 	// clang-format off
 	10,
-	15,
-	35,
+	20,
+	30,
 #ifdef HELLFIRE
 	15,
 	20,
@@ -119,22 +119,22 @@ const int MagicTbl[NUM_CLASSES] = {
 /** Maps from player_class to starting stat in dexterity. */
 const int DexterityTbl[NUM_CLASSES] = {
 	20,
-	30,
-	15,
-#ifdef HELLFIRE
-	25,
 	25,
 	20,
+#ifdef HELLFIRE
+	20,
+	25,
+	10,
 #endif
 };
 /** Maps from player_class to starting stat in vitality. */
 const int VitalityTbl[NUM_CLASSES] = {
-	35,
 	30,
-	30,
+	20,
+	20,
 #ifdef HELLFIRE
-	30,
-	30,
+	25,
+	20,
 	35,
 #endif
 };
@@ -565,7 +565,7 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 20;
 			p->_pAFNum = 10;
 		} else if (gn == ANIM_ID_STAFF) {
-			p->_pAFrames = 16;
+			// p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		}
 	} else if (pc == PC_ROGUE) {
@@ -645,7 +645,7 @@ void SetPlrAnims(int pnum)
 			p->_pAWidth = 96;
 			p->_pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			p->_pAFrames = 16;
+			//p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
 			p->_pAFNum = 8;
@@ -679,10 +679,6 @@ void CreatePlayer(int pnum, char c)
 	p->_pStrength = val;
 	p->_pBaseStr = val;
 
-	val = MagicTbl[c];
-	p->_pMagic = val;
-	p->_pBaseMag = val;
-
 	val = DexterityTbl[c];
 	p->_pDexterity = val;
 	p->_pBaseDex = val;
@@ -691,47 +687,19 @@ void CreatePlayer(int pnum, char c)
 	p->_pVitality = val;
 	p->_pBaseVit = val;
 
-	hp = val << 6;
-
-	switch (c) {
-	case PC_WARRIOR: hp <<= 1;		break;
-	case PC_ROGUE: hp += hp >> 1;	break;
-	case PC_SORCERER:				break;
-#ifdef HELLFIRE
-	case PC_MONK:
-	case PC_BARD: hp += hp >> 1;	break;
-	case PC_BARBARIAN: hp <<= 1;	break;
-#endif
-	default: ASSUME_UNREACHABLE
-	}
+	hp = val << (6 + 1);
 	p->_pHitPoints = p->_pMaxHP = p->_pHPBase = p->_pMaxHPBase = hp;
 
-	mana = p->_pMagic << 6;
-	switch (c) {
-	case PC_WARRIOR: 					break;
-	case PC_ROGUE: mana += mana >> 1;	break;
-	case PC_SORCERER: mana <<= 1;		break;
-#ifdef HELLFIRE
-	case PC_MONK: mana += mana >> 1;	break;
-	case PC_BARD: mana += mana * 3 / 4;	break;
-	case PC_BARBARIAN:					break;
-#endif
-	default: ASSUME_UNREACHABLE
-	}
+	val = MagicTbl[c];
+	p->_pMagic = val;
+	p->_pBaseMag = val;
 
+	mana = val << (6 + 1);
 	p->_pMana = p->_pMaxMana = p->_pManaBase = p->_pMaxManaBase = mana;
 
 	p->_pLevel = 1;
 	p->_pLvlUp = FALSE; // indicator whether the stat button should be shown
 	p->_pNextExper = PlrExpLvlsTbl[1];
-#ifdef HELLFIRE
-	if (c == PC_BARBARIAN) {
-		p->_pMagResist = 1;
-		p->_pFireResist = 1;
-		p->_pLghtResist = 1;
-		p->_pAcidResist = 1;
-	}
-#endif
 	p->_pLightRad = 10;
 
 	p->_pAblSkills = SPELL_MASK(Abilities[c]);
@@ -757,7 +725,6 @@ void CreatePlayer(int pnum, char c)
 void NextPlrLevel(int pnum)
 {
 	PlayerStruct *p;
-	int hp, mana;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("NextPlrLevel: illegal player %d", pnum);
@@ -765,27 +732,10 @@ void NextPlrLevel(int pnum)
 	p = &plr[pnum];
 	p->_pLevel++;
 
-	p->_pStatPts += 8;
+	p->_pStatPts += 4;
 	p->_pLvlUp = TRUE;
 
 	p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
-
-	hp = p->_pClass == PC_SORCERER ? 64 : 128;
-
-	p->_pMaxHP += hp;
-	p->_pMaxHPBase += hp;
-
-	if (p->_pClass == PC_WARRIOR)
-		mana = 64;
-#ifdef HELLFIRE
-	else if (p->_pClass == PC_BARBARIAN)
-		mana = 0;
-#endif
-	else
-		mana = 128;
-
-	p->_pMaxMana += mana;
-	p->_pMaxManaBase += mana;
 
 	PlrFillHp(pnum);
 	PlrFillMana(pnum);
@@ -1188,7 +1138,7 @@ static void PlrChangeOffset(int pnum)
 	if (pnum == myplr && ScrollInfo._sdir != SDIR_NONE) {
 		ScrollInfo._sxoff += px;
 		ScrollInfo._syoff += py;
-		// TODO: follow with the cursor if a monster is selected?
+		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
 		//if (sgbActionBtnDown && (px | py) != 0 && pcursmonst != -1)
 		//	SetCursorPos(MouseX + px, MouseY + py);
 	}
@@ -1894,28 +1844,31 @@ void StartPlrKill(int pnum, int earflag)
 				NewCursor(CURSOR_HAND);
 			}
 
-			if (!diablolevel) {
-				DropHalfPlayersGold(pnum);
-				if (earflag != -1) {
-					if (earflag != 0) {
-						CreateBaseItem(&ear, IDI_EAR);
-						snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
-						const int earSets[NUM_CLASSES] = {
-								ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCEROR
+			if (earflag != -1) {
+				if (earflag != 0) {
+					// pvp
+					CreateBaseItem(&ear, IDI_EAR);
+					snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
+					const int earSets[NUM_CLASSES] = {
+							ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCEROR
 #ifdef HELLFIRE
-								, ICURS_EAR_SORCEROR, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
+							, ICURS_EAR_SORCEROR, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
 #endif
-						};
-						ear._iCurs = earSets[p->_pClass];
+					};
+					ear._iCurs = earSets[p->_pClass];
 
-						ear._iCreateInfo = p->_pName[0] << 8 | p->_pName[1];
-						ear._iSeed = p->_pName[2] << 24 | p->_pName[3] << 16 | p->_pName[4] << 8 | p->_pName[5];
-						ear._ivalue = p->_pLevel;
+					ear._iCreateInfo = p->_pName[0] << 8 | p->_pName[1];
+					ear._iSeed = p->_pName[2] << 24 | p->_pName[3] << 16 | p->_pName[4] << 8 | p->_pName[5];
+					ear._ivalue = p->_pLevel;
 
-						if (FindGetItem(IDI_EAR, ear._iCreateInfo, ear._iSeed) == -1) {
-							PlrDeadItem(&ear, p);
-						}
-					} else {
+					if (FindGetItem(IDI_EAR, ear._iCreateInfo, ear._iSeed) == -1) {
+						PlrDeadItem(&ear, p);
+					}
+				} else {
+					// pvm
+					plr->_pExperience -= (plr->_pExperience - PlrExpLvlsTbl[plr->_pLevel - 1]) >> 2;
+
+					if (!diablolevel) {
 						pi = &p->InvBody[0];
 						for (i = NUM_INVLOC; i != 0; i--, pi++) {
 							PlrDeadItem(pi, p);
@@ -1928,58 +1881,6 @@ void StartPlrKill(int pnum, int earflag)
 		}
 	}
 	PlrSetHp(pnum, 0);
-}
-
-void DropHalfPlayersGold(int pnum)
-{
-	PlayerStruct *p;
-	ItemStruct *pi, *holditem;
-	int i, hGold, value;
-
-	if ((DWORD)pnum >= MAX_PLRS) {
-		app_fatal("DropHalfPlayersGold: illegal player %d", pnum);
-	}
-
-	p = &plr[pnum];
-	hGold = p->_pGold >> 1;
-	p->_pGold -= hGold;
-	holditem = &p->HoldItem;
-	for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
-		pi = &p->InvList[i];
-		if (pi->_itype != ITYPE_GOLD)
-			continue;
-		value = pi->_ivalue;
-		if (value == GOLD_MAX_LIMIT)
-			continue;
-		hGold -= value;
-		if (hGold < 0) {
-			SetGoldItemValue(pi, -hGold);
-			value += hGold;
-		} else {
-			RemoveInvItem(pnum, i);
-			i--;
-		}
-		CreateBaseItem(holditem, IDI_GOLD);
-		SetGoldItemValue(holditem, value);
-		PlrDeadItem(holditem, p);
-	}
-	for (i = 0; i < p->_pNumInv && hGold > 0; i++) {
-		pi = &p->InvList[i];
-		if (pi->_itype != ITYPE_GOLD)
-			continue;
-		value = pi->_ivalue;
-		hGold -= value;
-		if (hGold < 0) {
-			SetGoldItemValue(pi, -hGold);
-			value += hGold;
-		} else {
-			RemoveInvItem(pnum, i);
-			i--;
-		}
-		CreateBaseItem(holditem, IDI_GOLD);
-		SetGoldItemValue(holditem, value);
-		PlrDeadItem(holditem, p);
-	}
 }
 
 void SyncPlrKill(int pnum, int earflag)
@@ -3610,44 +3511,63 @@ void PlrDecMana(int pnum, int mana)
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
-void ModifyPlrStr(int pnum, int v)
+void IncreasePlrStr(int pnum)
 {
 	PlayerStruct *p;
+	int v;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrStr: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 
+	switch (p->_pClass) {
+	case PC_WARRIOR:	v = (((p->_pBaseStr - StrengthTbl[PC_WARRIOR]) % 5) == 2) ? 3 : 2; break;
+	case PC_ROGUE:		v = 1; break;
+	case PC_SORCERER:	v = 1; break;
+#ifdef HELLFIRE
+	case PC_MONK:		v = 2; break;
+	case PC_BARD:		v = 1; break;
+	case PC_BARBARIAN:	v = 3; break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 	p->_pStrength += v;
 	p->_pBaseStr += v;
 
 	CalcPlrInv(pnum, TRUE);
 }
 
-void ModifyPlrMag(int pnum, int v)
+void IncreasePlrMag(int pnum)
 {
 	PlayerStruct *p;
-	int ms;
+	int v, ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrMag: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 
+	switch (p->_pClass) {
+	case PC_WARRIOR:	v = 1; break;
+	case PC_ROGUE:		v = 2; break;
+	case PC_SORCERER:	v = 3; break;
+#ifdef HELLFIRE
+	case PC_MONK:		v = (((p->_pBaseMag - MagicTbl[PC_MONK]) % 3) == 1) ? 2 : 1; break;
+	case PC_BARD:		v = (((p->_pBaseMag - MagicTbl[PC_BARD]) % 3) == 1) ? 2 : 1; break;
+	case PC_BARBARIAN:	v = 1; break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
 	p->_pMagic += v;
 	p->_pBaseMag += v;
 
-	ms = v << 6;
-	if (p->_pClass == PC_SORCERER) {
-		ms <<= 1;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_BARD) {
-		ms += ms >> 1;
-	} else if (p->_pClass == PC_BARBARIAN) {
-		ms >>= 1;
-#endif
-	}
+	ms = v << (6 + 1);
 
 	p->_pMaxManaBase += ms;
 	p->_pMaxMana += ms;
@@ -3659,14 +3579,29 @@ void ModifyPlrMag(int pnum, int v)
 	CalcPlrInv(pnum, TRUE);
 }
 
-void ModifyPlrDex(int pnum, int v)
+void IncreasePlrDex(int pnum)
 {
 	PlayerStruct *p;
+	int v;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrDex: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+
+	switch (p->_pClass) {
+	case PC_WARRIOR:	v = (((p->_pBaseDex - DexterityTbl[PC_WARRIOR]) % 3) == 1) ? 2 : 1; break;
+	case PC_ROGUE:		v = 3; break;
+	case PC_SORCERER:	v = (((p->_pBaseDex - DexterityTbl[PC_SORCERER]) % 3) == 1) ? 2 : 1; break;
+#ifdef HELLFIRE
+	case PC_MONK:		v = 2; break;
+	case PC_BARD:		v = 3; break;
+	case PC_BARBARIAN:	v = 1; break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 
 	p->_pDexterity += v;
 	p->_pBaseDex += v;
@@ -3674,27 +3609,34 @@ void ModifyPlrDex(int pnum, int v)
 	CalcPlrInv(pnum, TRUE);
 }
 
-void ModifyPlrVit(int pnum, int v)
+void IncreasePlrVit(int pnum)
 {
 	PlayerStruct *p;
-	int ms;
+	int v, ms;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("ModifyPlrVit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
 
+	switch (p->_pClass) {
+	case PC_WARRIOR:	v = 2; break;
+	case PC_ROGUE:		v = 1; break;
+	case PC_SORCERER:	v = (((p->_pBaseVit - VitalityTbl[PC_SORCERER]) % 3) == 1) ? 2 : 1; break;
+#ifdef HELLFIRE
+	case PC_MONK:		v = (((p->_pBaseVit - VitalityTbl[PC_MONK]) % 3) == 1) ? 2 : 1; break;
+	case PC_BARD:		v = (((p->_pBaseVit - VitalityTbl[PC_BARD]) % 3) == 1) ? 2 : 1; break;
+	case PC_BARBARIAN:	v = 2; break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
 	p->_pVitality += v;
 	p->_pBaseVit += v;
 
-	ms = v << 6;
-	if (p->_pClass == PC_WARRIOR) {
-		ms <<= 1;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_BARBARIAN) {
-		ms <<= 1;
-#endif
-	}
+	ms = v << (6 + 1);
 
 	p->_pHPBase += ms;
 	p->_pMaxHPBase += ms;
@@ -3707,7 +3649,7 @@ void ModifyPlrVit(int pnum, int v)
 void RestorePlrHpVit(int pnum)
 {
 	PlayerStruct *p;
-	int val, hp;
+	int hp;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("RestorePlrHpVit: illegal player %d", pnum);
@@ -3715,38 +3657,7 @@ void RestorePlrHpVit(int pnum)
 	p = &plr[pnum];
 
 	// base hp
-	val = VitalityTbl[p->_pClass];
-	hp = val << 6;
-
-	switch (p->_pClass) {
-	case PC_WARRIOR: hp <<= 1;		break;
-	case PC_ROGUE: hp += hp >> 1;	break;
-	case PC_SORCERER:				break;
-#ifdef HELLFIRE
-	case PC_MONK:
-	case PC_BARD: hp += hp >> 1;	break;
-	case PC_BARBARIAN: hp <<= 1;	break;
-#endif
-	default: ASSUME_UNREACHABLE
-	}
-
-	// hp bonus from level
-	if (p->_pClass == PC_SORCERER)
-		hp += (p->_pLevel - 1) * 64;
-	else
-		hp += (p->_pLevel - 1) * 128;
-
-	// hp bonus from stat-points
-	val = p->_pBaseVit - val;
-	val = val << 6;
-	if (p->_pClass == PC_WARRIOR) {
-		val <<= 1;
-#ifdef HELLFIRE
-	} else if (p->_pClass == PC_BARBARIAN) {
-		val <<= 1;
-#endif
-	}
-	hp += val;
+	hp = p->_pBaseVit << (6 + 1);
 
 	// check the delta
 	hp -= p->_pMaxHPBase;

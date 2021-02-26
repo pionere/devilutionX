@@ -1225,13 +1225,8 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pGold);
 	ADD_PlrStringXY(202, 118, 287, chrstr, COL_WHITE);
 
-	col = COL_WHITE;
-	if (p->_pIBaseACBonus == IBONUS_POSITIVE)
-		col = COL_BLUE;
-	else if (p->_pIBaseACBonus == IBONUS_NEGATIVE)
-		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%i", p->_pIAC);
-	ADD_PlrStringXY(245, 149, 288, chrstr, col);
+	ADD_PlrStringXY(245, 149, 288, chrstr, COL_WHITE);
 
 	val = p->_pIHitChance;
 	col = COL_WHITE;
@@ -1243,12 +1238,12 @@ void DrawChr()
 	ADD_PlrStringXY(245, 177, 288, chrstr, col);
 
 	col = COL_WHITE;
-	if (p->_pIBaseDamBonus == IBONUS_POSITIVE)
+	mindam = (p->_pIFMinDam + p->_pILMinDam + p->_pIMMinDam + p->_pIAMinDam) >> 6;
+	maxdam = (p->_pIFMaxDam + p->_pILMaxDam + p->_pIMMaxDam + p->_pIAMaxDam) >> 6;
+	if (maxdam != 0)
 		col = COL_BLUE;
-	else if (p->_pIBaseDamBonus == IBONUS_NEGATIVE)
-		col = COL_RED;
-	mindam = (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
-	maxdam = (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
+	mindam += (p->_pISlMinDam + p->_pIBlMinDam + p->_pIPcMinDam) >> (6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
+	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%i-%i", mindam, maxdam);
 	if (mindam >= 100 || maxdam >= 100)
 		PrintString(241 + SCREEN_X, 205 + SCREEN_Y, 292 + SCREEN_X, chrstr, TRUE, col, -1);
@@ -1792,16 +1787,16 @@ void ReleaseChrBtns()
 			 && MouseY <= ChrBtnsRect[i].y + ChrBtnsRect[i].h) {
 				switch (i) {
 				case 0:
-					NetSendCmdParam1(TRUE, CMD_ADDSTR, 1);
+					NetSendCmd(TRUE, CMD_ADDSTR);
 					break;
 				case 1:
-					NetSendCmdParam1(TRUE, CMD_ADDMAG, 1);
+					NetSendCmd(TRUE, CMD_ADDMAG);
 					break;
 				case 2:
-					NetSendCmdParam1(TRUE, CMD_ADDDEX, 1);
+					NetSendCmd(TRUE, CMD_ADDDEX);
 					break;
 				case 3:
-					NetSendCmdParam1(TRUE, CMD_ADDVIT, 1);
+					NetSendCmd(TRUE, CMD_ADDVIT);
 					break;
 				default:
 					ASSUME_UNREACHABLE
