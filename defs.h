@@ -89,7 +89,7 @@
 #define MAX_PLRS				4
 #define MAX_MINIONS				MAX_PLRS
 
-#define MAX_CHARACTERS			10
+#define MAX_CHARACTERS			99
 #ifdef HELLFIRE
 #define NUMLEVELS				25
 #define MAX_LVLS				24

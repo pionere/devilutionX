@@ -448,7 +448,7 @@ static void S_StartSBuy()
 	stextsidx = 0;
 	S_ScrollSBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale:             Your gold: %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -506,7 +506,7 @@ static BOOL S_StartSPBuy()
 	stextsidx = 0;
 	S_ScrollSPBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these premium items for sale :   Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these premium items for sale:     Your gold: %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 	return TRUE;
 }
@@ -603,12 +603,12 @@ static void S_StartSSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.             Your gold: %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?             Your gold: %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -664,12 +664,12 @@ static void S_StartSRepair()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		snprintf(tempstr, sizeof(tempstr), "You have nothing to repair.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to repair.             Your gold: %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		snprintf(tempstr, sizeof(tempstr), "Repair which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Repair which item?             Your gold: %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -733,7 +733,7 @@ static void S_StartWBuy()
 	stextsidx = 0;
 	S_ScrollWBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale:             Your gold: %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -773,12 +773,12 @@ static void S_StartWSell()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing I want.             Your gold: %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Which item is for sale?             Your gold: %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -824,12 +824,12 @@ static void S_StartWRecharge()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		snprintf(tempstr, sizeof(tempstr), "You have nothing to recharge.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to recharge.             Your gold: %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		snprintf(tempstr, sizeof(tempstr), "Recharge which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Recharge which item?             Your gold: %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }
@@ -921,7 +921,7 @@ static void S_StartBBoy()
 
 	stextsize = TRUE;
 	stextscrl = FALSE;
-	snprintf(tempstr, sizeof(tempstr), "I have this item for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have this item for sale:             Your gold: %i", plr[myplr]._pGold);
 	AddSText(0, 1, TRUE, tempstr, COL_GOLD, FALSE);
 	AddSLine(3);
 	AddSLine(21);
@@ -997,7 +997,7 @@ static void S_StartHBuy()
 	stextsidx = 0;
 	S_ScrollHBuy();
 
-	snprintf(tempstr, sizeof(tempstr), "I have these items for sale :           Your gold : %i", plr[myplr]._pGold);
+	snprintf(tempstr, sizeof(tempstr), "I have these items for sale:             Your gold: %i", plr[myplr]._pGold);
 	AddStoreFrame(tempstr, FALSE);
 }
 
@@ -1055,12 +1055,12 @@ static void S_StartSIdentify()
 	stextsize = TRUE;
 	if (storenumh == 0) {
 		stextscrl = FALSE;
-		snprintf(tempstr, sizeof(tempstr), "You have nothing to identify.            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "You have nothing to identify.             Your gold: %i", p->_pGold);
 	} else {
 		stextscrl = TRUE;
 		stextsidx = 0;
 		S_ScrollSSell();
-		snprintf(tempstr, sizeof(tempstr), "Identify which item?            Your gold : %i", p->_pGold);
+		snprintf(tempstr, sizeof(tempstr), "Identify which item?             Your gold: %i", p->_pGold);
 	}
 	AddStoreFrame(tempstr, TRUE);
 }

@@ -407,7 +407,7 @@ void DrawInv()
 					screen_x += INV_SLOT_SIZE_PX / 2;
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
 					screen_y -= INV_SLOT_SIZE_PX / 2;
-				pBuff = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];				
+				pBuff = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
 				CelClippedBlitLightTrans(pBuff, cCels, frame, frame_width);
 
 				cel_transparency_active = FALSE;
@@ -659,7 +659,7 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 				} else {
 					SetGoldItemValue(pi, limit);
 					done |= 1;
-				}			
+				}
 			}
 		}
 	}
