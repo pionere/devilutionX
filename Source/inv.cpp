@@ -580,7 +580,7 @@ BOOL GoldAutoPlace(int pnum, ItemStruct *is)
 				} else {
 					SetGoldItemValue(pi, GOLD_MAX_LIMIT);
 					done |= 1;
-				}			
+				}
 			}
 		}
 	}
