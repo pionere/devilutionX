@@ -419,10 +419,10 @@ typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, char, int, int);
 	void (*mProc)(int);
 	BOOL mDraw;
-	unsigned char mType;
-	unsigned char mdFlags;
-	unsigned char mResist;
-	unsigned char mFileNum;
+	BYTE mType;
+	BYTE mdFlags;
+	BYTE mResist;
+	BYTE mFileNum;
 	int mlSFX;
 	int miSFX;
 	unsigned char mlSFXCnt;
@@ -450,20 +450,10 @@ static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 128, "Align M
 #endif
 
 typedef struct MissileStruct {
-	int _miType;  // Type of projectile (missile_id)
-	int _mix;     // Tile X-position of the missile
-	int _miy;     // Tile Y-position of the missile
-	int _mixoff;  // Sprite pixel X-offset for the missile
-	int _miyoff;  // Sprite pixel Y-offset for the missile
-	int _mixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-	int _miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-	int _misx;    // Initial tile X-position for missile
-	int _misy;    // Initial tile Y-position for missile
-	int _mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	int _miDir;   // The direction of the missile
-	int _miSpllvl;
-	BOOL _miDelFlag; // Indicate weather the missile should be deleted
+	int _miType;   // Type of projectile (MIS_*)
+	BYTE _miSubType; // Sub-Type of projectile 
+	BYTE _miFlags;
+	BYTE _miResist;
 	BYTE _miAnimType;
 	int _miAnimFlags;
 	unsigned char *_miAnimData;
@@ -474,10 +464,23 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _pAnimDelay
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
+	BOOL _miDelFlag; // Indicate weather the missile should be deleted
 	BOOL _miDrawFlag;
 	BOOL _miLightFlag;
 	BOOL _miPreFlag;
 	int _miUniqTrans;
+	int _misx;    // Initial tile X-position for missile
+	int _misy;    // Initial tile Y-position for missile
+	int _mix;     // Tile X-position of the missile
+	int _miy;     // Tile Y-position of the missile
+	int _mixoff;  // Sprite pixel X-offset for the missile
+	int _miyoff;  // Sprite pixel Y-offset for the missile
+	int _mixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
+	int _miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
+	int _mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	int _miDir;   // The direction of the missile
+	int _miSpllvl;
 	int _miRange; // Time to live for the missile in game ticks, oncs 0 the missile will be marked for deletion via _miDelFlag
 	int _miSource;
 	int _miCaster;

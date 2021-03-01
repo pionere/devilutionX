@@ -470,21 +470,10 @@ static void LoadMissile(int mi)
 	MissileStruct *mis = &missile[mi];
 
 	CopyInt(tbuff, &mis->_miType);
-	CopyInt(tbuff, &mis->_mix);
-	CopyInt(tbuff, &mis->_miy);
-	CopyInt(tbuff, &mis->_mixoff);
-	CopyInt(tbuff, &mis->_miyoff);
-	CopyInt(tbuff, &mis->_mixvel);
-	CopyInt(tbuff, &mis->_miyvel);
-	CopyInt(tbuff, &mis->_misx);
-	CopyInt(tbuff, &mis->_misy);
-	CopyInt(tbuff, &mis->_mitxoff);
-	CopyInt(tbuff, &mis->_mityoff);
-	CopyInt(tbuff, &mis->_miDir);
-	CopyInt(tbuff, &mis->_miSpllvl);
-	CopyInt(tbuff, &mis->_miDelFlag);
+	CopyChar(tbuff, &mis->_miSubType);
+	CopyChar(tbuff, &mis->_miFlags);
+	CopyChar(tbuff, &mis->_miResist);
 	CopyChar(tbuff, &mis->_miAnimType);
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &mis->_miAnimFlags);
 	tbuff += 4; // Skip pointer _miAnimData
 	CopyInt(tbuff, &mis->_miAnimDelay);
@@ -494,10 +483,23 @@ static void LoadMissile(int mi)
 	CopyInt(tbuff, &mis->_miAnimCnt);
 	CopyInt(tbuff, &mis->_miAnimAdd);
 	CopyInt(tbuff, &mis->_miAnimFrame);
+	CopyInt(tbuff, &mis->_miDelFlag);
 	CopyInt(tbuff, &mis->_miDrawFlag);
 	CopyInt(tbuff, &mis->_miLightFlag);
 	CopyInt(tbuff, &mis->_miPreFlag);
 	CopyInt(tbuff, &mis->_miUniqTrans);
+	CopyInt(tbuff, &mis->_misx);
+	CopyInt(tbuff, &mis->_misy);
+	CopyInt(tbuff, &mis->_mix);
+	CopyInt(tbuff, &mis->_miy);
+	CopyInt(tbuff, &mis->_mixoff);
+	CopyInt(tbuff, &mis->_miyoff);
+	CopyInt(tbuff, &mis->_mixvel);
+	CopyInt(tbuff, &mis->_miyvel);
+	CopyInt(tbuff, &mis->_mitxoff);
+	CopyInt(tbuff, &mis->_mityoff);
+	CopyInt(tbuff, &mis->_miDir);
+	CopyInt(tbuff, &mis->_miSpllvl);
 	CopyInt(tbuff, &mis->_miRange);
 	CopyInt(tbuff, &mis->_miSource);
 	CopyInt(tbuff, &mis->_miCaster);
@@ -1167,21 +1169,10 @@ static void SaveMissile(int mi)
 	MissileStruct *mis = &missile[mi];
 
 	CopyInt(&mis->_miType, tbuff);
-	CopyInt(&mis->_mix, tbuff);
-	CopyInt(&mis->_miy, tbuff);
-	CopyInt(&mis->_mixoff, tbuff);
-	CopyInt(&mis->_miyoff, tbuff);
-	CopyInt(&mis->_mixvel, tbuff);
-	CopyInt(&mis->_miyvel, tbuff);
-	CopyInt(&mis->_misx, tbuff);
-	CopyInt(&mis->_misy, tbuff);
-	CopyInt(&mis->_mitxoff, tbuff);
-	CopyInt(&mis->_mityoff, tbuff);
-	CopyInt(&mis->_miDir, tbuff);
-	CopyInt(&mis->_miSpllvl, tbuff);
-	CopyInt(&mis->_miDelFlag, tbuff);
+	CopyChar(&mis->_miSubType, tbuff);
+	CopyChar(&mis->_miFlags, tbuff);
+	CopyChar(&mis->_miResist, tbuff);
 	CopyChar(&mis->_miAnimType, tbuff);
-	tbuff += 3; // Alignment
 	CopyInt(&mis->_miAnimFlags, tbuff);
 	tbuff += 4; // Skip pointer _miAnimData
 	CopyInt(&mis->_miAnimDelay, tbuff);
@@ -1191,10 +1182,23 @@ static void SaveMissile(int mi)
 	CopyInt(&mis->_miAnimCnt, tbuff);
 	CopyInt(&mis->_miAnimAdd, tbuff);
 	CopyInt(&mis->_miAnimFrame, tbuff);
+	CopyInt(&mis->_miDelFlag, tbuff);
 	CopyInt(&mis->_miDrawFlag, tbuff);
 	CopyInt(&mis->_miLightFlag, tbuff);
 	CopyInt(&mis->_miPreFlag, tbuff);
 	CopyInt(&mis->_miUniqTrans, tbuff);
+	CopyInt(&mis->_misx, tbuff);
+	CopyInt(&mis->_misy, tbuff);
+	CopyInt(&mis->_mix, tbuff);
+	CopyInt(&mis->_miy, tbuff);
+	CopyInt(&mis->_mixoff, tbuff);
+	CopyInt(&mis->_miyoff, tbuff);
+	CopyInt(&mis->_mixvel, tbuff);
+	CopyInt(&mis->_miyvel, tbuff);
+	CopyInt(&mis->_mitxoff, tbuff);
+	CopyInt(&mis->_mityoff, tbuff);
+	CopyInt(&mis->_miDir, tbuff);
+	CopyInt(&mis->_miSpllvl, tbuff);
 	CopyInt(&mis->_miRange, tbuff);
 	CopyInt(&mis->_miSource, tbuff);
 	CopyInt(&mis->_miCaster, tbuff);

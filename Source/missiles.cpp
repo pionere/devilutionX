@@ -583,15 +583,16 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int ada
 	}*/
 }
 
-static BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mitype)
+static BOOL MonsterTrapHit(int mnum, int mi)
 {
+	MissileStruct *mis;
 	MonsterStruct *mon;
-	const MissileData *mds;
 	int hper, dam;
 	BOOL ret;
 
 	mon = &monster[mnum];
-	hper = 90 - mon->mArmorClass - dist;
+	mis = &missile[mi];
+	hper = 90 - mon->mArmorClass - mis->_miDist;
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
@@ -602,8 +603,7 @@ static BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mityp
 #endif
 			return FALSE;
 
-	mds = &missiledata[mitype];
-	dam = CalcMonsterDam(mon->mMagicRes, mds->mResist, mindam, maxdam);
+	dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return FALSE;
 
@@ -628,22 +628,23 @@ static BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mityp
 	return TRUE;
 }
 
-static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, int mitype)
+static BOOL MonsterMHit(int mnum, int mi)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	const MissileData *mds;
+	MissileStruct *mis;
 	int hper, dam;
 	BOOL ret;
 
 	mon = &monster[mnum];
-	mds = &missiledata[mitype];
+	mis = &missile[mi];
+	pnum = mis->_miSource;
 	p = &plr[pnum];
-	if (mds->mType == 0) {
+	if (mis->_miSubType == 0) {
 		hper = p->_pIHitChance
-		    - mon->mArmorClass
-		    - (dist * dist >> 1)
-		    + p->_pIEnAc;
+			- mon->mArmorClass
+			- (mis->_miDist * mis->_miDist >> 1)
+			+ p->_pIEnAc;
 	} else {
 		hper = 50 + p->_pMagic
 			- (mon->mLevel << 1)
@@ -662,7 +663,8 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 	if (CheckMonsterHit(mnum, &ret))
 		return ret;
 
-	if (mds->mType == 0) {
+	if (mis->_miSubType == 0) {
+		// calculcate arrow-damage
 		dam = 0;
 		int sldam = p->_pISlMaxDam;
 		if (sldam != 0) {
@@ -700,7 +702,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		if (p->_pIFlags & ISPL_NOHEALMON)
 			mon->_mFlags |= MFLAG_NOHEAL;
 	} else {
-		dam = CalcMonsterDam(mon->mMagicRes, mds->mResist, mindam, maxdam);
+		dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
 			return FALSE;
 	}
@@ -714,7 +716,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, 1);
 		} else {*/
-			if (mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK && mon->_mmode != MM_STONE) {
+			if (mis->_miSubType == 0 && (p->_pIFlags & ISPL_KNOCKBACK) && mon->_mmode != MM_STONE) {
 				MonGetKnockback(mnum);
 			}
 			MonStartHit(mnum, pnum, dam);
@@ -764,24 +766,25 @@ int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam)
 	return dam;
 }
 
-static BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype)
+static BOOL PlayerTrapHit(int pnum, int mi)
 {
+	MissileStruct *mis;
 	PlayerStruct *p;
-	const MissileData *mds;
 	int hper, tmp, dam;
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
 		return FALSE;
 	}
-	mds = &missiledata[mitype];
-	if (mds->mType == 0) {
+
+	mis = &missile[mi];
+	if (mis->_miSubType == 0) {
 		if (p->_pSpellFlags & PSE_ETHERALIZED) {
 			return FALSE;
 		}
 		tmp = p->_pIAC;
 		hper = 100 - (tmp >> 1);
-		hper -= dist << 1;
+		hper -= mis->_miDist << 1;
 	} else {
 		hper = 40;
 	}
@@ -801,7 +804,7 @@ static BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype)
 #endif
 			return FALSE;
 
-	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
 		if (tmp >= 100 || random_(73, 100) < tmp) {
@@ -810,7 +813,7 @@ static BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype)
 		}
 	}
 
-	dam = CalcPlrDam(p, mds->mResist, mind, maxd);
+	dam = CalcPlrDam(p, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return FALSE;
 
@@ -823,22 +826,20 @@ static BOOL PlayerTrapHit(int pnum, int mind, int maxd, int dist, int mitype)
 	return TRUE;
 }
 
-static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mitype)
+static BOOL PlayerMHit(int pnum, int mi)
 {
+	MissileStruct *mis;
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	const MissileData *mds;
 	int hper, tmp, dam;
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
 		return FALSE;
 	}
-
-	mds = &missiledata[mitype];
-
-	mon = &monster[mnum];
-	if (mds->mType == 0) {
+	mis = &missile[mi];
+	mon = &monster[mis->_miSource];
+	if (mis->_miSubType == 0) {
 		if (p->_pSpellFlags & PSE_ETHERALIZED) {
 			return FALSE;
 		}
@@ -847,7 +848,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		    + (mon->mLevel << 1)
 			- (p->_pLevel << 1)
 		    - tmp;
-		hper -= dist << 1;
+		hper -= mis->_miDist << 1;
 	} else {
 		hper = 40
 			+ (mon->mLevel << 1)
@@ -870,7 +871,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 #endif
 			return FALSE;
 
-	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity
 			+ (p->_pLevel << 1)
@@ -882,7 +883,7 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 		}
 	}
 
-	dam = CalcPlrDam(p, mds->mResist, mind, maxd);
+	dam = CalcPlrDam(p, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return FALSE;
 	dam += p->_pIGetHit;
@@ -894,26 +895,26 @@ static BOOL PlayerMHit(int pnum, int mnum, int mind, int maxd, int dist, int mit
 	return TRUE;
 }
 
-static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, int mitype)
+static BOOL Plr2PlrMHit(int defp, int mi)
 {
+	MissileStruct *mis;
 	PlayerStruct *ops, *dps;
-	const MissileData *mds;
-	int dam, blkper, hper;
+	int offp, dam, blkper, hper;
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
 		return FALSE;
 	}
 
-	mds = &missiledata[mitype];
-
+	mis = &missile[mi];
+	offp = mis->_miSource;
 	ops = &plr[offp];
-	if (mds->mType == 0) {
+	if (mis->_miSubType == 0) {
 		hper = ops->_pIHitChance
-		    - (dist * dist >> 1)
+		    - (mis->_miDist * mis->_miDist >> 1)
 		    - dps->_pIAC;
 	} else {
-		if (mds->mdFlags & MIFLAG_AREA) {
+		if (mis->_miFlags & MIFLAG_AREA) {
 			hper = 40
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
@@ -930,18 +931,18 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 	if (random_(69, 100) >= hper)
 		return FALSE;
 
-	if (!(mds->mdFlags & MIFLAG_NOBLOCK)
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && dps->_pBlockFlag && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
 			+ (dps->_pLevel << 1)
 			- (ops->_pLevel << 1);
-		if (blkper >= 100 || random_(73, 100) < blkper) {
+		if (blkper >= 100 || blkper > random_(73, 100)) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
 			return TRUE;
 		}
 	}
 
-	if (mds->mType == 0) {
+	if (mis->_miSubType == 0) {
 		dam = 0;
 		if (!(dps->_pSpellFlags & PSE_ETHERALIZED)) {
 			int sldam = ops->_pISlMaxDam;
@@ -979,7 +980,7 @@ static BOOL Plr2PlrMHit(int defp, int offp, int mindam, int maxdam, int dist, in
 		} else if (dam == 0)
 			return FALSE;
 	} else {
-		dam = CalcPlrDam(dps, mds->mResist, mindam, maxdam);
+		dam = CalcPlrDam(dps, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
 			return FALSE;
 		dam >>= 1;
@@ -999,17 +1000,14 @@ static BOOL MonMissHit(int mnum, int mi)
 	if (mis->_miSource != -1) {
 		if (mis->_miCaster == 0) {
 			// player vs. monster
-			return MonsterMHit(mnum, mis->_miSource, mis->_miMinDam, mis->_miMaxDam,
-					mis->_miDist, mis->_miType);
+			return MonsterMHit(mnum, mi);
 		} else {
 			// monster vs. golem
-			return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mis->_miMinDam, mis->_miMaxDam,
-				mis->_miDist, mis->_miType);
+			return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mi);
 		}
 	} else {
 		// trap vs. monster
-		return MonsterTrapHit(mnum, mis->_miMinDam, mis->_miMaxDam,
-				mis->_miDist, mis->_miType);
+		return MonsterTrapHit(mnum, mi);
 	}
 }
 
@@ -1021,18 +1019,14 @@ static BOOL PlrMissHit(int pnum, int mi)
 	if (mis->_miSource != -1) {
 		if (mis->_miCaster == 0) {
 			// player vs. player
-			return pnum != mis->_miSource
-			 && Plr2PlrMHit(pnum, mis->_miSource, mis->_miMinDam, mis->_miMaxDam,
-				 mis->_miDist, mis->_miType);
+			return pnum != mis->_miSource && Plr2PlrMHit(pnum, mi);
 		} else {
 			// monster vs. player
-			return PlayerMHit(pnum, mis->_miSource, mis->_miMinDam, mis->_miMaxDam,
-					mis->_miDist, mis->_miType);
+			return PlayerMHit(pnum, mi);
 		}
 	} else {
 		// trap vs. player
-		return PlayerTrapHit(pnum, mis->_miMinDam, mis->_miMaxDam,
-				mis->_miDist, mis->_miType);
+		return PlayerTrapHit(pnum, mi);
 	}
 }
 
@@ -2809,13 +2803,9 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 
 	mis = &missile[mi];
 	memset(mis, 0, sizeof(*mis));
-	mds = &missiledata[mitype];
 
-	mis->_miType = mitype;
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
-	mis->_miAnimType = mds->mFileNum;
-	mis->_miDrawFlag = mds->mDraw;
 	mis->_miSpllvl = spllvl;
 	mis->_miDir = midir;
 	mis->_mix = sx;
@@ -2824,6 +2814,13 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_misy = sy;
 	mis->_miMinDam = mindam;
 	mis->_miMaxDam = maxdam;
+	mis->_miType = mitype;
+	mds = &missiledata[mitype];
+	mis->_miSubType = mds->mType;
+	mis->_miFlags = mds->mdFlags;
+	mis->_miResist = mds->mResist;
+	mis->_miAnimType = mds->mFileNum;
+	mis->_miDrawFlag = mds->mDraw;
 
 	if (misfiledata[mis->_miAnimType].mfAnimFAmt < 8)
 		SetMissDir(mi, 0);
