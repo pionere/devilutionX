@@ -3856,7 +3856,7 @@ void CreateAmulet(int x, int y)
 }
 #endif
 
-void CreateMagicWeapon(int itype, int icurs, int x, int y, BOOL sendmsg, BOOL delta)
+void CreateMagicItem(int itype, int icurs, int x, int y, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl;
 
