@@ -1593,7 +1593,8 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 		j = monstactive[i];
 		if (j == mnum)
 			continue;
-
+		if (j < MAX_MINIONS && MINION_NR_INACTIVE(j))
+			continue;
 		mon = &monster[j];
 		//if (mon->_msquelch == 0)
 		//	continue;
