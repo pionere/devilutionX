@@ -1003,6 +1003,10 @@ BOOL PressEscKey()
 		spselflag = FALSE;
 		rv = TRUE;
 	}
+	if (pcurs != CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+		NewCursor(CURSOR_HAND);
+		rv = TRUE;
+	}
 
 	return rv;
 }
