@@ -1577,11 +1577,10 @@ void MonStartHit(int mnum, int pnum, int dam)
 
 static void MonDiabloDeath(int mnum, BOOL sendmsg)
 {
-	MonsterStruct *mon, *pmonster;
+	MonsterStruct *mon;
 	int i, j;
-	int _moldx, _moldy;
+	int mx, my;
 
-	mon = &monster[mnum];
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
 		NetSendCmdQuest(TRUE, Q_DIABLO);
@@ -1592,28 +1591,33 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 #endif
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
-		if (j == mnum || mon->_msquelch == 0)
+		if (j == mnum)
 			continue;
 
-		pmonster = &monster[j];
-		NewMonsterAnim(j, MA_DEATH, pmonster->_mdir);
-		pmonster->_mxoff = 0;
-		pmonster->_myoff = 0;
-		pmonster->_mmode = MM_DEATH;
+		mon = &monster[j];
+		//if (mon->_msquelch == 0)
+		//	continue;
+		NewMonsterAnim(j, MA_DEATH, mon->_mdir);
+		mon->_mxoff = 0;
+		mon->_myoff = 0;
+		mon->_mmode = MM_DEATH;
 		MonClearSquares(j);
-		_moldx = pmonster->_moldx;
-		_moldy = pmonster->_moldy;
-		pmonster->_my = _moldy;
-		pmonster->_mfuty = _moldy;
-		pmonster->_mx = _moldx;
-		pmonster->_mfutx = _moldx;
-		dMonster[_moldx][_moldy] = j + 1;
+		mx = mon->_moldx;
+		my = mon->_moldy;
+		mon->_my = my;
+		mon->_mfuty = my;
+		mon->_mx = mx;
+		mon->_mfutx = mx;
+		dMonster[mx][my] = j + 1;
 	}
+	mon = &monster[mnum];
 	mon->_mVar1 = 0;
 
-	PlaySfxLoc(USFX_DIABLOD, mon->_mx, mon->_my);
-	AddLight(mon->_mx, mon->_my, 8);
-	DoVision(mon->_mx, mon->_my, 8, FALSE, TRUE);
+	mx = mon->_mx;
+	my = mon->_my;
+	PlaySfxLoc(USFX_DIABLOD, mx, my);
+	AddLight(mx, my, 8);
+	DoVision(mx, my, 8, FALSE, TRUE);
 }
 
 static void SpawnLoot(int mnum, BOOL sendmsg)
