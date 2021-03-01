@@ -145,12 +145,12 @@ const RECT32 ChrBtnsRect[4] = {
 
 /** Maps from spellbook page number and position to spell_id. */
 int SpellPages[SPLBOOKTABS][7] = {
-	{ SPL_NULL, SPL_FIREBOLT, SPL_CBOLT, SPL_HBOLT, SPL_HEAL, SPL_HEALOTHER, SPL_FLAME },
-	{ SPL_RESURRECT, SPL_FIREWALL, SPL_TELEKINESIS, SPL_LIGHTNING, SPL_TOWN, SPL_FLASH, SPL_STONE },
-	{ SPL_RNDTELEPORT, SPL_MANASHIELD, SPL_ELEMENT, SPL_FIREBALL, SPL_WAVE, SPL_CHAIN, SPL_GUARDIAN },
-	{ SPL_NOVA, SPL_GOLEM, SPL_TELEPORT, SPL_FLARE },
+	{ SPL_NULL, SPL_SWIPE, SPL_FIREBOLT, SPL_FIREBALL, SPL_FIREWALL, SPL_WAVE, SPL_FLAME },
+	{ SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_CBOLT, SPL_LIGHTNING, SPL_FLASH, SPL_NOVA, SPL_CHAIN },
+	{ SPL_HBOLT, SPL_FLARE, SPL_ELEMENT, SPL_STONE, SPL_TELEKINESIS, SPL_GOLEM, SPL_GUARDIAN },
+	{ SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN, SPL_RESURRECT },
 #ifdef HELLFIRE
-	{ SPL_LIGHTWALL, SPL_IMMOLAT, SPL_FIRERING },
+	{ SPL_IMMOLAT, SPL_FIRERING, SPL_LIGHTWALL, SPL_RUNEFIRE, SPL_RUNEIMMOLAT, SPL_RUNELIGHT, SPL_RUNENOVA },
 #endif
 };
 
@@ -1867,7 +1867,7 @@ void DrawSpellBook()
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
-		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
+		if (sn == SPL_NULL || (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn, TRUE);
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
@@ -1934,7 +1934,7 @@ void CheckSBook()
 			sn = SpellPages[sbooktab][dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT)];
 			p = &plr[myplr];
 			spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
-			if (sn != SPL_INVALID && spl & SPELL_MASK(sn)) {
+			if (sn == SPL_NULL || (spl & SPELL_MASK(sn))) {
 				if (p->_pAblSkills & SPELL_MASK(sn))
 					st = RSPLTYPE_ABILITY;
 				else if (p->_pISpells & SPELL_MASK(sn))
