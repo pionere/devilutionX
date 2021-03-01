@@ -1438,7 +1438,7 @@ static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1) {
 		int spell = cmd->wParam1;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
 			plr[pnum]._pSpell = spell;
 			plr[pnum]._pSplType = plr[pnum]._pSBkSplType;
 			plr[pnum]._pSplFrom = 1;
@@ -1719,7 +1719,7 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int spell = cmd->bParam1;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
 			plr[pnum].destParam1 = cmd->bParam3; // spllvl
@@ -1853,7 +1853,7 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int spell = cmd->bParam2;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLMON;
 			plr[pnum].destParam1 = cmd->wParam1; // mnum
@@ -1873,7 +1873,7 @@ static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		int spell = cmd->bParam2;
-		if (currlevel != 0 || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLPLR;
 			plr[pnum].destParam1 = cmd->wParam1; // pnum
@@ -2030,7 +2030,7 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 
 	if (cmd->dwParam1 == myplr && gbBufferMsgs != 1) {
-		if (currlevel != 0 && currlevel == plr[pnum].plrlevel) {
+		if (leveltype != DTYPE_TOWN && currlevel == plr[pnum].plrlevel) {
 			if (!plr[myplr]._pInvincible && cmd->dwParam2 <= 192000) {
 				PlrDecHp(myplr, cmd->dwParam2, 1);
 			}
