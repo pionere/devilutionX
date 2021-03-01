@@ -1538,14 +1538,16 @@ void MonStartHit(int mnum, int pnum, int dam)
 {
 	MonsterStruct *mon = &monster[mnum];
 
-	if (pnum >= 0)
-		mon->_mWhoHit |= 1 << pnum;
 	if (pnum == myplr) {
 		delta_monster_hp(mnum, mon->_mhitpoints, currlevel);
 		NetSendCmdDwParam2(FALSE, CMD_MONSTDAMAGE, mnum, dam);
 	}
 	PlayEffect(mnum, 1);
-	if (mon->_mType >= MT_SNEAK && mon->_mType <= MT_ILLWEAV || dam >> 6 >= mon->mLevel + 3) {
+	if (mnum < MAX_MINIONS)
+		return;
+	if (pnum >= 0)
+		mon->_mWhoHit |= 1 << pnum;
+	if ((mon->_mType >= MT_SNEAK && mon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (mon->mLevel + 3)) {
 		if (pnum >= 0) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;

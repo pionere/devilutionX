@@ -622,8 +622,7 @@ static BOOL MonsterTrapHit(int mnum, int mindam, int maxdam, int dist, int mityp
 		/*if (resist) {
 			PlayEffect(mnum, 1);
 		} else {*/
-			if (mnum >= MAX_MINIONS)
-				MonStartHit(mnum, -1, dam);
+			MonStartHit(mnum, -1, dam);
 		//}
 	}
 	return TRUE;
@@ -718,8 +717,7 @@ static BOOL MonsterMHit(int mnum, int pnum, int mindam, int maxdam, int dist, in
 			if (mds->mType == 0 && p->_pIFlags & ISPL_KNOCKBACK && mon->_mmode != MM_STONE) {
 				MonGetKnockback(mnum);
 			}
-			if (mnum >= MAX_MINIONS)
-				MonStartHit(mnum, pnum, dam);
+			MonStartHit(mnum, pnum, dam);
 		//}
 	}
 
