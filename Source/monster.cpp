@@ -5071,24 +5071,7 @@ void MissToMonst(int mi, int x, int y)
 	}
 }
 
-BOOL PosOkMonst(int mnum, int x, int y)
-{
-	int oi;
-
-	if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) != 0)
-		return FALSE;
-
-	oi = dObject[x][y];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (object[oi]._oSolidFlag)
-			return FALSE;
-	}
-
-	return monster_posok(mnum, x, y);
-}
-
-BOOL monster_posok(int mnum, int x, int y)
+static BOOL monster_posok(int mnum, int x, int y)
 {
 	MissileStruct* mis;
 	BOOL ret = TRUE, fire = FALSE;
@@ -5138,6 +5121,23 @@ BOOL monster_posok(int mnum, int x, int y)
 		ret = FALSE;
 #endif
 	return ret;
+}
+
+BOOL PosOkMonst(int mnum, int x, int y)
+{
+	int oi;
+
+	if ((nSolidTable[dPiece[x][y]] | dPlayer[x][y] | dMonster[x][y]) != 0)
+		return FALSE;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (object[oi]._oSolidFlag)
+			return FALSE;
+	}
+
+	return monster_posok(mnum, x, y);
 }
 
 BOOL PosOkMonst2(int mnum, int x, int y)
