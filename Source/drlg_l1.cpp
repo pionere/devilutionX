@@ -1070,8 +1070,7 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 
 static void DRLG_L1Floor()
 {
-	int i, j;
-	LONG rv;
+	int i, j, rv;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
