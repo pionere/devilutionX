@@ -2856,7 +2856,7 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	}
 }
 
-static void OperateLever(int pnum, int oi)
+static void OperateLever(int oi, BOOL sendmsg)
 {
 	ObjectStruct *os, *on;
 	int i;
@@ -2889,7 +2889,7 @@ static void OperateLever(int pnum, int oi)
 #endif
 		if (mapflag)
 			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-		if (pnum == myplr)
+		if (sendmsg)
 			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 	}
 }
@@ -2962,7 +2962,7 @@ static void OperateBook(int pnum, int oi)
 	}
 }
 
-static void OperateBookLever(int pnum, int oi)
+static void OperateBookLever(int oi, BOOL sendmsg)
 {
 	ObjectStruct *os;
 	int tren;
@@ -3001,7 +3001,7 @@ static void OperateBookLever(int pnum, int oi)
 		}
 		os->_oAnimFrame = os->_oVar6;
 		InitQTextMsg(os->_oVar7);
-		if (pnum == myplr)
+		if (sendmsg)
 			NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 	}
 }
@@ -3051,7 +3051,7 @@ static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 					if (os->_oVar2 != 0)
 						CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
 					else
-						CreateRndUseful(os->_ox, os->_oy, sendmsg);
+						CreateRndUseful(os->_ox, os->_oy, sendmsg, FALSE);
 				}
 			}
 			if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
@@ -3059,9 +3059,8 @@ static void OperateChest(int pnum, int oi, BOOLEAN sendmsg)
 				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0);
 				os->_oTrapFlag = FALSE;
 			}
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam2(FALSE, CMD_PLROPOBJ, pnum, oi);
-			return;
 		}
 	}
 }
@@ -3102,7 +3101,7 @@ static void OperateInnSignChest(int pnum, int oi)
 
 	if (quests[Q_LTBANNER]._qvar1 != 2) {
 		if (!deltaload && pnum == myplr) {
-			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[myplr]._pClass]);
+			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[pnum]._pClass]);
 		}
 	} else {
 		os = &object[oi];
@@ -3129,30 +3128,28 @@ static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 			pc = plr[pnum]._pClass;
 			switch (pc) {
 			case PC_WARRIOR:
-				CreateMagicArmor(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy);
+				CreateMagicItem(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy, sendmsg, FALSE);
 				break;
 			case PC_ROGUE:
-				CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy);
+				CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy, sendmsg, FALSE);
 				break;
 			case PC_SORCERER:
 				CreateSpellBook(SPL_LIGHTNING, os->_ox, os->_oy);
 				break;
 #ifdef HELLFIRE
 			case PC_MONK:
-				CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy);
+				CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy, sendmsg, FALSE);
 				break;
 			case PC_BARD:
-				CreateMagicWeapon(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy);
+				CreateMagicItem(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy, sendmsg, FALSE);
 				break;
 			case PC_BARBARIAN:
-				CreateMagicWeapon(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy);
+				CreateMagicItem(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy, sendmsg, FALSE);
 				break;
 #endif
 			default:
-				ASSUME_UNREACHABLE
-			}
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
 	}
@@ -3191,7 +3188,7 @@ static void OperateTrapLvr(int oi)
 	}
 }
 
-static void OperateSarc(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateSarc(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3210,7 +3207,7 @@ static void OperateSarc(int pnum, int oi, BOOLEAN sendmsg)
 				CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
 			if (os->_oVar1 >= 8)
 				SpawnSkeleton(os->_oVar2, os->_ox, os->_oy);
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
 	}
@@ -3799,7 +3796,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		NetSendCmdParam2(FALSE, CMD_PLROPOBJ, pnum, oi);
 }
 
-static void OperateSkelBook(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateSkelBook(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3812,13 +3809,13 @@ static void OperateSkelBook(int pnum, int oi, BOOLEAN sendmsg)
 			SetRndSeed(os->_oRndSeed);
 			CreateTypeItem(os->_ox, os->_oy, FALSE, ITYPE_MISC,
 				random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg, FALSE);
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
 	}
 }
 
-static void OperateBookCase(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateBookCase(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3839,13 +3836,13 @@ static void OperateBookCase(int pnum, int oi, BOOLEAN sendmsg)
 				monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 				monster[MAX_MINIONS]._mmode = MM_TALK;
 			}
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
 	}
 }
 
-static void OperateDecap(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateDecap(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3855,13 +3852,13 @@ static void OperateDecap(int pnum, int oi, BOOLEAN sendmsg)
 		if (!deltaload) {
 			SetRndSeed(os->_oRndSeed);
 			CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 		}
 	}
 }
 
-static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateArmorStand(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 	int itype;
@@ -3893,9 +3890,8 @@ static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
 #endif
 			}
 			CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, FALSE);
-			if (pnum == myplr)
+			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
-			return;
 		}
 	}
 }
@@ -3984,7 +3980,7 @@ static void OperateFountains(int pnum, int oi)
 	gbRedrawFlags = REDRAW_ALL;
 }
 
-static void OperateWeaponRack(int pnum, int oi, BOOLEAN sendmsg)
+static void OperateWeaponRack(int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 
@@ -4002,7 +3998,7 @@ static void OperateWeaponRack(int pnum, int oi, BOOLEAN sendmsg)
 		leveltype > DTYPE_CATHEDRAL,
 		ITYPE_SWORD + random_(0, 4),
 		IMISC_NONE, sendmsg, FALSE);
-	if (pnum == myplr)
+	if (sendmsg)
 		NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
 }
 
@@ -4088,7 +4084,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
-		OperateLever(pnum, oi);
+		OperateLever(oi, sendmsg);
 		break;
 	case OBJ_BOOK2L:
 		OperateBook(pnum, oi);
@@ -4105,7 +4101,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		OperateChest(pnum, oi, sendmsg);
 		break;
 	case OBJ_SARC:
-		OperateSarc(pnum, oi, sendmsg);
+		OperateSarc(oi, sendmsg);
 		break;
 	case OBJ_FLAMELVR:
 		OperateTrapLvr(oi);
@@ -4113,7 +4109,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
-		OperateBookLever(pnum, oi);
+		OperateBookLever(oi, sendmsg);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -4121,18 +4117,18 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
-		OperateSkelBook(pnum, oi, sendmsg);
+		OperateSkelBook(oi, sendmsg);
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(pnum, oi, sendmsg);
+		OperateBookCase(oi, sendmsg);
 		break;
 	case OBJ_DECAP:
-		OperateDecap(pnum, oi, sendmsg);
+		OperateDecap(oi, sendmsg);
 		break;
 	case OBJ_ARMORSTAND:
 	case OBJ_WARARMOR:
-		OperateArmorStand(pnum, oi, sendmsg);
+		OperateArmorStand(oi, sendmsg);
 		break;
 	case OBJ_GOATSHRINE:
 		OperateGoatShrine(pnum, oi);
@@ -4154,7 +4150,7 @@ void OperateObject(int pnum, int oi, BOOL TeleFlag)
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
-		OperateWeaponRack(pnum, oi, sendmsg);
+		OperateWeaponRack(oi, sendmsg);
 		break;
 	case OBJ_MUSHPATCH:
 		OperateMushPatch(pnum, oi);
@@ -4205,7 +4201,7 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
-		OperateLever(pnum, oi);
+		OperateLever(oi, FALSE);
 		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
@@ -4216,12 +4212,12 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		OperateChest(pnum, oi, FALSE);
 		break;
 	case OBJ_SARC:
-		OperateSarc(pnum, oi, FALSE);
+		OperateSarc(oi, FALSE);
 		break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
-		OperateBookLever(pnum, oi);
+		OperateBookLever(oi, FALSE);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -4229,18 +4225,18 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
-		OperateSkelBook(pnum, oi, FALSE);
+		OperateSkelBook(oi, FALSE);
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(pnum, oi, FALSE);
+		OperateBookCase(oi, FALSE);
 		break;
 	case OBJ_DECAP:
-		OperateDecap(pnum, oi, FALSE);
+		OperateDecap(oi, FALSE);
 		break;
 	case OBJ_ARMORSTAND:
 	case OBJ_WARARMOR:
-		OperateArmorStand(pnum, oi, FALSE);
+		OperateArmorStand(oi, FALSE);
 		break;
 	case OBJ_GOATSHRINE:
 		OperateGoatShrine(pnum, oi);
@@ -4260,7 +4256,7 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
-		OperateWeaponRack(pnum, oi, FALSE);
+		OperateWeaponRack(oi, FALSE);
 		break;
 	case OBJ_MUSHPATCH:
 		OperateMushPatch(pnum, oi);
@@ -4381,13 +4377,13 @@ static void BreakBarrel(int pnum, int oi, BOOL forcebreak, BOOL sendmsg)
 		SetRndSeed(os->_oRndSeed);
 		if (os->_oVar2 <= 1) {
 			if (os->_oVar3 == 0)
-				CreateRndUseful(os->_ox, os->_oy, sendmsg);
+				CreateRndUseful(os->_ox, os->_oy, sendmsg, FALSE);
 			else
 				CreateRndItem(os->_ox, os->_oy, FALSE, sendmsg, FALSE);
 		} else if (os->_oVar2 >= 8)
 			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy);
 	}
-	if (pnum == myplr)
+	if (sendmsg)
 		NetSendCmdParam2(FALSE, CMD_BREAKOBJ, pnum, oi);
 }
 

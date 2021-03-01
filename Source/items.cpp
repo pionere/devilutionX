@@ -2030,6 +2030,20 @@ static void GetUniqueItem(int ii, int uid)
 	item[ii]._iCreateInfo |= CF_UNIQUE;
 }
 
+static void RegisterItem(int ii, int x, int y, BOOL sendmsg, BOOL delta)
+{
+	GetSuperItemSpace(x, y, ii);
+
+	if (sendmsg)
+		NetSendCmdDItem(FALSE, ii);
+	if (delta)
+		DeltaAddItem(ii);
+
+	itemactive[numitems] = ii;
+	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+	numitems++;
+}
+
 void SpawnUnique(int uid, int x, int y)
 {
 	int ii, idx;
@@ -2047,11 +2061,8 @@ void SpawnUnique(int uid, int x, int y)
 	GetItemAttrs(ii, idx, items_get_currlevel());
 	GetUniqueItem(ii, uid);
 	SetupItem(ii);
-	GetSuperItemSpace(x, y, ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, TRUE, FALSE); // TODO: sendmsg/delta?
 }
 
 static void ItemRndDur(int ii)
@@ -2145,13 +2156,8 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), mon->MData->mLevel,
 		onlygood ? 15 : 1, onlygood, FALSE, FALSE);
-	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, sendmsg, FALSE); // TODO: delta?
 }
 
 void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
@@ -2171,15 +2177,8 @@ void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta)
 
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
-	GetSuperItemSpace(x, y, ii);
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, sendmsg, delta);
 }
 
 static void SetupAllUseful(int ii, int iseed, int lvl)
@@ -2212,7 +2211,7 @@ static void SetupAllUseful(int ii, int iseed, int lvl)
 	item[ii]._iCreateInfo = lvl | CF_USEFUL;
 }
 
-void CreateRndUseful(int x, int y, BOOL sendmsg)
+void CreateRndUseful(int x, int y, BOOL sendmsg, BOOL delta)
 {
 	int ii, lvl;
 
@@ -2223,13 +2222,8 @@ void CreateRndUseful(int x, int y, BOOL sendmsg)
 
 	ii = itemavail[0];
 	SetupAllUseful(ii, GetRndSeed(), lvl);
-	GetSuperItemSpace(x, y, ii);
-	if (sendmsg) {
-		NetSendCmdDItem(FALSE, ii);
-	}
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+
+	RegisterItem(ii, x, y, sendmsg, delta);
 }
 
 void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta)
@@ -2249,16 +2243,8 @@ void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL send
 
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, FALSE, delta);
-	GetSuperItemSpace(x, y, ii);
 
-	if (sendmsg)
-		NetSendCmdDItem(FALSE, ii);
-	if (delta)
-		DeltaAddItem(ii);
-
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, sendmsg, delta);
 }
 
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
@@ -2458,11 +2444,8 @@ void SpawnRewardItem(int idx, int xx, int yy)
 	item[ii]._iAnimFrame = 1;
 	item[ii]._iAnimFlag = TRUE;
 	item[ii]._iIdentified = TRUE;
-	GetSuperItemSpace(xx, yy, ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, xx, yy, TRUE, FALSE);
 }
 #endif
 
@@ -3849,37 +3832,7 @@ void CreateSpellBook(int ispell, int x, int y)
 		if (item[ii]._iSpell == ispell)
 			break;
 	}
-	GetSuperItemSpace(x, y, ii);
-	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
-
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
-}
-
-void CreateMagicArmor(int imisc, int icurs, int x, int y)
-{
-	int ii, idx, lvl;
-
-	if (numitems >= MAXITEMS)
-		return;
-
-	lvl = items_get_currlevel();
-	lvl <<= 1;
-
-	ii = itemavail[0];
-	while (TRUE) {
-		idx = RndTypeItems(imisc, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, TRUE, FALSE, TRUE); // BUGFIX: pregen?
-		if (item[ii]._iCurs == icurs)
-			break;
-	}
-	GetSuperItemSpace(x, y, ii);
-	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
-
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, TRUE, FALSE); // TODO: sendmsg/delta?
 }
 
 #ifdef HELLFIRE
@@ -3899,16 +3852,11 @@ void CreateAmulet(int x, int y)
 		if (item[ii]._iCurs == ICURS_AMULET)
 			break;
 	}
-	GetSuperItemSpace(x, y, ii);
-	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
-
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, TRUE, FALSE); // TODO: sendmsg/delta?
 }
 #endif
 
-void CreateMagicWeapon(int itype, int icurs, int x, int y)
+void CreateMagicWeapon(int itype, int icurs, int x, int y, BOOL sendmsg, BOOL delta)
 {
 	int ii, idx, lvl;
 
@@ -3925,12 +3873,7 @@ void CreateMagicWeapon(int itype, int icurs, int x, int y)
 		if (item[ii]._iCurs == icurs)
 			break;
 	}
-	GetSuperItemSpace(x, y, ii);
-	DeltaAddItem(ii); // BUGFIX: sure? How about sending a message?
-
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, sendmsg, delta);
 }
 
 static void NextItemRecord(int i)

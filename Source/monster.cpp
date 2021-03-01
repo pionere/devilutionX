@@ -1644,9 +1644,9 @@ static void SpawnLoot(int mnum, BOOL sendmsg)
 		stream_stop();
 		quests[Q_NAKRUL]._qlog = FALSE; // TODO: instead of _qlog the _qactive should be set to QUEST_DONE?
 		UberDiabloMonsterIndex = -2;
-		CreateMagicWeapon(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my);
-		CreateMagicWeapon(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my);
-		CreateMagicWeapon(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my);
+		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, TRUE, FALSE);
+		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, TRUE, FALSE);
+		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, TRUE, FALSE);
 		return;
 #endif
 	}
@@ -2375,6 +2375,7 @@ static BOOL MonDoTalk(int mnum)
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
 		}
 		if (mon->mtalkmsg == TEXT_GARBUD2 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
+			//SetRndSeed(mon->_mRndSeed);
 			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, TRUE);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
@@ -2383,6 +2384,7 @@ static BOOL MonDoTalk(int mnum)
 		if (mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
 			quests[Q_ZHAR]._qlog = TRUE;
+			//SetRndSeed(mon->_mRndSeed);
 			CreateTypeItem(mon->_mx + 1, mon->_my + 1, FALSE, ITYPE_MISC, IMISC_BOOK, TRUE, FALSE);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
@@ -2416,6 +2418,7 @@ static BOOL MonDoTalk(int mnum)
 			quests[Q_VEIL]._qlog = TRUE;
 		}
 		if (mon->mtalkmsg == TEXT_VEIL11 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
+			//SetRndSeed(mon->_mRndSeed);
 			SpawnUnique(UITEM_STEELVEIL, mon->_mx + 1, mon->_my + 1);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
