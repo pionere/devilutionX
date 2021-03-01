@@ -640,7 +640,7 @@ static void Theme_SkelRoom(int tidx)
  */
 static void Theme_Treasure(int tidx)
 {
-	int xx, yy, ii;
+	int xx, yy;
 	const char treasrnds[4] = { 4, 9, 7, 10 };
 	const char monstrnds[4] = { 6, 8, 3, 7 };
 	const char treasrnd = treasrnds[leveltype - 1];
@@ -651,21 +651,14 @@ static void Theme_Treasure(int tidx)
 	for (yy = 0; yy < MAXDUNY; yy++) {
 		for (xx = 0; xx < MAXDUNX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				int rv = random_(0, treasrnd);
-				// BUGFIX: should probably be `random_(0, 2*treasrnd...) == 0`
 				if (random_(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, FALSE, ITYPE_GOLD, IMISC_NONE, FALSE, TRUE);
 					ItemNoFlippy();
 				}
-				if (rv == 0) {
+				// BUGFIX: should probably be `random_(0, 2*treasrnd...) == 0`
+				if (random_(0, treasrnd) == 0) {
 					CreateRndItem(xx, yy, FALSE, FALSE, TRUE);
 					ItemNoFlippy();
-				}
-				if (rv >= treasrnd - 2) {
-					if (leveltype != DTYPE_CATHEDRAL) {
-						ii = ItemNoFlippy();	// BUGFIX: what if no item was created?
-						item[ii]._ivalue >>= 1;
-					}
 				}
 			}
 		}
@@ -684,7 +677,7 @@ static void Theme_Library(int tidx)
 	const char librnds[4] = { 1, 2, 2, 5 };
 	const char monstrnds[4] = { 5, 7, 3, 9 };
 	const char librnd = librnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype];  /// BUGFIX: `leveltype - 1`
+	const char monstrnd = monstrnds[leveltype - 1];  /// BUGFIX: `leveltype - 1` (fixed)
 
 	TFit_Shrine(tidx);
 
@@ -701,9 +694,8 @@ static void Theme_Library(int tidx)
 	for (yy = 1; yy < MAXDUNY - 1; yy++) {
 		for (xx = 1; xx < MAXDUNX - 1; xx++) {
 			if (CheckThemeObj3(xx, yy, tidx, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
-				AddObject(OBJ_BOOKSTAND, xx, yy);
-				if (random_(0, 2 * librnd) != 0 && dObject[xx][yy]) { /// BUGFIX: check dObject[xx][yy] was populated by AddObject (fixed)
-					oi = dObject[xx][yy] - 1;
+				oi = AddObject(OBJ_BOOKSTAND, xx, yy);
+				if (random_(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
 					object[oi]._oSelFlag = 0;
 					object[oi]._oAnimFrame += 2;
 				}
