@@ -3125,33 +3125,19 @@ static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 	if (os->_oSelFlag != 0) {
 		os->_oSelFlag = 0;
 		if (!deltaload) {
-			SetRndSeed(os->_oRndSeed);
 			pc = plr[pnum]._pClass;
-			switch (pc) {
-			case PC_WARRIOR:
-				CreateMagicItem(ITYPE_HARMOR, ICURS_BREAST_PLATE, os->_ox, os->_oy, sendmsg, FALSE);
-				break;
-			case PC_ROGUE:
-				CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, os->_ox, os->_oy, sendmsg, FALSE);
-				break;
-			case PC_SORCERER:
-				CreateSpellBook(SPL_LIGHTNING, os->_ox, os->_oy);
-				break;
+			const int typeCurs[NUM_CLASSES][2] = {
+				{ ITYPE_SWORD, ICURS_BASTARD_SWORD },
+				{ ITYPE_BOW, ICURS_LONG_WAR_BOW },
+				{ ITYPE_STAFF, ICURS_LONG_STAFF },
 #ifdef HELLFIRE
-			case PC_MONK:
-				CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, os->_ox, os->_oy, sendmsg, FALSE);
-				break;
-			case PC_BARD:
-				CreateMagicItem(ITYPE_SWORD, ICURS_BASTARD_SWORD, os->_ox, os->_oy, sendmsg, FALSE);
-				break;
-			case PC_BARBARIAN:
-				CreateMagicItem(ITYPE_AXE, ICURS_BATTLE_AXE, os->_ox, os->_oy, sendmsg, FALSE);
-				break;
+				{ ITYPE_STAFF, ICURS_WAR_STAFF },
+				{ ITYPE_SWORD, ICURS_KATAR }, // TODO: better ICURS?
+				{ ITYPE_AXE, ICURS_BATTLE_AXE },
 #endif
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
+			};
+			SetRndSeed(os->_oRndSeed);
+			CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg, FALSE);
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);

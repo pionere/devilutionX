@@ -57,6 +57,11 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_BLOCK:
 	case SPL_ATTACK:
 	case SPL_WATTACK:
+	case SPL_SWIPE:
+	case SPL_RATTACK:
+	case SPL_WRATTACK:
+	case SPL_POINT_BLANK:
+	case SPL_FAR_SHOT:
 	case SPL_STONE:
 	case SPL_INFRA:
 	case SPL_MANASHIELD:
@@ -169,6 +174,11 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		ASSUME_UNREACHABLE
 		break;
 	}
+}
+
+static BOOL PosOkMissile1(int x, int y)
+{
+	return !nMissileTable[dPiece[x][y]];
 }
 
 static BOOLEAN FindClosest(int sx, int sy, int &dx, int &dy)
@@ -696,6 +706,12 @@ static BOOL MonsterMHit(int mnum, int mi)
 		if (pcdam != 0) {
 			dam += CalcMonsterDam(mon->mMagicRes, MISR_PUNCTURE, p->_pIPcMinDam, pcdam);
 		}
+		// add modifiers from arrow-type
+		if (mis->_miType == MIS_PBARROW) {
+			dam = (dam * (64 + 32 - 16 * mis->_miDist + mis->_miSpllvl)) >> 6;
+		} else if (mis->_miType == MIS_ASARROW) {
+			dam = (dam * (8 * mis->_miDist - 16 + mis->_miSpllvl)) >> 5;
+		}
 		int fdam = p->_pIFMaxDam;
 		if (fdam != 0) {
 			fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, p->_pIFMinDam, fdam);
@@ -974,6 +990,12 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 		int pcdam = ops->_pIPcMaxDam;
 		if (pcdam != 0) {
 			dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, pcdam);
+		}
+		// add modifiers from arrow-type
+		if (mis->_miType == MIS_PBARROW) {
+			dam = (dam * (64 + 32 - 16 * mis->_miDist + mis->_miSpllvl)) >> 6;
+		} else if (mis->_miType == MIS_ASARROW) {
+			dam = (dam * (8 * mis->_miDist - 16 + mis->_miSpllvl)) >> 5;
 		}
 
 		if (ops->_pILifeSteal != 0) {
@@ -1439,6 +1461,10 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 }
 #endif
 
+/*
+ * Var1: x coordinate of the missile-target of MIS_ASARROW
+ * Var2: y coordinate of the missile-target of MIS_ASARROW
+ */
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
@@ -1483,8 +1509,16 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miRange = 256;
 	if (misource != -1) {
 		if (micaster == 0) {
-			; // mis->_miMinDam = plr[misource]._pIPcMinDam;
+			// mis->_miMinDam = plr[misource]._pIPcMinDam;
 			// mis->_miMaxDam = plr[misource]._pIPcMaxDam;
+			if (mis->_miType == MIS_PBARROW)
+				mis->_miRange = 1 + 4;
+			else if (mis->_miType == MIS_ASARROW) {
+				if (!LineClearF(PosOkMissile1, sx, sy, dx, dy))
+					return MIRES_FAIL_DELETE;
+				mis->_miVar1 = dx;
+				mis->_miVar2 = dy;
+			}
 		} else {
 			mis->_miMinDam = monster[misource].mMinDamage << 6;
 			mis->_miMaxDam = monster[misource].mMaxDamage << 6;
@@ -2914,6 +2948,23 @@ void MI_Arrow(int mi)
 	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
+	PutMissile(mi);
+}
+
+void MI_AsArrow(int mi)
+{
+	MissileStruct *mis;
+
+	mis = &missile[mi];
+	mis->_miDist++;
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	if (mis->_mix == mis->_miVar1 && mis->_miy == mis->_miVar2) {
+		CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+		mis->_miDelFlag = TRUE;
+		return;
+	}
 	PutMissile(mi);
 }
 

@@ -2023,6 +2023,7 @@ BOOL UseInvItem(int cii)
 			NetSendCmdBParam2(FALSE, CMD_PLRSKILLLVL, sn, p->_pSkillLvl[sn]);
 		}
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
+		CalcPlrSpells(pnum);
 		break;
 	case IMISC_MAPOFDOOM:
 		doom_init();

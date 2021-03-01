@@ -11,10 +11,20 @@ DEVILUTION_BEGIN_NAMESPACE
 #define ICN_BLK 45
 #define ICN_ATK 48
 #define ICN_WTK 32
+#define ICN_SWP 34
+#define ICN_RTK 48
+#define ICN_RWK 32
+#define ICN_RPB 19
+#define ICN_RAS 31
 #else
 #define ICN_BLK 19
 #define ICN_ATK 22
 #define ICN_WTK 32
+#define ICN_SWP 34
+#define ICN_RTK 22
+#define ICN_RWK 32
+#define ICN_RPB 17
+#define ICN_RAS 31
 #endif
 
 /*
@@ -42,6 +52,11 @@ SpellData spelldata[NUM_SPELLS] = {
 	{ SPL_BLOCK,         0, STYPE_NONE,      ICN_BLK, "Block",              SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        0,                 0,        0,         0,         0,         0,          0 },
 	{ SPL_ATTACK,        0, STYPE_NONE,      ICN_ATK, "Attack",             SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        0,                 0,        0,         0,         0,         0,          0 },
 	{ SPL_WATTACK,       0, STYPE_NONE,      ICN_WTK, "Walk/Attack",        SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        TRUE,             0, 0,        0,                 0,        0,         0,         0,         0,          0 },
+	{ SPL_SWIPE,         2, STYPE_NONE,      ICN_SWP, "Swipe",                     6,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        0,                 0,        2,         0,         0,         0,          0 },
+	{ SPL_RATTACK,       0, STYPE_NONE,      ICN_RTK, "Ranged Attack",      SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        MIS_ARROW,         0,        0,         0,         0,         0,          0 },
+	{ SPL_WRATTACK,      0, STYPE_NONE,      ICN_RWK, "Walk/Attack",        SPELL_NA,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        TRUE,             0, 0,        MIS_ARROW,         0,        0,         0,         0,         0,          0 },
+	{ SPL_POINT_BLANK,   2, STYPE_NONE,      ICN_RPB, "Point Blank",               4,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        MIS_PBARROW,       0,        2,         0,         0,         0,          0 },
+	{ SPL_FAR_SHOT,      2, STYPE_NONE,      ICN_RAS, "Far Shot",                  8,  SPELL_NA,   SPELL_NA, FALSE,     CURSOR_NONE,        CURSOR_NONE,        FALSE,            0, 0,        MIS_ASARROW,       0,        2,         0,         0,         0,          0 },
 	{ SPL_FIREBOLT,      6, STYPE_FIRE,      1,       "Firebolt",           BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           15, IS_CAST2, MIS_FIREBOLT,      1,        3,        40,        80,      1000,         50 },
 	{ SPL_CBOLT,         6, STYPE_LIGHTNING, 39,      "Charged Bolt",       BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           25, IS_CAST2, MIS_CBOLTC,        1,        4,        40,        80,      1000,         50 },
 	{ SPL_HBOLT,         7, STYPE_MAGIC,     42,      "Acidbolt",           BOOK_MIN, STAFF_MIN,   SPELL_NA, TRUE,      CURSOR_TELEPORT,    CURSOR_NONE,        FALSE,           20, IS_CAST2, MIS_HBOLT,         1,        4,        40,        80,      1000,         50 },

@@ -826,6 +826,14 @@ typedef struct TCmdLocBParam1 {
 	BYTE bParam1;
 } TCmdLocBParam1;
 
+typedef struct TCmdLocBParam2 {
+	BYTE bCmd;
+	BYTE x;
+	BYTE y;
+	BYTE bParam1;
+	BYTE bParam2;
+} TCmdLocBParam2;
+
 typedef struct TCmdLocParam1 {
 	BYTE bCmd;
 	BYTE x;
@@ -886,6 +894,13 @@ typedef struct TCmdBParam2 {
 	BYTE bParam1;
 	BYTE bParam2;
 } TCmdBParam2;
+
+typedef struct TCmdBParam3 {
+	BYTE bCmd;
+	BYTE bParam1;
+	BYTE bParam2;
+	BYTE bParam3;
+} TCmdBParam3;
 
 typedef struct TCmdGolem {
 	BYTE bCmd;

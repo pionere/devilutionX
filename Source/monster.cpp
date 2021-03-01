@@ -2389,11 +2389,16 @@ static BOOL MonDoTalk(int mnum)
 		}
 		break;
 	case UMT_ZHAR:
-		if (mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
+		if (gbMaxPlayers == 1 && mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
 			quests[Q_ZHAR]._qlog = TRUE;
+			tren = SPL_SWIPE;
+			if (plr[myplr]._pClass == PC_ROGUE)
+				tren = SPL_POINT_BLANK;
+			else if (plr[myplr]._pClass == PC_SORCERER)
+				tren = SPL_LIGHTNING;
 			//SetRndSeed(mon->_mRndSeed);
-			CreateTypeItem(mon->_mx + 1, mon->_my + 1, FALSE, ITYPE_MISC, IMISC_BOOK, TRUE, FALSE);
+			CreateSpellBook(tren, mon->_mx + 1, mon->_my + 1);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		break;

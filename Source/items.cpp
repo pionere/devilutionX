@@ -399,13 +399,13 @@ void InitItems()
 inline static int ArrowVelBonus(unsigned flags)
 {
 	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
-	if (flags != 0) {
+	//if (flags != 0) {
 		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
 		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
 		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
 		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
 		flags /= ISPL_QUICKATTACK;
-	}
+	//}
 	return flags;
 }
 
@@ -677,18 +677,9 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
 			p->_pBlockFlag = TRUE;
 			p->_pIFlags |= ISPL_FASTBLOCK;
-			p->_pIFlags2 |= ISPH_SWIPE;
 		} else if (wRight->_itype == ITYPE_NONE
 		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
 			p->_pBlockFlag = TRUE;
-	} else 
-	if ((p->_pClass == PC_BARD
-		 && wLeft->_itype == ITYPE_SWORD && wRight->_itype == ITYPE_SWORD)
-	 || (p->_pClass == PC_BARBARIAN
-		 && (wLeft->_itype == ITYPE_AXE || wRight->_itype == ITYPE_AXE
-		 || ((wLeft->_itype == ITYPE_MACE || wLeft->_itype == ITYPE_SWORD) && wLeft->_iLoc == ILOC_TWOHAND)
-			 ))) {
-		p->_pIFlags2 |= ISPH_SWIPE;
 	}
 #endif
 	p->_pwtype = WT_MELEE;
@@ -770,12 +761,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	btohit += 50 + p->_pLevel;
 	if (p->_pwtype == WT_MELEE) {
 		btohit += 20 + (p->_pDexterity >> 1);
-#ifdef HELLFIRE
-		if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARBARIAN)
-#else
-		if (p->_pClass == PC_WARRIOR)
-#endif
-			p->_pICritChance = p->_pLevel * 2;
+		p->_pICritChance = p->_pLevel;
 	} else {
 		assert(p->_pwtype == WT_RANGED);
 		btohit += p->_pDexterity;
@@ -828,6 +814,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(p->_pIFlags);
+/*  No other velocity bonus for the moment, 
+   otherwise POINT_BLANK and FAR_SHOT do not work well...
 #ifdef HELLFIRE
 	if (p->_pClass == PC_ROGUE)
 		av += (p->_pLevel - 1) >> 2;
@@ -838,10 +826,34 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		av += (p->_pLevel - 1) >> 2;
 	else if (p->_pClass == PC_WARRIOR)
 		av += (p->_pLevel - 1) >> 3;
-#endif
+#endif*/
 	p->_pIArrowVelBonus = av;
 
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+}
+
+void CalcPlrSpells(int pnum)
+{
+	PlayerStruct *p;
+
+	p = &plr[pnum];
+	if (p->_pwtype == WT_MELEE) {
+		if (p->_pSkillLvl[SPL_SWIPE] != 0)
+			p->_pMemSkills |= SPELL_MASK(SPL_SWIPE);
+		p->_pMemSkills &= ~(SPELL_MASK(SPL_POINT_BLANK) | SPELL_MASK(SPL_FAR_SHOT));
+	} else {
+		if (p->_pSkillLvl[SPL_POINT_BLANK] != 0)
+			p->_pMemSkills |= SPELL_MASK(SPL_POINT_BLANK);
+		if (p->_pSkillLvl[SPL_FAR_SHOT] != 0)
+			p->_pMemSkills |= SPELL_MASK(SPL_FAR_SHOT);
+		p->_pMemSkills &= ~SPELL_MASK(SPL_SWIPE);
+	}
+	// check if the current RSplType is a valid/allowed 'spell'
+	if (p->_pRSplType == RSPLTYPE_SPELL && !(p->_pMemSkills & SPELL_MASK(p->_pRSpell))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
 }
 
 void CalcPlrAbilities(int pnum)
@@ -849,16 +861,26 @@ void CalcPlrAbilities(int pnum)
 	PlayerStruct *p;
 
 	p = &plr[pnum];
+	if (p->_pwtype == WT_MELEE) {
+		p->_pLSpell = SPL_ATTACK;
+		p->_pAblSkills |= SPELL_MASK(SPL_WATTACK) | SPELL_MASK(SPL_ATTACK);
+		p->_pAblSkills &= ~(SPELL_MASK(SPL_WRATTACK) | SPELL_MASK(SPL_RATTACK));
+	} else {
+		p->_pLSpell = SPL_RATTACK;
+		p->_pAblSkills |= SPELL_MASK(SPL_WRATTACK) | SPELL_MASK(SPL_RATTACK);
+		p->_pAblSkills &= ~(SPELL_MASK(SPL_WATTACK) | SPELL_MASK(SPL_ATTACK));
+	}
+
 	if (p->_pBlockFlag) {
 		p->_pAblSkills |= SPELL_MASK(SPL_BLOCK);
 	} else {
 		p->_pAblSkills &= ~SPELL_MASK(SPL_BLOCK);
-		// check if the current RSplType is a valid/allowed ability
-		if (p->_pRSpell == SPL_BLOCK) {
-			p->_pRSpell = SPL_INVALID;
-			p->_pRSplType = RSPLTYPE_INVALID;
-			//gbRedrawFlags |= REDRAW_SPELL_ICON;
-		}
+	}
+	// check if the current RSplType is a valid/allowed ability
+	if (p->_pRSplType == RSPLTYPE_ABILITY && !(p->_pAblSkills & SPELL_MASK(p->_pRSpell))) {
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
 
@@ -990,6 +1012,7 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 	CalcPlrItemVals(pnum, Loadgfx);
 	CalcPlrItemMin(pnum);
 	if (pnum == myplr) {
+		CalcPlrSpells(pnum);
 		CalcPlrAbilities(pnum);
 		CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
@@ -1367,7 +1390,7 @@ static void GetBookSpell(int ii, int lvl)
 		is->_iCurs = ICURS_BOOK_RED;
 	else if (sd->sType == STYPE_LIGHTNING)
 		is->_iCurs = ICURS_BOOK_BLUE;
-	else if (sd->sType == STYPE_MAGIC)
+	else // if (sd->sType == STYPE_MAGIC)
 		is->_iCurs = ICURS_BOOK_GREY;
 }
 

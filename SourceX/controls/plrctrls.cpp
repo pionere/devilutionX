@@ -429,16 +429,16 @@ void FindTrigger()
 
 void Interact()
 {
-	if (leveltype == DTYPE_TOWN && pcursmonst != -1) {
-		NetSendCmdLocParam1(TRUE, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
-	} else if (pcursmonst != -1) {
-		if (plr[myplr]._pwtype != WT_RANGED || CanTalkToMonst(pcursmonst)) {
-			NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-		} else {
-			NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
-		}
-	} else if (leveltype != DTYPE_TOWN && pcursplr != -1 && !FriendlyMode) {
-		NetSendCmdParam1(TRUE, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr);
+	if (leveltype == DTYPE_TOWN) {
+		if (pcursmonst != -1)
+			NetSendCmdLocParam1(TRUE, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
+	} else {
+		int attack = plr[myplr]._pLSpell;
+		int sl = GetSpellLevel(myplr, attack);
+		if (pcursmonst != -1)
+			NetSendCmdParam3(TRUE, (plr[myplr]._pwtype != WT_RANGED || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
+		else if (pcursplr != -1 && !FriendlyMode)
+			NetSendCmdBParam3(TRUE, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr, attack, sl);
 	}
 }
 

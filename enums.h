@@ -1442,6 +1442,8 @@ typedef enum item_equip_type {
 
 typedef enum missile_id {
 	MIS_ARROW,
+	MIS_PBARROW,
+	MIS_ASARROW,
 	MIS_FIREBOLT,
 	MIS_HBOLT,
 	MIS_FLARE,
@@ -2505,9 +2507,10 @@ typedef enum diablo_message {
 } diablo_message;
 
 typedef enum magic_type {
-	STYPE_FIRE      = 0x0,
-	STYPE_LIGHTNING = 0x1,
-	STYPE_MAGIC     = 0x2,
+	STYPE_FIRE,
+	STYPE_LIGHTNING,
+	STYPE_MAGIC,
+	STYPE_NONE
 } magic_type;
 
 typedef enum theme_id {
@@ -2720,6 +2723,11 @@ typedef enum spell_id {
 	SPL_BLOCK,
 	SPL_ATTACK,
 	SPL_WATTACK,
+	SPL_SWIPE,
+	SPL_RATTACK,
+	SPL_WRATTACK,
+	SPL_POINT_BLANK,
+	SPL_FAR_SHOT,
 	SPL_FIREBOLT,
 	SPL_CBOLT,
 	SPL_HBOLT,
@@ -3485,7 +3493,7 @@ typedef enum item_added_effects {
 	ISPH_FASTWALK       = 0x00000400,
 	ISPH_FASTERWALK     = 0x00000800,
 	ISPH_FASTESTWALK    = 0x00001000,
-	ISPH_SWIPE          = 0x00002000,
+	//ISPH_SWIPE          = 0x00002000,
 	//ISPH_SPECARROW      = 0x00004000, /* unsupported maybe later from IPL_SARROW_LIGHT*/
 	//ISPH_SARROWFB       = 0x00008000, /* unsupported maybe later from IPL_SARROW_FBALL*/
 } item_added_effects;

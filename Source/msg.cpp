@@ -1033,6 +1033,21 @@ void NetSendCmdLocParam2(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, W
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdLocBParam2(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2)
+{
+	TCmdLocBParam2 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.x = x;
+	cmd.y = y;
+	cmd.bParam1 = bParam1;
+	cmd.bParam2 = bParam2;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdLocBParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2, BYTE bParam3)
 {
 	TCmdLocBParam3 cmd;
@@ -1122,6 +1137,20 @@ void NetSendCmdBParam2(BOOL bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2)
 	cmd.bCmd = bCmd;
 	cmd.bParam1 = bParam1;
 	cmd.bParam2 = bParam2;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdBParam3(BOOL bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2, BYTE bParam3)
+{
+	TCmdBParam3 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.bParam1 = bParam1;
+	cmd.bParam2 = bParam2;
+	cmd.bParam3 = bParam3;
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1656,13 +1685,15 @@ static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
 
 static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 {
-	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
 		plr[pnum].destAction = ACTION_ATTACK;
 		plr[pnum].destParam1 = cmd->x;
 		plr[pnum].destParam2 = cmd->y;
+		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
+		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);
@@ -1670,13 +1701,15 @@ static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 {
-	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_ATTACK;
 		plr[pnum].destParam1 = cmd->x;
 		plr[pnum].destParam2 = cmd->y;
+		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
+		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);
@@ -1684,13 +1717,15 @@ static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 {
-	TCmdLoc *cmd = (TCmdLoc *)pCmd;
+	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_RATTACK;
 		plr[pnum].destParam1 = cmd->x;
 		plr[pnum].destParam2 = cmd->y;
+		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
+		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);
@@ -1773,13 +1808,15 @@ static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
 
 static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 	int mnum, x, y;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		mnum = cmd->wParam1;
-		plr[pnum].destParam1 = mnum;
 		plr[pnum].destAction = ACTION_ATTACKMON;
+		plr[pnum].destParam1 = mnum;
+		plr[pnum].destParam2 = cmd->wParam2; // attack 'spell'
+		plr[pnum].destParam3 = cmd->wParam3; // attack 'spell'-level
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
 		if (abs(plr[pnum]._px - x) > 1 || abs(plr[pnum]._py - y) > 1)
@@ -1791,13 +1828,15 @@ static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 
 static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int tnum = cmd->wParam1;
+		int tnum = cmd->bParam1;
 		MakePlrPath(pnum, plr[tnum]._pfutx, plr[tnum]._pfuty, FALSE);
 		plr[pnum].destAction = ACTION_ATTACKPLR;
 		plr[pnum].destParam1 = tnum;
+		plr[pnum].destParam2 = cmd->bParam2; // attack 'spell'
+		plr[pnum].destParam3 = cmd->bParam3; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);
@@ -1805,12 +1844,14 @@ static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 
 static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_RATTACKMON;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = cmd->wParam1; // target id
+		plr[pnum].destParam2 = cmd->wParam2; // attack 'spell'
+		plr[pnum].destParam3 = cmd->wParam3; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);
@@ -1818,12 +1859,14 @@ static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 
 static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_RATTACKPLR;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = cmd->bParam1; // target id
+		plr[pnum].destParam2 = cmd->bParam2; // attack 'spell'
+		plr[pnum].destParam3 = cmd->bParam3; // attack 'spell'-level
 	}
 
 	return sizeof(*cmd);

@@ -552,46 +552,48 @@ int DiabloMain(int argc, char **argv)
 	return 0;
 }
 
-static BOOL AttackCmd(BOOL bShift)
+static BOOL AttackCmd(BOOL bShift, int attack)
 {
+	int sl = GetSpellLevel(myplr, attack);
+
 	if (plr[myplr]._pwtype == WT_RANGED) {
 		if (bShift) {
-			NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
+			NetSendCmdLocBParam2(TRUE, CMD_RATTACKXY, cursmx, cursmy, attack, sl);
 			return TRUE;
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+				NetSendCmdParam3(TRUE, CMD_ATTACKID, pcursmonst, attack, sl);
 			} else {
-				NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
+				NetSendCmdParam3(TRUE, CMD_RATTACKID, pcursmonst, attack, sl);
 			}
 			return TRUE;
 		}
 		if (pcursplr != -1) {
 			if (!FriendlyMode)
-				NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
+				NetSendCmdBParam3(TRUE, CMD_RATTACKPID, pcursplr, attack, sl);
 			return TRUE;
 		}
 	} else {
 		if (bShift) {
 			if (pcursmonst != -1) {
 				if (CanTalkToMonst(pcursmonst)) {
-					NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+					NetSendCmdParam3(TRUE, CMD_ATTACKID, pcursmonst, attack, sl);
 				} else {
-					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
+					NetSendCmdLocBParam2(TRUE, CMD_SATTACKXY, cursmx, cursmy, attack, sl);
 				}
 			} else {
-				NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
+				NetSendCmdLocBParam2(TRUE, CMD_SATTACKXY, cursmx, cursmy, attack, sl);
 			}
 			return TRUE;
 		}
 		if (pcursmonst != -1) {
-			NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
+			NetSendCmdParam3(TRUE, CMD_ATTACKID, pcursmonst, attack, sl);
 			return TRUE;
 		}
 		if (pcursplr != -1) {
 			if (!FriendlyMode)
-				NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
+				NetSendCmdBParam3(TRUE, CMD_ATTACKPID, pcursplr, attack, sl);
 			return TRUE;
 		}
 	}
@@ -621,7 +623,7 @@ static void ActionBtnCmd(BOOL bShift)
 			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}
-		if (AttackCmd(bShift))
+		if (AttackCmd(bShift, plr[myplr]._pLSpell))
 			return;
 		assert(pcursplr == -1);
 		assert(pcursmonst == -1);
@@ -785,9 +787,13 @@ void AltActionBtnCmd(BOOL bShift)
 		return;
 	}
 
-	if (leveltype == DTYPE_TOWN && !spelldata[rspell].sTownSpell) {
-		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
-		return;
+	if (leveltype == DTYPE_TOWN) {
+		if (!spelldata[rspell].sTownSpell) {
+			PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
+			return;
+		}
+		if (rspell == SPL_WATTACK || rspell == SPL_WRATTACK)
+			rspell = SPL_WALK;
 	}
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -804,8 +810,13 @@ void AltActionBtnCmd(BOOL bShift)
 	sfx = NULL;
 	switch (plr[myplr]._pRSplType) {
 	case RSPLTYPE_ABILITY:
+		// assert(spelldata[rspell].sManaCost == 0);
 		if (rspell == SPL_WATTACK) {
-			if (AttackCmd(bShift))
+			if (AttackCmd(bShift, SPL_ATTACK))
+				return;
+			rspell = SPL_WALK;
+		} else if (rspell == SPL_WRATTACK) {
+			if (AttackCmd(bShift, SPL_RATTACK))
 				return;
 			rspell = SPL_WALK;
 		}
@@ -814,7 +825,11 @@ void AltActionBtnCmd(BOOL bShift)
 			return;
 		}
 		if (rspell == SPL_ATTACK) {
-			AttackCmd(bShift);
+			AttackCmd(bShift, SPL_ATTACK);
+			return;
+		}
+		if (rspell == SPL_RATTACK) {
+			AttackCmd(bShift, SPL_RATTACK);
 			return;
 		}
 		if (rspell == SPL_BLOCK) {
@@ -825,8 +840,16 @@ void AltActionBtnCmd(BOOL bShift)
 		sf = SPLFROM_ABILITY;
 		break;
 	case RSPLTYPE_SPELL:
-		sf = CheckSpell(myplr, rspell) ? SPLFROM_MANA : SPLFROM_INVALID;
-		sfx = sgSFXSets[SFXS_PLR_35];
+		if (CheckSpell(myplr, rspell)) {
+			if (spelldata[rspell].sType == STYPE_NONE) {
+				AttackCmd(bShift, rspell);
+				return;
+			}
+			sf = SPLFROM_MANA;
+		} else {
+			sf = SPLFROM_INVALID;
+			sfx = sgSFXSets[SFXS_PLR_35];
+		}
 		break;
 	case RSPLTYPE_SCROLL:
 		sf = SpellSourceInv(rspell);

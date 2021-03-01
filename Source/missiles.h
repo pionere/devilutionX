@@ -98,6 +98,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 void MI_Dummy(int mi);
 void MI_Golem(int mi);
 void MI_Arrow(int mi);
+void MI_AsArrow(int mi);
 void MI_Firebolt(int mi);
 void MI_Lightball(int mi);
 void MI_Krull(int mi);

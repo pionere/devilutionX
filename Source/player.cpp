@@ -704,8 +704,6 @@ void CreatePlayer(int pnum, char c)
 
 	p->_pAblSkills = SPELL_MASK(Abilities[c]);
 	p->_pAblSkills |= SPELL_MASK(SPL_WALK);
-	p->_pAblSkills |= SPELL_MASK(SPL_WATTACK);
-	p->_pAblSkills |= SPELL_MASK(SPL_ATTACK);
 
 	if (c == PC_SORCERER) {
 		p->_pSkillLvl[SPL_FIREBOLT] = 2;
@@ -891,8 +889,6 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 
 		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
 		p->_pAblSkills |= SPELL_MASK(SPL_WALK);
-		p->_pAblSkills |= SPELL_MASK(SPL_WATTACK);
-		p->_pAblSkills |= SPELL_MASK(SPL_ATTACK);
 		CalcPlrAbilities(pnum);
 
 		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
@@ -1388,7 +1384,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 static BOOL StartAttack(int pnum)
 {
 	PlayerStruct *p;
-	int i, dx, dy, dir;
+	int i, dx, dy, sn, sl, dir;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartAttack: illegal player %d", pnum);
@@ -1404,6 +1400,8 @@ static BOOL StartAttack(int pnum)
 	if (p->destAction == ACTION_ATTACK) {
 		dx = i;
 		dy = p->destParam2;
+		sn = p->destParam3;
+		sl = p->destParam4;
 	} else if (p->destAction == ACTION_ATTACKMON) {
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
@@ -1413,11 +1411,15 @@ static BOOL StartAttack(int pnum)
 			TalktoMonster(i);
 			return TRUE;
 		}
+		sn = p->destParam2;
+		sl = p->destParam3;
 	} else if (p->destAction == ACTION_ATTACKPLR) {
 		dx = plr[i]._pfutx;
 		dy = plr[i]._pfuty;
 		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
 			return FALSE;
+		sn = p->destParam2;
+		sl = p->destParam3;
 	} else {
 		assert(p->destAction == ACTION_OPERATE || p->destAction == ACTION_DISARM);
 		dx = p->destParam2;
@@ -1434,12 +1436,16 @@ static BOOL StartAttack(int pnum)
 		}
 		if (p->destAction == ACTION_DISARM && pnum == myplr)
 			NewCursor(CURSOR_HAND);
+		sn = SPL_ATTACK;
+		sl = 0;
 	}
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
 	p->_pmode = PM_ATTACK;
-	p->_pVar7 = 0; // 'flags' of sfx and hit
-	p->_pVar8 = 0; // speed helper
+	p->_pVar5 = sn; // attack 'spell'
+	p->_pVar6 = sl; // attack 'spell'-level
+	p->_pVar7 = 0;  // 'flags' of sfx and hit
+	p->_pVar8 = 0;  // speed helper
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
@@ -1453,7 +1459,7 @@ static BOOL StartAttack(int pnum)
 static void StartRangeAttack(int pnum)
 {
 	PlayerStruct *p;
-	int i, dx, dy, dir;
+	int i, dx, dy, sn, sl, dir;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("StartRangeAttack: illegal player %d", pnum);
@@ -1469,6 +1475,8 @@ static void StartRangeAttack(int pnum)
 	if (p->destAction == ACTION_RATTACK) {
 		dx = i;
 		dy = p->destParam2;
+		sn = p->destParam3;
+		sl = p->destParam4;
 	} else if (p->destAction == ACTION_RATTACKMON) {
 		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i);
@@ -1476,15 +1484,22 @@ static void StartRangeAttack(int pnum)
 		}
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
+		sn = p->destParam2;
+		sl = p->destParam3;
 	} else {
 		assert(p->destAction == ACTION_RATTACKPLR);
 		dx = plr[i]._pfutx;
 		dy = plr[i]._pfuty;
+		sn = p->destParam2;
+		sl = p->destParam3;
 	}
+
 	p->_pVar1 = dx;
 	p->_pVar2 = dy;
-	p->_pVar7 = 0; // 'flag' of launch
-	p->_pVar8 = 0; // speed helper
+	p->_pVar5 = sn; // attack 'spell'
+	p->_pVar6 = sl; // attack 'spell'-level
+	p->_pVar7 = 0;  // 'flag' of launch
+	p->_pVar8 = 0;  // speed helper
 	p->_pmode = PM_RATTACK;
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
@@ -2179,26 +2194,16 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	return FALSE;
 }
 
-static BOOL PlrHitMonst(int pnum, int mnum)
+static BOOL PlrHitMonst(int pnum, int sn, int sl, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	BOOL ret;
 	int hper, tmac, dam, skdam, damsl, dambl, dampc;
-#ifdef HELLFIRE
-	BOOL adjacentDamage = FALSE;
-#endif
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		app_fatal("PlrHitMonst: illegal monster %d", mnum);
 	}
-
-#ifdef HELLFIRE
-	if (pnum < 0) {
-		adjacentDamage = TRUE;
-		pnum = -(pnum + 1);
-	}
-#endif
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrHitMonst: illegal player %d", pnum);
@@ -2216,15 +2221,9 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 			tmac -= tmac >> 2;
 	}
 	hper = p->_pIHitChance - tmac;
-
-#ifdef HELLFIRE
-	if (adjacentDamage) {
-		if (p->_pLevel > 20)
-			hper -= 30;
-		else
-			hper -= (35 - p->_pLevel) * 2;
+	if (sn == SPL_SWIPE) {
+		hper -= 30 - sl * 2;
 	}
-#endif
 
 	if (hper < 5)
 		hper = 5;
@@ -2255,6 +2254,9 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		dam <<= 1;
 	}
 
+	if (sn == SPL_SWIPE) {
+		dam = (dam * (48 + sl)) >> 6;
+	}
 	if (p->_pILifeSteal != 0) {
 		skdam = (dam * p->_pILifeSteal) >> 7;
 		PlrIncHp(pnum, skdam);
@@ -2282,11 +2284,6 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 	}
 
-#ifdef HELLFIRE
-	if (adjacentDamage)
-		dam >>= 2;
-#endif
-
 	if (pnum == myplr) {
 		mon->_mhitpoints -= dam;
 	}
@@ -2305,7 +2302,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	return TRUE;
 }
 
-static BOOL PlrHitPlr(int offp, char defp)
+static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 {
 	PlayerStruct *ops, *dps;
 	int hper, blkper, dam, damsl, dambl, dampc;
@@ -2324,6 +2321,10 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 	ops = &plr[offp];
 	hper = ops->_pIHitChance - dps->_pIAC;
+	if (sn == SPL_SWIPE) {
+		hper -= 30 - sl * 2;
+	}
+
 	if (hper < 5)
 		hper = 5;
 	if (hper > 95)
@@ -2357,6 +2358,9 @@ static BOOL PlrHitPlr(int offp, char defp)
 		dam <<= 1;
 	}
 
+	if (sn == SPL_SWIPE) {
+		dam = (dam * (48 + sl)) >> 6;
+	}
 	if (ops->_pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * ops->_pILifeSteal) >> 7);
 	}
@@ -2388,21 +2392,19 @@ static BOOL PlrHitPlr(int offp, char defp)
 	return TRUE;
 }
 
-static BOOL PlrTryHit(int pnum, int dx, int dy)
+static BOOL PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 {
 	int mpo;
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, mpo);
+		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, sn, sl, mpo);
 	}
-	if (pnum < 0)
-		return FALSE;
 	mpo = dPlayer[dx][dy];
 	if (mpo != 0 && !FriendlyMode) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		return PlrHitPlr(pnum, mpo);
+		return PlrHitPlr(pnum, sn, sl, mpo);
 	}
 	mpo = dObject[dx][dy];
 	if (mpo != 0) {
@@ -2418,8 +2420,7 @@ static BOOL PlrTryHit(int pnum, int dx, int dy)
 static BOOL PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
-	int dx, dy;
-	BOOL didhit;
+	int dir, hitcnt;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("PlrDoAttack: illegal player %d", pnum);
@@ -2448,35 +2449,34 @@ static BOOL PlrDoAttack(int pnum)
 	if (p->_pAnimFrame == p->_pAFNum - 1) {
 		return FALSE;
 	}
+	dir = p->_pdir;
 	if (p->_pVar7 == 1) {
 		p->_pVar7++;
-		dx = p->_px + offset_x[p->_pdir];
-		dy = p->_py + offset_y[p->_pdir];
 
-		didhit = PlrTryHit(pnum, dx, dy);
-#ifdef HELLFIRE
-		if (p->_pIFlags2 & ISPH_SWIPE) {
-			dx = p->_px + offset_x[(p->_pdir + 1) % 8];
-			dy = p->_py + offset_y[(p->_pdir + 1) % 8];
-			didhit |= PlrTryHit(-(pnum + 1), dx, dy);
+		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA)) {
+			UseMana(pnum, p->_pVar5, SPLFROM_MANA);
+			hitcnt = PlrTryHit(pnum, p->_pVar5, p->_pVar6,
+				p->_px + offset_x[dir], p->_py + offset_y[dir]);
+			if (p->_pVar5 == SPL_SWIPE) {
+				hitcnt += PlrTryHit(pnum, SPL_SWIPE, p->_pVar6,
+					p->_px + offset_x[(dir + 1) % 8], p->_py + offset_y[(dir + 1) % 8]);
 
-			dx = p->_px + offset_x[(p->_pdir + 7) % 8];
-			dy = p->_py + offset_y[(p->_pdir + 7) % 8];
-			didhit |= PlrTryHit(-(pnum + 1), dx, dy);
-		}
-#endif
+				hitcnt += PlrTryHit(pnum, SPL_SWIPE, p->_pVar6,
+					p->_px + offset_x[(dir + 7) % 8], p->_py + offset_y[(dir + 7) % 8]);
+			}
 
-		if (didhit && WeaponDur(pnum, 30)) {
-			PlrStartStand(pnum, p->_pdir);
-			ClearPlrPVars(pnum);
-			return TRUE;
+			if (hitcnt != 0 && WeaponDur(pnum, 16 + hitcnt * 16)) {
+				PlrStartStand(pnum, dir);
+				ClearPlrPVars(pnum);
+				return TRUE;
+			}
 		}
 	}
 
 	if (p->_pAnimFrame < p->_pAFrames)
 		return FALSE;
 
-	PlrStartStand(pnum, p->_pdir);
+	PlrStartStand(pnum, dir);
 	ClearPlrPVars(pnum);
 	return TRUE;
 }
@@ -2508,12 +2508,16 @@ static BOOL PlrDoRangeAttack(int pnum)
 
 	if (p->_pVar7 == 0) {
 		p->_pVar7++;
-		AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, MIS_ARROW, 0, pnum, 0, 0, 0);
+		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA)
+		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
+			 spelldata[p->_pVar5].sMissile, 0, pnum, 0, 0, p->_pVar6)) {
+			UseMana(pnum, p->_pVar5, SPLFROM_MANA);
 
-		if (WeaponDur(pnum, 40)) {
-			PlrStartStand(pnum, p->_pdir);
-			ClearPlrPVars(pnum);
-			return TRUE;
+			if (WeaponDur(pnum, 40)) {
+				PlrStartStand(pnum, p->_pdir);
+				ClearPlrPVars(pnum);
+				return TRUE;
+			}
 		}
 	}
 
