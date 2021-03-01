@@ -211,7 +211,15 @@ typedef struct PlayerStruct {
 	int _pmode;
 	char walkpath[MAX_PATH_LENGTH];
 	int destAction;
-	int destParam1;
+	union {
+		int destParam1;
+		struct {
+			BYTE destParam1a;
+			BYTE destParam1b;
+			BYTE destParam1c;
+			BYTE destParam1d;
+		};
+	};
 	int destParam2;
 	int destParam3;
 	int destParam4;
@@ -241,12 +249,12 @@ typedef struct PlayerStruct {
 	int _pAnimWidth2;
 	int _plid;
 	int _pvid;
-	int _pSpell;
-	int _pTSpell;
-	int _pRSpell;
-	char _pSplFrom;
-	// enum spell_type
-	char _pRSplType;
+	BYTE _pLSpell;   // the selected spell for the primary action
+	BYTE _pLSplType; // the (RSPL_)type of the spell for the primary action
+	BYTE _pRSpell;   // the selected spell for the secondary action
+	BYTE _pRSplType; // the (RSPL_)type of the spell for the secondary action
+	BYTE _pTSpell;   // the spell to cast after the target is selected
+	char _pTSplFrom; // the source of the spell after the target is selected
 	char _pOilFrom;
 	BYTE _pSkillLvl[64];
 	BYTE _pSkillActivity[64];
@@ -385,9 +393,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[429];
+	int alignment[432];
 #else
-	int alignment[433];
+	int alignment[436];
 #endif
 #endif
 } PlayerStruct;

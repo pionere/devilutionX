@@ -638,7 +638,7 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != -1) {
 			PlayerStruct *p = &plr[myplr];
-			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pSplFrom, pcursinvitem);
+			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pTSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -665,13 +665,13 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_RESURRECT:
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
-			int sf = plr[myplr]._pSplFrom;
+			int sf = plr[myplr]._pTSplFrom;
 			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY, plr[pcursplr]._px, plr[pcursplr]._py, sn, sf, pcursplr);
 		}
 		break;
 	case CURSOR_TELEPORT: {
 		int sn = plr[myplr]._pTSpell;
-		int sf = plr[myplr]._pSplFrom;
+		int sf = plr[myplr]._pTSplFrom;
 		int sl = GetSpellLevel(myplr, sn);
 		if (pcursmonst != -1)
 			NetSendCmdWBParam4(TRUE, CMD_SPELLID, pcursmonst, sn, sf, sl);
@@ -683,7 +683,7 @@ BOOL TryIconCurs(BOOL bShift)
 	case CURSOR_HEALOTHER:
 		if (pcursplr != -1) {
 			int sn = plr[myplr]._pTSpell;
-			int sf = plr[myplr]._pSplFrom;
+			int sf = plr[myplr]._pTSplFrom;
 			int sl = GetSpellLevel(myplr, sn);
 			NetSendCmdWBParam4(TRUE, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		}
@@ -850,7 +850,7 @@ void AltActionBtnCmd(BOOL bShift)
 	if (spelldata[rspell].spCurs != CURSOR_NONE) {
 		NewCursor(spelldata[rspell].spCurs);
 		plr[myplr]._pTSpell = rspell;
-		plr[myplr]._pSplFrom = sf;
+		plr[myplr]._pTSplFrom = sf;
 		return;
 	}
 

@@ -1701,15 +1701,14 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->bParam1;
-		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam1].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELL;
-			plr[pnum].destParam1 = cmd->bParam3; // spllvl
 			plr[pnum].destParam2 = cmd->x;
 			plr[pnum].destParam3 = cmd->y;
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->bParam2; // invloc
+			plr[pnum].destParam1a = cmd->bParam1; // spell
+			plr[pnum].destParam1b = cmd->bParam2; // invloc
+			plr[pnum].destParam1c = cmd->bParam3; // spllvl
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1835,14 +1834,13 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->bParam2;
-		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam2].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1 = cmd->wParam1; // mnum
-			plr[pnum].destParam2 = cmd->bParam4; // spllvl
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->bParam3; // invloc
+			plr[pnum].destParam1a = cmd->bParam2; // spell
+			plr[pnum].destParam1b = cmd->bParam3; // invloc
+			plr[pnum].destParam1c = cmd->bParam4; // spllvl
+			plr[pnum].destParam2 = cmd->wParam1; // mnum
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -1855,14 +1853,13 @@ static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int spell = cmd->bParam2;
-		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
+		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam2].sTownSpell) {
 			ClrPlrPath(pnum);
 			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1 = cmd->wParam1; // pnum
-			plr[pnum].destParam2 = cmd->bParam4; // spllvl
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplFrom = cmd->bParam3; // invloc
+			plr[pnum].destParam1a = cmd->bParam2; // spell
+			plr[pnum].destParam1b = cmd->bParam3; // invloc
+			plr[pnum].destParam1c = cmd->bParam4; // spllvl
+			plr[pnum].destParam2 = cmd->wParam1; // pnum
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}

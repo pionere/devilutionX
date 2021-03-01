@@ -883,8 +883,8 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 	p = &plr[pnum];
 
 	if (FirstTime) {
-		p->_pRSplType = RSPLTYPE_INVALID;
-		p->_pRSpell = p->_pSpell = SPL_INVALID;
+		p->_pRSpell = p->_pLSpell = SPL_INVALID;
+		p->_pRSplType = p->_pLSplType = RSPLTYPE_INVALID;
 		p->pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
@@ -1523,7 +1523,7 @@ static void StartBlock(int pnum, int dir)
 static void StartSpell(int pnum)
 {
 	PlayerStruct *p;
-	int i, dx, dy, spllvl;
+	int i, dx, dy;
 	player_graphic gfx;
 	unsigned char **anim;
 	SpellData *sd;
@@ -1537,32 +1537,29 @@ static void StartSpell(int pnum)
 		return;
 	}
 
-	i = p->destParam1;
+	i = p->destParam2;
 	if (p->destAction == ACTION_SPELL) {
-		dx = p->destParam2;
+		dx = i;
 		dy = p->destParam3;
-		spllvl = i;
 	} else if (p->destAction == ACTION_SPELLMON) {
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
-		spllvl = p->destParam2;
 	} else {
 		assert(p->destAction == ACTION_SPELLPLR);
 		dx = plr[i]._pfutx;
 		dy = plr[i]._pfuty;
-		spllvl = p->destParam2;
 	}
 
-	p->_pVar1 = dx;           // x-tile of the target
-	p->_pVar2 = dy;           // y-tile of the target
-	p->_pVar3 = p->_pSpell;   // the spell to be cast
-	p->_pVar4 = spllvl;       // the level of the spell to be used
-	p->_pVar5 = p->_pSplFrom; // source of the spell
-	p->_pVar7 = FALSE;        // 'flag' of cast
-	p->_pVar8 = 0;            // speed helper
+	p->_pVar1 = dx;                   // x-tile of the target
+	p->_pVar2 = dy;                   // y-tile of the target
+	p->_pVar3 = p->destParam1a;       // the spell to be cast -- used in SyncPlrAnim
+	p->_pVar4 = p->destParam1c;       // the level of the spell to be used
+	p->_pVar5 = (char)p->destParam1b; // source of the spell
+	p->_pVar7 = FALSE;                // 'flag' of cast
+	p->_pVar8 = 0;                    // speed helper
 	p->_pmode = PM_SPELL;
 
-	sd = &spelldata[p->_pSpell];
+	sd = &spelldata[p->_pVar3];
 	if (sd->sTargeted)
 		p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
 	switch (sd->sType) {
@@ -3271,7 +3268,7 @@ void SyncPlrAnim(int pnum)
 		break;
 	case PM_SPELL:
 		if (pnum == myplr)
-			sType = spelldata[p->_pSpell].sType;
+			sType = spelldata[p->_pVar3].sType;
 		else
 			sType = STYPE_FIRE;
 		switch (sType) {

@@ -225,13 +225,15 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_plid);
 	CopyInt(tbuff, &p->_pvid);
 
-	CopyInt(tbuff, &p->_pSpell);
-	CopyInt(tbuff, &p->_pTSpell);
-	CopyInt(tbuff, &p->_pRSpell);
-	CopyChar(tbuff, &p->_pSplFrom);
+	CopyChar(tbuff, &p->_pLSpell);
+	CopyChar(tbuff, &p->_pLSplType);
+	CopyChar(tbuff, &p->_pRSpell);
 	CopyChar(tbuff, &p->_pRSplType);
+	CopyChar(tbuff, &p->_pTSpell);
+	CopyChar(tbuff, &p->_pTSplFrom);
 	CopyChar(tbuff, &p->_pOilFrom);
 	tbuff += 1; // Alignment
+
 	CopyBytes(tbuff, 64, &p->_pSkillLvl);
 	CopyBytes(tbuff, 64, &p->_pSkillActivity);
 	CopyInts(tbuff, 64, &p->_pSkillExp);
@@ -927,13 +929,15 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_plid, tbuff);
 	CopyInt(&p->_pvid, tbuff);
 
-	CopyInt(&p->_pSpell, tbuff);
-	CopyInt(&p->_pTSpell, tbuff);
-	CopyInt(&p->_pRSpell, tbuff);
-	CopyChar(&p->_pSplFrom, tbuff);
+	CopyChar(&p->_pLSpell, tbuff);
+	CopyChar(&p->_pLSplType, tbuff);
+	CopyChar(&p->_pRSpell, tbuff);
 	CopyChar(&p->_pRSplType, tbuff);
+	CopyChar(&p->_pTSpell, tbuff);
+	CopyChar(&p->_pTSplFrom, tbuff);
 	CopyChar(&p->_pOilFrom, tbuff);
 	tbuff += 1; // Alignment
+
 	CopyBytes(&p->_pSkillLvl, 64, tbuff);
 	CopyBytes(&p->_pSkillActivity, 64, tbuff);
 	CopyInts(&p->_pSkillExp, 64, tbuff);

@@ -2003,7 +2003,7 @@ BOOL UseInvItem(int cii)
 			//if (pnum == myplr)
 				NewCursor(spelldata[sn].scCurs);
 			plr[pnum]._pTSpell = sn;
-			plr[pnum]._pSplFrom = cii;
+			plr[pnum]._pTSplFrom = cii;
 		} else {
 			NetSendCmdLocBParam3(TRUE, CMD_SPELLXY,
 				cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
