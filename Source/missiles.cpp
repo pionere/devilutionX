@@ -35,10 +35,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = k + 1;
 		*maxd = k + 10;
 		break;
-	case SPL_HEAL:
-		*mind = -1;
-		*maxd = -1;
-		break;
+#ifdef HELLFIRE
+	case SPL_RUNELIGHT:
+#endif
 	case SPL_LIGHTNING:
 		*mind = 1;
 		*maxd = ((p->_pMagic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
@@ -108,6 +107,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = ((p->_pMagic >> 3) + sl + 1) * 4;
 		*maxd = ((p->_pMagic >> 3) + 2 * sl + 2) * 4;
 		break;
+#ifdef HELLFIRE
+	case SPL_RUNENOVA:
+#endif
 	case SPL_NOVA:
 		*mind = 1;
 		*maxd = (p->_pMagic >> 1) + (sl << 4);
@@ -145,9 +147,18 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = 1;
 		*maxd = ((p->_pMagic >> 1) + sl) << (-3 + 5);
 		break;
+	case SPL_RUNEIMMOLAT:
 	case SPL_IMMOLAT:
 		*mind = 1 + (p->_pMagic >> 3);
 		*maxd = *mind + 4;
+		for (k = 0; k < sl; k++) {
+			*mind += *mind >> 3;
+			*maxd += *maxd >> 3;
+		}
+		break;
+	case SPL_RUNEFIRE:
+		*mind = 2 * p->_pLevel + 4;
+		*maxd = *mind + 18;
 		for (k = 0; k < sl; k++) {
 			*mind += *mind >> 3;
 			*maxd += *maxd >> 3;
