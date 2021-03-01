@@ -71,7 +71,6 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddApocaExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -117,7 +116,6 @@ void MI_Lightning(int mi);
 void MI_Town(int mi);
 void MI_Flash(int mi);
 void MI_Flash2(int mi);
-void MI_Etherealize(int mi);
 void MI_FireWave(int mi);
 void MI_Guardian(int mi);
 void MI_Chain(int mi);

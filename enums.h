@@ -1488,7 +1488,7 @@ typedef enum missile_id {
 	//MIS_NULL_1F,
 	//MIS_INVISIBL,
 	MIS_GOLEM,
-	MIS_ETHEREALIZE,
+	//MIS_ETHEREALIZE,
 	//MIS_BLODBUR,	// TODO: Check beta
 	//MIS_EXAPOCA,
 	MIS_FIREWALLC,
@@ -2732,12 +2732,10 @@ typedef enum spell_id {
 	SPL_CHAIN,
 	SPL_WAVE,
 	SPL_NOVA,
-	SPL_INVISIBIL,
 	SPL_FLAME,
 	SPL_GOLEM,
 	SPL_BLODBOIL,
 	SPL_TELEPORT,
-	SPL_ETHEREALIZE,
 	SPL_REPAIR,
 	SPL_RECHARGE,
 	SPL_DISARM,
@@ -3585,9 +3583,8 @@ typedef enum player_graphic {
 } player_graphic;
 
 typedef enum player_spell_effects {
-	PSE_ETHERALIZED = 1 << 0,
-	PSE_BLOOD_BOIL  = 1 << 1,
-	PSE_LETHARGY    = 1 << 2,
+	PSE_BLOOD_BOIL  = 1 << 0,
+	PSE_LETHARGY    = 1 << 1,
 } player_spell_effects;
 
 typedef enum anim_weapon_id {

@@ -1906,16 +1906,11 @@ void RemovePlrMissiles(int pnum)
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
-		if (missile[mi]._miSource != pnum)
-			continue;
-		if (missile[mi]._miType == MIS_STONE) {
+		if (missile[mi]._miSource == pnum && missile[mi]._miType == MIS_STONE) {
 			monster[missile[mi]._miVar2]._mmode = missile[mi]._miVar1;
-		} else if (missile[mi]._miType == MIS_ETHEREALIZE) {
-			ClearMissileSpot(mi);
-		} else
-			continue;
-		DeleteMissile(mi, i);
-		i--;
+			DeleteMissile(mi, i);
+			i--;
+		}
 	}
 }
 
@@ -2351,17 +2346,16 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 
 	dam = 0;
-	if (!(dps->_pSpellFlags & PSE_ETHERALIZED)) {
-		damsl = ops->_pISlMaxDam;
-		if (damsl != 0)
-			dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, damsl);
-		dambl = ops->_pIBlMaxDam;
-		if (dambl != 0)
-			dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, dambl);
-		dampc = ops->_pIPcMaxDam;
-		if (dampc != 0)
-			dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, dampc);
-	}
+	damsl = ops->_pISlMaxDam;
+	if (damsl != 0)
+		dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, damsl);
+	dambl = ops->_pIBlMaxDam;
+	if (dambl != 0)
+		dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, dambl);
+	dampc = ops->_pIPcMaxDam;
+	if (dampc != 0)
+		dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, dampc);
+
 	if (random_(6, 200) < ops->_pICritChance) {
 		dam <<= 1;
 	}
@@ -2389,8 +2383,6 @@ static BOOL PlrHitPlr(int offp, char defp)
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += fdam + ldam + mdam + adam;
 		AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, adam);
-	} else if (dam == 0) {
-		return FALSE;
 	}
 
 	if (offp == myplr)

@@ -59,10 +59,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_INFRA:
 	case SPL_RNDTELEPORT:
 	case SPL_MANASHIELD:
-	case SPL_INVISIBIL:
 	case SPL_BLODBOIL:
 	case SPL_TELEPORT:
-	case SPL_ETHEREALIZE:
 	case SPL_REPAIR:
 	case SPL_RECHARGE:
 	case SPL_DISARM:
@@ -792,9 +790,6 @@ static BOOL PlayerTrapHit(int pnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miSubType == 0) {
-		if (p->_pSpellFlags & PSE_ETHERALIZED) {
-			return FALSE;
-		}
 		tmp = p->_pIAC;
 		hper = 100 - (tmp >> 1);
 		hper -= mis->_miDist << 1;
@@ -853,9 +848,6 @@ static BOOL PlayerMHit(int pnum, int mi)
 	mis = &missile[mi];
 	mon = &monster[mis->_miSource];
 	if (mis->_miSubType == 0) {
-		if (p->_pSpellFlags & PSE_ETHERALIZED) {
-			return FALSE;
-		}
 		tmp = p->_pIAC;
 		hper = 30 + mon->mHit
 		    + (mon->mLevel << 1)
@@ -957,19 +949,17 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 
 	if (mis->_miSubType == 0) {
 		dam = 0;
-		if (!(dps->_pSpellFlags & PSE_ETHERALIZED)) {
-			int sldam = ops->_pISlMaxDam;
-			if (sldam != 0) {
-				dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, sldam);
-			}
-			int bldam = ops->_pIBlMaxDam;
-			if (bldam != 0) {
-				dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, bldam);
-			}
-			int pcdam = ops->_pIPcMaxDam;
-			if (pcdam != 0) {
-				dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, pcdam);
-			}
+		int sldam = ops->_pISlMaxDam;
+		if (sldam != 0) {
+			dam += CalcPlrDam(dps, MISR_SLASH, ops->_pISlMinDam, sldam);
+		}
+		int bldam = ops->_pIBlMaxDam;
+		if (bldam != 0) {
+			dam += CalcPlrDam(dps, MISR_BLUNT, ops->_pIBlMinDam, bldam);
+		}
+		int pcdam = ops->_pIPcMaxDam;
+		if (pcdam != 0) {
+			dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, pcdam);
 		}
 
 		if (ops->_pILifeSteal != 0) {
@@ -995,8 +985,7 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 		if ((ldam | fdam | mdam | adam) != 0) {
 			dam += ldam + fdam + mdam + adam;
 			AddElementalExplosion(dps->_px, dps->_py, fdam, ldam, mdam, adam);
-		} else if (dam == 0)
-			return FALSE;
+		}
 	} else {
 		dam = CalcPlrDam(dps, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
@@ -1204,7 +1193,6 @@ void InitMissiles()
 	char *pTmp;
 
 	p = &plr[myplr];
-	p->_pSpellFlags &= ~PSE_ETHERALIZED;
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
@@ -2258,25 +2246,6 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miVar5 = dy;
 	if (!(MINION_NR_INACTIVE(misource)) && misource == myplr)
 		MonStartKill(misource, misource);
-	return MIRES_DONE;
-}
-
-int AddEtherealize(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	MissileStruct *mis;
-	PlayerStruct *p;
-	int i, range;
-
-	assert((DWORD)misource < MAX_PLRS);
-	mis = &missile[mi];
-	p = &plr[misource];
-	range = p->_pLevel << 3;
-	for (i = spllvl; i > 0; i--) {
-		range += range >> 3;
-	}
-	// TODO: add support for spell duration modifier
-	//range += range * p->_pISplDur >> 7;
-	mis->_miRange = range;
 	return MIRES_DONE;
 }
 
@@ -3440,41 +3409,6 @@ void MI_Flash2(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-	}
-	PutMissile(mi);
-}
-
-void MI_Etherealize(int mi)
-{
-	MissileStruct *mis;
-	PlayerStruct *p;
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	p = &plr[mis->_miSource];
-	mis->_mix = p->_px;
-	mis->_miy = p->_py;
-	mis->_mitxoff = p->_pxoff << 16;
-	mis->_mityoff = p->_pyoff << 16;
-	if (p->_pmode == PM_WALK3) {
-		mis->_misx = p->_pfutx;
-		mis->_misy = p->_pfuty;
-	} else {
-		mis->_misx = p->_px;
-		mis->_misy = p->_py;
-	}
-	GetMissilePos(mi);
-	if (p->_pmode == PM_WALK3) {
-		if (p->_pdir == DIR_W)
-			mis->_mix++;
-		else
-			mis->_miy++;
-	}
-	if (mis->_miRange == 0 || p->_pHitPoints < (1 << 6)) {
-		mis->_miDelFlag = TRUE;
-		p->_pSpellFlags &= ~PSE_ETHERALIZED;
-	} else {
-		p->_pSpellFlags |= PSE_ETHERALIZED;
 	}
 	PutMissile(mi);
 }
