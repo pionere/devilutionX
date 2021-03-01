@@ -3125,6 +3125,7 @@ static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 	if (os->_oSelFlag != 0) {
 		os->_oSelFlag = 0;
 		if (!deltaload) {
+			SetRndSeed(os->_oRndSeed);
 			pc = plr[pnum]._pClass;
 			switch (pc) {
 			case PC_WARRIOR:
