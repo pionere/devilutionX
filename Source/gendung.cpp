@@ -189,7 +189,7 @@ void FillSolidBlockTbls()
 		ASSUME_UNREACHABLE
 		break;
 	}
-
+	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
 
 	for (i = 1; i <= dwTiles; i++) {

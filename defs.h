@@ -122,7 +122,7 @@
 #define MAXOBJECTS				127
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
-#define MAXTILES				2048
+#define MAXTILES				2047
 #define MAXVISION				MAX_PLRS
 #define MDMAXX					40
 #define MDMAXY					40
