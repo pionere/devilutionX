@@ -1432,23 +1432,6 @@ static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-/*static DWORD On_SBSPELL(TCmd *pCmd, int pnum)
-{
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
-
-	if (gbBufferMsgs != 1) {
-		int spell = cmd->wParam1;
-		if (leveltype != DTYPE_TOWN || spelldata[spell].sTownSpell) {
-			plr[pnum]._pSpell = spell;
-			plr[pnum]._pSplType = plr[pnum]._pSBkSplType;
-			plr[pnum]._pSplFrom = 1;
-			plr[pnum].destAction = ACTION_SPELL;
-		} else
-			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
-	}
-
-	return sizeof(*cmd);
-}*/
 static DWORD On_BLOCK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
@@ -2422,8 +2405,6 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_ADDMAG(pCmd, pnum);
 	case CMD_ADDVIT:
 		return On_ADDVIT(pCmd, pnum);
-	//case CMD_SBSPELL:
-	//	return On_SBSPELL(pCmd, pnum);
 	case CMD_BLOCK:
 		return On_BLOCK(pCmd, pnum);
 	case CMD_GOTOGETITEM:

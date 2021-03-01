@@ -366,7 +366,7 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 /**
  * Sets the spell frame to draw and its position then draws it.
  */
-void DrawSpell()
+void DrawRSpell()
 {
 	char st;
 	int spl, lvl;
@@ -464,16 +464,17 @@ void DrawSpeedBook()
 				y -= SPLICONLENGTH;
 			}
 		}
-		if (sn != 1 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
+		if (sn != 1 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
 			x -= SPLICONLENGTH;
-		if (x == PANEL_X + 12 - SPLICONLENGTH) {
-			x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-			y -= SPLICONLENGTH;
+			if (x == PANEL_X + 12 - SPLICONLENGTH) {
+				x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+				y -= SPLICONLENGTH;
+			}
 		}
 	}
 }
 
-void SetSpell()
+void SetRSpell()
 {
 	spselflag = FALSE;
 	if (pSpell != SPL_INVALID) {
@@ -858,16 +859,18 @@ void DrawCtrlBtns()
  */
 void DoSpeedBook()
 {
-	PlayerStruct *p;
-	unsigned __int64 spell, spells;
-	int xo, yo, X, Y, i, j;
-
-	p = &plr[myplr];
 	spselflag = TRUE;
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	PlayerStruct *p;
+	unsigned __int64 mask;
+	int xo, yo, X, Y, i, sn;
+
 	xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	yo = PANEL_Y - 17;
 	X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
 	Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
+	p = &plr[myplr];
 	if (p->_pRSpell != SPL_INVALID) {
 		static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 1.");
 		static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 2.");
@@ -876,44 +879,44 @@ void DoSpeedBook()
 		for (i = 0; i < 4; i++) {
 			switch (i) {
 			case RSPLTYPE_ABILITY:
-				spells = p->_pAblSkills;
+				mask = p->_pAblSkills;
 				break;
 			case RSPLTYPE_SPELL:
-				spells = p->_pMemSkills;
+				mask = p->_pMemSkills;
 				break;
 			case RSPLTYPE_SCROLL:
-				spells = p->_pScrlSkills;
+				mask = p->_pScrlSkills;
 				break;
 			case RSPLTYPE_CHARGES:
-				spells = p->_pISpells;
+				mask = p->_pISpells;
 				break;
 			default:
 				ASSUME_UNREACHABLE
 				break;
 			}
-			for (spell = 1, j = 1; j < NUM_SPELLS; spell <<= 1, j++) {
-				if (spell & spells) {
-					if (j == p->_pRSpell && i == p->_pRSplType) {
-						X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
-						Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
-					}
-					xo -= SPLICONLENGTH;
-					if (xo == PANEL_X + 12 - SPLICONLENGTH) {
-						xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-						yo -= SPLICONLENGTH;
-					}
+			for (sn = 1; mask != 0 && sn < NUM_SPELLS; mask >>= 1, sn++) {
+				if (!(mask & 1))
+					continue;
+				if (sn == p->_pRSpell && i == p->_pRSplType) {
+					X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
+					Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
+				}
+				xo -= SPLICONLENGTH;
+				if (xo == PANEL_X + 12 - SPLICONLENGTH) {
+					xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+					yo -= SPLICONLENGTH;
 				}
 			}
-			if (spells != 0 && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS)
+			if (sn != 1 && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
 				xo -= SPLICONLENGTH;
-			if (xo == PANEL_X + 12 - SPLICONLENGTH) {
-				xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-				yo -= SPLICONLENGTH;
+				if (xo == PANEL_X + 12 - SPLICONLENGTH) {
+					xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
+					yo -= SPLICONLENGTH;
+				}
 			}
 		}
 	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
 		SetCursorPos(X, Y);
 #endif

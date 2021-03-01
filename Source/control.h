@@ -31,14 +31,14 @@ extern int numpanbtns;
 extern BOOL spselflag;
 
 void DrawSpeedBook();
-void SetSpell();
+void SetRSpell();
 void SetSpeedSpell(int slot);
 void ToggleSpell(int slot);
 void PrintChar(int sx, int sy, int nCel, char col);
 void PrintString(int x, int y, int endX, const char *pszStr, BOOL center, BYTE col, int kern);
 void DrawLifeFlask();
 void DrawManaFlask();
-void DrawSpell();
+void DrawRSpell();
 void InitControlPan();
 void DrawCtrlBtns();
 void DoSpeedBook();

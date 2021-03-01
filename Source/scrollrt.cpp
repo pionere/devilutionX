@@ -1191,7 +1191,7 @@ static void DrawView()
 		DrawAutomap();
 	}
 	//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-		DrawSpell();
+		DrawRSpell();
 	//}
 	DrawLifeFlask();
 	DrawManaFlask();

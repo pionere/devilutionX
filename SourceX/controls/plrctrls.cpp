@@ -1123,7 +1123,7 @@ void PerformPrimaryAction()
 	}
 
 	if (spselflag) {
-		SetSpell();
+		SetRSpell();
 		return;
 	}
 
@@ -1183,7 +1183,7 @@ void PerformSpellAction()
 		return;
 
 	if (spselflag) {
-		SetSpell();
+		SetRSpell();
 		return;
 	}
 

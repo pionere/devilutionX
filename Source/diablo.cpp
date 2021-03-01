@@ -706,7 +706,7 @@ static void ActionBtnDown(BOOL bShift)
 	assert(!doomflag);
 
 	if (spselflag) {
-		SetSpell();
+		SetRSpell();
 		return;
 	}
 
@@ -875,7 +875,7 @@ static void AltActionBtnDown(BOOL bShift)
 		return;
 
 	if (spselflag) {
-		SetSpell();
+		SetRSpell();
 		return;
 	}
 
