@@ -2879,6 +2879,13 @@ typedef enum _cmd_id {
 	FAKE_CMD_DROPID,
 } _cmd_id;
 
+// TODO: check the meaning of the values
+typedef enum _dcmd_id {
+	DCMD_SPAWNED,
+	DCMD_TAKEN,
+	DCMD_DROPPED,
+} _dcmd_id;
+
 typedef enum _talker_id {
 	TOWN_SMITH,
 	TOWN_HEALER,

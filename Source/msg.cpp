@@ -207,6 +207,8 @@ static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
 			src++;
 		} else {
 			copy_pod(*dst, *reinterpret_cast<TCmdPItem *>(src));
+			// TODO: validate data from internet
+			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
 			src += sizeof(TCmdPItem);
 		}
 	}
@@ -484,12 +486,12 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 
 	/// ASSERT: assert(pSync != NULL);
 	/// ASSERT: assert(bLevel < NUMLEVELS);
-	sgbDeltaChanged = TRUE;
 
 	pD = &sgLevels[bLevel].monster[pSync->_mndx];
 	if (pD->_mhitpoints == 0)
 		return;
 
+	sgbDeltaChanged = TRUE;
 	pD->_mx = pSync->_mx;
 	pD->_my = pSync->_my;
 	pD->_mactive = UCHAR_MAX;
@@ -527,10 +529,10 @@ static void delta_leave_sync(BYTE bLevel)
 		if (monster[mnum]._mhitpoints != 0) {
 			sgbDeltaChanged = TRUE;
 			pD = &sgLevels[bLevel].monster[mnum];
+			pD->_menemy = encode_enemy(mnum);
 			pD->_mx = monster[mnum]._mx;
 			pD->_my = monster[mnum]._my;
 			pD->_mdir = monster[mnum]._mdir;
-			pD->_menemy = encode_enemy(mnum);
 			pD->_mhitpoints = monster[mnum]._mhitpoints;
 			pD->_mactive = monster[mnum]._msquelch;
 		}
@@ -560,22 +562,21 @@ static BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
 		if (pD->bCmd == 0xFF || pD->wIndx != pI->wIndx || pD->wCI != pI->wCI || pD->dwSeed != pI->dwSeed)
 			continue;
 
-		if (pD->bCmd == CMD_WALKXY) {
+		switch (pD->bCmd) {
+		case DCMD_TAKEN:
 			return TRUE;
-		}
-		if (pD->bCmd == CMD_STAND) {
+		case DCMD_SPAWNED:
 			sgbDeltaChanged = TRUE;
-			pD->bCmd = CMD_WALKXY;
+			pD->bCmd = DCMD_TAKEN;
 			return TRUE;
-		}
-		if (pD->bCmd == CMD_ACK_PLRINFO) {
+		case DCMD_DROPPED:
 			sgbDeltaChanged = TRUE;
 			pD->bCmd = 0xFF;
 			return TRUE;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
-
-		app_fatal("delta:1");
-		break;
 	}
 
 	if ((pI->wCI & CF_PREGEN) == 0)
@@ -585,7 +586,7 @@ static BOOL delta_get_item(TCmdGItem *pI, BYTE bLevel)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			sgbDeltaChanged = TRUE;
-			pD->bCmd = CMD_WALKXY;
+			pD->bCmd = DCMD_TAKEN;
 			pD->x = pI->x;
 			pD->y = pI->y;
 			pD->wIndx = pI->wIndx;
@@ -623,13 +624,14 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd != CMD_WALKXY
-		 && pD->bCmd != 0xFF
+		if (pD->bCmd != 0xFF
 		 && pD->wIndx == pI->wIndx
 		 && pD->wCI == pI->wCI
 		 && pD->dwSeed == pI->dwSeed) {
-			if (pD->bCmd == CMD_ACK_PLRINFO)
+			if (pD->bCmd == DCMD_DROPPED)
 				return;
+			if (pD->bCmd == DCMD_TAKEN)
+				continue; // BUGFIX: should return instead? otherwise the item is duped...
 			app_fatal("Trying to drop a floor item?");
 		}
 	}
@@ -639,7 +641,7 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 		if (pD->bCmd == 0xFF) {
 			sgbDeltaChanged = TRUE;
 			copy_pod(*pD, *pI);
-			pD->bCmd = CMD_ACK_PLRINFO;
+			pD->bCmd = DCMD_DROPPED;
 			pD->x = x;
 			pD->y = y;
 			return;
@@ -740,11 +742,13 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-			&& pD->wIndx == is->_iIdx
-			&& pD->wCI == is->_iCreateInfo
-			&& pD->dwSeed == is->_iSeed
-			&& (pD->bCmd == CMD_WALKXY || pD->bCmd == CMD_STAND)) {
-			return;
+		 && pD->wIndx == is->_iIdx
+		 && pD->wCI == is->_iCreateInfo
+		 && pD->dwSeed == is->_iSeed) {
+			if (pD->bCmd == DCMD_TAKEN || pD->bCmd == DCMD_SPAWNED)
+				return;
+			if (pD->bCmd == DCMD_DROPPED)
+				continue; // BUGFIX: should return instead? otherwise the item is duped...
 		}
 	}
 
@@ -752,7 +756,7 @@ void DeltaAddItem(int ii)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			sgbDeltaChanged = TRUE;
-			pD->bCmd = CMD_STAND;
+			pD->bCmd = DCMD_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
 
@@ -894,7 +898,7 @@ void DeltaLoadLevel()
 
 	itm = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
-		if (itm->bCmd == CMD_WALKXY) {
+		if (itm->bCmd == DCMD_TAKEN) {
 			ii = FindGetItem(
 				itm->wIndx,
 				itm->wCI,
@@ -904,7 +908,7 @@ void DeltaLoadLevel()
 					dItem[item[ii]._ix][item[ii]._iy] = 0;
 				DeleteItem(ii, i);
 			}
-		} else if (itm->bCmd == CMD_ACK_PLRINFO) {
+		} else if (itm->bCmd == DCMD_DROPPED) {
 			UnPackPItem(itm);
 			x = itm->x;
 			y = itm->y;
