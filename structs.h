@@ -1161,9 +1161,10 @@ typedef struct TMenuItem {
 //////////////////////////////////////////////////
 
 typedef struct SpellData {
-	unsigned char sName;
-	unsigned char sManaCost;
-	unsigned char sType;
+	BYTE sName;
+	BYTE sManaCost;
+	BYTE sType;
+	BYTE sIcon;
 	const char *sNameText;
 	char sBookLvl;
 	char sStaffLvl;

@@ -107,84 +107,6 @@ const BYTE gbFontTransTbl[256] = {
 	// clang-format on
 };
 
-/* data */
-
-/** Maps from spell_id to spelicon.cel frame number.
-  unused ones : 17 (white burning eye),
-				31 (red skull),
-				32 (red star),
-				33 (red burning stair?),
-				34 (bull-head),
-  unavailables: 19 (3-bladed fan?),
-				20 (teleport?),
-				22 (fan)
- */
-const BYTE SpellITbl[NUM_SPELLS] = {
-	27,// SPL_NULL
-	1, // SPL_FIREBOLT
-	2, // SPL_HEAL
-	3, // SPL_LIGHTNING
-	4, // SPL_FLASH
-	5, // SPL_IDENTIFY
-	6, // SPL_FIREWALL
-	7, // SPL_TOWN
-	8, // SPL_STONE
-	9, // SPL_INFRA
-	28,// SPL_RNDTELEPORT
-	13,// SPL_MANASHIELD
-	12,// SPL_FIREBALL
-	18,// SPL_GUARDIAN
-	16,// SPL_CHAIN
-	14,// SPL_WAVE
-	//18,// SPL_DOOMSERP
-	//19,// SPL_BLODRIT
-	11,// SPL_NOVA
-	//20,// SPL_INVISIBIL
-	15,// SPL_FLAME
-	21,// SPL_GOLEM
-	23,// SPL_BLODBOIL
-	24,// SPL_TELEPORT
-	//25,// SPL_APOCA
-	//22,// SPL_ETHEREALIZE
-	26,// SPL_REPAIR
-	29,// SPL_RECHARGE
-	37,// SPL_DISARM
-	38,// SPL_ELEMENT
-	39,// SPL_CBOLT
-	42,// SPL_HBOLT
-	41,// SPL_RESURRECT
-	40,// SPL_TELEKINESIS
-	10,// SPL_HEALOTHER
-	36,// SPL_FLARE
-	//30,// SPL_BONESPIRIT
-#ifdef HELLFIRE
-	//51,// SPL_MANA
-	//51,// SPL_MAGI
-	//50,// SPL_JESTER
-	46,// SPL_LIGHTWALL
-	47,// SPL_IMMOLAT
-	//43,// SPL_WARP
-	//45,// SPL_REFLECT
-	//48,// SPL_BERSERK
-	49,// SPL_FIRERING
-	//44,// SPL_SEARCH
-	35,// SPL_RUNEFIRE
-	35,// SPL_RUNELIGHT
-	35,// SPL_RUNENOVA
-	35,// SPL_RUNEIMMOLAT
-	35,// SPL_RUNESTONE
-	40,// SPL_WHITTLE
-	28,// SPL_WALK
-	32,// SPL_WATTACK
-	48,// SPL_ATTACK
-	45,// SPL_BLOCK
-#else
-	28,// SPL_WALK
-	32,// SPL_WATTACK
-	22,// SPL_ATTACK
-	19,// SPL_BLOCK
-#endif
-};
 const int PanBtnPos[NUM_PANBTNS][2] = {
 	// clang-format off
 	{   0, 20 + 0 * MENUBTN_HEIGHT }, // menu button
@@ -387,7 +309,7 @@ void DrawRSpell()
 	}
 	SetSpellTrans(st);
 	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1, pSpellCels,
-		SpellITbl[spl], SPLICONLENGTH);
+		spelldata[spl].sIcon, SPLICONLENGTH);
 	DrawSpellIconOverlay(spl, st, lvl, SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1);
 }
 
@@ -438,7 +360,7 @@ void DrawSpeedBook()
 			if (currlevel == 0 && !spelldata[sn].sTownSpell)
 				t = RSPLTYPE_INVALID;
 			SetSpellTrans(t);
-			DrawSpellCel(x, y, pSpellCels, SpellITbl[sn], SPLICONLENGTH);
+			DrawSpellCel(x, y, pSpellCels, spelldata[sn].sIcon, SPLICONLENGTH);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
@@ -1948,7 +1870,7 @@ void DrawSpellBook()
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn, TRUE);
 			SetSpellTrans(st);
-			DrawSpellCel(sx, yp, pSBkIconCels, SpellITbl[sn], SBOOK_CELWIDTH);
+			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
 			if (sn == p->_pRSpell && st == p->_pRSplType) {
 				SetSpellTrans(RSPLTYPE_ABILITY);
 				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);

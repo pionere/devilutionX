@@ -53,25 +53,28 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind >>= 6;
 		*maxd >>= 6;
 		break;
-	case SPL_IDENTIFY:
-	case SPL_TOWN:
+	case SPL_NULL:
+	case SPL_WALK:
+	case SPL_BLOCK:
+	case SPL_ATTACK:
+	case SPL_WATTACK:
 	case SPL_STONE:
 	case SPL_INFRA:
-	case SPL_RNDTELEPORT:
 	case SPL_MANASHIELD:
-	case SPL_BLODBOIL:
+	case SPL_TELEKINESIS:
 	case SPL_TELEPORT:
+	case SPL_RNDTELEPORT:
+	case SPL_TOWN:
+	case SPL_HEAL:
+	case SPL_HEALOTHER:
+	case SPL_RESURRECT:
+	case SPL_IDENTIFY:
 	case SPL_REPAIR:
 	case SPL_RECHARGE:
 	case SPL_DISARM:
-	case SPL_RESURRECT:
-	case SPL_TELEKINESIS:
-	case SPL_HEALOTHER:
 #ifdef HELLFIRE
-	case SPL_RUNEFIRE:
-	case SPL_RUNELIGHT:
-	case SPL_RUNENOVA:
-	case SPL_RUNEIMMOLAT:
+	case SPL_BLODBOIL:
+	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
 #endif
 		*mind = -1;
