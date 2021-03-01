@@ -1582,7 +1582,6 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 	int _moldx, _moldy;
 
 	mon = &monster[mnum];
-	PlaySFX(USFX_DIABLOD);
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
 		NetSendCmdQuest(TRUE, Q_DIABLO);
@@ -1610,9 +1609,11 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 		pmonster->_mfutx = _moldx;
 		dMonster[_moldx][_moldy] = j + 1;
 	}
+	mon->_mVar1 = 0;
+
+	PlaySfxLoc(USFX_DIABLOD, mon->_mx, mon->_my);
 	AddLight(mon->_mx, mon->_my, 8);
 	DoVision(mon->_mx, mon->_my, 8, FALSE, TRUE);
-	mon->_mVar1 = 0;
 }
 
 static void SpawnLoot(int mnum, BOOL sendmsg)
@@ -4514,12 +4515,12 @@ void ProcessMonsters()
 
 		if (dFlags[mx][my] & BFLAG_VISIBLE && mon->_msquelch == 0) {
 			if (mon->_mType == MT_CLEAVER)
-				PlaySFX(USFX_CLEAVER);
+				PlaySfxLoc(USFX_CLEAVER, mx, my);
 #ifdef HELLFIRE
 			else if (mon->_mType == MT_NAKRUL)
-				PlaySFX(UseCowFarmer ? USFX_NAKRUL6 : (IsUberRoomOpened ? USFX_NAKRUL4 : USFX_NAKRUL5));
+				PlaySfxLoc(UseCowFarmer ? USFX_NAKRUL6 : (IsUberRoomOpened ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
 			else if (mon->_mType == MT_DEFILER)
-				PlaySFX(USFX_DEFILER8);
+				PlaySfxLoc(USFX_DEFILER8, mx, my);
 			MonEnemy(mnum);
 #endif
 		}
