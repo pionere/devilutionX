@@ -2970,11 +2970,7 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		snprintf(tempstr, sizeof(tempstr), "hit steals %i%% life", (is->_iLifeSteal * 100) >> 7);
 		break;
 	case IPL_TARGAC:
-#ifdef HELLFIRE
 		copy_cstr(tempstr, "penetrates target's armor");
-#else
-		copy_cstr(tempstr, "damages target's armor");
-#endif
 		break;
 	case IPL_FASTATTACK:
 		if (is->_iFlags & ISPL_FASTESTATTACK)

@@ -2216,24 +2216,13 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 	mon = &monster[mnum];
 
 	tmac = mon->mArmorClass;
-#ifdef HELLFIRE
 	if (p->_pIEnAc > 0) {
 		int _pIEnAc = p->_pIEnAc - 1;
 		if (_pIEnAc > 0)
 			tmac >>= _pIEnAc;
 		else
 			tmac -= tmac >> 2;
-
-		if (p->_pClass == PC_BARBARIAN) {
-			tmac -= mon->mArmorClass / 8;
-		}
-
-		if (tmac < 0)
-			tmac = 0;
 	}
-#else
-	tmac -= p->_pIEnAc;
-#endif
 	hper = p->_pIHitChance - tmac;
 
 #ifdef HELLFIRE
@@ -2274,6 +2263,15 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		dam <<= 1;
 	}
 
+	if (p->_pILifeSteal != 0) {
+		skdam = (dam * p->_pILifeSteal) >> 7;
+		PlrIncHp(pnum, skdam);
+	}
+	if (p->_pIManaSteal != 0) {
+		skdam = (dam * p->_pIManaSteal) >> 7;
+		PlrIncMana(pnum, skdam);
+	}
+
 	int fdam = p->_pIFMaxDam;
 	if (fdam != 0)
 		fdam = CalcMonsterDam(mon->mMagicRes, MISR_FIRE, p->_pIFMinDam, fdam);
@@ -2301,26 +2299,13 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 		mon->_mhitpoints -= dam;
 	}
 
-	if (p->_pILifeSteal != 0) {
-		skdam = (dam * p->_pILifeSteal) >> 7;
-		PlrIncHp(pnum, skdam);
-	}
-	if (p->_pIManaSteal != 0) {
-		skdam = (dam * p->_pIManaSteal) >> 7;
-		PlrIncMana(pnum, skdam);
-	}
-	if (p->_pIFlags & ISPL_NOHEALMON) {
-		mon->_mFlags |= MFLAG_NOHEAL;
-	}
-#ifdef _DEBUG
-	if (debug_mode_god_mode) {
-		mon->_mhitpoints = 0; /* double check */
-	}
-#endif
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonStartKill(mnum, pnum);
 	} else {
-		if (mon->_mmode != MM_STONE && p->_pIFlags & ISPL_KNOCKBACK) {
+		if (p->_pIFlags & ISPL_NOHEALMON) {
+			mon->_mFlags |= MFLAG_NOHEAL;
+		}
+		if ((p->_pIFlags & ISPL_KNOCKBACK) && mon->_mmode != MM_STONE) {
 			MonGetKnockback(mnum);
 		}
 		MonStartHit(mnum, pnum, dam);
@@ -2331,7 +2316,7 @@ static BOOL PlrHitMonst(int pnum, int mnum)
 static BOOL PlrHitPlr(int offp, char defp)
 {
 	PlayerStruct *ops, *dps;
-	int hper, blkper, dir, dam, skdam, damsl, dambl, dampc;
+	int hper, blkper, dam, damsl, dambl, dampc;
 
 	if ((DWORD)defp >= MAX_PLRS) {
 		app_fatal("PlrHitPlr: illegal target player %d", defp);
@@ -2360,8 +2345,7 @@ static BOOL PlrHitPlr(int offp, char defp)
 			+ (dps->_pLevel << 1)
 			- (ops->_pLevel << 1);
 		if (blkper >= 100 || blkper > random_(5, 100)) {
-			dir = GetDirection(dps->_px, dps->_py, ops->_px, ops->_py);
-			PlrStartBlock(defp, dir);
+			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
 			return TRUE;
 		}
 	}
@@ -2380,6 +2364,10 @@ static BOOL PlrHitPlr(int offp, char defp)
 	}
 	if (random_(6, 200) < ops->_pICritChance) {
 		dam <<= 1;
+	}
+
+	if (ops->_pILifeSteal != 0) {
+		PlrIncHp(offp, (dam * ops->_pILifeSteal) >> 7);
 	}
 
 	int fdam = ops->_pIFMaxDam;
@@ -2405,10 +2393,6 @@ static BOOL PlrHitPlr(int offp, char defp)
 		return FALSE;
 	}
 
-	if (ops->_pILifeSteal != 0) {
-		skdam = (dam * ops->_pILifeSteal) >> 7;
-		PlrIncHp(offp, skdam);
-	}
 	if (offp == myplr)
 		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
 	StartPlrHit(defp, dam, FALSE);

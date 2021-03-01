@@ -633,7 +633,7 @@ static BOOL MonsterMHit(int mnum, int mi)
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	MissileStruct *mis;
-	int hper, dam;
+	int pnum, tmac, hper, dam;
 	BOOL ret;
 
 	mon = &monster[mnum];
@@ -641,10 +641,16 @@ static BOOL MonsterMHit(int mnum, int mi)
 	pnum = mis->_miSource;
 	p = &plr[pnum];
 	if (mis->_miSubType == 0) {
-		hper = p->_pIHitChance
-			- mon->mArmorClass
-			- (mis->_miDist * mis->_miDist >> 1)
-			+ p->_pIEnAc;
+		tmac = mon->mArmorClass;
+		if (p->_pIEnAc > 0) {
+			int _pIEnAc = p->_pIEnAc - 1;
+			if (_pIEnAc > 0)
+				tmac >>= _pIEnAc;
+			else
+				tmac -= tmac >> 2;
+		}
+		hper = p->_pIHitChance - tmac
+		    - (mis->_miDist * mis->_miDist >> 1);
 	} else {
 		hper = 50 + p->_pMagic
 			- (mon->mLevel << 1)
@@ -699,8 +705,12 @@ static BOOL MonsterMHit(int mnum, int mi)
 			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 		}
 
-		if (p->_pIFlags & ISPL_NOHEALMON)
-			mon->_mFlags |= MFLAG_NOHEAL;
+		if (p->_pILifeSteal != 0) {
+			PlrIncHp(pnum, (dam * p->_pILifeSteal) >> 7);
+		}
+		if (p->_pIManaSteal != 0) {
+			PlrIncMana(pnum, (dam * p->_pIManaSteal) >> 7);
+		}
 	} else {
 		dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
@@ -716,8 +726,11 @@ static BOOL MonsterMHit(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayEffect(mnum, 1);
 		} else {*/
-			if (mis->_miSubType == 0 && (p->_pIFlags & ISPL_KNOCKBACK) && mon->_mmode != MM_STONE) {
-				MonGetKnockback(mnum);
+			if (mis->_miSubType == 0) {
+				if (p->_pIFlags & ISPL_NOHEALMON)
+					mon->_mFlags |= MFLAG_NOHEAL;
+				if ((p->_pIFlags & ISPL_KNOCKBACK) && mon->_mmode != MM_STONE)
+					MonGetKnockback(mnum);
 			}
 			MonStartHit(mnum, pnum, dam);
 		//}
@@ -958,6 +971,11 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 				dam += CalcPlrDam(dps, MISR_PUNCTURE, ops->_pIPcMinDam, pcdam);
 			}
 		}
+
+		if (ops->_pILifeSteal != 0) {
+			PlrIncHp(offp, (dam * ops->_pILifeSteal) >> 7);
+		}
+
 		int fdam = ops->_pIFMaxDam;
 		if (fdam != 0) {
 			fdam = CalcPlrDam(dps, MISR_FIRE, ops->_pIFMinDam, fdam);

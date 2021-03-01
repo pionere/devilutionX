@@ -404,15 +404,9 @@ const PLStruct PL_Suffix[] = {
 	{  "vampires",      IPL_STEALMANA,        5,        5,       19,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,     15000,    15000,         3 },
 	{  "the leech",     IPL_STEALLIFE,        2,        4,        8,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,      7500,     7500,         3 },
 	{  "blood",         IPL_STEALLIFE,        5,        7,       19,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,     15000,    15000,         3 },
-#ifdef HELLFIRE
 	{  "piercing",      IPL_TARGAC,           1,        1,        1,                       PLT_MELEE |             PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      1000,     1000,         3 },
 	{  "puncturing",    IPL_TARGAC,           2,        2,        9,                       PLT_MELEE |             PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      2000,     2000,         6 },
 	{  "bashing",       IPL_TARGAC,           3,        3,       17,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,        12 },
-#else
-	{  "piercing",      IPL_TARGAC,           2,        6,        1,                       PLT_MELEE |             PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      1000,     1000,         3 },
-	{  "puncturing",    IPL_TARGAC,           4,       12,        9,                       PLT_MELEE |             PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      2000,     2000,         6 },
-	{  "bashing",       IPL_TARGAC,           8,       24,       17,                       PLT_MELEE                                 ,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,        12 },
-#endif
 	{  "readiness",     IPL_FASTATTACK,       1,        1,        1,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      2000,     2000,         2 },
 	{  "swiftness",     IPL_FASTATTACK,       2,        2,       10,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,      4000,     4000,         4 },
 	{  "speed",         IPL_FASTATTACK,       3,        3,       19,                       PLT_MELEE | PLT_STAFF                     ,     GOE_ANY,  FALSE,    TRUE,      8000,     8000,         8 },
