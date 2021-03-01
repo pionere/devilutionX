@@ -3148,6 +3148,9 @@ static void OperateSlainHero(int pnum, int oi, BOOLEAN sendmsg)
 				break;
 #endif
 			default:
+				ASSUME_UNREACHABLE
+				break;
+			}
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 			if (sendmsg)
 				NetSendCmdParam1(FALSE, CMD_OPERATEOBJ, oi);
