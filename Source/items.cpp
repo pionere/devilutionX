@@ -1464,12 +1464,11 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		GetScrollSpell(ii, lvl);
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
-		if (gnDifficulty == DIFF_NORMAL)
-			rndv = 5 * lvl + random_(21, 10 * lvl);
-		else if (gnDifficulty == DIFF_NIGHTMARE)
-			rndv = 5 * (lvl + 16) + random_(21, 10 * (lvl + 16));
+		if (gnDifficulty == DIFF_NIGHTMARE)
+			lvl += 8;
 		else if (gnDifficulty == DIFF_HELL)
-			rndv = 5 * (lvl + 32) + random_(21, 10 * (lvl + 32));
+			lvl += 16;
+		rndv = RandRange(4 * lvl, 16 * lvl);
 		if (leveltype == DTYPE_HELL)
 			rndv += rndv >> 3;
 		if (rndv > GOLD_MAX_LIMIT)
