@@ -97,7 +97,7 @@ BOOL mainmenu_select_hero_dialog(
 		    pfile_delete_save,
 		    pfile_ui_set_class_stats,
 		    &dlgresult,
-		    &gszHero,
+		    gszHero,
 		    &gnDifficulty);
 		client_info->initdata->bDiff = gnDifficulty;
 
@@ -110,7 +110,7 @@ BOOL mainmenu_select_hero_dialog(
 		    pfile_ui_set_class_stats,
 		    &dlgresult,
 		    &hero_is_created,
-		    &gszHero);
+		    gszHero);
 	}
 	if (dlgresult == SELHERO_PREVIOUS) {
 		SErrSetLastError(1223);
