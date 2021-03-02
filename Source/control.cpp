@@ -1867,7 +1867,7 @@ void DrawSpellBook()
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
-		if (sn == SPL_NULL || (spl & SPELL_MASK(sn))) {
+		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn, TRUE);
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
@@ -1934,7 +1934,7 @@ void CheckSBook()
 			sn = SpellPages[sbooktab][dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT)];
 			p = &plr[myplr];
 			spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
-			if (sn == SPL_NULL || (spl & SPELL_MASK(sn))) {
+			if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 				if (p->_pAblSkills & SPELL_MASK(sn))
 					st = RSPLTYPE_ABILITY;
 				else if (p->_pISpells & SPELL_MASK(sn))
