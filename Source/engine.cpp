@@ -806,7 +806,7 @@ BYTE *DiabloAllocPtr(DWORD dwBytes)
 	BYTE *buf;
 
 	sgMemCrit.Enter();
-	buf = (BYTE *)SMemAlloc(dwBytes, __FILE__, __LINE__, 0);
+	buf = (BYTE *)SMemAlloc(dwBytes);
 	sgMemCrit.Leave();
 
 	if (buf == NULL) {
@@ -826,7 +826,7 @@ void mem_free_dbg(void *p)
 {
 	if (p != NULL) {
 		sgMemCrit.Enter();
-		SMemFree(p, __FILE__, __LINE__, 0);
+		SMemFree(p);
 		sgMemCrit.Leave();
 	}
 }
@@ -854,7 +854,7 @@ BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
 
 	buf = (BYTE *)DiabloAllocPtr(fileLen);
 
-	SFileReadFile(file, buf, fileLen, NULL, NULL);
+	SFileReadFile(file, buf, fileLen, NULL);
 	SFileCloseFile(file);
 
 	return buf;
@@ -883,7 +883,7 @@ DWORD LoadFileWithMem(const char *pszName, BYTE *p)
 		app_fatal("Zero length SFILE:\n%s", pszName);
 	}
 
-	SFileReadFile(hsFile, p, dwFileLen, NULL, NULL);
+	SFileReadFile(hsFile, p, dwFileLen, NULL);
 	SFileCloseFile(hsFile);
 
 	return dwFileLen;

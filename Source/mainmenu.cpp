@@ -10,8 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 char gszHero[16];
 
-/* data */
-
 /** The active music track id for the main menu. */
 int menu_music_track_id = TMUSIC_INTRO;
 
@@ -46,8 +44,8 @@ static BOOL mainmenu_single_player()
 {
 	gbMaxPlayers = 1;
 
-	if (!SRegLoadValue("devilutionx", "game speed", 0, &ticks_per_sec)) {
-		SRegSaveValue("devilutionx", "game speed", 0, ticks_per_sec);
+	if (!getIniInt("devilutionx", "game speed", 0, &gnTicksPerSec)) {
+		setIniInt("devilutionx", "game speed", 0, gnTicksPerSec);
 	}
 
 	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
@@ -72,17 +70,8 @@ void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, 
 		pfile_rename_hero(name_1, name_2);
 }
 
-BOOL mainmenu_select_hero_dialog(
-    const _SNETPROGRAMDATA *client_info,
-    const _SNETPLAYERDATA *user_info,
-    const _SNETUIDATA *ui_info,
-    const _SNETVERSIONDATA *fileinfo,
-    DWORD mode,
-    char *cname, DWORD clen,
-    char *cdesc, DWORD cdlen,
-    BOOL *multi)
+bool mainmenu_select_hero_dialog(const _SNETPROGRAMDATA *client_info)
 {
-	BOOL hero_is_created = TRUE;
 	int dlgresult = 0;
 	if (gbMaxPlayers == 1) {
 		UiSelHeroSingDialog(
@@ -93,17 +82,16 @@ BOOL mainmenu_select_hero_dialog(
 		    &dlgresult,
 		    gszHero,
 		    &gnDifficulty);
-		client_info->initdata->bDiff = gnDifficulty;
+		client_info->initdata->bDifficulty = gnDifficulty;
 
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 	} else {
-		UiSelHeroMultDialog(
+		UiSelHeroMultDialog( 
 		    pfile_ui_set_hero_infos,
 		    pfile_ui_save_create,
 		    pfile_delete_save,
 		    pfile_ui_set_class_stats,
 		    &dlgresult,
-		    &hero_is_created,
 		    gszHero);
 	}
 	if (dlgresult == SELHERO_PREVIOUS) {
@@ -111,16 +99,7 @@ BOOL mainmenu_select_hero_dialog(
 		return FALSE;
 	}
 
-	pfile_create_player_description(cdesc, cdlen);
-	if (multi) {
-		if (mode == 'BNET')
-			*multi = hero_is_created || !plr[myplr].pBattleNet;
-		else
-			*multi = hero_is_created;
-	}
-	if (cname && clen)
-		SStrCopy(cname, gszHero, clen);
-
+	pfile_create_player_description(NULL, NULL);
 	return TRUE;
 }
 
@@ -134,8 +113,7 @@ void mainmenu_loop()
 
 	do {
 		menu = 0;
-		if (!UiMainMenuDialog(gszProductName, &menu, effects_play_sound, 30))
-			app_fatal("Unable to display mainmenu");
+		UiMainMenuDialog(gszProductName, &menu, effects_play_sound, 30);
 
 		switch (menu) {
 		case MAINMENU_SINGLE_PLAYER:

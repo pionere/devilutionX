@@ -74,7 +74,7 @@ static BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		if (dwlen != 0) {
 			DWORD read;
 			buf = DiabloAllocPtr(dwlen);
-			if (SFileReadFile(file, buf, dwlen, &read, NULL)) {
+			if (SFileReadFile(file, buf, dwlen, &read)) {
 				read = codec_decode(buf, dwlen, password);
 				if (read == sizeof(*pPack)) {
 					memcpy(pPack, buf, sizeof(*pPack));
@@ -147,6 +147,21 @@ void pfile_write_hero()
 	}
 }
 
+static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile)
+{
+	memset(heroinfo, 0, sizeof(*heroinfo));
+	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
+	heroinfo->level = p->_pLevel;
+	heroinfo->heroclass = p->_pClass;
+	heroinfo->strength = p->_pStrength;
+	heroinfo->magic = p->_pMagic;
+	heroinfo->dexterity = p->_pDexterity;
+	heroinfo->vitality = p->_pVitality;
+	heroinfo->gold = p->_pGold;
+	heroinfo->hassaved = bHasSaveFile;
+	heroinfo->herorank = p->_pDiabloKillLevel;
+}
+
 void pfile_create_player_description(char *dst, DWORD len)
 {
 	char desc[128];
@@ -158,8 +173,7 @@ void pfile_create_player_description(char *dst, DWORD len)
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
 	if (dst != NULL && len != 0) {
-		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
-			return;
+		UiCreatePlayerDescription(&uihero, GAME_ID, desc);
 		SStrCopy(dst, desc, len);
 	}
 }
@@ -199,21 +213,6 @@ BOOL pfile_rename_hero(const char *name_1, const char *name_2)
 void pfile_flush_W()
 {
 	pfile_flush(TRUE);
-}
-
-void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile)
-{
-	memset(heroinfo, 0, sizeof(*heroinfo));
-	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
-	heroinfo->level = p->_pLevel;
-	heroinfo->heroclass = p->_pClass;
-	heroinfo->strength = p->_pStrength;
-	heroinfo->magic = p->_pMagic;
-	heroinfo->dexterity = p->_pDexterity;
-	heroinfo->vitality = p->_pVitality;
-	heroinfo->gold = p->_pGold;
-	heroinfo->hassaved = bHasSaveFile;
-	heroinfo->herorank = p->_pDiabloKillLevel;
 }
 
 BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))
@@ -478,7 +477,7 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 		app_fatal("Invalid save file");
 
 	buf = DiabloAllocPtr(*pdwLen);
-	if (!SFileReadFile(save, buf, *pdwLen, &nread, NULL))
+	if (!SFileReadFile(save, buf, *pdwLen, &nread))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
 	pfile_SFileCloseArchive(archive);

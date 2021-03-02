@@ -179,9 +179,9 @@ bool base::SNetSendTurn(char *data, unsigned int size)
 	return true;
 }
 
-int base::SNetGetProviderCaps(struct _SNETCAPS *caps)
+bool base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
-	caps->size = 0;                  // engine writes only ?!?
+	//caps->size = 0;                  // engine writes only ?!?
 	caps->flags = 0;                 // unused
 	caps->maxmessagesize = 512;      // capped to 512; underflow if < 24
 	caps->maxqueuesize = 0;          // unused
@@ -191,7 +191,7 @@ int base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 	caps->defaultturnssec = 10;      // ?
 	caps->defaultturnsintransit = 1; // maximum acceptable number
 	                                 // of turns in queue?
-	return 1;
+	return true;
 }
 
 bool base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)

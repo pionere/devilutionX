@@ -931,7 +931,7 @@ static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * sz
 
     // Read the first 2 DWORDs bytes from the file
     dwFilePos = SFileSetFilePointer(hFile, 0, NULL, FILE_CURRENT);
-    SFileReadFile(hFile, FirstBytes, sizeof(FirstBytes), &dwBytesRead, NULL);
+    SFileReadFile(hFile, FirstBytes, sizeof(FirstBytes), &dwBytesRead);
     SFileSetFilePointer(hFile, dwFilePos, NULL, FILE_BEGIN);
 
     // If we read at least 8 bytes

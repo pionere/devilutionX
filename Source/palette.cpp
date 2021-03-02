@@ -52,9 +52,9 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 
 static void SaveGamma()
 {
-	SRegSaveValue("Diablo", "Gamma Correction", 0, gamma_correction);
+	setIniInt("Diablo", "Gamma Correction", 0, gamma_correction);
 #ifndef HELLFIRE
-	SRegSaveValue("Diablo", "Color Cycling", FALSE, color_cycling_enabled);
+	setIniInt("Diablo", "Color Cycling", FALSE, color_cycling_enabled);
 #endif
 }
 
@@ -64,7 +64,7 @@ static void LoadGamma()
 	int value;
 
 	value = gamma_correction;
-	if (!SRegLoadValue("Diablo", "Gamma Correction", 0, &value))
+	if (!getIniInt("Diablo", "Gamma Correction", 0, &value))
 		value = 100;
 	gamma_value = value;
 	if (value < 30) {
@@ -74,7 +74,7 @@ static void LoadGamma()
 	}
 	gamma_correction = gamma_value - gamma_value % 5;
 #ifndef HELLFIRE
-	if (!SRegLoadValue("Diablo", "Color Cycling", 0, &value))
+	if (!getIniInt("Diablo", "Color Cycling", 0, &value))
 		value = TRUE;
 	color_cycling_enabled = value;
 #endif
@@ -96,7 +96,7 @@ void LoadPalette(const char *pszFileName)
 	assert(pszFileName != NULL);
 
 	SFileOpenFile(pszFileName, &pBuf);
-	SFileReadFile(pBuf, PalData, sizeof(PalData), NULL, NULL);
+	SFileReadFile(pBuf, PalData, sizeof(PalData), NULL);
 	SFileCloseFile(pBuf);
 
 	for (i = 0; i < 256; i++) {

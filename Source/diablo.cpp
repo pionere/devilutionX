@@ -36,8 +36,8 @@ BOOL sgbActionBtnDown;
 BOOL sgbAltActionBtnDown;
 DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
 int actionBtnKey, altActionBtnKey;
-int ticks_per_sec = 20;
-WORD tick_delay = 50;
+int gnTicksPerSec = 20;
+unsigned gnTickDelay = 50;
 
 /* rdata */
 
@@ -1302,7 +1302,7 @@ static void PressKey(int vkey)
 		break;
 	case ACT_VER:
 		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
-			copy_str(gbNetMsg, gszVersionNumber);
+			copy_str(gbNetMsg, gszProductName);
 			NetSendCmdString(1 << myplr);
 		} else {
 			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
@@ -1992,7 +1992,7 @@ void game_loop(BOOL bStartup)
 {
 	int i;
 
-	i = gbMaxPlayers == 1 ? 1 : (bStartup ? ticks_per_sec * 3 : 3);
+	i = gbMaxPlayers == 1 ? 1 : (bStartup ? gnTicksPerSec * 3 : 3);
 
 	do {
 		if (!multi_handle_delta()) {

@@ -431,6 +431,6 @@
 // MINIWIN changes
 //
 
-#define bool int
+//#define bool int
 
 #endif // __STORMPORT_H__

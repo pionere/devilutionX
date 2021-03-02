@@ -32,8 +32,8 @@ extern BOOLEAN UseNestArt;
 #endif
 extern BOOL sgbActionBtnDown;
 extern BOOL sgbAltActionBtnDown;
-extern int ticks_per_sec;
-extern WORD tick_delay;
+extern int gnTicksPerSec;
+extern unsigned gnTickDelay;
 
 void FreeGameMem();
 BOOL StartGame(BOOL bSinglePlayer);

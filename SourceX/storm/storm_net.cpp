@@ -10,7 +10,7 @@ static std::unique_ptr<net::abstract_net> dvlnet_inst;
 static char gpszGameName[128] = {};
 static char gpszGamePassword[128] = {};
 
-BOOL SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
+bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
 {
 	if (!dvlnet_inst->SNetReceiveMessage(senderplayerid, data, databytes)) {
 		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);
@@ -19,12 +19,12 @@ BOOL SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
 	return true;
 }
 
-BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes)
+bool SNetSendMessage(int playerID, void *data, unsigned int databytes)
 {
 	return dvlnet_inst->SNetSendMessage(playerID, data, databytes);
 }
 
-BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
+bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
     DWORD (&status)[MAX_PLRS])
 {
 	if (!dvlnet_inst->SNetReceiveTurns(data, size, status)) {
@@ -34,37 +34,37 @@ BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
 	return true;
 }
 
-BOOL SNetSendTurn(char *data, unsigned int databytes)
+bool SNetSendTurn(char *data, unsigned int databytes)
 {
 	return dvlnet_inst->SNetSendTurn(data, databytes);
 }
 
-int SNetGetProviderCaps(struct _SNETCAPS *caps)
+bool SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 	return dvlnet_inst->SNetGetProviderCaps(caps);
 }
 
-BOOL SNetUnregisterEventHandler(int evtype, SEVTHANDLER func)
+bool SNetUnregisterEventHandler(int evtype, SEVTHANDLER func)
 {
 	return dvlnet_inst->SNetUnregisterEventHandler(*(event_type *)&evtype, func);
 }
 
-BOOL SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
+bool SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 {
 	return dvlnet_inst->SNetRegisterEventHandler(*(event_type *)&evtype, func);
 }
 
-BOOL SNetDestroy()
+bool SNetDestroy()
 {
 	return true;
 }
 
-BOOL SNetDropPlayer(int playerid, DWORD flags)
+bool SNetDropPlayer(int playerid, DWORD flags)
 {
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }
 
-BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
+void SNetGetGameInfo(int type, void *dst, unsigned int length)
 {
 	switch (type) {
 	case GAMEINFO_NAME:
@@ -73,12 +73,13 @@ BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
 	case GAMEINFO_PASSWORD:
 		SStrCopy((char *)dst, gpszGamePassword, length);
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
-
-	return true;
 }
 
-BOOL SNetLeaveGame(int type)
+bool SNetLeaveGame(int type)
 {
 	if (dvlnet_inst == NULL)
 		return true;
@@ -88,38 +89,33 @@ BOOL SNetLeaveGame(int type)
 /**
  * @brief Called by engine for single, called by ui for multi
  * @param provider BNET, IPXN, MODM, SCBL or UDPN
- * @param fileinfo Ignore
  */
-int SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *client_info,
-    struct _SNETPLAYERDATA *user_info, struct _SNETUIDATA *ui_info,
-    struct _SNETVERSIONDATA *fileinfo)
+bool SNetInitializeProvider(unsigned long provider,
+	struct _SNETPROGRAMDATA *client_info, struct _SNETUIDATA *ui_info)
 {
 	dvlnet_inst = net::abstract_net::make_net(provider);
-	return ui_info->selectnamecallback(client_info, user_info, ui_info, fileinfo, provider, NULL, 0, NULL, 0, NULL);
+	return ui_info->selectnamecallback(client_info);
 }
 
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString,
-	DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount,
-    const char *creatorName, const char *a11, int *playerID)
+bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData, int *playerID)
 {
-	if (GameTemplateSize != sizeof(_gamedata))
-		ABORT();
-	net::buffer_t game_init_info(GameTemplateData, GameTemplateData + GameTemplateSize);
+	char* gData = (char*)gameData;
+	net::buffer_t game_init_info(gData, gData + sizeof(gameData));
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	char addrstr[129] = "0.0.0.0";
 	getIniValue("dvlnet", "bindaddr", addrstr, 128);
 	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
-	if (pszGamePassword)
+	if (pszGamePassword != NULL)
 		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->create(addrstr, pszGamePassword);
 	return *playerID != -1;
 }
 
-BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
+bool SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, int *playerID)
 {
 	if (pszGameName)
 		SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
@@ -132,12 +128,12 @@ BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *player
 /**
  * @brief Is this the mirror image of SNetGetTurnsInTransit?
  */
-BOOL SNetGetOwnerTurnsWaiting(DWORD *turns)
+bool SNetGetOwnerTurnsWaiting(DWORD *turns)
 {
 	return dvlnet_inst->SNetGetOwnerTurnsWaiting(turns);
 }
 
-BOOL SNetGetTurnsInTransit(DWORD *turns)
+bool SNetGetTurnsInTransit(DWORD *turns)
 {
 	return dvlnet_inst->SNetGetTurnsInTransit(turns);
 }
@@ -145,17 +141,9 @@ BOOL SNetGetTurnsInTransit(DWORD *turns)
 /**
  * @brief engine calls this only once with argument 1
  */
-BOOLEAN SNetSetBasePlayer(int)
+bool SNetSetBasePlayer(int)
 {
 	return true;
-}
-
-/**
- * @brief since we never signal STORM_ERROR_REQUIRES_UPGRADE the engine will not call this function
- */
-BOOL SNetPerformUpgrade(DWORD *upgradestatus)
-{
-	UNIMPLEMENTED();
 }
 
 DEVILUTION_END_NAMESPACE

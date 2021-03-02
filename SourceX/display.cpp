@@ -55,7 +55,7 @@ bool IsFullScreen() {
 }
 #endif
 
-void AdjustToScreenGeometry(int width, int height)
+static void AdjustToScreenGeometry(int width, int height)
 {
 	screenWidth = width;
 	screenHeight = height;
@@ -73,7 +73,7 @@ void AdjustToScreenGeometry(int width, int height)
 	}*/
 }
 
-void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerScaling)
+static void CalculatePreferdWindowSize(int &width, int &height, bool useIntegerScaling)
 {
 #ifdef USE_SDL1
 	const SDL_VideoInfo &best = *SDL_GetVideoInfo();
@@ -130,7 +130,7 @@ bool SpawnWindow(const char *lpWindowName)
 
 #ifndef USE_SDL1
 	char mapping[1024];
-	if (getIniValue("controls","sdl2_controller_mapping", mapping, 1024)) {
+	if (getIniValue("controls", "sdl2_controller_mapping", mapping, 1024)) {
 		SDL_GameControllerAddMapping(mapping);
 	}
 #endif

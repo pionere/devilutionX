@@ -206,13 +206,13 @@ static void gamemenu_get_speed()
 {
 	if (gbMaxPlayers != 1) {
 		sgOptionsMenu[3].dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
-		if (ticks_per_sec >= 50)
+		if (gnTicksPerSec >= 50)
 			sgOptionsMenu[3].pszStr = "Speed: Fastest";
-		else if (ticks_per_sec >= 40)
+		else if (gnTicksPerSec >= 40)
 			sgOptionsMenu[3].pszStr = "Speed: Faster";
-		else if (ticks_per_sec >= 30)
+		else if (gnTicksPerSec >= 30)
 			sgOptionsMenu[3].pszStr = "Speed: Fast";
-		else if (ticks_per_sec == 20)
+		else if (gnTicksPerSec == 20)
 			sgOptionsMenu[3].pszStr = "Speed: Normal";
 		return;
 	}
@@ -221,7 +221,7 @@ static void gamemenu_get_speed()
 
 	sgOptionsMenu[3].pszStr = "Speed";
 	gmenu_slider_steps(&sgOptionsMenu[3], 46);
-	gmenu_slider_set(&sgOptionsMenu[3], 20, 50, ticks_per_sec);
+	gmenu_slider_set(&sgOptionsMenu[3], 20, 50, gnTicksPerSec);
 }
 
 static void gamemenu_get_color_cycling()
@@ -326,17 +326,17 @@ void gamemenu_gamma(BOOL bActivate)
 void gamemenu_speed(BOOL bActivate)
 {
 	if (bActivate) {
-		if (ticks_per_sec != 20)
-			ticks_per_sec = 20;
+		if (gnTicksPerSec != 20)
+			gnTicksPerSec = 20;
 		else
-			ticks_per_sec = 50;
-		gmenu_slider_set(&sgOptionsMenu[3], 20, 50, ticks_per_sec);
+			gnTicksPerSec = 50;
+		gmenu_slider_set(&sgOptionsMenu[3], 20, 50, gnTicksPerSec);
 	} else {
-		ticks_per_sec = gmenu_slider_get(&sgOptionsMenu[3], 20, 50);
+		gnTicksPerSec = gmenu_slider_get(&sgOptionsMenu[3], 20, 50);
 	}
 
-	SRegSaveValue("devilutionx", "game speed", 0, ticks_per_sec);
-	tick_delay = 1000 / ticks_per_sec;
+	setIniInt("devilutionx", "game speed", 0, gnTicksPerSec);
+	gnTickDelay = 1000 / gnTicksPerSec;
 }
 
 void gamemenu_color_cycling(BOOL bActivate)

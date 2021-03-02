@@ -1374,12 +1374,6 @@ static_assert((sizeof(DeadStruct) & (sizeof(DeadStruct) - 1)) == 32, "Align Dead
 
 // TPDEF PTR FCN VOID PLAYSND
 
-typedef struct _gamedata {
-	int dwSeed;
-	BYTE bDiff;
-	BYTE bRate;
-} _gamedata;
-
 typedef struct _uidefaultstats {
 	WORD strength;
 	WORD magic;
@@ -1388,7 +1382,6 @@ typedef struct _uidefaultstats {
 } _uidefaultstats;
 
 typedef struct _uiheroinfo {
-	struct _uiheroinfo *next;
 	char name[16];
 	WORD level;
 	BYTE heroclass;
@@ -1398,26 +1391,21 @@ typedef struct _uiheroinfo {
 	WORD dexterity;
 	WORD vitality;
 	int gold;
-	int hassaved;
+	BOOL hassaved;
 } _uiheroinfo;
-
-// TPDEF PTR FCN UCHAR ENUMHEROPROC
-// TPDEF PTR FCN UCHAR ENUMHEROS
-// TPDEF PTR FCN UCHAR CREATEHERO
-// TPDEF PTR FCN UCHAR DELETEHERO
-// TPDEF PTR FCN UCHAR GETDEFHERO
-
-// TPDEF PTR FCN INT PROGRESSFCN
 
 //////////////////////////////////////////////////
 // storm
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN UCHAR SMSGIDLEPROC
-// TPDEF PTR FCN VOID SMSGHANDLER
+typedef struct _SNETGAMEDATA {
+	INT dwSeed;
+	BYTE bDifficulty;
+	BYTE bTickRate;
+} _SNETGAMEDATA;
 
 typedef struct _SNETCAPS {
-	DWORD size;
+	//DWORD size;
 	DWORD flags;
 	DWORD maxmessagesize;
 	DWORD maxqueuesize;
@@ -1435,67 +1423,20 @@ typedef struct _SNETEVENT {
 	DWORD databytes;
 } _SNETEVENT;
 
-// TPDEF PTR FCN UCHAR SNETABORTPROC
-// TPDEF PTR FCN UCHAR SNETCATEGORYPROC
-// TPDEF PTR FCN UCHAR SNETCHECKAUTHPROC
-// TPDEF PTR FCN UCHAR SNETCREATEPROC
-// TPDEF PTR FCN UCHAR SNETDRAWDESCPROC
-// TPDEF PTR FCN UCHAR SNETENUMDEVICESPROC
-// TPDEF PTR FCN UCHAR SNETENUMGAMESPROC
-// TPDEF PTR FCN UCHAR SNETENUMPROVIDERSPROC
-// TPDEF PTR FCN VOID SNETEVENTPROC
-// TPDEF PTR FCN UCHAR SNETGETARTPROC
-// TPDEF PTR FCN UCHAR SNETGETDATAPROC
-// TPDEF PTR FCN INT SNETMESSAGEBOXPROC
-// TPDEF PTR FCN UCHAR SNETPLAYSOUNDPROC
-// TPDEF PTR FCN UCHAR SNETSELECTEDPROC
-// TPDEF PTR FCN UCHAR SNETSTATUSPROC
-
-typedef struct _SNETPLAYERDATA {
-	int size;
-	char *playername;
-	char *playerdescription;
-} _SNETPLAYERDATA;
-
 typedef struct _SNETPROGRAMDATA {
-	int size;
-	const char *programname;
-	const char *programdescription;
-	int programid;
-	int versionid;
-	int maxplayers;
-	_gamedata *initdata;
-	int initdatabytes;
-	int optcategorybits;
-	char *cdkey;
-	char *registereduser;
-	int spawned;
-	int lcid;
+	//int size;
+	DWORD versionid;
+	_SNETGAMEDATA *initdata;
 } _SNETPROGRAMDATA;
 
-typedef struct _SNETVERSIONDATA {
-	int size;
-	const char *versionstring;
-} _SNETVERSIONDATA;
-
 typedef struct _SNETUIDATA {
-	int size;
-	const char **profilefields;
-	int (*selectnamecallback)(
-	    const struct _SNETPROGRAMDATA *,
-	    const struct _SNETPLAYERDATA *,
-	    const struct _SNETUIDATA *,
-	    const struct _SNETVERSIONDATA *,
-	    DWORD provider, /* e.g. 'BNET', 'IPXN', 'MODM', 'SCBL' */
-	    char *, DWORD,  /* character name will be copied here */
-	    char *, DWORD,  /* character "description" will be copied here (used to advertise games) */
-	    BOOL *          /* new character? - unsure about this */
+	//int size;
+	bool (*selectnamecallback)(
+	    const struct _SNETPROGRAMDATA *
+	    //DWORD provider, // e.g. 'BNET', 'IPXN', 'MODM', 'SCBL'
 	);
 	void (*changenamecallback)();
 } _SNETUIDATA;
-
-// TPDEF PTR FCN UCHAR SNETSPIBIND
-// TPDEF PTR FCN UCHAR SNETSPIQUERY
 
 //////////////////////////////////////////////////
 // pack

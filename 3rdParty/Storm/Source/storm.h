@@ -59,8 +59,8 @@ struct CCritSect {
 extern "C" {
 #endif
 
-BOOL STORMAPI SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, const char *creatorName, const char *a11, int *playerID);
-BOOL STORMAPI SNetDestroy();
+bool STORMAPI SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData, int *playerID);
+bool STORMAPI SNetDestroy();
 
 /*  SNetDropPlayer @ 106
  *
@@ -71,7 +71,7 @@ BOOL STORMAPI SNetDestroy();
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SNetDropPlayer(
         int playerid,
@@ -85,10 +85,8 @@ BOOL
  *  type:         The type of data to retrieve. See GAMEINFO_ flags.
  *  dst:          The destination buffer for the data.
  *  length:       The maximum size of the destination buffer.
- *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+void
     STORMAPI
     SNetGetGameInfo(
         int type,
@@ -104,38 +102,12 @@ BOOL
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SNetGetTurnsInTransit(
         DWORD *turns);
 
-// Network provider structures
-typedef struct _client_info {
-	DWORD dwSize; // 60
-	char *pszName;
-	char *pszVersion;
-	DWORD dwProduct;
-	DWORD dwVerbyte;
-	DWORD dwUnk5;
-	DWORD dwMaxPlayers;
-	DWORD dwUnk7;
-	DWORD dwUnk8;
-	DWORD dwUnk9;
-	DWORD dwUnk10; // 0xFF
-	char *pszCdKey;
-	char *pszCdOwner;
-	DWORD dwIsShareware;
-	DWORD dwLangId;
-} client_info;
-
-typedef struct _user_info {
-	DWORD dwSize; // 16
-	char *pszPlayerName;
-	char *pszUnknown;
-	DWORD dwUnknown;
-} user_info;
-
-BOOL STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, char *userStats, int *playerid);
+bool STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, int *playerid);
 
 /*  SNetLeaveGame @ 119
  *
@@ -146,14 +118,13 @@ BOOL STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, char *pla
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SNetLeaveGame(
         int type);
 
-BOOL STORMAPI SNetPerformUpgrade(DWORD *upgradestatus);
-BOOL STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-BOOL STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
+bool STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
+bool STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 
 typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
 
@@ -172,7 +143,7 @@ typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SNetSendMessage(
         int playerID,
@@ -205,24 +176,24 @@ BOOL
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SNetSendTurn(
         char *data,
         unsigned int databytes);
 
-BOOL STORMAPI SFileCloseArchive(HANDLE hArchive);
-BOOL STORMAPI SFileCloseFile(HANDLE hFile);
+bool STORMAPI SFileCloseArchive(HANDLE hArchive);
+void STORMAPI SFileCloseFile(HANDLE hFile);
 
-BOOL STORMAPI SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume);
+void STORMAPI SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume);
 
-LONG STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-BOOL STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
+DWORD STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
+bool STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 
-BOOL STORMAPI SFileOpenFile(const char *filename, HANDLE *phFile);
-BOOL STORMAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
+bool STORMAPI SFileOpenFile(const char *filename, HANDLE *phFile);
+bool STORMAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
-BOOL STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read, LONG *lpDistanceToMoveHigh);
+bool STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);
 
 /*  SBmpLoadImage @ 323
  *
@@ -238,7 +209,7 @@ BOOL STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRe
  *
  *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
  */
-BOOL
+bool
     STORMAPI
     SBmpLoadImage(
         const char *pszFileName,
@@ -256,20 +227,11 @@ BOOL
  *  information about the block.
  *
  *  amount:       The amount of memory to allocate, in bytes.
- *  logfilename:  The name of the file or object that this call belongs to.
- *  logline:      The line in the file or one of the SLOG_ macros.
- *  defaultValue: The default value of a byte in the allocated memory.
  *
  *  Returns a pointer to the allocated memory. This pointer does NOT include
  *  the additional storm header.
  */
-void *
-    STORMAPI
-    SMemAlloc(
-        unsigned int amount,
-        const char *logfilename,
-        int logline,
-        int defaultValue);
+void *STORMAPI SMemAlloc(unsigned int amount);
 
 /*  SMemFree @ 403
  *
@@ -277,25 +239,15 @@ void *
  *  includes the log file and line for debugging purposes.
  *
  *  location:     The memory location to be freed.
- *  logfilename:  The name of the file or object that this call belongs to.
- *  logline:      The line in the file or one of the SLOG_ macros.
- *  defaultValue:
  *
- *  Returns TRUE if the call was successful and FALSE otherwise.
  */
-BOOL
-    STORMAPI
-    SMemFree(
-        void *location,
-        const char *logfilename,
-        int logline,
-        char defaultValue);
+void STORMAPI SMemFree(void *location);
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue = false);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize = NULL);
 void setIniValue(const char *sectionName, const char *keyName, const char *value, int len = 0);
-BOOL STORMAPI SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *value);
-BOOL STORMAPI SRegSaveValue(const char *keyname, const char *valuename, BYTE flags, DWORD result);
+bool getIniInt(const char *keyname, const char *valuename, BYTE flags, int *value);
+void setIniInt(const char *keyname, const char *valuename, BYTE flags, DWORD result);
 
 void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video);
 void SVidPlayEnd(HANDLE video);
@@ -346,21 +298,21 @@ void
         const char *src,
         int max_length);
 
-BOOL SFileSetBasePath(const char *);
-BOOL SVidPlayContinue(void);
-BOOL SNetGetOwnerTurnsWaiting(DWORD *);
-BOOL SNetUnregisterEventHandler(int, SEVTHANDLER);
-BOOL SNetRegisterEventHandler(int, SEVTHANDLER);
-BOOLEAN SNetSetBasePlayer(int);
-int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
-int SNetGetProviderCaps(struct _SNETCAPS *);
-int SFileSetFilePointer(HANDLE, int, HANDLE, int);
+void SFileSetBasePath(const char *);
+bool SVidPlayContinue(void);
+bool SNetGetOwnerTurnsWaiting(DWORD *);
+bool SNetUnregisterEventHandler(int, SEVTHANDLER);
+bool SNetRegisterEventHandler(int, SEVTHANDLER);
+bool SNetSetBasePlayer(int);
+bool SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETUIDATA *);
+bool SNetGetProviderCaps(struct _SNETCAPS *);
+bool SFileSetFilePointer(HANDLE, int, HANDLE, int);
 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
-BOOL SFileEnableDirectAccess(BOOL enable);
+void SFileEnableDirectAccess(BOOL enable);
 void SLoadKeyMap(BYTE (&map)[256]);
 
 #if defined(__GNUC__) || defined(__cplusplus)

@@ -1028,8 +1028,8 @@ bool   STORMAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
 bool   STORMAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
 DWORD  STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh);
 DWORD  STORMAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod);
-bool   STORMAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, LPDWORD pdwRead, LPOVERLAPPED lpOverlapped);
-bool   STORMAPI SFileCloseFile(HANDLE hFile);
+bool   STORMAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, LPDWORD pdwRead);
+void   STORMAPI SFileCloseFile(HANDLE hFile);
 
 // Retrieving info about a file in the archive
 bool   STORMAPI SFileGetFileInfo(HANDLE hMpqOrFile, SFileInfoClass InfoClass, void * pvFileInfo, DWORD cbFileInfo, LPDWORD pcbLengthNeeded);

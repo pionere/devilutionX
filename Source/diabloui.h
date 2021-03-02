@@ -12,19 +12,18 @@ void UiInitialize();
 void UiTitleDialog();
 void UiDestroy();
 
-BOOL UiValidPlayerName(const char *name);
-void UiSelHeroMultDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), void(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, BOOL *hero_is_created, char (&name)[16]);
+bool UiValidPlayerName(const char *name);
+void UiSelHeroMultDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), void(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, char (&name)[16]);
 void UiSelHeroSingDialog(BOOL(*fninfo)(BOOL(*fninfofunc)(_uiheroinfo *)), BOOL(*fncreate)(_uiheroinfo *), BOOL(*fnremove)(_uiheroinfo *), void(*fnstats)(unsigned int, _uidefaultstats *), int *dlgresult, char (&name)[16], int *difficulty);
-BOOL UiCreditsDialog();
-BOOL UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const char *file), int attractTimeOut);
+void UiCreditsDialog();
+void UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const char *file), int attractTimeOut);
 
 BOOL UiProgressDialog(const char *msg, int enable, int(*fnfunc)(), int rate);
 
-void InitUICallbacks(_SNETUIDATA &UiData);
-int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *a6);
-int UiSelectProvider(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *type);
+bool UiSelectGame(_SNETPROGRAMDATA *client_info, int *playerId);
+bool UiSelectProvider(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info);
 
-BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
+void UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
 void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type);
 
 /* These are defined in fonts.h */

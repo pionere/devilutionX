@@ -20,7 +20,7 @@ BOOL gbShouldValidatePackage;
 BYTE gbActivePlayers;
 BOOLEAN gbGameDestroyed;
 BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
-_gamedata sgGameInitInfo;
+_SNETGAMEDATA sgGameInitInfo;
 BOOLEAN gbSelectProvider;
 int sglTimeoutStart;
 int sgdwPlayerLeftReasonTbl[MAX_PLRS];
@@ -634,39 +634,17 @@ static void SetupLocalCoords()
 	p->destAction = ACTION_NONE;
 }
 
-static BOOL multi_upgrade(BOOL *pfExitProgram)
-{
-	BOOL result;
-	int status;
-
-	SNetPerformUpgrade((LPDWORD)&status);
-	result = TRUE;
-	if (status != 0 && status != 1) {
-		if (status != 2) {
-			if (status == -1) {
-				DrawDlg("Network upgrade failed");
-			}
-		} else {
-			*pfExitProgram = 1;
-		}
-
-		result = FALSE;
-	}
-
-	return result;
-}
-
 static void multi_handle_events(_SNETEVENT *pEvt)
 {
 	DWORD LeftReason;
-	_gamedata *gameData;
+	_SNETGAMEDATA *gameData;
 
 	switch (pEvt->eventid) {
 	case EVENT_TYPE_PLAYER_CREATE_GAME:
-		gameData = (_gamedata *)pEvt->data;
+		gameData = (_SNETGAMEDATA *)pEvt->data;
 		sgGameInitInfo.dwSeed = gameData->dwSeed;
-		sgGameInitInfo.bDiff = gameData->bDiff;
-		sgGameInitInfo.bRate = gameData->bRate;
+		sgGameInitInfo.bDifficulty = gameData->bDifficulty;
+		sgGameInitInfo.bTickRate = gameData->bTickRate;
 		sgbPlayerTurnBitTbl[pEvt->playerid] = TRUE;
 		break;
 	case EVENT_TYPE_PLAYER_LEAVE_GAME:
@@ -674,7 +652,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 		sgbPlayerTurnBitTbl[pEvt->playerid] = FALSE;
 
 		LeftReason = 0;
-		if (pEvt->data && pEvt->databytes >= sizeof(DWORD))
+		if (pEvt->data != NULL && pEvt->databytes >= sizeof(DWORD))
 			LeftReason = *(DWORD *)pEvt->data;
 		sgdwPlayerLeftReasonTbl[pEvt->playerid] = LeftReason;
 		if (LeftReason == LEAVE_ENDING)
@@ -695,8 +673,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 static void multi_event_handler(BOOL add)
 {
 	int i;
-	BOOL(STORMAPI * fn)
-	(int, SEVTHANDLER);
+	bool(STORMAPI * fn)	(int, SEVTHANDLER);
 
 	if (add)
 		fn = SNetRegisterEventHandler;
@@ -731,30 +708,19 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 	int i;
 	_SNETPROGRAMDATA ProgramData;
 	_SNETUIDATA UiData;
-	_SNETPLAYERDATA plrdata;
 
 	while (TRUE) {
 		*pfExitProgram = FALSE;
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);
-		sgGameInitInfo.bDiff = gnDifficulty;
-		sgGameInitInfo.bRate = ticks_per_sec;
+		sgGameInitInfo.bDifficulty = gnDifficulty;
+		sgGameInitInfo.bTickRate = gnTicksPerSec;
 		memset(&ProgramData, 0, sizeof(ProgramData));
-		ProgramData.size = sizeof(ProgramData);
-		ProgramData.programname = PROGRAM_NAME;
-		ProgramData.programdescription = gszVersionNumber;
-		ProgramData.programid = GAME_ID;
 		ProgramData.versionid = GAME_VERSION;
-		ProgramData.maxplayers = MAX_PLRS;
 		ProgramData.initdata = &sgGameInitInfo;
-		ProgramData.initdatabytes = sizeof(sgGameInitInfo);
-		ProgramData.optcategorybits = 15;
-		ProgramData.lcid = 1033; /* LANG_ENGLISH */
-		memset(&plrdata, 0, sizeof(plrdata));
-		plrdata.size = sizeof(plrdata);
 		memset(&UiData, 0, sizeof(UiData));
-		UiData.size = sizeof(UiData);
-		InitUICallbacks(UiData);
+		UiData.selectnamecallback = mainmenu_select_hero_dialog;
+		UiData.changenamecallback = (void (*)())mainmenu_change_name;
 		memset(sgbPlayerTurnBitTbl, 0, sizeof(sgbPlayerTurnBitTbl));
 		gbGameDestroyed = FALSE;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
@@ -764,10 +730,10 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
 		SNetSetBasePlayer(0);
 		if (bSinglePlayer) {
-			if (!multi_init_single(&ProgramData, &plrdata, &UiData))
+			if (!multi_init_single(&ProgramData, &UiData))
 				return FALSE;
 		} else {
-			if (!multi_init_multi(&ProgramData, &plrdata, &UiData, pfExitProgram))
+			if (!multi_init_multi(&ProgramData, &UiData, pfExitProgram))
 				return FALSE;
 		}
 		sgbNetInited = TRUE;
@@ -795,34 +761,32 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		NetClose();
 		gbSelectProvider = FALSE;
 	}
-	gnDifficulty = sgGameInitInfo.bDiff;
-	ticks_per_sec = sgGameInitInfo.bRate;
-	tick_delay = 1000 / ticks_per_sec;
+	gnDifficulty = sgGameInitInfo.bDifficulty;
+	gnTicksPerSec = sgGameInitInfo.bTickRate;
+	gnTickDelay = 1000 / gnTicksPerSec;
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		glSeedTbl[i] = GetRndSeed();
 		gnLevelTypeTbl[i] = InitLevelType(i);
 	}
-	if (!SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, 128))
-		nthread_terminate_game("SNetGetGameInfo1");
-	if (!SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, 128))
-		nthread_terminate_game("SNetGetGameInfo2");
+	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, 128);
+	SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, 128);
 
 	return TRUE;
 }
 
-BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info)
+BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info)
 {
 	int unused;
 
-	if (!SNetInitializeProvider(SELCONN_LOOPBACK, client_info, user_info, ui_info, &fileinfo)) {
+	if (!SNetInitializeProvider(SELCONN_LOOPBACK, client_info, ui_info)) {
 		SErrGetLastError();
 		return FALSE;
 	}
 
 	unused = 0;
-	if (!SNetCreateGame("local", "local", "local", 0, (char *)&sgGameInitInfo, sizeof(sgGameInitInfo), 1, "local", "local", &unused)) {
+	if (!SNetCreateGame("local", &sgGameInitInfo, &unused)) {
 		app_fatal("SNetCreateGame1:\n%s", TraceLastError());
 	}
 
@@ -832,25 +796,20 @@ BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info
 	return TRUE;
 }
 
-BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, BOOL *pfExitProgram)
+BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info, BOOL *pfExitProgram)
 {
 	BOOL first;
 	int playerId;
-	int type;
 
 	for (first = TRUE;; first = FALSE) {
-		type = 0x00;
 		if (gbSelectProvider) {
-			if (!UiSelectProvider(0, client_info, user_info, ui_info, &fileinfo, &type)
-			    && (!first || SErrGetLastError() != STORM_ERROR_REQUIRES_UPGRADE || !multi_upgrade(pfExitProgram))) {
+			if (!UiSelectProvider(client_info, ui_info)) {
 				return FALSE;
 			}
-			if (type == 'BNET')
-				plr[0].pBattleNet = TRUE;
 		}
 
 		multi_event_handler(TRUE);
-		if (UiSelectGame(1, client_info, user_info, ui_info, &fileinfo, &playerId))
+		if (UiSelectGame(client_info, &playerId))
 			break;
 
 		gbSelectProvider = TRUE;
@@ -863,10 +822,6 @@ BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info,
 		gbMaxPlayers = MAX_PLRS;
 
 		pfile_read_player_from_save();
-
-		if (type == 'BNET')
-			plr[myplr].pBattleNet = TRUE;
-
 		return TRUE;
 	}
 }

@@ -37,11 +37,9 @@ radon::File &getIni()
 	return ini;
 }
 
-BOOL SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume)
+void SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume)
 {
 	Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * bigvolume / VOLUME_MIN);
-
-	return true;
 }
 
 // Converts ASCII characters to lowercase
@@ -70,7 +68,7 @@ unsigned char AsciiToLowerTable_Path[256] = {
 	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
-BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
+bool SFileOpenFile(const char *filename, HANDLE *phFile)
 {
 	unsigned i;
 	bool result = false;
@@ -100,7 +98,7 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile)
 	return result;
 }
 
-BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, DWORD dwBuffersize, DWORD *pdwWidth, DWORD *dwHeight, DWORD *pdwBpp)
+bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, DWORD dwBuffersize, DWORD *pdwWidth, DWORD *dwHeight, DWORD *pdwBpp)
 {
 	HANDLE hFile;
 	size_t size;
@@ -143,7 +141,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		return false;
 	}
 
-	if (!SFileReadFile(hFile, &pcxhdr, 128, 0, 0)) {
+	if (!SFileReadFile(hFile, &pcxhdr, 128, NULL)) {
 		SFileCloseFile(hFile);
 		return false;
 	}
@@ -174,7 +172,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	if (fileBuffer != NULL) {
-		SFileReadFile(hFile, fileBuffer, size, 0, 0);
+		SFileReadFile(hFile, fileBuffer, size, NULL);
 		dataPtr = fileBuffer;
 
 		for (int j = 0; j < height; j++) {
@@ -203,7 +201,7 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 
 	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
 		SFileSetFilePointer(hFile, -768, 0, 1);
-		SFileReadFile(hFile, paldata, 768, 0, 0);
+		SFileReadFile(hFile, paldata, 768, NULL);
 		for (int i = 0; i < 256; i++) {
 			pPalette[i].r = paldata[i][0];
 			pPalette[i].g = paldata[i][1];
@@ -219,17 +217,16 @@ BOOL SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	return true;
 }
 
-void *SMemAlloc(unsigned int amount, const char *logfilename, int logline, int defaultValue)
+void *SMemAlloc(unsigned int amount)
 {
 	assert(amount != -1u);
 	return malloc(amount);
 }
 
-BOOL SMemFree(void *location, const char *logfilename, int logline, char defaultValue)
+void SMemFree(void *location)
 {
 	assert(location != NULL);
 	free(location);
-	return true;
 }
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
@@ -286,7 +283,7 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 	ini.saveToFile();
 }
 
-BOOL SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *value)
+bool getIniInt(const char *keyname, const char *valuename, BYTE flags, int *value)
 {
 	char string[10];
 	if (getIniValue(keyname, valuename, string, 10)) {
@@ -297,13 +294,11 @@ BOOL SRegLoadValue(const char *keyname, const char *valuename, BYTE flags, int *
 	return false;
 }
 
-BOOL SRegSaveValue(const char *keyname, const char *valuename, BYTE flags, DWORD result)
+void setIniInt(const char *keyname, const char *valuename, BYTE flags, DWORD result)
 {
 	char str[10];
 	snprintf(str, 10, "%d", result);
 	setIniValue(keyname, valuename, str);
-
-	return true;
 }
 
 double SVidFrameEnd;
@@ -449,7 +444,7 @@ void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int fla
 
 	int bytestoread = SFileGetFileSize(*video, 0);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(*video, SVidBuffer, bytestoread, NULL, 0);
+	SFileReadFile(*video, SVidBuffer, bytestoread, NULL);
 
 	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
 	if (SVidSMK == NULL) {
@@ -571,7 +566,7 @@ void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int fla
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 }
 
-BOOL SVidLoadNextFrame()
+static bool SVidLoadNextFrame()
 {
 	SVidFrameEnd += SVidFrameLength;
 
@@ -586,7 +581,7 @@ BOOL SVidLoadNextFrame()
 	return true;
 }
 
-BOOL SVidPlayContinue(void)
+bool SVidPlayContinue(void)
 {
 	if (smk_palette_updated(SVidSMK)) {
 		SDL_Color colors[256];
@@ -753,18 +748,16 @@ void SStrCopy(char *dest, const char *src, int max_length)
 	//strncpy(dest, src, max_length);
 }
 
-BOOL SFileSetBasePath(const char *path)
+void SFileSetBasePath(const char *path)
 {
 	if (SBasePath == NULL)
 		SBasePath = new std::string;
 	*SBasePath = path;
-	return true;
 }
 
-BOOL SFileEnableDirectAccess(BOOL enable)
+void SFileEnableDirectAccess(BOOL enable)
 {
 	directFileAccess = enable;
-	return true;
 }
 
 void SLoadKeyMap(BYTE (&map)[256])

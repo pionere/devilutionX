@@ -68,7 +68,7 @@ void selgame_GameSelection_Init()
 		return;
 	}
 
-	getIniValue("Phone Book", "Entry1", selgame_Ip, 128);
+	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
 
 	selgame_FreeVectors();
 
@@ -395,8 +395,8 @@ void selgame_Password_Select(std::size_t index)
 {
 	if (selgame_selectedGame) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		if (SNetJoinGame(selgame_selectedGame, selgame_Ip, selgame_Password, NULL, NULL, gdwPlayerId)) {
-			if (!IsDifficultyAllowed(m_client_info->initdata->bDiff)) {
+		if (SNetJoinGame(selgame_selectedGame, selgame_Ip, selgame_Password, gdwPlayerId)) {
+			if (!IsDifficultyAllowed(m_client_info->initdata->bDifficulty)) {
 				selgame_GameSelection_Select(1);
 				return;
 			}
@@ -412,11 +412,11 @@ void selgame_Password_Select(std::size_t index)
 		return;
 	}
 
-	_gamedata *info = m_client_info->initdata;
-	info->bDiff = gbDifficulty;
-	info->bRate = gbTickRate;
+	_SNETGAMEDATA *info = m_client_info->initdata;
+	info->bDifficulty = gbDifficulty;
+	info->bTickRate = gbTickRate;
 
-	if (SNetCreateGame(NULL, selgame_Password, NULL, 0, (char *)info, sizeof(_gamedata), MAX_PLRS, NULL, NULL, gdwPlayerId)) {
+	if (SNetCreateGame(selgame_Password, info, gdwPlayerId)) {
 		UiInitList_clear();
 		selgame_endMenu = true;
 	} else {
@@ -435,8 +435,7 @@ void selgame_Password_Esc()
 		selgame_GameSpeedSelection();
 }
 
-int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info,
-    _SNETVERSIONDATA *file_info, int *playerId)
+bool UiSelectGame(_SNETPROGRAMDATA *client_info, int *playerId)
 {
 	gdwPlayerId = playerId;
 	m_client_info = client_info;

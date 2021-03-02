@@ -77,7 +77,7 @@ BOOL nthread_recv_turns(BOOL *received)
 	*received = FALSE;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown) {
-		last_tick += tick_delay;
+		last_tick += gnTickDelay;
 		return TRUE;
 	}
 	sgbSyncCountdown--;
@@ -85,7 +85,7 @@ BOOL nthread_recv_turns(BOOL *received)
 	if (sgbSyncCountdown != 0) {
 
 		*received = TRUE;
-		last_tick += tick_delay;
+		last_tick += gnTickDelay;
 		return TRUE;
 	}
 #ifdef __3DS__
@@ -106,7 +106,7 @@ BOOL nthread_recv_turns(BOOL *received)
 		sgbSyncCountdown = 4;
 		multi_msg_countdown();
 		*received = TRUE;
-		last_tick += tick_delay;
+		last_tick += gnTickDelay;
 		return TRUE;
 	}
 #endif
@@ -127,7 +127,7 @@ static unsigned int nthread_handler(void *data)
 		if (nthread_recv_turns(&received))
 			delta = last_tick - SDL_GetTicks();
 		else
-			delta = tick_delay;
+			delta = gnTickDelay;
 		sgMemCrit.Leave();
 		if (delta > 0)
 			SDL_Delay(delta);
@@ -154,7 +154,7 @@ void nthread_start(BOOL set_turn_upper_bit)
 		nthread_set_turn_upper_bit();
 	else
 		turn_upper_bit = 0;
-	caps.size = 36;
+	//caps.size = 36;
 	if (!SNetGetProviderCaps(&caps)) {
 		err = TraceLastError();
 		app_fatal("SNetGetProviderCaps:\n%s", err);
@@ -231,7 +231,7 @@ BOOL nthread_has_500ms_passed()
 
 	currentTickCount = SDL_GetTicks();
 	ticksElapsed = currentTickCount - last_tick;
-	if (gbMaxPlayers == 1 && ticksElapsed > tick_delay * 10) {
+	if (gbMaxPlayers == 1 && ticksElapsed > (int)(10 * gnTickDelay)) {
 		last_tick = currentTickCount;
 		ticksElapsed = 0;
 	}

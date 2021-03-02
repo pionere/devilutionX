@@ -79,7 +79,7 @@ void mainmenu_Free()
 	vecMenuItems.clear();
 }
 
-BOOL UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const char *file), int attractTimeOut)
+void UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const char *file), int attractTimeOut)
 {
 	MainMenuResult = 0;
 	while (MainMenuResult == 0) {
@@ -100,7 +100,6 @@ BOOL UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 	}
 
 	*pdwResult = MainMenuResult;
-	return true;
 }
 
 DEVILUTION_END_NAMESPACE

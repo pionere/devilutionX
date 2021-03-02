@@ -518,7 +518,6 @@ void UiSelHeroMultDialog(
     BOOL (*fnremove)(_uiheroinfo *),
     void (*fnstats)(unsigned int, _uidefaultstats *),
     int *dlgresult,
-    BOOL *hero_is_created,
     char (&name)[16])
 {
 	selhero_isMultiPlayer = true;

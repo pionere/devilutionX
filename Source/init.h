@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern _SNETVERSIONDATA fileinfo;
 extern int gbActive;
 extern WNDPROC CurrentWndProc;
 #ifdef MPQONE
@@ -27,9 +26,6 @@ void init_create_window();
 void MainWndProc(UINT Msg, WPARAM wParam, LPARAM lParam);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
-/* data */
-
-extern char gszVersionNumber[MAX_SEND_STR_LEN];
 extern char gszProductName[MAX_SEND_STR_LEN];
 
 #ifdef __cplusplus

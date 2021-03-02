@@ -475,7 +475,7 @@ void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
 	    pInfo->gold);
 }
 
-BOOL UiValidPlayerName(const char *name)
+bool UiValidPlayerName(const char *name)
 {
 	if (!strlen(name))
 		return false;
@@ -511,7 +511,7 @@ BOOL UiValidPlayerName(const char *name)
 	return true;
 }
 
-BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
+void UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 {
 	const char fmt[] = " %d %d %d %d %d %d %d %d";
 	char format[sizeof(DWORD) + sizeof(fmt)];
@@ -530,8 +530,6 @@ BOOL UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
 	    info->dexterity,
 	    info->vitality,
 	    info->gold);
-
-	return true;
 }
 
 int GetCenterOffset(int w, int bw)
@@ -900,8 +898,8 @@ void DrawMouse()
  */
 void DvlIntSetting(const char *valuename, int *value)
 {
-	if (!SRegLoadValue("devilutionx", valuename, 0, value)) {
-		SRegSaveValue("devilutionx", valuename, 0, *value);
+	if (!getIniInt("devilutionx", valuename, 0, value)) {
+		setIniInt("devilutionx", valuename, 0, *value);
 	}
 }
 
@@ -913,13 +911,6 @@ void DvlStringSetting(const char *valuename, char *string, int len)
 	if (!getIniValue("devilutionx", valuename, string, len)) {
 		setIniValue("devilutionx", valuename, string);
 	}
-}
-
-void InitUICallbacks(_SNETUIDATA &UiData)
-{
-	UiData.selectnamecallback = mainmenu_select_hero_dialog;
-	UiData.changenamecallback = (void (*)())mainmenu_change_name;
-	UiData.profilefields = UiProfileGetString();
 }
 
 DEVILUTION_END_NAMESPACE

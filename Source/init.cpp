@@ -22,7 +22,6 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-_SNETVERSIONDATA fileinfo;
 /** True if the game is the current active window */
 int gbActive;
 /** The current input handler function */
@@ -60,7 +59,6 @@ HANDLE init_test_access(const char *mpq_name)
 
 /* data */
 
-char gszVersionNumber[MAX_SEND_STR_LEN] = "internal version unknown";
 char gszProductName[MAX_SEND_STR_LEN] = "Diablo v1.09";
 
 void init_cleanup()
@@ -85,7 +83,6 @@ void init_cleanup()
 static void init_get_file_info()
 {
 	snprintf(gszProductName, sizeof(gszProductName), "%s v%s", PROJECT_NAME, PROJECT_VERSION);
-	snprintf(gszVersionNumber, sizeof(gszVersionNumber), "version %s", PROJECT_VERSION);
 }
 
 #ifdef _DEVMODE
@@ -137,10 +134,6 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 
 void init_archives()
 {
-	HANDLE fh = NULL;
-	memset(&fileinfo, 0, sizeof(fileinfo));
-	fileinfo.size = sizeof(fileinfo);
-	fileinfo.versionstring = gszVersionNumber;
 	init_get_file_info();
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
@@ -209,7 +202,7 @@ void init_archives()
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
 				DWORD dwLen = SFileGetFileSize(hFile, NULL);
 				BYTE *buf = DiabloAllocPtr(dwLen);
-				if (!SFileReadFile(hFile, buf, dwLen, NULL, NULL))
+				if (!SFileReadFile(hFile, buf, dwLen, NULL))
 					app_fatal("Unable to read save file");
 				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());

@@ -205,7 +205,7 @@ void CreditsRenderer::Render()
 
 } // namespace
 
-BOOL UiCreditsDialog()
+void UiCreditsDialog()
 {
 	CreditsRenderer credits_renderer;
 	bool endMenu = false;
@@ -233,8 +233,6 @@ BOOL UiCreditsDialog()
 			UiHandleEvents(&event);
 		}
 	} while (!endMenu && !credits_renderer.Finished());
-
-	return true;
 }
 
 DEVILUTION_END_NAMESPACE

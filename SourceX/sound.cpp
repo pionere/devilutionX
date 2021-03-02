@@ -45,7 +45,7 @@ static void snd_get_volume(const char *value_name, int *value)
 {
 	int v;
 
-	if (SRegLoadValue("Diablo", value_name, 0, value)) {
+	if (getIniInt("Diablo", value_name, 0, value)) {
 		v = *value;
 		if (v < VOLUME_MIN) {
 			v = VOLUME_MIN;
@@ -57,11 +57,6 @@ static void snd_get_volume(const char *value_name, int *value)
 	v -= v % 100;
 
 	*value = v;
-}
-
-static void snd_set_volume(const char *key, int value)
-{
-	SRegSaveValue("Diablo", key, 0, value);
 }
 
 BOOL snd_playing(TSnd *pSnd)
@@ -112,7 +107,7 @@ TSnd *sound_file_load(const char *path)
 
 	dwBytes = SFileGetFileSize(file, NULL);
 	wave_file = DiabloAllocPtr(dwBytes);
-	SFileReadFile(file, wave_file, dwBytes, NULL, NULL);
+	SFileReadFile(file, wave_file, dwBytes, NULL);
 
 	pSnd->DSB = new SoundSample();
 	error = pSnd->DSB->SetChunk(wave_file, dwBytes);
@@ -161,8 +156,8 @@ void sound_cleanup()
 {
 	if (gbSndInited) {
 		gbSndInited = false;
-		snd_set_volume("Sound Volume", sglSoundVolume);
-		snd_set_volume("Music Volume", sglMusicVolume);
+		setIniInt("Diablo", "Sound Volume", 0, sglSoundVolume);
+		setIniInt("Diablo", "Music Volume", 0, sglMusicVolume);
 	}
 }
 
@@ -193,7 +188,7 @@ void music_start(int nTrack)
 		} else {
 			int bytestoread = SFileGetFileSize(sghMusic, 0);
 			musicBuffer = (char *)DiabloAllocPtr(bytestoread);
-			SFileReadFile(sghMusic, musicBuffer, bytestoread, NULL, 0);
+			SFileReadFile(sghMusic, musicBuffer, bytestoread, NULL);
 
 			musicRw = SDL_RWFromConstMem(musicBuffer, bytestoread);
 			if (musicRw == NULL) {
