@@ -641,7 +641,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 
 	switch (pEvt->eventid) {
 	case EVENT_TYPE_PLAYER_CREATE_GAME:
-		gameData = (_SNETGAMEDATA *)pEvt->data;
+		gameData = (_SNETGAMEDATA *)pEvt->_eData;
 		sgGameInitInfo.dwSeed = gameData->dwSeed;
 		sgGameInitInfo.bDifficulty = gameData->bDifficulty;
 		sgGameInitInfo.bTickRate = gameData->bTickRate;
@@ -652,8 +652,8 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 		sgbPlayerTurnBitTbl[pEvt->playerid] = FALSE;
 
 		LeftReason = 0;
-		if (pEvt->data != NULL && pEvt->databytes >= sizeof(DWORD))
-			LeftReason = *(DWORD *)pEvt->data;
+		if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
+			LeftReason = *(DWORD *)pEvt->_eData;
 		sgdwPlayerLeftReasonTbl[pEvt->playerid] = LeftReason;
 		if (LeftReason == LEAVE_ENDING)
 			gbSomebodyWonGameKludge = TRUE;
@@ -665,7 +665,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 			gbDeltaSender = MAX_PLRS;
 		break;
 	case EVENT_TYPE_PLAYER_MESSAGE:
-		ErrorPlrMsg((char *)pEvt->data);
+		ErrorPlrMsg((char *)pEvt->_eData);
 		break;
 	}
 }

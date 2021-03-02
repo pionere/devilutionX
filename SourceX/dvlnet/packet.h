@@ -27,9 +27,9 @@ enum packet_type : uint8_t {
 const char *packet_type_to_string(uint8_t packet_type);
 
 typedef uint8_t plr_t;
-typedef uint32_t cookie_t;
-typedef int turn_t;      // change int to something else in devilution code later
-typedef int leaveinfo_t; // also change later
+typedef DWORD cookie_t;
+typedef INT turn_t;      // change int to something else in devilution code later
+typedef INT leaveinfo_t; // also change later
 #ifndef NONET
 typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 #endif

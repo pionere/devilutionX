@@ -1419,13 +1419,13 @@ typedef struct _SNETCAPS {
 typedef struct _SNETEVENT {
 	DWORD eventid;
 	DWORD playerid;
-	void *data;
+	void *_eData;
 	DWORD databytes;
 } _SNETEVENT;
 
 typedef struct _SNETPROGRAMDATA {
 	//int size;
-	DWORD versionid;
+	DWORD versionid; // TODO: unused. Check before join?
 	_SNETGAMEDATA *initdata;
 } _SNETPROGRAMDATA;
 
@@ -1435,7 +1435,7 @@ typedef struct _SNETUIDATA {
 	    const struct _SNETPROGRAMDATA *
 	    //DWORD provider, // e.g. 'BNET', 'IPXN', 'MODM', 'SCBL'
 	);
-	void (*changenamecallback)();
+	void (*changenamecallback)(); // TODO: unused
 } _SNETUIDATA;
 
 //////////////////////////////////////////////////

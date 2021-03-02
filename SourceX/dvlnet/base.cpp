@@ -38,7 +38,7 @@ void base::handle_accept(packet &pkt)
 		_SNETEVENT ev;
 		ev.eventid = EVENT_TYPE_PLAYER_CREATE_GAME;
 		ev.playerid = plr_self;
-		ev.data = const_cast<unsigned char *>(pkt_info.data());
+		ev._eData = const_cast<unsigned char *>(pkt_info.data());
 		ev.databytes = pkt_info.size();
 		run_event_handler(ev);
 	}
@@ -81,8 +81,8 @@ void base::recv_local(packet &pkt)
 				_SNETEVENT ev;
 				ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 				ev.playerid = pkt_plr;
-				ev.data = reinterpret_cast<unsigned char *>(&leaveinfo);
-				ev.databytes = sizeof(leaveinfo_t);
+				ev._eData = reinterpret_cast<unsigned char *>(&leaveinfo);
+				ev.databytes = sizeof(leaveinfo);
 				run_event_handler(ev);
 				connected_table[pkt_plr] = false;
 				clear_msg(pkt_plr);
