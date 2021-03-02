@@ -898,8 +898,8 @@ void DrawMouse()
  */
 void DvlIntSetting(const char *valuename, int *value)
 {
-	if (!getIniInt("devilutionx", valuename, 0, value)) {
-		setIniInt("devilutionx", valuename, 0, *value);
+	if (!getIniInt("devilutionx", valuename, value)) {
+		setIniInt("devilutionx", valuename, *value);
 	}
 }
 

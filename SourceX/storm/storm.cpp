@@ -239,7 +239,7 @@ bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
 	return strtol(string, NULL, 10) != 0;
 }
 
-bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize)
+bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize)
 {
 	radon::Section *section = getIni().getSection(sectionName);
 	if (section == NULL)
@@ -250,8 +250,6 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 		return false;
 
 	std::string value = key->getStringValue();
-	if (dataSize != NULL)
-		*dataSize = value.length();
 
 	if (string != NULL)
 		SStrCopy(string, value.c_str(), stringSize);
@@ -259,7 +257,7 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 	return true;
 }
 
-void setIniValue(const char *sectionName, const char *keyName, const char *value, int len)
+void setIniValue(const char *sectionName, const char *keyName, const char *value)
 {
 	radon::File &ini = getIni();
 
@@ -269,7 +267,7 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 		section = ini.getSection(sectionName);
 	}
 
-	std::string stringValue(value, len ? len : strlen(value));
+	std::string stringValue(value);
 
 	radon::Key *key = section->getKey(keyName);
 	if (key == NULL) {
@@ -283,10 +281,10 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 	ini.saveToFile();
 }
 
-bool getIniInt(const char *keyname, const char *valuename, BYTE flags, int *value)
+bool getIniInt(const char *sectionName, const char *keyName, int *value)
 {
 	char string[10];
-	if (getIniValue(keyname, valuename, string, 10)) {
+	if (getIniValue(sectionName, keyName, string, 10)) {
 		*value = strtol(string, NULL, 10);
 		return true;
 	}
@@ -294,11 +292,11 @@ bool getIniInt(const char *keyname, const char *valuename, BYTE flags, int *valu
 	return false;
 }
 
-void setIniInt(const char *keyname, const char *valuename, BYTE flags, DWORD result)
+void setIniInt(const char *sectionName, const char *keyName, DWORD value)
 {
 	char str[10];
-	snprintf(str, 10, "%d", result);
-	setIniValue(keyname, valuename, str);
+	snprintf(str, 10, "%d", value);
+	setIniValue(sectionName, keyName, str);
 }
 
 double SVidFrameEnd;

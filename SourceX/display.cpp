@@ -136,8 +136,8 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	dpad_hotkeys = getIniBool("controls", "dpad_hotkeys");
-	switch_potions_and_clicks = getIniBool("controls", "switch_potions_and_clicks");
+	dpad_hotkeys = getIniBool("controls", "dpad_hotkeys", false);
+	switch_potions_and_clicks = getIniBool("controls", "switch_potions_and_clicks", false);
 #endif
 
 #ifdef USE_SDL1

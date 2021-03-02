@@ -335,7 +335,7 @@ void gamemenu_speed(BOOL bActivate)
 		gnTicksPerSec = gmenu_slider_get(&sgOptionsMenu[3], 20, 50);
 	}
 
-	setIniInt("devilutionx", "game speed", 0, gnTicksPerSec);
+	setIniInt("devilutionx", "game speed", gnTicksPerSec);
 	gnTickDelay = 1000 / gnTicksPerSec;
 }
 

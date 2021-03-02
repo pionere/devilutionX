@@ -44,8 +44,8 @@ static BOOL mainmenu_single_player()
 {
 	gbMaxPlayers = 1;
 
-	if (!getIniInt("devilutionx", "game speed", 0, &gnTicksPerSec)) {
-		setIniInt("devilutionx", "game speed", 0, gnTicksPerSec);
+	if (!getIniInt("devilutionx", "game speed", &gnTicksPerSec)) {
+		setIniInt("devilutionx", "game speed", gnTicksPerSec);
 	}
 
 	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);

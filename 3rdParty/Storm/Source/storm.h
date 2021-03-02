@@ -243,11 +243,11 @@ void *STORMAPI SMemAlloc(unsigned int amount);
  */
 void STORMAPI SMemFree(void *location);
 
-bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue = false);
-bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize = NULL);
-void setIniValue(const char *sectionName, const char *keyName, const char *value, int len = 0);
-bool getIniInt(const char *keyname, const char *valuename, BYTE flags, int *value);
-void setIniInt(const char *keyname, const char *valuename, BYTE flags, DWORD result);
+bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue);
+bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);
+void setIniValue(const char *sectionName, const char *keyName, const char *value);
+bool getIniInt(const char *sectionName, const char *keyName, int *value);
+void setIniInt(const char *sectionName, const char *keyName, DWORD value);
 
 void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video);
 void SVidPlayEnd(HANDLE video);

@@ -45,7 +45,7 @@ static void snd_get_volume(const char *value_name, int *value)
 {
 	int v;
 
-	if (getIniInt("Diablo", value_name, 0, value)) {
+	if (getIniInt("Diablo", value_name, value)) {
 		v = *value;
 		if (v < VOLUME_MIN) {
 			v = VOLUME_MIN;
@@ -156,8 +156,8 @@ void sound_cleanup()
 {
 	if (gbSndInited) {
 		gbSndInited = false;
-		setIniInt("Diablo", "Sound Volume", 0, sglSoundVolume);
-		setIniInt("Diablo", "Music Volume", 0, sglMusicVolume);
+		setIniInt("Diablo", "Sound Volume", sglSoundVolume);
+		setIniInt("Diablo", "Music Volume", sglMusicVolume);
 	}
 }
 
