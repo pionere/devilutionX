@@ -564,6 +564,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Valthek",
 		    "Horazon",
 		},
+#ifdef HELLFIRE
 		{ // MONK
 		    "Jazreth",
 		    "Drognan",
@@ -600,6 +601,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Myrdgar",
 		    "Rothat",
 		}
+#endif
 	};
 	SetRndSeed(time(NULL));
 	int iRand = random_(0, lengthof(kNames[hero_class]));
