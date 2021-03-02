@@ -43,6 +43,8 @@ static void dx_create_back_buffer()
 	}
 
 	gpBuffer = (BYTE *)pal_surface->pixels;
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
+	gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y));
 
 #ifndef USE_SDL1
 	// In SDL2, `pal_surface` points to the global `palette`.
@@ -92,7 +94,8 @@ static void lock_buf_priv()
 	}
 
 	gpBuffer = (BYTE *)pal_surface->pixels;
-	gpBufEnd += (uintptr_t)(BYTE *)pal_surface->pixels;
+	gpBufEnd += (uintptr_t)gpBuffer; // (BYTE *)pal_surface->pixels;
+	// gpBufEnd = gpBuffer + pal_surface->pitch * pal_surface->h;
 	sgdwLockCount++;
 }
 

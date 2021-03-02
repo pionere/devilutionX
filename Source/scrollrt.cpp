@@ -1496,15 +1496,15 @@ static void DoBlitScreen()
 void scrollrt_draw_game_screen(BOOL draw_cursor)
 {
 	//int hgt;
-	BOOL redraw;
+	bool redraw;
 
 	if (gbRedrawFlags == REDRAW_ALL) {
 		gbRedrawFlags = 0;
 		//hgt = SCREEN_HEIGHT;
-		redraw = TRUE;
+		redraw = true;
 	} else {
 		//hgt = 0;
-		redraw = FALSE;
+		redraw = false;
 	}
 
 	if (draw_cursor) {
@@ -1514,7 +1514,7 @@ void scrollrt_draw_game_screen(BOOL draw_cursor)
 	}
 
 	//DrawMain(hgt, 0);
-	if (gbActive && redraw) {
+	if (redraw && gbActive) {
 		DoBlitScreen();
 	}
 
