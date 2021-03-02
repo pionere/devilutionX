@@ -2777,7 +2777,6 @@ void SaveCornerStone()
 void LoadCornerStone(int x, int y)
 {
 	int i, ii;
-	int dwSize;
 	PkItemStruct PkSItem;
 
 	if (CornerStone.activated || x == 0 || y == 0) {
@@ -2797,19 +2796,16 @@ void LoadCornerStone(int x, int y)
 		}
 		dItem[x][y] = 0;
 	}
-	dwSize = 0;
-	if (getIniValue("Hellfire", "SItem", (char *)&PkSItem, sizeof(PkSItem), &dwSize)) {
-		if (dwSize == sizeof(PkSItem)) {
-			ii = itemavail[0];
-			UnPackItem(&PkSItem, &item[ii]);
-			SetItemLoc(ii, x, y);
-			RespawnItem(ii, FALSE);
-			copy_pod(CornerStone.item, item[ii]);
+	if (getIniValue("Hellfire", "SItem", (char *)&PkSItem, sizeof(PkSItem)) {
+		ii = itemavail[0];
+		UnPackItem(&PkSItem, &item[ii]);
+		SetItemLoc(ii, x, y);
+		RespawnItem(ii, FALSE);
+		copy_pod(CornerStone.item, item[ii]);
 
-			itemactive[numitems] = ii;
-			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-			numitems++;
-		}
+		itemactive[numitems] = ii;
+		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
+		numitems++;
 	}
 }
 #endif

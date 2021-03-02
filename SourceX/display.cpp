@@ -16,19 +16,6 @@
 #ifndef SDL1_VIDEO_MODE_FLAGS
 #define SDL1_VIDEO_MODE_FLAGS SDL_SWSURFACE
 #endif
-#ifdef SDL1_VIDEO_MODE_WIDTH
-#define DEFAULT_WIDTH SDL1_VIDEO_MODE_WIDTH
-#endif
-#ifdef SDL1_VIDEO_MODE_HEIGHT
-#define DEFAULT_HEIGHT SDL1_VIDEO_MODE_HEIGHT
-#endif
-#endif
-
-#ifndef DEFAULT_WIDTH
-#define DEFAULT_WIDTH 640
-#endif
-#ifndef DEFAULT_HEIGHT
-#define DEFAULT_HEIGHT 480
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -41,7 +28,8 @@ int viewportHeight;
 int borderRight;
 
 #ifdef USE_SDL1
-void SetVideoMode(int width, int height, int bpp, uint32_t flags) {
+void SetVideoMode(int width, int height, int bpp, uint32_t flags)
+{
 	SDL_Log("Setting video mode %dx%d bpp=%u flags=0x%08X", width, height, bpp, flags);
 	SDL_SetVideoMode(width, height, bpp, flags);
 	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
@@ -50,7 +38,8 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags) {
 	ghMainWnd = SDL_GetVideoSurface();
 }
 
-void SetVideoModeToPrimary(bool fullscreen, int width, int height) {
+void SetVideoModeToPrimary(bool fullscreen, int width, int height)
+{
 	int flags = SDL1_VIDEO_MODE_FLAGS | SDL_HWPALETTE;
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
@@ -61,6 +50,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height) {
 
 bool IsFullScreen() {
 	return (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
+	// ifndef USE_SDL1:
+	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
 }
 #endif
 
@@ -125,7 +116,7 @@ bool SpawnWindow(const char *lpWindowName)
 	scePowerSetArmClockFrequency(444);
 #endif
 
-#if SDL_VERSION_ATLEAST(2,0,6)
+#if SDL_VERSION_ATLEAST(2, 0, 6)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
 
@@ -144,8 +135,8 @@ bool SpawnWindow(const char *lpWindowName)
 	}
 #endif
 
-	dpad_hotkeys = getIniBool("controls","dpad_hotkeys");
-	switch_potions_and_clicks = getIniBool("controls","switch_potions_and_clicks");
+	dpad_hotkeys = getIniBool("controls", "dpad_hotkeys");
+	switch_potions_and_clicks = getIniBool("controls", "switch_potions_and_clicks");
 
 #ifdef USE_SDL1
 	SDL_EnableUNICODE(1);
@@ -317,7 +308,7 @@ SDL_Surface *CreateScaledSurface(SDL_Surface *src)
 	SDL_Rect stretched_rect = { 0, 0, static_cast<Uint16>(src->w), static_cast<Uint16>(src->h) };
 	ScaleOutputRect(&stretched_rect);
 	SDL_Surface *stretched = SDL_CreateRGBSurface(
-			SDL_SWSURFACE, stretched_rect.w, stretched_rect.h, src->format->BitsPerPixel,
+	    SDL_SWSURFACE, stretched_rect.w, stretched_rect.h, src->format->BitsPerPixel,
 	    src->format->Rmask, src->format->Gmask, src->format->Bmask, src->format->Amask);
 	if (SDL_HasColorKey(src)) {
 		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);

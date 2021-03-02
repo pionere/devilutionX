@@ -208,6 +208,13 @@
 #define PAL16_RED		224
 #define PAL16_GRAY		240
 
+#ifndef DEFAULT_WIDTH
+#define DEFAULT_WIDTH	640
+#endif
+#ifndef DEFAULT_HEIGHT
+#define DEFAULT_HEIGHT	480
+#endif
+
 #define SCREEN_WIDTH	dvl::screenWidth
 #define SCREEN_HEIGHT	dvl::screenHeight
 

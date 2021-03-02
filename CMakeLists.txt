@@ -458,8 +458,8 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
-  SDL1_VIDEO_MODE_WIDTH
-  SDL1_VIDEO_MODE_HEIGHT
+  DEFAULT_WIDTH
+  DEFAULT_HEIGHT
   TTF_FONT_DIR
   TTF_FONT_NAME
   SDL1_VIDEO_MODE_BPP

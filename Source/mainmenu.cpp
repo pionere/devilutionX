@@ -91,28 +91,26 @@ BOOL mainmenu_select_hero_dialog(
 	BOOL hero_is_created = TRUE;
 	int dlgresult = 0;
 	if (gbMaxPlayers == 1) {
-		if (!UiSelHeroSingDialog(
-		        pfile_ui_set_hero_infos,
-		        pfile_ui_save_create,
-		        pfile_delete_save,
-		        pfile_ui_set_class_stats,
-		        &dlgresult,
-		        gszHero,
-		        &gnDifficulty))
-			app_fatal("Unable to display SelHeroSing");
+		UiSelHeroSingDialog(
+		    pfile_ui_set_hero_infos,
+		    pfile_ui_save_create,
+		    pfile_delete_save,
+		    pfile_ui_set_class_stats,
+		    &dlgresult,
+		    &gszHero,
+		    &gnDifficulty);
 		client_info->initdata->bDiff = gnDifficulty;
 
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-
-	} else if (!UiSelHeroMultDialog(
-	               pfile_ui_set_hero_infos,
-	               pfile_ui_save_create,
-	               pfile_delete_save,
-	               pfile_ui_set_class_stats,
-	               &dlgresult,
-	               &hero_is_created,
-	               gszHero)) {
-		app_fatal("Can't load multiplayer dialog");
+	} else {
+		UiSelHeroMultDialog(
+		    pfile_ui_set_hero_infos,
+		    pfile_ui_save_create,
+		    pfile_delete_save,
+		    pfile_ui_set_class_stats,
+		    &dlgresult,
+		    &hero_is_created,
+		    &gszHero);
 	}
 	if (dlgresult == SELHERO_PREVIOUS) {
 		SErrSetLastError(1223);
