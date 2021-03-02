@@ -599,7 +599,7 @@ typedef struct CMonster {
 	unsigned char mAFNum; // unused
 	BYTE mdeadval;
 	const MonsterData *MData;
-	// A TRN file contains a sequence of colour transitions, represented
+	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	BYTE *trans_file;
 #ifdef X86_32bit_COMP

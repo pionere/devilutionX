@@ -72,10 +72,10 @@ BOOL STORMAPI SNetDestroy();
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetDropPlayer(
-      int playerid,
-      DWORD flags);
+    STORMAPI
+    SNetDropPlayer(
+        int playerid,
+        DWORD flags);
 
 /*  SNetGetGameInfo @ 107
  *
@@ -89,11 +89,11 @@ SNetDropPlayer(
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetGetGameInfo(
-    int type,
-    void *dst,
-    unsigned int length);
+    STORMAPI
+    SNetGetGameInfo(
+        int type,
+        void *dst,
+        unsigned int length);
 
 /*  SNetGetTurnsInTransit @ 115
  *
@@ -105,36 +105,34 @@ SNetGetGameInfo(
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetGetTurnsInTransit(
-      DWORD *turns);
+    STORMAPI
+    SNetGetTurnsInTransit(
+        DWORD *turns);
 
 // Network provider structures
-typedef struct _client_info
-{
-  DWORD dwSize; // 60
-  char  *pszName;
-  char  *pszVersion;
-  DWORD dwProduct;
-  DWORD dwVerbyte;
-  DWORD dwUnk5;
-  DWORD dwMaxPlayers;
-  DWORD dwUnk7;
-  DWORD dwUnk8;
-  DWORD dwUnk9;
-  DWORD dwUnk10; // 0xFF
-  char  *pszCdKey;
-  char  *pszCdOwner;
-  DWORD dwIsShareware;
-  DWORD dwLangId;
+typedef struct _client_info {
+	DWORD dwSize; // 60
+	char *pszName;
+	char *pszVersion;
+	DWORD dwProduct;
+	DWORD dwVerbyte;
+	DWORD dwUnk5;
+	DWORD dwMaxPlayers;
+	DWORD dwUnk7;
+	DWORD dwUnk8;
+	DWORD dwUnk9;
+	DWORD dwUnk10; // 0xFF
+	char *pszCdKey;
+	char *pszCdOwner;
+	DWORD dwIsShareware;
+	DWORD dwLangId;
 } client_info;
 
-typedef struct _user_info
-{
-  DWORD dwSize; // 16
-  char  *pszPlayerName;
-  char  *pszUnknown;
-  DWORD dwUnknown;
+typedef struct _user_info {
+	DWORD dwSize; // 16
+	char *pszPlayerName;
+	char *pszUnknown;
+	DWORD dwUnknown;
 } user_info;
 
 BOOL STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, char *userStats, int *playerid);
@@ -149,15 +147,15 @@ BOOL STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, char *pla
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetLeaveGame(
-    int type);
+    STORMAPI
+    SNetLeaveGame(
+        int type);
 
 BOOL STORMAPI SNetPerformUpgrade(DWORD *upgradestatus);
 BOOL STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
 BOOL STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 
-typedef void (STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
+typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
 
 /*  SNetSendMessage @ 127
  *
@@ -175,12 +173,11 @@ typedef void (STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetSendMessage(
-      int    playerID,
-      void   *data,
-      unsigned int databytes);
-
+    STORMAPI
+    SNetSendMessage(
+        int playerID,
+        void *data,
+        unsigned int databytes);
 
 // Macro values to target specific players
 #define SNPLAYER_ALL    -1
@@ -209,10 +206,10 @@ SNetSendMessage(
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SNetSendTurn(
-      char    *data,
-      unsigned int  databytes);
+    STORMAPI
+    SNetSendTurn(
+        char *data,
+        unsigned int databytes);
 
 BOOL STORMAPI SFileCloseArchive(HANDLE hArchive);
 BOOL STORMAPI SFileCloseFile(HANDLE hFile);
@@ -242,15 +239,15 @@ BOOL STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRe
  *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
  */
 BOOL
-STORMAPI
-SBmpLoadImage(
-    const char *pszFileName,
-    SDL_Color  *pPalette ,
-    BYTE       *pBuffer,
-    DWORD      dwBuffersize,
-    DWORD      *pdwWidth,
-    DWORD      *pdwHeight,
-    DWORD      *pdwBpp);
+    STORMAPI
+    SBmpLoadImage(
+        const char *pszFileName,
+        SDL_Color *pPalette,
+        BYTE *pBuffer,
+        DWORD dwBuffersize,
+        DWORD *pdwWidth,
+        DWORD *pdwHeight,
+        DWORD *pdwBpp);
 
 /*  SMemAlloc @ 401
  *
@@ -287,12 +284,12 @@ void *
  *  Returns TRUE if the call was successful and FALSE otherwise.
  */
 BOOL
-STORMAPI
-SMemFree(
-    void *location,
-    const char *logfilename,
-    int  logline,
-    char defaultValue);
+    STORMAPI
+    SMemFree(
+        void *location,
+        const char *logfilename,
+        int logline,
+        char defaultValue);
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue = false);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize, int *dataSize = NULL);
@@ -321,9 +318,9 @@ SErrGetLastError();
  *  dwErrCode:  The error code that will be set.
  */
 void
-STORMAPI
-SErrSetLastError(
-    DWORD dwErrCode);
+    STORMAPI
+    SErrSetLastError(
+        DWORD dwErrCode);
 
 // Values for dwErrCode
 #define STORM_ERROR_GAME_TERMINATED              0x85100069
@@ -343,11 +340,11 @@ SErrSetLastError(
  *
  */
 void
-STORMAPI
-SStrCopy(
-    char *dest,
-    const char *src,
-    int max_length);
+    STORMAPI
+    SStrCopy(
+        char *dest,
+        const char *src,
+        int max_length);
 
 BOOL SFileSetBasePath(const char *);
 BOOL SVidPlayContinue(void);
@@ -370,4 +367,4 @@ void SLoadKeyMap(BYTE (&map)[256]);
 }
 #endif
 
-}
+} // namespace dvl
