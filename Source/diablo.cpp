@@ -2018,7 +2018,7 @@ void game_loop(BOOL bStartup)
 
 void diablo_color_cyc_logic()
 {
-	if (!palette_get_color_cycling())
+	if (!gbColorCyclingEnabled)
 		return;
 
 	if (leveltype == DTYPE_HELL)

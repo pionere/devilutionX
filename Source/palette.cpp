@@ -12,14 +12,12 @@ SDL_Color logical_palette[256];
 SDL_Color system_palette[256];
 SDL_Color orig_palette[256];
 
-/* data */
-
 /** Specifies the gamma correction level. */
-int gamma_correction = 100;
+int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
-BOOL color_cycling_enabled = TRUE;
+BOOL gbColorCyclingEnabled = TRUE;
 /** Specifies whether the palette has max brightness. */
-BOOLEAN sgbFadedIn = TRUE;
+BOOLEAN _gbFadedIn = TRUE;
 
 void palette_update()
 {
@@ -35,12 +33,12 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 	int i;
 	double g;
 
-	if (gamma_correction == 100) {
+	if (_gnGammaCorrection == 100) {
 		memcpy(dst, src, sizeof(SDL_Color) * n);
 		return;
 	}
 
-	g = gamma_correction / 100.0;
+	g = _gnGammaCorrection / 100.0;
 
 	for (i = 0; i < n; i++) {
 		dst[i].r = pow(src[i].r / 256.0, g) * 256.0;
@@ -52,37 +50,25 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 
 static void SaveGamma()
 {
-	setIniInt("Diablo", "Gamma Correction", gamma_correction);
-#ifndef HELLFIRE
-	setIniInt("Diablo", "Color Cycling", color_cycling_enabled);
-#endif
-}
-
-static void LoadGamma()
-{
-	int gamma_value;
-	int value;
-
-	value = gamma_correction;
-	if (!getIniInt("Diablo", "Gamma Correction", &value))
-		value = 100;
-	gamma_value = value;
-	if (value < 30) {
-		gamma_value = 30;
-	} else if (value > 100) {
-		gamma_value = 100;
-	}
-	gamma_correction = gamma_value - gamma_value % 5;
-#ifndef HELLFIRE
-	if (!getIniInt("Diablo", "Color Cycling", &value))
-		value = TRUE;
-	color_cycling_enabled = value;
-#endif
+	setIniInt("Diablo", "Gamma Correction", _gnGammaCorrection);
 }
 
 void palette_init()
 {
-	LoadGamma();
+	int value;
+
+	value = _gnGammaCorrection;
+	if (!getIniInt("Diablo", "Gamma Correction", &value))
+		value = 100;
+	if (value < 30) {
+		value = 30;
+	} else if (value > 100) {
+		value = 100;
+	}
+	_gnGammaCorrection = value - value % 5;
+
+	gbColorCyclingEnabled = getIniBool("Diablo", "Color Cycling", true);
+
 	memcpy(system_palette, orig_palette, sizeof(orig_palette));
 	InitPalette();
 }
@@ -140,10 +126,10 @@ void ResetPal()
 
 void IncreaseGamma()
 {
-	if (gamma_correction < 100) {
-		gamma_correction += 5;
-		if (gamma_correction > 100)
-			gamma_correction = 100;
+	if (_gnGammaCorrection < 100) {
+		_gnGammaCorrection += 5;
+		if (_gnGammaCorrection > 100)
+			_gnGammaCorrection = 100;
 		ApplyGamma(system_palette, logical_palette, 256);
 		palette_update();
 	}
@@ -151,10 +137,10 @@ void IncreaseGamma()
 
 void DecreaseGamma()
 {
-	if (gamma_correction > 30) {
-		gamma_correction -= 5;
-		if (gamma_correction < 30)
-			gamma_correction = 30;
+	if (_gnGammaCorrection > 30) {
+		_gnGammaCorrection -= 5;
+		if (_gnGammaCorrection < 30)
+			_gnGammaCorrection = 30;
 		ApplyGamma(system_palette, logical_palette, 256);
 		palette_update();
 	}
@@ -163,12 +149,12 @@ void DecreaseGamma()
 int UpdateGamma(int gamma)
 {
 	if (gamma != 0) {
-		gamma_correction = 130 - gamma;
+		_gnGammaCorrection = 130 - gamma;
 		ApplyGamma(system_palette, logical_palette, 256);
 		palette_update();
 	}
 	SaveGamma();
-	return 130 - gamma_correction;
+	return 130 - _gnGammaCorrection;
 }
 
 void SetFadeLevel(DWORD fadeval)
@@ -202,14 +188,14 @@ void PaletteFadeIn()
 	}
 	SetFadeLevel(256);
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
-	sgbFadedIn = TRUE;
+	_gbFadedIn = TRUE;
 }
 
 void PaletteFadeOut()
 {
 	int i;
 
-	if (sgbFadedIn) {
+	if (_gbFadedIn) {
 		DWORD tc = SDL_GetTicks();
 		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
 		for (i = 256; i > 0; i = 256 - ((SDL_GetTicks() - tc) >> 1)) { // instead of >> 1 it was /2.083 ... 32 frames @ 60hz
@@ -218,7 +204,7 @@ void PaletteFadeOut()
 			RenderPresent();
 		}
 		SetFadeLevel(0);
-		sgbFadedIn = FALSE;
+		_gbFadedIn = FALSE;
 	}
 }
 
@@ -311,17 +297,6 @@ void palette_update_quest_palette(int n)
 	}
 	ApplyGamma(system_palette, logical_palette, 32);
 	palette_update();
-}
-
-BOOL palette_get_color_cycling()
-{
-	return color_cycling_enabled;
-}
-
-BOOL palette_set_color_cycling(BOOL enabled)
-{
-	color_cycling_enabled = enabled;
-	return enabled;
 }
 
 DEVILUTION_END_NAMESPACE

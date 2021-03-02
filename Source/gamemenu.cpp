@@ -36,7 +36,6 @@ TMenuItem sgOptionsMenu[] = {
 	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_music_volume  },
 	{ GMENU_ENABLED | GMENU_SLIDER, NULL,            &gamemenu_sound_volume  },
 	{ GMENU_ENABLED | GMENU_SLIDER, "Gamma",         &gamemenu_gamma         },
-//	{ GMENU_ENABLED               , NULL,            &gamemenu_color_cycling },
 	{ GMENU_ENABLED | GMENU_SLIDER, "Speed",         &gamemenu_speed         },
 	{ GMENU_ENABLED               , "Previous Menu", &gamemenu_previous      },
 	{ GMENU_ENABLED               , NULL,            NULL                    },
@@ -52,9 +51,6 @@ const char *const sound_toggle_names[] = {
 	"Sound",
 	"Sound Disabled",
 };
-
-/** Specifies the menu names for colour cycling disabled and enabled. */
-const char *const color_cycling_toggle_names[] = { "Color Cycling Off", "Color Cycling On" };
 
 static void gamemenu_update_single(TMenuItem *pMenuItems)
 {
@@ -224,11 +220,6 @@ static void gamemenu_get_speed()
 	gmenu_slider_set(&sgOptionsMenu[3], 20, 50, gnTicksPerSec);
 }
 
-static void gamemenu_get_color_cycling()
-{
-	sgOptionsMenu[3].pszStr = color_cycling_toggle_names[palette_get_color_cycling() & 1];
-}
-
 static int gamemenu_slider_gamma()
 {
 	return gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
@@ -240,7 +231,6 @@ void gamemenu_settings(BOOL bActivate)
 	gamemenu_get_sound();
 	gamemenu_get_gamma();
 	gamemenu_get_speed();
-	//gamemenu_get_color_cycling();
 	gmenu_set_items(sgOptionsMenu, NULL);
 }
 
@@ -337,14 +327,6 @@ void gamemenu_speed(BOOL bActivate)
 
 	setIniInt("devilutionx", "game speed", gnTicksPerSec);
 	gnTickDelay = 1000 / gnTicksPerSec;
-}
-
-void gamemenu_color_cycling(BOOL bActivate)
-{
-	BOOL color_cycling;
-
-	color_cycling = palette_set_color_cycling(palette_get_color_cycling() == 0);
-	sgOptionsMenu[3].pszStr = color_cycling_toggle_names[color_cycling & 1];
 }
 
 DEVILUTION_END_NAMESPACE

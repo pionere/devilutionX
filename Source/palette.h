@@ -12,6 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern BOOL gbColorCyclingEnabled;
+
 extern SDL_Color logical_palette[256];
 extern SDL_Color system_palette[256];
 extern SDL_Color orig_palette[256];
@@ -35,8 +37,6 @@ void palette_update_crypt();
 void palette_update_hive();
 #endif
 void palette_update_quest_palette(int n);
-BOOL palette_get_color_cycling();
-BOOL palette_set_color_cycling(BOOL enabled);
 
 #ifdef __cplusplus
 }
