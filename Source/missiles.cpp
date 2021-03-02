@@ -3848,7 +3848,11 @@ void MI_WallC(int mi)
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 	}
+#ifdef HELLFIRE
 	mitype = mis->_miType == MIS_FIREWALLC ? MIS_FIREWALL : MIS_LIGHTWALL;
+#else
+	mitype = MIS_FIREWALL;
+#endif
 	if (!mis->_miVar8) {
 		tx = mis->_miVar1;
 		ty = mis->_miVar2;
