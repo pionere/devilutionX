@@ -452,7 +452,7 @@ void ShowProgress(unsigned int uMsg)
 	ResetPal();
 
 	if (gbSomebodyWonGameKludge && plr[myplr].plrlevel == 16) {
-		PrepDoEnding();
+		PrepDoEnding(gbSoundOn);
 	}
 
 	gbSomebodyWonGameKludge = FALSE;

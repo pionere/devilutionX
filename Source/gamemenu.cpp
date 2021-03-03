@@ -165,16 +165,17 @@ void gamemenu_restart_town(BOOL bActivate)
 
 static void gamemenu_sound_music_toggle(const char *const *names, TMenuItem *menu_item, int volume)
 {
-	if (gbSndInited) {
+	assert(gbSndInited);
+	//if (gbSndInited) {
 		menu_item->dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
 		menu_item->pszStr = *names;
 		gmenu_slider_steps(menu_item, 17);
 		gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
-		return;
+	/*	return;
 	}
 
 	menu_item->dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
-	menu_item->pszStr = names[1];
+	menu_item->pszStr = names[1];*/
 }
 
 static int gamemenu_slider_music_sound(TMenuItem *menu_item)
@@ -184,12 +185,12 @@ static int gamemenu_slider_music_sound(TMenuItem *menu_item)
 
 static void gamemenu_get_music()
 {
-	gamemenu_sound_music_toggle(music_toggle_names, sgOptionsMenu, sound_get_or_set_music_volume(1));
+	gamemenu_sound_music_toggle(music_toggle_names, sgOptionsMenu, sound_get_music_volume());
 }
 
 static void gamemenu_get_sound()
 {
-	gamemenu_sound_music_toggle(sound_toggle_names, &sgOptionsMenu[1], sound_get_or_set_sound_volume(1));
+	gamemenu_sound_music_toggle(sound_toggle_names, &sgOptionsMenu[1], sound_get_sound_volume());
 }
 
 static void gamemenu_get_gamma()
@@ -246,7 +247,7 @@ void gamemenu_music_volume(BOOL bActivate)
 	} else {
 		volume = gamemenu_slider_music_sound(&sgOptionsMenu[0]);
 	}
-	sound_get_or_set_music_volume(volume);
+	sound_set_music_volume(volume);
 	if (volume == VOLUME_MIN) {
 		if (gbMusicOn) {
 			gbMusicOn = FALSE;
@@ -275,14 +276,14 @@ void gamemenu_sound_volume(BOOL bActivate)
 		if (gbSoundOn) {
 			gbSoundOn = FALSE;
 			sound_stop();
-			sound_get_or_set_sound_volume(VOLUME_MIN);
+			sound_set_sound_volume(VOLUME_MIN);
 		} else {
 			gbSoundOn = TRUE;
-			sound_get_or_set_sound_volume(VOLUME_MAX);
+			sound_set_sound_volume(VOLUME_MAX);
 		}
 	} else {
 		volume = gamemenu_slider_music_sound(&sgOptionsMenu[1]);
-		sound_get_or_set_sound_volume(volume);
+		sound_set_sound_volume(volume);
 		if (volume == VOLUME_MIN) {
 			if (gbSoundOn) {
 				gbSoundOn = FALSE;

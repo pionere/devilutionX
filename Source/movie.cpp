@@ -21,7 +21,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 	HANDLE video_stream = NULL;
 
 	movie_playing = TRUE;
-	sound_disable_music(TRUE);
+	sound_disable_music();
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
 
@@ -53,7 +53,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 			break;
 		}
 	}
-	sound_disable_music(FALSE);
+	sound_start_music();
 	movie_playing = FALSE;
 	SDL_GetMouseState(&MouseX, &MouseY);
 	OutputToLogical(&MouseX, &MouseY);

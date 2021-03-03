@@ -1154,7 +1154,7 @@ static void stream_play(TSFX *pSFX, int lVolume, int lPan)
 	assert(pSFX != NULL);
 	assert(pSFX->bFlags & sfx_STREAM);
 	stream_stop();
-	lVolume += sound_get_or_set_sound_volume(1);
+	lVolume += sound_get_sound_volume();
 	if (lVolume >= VOLUME_MIN) {
 		if (lVolume > VOLUME_MAX)
 			lVolume = VOLUME_MAX;
@@ -1179,9 +1179,7 @@ void InitMonsterSND(int midx)
 	CMonster *cmon;
 	const MonsterData *mdata;
 
-	if (!gbSndInited) {
-		return;
-	}
+	assert(gbSndInited);
 
 	cmon = &Monsters[midx];
 	mdata = &monsterdata[cmon->mtype];
@@ -1260,7 +1258,7 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 	if (plr[myplr].pLvlLoad != 0 && gbMaxPlayers != 1) {
 		return;
 	}
-	if (!gbSndInited || !gbSoundOn || gbBufferMsgs != 0) {
+	if (!gbSoundOn || gbBufferMsgs != 0) {
 		return;
 	}
 
@@ -1298,7 +1296,7 @@ void PlayEffect(int mnum, int mode)
 		return;
 	}
 
-	if (!gbSndInited || !gbSoundOn || gbBufferMsgs != 0) {
+	if (!gbSoundOn || gbBufferMsgs != 0) {
 		return;
 	}
 
@@ -1345,9 +1343,7 @@ void sound_stop()
 
 void sound_update()
 {
-	if (!gbSndInited) {
-		return;
-	}
+	assert(gbSndInited);
 
 	stream_update();
 }
@@ -1370,9 +1366,7 @@ static void priv_sound_init(BYTE bLoadMask)
 {
 	int i;
 
-	if (!gbSndInited) {
-		return;
-	}
+	assert(gbSndInited);
 
 	for (i = 0; i < lengthof(sgSFX); i++) {
 		if (sgSFX[i].pSnd != NULL) {
@@ -1421,7 +1415,7 @@ void effects_play_sound(const char *snd_file)
 {
 	int i;
 
-	if (!gbSndInited || !gbSoundOn) {
+	if (!gbSoundOn) {
 		return;
 	}
 

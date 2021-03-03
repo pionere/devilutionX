@@ -17,7 +17,6 @@ extern "C" {
 
 extern int monstactive[MAXMONSTERS];
 extern int nummonsters;
-extern BOOLEAN sgbSaveSoundOn;
 extern MonsterStruct monster[MAXMONSTERS];
 extern CMonster Monsters[MAX_LVLMTYPES];
 extern int nummtypes;
@@ -42,7 +41,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonTeleport(int mnum);
 void MonUpdateLeader(int mnum);
 void DoEnding();
-void PrepDoEnding();
+void PrepDoEnding(bool soundOn);
 void MonWalkDir(int mnum, int md);
 void MAI_Zombie(int mnum);
 void MAI_SkelSd(int mnum);

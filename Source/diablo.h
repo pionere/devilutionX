@@ -17,6 +17,7 @@ extern DWORD glSeedTbl[NUMLEVELS];
 extern int gnLevelTypeTbl[NUMLEVELS];
 extern int MouseX;
 extern int MouseY;
+extern bool gbSndInited;
 extern BOOL gbRunGame;
 extern BOOL gbRunGameResult;
 extern BOOL zoomflag;

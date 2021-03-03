@@ -139,7 +139,7 @@ BOOL was_archives_init = FALSE;
 /** To know if surfaces have been initialized or not */
 BOOL was_window_init = FALSE;
 BOOL was_ui_init = FALSE;
-BOOL was_snd_init = FALSE;
+bool gbSndInited = false;
 
 static void print_help_and_exit()
 {
@@ -495,7 +495,7 @@ static void diablo_init()
 	diablo_init_screen();
 
 	snd_init();
-	was_snd_init = TRUE;
+	gbSndInited = true;
 
 	ui_sound_init();
 
@@ -519,9 +519,8 @@ static void diablo_splash()
 
 static void diablo_deinit()
 {
-	if (was_snd_init) {
+	if (gbSndInited) {
 		effects_cleanup_sfx();
-		sound_cleanup();
 	}
 	if (was_ui_init)
 		UiDestroy();

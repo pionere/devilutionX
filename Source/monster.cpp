@@ -12,7 +12,6 @@ int MissileFileFlag;
 
 int monstactive[MAXMONSTERS];
 int nummonsters;
-BOOLEAN sgbSaveSoundOn;
 MonsterStruct monster[MAXMONSTERS];
 int totalmonsters;
 CMonster Monsters[MAX_LVLMTYPES];
@@ -1584,11 +1583,6 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
 		NetSendCmdQuest(TRUE, Q_DIABLO);
-	sgbSaveSoundOn = gbSoundOn;
-	gbProcessPlayers = FALSE;
-#ifdef HELLFIRE
-	gbSoundOn = FALSE;
-#endif
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
 		if (j == mnum)
@@ -1613,12 +1607,15 @@ static void MonDiabloDeath(int mnum, BOOL sendmsg)
 	}
 	mon = &monster[mnum];
 	mon->_mVar1 = 0;
-
+	mon->_mVar2 = gbSoundOn;
 	mx = mon->_mx;
 	my = mon->_my;
 	PlaySfxLoc(USFX_DIABLOD, mx, my);
 	AddLight(mx, my, 8);
 	DoVision(mx, my, 8, FALSE, TRUE);
+
+	gbProcessPlayers = FALSE;
+	gbSoundOn = FALSE;
 }
 
 static void SpawnLoot(int mnum, BOOL sendmsg)
@@ -2516,7 +2513,7 @@ void MonUpdateLeader(int mnum)
 
 void DoEnding()
 {
-	BOOL bMusicOn;
+	bool bMusicOn;
 	int musicVolume;
 
 	if (gbMaxPlayers != 1) {
@@ -2539,25 +2536,25 @@ void DoEnding()
 	play_movie("gendata\\Diabend.smk", 0);
 
 	bMusicOn = gbMusicOn;
-	gbMusicOn = TRUE;
+	gbMusicOn = true;
 
-	musicVolume = sound_get_or_set_music_volume(1);
-	sound_get_or_set_music_volume(0);
+	musicVolume = sound_get_music_volume();
+	sound_set_music_volume(VOLUME_MAX);
 
 	music_start(TMUSIC_L2);
 	play_movie("gendata\\loopdend.smk", MOV_SKIP | MOV_LOOP);
 	music_stop();
 
-	sound_get_or_set_music_volume(musicVolume);
+	sound_set_music_volume(musicVolume);
 	gbMusicOn = bMusicOn;
 }
 
-void PrepDoEnding()
+void PrepDoEnding(bool soundOn)
 {
 	int i;
 	DWORD killLevel;
 
-	gbSoundOn = sgbSaveSoundOn;
+	gbSoundOn = soundOn;
 	gbRunGame = FALSE;
 	deathflag = FALSE;
 	cineflag = TRUE;
@@ -2607,7 +2604,7 @@ static BOOL MonDoDeath(int mnum)
 		ViewY += y;
 
 		if (++mon->_mVar1 == 140)
-			PrepDoEnding();
+			PrepDoEnding(mon->_mVar2);
 	} else if (mon->_mAnimFrame == mon->_mAnimLen) {
 		AddDead(mnum);
 	}
