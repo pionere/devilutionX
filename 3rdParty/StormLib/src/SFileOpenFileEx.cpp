@@ -358,13 +358,14 @@ bool STORMAPI SFileHasFile(HANDLE hMpq, const char * szFileName)
 //-----------------------------------------------------------------------------
 void STORMAPI SFileCloseFile(HANDLE hFile)
 {
-    TMPQFile * hf = (TMPQFile *)hFile;
-    
-    if (!IsValidFileHandle(hFile)) {
-        // SetLastError(ERROR_INVALID_HANDLE);
-        return;
-    }
+	TMPQFile * hf;
 
-    // Free the structure
-    FreeFileHandle(hf);
+	hf = IsValidFileHandle(hFile);
+	if (hf == NULL) {
+		// SetLastError(ERROR_INVALID_HANDLE);
+		return;
+	}
+
+	// Free the structure
+	FreeFileHandle(hf);
 }
