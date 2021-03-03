@@ -4,8 +4,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern int gbDifficulty;
-
 void selgame_GameSelection_Init();
 void selgame_GameSelection_Focus(std::size_t index);
 void selgame_GameSelection_Select(std::size_t index);

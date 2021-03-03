@@ -66,11 +66,12 @@ int udp_p2p::join(std::string addrstr, std::string passwd)
 		for (auto i = 0; i < 5; ++i) {
 			recv();
 			if (plr_self != PLR_BROADCAST)
-				break; // join successful
+				return plr_self; // join successful
 			SDL_Delay(1000);
 		}
 	}
-	return (plr_self == PLR_BROADCAST ? MAX_PLRS : plr_self);
+	SDL_SetError("Unable to connect");
+	return -1;
 }
 
 void udp_p2p::poll()

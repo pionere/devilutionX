@@ -416,20 +416,15 @@ static void run_game_loop(unsigned int uMsg)
 
 BOOL StartGame(BOOL bSinglePlayer)
 {
-	BOOL fExitProgram;
-
-	gbSelectProvider = TRUE;
+	gbSelectProvider = true;
 
 	while (TRUE) {
-		fExitProgram = FALSE;
 		gbLoadGame = FALSE;
 
-		if (!NetInit(bSinglePlayer, &fExitProgram)) {
-			gbRunGameResult = !fExitProgram;
+		if (!NetInit(bSinglePlayer)) {
+			gbRunGameResult = TRUE;
 			break;
 		}
-
-		gbSelectProvider = FALSE;
 
 		run_game_loop((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
 		NetClose();

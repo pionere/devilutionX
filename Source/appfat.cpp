@@ -39,8 +39,8 @@ static void FreeDlg()
 	cleanup_thread_id = SDL_GetThreadID(NULL);
 
 	if (gbMaxPlayers != 1) {
-		if (SNetLeaveGame(3))
-			SDL_Delay(2000);
+		SNetLeaveGame(3);
+		SDL_Delay(2000);
 	}
 
 	SNetDestroy();

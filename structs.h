@@ -1424,20 +1424,6 @@ typedef struct _SNETEVENT {
 	DWORD databytes;
 } _SNETEVENT;
 
-typedef struct _SNETPROGRAMDATA {
-	//int size;
-	_SNETGAMEDATA *initdata;
-} _SNETPROGRAMDATA;
-
-typedef struct _SNETUIDATA {
-	//int size;
-	bool (*selectnamecallback)(
-	    const struct _SNETPROGRAMDATA *
-	    //DWORD provider, // e.g. 'BNET', 'IPXN', 'MODM', 'SCBL'
-	);
-	void (*changenamecallback)(); // TODO: unused
-} _SNETUIDATA;
-
 //////////////////////////////////////////////////
 // pack
 //////////////////////////////////////////////////

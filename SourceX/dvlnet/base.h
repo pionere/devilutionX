@@ -26,7 +26,7 @@ public:
 	    SEVTHANDLER func);
 	virtual bool SNetUnregisterEventHandler(event_type evtype,
 	    SEVTHANDLER func);
-	virtual bool SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int type);
 	virtual bool SNetDropPlayer(int playerid, DWORD flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
 	virtual bool SNetGetTurnsInTransit(DWORD *turns);

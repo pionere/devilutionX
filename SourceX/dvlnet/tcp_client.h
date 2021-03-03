@@ -25,7 +25,7 @@ public:
 	virtual void poll();
 	virtual void send(packet &pkt);
 
-	virtual bool SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int type);
 
 	virtual ~tcp_client();
 

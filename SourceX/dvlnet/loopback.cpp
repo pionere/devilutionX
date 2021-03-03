@@ -79,9 +79,8 @@ bool loopback::SNetUnregisterEventHandler(event_type evtype,
 	return true;
 }
 
-bool loopback::SNetLeaveGame(int type)
+void loopback::SNetLeaveGame(int type)
 {
-	return true;
 }
 
 bool loopback::SNetDropPlayer(int playerid, DWORD flags)

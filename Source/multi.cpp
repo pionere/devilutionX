@@ -21,7 +21,7 @@ BYTE gbActivePlayers;
 BOOLEAN gbGameDestroyed;
 BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
 _SNETGAMEDATA sgGameInitInfo;
-BOOLEAN gbSelectProvider;
+bool gbSelectProvider = true;
 int sglTimeoutStart;
 int sgdwPlayerLeftReasonTbl[MAX_PLRS];
 TBuffer sgLoPriBuf;
@@ -703,24 +703,70 @@ void NetClose()
 		SDL_Delay(2000);
 }
 
-BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
+static bool multi_init_single()
 {
-	int i;
-	_SNETPROGRAMDATA ProgramData;
-	_SNETUIDATA UiData;
+	int playerId;
+
+	provider = SELCONN_LOOPBACK;
+	SNetInitializeProvider(SELCONN_LOOPBACK);
 
 	while (TRUE) {
-		*pfExitProgram = FALSE;
+		if (!mainmenu_select_hero_dialog()) {
+			return false;
+		}
+		if (gbLoadGame)
+			break;
+		multi_event_handler(TRUE);
+		if (UiSelectGame(&sgGameInitInfo, &playerId))
+			break;
+	}
+	assert(gbLoadGame || playerId == 0);
+
+	myplr = 0;
+	gbMaxPlayers = 1;
+
+	return true;
+}
+
+static bool multi_init_multi()
+{
+	int playerId;
+
+	while (TRUE) {
+		if (gbSelectProvider) {
+			if (!UiSelectProvider()) {
+				return false;
+			}
+			gbSelectProvider = false;
+		}
+		if (!mainmenu_select_hero_dialog()) {
+			gbSelectProvider = true;
+			continue;
+		}
+		multi_event_handler(TRUE);
+		if (UiSelectGame(&sgGameInitInfo, &playerId))
+			break;
+	}
+
+	assert((DWORD)playerId < MAX_PLRS);
+
+	myplr = playerId;
+	gbMaxPlayers = MAX_PLRS;
+
+	pfile_read_player_from_save();
+	return true;
+}
+
+bool NetInit(BOOL bSinglePlayer)
+{
+	int i;
+
+	while (TRUE) {
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);
 		sgGameInitInfo.dwVersionId = GAME_VERSION;
 		sgGameInitInfo.bDifficulty = gnDifficulty;
 		sgGameInitInfo.bTickRate = gnTicksPerSec;
-		memset(&ProgramData, 0, sizeof(ProgramData));
-		ProgramData.initdata = &sgGameInitInfo;
-		memset(&UiData, 0, sizeof(UiData));
-		UiData.selectnamecallback = mainmenu_select_hero_dialog;
-		UiData.changenamecallback = (void (*)())mainmenu_change_name;
 		memset(sgbPlayerTurnBitTbl, 0, sizeof(sgbPlayerTurnBitTbl));
 		gbGameDestroyed = FALSE;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
@@ -728,13 +774,12 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		memset(sgbSendDeltaTbl, 0, sizeof(sgbSendDeltaTbl));
 		memset(plr, 0, sizeof(plr));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
-		SNetSetBasePlayer(0);
 		if (bSinglePlayer) {
-			if (!multi_init_single(&ProgramData, &UiData))
-				return FALSE;
+			if (!multi_init_single())
+				return false;
 		} else {
-			if (!multi_init_multi(&ProgramData, &UiData, pfExitProgram))
-				return FALSE;
+			if (!multi_init_multi())
+				return false;
 		}
 		sgbNetInited = TRUE;
 		sgbTimeout = FALSE;
@@ -759,7 +804,6 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		if (!sgbPlayerTurnBitTbl[myplr] || msg_wait_resync())
 			break;
 		NetClose();
-		gbSelectProvider = FALSE;
 	}
 	gnDifficulty = sgGameInitInfo.bDifficulty;
 	gnTicksPerSec = sgGameInitInfo.bTickRate;
@@ -770,60 +814,10 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		glSeedTbl[i] = GetRndSeed();
 		gnLevelTypeTbl[i] = InitLevelType(i);
 	}
-	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, 128);
-	SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, 128);
+	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, sizeof(szPlayerName));
+	SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, sizeof(szPlayerDescript));
 
-	return TRUE;
-}
-
-BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info)
-{
-	int unused;
-
-	if (!SNetInitializeProvider(SELCONN_LOOPBACK, client_info, ui_info)) {
-		SErrGetLastError();
-		return FALSE;
-	}
-
-	unused = 0;
-	if (!SNetCreateGame("local", &sgGameInitInfo, &unused)) {
-		app_fatal("SNetCreateGame1:\n%s", TraceLastError());
-	}
-
-	myplr = 0;
-	gbMaxPlayers = 1;
-
-	return TRUE;
-}
-
-BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info, BOOL *pfExitProgram)
-{
-	BOOL first;
-	int playerId;
-
-	for (first = TRUE;; first = FALSE) {
-		if (gbSelectProvider) {
-			if (!UiSelectProvider(client_info, ui_info)) {
-				return FALSE;
-			}
-		}
-
-		multi_event_handler(TRUE);
-		if (UiSelectGame(client_info, &playerId))
-			break;
-
-		gbSelectProvider = TRUE;
-	}
-
-	if ((DWORD)playerId >= MAX_PLRS) {
-		return FALSE;
-	} else {
-		myplr = playerId;
-		gbMaxPlayers = MAX_PLRS;
-
-		pfile_read_player_from_save();
-		return TRUE;
-	}
+	return true;
 }
 
 void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv)

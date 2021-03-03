@@ -57,16 +57,12 @@ int tcp_client::join(std::string addrstr, std::string passwd)
 				return -1;
 			}
 			if (plr_self != PLR_BROADCAST)
-				break; // join successful
+				return plr_self; // join successful
 			SDL_Delay(ms_sleep);
 		}
 	}
-	if (plr_self == PLR_BROADCAST) {
-		SDL_SetError("Unable to connect");
-		return -1;
-	}
-
-	return plr_self;
+	SDL_SetError("Unable to connect");
+	return -1;
 }
 
 void tcp_client::poll()
@@ -117,12 +113,11 @@ void tcp_client::send(packet &pkt)
 	});
 }
 
-bool tcp_client::SNetLeaveGame(int type)
+void tcp_client::SNetLeaveGame(int type)
 {
-	auto ret = base::SNetLeaveGame(type);
+	base::SNetLeaveGame(type);
 	poll();
 	local_server.reset();
-	return ret;
 }
 
 tcp_client::~tcp_client()

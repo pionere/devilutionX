@@ -214,12 +214,11 @@ bool base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 	return true;
 }
 
-bool base::SNetLeaveGame(int type)
+void base::SNetLeaveGame(int type)
 {
 	auto pkt = pktfty->make_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
 	    plr_self, type);
 	send(*pkt);
-	return true;
 }
 
 bool base::SNetDropPlayer(int playerid, DWORD flags)

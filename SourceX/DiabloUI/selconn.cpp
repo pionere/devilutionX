@@ -10,8 +10,6 @@ char selconn_Description[64];
 char selconn_Gateway[129];
 bool selconn_ReturnValue = false;
 bool selconn_EndMenu = false;
-_SNETPROGRAMDATA *selconn_ClientInfo;
-_SNETUIDATA *selconn_UiInfo;
 
 int provider;
 
@@ -121,14 +119,13 @@ void selconn_Select(std::size_t index)
 	provider = vecConnItems[index]->m_value;
 
 	selconn_Free();
-	selconn_EndMenu = SNetInitializeProvider(provider, selconn_ClientInfo, selconn_UiInfo);
+	SNetInitializeProvider(provider);
+	selconn_EndMenu = true;
 	selconn_Load();
 }
 
-bool UiSelectProvider(_SNETPROGRAMDATA *client_info, _SNETUIDATA *ui_info)
+bool UiSelectProvider()
 {
-	selconn_ClientInfo = client_info;
-	selconn_UiInfo = ui_info;
 	selconn_Load();
 
 	selconn_ReturnValue = true;

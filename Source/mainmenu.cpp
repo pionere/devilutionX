@@ -64,43 +64,28 @@ static void mainmenu_play_intro()
 	mainmenu_refresh_music();
 }
 
-void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
+/*void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
 {
 	if (UiValidPlayerName(name_2))
 		pfile_rename_hero(name_1, name_2);
-}
+}*/
 
-bool mainmenu_select_hero_dialog(const _SNETPROGRAMDATA *client_info)
+bool mainmenu_select_hero_dialog()
 {
-	int dlgresult = 0;
-	if (gbMaxPlayers == 1) {
-		UiSelHeroSingDialog(
-		    pfile_ui_set_hero_infos,
-		    pfile_ui_save_create,
-		    pfile_delete_save,
-		    pfile_ui_set_class_stats,
-		    &dlgresult,
-		    gszHero,
-		    &gnDifficulty);
-		client_info->initdata->bDifficulty = gnDifficulty;
-
-		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-	} else {
-		UiSelHeroMultDialog( 
-		    pfile_ui_set_hero_infos,
-		    pfile_ui_save_create,
-		    pfile_delete_save,
-		    pfile_ui_set_class_stats,
-		    &dlgresult,
-		    gszHero);
-	}
+	int dlgresult = UiSelHeroDialog(
+		gbMaxPlayers != 1,
+		pfile_ui_set_hero_infos,
+		pfile_ui_save_create,
+		pfile_delete_save,
+		pfile_ui_set_class_stats,
+		gszHero);
 	if (dlgresult == SELHERO_PREVIOUS) {
-		SErrSetLastError(1223);
-		return FALSE;
+		// SErrSetLastError(1223);
+		return false;
 	}
-
+	gbLoadGame = dlgresult == SELHERO_CONTINUE;
 	pfile_create_player_description(NULL, NULL);
-	return TRUE;
+	return true;
 }
 
 void mainmenu_loop()

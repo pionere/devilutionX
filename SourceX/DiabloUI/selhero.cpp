@@ -422,17 +422,7 @@ void selhero_Load_Select(std::size_t index)
 {
 	UiInitList_clear();
 	selhero_endMenu = true;
-	if (vecSelHeroDlgItems[index]->m_value == 0) {
-		selhero_result = SELHERO_CONTINUE;
-		return;
-	} else if (!selhero_isMultiPlayer) {
-		selhero_endMenu = false;
-		selhero_Free();
-		LoadBackgroundArt("ui_art\\selgame.pcx");
-		selgame_GameSelection_Select(0);
-	}
-
-	selhero_result = 0;
+	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
 
 BOOL SelHero_GetHeroInfo(_uiheroinfo *pInfo)
@@ -443,14 +433,14 @@ BOOL SelHero_GetHeroInfo(_uiheroinfo *pInfo)
 	return true;
 }
 
-static void UiSelHeroDialog(
-    BOOL (*fninfo)(BOOL (*fninfofunc)(_uiheroinfo *)),
-    BOOL (*fncreate)(_uiheroinfo *),
-    void (*fnstats)(unsigned int, _uidefaultstats *),
-    BOOL (*fnremove)(_uiheroinfo *),
-    int *dlgresult,
-    char (&name)[16])
+int UiSelHeroDialog(bool bMulti,
+	BOOL (*fninfo)(BOOL (*fninfofunc)(_uiheroinfo *)),
+	BOOL (*fncreate)(_uiheroinfo *),
+	BOOL (*fnremove)(_uiheroinfo *),
+	void (*fnstats)(unsigned int, _uidefaultstats *),
+	char (&name)[16])
 {
+	selhero_isMultiPlayer = bMulti;
 	bUIElementsLoaded = true;
 
 	do {
@@ -459,7 +449,7 @@ static void UiSelHeroDialog(
 		gfnHeroInfo = fninfo;
 		gfnHeroCreate = fncreate;
 		gfnHeroStats = fnstats;
-		selhero_result = *dlgresult;
+		//selhero_result = 0;
 
 		selhero_navigateYesNo = false;
 
@@ -492,36 +482,10 @@ static void UiSelHeroDialog(
 		}
 	} while (selhero_navigateYesNo);
 
-	*dlgresult = selhero_result;
 	copy_str(name, selhero_heroInfo.name);
 
 	UnloadScrollBar();
-}
-
-void UiSelHeroSingDialog(
-    BOOL (*fninfo)(BOOL (*fninfofunc)(_uiheroinfo *)),
-    BOOL (*fncreate)(_uiheroinfo *),
-    BOOL (*fnremove)(_uiheroinfo *),
-    void (*fnstats)(unsigned int, _uidefaultstats *),
-    int *dlgresult,
-    char (&name)[16],
-    int *difficulty)
-{
-	selhero_isMultiPlayer = false;
-	UiSelHeroDialog(fninfo, fncreate, fnstats, fnremove, dlgresult, name);
-	*difficulty = gbDifficulty;
-}
-
-void UiSelHeroMultDialog(
-    BOOL (*fninfo)(BOOL (*fninfofunc)(_uiheroinfo *)),
-    BOOL (*fncreate)(_uiheroinfo *),
-    BOOL (*fnremove)(_uiheroinfo *),
-    void (*fnstats)(unsigned int, _uidefaultstats *),
-    int *dlgresult,
-    char (&name)[16])
-{
-	selhero_isMultiPlayer = true;
-	UiSelHeroDialog(fninfo, fncreate, fnstats, fnremove, dlgresult, name);
+	return selhero_result;
 }
 
 const char *selhero_GenerateName(uint8_t hero_class)

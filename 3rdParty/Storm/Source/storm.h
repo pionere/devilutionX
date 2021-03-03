@@ -107,7 +107,7 @@ bool
     SNetGetTurnsInTransit(
         DWORD *turns);
 
-bool STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, int *playerid);
+bool STORMAPI SNetJoinGame(char *gameName, char *gamePassword, int *playerid);
 
 /*  SNetLeaveGame @ 119
  *
@@ -116,9 +116,8 @@ bool STORMAPI SNetJoinGame(int id, char *gameName, char *gamePassword, int *play
  *
  *  type: The leave type. It doesn't appear to be important, no documentation available.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool
+void
     STORMAPI
     SNetLeaveGame(
         int type);
@@ -303,8 +302,7 @@ bool SVidPlayContinue(void);
 bool SNetGetOwnerTurnsWaiting(DWORD *);
 bool SNetUnregisterEventHandler(int, SEVTHANDLER);
 bool SNetRegisterEventHandler(int, SEVTHANDLER);
-bool SNetSetBasePlayer(int);
-bool SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETUIDATA *);
+void SNetInitializeProvider(unsigned long provider);
 bool SNetGetProviderCaps(struct _SNETCAPS *);
 bool SFileSetFilePointer(HANDLE, int, HANDLE, int);
 

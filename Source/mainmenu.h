@@ -14,8 +14,7 @@ extern "C" {
 
 extern char gszHero[16];
 
-void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2);
-bool mainmenu_select_hero_dialog(const _SNETPROGRAMDATA *client_info);
+bool mainmenu_select_hero_dialog();
 void mainmenu_loop();
 
 #ifdef __cplusplus
