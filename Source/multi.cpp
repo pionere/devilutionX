@@ -713,10 +713,10 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 		*pfExitProgram = FALSE;
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);
+		sgGameInitInfo.dwVersionId = GAME_VERSION;
 		sgGameInitInfo.bDifficulty = gnDifficulty;
 		sgGameInitInfo.bTickRate = gnTicksPerSec;
 		memset(&ProgramData, 0, sizeof(ProgramData));
-		ProgramData.versionid = GAME_VERSION;
 		ProgramData.initdata = &sgGameInitInfo;
 		memset(&UiData, 0, sizeof(UiData));
 		UiData.selectnamecallback = mainmenu_select_hero_dialog;

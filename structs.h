@@ -1400,6 +1400,7 @@ typedef struct _uiheroinfo {
 
 typedef struct _SNETGAMEDATA {
 	INT dwSeed;
+	DWORD dwVersionId;
 	BYTE bDifficulty;
 	BYTE bTickRate;
 } _SNETGAMEDATA;
@@ -1425,7 +1426,6 @@ typedef struct _SNETEVENT {
 
 typedef struct _SNETPROGRAMDATA {
 	//int size;
-	DWORD versionid; // TODO: unused. Check before join?
 	_SNETGAMEDATA *initdata;
 } _SNETPROGRAMDATA;
 

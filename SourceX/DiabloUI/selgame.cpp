@@ -215,6 +215,13 @@ void selgame_Diff_Focus(std::size_t index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
 }
 
+static void ShowErrorMsgDialog()
+{
+	selgame_Free();
+	UiSelOkDialog(title, tempstr, false);
+	LoadBackgroundArt("ui_art\\selgame.pcx");
+}
+
 static bool IsDifficultyAllowed(int value)
 {
 	int limit = 0;
@@ -231,16 +238,13 @@ static bool IsDifficultyAllowed(int value)
 	if (heroLevel >= limit)
 		return true;
 
-	selgame_Free();
-
 	if (value == DIFF_NIGHTMARE)
 		mode = "Nightmare";
 	else // if (value == DIFF_HELL)
 		mode = "Hell";
 
 	snprintf(tempstr, sizeof(tempstr), "Your character must reach level %d before you can enter a multiplayer game of %s difficulty.", limit, mode);
-	UiSelOkDialog(title, tempstr, false);
-	LoadBackgroundArt("ui_art\\selgame.pcx");
+	ShowErrorMsgDialog();
 	return false;
 }
 
@@ -391,12 +395,22 @@ void selgame_Password_Init(std::size_t index)
 	UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Select, selgame_Password_Esc);
 }
 
+static bool IsGameCompatible(_SNETGAMEDATA *data)
+{
+	if (data->dwVersionId == GAME_VERSION)
+		return IsDifficultyAllowed(data->bDifficulty);
+
+	snprintf(tempstr, sizeof(tempstr), "The host is running a different version of the game than you.");
+	ShowErrorMsgDialog();
+	return false;
+}
+
 void selgame_Password_Select(std::size_t index)
 {
 	if (selgame_selectedGame) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
 		if (SNetJoinGame(selgame_selectedGame, selgame_Ip, selgame_Password, gdwPlayerId)) {
-			if (!IsDifficultyAllowed(m_client_info->initdata->bDifficulty)) {
+			if (!IsGameCompatible(m_client_info->initdata)) {
 				selgame_GameSelection_Select(1);
 				return;
 			}
@@ -404,9 +418,8 @@ void selgame_Password_Select(std::size_t index)
 			UiInitList_clear();
 			selgame_endMenu = true;
 		} else {
-			selgame_Free();
-			UiSelOkDialog("Multi Player Game", SDL_GetError(), false);
-			LoadBackgroundArt("ui_art\\selgame.pcx");
+			snprintf(tempstr, sizeof(tempstr), SDL_GetError());
+			ShowErrorMsgDialog();
 			selgame_Password_Init(selgame_selectedGame);
 		}
 		return;
@@ -420,9 +433,8 @@ void selgame_Password_Select(std::size_t index)
 		UiInitList_clear();
 		selgame_endMenu = true;
 	} else {
-		selgame_Free();
-		UiSelOkDialog("Multi Player Game", SDL_GetError(), false);
-		LoadBackgroundArt("ui_art\\selgame.pcx");
+		snprintf(tempstr, sizeof(tempstr), SDL_GetError());
+		ShowErrorMsgDialog();
 		selgame_Password_Init(0);
 	}
 }
