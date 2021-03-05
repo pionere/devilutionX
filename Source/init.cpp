@@ -136,7 +136,7 @@ void init_archives()
 	init_get_file_info();
 
 	InitializeMpqCryptography();
-	SFileEnableDirectAccess(TRUE);
+	SFileEnableDirectAccess(getIniBool("devilutionx", "Direct FileAccess", false));
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
 #ifdef MPQONE
