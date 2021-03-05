@@ -106,7 +106,7 @@ bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData)
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	char addrstr[129] = "0.0.0.0";
-	getIniValue("dvlnet", "bindaddr", addrstr, 128);
+	getIniValue("Network", "Bind Address", addrstr, 128);
 	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	return dvlnet_inst->create(addrstr, pszGamePassword);

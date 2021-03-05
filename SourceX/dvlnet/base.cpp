@@ -204,7 +204,7 @@ bool base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
  *    handled by UI, raised during SNetCreateGame/SNetJoinGame
  *  EVENT_TYPE_PLAYER_MESSAGE:
  *    not implemented
-*/
+ */
 bool base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
 	registered_handlers[evtype] = func;

@@ -130,14 +130,14 @@ bool SpawnWindow(const char *lpWindowName)
 
 #ifndef USE_SDL1
 	char mapping[1024];
-	if (getIniValue("controls", "sdl2_controller_mapping", mapping, 1024)) {
+	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024)) {
 		SDL_GameControllerAddMapping(mapping);
 	}
 #endif
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	dpad_hotkeys = getIniBool("controls", "dpad_hotkeys", false);
-	switch_potions_and_clicks = getIniBool("controls", "switch_potions_and_clicks", false);
+	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
+	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);
 #endif
 
 #ifdef USE_SDL1
