@@ -161,7 +161,7 @@ bool SpawnWindow(const char *lpWindowName)
 	getIniInt("devilutionx", "width", &width);
 	getIniInt("devilutionx", "height", &height);
 #endif
-	bool integerScalingEnabled = getIniInt("devilutionx", "integer scaling", false);
+	bool integerScalingEnabled = getIniBool("devilutionx", "integer scaling", false);
 
 	if (fullscreen)
 		fullscreen = getIniBool("devilutionx", "fullscreen", true);
