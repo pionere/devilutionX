@@ -121,11 +121,12 @@ void tcp_client::SNetLeaveGame(int type)
 {
 	base::SNetLeaveGame(type);
 	poll();
-	local_server.reset();
+	// local_server.reset(); - causes exception. see diasurgical/devilutionX/issues/900
 }
 
 tcp_client::~tcp_client()
 {
+	// TODO: local_server.reset(); ?
 }
 
 } // namespace net
