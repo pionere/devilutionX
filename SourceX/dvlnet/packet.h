@@ -28,8 +28,8 @@ const char *packet_type_to_string(uint8_t packet_type);
 
 typedef uint8_t plr_t;
 typedef DWORD cookie_t;
-typedef INT turn_t;      // change int to something else in devilution code later
-typedef INT leaveinfo_t; // also change later
+typedef DWORD turn_t;
+typedef INT leaveinfo_t; // TODO: change to DWORD?
 #ifndef NONET
 typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 #endif

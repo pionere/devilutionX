@@ -224,7 +224,7 @@ void multi_msg_countdown()
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (player_state[i] & PS_TURN_ARRIVED) {
 			if (gdwMsgLenTbl[i] == 4)
-				multi_parse_turn(i, *(DWORD *)glpMsgTbl[i]);
+				multi_parse_turn(i, *glpMsgTbl[i]);
 		}
 	}
 }

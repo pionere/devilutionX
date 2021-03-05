@@ -8,12 +8,12 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE sgbNetUpdateRate;
-DWORD gdwMsgLenTbl[MAX_PLRS];
+unsigned gdwMsgLenTbl[MAX_PLRS];
 static CCritSect sgMemCrit;
 DWORD gdwDeltaBytesSec;
 BOOLEAN nthread_should_run;
 DWORD gdwTurnsInTransit;
-uintptr_t glpMsgTbl[MAX_PLRS];
+LPDWORD glpMsgTbl[MAX_PLRS];
 SDL_threadID glpNThreadId;
 char sgbSyncCountdown;
 int turn_upper_bit;
@@ -45,9 +45,7 @@ void nthread_terminate_game(const char *pszFcn)
 
 DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 {
-	DWORD new_cur_turn;
-	int turn, turn_tmp;
-	DWORD curTurnsInTransit;
+	DWORD turn, new_cur_turn, curTurnsInTransit;
 
 	new_cur_turn = cur_turn;
 	if (!SNetGetTurnsInTransit(&curTurnsInTransit)) {
@@ -56,9 +54,8 @@ DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 	}
 	while (curTurnsInTransit++ < gdwTurnsInTransit) {
 
-		turn_tmp = turn_upper_bit | new_cur_turn & 0x7FFFFFFF;
+		turn = turn_upper_bit | new_cur_turn & 0x7FFFFFFF;
 		turn_upper_bit = 0;
-		turn = turn_tmp;
 
 		if (!SNetSendTurn((char *)&turn, sizeof(turn))) {
 			nthread_terminate_game("SNetSendTurn");
@@ -140,7 +137,7 @@ void nthread_set_turn_upper_bit()
 	turn_upper_bit = 0x80000000;
 }
 
-void nthread_start(BOOL set_turn_upper_bit)
+void nthread_start(bool set_turn_upper_bit)
 {
 	const char *err, *err2;
 	DWORD largestMsgSize;
