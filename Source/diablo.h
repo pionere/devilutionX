@@ -33,7 +33,7 @@ extern BOOLEAN UseNestArt;
 #endif
 extern BOOL sgbActionBtnDown;
 extern BOOL sgbAltActionBtnDown;
-extern int gnTicksPerSec;
+extern int gnTicksRate;
 extern unsigned gnTickDelay;
 
 void FreeGameMem();

@@ -36,8 +36,8 @@ BOOL sgbActionBtnDown;
 BOOL sgbAltActionBtnDown;
 DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
 int actionBtnKey, altActionBtnKey;
-int gnTicksPerSec = 20;
-unsigned gnTickDelay = 50;
+int gnTicksRate = SPEED_NORMAL;
+unsigned gnTickDelay = 1000 / SPEED_NORMAL;
 
 /* rdata */
 
@@ -1987,7 +1987,7 @@ void game_loop(BOOL bStartup)
 {
 	int i;
 
-	i = gbMaxPlayers == 1 ? 1 : (bStartup ? gnTicksPerSec * 3 : 3);
+	i = gbMaxPlayers == 1 ? 1 : (bStartup ? gnTicksRate * 3 : 3);
 
 	do {
 		if (!multi_handle_delta()) {

@@ -780,8 +780,8 @@ bool NetInit(bool bSinglePlayer)
 	assert(myplr == sgGameInitInfo.bPlayerId);
 	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
 	gnDifficulty = sgGameInitInfo.bDifficulty;
-	gnTicksPerSec = sgGameInitInfo.bTickRate;
-	gnTickDelay = 1000 / gnTicksPerSec;
+	gnTicksRate = sgGameInitInfo.bTickRate;
+	gnTickDelay = 1000 / gnTicksRate;
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
 	for (i = 0; i < NUMLEVELS; i++) {

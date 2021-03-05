@@ -41,8 +41,11 @@ static BOOL mainmenu_single_player()
 {
 	gbMaxPlayers = 1;
 
-	if (!getIniInt("devilutionx", "game speed", &gnTicksPerSec)) {
-		setIniInt("devilutionx", "game speed", gnTicksPerSec);
+	if (getIniInt("devilutionx", "game speed", &gnTicksRate)) {
+		if (gnTicksRate < SPEED_NORMAL)
+			gnTicksRate = SPEED_NORMAL;
+		else if (gnTicksRate > SPEED_FASTEST)
+			gnTicksRate = SPEED_FASTEST;
 	}
 
 	return mainmenu_init_menu(true);

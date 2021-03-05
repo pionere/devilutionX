@@ -203,14 +203,16 @@ static void gamemenu_get_speed()
 {
 	if (gbMaxPlayers != 1) {
 		sgOptionsMenu[3].dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
-		if (gnTicksPerSec >= 50)
-			sgOptionsMenu[3].pszStr = "Speed: Fastest";
-		else if (gnTicksPerSec >= 40)
-			sgOptionsMenu[3].pszStr = "Speed: Faster";
-		else if (gnTicksPerSec >= 30)
-			sgOptionsMenu[3].pszStr = "Speed: Fast";
-		else if (gnTicksPerSec == 20)
-			sgOptionsMenu[3].pszStr = "Speed: Normal";
+		const char *speed;
+		if (gnTicksRate >= SPEED_FASTEST)
+			speed = "Speed: Fastest";
+		else if (gnTicksRate >= SPEED_FASTER)
+			speed = "Speed: Faster";
+		else if (gnTicksRate >= SPEED_FAST)
+			speed = "Speed: Fast";
+		else // if (gnTicksRate == SPEED_NORMAL)
+			speed = "Speed: Normal";
+		sgOptionsMenu[3].pszStr = speed;
 		return;
 	}
 
@@ -218,7 +220,7 @@ static void gamemenu_get_speed()
 
 	sgOptionsMenu[3].pszStr = "Speed";
 	gmenu_slider_steps(&sgOptionsMenu[3], 46);
-	gmenu_slider_set(&sgOptionsMenu[3], 20, 50, gnTicksPerSec);
+	gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 }
 
 static int gamemenu_slider_gamma()
@@ -317,17 +319,13 @@ void gamemenu_gamma(BOOL bActivate)
 void gamemenu_speed(BOOL bActivate)
 {
 	if (bActivate) {
-		if (gnTicksPerSec != 20)
-			gnTicksPerSec = 20;
-		else
-			gnTicksPerSec = 50;
-		gmenu_slider_set(&sgOptionsMenu[3], 20, 50, gnTicksPerSec);
+		gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 	} else {
-		gnTicksPerSec = gmenu_slider_get(&sgOptionsMenu[3], 20, 50);
-	}
+		gnTicksRate = gmenu_slider_get(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		gnTickDelay = 1000 / gnTicksRate;
 
-	setIniInt("devilutionx", "game speed", gnTicksPerSec);
-	gnTickDelay = 1000 / gnTicksPerSec;
+		setIniInt("devilutionx", "game speed", gnTicksRate);
+	}
 }
 
 DEVILUTION_END_NAMESPACE
