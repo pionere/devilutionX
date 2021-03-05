@@ -158,26 +158,22 @@ bool SpawnWindow(const char *lpWindowName)
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
 #ifndef __vita__
-	DvlIntSetting("width", &width);
-	DvlIntSetting("height", &height);
+	getIniInt("devilutionx", "width", &width);
+	getIniInt("devilutionx", "height", &height);
 #endif
-	BOOL integerScalingEnabled = false;
-	DvlIntSetting("integer scaling", &integerScalingEnabled);
+	bool integerScalingEnabled = getIniInt("devilutionx", "integer scaling", false);
 
 	if (fullscreen)
-		DvlIntSetting("fullscreen", &fullscreen);
+		fullscreen = getIniBool("devilutionx", "fullscreen", true);
 
-	int grabInput = 0;
-	DvlIntSetting("grab input", &grabInput);
+	bool grabInput = getIniBool("devilutionx", "grab input", false);
 
 #ifdef __vita__
-	BOOL upscale = false;
+	bool upscale = false;
 #else
-	BOOL upscale = true;
-	DvlIntSetting("upscale", &upscale);
+	bool upscale = getIniBool("devilutionx", "upscale", true);
 #endif
-	BOOL oar = false;
-	DvlIntSetting("original aspect ratio", &oar);
+	bool oar = getIniBool("devilutionx", "original aspect ratio", false);
 
 	if (upscale && !oar) {
 		CalculatePreferdWindowSize(width, height, integerScalingEnabled);
@@ -203,7 +199,7 @@ bool SpawnWindow(const char *lpWindowName)
 		flags |= SDL_WINDOW_RESIZABLE;
 
 		char scaleQuality[2] = "2";
-		DvlStringSetting("scaling quality", scaleQuality, 2);
+		getIniValue("devilutionx", "scaling quality", scaleQuality, 2);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQuality);
 	} else if (fullscreen) {
 		flags |= SDL_WINDOW_FULLSCREEN;
@@ -233,8 +229,7 @@ bool SpawnWindow(const char *lpWindowName)
 #ifndef USE_SDL1
 		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
 
-		vsyncEnabled = 1;
-		DvlIntSetting("vsync", &vsyncEnabled);
+		vsyncEnabled = getIniBool("devilutionx", "vsync", true);
 		if (vsyncEnabled) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}
