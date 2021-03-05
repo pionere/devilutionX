@@ -77,7 +77,6 @@ void init_cleanup()
 		}
 	}
 #endif
-	NetClose();
 }
 
 static void init_get_file_info()
@@ -135,6 +134,9 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 void init_archives()
 {
 	init_get_file_info();
+
+	InitializeMpqCryptography();
+	SFileEnableDirectAccess(TRUE);
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
 #ifdef MPQONE

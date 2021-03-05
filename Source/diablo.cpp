@@ -478,8 +478,6 @@ static void diablo_init()
 	init_create_window();
 	was_window_init = TRUE;
 
-	InitializeMpqCryptography();
-	SFileEnableDirectAccess(TRUE);
 	init_archives();
 	was_archives_init = TRUE;
 
@@ -515,9 +513,9 @@ static void diablo_splash()
 
 static void diablo_deinit()
 {
-	if (gbSndInited) {
+	NetClose();
+	if (gbSndInited)
 		effects_cleanup_sfx();
-	}
 	if (was_ui_init)
 		UiDestroy();
 	if (was_archives_init)
