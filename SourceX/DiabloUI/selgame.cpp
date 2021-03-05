@@ -5,26 +5,28 @@
 #include "DiabloUI/text.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selok.h"
+#include "DiabloUI/selconn.h"
 #include "DiabloUI/selhero.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+extern int provider;
+
+namespace {
 
 char selgame_Label[32];
 char selgame_Ip[129] = "";
 char selgame_Password[16] = "";
 char selgame_Description[256];
-bool selgame_enteringGame;
+int selgame_result;
 int selgame_selectedGame;
 bool selgame_endMenu;
-int *gdwPlayerId;
-int heroLevel;
+//int selgame_heroLevel;
 
-static _SNETGAMEDATA *m_game_data;
-extern int provider;
+_SNETGAMEDATA *selgame_gameData;
+void (*selgame_eventHandler)(_SNETEVENT *pEvt);
 
 #define DESCRIPTION_WIDTH 205
-
-namespace {
 
 char title[32];
 
@@ -32,6 +34,38 @@ std::vector<UiListItem *> vecSelGameDlgItems;
 std::vector<UiItemBase *> vecSelGameDialog;
 
 } // namespace
+
+static void selgame_handleEvents(_SNETEVENT *pEvt)
+{
+	_SNETGAMEDATA *gameData;
+	DWORD playerId;
+
+	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
+
+	playerId = pEvt->playerid;
+	assert((DWORD)playerId < MAX_PLRS);
+
+	gameData = (_SNETGAMEDATA *)pEvt->_eData;
+	if (gameData->dwVersionId != GAME_VERSION)
+		throw std::runtime_error("Mismatching game versions.");
+	assert(pEvt->databytes == sizeof(_SNETGAMEDATA));
+	copy_pod(*selgame_gameData, *gameData);
+	selgame_gameData->bPlayerId = playerId;
+}
+
+static void selgame_add_event_handlers()
+{
+	if (!SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler)
+	 || !SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents)) {
+		app_fatal("SNetRegisterEventHandler:\n%s", TraceLastError());
+	}
+}
+
+static void selgame_remove_event_handlers()
+{
+	SNetUnregisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler);
+	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
+}
 
 static void selgame_FreeVectors()
 {
@@ -57,14 +91,12 @@ static void selgame_Free()
 
 void selgame_GameSelection_Init()
 {
-	selgame_enteringGame = false;
-	selgame_selectedGame = 0;
-
 	if (provider == SELCONN_LOOPBACK) {
-		selgame_enteringGame = true;
 		selgame_GameSelection_Select(0);
 		return;
 	}
+
+	selgame_selectedGame = 0;
 
 	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
 
@@ -117,20 +149,19 @@ void selgame_GameSelection_Focus(std::size_t index)
  * @param pInfo Hero info
  * @return always true
  */
-BOOL UpdateHeroLevel(_uiheroinfo *pInfo)
+/*BOOL UpdateHeroLevel(_uiheroinfo *pInfo)
 {
 	if (strcasecmp(pInfo->name, gszHero) == 0)
-		heroLevel = pInfo->level;
+		selgame_heroLevel = pInfo->level;
 
 	return TRUE;
-}
+}*/
 
 void selgame_GameSelection_Select(std::size_t index)
 {
-	selgame_enteringGame = true;
 	selgame_selectedGame = index;
 
-	gfnHeroInfo(UpdateHeroLevel);
+	//gfnHeroInfo(UpdateHeroLevel);
 
 	selgame_FreeVectors();
 
@@ -190,7 +221,7 @@ void selgame_GameSelection_Select(std::size_t index)
 void selgame_GameSelection_Esc()
 {
 	UiInitList_clear();
-	selgame_enteringGame = false;
+	selgame_result = SELGAME_PREVIOUS;
 	selgame_endMenu = true;
 }
 
@@ -233,7 +264,8 @@ static bool IsDifficultyAllowed(int value)
 		ASSUME_UNREACHABLE
 	}
 
-	if (heroLevel >= limit)
+	//if (selgame_heroLevel >= limit)
+	if (selhero_heroInfo.level >= limit)
 		return true;
 
 	if (value == DIFF_NIGHTMARE)
@@ -250,19 +282,20 @@ void selgame_Diff_Select(std::size_t index)
 {
 	int value = vecSelGameDlgItems[index]->m_value;
 
-	if (selhero_isMultiPlayer && !IsDifficultyAllowed(value)) {
+	if (selconn_bMulti && !IsDifficultyAllowed(value)) {
 		selgame_GameSelection_Select(0);
 		return;
 	}
 
-	m_game_data->bDifficulty = value;
+	selgame_gameData->bDifficulty = value;
 
-	if (!selhero_isMultiPlayer) {
+	if (!selconn_bMulti) {
+		selgame_gameData->bMaxPlayers = 1;
 		snprintf(selgame_Password, sizeof(selgame_Password), "local");
 		selgame_Password_Select(0);
-		selhero_endMenu = true;
 		return;
 	}
+	selgame_gameData->bMaxPlayers = MAX_PLRS;
 
 	selgame_GameSpeedSelection();
 }
@@ -346,7 +379,7 @@ void selgame_Speed_Esc()
 
 void selgame_Speed_Select(std::size_t index)
 {
-	m_game_data->bTickRate = vecSelGameDlgItems[index]->m_value;
+	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
 
 	if (provider == SELCONN_LOOPBACK) {
 		selgame_Password_Select(0);
@@ -389,45 +422,33 @@ void selgame_Password_Init(std::size_t index)
 	UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Select, selgame_Password_Esc);
 }
 
-static bool IsGameCompatible(_SNETGAMEDATA *data)
-{
-	if (data->dwVersionId == GAME_VERSION)
-		return IsDifficultyAllowed(data->bDifficulty);
-
-	snprintf(tempstr, sizeof(tempstr), "The host is running a different version of the game than you.");
-	ShowErrorMsgDialog();
-	return false;
-}
-
 void selgame_Password_Select(std::size_t index)
 {
 	if (selgame_selectedGame != 0) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		if (SNetJoinGame(selgame_Ip, selgame_Password, gdwPlayerId)) {
-			//if (!IsDifficultyAllowed(m_client_info->initdata->bDifficulty)) {
-			if (!IsGameCompatible(m_game_data)) {
+		if (SNetJoinGame(selgame_Ip, selgame_Password)) {
+			if (!IsDifficultyAllowed(selgame_gameData->bDifficulty)) {
 				selgame_GameSelection_Select(1);
 				return;
 			}
 
 			UiInitList_clear();
+			selgame_result = SELGAME_JOIN;
 			selgame_endMenu = true;
-		} else {
-			snprintf(tempstr, sizeof(tempstr), SDL_GetError());
-			ShowErrorMsgDialog();
-			selgame_Password_Init(selgame_selectedGame);
+			return;
 		}
-		return;
+	} else {
+		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
+			UiInitList_clear();
+			selgame_result = SELGAME_CREATE;
+			selgame_endMenu = true;
+			return;
+		}
 	}
 
-	if (SNetCreateGame(selgame_Password, m_game_data, gdwPlayerId)) {
-		UiInitList_clear();
-		selgame_endMenu = true;
-	} else {
-		snprintf(tempstr, sizeof(tempstr), SDL_GetError());
-		ShowErrorMsgDialog();
-		selgame_Password_Init(0);
-	}
+	snprintf(tempstr, sizeof(tempstr), SDL_GetError());
+	ShowErrorMsgDialog();
+	selgame_Password_Init(selgame_selectedGame);
 }
 
 void selgame_Password_Esc()
@@ -438,10 +459,12 @@ void selgame_Password_Esc()
 		selgame_GameSpeedSelection();
 }
 
-bool UiSelectGame(_SNETGAMEDATA *game_data, int *playerId)
+int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt))
 {
-	m_game_data = game_data;
-	gdwPlayerId = playerId;
+	selgame_gameData = game_data;
+	selgame_eventHandler = event_handler;
+
+	selgame_add_event_handlers();
 
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 	selgame_GameSelection_Init();
@@ -453,6 +476,15 @@ bool UiSelectGame(_SNETGAMEDATA *game_data, int *playerId)
 	}
 	selgame_Free();
 
-	return selgame_enteringGame;
+	return selgame_result;
 }
+
+void UIDisconnectGame()
+{
+	selgame_remove_event_handlers();
+	SNetLeaveGame(3);
+	if (gbMaxPlayers != 1 && provider != SELCONN_LOOPBACK)
+		SDL_Delay(2000);
+}
+
 DEVILUTION_END_NAMESPACE

@@ -285,12 +285,14 @@ public:
 	static constexpr unsigned short max_packet_size = 0xFFFF;
 
 	packet_factory(std::string pw = "");
-	std::unique_ptr<packet> make_packet(buffer_t buf);
+	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
-	std::unique_ptr<packet> make_packet(Args... args);
+	std::unique_ptr<packet> make_out_packet(Args... args);
+	template <packet_type t, typename... Args>
+	std::unique_ptr<packet> make_fake_out_packet(Args... args);
 };
 
-inline std::unique_ptr<packet> packet_factory::make_packet(buffer_t buf)
+inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
 {
 	std::unique_ptr<packet_in> ret(new packet_in(key));
 	ret->create(std::move(buf));
@@ -299,11 +301,19 @@ inline std::unique_ptr<packet> packet_factory::make_packet(buffer_t buf)
 }
 
 template <packet_type t, typename... Args>
-std::unique_ptr<packet> packet_factory::make_packet(Args... args)
+std::unique_ptr<packet> packet_factory::make_out_packet(Args... args)
 {
 	std::unique_ptr<packet_out> ret(new packet_out(key));
 	ret->create<t>(args...);
 	ret->encrypt();
+	return std::unique_ptr<packet>(std::move(ret));
+}
+
+template <packet_type t, typename... Args>
+std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
+{
+	std::unique_ptr<packet_out> ret(new packet_out(key));
+	ret->create<t>(args...);
 	return std::unique_ptr<packet>(std::move(ret));
 }
 

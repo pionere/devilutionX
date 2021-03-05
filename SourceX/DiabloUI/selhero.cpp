@@ -7,7 +7,7 @@
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selok.h"
-#include "DiabloUI/selgame.h"
+#include "DiabloUI/selconn.h"
 
 #ifdef __3DS__
 #include "../platform/ctr/keyboard.h"
@@ -15,11 +15,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+_uiheroinfo selhero_heroInfo;
+
+namespace {
+
+#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__)
 const char *selhero_GenerateName(uint8_t hero_class);
+#endif
 
 std::size_t selhero_SaveCount = 0;
 _uiheroinfo selhero_heros[MAX_CHARACTERS];
-_uiheroinfo selhero_heroInfo;
 const size_t kMaxViewportItems = 6;
 char textStats[5][4];
 char title[32];
@@ -27,17 +32,13 @@ char selhero_Lable[32];
 char selhero_Description[256];
 int selhero_result;
 bool selhero_endMenu;
-bool selhero_isMultiPlayer;
 bool selhero_navigateYesNo;
 bool selhero_deleteEnabled;
 
-BOOL(*gfnHeroInfo)
-(BOOL (*fninfofunc)(_uiheroinfo *));
-BOOL(*gfnHeroCreate)
+bool(*gfnHeroCreate)
 (_uiheroinfo *);
 void (*gfnHeroStats)(unsigned int, _uidefaultstats *);
 
-namespace {
 
 std::vector<UiItemBase *> vecSelHeroDialog;
 std::vector<UiListItem *> vecSelHeroDlgItems;
@@ -213,7 +214,7 @@ void selhero_List_Init()
 
 	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, selhero_List_Focus, selhero_List_Select, selhero_List_Esc, selhero_List_DeleteYesNo, false);
 	UiInitScrollBar(scrollBar, kMaxViewportItems);
-	snprintf(title, sizeof(title), "%s Player Characters", selhero_isMultiPlayer ? "Multi" : "Single");
+	snprintf(title, sizeof(title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
 
 void selhero_List_Focus(std::size_t index)
@@ -280,7 +281,7 @@ void selhero_List_Select(std::size_t index)
 
 		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), selhero_ClassSelector_Focus, selhero_ClassSelector_Select, selhero_ClassSelector_Esc);
 		memset(&selhero_heroInfo.name, 0, sizeof(selhero_heroInfo.name));
-		snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
+		snprintf(title, sizeof(title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
 	}
 
@@ -336,7 +337,7 @@ void selhero_ClassSelector_Select(std::size_t index)
 {
 	int hClass = vecSelHeroDlgItems[index]->m_value;
 
-	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
+	snprintf(title, sizeof(title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #ifdef PREFILL_PLAYER_NAME
 	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
@@ -402,10 +403,6 @@ void selhero_Name_Select(std::size_t index)
 		}
 	}
 
-	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#ifdef PREFILL_PLAYER_NAME
-	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
-#endif
 	selhero_ClassSelector_Select(0);
 }
 
@@ -425,28 +422,23 @@ void selhero_Load_Select(std::size_t index)
 	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
 
-BOOL SelHero_GetHeroInfo(_uiheroinfo *pInfo)
+void SelHero_GetHeroInfo(_uiheroinfo *pInfo)
 {
 	selhero_heros[selhero_SaveCount] = *pInfo;
 	selhero_SaveCount++;
-
-	return true;
 }
 
-int UiSelHeroDialog(bool bMulti,
-	BOOL (*fninfo)(BOOL (*fninfofunc)(_uiheroinfo *)),
-	BOOL (*fncreate)(_uiheroinfo *),
-	BOOL (*fnremove)(_uiheroinfo *),
+int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
+	bool (*fncreate)(_uiheroinfo *),
+	void (*fnremove)(_uiheroinfo *),
 	void (*fnstats)(unsigned int, _uidefaultstats *),
 	char (&name)[16])
 {
-	selhero_isMultiPlayer = bMulti;
 	bUIElementsLoaded = true;
 
 	do {
 		selhero_Init();
 
-		gfnHeroInfo = fninfo;
 		gfnHeroCreate = fncreate;
 		gfnHeroStats = fnstats;
 		//selhero_result = 0;
@@ -454,13 +446,13 @@ int UiSelHeroDialog(bool bMulti,
 		selhero_navigateYesNo = false;
 
 		selhero_SaveCount = 0;
-		gfnHeroInfo(SelHero_GetHeroInfo);
+		fninfo(SelHero_GetHeroInfo);
 		std::reverse(selhero_heros, selhero_heros + selhero_SaveCount);
 
-		if (selhero_SaveCount) {
+		if (selhero_SaveCount != 0) {
 			selhero_List_Init();
 		} else {
-			selhero_List_Select(selhero_SaveCount);
+			selhero_List_Select(0);
 		}
 
 		selhero_endMenu = false;
@@ -474,7 +466,7 @@ int UiSelHeroDialog(bool bMulti,
 		if (selhero_navigateYesNo) {
 			char dialogTitle[32];
 			char dialogText[256];
-			snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
+			snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 			snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.name);
 
 			if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
@@ -488,6 +480,7 @@ int UiSelHeroDialog(bool bMulti,
 	return selhero_result;
 }
 
+#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__)
 const char *selhero_GenerateName(uint8_t hero_class)
 {
 	static const char *const kNames[NUM_CLASSES][10] = {
@@ -571,5 +564,6 @@ const char *selhero_GenerateName(uint8_t hero_class)
 
 	return kNames[hero_class][iRand];
 }
+#endif
 
 DEVILUTION_END_NAMESPACE

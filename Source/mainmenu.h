@@ -14,7 +14,6 @@ extern "C" {
 
 extern char gszHero[16];
 
-bool mainmenu_select_hero_dialog();
 void mainmenu_loop();
 
 #ifdef __cplusplus

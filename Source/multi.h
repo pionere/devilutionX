@@ -18,6 +18,7 @@ extern WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 extern BYTE gbActivePlayers;
 extern BOOLEAN gbGameDestroyed;
 extern bool gbSelectProvider;
+extern bool gbSelectHero;
 extern BYTE gbMaxPlayers;
 extern char szPlayerName[128];
 extern BYTE gbDeltaSender;
@@ -34,7 +35,7 @@ BOOL multi_handle_delta();
 void multi_process_network_packets();
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen);
 void NetClose();
-bool NetInit(BOOL bSinglePlayer);
+bool NetInit(bool bSinglePlayer);
 void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv);
 
 #ifdef __cplusplus

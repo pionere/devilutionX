@@ -1401,8 +1401,10 @@ typedef struct _uiheroinfo {
 typedef struct _SNETGAMEDATA {
 	INT dwSeed;
 	DWORD dwVersionId;
+	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;
+	BYTE bMaxPlayers;
 } _SNETGAMEDATA;
 
 typedef struct _SNETCAPS {

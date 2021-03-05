@@ -26,6 +26,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
 	case SELCONN_LOOPBACK:
 		return std::unique_ptr<abstract_net>(new loopback);
 	default:
+		ASSUME_UNREACHABLE
 		ABORT();
 	}
 #endif

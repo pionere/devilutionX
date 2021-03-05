@@ -13,15 +13,16 @@ TBuffer sgHiPriBuf;
 char szPlayerDescript[128];
 WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 PkPlayerStruct netplr[MAX_PLRS];
-BOOLEAN sgbPlayerTurnBitTbl[MAX_PLRS];
-BOOLEAN sgbPlayerLeftGameTbl[MAX_PLRS];
+bool sgbPlayerTurnBitTbl[MAX_PLRS];
+bool sgbPlayerLeftGameTbl[MAX_PLRS];
 DWORD sgbSentThisCycle;
 BOOL gbShouldValidatePackage;
 BYTE gbActivePlayers;
 BOOLEAN gbGameDestroyed;
 BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
 _SNETGAMEDATA sgGameInitInfo;
-bool gbSelectProvider = true;
+bool gbSelectProvider;
+bool gbSelectHero;
 int sglTimeoutStart;
 int sgdwPlayerLeftReasonTbl[MAX_PLRS];
 TBuffer sgLoPriBuf;
@@ -32,20 +33,10 @@ DWORD sgdwGameLoops;
  */
 BYTE gbMaxPlayers;
 BOOLEAN sgbTimeout;
-char szPlayerName[128];
 BYTE gbDeltaSender;
-BOOL sgbNetInited;
+bool sgbNetInited;
+char szPlayerName[128];
 DWORD player_state[MAX_PLRS];
-
-/**
- * Contains the set of supported event types supported by the multiplayer
- * event handler.
- */
-const int event_types[3] = {
-	EVENT_TYPE_PLAYER_LEAVE_GAME,
-	EVENT_TYPE_PLAYER_CREATE_GAME,
-	EVENT_TYPE_PLAYER_MESSAGE
-};
 
 static void buffer_init(TBuffer *pBuf)
 {
@@ -636,55 +627,24 @@ static void SetupLocalCoords()
 
 static void multi_handle_events(_SNETEVENT *pEvt)
 {
+	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
+
 	DWORD LeftReason;
-	_SNETGAMEDATA *gameData;
+	sgbPlayerLeftGameTbl[pEvt->playerid] = true;
+	sgbPlayerTurnBitTbl[pEvt->playerid] = false;
 
-	switch (pEvt->eventid) {
-	case EVENT_TYPE_PLAYER_CREATE_GAME:
-		gameData = (_SNETGAMEDATA *)pEvt->_eData;
-		sgGameInitInfo.dwSeed = gameData->dwSeed;
-		sgGameInitInfo.bDifficulty = gameData->bDifficulty;
-		sgGameInitInfo.bTickRate = gameData->bTickRate;
-		sgbPlayerTurnBitTbl[pEvt->playerid] = TRUE;
-		break;
-	case EVENT_TYPE_PLAYER_LEAVE_GAME:
-		sgbPlayerLeftGameTbl[pEvt->playerid] = TRUE;
-		sgbPlayerTurnBitTbl[pEvt->playerid] = FALSE;
+	LeftReason = 0;
+	if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
+		LeftReason = *(DWORD *)pEvt->_eData;
+	sgdwPlayerLeftReasonTbl[pEvt->playerid] = LeftReason;
+	if (LeftReason == LEAVE_ENDING)
+		gbSomebodyWonGameKludge = TRUE;
 
-		LeftReason = 0;
-		if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
-			LeftReason = *(DWORD *)pEvt->_eData;
-		sgdwPlayerLeftReasonTbl[pEvt->playerid] = LeftReason;
-		if (LeftReason == LEAVE_ENDING)
-			gbSomebodyWonGameKludge = TRUE;
+	sgbSendDeltaTbl[pEvt->playerid] = FALSE;
+	dthread_remove_player(pEvt->playerid);
 
-		sgbSendDeltaTbl[pEvt->playerid] = FALSE;
-		dthread_remove_player(pEvt->playerid);
-
-		if (gbDeltaSender == pEvt->playerid)
-			gbDeltaSender = MAX_PLRS;
-		break;
-	case EVENT_TYPE_PLAYER_MESSAGE:
-		ErrorPlrMsg((char *)pEvt->_eData);
-		break;
-	}
-}
-
-static void multi_event_handler(BOOL add)
-{
-	int i;
-	bool(STORMAPI * fn)	(int, SEVTHANDLER);
-
-	if (add)
-		fn = SNetRegisterEventHandler;
-	else
-		fn = SNetUnregisterEventHandler;
-
-	for (i = 0; i < lengthof(event_types); i++) {
-		if (!fn(event_types[i], multi_handle_events) && add) {
-			app_fatal("SNetRegisterEventHandler:\n%s", TraceLastError());
-		}
-	}
+	if (gbDeltaSender == pEvt->playerid)
+		gbDeltaSender = MAX_PLRS;
 }
 
 void NetClose()
@@ -693,71 +653,86 @@ void NetClose()
 		return;
 	}
 
-	sgbNetInited = FALSE;
+	sgbNetInited = false;
 	nthread_cleanup();
 	dthread_cleanup();
 	tmsg_cleanup();
-	multi_event_handler(FALSE);
-	SNetLeaveGame(3);
-	if (gbMaxPlayers != 1 && provider != SELCONN_LOOPBACK)
-		SDL_Delay(2000);
+	UIDisconnectGame();
 }
 
-static bool multi_init_single()
+/*void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
 {
-	int playerId;
+	if (UiValidPlayerName(name_2))
+		pfile_rename_hero(name_1, name_2);
+}*/
 
-	provider = SELCONN_LOOPBACK;
-	SNetInitializeProvider(SELCONN_LOOPBACK);
+static bool multi_init_game(bool bSinglePlayer)
+{
+	int dlgresult, playerId;
 
 	while (TRUE) {
-		if (!mainmenu_select_hero_dialog()) {
-			return false;
-		}
-		if (gbLoadGame)
-			break;
-		multi_event_handler(TRUE);
-		if (UiSelectGame(&sgGameInitInfo, &playerId))
-			break;
-	}
-	assert(gbLoadGame || playerId == 0);
+		// myplr = 0;
 
-	myplr = 0;
-	gbMaxPlayers = 1;
-
-	return true;
-}
-
-static bool multi_init_multi()
-{
-	int playerId;
-
-	while (TRUE) {
+		// select provider
 		if (gbSelectProvider) {
-			if (!UiSelectProvider()) {
+			if (!UiSelectProvider(!bSinglePlayer)) {
 				return false;
 			}
 			gbSelectProvider = false;
 		}
-		if (!mainmenu_select_hero_dialog()) {
-			gbSelectProvider = true;
+		// select hero
+		if (gbSelectHero) {
+			dlgresult = UiSelHeroDialog(
+				pfile_ui_set_hero_infos,
+				pfile_ui_save_create,
+				pfile_delete_save,
+				pfile_ui_set_class_stats,
+				gszHero);
+
+			if (dlgresult == SELHERO_PREVIOUS) {
+				// SErrSetLastError(1223);
+				if (bSinglePlayer)
+					return false;
+				gbSelectProvider = true;
+				continue;
+			}
+		} else {
+			dlgresult = SELHERO_NEW_DUNGEON;
+		}
+		gbSelectHero = bSinglePlayer;
+		gbLoadGame = dlgresult == SELHERO_CONTINUE;
+		pfile_create_player_description(NULL, NULL);
+
+		if (gbLoadGame) {
+			// myplr = 0;
+			sgGameInitInfo.bMaxPlayers = 1;
+			break;
+		}
+
+		// select game
+		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
+		if (dlgresult == SELGAME_PREVIOUS) {
+			gbSelectHero = true;
 			continue;
 		}
-		multi_event_handler(TRUE);
-		if (UiSelectGame(&sgGameInitInfo, &playerId))
-			break;
+
+		if (dlgresult == SELGAME_JOIN) {
+			playerId = sgGameInitInfo.bPlayerId;
+			if (myplr != playerId) {
+				copy_pod(plr[playerId], plr[myplr]);
+				myplr = playerId;
+				//pfile_read_player_from_save();
+			}
+			sgbPlayerTurnBitTbl[myplr] = true;
+		}
+		break;
 	}
 
-	assert((DWORD)playerId < MAX_PLRS);
-
-	myplr = playerId;
-	gbMaxPlayers = MAX_PLRS;
-
-	pfile_read_player_from_save();
+	gbMaxPlayers = sgGameInitInfo.bMaxPlayers;
 	return true;
 }
 
-bool NetInit(BOOL bSinglePlayer)
+bool NetInit(bool bSinglePlayer)
 {
 	int i;
 
@@ -765,8 +740,10 @@ bool NetInit(BOOL bSinglePlayer)
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);
 		sgGameInitInfo.dwVersionId = GAME_VERSION;
-		sgGameInitInfo.bDifficulty = gnDifficulty;
-		sgGameInitInfo.bTickRate = gnTicksPerSec;
+		sgGameInitInfo.bPlayerId = 0;
+		sgGameInitInfo.bDifficulty = DIFF_NORMAL;
+		sgGameInitInfo.bTickRate = SPEED_NORMAL;
+		sgGameInitInfo.bMaxPlayers = MAX_PLRS;
 		memset(sgbPlayerTurnBitTbl, 0, sizeof(sgbPlayerTurnBitTbl));
 		gbGameDestroyed = FALSE;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
@@ -774,14 +751,9 @@ bool NetInit(BOOL bSinglePlayer)
 		memset(sgbSendDeltaTbl, 0, sizeof(sgbSendDeltaTbl));
 		memset(plr, 0, sizeof(plr));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
-		if (bSinglePlayer) {
-			if (!multi_init_single())
-				return false;
-		} else {
-			if (!multi_init_multi())
-				return false;
-		}
-		sgbNetInited = TRUE;
+		if (!multi_init_game(bSinglePlayer))
+			return false;
+		sgbNetInited = true;
 		sgbTimeout = FALSE;
 		delta_init();
 		InitPlrMsg();
@@ -805,6 +777,8 @@ bool NetInit(BOOL bSinglePlayer)
 			break;
 		NetClose();
 	}
+	assert(myplr == sgGameInitInfo.bPlayerId);
+	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
 	gnDifficulty = sgGameInitInfo.bDifficulty;
 	gnTicksPerSec = sgGameInitInfo.bTickRate;
 	gnTickDelay = 1000 / gnTicksPerSec;

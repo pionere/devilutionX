@@ -13,7 +13,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-int tcp_client::create(std::string addrstr, std::string passwd)
+bool tcp_client::create(std::string addrstr, std::string passwd)
 {
 	try {
 		auto port = default_port;
@@ -21,11 +21,11 @@ int tcp_client::create(std::string addrstr, std::string passwd)
 		return join(local_server->localhost_self(), passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError(e.what());
-		return -1;
+		return false;
 	}
 }
 
-int tcp_client::join(std::string addrstr, std::string passwd)
+bool tcp_client::join(std::string addrstr, std::string passwd)
 {
 	constexpr int ms_sleep = 10;
 	constexpr int no_sleep = 250;
@@ -39,13 +39,13 @@ int tcp_client::join(std::string addrstr, std::string passwd)
 		sock.set_option(option);
 	} catch (std::exception &e) {
 		SDL_SetError(e.what());
-		return -1;
+		return false;
 	}
 	start_recv();
 	{
 		randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
 		    sizeof(cookie_t));
-		auto pkt = pktfty->make_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
+		auto pkt = pktfty->make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
 		    PLR_MASTER, cookie_self,
 		    game_init_info);
 		send(*pkt);
@@ -53,16 +53,20 @@ int tcp_client::join(std::string addrstr, std::string passwd)
 			try {
 				poll();
 			} catch (const std::runtime_error &e) {
+				if (plr_self != PLR_BROADCAST) {
+					connected_table[plr_self] = false;
+					plr_self = PLR_BROADCAST;
+				}
 				SDL_SetError(e.what());
-				return -1;
+				return false;
 			}
 			if (plr_self != PLR_BROADCAST)
-				return plr_self; // join successful
+				return true; // join successful
 			SDL_Delay(ms_sleep);
 		}
 	}
 	SDL_SetError("Unable to connect");
-	return -1;
+	return false;
 }
 
 void tcp_client::poll()
@@ -85,7 +89,7 @@ void tcp_client::handle_recv(const asio::error_code &error, size_t bytes_read)
 	recv_queue.write(std::move(recv_buffer));
 	recv_buffer.resize(frame_queue::max_frame_size);
 	while (recv_queue.packet_ready()) {
-		auto pkt = pktfty->make_packet(recv_queue.read_packet());
+		auto pkt = pktfty->make_in_packet(recv_queue.read_packet());
 		recv_local(*pkt);
 	}
 	start_recv();

@@ -98,30 +98,28 @@ void SNetInitializeProvider(unsigned long provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData, int *playerID)
+bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData)
 {
-	// assert(gameData != NULL && pszGamePassword != NULL && playerID != NULL);
+	// assert(gameData != NULL && pszGamePassword != NULL);
 
 	char* gData = (char*)gameData;
-	net::buffer_t game_init_info(gData, gData + sizeof(gameData));
+	net::buffer_t game_init_info(gData, gData + sizeof(*gameData));
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	char addrstr[129] = "0.0.0.0";
 	getIniValue("dvlnet", "bindaddr", addrstr, 128);
 	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	*playerID = dvlnet_inst->create(addrstr, pszGamePassword);
-	return *playerID != -1;
+	return dvlnet_inst->create(addrstr, pszGamePassword);
 }
 
-bool SNetJoinGame(char *pszGameName, char *pszGamePassword, int *playerID)
+bool SNetJoinGame(char *pszGameName, char *pszGamePassword)
 {
-	// assert(pszGameName != NULL && pszGamePassword != NULL && playerID != NULL);
+	// assert(pszGameName != NULL && pszGamePassword != NULL);
 
 	SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	*playerID = dvlnet_inst->join(pszGameName, pszGamePassword);
-	return *playerID != -1;
+	return dvlnet_inst->join(pszGameName, pszGamePassword);
 }
 
 /**

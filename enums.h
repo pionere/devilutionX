@@ -2535,10 +2535,10 @@ typedef enum theme_id {
 } theme_id;
 
 typedef enum event_type {
-	EVENT_TYPE_PLAYER_CREATE_GAME = 1,
+	EVENT_TYPE_JOIN_ACCEPTED      = 1,
 	EVENT_TYPE_2                  = 2,
 	EVENT_TYPE_PLAYER_LEAVE_GAME  = 3,
-	EVENT_TYPE_PLAYER_MESSAGE     = 4,
+	EVENT_TYPE_4                  = 4, // unused EVENT_TYPE_PLAYER_MESSAGE?
 	EVENT_TYPE_5                  = 5,
 	EVENT_TYPE_6                  = 6,
 	EVENT_TYPE_7                  = 7,
@@ -2938,9 +2938,14 @@ typedef enum _mainmenu_selections {
 typedef enum _selhero_selections {
 	SELHERO_NEW_DUNGEON = 1,
 	SELHERO_CONTINUE    = 2,
-	SELHERO_CONNECT     = 3,
-	SELHERO_PREVIOUS    = 4
+	SELHERO_PREVIOUS    = 3
 } _selhero_selections;
+
+typedef enum _selgame_selections {
+	SELGAME_JOIN        = 1,
+	SELGAME_CREATE      = 2,
+	SELGAME_PREVIOUS    = 3
+} _selgame_selections;
 
 typedef enum panel_button_id {
 	PANBTN_MAINMENU,

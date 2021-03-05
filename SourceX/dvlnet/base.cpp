@@ -26,22 +26,19 @@ void base::run_event_handler(_SNETEVENT &ev)
 void base::handle_accept(packet &pkt)
 {
 	if (plr_self != PLR_BROADCAST) {
-		return; // already have player id
+		return; // already have player id - should not happen...
 	}
 	if (pkt.cookie() == cookie_self) {
 		plr_self = pkt.newplr();
 		connected_table[plr_self] = true;
 	}
 	auto &pkt_info = pkt.info();
-	if (game_init_info != pkt_info) {
-		// we joined and did not create
-		_SNETEVENT ev;
-		ev.eventid = EVENT_TYPE_PLAYER_CREATE_GAME;
-		ev.playerid = plr_self;
-		ev._eData = const_cast<unsigned char *>(pkt_info.data());
-		ev.databytes = pkt_info.size();
-		run_event_handler(ev);
-	}
+	_SNETEVENT ev;
+	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
+	ev.playerid = plr_self;
+	ev._eData = const_cast<unsigned char *>(pkt_info.data());
+	ev.databytes = pkt_info.size();
+	run_event_handler(ev);
 }
 
 void base::clear_msg(plr_t plr)
@@ -126,7 +123,7 @@ bool base::SNetSendMessage(int playerID, void *data, unsigned int size)
 	else
 		dest = playerID;
 	if (dest != plr_self) {
-		auto pkt = pktfty->make_packet<PT_MESSAGE>(plr_self, dest, message);
+		auto pkt = pktfty->make_out_packet<PT_MESSAGE>(plr_self, dest, message);
 		send(*pkt);
 	}
 	return true;
@@ -173,7 +170,7 @@ bool base::SNetSendTurn(char *data, unsigned int size)
 		ABORT();
 	turn_t turn;
 	std::memcpy(&turn, data, sizeof(turn));
-	auto pkt = pktfty->make_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
+	auto pkt = pktfty->make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
 	send(*pkt);
 	turn_queue[plr_self].push_back(pkt->turn());
 	return true;
@@ -200,30 +197,30 @@ bool base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
 	return true;
 }
 
+/*
+ *  EVENT_TYPE_PLAYER_LEAVE_GAME:
+ *    handled by the engine, raised when a player leaves the game
+ *  EVENT_TYPE_JOIN_ACCEPTED:
+ *    handled by UI, raised during SNetCreateGame/SNetJoinGame
+ *  EVENT_TYPE_PLAYER_MESSAGE:
+ *    not implemented
+*/
 bool base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
-	/*
-  engine registers handler for:
-  EVENT_TYPE_PLAYER_LEAVE_GAME
-  EVENT_TYPE_PLAYER_CREATE_GAME (should be raised during SNetCreateGame
-  for non-creating player)
-  EVENT_TYPE_PLAYER_MESSAGE (for bnet? not implemented)
-  (engine uses same function for all three)
-*/
 	registered_handlers[evtype] = func;
 	return true;
 }
 
 void base::SNetLeaveGame(int type)
 {
-	auto pkt = pktfty->make_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
+	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
 	    plr_self, type);
 	send(*pkt);
 }
 
 bool base::SNetDropPlayer(int playerid, DWORD flags)
 {
-	auto pkt = pktfty->make_packet<PT_DISCONNECT>(plr_self,
+	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self,
 	    PLR_BROADCAST,
 	    (plr_t)playerid,
 	    (leaveinfo_t)flags);

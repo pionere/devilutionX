@@ -4,12 +4,27 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-int loopback::create(std::string addrstr, std::string passwd)
+bool loopback::create(std::string addrstr, std::string passwd)
 {
-	return plr_single;
+	auto reply = pktfty->make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
+		cookie_self, plr_single,
+		game_init_info);
+
+	base::recv_local(*reply);
+	return true;
 }
 
-int loopback::join(std::string addrstr, std::string passwd)
+bool loopback::join(std::string addrstr, std::string passwd)
+{
+	ABORT();
+}
+
+void loopback::poll()
+{
+	ABORT();
+}
+
+void loopback::send(packet &pkt)
 {
 	ABORT();
 }
@@ -63,22 +78,6 @@ bool loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
 	return true;
 }
 
-bool loopback::SNetRegisterEventHandler(event_type evtype,
-	SEVTHANDLER func)
-{
-	// not called in real singleplayer mode
-	// not needed in pseudo multiplayer mode (?)
-	return true;
-}
-
-bool loopback::SNetUnregisterEventHandler(event_type evtype,
-	SEVTHANDLER func)
-{
-	// not called in real singleplayer mode
-	// not needed in pseudo multiplayer mode (?)
-	return true;
-}
-
 void loopback::SNetLeaveGame(int type)
 {
 }
@@ -86,10 +85,6 @@ void loopback::SNetLeaveGame(int type)
 bool loopback::SNetDropPlayer(int playerid, DWORD flags)
 {
 	return true;
-}
-
-void loopback::setup_gameinfo(buffer_t info)
-{
 }
 
 bool loopback::SNetGetOwnerTurnsWaiting(DWORD *turns)

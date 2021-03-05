@@ -59,7 +59,7 @@ struct CCritSect {
 extern "C" {
 #endif
 
-bool STORMAPI SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData, int *playerID);
+bool STORMAPI SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData);
 bool STORMAPI SNetDestroy();
 
 /*  SNetDropPlayer @ 106
@@ -107,7 +107,7 @@ bool
     SNetGetTurnsInTransit(
         DWORD *turns);
 
-bool STORMAPI SNetJoinGame(char *gameName, char *gamePassword, int *playerid);
+bool STORMAPI SNetJoinGame(char *gameName, char *gamePassword);
 
 /*  SNetLeaveGame @ 119
  *

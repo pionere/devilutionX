@@ -4,8 +4,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern bool selhero_isMultiPlayer;
-extern bool selhero_endMenu;
+extern _uiheroinfo selhero_heroInfo;
 
 void selhero_Init();
 void selhero_List_Init();

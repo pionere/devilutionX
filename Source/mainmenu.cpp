@@ -24,16 +24,13 @@ static void mainmenu_refresh_music()
 	} while (menu_music_track_id == TMUSIC_TOWN || menu_music_track_id == TMUSIC_L1);
 }
 
-static BOOL mainmenu_init_menu(int type)
+static BOOL mainmenu_init_menu(bool bSinglePlayer)
 {
-	BOOL success;
-
-	if (type == SELHERO_PREVIOUS)
-		return TRUE;
+	bool success;
 
 	music_stop();
 
-	success = StartGame(type != SELHERO_CONNECT);
+	success = StartGame(bSinglePlayer);
 	if (success)
 		mainmenu_refresh_music();
 
@@ -48,13 +45,13 @@ static BOOL mainmenu_single_player()
 		setIniInt("devilutionx", "game speed", gnTicksPerSec);
 	}
 
-	return mainmenu_init_menu(SELHERO_NEW_DUNGEON);
+	return mainmenu_init_menu(true);
 }
 
 static BOOL mainmenu_multi_player()
 {
 	gbMaxPlayers = MAX_PLRS;
-	return mainmenu_init_menu(SELHERO_CONNECT);
+	return mainmenu_init_menu(false);
 }
 
 static void mainmenu_play_intro()
@@ -62,30 +59,6 @@ static void mainmenu_play_intro()
 	music_stop();
 	play_movie(INTRO_ARCHIVE, MOV_SKIP);
 	mainmenu_refresh_music();
-}
-
-/*void mainmenu_change_name(int arg1, int arg2, int arg3, int arg4, char *name_1, char *name_2)
-{
-	if (UiValidPlayerName(name_2))
-		pfile_rename_hero(name_1, name_2);
-}*/
-
-bool mainmenu_select_hero_dialog()
-{
-	int dlgresult = UiSelHeroDialog(
-		gbMaxPlayers != 1,
-		pfile_ui_set_hero_infos,
-		pfile_ui_save_create,
-		pfile_delete_save,
-		pfile_ui_set_class_stats,
-		gszHero);
-	if (dlgresult == SELHERO_PREVIOUS) {
-		// SErrSetLastError(1223);
-		return false;
-	}
-	gbLoadGame = dlgresult == SELHERO_CONTINUE;
-	pfile_create_player_description(NULL, NULL);
-	return true;
 }
 
 void mainmenu_loop()

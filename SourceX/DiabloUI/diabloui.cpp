@@ -453,7 +453,7 @@ const char **UiProfileGetString()
 
 char connect_plrinfostr[128];
 char connect_categorystr[128];
-void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
+void UiSetupPlayerInfo(const char *infostr, const _uiheroinfo *pInfo, DWORD type)
 {
 	SStrCopy(connect_plrinfostr, infostr, sizeof(connect_plrinfostr));
 	const char fmt[] = " %d %d %d %d %d %d %d %d";
@@ -511,7 +511,7 @@ bool UiValidPlayerName(const char *name)
 	return true;
 }
 
-void UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
+void UiCreatePlayerDescription(const _uiheroinfo *info, DWORD mode, char (&desc)[128])
 {
 	const char fmt[] = " %d %d %d %d %d %d %d %d";
 	char format[sizeof(DWORD) + sizeof(fmt)];

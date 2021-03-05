@@ -15,8 +15,8 @@ namespace net {
 
 class udp_p2p : public base {
 public:
-	virtual int create(std::string addrstr, std::string passwd);
-	virtual int join(std::string addrstr, std::string passwd);
+	virtual bool create(std::string addrstr, std::string passwd);
+	virtual bool join(std::string addrstr, std::string passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 

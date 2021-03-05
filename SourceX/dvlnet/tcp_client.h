@@ -7,7 +7,6 @@
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
-#include "dvlnet/packet.h"
 #include "dvlnet/frame_queue.h"
 #include "dvlnet/base.h"
 #include "dvlnet/tcp_server.h"
@@ -17,8 +16,8 @@ namespace net {
 
 class tcp_client : public base {
 public:
-	int create(std::string addrstr, std::string passwd);
-	int join(std::string addrstr, std::string passwd);
+	bool create(std::string addrstr, std::string passwd);
+	bool join(std::string addrstr, std::string passwd);
 
 	constexpr static unsigned short default_port = 6112;
 

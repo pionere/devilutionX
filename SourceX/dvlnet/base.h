@@ -14,8 +14,8 @@ namespace net {
 
 class base : public abstract_net {
 public:
-	virtual int create(std::string addrstr, std::string passwd) = 0;
-	virtual int join(std::string addrstr, std::string passwd) = 0;
+	virtual bool create(std::string addrstr, std::string passwd) = 0;
+	virtual bool join(std::string addrstr, std::string passwd) = 0;
 
 	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
 	virtual bool SNetSendMessage(int dest, void *data, unsigned int size);

@@ -10,6 +10,7 @@ char selconn_Description[64];
 char selconn_Gateway[129];
 bool selconn_ReturnValue = false;
 bool selconn_EndMenu = false;
+bool selconn_bMulti = false;
 
 int provider;
 
@@ -124,12 +125,17 @@ void selconn_Select(std::size_t index)
 	selconn_Load();
 }
 
-bool UiSelectProvider()
+bool UiSelectProvider(bool bMulti)
 {
+	selconn_bMulti = bMulti;
 	selconn_Load();
 
 	selconn_ReturnValue = true;
 	selconn_EndMenu = false;
+
+	if (!selconn_bMulti)
+		selconn_Select(1);
+
 	while (!selconn_EndMenu) {
 		UiClearScreen();
 		UiPollAndRender();

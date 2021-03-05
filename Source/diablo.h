@@ -37,7 +37,7 @@ extern int gnTicksPerSec;
 extern unsigned gnTickDelay;
 
 void FreeGameMem();
-BOOL StartGame(BOOL bSinglePlayer);
+bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char **argv);
 void AltActionBtnCmd(BOOL bShift);

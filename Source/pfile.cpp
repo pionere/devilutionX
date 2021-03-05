@@ -169,7 +169,7 @@ void pfile_create_player_description(char *dst, DWORD len)
 
 	myplr = 0;
 	pfile_read_player_from_save();
-	game_2_ui_player(plr, &uihero, gbValidSaveFile);
+	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
 	if (dst != NULL && len != 0) {
@@ -204,7 +204,7 @@ BOOL pfile_rename_hero(const char *name_1, const char *name_2)
 	SStrCopy(plr[i]._pName, name_2, PLR_NAME_LEN);
 	if (!strcasecmp(gszHero, name_1))
 		SStrCopy(gszHero, name_2, sizeof(gszHero));
-	game_2_ui_player(plr, &uihero, gbValidSaveFile);
+	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 	pfile_write_hero();
 	return TRUE;
@@ -215,9 +215,9 @@ void pfile_flush_W()
 	pfile_flush(TRUE);
 }
 
-BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))
+void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 {
-	DWORD i;
+	int i;
 
 	memset(hero_names, 0, sizeof(hero_names));
 
@@ -229,14 +229,12 @@ BOOL pfile_ui_set_hero_infos(BOOL (*ui_add_hero_info)(_uiheroinfo *))
 				_uiheroinfo uihero;
 				copy_str(hero_names[i], pkplr.pName);
 				UnPackPlayer(&pkplr, 0, FALSE);
-				game_2_ui_player(plr, &uihero, pfile_archive_contains_game(archive));
+				game_2_ui_player(&plr[0], &uihero, pfile_archive_contains_game(archive));
 				ui_add_hero_info(&uihero);
 			}
 			pfile_SFileCloseArchive(archive);
 		}
 	}
-
-	return TRUE;
 }
 
 BOOL pfile_archive_contains_game(HANDLE hsArchive)
@@ -261,7 +259,7 @@ void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *cla
 	class_stats->vitality = VitalityTbl[player_class_nr];
 }
 
-BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
+bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 {
 	DWORD save_num;
 	PkPlayerStruct pkplr;
@@ -273,10 +271,10 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 				break;
 		}
 		if (save_num >= MAX_CHARACTERS)
-			return FALSE;
+			return false;
 	}
 	if (!pfile_open_save_mpq(save_num))
-		return FALSE;
+		return false;
 	mpqapi_remove_hash_entries(pfile_get_file_name);
 	copy_str(hero_names[save_num], heroinfo->name);
 	CreatePlayer(0, heroinfo->heroclass);
@@ -285,7 +283,7 @@ BOOL pfile_ui_save_create(_uiheroinfo *heroinfo)
 	pfile_encode_hero(&pkplr);
 	game_2_ui_player(&plr[0], heroinfo, FALSE);
 	pfile_flush(TRUE);
-	return TRUE;
+	return true;
 }
 
 BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
@@ -313,7 +311,7 @@ BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 	return TRUE;
 }
 
-BOOL pfile_delete_save(_uiheroinfo *hero_info)
+void pfile_delete_save(_uiheroinfo *hero_info)
 {
 	DWORD save_num;
 
@@ -322,7 +320,6 @@ BOOL pfile_delete_save(_uiheroinfo *hero_info)
 		hero_names[save_num][0] = '\0';
 		RemoveFile(GetSavePath(save_num).c_str());
 	}
-	return TRUE;
 }
 
 void pfile_read_player_from_save()

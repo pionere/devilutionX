@@ -414,9 +414,10 @@ static void run_game_loop(unsigned int uMsg)
 	}
 }
 
-BOOL StartGame(BOOL bSinglePlayer)
+bool StartGame(bool bSinglePlayer)
 {
 	gbSelectProvider = true;
+	gbSelectHero = true;
 
 	while (TRUE) {
 		gbLoadGame = FALSE;

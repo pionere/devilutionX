@@ -74,7 +74,7 @@ void tcp_server::handle_recv(scc con, const asio::error_code &ec,
 	con->recv_buffer.resize(frame_queue::max_frame_size);
 	while (con->recv_queue.packet_ready()) {
 		try {
-			auto pkt = pktfty.make_packet(con->recv_queue.read_packet());
+			auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
 			if (con->plr == PLR_BROADCAST) {
 				handle_recv_newplr(con, *pkt);
 			} else {
@@ -92,7 +92,7 @@ void tcp_server::handle_recv(scc con, const asio::error_code &ec,
 
 void tcp_server::send_connect(scc con)
 {
-	auto pkt = pktfty.make_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
+	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
 	    con->plr);
 	send_packet(*pkt);
 }
@@ -104,7 +104,7 @@ void tcp_server::handle_recv_newplr(scc con, packet &pkt)
 		throw server_exception();
 	if (empty())
 		game_init_info = pkt.info();
-	auto reply = pktfty.make_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
+	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 	    pkt.cookie(), newplr,
 	    game_init_info);
 	start_send(con, *reply);
@@ -200,7 +200,7 @@ void tcp_server::handle_timeout(scc con, const asio::error_code &ec)
 void tcp_server::drop_connection(scc con)
 {
 	if (con->plr != PLR_BROADCAST) {
-		auto pkt = pktfty.make_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
+		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
 		    con->plr, LEAVE_DROP);
 		connections[con->plr] = NULL;
 		send_packet(*pkt);
