@@ -123,7 +123,7 @@ void
         int type);
 
 bool STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-bool STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
+bool STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 
 typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
 

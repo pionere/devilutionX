@@ -36,7 +36,7 @@ BOOLEAN sgbTimeout;
 BYTE gbDeltaSender;
 bool sgbNetInited;
 char szPlayerName[128];
-DWORD player_state[MAX_PLRS];
+unsigned player_state[MAX_PLRS];
 
 static void buffer_init(TBuffer *pBuf)
 {

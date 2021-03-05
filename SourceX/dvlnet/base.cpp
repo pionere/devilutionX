@@ -129,7 +129,7 @@ bool base::SNetSendMessage(int playerID, void *data, unsigned int size)
 	return true;
 }
 
-bool base::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS])
+bool base::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 {
 	poll();
 	bool all_turns_arrived = true;

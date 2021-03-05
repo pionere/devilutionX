@@ -30,7 +30,7 @@ public:
 	virtual bool SNetSendMessage(int dest, void *data,
 	    unsigned int size)
 	    = 0;
-	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS])
+	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 	    = 0;
 	virtual bool SNetSendTurn(char *data, unsigned int size) = 0;
 	virtual bool SNetGetProviderCaps(struct _SNETCAPS *caps) = 0;

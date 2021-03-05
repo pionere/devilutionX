@@ -24,8 +24,7 @@ bool SNetSendMessage(int playerID, void *data, unsigned int databytes)
 	return dvlnet_inst->SNetSendMessage(playerID, data, databytes);
 }
 
-bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
-    DWORD (&status)[MAX_PLRS])
+bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 {
 	if (!dvlnet_inst->SNetReceiveTurns(data, size, status)) {
 		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);

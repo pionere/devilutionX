@@ -19,7 +19,7 @@ public:
 
 	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
 	virtual bool SNetSendMessage(int dest, void *data, unsigned int size);
-	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
+	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual bool SNetSendTurn(char *data, unsigned int size);
 	virtual bool SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual bool SNetRegisterEventHandler(event_type evtype,

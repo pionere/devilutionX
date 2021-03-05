@@ -22,7 +22,7 @@ extern bool gbSelectHero;
 extern BYTE gbMaxPlayers;
 extern char szPlayerName[128];
 extern BYTE gbDeltaSender;
-extern DWORD player_state[MAX_PLRS];
+extern unsigned player_state[MAX_PLRS];
 
 void multi_msg_add(BYTE *pbMsg, BYTE bLen);
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
