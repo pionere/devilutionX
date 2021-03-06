@@ -785,10 +785,10 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 #endif
-#ifdef USE_SDL1
-	if (e.type < SDL_JOYAXISMOTION) {
-#else  //                                  TODO: check for HAS_DPAD / HAS_TOUCHPAD instead?
+#if (HAS_TOUCHPAD == 1 || HAS_DPAD == 1) && !defined(USE_SDL1)
 	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+#else
+	if (e.type < SDL_JOYAXISMOTION) {
 #endif
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
