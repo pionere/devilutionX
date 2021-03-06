@@ -785,7 +785,11 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 	}
 #endif
-	if (e.type < SDL_JOYAXISMOTION || (e.type >= 0x700 && e.type < 0x800)) {
+#ifdef USE_SDL1
+	if (e.type < SDL_JOYAXISMOTION) {
+#else  //                                  TODO: check for HAS_DPAD / HAS_TOUCHPAD instead?
+	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+#endif
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
 			sgbControllerActive = false;
