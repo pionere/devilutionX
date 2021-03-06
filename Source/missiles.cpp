@@ -1062,7 +1062,7 @@ static BOOL PlrMissHit(int pnum, int mi)
 	if (mis->_miSource != -1) {
 		if (mis->_miCaster == 0) {
 			// player vs. player
-			return pnum != mis->_miSource && Plr2PlrMHit(pnum, mi);
+			return !gbFriendlyMode && pnum != mis->_miSource && Plr2PlrMHit(pnum, mi);
 		} else {
 			// monster vs. player
 			return PlayerMHit(pnum, mi);

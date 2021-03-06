@@ -2413,7 +2413,7 @@ static BOOL PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, sn, sl, mpo);
 	}
 	mpo = dPlayer[dx][dy];
-	if (mpo != 0 && !FriendlyMode) {
+	if (mpo != 0 && !gbFriendlyMode) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		return PlrHitPlr(pnum, sn, sl, mpo);
 	}

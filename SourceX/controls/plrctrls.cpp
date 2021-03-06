@@ -319,7 +319,7 @@ void CheckPlayerNearby()
 		return;
 
 	int spl = plr[myplr]._pRSpell;
-	if (FriendlyMode && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
+	if (gbFriendlyMode && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
 		return;
 
 	for (int i = 0; i < MAX_PLRS; i++) {
@@ -438,7 +438,7 @@ void Interact()
 		bool melee = (_pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
 			NetSendCmdParam3(TRUE, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
-		else if (pcursplr != -1 && !FriendlyMode)
+		else if (pcursplr != -1 && !gbFriendlyMode)
 			NetSendCmdBParam3(TRUE, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
 	}
 }

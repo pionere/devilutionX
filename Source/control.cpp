@@ -770,7 +770,7 @@ void DrawCtrlBtns()
 		// print the text of the button
 		text = PanBtnTxt[i];
 		if (i == PANBTN_FRIENDLY)
-			text = FriendlyMode ? "PvP:Off" : "PvP:On";
+			text = gbFriendlyMode ? "PvP:Off" : "PvP:On";
 		PrintString(x + 3, y + 15, x + 70, text, TRUE, pb ? COL_GOLD : COL_WHITE, 1);
 	}
 }
@@ -975,7 +975,8 @@ void HandlePanBtn(int i)
 			control_type_message();
 		break;
 	case PANBTN_FRIENDLY:
-		FriendlyMode = !FriendlyMode;
+		gbFriendlyMode = !gbFriendlyMode;
+		NetSendCmdBParam1(TRUE, CMD_PLRFRIENDY, gbFriendlyMode);
 		break;
 	default:
 		ASSUME_UNREACHABLE

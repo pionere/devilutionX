@@ -2090,6 +2090,19 @@ static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static DWORD On_PLRFRIENDY(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (gbBufferMsgs == 1)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else if (pnum != myplr) {
+		snprintf(tempstr, sizeof(tempstr), "%s is now %s.", plr[pnum]._pName, cmd->bParam1 ? "friendly" : "hostile");
+		ErrorPlrMsg(tempstr);
+	}
+	return sizeof(*cmd);
+}
+
 static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
@@ -2565,6 +2578,8 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_MONSTDAMAGE(pCmd, pnum);
 	case CMD_PLRDEAD:
 		return On_PLRDEAD(pCmd, pnum);
+	case CMD_PLRFRIENDY:
+		return On_PLRFRIENDY(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
 	case CMD_OPENDOOR:

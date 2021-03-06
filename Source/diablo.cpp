@@ -75,7 +75,7 @@ int dbgmon;
 int arrowdebug;
 #endif
 /** Specifies whether players are in non-PvP mode. */
-BOOL FriendlyMode = TRUE;
+bool gbFriendlyMode = true;
 /** Default controls. */
 // clang-format off
 BYTE WMButtonInputTransTbl[] = { ACT_NONE,
@@ -545,14 +545,14 @@ int DiabloMain(int argc, char **argv)
 	return 0;
 }
 
-static BOOL AttackCmd(BOOL bShift, int attack)
+static bool AttackCmd(bool bShift, int attack)
 {
 	int sl = GetSpellLevel(myplr, attack);
 
 	if (plr[myplr]._pSkillFlags & SFLAG_RANGED) {
 		if (bShift) {
 			NetSendCmdLocBParam2(TRUE, CMD_RATTACKXY, cursmx, cursmy, attack, sl);
-			return TRUE;
+			return true;
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
@@ -560,12 +560,12 @@ static BOOL AttackCmd(BOOL bShift, int attack)
 			} else {
 				NetSendCmdParam3(TRUE, CMD_RATTACKID, pcursmonst, attack, sl);
 			}
-			return TRUE;
+			return true;
 		}
 		if (pcursplr != -1) {
-			if (!FriendlyMode)
+			if (!gbFriendlyMode)
 				NetSendCmdBParam3(TRUE, CMD_RATTACKPID, pcursplr, attack, sl);
-			return TRUE;
+			return true;
 		}
 	} else {
 		if (bShift) {
@@ -578,19 +578,19 @@ static BOOL AttackCmd(BOOL bShift, int attack)
 			} else {
 				NetSendCmdLocBParam2(TRUE, CMD_SATTACKXY, cursmx, cursmy, attack, sl);
 			}
-			return TRUE;
+			return true;
 		}
 		if (pcursmonst != -1) {
 			NetSendCmdParam3(TRUE, CMD_ATTACKID, pcursmonst, attack, sl);
-			return TRUE;
+			return true;
 		}
 		if (pcursplr != -1) {
-			if (!FriendlyMode)
+			if (!gbFriendlyMode)
 				NetSendCmdBParam3(TRUE, CMD_ATTACKPID, pcursplr, attack, sl);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 static void ActionBtnCmd(BOOL bShift)

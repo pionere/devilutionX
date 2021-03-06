@@ -73,7 +73,7 @@ extern int dbgplr;
 extern int dbgqst;
 extern int dbgmon;
 #endif
-extern BOOL FriendlyMode;
+extern bool gbFriendlyMode;
 
 #ifdef __cplusplus
 }
