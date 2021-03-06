@@ -763,7 +763,7 @@ bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton
 }
 
 #ifdef USE_SDL1
-int dbClickTimer;
+Uint32 dbClickTimer;
 #endif
 
 bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
