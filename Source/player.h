@@ -28,13 +28,13 @@ void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, int exp);
 void AddPlrMonstExper(int lvl, int exp, char pmask);
-void InitPlayer(int pnum, BOOL FirstTime, BOOL active);
+void InitPlayer(int pnum, bool FirstTime, bool active);
 void PlrClrTrans(int x, int y);
 void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);
-BOOL PlacePlayer(int pnum);
+bool PlacePlayer(int pnum);
 void RemovePlrFromMap(int pnum);
 void StartPlrHit(int pnum, int dam, BOOL forcehit);
 void StartPlrKill(int pnum, int earflag);

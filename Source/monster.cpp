@@ -2098,7 +2098,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 #endif
 			return;
 
-	if (p->_pBlockFlag
+	if ((p->_pSkillFlags & SFLAG_BLOCK)
 	 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		blkper = p->_pDexterity + p->_pBaseToBlk
 			+ (p->_pLevel << 1)

@@ -262,11 +262,10 @@ typedef struct PlayerStruct {
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	uint64_t _pAblSkills;  // Bitmask of abilities
 	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
-	UCHAR _pSpellFlags;
 	int _pSplHotKey[4];
 	char _pSplTHotKey[4];
-	BYTE _pwtype;
-	BOOLEAN _pBlockFlag;
+	BYTE _pSkillFlags;     // Bitmask of allowed skill-types (SFLAG_*)
+	BYTE _pSpellFlags;     // Bitmask of spells affecting the player
 	BOOLEAN _pInvincible;
 	char _pLightRad;
 	char _pName[PLR_NAME_LEN];
@@ -393,9 +392,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[432];
+	int alignment[433];
 #else
-	int alignment[436];
+	int alignment[437];
 #endif
 #endif
 } PlayerStruct;
@@ -1195,7 +1194,7 @@ typedef struct SpellData {
 	BOOLEAN sTargeted;
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
-	BOOLEAN sTownSpell;
+	BYTE sFlags; // the required flags(SFLAG*) to use the skill
 	BYTE sMinInt;
 	unsigned char sSFX;
 	unsigned char sMissile;

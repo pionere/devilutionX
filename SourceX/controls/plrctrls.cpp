@@ -301,7 +301,7 @@ void FindMeleeTarget()
 
 void CheckMonstersNearby()
 {
-	if (plr[myplr]._pwtype == WT_RANGED || HasRangedSpell()) {
+	if ((plr[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
 		FindRangedTarget();
 		return;
 	}
@@ -332,7 +332,7 @@ void CheckPlayerNearby()
 		    || (plr[i]._pHitPoints == 0 && spl != SPL_RESURRECT))
 			continue;
 
-		if (plr[myplr]._pwtype == WT_RANGED || HasRangedSpell() || spl == SPL_HEALOTHER) {
+		if ((plr[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell() || spl == SPL_HEALOTHER) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
@@ -435,10 +435,11 @@ void Interact()
 	} else {
 		int attack = plr[myplr]._pLSpell;
 		int sl = GetSpellLevel(myplr, attack);
+		bool melee = (_pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
-			NetSendCmdParam3(TRUE, (plr[myplr]._pwtype != WT_RANGED || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
+			NetSendCmdParam3(TRUE, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
 		else if (pcursplr != -1 && !FriendlyMode)
-			NetSendCmdBParam3(TRUE, plr[myplr]._pwtype == WT_RANGED ? CMD_RATTACKPID : CMD_ATTACKPID, pcursplr, attack, sl);
+			NetSendCmdBParam3(TRUE, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
 	}
 }
 

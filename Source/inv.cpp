@@ -1958,16 +1958,16 @@ BOOL UseInvItem(int cii)
 		return TRUE;
 	}
 
-	if (currlevel == 0 && is->_iMiscId == IMISC_SCROLL
-	 && !spelldata[is->_iSpell].sTownSpell) {
+	if (leveltype == DTYPE_TOWN
+#ifdef HELLFIRE
+	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE)
+#else
+	 && is->_iMiscId == IMISC_SCROLL
+#endif
+		&& (spelldata[is->_iSpell].sFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return TRUE;
 	}
 
-#ifdef HELLFIRE
-	if (currlevel == 0 && is->_iMiscId == IMISC_RUNE) {
-		return TRUE;
-	}
-#endif
 	// add sfx
 	if (is->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);

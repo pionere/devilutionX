@@ -182,7 +182,7 @@ static void VerifyGoldSeeds(PlayerStruct *p)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL active)
+void UnPackPlayer(PkPlayerStruct *pPack, int pnum, bool active)
 {
 	PlayerStruct *p;
 	int i;
@@ -202,7 +202,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL active)
 	p->_pLevel = pPack->pLevel;
 	p->_pDiabloKillLevel = pPack->pDiabloKillLevel;
 	p->_pStatPts = SwapLE16(pPack->pStatPts);
-	InitPlayer(pnum, TRUE, active);
+	InitPlayer(pnum, true, active);
 	p->_pStrength = p->_pBaseStr = SwapLE16(pPack->pBaseStr);
 	p->_pMagic = p->_pBaseMag = SwapLE16(pPack->pBaseMag);
 	p->_pDexterity = p->_pBaseDex = SwapLE16(pPack->pBaseDex);

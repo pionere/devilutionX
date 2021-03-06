@@ -549,7 +549,7 @@ static BOOL AttackCmd(BOOL bShift, int attack)
 {
 	int sl = GetSpellLevel(myplr, attack);
 
-	if (plr[myplr]._pwtype == WT_RANGED) {
+	if (plr[myplr]._pSkillFlags & SFLAG_RANGED) {
 		if (bShift) {
 			NetSendCmdLocBParam2(TRUE, CMD_RATTACKXY, cursmx, cursmy, attack, sl);
 			return TRUE;
@@ -766,27 +766,20 @@ static void ActionBtnDown(BOOL bShift)
 
 void AltActionBtnCmd(BOOL bShift)
 {
+	PlayerStruct *p;
 	int rspell, sf, sl;
-	const int *sfx;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		dev_fatal("AltActionBtnCmd: illegal player %d", myplr);
 	}
 
+	p = &plr[myplr];
 	assert(pcurs == CURSOR_HAND);
-	rspell = plr[myplr]._pRSpell;
-	if (rspell == SPL_INVALID) {
-		PlaySFX(sgSFXSets[SFXS_PLR_34][plr[myplr]._pClass]);
+	rspell = p->_pRSpell;
+	if (rspell == SPL_INVALID
+	 || (spelldata[rspell].sFlags & p->_pSkillFlags) != spelldata[rspell].sFlags) {
+		PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
 		return;
-	}
-
-	if (leveltype == DTYPE_TOWN) {
-		if (!spelldata[rspell].sTownSpell) {
-			PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
-			return;
-		}
-		if (rspell == SPL_WATTACK || rspell == SPL_WRATTACK)
-			rspell = SPL_WALK;
 	}
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
@@ -800,16 +793,15 @@ void AltActionBtnCmd(BOOL bShift)
 			return;
 		}
 
-	sfx = NULL;
-	switch (plr[myplr]._pRSplType) {
+	switch (p->_pRSplType) {
 	case RSPLTYPE_ABILITY:
 		// assert(spelldata[rspell].sManaCost == 0);
 		if (rspell == SPL_WATTACK) {
-			if (AttackCmd(bShift, SPL_ATTACK))
+			if (leveltype != DTYPE_TOWN && AttackCmd(bShift, SPL_ATTACK))
 				return;
 			rspell = SPL_WALK;
 		} else if (rspell == SPL_WRATTACK) {
-			if (AttackCmd(bShift, SPL_RATTACK))
+			if (leveltype != DTYPE_TOWN && AttackCmd(bShift, SPL_RATTACK))
 				return;
 			rspell = SPL_WALK;
 		}
@@ -826,7 +818,7 @@ void AltActionBtnCmd(BOOL bShift)
 			return;
 		}
 		if (rspell == SPL_BLOCK) {
-			int dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
+			int dir = GetDirection(p->_px, p->_py, cursmx, cursmy);
 			NetSendCmdParam1(TRUE, CMD_BLOCK, dir);
 			return;
 		}
@@ -841,7 +833,7 @@ void AltActionBtnCmd(BOOL bShift)
 			sf = SPLFROM_MANA;
 		} else {
 			sf = SPLFROM_INVALID;
-			sfx = sgSFXSets[SFXS_PLR_35];
+			PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
 		}
 		break;
 	case RSPLTYPE_SCROLL:
@@ -857,16 +849,13 @@ void AltActionBtnCmd(BOOL bShift)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	if (sf == SPLFROM_INVALID) {
-		if (sfx != NULL)
-			PlaySFX(sfx[plr[myplr]._pClass]);
+	if (sf == SPLFROM_INVALID)
 		return;
-	}
 
 	if (spelldata[rspell].spCurs != CURSOR_NONE) {
 		NewCursor(spelldata[rspell].spCurs);
-		plr[myplr]._pTSpell = rspell;
-		plr[myplr]._pTSplFrom = sf;
+		p->_pTSpell = rspell;
+		p->_pTSplFrom = sf;
 		return;
 	}
 
@@ -1406,7 +1395,6 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			spelldata[SPL_TELEPORT].sTownSpell = 1;
 			plr[myplr]._pSplLvl[plr[myplr]._pSpell]++;
 		}
 		break;
@@ -1712,7 +1700,7 @@ static void CreateLevel(int lvldir)
 	}
 }
 
-void LoadGameLevel(BOOL firstflag, int lvldir)
+void LoadGameLevel(bool firstflag, int lvldir)
 {
 	int i;
 
@@ -1794,7 +1782,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag, TRUE);
+					InitPlayer(i, firstflag, true);
 			}
 		}
 
@@ -1871,7 +1859,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag, TRUE);
+					InitPlayer(i, firstflag, true);
 			}
 		}
 
@@ -1900,9 +1888,9 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive && plr[i].plrlevel == currlevel && (!plr[i]._pLvlChanging || i == myplr)) {
 			if (plr[i]._pHitPoints >= (1 << 6)) {
-				if (gbMaxPlayers == 1)
+				/*if (gbMaxPlayers == 1)
 					dPlayer[plr[i]._px][plr[i]._py] = i + 1;
-				else
+				else*/
 					SyncInitPlrPos(i);
 			} else {
 				dFlags[plr[i]._px][plr[i]._py] |= BFLAG_DEAD_PLAYER;

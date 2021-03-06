@@ -1388,6 +1388,7 @@ static void check_update_plr(int pnum)
 
 static void msg_errorf(const char *pszFmt, ...)
 {
+#ifdef _DEBUG
 	static DWORD msg_err_timer;
 	DWORD ticks;
 	char msg[256];
@@ -1401,6 +1402,7 @@ static void msg_errorf(const char *pszFmt, ...)
 		ErrorPlrMsg(msg);
 	}
 	va_end(va);
+#endif
 }
 
 static DWORD On_SYNCDATA(TCmd *pCmd, int pnum)
@@ -1686,14 +1688,19 @@ static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
 static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
+	int sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, FALSE);
-		plr[pnum].destAction = ACTION_ATTACK;
-		plr[pnum].destParam1 = cmd->x;
-		plr[pnum].destParam2 = cmd->y;
-		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
-		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
+		sn = cmd->bParam1;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_ATTACK;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = sn;           // attack skill
+			plr[pnum].destParam4 = cmd->bParam2; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1702,14 +1709,19 @@ static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
+	int sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_ATTACK;
-		plr[pnum].destParam1 = cmd->x;
-		plr[pnum].destParam2 = cmd->y;
-		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
-		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
+		sn = cmd->bParam1;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_ATTACK;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = sn;           // attack skill
+			plr[pnum].destParam4 = cmd->bParam2; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1718,14 +1730,19 @@ static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
+	int sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACK;
-		plr[pnum].destParam1 = cmd->x;
-		plr[pnum].destParam2 = cmd->y;
-		plr[pnum].destParam3 = cmd->bParam1; // attack 'spell'
-		plr[pnum].destParam4 = cmd->bParam2; // attack 'spell'-level
+		sn = cmd->bParam1;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_RATTACK;
+			plr[pnum].destParam1 = cmd->x;
+			plr[pnum].destParam2 = cmd->y;
+			plr[pnum].destParam3 = sn;           // attack skill
+			plr[pnum].destParam4 = cmd->bParam2; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1734,14 +1751,16 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
+	BYTE sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam1].sTownSpell) {
-			ClrPlrPath(pnum);
+		ClrPlrPath(pnum);
+		sn = cmd->bParam1;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_SPELL;
 			plr[pnum].destParam2 = cmd->x;
 			plr[pnum].destParam3 = cmd->y;
-			plr[pnum].destParam1a = cmd->bParam1; // spell
+			plr[pnum].destParam1a = sn;           // spell
 			plr[pnum].destParam1b = cmd->bParam2; // invloc
 			plr[pnum].destParam1c = cmd->bParam3; // spllvl
 		} else
@@ -1809,18 +1828,22 @@ static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
 static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
-	int mnum, x, y;
+	int mnum, x, y, sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		mnum = cmd->wParam1;
-		plr[pnum].destAction = ACTION_ATTACKMON;
-		plr[pnum].destParam1 = mnum;
-		plr[pnum].destParam2 = cmd->wParam2; // attack 'spell'
-		plr[pnum].destParam3 = cmd->wParam3; // attack 'spell'-level
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
 		if (abs(plr[pnum]._px - x) > 1 || abs(plr[pnum]._py - y) > 1)
 			MakePlrPath(pnum, x, y, FALSE);
+		sn = cmd->wParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_ATTACKMON;
+			plr[pnum].destParam1 = mnum;
+			plr[pnum].destParam2 = sn;           // attack skill
+			plr[pnum].destParam3 = cmd->wParam3; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1829,14 +1852,19 @@ static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
+	int tnum, sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		int tnum = cmd->bParam1;
+		tnum = cmd->bParam1;
 		MakePlrPath(pnum, plr[tnum]._pfutx, plr[tnum]._pfuty, FALSE);
-		plr[pnum].destAction = ACTION_ATTACKPLR;
-		plr[pnum].destParam1 = tnum;
-		plr[pnum].destParam2 = cmd->bParam2; // attack 'spell'
-		plr[pnum].destParam3 = cmd->bParam3; // attack 'spell'-level
+		sn = cmd->bParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_ATTACKPLR;
+			plr[pnum].destParam1 = tnum;
+			plr[pnum].destParam2 = sn;           // attack skill
+			plr[pnum].destParam3 = cmd->bParam3; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1845,13 +1873,18 @@ static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
+	int sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACKMON;
-		plr[pnum].destParam1 = cmd->wParam1; // target id
-		plr[pnum].destParam2 = cmd->wParam2; // attack 'spell'
-		plr[pnum].destParam3 = cmd->wParam3; // attack 'spell'-level
+		sn = cmd->wParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_RATTACKMON;
+			plr[pnum].destParam1 = cmd->wParam1; // target id
+			plr[pnum].destParam2 = sn;           // attack skill
+			plr[pnum].destParam3 = cmd->wParam3; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1860,13 +1893,18 @@ static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
+	int sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
-		plr[pnum].destAction = ACTION_RATTACKPLR;
-		plr[pnum].destParam1 = cmd->bParam1; // target id
-		plr[pnum].destParam2 = cmd->bParam2; // attack 'spell'
-		plr[pnum].destParam3 = cmd->bParam3; // attack 'spell'-level
+		sn = cmd->bParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
+			plr[pnum].destAction = ACTION_RATTACKPLR;
+			plr[pnum].destParam1 = cmd->bParam1; // target id
+			plr[pnum].destParam2 = sn;           // attack skill
+			plr[pnum].destParam3 = cmd->bParam3; // attack skill-level
+		} else
+			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1875,12 +1913,14 @@ static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 {
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
+	BYTE sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam2].sTownSpell) {
-			ClrPlrPath(pnum);
+		ClrPlrPath(pnum);
+		sn = cmd->bParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1a = cmd->bParam2; // spell
+			plr[pnum].destParam1a = sn; // spell
 			plr[pnum].destParam1b = cmd->bParam3; // invloc
 			plr[pnum].destParam1c = cmd->bParam4; // spllvl
 			plr[pnum].destParam2 = cmd->wParam1; // mnum
@@ -1894,12 +1934,14 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 {
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
+	BYTE sn;
 
 	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
-		if (leveltype != DTYPE_TOWN || spelldata[cmd->bParam2].sTownSpell) {
-			ClrPlrPath(pnum);
+		ClrPlrPath(pnum);
+		sn = cmd->bParam2;
+		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1a = cmd->bParam2; // spell
+			plr[pnum].destParam1a = sn; // spell
 			plr[pnum].destParam1b = cmd->bParam3; // invloc
 			plr[pnum].destParam1c = cmd->bParam4; // spllvl
 			plr[pnum].destParam2 = cmd->wParam1; // pnum
@@ -2238,7 +2280,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 			p->_pGFXLoad = 0;
 			if (currlevel == p->plrlevel) {
 				SyncInitPlr(pnum);
-				PlrStartStand(pnum, DIR_S);
+				//PlrStartStand(pnum, DIR_S);
 				/*LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
 				if (p->_pHitPoints >= (1 << 6))

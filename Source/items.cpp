@@ -417,7 +417,8 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 
 	int tac = 0;  // armor class
 
-	unsigned g;
+	unsigned g, wt; // graphics, weapon-type
+	bool bf;        // blockflag
 	int i;
 
 	int bdam = 0;   // bonus damage
@@ -669,21 +670,11 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pMana = imana + p->_pManaBase;
 	p->_pMaxMana = imana + p->_pMaxManaBase;
 
-	p->_pBlockFlag = FALSE;
 	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
 	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
-#ifdef HELLFIRE
-	if (p->_pClass == PC_MONK) {
-		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
-			p->_pBlockFlag = TRUE;
-			p->_pIFlags |= ISPL_FASTBLOCK;
-		} else if (wRight->_itype == ITYPE_NONE
-		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
-			p->_pBlockFlag = TRUE;
-	}
-#endif
-	p->_pwtype = WT_MELEE;
 
+	bf = false;
+	wt = SFLAG_MELEE;
 	g = ANIM_ID_UNARMED;
 
 	if (wLeft->_itype != ITYPE_NONE
@@ -702,7 +693,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		g = ANIM_ID_AXE;
 		break;
 	case ITYPE_BOW:
-		p->_pwtype = WT_RANGED;
+		wt = SFLAG_RANGED;
 		g = ANIM_ID_BOW;
 		break;
 	case ITYPE_MACE:
@@ -716,9 +707,19 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 		break;
 	}
 
+#ifdef HELLFIRE
+	if (p->_pClass == PC_MONK) {
+		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
+			bf = true;
+			p->_pIFlags |= ISPL_FASTBLOCK;
+		} else if (wRight->_itype == ITYPE_NONE
+		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
+			bf = true;
+	}
+#endif
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
 		tac += ((p->_pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
-		p->_pBlockFlag = TRUE;
+		bf = true;
 		g++;
 	}
 
@@ -759,14 +760,21 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	p->_pIAC = tac + p->_pDexterity / 5;
 	p->_pICritChance = 0;
 	btohit += 50 + p->_pLevel;
-	if (p->_pwtype == WT_MELEE) {
+	if (wt == SFLAG_MELEE) {
 		btohit += 20 + (p->_pDexterity >> 1);
 		p->_pICritChance = p->_pLevel;
 	} else {
-		assert(p->_pwtype == WT_RANGED);
+		// assert(wt == SFLAG_RANGED);
 		btohit += p->_pDexterity;
 	}
 	p->_pIHitChance = btohit;
+
+	// calculate skill flags
+	if (leveltype != DTYPE_TOWN)
+		wt |= SFLAG_DUNGEON;
+	if (bf)
+		wt |= SFLAG_BLOCK;
+	p->_pSkillFlags = wt;
 
 	// calculate the damages for each type
 	if (maxsl != 0) {
@@ -837,50 +845,25 @@ void CalcPlrSpells(int pnum)
 	PlayerStruct *p;
 
 	p = &plr[pnum];
-	if (p->_pwtype == WT_MELEE) {
-		if (p->_pSkillLvl[SPL_SWIPE] != 0)
-			p->_pMemSkills |= SPELL_MASK(SPL_SWIPE);
-		p->_pMemSkills &= ~(SPELL_MASK(SPL_POINT_BLANK) | SPELL_MASK(SPL_FAR_SHOT));
+	// switch between normal attacks
+	if (p->_pSkillFlags & SFLAG_MELEE) {
+		if (p->_pLSpell == SPL_RATTACK)
+			p->_pLSpell = SPL_ATTACK;
+		else if (p->_pLSpell == SPL_WRATTACK)
+			p->_pLSpell = SPL_WATTACK;
+		if (p->_pRSpell == SPL_RATTACK)
+			p->_pRSpell = SPL_ATTACK;
+		else if (p->_pRSpell == SPL_WRATTACK)
+			p->_pRSpell = SPL_WATTACK;
 	} else {
-		if (p->_pSkillLvl[SPL_POINT_BLANK] != 0)
-			p->_pMemSkills |= SPELL_MASK(SPL_POINT_BLANK);
-		if (p->_pSkillLvl[SPL_FAR_SHOT] != 0)
-			p->_pMemSkills |= SPELL_MASK(SPL_FAR_SHOT);
-		p->_pMemSkills &= ~SPELL_MASK(SPL_SWIPE);
-	}
-	// check if the current RSplType is a valid/allowed 'spell'
-	if (p->_pRSplType == RSPLTYPE_SPELL && !(p->_pMemSkills & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-}
-
-void CalcPlrAbilities(int pnum)
-{
-	PlayerStruct *p;
-
-	p = &plr[pnum];
-	if (p->_pwtype == WT_MELEE) {
-		p->_pLSpell = SPL_ATTACK;
-		p->_pAblSkills |= SPELL_MASK(SPL_WATTACK) | SPELL_MASK(SPL_ATTACK);
-		p->_pAblSkills &= ~(SPELL_MASK(SPL_WRATTACK) | SPELL_MASK(SPL_RATTACK));
-	} else {
-		p->_pLSpell = SPL_RATTACK;
-		p->_pAblSkills |= SPELL_MASK(SPL_WRATTACK) | SPELL_MASK(SPL_RATTACK);
-		p->_pAblSkills &= ~(SPELL_MASK(SPL_WATTACK) | SPELL_MASK(SPL_ATTACK));
-	}
-
-	if (p->_pBlockFlag) {
-		p->_pAblSkills |= SPELL_MASK(SPL_BLOCK);
-	} else {
-		p->_pAblSkills &= ~SPELL_MASK(SPL_BLOCK);
-	}
-	// check if the current RSplType is a valid/allowed ability
-	if (p->_pRSplType == RSPLTYPE_ABILITY && !(p->_pAblSkills & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+		if (p->_pLSpell == SPL_ATTACK)
+			p->_pLSpell = SPL_RATTACK;
+		else if (p->_pLSpell == SPL_WATTACK)
+			p->_pLSpell = SPL_WRATTACK;
+		if (p->_pRSpell == SPL_ATTACK)
+			p->_pRSpell = SPL_RATTACK;
+		else if (p->_pRSpell == SPL_WATTACK)
+			p->_pRSpell = SPL_WRATTACK;
 	}
 }
 
@@ -1013,7 +996,6 @@ void CalcPlrInv(int pnum, BOOL Loadgfx)
 	CalcPlrItemMin(pnum);
 	if (pnum == myplr) {
 		CalcPlrSpells(pnum);
-		CalcPlrAbilities(pnum);
 		CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
 		CalcPlrStaff(pnum);

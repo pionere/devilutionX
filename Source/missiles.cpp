@@ -843,7 +843,7 @@ static BOOL PlayerTrapHit(int pnum, int mi)
 			return FALSE;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
+	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
 		if (tmp >= 100 || random_(73, 100) < tmp) {
 			PlrStartBlock(pnum, p->_pdir);
@@ -907,7 +907,7 @@ static BOOL PlayerMHit(int pnum, int mi)
 			return FALSE;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && p->_pBlockFlag && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
+	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity
 			+ (p->_pLevel << 1)
 			- (mon->mLevel << 1);
@@ -967,7 +967,7 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 		return FALSE;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && dps->_pBlockFlag && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
+	 && (dps->_pSkillFlags & SFLAG_BLOCK) && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
 			+ (dps->_pLevel << 1)
 			- (ops->_pLevel << 1);

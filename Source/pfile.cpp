@@ -228,7 +228,7 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 			if (pfile_read_hero(archive, &pkplr)) {
 				_uiheroinfo uihero;
 				copy_str(hero_names[i], pkplr.pName);
-				UnPackPlayer(&pkplr, 0, FALSE);
+				UnPackPlayer(&pkplr, 0, false);
 				game_2_ui_player(&plr[0], &uihero, pfile_archive_contains_game(archive));
 				ui_add_hero_info(&uihero);
 			}
@@ -335,7 +335,7 @@ void pfile_read_player_from_save()
 	if (!pfile_read_hero(archive, &pkplr))
 		app_fatal("Unable to load character");
 
-	UnPackPlayer(&pkplr, myplr, FALSE);
+	UnPackPlayer(&pkplr, myplr, false);
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	pfile_SFileCloseArchive(archive);
 }

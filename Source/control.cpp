@@ -300,7 +300,7 @@ void DrawRSpell()
 	if (spl == SPL_INVALID) {
 		st = RSPLTYPE_INVALID;
 		spl = SPL_NULL;
-	} else if (currlevel == 0 && !spelldata[spl].sTownSpell)
+	} else if ((spelldata[spl].sFlags & plr[myplr]._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
 		lvl = GetSpellLevel(myplr, spl);
@@ -357,7 +357,7 @@ void DrawSpeedBook()
 				s = GetSpellLevel(myplr, sn);
 				t = s > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
-			if (currlevel == 0 && !spelldata[sn].sTownSpell)
+			if ((spelldata[sn].sFlags & plr[myplr]._pSkillFlags) != spelldata[sn].sFlags)
 				t = RSPLTYPE_INVALID;
 			SetSpellTrans(t);
 			DrawSpellCel(x, y, pSpellCels, spelldata[sn].sIcon, SPLICONLENGTH);
@@ -1816,7 +1816,7 @@ void RedBack()
 	}
 }
 
-static char GetSBookTrans(int sn, BOOL townok)
+static char GetSBookTrans(int sn)
 {
 	PlayerStruct *p;
 	char st;
@@ -1829,9 +1829,6 @@ static char GetSBookTrans(int sn, BOOL townok)
 	} else if (CheckSpell(myplr, sn)) {
 		st = RSPLTYPE_SPELL;
 	} else {
-		return RSPLTYPE_INVALID;
-	}
-	if (townok && currlevel == 0 && !spelldata[sn].sTownSpell) {
 		st = RSPLTYPE_INVALID;
 	}
 	return st;
@@ -1868,14 +1865,8 @@ void DrawSpellBook()
 	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
 		sn = SpellPages[sbooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
-			st = GetSBookTrans(sn, TRUE);
-			SetSpellTrans(st);
-			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
-			if (sn == p->_pRSpell && st == p->_pRSplType) {
-				SetSpellTrans(RSPLTYPE_ABILITY);
-				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
-			}
-			switch (GetSBookTrans(sn, FALSE)) {
+			st = GetSBookTrans(sn);
+			switch (st) {
 			case RSPLTYPE_ABILITY:
 				copy_cstr(tempstr, "Skill");
 				mana = 0;
@@ -1909,6 +1900,15 @@ void DrawSpellBook()
 				if (min != -1)
 					cat_str(tempstr, offset, "Dam: %i-%i", min, max);
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, FALSE, COL_WHITE, 1);
+			}
+
+			if ((spelldata[sn].sFlags & plr[myplr]._pSkillFlags) != spelldata[sn].sFlags)
+				st = RSPLTYPE_INVALID;
+			SetSpellTrans(st);
+			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
+			if (sn == p->_pRSpell && st == p->_pRSplType) {
+				SetSpellTrans(RSPLTYPE_ABILITY);
+				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
 			}
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;

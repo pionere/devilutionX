@@ -604,7 +604,7 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 	}
 }
 
-static BOOL LightPos(int x1, int y1, BOOL doautomap, const char visFlags)
+static BOOL LightPos(int x1, int y1, BOOL doautomap, const char vFlags)
 {
 	int nTrans;
 
@@ -615,7 +615,7 @@ static BOOL LightPos(int x1, int y1, BOOL doautomap, const char visFlags)
 			SetAutomapView(x1, y1);
 		}
 	}
-	dFlags[x1][y1] |= visFlags;
+	dFlags[x1][y1] |= vFlags;
 	if (nBlockTable[dPiece[x1][y1]])
 		return FALSE;
 	nTrans = dTransVal[x1][y1];
@@ -630,7 +630,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 	const char* cr;
 	int i, x1, x2, y1, y2, limit;
 	int d, dx, dy, xinc, yinc;
-	const char visFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
+	const char vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
 	if (!(IN_DUNGEON_AREA(nXPos, nYPos)))
 		return;
@@ -640,7 +640,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 			SetAutomapView(nXPos, nYPos);
 		}
 	}
-	dFlags[nXPos][nYPos] |= visFlags;
+	dFlags[nXPos][nYPos] |= vFlags;
 
 	nRadius = 2 * (nRadius + 1);
 	cr = &CrawlTable[CrawlNum[15]];
@@ -676,7 +676,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, doautomap, visFlags));
+			} while (LightPos(x1, y1, doautomap, vFlags));
 		} else {
 			// multiply by 2 so we round up
 			dx *= 2;
@@ -692,7 +692,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, doautomap, visFlags));
+			} while (LightPos(x1, y1, doautomap, vFlags));
 		}
 	}
 }

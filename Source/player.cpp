@@ -347,7 +347,7 @@ void InitPlayerGFX(int pnum)
 		gfxflag = PFILE_NONDEATH;
 		if (leveltype == DTYPE_TOWN)
 			gfxflag &= ~(PFILE_ATTACK | PFILE_HIT | PFILE_BLOCK);
-		else if (!plr[pnum]._pBlockFlag)
+		else if (!(plr[pnum]._pSkillFlags & SFLAG_BLOCK))
 			gfxflag &= ~PFILE_BLOCK;
 	}
 	LoadPlrGFX(pnum, gfxflag);
@@ -669,7 +669,7 @@ void CreatePlayer(int pnum, char c)
 
 	p = &plr[pnum];
 	memset(p, 0, sizeof(*p));
-	SetRndSeed(SDL_GetTicks());
+	//SetRndSeed(SDL_GetTicks());
 
 	p->_pClass = c;
 
@@ -698,12 +698,12 @@ void CreatePlayer(int pnum, char c)
 	p->_pMana = p->_pMaxMana = p->_pManaBase = p->_pMaxManaBase = mana;
 
 	p->_pLevel = 1;
-	p->_pLvlUp = FALSE; // indicator whether the stat button should be shown
-	p->_pNextExper = PlrExpLvlsTbl[1];
+	p->_pLvlUp = false; // indicator whether the stat button should be shown
+	//p->_pNextExper = PlrExpLvlsTbl[1];
 	p->_pLightRad = 10;
 
-	p->_pAblSkills = SPELL_MASK(Abilities[c]);
-	p->_pAblSkills |= SPELL_MASK(SPL_WALK);
+	//p->_pAblSkills = SPELL_MASK(Abilities[c]);
+	//p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
 	if (c == PC_SORCERER) {
 		p->_pSkillLvl[SPL_FIREBOLT] = 2;
@@ -717,7 +717,7 @@ void CreatePlayer(int pnum, char c)
 
 	InitDungMsgs(pnum);
 	CreatePlrItems(pnum);
-	SetRndSeed(0);
+	//SetRndSeed(0);
 }
 
 void NextPlrLevel(int pnum)
@@ -870,10 +870,10 @@ void AddPlrMonstExper(int lvl, int exp, char pmask)
 	AddPlrExperience(myplr, lvl, e);
 }
 
-void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
+void InitPlayer(int pnum, bool FirstTime, bool active)
 {
 	PlayerStruct *p;
-	DWORD i;
+	//int i;
 
 	if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("InitPlayer: illegal player %d", pnum);
@@ -888,8 +888,7 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 
 		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
-		p->_pAblSkills |= SPELL_MASK(SPL_WALK);
-		CalcPlrAbilities(pnum);
+		p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
 		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
 	}
@@ -899,16 +898,21 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 #else
 	if (active && p->plrlevel == currlevel) {
 #endif
+		if (currlevel != 0)
+			p->_pSkillFlags	|= SFLAG_DUNGEON;
+		else
+			p->_pSkillFlags	&= ~SFLAG_DUNGEON;
+
 		SetPlrAnims(pnum);
 
-		p->_pxoff = 0;
-		p->_pyoff = 0;
-		p->_pxvel = 0;
-		p->_pyvel = 0;
+		//p->_pxoff = 0;
+		//p->_pyoff = 0;
+		//p->_pxvel = 0;
+		//p->_pyvel = 0;
 
 		ClearPlrPVars(pnum);
 
-		if (p->_pHitPoints >= (1 << 6)) {
+		/*if (p->_pHitPoints >= (1 << 6)) {
 			p->_pmode = PM_STAND;
 			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 3, p->_pNWidth);
 			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
@@ -918,20 +922,27 @@ void InitPlayer(int pnum, BOOL FirstTime, BOOL active)
 			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 1, p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
 			p->_pVar8 = 2 * p->_pAnimLen;
-		}
+		}*/
 
 		if (pnum == myplr) {
 			p->_px = ViewX;
 			p->_py = ViewY;
 		} else {
-			for (i = 0; i < 8 && !PosOkPlayer(pnum, plrxoff2[i] + p->_px, plryoff2[i] + p->_py); i++)
+			SyncInitPlrPos(pnum);
+			/*for (i = 0; i <= 8 && !PosOkPlayer(pnum, plrxoff2[i] + p->_px, plryoff2[i] + p->_py); i++)
 				;
 			p->_px += plrxoff2[i];
-			p->_py += plryoff2[i];
+			p->_py += plryoff2[i];*/
 		}
 
-		p->_pfutx = p->_px;
-		p->_pfuty = p->_py;
+		PlrStartStand(pnum, DIR_S);
+		// TODO: randomize AnimFrame/AnimCnt for live players?
+		// p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
+		// p->_pAnimCnt = random_(2, 3);
+
+		//p->_pfutx = p->_px;
+		//p->_pfuty = p->_py;
+
 		p->walkpath[0] = WALK_NONE;
 		p->destAction = ACTION_NONE;
 
@@ -1613,10 +1624,10 @@ static void StartSpell(int pnum)
  *
  * @return TRUE if the player had to be displaced.
  */
-BOOL PlacePlayer(int pnum)
+bool PlacePlayer(int pnum)
 {
 	int i, nx, ny, x, y;
-	BOOL done;
+	bool done;
 
 	for (i = 0; i < lengthof(plrxoff2); i++) {
 		nx = plr[pnum]._px + plrxoff2[i];
@@ -1628,10 +1639,10 @@ BOOL PlacePlayer(int pnum)
 	}
 
 	if (i == 0)
-		return FALSE;
+		return false;
 
 	if (i == lengthof(plrxoff2)) {
-		done = FALSE;
+		done = false;
 
 		for (i = 1; i < 50 && !done; i++) {
 			for (y = -i; y <= i && !done; y++) {
@@ -1641,7 +1652,7 @@ BOOL PlacePlayer(int pnum)
 					nx = plr[pnum]._px + x;
 
 					if (PosOkPlayer(pnum, nx, ny) && PosOkPortal(nx, ny)) {
-						done = TRUE;
+						done = true;
 					}
 				}
 			}
@@ -1650,7 +1661,7 @@ BOOL PlacePlayer(int pnum)
 
 	plr[pnum]._px = nx;
 	plr[pnum]._py = ny;
-	return TRUE;
+	return true;
 }
 
 void RemovePlrFromMap(int pnum)
@@ -2332,7 +2343,7 @@ static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 	if (random_(4, 100) >= hper)
 		return FALSE;
 
-	if (dps->_pBlockFlag
+	if ((dps->_pSkillFlags & SFLAG_BLOCK)
 	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 		blkper = dps->_pDexterity + dps->_pBaseToBlk
 			+ (dps->_pLevel << 1)
@@ -3295,8 +3306,7 @@ void SyncPlrAnim(int pnum)
 
 void SyncInitPlrPos(int pnum)
 {
-	if (gbMaxPlayers == 1 || plr[pnum].plrlevel != currlevel)
-		return;
+	assert(plr[pnum].plrlevel == currlevel);
 
 	if (PlacePlayer(pnum))
 		FixPlayerLocation(pnum);
@@ -3305,12 +3315,13 @@ void SyncInitPlrPos(int pnum)
 
 void SyncInitPlr(int pnum)
 {
-	if ((DWORD)pnum >= MAX_PLRS) {
+	/*if ((DWORD)pnum >= MAX_PLRS) {
 		app_fatal("SyncInitPlr: illegal player %d", pnum);
-	}
+	}*/
 
-	SetPlrAnims(pnum);
-	SyncInitPlrPos(pnum);
+	//SetPlrAnims(pnum);
+	InitPlayer(pnum, false, true);
+	//SyncInitPlrPos(pnum);
 }
 
 /*void CheckStats(int pnum)

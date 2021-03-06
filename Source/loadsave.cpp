@@ -240,13 +240,11 @@ static void LoadPlayer(int pnum)
 	CopyInt64(tbuff, &p->_pMemSkills);
 	CopyInt64(tbuff, &p->_pAblSkills);
 	CopyInt64(tbuff, &p->_pScrlSkills);
-	CopyChar(tbuff, &p->_pSpellFlags);
-	tbuff += 3; // Alignment
 	CopyInts(tbuff, 4, &p->_pSplHotKey);
 	CopyBytes(tbuff, 4, &p->_pSplTHotKey);
 
-	tbuff += 1; // Skip to Calc _pwtype
-	tbuff += 1; // Skip to Calc _pBlockFlag
+	tbuff += 1; // Skip to Calc _pSkillFlags
+	CopyChar(tbuff, &p->_pSpellFlags);
 	CopyChar(tbuff, &p->_pInvincible);
 	CopyChar(tbuff, &p->_pLightRad);
 
@@ -944,13 +942,11 @@ static void SavePlayer(int pnum)
 	CopyInt64(&p->_pMemSkills, tbuff);
 	CopyInt64(&p->_pAblSkills, tbuff);
 	CopyInt64(&p->_pScrlSkills, tbuff);
-	CopyChar(&p->_pSpellFlags, tbuff);
-	tbuff += 3; // Alignment
 	CopyInts(&p->_pSplHotKey, 4, tbuff);
 	CopyBytes(&p->_pSplTHotKey, 4, tbuff);
 
-	tbuff += 1; // Skip to Calc _pwtype
-	tbuff += 1; // Skip to Calc _pBlockFlag
+	tbuff += 1; // Skip to Calc _pSkillFlags
+	CopyChar(&p->_pSpellFlags, tbuff);
 	CopyChar(&p->_pInvincible, tbuff);
 	CopyChar(&p->_pLightRad, tbuff);
 
