@@ -1167,10 +1167,6 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	SetPlayerOld(p);
 
@@ -1241,10 +1237,6 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	SetPlayerOld(p);
 
@@ -1323,10 +1315,6 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	SetPlayerOld(p);
 
@@ -1392,7 +1380,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 }
 
-static BOOL StartAttack(int pnum)
+static bool StartAttack(int pnum)
 {
 	PlayerStruct *p;
 	int i, dx, dy, sn, sl, dir;
@@ -1402,10 +1390,6 @@ static BOOL StartAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return FALSE;
-	}
 
 	i = p->destParam1;
 	if (p->destAction == ACTION_ATTACK) {
@@ -1417,10 +1401,10 @@ static BOOL StartAttack(int pnum)
 		dx = monster[i]._mfutx;
 		dy = monster[i]._mfuty;
 		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
-			return FALSE;
+			return false;
 		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i);
-			return TRUE;
+			return true;
 		}
 		sn = p->destParam2;
 		sl = p->destParam3;
@@ -1428,7 +1412,7 @@ static BOOL StartAttack(int pnum)
 		dx = plr[i]._pfutx;
 		dy = plr[i]._pfuty;
 		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
-			return FALSE;
+			return false;
 		sn = p->destParam2;
 		sl = p->destParam3;
 	} else {
@@ -1436,14 +1420,14 @@ static BOOL StartAttack(int pnum)
 		dx = p->destParam2;
 		dy = p->destParam3;
 		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
-			return FALSE;
+			return false;
 		if (abs(dObject[dx][dy]) != i + 1) // this should always be false, but never trust the internet
-			return FALSE;
+			return false;
 		if (object[i]._oBreak != 1) {
 			if (p->destAction == ACTION_DISARM)
 				DisarmObject(pnum, i);
 			OperateObject(pnum, i, FALSE);
-			return TRUE;
+			return true;
 		}
 		if (p->destAction == ACTION_DISARM && pnum == myplr)
 			NewCursor(CURSOR_HAND);
@@ -1464,7 +1448,7 @@ static BOOL StartAttack(int pnum)
 	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth);
 
 	FixPlayerLocation(pnum);
-	return TRUE;
+	return true;
 }
 
 static void StartRangeAttack(int pnum)
@@ -1477,10 +1461,6 @@ static void StartRangeAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	i = p->destParam1;
 	if (p->destAction == ACTION_RATTACK) {
@@ -1531,11 +1511,6 @@ static void StartBlock(int pnum, int dir)
 	}
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
-
 	p->_pmode = PM_BLOCK;
 	p->_pVar1 = 0; // extended blocking
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
@@ -1558,10 +1533,6 @@ static void StartSpell(int pnum)
 		app_fatal("StartSpell: illegal player %d", pnum);
 
 	p = &plr[pnum];
-	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	i = p->destParam2;
 	if (p->destAction == ACTION_SPELL) {
@@ -2581,14 +2552,22 @@ static void ShieldDur(int pnum)
 
 void PlrStartBlock(int pnum, int dir)
 {
+	PlayerStruct *p;
+
 	if ((DWORD)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartBlock: illegal player %d", pnum);
 	}
 
-	if (plr[pnum]._pmode != PM_BLOCK)
+	p = &plr[pnum];
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
+		return;
+	}
+
+	if (p->_pmode != PM_BLOCK)
 		StartBlock(pnum, dir);
 
-	PlaySfxLoc(IS_ISWORD, plr[pnum]._px, plr[pnum]._py);
+	PlaySfxLoc(IS_ISWORD, p->_px, p->_py);
 	if (random_(3, 10) == 0) {
 		ShieldDur(pnum);
 	}
@@ -2785,6 +2764,11 @@ static void CheckNewPath(int pnum)
 		app_fatal("CheckNewPath: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
+	if (p->_pHitPoints < (1 << 6)) {
+		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
+		return;
+	}
+
 	if (p->destAction == ACTION_ATTACKMON) {
 		MakePlrPath(pnum, monster[p->destParam1]._mfutx, monster[p->destParam1]._mfuty, FALSE);
 	} else if (p->destAction == ACTION_ATTACKPLR) {
