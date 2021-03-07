@@ -881,14 +881,18 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	p = &plr[pnum];
 
 	if (FirstTime) {
-		p->_pRSpell = p->_pLSpell = SPL_INVALID;
-		p->_pRSplType = p->_pLSplType = RSPLTYPE_INVALID;
 		p->pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 
 		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
-		p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
+		p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
+			| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_WATTACK)
+			| SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_WRATTACK);
+		p->_pLSpell = (p->_pSkillFlags & SFLAG_MELEE) ? SPL_WATTACK : SPL_WRATTACK;
+		p->_pLSplType = RSPLTYPE_ABILITY;
+		p->_pRSpell = SPL_INVALID;
+		p->_pRSplType = RSPLTYPE_INVALID;
 
 		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
 	}
