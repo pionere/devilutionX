@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Set to true when a fatal error is encountered and the application should shut down. */
-BOOL terminating;
+bool _gbTerminating;
 /** Thread id of the last callee to FreeDlg(). */
 SDL_threadID cleanup_thread_id;
 
@@ -32,10 +32,10 @@ static void MsgBox(const char *pszFmt, va_list va)
  */
 static void FreeDlg()
 {
-	if (terminating && cleanup_thread_id != SDL_GetThreadID(NULL))
+	if (_gbTerminating && cleanup_thread_id != SDL_GetThreadID(NULL))
 		SDL_Delay(20000);
 
-	terminating = TRUE;
+	_gbTerminating = true;
 	cleanup_thread_id = SDL_GetThreadID(NULL);
 
 	if (gbMaxPlayers != 1) {

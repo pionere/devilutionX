@@ -18,9 +18,9 @@ DEVILUTION_BEGIN_NAMESPACE
 /** automap pixel color 8-bit (palette entry) */
 char gbPixelCol;
 /** flip - if y < x */
-BOOL gbRotateMap;
+bool _gbRotateMap;
 /** valid - if x/y are in bounds */
-BOOL gbNotInView;
+bool _gbNotInView;
 /** Number of times the current seed has been fetched */
 int SeedCount;
 #endif
@@ -445,7 +445,7 @@ void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (cel_transparency_active)
+	if (gbCelTransparencyActive)
 		CelBlitLightTransSafe(dst, pRLEBytes, nDataSize, nWidth);
 	else if (light_table_index)
 		CelBlitLightSafe(dst, pRLEBytes, nDataSize, nWidth, NULL);
@@ -641,12 +641,12 @@ void engine_draw_pixel(int sx, int sy)
 
 	assert(gpBuffer != NULL);
 
-	if (gbRotateMap) {
-		if (gbNotInView && (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X))
+	if (_gbRotateMap) {
+		if (_gbNotInView && (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X))
 			return;
 		dst = &gpBuffer[sy + BUFFER_WIDTH * sx];
 	} else {
-		if (gbNotInView && (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X))
+		if (_gbNotInView && (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X))
 			return;
 		dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 	}
@@ -1339,7 +1339,7 @@ void PlayInGameMovie(const char *pszMovie)
 	play_movie(pszMovie, 0);
 	ClearScreenBuffer();
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(TRUE);
+	scrollrt_draw_game_screen(true);
 	PaletteFadeIn();
 	gbRedrawFlags = REDRAW_ALL;
 }

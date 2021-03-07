@@ -17,7 +17,7 @@ int UiSelHeroDialog(void(*fninfo)(void(*fninfofunc)(_uiheroinfo *)), bool(*fncre
 void UiCreditsDialog();
 void UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const char *file), int attractTimeOut);
 
-BOOL UiProgressDialog(const char *msg, int enable, int(*fnfunc)(), int rate);
+bool UiProgressDialog(const char *msg, int enable, int(*fnfunc)(), int rate);
 
 bool UiSelectProvider(bool bMulti);
 int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt));
@@ -27,7 +27,7 @@ void UiCreatePlayerDescription(const _uiheroinfo *info, DWORD mode, char (&desc)
 void UiSetupPlayerInfo(const char *infostr, const _uiheroinfo *pInfo, DWORD type);
 
 /* These are defined in fonts.h */
-extern BOOL was_fonts_init;
+extern bool gbWasFontsInit;
 extern void FontsCleanup();
 
 /* Defined in selconn.cpp */

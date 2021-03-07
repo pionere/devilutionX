@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Should the movie continue playing. */
-BOOLEAN movie_playing;
+bool gbMoviePlaying = false;
 
 /**
  * @brief Start playback of a given video.
@@ -20,7 +20,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 {
 	HANDLE video_stream = NULL;
 
-	movie_playing = TRUE;
+	gbMoviePlaying = true;
 	sound_disable_music();
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
@@ -45,16 +45,16 @@ void play_movie(const char *pszMovie, int movieFlags)
 			default:
 				continue;
 			}
-			movie_playing = FALSE;
+			gbMoviePlaying = false;
 			break;
 		}
-		if (!SVidPlayContinue() || !movie_playing) {
+		if (!SVidPlayContinue() || !gbMoviePlaying) {
 			SVidPlayEnd(video_stream);
 			break;
 		}
 	}
 	sound_start_music();
-	movie_playing = FALSE;
+	gbMoviePlaying = false;
 	SDL_GetMouseState(&MouseX, &MouseY);
 	OutputToLogical(&MouseX, &MouseY);
 }

@@ -149,12 +149,12 @@ void selgame_GameSelection_Focus(std::size_t index)
  * @param pInfo Hero info
  * @return always true
  */
-/*BOOL UpdateHeroLevel(_uiheroinfo *pInfo)
+/*bool UpdateHeroLevel(_uiheroinfo *pInfo)
 {
 	if (strcasecmp(pInfo->name, gszHero) == 0)
 		selgame_heroLevel = pInfo->level;
 
-	return TRUE;
+	return true;
 }*/
 
 void selgame_GameSelection_Select(std::size_t index)

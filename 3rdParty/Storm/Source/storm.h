@@ -310,7 +310,7 @@ void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
-void SFileEnableDirectAccess(BOOL enable);
+void SFileEnableDirectAccess(bool enable);
 void SLoadKeyMap(BYTE (&map)[256]);
 
 #if defined(__GNUC__) || defined(__cplusplus)

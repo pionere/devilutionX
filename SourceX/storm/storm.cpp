@@ -753,7 +753,7 @@ void SFileSetBasePath(const char *path)
 	*SBasePath = path;
 }
 
-void SFileEnableDirectAccess(BOOL enable)
+void SFileEnableDirectAccess(bool enable)
 {
 	directFileAccess = enable;
 }

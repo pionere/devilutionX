@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL helpflag;
+extern bool gbHelpflag;
 
 void InitHelp();
 void DrawHelp();

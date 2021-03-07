@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void interface_msg_pump();
-BOOL IncProgress();
+bool IncProgress();
 void ShowProgress(unsigned int uMsg);
 
 #ifdef __cplusplus

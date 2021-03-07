@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOLEAN doomflag;
+extern bool gbDoomflag;
 #ifndef HELLFIRE
 extern int DoomQuestState;
 #endif

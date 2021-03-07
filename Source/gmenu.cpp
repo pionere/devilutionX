@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE *optbar_cel;
-BOOLEAN mouseNavigation;
+bool _gbMouseNavigation;
 BYTE *PentSpin_cel;
 TMenuItem *sgpCurrItem;
 BYTE *BigTGold_cel;
@@ -91,7 +91,7 @@ void gmenu_init_menu()
 	sgpCurrItem = NULL;
 	gmUpdateFunc = NULL;
 	sgCurrentMenuIdx = 0;
-	mouseNavigation = FALSE;
+	_gbMouseNavigation = false;
 	sgpLogo = LoadFileInMem(LOGO_DATA, NULL);
 	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL", NULL);
 	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL", NULL);
@@ -99,20 +99,20 @@ void gmenu_init_menu()
 	optbar_cel = LoadFileInMem("Data\\optbar.CEL", NULL);
 }
 
-static void gmenu_up_down(BOOL isDown)
+static void gmenu_up_down(bool isDown)
 {
 	int i;
 
 	if (sgpCurrItem == NULL) {
 		return;
 	}
-	mouseNavigation = FALSE;
+	_gbMouseNavigation = false;
 	i = sgCurrentMenuIdx;
 	while (i != 0) {
 		i--;
 		if (isDown) {
 			sgpCurrItem++;
-			if (!sgpCurrItem->fnMenu)
+			if (sgpCurrItem->fnMenu == NULL)
 				sgpCurrItem = &sgpCurrentMenu[0];
 		} else {
 			if (sgpCurrItem == sgpCurrentMenu)
@@ -132,7 +132,7 @@ void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 	int i;
 
 	PauseMode = 0;
-	mouseNavigation = FALSE;
+	_gbMouseNavigation = false;
 	sgpCurrentMenu = pItem;
 	gmUpdateFunc = gmUpdFunc;
 	if (gmUpdFunc != NULL) {
@@ -141,13 +141,13 @@ void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 	}
 	sgCurrentMenuIdx = 0;
 	if (sgpCurrentMenu != NULL) {
-		for (i = 0; sgpCurrentMenu[i].fnMenu; i++) {
+		for (i = 0; sgpCurrentMenu[i].fnMenu != NULL; i++) {
 			sgCurrentMenuIdx++;
 		}
 	}
 	// BUGFIX: OOB access when sgCurrentMenuIdx is 0; should be set to NULL instead. (fixed)
 	sgpCurrItem = sgCurrentMenuIdx > 0 ? &sgpCurrentMenu[sgCurrentMenuIdx - 1] : NULL;
-	gmenu_up_down(TRUE);
+	gmenu_up_down(true);
 }
 
 static void gmenu_clear_buffer(int x, int y, int width, int height)
@@ -230,7 +230,7 @@ void gmenu_draw()
 			gmenu_draw_menu_item(i, y);
 }
 
-static void gmenu_left_right(BOOL isRight)
+static void gmenu_left_right(bool isRight)
 {
 	int step, steps;
 
@@ -250,18 +250,18 @@ static void gmenu_left_right(BOOL isRight)
 	}
 	sgpCurrItem->dwFlags &= 0xFFFFF000;
 	sgpCurrItem->dwFlags |= step;
-	sgpCurrItem->fnMenu(FALSE);
+	sgpCurrItem->fnMenu(false);
 }
 
-BOOL gmenu_presskeys(int vkey)
+bool gmenu_presskeys(int vkey)
 {
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
-		return gmenu_left_mouse(TRUE);
+		return gmenu_left_mouse(true);
 	case DVL_VK_RETURN:
 		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
 			PlaySFX(IS_TITLEMOV);
-			sgpCurrItem->fnMenu(TRUE);
+			sgpCurrItem->fnMenu(true);
 		}
 		break;
 	case DVL_VK_ESCAPE:
@@ -270,44 +270,44 @@ BOOL gmenu_presskeys(int vkey)
 		gmenu_set_items(NULL, NULL);
 		break;
 	case DVL_VK_LEFT:
-		gmenu_left_right(FALSE);
+		gmenu_left_right(false);
 		break;
 	case DVL_VK_RIGHT:
-		gmenu_left_right(TRUE);
+		gmenu_left_right(true);
 		break;
 	case DVL_VK_UP:
-		gmenu_up_down(FALSE);
+		gmenu_up_down(false);
 		break;
 	case DVL_VK_DOWN:
-		gmenu_up_down(TRUE);
+		gmenu_up_down(true);
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
-static BOOLEAN gmenu_get_mouse_slider(int *plOffset)
+static bool gmenu_get_mouse_slider(int *plOffset)
 {
 	int offset;
 
 	offset = MouseX - (PANEL_LEFT + 282);
 	if (offset < 0) {
 		*plOffset = 0;
-		return FALSE;
+		return false;
 	}
 	if (offset > 256) {
 		*plOffset = 256;
-		return FALSE;
+		return false;
 	}
 	*plOffset = offset;
-	return TRUE;
+	return true;
 }
 
-BOOL gmenu_on_mouse_move()
+void gmenu_on_mouse_move()
 {
 	int step, nSteps;
 
-	if (!mouseNavigation)
-		return FALSE;
+	if (!_gbMouseNavigation)
+		return; // FALSE;
 	gmenu_get_mouse_slider(&step);
 	nSteps = (int)(sgpCurrItem->dwFlags & 0xFFF000) >> 12;
 	step *= nSteps;
@@ -315,61 +315,61 @@ BOOL gmenu_on_mouse_move()
 
 	sgpCurrItem->dwFlags &= 0xFFFFF000;
 	sgpCurrItem->dwFlags |= step;
-	sgpCurrItem->fnMenu(FALSE);
-	return TRUE;
+	sgpCurrItem->fnMenu(false);
+	// return TRUE;
 }
 
-BOOL gmenu_left_mouse(BOOL isDown)
+bool gmenu_left_mouse(bool isDown)
 {
 	TMenuItem *pItem;
 	int i, w, dummy;
 
 	if (!isDown) {
-		if (mouseNavigation) {
-			mouseNavigation = FALSE;
-			return TRUE;
+		if (_gbMouseNavigation) {
+			_gbMouseNavigation = false;
+			return true;
 		} else {
-			return FALSE;
+			return false;
 		}
 	}
 
 	if (sgpCurrentMenu == NULL) {
-		return FALSE;
+		return false;
 	}
 	if (MouseY >= PANEL_TOP) {
-		return FALSE;
+		return false;
 	}
 	i = MouseY - (117 + UI_OFFSET_Y);
 	if (i < 0) {
-		return TRUE;
+		return true;
 	}
 	i /= 45;
 	if (i >= sgCurrentMenuIdx) {
-		return TRUE;
+		return true;
 	}
 	pItem = &sgpCurrentMenu[i];
 	if (!(pItem->dwFlags & GMENU_ENABLED)) {
-		return TRUE;
+		return true;
 	}
 	w = gmenu_get_lfont(pItem) / 2;
 	if (MouseX < SCREEN_WIDTH / 2 - w) {
-		return TRUE;
+		return true;
 	}
 	if (MouseX > SCREEN_WIDTH / 2 + w) {
-		return TRUE;
+		return true;
 	}
 	sgpCurrItem = pItem;
 	PlaySFX(IS_TITLEMOV);
 	if (pItem->dwFlags & GMENU_SLIDER) {
-		mouseNavigation = gmenu_get_mouse_slider(&dummy);
+		_gbMouseNavigation = gmenu_get_mouse_slider(&dummy);
 		gmenu_on_mouse_move();
 	} else {
-		sgpCurrItem->fnMenu(TRUE);
+		sgpCurrItem->fnMenu(true);
 	}
-	return TRUE;
+	return true;
 }
 
-void gmenu_enable(TMenuItem *pMenuItem, BOOL enable)
+void gmenu_enable(TMenuItem *pMenuItem, bool enable)
 {
 	if (enable)
 		pMenuItem->dwFlags |= GMENU_ENABLED;

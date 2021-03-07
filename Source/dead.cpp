@@ -17,7 +17,7 @@ void InitDead()
 	MonsterStruct *mon;
 	CMonster *cmon;
 	int i, d, nd;
-	BOOL mtypes[NUM_MTYPES];
+	bool mtypes[NUM_MTYPES];
 
 	memset(mtypes, 0, sizeof(mtypes));
 
@@ -32,7 +32,7 @@ void InitDead()
 			dead[nd]._deadWidth2 = cmon->width2;
 			dead[nd]._deadtrans = 0;
 			cmon->mdeadval = nd + 1;
-			mtypes[cmon->mtype] = TRUE;
+			mtypes[cmon->mtype] = true;
 			nd++;
 		}
 	}

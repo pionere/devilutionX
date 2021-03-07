@@ -7,13 +7,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static BYTE sgbIsScrolling;
+static bool _gbIsScrolling;
 static DWORD sgdwLastWalk;
-static BOOL sgbIsWalking;
+static bool _gbIsWalking;
 
 void track_process()
 {
-	if (!sgbIsWalking)
+	if (!_gbIsWalking)
 		return;
 
 	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)
@@ -26,31 +26,31 @@ void track_process()
 		DWORD tick = SDL_GetTicks();
 		if ((int)(tick - sgdwLastWalk) >= tick_delay * 6) {
 			sgdwLastWalk = tick;
-			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
-			if (!sgbIsScrolling)
-				sgbIsScrolling = TRUE;
+			NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
+			if (!_gbIsScrolling)
+				_gbIsScrolling = true;
 		}
 	}
 }
 
-void track_repeat_walk(BOOL rep)
+void track_repeat_walk(bool rep)
 {
-	if (sgbIsWalking == rep)
+	if (_gbIsWalking == rep)
 		return;
 
-	sgbIsWalking = rep;
+	_gbIsWalking = rep;
 	if (rep) {
-		sgbIsScrolling = FALSE;
+		_gbIsScrolling = false;
 		sgdwLastWalk = SDL_GetTicks() - tick_delay;
-		NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
-	} else if (sgbIsScrolling) {
-		sgbIsScrolling = FALSE;
+		NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
+	} else if (_gbIsScrolling) {
+		_gbIsScrolling = false;
 	}
 }
 
-BOOL track_isscrolling()
+bool track_isscrolling()
 {
-	return sgbIsScrolling;
+	return _gbIsScrolling;
 }
 
 DEVILUTION_END_NAMESPACE

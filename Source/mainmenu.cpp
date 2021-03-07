@@ -24,7 +24,7 @@ static void mainmenu_refresh_music()
 	} while (menu_music_track_id == TMUSIC_TOWN || menu_music_track_id == TMUSIC_L1);
 }
 
-static BOOL mainmenu_init_menu(bool bSinglePlayer)
+static bool mainmenu_init_menu(bool bSinglePlayer)
 {
 	bool success;
 
@@ -37,7 +37,7 @@ static BOOL mainmenu_init_menu(bool bSinglePlayer)
 	return success;
 }
 
-static BOOL mainmenu_single_player()
+static bool mainmenu_single_player()
 {
 	gbMaxPlayers = 1;
 
@@ -51,7 +51,7 @@ static BOOL mainmenu_single_player()
 	return mainmenu_init_menu(true);
 }
 
-static BOOL mainmenu_multi_player()
+static bool mainmenu_multi_player()
 {
 	gbMaxPlayers = MAX_PLRS;
 	return mainmenu_init_menu(false);
@@ -66,11 +66,11 @@ static void mainmenu_play_intro()
 
 void mainmenu_loop()
 {
-	BOOL done;
+	bool done;
 	int menu;
 
 	mainmenu_refresh_music();
-	done = FALSE;
+	done = false;
 
 	do {
 		menu = 0;
@@ -79,11 +79,11 @@ void mainmenu_loop()
 		switch (menu) {
 		case MAINMENU_SINGLE_PLAYER:
 			if (!mainmenu_single_player())
-				done = TRUE;
+				done = true;
 			break;
 		case MAINMENU_MULTIPLAYER:
 			if (!mainmenu_multi_player())
-				done = TRUE;
+				done = true;
 			break;
 		case MAINMENU_ATTRACT_MODE:
 		case MAINMENU_REPLAY_INTRO:
@@ -94,7 +94,7 @@ void mainmenu_loop()
 			UiCreditsDialog();
 			break;
 		case MAINMENU_EXIT_DIABLO:
-			done = TRUE;
+			done = true;
 			break;
 		}
 	} while (!done);

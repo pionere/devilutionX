@@ -20,9 +20,9 @@ int speedspellcount = 0;
 bool InGameMenu()
 {
 	return stextflag > 0
-	    || helpflag
-	    || talkflag
-	    || qtextflag
+	    || gbHelpflag
+	    || gbTalkflag
+	    || gbQtextflag
 	    || gmenu_is_active()
 	    || PauseMode == 2
 	    || plr[myplr]._pInvincible;
@@ -431,15 +431,15 @@ void Interact()
 {
 	if (leveltype == DTYPE_TOWN) {
 		if (pcursmonst != -1)
-			NetSendCmdLocParam1(TRUE, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
+			NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
 	} else {
 		int attack = plr[myplr]._pLSpell;
 		int sl = GetSpellLevel(myplr, attack);
 		bool melee = (_pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
-			NetSendCmdParam3(TRUE, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
+			NetSendCmdParam3(true, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
 		else if (pcursplr != -1 && !gbFriendlyMode)
-			NetSendCmdBParam3(TRUE, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
+			NetSendCmdBParam3(true, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
 	}
 }
 
@@ -450,7 +450,7 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 		return;
 	}
 
-	if (chrbtnactive && plr[myplr]._pStatPts <= 0)
+	if (gbChrbtnactive && plr[myplr]._pStatPts <= 0)
 		return;
 
 	DWORD ticks = SDL_GetTicks();
@@ -889,7 +889,7 @@ void WalkInDir(MoveDirection dir)
 
 	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
 		if (sgbControllerActive && plr[myplr].walkpath[0] != WALK_NONE && plr[myplr].destAction == ACTION_NONE)
-			NetSendCmdLoc(TRUE, CMD_WALKXY, x, y); // Stop walking
+			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
 
@@ -901,12 +901,12 @@ void WalkInDir(MoveDirection dir)
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
 
-	NetSendCmdLoc(TRUE, CMD_WALKXY, dx, dy);
+	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
 }
 
 void Movement()
 {
-	if (InGameMenu() || questlog
+	if (InGameMenu() || gbQuestlog
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_START)
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 		return;
@@ -916,13 +916,13 @@ void Movement()
 		sgbControllerActive = true;
 	}
 
-	if (invflag) {
+	if (gbInvflag) {
 		InvMove(move_dir);
-	} else if (chrflag && plr[myplr]._pStatPts > 0) {
+	} else if (gbChrflag && plr[myplr]._pStatPts > 0) {
 		AttrIncBtnSnap(move_dir.y);
-	} else if (spselflag) {
+	} else if (gbSpselflag) {
 		HotSpellMove(move_dir);
-	} else if (sbookflag) {
+	} else if (gbSbookflag) {
 		SpellBookMove(move_dir);
 	} else {
 		WalkInDir(move_dir);
@@ -1013,7 +1013,7 @@ void StoreSpellCoords()
 
 bool IsAutomapActive()
 {
-	return automapflag && leveltype != DTYPE_TOWN;
+	return gbAutomapflag && leveltype != DTYPE_TOWN;
 }
 
 bool IsMovingMouseCursorWithController()
@@ -1071,7 +1071,7 @@ void plrctrls_after_check_curs_move()
 		pcurstrig = -1;
 		cursmx = -1;
 		cursmy = -1;
-		if (!invflag) {
+		if (!gbInvflag) {
 			*infostr = '\0';
 			FindActor();
 			FindItemOrObject();
@@ -1107,7 +1107,7 @@ void PerformPrimaryAction()
 	if (DoPanBtn())
 		return;
 
-	if (TryIconCurs(FALSE))
+	if (TryIconCurs(false))
 		return;
 
 	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
@@ -1117,18 +1117,18 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (invflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+	if (gbInvflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		// in inventory
 		CheckInvClick();
 		return;
 	}
 
-	if (spselflag) {
+	if (gbSpselflag) {
 		SetRSpell();
 		return;
 	}
 
-	if (chrflag && CheckChrBtns()) {
+	if (gbChrflag && CheckChrBtns()) {
 		ReleaseChrBtns();
 		return;
 	}
@@ -1180,15 +1180,15 @@ bool TryDropItem()
 
 void PerformSpellAction()
 {
-	if (InGameMenu() || questlog || sbookflag)
+	if (InGameMenu() || gbQuestlog || gbSbookflag)
 		return;
 
-	if (spselflag) {
+	if (gbSpselflag) {
 		SetRSpell();
 		return;
 	}
 
-	if (TryIconCurs(FALSE))
+	if (TryIconCurs(false))
 		return;
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		TryDropItem();
@@ -1203,7 +1203,7 @@ void PerformSpellAction()
 	}
 
 	UpdateSpellTarget();
-	AltActionBtnCmd(FALSE);
+	AltActionBtnCmd(false);
 }
 
 static void CtrlUseInvItem()
@@ -1227,7 +1227,7 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
-	if (invflag) {
+	if (gbInvflag) {
 		CtrlUseInvItem();
 		return;
 	}
@@ -1238,18 +1238,18 @@ void PerformSecondaryAction()
 		NewCursor(CURSOR_HAND);
 
 	if (pcursitem != -1) {
-		NetSendCmdLocParam1(TRUE, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 	} else if (pcursobj != -1) {
-		NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+		NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
 		if (pcurstrig >= MAXTRIGGERS + 1) {
 			int mi = pcurstrig - (MAXTRIGGERS + 1);
-			MakePlrPath(myplr, missile[mi]._mix, missile[mi]._miy, TRUE);
+			MakePlrPath(myplr, missile[mi]._mix, missile[mi]._miy, true);
 		} else if (pcurstrig >= 0) {
-			MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, TRUE);
+			MakePlrPath(myplr, trigs[pcurstrig]._tx, trigs[pcurstrig]._ty, true);
 		} else {
 			int qn = -2 - pcurstrig;
-			MakePlrPath(myplr, quests[qn]._qtx, quests[qn]._qty, TRUE);
+			MakePlrPath(myplr, quests[qn]._qtx, quests[qn]._qty, true);
 		}
 		plr[myplr].destAction = ACTION_WALK;
 	}

@@ -127,7 +127,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 		}
 	}
 	input.close();
-	mpqapi_flush_and_close(TRUE);
+	mpqapi_flush_and_close(true);
 }
 #endif
 
@@ -215,7 +215,7 @@ void init_archives()
 		}
 	}
 	input.close();
-	mpqapi_flush_and_close(TRUE);
+	mpqapi_flush_and_close(true);
 
 	// cleanup
 	for (i = 0; i < NUM_MPQS; i++) {

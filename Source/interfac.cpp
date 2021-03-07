@@ -247,7 +247,7 @@ static void DrawCutscene()
 
 	unlock_buf(1);
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(FALSE);
+	scrollrt_draw_game_screen(false);
 }
 
 void interface_msg_pump()
@@ -262,7 +262,7 @@ void interface_msg_pump()
 	}
 }
 
-BOOL IncProgress()
+bool IncProgress()
 {
 	interface_msg_pump();
 	sgdwProgress += 23;
@@ -278,15 +278,15 @@ void ShowProgress(unsigned int uMsg)
 {
 	WNDPROC saveProc;
 
-	gbSomebodyWonGameKludge = FALSE;
-	plrmsg_delay(TRUE);
+	gbSomebodyWonGameKludge = false;
+	plrmsg_delay(true);
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
 
 	interface_msg_pump();
 	ClearScreenBuffer();
-	scrollrt_draw_game_screen(TRUE);
+	scrollrt_draw_game_screen(true);
 	InitCutscene(uMsg);
 	BlackPalette();
 	DrawCutscene();
@@ -299,7 +299,7 @@ void ShowProgress(unsigned int uMsg)
 	case WM_DIABLOADGAME:
 		IncProgress();
 		IncProgress();
-		LoadGame(TRUE);
+		LoadGame(true);
 		IncProgress();
 		IncProgress();
 		break;
@@ -309,7 +309,7 @@ void ShowProgress(unsigned int uMsg)
 		IncProgress();
 		pfile_remove_temp_files();
 		IncProgress();
-		LoadGameLevel(TRUE, ENTRY_MAIN);
+		LoadGameLevel(true, ENTRY_MAIN);
 		IncProgress();
 		break;
 	case WM_DIABNEXTLVL:
@@ -325,7 +325,7 @@ void ShowProgress(unsigned int uMsg)
 		leveltype = gnLevelTypeTbl[currlevel];
 		assert(plr[myplr].plrlevel == currlevel);
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_MAIN);
+		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();
 		break;
 	case WM_DIABPREVLVL:
@@ -341,7 +341,7 @@ void ShowProgress(unsigned int uMsg)
 		leveltype = gnLevelTypeTbl[currlevel];
 		assert(plr[myplr].plrlevel == currlevel);
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_PREV);
+		LoadGameLevel(false, ENTRY_PREV);
 		IncProgress();
 		break;
 	case WM_DIABSETLVL:
@@ -353,11 +353,11 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		setlevel = TRUE;
+		gbSetlevel = true;
 		leveltype = gnSetLevelTypeTbl[setlvlnum];
 		FreeGameMem();
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_SETLVL);
+		LoadGameLevel(false, ENTRY_SETLVL);
 		IncProgress();
 		break;
 	case WM_DIABRTNLVL:
@@ -368,11 +368,11 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		setlevel = FALSE;
+		gbSetlevel = false;
 		FreeGameMem();
 		IncProgress();
 		GetReturnLvlPos();
-		LoadGameLevel(FALSE, ENTRY_RTNLVL);
+		LoadGameLevel(false, ENTRY_RTNLVL);
 		IncProgress();
 		break;
 	case WM_DIABWARPLVL:
@@ -386,7 +386,7 @@ void ShowProgress(unsigned int uMsg)
 		FreeGameMem();
 		GetPortalLevel();
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_WARPLVL);
+		LoadGameLevel(false, ENTRY_WARPLVL);
 		IncProgress();
 		break;
 	case WM_DIABTOWNWARP:
@@ -402,7 +402,7 @@ void ShowProgress(unsigned int uMsg)
 		leveltype = gnLevelTypeTbl[currlevel];
 		assert(plr[myplr].plrlevel == currlevel);
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_TWARPDN);
+		LoadGameLevel(false, ENTRY_TWARPDN);
 		IncProgress();
 		break;
 	case WM_DIABTWARPUP:
@@ -418,7 +418,7 @@ void ShowProgress(unsigned int uMsg)
 		leveltype = gnLevelTypeTbl[currlevel];
 		assert(plr[myplr].plrlevel == currlevel);
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_TWARPUP);
+		LoadGameLevel(false, ENTRY_TWARPUP);
 		IncProgress();
 		break;
 	case WM_DIABRETOWN:
@@ -434,7 +434,7 @@ void ShowProgress(unsigned int uMsg)
 		leveltype = gnLevelTypeTbl[currlevel];
 		assert(plr[myplr].plrlevel == currlevel);
 		IncProgress();
-		LoadGameLevel(FALSE, ENTRY_MAIN);
+		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();
 		break;
 	}
@@ -447,15 +447,15 @@ void ShowProgress(unsigned int uMsg)
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 
-	NetSendCmdLocBParam1(TRUE, CMD_PLAYER_JOINLEVEL, plr[myplr]._px, plr[myplr]._py, plr[myplr].plrlevel);
-	plrmsg_delay(FALSE);
+	NetSendCmdLocBParam1(true, CMD_PLAYER_JOINLEVEL, plr[myplr]._px, plr[myplr]._py, plr[myplr].plrlevel);
+	plrmsg_delay(false);
 	ResetPal();
 
 	if (gbSomebodyWonGameKludge && plr[myplr].plrlevel == 16) {
 		PrepDoEnding(gbSoundOn);
 	}
 
-	gbSomebodyWonGameKludge = FALSE;
+	gbSomebodyWonGameKludge = false;
 }
 
 DEVILUTION_END_NAMESPACE

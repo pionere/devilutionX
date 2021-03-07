@@ -18,7 +18,7 @@ extern int numtowners;
 void InitTowners();
 void FreeTownerGFX();
 void ProcessTowners();
-BOOL PlrHasItem(int pnum, int item, int *outidx);
+bool PlrHasItem(int pnum, int item, int *outidx);
 void TalkToTowner(int pnum, int tnum);
 
 /* data */

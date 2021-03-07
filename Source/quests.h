@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL questlog;
+extern bool gbQuestlog;
 extern BYTE *pQLogCel;
 extern QuestStruct quests[NUM_QUESTS];
 extern int gnSetLevelTypeTbl[NUM_SETLVL];
@@ -23,8 +23,8 @@ extern int ReturnLvl;
 void InitQuests();
 void CheckQuests();
 int ForceQuests();
-BOOL QuestStatus(int qn);
-void CheckQuestKill(int mnum, BOOL sendmsg);
+bool QuestStatus(int qn);
+void CheckQuestKill(int mnum, bool sendmsg);
 void DRLG_CheckQuests(int x, int y);
 void SetReturnLvlPos();
 void GetReturnLvlPos();

@@ -54,20 +54,20 @@ const char *const sound_toggle_names[] = {
 
 static void gamemenu_update_single(TMenuItem *pMenuItems)
 {
-	BOOL enable;
+	bool enable;
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
-	enable = FALSE;
-	if (plr[myplr]._pmode != PM_DEATH && !deathflag)
-		enable = TRUE;
+	enable = false;
+	if (plr[myplr]._pmode != PM_DEATH && !gbDeathflag)
+		enable = true;
 
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
 static void gamemenu_update_multi(TMenuItem *pMenuItems)
 {
-	gmenu_enable(&sgMultiMenu[2], deathflag);
+	gmenu_enable(&sgMultiMenu[2], gbDeathflag);
 }
 
 void gamemenu_on()
@@ -85,12 +85,12 @@ void gamemenu_off()
 	gmenu_set_items(NULL, NULL);
 }
 
-void gamemenu_previous(BOOL bActivate)
+void gamemenu_previous(bool bActivate)
 {
 	gamemenu_on();
 }
 
-void gamemenu_new_game(BOOL bActivate)
+void gamemenu_new_game(bool bActivate)
 {
 	int i;
 
@@ -99,20 +99,20 @@ void gamemenu_new_game(BOOL bActivate)
 		plr[i]._pInvincible = TRUE;
 	}
 
-	deathflag = FALSE;
+	gbDeathflag = false;
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game_screen(TRUE);
-	gbRunGame = FALSE;
+	scrollrt_draw_game_screen(true);
+	gbRunGame = false;
 	gamemenu_off();
 }
 
-void gamemenu_quit_game(BOOL bActivate)
+void gamemenu_quit_game(bool bActivate)
 {
 	gamemenu_new_game(bActivate);
-	gbRunGameResult = FALSE;
+	gbRunGameResult = false;
 }
 
-void gamemenu_load_game(BOOL bActivate)
+void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
@@ -123,7 +123,7 @@ void gamemenu_load_game(BOOL bActivate)
 	LoadGame(FALSE);
 	ClrDiabloMsg();
 	PaletteFadeOut();
-	deathflag = FALSE;
+	gbDeathflag = false;
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
 	LoadPWaterPalette();
@@ -133,13 +133,13 @@ void gamemenu_load_game(BOOL bActivate)
 	SetWindowProc(saveProc);
 }
 
-void gamemenu_save_game(BOOL bActivate)
+void gamemenu_save_game(bool bActivate)
 {
 	if (pcurs != CURSOR_HAND) {
 		return;
 	}
 
-	if (plr[myplr]._pmode == PM_DEATH || deathflag) {
+	if (plr[myplr]._pmode == PM_DEATH || gbDeathflag) {
 		gamemenu_off();
 		return;
 	}
@@ -158,9 +158,9 @@ void gamemenu_save_game(BOOL bActivate)
 	SetWindowProc(saveProc);
 }
 
-void gamemenu_restart_town(BOOL bActivate)
+void gamemenu_restart_town(bool bActivate)
 {
-	NetSendCmd(TRUE, CMD_RETOWN);
+	NetSendCmd(true, CMD_RETOWN);
 }
 
 static void gamemenu_sound_music_toggle(const char *const *names, TMenuItem *menu_item, int volume)
@@ -228,7 +228,7 @@ static int gamemenu_slider_gamma()
 	return gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
 }
 
-void gamemenu_settings(BOOL bActivate)
+void gamemenu_settings(bool bActivate)
 {
 	gamemenu_get_music();
 	gamemenu_get_sound();
@@ -237,7 +237,7 @@ void gamemenu_settings(BOOL bActivate)
 	gmenu_set_items(sgOptionsMenu, NULL);
 }
 
-void gamemenu_music_volume(BOOL bActivate)
+void gamemenu_music_volume(bool bActivate)
 {
 	int volume;
 
@@ -271,16 +271,16 @@ void gamemenu_music_volume(BOOL bActivate)
 	gamemenu_get_music();
 }
 
-void gamemenu_sound_volume(BOOL bActivate)
+void gamemenu_sound_volume(bool bActivate)
 {
 	int volume;
 	if (bActivate) {
 		if (gbSoundOn) {
-			gbSoundOn = FALSE;
+			gbSoundOn = false;
 			sound_stop();
 			sound_set_sound_volume(VOLUME_MIN);
 		} else {
-			gbSoundOn = TRUE;
+			gbSoundOn = true;
 			sound_set_sound_volume(VOLUME_MAX);
 		}
 	} else {
@@ -288,18 +288,18 @@ void gamemenu_sound_volume(BOOL bActivate)
 		sound_set_sound_volume(volume);
 		if (volume == VOLUME_MIN) {
 			if (gbSoundOn) {
-				gbSoundOn = FALSE;
+				gbSoundOn = false;
 				sound_stop();
 			}
 		} else if (!gbSoundOn) {
-			gbSoundOn = TRUE;
+			gbSoundOn = true;
 		}
 	}
 	PlaySFX(IS_TITLEMOV);
 	gamemenu_get_sound();
 }
 
-void gamemenu_gamma(BOOL bActivate)
+void gamemenu_gamma(bool bActivate)
 {
 	int gamma;
 	if (bActivate) {
@@ -316,7 +316,7 @@ void gamemenu_gamma(BOOL bActivate)
 	gamemenu_get_gamma();
 }
 
-void gamemenu_speed(BOOL bActivate)
+void gamemenu_speed(bool bActivate)
 {
 	if (bActivate) {
 		gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);

@@ -16,7 +16,7 @@ int myplr;
 PlayerStruct plr[MAX_PLRS];
 int plr_fframe_size;
 int plr_qframe_size;
-BOOL deathflag;
+bool gbDeathflag;
 int plr_hframe_size;
 int plr_bframe_size;
 BYTE plr_gfx_bflag = 0;
@@ -738,7 +738,7 @@ void NextPlrLevel(int pnum)
 	PlrFillHp(pnum);
 	PlrFillMana(pnum);
 
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	if (sgbControllerActive)
@@ -792,7 +792,7 @@ static void AddPlrSkillExp(int pnum, int lvl, int exp)
 			continue;
 		assert(sl <= MAXSPLLEVEL);
 		p->_pSkillLvl[sn] = sl;
-		NetSendCmdBParam2(FALSE, CMD_PLRSKILLLVL, sn, sl);
+		NetSendCmdBParam2(false, CMD_PLRSKILLLVL, sn, sl);
 	}
 }
 
@@ -848,7 +848,7 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	while (p->_pExperience >= p->_pNextExper) {
 		assert(p->_pLevel < MAXCHARLEVEL);
 		NextPlrLevel(pnum);
-		NetSendCmdBParam1(FALSE, CMD_PLRLEVEL, p->_pLevel);
+		NetSendCmdBParam1(false, CMD_PLRLEVEL, p->_pLevel);
 	}
 }
 
@@ -974,14 +974,14 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 		//    - what if we just joined with a dead player?
 		//    - what if the player was killed while entering a portal?
 		deathdelay = 0;
-		deathflag = FALSE;
+		gbDeathflag = false;
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
 	}
 }
 
-static BOOL PlrDirOK(int pnum, int dir)
+static bool PlrDirOK(int pnum, int dir)
 {
 	int px, py;
 
@@ -993,7 +993,7 @@ static BOOL PlrDirOK(int pnum, int dir)
 	py = plr[pnum]._py + offset_y[dir];
 
 	if (px < 0 || !dPiece[px][py] || !PosOkPlayer(pnum, px, py)) {
-		return FALSE;
+		return false;
 	}
 
 	if (dir == DIR_E) {
@@ -1004,7 +1004,7 @@ static BOOL PlrDirOK(int pnum, int dir)
 		return !nSolidTable[dPiece[px + 1][py]] && !(dFlags[px + 1][py] & BFLAG_PLAYERLR);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void PlrClrTrans(int x, int y)
@@ -1146,7 +1146,7 @@ static void PlrChangeOffset(int pnum)
 		ScrollInfo._sxoff += px;
 		ScrollInfo._syoff += py;
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		//if (sgbActionBtnDown && (px | py) != 0 && pcursmonst != -1)
+		//if (gbActionBtnDown && (px | py) != 0 && pcursmonst != -1)
 		//	SetCursorPos(MouseX + px, MouseY + py);
 	}
 
@@ -1208,7 +1208,7 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 		return;
 	}
 
-	if (zoomflag) {
+	if (gbZoomflag) {
 		if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 			ScrollInfo._sdir = SDIR_NONE;
 		} else {
@@ -1286,7 +1286,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		return;
 	}
 
-	if (zoomflag) {
+	if (gbZoomflag) {
 		if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 			ScrollInfo._sdir = SDIR_NONE;
 		} else {
@@ -1367,7 +1367,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		return;
 	}
 
-	if (zoomflag) {
+	if (gbZoomflag) {
 		if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 			ScrollInfo._sdir = SDIR_NONE;
 		} else {
@@ -1426,7 +1426,7 @@ static bool StartAttack(int pnum)
 		if (object[i]._oBreak != 1) {
 			if (p->destAction == ACTION_DISARM)
 				DisarmObject(pnum, i);
-			OperateObject(pnum, i, FALSE);
+			OperateObject(pnum, i, false);
 			return true;
 		}
 		if (p->destAction == ACTION_DISARM && pnum == myplr)
@@ -1696,7 +1696,7 @@ void RemovePlrFromMap(int pnum)
 			}
 }*/
 
-void StartPlrHit(int pnum, int dam, BOOL forcehit)
+void StartPlrHit(int pnum, int dam, bool forcehit)
 {
 	PlayerStruct *p;
 
@@ -1767,9 +1767,9 @@ static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 	copy_pod(item[i], *is);
 	item[i]._ix = xx;
 	item[i]._iy = yy;
-	RespawnItem(i, TRUE);
+	RespawnItem(i, true);
 	numitems++;
-	NetSendCmdPItem(FALSE, CMD_RESPAWNITEM, is, xx, yy);
+	NetSendCmdPItem(false, CMD_RESPAWNITEM, is, xx, yy);
 
 	is->_itype = ITYPE_NONE;
 }
@@ -1779,7 +1779,7 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartPlrKill(int pnum, int earflag)
 {
-	BOOL diablolevel;
+	bool diablolevel;
 	int i;
 	PlayerStruct *p;
 	ItemStruct ear;
@@ -1795,7 +1795,7 @@ void StartPlrKill(int pnum, int earflag)
 	}
 
 	if (myplr == pnum) {
-		NetSendCmdParam1(TRUE, CMD_PLRDEAD, earflag);
+		NetSendCmdParam1(true, CMD_PLRDEAD, earflag);
 	}
 
 	diablolevel = gbMaxPlayers != 1 && p->plrlevel == 16;
@@ -1822,7 +1822,7 @@ void StartPlrKill(int pnum, int earflag)
 		for (i = 0; i < NUM_INVLOC; i++) {
 			p->InvBody[i]._itype = ITYPE_NONE;
 		}
-		CalcPlrInv(pnum, FALSE);
+		CalcPlrInv(pnum, false);
 	}
 
 	if (p->plrlevel == currlevel) {
@@ -1868,7 +1868,7 @@ void StartPlrKill(int pnum, int earflag)
 							PlrDeadItem(pi, p);
 						}
 
-						CalcPlrInv(pnum, FALSE);
+						CalcPlrInv(pnum, false);
 					}
 				}
 			}
@@ -1922,8 +1922,8 @@ static void InitLevelChange(int pnum)
 	}
 	SetPlayerOld(p);
 	if (pnum == myplr) {
-		if (qtextflag) {
-			qtextflag = FALSE;
+		if (gbQtextflag) {
+			gbQtextflag = false;
 			stream_stop();
 		}
 		p->pLvlLoad = 10;
@@ -1972,7 +1972,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr[pnum]._pInvincible = TRUE;
 		PostMessage(fom, 0, 0);
 		if (gbMaxPlayers != 1) {
-			NetSendCmdParam2(TRUE, CMD_NEWLVL, fom, lvl);
+			NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
 		}
 	}
 }
@@ -1990,10 +1990,10 @@ void RestartTownLvl(int pnum)
 	PlrSetHp(pnum, 64);
 	PlrSetMana(pnum, 0);
 
-	CalcPlrInv(pnum, FALSE);
+	CalcPlrInv(pnum, false);
 
 	if (pnum == myplr) {
-		deathflag = FALSE;
+		gbDeathflag = false;
 		gamemenu_off();
 		plr[pnum]._pmode = PM_NEWLVL;
 		plr[pnum]._pInvincible = TRUE;
@@ -2021,12 +2021,12 @@ void StartWarpLvl(int pnum, int pidx)
 	}
 }
 
-static BOOL PlrDoStand(int pnum)
+static bool PlrDoStand(int pnum)
 {
-	return FALSE;
+	return false;
 }
 
-static BOOL PlrDoWalk(int pnum)
+static bool PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2052,7 +2052,7 @@ static BOOL PlrDoWalk(int pnum)
 
 	if (p->_pAnimFrame < p->_pWFrames) {
 		PlrChangeOffset(pnum);
-		return FALSE;
+		return false;
 	}
 
 	switch (p->_pmode) {
@@ -2094,15 +2094,15 @@ static BOOL PlrDoWalk(int pnum)
 		ChangeLightXYOff(p->_plid, p->_px, p->_py);
 		ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	}
-	return TRUE;
+	return true;
 }
 
-static BOOL WeaponDur(int pnum, int durrnd)
+static bool WeaponDur(int pnum, int durrnd)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
 	if (pnum != myplr) {
-		return FALSE;
+		return false;
 	}
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -2110,77 +2110,77 @@ static BOOL WeaponDur(int pnum, int durrnd)
 	}
 
 	if (random_(3, durrnd) != 0) {
-		return FALSE;
+		return false;
 	}
 
 	p = &plr[pnum];
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return FALSE;
+			return false;
 		}
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
+			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
+			CalcPlrInv(pnum, true);
+			return true;
 		}
 	}
 
 	pi = &p->InvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return FALSE;
+			return false;
 		}
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);
+			NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
+			CalcPlrInv(pnum, true);
+			return true;
 		}
 	}
 
 	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE && pi->_itype == ITYPE_SHIELD) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return FALSE;
+			return false;
 		}
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);
+			NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
+			CalcPlrInv(pnum, true);
+			return true;
 		}
 	}
 
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE && pi->_itype == ITYPE_SHIELD) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return FALSE;
+			return false;
 		}
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
+			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
-			return TRUE;
+			CalcPlrInv(pnum, true);
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-static BOOL PlrHitMonst(int pnum, int sn, int sl, int mnum)
+static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
-	BOOL ret;
+	bool ret;
 	int hper, tmac, dam, skdam, damsl, dambl, dampc;
 
 	if ((DWORD)mnum >= MAXMONSTERS) {
@@ -2215,11 +2215,10 @@ static BOOL PlrHitMonst(int pnum, int sn, int sl, int mnum)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
 #endif
-			return FALSE;
+			return false;
 
-	if (CheckMonsterHit(mnum, &ret)) {
+	if (CheckMonsterHit(mnum, &ret))
 		return ret;
-	}
 
 	dam = 0;
 	damsl = p->_pISlMaxDam;
@@ -2281,10 +2280,10 @@ static BOOL PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		}
 		MonStartHit(mnum, pnum, dam);
 	}
-	return TRUE;
+	return true;
 }
 
-static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
+static bool PlrHitPlr(int offp, int sn, int sl, int defp)
 {
 	PlayerStruct *ops, *dps;
 	int hper, blkper, dam, damsl, dambl, dampc;
@@ -2295,7 +2294,7 @@ static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
-		return FALSE;
+		return false;
 	}
 
 	if ((DWORD)offp >= MAX_PLRS) {
@@ -2312,7 +2311,7 @@ static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 	if (hper > 95)
 		hper = 95;
 	if (random_(4, 100) >= hper)
-		return FALSE;
+		return false;
 
 	if ((dps->_pSkillFlags & SFLAG_BLOCK)
 	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
@@ -2321,7 +2320,7 @@ static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 			- (ops->_pLevel << 1);
 		if (blkper >= 100 || blkper > random_(5, 100)) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -2369,12 +2368,12 @@ static BOOL PlrHitPlr(int offp, int sn, int sl, int defp)
 	}
 
 	if (offp == myplr)
-		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
-	StartPlrHit(defp, dam, FALSE);
-	return TRUE;
+		NetSendCmdDwParam2(true, CMD_PLRDAMAGE, defp, dam);
+	StartPlrHit(defp, dam, false);
+	return true;
 }
 
-static BOOL PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 {
 	int mpo;
 
@@ -2393,13 +2392,13 @@ static BOOL PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		if (object[mpo]._oBreak == 1) {
 			BreakObject(pnum, mpo);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-static BOOL PlrDoAttack(int pnum)
+static bool PlrDoAttack(int pnum)
 {
 	PlayerStruct *p;
 	int dir, hitcnt;
@@ -2423,13 +2422,13 @@ static BOOL PlrDoAttack(int pnum)
 			p->_pAnimFrame++;
 	}
 	if (p->_pAnimFrame < p->_pAFNum - 1)
-		return FALSE;
+		return false;
 	if (p->_pVar7 == 0) {
 		p->_pVar7++;
 		PlaySfxLoc(PS_SWING, p->_px, p->_py, 2);
 	}
 	if (p->_pAnimFrame == p->_pAFNum - 1) {
-		return FALSE;
+		return false;
 	}
 	dir = p->_pdir;
 	if (p->_pVar7 == 1) {
@@ -2450,20 +2449,20 @@ static BOOL PlrDoAttack(int pnum)
 			if (hitcnt != 0 && WeaponDur(pnum, 16 + hitcnt * 16)) {
 				PlrStartStand(pnum, dir);
 				ClearPlrPVars(pnum);
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
 	if (p->_pAnimFrame < p->_pAFrames)
-		return FALSE;
+		return false;
 
 	PlrStartStand(pnum, dir);
 	ClearPlrPVars(pnum);
-	return TRUE;
+	return true;
 }
 
-static BOOL PlrDoRangeAttack(int pnum)
+static bool PlrDoRangeAttack(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2486,7 +2485,7 @@ static BOOL PlrDoRangeAttack(int pnum)
 			p->_pAnimFrame++;
 	}
 	if (p->_pAnimFrame < p->_pAFNum)
-		return FALSE;
+		return false;
 
 	if (p->_pVar7 == 0) {
 		p->_pVar7++;
@@ -2498,17 +2497,17 @@ static BOOL PlrDoRangeAttack(int pnum)
 			if (WeaponDur(pnum, 40)) {
 				PlrStartStand(pnum, p->_pdir);
 				ClearPlrPVars(pnum);
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
 	if (p->_pAnimFrame < p->_pAFrames)
-		return FALSE;
+		return false;
 
 	PlrStartStand(pnum, p->_pdir);
 	ClearPlrPVars(pnum);
-	return TRUE;
+	return true;
 }
 
 static void ShieldDur(int pnum)
@@ -2531,9 +2530,9 @@ static void ShieldDur(int pnum)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(TRUE, INVLOC_HAND_LEFT);
+			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
-			CalcPlrInv(pnum, TRUE);
+			CalcPlrInv(pnum, true);
 		}
 	}
 
@@ -2542,9 +2541,9 @@ static void ShieldDur(int pnum)
 		if (pi->_iDurability != DUR_INDESTRUCTIBLE) {
 			pi->_iDurability--;
 			if (pi->_iDurability == 0) {
-				NetSendCmdDelItem(TRUE, INVLOC_HAND_RIGHT);
+				NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 				pi->_itype = ITYPE_NONE;
-				CalcPlrInv(pnum, TRUE);
+				CalcPlrInv(pnum, true);
 			}
 		}
 	}
@@ -2573,7 +2572,7 @@ void PlrStartBlock(int pnum, int dir)
 	}
 }
 
-static BOOL PlrDoBlock(int pnum)
+static bool PlrDoBlock(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2598,13 +2597,13 @@ static BOOL PlrDoBlock(int pnum)
 			} else {
 				PlrStartStand(pnum, p->_pdir);
 				//ClearPlrPVars(pnum);
-				return TRUE;
+				return true;
 			}
 		}
 		p->_pVar1--;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static void ArmorDur(int pnum)
@@ -2644,12 +2643,12 @@ static void ArmorDur(int pnum)
 		return;
 	}
 
-	NetSendCmdDelItem(TRUE, loc);
+	NetSendCmdDelItem(true, loc);
 	pi->_itype = ITYPE_NONE;
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 }
 
-static BOOL PlrDoSpell(int pnum)
+static bool PlrDoSpell(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2669,7 +2668,7 @@ static BOOL PlrDoSpell(int pnum)
 	}
 
 	if (p->_pAnimFrame < p->_pSFNum)
-		return FALSE;
+		return false;
 
 	if (!p->_pVar7) {
 		p->_pVar7 = TRUE;
@@ -2682,14 +2681,14 @@ static BOOL PlrDoSpell(int pnum)
 	}
 
 	if (p->_pAnimFrame < p->_pSFrames)
-		return FALSE;
+		return false;
 
 	PlrStartStand(pnum, p->_pdir);
 	ClearPlrPVars(pnum);
-	return TRUE;
+	return true;
 }
 
-static BOOL PlrDoGotHit(int pnum)
+static bool PlrDoGotHit(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2709,17 +2708,17 @@ static BOOL PlrDoGotHit(int pnum)
 	}
 
 	if (p->_pAnimFrame < p->_pHFrames)
-		return FALSE;
+		return false;
 	PlrStartStand(pnum, p->_pdir);
 	ClearPlrPVars(pnum);
 	if (random_(3, 4) != 0) {
 		ArmorDur(pnum);
 	}
 
-	return TRUE;
+	return true;
 }
 
-static BOOL PlrDoDeath(int pnum)
+static bool PlrDoDeath(int pnum)
 {
 	PlayerStruct *p;
 
@@ -2732,7 +2731,7 @@ static BOOL PlrDoDeath(int pnum)
 		if (deathdelay > 1 && pnum == myplr) {
 			deathdelay--;
 			if (deathdelay == 1) {
-				deathflag = TRUE;
+				gbDeathflag = true;
 				if (gbMaxPlayers == 1) {
 					gamemenu_on();
 				}
@@ -2746,12 +2745,12 @@ static BOOL PlrDoDeath(int pnum)
 		p->_pVar8++;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static BOOL PlrDoNewLvl(int pnum)
+static bool PlrDoNewLvl(int pnum)
 {
-	return FALSE;
+	return false;
 }
 
 static void CheckNewPath(int pnum)
@@ -2770,9 +2769,9 @@ static void CheckNewPath(int pnum)
 	}
 
 	if (p->destAction == ACTION_ATTACKMON) {
-		MakePlrPath(pnum, monster[p->destParam1]._mfutx, monster[p->destParam1]._mfuty, FALSE);
+		MakePlrPath(pnum, monster[p->destParam1]._mfutx, monster[p->destParam1]._mfuty, false);
 	} else if (p->destAction == ACTION_ATTACKPLR) {
-		MakePlrPath(pnum, plr[p->destParam1]._pfutx, plr[p->destParam1]._pfuty, FALSE);
+		MakePlrPath(pnum, plr[p->destParam1]._pfutx, plr[p->destParam1]._pfuty, false);
 	}
 
 	if (p->walkpath[0] != WALK_NONE) {
@@ -2875,7 +2874,7 @@ static void CheckNewPath(int pnum)
 				x = abs(p->_px - item[i]._ix);
 				y = abs(p->_py - item[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND && !item[i]._iRequest) {
-					NetSendCmdGItem(TRUE, CMD_REQUESTGITEM, myplr, myplr, i);
+					NetSendCmdGItem(true, CMD_REQUESTGITEM, myplr, myplr, i);
 					item[i]._iRequest = TRUE;
 				}
 			}
@@ -2886,7 +2885,7 @@ static void CheckNewPath(int pnum)
 				x = abs(p->_px - item[i]._ix);
 				y = abs(p->_py - item[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(TRUE, CMD_REQUESTAGITEM, myplr, myplr, i);
+					NetSendCmdGItem(true, CMD_REQUESTAGITEM, myplr, myplr, i);
 				}
 			}
 			break;
@@ -2897,7 +2896,7 @@ static void CheckNewPath(int pnum)
 			break;
 		case ACTION_OPERATETK:
 			i = p->destParam1;
-			OperateObject(pnum, i, TRUE);
+			OperateObject(pnum, i, true);
 			break;
 		case ACTION_BLOCK:
 			StartBlock(pnum, p->destParam1);
@@ -2940,12 +2939,12 @@ static void CheckNewPath(int pnum)
 	}
 }
 
-static BOOL PlrDeathModeOK(int pnum)
+static bool PlrDeathModeOK(int pnum)
 {
 	PlayerStruct *p;
 
 	if (pnum != myplr) {
-		return TRUE;
+		return true;
 	}
 
 	if ((DWORD)pnum >= MAX_PLRS) {
@@ -3025,7 +3024,7 @@ static void CheckCheatStats(int pnum)
 void ProcessPlayers()
 {
 	int pnum;
-	BOOL tplayer;
+	bool tplayer;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ProcessPlayers: illegal player %d", myplr);
@@ -3080,7 +3079,7 @@ void ProcessPlayers()
 				}
 			}
 
-			tplayer = FALSE;
+			tplayer = false;
 			do {
 				switch (plr[pnum]._pmode) {
 				case PM_STAND:
@@ -3137,7 +3136,7 @@ void ClrPlrPath(int pnum)
 	memset(plr[pnum].walkpath, WALK_NONE, sizeof(plr[pnum].walkpath));
 }
 
-BOOL PosOkPlayer(int pnum, int x, int y)
+bool PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
@@ -3146,36 +3145,36 @@ BOOL PosOkPlayer(int pnum, int x, int y)
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			if (mpo != pnum && plr[mpo]._pHitPoints >= (1 << 6)) {
-				return FALSE;
+				return false;
 			}
 		}
 		mpo = dMonster[x][y];
 		if (mpo != 0) {
 			if (mpo < 0) {
-				return FALSE;
+				return false;
 			}
 			if (monster[mpo - 1]._mhitpoints >= (1 << 6)) {
-				return FALSE;
+				return false;
 			}
 			if (currlevel == 0) {
-				return FALSE;
+				return false;
 			}
 		}
 		mpo = dObject[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			if (object[mpo]._oSolidFlag) {
-				return FALSE;
+				return false;
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-void MakePlrPath(int pnum, int xx, int yy, BOOL endspace)
+void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
 	int path;
 
@@ -3435,7 +3434,7 @@ void PlrIncMana(int pnum, int mana)
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
-BOOL PlrDecHp(int pnum, int hp, int earflag)
+bool PlrDecHp(int pnum, int hp, int earflag)
 {
 	PlayerStruct *p;
 
@@ -3450,22 +3449,22 @@ BOOL PlrDecHp(int pnum, int hp, int earflag)
 		hp -= hp / div;
 		if (p->_pMana >= hp) {
 			PlrDecMana(pnum, hp);
-			return FALSE;
+			return false;
 		}
 		hp -= p->_pMana;
 		PlrSetMana(pnum, 0);
 		if (pnum == myplr)
-			NetSendCmd(TRUE, CMD_REMSHIELD);
+			NetSendCmd(true, CMD_REMSHIELD);
 	}
 	p->_pHPBase -= hp;
 	p->_pHitPoints -= hp;
 	if (p->_pHitPoints < (1 << 6)) {
 		SyncPlrKill(pnum, earflag);
-		return TRUE;
+		return true;
 	}
 	if (pnum == myplr)
 		gbRedrawFlags |= REDRAW_HP_FLASK;
-	return FALSE;
+	return false;
 }
 
 void PlrDecMana(int pnum, int mana)
@@ -3509,7 +3508,7 @@ void IncreasePlrStr(int pnum)
 	p->_pStrength += v;
 	p->_pBaseStr += v;
 
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 }
 
 void IncreasePlrMag(int pnum)
@@ -3548,7 +3547,7 @@ void IncreasePlrMag(int pnum)
 		p->_pMana += ms;
 	}
 
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 }
 
 void IncreasePlrDex(int pnum)
@@ -3578,7 +3577,7 @@ void IncreasePlrDex(int pnum)
 	p->_pDexterity += v;
 	p->_pBaseDex += v;
 
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 }
 
 void IncreasePlrVit(int pnum)
@@ -3615,7 +3614,7 @@ void IncreasePlrVit(int pnum)
 	p->_pHitPoints += ms;
 	p->_pMaxHP += ms;
 
-	CalcPlrInv(pnum, TRUE);
+	CalcPlrInv(pnum, true);
 }
 
 void RestorePlrHpVit(int pnum)
@@ -3642,7 +3641,7 @@ void RestorePlrHpVit(int pnum)
 	// fill hp
 	PlrFillHp(pnum);
 
-	// CalcPlrInv(pnum, TRUE);
+	// CalcPlrInv(pnum, true);
 }
 
 void InitDungMsgs(int pnum)

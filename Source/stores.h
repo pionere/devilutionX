@@ -30,7 +30,7 @@ void InitStores();
 int PentSpn2Spin();
 void SetupTownStores();
 void FreeStoreMem();
-void PrintSString(int x, int y, BOOL cjustflag, const char *str, char col, int val);
+void PrintSString(int x, int y, bool cjustflag, const char *str, char col, int val);
 void DrawSLine(int y);
 void DrawSTextHelp();
 void ClearSText(int s, int e);

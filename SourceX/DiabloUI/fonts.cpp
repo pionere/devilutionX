@@ -7,7 +7,7 @@ TTF_Font *font = NULL;
 BYTE *FontTables[4];
 Art ArtFonts[4][2];
 /** This is so we know ttf has been init when we get to the diablo_deinit() function */
-BOOL was_fonts_init = false;
+bool gbWasFontsInit = false;
 
 static void LoadArtFont(const char *pszFile, int size, int color)
 {
@@ -54,7 +54,7 @@ void LoadTtfFont() {
 			SDL_Log("TTF_Init: %s", TTF_GetError());
 			diablo_quit(1);
 		}
-		was_fonts_init = true;
+		gbWasFontsInit = true;
 	}
 
 	const char* ttf_font_path = TTF_FONT_NAME;

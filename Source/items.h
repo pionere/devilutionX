@@ -19,30 +19,27 @@ extern BOOL UniqueItemFlag[NUM_UITEM];
 extern int numitems;
 
 void InitItemGFX();
-BOOL ItemPlace(int xp, int yp);
 void InitItems();
-void CalcPlrItemVals(int pnum, BOOL Loadgfx);
+void CalcPlrItemVals(int pnum, bool Loadgfx);
 void CalcPlrSpells(int pnum);
 void CalcPlrBookVals(int pnum);
 void CalcPlrScrolls(int pnum);
 void CalcPlrStaff(int pnum);
 void ItemStatOk(int pnum, ItemStruct *is);
-void CalcPlrInv(int pnum, BOOL Loadgfx);
+void CalcPlrInv(int pnum, bool Loadgfx);
 void CreateBaseItem(ItemStruct *is, int idata);
 void GetItemSeed(ItemStruct *is);
 void GetGoldSeed(int pnum, ItemStruct *is);
 void SetGoldItemValue(ItemStruct *is, int value);
 void CreatePlrItems(int pnum);
-BOOL ItemSpaceOk(int i, int j);
+bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
-void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval);
-void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, BOOL onlygood);
 void SetupItem(int ii);
 void SpawnUnique(int uid, int x, int y);
-void SpawnItem(int mnum, int x, int y, BOOL sendmsg);
-void CreateRndItem(int x, int y, BOOL onlygood, BOOL sendmsg, BOOL delta);
-void CreateRndUseful(int x, int y, BOOL sendmsg, BOOL delta);
-void CreateTypeItem(int x, int y, BOOL onlygood, int itype, int imisc, BOOL sendmsg, BOOL delta);
+void SpawnItem(int mnum, int x, int y, bool sendmsg);
+void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
+void CreateRndUseful(int x, int y, bool sendmsg, bool delta);
+void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta);
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void SpawnQuestItemInArea(int idx, int areasize);
@@ -52,7 +49,7 @@ void SpawnRock();
 #ifdef HELLFIRE
 void SpawnRewardItem(int idx, int xx, int yy);
 #endif
-void RespawnItem(int ii, BOOL FlipFlag);
+void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);
 void ProcessItems();
 void FreeItemGFX();
@@ -79,8 +76,8 @@ void CreateSpellBook(int ispell, int x, int y);
 #ifdef HELLFIRE
 void CreateAmulet(int x, int y);
 #endif
-void CreateMagicItem(int itype, int icurs, int x, int y, BOOL sendmsg, BOOL delta);
-BOOL GetItemRecord(int nSeed, WORD wCI, int nIndex);
+void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg, bool delta);
+bool GetItemRecord(int nSeed, WORD wCI, int nIndex);
 void SetItemRecord(int nSeed, WORD wCI, int nIndex);
 void PutItemRecord(int nSeed, WORD wCI, int nIndex);
 

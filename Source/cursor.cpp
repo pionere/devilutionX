@@ -114,15 +114,15 @@ int pcurs;
 /* commented out because even the latest MSVC compiler requires a special flag (/Zc:externConstexpr) to handle this
    the drawing logic extends the cursor to whole DWORDs (and adds a border)
    This means the check is not exact!
-constexpr BOOL validateCursorAreas()
+constexpr bool validateCursorAreas()
 {
 	static_assert(lengthof(InvItemHeight) == lengthof(InvItemWidth), "Mismatching InvItem tables.");
 	for (int i = 0; i < lengthof(InvItemHeight); i++) {
 		if (InvItemHeight[i] * InvItemWidth[i] > MAX_CURSOR_AREA) {
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 static_assert(validateCursorAreas(), "One of the cursor area does not fit to the defined maximum.");*/
 
@@ -204,19 +204,19 @@ void CheckCursMove()
 {
 	int i, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi, columns, rows, xo, yo;
 	char bv;
-	BOOL flipflag, flipx, flipy;
+	bool flipflag, flipx, flipy;
 
 	sx = MouseX;
 	sy = MouseY;
 
 	if (PANELS_COVER) {
-		if (chrflag || questlog) {
+		if (gbChrflag || gbQuestlog) {
 			if (sx >= SCREEN_WIDTH / 2) { /// BUGFIX: (sx >= SCREEN_WIDTH / 2) (fixed)
 				sx -= SCREEN_WIDTH / 4;
 			} else {
 				sx = 0;
 			}
-		} else if (invflag || sbookflag) {
+		} else if (gbInvflag || gbSbookflag) {
 			if (sx <= SCREEN_WIDTH / 2) {
 				sx += SCREEN_WIDTH / 4;
 			} else {
@@ -228,7 +228,7 @@ void CheckCursMove()
 	//	sy = PANEL_TOP - 1;
 	//}
 
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		sx >>= 1;
 		sy >>= 1;
 	}
@@ -267,7 +267,7 @@ void CheckCursMove()
 		my++;
 	}
 
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		sy -= TILE_HEIGHT / 4;
 	}
 
@@ -311,7 +311,7 @@ void CheckCursMove()
 	pcursplr = -1;
 	pcurstrig = -1;
 
-	if (plr[myplr]._pInvincible | doomflag | spselflag) {
+	if (plr[myplr]._pInvincible | gbDoomflag | gbSpselflag) {
 		return;
 	}
 	if (pcurs >= CURSOR_FIRSTITEM) {
@@ -319,12 +319,12 @@ void CheckCursMove()
 		cursmy = my;
 		return;
 	}
-	if ((invflag | sbookflag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
-		if (invflag)
+	if ((gbInvflag | gbSbookflag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
+		if (gbInvflag)
 			pcursinvitem = CheckInvItem();
 		return;
 	}
-	if ((chrflag | questlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
+	if ((gbChrflag | gbQuestlog) && MouseX < SPANEL_WIDTH && MouseY <= SPANEL_HEIGHT) {
 		return;
 	}
 

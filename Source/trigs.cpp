@@ -685,7 +685,7 @@ static int ForcePWaterTrig()
 
 void CheckTrigForce()
 {
-	if (!setlevel) {
+	if (!gbSetlevel) {
 		switch (leveltype) {
 		case DTYPE_TOWN:
 			pcurstrig = ForceTownTrig();
@@ -779,7 +779,7 @@ void CheckTriggers()
 				if (abortflag != EMSG_NONE) {
 					PlaySFX(sgSFXSets[SFXS_PLR_43][p->_pClass]);
 					InitDiabloMsg(abortflag);
-					NetSendCmdLoc(TRUE, CMD_WALKXY, x, y);
+					NetSendCmdLoc(true, CMD_WALKXY, x, y);
 					return;
 				}
 			}

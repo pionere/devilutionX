@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL automapflag;
+extern bool gbAutomapflag;
 extern BOOLEAN automapview[DMAXX][DMAXY];
 extern unsigned AutoMapScale;
 extern int AutoMapXOfs;

@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 extern int numthemes;
-extern BOOL armorFlag;
-extern BOOL weaponFlag;
+extern bool gbArmorFlag;
+extern bool gbWeaponFlag;
 extern int zharlib;
 extern ThemeStruct themes[MAXTHEMES];
 

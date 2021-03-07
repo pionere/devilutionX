@@ -1128,7 +1128,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 #endif
 };
 
-BOOL effect_is_playing(int nSFX)
+bool effect_is_playing(int nSFX)
 {
 	TSFX *sfx = &sgSFX[nSFX];
 	if (sfx->pSnd != NULL)
@@ -1137,7 +1137,7 @@ BOOL effect_is_playing(int nSFX)
 	if (sfx->bFlags & sfx_STREAM)
 		return sfx == sgpStreamSFX;
 
-	return FALSE;
+	return false;
 }
 
 void stream_stop()
@@ -1226,7 +1226,7 @@ void FreeMonsterSnd()
 	}
 }
 
-BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan)
+static bool calc_snd_position(int x, int y, int *plVolume, int *plPan)
 {
 	int pan, volume;
 
@@ -1237,21 +1237,21 @@ BOOL calc_snd_position(int x, int y, int *plVolume, int *plPan)
 	*plPan = pan;
 
 	if (abs(pan) > 6400)
-		return FALSE;
+		return false;
 
 	volume = std::max(abs(x), abs(y));
 	volume *= 64;
 	*plVolume = volume;
 
 	if (volume >= 6400)
-		return FALSE;
+		return false;
 
 	*plVolume = -volume;
 
-	return TRUE;
+	return true;
 }
 
-static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
+static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
@@ -1317,7 +1317,7 @@ void PlaySFX(int psfx, int rndCnt)
 {
 	if (rndCnt != 1)
 		psfx += random_(165, rndCnt);
-	PlaySFX_priv(&sgSFX[psfx], FALSE, 0, 0);
+	PlaySFX_priv(&sgSFX[psfx], false, 0, 0);
 }
 
 void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
@@ -1333,7 +1333,7 @@ void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 			pSnd->start_tc = 0;
 	}
 
-	PlaySFX_priv(&sgSFX[psfx], TRUE, x, y);
+	PlaySFX_priv(&sgSFX[psfx], true, x, y);
 }
 
 void sound_stop()

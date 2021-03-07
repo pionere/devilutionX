@@ -12,7 +12,7 @@ int missileactive[MAXMISSILES];
 int missileavail[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
 int nummissiles;
-BOOL MissilePreFlag;
+bool gbMissilePreFlag;
 
 /** Maps from direction to X-offset. */
 const int XDirAdd[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
@@ -176,12 +176,12 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	}
 }
 
-static BOOL PosOkMissile1(int x, int y)
+static bool PosOkMissile1(int x, int y)
 {
 	return !nMissileTable[dPiece[x][y]];
 }
 
-static BOOLEAN FindClosest(int sx, int sy, int &dx, int &dy)
+static bool FindClosest(int sx, int sy, int &dx, int &dy)
 {
 	int j, i, mid, tx, ty;
 	const char *cr;
@@ -198,14 +198,14 @@ static BOOLEAN FindClosest(int sx, int sy, int &dx, int &dy)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
-				return TRUE;
+				return true;
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-static BOOLEAN FindClosestChain(int sx, int sy, int &dx, int &dy)
+static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 {
 	int j, i, mid, tx, ty;
 	const char *cr;
@@ -223,11 +223,11 @@ static BOOLEAN FindClosestChain(int sx, int sy, int &dx, int &dy)
 			 && LineClearF(CheckNoSolid, sx, sy, tx, ty)) {
 				dx = tx;
 				dy = ty;
-				return TRUE;
+				return true;
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 /**
@@ -433,7 +433,7 @@ static void PutMissile(int mi)
 		else
 			dMissile[x][y] = -1;
 		if (missile[mi]._miPreFlag)
-			MissilePreFlag = TRUE;
+			gbMissilePreFlag = true;
 	}
 }
 
@@ -605,12 +605,12 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int ada
 	}*/
 }
 
-static BOOL MonsterTrapHit(int mnum, int mi)
+static bool MonsterTrapHit(int mnum, int mi)
 {
 	MissileStruct *mis;
 	MonsterStruct *mon;
 	int hper, dam;
-	BOOL ret;
+	bool ret;
 
 	mon = &monster[mnum];
 	mis = &missile[mi];
@@ -623,11 +623,11 @@ static BOOL MonsterTrapHit(int mnum, int mi)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
 #endif
-			return FALSE;
+			return false;
 
 	dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
-		return FALSE;
+		return false;
 
 	if (CheckMonsterHit(mnum, &ret)) {
 		return ret;
@@ -647,16 +647,16 @@ static BOOL MonsterTrapHit(int mnum, int mi)
 			MonStartHit(mnum, -1, dam);
 		//}
 	}
-	return TRUE;
+	return true;
 }
 
-static BOOL MonsterMHit(int mnum, int mi)
+static bool MonsterMHit(int mnum, int mi)
 {
 	PlayerStruct *p;
 	MonsterStruct *mon;
 	MissileStruct *mis;
 	int pnum, tmac, hper, dam;
-	BOOL ret;
+	bool ret;
 
 	mon = &monster[mnum];
 	mis = &missile[mi];
@@ -686,7 +686,7 @@ static BOOL MonsterMHit(int mnum, int mi)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
 #endif
-			return FALSE;
+			return false;
 
 	if (CheckMonsterHit(mnum, &ret))
 		return ret;
@@ -742,7 +742,7 @@ static BOOL MonsterMHit(int mnum, int mi)
 	} else {
 		dam = CalcMonsterDam(mon->mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
-			return FALSE;
+			return false;
 	}
 
 	if (pnum == myplr)
@@ -769,7 +769,7 @@ static BOOL MonsterMHit(int mnum, int mi)
 		mon->_lastx = p->_px;
 		mon->_lasty = p->_py;
 	}
-	return TRUE;
+	return true;
 }
 
 int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam)
@@ -807,7 +807,7 @@ int CalcPlrDam(PlayerStruct *p, BYTE mRes, unsigned mindam, unsigned maxdam)
 	return dam;
 }
 
-static BOOL PlayerTrapHit(int pnum, int mi)
+static bool PlayerTrapHit(int pnum, int mi)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -815,7 +815,7 @@ static BOOL PlayerTrapHit(int pnum, int mi)
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
-		return FALSE;
+		return false;
 	}
 
 	mis = &missile[mi];
@@ -840,31 +840,31 @@ static BOOL PlayerTrapHit(int pnum, int mi)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
 #endif
-			return FALSE;
+			return false;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 		tmp = p->_pBaseToBlk + p->_pDexterity;
 		if (tmp >= 100 || random_(73, 100) < tmp) {
 			PlrStartBlock(pnum, p->_pdir);
-			return TRUE;
+			return true;
 		}
 	}
 
 	dam = CalcPlrDam(p, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
-		return FALSE;
+		return false;
 
 	dam += p->_pIGetHit;
 	if (dam < 64)
 		dam = 64;
 
 	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-		StartPlrHit(pnum, dam, FALSE);
-	return TRUE;
+		StartPlrHit(pnum, dam, false);
+	return true;
 }
 
-static BOOL PlayerMHit(int pnum, int mi)
+static bool PlayerMHit(int pnum, int mi)
 {
 	MissileStruct *mis;
 	PlayerStruct *p;
@@ -873,7 +873,7 @@ static BOOL PlayerMHit(int pnum, int mi)
 
 	p = &plr[pnum];
 	if (p->_pInvincible) {
-		return FALSE;
+		return false;
 	}
 	mis = &missile[mi];
 	mon = &monster[mis->_miSource];
@@ -904,7 +904,7 @@ static BOOL PlayerMHit(int pnum, int mi)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
 #endif
-			return FALSE;
+			return false;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
@@ -914,23 +914,23 @@ static BOOL PlayerMHit(int pnum, int mi)
 		if (tmp >= 100 || random_(73, 100) < tmp) {
 			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
 			PlrStartBlock(pnum, tmp);
-			return TRUE;
+			return true;
 		}
 	}
 
 	dam = CalcPlrDam(p, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
-		return FALSE;
+		return false;
 	dam += p->_pIGetHit;
 	if (dam < 64)
 		dam = 64;
 
 	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
-		StartPlrHit(pnum, dam, FALSE);
-	return TRUE;
+		StartPlrHit(pnum, dam, false);
+	return true;
 }
 
-static BOOL Plr2PlrMHit(int defp, int mi)
+static bool Plr2PlrMHit(int defp, int mi)
 {
 	MissileStruct *mis;
 	PlayerStruct *ops, *dps;
@@ -938,7 +938,7 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 
 	dps = &plr[defp];
 	if (dps->_pInvincible) {
-		return FALSE;
+		return false;
 	}
 
 	mis = &missile[mi];
@@ -964,7 +964,7 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 	if (hper > 95)
 		hper = 95;
 	if (random_(69, 100) >= hper)
-		return FALSE;
+		return false;
 
 	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
 	 && (dps->_pSkillFlags & SFLAG_BLOCK) && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
@@ -973,7 +973,7 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 			- (ops->_pLevel << 1);
 		if (blkper >= 100 || blkper > random_(73, 100)) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -1025,17 +1025,17 @@ static BOOL Plr2PlrMHit(int defp, int mi)
 	} else {
 		dam = CalcPlrDam(dps, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		if (dam == 0)
-			return FALSE;
+			return false;
 		dam >>= 1;
 	}
 
 	if (offp == myplr)
-		NetSendCmdDwParam2(TRUE, CMD_PLRDAMAGE, defp, dam);
-	StartPlrHit(defp, dam, FALSE);
-	return TRUE;
+		NetSendCmdDwParam2(true, CMD_PLRDAMAGE, defp, dam);
+	StartPlrHit(defp, dam, false);
+	return true;
 }
 
-static BOOL MonMissHit(int mnum, int mi)
+static bool MonMissHit(int mnum, int mi)
 {
 	MissileStruct *mis;
 
@@ -1054,7 +1054,7 @@ static BOOL MonMissHit(int mnum, int mi)
 	}
 }
 
-static BOOL PlrMissHit(int pnum, int mi)
+static bool PlrMissHit(int pnum, int mi)
 {
 	MissileStruct *mis;
 
@@ -1073,7 +1073,7 @@ static BOOL PlrMissHit(int pnum, int mi)
 	}
 }
 
-static BOOL CheckMissileCol(int mi, int mx, int my, BOOLEAN nodel)
+static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 {
 	MissileStruct *mis;
 	const MissileData *mds;
@@ -1116,7 +1116,7 @@ static BOOL CheckMissileCol(int mi, int mx, int my, BOOLEAN nodel)
 	}
 
 	if (hit == 0)
-		return FALSE;
+		return false;
 
 	if (!nodel) {
 		mis = &missile[mi];
@@ -1233,7 +1233,7 @@ void InitMissiles()
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
 			if (mis->_miType == MIS_INFRA && mis->_miSource == myplr) {
-				CalcPlrItemVals(myplr, TRUE);
+				CalcPlrItemVals(myplr, true);
 			}
 		}
 	}
@@ -1245,7 +1245,7 @@ void InitMissiles()
 			mis = &missile[missileactive[i]];
 			if (mis->_miType == MIS_BLODBOIL && mis->_miSource == myplr) {
 				int missingHP = p->_pMaxHP - p->_pHitPoints;
-				CalcPlrItemVals(myplr, TRUE);
+				CalcPlrItemVals(myplr, true);
 				p->_pHitPoints -= missingHP + mis->_miVar2;
 				if (p->_pHitPoints < (1 << 6)) {
 					p->_pHitPoints = (1 << 6);
@@ -1277,7 +1277,7 @@ int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DELETE;
 }
 
-static BOOL place_rune(int mi, int dx, int dy, int mitype, int mirange)
+static bool place_rune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
 	const char *cr;
@@ -1295,11 +1295,11 @@ static BOOL place_rune(int mi, int dx, int dy, int mitype, int mirange)
 				missile[mi]._miVar2 = mirange;		// trigger range
 				missile[mi]._miRange = 16 + 1584;	// delay + ttl
 				missile[mi]._miLid = AddLight(tx, ty, 8);
-				return TRUE;
+				return true;
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 /**
@@ -1413,15 +1413,15 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	CheckMissileCol(mi, sx - 1, sy - 1, TRUE);
-	CheckMissileCol(mi, sx, sy - 1, TRUE);
-	CheckMissileCol(mi, sx + 1, sy - 1, TRUE);
-	CheckMissileCol(mi, sx - 1, sy, TRUE);
-	CheckMissileCol(mi, sx, sy, TRUE);
-	CheckMissileCol(mi, sx + 1, sy, TRUE);
-	CheckMissileCol(mi, sx - 1, sy + 1, TRUE);
-	CheckMissileCol(mi, sx, sy + 1, TRUE);
-	CheckMissileCol(mi, sx + 1, sy + 1, TRUE);
+	CheckMissileCol(mi, sx - 1, sy - 1, true);
+	CheckMissileCol(mi, sx, sy - 1, true);
+	CheckMissileCol(mi, sx + 1, sy - 1, true);
+	CheckMissileCol(mi, sx - 1, sy, true);
+	CheckMissileCol(mi, sx, sy, true);
+	CheckMissileCol(mi, sx + 1, sy, true);
+	CheckMissileCol(mi, sx - 1, sy + 1, true);
+	CheckMissileCol(mi, sx, sy + 1, true);
+	CheckMissileCol(mi, sx + 1, sy + 1, true);
 	return MIRES_DONE;
 }
 
@@ -1845,15 +1845,15 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	return MIRES_DONE;
 }
 
-static BOOL CheckIfTrig(int x, int y)
+static bool CheckIfTrig(int x, int y)
 {
 	int i;
 
 	for (i = 0; i < numtrigs; i++) {
 		if (abs(trigs[i]._tx - x) < 2 && abs(trigs[i]._ty - y) < 2)
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }
 
 /**
@@ -1880,10 +1880,10 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 						if (!CheckIfTrig(tx, ty)) {
 							mis->_miDelFlag = FALSE;
 							if (misource == myplr) {
-								if (!setlevel) {
-									NetSendCmdLocBParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
+								if (!gbSetlevel) {
+									NetSendCmdLocBParam3(true, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
 								} else {
-									NetSendCmdLocBParam3(TRUE, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
+									NetSendCmdLocBParam3(true, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
 								}
 							}
 							i = 6;
@@ -1961,9 +1961,9 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 
 	if (misource == myplr) {
 		if (plr[misource].pManaShield == 0)
-			NetSendCmdBParam1(TRUE, CMD_SETSHIELD, spllvl);
+			NetSendCmdBParam1(true, CMD_SETSHIELD, spllvl);
 		else
-			NetSendCmd(TRUE, CMD_REMSHIELD);
+			NetSendCmd(true, CMD_REMSHIELD);
 	}
 	return MIRES_DELETE;
 }
@@ -2559,7 +2559,7 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		if (misource <= 0)
 			lvl = 1;
 		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
-		CalcPlrItemVals(misource, TRUE);
+		CalcPlrItemVals(misource, true);
 		return MIRES_DONE;
 	}
 }
@@ -2596,7 +2596,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		NewCursor(CURSOR_DISARM);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive) {
-			TryIconCurs(FALSE);
+			TryIconCurs(false);
 		}
 #endif
 	}
@@ -2677,7 +2677,7 @@ int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_miMinDam = 8 << 6;
 	mis->_miMaxDam = 16 << 6;
 	
-	CheckMissileCol(mi, sx, sy, TRUE);
+	CheckMissileCol(mi, sx, sy, true);
 	return MIRES_DELETE;
 }
 
@@ -2746,7 +2746,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		return MIRES_DELETE;
 
 	if (tnum == myplr) {
-		deathflag = FALSE;
+		gbDeathflag = false;
 		gamemenu_off();
 	}
 
@@ -2757,7 +2757,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	PlrSetHp(tnum, std::min(10 << 6, tp->_pMaxHPBase));
 	PlrSetMana(tnum, 0);
 
-	CalcPlrInv(tnum, TRUE);
+	CalcPlrInv(tnum, true);
 
 	if (tp->plrlevel == currlevel) {
 		PlacePlayer(tnum);
@@ -2883,7 +2883,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	return mi;
 }
 
-static BOOL Sentfire(int mi, int sx, int sy)
+static bool Sentfire(int mi, int sx, int sy)
 {
 	MissileStruct *mis;
 
@@ -2893,11 +2893,11 @@ static BOOL Sentfire(int mi, int sx, int sy)
 			AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, mis->_miCaster, mis->_miSource, 0, 0, mis->_miSpllvl);
 			SetMissDir(mi, 2);
 			mis->_miVar2 = 3;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void MI_Dummy(int mi)
@@ -2944,7 +2944,7 @@ void MI_Arrow(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	}
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
@@ -2961,7 +2961,7 @@ void MI_AsArrow(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix == mis->_miVar1 && mis->_miy == mis->_miVar2) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -2982,7 +2982,7 @@ void MI_Firebolt(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	}
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -3058,7 +3058,7 @@ void MI_Lightball(int mi)
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
 		range = mis->_miRange;
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE))
+		if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 			mis->_miRange = range;
 	}
 	if (mis->_miRange == 0)
@@ -3075,7 +3075,7 @@ void MI_Krull(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
 	PutMissile(mi);
@@ -3086,7 +3086,7 @@ void MI_Acidpud(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, TRUE);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		if (mis->_miDir != 0) {
@@ -3117,7 +3117,7 @@ void MI_Firewall(int mi)
 		mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 		mis->_miAnimAdd = -1;
 	}
-	CheckMissileCol(mi, mis->_mix, mis->_miy, TRUE);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
@@ -3152,21 +3152,21 @@ void MI_Fireball(int mi)
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		if (mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-			CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+			CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 		mx = mis->_mix;
 		my = mis->_miy;
 		if (mis->_miRange == 0) {
 			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
-			//CheckMissileCol(mi, mx, my, TRUE);
+			//CheckMissileCol(mi, mx, my, true);
 			// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-			CheckMissileCol(mi, mx, my + 1, TRUE);
-			CheckMissileCol(mi, mx, my - 1, TRUE);
-			CheckMissileCol(mi, mx + 1, my, TRUE);
-			CheckMissileCol(mi, mx + 1, my - 1, TRUE);
-			CheckMissileCol(mi, mx + 1, my + 1, TRUE);
-			CheckMissileCol(mi, mx - 1, my, TRUE);
-			CheckMissileCol(mi, mx - 1, my + 1, TRUE);
-			CheckMissileCol(mi, mx - 1, my - 1, TRUE);
+			CheckMissileCol(mi, mx, my + 1, true);
+			CheckMissileCol(mi, mx, my - 1, true);
+			CheckMissileCol(mi, mx + 1, my, true);
+			CheckMissileCol(mi, mx + 1, my - 1, true);
+			CheckMissileCol(mi, mx + 1, my + 1, true);
+			CheckMissileCol(mi, mx - 1, my, true);
+			CheckMissileCol(mi, mx - 1, my + 1, true);
+			CheckMissileCol(mi, mx - 1, my - 1, true);
 			if (!TransList[dTransVal[mx][my]]
 			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
 				mis->_mix++;
@@ -3205,7 +3205,7 @@ void MI_HorkSpawn(int mi)
 
 	mis = &missile[mi];
 	mis->_miRange--;
-	CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	if (mis->_miRange <= 0) {
 		mis->_miDelFlag = TRUE;
 		for (i = 0; i < 2; i++) {
@@ -3216,7 +3216,7 @@ void MI_HorkSpawn(int mi)
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dPlayer[tx][ty] | dObject[tx][ty]) == 0) {
 						i = 6;
-						int mon = AddMonster(tx, ty, mis->_miVar1, 1, TRUE);
+						int mon = AddMonster(tx, ty, mis->_miVar1, 1, true);
 						MonStartStand(mon, mis->_miVar1);
 						break;
 					}
@@ -3266,7 +3266,7 @@ void MI_Lightwall(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
@@ -3399,7 +3399,7 @@ void MI_Lightning(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -3436,7 +3436,7 @@ void MI_Town(int mi)
 
 	p = &plr[myplr];
 	if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
-		NetSendCmdParam1(TRUE, CMD_WARP, mis->_miSource);
+		NetSendCmdParam1(true, CMD_WARP, mis->_miSource);
 	}
 
 	PutMissile(mi);
@@ -3450,15 +3450,15 @@ void MI_Flash(int mi)
 	mis = &missile[mi];
 	mx = mis->_mix;
 	my = mis->_miy;
-	CheckMissileCol(mi, mx - 1, my, TRUE);
-	CheckMissileCol(mi, mx + 1, my, TRUE);
-	CheckMissileCol(mi, mx - 1, my + 1, TRUE);
-	CheckMissileCol(mi, mx, my + 1, TRUE);
-	CheckMissileCol(mi, mx + 1, my + 1, TRUE);
+	CheckMissileCol(mi, mx - 1, my, true);
+	CheckMissileCol(mi, mx + 1, my, true);
+	CheckMissileCol(mi, mx - 1, my + 1, true);
+	CheckMissileCol(mi, mx, my + 1, true);
+	CheckMissileCol(mi, mx + 1, my + 1, true);
 	// Flash2
-	CheckMissileCol(mi, mx - 1, my - 1, TRUE);
-	CheckMissileCol(mi, mx, my - 1, TRUE);
-	CheckMissileCol(mi, mx + 1, my - 1, TRUE);
+	CheckMissileCol(mi, mx - 1, my - 1, true);
+	CheckMissileCol(mi, mx, my - 1, true);
+	CheckMissileCol(mi, mx + 1, my - 1, true);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -3498,7 +3498,7 @@ void MI_FireWave(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	range = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = range;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -3528,7 +3528,7 @@ void MI_Guardian(int mi)
 {
 	MissileStruct *mis;
 	int i, j, tx, ty;
-	BOOL ex;
+	bool ex;
 	const char *cr;
 
 	mis = &missile[mi];
@@ -3542,7 +3542,7 @@ void MI_Guardian(int mi)
 	}
 
 	if (!(mis->_miRange % 16)) {
-		ex = FALSE;
+		ex = false;
 		for (i = 6; i >= 0 && !ex; i--) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = *cr; j > 0; j--) {
@@ -3594,7 +3594,7 @@ void MI_Chain(int mi)
 	if (mx != mis->_misx || my != mis->_misy) {
 		if (!nMissileTable[dPiece[mx][my]]) {
 			range = mis->_miRange;
-			if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE)) {
+			if (CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 				if (mis->_miVar1-- != 0) {
 					// set the new position as the starting point
 					mis->_misx = mx;
@@ -3739,7 +3739,7 @@ void MI_ApocaExp(int mi)
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
 	if (!mis->_miVar1) {
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, TRUE))
+		if (CheckMissileCol(mi, mis->_mix, mis->_miy, true))
 			mis->_miVar1 = TRUE;
 	}
 	PutMissile(mi);
@@ -3887,7 +3887,7 @@ void MI_Infra(int mi)
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
-		CalcPlrItemVals(mis->_miSource, TRUE);
+		CalcPlrItemVals(mis->_miSource, true);
 	} else {
 		plr[mis->_miSource]._pInfraFlag = TRUE;
 	}
@@ -3949,7 +3949,7 @@ void MI_Bloodboil(int mi)
 			p->_pSpellFlags &= ~PSE_LETHARGY;
 			hpdif += mis->_miVar2;
 		}
-		CalcPlrItemVals(pnum, TRUE);
+		CalcPlrItemVals(pnum, true);
 		p->_pHitPoints -= hpdif;
 		if (p->_pHitPoints < (1 << 6))
 			p->_pHitPoints = (1 << 6);
@@ -3973,7 +3973,7 @@ void MI_Flame(int mi)
 	mis = &missile[mi];
 	mis->_miRange--;
 	k = mis->_miRange;
-	if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE))
+	if (CheckMissileCol(mi, mis->_mix, mis->_miy, false))
 		mis->_miRange = k;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -4032,7 +4032,7 @@ void MI_FireTrap(int mi)
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, TRUE);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, true);
 
 	mis->_miRange--;
 	if (mis->_miRange == 0)
@@ -4059,7 +4059,7 @@ void MI_Cbolt(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, FALSE)) {
+		if (CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
 			mis->_mixoff = 0;
@@ -4089,7 +4089,7 @@ void MI_Element(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	CheckMissileCol(mi, cx, cy, FALSE);
+	CheckMissileCol(mi, cx, cy, false);
 	if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
 		mis->_miVar3 = TRUE;
 		mis->_miRange = 255;
@@ -4109,16 +4109,16 @@ void MI_Element(int mi)
 		ChangeLight(mis->_miLid, cx, cy, 8);
 	}
 	if (mis->_miRange == 0) {
-		//CheckMissileCol(mi, cx, cy, TRUE);
+		//CheckMissileCol(mi, cx, cy, true);
 		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-		CheckMissileCol(mi, cx, cy + 1, TRUE);
-		CheckMissileCol(mi, cx, cy - 1, TRUE);
-		CheckMissileCol(mi, cx + 1, cy, TRUE); /* check x/y */
-		CheckMissileCol(mi, cx + 1, cy - 1, TRUE);
-		CheckMissileCol(mi, cx + 1, cy + 1, TRUE);
-		CheckMissileCol(mi, cx - 1, cy, TRUE);
-		CheckMissileCol(mi, cx - 1, cy + 1, TRUE);
-		CheckMissileCol(mi, cx - 1, cy - 1, TRUE);
+		CheckMissileCol(mi, cx, cy + 1, true);
+		CheckMissileCol(mi, cx, cy - 1, true);
+		CheckMissileCol(mi, cx + 1, cy, true); /* check x/y */
+		CheckMissileCol(mi, cx + 1, cy - 1, true);
+		CheckMissileCol(mi, cx + 1, cy + 1, true);
+		CheckMissileCol(mi, cx - 1, cy, true);
+		CheckMissileCol(mi, cx - 1, cy + 1, true);
+		CheckMissileCol(mi, cx - 1, cy - 1, true);
 
 		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, mis->_miCaster, mis->_miSource, 0, 0, 0);
 		mis->_miDelFlag = TRUE;
@@ -4203,7 +4203,7 @@ void ProcessMissiles()
 		}
 	}
 
-	MissilePreFlag = FALSE;
+	gbMissilePreFlag = false;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];

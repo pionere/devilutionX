@@ -15,18 +15,18 @@ extern "C" {
 extern PortalStruct portal[MAXPORTAL];
 
 void InitPortals();
-void SetPortalStats(int i, BOOL o, int x, int y, int lvl, int lvltype);
+void SetPortalStats(int i, bool o, int x, int y, int lvl, int lvltype);
 void AddWarpMissile(int i, int x, int y);
 void SyncPortals();
 void AddInTownPortal(int i);
-void ActivatePortal(int i, int x, int y, int lvl, int lvltype, BOOL sp);
+void ActivatePortal(int i, int x, int y, int lvl, int lvltype, bool sp);
 void DeactivatePortal(int i);
-BOOL PortalOnLevel(int i);
+bool PortalOnLevel(int i);
 void RemovePortalMissile(int id);
 void SetCurrentPortal(int p);
 void GetPortalLevel();
 void GetPortalLvlPos();
-BOOL PosOkPortal(int x, int y);
+bool PosOkPortal(int x, int y);
 
 #ifdef __cplusplus
 }

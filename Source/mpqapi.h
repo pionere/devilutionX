@@ -15,12 +15,12 @@ extern "C" {
 #endif
 
 void mpqapi_remove_hash_entry(const char *pszName);
-void mpqapi_remove_hash_entries(BOOL (*fnGetName)(DWORD, char (&)[MAX_PATH]));
-BOOL mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen);
+void mpqapi_remove_hash_entries(bool (*fnGetName)(DWORD, char (&)[MAX_PATH]));
+bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen);
 void mpqapi_rename(char *pszOld, char *pszNew);
-BOOL mpqapi_has_file(const char *pszName);
-BOOL OpenMPQ(const char *pszArchive, int hashCount, int blockCount);
-void mpqapi_flush_and_close(BOOL bFree);
+bool mpqapi_has_file(const char *pszName);
+bool OpenMPQ(const char *pszArchive, int hashCount, int blockCount);
+void mpqapi_flush_and_close(bool bFree);
 
 #ifdef __cplusplus
 }

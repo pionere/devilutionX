@@ -15,7 +15,6 @@ extern "C" {
 extern bool gbMusicOn;
 extern bool gbSoundOn;
 
-void snd_update(BOOL bStopAll);
 void snd_stop_snd(TSnd *pSnd);
 bool snd_playing(TSnd *pSnd);
 void snd_play_snd(TSnd *pSnd, int lVolume, int lPan);

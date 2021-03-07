@@ -15,7 +15,7 @@ WORD automaptype[512];
 static int AutoMapX;
 static int AutoMapY;
 /** Specifies whether the automap is enabled. */
-BOOL automapflag;
+bool gbAutomapflag;
 /** Tracks the explored areas of the map. */
 BOOLEAN automapview[DMAXX][DMAXY];
 /** Specifies the scale of the automap. */
@@ -53,7 +53,7 @@ unsigned AmLine4;
  */
 void InitAutomapOnce()
 {
-	automapflag = FALSE;
+	gbAutomapflag = false;
 	AutoMapScale = 64;
 	AmLine64 = 32;
 	AmLine32 = 16;
@@ -127,12 +127,12 @@ void InitAutomap()
  */
 void ToggleAutomap()
 {
-	if (!automapflag) {
+	if (!gbAutomapflag) {
 		AutoMapXOfs = 0;
 		AutoMapYOfs = 0;
-		automapflag = TRUE;
+		gbAutomapflag = true;
 	} else {
-		automapflag = FALSE;
+		gbAutomapflag = false;
 	}
 }
 
@@ -207,10 +207,7 @@ void AutomapZoomOut()
  */
 static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 {
-	BOOL do_vert;
-	BOOL do_horz;
-	BOOL do_cave_horz;
-	BOOL do_cave_vert;
+	bool do_vert, do_horz, do_cave_horz, do_cave_vert;
 	int x1, y1, x2, y2;
 
 	BYTE flags = automap_type >> 8;
@@ -241,10 +238,10 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 		DrawLine(sx - AmLine32, sy, sx, sy + AmLine16, COLOR_BRIGHT);
 	}
 
-	do_vert = FALSE;
-	do_horz = FALSE;
-	do_cave_horz = FALSE;
-	do_cave_vert = FALSE;
+	do_vert = false;
+	do_horz = false;
+	do_cave_horz = false;
+	do_cave_vert = false;
 	switch (automap_type & MAPFLAG_TYPE) {
 	case 1: // stand-alone column or other unpassable object
 		x1 = sx - AmLine16;
@@ -258,33 +255,33 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 		break;
 	case 2:
 	case 5:
-		do_vert = TRUE;
+		do_vert = true;
 		break;
 	case 3:
 	case 6:
-		do_horz = TRUE;
+		do_horz = true;
 		break;
 	case 4:
-		do_vert = TRUE;
-		do_horz = TRUE;
+		do_vert = true;
+		do_horz = true;
 		break;
 	case 8:
-		do_vert = TRUE;
-		do_cave_horz = TRUE;
+		do_vert = true;
+		do_cave_horz = true;
 		break;
 	case 9:
-		do_horz = TRUE;
-		do_cave_vert = TRUE;
+		do_horz = true;
+		do_cave_vert = true;
 		break;
 	case 10:
-		do_cave_horz = TRUE;
+		do_cave_horz = true;
 		break;
 	case 11:
-		do_cave_vert = TRUE;
+		do_cave_vert = true;
 		break;
 	case 12:
-		do_cave_horz = TRUE;
-		do_cave_vert = TRUE;
+		do_cave_horz = true;
+		do_cave_vert = true;
 		break;
 	}
 
@@ -414,9 +411,9 @@ static void SearchAutomapItem()
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
 	if (PANELS_COVER) {
-		if (invflag || sbookflag)
+		if (gbInvflag || gbSbookflag)
 			xoff -= 160;
-		if (chrflag || questlog)
+		if (gbChrflag || gbQuestlog)
 			xoff += 160;
 	}
 
@@ -494,9 +491,9 @@ static void DrawAutomapPlr(int pnum)
 	y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * AmLine8 + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
 	if (PANELS_COVER) {
-		if (invflag || sbookflag)
+		if (gbInvflag || gbSbookflag)
 			x -= SCREEN_WIDTH / 4;
-		if (chrflag || questlog)
+		if (gbChrflag || gbQuestlog)
 			x += SCREEN_WIDTH / 4;
 	}
 	y -= AmLine8;
@@ -551,12 +548,12 @@ static void DrawAutomapPlr(int pnum)
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-static WORD GetAutomapType(int x, int y, BOOL view)
+static WORD GetAutomapType(int x, int y, bool view)
 {
 	WORD rv;
 
 	if (view && x == -1 && y >= 0 && y < DMAXY && automapview[0][y]) {
-		if (GetAutomapType(0, y, FALSE) & (MAPFLAG_DIRT << 8)) {
+		if (GetAutomapType(0, y, false) & (MAPFLAG_DIRT << 8)) {
 			return 0;
 		} else {
 			return MAPFLAG_DIRT << 8;
@@ -564,7 +561,7 @@ static WORD GetAutomapType(int x, int y, BOOL view)
 	}
 
 	if (view && y == -1 && x >= 0 && x < DMAXY && automapview[x][0]) {
-		if (GetAutomapType(x, 0, FALSE) & (MAPFLAG_DIRT << 8)) {
+		if (GetAutomapType(x, 0, false) & (MAPFLAG_DIRT << 8)) {
 			return 0;
 		} else {
 			return MAPFLAG_DIRT << 8;
@@ -583,8 +580,8 @@ static WORD GetAutomapType(int x, int y, BOOL view)
 
 	rv = automaptype[(BYTE)dungeon[x][y]];
 	if (rv == 7) {
-		if (GetAutomapType(x - 1, y, FALSE) & (MAPFLAG_HORZARCH << 8)) {
-			if (GetAutomapType(x, y - 1, FALSE) & (MAPFLAG_VERTARCH << 8)) {
+		if (GetAutomapType(x - 1, y, false) & (MAPFLAG_HORZARCH << 8)) {
+			if (GetAutomapType(x, y - 1, false) & (MAPFLAG_VERTARCH << 8)) {
 				rv = 1;
 			}
 		}
@@ -611,7 +608,7 @@ static void DrawAutomapText()
 			nextline += 15;
 		}
 	}
-	if (setlevel) {
+	if (gbSetlevel) {
 		dstr = quest_level_names[setlvlnum];
 	} else if (currlevel != 0) {
 #ifdef HELLFIRE
@@ -699,10 +696,10 @@ void DrawAutomap()
 	sx += ((int)AutoMapScale * ScrollInfo._sxoff / 128) >> 1;
 	sy += ((int)AutoMapScale * ScrollInfo._syoff / 128) >> 1;
 	if (PANELS_COVER) {
-		if (invflag || sbookflag) {
+		if (gbInvflag || gbSbookflag) {
 			sx -= SCREEN_WIDTH / 4;
 		}
-		if (chrflag || questlog) {
+		if (gbChrflag || gbQuestlog) {
 			sx += SCREEN_WIDTH / 4;
 		}
 	}
@@ -712,7 +709,7 @@ void DrawAutomap()
 		int y;
 
 		for (j = 0; j < cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
+			WORD maptype = GetAutomapType(mapx + j, mapy - j, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, sy, maptype);
 			x += AmLine64;
@@ -721,7 +718,7 @@ void DrawAutomap()
 		x = sx - AmLine32;
 		y = sy + AmLine16;
 		for (j = 0; j <= cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, TRUE);
+			WORD maptype = GetAutomapType(mapx + j, mapy - j, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, y, maptype);
 			x += AmLine64;
@@ -760,58 +757,58 @@ void SetAutomapView(int x, int y)
 
 	automapview[xx][yy] = TRUE;
 
-	maptype = GetAutomapType(xx, yy, FALSE);
+	maptype = GetAutomapType(xx, yy, false);
 	solid = maptype & (MAPFLAG_DIRT << 8);
 
 	switch (maptype & MAPFLAG_TYPE) {
 	case 2:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 3:
 		if (solid) {
-			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
 	case 4:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
-			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy - 1, false) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
 	case 5:
 		if (solid) {
-			if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8))
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 6:
 		if (solid) {
-			if (GetAutomapType(xx - 1, yy, FALSE) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8))
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, FALSE) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, FALSE) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8)) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;

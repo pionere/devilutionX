@@ -15,18 +15,16 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL gbValidSaveFile;
+extern bool gbValidSaveFile;
 
 void pfile_write_hero();
 void pfile_create_player_description(char *dst, DWORD len);
-BOOL pfile_rename_hero(const char *name_1, const char *name_2);
+//bool pfile_rename_hero(const char *name_1, const char *name_2);
 void pfile_flush_W();
-void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile);
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
-BOOL pfile_archive_contains_game(HANDLE hsArchive);
 void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
 bool pfile_ui_save_create(_uiheroinfo *heroinfo);
-BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH]);
+bool pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH]);
 void pfile_delete_save(_uiheroinfo *hero_info);
 void pfile_read_player_from_save();
 void GetTempLevelNames(char (&szTemp)[MAX_PATH]);
@@ -36,7 +34,7 @@ void pfile_rename_temp_to_perm();
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen);
 void pfile_delete_save_file(const char *pszName);
 BYTE *pfile_read(const char *pszName, DWORD *pdwLen);
-void pfile_update(BOOL force_save);
+void pfile_update(bool force_save);
 
 #ifdef __cplusplus
 }

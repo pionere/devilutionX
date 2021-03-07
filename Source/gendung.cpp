@@ -23,7 +23,7 @@ int setpc_h;
 /** Contains the contents of the single player quest DUN file. */
 BYTE *pSetPiece;
 /** Specifies whether a single player quest DUN has been loaded. */
-BOOL setloadflag;
+bool gbSetloadflag;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
 BYTE *pMegaTiles;
@@ -55,7 +55,7 @@ int gnDifficulty;
 BYTE leveltype;
 /** Specifies the active dungeon level of the current game. */
 BYTE currlevel;
-BOOLEAN setlevel;
+bool gbSetlevel;
 /** Specifies the active quest level of the current game. */
 BYTE setlvlnum;
 /** Specifies the player viewpoint X-coordinate of the map. */
@@ -410,25 +410,25 @@ void Make_SetPC(int x, int y, int w, int h)
 	}
 }
 
-static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
+static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
 {
 	int ii, xx, yy;
 	int xSmallest, ySmallest;
 	int xArray[20], yArray[20];
 	int xCount, yCount;
-	BOOL yFlag, xFlag;
+	bool yFlag, xFlag;
 
-	yFlag = TRUE;
-	xFlag = TRUE;
+	yFlag = true;
+	xFlag = true;
 	xCount = 0;
 	yCount = 0;
 
 	// BUGFIX: change '&&' to '||' (fixed)
 	if (x > DMAXX - maxSize || y > DMAXY - maxSize) {
-		return FALSE;
+		return false;
 	}
 	if (!SkipThemeRoom(x, y)) {
-		return FALSE;
+		return false;
 	}
 
 	memset(xArray, 0, sizeof(xArray));
@@ -441,7 +441,7 @@ static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 					if (xx >= minSize) {
 						break;
 					}
-					xFlag = FALSE;
+					xFlag = false;
 				} else {
 					xCount++;
 				}
@@ -457,7 +457,7 @@ static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 					if (yy >= minSize) {
 						break;
 					}
-					yFlag = FALSE;
+					yFlag = false;
 				} else {
 					yCount++;
 				}
@@ -471,7 +471,7 @@ static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 
 	for (ii = 0; ii < minSize; ii++) {
 		if (xArray[ii] < minSize || yArray[ii] < minSize) {
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -492,7 +492,7 @@ static BOOL DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 
 	*width = xSmallest - 2;
 	*height = ySmallest - 2;
-	return TRUE;
+	return true;
 }
 
 static void DRLG_CreateThemeRoom(int themeIndex)
@@ -576,7 +576,7 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 	}
 }
 
-void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, BOOL rndSize)
+void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize)
 {
 	int i, j;
 	int themeW, themeH;
@@ -631,17 +631,17 @@ void DRLG_HoldThemeRooms()
 	}
 }
 
-BOOL SkipThemeRoom(int x, int y)
+bool SkipThemeRoom(int x, int y)
 {
 	int i;
 
 	for (i = 0; i < themeCount; i++) {
 		if (x >= themeLoc[i].x - 2 && x <= themeLoc[i].x + themeLoc[i].width + 2
 		    && y >= themeLoc[i].y - 2 && y <= themeLoc[i].y + themeLoc[i].height + 2)
-			return FALSE;
+			return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 void InitLevels()
@@ -652,7 +652,7 @@ void InitLevels()
 #endif
 	currlevel = 0;
 	leveltype = DTYPE_TOWN;
-	setlevel = FALSE;
+	gbSetlevel = false;
 }
 
 DEVILUTION_END_NAMESPACE

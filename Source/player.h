@@ -14,7 +14,7 @@ extern "C" {
 
 extern int myplr;
 extern PlayerStruct plr[MAX_PLRS];
-extern BOOL deathflag;
+extern bool gbDeathflag;
 
 void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);
@@ -36,7 +36,7 @@ void PlrStartStand(int pnum, int dir);
 void PlrStartBlock(int pnum, int dir);
 bool PlacePlayer(int pnum);
 void RemovePlrFromMap(int pnum);
-void StartPlrHit(int pnum, int dam, BOOL forcehit);
+void StartPlrHit(int pnum, int dam, bool forcehit);
 void StartPlrKill(int pnum, int earflag);
 void SyncPlrKill(int pnum, int earflag);
 void RemovePlrMissiles(int pnum);
@@ -49,12 +49,12 @@ void PlrSetHp(int pnum, int hp);
 void PlrSetMana(int pnum, int mana);
 void PlrIncHp(int pnum, int hp);
 void PlrIncMana(int pnum, int mana);
-BOOL PlrDecHp(int pnum, int hp, int earflag);
+bool PlrDecHp(int pnum, int hp, int earflag);
 void PlrDecMana(int pnum, int mana);
 void ProcessPlayers();
 void ClrPlrPath(int pnum);
-BOOL PosOkPlayer(int pnum, int x, int y);
-void MakePlrPath(int pnum, int xx, int yy, BOOL endspace);
+bool PosOkPlayer(int pnum, int x, int y);
+void MakePlrPath(int pnum, int xx, int yy, bool endspace);
 void SyncPlrAnim(int pnum);
 void SyncInitPlrPos(int pnum);
 void SyncInitPlr(int pnum);

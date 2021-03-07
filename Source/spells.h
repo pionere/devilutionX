@@ -16,11 +16,11 @@ extern "C" {
 
 int GetManaAmount(int pnum, int sn);
 void UseMana(int pnum, int sn, int sf);
-BOOL HasMana(int pnum, int sn, int sf);
+bool HasMana(int pnum, int sn, int sf);
 int SpellSourceInv(int sn);
 int SpellSourceEquipment(int sn);
 int GetSpellLevel(int pnum, int sn);
-BOOL CheckSpell(int pnum, int sn);
+bool CheckSpell(int pnum, int sn);
 
 #ifdef __cplusplus
 }

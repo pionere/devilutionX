@@ -8,21 +8,20 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int numthemes;
-BOOL armorFlag;
-BOOL ThemeGoodIn[4];
-BOOL weaponFlag;
-BOOL treasureFlag;
-BOOL mFountainFlag;
-BOOL cauldronFlag;
-BOOL tFountainFlag;
+bool gbArmorFlag;
+bool gbWeaponFlag;
+bool _gbTreasureFlag;
+bool _gbMFountainFlag;
+bool _gbCauldronFlag;
+bool _gbTFountainFlag;
 int zharlib;
 int themex;
 int themey;
 int themeVar1;
 ThemeStruct themes[MAXTHEMES];
-BOOL pFountainFlag;
-BOOL bFountainFlag;
-BOOL bCrossFlag;
+bool _bgPFountainFlag;
+bool _gbBFountainFlag;
+bool _gbBCrossFlag;
 
 /** Specifies the set of special theme IDs from which one will be selected at random. */
 int ThemeGood[4] = { THEME_GOATSHRINE, THEME_SHRINE, THEME_SKELROOM, THEME_LIBRARY };
@@ -55,7 +54,7 @@ int trm3y[] = {
 	1, 1, 1
 };
 
-static BOOL TFit_Shrine(int tidx)
+static bool TFit_Shrine(int tidx)
 {
 	int xx, yy, found;
 	const char tv = themes[tidx].ttval;
@@ -90,20 +89,20 @@ static BOOL TFit_Shrine(int tidx)
 			xx = 0;
 			yy++;
 			if (yy == MAXDUNY)
-				return FALSE;
+				return false;
 		}
 	}
 	themex = xx;
 	themey = yy;
 	themeVar1 = found;
-	return TRUE;
+	return true;
 }
 
-static BOOL TFit_Obj5(int tidx)
+static bool TFit_Obj5(int tidx)
 {
 	int xx, yy;
 	int i, r, rs;
-	BOOL found;
+	bool found;
 	const char tv = themes[tidx].ttval;
 
 	xx = 0;
@@ -111,16 +110,16 @@ static BOOL TFit_Obj5(int tidx)
 	r = RandRange(1, 5);
 	rs = r;
 	while (r > 0) {
-		found = FALSE;
+		found = false;
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			found = TRUE;
+			found = true;
 			static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
 			for (i = 0; found && i < lengthof(trm5x); i++) {
 				if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
-					found = FALSE;
+					found = false;
 				}
 				if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
-					found = FALSE;
+					found = false;
 				}
 			}
 		}
@@ -132,7 +131,7 @@ static BOOL TFit_Obj5(int tidx)
 				yy++;
 				if (yy == MAXDUNY) {
 					if (r == rs) {
-						return FALSE;
+						return false;
 					}
 					yy = 0;
 				}
@@ -146,15 +145,15 @@ static BOOL TFit_Obj5(int tidx)
 	themex = xx;
 	themey = yy;
 
-	return TRUE;
+	return true;
 }
 
-static BOOL TFit_SkelRoom(int tidx)
+static bool TFit_SkelRoom(int tidx)
 {
 	int i;
 
 	if (leveltype != DTYPE_CATHEDRAL && leveltype != DTYPE_CATACOMBS) {
-		return FALSE;
+		return false;
 	}
 
 	for (i = 0; i < nummtypes; i++) {
@@ -164,10 +163,10 @@ static BOOL TFit_SkelRoom(int tidx)
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-static BOOL TFit_GoatShrine(int tidx)
+static bool TFit_GoatShrine(int tidx)
 {
 	int i;
 
@@ -178,10 +177,10 @@ static BOOL TFit_GoatShrine(int tidx)
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-static BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
+static bool CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 {
 	int i, xx, yy;
 	const char tv = themes[tidx].ttval;
@@ -191,19 +190,19 @@ static BOOL CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 		xx = x + trm3x[i];
 		yy = y + trm3y[i];
 		if (xx < 0 || yy < 0)
-			return FALSE;
+			return false;
 		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
-			return FALSE;
+			return false;
 		if (dTransVal[xx][yy] != tv)
-			return FALSE;
+			return false;
 		if (rndfrq != -1 && random_(0, rndfrq) == 0)
-			return FALSE;
+			return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static BOOL TFit_Obj3(int tidx)
+static bool TFit_Obj3(int tidx)
 {
 	int xx, yy;
 	const char objrnds[4] = { 4, 4, 3, 5 };
@@ -214,15 +213,15 @@ static BOOL TFit_Obj3(int tidx)
 			if (CheckThemeObj3(xx, yy, tidx, objrnd)) {
 				themex = xx;
 				themey = yy;
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-static BOOL CheckThemeReqs(int theme)
+static bool CheckThemeReqs(int theme)
 {
 	switch (theme) {
 	case THEME_SHRINE:
@@ -230,31 +229,31 @@ static BOOL CheckThemeReqs(int theme)
 	case THEME_LIBRARY:
 		return leveltype != DTYPE_CAVES && leveltype != DTYPE_HELL;
 	case THEME_BLOODFOUNTAIN:
-		return bFountainFlag;
+		return _gbBFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
-		return pFountainFlag;
+		return _bgPFountainFlag;
 	case THEME_ARMORSTAND:
 		return leveltype != DTYPE_CATHEDRAL;
 	case THEME_CAULDRON:
-		return leveltype == DTYPE_HELL && cauldronFlag;
+		return leveltype == DTYPE_HELL && _gbCauldronFlag;
 	case THEME_MURKYFOUNTAIN:
-		return mFountainFlag;
+		return _gbMFountainFlag;
 	case THEME_TEARFOUNTAIN:
-		return tFountainFlag;
+		return _gbTFountainFlag;
 	case THEME_WEAPONRACK:
 		return leveltype != DTYPE_CATHEDRAL;
 	case THEME_TREASURE:
-		return treasureFlag;
+		return _gbTreasureFlag;
 	}
-	return TRUE;
+	return true;
 }
 
-static BOOL SpecialThemeFit(int tidx, int theme)
+static bool SpecialThemeFit(int tidx, int theme)
 {
-	BOOL rv;
+	bool rv;
 
 	if (!CheckThemeReqs(theme))
-		return FALSE;
+		return false;
 
 	switch (theme) {
 	case THEME_SHRINE:
@@ -267,31 +266,31 @@ static BOOL SpecialThemeFit(int tidx, int theme)
 	case THEME_BLOODFOUNTAIN:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			bFountainFlag = FALSE;
+			_gbBFountainFlag = false;
 		}
 		break;
 	case THEME_PURIFYINGFOUNTAIN:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			pFountainFlag = FALSE;
+			_bgPFountainFlag = false;
 		}
 		break;
 	case THEME_MURKYFOUNTAIN:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			mFountainFlag = FALSE;
+			_gbMFountainFlag = false;
 		}
 		break;
 	case THEME_TEARFOUNTAIN:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			tFountainFlag = FALSE;
+			_gbTFountainFlag = false;
 		}
 		break;
 	case THEME_CAULDRON:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			cauldronFlag = FALSE;
+			_gbCauldronFlag = false;
 		}
 		break;
 	case THEME_GOATSHRINE:
@@ -305,21 +304,21 @@ static BOOL SpecialThemeFit(int tidx, int theme)
 		rv = TFit_Obj3(tidx);
 		break;
 	case THEME_TREASURE:
-		rv = TRUE;
-		treasureFlag = FALSE;
+		rv = true;
+		_gbTreasureFlag = false;
 		break;
 	}
 
 	return rv;
 }
 
-static BOOL CheckThemeRoom(int tv)
+static bool CheckThemeRoom(int tv)
 {
 	int i, j, tarea;
 
 	for (i = 0; i < numtrigs; i++) {
 		if (dTransVal[trigs[i]._tx][trigs[i]._ty] == tv)
-			return FALSE;
+			return false;
 	}
 
 	tarea = 0;
@@ -328,7 +327,7 @@ static BOOL CheckThemeRoom(int tv)
 			if (dTransVal[i][j] != tv)
 				continue;
 			if (dFlags[i][j] & BFLAG_POPULATED)
-				return FALSE;
+				return false;
 
 			tarea++;
 		}
@@ -336,24 +335,24 @@ static BOOL CheckThemeRoom(int tv)
 
 	assert(leveltype == DTYPE_CATHEDRAL);
 	if (tarea < 9 || tarea > 100)
-		return FALSE;
+		return false;
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			if (dTransVal[i][j] != tv || nSolidTable[dPiece[i][j]])
 				continue;
 			if (dTransVal[i - 1][j] != tv && !nSolidTable[dPiece[i - 1][j]])
-				return FALSE;
+				return false;
 			if (dTransVal[i + 1][j] != tv && !nSolidTable[dPiece[i + 1][j]])
-				return FALSE;
+				return false;
 			if (dTransVal[i][j - 1] != tv && !nSolidTable[dPiece[i][j - 1]])
-				return FALSE;
+				return false;
 			if (dTransVal[i][j + 1] != tv && !nSolidTable[dPiece[i][j + 1]])
-				return FALSE;
+				return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void InitThemes()
@@ -362,24 +361,21 @@ void InitThemes()
 
 	zharlib = -1;
 	numthemes = 0;
-	armorFlag = TRUE;
-	bFountainFlag = TRUE;
-	cauldronFlag = TRUE;
-	mFountainFlag = TRUE;
-	pFountainFlag = TRUE;
-	tFountainFlag = TRUE;
-	treasureFlag = TRUE;
-	bCrossFlag = FALSE;
-	weaponFlag = TRUE;
+	gbArmorFlag = true;
+	_gbBFountainFlag = true;
+	_gbCauldronFlag = true;
+	_gbMFountainFlag = true;
+	_bgPFountainFlag = true;
+	_gbTFountainFlag = true;
+	_gbTreasureFlag = true;
+	_gbBCrossFlag = false;
+	gbWeaponFlag = true;
 
 	assert(leveltype != DTYPE_TOWN);
 	if (currlevel == 16)
 		return;
 
 	if (leveltype == DTYPE_CATHEDRAL) {
-		for (i = 0; i < lengthof(ThemeGoodIn); i++)
-			ThemeGoodIn[i] = FALSE;
-
 		for (i = 0; i < 256 && numthemes < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
 				themes[numthemes].ttval = i;
@@ -468,7 +464,7 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 		for (xx = 0; xx < MAXDUNX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_(0, rndfrq) == 0) {
-					AddMonster(xx, yy, random_(0, 8), mtype, TRUE);
+					AddMonster(xx, yy, random_(0, 8), mtype, true);
 				}
 			}
 		}
@@ -557,7 +553,7 @@ static void Theme_MonstPit(int tidx)
 			}
 		}
 	}
-	CreateRndItem(xx, yy, TRUE, FALSE, TRUE);
+	CreateRndItem(xx, yy, true, false, true);
 	ItemNoFlippy();
 	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
 }
@@ -652,12 +648,12 @@ static void Theme_Treasure(int tidx)
 		for (xx = 0; xx < MAXDUNX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, treasrnd) == 0) {
-					CreateTypeItem(xx, yy, FALSE, ITYPE_GOLD, IMISC_NONE, FALSE, TRUE);
+					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
 					ItemNoFlippy();
 				}
 				// BUGFIX: should probably be `random_(0, 2*treasrnd...) == 0`
 				if (random_(0, treasrnd) == 0) {
-					CreateRndItem(xx, yy, FALSE, FALSE, TRUE);
+					CreateRndItem(xx, yy, false, false, true);
 					ItemNoFlippy();
 				}
 			}
@@ -806,7 +802,7 @@ static void Theme_ArmorStand(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	if (armorFlag) {
+	if (gbArmorFlag) {
 		TFit_Obj3(tidx);
 		AddObject(OBJ_ARMORSTAND, themex, themey);
 	}
@@ -822,7 +818,7 @@ static void Theme_ArmorStand(int tidx)
 		}
 	}
 	PlaceThemeMonsts(tidx, monstrnd);
-	armorFlag = FALSE;
+	gbArmorFlag = false;
 }
 
 /**
@@ -840,7 +836,7 @@ static void Theme_GoatShrine(int tidx)
 	for (yy = themey - 1; yy <= themey + 1; yy++) {
 		for (xx = themex - 1; xx <= themex + 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && (xx != themex || yy != themey)) {
-				AddMonster(xx, yy, DIR_SW, themeVar1, TRUE);
+				AddMonster(xx, yy, DIR_SW, themeVar1, true);
 			}
 		}
 	}
@@ -914,7 +910,7 @@ static void Theme_BrnCross(int tidx)
 		}
 	}
 	PlaceThemeMonsts(tidx, monstrnd);
-	bCrossFlag = TRUE;
+	_gbBCrossFlag = true;
 }
 
 /**
@@ -931,7 +927,7 @@ static void Theme_WeaponRack(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	if (weaponFlag) {
+	if (gbWeaponFlag) {
 		TFit_Obj3(tidx);
 		AddObject(OBJ_WEAPONRACK, themex, themey);
 	}
@@ -947,7 +943,7 @@ static void Theme_WeaponRack(int tidx)
 		}
 	}
 	PlaceThemeMonsts(tidx, monstrnd);
-	weaponFlag = FALSE;
+	gbWeaponFlag = false;
 }
 
 /**
@@ -975,7 +971,7 @@ void CreateThemeRooms()
 	if (currlevel == 16) {
 		return;
 	}
-	InitObjFlag = TRUE;
+	gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
 		themex = 0;
 		themey = 0;
@@ -1033,7 +1029,7 @@ void CreateThemeRooms()
 			break;
 		}
 	}
-	InitObjFlag = FALSE;
+	gbInitObjFlag = false;
 	if (leveltype == DTYPE_HELL && themeCount > 0) {
 		UpdateL4Trans();
 	}

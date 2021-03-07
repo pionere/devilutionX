@@ -18,7 +18,6 @@ int diabquad3x;
 int diabquad3y;
 int diabquad4x;
 int diabquad4y;
-BOOL hallok[20];
 int l4holdx;
 int l4holdy;
 int SP4x1;
@@ -216,13 +215,13 @@ static void InitL4Dungeon()
 
 static void DRLG_LoadL4SP()
 {
-	setloadflag = FALSE;
+	gbSetloadflag = false;
 	if (currlevel == 15 && gbMaxPlayers != 1) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
-		setloadflag = TRUE;
+		gbSetloadflag = true;
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
-		setloadflag = TRUE;
+		gbSetloadflag = true;
 	}
 }
 
@@ -1038,19 +1037,19 @@ static void L4makeDungeon()
 static void uShape()
 {
 	int j, i, rv;
+	bool hallok[20];
 
 	for (j = 19; j >= 0; j--) {
 		for (i = 19; i >= 0; i--) {
 			if (dung[i][j] != 1) {
-				hallok[j] = FALSE;
-			}
-			if (dung[i][j] == 1) {
+				hallok[j] = false;
+			} else {
 				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
 				if (i + 1 < 20 && j + 1 < 20
 				    && dung[i][j + 1] == 1 && dung[i + 1][j + 1] == 0) {
-					hallok[j] = TRUE;
+					hallok[j] = true;
 				} else {
-					hallok[j] = FALSE;
+					hallok[j] = false;
 				}
 				i = 0;
 			}
@@ -1080,15 +1079,15 @@ static void uShape()
 	for (i = 19; i >= 0; i--) {
 		for (j = 19; j >= 0; j--) {
 			if (dung[i][j] != 1) {
-				hallok[i] = FALSE;
+				hallok[i] = false;
 			}
 			if (dung[i][j] == 1) {
 				// BUGFIX: check that i + 1 < 20 and j + 1 < 20 (fixed)
 				if (i + 1 < 20 && j + 1 < 20
 				    && dung[i + 1][j] == 1 && dung[i + 1][j + 1] == 0) {
-					hallok[i] = TRUE;
+					hallok[i] = true;
 				} else {
-					hallok[i] = FALSE;
+					hallok[i] = false;
 				}
 				j = 0;
 			}
@@ -1145,33 +1144,33 @@ static void L4drawRoom(int x, int y, int width, int height)
 	}
 }
 
-static BOOL L4checkRoom(int x, int y, int width, int height)
+static bool L4checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
 	if (x <= 0 || y <= 0)
-		return FALSE;
+		return false;
 
 	x2 = x + width;
 	y2 = y + height;
 	if (x2 > 20 || y2 > 20)
-		return FALSE;
+		return false;
 
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
 			if (dung[i][j] != 0) {
-				return FALSE;
+				return false;
 			}
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void L4roomGen(int x, int y, int w, int h, int dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
-	BOOL ran2;
+	bool ran2;
 
 	dirProb = random_(0, 4);
 
@@ -1306,7 +1305,7 @@ static void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
 	}
 }
 
-static void DRLG_LoadDiabQuads(BOOL preflag)
+static void DRLG_LoadDiabQuads(bool preflag)
 {
 	BYTE *lpSetPiece;
 
@@ -1316,41 +1315,32 @@ static void DRLG_LoadDiabQuads(BOOL preflag)
 	DRLG_L4SetRoom(lpSetPiece, diabquad1x, diabquad1y);
 	mem_free_dbg(lpSetPiece);
 
-	if (preflag) {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab2b.DUN", NULL);
-	} else {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
-	}
+	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN", NULL);
+
 	diabquad2x = 27 - l4holdx;
 	diabquad2y = 1 + l4holdy;
 	DRLG_L4SetRoom(lpSetPiece, diabquad2x, diabquad2y);
 	mem_free_dbg(lpSetPiece);
 
-	if (preflag) {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab3b.DUN", NULL);
-	} else {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
-	}
+	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN", NULL);
+
 	diabquad3x = 1 + l4holdx;
 	diabquad3y = 27 - l4holdy;
 	DRLG_L4SetRoom(lpSetPiece, diabquad3x, diabquad3y);
 	mem_free_dbg(lpSetPiece);
 
-	if (preflag) {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab4b.DUN", NULL);
-	} else {
-		lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
-	}
+	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN", NULL);
+
 	diabquad4x = 28 - l4holdx;
 	diabquad4y = 28 - l4holdy;
 	DRLG_L4SetRoom(lpSetPiece, diabquad4x, diabquad4y);
 	mem_free_dbg(lpSetPiece);
 }
 
-static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
+static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
-	BOOL done;
+	bool done;
 
 	sw = miniset[0];
 	sh = miniset[1];
@@ -1360,18 +1350,18 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 
 	tries = 0;
 	while (TRUE) {
-		done = TRUE;
+		done = true;
 		if (sx >= SP4x1 && sx <= SP4x2 && sy >= SP4y1 && sy <= SP4y2) {
-			done = FALSE;
+			done = false;
 		}
 		ii = 2;
 		for (yy = sy; yy < sy + sh && done; yy++) {
 			for (xx = sx; xx < sx + sw && done; xx++) {
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
-					done = FALSE;
+					done = false;
 				}
 				if (dflags[xx][yy] != 0) {
-					done = FALSE;
+					done = false;
 				}
 				ii++;
 			}
@@ -1387,7 +1377,7 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		}
 	}
 	if (tries == 200)
-		return FALSE;
+		return false;
 
 	ii = sw * sh + 2;
 	for (yy = sy; yy < sy + sh; yy++) {
@@ -1409,7 +1399,7 @@ static BOOL DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		ViewY = 2 * sy + DBORDERY + 6;
 	}
 
-	return TRUE;
+	return true;
 }
 
 #if defined(__3DS__)
@@ -1489,12 +1479,12 @@ static void DRLG_L4FloodTVal()
 #pragma GCC pop_options
 #endif
 
-static BOOL IsDURWall(BYTE dd)
+static bool IsDURWall(BYTE dd)
 {
 	return dd == 25 || dd == 28 || dd == 23;
 }
 
-static BOOL IsDLLWall(BYTE dd)
+static bool IsDLLWall(BYTE dd)
 {
 	return dd == 27 || dd == 26 || dd == 22;
 }
@@ -1586,22 +1576,22 @@ struct mini_set {
 	const BYTE* data;
 	BOOL setview;
 };
-static BOOL DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
+static bool DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
 		if (minisets[i].data != NULL && !DRLG_L4PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 static void DRLG_L4(int entry)
 {
 	int i, j;
-	BOOL doneflag;
+	bool doneflag;
 
 	do {
 		DRLG_InitTrans();
@@ -1628,11 +1618,11 @@ static void DRLG_L4(int entry)
 		L4AddWall();
 		DRLG_L4FloodTVal();
 		DRLG_L4TransFix();
-		if (setloadflag) {
+		if (gbSetloadflag) {
 			DRLG_L4SetSPRoom(SP4x1, SP4y1);
 		}
 		if (currlevel == 16) {
-			DRLG_LoadDiabQuads(TRUE);
+			DRLG_LoadDiabQuads(true);
 		}
 		if (QuestStatus(Q_WARLORD)) {
 			mini_set stairs[2] = {
@@ -1670,7 +1660,7 @@ static void DRLG_L4(int entry)
 	DRLG_L4GeneralFix();
 
 	if (currlevel != 16) {
-		DRLG_PlaceThemeRooms(7, 10, 6, 8, TRUE);
+		DRLG_PlaceThemeRooms(7, 10, 6, 8, true);
 	}
 
 	DRLG_L4Shadows();
@@ -1696,7 +1686,7 @@ static void DRLG_L4(int entry)
 	if (currlevel == 16) {
 		memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-		DRLG_LoadDiabQuads(FALSE);
+		DRLG_LoadDiabQuads(false);
 	}
 }
 

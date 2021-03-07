@@ -22,12 +22,12 @@ extern DWORD gdwNormalMsgSize;
 
 void nthread_terminate_game(const char *pszFcn);
 DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta);
-BOOL nthread_recv_turns(BOOL *received);
+bool nthread_recv_turns(bool *received);
 void nthread_set_turn_upper_bit();
 void nthread_start(bool set_turn_upper_bit);
 void nthread_cleanup();
-void nthread_ignore_mutex(BOOL bStart);
-BOOL nthread_has_500ms_passed();
+void nthread_ignore_mutex(bool bStart);
+bool nthread_has_500ms_passed();
 
 #ifdef __cplusplus
 }

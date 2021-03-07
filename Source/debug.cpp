@@ -8,7 +8,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef _DEBUG
-BOOL update_seed_check = FALSE;
 
 #define DEBUGSEEDS 4096
 int seed_index;
@@ -147,7 +146,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
 }
 
-void PrintDebugPlayer(BOOL bNextPlayer)
+void PrintDebugPlayer(bool bNextPlayer)
 {
 	if (bNextPlayer)
 		dbgplr = ((BYTE)dbgplr + 1) & 3;
@@ -181,7 +180,7 @@ void PrintDebugQuest()
 
 void PrintDebugMonster(int m)
 {
-	BOOL bActive;
+	bool bActive;
 	int i;
 
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %i = %s", m, monster[m].mName);
@@ -193,11 +192,11 @@ void PrintDebugMonster(int m)
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Mode = %i, Var1 = %i", monster[m]._mmode, monster[m]._mVar1);
 	NetSendCmdString(1 << myplr);
 
-	bActive = FALSE;
+	bActive = false;
 
 	for (i = 0; i < nummonsters; i++) {
 		if (monstactive[i] == m)
-			bActive = TRUE;
+			bActive = true;
 	}
 
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Active List = %i, Squelch = %i", bActive, monster[m]._msquelch);

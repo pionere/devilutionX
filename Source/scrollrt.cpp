@@ -54,11 +54,11 @@ char arch_draw_type;
 /**
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
-BOOLEAN cel_transparency_active;
+bool gbCelTransparencyActive;
 /**
  * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
  */
-BOOL cel_foliage_active = FALSE;
+bool gbCelFoliageActive = false;
 /**
  * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
  */
@@ -71,7 +71,7 @@ BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 bool dRendered[MAXDUNX][MAXDUNY];
 
-BOOL frameflag;
+bool _gbFrameflag;
 int frameend;
 int framerate;
 int framestart;
@@ -170,7 +170,7 @@ static void scrollrt_draw_cursor_item()
 	}
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !invflag && (!chrflag || !plr[myplr]._pLvlUp))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !plr[myplr]._pLvlUp))
 		return;
 #endif
 
@@ -534,8 +534,8 @@ static void drawCell(int x, int y, int sx, int sy)
 	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
 	pMap = &dpiece_defs_map_2[x][y];
 	level_piece_id = dPiece[x][y];
-	cel_transparency_active = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
-	cel_foliage_active = !nSolidTable[level_piece_id];
+	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
+	gbCelFoliageActive = !nSolidTable[level_piece_id];
 	for (int i = 0; i < MicroTileLen; i += 2) {
 		level_cel_block = pMap->mt[i];
 		if (level_cel_block != 0) {
@@ -549,7 +549,7 @@ static void drawCell(int x, int y, int sx, int sy)
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
-	cel_foliage_active = FALSE;
+	gbCelFoliageActive = false;
 }
 
 /**
@@ -561,7 +561,7 @@ static void drawCell(int x, int y, int sx, int sy)
  */
 static void drawFloor(int x, int y, int sx, int sy)
 {
-	cel_transparency_active = FALSE;
+	gbCelTransparencyActive = false;
 	light_table_index = dLight[x][y];
 
 	BYTE *dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
@@ -731,7 +731,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	}
 #endif
 
-	if (MissilePreFlag) {
+	if (gbMissilePreFlag) {
 		DrawMissile(sx, sy, dx, dy, TRUE);
 	}
 
@@ -779,7 +779,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (leveltype != DTYPE_TOWN) {
 		bArch = dSpecial[sx][sy];
 		if (bArch != 0) {
-			cel_transparency_active = TransList[bMap];
+			gbCelTransparencyActive = TransList[bMap];
 			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bArch, 64);
 		}
 	} else {
@@ -911,10 +911,10 @@ static void Zoom()
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
 	if (PANELS_COVER) {
-		if (chrflag || questlog) {
+		if (gbChrflag || gbQuestlog) {
 			wdt >>= 1;
 			nSrcOff -= wdt;
-		} else if (invflag || sbookflag) {
+		} else if (gbInvflag || gbSbookflag) {
 			wdt >>= 1;
 			nSrcOff -= wdt;
 			nDstOff -= SPANEL_WIDTH;
@@ -958,7 +958,7 @@ int RowsCoveredByPanel()
 	/*}
 
 	int rows = PANEL_HEIGHT / TILE_HEIGHT;
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		rows /= 2;
 	}
 
@@ -974,7 +974,7 @@ void CalcTileOffset(int *offsetX, int *offsetY)
 {
 	int x, y;
 
-	if (zoomflag) {
+	if (gbZoomflag) {
 		x = SCREEN_WIDTH % TILE_WIDTH;
 		y = VIEWPORT_HEIGHT % TILE_HEIGHT;
 	} else {
@@ -1007,7 +1007,7 @@ void TilesInView(int *rcolumns, int *rrows)
 		rows++;
 	}
 
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		// Half the number of tiles, rounded up
 		columns++;
 		columns >>= 1;
@@ -1061,7 +1061,7 @@ void CalcViewportGeometry()
 	}
 
 	// Slightly lower the zoomed view
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		tileOffsetY += TILE_HEIGHT / 4;
 		if (yo < TILE_HEIGHT / 4)
 			tileRows++;
@@ -1080,7 +1080,7 @@ static void DrawGame()
 	x = ViewX;
 	y = ViewY;
 	// Limit rendering to the view area
-	if (zoomflag)
+	if (gbZoomflag)
 		gpBufEnd = &gpBuffer[BUFFER_WIDTH * (VIEWPORT_HEIGHT + SCREEN_Y)];
 	else
 		gpBufEnd = &gpBuffer[BUFFER_WIDTH * (VIEWPORT_HEIGHT / 2 + SCREEN_Y)];
@@ -1097,24 +1097,24 @@ static void DrawGame()
 
 	// Skip rendering parts covered by the panels
 	if (PANELS_COVER) {
-		if (zoomflag) {
-			if (chrflag || questlog) {
+		if (gbZoomflag) {
+			if (gbChrflag || gbQuestlog) {
 				ShiftGrid(&x, &y, 2, 0);
 				columns -= 4;
 				sx += SPANEL_WIDTH - TILE_WIDTH / 2;
 			}
-			if (invflag || sbookflag) {
+			if (gbInvflag || gbSbookflag) {
 				ShiftGrid(&x, &y, 2, 0);
 				columns -= 4;
 				sx += -TILE_WIDTH / 2;
 			}
 		} else {
-			if (chrflag || questlog) {
+			if (gbChrflag || gbQuestlog) {
 				ShiftGrid(&x, &y, 1, 0);
 				columns -= 2;
 				sx += -TILE_WIDTH / 2 / 2; // SPANEL_WIDTH accounted for in Zoom()
 			}
-			if (invflag || sbookflag) {
+			if (gbInvflag || gbSbookflag) {
 				ShiftGrid(&x, &y, 1, 0);
 				columns -= 2;
 				sx += -TILE_WIDTH / 2 / 2;
@@ -1176,7 +1176,7 @@ static void DrawGame()
 	// Allow rendering to the whole screen
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y)];
 
-	if (!zoomflag) {
+	if (!gbZoomflag) {
 		Zoom();
 	}
 }
@@ -1187,7 +1187,7 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (automapflag) {
+	if (gbAutomapflag) {
 		DrawAutomap();
 	}
 	//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
@@ -1196,11 +1196,11 @@ static void DrawView()
 	DrawLifeFlask();
 	DrawManaFlask();
 
-	if (stextflag != STORE_NONE && !qtextflag)
+	if (stextflag != STORE_NONE && !gbQtextflag)
 		DrawSText();
-	if (invflag) {
+	if (gbInvflag) {
 		DrawInv();
-	} else if (sbookflag) {
+	} else if (gbSbookflag) {
 		DrawSpellBook();
 	}
 
@@ -1210,33 +1210,33 @@ static void DrawView()
 		DrawInvBelt();
 	//}
 
-	if (chrflag) {
+	if (gbChrflag) {
 		DrawChr();
-	} else if (questlog) {
+	} else if (gbQuestlog) {
 		DrawQuestLog();
 	}
 	if (plr[myplr]._pLvlUp && stextflag == STORE_NONE) {
 		DrawLevelUpIcon();
 	}
-	if (qtextflag) {
+	if (gbQtextflag) {
 		DrawQText();
 	}
-	if (spselflag) {
+	if (gbSpselflag) {
 		DrawSpeedBook();
 	}
 	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
 		DrawInfoStr();
 	}
-	if (dropGoldFlag) {
+	if (gbDropGoldFlag) {
 		DrawGoldSplit(dropGoldValue);
 	}
-	if (helpflag) {
+	if (gbHelpflag) {
 		DrawHelp();
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
 	}
-	if (deathflag) {
+	if (gbDeathflag) {
 		RedBack();
 	} else if (PauseMode != 0) {
 		gmenu_draw_pause();
@@ -1248,10 +1248,10 @@ static void DrawView()
 	DrawPlrMsg();
 	if (gmenu_is_active())
 		gmenu_draw();
-	if (doomflag) {
+	if (gbDoomflag) {
 		doom_draw();
 	}
-	if (talkflag) {
+	if (gbTalkflag) {
 		DrawTalkPan();
 	}
 	//if (drawFlags & REDRAW_CTRL_BUTTONS) {
@@ -1285,75 +1285,75 @@ void ClearScreenBuffer()
  */
 void ScrollView()
 {
-	BOOL scroll;
+	bool scroll;
 
 	if (pcurs >= CURSOR_FIRSTITEM)
 		return;
 
-	scroll = FALSE;
+	scroll = false;
 
 	if (MouseX < 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
-				scroll = TRUE;
+				scroll = true;
 			}
 			if (DBORDERX < ViewX) {
 				ViewX--;
-				scroll = TRUE;
+				scroll = true;
 			}
 		} else {
 			ViewY++;
 			ViewX--;
-			scroll = TRUE;
+			scroll = true;
 		}
 	}
 	if (MouseX > SCREEN_WIDTH - 20) {
 		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
 			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
-				scroll = TRUE;
+				scroll = true;
 			}
 			if (DBORDERY < ViewY) {
 				ViewY--;
-				scroll = TRUE;
+				scroll = true;
 			}
 		} else {
 			ViewY--;
 			ViewX++;
-			scroll = TRUE;
+			scroll = true;
 		}
 	}
 	if (MouseY < 20) {
 		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
 			if (DBORDERY < ViewY) {
 				ViewY--;
-				scroll = TRUE;
+				scroll = true;
 			}
 			if (DBORDERX < ViewX) {
 				ViewX--;
-				scroll = TRUE;
+				scroll = true;
 			}
 		} else {
 			ViewX--;
 			ViewY--;
-			scroll = TRUE;
+			scroll = true;
 		}
 	}
 	if (MouseY > SCREEN_HEIGHT - 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
-				scroll = TRUE;
+				scroll = true;
 			}
 			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
-				scroll = TRUE;
+				scroll = true;
 			}
 		} else {
 			ViewX++;
 			ViewY++;
-			scroll = TRUE;
+			scroll = true;
 		}
 	}
 
@@ -1367,7 +1367,7 @@ void ScrollView()
  */
 void EnableFrameCount()
 {
-	frameflag = !frameflag;
+	_gbFrameflag = !_gbFrameflag;
 	framestart = SDL_GetTicks();
 }
 
@@ -1476,7 +1476,7 @@ static void DoBlitScreen()
 			//	DoBlitScreen(PANEL_LEFT + 84, PANEL_TOP + 91, 36, 32);
 			//	DoBlitScreen(PANEL_LEFT + 524, PANEL_TOP + 91, 36, 32);
 			//}
-			int y = (!panbtn[PANBTN_MAINMENU] && !(drawFlags & REDRAW_CTRL_BUTTONS) ? 1 : numpanbtns) * MENUBTN_HEIGHT;
+			int y = (!gabPanbtn[PANBTN_MAINMENU] && !(drawFlags & REDRAW_CTRL_BUTTONS) ? 1 : numpanbtns) * MENUBTN_HEIGHT;
 			DoBlitScreen(0, SCREEN_HEIGHT - 1 - y, MENUBTN_WIDTH, y);
 		//}
 
@@ -1493,7 +1493,7 @@ static void DoBlitScreen()
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_game_screen(BOOL draw_cursor)
+void scrollrt_draw_game_screen(bool draw_cursor)
 {
 	//int hgt;
 	bool redraw;
@@ -1539,7 +1539,7 @@ void DrawAndBlit()
 	DrawView();
 	scrollrt_draw_cursor_item();
 
-	if (frameflag)
+	if (_gbFrameflag)
 		DrawFPS();
 
 	unlock_buf(0);

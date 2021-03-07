@@ -13,8 +13,8 @@ BYTE lightactive[MAXLIGHTS];
 LightListStruct LightList[MAXLIGHTS];
 int numvision;
 int numlights;
-BOOL dovision;
-BOOL dolighting;
+bool _gbDovision;
+bool gbDolighting;
 #ifdef _DEBUG
 char lightmax;
 #endif
@@ -604,7 +604,7 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 	}
 }
 
-static BOOL LightPos(int x1, int y1, BOOL doautomap, const char vFlags)
+static bool LightPos(int x1, int y1, bool doautomap, const char vFlags)
 {
 	int nTrans;
 
@@ -625,7 +625,7 @@ static BOOL LightPos(int x1, int y1, BOOL doautomap, const char vFlags)
 	return TRUE;
 }
 
-void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible)
+void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 {
 	const char* cr;
 	int i, x1, x2, y1, y2, limit;
@@ -953,7 +953,7 @@ void InitLighting()
 	int i;
 
 	numlights = 0;
-	dolighting = FALSE;
+	gbDolighting = false;
 #ifdef _DEBUG
 	lightflag = FALSE;
 #endif
@@ -983,9 +983,9 @@ int AddLight(int x, int y, int r)
 		lis->_lradius = r;
 		lis->_xoff = 0;
 		lis->_yoff = 0;
-		lis->_ldel = FALSE;
-		lis->_lunflag = FALSE;
-		dolighting = TRUE;
+		lis->_ldel = false;
+		lis->_lunflag = false;
+		gbDolighting = true;
 	}
 
 	return lnum;
@@ -1000,8 +1000,8 @@ void AddUnLight(int lnum)
 	if (lnum == -1)
 		return;
 
-	LightList[lnum]._ldel = TRUE;
-	dolighting = TRUE;
+	LightList[lnum]._ldel = true;
+	gbDolighting = true;
 }
 
 void ChangeLightRadius(int lnum, int r)
@@ -1016,12 +1016,12 @@ void ChangeLightRadius(int lnum, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
 	lis->_lradius = r;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 void ChangeLightXY(int lnum, int x, int y)
@@ -1036,13 +1036,13 @@ void ChangeLightXY(int lnum, int x, int y)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
 	lis->_lx = x;
 	lis->_ly = y;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 void ChangeLightOff(int lnum, int xoff, int yoff)
@@ -1057,13 +1057,13 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
 	lis->_xoff = xoff;
 	lis->_yoff = yoff;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 /*
@@ -1080,7 +1080,7 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	assert(lnum != -1);
 
 	lis = &LightList[lnum];
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
@@ -1088,7 +1088,7 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	lis->_ly = y;
 	lis->_xoff = 0;
 	lis->_yoff = 0;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 void CondChangeLightOff(int lnum, int xoff, int yoff)
@@ -1112,13 +1112,13 @@ void CondChangeLightOff(int lnum, int xoff, int yoff)
 	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
 		return;
 
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
 	lis->_xoff = xoff;
 	lis->_yoff = yoff;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 void ChangeLight(int lnum, int x, int y, int r)
@@ -1133,14 +1133,14 @@ void ChangeLight(int lnum, int x, int y, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = TRUE;
+	lis->_lunflag = true;
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
 	lis->_lx = x;
 	lis->_ly = y;
 	lis->_lradius = r;
-	dolighting = TRUE;
+	gbDolighting = true;
 }
 
 void ProcessLightList()
@@ -1154,7 +1154,7 @@ void ProcessLightList()
 		return;
 #endif
 
-	if (dolighting) {
+	if (gbDolighting) {
 		for (i = 0; i < numlights; i++) {
 			lis = &LightList[lightactive[i]];
 			if (lis->_ldel) {
@@ -1162,7 +1162,7 @@ void ProcessLightList()
 			}
 			if (lis->_lunflag) {
 				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
-				lis->_lunflag = FALSE;
+				lis->_lunflag = false;
 			}
 		}
 		for (i = 0; i < numlights; ) {
@@ -1180,7 +1180,7 @@ void ProcessLightList()
 			DoLighting(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius, j);
 		}
 
-		dolighting = FALSE;
+		gbDolighting = false;
 	}
 }
 
@@ -1194,7 +1194,7 @@ void InitVision()
 	int i;
 
 	numvision = 0;
-	dovision = FALSE;
+	_gbDovision = false;
 
 	for (i = 0; i < MAXVISION; i++) {
 		visionactive[i] = i;
@@ -1202,7 +1202,7 @@ void InitVision()
 	memset(TransList, 0, sizeof(TransList));
 }
 
-int AddVision(int x, int y, int r, BOOL mine)
+int AddVision(int x, int y, int r, bool mine)
 {
 	LightListStruct *vis;
 	int vnum;
@@ -1213,10 +1213,10 @@ int AddVision(int x, int y, int r, BOOL mine)
 	vis->_lx = x;
 	vis->_ly = y;
 	vis->_lradius = r;
-	vis->_ldel = FALSE;
-	vis->_lunflag = FALSE;
+	vis->_ldel = false;
+	vis->_lunflag = false;
 	vis->_lmine = mine;
-	dovision = TRUE;
+	_gbDovision = true;
 
 	return vnum;
 }
@@ -1225,8 +1225,8 @@ void AddUnVision(int vnum)
 {
 	assert(vnum != -1);
 
-	VisionList[vnum]._ldel = TRUE;
-	dovision = TRUE;
+	VisionList[vnum]._ldel = true;
+	_gbDovision = true;
 }
 
 void ChangeVisionRadius(int vnum, int r)
@@ -1236,12 +1236,12 @@ void ChangeVisionRadius(int vnum, int r)
 	assert(vnum != -1);
 
 	vis = &VisionList[vnum];
-	vis->_lunflag = TRUE;
+	vis->_lunflag = true;
 	vis->_lunx = vis->_lx;
 	vis->_luny = vis->_ly;
 	vis->_lunr = vis->_lradius;
 	vis->_lradius = r;
-	dovision = TRUE;
+	_gbDovision = true;
 }
 
 void ChangeVisionXY(int vnum, int x, int y)
@@ -1251,13 +1251,13 @@ void ChangeVisionXY(int vnum, int x, int y)
 	assert(vnum != -1);
 
 	vis = &VisionList[vnum];
-	vis->_lunflag = TRUE;
+	vis->_lunflag = true;
 	vis->_lunx = vis->_lx;
 	vis->_luny = vis->_ly;
 	vis->_lunr = vis->_lradius;
 	vis->_lx = x;
 	vis->_ly = y;
-	dovision = TRUE;
+	_gbDovision = true;
 }
 
 void ProcessVisionList()
@@ -1266,7 +1266,7 @@ void ProcessVisionList()
 	int i;
 	BYTE temp;
 
-	if (dovision) {
+	if (_gbDovision) {
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
 			if (vis->_ldel) {
@@ -1274,7 +1274,7 @@ void ProcessVisionList()
 			}
 			if (vis->_lunflag) {
 				DoUnVision(vis->_lunx, vis->_luny, vis->_lunr);
-				vis->_lunflag = FALSE;
+				vis->_lunflag = false;
 			}
 		}
 		for (i = 0; i < TransVal; i++) {
@@ -1295,7 +1295,7 @@ void ProcessVisionList()
 			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine, vis->_lmine);
 		}
 
-		dovision = FALSE;
+		_gbDovision = false;
 	}
 }
 

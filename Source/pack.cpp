@@ -272,7 +272,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, bool active)
 	}
 
 	VerifyGoldSeeds(p);
-	CalcPlrInv(pnum, FALSE);
+	CalcPlrInv(pnum, false);
 
 	p->pTownWarps = 0;
 	p->pDungMsgs = 0;

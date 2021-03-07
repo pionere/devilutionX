@@ -16,7 +16,7 @@ extern int missileactive[MAXMISSILES];
 extern int missileavail[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
-extern BOOL MissilePreFlag;
+extern bool gbMissilePreFlag;
 
 void GetDamageAmt(int sn, int *mind, int *maxd);
 unsigned CalcMonsterDam(unsigned short mor, BYTE mRes, unsigned mindam, unsigned maxdam);

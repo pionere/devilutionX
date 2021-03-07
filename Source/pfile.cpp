@@ -44,7 +44,7 @@ std::string GetSavePath(DWORD save_num)
 
 /** List of character names for the character selection screen. */
 static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
-BOOL gbValidSaveFile;
+bool gbValidSaveFile;
 
 static DWORD pfile_get_save_num_from_name(const char *name)
 {
@@ -58,16 +58,16 @@ static DWORD pfile_get_save_num_from_name(const char *name)
 	return i;
 }
 
-static BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
+static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 {
 	HANDLE file;
 	DWORD dwlen;
 	BYTE *buf;
 
 	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, 0, &file)) {
-		return FALSE;
+		return false;
 	} else {
-		BOOL ret = FALSE;
+		bool ret = false;
 		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
 		dwlen = SFileGetFileSize(file, NULL);
@@ -78,7 +78,7 @@ static BOOL pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 				read = codec_decode(buf, dwlen, password);
 				if (read == sizeof(*pPack)) {
 					memcpy(pPack, buf, sizeof(*pPack));
-					ret = TRUE;
+					ret = true;
 				}
 			}
 			if (buf != NULL)
@@ -103,12 +103,12 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 	mem_free_dbg(packed);
 }
 
-static BOOL pfile_open_save_mpq(DWORD save_num)
+static bool pfile_open_save_mpq(DWORD save_num)
 {
 	return OpenMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
 }
 
-static BOOL pfile_open_archive()
+static bool pfile_open_archive()
 {
 	DWORD save_num;
 
@@ -117,7 +117,7 @@ static BOOL pfile_open_archive()
 	return pfile_open_save_mpq(save_num);
 }
 
-static void pfile_flush(BOOL is_single_player)
+static void pfile_flush(bool is_single_player)
 {
 	mpqapi_flush_and_close(is_single_player);
 }
@@ -147,7 +147,7 @@ void pfile_write_hero()
 	}
 }
 
-static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSaveFile)
+static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool bHasSaveFile)
 {
 	memset(heroinfo, 0, sizeof(*heroinfo));
 	SStrCopy(heroinfo->name, p->_pName, sizeof(heroinfo->name));
@@ -178,27 +178,27 @@ void pfile_create_player_description(char *dst, DWORD len)
 	}
 }
 
-BOOL pfile_rename_hero(const char *name_1, const char *name_2)
+/*bool pfile_rename_hero(const char *name_1, const char *name_2)
 {
 	int i;
 	DWORD save_num;
 	_uiheroinfo uihero;
-	BOOL found = FALSE;
+	bool found = false;
 
 	if (pfile_get_save_num_from_name(name_2) == MAX_CHARACTERS) {
 		for (i = 0; i != MAX_PLRS; i++) {
 			if (!strcasecmp(name_1, plr[i]._pName)) {
-				found = TRUE;
+				found = true;
 				break;
 			}
 		}
 	}
 
 	if (!found)
-		return FALSE;
+		return false;
 	save_num = pfile_get_save_num_from_name(name_1);
 	if (save_num == MAX_CHARACTERS)
-		return FALSE;
+		return false;
 
 	SStrCopy(hero_names[save_num], name_2, PLR_NAME_LEN);
 	SStrCopy(plr[i]._pName, name_2, PLR_NAME_LEN);
@@ -207,12 +207,26 @@ BOOL pfile_rename_hero(const char *name_1, const char *name_2)
 	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 	pfile_write_hero();
-	return TRUE;
-}
+	return true;
+}*/
 
 void pfile_flush_W()
 {
-	pfile_flush(TRUE);
+	pfile_flush(true);
+}
+
+static bool pfile_archive_contains_game(HANDLE hsArchive)
+{
+	HANDLE file;
+
+	if (gbMaxPlayers != 1)
+		return false;
+
+	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, 0, &file))
+		return false;
+
+	SFileCloseFile(file);
+	return true;
 }
 
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
@@ -235,20 +249,6 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 			pfile_SFileCloseArchive(archive);
 		}
 	}
-}
-
-BOOL pfile_archive_contains_game(HANDLE hsArchive)
-{
-	HANDLE file;
-
-	if (gbMaxPlayers != 1)
-		return FALSE;
-
-	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, 0, &file))
-		return FALSE;
-
-	SFileCloseFile(file);
-	return TRUE;
 }
 
 void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats)
@@ -281,18 +281,18 @@ bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 	copy_str(plr[0]._pName, heroinfo->name);
 	PackPlayer(&pkplr, 0);
 	pfile_encode_hero(&pkplr);
-	game_2_ui_player(&plr[0], heroinfo, FALSE);
-	pfile_flush(TRUE);
+	game_2_ui_player(&plr[0], heroinfo, false);
+	pfile_flush(true);
 	return true;
 }
 
-BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
+bool pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 {
 	const char *fmt;
 
 	if (gbMaxPlayers != 1) {
 		if (lvl != 0)
-			return FALSE;
+			return false;
 		fmt = SAVEFILE_HERO;
 	} else {
 		if (lvl < NUMLEVELS)
@@ -305,10 +305,10 @@ BOOL pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 		else if (lvl == NUMLEVELS * 2 + 1)
 			fmt = SAVEFILE_HERO;
 		else
-			return FALSE;
+			return false;
 	}
 	snprintf(dst, sizeof(dst), fmt, lvl);
-	return TRUE;
+	return true;
 }
 
 void pfile_delete_save(_uiheroinfo *hero_info)
@@ -342,7 +342,7 @@ void pfile_read_player_from_save()
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 {
-	if (setlevel)
+	if (gbSetlevel)
 		snprintf(szTemp, sizeof(szTemp), "temps%02d", setlvlnum);
 	else
 		snprintf(szTemp, sizeof(szTemp), "templ%02d", currlevel);
@@ -350,23 +350,23 @@ void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 
 void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 {
-	BOOL has_file;
+	bool has_file;
 
 	GetTempLevelNames(szPerm);
 	if (!pfile_open_archive())
 		app_fatal("Unable to read to save file archive");
 
 	has_file = mpqapi_has_file(szPerm);
-	pfile_flush(TRUE);
+	pfile_flush(true);
 	if (!has_file) {
-		if (setlevel)
+		if (gbSetlevel)
 			snprintf(szPerm, sizeof(szPerm), "perms%02d", setlvlnum);
 		else
 			snprintf(szPerm, sizeof(szPerm), "perml%02d", currlevel);
 	}
 }
 
-static BOOL GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
+static bool GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -376,13 +376,13 @@ static BOOL GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 		dwIndex -= NUMLEVELS;
 		fmt = "perms%02d";
 	} else
-		return FALSE;
+		return false;
 
 	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
-	return TRUE;
+	return true;
 }
 
-static BOOL GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
+static bool GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -392,10 +392,10 @@ static BOOL GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
 		dwIndex -= NUMLEVELS;
 		fmt = "temps%02d";
 	} else
-		return FALSE;
+		return false;
 
 	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
-	return TRUE;
+	return true;
 }
 
 void pfile_remove_temp_files()
@@ -404,14 +404,14 @@ void pfile_remove_temp_files()
 		if (!pfile_open_archive())
 			app_fatal("Unable to write to save file archive");
 		mpqapi_remove_hash_entries(GetTempSaveNames);
-		pfile_flush(TRUE);
+		pfile_flush(true);
 	}
 }
 
 void pfile_rename_temp_to_perm()
 {
 	DWORD dwIndex;
-	BOOL bResult;
+	bool bResult;
 	char szTemp[MAX_PATH];
 	char szPerm[MAX_PATH];
 
@@ -431,7 +431,7 @@ void pfile_rename_temp_to_perm()
 		}
 	}
 	assert(!GetPermSaveNames(dwIndex, szPerm));
-	pfile_flush(TRUE);
+	pfile_flush(true);
 }
 
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen)
@@ -444,7 +444,7 @@ void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD
 	if (!pfile_open_archive())
 		app_fatal("Unable to write to save file archive");
 	mpqapi_write_file(pszName, pbData, qwLen);
-	pfile_flush(TRUE);
+	pfile_flush(true);
 }
 
 void pfile_delete_save_file(const char *pszName)
@@ -452,7 +452,7 @@ void pfile_delete_save_file(const char *pszName)
 	if (!pfile_open_archive())
 		app_fatal("Unable to write to save file archive");
 	mpqapi_remove_hash_entry(pszName);
-	pfile_flush(TRUE);
+	pfile_flush(true);
 }
 
 BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
@@ -490,7 +490,7 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	return buf;
 }
 
-void pfile_update(BOOL force_save)
+void pfile_update(bool force_save)
 {
 	// BUGFIX: these tick values should be treated as unsigned to handle overflows correctly (fixed)
 	static DWORD save_prev_tc;

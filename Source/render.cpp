@@ -205,7 +205,7 @@ void RenderTile(BYTE *pBuff)
 
 	mask = &SolidMask[TILE_HEIGHT - 1];
 
-	if (cel_transparency_active) {
+	if (gbCelTransparencyActive) {
 		if (arch_draw_type == 0) {
 			mask = &WallMask[TILE_HEIGHT - 1];
 		}
@@ -221,7 +221,7 @@ void RenderTile(BYTE *pBuff)
 				mask = &RightMask[TILE_HEIGHT - 1];
 			}
 		}
-	} else if (arch_draw_type && cel_foliage_active) {
+	} else if (arch_draw_type && gbCelFoliageActive) {
 		if (tile != RT_TRANSPARENT) {
 			return;
 		}

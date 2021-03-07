@@ -44,7 +44,7 @@ void SetCursorPos(int X, int Y)
 // Moves the mouse to the first attribute "+" button.
 void FocusOnCharInfo()
 {
-	if (invflag || plr[myplr]._pStatPts <= 0)
+	if (gbInvflag || plr[myplr]._pStatPts <= 0)
 		return;
 
 	// Jump to the first incrementable stat.
@@ -624,10 +624,10 @@ bool BlurInventory()
 		}
 	}
 
-	invflag = false;
+	gbInvflag = false;
 	if (pcurs > CURSOR_HAND)
 		NewCursor(CURSOR_HAND);
-	if (chrflag)
+	if (gbChrflag)
 		FocusOnCharInfo();
 
 	return true;
@@ -689,7 +689,7 @@ bool PeekMessage(LPMSG lpMsg)
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
 
-			if (movie_playing) {
+			if (gbMoviePlaying) {
 				lpMsg->message = DVL_WM_KEYDOWN;
 				if (action.type == GameActionType_SEND_KEY)
 					lpMsg->wParam = action.send_key.vk_code;
@@ -716,43 +716,43 @@ bool PeekMessage(LPMSG lpMsg)
 			PerformSpellAction();
 			break;
 		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
-			if (!invflag || BlurInventory()) {
-				if (!spselflag)
+			if (!gbInvflag || BlurInventory()) {
+				if (!gbSpselflag)
 					DoSpeedBook();
 				else
-					spselflag = false;
-				chrflag = false;
-				questlog = false;
-				sbookflag = false;
+					gbSpselflag = false;
+				gbChrflag = false;
+				gbQuestlog = false;
+				gbSbookflag = false;
 				StoreSpellCoords();
 			}
 			break;
 		case GameActionType_TOGGLE_CHARACTER_INFO:
-			chrflag = !chrflag;
-			if (chrflag) {
-				questlog = false;
-				spselflag = false;
+			gbChrflag = !gbChrflag;
+			if (gbChrflag) {
+				gbQuestlog = false;
+				gbSpselflag = false;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
 			}
 			break;
 		case GameActionType_TOGGLE_QUEST_LOG:
-			if (!questlog) {
+			if (!gbQuestlog) {
 				StartQuestlog();
-				chrflag = false;
-				spselflag = false;
+				gbChrflag = false;
+				gbSpselflag = false;
 			} else {
-				questlog = false;
+				gbQuestlog = false;
 			}
 			break;
 		case GameActionType_TOGGLE_INVENTORY:
-			if (invflag) {
+			if (gbInvflag) {
 				BlurInventory();
 			} else {
-				sbookflag = false;
-				spselflag = false;
-				invflag = true;
+				gbSbookflag = false;
+				gbSpselflag = false;
+				gbInvflag = true;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
 				FocusOnInventory();
@@ -760,9 +760,9 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_TOGGLE_SPELL_BOOK:
 			if (BlurInventory()) {
-				invflag = false;
-				spselflag = false;
-				sbookflag = !sbookflag;
+				gbInvflag = false;
+				gbSpselflag = false;
+				gbSbookflag = !gbSbookflag;
 			}
 			break;
 		case GameActionType_SEND_KEY:
@@ -923,10 +923,10 @@ bool PeekMessage(LPMSG lpMsg)
 }
 
 /*
- * Translate keydown events to char events only if talkflag is set (or in debug mode).
+ * Translate keydown events to char events only if gbTalkflag is set (or in debug mode).
  *
  * 'Translation' is no longer necessary. The input text is handled using
- * SDL_StartTextInput/SDL_StopTextInput in case 'talkflag' is set.
+ * SDL_StartTextInput/SDL_StopTextInput in case 'gbTalkflag' is set.
  *
  * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
  *  in a non-debug environment.

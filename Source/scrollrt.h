@@ -17,8 +17,8 @@ extern BYTE *gpBufStart;
 extern BYTE *gpBufEnd;
 extern DWORD level_cel_block;
 extern char arch_draw_type;
-extern BOOLEAN cel_transparency_active;
-extern BOOL cel_foliage_active;
+extern bool gbCelTransparencyActive;
+extern bool gbCelFoliageActive;
 extern int level_piece_id;
 
 void ClearCursor();
@@ -32,7 +32,7 @@ void ClearScreenBuffer();
 void ScrollView();
 #endif
 void EnableFrameCount();
-void scrollrt_draw_game_screen(BOOL draw_cursor);
+void scrollrt_draw_game_screen(bool draw_cursor);
 void DrawAndBlit();
 
 #ifdef __cplusplus

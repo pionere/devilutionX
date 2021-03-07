@@ -18,21 +18,21 @@ extern int gnLevelTypeTbl[NUMLEVELS];
 extern int MouseX;
 extern int MouseY;
 extern bool gbSndInited;
-extern BOOL gbRunGame;
-extern BOOL gbRunGameResult;
-extern BOOL zoomflag;
-extern BOOL gbProcessPlayers;
-extern BOOL gbLoadGame;
-extern BOOLEAN cineflag;
+extern bool gbRunGame;
+extern bool gbRunGameResult;
+extern bool gbZoomflag;
+extern bool gbProcessPlayers;
+extern bool gbLoadGame;
+extern bool gbCineflag;
 extern int gbRedrawFlags;
 extern int PauseMode;
 #ifdef HELLFIRE
-extern BOOLEAN UseTheoQuest;
-extern BOOLEAN UseCowFarmer;
-extern BOOLEAN UseNestArt;
+extern bool gbUseTheoQuest;
+extern bool gbUseCowFarmer;
+extern bool gbUseNestArt;
 #endif
-extern BOOL sgbActionBtnDown;
-extern BOOL sgbAltActionBtnDown;
+extern bool gbActionBtnDown;
+extern bool gbAltActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 
@@ -40,19 +40,18 @@ void FreeGameMem();
 bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char **argv);
-void AltActionBtnCmd(BOOL bShift);
-BOOL TryIconCurs(BOOL bShift);
-BOOL PressEscKey();
+void AltActionBtnCmd(bool bShift);
+bool TryIconCurs(bool bShift);
+bool PressEscKey();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void LoadGameLevel(bool firstflag, int lvldir);
-void game_loop(BOOL bStartup);
 void diablo_color_cyc_logic();
 
 /* rdata */
 
-extern BOOL fullscreen;
-extern BOOL gbShowTooltip;
+extern bool gbFullscreen;
+extern bool gbShowTooltip;
 #ifdef _DEBUG
 extern int DebugMonsters[10];
 extern BOOL visiondebug;

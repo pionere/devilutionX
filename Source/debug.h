@@ -23,7 +23,7 @@ void StoresCheat();
 void TakeGoldCheat();
 void MaxSpellsCheat();
 void SetAllSpellsCheat();
-void PrintDebugPlayer(BOOL bNextPlayer);
+void PrintDebugPlayer(bool bNextPlayer);
 void PrintDebugQuest();
 void GetDebugMonster();
 void NextDebugMonster();

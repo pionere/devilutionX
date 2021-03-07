@@ -12,11 +12,11 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOLEAN gbSomebodyWonGameKludge;
+extern bool gbSomebodyWonGameKludge;
 extern char szPlayerDescript[128];
 extern WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 extern BYTE gbActivePlayers;
-extern BOOLEAN gbGameDestroyed;
+extern bool gbGameDestroyed;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern BYTE gbMaxPlayers;
@@ -31,12 +31,12 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
 void multi_msg_countdown();
 void multi_player_left(int pnum, int reason);
 void multi_net_ping();
-BOOL multi_handle_delta();
+bool multi_handle_delta();
 void multi_process_network_packets();
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen);
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv);
+void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, bool recv);
 
 #ifdef __cplusplus
 }

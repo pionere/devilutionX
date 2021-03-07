@@ -24,12 +24,12 @@ extern char lightmax;
 #else
 #define LIGHTMAX 15
 #endif
-extern BOOL dolighting;
+extern bool gbDolighting;
 extern BYTE *pLightTbl;
 
 void DoLighting(int nXPos, int nYPos, int nRadius, int Lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
-void DoVision(int nXPos, int nYPos, int nRadius, BOOL doautomap, BOOL visible);
+void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible);
 void FreeLightTable();
 void InitLightTable();
 void MakeLightTable();
@@ -49,7 +49,7 @@ void ChangeLight(int lnum, int x, int y, int r);
 void ProcessLightList();
 void SavePreLighting();
 void InitVision();
-int AddVision(int x, int y, int r, BOOL mine);
+int AddVision(int x, int y, int r, bool mine);
 void AddUnVision(int vnum);
 void ChangeVisionRadius(int vnum, int r);
 void ChangeVisionXY(int vnum, int x, int y);

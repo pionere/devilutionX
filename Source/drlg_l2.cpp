@@ -1603,10 +1603,10 @@ const int Patterns[][16] = {
 	{ 0, 0, 0, 0, 255, 0, 0, 0, 0, 0 },
 };
 
-static BOOL DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
+static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
-	BOOL done;
+	bool done;
 
 	sw = miniset[0];
 	sh = miniset[1];
@@ -1616,18 +1616,18 @@ static BOOL DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 
 	tries = 0;
 	while (TRUE) {
-		done = TRUE;
+		done = true;
 		if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
-			done = FALSE;
+			done = false;
 		}
 		ii = 2;
 		for (yy = sy; yy < sy + sh && done; yy++) {
 			for (xx = sx; xx < sx + sw && done; xx++) {
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
-					done = FALSE;
+					done = false;
 				}
 				if (dflags[xx][yy] != 0) {
-					done = FALSE;
+					done = false;
 				}
 				ii++;
 			}
@@ -1644,7 +1644,7 @@ static BOOL DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		}
 	}
 	if (tries == 200)
-		return FALSE;
+		return false;
 
 	ii = sw * sh + 2;
 	for (yy = sy; yy < sy + sh; yy++) {
@@ -1661,31 +1661,31 @@ static BOOL DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		ViewY = 2 * sy + DBORDERY + 6;
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
-	BOOL found;
+	bool found;
 
 	sw = miniset[0];
 	sh = miniset[1];
 
 	for (sy = 0; sy < DMAXY - sh; sy++) {
 		for (sx = 0; sx < DMAXX - sw; sx++) {
-			found = TRUE;
+			found = true;
 			ii = 2;
 			if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
-				found = FALSE;
+				found = false;
 			}
 			for (yy = sy; yy < sy + sh && found; yy++) {
 				for (xx = sx; xx < sx + sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
-						found = FALSE;
+						found = false;
 					}
 					if (dflags[xx][yy] != 0) {
-						found = FALSE;
+						found = false;
 					}
 					ii++;
 				}
@@ -1696,7 +1696,7 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 					for (xx = std::max(sx - sw, 0); xx < std::min(sx + 2 * sw, DMAXX); xx++) {
 						// BUGFIX: yy and xx can go out of bounds (fixed)
 						if (dungeon[xx][yy] == miniset[kk]) {
-							found = FALSE;
+							found = false;
 						}
 					}
 				}
@@ -1798,17 +1798,17 @@ static void DRLG_L2InitDungeon()
 
 static void DRLG_LoadL2SP()
 {
-	setloadflag = FALSE;
+	gbSetloadflag = false;
 
 	if (QuestStatus(Q_BLIND)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
-		setloadflag = TRUE;
+		gbSetloadflag = true;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN", NULL);
-		setloadflag = TRUE;
+		gbSetloadflag = true;
 	} else if (QuestStatus(Q_SCHAMB)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN", NULL);
-		setloadflag = TRUE;
+		gbSetloadflag = true;
 	}
 }
 
@@ -1847,7 +1847,7 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	}
 }
 
-static void DefineRoom(int nX1, int nY1, int nX2, int nY2, BOOL ForceHW)
+static void DefineRoom(int nX1, int nY1, int nX2, int nY2, bool ForceHW)
 {
 	int i, j;
 
@@ -1937,7 +1937,7 @@ static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
  * @param nH Height of the room, if ForceHW is set.
  * @param nW Width of the room, if ForceHW is set.
  */
-static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, BOOL ForceHW, int nH, int nW)
+static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, bool ForceHW, int nH, int nW)
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHw, nHh, nHx1, nHy1, nHx2, nHy2, nRid;
 
@@ -2053,15 +2053,15 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	}
 
 	if (nRh > nRw) {
-		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, 0, 0, 0);
-		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, 0, 0, 0);
-		CreateRoom(nX1 + 2, nRy2 + 2, nRx2 - 2, nY2 - 2, nRid, 1, 0, 0, 0);
-		CreateRoom(nRx1 + 2, nY1 + 2, nX2 - 2, nRy1 - 2, nRid, 3, 0, 0, 0);
+		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, false, 0, 0);
+		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, false, 0, 0);
+		CreateRoom(nX1 + 2, nRy2 + 2, nRx2 - 2, nY2 - 2, nRid, 1, false, 0, 0);
+		CreateRoom(nRx1 + 2, nY1 + 2, nX2 - 2, nRy1 - 2, nRid, 3, false, 0, 0);
 	} else {
-		CreateRoom(nX1 + 2, nY1 + 2, nRx2 - 2, nRy1 - 2, nRid, 3, 0, 0, 0);
-		CreateRoom(nRx1 + 2, nRy2 + 2, nX2 - 2, nY2 - 2, nRid, 1, 0, 0, 0);
-		CreateRoom(nX1 + 2, nRy1 + 2, nRx1 - 2, nY2 - 2, nRid, 2, 0, 0, 0);
-		CreateRoom(nRx2 + 2, nY1 + 2, nX2 - 2, nRy2 - 2, nRid, 4, 0, 0, 0);
+		CreateRoom(nX1 + 2, nY1 + 2, nRx2 - 2, nRy1 - 2, nRid, 3, false, 0, 0);
+		CreateRoom(nRx1 + 2, nRy2 + 2, nX2 - 2, nY2 - 2, nRid, 1, false, 0, 0);
+		CreateRoom(nX1 + 2, nRy1 + 2, nRx1 - 2, nY2 - 2, nRid, 2, false, 0, 0);
+		CreateRoom(nRx2 + 2, nY1 + 2, nX2 - 2, nRy2 - 2, nRid, 4, false, 0, 0);
 	}
 }
 
@@ -2082,9 +2082,8 @@ static void GetHall(int *nX1, int *nY1, int *nX2, int *nY2, int *nHd)
 static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 {
 	int nCurrd, nDx, nDy, nRp, nOrigX1, nOrigY1, fMinusFlag, fPlusFlag;
-	BOOL fDoneflag, fInroom;
+	bool fInroom;
 
-	fDoneflag = FALSE;
 	fMinusFlag = random_(0, 100);
 	fPlusFlag = random_(0, 100);
 	nOrigX1 = nX1;
@@ -2095,9 +2094,9 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	nX2 -= Dir_Xadd[nCurrd];
 	nY2 -= Dir_Yadd[nCurrd];
 	predungeon[nX2][nY2] = 44;
-	fInroom = FALSE;
+	fInroom = false;
 
-	while (!fDoneflag) {
+	while (TRUE) {
 		if (nX1 >= DMAXX - 2 && nCurrd == 2) {
 			nCurrd = 4;
 		}
@@ -2144,13 +2143,13 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				}
 			}
 			predungeon[nX1][nY1] = 44;
-			fInroom = FALSE;
+			fInroom = false;
 		} else {
 			if (!fInroom && predungeon[nX1][nY1] == 35) {
 				CreateDoorType(nX1, nY1);
 			}
 			if (predungeon[nX1][nY1] != 44) {
-				fInroom = TRUE;
+				fInroom = true;
 			}
 		}
 		nDx = abs(nX2 - nX1);
@@ -2223,7 +2222,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 			}
 		}
 		if (nX1 == nX2 && nY1 == nY2) {
-			fDoneflag = TRUE;
+			break;
 		}
 	}
 }
@@ -2387,10 +2386,10 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 	}
 }
 
-static BOOL DL2_FillVoids()
+static bool DL2_FillVoids()
 {
 	int i, j, xx, yy, x1, x2, y1, y2;
-	BOOL xf1, xf2, yf1, yf2;
+	bool xf1, xf2, yf1, yf2;
 	int tries;
 
 	for (tries = 0; DL2_NumNoChar() > 700 && tries < 100; tries++) {
@@ -2398,35 +2397,38 @@ static BOOL DL2_FillVoids()
 			xx = RandRange(1, 38);
 			yy = RandRange(1, 38);
 		} while (predungeon[xx][yy] != 35);
-		xf1 = xf2 = yf1 = yf2 = FALSE;
 		if (predungeon[xx - 1][yy] == 32 && predungeon[xx + 1][yy] == 46) {
 			if (predungeon[xx + 1][yy - 1] != 46
 			 || predungeon[xx + 1][yy + 1] != 46
 			 || predungeon[xx - 1][yy - 1] != 32
 			 || predungeon[xx - 1][yy + 1] != 32)
 				continue;
-			xf1 = yf1 = yf2 = TRUE;
+			xf2 = false;
+			xf1 = yf1 = yf2 = true;
 		} else if (predungeon[xx + 1][yy] == 32 && predungeon[xx - 1][yy] == 46) {
 			if (predungeon[xx - 1][yy - 1] != 46
 			 || predungeon[xx - 1][yy + 1] != 46
 			 || predungeon[xx + 1][yy - 1] != 32
 			 || predungeon[xx + 1][yy + 1] != 32)
 				continue;
-			xf2 = yf1 = yf2 = TRUE;
+			xf1 = false;
+			xf2 = yf1 = yf2 = true;
 		} else if (predungeon[xx][yy - 1] == 32 && predungeon[xx][yy + 1] == 46) {
 			if (predungeon[xx - 1][yy + 1] != 46
 			 || predungeon[xx + 1][yy + 1] != 46
 			 || predungeon[xx - 1][yy - 1] != 32
 			 || predungeon[xx + 1][yy - 1] != 32)
 				continue;
-			yf1 = xf1 = xf2 = TRUE;
+			yf2 = false;
+			yf1 = xf1 = xf2 = true;
 		} else if (predungeon[xx][yy + 1] == 32 && predungeon[xx][yy - 1] == 46) {
 			if (predungeon[xx - 1][yy - 1] != 46
 			 || predungeon[xx + 1][yy - 1] != 46
 			 || predungeon[xx - 1][yy + 1] != 32
 			 || predungeon[xx + 1][yy + 1] != 32)
 				continue;
-			yf2 = xf1 = xf2 = TRUE;
+			yf1 = false;
+			yf2 = xf1 = xf2 = true;
 		} else
 			continue;
 		if (xf1) {
@@ -2452,14 +2454,14 @@ static BOOL DL2_FillVoids()
 		if (!xf1) {
 			while (yf1 || yf2) {
 				if (y1 == 0) {
-					yf1 = FALSE;
+					yf1 = false;
 				}
 				if (y2 == DMAXY - 1) {
-					yf2 = FALSE;
+					yf2 = false;
 				}
 				if (y2 - y1 >= 14) {
-					yf1 = FALSE;
-					yf2 = FALSE;
+					yf1 = false;
+					yf2 = false;
 				}
 				if (yf1) {
 					y1--;
@@ -2468,10 +2470,10 @@ static BOOL DL2_FillVoids()
 					y2++;
 				}
 				if (predungeon[x2][y1] != 32) {
-					yf1 = FALSE;
+					yf1 = false;
 				}
 				if (predungeon[x2][y2] != 32) {
-					yf2 = FALSE;
+					yf2 = false;
 				}
 			}
 			y1 += 2;
@@ -2479,14 +2481,14 @@ static BOOL DL2_FillVoids()
 			if (y2 - y1 > 5) {
 				while (xf2) {
 					if (x2 == DMAXX - 1) {
-						xf2 = FALSE;
+						xf2 = false;
 					}
 					if (x2 - x1 >= 12) {
-						xf2 = FALSE;
+						xf2 = false;
 					}
 					for (j = y1; j <= y2; j++) {
 						if (predungeon[x2][j] != 32) {
-							xf2 = FALSE;
+							xf2 = false;
 						}
 					}
 					if (xf2) {
@@ -2502,14 +2504,14 @@ static BOOL DL2_FillVoids()
 		} else if (!xf2) {
 			while (yf1 || yf2) {
 				if (y1 == 0) {
-					yf1 = FALSE;
+					yf1 = false;
 				}
 				if (y2 == DMAXY - 1) {
-					yf2 = FALSE;
+					yf2 = false;
 				}
 				if (y2 - y1 >= 14) {
-					yf1 = FALSE;
-					yf2 = FALSE;
+					yf1 = false;
+					yf2 = false;
 				}
 				if (yf1) {
 					y1--;
@@ -2518,10 +2520,10 @@ static BOOL DL2_FillVoids()
 					y2++;
 				}
 				if (predungeon[x1][y1] != 32) {
-					yf1 = FALSE;
+					yf1 = false;
 				}
 				if (predungeon[x1][y2] != 32) {
-					yf2 = FALSE;
+					yf2 = false;
 				}
 			}
 			y1 += 2;
@@ -2529,14 +2531,14 @@ static BOOL DL2_FillVoids()
 			if (y2 - y1 > 5) {
 				while (xf1) {
 					if (x1 == 0) {
-						xf1 = FALSE;
+						xf1 = false;
 					}
 					if (x2 - x1 >= 12) {
-						xf1 = FALSE;
+						xf1 = false;
 					}
 					for (j = y1; j <= y2; j++) {
 						if (predungeon[x1][j] != 32) {
-							xf1 = FALSE;
+							xf1 = false;
 						}
 					}
 					if (xf1) {
@@ -2552,14 +2554,14 @@ static BOOL DL2_FillVoids()
 		} else if (!yf1) {
 			while (xf1 || xf2) {
 				if (x1 == 0) {
-					xf1 = FALSE;
+					xf1 = false;
 				}
 				if (x2 == DMAXX - 1) {
-					xf2 = FALSE;
+					xf2 = false;
 				}
 				if (x2 - x1 >= 14) {
-					xf1 = FALSE;
-					xf2 = FALSE;
+					xf1 = false;
+					xf2 = false;
 				}
 				if (xf1) {
 					x1--;
@@ -2568,10 +2570,10 @@ static BOOL DL2_FillVoids()
 					x2++;
 				}
 				if (predungeon[x1][y2] != 32) {
-					xf1 = FALSE;
+					xf1 = false;
 				}
 				if (predungeon[x2][y2] != 32) {
-					xf2 = FALSE;
+					xf2 = false;
 				}
 			}
 			x1 += 2;
@@ -2579,14 +2581,14 @@ static BOOL DL2_FillVoids()
 			if (x2 - x1 > 5) {
 				while (yf2) {
 					if (y2 == DMAXY - 1) {
-						yf2 = FALSE;
+						yf2 = false;
 					}
 					if (y2 - y1 >= 12) {
-						yf2 = FALSE;
+						yf2 = false;
 					}
 					for (i = x1; i <= x2; i++) {
 						if (predungeon[i][y2] != 32) {
-							yf2 = FALSE;
+							yf2 = false;
 						}
 					}
 					if (yf2) {
@@ -2602,14 +2604,14 @@ static BOOL DL2_FillVoids()
 		} else if (!yf2) {
 			while (xf1 || xf2) {
 				if (x1 == 0) {
-					xf1 = FALSE;
+					xf1 = false;
 				}
 				if (x2 == DMAXX - 1) {
-					xf2 = FALSE;
+					xf2 = false;
 				}
 				if (x2 - x1 >= 14) {
-					xf1 = FALSE;
-					xf2 = FALSE;
+					xf1 = false;
+					xf2 = false;
 				}
 				if (xf1) {
 					x1--;
@@ -2618,10 +2620,10 @@ static BOOL DL2_FillVoids()
 					x2++;
 				}
 				if (predungeon[x1][y1] != 32) {
-					xf1 = FALSE;
+					xf1 = false;
 				}
 				if (predungeon[x2][y1] != 32) {
-					xf2 = FALSE;
+					xf2 = false;
 				}
 			}
 			x1 += 2;
@@ -2629,14 +2631,14 @@ static BOOL DL2_FillVoids()
 			if (x2 - x1 > 5) {
 				while (yf1) {
 					if (y1 == 0) {
-						yf1 = FALSE;
+						yf1 = false;
 					}
 					if (y2 - y1 >= 12) {
-						yf1 = FALSE;
+						yf1 = false;
 					}
 					for (i = x1; i <= x2; i++) {
 						if (predungeon[i][y1] != 32) {
-							yf1 = FALSE;
+							yf1 = false;
 						}
 					}
 					if (yf1) {
@@ -2655,33 +2657,33 @@ static BOOL DL2_FillVoids()
 	return DL2_NumNoChar() <= 700;
 }
 
-static BOOL DRLG_L2CreateDungeon()
+static bool DRLG_L2CreateDungeon()
 {
 	int i, j, nHx1, nHy1, nHx2, nHy2, nHd, ForceH, ForceW;
-	BOOL ForceHW;
+	bool ForceHW;
 
 	ForceW = 0;
 	ForceH = 0;
-	ForceHW = FALSE;
+	ForceHW = false;
 
 	switch (currlevel) {
 	case 5:
 		if (quests[Q_BLOOD]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = TRUE;
+			ForceHW = true;
 			ForceH = 20;
 			ForceW = 14;
 		}
 		break;
 	case 6:
 		if (quests[Q_SCHAMB]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = TRUE;
+			ForceHW = true;
 			ForceW = 10;
 			ForceH = 10;
 		}
 		break;
 	case 7:
 		if (quests[Q_BLIND]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = TRUE;
+			ForceHW = true;
 			ForceW = 15;
 			ForceH = 15;
 		}
@@ -2735,7 +2737,7 @@ static BOOL DRLG_L2CreateDungeon()
 	}
 
 	if (!DL2_FillVoids()) {
-		return FALSE;
+		return false;
 	}
 
 	for (j = 0; j < DMAXY; j++) {
@@ -2744,7 +2746,7 @@ static BOOL DRLG_L2CreateDungeon()
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void DRLG_L2FTVR(int i, int j, int x, int y, int dir)
@@ -2893,7 +2895,7 @@ static void L2DirtFix()
 static void L2LockoutFix()
 {
 	int i, j;
-	BOOL doorok;
+	bool doorok;
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
@@ -2911,13 +2913,13 @@ static void L2LockoutFix()
 				continue;
 			}
 			if ((dungeon[i][j] == 2 || dungeon[i][j] == 5) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
-				doorok = FALSE;
+				doorok = false;
 				do {
 					if (dungeon[i][j - 1] != 3 || dungeon[i][j + 1] != 3) {
 						break;
 					}
 					if (dungeon[i][j] == 5) {
-						doorok = TRUE;
+						doorok = true;
 						break;
 					}
 					i++;
@@ -2934,13 +2936,13 @@ static void L2LockoutFix()
 				continue;
 			}
 			if ((dungeon[i][j] == 1 || dungeon[i][j] == 4) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
-				doorok = FALSE;
+				doorok = false;
 				do {
 					if (dungeon[i - 1][j] != 3 || dungeon[i + 1][j] != 3) {
 						break;
 					}
 					if (dungeon[i][j] == 4) {
-						doorok = TRUE;
+						doorok = true;
 						break;
 					}
 					j++;
@@ -2973,21 +2975,21 @@ struct mini_set {
 	const BYTE* data;
 	BOOL setview;
 };
-static BOOL DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
+static bool DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
 		if (minisets[i].data != NULL && !DRLG_L2PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 static void DRLG_L2(int entry)
 {
-	BOOL doneflag;
+	bool doneflag;
 
 	do {
 		do {
@@ -2996,7 +2998,7 @@ static void DRLG_L2(int entry)
 			DRLG_InitTrans();
 		} while (!DRLG_L2CreateDungeon());
 		L2TileFix();
-		if (setloadflag) {
+		if (gbSetloadflag) {
 			DRLG_L2SetRoom(nSx1, nSy1);
 		}
 		DRLG_L2FloodTVal();
@@ -3021,7 +3023,7 @@ static void DRLG_L2(int entry)
 	L2DoorFix();
 	L2DirtFix();
 
-	DRLG_PlaceThemeRooms(6, 10, 3, 0, FALSE);
+	DRLG_PlaceThemeRooms(6, 10, 3, 0, false);
 	DRLG_L2PlaceRndSet(CTRDOOR1, 100);
 	DRLG_L2PlaceRndSet(CTRDOOR2, 100);
 	DRLG_L2PlaceRndSet(CTRDOOR3, 100);

@@ -42,7 +42,7 @@ static void sync_monster_pos(TSyncMonster *symon, int mnum)
 	monster_prio[mnum] = monster[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
 }
 
-static BOOL sync_closest_monster(TSyncMonster *symon)
+static bool sync_closest_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
 	DWORD lru;
@@ -59,14 +59,14 @@ static BOOL sync_closest_monster(TSyncMonster *symon)
 	}
 
 	if (ndx == -1) {
-		return FALSE;
+		return false;
 	}
 
 	sync_monster_pos(symon, ndx);
-	return TRUE;
+	return true;
 }
 
-static BOOL sync_prio_monster(TSyncMonster *symon)
+static bool sync_prio_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
 	DWORD lru;
@@ -87,11 +87,11 @@ static BOOL sync_prio_monster(TSyncMonster *symon)
 	}
 
 	if (ndx == -1) {
-		return FALSE;
+		return false;
 	}
 
 	sync_monster_pos(symon, ndx);
-	return TRUE;
+	return true;
 }
 
 static void SyncPlrInv(TSyncHeader *pHdr)
@@ -157,7 +157,7 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 {
 	TSyncHeader *pHdr;
 	int i;
-	BOOL sync;
+	bool sync;
 
 	if (nummonsters < 1) {
 		return dwMaxLen;
@@ -178,7 +178,7 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 	sync_init_monsters();
 
 	for (i = 0; i < nummonsters && dwMaxLen >= sizeof(TSyncMonster); i++) {
-		sync = FALSE;
+		sync = false;
 		if (i < 2) {
 			sync = sync_prio_monster((TSyncMonster *)pbBuf);
 		}

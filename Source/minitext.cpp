@@ -14,7 +14,7 @@ const char *qtextptr;
 /** Time of last rendering of the text */
 DWORD qtextTime;
 /** Specify if the quest dialog window is being shown */
-BOOLEAN qtextflag;
+bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 DWORD scrolltexty;
 /** Graphics for the medium size font */
@@ -64,7 +64,7 @@ void InitQuestText()
 {
 	pMedTextCels = LoadFileInMem("Data\\MedTextS.CEL", NULL);
 	pTextBoxCels = LoadFileInMem("Data\\TextBox.CEL", NULL);
-	qtextflag = FALSE;
+	gbQtextflag = false;
 }
 
 void InitQTextMsg(int m)
@@ -72,11 +72,11 @@ void InitQTextMsg(int m)
 	int speed;
 
 	if (alltext[m].scrlltxt) {
-		questlog = FALSE;
-		invflag = FALSE;
-		sbookflag = FALSE;
+		gbQuestlog = false;
+		gbInvflag = false;
+		gbSbookflag = false;
 		qtextptr = alltext[m].txtstr;
-		qtextflag = TRUE;
+		gbQtextflag = true;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
 		speed = alltext[m].txtspd;
 		if (speed <= 0)
@@ -125,7 +125,7 @@ void DrawQText()
 	BYTE c;
 	const char *p, *pnl, *s;
 	char tempstr[128];
-	BOOL doneflag;
+	bool doneflag;
 	DWORD currTime;
 
 	DrawQTextBack();
@@ -135,7 +135,7 @@ void DrawQText()
 	tx = 48 + PANEL_X;
 	ty = qtexty;
 
-	doneflag = FALSE;
+	doneflag = false;
 	while (!doneflag) {
 		w = 0;
 		s = p;
@@ -151,7 +151,7 @@ void DrawQText()
 		}
 		tempstr[l] = '\0';
 		if (*s == '|') {
-			doneflag = TRUE;
+			doneflag = true;
 		} else if (*s != '\n') {
 			while (tempstr[l] != ' ' && l > 0) {
 				tempstr[l] = '\0';
@@ -175,7 +175,7 @@ void DrawQText()
 		tx = 48 + PANEL_X;
 		ty += 38;
 		if (ty > 341 + SCREEN_Y + UI_OFFSET_Y) {
-			doneflag = TRUE;
+			doneflag = true;
 		}
 	}
 
@@ -185,7 +185,7 @@ void DrawQText()
 			qtexty += 38;
 			qtextptr = pnl;
 			if (*pnl == '|') {
-				qtextflag = FALSE;
+				gbQtextflag = false;
 			}
 			break;
 		}

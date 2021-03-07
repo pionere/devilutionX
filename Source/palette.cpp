@@ -15,9 +15,9 @@ SDL_Color orig_palette[256];
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
-BOOL gbColorCyclingEnabled = TRUE;
+bool gbColorCyclingEnabled = true;
 /** Specifies whether the palette has max brightness. */
-BOOLEAN _gbFadedIn = TRUE;
+bool _gbFadedIn = true;
 
 void palette_update()
 {
@@ -108,7 +108,7 @@ void LoadRndLvlPal(int lvl)
 		if (lvl == 5) {
 			copy_cstr(szFileName, "NLevels\\L5Data\\L5Base.PAL");
 		} else if (lvl == 6) {
-			if (!UseNestArt) {
+			if (!gbUseNestArt) {
 				rv++;
 			}
 			snprintf(szFileName, sizeof(szFileName), "NLevels\\L%iData\\L%iBase%i.PAL", 6, 6, rv);
@@ -188,7 +188,7 @@ void PaletteFadeIn()
 	}
 	SetFadeLevel(256);
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
-	_gbFadedIn = TRUE;
+	_gbFadedIn = true;
 }
 
 void PaletteFadeOut()
@@ -204,7 +204,7 @@ void PaletteFadeOut()
 			RenderPresent();
 		}
 		SetFadeLevel(0);
-		_gbFadedIn = FALSE;
+		_gbFadedIn = false;
 	}
 }
 

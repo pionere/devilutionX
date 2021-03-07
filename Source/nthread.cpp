@@ -11,15 +11,15 @@ BYTE sgbNetUpdateRate;
 unsigned gdwMsgLenTbl[MAX_PLRS];
 static CCritSect sgMemCrit;
 DWORD gdwDeltaBytesSec;
-BOOLEAN nthread_should_run;
+bool _sbNthreadShouldRun;
 DWORD gdwTurnsInTransit;
 LPDWORD glpMsgTbl[MAX_PLRS];
 SDL_threadID glpNThreadId;
 char sgbSyncCountdown;
 int turn_upper_bit;
-BOOLEAN sgbTicsOutOfSync;
+bool _gbTicsOutOfSync;
 char sgbPacketCountdown;
-BOOLEAN sgbThreadIsRunning;
+bool _gbThreadIsRunning;
 DWORD gdwLargestMsgSize;
 DWORD gdwNormalMsgSize;
 int last_tick;
@@ -35,9 +35,9 @@ void nthread_terminate_game(const char *pszFcn)
 	if (sErr == STORM_ERROR_INVALID_PLAYER) {
 		return;
 	} else if (sErr == STORM_ERROR_GAME_TERMINATED) {
-		gbGameDestroyed = TRUE;
+		gbGameDestroyed = true;
 	} else if (sErr == STORM_ERROR_NOT_IN_GAME) {
-		gbGameDestroyed = TRUE;
+		gbGameDestroyed = true;
 	} else {
 		app_fatal("%s:\n%s", pszFcn, TraceLastError());
 	}
@@ -69,42 +69,42 @@ DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 	return new_cur_turn;
 }
 
-BOOL nthread_recv_turns(BOOL *received)
+bool nthread_recv_turns(bool *received)
 {
-	*received = FALSE;
+	*received = false;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown) {
 		last_tick += gnTickDelay;
-		return TRUE;
+		return true;
 	}
 	sgbSyncCountdown--;
 	sgbPacketCountdown = sgbNetUpdateRate;
 	if (sgbSyncCountdown != 0) {
 
-		*received = TRUE;
+		*received = true;
 		last_tick += gnTickDelay;
-		return TRUE;
+		return true;
 	}
 #ifdef __3DS__
-	return FALSE;
+	return false;
 #else
 	if (!SNetReceiveTurns((char*(&)[MAX_PLRS])glpMsgTbl, gdwMsgLenTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
-		sgbTicsOutOfSync = FALSE;
+		_gbTicsOutOfSync = false;
 		sgbSyncCountdown = 1;
 		sgbPacketCountdown = 1;
-		return FALSE;
+		return false;
 	} else {
-		if (!sgbTicsOutOfSync) {
-			sgbTicsOutOfSync = TRUE;
+		if (!_gbTicsOutOfSync) {
+			_gbTicsOutOfSync = true;
 			last_tick = SDL_GetTicks();
 		}
 		sgbSyncCountdown = 4;
 		multi_msg_countdown();
-		*received = TRUE;
+		*received = true;
 		last_tick += gnTickDelay;
-		return TRUE;
+		return true;
 	}
 #endif
 }
@@ -112,11 +112,11 @@ BOOL nthread_recv_turns(BOOL *received)
 static unsigned int nthread_handler(void *data)
 {
 	int delta;
-	BOOL received;
+	bool received;
 
-	while (nthread_should_run) {
+	while (_sbNthreadShouldRun) {
 		sgMemCrit.Enter();
-		if (!nthread_should_run) {
+		if (!_sbNthreadShouldRun) {
 			sgMemCrit.Leave();
 			break;
 		}
@@ -146,7 +146,7 @@ void nthread_start(bool set_turn_upper_bit)
 	last_tick = SDL_GetTicks();
 	sgbPacketCountdown = 1;
 	sgbSyncCountdown = 1;
-	sgbTicsOutOfSync = TRUE;
+	_gbTicsOutOfSync = true;
 	if (set_turn_upper_bit)
 		nthread_set_turn_upper_bit();
 	else
@@ -181,9 +181,9 @@ void nthread_start(bool set_turn_upper_bit)
 	if (gdwNormalMsgSize > largestMsgSize)
 		gdwNormalMsgSize = largestMsgSize;
 	if (gbMaxPlayers != 1) {
-		sgbThreadIsRunning = FALSE;
+		_gbThreadIsRunning = false;
 		sgMemCrit.Enter();
-		nthread_should_run = TRUE;
+		_sbNthreadShouldRun = true;
 		sghThread = CreateThread(nthread_handler, &glpNThreadId);
 		if (sghThread == NULL) {
 			err2 = TraceLastError();
@@ -194,26 +194,26 @@ void nthread_start(bool set_turn_upper_bit)
 
 void nthread_cleanup()
 {
-	nthread_should_run = FALSE;
+	_sbNthreadShouldRun = false;
 	gdwTurnsInTransit = 0;
 	gdwNormalMsgSize = 0;
 	gdwLargestMsgSize = 0;
 	if (sghThread != NULL && glpNThreadId != SDL_GetThreadID(NULL)) {
-		if (!sgbThreadIsRunning)
+		if (!_gbThreadIsRunning)
 			sgMemCrit.Leave();
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
 	}
 }
 
-void nthread_ignore_mutex(BOOL bStart)
+void nthread_ignore_mutex(bool bStart)
 {
 	if (sghThread != NULL) {
 		if (bStart)
 			sgMemCrit.Leave();
 		else
 			sgMemCrit.Enter();
-		sgbThreadIsRunning = bStart;
+		_gbThreadIsRunning = bStart;
 	}
 }
 
@@ -221,7 +221,7 @@ void nthread_ignore_mutex(BOOL bStart)
  * @brief Checks if it's time for the logic to advance
  * @return True if the engine should tick
  */
-BOOL nthread_has_500ms_passed()
+bool nthread_has_500ms_passed()
 {
 	DWORD currentTickCount;
 	int ticksElapsed;

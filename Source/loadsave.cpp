@@ -30,12 +30,12 @@ static int LoadInt()
 	return rv;
 }
 
-static BOOL LoadBool()
+static bool LoadBool()
 {
 	if (*tbuff++)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
 static void CopyBytes(const void *src, const int n, void *dst)
@@ -367,7 +367,7 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->pManaShield);
 	CopyChar(tbuff, &p->pDungMsgs2);
 
-	CalcPlrInv(pnum, FALSE);
+	CalcPlrInv(pnum, false);
 
 	// Omit pointer _pNData
 	// Omit pointer _pWData
@@ -610,9 +610,10 @@ static void LoadLight(LightListStruct *pLight)
 	CopyInt(tbuff, &pLight->_luny);
 	CopyChar(tbuff, &pLight->_lradius);
 	CopyChar(tbuff, &pLight->_lunr);
-	CopyChar(tbuff, &pLight->_ldel);
-	CopyChar(tbuff, &pLight->_lunflag);
-	CopyInt(tbuff, &pLight->_lmine);
+	pLight->_ldel = LoadBool();
+	pLight->_lunflag = LoadBool();
+	pLight->_lmine = LoadBool();
+	tbuff += 3; // Alignment
 	CopyInt(tbuff, &pLight->_xoff);
 	CopyInt(tbuff, &pLight->_yoff);
 }
@@ -621,19 +622,19 @@ static void LoadPortal(int i)
 {
 	PortalStruct *pPortal = &portal[i];
 
-	CopyInt(tbuff, &pPortal->open);
+	pPortal->_wopen = LoadBool();
 	CopyInt(tbuff, &pPortal->x);
 	CopyInt(tbuff, &pPortal->y);
 	CopyInt(tbuff, &pPortal->level);
 	CopyInt(tbuff, &pPortal->ltype);
-	CopyInt(tbuff, &pPortal->setlvl);
+	pPortal->_wsetlvl = LoadBool();
 }
 
 /**
  * @brief Load game state
  * @param firstflag Can be set to false if we are simply reloading the current game
  */
-void LoadGame(BOOL firstflag)
+void LoadGame(bool firstflag)
 {
 	int i;
 	DWORD dwLen;
@@ -648,12 +649,12 @@ void LoadGame(BOOL firstflag)
 	if (LoadInt() != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 
-	setlevel = LoadBool();
+	gbSetlevel = LoadBool();
 	setlvlnum = LoadInt();
 
 	i = LoadInt();
 	currlevel = i & 0xFF;
-	if (!setlevel)
+	if (!gbSetlevel)
 		leveltype = gnLevelTypeTbl[currlevel];
 	else
 		leveltype = gnSetLevelTypeTbl[setlvlnum];
@@ -662,8 +663,8 @@ void LoadGame(BOOL firstflag)
 
 	_ViewX = LoadInt();
 	_ViewY = LoadInt();
-	invflag = LoadBool();
-	chrflag = LoadBool();
+	gbInvflag = LoadBool();
+	gbChrflag = LoadBool();
 	_nummonsters = LoadInt();
 	_numitems = LoadInt();
 	_nummissiles = LoadInt();
@@ -762,7 +763,7 @@ void LoadGame(BOOL firstflag)
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		LoadItemData(&premiumitem[i]);
 
-	automapflag = LoadBool();
+	gbAutomapflag = LoadBool();
 	AutoMapScale = LoadInt();
 	mem_free_dbg(LoadBuff);
 	AutomapZoomReset();
@@ -776,7 +777,7 @@ void LoadGame(BOOL firstflag)
 	missiles_process_charge();
 	ResetPal();
 	NewCursor(CURSOR_HAND);
-	gbProcessPlayers = TRUE;
+	gbProcessPlayers = true;
 }
 
 
@@ -1302,9 +1303,10 @@ static void SaveLight(LightListStruct *pLight)
 	CopyInt(&pLight->_luny, tbuff);
 	CopyChar(&pLight->_lradius, tbuff);
 	CopyChar(&pLight->_lunr, tbuff);
-	CopyChar(&pLight->_ldel, tbuff);
-	CopyChar(&pLight->_lunflag, tbuff);
-	CopyInt(&pLight->_lmine, tbuff);
+	SaveBool(pLight->_ldel);
+	SaveBool(pLight->_lunflag);
+	SaveBool(pLight->_lmine);
+	tbuff += 3; // Alignment
 	CopyInt(&pLight->_xoff, tbuff);
 	CopyInt(&pLight->_yoff, tbuff);
 }
@@ -1313,12 +1315,12 @@ static void SavePortal(int i)
 {
 	PortalStruct *pPortal = &portal[i];
 
-	CopyInt(&pPortal->open, tbuff);
+	SaveBool(pPortal->_wopen);
 	CopyInt(&pPortal->x, tbuff);
 	CopyInt(&pPortal->y, tbuff);
 	CopyInt(&pPortal->level, tbuff);
 	CopyInt(&pPortal->ltype, tbuff);
-	CopyInt(&pPortal->setlvl, tbuff);
+	SaveBool(pPortal->_wsetlvl);
 }
 
 void SaveGame()
@@ -1331,14 +1333,14 @@ void SaveGame()
 
 	SaveInt(SAVE_INITIAL);
 
-	SaveBool(setlevel);
+	SaveBool(gbSetlevel);
 	SaveInt(setlvlnum);
 	SaveInt((gnDifficulty << 8) | currlevel);
 	tbuff += 4; // Skip leveltype
 	SaveInt(ViewX);
 	SaveInt(ViewY);
-	SaveBool(invflag);
-	SaveBool(chrflag);
+	SaveBool(gbInvflag);
+	SaveBool(gbChrflag);
 	SaveInt(nummonsters);
 	SaveInt(numitems);
 	SaveInt(nummissiles);
@@ -1425,7 +1427,7 @@ void SaveGame()
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
 		SaveItemData(&premiumitem[i]);
 
-	SaveBool(automapflag);
+	SaveBool(gbAutomapflag);
 	SaveInt(AutoMapScale);
 	dwLen = codec_get_encoded_len(tbuff - fileBuff);
 	pfile_write_save_file(SAVEFILE_GAME, fileBuff, tbuff - fileBuff, dwLen);
@@ -1497,7 +1499,7 @@ void SaveLevel()
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
 
-	if (!setlevel)
+	if (!gbSetlevel)
 		plr[myplr]._pLvlVisited[currlevel] = TRUE;
 	else
 		plr[myplr]._pSLvlVisited[setlvlnum] = TRUE;
@@ -1561,10 +1563,10 @@ void LoadLevel()
 	ResyncQuests();
 	SyncPortals();
 
-	dolighting = TRUE;
+	gbDolighting = true;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive && currlevel == plr[i].plrlevel)
-			LightList[plr[i]._plid]._lunflag = TRUE;
+			LightList[plr[i]._plid]._lunflag = true;
 	}
 
 	mem_free_dbg(fileBuff);

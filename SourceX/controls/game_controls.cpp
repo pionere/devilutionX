@@ -24,9 +24,9 @@ DWORD translate_controller_button_to_key(ControllerButton controller_button)
 {
 	switch (controller_button) {
 	case ControllerButton_BUTTON_A: // Bottom button
-		return questlog ? DVL_VK_SPACE : DVL_VK_ESCAPE;
+		return gbQuestlog ? DVL_VK_SPACE : DVL_VK_ESCAPE;
 	case ControllerButton_BUTTON_B: // Right button
-		return sgpCurrentMenu || stextflag || questlog ? DVL_VK_RETURN : DVL_VK_SPACE;
+		return sgpCurrentMenu || stextflag || gbQuestlog ? DVL_VK_RETURN : DVL_VK_SPACE;
 	case ControllerButton_BUTTON_Y: // Top button
 		return DVL_VK_RETURN;
 	case ControllerButton_BUTTON_LEFTSTICK:
@@ -196,7 +196,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			case ControllerButton_BUTTON_Y: // Top button
 #ifdef __3DS__
 				if (!ctrl_event.up) {
-					zoomflag = !zoomflag;
+					gbZoomflag = !gbZoomflag;
 					CalcViewportGeometry();
 				}
 #else
@@ -232,20 +232,20 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			if (ctrl_event.up) return true;
 			if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 				*action = GameActionSendKey { DVL_VK_F7, ctrl_event.up };
-			else if (invflag)
+			else if (gbInvflag)
 				*action = GameAction(GameActionType_TOGGLE_INVENTORY);
-			else if (sbookflag)
+			else if (gbSbookflag)
 				*action = GameAction(GameActionType_TOGGLE_SPELL_BOOK);
-			else if (questlog)
+			else if (gbQuestlog)
 				*action = GameAction(GameActionType_TOGGLE_QUEST_LOG);
-			else if (chrflag)
+			else if (gbChrflag)
 				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
 			else
 				*action = GameAction(GameActionType_TOGGLE_QUICK_SPELL_MENU);
 			return true;
 		}
 
-		if (!questlog && !sbookflag) {
+		if (!gbQuestlog && !gbSbookflag) {
 			switch (ctrl_event.button) {
 			case ControllerButton_IGNORE:
 				return true;

@@ -163,8 +163,8 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 	bool integerScalingEnabled = getIniBool("devilutionx", "integer scaling", false);
 
-	if (fullscreen)
-		fullscreen = getIniBool("devilutionx", "fullscreen", true);
+	if (gbFullscreen)
+		gbFullscreen = getIniBool("devilutionx", "fullscreen", true);
 
 	bool grabInput = getIniBool("devilutionx", "grab input", false);
 
@@ -186,14 +186,14 @@ bool SpawnWindow(const char *lpWindowName)
 		SDL_Log("upscaling not supported with USE_SDL1");
 	}
 	SDL_WM_SetCaption(lpWindowName, WINDOW_ICON_NAME);
-	SetVideoModeToPrimary(fullscreen, width, height);
+	SetVideoModeToPrimary(gbFullscreen, width, height);
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
 #else
 	int flags = 0;
 	if (upscale) {
-		if (fullscreen) {
+		if (gbFullscreen) {
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
 		flags |= SDL_WINDOW_RESIZABLE;
@@ -201,7 +201,7 @@ bool SpawnWindow(const char *lpWindowName)
 		char scaleQuality[2] = "2";
 		getIniValue("devilutionx", "scaling quality", scaleQuality, 2);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQuality);
-	} else if (fullscreen) {
+	} else if (gbFullscreen) {
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 

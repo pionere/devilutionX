@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
 BYTE L1dflags[DMAXX][DMAXY];
 /** Specifies whether a single player quest DUN has been loaded. */
-BOOL L1setloadflag;
+bool L1setloadflag; // TODO: re-use gbSetloadflag ?
 /** Specifies whether to generate a horizontal room at position 1 in the Cathedral. */
 BOOL HR1;
 /** Specifies whether to generate a horizontal room at position 2 in the Cathedral. */
@@ -23,10 +23,10 @@ BOOL HR3;
 #ifdef HELLFIRE
 int UberRow;
 int UberCol;
-BOOL IsUberRoomOpened;
+bool gbUberRoomOpened;
 int UberLeverRow;
 int UberLeverCol;
-BOOL IsUberLeverActivated;
+bool gbUberLeverActivated;
 int UberDiabloMonsterIndex;
 #endif
 /** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
@@ -992,10 +992,10 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
+static bool DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 {
 	int sx, sy, sw, sh, xx, yy, i, ii, tries, t;
-	BOOL done;
+	bool done;
 
 	sw = miniset[0];
 	sh = miniset[1];
@@ -1006,23 +1006,23 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 
 		tries = 0;
 		while (TRUE) {
-			done = TRUE;
+			done = true;
 			if (sx <= 12) {
 				sx++;
-				done = FALSE;
+				done = false;
 			}
 			if (sy <= 12) {
 				sy++;
-				done = FALSE;
+				done = false;
 			}
 
 			ii = 2;
 			for (yy = sy; yy < sy + sh && done; yy++) {
 				for (xx = sx; xx < sx + sw && done; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii])
-						done = FALSE;
+						done = false;
 					if (L1dflags[xx][yy] != 0)
-						done = FALSE;
+						done = false;
 					ii++;
 				}
 			}
@@ -1030,7 +1030,7 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 			if (done)
 				break;
 			if (++tries > 4000)
-				return FALSE;
+				return false;
 
 			if (++sx == DMAXX - sw) {
 				sx = 0;
@@ -1065,7 +1065,7 @@ static BOOL DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 		ViewY = 2 * sy + DBORDERY + 4;
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void DRLG_L1Floor()
@@ -1088,16 +1088,16 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
-	L1setloadflag = FALSE;
+	L1setloadflag = false;
 	if (QuestStatus(Q_LTBANNER)) {
 		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN", NULL);
-		L1setloadflag = TRUE;
+		L1setloadflag = true;
 	} else if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
 		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
-		L1setloadflag = TRUE;
+		L1setloadflag = true;
 	} else if (QuestStatus(Q_BUTCHER)) {
 		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
-		L1setloadflag = TRUE;
+		L1setloadflag = true;
 	}
 }
 
@@ -1247,32 +1247,32 @@ static void L1drawRoom(int x, int y, int width, int height)
 	}
 }
 
-static BOOL L1checkRoom(int x, int y, int width, int height)
+static bool L1checkRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
 
 	if (x < 0 || y < 0)
-		return FALSE;
+		return false;
 
 	x2 = x + width;
 	y2 = y + height;
 	if (x2 > DMAXX || y2 > DMAXY)
-		return FALSE;
+		return false;
 
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
 			if (dungeon[i][j] != 0)
-				return FALSE;
+				return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void L1roomGen(int x, int y, int w, int h, int dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
-	BOOL ran2;
+	bool ran2;
 
 	dirProb = random_(0, 4);
 
@@ -1840,22 +1840,22 @@ static void L1tileFix()
 static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
-	BOOL found;
+	bool found;
 
 	sw = miniset[0];
 	sh = miniset[1];
 
 	for (sy = 0; sy < DMAXY - sh; sy++) {
 		for (sx = 0; sx < DMAXX - sw; sx++) {
-			found = TRUE;
+			found = true;
 			ii = 2;
 			for (yy = 0; yy < sh && found; yy++) {
 				for (xx = 0; xx < sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
-						found = FALSE;
+						found = false;
 					}
 					if (dflags[xx + sx][yy + sy] != 0) {
-						found = FALSE;
+						found = false;
 					}
 					ii++;
 				}
@@ -1865,16 +1865,16 @@ static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84 (fixed)
 				if (sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = FALSE;
+					found = false;
 				}
 				if (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100) {
-					found = FALSE;
+					found = false;
 				}
 				if (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100) {
-					found = FALSE;
+					found = false;
 				}
 				if (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100) {
-					found = FALSE;
+					found = false;
 				}
 			}
 			if (found && random_(0, 100) < rndper) {
@@ -1904,8 +1904,8 @@ static void DRLG_L5CryptSetRoom(int rx1, int ry1)
 	setpc_y = ry1;
 	setpc_w = rw;
 	setpc_h = rh;
-	IsUberRoomOpened = FALSE;
-	IsUberLeverActivated = FALSE;
+	gbUberRoomOpened = false;
+	gbUberLeverActivated = false;
 
 	sp = 2;
 
@@ -2574,24 +2574,23 @@ struct mini_set {
 	const BYTE* data;
 	BOOL setview;
 };
-static BOOL DRLG_PlaceMiniSets(mini_set* minisets, int n)
+static bool DRLG_PlaceMiniSets(mini_set* minisets, int n)
 {
 	int i;
-	BOOL result = TRUE;
 
 	for (i = 0; i < n; i++) {
 		if (minisets[i].data != NULL && !DRLG_PlaceMiniSet(minisets[i].data, 1, minisets[i].setview)) {
-			result = FALSE;
+			return false;
 		}
 	}
-	return result;
+	return true;
 }
 
 static void DRLG_L1(int entry)
 {
 	int i, j;
 	int minarea;
-	BOOL doneflag;
+	bool doneflag;
 
 	switch (currlevel) {
 	case 1:
@@ -2620,7 +2619,7 @@ static void DRLG_L1(int entry)
 		L1ClearFlags();
 		DRLG_L1FloodTVal();
 
-		doneflag = TRUE;
+		doneflag = true;
 
 		if (QuestStatus(Q_PWATER)) {
 			if (entry == ENTRY_MAIN) {
@@ -2678,22 +2677,22 @@ static void DRLG_L1(int entry)
 			if (entry == ENTRY_PREV) {
 				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, FALSE)
 				|| !DRLG_PlaceMiniSet(L1DSTAIRS, 1, TRUE))
-					doneflag = FALSE;
+					doneflag = false;
 				ViewY--;
 			} else {
 				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, TRUE)
 				 || !DRLG_PlaceMiniSet(L1DSTAIRS, 1, FALSE))
-					doneflag = FALSE;
+					doneflag = false;
 			}
 
 			/*if (entry == ENTRY_MAIN) {
 				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, TRUE)
 				 || !DRLG_PlaceMiniSet(L1DSTAIRS, 1, FALSE))
-					doneflag = FALSE;
+					doneflag = false;
 			} else {
 				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, FALSE)
 				|| !DRLG_PlaceMiniSet(L1DSTAIRS, 1, TRUE))
-					doneflag = FALSE;
+					doneflag = false;
 				ViewY--;
 			}*/
 #endif
@@ -2795,10 +2794,10 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 #ifdef HELLFIRE
 	UberRow = 0;
 	UberCol = 0;
-	IsUberRoomOpened = FALSE;
+	gbUberRoomOpened = false;
 	UberLeverRow = 0;
 	UberLeverCol = 0;
-	IsUberLeverActivated = FALSE;
+	gbUberLeverActivated = false;
 	UberDiabloMonsterIndex = 0;
 #endif
 

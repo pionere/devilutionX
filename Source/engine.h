@@ -60,7 +60,7 @@ void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void ENG_set_pixel(int sx, int sy, BYTE col);
 #ifdef _DEBUG
-void engine_debug_trap(BOOL show_cursor);
+void engine_debug_trap(bool show_cursor);
 void engine_draw_pixel(int sx, int sy);
 #endif
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col);

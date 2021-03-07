@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE *pDoomCel = NULL;
-BOOLEAN doomflag;
+bool gbDoomflag;
 
 #ifdef HELLFIRE
 #define DOOM_CELSIZE 0x39000
@@ -49,7 +49,7 @@ static int doom_get_frame_from_time()
 }
 #endif
 
-static BOOLEAN doom_load_graphics()
+static bool doom_load_graphics()
 {
 #ifdef HELLFIRE
 	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL");
@@ -79,18 +79,18 @@ void doom_init()
 		doom_close();
 		return;
 	}
-	doomflag = TRUE;
+	gbDoomflag = true;
 }
 
 void doom_close()
 {
-	doomflag = FALSE;
+	gbDoomflag = false;
 	MemFreeDbg(pDoomCel);
 }
 
 void doom_draw()
 {
-	assert(doomflag);
+	assert(gbDoomflag);
 #ifndef HELLFIRE
 	if (doom_quest_time != 31) {
 		doom_stars_drawn++;

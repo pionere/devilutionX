@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int help_select_line;
-BOOL helpflag;
+bool gbHelpflag;
 int HelpTop;
 
 const char gszHelpText[] = {
@@ -78,7 +78,7 @@ const char gszHelpText[] = {
 
 void InitHelp()
 {
-	helpflag = FALSE;
+	gbHelpflag = false;
 }
 
 static void DrawHelpLine(int x, int y, char *text, char color)
@@ -110,7 +110,7 @@ void DrawHelp()
 
 	DrawSTextHelp();
 	DrawQTextBack();
-	PrintSString(0, 2, TRUE, HELP_TITLE, COL_GOLD, 0);
+	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD, 0);
 	DrawSLine(5);
 
 	s = &gszHelpText[0];
@@ -188,13 +188,13 @@ void DrawHelp()
 		}
 	}
 
-	PrintSString(0, 23, TRUE, "Press ESC to end or the arrow keys to scroll.", COL_GOLD, 0);
+	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD, 0);
 }
 
 void DisplayHelp()
 {
 	help_select_line = 0;
-	helpflag = TRUE;
+	gbHelpflag = true;
 	HelpTop = 5000;
 }
 

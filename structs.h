@@ -791,12 +791,12 @@ static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align O
 //////////////////////////////////////////////////
 
 typedef struct PortalStruct {
-	BOOL open;
+	BOOLEAN _wopen;
 	int x;
 	int y;
 	int level;
 	int ltype;
-	BOOL setlvl;
+	BOOLEAN _wsetlvl;
 } PortalStruct;
 
 #ifdef X86_32bit_COMP
@@ -1173,7 +1173,7 @@ typedef struct QuestData {
 typedef struct TMenuItem {
 	DWORD dwFlags;
 	const char *pszStr;
-	void (*fnMenu)(BOOL); /* fix, should have one arg */
+	void (*fnMenu)(bool); /* fix, should have one arg */
 } TMenuItem;
 
 // TPDEF PTR FCN VOID TMenuUpdateFcn
@@ -1342,7 +1342,7 @@ typedef struct LightListStruct {
 	BYTE _lunr;
 	BOOLEAN _ldel;
 	BOOLEAN _lunflag;
-	BOOL _lmine;
+	BOOLEAN _lmine;
 	int _xoff;
 	int _yoff;
 } LightListStruct;
@@ -1390,7 +1390,7 @@ typedef struct _uiheroinfo {
 	WORD dexterity;
 	WORD vitality;
 	int gold;
-	BOOL hassaved;
+	bool hassaved;
 } _uiheroinfo;
 
 //////////////////////////////////////////////////
@@ -1592,10 +1592,10 @@ typedef struct STextStruct {
 	int _sx;
 	int _syoff;
 	char _sstr[128];
-	BOOL _sjust;
+	bool _sjust;
 	char _sclr;
-	int _sline;
-	BOOL _ssel;
+	bool _sline;
+	bool _ssel;
 	int _sval;
 } STextStruct;
 

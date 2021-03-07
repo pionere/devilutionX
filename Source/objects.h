@@ -16,7 +16,7 @@ extern int objectactive[MAXOBJECTS];
 extern int nobjects;
 extern int objectavail[MAXOBJECTS];
 extern ObjectStruct object[MAXOBJECTS];
-extern BOOL InitObjFlag;
+extern bool gbInitObjFlag;
 
 void InitObjectGFX();
 void FreeObjectGFX();
@@ -40,7 +40,7 @@ void MonstCheckDoors(int mnum);
 void ObjChangeMap(int x1, int y1, int x2, int y2);
 void ObjChangeMapResync(int x1, int y1, int x2, int y2);
 void DisarmObject(int pnum, int oi);
-void OperateObject(int pnum, int oi, BOOL TeleFlag);
+void OperateObject(int pnum, int oi, bool TeleFlag);
 void SyncOpObject(int pnum, int cmd, int oi);
 void BreakObject(int pnum, int oi);
 void SyncBreakObj(int pnum, int oi);

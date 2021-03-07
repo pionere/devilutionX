@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int qtopline;
-BOOL questlog;
+bool gbQuestlog;
 BYTE *pQLogCel;
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
@@ -116,7 +116,7 @@ void InitQuests()
 		}
 	}
 
-	questlog = FALSE;
+	gbQuestlog = false;
 	WaterDone = 0;
 	initiatedQuests = 0;
 
@@ -190,12 +190,12 @@ void CheckQuests()
 		if (QuestStatus(Q_BETRAYER) && qs->_qvar1 == 2) {
 			AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 			qs->_qvar1 = 3;
-			NetSendCmdQuest(TRUE, Q_BETRAYER);
+			NetSendCmdQuest(true, Q_BETRAYER);
 		}
 		return;
 	}
 
-	if (!setlevel) {
+	if (!gbSetlevel) {
 		if (currlevel == qs->_qlevel
 		 && qs->_qvar1 >= 2
 		 && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
@@ -277,15 +277,15 @@ int ForceQuests()
 	return -1;
 }
 
-BOOL QuestStatus(int qn)
+bool QuestStatus(int qn)
 {
 	return currlevel == quests[qn]._qlevel
 		&& quests[qn]._qactive != QUEST_NOTAVAIL
 		&& (gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY))
-		&& !setlevel;
+		&& !gbSetlevel;
 }
 
-void CheckQuestKill(int mnum, BOOL sendmsg)
+void CheckQuestKill(int mnum, bool sendmsg)
 {
 	int i, j;
 
@@ -300,7 +300,7 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_82][plr[myplr]._pClass];
 		if (sendmsg)
-			NetSendCmdQuest(TRUE, Q_SKELKING);
+			NetSendCmdQuest(true, Q_SKELKING);
 		break;
 	case UMT_ZHAR: //"Zhar the Mad"
 		quests[Q_ZHAR]._qactive = QUEST_DONE;
@@ -324,8 +324,8 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 				}
 			}
 			if (sendmsg) {
-				NetSendCmdQuest(TRUE, Q_BETRAYER);
-				NetSendCmdQuest(TRUE, Q_DIABLO);
+				NetSendCmdQuest(true, Q_BETRAYER);
+				NetSendCmdQuest(true, Q_DIABLO);
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
@@ -348,7 +348,7 @@ void CheckQuestKill(int mnum, BOOL sendmsg)
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_80][plr[myplr]._pClass];
 		if (sendmsg)
-			NetSendCmdQuest(TRUE, Q_BUTCHER);
+			NetSendCmdQuest(true, Q_BUTCHER);
 		break;
 	}
 }
@@ -590,7 +590,7 @@ void GetReturnLvlPos()
 void LoadPWaterPalette()
 {
 	// TODO: this is ugly...
-	if (!setlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT) // || leveltype != quests[Q_PWATER]._qlvltype)
+	if (!gbSetlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT) // || leveltype != quests[Q_PWATER]._qlvltype)
 		return;
 
 	if (quests[Q_PWATER]._qactive == QUEST_DONE)
@@ -605,36 +605,36 @@ void ResyncMPQuests()
 	    && currlevel >= quests[Q_SKELKING]._qlevel - 1
 	    && currlevel <= quests[Q_SKELKING]._qlevel + 1) {
 		quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_SKELKING);
+		NetSendCmdQuest(true, Q_SKELKING);
 	}
 	if (quests[Q_BUTCHER]._qactive == QUEST_INIT
 	    && currlevel >= quests[Q_BUTCHER]._qlevel - 1
 	    && currlevel <= quests[Q_BUTCHER]._qlevel + 1) {
 		quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_BUTCHER);
+		NetSendCmdQuest(true, Q_BUTCHER);
 	}
 	if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currlevel == quests[Q_BETRAYER]._qlevel - 1) {
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_BETRAYER);
+		NetSendCmdQuest(true, Q_BETRAYER);
 	}
 	if (QuestStatus(Q_BETRAYER))
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
 	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currlevel == quests[Q_GRAVE]._qlevel - 1) {
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_GRAVE);
+		NetSendCmdQuest(true, Q_GRAVE);
 	}
 	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currlevel == quests[Q_DEFILER]._qlevel - 1) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_DEFILER);
+		NetSendCmdQuest(true, Q_DEFILER);
 	}
 	if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currlevel == quests[Q_NAKRUL]._qlevel - 1) {
 		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_NAKRUL);
+		NetSendCmdQuest(true, Q_NAKRUL);
 	}
 	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currlevel == quests[Q_JERSEY]._qlevel - 1) {
 		quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(TRUE, Q_JERSEY);
+		NetSendCmdQuest(true, Q_JERSEY);
 	}
 #endif
 }
@@ -695,7 +695,7 @@ void ResyncQuests()
 		quests[Q_VEIL]._qvar1 = 1;
 		SpawnQuestItemInArea(IDI_GLDNELIX, 5);
 	}
-	if (setlevel && setlvlnum == SL_VILEBETRAYER) {
+	if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
 		if (quests[Q_BETRAYER]._qvar1 >= 4)
 			ObjChangeMapResync(1, 11, 20, 18);
 		if (quests[Q_BETRAYER]._qvar1 >= 6)
@@ -706,14 +706,14 @@ void ResyncQuests()
 			SyncObjectAnim(objectactive[i]);
 	}
 	if (currlevel == quests[Q_BETRAYER]._qlevel
-	    && !setlevel
+	    && !gbSetlevel
 	    && (quests[Q_BETRAYER]._qvar2 == 1 || quests[Q_BETRAYER]._qvar2 >= 3)
 	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)) {
 		quests[Q_BETRAYER]._qvar2 = 2;
 	}
 }
 
-static void PrintQLString(int x, int y, BOOL cjustflag, const char *str, int col)
+static void PrintQLString(int x, int y, bool cjustflag, const char *str, int col)
 {
 	int len, width, i, k, sx, sy;
 	BYTE c;
@@ -752,9 +752,9 @@ void DrawQuestLog()
 
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
 	for (i = 0; i < numqlines; i++) {
-		PrintQLString(0, qtopline + i, TRUE, questlist[qlist[i]]._qlstr, COL_WHITE);
+		PrintQLString(0, qtopline + i, true, questlist[qlist[i]]._qlstr, COL_WHITE);
 	}
-	PrintQLString(0, 11, TRUE, "Close Quest Log", COL_WHITE);
+	PrintQLString(0, 11, true, "Close Quest Log", COL_WHITE);
 }
 
 void StartQuestlog()
@@ -775,7 +775,7 @@ void StartQuestlog()
 		// qtopline = 11;
 		qline = 11;
 	}
-	questlog = TRUE;
+	gbQuestlog = true;
 }
 
 void QuestlogUp()
@@ -811,7 +811,7 @@ void QuestlogEnter()
 	PlaySFX(IS_TITLSLCT);
 	if (numqlines != 0 && qline != 11)
 		InitQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
-	questlog = FALSE;
+	gbQuestlog = false;
 }
 
 void CheckQuestlog()

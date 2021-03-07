@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL gbColorCyclingEnabled;
+extern bool gbColorCyclingEnabled;
 
 extern SDL_Color logical_palette[256];
 extern SDL_Color system_palette[256];

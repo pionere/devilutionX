@@ -75,7 +75,7 @@ void UseMana(int pnum, int sn, int sf)
 	}
 }
 
-BOOL HasMana(int pnum, int sn, int sf)
+bool HasMana(int pnum, int sn, int sf)
 {
 	ItemStruct *is;
 
@@ -83,7 +83,7 @@ BOOL HasMana(int pnum, int sn, int sf)
 		if (sf == SPLFROM_MANA) {
 #ifdef _DEBUG
 			if (debug_mode_key_inverted_v)
-				return TRUE;
+				return true;
 #endif
 			return plr[pnum]._pMana >= GetManaAmount(pnum, sn);
 		} else if (sf != SPLFROM_ABILITY) {
@@ -100,7 +100,7 @@ BOOL HasMana(int pnum, int sn, int sf)
 			return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 int SpellSourceInv(int sn)
@@ -155,11 +155,11 @@ int GetSpellLevel(int pnum, int sn)
 	return result;
 }
 
-BOOL CheckSpell(int pnum, int sn)
+bool CheckSpell(int pnum, int sn)
 {
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v)
-		return TRUE;
+		return true;
 #endif
 
 	return GetSpellLevel(pnum, sn) > 0 && plr[pnum]._pMana >= GetManaAmount(pnum, sn);
