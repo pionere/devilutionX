@@ -3291,8 +3291,10 @@ void SyncInitPlrPos(int pnum)
 {
 	assert(plr[pnum].plrlevel == currlevel);
 
-	if (PlacePlayer(pnum))
+	if (PlacePlayer(pnum)) {
+		RemovePlrFromMap(pnum);
 		FixPlayerLocation(pnum);
+	}
 	dPlayer[plr[pnum]._px][plr[pnum]._py] = pnum + 1;
 }
 

@@ -2648,10 +2648,10 @@ static void DRLG_L1(int entry)
 				{ currlevel != 24 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
 			};
 			doneflag = DRLG_PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_MAIN) {
-				ViewY++;
-			} else if (entry == ENTRY_PREV) {
+			if (entry == ENTRY_PREV) {
 				ViewY += 3;
+			} else {
+				ViewY++;
 			}
 		} else {
 			// currlevel < 21
