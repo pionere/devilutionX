@@ -1486,7 +1486,7 @@ void AutoGetItem(int pnum, int ii)
 	}
 
 	is = &item[ii];
-	if (dItem[is->_ix][is->_iy] == 0 && ii != MAXITEMS)
+	if (dItem[is->_ix][is->_iy] == 0)
 		return;
 
 	p = &plr[pnum];

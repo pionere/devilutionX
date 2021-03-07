@@ -531,7 +531,7 @@ void TalkToTowner(int pnum, int tnum)
 
 	msgSaid = false;
 
-	if (pcurs >= CURSOR_FIRSTITEM && !DropItem()) {
+	if (pcurs >= CURSOR_FIRSTITEM) {
 		return;
 	}
 

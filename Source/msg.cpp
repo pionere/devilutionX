@@ -1991,10 +1991,6 @@ static DWORD On_WARP(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		StartWarpLvl(pnum, cmd->wParam1);
-		if (pnum == myplr && pcurs >= CURSOR_FIRSTITEM) {
-			copy_pod(item[MAXITEMS], plr[myplr].HoldItem);
-			AutoGetItem(myplr, MAXITEMS);
-		}
 	}
 
 	return sizeof(*cmd);

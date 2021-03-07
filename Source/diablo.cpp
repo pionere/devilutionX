@@ -1786,7 +1786,9 @@ void LoadGameLevel(bool firstflag, int lvldir)
 #endif
 
 	music_stop();
-	NewCursor(CURSOR_HAND);
+	//if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+	//	NewCursor(CURSOR_HAND);
+	//}
 	//SetRndSeed(glSeedTbl[currlevel]);
 	IncProgress();
 	MakeLightTable();

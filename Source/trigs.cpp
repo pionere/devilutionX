@@ -740,13 +740,9 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
-				return;
 			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);
 			break;
 		case WM_DIABPREVLVL:
-			if (pcurs >= CURSOR_FIRSTITEM && DropItem())
-				return;
 			StartNewLvl(myplr, WM_DIABPREVLVL, currlevel - 1);
 			break;
 		case WM_DIABRTNLVL:
