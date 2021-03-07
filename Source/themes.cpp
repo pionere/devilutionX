@@ -224,6 +224,13 @@ static bool TFit_Obj3(int tidx)
 static bool CheckThemeReqs(int theme)
 {
 	switch (theme) {
+	case THEME_BARREL:
+	case THEME_MONSTPIT:
+	case THEME_TORTURE:
+	case THEME_DECAPITATED:
+	case THEME_GOATSHRINE:
+	case THEME_BRNCROSS:
+		return true;
 	case THEME_SHRINE:
 	case THEME_SKELROOM:
 	case THEME_LIBRARY:
@@ -244,8 +251,10 @@ static bool CheckThemeReqs(int theme)
 		return leveltype != DTYPE_CATHEDRAL;
 	case THEME_TREASURE:
 		return _gbTreasureFlag;
+	default:
+		ASSUME_UNREACHABLE
+		return true;
 	}
-	return true;
 }
 
 static bool SpecialThemeFit(int tidx, int theme)
@@ -256,6 +265,10 @@ static bool SpecialThemeFit(int tidx, int theme)
 		return false;
 
 	switch (theme) {
+	case THEME_BARREL:
+	case THEME_MONSTPIT:
+		rv = true;
+		break;
 	case THEME_SHRINE:
 	case THEME_LIBRARY:
 		rv = TFit_Shrine(tidx);
@@ -306,6 +319,9 @@ static bool SpecialThemeFit(int tidx, int theme)
 	case THEME_TREASURE:
 		rv = true;
 		_gbTreasureFlag = false;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -381,7 +397,7 @@ void InitThemes()
 				themes[numthemes].ttval = i;
 				j = ThemeGood[random_(0, 4)];
 				while (!SpecialThemeFit(numthemes, j))
-					j = random_(0, 17);
+					j = random_(0, NUM_THEMES);
 				themes[numthemes].ttype = j;
 				numthemes++;
 			}
@@ -404,7 +420,7 @@ void InitThemes()
 			if (themes[i].ttype == THEME_NONE) {
 				j = ThemeGood[random_(0, 4)];
 				while (!SpecialThemeFit(i, j))
-					j = random_(0, 17);
+					j = random_(0, NUM_THEMES);
 				themes[i].ttype = j;
 			}
 		}
@@ -1026,6 +1042,9 @@ void CreateThemeRooms()
 			break;
 		case THEME_WEAPONRACK:
 			Theme_WeaponRack(i);
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 	}
