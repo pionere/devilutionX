@@ -3702,6 +3702,12 @@ typedef enum dlrg_flag {
 	DLRG_PROTECTED = 0x80,
 } dlrg_flag;
 
+typedef enum _arch_draw_type {
+	RADT_NONE,
+	RADT_LEFT,
+	RADT_RIGHT,
+} _arch_draw_type;
+
 typedef enum movie_flag {
 	MOV_SKIP       = 1 << 0, // Makes the video unskippable.
 	MOV_LOOP       = 2 << 0, // Playback in loop.

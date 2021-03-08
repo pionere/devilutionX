@@ -31,18 +31,6 @@ int sgCursXOld;
 int sgCursYOld;
 
 /**
- * Specifies the current MIN block of the level CEL file, as used during rendering of the level tiles.
- *
- * frameNum  := block & 0x0FFF
- * frameType := block & 0x7000 >> 12
- */
-DWORD level_cel_block;
-
-/**
- * Specifies the type of arches to render.
- */
-char arch_draw_type;
-/**
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
@@ -520,6 +508,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 static void drawCell(int x, int y, int sx, int sy)
 {
 	BYTE *dst;
+	WORD levelCelBlock;
 	MICROS *pMap;
 
 	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
@@ -528,15 +517,13 @@ static void drawCell(int x, int y, int sx, int sy)
 	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	gbCelFoliageActive = !nSolidTable[level_piece_id];
 	for (int i = 0; i < MicroTileLen; i += 2) {
-		level_cel_block = pMap->mt[i];
-		if (level_cel_block != 0) {
-			arch_draw_type = i == 0 ? 1 : 0;
-			RenderTile(dst);
+		levelCelBlock = pMap->mt[i];
+		if (levelCelBlock != 0) {
+			RenderTile(dst, levelCelBlock, i == 0 ? RADT_LEFT : RADT_NONE);
 		}
-		level_cel_block = pMap->mt[i + 1];
-		if (level_cel_block != 0) {
-			arch_draw_type = i == 0 ? 2 : 0;
-			RenderTile(dst + TILE_WIDTH / 2);
+		levelCelBlock = pMap->mt[i + 1];
+		if (levelCelBlock != 0) {
+			RenderTile(dst + TILE_WIDTH / 2, levelCelBlock, i == 0 ? RADT_RIGHT : RADT_NONE);
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
@@ -552,19 +539,22 @@ static void drawCell(int x, int y, int sx, int sy)
  */
 static void drawFloor(int x, int y, int sx, int sy)
 {
+	BYTE *dst;
+	WORD levelCelBlock;
+	MICROS *pMap;
+
 	gbCelTransparencyActive = false;
 	light_table_index = dLight[x][y];
 
-	BYTE *dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
-	arch_draw_type = 1; // Left
-	level_cel_block = dpiece_defs_map_2[x][y].mt[0];
-	if (level_cel_block != 0) {
-		RenderTile(dst);
+	pMap = &dpiece_defs_map_2[x][y];
+	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
+	levelCelBlock = pMap->mt[0];
+	if (levelCelBlock != 0) {
+		RenderTile(dst, levelCelBlock, RADT_LEFT);
 	}
-	arch_draw_type = 2; // Right
-	level_cel_block = dpiece_defs_map_2[x][y].mt[1];
-	if (level_cel_block != 0) {
-		RenderTile(dst + TILE_WIDTH / 2);
+	levelCelBlock = pMap->mt[1];
+	if (levelCelBlock != 0) {
+		RenderTile(dst + TILE_WIDTH / 2, levelCelBlock, RADT_RIGHT);
 	}
 }
 

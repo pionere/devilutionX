@@ -188,8 +188,13 @@ __attribute__((no_sanitize("shift-base")))
 /**
  * @brief Blit current world CEL to the given buffer
  * @param pBuff Output buffer
+ * @param levelCelBlock block/tile to draw
+ *   the current MIN block of the level CEL file, as used during rendering of the level tiles.
+ *      frameNum  := block & 0x0FFF
+ *      frameType := block & 0x7000 >> 12
+ * @param adt the type of arches to render.
  */
-void RenderTile(BYTE *pBuff)
+void RenderTile(BYTE *pBuff, WORD levelCelBlock, _arch_draw_type adt)
 {
 	int i, j;
 	char c, v, tile;
@@ -199,36 +204,39 @@ void RenderTile(BYTE *pBuff)
 	dst = pBuff;
 	pFrameTable = (DWORD *)pDungeonCels;
 
-	src = &pDungeonCels[SDL_SwapLE32(pFrameTable[level_cel_block & 0xFFF])];
-	tile = (level_cel_block & 0x7000) >> 12;
+	src = &pDungeonCels[SDL_SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	tile = (levelCelBlock & 0x7000) >> 12;
 	tbl = &pLightTbl[256 * light_table_index];
 
 	mask = &SolidMask[TILE_HEIGHT - 1];
 
 	if (gbCelTransparencyActive) {
-		if (arch_draw_type == 0) {
+		if (adt == RADT_NONE) {
 			mask = &WallMask[TILE_HEIGHT - 1];
-		}
-		if (arch_draw_type == 1 && tile != RT_LTRIANGLE) {
-			c = block_lvid[level_piece_id];
-			if (c == 1 || c == 3) {
-				mask = &LeftMask[TILE_HEIGHT - 1];
+		} else if (adt == RADT_LEFT) {
+			if (tile != RT_LTRIANGLE) {
+				c = block_lvid[level_piece_id];
+				if (c == 1 || c == 3) {
+					mask = &LeftMask[TILE_HEIGHT - 1];
+				}
+			}
+		} else {
+			// assert(adt == RADT_RIGHT);
+			if (tile != RT_RTRIANGLE) {
+				c = block_lvid[level_piece_id];
+				if (c == 2 || c == 3) {
+					mask = &RightMask[TILE_HEIGHT - 1];
+				}
 			}
 		}
-		if (arch_draw_type == 2 && tile != RT_RTRIANGLE) {
-			c = block_lvid[level_piece_id];
-			if (c == 2 || c == 3) {
-				mask = &RightMask[TILE_HEIGHT - 1];
-			}
-		}
-	} else if (arch_draw_type && gbCelFoliageActive) {
+	} else if (adt != RADT_NONE && gbCelFoliageActive) {
 		if (tile != RT_TRANSPARENT) {
 			return;
 		}
-		if (arch_draw_type == 1) {
+		if (adt == RADT_LEFT) {
 			mask = &LeftFoliageMask[TILE_HEIGHT - 1];
-		}
-		if (arch_draw_type == 2) {
+		} else {
+			// assert(adt == RADT_RIGHT);
 			mask = &RightFoliageMask[TILE_HEIGHT - 1];
 		}
 	}
