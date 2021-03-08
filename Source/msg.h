@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 extern BOOL deltaload;
-extern BYTE gbBufferMsgs;
+extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 void msg_send_drop_pkt(int pnum, int reason);

@@ -22,7 +22,7 @@ static TMegaPkt *sgpMegaPkt;
 static bool _gbDeltaChanged;
 static BYTE sgbDeltaChunks;
 BOOL deltaload;
-BYTE gbBufferMsgs;
+_msg_mode geBufferMsgs;
 char gbNetMsg[MAX_SEND_STR_LEN];
 
 static void msg_get_next_packet()
@@ -145,10 +145,10 @@ bool msg_wait_resync()
 	sgbDeltaChunks = 0;
 	sgnCurrMegaPlayer = -1;
 	sgbRecvCmd = CMD_DLEVEL_END;
-	gbBufferMsgs = 1;
+	geBufferMsgs = MSG_DOWNLOAD_DELTA;
 	sgdwOwnerWait = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", 1, msg_wait_for_turns, 20);
-	gbBufferMsgs = 0;
+	geBufferMsgs = MSG_NORMAL;
 	if (!success) {
 		msg_free_packets();
 		return false;
@@ -174,9 +174,9 @@ void run_delta_info()
 	if (gbMaxPlayers == 1)
 		return;
 
-	gbBufferMsgs = 2;
+	geBufferMsgs = MSG_RUN_DELTA;
 	msg_pre_packet();
-	gbBufferMsgs = 0;
+	geBufferMsgs = MSG_NORMAL;
 	msg_free_packets();
 }
 
@@ -1317,7 +1317,7 @@ static bool i_own_level(int nReqLevel)
 		if (plr[i].plractive
 		 && !plr[i]._pLvlChanging
 		 && plr[i].plrlevel == nReqLevel
-		 && (i != myplr || gbBufferMsgs == 0))
+		 && (i != myplr || geBufferMsgs == MSG_NORMAL))
 			break;
 	}
 	return i == myplr;
@@ -1352,7 +1352,7 @@ static DWORD On_STRING2(int pnum, TCmd *pCmd)
 	TCmdString *cmd = (TCmdString *)pCmd;
 
 	int len = strlen(cmd->str);
-	if (gbBufferMsgs == 0)
+	if (geBufferMsgs == MSG_NORMAL)
 		SendPlrMsg(pnum, cmd->str);
 
 	return len + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
@@ -1408,7 +1408,7 @@ static DWORD On_WALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLoc *cmd = (TCmdLoc *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		MakePlrPath(pnum, cmd->x, cmd->y, true);
 		plr[pnum].destAction = ACTION_NONE;
@@ -1419,7 +1419,7 @@ static DWORD On_WALKXY(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrStr(pnum);
@@ -1429,7 +1429,7 @@ static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrMag(pnum);
@@ -1439,7 +1439,7 @@ static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrDex(pnum);
@@ -1449,7 +1449,7 @@ static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
 
 static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrVit(pnum);
@@ -1461,7 +1461,7 @@ static DWORD On_BLOCK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_BLOCK;
 		plr[pnum].destParam1 = cmd->wParam1; // direction
@@ -1473,7 +1473,7 @@ static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_PICKUPITEM;
 		plr[pnum].destParam1 = cmd->wParam1;
@@ -1486,7 +1486,7 @@ static DWORD On_REQUESTGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
 		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
 			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
 			if (ii != -1) {
@@ -1508,7 +1508,7 @@ static DWORD On_GETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
@@ -1536,7 +1536,7 @@ static DWORD On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_PICKUPAITEM;
 		plr[pnum].destParam1 = cmd->wParam1;
@@ -1549,7 +1549,7 @@ static DWORD On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (gbBufferMsgs != 1 && i_own_level(plr[pnum].plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
 		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
 			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
 			if (ii != -1) {
@@ -1571,7 +1571,7 @@ static DWORD On_AGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
@@ -1599,7 +1599,7 @@ static DWORD On_ITEMEXTRA(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		delta_get_item(cmd, cmd->bLevel);
@@ -1614,7 +1614,7 @@ static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (currlevel == plr[pnum].plrlevel) {
 		int ii;
@@ -1642,7 +1642,7 @@ static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (currlevel == plr[pnum].plrlevel) {
 		UnPackPItem(cmd);
@@ -1665,7 +1665,7 @@ static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (currlevel == plr[pnum].plrlevel && pnum != myplr) {
@@ -1684,7 +1684,7 @@ static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		sn = cmd->bParam1;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1705,7 +1705,7 @@ static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam1;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1726,7 +1726,7 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam1;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1747,7 +1747,7 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 	BYTE sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam1;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1768,7 +1768,7 @@ static DWORD On_DOOIL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
-	if (gbBufferMsgs != 1) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		DoOil(pnum, cmd->bParam1, cmd->bParam2);
 	}
 
@@ -1779,7 +1779,7 @@ static DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		int oi = cmd->wParam1;
 		plr[pnum].destAction = ACTION_OPERATE;
 		plr[pnum].destParam1 = oi;
@@ -1795,7 +1795,7 @@ static DWORD On_DISARMXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		int oi = cmd->wParam1;
 		plr[pnum].destAction = ACTION_DISARM;
 		plr[pnum].destParam1 = oi;
@@ -1811,7 +1811,7 @@ static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		plr[pnum].destAction = ACTION_OPERATETK;
 		plr[pnum].destParam1 = cmd->wParam1;
 	}
@@ -1824,7 +1824,7 @@ static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 	int mnum, x, y, sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		mnum = cmd->wParam1;
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
@@ -1848,7 +1848,7 @@ static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 	int tnum, sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		tnum = cmd->bParam1;
 		MakePlrPath(pnum, plr[tnum]._pfutx, plr[tnum]._pfuty, false);
 		sn = cmd->bParam2;
@@ -1869,7 +1869,7 @@ static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 	int sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->wParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1889,7 +1889,7 @@ static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 	int sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1909,7 +1909,7 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 	BYTE sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1930,7 +1930,7 @@ static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 	BYTE sn;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->bParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
@@ -1950,7 +1950,7 @@ static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		MonGetKnockback(cmd->wParam1);
 		MonStartHit(cmd->wParam1, pnum, 0);
 	}
@@ -1962,7 +1962,7 @@ static DWORD On_TALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs != 1 && currlevel == plr[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currlevel == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_TALK;
 		plr[pnum].destParam1 = cmd->wParam1;
@@ -1975,7 +1975,7 @@ static DWORD On_NEWLVL(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
 		StartNewLvl(pnum, cmd->wParam1, cmd->wParam2);
@@ -1987,7 +1987,7 @@ static DWORD On_WARP(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		StartWarpLvl(pnum, cmd->wParam1);
@@ -2000,7 +2000,7 @@ static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel)
@@ -2015,7 +2015,7 @@ static DWORD On_KILLGOLEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == cmd->wParam1)
@@ -2030,7 +2030,7 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 {
 	TCmdGolem *cmd = (TCmdGolem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
@@ -2048,7 +2048,7 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 	int mnum;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		if (currlevel == plr[pnum].plrlevel) {
@@ -2070,7 +2070,7 @@ static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
 		StartPlrKill(pnum, cmd->wParam1);
@@ -2084,7 +2084,7 @@ static DWORD On_PLRFRIENDY(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
 		snprintf(tempstr, sizeof(tempstr), "%s is now %s.", plr[pnum]._pName, cmd->bParam1 ? "friendly" : "hostile");
@@ -2097,7 +2097,7 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 
-	if (cmd->dwParam1 == myplr && gbBufferMsgs != 1) {
+	if (cmd->dwParam1 == myplr && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		if (leveltype != DTYPE_TOWN && currlevel == plr[pnum].plrlevel) {
 			if (!plr[myplr]._pInvincible && cmd->dwParam2 <= 192000) {
 				PlrDecHp(myplr, cmd->dwParam2, 1);
@@ -2112,7 +2112,7 @@ static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
@@ -2127,7 +2127,7 @@ static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
@@ -2142,7 +2142,7 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
@@ -2157,7 +2157,7 @@ static DWORD On_PLROPOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
@@ -2172,7 +2172,7 @@ static DWORD On_BREAKOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
@@ -2187,7 +2187,7 @@ static DWORD On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
 {
 	TCmdChItem *cmd = (TCmdChItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
 		CheckInvSwap(pnum, cmd->bLoc, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId);
@@ -2199,7 +2199,7 @@ static DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
 {
 	TCmdDelItem *cmd = (TCmdDelItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
 		inv_update_rem_item(pnum, cmd->bLoc);
@@ -2211,7 +2211,7 @@ static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr && cmd->bParam1 <= MAXCHARLEVEL)
 		plr[pnum]._pLevel = cmd->bParam1;
@@ -2223,7 +2223,7 @@ static DWORD On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr && cmd->bParam2 <= MAXSPLLEVEL)
 		plr[pnum]._pSkillLvl[cmd->bParam1] = cmd->bParam2;
@@ -2235,7 +2235,7 @@ static DWORD On_DROPITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
@@ -2247,7 +2247,7 @@ static DWORD On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else
 		recv_plrinfo(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
@@ -2265,7 +2265,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
 	PlayerStruct* p;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		p = &plr[pnum];
@@ -2311,7 +2311,7 @@ static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1, cmd->bParam2, cmd->bParam3);
@@ -2339,7 +2339,7 @@ static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 
 static DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else {
 		if (PortalOnLevel(pnum))
@@ -2353,7 +2353,7 @@ static DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 
 static DWORD On_RETOWN(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else {
 		RestartTownLvl(pnum);
@@ -2371,7 +2371,7 @@ static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
 {
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
 
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr)
@@ -2385,7 +2385,7 @@ static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
 static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else if (plr[pnum]._pLevel < MAXCHARLEVEL) {
 		plr[pnum]._pExperience = plr[pnum]._pNextExper;
@@ -2398,7 +2398,7 @@ static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 static DWORD On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
-	if (gbBufferMsgs == 1)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		plr[pnum]._pSplLvl[plr[pnum]._pRSpell]++;
@@ -2415,7 +2415,7 @@ static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
 
-	if (gbBufferMsgs != 1)
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
 		plr[pnum].pManaShield = p->bParam1;
 
 	return sizeof(*p);
@@ -2423,7 +2423,7 @@ static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 
 static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1)
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
 		plr[pnum].pManaShield = 0;
 
 	return sizeof(*pCmd);
@@ -2431,7 +2431,7 @@ static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 
 static DWORD On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1)
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
 		RestorePlrHpVit(pnum);
 	return sizeof(*pCmd);
 }
@@ -2439,7 +2439,7 @@ static DWORD On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 #ifdef HELLFIRE
 static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		DoOpenUberRoom();
 		gbUberRoomOpened = true;
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
@@ -2451,7 +2451,7 @@ static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 
 static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
 		T_HiveOpen();
 		InitTownTriggers();
@@ -2461,7 +2461,7 @@ static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 
 static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
-	if (gbBufferMsgs != 1) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		T_CryptOpen();
 		InitTownTriggers();
 		if (currlevel == 0)

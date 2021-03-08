@@ -262,8 +262,8 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 		app_fatal("bad sync command");
 	}
 
-	/// ASSERT: assert(gbBufferMsgs != BUFFER_PROCESS);
-	if (gbBufferMsgs != 1 && pnum != myplr) {
+	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr) {
 		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 			if (currlevel == pHdr->bLevel) {
 				sync_monster(pnum, (TSyncMonster *)pbBuf);

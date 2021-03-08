@@ -268,7 +268,7 @@ static void multi_clear_left_tbl()
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (sgbPlayerLeftGameTbl[i]) {
-			if (gbBufferMsgs == 1)
+			if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 				msg_send_drop_pkt(i, sgdwPlayerLeftReasonTbl[i]);
 			else
 				multi_player_left_msg(i, true);
@@ -455,12 +455,12 @@ void multi_process_network_packets()
 			continue;
 		p = &plr[pnum];
 		if (pnum != myplr) {
-			// ASSERT: gbBufferMsgs != BUFFER_PROCESS (2)
+			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 			p->_pHitPoints = pkt->php;
 			p->_pMaxHP = pkt->pmhp;
 			p->_pMana = pkt->pmp;
 			p->_pMaxMana = pkt->pmmp;
-			if (gbBufferMsgs != 1 && p->plractive && p->_pHitPoints >= (1 << 6)) {
+			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && p->plractive && p->_pHitPoints >= (1 << 6)) {
 				if (currlevel == p->plrlevel && !p->_pLvlChanging) {
 					dx = abs(p->_px - pkt->px);
 					dy = abs(p->_py - pkt->py);

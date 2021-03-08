@@ -2894,6 +2894,12 @@ typedef enum _dcmd_id {
 	DCMD_DROPPED,
 } _dcmd_id;
 
+typedef enum _msg_mode {
+	MSG_NORMAL,
+	MSG_DOWNLOAD_DELTA,
+	MSG_RUN_DELTA,
+} _msg_mode;
+
 typedef enum _talker_id {
 	TOWN_SMITH,
 	TOWN_HEALER,
