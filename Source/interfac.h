@@ -15,6 +15,7 @@ extern "C" {
 void interface_msg_pump();
 bool IncProgress();
 void ShowProgress(unsigned int uMsg);
+void LoadGameLevel(bool firstflag, int lvldir);
 
 #ifdef __cplusplus
 }

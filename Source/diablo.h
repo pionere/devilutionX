@@ -44,7 +44,6 @@ bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-void LoadGameLevel(bool firstflag, int lvldir);
 void diablo_color_cyc_logic();
 
 /* rdata */

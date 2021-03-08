@@ -274,6 +274,363 @@ bool IncProgress()
 	return sgdwProgress >= BAR_WIDTH;
 }
 
+static void LoadLvlGFX()
+{
+	assert(pDungeonCels == NULL);
+
+	switch (leveltype) {
+	case DTYPE_TOWN:
+#ifdef HELLFIRE
+		pDungeonCels = LoadFileInMem("NLevels\\TownData\\Town.CEL", NULL);
+		pMegaTiles = LoadFileInMem("NLevels\\TownData\\Town.TIL", NULL);
+		pLevelPieces = LoadFileInMem("NLevels\\TownData\\Town.MIN", NULL);
+#else
+		pDungeonCels = LoadFileInMem("Levels\\TownData\\Town.CEL", NULL);
+		pMegaTiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
+		pLevelPieces = LoadFileInMem("Levels\\TownData\\Town.MIN", NULL);
+#endif
+		pSpecialCels = LoadFileInMem("Levels\\TownData\\TownS.CEL", NULL);
+		break;
+	case DTYPE_CATHEDRAL:
+#ifdef HELLFIRE
+		if (currlevel >= 21) {
+			pDungeonCels = LoadFileInMem("NLevels\\L5Data\\L5.CEL", NULL);
+			pMegaTiles = LoadFileInMem("NLevels\\L5Data\\L5.TIL", NULL);
+			pLevelPieces = LoadFileInMem("NLevels\\L5Data\\L5.MIN", NULL);
+			pSpecialCels = LoadFileInMem("NLevels\\L5Data\\L5S.CEL", NULL);
+			break;
+		}
+#endif
+		pDungeonCels = LoadFileInMem("Levels\\L1Data\\L1.CEL", NULL);
+		pMegaTiles = LoadFileInMem("Levels\\L1Data\\L1.TIL", NULL);
+		pLevelPieces = LoadFileInMem("Levels\\L1Data\\L1.MIN", NULL);
+		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
+		break;
+	case DTYPE_CATACOMBS:
+		pDungeonCels = LoadFileInMem("Levels\\L2Data\\L2.CEL", NULL);
+		pMegaTiles = LoadFileInMem("Levels\\L2Data\\L2.TIL", NULL);
+		pLevelPieces = LoadFileInMem("Levels\\L2Data\\L2.MIN", NULL);
+		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
+		break;
+	case DTYPE_CAVES:
+#ifdef HELLFIRE
+		if (currlevel >= 17) {
+			pDungeonCels = LoadFileInMem("NLevels\\L6Data\\L6.CEL", NULL);
+			pMegaTiles = LoadFileInMem("NLevels\\L6Data\\L6.TIL", NULL);
+			pLevelPieces = LoadFileInMem("NLevels\\L6Data\\L6.MIN", NULL);
+		} else
+#endif
+		{
+			pDungeonCels = LoadFileInMem("Levels\\L3Data\\L3.CEL", NULL);
+			pMegaTiles = LoadFileInMem("Levels\\L3Data\\L3.TIL", NULL);
+			pLevelPieces = LoadFileInMem("Levels\\L3Data\\L3.MIN", NULL);
+		}
+		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
+		break;
+	case DTYPE_HELL:
+		pDungeonCels = LoadFileInMem("Levels\\L4Data\\L4.CEL", NULL);
+		pMegaTiles = LoadFileInMem("Levels\\L4Data\\L4.TIL", NULL);
+		pLevelPieces = LoadFileInMem("Levels\\L4Data\\L4.MIN", NULL);
+		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
+static void LoadAllGFX()
+{
+	IncProgress();
+	IncProgress();
+	InitObjectGFX();
+	IncProgress();
+	InitMissileGFX();
+	IncProgress();
+}
+
+/**
+ * @param lvldir method of entry
+ */
+static void CreateLevel(int lvldir)
+{
+	switch (leveltype) {
+	case DTYPE_TOWN:
+		CreateTown(lvldir);
+		InitTownTriggers();
+		LoadRndLvlPal(DTYPE_TOWN);
+		break;
+	case DTYPE_CATHEDRAL:
+		CreateL1Dungeon(glSeedTbl[currlevel], lvldir);
+		InitL1Triggers();
+		Freeupstairs();
+#ifdef HELLFIRE
+		if (currlevel >= 21) {
+			LoadRndLvlPal(DTYPE_NEST);
+			break;
+		}
+#endif
+		LoadRndLvlPal(DTYPE_CATHEDRAL);
+		break;
+	case DTYPE_CATACOMBS:
+		CreateL2Dungeon(glSeedTbl[currlevel], lvldir);
+		InitL2Triggers();
+		Freeupstairs();
+		LoadRndLvlPal(DTYPE_CATACOMBS);
+		break;
+	case DTYPE_CAVES:
+		CreateL3Dungeon(glSeedTbl[currlevel], lvldir);
+		InitL3Triggers();
+		Freeupstairs();
+#ifdef HELLFIRE
+		if (currlevel >= 17) {
+			LoadRndLvlPal(DTYPE_CRYPT);
+			break;
+		}
+#endif
+		LoadRndLvlPal(DTYPE_CAVES);
+		break;
+	case DTYPE_HELL:
+		CreateL4Dungeon(glSeedTbl[currlevel], lvldir);
+		InitL4Triggers();
+		Freeupstairs();
+		LoadRndLvlPal(DTYPE_HELL);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
+void LoadGameLevel(bool firstflag, int lvldir)
+{
+	int i;
+
+	if (firstflag && lvldir == ENTRY_MAIN) {
+		InitLevels();
+		InitQuests();
+		InitPortals();
+		InitDungMsgs(myplr);
+	}
+
+#ifdef _DEBUG
+	if (setseed)
+		glSeedTbl[currlevel] = setseed;
+#endif
+
+	music_stop();
+	//if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
+	//	NewCursor(CURSOR_HAND);
+	//}
+	//SetRndSeed(glSeedTbl[currlevel]);
+	IncProgress();
+	MakeLightTable();
+	LoadLvlGFX();
+	IncProgress();
+
+	if (firstflag) {
+		InitInv();
+		InitItemGFX();
+		InitQuestText();
+
+		for (i = 0; i < gbMaxPlayers; i++)
+			InitPlrGFXMem(i);
+
+		InitStores();
+		InitAutomapOnce();
+		InitHelp();
+		InitControlPan();
+	}
+
+	//SetRndSeed(glSeedTbl[currlevel]);
+
+	IncProgress();
+	InitAutomap();
+
+	if (lvldir != ENTRY_LOAD) {
+		InitLighting();
+		InitVision();
+	}
+
+	InitLevelMonsters();
+	IncProgress();
+
+	if (!gbSetlevel) {
+		CreateLevel(lvldir);
+		IncProgress();
+		FillSolidBlockTbls();
+		if (leveltype != DTYPE_TOWN) {
+			SetRndSeed(glSeedTbl[currlevel]);
+			GetLevelMTypes();
+			InitThemes();
+			LoadAllGFX();
+		} else {
+			SetupTownStores();
+			IncProgress();
+			IncProgress();
+			InitMissileGFX();
+			IncProgress();
+			IncProgress();
+		}
+
+		IncProgress();
+
+		if (lvldir == ENTRY_RTNLVL)
+			GetReturnLvlPos();
+		if (lvldir == ENTRY_WARPLVL)
+			GetPortalLvlPos();
+
+		IncProgress();
+
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+				InitPlayerGFX(i);
+				if (lvldir != ENTRY_LOAD)
+					InitPlayer(i, firstflag, true);
+			}
+		}
+
+		PlayDungMsgs();
+		IncProgress();
+
+		SetRndSeed(glSeedTbl[currlevel]);
+
+		if (leveltype != DTYPE_TOWN) {
+			if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currlevel] || gbMaxPlayers != 1) {
+				HoldThemeRooms();
+				InitMonsters();
+				IncProgress();
+				InitObjects();
+				InitItems();
+#ifdef HELLFIRE
+				if (currlevel < 17)
+#endif
+					CreateThemeRooms();
+				IncProgress();
+				InitMissiles();
+				InitDead();
+
+				if (gbMaxPlayers != 1)
+					DeltaLoadLevel();
+
+				IncProgress();
+				SavePreLighting();
+			} else {
+				HoldThemeRooms();
+				InitMonsters();
+				InitMissiles();
+				InitDead();
+				IncProgress();
+				LoadLevel();
+				IncProgress();
+			}
+		} else {
+			InitTowners();
+			InitItems();
+			InitMissiles();
+			IncProgress();
+
+			if (gbMaxPlayers != 1)
+				DeltaLoadLevel();
+			else if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currlevel])
+				LoadLevel();
+
+			IncProgress();
+		}
+		if (gbMaxPlayers == 1)
+			ResyncQuests();
+		else
+			ResyncMPQuests();
+	} else {
+		LoadSetMap();
+		IncProgress();
+		GetLevelMTypes();
+		IncProgress();
+		InitMonsters();
+		IncProgress();
+		InitMissileGFX();
+		IncProgress();
+		InitDead();
+		IncProgress();
+		FillSolidBlockTbls();
+		IncProgress();
+
+		if (lvldir == ENTRY_WARPLVL)
+			GetPortalLvlPos();
+		IncProgress();
+
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+				InitPlayerGFX(i);
+				if (lvldir != ENTRY_LOAD)
+					InitPlayer(i, firstflag, true);
+			}
+		}
+
+		//PlayDungMsgs();
+		if (setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE) {
+			sfxdelay = 30;
+			sfxdnum = USFX_SKING1;
+		}
+
+		IncProgress();
+		IncProgress();
+
+		if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pSLvlVisited[setlvlnum]) {
+			InitItems();
+			SavePreLighting();
+		} else {
+			LoadLevel();
+		}
+
+		InitMissiles();
+		IncProgress();
+	}
+
+	SyncPortals();
+
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (plr[i].plractive && plr[i].plrlevel == currlevel && (!plr[i]._pLvlChanging || i == myplr)) {
+			if (plr[i]._pHitPoints >= (1 << 6)) {
+				/*if (gbMaxPlayers == 1)
+					dPlayer[plr[i]._px][plr[i]._py] = i + 1;
+				else*/
+					SyncInitPlrPos(i);
+			} else {
+				dFlags[plr[i]._px][plr[i]._py] |= BFLAG_DEAD_PLAYER;
+			}
+		}
+	}
+
+	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
+
+	InitLightMax();
+	IncProgress();
+	IncProgress();
+
+	IncProgress();
+	if (leveltype != DTYPE_TOWN) {
+		ProcessLightList();
+		ProcessVisionList();
+	}
+
+#ifdef HELLFIRE
+	// BUGFIX: TODO: does not belong here, DeltaLoadLevel should take care about this
+	if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
+		OpenUberRoom();
+	}
+#endif
+
+#ifdef HELLFIRE
+	if (currlevel >= 17)
+		music_start(currlevel > 20 ? TMUSIC_L5 : TMUSIC_L6);
+	else
+#endif
+		music_start(leveltype);
+
+	while (!IncProgress())
+		;
+}
 
 void ShowProgress(unsigned int uMsg)
 {
