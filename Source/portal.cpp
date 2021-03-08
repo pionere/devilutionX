@@ -118,14 +118,14 @@ void SetCurrentPortal(int p)
 void GetPortalLevel()
 {
 	if (currlevel != 0) {
-		gbSetlevel = false;
-		currlevel = 0;
-		plr[myplr].plrlevel = 0;
 		leveltype = DTYPE_TOWN;
+		currlevel = 0;
+		gbSetlevel = false;
+		assert(plr[myplr].plrlevel == 0);
 	} else {
 		leveltype = portal[portalindex].ltype;
 		currlevel = portal[portalindex].level;
-		plr[myplr].plrlevel = currlevel;
+		assert(plr[myplr].plrlevel == currlevel);
 		gbSetlevel = portal[portalindex]._wsetlvl;
 		if (gbSetlevel)
 			setlvlnum = currlevel;

@@ -2009,12 +2009,10 @@ void StartWarpLvl(int pnum, int pidx)
 {
 	InitLevelChange(pnum);
 
-	if (gbMaxPlayers != 1) {
-		if (plr[pnum].plrlevel != 0) {
-			plr[pnum].plrlevel = 0;
-		} else {
-			plr[pnum].plrlevel = portal[pidx].level;
-		}
+	if (plr[pnum].plrlevel != 0) {
+		plr[pnum].plrlevel = 0;
+	} else {
+		plr[pnum].plrlevel = portal[pidx].level;
 	}
 
 	if (pnum == myplr) {
