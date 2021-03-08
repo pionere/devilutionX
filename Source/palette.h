@@ -28,7 +28,7 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n);
 void DecreaseGamma();
 int UpdateGamma(int gamma);
 void BlackPalette();
-void SetFadeLevel(DWORD fadeval);
+void SetFadeLevel(unsigned fadeval);
 void PaletteFadeIn();
 void PaletteFadeOut();
 void palette_update_caves();

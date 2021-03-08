@@ -157,7 +157,7 @@ int UpdateGamma(int gamma)
 	return 130 - _gnGammaCorrection;
 }
 
-void SetFadeLevel(DWORD fadeval)
+void SetFadeLevel(unsigned fadeval)
 {
 	int i;
 
