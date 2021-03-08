@@ -291,6 +291,7 @@ void selgame_Diff_Select(std::size_t index)
 
 	if (!selconn_bMulti) {
 		selgame_gameData->bMaxPlayers = 1;
+		selgame_gameData->bTickRate = gnTicksRate;
 		snprintf(selgame_Password, sizeof(selgame_Password), "local");
 		selgame_Password_Select(0);
 		return;

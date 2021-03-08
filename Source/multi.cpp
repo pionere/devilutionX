@@ -706,6 +706,7 @@ static bool multi_init_game(bool bSinglePlayer)
 		if (gbLoadGame) {
 			// myplr = 0;
 			sgGameInitInfo.bMaxPlayers = 1;
+			sgGameInitInfo.bTickRate = gnTicksRate;
 			break;
 		}
 
