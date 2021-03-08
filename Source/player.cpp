@@ -3026,7 +3026,7 @@ static void CheckCheatStats(int pnum)
 void ProcessPlayers()
 {
 	int pnum;
-	bool tplayer;
+	bool raflag;
 
 	if ((DWORD)myplr >= MAX_PLRS) {
 		app_fatal("ProcessPlayers: illegal player %d", myplr);
@@ -3081,41 +3081,46 @@ void ProcessPlayers()
 				}
 			}
 
-			tplayer = false;
 			do {
 				switch (plr[pnum]._pmode) {
 				case PM_STAND:
-					tplayer = PlrDoStand(pnum);
+					raflag = PlrDoStand(pnum);
 					break;
 				case PM_WALK:
 				case PM_WALK2:
 				case PM_WALK3:
-					tplayer = PlrDoWalk(pnum);
+					raflag = PlrDoWalk(pnum);
 					break;
 				case PM_ATTACK:
-					tplayer = PlrDoAttack(pnum);
+					raflag = PlrDoAttack(pnum);
 					break;
 				case PM_RATTACK:
-					tplayer = PlrDoRangeAttack(pnum);
+					raflag = PlrDoRangeAttack(pnum);
 					break;
 				case PM_BLOCK:
-					tplayer = PlrDoBlock(pnum);
+					raflag = PlrDoBlock(pnum);
 					break;
 				case PM_SPELL:
-					tplayer = PlrDoSpell(pnum);
+					raflag = PlrDoSpell(pnum);
 					break;
 				case PM_GOTHIT:
-					tplayer = PlrDoGotHit(pnum);
+					raflag = PlrDoGotHit(pnum);
 					break;
 				case PM_DEATH:
-					tplayer = PlrDoDeath(pnum);
+					raflag = PlrDoDeath(pnum);
 					break;
 				case PM_NEWLVL:
-					tplayer = PlrDoNewLvl(pnum);
+					raflag = PlrDoNewLvl(pnum);
 					break;
+				case PM_QUIT:
+					raflag = false; // should not happen (at the moment)
+					break;
+				default:
+					ASSUME_UNREACHABLE
+					raflag = false;
 				}
 				CheckNewPath(pnum);
-			} while (tplayer);
+			} while (raflag);
 
 			plr[pnum]._pAnimCnt++;
 			if (plr[pnum]._pAnimCnt > plr[pnum]._pAnimDelay) {
