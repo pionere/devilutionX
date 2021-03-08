@@ -617,12 +617,12 @@ static bool LightPos(int x1, int y1, bool doautomap, const char vFlags)
 	}
 	dFlags[x1][y1] |= vFlags;
 	if (nBlockTable[dPiece[x1][y1]])
-		return FALSE;
+		return false;
 	nTrans = dTransVal[x1][y1];
 	if (nTrans != 0) {
-		TransList[nTrans] = TRUE;
+		TransList[nTrans] = true;
 	}
-	return TRUE;
+	return true;
 }
 
 void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
@@ -1199,6 +1199,7 @@ void InitVision()
 	for (i = 0; i < MAXVISION; i++) {
 		visionactive[i] = i;
 	}
+	static_assert(false == 0, "InitVision fills TransList with 0 instead of false values.");
 	memset(TransList, 0, sizeof(TransList));
 }
 
@@ -1278,7 +1279,7 @@ void ProcessVisionList()
 			}
 		}
 		for (i = 0; i < TransVal; i++) {
-			TransList[i] = FALSE;
+			TransList[i] = false;
 		}
 		for (i = 0; i < numvision; ) {
 			if (VisionList[visionactive[i]]._ldel) {

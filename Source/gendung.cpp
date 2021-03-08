@@ -36,7 +36,7 @@ char block_lvid[MAXTILES + 1];
 /**
  * List of light blocking dPieces
  */
-BOOLEAN nBlockTable[MAXTILES + 1];
+bool nBlockTable[MAXTILES + 1];
 /**
  * List of path blocking dPieces
  */
@@ -44,12 +44,12 @@ BOOLEAN nSolidTable[MAXTILES + 1];
 /**
  * List of transparent dPieces
  */
-BOOLEAN nTransTable[MAXTILES + 1];
+bool nTransTable[MAXTILES + 1];
 /**
  * List of missile blocking dPieces
  */
-BOOLEAN nMissileTable[MAXTILES + 1];
-BOOLEAN nTrapTable[MAXTILES + 1];
+bool nMissileTable[MAXTILES + 1];
+bool nTrapTable[MAXTILES + 1];
 int gnDifficulty;
 /** Specifies the active dungeon type of the current game. */
 BYTE leveltype;
@@ -66,7 +66,7 @@ ScrollStruct ScrollInfo;
 int MicroTileLen;
 char TransVal;
 /** Specifies the active transparency indices. */
-BOOLEAN TransList[256];
+bool TransList[256];
 /** Contains the piece IDs of each tile on the map. */
 int dPiece[MAXDUNX][MAXDUNY];
 /** Specifies the dungeon piece information for a given coordinate and block number. */
@@ -151,6 +151,7 @@ void FillSolidBlockTbls()
 	DWORD i, dwTiles;
 	BYTE *pSBFile, *pTmp;
 
+	static_assert(false == 0, "FillSolidBlockTbls fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
 	memset(nTransTable, 0, sizeof(nTransTable));
@@ -197,13 +198,13 @@ void FillSolidBlockTbls()
 		if (bv & 1)
 			nSolidTable[i] = TRUE;
 		if (bv & 2)
-			nBlockTable[i] = TRUE;
+			nBlockTable[i] = true;
 		if (bv & 4)
-			nMissileTable[i] = TRUE;
+			nMissileTable[i] = true;
 		if (bv & 8)
-			nTransTable[i] = TRUE;
+			nTransTable[i] = true;
 		if (bv & 0x80)
-			nTrapTable[i] = TRUE;
+			nTrapTable[i] = true;
 		block_lvid[i] = (bv & 0x70) >> 4; /* beta: (bv >> 4) & 7 */
 	}
 

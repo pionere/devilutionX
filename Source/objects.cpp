@@ -213,7 +213,8 @@ void InitObjectGFX()
 	char filestr[32];
 	int i;
 
-	memset(fileload, false, sizeof(fileload));
+	static_assert(false == 0, "InitObjectGFX fills fileload with 0 instead of false values.");
+	memset(fileload, 0, sizeof(fileload));
 
 	int lvl = currlevel;
 #ifdef HELLFIRE
@@ -277,10 +278,7 @@ static bool WallTrapLocOk(int xp, int yp)
 	if (dFlags[xp][yp] & BFLAG_POPULATED)
 		return false;
 
-	if (nTrapTable[dPiece[xp][yp]] != FALSE)
-		return true;
-	else
-		return false;
+	return nTrapTable[dPiece[xp][yp]];
 }
 
 static void InitRndLocObj(int min, int max, int objtype)
@@ -1127,7 +1125,8 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	char filestr[32];
 
 	ClrAllObjects();
-	memset(fileload, false, sizeof(fileload));
+	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
+	memset(fileload, 0, sizeof(fileload));
 	gbInitObjFlag = true;
 
 	for (i = 0; AllObjects[i].oload != -1; i++) {

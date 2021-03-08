@@ -762,7 +762,7 @@ bool TryIconCurs(bool bShift)
 static void ActionBtnDown(bool bShift)
 {
 	assert(!gbDropGoldFlag);
-	assert(!gmenu_left_mouse(TRUE));
+	assert(!gmenu_left_mouse(true));
 	assert(sgnTimeoutCurs == CURSOR_NONE);
 	assert(!gbTalkflag || !control_check_talk_btn());
 	assert(!gbDeathflag);
@@ -1017,7 +1017,7 @@ static bool PressSysKey(int wParam)
 static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
-		gmenu_left_mouse(FALSE);
+		gmenu_left_mouse(false);
 		if (gbTalkflag)
 			control_release_talk_btn();
 		if (gabPanbtn[PANBTN_MAINMENU])

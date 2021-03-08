@@ -120,7 +120,7 @@ void gamemenu_load_game(bool bActivate)
 	InitDiabloMsg(EMSG_LOADING);
 	gbRedrawFlags = REDRAW_ALL;
 	DrawAndBlit();
-	LoadGame(FALSE);
+	LoadGame(false);
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	gbDeathflag = false;
@@ -252,11 +252,11 @@ void gamemenu_music_volume(bool bActivate)
 	sound_set_music_volume(volume);
 	if (volume == VOLUME_MIN) {
 		if (gbMusicOn) {
-			gbMusicOn = FALSE;
+			gbMusicOn = false;
 			music_stop();
 		}
 	} else if (!gbMusicOn) {
-		gbMusicOn = TRUE;
+		gbMusicOn = true;
 		int lt = leveltype;
 #ifdef HELLFIRE
 		if (currlevel >= 17) {

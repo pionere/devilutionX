@@ -19,6 +19,7 @@ void InitDead()
 	int i, d, nd;
 	bool mtypes[NUM_MTYPES];
 
+	static_assert(false == 0, "InitDead fills mtypes with 0 instead of false values.");
 	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
