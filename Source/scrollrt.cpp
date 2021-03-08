@@ -31,15 +31,6 @@ int sgCursXOld;
 int sgCursYOld;
 
 /**
- * Upper bound of back buffer.
- */
-BYTE *gpBufStart;
-/**
- * Lower bound of back buffer.
- */
-BYTE *gpBufEnd;
-
-/**
  * Specifies the current MIN block of the level CEL file, as used during rendering of the level tiles.
  *
  * frameNum  := block & 0x0FFF

@@ -6,9 +6,9 @@
 #include <string>
 
 #include "all.h"
+#include <config.h>
 #include "paths.h"
 #include <SDL.h>
-#include <config.h>
 #include <string>
 #include <fstream>
 #ifdef _DEVMODE

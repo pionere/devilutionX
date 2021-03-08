@@ -13,6 +13,8 @@ extern "C" {
 #endif
 
 extern BYTE *gpBuffer;
+extern BYTE *gpBufStart;
+extern BYTE *gpBufEnd;
 
 void dx_init();
 void lock_buf(BYTE idx);

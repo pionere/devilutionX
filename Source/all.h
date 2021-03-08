@@ -20,6 +20,13 @@
 
 #include "../types.h"
 
+//#include "diabloui.h"
+//#include "display.h"
+#include "dx.h"
+//#include "paths.h"
+//#include "plrctrls.h"
+#include "sound.h"
+
 #include "appfat.h"
 #include "automap.h"
 #include "capture.h"
@@ -35,7 +42,6 @@
 #include "drlg_l3.h"
 #include "drlg_l4.h"
 #include "dthread.h"
-#include "dx.h"
 #include "effects.h"
 #include "encrypt.h"
 #include "engine.h"
@@ -76,7 +82,6 @@
 #include "scrollrt.h"
 #include "setmaps.h"
 #include "sha.h"
-#include "sound.h"
 #include "spelldat.h"
 #include "spells.h"
 #include "stores.h"

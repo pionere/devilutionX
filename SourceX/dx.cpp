@@ -14,7 +14,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 unsigned _guLockCount;
+/** Back buffer */
 BYTE *gpBuffer;
+/** Upper bound of back buffer. */
+BYTE *gpBufStart;
+/** Lower bound of back buffer. */
+BYTE *gpBufEnd;
+
 #ifdef _DEBUG
 int locktbl[256];
 #endif
