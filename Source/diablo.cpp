@@ -7,11 +7,11 @@
 #include "paths.h"
 #include "diabloui.h"
 #include <config.h>
+#include "display.h"
 #include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-SDL_Window *ghMainWnd;
 DWORD glSeedTbl[NUMLEVELS];
 int gnLevelTypeTbl[NUMLEVELS];
 int MouseX;

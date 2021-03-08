@@ -8,6 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+extern SDL_Window *ghMainWnd;
 extern SDL_Palette *palette;
 extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;

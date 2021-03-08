@@ -13,27 +13,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int sgdwLockCount;
+unsigned _guLockCount;
 BYTE *gpBuffer;
 #ifdef _DEBUG
 int locktbl[256];
 #endif
 static CCritSect sgMemCrit;
-
-bool vsyncEnabled;
-int refreshDelay;
-SDL_Renderer *renderer;
-SDL_Texture *texture;
-
-/** Currently active palette */
-SDL_Palette *palette;
-unsigned int pal_surface_palette_version = 0;
-
-/** 24-bit renderer texture surface */
-SDL_Surface *renderer_texture_surface = NULL;
-
-/** 8-bit surface wrapper around #gpBuffer */
-SDL_Surface *pal_surface;
 
 static void dx_create_back_buffer()
 {
@@ -88,15 +73,15 @@ void dx_init()
 static void lock_buf_priv()
 {
 	sgMemCrit.Enter();
-	if (sgdwLockCount != 0) {
-		sgdwLockCount++;
+	if (_guLockCount != 0) {
+		_guLockCount++;
 		return;
 	}
 
 	gpBuffer = (BYTE *)pal_surface->pixels;
 	gpBufEnd += (uintptr_t)gpBuffer; // (BYTE *)pal_surface->pixels;
 	// gpBufEnd = gpBuffer + pal_surface->pitch * pal_surface->h;
-	sgdwLockCount++;
+	_guLockCount++;
 }
 
 void lock_buf(BYTE idx)
@@ -109,13 +94,13 @@ void lock_buf(BYTE idx)
 
 static void unlock_buf_priv()
 {
-	if (sgdwLockCount == 0)
+	if (_guLockCount == 0)
 		app_fatal("draw main unlock error");
 	if (gpBuffer == NULL)
 		app_fatal("draw consistency error");
 
-	sgdwLockCount--;
-	if (sgdwLockCount == 0) {
+	_guLockCount--;
+	if (_guLockCount == 0) {
 		gpBufEnd -= (uintptr_t)gpBuffer;
 	}
 	sgMemCrit.Leave();
@@ -136,7 +121,7 @@ void dx_cleanup()
 	if (ghMainWnd)
 		SDL_HideWindow(ghMainWnd);
 	sgMemCrit.Enter();
-	sgdwLockCount = 0;
+	_guLockCount = 0;
 	gpBuffer = NULL;
 	sgMemCrit.Leave();
 
@@ -249,10 +234,10 @@ void LimitFrameRate()
 	uint32_t tc = SDL_GetTicks() * 1000;
 	uint32_t v = 0;
 	if (frameDeadline > tc) {
-		v = tc % refreshDelay;
+		v = tc % gnRefreshDelay;
 		SDL_Delay(v / 1000 + 1); // ceil
 	}
-	frameDeadline = tc + v + refreshDelay;
+	frameDeadline = tc + v + gnRefreshDelay;
 }
 
 void RenderPresent()
@@ -288,7 +273,7 @@ void RenderPresent()
 		}
 		SDL_RenderPresent(renderer);
 
-		if (!vsyncEnabled) {
+		if (!gbVsyncEnabled) {
 			LimitFrameRate();
 		}
 	} else {

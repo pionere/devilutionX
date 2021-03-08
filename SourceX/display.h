@@ -8,15 +8,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern bool vsyncEnabled;
-extern int refreshDelay; // Screen refresh rate in nanoseconds
-extern SDL_Window *window;
+extern bool gbVsyncEnabled;
+extern int gnRefreshDelay;
+extern SDL_Window *ghMainWnd;
 extern SDL_Renderer *renderer;
 extern SDL_Texture *texture;
 
 extern SDL_Palette *palette;
 extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;
+extern SDL_Surface *renderer_texture_surface;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);

@@ -20,7 +20,22 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern SDL_Surface *renderer_texture_surface; /** defined in dx.cpp */
+bool gbVsyncEnabled;
+/* Screen refresh rate in nanoseconds */
+int gnRefreshDelay;
+SDL_Window *ghMainWnd;
+SDL_Renderer *renderer;
+SDL_Texture *texture;
+
+/** Currently active palette */
+SDL_Palette *palette;
+unsigned int pal_surface_palette_version = 0;
+
+/** 24-bit renderer texture surface */
+SDL_Surface *renderer_texture_surface = NULL;
+
+/** 8-bit surface wrapper around #gpBuffer */
+SDL_Surface *pal_surface;
 
 int screenWidth;
 int screenHeight;
@@ -223,14 +238,14 @@ bool SpawnWindow(const char *lpWindowName)
 		refreshRate = mode.refresh_rate;
 	}
 #endif
-	refreshDelay = 1000000 / refreshRate;
+	gnRefreshDelay = 1000000 / refreshRate;
 
 	if (upscale) {
 #ifndef USE_SDL1
 		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
 
-		vsyncEnabled = getIniBool("devilutionx", "vsync", true);
-		if (vsyncEnabled) {
+		gbVsyncEnabled = getIniBool("devilutionx", "vsync", true);
+		if (gbVsyncEnabled) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}
 

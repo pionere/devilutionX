@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern SDL_Window *ghMainWnd;
 extern DWORD glSeedTbl[NUMLEVELS];
 extern int gnLevelTypeTbl[NUMLEVELS];
 extern int MouseX;
