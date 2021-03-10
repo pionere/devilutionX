@@ -1233,6 +1233,10 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	}
 
+	if (currlevel == 0)
+		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
+			return false;
+
 	return true;
 }
 

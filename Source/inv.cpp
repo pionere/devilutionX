@@ -1567,7 +1567,7 @@ bool CanPut(int x, int y)
 {
 	int oi, oi2;
 
-	if (x < DBORDERX || x >= DSIZEX + DBORDERX || y < DBORDERY || y >= DSIZEY + DBORDERY)
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
 
 	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
@@ -1595,7 +1595,7 @@ bool CanPut(int x, int y)
 	}
 
 	if (currlevel == 0)
-		if (dMonster[x][y] != 0 || dMonster[x + 1][y + 1] != 0)
+		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
 			return false;
 
 	return true;

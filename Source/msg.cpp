@@ -893,8 +893,30 @@ void DeltaLoadLevel()
 		// SetDead();
 
 		memcpy(automapview, &sgLocals[currlevel], sizeof(automapview));
+
+		dstr = sgLevels[currlevel].object;
+		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
+			switch (dstr->bCmd) {
+			case CMD_OPENDOOR:
+			case CMD_CLOSEDOOR:
+			case CMD_OPERATEOBJ:
+			case CMD_PLROPOBJ:
+				SyncOpObject(-1, dstr->bCmd, i);
+				break;
+			case CMD_BREAKOBJ:
+				SyncBreakObj(-1, i);
+				break;
+			}
+		}
+
+		for (i = 0; i < nobjects; i++) {
+			ot = object[objectactive[i]]._otype;
+			if (ot == OBJ_TRAPL || ot == OBJ_TRAPR)
+				Obj_Trap(objectactive[i]);
+		}
 	}
 
+	// load items last, because they depend on the object state
 	itm = sgLevels[currlevel].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_TAKEN) {
@@ -926,28 +948,6 @@ void DeltaLoadLevel()
 		}
 	}
 
-	if (currlevel != 0) {
-		dstr = sgLevels[currlevel].object;
-		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
-			switch (dstr->bCmd) {
-			case CMD_OPENDOOR:
-			case CMD_CLOSEDOOR:
-			case CMD_OPERATEOBJ:
-			case CMD_PLROPOBJ:
-				SyncOpObject(-1, dstr->bCmd, i);
-				break;
-			case CMD_BREAKOBJ:
-				SyncBreakObj(-1, i);
-				break;
-			}
-		}
-
-		for (i = 0; i < nobjects; i++) {
-			ot = object[objectactive[i]]._otype;
-			if (ot == OBJ_TRAPL || ot == OBJ_TRAPR)
-				Obj_Trap(objectactive[i]);
-		}
-	}
 	deltaload = FALSE;
 }
 
