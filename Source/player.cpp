@@ -2393,7 +2393,7 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 	if (mpo != 0) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		if (object[mpo]._oBreak == 1) {
-			BreakObject(pnum, mpo);
+			OperateObject(pnum, mpo, false);
 			return true;
 		}
 	}

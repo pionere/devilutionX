@@ -4043,6 +4043,107 @@ static void OperateLazStand(int oi, bool sendmsg)
 	os->_oAnimFrame++;
 	os->_oSelFlag = 0;
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
+}
+
+static void OperateCrux(int pnum, int oi, bool sendmsg)
+{
+	ObjectStruct *os;
+
+	os = &object[oi];
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFlag = 1;
+	os->_oAnimFrame = 1;
+	os->_oAnimDelay = 1;
+	os->_oSolidFlag = TRUE;
+	os->_oMissFlag = TRUE;
+	os->_oBreak = -1;
+	if (deltaload) {
+		os->_oAnimFrame = os->_oAnimLen;
+		os->_oAnimCnt = 0;
+		os->_oAnimDelay = 1000;
+		return;
+	}
+
+	PlaySfxLoc(LS_BONESP, os->_ox, os->_oy);
+
+	if (sendmsg || pnum == -1) // send message if the crux was destroyed by a missile
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+}
+
+static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
+{
+	ObjectStruct *os = &object[oi];
+	int mpo;
+	int xp, yp;
+
+	if (os->_oSelFlag == 0)
+		return;
+	if (!forcebreak) {
+		if (pnum != myplr) {
+			if (deltaload)
+				return;
+
+			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
+			return;
+		}
+	}
+
+	// os->_oVar1 = 0;
+	os->_oAnimFlag = 1;
+	os->_oAnimFrame = 1;
+	os->_oAnimDelay = 1;
+	os->_oSolidFlag = FALSE;
+	os->_oMissFlag = TRUE;
+	os->_oBreak = -1;
+	os->_oSelFlag = 0;
+	os->_oPreFlag = TRUE;
+	if (deltaload) {
+		os->_oAnimFrame = os->_oAnimLen;
+		os->_oAnimCnt = 0;
+		os->_oAnimDelay = 1000;
+		return;
+	}
+
+	if (os->_otype == OBJ_BARRELEX) {
+#ifdef HELLFIRE
+		if (currlevel >= 21 && currlevel <= 24)
+			PlaySfxLoc(IS_POPPOP3, os->_ox, os->_oy);
+		else if (currlevel >= 17 && currlevel <= 20)
+			PlaySfxLoc(IS_POPPOP8, os->_ox, os->_oy);
+		else
+#endif
+			PlaySfxLoc(IS_BARLFIRE, os->_ox, os->_oy);
+		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
+			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
+				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, -1, -1, 0, 0, 0);
+				mpo = dObject[xp][yp];
+				if (mpo > 0) {
+					mpo--;
+					if (object[mpo]._otype == OBJ_BARRELEX && object[mpo]._oBreak != -1)
+						OperateBarrel(true, pnum, mpo, sendmsg);
+				}
+			}
+		}
+	} else {
+#ifdef HELLFIRE
+		if (currlevel >= 21 && currlevel <= 24)
+			PlaySfxLoc(IS_POPPOP2, os->_ox, os->_oy);
+		else if (currlevel >= 17 && currlevel <= 20)
+			PlaySfxLoc(IS_POPPOP5, os->_ox, os->_oy);
+		else
+#endif
+			PlaySfxLoc(IS_BARREL, os->_ox, os->_oy);
+		SetRndSeed(os->_oRndSeed);
+		if (os->_oVar2 <= 1) {
+			if (os->_oVar3 == 0)
+				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
+			else
+				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
+		} else if (os->_oVar2 >= 8)
+			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy);
+	}
 	if (sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
@@ -4118,6 +4219,15 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_STEELTOME:
 		OperateBookLever(oi, sendmsg);
 		break;
+	case OBJ_CRUX1:
+	case OBJ_CRUX2:
+	case OBJ_CRUX3:
+		OperateCrux(pnum, oi, sendmsg);
+		break;
+	case OBJ_BARREL:
+	case OBJ_BARRELEX:
+		OperateBarrel(false, pnum, oi, sendmsg);
+		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
 		OperateShrine(pnum, IS_MAGIC, 2, oi, sendmsg);
@@ -4170,6 +4280,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SIGNCHEST:
 		OperateInnSignChest(pnum, oi, sendmsg);
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
@@ -4226,6 +4339,15 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_STEELTOME:
 		OperateBookLever(oi, false);
 		break;
+	case OBJ_CRUX1:
+	case OBJ_CRUX2:
+	case OBJ_CRUX3:
+		OperateCrux(pnum, oi, false);
+		break;
+	case OBJ_BARREL:
+	case OBJ_BARRELEX:
+		OperateBarrel(true, pnum, oi, false);
+		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
 		OperateShrine(pnum, IS_MAGIC, 2, oi, false);
@@ -4277,146 +4399,12 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_SIGNCHEST:
 		OperateInnSignChest(pnum, oi, false);
 		break;
-	}
-}
-
-static void BreakCrux(int oi)
-{
-	ObjectStruct *os, *on;
-	int i;
-
-	os = &object[oi];
-	os->_oAnimFlag = 1;
-	os->_oAnimFrame = 1;
-	os->_oAnimDelay = 1;
-	os->_oSolidFlag = TRUE;
-	os->_oMissFlag = TRUE;
-	os->_oBreak = -1;
-	os->_oSelFlag = 0;
-	for (i = 0; i < nobjects; i++) {
-		on = &object[objectactive[i]];
-		if (on->_otype != OBJ_CRUX1 && on->_otype != OBJ_CRUX2 && on->_otype != OBJ_CRUX3)
-			continue;
-		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
-			continue;
-		return;
-	}
-	if (!deltaload)
-		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
-	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-}
-
-static void BreakBarrel(int pnum, int oi, bool forcebreak, bool sendmsg)
-{
-	ObjectStruct *os = &object[oi];
-	int mpo;
-	int xp, yp;
-
-	if (os->_oSelFlag == 0)
-		return;
-	if (!forcebreak) {
-		if (pnum != myplr) {
-			if (deltaload)
-				return;
-
-			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
-			return;
-		}
-		/*if (pnum != -1) {
-			dam = PlrAtkDam(pnum) >> 6;
-		} else {
-			dam = 10;
-		}
-		os->_oVar1 -= dam;
-		if (pnum != myplr && os->_oVar1 <= 0)
-			os->_oVar1 = 1;
-		if (os->_oVar1 > 0) {
-			if (deltaload)
-				return;
-
-			PlaySfxLoc(IS_IBOW, os->_ox, os->_oy);
-			return;
-		}*/
-	}
-
-	os->_oVar1 = 0;
-	os->_oAnimFlag = 1;
-	os->_oAnimFrame = 1;
-	os->_oAnimDelay = 1;
-	os->_oSolidFlag = FALSE;
-	os->_oMissFlag = TRUE;
-	os->_oBreak = -1;
-	os->_oSelFlag = 0;
-	os->_oPreFlag = TRUE;
-	if (deltaload) {
-		os->_oAnimFrame = os->_oAnimLen;
-		os->_oAnimCnt = 0;
-		os->_oAnimDelay = 1000;
-		return;
-	}
-
-	if (os->_otype == OBJ_BARRELEX) {
-#ifdef HELLFIRE
-		if (currlevel >= 21 && currlevel <= 24)
-			PlaySfxLoc(IS_POPPOP3, os->_ox, os->_oy);
-		else if (currlevel >= 17 && currlevel <= 20)
-			PlaySfxLoc(IS_POPPOP8, os->_ox, os->_oy);
-		else
-#endif
-			PlaySfxLoc(IS_BARLFIRE, os->_ox, os->_oy);
-		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
-			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, -1, -1, 0, 0, 0);
-				mpo = dObject[xp][yp];
-				if (mpo > 0) {
-					mpo--;
-					if (object[mpo]._otype == OBJ_BARRELEX && object[mpo]._oBreak != -1)
-						BreakBarrel(pnum, mpo, true, sendmsg);
-				}
-			}
-		}
-	} else {
-#ifdef HELLFIRE
-		if (currlevel >= 21 && currlevel <= 24)
-			PlaySfxLoc(IS_POPPOP2, os->_ox, os->_oy);
-		else if (currlevel >= 17 && currlevel <= 20)
-			PlaySfxLoc(IS_POPPOP5, os->_ox, os->_oy);
-		else
-#endif
-			PlaySfxLoc(IS_BARREL, os->_ox, os->_oy);
-		SetRndSeed(os->_oRndSeed);
-		if (os->_oVar2 <= 1) {
-			if (os->_oVar3 == 0)
-				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
-			else
-				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
-		} else if (os->_oVar2 >= 8)
-			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy);
-	}
-	if (sendmsg)
-		NetSendCmdParam2(false, CMD_BREAKOBJ, pnum, oi);
-}
-
-void BreakObject(int pnum, int oi)
-{
-	switch (object[oi]._otype) {
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
-		BreakCrux(oi);
-		break;
-	case OBJ_BARREL:
-	case OBJ_BARRELEX:
-		BreakBarrel(pnum, oi, false, true);
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
 
-void SyncBreakObj(int pnum, int oi)
-{
-	if (object[oi]._otype >= OBJ_BARREL && object[oi]._otype <= OBJ_BARRELEX)
-		BreakBarrel(pnum, oi, true, false);
-}
 
 static void SyncL1Doors(int oi)
 {
@@ -4754,6 +4742,9 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_SLAINHERO:
 		copy_cstr(infostr, "Slain Hero");
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	infoclr = COL_WHITE;
