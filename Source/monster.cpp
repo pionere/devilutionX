@@ -1538,7 +1538,6 @@ void MonStartHit(int mnum, int pnum, int dam)
 	MonsterStruct *mon = &monster[mnum];
 
 	if (pnum == myplr) {
-		delta_monster_hp(mnum, mon->_mhitpoints, currlevel);
 		NetSendCmdDwParam2(false, CMD_MONSTDAMAGE, mnum, dam);
 	}
 	PlayEffect(mnum, 1);
@@ -1670,7 +1669,6 @@ static void M2MStartHit(int defm, int offm, int dam)
 		dmon->_mWhoHit |= 1 << offm;
 	}
 
-	delta_monster_hp(defm, dmon->_mhitpoints, currlevel);
 	NetSendCmdDwParam2(false, CMD_MONSTDAMAGE, defm, dam);
 	PlayEffect(defm, 1);
 
@@ -1752,7 +1750,6 @@ static void M2MStartKill(int offm, int defm)
 	}
 	dmon = &monster[defm];
 
-	delta_kill_monster(defm, dmon->_mx, dmon->_my, currlevel);
 	NetSendCmdLocParam1(false, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
 
 	dmon->_mhitpoints = 0;
@@ -1801,7 +1798,6 @@ void MonStartKill(int mnum, int pnum)
 		dev_fatal("MonStartKill: Invalid monster %d", mnum);
 	}
 	if (myplr == pnum) {
-		delta_kill_monster(mnum, monster[mnum]._mx, monster[mnum]._my, currlevel);
 		NetSendCmdLocParam1(false, CMD_MONSTDEATH, monster[mnum]._mx, monster[mnum]._my, mnum);
 	}
 

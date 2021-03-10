@@ -443,7 +443,7 @@ void delta_init()
 	deltaload = FALSE;
 }
 
-void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
+static void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
@@ -458,7 +458,7 @@ void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 	pD->_mhitpoints = 0;
 }
 
-void delta_monster_hp(int mnum, int hp, BYTE bLevel)
+static void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
@@ -2015,8 +2015,8 @@ static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr) {
-		if (currlevel == plr[pnum].plrlevel)
+	else {
+		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
 			MonSyncStartKill(cmd->wParam1, cmd->x, cmd->y, pnum);
 		delta_kill_monster(cmd->wParam1, cmd->x, cmd->y, plr[pnum].plrlevel);
 	}
@@ -2044,21 +2044,23 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
-	int mnum;
+	int mnum, hp;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
+		mnum = cmd->dwParam1;
+		hp = monster[mnum]._mhitpoints;
 		if (currlevel == plr[pnum].plrlevel) {
-			mnum = cmd->dwParam1;
 			monster[mnum]._mWhoHit |= 1 << pnum;
-			if (monster[mnum]._mhitpoints != 0) {
-				monster[mnum]._mhitpoints -= cmd->dwParam2;
-				if (monster[mnum]._mhitpoints < (1 << 6))
-					monster[mnum]._mhitpoints = 1 << 6;
-				delta_monster_hp(mnum, monster[mnum]._mhitpoints, plr[pnum].plrlevel);
+			if (hp != 0) {
+				hp -= cmd->dwParam2;
+				if (hp < (1 << 6))
+					hp = 1 << 6;
+				monster[mnum]._mhitpoints = hp;
 			}
 		}
+		delta_monster_hp(mnum, hp, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
