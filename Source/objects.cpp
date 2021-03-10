@@ -3350,23 +3350,23 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
 		return;
-
-	SetRndSeed(os->_oRndSeed);
 	os->_oSelFlag = 0;
 
-	if (!deltaload) {
-		PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
-		os->_oAnimFlag = 1;
-		os->_oAnimDelay = 1;
-	} else {
+	if (deltaload) {
 		os->_oAnimFlag = 0;
 		os->_oAnimFrame = os->_oAnimLen;
+		return;
 	}
+
+	SetRndSeed(os->_oRndSeed);
+
+	PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
+	os->_oAnimFlag = 1;
+	os->_oAnimDelay = 1;
+
 	p = &plr[pnum];
 	switch (os->_oVar1) {
 	case SHRINE_HIDDEN:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		cnt = 0;
@@ -3398,8 +3398,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_HIDDEN);
 		break;
 	case SHRINE_GLOOMY:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3413,8 +3411,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_GLOOMY);
 		break;
 	case SHRINE_WEIRD:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3427,8 +3423,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_WEIRD);
 		break;
 	case SHRINE_RELIGIOUS:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3444,8 +3438,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
 		break;
 	case SHRINE_MAGICAL:
-		if (deltaload)
-			return;
 		AddMissile(
 		    0,
 		    0,
@@ -3463,8 +3455,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
 		break;
 	case SHRINE_STONE:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3480,8 +3470,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_STONE);
 		break;
 	case SHRINE_CREEPY:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3499,15 +3487,11 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 				CloseChest(objectactive[i], sendmsg);
 			}
 		}
-		if (deltaload)
+		if (pnum != myplr)
 			return;
-		if (pnum == myplr)
-			InitDiabloMsg(EMSG_SHRINE_THAUMATURGIC);
+		InitDiabloMsg(EMSG_SHRINE_THAUMATURGIC);
 		break;
 	case SHRINE_FASCINATING:
-		if (deltaload)
-			return;
-
 		AddRaiseSkill(p, SPL_FIREBOLT);
 		ReducePlrMana10(p);
 
@@ -3516,16 +3500,12 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_FASCINATING);
 		break;
 	case SHRINE_SHIMMERING:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		PlrFillMana(pnum);
 		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
 		break;
 	case SHRINE_CRYPTIC:
-		if (deltaload)
-			return;
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -3544,8 +3524,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_CRYPTIC);
 		break;
 	case SHRINE_ELDRITCH:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		pi = p->InvList;
@@ -3557,8 +3535,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_ELDRITCH);
 		break;
 	case SHRINE_EERIE:
-		if (deltaload)
-			return;
 		if (pnum == myplr) {
 			InitDiabloMsg(EMSG_SHRINE_EERIE1);
 		} else {
@@ -3568,8 +3544,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		}
 		break;
 	case SHRINE_SPOOKY:
-		if (deltaload)
-			return;
 		if (pnum == myplr) {
 			InitDiabloMsg(EMSG_SHRINE_SPOOKY1);
 		} else {
@@ -3579,8 +3553,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		}
 		break;
 	case SHRINE_QUIET:
-		if (deltaload)
-			return;
 		if (pnum == myplr) {
 			InitDiabloMsg(EMSG_SHRINE_QUIET1);
 		} else {
@@ -3590,8 +3562,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		}
 		break;
 	case SHRINE_DIVINE:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		if (currlevel <= 3) {
@@ -3606,16 +3576,12 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_DIVINE);
 		break;
 	case SHRINE_HOLY:
-		if (deltaload)
-			return;
 		AddMissile(p->_px, p->_py, 0, 0, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
 		break;
 	case SHRINE_SACRED:
-		if (deltaload)
-			return;
 		AddRaiseSkill(p, SPL_CBOLT);
 		ReducePlrMana10(p);
 
@@ -3624,8 +3590,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SACRED);
 		break;
 	case SHRINE_ORNATE:
-		if (deltaload)
-			return;
 		AddRaiseSkill(p, SPL_HBOLT);
 		ReducePlrMana10(p);
 
@@ -3634,8 +3598,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_ORNATE);
 		break;
 	case SHRINE_SPIRITUAL:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
@@ -3653,8 +3615,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SPIRITUAL);
 		break;
 	case SHRINE_SECLUDED:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 
@@ -3666,8 +3626,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
 		break;
 	case SHRINE_GLIMMERING:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		pi = p->InvBody;
@@ -3685,8 +3643,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_GLIMMERING);
 		break;
 	case SHRINE_TAINTED:
-		if (deltaload)
-			return;
 		if (MINION_NR_INACTIVE(myplr)) {
 			AddMissile(
 				plr[myplr]._px,
@@ -3706,8 +3662,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_TAINTED);
 		break;
 	case SHRINE_GLISTENING:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
@@ -3726,12 +3680,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		break;
 #ifdef HELLFIRE
 	case SHRINE_SPARKLING:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_SPARKLING);
-		AddPlrExperience(myplr, p->_pLevel, 1000 * currlevel);
+		AddPlrExperience(pnum, p->_pLevel, 1000 * currlevel);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -3745,10 +3697,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		    0,
 		    0);
 		break;
-	case SHRINE_SOLAR: {
-		if (deltaload)
-			return;
-
+	case SHRINE_SOLAR: { // BUGFIX: missiles are not added/handled by the delta info...
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEIMMOLAT, "SHRINE_SOLAR expects runes in a given order III.");
@@ -3768,8 +3717,6 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SOLAR);
 	} break;
 	case SHRINE_MURPHYS:
-		if (deltaload)
-			return;
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_MURPHYS);
