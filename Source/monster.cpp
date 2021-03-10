@@ -1701,7 +1701,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	}
 }
 
-static void MonstStartKill(int mnum, int pnum, bool sendmsg)
+static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 {
 	MonsterStruct *mon;
 
@@ -1709,17 +1709,19 @@ static void MonstStartKill(int mnum, int pnum, bool sendmsg)
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
+	if (sendmsg)
+		NetSendCmdLocParam1(true, CMD_MONSTDEATH, mon->_mx, mon->_my, mnum);
 	mon->_mhitpoints = 0;
 
 	if (mnum >= MAX_MINIONS) {
-		if ((DWORD)pnum < MAX_PLRS)
-			mon->_mWhoHit |= 1 << pnum;
+		if ((DWORD)mpnum < MAX_PLRS)
+			mon->_mWhoHit |= 1 << mpnum;
 		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->_mWhoHit);
 		SpawnLoot(mnum, sendmsg);
 	}
 
 	if (mon->_mType == MT_DIABLO)
-		MonDiabloDeath(mnum, true);
+		MonDiabloDeath(mnum, sendmsg);
 	else
 		PlayEffect(mnum, 2);
 
@@ -1747,6 +1749,7 @@ static void MonstStartKill(int mnum, int pnum, bool sendmsg)
 static void M2MStartKill(int offm, int defm)
 {
 	MonsterStruct *dmon;
+	bool sendmsg;
 
 	if ((DWORD)offm >= MAXMONSTERS) {
 		dev_fatal("M2MStartKill: Invalid monster (attacker) %d", offm);
@@ -1754,44 +1757,22 @@ static void M2MStartKill(int offm, int defm)
 	if ((DWORD)defm >= MAXMONSTERS) {
 		dev_fatal("M2MStartKill: Invalid monster (killed) %d", defm);
 	}
-	dmon = &monster[defm];
-
-	NetSendCmdLocParam1(false, CMD_MONSTDEATH, dmon->_mx, dmon->_my, defm);
-
-	dmon->_mhitpoints = 0;
-
-	if (defm >= MAX_PLRS) {
-		if (offm < MAX_MINIONS) {
-			static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartKill requires that owner of a monster has the same id as the monster itself.");
-			dmon->_mWhoHit |= 1 << offm;
-		}
-		AddPlrMonstExper(dmon->mLevel, dmon->mExp, dmon->_mWhoHit);
-		SpawnLoot(defm, true);
-	}
-
-	if (dmon->_mType == MT_DIABLO)
-		MonDiabloDeath(defm, true);
+	static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartKill requires that owner of a monster has the same id as the monster itself.");
+	// check if it is a golem vs. monster/golem -> the attacker's owner should send the message
+	if (offm == myplr)
+		sendmsg = true;
+	else if (offm < MAX_MINIONS)
+		sendmsg = false;
+	// check if it is a monster vs. golem -> the golem's owner should send the message
+	else if (defm == myplr)
+		sendmsg = true;
+	else if (defm < MAX_MINIONS)
+		sendmsg = false;
+	// monster vs. monster -> the host should send the message (should not happen at the moment)
 	else
-		PlayEffect(defm, 2);
+		sendmsg = true;
 
-	if (dmon->_mmode != MM_STONE) {
-		dmon->_mmode = MM_DEATH;
-		NewMonsterAnim(defm, MA_DEATH, dmon->_mdir);
-	}
-	dmon->_mxoff = 0;
-	dmon->_myoff = 0;
-	dmon->_mx = dmon->_mfutx = dmon->_moldx;
-	dmon->_my = dmon->_mfuty = dmon->_moldy;
-	MonClearSquares(defm);
-	dMonster[dmon->_mx][dmon->_my] = defm + 1;
-	CheckQuestKill(defm, true);
-	MonFallenFear(dmon->_mx, dmon->_my);
-	if ((dmon->_mType >= MT_NACID && dmon->_mType <= MT_XACID)
-#ifdef HELLFIRE
-	 || dmon->_mType == MT_SPIDLORD
-#endif
-	)
-		AddMissile(dmon->_mx, dmon->_my, 0, 0, 0, MIS_ACIDPUD, 1, defm, dmon->_mint + 1, dmon->_mint + 1, 0);
+	MonstStartKill(defm, offm, sendmsg);
 
 #ifdef HELLFIRE
 	MonStartStand(offm, monster[offm]._mdir);
@@ -1803,9 +1784,10 @@ void MonStartKill(int mnum, int pnum)
 	if ((DWORD)mnum >= MAXMONSTERS) {
 		dev_fatal("MonStartKill: Invalid monster %d", mnum);
 	}
-	if (myplr == pnum) {
-		NetSendCmdLocParam1(false, CMD_MONSTDEATH, monster[mnum]._mx, monster[mnum]._my, mnum);
-	}
+	if (myplr != pnum && pnum != -1)
+		// Wait for the message from the killer so we get the exact location as well.
+		// Necessary to have synced drops. Sendmsg should be false anyway.
+		return;
 
 	MonstStartKill(mnum, pnum, true);
 }
