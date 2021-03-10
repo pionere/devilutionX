@@ -2064,7 +2064,13 @@ void Obj_Trap(int oi)
 		}
 		if (otrig) {
 			os->_oVar4 = 1;
+			// TODO: after delta-load the re-closed doors are armed again!
+			//  maybe it would be good to disable the trap in case the SyncCloseDoor
+			//  is called. (SyncCloseDoor -> on->_oTrapFlag = FALSE;
+			//    -> check if the trapFlag is set before firing the missile)
 			if (!deltaload) {
+				// TODO: what if the object was operated via telekinesis?
+				//  might be a better idea to just fire in the general direction of os -> on
 				dx = sx = on->_ox;
 				dy = sy = on->_oy;
 				for (y = sy - 1; y <= sy + 1; y++) {
