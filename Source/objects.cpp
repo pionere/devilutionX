@@ -3998,10 +3998,11 @@ static void OperateLazStand(int oi, bool sendmsg)
 	}
 	if (os->_oSelFlag == 0)
 		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++;
+
 	if (deltaload)
 		return;
-	os->_oAnimFrame++;
-	os->_oSelFlag = 0;
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
 }
 
