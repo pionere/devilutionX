@@ -900,7 +900,6 @@ void DeltaLoadLevel()
 			case CMD_OPENDOOR:
 			case CMD_CLOSEDOOR:
 			case CMD_OPERATEOBJ:
-			case CMD_PLROPOBJ:
 				SyncOpObject(-1, dstr->bCmd, i);
 				break;
 			case CMD_BREAKOBJ:
@@ -2158,21 +2157,6 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLROPOBJ(TCmd *pCmd, int pnum)
-{
-	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
-
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else {
-		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-			SyncOpObject(cmd->wParam1, CMD_PLROPOBJ, cmd->wParam2);
-		delta_sync_object(cmd->wParam2, CMD_PLROPOBJ, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*cmd);
-}
-
 static DWORD On_BREAKOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
@@ -2583,8 +2567,6 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_CLOSEDOOR(pCmd, pnum);
 	case CMD_OPERATEOBJ:
 		return On_OPERATEOBJ(pCmd, pnum);
-	case CMD_PLROPOBJ:
-		return On_PLROPOBJ(pCmd, pnum);
 	case CMD_BREAKOBJ:
 		return On_BREAKOBJ(pCmd, pnum);
 	case CMD_CHANGEPLRITEMS:

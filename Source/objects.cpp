@@ -3062,7 +3062,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		os->_oTrapFlag = FALSE;
 	}
 	if (sendmsg)
-		NetSendCmdParam2(false, CMD_PLROPOBJ, pnum, oi);
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateMushPatch(int pnum, int oi, bool sendmsg)
@@ -3788,7 +3788,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	gbRedrawFlags = REDRAW_ALL;
 
 	if (sendmsg)
-		NetSendCmdParam2(false, CMD_PLROPOBJ, pnum, oi);
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateSkelBook(int oi, bool sendmsg)
