@@ -1920,7 +1920,7 @@ static void InitLevelChange(int pnum)
 	p = &plr[pnum];
 	if (p->plrlevel == currlevel) {
 		AddUnLight(p->_plid);
-		//AddUnVision(p->_pvid);
+		AddUnVision(p->_pvid);
 		RemovePlrMissiles(pnum);
 		RemovePlrFromMap(pnum);
 	}

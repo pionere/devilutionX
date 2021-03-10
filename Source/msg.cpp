@@ -2298,8 +2298,8 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 				}*/
 
-				p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
-				p->_plid = -1;
+				//p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == myplr);
+				//p->_plid = -1;
 			}
 		}
 	}
