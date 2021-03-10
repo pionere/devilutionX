@@ -2421,7 +2421,7 @@ void RedoPlayerVision()
 	}
 }
 
-static void OperateL1RDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp, pn;
@@ -2498,7 +2498,7 @@ static void OperateL1RDoor(int oi, int x, int y, bool sendmsg)
 	}
 }
 
-static void OperateL1LDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp, pn;
@@ -2579,7 +2579,7 @@ static void OperateL1LDoor(int oi, int x, int y, bool sendmsg)
 	}
 }
 
-static void OperateL2RDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2627,7 +2627,7 @@ static void OperateL2RDoor(int oi, int x, int y, bool sendmsg)
 	}
 }
 
-static void OperateL2LDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2675,7 +2675,7 @@ static void OperateL2LDoor(int oi, int x, int y, bool sendmsg)
 	}
 }
 
-static void OperateL3RDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2723,7 +2723,7 @@ static void OperateL3RDoor(int oi, int x, int y, bool sendmsg)
 	}
 }
 
-static void OperateL3LDoor(int oi, int x, int y, bool sendmsg)
+static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2785,17 +2785,17 @@ void MonstCheckDoors(int mnum)
 				if (object[oi]._oVar4 != 0)
 					continue;
 				if (object[oi]._otype == OBJ_L1LDOOR) {
-					OperateL1LDoor(oi, mx, my, true);
+					OperateL1LDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L1RDOOR) {
-					OperateL1RDoor(oi, mx, my, true);
+					OperateL1RDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L2LDOOR) {
-					OperateL2LDoor(oi, mx, my, true);
+					OperateL2LDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L2RDOOR) {
-					OperateL2RDoor(oi, mx, my, true);
+					OperateL2RDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L3LDOOR) {
-					OperateL3LDoor(oi, mx, my, true);
+					OperateL3LDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L3RDOOR) {
-					OperateL3RDoor(oi, mx, my, true);
+					OperateL3RDoor(mx, my, oi, true);
 				}
 			}
 		}
@@ -4055,39 +4055,39 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
 		if (TeleFlag)
-			OperateL1LDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL1LDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL1LDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL1LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L1RDOOR:
 		if (TeleFlag)
-			OperateL1RDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL1RDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL1RDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL1RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L2LDOOR:
 		if (TeleFlag)
-			OperateL2LDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL2LDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL2LDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL2LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L2RDOOR:
 		if (TeleFlag)
-			OperateL2RDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL2RDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL2RDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL2RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L3LDOOR:
 		if (TeleFlag)
-			OperateL3LDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL3LDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL3LDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL3LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L3RDOOR:
 		if (TeleFlag)
-			OperateL3RDoor(oi, -1, -1, sendmsg);
-		else if (sendmsg) // pnum == myplr
-			OperateL3RDoor(oi, plr[pnum]._px, plr[pnum]._py, sendmsg);
+			OperateL3RDoor(-1, -1, oi, sendmsg);
+		else //if (sendmsg) // pnum == myplr
+			OperateL3RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
@@ -4174,37 +4174,37 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	}
 }
 
-static void SyncOpDoor(int pnum, int cmd, int oi)
+void SyncOpenDoor(int oi)
 {
-	assert(pnum != myplr);
-
-	if ((cmd == CMD_OPENDOOR && object[oi]._oVar4 == 0)
-	 || (cmd == CMD_CLOSEDOOR && object[oi]._oVar4 == 1)) {
-		if (object[oi]._otype == OBJ_L1LDOOR)
-			OperateL1LDoor(oi, -1, -1, false);
-		else if (object[oi]._otype == OBJ_L1RDOOR)
-			OperateL1RDoor(oi, -1, -1, false);
-		else if (object[oi]._otype == OBJ_L2LDOOR)
-			OperateL2LDoor(oi, -1, -1, false);
-		else if (object[oi]._otype == OBJ_L2RDOOR)
-			OperateL2RDoor(oi, -1, -1, false);
-		else if (object[oi]._otype == OBJ_L3LDOOR)
-			OperateL3LDoor(oi, -1, -1, false);
-		else if (object[oi]._otype == OBJ_L3RDOOR)
-			OperateL3RDoor(oi, -1, -1, false);
-	}
+	if (object[oi]._oVar4 == 0)
+		SyncOpObject(-1, oi);
+}
+void SyncCloseDoor(int oi)
+{
+	if (object[oi]._oVar4 == 1)
+		SyncOpObject(-1, oi);
 }
 
-void SyncOpObject(int pnum, int cmd, int oi)
+void SyncOpObject(int pnum, int oi)
 {
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
+		OperateL1LDoor(-1, -1, oi, false);
+		break;
 	case OBJ_L1RDOOR:
+		OperateL1RDoor(-1, -1, oi, false);
+		break;
 	case OBJ_L2LDOOR:
+		OperateL2LDoor(-1, -1, oi, false);
+		break;
 	case OBJ_L2RDOOR:
+		OperateL2RDoor(-1, -1, oi, false);
+		break;
 	case OBJ_L3LDOOR:
+		OperateL3LDoor(-1, -1, oi, false);
+		break;
 	case OBJ_L3RDOOR:
-		SyncOpDoor(pnum, cmd, oi);
+		OperateL3RDoor(-1, -1, oi, false);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:

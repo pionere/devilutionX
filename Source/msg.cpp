@@ -896,15 +896,24 @@ void DeltaLoadLevel()
 
 		dstr = sgLevels[currlevel].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
-			switch (dstr->bCmd) {
-			case CMD_OPENDOOR:
-			case CMD_CLOSEDOOR:
-			case CMD_OPERATEOBJ:
-				SyncOpObject(-1, dstr->bCmd, i);
-				break;
-			case CMD_BREAKOBJ:
-				SyncBreakObj(-1, i);
-				break;
+			if (dstr->bCmd != 0xFF) {
+				switch (dstr->bCmd) {
+				case CMD_OPENDOOR:
+					SyncOpenDoor(i);
+					break;
+				case CMD_CLOSEDOOR:
+					SyncCloseDoor(i);
+					break;
+				case CMD_OPERATEOBJ:
+					SyncOpObject(-1, i);
+					break;
+				case CMD_BREAKOBJ:
+					SyncBreakObj(-1, i);
+					break;
+				default:
+					ASSUME_UNREACHABLE
+					break;
+				}
 			}
 		}
 
@@ -2119,8 +2128,8 @@ static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_OPENDOOR, cmd->wParam1);
+		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
+		//	SyncOpenDoor(cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_OPENDOOR, plr[pnum].plrlevel);
 	}
 
@@ -2134,8 +2143,8 @@ static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_CLOSEDOOR, cmd->wParam1);
+		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
+		//	SyncCloseDoor(cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_CLOSEDOOR, plr[pnum].plrlevel);
 	}
 
@@ -2150,7 +2159,7 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-			SyncOpObject(pnum, CMD_OPERATEOBJ, cmd->wParam1);
+			SyncOpObject(pnum, cmd->wParam1);
 		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr[pnum].plrlevel);
 	}
 
