@@ -1535,16 +1535,20 @@ void MonGetKnockback(int mnum)
 
 void MonStartHit(int mnum, int pnum, int dam)
 {
-	MonsterStruct *mon = &monster[mnum];
-
-	if (pnum == myplr) {
-		NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, mnum, mon->_mhitpoints, dam);
+	MonsterStruct *mon;
+	if ((DWORD)mnum >= MAXMONSTERS) {
+		dev_fatal("Invalid monster %d getting hit by player/trap", mnum);
+	}
+	mon = &monster[mnum];
+	if ((DWORD)pnum < MAX_PLRS) {
+		mon->_mWhoHit |= 1 << pnum;
+		if (pnum == myplr) {
+			NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, mnum, mon->_mhitpoints, dam);
+		}
 	}
 	PlayEffect(mnum, 1);
 	if (mnum < MAX_MINIONS)
 		return;
-	if (pnum >= 0)
-		mon->_mWhoHit |= 1 << pnum;
 	if ((mon->_mType >= MT_SNEAK && mon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (mon->mLevel + 3)) {
 		if (pnum >= 0) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
@@ -1667,12 +1671,13 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if ((DWORD)offm < MAX_MINIONS) {
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->_mWhoHit |= 1 << offm;
+		if (offm == myplr) {
+			NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, defm, dmon->_mhitpoints, dam);
+		}
 	}
-
-	NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, defm, dmon->_mhitpoints, dam);
 	PlayEffect(defm, 1);
 
-	if (dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {
+	if ((dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (dmon->mLevel + 3)) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
 		} else if ((dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV)
@@ -1685,11 +1690,12 @@ static void M2MStartHit(int defm, int offm, int dam)
 			dmon->_mgoalvar1 = 0;
 			dmon->_mgoalvar2 = 0;
 #endif
-		}
+		} else if (dmon->_mType == MT_GOLEM)
+			return;
 
-		if (dmon->_mmode != MM_STONE && dmon->_mType != MT_GOLEM) {
+		if (dmon->_mmode != MM_STONE) {
 			if (offm >= 0)
-				dmon->_mdir = (monster[offm]._mdir - 4) & 7;
+				dmon->_mdir = opposite[monster[offm]._mdir];
 			MonStartGetHit(defm);
 		}
 	}
