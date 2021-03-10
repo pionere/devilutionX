@@ -3064,7 +3064,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 }
 
-static void OperateMushPatch(int pnum, int oi)
+static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3083,14 +3083,14 @@ static void OperateMushPatch(int pnum, int oi)
 			os->_oAnimFrame++;
 			if (!deltaload) {
 				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy);
+				SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg);
 				quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
 			}
 		}
 	}
 }
 
-static void OperateInnSignChest(int pnum, int oi)
+static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3109,7 +3109,7 @@ static void OperateInnSignChest(int pnum, int oi)
 			os->_oAnimFrame += 2;
 			if (!deltaload) {
 				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy);
+				SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg);
 			}
 		}
 	}
@@ -3136,7 +3136,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 #endif
 			};
 			SetRndSeed(os->_oRndSeed);
-			CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg, false);
+			CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
 			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 			if (sendmsg)
 				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
@@ -3314,7 +3314,7 @@ static void AddRaiseSkill(PlayerStruct *p, int sn)
 	}
 }
 
-static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
+static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	PlayerStruct *p;
@@ -3575,11 +3575,11 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 		if (pnum != myplr)
 			return;
 		if (currlevel <= 3) {
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLMANA, false, true);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLHEAL, false, true);
+			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLMANA, sendmsg, false);
+			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLHEAL, sendmsg, false);
 		} else {
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, false, true);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, false, true);
+			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, sendmsg, false);
+			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLREJUV, sendmsg, false);
 		}
 		PlrFillHp(pnum);
 		PlrFillMana(pnum);
@@ -3741,7 +3741,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 			if (random_(0, 3) == 0)
 				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currlevel);
 			else
-				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, false, true);
+				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, sendmsg, false);
 		}
 		if (pnum != myplr)
 			return;
@@ -3781,7 +3781,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	CalcPlrInv(pnum, true);
 	gbRedrawFlags = REDRAW_ALL;
 
-	if (pnum == myplr)
+	if (sendmsg)
 		NetSendCmdParam2(false, CMD_PLROPOBJ, pnum, oi);
 }
 
@@ -3885,19 +3885,19 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	}
 }
 
-static void OperateGoatShrine(int pnum, int oi)
+static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
 	SetRndSeed(object[oi]._oRndSeed);
 	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
-	OperateShrine(pnum, oi, LS_GSHRINE, 1);
+	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
 	object[oi]._oAnimDelay = 2;
 }
 
-static void OperateCauldron(int pnum, int oi)
+static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
 	SetRndSeed(object[oi]._oRndSeed);
 	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
-	OperateShrine(pnum, oi, LS_CALDRON, 1);
+	OperateShrine(pnum, LS_CALDRON, 1, oi, sendmsg);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;
 }
@@ -4015,17 +4015,19 @@ static void OperateStoryBook(int pnum, int oi)
 	}
 }
 
-static void OperateLazStand(int pnum, int oi)
+static void OperateLazStand(int oi, bool sendmsg)
 {
 	ObjectStruct *os = &object[oi];
 
 	if (numitems >= MAXITEMS) {
 		return;
 	}
-	if (os->_oSelFlag != 0 && !deltaload && !gbQtextflag && pnum == myplr) {
+	if (os->_oSelFlag != 0 && !deltaload) {
 		os->_oAnimFrame++;
 		os->_oSelFlag = 0;
-		SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy);
+		SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
+		if (sendmsg)
+			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 	}
 }
 
@@ -4102,7 +4104,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, oi, IS_MAGIC, 2);
+		OperateShrine(pnum, IS_MAGIC, 2, oi, sendmsg);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
@@ -4120,10 +4122,10 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateArmorStand(oi, sendmsg);
 		break;
 	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi);
+		OperateGoatShrine(pnum, oi, sendmsg);
 		break;
 	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi);
+		OperateCauldron(pnum, oi, sendmsg);
 		break;
 	case OBJ_BLOODFTN:
 	case OBJ_PURIFYINGFTN:
@@ -4142,16 +4144,16 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateWeaponRack(oi, sendmsg);
 		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi);
+		OperateMushPatch(pnum, oi, sendmsg);
 		break;
 	case OBJ_LAZSTAND:
-		OperateLazStand(pnum, oi);
+		OperateLazStand(oi, sendmsg);
 		break;
 	case OBJ_SLAINHERO:
 		OperateSlainHero(pnum, oi, sendmsg);
 		break;
 	case OBJ_SIGNCHEST:
-		OperateInnSignChest(pnum, oi);
+		OperateInnSignChest(pnum, oi, sendmsg);
 		break;
 	}
 }
@@ -4210,7 +4212,7 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		OperateShrine(pnum, oi, IS_MAGIC, 2);
+		OperateShrine(pnum, IS_MAGIC, 2, oi, false);
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
@@ -4228,14 +4230,14 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		OperateArmorStand(oi, false);
 		break;
 	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi);
+		OperateGoatShrine(pnum, oi, false);
 		break;
 	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi);
+		OperateCauldron(pnum, oi, false);
 		break;
 	case OBJ_MURKYFTN:
 	case OBJ_TEARFTN:
-		OperateFountains(pnum, oi);
+		OperateFountains(pnum, oi, false);
 		break;
 	case OBJ_STORYBOOK:
 		OperateStoryBook(pnum, oi);
@@ -4248,13 +4250,16 @@ void SyncOpObject(int pnum, int cmd, int oi)
 		OperateWeaponRack(oi, false);
 		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi);
+		OperateMushPatch(pnum, oi, false);
+		break;
+	case OBJ_LAZSTAND:
+		OperateLazStand(oi, false);
 		break;
 	case OBJ_SLAINHERO:
 		OperateSlainHero(pnum, oi, false);
 		break;
 	case OBJ_SIGNCHEST:
-		OperateInnSignChest(pnum, oi);
+		OperateInnSignChest(pnum, oi, false);
 		break;
 	}
 }

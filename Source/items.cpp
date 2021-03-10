@@ -2371,7 +2371,7 @@ void SpawnQuestItemAt(int idx, int x, int y)
 	numitems++;
 }
 
-void SpawnQuestItemAround(int idx, int x, int y)
+void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
 {
 	int ii;
 
@@ -2382,11 +2382,8 @@ void SpawnQuestItemAround(int idx, int x, int y)
 	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
-	GetSuperItemLoc(x, y, ii);
 
-	itemactive[numitems] = ii;
-	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
-	numitems++;
+	RegisterItem(ii, x, y, sendmsg, false); 
 }
 
 void SpawnQuestItemInArea(int idx, int areasize)
@@ -2438,7 +2435,7 @@ void SpawnRock()
 }
 
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy)
+void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg)
 {
 	int ii;
 
@@ -2454,7 +2451,7 @@ void SpawnRewardItem(int idx, int xx, int yy)
 	item[ii]._iAnimFlag = TRUE;
 	item[ii]._iIdentified = TRUE;
 
-	RegisterItem(ii, xx, yy, true, false);
+	RegisterItem(ii, xx, yy, sendmsg, false);
 }
 #endif
 
@@ -3841,7 +3838,7 @@ void CreateSpellBook(int ispell, int x, int y)
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y)
+void CreateAmulet(int x, int y, bool sendmsg)
 {
 	int ii, lvl, idx;
 
@@ -3857,11 +3854,11 @@ void CreateAmulet(int x, int y)
 		if (item[ii]._iCurs == ICURS_AMULET)
 			break;
 	}
-	RegisterItem(ii, x, y, true, false); // TODO: sendmsg/delta?
+	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?
 }
 #endif
 
-void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg, bool delta)
+void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 {
 	int ii, idx, lvl;
 
@@ -3878,7 +3875,7 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg, bool delt
 		if (item[ii]._iCurs == icurs)
 			break;
 	}
-	RegisterItem(ii, x, y, sendmsg, delta);
+	RegisterItem(ii, x, y, sendmsg, false);
 }
 
 static void NextItemRecord(int i)

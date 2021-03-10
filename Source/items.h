@@ -44,10 +44,10 @@ void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void SpawnQuestItemInArea(int idx, int areasize);
 void SpawnQuestItemAt(int idx, int x, int y);
-void SpawnQuestItemAround(int idx, int x, int y);
+void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg);
 void SpawnRock();
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy);
+void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);
@@ -74,9 +74,9 @@ void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y);
+void CreateAmulet(int x, int y, bool sendmsg);
 #endif
-void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg, bool delta);
+void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 bool GetItemRecord(int nSeed, WORD wCI, int nIndex);
 void SetItemRecord(int nSeed, WORD wCI, int nIndex);
 void PutItemRecord(int nSeed, WORD wCI, int nIndex);

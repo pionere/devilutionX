@@ -750,7 +750,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && !msgSaid) {
 				RemoveInvItem(pnum, i);
-				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty);
+				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true);
 				InitQTextMsg(TEXT_MUSH4);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				Qtalklist[TOWN_HEALER][Q_MUSHROOM] = -1;
@@ -826,7 +826,7 @@ void TalkToTowner(int pnum, int tnum)
 				quests[Q_FARMER]._qvar1 = 1;
 				quests[Q_FARMER]._qlog = TRUE;
 				quests[Q_FARMER]._qmsg = TEXT_FARMER1;
-				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty);
+				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, true);
 			}
 			break;
 		case QUEST_ACTIVE:
@@ -834,7 +834,8 @@ void TalkToTowner(int pnum, int tnum)
 			break;
 		case QUEST_DONE:
 			qt = TEXT_FARMER4;
-			CreateAmulet(tw->_tx, tw->_ty);
+			// SetRndSeed(tw->tRndSeed)	 FIXME check
+			CreateAmulet(tw->_tx, tw->_ty, true);
 			quests[Q_FARMER]._qactive = 10;
 			quests[Q_FARMER]._qlog = FALSE;
 			break;
@@ -911,7 +912,7 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_JERSEY]._qvar1 = 1;
 					quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 					quests[Q_JERSEY]._qlog = TRUE;
-					SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty);
+					SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, true);
 				}
 				break;
 			default:
@@ -954,7 +955,8 @@ void TalkToTowner(int pnum, int tnum)
 		} else {
 			qt = TEXT_GIRL4;
 			RemoveInvItem(pnum, i);
-			CreateAmulet(tw->_tx, tw->_ty);
+			// SetRndSeed(tw->tRndSeed)	 FIXME check
+			CreateAmulet(tw->_tx, tw->_ty, true);
 			quests[Q_GIRL]._qlog = FALSE;
 			quests[Q_GIRL]._qactive = QUEST_DONE;
 		}

@@ -1627,31 +1627,31 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
 		if (QuestStatus(Q_GARBUD)) {
-			CreateTypeItem(mon->_mx + 1, mon->_my + 1, true, ITYPE_MACE, IMISC_NONE, true, false);
+			CreateTypeItem(mon->_mx + 1, mon->_my + 1, true, ITYPE_MACE, IMISC_NONE, sendmsg, false);
 			return;
 		}
 		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (gbUseTheoQuest) {
-			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my);
+			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg);
 		} else {
-			CreateAmulet(mon->_mx, mon->_my);
+			CreateAmulet(mon->_mx, mon->_my, sendmsg);
 		}
 		return;
 	case UMT_DEFILER:
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
 		quests[Q_DEFILER]._qlog = FALSE;
-		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my);
+		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg);
 		return;
 	case UMT_NAKRUL:
 		stream_stop();
 		quests[Q_NAKRUL]._qlog = FALSE; // TODO: instead of _qlog the _qactive should be set to QUEST_DONE?
 		UberDiabloMonsterIndex = -2;
-		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, true, false);
-		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, true, false);
-		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, true, false);
+		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
+		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
+		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);
 		return;
 #endif
 	}
