@@ -2048,10 +2048,10 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr) {
+	else {
 		mnum = cmd->dwParam1;
 		hp = monster[mnum]._mhitpoints;
-		if (currlevel == plr[pnum].plrlevel) {
+		if (pnum != myplr && currlevel == plr[pnum].plrlevel) {
 			monster[mnum]._mWhoHit |= 1 << pnum;
 			if (hp != 0) {
 				hp -= cmd->dwParam2;
