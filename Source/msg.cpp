@@ -877,6 +877,9 @@ void DeltaLoadLevel()
 				if (mstr->_mhitpoints != -1)
 					mon->_mhitpoints = mstr->_mhitpoints;
 				if (mstr->_mhitpoints == 0) {
+					// SetDead: inline for better performance
+					if (mon->mlid != -1)
+						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 					AddDead(i);
 				} else {
 					decode_enemy(i, mstr->_menemy);
@@ -887,6 +890,8 @@ void DeltaLoadLevel()
 				}
 			}
 		}
+		// SetDead();
+
 		memcpy(automapview, &sgLocals[currlevel], sizeof(automapview));
 	}
 
