@@ -2069,7 +2069,6 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 		mnum = cmd->dwParam1;
 		hp = cmd->dwParam2;
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel) {
-			monster[mnum]._mWhoHit |= 1 << pnum;
 			nhp = monster[mnum]._mhitpoints - cmd->dwParam3;
 			if (nhp < hp)
 				hp = nhp;
