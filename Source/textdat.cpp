@@ -506,6 +506,14 @@ const TextDataStruct alltext[NUM_TEXTS] = {
 	    TRUE, 0, PS_ROGUE12 },
 	{ NULL/*" |"*/, FALSE, 0, TSFX_COW1 },
 	{ NULL/*" |"*/, FALSE, 0, TSFX_COW2 },
+/*
+	{ " |", FALSE, 0, TSFX_COW3 },
+	{ " |", FALSE, 0, TSFX_COW4 },
+	{ " |", FALSE, 0, TSFX_COW5 },
+	{ " |", FALSE, 0, TSFX_COW6 },
+	{ " |", FALSE, 0, TSFX_COW7 },
+	{ " |", FALSE, 0, TSFX_COW8 },
+*/
 	{ "Take heed and bear witness to the truths that lie herein, for they are the last legacy of the Horadrim. There is a war that rages on even now, beyond the fields that we know - between the utopian kingdoms of the High Heavens and the chaotic pits of the Burning Hells. This war is known as the Great Conflict, and it has raged and burned longer than any of the stars in the sky. Neither side ever gains sway for long as the forces of Light and Darkness constantly vie for control over all creation. |",
 	    TRUE, 0, PS_NAR1 },
 	{ "Take heed and bear witness to the truths that lie herein, for they are the last legacy of the Horadrim. When the Eternal Conflict between the High Heavens and the Burning Hells falls upon mortal soil, it is called the Sin War. Angels and Demons walk amongst humanity in disguise, fighting in secret, away from the prying eyes of mortals. Some daring, powerful mortals have even allied themselves with either side, and helped to dictate the course of the Sin War. |",
@@ -660,6 +668,18 @@ const TextDataStruct alltext[NUM_TEXTS] = {
 	{ "Praedictum Otium. |", TRUE, 0, PS_ROGUE55 },
 	{ "Efficio Obitus Ut Inimicus. |", TRUE, 0, PS_ROGUE56 },
 #endif
+/**
+	{ "Please help....! I barely escaped from....... The Butcher...! He killed.... My wife... My children! I beg of you...... In the name of God......... Avenge them......... |", TRUE, 0, TSFX_DEADGUY },
+	{ "*retching* Listen, listen. I don't even like worms. Don't tell me about yer worms! I don't want yer worms! Nope, no thanks! *slight hiccup/gag* No worms for me.", TRUE, 0, TSFX_DRUNK5 },
+	{ "*SNORE*", TRUE, 0, TSFX_DRUNK6 },
+	{ "Sounds like a good idea to me. Ya better get started right awaaay.", TRUE, 0, TSFX_DRUNK8 },
+	{ "*laugh* Did you ever hear I love that King tale? I love that one.", TRUE, 0, TSFX_DRUNK9 },
+	{ "(Crying) No, you can't make me go back there. I won't let you take me. Too much pain, too many dead. Can't... get the blood out of my eyes... my mouth... *wails*", TRUE, 0, TSFX_DRUNK11 },
+	{ "You're gonna hunt down a demon? Is that what you said? I know I didn't hear that 'cuz nobody hunts down a demon, no! Nobody! ", TRUE, 0, TSFX_DRUNK16 },
+	{ "Hey, lemme see that. *blows nose* Thanks!", TRUE, 0, TSFX_DRUNK18 },
+	{ "Hey you there, come here, listen up. You know about the island where angels watch? Pick the right rocks, but you better shield your eyes; shield everything! I know, 'cause I been there and... Mmmm, ale.", TRUE, 0, TSFX_DRUNK22 },
+	{ "I haven't ever see a priest around here. If I did I'd kick him right in the *BBBBUUURRRPPP* Can't even keep a church free of those Hell spawn - bastards. What good are they, those holy men? Liars! Liars!", TRUE, 0, TSFX_DRUNK33 },
+*/
 };
 
 DEVILUTION_END_NAMESPACE
