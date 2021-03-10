@@ -2892,17 +2892,19 @@ static void OperateLever(int oi, bool sendmsg)
 		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 }
 
-static void OperateVileBook(int pnum, int oi)
+static void OperateVileBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os, *on;
 	int i;
 	int dx, dy;
 	bool missile_added;
 
+	assert(gbSetlevel);
+
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
 		return;
-	if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
+	if (setlvlnum == SL_VILEBETRAYER) {
 		missile_added = false;
 		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]];
@@ -2928,18 +2930,21 @@ static void OperateVileBook(int pnum, int oi)
 	}
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
-	if (!gbSetlevel)
-		return;
+
+	//if (sendmsg) FIXME check - setlevel vs. delta
+	//	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
 	if (setlvlnum == SL_BONECHAMB) {
+		if (deltaload)
+			return;
 		if (plr[pnum]._pSkillLvl[SPL_GUARDIAN] == 0) {
 			plr[pnum]._pSkillLvl[SPL_GUARDIAN] = 1;
 			plr[pnum]._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
 			plr[pnum]._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
 		}
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
-		if (!deltaload)
-			PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
+		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
+		// if (pnum == myplr) FIXME check
 		InitDiabloMsg(EMSG_BONECHAMB);
 		AddMissile(
 		    plr[pnum]._px,
@@ -3004,27 +3009,29 @@ static void OperateBookLever(int oi, bool sendmsg)
 	}
 }
 
-static void OperateSChambBk(int pnum, int oi)
+static void OperateSChambBk(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int i, textdef;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0 && !gbQtextflag) {
-		if (os->_oAnimFrame != os->_oVar6) {
-			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-			for (i = 0; i < nobjects; i++)
-				SyncObjectAnim(objectactive[i]);
-			os->_oAnimFrame = os->_oVar6;
-		}
-		if (quests[Q_SCHAMB]._qactive == QUEST_INIT) {
-			quests[Q_SCHAMB]._qactive = QUEST_ACTIVE;
-			quests[Q_SCHAMB]._qlog = TRUE;
-		}
-		textdef = textSets[TXTS_BONER][plr[myplr]._pClass];
-		quests[Q_SCHAMB]._qmsg = textdef;
-		InitQTextMsg(textdef);
+	assert(os->_oSelFlag != 0 && (!gbQtextflag || !sendmsg));
+	if (os->_oAnimFrame != os->_oVar6) {
+		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+		for (i = 0; i < nobjects; i++)
+			SyncObjectAnim(objectactive[i]);
+		os->_oAnimFrame = os->_oVar6;
 	}
+	if (quests[Q_SCHAMB]._qactive == QUEST_INIT) {
+		quests[Q_SCHAMB]._qactive = QUEST_ACTIVE;
+		quests[Q_SCHAMB]._qlog = TRUE;
+	}
+	// set qmsg out of order, since the quest might be completed by other players
+	textdef = textSets[TXTS_BONER][plr[myplr]._pClass];
+	quests[Q_SCHAMB]._qmsg = textdef;
+	// if (pnum == myplr)
+	if (sendmsg)
+		InitQTextMsg(quests[Q_SCHAMB]._qmsg);
 }
 
 static void OperateChest(int pnum, int oi, bool sendmsg)
@@ -3217,7 +3224,14 @@ static void OperateSarc(int oi, bool sendmsg)
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy);
 }
 
-static void OperatePedistal(int pnum, int oi)
+/**
+ * Handle the using the pedistal in the dungeon.
+ * The progress needs to be tracked separately for each player
+ * since deltaload is not capable of handling the number of access.
+ * This means the progress is reset on every re-enter.
+ * No message is sent at the moment (it is pointless).
+ */
+static void OperatePedistal(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	BYTE *mem;
@@ -3226,6 +3240,8 @@ static void OperatePedistal(int pnum, int oi)
 	if (numitems >= MAXITEMS) {
 		return;
 	}
+	assert(!deltaload);
+
 	os = &object[oi];
 	if (os->_oVar6 != 3 && PlrHasItem(pnum, IDI_BLDSTONE, &iv)) {
 		RemoveInvItem(pnum, iv);
@@ -3233,20 +3249,17 @@ static void OperatePedistal(int pnum, int oi)
 		os->_oVar6++;
 
 		if (os->_oVar6 == 1) {
-			if (!deltaload)
-				PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
+			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10);
 		}
 		if (os->_oVar6 == 2) {
-			if (!deltaload)
-				PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
+			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10);
 		}
 		if (os->_oVar6 == 3) {
-			if (!deltaload)
-				PlaySfxLoc(LS_BLODSTAR, os->_ox, os->_oy);
+			PlaySfxLoc(LS_BLODSTAR, os->_ox, os->_oy);
 			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
 			mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 			LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
@@ -3974,24 +3987,32 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 		IMISC_NONE, sendmsg, false);
 }
 
-static void OperateStoryBook(int pnum, int oi)
+/**
+ * Handle the reading of story books in the dungeon.
+ * (In hellfire) The progress needs to be tracked separately for each player
+ * since deltaload is not capable of handling the reading order.
+ * This means the reading progress is reset on every re-enter.
+ * No message is sent at the moment (it is pointless).
+ */
+static void OperateStoryBook(int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct *os = &object[oi];
 
-	os = &object[oi];
-	if (os->_oSelFlag == 0)
+	// assert(os->_oSelFlag != 0);
+	//if (deltaload)
+	//	return;
+
+	// if (pnum != myplr)
+	if (!sendmsg)
 		return;
 
-	if (deltaload)
-		return;
-	if (gbQtextflag || pnum != myplr)
-		return;
 	os->_oAnimFrame = os->_oVar4;
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
 	if (os->_oVar8 != 0 && currlevel == 24) {
 		if (!gbUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
-			NetSendCmd(false, CMD_NAKRUL);
+			// if (sendmsg)
+				NetSendCmd(false, CMD_NAKRUL);
 			return;
 		}
 	} else if (currlevel >= 21) {
@@ -4000,8 +4021,10 @@ static void OperateStoryBook(int pnum, int oi)
 		quests[Q_NAKRUL]._qmsg = os->_oVar2;
 	}
 #endif
-	InitQTextMsg(os->_oVar2);
-	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+	//if (pnum == myplr)
+		InitQTextMsg(os->_oVar2);
+	//if (sendmsg)
+	//	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateLazStand(int oi, bool sendmsg)
@@ -4018,6 +4041,10 @@ static void OperateLazStand(int oi, bool sendmsg)
 
 	if (deltaload)
 		return;
+
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+
 	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
 }
 
@@ -4171,10 +4198,10 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateLever(oi, sendmsg);
 		break;
 	case OBJ_BOOK2L:
-		OperateVileBook(pnum, oi);
+		OperateVileBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_BOOK2R:
-		OperateSChambBk(pnum, oi);
+		OperateSChambBk(oi, sendmsg);
 		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
@@ -4236,10 +4263,10 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateFountains(pnum, oi, sendmsg);
 		break;
 	case OBJ_STORYBOOK:
-		OperateStoryBook(pnum, oi);
+		OperateStoryBook(oi, sendmsg);
 		break;
 	case OBJ_PEDISTAL:
-		OperatePedistal(pnum, oi);
+		OperatePedistal(pnum, oi, sendmsg);
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
@@ -4311,6 +4338,12 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
+	//case OBJ_BOOK2L:
+	//	OperateVileBook(pnum, oi, false);
+	//	break;
+	//case OBJ_BOOK2R:
+	//	OperateSChambBk(oi, false);
+	//	break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
@@ -4365,12 +4398,12 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_TEARFTN:
 		OperateFountains(pnum, oi, false);
 		break;
-	case OBJ_STORYBOOK:
-		OperateStoryBook(pnum, oi);
-		break;
-	case OBJ_PEDISTAL:
-		OperatePedistal(pnum, oi);
-		break;
+	//case OBJ_STORYBOOK:
+	//	OperateStoryBook(oi, false);
+	//	break;
+	//case OBJ_PEDISTAL:
+	//	OperatePedistal(pnum, oi, false);
+	//	break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACK:
 		OperateWeaponRack(oi, false);
