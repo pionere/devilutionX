@@ -2024,21 +2024,6 @@ static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_KILLGOLEM(TCmd *pCmd, int pnum)
-{
-	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
-
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr) {
-		if (currlevel == cmd->wParam1)
-			MonSyncStartKill(pnum, cmd->x, cmd->y, pnum);
-		delta_kill_monster(pnum, cmd->x, cmd->y, plr[pnum].plrlevel);
-	}
-
-	return sizeof(*cmd);
-}
-
 static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 {
 	TCmdGolem *cmd = (TCmdGolem *)pCmd;
@@ -2558,8 +2543,6 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_WARP(pCmd, pnum);
 	case CMD_MONSTDEATH:
 		return On_MONSTDEATH(pCmd, pnum);
-	case CMD_KILLGOLEM:
-		return On_KILLGOLEM(pCmd, pnum);
 	case CMD_AWAKEGOLEM:
 		return On_AWAKEGOLEM(pCmd, pnum);
 	case CMD_MONSTDAMAGE:

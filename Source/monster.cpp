@@ -1807,11 +1807,7 @@ void MonStartKill(int mnum, int pnum)
 	}
 	if (myplr == pnum) {
 		delta_kill_monster(mnum, monster[mnum]._mx, monster[mnum]._my, currlevel);
-		if (mnum != pnum) {
-			NetSendCmdLocParam1(false, CMD_MONSTDEATH, monster[mnum]._mx, monster[mnum]._my, mnum);
-		} else {
-			NetSendCmdLocParam1(false, CMD_KILLGOLEM, monster[mnum]._mx, monster[mnum]._my, currlevel);
-		}
+		NetSendCmdLocParam1(false, CMD_MONSTDEATH, monster[mnum]._mx, monster[mnum]._my, mnum);
 	}
 
 	MonstStartKill(mnum, pnum, true);
