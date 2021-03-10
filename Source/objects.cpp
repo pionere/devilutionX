@@ -263,9 +263,14 @@ void FreeObjectGFX()
 	}
 }
 
+/**
+ * Check the location if an object can be placed there in the init phase.
+ * Must not consider the player's position, since it is already initialized
+ * and messes up the pseudo-random generated dungeon.
+ */
 static bool RndLocOk(int xp, int yp)
 {
-	if ((dMonster[xp][yp] | dPlayer[xp][yp] | dObject[xp][yp]
+	if ((dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ dObject[xp][yp]
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
 		return false;
 	if (leveltype != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
@@ -1029,7 +1034,6 @@ void InitObjects()
 		AddDiabObjs();
 	} else {
 		gbInitObjFlag = true;
-		GetRndSeed();
 		if (currlevel == 9 && gbMaxPlayers == 1)
 			AddSlainHero();
 		if (currlevel == quests[Q_MUSHROOM]._qlevel && quests[Q_MUSHROOM]._qactive == QUEST_INIT)
