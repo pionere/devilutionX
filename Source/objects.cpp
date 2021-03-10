@@ -1421,6 +1421,7 @@ static void AddShrine(int oi)
 
 	os = &object[oi];
 	os->_oPreFlag = TRUE;
+	os->_oRndSeed = GetRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE);
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
@@ -1472,14 +1473,13 @@ static void AddArmorStand(int oi)
 	os->_oRndSeed = GetRndSeed();
 }
 
-static void AddGoatShrine(int oi)
+static void AddCauldronGoatShrine(int oi)
 {
-	object[oi]._oRndSeed = GetRndSeed();
-}
+	ObjectStruct *os;
 
-static void AddCauldron(int oi)
-{
-	object[oi]._oRndSeed = GetRndSeed();
+	os = &object[oi];
+	os->_oRndSeed = GetRndSeed();
+	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 }
 
 static void AddMurkyFountain(int oi)
@@ -1731,11 +1731,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST3:
 		AddChest(oi, type);
 		object[oi]._oTrapFlag = TRUE;
-		if (leveltype == DTYPE_CATACOMBS) {
-			object[oi]._oVar4 = random_(0, 2);
-		} else {
-			object[oi]._oVar4 = random_(0, 3);
-		}
+		object[oi]._oVar4 = random_(0, leveltype == DTYPE_CATACOMBS ? 2 : 3);
 		break;
 	case OBJ_SARC:
 		AddSarc(oi);
@@ -1783,10 +1779,8 @@ int AddObject(int type, int ox, int oy)
 		AddArmorStand(oi);
 		break;
 	case OBJ_GOATSHRINE:
-		AddGoatShrine(oi);
-		break;
 	case OBJ_CAULDRON:
-		AddCauldron(oi);
+		AddCauldronGoatShrine(oi);
 		break;
 	case OBJ_MURKYFTN:
 		AddMurkyFountain(oi);
@@ -3891,16 +3885,12 @@ static void OperateArmorStand(int oi, bool sendmsg)
 
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
-	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
 	object[oi]._oAnimDelay = 2;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
-	SetRndSeed(object[oi]._oRndSeed);
-	object[oi]._oVar1 = FindValidShrine(SHRINE_THAUMATURGIC);
 	OperateShrine(pnum, LS_CALDRON, 1, oi, sendmsg);
 	object[oi]._oAnimFrame = 3;
 	object[oi]._oAnimFlag = 0;
@@ -3912,7 +3902,7 @@ static void OperateFountains(int pnum, int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	SetRndSeed(os->_oRndSeed);
+	// SetRndSeed(os->_oRndSeed);
 	switch (os->_otype) {
 	case OBJ_BLOODFTN:
 		if (deltaload)
