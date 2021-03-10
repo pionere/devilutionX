@@ -1782,9 +1782,9 @@ int AddFlashbk(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	if (micaster == 0 && misource != -1) {
 		missile[mi]._miDam = 0;
 		if (misource > 0)
-			lvl = plr[misource]._pLevel;
+			lvl = 2 * plr[misource]._pLevel;
 		else
-			lvl = 1;
+			lvl = 2;
 		missile[mi]._miRange = lvl + 10 * spllvl + 245;
 	}
 	return MIRES_DONE;
@@ -1846,9 +1846,9 @@ int AddSearch(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 	mis = &missile[mi];
 	AutoMapShowItems = TRUE;
 	if (misource > 0)
-		lvl = plr[misource]._pLevel;
+		lvl = 2 * plr[misource]._pLevel;
 	else
-		lvl = 1;
+		lvl = 2;
 	range = lvl + 10 * spllvl + 245;
 	mis->_miRange = range;
 
@@ -3137,6 +3137,7 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		mis->_miVar2 = (3 * lvl) << 7;
 		if (misource <= 0)
 			lvl = 1;
+		lvl *= 2;
 		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(misource, TRUE);
 		return MIRES_DONE;
