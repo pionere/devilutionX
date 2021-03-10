@@ -1748,7 +1748,6 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 
 static void M2MStartKill(int offm, int defm)
 {
-	MonsterStruct *dmon;
 	bool sendmsg;
 
 	if ((DWORD)offm >= MAXMONSTERS) {
@@ -1781,9 +1780,6 @@ static void M2MStartKill(int offm, int defm)
 
 void MonStartKill(int mnum, int pnum)
 {
-	if ((DWORD)mnum >= MAXMONSTERS) {
-		dev_fatal("MonStartKill: Invalid monster %d", mnum);
-	}
 	if (myplr != pnum && pnum != -1)
 		// Wait for the message from the killer so we get the exact location as well.
 		// Necessary to have synced drops. Sendmsg should be false anyway.

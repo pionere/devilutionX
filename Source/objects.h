@@ -44,6 +44,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag);
 void SyncOpObject(int pnum, int oi);
 void SyncOpenDoor(int oi);
 void SyncCloseDoor(int oi);
+void SyncOpenTrap(int oi);
+void SyncCloseTrap(int oi);
 void SyncCloseChest(int oi);
 void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);

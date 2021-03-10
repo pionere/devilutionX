@@ -901,14 +901,20 @@ void DeltaLoadLevel()
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
 			if (dstr->bCmd != 0xFF) {
 				switch (dstr->bCmd) {
+				case CMD_OPERATEOBJ:
+					SyncOpObject(-1, i);
+					break;
 				case CMD_OPENDOOR:
 					SyncOpenDoor(i);
 					break;
 				case CMD_CLOSEDOOR:
 					SyncCloseDoor(i);
 					break;
-				case CMD_OPERATEOBJ:
-					SyncOpObject(-1, i);
+				case CMD_OPENTRAP:
+					SyncOpenTrap(i);
+					break;
+				case CMD_CLOSETRAP:
+					SyncCloseTrap(i);
 					break;
 				case CMD_CLOSECHEST:
 					SyncCloseChest(i);
@@ -2154,6 +2160,36 @@ static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static DWORD On_OPENTRAP(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
+		//	SyncOpenTrap(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_OPENTRAP, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_CLOSETRAP(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
+		//	SyncCloseTrap(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_CLOSETRAP, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
 static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
@@ -2571,12 +2607,16 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_PLRFRIENDY(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
+	case CMD_OPERATEOBJ:
+		return On_OPERATEOBJ(pCmd, pnum);
 	case CMD_OPENDOOR:
 		return On_OPENDOOR(pCmd, pnum);
 	case CMD_CLOSEDOOR:
 		return On_CLOSEDOOR(pCmd, pnum);
-	case CMD_OPERATEOBJ:
-		return On_OPERATEOBJ(pCmd, pnum);
+	case CMD_OPENTRAP:
+		return On_OPENTRAP(pCmd, pnum);
+	case CMD_CLOSETRAP:
+		return On_CLOSETRAP(pCmd, pnum);
 	case CMD_CLOSECHEST:
 		return On_CLOSECHEST(pCmd, pnum);
 	case CMD_CHANGEPLRITEMS:

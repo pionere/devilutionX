@@ -1340,13 +1340,12 @@ static void AddFlameTrap(int oi)
 	os->_oVar4 = 0;
 }
 
-static void AddFlameLvr(int oi)
+static void AddFlameLever(int oi)
 {
 	ObjectStruct *os;
 
 	os = &object[oi];
 	os->_oVar1 = trapid;
-	os->_oVar2 = MIS_FLAMEC;
 }
 
 static void AddTrap(int oi)
@@ -1740,7 +1739,7 @@ int AddObject(int type, int ox, int oy)
 		AddFlameTrap(oi);
 		break;
 	case OBJ_FLAMELVR:
-		AddFlameLvr(oi);
+		AddFlameLever(oi);
 		break;
 	case OBJ_WATER:
 		object[oi]._oAnimFrame = 1;
@@ -3164,35 +3163,37 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
 }
 
-static void OperateTrapLever(int oi)
+static void OperateFlameTrapLever(int oi, bool sendmsg)
 {
 	ObjectStruct *os, *on;
-	int frame, i;
+	int i;
 
 	os = &object[oi];
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 
-	frame = os->_oAnimFrame;
-	if (frame == 1) {
+	if (os->_oAnimFrame == 1) {
 		os->_oAnimFrame = 2;
+		if (sendmsg)
+			NetSendCmdParam1(true, CMD_CLOSETRAP, oi);
 		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]];
-			if (on->_otype == os->_oVar2 && on->_oVar1 == os->_oVar1) {
+			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
 				on->_oVar2 = 1;
 				on->_oAnimFlag = 0;
 			}
 		}
-		return;
-	}
-
-	os->_oAnimFrame = frame - 1;
-	for (i = 0; i < nobjects; i++) {
-		on = &object[objectactive[i]];
-		if (on->_otype == os->_oVar2 && on->_oVar1 == os->_oVar1) {
-			on->_oVar2 = 0;
-			if (on->_oVar4 != 0)
-				on->_oAnimFlag = 1;
+	} else {
+		os->_oAnimFrame = 1;
+		if (sendmsg)
+			NetSendCmdParam1(true, CMD_OPENTRAP, oi);
+		for (i = 0; i < nobjects; i++) {
+			on = &object[objectactive[i]];
+			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
+				on->_oVar2 = 0;
+				if (on->_oVar4 != 0)
+					on->_oAnimFlag = 1;
+			}
 		}
 	}
 }
@@ -4210,7 +4211,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateSarc(oi, sendmsg);
 		break;
 	case OBJ_FLAMELVR:
-		OperateTrapLever(oi);
+		OperateFlameTrapLever(oi, sendmsg);
 		break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
@@ -4296,6 +4297,17 @@ void SyncCloseDoor(int oi)
 		SyncOpObject(-1, oi);
 }
 
+void SyncOpenTrap(int oi)
+{
+	if (object[oi]._oAnimFrame == 2)
+		SyncOpObject(-1, oi);
+}
+void SyncCloseTrap(int oi)
+{
+	if (object[oi]._oAnimFrame == 1)
+		SyncOpObject(-1, oi);
+}
+
 /**
  * Re-Close chest during delta-load.
  * Does NOT work as a standard sync, because it needs to force the new oRndSeed.
@@ -4349,6 +4361,9 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	case OBJ_SARC:
 		OperateSarc(oi, false);
+		break;
+	case OBJ_FLAMELVR:
+		OperateFlameTrapLever(oi, false);
 		break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
@@ -4420,7 +4435,6 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	}
 }
-
 
 static void SyncL1Doors(int oi)
 {
