@@ -1392,7 +1392,7 @@ static void AddBarrel(int oi, int type)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	os->_oVar1 = 0;
+	//os->_oVar1 = 0;
 	os->_oRndSeed = GetRndSeed();
 	os->_oVar2 = (type == OBJ_BARRELEX) ? 0 : random_(149, 10);
 	os->_oVar3 = random_(149, 3);
@@ -1509,7 +1509,7 @@ static void AddDecap(int oi)
 	os->_oPreFlag = TRUE;
 }
 
-static void AddVilebook(int oi)
+static void AddVileBook(int oi)
 {
 	if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
 		object[oi]._oAnimFrame = 4;
@@ -1789,7 +1789,7 @@ int AddObject(int type, int ox, int oy)
 		AddTearFountain(oi);
 		break;
 	case OBJ_BOOK2L:
-		AddVilebook(oi);
+		AddVileBook(oi);
 		break;
 	case OBJ_MCIRCLE1:
 	case OBJ_MCIRCLE2:
@@ -2860,38 +2860,39 @@ static void OperateLever(int oi, bool sendmsg)
 	bool mapflag;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		if (!deltaload)
-			PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
-		os->_oSelFlag = 0;
-		os->_oAnimFrame++;
-		mapflag = true;
-		if (currlevel == 16) {
-			for (i = 0; i < nobjects; i++) {
-				on = &object[objectactive[i]];
-				if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
-					mapflag = false;
-					break;
-				}
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++;
+
+	if (!deltaload)
+		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+	mapflag = true;
+	if (currlevel == 16) {
+		for (i = 0; i < nobjects; i++) {
+			on = &object[objectactive[i]];
+			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
+				mapflag = false;
+				break;
 			}
 		}
-#ifdef HELLFIRE
-		if (currlevel == 24) {
-			DoOpenUberRoom();
-			gbUberLeverActivated = true;
-			mapflag = false;
-			quests[Q_NAKRUL]._qactive = QUEST_DONE;
-			//quests[Q_NAKRUL]._qlog = FALSE;
-		}
-#endif
-		if (mapflag)
-			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-		if (sendmsg)
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 	}
+#ifdef HELLFIRE
+	if (currlevel == 24) {
+		DoOpenUberRoom();
+		gbUberLeverActivated = true;
+		mapflag = false;
+		quests[Q_NAKRUL]._qactive = QUEST_DONE;
+		//quests[Q_NAKRUL]._qlog = FALSE;
+	}
+#endif
+	if (mapflag)
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
-static void OperateBook(int pnum, int oi)
+static void OperateVileBook(int pnum, int oi)
 {
 	ObjectStruct *os, *on;
 	int i;
@@ -3032,34 +3033,36 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	int i, mdir;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		if (!deltaload)
-			PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-		os->_oSelFlag = 0;
-		os->_oAnimFrame += 2;
-		if (!deltaload) {
-			SetRndSeed(os->_oRndSeed);
-			if (gbSetlevel) {
-				for (i = os->_oVar1; i > 0; i--) {
-					CreateRndItem(os->_ox, os->_oy, true, sendmsg, false);
-				}
-			} else {
-				for (i = os->_oVar1; i > 0; i--) {
-					if (os->_oVar2 != 0)
-						CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
-					else
-						CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
-				}
-			}
-			if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
-				mdir = GetDirection(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py);
-				AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0);
-				os->_oTrapFlag = FALSE;
-			}
-			if (sendmsg)
-				NetSendCmdParam2(false, CMD_PLROPOBJ, pnum, oi);
+	if (os->_oSelFlag == 0)
+		return;
+
+	os->_oSelFlag = 0;
+	os->_oAnimFrame += 2;
+
+	if (deltaload)
+		return;
+
+	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	SetRndSeed(os->_oRndSeed);
+	if (gbSetlevel) {
+		for (i = os->_oVar1; i > 0; i--) {
+			CreateRndItem(os->_ox, os->_oy, true, sendmsg, false);
+		}
+	} else {
+		for (i = os->_oVar1; i > 0; i--) {
+			if (os->_oVar2 != 0)
+				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
+			else
+				CreateRndUseful(os->_ox, os->_oy, sendmsg, false);
 		}
 	}
+	if (os->_oTrapFlag && os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3) {
+		mdir = GetDirection(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py);
+		AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0);
+		os->_oTrapFlag = FALSE;
+	}
+	if (sendmsg)
+		NetSendCmdParam2(false, CMD_PLROPOBJ, pnum, oi);
 }
 
 static void OperateMushPatch(int pnum, int oi, bool sendmsg)
@@ -3074,18 +3077,19 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		if (!deltaload && pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_13][plr[myplr]._pClass]);
 		}
-	} else {
-		os = &object[oi];
-		if (os->_oSelFlag != 0) {
-			os->_oSelFlag = 0;
-			os->_oAnimFrame++;
-			if (!deltaload) {
-				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg);
-				quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
-			}
-		}
+		return;
 	}
+	os = &object[oi];
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++;
+	if (deltaload)
+		return;
+
+	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg);
+	quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
 }
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
@@ -3100,17 +3104,18 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		if (!deltaload && pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[pnum]._pClass]);
 		}
-	} else {
-		os = &object[oi];
-		if (os->_oSelFlag != 0) {
-			os->_oSelFlag = 0;
-			os->_oAnimFrame += 2;
-			if (!deltaload) {
-				PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-				SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg);
-			}
-		}
+		return;
 	}
+	os = &object[oi];
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame += 2;
+	if (deltaload)
+		return;
+
+	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg);
 }
 
 static void OperateSlainHero(int pnum, int oi, bool sendmsg)
@@ -3119,30 +3124,32 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	char pc;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		os->_oSelFlag = 0;
-		if (!deltaload) {
-			pc = plr[pnum]._pClass;
-			const int typeCurs[NUM_CLASSES][2] = {
-				{ ITYPE_SWORD, ICURS_BASTARD_SWORD },
-				{ ITYPE_BOW, ICURS_LONG_WAR_BOW },
-				{ ITYPE_STAFF, ICURS_LONG_STAFF },
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+
+	if (deltaload)
+		return;
+
+	pc = plr[pnum]._pClass;
+	const int typeCurs[NUM_CLASSES][2] = {
+		{ ITYPE_SWORD, ICURS_BASTARD_SWORD },
+		{ ITYPE_BOW, ICURS_LONG_WAR_BOW },
+		{ ITYPE_STAFF, ICURS_LONG_STAFF },
 #ifdef HELLFIRE
-				{ ITYPE_STAFF, ICURS_WAR_STAFF },
-				{ ITYPE_SWORD, ICURS_KATAR }, // TODO: better ICURS?
-				{ ITYPE_AXE, ICURS_BATTLE_AXE },
+		{ ITYPE_STAFF, ICURS_WAR_STAFF },
+		{ ITYPE_SWORD, ICURS_KATAR }, // TODO: better ICURS?
+		{ ITYPE_AXE, ICURS_BATTLE_AXE },
 #endif
-			};
-			SetRndSeed(os->_oRndSeed);
-			CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
-	}
+	};
+	SetRndSeed(os->_oRndSeed);
+	CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
+	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
-static void OperateTrapLvr(int oi)
+static void OperateTrapLever(int oi)
 {
 	ObjectStruct *os, *on;
 	int frame, i;
@@ -3180,24 +3187,25 @@ static void OperateSarc(int oi, bool sendmsg)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		if (!deltaload)
-			PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
-		os->_oSelFlag = 0;
-		if (deltaload) {
-			os->_oAnimFrame = os->_oAnimLen;
-		} else {
-			os->_oAnimFlag = 1;
-			os->_oAnimDelay = 3;
-			SetRndSeed(os->_oRndSeed);
-			if (os->_oVar1 <= 2)
-				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
-			if (os->_oVar1 >= 8)
-				SpawnSkeleton(os->_oVar2, os->_ox, os->_oy);
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	if (deltaload) {
+		os->_oAnimFrame = os->_oAnimLen;
+		return;
 	}
+
+	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
+
+	os->_oAnimFlag = 1;
+	os->_oAnimDelay = 3;
+	SetRndSeed(os->_oRndSeed);
+	if (os->_oVar1 <= 2)
+		CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
+	if (os->_oVar1 >= 8)
+		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperatePedistal(int pnum, int oi)
@@ -3788,18 +3796,20 @@ static void OperateSkelBook(int oi, bool sendmsg)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		os->_oSelFlag = 0;
-		os->_oAnimFrame += 2;
-		if (!deltaload) {
-			PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
-			SetRndSeed(os->_oRndSeed);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC,
-				random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg, false);
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
-	}
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame += 2;
+
+	if (deltaload)
+		return;
+
+	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	SetRndSeed(os->_oRndSeed);
+	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC,
+		random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg, false);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateBookCase(int oi, bool sendmsg)
@@ -3807,26 +3817,26 @@ static void OperateBookCase(int oi, bool sendmsg)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		os->_oSelFlag = 0;
-		os->_oAnimFrame -= 2;
-		if (!deltaload) {
-			PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
-			SetRndSeed(os->_oRndSeed);
-			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
-			if (QuestStatus(Q_ZHAR)
-			    && (monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR
-			    && monster[MAX_MINIONS]._msquelch == UCHAR_MAX
-			    && monster[MAX_MINIONS]._mhitpoints != 0) {
-				monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
-				MonStartStand(0, monster[MAX_MINIONS]._mdir);
-				monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
-				monster[MAX_MINIONS]._mmode = MM_TALK;
-			}
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame -= 2;
+	if (deltaload)
+		return;
+	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	SetRndSeed(os->_oRndSeed);
+	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
+	if (QuestStatus(Q_ZHAR)
+	 && (monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR
+	 && monster[MAX_MINIONS]._msquelch == UCHAR_MAX
+	 && monster[MAX_MINIONS]._mhitpoints != 0) {
+		monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
+		MonStartStand(0, monster[MAX_MINIONS]._mdir);
+		monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
+		monster[MAX_MINIONS]._mmode = MM_TALK;
 	}
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateDecap(int oi, bool sendmsg)
@@ -3834,15 +3844,17 @@ static void OperateDecap(int oi, bool sendmsg)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		os->_oSelFlag = 0;
-		if (!deltaload) {
-			SetRndSeed(os->_oRndSeed);
-			CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
-	}
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+
+	if (deltaload)
+		return;
+
+	SetRndSeed(os->_oRndSeed);
+	CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateArmorStand(int oi, bool sendmsg)
@@ -3852,35 +3864,37 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	bool uniqueRnd, onlygood;
 
 	os = &object[oi];
-	if (os->_oSelFlag != 0) {
-		os->_oSelFlag = 0;
-		os->_oAnimFrame++;
-		if (!deltaload) {
-			SetRndSeed(os->_oRndSeed);
-			uniqueRnd = random_(0, 2);
-			if (currlevel <= 5) {
-				itype = ITYPE_LARMOR;
-				onlygood = true;
-			} else if (currlevel <= 9) {
-				itype = ITYPE_MARMOR;
-				onlygood = uniqueRnd;
-			} else if (currlevel <= 12) {
-				itype = ITYPE_HARMOR;
-				onlygood = false;
-			} else if (currlevel <= 16) {
-				itype = ITYPE_HARMOR;
-				onlygood = true;
+	if (os->_oSelFlag == 0)
+		return;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++;
+
+	if (deltaload)
+		return;
+
+	SetRndSeed(os->_oRndSeed);
+	uniqueRnd = random_(0, 2);
+	if (currlevel <= 5) {
+		itype = ITYPE_LARMOR;
+		onlygood = true;
+	} else if (currlevel <= 9) {
+		itype = ITYPE_MARMOR;
+		onlygood = uniqueRnd;
+	} else if (currlevel <= 12) {
+		itype = ITYPE_HARMOR;
+		onlygood = false;
+	} else if (currlevel <= 16) {
+		itype = ITYPE_HARMOR;
+		onlygood = true;
 #ifdef HELLFIRE
-			} else {
-				itype = ITYPE_HARMOR;
-				onlygood = true;
+	} else {
+		itype = ITYPE_HARMOR;
+		onlygood = true;
 #endif
-			}
-			CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, false);
-			if (sendmsg)
-				NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-		}
 	}
+	CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, false);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
@@ -3987,26 +4001,32 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 
 static void OperateStoryBook(int pnum, int oi)
 {
-	ObjectStruct *os = &object[oi];
+	ObjectStruct *os;
 
-	if (os->_oSelFlag != 0 && !deltaload && !gbQtextflag && pnum == myplr) {
-		os->_oAnimFrame = os->_oVar4;
-		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	os = &object[oi];
+	if (os->_oSelFlag == 0)
+		return;
+
+	if (deltaload)
+		return;
+	if (gbQtextflag || pnum != myplr)
+		return;
+	os->_oAnimFrame = os->_oVar4;
+	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
-		if (os->_oVar8 != 0 && currlevel == 24) {
-			if (!gbUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
-				NetSendCmd(false, CMD_NAKRUL);
-				return;
-			}
-		} else if (currlevel >= 21) {
-			quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-			quests[Q_NAKRUL]._qlog = TRUE;
-			quests[Q_NAKRUL]._qmsg = os->_oVar2;
+	if (os->_oVar8 != 0 && currlevel == 24) {
+		if (!gbUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
+			NetSendCmd(false, CMD_NAKRUL);
+			return;
 		}
-#endif
-		InitQTextMsg(os->_oVar2);
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+	} else if (currlevel >= 21) {
+		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
+		quests[Q_NAKRUL]._qlog = TRUE;
+		quests[Q_NAKRUL]._qmsg = os->_oVar2;
 	}
+#endif
+	InitQTextMsg(os->_oVar2);
+	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateLazStand(int oi, bool sendmsg)
@@ -4016,13 +4036,15 @@ static void OperateLazStand(int oi, bool sendmsg)
 	if (numitems >= MAXITEMS) {
 		return;
 	}
-	if (os->_oSelFlag != 0 && !deltaload) {
-		os->_oAnimFrame++;
-		os->_oSelFlag = 0;
-		SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
-		if (sendmsg)
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-	}
+	if (os->_oSelFlag == 0)
+		return;
+	if (deltaload)
+		return;
+	os->_oAnimFrame++;
+	os->_oSelFlag = 0;
+	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 void OperateObject(int pnum, int oi, bool TeleFlag)
@@ -4072,7 +4094,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateLever(oi, sendmsg);
 		break;
 	case OBJ_BOOK2L:
-		OperateBook(pnum, oi);
+		OperateVileBook(pnum, oi);
 		break;
 	case OBJ_BOOK2R:
 		OperateSChambBk(pnum, oi);
@@ -4089,7 +4111,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateSarc(oi, sendmsg);
 		break;
 	case OBJ_FLAMELVR:
-		OperateTrapLvr(oi);
+		OperateTrapLever(oi);
 		break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
