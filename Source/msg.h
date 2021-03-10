@@ -49,6 +49,7 @@ void NetSendCmdChItem(bool bHiPri, ItemStruct *is, BYTE bLoc);
 void NetSendCmdDelItem(bool bHiPri, BYTE bLoc);
 void NetSendCmdDItem(bool bHiPri, int ii);
 void NetSendCmdDwParam2(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2);
+void NetSendCmdDwParam3(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2, DWORD dwParam3);
 void NetSendCmdString(unsigned int pmask);
 void delta_close_portal(int pnum);
 DWORD ParseCmd(int pnum, TCmd *pCmd);

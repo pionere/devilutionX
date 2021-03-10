@@ -1538,7 +1538,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	MonsterStruct *mon = &monster[mnum];
 
 	if (pnum == myplr) {
-		NetSendCmdDwParam2(false, CMD_MONSTDAMAGE, mnum, dam);
+		NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, mnum, mon->_mhitpoints, dam);
 	}
 	PlayEffect(mnum, 1);
 	if (mnum < MAX_MINIONS)
@@ -1669,7 +1669,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		dmon->_mWhoHit |= 1 << offm;
 	}
 
-	NetSendCmdDwParam2(false, CMD_MONSTDAMAGE, defm, dam);
+	NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, defm, dmon->_mhitpoints, dam);
 	PlayEffect(defm, 1);
 
 	if (dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {

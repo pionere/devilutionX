@@ -467,7 +467,10 @@ static void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 
 	_gbDeltaChanged = true;
 	pD = &sgLevels[bLevel].monster[mnum];
-	if (pD->_mhitpoints > hp)
+	// In vanilla code the value was discarded if hp was higher than the current one.
+	// That disregards the healing monsters.
+	// Now it is always updated except the monster is already dead.
+	if (pD->_mhitpoints != 0)
 		pD->_mhitpoints = hp;
 }
 
@@ -1349,6 +1352,20 @@ void NetSendCmdDwParam2(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdDwParam3(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2, DWORD dwParam3)
+{
+	TCmdDwParam3 cmd;
+
+	cmd.bCmd = bCmd;
+	cmd.dwParam1 = dwParam1;
+	cmd.dwParam2 = dwParam2;
+	cmd.dwParam3 = dwParam3;
+	if (bHiPri)
+		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	else
+		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
@@ -2043,22 +2060,22 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 
 static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
-	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
-	int mnum, hp;
+	TCmdDwParam3 *cmd = (TCmdDwParam3 *)pCmd;
+	int mnum, hp, nhp;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		mnum = cmd->dwParam1;
-		hp = monster[mnum]._mhitpoints;
+		hp = cmd->dwParam2;
 		if (pnum != myplr && currlevel == plr[pnum].plrlevel) {
 			monster[mnum]._mWhoHit |= 1 << pnum;
-			if (hp != 0) {
-				hp -= cmd->dwParam2;
-				if (hp < (1 << 6))
-					hp = 1 << 6;
-				monster[mnum]._mhitpoints = hp;
-			}
+			nhp = monster[mnum]._mhitpoints - cmd->dwParam3;
+			if (nhp < hp)
+				hp = nhp;
+			if (hp < (1 << 6))
+				hp = 1 << 6;
+			monster[mnum]._mhitpoints = hp;
 		}
 		delta_monster_hp(mnum, hp, plr[pnum].plrlevel);
 	}

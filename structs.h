@@ -901,6 +901,19 @@ typedef struct TCmdBParam3 {
 	BYTE bParam3;
 } TCmdBParam3;
 
+typedef struct TCmdDwParam2 {
+	BYTE bCmd;
+	DWORD dwParam1;
+	DWORD dwParam2;
+} TCmdDwParam2;
+
+typedef struct TCmdDwParam3 {
+	BYTE bCmd;
+	DWORD dwParam1;
+	DWORD dwParam2;
+	DWORD dwParam3;
+} TCmdDwParam3;
+
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE _mx;
@@ -987,12 +1000,6 @@ typedef struct TCmdDelItem {
 	BYTE bCmd;
 	BYTE bLoc;
 } TCmdDelItem;
-
-typedef struct TCmdDwParam2 {
-	BYTE bCmd;
-	DWORD dwParam1;
-	DWORD dwParam2;
-} TCmdDwParam2;
 
 typedef struct TCmdPlrInfoHdr {
 	BYTE bCmd;
