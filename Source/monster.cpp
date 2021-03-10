@@ -1721,8 +1721,7 @@ static void MonstStartKill(int mnum, int pnum, bool sendmsg)
 
 	if (mon->_mmode != MM_STONE) {
 		mon->_mmode = MM_DEATH;
-		if (pnum >= 0)
-			mon->_mdir = MonGetDir(mnum);
+		// TODO: might want to turn towards the offending enemy. Might not, though...
 		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
 	}
 	mon->_mxoff = 0;
@@ -1744,7 +1743,6 @@ static void MonstStartKill(int mnum, int pnum, bool sendmsg)
 static void M2MStartKill(int offm, int defm)
 {
 	MonsterStruct *dmon;
-	int md;
 
 	if ((DWORD)offm >= MAXMONSTERS) {
 		dev_fatal("M2MStartKill: Invalid monster (attacker) %d", offm);
@@ -1775,10 +1773,7 @@ static void M2MStartKill(int offm, int defm)
 
 	if (dmon->_mmode != MM_STONE) {
 		dmon->_mmode = MM_DEATH;
-		md = (monster[offm]._mdir - 4) & 7;
-		if (dmon->_mType == MT_GOLEM)
-			md = 0;
-		NewMonsterAnim(defm, MA_DEATH, md);
+		NewMonsterAnim(defm, MA_DEATH, dmon->_mdir);
 	}
 	dmon->_mxoff = 0;
 	dmon->_myoff = 0;
