@@ -44,6 +44,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag);
 void SyncOpObject(int pnum, int oi);
 void SyncOpenDoor(int oi);
 void SyncCloseDoor(int oi);
+void SyncCloseChest(int oi);
 void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);
 #ifdef HELLFIRE

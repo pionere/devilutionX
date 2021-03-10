@@ -3275,6 +3275,23 @@ void DisarmObject(int pnum, int oi)
 	}
 }
 
+static void CloseChest(int oi, bool sendmsg)
+{
+	ObjectStruct *os;
+
+	os = &object[oi];
+	if (os->_oSelFlag != 0)
+		return;
+	os->_oSelFlag = 1;
+	os->_oAnimFrame -= 2;
+
+	SetRndSeed(os->_oRndSeed);
+	os->_oRndSeed = GetRndSeed();
+
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_CLOSECHEST, oi);
+}
+
 /** Reduce the maximum mana of the given player by 10%
 */
 static void ReducePlrMana10(PlayerStruct *p)
@@ -3476,13 +3493,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < nobjects; i++) {
 			os = &object[objectactive[i]];
-			if ((os->_otype == OBJ_CHEST1
-			        || os->_otype == OBJ_CHEST2
-			        || os->_otype == OBJ_CHEST3)
-			    && os->_oSelFlag == 0) {
-				os->_oRndSeed = GetRndSeed();
-				os->_oAnimFrame -= 2;
-				os->_oSelFlag = 1;
+			if (os->_otype == OBJ_CHEST1
+			 || os->_otype == OBJ_CHEST2
+			 || os->_otype == OBJ_CHEST3) {
+				CloseChest(objectactive[i], sendmsg);
 			}
 		}
 		if (deltaload)
@@ -4296,6 +4310,18 @@ void SyncCloseDoor(int oi)
 {
 	if (object[oi]._oVar4 == 1)
 		SyncOpObject(-1, oi);
+}
+
+/**
+ * Re-Close chest during delta-load.
+ * Does NOT work as a standard sync, because it needs to force the new oRndSeed.
+ * (to achive this, OperateChest is called).
+ */
+void SyncCloseChest(int oi)
+{
+	// assert(deltaload);
+	OperateChest(-1, oi, false);
+	CloseChest(oi, false);
 }
 
 void SyncOpObject(int pnum, int oi)
