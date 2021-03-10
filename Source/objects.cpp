@@ -3910,8 +3910,6 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 			return;
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		if (pnum != myplr)
-			return;
 		PlrIncHp(pnum, 64);
 		break;
 	case OBJ_PURIFYINGFTN:
@@ -3919,8 +3917,6 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 			return;
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		if (pnum != myplr)
-			return;
 		PlrIncMana(pnum, 64);
 		break;
 	case OBJ_MURKYFTN:
@@ -3954,14 +3950,13 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		if (pnum != myplr)
-			return;
 		PlrIncHp(pnum, 64);
 		if (plr[pnum]._pMana >= 64)
 			PlrDecMana(pnum, 64);
 		break;
 	}
-	gbRedrawFlags = REDRAW_ALL;
+	if (pnum == myplr)
+		gbRedrawFlags = REDRAW_ALL;
 }
 
 static void OperateWeaponRack(int oi, bool sendmsg)
