@@ -59,36 +59,36 @@ static bool TFit_Shrine(int tidx)
 	int xx, yy, found;
 	const char tv = themes[tidx].ttval;
 
-	xx = 0;
-	yy = 0;
+	xx = DBORDERX;
+	yy = DBORDERY;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv) {
 			if (nTrapTable[dPiece[xx][yy - 1]]
-			    && !nSolidTable[dPiece[xx - 1][yy]]
-			    && !nSolidTable[dPiece[xx + 1][yy]]
-			    && dTransVal[xx - 1][yy] == tv
-			    && dTransVal[xx + 1][yy] == tv
-			    && dObject[xx - 1][yy - 1] == 0
-			    && dObject[xx + 1][yy - 1] == 0) {
+			 && !nSolidTable[dPiece[xx - 1][yy]]
+			 && !nSolidTable[dPiece[xx + 1][yy]]
+			 && dTransVal[xx - 1][yy] == tv
+			 && dTransVal[xx + 1][yy] == tv
+			 && dObject[xx - 1][yy - 1] == 0
+			 && dObject[xx + 1][yy - 1] == 0) {
 				found = 1;
 				break;
 			}
 			if (nTrapTable[dPiece[xx - 1][yy]]
-			    && !nSolidTable[dPiece[xx][yy - 1]]
-			    && !nSolidTable[dPiece[xx][yy + 1]]
-			    && dTransVal[xx][yy - 1] == tv
-			    && dTransVal[xx][yy + 1] == tv
-			    && dObject[xx - 1][yy - 1] == 0
-			    && dObject[xx - 1][yy + 1] == 0) {
+			 && !nSolidTable[dPiece[xx][yy - 1]]
+			 && !nSolidTable[dPiece[xx][yy + 1]]
+			 && dTransVal[xx][yy - 1] == tv
+			 && dTransVal[xx][yy + 1] == tv
+			 && dObject[xx - 1][yy - 1] == 0
+			 && dObject[xx - 1][yy + 1] == 0) {
 				found = 2;
 				break;
 			}
 		}
 		xx++;
-		if (xx == MAXDUNX) {
-			xx = 0;
+		if (xx == DBORDERX + DSIZEX) {
+			xx = DBORDERX;
 			yy++;
-			if (yy == MAXDUNY)
+			if (yy == DBORDERY + DSIZEY)
 				return false;
 		}
 	}
@@ -105,8 +105,8 @@ static bool TFit_Obj5(int tidx)
 	bool found;
 	const char tv = themes[tidx].ttval;
 
-	xx = 0;
-	yy = 0;
+	xx = DBORDERX;
+	yy = DBORDERY;
 	r = RandRange(1, 5);
 	rs = r;
 	while (r > 0) {
@@ -126,14 +126,14 @@ static bool TFit_Obj5(int tidx)
 
 		if (!found) {
 			xx++;
-			if (xx == MAXDUNX) {
-				xx = 0;
+			if (xx == DBORDERX + DSIZEX) {
+				xx = DBORDERX;
 				yy++;
-				if (yy == MAXDUNY) {
+				if (yy == DBORDERY + DSIZEY) {
 					if (r == rs) {
 						return false;
 					}
-					yy = 0;
+					yy = DBORDERY;
 				}
 			}
 			continue;
@@ -189,8 +189,8 @@ static bool CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 	for (i = 0; i < lengthof(trm3x); i++) {
 		xx = x + trm3x[i];
 		yy = y + trm3y[i];
-		if (xx < 0 || yy < 0)
-			return false;
+		//if (xx < 0 || yy < 0)
+		//	return false;
 		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
 			return false;
 		if (dTransVal[xx][yy] != tv)
@@ -208,8 +208,8 @@ static bool TFit_Obj3(int tidx)
 	const char objrnds[4] = { 4, 4, 3, 5 };
 	const char objrnd = objrnds[leveltype - 1];
 
-	for (yy = 1; yy < MAXDUNY - 1; yy++) {
-		for (xx = 1; xx < MAXDUNX - 1; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (CheckThemeObj3(xx, yy, tidx, objrnd)) {
 				themex = xx;
 				themey = yy;
@@ -338,8 +338,8 @@ static bool CheckThemeRoom(int tv)
 	}
 
 	tarea = 0;
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			if (dTransVal[i][j] != tv)
 				continue;
 			if (dFlags[i][j] & BFLAG_POPULATED)
@@ -353,8 +353,8 @@ static bool CheckThemeRoom(int tv)
 	if (tarea < 9 || tarea > 100)
 		return false;
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			if (dTransVal[i][j] != tv || nSolidTable[dPiece[i][j]])
 				continue;
 			if (dTransVal[i - 1][j] != tv && !nSolidTable[dPiece[i - 1][j]])
@@ -440,8 +440,8 @@ void HoldThemeRooms()
 		if (leveltype == DTYPE_CATHEDRAL) {
 			for (i = 0; i < numthemes; i++) {
 				v = themes[i].ttval;
-				for (yy = 0; yy < MAXDUNY; yy++) {
-					for (xx = 0; xx < MAXDUNX; xx++) {
+				for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+					for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 						if (dTransVal[xx][yy] == v) {
 							dFlags[xx][yy] |= BFLAG_POPULATED;
 						}
@@ -476,8 +476,8 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 	}
 	mtype = scattertypes[random_(0, numscattypes)];
 	tv = themes[tidx].ttval;
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_(0, rndfrq) == 0) {
 					AddMonster(xx, yy, random_(0, 8), mtype, true);
@@ -501,8 +501,8 @@ static void Theme_Barrel(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, barrnd) == 0) {
 					if (random_(0, barrnd) == 0) {
@@ -553,8 +553,8 @@ static void Theme_MonstPit(int tidx)
 	const char tv = themes[tidx].ttval;
 
 	r = RandRange(1, 100);
-	xx = 0;
-	yy = 0;
+	xx = DBORDERX;
+	yy = DBORDERY;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 			--r;
@@ -562,11 +562,11 @@ static void Theme_MonstPit(int tidx)
 				break;
 		}
 		xx++;
-		if (xx == MAXDUNX) {
-			xx = 0;
+		if (xx == DBORDERX + DSIZEX) {
+			xx = DBORDERX;
 			yy++;
-			if (yy == MAXDUNY) {
-				yy = 0;
+			if (yy == DBORDERY + DSIZEY) {
+				yy = DBORDERY;
 			}
 		}
 	}
@@ -662,8 +662,8 @@ static void Theme_Treasure(int tidx)
 	const char tv = themes[tidx].ttval;
 
 	GetRndSeed();
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (random_(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
@@ -705,8 +705,8 @@ static void Theme_Library(int tidx)
 		}
 	}
 
-	for (yy = 1; yy < MAXDUNY - 1; yy++) {
-		for (xx = 1; xx < MAXDUNX - 1; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (CheckThemeObj3(xx, yy, tidx, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
 				oi = AddObject(OBJ_BOOKSTAND, xx, yy);
 				if (random_(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
@@ -737,8 +737,8 @@ static void Theme_Torture(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	for (yy = 1; yy < MAXDUNY - 1; yy++) {
-		for (xx = 1; xx < MAXDUNX - 1; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, tortrnd) == 0) {
@@ -778,8 +778,8 @@ static void Theme_Decap(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	for (yy = 1; yy < MAXDUNY - 1; yy++) {
-		for (xx = 1; xx < MAXDUNX - 1; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, decaprnd) == 0) {
@@ -824,8 +824,8 @@ static void Theme_ArmorStand(int tidx)
 		if (TFit_Obj3(tidx))
 			AddObject(OBJ_ARMORSTAND, themex, themey);
 	}
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, armorrnd) == 0) {
@@ -916,8 +916,8 @@ static void Theme_BrnCross(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, bcrossrnd) == 0) {
@@ -954,8 +954,8 @@ static void Theme_WeaponRack(int tidx)
 	static_assert(OBJ_WEAPONRACKL + 1 == OBJ_WEAPONRACKLN, "Theme_WeaponRack depends on the order of WEAPONRACKL(N)");
 	static_assert(OBJ_WEAPONRACKR + 1 == OBJ_WEAPONRACKRN, "Theme_WeaponRack depends on the order of WEAPONRACKR(N)");
 	type += 1;
-	for (yy = 0; yy < MAXDUNY; yy++) {
-		for (xx = 0; xx < MAXDUNX; xx++) {
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, weaponrnd) == 0) {
