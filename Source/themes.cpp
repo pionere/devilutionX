@@ -590,7 +590,7 @@ static void Theme_SkelRoom(int tidx)
 
 	AddObject(OBJ_SKFIRE, xx, yy);
 
-	char monstrnd = monstrnds[leveltype - 1];
+	monstrnd = monstrnds[leveltype - 1];
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
 		SpawnSkeleton(i, xx - 1, yy - 1);
