@@ -1557,10 +1557,6 @@ static void AddPedistal(int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	os->_oVar1 = setpc_x;
-	os->_oVar2 = setpc_y;
-	os->_oVar3 = setpc_x + setpc_w;
-	os->_oVar4 = setpc_y + setpc_h;
 	os->_oVar6 = 0; // BLOODSTONE_NUM
 }
 
@@ -3269,7 +3265,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		} else {
 			// assert(os->_oVar6 == 3);
 			PlaySfxLoc(LS_BLODSTAR, os->_ox, os->_oy);
-			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 			mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 			LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(mem);
@@ -4533,7 +4529,7 @@ static void SyncPedistal(int oi)
 		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
 		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
 	} else if (os->_oVar6 == 3) {
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 		setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 		LoadMapObjs(setp, 2 * setpc_x, 2 * setpc_y);
 		mem_free_dbg(setp);
