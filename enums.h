@@ -3082,6 +3082,7 @@ typedef enum _object_id {
 	OBJ_SLAINHERO,
 	OBJ_SIGNCHEST,
 	OBJ_BOOKSHELFR,
+	NUM_OBJECTS
 } _object_id;
 
 typedef enum item_misc_id {

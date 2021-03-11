@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 extern const int ObjTypeConv[];
-extern const ObjDataStruct AllObjects[];
+extern const ObjDataStruct AllObjects[NUM_OBJECTS];
 extern const char *const ObjMasterLoadList[NUM_OFILE_TYPES];
 #ifdef HELLFIRE
 extern const char *const ObjCryptLoadList[NUM_OFILE_TYPES];

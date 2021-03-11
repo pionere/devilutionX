@@ -224,12 +224,15 @@ const int flickers[1][32] = {
 void InitObjectGFX()
 {
 	const ObjDataStruct *ods;
+	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
+	const char* const *objlist;
 	int i;
 
-	static_assert(false == 0, "InitObjectGFX fills fileload with 0 instead of false values.");
+	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
 	memset(fileload, 0, sizeof(fileload));
+	memset(themeload, 0, sizeof(themeload));
 
 	int lvl = currlevel;
 #ifdef HELLFIRE
@@ -238,30 +241,30 @@ void InitObjectGFX()
 	else if (lvl >= 17 && lvl <= 20)
 		lvl -= 8;
 #endif
-	for (ods = AllObjects; ods->oload != -1; ods++) {
+	for (i = 0; i < numthemes; i++)
+		themeload[themes[i].ttype] = true;
+
+	for (i = 0; i < NUM_OBJECTS; i++) {
+		ods = &AllObjects[i];
 		if ((ods->oload == 1 && lvl >= ods->ominlvl && lvl <= ods->omaxlvl)
+		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
 		 || (ods->oquest != -1 && QuestStatus(ods->oquest))) {
 			fileload[ods->ofindex] = true;
-		} else if (ods->otheme != THEME_NONE) {
-			for (i = 0; i < numthemes; i++) {
-				if (themes[i].ttype == ods->otheme) {
-					fileload[ods->ofindex] = true;
-					break;
-				}
-			}
 		}
 	}
 
+#ifdef HELLFIRE
+	if (currlevel >= 17 && currlevel < 21)
+		objlist = ObjHiveLoadList;
+	else if (currlevel >= 21)
+		objlist = ObjCryptLoadList;
+	else
+#endif
+		objlist = ObjMasterLoadList;
+
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
-#ifdef HELLFIRE
-			if (currlevel >= 17 && currlevel < 21)
-				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjHiveLoadList[i]);
-			else if (currlevel >= 21)
-				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjCryptLoadList[i]);
-			else
-#endif
-				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
+			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objlist[i]);
 			pObjCels[i] = LoadFileInMem(filestr, NULL);
 		}
 	}
@@ -1147,7 +1150,7 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	memset(fileload, 0, sizeof(fileload));
 	gbInitObjFlag = true;
 
-	for (i = 0; AllObjects[i].oload != -1; i++) {
+	for (i = 0; i < NUM_OBJECTS; i++) {
 		if (AllObjects[i].oload == 1 && leveltype == AllObjects[i].olvltype)
 			fileload[AllObjects[i].ofindex] = true;
 	}

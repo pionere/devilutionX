@@ -151,7 +151,7 @@ const int ObjTypeConv[] = {
 };
 
 /** Contains the data related to each object ID. */
-const ObjDataStruct AllObjects[] = {
+const ObjDataStruct AllObjects[NUM_OBJECTS] = {
 	// clang-format off
 	// oload, ofindex,   ominlvl, omaxlvl, olvltype,        otheme,                  oquest,     oAnimFlag, oAnimDelay, oAnimLen, oAnimWidth, oSolidFlag, oMissFlag, oLightFlag, oBreak, oSelFlag, oTrapFlag
 	{      1, OFILE_L1BRAZ,    1,       4, DTYPE_CATHEDRAL, THEME_NONE,              -1,              TRUE,          1,       26,         64, TRUE,       TRUE,      FALSE,           0,        0, FALSE     },
@@ -253,7 +253,6 @@ const ObjDataStruct AllObjects[] = {
 	{      1, OFILE_DECAP,     9,       9, DTYPE_CAVES,     THEME_NONE,              -1,             FALSE,          2,        0,         96, TRUE,       TRUE,      TRUE,            0,        1, FALSE     },
 	{      2, OFILE_CHEST3,    0,       0, 0,               THEME_NONE,              -1,             FALSE,          1,        0,         96, TRUE,       TRUE,      TRUE,            0,        1, TRUE      },
 	{      2, OFILE_BCASE,     0,       0, 0,               THEME_NONE,              -1,             FALSE,          2,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
-	{     -1, 0,               0,       0, -1,              THEME_NONE,              -1,             FALSE,          0,        0,          0, FALSE,      FALSE,     FALSE,           0,        0, FALSE     }
 	// clang-format on
 };
 
