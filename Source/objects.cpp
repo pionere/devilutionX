@@ -1486,7 +1486,7 @@ static void AddArmorStand(int oi)
 
 	os = &object[oi];
 	if (!gbArmorFlag) {
-		os->_oAnimFlag = 2;
+		os->_oAnimFlag = TRUE;
 		os->_oSelFlag = 0;
 	}
 
@@ -1592,7 +1592,7 @@ static void AddWeaponRack(int oi)
 
 	os = &object[oi];
 	if (!gbWeaponFlag) {
-		os->_oAnimFlag = 2;
+		os->_oAnimFlag = TRUE;
 		os->_oSelFlag = 0;
 	}
 	os->_oRndSeed = GetRndSeed();
@@ -1986,7 +1986,7 @@ static void Obj_Sarc(int oi)
 
 	os = &object[oi];
 	if (os->_oAnimFrame == os->_oAnimLen)
-		os->_oAnimFlag = 0;
+		os->_oAnimFlag = FALSE;
 }
 
 static void ActivateTrapLine(int ttype, int tid)
@@ -1998,7 +1998,7 @@ static void ActivateTrapLine(int ttype, int tid)
 		os = &object[objectactive[i]];
 		if (os->_otype == ttype && os->_oVar1 == tid) {
 			os->_oVar4 = 1;
-			os->_oAnimFlag = 1;
+			os->_oAnimFlag = TRUE;
 			os->_oAnimDelay = 1;
 			os->_olid = AddLight(os->_ox, os->_oy, 1);
 		}
@@ -2195,7 +2195,7 @@ void ProcessObjects()
 			Obj_BCrossDamage(oi);
 			break;
 		}
-		if (object[oi]._oAnimFlag == 0)
+		if (!object[oi]._oAnimFlag)
 			continue;
 
 		object[oi]._oAnimCnt++;
@@ -3201,7 +3201,7 @@ static void OperateFlameTrapLever(int oi, bool sendmsg)
 			on = &object[objectactive[i]]; //         FLAMETRAP_ID
 			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
 				on->_oVar2 = TRAP_INACTIVE;
-				on->_oAnimFlag = 0;
+				on->_oAnimFlag = FALSE;
 			}
 		}
 	} else {
@@ -3213,7 +3213,7 @@ static void OperateFlameTrapLever(int oi, bool sendmsg)
 			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
 				on->_oVar2 = TRAP_ACTIVE;
 				if (on->_oVar4 != FLAMETRAP_FIRE_INACTIVE)
-					on->_oAnimFlag = 1;
+					on->_oAnimFlag = TRUE;
 			}
 		}
 	}
@@ -3237,7 +3237,7 @@ static void OperateSarc(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
 
-	os->_oAnimFlag = 1;
+	os->_oAnimFlag = TRUE;
 	os->_oAnimDelay = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
@@ -3396,7 +3396,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 
 	if (deltaload) {
-		os->_oAnimFlag = 0;
+		os->_oAnimFlag = FALSE;
 		os->_oAnimFrame = os->_oAnimLen;
 		return;
 	}
@@ -3407,7 +3407,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 
 	PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
-	os->_oAnimFlag = 1;
+	os->_oAnimFlag = TRUE;
 	os->_oAnimDelay = 1;
 
 	p = &plr[pnum];
@@ -3915,7 +3915,7 @@ static void OperateCauldron(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, LS_CALDRON, 1, oi, sendmsg);
 	object[oi]._oAnimFrame = 3;
-	object[oi]._oAnimFlag = 0;
+	object[oi]._oAnimFlag = FALSE;
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -4073,7 +4073,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	if (os->_oSelFlag == 0)
 		return;
 	os->_oSelFlag = 0;
-	os->_oAnimFlag = 1;
+	os->_oAnimFlag = TRUE;
 	os->_oAnimFrame = 1;
 	os->_oAnimDelay = 1;
 	os->_oSolidFlag = TRUE;
@@ -4111,7 +4111,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	}
 
 	// os->_oVar1 = 0;
-	os->_oAnimFlag = 1;
+	os->_oAnimFlag = TRUE;
 	os->_oAnimFrame = 1;
 	os->_oAnimDelay = 1;
 	os->_oSolidFlag = FALSE;

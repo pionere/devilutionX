@@ -727,7 +727,7 @@ typedef struct ObjDataStruct {
 	char olvltype;
 	char otheme;
 	char oquest;
-	int oAnimFlag;
+	BOOL oAnimFlag;
 	int oAnimDelay; // Tick length of each frame in the current animation
 	int oAnimLen;   // Number of frames in current animation
 	int oAnimWidth;
@@ -751,7 +751,7 @@ typedef struct ObjectStruct {
 	int _ox;
 	int _oy;
 	int _oLight;
-	int _oAnimFlag;
+	BOOL _oAnimFlag;
 	unsigned char *_oAnimData;
 	int _oAnimDelay; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
