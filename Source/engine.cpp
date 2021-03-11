@@ -49,7 +49,7 @@ const int RndMult = 0x015A4E35;
  */
 static void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 {
-	int i, w;
+	int i;
 	char width;
 	BYTE *src, *dst;
 
@@ -59,10 +59,9 @@ static void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
-	w = nWidth;
 
-	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w) {
-		for (i = w; i != 0;) {
+	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + nWidth) {
+		for (i = nWidth; i != 0; ) {
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
@@ -89,8 +88,8 @@ static void CelBlitSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWi
  */
 static void CelBlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *tbl)
 {
-	int i, w;
-	BYTE width;
+	int i;
+	char width;
 	BYTE *src, *dst;
 
 	assert(pDecodeTo != NULL);
@@ -101,12 +100,11 @@ static void CelBlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 	dst = pDecodeTo;
 	if (tbl == NULL)
 		tbl = &pLightTbl[light_table_index * 256];
-	w = nWidth;
 
-	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w) {
-		for (i = w; i;) {
+	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + nWidth) {
+		for (i = nWidth; i != 0; ) {
 			width = *src++;
-			if (!(width & 0x80)) {
+			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					if (width & 1) {
@@ -135,9 +133,8 @@ static void CelBlitLightSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, in
 					dst += width;
 				}
 			} else {
-				width = -(char)width;
-				dst += width;
-				i -= width;
+				dst -= width;
+				i += width;
 			}
 		}
 	}
@@ -278,7 +275,7 @@ static inline int lightidx(char light)
  */
 void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
-	int nDataSize, w;
+	int nDataSize, i;
 	BYTE *pRLEBytes, *dst, *tbl, *end;
 	char width;
 
@@ -293,10 +290,10 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	end = &pRLEBytes[nDataSize];
 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
-		for (w = nWidth; w != 0; ) {
+		for (i = nWidth; i != 0; ) {
 			width = *pRLEBytes++;
 			if (width >= 0) {
-				w -= width;
+				i -= width;
 				while (width != 0) {
 					*dst = tbl[*pRLEBytes];
 					pRLEBytes++;
@@ -305,7 +302,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 				}
 			} else {
 				dst -= width;
-				w += width;
+				i += width;
 			}
 		}
 	}
@@ -345,7 +342,7 @@ void CelClippedDrawSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  */
 static void CelBlitLightTransSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 {
-	int w;
+	int i;
 	BOOL shift;
 	BYTE *tbl;
 
@@ -353,20 +350,18 @@ static void CelBlitLightTransSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSiz
 	assert(pRLEBytes != NULL);
 	assert(gpBuffer != NULL);
 
-	int i;
-	BYTE width;
+	char width;
 	BYTE *src, *dst;
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
 	tbl = &pLightTbl[light_table_index * 256];
-	w = nWidth;
 	shift = (BYTE)(size_t)dst & 1;
 
-	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + w, shift = (shift + 1) & 1) {
-		for (i = w; i;) {
+	for (; src != &pRLEBytes[nDataSize]; dst -= BUFFER_WIDTH + nWidth, shift = (shift + 1) & 1) {
+		for (i = nWidth; i != 0; ) {
 			width = *src++;
-			if (!(width & 0x80)) {
+			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					if (((BYTE)(size_t)dst & 1) == shift) {
@@ -418,9 +413,8 @@ static void CelBlitLightTransSafe(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSiz
 					dst += width;
 				}
 			} else {
-				width = -(char)width;
-				dst += width;
-				i -= width;
+				dst -= width;
+				i += width;
 			}
 		}
 	}
@@ -464,7 +458,7 @@ void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
  */
 void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
-	int nDataSize, w;
+	int nDataSize, i;
 	BYTE *pRLEBytes, *dst, *tbl, *end;
 	char width;
 
@@ -480,10 +474,10 @@ void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	end = &pRLEBytes[nDataSize];
 
 	for (; pRLEBytes != end; dst -= BUFFER_WIDTH + nWidth) {
-		for (w = nWidth; w != 0; ) {
+		for (i = nWidth; i != 0; ) {
 			width = *pRLEBytes++;
 			if (width >= 0) {
-				w -= width;
+				i -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					while (width != 0) {
 						*dst = tbl[*pRLEBytes];
@@ -497,7 +491,7 @@ void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 				}
 			} else {
 				dst -= width;
-				w += width;
+				i += width;
 			}
 		}
 	}
@@ -521,24 +515,23 @@ static void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int
 	assert(pBuff != NULL);
 
 	int i, nDataSize;
-	BYTE width;
+	char width;
 
 	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
 	end = &pRLEBytes[nDataSize];
 	dst = &pBuff[y * wdt + x];
 
 	for (; pRLEBytes != end; dst -= wdt + nWidth) {
-		for (i = nWidth; i;) {
+		for (i = nWidth; i != 0; ) {
 			width = *pRLEBytes++;
-			if (!(width & 0x80)) {
+			if (width >= 0) {
 				i -= width;
 				memcpy(dst, pRLEBytes, width);
 				dst += width;
 				pRLEBytes += width;
 			} else {
-				width = -(char)width;
-				dst += width;
-				i -= width;
+				dst -= width;
+				i += width;
 			}
 		}
 	}
@@ -555,9 +548,9 @@ static void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int
  */
 void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
-	int nDataSize, w;
+	int nDataSize, i;
 	BYTE *src, *dst, *end;
-	BYTE width;
+	char width;
 
 	assert(pCelBuff != NULL);
 	assert(gpBuffer != NULL);
@@ -567,10 +560,10 @@ void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	for (; src != end; dst -= BUFFER_WIDTH + nWidth) {
-		for (w = nWidth; w;) {
+		for (i = nWidth; i != 0; ) {
 			width = *src++;
-			if (!(width & 0x80)) {
-				w -= width;
+			if (width >= 0) {
+				i -= width;
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					if (dst >= gpBufEnd - BUFFER_WIDTH) {
 						while (width != 0) {
@@ -599,9 +592,8 @@ void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 					dst += width;
 				}
 			} else {
-				width = -(char)width;
-				dst += width;
-				w -= width;
+				dst -= width;
+				i += width;
 			}
 		}
 	}
