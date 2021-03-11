@@ -849,8 +849,9 @@ static void Theme_GoatShrine(int tidx)
 	int xx, yy;
 	const char tv = themes[tidx].ttval;
 
-	if (TFit_GoatShrine(tidx))
-		AddObject(OBJ_GOATSHRINE, themex, themey);
+	if (!TFit_GoatShrine(tidx))
+		return;
+	AddObject(OBJ_GOATSHRINE, themex, themey);
 	for (yy = themey - 1; yy <= themey + 1; yy++) {
 		for (xx = themex - 1; xx <= themex + 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && (xx != themex || yy != themey)) {
