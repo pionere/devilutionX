@@ -754,28 +754,28 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/libfreetype-6.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/libfreetype-6.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2-2.0.9/i686-w64-mingw32/bin/SDL2.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.9/i686-w64-mingw32/bin/SDL2.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_mixer-2.0.4/i686-w64-mingw32/bin/SDL2_mixer.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/i686-w64-mingw32/bin/SDL2_mixer.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/SDL2_ttf.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/SDL2_ttf.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/zlib1.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/zlib1.dll"
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
       DESTINATION "LICENSE"
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/LICENSE.freetype.txt"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/LICENSE.freetype.txt"
       DESTINATION "LICENSE"
     )
-    install(FILES "~/repo/SDL2-2.0.9/README-SDL.txt"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.9/README-SDL.txt"
       DESTINATION "LICENSE"
     )
 
@@ -797,28 +797,28 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2-2.0.9/x86_64-w64-mingw32/bin/SDL2.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.9/x86_64-w64-mingw32/bin/SDL2.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_mixer-2.0.4/x86_64-w64-mingw32/bin/SDL2_mixer.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/x86_64-w64-mingw32/bin/SDL2_mixer.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/SDL2_ttf.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/SDL2_ttf.dll"
       DESTINATION "."
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/zlib1.dll"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/zlib1.dll"
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
       DESTINATION "LICENSE"
     )
-    install(FILES "~/repo/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/LICENSE.freetype.txt"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/LICENSE.freetype.txt"
       DESTINATION "LICENSE"
     )
-    install(FILES "~/repo/SDL2-2.0.9/README-SDL.txt"
+    install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.9/README-SDL.txt"
       DESTINATION "LICENSE"
     )
 
@@ -840,12 +840,6 @@ if(CPACK)
       set(desktop_file_hellfire "${CMAKE_BINARY_DIR}/${project_name}-hellfire.desktop")
     endif()
 
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
-      DESTINATION "bin"
-    )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
-      DESTINATION "bin"
-    )
     install(FILES "${desktop_file}"
       DESTINATION "share/applications"
     )

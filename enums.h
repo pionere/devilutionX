@@ -2229,7 +2229,8 @@ typedef enum _speech_id {
 	TEXT_BBOOKB     = 0x150,
 	TEXT_BBOOKC     = 0x151,
 #endif
-	NUM_TEXTS
+	NUM_TEXTS,
+	TEXT_NONE       = -1,
 } _speech_id;
 
 typedef enum object_graphic_id {
