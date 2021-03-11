@@ -4551,7 +4551,7 @@ static void SyncL2Doors(int oi)
 			ObjSetMicro(x, y, 538);
 		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
 			ObjSetMicro(x, y, 13);
-	} else if (os->_otype == OBJ_L2RDOOR) {
+	} else { // if (os->_otype == OBJ_L2RDOOR) {
 		if (os->_oVar4 == DOOR_CLOSED)
 			ObjSetMicro(x, y, 540);
 		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
@@ -4574,7 +4574,7 @@ static void SyncL3Doors(int oi)
 			ObjSetMicro(x, y, 531);
 		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
 			ObjSetMicro(x, y, 538);
-	} else if (os->_otype == OBJ_L3RDOOR) {
+	} else { // if (os->_otype == OBJ_L3RDOOR) {
 		if (os->_oVar4 == DOOR_CLOSED)
 			ObjSetMicro(x, y, 534);
 		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)

@@ -5141,17 +5141,14 @@ bool PosOkMonst2(int mnum, int x, int y)
 bool PosOkMonst3(int mnum, int x, int y)
 {
 	bool isdoor;
-	int oi, objtype;
+	int oi;
 
 	isdoor = false;
 
 	oi = dObject[x][y];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		objtype = object[oi]._otype;
-		isdoor = objtype == OBJ_L1LDOOR || objtype == OBJ_L1RDOOR
-		    || objtype == OBJ_L2LDOOR || objtype == OBJ_L2RDOOR
-		    || objtype == OBJ_L3LDOOR || objtype == OBJ_L3RDOOR;
+		isdoor = object[oi]._oDoorFlag;
 		if (object[oi]._oSolidFlag && !isdoor) {
 			return false;
 		}
