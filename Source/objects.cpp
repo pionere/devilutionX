@@ -1486,7 +1486,7 @@ static void AddArmorStand(int oi)
 
 	os = &object[oi];
 	if (!gbArmorFlag) {
-		os->_oAnimFlag = TRUE;
+		os->_oAnimFrame = 2;
 		os->_oSelFlag = 0;
 	}
 
@@ -1592,7 +1592,7 @@ static void AddWeaponRack(int oi)
 
 	os = &object[oi];
 	if (!gbWeaponFlag) {
-		os->_oAnimFlag = TRUE;
+		os->_oAnimFrame = 2;
 		os->_oSelFlag = 0;
 	}
 	os->_oRndSeed = GetRndSeed();
