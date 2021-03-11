@@ -8,8 +8,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int numthemes;
-bool gbArmorFlag;
-bool gbWeaponFlag;
+bool _gbArmorFlag;
+bool _gbWeaponFlag;
 bool _gbTreasureFlag;
 bool _gbMFountainFlag;
 bool _gbCauldronFlag;
@@ -377,7 +377,7 @@ void InitThemes()
 
 	zharlib = -1;
 	numthemes = 0;
-	gbArmorFlag = true;
+	_gbArmorFlag = true;
 	_gbBFountainFlag = true;
 	_gbCauldronFlag = true;
 	_gbMFountainFlag = true;
@@ -385,7 +385,7 @@ void InitThemes()
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
 	_gbBCrossFlag = false;
-	gbWeaponFlag = true;
+	_gbWeaponFlag = true;
 
 	assert(leveltype != DTYPE_TOWN);
 	if (currlevel == 16)
@@ -820,7 +820,7 @@ static void Theme_ArmorStand(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	if (gbArmorFlag) {
+	if (_gbArmorFlag) {
 		if (TFit_Obj3(tidx))
 			AddObject(OBJ_ARMORSTAND, themex, themey);
 	}
@@ -836,7 +836,7 @@ static void Theme_ArmorStand(int tidx)
 		}
 	}
 	PlaceThemeMonsts(tidx, monstrnd);
-	gbArmorFlag = false;
+	_gbArmorFlag = false;
 }
 
 /**
@@ -938,30 +938,35 @@ static void Theme_BrnCross(int tidx)
  */
 static void Theme_WeaponRack(int tidx)
 {
-	int xx, yy;
+	int xx, yy, type;
 	const char weaponrnds[4] = { 6, 8, 5, 8 };
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 	const char weaponrnd = weaponrnds[leveltype - 1];
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	if (gbWeaponFlag) {
+	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
+	type = OBJ_WEAPONRACKL + 2 * random_(0, 2);
+	if (_gbWeaponFlag) {
 		if (TFit_Obj3(tidx))
-			AddObject(OBJ_WEAPONRACK, themex, themey);
+			AddObject(type, themex, themey);
 	}
+	static_assert(OBJ_WEAPONRACKL + 1 == OBJ_WEAPONRACKLN, "Theme_WeaponRack depends on the order of WEAPONRACKL(N)");
+	static_assert(OBJ_WEAPONRACKR + 1 == OBJ_WEAPONRACKRN, "Theme_WeaponRack depends on the order of WEAPONRACKR(N)");
+	type += 1;
 	for (yy = 0; yy < MAXDUNY; yy++) {
 		for (xx = 0; xx < MAXDUNX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (CheckThemeObj3(xx, yy, tidx, -1)) {
 					if (random_(0, weaponrnd) == 0) {
-						AddObject(OBJ_WEAPONRACKN, xx, yy);
+						AddObject(type, xx, yy);
 					}
 				}
 			}
 		}
 	}
 	PlaceThemeMonsts(tidx, monstrnd);
-	gbWeaponFlag = false;
+	_gbWeaponFlag = false;
 }
 
 /**

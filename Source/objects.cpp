@@ -1497,11 +1497,6 @@ static void AddArmorStand(int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (!gbArmorFlag) {
-		os->_oAnimFrame = 2;
-		os->_oSelFlag = 0;
-	}
-
 	os->_oRndSeed = GetRndSeed();
 }
 
@@ -1599,10 +1594,6 @@ static void AddWeaponRack(int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (!gbWeaponFlag) {
-		os->_oAnimFrame = 2;
-		os->_oSelFlag = 0;
-	}
 	os->_oRndSeed = GetRndSeed();
 }
 
@@ -1836,7 +1827,8 @@ int AddObject(int type, int ox, int oy)
 		AddPedistal(oi);
 		break;
 	case OBJ_WARWEAP:
-	case OBJ_WEAPONRACK:
+	case OBJ_WEAPONRACKL:
+	case OBJ_WEAPONRACKR:
 		AddWeaponRack(oi);
 		break;
 	case OBJ_TNUDEM2:
@@ -4289,7 +4281,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperatePedistal(pnum, oi, sendmsg);
 		break;
 	case OBJ_WARWEAP:
-	case OBJ_WEAPONRACK:
+	case OBJ_WEAPONRACKL:
+	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, sendmsg);
 		break;
 	case OBJ_MUSHPATCH:
@@ -4439,7 +4432,8 @@ void SyncOpObject(int pnum, int oi)
 	//	OperatePedistal(pnum, oi, false);
 	//	break;
 	case OBJ_WARWEAP:
-	case OBJ_WEAPONRACK:
+	case OBJ_WEAPONRACKL:
+	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, false);
 		break;
 	case OBJ_MUSHPATCH:
@@ -4756,7 +4750,8 @@ void GetObjectStr(int oi)
 		copy_cstr(infostr, StoryBookName[os->_oVar3]); // STORY_BOOK_NAME
 		break;
 	case OBJ_WARWEAP:
-	case OBJ_WEAPONRACK:
+	case OBJ_WEAPONRACKL:
+	case OBJ_WEAPONRACKR:
 		copy_cstr(infostr, "Weapon Rack");
 		break;
 	case OBJ_MUSHPATCH:
