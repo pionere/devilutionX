@@ -1989,15 +1989,15 @@ static void Obj_Sarc(int oi)
 		os->_oAnimFlag = FALSE;
 }
 
-static void ActivateTrapLine(int ttype, int tid)
+static void ActivateTrapLine(int tid)
 {
 	ObjectStruct *os;
 	int i;
 
 	for (i = 0; i < nobjects; i++) {
 		os = &object[objectactive[i]];
-		if (os->_otype == ttype && os->_oVar1 == tid) {
-			os->_oVar4 = 1;
+		if (os->_otype == OBJ_FLAMEHOLE && os->_oVar1 == tid) { // FLAMETRAP_ID
+			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
 			os->_oAnimFlag = TRUE;
 			os->_oAnimDelay = 1;
 			os->_olid = AddLight(os->_ox, os->_oy, 1);
@@ -2041,7 +2041,7 @@ static void Obj_FlameTrap(int oi)
 			}
 		}
 		if (os->_oVar4 != FLAMETRAP_FIRE_INACTIVE)
-			ActivateTrapLine(os->_otype, os->_oVar1);
+			ActivateTrapLine(os->_oVar1); // FLAMETRAP_ID
 	} else {
 		if (os->_oAnimFrame == os->_oAnimLen)
 			os->_oAnimFrame = 11;
@@ -3188,33 +3188,21 @@ static void OperateFlameTrapLever(int oi, bool sendmsg)
 {
 	ObjectStruct *os, *on;
 	int i;
+	bool disable;
 
 	os = &object[oi];
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 
-	if (os->_oAnimFrame == FLAMETRAP_ACTIVE_FRAME) {
-		os->_oAnimFrame = FLAMETRAP_INACTIVE_FRAME;
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSETRAP, oi);
-		for (i = 0; i < nobjects; i++) {
-			on = &object[objectactive[i]]; //         FLAMETRAP_ID
-			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
-				on->_oVar2 = TRAP_INACTIVE;
-				on->_oAnimFlag = FALSE;
-			}
-		}
-	} else {
-		os->_oAnimFrame = FLAMETRAP_ACTIVE_FRAME;
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENTRAP, oi);
-		for (i = 0; i < nobjects; i++) {
-			on = &object[objectactive[i]];//         FLAMETRAP_ID
-			if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
-				on->_oVar2 = TRAP_ACTIVE;
-				if (on->_oVar4 != FLAMETRAP_FIRE_INACTIVE)
-					on->_oAnimFlag = TRUE;
-			}
+	disable = os->_oAnimFrame == FLAMETRAP_ACTIVE_FRAME;
+	os->_oAnimFrame = disable ? FLAMETRAP_INACTIVE_FRAME : FLAMETRAP_ACTIVE_FRAME;
+
+	if (sendmsg)
+		NetSendCmdParam1(true, disable ? CMD_CLOSETRAP : CMD_OPENTRAP, oi);
+	for (i = 0; i < nobjects; i++) {
+		on = &object[objectactive[i]]; //         FLAMETRAP_ID
+		if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
+			on->_oVar2 = disable ? TRAP_INACTIVE : TRAP_ACTIVE;
 		}
 	}
 }
@@ -4506,23 +4494,6 @@ static void SyncL1Doors(int oi)
 	DoorSet(oi, x, y);
 }
 
-static void SyncCrux(int oi)
-{
-	ObjectStruct *os, *on;
-	int i;
-
-	os = &object[oi];
-	for (i = 0; i < nobjects; i++) {
-		on = &object[objectactive[i]];
-		if (on->_otype != OBJ_CRUX1 && on->_otype != OBJ_CRUX2 && on->_otype != OBJ_CRUX3)
-			continue;
-		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
-			continue;
-		return;
-	}
-	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
-}
-
 static void SyncLever(int oi)
 {
 	ObjectStruct *os;
@@ -4633,11 +4604,6 @@ void SyncObjectAnim(int oi)
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		SyncL3Doors(oi);
-		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
-		SyncCrux(oi);
 		break;
 	case OBJ_LEVER:
 	case OBJ_BOOK2L:
