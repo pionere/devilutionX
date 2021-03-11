@@ -4522,7 +4522,7 @@ void ProcessMonsters()
 				mon->_msquelch = UCHAR_MAX;
 				mon->_lastx = mon->_menemyx;
 				mon->_lasty = mon->_menemyy;
-			} else if (mon->_msquelch != 0 && mon->_mAi != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType'
+			} else if (mon->_msquelch != 0 && mon->_mType != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType' (fixed)
 				mon->_msquelch--;
 			}
 		}

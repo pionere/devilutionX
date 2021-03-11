@@ -116,6 +116,9 @@ void InitQuests()
 		}
 	}
 
+	Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
+	Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_MUSH9;
+
 	gbQuestlog = false;
 	WaterDone = 0;
 	initiatedQuests = 0;
@@ -681,12 +684,13 @@ void ResyncQuests()
 			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
 		} else {
+			// TODO: why is this not done on currlevel == 0?
 			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 				if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN) {
-					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = -1;
+					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
 					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
 				} else if (quests[Q_MUSHROOM]._qvar1 >= QS_BRAINGIVEN) {
-					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = -1;
+					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
 				}
 			}
 		}
