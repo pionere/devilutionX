@@ -584,7 +584,6 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 	int min, max;
 
 	themeCount = 0;
-	memset(themeLoc, 0, sizeof(*themeLoc));
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == floor && random_(0, freq) == 0 && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
@@ -619,8 +618,8 @@ void DRLG_HoldThemeRooms()
 	int i, x, y, xx, yy;
 
 	for (i = 0; i < themeCount; i++) {
-		for (y = themeLoc[i].y; y < themeLoc[i].y + themeLoc[i].height - 1; y++) {
-			for (x = themeLoc[i].x; x < themeLoc[i].x + themeLoc[i].width - 1; x++) {
+		for (y = themeLoc[i].y; y < themeLoc[i].y + themeLoc[i].height; y++) {
+			for (x = themeLoc[i].x; x < themeLoc[i].x + themeLoc[i].width; x++) {
 				xx = 2 * x + DBORDERX;
 				yy = 2 * y + DBORDERY;
 				dFlags[xx][yy] |= BFLAG_POPULATED;
@@ -637,8 +636,8 @@ bool SkipThemeRoom(int x, int y)
 	int i;
 
 	for (i = 0; i < themeCount; i++) {
-		if (x >= themeLoc[i].x - 2 && x <= themeLoc[i].x + themeLoc[i].width + 2
-		    && y >= themeLoc[i].y - 2 && y <= themeLoc[i].y + themeLoc[i].height + 2)
+		if (x >= themeLoc[i].x - 2 && x < themeLoc[i].x + themeLoc[i].width + 2
+		    && y >= themeLoc[i].y - 2 && y < themeLoc[i].y + themeLoc[i].height + 2)
 			return false;
 	}
 
