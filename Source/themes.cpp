@@ -14,14 +14,14 @@ bool _gbTreasureFlag;
 bool _gbMFountainFlag;
 bool _gbCauldronFlag;
 bool _gbTFountainFlag;
+bool _gbPFountainFlag;
+bool _gbBFountainFlag;
+bool _gbBCrossFlag;
 int zharlib;
 int themex;
 int themey;
 int themeVar1;
 ThemeStruct themes[MAXTHEMES];
-bool _bgPFountainFlag;
-bool _gbBFountainFlag;
-bool _gbBCrossFlag;
 
 /** Specifies the set of special theme IDs from which one will be selected at random. */
 int ThemeGood[4] = { THEME_GOATSHRINE, THEME_SHRINE, THEME_SKELROOM, THEME_LIBRARY };
@@ -152,10 +152,6 @@ static bool TFit_SkelRoom(int tidx)
 {
 	int i;
 
-	if (leveltype != DTYPE_CATHEDRAL && leveltype != DTYPE_CATACOMBS) {
-		return false;
-	}
-
 	for (i = 0; i < nummtypes; i++) {
 		if (IsSkel(Monsters[i].mtype)) {
 			themeVar1 = i;
@@ -238,7 +234,7 @@ static bool CheckThemeReqs(int theme)
 	case THEME_BLOODFOUNTAIN:
 		return _gbBFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
-		return _bgPFountainFlag;
+		return _gbPFountainFlag;
 	case THEME_ARMORSTAND:
 		return leveltype != DTYPE_CATHEDRAL;
 	case THEME_CAULDRON:
@@ -285,7 +281,7 @@ static bool SpecialThemeFit(int tidx, int theme)
 	case THEME_PURIFYINGFOUNTAIN:
 		rv = TFit_Obj5(tidx);
 		if (rv) {
-			_bgPFountainFlag = false;
+			_gbPFountainFlag = false;
 		}
 		break;
 	case THEME_MURKYFOUNTAIN:
@@ -381,7 +377,7 @@ void InitThemes()
 	_gbBFountainFlag = true;
 	_gbCauldronFlag = true;
 	_gbMFountainFlag = true;
-	_bgPFountainFlag = true;
+	_gbPFountainFlag = true;
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
 	_gbBCrossFlag = false;
@@ -436,21 +432,21 @@ void HoldThemeRooms()
 	int i, xx, yy;
 	char v;
 
-	if (currlevel != 16) {
-		if (leveltype == DTYPE_CATHEDRAL) {
-			for (i = 0; i < numthemes; i++) {
-				v = themes[i].ttval;
-				for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
-					for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
-						if (dTransVal[xx][yy] == v) {
-							dFlags[xx][yy] |= BFLAG_POPULATED;
-						}
+	if (currlevel == 16)
+		return;
+	if (leveltype == DTYPE_CATHEDRAL) {
+		for (i = 0; i < numthemes; i++) {
+			v = themes[i].ttval;
+			for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+				for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
+					if (dTransVal[xx][yy] == v) {
+						dFlags[xx][yy] |= BFLAG_POPULATED;
 					}
 				}
 			}
-		} else {
-			DRLG_HoldThemeRooms();
 		}
+	} else {
+		DRLG_HoldThemeRooms();
 	}
 }
 
@@ -584,7 +580,7 @@ static void Theme_SkelRoom(int tidx)
 {
 	int xx, yy, i;
 	const char monstrnds[4] = { 6, 7, 3, 9 };
-	const char monstrnd = monstrnds[leveltype - 1];
+	char monstrnd;
 
 	if (!TFit_SkelRoom(tidx))
 		return;
@@ -594,6 +590,7 @@ static void Theme_SkelRoom(int tidx)
 
 	AddObject(OBJ_SKFIRE, xx, yy);
 
+	char monstrnd = monstrnds[leveltype - 1];
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
 		SpawnSkeleton(i, xx - 1, yy - 1);
@@ -661,7 +658,6 @@ static void Theme_Treasure(int tidx)
 	const char monstrnd = monstrnds[leveltype - 1];
 	const char tv = themes[tidx].ttval;
 
-	GetRndSeed();
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
@@ -690,8 +686,7 @@ static void Theme_Library(int tidx)
 	int xx, yy, oi;
 	const char librnds[4] = { 1, 2, 2, 5 };
 	const char monstrnds[4] = { 5, 7, 3, 9 };
-	const char librnd = librnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];  /// BUGFIX: `leveltype - 1` (fixed)
+	char librnd, monstrnd;
 
 	if (TFit_Shrine(tidx)) {
 		if (themeVar1 == 1) {
@@ -705,6 +700,8 @@ static void Theme_Library(int tidx)
 		}
 	}
 
+	librnd = librnds[leveltype - 1];
+	monstrnd = monstrnds[leveltype - 1];  /// BUGFIX: `leveltype - 1` (fixed)
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (CheckThemeObj3(xx, yy, tidx, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
@@ -818,12 +815,13 @@ static void Theme_ArmorStand(int tidx)
 	const char monstrnds[4] = { 6, 7, 3, 9 };
 	const char armorrnd = armorrnds[leveltype - 1];
 	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	char tv;
 
 	if (_gbArmorFlag) {
 		if (TFit_Obj3(tidx))
 			AddObject(OBJ_ARMORSTAND, themex, themey);
 	}
+	tv = themes[tidx].ttval;
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
@@ -847,11 +845,12 @@ static void Theme_ArmorStand(int tidx)
 static void Theme_GoatShrine(int tidx)
 {
 	int xx, yy;
-	const char tv = themes[tidx].ttval;
+	char tv;
 
 	if (!TFit_GoatShrine(tidx))
 		return;
 	AddObject(OBJ_GOATSHRINE, themex, themey);
+	tv = themes[tidx].ttval;
 	for (yy = themey - 1; yy <= themey + 1; yy++) {
 		for (xx = themex - 1; xx <= themex + 1; xx++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && (xx != themex || yy != themey)) {
@@ -992,9 +991,9 @@ void CreateThemeRooms()
 {
 	int i;
 
-	if (currlevel == 16) {
+	if (currlevel == 16)
 		return;
-	}
+
 	gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
 		switch (themes[i].ttype) {
