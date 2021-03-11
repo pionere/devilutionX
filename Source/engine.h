@@ -55,8 +55,6 @@ void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tb
 void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelClippedDrawSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawLightRedSafe(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void ENG_set_pixel(int sx, int sy, BYTE col);
 #ifdef _DEBUG
