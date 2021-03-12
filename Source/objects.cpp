@@ -603,7 +603,7 @@ static void AddL2Torches()
 
 static void AddObjTraps()
 {
-	int i, j, oi;
+	int i, j, oi, on;
 	int xp, yp;
 	int rndv;
 
@@ -618,13 +618,15 @@ static void AddObjTraps()
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			oi = dObject[i][j];
-			if (oi <= 0 || random_(144, 100) >= rndv)
+			if (oi <= 0)
 				continue;
 
 			oi--;
 			if (!AllObjects[object[oi]._otype].oTrapFlag)
 				continue;
 
+			if (random_(144, 100) >= rndv)
+				continue;
 			if (random_(144, 2) == 0) {
 				xp = i - 1;
 				while (!nSolidTable[dPiece[xp][j]])
@@ -633,10 +635,7 @@ static void AddObjTraps()
 				if (!WallTrapLocOk(xp, j) || i - xp <= 1)
 					continue;
 
-				object[oi]._oTrapFlag = TRUE;
-				oi = AddObject(OBJ_TRAPL, xp, j);
-				object[oi]._oVar1 = i;
-				object[oi]._oVar2 = j;
+				on = AddObject(OBJ_TRAPL, xp, j);
 			} else {
 				yp = j - 1;
 				while (!nSolidTable[dPiece[i][yp]])
@@ -645,11 +644,12 @@ static void AddObjTraps()
 				if (!WallTrapLocOk(i, yp) || j - yp <= 1)
 					continue;
 
-				object[oi]._oTrapFlag = TRUE;
-				oi = AddObject(OBJ_TRAPR, i, yp);
-				object[oi]._oVar1 = i;
-				object[oi]._oVar2 = j;
+				on = AddObject(OBJ_TRAPR, i, yp);
 			}
+			if (on == -1)
+				return;
+			object[oi]._oTrapFlag = TRUE;
+			object[on]._oVar1 = oi; // TRAP_OI_REF
 		}
 	}
 }
@@ -2047,65 +2047,81 @@ static void Obj_FlameTrap(int oi)
 	}
 }
 
-void Obj_Trap(int oi)
+static void Obj_Trap(int oi)
 {
 	ObjectStruct *os, *on;
-	int dir;
-	bool otrig;
+	int i, dir, trigNum;
+	const POS32 *trigArea;
+	const POS32 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
+	const POS32 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 } , { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
+
 	int sx, sy, dx, dy, x, y;
 
-	otrig = false;
 	os = &object[oi];
-	if (os->_oVar4 == TRAP_ACTIVE) {
-		on = &object[dObject[os->_oVar1][os->_oVar2] - 1];
-		switch (on->_otype) {
-		case OBJ_L1LDOOR:
-		case OBJ_L1RDOOR:
-		case OBJ_L2LDOOR:
-		case OBJ_L2RDOOR:
-		case OBJ_L3LDOOR:
-		case OBJ_L3RDOOR:
-			if (on->_oVar4 != DOOR_CLOSED)
-				otrig = true;
-			break;
-		case OBJ_LEVER:
-		case OBJ_CHEST1:
-		case OBJ_CHEST2:
-		case OBJ_CHEST3:
-		case OBJ_SWITCHSKL:
-		case OBJ_SARC:
-			if (on->_oSelFlag == 0)
-				otrig = true;
-			break;
+	if (os->_oVar4 != TRAP_ACTIVE)
+		return;
+
+	trigNum = 0;
+	on = &object[os->_oVar1]; // TRAP_OI_REF
+	switch (on->_otype) {
+	case OBJ_L1LDOOR:
+	case OBJ_L1RDOOR:
+	case OBJ_L2LDOOR:
+	case OBJ_L2RDOOR:
+	case OBJ_L3LDOOR:
+	case OBJ_L3RDOOR:
+		if (on->_oVar4 != DOOR_CLOSED) {
+			trigArea = baseTrigArea;
+			trigNum = lengthof(baseTrigArea);
 		}
-		if (otrig) {
-			os->_oVar4 = TRAP_INACTIVE;
-			// TODO: after delta-load the re-closed doors are armed again!
-			//  maybe it would be good to disable the trap in case the SyncCloseDoor
-			//  is called. (SyncCloseDoor -> on->_oTrapFlag = FALSE;
-			//    -> check if the trapFlag is set before firing the missile)
-			if (!deltaload) {
-				// TODO: what if the object was operated via telekinesis?
-				//  might be a better idea to just fire in the general direction of os -> on
-				dx = sx = on->_ox;
-				dy = sy = on->_oy;
-				for (y = sy - 1; y <= sy + 1; y++) {
-					for (x = sx - 1; x <= sx + 1; x++) {
-						if (dPlayer[x][y] != 0) {
-							dx = x;
-							dy = y;
-						}
-					}
-				}
-				sx = os->_ox;
-				sy = os->_oy;
-				dir = GetDirection(sx, sy, dx, dy);
-				AddMissile(sx, sy, dx, dy, dir, os->_oVar3, 1, -1, 0, 0, 0); // TRAP_MISTYPE
-				PlaySfxLoc(IS_TRAP, on->_ox, on->_oy);
-			}
-			on->_oTrapFlag = FALSE;
+		break;
+	case OBJ_LEVER:
+	case OBJ_CHEST1:
+	case OBJ_CHEST2:
+	case OBJ_CHEST3:
+	case OBJ_SWITCHSKL:
+		if (on->_oSelFlag == 0) {
+			trigArea = baseTrigArea;
+			trigNum = lengthof(baseTrigArea);
+		}
+		break;
+	case OBJ_SARC:
+		if (on->_oSelFlag == 0) {
+			trigArea = sarcTrigArea;
+			trigNum = lengthof(sarcTrigArea);
+		}
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (trigNum == 0)
+		return;
+
+	os->_oVar4 = TRAP_INACTIVE;
+	on->_oTrapFlag = FALSE;
+
+	sx = on->_ox;
+	sy = on->_oy;
+	PlaySfxLoc(IS_TRAP, sx, sy);
+
+	dx = sx;
+	dy = sy;
+	for (i = 0; i < trigNum; i++) {
+		x = sx + trigArea[i].x;
+		y = sy + trigArea[i].y;
+		if (dPlayer[x][y] != 0) {
+			dx = x;
+			dy = y;
 		}
 	}
+
+	sx = os->_ox;
+	sy = os->_oy;
+	dir = GetDirection(sx, sy, dx, dy);
+	AddMissile(sx, sy, dx, dy, dir, os->_oVar3, 1, -1, 0, 0, 0); // TRAP_MISTYPE
+
+	NetSendCmdParam1(false, CMD_TRAPDISABLE, oi);
 }
 
 static void Obj_BCrossDamage(int oi)
@@ -2458,7 +2474,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
 			PlaySfxLoc(currlevel < 21 ? IS_DOOROPEN : IS_CROPEN, xp, yp);
@@ -2494,7 +2510,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 #endif
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
 
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
@@ -2537,7 +2553,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
 			PlaySfxLoc(currlevel < 21 ? IS_DOOROPEN : IS_CROPEN, xp, yp);
@@ -2577,7 +2593,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 #endif
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 #ifdef HELLFIRE
@@ -2618,7 +2634,7 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 17);
@@ -2638,7 +2654,7 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 540);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2667,7 +2683,7 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 13);
@@ -2687,7 +2703,7 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 538);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2716,7 +2732,7 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 541);
@@ -2736,7 +2752,7 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 534);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2765,7 +2781,7 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_OPENDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 538);
@@ -2785,7 +2801,7 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
-			NetSendCmdParam1(true, CMD_CLOSEDOOR, oi);
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 531);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -3205,7 +3221,7 @@ static void OperateFlameTrapLever(int oi, bool sendmsg)
 	os->_oAnimFrame = disable ? FLAMETRAP_INACTIVE_FRAME : FLAMETRAP_ACTIVE_FRAME;
 
 	if (sendmsg)
-		NetSendCmdParam1(true, disable ? CMD_CLOSETRAP : CMD_OPENTRAP, oi);
+		NetSendCmdParam1(true, disable ? CMD_TRAPCLOSE : CMD_TRAPOPEN, oi);
 	for (i = 0; i < nobjects; i++) {
 		on = &object[objectactive[i]]; //         FLAMETRAP_ID
 		if (on->_otype == OBJ_FLAMEHOLE && on->_oVar1 == os->_oVar1) {
@@ -3327,7 +3343,7 @@ static void CloseChest(int oi, bool sendmsg)
 	os->_oRndSeed = GetRndSeed();
 
 	if (sendmsg)
-		NetSendCmdParam1(false, CMD_CLOSECHEST, oi);
+		NetSendCmdParam1(false, CMD_CHESTCLOSE, oi);
 }
 
 /** Reduce the maximum mana of the given player by 10%
@@ -4303,23 +4319,28 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	}
 }
 
-void SyncOpenDoor(int oi)
+void SyncDoorOpen(int oi)
 {
 	if (object[oi]._oVar4 == DOOR_CLOSED)
 		SyncOpObject(-1, oi);
 }
-void SyncCloseDoor(int oi)
+void SyncDoorClose(int oi)
 {
 	if (object[oi]._oVar4 == DOOR_OPEN)
 		SyncOpObject(-1, oi);
 }
 
-void SyncOpenTrap(int oi)
+void SyncTrapDisable(int oi)
+{
+	object[oi]._oVar4 = TRAP_INACTIVE;
+}
+
+void SyncTrapOpen(int oi)
 {
 	if (object[oi]._oAnimFrame == FLAMETRAP_INACTIVE_FRAME)
 		SyncOpObject(-1, oi);
 }
-void SyncCloseTrap(int oi)
+void SyncTrapClose(int oi)
 {
 	if (object[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
 		SyncOpObject(-1, oi);
@@ -4330,7 +4351,7 @@ void SyncCloseTrap(int oi)
  * Does NOT work as a standard sync, because it needs to force the new oRndSeed.
  * (to achive this, OperateChest is called).
  */
-void SyncCloseChest(int oi)
+void SyncChestClose(int oi)
 {
 	// assert(deltaload);
 	OperateChest(-1, oi, false);

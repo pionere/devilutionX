@@ -856,7 +856,7 @@ void DeltaLoadLevel()
 	DObjectStr *dstr;
 	MonsterStruct *mon;
 	TCmdPItem* itm;
-	int ii, ot;
+	int ii;
 	int i;
 	int x, y;
 
@@ -904,32 +904,29 @@ void DeltaLoadLevel()
 				case CMD_OPERATEOBJ:
 					SyncOpObject(-1, i);
 					break;
-				case CMD_OPENDOOR:
-					SyncOpenDoor(i);
+				case CMD_DOOROPEN:
+					SyncDoorOpen(i);
 					break;
-				case CMD_CLOSEDOOR:
-					SyncCloseDoor(i);
+				case CMD_DOORCLOSE:
+					SyncDoorClose(i);
 					break;
-				case CMD_OPENTRAP:
-					SyncOpenTrap(i);
+				case CMD_TRAPDISABLE:
+					SyncTrapDisable(i);
 					break;
-				case CMD_CLOSETRAP:
-					SyncCloseTrap(i);
+				case CMD_TRAPOPEN:
+					SyncTrapOpen(i);
 					break;
-				case CMD_CLOSECHEST:
-					SyncCloseChest(i);
+				case CMD_TRAPCLOSE:
+					SyncTrapClose(i);
+					break;
+				case CMD_CHESTCLOSE:
+					SyncChestClose(i);
 					break;
 				default:
 					ASSUME_UNREACHABLE
 					break;
 				}
 			}
-		}
-
-		for (i = 0; i < nobjects; i++) {
-			ot = object[objectactive[i]]._otype;
-			if (ot == OBJ_TRAPL || ot == OBJ_TRAPR)
-				Obj_Trap(objectactive[i]);
 		}
 	}
 
@@ -2130,7 +2127,7 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
+static DWORD On_DOOROPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2138,14 +2135,14 @@ static DWORD On_OPENDOOR(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-		//	SyncOpenDoor(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_OPENDOOR, plr[pnum].plrlevel);
+		//	SyncDoorOpen(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_DOOROPEN, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
 }
 
-static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
+static DWORD On_DOORCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2153,14 +2150,14 @@ static DWORD On_CLOSEDOOR(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-		//	SyncCloseDoor(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_CLOSEDOOR, plr[pnum].plrlevel);
+		//	SyncDoorClose(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_DOORCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
 }
 
-static DWORD On_OPENTRAP(TCmd *pCmd, int pnum)
+static DWORD On_TRAPDISABLE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2168,14 +2165,14 @@ static DWORD On_OPENTRAP(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-		//	SyncOpenTrap(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_OPENTRAP, plr[pnum].plrlevel);
+		//	SyncTrapDisable(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_TRAPDISABLE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
 }
 
-static DWORD On_CLOSETRAP(TCmd *pCmd, int pnum)
+static DWORD On_TRAPOPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2183,8 +2180,23 @@ static DWORD On_CLOSETRAP(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-		//	SyncCloseTrap(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_CLOSETRAP, plr[pnum].plrlevel);
+		//	SyncTrapOpen(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_TRAPOPEN, plr[pnum].plrlevel);
+	}
+
+	return sizeof(*cmd);
+}
+
+static DWORD On_TRAPCLOSE(TCmd *pCmd, int pnum)
+{
+	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
+		//	SyncTrapClose(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_TRAPCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2205,7 +2217,7 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_CLOSECHEST(TCmd *pCmd, int pnum)
+static DWORD On_CHESTCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2213,8 +2225,8 @@ static DWORD On_CLOSECHEST(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currlevel == plr[pnum].plrlevel)
-		//	SyncCloseChest(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_CLOSECHEST, plr[pnum].plrlevel);
+		//	SyncChestClose(cmd->wParam1);
+		delta_sync_object(cmd->wParam1, CMD_CHESTCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2609,16 +2621,18 @@ DWORD ParseCmd(int pnum, TCmd *pCmd)
 		return On_PLRDAMAGE(pCmd, pnum);
 	case CMD_OPERATEOBJ:
 		return On_OPERATEOBJ(pCmd, pnum);
-	case CMD_OPENDOOR:
-		return On_OPENDOOR(pCmd, pnum);
-	case CMD_CLOSEDOOR:
-		return On_CLOSEDOOR(pCmd, pnum);
-	case CMD_OPENTRAP:
-		return On_OPENTRAP(pCmd, pnum);
-	case CMD_CLOSETRAP:
-		return On_CLOSETRAP(pCmd, pnum);
-	case CMD_CLOSECHEST:
-		return On_CLOSECHEST(pCmd, pnum);
+	case CMD_DOOROPEN:
+		return On_DOOROPEN(pCmd, pnum);
+	case CMD_DOORCLOSE:
+		return On_DOORCLOSE(pCmd, pnum);
+	case CMD_TRAPDISABLE:
+		return On_TRAPDISABLE(pCmd, pnum);
+	case CMD_TRAPOPEN:
+		return On_TRAPOPEN(pCmd, pnum);
+	case CMD_TRAPCLOSE:
+		return On_TRAPCLOSE(pCmd, pnum);
+	case CMD_CHESTCLOSE:
+		return On_CHESTCLOSE(pCmd, pnum);
 	case CMD_CHANGEPLRITEMS:
 		return On_CHANGEPLRITEMS(pCmd, pnum);
 	case CMD_DELPLRITEMS:

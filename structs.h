@@ -13,6 +13,11 @@ DEVILUTION_BEGIN_NAMESPACE
 // control
 //////////////////////////////////////////////////
 
+typedef struct POS32 {
+	int x;
+	int y;
+} POS32;
+
 typedef struct RECT32 {
 	int x;
 	int y;
