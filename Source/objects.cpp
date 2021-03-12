@@ -275,9 +275,7 @@ void FreeObjectGFX()
 	int i;
 
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
-		if (pObjCels[i] != NULL) {
-			MemFreeDbg(pObjCels[i]);
-		}
+		MemFreeDbg(pObjCels[i]);
 	}
 }
 
@@ -615,8 +613,8 @@ static void AddObjTraps()
 		rndv = 20;
 	if (currlevel >= 7)
 		rndv = 25;
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			oi = dObject[i][j];
 			if (oi <= 0)
 				continue;
@@ -659,8 +657,8 @@ static void AddChestTraps()
 	int i, j, r;
 	char oi;
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
+	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
+		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			oi = dObject[i][j];
 			if (oi > 0) {
 				oi--;
@@ -1235,12 +1233,13 @@ static void SetupObject(int oi, int x, int y, int type)
 	os->_oSolidFlag = ods->oSolidFlag;
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oLight = ods->oLightFlag;
-	os->_oDelFlag = FALSE;
+	// os->_oDelFlag = FALSE; - unused
 	os->_oBreak = ods->oBreak;
 	os->_oSelFlag = ods->oSelFlag;
-	os->_oPreFlag = FALSE;
-	os->_oTrapFlag = FALSE;
-	os->_oDoorFlag = FALSE;
+	static_assert(FALSE == 0, "SetupObject expects the objects to be zero-filled and skips a few initialization steps.");
+	//os->_oPreFlag = FALSE;
+	//os->_oTrapFlag = FALSE;
+	//os->_oDoorFlag = FALSE;
 }
 
 void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
@@ -1305,7 +1304,7 @@ static void AddL1Door(int oi, int x, int y, int type)
 	os = &object[oi];
 	os->_oVar4 = DOOR_CLOSED;
 	//os->_oPreFlag = FALSE;
-	os->_oSelFlag = 3;
+	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
 	os->_oDoorFlag = TRUE;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
@@ -1324,13 +1323,10 @@ static void AddL2Door(int oi, int x, int y, int type)
 	os = &object[oi];
 	os->_oVar4 = DOOR_CLOSED;
 	//os->_oPreFlag = FALSE;
-	os->_oSelFlag = 3;
+	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
 	os->_oDoorFlag = TRUE;
-	if (type == OBJ_L2LDOOR)
-		ObjSetMicro(x, y, 538);
-	else
-		ObjSetMicro(x, y, 540);
+	ObjSetMicro(x, y, type == OBJ_L2LDOOR ? 538 : 540);
 }
 
 static void AddL3Door(int oi, int x, int y, int type)
@@ -1340,13 +1336,10 @@ static void AddL3Door(int oi, int x, int y, int type)
 	os = &object[oi];
 	os->_oVar4 = DOOR_CLOSED;
 	//os->_oPreFlag = FALSE;
-	os->_oSelFlag = 3;
+	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
 	os->_oDoorFlag = TRUE;
-	if (type == OBJ_L3LDOOR)
-		ObjSetMicro(x, y, 531);
-	else
-		ObjSetMicro(x, y, 534);
+	ObjSetMicro(x, y, type == OBJ_L3LDOOR ? 531 : 534);
 }
 
 static void AddSarc(int oi)
@@ -1398,11 +1391,11 @@ static void AddTrap(int oi)
 	mt = random_(148, mt);
 	os = &object[oi];
 	// TRAP_MISTYPE
-	if (mt == 0)
-		os->_oVar3 = MIS_ARROW;
+	static_assert(MIS_ARROW == 0, "AddTrap might have an 'undefined'(0) missile-type, which is expected to be a standard arrow.");
+	// os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
 		os->_oVar3 = MIS_FIREBOLT;
-	if (mt == 2)
+	else if (mt == 2)
 		os->_oVar3 = MIS_LIGHTNINGC;
 	os->_oVar4 = TRAP_ACTIVE;
 }
@@ -2219,14 +2212,14 @@ void ProcessObjects()
 		if (object[oi]._oAnimFrame > object[oi]._oAnimLen)
 			object[oi]._oAnimFrame = 1;
 	}
-	for (i = 0; i < nobjects; ) {
+	/*for (i = 0; i < nobjects; ) {
 		oi = objectactive[i];
 		if (object[oi]._oDelFlag) {
 			DeleteObject_(oi, i);
 		} else {
 			i++;
 		}
-	}
+	}*/
 }
 
 void ObjSetMicro(int dx, int dy, int pn)
