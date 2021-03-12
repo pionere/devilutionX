@@ -9,46 +9,63 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define STORAGE_LIMIT		NUM_INV_GRID_ELEM + (MAXBELTITEMS > NUM_INVLOC ? MAXBELTITEMS : NUM_INVLOC)
 
-int stextup;
-int storenumh;
-/** Remember currently selected store item while displaying a dialog */
-int stextlhold;
-ItemStruct boyitem;
-/** Remember list scroll position while displaying a dialog */
-int stextshold;
-ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
-BYTE *pSTextBoxCels;
-int premiumlevel;
-int talker;
-STextStruct stext[STORE_LINES];
-bool _gbStextsize;
-int stextsmax;
-ItemStruct storehold[STORAGE_LIMIT];
-int gossipstart;
-ItemStruct witchitem[WITCH_ITEMS];
-bool _gbStextscrl;
-int numpremium;
-ItemStruct healitem[HEALER_ITEMS];
-ItemStruct golditem;
-char storehidx[STORAGE_LIMIT];
-BYTE *pSTextSlidCels;
-int stextvhold;
-/** Currently selected text line */
-int stextsel;
-int gossipend;
 BYTE *pSPentSpn2Cels;
+BYTE *pSTextBoxCels;
+BYTE *pSTextSlidCels;
+
+ItemStruct golditem;
+int boylevel;
+ItemStruct boyitem;
+ItemStruct smithitem[SMITH_ITEMS];
+int premiumlevel;
+int numpremium;
+ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
+ItemStruct witchitem[WITCH_ITEMS];
+ItemStruct healitem[HEALER_ITEMS];
+
+/** The current towner being interacted with */
+int talker;
+/** The current interaction mode(STORE*) */
+char stextflag;
+/** Is the current dialog full size */
+bool _gbStextsize;
+/** Does the current panel have a scrollbar */
+bool _gbStextscrl;
 /** Scroll position */
 int stextsidx;
-int boylevel;
-ItemStruct smithitem[SMITH_ITEMS];
+/** Next scroll position */
 int stextdown;
-/* Animation helpers for the slider buttons. */
+/** Previous scroll position */
+int stextup;
+/** Remember current interaction mode(STORE*) while displaying a dialog */
+int stextshold;
+/** Start of possible gossip dialogs for current store */
+int gossipstart;
+/** End of possible gossip dialogs for current store */
+int gossipend;
+/** Text lines */
+STextStruct stext[STORE_LINES];
+/** Currently selected text line from stext */
+int stextsel;
+/** Remember currently selected text line from stext while displaying a dialog */
+int stextlhold;
+/** Number of text lines in the current dialog */
+int stextsmax;
+/** Copies of the players items as presented in the store */
+ItemStruct storehold[STORAGE_LIMIT];
+/** Map of inventory items being presented in the store */
+char storehidx[STORAGE_LIMIT];
+/** Current index into storehidx/storehold */
+int storenumh;
+/** Remember last scroll position */
+int stextvhold;
+/** Count down for the push state of the scroll up button */
 char stextscrlubtn;
+/** Count down for the push state of the scroll down button */
 char stextscrldbtn;
-char stextflag;
 
 /** Maps from towner IDs to NPC names. */
-const char *const talkname[9] = {
+const char *const talkname[] = {
 	"Griswold",
 	"Pepin",
 	"",
@@ -428,7 +445,7 @@ static void S_ScrollSBuy()
 		}
 	}
 
-	if (!stext[stextsel]._ssel && stextsel != 22)
+	if (stextsel != -1 && stextsel != 22 && !stext[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -479,7 +496,7 @@ static void S_ScrollSPBuy()
 		idx++;
 	}
 
-	if (!stext[stextsel]._ssel && stextsel != 22)
+	if (stextsel != -1 && stextsel != 22 && !stext[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -708,7 +725,7 @@ static void S_ScrollWBuy()
 		}
 	}
 
-	if (!stext[stextsel]._ssel && stextsel != 22)
+	if (stextsel != -1 && stextsel != 22 && !stext[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -976,7 +993,7 @@ static void S_ScrollHBuy()
 		}
 	}
 
-	if (!stext[stextsel]._ssel && stextsel != 22)
+	if (stextsel != -1 && stextsel != 22 && !stext[stextsel]._ssel)
 		stextsel = stextdown;
 	stextsmax = storenumh - 4;
 	if (stextsmax < 0)
@@ -1636,6 +1653,10 @@ static bool StoreGoldFit(int idx)
 	return false;
 }
 
+/**
+ * @brief Add gold pile to the players inventory
+ * @param v The value of the gold pile
+ */
 static void PlaceStoreGold(int v)
 {
 	PlayerStruct *p;
@@ -1934,6 +1955,7 @@ static void BoyBuyItem()
 	StoreAutoPlace(true);
 	boyitem._itype = ITYPE_NONE;
 	stextshold = STORE_BOY;
+	stextlhold = 12;
 }
 
 /**
@@ -2048,7 +2070,7 @@ static void S_ConfirmEnter()
 	stextsel = stextlhold;
 	stextsidx = std::min(stextvhold, stextsmax);
 
-	while (!stext[stextsel]._ssel) {
+	while (stextsel != -1 && !stext[stextsel]._ssel) {
 		stextsel--;
 	}
 }
