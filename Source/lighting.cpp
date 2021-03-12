@@ -1016,10 +1016,12 @@ void ChangeLightRadius(int lnum, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_lradius = r;
 	gbDolighting = true;
 }
@@ -1036,10 +1038,12 @@ void ChangeLightXY(int lnum, int x, int y)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_lx = x;
 	lis->_ly = y;
 	gbDolighting = true;
@@ -1057,10 +1061,12 @@ void ChangeLightOff(int lnum, int xoff, int yoff)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_xoff = xoff;
 	lis->_yoff = yoff;
 	gbDolighting = true;
@@ -1080,10 +1086,12 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	assert(lnum != -1);
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_lx = x;
 	lis->_ly = y;
 	lis->_xoff = 0;
@@ -1112,10 +1120,12 @@ void CondChangeLightOff(int lnum, int xoff, int yoff)
 	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
 		return;
 
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_xoff = xoff;
 	lis->_yoff = yoff;
 	gbDolighting = true;
@@ -1133,10 +1143,12 @@ void ChangeLight(int lnum, int x, int y, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lunx = lis->_lx;
-	lis->_luny = lis->_ly;
-	lis->_lunr = lis->_lradius;
+	if (!lis->_lunflag) {
+		lis->_lunflag = true;
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius;
+	}
 	lis->_lx = x;
 	lis->_ly = y;
 	lis->_lradius = r;
@@ -1237,10 +1249,12 @@ void ChangeVisionRadius(int vnum, int r)
 	assert(vnum != -1);
 
 	vis = &VisionList[vnum];
-	vis->_lunflag = true;
-	vis->_lunx = vis->_lx;
-	vis->_luny = vis->_ly;
-	vis->_lunr = vis->_lradius;
+	if (!vis->_lunflag) {
+		vis->_lunflag = true;
+		vis->_lunx = vis->_lx;
+		vis->_luny = vis->_ly;
+		vis->_lunr = vis->_lradius;
+	}
 	vis->_lradius = r;
 	_gbDovision = true;
 }
@@ -1252,10 +1266,12 @@ void ChangeVisionXY(int vnum, int x, int y)
 	assert(vnum != -1);
 
 	vis = &VisionList[vnum];
-	vis->_lunflag = true;
-	vis->_lunx = vis->_lx;
-	vis->_luny = vis->_ly;
-	vis->_lunr = vis->_lradius;
+	if (!vis->_lunflag) {
+		vis->_lunflag = true;
+		vis->_lunx = vis->_lx;
+		vis->_luny = vis->_ly;
+		vis->_lunr = vis->_lradius;
+	}
 	vis->_lx = x;
 	vis->_ly = y;
 	_gbDovision = true;
