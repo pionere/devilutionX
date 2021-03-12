@@ -12,19 +12,33 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern ItemStruct boyitem;
-extern ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
+/** Shop frame graphics */
 extern BYTE *pSTextBoxCels;
-extern int premiumlevel;
-extern ItemStruct witchitem[WITCH_ITEMS];
-extern int numpremium;
-extern ItemStruct healitem[HEALER_ITEMS];
-extern ItemStruct golditem;
+/** Scrollbar graphics */
 extern BYTE *pSTextSlidCels;
+/** Small text selection cursor */
 extern BYTE *pSPentSpn2Cels;
-extern int boylevel;
-extern ItemStruct smithitem[SMITH_ITEMS];
+/** Currently active store */
 extern char stextflag;
+
+/** Temporary item used to generate gold piles by various function */
+extern ItemStruct golditem;
+/** Current level of the item sold by Wirt */
+extern int boylevel;
+/** Current item sold by Wirt */
+extern ItemStruct boyitem;
+/** Normal-Items sold by Griswold */
+extern ItemStruct smithitem[SMITH_ITEMS];
+/** Base level of current premium items sold by Griswold */
+extern int premiumlevel;
+/** Number of premium items for sale by Griswold */
+extern int numpremium;
+/** Premium items sold by Griswold */
+extern ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
+/** Items sold by Adria */
+extern ItemStruct witchitem[WITCH_ITEMS];
+/** Items sold by Pepin */
+extern ItemStruct healitem[HEALER_ITEMS];
 
 void InitStores();
 int PentSpn2Spin();

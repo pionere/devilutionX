@@ -11,7 +11,6 @@ BOOL storeflag;
 int sgnCowMsg;
 int numtowners;
 DWORD sgdwCowClicks;
-BOOL boyloadflag;
 BYTE *pCowCels;
 TownerStruct towner[NUM_TOWNERS];
 
@@ -250,16 +249,13 @@ static void InitTownerInfo(int tnum, int w, int sel, int type, int x, int y, int
 static void InitQstSnds(int tnum)
 {
 	TNQ *tqst;
-	int i, tl;
+	int i;
 
-	tl = tnum;
-	if (boyloadflag)
-		tl++;
 	tqst = towner[tnum].qsts;
 	for (i = 0; i < MAXQUESTS; i++, tqst++) {
 		tqst->_qsttype = quests[i]._qtype;
-		tqst->_qstmsg = ((int *)(Qtalklist + tl))[i];
-		if (((int *)(Qtalklist + tl))[i] != TEXT_NONE)
+		tqst->_qstmsg = ((int *)(Qtalklist + tnum))[i];
+		if (((int *)(Qtalklist + tnum))[i] != TEXT_NONE)
 			tqst->_qstmsgact = TRUE;
 		else
 			tqst->_qstmsgact = FALSE;
@@ -268,7 +264,6 @@ static void InitQstSnds(int tnum)
 
 /**
  * @brief Load Griswold into the game
-
  */
 static void InitSmith()
 {
@@ -317,7 +312,6 @@ static void InitBarmaid()
 
 static void InitBoy()
 {
-	boyloadflag = TRUE;
 	InitTownerInfo(numtowners, 96, TRUE, TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, -1, 10);
 	InitQstSnds(numtowners);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL", NULL), 20, 6);
@@ -430,7 +424,6 @@ static void InitGirl()
 void InitTowners()
 {
 	numtowners = 0;
-	boyloadflag = FALSE;
 	InitSmith();
 	InitHealer();
 	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL && quests[Q_BUTCHER]._qactive != QUEST_DONE)

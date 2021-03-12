@@ -1138,6 +1138,10 @@ void SetItemSData(ItemStruct *is, int idata)
 	copy_pod(*is, item[MAXITEMS]);
 }
 
+/**
+ * @brief Set a new unique seed value on the given item
+ * @param is Item to update
+ */
 void GetItemSeed(ItemStruct *is)
 {
 	is->_iSeed = GetRndSeed();
