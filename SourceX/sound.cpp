@@ -14,7 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 HANDLE _ghMusic = NULL;
 
 Mix_Music *_gMusic;
-SDL_RWops *_gMusicRw;
 BYTE *_gMusicBuffer;
 
 /** The volume of the sound channel. */
@@ -157,7 +156,6 @@ void music_stop()
 		_ghMusic = NULL;
 		Mix_FreeMusic(_gMusic);
 		_gMusic = NULL;
-		_gMusicRw = NULL;
 		MemFreeDbg(_gMusicBuffer);
 		_gnMusicTrack = NUM_MUSIC;
 	}
@@ -173,11 +171,11 @@ void music_start(int nTrack)
 			_gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(_ghMusic, _gMusicBuffer, bytestoread, NULL);
 
-			_gMusicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
-			if (_gMusicRw == NULL) {
+			SDL_RWops *musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
+			if (musicRw == NULL) {
 				ErrSdl();
 			}
-			_gMusic = Mix_LoadMUSType_RW(_gMusicRw, MUS_NONE, 1);
+			_gMusic = Mix_LoadMUSType_RW(musicRw, MUS_NONE, 1);
 			Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * _gnMusicVolume / VOLUME_MIN);
 			Mix_PlayMusic(_gMusic, -1);
 
