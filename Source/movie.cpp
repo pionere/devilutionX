@@ -18,14 +18,14 @@ bool gbMoviePlaying = false;
  */
 void play_movie(const char *pszMovie, int movieFlags)
 {
-	HANDLE video_stream = NULL;
+	HANDLE video_stream;
 
 	gbMoviePlaying = true;
 	sound_disable_music();
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
 
-	SVidPlayBegin(pszMovie, 0, 0, 0, 0, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808, &video_stream);
+	video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	MSG Msg;
 	while (video_stream != NULL) {
 		while (PeekMessage(&Msg)) {
@@ -39,7 +39,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 					break;
 				continue;
 			case DVL_WM_QUIT:
-				SVidPlayEnd(video_stream);
+				SVidPlayEnd();
 				diablo_quit(0);
 				break;
 			default:
@@ -49,7 +49,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 			break;
 		}
 		if (!SVidPlayContinue() || !gbMoviePlaying) {
-			SVidPlayEnd(video_stream);
+			SVidPlayEnd();
 			break;
 		}
 	}

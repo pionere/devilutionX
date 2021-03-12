@@ -248,8 +248,8 @@ void setIniValue(const char *sectionName, const char *keyName, const char *value
 bool getIniInt(const char *sectionName, const char *keyName, int *value);
 void setIniInt(const char *sectionName, const char *keyName, DWORD value);
 
-void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video);
-void SVidPlayEnd(HANDLE video);
+HANDLE SVidPlayBegin(const char *filename, int flags);
+void SVidPlayEnd();
 
 /*  SErrGetLastError @ 463
  *

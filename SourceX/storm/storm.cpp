@@ -27,10 +27,6 @@ std::string *SBasePath = NULL;
 
 } // namespace
 
-#ifdef USE_SDL1
-static bool IsSVidVideoMode = false;
-#endif
-
 radon::File &getIni()
 {
 	static radon::File ini(GetConfigPath() + "diablo.ini");
@@ -301,16 +297,23 @@ void setIniInt(const char *sectionName, const char *keyName, DWORD value)
 
 double SVidFrameEnd;
 double SVidFrameLength;
-BYTE SVidLoop;
+bool SVidLoop;
 smk SVidSMK;
 SDL_Color SVidPreviousPalette[256];
 SDL_Palette *SVidPalette;
 SDL_Surface *SVidSurface;
 BYTE *SVidBuffer;
 unsigned long SVidWidth, SVidHeight;
+BYTE SVidAudioDepth;
+double SVidVolume;
+//int SVidVolume;
+#ifdef USE_SDL1
+static bool IsSVidVideoMode = false;
+#endif
+
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-SDL_AudioDeviceID deviceId;
+SDL_AudioDeviceID deviceId = 0;
 static bool HaveAudio()
 {
 	return deviceId != 0;
@@ -421,15 +424,13 @@ private:
 static AudioQueue *sVidAudioQueue = new AudioQueue();
 #endif
 
-void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int flags, HANDLE *video)
+HANDLE SVidPlayBegin(const char *filename, int flags)
 {
-	if (flags & 0x10000 || flags & 0x20000000) {
-		return;
+	if (flags & (0x10000 | 0x20000000)) {
+		return NULL;
 	}
 
-	SVidLoop = false;
-	if (flags & 0x40000)
-		SVidLoop = true;
+	SVidLoop = (flags & 0x40000) != 0;
 	bool enableVideo = !(flags & 0x100000);
 	bool enableAudio = !(flags & 0x1000000);
 	//0x8 // Non-interlaced
@@ -438,54 +439,59 @@ void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int fla
 	//0x800000 // Edge detection
 	//0x200800 // Clear FB
 
-	SFileOpenFile(filename, video);
+	HANDLE videoFile;
+	SFileOpenFile(filename, &videoFile);
 
-	int bytestoread = SFileGetFileSize(*video, 0);
+	int bytestoread = SFileGetFileSize(videoFile, 0);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(*video, SVidBuffer, bytestoread, NULL);
+	SFileReadFile(videoFile, SVidBuffer, bytestoread, NULL);
+	SFileCloseFile(videoFile);
 
 	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
 	if (SVidSMK == NULL) {
-		return;
+		return NULL;
 	}
 
-	unsigned char channels[7], depth[7];
-	unsigned long rate[7];
-	smk_info_audio(SVidSMK, NULL, channels, depth, rate);
-	if (enableAudio && depth[0] != 0) {
-		smk_enable_audio(SVidSMK, 0, enableAudio);
-		SDL_AudioSpec audioFormat;
-		SDL_zero(audioFormat);
-		audioFormat.freq = rate[0];
-		audioFormat.format = depth[0] == 16 ? AUDIO_S16SYS : AUDIO_U8;
-		audioFormat.channels = channels[0];
+	if (enableAudio) {
+		unsigned char channels[7], depth[7];
+		unsigned long rate[7];
+		smk_info_audio(SVidSMK, NULL, channels, depth, rate);
+		if (depth[0] != 0) {
+			SVidAudioDepth = depth[0];
+			SVidVolume = sound_get_sound_volume() - VOLUME_MIN;
+			SVidVolume /= -VOLUME_MIN;
 
-		Mix_CloseAudio();
+			smk_enable_audio(SVidSMK, 0, true);
+			SDL_AudioSpec audioFormat;
+			memset(&audioFormat, 0, sizeof(audioFormat));
+			audioFormat.freq = rate[0];
+			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
+			audioFormat.channels = channels[0];
+
+			Mix_CloseAudio();
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-		deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
-		if (deviceId == 0) {
-			ErrSdl();
-		}
+			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
+			if (deviceId == 0) {
+				ErrSdl();
+			}
 
-		SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
+			SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 #else
-		sVidAudioQueue->Subscribe(&audioFormat);
-		if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
-			ErrSdl();
-		}
-		SDL_PauseAudio(0);
+			sVidAudioQueue->Subscribe(&audioFormat);
+			if (SDL_OpenAudio(&audioFormat, NULL) != 0) {
+				ErrSdl();
+			}
+			SDL_PauseAudio(0);
 #endif
+		}
 	}
 
-	unsigned long nFrames;
-	smk_info_all(SVidSMK, NULL, &nFrames, &SVidFrameLength);
+	smk_info_all(SVidSMK, NULL, NULL, &SVidFrameLength);
 	smk_info_video(SVidSMK, &SVidWidth, &SVidHeight, NULL);
 
 	smk_enable_video(SVidSMK, enableVideo);
 	smk_first(SVidSMK); // Decode first frame
-
-	smk_info_video(SVidSMK, &SVidWidth, &SVidHeight, NULL);
 #ifndef USE_SDL1
 	if (renderer) {
 		SDL_DestroyTexture(texture);
@@ -562,6 +568,7 @@ void SVidPlayBegin(const char *filename, int a2, int a3, int a4, int a5, int fla
 
 	SVidFrameEnd = SDL_GetTicks() * 1000 + SVidFrameLength;
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
+	return SVidSMK;
 }
 
 static bool SVidLoadNextFrame()
@@ -577,6 +584,25 @@ static bool SVidLoadNextFrame()
 	}
 
 	return true;
+}
+
+BYTE *SVidApplyVolume(const BYTE *raw, unsigned long rawLen)
+{
+	BYTE *scaled = DiabloAllocPtr(rawLen);
+
+	// TODO: use SDL_MixAudio(Format) instead?
+	//SVidVolume = MIX_MAX_VOLUME - MIX_MAX_VOLUME * sound_get_sound_volume() / VOLUME_MIN;
+	//SDL_MixAudio(scaled, raw, rawLen, SVidVolume);
+	//SDL_MixAudioFormat(scaled, raw, audioFormat, rawLen, SVidVolume);
+	if (SVidAudioDepth == 16) {
+		for (unsigned long i = 0; i < rawLen / 2; i++)
+			((Sint16 *)scaled)[i] = ((Sint16 *)raw)[i] * SVidVolume;
+	} else {
+		for (unsigned long i = 0; i < rawLen; i++)
+			scaled[i] = raw[i] * SVidVolume;
+	}
+
+	return scaled;
 }
 
 bool SVidPlayContinue(void)
@@ -610,14 +636,16 @@ bool SVidPlayContinue(void)
 	}
 
 	if (HaveAudio()) {
+		unsigned long len = smk_get_audio_size(SVidSMK, 0);
+		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-		if (SDL_QueueAudio(deviceId, smk_get_audio(SVidSMK, 0), smk_get_audio_size(SVidSMK, 0)) <= -1) {
-			SDL_Log(SDL_GetError());
-			return false;
+		if (SDL_QueueAudio(deviceId, audio, len) <= -1) {
+			ErrSdl();
 		}
 #else
-		sVidAudioQueue->Enqueue(smk_get_audio(SVidSMK, 0), smk_get_audio_size(SVidSMK, 0));
+		sVidAudioQueue->Enqueue(audio, len);
 #endif
+		mem_free_dbg(audio);
 	}
 
 	if (SDL_GetTicks() * 1000 >= SVidFrameEnd) {
@@ -680,7 +708,7 @@ bool SVidPlayContinue(void)
 	return SVidLoadNextFrame();
 }
 
-void SVidPlayEnd(HANDLE video)
+void SVidPlayEnd()
 {
 	if (HaveAudio()) {
 #if SDL_VERSION_ATLEAST(2, 0, 4)
@@ -694,22 +722,16 @@ void SVidPlayEnd(HANDLE video)
 		SVidRestartMixer();
 	}
 
-	if (SVidSMK)
+	if (SVidSMK != NULL)
 		smk_close(SVidSMK);
 
-	if (SVidBuffer) {
-		mem_free_dbg(SVidBuffer);
-		SVidBuffer = NULL;
-	}
+	MemFreeDbg(SVidBuffer);
 
 	SDL_FreePalette(SVidPalette);
 	SVidPalette = NULL;
 
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
-
-	SFileCloseFile(video);
-	video = NULL;
 
 	memcpy(orig_palette, SVidPreviousPalette, sizeof(orig_palette));
 #ifndef USE_SDL1
@@ -719,7 +741,7 @@ void SVidPlayEnd(HANDLE video)
 		if (texture == NULL) {
 			ErrSdl();
 		}
-		if (renderer && SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) <= -1) {
+		if (SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT) <= -1) {
 			ErrSdl();
 		}
 	}
