@@ -881,7 +881,7 @@ void DeltaLoadLevel()
 					mon->_mhitpoints = mstr->_mhitpoints;
 				if (mstr->_mhitpoints == 0) {
 					// SetDead: inline for better performance
-					if (mon->mlid != -1)
+					if (mon->mlid != 0)
 						ChangeLightXY(mon->mlid, mon->_mx, mon->_my);
 					AddDead(i);
 				} else {
