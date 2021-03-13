@@ -769,8 +769,7 @@ void LoadGame(bool firstflag)
 	AutomapZoomReset();
 	ResyncQuests();
 
-	if (leveltype != DTYPE_TOWN)
-		ProcessLightList();
+	ProcessLightList();
 
 	RedoPlayerVision();
 	ProcessVisionList();

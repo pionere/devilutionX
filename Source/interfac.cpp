@@ -607,12 +607,9 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	InitLightMax();
 	IncProgress();
 	IncProgress();
-
 	IncProgress();
-	if (leveltype != DTYPE_TOWN) {
-		ProcessLightList();
-		ProcessVisionList();
-	}
+	ProcessLightList();
+	ProcessVisionList();
 
 #ifdef HELLFIRE
 	// BUGFIX: TODO: does not belong here, DeltaLoadLevel should take care about this

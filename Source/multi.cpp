@@ -13,7 +13,7 @@ TBuffer sgHiPriBuf;
 char szPlayerDescript[128];
 WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 PkPlayerStruct netplr[MAX_PLRS];
-bool sgbPlayerTurnBitTbl[MAX_PLRS];
+bool gbJoinGame;
 bool sgbPlayerLeftGameTbl[MAX_PLRS];
 DWORD sgbSentThisCycle;
 bool gbShouldValidatePackage;
@@ -631,7 +631,6 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 
 	DWORD LeftReason;
 	sgbPlayerLeftGameTbl[pEvt->playerid] = true;
-	sgbPlayerTurnBitTbl[pEvt->playerid] = false;
 
 	LeftReason = 0;
 	if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
@@ -724,7 +723,7 @@ static bool multi_init_game(bool bSinglePlayer)
 				myplr = playerId;
 				//pfile_read_player_from_save();
 			}
-			sgbPlayerTurnBitTbl[myplr] = true;
+			gbJoinGame = true;
 		}
 		break;
 	}
@@ -745,7 +744,7 @@ bool NetInit(bool bSinglePlayer)
 		sgGameInitInfo.bDifficulty = DIFF_NORMAL;
 		sgGameInitInfo.bTickRate = SPEED_NORMAL;
 		sgGameInitInfo.bMaxPlayers = MAX_PLRS;
-		memset(sgbPlayerTurnBitTbl, 0, sizeof(sgbPlayerTurnBitTbl));
+		gbJoinGame = false;
 		gbGameDestroyed = false;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
 		memset(sgdwPlayerLeftReasonTbl, 0, sizeof(sgdwPlayerLeftReasonTbl));
@@ -762,7 +761,7 @@ bool NetInit(bool bSinglePlayer)
 		buffer_init(&sgLoPriBuf);
 		gbShouldValidatePackage = false;
 		sync_init();
-		nthread_start(sgbPlayerTurnBitTbl[myplr]);
+		nthread_start(gbJoinGame);
 		dthread_start();
 		tmsg_start();
 		sgdwGameLoops = 0;
@@ -774,7 +773,7 @@ bool NetInit(bool bSinglePlayer)
 		multi_send_pinfo(-2, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
 		plr[myplr].plractive = TRUE;
-		if (!sgbPlayerTurnBitTbl[myplr] || msg_wait_resync())
+		if (!gbJoinGame || msg_wait_resync())
 			break;
 		NetClose();
 	}
@@ -795,18 +794,18 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, bool recv)
+void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 {
-	const char *szEvent;
+	PlayerStruct* p;
 
 	if (myplr == pnum) {
 		return;
 	}
 	/// ASSERT: assert((DWORD)pnum < MAX_PLRS);
 
-	if (sgwPackPlrOffsetTbl[pnum] != p->wOffset) {
+	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		sgwPackPlrOffsetTbl[pnum] = 0;
-		if (p->wOffset != 0) {
+		if (piHdr->wOffset != 0) {
 			return;
 		}
 	}
@@ -814,34 +813,29 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, bool recv)
 		multi_send_pinfo(pnum, CMD_ACK_PLRINFO);
 	}
 
-	memcpy((char *)&netplr[pnum] + p->wOffset, &p[1], p->wBytes); /* todo: cast? */
-	sgwPackPlrOffsetTbl[pnum] += p->wBytes;
+	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
+	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
 	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
 		return;
 	}
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
 	multi_player_left_msg(pnum, false);
-	plr[pnum]._pGFXLoad = 0;
-	UnPackPlayer(&netplr[pnum], pnum, recv); // active was TRUE, but if recv is FALSE,
-											 //  the player is not activated -> do not kill/load lid,vid,anims...
+	UnPackPlayer(&netplr[pnum], pnum);
 	if (!recv) {
 		return;
 	}
 
-	plr[pnum].plractive = TRUE;
+	p = &plr[pnum];
+	assert(!p->plractive);
+	p->plractive = TRUE;
 	gbActivePlayers++;
+	EventPlrMsg("Player '%s' (level %d) is already in the game", p->_pName, p->_pLevel);
 
-	if (sgbPlayerTurnBitTbl[pnum]) {
-		szEvent = "Player '%s' (level %d) just joined the game";
-	} else {
-		szEvent = "Player '%s' (level %d) is already in the game";
-	}
-	EventPlrMsg(szEvent, plr[pnum]._pName, plr[pnum]._pLevel);
-
-	if (plr[pnum].plrlevel == currlevel) {
+	p->_pGFXLoad = 0;
+	if (p->plrlevel == currlevel) {
 		SyncInitPlr(pnum);
-		PlrStartStand(pnum, DIR_S);
+		//PlrStartStand(pnum, DIR_S);
 		/*LoadPlrGFX(pnum, PFILE_STAND);
 		SyncInitPlr(pnum);
 		if (plr[pnum]._pHitPoints >= (1 << 6)) {

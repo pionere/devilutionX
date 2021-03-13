@@ -360,15 +360,13 @@ static void game_logic()
 	if (leveltype != DTYPE_TOWN) {
 		ProcessMonsters();
 		ProcessObjects();
-		ProcessMissiles();
-		ProcessItems();
-		ProcessLightList();
-		ProcessVisionList();
 	} else {
 		ProcessTowners();
-		ProcessItems();
-		ProcessMissiles();
 	}
+	ProcessMissiles();
+	ProcessItems();
+	ProcessLightList();
+	ProcessVisionList();
 
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v && GetAsyncKeyState(DVL_VK_SHIFT)) {
