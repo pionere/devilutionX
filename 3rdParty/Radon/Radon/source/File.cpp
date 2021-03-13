@@ -10,35 +10,29 @@
 
 namespace radon
 {
-	File::File(const std::string & path, bool reading)
+	File::File(const std::string & path)
 	{
 		this->path = path;
-		if (reading)
-		{
-			std::ifstream stream(path);
+		std::ifstream stream(path);
 
-			if (stream.is_open())
-			{
-				std::string buffer;
-				std::string nameOfCurrent = "";
+		if (stream.is_open()) {
+			std::string buffer;
+			std::string nameOfCurrent;
 
-				while (std::getline(stream, buffer))
-				{
-					if (buffer[0] == ';' || buffer[0] == '#') continue;
-					if (buffer[0] == '[')
-					{
-						nameOfCurrent = buffer.substr(buffer.find("[") + 1, buffer.find("]") - 1);
-						sections.push_back(Section(nameOfCurrent));
-					}
-					else
-					{
-						int equalsPosition = buffer.find('=');
+			while (std::getline(stream, buffer)) {
+				if (buffer[0] == ';' || buffer[0] == '#') continue;
+				if (buffer[0] == '[') {
+					nameOfCurrent = buffer.substr(1, buffer.find("]") - 1);
+					sections.push_back(Section(nameOfCurrent));
+				} else if (!sections.empty()) {
+					int equalsPosition = buffer.find('=');
+					if (equalsPosition == std::string::npos)
+						continue;
 
-						std::string nameOfElement = buffer.substr(0, equalsPosition);
-						std::string valueOfElement = buffer.substr(equalsPosition + 1, buffer.size());
+					std::string nameOfElement = buffer.substr(0, equalsPosition);
+					std::string valueOfElement = buffer.substr(equalsPosition + 1, buffer.size());
 
-						sections.back().addKey(Key(nameOfElement, valueOfElement));
-					}
+					sections.back().addKey(Key(nameOfElement, valueOfElement));
 				}
 			}
 		}
@@ -69,11 +63,9 @@ namespace radon
 	{
 		std::ofstream file(path.data(), std::ios::out | std::ios::trunc);
 
-		for (auto & section : sections)
-		{
+		for (auto & section : sections) {
 			file << "[" << section.getName() << "] \n";
-			for (auto & key : section.keys)
-			{
+			for (auto & key : section.keys) {
 				file << key.getName() << "=" << key.getStringValue() << "\n";
 			}
 		}

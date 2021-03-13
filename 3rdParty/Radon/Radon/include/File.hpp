@@ -14,7 +14,7 @@ namespace radon
 	{
 	public:
 
-		File(const std::string & path, bool reading = true);
+		File(const std::string & path);
 
 		Section* getSection(const std::string & name);
 
