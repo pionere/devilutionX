@@ -45,10 +45,10 @@ void SetCursorPos(int X, int Y);
 
 BYTE GetAsyncKeyState(int vKey);
 
-bool FetchMessage(LPMSG lpMsg);
+bool PeekMessage(LPMSG lpMsg);
 
 bool TranslateMessage(const MSG *lpMsg);
-void PushMessage(const MSG *lpMsg);
+void DispatchMessage(const MSG *lpMsg);
 bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 
 #ifndef TRUE

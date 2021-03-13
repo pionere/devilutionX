@@ -9,7 +9,6 @@
 #include <math.h>
 #include <cstddef>
 
-#include "console.h"
 #include "../SourceX/stubs.h"
 
 #define WINDOW_ICON_NAME 0
@@ -54,13 +53,11 @@
 
 inline void SDL_Log(const char *fmt, ...)
 {
-	char message[256];
 	va_list ap;
 	va_start(ap, fmt);
-	vsprintf(message, fmt, ap);
+	vprintf(fmt, ap);
 	va_end(ap);
-
-	printInConsole("INFO: %s\n", message);
+	puts("");
 }
 
 inline void SDL_StartTextInput()

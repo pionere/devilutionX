@@ -28,7 +28,7 @@ void play_movie(const char *pszMovie, int movieFlags)
 	video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	MSG Msg;
 	while (video_stream != NULL) {
-		while (FetchMessage(&Msg)) {
+		while (PeekMessage(&Msg)) {
 			switch (Msg.message) {
 			case DVL_WM_KEYDOWN:
 				if (Msg.wParam == DVL_VK_ESCAPE)

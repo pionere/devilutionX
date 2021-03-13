@@ -255,10 +255,10 @@ void interface_msg_pump()
 {
 	MSG Msg;
 
-	while (FetchMessage(&Msg)) {
+	while (PeekMessage(&Msg)) {
 		if (Msg.message != DVL_WM_QUIT) {
 			TranslateMessage(&Msg);
-			PushMessage(&Msg);
+			DispatchMessage(&Msg);
 		}
 	}
 }
