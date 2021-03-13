@@ -171,7 +171,7 @@ bool HasRangedSpell()
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
 	    && spelldata[spl].sTargeted
-	    && !spelldata[spl].sTownSpell;
+	    && (spelldata[spl].sFlags & plr[myplr]._pSkillFlags) != 0;
 }
 
 bool CanTargetMonster(int mi)
@@ -435,7 +435,7 @@ void Interact()
 	} else {
 		int attack = plr[myplr]._pLSpell;
 		int sl = GetSpellLevel(myplr, attack);
-		bool melee = (_pSkillFlags & SFLAG_MELEE) != 0;
+		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
 			NetSendCmdParam3(true, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
 		else if (pcursplr != -1 && !gbFriendlyMode)
