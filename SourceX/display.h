@@ -9,6 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 extern bool gbVsyncEnabled;
+extern bool gbFPSLimit;
 extern int gnRefreshDelay;
 extern SDL_Window *ghMainWnd;
 extern SDL_Renderer *renderer;

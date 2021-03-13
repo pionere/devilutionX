@@ -21,6 +21,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbVsyncEnabled;
+bool gbFPSLimit;
 /* Screen refresh rate in nanoseconds */
 int gnRefreshDelay;
 SDL_Window *ghMainWnd;
@@ -173,24 +174,24 @@ bool SpawnWindow(const char *lpWindowName)
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
 #ifndef __vita__
-	getIniInt("devilutionx", "width", &width);
-	getIniInt("devilutionx", "height", &height);
+	getIniInt("devilutionx", "Width", &width);
+	getIniInt("devilutionx", "Height", &height);
 #endif
-	bool integerScalingEnabled = getIniBool("devilutionx", "integer scaling", false);
+	bool integerScalingEnabled = getIniBool("devilutionx", "Integer Scaling", false);
 
 	if (gbFullscreen)
-		gbFullscreen = getIniBool("devilutionx", "fullscreen", true);
+		gbFullscreen = getIniBool("devilutionx", "Fullscreen", true);
 
-	bool grabInput = getIniBool("devilutionx", "grab input", false);
+	bool grabInput = getIniBool("devilutionx", "Grab Input", false);
 
 #ifdef __vita__
 	bool upscale = false;
 #else
-	bool upscale = getIniBool("devilutionx", "upscale", true);
+	bool upscale = getIniBool("devilutionx", "Upscale", true);
 #endif
-	bool oar = getIniBool("devilutionx", "original aspect ratio", false);
+	bool fitToScreen = getIniBool("devilutionx", "Fit to Screen", true);
 
-	if (upscale && !oar) {
+	if (upscale && fitToScreen) {
 		CalculatePreferdWindowSize(width, height, integerScalingEnabled);
 	}
 	AdjustToScreenGeometry(width, height);
@@ -214,7 +215,7 @@ bool SpawnWindow(const char *lpWindowName)
 		flags |= SDL_WINDOW_RESIZABLE;
 
 		char scaleQuality[2] = "2";
-		getIniValue("devilutionx", "scaling quality", scaleQuality, 2);
+		getIniValue("devilutionx", "Scaling Quality", scaleQuality, 2);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQuality);
 	} else if (gbFullscreen) {
 		flags |= SDL_WINDOW_FULLSCREEN;
@@ -240,11 +241,13 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 	gnRefreshDelay = 1000000 / refreshRate;
 
+	gbFPSLimit = getIniBool("devilutionx", "FPS Limiter", true);
+
 	if (upscale) {
 #ifndef USE_SDL1
 		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
 
-		gbVsyncEnabled = getIniBool("devilutionx", "vsync", true);
+		gbVsyncEnabled = getIniBool("devilutionx", "Vertical Sync", true);
 		if (gbVsyncEnabled) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}

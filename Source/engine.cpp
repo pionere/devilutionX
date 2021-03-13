@@ -24,21 +24,19 @@ bool _gbNotInView;
 /** Number of times the current seed has been fetched */
 int SeedCount;
 #endif
-/** Seed value before the most recent call to SetRndSeed() */
-int orgseed;
 /** Current game seed */
-int sglGameSeed;
+Sint32 sglGameSeed;
 static CCritSect sgMemCrit;
 
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
  */
-const int RndInc = 1;
+const Uint32 RndInc = 1;
 
 /**
  * Specifies the multiplier used in the Borland C/C++ pseudo-random number generator algorithm.
  */
-const int RndMult = 0x015A4E35;
+const Uint32 RndMult = 0x015A4E35;
 
 /**
  * @brief Blit CEL sprite to the given buffer, checks for drawing outside the buffer
@@ -682,25 +680,24 @@ int GetDirection(int x1, int y1, int x2, int y2)
  * @brief Set the RNG seed
  * @param s RNG seed
  */
-void SetRndSeed(int s)
+void SetRndSeed(Sint32 s)
 {
 #ifdef _DEBUG
 	SeedCount = 0;
 #endif
 	sglGameSeed = s;
-	orgseed = s;
 }
 
 /**
  * @brief Get the current RNG seed
  * @return RNG seed
  */
-int GetRndSeed()
+Sint32 GetRndSeed()
 {
 #ifdef _DEBUG
 	SeedCount++;
 #endif
-	sglGameSeed = static_cast<unsigned int>(RndMult) * sglGameSeed + RndInc;
+	sglGameSeed = RndMult * static_cast<Uint32>(sglGameSeed) + RndInc;
 	return abs(sglGameSeed);
 }
 

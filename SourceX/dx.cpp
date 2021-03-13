@@ -236,6 +236,8 @@ void Blit(SDL_Surface *src, const SDL_Rect *src_rect, SDL_Rect *dst_rect)
  */
 void LimitFrameRate()
 {
+	if (!gbFPSLimit)
+		return;
 	static uint32_t frameDeadline;
 	uint32_t tc = SDL_GetTicks() * 1000;
 	uint32_t v = 0;

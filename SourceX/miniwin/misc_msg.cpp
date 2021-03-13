@@ -634,7 +634,7 @@ bool BlurInventory()
 }
 #endif
 
-bool PeekMessage(LPMSG lpMsg)
+bool FetchMessage(LPMSG lpMsg)
 {
 #ifdef __SWITCH__
 	HandleDocking();
@@ -928,7 +928,7 @@ bool PeekMessage(LPMSG lpMsg)
  * 'Translation' is no longer necessary. The input text is handled using
  * SDL_StartTextInput/SDL_StopTextInput in case 'gbTalkflag' is set.
  *
- * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
+ * Remark: HACK in FetchMessage needs to be re-enabled in case TranslateMessage is used
  *  in a non-debug environment.
  */
 bool TranslateMessage(const MSG *lpMsg)
@@ -1063,7 +1063,7 @@ BYTE GetAsyncKeyState(int vKey)
 	return state[SDLC_KEYSTATE(LCTRL)] | state[SDLC_KEYSTATE(RCTRL)];
 }
 
-void DispatchMessage(const MSG *lpMsg)
+void PushMessage(const MSG *lpMsg)
 {
 	assert(CurrentWndProc != NULL);
 
