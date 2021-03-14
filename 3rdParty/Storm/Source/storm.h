@@ -230,7 +230,7 @@ bool
  *  Returns a pointer to the allocated memory. This pointer does NOT include
  *  the additional storm header.
  */
-void *STORMAPI SMemAlloc(unsigned int amount);
+void *STORMAPI SMemAlloc(size_t amount);
 
 /*  SMemFree @ 403
  *

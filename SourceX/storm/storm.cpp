@@ -213,7 +213,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	return true;
 }
 
-void *SMemAlloc(unsigned int amount)
+void *SMemAlloc(size_t amount)
 {
 	assert(amount != -1u);
 	return malloc(amount);

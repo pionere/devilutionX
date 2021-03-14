@@ -720,7 +720,7 @@ int random_(BYTE idx, int v)
  * @brief Multithreaded safe malloc
  * @param dwBytes Byte size to allocate
  */
-BYTE *DiabloAllocPtr(DWORD dwBytes)
+BYTE *DiabloAllocPtr(size_t dwBytes)
 {
 	BYTE *buf;
 
