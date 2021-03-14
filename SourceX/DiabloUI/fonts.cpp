@@ -16,10 +16,10 @@ static void LoadArtFont(const char *pszFile, int size, int color)
 
 void LoadArtFonts()
 {
-	FontTables[AFT_SMALL] = LoadFileInMem("ui_art\\font16.bin", 0);
-	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin", 0);
-	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin", 0);
-	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin", 0);
+	FontTables[AFT_SMALL] = LoadFileInMem("ui_art\\font16.bin", NULL);
+	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin", NULL);
+	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin", NULL);
+	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin", NULL);
 	LoadArtFont("ui_art\\font16s.pcx", AFT_SMALL, AFC_SILVER);
 	LoadArtFont("ui_art\\font16g.pcx", AFT_SMALL, AFC_GOLD);
 	LoadArtFont("ui_art\\font24s.pcx", AFT_MED, AFC_SILVER);

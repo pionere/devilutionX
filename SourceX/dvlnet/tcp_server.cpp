@@ -120,15 +120,18 @@ void tcp_server::handle_recv_packet(packet &pkt)
 
 void tcp_server::send_packet(packet &pkt)
 {
-	if (pkt.dest() == PLR_BROADCAST) {
+	plr_t dest = pkt.dest();
+	plr_t src = pkt.src();
+
+	if (dest == PLR_BROADCAST) {
 		for (auto i = 0; i < MAX_PLRS; ++i)
-			if (i != pkt.src() && connections[i])
+			if (i != src && connections[i])
 				start_send(connections[i], pkt);
 	} else {
-		if (pkt.dest() >= MAX_PLRS)
+		if (dest >= MAX_PLRS)
 			throw server_exception();
-		if ((pkt.dest() != pkt.src()) && connections[pkt.dest()])
-			start_send(connections[pkt.dest()], pkt);
+		if ((dest != src) && connections[dest])
+			start_send(connections[dest], pkt);
 	}
 }
 
