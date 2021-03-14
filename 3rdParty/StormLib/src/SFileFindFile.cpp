@@ -205,7 +205,7 @@ static TFileEntry * FindPatchEntry(TMPQArchive * ha, TFileEntry * pFileEntry)
     return pPatchEntry;
 }
 
-static bool DoMPQSearch_FileEntry(
+/*static bool DoMPQSearch_FileEntry(
     TMPQSearch * hs,
     SFILE_FIND_DATA * lpFindFileData,
     TMPQArchive * ha,
@@ -362,7 +362,7 @@ static int DoMPQSearch(TMPQSearch * hs, SFILE_FIND_DATA * lpFindFileData)
 
     // No more files found, return error
     return ERROR_NO_MORE_FILES;
-}
+}*/
 
 static void FreeMPQSearch(TMPQSearch *& hs)
 {
@@ -378,7 +378,7 @@ static void FreeMPQSearch(TMPQSearch *& hs)
 //-----------------------------------------------------------------------------
 // Public functions
 
-HANDLE STORMAPI SFileFindFirstFile(HANDLE hMpq, const char * szMask, SFILE_FIND_DATA * lpFindFileData, const TCHAR * szListFile)
+/*HANDLE STORMAPI SFileFindFirstFile(HANDLE hMpq, const char * szMask, SFILE_FIND_DATA * lpFindFileData, const TCHAR * szListFile)
 {
     TMPQArchive * ha = (TMPQArchive *)hMpq;
     TMPQSearch * hs = NULL;
@@ -478,4 +478,4 @@ bool STORMAPI SFileFindClose(HANDLE hFind)
 
     FreeMPQSearch(hs);
     return true;
-}
+}*/

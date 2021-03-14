@@ -2365,7 +2365,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
  * \a szFileName Name of the file to create
  */
 
-TFileStream * FileStream_CreateFile(
+/*TFileStream * FileStream_CreateFile(
     const TCHAR * szFileName,
     DWORD dwStreamFlags)
 {
@@ -2402,7 +2402,7 @@ TFileStream * FileStream_CreateFile(
 
     // Return the stream
     return pStream;
-}
+}*/
 
 /**
  * This function opens an existing file for read or read-write access
@@ -2553,7 +2553,7 @@ size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider)
  * \a pfnCallback Pointer to callback function
  * \a pvUserData Arbitrary user pointer passed to the download callback
  */
-
+#ifdef FULL
 bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData)
 {
     TBlockStream * pBlockStream = (TBlockStream *)pStream;
@@ -2568,6 +2568,7 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
     pBlockStream->UserData = pvUserData;
     return true;
 }
+#endif
 
 /**
  * This function gives the block map. The 'pvBitmap' pointer must point to a buffer
@@ -2581,7 +2582,7 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
  * \a cbLengthNeeded Length of the bitmap, in bytes
  */
 
-bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, DWORD * pcbLengthNeeded)
+/*bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, DWORD * pcbLengthNeeded)
 {
     TStreamBitmap * pBitmap = (TStreamBitmap *)pvBitmap;
     TBlockStream * pBlockStream = (TBlockStream *)pStream;
@@ -2660,7 +2661,7 @@ bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap
     if(bResult == false)
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
     return bResult;
-}
+}*/
 
 /**
  * Reads data from the stream
@@ -2729,6 +2730,7 @@ bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
  * \a pStream Pointer to an open stream
  * \a NewFileSize File size to set
  */
+#ifdef FULL
 bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize)
 {
     if(pStream->dwFlags & STREAM_FLAG_READ_ONLY)
@@ -2740,6 +2742,7 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize)
     assert(pStream->StreamResize != NULL);
     return pStream->StreamResize(pStream, NewFileSize);
 }
+#endif
 
 /**
  * This function returns the current file position
@@ -2758,12 +2761,12 @@ bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
  * \a pStream Pointer to an open stream
  * \a pFileType Pointer where to store the file last write time
  */
-bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFileTime)
+/*bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFileTime)
 {
     // Just use the saved filetime value
     *pFileTime = pStream->Base.File.FileTime;
     return true;
-}
+}*/
 
 /**
  * Returns the stream flags
@@ -2788,7 +2791,7 @@ bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags)
  * \a pStream Pointer to an open stream
  * \a pNewStream Temporary ("working") stream (created during archive compacting)
  */
-bool FileStream_Replace(TFileStream * pStream, TFileStream * pNewStream)
+/*bool FileStream_Replace(TFileStream * pStream, TFileStream * pNewStream)
 {
     // Only supported on flat files
     if((pStream->dwFlags & STREAM_PROVIDERS_MASK) != (STREAM_PROVIDER_FLAT | BASE_PROVIDER_FILE))
@@ -2819,7 +2822,7 @@ bool FileStream_Replace(TFileStream * pStream, TFileStream * pNewStream)
     // Cleanup the new stream
     FileStream_Close(pNewStream);
     return true;
-}
+}*/
 
 /**
  * This function closes an archive file and frees any data buffers

@@ -132,7 +132,7 @@ static int VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
 // SFileGetLocale and SFileSetLocale
 // Set the locale for all newly opened files
 
-LCID STORMAPI SFileGetLocale()
+/*LCID STORMAPI SFileGetLocale()
 {
     return lcFileLocale;
 }
@@ -141,7 +141,7 @@ LCID STORMAPI SFileSetLocale(LCID lcNewLocale)
 {
     lcFileLocale = lcNewLocale;
     return lcFileLocale;
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // SFileOpenArchive

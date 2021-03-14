@@ -857,7 +857,8 @@ static int BuildFileTableFromBlockTable(
     return ERROR_SUCCESS;
 }
 
-static TMPQHash * TranslateHashTable(
+#ifdef FULL
+static TMPQHash *TranslateHashTable(
     TMPQArchive * ha,
     ULONGLONG * pcbTableSize)
 {
@@ -882,7 +883,6 @@ static TMPQHash * TranslateHashTable(
     return pHashTable;
 }
 
-// Also used in SFileGetFileInfo
 TMPQBlock * TranslateBlockTable(
     TMPQArchive * ha,
     ULONGLONG * pcbTableSize,
@@ -949,7 +949,6 @@ static USHORT * TranslateHiBlockTable(
 
 //-----------------------------------------------------------------------------
 // General EXT table functions
-
 TMPQExtHeader * LoadExtTable(
     TMPQArchive * ha,
     ULONGLONG ByteOffset,
@@ -1170,7 +1169,6 @@ static int SaveExtTable(
     return nError;
 }
 
-#ifdef FULL
 //-----------------------------------------------------------------------------
 // Support for HET table
 
@@ -1911,7 +1909,7 @@ void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * sz
 #endif
 }
 
-TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
+/*TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
 {
     TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
     TFileEntry * pFreeEntry = NULL;
@@ -2131,7 +2129,7 @@ void InvalidateInternalFiles(TMPQArchive * ha)
         // Remember that the MPQ has been changed
         ha->dwFlags |= MPQ_FLAG_CHANGED;
     }
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Support for file tables - hash table, block table, hi-block table
@@ -2211,7 +2209,7 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
     return pHashTable;
 }
 
-int CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize)
+/*int CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize)
 {
     ha->pFileTable = STORM_ALLOC(TFileEntry, dwFileTableSize);
     if(ha->pFileTable == NULL)
@@ -2220,7 +2218,7 @@ int CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize)
     memset(ha->pFileTable, 0x00, sizeof(TFileEntry) * dwFileTableSize);
     ha->dwFileTableSize = dwFileTableSize;
     return ERROR_SUCCESS;
-}
+}*/
 
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool /* bDontFixEntries */)
 {

@@ -12,7 +12,7 @@
 #include "StormLib.h"
 #include "StormCommon.h"
 
-bool STORMAPI SFileExtractFile(HANDLE hMpq, const char * szToExtract, const TCHAR * szExtracted, DWORD dwSearchScope)
+/*bool STORMAPI SFileExtractFile(HANDLE hMpq, const char * szToExtract, const TCHAR * szExtracted, DWORD dwSearchScope)
 {
     TFileStream * pLocalFile = NULL;
     HANDLE hMpqFile = NULL;
@@ -58,4 +58,4 @@ bool STORMAPI SFileExtractFile(HANDLE hMpq, const char * szToExtract, const TCHA
     if (nError != ERROR_SUCCESS)
         SetLastError(nError);
     return (nError == ERROR_SUCCESS);
-}
+}*/

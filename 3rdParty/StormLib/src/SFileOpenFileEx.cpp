@@ -160,7 +160,7 @@ bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
 // pointed by plcLocales. There must be enough entries to copy the localed,
 // otherwise the function returns ERROR_INSUFFICIENT_BUFFER.
 
-int STORMAPI SFileEnumLocales(
+/*int STORMAPI SFileEnumLocales(
     HANDLE hMpq,
     const char * szFileName,
     LCID * PtrLocales,
@@ -205,7 +205,7 @@ int STORMAPI SFileEnumLocales(
     // Give the caller the number of locales and return
     PtrMaxLocales[0] = dwLocales;
     return (dwLocales <= dwMaxLocales) ? ERROR_SUCCESS : ERROR_INSUFFICIENT_BUFFER;
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // SFileOpenFileEx

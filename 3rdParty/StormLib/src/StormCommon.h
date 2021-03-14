@@ -200,22 +200,27 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
+#ifdef FULL
 TMPQExtHeader * LoadExtTable(TMPQArchive * ha, ULONGLONG ByteOffset, size_t Size, DWORD dwSignature, DWORD dwKey);
 TMPQHetTable * LoadHetTable(TMPQArchive * ha);
 TMPQBetTable * LoadBetTable(TMPQArchive * ha);
+#endif
 
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool bDontFixEntries = false);
+#ifdef FULL
 TMPQBlock * TranslateBlockTable(TMPQArchive * ha, ULONGLONG * pcbTableSize, bool * pbNeedHiBlockTable);
+#endif
 
-ULONGLONG FindFreeMpqSpace(TMPQArchive * ha);
+//ULONGLONG FindFreeMpqSpace(TMPQArchive * ha);
 
 // Functions that load the HET and BET tables
 int  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
 int  LoadAnyHashTable(TMPQArchive * ha);
 int  BuildFileTable(TMPQArchive * ha);
+#ifdef FULL
 int  DefragmentFileTable(TMPQArchive * ha);
 
-int  CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize);
+//int  CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize);
 int  RebuildHetTable(TMPQArchive * ha);
 int  RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize);
 int  SaveMPQTables(TMPQArchive * ha);
@@ -225,6 +230,7 @@ void FreeHetTable(TMPQHetTable * pHetTable);
 
 TMPQBetTable * CreateBetTable(DWORD dwMaxFileCount);
 void FreeBetTable(TMPQBetTable * pBetTable);
+#endif
 
 // Functions for finding files in the file table
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
@@ -235,15 +241,17 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName);
 
 // Allocates new file entry in the MPQ tables. Reuses existing, if possible
-TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
-int  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);
-int  DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf);
+//TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
+//int  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);
+//int  DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf);
 
 // Invalidates entries for (listfile) and (attributes)
-void InvalidateInternalFiles(TMPQArchive * ha);
+//void InvalidateInternalFiles(TMPQArchive * ha);
 
+#ifdef FULL
 // Retrieves information about the strong signature
 bool QueryMpqSignatureInfo(TMPQArchive * ha, PMPQ_SIGNATURE_INFO pSignatureInfo);
+#endif
 
 //-----------------------------------------------------------------------------
 // Support for alternate file formats (SBaseSubTypes.cpp)
@@ -262,17 +270,19 @@ int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer
 // Common functions - MPQ File
 
 TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
-TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
+//TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, bool * pbTableIsCut);
 int  AllocateSectorBuffer(TMPQFile * hf);
 int  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
 int  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 int  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
-int  WritePatchInfo(TMPQFile * hf);
-int  WriteSectorOffsets(TMPQFile * hf);
-int  WriteSectorChecksums(TMPQFile * hf);
+//int  WritePatchInfo(TMPQFile * hf);
+//int  WriteSectorOffsets(TMPQFile * hf);
+//int  WriteSectorChecksums(TMPQFile * hf);
+#ifdef FULL
 int  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawData, DWORD dwRawDataSize, DWORD dwChunkSize, LPDWORD pcbTotalSize);
-int  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
+#endif
+//int  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
 void FreeFileHandle(TMPQFile *& hf);
 void FreeArchiveHandle(TMPQArchive *& ha);
 
@@ -291,10 +301,12 @@ typedef struct _TMPQPatcher
 
 } TMPQPatcher;
 
-bool IsIncrementalPatchFile(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize);
+//bool IsIncrementalPatchFile(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize);
+#ifdef FULL
 int Patch_InitPatcher(TMPQPatcher * pPatcher, TMPQFile * hf);
 int Patch_Process(TMPQPatcher * pPatcher, TMPQFile * hf);
 void Patch_Finalize(TMPQPatcher * pPatcher);
+#endif
 
 //-----------------------------------------------------------------------------
 // Utility functions

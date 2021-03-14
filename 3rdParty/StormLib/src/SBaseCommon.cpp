@@ -774,7 +774,7 @@ TMPQHash * AllocateHashEntry(
 // The free space begins beyond the file that is stored at the fuhrtest
 // position in the MPQ. (listfile), (attributes) and (signature) are ignored,
 // unless the MPQ is being flushed.
-ULONGLONG FindFreeMpqSpace(TMPQArchive * ha)
+/*ULONGLONG FindFreeMpqSpace(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = ha->pHeader;
     TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
@@ -810,7 +810,7 @@ ULONGLONG FindFreeMpqSpace(TMPQArchive * ha)
 
     // Give the free space position to the caller
     return FreeSpacePos;
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Common functions - MPQ File
@@ -845,7 +845,7 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
     return hf;
 }
 
-TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize)
+/*TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize)
 {
     ULONGLONG FreeMpqSpace;
     ULONGLONG TempPos;
@@ -880,7 +880,7 @@ TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize)
     hf->MpqFilePos = FreeMpqSpace;
     hf->bIsWriteHandle = true;
     return hf;
-}
+}*/
 
 // Loads a table from MPQ.
 // Can be used for hash table, block table, sector offset table or sector checksum table
@@ -1331,7 +1331,7 @@ int AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
     return ERROR_SUCCESS;
 }
 
-int WritePatchInfo(TMPQFile * hf)
+/*int WritePatchInfo(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
     TPatchInfo * pPatchInfo = hf->pPatchInfo;
@@ -1379,7 +1379,6 @@ int WriteSectorOffsets(TMPQFile * hf)
 //  BSWAP_ARRAY32_UNSIGNED(hf->SectorOffsets, dwSectorOffsLen);
     return ERROR_SUCCESS;
 }
-
 
 int WriteSectorChecksums(TMPQFile * hf)
 {
@@ -1437,8 +1436,9 @@ int WriteSectorChecksums(TMPQFile * hf)
     pFileEntry->dwCmpSize += dwCompressedSize;
     STORM_FREE(pbCompressed);
     return nError;
-}
+}*/
 
+#ifdef FULL
 int WriteMemDataMD5(
     TFileStream * pStream,
     ULONGLONG RawDataOffs,
@@ -1487,10 +1487,10 @@ int WriteMemDataMD5(
     STORM_FREE(md5_array);
     return nError;
 }
-
+#endif
 
 // Writes the MD5 for each chunk of the raw file data
-int WriteMpqDataMD5(
+/*int WriteMpqDataMD5(
     TFileStream * pStream,
     ULONGLONG RawDataOffs,
     DWORD dwRawDataSize,
@@ -1549,7 +1549,7 @@ int WriteMpqDataMD5(
     STORM_FREE(pbFileChunk);
     STORM_FREE(md5_array);
     return nError;
-}
+}*/
 
 // Frees the structure for MPQ file
 void FreeFileHandle(TMPQFile *& hf)

@@ -69,7 +69,7 @@ static DWORD GetMpqFileCount(TMPQArchive * ha)
     return dwFileCount;
 }
 
-static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo, DWORD * pcbLengthNeeded)
+/*static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo, DWORD * pcbLengthNeeded)
 {
     TMPQFile * hfTemp;
     TCHAR * szFileInfo = (TCHAR *)pvFileInfo;
@@ -120,7 +120,7 @@ static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo
     }
 
     return true;
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Retrieves an information about an archive or about a file within the archive
@@ -131,7 +131,7 @@ static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo
 //  cbFileInfo - Size of the buffer pointed by pvFileInfo
 //  pcbLengthNeeded - Receives number of bytes necessary to store the information
 
-bool STORMAPI SFileGetFileInfo(
+/*bool STORMAPI SFileGetFileInfo(
     HANDLE hMpqOrFile,
     SFileInfoClass InfoClass,
     void * pvFileInfo,
@@ -859,7 +859,7 @@ bool STORMAPI SFileGetFileInfo(
     if(nError != ERROR_SUCCESS)
         SetLastError(nError);
     return (nError == ERROR_SUCCESS);
-}
+}*/
 
 #ifdef FULL
 bool STORMAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass)
@@ -965,7 +965,7 @@ static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * sz
     return ERROR_CAN_NOT_COMPLETE;
 }
 
-bool STORMAPI SFileGetFileName(HANDLE hFile, char * szFileName)
+/*bool STORMAPI SFileGetFileName(HANDLE hFile, char * szFileName)
 {
     TMPQFile * hf = (TMPQFile *)hFile;  // MPQ File handle
     int nError = ERROR_INVALID_HANDLE;
@@ -1008,5 +1008,5 @@ bool STORMAPI SFileGetFileName(HANDLE hFile, char * szFileName)
     if(nError != ERROR_SUCCESS)
         SetLastError(nError);
     return (nError == ERROR_SUCCESS);
-}
+}*/
 
