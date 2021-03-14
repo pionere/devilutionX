@@ -23,7 +23,7 @@ int nummtypes;
 #define MON_LIGHTRAD 3
 
 /** Maps from walking path step to facing direction. */
-const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
+static const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
 /** Maps from monster intelligence factor to missile type. */
 const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 

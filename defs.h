@@ -33,15 +33,10 @@
 //#endif
 #endif
 
-#ifdef SPAWN
-#define DATA_ARCHIVE_MAIN		"spawn.mpq"
-#define DATA_ARCHIVE_PATCH		"patch_sh.mpq"
-#define MENU_ART				"ui_art\\swmmenu.pcx"
-#else
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
+#define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
 #define MENU_ART				"ui_art\\mainmenu.pcx"
-#endif
 
 #ifdef HELLFIRE
 #define LOGO_DATA				"Data\\hf_logo3.CEL"
@@ -50,11 +45,7 @@
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
 #define HELP_TITLE				"Hellfire Help"
-#ifdef SPAWN
-#define PROGRAM_NAME			"Diablo Shareware"
-#else
 #define PROGRAM_NAME			"Hellfire Retail"
-#endif
 #else
 #define LOGO_DATA				"Data\\Diabsmal.CEL"
 #define LOGO_WIDTH				296
@@ -62,11 +53,7 @@
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42
 #define HELP_TITLE				"Diablo Help"
-#ifdef SPAWN
-#define PROGRAM_NAME			"Diablo Shareware"
-#else
 #define PROGRAM_NAME			"Diablo Retail"
-#endif
 #endif
 
 // MAXDUN = DSIZE + 2 * DBORDER
@@ -278,12 +265,6 @@
 #else
 #define SPLICONLAST		43
 #define SPLBOOKTABS		4
-#endif
-
-#ifdef SPAWN
-#define MONST_AVAILABILITY_MASK	1
-#else
-#define MONST_AVAILABILITY_MASK	3
 #endif
 
 #define NIGHTMARE_TO_HIT_BONUS  85

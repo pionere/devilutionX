@@ -19,7 +19,7 @@ _uiheroinfo selhero_heroInfo;
 
 namespace {
 
-#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__)
+#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 const char *selhero_GenerateName(uint8_t hero_class);
 #endif
 
@@ -339,10 +339,13 @@ void selhero_ClassSelector_Select(unsigned index)
 
 	snprintf(title, sizeof(title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#ifdef PREFILL_PLAYER_NAME
-	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
-#elif defined __3DS__
+#if defined __3DS__
 	ctr_vkbdInput("Enter Hero name..", selhero_GenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
+#elif defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#ifndef PREFILL_PLAYER_NAME
+	if (sgbControllerActive)
+#endif
+		SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
 #endif
 	selhero_FreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
@@ -480,7 +483,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	return selhero_result;
 }
 
-#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__)
+#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 const char *selhero_GenerateName(uint8_t hero_class)
 {
 	static const char *const kNames[NUM_CLASSES][10] = {
@@ -533,7 +536,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Vylnas",
 		    "Zhota",
 		},
-		{ // BARD
+		{ // BARD (uses Rogue names)
 		    "Moreina",
 		    "Akara",
 		    "Kashya",
@@ -546,16 +549,16 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Elexa",
 		},
 		{ // BARBARIAN
-		    "Aidan",
-		    "Qarak",
-		    "Born",
-		    "Cathan",
-		    "Halbu",
-		    "Lenalas",
-		    "Maximus",
-		    "Vane",
-		    "Myrdgar",
-		    "Rothat",
+		    "Alaric",
+		    "Barloc",
+		    "Egtheow",
+		    "Guthlaf",
+		    "Heorogar",
+		    "Hrothgar",
+		    "Oslaf",
+		    "Qual-Kehk",
+		    "Ragnar",
+		    "Ulf",
 		}
 #endif
 	};
