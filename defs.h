@@ -35,10 +35,12 @@
 
 #ifdef SPAWN
 #define DATA_ARCHIVE_MAIN		"spawn.mpq"
+#define DATA_ARCHIVE_MAIN_ALT	"SPAWN.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_sh.mpq"
 #define MENU_ART				"ui_art\\swmmenu.pcx"
 #else
 #define DATA_ARCHIVE_MAIN		"diabdat.mpq"
+#define DATA_ARCHIVE_MAIN_ALT	"DIABDAT.MPQ"
 #define DATA_ARCHIVE_PATCH		"patch_rt.mpq"
 #define MENU_ART				"ui_art\\mainmenu.pcx"
 #endif

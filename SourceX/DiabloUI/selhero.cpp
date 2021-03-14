@@ -348,10 +348,13 @@ void selhero_ClassSelector_Select(std::size_t index)
 
 	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#ifdef PREFILL_PLAYER_NAME
-	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
-#elif defined __3DS__
+#if defined __3DS__
 	ctr_vkbdInput("Enter Hero name..", selhero_GenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
+#else
+#ifndef PREFILL_PLAYER_NAME
+	if (sgbControllerActive)
+#endif
+		SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
 #endif
 	selhero_FreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
@@ -412,10 +415,6 @@ void selhero_Name_Select(std::size_t index)
 		}
 	}
 
-	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#ifdef PREFILL_PLAYER_NAME
-	SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
-#endif
 	selhero_ClassSelector_Select(0);
 }
 
@@ -537,7 +536,7 @@ void UiSelHeroMultDialog(
 
 const char *selhero_GenerateName(uint8_t hero_class)
 {
-	static const char *const kNames[4][10] = {
+	static const char *const kNames[NUM_CLASSES][10] = {
 		{
 		    // Warrior
 		    "Aidan",
@@ -577,6 +576,7 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Valthek",
 		    "Horazon",
 		},
+#ifdef HELLFIRE
 		{
 		    // Monk
 		    "Akyev",
@@ -589,7 +589,34 @@ const char *selhero_GenerateName(uint8_t hero_class)
 		    "Vhalit",
 		    "Vylnas",
 		    "Zhota",
-		}
+		},
+		{
+		    // Bard (uses Rogue names)
+		    "Moreina",
+		    "Akara",
+		    "Kashya",
+		    "Flavie",
+		    "Divo",
+		    "Oriana",
+		    "Iantha",
+		    "Shikha",
+		    "Basanti",
+		    "Elexa",
+		},
+		{
+		    // Barbarian
+		    "Alaric",
+		    "Barloc",
+		    "Egtheow",
+		    "Guthlaf",
+		    "Heorogar",
+		    "Hrothgar",
+		    "Oslaf",
+		    "Qual-Kehk",
+		    "Ragnar",
+		    "Ulf",
+		},
+#endif
 	};
 
 	int iRand = rand() % 10;

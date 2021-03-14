@@ -15,10 +15,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 inline BYTE *CelGetFrameStart(BYTE *pCelBuff, int nCel)
 {
 	DWORD *pFrameTable;
@@ -87,10 +83,6 @@ inline int RandRange(int minVal, int maxVal)
 {
 	return minVal + random_(0, maxVal - minVal + 1);
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 // BUGFIX: TODO DISABLE/ENABLE_WARNING macros are not tested for GNUC/clang
 #if defined(_MSC_VER)
