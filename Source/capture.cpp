@@ -74,7 +74,7 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
 
 	do {
 		BYTE rlePixel = *src;
-		*src++;
+		src++;
 		rleLength = 1;
 
 		width--;
@@ -92,11 +92,11 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
 
 		if (rleLength > 1 || rlePixel > 0xBF) {
 			*dst = rleLength | 0xC0;
-			*dst++;
+			dst++;
 		}
 
 		*dst = rlePixel;
-		*dst++;
+		dst++;
 	} while (width);
 
 	return dst;
