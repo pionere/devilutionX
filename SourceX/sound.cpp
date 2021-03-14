@@ -163,7 +163,7 @@ void music_stop()
 
 void music_start(int nTrack)
 {
-	assert((DWORD)nTrack < NUM_MUSIC);
+	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
 		if (SFileOpenFile(sgszMusicTracks[nTrack], &_ghMusic)) {

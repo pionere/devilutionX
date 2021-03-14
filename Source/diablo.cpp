@@ -836,7 +836,7 @@ void AltActionBtnCmd(bool bShift)
 	PlayerStruct *p;
 	int rspell, sf, sl;
 
-	if ((DWORD)myplr >= MAX_PLRS) {
+	if ((unsigned)myplr >= MAX_PLRS) {
 		dev_fatal("AltActionBtnCmd: illegal player %d", myplr);
 	}
 

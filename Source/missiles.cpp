@@ -24,8 +24,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	PlayerStruct *p;
 	int k, sl;
 
-	assert((DWORD)myplr < MAX_PLRS);
-	assert((DWORD)sn < NUM_SPELLS);
+	assert((unsigned)myplr < MAX_PLRS);
+	assert((unsigned)sn < NUM_SPELLS);
 	sl = GetSpellLevel(myplr, sn);
 	p = &plr[myplr];
 
@@ -1385,7 +1385,7 @@ int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	//if (misource != -1) {
 		// TODO: bring it closer to AddFirewall? (_pISplDur, adjust damage)
 		mis->_miMaxDam = ((plr[misource]._pMagic >> 1) + spllvl) << (-3 + 6);
@@ -1440,7 +1440,7 @@ int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	av += spllvl;
 	if (av > 50) {
 		av = 50;
@@ -1535,7 +1535,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	MissileStruct *mis;
 	int pn, nTries;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	if (micaster == 0 || (dx == 0 && dy == 0)) {
 		nTries = 0;
 		do {
@@ -1651,7 +1651,7 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	int i, j, tx, ty;
 	const char *cr;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -1706,7 +1706,7 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	mis = &missile[mi];
 	mis->_miRange = 160 * (spllvl + 1);
 	if (misource != -1) {
-		assert((DWORD)misource < MAX_PLRS);
+		assert((unsigned)misource < MAX_PLRS);
 		p = &plr[misource];
 		// TODO: add support for spell duration modifier
 		// range += (p->_pISplDur * range) >> 7;
@@ -1957,7 +1957,7 @@ int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 
 int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	if (misource == myplr) {
 		if (plr[misource].pManaShield == 0)
@@ -1978,7 +1978,7 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 {
 	MissileStruct *mis;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	mis = &missile[mi];
 	mis->_miMinDam = ((plr[misource]._pMagic >> 3) + spllvl + 1) << 6;
@@ -2005,7 +2005,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	int i, pn, j, tx, ty, range;
 	const char *cr;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 
 	for (i = 0; i < 6; i++) {
@@ -2052,7 +2052,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 {
 	MissileStruct *mis;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2229,7 +2229,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	int i, j, tx, ty, mid, range;
 	const char *cr;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -2282,7 +2282,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	MissileStruct *mis, *tmis;
 	int i;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < nummissiles; i++) {
 		tmis = &missile[missileactive[i]];
@@ -2315,7 +2315,7 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 {
 	int i, hp;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	hp = RandRange(1, 10);
 	for (i = spllvl; i > 0; i--) {
@@ -2346,7 +2346,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	int pnum, i, hp;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum != misource
@@ -2393,7 +2393,7 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	PlayerStruct *p;
 	int i, mindam, maxdam;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -2422,7 +2422,7 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 int AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	CheckIdentify(misource, spllvl);
 	return MIRES_DELETE;
 }
@@ -2443,7 +2443,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	int i, j, tx, ty;
 	const char *cr;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -2477,7 +2477,7 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	MissileStruct *mis;
 	int i, range;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	range = 1584;
 	for (i = spllvl; i > 0; i--) {
@@ -2496,7 +2496,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	mis->_miVar1 = GetDirection8(sx, sy, dx, dy);
 	// mis->_miRange = 1;
@@ -2546,7 +2546,7 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	PlayerStruct *p;
 	int lvl;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	p = &plr[misource];
 	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || p->_pHitPoints <= p->_pLevel << 6) {
@@ -2568,14 +2568,14 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 int AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	DoRepair(misource, spllvl);
 	return MIRES_DELETE;
 }
 
 int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	DoRecharge(misource, spllvl);
 	return MIRES_DELETE;
 }
@@ -2583,7 +2583,7 @@ int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 #ifdef HELLFIRE
 int AddWhittle(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 	DoWhittle(misource, spllvl);
 	return MIRES_DELETE;
 }
@@ -2591,7 +2591,7 @@ int AddWhittle(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	if (misource == myplr) {
 		NewCursor(CURSOR_DISARM);
@@ -2737,9 +2737,9 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	PlayerStruct *tp;
 	int tnum = spllvl;
 
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
-	if ((DWORD)tnum >= MAX_PLRS)
+	if ((unsigned)tnum >= MAX_PLRS)
 		return MIRES_DELETE;
 
 	tp = &plr[tnum];
@@ -2778,7 +2778,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((DWORD)misource < MAX_PLRS);
+	assert((unsigned)misource < MAX_PLRS);
 
 	if (misource == myplr)
 		NewCursor(CURSOR_TELEKINESIS);

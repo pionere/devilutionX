@@ -135,7 +135,7 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 		pHdr->bItemI = -1;
 	}
 
-	assert((DWORD)sync_pinum < NUM_INVLOC);
+	assert((unsigned)sync_pinum < NUM_INVLOC);
 	is = &plr[myplr].InvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;

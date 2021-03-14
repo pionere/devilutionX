@@ -2243,7 +2243,7 @@ bool control_talk_last_key(int vkey)
 	assert(gbTalkflag);
 	assert(gbMaxPlayers != 1);
 
-	if ((DWORD)vkey < DVL_VK_SPACE)
+	if ((unsigned)vkey < DVL_VK_SPACE)
 		return false;
 
 	result = strlen(sgszTalkMsg);

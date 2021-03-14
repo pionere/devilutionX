@@ -440,7 +440,7 @@ void multi_process_network_packets()
 		multi_clear_left_tbl();
 		if (dwMsgSize < sizeof(TPktHdr))
 			continue;
-		if ((DWORD)pnum >= MAX_PLRS)
+		if ((unsigned)pnum >= MAX_PLRS)
 			continue;
 		if (pkt->wCheck != 'ip')
 			continue;
@@ -776,7 +776,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 	if (myplr == pnum) {
 		return;
 	}
-	/// ASSERT: assert((DWORD)pnum < MAX_PLRS);
+	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
 
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
 		sgwPackPlrOffsetTbl[pnum] = 0;

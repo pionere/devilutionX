@@ -3392,7 +3392,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	int i, r, cnt;
 	int xx, yy;
 
-	assert((DWORD)oi < MAXOBJECTS);
+	assert((unsigned)oi < MAXOBJECTS);
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)

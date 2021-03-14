@@ -299,7 +299,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	char trans;
 	BYTE *pCelBuff;
 
-	if ((DWORD)mnum >= MAXMONSTERS) {
+	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 	mon = &monster[mnum];
@@ -578,7 +578,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 		return;
 
 	ii--;
-	if ((DWORD)ii >= MAXITEMS) {
+	if ((unsigned)ii >= MAXITEMS) {
 		dev_fatal("Invalid item (%d) to draw.", ii);
 	}
 
@@ -634,7 +634,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 	if (!(dFlags[x][y] & BFLAG_LIT) && !plr[myplr]._pInfraFlag)
 		return;
 
-	if ((DWORD)mnum >= MAXMONSTERS) {
+	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
 
@@ -662,7 +662,7 @@ static void DrawPlayerHelper(int x, int y, int sx, int sy)
 {
 	int pnum = dPlayer[x][y];
 	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
-	if ((DWORD)pnum >= MAX_PLRS) {
+	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("draw player: tried to draw illegal player %d", pnum);
 	}
 	PlayerStruct *p = &plr[pnum];
@@ -687,8 +687,8 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	BYTE *pCelBuff;
 	DWORD *pFrameTable;
 
-	assert((DWORD)sx < MAXDUNX);
-	assert((DWORD)sy < MAXDUNY);
+	assert((unsigned)sx < MAXDUNX);
+	assert((unsigned)sy < MAXDUNY);
 
 	if (dRendered[sx][sy])
 		return;
@@ -738,7 +738,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	DrawObject(sx, sy, dx, dy, TRUE);
 	DrawItem(sx, sy, dx, dy, TRUE);
 	if (bFlag & BFLAG_PLAYERLR) {
-		assert((DWORD)(sy - 1) < MAXDUNY);
+		assert((unsigned)(sy - 1) < MAXDUNY);
 		DrawPlayerHelper(sx, sy - 1, dx, dy);
 	}
 	if (bFlag & BFLAG_MONSTLR && mnum < 0) {
