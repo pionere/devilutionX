@@ -39,7 +39,7 @@ void ErrorPlrMsg(const char *pszMsg)
 	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
 }
 
-size_t EventPlrMsg(const char *pszFmt, ...)
+void EventPlrMsg(const char *pszFmt, ...)
 {
 	_plrmsg *pMsg;
 	va_list va;
@@ -51,7 +51,6 @@ size_t EventPlrMsg(const char *pszFmt, ...)
 	pMsg->time = SDL_GetTicks();
 	vsnprintf(pMsg->str, sizeof(pMsg->str), pszFmt, va);
 	va_end(va);
-	return strlen(pMsg->str);
 }
 
 void SendPlrMsg(int pnum, const char *pszStr)
@@ -85,41 +84,14 @@ void InitPlrMsg()
 	plr_msg_slot = 0;
 }
 
-void DrawPlrMsg()
-{
-	int i;
-	DWORD x = 10 + SCREEN_X;
-	DWORD y = 70 + SCREEN_Y;
-	DWORD width = SCREEN_WIDTH - 20;
-	_plrmsg *pMsg;
-
-	if (gbChrflag || gbQuestlog) {
-		x += SPANEL_WIDTH;
-		width -= SPANEL_WIDTH;
-	}
-	if (gbInvflag || gbSbookflag)
-		width -= SPANEL_WIDTH;
-
-	if (width < 300)
-		return;
-
-	pMsg = plr_msgs;
-	for (i = 0; i < PMSG_COUNT; i++) {
-		if (pMsg->str[0] != '\0')
-			PrintPlrMsg(x, y, width, pMsg->str, text_color_from_player_num[pMsg->player]);
-		pMsg++;
-		y += 35;
-	}
-}
-
-void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
+static void PrintPlrMsg(unsigned x, unsigned y, unsigned width, const char *str, BYTE col)
 {
 	int line = 0;
 
 	while (*str != '\0') {
 		BYTE c;
 		int sx = x;
-		DWORD len = 0;
+		unsigned len = 0;
 		const char *sstr = str;
 		const char *endstr = sstr;
 
@@ -150,6 +122,33 @@ void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col)
 		line++;
 		if (line == 3)
 			break;
+	}
+}
+
+void DrawPlrMsg()
+{
+	int i;
+	unsigned x = 10 + SCREEN_X;
+	unsigned y = 70 + SCREEN_Y;
+	unsigned width = SCREEN_WIDTH - 20;
+	_plrmsg *pMsg;
+
+	if (gbChrflag || gbQuestlog) {
+		x += SPANEL_WIDTH;
+		width -= SPANEL_WIDTH;
+	}
+	if (gbInvflag || gbSbookflag)
+		width -= SPANEL_WIDTH;
+
+	if (width < 300)
+		return;
+
+	pMsg = plr_msgs;
+	for (i = 0; i < PMSG_COUNT; i++) {
+		if (pMsg->str[0] != '\0')
+			PrintPlrMsg(x, y, width, pMsg->str, text_color_from_player_num[pMsg->player]);
+		pMsg++;
+		y += 35;
 	}
 }
 

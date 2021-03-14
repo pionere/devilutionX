@@ -14,12 +14,11 @@ extern "C" {
 
 void plrmsg_delay(bool delay);
 void ErrorPlrMsg(const char *pszMsg);
-size_t EventPlrMsg(const char *pszFmt, ...);
+void EventPlrMsg(const char *pszFmt, ...);
 void SendPlrMsg(int pnum, const char *pszStr);
 void ClearPlrMsg();
 void InitPlrMsg();
 void DrawPlrMsg();
-void PrintPlrMsg(DWORD x, DWORD y, DWORD width, const char *str, BYTE col);
 
 #ifdef __cplusplus
 }
