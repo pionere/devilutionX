@@ -8,20 +8,19 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int plr_lframe_size;
-int plr_wframe_size;
-BYTE plr_gfx_flag = 0;
-int plr_aframe_size;
 int myplr;
 PlayerStruct plr[MAX_PLRS];
+bool gbDeathflag;
+int deathdelay;
+bool _gbPlrGfxSizeLoaded = false;
+int plr_lframe_size;
+int plr_wframe_size;
+int plr_aframe_size;
 int plr_fframe_size;
 int plr_qframe_size;
-bool gbDeathflag;
 int plr_hframe_size;
 int plr_bframe_size;
-BYTE plr_gfx_bflag = 0;
 int plr_sframe_size;
-int deathdelay;
 int plr_dframe_size;
 
 /** Maps from armor animation to letter used in graphic files. */
@@ -399,62 +398,38 @@ void InitPlrGFXMem(int pnum)
 		app_fatal("InitPlrGFXMem: illegal player %d", pnum);
 	}
 
-	p = &plr[pnum];
+	if (!_gbPlrGfxSizeLoaded) {
+		_gbPlrGfxSizeLoaded = true;
 
-	if (!(plr_gfx_flag & 0x1)) { //STAND
-		plr_gfx_flag |= 0x1;
-		// ST: TOWN, AS: DUNGEON
+		// STAND -- ST: TOWN, AS: DUNGEON
 		plr_sframe_size = std::max(GetPlrGFXSize("ST"), GetPlrGFXSize("AS"));
-	}
-	p->_pNData = DiabloAllocPtr(plr_sframe_size);
-
-	if (!(plr_gfx_flag & 0x2)) { //WALK
-		plr_gfx_flag |= 0x2;
-		// WL: TOWN, AW: DUNGEON
+		// WALK -- WL: TOWN, AW: DUNGEON
 		plr_wframe_size = std::max(GetPlrGFXSize("WL"), GetPlrGFXSize("AW"));
-	}
-	p->_pWData = DiabloAllocPtr(plr_wframe_size);
-
-	if (!(plr_gfx_flag & 0x4)) { //ATTACK
-		plr_gfx_flag |= 0x4;
+		// ATTACK
 		plr_aframe_size = GetPlrGFXSize("AT");
-	}
-	p->_pAData = DiabloAllocPtr(plr_aframe_size);
-
-	if (!(plr_gfx_flag & 0x8)) { //HIT
-		plr_gfx_flag |= 0x8;
+		// HIT
 		plr_hframe_size = GetPlrGFXSize("HT");
-	}
-	p->_pHData = DiabloAllocPtr(plr_hframe_size);
-
-	if (!(plr_gfx_flag & 0x10)) { //LIGHTNING
-		plr_gfx_flag |= 0x10;
+		// LIGHTNING
 		plr_lframe_size = GetPlrGFXSize("LM");
-	}
-	p->_pLData = DiabloAllocPtr(plr_lframe_size);
-
-	if (!(plr_gfx_flag & 0x20)) { //FIRE
-		plr_gfx_flag |= 0x20;
+		// FIRE
 		plr_fframe_size = GetPlrGFXSize("FM");
-	}
-	p->_pFData = DiabloAllocPtr(plr_fframe_size);
-
-	if (!(plr_gfx_flag & 0x40)) { //MAGIC
-		plr_gfx_flag |= 0x40;
+		// MAGIC
 		plr_qframe_size = GetPlrGFXSize("QM");
-	}
-	p->_pTData = DiabloAllocPtr(plr_qframe_size);
-
-	if (!(plr_gfx_flag & 0x80)) { //DEATH
-		plr_gfx_flag |= 0x80;
+		// DEATH
 		plr_dframe_size = GetPlrGFXSize("DT");
-	}
-	p->_pDData = DiabloAllocPtr(plr_dframe_size);
-
-	if (!(plr_gfx_bflag & 0x1)) { //BLOCK
-		plr_gfx_bflag |= 0x1;
+		// BLOCK
 		plr_bframe_size = GetPlrGFXSize("BL");
 	}
+
+	p = &plr[pnum];
+	p->_pNData = DiabloAllocPtr(plr_sframe_size);
+	p->_pWData = DiabloAllocPtr(plr_wframe_size);
+	p->_pAData = DiabloAllocPtr(plr_aframe_size);
+	p->_pHData = DiabloAllocPtr(plr_hframe_size);
+	p->_pLData = DiabloAllocPtr(plr_lframe_size);
+	p->_pFData = DiabloAllocPtr(plr_fframe_size);
+	p->_pTData = DiabloAllocPtr(plr_qframe_size);
+	p->_pDData = DiabloAllocPtr(plr_dframe_size);
 	p->_pBData = DiabloAllocPtr(plr_bframe_size);
 
 	p->_pGFXLoad = 0;
