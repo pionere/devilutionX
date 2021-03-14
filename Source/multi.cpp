@@ -66,7 +66,7 @@ static void multi_copy_packet(TBuffer *buf, void *packet, BYTE size)
 	p[size] = 0;
 }
 
-static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, DWORD *size)
+static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, unsigned *size)
 {
 	BYTE *src_ptr;
 	size_t chunk_size;
@@ -118,7 +118,7 @@ static void validate_package()
 {
 	BYTE *hipri_body;
 	BYTE *lowpri_body;
-	DWORD size, len;
+	unsigned size, len;
 	TPkt pkt;
 
 	NetRecvPlrData(pkt.hdr);
@@ -489,7 +489,7 @@ void multi_process_network_packets()
 
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 {
-	DWORD dwOffset, dwBody, dwMsg;
+	unsigned dwOffset, dwBody, dwMsg;
 	TPkt pkt;
 	TCmdPlrInfoHdr *p;
 

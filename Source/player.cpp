@@ -260,7 +260,7 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 	PlayerStruct *p;
 	BYTE *pData;
 	BYTE *(*pAnim)[8];
-	DWORD i, mask;
+	unsigned i, mask;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("LoadPlrGFX: illegal player %d", pnum);
@@ -353,9 +353,9 @@ void InitPlayerGFX(int pnum)
 	LoadPlrGFX(pnum, gfxflag);
 }
 
-static DWORD GetPlrGFXSize(const char *szCel)
+static unsigned GetPlrGFXSize(const char *szCel)
 {
-	DWORD c;
+	int c;
 	const char *a, *w, *cc, *cst;
 	DWORD dwSize, dwMaxSize;
 	HANDLE hsFile;

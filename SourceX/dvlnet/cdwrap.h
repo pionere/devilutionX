@@ -36,7 +36,7 @@ public:
 	virtual bool SNetUnregisterEventHandler(event_type evtype,
 	    SEVTHANDLER func);
 	virtual void SNetLeaveGame(int type);
-	virtual bool SNetDropPlayer(int playerid, DWORD flags);
+	virtual bool SNetDropPlayer(int playerid, unsigned flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
 	virtual bool SNetGetTurnsInTransit(DWORD *turns);
 	virtual void setup_gameinfo(buffer_t info);
@@ -133,7 +133,7 @@ void cdwrap<T>::SNetLeaveGame(int type)
 }
 
 template <class T>
-bool cdwrap<T>::SNetDropPlayer(int playerid, DWORD flags)
+bool cdwrap<T>::SNetDropPlayer(int playerid, unsigned flags)
 {
 	return dvlnet_wrap->SNetDropPlayer(playerid, flags);
 }

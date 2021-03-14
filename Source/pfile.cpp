@@ -28,7 +28,7 @@ const char *PASSWORD_MULTI = "szqnlsk1";
 
 namespace {
 
-std::string GetSavePath(DWORD save_num)
+std::string GetSavePath(unsigned save_num)
 {
 	std::string path = GetPrefPath();
 
@@ -46,9 +46,9 @@ std::string GetSavePath(DWORD save_num)
 static char hero_names[MAX_CHARACTERS][PLR_NAME_LEN];
 bool gbValidSaveFile;
 
-static DWORD pfile_get_save_num_from_name(const char *name)
+static unsigned pfile_get_save_num_from_name(const char *name)
 {
-	DWORD i;
+	unsigned i;
 
 	for (i = 0; i < MAX_CHARACTERS; i++) {
 		if (!strcasecmp(hero_names[i], name))
@@ -103,14 +103,14 @@ static void pfile_encode_hero(const PkPlayerStruct *pPack)
 	mem_free_dbg(packed);
 }
 
-static bool pfile_open_save_mpq(DWORD save_num)
+static bool pfile_open_save_mpq(unsigned save_num)
 {
 	return OpenMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
 }
 
 static bool pfile_open_archive()
 {
-	DWORD save_num;
+	unsigned save_num;
 
 	save_num = pfile_get_save_num_from_name(plr[myplr]._pName);
 	assert(save_num < MAX_CHARACTERS);
@@ -122,7 +122,7 @@ static void pfile_flush(bool is_single_player)
 	mpqapi_flush_and_close(is_single_player);
 }
 
-static HANDLE pfile_open_save_archive(DWORD save_num)
+static HANDLE pfile_open_save_archive(unsigned save_num)
 {
 	HANDLE archive;
 
@@ -181,7 +181,7 @@ void pfile_create_player_description()
 /*bool pfile_rename_hero(const char *name_1, const char *name_2)
 {
 	int i;
-	DWORD save_num;
+	unsigned save_num;
 	_uiheroinfo uihero;
 	bool found = false;
 
@@ -261,7 +261,7 @@ void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *cla
 
 bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 {
-	DWORD save_num;
+	unsigned save_num;
 	PkPlayerStruct pkplr;
 
 	save_num = pfile_get_save_num_from_name(heroinfo->name);
@@ -286,7 +286,7 @@ bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 	return true;
 }
 
-bool pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
+bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -313,7 +313,7 @@ bool pfile_get_file_name(DWORD lvl, char (&dst)[MAX_PATH])
 
 void pfile_delete_save(_uiheroinfo *hero_info)
 {
-	DWORD save_num;
+	unsigned save_num;
 
 	save_num = pfile_get_save_num_from_name(hero_info->name);
 	if (save_num < MAX_CHARACTERS) {
@@ -325,7 +325,7 @@ void pfile_delete_save(_uiheroinfo *hero_info)
 void pfile_read_player_from_save()
 {
 	HANDLE archive;
-	DWORD save_num;
+	unsigned save_num;
 	PkPlayerStruct pkplr;
 
 	save_num = pfile_get_save_num_from_name(gszHero);
@@ -366,7 +366,7 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 	}
 }
 
-static bool GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
+static bool GetPermSaveNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -382,7 +382,7 @@ static bool GetPermSaveNames(DWORD dwIndex, char (&szPerm)[MAX_PATH])
 	return true;
 }
 
-static bool GetTempSaveNames(DWORD dwIndex, char (&szTemp)[MAX_PATH])
+static bool GetTempSaveNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
@@ -410,7 +410,7 @@ void pfile_remove_temp_files()
 
 void pfile_rename_temp_to_perm()
 {
-	DWORD dwIndex;
+	unsigned dwIndex;
 	bool bResult;
 	char szTemp[MAX_PATH];
 	char szPerm[MAX_PATH];
@@ -457,7 +457,8 @@ void pfile_delete_save_file(const char *pszName)
 
 BYTE *pfile_read(const char *pszName)
 {
-	DWORD save_num, nread, len;
+	unsigned save_num;
+	DWORD nread, len;
 	HANDLE archive, save;
 	BYTE *buf;
 

@@ -218,7 +218,7 @@ void base::SNetLeaveGame(int type)
 	send(*pkt);
 }
 
-bool base::SNetDropPlayer(int playerid, DWORD flags)
+bool base::SNetDropPlayer(int playerid, unsigned flags)
 {
 	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self,
 	    PLR_BROADCAST,

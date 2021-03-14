@@ -3344,7 +3344,7 @@ static void CloseChest(int oi, bool sendmsg)
 static void ReducePlrMana10(PlayerStruct *p)
 {
 	int v1, v2;
-	DWORD t;
+	unsigned t;
 
 	t = p->_pMaxManaBase / 10;
 	v1 = p->_pMana - p->_pManaBase;

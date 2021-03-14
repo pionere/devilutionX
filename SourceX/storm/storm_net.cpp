@@ -58,7 +58,7 @@ bool SNetDestroy()
 	return true;
 }
 
-bool SNetDropPlayer(int playerid, DWORD flags)
+bool SNetDropPlayer(int playerid, unsigned flags)
 {
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }

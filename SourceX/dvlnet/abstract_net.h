@@ -43,7 +43,7 @@ public:
 	    SEVTHANDLER func)
 	    = 0;
 	virtual void SNetLeaveGame(int type) = 0;
-	virtual bool SNetDropPlayer(int playerid, DWORD flags) = 0;
+	virtual bool SNetDropPlayer(int playerid, unsigned flags) = 0;
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns) = 0;
 	virtual bool SNetGetTurnsInTransit(DWORD *turns) = 0;
 	virtual void setup_gameinfo(buffer_t info) = 0;

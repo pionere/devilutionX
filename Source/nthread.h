@@ -17,8 +17,8 @@ extern DWORD gdwMsgLenTbl[MAX_PLRS];
 extern DWORD gdwDeltaBytesSec;
 extern DWORD gdwTurnsInTransit;
 extern LPDWORD glpMsgTbl[MAX_PLRS];
-extern DWORD gdwLargestMsgSize;
-extern DWORD gdwNormalMsgSize;
+extern unsigned gdwLargestMsgSize;
+extern unsigned gdwNormalMsgSize;
 
 void nthread_terminate_game(const char *pszFcn);
 DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta);

@@ -75,7 +75,7 @@ bool
     STORMAPI
     SNetDropPlayer(
         int playerid,
-        DWORD flags);
+        unsigned flags);
 
 /*  SNetGetGameInfo @ 107
  *
@@ -91,7 +91,7 @@ void
     SNetGetGameInfo(
         int type,
         void *dst,
-        unsigned int length);
+        unsigned length);
 
 /*  SNetGetTurnsInTransit @ 115
  *

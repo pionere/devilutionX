@@ -82,7 +82,7 @@ void loopback::SNetLeaveGame(int type)
 {
 }
 
-bool loopback::SNetDropPlayer(int playerid, DWORD flags)
+bool loopback::SNetDropPlayer(int playerid, unsigned flags)
 {
 	return true;
 }

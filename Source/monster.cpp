@@ -2523,7 +2523,7 @@ void DoEnding()
 void PrepDoEnding(bool soundOn)
 {
 	int i;
-	DWORD killLevel;
+	unsigned killLevel;
 
 	gbSoundOn = soundOn;
 	gbRunGame = false;

@@ -20,8 +20,8 @@ int turn_upper_bit;
 bool _gbTicsOutOfSync;
 char sgbPacketCountdown;
 bool _gbThreadIsRunning;
-DWORD gdwLargestMsgSize;
-DWORD gdwNormalMsgSize;
+unsigned gdwLargestMsgSize;
+unsigned gdwNormalMsgSize;
 int last_tick;
 
 /* data */
@@ -140,7 +140,7 @@ void nthread_set_turn_upper_bit()
 void nthread_start(bool set_turn_upper_bit)
 {
 	const char *err, *err2;
-	DWORD largestMsgSize;
+	unsigned largestMsgSize;
 	_SNETCAPS caps;
 
 	last_tick = SDL_GetTicks();
@@ -164,7 +164,7 @@ void nthread_start(bool set_turn_upper_bit)
 	else
 		sgbNetUpdateRate = 1;
 	largestMsgSize = 512;
-	if (caps.maxmessagesize < 0x200)
+	if (caps.maxmessagesize < 512)
 		largestMsgSize = caps.maxmessagesize;
 	gdwDeltaBytesSec = caps.bytessec >> 2;
 	gdwLargestMsgSize = largestMsgSize;

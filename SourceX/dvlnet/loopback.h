@@ -31,7 +31,7 @@ public:
 	virtual bool SNetSendTurn(char *data, unsigned int size);
 	virtual bool SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual void SNetLeaveGame(int type);
-	virtual bool SNetDropPlayer(int playerid, DWORD flags);
+	virtual bool SNetDropPlayer(int playerid, unsigned flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
 	virtual bool SNetGetTurnsInTransit(DWORD *turns);
 };

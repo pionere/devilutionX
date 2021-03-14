@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE *sgpBackCel;
-DWORD sgdwProgress;
+unsigned sgdwProgress;
 int progress_id;
 
 /** The color used for the progress bar as an index into the palette. */

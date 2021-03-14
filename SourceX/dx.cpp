@@ -301,9 +301,9 @@ void RenderPresent()
 #endif
 }
 
-void PaletteGetEntries(DWORD dwNumEntries, SDL_Color *lpEntries)
+void PaletteGetEntries(unsigned dwNumEntries, SDL_Color *lpEntries)
 {
-	for (DWORD i = 0; i < dwNumEntries; i++) {
+	for (unsigned i = 0; i < dwNumEntries; i++) {
 		lpEntries[i] = system_palette[i];
 	}
 }
