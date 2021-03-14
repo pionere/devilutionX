@@ -52,7 +52,7 @@ void NetSendCmdDwParam2(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2);
 void NetSendCmdDwParam3(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2, DWORD dwParam3);
 void NetSendCmdString(unsigned int pmask);
 void delta_close_portal(int pnum);
-DWORD ParseCmd(int pnum, TCmd *pCmd);
+unsigned ParseCmd(int pnum, TCmd *pCmd);
 
 #ifdef __cplusplus
 }

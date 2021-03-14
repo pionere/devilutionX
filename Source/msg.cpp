@@ -77,7 +77,7 @@ static void msg_pre_packet()
 	}
 }
 
-static void msg_send_packet(int pnum, const void *packet, DWORD dwSize)
+static void msg_send_packet(int pnum, const void *packet, unsigned dwSize)
 {
 	TFakeCmdPlr cmd;
 
@@ -391,7 +391,7 @@ static void DeltaImportData(BYTE cmd, DWORD recv_offset)
 	_gbDeltaChanged = true;
 }
 
-static DWORD On_DLEVEL(int pnum, TCmd *pCmd)
+static unsigned On_DLEVEL(int pnum, TCmd *pCmd)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
@@ -1380,7 +1380,7 @@ void NetSendCmdString(unsigned int pmask)
 	multi_send_msg_packet(pmask, (BYTE *)&cmd.bCmd, dwStrLen + 2);
 }
 
-static DWORD On_STRING2(int pnum, TCmd *pCmd)
+static unsigned On_STRING2(int pnum, TCmd *pCmd)
 {
 	TCmdString *cmd = (TCmdString *)pCmd;
 
@@ -1432,12 +1432,12 @@ static void msg_errorf(const char *pszFmt, ...)
 #endif
 }
 
-static DWORD On_SYNCDATA(TCmd *pCmd, int pnum)
+static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 {
 	return sync_update(pnum, (const BYTE *)pCmd);
 }
 
-static DWORD On_WALKXY(TCmd *pCmd, int pnum)
+static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLoc *cmd = (TCmdLoc *)pCmd;
 
@@ -1450,7 +1450,7 @@ static DWORD On_WALKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
+static unsigned On_ADDSTR(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -1460,7 +1460,7 @@ static DWORD On_ADDSTR(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
+static unsigned On_ADDMAG(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -1470,7 +1470,7 @@ static DWORD On_ADDMAG(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
+static unsigned On_ADDDEX(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -1480,7 +1480,7 @@ static DWORD On_ADDDEX(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
+static unsigned On_ADDVIT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -1490,7 +1490,7 @@ static DWORD On_ADDVIT(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_BLOCK(TCmd *pCmd, int pnum)
+static unsigned On_BLOCK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -1502,7 +1502,7 @@ static DWORD On_BLOCK(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
+static unsigned On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -1515,7 +1515,7 @@ static DWORD On_GOTOGETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_REQUESTGITEM(TCmd *pCmd, int pnum)
+static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
@@ -1537,7 +1537,7 @@ static DWORD On_REQUESTGITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_GETITEM(TCmd *pCmd, int pnum)
+static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
@@ -1565,7 +1565,7 @@ static DWORD On_GETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_GOTOAGETITEM(TCmd *pCmd, int pnum)
+static unsigned On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -1578,7 +1578,7 @@ static DWORD On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_REQUESTAGITEM(TCmd *pCmd, int pnum)
+static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
@@ -1600,7 +1600,7 @@ static DWORD On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_AGETITEM(TCmd *pCmd, int pnum)
+static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
@@ -1628,7 +1628,7 @@ static DWORD On_AGETITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ITEMEXTRA(TCmd *pCmd, int pnum)
+static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
@@ -1643,7 +1643,7 @@ static DWORD On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
+static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
@@ -1671,7 +1671,7 @@ static DWORD On_PUTITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
+static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
@@ -1694,7 +1694,7 @@ static DWORD On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
+static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
@@ -1712,7 +1712,7 @@ static DWORD On_RESPAWNITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
+static unsigned On_ATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
@@ -1733,7 +1733,7 @@ static DWORD On_ATTACKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
+static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
@@ -1754,7 +1754,7 @@ static DWORD On_SATTACKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
+static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam2 *cmd = (TCmdLocBParam2 *)pCmd;
 	int sn;
@@ -1775,7 +1775,7 @@ static DWORD On_RATTACKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
+static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 	BYTE sn;
@@ -1797,7 +1797,7 @@ static DWORD On_SPELLXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DOOIL(TCmd *pCmd, int pnum)
+static unsigned On_DOOIL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
@@ -1808,7 +1808,7 @@ static DWORD On_DOOIL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
+static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -1824,7 +1824,7 @@ static DWORD On_OPOBJXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DISARMXY(TCmd *pCmd, int pnum)
+static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -1840,7 +1840,7 @@ static DWORD On_DISARMXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
+static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -1852,7 +1852,7 @@ static DWORD On_OPOBJT(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
+static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 	int mnum, x, y, sn;
@@ -1876,7 +1876,7 @@ static DWORD On_ATTACKID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
+static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 	int tnum, sn;
@@ -1897,7 +1897,7 @@ static DWORD On_ATTACKPID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
+static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 {
 	TCmdParam3 *cmd = (TCmdParam3 *)pCmd;
 	int sn;
@@ -1917,7 +1917,7 @@ static DWORD On_RATTACKID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
+static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 {
 	TCmdBParam3 *cmd = (TCmdBParam3 *)pCmd;
 	int sn;
@@ -1937,7 +1937,7 @@ static DWORD On_RATTACKPID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SPELLID(TCmd *pCmd, int pnum)
+static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 {
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 	BYTE sn;
@@ -1958,7 +1958,7 @@ static DWORD On_SPELLID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
+static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 {
 	TCmdWBParam4 *cmd = (TCmdWBParam4 *)pCmd;
 	BYTE sn;
@@ -1979,7 +1979,7 @@ static DWORD On_SPELLPID(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
+static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -1991,7 +1991,7 @@ static DWORD On_KNOCKBACK(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_TALKXY(TCmd *pCmd, int pnum)
+static unsigned On_TALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -2004,7 +2004,7 @@ static DWORD On_TALKXY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_NEWLVL(TCmd *pCmd, int pnum)
+static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 {
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
 
@@ -2016,7 +2016,7 @@ static DWORD On_NEWLVL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_WARP(TCmd *pCmd, int pnum)
+static unsigned On_WARP(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2029,7 +2029,7 @@ static DWORD On_WARP(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
+static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
@@ -2044,7 +2044,7 @@ static DWORD On_MONSTDEATH(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
+static unsigned On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 {
 	TCmdGolem *cmd = (TCmdGolem *)pCmd;
 
@@ -2061,7 +2061,7 @@ static DWORD On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
+static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam3 *cmd = (TCmdDwParam3 *)pCmd;
 	int mnum, hp, nhp;
@@ -2085,7 +2085,7 @@ static DWORD On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
+static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2099,7 +2099,7 @@ static DWORD On_PLRDEAD(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLRFRIENDY(TCmd *pCmd, int pnum)
+static unsigned On_PLRFRIENDY(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
@@ -2112,7 +2112,7 @@ static DWORD On_PLRFRIENDY(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
+static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 
@@ -2127,7 +2127,7 @@ static DWORD On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DOOROPEN(TCmd *pCmd, int pnum)
+static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2142,7 +2142,7 @@ static DWORD On_DOOROPEN(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DOORCLOSE(TCmd *pCmd, int pnum)
+static unsigned On_DOORCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2157,7 +2157,7 @@ static DWORD On_DOORCLOSE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_TRAPDISABLE(TCmd *pCmd, int pnum)
+static unsigned On_TRAPDISABLE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2172,7 +2172,7 @@ static DWORD On_TRAPDISABLE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_TRAPOPEN(TCmd *pCmd, int pnum)
+static unsigned On_TRAPOPEN(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2187,7 +2187,7 @@ static DWORD On_TRAPOPEN(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_TRAPCLOSE(TCmd *pCmd, int pnum)
+static unsigned On_TRAPCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2202,7 +2202,7 @@ static DWORD On_TRAPCLOSE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
+static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2217,7 +2217,7 @@ static DWORD On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_CHESTCLOSE(TCmd *pCmd, int pnum)
+static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
@@ -2232,7 +2232,7 @@ static DWORD On_CHESTCLOSE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
+static unsigned On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
 {
 	TCmdChItem *cmd = (TCmdChItem *)pCmd;
 
@@ -2244,7 +2244,7 @@ static DWORD On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
+static unsigned On_DELPLRITEMS(TCmd *pCmd, int pnum)
 {
 	TCmdDelItem *cmd = (TCmdDelItem *)pCmd;
 
@@ -2256,7 +2256,7 @@ static DWORD On_DELPLRITEMS(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
+static unsigned On_PLRLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
@@ -2268,7 +2268,7 @@ static DWORD On_PLRLEVEL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_PLRSKILLLVL(TCmd *pCmd, int pnum)
+static unsigned On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
@@ -2280,7 +2280,7 @@ static DWORD On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DROPITEM(TCmd *pCmd, int pnum)
+static unsigned On_DROPITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
@@ -2292,7 +2292,7 @@ static DWORD On_DROPITEM(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_SEND_PLRINFO(TCmd *pCmd, int pnum)
+static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
@@ -2304,12 +2304,12 @@ static DWORD On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 	return cmd->wBytes + sizeof(*cmd);
 }
 
-static DWORD On_ACK_PLRINFO(TCmd *pCmd, int pnum)
+static unsigned On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 {
 	return On_SEND_PLRINFO(pCmd, pnum);
 }
 
-static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
+static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
 	PlayerStruct* p;
@@ -2355,7 +2355,7 @@ static DWORD On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
+static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam3 *cmd = (TCmdLocBParam3 *)pCmd;
 
@@ -2385,7 +2385,7 @@ static DWORD On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
+static unsigned On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -2399,7 +2399,7 @@ static DWORD On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_RETOWN(TCmd *pCmd, int pnum)
+static unsigned On_RETOWN(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
@@ -2410,12 +2410,12 @@ static DWORD On_RETOWN(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_STRING(TCmd *pCmd, int pnum)
+static unsigned On_STRING(TCmd *pCmd, int pnum)
 {
 	return On_STRING2(pnum, pCmd);
 }
 
-static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
+static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
 {
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
 
@@ -2430,7 +2430,7 @@ static DWORD On_SYNCQUEST(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
+static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
@@ -2443,7 +2443,7 @@ static DWORD On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
+static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 {
 #ifdef _DEBUG
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
@@ -2454,12 +2454,12 @@ static DWORD On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_DEBUG(TCmd *pCmd, int pnum)
+static unsigned On_DEBUG(TCmd *pCmd, int pnum)
 {
 	return sizeof(*pCmd);
 }
 
-static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
+static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
 
@@ -2469,7 +2469,7 @@ static DWORD On_SETSHIELD(TCmd *pCmd, int pnum)
 	return sizeof(*p);
 }
 
-static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
+static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
 		plr[pnum].pManaShield = 0;
@@ -2477,7 +2477,7 @@ static DWORD On_REMSHIELD(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_RESTOREHPVIT(TCmd *pCmd, int pnum)
+static unsigned On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
 		RestorePlrHpVit(pnum);
@@ -2485,7 +2485,7 @@ static DWORD On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 }
 
 #ifdef HELLFIRE
-static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
+static unsigned On_NAKRUL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		DoOpenUberRoom();
@@ -2497,7 +2497,7 @@ static DWORD On_NAKRUL(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
+static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
@@ -2507,7 +2507,7 @@ static DWORD On_OPENHIVE(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
+static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		T_CryptOpen();
@@ -2519,7 +2519,7 @@ static DWORD On_OPENCRYPT(TCmd *pCmd, int pnum)
 }
 #endif
 
-DWORD ParseCmd(int pnum, TCmd *pCmd)
+unsigned ParseCmd(int pnum, TCmd *pCmd)
 {
 	sbLastCmd = pCmd->bCmd;
 	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
