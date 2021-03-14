@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-int tmsg_get(BYTE *pbMsg, DWORD dwMaxLen);
-void tmsg_add(BYTE *pbMsg, BYTE bLen);
+int tmsg_get(TPkt *pPkt);
+void tmsg_add(TCmdGItem* pMsg);
 void tmsg_start();
 void tmsg_cleanup();
 

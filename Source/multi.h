@@ -24,7 +24,6 @@ extern char szPlayerName[128];
 extern BYTE gbDeltaSender;
 extern unsigned player_state[MAX_PLRS];
 
-void multi_msg_add(BYTE *pbMsg, BYTE bLen);
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);

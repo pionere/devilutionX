@@ -9,7 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static TMsg *sgpTimedMsgHead;
 
-int tmsg_get(BYTE *pbMsg, DWORD dwMaxLen)
+int tmsg_get(TPkt *pPkt)
 {
 	int len;
 	TMsg *head;
@@ -22,21 +22,21 @@ int tmsg_get(BYTE *pbMsg, DWORD dwMaxLen)
 	head = sgpTimedMsgHead;
 	sgpTimedMsgHead = head->hdr.pNext;
 	len = head->hdr.bLen;
-	// BUGFIX: ignores dwMaxLen
-	memcpy(pbMsg, head->body, len);
+	static_assert(sizeof(TPkt) >= UCHAR_MAX && sizeof(head->hdr.bLen) == 1, "tmsg_get does not check len before writing to an address.");
+	memcpy(pPkt, head->body, len);
 	mem_free_dbg(head);
 	return len;
 }
 
-void tmsg_add(BYTE *pbMsg, BYTE bLen)
+void tmsg_add(TCmdGItem *pMsg)
 {
 	TMsg **tail;
 
-	TMsg *msg = (TMsg *)DiabloAllocPtr(bLen + sizeof(*msg));
+	TMsg *msg = (TMsg *)DiabloAllocPtr(sizeof(TCmdGItem) + sizeof(TMsg));
 	msg->hdr.pNext = NULL;
 	msg->hdr.dwTime = SDL_GetTicks() + gnTickDelay * 10;
-	msg->hdr.bLen = bLen;
-	memcpy(msg->body, pbMsg, bLen);
+	msg->hdr.bLen = sizeof(TCmdGItem);
+	memcpy(msg->body, pMsg, sizeof(TCmdGItem));
 	for (tail = &sgpTimedMsgHead; *tail; tail = &(*tail)->hdr.pNext) {
 		;
 	}

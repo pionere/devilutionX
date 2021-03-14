@@ -1231,7 +1231,7 @@ static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdG
 		return;
 	}
 
-	multi_msg_add((BYTE *)&cmd.bCmd, sizeof(cmd));
+	tmsg_add(&cmd);
 }
 
 static bool NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
@@ -1250,7 +1250,7 @@ static bool NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
 	else if (ticks - cmd.dwTime > 5000)
 		return false;
 
-	multi_msg_add((BYTE *)&cmd.bCmd, sizeof(cmd));
+	tmsg_add(&cmd);
 
 	return true;
 }

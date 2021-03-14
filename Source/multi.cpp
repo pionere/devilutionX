@@ -103,13 +103,6 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 	pktHdr.pmmp = p->_pMaxMana;
 }
 
-void multi_msg_add(BYTE *pbMsg, BYTE bLen)
-{
-	if (pbMsg != NULL && bLen != 0) {
-		tmsg_add(pbMsg, bLen);
-	}
-}
-
 static void multi_send_packet(void *packet, BYTE dwSize)
 {
 	TPkt pkt;
@@ -428,7 +421,7 @@ static void multi_process_tmsgs()
 	int cnt;
 	TPkt pkt;
 
-	while (cnt = tmsg_get((BYTE *)&pkt, sizeof(TPkt))) {
+	while (cnt = tmsg_get(&pkt)) {
 		multi_handle_all_packets(myplr, (BYTE *)&pkt, cnt);
 	}
 }
@@ -532,24 +525,6 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 			nthread_terminate_game("SNetSendMessage2");
 			return;
 		}
-#if 0
-		if((DWORD)pnum >= MAX_PLRS) {
-			if(myplr != 0) {
-				debug_plr_tbl[0]++;
-			}
-			if(myplr != 1) {
-				debug_plr_tbl[1]++;
-			}
-			if(myplr != 2) {
-				debug_plr_tbl[2]++;
-			}
-			if(myplr != 3) {
-				debug_plr_tbl[3]++;
-			}
-		} else {
-			debug_plr_tbl[pnum]++;
-		}
-#endif
 		pbSrc += p->wBytes;
 		dwLen -= p->wBytes;
 		dwOffset += p->wBytes;
