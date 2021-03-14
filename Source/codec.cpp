@@ -21,14 +21,14 @@ static void codec_init_key(const char *pszPassword)
 {
 	char key[72 + SHA1BlockSize]; // last 64 bytes are the SHA1
 	uint32_t rand_state = 0x7058;
-	for (std::size_t i = 0; i < sizeof(key); ++i) {
+	for (unsigned i = 0; i < sizeof(key); ++i) {
 		rand_state = rand_state * 214013 + 2531011;
 		key[i] = rand_state >> 16; // Downcasting to char keeps the 2 least-significant bytes
 	}
 
 	char pw[SHA1BlockSize];
-	std::size_t password_i = 0;
-	for (std::size_t i = 0; i < sizeof(pw); ++i, ++password_i) {
+	unsigned password_i = 0;
+	for (unsigned i = 0; i < sizeof(pw); ++i, ++password_i) {
 		if (pszPassword[password_i] == '\0')
 			password_i = 0;
 		pw[i] = pszPassword[password_i];
@@ -38,7 +38,7 @@ static void codec_init_key(const char *pszPassword)
 	SHA1Reset(0);
 	SHA1Calculate(0, pw, digest);
 	SHA1Clear();
-	for (std::size_t i = 0; i < sizeof(key); ++i)
+	for (unsigned i = 0; i < sizeof(key); ++i)
 		key[i] ^= digest[i % SHA1HashSize];
 	memset(pw, 0, sizeof(pw));
 	memset(digest, 0, sizeof(digest));
