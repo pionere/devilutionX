@@ -498,7 +498,7 @@ bool StartGame(bool bSinglePlayer)
 		NetClose();
 		if (!gbRunGameResult)
 			break;
-		pfile_create_player_description(NULL, 0);
+		pfile_create_player_description();
 	}
 
 	SNetDestroy();

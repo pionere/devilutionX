@@ -18,7 +18,7 @@ extern "C" {
 extern bool gbValidSaveFile;
 
 void pfile_write_hero();
-void pfile_create_player_description(char *dst, DWORD len);
+void pfile_create_player_description();
 //bool pfile_rename_hero(const char *name_1, const char *name_2);
 void pfile_flush_W();
 void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *));
@@ -33,7 +33,7 @@ void pfile_remove_temp_files();
 void pfile_rename_temp_to_perm();
 void pfile_write_save_file(const char *pszName, BYTE *pbData, DWORD dwLen, DWORD qwLen);
 void pfile_delete_save_file(const char *pszName);
-BYTE *pfile_read(const char *pszName, DWORD *pdwLen);
+BYTE *pfile_read(const char *pszName);
 void pfile_update(bool force_save);
 
 #ifdef __cplusplus

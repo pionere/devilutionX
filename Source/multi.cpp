@@ -675,7 +675,7 @@ static bool multi_init_game(bool bSinglePlayer)
 		}
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-		pfile_create_player_description(NULL, NULL);
+		pfile_create_player_description();
 
 		if (gbLoadGame) {
 			// myplr = 0;

@@ -162,9 +162,9 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool 
 	heroinfo->herorank = p->_pDiabloKillLevel;
 }
 
-void pfile_create_player_description(char *dst, DWORD len)
+void pfile_create_player_description()
 {
-	char desc[128];
+	//char desc[128];
 	_uiheroinfo uihero;
 
 	myplr = 0;
@@ -172,10 +172,10 @@ void pfile_create_player_description(char *dst, DWORD len)
 	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
 	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 
-	if (dst != NULL && len != 0) {
+	/*if (dst != NULL && len != 0) {
 		UiCreatePlayerDescription(&uihero, GAME_ID, desc);
 		SStrCopy(dst, desc, len);
-	}
+	}*/
 }
 
 /*bool pfile_rename_hero(const char *name_1, const char *name_2)
@@ -455,9 +455,9 @@ void pfile_delete_save_file(const char *pszName)
 	pfile_flush(true);
 }
 
-BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
+BYTE *pfile_read(const char *pszName)
 {
-	DWORD save_num, nread;
+	DWORD save_num, nread, len;
 	HANDLE archive, save;
 	BYTE *buf;
 
@@ -469,12 +469,12 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	if (!SFileOpenFileEx(archive, pszName, 0, &save))
 		app_fatal("Unable to open save file");
 
-	*pdwLen = SFileGetFileSize(save, NULL);
-	if (*pdwLen == 0)
+	len = SFileGetFileSize(save, NULL);
+	if (len == 0)
 		app_fatal("Invalid save file");
 
-	buf = DiabloAllocPtr(*pdwLen);
-	if (!SFileReadFile(save, buf, *pdwLen, &nread))
+	buf = DiabloAllocPtr(len);
+	if (!SFileReadFile(save, buf, len, &nread))
 		app_fatal("Unable to read save file");
 	SFileCloseFile(save);
 	pfile_SFileCloseArchive(archive);
@@ -482,8 +482,8 @@ BYTE *pfile_read(const char *pszName, DWORD *pdwLen)
 	{
 		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-		*pdwLen = codec_decode(buf, *pdwLen, password);
-		if (*pdwLen == 0) {
+		len = codec_decode(buf, len, password);
+		if (len == 0) {
 			app_fatal("Invalid save file");
 		}
 	}

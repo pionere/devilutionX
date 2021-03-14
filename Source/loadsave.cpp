@@ -637,13 +637,12 @@ static void LoadPortal(int i)
 void LoadGame(bool firstflag)
 {
 	int i;
-	DWORD dwLen;
 	BYTE *LoadBuff;
 	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
 
 	FreeGameMem();
 	pfile_remove_temp_files();
-	LoadBuff = pfile_read(SAVEFILE_GAME, &dwLen);
+	LoadBuff = pfile_read(SAVEFILE_GAME);
 	tbuff = LoadBuff;
 
 	if (LoadInt() != SAVE_INITIAL)
@@ -1507,12 +1506,11 @@ void SaveLevel()
 void LoadLevel()
 {
 	int i;
-	DWORD dwLen;
 	char szName[MAX_PATH];
 	BYTE *fileBuff;
 
 	GetPermLevelNames(szName);
-	fileBuff = pfile_read(szName, &dwLen);
+	fileBuff = pfile_read(szName);
 	tbuff = fileBuff;
 
 	if (leveltype != DTYPE_TOWN) {
