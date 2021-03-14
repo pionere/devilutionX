@@ -63,7 +63,7 @@ void UseMana(int pnum, int sn, int sf)
 			if (debug_mode_key_inverted_v)
 				return;
 #endif
-			ma = 0; // REMOVEME GetManaAmount(pnum, sn);
+			ma = GetManaAmount(pnum, sn);
 			plr[pnum]._pMana -= ma;
 			plr[pnum]._pManaBase -= ma;
 			gbRedrawFlags |= REDRAW_MANA_FLASK;
