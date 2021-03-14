@@ -288,7 +288,7 @@ bool getIniInt(const char *sectionName, const char *keyName, int *value)
 	return false;
 }
 
-void setIniInt(const char *sectionName, const char *keyName, DWORD value)
+void setIniInt(const char *sectionName, const char *keyName, int value)
 {
 	char str[10];
 	snprintf(str, 10, "%d", value);

@@ -246,7 +246,7 @@ bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);
 void setIniValue(const char *sectionName, const char *keyName, const char *value);
 bool getIniInt(const char *sectionName, const char *keyName, int *value);
-void setIniInt(const char *sectionName, const char *keyName, DWORD value);
+void setIniInt(const char *sectionName, const char *keyName, int value);
 
 HANDLE SVidPlayBegin(const char *filename, int flags);
 void SVidPlayEnd();
