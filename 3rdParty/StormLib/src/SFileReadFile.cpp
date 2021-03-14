@@ -621,7 +621,7 @@ static int ReadMpqFileLocalFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos,
 
 bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD pdwRead)
 {
-    TMPQFile * hf = (TMPQFile *)hFile;
+    TMPQFile *hf = IsValidFileHandle(hFile);
     DWORD dwBytesRead = 0;                      // Number of bytes read
     int nError = ERROR_SUCCESS;
 
@@ -630,7 +630,7 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
         *pdwRead = 0;
 
     // Check valid parameters
-    if (!IsValidFileHandle(hFile)) {
+    if (hf == NULL) {
         SetLastError(ERROR_INVALID_HANDLE);
         return false;
     }
@@ -699,10 +699,10 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
 DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
 {
     ULONGLONG FileSize;
-    TMPQFile *hf = (TMPQFile *)hFile;
+    TMPQFile *hf = IsValidFileHandle(hFile);
 
     // Validate the file handle before we go on
-    if (IsValidFileHandle(hFile)) {
+    if (hf != NULL) {
         // Make sure that the variable is initialized
         FileSize = 0;
 
@@ -737,14 +737,14 @@ DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
 
 DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod)
 {
-    TMPQFile * hf = (TMPQFile *)hFile;
+    TMPQFile *hf = IsValidFileHandle(hFile);
     ULONGLONG OldPosition;
     ULONGLONG NewPosition;
     ULONGLONG FileSize;
     ULONGLONG DeltaPos;
 
     // If the hFile is not a valid file handle, return an error.
-    if (!IsValidFileHandle(hFile)) {
+    if (hf == NULL) {
         SetLastError(ERROR_INVALID_HANDLE);
         return SFILE_INVALID_POS;
     }
@@ -753,7 +753,7 @@ DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveM
     if (hf->pStream != NULL) {
         FileStream_GetSize(hf->pStream, &FileSize);
     } else {
-		FileSize = SFileGetFileSize(hFile);
+		FileSize = SFileGetFileSize(hf);
     }
 
     // Handle the NULL and non-NULL values of plFilePosHigh

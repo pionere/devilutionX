@@ -967,11 +967,11 @@ static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * sz
 
 /*bool STORMAPI SFileGetFileName(HANDLE hFile, char * szFileName)
 {
-    TMPQFile * hf = (TMPQFile *)hFile;  // MPQ File handle
+    TMPQFile *hf = IsValidFileHandle(hFile);  // MPQ File handle
     int nError = ERROR_INVALID_HANDLE;
 
     // Check valid parameters
-    if(IsValidFileHandle(hFile))
+    if (hf != NULL)
     {
         TFileEntry * pFileEntry = hf->pFileEntry;
 
@@ -982,7 +982,7 @@ static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * sz
             {
                 // If the file name is not there yet, create a pseudo name
                 if(pFileEntry->szFileName == NULL)
-                    nError = CreatePseudoFileName(hFile, pFileEntry, szFileName);
+                    nError = CreatePseudoFileName(hf, pFileEntry, szFileName);
 
                 // Copy the file name to the output buffer, if any
                 if(pFileEntry->szFileName && szFileName)
