@@ -372,7 +372,6 @@ ULONGLONG HashStringJenkins(const char * szFileName)
     // Combine those 2 together
     return ((ULONGLONG)primary_hash << 0x20) | (ULONGLONG)secondary_hash;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Default flags for (attributes) and (listfile)
@@ -386,7 +385,7 @@ DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion)
     // Size-dependent for formats 2.0-4.0
     return (dwFileSize > 0x4000) ? (MPQ_FILE_COMPRESS | MPQ_FILE_SECTOR_CRC) : (MPQ_FILE_COMPRESS | MPQ_FILE_SINGLE_UNIT);
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Encrypting/Decrypting MPQ data block

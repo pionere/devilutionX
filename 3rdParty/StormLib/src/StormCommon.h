@@ -163,9 +163,10 @@ void  InitializeMpqCryptography();
 DWORD GetNearestPowerOfTwo(DWORD dwFileCount);
 
 bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
+#ifdef FULL
 ULONGLONG HashStringJenkins(const char * szFileName);
-
 DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion);
+#endif
 
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
