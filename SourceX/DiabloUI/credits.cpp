@@ -34,14 +34,14 @@ struct CachedLine {
 		palette_version = pal_surface_palette_version;
 	}
 
-	CachedLine(std::size_t index, SDL_Surface *surface)
+	CachedLine(unsigned index, SDL_Surface *surface)
 	{
 		m_index = index;
 		m_surface = surface;
 		palette_version = pal_surface_palette_version;
 	}
 
-	std::size_t m_index;
+	unsigned m_index;
 	SDL_Surface *m_surface;
 	unsigned int palette_version;
 };
@@ -56,7 +56,7 @@ SDL_Surface *RenderText(const char *text, SDL_Color color)
 	return result;
 }
 
-CachedLine PrepareLine(std::size_t index)
+CachedLine PrepareLine(unsigned index)
 {
 	const char *contents = CREDITS_LINES[index];
 	while (contents[0] == '\t')
@@ -122,7 +122,7 @@ public:
 		ArtBackground.Unload();
 		UnloadTtfFont();
 
-		for (size_t x = 0; x < lines_.size(); x++) {
+		for (unsigned x = 0; x < lines_.size(); x++) {
 			if (lines_[x].m_surface)
 				SDL_FreeSurface(lines_[x].m_surface);
 		}
@@ -157,8 +157,8 @@ void CreditsRenderer::Render()
 	if (font == NULL)
 		return;
 
-	const std::size_t lines_begin = std::max(offset_y / LINE_H, 0);
-	const std::size_t lines_end = std::min(lines_begin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);
+	const unsigned lines_begin = std::max(offset_y / LINE_H, 0);
+	const unsigned lines_end = std::min(lines_begin + MAX_VISIBLE_LINES, CREDITS_LINES_SIZE);
 
 	if (lines_begin >= lines_end) {
 		if (lines_end == CREDITS_LINES_SIZE)
@@ -177,7 +177,7 @@ void CreditsRenderer::Render()
 
 	// We use unscaled coordinates for calculation throughout.
 	int dest_y = UI_OFFSET_Y + VIEWPORT.y - (offset_y - lines_begin * LINE_H);
-	for (std::size_t i = lines_begin; i < lines_end; ++i, dest_y += LINE_H) {
+	for (unsigned i = lines_begin; i < lines_end; ++i, dest_y += LINE_H) {
 		CachedLine &line = lines_[i];
 		if (line.m_surface == NULL)
 			continue;

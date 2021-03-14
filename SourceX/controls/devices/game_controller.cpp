@@ -168,7 +168,7 @@ void GameController::Add(int joystick_index)
 void GameController::Remove(SDL_JoystickID instance_id)
 {
 	SDL_Log("Removing game controller with instance id %d", instance_id);
-	for (std::size_t i = 0; i < controllers_->size(); ++i) {
+	for (unsigned i = 0; i < controllers_->size(); ++i) {
 		const GameController &controller = (*controllers_)[i];
 		if (controller.instance_id_ != instance_id)
 			continue;
@@ -181,7 +181,7 @@ void GameController::Remove(SDL_JoystickID instance_id)
 
 GameController *GameController::Get(SDL_JoystickID instance_id)
 {
-	for (std::size_t i = 0; i < controllers_->size(); ++i) {
+	for (unsigned i = 0; i < controllers_->size(); ++i) {
 		GameController &controller = (*controllers_)[i];
 		if (controller.instance_id_ == instance_id)
 			return &controller;
@@ -209,7 +209,7 @@ const std::vector<GameController> &GameController::All()
 
 bool GameController::IsPressedOnAnyController(ControllerButton button)
 {
-	for (std::size_t i = 0; i < controllers_->size(); ++i)
+	for (unsigned i = 0; i < controllers_->size(); ++i)
 		if ((*controllers_)[i].IsPressed(button))
 			return true;
 	return false;

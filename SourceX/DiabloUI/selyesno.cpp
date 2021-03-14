@@ -18,21 +18,21 @@ void selyesno_Free()
 {
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecSelYesNoDialogItems.size(); i++) {
+	for (unsigned i = 0; i < vecSelYesNoDialogItems.size(); i++) {
 		UiListItem *pUIListItem = vecSelYesNoDialogItems[i];
 		if (pUIListItem)
 			delete pUIListItem;
 	}
 	vecSelYesNoDialogItems.clear();
 
-	for (std::size_t i = 0; i < vecSelYesNoDialog.size(); i++) {
+	for (unsigned i = 0; i < vecSelYesNoDialog.size(); i++) {
 		UiItemBase *pUIItem = vecSelYesNoDialog[i];
 		delete pUIItem;
 	}
 	vecSelYesNoDialog.clear();
 }
 
-void selyesno_Select(std::size_t index)
+void selyesno_Select(unsigned index)
 {
 	selyesno_value = vecSelYesNoDialogItems[index]->m_value == 0;
 	selyesno_endMenu = true;

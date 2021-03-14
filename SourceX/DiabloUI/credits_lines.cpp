@@ -554,6 +554,6 @@ const char *const CREDITS_LINES[] = {
 #endif
 };
 
-const std::size_t CREDITS_LINES_SIZE = sizeof(CREDITS_LINES) / sizeof(CREDITS_LINES[0]);
+const unsigned CREDITS_LINES_SIZE = sizeof(CREDITS_LINES) / sizeof(CREDITS_LINES[0]);
 
 DEVILUTION_END_NAMESPACE

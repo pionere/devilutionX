@@ -83,7 +83,7 @@ void DrawArtStr(const char *text, const SDL_Rect &rect, int flags, bool drawText
 	const int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - ArtFonts[size][color].h()) / 2 : 0);
 
 	int sx = x, sy = y;
-	for (size_t i = 0, n = strlen(text); i < n; i++) {
+	for (unsigned i = 0, n = strlen(text); i < n; i++) {
 		if (text[i] == '\n') {
 			sx = x;
 			sy += ArtFonts[size][color].h();

@@ -25,7 +25,7 @@ void title_Free()
 #endif
 	ArtLogos[LOGO_BIG].Unload();
 
-	for (std::size_t i = 0; i < vecTitleScreen.size(); i++) {
+	for (unsigned i = 0; i < vecTitleScreen.size(); i++) {
 		UiItemBase *pUIItem = vecTitleScreen[i];
 		delete pUIItem;
 	}

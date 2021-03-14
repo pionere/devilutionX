@@ -12,14 +12,14 @@ std::vector<UiListItem *> vecMenuItems;
 
 int MainMenuResult;
 
-void UiMainMenuSelect(std::size_t index)
+void UiMainMenuSelect(unsigned index)
 {
 	MainMenuResult = vecMenuItems[index]->m_value;
 }
 
 void mainmenu_Esc()
 {
-	std::size_t last = vecMenuItems.size() - 1;
+	unsigned last = vecMenuItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {
@@ -65,13 +65,13 @@ void mainmenu_Free()
 #endif
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecMainMenuDialog.size(); i++) {
+	for (unsigned i = 0; i < vecMainMenuDialog.size(); i++) {
 		UiItemBase *pUIItem = vecMainMenuDialog[i];
 		delete pUIItem;
 	}
 	vecMainMenuDialog.clear();
 
-	for (std::size_t i = 0; i < vecMenuItems.size(); i++) {
+	for (unsigned i = 0; i < vecMenuItems.size(); i++) {
 		UiListItem *pUIMenuItem = vecMenuItems[i];
 		if (pUIMenuItem)
 			delete pUIMenuItem;

@@ -8,8 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern std::size_t SelectedItem;
-extern std::size_t ListOffset;
+extern unsigned SelectedItem;
+extern unsigned ListOffset;
 extern bool textInputActive;
 
 typedef enum _artFocus {
@@ -46,15 +46,12 @@ void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int y 
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index) = NULL, void (*fnSelect)(std::size_t index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
-void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size);
+void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
+void UiInitScrollBar(UiScrollBar *ui_sb, unsigned viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
 void UiRenderItems(std::vector<UiItemBase *> items);
 void UiInitList_clear();
-
-void DvlIntSetting(const char *valuename, int *value);
-void DvlStringSetting(const char *valuename, char *string, int len);
 
 void mainmenu_restart_repintro();
 bool UiValidPlayerName(const char *name);

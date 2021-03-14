@@ -22,10 +22,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-std::size_t SelectedItem = 0;
-std::size_t SelectedItemMax;
-std::size_t ListViewportSize = 1;
-std::size_t ListOffset = 0;
+unsigned SelectedItem = 0;
+unsigned SelectedItemMax;
+unsigned ListViewportSize = 1;
+unsigned ListOffset = 0;
 
 Art ArtLogos[3];
 Art ArtFocus[3];
@@ -37,8 +37,8 @@ Art ArtCursor;
 Art ArtHero;
 
 void (*gfnSoundFunction)(const char *file);
-void (*gfnListFocus)(std::size_t index);
-void (*gfnListSelect)(std::size_t index);
+void (*gfnListFocus)(unsigned index);
+void (*gfnListSelect)(unsigned index);
 void (*gfnListEsc)();
 bool (*gfnListYesNo)();
 std::vector<UiItemBase *> gUiItems;
@@ -74,7 +74,7 @@ void UiDestroy()
 	UnloadArtFonts();
 }
 
-void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index), void (*fnSelect)(std::size_t index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
+void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -93,7 +93,7 @@ void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fn
 	SDL_StopTextInput(); // input is enabled by default
 #endif
 	textInputActive = false;
-	for (std::size_t i = 0; i < items.size(); i++) {
+	for (unsigned i = 0; i < items.size(); i++) {
 		if (items[i]->m_type == UI_EDIT) {
 			UiEdit *pItemUIEdit = (UiEdit *)items[i];
 			SDL_SetTextInputRect(&items[i]->m_rect);
@@ -109,7 +109,7 @@ void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fn
 	}
 }
 
-void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size)
+void UiInitScrollBar(UiScrollBar *ui_sb, unsigned viewport_size)
 {
 	ListViewportSize = viewport_size;
 	if (ListViewportSize > SelectedItemMax) {
@@ -144,7 +144,7 @@ void UiPlaySelectSound()
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
-void UiFocus(std::size_t itemIndex)
+void UiFocus(unsigned itemIndex)
 {
 	if (SelectedItem == itemIndex)
 		return;
@@ -177,11 +177,11 @@ void UiFocusDown()
 
 void UiFocusPageUp()
 {
-	std::size_t page_start = ListOffset;
+	unsigned page_start = ListOffset;
 	if (page_start == 0) {
 		UiFocus(0);
 	} else {
-		std::size_t relpos = SelectedItem - page_start;
+		unsigned relpos = SelectedItem - page_start;
 		if (page_start >= ListViewportSize)
 			page_start -= ListViewportSize;
 		else
@@ -193,12 +193,12 @@ void UiFocusPageUp()
 
 void UiFocusPageDown()
 {
-	std::size_t page_end = ListOffset + ListViewportSize;
+	unsigned page_end = ListOffset + ListViewportSize;
 	if (page_end > SelectedItemMax || page_end == 0) {
 		UiFocus(SelectedItemMax);
 	} else {
 		page_end--;
-		std::size_t relpos = page_end - SelectedItem;
+		unsigned relpos = page_end - SelectedItem;
 		if (page_end + ListViewportSize <= SelectedItemMax)
 			page_end += ListViewportSize;
 		else
@@ -665,7 +665,7 @@ void Render(const UiArtTextButton *ui_button)
 
 void Render(const UiList *ui_list)
 {
-	for (std::size_t i = 0; i < ui_list->m_vecItems.size(); ++i) {
+	for (unsigned i = 0; i < ui_list->m_vecItems.size(); ++i) {
 		SDL_Rect rect = ui_list->itemRect(i);
 		const UiListItem *item = ui_list->GetItem(i);
 		if (i + ListOffset == SelectedItem)
@@ -848,7 +848,7 @@ void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
 
 void UiRenderItems(std::vector<UiItemBase *> items)
 {
-	for (std::size_t i = 0; i < items.size(); i++)
+	for (unsigned i = 0; i < items.size(); i++)
 		RenderItem((UiItemBase *)items[i]);
 }
 
@@ -864,7 +864,7 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 #endif
 
 	bool handled = false;
-	for (std::size_t i = 0; i < items.size(); i++) {
+	for (unsigned i = 0; i < items.size(); i++) {
 		if (HandleMouseEvent(*event, items[i])) {
 			handled = true;
 			break;
@@ -873,7 +873,7 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 
 	if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
 		scrollBarState.downArrowPressed = scrollBarState.upArrowPressed = false;
-		for (std::size_t i = 0; i < items.size(); ++i) {
+		for (unsigned i = 0; i < items.size(); ++i) {
 			UiItemBase *&item = items[i];
 			if (item->m_type == UI_BUTTON)
 				HandleGlobalMouseUpButton((UiButton *)item);

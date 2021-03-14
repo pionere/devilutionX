@@ -181,7 +181,7 @@ public:
 
 class UiEdit : public UiItemBase {
 public:
-	UiEdit(char *value, std::size_t max_length, SDL_Rect rect, int flags = 0)
+	UiEdit(char *value, unsigned max_length, SDL_Rect rect, int flags = 0)
 	    : UiItemBase(rect, flags)
 	{
 		m_type = UI_EDIT;
@@ -191,7 +191,7 @@ public:
 
 	//private:
 	char *m_value;
-	std::size_t m_max_length;
+	unsigned m_max_length;
 };
 
 //=============================================================================
@@ -333,7 +333,7 @@ public:
 	int indexAt(Sint16 y) const
 	{
 		ASSERT(y >= m_rect.y);
-		const std::size_t index = (y - m_rect.y) / m_height;
+		const unsigned index = (y - m_rect.y) / m_height;
 		ASSERT(index < m_vecItems.size());
 		return index;
 	}

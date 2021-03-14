@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-std::size_t GetArtStrWidth(const char *str, std::size_t size);
-void WordWrapArtStr(char *text, std::size_t width);
+unsigned GetArtStrWidth(const char *str, unsigned size);
+void WordWrapArtStr(char *text, unsigned width);
 
 DEVILUTION_END_NAMESPACE

@@ -69,13 +69,13 @@ static void selgame_remove_event_handlers()
 
 static void selgame_FreeVectors()
 {
-	for (std::size_t i = 0; i < vecSelGameDlgItems.size(); i++) {
+	for (unsigned i = 0; i < vecSelGameDlgItems.size(); i++) {
 		UiListItem *pUIItem = vecSelGameDlgItems[i];
 		delete pUIItem;
 	}
 	vecSelGameDlgItems.clear();
 
-	for (std::size_t i = 0; i < vecSelGameDialog.size(); i++) {
+	for (unsigned i = 0; i < vecSelGameDialog.size(); i++) {
 		UiItemBase *pUIItem = vecSelGameDialog[i];
 		delete pUIItem;
 	}
@@ -131,7 +131,7 @@ void selgame_GameSelection_Init()
 	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_GameSelection_Focus, selgame_GameSelection_Select, selgame_GameSelection_Esc);
 }
 
-void selgame_GameSelection_Focus(std::size_t index)
+void selgame_GameSelection_Focus(unsigned index)
 {
 	switch (vecSelGameDlgItems[index]->m_value) {
 	case 0:
@@ -157,7 +157,7 @@ void selgame_GameSelection_Focus(std::size_t index)
 	return true;
 }*/
 
-void selgame_GameSelection_Select(std::size_t index)
+void selgame_GameSelection_Select(unsigned index)
 {
 	selgame_selectedGame = index;
 
@@ -225,7 +225,7 @@ void selgame_GameSelection_Esc()
 	selgame_endMenu = true;
 }
 
-void selgame_Diff_Focus(std::size_t index)
+void selgame_Diff_Focus(unsigned index)
 {
 	switch (vecSelGameDlgItems[index]->m_value) {
 	case DIFF_NORMAL:
@@ -278,7 +278,7 @@ static bool IsDifficultyAllowed(int value)
 	return false;
 }
 
-void selgame_Diff_Select(std::size_t index)
+void selgame_Diff_Select(unsigned index)
 {
 	int value = vecSelGameDlgItems[index]->m_value;
 
@@ -348,7 +348,7 @@ void selgame_GameSpeedSelection()
 	UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_Speed_Focus, selgame_Speed_Select, selgame_Speed_Esc, NULL, true);
 }
 
-void selgame_Speed_Focus(std::size_t index)
+void selgame_Speed_Focus(unsigned index)
 {
 	switch (vecSelGameDlgItems[index]->m_value) {
 	case SPEED_NORMAL:
@@ -378,7 +378,7 @@ void selgame_Speed_Esc()
 	selgame_GameSelection_Select(0);
 }
 
-void selgame_Speed_Select(std::size_t index)
+void selgame_Speed_Select(unsigned index)
 {
 	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
 
@@ -390,7 +390,7 @@ void selgame_Speed_Select(std::size_t index)
 	selgame_Password_Init(0);
 }
 
-void selgame_Password_Init(std::size_t index)
+void selgame_Password_Init(unsigned index)
 {
 	memset(&selgame_Password, 0, sizeof(selgame_Password));
 
@@ -423,7 +423,7 @@ void selgame_Password_Init(std::size_t index)
 	UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Select, selgame_Password_Esc);
 }
 
-void selgame_Password_Select(std::size_t index)
+void selgame_Password_Select(unsigned index)
 {
 	if (selgame_selectedGame != 0) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);

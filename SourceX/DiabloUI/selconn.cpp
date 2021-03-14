@@ -73,13 +73,13 @@ void selconn_Free()
 {
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecConnItems.size(); i++) {
+	for (unsigned i = 0; i < vecConnItems.size(); i++) {
 		UiListItem *pUIItem = vecConnItems[i];
 		delete pUIItem;
 	}
 	vecConnItems.clear();
 
-	for (std::size_t i = 0; i < vecSelConnDlg.size(); i++) {
+	for (unsigned i = 0; i < vecSelConnDlg.size(); i++) {
 		UiItemBase *pUIMenuItem = vecSelConnDlg[i];
 		if (pUIMenuItem)
 			delete pUIMenuItem;
@@ -93,7 +93,7 @@ void selconn_Esc()
 	selconn_EndMenu = true;
 }
 
-void selconn_Focus(std::size_t index)
+void selconn_Focus(unsigned index)
 {
 	int players = MAX_PLRS;
 	switch (vecConnItems[index]->m_value) {
@@ -115,7 +115,7 @@ void selconn_Focus(std::size_t index)
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
 }
 
-void selconn_Select(std::size_t index)
+void selconn_Select(unsigned index)
 {
 	provider = vecConnItems[index]->m_value;
 

@@ -2,11 +2,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-std::size_t GetArtStrWidth(const char *str, std::size_t size)
+unsigned GetArtStrWidth(const char *str, unsigned size)
 {
-	int strWidth = 0;
+	unsigned strWidth = 0;
 
-	for (size_t i = 0, n = strlen(str); i < n; i++) {
+	for (unsigned i = 0; i < strlen(str); i++) {
 		BYTE w = FontTables[size][*(BYTE *)&str[i] + 2];
 		if (w)
 			strWidth += w;
@@ -17,11 +17,11 @@ std::size_t GetArtStrWidth(const char *str, std::size_t size)
 	return strWidth;
 }
 
-void WordWrapArtStr(char *text, std::size_t width)
+void WordWrapArtStr(char *text, unsigned width)
 {
-	const std::size_t len = strlen(text);
-	std::size_t lineStart = 0;
-	for (std::size_t i = 0; i <= len; i++) {
+	const unsigned len = strlen(text);
+	unsigned lineStart = 0;
+	for (unsigned i = 0; i <= len; i++) {
 		if (text[i] == '\n') {
 			lineStart = i + 1;
 			continue;
@@ -37,7 +37,7 @@ void WordWrapArtStr(char *text, std::size_t width)
 			continue;
 		}
 
-		std::size_t j;
+		unsigned j;
 		for (j = i; j >= lineStart; j--) {
 			if (text[j] == ' ') {
 				break; // Scan for previous space

@@ -262,7 +262,7 @@ void Joystick::Remove(SDL_JoystickID instance_id)
 {
 #ifndef USE_SDL1
 	SDL_Log("Removing joystick (instance id: %d)", instance_id);
-	for (std::size_t i = 0; i < joysticks_->size(); ++i) {
+	for (unsigned i = 0; i < joysticks_->size(); ++i) {
 		const Joystick &joystick = (*joysticks_)[i];
 		if (joystick.instance_id_ != instance_id)
 			continue;
@@ -281,7 +281,7 @@ const std::vector<Joystick> &Joystick::All()
 
 Joystick *Joystick::Get(SDL_JoystickID instance_id)
 {
-	for (std::size_t i = 0; i < joysticks_->size(); ++i) {
+	for (unsigned i = 0; i < joysticks_->size(); ++i) {
 		Joystick &joystick = (*joysticks_)[i];
 		if (joystick.instance_id_ == instance_id)
 			return &joystick;
@@ -320,7 +320,7 @@ Joystick *Joystick::Get(const SDL_Event &event)
 
 bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 {
-	for (std::size_t i = 0; i < joysticks_->size(); ++i)
+	for (unsigned i = 0; i < joysticks_->size(); ++i)
 		if ((*joysticks_)[i].IsPressed(button))
 			return true;
 	return false;

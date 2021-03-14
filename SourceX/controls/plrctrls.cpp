@@ -893,7 +893,7 @@ void WalkInDir(MoveDirection dir)
 		return;
 	}
 
-	const int pdir = kFaceDir[static_cast<std::size_t>(dir.x)][static_cast<std::size_t>(dir.y)];
+	const int pdir = kFaceDir[static_cast<unsigned>(dir.x)][static_cast<unsigned>(dir.y)];
 	const int dx = x + kOffsets[pdir][0];
 	const int dy = y + kOffsets[pdir][1];
 	plr[myplr]._pdir = pdir;

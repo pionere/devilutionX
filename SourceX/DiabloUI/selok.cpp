@@ -22,21 +22,21 @@ void selok_Free()
 {
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecSelOkDialogItems.size(); i++) {
+	for (unsigned i = 0; i < vecSelOkDialogItems.size(); i++) {
 		UiListItem *pUIListItem = vecSelOkDialogItems[i];
 		if (pUIListItem)
 			delete pUIListItem;
 	}
 	vecSelOkDialogItems.clear();
 
-	for (std::size_t i = 0; i < vecSelOkDialog.size(); i++) {
+	for (unsigned i = 0; i < vecSelOkDialog.size(); i++) {
 		UiItemBase *pUIItem = vecSelOkDialog[i];
 		delete pUIItem;
 	}
 	vecSelOkDialog.clear();
 }
 
-void selok_Select(std::size_t index)
+void selok_Select(unsigned index)
 {
 	selok_endMenu = true;
 }
