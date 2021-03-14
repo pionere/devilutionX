@@ -11,7 +11,7 @@ Nightly builds | Platform
 ![Discord Channel](https://avatars3.githubusercontent.com/u/1965106?s=16&v=4) [Discord Chat Channel](https://discord.gg/YQKCAYQ)
 
 # How To Play:
- - Download [the latest DevilutionX release](https://github.com/diasurgical/devilutionX/releases), or build from source
+ - Download [the latest DevilutionX release](https://github.com/pionere/devilutionX/releases), or build from source
  - Copy diabdat.mpq from your CD or GoG installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-DIABDAT.MPQ-from-the-GoG-installer)) to the DevilutionX install folder or data folder; make sure it is all lowercase. The DevilutionX install folder is the one that contains the DevilutionX executable. The data folder path may differ depending on OS version and security settings, but will normally be as follows:
     - macOS `~/Library/Application Support/diasurgical/devilution`
     - Linux `~/.local/share/diasurgical/devilution/`
@@ -19,6 +19,29 @@ Nightly builds | Platform
  - Install [SDL2](https://www.libsdl.org/download-2.0.php), [SDL2_mixer](https://www.libsdl.org/projects/SDL_mixer/) and [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) (included in macOS and Windows releases):
     - Ubuntu/Debian/Rasbian `sudo apt-get install libsdl2-ttf-2.0-0 libsdl2-mixer-2.0-0`
  - Run `./devilutionx`
+
+# Distro installation
+
+ - Installing and playing on **Ubuntu**
+    - Add [DevilutionX stable](https://launchpad.net/~devilutionx/+archive/ubuntu/stable) or [DevilutionX git](https://launchpad.net/~devilutionx/+archive/ubuntu/dev) PPA repository
+      ```
+      sudo add-apt-repository ppa:devilutionx/stable
+      sudo add-apt-repository ppa:devilutionx/dev
+      ```
+    - Install **DeviliutionX**
+      ```
+      sudo apt update
+      sudo apt install devilutionx
+      ```
+    - For **Diablo I**: copy diabdat.mpq file to `~/.local/share/diasurgical/devilution/` folder
+
+    - For **Diablo Hellfire**: copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq files to `~/.local/share/diasurgical/devilution/` folder
+
+    - Copy [devilx.mpq](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) file to `~/.local/share/diasurgical/devilution/` folder
+
+    - Additionally for better widescreen support you can copy [devilutionx.mpq](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilutionx.mpq) file to `~/.local/share/diasurgical/devilution/` folder
+
+    - Run **DevilutionX** or **DevilutionX Hellfire** from menu to start game
 
 # Building from Source
 <details><summary>Linux</summary>

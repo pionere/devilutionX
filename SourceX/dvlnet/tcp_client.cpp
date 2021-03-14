@@ -121,7 +121,8 @@ void tcp_client::SNetLeaveGame(int type)
 {
 	base::SNetLeaveGame(type);
 	poll();
-	local_server->close();
+	if (local_server != NULL)
+		local_server->close();
 }
 
 tcp_client::~tcp_client()
