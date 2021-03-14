@@ -2566,8 +2566,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SATTACKXY(pCmd, pnum);
 	case CMD_RATTACKXY:
 		return On_RATTACKXY(pCmd, pnum);
-	//case CMD_SPELLXYD:
-	//	return On_SPELLXYD(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
 	case CMD_DOOIL:
@@ -2590,12 +2588,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SPELLID(pCmd, pnum);
 	case CMD_SPELLPID:
 		return On_SPELLPID(pCmd, pnum);
-	//case CMD_TSPELLID:
-	//	return On_TSPELLID(pCmd, pnum);
-	//case CMD_TSPELLPID:
-	//	return On_TSPELLPID(pCmd, pnum);
-	//case CMD_TSPELLTID:
-	//	return On_TSPELLTID(pCmd, pnum);
 	case CMD_KNOCKBACK:
 		return On_KNOCKBACK(pCmd, pnum);
 	case CMD_TALKXY:
@@ -2658,17 +2650,13 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_STRING(pCmd, pnum);
 	case CMD_SYNCQUEST:
 		return On_SYNCQUEST(pCmd, pnum);
-	//case CMD_ENDSHIELD:
-	//	return On_ENDSHIELD(pCmd, pnum);
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
-	//case CMD_SCROLL_SPELLXY:
-	//	return On_SCROLL_SPELLXY(pCmd, pnum);
-#ifdef HELLFIRE
 	case CMD_RESTOREHPVIT:
 		return On_RESTOREHPVIT(pCmd, pnum);
+#ifdef HELLFIRE
 	case CMD_NAKRUL:
 		return On_NAKRUL(pCmd, pnum);
 	case CMD_OPENHIVE:
