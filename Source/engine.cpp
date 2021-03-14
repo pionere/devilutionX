@@ -763,7 +763,7 @@ BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
 	int fileLen;
 
 	SFileOpenFile(pszName, &file);
-	fileLen = SFileGetFileSize(file, NULL);
+	fileLen = SFileGetFileSize(file);
 
 	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
@@ -797,7 +797,7 @@ DWORD LoadFileWithMem(const char *pszName, BYTE *p)
 
 	SFileOpenFile(pszName, &hsFile);
 
-	dwFileLen = SFileGetFileSize(hsFile, NULL);
+	dwFileLen = SFileGetFileSize(hsFile);
 	if (dwFileLen == 0) {
 		app_fatal("Zero length SFILE:\n%s", pszName);
 	}

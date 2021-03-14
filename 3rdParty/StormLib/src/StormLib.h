@@ -391,7 +391,7 @@ extern "C" {
 #endif
 
 // Pointer to hashing function
-typedef DWORD (*HASH_STRING)(const char * szFileName, DWORD dwHashType);
+typedef DWORD (*HASH_STRING)(const char * szFileName, unsigned dwHashType);
 
 //-----------------------------------------------------------------------------
 // File information classes for SFileGetFileInfo and SFileFreeFileInfo
@@ -1032,8 +1032,8 @@ bool   STORMAPI SFileCloseArchive(HANDLE hMpq);
 // Reading from MPQ file
 bool   STORMAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
 bool   STORMAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
-DWORD  STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh);
-DWORD  STORMAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod);
+DWORD  STORMAPI SFileGetFileSize(HANDLE hFile);
+DWORD  STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 bool   STORMAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, LPDWORD pdwRead);
 void   STORMAPI SFileCloseFile(HANDLE hFile);
 
@@ -1110,7 +1110,7 @@ int    STORMAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
-DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
+DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
 
 //-----------------------------------------------------------------------------
 // Non-Windows support for SetLastError/GetLastError

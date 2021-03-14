@@ -104,7 +104,7 @@ TSnd *sound_file_load(const char *path)
 	pSnd->sound_path = path;
 	pSnd->start_tc = SDL_GetTicks() - 80 - 1;
 
-	dwBytes = SFileGetFileSize(file, NULL);
+	dwBytes = SFileGetFileSize(file);
 	wave_file = DiabloAllocPtr(dwBytes);
 	SFileReadFile(file, wave_file, dwBytes, NULL);
 
@@ -167,7 +167,7 @@ void music_start(int nTrack)
 	if (gbMusicOn) {
 		music_stop();
 		if (SFileOpenFile(sgszMusicTracks[nTrack], &_ghMusic)) {
-			int bytestoread = SFileGetFileSize(_ghMusic, 0);
+			DWORD bytestoread = SFileGetFileSize(_ghMusic);
 			_gMusicBuffer = DiabloAllocPtr(bytestoread);
 			SFileReadFile(_ghMusic, _gMusicBuffer, bytestoread, NULL);
 

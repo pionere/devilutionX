@@ -696,7 +696,7 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
 //-----------------------------------------------------------------------------
 // SFileGetFileSize
 
-DWORD STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh)
+DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
 {
     ULONGLONG FileSize;
     TMPQFile *hf = (TMPQFile *)hFile;
@@ -726,8 +726,8 @@ DWORD STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh)
         }
 
         // If opened from archive, return file size
-        if (pdwFileSizeHigh != NULL)
-            *pdwFileSizeHigh = (DWORD)(FileSize >> 32);
+		//if (pdwFileSizeHigh != NULL)
+		//    *pdwFileSizeHigh = (DWORD)(FileSize >> 32);
         return (DWORD)FileSize;
     }
 
@@ -735,7 +735,7 @@ DWORD STORMAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh)
     return SFILE_INVALID_SIZE;
 }
 
-DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod)
+DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod)
 {
     TMPQFile * hf = (TMPQFile *)hFile;
     ULONGLONG OldPosition;
@@ -753,13 +753,14 @@ DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePos
     if (hf->pStream != NULL) {
         FileStream_GetSize(hf->pStream, &FileSize);
     } else {
-        FileSize = SFileGetFileSize(hFile, NULL);
+		FileSize = SFileGetFileSize(hFile);
     }
 
     // Handle the NULL and non-NULL values of plFilePosHigh
     // Non-NULL: The DeltaPos is combined from lFilePos and *lpFilePosHigh
     // NULL: The DeltaPos is sign-extended value of lFilePos
-    DeltaPos = (plFilePosHigh != NULL) ? MAKE_OFFSET64(plFilePosHigh[0], lFilePos) : (ULONGLONG)(LONGLONG)lFilePos;
+	//DeltaPos = (plFilePosHigh != NULL) ? MAKE_OFFSET64(plFilePosHigh[0], lFilePos) : (ULONGLONG)(LONGLONG)lFilePos;
+	DeltaPos = (ULONGLONG)(LONGLONG)lFilePos;
 
     // Get the relative point where to move from
     switch(dwMoveMethod) {
@@ -816,8 +817,8 @@ DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePos
         hf->dwFilePos = (DWORD)NewPosition;
     }
 
-    // Return the new file position
-    if (plFilePosHigh != NULL)
-        *plFilePosHigh = (LONG)(NewPosition >> 32);
-    return (DWORD)NewPosition;
+	// Return the new file position
+	//if (plFilePosHigh != NULL)
+	//   *plFilePosHigh = (LONG)(NewPosition >> 32);
+	return (DWORD)NewPosition;
 }

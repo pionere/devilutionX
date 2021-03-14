@@ -70,7 +70,7 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 		bool ret = false;
 		const char *password = gbMaxPlayers != 1 ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-		dwlen = SFileGetFileSize(file, NULL);
+		dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
 			DWORD read;
 			buf = DiabloAllocPtr(dwlen);
@@ -470,7 +470,7 @@ BYTE *pfile_read(const char *pszName)
 	if (!SFileOpenFileEx(archive, pszName, 0, &save))
 		app_fatal("Unable to open save file");
 
-	len = SFileGetFileSize(save, NULL);
+	len = SFileGetFileSize(save);
 	if (len == 0)
 		app_fatal("Invalid save file");
 

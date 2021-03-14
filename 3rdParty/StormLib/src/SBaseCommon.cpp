@@ -246,7 +246,7 @@ void InitializeMpqCryptography()
 // various game versions and localizations. Even WorldEdit, after importing a file
 // with Korean characters in the name, cannot open the file back.
 //
-DWORD HashString(const char * szFileName, DWORD dwHashType)
+DWORD HashString(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
     DWORD  dwSeed1 = 0x7FED7FED;
@@ -266,7 +266,7 @@ DWORD HashString(const char * szFileName, DWORD dwHashType)
     return dwSeed1;
 }
 
-DWORD HashStringSlash(const char * szFileName, DWORD dwHashType)
+DWORD HashStringSlash(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
     DWORD  dwSeed1 = 0x7FED7FED;
@@ -286,7 +286,7 @@ DWORD HashStringSlash(const char * szFileName, DWORD dwHashType)
     return dwSeed1;
 }
 
-DWORD HashStringLower(const char * szFileName, DWORD dwHashType)
+DWORD HashStringLower(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
     DWORD  dwSeed1 = 0x7FED7FED;

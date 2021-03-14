@@ -202,7 +202,7 @@ void init_archives()
 		for (i = 0; i < NUM_MPQS; i++) {
 			HANDLE hFile;
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
-				DWORD dwLen = SFileGetFileSize(hFile, NULL);
+				DWORD dwLen = SFileGetFileSize(hFile);
 				BYTE *buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen, NULL))
 					app_fatal("Unable to read save file");

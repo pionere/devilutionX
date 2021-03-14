@@ -160,10 +160,10 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		*pdwBpp = pcxhdr.BitsPerPixel;
 
 	if (pBuffer == NULL) {
-		SFileSetFilePointer(hFile, 0, 0, DVL_FILE_END);
+		SFileSetFilePointer(hFile, 0, DVL_FILE_END);
 		fileBuffer = NULL;
 	} else {
-		size = SFileGetFileSize(hFile, 0) - SFileSetFilePointer(hFile, 0, 0, DVL_FILE_CURRENT);
+		size = SFileGetFileSize(hFile) - SFileSetFilePointer(hFile, 0, DVL_FILE_CURRENT);
 		fileBuffer = (BYTE *)malloc(size);
 	}
 
@@ -196,7 +196,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
-		SFileSetFilePointer(hFile, -768, 0, 1);
+		SFileSetFilePointer(hFile, -768, DVL_FILE_CURRENT);
 		SFileReadFile(hFile, paldata, 768, NULL);
 		for (int i = 0; i < 256; i++) {
 			pPalette[i].r = paldata[i][0];
@@ -442,7 +442,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	HANDLE videoFile;
 	SFileOpenFile(filename, &videoFile);
 
-	int bytestoread = SFileGetFileSize(videoFile, 0);
+	DWORD bytestoread = SFileGetFileSize(videoFile);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
 	SFileReadFile(videoFile, SVidBuffer, bytestoread, NULL);
 	SFileCloseFile(videoFile);
