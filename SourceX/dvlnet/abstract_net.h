@@ -12,6 +12,8 @@ namespace net {
 
 typedef std::vector<unsigned char> buffer_t;
 typedef unsigned long provider_t;
+typedef size_t net_size_t;
+
 class dvlnet_exception : public std::exception {
 public:
 	const char *what() const throw() override

@@ -63,13 +63,13 @@ private:
 	void start_accept();
 	void handle_accept(scc con, const asio::error_code &ec);
 	void start_recv(scc con);
-	void handle_recv(scc con, const asio::error_code &ec, size_t bytes_read);
+	void handle_recv(scc con, const asio::error_code &ec, net_size_t bytes_read);
 	void handle_recv_newplr(scc con, packet &pkt);
 	void handle_recv_packet(packet &pkt);
 	void send_connect(scc con);
 	void send_packet(packet &pkt);
 	void start_send(scc con, packet &pkt);
-	void handle_send(scc con, const asio::error_code &ec, size_t bytes_sent);
+	void handle_send(scc con, const asio::error_code &ec, net_size_t bytes_sent);
 	void start_timeout(scc con);
 	void handle_timeout(scc con, const asio::error_code &ec);
 	void drop_connection(scc con);

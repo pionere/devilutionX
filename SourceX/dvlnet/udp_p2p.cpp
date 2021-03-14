@@ -102,7 +102,7 @@ void udp_p2p::recv()
 		try {
 			endpoint sender;
 			buffer_t pkt_buf(packet_factory::max_packet_size);
-			size_t pkt_len;
+			net_size_t pkt_len;
 			pkt_len = sock.receive_from(asio::buffer(pkt_buf), sender);
 			pkt_buf.resize(pkt_len);
 			auto pkt = pktfty->make_in_packet(pkt_buf);
