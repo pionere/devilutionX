@@ -49,8 +49,10 @@ void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
 BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 bool dRendered[MAXDUNX][MAXDUNY];
-
-bool _gbFrameflag;
+/**
+ * Specfies whether the FPS counter is shown.
+ */
+bool gbFrameflag = false;
 int frameend;
 int framerate;
 int framestart;
@@ -1346,11 +1348,11 @@ void ScrollView()
 /**
  * @brief Initialize the FPS meter
  */
-void EnableFrameCount()
+/*void EnableFrameCount()
 {
-	_gbFrameflag = !_gbFrameflag;
+	gbFrameflag = !gbFrameflag;
 	framestart = SDL_GetTicks();
-}
+}*/
 
 /**
  * @brief Display the current average FPS over 1 sec
@@ -1520,7 +1522,7 @@ void DrawAndBlit()
 	DrawView();
 	scrollrt_draw_cursor_item();
 
-	if (_gbFrameflag)
+	if (gbFrameflag)
 		DrawFPS();
 
 	unlock_buf(0);

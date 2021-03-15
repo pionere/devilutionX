@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern int light_table_index;
+extern bool gbFrameflag;
 extern bool gbCelTransparencyActive;
 extern bool gbCelFoliageActive;
 extern int level_piece_id;
@@ -27,7 +28,6 @@ void ClearScreenBuffer();
 #ifdef _DEBUG
 void ScrollView();
 #endif
-void EnableFrameCount();
 void scrollrt_draw_game_screen(bool draw_cursor);
 void DrawAndBlit();
 

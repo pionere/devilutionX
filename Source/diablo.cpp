@@ -195,7 +195,7 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("-n", argv[i]) == 0) {
 			_gbShowintro = false;
 		} else if (strcasecmp("-f", argv[i]) == 0) {
-			EnableFrameCount();
+			gbFrameflag = true;
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
 #ifdef HELLFIRE
