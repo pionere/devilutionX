@@ -3144,7 +3144,7 @@ static void DRLG_L2(int entry)
 static void DRLG_InitL2Vals()
 {
 	int i, j, *dp;
-	char pc, *dsp;
+	BYTE pc, *dsp;
 
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL2Vals.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL2Vals.");

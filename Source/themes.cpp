@@ -57,7 +57,7 @@ int trm3y[] = {
 static bool TFit_Shrine(int tidx)
 {
 	int xx, yy, found;
-	const char tv = themes[tidx].ttval;
+	const BYTE tv = themes[tidx].ttval;
 
 	xx = DBORDERX;
 	yy = DBORDERY;
@@ -103,7 +103,7 @@ static bool TFit_Obj5(int tidx)
 	int xx, yy;
 	int i, r, rs;
 	bool found;
-	const char tv = themes[tidx].ttval;
+	const BYTE tv = themes[tidx].ttval;
 
 	xx = DBORDERX;
 	yy = DBORDERY;
@@ -179,7 +179,7 @@ static bool TFit_GoatShrine(int tidx)
 static bool CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 {
 	int i, xx, yy;
-	const char tv = themes[tidx].ttval;
+	const BYTE tv = themes[tidx].ttval;
 
 	static_assert(lengthof(trm3x) == lengthof(trm3y), "Mismatching trm3 tables.");
 	for (i = 0; i < lengthof(trm3x); i++) {
@@ -430,7 +430,7 @@ void InitThemes()
 void HoldThemeRooms()
 {
 	int i, xx, yy;
-	char v;
+	BYTE v;
 
 	if (currlevel == 16)
 		return;
@@ -461,7 +461,7 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 	int xx, yy;
 	int scattertypes[MAX_LVLMTYPES];
 	int numscattypes, mtype, i;
-	char tv;
+	BYTE tv;
 
 	numscattypes = 0;
 	for (i = 0; i < nummtypes; i++) {
@@ -491,11 +491,11 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 static void Theme_Barrel(int tidx)
 {
 	int r, xx, yy;
-	const char barrnds[4] = { 2, 6, 4, 8 };
-	const char monstrnds[4] = { 5, 7, 3, 9 };
-	const char barrnd = barrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE barrnds[4] = { 2, 6, 4, 8 };
+	const BYTE monstrnds[4] = { 5, 7, 3, 9 };
+	const BYTE barrnd = barrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
@@ -545,8 +545,8 @@ static void Theme_Shrine(int tidx)
 static void Theme_MonstPit(int tidx)
 {
 	int r, xx, yy;
-	const char monstrnds[4] = { 6, 7, 3, 9 };
-	const char tv = themes[tidx].ttval;
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE tv = themes[tidx].ttval;
 
 	r = RandRange(1, 100);
 	xx = DBORDERX;
@@ -652,11 +652,11 @@ static void Theme_SkelRoom(int tidx)
 static void Theme_Treasure(int tidx)
 {
 	int xx, yy;
-	const char treasrnds[4] = { 4, 9, 7, 10 };
-	const char monstrnds[4] = { 6, 8, 3, 7 };
-	const char treasrnd = treasrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE treasrnds[4] = { 4, 9, 7, 10 };
+	const BYTE monstrnds[4] = { 6, 8, 3, 7 };
+	const BYTE treasrnd = treasrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 		for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
@@ -728,11 +728,11 @@ static void Theme_Library(int tidx)
 static void Theme_Torture(int tidx)
 {
 	int xx, yy;
-	const char tortrnds[4] = { 6, 8, 3, 8 };
-	const char monstrnds[4] = { 6, 8, 3, 9 };
-	const char tortrnd = tortrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE tortrnds[4] = { 6, 8, 3, 8 };
+	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
+	const BYTE tortrnd = tortrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -769,11 +769,11 @@ static void Theme_BloodFountain(int tidx)
 static void Theme_Decap(int tidx)
 {
 	int xx, yy;
-	const char decaprnds[4] = { 6, 8, 3, 8 };
-	const char monstrnds[4] = { 6, 8, 3, 9 };
-	const char decaprnd = decaprnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE decaprnds[4] = { 6, 8, 3, 8 };
+	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
+	const BYTE decaprnd = decaprnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -811,11 +811,11 @@ static void Theme_PurifyingFountain(int tidx)
 static void Theme_ArmorStand(int tidx)
 {
 	int xx, yy;
-	const char armorrnds[4] = { 6, 8, 3, 8 };
-	const char monstrnds[4] = { 6, 7, 3, 9 };
-	const char armorrnd = armorrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	char tv;
+	const BYTE armorrnds[4] = { 6, 8, 3, 8 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE armorrnd = armorrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	BYTE tv;
 
 	if (_gbArmorFlag) {
 		if (TFit_Obj3(tidx))
@@ -845,7 +845,7 @@ static void Theme_ArmorStand(int tidx)
 static void Theme_GoatShrine(int tidx)
 {
 	int xx, yy;
-	char tv;
+	BYTE tv;
 
 	if (!TFit_GoatShrine(tidx))
 		return;
@@ -910,11 +910,11 @@ static void Theme_TearFountain(int tidx)
 static void Theme_BrnCross(int tidx)
 {
 	int xx, yy;
-	const char monstrnds[4] = { 6, 8, 3, 9 };
-	const char bcrossrnds[4] = { 5, 7, 3, 8 };
-	const char bcrossrnd = bcrossrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
+	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
+	const BYTE bcrossrnd = bcrossrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -939,11 +939,11 @@ static void Theme_BrnCross(int tidx)
 static void Theme_WeaponRack(int tidx)
 {
 	int xx, yy, type;
-	const char weaponrnds[4] = { 6, 8, 5, 8 };
-	const char monstrnds[4] = { 6, 7, 3, 9 };
-	const char weaponrnd = weaponrnds[leveltype - 1];
-	const char monstrnd = monstrnds[leveltype - 1];
-	const char tv = themes[tidx].ttval;
+	const BYTE weaponrnds[4] = { 6, 8, 5, 8 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE weaponrnd = weaponrnds[leveltype - 1];
+	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tv = themes[tidx].ttval;
 
 	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
 	type = OBJ_WEAPONRACKL + 2 * random_(0, 2);
@@ -975,7 +975,7 @@ static void Theme_WeaponRack(int tidx)
 static void UpdateL4Trans()
 {
 	int i;
-	char *pTmp;
+	BYTE *pTmp;
 
 	static_assert(sizeof(dTransVal) == MAXDUNX * MAXDUNY, "Linear traverse of dTransVal does not work in UpdateL4Trans.");
 	pTmp = &dTransVal[0][0];

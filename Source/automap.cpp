@@ -117,7 +117,7 @@ void InitAutomap()
 	memset(automapview, 0, sizeof(automapview));
 
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitAutomap.");
-	pTmp = (BYTE*)&dFlags[0][0];
+	pTmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
 		*pTmp &= ~BFLAG_EXPLORED;
 }

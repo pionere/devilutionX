@@ -563,7 +563,7 @@ const BYTE L1ConvTbl[16] = { 22, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 
 static void DRLG_InitL5Vals()
 {
 	int i, *dp;
-	char pc, *dsp;
+	BYTE pc, *dsp;
 
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
@@ -1108,8 +1108,8 @@ static void DRLG_FreeL1SP()
 
 static void DRLG_InitL1Vals()
 {
-	int i, pc, *dp;
-	char *dsp;
+	int i, *dp;
+	BYTE pc, *dsp;
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL1Vals.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL1Vals.");
 	dsp = &dSpecial[0][0];

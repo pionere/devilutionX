@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE dungeon[DMAXX][DMAXY];
 /** Contains a backup of the tile IDs of the map. */
 BYTE pdungeon[DMAXX][DMAXY];
-char dflags[DMAXX][DMAXY];
+BYTE dflags[DMAXX][DMAXY];
 /** Specifies the active set level X-coordinate of the map. */
 int setpc_x;
 /** Specifies the active set level Y-coordinate of the map. */
@@ -32,7 +32,7 @@ BYTE *pDungeonCels;
 /**
  * List of transparancy masks to use for dPieces
  */
-char block_lvid[MAXTILES + 1];
+BYTE block_lvid[MAXTILES + 1];
 /**
  * List of light blocking dPieces
  */
@@ -64,7 +64,7 @@ int ViewX;
 int ViewY;
 ScrollStruct ScrollInfo;
 int MicroTileLen;
-char TransVal;
+BYTE TransVal;
 /** Specifies the active transparency indices. */
 bool TransList[256];
 /** Contains the piece IDs of each tile on the map. */
@@ -72,10 +72,10 @@ int dPiece[MAXDUNX][MAXDUNY];
 /** Specifies the dungeon piece information for a given coordinate and block number. */
 MICROS dpiece_defs_map_2[MAXDUNX][MAXDUNY];
 /** Specifies the transparency at each coordinate of the map. */
-char dTransVal[MAXDUNX][MAXDUNY];
+BYTE dTransVal[MAXDUNX][MAXDUNY];
 char dLight[MAXDUNX][MAXDUNY];
 char dPreLight[MAXDUNX][MAXDUNY];
-char dFlags[MAXDUNX][MAXDUNY];
+BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
  * Contains the player numbers (players array indices) of the map.
  *   pnum + 1 : the player is on spot
@@ -96,7 +96,7 @@ int dMonster[MAXDUNX][MAXDUNY];
  * dDead[x][y] & 0x1F - index of dead
  * dDead[x][y] >> 0x5 - direction
  */
-char dDead[MAXDUNX][MAXDUNY];
+BYTE dDead[MAXDUNX][MAXDUNY];
 /**
  * Contains the object numbers (objects array indices) of the map.
  *   oi + 1 : the object is on the given location
@@ -119,7 +119,7 @@ char dMissile[MAXDUNX][MAXDUNY];
  * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
  * "levels/towndata/towns.cel") contains trees rather than arches.
  */
-char dSpecial[MAXDUNX][MAXDUNY];
+BYTE dSpecial[MAXDUNX][MAXDUNY];
 int themeCount;
 THEME_LOC themeLoc[MAXTHEMES];
 

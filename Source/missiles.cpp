@@ -1226,7 +1226,7 @@ void InitMissiles()
 	MissileStruct *mis;
 	PlayerStruct *p;
 	int i;
-	char *pTmp;
+	BYTE *pTmp;
 
 	p = &plr[myplr];
 	if (p->_pInfraFlag) {

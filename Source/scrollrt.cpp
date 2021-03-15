@@ -684,7 +684,7 @@ static void DrawPlayerHelper(int x, int y, int sx, int sy)
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
 	int px, mnum, nCel;
-	char bFlag, bDead, bArch, bMap, dd;
+	BYTE bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
 	DWORD *pFrameTable;

@@ -282,7 +282,7 @@ void T_Pass3()
 void CreateTown(int entry)
 {
 	int i, *dp;
-	char pc, *dsp;
+	BYTE pc, *dsp;
 
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
