@@ -2807,12 +2807,10 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 	}
 }
 
-void MonstCheckDoors(int mnum)
+void MonstCheckDoors(int mx, int my)
 {
-	int mx, my, i, j, oi;
+	int i, j, oi;
 
-	mx = monster[mnum]._mx;
-	my = monster[mnum]._my;
 	for (i = -1; i <= 1; i++)
 		for (j = -1; j <= 1; j++) {
 			oi = dObject[mx + i][my + j];

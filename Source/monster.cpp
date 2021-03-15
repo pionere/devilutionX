@@ -2925,7 +2925,7 @@ static bool MAI_Path(int mnum)
 	    mon->_menemyy);
 	if (!clear || mon->_mpathcount >= 5 && mon->_mpathcount < 8) {
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
-			MonstCheckDoors(mnum);
+			MonstCheckDoors(mon->_mx, mon->_my);
 		mon->_mpathcount++;
 		if (mon->_mpathcount < 5)
 			return false;
@@ -3380,13 +3380,13 @@ static void MAI_Round(int mnum, bool special)
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
+		if (mon->_msquelch < UCHAR_MAX && mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
+			MonstCheckDoors(mon->_mx, mon->_my);
 		fy = mon->_menemyy;
 		fx = mon->_menemyx;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
 		md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(114, 100);
 		dist = std::max(abs(mx), abs(my));
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
@@ -3430,8 +3430,7 @@ void MAI_GoatMc(int mnum)
 
 static void MAI_Ranged(int mnum, int mitype, bool special)
 {
-	int md;
-	int fx, fy, mx, my;
+	int fx, fy, mx, my, md;
 	MonsterStruct *mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3442,20 +3441,19 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 		return;
 	}
 
-	if (mon->_msquelch == UCHAR_MAX || mon->_mFlags & MFLAG_TARGETS_MONSTER) {
+	if (mon->_msquelch == UCHAR_MAX || (mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
-		md = MonGetDir(mnum);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
-		mon->_mdir = md;
+		mon->_mdir = MonGetDir(mnum);
 		if (mon->_mVar1 == MM_RATTACK) {
 			MonStartDelay(mnum, random_(118, 20));
 		} else if (abs(mx) < 4 && abs(my) < 4) {
 			if (random_(119, 100) < 10 * (mon->_mint + 7))
-				MonCallWalk(mnum, opposite[md]);
+				MonCallWalk(mnum, opposite[mon->_mdir]);
 		}
 		if (mon->_mmode == MM_STAND) {
 			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
@@ -3685,7 +3683,7 @@ void MAI_Garg(int mnum)
 	MAI_Round(mnum, false);
 }
 
-static void MAI_RoundRanged(int mnum, int mitype, bool checkdoors, int lessmissiles)
+static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 {
 	MonsterStruct *mon;
 	int mx, my;
@@ -3697,13 +3695,13 @@ static void MAI_RoundRanged(int mnum, int mitype, bool checkdoors, int lessmissi
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
 		md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
-		if (checkdoors && mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(121, 10000);
 		dist = std::max(abs(mx), abs(my));
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
@@ -3749,34 +3747,34 @@ static void MAI_RoundRanged(int mnum, int mitype, bool checkdoors, int lessmissi
 
 void MAI_Magma(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_MAGMABALL, true, 0);
+	MAI_RoundRanged(mnum, MIS_MAGMABALL, 0);
 }
 
 void MAI_Storm(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, true, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC, 0);
 }
 
 void MAI_Storm2(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, true, 0);
+	MAI_RoundRanged(mnum, MIS_LIGHTNINGC2, 0);
 }
 
 #ifdef HELLFIRE
 void MAI_BoneDemon(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_BONEDEMON, true, 0);
+	MAI_RoundRanged(mnum, MIS_BONEDEMON, 0);
 }
 #endif
 
 void MAI_Acid(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_ACID, false, 1);
+	MAI_RoundRanged(mnum, MIS_ACID, 1);
 }
 
 void MAI_Diablo(int mnum)
 {
-	MAI_RoundRanged(mnum, MIS_APOCAC2, false, 0);
+	MAI_RoundRanged(mnum, MIS_APOCAC2, 0);
 }
 
 static void MAI_RR2(int mnum, int mitype)
@@ -3802,9 +3800,9 @@ static void MAI_RR2(int mnum, int mitype)
 		return;
 	}
 
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(121, 100);
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 			if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
@@ -3930,11 +3928,11 @@ void MAI_SkelKing(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		mx = mon->_mx;
 		my = mon->_my;
 		md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(126, 100);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
@@ -3993,11 +3991,11 @@ void MAI_Rhino(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		mx = mon->_mx;
 		my = mon->_my;
 		md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(131, 100);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
@@ -4062,12 +4060,11 @@ void MAI_Horkdemon(int mnum)
 		return;
 	}
 
+	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
 	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
-	if (mon->_msquelch < UCHAR_MAX) {
-		MonstCheckDoors(mnum);
-	}
 	v = random_(131, 100);
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
@@ -4121,13 +4118,13 @@ void MAI_Counselor(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mmode == MM_STAND && mon->_msquelch != 0) {
+		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+			MonstCheckDoors(mon->_mx, mon->_my);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
 		md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
-		if (mon->_msquelch < UCHAR_MAX)
-			MonstCheckDoors(mnum);
 		v = random_(121, 100);
 		if (mon->_mgoal == MGOAL_RETREAT) {
 			if (mon->_mgoalvar1++ <= 3)
