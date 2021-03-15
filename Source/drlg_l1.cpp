@@ -994,7 +994,7 @@ static void DRLG_L1Shadows()
 
 static bool DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, tries, t;
+	int sx, sy, sw, sh, xx, yy, i, ii, tries;
 	bool done;
 
 	sw = miniset[0];
@@ -1051,10 +1051,7 @@ static bool DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 	}
 
 	if (miniset == PWATERIN) {
-		t = TransVal;
-		TransVal = 0;
-		DRLG_MRectTrans(sx, sy + 2, sx + 5, sy + 4);
-		TransVal = t;
+		DRLG_MRectTrans(sx, sy + 2, sx + 5, sy + 4, 0);
 
 		quests[Q_PWATER]._qtx = 2 * sx + DBORDERX + 5;
 		quests[Q_PWATER]._qty = 2 * sy + DBORDERY + 6;

@@ -311,7 +311,7 @@ void DRLG_InitTrans()
 	TransVal = 1;
 }
 
-void DRLG_MRectTrans(int x1, int y1, int x2, int y2)
+void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv)
 {
 	int i, j;
 
@@ -322,11 +322,9 @@ void DRLG_MRectTrans(int x1, int y1, int x2, int y2)
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
-			dTransVal[i][j] = TransVal;
+			dTransVal[i][j] = tv;
 		}
 	}
-
-	TransVal++;
 }
 
 void DRLG_RectTrans(int x1, int y1, int x2, int y2)
@@ -601,11 +599,13 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 				themeLoc[themeCount].y = j + 1;
 				themeLoc[themeCount].width = themeW;
 				themeLoc[themeCount].height = themeH;
+				themeLoc[themeCount].ttval = TransVal;
 				if (leveltype == DTYPE_CAVES)
 					DRLG_RectTrans(2 * i + DBORDERX + 4, 2 * j + DBORDERY + 4, 2 * (i + themeW) - 1 + DBORDERX, 2 * (j + themeH) - 1 + DBORDERY);
-				else
-					DRLG_MRectTrans(i + 1, j + 1, i + themeW, j + themeH);
-				themeLoc[themeCount].ttval = TransVal - 1;
+				else {
+					DRLG_MRectTrans(i + 1, j + 1, i + themeW, j + themeH, TransVal);
+					TransVal++;
+				}
 				DRLG_CreateThemeRoom(themeCount);
 				themeCount++;
 			}

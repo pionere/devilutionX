@@ -3004,7 +3004,6 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 static void OperateBookLever(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	int tren;
 
 	if (numitems >= MAXITEMS) {
 		return;
@@ -3032,10 +3031,7 @@ static void OperateBookLever(int oi, bool sendmsg)
 				ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
 			if (os->_otype == OBJ_BLINDBOOK) {
 				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5);
-				tren = TransVal;
-				TransVal = 9;
-				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-				TransVal = tren;
+				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
 			}
 		}
 		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
@@ -4480,16 +4476,12 @@ static void SyncLever(int oi)
 static void SyncBookLever(int oi)
 {
 	ObjectStruct *os;
-	int tren;
 
 	os = &object[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		if (os->_otype == OBJ_BLINDBOOK) {
-			tren = TransVal;
-			TransVal = 9;
-			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-			TransVal = tren;
+			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
 		}
 	}
 }

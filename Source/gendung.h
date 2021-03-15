@@ -63,7 +63,7 @@ void FillSolidBlockTbls();
 void SetDungeonMicros(int x1, int y1, int x2, int y2);
 void DRLG_PlaceMegaTiles(int idx);
 void DRLG_InitTrans();
-void DRLG_MRectTrans(int x1, int y1, int x2, int y2);
+void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv);
 void DRLG_RectTrans(int x1, int y1, int x2, int y2);
 void DRLG_ListTrans(int num, const BYTE *List);
 void DRLG_AreaTrans(int num, const BYTE *List);

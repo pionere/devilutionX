@@ -644,7 +644,7 @@ void ResyncMPQuests()
 
 void ResyncQuests()
 {
-	int i, tren, x, y;
+	int i, x, y;
 
 	if (QuestStatus(Q_LTBANNER)) {
 		if (quests[Q_LTBANNER]._qvar1 == 1)
@@ -662,10 +662,7 @@ void ResyncQuests()
 			ObjChangeMapResync(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2);
 			for (i = 0; i < nobjects; i++)
 				SyncObjectAnim(objectactive[i]);
-			tren = TransVal;
-			TransVal = 9;
-			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1));
-			TransVal = tren;
+			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
 			x = setpc_x;
@@ -673,10 +670,7 @@ void ResyncQuests()
 			ObjChangeMapResync(x, y, x + setpc_w + 1, y + setpc_h + 1);
 			for (i = 0; i < nobjects; i++)
 				SyncObjectAnim(objectactive[i]);
-			tren = TransVal;
-			TransVal = 9;
-			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1));
-			TransVal = tren;
+			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 	}
 	if (currlevel == quests[Q_MUSHROOM]._qlevel) {
