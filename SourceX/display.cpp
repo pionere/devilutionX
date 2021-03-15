@@ -41,7 +41,7 @@ SDL_Surface *pal_surface;
 int screenWidth;
 int screenHeight;
 int viewportHeight;
-int borderRight;
+int widthAlignment;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
@@ -76,10 +76,10 @@ static void AdjustToScreenGeometry(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 
-	borderRight = 64;
+	widthAlignment = 0;
 	if (screenWidth % 4) {
 		// The buffer needs to be devisable by 4 for the engine to blit correctly
-		borderRight += 4 - screenWidth % 4;
+		widthAlignment = 4 - screenWidth % 4;
 	}
 
 	viewportHeight = screenHeight;
