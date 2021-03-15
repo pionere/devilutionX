@@ -536,6 +536,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 				LoadLevel();
 
 			IncProgress();
+			SavePreLighting();
 		}
 		if (gbMaxPlayers == 1)
 			ResyncQuests();
