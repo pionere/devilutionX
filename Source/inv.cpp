@@ -372,8 +372,6 @@ void DrawInv()
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
 					screen_y -= INV_SLOT_SIZE_PX / 2;
 				CelClippedDrawLightTrans(screen_x, screen_y, cCels, frame, frame_width);
-
-				gbCelTransparencyActive = false;
 			}
 		}
 	}

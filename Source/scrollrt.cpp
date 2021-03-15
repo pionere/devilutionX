@@ -37,7 +37,7 @@ bool gbCelTransparencyActive;
 /**
  * Specifies whether foliage (tile has extra content that overlaps previous tile) being rendered.
  */
-bool gbCelFoliageActive = false;
+bool gbCelFoliageActive;
 /**
  * Specifies the current dungeon piece ID of the level, as used during rendering of the level tiles.
  */
@@ -529,7 +529,6 @@ static void drawCell(int x, int y, int sx, int sy)
 		}
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
 	}
-	gbCelFoliageActive = false;
 }
 
 /**
@@ -546,6 +545,7 @@ static void drawFloor(int x, int y, int sx, int sy)
 	MICROS *pMap;
 
 	gbCelTransparencyActive = false;
+	gbCelFoliageActive = false;
 	light_table_index = dLight[x][y];
 
 	pMap = &dpiece_defs_map_2[x][y];
