@@ -3765,9 +3765,9 @@ void MI_Teleport(int mi)
 	py = mis->_miy;
 	p->_px = p->_pfutx = p->_poldx = px;
 	p->_py = p->_pfuty = p->_poldy = py;
-	PlrDoTrans(px, py);
+	//PlrDoTrans(px, py);
 	dPlayer[px][py] = mis->_miSource + 1;
-	if (leveltype != DTYPE_TOWN) {
+	if (p->_plid != -1) {
 		ChangeLightXY(p->_plid, px, py);
 		ChangeVisionXY(p->_pvid, px, py);
 	}
