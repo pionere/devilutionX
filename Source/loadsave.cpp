@@ -115,8 +115,8 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iAnimWidth2);
 	CopyInt(tbuff, &is->_iPostDraw);
 	CopyInt(tbuff, &is->_iIdentified);
-	CopyBytes(tbuff, 64, &is->_iName);
-	CopyBytes(tbuff, 64, &is->_iIName);
+	CopyBytes(tbuff, 64, is->_iName);
+	CopyBytes(tbuff, 64, is->_iIName);
 	CopyChar(tbuff, &is->_iSelFlag);
 	CopyChar(tbuff, &is->_iMagical);
 	CopyChar(tbuff, &is->_iLoc);
@@ -234,21 +234,21 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->_pOilFrom);
 	tbuff += 1; // Alignment
 
-	CopyBytes(tbuff, 64, &p->_pSkillLvl);
-	CopyBytes(tbuff, 64, &p->_pSkillActivity);
-	CopyInts(tbuff, 64, &p->_pSkillExp);
+	CopyBytes(tbuff, 64, p->_pSkillLvl);
+	CopyBytes(tbuff, 64, p->_pSkillActivity);
+	CopyInts(tbuff, 64, p->_pSkillExp);
 	CopyInt64(tbuff, &p->_pMemSkills);
 	CopyInt64(tbuff, &p->_pAblSkills);
 	CopyInt64(tbuff, &p->_pScrlSkills);
 	CopyInts(tbuff, 4, &p->_pSplHotKey);
 	CopyBytes(tbuff, 4, &p->_pSplTHotKey);
 
-	tbuff += 1; // Skip to Calc _pSkillFlags
+	CopyChar(tbuff, &p->_pSkillFlags);
 	CopyChar(tbuff, &p->_pSpellFlags);
 	CopyChar(tbuff, &p->_pInvincible);
 	CopyChar(tbuff, &p->_pLightRad);
 
-	CopyBytes(tbuff, PLR_NAME_LEN, &p->_pName);
+	CopyBytes(tbuff, PLR_NAME_LEN, p->_pName);
 	CopyChar(tbuff, &p->_pClass);
 	tbuff += 3; // Alignment
 	CopyShort(tbuff, &p->_pBaseStr);
@@ -291,8 +291,8 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pVar6);
 	CopyInt(tbuff, &p->_pVar7);
 	CopyInt(tbuff, &p->_pVar8);
-	CopyBytes(tbuff, NUMLEVELS, &p->_pLvlVisited);
-	CopyBytes(tbuff, NUMLEVELS, &p->_pSLvlVisited);
+	CopyBytes(tbuff, NUMLEVELS, p->_pLvlVisited);
+	CopyBytes(tbuff, NUMLEVELS, p->_pSLvlVisited);
 	tbuff += 2; // Alignment
 
 	CopyInt(tbuff, &p->_pGFXLoad);
@@ -630,6 +630,14 @@ static void LoadPortal(int i)
 	pPortal->_wsetlvl = LoadBool();
 }
 
+static void RedoPlayerLight()
+{
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (plr[i].plractive && currlevel == plr[i].plrlevel)
+			ChangeLightXY(plr[i]._plid, plr[i]._px, plr[i]._py);
+	}
+}
+
 /**
  * @brief Load game state
  * @param firstflag Can be set to false if we are simply reloading the current game
@@ -682,7 +690,6 @@ void LoadGame(bool firstflag)
 		LoadPortal(i);
 
 	LoadGameLevel(firstflag, ENTRY_LOAD);
-	SyncInitPlr(myplr);
 	SyncPlrAnim(myplr);
 
 	ViewX = _ViewX;
@@ -742,6 +749,7 @@ void LoadGame(bool firstflag)
 		LoadBool();
 
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
@@ -750,8 +758,6 @@ void LoadGame(bool firstflag)
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dMissile);
 	}
@@ -768,10 +774,11 @@ void LoadGame(bool firstflag)
 	AutomapZoomReset();
 	ResyncQuests();
 
-	ProcessLightList();
+	//RedoPlayerLight();
+	//ProcessLightList();
+	//RedoPlayerVision();
+	//ProcessVisionList();
 
-	RedoPlayerVision();
-	ProcessVisionList();
 	missiles_process_charge();
 	ResetPal();
 	NewCursor(CURSOR_HAND);
@@ -816,8 +823,8 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iAnimWidth2, tbuff);
 	CopyInt(&is->_iPostDraw, tbuff);
 	CopyInt(&is->_iIdentified, tbuff);
-	CopyBytes(&is->_iName, 64, tbuff);
-	CopyBytes(&is->_iIName, 64, tbuff);
+	CopyBytes(is->_iName, 64, tbuff);
+	CopyBytes(is->_iIName, 64, tbuff);
 	CopyChar(&is->_iSelFlag, tbuff);
 	CopyChar(&is->_iMagical, tbuff);
 	CopyChar(&is->_iLoc, tbuff);
@@ -893,7 +900,7 @@ static void SavePlayer(int pnum)
 	PlayerStruct *p = &plr[pnum];
 
 	CopyInt(&p->_pmode, tbuff);
-	CopyBytes(&p->walkpath, MAX_PATH_LENGTH, tbuff);
+	CopyBytes(p->walkpath, MAX_PATH_LENGTH, tbuff);
 	CopyInt(&p->destAction, tbuff);
 	CopyInt(&p->destParam1, tbuff);
 	CopyInt(&p->destParam2, tbuff);
@@ -935,21 +942,21 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->_pOilFrom, tbuff);
 	tbuff += 1; // Alignment
 
-	CopyBytes(&p->_pSkillLvl, 64, tbuff);
-	CopyBytes(&p->_pSkillActivity, 64, tbuff);
-	CopyInts(&p->_pSkillExp, 64, tbuff);
+	CopyBytes(p->_pSkillLvl, 64, tbuff);
+	CopyBytes(p->_pSkillActivity, 64, tbuff);
+	CopyInts(p->_pSkillExp, 64, tbuff);
 	CopyInt64(&p->_pMemSkills, tbuff);
 	CopyInt64(&p->_pAblSkills, tbuff);
 	CopyInt64(&p->_pScrlSkills, tbuff);
 	CopyInts(&p->_pSplHotKey, 4, tbuff);
 	CopyBytes(&p->_pSplTHotKey, 4, tbuff);
 
-	tbuff += 1; // Skip to Calc _pSkillFlags
+	CopyChar(&p->_pSkillFlags, tbuff);
 	CopyChar(&p->_pSpellFlags, tbuff);
 	CopyChar(&p->_pInvincible, tbuff);
 	CopyChar(&p->_pLightRad, tbuff);
 
-	CopyBytes(&p->_pName, PLR_NAME_LEN, tbuff);
+	CopyBytes(p->_pName, PLR_NAME_LEN, tbuff);
 	CopyChar(&p->_pClass, tbuff);
 	tbuff += 3; // Alignment
 	CopyShort(&p->_pBaseStr, tbuff);
@@ -992,8 +999,8 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pVar6, tbuff);
 	CopyInt(&p->_pVar7, tbuff);
 	CopyInt(&p->_pVar8, tbuff);
-	CopyBytes(&p->_pLvlVisited, NUMLEVELS, tbuff);
-	CopyBytes(&p->_pSLvlVisited, NUMLEVELS, tbuff); // only 10 used
+	CopyBytes(p->_pLvlVisited, NUMLEVELS, tbuff);
+	CopyBytes(p->_pSLvlVisited, NUMLEVELS, tbuff); // only 10 used
 	tbuff += 2;                                     // Alignment
 
 	CopyInt(&p->_pGFXLoad, tbuff);
@@ -1323,7 +1330,7 @@ static void SavePortal(int i)
 
 void SaveGame()
 {
-	int i, j;
+	int i;
 
 	DWORD dwLen = codec_get_encoded_len(FILEBUFF);
 	BYTE *fileBuff = DiabloAllocPtr(dwLen);
@@ -1402,10 +1409,8 @@ void SaveGame()
 		SaveBool(FALSE);
 
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
-			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
-	}
+	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 
@@ -1413,8 +1418,6 @@ void SaveGame()
 		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
 		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
@@ -1482,12 +1485,12 @@ void SaveLevel()
 			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
 	}
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
+	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 
 	if (leveltype != DTYPE_TOWN) {
 		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-		CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
 		CopyBytes(dMissile, MAXDUNX * MAXDUNY, tbuff);
 	}
@@ -1533,8 +1536,10 @@ void LoadLevel()
 			objectavail[i] = LoadChar();
 		for (i = 0; i < nobjects; i++)
 			LoadObject(objectactive[i]);
-		for (i = 0; i < nobjects; i++)
+		for (i = 0; i < nobjects; i++) {
+			object[objectactive[i]]._olid = -1; // reset dynamic lights
 			SyncObjectAnim(objectactive[i]);
+		}
 	}
 
 	for (i = 0; i < MAXITEMS; i++)
@@ -1546,12 +1551,12 @@ void LoadLevel()
 
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
+	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 
 	if (leveltype != DTYPE_TOWN) {
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);
 		memset(dMissile, 0, MAXDUNX * MAXDUNY); /// BUGFIX: supposed to load saved missiles with "CopyBytes"?
 	}
@@ -1560,11 +1565,7 @@ void LoadLevel()
 	ResyncQuests();
 	SyncPortals();
 
-	gbDolighting = true;
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currlevel == plr[i].plrlevel)
-			LightList[plr[i]._plid]._lunflag = true;
-	}
+	//RedoPlayerLight();
 
 	mem_free_dbg(fileBuff);
 }

@@ -509,12 +509,12 @@ void LoadGameLevel(bool firstflag, int lvldir)
 				IncProgress();
 				InitMissiles();
 				InitDead();
+				SavePreLighting();
 
 				if (gbMaxPlayers != 1)
 					DeltaLoadLevel();
 
 				IncProgress();
-				SavePreLighting();
 			} else {
 				HoldThemeRooms();
 				InitMonsters();
@@ -528,6 +528,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			InitTowners();
 			InitItems();
 			InitMissiles();
+			SavePreLighting();
 			IncProgress();
 
 			if (gbMaxPlayers != 1)
@@ -536,7 +537,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 				LoadLevel();
 
 			IncProgress();
-			SavePreLighting();
 		}
 		if (gbMaxPlayers == 1)
 			ResyncQuests();
