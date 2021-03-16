@@ -3170,7 +3170,7 @@ void MAI_Sneak(int mnum)
 			md = MonGetDir(mnum);
 			range = 5 - mon->_mint;
 			dist = std::max(abs(mx), abs(my));
-			if (mon->_mVar1 == MM_GOTHIT) {
+			if (mon->_mVar1 == MM_GOTHIT && mon->_mgoal != MGOAL_RETREAT) {
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 0;
 			} else {
