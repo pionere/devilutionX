@@ -1900,6 +1900,7 @@ static bool MonDoWalk(int mnum)
 		dev_fatal("MonDoWalk: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
+	// WARNING: similar logic (using _mVar8) is used to check missile-monster collision in missile.cpp
 	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
 		dMonster[mon->_mx][mon->_my] = 0;
 		mon->_mx += mon->_mVar1;

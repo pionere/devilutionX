@@ -1073,6 +1073,89 @@ static bool PlrMissHit(int pnum, int mi)
 	}
 }
 
+/**
+ * Check if the monster is on a given tile.
+ * Uses _mVar8 of MonsterStruct! -> TODO: move to monster.cpp?
+ */
+static int CheckMonCol(int mnum, int mx, int my)
+{
+	MonsterStruct *mon;
+	int mode;
+	bool negate;
+	bool halfOver;
+
+	if (mnum > 0) {
+		mnum--;
+		negate = true;
+	} else {
+		mnum = -(mnum + 1);
+		negate = false;
+	}
+
+	mon = &monster[mnum];
+	mode = mon->_mmode;
+	static_assert(MM_WALK3 - MM_WALK == 2, "CheckMonCol expects ordered MM_WALKs I.");
+	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
+	if (mode > MM_WALK3 || mode < MM_WALK)
+		return mnum;
+	halfOver = mon->_mVar8 >= (mon->_mAnims[MA_WALK].Frames >> 1);
+	if (mode == MM_WALK) {
+		if (negate)
+			halfOver = !halfOver;
+		return halfOver ? mnum : -1;
+	}
+	if (mode == MM_WALK2) {
+		if (negate)
+			halfOver = !halfOver;
+		return halfOver ? -1 : mnum;
+	}
+	assert(!negate);
+	if (halfOver) {
+		return (mon->_mfutx == mx && mon->_mfuty == my) ? mnum : -1;
+	} else {
+		return (mon->_mx == mx && mon->_my == my) ? mnum : -1;
+	}
+}
+
+static int CheckPlrCol(int pnum, int mx, int my)
+{
+	PlayerStruct *p;
+	int mode;
+	bool negate;
+	bool halfOver;
+
+	if (pnum > 0) {
+		pnum--;
+		negate = true;
+	} else {
+		pnum = -(pnum + 1);
+		negate = false;
+	}
+	p = &plr[pnum];
+	mode = p->_pmode;
+	static_assert(PM_WALK3 - PM_WALK == 2, "CheckPlrCol expects ordered PM_WALKs I.");
+	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs II.");
+	if (mode > PM_WALK3 || mode < PM_WALK)
+		return pnum;
+	halfOver = p->_pAnimFrame >= (p->_pWFrames >> 1);
+	if (mode == PM_WALK) {
+		if (negate)
+			halfOver = !halfOver;
+		return halfOver ? pnum : -1;
+	}
+	if (mode == PM_WALK2) {
+		if (negate)
+			halfOver = !halfOver;
+		return halfOver ? -1 : pnum;
+	}
+	assert(!negate);
+	if (halfOver) {
+		return (p->_pfutx == mx && p->_pfuty == my) ? pnum : -1;
+	} else {
+		return (p->_px == mx && p->_py == my) ? pnum : -1;
+	}
+}
+
 static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 {
 	MissileStruct *mis;
@@ -1082,23 +1165,15 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 
 	mnum = dMonster[mx][my];
 	if (mnum != 0) {
-		if (mnum > 0) {
-			mnum--;
-			if (MonMissHit(mnum, mi))
-				hit = 1;
-		} else {
-			mnum = -(mnum + 1);
-			if (monster[mnum]._mmode == MM_STONE) {
-				if (MonMissHit(mnum, mi))
-					hit = 1;
-			}
-		}
+		mnum = CheckMonCol(mnum, mx, my);
+		if (mnum != -1 && MonMissHit(mnum, mi))
+			hit = 1;
 	}
 
 	pnum = dPlayer[mx][my];
-	if (pnum > 0) {
-		pnum--;
-		if (PlrMissHit(pnum, mi))
+	if (pnum != 0) {
+		pnum = CheckPlrCol(pnum, mx, my);
+		if (pnum != -1 && PlrMissHit(pnum, mi))
 			hit = 1;
 	}
 
