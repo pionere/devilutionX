@@ -2067,10 +2067,8 @@ static bool PlrDoWalk(int pnum)
 
 	ClearPlrPVars(pnum);
 
-	if (p->_plid != -1) {
-		ChangeLightXYOff(p->_plid, p->_px, p->_py);
-		ChangeVisionXY(p->_pvid, p->_px, p->_py);
-	}
+	ChangeLightXYOff(p->_plid, p->_px, p->_py);
+	ChangeVisionXY(p->_pvid, p->_px, p->_py);
 	return true;
 }
 

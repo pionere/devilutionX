@@ -3759,7 +3759,7 @@ void MI_Teleport(int mi)
 	px = p->_px;
 	py = p->_py;
 	dPlayer[px][py] = 0;
-	PlrClrTrans(px, py);
+	//PlrClrTrans(px, py);
 
 	px = mis->_mix;
 	py = mis->_miy;
@@ -3767,10 +3767,8 @@ void MI_Teleport(int mi)
 	p->_py = p->_pfuty = p->_poldy = py;
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = mis->_miSource + 1;
-	if (p->_plid != -1) {
-		ChangeLightXY(p->_plid, px, py);
-		ChangeVisionXY(p->_pvid, px, py);
-	}
+	ChangeLightXY(p->_plid, px, py);
+	ChangeVisionXY(p->_pvid, px, py);
 	if (mis->_miSource == myplr) {
 		ViewX = px - ScrollInfo._sdx;
 		ViewY = py - ScrollInfo._sdy;
