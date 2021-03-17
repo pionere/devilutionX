@@ -979,46 +979,6 @@ static void PlaceQuestMonsters()
 	}
 }
 
-bool IsSkel(int mt)
-{
-	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
-	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
-	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
-}
-
-bool IsGoat(int mt)
-{
-	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
-	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
-}
-
-static int MonSpawnSkel(int x, int y, int dir)
-{
-	int i, j, skeltypes, skel;
-
-	j = 0;
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].mtype))
-			j++;
-	}
-
-	if (j != 0) {
-		skeltypes = random_(136, j);
-		j = 0;
-		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].mtype))
-				j++;
-		}
-		skel = AddMonster(x, y, dir, i - 1, true);
-		if (skel != -1)
-			MonStartSpStand(skel, dir);
-
-		return skel;
-	}
-
-	return -1;
-}
-
 void InitMonsters()
 {
 	int na, nt;
@@ -2694,6 +2654,46 @@ void MonWalkDir(int mnum, int md)
 		ASSUME_UNREACHABLE
 		break;
 	}
+}
+
+bool IsSkel(int mt)
+{
+	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
+	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
+	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
+}
+
+bool IsGoat(int mt)
+{
+	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
+	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
+}
+
+static int MonSpawnSkel(int x, int y, int dir)
+{
+	int i, j, skeltypes, skel;
+
+	j = 0;
+	for (i = 0; i < nummtypes; i++) {
+		if (IsSkel(Monsters[i].mtype))
+			j++;
+	}
+
+	if (j != 0) {
+		skeltypes = random_(136, j);
+		j = 0;
+		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
+			if (IsSkel(Monsters[i].mtype))
+				j++;
+		}
+		skel = AddMonster(x, y, dir, i - 1, true);
+		if (skel != -1)
+			MonStartSpStand(skel, dir);
+
+		return skel;
+	}
+
+	return -1;
 }
 
 static void GroupUnity(int mnum)
