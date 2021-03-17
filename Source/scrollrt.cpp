@@ -694,13 +694,13 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		mpnum = dPlayer[sx][sy - 1];
 		// assert(mpnum < 0);
 		if (mpnum < 0)
-			DrawPlayerHelper(-(mpnum + 1), sx, sy - 1, dx, dy);
+			DrawPlayer(-(mpnum + 1), sx, sy - 1, dx, dy);
 	}
 	if (bFlag & BFLAG_MONSTLR) {
 		assert((unsigned)(sy - 1) < MAXDUNY);
 		mpnum = dMonster[sx][sy - 1];
 		// assert(mpnum < 0);
-		if (mnum < 0)
+		if (mpnum < 0)
 			DrawMonsterHelper(-(mpnum + 1), sx, sy, -1, dx, dy);
 	}
 
