@@ -680,15 +680,36 @@ void CreatePlayer(int pnum, char c)
 	//p->_pAblSkills = SPELL_MASK(Abilities[c]);
 	//p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
+	//p->_pAtkSkill = SPL_ATTACK;
+	//p->_pAtkSkillType = RSPLTYPE_ABILITY;
+	//p->_pMoveSkill = SPL_WALK;
+	//p->_pMoveSkillType = RSPLTYPE_ABILITY;
+	//p->_pAltAtkSkill = SPL_INVALID;
+	//p->_pAltAtkSkillType = RSPLTYPE_INVALID;
+	//p->_pAltMoveSkill = SPL_INVALID;
+	//p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+
 	if (c == PC_SORCERER) {
 		p->_pSkillLvl[SPL_FIREBOLT] = 2;
 		p->_pSkillExp[SPL_FIREBOLT] = SkillExpLvlsTbl[1];
 		p->_pMemSkills = SPELL_MASK(SPL_FIREBOLT);
 	}
-	for (i = 0; i < lengthof(p->_pSplHotKey); i++)
-		p->_pSplHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(p->_pSplTHotKey); i++)
-		p->_pSplTHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(p->_pAtkSkillHotKey); i++)
+		p->_pAtkSkillHotKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(p->_pAtkSkillTypeHotKey); i++)
+		p->_pAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(p->_pMoveSkillHotKey); i++)
+		p->_pMoveSkillHotKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(p->_pMoveSkillTypeHotKey); i++)
+		p->_pMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(p->_pAltAtkSkillHotKey); i++)
+		p->_pAltAtkSkillHotKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(p->_pAltAtkSkillTypeHotKey); i++)
+		p->_pAltAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(p->_pAltMoveSkillHotKey); i++)
+		p->_pAltMoveSkillHotKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(p->_pAltMoveSkillTypeHotKey); i++)
+		p->_pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
 
 	InitDungMsgs(pnum);
 	CreatePlrItems(pnum);
@@ -856,18 +877,24 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	p = &plr[pnum];
 
 	if (FirstTime) {
-		p->pManaShield = 0;
+		p->_pManaShield = 0;
 
 		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 
 		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
 		p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
-			| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_WATTACK)
-			| SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_WRATTACK);
-		p->_pLSpell = (p->_pSkillFlags & SFLAG_MELEE) ? SPL_WATTACK : SPL_WRATTACK;
-		p->_pLSplType = RSPLTYPE_ABILITY;
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
+			| SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
+
+		p->_pAtkSkill = SPL_ATTACK;
+		p->_pAtkSkillType = RSPLTYPE_ABILITY;
+		p->_pMoveSkill = SPL_WALK;
+		p->_pMoveSkillType = RSPLTYPE_ABILITY;
+		p->_pAltAtkSkill = SPL_INVALID;
+		p->_pAltAtkSkillType = RSPLTYPE_INVALID;
+		p->_pAltMoveSkill = SPL_INVALID;
+		p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+		if (!(p->_pSkillFlags & SFLAG_MELEE))
+			p->_pAtkSkill = SPL_RATTACK;
 
 		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
 	}
@@ -1692,7 +1719,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][p->_pClass], p->_px, p->_py, 2);
 
 	if (!forcehit) {
-		if (p->pManaShield != 0 || (dam << 2) < p->_pMaxHP)
+		if (p->_pManaShield != 0 || (dam << 2) < p->_pMaxHP)
 			return;
 	}
 
@@ -3422,9 +3449,9 @@ bool PlrDecHp(int pnum, int hp, int earflag)
 
 	assert(hp >= 0);
 	p = &plr[pnum];
-	if (p->pManaShield != 0) {
+	if (p->_pManaShield != 0) {
 #ifdef HELLFIRE
-		int div = 19 - (std::min((int)p->pManaShield, 8) << 1);
+		int div = 19 - (std::min((int)p->_pManaShield, 8) << 1);
 #else
 		int div = 3;
 #endif

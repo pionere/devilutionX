@@ -717,10 +717,10 @@ bool PeekMessage(LPMSG lpMsg)
 			break;
 		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
 			if (!gbInvflag || BlurInventory()) {
-				if (!gbSpselflag)
-					DoSpeedBook();
+				if (!gbSkillListFlag)
+					DoSkillList();
 				else
-					gbSpselflag = false;
+					gbSkillListFlag = false;
 				gbChrflag = false;
 				gbQuestlog = false;
 				gbSbookflag = false;
@@ -731,7 +731,7 @@ bool PeekMessage(LPMSG lpMsg)
 			gbChrflag = !gbChrflag;
 			if (gbChrflag) {
 				gbQuestlog = false;
-				gbSpselflag = false;
+				gbSkillListFlag = false;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
 				FocusOnCharInfo();
@@ -741,7 +741,7 @@ bool PeekMessage(LPMSG lpMsg)
 			if (!gbQuestlog) {
 				StartQuestlog();
 				gbChrflag = false;
-				gbSpselflag = false;
+				gbSkillListFlag = false;
 			} else {
 				gbQuestlog = false;
 			}
@@ -751,7 +751,7 @@ bool PeekMessage(LPMSG lpMsg)
 				BlurInventory();
 			} else {
 				gbSbookflag = false;
-				gbSpselflag = false;
+				gbSkillListFlag = false;
 				gbInvflag = true;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
@@ -761,7 +761,7 @@ bool PeekMessage(LPMSG lpMsg)
 		case GameActionType_TOGGLE_SPELL_BOOK:
 			if (BlurInventory()) {
 				gbInvflag = false;
-				gbSpselflag = false;
+				gbSkillListFlag = false;
 				gbSbookflag = !gbSbookflag;
 			}
 			break;

@@ -29,17 +29,34 @@ BYTE *pFlasks;
 BYTE *pTalkPnl;
 BYTE *pTalkBtns;
 bool _gabTalkbtndown[MAX_PLRS - 1];
-int pSpell;
+/**
+ * The 'highlighted' skill in the Skill-List or in the Spell-Book.
+ */
+BYTE currSkill;
+/**
+ * The type of the 'highlighted' skill in the Skill-List or in the Spell-Book.
+ */
+BYTE currSkillType;
 BYTE infoclr;
 BYTE *pGBoxBuff;
-//BYTE *pSBkBtnCel;
 char tempstr[256];
 bool _gabWhisper[MAX_PLRS];
+/**
+ * The current tab in the Spell-Book.
+ */
 int sbooktab;
-int pSplType;
+/**
+ * Specifies whether the Chat-Panel is displayed.
+ */
 bool gbTalkflag;
 BYTE *pSBkIconCels;
+/**
+ * Specifies whether the Spell-Book is displayed.
+ */
 bool gbSbookflag;
+/**
+ * Specifies whether the Character-Panel is displayed.
+ */
 bool gbChrflag;
 BYTE *pSpellBkCel;
 char infostr[256];
@@ -52,7 +69,16 @@ static_assert(RSPLTYPE_SPELL != -1, "Cached value of spellTrans must not be -1."
 static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1.");
 char lastSt = -1;
 BYTE *pSpellCels;
-bool gbSpselflag;
+/**
+ * Specifies whether the Skill-List is displayed.
+ */
+bool gbSkillListFlag;
+/**
+ * Specifies whether the cursor should be moved to the active skill in the Skill-List.
+ */
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+BYTE _gbMoveCursor = 0;
+#endif
 
 /** Maps from font index to smaltext.cel frame number. */
 const BYTE fontframe[128] = {
@@ -232,7 +258,7 @@ static void SetSpellTrans(char st)
 	}
 }
 
-static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
+static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -285,16 +311,9 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 	}
 }
 
-/**
- * Sets the spell frame to draw and its position then draws it.
- */
-void DrawRSpell()
+static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
 {
-	char st;
-	int spl, lvl;
-
-	spl = plr[myplr]._pRSpell;
-	st = plr[myplr]._pRSplType;
+	int lvl, y;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
 	if (spl == SPL_INVALID) {
@@ -308,25 +327,98 @@ void DrawRSpell()
 			st = RSPLTYPE_INVALID;
 	}
 	SetSpellTrans(st);
-	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1, pSpellCels,
+	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
+	DrawSpellCel(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, pSpellCels,
 		spelldata[spl].sIcon, SPLICONLENGTH);
-	DrawSpellIconOverlay(spl, st, lvl, SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, SCREEN_Y + SCREEN_HEIGHT - 1);
+	DrawSpellIconOverlay(SCREEN_X + SCREEN_WIDTH - SPLICONLENGTH, y, spl, st, lvl);
 }
 
-void DrawSpeedBook()
+/**
+ * Sets the spell frame to draw and its position then draws it.
+ */
+void DrawSkillIcons()
 {
 	PlayerStruct *p;
-	int i, sn, x, y, /*c,*/ s, t, lx, ly;
+	BYTE spl, type;
+
+	p = &plr[myplr];
+	if (p->_pAtkSkill == SPL_INVALID) {
+		spl = p->_pMoveSkill;
+		type = p->_pMoveSkillType;
+	} else {
+		spl = p->_pAtkSkill;
+		type = p->_pAtkSkillType;
+	}
+	DrawSkillIcon(spl, type, 0);
+
+	if (p->_pAltAtkSkill == SPL_INVALID) {
+		spl = p->_pAltMoveSkill;
+		type = p->_pAltMoveSkillType;
+	} else {
+		spl = p->_pAltAtkSkill;
+		type = p->_pAltAtkSkillType;
+	}
+	DrawSkillIcon(spl, type, SPLICONLENGTH);
+}
+
+static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
+	BYTE (&hotKeyGroupA)[4], BYTE (&hotKeyTypeGroupA)[4],
+	BYTE (&hotKeyGroupB)[4], BYTE (&hotKeyTypeGroupB)[4])
+{
+	int i, col;
+
+	for (i = 0; i < 4; i++) {
+		if (hotKeyGroupA[i] == sn && hotKeyTypeGroupA[i] == st)
+			col = COL_GOLD;
+		else if (hotKeyGroupB[i] == sn && hotKeyTypeGroupB[i] == st)
+			col = COL_BLUE;
+		else
+			continue;
+		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
+		PrintString(x + offset, y - SPLICONLENGTH + 16, x + offset + 18, tempstr, false, col, 1);
+	}
+}
+
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE move_sn, BYTE move_st)
+{
+	if (atk_sn != SPL_INVALID)
+		return sn == atk_sn && st == atk_st;
+	if (move_sn != SPL_INVALID)
+		return sn == move_sn && st == move_st;
+	return sn == SPL_NULL || sn == SPL_INVALID;
+}
+
+static bool MoveToSkill(PlayerStruct* p, int sn, int st)
+{
+	if (_gbMoveCursor == 0)
+		return false;
+	if (_gbMoveCursor == 1) {
+		return MoveToAtkMoveSkill(sn, st,
+			p->_pAltAtkSkill, p->_pAltAtkSkillType,
+			p->_pAltMoveSkill, p->_pAltMoveSkillType);
+	} else {
+		return MoveToAtkMoveSkill(sn, st,
+			p->_pAtkSkill, p->_pAtkSkillType,
+			p->_pMoveSkill, p->_pMoveSkillType);
+	}
+}
+#endif
+
+void DrawSkillList()
+{
+	PlayerStruct *p;
+	int i, j, x, y, /*c,*/ sl, sn, st, lx, ly;
 	unsigned __int64 mask;
 
-	pSpell = SPL_INVALID;
+	currSkill = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	y = PANEL_Y - 17;
 	p = &plr[myplr];
-	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 1.");
-	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 2.");
-	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 3.");
-	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSpeedBook relies on ordered, indexed enum values 4.");
+	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
+	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
+	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
+	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 4.");
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
@@ -349,36 +441,56 @@ void DrawSpeedBook()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		for (sn = 1; mask != 0 && sn < NUM_SPELLS; mask >>= 1, sn++) {
-			if (!(mask & 1))
-				continue;
-			t = i;
-			if (i == RSPLTYPE_SPELL) {
-				s = GetSpellLevel(myplr, sn);
-				t = s > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
+		for (j = 0; mask != 0 && j < NUM_SPELLS; j++) {
+			if (j == SPL_NULL) {
+				if (i != 0)
+					continue;
+			} else {
+				if (!(mask & 1)) {
+					mask >>= 1;
+					continue;
+				}
+				mask >>= 1;
 			}
-			if ((spelldata[sn].sFlags & plr[myplr]._pSkillFlags) != spelldata[sn].sFlags)
-				t = RSPLTYPE_INVALID;
-			SetSpellTrans(t);
-			DrawSpellCel(x, y, pSpellCels, spelldata[sn].sIcon, SPLICONLENGTH);
+			st = i;
+			if (i == RSPLTYPE_SPELL) {
+				sl = GetSpellLevel(myplr, j);
+				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
+			}
+			if ((spelldata[j].sFlags & plr[myplr]._pSkillFlags) != spelldata[j].sFlags)
+				st = RSPLTYPE_INVALID;
+			SetSpellTrans(st);
+			DrawSpellCel(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH);
 			lx = x - BORDER_LEFT;
 			ly = y - BORDER_TOP - SPLICONLENGTH;
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+			if (MoveToSkill(p, j, i)) {
+				SetCursorPos(lx + SPLICONLENGTH / 2, ly + SPLICONLENGTH / 2);
+			}
+#endif
 			if (MouseX >= lx && MouseX < lx + SPLICONLENGTH && MouseY >= ly && MouseY < ly + SPLICONLENGTH) {
 				//DrawSpellCel(x, y, pSpellCels, c, SPLICONLENGTH);
 				DrawSpellCel(x, y, pSpellCels, SPLICONLAST, SPLICONLENGTH);
 
-				pSpell = sn;
-				pSplType = i;
-
-				DrawSpellIconOverlay(sn, i, s, x, y);
-
-				for (t = 0; t < 4; t++) {
-					if (p->_pSplHotKey[t] == sn && p->_pSplTHotKey[t] == i) {
-						//DrawSpellCel(x, y, pSpellCels, t + SPLICONLAST + 5, SPLICONLENGTH);
-						snprintf(tempstr, sizeof(tempstr), "#%d", t + 1);
-						PrintString(x + SPLICONLENGTH - 18, y - SPLICONLENGTH + 16, x + SPLICONLENGTH, tempstr, false, COL_GOLD, 1);
-					}
+				currSkill = j;
+				if (j == SPL_NULL) {
+					sn = SPL_INVALID;
+					st = RSPLTYPE_INVALID;
+				} else {
+					sn = j;
+					st = i;
 				}
+				currSkillType = st;
+
+				DrawSpellIconOverlay(x, y, sn, st, sl);
+
+				DrawSkillIconHotKey(x, y, sn, st, 4,
+					p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey,
+					p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey);
+
+				DrawSkillIconHotKey(x, y, sn, st, SPLICONLENGTH - 18, 
+					p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey,
+					p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey);
 			}
 			x -= SPLICONLENGTH;
 			if (x == PANEL_X + 12 - SPLICONLENGTH) {
@@ -386,7 +498,7 @@ void DrawSpeedBook()
 				y -= SPLICONLENGTH;
 			}
 		}
-		if (sn != 1 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
+		if (j != 0 && x != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
 			x -= SPLICONLENGTH;
 			if (x == PANEL_X + 12 - SPLICONLENGTH) {
 				x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -394,66 +506,162 @@ void DrawSpeedBook()
 			}
 		}
 	}
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	_gbMoveCursor = 0;
+#endif
 }
 
-void SetRSpell()
-{
-	gbSpselflag = false;
-	if (pSpell != SPL_INVALID) {
-		plr[myplr]._pRSpell = pSpell;
-		plr[myplr]._pRSplType = pSplType;
-		//gbRedrawFlags = REDRAW_ALL;
-	}
-}
-
-void SetSpeedSpell(int slot)
-{
-	PlayerStruct *p;
-	int i;
-
-	if (pSpell != SPL_INVALID) {
-		p = &plr[myplr];
-		for (i = 0; i < lengthof(p->_pSplHotKey); ++i) {
-			if (p->_pSplHotKey[i] == pSpell && p->_pSplTHotKey[i] == pSplType) {
-				p->_pSplHotKey[i] = SPL_INVALID;
-				p->_pSplTHotKey[i] = RSPLTYPE_INVALID;
-			}
-		}
-		p->_pSplHotKey[slot] = pSpell;
-		p->_pSplTHotKey[slot] = pSplType;
-	}
-}
-
-void ToggleSpell(int slot)
+/*
+ * @brief Select the current skill to use for the (alt)action button.
+ * @param shift true: the other (move/attack)skill is kept
+ *             false: the other (move/attack)skill is set to INVALID
+ * @param altSkill set it as the action or the alt action skill
+ */
+void SetSkill(bool shift, bool altSkill)
 {
 	PlayerStruct *p;
-	unsigned __int64 spells;
+	BYTE sn;
+	bool moveskill;
+
+	sn = currSkill;
+	if (sn == SPL_INVALID) {
+		gbSkillListFlag = false;
+		return;
+	}
+	if (sn == SPL_NULL)
+		sn = SPL_INVALID;
+	// TODO: add flag for movement-skills
+	moveskill = sn == SPL_WALK || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &plr[myplr];
-	switch (p->_pSplTHotKey[slot]) {
-	case RSPLTYPE_ABILITY:
-		spells = p->_pAblSkills;
-		break;
-	case RSPLTYPE_SPELL:
-		spells = p->_pMemSkills;
-		break;
-	case RSPLTYPE_SCROLL:
-		spells = p->_pScrlSkills;
-		break;
-	case RSPLTYPE_CHARGES:
-		spells = p->_pISpells;
-		break;
-	case RSPLTYPE_INVALID:
-		return;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+	if (shift) {
+		if (!altSkill) {
+			if (moveskill) {
+				p->_pMoveSkill = sn;
+				p->_pMoveSkillType = currSkillType;
+			} else {
+				p->_pAtkSkill = sn;
+				p->_pAtkSkillType = currSkillType;
+			}
+		} else {
+			if (moveskill) {
+				p->_pAltMoveSkill = sn;
+				p->_pAltMoveSkillType = currSkillType;
+			} else {
+				p->_pAltAtkSkill = sn;
+				p->_pAltAtkSkillType = currSkillType;
+			}
+		}
+	} else {
+		if (!altSkill) {
+			if (moveskill) {
+				p->_pMoveSkill = sn;
+				p->_pMoveSkillType = currSkillType;
+				p->_pAtkSkill = SPL_INVALID;
+				p->_pAtkSkillType = RSPLTYPE_INVALID;
+			} else {
+				p->_pAtkSkill = sn;
+				p->_pAtkSkillType = currSkillType;
+				p->_pMoveSkill = SPL_INVALID;
+				p->_pMoveSkillType = RSPLTYPE_INVALID;
+			}
+		} else {
+			if (moveskill) {
+				p->_pAltMoveSkill = sn;
+				p->_pAltMoveSkillType = currSkillType;
+				p->_pAltAtkSkill = SPL_INVALID;
+				p->_pAltAtkSkillType = RSPLTYPE_INVALID;
+			} else {
+				p->_pAltAtkSkill = sn;
+				p->_pAltAtkSkillType = currSkillType;
+				p->_pAltMoveSkill = SPL_INVALID;
+				p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+			}
+		}
+		
+		gbSkillListFlag = false;
 	}
+	
+	//gbRedrawFlags = REDRAW_ALL;
+}
 
-	if (spells & SPELL_MASK(p->_pSplHotKey[slot])) {
-		p->_pRSpell = p->_pSplHotKey[slot];
-		p->_pRSplType = p->_pSplTHotKey[slot];
-		//gbRedrawFlags = REDRAW_ALL;
+static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot, int sn)
+{
+	int i;
+
+	for (i = 0; i < lengthof(hotKeyGroup); ++i) {
+		if (hotKeyGroup[i] == sn && hotKeyTypeGroup[i] == currSkillType) {
+			hotKeyGroup[i] = SPL_INVALID;
+			hotKeyTypeGroup[i] = RSPLTYPE_INVALID;
+			if (slot == i)
+				return;
+		}
+	}
+	hotKeyGroup[slot] = sn;
+	hotKeyTypeGroup[slot] = currSkillType;
+
+}
+
+/*
+ * @brief Select the current skill to be activated by the given hotkey
+ * @param slot the index of the hotkey
+ * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
+ */
+void SetSkillHotKey(int slot, bool altSkill)
+{
+	PlayerStruct *p;
+	int sn = currSkill;
+	bool moveskill;
+
+	if (sn != SPL_INVALID) {
+		// TODO: add flag for movement-skills
+		moveskill = sn == SPL_WALK || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
+		if (sn == SPL_NULL)
+			sn = SPL_INVALID;
+
+		p = &plr[myplr];
+		if (!altSkill) {
+			if (moveskill)
+				SetSkillHotKey(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot, sn);
+			else 
+				SetSkillHotKey(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot, sn);
+		} else {
+			if (moveskill)
+				SetSkillHotKey(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot, sn);
+			else 
+				SetSkillHotKey(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot, sn);
+		}
+	}
+}
+
+static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot,
+	BYTE *destSkill, BYTE *destSkillType)
+{
+	*destSkill = hotKeyGroup[slot];
+	*destSkillType = hotKeyTypeGroup[slot];
+	//gbRedrawFlags = REDRAW_ALL;
+}
+
+/*
+ * @brief Select a skill for the current player with a hotkey
+ * @param slot the index of the hotkey
+ * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
+ */
+void SelectHotKeySkill(int slot, bool altSkill)
+{
+	PlayerStruct *p;
+
+	p = &plr[myplr];
+	if (!altSkill) {
+		SelectHotKeySkill(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot,
+			&p->_pMoveSkill, &p->_pMoveSkillType);
+		SelectHotKeySkill(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot,
+			&p->_pAtkSkill, &p->_pAtkSkillType);
+	} else {
+		SelectHotKeySkill(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot,
+			&p->_pAltMoveSkill, &p->_pAltMoveSkillType);
+		SelectHotKeySkill(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot,
+			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
 	}
 }
 
@@ -692,7 +900,7 @@ void DrawManaFlask()
 	}
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92);
-	DrawFlask2(x, filled, 3, plr[myplr].pManaShield == 0 ? 4 : 5, 93);
+	DrawFlask2(x, filled, 3, plr[myplr]._pManaShield == 0 ? 4 : 5, 93);
 }
 
 void InitControlPan()
@@ -731,9 +939,8 @@ void InitControlPan()
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
-	gbSpselflag = false;
+	gbSkillListFlag = false;
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL", NULL);
-	//pSBkBtnCel = LoadFileInMem("Data\\SpellBkB.CEL", NULL);
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL", NULL);
 	sbooktab = 0;
 	gbSbookflag = false;
@@ -776,85 +983,32 @@ void DrawCtrlBtns()
 }
 
 /**
- * Opens the "Speed Book": the rows of known spells for quick-setting a spell that
+ * Opens the "Skill List": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
+ * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
  */
-void DoSpeedBook()
+void DoSkillList(bool altSkill)
 {
-	gbSpselflag = true;
+	gbSkillListFlag = true;
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	PlayerStruct *p;
-	unsigned __int64 mask;
-	int xo, yo, X, Y, i, sn;
-
-	xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-	yo = PANEL_Y - 17;
-	X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
-	Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
-	p = &plr[myplr];
-	if (p->_pRSpell != SPL_INVALID) {
-		static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 1.");
-		static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 2.");
-		static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 3.");
-		static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DoSpeedBook relies on ordered, indexed enum values 4.");
-		for (i = 0; i < 4; i++) {
-			switch (i) {
-			case RSPLTYPE_ABILITY:
-				mask = p->_pAblSkills;
-				break;
-			case RSPLTYPE_SPELL:
-				mask = p->_pMemSkills;
-				break;
-			case RSPLTYPE_SCROLL:
-				mask = p->_pScrlSkills;
-				break;
-			case RSPLTYPE_CHARGES:
-				mask = p->_pISpells;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			for (sn = 1; mask != 0 && sn < NUM_SPELLS; mask >>= 1, sn++) {
-				if (!(mask & 1))
-					continue;
-				if (sn == p->_pRSpell && i == p->_pRSplType) {
-					X = xo - (BORDER_LEFT - SPLICONLENGTH / 2);
-					Y = yo - (BORDER_TOP + SPLICONLENGTH / 2);
-				}
-				xo -= SPLICONLENGTH;
-				if (xo == PANEL_X + 12 - SPLICONLENGTH) {
-					xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-					yo -= SPLICONLENGTH;
-				}
-			}
-			if (sn != 1 && xo != PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS) {
-				xo -= SPLICONLENGTH;
-				if (xo == PANEL_X + 12 - SPLICONLENGTH) {
-					xo = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
-					yo -= SPLICONLENGTH;
-				}
-			}
-		}
-	}
-
+	_gbMoveCursor = 0;
 	if (sgbControllerActive)
-		SetCursorPos(X, Y);
+		_gbMoveCursor = altSkill ? 1 : 2;
 #endif
 }
 
-void HandleSpellBtn()
+void HandleSkillBtn(bool altSkill)
 {
-	if (!gbSpselflag) {
+	if (!gbSkillListFlag) {
 		gbInvflag = false;
 		gbChrflag = false;
 		gbQuestlog = false;
 		gbSbookflag = false;
 		gbHelpflag = false;
-		DoSpeedBook();
+		DoSkillList(altSkill);
 	} else {
-		gbSpselflag = false;
+		gbSkillListFlag = false;
 	}
 	gamemenu_off();
 }
@@ -905,9 +1059,9 @@ bool DoPanBtn()
 	}
 	if (mx >= SCREEN_WIDTH - (SPLICONLENGTH + 4)
 	 && mx <= SCREEN_WIDTH - 4
-	 && my >= SCREEN_HEIGHT - (SPLICONLENGTH + 4)
+	 && my >= SCREEN_HEIGHT - 2 * (SPLICONLENGTH + 4)
 	 && my <= SCREEN_HEIGHT - 4) {
-		HandleSpellBtn();
+		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
 		return true;
 	}
 	if (plr[myplr]._pLvlUp && InLvlUpRect())
@@ -943,23 +1097,23 @@ void HandlePanBtn(int i)
 		return;
 	case PANBTN_CHARINFO:
 		gbQuestlog = false;
-		gbSpselflag = false;
+		gbSkillListFlag = false;
 		plr[myplr]._pLvlUp = FALSE;
 		gbChrflag = !gbChrflag;
 		break;
 	case PANBTN_INVENTORY:
 		gbSbookflag = false;
-		gbSpselflag = false;
+		gbSkillListFlag = false;
 		gbInvflag = !gbInvflag;
 		break;
 	case PANBTN_SPELLBOOK:
 		gbInvflag = false;
-		gbSpselflag = false;
+		gbSkillListFlag = false;
 		gbSbookflag = !gbSbookflag;
 		break;
 	case PANBTN_QLOG:
 		gbChrflag = false;
-		gbSpselflag = false;
+		gbSkillListFlag = false;
 		if (!gbQuestlog)
 			StartQuestlog();
 		else
@@ -1027,7 +1181,6 @@ void FreeControlPan()
 	MemFreeDbg(pDurIcons);
 	MemFreeDbg(pQLogCel);
 	MemFreeDbg(pSpellBkCel);
-	//MemFreeDbg(pSBkBtnCel);
 	MemFreeDbg(pSBkIconCels);
 	MemFreeDbg(pGBoxBuff);
 }
@@ -1635,14 +1788,14 @@ void DrawInfoStr()
 		x = p->_px - 2;
 		y = p->_py - 2;
 		GetMousePos(x, y, &xx, &yy);
-		snprintf(infostr, sizeof(infostr), p->pManaShield == 0 ? "%s(%i)" : "%s(%i)*", ClassStrTbl[p->_pClass], p->_pLevel);
+		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%i)" : "%s(%i)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
-	} else if (gbSpselflag) {
-		if (pSpell == SPL_INVALID)
+	} else if (gbSkillListFlag) {
+		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
 			return;
 		const char* fmt;
-		switch (pSplType) {
+		switch (currSkillType) {
 		case RSPLTYPE_ABILITY:
 			fmt = "%s Skill";
 			break;
@@ -1661,7 +1814,7 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		snprintf(infostr, sizeof(infostr), fmt, spelldata[pSpell].sNameText);
+		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
 		DrawTooltip(infostr, MouseX, MouseY - 8, COL_WHITE);
 	} else if (pcursinvitem != -1) {
 		DrawInvItemDetails();
@@ -1856,6 +2009,8 @@ void DrawSpellBook()
 	snprintf(tempstr, sizeof(tempstr), "%d.", sbooktab + 1);
 	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
+	currSkill = SPL_INVALID;
+
 	p = &plr[myplr];
 	spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
 
@@ -1865,6 +2020,13 @@ void DrawSpellBook()
 		sn = SpellPages[sbooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
+			if (MouseX >= sx - BORDER_LEFT
+			 && MouseX < sx - BORDER_LEFT + SBOOK_CELWIDTH
+			 && MouseY >= yp - BORDER_TOP - SBOOK_CELHEIGHT
+			 && MouseY < yp - BORDER_TOP) {
+				currSkill = sn;
+				currSkillType = st;
+			}
 			switch (st) {
 			case RSPLTYPE_ABILITY:
 				copy_cstr(tempstr, "Skill");
@@ -1905,7 +2067,9 @@ void DrawSpellBook()
 				st = RSPLTYPE_INVALID;
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
-			if (sn == p->_pRSpell && st == p->_pRSplType) {
+			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
+			if ((sn == p->_pAltAtkSkill && st == p->_pAltAtkSkillType)
+			 || (sn == p->_pAltMoveSkill && st == p->_pAltMoveSkillType)) {
 				SetSpellTrans(RSPLTYPE_ABILITY);
 				DrawSpellCel(sx, yp, pSBkIconCels, SPLICONLAST, SBOOK_CELWIDTH);
 			}
@@ -1914,38 +2078,23 @@ void DrawSpellBook()
 	}
 }
 
-void CheckSBook()
+void SelectBookSkill(bool shift, bool altSkill)
 {
-	PlayerStruct *p;
-	int sn;
-	char st;
-	unsigned __int64 spl;
+	int dx, dy;
 
-	int dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
+	if (currSkill != SPL_INVALID) {
+		SetSkill(shift, altSkill);
+		return;
+	}
+
+	dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
 	if (dx < 0)
 		return;
-	int dy = MouseY - SBOOK_TOP_BORDER;
+	dy = MouseY - SBOOK_TOP_BORDER;
 	if (dy < 0)
 		return;
 
-	if (dy < lengthof(SpellPages[sbooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
-		if (dx < 2 * SBOOK_CELBORDER + SBOOK_CELWIDTH) {
-			sn = SpellPages[sbooktab][dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT)];
-			p = &plr[myplr];
-			spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
-			if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
-				if (p->_pAblSkills & SPELL_MASK(sn))
-					st = RSPLTYPE_ABILITY;
-				else if (p->_pISpells & SPELL_MASK(sn))
-					st = RSPLTYPE_CHARGES;
-				else
-					st = RSPLTYPE_SPELL;
-				p->_pRSpell = sn;
-				p->_pRSplType = st;
-				//gbRedrawFlags = REDRAW_ALL;
-			}
-		}
-	} else {
+	if (dy >= lengthof(SpellPages[sbooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
 		if (dx <= SBOOK_PAGER_WIDTH * 2) {
 			if (dx <= SBOOK_PAGER_WIDTH) {
 				sbooktab = 0;

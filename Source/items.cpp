@@ -409,6 +409,34 @@ inline static int ArrowVelBonus(unsigned flags)
 	return flags;
 }
 
+static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
+{
+	PlayerStruct *p;
+
+	p = &plr[pnum];
+	// check if the current RSplType is a valid/allowed spell
+	if (p->_pAtkSkillType == type && !(mask & SPELL_MASK(p->_pAtkSkill))) {
+		p->_pAtkSkill = SPL_INVALID;
+		p->_pAtkSkillType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+	if (p->_pMoveSkillType == type && !(mask & SPELL_MASK(p->_pMoveSkill))) {
+		p->_pMoveSkill = SPL_INVALID;
+		p->_pMoveSkillType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+	if (p->_pAltAtkSkillType == type && !(mask & SPELL_MASK(p->_pAltAtkSkill))) {
+		p->_pAltAtkSkill = SPL_INVALID;
+		p->_pAltAtkSkillType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pMoveSkill))) {
+		p->_pAltMoveSkill = SPL_INVALID;
+		p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+}
+
 void CalcPlrItemVals(int pnum, bool Loadgfx)
 {
 	PlayerStruct *p;
@@ -592,14 +620,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	p->_pIAMaxDam = amax * pdmod >> (-6 + 9);
 
 	p->_pISpells = spl;
-	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_CHARGES
-	 && !(spl & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		// unnecessary since MANA_FLASK is always set to redraw, which triggers the redraw of the spell-icon as well
-		// gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
+	if (pnum == myplr)
+		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
 
 	lrad = std::max(2, std::min(15, lrad));
 	if (p->_pLightRad != lrad && pnum == myplr) {
@@ -847,23 +869,15 @@ void CalcPlrSpells(int pnum)
 	p = &plr[pnum];
 	// switch between normal attacks
 	if (p->_pSkillFlags & SFLAG_MELEE) {
-		if (p->_pLSpell == SPL_RATTACK)
-			p->_pLSpell = SPL_ATTACK;
-		else if (p->_pLSpell == SPL_WRATTACK)
-			p->_pLSpell = SPL_WATTACK;
-		if (p->_pRSpell == SPL_RATTACK)
-			p->_pRSpell = SPL_ATTACK;
-		else if (p->_pRSpell == SPL_WRATTACK)
-			p->_pRSpell = SPL_WATTACK;
+		if (p->_pAtkSkill == SPL_RATTACK)
+			p->_pAtkSkill = SPL_ATTACK;
+		if (p->_pAltAtkSkill == SPL_RATTACK)
+			p->_pAltAtkSkill = SPL_ATTACK;
 	} else {
-		if (p->_pLSpell == SPL_ATTACK)
-			p->_pLSpell = SPL_RATTACK;
-		else if (p->_pLSpell == SPL_WATTACK)
-			p->_pLSpell = SPL_WRATTACK;
-		if (p->_pRSpell == SPL_ATTACK)
-			p->_pRSpell = SPL_RATTACK;
-		else if (p->_pRSpell == SPL_WATTACK)
-			p->_pRSpell = SPL_WRATTACK;
+		if (p->_pAtkSkill == SPL_ATTACK)
+			p->_pAtkSkill = SPL_RATTACK;
+		if (p->_pAltAtkSkill == SPL_ATTACK)
+			p->_pAltAtkSkill = SPL_RATTACK;
 	}
 }
 
@@ -886,12 +900,8 @@ void CalcPlrScrolls(int pnum)
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
 			p->_pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
-	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_SCROLL && !(p->_pScrlSkills & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
+
+	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, p->_pScrlSkills);
 }
 
 void CalcPlrStaff(int pnum)
@@ -905,12 +915,7 @@ void CalcPlrStaff(int pnum)
 	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
 		p->_pISpells |= SPELL_MASK(pi->_iSpell);
 	}
-	// check if the current RSplType is a valid/allowed spell
-	if (p->_pRSplType == RSPLTYPE_CHARGES && !(p->_pISpells & SPELL_MASK(p->_pRSpell))) {
-		p->_pRSpell = SPL_INVALID;
-		p->_pRSplType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
+	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, p->_pISpells);
 }
 
 static void CalcSelfItems(int pnum)
@@ -998,7 +1003,7 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 		CalcPlrSpells(pnum);
 		CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
-		CalcPlrStaff(pnum);
+		//CalcPlrStaff(pnum);
 	}
 }
 

@@ -254,10 +254,14 @@ typedef struct PlayerStruct {
 	int _pAnimWidth2;
 	int _plid;
 	int _pvid;
-	BYTE _pLSpell;   // the selected spell for the primary action
-	BYTE _pLSplType; // the (RSPL_)type of the spell for the primary action
-	BYTE _pRSpell;   // the selected spell for the secondary action
-	BYTE _pRSplType; // the (RSPL_)type of the spell for the secondary action
+	BYTE _pAtkSkill;         // the selected attack skill for the primary action
+	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
+	BYTE _pMoveSkill;        // the selected movement skill for the primary action
+	BYTE _pMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
+	BYTE _pAltAtkSkill;      // the selected attack skill for the secondary action
+	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
+	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
+	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
 	BYTE _pTSpell;   // the spell to cast after the target is selected
 	char _pTSplFrom; // the source of the spell after the target is selected
 	char _pOilFrom;
@@ -267,8 +271,14 @@ typedef struct PlayerStruct {
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	uint64_t _pAblSkills;  // Bitmask of abilities
 	uint64_t _pScrlSkills; // Bitmask of skills available via scrolls
-	int _pSplHotKey[4];
-	char _pSplTHotKey[4];
+	BYTE _pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
+	BYTE _pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
+	BYTE _pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
+	BYTE _pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
+	BYTE _pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
+	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
+	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
+	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
 	BYTE _pSkillFlags;     // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pSpellFlags;     // Bitmask of spells affecting the player
 	BOOLEAN _pInvincible;
@@ -383,8 +393,7 @@ typedef struct PlayerStruct {
 	BYTE pTownWarps;
 	BYTE pDungMsgs;
 	BYTE pLvlLoad;
-	BYTE pBattleNet;
-	BYTE pManaShield;
+	BYTE _pManaShield;
 	BYTE pDungMsgs2;
 	unsigned char *_pNData;
 	unsigned char *_pWData;
@@ -397,9 +406,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[433];
+	int alignment[427];
 #else
-	int alignment[437];
+	int alignment[431];
 #endif
 #endif
 } PlayerStruct;
@@ -1493,11 +1502,14 @@ typedef struct PkPlayerStruct {
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE _pNumInv;
 	BYTE pManaShield;
-	char pBattleNet;
-	char pSplHotKey[4];
-	char pSplTHotKey[4];
-	char bReserved1[8];
-	INT dwReserved1[8];
+	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
+	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
+	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
+	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
+	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
+	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
+	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
+	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
 } PkPlayerStruct;
 #pragma pack(pop)
 

@@ -111,14 +111,16 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
 	pPack->_pNumInv = p->_pNumInv;
-	pPack->pManaShield = p->pManaShield;
+	pPack->pManaShield = p->_pManaShield;
 
-	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
-	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
-	for (i = 0; i < 4; i++) {
-		pPack->pSplHotKey[i] = p->_pSplHotKey[i];
-		pPack->pSplTHotKey[i] = p->_pSplTHotKey[i];
-	}
+	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
+	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
+	memcpy(pPack->pMoveSkillHotKey, p->_pMoveSkillHotKey, sizeof(pPack->pMoveSkillHotKey));
+	memcpy(pPack->pMoveSkillTypeHotKey, p->_pMoveSkillTypeHotKey, sizeof(pPack->pMoveSkillTypeHotKey));
+	memcpy(pPack->pAltAtkSkillHotKey, p->_pAltAtkSkillHotKey, sizeof(pPack->pAltAtkSkillHotKey));
+	memcpy(pPack->pAltAtkSkillTypeHotKey, p->_pAltAtkSkillTypeHotKey, sizeof(pPack->pAltAtkSkillTypeHotKey));
+	memcpy(pPack->pAltMoveSkillHotKey, p->_pAltMoveSkillHotKey, sizeof(pPack->pAltMoveSkillHotKey));
+	memcpy(pPack->pAltMoveSkillTypeHotKey, p->_pAltMoveSkillTypeHotKey, sizeof(pPack->pAltMoveSkillTypeHotKey));
 }
 
 /**
@@ -260,15 +262,16 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		p->InvGrid[i] = pPack->InvGrid[i];
 
 	p->_pNumInv = pPack->_pNumInv;
-	p->pManaShield = pPack->pManaShield;
-	p->pBattleNet = pPack->pBattleNet;
+	p->_pManaShield = pPack->pManaShield;
 
-	static_assert((sizeof(p->_pSplHotKey) / sizeof(p->_pSplHotKey[0])) == 4, "Packing is no longer compatible with _pSplHotKey");
-	static_assert((sizeof(p->_pSplTHotKey) / sizeof(p->_pSplTHotKey[0])) == 4, "Packing is no longer compatible with _pSplTHotKey");
-	for (i = 0; i < 4; i++) {
-		p->_pSplHotKey[i] = pPack->pSplHotKey[i];
-		p->_pSplTHotKey[i] = pPack->pSplTHotKey[i];
-	}
+	memcpy(p->_pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(p->_pAtkSkillHotKey));
+	memcpy(p->_pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(p->_pAtkSkillTypeHotKey));
+	memcpy(p->_pMoveSkillHotKey, pPack->pMoveSkillHotKey, sizeof(p->_pMoveSkillHotKey));
+	memcpy(p->_pMoveSkillTypeHotKey, pPack->pMoveSkillTypeHotKey, sizeof(p->_pMoveSkillTypeHotKey));
+	memcpy(p->_pAltAtkSkillHotKey, pPack->pAltAtkSkillHotKey, sizeof(p->_pAltAtkSkillHotKey));
+	memcpy(p->_pAltAtkSkillTypeHotKey, pPack->pAltAtkSkillTypeHotKey, sizeof(p->_pAltAtkSkillTypeHotKey));
+	memcpy(p->_pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(p->_pAltMoveSkillHotKey));
+	memcpy(p->_pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(p->_pAltMoveSkillTypeHotKey));
 
 	VerifyGoldSeeds(p);
 	CalcPlrInv(pnum, false);

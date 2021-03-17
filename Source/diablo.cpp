@@ -92,19 +92,19 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SPLBOOK, ACT_CHAR, ACT_NONE, ACT_NONE, ACT_GAMMA_INC,
-// G,            H,        I,       J,        K,        L,        M,        N,        O,        P,
-  ACT_GAMMA_DEC, ACT_NONE, ACT_INV, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SKL0, ACT_SKLBOOK, ACT_CHAR, ACT_SKL2, ACT_SKL6, ACT_SKL3,
+// G,            H,                I,       J,        K,        L,        M,        N,        O,        P,
+  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
-  ACT_QUESTS, ACT_NONE, ACT_SPLLIST, ACT_TOOLTIP, ACT_NONE, ACT_VER, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ZOOM,
+  ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_VER, ACT_SKL5, ACT_NONE, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // NUM5,    NUM6,     NUM7,     NUM8,     NUM9,     MULT,     ADD,         SEP,      SUB,          DEC,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE, ACT_MAPZ_OUT, ACT_NONE,
 // DIV,     F1,       F2,       F3,       F4,       F5,       F6,       F7,       F8,       F9,
-  ACT_NONE, ACT_HELP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SPL0, ACT_SPL1, ACT_SPL2, ACT_SPL3, ACT_MSG0,
+  ACT_NONE, ACT_HELP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MSG0, ACT_MSG1, ACT_MSG2, ACT_MSG3, ACT_NONE,
 // F10,     F11,      F12,      F13,      F14,      F15,      F16,      F17,      F18,      F19,
-  ACT_MSG1, ACT_MSG2, ACT_MSG3, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // F20,     F21,      F22,      F23,      F24,      UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    NUMLOCK,  SCRLLOCK, UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
@@ -612,84 +612,185 @@ int DiabloMain(int argc, char **argv)
 	return 0;
 }
 
-static bool AttackCmd(bool bShift, int attack)
+BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
 {
-	int sl = GetSpellLevel(myplr, attack);
+	PlayerStruct *p;
 
-	if (plr[myplr]._pSkillFlags & SFLAG_RANGED) {
+	p = &plr[myplr];
+	if (sn == SPL_INVALID
+	 || (spelldata[sn].sFlags & p->_pSkillFlags) != spelldata[sn].sFlags) {
+		// PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
+		return 1;
+	}
+
+	switch (splType) {
+	case RSPLTYPE_ABILITY:
+		// assert(spelldata[sn].sManaCost == 0);
+		*sf = SPLFROM_ABILITY;
+		break;
+	case RSPLTYPE_SPELL:
+		if (CheckSpell(myplr, sn)) {
+			*sf = SPLFROM_MANA;
+		} else {
+			*sf = SPLFROM_INVALID;
+			return 2; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
+		}
+		break;
+	case RSPLTYPE_SCROLL:
+		*sf = SpellSourceInv(sn);
+		break;
+	case RSPLTYPE_CHARGES:
+		*sf = SpellSourceEquipment(sn);
+		break;
+	case RSPLTYPE_INVALID:
+		*sf = SPLFROM_INVALID;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	return (*sf == SPLFROM_INVALID) ? 1 : 0;
+}
+
+static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType, bool bShift)
+{
+	int merr = 0, aerr;
+	int msf, asf;
+
+	if (bShift)
+		moveSkill = SPL_INVALID;
+	else if (moveSkill != SPL_INVALID) {
+		merr = ValidateSkill(moveSkill, moveSkillType, &msf);
+		if (merr != 0) {
+			moveSkill = SPL_INVALID;
+		}
+	}
+
+	if (atkSkill != SPL_INVALID) {
+		aerr = ValidateSkill(atkSkill, atkSkillType, &asf);
+		if (aerr != 0)
+			atkSkill = SPL_INVALID;
+	}
+
+	if (atkSkill != SPL_INVALID) {
+		if (atkSkill == SPL_BLOCK) {
+			int dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
+			NetSendCmdParam1(true, CMD_BLOCK, dir);
+			return;
+		}
+
+		int askl = GetSpellLevel(myplr, atkSkill);
+
+		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
+			NewCursor(spelldata[atkSkill].spCurs);
+			plr[myplr]._pTSpell = atkSkill;
+			plr[myplr]._pTSplFrom = asf;
+			return;
+		}
+
 		if (bShift) {
-			NetSendCmdLocBParam2(true, CMD_RATTACKXY, cursmx, cursmy, attack, sl);
-			return true;
+			if (spelldata[atkSkill].sType != STYPE_NONE)
+				NetSendCmdLocBParam3(true, CMD_SPELLXY, cursmx, cursmy, atkSkill, asf, askl);
+			else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
+				NetSendCmdLocBParam2(true, CMD_RATTACKXY, cursmx, cursmy, atkSkill, askl);
+			else
+				NetSendCmdLocBParam2(true, CMD_SATTACKXY, cursmx, cursmy, atkSkill, askl);
+			return;
 		}
 		if (pcursmonst != -1) {
 			if (CanTalkToMonst(pcursmonst)) {
-				NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, attack, sl);
+				NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, atkSkill, askl);
 			} else {
-				NetSendCmdParam3(true, CMD_RATTACKID, pcursmonst, attack, sl);
+				if (spelldata[atkSkill].sType != STYPE_NONE)
+					NetSendCmdWBParam4(true, CMD_SPELLID, pcursmonst, atkSkill, asf, askl);
+				else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
+					NetSendCmdParam3(true, CMD_RATTACKID, pcursmonst, atkSkill, askl);
+				else
+					NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, atkSkill, askl);
 			}
-			return true;
+			return;
 		}
-		if (pcursplr != -1) {
-			if (!gbFriendlyMode)
-				NetSendCmdBParam3(true, CMD_RATTACKPID, pcursplr, attack, sl);
-			return true;
+		if (pcursplr != -1 && !gbFriendlyMode) {
+			if (spelldata[atkSkill].sType != STYPE_NONE)
+				NetSendCmdWBParam4(true, CMD_SPELLPID, pcursplr, atkSkill, asf, askl);
+			else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
+				NetSendCmdBParam3(true, CMD_RATTACKPID, pcursplr, atkSkill, askl);
+			else
+				NetSendCmdBParam3(true, CMD_ATTACKPID, pcursplr, atkSkill, askl);
+			return;
 		}
-	} else {
-		if (bShift) {
-			if (pcursmonst != -1) {
-				if (CanTalkToMonst(pcursmonst)) {
-					NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, attack, sl);
-				} else {
-					NetSendCmdLocBParam2(true, CMD_SATTACKXY, cursmx, cursmy, attack, sl);
-				}
-			} else {
-				NetSendCmdLocBParam2(true, CMD_SATTACKXY, cursmx, cursmy, attack, sl);
-			}
-			return true;
+		if (moveSkill == SPL_INVALID) {
+			if (spelldata[atkSkill].sType != STYPE_NONE)
+				NetSendCmdLocBParam3(true, CMD_SPELLXY, cursmx, cursmy, atkSkill, asf, askl);
+			else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
+				NetSendCmdLocBParam2(true, CMD_RATTACKXY, cursmx, cursmy, atkSkill, askl);
+			else
+				NetSendCmdLocBParam2(true, CMD_SATTACKXY, cursmx, cursmy, atkSkill, askl);
+			return;
 		}
-		if (pcursmonst != -1) {
-			NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, attack, sl);
-			return true;
-		}
-		if (pcursplr != -1) {
-			if (!gbFriendlyMode)
-				NetSendCmdBParam3(true, CMD_ATTACKPID, pcursplr, attack, sl);
-			return true;
-		}
+	} else if (moveSkill == SPL_INVALID) {
+		const int *sfx;
+		if (aerr == 2 || merr == 2)
+			sfx = sgSFXSets[SFXS_PLR_35]; // no mana
+		else
+			sfx = sgSFXSets[SFXS_PLR_34]; // nothing to do/not ready
+		PlaySFX(sfx[plr[myplr]._pClass]);
+		return;
 	}
-	return false;
+
+	// assert(moveSkill != SPL_INVALID);
+	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+
+	if (pcursmonst != -1) {
+		if (leveltype == DTYPE_TOWN) {
+			NetSendCmdLocParam1(true, CMD_TALKXY, cursmx, cursmy, pcursmonst);
+			return;
+		}
+		// TODO: extend TALKXY?
+		if (CanTalkToMonst(pcursmonst)) {
+			NetSendCmdParam3(true, CMD_ATTACKID, pcursmonst, SPL_ATTACK, 0);
+			return;
+		}
+
+		// TODO: move closer, execute moveSkill if not SPL_WALK?
+		return;
+	}
+
+	if (pcursplr != -1) {
+		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
+		return;
+	}
+
+	if (pcursobj != -1) {
+		bool bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
+		if ((!bShift || bNear && object[pcursobj]._oBreak == 1)) {
+			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
+			return;
+		}
+		return; // TODO: proceed in case moveSkill != SPL_WALK?
+	}
+	if (moveSkill != SPL_WALK) {
+		// TODO: check if cursmx/y == _px/y ?
+		int mskl = GetSpellLevel(myplr, moveSkill);
+		NetSendCmdLocBParam3(true, CMD_SPELLXY, cursmx, cursmy, moveSkill, msf, mskl);
+		return;
+	}
+
+	if (pcursitem != -1) {
+		NetSendCmdLocParam1(true, gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
+		return;
+	}
+
+	NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
 }
 
 static void ActionBtnCmd(bool bShift)
 {
-	bool bNear;
-
 	assert(pcurs == CURSOR_HAND);
 
-	if (pcursitem != -1 && !bShift) {
-		NetSendCmdLocParam1(true, gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-		return;
-	}
-	if (leveltype == DTYPE_TOWN) {
-		if (pcursmonst != -1) {
-			NetSendCmdLocParam1(true, CMD_TALKXY, cursmx, cursmy, pcursmonst);
-			return;
-		}
-		if (pcursitem == -1 && pcursplr == -1)
-			NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
-	} else {
-		bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
-		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
-			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
-			return;
-		}
-		if (AttackCmd(bShift, plr[myplr]._pLSpell))
-			return;
-		assert(pcursplr == -1);
-		assert(pcursmonst == -1);
-		if (pcursitem == -1 && pcursobj == -1)
-			NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
-	}
+	DoActionBtnCmd(plr[myplr]._pMoveSkill, plr[myplr]._pMoveSkillType,
+		plr[myplr]._pAtkSkill, plr[myplr]._pAtkSkillType, bShift);
 }
 
 bool TryIconCurs(bool bShift)
@@ -767,8 +868,8 @@ static void ActionBtnDown(bool bShift)
 	assert(PauseMode != 2);
 	assert(!gbDoomflag);
 
-	if (gbSpselflag) {
-		SetRSpell();
+	if (gbSkillListFlag) {
+		SetSkill(bShift, false);
 		return;
 	}
 
@@ -819,7 +920,7 @@ static void ActionBtnDown(bool bShift)
 	}
 
 	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
-		CheckSBook();
+		SelectBookSkill(bShift, false);
 		return;
 	}
 
@@ -833,107 +934,10 @@ static void ActionBtnDown(bool bShift)
 
 void AltActionBtnCmd(bool bShift)
 {
-	PlayerStruct *p;
-	int rspell, sf, sl;
-
-	if ((unsigned)myplr >= MAX_PLRS) {
-		dev_fatal("AltActionBtnCmd: illegal player %d", myplr);
-	}
-
-	p = &plr[myplr];
 	assert(pcurs == CURSOR_HAND);
-	rspell = p->_pRSpell;
-	if (rspell == SPL_INVALID
-	 || (spelldata[rspell].sFlags & p->_pSkillFlags) != spelldata[rspell].sFlags) {
-		PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
-		return;
-	}
 
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (!sgbControllerActive)
-#endif
-		if (PANELS_COVER && spelldata[rspell].sTargeted
-		 && (/*(MouseY >= PANEL_TOP && MouseX >= PANEL_LEFT && MouseX <= RIGHT_PANEL)       // inside main panel
-		   ||*/ ((gbChrflag || gbQuestlog) && MouseX < SPANEL_WIDTH && MouseY < SPANEL_HEIGHT)  // inside left panel
-		   || ((gbInvflag || gbSbookflag) && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT)) // inside right panel
-		       ) {
-			return;
-		}
-
-	switch (p->_pRSplType) {
-	case RSPLTYPE_ABILITY:
-		// assert(spelldata[rspell].sManaCost == 0);
-		if (rspell == SPL_WATTACK) {
-			if (leveltype != DTYPE_TOWN && AttackCmd(bShift, SPL_ATTACK))
-				return;
-			rspell = SPL_WALK;
-		} else if (rspell == SPL_WRATTACK) {
-			if (leveltype != DTYPE_TOWN && AttackCmd(bShift, SPL_RATTACK))
-				return;
-			rspell = SPL_WALK;
-		}
-		if (rspell == SPL_WALK) {
-			NetSendCmdLoc(true, CMD_WALKXY, cursmx, cursmy);
-			return;
-		}
-		if (rspell == SPL_ATTACK) {
-			AttackCmd(bShift, SPL_ATTACK);
-			return;
-		}
-		if (rspell == SPL_RATTACK) {
-			AttackCmd(bShift, SPL_RATTACK);
-			return;
-		}
-		if (rspell == SPL_BLOCK) {
-			int dir = GetDirection(p->_px, p->_py, cursmx, cursmy);
-			NetSendCmdParam1(true, CMD_BLOCK, dir);
-			return;
-		}
-		sf = SPLFROM_ABILITY;
-		break;
-	case RSPLTYPE_SPELL:
-		if (CheckSpell(myplr, rspell)) {
-			if (spelldata[rspell].sType == STYPE_NONE) {
-				AttackCmd(bShift, rspell);
-				return;
-			}
-			sf = SPLFROM_MANA;
-		} else {
-			sf = SPLFROM_INVALID;
-			PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
-		}
-		break;
-	case RSPLTYPE_SCROLL:
-		sf = SpellSourceInv(rspell);
-		break;
-	case RSPLTYPE_CHARGES:
-		sf = SpellSourceEquipment(rspell);
-		break;
-	case RSPLTYPE_INVALID:
-		sf = SPLFROM_INVALID;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (sf == SPLFROM_INVALID)
-		return;
-
-	if (spelldata[rspell].spCurs != CURSOR_NONE) {
-		NewCursor(spelldata[rspell].spCurs);
-		p->_pTSpell = rspell;
-		p->_pTSplFrom = sf;
-		return;
-	}
-
-	sl = GetSpellLevel(myplr, rspell);
-	if (pcursmonst != -1) {
-		NetSendCmdWBParam4(true, CMD_SPELLID, pcursmonst, rspell, sf, sl);
-	} else if (pcursplr != -1) {
-		NetSendCmdWBParam4(true, CMD_SPELLPID, pcursplr, rspell, sf, sl);
-	} else { //145
-		NetSendCmdLocBParam3(true, CMD_SPELLXY, cursmx, cursmy, rspell, sf, sl);
-	}
+	DoActionBtnCmd(plr[myplr]._pAltMoveSkill, plr[myplr]._pAltMoveSkillType,
+		plr[myplr]._pAltAtkSkill, plr[myplr]._pAltAtkSkillType, bShift);
 }
 
 static void AltActionBtnDown(bool bShift)
@@ -946,8 +950,8 @@ static void AltActionBtnDown(bool bShift)
 	if (plr[myplr]._pInvincible)
 		return;
 
-	if (gbSpselflag) {
-		SetRSpell();
+	if (gbSkillListFlag) {
+		SetSkill(bShift, true);
 		return;
 	}
 
@@ -974,6 +978,12 @@ static void AltActionBtnDown(bool bShift)
 
 	if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
 		return;
+
+	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		SelectBookSkill(bShift, true);
+		return;
+	}
+
 	AltActionBtnCmd(bShift);
 }
 
@@ -1071,8 +1081,8 @@ bool PressEscKey()
 		control_drop_gold(DVL_VK_ESCAPE);
 		rv = true;
 	}
-	if (gbSpselflag) {
-		gbSpselflag = false;
+	if (gbSkillListFlag) {
+		gbSkillListFlag = false;
 		rv = true;
 	}
 	if (pcurs != CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
@@ -1089,7 +1099,7 @@ static void ClearUI()
 	gbInvflag = false;
 	gbChrflag = false;
 	gbSbookflag = false;
-	gbSpselflag = false;
+	gbSkillListFlag = false;
 	if (gbQtextflag && leveltype == DTYPE_TOWN) {
 		gbQtextflag = false;
 		stream_stop();
@@ -1185,17 +1195,29 @@ static void PressKey(int vkey)
 			AltActionBtnDown(GetAsyncKeyState(DVL_VK_SHIFT) != 0);
 		}
 		break;
-	case ACT_SPL0:
-	case ACT_SPL1:
-	case ACT_SPL2:
-	case ACT_SPL3:
-		static_assert(ACT_SPL0 + 1 == ACT_SPL1, "PressKey expects a continuous assignment of ACT_SPLx 1.");
-		static_assert(ACT_SPL1 + 1 == ACT_SPL2, "PressKey expects a continuous assignment of ACT_SPLx 2.");
-		static_assert(ACT_SPL2 + 1 == ACT_SPL3, "PressKey expects a continuous assignment of ACT_SPLx 3.");
-		if (gbSpselflag)
-			SetSpeedSpell(transKey - ACT_SPL0);
+	case ACT_SKL0:
+	case ACT_SKL1:
+	case ACT_SKL2:
+	case ACT_SKL3:
+		static_assert(ACT_SKL0 + 1 == ACT_SKL1, "PressKey expects a continuous assignment of ACT_SKLx 1.");
+		static_assert(ACT_SKL1 + 1 == ACT_SKL2, "PressKey expects a continuous assignment of ACT_SKLx 2.");
+		static_assert(ACT_SKL2 + 1 == ACT_SKL3, "PressKey expects a continuous assignment of ACT_SKLx 3.");
+		if (gbSkillListFlag)
+			SetSkillHotKey(transKey - ACT_SKL0, false);
 		else
-			ToggleSpell(transKey - ACT_SPL0);
+			SelectHotKeySkill(transKey - ACT_SKL0, false);
+		break;
+	case ACT_SKL4:
+	case ACT_SKL5:
+	case ACT_SKL6:
+	case ACT_SKL7:
+		static_assert(ACT_SKL4 + 1 == ACT_SKL5, "PressKey expects a continuous assignment of ACT_SKLx 4.");
+		static_assert(ACT_SKL5 + 1 == ACT_SKL6, "PressKey expects a continuous assignment of ACT_SKLx 5.");
+		static_assert(ACT_SKL6 + 1 == ACT_SKL7, "PressKey expects a continuous assignment of ACT_SKLx 6.");
+		if (gbSkillListFlag)
+			SetSkillHotKey(transKey - ACT_SKL4, true);
+		else
+			SelectHotKeySkill(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
 		if (stextflag == STORE_NONE) {
@@ -1225,14 +1247,14 @@ static void PressKey(int vkey)
 			}
 		}
 		break;
-	case ACT_SPLBOOK:
+	case ACT_SKLBOOK:
 		if (stextflag == STORE_NONE) {
 			HandlePanBtn(PANBTN_SPELLBOOK);
 		}
 		break;
-	case ACT_SPLLIST:
+	case ACT_SKLLIST:
 		if (stextflag == STORE_NONE) {
-			HandleSpellBtn();
+			HandleSkillBtn(false);
 		}
 		break;
 	case ACT_ITEM0:
@@ -1462,7 +1484,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			plr[myplr]._pSplLvl[plr[myplr]._pSpell]++;
+			plr[myplr]._pSkillLvl[plr[myplr]._pAltAtkSkill]++;
 		}
 		break;
 	case 'D':

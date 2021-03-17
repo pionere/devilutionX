@@ -2449,8 +2449,8 @@ static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		plr[pnum]._pSplLvl[plr[pnum]._pRSpell]++;
-#endif
+		plr[pnum]._pSkillLvl[plr[pnum]._pAltAtkSkill]++;
+#endif	
 	return sizeof(*pCmd);
 }
 
@@ -2464,7 +2464,7 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
-		plr[pnum].pManaShield = p->bParam1;
+		plr[pnum]._pManaShield = p->bParam1;
 
 	return sizeof(*p);
 }
@@ -2472,7 +2472,7 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
-		plr[pnum].pManaShield = 0;
+		plr[pnum]._pManaShield = 0;
 
 	return sizeof(*pCmd);
 }

@@ -165,7 +165,9 @@ void CheckTownersNearby()
 
 bool HasRangedSpell()
 {
-	int spl = plr[myplr]._pRSpell;
+	int spl = plr[myplr]._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = plr[myplr]._pAltMoveSkill;
 
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
@@ -318,7 +320,9 @@ void CheckPlayerNearby()
 	if (pcursmonst != -1)
 		return;
 
-	int spl = plr[myplr]._pRSpell;
+	int spl = plr[myplr]._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = plr[myplr]._pAltMoveSkill;
 	if (gbFriendlyMode && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
 		return;
 
@@ -756,7 +760,9 @@ void HotSpellMove(MoveDirection dir)
 	}
 	invmove = ticks;
 
-	int spbslot = plr[myplr]._pRSpell;
+	int spbslot = plr[myplr]._pAltAtkSkill;
+	if (spbslot == SPL_INVALID)
+		spbslot = plr[myplr]._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
 		if (MouseX >= speedspellscoords[r].x - SPLICONLENGTH / 2
 		 && MouseX <= speedspellscoords[r].x + SPLICONLENGTH / 2
@@ -920,7 +926,7 @@ void Movement()
 		InvMove(move_dir);
 	} else if (gbChrflag && plr[myplr]._pStatPts > 0) {
 		AttrIncBtnSnap(move_dir.y);
-	} else if (gbSpselflag) {
+	} else if (gbSkillListFlag) {
 		HotSpellMove(move_dir);
 	} else if (gbSbookflag) {
 		SpellBookMove(move_dir);
@@ -1123,8 +1129,8 @@ void PerformPrimaryAction()
 		return;
 	}
 
-	if (gbSpselflag) {
-		SetRSpell();
+	if (gbSkillListFlag) {
+		SetSkill(false, false);
 		return;
 	}
 
@@ -1138,7 +1144,9 @@ void PerformPrimaryAction()
 
 static bool SpellHasActorTarget()
 {
-	int spl = plr[myplr]._pRSpell;
+	int spl = plr[myplr]._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = plr[myplr]._pAltMoveSkill;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
@@ -1161,7 +1169,7 @@ static void UpdateSpellTarget()
 	const PlayerStruct &player = plr[myplr];
 
 	int range = 1;
-	if (plr[myplr]._pRSpell == SPL_TELEPORT)
+	if (plr[myplr]._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
 	cursmx = player._pfutx + kOffsets[player._pdir][0] * range;
@@ -1183,8 +1191,8 @@ void PerformSpellAction()
 	if (InGameMenu() || gbQuestlog || gbSbookflag)
 		return;
 
-	if (gbSpselflag) {
-		SetRSpell();
+	if (gbSkillListFlag) {
+		SetSkill(false, true);
 		return;
 	}
 
@@ -1195,7 +1203,9 @@ void PerformSpellAction()
 		return;
 	}
 
-	int spl = plr[myplr]._pRSpell;
+	int spl = plr[myplr]._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = plr[myplr]._pAltMoveSkill;
 	if ((pcursplr == -1 && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
 	    || (pcursobj == -1 && spl == SPL_DISARM)) {
 		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);

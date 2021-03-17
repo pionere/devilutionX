@@ -56,10 +56,8 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_WALK:
 	case SPL_BLOCK:
 	case SPL_ATTACK:
-	case SPL_WATTACK:
 	case SPL_SWIPE:
 	case SPL_RATTACK:
-	case SPL_WRATTACK:
 	case SPL_POINT_BLANK:
 	case SPL_FAR_SHOT:
 	case SPL_STONE:
@@ -2035,7 +2033,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	assert((unsigned)misource < MAX_PLRS);
 
 	if (misource == myplr) {
-		if (plr[misource].pManaShield == 0)
+		if (plr[misource]._pManaShield == 0)
 			NetSendCmdBParam1(true, CMD_SETSHIELD, spllvl);
 		else
 			NetSendCmd(true, CMD_REMSHIELD);

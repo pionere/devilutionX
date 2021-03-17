@@ -311,7 +311,7 @@ void CheckCursMove()
 	pcursplr = -1;
 	pcurstrig = -1;
 
-	if (plr[myplr]._pInvincible | gbDoomflag | gbSpselflag) {
+	if (plr[myplr]._pInvincible | gbDoomflag | gbSkillListFlag) {
 		return;
 	}
 	if (pcurs >= CURSOR_FIRSTITEM) {

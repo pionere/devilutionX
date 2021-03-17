@@ -225,10 +225,15 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_plid);
 	CopyInt(tbuff, &p->_pvid);
 
-	CopyChar(tbuff, &p->_pLSpell);
-	CopyChar(tbuff, &p->_pLSplType);
-	CopyChar(tbuff, &p->_pRSpell);
-	CopyChar(tbuff, &p->_pRSplType);
+	CopyChar(tbuff, &p->_pAtkSkill);
+	CopyChar(tbuff, &p->_pAtkSkillType);
+	CopyChar(tbuff, &p->_pMoveSkill);
+	CopyChar(tbuff, &p->_pMoveSkillType);
+	CopyChar(tbuff, &p->_pAltAtkSkill);
+	CopyChar(tbuff, &p->_pAltAtkSkillType);
+	CopyChar(tbuff, &p->_pAltMoveSkill);
+	CopyChar(tbuff, &p->_pAltMoveSkillType);
+
 	CopyChar(tbuff, &p->_pTSpell);
 	CopyChar(tbuff, &p->_pTSplFrom);
 	CopyChar(tbuff, &p->_pOilFrom);
@@ -240,8 +245,15 @@ static void LoadPlayer(int pnum)
 	CopyInt64(tbuff, &p->_pMemSkills);
 	CopyInt64(tbuff, &p->_pAblSkills);
 	CopyInt64(tbuff, &p->_pScrlSkills);
-	CopyInts(tbuff, 4, &p->_pSplHotKey);
-	CopyBytes(tbuff, 4, &p->_pSplTHotKey);
+
+	CopyBytes(tbuff, 4, p->_pAtkSkillHotKey);
+	CopyBytes(tbuff, 4, p->_pAtkSkillTypeHotKey);
+	CopyBytes(tbuff, 4, p->_pMoveSkillHotKey);
+	CopyBytes(tbuff, 4, p->_pMoveSkillTypeHotKey);
+	CopyBytes(tbuff, 4, p->_pAltAtkSkillHotKey);
+	CopyBytes(tbuff, 4, p->_pAltAtkSkillTypeHotKey);
+	CopyBytes(tbuff, 4, p->_pAltMoveSkillHotKey);
+	CopyBytes(tbuff, 4, p->_pAltMoveSkillTypeHotKey);
 
 	CopyChar(tbuff, &p->_pSkillFlags);
 	CopyChar(tbuff, &p->_pSpellFlags);
@@ -363,8 +375,7 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->pTownWarps);
 	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pLvlLoad);
-	CopyChar(tbuff, &p->pBattleNet);
-	CopyChar(tbuff, &p->pManaShield);
+	CopyChar(tbuff, &p->_pManaShield);
 	CopyChar(tbuff, &p->pDungMsgs2);
 
 	CalcPlrInv(pnum, false);
@@ -933,10 +944,16 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_plid, tbuff);
 	CopyInt(&p->_pvid, tbuff);
 
-	CopyChar(&p->_pLSpell, tbuff);
-	CopyChar(&p->_pLSplType, tbuff);
-	CopyChar(&p->_pRSpell, tbuff);
-	CopyChar(&p->_pRSplType, tbuff);
+	CopyChar(&p->_pAtkSkill, tbuff);
+	CopyChar(&p->_pAtkSkillType, tbuff);
+	CopyChar(&p->_pMoveSkill, tbuff);
+	CopyChar(&p->_pMoveSkillType, tbuff);
+
+	CopyChar(&p->_pAltAtkSkill, tbuff);
+	CopyChar(&p->_pAltAtkSkillType, tbuff);
+	CopyChar(&p->_pAltMoveSkill, tbuff);
+	CopyChar(&p->_pAltMoveSkillType, tbuff);
+
 	CopyChar(&p->_pTSpell, tbuff);
 	CopyChar(&p->_pTSplFrom, tbuff);
 	CopyChar(&p->_pOilFrom, tbuff);
@@ -948,8 +965,15 @@ static void SavePlayer(int pnum)
 	CopyInt64(&p->_pMemSkills, tbuff);
 	CopyInt64(&p->_pAblSkills, tbuff);
 	CopyInt64(&p->_pScrlSkills, tbuff);
-	CopyInts(&p->_pSplHotKey, 4, tbuff);
-	CopyBytes(&p->_pSplTHotKey, 4, tbuff);
+
+	CopyBytes(p->_pAtkSkillHotKey, 4, tbuff);
+	CopyBytes(p->_pAtkSkillTypeHotKey, 4, tbuff);
+	CopyBytes(p->_pMoveSkillHotKey, 4, tbuff);
+	CopyBytes(p->_pMoveSkillTypeHotKey, 4, tbuff);
+	CopyBytes(p->_pAltAtkSkillHotKey, 4, tbuff);
+	CopyBytes(p->_pAltAtkSkillTypeHotKey, 4, tbuff);
+	CopyBytes(p->_pAltMoveSkillHotKey, 4, tbuff);
+	CopyBytes(p->_pAltMoveSkillTypeHotKey, 4, tbuff);
 
 	CopyChar(&p->_pSkillFlags, tbuff);
 	CopyChar(&p->_pSpellFlags, tbuff);
@@ -1072,8 +1096,7 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->pTownWarps, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pLvlLoad, tbuff);
-	CopyChar(&p->pBattleNet, tbuff);
-	CopyChar(&p->pManaShield, tbuff);
+	CopyChar(&p->_pManaShield, tbuff);
 	CopyChar(&p->pDungMsgs2, tbuff);
 
 	// Omit pointer _pNData

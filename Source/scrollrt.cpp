@@ -1168,7 +1168,7 @@ static void DrawView()
 		DrawAutomap();
 	}
 	//if (drawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
-		DrawRSpell();
+		DrawSkillIcons();
 	//}
 	DrawLifeFlask();
 	DrawManaFlask();
@@ -1198,8 +1198,8 @@ static void DrawView()
 	if (gbQtextflag) {
 		DrawQText();
 	}
-	if (gbSpselflag) {
-		DrawSpeedBook();
+	if (gbSkillListFlag) {
+		DrawSkillList();
 	}
 	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
 		DrawInfoStr();
