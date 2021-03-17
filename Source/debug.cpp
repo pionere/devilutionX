@@ -108,16 +108,16 @@ void MaxSpellsCheat()
 
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
-			plr[myplr]._pMemSpells |= SPELL_MASK(i);
-			plr[myplr]._pSplLvl[i] = 10;
+			plr[myplr]._pMemSkills |= SPELL_MASK(i);
+			plr[myplr]._pSkillLvl[i] = 10;
 		}
 	}
 }
 
 void SetSpellLevelCheat(char spl, int spllvl)
 {
-	plr[myplr]._pMemSpells |= SPELL_MASK(spl);
-	plr[myplr]._pSplLvl[spl] = spllvl;
+	plr[myplr]._pMemSkills |= SPELL_MASK(spl);
+	plr[myplr]._pSkillLvl[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()

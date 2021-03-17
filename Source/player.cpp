@@ -962,11 +962,11 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 
 #ifdef _DEBUG
 	if (debug_mode_key_inverted_v && FirstTime) {
-		p->_pMemSpells = SPL_INVALID;
+		p->_pMemSkills = SPL_INVALID;
 	} else if (debug_mode_god_mode && FirstTime) {
-		p->_pMemSpells |= SPELL_MASK(SPL_TELEPORT);
-		if (p->_pSplLvl[SPL_TELEPORT] == 0) {
-			p->_pSplLvl[SPL_TELEPORT] = 1;
+		p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
+		if (p->_pSkillLvl[SPL_TELEPORT] == 0) {
+			p->_pSkillLvl[SPL_TELEPORT] = 1;
 		}
 	}
 #endif
