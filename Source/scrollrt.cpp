@@ -685,13 +685,26 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	dRendered[sx][sy] = true;
 
 	light_table_index = dLight[sx][sy];
-
-	drawCell(sx, sy, dx, dy);
-
 	bFlag = dFlags[sx][sy];
 	bDead = dDead[sx][sy];
 	bMap = dTransVal[sx][sy];
 
+	if (bFlag & BFLAG_PLAYERLR) {
+		assert((unsigned)(sy - 1) < MAXDUNY);
+		mpnum = dPlayer[sx][sy - 1];
+		// assert(mpnum < 0);
+		if (mpnum < 0)
+			DrawPlayerHelper(-(mpnum + 1), sx, sy - 1, dx, dy);
+	}
+	if (bFlag & BFLAG_MONSTLR) {
+		assert((unsigned)(sy - 1) < MAXDUNY);
+		mpnum = dMonster[sx][sy - 1];
+		// assert(mpnum < 0);
+		if (mnum < 0)
+			DrawMonsterHelper(-(mpnum + 1), sx, sy, -1, dx, dy);
+	}
+
+	drawCell(sx, sy, dx, dy);
 
 #ifdef _DEBUG
 	if (visiondebug && bFlag & BFLAG_LIT) {
@@ -724,20 +737,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	}
 	DrawObject(sx, sy, dx, dy, TRUE);
 	DrawItem(sx, sy, dx, dy, TRUE);
-	if (bFlag & BFLAG_PLAYERLR) {
-		assert((unsigned)(sy - 1) < MAXDUNY);
-		mpnum = dPlayer[sx][sy - 1];
-		// assert(mpnum < 0);
-		if (mpnum < 0)
-			DrawPlayerHelper(-(mpnum + 1), sx, sy - 1, dx, dy);
-	}
-	if (bFlag & BFLAG_MONSTLR) {
-		assert((unsigned)(sy - 1) < MAXDUNY);
-		mpnum = dMonster[sx][sy - 1];
-		// assert(mpnum < 0);
-		if (mnum < 0)
-			DrawMonsterHelper(-(mpnum + 1), sx, sy, -1, dx, dy);
-	}
 	if (bFlag & BFLAG_DEAD_PLAYER) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
