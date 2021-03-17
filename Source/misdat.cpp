@@ -4,6 +4,7 @@
  * Implementation of data related to missiles.
  */
 #include "all.h"
+#include "misproc.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

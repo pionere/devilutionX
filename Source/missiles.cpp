@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "misproc.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1201,7 +1202,7 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 	return hit == 1;
 }
 
-void SetMissAnim(int mi, int animtype)
+static void SetMissAnim(int mi, int animtype)
 {
 	MissileStruct *mis;
 	const MisFileData *mfd;
@@ -1221,7 +1222,7 @@ void SetMissAnim(int mi, int animtype)
 	mis->_miAnimFrame = 1;
 }
 
-void SetMissDir(int mi, int dir)
+static void SetMissDir(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
 	SetMissAnim(mi, missile[mi]._miAnimType);

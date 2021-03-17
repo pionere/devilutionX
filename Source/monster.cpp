@@ -4,6 +4,7 @@
  * Implementation of monster functionality, AI, actions, spawning, loading, etc.
  */
 #include "all.h"
+#include "monstai.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -598,6 +599,68 @@ static void PlaceMonster(int mnum, int mtype, int x, int y)
 	InitMonster(mnum, dir, mtype, x, y);
 }
 
+static void PlaceGroup(int mtype, int num, int leaderf, int leader)
+{
+	int placed, offset, try1, try2;
+	int xp, yp, x1, y1;
+
+	if (num + nummonsters > totalmonsters) {
+		num = totalmonsters - nummonsters;
+	}
+
+	placed = 0;
+	for (try1 = 0; try1 < 10; try1++) {
+		while (placed) {
+			nummonsters--;
+			placed--;
+			dMonster[monster[nummonsters]._mx][monster[nummonsters]._my] = 0;
+		}
+
+		if (leaderf & 1) {
+			offset = random_(92, 8);
+			x1 = xp = monster[leader]._mx + offset_x[offset];
+			y1 = yp = monster[leader]._my + offset_y[offset];
+		} else {
+			do {
+				x1 = xp = random_(93, DSIZEX) + DBORDERX;
+				y1 = yp = random_(93, DSIZEY) + DBORDERY;
+			} while (!MonstPlace(xp, yp));
+		}
+
+		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`
+			if (!MonstPlace(xp, yp)
+			    || (dTransVal[xp][yp] != dTransVal[x1][y1])
+			    || (leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4))) {
+				try2++;
+				continue;
+			}
+
+			PlaceMonster(nummonsters, mtype, xp, yp);
+			if (leaderf & 1) {
+				monster[nummonsters]._mmaxhp *= 2;
+				monster[nummonsters]._mhitpoints = monster[nummonsters]._mmaxhp;
+				monster[nummonsters]._mint = monster[leader]._mint;
+
+				if (leaderf & 2) {
+					monster[nummonsters].leader = leader;
+					monster[nummonsters].leaderflag = MLEADER_PRESENT;
+					monster[nummonsters]._mAi = monster[leader]._mAi;
+				}
+			}
+			nummonsters++;
+			placed++;
+		}
+
+		if (placed >= num) {
+			break;
+		}
+	}
+
+	if (leaderf & 2) {
+		monster[leader].packsize = placed;
+	}
+}
+
 static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 {
 	int xp, yp, x, y;
@@ -916,66 +979,44 @@ static void PlaceQuestMonsters()
 	}
 }
 
-void PlaceGroup(int mtype, int num, int leaderf, int leader)
+bool IsSkel(int mt)
 {
-	int placed, offset, try1, try2;
-	int xp, yp, x1, y1;
+	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
+	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
+	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
+}
 
-	if (num + nummonsters > totalmonsters) {
-		num = totalmonsters - nummonsters;
+bool IsGoat(int mt)
+{
+	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
+	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
+}
+
+static int MonSpawnSkel(int x, int y, int dir)
+{
+	int i, j, skeltypes, skel;
+
+	j = 0;
+	for (i = 0; i < nummtypes; i++) {
+		if (IsSkel(Monsters[i].mtype))
+			j++;
 	}
 
-	placed = 0;
-	for (try1 = 0; try1 < 10; try1++) {
-		while (placed) {
-			nummonsters--;
-			placed--;
-			dMonster[monster[nummonsters]._mx][monster[nummonsters]._my] = 0;
+	if (j != 0) {
+		skeltypes = random_(136, j);
+		j = 0;
+		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
+			if (IsSkel(Monsters[i].mtype))
+				j++;
 		}
+		skel = AddMonster(x, y, dir, i - 1, true);
+		if (skel != -1)
+			MonStartSpStand(skel, dir);
 
-		if (leaderf & 1) {
-			offset = random_(92, 8);
-			x1 = xp = monster[leader]._mx + offset_x[offset];
-			y1 = yp = monster[leader]._my + offset_y[offset];
-		} else {
-			do {
-				x1 = xp = random_(93, DSIZEX) + DBORDERX;
-				y1 = yp = random_(93, DSIZEY) + DBORDERY;
-			} while (!MonstPlace(xp, yp));
-		}
-
-		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`
-			if (!MonstPlace(xp, yp)
-			    || (dTransVal[xp][yp] != dTransVal[x1][y1])
-			    || (leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4))) {
-				try2++;
-				continue;
-			}
-
-			PlaceMonster(nummonsters, mtype, xp, yp);
-			if (leaderf & 1) {
-				monster[nummonsters]._mmaxhp *= 2;
-				monster[nummonsters]._mhitpoints = monster[nummonsters]._mmaxhp;
-				monster[nummonsters]._mint = monster[leader]._mint;
-
-				if (leaderf & 2) {
-					monster[nummonsters].leader = leader;
-					monster[nummonsters].leaderflag = MLEADER_PRESENT;
-					monster[nummonsters]._mAi = monster[leader]._mAi;
-				}
-			}
-			nummonsters++;
-			placed++;
-		}
-
-		if (placed >= num) {
-			break;
-		}
+		return skel;
 	}
 
-	if (leaderf & 2) {
-		monster[leader].packsize = placed;
-	}
+	return -1;
 }
 
 void InitMonsters()
@@ -1518,6 +1559,82 @@ static void MonStartGetHit(int mnum)
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 	MonClearSquares(mnum);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
+}
+
+static void MonTeleport(int mnum)
+{
+	MonsterStruct *mon;
+	int k, j, x, y, _mx, _my, rx, ry;
+
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("MonTeleport: Invalid monster %d", mnum);
+	}
+	mon = &monster[mnum];
+	if (mon->_mmode == MM_STONE)
+		return;
+
+	_mx = mon->_menemyx;
+	_my = mon->_menemyy;
+	rx = 2 * random_(100, 2) - 1;
+	ry = 2 * random_(100, 2) - 1;
+
+	for (j = -1; j <= 1; j++) {
+		for (k = -1; k <= 1; k++) {
+			if (j != 0 || k != 0) {
+				x = _mx + rx * j;
+				y = _my + ry * k;
+				if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
+					if (PosOkMonst(mnum, x, y)) {
+						MonClearSquares(mnum);
+						dMonster[mon->_mx][mon->_my] = 0;
+						dMonster[x][y] = mnum + 1;
+						mon->_moldx = x;
+						mon->_moldy = y;
+						mon->_mdir = MonGetDir(mnum);
+						return;
+					}
+				}
+			}
+		}
+	}
+}
+
+static void MonFallenFear(int x, int y)
+{
+	MonsterStruct *mon;
+	int i, rundist;
+
+	for (i = 0; i < nummonsters; i++) {
+		mon = &monster[monstactive[i]];
+		switch (mon->_mType) {
+		case MT_RFALLSP:
+		case MT_RFALLSD:
+			rundist = 7;
+			break;
+		case MT_DFALLSP:
+		case MT_DFALLSD:
+			rundist = 5;
+			break;
+		case MT_YFALLSP:
+		case MT_YFALLSD:
+			rundist = 3;
+			break;
+		case MT_BFALLSP:
+		case MT_BFALLSD:
+			rundist = 2;
+			break;
+		default:
+			continue;
+		}
+		if (mon->_mAi == AI_FALLEN
+		 && abs(x - mon->_mx) < 5
+		 && abs(y - mon->_my) < 5
+		 && mon->_mhitpoints >= (1 << 6)) {
+			mon->_mgoal = MGOAL_RETREAT;
+			mon->_mgoalvar1 = rundist;
+			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
+		}
+	}
 }
 
 void MonGetKnockback(int mnum)
@@ -2350,44 +2467,6 @@ static bool MonDoTalk(int mnum)
 		break;
 	}
 	return false;
-}
-
-void MonTeleport(int mnum)
-{
-	MonsterStruct *mon;
-	int k, j, x, y, _mx, _my, rx, ry;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonTeleport: Invalid monster %d", mnum);
-	}
-	mon = &monster[mnum];
-	if (mon->_mmode == MM_STONE)
-		return;
-
-	_mx = mon->_menemyx;
-	_my = mon->_menemyy;
-	rx = 2 * random_(100, 2) - 1;
-	ry = 2 * random_(100, 2) - 1;
-
-	for (j = -1; j <= 1; j++) {
-		for (k = -1; k <= 1; k++) {
-			if (j != 0 || k != 0) {
-				x = _mx + rx * j;
-				y = _my + ry * k;
-				if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
-					if (PosOkMonst(mnum, x, y)) {
-						MonClearSquares(mnum);
-						dMonster[mon->_mx][mon->_my] = 0;
-						dMonster[x][y] = mnum + 1;
-						mon->_moldx = x;
-						mon->_moldy = y;
-						mon->_mdir = MonGetDir(mnum);
-						return;
-					}
-				}
-			}
-		}
-	}
 }
 
 static bool MonDoGotHit(int mnum)
@@ -4868,44 +4947,6 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimData = mon->_mAnims[anim].Data[mon->_mdir];
 }
 
-void MonFallenFear(int x, int y)
-{
-	MonsterStruct *mon;
-	int i, rundist;
-
-	for (i = 0; i < nummonsters; i++) {
-		mon = &monster[monstactive[i]];
-		switch (mon->_mType) {
-		case MT_RFALLSP:
-		case MT_RFALLSD:
-			rundist = 7;
-			break;
-		case MT_DFALLSP:
-		case MT_DFALLSD:
-			rundist = 5;
-			break;
-		case MT_YFALLSP:
-		case MT_YFALLSD:
-			rundist = 3;
-			break;
-		case MT_BFALLSP:
-		case MT_BFALLSD:
-			rundist = 2;
-			break;
-		default:
-			continue;
-		}
-		if (mon->_mAi == AI_FALLEN
-		 && abs(x - mon->_mx) < 5
-		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints >= (1 << 6)) {
-			mon->_mgoal = MGOAL_RETREAT;
-			mon->_mgoalvar1 = rundist;
-			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
-		}
-	}
-}
-
 void MissToMonst(int mi, int x, int y)
 {
 	int oldx, oldy;
@@ -5094,46 +5135,6 @@ bool PosOkMonst3(int mnum, int x, int y)
 	return monster_posok(mnum, x, y);
 }
 
-bool IsSkel(int mt)
-{
-	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
-	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
-	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
-}
-
-bool IsGoat(int mt)
-{
-	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
-	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
-}
-
-int MonSpawnSkel(int x, int y, int dir)
-{
-	int i, j, skeltypes, skel;
-
-	j = 0;
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].mtype))
-			j++;
-	}
-
-	if (j != 0) {
-		skeltypes = random_(136, j);
-		j = 0;
-		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].mtype))
-				j++;
-		}
-		skel = AddMonster(x, y, dir, i - 1, true);
-		if (skel != -1)
-			MonStartSpStand(skel, dir);
-
-		return skel;
-	}
-
-	return -1;
-}
-
 static void ActivateSpawn(int mnum, int x, int y, int dir)
 {
 	dMonster[x][y] = mnum + 1;
@@ -5298,6 +5299,7 @@ bool CanTalkToMonst(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CanTalkToMonst: Invalid monster %d", mnum);
 	}
+	// TODO: merge with MonTalker?
 	assert((monster[mnum]._mgoal != MGOAL_INQUIRING
 		&& monster[mnum]._mgoal != MGOAL_TALKING)
 		|| monster[mnum].mtalkmsg != 0);
