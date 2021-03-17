@@ -701,7 +701,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		mpnum = dMonster[sx][sy - 1];
 		// assert(mpnum < 0);
 		if (mpnum < 0)
-			DrawMonsterHelper(-(mpnum + 1), sx, sy, -1, dx, dy);
+			DrawMonsterHelper(-(mpnum + 1), sx, sy - 1, dx, dy);
 	}
 
 	drawCell(sx, sy, dx, dy);
