@@ -1902,84 +1902,27 @@ static bool MonDoWalk(int mnum)
 	mon = &monster[mnum];
 	// WARNING: similar logic (using _mVar8) is used to check missile-monster collision in missile.cpp
 	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
-		dMonster[mon->_mx][mon->_my] = 0;
-		mon->_mx += mon->_mVar1;
-		mon->_my += mon->_mVar2;
-		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-		MonStartStand(mnum, mon->_mdir);
-		rv = true;
-	} else {
-		if (mon->_mAnimCnt == 0) {
-#ifdef HELLFIRE
-			if (mon->_mVar8 == 0 && mon->_mType == MT_FLESTHNG)
-				PlayEffect(mnum, 3);
-#endif
-			mon->_mVar8++;
-			mon->_mVar6 += mon->_mxvel;
-			mon->_mVar7 += mon->_myvel;
-			mon->_mxoff = mon->_mVar6 >> 4;
-			mon->_myoff = mon->_mVar7 >> 4;
-			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-				MonChangeLightOff(mnum);
+		switch (mon->_mmode) {
+		case MM_WALK:
+			dMonster[mon->_mx][mon->_my] = 0;
+			mon->_mx += mon->_mVar1;
+			mon->_my += mon->_mVar2;
+			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			break;
+		case MM_WALK2:
+			dMonster[mon->_mVar1][mon->_mVar2] = 0;
+			break;
+		case MM_WALK3:
+			dMonster[mon->_mx][mon->_my] = 0;
+			mon->_mx = mon->_mVar1;
+			mon->_my = mon->_mVar2;
+			dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
+			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
-		rv = false;
-	}
-
-	return rv;
-}
-
-static bool MonDoWalk2(int mnum)
-{
-	MonsterStruct *mon;
-	bool rv;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonDoWalk2: Invalid monster %d", mnum);
-	}
-	mon = &monster[mnum];
-	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
-		dMonster[mon->_mVar1][mon->_mVar2] = 0;
-		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-		MonStartStand(mnum, mon->_mdir);
-		rv = true;
-	} else {
-		if (mon->_mAnimCnt == 0) {
-#ifdef HELLFIRE
-			if (mon->_mVar8 == 0 && mon->_mType == MT_FLESTHNG)
-				PlayEffect(mnum, 3);
-#endif
-			mon->_mVar8++;
-			mon->_mVar6 += mon->_mxvel;
-			mon->_mVar7 += mon->_myvel;
-			mon->_mxoff = mon->_mVar6 >> 4;
-			mon->_myoff = mon->_mVar7 >> 4;
-			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
-				MonChangeLightOff(mnum);
-		}
-		rv = false;
-	}
-
-	return rv;
-}
-
-static bool MonDoWalk3(int mnum)
-{
-	MonsterStruct *mon;
-	bool rv;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonDoWalk3: Invalid monster %d", mnum);
-	}
-	mon = &monster[mnum];
-	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
-		dMonster[mon->_mx][mon->_my] = 0;
-		mon->_mx = mon->_mVar1;
-		mon->_my = mon->_mVar2;
-		dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
-		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 			ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
 		MonStartStand(mnum, mon->_mdir);
@@ -4532,13 +4475,9 @@ void ProcessMonsters()
 				raflag = MonDoStand(mnum);
 				break;
 			case MM_WALK:
-				raflag = MonDoWalk(mnum);
-				break;
 			case MM_WALK2:
-				raflag = MonDoWalk2(mnum);
-				break;
 			case MM_WALK3:
-				raflag = MonDoWalk3(mnum);
+				raflag = MonDoWalk(mnum);
 				break;
 			case MM_ATTACK:
 				raflag = MonDoAttack(mnum);
