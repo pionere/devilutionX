@@ -752,19 +752,18 @@ typedef struct ObjDataStruct {
 	char oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[5];
 #endif
 } ObjDataStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(ObjDataStruct) & (sizeof(ObjDataStruct) - 1)) == 32, "Align ObjDataStruct closer to power of 2 for better performance.");
+static_assert((sizeof(ObjDataStruct) & (sizeof(ObjDataStruct) - 1)) == 0, "Align ObjDataStruct closer to power of 2 for better performance.");
 #endif
 
 typedef struct ObjectStruct {
 	int _otype;
 	int _ox;
 	int _oy;
-	int _oLight;
 	BOOL _oAnimFlag;
 	unsigned char *_oAnimData;
 	int _oAnimDelay; // Tick length of each frame in the current animation
@@ -773,10 +772,11 @@ typedef struct ObjectStruct {
 	int _oAnimFrame; // Current frame of animation.
 	int _oAnimWidth;
 	int _oAnimWidth2;
-	BOOL _oDelFlag;
-	char _oBreak; // check
+	//BOOL _oDelFlag;
 	BOOL _oSolidFlag;
 	BOOL _oMissFlag;
+	BOOL _oLight;
+	char _oBreak; // check
 	char _oSelFlag; // check
 	BOOL _oPreFlag;
 	BOOL _oTrapFlag;
@@ -792,7 +792,7 @@ typedef struct ObjectStruct {
 	int _oVar7;
 	int _oVar8;
 #ifdef X86_32bit_COMP
-	int alignment[2];
+	int alignment[4];
 #endif
 } ObjectStruct;
 

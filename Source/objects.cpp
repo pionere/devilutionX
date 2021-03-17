@@ -1831,11 +1831,14 @@ int AddObject(int type, int ox, int oy)
 	return oi;
 }
 
-static void Obj_Light(int oi, int lr, const int *flicker)
+static void Obj_Light(int oi)
 {
 	ObjectStruct *os;
 	int ox, oy, dx, dy, i, tr;
 	bool turnon;
+
+	const int lr = 8;
+	const int *flicker = flickers[0];
 
 	os = &object[oi];
 	ox = os->_ox;
@@ -2145,7 +2148,7 @@ void ProcessObjects()
 		oi = objectactive[i];
 		switch (object[oi]._otype) {
 		case OBJ_L1LIGHT:
-			Obj_Light(oi, 8, flickers[0]);
+			Obj_Light(oi);
 			break;
 		/*case OBJ_SKFIRE:
 		case OBJ_CANDLE1:
@@ -4597,7 +4600,7 @@ void SyncObjectAnim(int oi)
 
 	type = object[oi]._otype;
 	object[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
-	switch (object[oi]._otype) {
+	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 		SyncL1Doors(oi);

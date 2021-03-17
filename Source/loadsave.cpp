@@ -535,7 +535,6 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_otype);
 	CopyInt(tbuff, &os->_ox);
 	CopyInt(tbuff, &os->_oy);
-	CopyInt(tbuff, &os->_oLight);
 	CopyInt(tbuff, &os->_oAnimFlag);
 	tbuff += 4; // Skip pointer _oAnimData
 	CopyInt(tbuff, &os->_oAnimDelay);
@@ -544,14 +543,12 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oAnimFrame);
 	CopyInt(tbuff, &os->_oAnimWidth);
 	CopyInt(tbuff, &os->_oAnimWidth2);
-	CopyInt(tbuff, &os->_oDelFlag);
-	CopyChar(tbuff, &os->_oBreak);
-	tbuff += 3; // Alignment
 	CopyInt(tbuff, &os->_oSolidFlag);
 	CopyInt(tbuff, &os->_oMissFlag);
-
+	CopyInt(tbuff, &os->_oLight);
+	CopyChar(tbuff, &os->_oBreak);
 	CopyChar(tbuff, &os->_oSelFlag);
-	tbuff += 3; // Alignment
+	tbuff += 2; // Alignment
 	CopyInt(tbuff, &os->_oPreFlag);
 	CopyInt(tbuff, &os->_oTrapFlag);
 	CopyInt(tbuff, &os->_oDoorFlag);
@@ -1252,7 +1249,6 @@ static void SaveObject(int oi)
 	CopyInt(&os->_otype, tbuff);
 	CopyInt(&os->_ox, tbuff);
 	CopyInt(&os->_oy, tbuff);
-	CopyInt(&os->_oLight, tbuff);
 	CopyInt(&os->_oAnimFlag, tbuff);
 	tbuff += 4; // Skip pointer _oAnimData
 	CopyInt(&os->_oAnimDelay, tbuff);
@@ -1261,14 +1257,12 @@ static void SaveObject(int oi)
 	CopyInt(&os->_oAnimFrame, tbuff);
 	CopyInt(&os->_oAnimWidth, tbuff);
 	CopyInt(&os->_oAnimWidth2, tbuff);
-	CopyInt(&os->_oDelFlag, tbuff);
-	CopyChar(&os->_oBreak, tbuff);
-	tbuff += 3; // Alignment
 	CopyInt(&os->_oSolidFlag, tbuff);
 	CopyInt(&os->_oMissFlag, tbuff);
-
+	CopyInt(&os->_oLight, tbuff);
+	CopyChar(&os->_oBreak, tbuff);
 	CopyChar(&os->_oSelFlag, tbuff);
-	tbuff += 3; // Alignment
+	tbuff += 2; // Alignment
 	CopyInt(&os->_oPreFlag, tbuff);
 	CopyInt(&os->_oTrapFlag, tbuff);
 	CopyInt(&os->_oDoorFlag, tbuff);
