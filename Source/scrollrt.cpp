@@ -263,13 +263,10 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
  * @param sy Back buffer coordinate
  * @param pre Is the sprite in the background
  */
-void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
+static void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 {
 	int i;
 	MissileStruct *mis;
-
-	if (!(dFlags[x][y] & BFLAG_MISSILE))
-		return;
 
 	if (dMissile[x][y] != -1) {
 		mis = &missile[dMissile[x][y] - 1];
@@ -288,23 +285,34 @@ void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 
 /**
  * @brief Render a monster sprite
+ * @param mnum Id of monster
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
- * @param mnum Id of monster
  */
-static void DrawMonster(int x, int y, int mx, int my, int mnum)
+static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 {
 	MonsterStruct *mon;
-	int nCel;
+	int mx, my, nCel, nWidth;
 	char trans;
 	BYTE *pCelBuff;
+
+	if (!(dFlags[x][y] & BFLAG_LIT) && !plr[myplr]._pInfraFlag)
+		return;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
 	}
+
 	mon = &monster[mnum];
+	if (mon->_mFlags & MFLAG_HIDDEN) {
+		return;
+	}
+
+	mx = sx + mon->_mxoff - mon->_mAnimWidth2;
+	my = sy + mon->_myoff;
+
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
@@ -326,9 +334,12 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 			frames);
 	}
 #endif
-
+	nWidth = mon->_mAnimWidth;
+	if (mnum == pcursmonst) {
+		Cl2DrawOutline(233, mx, my, pCelBuff, nCel, nWidth);
+	}
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, 1);
+		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, 1);
 	} else {
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
 			trans = 1;
@@ -339,10 +350,35 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 		else
 			trans = 0;
 		if (trans != 0)
-			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, trans);
+			Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 		else
-			Cl2DrawLight(mx, my, pCelBuff, nCel, mon->_mAnimWidth);
+			Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
 	}
+}
+
+/**
+ * @brief Render a towner sprite
+ * @param mnum Id of towner
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
+ * @param mx Back buffer coordinate
+ * @param my Back buffer coordinate
+ */
+static void DrawTowner(int tnum, int x, int y, int sx, int sy)
+{
+	TownerStruct *tw;
+	int tx, nCel, nWidth;
+	BYTE *pCelBuff;
+
+	tw = &towner[tnum];
+	tx = sx - tw->_tAnimWidth2;
+	pCelBuff = tw->_tAnimData;
+	nCel = tw->_tAnimFrame;
+	nWidth = tw->_tAnimWidth;
+	if (tnum == pcursmonst) {
+		CelDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+	}
+	CelClippedDraw(tx, sy, pCelBuff, nCel, nWidth);
 }
 
 /**
@@ -356,30 +392,38 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
  * @param nCel frame
  * @param nWidth width
  */
-static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, int nCel, int nWidth)
+static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 {
-	int l;
+	PlayerStruct *p;
+	int px, py, nCel, nWidth, l;
+	BYTE *pCelBuff;
 
 	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag) {
+		p = &plr[pnum];
+		px = sx + p->_pxoff - p->_pAnimWidth2;
+		py = sy + p->_pyoff;
+		pCelBuff = p->_pAnimData;
 		if (pCelBuff == NULL) {
-			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr[pnum]._pName);
+			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, p->_pName);
 		}
+		nCel = p->_pAnimFrame;
 #ifdef _DEBUG
 		int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
-			if (plr[pnum]._pmode <= PM_QUIT)
-				szMode = szPlrModeAssert[plr[pnum]._pmode];
+			if (p->_pmode <= PM_QUIT)
+				szMode = szPlrModeAssert[p->_pmode];
 			dev_fatal(
 				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
 				pnum,
-				plr[pnum]._pName,
+				p->_pName,
 				szMode,
-				plr[pnum]._pdir,
+				p->_pdir,
 				nCel,
 				frames);
 		}
 #endif
+		nWidth = p->_pAnimWidth;
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == myplr) {
@@ -414,7 +458,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
  */
 void DrawDeadPlayer(int x, int y, int sx, int sy)
 {
-	int i, px, py;
+	int i;
 	PlayerStruct *p;
 
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
@@ -434,9 +478,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			px = sx + p->_pxoff - p->_pAnimWidth2;
-			py = sy + p->_pyoff;
-			DrawPlayer(i, x, y, px, py, p->_pAnimData, p->_pAnimFrame, p->_pAnimWidth);
+			DrawPlayer(i, x, y, sx, sy);
 		}
 	}
 }
@@ -606,72 +648,18 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 }
 
 /**
- * @brief Check if and how a monster should be rendered
- * @param y dPiece coordinate
- * @param x dPiece coordinate
- * @param oy dPiece Y offset
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- */
-static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
-{
-	int mnum, px, py;
-	MonsterStruct *mon;
-	TownerStruct *tw;
-
-	mnum = dMonster[x][y + oy];
-	mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
-
-	if (leveltype == DTYPE_TOWN) {
-		tw = &towner[mnum];
-		px = sx - tw->_tAnimWidth2;
-		if (mnum == pcursmonst) {
-			CelDrawOutline(PAL16_BEIGE + 6, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
-		}
-		assert(tw->_tAnimData);
-		CelClippedDraw(px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);
-		return;
-	}
-
-	if (!(dFlags[x][y] & BFLAG_LIT) && !plr[myplr]._pInfraFlag)
-		return;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
-	}
-
-	mon = &monster[mnum];
-	if (mon->_mFlags & MFLAG_HIDDEN) {
-		return;
-	}
-
-	px = sx + mon->_mxoff - mon->_mAnimWidth2;
-	py = sy + mon->_myoff;
-	if (mnum == pcursmonst) {
-		Cl2DrawOutline(233, px, py, mon->_mAnimData, mon->_mAnimFrame, mon->_mAnimWidth);
-	}
-	DrawMonster(x, y, px, py, mnum);
-}
-
-/**
- * @brief Check if and how a player should be rendered
+ * @brief Draw a towner or a monster depending on the level
  * @param y dPiece coordinate
  * @param x dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawPlayerHelper(int x, int y, int sx, int sy)
+static void DrawMonsterHelper(int mnum, int x, int y, int sx, int sy)
 {
-	int pnum = dPlayer[x][y];
-	pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("draw player: tried to draw illegal player %d", pnum);
-	}
-	PlayerStruct *p = &plr[pnum];
-	int px = sx + p->_pxoff - p->_pAnimWidth2;
-	int py = sy + p->_pyoff;
-
-	DrawPlayer(pnum, x, y, px, py, p->_pAnimData, p->_pAnimFrame, p->_pAnimWidth);
+	if (leveltype != DTYPE_TOWN)
+		DrawMonster(mnum, x, y, sx, sy);
+	else
+		DrawTowner(mnum, x, y, sx, sy);
 }
 
 /**
@@ -683,7 +671,7 @@ static void DrawPlayerHelper(int x, int y, int sx, int sy)
  */
 static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 {
-	int px, mnum, nCel;
+	int px, mpnum, nCel;
 	BYTE bFlag, bDead, bArch, bMap, dd;
 	DeadStruct *pDeadGuy;
 	BYTE *pCelBuff;
@@ -704,9 +692,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	bDead = dDead[sx][sy];
 	bMap = dTransVal[sx][sy];
 
-	mnum = 0;
-	if (sy > 0) // check for OOB
-		mnum = dMonster[sx][sy - 1];
 
 #ifdef _DEBUG
 	if (visiondebug && bFlag & BFLAG_LIT) {
@@ -714,7 +699,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	}
 #endif
 
-	if (gbMissilePreFlag) {
+	if (gbMissilePreFlag && (bFlag & BFLAG_MISSILE)) {
 		DrawMissile(sx, sy, dx, dy, TRUE);
 	}
 
@@ -741,21 +726,29 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	DrawItem(sx, sy, dx, dy, TRUE);
 	if (bFlag & BFLAG_PLAYERLR) {
 		assert((unsigned)(sy - 1) < MAXDUNY);
-		DrawPlayerHelper(sx, sy - 1, dx, dy);
+		mpnum = dPlayer[sx][sy - 1];
+		mpnum = mpnum >= 0 ? mpnum - 1 : -(mpnum + 1);
+		DrawPlayerHelper(mpnum, sx, sy - 1, dx, dy);
 	}
-	if (bFlag & BFLAG_MONSTLR && mnum < 0) {
-		DrawMonsterHelper(sx, sy, -1, dx, dy);
+	if (bFlag & BFLAG_MONSTLR) {
+		assert((unsigned)(sy - 1) < MAXDUNY);
+		mpnum = dMonster[sx][sy - 1];
+		if (mnum < 0)
+			DrawMonsterHelper(-(mpnum + 1), sx, sy, -1, dx, dy);
 	}
 	if (bFlag & BFLAG_DEAD_PLAYER) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
-	if (dPlayer[sx][sy] > 0) {
-		DrawPlayerHelper(sx, sy, dx, dy);
+	mpnum = dPlayer[sx][sy];
+	if (mpnum > 0) {
+		DrawPlayer(mpnum - 1, sx, sy, dx, dy);
 	}
-	if (dMonster[sx][sy] > 0) {
-		DrawMonsterHelper(sx, sy, 0, dx, dy);
+	mpnum = dMonster[sx][sy];
+	if (mpnum > 0) {
+		DrawMonsterHelper(mpnum - 1, sx, sy, dx, dy);
 	}
-	DrawMissile(sx, sy, dx, dy, FALSE);
+	if (bFlag & BFLAG_MISSILE)
+		DrawMissile(sx, sy, dx, dy, FALSE);
 	DrawObject(sx, sy, dx, dy, FALSE);
 	DrawItem(sx, sy, dx, dy, FALSE);
 
