@@ -1097,7 +1097,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 	static_assert(MM_WALK3 - MM_WALK == 2, "CheckMonCol expects ordered MM_WALKs I.");
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
 	if (mode > MM_WALK3 || mode < MM_WALK)
-		return mnum;
+		return (negate || mode == MM_STONE) ? mnum : -1;
 	halfOver = mon->_mVar8 >= (mon->_mAnims[MA_WALK].Frames >> 1);
 	if (mode == MM_WALK) {
 		if (negate)
@@ -1136,7 +1136,7 @@ static int CheckPlrCol(int pnum, int mx, int my)
 	static_assert(PM_WALK3 - PM_WALK == 2, "CheckPlrCol expects ordered PM_WALKs I.");
 	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs II.");
 	if (mode > PM_WALK3 || mode < PM_WALK)
-		return pnum;
+		return negate ? pnum : -1;
 	halfOver = p->_pAnimFrame >= (p->_pWFrames >> 1);
 	if (mode == PM_WALK) {
 		if (negate)
