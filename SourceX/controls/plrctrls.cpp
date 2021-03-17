@@ -437,7 +437,7 @@ void Interact()
 		if (pcursmonst != -1)
 			NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
 	} else {
-		int attack = plr[myplr]._pLSpell;
+		int attack = plr[myplr]._pAtkSkill;
 		int sl = GetSpellLevel(myplr, attack);
 		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)

@@ -718,7 +718,7 @@ bool PeekMessage(LPMSG lpMsg)
 		case GameActionType_TOGGLE_QUICK_SPELL_MENU:
 			if (!gbInvflag || BlurInventory()) {
 				if (!gbSkillListFlag)
-					DoSkillList();
+					DoSkillList(true);
 				else
 					gbSkillListFlag = false;
 				gbChrflag = false;

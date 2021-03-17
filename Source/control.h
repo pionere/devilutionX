@@ -41,7 +41,7 @@ void DrawManaFlask();
 void DrawSkillIcons();
 void InitControlPan();
 void DrawCtrlBtns();
-void DoSkillList();
+void DoSkillList(bool altSkill);
 bool DoPanBtn();
 void DoLimitedPanBtn();
 void CheckBtnUp();

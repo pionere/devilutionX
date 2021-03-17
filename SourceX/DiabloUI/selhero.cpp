@@ -8,6 +8,7 @@
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selconn.h"
+#include "controls/plrctrls.h"
 
 #ifdef __3DS__
 #include "../platform/ctr/keyboard.h"
@@ -20,7 +21,89 @@ _uiheroinfo selhero_heroInfo;
 namespace {
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-const char *selhero_GenerateName(uint8_t hero_class);
+const char *selhero_GenerateName(BYTE hero_class)
+{
+	static const char *const kNames[NUM_CLASSES][10] = {
+		{ // WARRIOR
+		    "Aidan",
+		    "Qarak",
+		    "Born",
+		    "Cathan",
+		    "Halbu",
+		    "Lenalas",
+		    "Maximus",
+		    "Vane",
+		    "Myrdgar",
+		    "Rothat",
+		},
+		{ // ROGUE
+		    "Moreina",
+		    "Akara",
+		    "Kashya",
+		    "Flavie",
+		    "Divo",
+		    "Oriana",
+		    "Iantha",
+		    "Shikha",
+		    "Basanti",
+		    "Elexa",
+		},
+		{ // SORCERER
+		    "Jazreth",
+		    "Drognan",
+		    "Armin",
+		    "Fauztin",
+		    "Jere",
+		    "Kazzulk",
+		    "Ranslor",
+		    "Sarnakyle",
+		    "Valthek",
+		    "Horazon",
+		},
+#ifdef HELLFIRE
+		{ // MONK
+		    "Akyev",
+		    "Dvorak",
+		    "Kekegi",
+		    "Kharazim",
+		    "Mikulov",
+		    "Shenlong",
+		    "Vedenin",
+		    "Vhalit",
+		    "Vylnas",
+		    "Zhota",
+		},
+		{ // BARD (uses Rogue names)
+		    "Moreina",
+		    "Akara",
+		    "Kashya",
+		    "Flavie",
+		    "Divo",
+		    "Oriana",
+		    "Iantha",
+		    "Shikha",
+		    "Basanti",
+		    "Elexa",
+		},
+		{ // BARBARIAN
+		    "Alaric",
+		    "Barloc",
+		    "Egtheow",
+		    "Guthlaf",
+		    "Heorogar",
+		    "Hrothgar",
+		    "Oslaf",
+		    "Qual-Kehk",
+		    "Ragnar",
+		    "Ulf",
+		}
+#endif
+	};
+	SetRndSeed(time(NULL));
+	int iRand = random_(0, lengthof(kNames[hero_class]));
+
+	return kNames[hero_class][iRand];
+}
 #endif
 
 unsigned selhero_SaveCount = 0;
@@ -482,91 +565,5 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	UnloadScrollBar();
 	return selhero_result;
 }
-
-#if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-const char *selhero_GenerateName(uint8_t hero_class)
-{
-	static const char *const kNames[NUM_CLASSES][10] = {
-		{ // WARRIOR
-		    "Aidan",
-		    "Qarak",
-		    "Born",
-		    "Cathan",
-		    "Halbu",
-		    "Lenalas",
-		    "Maximus",
-		    "Vane",
-		    "Myrdgar",
-		    "Rothat",
-		},
-		{ // ROGUE
-		    "Moreina",
-		    "Akara",
-		    "Kashya",
-		    "Flavie",
-		    "Divo",
-		    "Oriana",
-		    "Iantha",
-		    "Shikha",
-		    "Basanti",
-		    "Elexa",
-		},
-		{ // SORCERER
-		    "Jazreth",
-		    "Drognan",
-		    "Armin",
-		    "Fauztin",
-		    "Jere",
-		    "Kazzulk",
-		    "Ranslor",
-		    "Sarnakyle",
-		    "Valthek",
-		    "Horazon",
-		},
-#ifdef HELLFIRE
-		{ // MONK
-		    "Akyev",
-		    "Dvorak",
-		    "Kekegi",
-		    "Kharazim",
-		    "Mikulov",
-		    "Shenlong",
-		    "Vedenin",
-		    "Vhalit",
-		    "Vylnas",
-		    "Zhota",
-		},
-		{ // BARD (uses Rogue names)
-		    "Moreina",
-		    "Akara",
-		    "Kashya",
-		    "Flavie",
-		    "Divo",
-		    "Oriana",
-		    "Iantha",
-		    "Shikha",
-		    "Basanti",
-		    "Elexa",
-		},
-		{ // BARBARIAN
-		    "Alaric",
-		    "Barloc",
-		    "Egtheow",
-		    "Guthlaf",
-		    "Heorogar",
-		    "Hrothgar",
-		    "Oslaf",
-		    "Qual-Kehk",
-		    "Ragnar",
-		    "Ulf",
-		}
-#endif
-	};
-	SetRndSeed(time(NULL));
-	int iRand = random_(0, lengthof(kNames[hero_class]));
-
-	return kNames[hero_class][iRand];
-}
-#endif
 
 DEVILUTION_END_NAMESPACE
