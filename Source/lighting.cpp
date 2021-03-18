@@ -1220,7 +1220,7 @@ void ChangeVisionRadius(int vnum, int r)
 {
 	LightListStruct *vis;
 
-	if (vnum != -1)
+	if (vnum == -1)
 		return;
 
 	vis = &VisionList[vnum];
@@ -1233,7 +1233,7 @@ void ChangeVisionXY(int vnum, int x, int y)
 {
 	LightListStruct *vis;
 
-	if (vnum != -1)
+	if (vnum == -1)
 		return;
 
 	vis = &VisionList[vnum];
