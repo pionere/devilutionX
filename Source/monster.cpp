@@ -199,31 +199,30 @@ void GetLevelMTypes()
 
 	int nt; // number of types
 
-	AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
-	lvl = currlevel;
-	if (lvl == 16) {
-		AddMonsterType(MT_ADVOCATE, PLACE_SCATTER);
-		AddMonsterType(MT_RBLACK, PLACE_SCATTER);
-		AddMonsterType(MT_DIABLO, PLACE_SPECIAL);
-		return;
-	}
+	AddMonsterType(MT_GOLEM, PLACE_SPECIAL); // not necessary for setlevels, just for safety
+	if (!gbSetlevel) {
+		lvl = currlevel;
+		if (lvl == 16) {
+			AddMonsterType(MT_ADVOCATE, PLACE_SCATTER);
+			AddMonsterType(MT_RBLACK, PLACE_SCATTER);
+			AddMonsterType(MT_DIABLO, PLACE_SPECIAL);
+			return;
+		}
 
 #ifdef HELLFIRE
-	if (lvl == 18)
-		AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
-	if (lvl == 19) {
-		AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
-		AddMonsterType(MT_HORKDMN, PLACE_UNIQUE);
-	}
-	if (lvl == 20)
-		AddMonsterType(MT_DEFILER, PLACE_UNIQUE);
-	if (lvl == 24) {
-		AddMonsterType(MT_ARCHLICH, PLACE_SCATTER);
-		AddMonsterType(MT_NAKRUL, PLACE_SPECIAL);
-	}
+		if (lvl == 18)
+			AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
+		if (lvl == 19) {
+			AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
+			AddMonsterType(MT_HORKDMN, PLACE_UNIQUE);
+		}
+		if (lvl == 20)
+			AddMonsterType(MT_DEFILER, PLACE_UNIQUE);
+		if (lvl == 24) {
+			AddMonsterType(MT_ARCHLICH, PLACE_SCATTER);
+			AddMonsterType(MT_NAKRUL, PLACE_SPECIAL);
+		}
 #endif
-
-	if (!gbSetlevel) {
 		if (QuestStatus(Q_BUTCHER))
 			AddMonsterType(MT_CLEAVER, PLACE_SPECIAL);
 		if (QuestStatus(Q_GARBUD))
