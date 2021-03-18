@@ -339,16 +339,6 @@ static void LoadLvlGFX()
 	}
 }
 
-static void LoadAllGFX()
-{
-	IncProgress();
-	IncProgress();
-	InitObjectGFX();
-	IncProgress();
-	InitMissileGFX();
-	IncProgress();
-}
-
 /**
  * @param lvldir method of entry
  */
@@ -463,16 +453,18 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			SetRndSeed(glSeedTbl[currlevel]);
 			GetLevelMTypes();
 			InitThemes();
-			LoadAllGFX();
+			IncProgress();
+			IncProgress();
+			InitObjectGFX();
+			IncProgress();
 		} else {
 			SetupTownStores();
 			IncProgress();
 			IncProgress();
-			InitMissileGFX();
-			IncProgress();
 			IncProgress();
 		}
-
+		InitMissileGFX();
+		IncProgress();
 		IncProgress();
 
 		if (lvldir == ENTRY_RTNLVL)
@@ -502,10 +494,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 				IncProgress();
 				InitObjects();
 				InitItems();
-#ifdef HELLFIRE
-				if (currlevel < 17)
-#endif
-					CreateThemeRooms();
+				CreateThemeRooms();
 				IncProgress();
 				InitMissiles();
 				InitDead();

@@ -371,8 +371,11 @@ void InitThemes()
 {
 	int i, j;
 
-	zharlib = -1;
 	numthemes = 0;
+	// assert(leveltype != DTYPE_TOWN);
+	if (currlevel >= 16) // there are no themes in hellfire (and on diablo-level)
+		return;
+
 	_gbArmorFlag = true;
 	_gbBFountainFlag = true;
 	_gbCauldronFlag = true;
@@ -382,10 +385,7 @@ void InitThemes()
 	_gbTreasureFlag = true;
 	_gbBCrossFlag = false;
 	_gbWeaponFlag = true;
-
-	assert(leveltype != DTYPE_TOWN);
-	if (currlevel == 16)
-		return;
+	zharlib = -1;
 
 	if (leveltype == DTYPE_CATHEDRAL) {
 		for (i = 0; i < 256 && numthemes < MAXTHEMES; i++) {
@@ -991,7 +991,7 @@ void CreateThemeRooms()
 {
 	int i;
 
-	if (currlevel == 16)
+	if (currlevel >= 16) // there are no themes in hellfire (and on diablo-level)
 		return;
 
 	gbInitObjFlag = true;
