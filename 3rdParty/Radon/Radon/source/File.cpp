@@ -13,7 +13,7 @@ namespace radon
 	File::File(const std::string & path)
 	{
 		this->path = path;
-		std::ifstream stream(path);
+		std::ifstream stream(path.c_str());
 
 		if (stream.is_open()) {
 			std::string buffer;
@@ -41,15 +41,15 @@ namespace radon
 
 	Section *File::getSection(const std::string & name)
 	{
-		for (auto & section : sections)
+		for (int i = 0; i < (int)sections.size(); i++)
 		{
-			if (section.getName() == name)
+			if (sections[i].getName() == name)
 			{
-				return &section;
+				return &sections[i];
 			}
 		}
 
-		return nullptr;
+		return NULL;
 	}
 
 
@@ -63,10 +63,10 @@ namespace radon
 	{
 		std::ofstream file(path.data(), std::ios::out | std::ios::trunc);
 
-		for (auto & section : sections) {
-			file << "[" << section.getName() << "] \n";
-			for (auto & key : section.keys) {
-				file << key.getName() << "=" << key.getStringValue() << "\n";
+		for (int i = 0; i < (int)sections.size(); i++) {
+			file << "[" << sections[i].getName() << "] \n";
+			for(int j = 0; j < (int)sections[i].keys.size(); j++) {
+				file << sections[i].keys[j].getName() << "=" << sections[i].keys[j].getStringValue() << "\n";
 			}
 		}
 		file.close();
