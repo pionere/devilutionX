@@ -1068,7 +1068,8 @@ void ChangeLightXYOff(int lnum, int x, int y)
 	if (lightflag)
 		return;
 #endif
-	assert(lnum != -1);
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lis->_lunflag = true;
@@ -1089,7 +1090,8 @@ void CondChangeLightOff(int lnum, int xoff, int yoff)
 	if (lightflag)
 		return;
 #endif
-	assert(lnum != -1);
+	if (lnum == -1)
+		return;
 
 	lis = &LightList[lnum];
 	lx = xoff + (lis->_lx << 3);
@@ -1218,7 +1220,8 @@ void ChangeVisionRadius(int vnum, int r)
 {
 	LightListStruct *vis;
 
-	assert(vnum != -1);
+	if (vnum != -1)
+		return;
 
 	vis = &VisionList[vnum];
 	vis->_lunflag = true;
@@ -1230,7 +1233,8 @@ void ChangeVisionXY(int vnum, int x, int y)
 {
 	LightListStruct *vis;
 
-	assert(vnum != -1);
+	if (vnum != -1)
+		return;
 
 	vis = &VisionList[vnum];
 	vis->_lunflag = true;

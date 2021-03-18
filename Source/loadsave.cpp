@@ -258,11 +258,13 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->_pSkillFlags);
 	CopyChar(tbuff, &p->_pSpellFlags);
 	CopyChar(tbuff, &p->_pInvincible);
-	CopyChar(tbuff, &p->_pLightRad);
+	tbuff += 1; // Alignment
 
 	CopyBytes(tbuff, PLR_NAME_LEN, p->_pName);
 	CopyChar(tbuff, &p->_pClass);
-	tbuff += 3; // Alignment
+	CopyChar(tbuff, &p->_pLevel);
+	CopyChar(tbuff, &p->_pLightRad);
+	CopyChar(tbuff, &p->_pManaShield);
 	CopyShort(tbuff, &p->_pBaseStr);
 	CopyShort(tbuff, &p->_pBaseMag);
 	CopyShort(tbuff, &p->_pBaseDex);
@@ -281,11 +283,9 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pMana);
 	CopyInt(tbuff, &p->_pMaxMana);
 	CopyInt(tbuff, &p->_pManaPer);
-	CopyChar(tbuff, &p->_pLevel);
-	CopyChar(tbuff, &p->_pDiabloKillLevel);
 	CopyShort(tbuff, &p->_pStatPts);
 	CopyChar(tbuff, &p->_pLvlUp);
-	tbuff += 3; // Alignment
+	CopyChar(tbuff, &p->_pDiabloKillLevel);
 	CopyInt(tbuff, &p->_pExperience);
 	CopyInt(tbuff, &p->_pNextExper);
 	tbuff += 1; // Skip to Calc _pMagResist
@@ -373,9 +373,8 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyChar(tbuff, &p->pTownWarps);
-	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pLvlLoad);
-	CopyChar(tbuff, &p->_pManaShield);
+	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pDungMsgs2);
 
 	CalcPlrInv(pnum, false);
@@ -975,11 +974,13 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->_pSkillFlags, tbuff);
 	CopyChar(&p->_pSpellFlags, tbuff);
 	CopyChar(&p->_pInvincible, tbuff);
-	CopyChar(&p->_pLightRad, tbuff);
+	tbuff += 1; // Alignment
 
 	CopyBytes(p->_pName, PLR_NAME_LEN, tbuff);
 	CopyChar(&p->_pClass, tbuff);
-	tbuff += 3; // Alignment
+	CopyChar(&p->_pLevel, tbuff);
+	CopyChar(&p->_pManaShield, tbuff);
+	CopyChar(&p->_pLightRad, tbuff);
 	CopyShort(&p->_pBaseStr, tbuff);
 	CopyShort(&p->_pBaseMag, tbuff);
 	CopyShort(&p->_pBaseDex, tbuff);
@@ -998,11 +999,9 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pMana, tbuff);
 	CopyInt(&p->_pMaxMana, tbuff);
 	CopyInt(&p->_pManaPer, tbuff);
-	CopyChar(&p->_pLevel, tbuff);
-	CopyChar(&p->_pDiabloKillLevel, tbuff);
 	CopyShort(&p->_pStatPts, tbuff);
 	CopyChar(&p->_pLvlUp, tbuff);
-	tbuff += 3; // Alignment
+	CopyChar(&p->_pDiabloKillLevel, tbuff);
 	CopyInt(&p->_pExperience, tbuff);
 	CopyInt(&p->_pNextExper, tbuff);
 	tbuff += 1; // Skip to Calc _pMagResist
@@ -1091,9 +1090,8 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyChar(&p->pTownWarps, tbuff);
-	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pLvlLoad, tbuff);
-	CopyChar(&p->_pManaShield, tbuff);
+	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pDungMsgs2, tbuff);
 
 	// Omit pointer _pNData

@@ -202,13 +202,15 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	copy_str(p->_pName, pPack->pName);
 	p->_pClass = pPack->pClass;
 	p->_pLevel = pPack->pLevel;
+	p->_pLightRad = pPack->pLightRad;
+	p->_pManaShield = pPack->pManaShield;
 	p->_pDiabloKillLevel = pPack->pDiabloKillLevel;
 	p->_pStatPts = SwapLE16(pPack->pStatPts);
 	InitPlayer(pnum, true, false);
-	p->_pStrength = p->_pBaseStr = SwapLE16(pPack->pBaseStr);
-	p->_pMagic = p->_pBaseMag = SwapLE16(pPack->pBaseMag);
-	p->_pDexterity = p->_pBaseDex = SwapLE16(pPack->pBaseDex);
-	p->_pVitality = p->_pBaseVit = SwapLE16(pPack->pBaseVit);
+	p->_pBaseStr = SwapLE16(pPack->pBaseStr);
+	p->_pBaseMag = SwapLE16(pPack->pBaseMag);
+	p->_pBaseDex = SwapLE16(pPack->pBaseDex);
+	p->_pBaseVit = SwapLE16(pPack->pBaseVit);
 	p->_pExperience = SwapLE32(pPack->pExperience);
 	p->_pGold = SwapLE32(pPack->pGold);
 	p->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
@@ -262,7 +264,6 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 		p->InvGrid[i] = pPack->InvGrid[i];
 
 	p->_pNumInv = pPack->_pNumInv;
-	p->_pManaShield = pPack->pManaShield;
 
 	memcpy(p->_pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(p->_pAtkSkillHotKey));
 	memcpy(p->_pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(p->_pAtkSkillTypeHotKey));
@@ -273,13 +274,15 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(p->_pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(p->_pAltMoveSkillHotKey));
 	memcpy(p->_pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(p->_pAltMoveSkillTypeHotKey));
 
-	VerifyGoldSeeds(p);
-	CalcPlrInv(pnum, false);
-
 	p->pTownWarps = 0;
+	p->pLvlLoad = 0;
 	p->pDungMsgs = 0;
 	p->pDungMsgs2 = 0;
-	p->pLvlLoad = 0;
+	p->_plid = -1;
+	p->_pvid = -1;
+
+	VerifyGoldSeeds(p);
+	CalcPlrInv(pnum, false);
 }
 
 DEVILUTION_END_NAMESPACE

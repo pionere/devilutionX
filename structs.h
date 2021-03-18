@@ -282,7 +282,6 @@ typedef struct PlayerStruct {
 	BYTE _pSkillFlags;     // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pSpellFlags;     // Bitmask of spells affecting the player
 	BOOLEAN _pInvincible;
-	char _pLightRad;
 	char _pName[PLR_NAME_LEN];
 	// plr_class enum value.
 	// TODO: this could very well be `enum plr_class _pClass`
@@ -290,7 +289,10 @@ typedef struct PlayerStruct {
 	// it could just be that the compiler optimized away all accesses to
 	// the higher bytes by using byte instructions, since all possible values
 	// of plr_class fit into one byte.
-	char _pClass;
+	BYTE _pClass;
+	BYTE _pLevel;
+	BYTE _pLightRad;
+	BYTE _pManaShield;
 	WORD _pBaseStr;
 	WORD _pBaseMag;
 	WORD _pBaseDex;
@@ -309,10 +311,9 @@ typedef struct PlayerStruct {
 	int _pMana;
 	int _pMaxMana;
 	int _pManaPer;
-	BYTE _pLevel;
-	BYTE _pDiabloKillLevel;
 	WORD _pStatPts;
 	BOOLEAN _pLvlUp;
+	BYTE _pDiabloKillLevel;
 	unsigned _pExperience;
 	unsigned _pNextExper;
 	char _pMagResist;
@@ -391,9 +392,8 @@ typedef struct PlayerStruct {
 	int _pIAMinDam;
 	int _pIAMaxDam;
 	BYTE pTownWarps;
-	BYTE pDungMsgs;
 	BYTE pLvlLoad;
-	BYTE _pManaShield;
+	BYTE pDungMsgs;
 	BYTE pDungMsgs2;
 	unsigned char *_pNData;
 	unsigned char *_pWData;
@@ -406,9 +406,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[427];
-#else
 	int alignment[431];
+#else
+	int alignment[435];
 #endif
 #endif
 } PlayerStruct;
@@ -1478,12 +1478,14 @@ typedef struct PkPlayerStruct {
 	BYTE px;
 	BYTE py;
 	char pName[PLR_NAME_LEN];
-	char pClass;
+	BYTE pClass;
+	BYTE pLevel;
+	BYTE pLightRad;
+	BYTE pManaShield;
 	WORD pBaseStr;
 	WORD pBaseMag;
 	WORD pBaseDex;
 	WORD pBaseVit;
-	BYTE pLevel;
 	BYTE pDiabloKillLevel;
 	WORD pStatPts;
 	DWORD pExperience;
@@ -1501,7 +1503,6 @@ typedef struct PkPlayerStruct {
 	PkItemStruct InvList[NUM_INV_GRID_ELEM];
 	char InvGrid[NUM_INV_GRID_ELEM];
 	BYTE _pNumInv;
-	BYTE pManaShield;
 	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
 	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
 	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
