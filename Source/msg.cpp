@@ -2319,12 +2319,12 @@ static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 	else {
 		p = &plr[pnum];
 		p->_pLvlChanging = FALSE;
-		if (!p->plractive) {
-			p->plractive = TRUE;
-			gbActivePlayers++;
-			EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);
-		}
 		if (myplr != pnum) {
+			if (!p->plractive) {
+				p->plractive = TRUE;
+				gbActivePlayers++;
+				EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);
+			}
 			p->_px = cmd->x;
 			p->_py = cmd->y;
 			p->plrlevel = cmd->bParam1;

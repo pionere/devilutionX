@@ -995,7 +995,7 @@ void CalcPlrBookVals(int pnum)
 
 void CalcPlrInv(int pnum, bool Loadgfx)
 {
-	CalcPlrItemMin(pnum);
+	//CalcPlrItemMin(pnum);
 	CalcSelfItems(pnum);
 	CalcPlrItemVals(pnum, Loadgfx);
 	CalcPlrItemMin(pnum);

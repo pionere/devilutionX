@@ -314,6 +314,9 @@ void RenderTile(BYTE *pBuff, WORD levelCelBlock, _arch_draw_type adt)
 			RenderLine(&dst, &src, TILE_WIDTH / 2, tbl, *mask);
 		}
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
