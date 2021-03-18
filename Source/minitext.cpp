@@ -109,6 +109,7 @@ static void PrintQTextChr(int sx, int sy, BYTE *pCelBuff, int nCel)
 	BYTE *pStart, *pEnd;
 
 	/// ASSERT: assert(gpBuffer != NULL);
+	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (49 + SCREEN_Y + UI_OFFSET_Y)];
 	pEnd = gpBufEnd;

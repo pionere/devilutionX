@@ -796,6 +796,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
 	multi_player_left_msg(pnum, false);
+	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
 	if (!recv) {
 		return;

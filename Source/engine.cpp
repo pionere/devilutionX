@@ -436,7 +436,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */
-static void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int nCel, int nWidth)
+/*static void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int nCel, int nWidth)
 {
 	BYTE *pRLEBytes, *dst, *end;
 
@@ -464,7 +464,7 @@ static void CelBlitWidth(BYTE *pBuff, int x, int y, int wdt, BYTE *pCelBuff, int
 			}
 		}
 	}
-}
+}*/
 
 /**
  * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordianates

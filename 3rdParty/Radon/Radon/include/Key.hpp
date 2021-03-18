@@ -17,13 +17,13 @@ namespace radon
 
 		Key(const std::string & name, const std::string & value);
 
-		Key(const std::string & name, const float & value);
+		//Key(const std::string & name, const float & value);
 
 		std::string getStringValue();
 
-		float getFloatValue();
+		//float getFloatValue();
 
-		void setValue(float & value);
+		//void setValue(float & value);
 
 		void setValue(std::string & value);
 

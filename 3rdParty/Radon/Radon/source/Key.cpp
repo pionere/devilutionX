@@ -1,7 +1,7 @@
 // Copyright Dmitro bjornus Szewczuk 2017
 
 #include "../include/Radon.hpp"
-#include <sstream>
+/*#include <sstream>
 
 std::string Float2String(float fVal)
 {
@@ -9,7 +9,7 @@ std::string Float2String(float fVal)
 	ss << fVal;
 	std::string s(ss.str());
 	return s;
-}
+}*/
 
 namespace radon
 {
@@ -25,10 +25,10 @@ namespace radon
 	}
 
 
-	Key::Key(const std::string & name, const float & value)
+	/*Key::Key(const std::string & name, const float & value)
 		: Named(name), value(Float2String(value))
 	{
-	}
+	}*/
 
 
 	std::string Key::getStringValue()
@@ -37,7 +37,7 @@ namespace radon
 	}
 
 
-	float Key::getFloatValue()
+	/*float Key::getFloatValue()
 	{
 		return (float)(atof(value.data()));
 	}
@@ -46,7 +46,7 @@ namespace radon
 	void Key::setValue(float & value)
 	{
 		this->value = Float2String(value);
-	}
+	}*/
 
 
 	void Key::setValue(std::string & value)
