@@ -982,11 +982,13 @@ static void PlaceQuestMonsters()
 void InitMonsters()
 {
 	int na, nt;
-	int i, xx, yy;
+	int i, j, xx, yy;
 	int numplacemonsters;
 	int mtype;
 	int numscattypes;
 	int scattertypes[NUM_MTYPES];
+	const int tdx[4] = { -1, -1,  2,  2 };
+	const int tdy[4] = { -1,  2, -1,  2 };
 
 	numscattypes = 0;
 #ifdef _DEBUG
@@ -1001,10 +1003,8 @@ void InitMonsters()
 	if (currlevel == 15)
 		nt = 1;
 	for (i = 0; i < nt; i++) {
-		for (xx = -2; xx < 2; xx++) {
-			for (yy = -2; yy < 2; yy++)
-				DoVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15, false, false);
-		}
+		for (j = 0; j < lengthof(tdx); j++)
+			DoVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15, false, false);
 	}
 	PlaceQuestMonsters();
 	if (!gbSetlevel) {
@@ -1044,10 +1044,8 @@ void InitMonsters()
 		}
 	}
 	for (i = 0; i < nt; i++) {
-		for (xx = -2; xx < 2; xx++) {
-			for (yy = -2; yy < 2; yy++)
-				DoUnVision(xx + trigs[i]._tx, yy + trigs[i]._ty, 15);
-		}
+		for (j = 0; j < lengthof(tdx); j++)
+			DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
 	}
 }
 
