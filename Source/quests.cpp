@@ -371,14 +371,14 @@ static void DrawSkelKing(int qn, int x, int y)
 	quests[qn]._qty = 2 * y + DBORDERY + 7;
 }
 
-static void DrawWarLord(int x, int y)
+static void DrawMap(const char* name, int x, int y, int bv)
 {
 	int rw, rh;
 	int i, j;
 	BYTE *sp, *setp;
 	int v;
 
-	setp = LoadFileInMem("Levels\\L4Data\\Warlord2.DUN", NULL);
+	setp = LoadFileInMem(name, NULL);
 	rw = *setp;
 	sp = setp + 2;
 	rh = *sp;
@@ -394,7 +394,7 @@ static void DrawWarLord(int x, int y)
 			if (*sp != 0) {
 				v = *sp;
 			} else {
-				v = 6;
+				v = bv;
 			}
 			dungeon[i][j] = v;
 			sp += 2;
@@ -403,14 +403,26 @@ static void DrawWarLord(int x, int y)
 	mem_free_dbg(setp);
 }
 
+static void DrawWarLord(int x, int y)
+{
+	DrawMap("Levels\\L4Data\\Warlord2.DUN", x, y, 6);
+}
+
 static void DrawSChamber(int qn, int x, int y)
 {
-	int i, j;
-	int rw, rh;
-	BYTE *sp, *setp;
-	int v;
+	quests[qn]._qtx = 2 * x + DBORDERX + 6;
+	quests[qn]._qty = 2 * y + DBORDERY + 7;
 
-	setp = LoadFileInMem("Levels\\L2Data\\Bonestr1.DUN", NULL);
+	DrawMap("Levels\\L2Data\\Bonestr1.DUN", x, y, 3);
+}
+
+static void DrawPreMap(const char* name, int x, int y)
+{
+	int rw, rh;
+	int i, j;
+	BYTE *sp, *setp;
+
+	setp = LoadFileInMem(name, NULL);
 	rw = *setp;
 	sp = setp + 2;
 	rh = *sp;
@@ -424,73 +436,22 @@ static void DrawSChamber(int qn, int x, int y)
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
 			if (*sp != 0) {
-				v = *sp;
-			} else {
-				v = 3;
+				pdungeon[i][j] = *sp;
 			}
-			dungeon[i][j] = v;
 			sp += 2;
 		}
 	}
-	quests[qn]._qtx = 2 * x + DBORDERX + 6;
-	quests[qn]._qty = 2 * y + DBORDERY + 7;
 	mem_free_dbg(setp);
 }
 
 static void DrawLTBanner(int x, int y)
 {
-	int rw, rh;
-	int i, j;
-	BYTE *sp, *setp;
-
-	setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN", NULL);
-	rw = *setp;
-	sp = setp + 2;
-	rh = *sp;
-	sp += 2;
-	setpc_w = rw;
-	setpc_h = rh;
-	setpc_x = x;
-	setpc_y = y;
-	rw += x;
-	rh += y;
-	for (j = y; j < rh; j++) {
-		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				pdungeon[i][j] = *sp;
-			}
-			sp += 2;
-		}
-	}
-	mem_free_dbg(setp);
+	DrawPreMap("Levels\\L1Data\\Banner1.DUN", x, y);
 }
 
 static void DrawBlind(int x, int y)
 {
-	int rw, rh;
-	int i, j;
-	BYTE *sp, *setp;
-
-	setp = LoadFileInMem("Levels\\L2Data\\Blind1.DUN", NULL);
-	rw = *setp;
-	sp = setp + 2;
-	rh = *sp;
-	sp += 2;
-	setpc_x = x;
-	setpc_y = y;
-	setpc_w = rw;
-	setpc_h = rh;
-	rw += x;
-	rh += y;
-	for (j = y; j < rh; j++) {
-		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				pdungeon[i][j] = *sp;
-			}
-			sp += 2;
-		}
-	}
-	mem_free_dbg(setp);
+	DrawPreMap("Levels\\L2Data\\Blind1.DUN", x, y);
 }
 
 static void DrawBlood(int x, int y)
