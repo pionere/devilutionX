@@ -788,7 +788,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
-	mon->mLevel = 2 * uniqm->muLevel;
+	mon->mLevel = uniqm->muLevel;
 
 	mon->mExp *= 2;
 	mon->mName = uniqm->mName;
