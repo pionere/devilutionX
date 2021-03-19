@@ -1126,7 +1126,7 @@ void InitObjects()
 		InitRndLocObj(5, 10, OBJ_CHEST1);
 		InitRndLocObj(3, 6, OBJ_CHEST2);
 		InitRndLocObj(1, 5, OBJ_CHEST3);
-		if (leveltype != DTYPE_HELL)
+		if (leveltype != DTYPE_HELL && leveltype != DTYPE_CAVES)
 			AddObjTraps();
 		if (leveltype > DTYPE_CATHEDRAL)
 			AddChestTraps();
