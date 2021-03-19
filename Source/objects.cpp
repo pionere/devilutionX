@@ -234,19 +234,13 @@ void InitObjectGFX()
 	memset(fileload, 0, sizeof(fileload));
 	memset(themeload, 0, sizeof(themeload));
 
-	int lvl = currlevel;
-#ifdef HELLFIRE
-	if (lvl >= 21 && lvl <= 24)
-		lvl -= 20;
-	else if (lvl >= 17 && lvl <= 20)
-		lvl -= 8;
-#endif
 	for (i = 0; i < numthemes; i++)
 		themeload[themes[i].ttype] = true;
 
+	BYTE lvlMask = 1 << leveltype;
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		ods = &AllObjects[i];
-		if ((ods->oload == 1 && lvl >= ods->ominlvl && lvl <= ods->omaxlvl)
+		if ((ods->oload == 1 && (ods->oLvlTypes & lvlMask))
 		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
 		 || (ods->oquest != -1 && QuestStatus(ods->oquest))) {
 			fileload[ods->ofindex] = true;
@@ -1149,7 +1143,7 @@ void SetMapObjects(BYTE *pMap)
 	gbInitObjFlag = true;
 
 	for (i = 0; i < NUM_OBJECTS; i++) {
-		if (AllObjects[i].oload == 1 && leveltype == AllObjects[i].olvltype)
+		if (AllObjects[i].oload == 1 && leveltype == AllObjects[i].oSetLvlType)
 			fileload[AllObjects[i].ofindex] = true;
 	}
 

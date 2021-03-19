@@ -736,9 +736,8 @@ static_assert((sizeof(UniqMonstStruct) & (sizeof(UniqMonstStruct) - 1)) == 0, "A
 typedef struct ObjDataStruct {
 	char oload;
 	char ofindex;
-	char ominlvl;
-	char omaxlvl;
-	char olvltype;
+	BYTE oLvlTypes;
+	BYTE oSetLvlType;
 	char otheme;
 	char oquest;
 	BOOL oAnimFlag;

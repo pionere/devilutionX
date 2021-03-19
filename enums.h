@@ -2396,15 +2396,27 @@ typedef enum object_graphic_id {
 } object_graphic_id;
 
 typedef enum dungeon_type {
-	DTYPE_TOWN      = 0x0,
-	DTYPE_CATHEDRAL = 0x1,
-	DTYPE_CATACOMBS = 0x2,
-	DTYPE_CAVES     = 0x3,
-	DTYPE_HELL      = 0x4,
-	DTYPE_NEST      = 0x5,
-	DTYPE_CRYPT     = 0x6,
-	DTYPE_NONE      = 0xFF,
+	DTYPE_TOWN,
+	DTYPE_CATHEDRAL,
+	DTYPE_CATACOMBS,
+	DTYPE_CAVES,
+	DTYPE_HELL,
+	DTYPE_NEST,
+	DTYPE_CRYPT,
+	DTYPE_NONE = 0xFF,
 } dungeon_type;
+
+typedef enum dungeon_type_mask {
+	DTM_TOWN      = 1 << DTYPE_TOWN,
+	DTM_CATHEDRAL = 1 << DTYPE_CATHEDRAL,
+	DTM_CATACOMBS = 1 << DTYPE_CATACOMBS,
+	DTM_CAVES     = 1 << DTYPE_CAVES,
+	DTM_HELL      = 1 << DTYPE_HELL,
+	DTM_NEST      = 1 << DTYPE_NEST,
+	DTM_CRYPT     = 1 << DTYPE_CRYPT,
+	DTM_ANY       = 0xFF,
+	DTM_NONE      = 0,
+} dungeon_type_mask;
 
 typedef enum townwarp_dest {
 	TWARP_CATHEDRAL,
