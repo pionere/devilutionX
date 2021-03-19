@@ -2498,7 +2498,7 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	ViewX = vx;
 	ViewY = vy;
 	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap, 0, 0);
+	SetMapObjects(pLevelMap);
 
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {

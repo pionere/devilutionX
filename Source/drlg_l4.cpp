@@ -1748,7 +1748,7 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 	DRLG_Init_Globals();
 
 	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap, 0, 0);
+	SetMapObjects(pLevelMap);
 	mem_free_dbg(pLevelMap);
 }
 

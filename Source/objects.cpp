@@ -1134,7 +1134,7 @@ void InitObjects()
 	}
 }
 
-void SetMapObjects(BYTE *pMap, int startx, int starty)
+void SetMapObjects(BYTE *pMap)
 {
 	int rw, rh;
 	int i, j;
@@ -1182,12 +1182,10 @@ void SetMapObjects(BYTE *pMap, int startx, int starty)
 	}
 
 	lm = h;
-	startx += DBORDERX;
-	starty += DBORDERY;
-	rw += startx;
-	rh += starty;
-	for (j = starty; j < rh; j++) {
-		for (i = startx; i < rw; i++) {
+	rw += DBORDERX;
+	rh += DBORDERY;
+	for (j = DBORDERY; j < rh; j++) {
+		for (i = DBORDERX; i < rw; i++) {
 			if (*lm != 0)
 				AddObject(ObjTypeConv[*lm], i, j);
 			lm += 2;

@@ -1201,7 +1201,7 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 #endif
 		DRLG_InitL1Vals();
 	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap, 0, 0);
+	SetMapObjects(pLevelMap);
 	mem_free_dbg(pLevelMap);
 }
 
