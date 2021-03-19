@@ -411,6 +411,10 @@ void InitThemes()
 					break;
 				}
 			}
+			if (zharlib == -1) {
+				quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
+				// TODO: RemoveMonsterType(UniqMonst[UMT_ZHAR].mtype); ?
+			}
 		}
 		for (i = 0; i < themeCount; i++) {
 			if (themes[i].ttype == THEME_NONE) {
@@ -465,7 +469,7 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 
 	numscattypes = 0;
 	for (i = 0; i < nummtypes; i++) {
-		if (Monsters[i].mPlaceFlags & PLACE_SCATTER) {
+		if (Monsters[i].mPlaceScatter) {
 			scattertypes[numscattypes] = i;
 			numscattypes++;
 		}

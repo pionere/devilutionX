@@ -166,7 +166,7 @@ void InitLevelMonsters()
 	}
 }
 
-static int AddMonsterType(int type, int placeflag)
+static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
 
@@ -176,13 +176,13 @@ static int AddMonsterType(int type, int placeflag)
 	if (i == nummtypes) {
 		nummtypes++;
 		Monsters[i].mtype = type;
-		Monsters[i].mPlaceFlags = 0;
+		Monsters[i].mPlaceScatter = FALSE;
 		monstimgtot += monsterdata[type].mImage;
 		InitMonsterGFX(i);
 		InitMonsterSND(i);
 	}
 
-	Monsters[i].mPlaceFlags |= placeflag;
+	Monsters[i].mPlaceScatter |= scatter;
 	return i;
 }
 
@@ -190,85 +190,83 @@ void GetLevelMTypes()
 {
 	int i;
 
-	// this array is merged with skeltypes down below.
-	int typelist[MAXMONSTERS];
-	int skeltypes[NUM_MTYPES];
+	int montypes[NUM_MTYPES];
 
 	BYTE lvl;
 	const int numskeltypes = 19;
 
 	int nt; // number of types
 
-	AddMonsterType(MT_GOLEM, PLACE_SPECIAL); // not necessary for setlevels, just for safety
+	AddMonsterType(MT_GOLEM, FALSE); // not necessary for setlevels, just for safety
 	if (!gbSetlevel) {
 		lvl = currlevel;
 		if (lvl == 16) {
-			AddMonsterType(MT_ADVOCATE, PLACE_SCATTER);
-			AddMonsterType(MT_RBLACK, PLACE_SCATTER);
-			AddMonsterType(MT_DIABLO, PLACE_SPECIAL);
+			AddMonsterType(MT_ADVOCATE, TRUE);
+			AddMonsterType(MT_RBLACK, TRUE);
+			AddMonsterType(MT_DIABLO, FALSE);
 			return;
 		}
 
 #ifdef HELLFIRE
 		if (lvl == 18)
-			AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
+			AddMonsterType(MT_HORKSPWN, TRUE);
 		if (lvl == 19) {
-			AddMonsterType(MT_HORKSPWN, PLACE_SCATTER);
-			AddMonsterType(MT_HORKDMN, PLACE_UNIQUE);
+			AddMonsterType(MT_HORKSPWN, TRUE);
+			AddMonsterType(MT_HORKDMN, FALSE);
 		}
 		if (lvl == 20)
-			AddMonsterType(MT_DEFILER, PLACE_UNIQUE);
+			AddMonsterType(MT_DEFILER, FALSE);
 		if (lvl == 24) {
-			AddMonsterType(MT_ARCHLICH, PLACE_SCATTER);
-			AddMonsterType(MT_NAKRUL, PLACE_SPECIAL);
+			AddMonsterType(MT_ARCHLICH, TRUE);
+			AddMonsterType(MT_NAKRUL, FALSE);
 		}
 #endif
 		if (QuestStatus(Q_BUTCHER))
-			AddMonsterType(MT_CLEAVER, PLACE_SPECIAL);
+			AddMonsterType(MT_CLEAVER, FALSE);
 		if (QuestStatus(Q_GARBUD))
-			AddMonsterType(UniqMonst[UMT_GARBUD].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_GARBUD].mtype, FALSE);
 		if (QuestStatus(Q_ZHAR))
-			AddMonsterType(UniqMonst[UMT_ZHAR].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_ZHAR].mtype, FALSE);
 		if (QuestStatus(Q_LTBANNER))
-			AddMonsterType(UniqMonst[UMT_SNOTSPIL].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_SNOTSPIL].mtype, FALSE);
 		if (QuestStatus(Q_VEIL))
-			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, TRUE);
 		if (QuestStatus(Q_WARLORD))
-			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, TRUE);
 
 		if (gbMaxPlayers != 1 && lvl == quests[Q_SKELKING]._qlevel) {
 
-			AddMonsterType(MT_SKING, PLACE_UNIQUE);
+			AddMonsterType(MT_SKING, FALSE);
 
 			nt = 0;
 			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
 				if (IsSkel(i)) {
 					if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-						skeltypes[nt++] = i;
+						montypes[nt++] = i;
 					}
 				}
 			}
-			AddMonsterType(skeltypes[random_(88, nt)], PLACE_SCATTER);
+			AddMonsterType(montypes[random_(88, nt)], TRUE);
 		}
 
 		nt = 0;
 		for (i = 0; i < NUM_MTYPES; i++) {
 			if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-				typelist[nt++] = i;
+				montypes[nt++] = i;
 			}
 		}
 
 #ifdef _DEBUG
 		if (monstdebug) {
 			for (i = 0; i < debugmonsttypes; i++)
-				AddMonsterType(DebugMonsters[i], PLACE_SCATTER);
+				AddMonsterType(DebugMonsters[i], TRUE);
 			return;
 		}
 #endif
-		while (nt > 0 && nummtypes < MAX_LVLMTYPES && monstimgtot < 4000) {
-			for (i = 0; i < nt;) {
-				if (monsterdata[typelist[i]].mImage > 4000 - monstimgtot) {
-					typelist[i] = typelist[--nt];
+		while (monstimgtot < 4000 && nt > 0 && nummtypes < MAX_LVLMTYPES) {
+			for (i = 0; i < nt; ) {
+				if (monsterdata[montypes[i]].mImage > 4000 - monstimgtot) {
+					montypes[i] = montypes[--nt];
 					continue;
 				}
 
@@ -277,13 +275,13 @@ void GetLevelMTypes()
 
 			if (nt != 0) {
 				i = random_(88, nt);
-				AddMonsterType(typelist[i], PLACE_SCATTER);
-				typelist[i] = typelist[--nt];
+				AddMonsterType(montypes[i], TRUE);
+				montypes[i] = montypes[--nt];
 			}
 		}
 	} else {
 		if (setlvlnum == SL_SKELKING) {
-			AddMonsterType(MT_SKING, PLACE_UNIQUE);
+			AddMonsterType(MT_SKING, FALSE);
 		}
 	}
 }
@@ -927,13 +925,6 @@ static void PlaceQuestMonsters()
 			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
-			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, PLACE_SCATTER);
-		}
-		if (QuestStatus(Q_VEIL)) {
-			AddMonsterType(UniqMonst[UMT_LACHDAN].mtype, PLACE_SCATTER);
-		}
-		if (QuestStatus(Q_ZHAR) && zharlib == -1) {
-			quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
 		}
 
 		if (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
@@ -941,8 +932,8 @@ static void PlaceQuestMonsters()
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
 
-			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
-			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
+			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, FALSE);
+			AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, FALSE);
 			assert(UniqMonst[UMT_RED_VEX].mtype == UniqMonst[UMT_BLACKJADE].mtype);
 			PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
 			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
@@ -969,8 +960,8 @@ static void PlaceQuestMonsters()
 	} else if (setlvlnum == SL_SKELKING) {
 		PlaceUniqueMonst(UMT_SKELKING, 0, 0);
 	} else if (setlvlnum == SL_VILEBETRAYER) {
-		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, PLACE_UNIQUE);
-		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, PLACE_UNIQUE);
+		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, FALSE);
+		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, FALSE);
 		assert(UniqMonst[UMT_RED_VEX].mtype == UniqMonst[UMT_BLACKJADE].mtype);
 		PlaceUniqueMonst(UMT_LAZURUS, 0, 0);
 		PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
@@ -1021,7 +1012,7 @@ void InitMonsters()
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
-			if (Monsters[i].mPlaceFlags & PLACE_SCATTER) {
+			if (Monsters[i].mPlaceScatter) {
 				scattertypes[numscattypes] = i;
 				numscattypes++;
 			}
@@ -1056,7 +1047,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	int mtype;
 
 	if (gbSetlevel) {
-		AddMonsterType(MT_GOLEM, PLACE_SPECIAL);
+		AddMonsterType(MT_GOLEM, FALSE);
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
@@ -1077,7 +1068,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], PLACE_SPECIAL);
+				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], FALSE);
 				PlaceMonster(nummonsters++, mtype, i, j);
 			}
 			lm++;

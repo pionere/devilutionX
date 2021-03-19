@@ -601,7 +601,7 @@ static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align Mon
 
 typedef struct CMonster {
 	int mtype;
-	int mPlaceFlags;
+	BOOL mPlaceScatter;
 	AnimStruct Anims[6];
 	TSnd *Snds[4][2];
 	int width;
