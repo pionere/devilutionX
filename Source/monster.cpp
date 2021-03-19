@@ -788,7 +788,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
-	mon->mLevel = 2 * uniqm->mlevel;
+	mon->mLevel = 2 * uniqm->muLevel;
 
 	mon->mExp *= 2;
 	mon->mName = uniqm->mName;
@@ -869,7 +869,7 @@ static void PlaceUniques()
 	int u, mt;
 
 	for (u = 0; UniqMonst[u].mtype != -1; u++) {
-		if (UniqMonst[u].mlevel != currlevel)
+		if (UniqMonst[u].muLevelIdx != currlevel)
 			continue;
 		if (UniqMonst[u].mQuestId != Q_INVALID
 		 && quests[UniqMonst[u].mQuestId]._qactive == QUEST_NOTAVAIL)

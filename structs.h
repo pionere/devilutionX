@@ -709,8 +709,8 @@ typedef struct UniqMonstStruct {
 	int mtype;
 	const char *mName;
 	const char *mTrnName;
-	BYTE mlevel;
-	char mQuestId;
+	BYTE muLevelIdx; // level-index to place the monster
+	BYTE muLevel;    // difficulty level of the monster
 	unsigned short mmaxhp;
 	BYTE mAi;
 	BYTE mint;
@@ -721,7 +721,7 @@ typedef struct UniqMonstStruct {
 	unsigned short mMagicRes;
 	unsigned short mUnqAttr;
 	BYTE mUnqVar1;
-	BYTE mUnqVar2;
+	char mQuestId;
 	int mtalkmsg;
 } UniqMonstStruct;
 
