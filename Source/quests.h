@@ -14,8 +14,6 @@ extern "C" {
 
 extern bool gbQuestlog;
 extern BYTE *pQLogCel;
-extern QuestStruct quests[NUM_QUESTS];
-extern int gnSetLevelTypeTbl[NUM_SETLVL];
 extern int ReturnLvlX;
 extern int ReturnLvlY;
 extern int ReturnLvl;
@@ -38,9 +36,6 @@ void QuestlogDown();
 void QuestlogEnter();
 void CheckQuestlog();
 void SetMultiQuest(int qn, int qa, int qlog, int qvar);
-
-/* rdata */
-extern const QuestData questlist[NUM_QUESTS];
 
 #ifdef __cplusplus
 }

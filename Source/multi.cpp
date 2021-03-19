@@ -539,31 +539,6 @@ static void multi_send_pinfo(int pnum, char cmd)
 	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
 }
 
-static int InitLevelType(int l)
-{
-	if (l == 0)
-		return DTYPE_TOWN;
-	if (l <= 4)
-		return DTYPE_CATHEDRAL;
-	if (l <= 8)
-		return DTYPE_CATACOMBS;
-	if (l <= 12)
-		return DTYPE_CAVES;
-
-#ifdef HELLFIRE
-	if (l <= 16)
-		return DTYPE_HELL;
-	if (l <= 20)
-		return DTYPE_CAVES; // Hive
-	if (l <= 24)
-		return DTYPE_CATHEDRAL; // Crypt
-
-	return DTYPE_CATHEDRAL;
-#else
-	return DTYPE_HELL;
-#endif
-}
-
 static void SetupLocalCoords()
 {
 	PlayerStruct *p;
@@ -761,7 +736,6 @@ bool NetInit(bool bSinglePlayer)
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		glSeedTbl[i] = GetRndSeed();
-		gnLevelTypeTbl[i] = InitLevelType(i);
 	}
 	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, sizeof(szPlayerName));
 	SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, sizeof(szPlayerDescript));

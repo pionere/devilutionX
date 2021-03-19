@@ -256,6 +256,7 @@ add_library(devilution STATIC
   Source/player.cpp
   Source/plrmsg.cpp
   Source/portal.cpp
+  Source/questdat.cpp
   Source/quests.cpp
   Source/render.cpp
   Source/restrict.cpp

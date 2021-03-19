@@ -12,15 +12,6 @@ bool gbQuestlog;
 BYTE *pQLogCel;
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
-/** map from setlevel to setleveltype. */
-int gnSetLevelTypeTbl[NUM_SETLVL] = {
-	DTYPE_NONE,			// //SL_BUTCHCHAMB = 0x0,
-	DTYPE_CATHEDRAL,	// SL_SKELKING     = 0x1,
-	DTYPE_CATACOMBS,	// SL_BONECHAMB    = 0x2,
-	DTYPE_NONE,			// //SL_MAZE         = 0x3,
-	DTYPE_CAVES,		// SL_POISONWATER  = 0x4,
-	DTYPE_CATHEDRAL,	// SL_VILEBETRAYER = 0x5,
-};
 int qline;
 int qlist[NUM_QUESTS];
 int numqlines;
@@ -29,37 +20,6 @@ int ReturnLvlX;
 int ReturnLvlY;
 int ReturnLvl;
 
-/** Contains the data related to each quest_id. */
-const QuestData questlist[NUM_QUESTS] = {
-	// clang-format off
-	          // _qdlvl, _qdmultlvl, _qslvl,          _qflags,       _qdmsg,        _qlstr
-/*Q_ROCK*/	  {       5,         -1, 0,               QUEST_SINGLE,  TEXT_INFRA5,   "The Magic Rock"           },
-/*Q_MUSHROOM*/{       9,         -1, 0,               QUEST_SINGLE,  TEXT_MUSH8,    "Black Mushroom"           },
-/*Q_GARBUD*/  {       4,         -1, 0,               QUEST_SINGLE,  TEXT_GARBUD1,  "Gharbad The Weak"         },
-/*Q_ZHAR*/    {       8,         -1, 0,               QUEST_SINGLE,  TEXT_ZHAR1,    "Zhar the Mad"             },
-/*Q_VEIL*/    {      14,         -1, 0,               QUEST_SINGLE,  TEXT_VEIL9,    "Lachdanan"                },
-/*Q_DIABLO*/  {      15,         -1, 0,               QUEST_ANY,     TEXT_VILE3,    "Diablo"                   },
-/*Q_BUTCHER*/ {       2,          2, 0,               QUEST_ANY,     TEXT_BUTCH9,   "The Butcher"              },
-/*Q_LTBANNER*/{       4,         -1, 0,               QUEST_SINGLE,  TEXT_BANNER2,  "Ogden's Sign"             },
-/*Q_BLIND*/   {       7,         -1, 0,               QUEST_SINGLE,  TEXT_BLINDING, "Halls of the Blind"       },
-/*Q_BLOOD*/   {       5,         -1, 0,               QUEST_SINGLE,  TEXT_BLOODY,   "Valor"                    },
-/*Q_ANVIL*/   {      10,         -1, 0,               QUEST_SINGLE,  TEXT_ANVIL5,   "Anvil of Fury"            },
-/*Q_WARLORD*/ {      13,         -1, 0,               QUEST_SINGLE,  TEXT_BLOODWAR, "Warlord of Blood"         },
-/*Q_SKELKING*/{       3,          3, SL_SKELKING,     QUEST_ANY,     TEXT_KING2,    "The Curse of King Leoric" },
-/*Q_PWATER*/  {       2,         -1, SL_POISONWATER,  QUEST_SINGLE,  TEXT_POISON3,  "Poisoned Water Supply"    },
-/*Q_SCHAMB*/  {       6,         -1, SL_BONECHAMB,    QUEST_SINGLE,  TEXT_BONER,    "The Chamber of Bone"      },
-/*Q_BETRAYER*/{      15,         15, SL_VILEBETRAYER, QUEST_ANY,     TEXT_VILE1,    "Archbishop Lazarus"       },
-#ifdef HELLFIRE
-/*Q_GRAVE*/   {      17,         17, 0,               QUEST_ANY,     TEXT_GRAVE7,   "Grave Matters"            },
-/*Q_FARMER*/  {       9,          9, 0,               QUEST_ANY,     TEXT_FARMER1,  "Farmer's Orchard"         },
-/*Q_GIRL*/    {      17,         -1, 0,               QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
-/*Q_TRADER*/  {      19,         -1, 0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
-/*Q_DEFILER*/ {      17,         17, 0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
-/*Q_NAKRUL*/  {      21,         21, 0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
-/*Q_JERSEY*/  {       9,          9, 0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
-#endif
-	// clang-format on
-};
 /**
  * Specifies a delta in X-coordinates from the quest entrance for
  * which the hover text of the cursor will be visible.

@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern DWORD glSeedTbl[NUMLEVELS];
-extern int gnLevelTypeTbl[NUMLEVELS];
 extern int MouseX;
 extern int MouseY;
 extern bool gbSndInited;

@@ -13,7 +13,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 DWORD glSeedTbl[NUMLEVELS];
-int gnLevelTypeTbl[NUMLEVELS];
 int MouseX;
 int MouseY;
 bool _gbGameLoopStartup;

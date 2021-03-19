@@ -21,9 +21,6 @@ void ProcessTowners();
 bool PlrHasItem(int pnum, int item, int *outidx);
 void TalkToTowner(int pnum, int tnum);
 
-/* data */
-
-extern int Qtalklist[STORE_TOWNERS][NUM_QUESTS];
 #ifdef __cplusplus
 }
 #endif

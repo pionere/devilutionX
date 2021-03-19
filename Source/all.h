@@ -77,6 +77,7 @@
 #include "player.h"
 #include "plrmsg.h"
 #include "portal.h"
+#include "questdat.h"
 #include "quests.h"
 #include "restrict.h"
 #include "scrollrt.h"
