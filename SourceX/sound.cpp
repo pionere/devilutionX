@@ -70,9 +70,8 @@ void snd_play_snd(TSnd *pSnd, int lVolume, int lPan)
 {
 	DWORD tc;
 
-	if (pSnd == NULL || !gbSoundOn) {
-		return;
-	}
+	assert(pSnd != NULL);
+	assert(gbSoundOn);
 
 	tc = SDL_GetTicks();
 	if (tc - pSnd->start_tc < 80) {

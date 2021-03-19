@@ -1157,17 +1157,18 @@ void stream_stop()
 
 static void stream_play(TSFX *pSFX, int lVolume, int lPan)
 {
-	assert(pSFX != NULL);
-	assert(pSFX->bFlags & sfx_STREAM);
+	// assert(pSFX != NULL);
+	// assert(pSFX->bFlags & sfx_STREAM);
+	// assert(pSFX->pSnd != NULL);
 	stream_stop();
 	lVolume += sound_get_sound_volume();
 	if (lVolume >= VOLUME_MIN) {
 		if (lVolume > VOLUME_MAX)
 			lVolume = VOLUME_MAX;
-		if (pSFX->pSnd == NULL)
-			pSFX->pSnd = sound_file_load(pSFX->pszName);
-		pSFX->pSnd->DSB->Play(lVolume, lPan, 0);
+		//if (pSFX->pSnd == NULL)
+		//	pSFX->pSnd = sound_file_load(pSFX->pszName);
 		sgpStreamSFX = pSFX;
+		pSFX->pSnd->DSB->Play(lVolume, lPan, 0);
 	}
 }
 
@@ -1249,7 +1250,7 @@ static bool calc_snd_position(int x, int y, int *plVolume, int *plPan)
 	volume *= 64;
 	*plVolume = volume;
 
-	if (volume >= 6400)
+	if (volume >= VOLUME_MAX - VOLUME_MIN)
 		return false;
 
 	*plVolume = -volume;
@@ -1274,19 +1275,17 @@ static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 		return;
 	}
 
+	if (pSFX->pSnd == NULL) {
+		pSFX->pSnd = sound_file_load(pSFX->pszName);
+		// assert(pSFX->pSnd != NULL);
+	}
 	if (pSFX->bFlags & sfx_STREAM) {
 		stream_play(pSFX, lVolume, lPan);
 		return;
 	}
 
-	if (!(pSFX->bFlags & sfx_MISC) && pSFX->pSnd != NULL && snd_playing(pSFX->pSnd)) {
+	if (!(pSFX->bFlags & sfx_MISC) && snd_playing(pSFX->pSnd)) {
 		return;
-	}
-
-	if (pSFX->pSnd == NULL) {
-		pSFX->pSnd = sound_file_load(pSFX->pszName);
-		if (pSFX->pSnd == NULL)
-			return;
 	}
 
 	snd_play_snd(pSFX->pSnd, lVolume, lPan);
