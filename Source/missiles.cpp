@@ -3900,7 +3900,7 @@ void MI_Fireman(int mi)
 	if (!PosOkMissile(bx, by) || (j > 0 && !mis->_miVar1)) {
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
-		mis->_miDir = opposite[mis->_miDir];
+		mis->_miDir = OPPOSITE(mis->_miDir);
 		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].Data[mis->_miDir];
 		mis->_miVar2++;
 		if (j > 0)

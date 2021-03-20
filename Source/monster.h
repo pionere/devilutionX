@@ -8,8 +8,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MINION_INACTIVE(x)		((x->_mx | x->_my) == 0)
+#define MINION_INACTIVE(x)			((x->_mx | x->_my) == 0)
 #define MINION_NR_INACTIVE(x)		((monster[x]._mx | monster[x]._my) == 0)
+#define OPPOSITE(x)					(((x) + 4) & 7)
+/** Maps from direction to the opposite direction. */
+//const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,7 +71,6 @@ void decode_enemy(int mnum, int enemy);
 
 /* data */
 
-extern const int opposite[8];
 extern const int offset_x[8];
 extern const int offset_y[8];
 

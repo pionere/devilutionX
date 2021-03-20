@@ -63,8 +63,6 @@ const char animletter[6] = { 'n', 'w', 'a', 'h', 'd', 's' };
 const int left[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 /** Maps from direction to a right turn from the direction. */
 const int right[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
-/** Maps from direction to the opposite direction. */
-const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 /** Maps from direction to delta X-offset. */
 const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
@@ -1588,7 +1586,7 @@ static void MonFallenFear(int x, int y)
 void MonGetKnockback(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
-	int dir = (mon->_mdir - 4) & 7;
+	int dir = OPPOSITE(mon->_mdir);
 
 	if (DirOK(mnum, dir)) {
 		MonClearSquares(mnum);
@@ -1760,7 +1758,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 
 		if (dmon->_mmode != MM_STONE) {
 			if (offm >= 0)
-				dmon->_mdir = opposite[monster[offm]._mdir];
+				dmon->_mdir = OPPOSITE(monster[offm]._mdir);
 			MonStartGetHit(defm);
 		}
 	}
@@ -2832,7 +2830,7 @@ static bool MonRoundWalk(int mnum, int md, int *dir)
 		MonWalkDir(mnum, md);
 	} else {
 		*dir = !*dir;
-		ok = MonCallWalk(mnum, opposite[mdtemp]);
+		ok = MonCallWalk(mnum, OPPOSITE(mdtemp));
 	}
 	return ok;
 }
@@ -3047,7 +3045,7 @@ void MAI_Bat(int mnum)
 	v = random_(107, 100);
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (mon->_mgoalvar1 == 0) {
-			MonCallWalk(mnum, opposite[md]);
+			MonCallWalk(mnum, OPPOSITE(md));
 			mon->_mgoalvar1++;
 		} else {
 			if (random_(108, 2) != 0)
@@ -3116,7 +3114,7 @@ void MAI_SkelBow(int mnum)
 		    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
 		        && v < 2 * mon->_mint + 63) {
-			walking = MonDumbWalk(mnum, opposite[md]);
+			walking = MonDumbWalk(mnum, OPPOSITE(md));
 		}
 	}
 
@@ -3276,7 +3274,7 @@ void MAI_Fireman(int mnum)
 	if (abs(xd) < 2 && abs(yd) < 2 && mon->_mgoal == MGOAL_NORMAL) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->mHit, mon->mMinDamage, mon->mMaxDamage);
 		mon->_mgoal = MGOAL_RETREAT;
-		if (!MonCallWalk(mnum, opposite[md])) {
+		if (!MonCallWalk(mnum, OPPOSITE(md))) {
 			MonStartFadein(mnum, md, false);
 			mon->_mgoal = MGOAL_ATTACK2;
 		}
@@ -3308,7 +3306,7 @@ void MAI_Fallen(int mnum)
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (mon->_mgoalvar1-- == 0) {
 			mon->_mgoal = MGOAL_NORMAL;
-			MonStartStand(mnum, opposite[mon->_mdir]);
+			MonStartStand(mnum, OPPOSITE(mon->_mdir));
 		}
 	}
 
@@ -3464,7 +3462,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 			MonStartDelay(mnum, random_(118, 20));
 		} else if (abs(mx) < 4 && abs(my) < 4) {
 			if (random_(119, 100) < 10 * (mon->_mint + 7))
-				MonCallWalk(mnum, opposite[mon->_mdir]);
+				MonCallWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 		if (mon->_mmode == MM_STAND) {
 			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
@@ -3687,7 +3685,7 @@ void MAI_Garg(int mnum)
 		if (abs(mx) >= mon->_mint + 2 || abs(my) >= mon->_mint + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartHeal(mnum);
-		} else if (!MonCallWalk(mnum, opposite[MonGetDir(mnum)])) {
+		} else if (!MonCallWalk(mnum, OPPOSITE(MonGetDir(mnum)))) {
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
@@ -4139,7 +4137,7 @@ void MAI_Counselor(int mnum)
 		v = random_(121, 100);
 		if (mon->_mgoal == MGOAL_RETREAT) {
 			if (mon->_mgoalvar1++ <= 3)
-				MonCallWalk(mnum, opposite[md]);
+				MonCallWalk(mnum, OPPOSITE(md));
 			else {
 				mon->_mgoal = MGOAL_NORMAL;
 				MonStartFadein(mnum, md, true);
