@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern const LevelDataStruct AllLevels[NUMLEVELS];
 extern const int gnLevelTypeTbl[NUMLEVELS];
 extern const int gnSetLevelTypeTbl[NUM_SETLVL];
 extern QuestStruct quests[NUM_QUESTS];

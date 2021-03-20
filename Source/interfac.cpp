@@ -26,114 +26,56 @@ static void FreeInterface()
 
 static void InitCutscene(unsigned int uMsg)
 {
+	int lvl;
 	assert(sgpBackCel == NULL);
 
 	switch (uMsg) {
 	case WM_DIABNEXTLVL:
-		switch (gnLevelTypeTbl[currlevel]) {
-		/*case DTYPE_TOWN:
-			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
-			LoadPalette("Gendata\\Cuttt.pal");
-			progress_id = 1;
-			break;*/
+		lvl = currlevel;
+		switch (AllLevels[lvl].dType) {
 		case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-			if (currlevel >= 17) {
-				sgpBackCel = LoadFileInMem("Nlevels\\cutl5.CEL", NULL);
-				LoadPalette("Nlevels\\cutl5.pal");
-				progress_id = 1;
-				break;
-			}
-#endif
-			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-			LoadPalette("Gendata\\Cutl1d.pal");
 			progress_id = 0;
 			break;
 		case DTYPE_CATACOMBS:
-			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
-			LoadPalette("Gendata\\Cut2.pal");
 			progress_id = 2;
 			break;
 		case DTYPE_CAVES:
-#ifdef HELLFIRE
-			if (currlevel >= 17) {
-				sgpBackCel = LoadFileInMem("Nlevels\\cutl6.CEL", NULL);
-				LoadPalette("Nlevels\\cutl6.pal");
-				progress_id = 1;
-				break;
-			}
-#endif
-			sgpBackCel = LoadFileInMem("Gendata\\Cut3.CEL", NULL);
-			LoadPalette("Gendata\\Cut3.pal");
 			progress_id = 1;
 			break;
 		case DTYPE_HELL:
-			if (currlevel < 15) {
-				sgpBackCel = LoadFileInMem("Gendata\\Cut4.CEL", NULL);
-				LoadPalette("Gendata\\Cut4.pal");
-				progress_id = 1;
-			} else {
-				sgpBackCel = LoadFileInMem("Gendata\\Cutgate.CEL", NULL);
-				LoadPalette("Gendata\\Cutgate.pal");
-				progress_id = 1;
-			}
+			lvl = plr[myplr].plrlevel; // the destination level
+			progress_id = 1;
+			break;
+		case DTYPE_CRYPT:
+		case DTYPE_NEST:
+			progress_id = 1;
 			break;
 		default:
 			ASSUME_UNREACHABLE
 		}
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		LoadPalette(AllLevels[lvl].dLoadPal);
 		break;
 	case WM_DIABPREVLVL:
-		/*if (gnLevelTypeTbl[currlevel - 1] == DTYPE_TOWN) {
-			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
-			LoadPalette("Gendata\\Cuttt.pal");
+		lvl = currlevel;
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		LoadPalette(AllLevels[lvl].dLoadPal);
+		switch (AllLevels[lvl].dType) {
+		case DTYPE_CATHEDRAL:
+			progress_id = 0;
+			break;
+		case DTYPE_CATACOMBS:
+			progress_id = 2;
+			break;
+		case DTYPE_CAVES:
+		case DTYPE_HELL:
+		case DTYPE_CRYPT:
+		case DTYPE_NEST:
 			progress_id = 1;
-		} else {*/
-			switch (gnLevelTypeTbl[currlevel]) {
-			/*case DTYPE_TOWN:
-				sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
-				LoadPalette("Gendata\\Cuttt.pal");
-				progress_id = 1;
-				break;*/
-			case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-				if (currlevel >= 17) {
-					sgpBackCel = LoadFileInMem("Nlevels\\cutl5.CEL", NULL);
-					LoadPalette("Nlevels\\cutl5.pal");
-					progress_id = 1;
-					break;
-				}
-#endif
-				sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-				LoadPalette("Gendata\\Cutl1d.pal");
-				progress_id = 0;
-				break;
-			case DTYPE_CATACOMBS:
-				sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
-				LoadPalette("Gendata\\Cut2.pal");
-				progress_id = 2;
-				break;
-			case DTYPE_CAVES:
-#ifdef HELLFIRE
-				if (currlevel >= 17) {
-					sgpBackCel = LoadFileInMem("Nlevels\\cutl6.CEL", NULL);
-					LoadPalette("Nlevels\\cutl6.pal");
-					progress_id = 1;
-					break;
-				}
-#endif
-				sgpBackCel = LoadFileInMem("Gendata\\Cut3.CEL", NULL);
-				LoadPalette("Gendata\\Cut3.pal");
-				progress_id = 1;
-				break;
-			case DTYPE_HELL:
-				sgpBackCel = LoadFileInMem("Gendata\\Cut4.CEL", NULL);
-				LoadPalette("Gendata\\Cut4.pal");
-				progress_id = 1;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-			}
-		//}
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
 		break;
 	case WM_DIABSETLVL:
 	case WM_DIABRTNLVL:
@@ -165,47 +107,23 @@ static void InitCutscene(unsigned int uMsg)
 	case WM_DIABTOWNWARP:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN: {
-		int destlvl = plr[myplr].plrlevel;
-		switch (gnLevelTypeTbl[destlvl]) {
+		lvl = plr[myplr].plrlevel; // the destination level
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		LoadPalette(AllLevels[lvl].dLoadPal);
+		switch (AllLevels[lvl].dType) {
 		case DTYPE_TOWN:
-			sgpBackCel = LoadFileInMem("Gendata\\Cuttt.CEL", NULL);
-			LoadPalette("Gendata\\Cuttt.pal");
 			progress_id = 1;
 			break;
 		case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-			if (destlvl >= 17) {
-				sgpBackCel = LoadFileInMem("Nlevels\\Cutl5.CEL", NULL);
-				LoadPalette("Nlevels\\Cutl5.pal");
-				progress_id = 1;
-				break;
-			}
-#endif
-			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-			LoadPalette("Gendata\\Cutl1d.pal");
 			progress_id = 0;
 			break;
 		case DTYPE_CATACOMBS:
-			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
-			LoadPalette("Gendata\\Cut2.pal");
 			progress_id = 2;
 			break;
 		case DTYPE_CAVES:
-#ifdef HELLFIRE
-			if (destlvl >= 17) {
-				sgpBackCel = LoadFileInMem("Nlevels\\Cutl6.CEL", NULL);
-				LoadPalette("Nlevels\\Cutl6.pal");
-				progress_id = 1;
-				break;
-			}
-#endif
-			sgpBackCel = LoadFileInMem("Gendata\\Cut3.CEL", NULL);
-			LoadPalette("Gendata\\Cut3.pal");
-			progress_id = 1;
-			break;
 		case DTYPE_HELL:
-			sgpBackCel = LoadFileInMem("Gendata\\Cut4.CEL", NULL);
-			LoadPalette("Gendata\\Cut4.pal");
+		case DTYPE_CRYPT:
+		case DTYPE_NEST:
 			progress_id = 1;
 			break;
 		default:
@@ -278,65 +196,10 @@ static void LoadLvlGFX()
 {
 	assert(pDungeonCels == NULL);
 
-	switch (leveltype) {
-	case DTYPE_TOWN:
-#ifdef HELLFIRE
-		pDungeonCels = LoadFileInMem("NLevels\\TownData\\Town.CEL", NULL);
-		pMegaTiles = LoadFileInMem("NLevels\\TownData\\Town.TIL", NULL);
-		pLevelPieces = LoadFileInMem("NLevels\\TownData\\Town.MIN", NULL);
-#else
-		pDungeonCels = LoadFileInMem("Levels\\TownData\\Town.CEL", NULL);
-		pMegaTiles = LoadFileInMem("Levels\\TownData\\Town.TIL", NULL);
-		pLevelPieces = LoadFileInMem("Levels\\TownData\\Town.MIN", NULL);
-#endif
-		pSpecialCels = LoadFileInMem("Levels\\TownData\\TownS.CEL", NULL);
-		break;
-	case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-		if (currlevel >= 21) {
-			pDungeonCels = LoadFileInMem("NLevels\\L5Data\\L5.CEL", NULL);
-			pMegaTiles = LoadFileInMem("NLevels\\L5Data\\L5.TIL", NULL);
-			pLevelPieces = LoadFileInMem("NLevels\\L5Data\\L5.MIN", NULL);
-			pSpecialCels = LoadFileInMem("NLevels\\L5Data\\L5S.CEL", NULL);
-			break;
-		}
-#endif
-		pDungeonCels = LoadFileInMem("Levels\\L1Data\\L1.CEL", NULL);
-		pMegaTiles = LoadFileInMem("Levels\\L1Data\\L1.TIL", NULL);
-		pLevelPieces = LoadFileInMem("Levels\\L1Data\\L1.MIN", NULL);
-		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
-		break;
-	case DTYPE_CATACOMBS:
-		pDungeonCels = LoadFileInMem("Levels\\L2Data\\L2.CEL", NULL);
-		pMegaTiles = LoadFileInMem("Levels\\L2Data\\L2.TIL", NULL);
-		pLevelPieces = LoadFileInMem("Levels\\L2Data\\L2.MIN", NULL);
-		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
-		break;
-	case DTYPE_CAVES:
-#ifdef HELLFIRE
-		if (currlevel >= 17) {
-			pDungeonCels = LoadFileInMem("NLevels\\L6Data\\L6.CEL", NULL);
-			pMegaTiles = LoadFileInMem("NLevels\\L6Data\\L6.TIL", NULL);
-			pLevelPieces = LoadFileInMem("NLevels\\L6Data\\L6.MIN", NULL);
-		} else
-#endif
-		{
-			pDungeonCels = LoadFileInMem("Levels\\L3Data\\L3.CEL", NULL);
-			pMegaTiles = LoadFileInMem("Levels\\L3Data\\L3.TIL", NULL);
-			pLevelPieces = LoadFileInMem("Levels\\L3Data\\L3.MIN", NULL);
-		}
-		pSpecialCels = LoadFileInMem("Levels\\L1Data\\L1S.CEL", NULL);
-		break;
-	case DTYPE_HELL:
-		pDungeonCels = LoadFileInMem("Levels\\L4Data\\L4.CEL", NULL);
-		pMegaTiles = LoadFileInMem("Levels\\L4Data\\L4.TIL", NULL);
-		pLevelPieces = LoadFileInMem("Levels\\L4Data\\L4.MIN", NULL);
-		pSpecialCels = LoadFileInMem("Levels\\L2Data\\L2S.CEL", NULL);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	pDungeonCels = LoadFileInMem(AllLevels[currlevel].dDunCels, NULL);
+	pMegaTiles = LoadFileInMem(AllLevels[currlevel].dMegaTiles, NULL);
+	pLevelPieces = LoadFileInMem(AllLevels[currlevel].dLvlPieces, NULL);
+	pSpecialCels = LoadFileInMem(AllLevels[currlevel].dSpecCels, NULL);
 }
 
 /**
@@ -344,52 +207,38 @@ static void LoadLvlGFX()
  */
 static void CreateLevel(int lvldir)
 {
+	DWORD seed = glSeedTbl[currlevel];
+
 	switch (leveltype) {
 	case DTYPE_TOWN:
 		CreateTown(lvldir);
 		InitTownTriggers();
-		LoadRndLvlPal(DTYPE_TOWN);
 		break;
 	case DTYPE_CATHEDRAL:
-		CreateL1Dungeon(glSeedTbl[currlevel], lvldir);
+		CreateL1Dungeon(seed, lvldir);
 		InitL1Triggers();
 		Freeupstairs();
-#ifdef HELLFIRE
-		if (currlevel >= 21) {
-			LoadRndLvlPal(DTYPE_NEST);
-			break;
-		}
-#endif
-		LoadRndLvlPal(DTYPE_CATHEDRAL);
 		break;
 	case DTYPE_CATACOMBS:
-		CreateL2Dungeon(glSeedTbl[currlevel], lvldir);
+		CreateL2Dungeon(seed, lvldir);
 		InitL2Triggers();
 		Freeupstairs();
-		LoadRndLvlPal(DTYPE_CATACOMBS);
 		break;
 	case DTYPE_CAVES:
-		CreateL3Dungeon(glSeedTbl[currlevel], lvldir);
+		CreateL3Dungeon(seed, lvldir);
 		InitL3Triggers();
 		Freeupstairs();
-#ifdef HELLFIRE
-		if (currlevel >= 17) {
-			LoadRndLvlPal(DTYPE_CRYPT);
-			break;
-		}
-#endif
-		LoadRndLvlPal(DTYPE_CAVES);
 		break;
 	case DTYPE_HELL:
-		CreateL4Dungeon(glSeedTbl[currlevel], lvldir);
+		CreateL4Dungeon(seed, lvldir);
 		InitL4Triggers();
 		Freeupstairs();
-		LoadRndLvlPal(DTYPE_HELL);
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	LoadRndLvlPal(AllLevels[currlevel].dType);
 }
 
 void LoadGameLevel(bool firstflag, int lvldir)
@@ -608,12 +457,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	}
 #endif
 
-#ifdef HELLFIRE
-	if (currlevel >= 17)
-		music_start(currlevel > 20 ? TMUSIC_L5 : TMUSIC_L6);
-	else
-#endif
-		music_start(leveltype);
+	music_start(AllLevels[currlevel].dMusic);
 
 	while (!IncProgress())
 		;

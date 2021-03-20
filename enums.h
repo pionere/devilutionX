@@ -2401,8 +2401,8 @@ typedef enum dungeon_type {
 	DTYPE_CATACOMBS,
 	DTYPE_CAVES,
 	DTYPE_HELL,
-	DTYPE_NEST,
 	DTYPE_CRYPT,
+	DTYPE_NEST,
 	DTYPE_NONE = 0xFF,
 } dungeon_type;
 
@@ -2429,6 +2429,36 @@ typedef enum townwarp_dest {
 #endif
 	NUM_TWARP
 } townwarp_dest;
+
+typedef enum dungeon_level {
+	DLV_TOWN,
+	DLV_CATHEDRAL1,
+	DLV_CATHEDRAL2,
+	DLV_CATHEDRAL3,
+	DLV_CATHEDRAL4,
+	DLV_CATACOMBS1,
+	DLV_CATACOMBS2,
+	DLV_CATACOMBS3,
+	DLV_CATACOMBS4,
+	DLV_CAVES1,
+	DLV_CAVES2,
+	DLV_CAVES3,
+	DLV_CAVES4,
+	DLV_HELL1,
+	DLV_HELL2,
+	DLV_HELL3,
+	DLV_HELL4,
+#ifdef HELLFIRE
+	DLV_HIVE1,
+	DLV_HIVE2,
+	DLV_HIVE3,
+	DLV_HIVE4,
+	DLV_CRYPT1,
+	DLV_CRYPT2,
+	DLV_CRYPT3,
+	DLV_CRYPT4,
+#endif
+} dungeon_level;
 
 typedef enum dflag {
 	BFLAG_MISSILE     = 0x01,
@@ -2731,14 +2761,14 @@ typedef enum _scroll_direction {
 } _scroll_direction;
 
 typedef enum interface_mode {
-	WM_DIABNEXTLVL  = 0x402, // WM_USER+2
-	WM_DIABPREVLVL  = 0x403,
-	WM_DIABRTNLVL   = 0x404,
-	WM_DIABSETLVL   = 0x405,
-	WM_DIABWARPLVL  = 0x406,
-	WM_DIABTOWNWARP = 0x407,
-	WM_DIABTWARPUP  = 0x408,
-	WM_DIABRETOWN   = 0x409,
+	WM_DIABNEXTLVL  = 0x402, // dungeon -> next level  WM_USER+2
+	WM_DIABPREVLVL  = 0x403, // dungeon -> previous level
+	WM_DIABRTNLVL   = 0x404, // setlevel -> dungeon
+	WM_DIABSETLVL   = 0x405, // dungeon -> setlevel
+	WM_DIABWARPLVL  = 0x406, // portal
+	WM_DIABTOWNWARP = 0x407, // town -> dungeon
+	WM_DIABTWARPUP  = 0x408, // dungeon -> town
+	WM_DIABRETOWN   = 0x409, // restart in town
 	WM_DIABNEWGAME  = 0x40A,
 	WM_DIABLOADGAME = 0x40B
 	// WM_LEIGHSKIP = 0x40C, // psx only

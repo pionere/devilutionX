@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX
+#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
 #endif
 //////////////////////////////////////////////////
@@ -1149,6 +1149,30 @@ typedef struct TBuffer {
 	DWORD dwNextWriteOffset;
 	BYTE bData[4096];
 } TBuffer;
+
+//////////////////////////////////////////////////
+// levels
+//////////////////////////////////////////////////
+typedef struct LevelDataStruct {
+	BYTE dLevel;
+	BYTE dType;
+	BYTE dDunType;
+	BYTE dMusic;
+	const char *dDunCels;
+	const char *dMegaTiles;
+	const char *dLvlPieces;
+	const char *dSpecCels;
+	const char *dLoadCels;
+	const char *dLoadPal;
+	const char *dAutomapData;
+//#ifdef X86_32bit_COMP
+//	int alignment[1];
+//#endif
+} LevelDataStruct;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(LevelDataStruct) & (sizeof(LevelDataStruct) - 1)) == 0, "Align LevelDataStruct to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // quests

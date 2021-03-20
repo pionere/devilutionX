@@ -16,6 +16,8 @@ static int AutoMapX;
 static int AutoMapY;
 /** Specifies whether the automap is enabled. */
 bool gbAutomapflag;
+/** Specifies whether the automap-data is valid. */
+bool _gbAutomapData;
 /** Tracks the explored areas of the map. */
 BOOLEAN automapview[DMAXX][DMAXY];
 /** Specifies the scale of the automap. */
@@ -71,38 +73,16 @@ void InitAutomap()
 	DWORD dwTiles;
 	BYTE *pAFile, *pTmp;
 	DWORD i;
+	const char* mapData;
+
+	mapData = AllLevels[currlevel].dAutomapData;
+	_gbAutomapData = mapData != NULL;
+	if (!_gbAutomapData)
+		return;
 
 	memset(automaptype, 0, sizeof(automaptype));
 
-	switch (leveltype) {
-	case DTYPE_TOWN:
-		return;
-	case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-		if (currlevel >= 21)
-			pAFile = LoadFileInMem("NLevels\\L5Data\\L5.AMP", &dwTiles);
-		else
-#endif
-			pAFile = LoadFileInMem("Levels\\L1Data\\L1.AMP", &dwTiles);
-		break;
-	case DTYPE_CATACOMBS:
-		pAFile = LoadFileInMem("Levels\\L2Data\\L2.AMP", &dwTiles);
-		break;
-	case DTYPE_CAVES:
-#ifdef HELLFIRE
-		if (currlevel >= 17)
-			pAFile = LoadFileInMem("NLevels\\L6Data\\L6.AMP", &dwTiles);
-		else
-#endif
-			pAFile = LoadFileInMem("Levels\\L3Data\\L3.AMP", &dwTiles);
-		break;
-	case DTYPE_HELL:
-		pAFile = LoadFileInMem("Levels\\L4Data\\L4.AMP", &dwTiles);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	pAFile = LoadFileInMem(mapData, &dwTiles);
 
 	dwTiles /= 2;
 	pTmp = pAFile;
@@ -637,7 +617,7 @@ void DrawAutomap()
 	int i, j, mapx, mapy;
 	unsigned d;
 
-	if (leveltype == DTYPE_TOWN) {
+	if (!_gbAutomapData) {
 		DrawAutomapText();
 		return;
 	}

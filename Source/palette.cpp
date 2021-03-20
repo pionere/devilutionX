@@ -105,9 +105,9 @@ void LoadRndLvlPal(int lvl)
 	} else {
 		rv = RandRange(1, 4);
 #ifdef HELLFIRE
-		if (lvl == 5) {
+		if (lvl == DTYPE_CRYPT) {
 			copy_cstr(szFileName, "NLevels\\L5Data\\L5Base.PAL");
-		} else if (lvl == 6) {
+		} else if (lvl == DTYPE_NEST) {
 			if (!gbUseNestArt) {
 				rv++;
 			}
