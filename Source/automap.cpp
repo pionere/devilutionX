@@ -84,7 +84,7 @@ void InitAutomap()
 	pAFile = LoadFileInMem(mapData, &dwTiles);
 
 	dwTiles /= 2;
-	assert(dwTiles < sizeof(automaptype));
+	assert(dwTiles < lengthof(automaptype));
 	pTmp = pAFile;
 
 	for (i = 1; i <= dwTiles; i++) {
