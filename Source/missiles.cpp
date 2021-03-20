@@ -4132,7 +4132,8 @@ void MI_Cbolt(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		if (CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
+		if ((mis->_misx != mis->_mix || mis->_misy != mis->_miy)
+		 && CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
 			mis->_mixoff = 0;
