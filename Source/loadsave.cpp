@@ -1476,10 +1476,10 @@ void SaveLevel()
 	for (i = 0; i < numitems; i++)
 		SaveItemData(&item[itemactive[i]]);
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++)
+	for (i = 0; i < MAXDUNX; i++)
+		for (j = 0; j < MAXDUNY; j++)
 			SaveChar(dFlags[i][j] & ~(BFLAG_MISSILE | BFLAG_VISIBLE | BFLAG_DEAD_PLAYER));
-	}
+
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
