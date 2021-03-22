@@ -1196,10 +1196,8 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 	ViewY = vy;
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 	DRLG_Init_Globals();
-#ifdef HELLFIRE
-	if (currlevel < 17)
-#endif
-		DRLG_InitL1Vals();
+	// assert(currLvl._dType == DTYPE_CATHEDRAL);
+	DRLG_InitL1Vals();
 	SetMapMonsters(pLevelMap, 0, 0);
 	SetMapObjects(pLevelMap);
 	mem_free_dbg(pLevelMap);
@@ -2054,7 +2052,7 @@ static void L1FillChambers()
 		DRLG_L1GHall(18, 12, 18, 28);
 
 #ifdef HELLFIRE
-	if (currlevel == 24) {
+	if (currLvl._dLevelIdx == DLV_CRYPT4) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
 			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
@@ -2120,7 +2118,7 @@ static void L1FillChambers()
 			}
 			DRLG_L5CryptSetRoom(c, 16);
 		}
-	}/* else if (currlevel == 21) {
+	}/* else if (currLvl._dLevelIdx == DLV_CRYPT1) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
 			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
@@ -2505,7 +2503,7 @@ static void DRLG_L1DirtFix()
 #ifdef HELLFIRE
 	BYTE bv;
 
-	if (currlevel >= 21) {
+	if (currLvl._dType == DTYPE_CRYPT) {
 		for (j = 0; j < DMAXY - 1; j++) {
 			for (i = 0; i < DMAXX - 1; i++) {
 				switch (dungeon[i][j]) {
@@ -2521,6 +2519,7 @@ static void DRLG_L1DirtFix()
 		}
 		return;
 	}
+	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 #endif
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
@@ -2589,11 +2588,11 @@ static void DRLG_L1(int entry)
 	int minarea;
 	bool doneflag;
 
-	switch (currlevel) {
-	case 1:
+	switch (currLvl._dLevelIdx) {
+	case DLV_CATHEDRAL1:
 		minarea = 533;
 		break;
-	case 2:
+	case DLV_CATHEDRAL2:
 		minarea = 693;
 		break;
 	default:
@@ -2639,10 +2638,10 @@ static void DRLG_L1(int entry)
 				}
 			}
 #ifdef HELLFIRE
-		} else if (currlevel >= 21) {
+		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
-				{ currlevel != 21 ? L5USTAIRS : L5TWARP, entry != ENTRY_PREV },
-				{ currlevel != 24 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
+				{ currLvl._dLevelIdx != DLV_CRYPT1 ? L5USTAIRS : L5TWARP, entry != ENTRY_PREV },
+				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
 			};
 			doneflag = DRLG_PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
@@ -2651,7 +2650,7 @@ static void DRLG_L1(int entry)
 				ViewY++;
 			}
 		} else {
-			// currlevel < 21
+			// assert(currLvl._dType == DTYPE_CATHEDRAL);
 			mini_set stairs[2] = {
 				{ STAIRSUP, entry != ENTRY_PREV },
 				{ L1DSTAIRS, entry == ENTRY_PREV },
@@ -2719,7 +2718,7 @@ static void DRLG_L1(int entry)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel >= 21) {
+	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_L5Crypt_pattern1(10);
 		DRLG_L5Crypt_rndset(byte_48A1B4, 95);
 		DRLG_L5Crypt_rndset(byte_48A1B8, 95);
@@ -2727,8 +2726,8 @@ static void DRLG_L1(int entry)
 		DRLG_L5Crypt_rndset(byte_48A1C8, 100);
 		DRLG_L5Crypt_rndset(byte_48A1E0, 60);
 		DRLG_L5Crypt_lavafloor();
-		switch (currlevel) {
-		case 21:
+		switch (currLvl._dLevelIdx) {
+		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(15);
 			DRLG_L5Crypt_pattern4(5);
@@ -2737,7 +2736,7 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern6(5);
 			DRLG_L5Crypt_pattern5(20);
 			break;
-		case 22:
+		case DLV_CRYPT2:
 			DRLG_L5Crypt_pattern7(10);
 			DRLG_L5Crypt_pattern6(10);
 			DRLG_L5Crypt_pattern5(20);
@@ -2746,7 +2745,7 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern4(10);
 			DRLG_L5Crypt_lavafloor();
 			break;
-		case 23:
+		case DLV_CRYPT3:
 			DRLG_L5Crypt_pattern7(10);
 			DRLG_L5Crypt_pattern6(15);
 			DRLG_L5Crypt_pattern5(30);
@@ -2755,7 +2754,7 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern4(15);
 			DRLG_L5Crypt_lavafloor();
 			break;
-		default:
+		case DLV_CRYPT4:
 			DRLG_L5Crypt_pattern7(10);
 			DRLG_L5Crypt_pattern6(20);
 			DRLG_L5Crypt_pattern5(30);
@@ -2764,10 +2763,14 @@ static void DRLG_L1(int entry)
 			DRLG_L5Crypt_pattern4(20);
 			DRLG_L5Crypt_lavafloor();
 			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 	} else
 #endif
 	{
+		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_L1Subs();
 		DRLG_L1Shadows();
 		DRLG_PlaceMiniSet(LAMPS, RandRange(5, 9), FALSE);
@@ -2806,7 +2809,7 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 	DRLG_FreeL1SP();
 
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_InitL5Vals();
 
 		for (j = DBORDERY; j < DSIZEY + DBORDERY; j++) {
@@ -2824,6 +2827,7 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 	} else
 #endif
 	{
+		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_InitL1Vals();
 	}
 	DRLG_SetPC();

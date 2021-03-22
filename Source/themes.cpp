@@ -202,7 +202,7 @@ static bool TFit_Obj3(int tidx)
 {
 	int xx, yy;
 	const char objrnds[4] = { 4, 4, 3, 5 };
-	const char objrnd = objrnds[leveltype - 1];
+	const char objrnd = objrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -229,22 +229,22 @@ static bool CheckThemeReqs(int theme)
 		return true;
 	case THEME_SHRINE:
 	case THEME_SKELROOM:
-	case THEME_LIBRARY:
-		return leveltype != DTYPE_CAVES && leveltype != DTYPE_HELL;
+	case THEME_LIBRARY: // TODO: use dType instead
+		return currLvl._dDunType != DTYPE_CAVES && currLvl._dDunType != DTYPE_HELL;
 	case THEME_BLOODFOUNTAIN:
 		return _gbBFountainFlag;
 	case THEME_PURIFYINGFOUNTAIN:
 		return _gbPFountainFlag;
 	case THEME_ARMORSTAND:
-		return leveltype != DTYPE_CATHEDRAL;
-	case THEME_CAULDRON:
-		return leveltype == DTYPE_HELL && _gbCauldronFlag;
+		return currLvl._dDunType != DTYPE_CATHEDRAL; // TODO: use dType instead
+	case THEME_CAULDRON: // TODO: use dType instead
+		return currLvl._dDunType == DTYPE_HELL && _gbCauldronFlag;
 	case THEME_MURKYFOUNTAIN:
 		return _gbMFountainFlag;
 	case THEME_TEARFOUNTAIN:
 		return _gbTFountainFlag;
-	case THEME_WEAPONRACK:
-		return leveltype != DTYPE_CATHEDRAL;
+	case THEME_WEAPONRACK: // TODO: use dType instead
+		return currLvl._dDunType != DTYPE_CATHEDRAL;
 	case THEME_TREASURE:
 		return _gbTreasureFlag;
 	default:
@@ -345,7 +345,7 @@ static bool CheckThemeRoom(int tv)
 		}
 	}
 
-	assert(leveltype == DTYPE_CATHEDRAL);
+	assert(currLvl._dType == DTYPE_CATHEDRAL);
 	if (tarea < 9 || tarea > 100)
 		return false;
 
@@ -372,8 +372,8 @@ void InitThemes()
 	int i, j;
 
 	numthemes = 0;
-	// assert(leveltype != DTYPE_TOWN);
-	if (currlevel >= 16) // there are no themes in hellfire (and on diablo-level)
+	// assert(currLvl._dType != DTYPE_TOWN);
+	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
 	_gbArmorFlag = true;
@@ -387,7 +387,7 @@ void InitThemes()
 	_gbWeaponFlag = true;
 	zharlib = -1;
 
-	if (leveltype == DTYPE_CATHEDRAL) {
+	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		for (i = 0; i < 256 && numthemes < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
 				themes[numthemes].ttval = i;
@@ -436,9 +436,9 @@ void HoldThemeRooms()
 	int i, xx, yy;
 	BYTE v;
 
-	if (currlevel == 16)
+	if (currLvl._dLevelIdx == DLV_HELL4)
 		return;
-	if (leveltype == DTYPE_CATHEDRAL) {
+	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		for (i = 0; i < numthemes; i++) {
 			v = themes[i].ttval;
 			for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
@@ -497,8 +497,8 @@ static void Theme_Barrel(int tidx)
 	int r, xx, yy;
 	const BYTE barrnds[4] = { 2, 6, 4, 8 };
 	const BYTE monstrnds[4] = { 5, 7, 3, 9 };
-	const BYTE barrnd = barrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE barrnd = barrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
@@ -538,7 +538,7 @@ static void Theme_Shrine(int tidx)
 			AddObject(OBJ_CANDLE2, themex, themey + 1);
 		}
 	}
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -572,7 +572,7 @@ static void Theme_MonstPit(int tidx)
 	}
 	CreateRndItem(xx, yy, true, false, true);
 	ItemNoFlippy();
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -594,7 +594,7 @@ static void Theme_SkelRoom(int tidx)
 
 	AddObject(OBJ_SKFIRE, xx, yy);
 
-	monstrnd = monstrnds[leveltype - 1];
+	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
 		SpawnSkeleton(i, xx - 1, yy - 1);
@@ -658,8 +658,8 @@ static void Theme_Treasure(int tidx)
 	int xx, yy;
 	const BYTE treasrnds[4] = { 4, 9, 7, 10 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 7 };
-	const BYTE treasrnd = treasrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE treasrnd = treasrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
@@ -704,8 +704,8 @@ static void Theme_Library(int tidx)
 		}
 	}
 
-	librnd = librnds[leveltype - 1];
-	monstrnd = monstrnds[leveltype - 1];  /// BUGFIX: `leveltype - 1` (fixed)
+	librnd = librnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
 			if (CheckThemeObj3(xx, yy, tidx, -1) && dMonster[xx][yy] == 0 && random_(0, librnd) == 0) {
@@ -734,8 +734,8 @@ static void Theme_Torture(int tidx)
 	int xx, yy;
 	const BYTE tortrnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
-	const BYTE tortrnd = tortrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
@@ -762,7 +762,7 @@ static void Theme_BloodFountain(int tidx)
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_BLOODFTN, themex, themey);
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -775,8 +775,8 @@ static void Theme_Decap(int tidx)
 	int xx, yy;
 	const BYTE decaprnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
-	const BYTE decaprnd = decaprnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE decaprnd = decaprnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
@@ -804,7 +804,7 @@ static void Theme_PurifyingFountain(int tidx)
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_PURIFYINGFTN, themex, themey);
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -817,8 +817,8 @@ static void Theme_ArmorStand(int tidx)
 	int xx, yy;
 	const BYTE armorrnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
-	const BYTE armorrnd = armorrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE armorrnd = armorrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	BYTE tv;
 
 	if (_gbArmorFlag) {
@@ -875,7 +875,7 @@ static void Theme_Cauldron(int tidx)
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_CAULDRON, themex, themey);
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -889,7 +889,7 @@ static void Theme_MurkyFountain(int tidx)
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_MURKYFTN, themex, themey);
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -903,7 +903,7 @@ static void Theme_TearFountain(int tidx)
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_TEARFTN, themex, themey);
-	PlaceThemeMonsts(tidx, monstrnds[leveltype - 1]);
+	PlaceThemeMonsts(tidx, monstrnds[currLvl._dDunType - 1]); // TODO: use dType instead?
 }
 
 /**
@@ -916,8 +916,8 @@ static void Theme_BrnCross(int tidx)
 	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
-	const BYTE bcrossrnd = bcrossrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
@@ -945,8 +945,8 @@ static void Theme_WeaponRack(int tidx)
 	int xx, yy, type;
 	const BYTE weaponrnds[4] = { 6, 8, 5, 8 };
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
-	const BYTE weaponrnd = weaponrnds[leveltype - 1];
-	const BYTE monstrnd = monstrnds[leveltype - 1];
+	const BYTE weaponrnd = weaponrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE tv = themes[tidx].ttval;
 
 	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
@@ -995,7 +995,7 @@ void CreateThemeRooms()
 {
 	int i;
 
-	if (currlevel >= 16) // there are no themes in hellfire (and on diablo-level)
+	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
 	gbInitObjFlag = true;
@@ -1058,7 +1058,7 @@ void CreateThemeRooms()
 		}
 	}
 	gbInitObjFlag = false;
-	if (leveltype == DTYPE_HELL && themeCount > 0) {
+	if (currLvl._dType == DTYPE_HELL && themeCount > 0) {
 		UpdateL4Trans();
 	}
 }

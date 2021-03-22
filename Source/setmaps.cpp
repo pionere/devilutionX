@@ -137,70 +137,66 @@ static void DRLG_SetMapTrans(const char *sFileName)
 }
 
 /**
- * @brief Load a quest map, the given map is specified via the global setlvlnum
+ * @brief Load a 'set' map
  */
 void LoadSetMap()
 {
-	switch (setlvlnum) {
+	const LevelDataStruct *lds = &AllLevels[currLvl._dLevelIdx];
+
+	switch (currLvl._dLevelIdx) {
 	case SL_SKELKING:
+		LoadPreL1Dungeon(lds->dSetLvlPreDun);
+		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		if (quests[Q_SKELKING]._qactive == QUEST_INIT) {
 			quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 			quests[Q_SKELKING]._qvar1 = 1;
 		}
-		LoadPreL1Dungeon("Levels\\L1Data\\SklKng1.DUN");
-		LoadL1Dungeon("Levels\\L1Data\\SklKng2.DUN", DBORDERX + 67, DBORDERY + 29);
-		LoadPalette("Levels\\L1Data\\L1_2.pal");
 		DRLG_AreaTrans(sizeof(SkelKingTrans1) / 4, &SkelKingTrans1[0]);
 		DRLG_ListTrans(sizeof(SkelKingTrans2) / 4, &SkelKingTrans2[0]);
 		DRLG_AreaTrans(sizeof(SkelKingTrans3) / 4, &SkelKingTrans3[0]);
 		DRLG_ListTrans(sizeof(SkelKingTrans4) / 4, &SkelKingTrans4[0]);
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSKingObjs();
-		InitSKingTriggers();
 		break;
 	case SL_BONECHAMB:
-		LoadPreL2Dungeon("Levels\\L2Data\\Bonecha2.DUN");
-		LoadL2Dungeon("Levels\\L2Data\\Bonecha1.DUN", DBORDERX + 53, DBORDERY + 23);
-		LoadPalette("Levels\\L2Data\\L2_2.pal");
+		LoadPreL2Dungeon(lds->dSetLvlPreDun);
+		LoadL2Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		DRLG_ListTrans(sizeof(SkelChamTrans1) / 4, &SkelChamTrans1[0]);
 		DRLG_AreaTrans(sizeof(SkelChamTrans2) / 4, &SkelChamTrans2[0]);
 		DRLG_ListTrans(sizeof(SkelChamTrans3) / 4, &SkelChamTrans3[0]);
 		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSChamObjs();
-		InitSChambTriggers();
 		break;
 	case SL_MAZE:
-		LoadPreL1Dungeon("Levels\\L1Data\\Lv1MazeA.DUN");
-		LoadL1Dungeon("Levels\\L1Data\\Lv1MazeB.DUN", DBORDERX + 4, DBORDERY + 34);
-		LoadPalette("Levels\\L1Data\\L1_5.pal");
+		LoadPreL1Dungeon(lds->dSetLvlPreDun);
+		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
-		DRLG_SetMapTrans("Levels\\L1Data\\Lv1MazeA.DUN");
+		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;
 	case SL_POISONWATER:
+		LoadPreL3Dungeon(lds->dSetLvlPreDun);
+		LoadL3Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		if (quests[Q_PWATER]._qactive == QUEST_INIT)
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
-		LoadPreL3Dungeon("Levels\\L3Data\\Foulwatr.DUN");
-		LoadL3Dungeon("Levels\\L3Data\\Foulwatr.DUN", DBORDERX + 15, DBORDERY + 67);
-		LoadPalette("Levels\\L3Data\\L3pfoul.pal");
-		InitPWaterTriggers();
 		break;
 	case SL_VILEBETRAYER:
+		LoadPreL1Dungeon(lds->dSetLvlPreDun);
+		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		if (quests[Q_BETRAYER]._qactive == QUEST_DONE) {
 			quests[Q_BETRAYER]._qvar2 = 4;
 		} else if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE) {
 			quests[Q_BETRAYER]._qvar2 = 3;
 		}
-		LoadPreL1Dungeon("Levels\\L1Data\\Vile1.DUN");
-		LoadL1Dungeon("Levels\\L1Data\\Vile2.DUN", DBORDERX + 19, DBORDERY + 20);
-		LoadPalette("Levels\\L1Data\\L1_2.pal");
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddVileObjs();
-		DRLG_SetMapTrans("Levels\\L1Data\\Vile1.DUN");
-		InitNoTriggers();
+		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		break;
 	}
+	LoadPalette(lds->dPalName);
+	InitTriggers();
 }
 
 DEVILUTION_END_NAMESPACE

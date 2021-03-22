@@ -196,9 +196,9 @@ void GetLevelMTypes()
 	int nt; // number of types
 
 	AddMonsterType(MT_GOLEM, FALSE); // not necessary for setlevels, just for safety
-	if (!gbSetlevel) {
-		lvl = currlevel;
-		if (lvl == 16) {
+	lvl = currLvl._dLevelIdx;
+	if (!currLvl._dSetLvl) {
+		if (lvl == DLV_HELL4) {
 			AddMonsterType(MT_ADVOCATE, TRUE);
 			AddMonsterType(MT_RBLACK, TRUE);
 			AddMonsterType(MT_DIABLO, FALSE);
@@ -206,15 +206,15 @@ void GetLevelMTypes()
 		}
 
 #ifdef HELLFIRE
-		if (lvl == 18)
+		if (lvl == DLV_NEST2)
 			AddMonsterType(MT_HORKSPWN, TRUE);
-		if (lvl == 19) {
+		if (lvl == DLV_NEST3) {
 			AddMonsterType(MT_HORKSPWN, TRUE);
 			AddMonsterType(MT_HORKDMN, FALSE);
 		}
-		if (lvl == 20)
+		if (lvl == DLV_NEST4)
 			AddMonsterType(MT_DEFILER, FALSE);
-		if (lvl == 24) {
+		if (lvl == DLV_CRYPT4) {
 			AddMonsterType(MT_ARCHLICH, TRUE);
 			AddMonsterType(MT_NAKRUL, FALSE);
 		}
@@ -278,7 +278,7 @@ void GetLevelMTypes()
 			}
 		}
 	} else {
-		if (setlvlnum == SL_SKELKING) {
+		if (lvl == SL_SKELKING) {
 			AddMonsterType(MT_SKING, FALSE);
 		}
 	}
@@ -573,7 +573,7 @@ void WakeUberDiablo()
 {
 	MonsterStruct *mon;
 
-	if (currlevel == 24 && UberDiabloMonsterIndex >= 0) {
+	if (currLvl._dLevelIdx == DLV_CRYPT4 && UberDiabloMonsterIndex >= 0) {
 		mon = &monster[UberDiabloMonsterIndex];
 		PlayEffect(UberDiabloMonsterIndex, 2);
 		mon->mArmorClass -= 50;
@@ -865,7 +865,7 @@ static void PlaceUniques()
 	int u, mt;
 
 	for (u = 0; UniqMonst[u].mtype != -1; u++) {
-		if (UniqMonst[u].muLevelIdx != currlevel)
+		if (UniqMonst[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
 		if (UniqMonst[u].mQuestId != Q_INVALID
 		 && quests[UniqMonst[u].mQuestId]._qactive == QUEST_NOTAVAIL)
@@ -884,12 +884,12 @@ static void PlaceQuestMonsters()
 	int skeltype;
 	BYTE *setp;
 
-	if (!gbSetlevel) {
+	if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_BUTCHER)) {
 			PlaceUniqueMonst(UMT_BUTCHER, 0, 0);
 		}
 
-		if (currlevel == quests[Q_SKELKING]._qlevel && gbMaxPlayers != 1) {
+		if (currLvl._dLevelIdx == quests[Q_SKELKING]._qlevel && gbMaxPlayers != 1) {
 			for (skeltype = 0; skeltype < nummtypes; skeltype++) {
 				if (IsSkel(Monsters[skeltype].mtype)) {
 					break;
@@ -925,7 +925,7 @@ static void PlaceQuestMonsters()
 			mem_free_dbg(setp);
 		}
 
-		if (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
@@ -937,7 +937,7 @@ static void PlaceQuestMonsters()
 			PlaceUniqueMonst(UMT_RED_VEX, 0, 0);
 			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 		}
-		if (currlevel == 16) {
+		if (currLvl._dLevelIdx == DLV_HELL4) {
 			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
 			SetMapMonsters(setp, 2 * diabquad1x, 2 * diabquad1y);
 			mem_free_dbg(setp);
@@ -951,13 +951,13 @@ static void PlaceQuestMonsters()
 			SetMapMonsters(setp, 2 * diabquad4x, 2 * diabquad4y);
 			mem_free_dbg(setp);
 #ifdef HELLFIRE
-		} else if (currlevel == 24) {
+		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
 			PlaceUniqueMonst(UMT_NAKRUL, 0, 0);
 #endif
 		}
-	} else if (setlvlnum == SL_SKELKING) {
+	} else if (currLvl._dLevelIdx == SL_SKELKING) {
 		PlaceUniqueMonst(UMT_SKELKING, 0, 0);
-	} else if (setlvlnum == SL_VILEBETRAYER) {
+	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, FALSE);
 		AddMonsterType(UniqMonst[UMT_RED_VEX].mtype, FALSE);
 		assert(UniqMonst[UMT_RED_VEX].mtype == UniqMonst[UMT_BLACKJADE].mtype);
@@ -983,19 +983,19 @@ void InitMonsters()
 	if (gbMaxPlayers != 1)
 		CheckDungeonClear();
 #endif
-	if (!gbSetlevel) {
+	if (!currLvl._dSetLvl) {
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
 	nt = numtrigs;
-	if (currlevel == 15)
+	if (currLvl._dLevelIdx == DLV_HELL3)
 		nt = 1;
 	for (i = 0; i < nt; i++) {
 		for (j = 0; j < lengthof(tdx); j++)
 			DoVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15, false, false);
 	}
 	PlaceQuestMonsters();
-	if (!gbSetlevel) {
+	if (!currLvl._dSetLvl) {
 		PlaceUniques();
 
 		na = 0;
@@ -1015,15 +1015,15 @@ void InitMonsters()
 				numscattypes++;
 			}
 		}
-		i = currlevel;
+		i = currLvl._dLevelIdx;
 		while (nummonsters < totalmonsters) {
 			mtype = scattertypes[random_(95, numscattypes)];
-			if (i == 1 || random_(95, 2) == 0)
+			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE
-			else if (i == 2 || i >= 21 && i <= 24)
+			else if (i == DLV_CATHEDRAL2 || i >= DLV_CRYPT1 && i <= DLV_CRYPT4)
 #else
-			else if (i == 2)
+			else if (i == DLV_CATHEDRAL2)
 #endif
 				na = RandRange(2, 3);
 			else
@@ -1044,7 +1044,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	int i, j;
 	int mtype;
 
-	if (gbSetlevel) {
+	if (currLvl._dSetLvl) {
 		AddMonsterType(MT_GOLEM, FALSE);
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
@@ -1143,7 +1143,7 @@ static void MonEnemy(int mnum)
 	bestsameroom = false;
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plr[i].plractive || currlevel != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
+			if (!plr[i].plractive || currLvl._dLevelIdx != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
 				continue;
 			sameroom = tv == dTransVal[plr[i]._px][plr[i]._py];
 			dist = std::max(abs(mon->_mx - plr[i]._px), abs(mon->_my - plr[i]._py));
@@ -2062,11 +2062,11 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		- (p->_pLevel << 1)
 		- tmp;
 	tmp = 15;
-	if (currlevel == 14)
+	if (currLvl._dLevelIdx == DLV_HELL2)
 		tmp = 20;
-	else if (currlevel == 15)
+	else if (currLvl._dLevelIdx == DLV_HELL3)
 		tmp = 25;
-	else if (currlevel == 16)
+	else if (currLvl._dLevelIdx == DLV_HELL4)
 		tmp = 30;
 	if (hper < tmp)
 		hper = tmp;
@@ -5276,7 +5276,7 @@ void SpawnGolum(int mnum, int x, int y, int level)
 		    mon->_mdir,
 		    mon->_menemy,
 		    mon->_mhitpoints,
-		    currlevel);
+		    currLvl._dLevelIdx);
 	}
 }
 

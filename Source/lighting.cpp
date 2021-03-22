@@ -470,7 +470,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, int lnum)
 	dist_y = yoff;
 
 /*#ifdef HELLFIRE
-	if (currlevel < 17)
+	if (currLvl._dType != DTYPE_NEST && currLvl._dType != DTYPE_CRYPT)
 		dLight[nXPos][nYPos] = 0;
 	else if (dLight[nXPos][nYPos] > dark[0])
 		dLight[nXPos][nYPos] = dark[0];
@@ -783,7 +783,7 @@ void MakeLightTable()
 		*tbl++ = 0;
 	}
 
-	if (leveltype == DTYPE_HELL) {
+	if (currLvl._dType == DTYPE_HELL) {
 		tbl = pLightTbl;
 		for (i = 0; i < lights; i++) {
 			l1 = lights - i;
@@ -825,7 +825,7 @@ void MakeLightTable()
 	}
 
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
 		tbl = pLightTbl;
 		for (i = 0; i < lights; i++) {
 			*tbl++ = 0;
@@ -879,7 +879,7 @@ void MakeLightTable()
 	}
 
 /*#ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
 		for (i = 0; i < 16; i++) {
 			for (j = 128; j > 0; j--) {
 				k = 15 - ((i + 1) * (j * j)) / (128 * 128);
@@ -931,7 +931,7 @@ void ToggleLighting()
 	} else {
 		memcpy(dLight, dPreLight, sizeof(dLight));
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (plr[i].plractive && plr[i].plrlevel == currlevel) {
+			if (plr[i].plractive && plr[i].plrlevel == currLvl._dLevelIdx) {
 				DoLighting(plr[i]._px, plr[i]._py, plr[i]._pLightRad, -1);
 			}
 		}
@@ -1290,9 +1290,7 @@ void lighting_color_cycling()
 	BYTE col;
 	BYTE *tbl;
 
-	if (leveltype != DTYPE_HELL) {
-		return;
-	}
+	// assert(currLvl._dType == DTYPE_HELL);
 
 	l = 16;
 #ifdef _DEBUG

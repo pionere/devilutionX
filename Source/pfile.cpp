@@ -342,10 +342,10 @@ void pfile_read_player_from_save()
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 {
-	if (gbSetlevel)
-		snprintf(szTemp, sizeof(szTemp), "temps%02d", setlvlnum);
+	if (currLvl._dSetLvl)
+		snprintf(szTemp, sizeof(szTemp), "temps%02d", currLvl._dLevelIdx - NUMLEVELS);
 	else
-		snprintf(szTemp, sizeof(szTemp), "templ%02d", currlevel);
+		snprintf(szTemp, sizeof(szTemp), "templ%02d", currLvl._dLevelIdx);
 }
 
 void GetPermLevelNames(char (&szPerm)[MAX_PATH])
@@ -359,10 +359,10 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 	has_file = mpqapi_has_file(szPerm);
 	pfile_flush(true);
 	if (!has_file) {
-		if (gbSetlevel)
-			snprintf(szPerm, sizeof(szPerm), "perms%02d", setlvlnum);
+		if (currLvl._dSetLvl)
+			snprintf(szPerm, sizeof(szPerm), "perms%02d", currLvl._dLevelIdx - NUMLEVELS);
 		else
-			snprintf(szPerm, sizeof(szPerm), "perml%02d", currlevel);
+			snprintf(szPerm, sizeof(szPerm), "perml%02d", currLvl._dLevelIdx);
 	}
 }
 

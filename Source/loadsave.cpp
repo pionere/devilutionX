@@ -303,9 +303,8 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pVar6);
 	CopyInt(tbuff, &p->_pVar7);
 	CopyInt(tbuff, &p->_pVar8);
-	CopyBytes(tbuff, NUMLEVELS, p->_pLvlVisited);
-	CopyBytes(tbuff, NUMLEVELS, p->_pSLvlVisited);
-	tbuff += 2; // Alignment
+	CopyBytes(tbuff, NUMLEVELS + NUM_SETLVL, p->_pLvlVisited);
+	tbuff += 1; // Alignment
 
 	CopyInt(tbuff, &p->_pGFXLoad);
 	tbuff += 4 * 8; // Skip pointers _pNAnim
@@ -633,14 +632,12 @@ static void LoadPortal(int i)
 	CopyInt(tbuff, &pPortal->x);
 	CopyInt(tbuff, &pPortal->y);
 	CopyInt(tbuff, &pPortal->level);
-	CopyInt(tbuff, &pPortal->ltype);
-	pPortal->_wsetlvl = LoadBool();
 }
 
 static void RedoPlayerLight()
 {
 	for (int i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currlevel == plr[i].plrlevel)
+		if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel)
 			ChangeLightXY(plr[i]._plid, plr[i]._px, plr[i]._py);
 	}
 }
@@ -663,17 +660,10 @@ void LoadGame(bool firstflag)
 	if (LoadInt() != SAVE_INITIAL)
 		app_fatal("Invalid save file");
 
-	gbSetlevel = LoadBool();
-	setlvlnum = LoadInt();
-
 	i = LoadInt();
-	currlevel = i & 0xFF;
-	if (!gbSetlevel)
-		leveltype = gnLevelTypeTbl[currlevel];
-	else
-		leveltype = gnSetLevelTypeTbl[setlvlnum];
+	currLvl._dLevelIdx = i & 0xFF;
+	EnterLevel(i & 0xFF);
 	gnDifficulty = (i >> 8) & 0xFF;
-	tbuff += 4; // Skip leveltype
 
 	_ViewX = LoadInt();
 	_ViewY = LoadInt();
@@ -686,7 +676,6 @@ void LoadGame(bool firstflag)
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		glSeedTbl[i] = LoadInt();
-		tbuff += 4; // Skip gnLevelTypeTbl[i]
 	}
 
 	LoadPlayer(myplr);
@@ -709,7 +698,7 @@ void LoadGame(bool firstflag)
 	for (i = 0; i < MAXMONSTERS; i++)
 		tbuff += 4; // Skip monstkills[i]
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
 			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
@@ -761,7 +750,7 @@ void LoadGame(bool firstflag)
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
@@ -1019,9 +1008,8 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pVar6, tbuff);
 	CopyInt(&p->_pVar7, tbuff);
 	CopyInt(&p->_pVar8, tbuff);
-	CopyBytes(p->_pLvlVisited, NUMLEVELS, tbuff);
-	CopyBytes(p->_pSLvlVisited, NUMLEVELS, tbuff); // only 10 used
-	tbuff += 2;                                     // Alignment
+	CopyBytes(p->_pLvlVisited, NUMLEVELS + NUM_SETLVL, tbuff);
+	tbuff += 1;                                     // Alignment
 
 	CopyInt(&p->_pGFXLoad, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pNAnim
@@ -1339,8 +1327,6 @@ static void SavePortal(int i)
 	CopyInt(&pPortal->x, tbuff);
 	CopyInt(&pPortal->y, tbuff);
 	CopyInt(&pPortal->level, tbuff);
-	CopyInt(&pPortal->ltype, tbuff);
-	SaveBool(pPortal->_wsetlvl);
 }
 
 void SaveGame()
@@ -1353,10 +1339,7 @@ void SaveGame()
 
 	SaveInt(SAVE_INITIAL);
 
-	SaveBool(gbSetlevel);
-	SaveInt(setlvlnum);
-	SaveInt((gnDifficulty << 8) | currlevel);
-	tbuff += 4; // Skip leveltype
+	SaveInt((gnDifficulty << 8) | currLvl._dLevelIdx);
 	SaveInt(ViewX);
 	SaveInt(ViewY);
 	SaveBool(gbInvflag);
@@ -1368,7 +1351,6 @@ void SaveGame()
 
 	for (i = 0; i < NUMLEVELS; i++) {
 		SaveInt(glSeedTbl[i]);
-		tbuff += 4; // Skip gnLevelTypeTbl[i]
 	}
 
 	SavePlayer(myplr);
@@ -1380,7 +1362,7 @@ void SaveGame()
 	for (i = 0; i < MAXMONSTERS; i++)
 		tbuff += 4; // Skip monstkills[i]
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
 			SaveInt(monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
@@ -1429,7 +1411,7 @@ void SaveGame()
 	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
@@ -1460,14 +1442,14 @@ void SaveLevel()
 	int dwLen;
 	BYTE *SaveBuff;
 
-	if (currlevel == 0)
+	if (currLvl._dLevelIdx == 0)
 		glSeedTbl[0] = GetRndSeed();
 
 	dwLen = codec_get_encoded_len(FILEBUFF);
 	SaveBuff = DiabloAllocPtr(dwLen);
 	tbuff = SaveBuff;
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(dDead, MAXDUNX * MAXDUNY, tbuff);
 	}
 
@@ -1475,7 +1457,7 @@ void SaveLevel()
 	SaveInt(numitems);
 	SaveInt(nobjects);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
 			SaveInt(monstactive[i]);
 		for (i = 0; i < nummonsters; i++)
@@ -1503,7 +1485,7 @@ void SaveLevel()
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(dObject, MAXDUNX * MAXDUNY, tbuff);
 		CopyBytes(automapview, DMAXX * DMAXY, tbuff);
@@ -1515,10 +1497,7 @@ void SaveLevel()
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
 
-	if (!gbSetlevel)
-		plr[myplr]._pLvlVisited[currlevel] = TRUE;
-	else
-		plr[myplr]._pSLvlVisited[setlvlnum] = TRUE;
+	plr[myplr]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 }
 
 void LoadLevel()
@@ -1531,7 +1510,7 @@ void LoadLevel()
 	fileBuff = pfile_read(szName);
 	tbuff = fileBuff;
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dDead);
 		SetDead();
 	}
@@ -1540,7 +1519,7 @@ void LoadLevel()
 	numitems = LoadInt();
 	nobjects = LoadInt();
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		for (i = 0; i < MAXMONSTERS; i++)
 			monstactive[i] = LoadInt();
 		for (i = 0; i < nummonsters; i++)
@@ -1569,7 +1548,7 @@ void LoadLevel()
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);
 		CopyBytes(tbuff, MAXDUNX * MAXDUNY, dObject);
 		CopyBytes(tbuff, DMAXX * DMAXY, automapview);

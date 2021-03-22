@@ -266,35 +266,18 @@ static void SpawnNote()
 		x = random_(12, DSIZEX) + DBORDERX;
 		y = random_(12, DSIZEY) + DBORDERY;
 	} while (!ItemPlace(x, y));
-	switch (currlevel) {
-	case 22:
-		id = IDI_NOTE2;
-		break;
-	case 23:
-		id = IDI_NOTE3;
-		break;
-	default:
-		id = IDI_NOTE1;
-		break;
-	}
+	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "SpawnNote requires ordered IDI_NOTE indices I.");
+	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "SpawnNote requires ordered IDI_NOTE indices II.");
+	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "SpawnNote requires ordered DLV_CRYPT indices I.");
+	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "SpawnNote requires ordered DLV_CRYPT indices II.");
+	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
 	SpawnQuestItemAt(id, x, y);
 }
 #endif
 
 static inline int items_get_currlevel()
 {
-	int lvl;
-
-	lvl = currlevel;
-#ifdef HELLFIRE
-	if (lvl >= 17) {
-		if (lvl <= 20)
-			lvl -= 8;
-		else if (lvl <= 24)
-			lvl -= 7;
-	}
-#endif
-	return lvl;
+	return currLvl._dLevel;
 }
 
 void InitItemGFX()
@@ -369,21 +352,22 @@ void InitItems()
 		itemavail[i] = i;
 	}
 
-	if (!gbSetlevel) {
+	if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_ROCK))
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
 			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11);
 #ifdef HELLFIRE
-		if (gbUseCowFarmer && currlevel == 20)
+		if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST4)
 			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
-		else if (gbUseCowFarmer && currlevel == 19)
+		else if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST3)
 			SpawnQuestItemInArea(IDI_GREYSUIT, 3);
 #endif
-		if (currlevel > 0 && currlevel < 16)
+		// TODO: eliminate level range-check?
+		if (currLvl._dLevelIdx > 0 && currLvl._dLevelIdx < 16)
 			AddInitItems();
 #ifdef HELLFIRE
-		if (currlevel >= 21 && currlevel <= 23)
+		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
 			SpawnNote();
 #endif
 	}
@@ -792,7 +776,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	p->_pIHitChance = btohit;
 
 	// calculate skill flags
-	if (leveltype != DTYPE_TOWN)
+	if (currLvl._dType != DTYPE_TOWN)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
@@ -1242,7 +1226,7 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	}
 
-	if (currlevel == 0)
+	if (currLvl._dType == DTYPE_TOWN)
 		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
 			return false;
 
@@ -1487,7 +1471,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		else if (gnDifficulty == DIFF_HELL)
 			lvl += 16;
 		rndv = RandRange(4 * lvl, 16 * lvl);
-		if (leveltype == DTYPE_HELL)
+		if (currLvl._dType == DTYPE_HELL)
 			rndv += rndv >> 3;
 		if (rndv > GOLD_MAX_LIMIT)
 			rndv = GOLD_MAX_LIMIT;

@@ -95,29 +95,14 @@ void LoadPalette(const char *pszFileName)
 	}
 }
 
-void LoadRndLvlPal(int lvl)
+void LoadRndLvlPal()
 {
 	int rv;
 	char szFileName[MAX_PATH];
 
-	if (lvl == DTYPE_TOWN) {
-		LoadPalette("Levels\\TownData\\Town.pal");
-	} else {
-		rv = RandRange(1, 4);
-#ifdef HELLFIRE
-		if (lvl == DTYPE_CRYPT) {
-			copy_cstr(szFileName, "NLevels\\L5Data\\L5Base.PAL");
-		} else if (lvl == DTYPE_NEST) {
-			if (!gbUseNestArt) {
-				rv++;
-			}
-			snprintf(szFileName, sizeof(szFileName), "NLevels\\L%iData\\L%iBase%i.PAL", 6, 6, rv);
-		} else
-#endif
-			snprintf(szFileName, sizeof(szFileName), "Levels\\L%iData\\L%i_%i.PAL", lvl, lvl, rv);
-
-		LoadPalette(szFileName);
-	}
+	rv = RandRange(1, 4);
+	snprintf(szFileName, sizeof(szFileName), AllLevels[currLvl._dLevelIdx].dPalName, rv);
+	LoadPalette(szFileName);
 }
 
 void ResetPal()

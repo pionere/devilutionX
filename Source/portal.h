@@ -15,11 +15,11 @@ extern "C" {
 extern PortalStruct portal[MAXPORTAL];
 
 void InitPortals();
-void SetPortalStats(int i, bool o, int x, int y, int lvl, int lvltype);
+void SetPortalStats(int i, bool o, int x, int y, int lvl);
 void AddWarpMissile(int i, int x, int y);
 void SyncPortals();
 void AddInTownPortal(int i);
-void ActivatePortal(int i, int x, int y, int lvl, int lvltype, bool sp);
+void ActivatePortal(int i, int x, int y, int lvl);
 void DeactivatePortal(int i);
 bool PortalOnLevel(int i);
 void RemovePortalMissile(int id);

@@ -70,70 +70,6 @@ const char *const shrinestrs[NUM_SHRINETYPE] = {
 	"Murphy's",
 #endif
 };
-/** Specifies the minimum dungeon level on which each shrine will appear. */
-const char shrinemin[NUM_SHRINETYPE] = {
-	1, // Hidden
-	1, // Gloomy
-	1, // Weird
-	1, // Religious
-	1, // Magical
-	1, // Stone
-	1, // Creepy
-	1, // Thaumaturgic
-	1, // Fascinating
-	1, // Shimmering
-	1, // Cryptic
-	1, // Eldritch
-	1, // Eerie
-	1, // Spooky
-	1, // Quiet
-	1, // Divine
-	1, // Holy
-	1, // Sacred
-	1, // Ornate
-	1, // Spiritual
-	1, // Secluded
-	1, // Glimmering
-	1, // Tainted
-	1, // Glistening
-#ifdef HELLFIRE
-	1, // Sparkling
-	1, // Solar,
-	1, // Murphy's
-#endif
-};
-/** Specifies the maximum dungeon level on which each shrine will appear. */
-const char shrinemax[NUM_SHRINETYPE] = {
-	MAX_LVLS, // Hidden
-	MAX_LVLS, // Gloomy
-	MAX_LVLS, // Weird
-	MAX_LVLS, // Religious
-	MAX_LVLS, // Magical
-	MAX_LVLS, // Stone
-	MAX_LVLS, // Creepy
-	MAX_LVLS, // Thaumaturgic
-	MAX_LVLS, // Fascinating
-	MAX_LVLS, // Shimmering
-	MAX_LVLS, // Cryptic
-	MAX_LVLS, // Eldritch
-	MAX_LVLS, // Eerie
-	MAX_LVLS, // Spooky
-	MAX_LVLS, // Quiet
-	MAX_LVLS, // Divine
-	MAX_LVLS, // Holy
-	MAX_LVLS, // Sacred
-	MAX_LVLS, // Ornate
-	MAX_LVLS, // Spiritual
-	MAX_LVLS, // Secluded
-	MAX_LVLS, // Glimmering
-	MAX_LVLS, // Tainted
-	MAX_LVLS, // Glistening
-#ifdef HELLFIRE
-	MAX_LVLS, // Sparkling
-	MAX_LVLS, // Solar,
-	MAX_LVLS, // Murphy's
-#endif
-};
 /**
  * Specifies the game type for which each shrine may appear.
  * SHRINETYPE_ANY - 0 - sp & mp
@@ -237,7 +173,7 @@ void InitObjectGFX()
 	for (i = 0; i < numthemes; i++)
 		themeload[themes[i].ttype] = true;
 
-	BYTE lvlMask = 1 << leveltype;
+	BYTE lvlMask = 1 << currLvl._dDunType; // TODO use dType instead?
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		ods = &AllObjects[i];
 		if ((ods->oload == 1 && (ods->oLvlTypes & lvlMask))
@@ -248,9 +184,9 @@ void InitObjectGFX()
 	}
 
 #ifdef HELLFIRE
-	if (currlevel >= 17 && currlevel < 21)
-		objlist = ObjHiveLoadList;
-	else if (currlevel >= 21)
+	if (currLvl._dType == DTYPE_NEST)
+		objlist = ObjNestLoadList;
+	else if (currLvl._dType == DTYPE_CRYPT)
 		objlist = ObjCryptLoadList;
 	else
 #endif
@@ -283,7 +219,8 @@ static bool RndLocOk(int xp, int yp)
 	if ((dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ dObject[xp][yp]
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_POPULATED)) != 0)
 		return false;
-	if (leveltype != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
+	// TODO: use dType instead?
+	if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return true;
 	return false;
 }
@@ -599,13 +536,13 @@ static void AddObjTraps()
 	int xp, yp;
 	int rndv;
 
-	if (currlevel == 1)
+	if (currLvl._dLevel == 1)
 		rndv = 10;
-	if (currlevel >= 2)
+	if (currLvl._dLevel >= 2)
 		rndv = 15;
-	if (currlevel >= 5)
+	if (currLvl._dLevel >= 5)
 		rndv = 20;
-	if (currlevel >= 7)
+	if (currLvl._dLevel >= 7)
 		rndv = 25;
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
@@ -659,7 +596,7 @@ static void AddChestTraps()
 				if (object[oi]._otype >= OBJ_CHEST1 && object[oi]._otype <= OBJ_CHEST3 && !object[oi]._oTrapFlag && random_(0, 100) < 10) {
 					object[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
 					object[oi]._oTrapFlag = TRUE;
-					if (leveltype == DTYPE_CATACOMBS) {
+					if (currLvl._dType == DTYPE_CATACOMBS) {
 						r = random_(0, 2);
 					} else {
 #ifdef HELLFIRE
@@ -1039,31 +976,34 @@ void InitObjects()
 #ifdef HELLFIRE
 	UberLeverProgress = 0;
 #endif
-	if (currlevel == 16) {
+	if (currLvl._dLevelIdx == DLV_HELL4) {
 		AddDiabObjs();
 	} else {
 		gbInitObjFlag = true;
-		if (currlevel == 9 && gbMaxPlayers == 1)
+		if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
 			AddSlainHero();
-		if (currlevel == quests[Q_MUSHROOM]._qlevel && quests[Q_MUSHROOM]._qactive == QUEST_INIT)
+		if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel && quests[Q_MUSHROOM]._qactive == QUEST_INIT)
 			AddMushPatch();
 
-		if (currlevel == 4 || currlevel == 8 || currlevel == 12) {
+		if (currLvl._dLevelIdx == DLV_CATHEDRAL4
+		 || currLvl._dLevelIdx == DLV_CATACOMBS4
+		 || currLvl._dLevelIdx == DLV_CAVES4) {
 			AddStoryBooks();
 #ifdef HELLFIRE
-		} else if (currlevel == 21) {
+		} else if (currLvl._dLevelIdx == DLV_CRYPT1) {
 			AddLvl2xBooks(0);
-		} else if (currlevel == 22) {
+		} else if (currLvl._dLevelIdx == DLV_CRYPT2) {
 			AddLvl2xBooks(1);
 			AddLvl2xBooks(2);
-		} else if (currlevel == 23) {
+		} else if (currLvl._dLevelIdx == DLV_CRYPT3) {
 			AddLvl2xBooks(3);
 			AddLvl2xBooks(4);
-		} else if (currlevel == 24) {
+		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
 			AddLvl24Books();
 #endif
 		}
-		if (leveltype == DTYPE_CATHEDRAL) {
+		switch (currLvl._dType) {
+		case DTYPE_CATHEDRAL:
 			if (QuestStatus(Q_BUTCHER))
 				AddTortures();
 			if (QuestStatus(Q_PWATER))
@@ -1071,14 +1011,10 @@ void InitObjects()
 			if (QuestStatus(Q_LTBANNER))
 				AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
 			InitRndLocBigObj(10, 15, OBJ_SARC);
-#ifdef HELLFIRE
-			if (currlevel >= 21)
-				AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
-			else
-#endif
-				AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
+			AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 			InitRndBarrels();
-		} else if (leveltype == DTYPE_CATACOMBS) {
+			break;
+		case DTYPE_CATACOMBS:
 			if (QuestStatus(Q_ROCK))
 				InitRndLocObj5x5(1, 1, OBJ_STAND);
 			if (QuestStatus(Q_SCHAMB))
@@ -1100,10 +1036,13 @@ void InitObjects()
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 			}
 			InitRndBarrels();
-		} else if (leveltype == DTYPE_CAVES) {
+			break;
+		case DTYPE_CAVES:
+		case DTYPE_NEST:
 			AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
 			InitRndBarrels();
-		} else if (leveltype == DTYPE_HELL) {
+			break;
+		case DTYPE_HELL:
 			if (QuestStatus(Q_WARLORD)) {
 				sp_id = textSets[TXTS_BLOODWAR][plr[myplr]._pClass];
 				quests[Q_WARLORD]._qmsg = sp_id;
@@ -1116,13 +1055,24 @@ void InitObjects()
 				AddLazStand();
 			InitRndBarrels();
 			AddL4Goodies();
+			break;
+		case DTYPE_CRYPT:
+			InitRndLocBigObj(10, 15, OBJ_SARC);
+			AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
+			InitRndBarrels();
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 		InitRndLocObj(5, 10, OBJ_CHEST1);
 		InitRndLocObj(3, 6, OBJ_CHEST2);
 		InitRndLocObj(1, 5, OBJ_CHEST3);
-		if (leveltype != DTYPE_HELL && leveltype != DTYPE_CAVES)
+		// TODO: use dType instead?
+		if (currLvl._dDunType != DTYPE_HELL && currLvl._dDunType != DTYPE_CAVES)
 			AddObjTraps();
-		if (leveltype > DTYPE_CATHEDRAL)
+		// BUGFIX: TODO no traps in CRYPT?
+		if (currLvl._dDunType != DTYPE_CATHEDRAL)
 			AddChestTraps();
 		gbInitObjFlag = false;
 	}
@@ -1142,8 +1092,8 @@ void SetMapObjects(BYTE *pMap)
 	memset(fileload, 0, sizeof(fileload));
 	gbInitObjFlag = true;
 
-	for (i = 0; i < NUM_OBJECTS; i++) {
-		if (AllObjects[i].oload == 1 && leveltype == AllObjects[i].oSetLvlType)
+	for (i = 0; i < NUM_OBJECTS; i++) { // TODO: use dType instead?
+		if (AllObjects[i].oload == 1 && currLvl._dDunType == AllObjects[i].oSetLvlType)
 			fileload[AllObjects[i].ofindex] = true;
 	}
 
@@ -1274,15 +1224,15 @@ static void AddChest(int oi, int type)
 	switch (type) {
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
-		os->_oVar1 = gbSetlevel ? 1 : random_(147, 2);
+		os->_oVar1 = currLvl._dSetLvl ? 1 : random_(147, 2);
 		break;
 	case OBJ_TCHEST2:
 	case OBJ_CHEST2:
-		os->_oVar1 = gbSetlevel ? 2 : random_(147, 3);
+		os->_oVar1 = currLvl._dSetLvl ? 2 : random_(147, 3);
 		break;
 	case OBJ_TCHEST3:
 	case OBJ_CHEST3:
-		os->_oVar1 = gbSetlevel ? 3 : random_(147, 4);
+		os->_oVar1 = currLvl._dSetLvl ? 3 : random_(147, 4);
 		break;
 	}
 	// CHEST_ITEM_TYPE
@@ -1370,15 +1320,7 @@ static void AddTrap(int oi)
 	ObjectStruct *os;
 	int mt;
 
-	mt = currlevel;
-#ifdef HELLFIRE
-	if (currlevel >= 17) {
-		if (currlevel <= 20)
-			mt -= 4;
-		else
-			mt -= 8;
-	}
-#endif
+	mt = currLvl._dLevel;
 	mt = mt / 3 + 1;
 	mt = random_(148, mt);
 	os = &object[oi];
@@ -1425,8 +1367,7 @@ static int FindValidShrine(int filter)
 
 	while (TRUE) {
 		rv = random_(0, NUM_SHRINETYPE);
-		if (currlevel >= shrinemin[rv] && currlevel <= shrinemax[rv]
-		 && rv != filter && shrineavail[rv] != excl)
+		if (rv != filter && shrineavail[rv] != excl)
 			break;
 	}
 	return rv;
@@ -1523,7 +1464,7 @@ static void AddDecap(int oi)
 
 static void AddVileBook(int oi)
 {
-	if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		object[oi]._oAnimFrame = 4;
 	}
 }
@@ -1563,13 +1504,13 @@ static void AddStoryBook(int oi)
 	os = &object[oi];
 	os->_oVar1 = bookframe;
 	// STORY_BOOK_MSG
-	if (currlevel == 4)
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
 		os->_oVar2 = StoryText[bookframe][0];
-	else if (currlevel == 8)
+	else if (currLvl._dLevelIdx == DLV_CATACOMBS4)
 		os->_oVar2 = StoryText[bookframe][1];
-	else if (currlevel == 12)
+	else if (currLvl._dLevelIdx == DLV_CAVES4)
 		os->_oVar2 = StoryText[bookframe][2];
-	os->_oVar3 = (currlevel >> 2) + 3 * bookframe - 1; // STORY_BOOK_NAME
+	os->_oVar3 = (currLvl._dLevelIdx >> 2) + 3 * bookframe - 1; // STORY_BOOK_NAME
 	os->_oAnimFrame = 5 - 2 * bookframe;
 	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_ANIM_FRAME
 }
@@ -1736,7 +1677,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TCHEST3:
 		AddChest(oi, type);
 		object[oi]._oTrapFlag = TRUE;
-		object[oi]._oVar4 = random_(0, leveltype == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
+		object[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
 	case OBJ_SARC:
 		AddSarc(oi);
@@ -1842,7 +1783,7 @@ static void Obj_Light(int oi)
 #endif
 	{
 		for (i = 0; i < MAX_PLRS && !turnon; i++) {
-			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+			if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
 				dx = abs(plr[i]._px - ox);
 				dy = abs(plr[i]._py - oy);
 				if (dx < tr && dy < tr)
@@ -1914,7 +1855,7 @@ static void Obj_Circle(int oi)
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
-			if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
+			if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 				dx = DBORDERX + 19; dy = DBORDERY + 30;
 				GetVileMissPos(&dx, &dy);
 			}
@@ -2123,7 +2064,7 @@ static void Obj_BCrossDamage(int oi)
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
 		return;
 
-	damage = 4 + 2 * leveltype;
+	damage = 4 + (currLvl._dLevel >> 1);
 	fire_resist = p->_pFireResist;
 	if (fire_resist > 0)
 		damage -= fire_resist * damage / 100;
@@ -2219,23 +2160,17 @@ void ProcessObjects()
 
 void ObjSetMicro(int dx, int dy, int pn)
 {
-	WORD *v;
-	MICROS *defs;
-	int i;
+	WORD *pPiece;
+	MICROS *pMap;
+	int i, blocks;
 
 	dPiece[dx][dy] = pn;
 	pn--;
-	defs = &dpiece_defs_map_2[dx][dy];
-	if (leveltype != DTYPE_HELL) {
-		v = (WORD *)pLevelPieces + 10 * pn;
-		for (i = 0; i < 10; i++) {
-			defs->mt[i] = SDL_SwapLE16(v[(i & 1) - (i & 0xE) + 8]);
-		}
-	} else {
-		v = (WORD *)pLevelPieces + 16 * pn;
-		for (i = 0; i < 16; i++) {
-			defs->mt[i] = SDL_SwapLE16(v[(i & 1) - (i & 0xE) + 14]);
-		}
+	pMap = &dpiece_defs_map_2[dx][dy];
+	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
+	pPiece = (WORD *)pLevelPieces + blocks * pn;
+	for (i = 0; i < blocks; i++) {
+		pMap->mt[i] = SDL_SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 	}
 }
 
@@ -2363,7 +2298,8 @@ static void DoorSet(int oi, int dx, int dy)
 
 	pn = dPiece[dx][dy];
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	// TODO: use dType instead?
+	if (currLvl._dLevelIdx >= DLV_NEST1) {
 		if (pn == 75)
 			ObjSetMicro(dx, dy, 204);
 		if (pn == 79)
@@ -2440,7 +2376,7 @@ void RedoPlayerVision()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+		if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
 			ChangeVisionXY(plr[i]._pvid, plr[i]._px, plr[i]._py);
 		}
 	}
@@ -2465,9 +2401,9 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
-			PlaySfxLoc(currlevel < 21 ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-		ObjSetMicro(xp, yp, currlevel < 21 ? 395 : 209);
-		dSpecial[xp][yp] = currlevel < 17 ? 8 : 2;
+			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
+		ObjSetMicro(xp, yp, currLvl._dType != DTYPE_CRYPT ? 395 : 209);
+		dSpecial[xp][yp] = currLvl._dType != DTYPE_CRYPT ? 8 : 2;
 #else
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2492,7 +2428,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 	}
 	if (!deltaload)
 #ifdef HELLFIRE
-		PlaySfxLoc(currlevel < 21 ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
+		PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
 #else
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
@@ -2503,7 +2439,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 #ifdef HELLFIRE
-		if (currlevel >= 17) {
+		if (currLvl._dType == DTYPE_CRYPT) {
 			if (pn == 86 && dPiece[xp - 1][yp] == 210)
 				pn = 232;
 		} else
@@ -2544,13 +2480,13 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 #ifdef HELLFIRE
 		if (!deltaload)
-			PlaySfxLoc(currlevel < 21 ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-		if (currlevel < 21) {
+			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
+		if (currLvl._dType != DTYPE_CRYPT) {
 			ObjSetMicro(xp, yp, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
 		} else {
 			ObjSetMicro(xp, yp, 206);
 		}
-		dSpecial[xp][yp] = currlevel < 17 ? 7 : 1;
+		dSpecial[xp][yp] = currLvl._dType != DTYPE_CRYPT ? 7 : 1;
 #else
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
@@ -2575,7 +2511,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 	}
 	if (!deltaload)
 #ifdef HELLFIRE
-		PlaySfxLoc(currlevel < 21 ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
+		PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
 #else
 		PlaySfxLoc(IS_DOORCLOS, xp, yp);
 #endif
@@ -2585,7 +2521,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 #ifdef HELLFIRE
-		if (currlevel >= 17) {
+		if (currLvl._dType == DTYPE_CRYPT) {
 			if (pn == 86 && dPiece[xp][yp - 1] == 210)
 				pn = 234;
 		} else
@@ -2844,14 +2780,10 @@ void ObjChangeMap(int x1, int y1, int x2, int y2)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-#ifdef HELLFIRE
-	if (leveltype == DTYPE_CATHEDRAL && currlevel < 17) {
-#else
-	if (leveltype == DTYPE_CATHEDRAL) {
-#endif
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		ObjL1Special(x1, y1, x2, y2);
 		AddL1Objs(x1, y1, x2, y2);
-	} else if (leveltype == DTYPE_CATACOMBS) {
+	} else if (currLvl._dType == DTYPE_CATACOMBS) {
 		ObjL2Special(x1, y1, x2, y2);
 		AddL2Objs(x1, y1, x2, y2);
 	}
@@ -2871,13 +2803,9 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-#ifdef HELLFIRE
-	if (leveltype == DTYPE_CATHEDRAL && currlevel < 17) {
-#else
-	if (leveltype == DTYPE_CATHEDRAL) {
-#endif
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		ObjL1Special(x1, y1, x2, y2);
-	} else if (leveltype == DTYPE_CATACOMBS) {
+	} else if (currLvl._dType == DTYPE_CATACOMBS) {
 		ObjL2Special(x1, y1, x2, y2);
 	}
 }
@@ -2900,7 +2828,7 @@ static void OperateLever(int oi, bool sendmsg)
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	mapflag = true;
-	if (currlevel == 16) {
+	if (currLvl._dLevelIdx == DLV_HELL4) {
 		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]]; //         LEVER_INDEX
 			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
@@ -2909,7 +2837,7 @@ static void OperateLever(int oi, bool sendmsg)
 			}
 		}
 #ifdef HELLFIRE
-	} else if (currlevel == 24) {
+	} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
 		DoOpenUberRoom();
 		gbUberLeverActivated = true;
 		mapflag = false;
@@ -2928,12 +2856,12 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	int dx, dy;
 	bool missile_added;
 
-	assert(gbSetlevel);
+	assert(currLvl._dSetLvl);
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
 		return;
-	if (setlvlnum == SL_VILEBETRAYER) {
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		missile_added = false;
 		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]];
@@ -2963,7 +2891,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	//if (sendmsg) FIXME check - setlevel vs. delta
 	//	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
-	if (setlvlnum == SL_BONECHAMB) {
+	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
 			return;
 		if (plr[pnum]._pSkillLvl[SPL_GUARDIAN] == 0) {
@@ -2987,7 +2915,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		    0,
 		    0,
 		    0);
-	} else if (setlvlnum == SL_VILEBETRAYER) {
+	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
@@ -3079,7 +3007,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
-	if (gbSetlevel) {
+	if (currLvl._dSetLvl) {
 		for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
 			CreateRndItem(os->_ox, os->_oy, true, sendmsg, false);
 		}
@@ -3293,7 +3221,7 @@ void DisarmObject(int pnum, int oi)
 		NewCursor(CURSOR_HAND);
 	os = &object[oi];
 	if (os->_oTrapFlag) {
-		trapdisper = 2 * plr[pnum]._pDexterity - 5 * currlevel;
+		trapdisper = 2 * plr[pnum]._pDexterity - 5 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
 			for (i = 0; i < nobjects; i++) {
 				on = &object[objectactive[i]];
@@ -3486,7 +3414,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		    pnum,
 		    0,
 		    0,
-		    2 * leveltype);
+		    (1 + currLvl._dLevel) >> 1);
 		if (pnum != myplr)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
@@ -3598,7 +3526,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		}
 		break;
 	case SHRINE_DIVINE:
-		if (currlevel <= 3) {
+		if (currLvl._dLevelIdx <= DLV_CATHEDRAL3) {
 			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLMANA, sendmsg, false);
 			CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_FULLHEAL, sendmsg, false);
 		} else {
@@ -3636,7 +3564,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_SPIRITUAL:
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (p->InvGrid[i] == 0) {
-				r = 5 * leveltype + random_(160, 10 * leveltype);
+				r = 2 * currLvl._dLevel + random_(160, 4 * currLvl._dLevel);
 				pi = &p->InvList[p->_pNumInv]; // check
 				copy_pod(*pi, golditem);
 				pi->_iSeed = GetRndSeed();
@@ -3691,7 +3619,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 				myplr,
 				0,
 				0,
-				currlevel);
+				currLvl._dLevel);
 		}
 		//if (pnum != myplr)
 		//	return;
@@ -3716,7 +3644,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		break;
 #ifdef HELLFIRE
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, p->_pLevel, 1000 * currlevel);
+		AddPlrExperience(pnum, p->_pLevel, 1000 * currLvl._dLevel);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -3744,7 +3672,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currlevel);
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currLvl._dLevel);
 			else
 				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, sendmsg, false);
 		}
@@ -3877,23 +3805,18 @@ static void OperateArmorStand(int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	uniqueRnd = random_(0, 2);
-	if (currlevel <= 5) {
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		itype = ITYPE_LARMOR;
 		onlygood = true;
-	} else if (currlevel <= 9) {
+	} else if (currLvl._dType == DTYPE_CATACOMBS) {
 		itype = ITYPE_MARMOR;
 		onlygood = uniqueRnd;
-	} else if (currlevel <= 12) {
+	} else if (currLvl._dType == DTYPE_CAVES) {
 		itype = ITYPE_HARMOR;
 		onlygood = false;
-	} else if (currlevel <= 16) {
-		itype = ITYPE_HARMOR;
-		onlygood = true;
-#ifdef HELLFIRE
 	} else {
 		itype = ITYPE_HARMOR;
 		onlygood = true;
-#endif
 	}
 	CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, false);
 }
@@ -3956,7 +3879,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		    pnum,
 		    0,
 		    0,
-		    2 * leveltype);
+		    (1 + currLvl._dLevel) >> 1);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
@@ -3991,7 +3914,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy,
-		leveltype > DTYPE_CATHEDRAL,
+		currLvl._dType != DTYPE_CATHEDRAL,
 		ITYPE_SWORD + random_(0, 4),
 		IMISC_NONE, sendmsg, false);
 }
@@ -4019,13 +3942,13 @@ static void OperateStoryBook(int oi, bool sendmsg)
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_ANIM_FRAME
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 #ifdef HELLFIRE
-	if (os->_oVar8 != 0 && currlevel == 24) { // STORY_BOOK_NAKRUL_IDX
+	if (os->_oVar8 != 0 && currLvl._dLevelIdx == DLV_CRYPT4) { // STORY_BOOK_NAKRUL_IDX
 		if (!gbUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
 			// if (sendmsg)
 				NetSendCmd(false, CMD_NAKRUL);
 			return;
 		}
-	} else if (currlevel >= 21) {
+	} else if (currLvl._dType == DTYPE_CRYPT) {
 		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 		quests[Q_NAKRUL]._qlog = TRUE;
 		quests[Q_NAKRUL]._qmsg = os->_oVar2; // STORY_BOOK_MSG
@@ -4121,9 +4044,9 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 
 	if (os->_otype == OBJ_BARRELEX) {
 #ifdef HELLFIRE
-		if (currlevel >= 21 && currlevel <= 24)
+		if (currLvl._dType == DTYPE_CRYPT)
 			PlaySfxLoc(IS_POPPOP3, os->_ox, os->_oy);
-		else if (currlevel >= 17 && currlevel <= 20)
+		else if (currLvl._dType == DTYPE_NEST)
 			PlaySfxLoc(IS_POPPOP8, os->_ox, os->_oy);
 		else
 #endif
@@ -4141,9 +4064,9 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 		}
 	} else {
 #ifdef HELLFIRE
-		if (currlevel >= 21 && currlevel <= 24)
+		if (currLvl._dType == DTYPE_CRYPT)
 			PlaySfxLoc(IS_POPPOP2, os->_ox, os->_oy);
-		else if (currlevel >= 17 && currlevel <= 20)
+		else if (currLvl._dType == DTYPE_NEST)
 			PlaySfxLoc(IS_POPPOP5, os->_ox, os->_oy);
 		else
 #endif
@@ -4511,7 +4434,7 @@ static void SyncL1Doors(int oi)
 	x = os->_ox;
 	y = os->_oy;
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_CRYPT) {
 		if (os->_otype == OBJ_L1LDOOR) {
 			ObjSetMicro(x, y, 206);
 			dSpecial[x][y] = 1;
@@ -4649,12 +4572,10 @@ void GetObjectStr(int oi)
 			copy_cstr(infostr, "Blocked Door");
 		break;
 	case OBJ_BOOK2L:
-		if (gbSetlevel) {
-			if (setlvlnum == SL_BONECHAMB)
-				copy_cstr(infostr, "Ancient Tome");
-			else if (setlvlnum == SL_VILEBETRAYER)
-				copy_cstr(infostr, "Book of Vileness");
-		}
+		if (currLvl._dLevelIdx == SL_BONECHAMB)
+			copy_cstr(infostr, "Ancient Tome");
+		else if (currLvl._dLevelIdx == SL_VILEBETRAYER)
+			copy_cstr(infostr, "Book of Vileness");
 		break;
 	case OBJ_SWITCHSKL:
 		copy_cstr(infostr, "Skull Lever");
@@ -4686,10 +4607,10 @@ void GetObjectStr(int oi)
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
-		if (currlevel >= 17 && currlevel <= 20)      // for hive levels
-			copy_cstr(infostr, "Pod");               //Then a barrel is called a pod
-		else if (currlevel >= 21 && currlevel <= 24) // for crypt levels
-			copy_cstr(infostr, "Urn");               //Then a barrel is called an urn
+		if (currLvl._dType == DTYPE_NEST)       // for nest levels
+			copy_cstr(infostr, "Pod");          //Then a barrel is called a pod
+		else if (currLvl._dType == DTYPE_CRYPT) // for crypt levels
+			copy_cstr(infostr, "Urn");          //Then a barrel is called an urn
 		else
 #endif
 			copy_cstr(infostr, "Barrel");
@@ -4789,7 +4710,7 @@ void OpenUberRoom()
 
 void DoOpenUberRoom()
 {
-	if (currlevel == 24) {
+	if (currLvl._dLevelIdx == DLV_CRYPT4) {
 		PlaySfxLoc(IS_CROPEN, UberRow, UberCol);
 		OpenUberRoom();
 	}

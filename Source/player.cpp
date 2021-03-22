@@ -275,12 +275,12 @@ void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 		switch (i) {
 		case PFIDX_STAND:
-			szCel = leveltype != DTYPE_TOWN ? "AS" : "ST";
+			szCel = currLvl._dType != DTYPE_TOWN ? "AS" : "ST";
 			pData = p->_pNData;
 			pAnim = &p->_pNAnim;
 			break;
 		case PFIDX_WALK:
-			szCel = leveltype != DTYPE_TOWN ? "AW" : "WL";
+			szCel = currLvl._dType != DTYPE_TOWN ? "AW" : "WL";
 			pData = p->_pWData;
 			pAnim = &p->_pWAnim;
 			break;
@@ -344,7 +344,7 @@ void InitPlayerGFX(int pnum)
 		gfxflag = PFILE_DEATH;
 	} else {
 		gfxflag = PFILE_NONDEATH;
-		if (leveltype == DTYPE_TOWN)
+		if (currLvl._dType == DTYPE_TOWN)
 			gfxflag &= ~(PFILE_ATTACK | PFILE_HIT | PFILE_BLOCK);
 		else if (!(plr[pnum]._pSkillFlags & SFLAG_BLOCK))
 			gfxflag &= ~PFILE_BLOCK;
@@ -511,7 +511,7 @@ void SetPlrAnims(int pnum)
 
 	pc = p->_pClass;
 
-	if (leveltype == DTYPE_TOWN) {
+	if (currLvl._dType == DTYPE_TOWN) {
 		p->_pNFrames = PlrGFXAnimLens[pc][7];
 		p->_pWFrames = PlrGFXAnimLens[pc][8];
 		p->_pDFrames = PlrGFXAnimLens[pc][4];
@@ -531,7 +531,7 @@ void SetPlrAnims(int pnum)
 	gn = p->_pgfxnum & 0xF;
 	if (pc == PC_WARRIOR) {
 		if (gn == ANIM_ID_BOW) {
-			if (leveltype != DTYPE_TOWN) {
+			if (currLvl._dType != DTYPE_TOWN) {
 				p->_pNFrames = 8;
 			}
 			p->_pAWidth = 96;
@@ -614,7 +614,7 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 20;
 			p->_pAFNum = 8;
 		} else if (gn == ANIM_ID_BOW) {
-			if (leveltype != DTYPE_TOWN) {
+			if (currLvl._dType != DTYPE_TOWN) {
 				p->_pNFrames = 8;
 			}
 			p->_pAWidth = 96;
@@ -900,11 +900,11 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	}
 
 #ifdef _DEBUG
-	if (active && (p->plrlevel == currlevel || leveldebug)) {
+	if (active && (p->plrlevel == currLvl._dLevelIdx || leveldebug)) {
 #else
-	if (active && p->plrlevel == currlevel) {
+	if (active && p->plrlevel == currLvl._dLevelIdx) {
 #endif
-		if (currlevel != 0)
+		if (currLvl._dLevelIdx != DLV_TOWN)
 			p->_pSkillFlags	|= SFLAG_DUNGEON;
 		else
 			p->_pSkillFlags	&= ~SFLAG_DUNGEON;
@@ -971,7 +971,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	}
 #endif
 
-	// TODO: BUGFIX: should only be set if p->plrlevel == currlevel?
+	// TODO: BUGFIX: should only be set if p->plrlevel == currLvl._dLevelIdx?
 	if (p->_pmode != PM_DEATH)
 		p->_pInvincible = FALSE;
 
@@ -1013,7 +1013,7 @@ static bool PlrDirOK(int pnum, int dir)
 	return true;
 }
 
-void PlrClrTrans(int x, int y)
+/*void PlrClrTrans(int x, int y)
 {
 	int i, j;
 
@@ -1028,7 +1028,7 @@ void PlrDoTrans(int x, int y)
 {
 	int i, j;
 
-	if (leveltype != DTYPE_CATHEDRAL && leveltype != DTYPE_CATACOMBS) {
+	if (currLvl._dType != DTYPE_CATHEDRAL && currLvl._dType != DTYPE_CATACOMBS) {
 		TransList[1] = true;
 	} else {
 		for (i = y - 1; i <= y + 1; i++) {
@@ -1039,7 +1039,7 @@ void PlrDoTrans(int x, int y)
 			}
 		}
 	}
-}
+}*/
 
 void FixPlayerLocation(int pnum)
 {
@@ -1831,7 +1831,7 @@ void StartPlrKill(int pnum, int earflag)
 		CalcPlrInv(pnum, false);
 	}
 
-	if (p->plrlevel == currlevel) {
+	if (p->plrlevel == currLvl._dLevelIdx) {
 		RemovePlrFromMap(pnum);
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 		FixPlayerLocation(pnum);
@@ -1885,7 +1885,7 @@ void StartPlrKill(int pnum, int earflag)
 
 void SyncPlrKill(int pnum, int earflag)
 {
-	if (currlevel == 0) {
+	if (currLvl._dType == DTYPE_TOWN) {
 		PlrSetHp(pnum, 64);
 		return;
 	}
@@ -1898,7 +1898,7 @@ void RemovePlrMissiles(int pnum)
 	int i, mi;
 
 	static_assert(MAX_MINIONS == MAX_PLRS, "RemovePlrMissiles requires that owner of a monster has the same id as the monster itself.");
-	if (currlevel != 0 && pnum == myplr && !(MINION_NR_INACTIVE(pnum))) {
+	if (currLvl._dType != DTYPE_TOWN && pnum == myplr && !(MINION_NR_INACTIVE(pnum))) {
 		MonStartKill(pnum, pnum);
 		AddDead(pnum);
 		DeleteMonsterList();
@@ -1920,7 +1920,7 @@ static void InitLevelChange(int pnum)
 
 	ClrPlrPath(pnum);
 	p = &plr[pnum];
-	if (p->plrlevel == currlevel) {
+	if (p->plrlevel == currLvl._dLevelIdx) {
 		AddUnLight(p->_plid);
 		AddUnVision(p->_pvid);
 		RemovePlrMissiles(pnum);
@@ -1961,11 +1961,11 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr[pnum].plrlevel = lvl;
 		break;
 	case WM_DIABSETLVL:
-		setlvlnum = lvl;
+		plr[pnum].plrlevel = lvl;
 		break;
 	case WM_DIABTWARPUP:
 		if (pnum == myplr)
-			plr[pnum].pTownWarps |= 1 << (leveltype - 2);
+			plr[pnum].pTownWarps |= 1 << (currLvl._dType - 2);
 		plr[pnum].plrlevel = lvl;
 		break;
 	default:
@@ -2788,7 +2788,7 @@ static void CheckNewPath(int pnum)
 				}
 			}
 
-			if (currlevel != 0) {
+			if (currLvl._dLevelIdx != DLV_TOWN) {
 				xvel3 = PWVel[p->_pClass][0];
 				xvel = PWVel[p->_pClass][1];
 				yvel = PWVel[p->_pClass][2];
@@ -3065,7 +3065,7 @@ void ProcessPlayers()
 	ValidatePlayer();
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr[pnum].plractive && currlevel == plr[pnum].plrlevel && (pnum == myplr || !plr[pnum]._pLvlChanging)) {
+		if (plr[pnum].plractive && currLvl._dLevelIdx == plr[pnum].plrlevel && (pnum == myplr || !plr[pnum]._pLvlChanging)) {
 			CheckCheatStats(pnum);
 
 			if (!PlrDeathModeOK(pnum) && plr[pnum]._pHitPoints < (1 << 6)) {
@@ -3073,7 +3073,7 @@ void ProcessPlayers()
 			}
 
 			if (pnum == myplr) {
-				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currlevel != 0 && !plr[pnum]._pInvincible) {
+				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr[pnum]._pInvincible) {
 					PlrDecHp(pnum, 4, 0);
 				}
 				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pMana > 0) {
@@ -3163,7 +3163,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 			if (monster[mpo - 1]._mhitpoints >= (1 << 6)) {
 				return false;
 			}
-			if (currlevel == 0) {
+			if (currLvl._dLevelIdx == DLV_TOWN) {
 				return false;
 			}
 		}
@@ -3296,7 +3296,7 @@ void SyncPlrAnim(int pnum)
 
 void SyncInitPlrPos(int pnum)
 {
-	assert(plr[pnum].plrlevel == currlevel);
+	assert(plr[pnum].plrlevel == currLvl._dLevelIdx);
 
 	if (PlacePlayer(pnum)) {
 		RemovePlrFromMap(pnum);
@@ -3676,39 +3676,39 @@ void PlayDungMsgs()
 	if (gbMaxPlayers != 1)
 		return;
 
-	if (currlevel == 1 && !plr[myplr]._pLvlVisited[1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !plr[myplr]._pLvlVisited[1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_97][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATHEDRAL;
-	} else if (currlevel == 5 && !plr[myplr]._pLvlVisited[5] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !plr[myplr]._pLvlVisited[5] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_96][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATACOMBS;
-	} else if (currlevel == 9 && !plr[myplr]._pLvlVisited[9] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
+	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !plr[myplr]._pLvlVisited[9] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_98][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CAVES;
-	} else if (currlevel == 13 && !plr[myplr]._pLvlVisited[13] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
+	} else if (currLvl._dLevelIdx == DLV_HELL1 && !plr[myplr]._pLvlVisited[13] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_99][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_HELL;
-	} else if (currlevel == 16 && !plr[myplr]._pLvlVisited[16] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
+	} else if (currLvl._dLevelIdx == DLV_HELL4 && !plr[myplr]._pLvlVisited[16] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
 		sfxdnum = PS_DIABLVLINT;
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
-	} else if (currlevel == 17 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
+	} else if (currLvl._dLevelIdx == DLV_NEST1 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER1;
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER;
-	} else if (currlevel == 19 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
+	} else if (currLvl._dLevelIdx == DLV_NEST3 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER3;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER1;
-	} else if (currlevel == 21 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG2_DEFILER2;

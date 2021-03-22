@@ -171,7 +171,7 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 	dwMaxLen -= sizeof(*pHdr);
 
 	pHdr->bCmd = CMD_SYNCDATA;
-	pHdr->bLevel = currlevel;
+	pHdr->bLevel = currLvl._dLevelIdx;
 	pHdr->wLen = 0;
 	SyncPlrInv(pHdr);
 	assert(dwMaxLen <= 0xffff);
@@ -265,7 +265,7 @@ DWORD sync_update(int pnum, const BYTE *pbBuf)
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr) {
 		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
-			if (currlevel == pHdr->bLevel) {
+			if (currLvl._dLevelIdx == pHdr->bLevel) {
 				sync_monster(pnum, (TSyncMonster *)pbBuf);
 			}
 			delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);

@@ -343,7 +343,7 @@ void CheckCursMove()
 	}
 
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		if (pcurstemp != -1) {
 			if (!flipflag) {
 				mi = dMonster[mx + 2][my + 1];

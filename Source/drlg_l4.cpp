@@ -216,7 +216,7 @@ static void InitL4Dungeon()
 static void DRLG_LoadL4SP()
 {
 	gbSetloadflag = false;
-	if (currlevel == 15 && gbMaxPlayers != 1) {
+	if (currLvl._dLevelIdx == DLV_HELL3 && gbMaxPlayers != 1) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
 		gbSetloadflag = true;
 	} else if (QuestStatus(Q_WARLORD)) {
@@ -1221,12 +1221,12 @@ static void L4firstRoom()
 {
 	int x, y, w, h, xmin, xmax, ymin, ymax;
 
-	if (currlevel != 16) {
-		if (currlevel == quests[Q_WARLORD]._qlevel && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL) {
+	if (currLvl._dLevelIdx != DLV_HELL4) {
+		if (currLvl._dLevelIdx == quests[Q_WARLORD]._qlevel && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL) {
 			/// ASSERT: assert(gbMaxPlayers == 1);
 			w = 11;
 			h = 11;
-		} else if (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		} else if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 			w = 11;
 			h = 11;
 		} else {
@@ -1246,11 +1246,11 @@ static void L4firstRoom()
 	ymin = (ymax + 1) >> 1;
 	y = RandRange(ymin, ymax);
 
-	if (currlevel == 16) {
+	if (currLvl._dLevelIdx == DLV_HELL4) {
 		l4holdx = x;
 		l4holdy = y;
 	}
-	if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+	if (QuestStatus(Q_WARLORD) || currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 		SP4x1 = x + 1;
 		SP4y1 = y + 1;
 		SP4x2 = SP4x1 + w;
@@ -1390,7 +1390,7 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		}
 	}
 
-	if (currlevel == 15 && quests[Q_BETRAYER]._qactive >= QUEST_ACTIVE) { /// Lazarus staff skip bug fixed
+	if (currLvl._dLevelIdx == DLV_HELL3 && quests[Q_BETRAYER]._qactive >= QUEST_ACTIVE) { /// Lazarus staff skip bug fixed
 		quests[Q_BETRAYER]._qtx = sx + 1;
 		quests[Q_BETRAYER]._qty = sy + 1;
 	}
@@ -1605,10 +1605,10 @@ static void DRLG_L4(int entry)
 		L4makeDungeon();
 		DRLG_L4MakeMegas();
 		L4tileFix();
-		if (currlevel == 16) {
+		if (currLvl._dLevelIdx == DLV_HELL4) {
 			L4SaveQuads();
 		}
-		//if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		//if (QuestStatus(Q_WARLORD) || currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 			for (i = SP4x1; i < SP4x2; i++) {
 				for (j = SP4y1; j < SP4y2; j++) {
 					dflags[i][j] = 1;
@@ -1621,24 +1621,24 @@ static void DRLG_L4(int entry)
 		if (gbSetloadflag) {
 			DRLG_L4SetSPRoom(SP4x1, SP4y1);
 		}
-		if (currlevel == 16) {
+		if (currLvl._dLevelIdx == DLV_HELL4) {
 			DRLG_LoadDiabQuads(true);
 		}
 		if (QuestStatus(Q_WARLORD)) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currlevel != 13 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewX = 2 * setpc_x + DBORDERX + 6;
 				ViewY = 2 * setpc_y + DBORDERY + 6;
 			}
-		} else if (currlevel != 15) {
+		} else if (currLvl._dLevelIdx != DLV_HELL3) {
 			mini_set stairs[3] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currlevel != 16 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
-				{ currlevel != 13 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_HELL4 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
+				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
 			};
 			doneflag = DRLG_L4PlaceMiniSets(stairs, 3);
 			if (entry == ENTRY_PREV) {
@@ -1659,7 +1659,7 @@ static void DRLG_L4(int entry)
 
 	DRLG_L4GeneralFix();
 
-	if (currlevel != 16) {
+	if (currLvl._dLevelIdx != DLV_HELL4) {
 		DRLG_PlaceThemeRooms(7, 10, 6, 8, true);
 	}
 
@@ -1674,7 +1674,7 @@ static void DRLG_L4(int entry)
 
 	DRLG_CheckQuests(SP4x1, SP4y1);
 
-	if (currlevel == 15) {
+	if (currLvl._dLevelIdx == DLV_HELL3) {
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++) {
 				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
@@ -1683,7 +1683,7 @@ static void DRLG_L4(int entry)
 			}
 		}
 	}
-	if (currlevel == 16) {
+	if (currLvl._dLevelIdx == DLV_HELL4) {
 		memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 		DRLG_LoadDiabQuads(false);

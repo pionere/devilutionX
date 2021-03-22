@@ -222,7 +222,7 @@ unsigned char GetOpenWarps()
 #ifdef HELLFIRE
 	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
 	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
-		twarps |= 1 << TWARP_HIVE;
+		twarps |= 1 << TWARP_NEST;
 	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
 		twarps |= 1 << TWARP_CRYPT;
 #endif
@@ -264,7 +264,7 @@ void T_Pass3()
 	}
 
 #ifdef HELLFIRE
-	if (!(twarps & (1 << TWARP_HIVE)))
+	if (!(twarps & (1 << TWARP_NEST)))
 		T_HiveClosed();
 	else
 		T_HiveOpen();

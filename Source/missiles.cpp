@@ -827,11 +827,11 @@ static bool PlayerTrapHit(int pnum, int mi)
 	}
 
 	tmp = 10;
-	if (currlevel == 14)
+	if (currLvl._dLevelIdx == DLV_HELL2)
 		tmp = 20;
-	else if (currlevel == 15)
+	else if (currLvl._dLevelIdx == DLV_HELL3)
 		tmp = 25;
-	else if (currlevel == 16)
+	else if (currLvl._dLevelIdx == DLV_HELL4)
 		tmp = 30;
 	if (hper < tmp)
 		hper = tmp;
@@ -891,11 +891,11 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 
 	tmp = 10;
-	if (currlevel == 14)
+	if (currLvl._dLevelIdx == DLV_HELL2)
 		tmp = 20;
-	else if (currlevel == 15)
+	else if (currLvl._dLevelIdx == DLV_HELL3)
 		tmp = 25;
-	else if (currlevel == 16)
+	else if (currLvl._dLevelIdx == DLV_HELL4)
 		tmp = 30;
 	if (hper < tmp)
 		hper = tmp;
@@ -1464,7 +1464,7 @@ int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		// TODO: bring it closer to AddFirewall? (_pISplDur, adjust damage)
 		mis->_miMaxDam = ((plr[misource]._pMagic >> 1) + spllvl) << (-3 + 6);
 	//} else {
-	//	mis->_miMaxDam = (20 + currlevel) << (-2 + 6);
+	//	mis->_miMaxDam = (20 + currLvl._dLevel) << (-2 + 6);
 	//}
 	mis->_miMinDam = 1 << (-5 + 6);
 	mis->_miRange = 255 * (spllvl + 1);
@@ -1598,8 +1598,8 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMaxDam = monster[misource].mMaxDamage << 6;
 		}
 	} else {
-		mis->_miMinDam = currlevel << 6;
-		mis->_miMaxDam = currlevel << (1 + 6);
+		mis->_miMinDam = currLvl._dLevel << 6;
+		mis->_miMaxDam = currLvl._dLevel << (1 + 6);
 	}
 	return MIRES_DONE;
 }
@@ -1668,8 +1668,8 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 			}
 		} else {
 			av = 16;
-			mindam = currlevel;
-			maxdam = mindam + 2 * currlevel - 1;
+			mindam = currLvl._dLevel;
+			maxdam = mindam + 2 * mindam - 1;
 		}
 	} else {
 		av = 26;
@@ -1787,8 +1787,8 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		mis->_miMinDam = ((p->_pMagic >> 3) + spllvl + 5) << (-3 + 6);
 		mis->_miMaxDam = ((p->_pMagic >> 3) + spllvl * 2 + 10) << (-3 + 6);
 	} else {
-		mis->_miMinDam = (15 + currlevel) << (-3 + 6);
-		mis->_miMaxDam = (25 + currlevel) << (-3 + 6);
+		mis->_miMinDam = (15 + currLvl._dLevel) << (-3 + 6);
+		mis->_miMaxDam = (25 + currLvl._dLevel) << (-3 + 6);
 	}
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
@@ -1852,8 +1852,8 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			maxdam = monster[misource].mMaxDamage;
 		}
 	} else {
-		mindam = currlevel << 1;
-		maxdam = mindam + currlevel;
+		mindam = currLvl._dLevel << 1;
+		maxdam = mindam + currLvl._dLevel;
 	}
 
 	GetMissileVel(mi, sx, sy, dx, dy, 32);
@@ -1941,7 +1941,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	const char *cr;
 
 	mis = &missile[mi];
-	if (currlevel != 0) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		mis->_miDelFlag = TRUE;
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
@@ -1954,11 +1954,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 						if (!CheckIfTrig(tx, ty)) {
 							mis->_miDelFlag = FALSE;
 							if (misource == myplr) {
-								if (!gbSetlevel) {
-									NetSendCmdLocBParam3(true, CMD_ACTIVATEPORTAL, tx, ty, currlevel, leveltype, FALSE);
-								} else {
-									NetSendCmdLocBParam3(true, CMD_ACTIVATEPORTAL, tx, ty, setlvlnum, leveltype, TRUE);
-								}
+								NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
 							}
 							i = 6;
 							break;
@@ -2011,7 +2007,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMinDam = mis->_miMaxDam = monster[misource].mLevel << 1;
 		}
 	} else {
-		mis->_miMinDam = mis->_miMaxDam = currlevel >> 1;
+		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel >> 1;
 	}
 	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
 	mis->_miRange = 19;
@@ -2149,7 +2145,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	//	}
 	//} else {
 	//	mindam = 1 << 6;
-	//	maxdam = currlevel << (1 + 6);
+	//	maxdam = currLvl._dLevel << (1 + 6);
 	//}
 	mis->_miRange = 256;
 	return MIRES_DONE;
@@ -2586,7 +2582,7 @@ int AddLightNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	if (misource != -1) {
 		mis->_miMaxDam = ((plr[misource]._pMagic >> 1) + (spllvl << 4)) << 6;
 	} else {
-		mis->_miMaxDam = (6 + currlevel) << 6;
+		mis->_miMaxDam = (6 + currLvl._dLevel) << 6;
 	}
 	// mis->_miRange = 1;
 	return MIRES_DONE;
@@ -2738,7 +2734,7 @@ int AddFireTrap(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	MissileStruct *mis;
 
 	mis = &missile[mi];
-	mis->_miMinDam = (2 + leveltype) << 6;
+	mis->_miMinDam = (2 + currLvl._dLevel) << (6 - 2);
 	mis->_miMaxDam = mis->_miMinDam * 2;
 	mis->_miRange = 9;
 	return MIRES_DONE;
@@ -2834,7 +2830,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 
 	CalcPlrInv(tnum, true);
 
-	if (tp->plrlevel == currlevel) {
+	if (tp->plrlevel == currLvl._dLevelIdx) {
 		PlacePlayer(tnum);
 		PlrStartStand(tnum, tp->_pdir);
 	} else {
@@ -3499,9 +3495,9 @@ void MI_Town(int mi)
 		mis->_miRange--;
 	if (mis->_miRange == mis->_miVar1) {
 		SetMissDir(mi, 1);
-		if (currlevel != 0 && mis->_miLid == -1)
+		if (currLvl._dType != DLV_TOWN && mis->_miLid == -1)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 15);
-	} else if (mis->_miDir != 1 && currlevel != 0) {
+	} else if (mis->_miDir != 1 && currLvl._dType != DLV_TOWN) {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
 		else
@@ -4243,7 +4239,7 @@ void MI_Rportal(int mi)
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 		AddUnLight(mis->_miLid);
-	} else if (currlevel != 0 && mis->_miDir != 1) {
+	} else if (currLvl._dType != DLV_TOWN && mis->_miDir != 1) {
 		if (mis->_miVar2 == 0)
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
 		else

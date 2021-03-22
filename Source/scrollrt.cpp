@@ -465,7 +465,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		p = &plr[i];
-		if (p->plractive && p->_pHitPoints < (1 << 6) && p->plrlevel == currlevel && p->_px == x && p->_py == y) {
+		if (p->plractive && p->_pHitPoints < (1 << 6) && p->plrlevel == currLvl._dLevelIdx && p->_px == x && p->_py == y) {
 #ifdef _DEBUG
 			BYTE *pCelBuff = p->_pAnimData;
 			if (pCelBuff == NULL) {
@@ -656,7 +656,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
  */
 static void DrawMonsterHelper(int mnum, int x, int y, int sx, int sy)
 {
-	if (leveltype != DTYPE_TOWN)
+	if (currLvl._dType != DTYPE_TOWN)
 		DrawMonster(mnum, x, y, sx, sy);
 	else
 		DrawTowner(mnum, x, y, sx, sy);
@@ -753,7 +753,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	DrawObject(sx, sy, dx, dy, FALSE);
 	DrawItem(sx, sy, dx, dy, FALSE);
 
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		bArch = dSpecial[sx][sy];
 		if (bArch != 0) {
 			gbCelTransparencyActive = TransList[bMap];

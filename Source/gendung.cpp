@@ -51,13 +51,8 @@ bool nTransTable[MAXTILES + 1];
 bool nMissileTable[MAXTILES + 1];
 bool nTrapTable[MAXTILES + 1];
 int gnDifficulty;
-/** Specifies the active dungeon type of the current game. */
-BYTE leveltype;
-/** Specifies the active dungeon level of the current game. */
-BYTE currlevel;
-bool gbSetlevel;
-/** Specifies the active quest level of the current game. */
-BYTE setlvlnum;
+/** Contains the data of the active dungeon level. */
+LevelStruct currLvl;
 /** Specifies the player viewpoint X-coordinate of the map. */
 int ViewX;
 /** Specifies the player viewpoint Y-coordinate of the map. */
@@ -158,38 +153,7 @@ void FillSolidBlockTbls()
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 	memset(nTrapTable, 0, sizeof(nTrapTable));
 
-	switch (leveltype) {
-	case DTYPE_TOWN:
-		pSBFile = LoadFileInMem("Levels\\TownData\\Town.SOL", &dwTiles);
-		break;
-	case DTYPE_CATHEDRAL:
-#ifdef HELLFIRE
-		if (currlevel >= 17) {
-			pSBFile = LoadFileInMem("NLevels\\L5Data\\L5.SOL", &dwTiles);
-			break;
-		}
-#endif
-		pSBFile = LoadFileInMem("Levels\\L1Data\\L1.SOL", &dwTiles);
-		break;
-	case DTYPE_CATACOMBS:
-		pSBFile = LoadFileInMem("Levels\\L2Data\\L2.SOL", &dwTiles);
-		break;
-	case DTYPE_CAVES:
-#ifdef HELLFIRE
-		if (currlevel >= 17) {
-			pSBFile = LoadFileInMem("NLevels\\L6Data\\L6.SOL", &dwTiles);
-			break;
-		}
-#endif
-		pSBFile = LoadFileInMem("Levels\\L3Data\\L3.SOL", &dwTiles);
-		break;
-	case DTYPE_HELL:
-		pSBFile = LoadFileInMem("Levels\\L4Data\\L4.SOL", &dwTiles);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	pSBFile = LoadFileInMem(AllLevels[currLvl._dLevelIdx].dSolidTable, &dwTiles);
 	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
 
@@ -217,16 +181,8 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 	WORD *pPiece;
 	MICROS *pMap;
 
-	if (leveltype == DTYPE_TOWN) {
-		MicroTileLen = 16;
-		blocks = 16;
-	} else if (leveltype != DTYPE_HELL) {
-		MicroTileLen = 10;
-		blocks = 10;
-	} else {
-		MicroTileLen = 12;
-		blocks = 16;
-	}
+	MicroTileLen = AllLevels[currLvl._dLevelIdx].dMicroTileLen;
+	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
 
 	for (y = y1; y < y2; y++) {
 		for (x = x1; x < x2; x++) {
@@ -234,10 +190,7 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 			pMap = &dpiece_defs_map_2[x][y];
 			if (lv != 0) {
 				lv--;
-				if (blocks == 10)
-					pPiece = (WORD *)&pLevelPieces[20 * lv];
-				else
-					pPiece = (WORD *)&pLevelPieces[32 * lv];
+				pPiece = (WORD *)&pLevelPieces[2 * blocks * lv];
 				for (i = 0; i < blocks; i++)
 					pMap->mt[i] = SDL_SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 			} else {
@@ -504,38 +457,38 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 	BYTE v;
 
 	// left/right side
-	v = leveltype == DTYPE_CAVES ? 137 : 1;
+	v = currLvl._dDunType == DTYPE_CAVES ? 137 : 1;
 	for (yy = ly; yy < hy; yy++) {
 		dungeon[lx][yy] = v;
 		dungeon[hx - 1][yy] = v;
 	}
 	// top/bottom line
-	v = leveltype == DTYPE_CAVES ? 134 : 2;
+	v = currLvl._dDunType == DTYPE_CAVES ? 134 : 2;
 	for (xx = lx; xx < hx; xx++) {
 		dungeon[xx][ly] = v;
 		dungeon[xx][hy - 1] = v;
 	}
 	// inner tiles
-	v = leveltype == DTYPE_CATACOMBS ? 3 : (leveltype == DTYPE_CAVES ? 7 : 6);
+	v = currLvl._dDunType == DTYPE_CATACOMBS ? 3 : (currLvl._dDunType == DTYPE_CAVES ? 7 : 6);
 	for (yy = ly + 1; yy < hy - 1; yy++) {
 		for (xx = lx + 1; xx < hx - 1; xx++) {
 			dungeon[xx][yy] = v;
 		}
 	}
 	// corners
-	if (leveltype == DTYPE_CATACOMBS) {
+	if (currLvl._dDunType == DTYPE_CATACOMBS) {
 		dungeon[lx][ly] = 8;
 		dungeon[hx - 1][ly] = 7;
 		dungeon[lx][hy - 1] = 9;
 		dungeon[hx - 1][hy - 1] = 6;
 	}
-	if (leveltype == DTYPE_CAVES) {
+	if (currLvl._dDunType == DTYPE_CAVES) {
 		dungeon[lx][ly] = 150;
 		dungeon[hx - 1][ly] = 151;
 		dungeon[lx][hy - 1] = 152;
 		dungeon[hx - 1][hy - 1] = 138;
 	}
-	if (leveltype == DTYPE_HELL) {
+	if (currLvl._dDunType == DTYPE_HELL) {
 		dungeon[lx][ly] = 9;
 		dungeon[hx - 1][ly] = 16;
 		dungeon[lx][hy - 1] = 15;
@@ -543,21 +496,21 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 	}
 
 	// exits
-	if (leveltype == DTYPE_CATACOMBS) {
+	if (currLvl._dDunType == DTYPE_CATACOMBS) {
 		if (random_(0, 2) == 0) {
 			dungeon[hx - 1][(ly + hy) / 2] = 4;
 		} else {
 			dungeon[(lx + hx) / 2][hy - 1] = 5;
 		}
 	}
-	if (leveltype == DTYPE_CAVES) {
+	if (currLvl._dDunType == DTYPE_CAVES) {
 		if (random_(0, 2) == 0) {
 			dungeon[hx - 1][(ly + hy) / 2] = 147;
 		} else {
 			dungeon[(lx + hx) / 2][hy - 1] = 146;
 		}
 	}
-	if (leveltype == DTYPE_HELL) {
+	if (currLvl._dDunType == DTYPE_HELL) {
 		if (random_(0, 2) == 0) {
 			yy = (ly + hy) / 2;
 			dungeon[hx - 1][yy - 1] = 53;
@@ -600,7 +553,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 				themeLoc[themeCount].width = themeW;
 				themeLoc[themeCount].height = themeH;
 				themeLoc[themeCount].ttval = TransVal;
-				if (leveltype == DTYPE_CAVES)
+				if (currLvl._dDunType == DTYPE_CAVES)
 					DRLG_RectTrans(2 * i + DBORDERX + 4, 2 * j + DBORDERY + 4, 2 * (i + themeW) - 1 + DBORDERX, 2 * (j + themeH) - 1 + DBORDERY);
 				else {
 					DRLG_MRectTrans(i + 1, j + 1, i + themeW, j + themeH, TransVal);
@@ -650,9 +603,7 @@ void InitLevels()
 	if (leveldebug)
 		return;
 #endif
-	currlevel = 0;
-	leveltype = DTYPE_TOWN;
-	gbSetlevel = false;
+	EnterLevel(DLV_TOWN); // TODO: is this necessary?
 }
 
 DEVILUTION_END_NAMESPACE

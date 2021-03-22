@@ -1623,7 +1623,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 
 static void DrawTrigInfo()
 {
-	int xx, yy;
+	int xx, yy, qn;
 
 	if (pcurstrig >= MAXTRIGGERS + 1) {
 		// portal
@@ -1634,10 +1634,10 @@ static void DrawTrigInfo()
 			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
 			DrawTooltip2(infostr, tempstr, xx, yy, COL_WHITE);
 		} else {
-			if (!gbSetlevel) {
+			if (!currLvl._dSetLvl) {
 				copy_cstr(infostr, "Portal to The Unholy Altar");
 			} else {
-				copy_cstr(infostr, "Portal to level 15");
+				copy_cstr(infostr, "Portal back to hell");
 			}
 			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
 			DrawTooltip(infostr, xx, yy, COL_WHITE);
@@ -1647,47 +1647,30 @@ static void DrawTrigInfo()
 		// standard trigger
 		switch (trigs[pcurstrig]._tmsg) {
 		case WM_DIABNEXTLVL:
-			/*if (currlevel == 0)
-				copy_cstr(infostr, "Down to dungeon");
-			else*/ if (currlevel == 15)
-				copy_cstr(infostr, "Down to Diablo");
-#ifdef HELLFIRE
-			else if (currlevel >= 21)
-				snprintf(infostr, sizeof(infostr), "Down to Crypt level %i", currlevel - 19);
-			else if (currlevel >= 17)
-				snprintf(infostr, sizeof(infostr), "Down to Nest level %i", currlevel - 15);
-#endif
-			else
-				snprintf(infostr, sizeof(infostr), "Down to level %i", currlevel + 1);
+			snprintf(infostr, sizeof(infostr), "Down to %s", AllLevels[currLvl._dLevelIdx + 1].dLevelName);
 			break;
 		case WM_DIABPREVLVL:
-			if (currlevel == 1)
+			if (currLvl._dLevelIdx == 1)
 				copy_cstr(infostr, "Up to town");
-#ifdef HELLFIRE
-			else if (currlevel >= 21)
-				snprintf(infostr, sizeof(infostr), "Up to Crypt level %i", currlevel - 21);
-			else if (currlevel >= 17)
-				snprintf(infostr, sizeof(infostr), "Up to Nest level %i", currlevel - 17);
-#endif
 			else
-				snprintf(infostr, sizeof(infostr), "Up to level %i", currlevel - 1);
+				snprintf(infostr, sizeof(infostr), "Up to %s", AllLevels[currLvl._dLevelIdx - 1].dLevelName);
 			break;
 		case WM_DIABRTNLVL:
-			assert(gbSetlevel);
-			switch (setlvlnum) {
+			switch (currLvl._dLevelIdx) {
 			case SL_SKELKING:
-				xx = Q_SKELKING;
+				qn = Q_SKELKING;
 				break;
 			case SL_BONECHAMB:
-				xx = Q_SCHAMB;
+				qn = Q_SCHAMB;
 				break;
 			case SL_POISONWATER:
-				xx = Q_PWATER;
+				qn = Q_PWATER;
 				break;
 			default:
-				app_fatal("Unrecognized setlevel %d to return.", setlvlnum);
+				ASSUME_UNREACHABLE;
+				break;
 			}
-			snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[xx]._qlevel);
+			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[quests[qn]._qlevel].dLevelName);
 			break;
 		case WM_DIABTOWNWARP:
 			switch (pcurstrig) {
@@ -1704,11 +1687,11 @@ static void DrawTrigInfo()
 				copy_cstr(infostr, "Down to hell");
 				break;
 #ifdef HELLFIRE
-			case TWARP_HIVE:
-				copy_cstr(infostr, "Down to Hive");
+			case TWARP_NEST:
+				copy_cstr(infostr, "Down to nest");
 				break;
 			case TWARP_CRYPT:
-				copy_cstr(infostr, "Down to Crypt");
+				copy_cstr(infostr, "Down to crypt");
 				break;
 #endif
 			default:
@@ -1723,6 +1706,7 @@ static void DrawTrigInfo()
 		}
 	} else {
 		// quest trigger
+		// TODO: use dLevelName?
 		switch (quests[quests[-2 - pcurstrig]._qidx]._qslvl) {
 		case SL_SKELKING:
 			copy_cstr(infostr, "To King Leoric's Tomb");
@@ -1737,7 +1721,7 @@ static void DrawTrigInfo()
 			copy_cstr(infostr, "To A Dark Passage");
 			break;
 		case SL_VILEBETRAYER:
-			copy_cstr(infostr, "To Unholy Altar");
+			copy_cstr(infostr, "To The Unholy Altar");
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -1772,7 +1756,7 @@ void DrawInfoStr()
 		x = mon->_mx - 2;
 		y = mon->_my - 2;
 		col = COL_WHITE;
-		if (leveltype != DTYPE_TOWN) {
+		if (currLvl._dType != DTYPE_TOWN) {
 			strcpy(infostr, mon->mName);
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
@@ -1950,7 +1934,7 @@ void RedBack()
 
 	dst = &gpBuffer[SCREENXY(0, 0)];
 	tbl = &pLightTbl[idx];
-	if (leveltype != DTYPE_HELL) {
+	if (currLvl._dType != DTYPE_HELL) {
 		for (h = VIEWPORT_HEIGHT; h; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
 			for (w = SCREEN_WIDTH; w; w--) {
 				*dst = tbl[*dst];

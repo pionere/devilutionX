@@ -74,7 +74,7 @@ void InitAutomap()
 	DWORD i;
 	const char* mapData;
 
-	mapData = AllLevels[currlevel].dAutomapData;
+	mapData = AllLevels[currLvl._dLevelIdx].dAutomapData;
 	_gbAutomapData = mapData != NULL;
 	if (!_gbAutomapData)
 		return;
@@ -576,7 +576,6 @@ static void DrawAutomapText()
 {
 	char desc[256];
 	int nextline = 20;
-	const char *dstr;
 
 	if (gbMaxPlayers != 1) {
 		snprintf(desc, sizeof(desc), "game: %s", szPlayerName);
@@ -588,23 +587,8 @@ static void DrawAutomapText()
 			nextline += 15;
 		}
 	}
-	if (gbSetlevel) {
-		dstr = quest_level_names[setlvlnum];
-	} else if (currlevel != 0) {
-#ifdef HELLFIRE
-		if (currlevel >= 17 && currlevel <= 24) {
-			if (currlevel <= 20)
-				snprintf(desc, sizeof(desc), "Level: Nest %i", currlevel - 16);
-			else
-				snprintf(desc, sizeof(desc), "Level: Crypt %i", currlevel - 20);
-		} else
-#endif
-			snprintf(desc, sizeof(desc), "Level: %i", currlevel);
-		dstr = desc;
-	} else {
-		dstr = "Tristram";
-	}
-	PrintGameStr(8, nextline, dstr, COL_GOLD);
+
+	PrintGameStr(8, nextline, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
 }
 
 /**

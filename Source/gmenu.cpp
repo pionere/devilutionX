@@ -65,7 +65,7 @@ static void gmenu_print_text(int x, int y, const char *pszStr)
 
 void gmenu_draw_pause()
 {
-	if (currlevel != 0)
+	if (currLvl._dLevelIdx != DLV_TOWN)
 		RedBack();
 	if (sgpCurrentMenu == NULL) {
 		light_table_index = 0;

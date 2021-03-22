@@ -2250,10 +2250,10 @@ static void DRLG_L3(int entry)
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 #ifdef HELLFIRE
-			if (currlevel >= 17) {
+			if (currLvl._dType == DTYPE_NEST) {
 				mini_set stairs[2] = {
-					{ currlevel != 17 ? L6USTAIRS : L6TWARP, entry != ENTRY_PREV },
-					{ currlevel != 20 ? L6DSTAIRS : NULL, entry == ENTRY_PREV }
+					{ currLvl._dLevelIdx != DLV_NEST1 ? L6USTAIRS : L6TWARP, entry != ENTRY_PREV },
+					{ currLvl._dLevelIdx != DLV_NEST4 ? L6DSTAIRS : NULL, entry == ENTRY_PREV }
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 2);
 				if (entry == ENTRY_PREV) {
@@ -2263,10 +2263,11 @@ static void DRLG_L3(int entry)
 			} else
 #endif
 			{
+				// assert(currLvl._dType == DTYPE_CAVES);
 				mini_set stairs[3] = {
 					{ L3USTAIRS,  entry == ENTRY_MAIN },
 					{ L3DSTAIRS, entry == ENTRY_PREV },
-					{ currlevel != 9 ? NULL : L3TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV },
+					{ currLvl._dLevelIdx != DLV_CAVES1 ? NULL : L3TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV },
 				};
 				doneflag = DRLG_L3PlaceMiniSets(stairs, 3);
 				if (entry == ENTRY_PREV) {
@@ -2281,18 +2282,21 @@ static void DRLG_L3(int entry)
 		// generate lava pools
 		_guLavapools = 0;
 #ifdef HELLFIRE
-		if (currlevel >= 17) {
+		if (currLvl._dType == DTYPE_NEST) {
 			DRLG_L6Hive_rnd_piece(byte_48A998, 30);
 			DRLG_L6Hive_rnd_piece(byte_48A9C8, 40);
 			DRLG_L6Hive_rnd_piece(byte_48A948, 50);
 			DRLG_L6Hive_rnd_piece(byte_48A970, 60);
 		} else
 #endif
+		{
+			// assert(currLvl._dType == DTYPE_CAVES);
 			DRLG_L3Pool();
+		}
 	} while (_guLavapools < MIN_LAVA_POOL);
 
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_NEST) {
 		DRLG_L3PlaceRndSet(L6ISLE1, 70);
 		DRLG_L3PlaceRndSet(L6ISLE2, 70);
 		DRLG_L3PlaceRndSet(L6ISLE3, 30);
@@ -2303,6 +2307,7 @@ static void DRLG_L3(int entry)
 	} else
 #endif
 	{
+		// assert(currLvl._dType == DTYPE_CAVES);
 		DRLG_L3PoolFix();
 		FixL3Warp();
 
@@ -2328,7 +2333,7 @@ static void DRLG_L3(int entry)
 	}
 
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_NEST) {
 		DRLG_L3PlaceRndSet(byte_48A76C, 20);
 		DRLG_L3PlaceRndSet(byte_48A770, 20);
 		DRLG_L3PlaceRndSet(byte_48A774, 20);
@@ -2380,6 +2385,7 @@ static void DRLG_L3(int entry)
 	} else
 #endif
 	{
+		// assert(currLvl._dType == DTYPE_CAVES);
 		DRLG_PlaceThemeRooms(5, 10, 7, 0, false);
 
 		DRLG_L3Wood();
@@ -2429,7 +2435,7 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 
 #ifdef HELLFIRE
-	if (currlevel >= 17) {
+	if (currLvl._dType == DTYPE_NEST) {
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				if (dPiece[i][j] >= 382 && dPiece[i][j] <= 457) {
@@ -2440,6 +2446,7 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 	} else
 #endif
 	{
+		// assert(currLvl._dType == DTYPE_CAVES);
 		for (j = 0; j < MAXDUNY; j++) {
 			for (i = 0; i < MAXDUNX; i++) {
 				pn = dPiece[i][j];

@@ -31,7 +31,8 @@ static void InitCutscene(unsigned int uMsg)
 
 	switch (uMsg) {
 	case WM_DIABNEXTLVL:
-		lvl = currlevel;
+		lvl = currLvl._dLevelIdx;
+		assert(currLvl._dType == AllLevels[lvl].dType);
 		switch (AllLevels[lvl].dType) {
 		case DTYPE_CATHEDRAL:
 			progress_id = 0;
@@ -57,9 +58,10 @@ static void InitCutscene(unsigned int uMsg)
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		break;
 	case WM_DIABPREVLVL:
-		lvl = currlevel;
+		lvl = currLvl._dLevelIdx;
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
 		LoadPalette(AllLevels[lvl].dLoadPal);
+		assert(currLvl._dType == AllLevels[lvl].dType);
 		switch (AllLevels[lvl].dType) {
 		case DTYPE_CATHEDRAL:
 			progress_id = 0;
@@ -78,18 +80,26 @@ static void InitCutscene(unsigned int uMsg)
 		}
 		break;
 	case WM_DIABSETLVL:
-	case WM_DIABRTNLVL:
-		if (setlvlnum == SL_BONECHAMB) {
-			sgpBackCel = LoadFileInMem("Gendata\\Cut2.CEL", NULL);
-			LoadPalette("Gendata\\Cut2.pal");
+		lvl = plr[myplr].plrlevel; // the destination level
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		LoadPalette(AllLevels[lvl].dLoadPal);
+		if (lvl == SL_BONECHAMB) {
 			progress_id = 2;
-		} else if (setlvlnum == SL_VILEBETRAYER) {
-			sgpBackCel = LoadFileInMem("Gendata\\Cutportr.CEL", NULL);
-			LoadPalette("Gendata\\Cutportr.pal");
+		} else if (lvl == SL_VILEBETRAYER) {
 			progress_id = 1;
 		} else {
-			sgpBackCel = LoadFileInMem("Gendata\\Cutl1d.CEL", NULL);
-			LoadPalette("Gendata\\Cutl1d.pal");
+			progress_id = 0;
+		}
+		break;
+	case WM_DIABRTNLVL:
+		lvl = currLvl._dLevelIdx;
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		LoadPalette(AllLevels[lvl].dLoadPal);
+		if (lvl == SL_BONECHAMB) {
+			progress_id = 2;
+		} else if (lvl == SL_VILEBETRAYER) {
+			progress_id = 1;
+		} else {
 			progress_id = 0;
 		}
 		break;
@@ -194,12 +204,14 @@ bool IncProgress()
 
 static void LoadLvlGFX()
 {
+	const LevelDataStruct *lds;
 	assert(pDungeonCels == NULL);
+	lds = &AllLevels[currLvl._dLevelIdx];
 
-	pDungeonCels = LoadFileInMem(AllLevels[currlevel].dDunCels, NULL);
-	pMegaTiles = LoadFileInMem(AllLevels[currlevel].dMegaTiles, NULL);
-	pLevelPieces = LoadFileInMem(AllLevels[currlevel].dLvlPieces, NULL);
-	pSpecialCels = LoadFileInMem(AllLevels[currlevel].dSpecCels, NULL);
+	pDungeonCels = LoadFileInMem(lds->dDunCels, NULL);
+	pMegaTiles = LoadFileInMem(lds->dMegaTiles, NULL);
+	pLevelPieces = LoadFileInMem(lds->dLvlPieces, NULL);
+	pSpecialCels = LoadFileInMem(lds->dSpecCels, NULL);
 }
 
 /**
@@ -207,38 +219,30 @@ static void LoadLvlGFX()
  */
 static void CreateLevel(int lvldir)
 {
-	DWORD seed = glSeedTbl[currlevel];
+	DWORD seed = glSeedTbl[currLvl._dLevelIdx];
 
-	switch (leveltype) {
+	switch (currLvl._dDunType) {
 	case DTYPE_TOWN:
 		CreateTown(lvldir);
-		InitTownTriggers();
 		break;
 	case DTYPE_CATHEDRAL:
 		CreateL1Dungeon(seed, lvldir);
-		InitL1Triggers();
-		Freeupstairs();
 		break;
 	case DTYPE_CATACOMBS:
 		CreateL2Dungeon(seed, lvldir);
-		InitL2Triggers();
-		Freeupstairs();
 		break;
 	case DTYPE_CAVES:
 		CreateL3Dungeon(seed, lvldir);
-		InitL3Triggers();
-		Freeupstairs();
 		break;
 	case DTYPE_HELL:
 		CreateL4Dungeon(seed, lvldir);
-		InitL4Triggers();
-		Freeupstairs();
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	LoadRndLvlPal(AllLevels[currlevel].dType);
+	InitTriggers();
+	LoadRndLvlPal();
 }
 
 void LoadGameLevel(bool firstflag, int lvldir)
@@ -254,14 +258,14 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 #ifdef _DEBUG
 	if (setseed)
-		glSeedTbl[currlevel] = setseed;
+		glSeedTbl[currLvl._dLevelIdx] = setseed;
 #endif
 
 	music_stop();
 	//if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
 	//}
-	//SetRndSeed(glSeedTbl[currlevel]);
+	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	IncProgress();
 	MakeLightTable();
 	LoadLvlGFX();
@@ -281,7 +285,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitControlPan();
 	}
 
-	//SetRndSeed(glSeedTbl[currlevel]);
+	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 	IncProgress();
 	InitAutomap();
@@ -294,12 +298,12 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	InitLevelMonsters();
 	IncProgress();
 
-	if (!gbSetlevel) {
+	if (!currLvl._dSetLvl) {
 		CreateLevel(lvldir);
 		IncProgress();
 		FillSolidBlockTbls();
-		if (leveltype != DTYPE_TOWN) {
-			SetRndSeed(glSeedTbl[currlevel]);
+		if (currLvl._dType != DTYPE_TOWN) {
+			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
 			InitThemes();
 			IncProgress();
@@ -324,7 +328,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		IncProgress();
 
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+			if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
 					InitPlayer(i, firstflag, true);
@@ -334,10 +338,10 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		PlayDungMsgs();
 		IncProgress();
 
-		SetRndSeed(glSeedTbl[currlevel]);
+		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
-		if (leveltype != DTYPE_TOWN) {
-			if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currlevel] || gbMaxPlayers != 1) {
+		if (currLvl._dType != DTYPE_TOWN) {
+			if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currLvl._dLevelIdx] || gbMaxPlayers != 1) {
 				HoldThemeRooms();
 				InitMonsters();
 				IncProgress();
@@ -371,7 +375,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 			if (gbMaxPlayers != 1)
 				DeltaLoadLevel();
-			else if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currlevel])
+			else if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currLvl._dLevelIdx])
 				LoadLevel();
 
 			IncProgress();
@@ -399,7 +403,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		IncProgress();
 
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (plr[i].plractive && currlevel == plr[i].plrlevel) {
+			if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
 				InitPlayerGFX(i);
 				if (lvldir != ENTRY_LOAD)
 					InitPlayer(i, firstflag, true);
@@ -407,7 +411,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		}
 
 		//PlayDungMsgs();
-		if (setlvlnum == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE) {
+		if (currLvl._dLevelIdx == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE) {
 			sfxdelay = 30;
 			sfxdnum = USFX_SKING1;
 		}
@@ -415,7 +419,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		IncProgress();
 		IncProgress();
 
-		if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pSLvlVisited[setlvlnum]) {
+		if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currLvl._dLevelIdx]) {
 			InitItems();
 			SavePreLighting();
 		} else {
@@ -429,7 +433,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	SyncPortals();
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && plr[i].plrlevel == currlevel && (!plr[i]._pLvlChanging || i == myplr)) {
+		if (plr[i].plractive && plr[i].plrlevel == currLvl._dLevelIdx && (!plr[i]._pLvlChanging || i == myplr)) {
 			if (plr[i]._pHitPoints >= (1 << 6)) {
 				/*if (gbMaxPlayers == 1)
 					dPlayer[plr[i]._px][plr[i]._py] = i + 1;
@@ -452,15 +456,24 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 #ifdef HELLFIRE
 	// BUGFIX: TODO: does not belong here, DeltaLoadLevel should take care about this
-	if (currlevel == 24 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
+	if (currLvl._dLevelIdx == DLV_CRYPT4 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
 		OpenUberRoom();
 	}
 #endif
 
-	music_start(AllLevels[currlevel].dMusic);
+	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 
 	while (!IncProgress())
 		;
+}
+
+void EnterLevel(BYTE lvl)
+{
+	currLvl._dLevelIdx = lvl;
+	currLvl._dLevel = AllLevels[lvl].dLevel;
+	currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
+	currLvl._dType = AllLevels[lvl].dType;
+	currLvl._dDunType = AllLevels[lvl].dDunType;
 }
 
 void ShowProgress(unsigned int uMsg)
@@ -510,9 +523,8 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeGameMem();
-		currlevel++;
-		leveltype = gnLevelTypeTbl[currlevel];
-		assert(plr[myplr].plrlevel == currlevel);
+		assert(plr[myplr].plrlevel == currLvl._dLevelIdx + 1);
+		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();
@@ -526,9 +538,8 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeGameMem();
-		currlevel--;
-		leveltype = gnLevelTypeTbl[currlevel];
-		assert(plr[myplr].plrlevel == currlevel);
+		assert(plr[myplr].plrlevel == currLvl._dLevelIdx - 1);
+		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_PREV);
 		IncProgress();
@@ -542,8 +553,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		gbSetlevel = true;
-		leveltype = gnSetLevelTypeTbl[setlvlnum];
+		EnterLevel(plr[myplr].plrlevel);
 		FreeGameMem();
 		IncProgress();
 		LoadGameLevel(false, ENTRY_SETLVL);
@@ -557,7 +567,6 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		gbSetlevel = false;
 		FreeGameMem();
 		IncProgress();
 		GetReturnLvlPos();
@@ -587,9 +596,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeGameMem();
-		currlevel = plr[myplr].plrlevel;
-		leveltype = gnLevelTypeTbl[currlevel];
-		assert(plr[myplr].plrlevel == currlevel);
+		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPDN);
 		IncProgress();
@@ -603,9 +610,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeGameMem();
-		currlevel = plr[myplr].plrlevel;
-		leveltype = gnLevelTypeTbl[currlevel];
-		assert(plr[myplr].plrlevel == currlevel);
+		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPUP);
 		IncProgress();
@@ -619,9 +624,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeGameMem();
-		currlevel = plr[myplr].plrlevel;
-		leveltype = gnLevelTypeTbl[currlevel];
-		assert(plr[myplr].plrlevel == currlevel);
+		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();

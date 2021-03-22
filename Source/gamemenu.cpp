@@ -257,16 +257,7 @@ void gamemenu_music_volume(bool bActivate)
 		}
 	} else if (!gbMusicOn) {
 		gbMusicOn = true;
-		int lt = leveltype;
-#ifdef HELLFIRE
-		if (currlevel >= 17) {
-			if (currlevel > 20)
-				lt = DTYPE_NEST;
-			else
-				lt = DTYPE_CRYPT;
-		}
-#endif
-		music_start(lt);
+		music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 	}
 	gamemenu_get_music();
 }

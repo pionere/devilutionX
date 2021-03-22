@@ -27,14 +27,12 @@ void InitPortals()
 	}
 }
 
-void SetPortalStats(int i, bool o, int x, int y, int lvl, int lvltype)
+void SetPortalStats(int i, bool o, int x, int y, int lvl)
 {
 	portal[i]._wopen = o;
 	portal[i].x = x;
 	portal[i].y = y;
 	portal[i].level = lvl;
-	portal[i].ltype = lvltype;
-	portal[i]._wsetlvl = false;
 }
 
 void AddWarpMissile(int i, int x, int y)
@@ -50,13 +48,11 @@ void SyncPortals()
 	for (i = 0; i < MAXPORTAL; i++) {
 		if (!portal[i]._wopen)
 			continue;
-		lvl = currlevel;
-		if (lvl == 0)
+		lvl = currLvl._dLevelIdx;
+		if (lvl == DLV_TOWN)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
-			if (gbSetlevel)
-				lvl = setlvlnum;
-			if (portal[i].level == lvl && portal[i]._wsetlvl == gbSetlevel)
+			if (portal[i].level == lvl)
 				AddWarpMissile(i, portal[i].x, portal[i].y);
 		}
 	}
@@ -67,16 +63,14 @@ void AddInTownPortal(int i)
 	AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 }
 
-void ActivatePortal(int i, int x, int y, int lvl, int lvltype, bool sp)
+void ActivatePortal(int i, int x, int y, int lvl)
 {
 	portal[i]._wopen = true;
 
-	if (lvl != 0) {
+	if (lvl != DLV_TOWN) {
 		portal[i].x = x;
 		portal[i].y = y;
 		portal[i].level = lvl;
-		portal[i].ltype = lvltype;
-		portal[i]._wsetlvl = sp;
 	}
 }
 
@@ -87,7 +81,7 @@ void DeactivatePortal(int i)
 
 bool PortalOnLevel(int i)
 {
-	return portal[i].level == currlevel || currlevel == 0;
+	return portal[i].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 }
 
 void RemovePortalMissile(int pnum)
@@ -117,18 +111,12 @@ void SetCurrentPortal(int p)
 
 void GetPortalLevel()
 {
-	if (currlevel != 0) {
-		leveltype = DTYPE_TOWN;
-		currlevel = 0;
-		gbSetlevel = false;
-		assert(plr[myplr].plrlevel == 0);
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		EnterLevel(DLV_TOWN);
+		assert(plr[myplr].plrlevel == DLV_TOWN);
 	} else {
-		leveltype = portal[portalindex].ltype;
-		currlevel = portal[portalindex].level;
-		assert(plr[myplr].plrlevel == currlevel);
-		gbSetlevel = portal[portalindex]._wsetlvl;
-		if (gbSetlevel)
-			setlvlnum = currlevel;
+		EnterLevel(portal[portalindex].level);
+		assert(plr[myplr].plrlevel == currLvl._dLevelIdx);
 		if (portalindex == myplr) {
 			NetSendCmd(true, CMD_DEACTIVATEPORTAL);
 			DeactivatePortal(portalindex);
@@ -138,7 +126,7 @@ void GetPortalLevel()
 
 void GetPortalLvlPos()
 {
-	if (currlevel == 0) {
+	if (currLvl._dLevelIdx == DLV_TOWN) {
 		ViewX = WarpDropX[portalindex] + 1;
 		ViewY = WarpDropY[portalindex] + 1;
 	} else {
@@ -155,7 +143,7 @@ void GetPortalLvlPos()
 bool PosOkPortal(int x, int y)
 {
 	PortalStruct *ps;
-	int i, lvl = currlevel;
+	int i, lvl = currLvl._dLevelIdx;
 
 	ps = portal;
 	for (i = MAXPORTAL; i != 0; i--, ps++) {

@@ -158,8 +158,8 @@ void CheckQuests()
 		return;
 	}
 
-	if (!gbSetlevel) {
-		if (currlevel == qs->_qlevel
+	if (!currLvl._dSetLvl) {
+		if (currLvl._dLevelIdx == qs->_qlevel
 		 && qs->_qvar1 >= 2
 		 && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
 		 && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
@@ -176,7 +176,7 @@ void CheckQuests()
 		if (plr[myplr]._pmode == PM_STAND) {
 			qs = quests;
 			for (i = NUM_QUESTS; i != 0; i--, qs++) {
-				if (currlevel == qs->_qlevel
+				if (currLvl._dLevelIdx == qs->_qlevel
 				 && qs->_qslvl != 0
 				 && qs->_qactive != QUEST_NOTAVAIL
 				 && plr[myplr]._px == qs->_qtx
@@ -187,7 +187,7 @@ void CheckQuests()
 		}
 	} else {
 		if (qs->_qactive == QUEST_DONE
-		 && setlvlnum == SL_VILEBETRAYER
+		 && currLvl._dLevelIdx == SL_VILEBETRAYER
 		 && qs->_qvar2 == 4) {
 			rportx = DBORDERX + 19;
 			rporty = DBORDERY + 16;
@@ -196,9 +196,9 @@ void CheckQuests()
 		}
 
 		qs = &quests[Q_PWATER];
-		if (setlvlnum == qs->_qslvl
+		if (currLvl._dLevelIdx == qs->_qslvl
 		 && qs->_qactive != QUEST_INIT
-		 //&& leveltype == qs->_qlvltype
+		 //&& currLvl._dType == qs->_qlvltype
 		 && nummonsters == MAX_MINIONS
 		 && qs->_qactive != QUEST_DONE) {
 			qs->_qactive = QUEST_DONE;
@@ -222,7 +222,7 @@ int ForceQuests()
 	}
 
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (i != Q_BETRAYER && currlevel == quests[i]._qlevel && quests[i]._qslvl != 0) {
+		if (i != Q_BETRAYER && currLvl._dLevelIdx == quests[i]._qlevel && quests[i]._qslvl != 0) {
 			qx = quests[i]._qtx;
 			qy = quests[i]._qty;
 
@@ -242,10 +242,10 @@ int ForceQuests()
 
 bool QuestStatus(int qn)
 {
-	return currlevel == quests[qn]._qlevel
+	return currLvl._dLevelIdx == quests[qn]._qlevel
 		&& quests[qn]._qactive != QUEST_NOTAVAIL
 		&& (gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY))
-		&& !gbSetlevel;
+		&& !currLvl._dSetLvl; // TODO: is this necessary?
 }
 
 void CheckQuestKill(int mnum, bool sendmsg)
@@ -477,7 +477,7 @@ void DRLG_CheckQuests(int x, int y)
 
 void SetReturnLvlPos()
 {
-	switch (setlvlnum) {
+	switch (plr[myplr].plrlevel) {
 	case SL_SKELKING:
 		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
 		ReturnLvlY = quests[Q_SKELKING]._qty;
@@ -498,6 +498,9 @@ void SetReturnLvlPos()
 		ReturnLvlY = quests[Q_BETRAYER]._qty - 1;
 		ReturnLvl = quests[Q_BETRAYER]._qlevel;
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
@@ -507,56 +510,56 @@ void GetReturnLvlPos()
 		quests[Q_BETRAYER]._qvar2 = 2;
 	ViewX = ReturnLvlX;
 	ViewY = ReturnLvlY;
-	currlevel = ReturnLvl;
-	leveltype = gnLevelTypeTbl[currlevel];
+	EnterLevel(ReturnLvl);
 }
 
 void LoadPWaterPalette()
 {
 	// TODO: this is ugly...
-	if (!gbSetlevel || setlvlnum != quests[Q_PWATER]._qslvl || quests[Q_PWATER]._qactive == QUEST_INIT) // || leveltype != quests[Q_PWATER]._qlvltype)
+	if (currLvl._dLevelIdx != quests[Q_PWATER]._qslvl) // || quests[Q_PWATER]._qslvl == 0 || quests[Q_PWATER]._qactive == QUEST_INIT) // || currLvl._dType != quests[Q_PWATER]._qlvltype)
 		return;
 
 	if (quests[Q_PWATER]._qactive == QUEST_DONE)
 		LoadPalette("Levels\\L3Data\\L3pwater.pal");
-	else
-		LoadPalette("Levels\\L3Data\\L3pfoul.pal");
+	//else
+	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
 void ResyncMPQuests()
 {
+	// TODO: eliminate relative level-indices?
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
-	    && currlevel >= quests[Q_SKELKING]._qlevel - 1
-	    && currlevel <= quests[Q_SKELKING]._qlevel + 1) {
+	    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
+	    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
 		quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_SKELKING);
 	}
 	if (quests[Q_BUTCHER]._qactive == QUEST_INIT
-	    && currlevel >= quests[Q_BUTCHER]._qlevel - 1
-	    && currlevel <= quests[Q_BUTCHER]._qlevel + 1) {
+	    && currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
+	    && currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {
 		quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_BUTCHER);
 	}
-	if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currlevel == quests[Q_BETRAYER]._qlevel - 1) {
+	if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel - 1) {
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_BETRAYER);
 	}
 	if (QuestStatus(Q_BETRAYER))
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
-	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currlevel == quests[Q_GRAVE]._qlevel - 1) {
+	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_GRAVE);
 	}
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currlevel == quests[Q_DEFILER]._qlevel - 1) {
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel - 1) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_DEFILER);
 	}
-	if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currlevel == quests[Q_NAKRUL]._qlevel - 1) {
+	if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
 		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_NAKRUL);
 	}
-	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currlevel == quests[Q_JERSEY]._qlevel - 1) {
+	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
 		quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_JERSEY);
 	}
@@ -594,12 +597,12 @@ void ResyncQuests()
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 	}
-	if (currlevel == quests[Q_MUSHROOM]._qlevel) {
+	if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel) {
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && quests[Q_MUSHROOM]._qvar1 == QS_INIT) {
 			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
 		} else {
-			// TODO: why is this not done on currlevel == 0?
+			// TODO: why is this not done on currLvl._dLevelIdx == DLV_TOWN?
 			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 				if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN) {
 					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
@@ -610,11 +613,11 @@ void ResyncQuests()
 			}
 		}
 	}
-	if (currlevel == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive == QUEST_ACTIVE && quests[Q_VEIL]._qvar1 == 0) {
+	if (currLvl._dLevelIdx == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive == QUEST_ACTIVE && quests[Q_VEIL]._qvar1 == 0) {
 		quests[Q_VEIL]._qvar1 = 1;
 		SpawnQuestItemInArea(IDI_GLDNELIX, 5);
 	}
-	if (gbSetlevel && setlvlnum == SL_VILEBETRAYER) {
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		if (quests[Q_BETRAYER]._qvar1 >= 4)
 			ObjChangeMapResync(1, 11, 20, 18);
 		if (quests[Q_BETRAYER]._qvar1 >= 6)
@@ -624,8 +627,8 @@ void ResyncQuests()
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
 	}
-	if (currlevel == quests[Q_BETRAYER]._qlevel
-	    && !gbSetlevel
+	if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel
+	    && !currLvl._dSetLvl // TODO: is this necessary?
 	    && (quests[Q_BETRAYER]._qvar2 == 1 || quests[Q_BETRAYER]._qvar2 >= 3)
 	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)) {
 		quests[Q_BETRAYER]._qvar2 = 2;

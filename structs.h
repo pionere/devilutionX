@@ -330,8 +330,7 @@ typedef struct PlayerStruct {
 	int _pVar6;
 	int _pVar7;
 	int _pVar8;
-	BOOLEAN _pLvlVisited[NUMLEVELS];
-	BOOLEAN _pSLvlVisited[NUMLEVELS]; // only 10 used
+	BOOLEAN _pLvlVisited[NUMLEVELS + NUM_SETLVL];
 	int _pGFXLoad;
 	unsigned char *_pNAnim[8]; // Stand animations
 	unsigned _pNFrames;
@@ -406,9 +405,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[431];
-#else
 	int alignment[435];
+#else
+	int alignment[439];
 #endif
 #endif
 } PlayerStruct;
@@ -808,12 +807,10 @@ typedef struct PortalStruct {
 	int x;
 	int y;
 	int level;
-	int ltype;
-	BOOLEAN _wsetlvl;
 } PortalStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 16, "Align PortalStruct closer to power of 2 for better performance.");
+static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align PortalStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -1121,8 +1118,6 @@ typedef struct DPortal {
 	BYTE x;
 	BYTE y;
 	BYTE level;
-	BYTE ltype;
-	BYTE setlvl;
 } DPortal;
 
 typedef struct MultiQuests {
@@ -1153,21 +1148,40 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 // levels
 //////////////////////////////////////////////////
+
+typedef struct LevelStruct {
+	BYTE _dLevelIdx;  // index in AllLevels
+	BOOLEAN _dSetLvl; // cached flag if the level is a set-level
+	BYTE _dLevel;     // cached difficulty value of the level
+	BYTE _dType;      // cached type of the level
+	BYTE _dDunType;   // cached type of the dungeon
+} LevelStruct;
+
 typedef struct LevelDataStruct {
 	BYTE dLevel;
+	BOOLEAN dSetLvl;
 	BYTE dType;
 	BYTE dDunType;
 	BYTE dMusic;
+	BYTE dMicroTileLen;
+	BYTE dBlocks;
+	const char *dLevelName;
+	const char *dAutomapData;
+	const char *dSolidTable;
 	const char *dDunCels;
 	const char *dMegaTiles;
 	const char *dLvlPieces;
 	const char *dSpecCels;
+	const char *dPalName;
 	const char *dLoadCels;
 	const char *dLoadPal;
-	const char *dAutomapData;
-//#ifdef X86_32bit_COMP
-//	int alignment[1];
-//#endif
+	const char *dSetLvlPreDun;
+	const char *dSetLvlDun;
+	BYTE dSetLvlDunX;
+	BYTE dSetLvlDunY;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } LevelDataStruct;
 
 #ifdef X86_32bit_COMP

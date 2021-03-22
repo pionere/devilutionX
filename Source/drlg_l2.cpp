@@ -2666,29 +2666,32 @@ static bool DRLG_L2CreateDungeon()
 	ForceH = 0;
 	ForceHW = false;
 
-	switch (currlevel) {
-	case 5:
+	switch (currLvl._dLevelIdx) {
+	case DLV_CATACOMBS1:
 		if (quests[Q_BLOOD]._qactive != QUEST_NOTAVAIL) {
 			ForceHW = true;
 			ForceH = 20;
 			ForceW = 14;
 		}
 		break;
-	case 6:
+	case DLV_CATACOMBS2:
 		if (quests[Q_SCHAMB]._qactive != QUEST_NOTAVAIL) {
 			ForceHW = true;
 			ForceW = 10;
 			ForceH = 10;
 		}
 		break;
-	case 7:
+	case DLV_CATACOMBS3:
 		if (quests[Q_BLIND]._qactive != QUEST_NOTAVAIL) {
 			ForceHW = true;
 			ForceW = 15;
 			ForceH = 15;
 		}
 		break;
-	case 8:
+	case DLV_CATACOMBS4:
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -3007,7 +3010,7 @@ static void DRLG_L2(int entry)
 		mini_set stairs[3] = {
 				{ L2USTAIRS, entry == ENTRY_MAIN },
 				{ L2DSTAIRS, entry == ENTRY_PREV },
-				{ currlevel != 5 ? NULL : L2TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
+				{ currLvl._dLevelIdx != DLV_CATACOMBS1 ? NULL : L2TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
 		};
 		doneflag = DRLG_L2PlaceMiniSets(stairs, 3);
 		if (entry == ENTRY_MAIN) {
@@ -3238,20 +3241,20 @@ void LoadPreL2Dungeon(const char *sFileName)
 void CreateL2Dungeon(DWORD rseed, int entry)
 {
 	if (gbMaxPlayers == 1) {
-		if (currlevel == 7 && quests[Q_BLIND]._qactive == QUEST_NOTAVAIL) {
-			currlevel = 6;
-			CreateL2Dungeon(glSeedTbl[6], 4);
-			currlevel = 7;
+		if (currLvl._dLevelIdx == DLV_CATACOMBS3 && quests[Q_BLIND]._qactive == QUEST_NOTAVAIL) {
+			currLvl._dLevelIdx = DLV_CATACOMBS2;
+			CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS2], ENTRY_LOAD);
+			currLvl._dLevelIdx = DLV_CATACOMBS3;
 		}
-		if (currlevel == 8) {
+		if (currLvl._dLevelIdx == DLV_CATACOMBS4) {
 			if (quests[Q_BLIND]._qactive == QUEST_NOTAVAIL) {
-				currlevel = 6;
-				CreateL2Dungeon(glSeedTbl[6], 4);
-				currlevel = 8;
+				currLvl._dLevelIdx = DLV_CATACOMBS2;
+				CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS2], ENTRY_LOAD);
+				currLvl._dLevelIdx = DLV_CATACOMBS4;
 			} else {
-				currlevel = 7;
-				CreateL2Dungeon(glSeedTbl[7], 4);
-				currlevel = 8;
+				currLvl._dLevelIdx = DLV_CATACOMBS3;
+				CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS3], ENTRY_LOAD);
+				currLvl._dLevelIdx = DLV_CATACOMBS4;
 			}
 		}
 	}

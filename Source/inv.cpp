@@ -1592,7 +1592,7 @@ bool CanPut(int x, int y)
 			return false;
 	}
 
-	if (currlevel == 0)
+	if (currLvl._dType == DTYPE_TOWN)
 		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
 			return false;
 
@@ -1687,7 +1687,7 @@ int InvPutItem(int pnum, int x, int y)
 		return -1;
 
 #ifdef HELLFIRE
-	if (currlevel == 0) {
+	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= DBORDERX + 69 && cursmx <= DBORDERX + 72 && cursmy >= DBORDERY + 51 && cursmy <= DBORDERY + 54) {
 			NetSendCmd(false, CMD_OPENHIVE);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
@@ -1956,7 +1956,7 @@ bool UseInvItem(int cii)
 		return true;
 	}
 
-	if (leveltype == DTYPE_TOWN
+	if (currLvl._dType == DTYPE_TOWN
 #ifdef HELLFIRE
 	 && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE)
 #else

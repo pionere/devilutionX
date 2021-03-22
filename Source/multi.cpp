@@ -230,7 +230,7 @@ static void multi_player_left_msg(int pnum, bool left)
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
-		if (plr[pnum].plrlevel == currlevel) {
+		if (plr[pnum].plrlevel == currLvl._dLevelIdx) {
 			AddUnLight(plr[pnum]._plid);
 			AddUnVision(plr[pnum]._pvid);
 			RemovePlrFromMap(pnum);
@@ -454,7 +454,7 @@ void multi_process_network_packets()
 			p->_pMana = pkt->pmp;
 			p->_pMaxMana = pkt->pmmp;
 			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && p->plractive && p->_pHitPoints >= (1 << 6)) {
-				if (currlevel == p->plrlevel && !p->_pLvlChanging) {
+				if (currLvl._dLevelIdx == p->plrlevel && !p->_pLvlChanging) {
 					dx = abs(p->_px - pkt->px);
 					dy = abs(p->_py - pkt->py);
 					if ((dx > 3 || dy > 3) && dPlayer[pkt->px][pkt->py] == 0) {
@@ -552,14 +552,10 @@ static void SetupLocalCoords()
 		y = 13 + DBORDERY;
 	}
 	if (!leveldebug || gbMaxPlayers != 1) {
-		currlevel = 0;
-		leveltype = DTYPE_TOWN;
-		gbSetlevel = false;
+		EnterLevel(DLV_TOWN);
 	}
 #else
-	currlevel = 0;
-	leveltype = DTYPE_TOWN;
-	gbSetlevel = false;
+	EnterLevel(DLV_TOWN);
 #endif
 	x += plrxoff[myplr];
 	y += plryoff[myplr];
@@ -568,7 +564,7 @@ static void SetupLocalCoords()
 	p->_py = y;
 	p->_pfutx = x;
 	p->_pfuty = y;
-	p->plrlevel = currlevel;
+	p->plrlevel = currLvl._dLevelIdx;
 	p->_pLvlChanging = TRUE;
 	p->pLvlLoad = 0;
 	p->_pmode = PM_NEWLVL;
@@ -734,7 +730,7 @@ bool NetInit(bool bSinglePlayer)
 	gnTickDelay = 1000 / gnTicksRate;
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
-	for (i = 0; i < NUMLEVELS; i++) {
+	for (i = 0; i < NUMLEVELS + NUM_SETLVL; i++) {
 		glSeedTbl[i] = GetRndSeed();
 	}
 	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, sizeof(szPlayerName));
@@ -783,7 +779,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 	EventPlrMsg("Player '%s' (level %d) is already in the game", p->_pName, p->_pLevel);
 
 	p->_pGFXLoad = 0;
-	if (p->plrlevel == currlevel) {
+	if (p->plrlevel == currLvl._dLevelIdx) {
 		SyncInitPlr(pnum);
 		//PlrStartStand(pnum, DIR_S);
 		/*LoadPlrGFX(pnum, PFILE_STAND);

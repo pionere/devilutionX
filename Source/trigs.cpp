@@ -73,7 +73,7 @@ int TWarpFrom;
 #define L6_DOWN_WARPx(x)	(x == 61 || x == 63)
 #endif
 
-void InitNoTriggers()
+static void InitNoTriggers()
 {
 	numtrigs = 0;
 }
@@ -82,7 +82,7 @@ void InitNoTriggers()
  * Initialize the triggers in town.
  * Only the available triggers are set up correctly (numtrigs won't reflect this!).
  */
-void InitTownTriggers()
+static void InitTownTriggers()
 {
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
@@ -110,11 +110,11 @@ void InitTownTriggers()
 		trigs[TWARP_HELL]._tlvl = 13;
 	}
 #ifdef HELLFIRE
-	if (townwarps & (1 << TWARP_HIVE)) {
-		trigs[TWARP_HIVE]._tx = 70 + DBORDERX;
-		trigs[TWARP_HIVE]._ty = 52 + DBORDERY;
-		trigs[TWARP_HIVE]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_HIVE]._tlvl = 17;
+	if (townwarps & (1 << TWARP_NEST)) {
+		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
+		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
+		trigs[TWARP_NEST]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_NEST]._tlvl = 17;
 	}
 	if (townwarps & (1 << TWARP_CRYPT)) {
 		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
@@ -127,42 +127,17 @@ void InitTownTriggers()
 	numtrigs = NUM_TWARP;
 }
 
-void InitL1Triggers()
+static void InitL1Triggers()
 {
 	int i, j;
 
 	numtrigs = 0;
-#ifdef HELLFIRE
-	if (currlevel >= 17) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] == 184) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-					numtrigs++;
-				} else if (dPiece[i][j] == 158) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 126) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-					numtrigs++;
-				}
-			}
-		}
-		return;
-	}
-#endif
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			if (dPiece[i][j] == 129) {
 				trigs[numtrigs]._tx = i;
 				trigs[numtrigs]._ty = j;
-				trigs[numtrigs]._tmsg = currlevel != 0 ? WM_DIABPREVLVL : WM_DIABTWARPUP;
+				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
 				numtrigs++;
 			} else if (dPiece[i][j] == 115) {
 				trigs[numtrigs]._tx = i;
@@ -174,7 +149,7 @@ void InitL1Triggers()
 	}
 }
 
-void InitL2Triggers()
+static void InitL2Triggers()
 {
 	int i, j;
 
@@ -201,36 +176,11 @@ void InitL2Triggers()
 	}
 }
 
-void InitL3Triggers()
+static void InitL3Triggers()
 {
 	int i, j;
 
 	numtrigs = 0;
-#ifdef HELLFIRE
-	if (currlevel >= 17) {
-		for (j = 0; j < MAXDUNY; j++) {
-			for (i = 0; i < MAXDUNX; i++) {
-				if (dPiece[i][j] == 66) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 63) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-					numtrigs++;
-				} else if (dPiece[i][j] == 80) {
-					trigs[numtrigs]._tx = i;
-					trigs[numtrigs]._ty = j;
-					trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
-					numtrigs++;
-				}
-			}
-		}
-		return;
-	}
-#endif
 	for (j = 0; j < MAXDUNY; j++) {
 		for (i = 0; i < MAXDUNX; i++) {
 			if (dPiece[i][j] == 171) {
@@ -253,7 +203,7 @@ void InitL3Triggers()
 	}
 }
 
-void InitL4Triggers()
+static void InitL4Triggers()
 {
 	int i, j;
 
@@ -291,7 +241,63 @@ void InitL4Triggers()
 	}
 }
 
-void InitSKingTriggers()
+#ifdef HELLFIRE
+static void InitL5Triggers()
+{
+	int i, j;
+
+	numtrigs = 0;
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++) {
+			if (dPiece[i][j] == 184) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				numtrigs++;
+			} else if (dPiece[i][j] == 158) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 126) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				numtrigs++;
+			}
+		}
+	}
+}
+
+static void InitL6Triggers()
+{
+	int i, j;
+
+	numtrigs = 0;
+	for (j = 0; j < MAXDUNY; j++) {
+		for (i = 0; i < MAXDUNX; i++) {
+			if (dPiece[i][j] == 66) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABPREVLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 63) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
+				numtrigs++;
+			} else if (dPiece[i][j] == 80) {
+				trigs[numtrigs]._tx = i;
+				trigs[numtrigs]._ty = j;
+				trigs[numtrigs]._tmsg = WM_DIABTWARPUP;
+				numtrigs++;
+			}
+		}
+	}
+}
+#endif
+
+static void InitSKingTriggers()
 {
 	numtrigs = 1;
 	trigs[0]._tx = 82;
@@ -299,7 +305,7 @@ void InitSKingTriggers()
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
-void InitSChambTriggers()
+static void InitSChambTriggers()
 {
 	numtrigs = 1;
 	trigs[0]._tx = 70;
@@ -307,7 +313,7 @@ void InitSChambTriggers()
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
-void InitPWaterTriggers()
+static void InitPWaterTriggers()
 {
 	numtrigs = 1;
 	trigs[0]._tx = 30;
@@ -360,12 +366,12 @@ static int ForceTownTrig()
 	}
 
 #ifdef HELLFIRE
-	if (townwarps & (1 << TWARP_HIVE)) {
+	if (townwarps & (1 << TWARP_NEST)) {
 		if (TOWN_L5_WARP) {
 			// Down to Hive
-			cursmx = trigs[TWARP_HIVE]._tx;
-			cursmy = trigs[TWARP_HIVE]._ty;
-			return TWARP_HIVE;
+			cursmx = trigs[TWARP_NEST]._tx;
+			cursmy = trigs[TWARP_NEST]._ty;
+			return TWARP_NEST;
 		}
 	}
 	if (townwarps & (1 << TWARP_CRYPT)) {
@@ -384,47 +390,8 @@ static int ForceTownTrig()
 static int ForceL1Trig()
 {
 	int i;
-#ifdef HELLFIRE
-
-	if (currlevel >= 17) {
-		if (L5_UP_WARP) {
-			// Up to Crypt level (currlevel - 21)
-			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
-					return i;
-				}
-			}
-		}
-		if (L5_DOWN_WARP
-		 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
-			// Down to Crypt level (currlevel - 19)
-			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
-					return i;
-				}
-			}
-		}
-		if (currlevel == 21) {
-			if (L5_TOWN_WARP) {
-				for (i = 0; i < numtrigs; i++) {
-					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
-						// Up to town
-						cursmx = trigs[i]._tx;
-						cursmy = trigs[i]._ty;
-						return i;
-					}
-				}
-			}
-		}
-		return -1;
-	}
-#endif
 	if (L1_UP_WARP) {
-		// Up to level (currlevel - 1) / Up to town
+		// Up to level (currLvl._dLevelIdx - 1) / Up to town
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
 				cursmx = trigs[i]._tx;
@@ -434,7 +401,7 @@ static int ForceL1Trig()
 		}
 	}
 	if (L1_DOWN_WARP) {
-		// Down to level (currlevel + 1)
+		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
 				cursmx = trigs[i]._tx;
@@ -453,7 +420,7 @@ static int ForceL2Trig()
 	if (L2_UP_WARP) {
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
-				// Up to level (currlevel - 1)
+				// Up to level (currLvl._dLevelIdx - 1)
 				cursmx = trigs[i]._tx;
 				cursmy = trigs[i]._ty;
 				return i;
@@ -462,7 +429,7 @@ static int ForceL2Trig()
 	}
 
 	if (L2_DOWN_WARP) {
-		// Down to level (currlevel + 1)
+		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
 				cursmx = trigs[i]._tx;
@@ -472,7 +439,7 @@ static int ForceL2Trig()
 		}
 	}
 
-	if (currlevel == 5) {
+	if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
 		if (L2_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
@@ -492,51 +459,9 @@ static int ForceL3Trig()
 {
 	int i;
 
-#ifdef HELLFIRE
-	if (currlevel >= 17) {
-		if (L6_UP_WARP
-		 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
-			// Up to Nest level (currlevel - 17)
-			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
-					return i;
-				}
-			}
-		}
-
-		if (L6_DOWN_WARPx(dPiece[cursmx][cursmy])
-		 || L6_DOWN_WARPx(dPiece[cursmx + 1][cursmy])) {
-			// Down to level (currlevel - 15)
-			for (i = 0; i < numtrigs; i++) {
-				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
-					cursmx = trigs[i]._tx;
-					cursmy = trigs[i]._ty;
-					return i;
-				}
-			}
-		}
-
-		if (currlevel == 17) {
-			if (L6_TOWN_WARP
-			 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
-				for (i = 0; i < numtrigs; i++) {
-					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
-						// Up to town
-						cursmx = trigs[i]._tx;
-						cursmy = trigs[i]._ty;
-						return i;
-					}
-				}
-			}
-		}
-		return -1;
-	}
-#endif
 	if (L3_UP_WARP
 	 || L3_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
-		// Up to level (currlevel - 1)
+		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
 				cursmx = trigs[i]._tx;
@@ -550,7 +475,7 @@ static int ForceL3Trig()
 	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy])
 	 || L3_DOWN_WARPx(dPiece[cursmx + 1][cursmy + 1])
 	 || L3_DOWN_WARPx(dPiece[cursmx + 2][cursmy + 1])) {
-		// Down to level (currlevel + 1)
+		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
 				cursmx = trigs[i]._tx;
@@ -560,7 +485,7 @@ static int ForceL3Trig()
 		}
 	}
 
-	if (currlevel == 9) {
+	if (currLvl._dLevelIdx == DLV_CAVES1) {
 		if (L3_TOWN_WARP
 		 || L3_TOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
 			for (i = 0; i < numtrigs; i++) {
@@ -581,7 +506,7 @@ static int ForceL4Trig()
 	int i;
 
 	if (L4_UP_WARP) {
-		// Up to level (currlevel - 1)
+		// Up to level (currLvl._dLevelIdx - 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABPREVLVL) {
 				cursmx = trigs[i]._tx;
@@ -592,7 +517,7 @@ static int ForceL4Trig()
 	}
 
 	if (L4_DOWN_WARP) {
-		// Down to level (currlevel + 1)
+		// Down to level (currLvl._dLevelIdx + 1)
 		for (i = 0; i < numtrigs; i++) {
 			if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
 				cursmx = trigs[i]._tx;
@@ -602,7 +527,7 @@ static int ForceL4Trig()
 		}
 	}
 
-	if (currlevel == 13) {
+	if (currLvl._dLevelIdx == DLV_HELL1) {
 		if (L4_TOWN_WARP) {
 			for (i = 0; i < numtrigs; i++) {
 				if (trigs[i]._tmsg == WM_DIABTWARPUP) {
@@ -615,7 +540,7 @@ static int ForceL4Trig()
 		}
 	}
 
-	if (currlevel == 15) {
+	if (currLvl._dLevelIdx == DLV_HELL3) {
 		if (L4_PENTA_WARP) {
 			// Down to Diablo
 			for (i = 0; i < numtrigs; i++) {
@@ -631,7 +556,93 @@ static int ForceL4Trig()
 	return -1;
 }
 
-void Freeupstairs()
+#ifdef HELLFIRE
+static int ForceL5Trig()
+{
+	int i;
+
+		if (L5_UP_WARP) {
+			// Up to Crypt level (currLvl._dLevelIdx - 21)
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return i;
+				}
+			}
+		}
+		if (L5_DOWN_WARP
+		 || L5_DOWN_WARPx(dPiece[cursmx][cursmy + 1])) {
+			// Down to Crypt level (currLvl._dLevelIdx - 19)
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return i;
+				}
+			}
+		}
+		if (currLvl._dLevelIdx == DLV_CRYPT1) {
+			if (L5_TOWN_WARP) {
+				for (i = 0; i < numtrigs; i++) {
+					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+						// Up to town
+						cursmx = trigs[i]._tx;
+						cursmy = trigs[i]._ty;
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+}
+
+static int ForceL6Trig()
+{
+	int i;
+
+		if (L6_UP_WARP
+		 || L6_UP_WARPx(dPiece[cursmx][cursmy + 1])) {
+			// Up to Nest level (currLvl._dLevelIdx - 17)
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABPREVLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return i;
+				}
+			}
+		}
+
+		if (L6_DOWN_WARPx(dPiece[cursmx][cursmy])
+		 || L6_DOWN_WARPx(dPiece[cursmx + 1][cursmy])) {
+			// Down to level (currLvl._dLevelIdx - 15)
+			for (i = 0; i < numtrigs; i++) {
+				if (trigs[i]._tmsg == WM_DIABNEXTLVL) {
+					cursmx = trigs[i]._tx;
+					cursmy = trigs[i]._ty;
+					return i;
+				}
+			}
+		}
+
+		if (currLvl._dLevelIdx == DLV_NEST1) {
+			if (L6_TOWN_WARP
+			 || L6_TOWN_WARPx(dPiece[cursmx][cursmy + 1]) ) {
+				for (i = 0; i < numtrigs; i++) {
+					if (trigs[i]._tmsg == WM_DIABTWARPUP) {
+						// Up to town
+						cursmx = trigs[i]._tx;
+						cursmy = trigs[i]._ty;
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+}
+#endif
+
+static void Freeupstairs()
 {
 	int i, tx, ty, xx, yy;
 
@@ -683,10 +694,65 @@ static int ForcePWaterTrig()
 	return -1;
 }
 
+void InitTriggers()
+{
+	if (!currLvl._dSetLvl) {
+		switch (currLvl._dType) {
+		case DTYPE_TOWN:
+			InitTownTriggers();
+			return;
+		case DTYPE_CATHEDRAL:
+			InitL1Triggers();
+			break;
+		case DTYPE_CATACOMBS:
+			InitL2Triggers();
+			break;
+		case DTYPE_CAVES:
+			InitL3Triggers();
+			break;
+		case DTYPE_HELL:
+			InitL4Triggers();
+			break;
+#ifdef HELLFIRE
+		case DTYPE_CRYPT:
+			InitL5Triggers();
+			break;
+		case DTYPE_NEST:
+			InitL6Triggers();
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		Freeupstairs();
+	} else {
+		switch (currLvl._dLevelIdx) {
+		case SL_SKELKING:
+			InitSKingTriggers();
+			break;
+		case SL_BONECHAMB:
+			InitSChambTriggers();
+			break;
+		//case SL_MAZE:
+		//	break;
+		case SL_POISONWATER:
+			InitPWaterTriggers();
+			break;
+		case SL_VILEBETRAYER:
+			InitNoTriggers();
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+	}
+}
+
 void CheckTrigForce()
 {
-	if (!gbSetlevel) {
-		switch (leveltype) {
+	if (!currLvl._dSetLvl) {
+		switch (currLvl._dType) {
 		case DTYPE_TOWN:
 			pcurstrig = ForceTownTrig();
 			return;
@@ -702,6 +768,14 @@ void CheckTrigForce()
 		case DTYPE_HELL:
 			pcurstrig = ForceL4Trig();
 			break;
+#ifdef HELLFIRE
+		case DTYPE_CRYPT:
+			pcurstrig = ForceL5Trig();
+			break;
+		case DTYPE_NEST:
+			pcurstrig = ForceL6Trig();
+			break;
+#endif
 		default:
 			ASSUME_UNREACHABLE
 		}
@@ -709,7 +783,7 @@ void CheckTrigForce()
 			pcurstrig = ForceQuests();
 		}
 	} else {
-		switch (setlvlnum) {
+		switch (currLvl._dLevelIdx) {
 		case SL_SKELKING:
 			pcurstrig = ForceSKingTrig();
 			break;
@@ -718,6 +792,11 @@ void CheckTrigForce()
 			break;
 		case SL_POISONWATER:
 			pcurstrig = ForcePWaterTrig();
+			break;
+		case SL_VILEBETRAYER:
+			break;
+		default:
+			ASSUME_UNREACHABLE
 			break;
 		}
 	}
@@ -740,10 +819,10 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-			StartNewLvl(myplr, WM_DIABNEXTLVL, currlevel + 1);
+			StartNewLvl(myplr, WM_DIABNEXTLVL, currLvl._dLevelIdx + 1);
 			break;
 		case WM_DIABPREVLVL:
-			StartNewLvl(myplr, WM_DIABPREVLVL, currlevel - 1);
+			StartNewLvl(myplr, WM_DIABPREVLVL, currLvl._dLevelIdx - 1);
 			break;
 		case WM_DIABRTNLVL:
 			StartNewLvl(myplr, WM_DIABRTNLVL, ReturnLvl);
@@ -783,11 +862,11 @@ void CheckTriggers()
 			StartNewLvl(myplr, WM_DIABTOWNWARP, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:
-			TWarpFrom = currlevel;
+			TWarpFrom = currLvl._dLevelIdx;
 			StartNewLvl(myplr, WM_DIABTWARPUP, 0);
 			break;
 		default:
-			app_fatal("Unknown trigger msg");
+			ASSUME_UNREACHABLE;
 			break;
 		}
 	}

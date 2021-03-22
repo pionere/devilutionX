@@ -12,7 +12,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-DWORD glSeedTbl[NUMLEVELS];
+DWORD glSeedTbl[NUMLEVELS + NUM_SETLVL];
 int MouseX;
 int MouseY;
 bool _gbGameLoopStartup;
@@ -224,11 +224,9 @@ static void diablo_parse_flags(int argc, char **argv)
 			debug_mode_key_J_trigger = argv[++i];
 		*/
 		} else if (strcasecmp("-l", argv[i]) == 0) {
-			gbSetlevel = false;
 			leveldebug = TRUE;
-			leveltype = SDL_atoi(argv[++i]);
-			currlevel = SDL_atoi(argv[++i]);
-			plr[0].plrlevel = currlevel;
+			EnterLevel(SDL_atoi(argv[++i]));
+			plr[0].plrlevel = currLvl._dLevelIdx;
 		} else if (strcasecmp("-m", argv[i]) == 0) {
 			monstdebug = TRUE;
 			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[++i]);
@@ -240,8 +238,7 @@ static void diablo_parse_flags(int argc, char **argv)
 			debug_mode_key_s = TRUE;
 		} else if (strcasecmp("-t", argv[i]) == 0) {
 			leveldebug = TRUE;
-			gbSetlevel = true;
-			setlvlnum = SDL_atoi(argv[++i]);
+			EnterLevel(SDL_atoi(argv[++i]));
 		} else if (strcasecmp("-v", argv[i]) == 0) {
 			visiondebug = TRUE;
 		} else if (strcasecmp("-w", argv[i]) == 0) {
@@ -356,7 +353,7 @@ static void game_logic()
 	if (gbProcessPlayers) {
 		ProcessPlayers();
 	}
-	if (leveltype != DTYPE_TOWN) {
+	if (currLvl._dType != DTYPE_TOWN) {
 		ProcessMonsters();
 		ProcessObjects();
 	} else {
@@ -742,7 +739,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (pcursmonst != -1) {
-		if (leveltype == DTYPE_TOWN) {
+		if (currLvl._dType == DTYPE_TOWN) {
 			NetSendCmdLocParam1(true, CMD_TALKXY, cursmx, cursmy, pcursmonst);
 			return;
 		}
@@ -1467,17 +1464,17 @@ static void PressChar(WPARAM vkey)
 		}
 		break;
 	case ':':
-		if (currlevel == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
 			SetAllSpellsCheat();
 		}
 		break;
 	case '[':
-		if (currlevel == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
 			TakeGoldCheat();
 		}
 		break;
 	case ']':
-		if (currlevel == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
 			MaxSpellsCheat();
 		}
 		break;
@@ -1506,7 +1503,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'R':
 	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currlevel]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currLvl._dLevelIdx]);
 		NetSendCmdString(1 << myplr);
 		break;
 	case 'T':
@@ -1519,12 +1516,12 @@ static void PressChar(WPARAM vkey)
 		}
 		break;
 	case '|':
-		if (currlevel == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
 			GiveGoldCheat();
 		}
 		break;
 	case '~':
-		if (currlevel == 0 && debug_mode_key_w) {
+		if (currLvl._dLevelIdx == 0 && debug_mode_key_w) {
 			StoresCheat();
 		}
 		break;
@@ -1666,15 +1663,15 @@ void diablo_color_cyc_logic()
 	if (!gbColorCyclingEnabled)
 		return;
 
-	if (leveltype == DTYPE_HELL)
+	if (currLvl._dType == DTYPE_HELL)
 		lighting_color_cycling();
 #ifdef HELLFIRE
-	else if (currlevel >= 21)
+	else if (currLvl._dType == DTYPE_CRYPT)
 		palette_update_crypt();
-	else if (currlevel >= 17)
+	else if (currLvl._dType == DTYPE_NEST)
 		palette_update_hive();
 #endif
-	else if (leveltype == DTYPE_CAVES)
+	else if (currLvl._dType == DTYPE_CAVES)
 		palette_update_caves();
 }
 

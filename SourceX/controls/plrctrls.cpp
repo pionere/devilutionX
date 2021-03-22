@@ -127,7 +127,7 @@ void FindItemOrObject()
 		}
 	}
 
-	if (leveltype == DTYPE_TOWN || pcursitem != -1)
+	if (currLvl._dType == DTYPE_TOWN || pcursitem != -1)
 		return; // Don't look for objects in town
 
 	for (int xx = -1; xx <= 1; xx++) {
@@ -358,7 +358,7 @@ void CheckPlayerNearby()
 
 void FindActor()
 {
-	if (leveltype != DTYPE_TOWN)
+	if (currLvl._dType != DTYPE_TOWN)
 		CheckMonstersNearby();
 	else
 		CheckTownersNearby();
@@ -412,7 +412,7 @@ void FindTrigger()
 
 		if (pcurstrig == -1) {
 			for (int i = 0; i < NUM_QUESTS; i++) {
-				if (i == Q_BETRAYER || currlevel != quests[i]._qlevel || quests[i]._qslvl == 0)
+				if (i == Q_BETRAYER || currLvl._dLevelIdx != quests[i]._qlevel || quests[i]._qslvl == 0)
 					continue;
 				const int newDdistance = GetDistance(quests[i]._qtx, quests[i]._qty, 2);
 				if (newDdistance == 0)
@@ -433,7 +433,7 @@ void FindTrigger()
 
 void Interact()
 {
-	if (leveltype == DTYPE_TOWN) {
+	if (currLvl._dType == DTYPE_TOWN) {
 		if (pcursmonst != -1)
 			NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
 	} else {
@@ -1019,7 +1019,7 @@ void StoreSpellCoords()
 
 bool IsAutomapActive()
 {
-	return gbAutomapflag && leveltype != DTYPE_TOWN;
+	return gbAutomapflag && currLvl._dType != DTYPE_TOWN;
 }
 
 bool IsMovingMouseCursorWithController()

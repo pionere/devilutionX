@@ -2424,7 +2424,7 @@ typedef enum townwarp_dest {
 	TWARP_CAVES,
 	TWARP_HELL,
 #ifdef HELLFIRE
-	TWARP_HIVE,
+	TWARP_NEST,
 	TWARP_CRYPT,
 #endif
 	NUM_TWARP
@@ -2449,10 +2449,10 @@ typedef enum dungeon_level {
 	DLV_HELL3,
 	DLV_HELL4,
 #ifdef HELLFIRE
-	DLV_HIVE1,
-	DLV_HIVE2,
-	DLV_HIVE3,
-	DLV_HIVE4,
+	DLV_NEST1,
+	DLV_NEST2,
+	DLV_NEST3,
+	DLV_NEST4,
 	DLV_CRYPT1,
 	DLV_CRYPT2,
 	DLV_CRYPT3,
@@ -3272,13 +3272,13 @@ typedef enum _item_damage_type {
 } _item_damage_type;
 
 typedef enum _setlevels {
-	//SL_BUTCHCHAMB = 0x0,
-	SL_SKELKING     = 0x1,
-	SL_BONECHAMB    = 0x2,
-	SL_MAZE         = 0x3,
-	SL_POISONWATER  = 0x4,
-	SL_VILEBETRAYER = 0x5,
-	NUM_SETLVL
+	SL_BUTCHCHAMB   = NUMLEVELS,
+	SL_SKELKING,
+	SL_BONECHAMB,
+	SL_MAZE,
+	SL_POISONWATER,
+	SL_VILEBETRAYER,
+	NUM_SETLVL = SL_VILEBETRAYER - NUMLEVELS + 1
 } _setlevels;
 
 typedef enum quest_id {

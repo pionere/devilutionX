@@ -377,8 +377,8 @@ const char *const ObjCryptLoadList[NUM_OFILE_TYPES] = {
 	"Mushptch",
 	"LzStand",
 };
-/** Maps from object_graphic_id to object CEL name (Hellfire Hive overwrite). */
-const char *const ObjHiveLoadList[NUM_OFILE_TYPES] = {
+/** Maps from object_graphic_id to object CEL name (Hellfire Nest overwrite). */
+const char *const ObjNestLoadList[NUM_OFILE_TYPES] = {
 	"L1Braz",
 	"L1Doors",
 	"Lever",
