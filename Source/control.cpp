@@ -409,7 +409,7 @@ void DrawSkillList()
 {
 	PlayerStruct *p;
 	int i, j, x, y, /*c,*/ sl, sn, st, lx, ly;
-	unsigned __int64 mask;
+	uint64_t mask;
 
 	currSkill = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -1958,7 +1958,7 @@ static char GetSBookTrans(int sn)
 	char st;
 
 	p = &plr[myplr];
-	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
+	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
 		st = RSPLTYPE_ABILITY;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
@@ -1985,7 +1985,7 @@ void DrawSpellBook()
 	PlayerStruct* p;
 	int i, sn, mana, lvl, sx, yp, offset, min, max;
 	char st;
-	unsigned __int64 spl;
+	uint64_t spl;
 
 	// back panel
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);

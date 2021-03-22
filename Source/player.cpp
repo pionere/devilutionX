@@ -2961,7 +2961,7 @@ static void ValidatePlayer()
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
-	__int64 msk;
+	uint64_t msk;
 	int gt, i;
 
 	if ((unsigned)myplr >= MAX_PLRS) {

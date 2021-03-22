@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SPELL_MASK(x)			((__int64)1 << (x - 1))
+#define SPELL_MASK(x)			((uint64_t)1 << (x - 1))
 
 #ifdef __cplusplus
 extern "C" {
