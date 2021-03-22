@@ -952,12 +952,6 @@ static void S_StartBBoy()
 
 static void S_StartHealer()
 {
-#ifdef HELLFIRE
-	if (plr[myplr]._pHitPoints != plr[myplr]._pMaxHP) {
-		PlrFillHp(myplr);
-		PlaySFX(IS_CAST8);
-	}
-#endif
 	_gbStextsize = false;
 	_gbStextscrl = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
