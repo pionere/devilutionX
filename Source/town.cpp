@@ -318,7 +318,7 @@ void CreateTown(int entry)
 
 	// make the whole town visible
 	memset(dLight, 0, sizeof(dLight));
-	memset(dFlags, BFLAG_LIT, sizeof(dFlags));
+	memset(dFlags, BFLAG_LIT | BFLAG_EXPLORED, sizeof(dFlags));
 
 	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in CreateTown.");
 	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in CreateTown.");
