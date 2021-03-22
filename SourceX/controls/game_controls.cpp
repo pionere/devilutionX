@@ -13,9 +13,9 @@ DEVILUTION_BEGIN_NAMESPACE
 bool start_modifier_active = false;
 bool select_modifier_active = false;
 
-// gamepad dpad acts as hotkeys without holding "start"
+/** Gamepad dpad acts as hotkeys without holding "start" */
 bool dpad_hotkeys = false;
-// shoulder gamepad buttons act as potions by default
+/** Shoulder gamepad buttons act as potions by default */
 bool switch_potions_and_clicks = false;
 
 namespace {
@@ -98,6 +98,27 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 	if (HandleStartAndSelect(ctrl_event, action))
 		return true;
 
+	// Stick clicks simulate the mouse both in menus and in-game.
+	switch (ctrl_event.button) {
+	case ControllerButton_BUTTON_LEFTSTICK:
+		if (select_modifier_active) {
+			if (!IsAutomapActive())
+				*action = GameActionSendMouseClick { GameActionSendMouseClick::LEFT, ctrl_event.up };
+			return true;
+		}
+		break;
+	case ControllerButton_BUTTON_RIGHTSTICK:
+		if (!IsAutomapActive()) {
+			if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
+				*action = GameActionSendMouseClick { GameActionSendMouseClick::RIGHT, ctrl_event.up };
+			else
+				*action = GameActionSendMouseClick { GameActionSendMouseClick::LEFT, ctrl_event.up };
+		}
+		return true;
+	default:
+		break;
+	}
+
 	if (!in_game_menu) {
 		switch (ctrl_event.button) {
 		case ControllerButton_BUTTON_LEFTSHOULDER:
@@ -130,13 +151,6 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 					*action = GameAction(GameActionType_TOGGLE_INVENTORY);
 			}
 			return true;
-		case ControllerButton_BUTTON_LEFTSTICK:
-			if (select_modifier_active) {
-				if (!IsAutomapActive())
-					*action = GameActionSendMouseClick{ GameActionSendMouseClick::LEFT, ctrl_event.up };
-				return true;
-			}
-			break;
 		case ControllerButton_IGNORE:
 		case ControllerButton_BUTTON_START:
 		case ControllerButton_BUTTON_BACK:
@@ -287,14 +301,6 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			case ControllerButton_BUTTON_DPAD_RIGHT:
 				// The rest of D-Pad actions are handled in charMovement() on every game_logic() call.
 				return true;
-			case ControllerButton_BUTTON_RIGHTSTICK:
-				if (!IsAutomapActive()) {
-					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendMouseClick{ GameActionSendMouseClick::RIGHT, ctrl_event.up };
-					else
-						*action = GameActionSendMouseClick{ GameActionSendMouseClick::LEFT, ctrl_event.up };
-				}
-				return true;
 			default:
 				break;
 			}
@@ -305,6 +311,20 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 		}
 	}
 
+
+	// DPad navigation is handled separately for these.
+	if (gmenu_is_active() || questlog || stextflag != STORE_NONE)
+	{
+		switch (ctrl_event.button) {
+			case ControllerButton_BUTTON_DPAD_UP:
+			case ControllerButton_BUTTON_DPAD_DOWN:
+			case ControllerButton_BUTTON_DPAD_LEFT:
+			case ControllerButton_BUTTON_DPAD_RIGHT:
+				return true;
+			default:
+				break;
+		}
+	}
 
 	// By default, map to a keyboard key.
 	if (ctrl_event.button != ControllerButton_NONE) {
@@ -330,26 +350,9 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 	return false;
 }
 
-MoveDirection GetMoveDirection()
+AxisDirection GetMoveDirection()
 {
-	const float stickX = leftStickX;
-	const float stickY = leftStickY;
-
-	MoveDirection result{ MoveDirectionX_NONE, MoveDirectionY_NONE };
-
-	if (stickY >= 0.5 || (!dpad_hotkeys && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP))) {
-		result.y = MoveDirectionY_UP;
-	} else if (stickY <= -0.5 || (!dpad_hotkeys && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_DOWN))) {
-		result.y = MoveDirectionY_DOWN;
-	}
-
-	if (stickX <= -0.5 || (!dpad_hotkeys && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_LEFT))) {
-		result.x = MoveDirectionX_LEFT;
-	} else if (stickX >= 0.5 || (!dpad_hotkeys && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_RIGHT))) {
-		result.x = MoveDirectionX_RIGHT;
-	}
-
-	return result;
+	return GetLeftStickOrDpadDirection(/*allow_dpad=*/!dpad_hotkeys);
 }
 
 DEVILUTION_END_NAMESPACE

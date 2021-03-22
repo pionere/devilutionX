@@ -201,7 +201,7 @@ typedef enum item_cursor_graphic {
 	ICURS_SPECTRAL_ELIXIR             = 15,
 	ICURS_GOLDEN_ELIXIR               = 17,
 	ICURS_EMPYREAN_BAND               = 18,
-	ICURS_EAR_SORCEROR                = 19,
+	ICURS_EAR_SORCERER                = 19,
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
@@ -1352,7 +1352,7 @@ typedef enum sfx_flag {
 	sfx_MONK     = 0x08,
 	sfx_ROGUE    = 0x10,
 	sfx_WARRIOR  = 0x20,
-	sfx_SORCEROR = 0x40,
+	sfx_SORCERER = 0x40,
 	sfx_HELLFIRE = 0x80,
 } sfx_flag;
 

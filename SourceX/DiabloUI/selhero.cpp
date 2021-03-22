@@ -10,6 +10,8 @@
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selgame.h"
 
+#include "controls/plrctrls.h"
+
 #ifdef __3DS__
 #include "../platform/ctr/keyboard.h"
 #endif

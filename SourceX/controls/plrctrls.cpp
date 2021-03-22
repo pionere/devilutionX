@@ -11,7 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 bool sgbControllerActive = false;
 coords speedspellscoords[50];
-const int repeatRate = 100;
 int speedspellcount = 0;
 
 /**
@@ -30,7 +29,6 @@ bool InGameMenu()
 
 namespace {
 
-DWORD invmove = 0;
 int slot = SLOTXY_INV_FIRST;
 
 /**
@@ -442,21 +440,15 @@ void Interact()
 	}
 }
 
-void AttrIncBtnSnap(MoveDirectionY dir)
+void AttrIncBtnSnap(AxisDirection dir)
 {
-	if (dir == MoveDirectionY_NONE) {
-		invmove = 0;
+	static AxisDirectionRepeater repeater;
+	dir = repeater.Get(dir);
+	if (dir.y == AxisDirectionY_NONE)
 		return;
-	}
 
 	if (chrbtnactive && plr[myplr]._pStatPts <= 0)
 		return;
-
-	DWORD ticks = SDL_GetTicks();
-	if (ticks - invmove < repeatRate) {
-		return;
-	}
-	invmove = ticks;
 
 	// first, find our cursor location
 	int slot = 0;
@@ -470,10 +462,10 @@ void AttrIncBtnSnap(MoveDirectionY dir)
 		}
 	}
 
-	if (dir == MoveDirectionY_UP) {
+	if (dir.y == AxisDirectionY_UP) {
 		if (slot > 0)
 			--slot;
-	} else if (dir == MoveDirectionY_DOWN) {
+	} else if (dir.y == AxisDirectionY_DOWN) {
 		if (slot < 3)
 			++slot;
 	}
@@ -501,18 +493,13 @@ void AttrIncBtnSnap(MoveDirectionY dir)
  * If mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
  * small inventory squares are 29x29 (roughly)
  */
-void InvMove(MoveDirection dir)
+void InvMove(AxisDirection dir)
 {
-	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
-		invmove = 0;
+	static AxisDirectionRepeater repeater(/*min_interval_ms=*/100);
+	dir = repeater.Get(dir);
+	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
-	}
 
-	DWORD ticks = SDL_GetTicks();
-	if (ticks - invmove < repeatRate) {
-		return;
-	}
-	invmove = ticks;
 	int x = MouseX;
 	int y = MouseY;
 	int r;
@@ -543,7 +530,7 @@ void InvMove(MoveDirection dir)
 	slot = r;
 
 	// when item is on cursor, this is the real cursor XY
-	if (dir.x == MoveDirectionX_LEFT) {
+	if (dir.x == AxisDirectionX_LEFT) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:			// head
 			break;				// do nothing
@@ -580,7 +567,7 @@ void InvMove(MoveDirection dir)
 		default:
 			ASSUME_UNREACHABLE
 		}
-	} else if (dir.x == MoveDirectionX_RIGHT) {
+	} else if (dir.x == AxisDirectionX_RIGHT) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD: // head to amulet
 			SELECT_INV_SLOT(SLOTXY_AMULET)
@@ -620,7 +607,7 @@ void InvMove(MoveDirection dir)
 			ASSUME_UNREACHABLE
 		}
 	}
-	if (dir.y == MoveDirectionY_UP) {
+	if (dir.y == AxisDirectionY_UP) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
 			break;				// do nothing
@@ -669,7 +656,7 @@ void InvMove(MoveDirection dir)
 		default:
 			ASSUME_UNREACHABLE
 		}
-	} else if (dir.y == MoveDirectionY_DOWN) {
+	} else if (dir.y == AxisDirectionY_DOWN) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
 			x = InvRect[SLOTXY_CHEST_FIRST + 2].X + RIGHT_PANEL + INV_SLOT_SIZE_PX;
@@ -742,18 +729,12 @@ bool HSExists(int x, int y)
 	return false;
 }
 
-void HotSpellMove(MoveDirection dir)
+void HotSpellMove(AxisDirection dir)
 {
-	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
-		invmove = 0;
+	static AxisDirectionRepeater repeater;
+	dir = repeater.Get(dir);
+	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
-	}
-
-	DWORD ticks = SDL_GetTicks();
-	if (ticks - invmove < repeatRate) {
-		return;
-	}
-	invmove = ticks;
 
 	int spbslot = plr[myplr]._pRSpell;
 	for (int r = 0; r < speedspellcount; r++) {
@@ -769,23 +750,23 @@ void HotSpellMove(MoveDirection dir)
 	int x = speedspellscoords[spbslot].x;
 	int y = speedspellscoords[spbslot].y;
 
-	if (dir.x == MoveDirectionX_LEFT) {
+	if (dir.x == AxisDirectionX_LEFT) {
 		if (spbslot < speedspellcount - 1) {
 			x = speedspellscoords[spbslot + 1].x;
 			y = speedspellscoords[spbslot + 1].y;
 		}
-	} else if (dir.x == MoveDirectionX_RIGHT) {
+	} else if (dir.x == AxisDirectionX_RIGHT) {
 		if (spbslot > 0) {
 			x = speedspellscoords[spbslot - 1].x;
 			y = speedspellscoords[spbslot - 1].y;
 		}
 	}
 
-	if (dir.y == MoveDirectionY_UP) {
+	if (dir.y == AxisDirectionY_UP) {
 		if (HSExists(x, y - SPLICONLENGTH)) {
 			y -= SPLICONLENGTH;
 		}
-	} else if (dir.y == MoveDirectionY_DOWN) {
+	} else if (dir.y == AxisDirectionY_DOWN) {
 		if (HSExists(x, y + SPLICONLENGTH)) {
 			y += SPLICONLENGTH;
 		}
@@ -796,23 +777,15 @@ void HotSpellMove(MoveDirection dir)
 	}
 }
 
-void SpellBookMove(MoveDirection dir)
+void SpellBookMove(AxisDirection dir)
 {
-	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
-		invmove = 0;
-		return;
-	}
+	static AxisDirectionRepeater repeater;
+	dir = repeater.Get(dir);
 
-	DWORD ticks = SDL_GetTicks();
-	if (ticks - invmove < repeatRate) {
-		return;
-	}
-	invmove = ticks;
-
-	if (dir.x == MoveDirectionX_LEFT) {
+	if (dir.x == AxisDirectionX_LEFT) {
 		if (sbooktab > 0)
 			sbooktab--;
-	} else if (dir.x == MoveDirectionX_RIGHT) {
+	} else if (dir.x == AxisDirectionX_RIGHT) {
 		if (sbooktab < SPLBOOKTABS - 1)
 			sbooktab++;
 	}
@@ -881,12 +854,12 @@ bool IsPathBlocked(int x, int y, int dir)
 	return !PosOkPlayer(myplr, d1x, d1y) && !PosOkPlayer(myplr, d2x, d2y);
 }
 
-void WalkInDir(MoveDirection dir)
+void WalkInDir(AxisDirection dir)
 {
 	const int x = plr[myplr]._pfutx;
 	const int y = plr[myplr]._pfuty;
 
-	if (dir.x == MoveDirectionX_NONE && dir.y == MoveDirectionY_NONE) {
+	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
 		if (sgbControllerActive && plr[myplr].walkpath[0] != WALK_NONE && plr[myplr].destAction == ACTION_NONE)
 			NetSendCmdLoc(TRUE, CMD_WALKXY, x, y); // Stop walking
 		return;
@@ -903,27 +876,65 @@ void WalkInDir(MoveDirection dir)
 	NetSendCmdLoc(TRUE, CMD_WALKXY, dx, dy);
 }
 
+void QuestLogMove(AxisDirection move_dir)
+{
+	static AxisDirectionRepeater repeater;
+	move_dir = repeater.Get(move_dir);
+	if (move_dir.y == AxisDirectionY_UP)
+		QuestlogUp();
+	else if (move_dir.y == AxisDirectionY_DOWN)
+		QuestlogDown();
+}
+
+void StoreMove(AxisDirection move_dir)
+{
+	static AxisDirectionRepeater repeater;
+	move_dir = repeater.Get(move_dir);
+	if (move_dir.y == AxisDirectionY_UP)
+		STextUp();
+	else if (move_dir.y == AxisDirectionY_DOWN)
+		STextDown();
+}
+
+typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
+
+HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
+{
+	if (invflag) {
+		return &InvMove;
+	} else if (chrflag && plr[myplr]._pStatPts > 0) {
+		return &AttrIncBtnSnap;
+	} else if (spselflag) {
+		return &HotSpellMove;
+	} else if (sbookflag) {
+		return &SpellBookMove;
+	} else if (questlog) {
+		return &QuestLogMove;
+	} else if (stextflag != STORE_NONE) {
+		return &StoreMove;
+	}
+	return NULL;
+}
+
+void ProcessLeftStickOrDPadGameUI() {
+	HandleLeftStickOrDPadFn handler = GetLeftStickOrDPadGameUIHandler();
+	if (handler != NULL)
+		handler(GetLeftStickOrDpadDirection(true));
+}
+
 void Movement()
 {
-	if (InGameMenu() || questlog
+	if (InGameMenu()
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_START)
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 		return;
 
-	MoveDirection move_dir = GetMoveDirection();
-	if (move_dir.x != MoveDirectionX_NONE || move_dir.y != MoveDirectionY_NONE) {
+	AxisDirection move_dir = GetMoveDirection();
+	if (move_dir.x != AxisDirectionX_NONE || move_dir.y != AxisDirectionY_NONE) {
 		sgbControllerActive = true;
 	}
 
-	if (invflag) {
-		InvMove(move_dir);
-	} else if (chrflag && plr[myplr]._pStatPts > 0) {
-		AttrIncBtnSnap(move_dir.y);
-	} else if (spselflag) {
-		HotSpellMove(move_dir);
-	} else if (sbookflag) {
-		SpellBookMove(move_dir);
-	} else {
+	if (GetLeftStickOrDPadGameUIHandler() == NULL) {
 		WalkInDir(move_dir);
 	}
 }
@@ -939,15 +950,18 @@ struct RightStickAccumulator {
 
 	void pool(int *x, int *y, int slowdown)
 	{
-		DWORD tc = SDL_GetTicks();
-		hiresDX += rightStickX * (tc - lastTc);
-		hiresDY += rightStickY * (tc - lastTc);
-		*x += hiresDX / slowdown;
-		*y += -hiresDY / slowdown;
+		const Uint32 tc = SDL_GetTicks();
+		const int dtc = tc - lastTc;
+		hiresDX += controller.rightStickX * dtc;
+		hiresDY += controller.rightStickY * dtc;
+		const int dx = hiresDX / slowdown;
+		const int dy = hiresDY / slowdown;
+		*x += dx;
+		*y -= dy;
 		lastTc = tc;
 		// keep track of remainder for sub-pixel motion
-		hiresDX %= slowdown;
-		hiresDY %= slowdown;
+		hiresDX -= dx * slowdown;
+		hiresDY -= dy * slowdown;
 	}
 
 	void clear()
@@ -956,8 +970,8 @@ struct RightStickAccumulator {
 	}
 
 	DWORD lastTc;
-	int hiresDX;
-	int hiresDY;
+	float hiresDX;
+	float hiresDY;
 };
 
 } // namespace
@@ -1017,14 +1031,14 @@ bool IsAutomapActive()
 
 bool IsMovingMouseCursorWithController()
 {
-	return rightStickX != 0 || rightStickY != 0;
+	return controller.rightStickX != 0 || controller.rightStickY != 0;
 }
 
 void HandleRightStickMotion()
 {
 	static RightStickAccumulator acc;
 	// deadzone is handled in ScaleJoystickAxes() already
-	if (rightStickX == 0 && rightStickY == 0) {
+	if (controller.rightStickX == 0 && controller.rightStickY == 0) {
 		acc.clear();
 		return;
 	}
@@ -1044,7 +1058,17 @@ void HandleRightStickMotion()
 		acc.pool(&x, &y, 2);
 		x = std::min(std::max(x, 0), SCREEN_WIDTH - 1);
 		y = std::min(std::max(y, 0), SCREEN_HEIGHT - 1);
-		SetCursorPos(x, y);
+
+		// We avoid calling `SetCursorPos` within the same SDL tick because
+		// that can cause all stick motion events to arrive before all
+		// cursor position events.
+		static int lastMouseSetTick = 0;
+		const int now = SDL_GetTicks();
+		if (now - lastMouseSetTick > 0)
+		{
+			SetCursorPos(x, y);
+			lastMouseSetTick = now;
+		}
 	}
 }
 
@@ -1058,8 +1082,6 @@ void FocusOnInventory()
 
 void plrctrls_after_check_curs_move()
 {
-	HandleRightStickMotion();
-
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
 		// Clear focuse set by cursor
@@ -1077,6 +1099,12 @@ void plrctrls_after_check_curs_move()
 			FindTrigger();
 		}
 	}
+}
+
+void plrctrls_every_frame()
+{
+	ProcessLeftStickOrDPadGameUI();
+	HandleRightStickMotion();
 }
 
 void plrctrls_after_game_logic()

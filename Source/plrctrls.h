@@ -15,8 +15,11 @@ extern bool sgbControllerActive;
 void plrctrls_after_check_curs_move();
 
 // Run after every game logic iteration.
-// Handles player and menu movement.
+// Handles player movement.
 void plrctrls_after_game_logic();
+// Runs every frame.
+// Handles menu movement.
+void plrctrls_every_frame();
 
 // Whether the mouse cursor is being moved with the controller.
 bool IsMovingMouseCursorWithController();

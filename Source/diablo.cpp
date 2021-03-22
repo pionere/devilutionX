@@ -334,6 +334,10 @@ static BOOL ProcessInput()
 		return FALSE;
 	}
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	plrctrls_every_frame();
+#endif
+
 	if (gmenu_is_active()) {
 		return gbMaxPlayers != 1;
 	}

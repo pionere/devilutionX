@@ -21,7 +21,7 @@ void PackItem(PkItemStruct *pis, ItemStruct *is)
 			pis->bMDur = is->_iName[15];
 			pis->bCh = is->_iName[16];
 			pis->bMCh = is->_iName[17];
-			pis->wValue = SwapLE16(is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCEROR) << 6));
+			pis->wValue = SwapLE16(is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCERER) << 6));
 			pis->dwBuff = SwapLE32(is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8));
 		} else {
 			pis->iSeed = SwapLE32(is->_iSeed);
