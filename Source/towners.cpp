@@ -462,6 +462,21 @@ bool PlrHasItem(int pnum, int item, int *outidx)
 	return false;
 }
 
+static bool PlrHasBeltItem(int pnum, int item)
+{
+	ItemStruct* pi;
+	int i;
+
+	pi = plr[pnum].SpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+		if (pi->_iIdx == item) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static void TownerTalk(int store, int talk)
 {
 	if (gbQtextflag)
@@ -665,7 +680,7 @@ void TalkToTowner(int pnum, int tnum)
 					msgSaid = true;
 				}
 			} else {
-				if (PlrHasItem(pnum, IDI_SPECELIX, &i)) {
+				if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
 					tw->_tListener = pnum + 1;
 					InitQTextMsg(TEXT_MUSH12);
