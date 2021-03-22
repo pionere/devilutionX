@@ -13,28 +13,26 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcp_client::create(std::string addrstr, std::string passwd)
+bool tcp_client::create(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	try {
-		auto port = default_port;
 		local_server.reset(new tcp_server(ioc, addrstr, port, passwd));
-		return join(local_server->localhost_self(), passwd);
+		return join(local_server->localhost_self(), port, passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError(e.what());
 		return false;
 	}
 }
 
-bool tcp_client::join(std::string addrstr, std::string passwd)
+bool tcp_client::join(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	constexpr int ms_sleep = 10;
 	constexpr int no_sleep = 250;
 
 	setup_password(passwd);
 	try {
-		std::stringstream port;
-		port << default_port;
-		asio::connect(sock, resolver.resolve(addrstr, port.str()));
+		std::string strPort = std::to_string(port);
+		asio::connect(sock, resolver.resolve(addrstr, strPort));
 		asio::ip::tcp::no_delay option(true);
 		sock.set_option(option);
 	} catch (std::exception &e) {

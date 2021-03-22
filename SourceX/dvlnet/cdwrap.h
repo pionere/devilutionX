@@ -23,8 +23,8 @@ private:
 	void reset();
 
 public:
-	virtual bool create(std::string addrstr, std::string passwd);
-	virtual bool join(std::string addrstr, std::string passwd);
+	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
 	virtual bool SNetSendMessage(int dest, void *data,
 	    unsigned int size);
@@ -55,17 +55,17 @@ void cdwrap<T>::reset()
 }
 
 template <class T>
-bool cdwrap<T>::create(std::string addrstr, std::string passwd)
+bool cdwrap<T>::create(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	reset();
-	return dvlnet_wrap->create(addrstr, passwd);
+	return dvlnet_wrap->create(addrstr, port, passwd);
 }
 
 template <class T>
-bool cdwrap<T>::join(std::string addrstr, std::string passwd)
+bool cdwrap<T>::join(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	reset();
-	return dvlnet_wrap->join(addrstr, passwd);
+	return dvlnet_wrap->join(addrstr, port, passwd);
 }
 
 template <class T>

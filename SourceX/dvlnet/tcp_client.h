@@ -16,10 +16,8 @@ namespace net {
 
 class tcp_client : public base {
 public:
-	bool create(std::string addrstr, std::string passwd);
-	bool join(std::string addrstr, std::string passwd);
-
-	constexpr static unsigned short default_port = 6112;
+	bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
+	bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 
 	virtual void poll();
 	virtual void send(packet &pkt);

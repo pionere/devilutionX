@@ -15,7 +15,8 @@ extern int provider;
 namespace {
 
 char selgame_Label[32];
-char selgame_Ip[129] = "";
+char selgame_Ip[128] = "";
+char selgame_Port[8] = "";
 char selgame_Password[16] = "";
 char selgame_Description[256];
 int selgame_result;
@@ -99,6 +100,10 @@ void selgame_GameSelection_Init()
 	selgame_selectedGame = 0;
 
 	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
+	int port = NET_DEFAULT_PORT;
+	getIniInt("Network", "Port", &port);
+	snprintf(selgame_Port, sizeof(selgame_Port), "%d", port);
+	getIniValue("Phone Book", "Entry1Port", selgame_Port, sizeof(selgame_Port) - 1);
 
 	selgame_FreeVectors();
 
@@ -157,6 +162,37 @@ void selgame_GameSelection_Focus(unsigned index)
 	return true;
 }*/
 
+static void selgame_Port_Init(unsigned index)
+{
+	selgame_FreeVectors();
+
+	UiAddBackground(&vecSelGameDialog);
+	UiAddLogo(&vecSelGameDialog);
+
+	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
+	vecSelGameDialog.push_back(new UiArtText("Client-Server (TCP)", rect1, UIS_CENTER | UIS_BIG));
+
+	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
+	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
+
+	SDL_Rect rect3 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 256), DESCRIPTION_WIDTH, 192 };
+	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
+
+	SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
+	vecSelGameDialog.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_BIG));
+
+	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
+	vecSelGameDialog.push_back(new UiEdit(selgame_Port, sizeof(selgame_Port) - 1, rect5, UIS_MED | UIS_GOLD));
+
+	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
+	vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Init, selgame_Password_Esc);
+}
+
 void selgame_GameSelection_Select(unsigned index)
 {
 	selgame_selectedGame = index;
@@ -205,7 +241,7 @@ void selgame_GameSelection_Select(unsigned index)
 		vecSelGameDialog.push_back(new UiArtText("Enter address", rect4, UIS_CENTER | UIS_BIG));
 
 		SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
-		vecSelGameDialog.push_back(new UiEdit(selgame_Ip, 128, rect5, UIS_MED | UIS_GOLD));
+		vecSelGameDialog.push_back(new UiEdit(selgame_Ip, sizeof(selgame_Ip) - 1, rect5, UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -213,7 +249,7 @@ void selgame_GameSelection_Select(unsigned index)
 		SDL_Rect rect7 = { PANEL_LEFT + 449, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("CANCEL", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelGameDialog, 0, NULL, selgame_Password_Init, selgame_GameSelection_Init);
+		UiInitList(vecSelGameDialog, 0, NULL, selgame_Port_Init, selgame_GameSelection_Init);
 	} break;
 	}
 }
@@ -412,7 +448,7 @@ void selgame_Password_Init(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
-	vecSelGameDialog.push_back(new UiEdit(selgame_Password, 15, rect5, UIS_MED | UIS_GOLD));
+	vecSelGameDialog.push_back(new UiEdit(selgame_Password, sizeof(selgame_Password) - 1, rect5, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -427,7 +463,10 @@ void selgame_Password_Select(unsigned index)
 {
 	if (selgame_selectedGame != 0) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		if (SNetJoinGame(selgame_Ip, selgame_Password)) {
+		setIniValue("Phone Book", "Entry1Port", selgame_Port);
+		int port;
+		getIniInt("Phone Book", "Entry1Port", &port);
+		if (SNetJoinGame(selgame_Ip, port, selgame_Password)) {
 			if (!IsDifficultyAllowed(selgame_gameData->bDifficulty)) {
 				selgame_GameSelection_Select(1);
 				return;

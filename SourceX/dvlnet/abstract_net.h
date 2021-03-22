@@ -24,8 +24,8 @@ public:
 
 class abstract_net {
 public:
-	virtual bool create(std::string addrstr, std::string passwd) = 0;
-	virtual bool join(std::string addrstr, std::string passwd) = 0;
+	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
+	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
 	virtual bool SNetReceiveMessage(int *sender, char **data,
 	    int *size)
 	    = 0;

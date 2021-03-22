@@ -15,8 +15,8 @@ namespace net {
 
 class udp_p2p : public base {
 public:
-	virtual bool create(std::string addrstr, std::string passwd);
-	virtual bool join(std::string addrstr, std::string passwd);
+	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 
@@ -24,8 +24,6 @@ private:
 	typedef asio::ip::udp::endpoint endpoint;
 	static const endpoint none;
 
-	static constexpr unsigned short default_port = 6112;
-	static constexpr unsigned short try_ports = 512;
 	static constexpr int ACTIVE = 60;
 
 	asio::io_context io_context;

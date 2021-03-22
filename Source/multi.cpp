@@ -10,7 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 bool gbSomebodyWonGameKludge;
 TBuffer sgHiPriBuf;
-char szPlayerDescript[128];
 WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 PkPlayerStruct netplr[MAX_PLRS];
 bool gbJoinGame;
@@ -35,7 +34,8 @@ BYTE gbMaxPlayers;
 bool _gbTimeout;
 BYTE gbDeltaSender;
 bool _gbNetInited;
-char szPlayerName[128];
+const char *szGameName;
+const char *szGamePassword;
 unsigned player_state[MAX_PLRS];
 
 static void buffer_init(TBuffer *pBuf)
@@ -733,9 +733,7 @@ bool NetInit(bool bSinglePlayer)
 	for (i = 0; i < NUMLEVELS + NUM_SETLVL; i++) {
 		glSeedTbl[i] = GetRndSeed();
 	}
-	SNetGetGameInfo(GAMEINFO_NAME, szPlayerName, sizeof(szPlayerName));
-	SNetGetGameInfo(GAMEINFO_PASSWORD, szPlayerDescript, sizeof(szPlayerDescript));
-
+	SNetGetGameInfo(&szGameName, &szGamePassword);
 	return true;
 }
 

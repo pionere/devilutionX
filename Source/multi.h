@@ -13,14 +13,14 @@ extern "C" {
 #endif
 
 extern bool gbSomebodyWonGameKludge;
-extern char szPlayerDescript[128];
 extern WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 extern BYTE gbActivePlayers;
 extern bool gbGameDestroyed;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern BYTE gbMaxPlayers;
-extern char szPlayerName[128];
+extern const char *szGameName;
+extern const char *szGamePassword;
 extern BYTE gbDeltaSender;
 extern unsigned player_state[MAX_PLRS];
 

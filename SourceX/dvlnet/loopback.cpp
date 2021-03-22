@@ -4,7 +4,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool loopback::create(std::string addrstr, std::string passwd)
+bool loopback::create(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	auto reply = pktfty->make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 		cookie_self, plr_single,
@@ -14,7 +14,7 @@ bool loopback::create(std::string addrstr, std::string passwd)
 	return true;
 }
 
-bool loopback::join(std::string addrstr, std::string passwd)
+bool loopback::join(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	ABORT();
 }

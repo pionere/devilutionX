@@ -133,6 +133,8 @@
 #define VOLUME_MIN				-1600
 #define VOLUME_MAX				0
 
+#define NET_DEFAULT_PORT		6112
+
 // todo: enums
 #ifdef HELLFIRE
 #define HEALER_ITEMS			20

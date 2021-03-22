@@ -63,19 +63,10 @@ bool SNetDropPlayer(int playerid, unsigned flags)
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }
 
-void SNetGetGameInfo(int type, void *dst, unsigned int length)
+void SNetGetGameInfo(const char** name, const char **password)
 {
-	switch (type) {
-	case GAMEINFO_NAME:
-		SStrCopy((char *)dst, gpszGameName, length);
-		break;
-	case GAMEINFO_PASSWORD:
-		SStrCopy((char *)dst, gpszGamePassword, length);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	*name = gpszGameName;
+	*password = gpszGamePassword;
 }
 
 void SNetLeaveGame(int type)
@@ -105,20 +96,21 @@ bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData)
 	net::buffer_t game_init_info(gData, gData + sizeof(*gameData));
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
-	char addrstr[129] = "0.0.0.0";
-	getIniValue("Network", "Bind Address", addrstr, 128);
-	SStrCopy(gpszGameName, addrstr, sizeof(gpszGameName));
-	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	return dvlnet_inst->create(addrstr, pszGamePassword);
+	char pszGameName[128] = "0.0.0.0";
+	getIniValue("Network", "Bind Address", pszGameName, sizeof(pszGameName) - 1);
+	int port = NET_DEFAULT_PORT;
+	getIniInt("Network", "Port", &port);
+	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
+	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
+	return dvlnet_inst->create(pszGameName, port, pszGamePassword);
 }
 
-bool SNetJoinGame(char *pszGameName, char *pszGamePassword)
+bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword)
 {
 	// assert(pszGameName != NULL && pszGamePassword != NULL);
-
-	SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
-	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	return dvlnet_inst->join(pszGameName, pszGamePassword);
+	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
+	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
+	return dvlnet_inst->join(pszGameName, port, pszGamePassword);
 }
 
 /**

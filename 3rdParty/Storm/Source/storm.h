@@ -79,19 +79,12 @@ bool
 
 /*  SNetGetGameInfo @ 107
  *
- *  Retrieves specific game information from Storm, such as name, password,
- *  stats, mode, game template, and players.
- *
- *  type:         The type of data to retrieve. See GAMEINFO_ flags.
- *  dst:          The destination buffer for the data.
- *  length:       The maximum size of the destination buffer.
+ *  @param name:         The address and port of the game
+ *  @param password:     The password of the game
  */
 void
     STORMAPI
-    SNetGetGameInfo(
-        int type,
-        void *dst,
-        unsigned length);
+    SNetGetGameInfo(const char **name, const char **password);
 
 /*  SNetGetTurnsInTransit @ 115
  *
@@ -107,7 +100,7 @@ bool
     SNetGetTurnsInTransit(
         DWORD *turns);
 
-bool STORMAPI SNetJoinGame(char *gameName, char *gamePassword);
+bool STORMAPI SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
 
 /*  SNetLeaveGame @ 119
  *

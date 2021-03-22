@@ -21,8 +21,8 @@ public:
 		plr_single = 0;
 	};
 
-	virtual bool create(std::string addrstr, std::string passwd);
-	virtual bool join(std::string addrstr, std::string passwd);
+	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
