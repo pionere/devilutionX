@@ -750,21 +750,21 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 
 		// TODO: move closer, execute moveSkill if not SPL_WALK?
-		return;
+		//return;
 	}
 
 	if (pcursplr != -1) {
 		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
-		return;
+		//return;
 	}
 
 	if (pcursobj != -1) {
 		bool bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
-		if ((!bShift || bNear && object[pcursobj]._oBreak == 1)) {
+		if ((moveSkill == SPL_WALK || bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}
-		return; // TODO: proceed in case moveSkill != SPL_WALK?
+		//return; // TODO: proceed in case moveSkill != SPL_WALK?
 	}
 	if (moveSkill != SPL_WALK) {
 		// TODO: check if cursmx/y == _px/y ?
