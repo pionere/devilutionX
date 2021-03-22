@@ -717,19 +717,19 @@ void LoadGame(bool firstflag)
 			LoadObject(objectactive[i]);
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
-
-		numlights = LoadInt();
-		for (i = 0; i < MAXLIGHTS; i++)
-			lightactive[i] = LoadChar();
-		for (i = 0; i < numlights; i++)
-			LoadLight(&LightList[lightactive[i]]);
-
-		numvision = LoadInt();
-		for (i = 0; i < MAXVISION; i++)
-			visionactive[i] = LoadChar();
-		for (i = 0; i < numvision; i++)
-			LoadLight(&VisionList[visionactive[i]]);
 	}
+
+	numlights = LoadInt();
+	for (i = 0; i < MAXLIGHTS; i++)
+		lightactive[i] = LoadChar();
+	for (i = 0; i < numlights; i++)
+		LoadLight(&LightList[lightactive[i]]);
+
+	numvision = LoadInt();
+	for (i = 0; i < MAXVISION; i++)
+		visionactive[i] = LoadChar();
+	for (i = 0; i < numvision; i++)
+		LoadLight(&VisionList[visionactive[i]]);
 
 	for (i = 0; i < MAXITEMS; i++)
 		itemactive[i] = LoadChar();
@@ -1379,19 +1379,18 @@ void SaveGame()
 			SaveChar(objectavail[i]);
 		for (i = 0; i < nobjects; i++)
 			SaveObject(objectactive[i]);
-
-		SaveInt(numlights);
-		for (i = 0; i < MAXLIGHTS; i++)
-			SaveChar(lightactive[i]);
-		for (i = 0; i < numlights; i++)
-			SaveLight(&LightList[lightactive[i]]);
-
-		SaveInt(numvision);
-		for (i = 0; i < MAXVISION; i++)
-			SaveChar(visionactive[i]);
-		for (i = 0; i < numvision; i++)
-			SaveLight(&VisionList[visionactive[i]]);
 	}
+	SaveInt(numlights);
+	for (i = 0; i < MAXLIGHTS; i++)
+		SaveChar(lightactive[i]);
+	for (i = 0; i < numlights; i++)
+		SaveLight(&LightList[lightactive[i]]);
+
+	SaveInt(numvision);
+	for (i = 0; i < MAXVISION; i++)
+		SaveChar(visionactive[i]);
+	for (i = 0; i < numvision; i++)
+		SaveLight(&VisionList[visionactive[i]]);
 
 	for (i = 0; i < MAXITEMS; i++)
 		SaveChar(itemactive[i]);
