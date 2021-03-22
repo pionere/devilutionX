@@ -1194,7 +1194,6 @@ static_assert((sizeof(LevelDataStruct) & (sizeof(LevelDataStruct) - 1)) == 0, "A
 
 typedef struct QuestStruct {
 	unsigned char _qlevel;
-	unsigned char _qtype;
 	unsigned char _qactive;
 	int _qtx;
 	int _qty;

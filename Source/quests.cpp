@@ -88,28 +88,27 @@ void InitQuests()
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
 		if (gbMaxPlayers != 1 && !(qdata->_qflags & QUEST_ANY))
 			continue;
-			qs->_qtype = i;
-			if (gbMaxPlayers != 1) {
-				qs->_qlevel = qdata->_qdmultlvl;
-				if (!delta_quest_inited(initiatedQuests)) {
-					qs->_qactive = QUEST_INIT;
-					qs->_qvar1 = 0;
-					qs->_qlog = FALSE;
-				}
-				initiatedQuests++;
-			} else {
+		if (gbMaxPlayers != 1) {
+			qs->_qlevel = qdata->_qdmultlvl;
+			if (!delta_quest_inited(initiatedQuests)) {
 				qs->_qactive = QUEST_INIT;
-				qs->_qlevel = qdata->_qdlvl;
 				qs->_qvar1 = 0;
 				qs->_qlog = FALSE;
 			}
+			initiatedQuests++;
+		} else {
+			qs->_qactive = QUEST_INIT;
+			qs->_qlevel = qdata->_qdlvl;
+			qs->_qvar1 = 0;
+			qs->_qlog = FALSE;
+		}
 
-			qs->_qslvl = qdata->_qslvl;
-			qs->_qtx = 0;
-			qs->_qty = 0;
-			qs->_qidx = i;
-			qs->_qvar2 = 0;
-			qs->_qmsg = qdata->_qdmsg;
+		qs->_qslvl = qdata->_qslvl;
+		qs->_qtx = 0;
+		qs->_qty = 0;
+		qs->_qidx = i;
+		qs->_qvar2 = 0;
+		qs->_qmsg = qdata->_qdmsg;
 	}
 
 #ifdef _DEBUG
@@ -325,10 +324,10 @@ static void DrawButcher()
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
-static void DrawSkelKing(int qn, int x, int y)
+static void DrawSkelKing(int x, int y)
 {
-	quests[qn]._qtx = 2 * x + DBORDERX + 12;
-	quests[qn]._qty = 2 * y + DBORDERY + 7;
+	quests[Q_SKELKING]._qtx = 2 * x + DBORDERX + 12;
+	quests[Q_SKELKING]._qty = 2 * y + DBORDERY + 7;
 }
 
 static void DrawMap(const char* name, int x, int y, int bv)
@@ -368,10 +367,10 @@ static void DrawWarLord(int x, int y)
 	DrawMap("Levels\\L4Data\\Warlord2.DUN", x, y, 6);
 }
 
-static void DrawSChamber(int qn, int x, int y)
+static void DrawSChamber(int x, int y)
 {
-	quests[qn]._qtx = 2 * x + DBORDERX + 6;
-	quests[qn]._qty = 2 * y + DBORDERY + 7;
+	quests[Q_SCHAMB]._qtx = 2 * x + DBORDERX + 6;
+	quests[Q_SCHAMB]._qty = 2 * y + DBORDERY + 7;
 
 	DrawMap("Levels\\L2Data\\Bonestr1.DUN", x, y, 3);
 }
@@ -448,7 +447,7 @@ void DRLG_CheckQuests(int x, int y)
 
 	for (i = 0; i < NUM_QUESTS; i++) {
 		if (QuestStatus(i)) {
-			switch (quests[i]._qtype) {
+			switch (i) {
 			case Q_BUTCHER:
 				DrawButcher();
 				break;
@@ -465,10 +464,10 @@ void DRLG_CheckQuests(int x, int y)
 				DrawWarLord(x, y);
 				break;
 			case Q_SKELKING:
-				DrawSkelKing(i, x, y);
+				DrawSkelKing(x, y);
 				break;
 			case Q_SCHAMB:
-				DrawSChamber(i, x, y);
+				DrawSChamber(x, y);
 				break;
 			}
 		}

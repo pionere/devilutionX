@@ -573,39 +573,18 @@ static void LoadQuest(int i)
 	QuestStruct *pQuest = &quests[i];
 
 	CopyChar(tbuff, &pQuest->_qlevel);
-	CopyChar(tbuff, &pQuest->_qtype);
 	CopyChar(tbuff, &pQuest->_qactive);
-	tbuff += 1; // Skip _qlvltype
+	tbuff += 2; // Alignment
 	CopyInt(tbuff, &pQuest->_qtx);
 	CopyInt(tbuff, &pQuest->_qty);
 	CopyChar(tbuff, &pQuest->_qslvl);
 	CopyChar(tbuff, &pQuest->_qidx);
-#ifdef HELLFIRE
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &pQuest->_qmsg);
-#else
-	BYTE tmp;
-	CopyChar(tbuff, &tmp);
-	pQuest->_qmsg = tmp;
-#endif
 	CopyChar(tbuff, &pQuest->_qvar1);
 	CopyChar(tbuff, &pQuest->_qvar2);
-#ifdef HELLFIRE
 	tbuff += 2; // Alignment
-#else
-	tbuff += 3; // Alignment
-#endif
 	CopyInt(tbuff, &pQuest->_qlog);
-
-	ReturnLvlX = LoadInt();
-	ReturnLvlY = LoadInt();
-	ReturnLvl = LoadInt();
-	tbuff += 4; // Skip ReturnLvlT
-#ifdef  HELLFIRE
-	tbuff += 4; // Skip DoomQuestState
-#else
-	DoomQuestState = LoadInt();
-#endif
 }
 
 static void LoadLight(LightListStruct *pLight)
@@ -679,6 +658,10 @@ void LoadGame(bool firstflag)
 	}
 
 	LoadPlayer(myplr);
+
+	ReturnLvlX = LoadInt();
+	ReturnLvlY = LoadInt();
+	ReturnLvl = LoadInt();
 
 	for (i = 0; i < NUM_QUESTS; i++)
 		LoadQuest(i);
@@ -1269,38 +1252,18 @@ static void SaveQuest(int i)
 	QuestStruct *pQuest = &quests[i];
 
 	CopyChar(&pQuest->_qlevel, tbuff);
-	CopyChar(&pQuest->_qtype, tbuff);
 	CopyChar(&pQuest->_qactive, tbuff);
-	tbuff += 1; // Skip _qlvltype
+	tbuff += 2; // Alignment
 	CopyInt(&pQuest->_qtx, tbuff);
 	CopyInt(&pQuest->_qty, tbuff);
 	CopyChar(&pQuest->_qslvl, tbuff);
 	CopyChar(&pQuest->_qidx, tbuff);
-#ifdef HELLFIRE
 	tbuff += 2; // Alignment
 	CopyInt(&pQuest->_qmsg, tbuff);
-#else
-	BYTE tmp = pQuest->_qmsg;
-	CopyChar(&tmp, tbuff);
-#endif
 	CopyChar(&pQuest->_qvar1, tbuff);
 	CopyChar(&pQuest->_qvar2, tbuff);
-#ifdef HELLFIRE
 	tbuff += 2; // Alignment
-#else
-	tbuff += 3; // Alignment
-#endif
 	CopyInt(&pQuest->_qlog, tbuff);
-
-	SaveInt(ReturnLvlX);
-	SaveInt(ReturnLvlY);
-	SaveInt(ReturnLvl);
-	tbuff += 4; // Skip ReturnLvlT
-#ifdef  HELLFIRE
-	tbuff += 4; // Skip DoomQuestState
-#else
-	SaveInt(DoomQuestState);
-#endif
 }
 
 static void SaveLight(LightListStruct *pLight)
@@ -1354,6 +1317,10 @@ void SaveGame()
 	}
 
 	SavePlayer(myplr);
+
+	SaveInt(ReturnLvlX);
+	SaveInt(ReturnLvlY);
+	SaveInt(ReturnLvl);
 
 	for (i = 0; i < NUM_QUESTS; i++)
 		SaveQuest(i);
