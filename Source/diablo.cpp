@@ -319,6 +319,10 @@ static bool ProcessInput()
 		return false;
 	}
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	plrctrls_every_frame();
+#endif
+
 	if (gmenu_is_active()) {
 		return gbMaxPlayers != 1;
 	}
@@ -1096,7 +1100,7 @@ static void ClearUI()
 	gbChrflag = false;
 	gbSbookflag = false;
 	gbSkillListFlag = false;
-	if (gbQtextflag && leveltype == DTYPE_TOWN) {
+	if (gbQtextflag && currLvl._dType == DTYPE_TOWN) {
 		gbQtextflag = false;
 		stream_stop();
 	}

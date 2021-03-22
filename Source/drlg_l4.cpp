@@ -1404,7 +1404,7 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 
 #if defined(__3DS__)
 #pragma GCC push_options
-#pragma GCC optimize ("O0")
+#pragma GCC optimize("O0")
 #endif
 static void DRLG_L4FTVR(int i, int j, int x, int y, int dir)
 {

@@ -2310,7 +2310,7 @@ void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch,
 	tempstr[15] = ibuff & 0x7F;
 	tempstr[16] = '\0';
 	snprintf(item[MAXITEMS]._iName, sizeof(item[MAXITEMS]._iName), "Ear of %s", tempstr);
-	item[MAXITEMS]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCEROR;
+	item[MAXITEMS]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCERER;
 	item[MAXITEMS]._ivalue = ivalue & 0x3F;
 	item[MAXITEMS]._iCreateInfo = ic;
 	item[MAXITEMS]._iSeed = iseed;

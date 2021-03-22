@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13) # CMP0083 NEW
 
+include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
 include(CMake/genex.cmake)
 
@@ -31,6 +32,10 @@ if(NIGHTLY_BUILD OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   set(DIST ON)
   set(CPACK ON)
 endif()
+
+option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
+                       "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
 
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
@@ -134,10 +139,6 @@ if(N3DS)
   include(n3ds_defs)
 endif()
 
-if(DIST)
-  set(sodium_USE_STATIC_LIBS ON)
-endif()
-
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 endif()
@@ -145,6 +146,7 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
@@ -153,7 +155,12 @@ if(NOT N3DS)
 endif()
 
 if(NOT NONET)
-  find_package(sodium REQUIRED)
+  if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+    set(sodium_USE_STATIC_LIBS ${DEVILUTIONX_STATIC_LIBSODIUM})
+    find_package(sodium REQUIRED)
+  else()
+    add_subdirectory(3rdParty/libsodium)
+  endif()
 endif()
 
 if(USE_SDL1)
@@ -279,6 +286,7 @@ set(devilutionx_SRCS
   SourceX/controls/devices/game_controller.cpp
   SourceX/controls/devices/joystick.cpp
   SourceX/controls/devices/kbcontroller.cpp
+  SourceX/controls/axis_direction.cpp
   SourceX/controls/controller.cpp
   SourceX/controls/controller_motion.cpp
   SourceX/controls/game_controls.cpp
@@ -369,8 +377,9 @@ if(RUN_TESTS)
     SourceT/drlg_l4_test.cpp
     SourceT/effects_test.cpp
     SourceT/file_util_test.cpp
-    SourceT/player_test.cpp
     SourceT/lighting_test.cpp
+    SourceT/missiles_test.cpp
+    SourceT/player_test.cpp
     SourceT/scrollrt_test.cpp
     SourceT/stores_test.cpp)
 endif()
@@ -628,9 +637,6 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   genex_for_option(DEBUG)
   target_compile_options(devilution PUBLIC $<${DEBUG_GENEX}:-fno-omit-frame-pointer>)
 
-  # Warnings for devilution
-  target_compile_options(devilution PRIVATE -Wno-int-to-pointer-cast)
-
   # Warnings for devilutionX
   target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-format-security)
 
@@ -641,15 +647,6 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(devilution PRIVATE "/W0")
-endif()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # Style issues
-  target_compile_options(${BIN_TARGET} PRIVATE -Wno-parentheses -Wno-logical-op-parentheses -Wno-bitwise-op-parentheses)
-  # Silence warnings about __int64 alignment hack not always being applicable
-  target_compile_options(${BIN_TARGET} PRIVATE -Wno-ignored-attributes)
-  # Silence appfat.cpp warnings
-  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-narrowing")
 endif()
 
 if(APPLE)

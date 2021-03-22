@@ -5,6 +5,11 @@
  */
 #include "all.h"
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#include "../SourceX/controls/axis_direction.h"
+#include "../SourceX/controls/controller_motion.h"
+#endif
+
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE *optbar_cel;
@@ -127,6 +132,29 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
+static void gmenu_left_right(BOOL isRight)
+{
+	int step, steps;
+
+	if (!(sgpCurrItem->dwFlags & GMENU_SLIDER))
+		return;
+
+	step = sgpCurrItem->dwFlags & 0xFFF;
+	steps = (int)(sgpCurrItem->dwFlags & 0xFFF000) >> 12;
+	if (isRight) {
+		if (step == steps)
+			return;
+		step++;
+	} else {
+		if (step == 0)
+			return;
+		step--;
+	}
+	sgpCurrItem->dwFlags &= 0xFFFFF000;
+	sgpCurrItem->dwFlags |= step;
+	sgpCurrItem->fnMenu(FALSE);
+}
+
 void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 {
 	int i;
@@ -203,13 +231,25 @@ static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 	}
 }
 
+static void GameMenuMove()
+{
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+	static AxisDirectionRepeater repeater;
+	const AxisDirection move_dir = repeater.Get(GetLeftStickOrDpadDirection());
+	if (move_dir.x != AxisDirectionX_NONE)
+		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
+	if (move_dir.y != AxisDirectionY_NONE)
+		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
+#endif
+}
+
 void gmenu_draw()
 {
 	int nCel, y;
 	TMenuItem *i;
 
 	assert(sgpCurrentMenu != NULL);
-
+		GameMenuMove();
 		if (gmUpdateFunc != NULL)
 			gmUpdateFunc(sgpCurrentMenu);
 #ifdef HELLFIRE
@@ -228,29 +268,6 @@ void gmenu_draw()
 		y = 160 + SCREEN_Y + UI_OFFSET_Y;
 		for (i = sgpCurrentMenu; i->fnMenu != NULL; i++, y += 45)
 			gmenu_draw_menu_item(i, y);
-}
-
-static void gmenu_left_right(bool isRight)
-{
-	int step, steps;
-
-	if (!(sgpCurrItem->dwFlags & GMENU_SLIDER))
-		return;
-
-	step = sgpCurrItem->dwFlags & 0xFFF;
-	steps = (int)(sgpCurrItem->dwFlags & 0xFFF000) >> 12;
-	if (isRight) {
-		if (step == steps)
-			return;
-		step++;
-	} else {
-		if (step == 0)
-			return;
-		step--;
-	}
-	sgpCurrItem->dwFlags &= 0xFFFFF000;
-	sgpCurrItem->dwFlags |= step;
-	sgpCurrItem->fnMenu(false);
 }
 
 bool gmenu_presskeys(int vkey)

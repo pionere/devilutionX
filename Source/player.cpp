@@ -1850,9 +1850,9 @@ void StartPlrKill(int pnum, int earflag)
 					CreateBaseItem(&ear, IDI_EAR);
 					snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
 					const int earSets[NUM_CLASSES] = {
-							ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCEROR
+							ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
 #ifdef HELLFIRE
-							, ICURS_EAR_SORCEROR, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
+							, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
 #endif
 					};
 					ear._iCurs = earSets[p->_pClass];

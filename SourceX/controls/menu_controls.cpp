@@ -1,15 +1,39 @@
 #include "menu_controls.h"
 
+#include "controls/axis_direction.h"
 #include "controls/plrctrls.h"
+#include "controls/controller_motion.h"
 #include "controls/remap_keyboard.h"
 #include "DiabloUI/diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+MenuAction GetMenuHeldUpDownAction()
+{
+	static AxisDirectionRepeater repeater;
+	const AxisDirection dir = repeater.Get(GetLeftStickOrDpadDirection());
+	switch (dir.y) {
+	case AxisDirectionY_UP:
+		return MenuAction_UP;
+	case AxisDirectionY_DOWN:
+		return MenuAction_DOWN;
+	default:
+		return MenuAction_NONE;
+	}
+}
+#endif
+
 MenuAction GetMenuAction(const SDL_Event &event)
 {
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	const ControllerButtonEvent ctrl_event = ToControllerButtonEvent(event);
+
+	if (ProcessControllerMotion(event, ctrl_event)) {
+		sgbControllerActive = true;
+		return GetMenuHeldUpDownAction();
+	}
+
 	if (ctrl_event.button != ControllerButton_NONE)
 		sgbControllerActive = true;
 
@@ -26,9 +50,8 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case ControllerButton_BUTTON_X: // Left button
 			return MenuAction_DELETE;
 		case ControllerButton_BUTTON_DPAD_UP:
-			return MenuAction_UP;
 		case ControllerButton_BUTTON_DPAD_DOWN:
-			return MenuAction_DOWN;
+			return GetMenuHeldUpDownAction();
 		case ControllerButton_BUTTON_DPAD_LEFT:
 			return MenuAction_LEFT;
 		case ControllerButton_BUTTON_DPAD_RIGHT:
