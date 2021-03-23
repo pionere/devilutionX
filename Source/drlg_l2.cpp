@@ -1529,7 +1529,6 @@ const BYTE CTRDOOR8[] = {
  * The remaining(6) values are for alignment.
  */
 const int Patterns[][16] = {
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 },
 	{ 0, 0, 0, 0, 2, 0, 0, 0, 0, 3 },
 	{ 0, 7, 0, 0, 1, 0, 0, 5, 0, 2 },
 	{ 0, 5, 0, 0, 1, 0, 0, 7, 0, 2 },
@@ -1600,7 +1599,6 @@ const int Patterns[][16] = {
 	{ 1, 1, 1, 1, 1, 1, 2, 1, 1, 14 },
 	{ 4, 1, 1, 1, 1, 1, 2, 1, 1, 14 },
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 2, 8 },
-	{ 0, 0, 0, 0, 255, 0, 0, 0, 0, 0 },
 };
 
 static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
@@ -2227,7 +2225,7 @@ static void DoPatternCheck(int x, int y)
 {
 	int i, j, xx, yy;
 
-	for (i = 0; Patterns[i][4] != 255; i++) {
+	for (i = 0; i < lengthof(Patterns); i++) {
 		xx = x - 1;
 		yy = y - 1;
 		for (j = 0; j < 9; j++, xx++) {
@@ -2279,6 +2277,9 @@ static void DoPatternCheck(int x, int y)
 				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35 || predungeon[xx][yy] == 46) {
 					continue;
 				}
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			break;
@@ -2735,17 +2736,7 @@ static bool DRLG_L2CreateDungeon()
 		}
 	}
 
-	if (!DL2_FillVoids()) {
-		return false;
-	}
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			DoPatternCheck(i, j);
-		}
-	}
-
-	return true;
+	return DL2_FillVoids();
 }
 
 static void DRLG_L2FTVR(int i, int j, int x, int y, int dir)
@@ -2996,6 +2987,14 @@ static void DRLG_L2(int entry)
 			DRLG_L2InitDungeon();
 			DRLG_InitTrans();
 		} while (!DRLG_L2CreateDungeon());
+
+		memset(dungeon, 3, sizeof(dungeon));
+		for (int j = 0; j < DMAXY; j++) {
+			for (int i = 0; i < DMAXX; i++) {
+				DoPatternCheck(i, j);
+			}
+		}
+
 		L2TileFix();
 		if (pSetPiece != NULL) {
 			DRLG_L2SetRoom(nSx1, nSy1);
