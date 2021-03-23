@@ -215,13 +215,11 @@ static void InitL4Dungeon()
 
 static void DRLG_LoadL4SP()
 {
-	gbSetloadflag = false;
+	pSetPiece = NULL;
 	if (currLvl._dLevelIdx == DLV_HELL3 && gbMaxPlayers != 1) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
-		gbSetloadflag = true;
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
-		gbSetloadflag = true;
 	}
 }
 
@@ -1618,7 +1616,7 @@ static void DRLG_L4(int entry)
 		L4AddWall();
 		DRLG_L4FloodTVal();
 		DRLG_L4TransFix();
-		if (gbSetloadflag) {
+		if (pSetPiece != NULL) {
 			DRLG_L4SetSPRoom(SP4x1, SP4y1);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {

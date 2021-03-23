@@ -22,8 +22,6 @@ int setpc_w;
 int setpc_h;
 /** Contains the contents of the single player quest DUN file. */
 BYTE *pSetPiece;
-/** Specifies whether a single player quest DUN has been loaded. */
-bool gbSetloadflag;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
 BYTE *pMegaTiles;

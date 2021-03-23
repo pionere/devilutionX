@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
 BYTE L1dflags[DMAXX][DMAXY];
-/** Specifies whether a single player quest DUN has been loaded. */
-bool L1setloadflag; // TODO: re-use gbSetloadflag ?
 /** Specifies whether to generate a horizontal room at position 1 in the Cathedral. */
 BOOL HR1;
 /** Specifies whether to generate a horizontal room at position 2 in the Cathedral. */
@@ -35,8 +33,6 @@ BOOL VR1;
 BOOL VR2;
 /** Specifies whether to generate a vertical room at position 3 in the Cathedral. */
 BOOL VR3;
-/** Contains the contents of the single player quest DUN file. */
-BYTE *L1pSetPiece;
 
 /** Contains shadows for 2x2 blocks of base tile IDs in the Cathedral. */
 const ShadowStruct SPATS[37] = {
@@ -1085,22 +1081,19 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
-	L1setloadflag = false;
+	pSetPiece = NULL;
 	if (QuestStatus(Q_LTBANNER)) {
-		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN", NULL);
-		L1setloadflag = true;
+		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN", NULL);
 	} else if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
-		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
-		L1setloadflag = true;
+		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
 	} else if (QuestStatus(Q_BUTCHER)) {
-		L1pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
-		L1setloadflag = true;
+		pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
 	}
 }
 
 static void DRLG_FreeL1SP()
 {
-	MemFreeDbg(L1pSetPiece);
+	MemFreeDbg(pSetPiece);
 }
 
 static void DRLG_InitL1Vals()
@@ -1993,15 +1986,15 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE *sp;
 
-	rw = *L1pSetPiece;
-	rh = *(L1pSetPiece + 2);
+	rw = *pSetPiece;
+	rh = *(pSetPiece + 2);
 
 	setpc_x = rx1;
 	setpc_y = ry1;
 	setpc_w = rw;
 	setpc_h = rh;
 
-	sp = L1pSetPiece + 4;
+	sp = pSetPiece + 4;
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
@@ -2186,7 +2179,7 @@ static void L1FillChambers()
 		}
 	}*/
 #endif
-	if (L1setloadflag) {
+	if (pSetPiece != NULL) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
 			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)

@@ -20,7 +20,6 @@ extern int setpc_y;
 extern int setpc_w;
 extern int setpc_h;
 extern BYTE *pSetPiece;
-extern bool gbSetloadflag;
 extern BYTE *pSpecialCels;
 extern BYTE *pMegaTiles;
 extern BYTE *pLevelPieces;
