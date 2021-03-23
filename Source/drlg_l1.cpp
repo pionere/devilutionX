@@ -1842,7 +1842,7 @@ static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = false;
 					}
-					if (dflags[xx + sx][yy + sy] != 0) {
+					if (L1dflags[xx + sx][yy + sy] != 0) {
 						found = false;
 					}
 					ii++;
