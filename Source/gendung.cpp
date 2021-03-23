@@ -11,6 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE dungeon[DMAXX][DMAXY];
 /** Contains a backup of the tile IDs of the map. */
 BYTE pdungeon[DMAXX][DMAXY];
+/** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
 BYTE dflags[DMAXX][DMAXY];
 /** Specifies the active set level X-coordinate of the map. */
 int setpc_x;

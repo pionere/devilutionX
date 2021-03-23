@@ -10,8 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L1 (22 - 1)
 
-/** Represents a tile ID map of twice the size, repeating each tile of the original map in blocks of 4. */
-BYTE L1dflags[DMAXX][DMAXY];
 /** Specifies whether to generate a horizontal room at position 1 in the Cathedral. */
 BOOL HR1;
 /** Specifies whether to generate a horizontal room at position 2 in the Cathedral. */
@@ -579,8 +577,8 @@ static void DRLG_InitL5Vals()
 
 static void DRLG_L1PlaceDoor(int x, int y)
 {
-	if (!(L1dflags[x][y] & DLRG_PROTECTED)) {
-		BYTE df = L1dflags[x][y] & 0x7F;
+	if (!(dflags[x][y] & DLRG_PROTECTED)) {
+		BYTE df = dflags[x][y] & 0x7F;
 		BYTE c = dungeon[x][y];
 
 		if (df == DLRG_HDOOR) {
@@ -631,7 +629,7 @@ static void DRLG_L1PlaceDoor(int x, int y)
 		}
 	}
 
-	L1dflags[x][y] = DLRG_PROTECTED;
+	dflags[x][y] = DLRG_PROTECTED;
 }
 
 #ifdef HELLFIRE
@@ -947,11 +945,11 @@ static void DRLG_L1Shadows()
 					 || (ss->s2 != 0 && ss->s2 != sd01)
 					 || (ss->s3 != 0 && ss->s3 != sd10))
 						continue;
-					if (ss->nv1 != 0 && !L1dflags[x - 1][y - 1])
+					if (ss->nv1 != 0 && dflags[x - 1][y - 1] == 0)
 						dungeon[x - 1][y - 1] = ss->nv1;
-					if (ss->nv2 != 0 && !L1dflags[x][y - 1])
+					if (ss->nv2 != 0 && dflags[x][y - 1] == 0)
 						dungeon[x][y - 1] = ss->nv2;
-					if (ss->nv3 != 0 && !L1dflags[x - 1][y])
+					if (ss->nv3 != 0 && dflags[x - 1][y] == 0)
 						dungeon[x - 1][y] = ss->nv3;
 				}
 			}
@@ -960,7 +958,7 @@ static void DRLG_L1Shadows()
 
 	for (y = 1; y < DMAXY; y++) {
 		for (x = 1; x < DMAXX; x++) {
-			if (dungeon[x - 1][y] == 139 && !L1dflags[x - 1][y]) {
+			if (dungeon[x - 1][y] == 139 && dflags[x - 1][y] == 0) {
 				tnv3 = dungeon[x][y];
 				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
 					tnv3 = 141;
@@ -968,7 +966,7 @@ static void DRLG_L1Shadows()
 					tnv3 = 139;
 				dungeon[x - 1][y] = tnv3;
 			}
-			if (dungeon[x - 1][y] == 149 && !L1dflags[x - 1][y]) {
+			if (dungeon[x - 1][y] == 149 && dflags[x - 1][y] == 0) {
 				tnv3 = dungeon[x][y];
 				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
 					tnv3 = 153;
@@ -976,7 +974,7 @@ static void DRLG_L1Shadows()
 					tnv3 = 149;
 				dungeon[x - 1][y] = tnv3;
 			}
-			if (dungeon[x - 1][y] == 148 && !L1dflags[x - 1][y]) {
+			if (dungeon[x - 1][y] == 148 && dflags[x - 1][y] == 0) {
 				tnv3 = dungeon[x][y];
 				if (tnv3 == 29 || tnv3 == 32 || tnv3 == 35 || tnv3 == 37 || tnv3 == 38 || tnv3 == 39)
 					tnv3 = 154;
@@ -1017,7 +1015,7 @@ static bool DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
 				for (xx = sx; xx < sx + sw && done; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii])
 						done = false;
-					if (L1dflags[xx][yy] != 0)
+					if (dflags[xx][yy] != 0)
 						done = false;
 					ii++;
 				}
@@ -1067,7 +1065,7 @@ static void DRLG_L1Floor()
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (L1dflags[i][j] == 0 && dungeon[i][j] == 13) {
+			if (dflags[i][j] == 0 && dungeon[i][j] == 13) {
 				rv = random_(0, 3);
 
 				if (rv == 1)
@@ -1151,7 +1149,7 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 	//DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
-	memset(L1dflags, 0, sizeof(L1dflags));
+	memset(dflags, 0, sizeof(dflags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, 22, sizeof(dungeon));
 
@@ -1165,7 +1163,7 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = *lm;
-				L1dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 13;
 			}
@@ -1208,7 +1206,7 @@ void LoadPreL1Dungeon(const char *sFileName)
 static void InitL1Dungeon()
 {
 	memset(dungeon, 0, sizeof(dungeon));
-	memset(L1dflags, 0, sizeof(L1dflags));
+	memset(dflags, 0, sizeof(dflags));
 }
 
 static void L1ClearFlags()
@@ -1216,8 +1214,8 @@ static void L1ClearFlags()
 	int i;
 	BYTE *pTmp;
 
-	static_assert(sizeof(L1dflags) == DMAXX * DMAXY, "Linear traverse of L1dflags does not work in L1ClearFlags.");
-	pTmp = &L1dflags[0][0];
+	static_assert(sizeof(dflags) == DMAXX * DMAXY, "Linear traverse of dflags does not work in L1ClearFlags.");
+	pTmp = &dflags[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		*pTmp &= ~DLRG_CHAMBER;
 }
@@ -1440,7 +1438,7 @@ static int L1HWallOk(int i, int j)
 	BYTE bv;
 
 	for (x = 1; dungeon[i + x][j] == 13; x++) {
-		if (dungeon[i + x][j - 1] != 13 || dungeon[i + x][j + 1] != 13 || L1dflags[i + x][j])
+		if (dungeon[i + x][j - 1] != 13 || dungeon[i + x][j + 1] != 13 || dflags[i + x][j] != 0)
 			break;
 	}
 
@@ -1459,7 +1457,7 @@ static int L1VWallOk(int i, int j)
 	BYTE bv;
 
 	for (y = 1; dungeon[i][j + y] == 13; y++) {
-		if (dungeon[i - 1][j + y] != 13 || dungeon[i + 1][j + y] != 13 || L1dflags[i][j + y])
+		if (dungeon[i - 1][j + y] != 13 || dungeon[i + 1][j + y] != 13 || dflags[i][j + y] != 0)
 			break;
 	}
 
@@ -1520,7 +1518,7 @@ static void L1HorizWall(int i, int j, char pn, int dx)
 		dungeon[i + xx][j] = 12;
 	} else {
 		dungeon[i + xx][j] = 2;
-		L1dflags[i + xx][j] |= DLRG_HDOOR;
+		dflags[i + xx][j] |= DLRG_HDOOR;
 	}
 }
 
@@ -1572,7 +1570,7 @@ static void L1VertWall(int i, int j, char pn, int dy)
 		dungeon[i][j + yy] = 11;
 	} else {
 		dungeon[i][j + yy] = 1;
-		L1dflags[i][j + yy] |= DLRG_VDOOR;
+		dflags[i][j + yy] |= DLRG_VDOOR;
 	}
 }
 
@@ -1582,7 +1580,7 @@ static void L1AddWall()
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (!L1dflags[i][j]) {
+			if (dflags[i][j] == 0) {
 				if (dungeon[i][j] == 3 && random_(0, 100) < 100) {
 					x = L1HWallOk(i, j);
 					if (x != -1)
@@ -1666,7 +1664,7 @@ static void DRLG_L1GChamber(int sx, int sy, BOOL topflag, BOOL bottomflag, BOOL 
 	for (j = 1; j < 11; j++) {
 		for (i = 1; i < 11; i++) {
 			dungeon[i + sx][j + sy] = 13;
-			L1dflags[i + sx][j + sy] |= DLRG_CHAMBER;
+			dflags[i + sx][j + sy] |= DLRG_CHAMBER;
 		}
 	}
 
@@ -1842,7 +1840,7 @@ static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx + sx][yy + sy] != miniset[ii]) {
 						found = false;
 					}
-					if (L1dflags[xx + sx][yy + sy] != 0) {
+					if (dflags[xx + sx][yy + sy] != 0) {
 						found = false;
 					}
 					ii++;
@@ -1903,7 +1901,7 @@ static void DRLG_L5CryptSetRoom(int rx1, int ry1)
 		for (i = rx1; i < rw; i++) {
 			assert(UberRoomPattern[sp] != 0);
 			dungeon[i][j] = UberRoomPattern[sp];
-			L1dflags[i][j] |= DLRG_PROTECTED;
+			dflags[i][j] |= DLRG_PROTECTED;
 			sp++;
 		}
 	}
@@ -1929,7 +1927,7 @@ static void DRLG_L5CryptSetRoom(int rx1, int ry1)
 		for (i = rx1; i < rw; i++) {
 			if (CornerstoneRoomPattern[sp] != 0) {
 				dungeon[i][j] = CornerstoneRoomPattern[sp];
-				L1dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 13;
 			}
@@ -1949,7 +1947,7 @@ static void DRLG_L1Subs()
 			if (random_(0, 4) == 0) {
 				BYTE c = L1BTYPES[dungeon[x][y]];
 
-				if (c != 0 && !L1dflags[x][y]) {
+				if (c != 0 && dflags[x][y] == 0) {
 					rv = random_(0, 16);
 					i = -1;
 
@@ -1962,14 +1960,14 @@ static void DRLG_L1Subs()
 
 					// BUGFIX: Add `&& y > 0` to the if statement. (fixed)
 					if (i == 89 && y > 0) {
-						if (L1BTYPES[dungeon[x][y - 1]] != 79 || L1dflags[x][y - 1])
+						if (L1BTYPES[dungeon[x][y - 1]] != 79 || dflags[x][y - 1] != 0)
 							i = 79;
 						else
 							dungeon[x][y - 1] = 90;
 					}
 					// BUGFIX: Add `&& x + 1 < DMAXX` to the if statement. (fixed)
 					if (i == 91 && x + 1 < DMAXX) {
-						if (L1BTYPES[dungeon[x + 1][y]] != 80 || L1dflags[x + 1][y])
+						if (L1BTYPES[dungeon[x + 1][y]] != 80 || dflags[x + 1][y] != 0)
 							i = 80;
 						else
 							dungeon[x + 1][y] = 92;
@@ -2000,7 +1998,7 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 		for (i = 0; i < rw; i++) {
 			if (*sp) {
 				dungeon[rx1 + i][ry1 + j] = *sp;
-				L1dflags[rx1 + i][ry1 + j] |= DLRG_PROTECTED;
+				dflags[rx1 + i][ry1 + j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[rx1 + i][ry1 + j] = 13;
 			}
@@ -2548,9 +2546,9 @@ static void DRLG_L1CornerFix()
 
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
-			if (!(L1dflags[i][j] & DLRG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
+			if (!(dflags[i][j] & DLRG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
 				dungeon[i][j] = 16;
-				L1dflags[i][j - 1] &= DLRG_PROTECTED;
+				dflags[i][j - 1] &= DLRG_PROTECTED;
 			}
 			if (dungeon[i][j] == 202 && dungeon[i + 1][j] == 13 && dungeon[i][j + 1] == 1) {
 				dungeon[i][j] = 8;
@@ -2705,7 +2703,7 @@ static void DRLG_L1(int entry)
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (L1dflags[i][j] & ~DLRG_PROTECTED)
+			if (dflags[i][j] & ~DLRG_PROTECTED)
 				DRLG_L1PlaceDoor(i, j);
 		}
 	}
