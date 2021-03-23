@@ -577,8 +577,9 @@ static void DRLG_InitL5Vals()
 
 static void DRLG_L1PlaceDoor(int x, int y)
 {
-	if (!(dflags[x][y] & DLRG_PROTECTED)) {
-		BYTE df = dflags[x][y] & 0x7F;
+	BYTE df = dflags[x][y];
+
+	if (!(df & DLRG_PROTECTED)) {
 		BYTE c = dungeon[x][y];
 
 		if (df == DLRG_HDOOR) {
@@ -1984,23 +1985,25 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	int rw, rh, i, j;
 	BYTE *sp;
 
-	rw = *pSetPiece;
-	rh = *(pSetPiece + 2);
+	rw = pSetPiece[0];
+	rh = pSetPiece[2];
 
 	setpc_x = rx1;
 	setpc_y = ry1;
 	setpc_w = rw;
 	setpc_h = rh;
 
-	sp = pSetPiece + 4;
+	sp = &pSetPiece[4];
 
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*sp) {
-				dungeon[rx1 + i][ry1 + j] = *sp;
-				dflags[rx1 + i][ry1 + j] |= DLRG_PROTECTED;
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
+			if (*sp != 0) {
+				dungeon[i][j] = *sp;
+				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
-				dungeon[rx1 + i][ry1 + j] = 13;
+				dungeon[i][j] = 13;
 			}
 			sp += 2;
 		}
