@@ -3983,7 +3983,9 @@ static void OperateLazStand(int oi, bool sendmsg)
 
 static void OperateCrux(int pnum, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
+	ObjectStruct *os, *on;
+	int i;
+	bool triggered;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
@@ -3995,6 +3997,19 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = -1;
+
+	triggered = true;
+	for (i = 0; i < nobjects; i++) {
+		on = &object[objectactive[i]];
+		if (on->_otype != OBJ_CRUX1 && on->_otype != OBJ_CRUX2 && on->_otype != OBJ_CRUX3)
+			continue;
+		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
+			continue;
+		triggered = false;
+	}
+	if (triggered)
+		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);
+
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
 		os->_oAnimCnt = 0;
@@ -4006,6 +4021,9 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(LS_BONESP, os->_ox, os->_oy);
+
+	if (triggered)
+		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 }
 
 static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
