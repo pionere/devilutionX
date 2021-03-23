@@ -2,6 +2,8 @@
  * @file drlg_l2.cpp
  *
  * Implementation of the catacombs level generation algorithms.
+ *
+ * dflags matrix is used as a BOOLEAN matrix to protect the quest room.
  */
 
 #include "all.h"
@@ -11,10 +13,12 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L2 (12 - 1)
 
+/** The coordinates of the quest room. */
 int nSx1;
 int nSy1;
 int nSx2;
 int nSy2;
+/** The number of generated rooms. */
 int nRoomCnt;
 BYTE predungeon[DMAXX][DMAXY];
 ROOMNODE RoomList[81];
@@ -1615,9 +1619,6 @@ static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 	tries = 0;
 	while (TRUE) {
 		done = true;
-		if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
-			done = false;
-		}
 		ii = 2;
 		for (yy = sy; yy < sy + sh && done; yy++) {
 			for (xx = sx; xx < sx + sw && done; xx++) {
@@ -1674,9 +1675,6 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 		for (sx = 0; sx < DMAXX - sw; sx++) {
 			found = true;
 			ii = 2;
-			if (sx >= nSx1 && sx <= nSx2 && sy >= nSy1 && sy <= nSy2) {
-				found = false;
-			}
 			for (yy = sy; yy < sy + sh && found; yy++) {
 				for (xx = sx; xx < sx + sw && found; xx++) {
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
@@ -1720,7 +1718,9 @@ static void DRLG_L2Subs()
 
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
-			if ((x < nSx1 || x > nSx2) && (y < nSy1 || y > nSy2) && random_(0, 4) == 0) {
+			if (dflags[x][y] != 0)
+				continue;
+			if (random_(0, 4) == 0) {
 				c = BTYPESL2[dungeon[x][y]];
 				if (c != 0) {
 					rv = random_(0, 16);
@@ -1832,7 +1832,8 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 		for (i = rx1; i < rw; i++) {
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
-				dflags[i][j] |= DLRG_PROTECTED;
+				//assert(dflags[i][j] != 0);
+				//dflags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 3;
 			}
@@ -1841,14 +1842,9 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	}
 }
 
-static void DefineRoom(int nX1, int nY1, int nX2, int nY2, bool ForceHW)
+static void DefineRoom(int nX1, int nY1, int nX2, int nY2)
 {
 	int i, j;
-
-	predungeon[nX1][nY1] = 67;
-	predungeon[nX1][nY2] = 69;
-	predungeon[nX2][nY1] = 66;
-	predungeon[nX2][nY2] = 65;
 
 	nRoomCnt++;
 	RoomList[nRoomCnt].nRoomx1 = nX1;
@@ -1856,23 +1852,20 @@ static void DefineRoom(int nX1, int nY1, int nX2, int nY2, bool ForceHW)
 	RoomList[nRoomCnt].nRoomy1 = nY1;
 	RoomList[nRoomCnt].nRoomy2 = nY2;
 
-	if (ForceHW) {
-		for (i = nX1; i < nX2; i++) {
-			/// BUGFIX: Should loop j between nY1 and nY2 instead of always using nY1.
-			while (i < nY2) {
-				dflags[i][nY1] |= DLRG_PROTECTED;
-				i++;
-			}
-		}
-	}
-	for (i = nX1 + 1; i <= nX2 - 1; i++) {
+	predungeon[nX1][nY1] = 67;
+	predungeon[nX1][nY2] = 69;
+	predungeon[nX2][nY1] = 66;
+	predungeon[nX2][nY2] = 65;
+
+	for (i = nX1 + 1; i < nX2; i++) {
 		predungeon[i][nY1] = 35;
 		predungeon[i][nY2] = 35;
 	}
-	nY2--;
-	for (j = nY1 + 1; j <= nY2; j++) {
+	for (j = nY1 + 1; j < nY2; j++) {
 		predungeon[nX1][j] = 35;
 		predungeon[nX2][j] = 35;
+	}
+	for (j = nY1 + 1; j < nY2; j++) {
 		for (i = nX1 + 1; i < nX2; i++) {
 			predungeon[i][j] = 46;
 		}
@@ -1927,15 +1920,14 @@ static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
  * @param nY2 Upper Y boundary of the area to draw into.
  * @param nRDest The room number of the parent room this call was invoked for. Zero for empty
  * @param nHDir The direction of the hall from nRDest to this room.
- * @param ForceHW If set, nH and nW are used for room size instead of random values.
- * @param nH Height of the room, if ForceHW is set.
- * @param nW Width of the room, if ForceHW is set.
+ * @param nH Height of the room, if not zero.
+ * @param nW Width of the room, if set
  */
-static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, bool ForceHW, int nH, int nW)
+static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, int nH, int nW)
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHw, nHh, nHx1, nHy1, nHx2, nHy2, nRid;
 
-	if (nRoomCnt >= 80) {
+	if (nRoomCnt >= lengthof(RoomList) - 1) {
 		return;
 	}
 
@@ -1960,7 +1952,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRh = nAh;
 	}
 
-	if (ForceHW) {
+	if (nW != 0) {
 		nRw = nW;
 		nRh = nH;
 	}
@@ -1978,84 +1970,74 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRy1 = nY2 - nRh;
 	}
 
-	if (nRx1 > DMAXX - 2) {
-		nRx1 = DMAXX - 2;
-	}
-	if (nRy1 > DMAXY - 2) {
-		nRy1 = DMAXY - 2;
-	}
-	if (nRx1 < 1) {
-		nRx1 = 1;
-	}
-	if (nRy1 < 1) {
-		nRy1 = 1;
-	}
-	if (nRx2 > DMAXX - 2) {
-		nRx2 = DMAXX - 2;
-	}
-	if (nRy2 > DMAXY - 2) {
-		nRy2 = DMAXY - 2;
-	}
-	if (nRx2 < 1) {
-		nRx2 = 1;
-	}
-	if (nRy2 < 1) {
-		nRy2 = 1;
-	}
-	DefineRoom(nRx1, nRy1, nRx2, nRy2, ForceHW);
+	nRx1 = std::max(1, std::min(nRx1, DMAXX - 2));
+	nRy1 = std::max(1, std::min(nRy1, DMAXY - 2));
+	nRx2 = std::max(1, std::min(nRx2, DMAXX - 2));
+	nRy2 = std::max(1, std::min(nRy2, DMAXY - 2));
 
-	if (ForceHW) {
+	if (nW != 0) {
+		for (int i = nRx1; i <= nRx2; i++) {
+			for (int j = nRy1; j <= nRy2; j++) {
+				dflags[i][j] |= DLRG_PROTECTED;
+			}
+		}
 		nSx1 = nRx1 + 2;
 		nSy1 = nRy1 + 2;
 		nSx2 = nRx2;
 		nSy2 = nRy2;
 	}
+	DefineRoom(nRx1, nRy1, nRx2, nRy2);
 
 	nRid = nRoomCnt;
 	RoomList[nRid].nRoomDest = nRDest;
 
 	if (nRDest != 0) {
-		if (nHDir == 1) {
+		switch (nHDir) {
+		case 1:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy1;
 			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
 			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
 			nHy2 = RoomList[nRDest].nRoomy2;
-		}
-		if (nHDir == 3) {
+			break;
+		case 3:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy2;
 			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
 			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
 			nHy2 = RoomList[nRDest].nRoomy1;
-		}
-		if (nHDir == 2) {
+			break;
+		case 2:
 			nHx1 = nRx2;
 			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
 			nHx2 = RoomList[nRDest].nRoomx1;
 			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
 			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
-		}
-		if (nHDir == 4) {
+			break;
+		case 4:
 			nHx1 = nRx1;
 			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
 			nHx2 = RoomList[nRDest].nRoomx2;
 			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
 			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 		AddHall(nHx1, nHy1, nHx2, nHy2, nHDir);
 	}
 
 	if (nRh > nRw) {
-		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, false, 0, 0);
-		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, false, 0, 0);
-		CreateRoom(nX1 + 2, nRy2 + 2, nRx2 - 2, nY2 - 2, nRid, 1, false, 0, 0);
-		CreateRoom(nRx1 + 2, nY1 + 2, nX2 - 2, nRy1 - 2, nRid, 3, false, 0, 0);
+		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, 0, 0);
+		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, 0, 0);
+		CreateRoom(nX1 + 2, nRy2 + 2, nRx2 - 2, nY2 - 2, nRid, 1, 0, 0);
+		CreateRoom(nRx1 + 2, nY1 + 2, nX2 - 2, nRy1 - 2, nRid, 3, 0, 0);
 	} else {
-		CreateRoom(nX1 + 2, nY1 + 2, nRx2 - 2, nRy1 - 2, nRid, 3, false, 0, 0);
-		CreateRoom(nRx1 + 2, nRy2 + 2, nX2 - 2, nY2 - 2, nRid, 1, false, 0, 0);
-		CreateRoom(nX1 + 2, nRy1 + 2, nRx1 - 2, nY2 - 2, nRid, 2, false, 0, 0);
-		CreateRoom(nRx2 + 2, nY1 + 2, nX2 - 2, nRy2 - 2, nRid, 4, false, 0, 0);
+		CreateRoom(nX1 + 2, nY1 + 2, nRx2 - 2, nRy1 - 2, nRid, 3, 0, 0);
+		CreateRoom(nRx1 + 2, nRy2 + 2, nX2 - 2, nY2 - 2, nRid, 1, 0, 0);
+		CreateRoom(nX1 + 2, nRy1 + 2, nRx1 - 2, nY2 - 2, nRid, 2, 0, 0);
+		CreateRoom(nRx2 + 2, nY1 + 2, nX2 - 2, nRy2 - 2, nRid, 4, 0, 0);
 	}
 }
 
@@ -2657,30 +2639,25 @@ static bool DL2_FillVoids()
 static bool DRLG_L2CreateDungeon()
 {
 	int i, j, nHx1, nHy1, nHx2, nHy2, nHd, ForceH, ForceW;
-	bool ForceHW;
 
 	ForceW = 0;
 	ForceH = 0;
-	ForceHW = false;
 
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATACOMBS1:
 		if (quests[Q_BLOOD]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = true;
-			ForceH = 20;
 			ForceW = 14;
+			ForceH = 20;
 		}
 		break;
 	case DLV_CATACOMBS2:
 		if (quests[Q_SCHAMB]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = true;
 			ForceW = 10;
 			ForceH = 10;
 		}
 		break;
 	case DLV_CATACOMBS3:
 		if (quests[Q_BLIND]._qactive != QUEST_NOTAVAIL) {
-			ForceHW = true;
 			ForceW = 15;
 			ForceH = 15;
 		}
@@ -2692,7 +2669,7 @@ static bool DRLG_L2CreateDungeon()
 		break;
 	}
 
-	CreateRoom(2, 2, DMAXX - 1, DMAXY - 1, 0, 0, ForceHW, ForceH, ForceW);
+	CreateRoom(2, 2, DMAXX - 1, DMAXY - 1, 0, 0, ForceH, ForceW);
 
 	while (pHallList != NULL) {
 		GetHall(&nHx1, &nHy1, &nHx2, &nHy2, &nHd);
@@ -2899,7 +2876,7 @@ static void L2LockoutFix()
 	}
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
-			if (dflags[i][j] & DLRG_PROTECTED) {
+			if (dflags[i][j] != 0) {
 				continue;
 			}
 			if ((dungeon[i][j] == 2 || dungeon[i][j] == 5) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
@@ -2914,7 +2891,7 @@ static void L2LockoutFix()
 					}
 					i++;
 				} while (dungeon[i][j] == 2 || dungeon[i][j] == 5);
-				if (!doorok && !(dflags[i - 1][j] & DLRG_PROTECTED)) {
+				if (!doorok && dflags[i - 1][j] == 0) {
 					dungeon[i - 1][j] = 5;
 				}
 			}
@@ -2922,7 +2899,7 @@ static void L2LockoutFix()
 	}
 	for (i = 1; i < DMAXX - 1; i++) {
 		for (j = 1; j < DMAXY - 1; j++) {
-			if (dflags[i][j] & DLRG_PROTECTED) {
+			if (dflags[i][j] != 0) {
 				continue;
 			}
 			if ((dungeon[i][j] == 1 || dungeon[i][j] == 4) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
@@ -2937,7 +2914,7 @@ static void L2LockoutFix()
 					}
 					j++;
 				} while (dungeon[i][j] == 1 || dungeon[i][j] == 4);
-				if (!doorok && !(dflags[i][j - 1] & DLRG_PROTECTED)) {
+				if (!doorok && dflags[i][j - 1] == 0) {
 					dungeon[i][j - 1] = 4;
 				}
 			}
@@ -3179,7 +3156,6 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 	DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
-	memset(dflags, 0, sizeof(dflags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, 12, sizeof(dungeon));
 
