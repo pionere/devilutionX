@@ -2794,7 +2794,6 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 	UberDiabloMonsterIndex = 0;
 #endif
 
-	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_LoadL1SP();
 	DRLG_L1(entry);

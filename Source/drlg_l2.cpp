@@ -3257,7 +3257,6 @@ void CreateL2Dungeon(DWORD rseed, int entry)
 
 	SetRndSeed(rseed);
 
-	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_LoadL2SP();
 	DRLG_L2(entry);
