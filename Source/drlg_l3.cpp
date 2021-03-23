@@ -1003,7 +1003,7 @@ static void DRLG_L3FillDiags()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1);
 			v = dungeon[i + 1][j + 1]
 			 | (dungeon[i][j + 1] << 1)
 			 | (dungeon[i + 1][j] << 2)
@@ -1032,7 +1032,7 @@ static void DRLG_L3FillSingles()
 
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1);
 			if (dungeon[i][j] == 0
 			 && (dungeon[i][j - 1] & dungeon[i - 1][j - 1] & dungeon[i + 1][j - 1])
 			 && (dungeon[i + 1][j] & dungeon[i - 1][j])
@@ -1144,7 +1144,7 @@ static void DRLG_L3MakeMegas()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1);
 			v = dungeon[i + 1][j + 1]
 			 | (dungeon[i][j + 1] << 1)
 			 | (dungeon[i + 1][j] << 2)

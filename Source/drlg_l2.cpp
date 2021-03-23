@@ -18,7 +18,7 @@ int nSy2;
 int nRoomCnt;
 BYTE predungeon[DMAXX][DMAXY];
 ROOMNODE RoomList[81];
-HALLNODE *pHallList;
+HALLNODE *pHallList = NULL;
 
 #define AREA_MIN 2
 #define ROOM_MAX 10

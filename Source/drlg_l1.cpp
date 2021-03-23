@@ -1219,7 +1219,7 @@ static void L1ClearFlags()
 	static_assert(sizeof(L1dflags) == DMAXX * DMAXY, "Linear traverse of L1dflags does not work in L1ClearFlags.");
 	pTmp = &L1dflags[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		*pTmp &= 0xBF;
+		*pTmp &= ~DLRG_CHAMBER;
 }
 
 static void L1drawRoom(int x, int y, int width, int height)
@@ -2705,7 +2705,7 @@ static void DRLG_L1(int entry)
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (L1dflags[i][j] & 0x7F)
+			if (L1dflags[i][j] & ~DLRG_PROTECTED)
 				DRLG_L1PlaceDoor(i, j);
 		}
 	}
