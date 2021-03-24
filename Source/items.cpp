@@ -2365,6 +2365,9 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	item[ii]._iSelFlag = 1;
 	item[ii]._iAnimFrame = item[ii]._iAnimLen;
 	item[ii]._iAnimFlag = FALSE;
+	// set Seed for the bloodstones, otherwise quick successive pickup and use
+	// will be prevented by the ItemRecord logic
+	item[ii]._iSeed = GetRndSeed();
 
 	// TODO: use RegisterItem(ii, x, y, sendmsg, delta); ?
 	SetItemLoc(ii, x, y);
