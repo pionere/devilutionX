@@ -271,7 +271,7 @@ static void SpawnNote()
 	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "SpawnNote requires ordered DLV_CRYPT indices I.");
 	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "SpawnNote requires ordered DLV_CRYPT indices II.");
 	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	SpawnQuestItemAt(id, x, y);
+	SpawnQuestItemAt(id, x, y, false, true);
 }
 #endif
 
@@ -356,7 +356,7 @@ void InitItems()
 		if (QuestStatus(Q_ROCK))
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
-			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11);
+			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
 #ifdef HELLFIRE
 		if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST4)
 			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
@@ -2341,7 +2341,7 @@ static void GetRandomItemSpace(int randarea, int ii)
 	SetItemLoc(ii, x, y);
 }
 
-void SpawnQuestItemAt(int idx, int x, int y)
+void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 {
 	int ii;
 
@@ -2355,7 +2355,14 @@ void SpawnQuestItemAt(int idx, int x, int y)
 	item[ii]._iSelFlag = 1;
 	item[ii]._iAnimFrame = item[ii]._iAnimLen;
 	item[ii]._iAnimFlag = FALSE;
+
+	// TODO: use RegisterItem(ii, x, y, sendmsg, delta); ?
 	SetItemLoc(ii, x, y);
+
+	if (sendmsg)
+		NetSendCmdDItem(false, ii);
+	if (delta)
+		DeltaAddItem(ii);
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];

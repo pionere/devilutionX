@@ -2899,7 +2899,7 @@ static void OperateBookLever(int oi, bool sendmsg)
 			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
 			quests[Q_BLOOD]._qlog = TRUE;
 			quests[Q_BLOOD]._qvar1 = 1;
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
 		}
 		if (os->_otype == OBJ_STEELTOME && quests[Q_WARLORD]._qvar1 == 0) {
 			quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
@@ -3153,11 +3153,11 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		if (os->_oVar6 == 1) {
 			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		} else if (os->_oVar6 == 2) {
 			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
 			ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		} else {
 			// assert(os->_oVar6 == 3);
 			PlaySfxLoc(LS_BLODSTAR, os->_ox, os->_oy);

@@ -43,7 +43,7 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
 void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void SpawnQuestItemInArea(int idx, int areasize);
-void SpawnQuestItemAt(int idx, int x, int y);
+void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
 void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg);
 void SpawnRock();
 #ifdef HELLFIRE
