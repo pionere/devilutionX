@@ -1470,14 +1470,6 @@ static void AddBrnCross(int oi)
 	object[oi]._oRndSeed = GetRndSeed();
 }
 
-static void AddPedistal(int oi)
-{
-	ObjectStruct *os;
-
-	os = &object[oi];
-	os->_oVar6 = 0; // BLOODSTONE_NUM
-}
-
 static void AddStoryBook(int oi)
 {
 	ObjectStruct *os;
@@ -1707,9 +1699,6 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_TBCROSS:
 		AddBrnCross(oi);
 		AddObjLight(oi, 10);
-		break;
-	case OBJ_PEDISTAL:
-		AddPedistal(oi);
 		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
@@ -2881,43 +2870,54 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	}
 }
 
-static void OperateBookLever(int oi, bool sendmsg)
+static void OperateBookLever(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
+	int qn;
 
 	if (numitems >= MAXITEMS) {
 		return;
 	}
 	os = &object[oi];
-	if (os->_oSelFlag != 0 && !gbQtextflag) {
-		if (os->_otype == OBJ_BLINDBOOK && quests[Q_BLIND]._qvar1 == 0) {
-			quests[Q_BLIND]._qactive = QUEST_ACTIVE;
-			quests[Q_BLIND]._qlog = TRUE;
-			quests[Q_BLIND]._qvar1 = 1;
-		}
-		if (os->_otype == OBJ_BLOODBOOK && quests[Q_BLOOD]._qvar1 == 0) {
-			quests[Q_BLOOD]._qactive = QUEST_ACTIVE;
-			quests[Q_BLOOD]._qlog = TRUE;
-			quests[Q_BLOOD]._qvar1 = 1;
+	assert(os->_oSelFlag != 0);
+	switch (os->_otype) {
+	case OBJ_BLINDBOOK:
+		qn = Q_BLIND;
+		break;
+	case OBJ_BLOODBOOK:
+		qn = Q_BLOOD;
+		break;
+	case OBJ_STEELTOME:
+		qn = Q_WARLORD;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	if (quests[qn]._qvar1 == 0) {
+		quests[qn]._qvar1 = 1;
+		quests[qn]._qactive = QUEST_ACTIVE;
+		quests[qn]._qlog = TRUE;
+		if (qn == Q_BLOOD && !deltaload)
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
-		}
-		if (os->_otype == OBJ_STEELTOME && quests[Q_WARLORD]._qvar1 == 0) {
-			quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
-			quests[Q_WARLORD]._qlog = TRUE;
-			quests[Q_WARLORD]._qvar1 = 1;
-		}
-		if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
-			if (os->_otype != OBJ_BLOODBOOK)
-				ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
-			if (os->_otype == OBJ_BLINDBOOK) {
-				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5);
-				DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
-			}
-		}
+	}
+
+	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
+		if (qn != Q_BLOOD)
+			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
+		if (qn == Q_BLIND) {
+			if (!deltaload)
+				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5);
+			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
+		}
+	}
+	if (deltaload)
+		return;
+	if (pnum == myplr)
 		InitQTextMsg(os->_oVar7);     // LEVER_BOOK_MSG
-		if (sendmsg)
-			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+	if (sendmsg) {
+		NetSendCmdQuest(true, qn);
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 	}
 }
 
@@ -3127,11 +3127,7 @@ static void OperateSarc(int oi, bool sendmsg)
 }
 
 /**
- * Handle the using the pedistal in the dungeon.
- * The progress needs to be tracked separately for each player
- * since deltaload is not capable of handling the number of access.
- * This means the progress is reset on every re-enter.
- * No message is sent at the moment (it is pointless).
+ * Handle the using the pedistal of Q_BLOOD-quest.
  */
 static void OperatePedistal(int pnum, int oi, bool sendmsg)
 {
@@ -3139,36 +3135,60 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	BYTE *mem;
 	int iv;
 
-	if (numitems >= MAXITEMS) {
-		return;
-	}
-	assert(!deltaload);
-
 	os = &object[oi];
-	// BLOODSTONE_NUM
-	if (os->_oVar6 != 3 && PlrHasItem(pnum, IDI_BLDSTONE, &iv)) {
+	if (os->_oSelFlag == 0)
+		return;
+	if (!deltaload && pnum != -1) {
+		if (numitems >= MAXITEMS)
+			return;
+		if (!PlrHasItem(pnum, IDI_BLDSTONE, &iv))
+			return;
 		RemoveInvItem(pnum, iv);
-		os->_oAnimFrame++;
-		os->_oVar6++;
-		if (os->_oVar6 == 1) {
-			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
-			ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
-		} else if (os->_oVar6 == 2) {
-			PlaySfxLoc(LS_PUDDLE, os->_ox, os->_oy);
-			ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
-		} else {
-			// assert(os->_oVar6 == 3);
-			PlaySfxLoc(LS_BLODSTAR, os->_ox, os->_oy);
-			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-			mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
-			LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
-			mem_free_dbg(mem);
-			SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3);
-			os->_oSelFlag = 0;
+		quests[Q_BLOOD]._qvar1++;
+		if (sendmsg) {
+			NetSendCmdQuest(true, Q_BLOOD);
+			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 		}
 	}
+
+	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
+	switch (quests[Q_BLOOD]._qvar1) {
+	case 1:
+		break;
+	case 3:
+		ObjChangeMap(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
+	case 2:
+		ObjChangeMap(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+		break;
+	case 4:
+		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
+		LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
+		mem_free_dbg(mem);
+		os->_oSelFlag = 0;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	if (deltaload)
+		return;
+	switch (quests[Q_BLOOD]._qvar1) {
+	case 2:
+		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
+		break;
+	case 3:
+		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
+		break;
+	case 4:
+		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	PlaySfxLoc(quests[Q_BLOOD]._qvar1 == 4 ? LS_BLODSTAR : LS_PUDDLE, os->_ox, os->_oy);
 }
 
 void DisarmObject(int pnum, int oi)
@@ -4130,7 +4150,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
-		OperateBookLever(oi, sendmsg);
+		OperateBookLever(pnum, oi, sendmsg);
 		break;
 	case OBJ_CRUX1:
 	case OBJ_CRUX2:
@@ -4288,7 +4308,7 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
-		OperateBookLever(oi, false);
+		OperateBookLever(pnum, oi, false);
 		break;
 	case OBJ_CRUX1:
 	case OBJ_CRUX2:
@@ -4331,9 +4351,9 @@ void SyncOpObject(int pnum, int oi)
 	//case OBJ_STORYBOOK:
 	//	OperateStoryBook(oi, false);
 	//	break;
-	//case OBJ_PEDISTAL:
-	//	OperatePedistal(pnum, oi, false);
-	//	break;
+	case OBJ_PEDISTAL:
+		OperatePedistal(-1, oi, false);
+		break;
 	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
@@ -4385,17 +4405,23 @@ static void SyncPedistal(int oi)
 	BYTE *setp;
 
 	os = &object[oi];
-	// BLOODSTONE_NUM
-	if (os->_oVar6 == 1)
-		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
-	else if (os->_oVar6 == 2) {
-		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+	switch (quests[Q_BLOOD]._qvar1) {
+	case 1:
+		break;
+	case 3:
 		ObjChangeMapResync(setpc_x + 6, setpc_y + 3, setpc_x + setpc_w, setpc_y + 7);
-	} else if (os->_oVar6 == 3) {
+	case 2:
+		ObjChangeMapResync(setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7);
+		break;
+	case 4:
 		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 		setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
 		LoadMapObjs(setp, 2 * setpc_x, 2 * setpc_y);
 		mem_free_dbg(setp);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
