@@ -3676,39 +3676,39 @@ void PlayDungMsgs()
 	if (gbMaxPlayers != 1)
 		return;
 
-	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !plr[myplr]._pLvlVisited[1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !plr[myplr]._pLvlVisited[DLV_CATHEDRAL1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_97][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATHEDRAL;
-	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !plr[myplr]._pLvlVisited[5] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
+	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !plr[myplr]._pLvlVisited[DLV_CATACOMBS1] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_96][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CATACOMBS;
-	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !plr[myplr]._pLvlVisited[9] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
+	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !plr[myplr]._pLvlVisited[DLV_CAVES1] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_98][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_CAVES;
-	} else if (currLvl._dLevelIdx == DLV_HELL1 && !plr[myplr]._pLvlVisited[13] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
+	} else if (currLvl._dLevelIdx == DLV_HELL1 && !plr[myplr]._pLvlVisited[DLV_HELL1] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
 		sfxdelay = 40;
 		sfxdnum = sgSFXSets[SFXS_PLR_99][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG_HELL;
-	} else if (currLvl._dLevelIdx == DLV_HELL4 && !plr[myplr]._pLvlVisited[16] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
+	} else if (currLvl._dLevelIdx == DLV_HELL4 && !plr[myplr]._pLvlVisited[DLV_HELL4] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
 		sfxdnum = PS_DIABLVLINT;
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_NEST1 && !plr[myplr]._pLvlVisited[17] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
+	} else if (currLvl._dLevelIdx == DLV_NEST1 && !plr[myplr]._pLvlVisited[DLV_NEST1] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER1;
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER;
-	} else if (currLvl._dLevelIdx == DLV_NEST3 && !plr[myplr]._pLvlVisited[19] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
+	} else if (currLvl._dLevelIdx == DLV_NEST3 && !plr[myplr]._pLvlVisited[DLV_NEST3] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER3;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER1;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[21] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[DLV_CRYPT1] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
 		plr[myplr].pDungMsgs |= DMSG2_DEFILER2;
