@@ -233,87 +233,156 @@ static bool WallTrapLocOk(int xp, int yp)
 	return nTrapTable[dPiece[xp][yp]];
 }
 
+static bool RndLoc3x3(int *x, int *y)
+{
+	int xp, yp, i, j, tries;
+
+	tries = 0;
+	while (TRUE) {
+		xp = random_(140, DSIZEX) + DBORDERX;
+		yp = random_(140, DSIZEY) + DBORDERY;
+		for (i = -1; i <= 1; i++) {
+			for (j = -1; j <= 1; j++) {
+				if (!RndLocOk(xp + i, yp + j))
+					goto fail;
+			}
+		}
+		*x = xp;
+		*y = yp;
+		return true;
+fail:
+		if (++tries > 20000)
+			break;
+	}
+	return false;
+}
+
+static bool RndLoc3x4(int *x, int *y)
+{
+	int xp, yp, i, j, tries;
+
+	tries = 0;
+	while (TRUE) {
+		xp = random_(140, DSIZEX) + DBORDERX;
+		yp = random_(140, DSIZEY) + DBORDERY;
+		for (i = -1; i <= 1; i++) {
+			for (j = -2; j <= 1; j++) {
+				if (!RndLocOk(xp + i, yp + j))
+					goto fail;
+			}
+		}
+		*x = xp;
+		*y = yp;
+		return true;
+fail:
+		if (++tries > 20000)
+			break;
+	}
+	return false;
+}
+
+static bool RndLoc5x5(int *x, int *y)
+{
+	int xp, yp, i, j, tries;
+
+	tries = 0;
+	while (TRUE) {
+		xp = random_(140, DSIZEX) + DBORDERX;
+		yp = random_(140, DSIZEY) + DBORDERY;
+		for (i = -2; i <= 2; i++) {
+			for (j = -2; j <= 2; j++) {
+				if (!RndLocOk(xp + i, yp + j))
+					goto fail;
+			}
+		}
+		*x = xp;
+		*y = yp;
+		return true;
+fail:
+		if (++tries > 20000)
+			break;
+	}
+	return false;
+}
+
+static bool RndLoc7x5(int *x, int *y)
+{
+	int xp, yp, i, j, tries;
+
+	tries = 0;
+	while (TRUE) {
+		xp = random_(140, DSIZEX) + DBORDERX;
+		yp = random_(140, DSIZEY) + DBORDERY;
+		for (i = -3; i <= 3; i++) {
+			for (j = -2; j <= 2; j++) {
+				if (!RndLocOk(xp + i, yp + j))
+					goto fail;
+			}
+		}
+		*x = xp;
+		*y = yp;
+		return true;
+fail:
+		if (++tries > 20000)
+			break;
+	}
+	return false;
+}
+
+static bool RndLoc6x7(int *x, int *y)
+{
+	int xp, yp, i, j, tries;
+
+	tries = 0;
+	while (TRUE) {
+		xp = random_(140, DSIZEX) + DBORDERX;
+		yp = random_(140, DSIZEY) + DBORDERY;
+		for (i = -2; i <= 3; i++) {
+			for (j = -3; j <= 3; j++) {
+				if (!RndLocOk(xp + i, yp + j))
+					goto fail;
+			}
+		}
+		*x = xp;
+		*y = yp;
+		return true;
+fail:
+		if (++tries > 20000)
+			break;
+	}
+	return false;
+}
+
 static void InitRndLocObj(int min, int max, int objtype)
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = RandRange(min, max - 1);
-
+	numobjs = RandRange(min, max);
 	for (i = 0; i < numobjs; i++) {
-		while (TRUE) {
-			xp = random_(139, DSIZEX) + DBORDERX;
-			yp = random_(139, DSIZEY) + DBORDERY;
-			if (RndLocOk(xp - 1, yp - 1)
-			    && RndLocOk(xp, yp - 1)
-			    && RndLocOk(xp + 1, yp - 1)
-			    && RndLocOk(xp - 1, yp)
-			    && RndLocOk(xp, yp)
-			    && RndLocOk(xp + 1, yp)
-			    && RndLocOk(xp - 1, yp + 1)
-			    && RndLocOk(xp, yp + 1)
-			    && RndLocOk(xp + 1, yp + 1)) {
-				AddObject(objtype, xp, yp);
-				break;
-			}
-		}
+		if (!RndLoc3x3(&xp, &yp))
+			break;
+		AddObject(objtype, xp, yp);
 	}
 }
 
-static void InitRndLocBigObj(int min, int max, int objtype)
+static void InitRndSarcs()
 {
 	int i, xp, yp, numobjs;
 
-	numobjs = RandRange(min, max - 1);
+	numobjs = RandRange(10, 15);
 	for (i = 0; i < numobjs; i++) {
-		while (TRUE) {
-			xp = random_(140, DSIZEX) + DBORDERX;
-			yp = random_(140, DSIZEY) + DBORDERY;
-			if (RndLocOk(xp - 1, yp - 2)
-			    && RndLocOk(xp, yp - 2)
-			    && RndLocOk(xp + 1, yp - 2)
-			    && RndLocOk(xp - 1, yp - 1)
-			    && RndLocOk(xp, yp - 1)
-			    && RndLocOk(xp + 1, yp - 1)
-			    && RndLocOk(xp - 1, yp)
-			    && RndLocOk(xp, yp)
-			    && RndLocOk(xp + 1, yp)
-			    && RndLocOk(xp - 1, yp + 1)
-			    && RndLocOk(xp, yp + 1)
-			    && RndLocOk(xp + 1, yp + 1)) {
-				AddObject(objtype, xp, yp);
-				break;
-			}
-		}
+		if (!RndLoc3x4(&xp, &yp))
+			break;
+		AddObject(OBJ_SARC, xp, yp);
 	}
 }
 
-static void InitRndLocObj5x5(int min, int max, int objtype)
+static void InitRndLocObj5x5(int objtype)
 {
-	bool exit;
-	int xp, yp, numobjs, i, tries, m, n;
+	int xp, yp;
 
-	numobjs = RandRange(min, max - 1);
-	for (i = 0; i < numobjs; i++) {
-		tries = 0;
-		exit = false;
-		while (!exit) {
-			exit = true;
-			xp = random_(139, DSIZEX) + DBORDERX;
-			yp = random_(139, DSIZEY) + DBORDERY;
-			for (n = -2; n <= 2; n++) {
-				for (m = -2; m <= 2; m++) {
-					if (!RndLocOk(xp + m, yp + n))
-						exit = false;
-				}
-			}
-			if (!exit) {
-				tries++;
-				if (tries > 20000)
-					return;
-			}
-		}
+	if (RndLoc5x5(&xp, &yp))
 		AddObject(objtype, xp, yp);
-	}
 }
 
 static void ClrAllObjects()
@@ -368,33 +437,12 @@ static void AddCandles()
 
 static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int msg)
 {
-	bool exit;
-	int xp, yp, oi, tries, m, n;
+	int oi;
 
-	tries = 0;
-	exit = false;
-	while (!exit) {
-		exit = true;
-		xp = random_(139, DSIZEX) + DBORDERX;
-		yp = random_(139, DSIZEY) + DBORDERY;
-		for (n = -2; n <= 2; n++) {
-			for (m = -2; m <= 2; m++) {
-				if (!RndLocOk(xp + m, yp + n))
-					exit = false;
-			}
-		}
-		if (!exit) {
-			tries++;
-			if (tries > 20000)
-				return;
-		}
-	}
+	if (x == -1 && !RndLoc5x5(&x, &y))
+		return;
 
-	if (x != -1) {
-		xp = x;
-		yp = y;
-	}
-	oi = AddObject(type, xp, yp);
+	oi = AddObject(type, x, y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
 	object[oi]._oVar6 = object[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
@@ -725,27 +773,10 @@ static void AddDiabObjs()
 #ifdef HELLFIRE
 static void AddLvl2xBooks(int bookidx)
 {
-	bool exit;
-	int xp, yp, tries, i, j;
+	int xp, yp;
 
-	tries = 0;
-	exit = false;
-	while (!exit) {
-		exit = true;
-		xp = random_(139, DSIZEX) + DBORDERX;
-		yp = random_(139, DSIZEY) + DBORDERY;
-		for (j = -2; j <= 2; j++) {
-			for (i = -3; i <= 3; i++) {
-				if (!RndLocOk(xp + i, yp + j))
-					exit = false;
-			}
-		}
-		if (!exit) {
-			tries++;
-			if (tries > 20000)
-				return;
-		}
-	}
+	if (!RndLoc7x5(&xp, &yp))
+		return;
 
 	AddHBooks(bookidx, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
@@ -760,21 +791,9 @@ static void AddUberLever()
 {
 	int xp, yp;
 
-	while (TRUE) {
-		xp = random_(141, DSIZEX) + DBORDERX;
-		yp = random_(141, DSIZEY) + DBORDERY;
-		if (RndLocOk(xp - 1, yp - 1)
-		    && RndLocOk(xp, yp - 1)
-		    && RndLocOk(xp + 1, yp - 1)
-		    && RndLocOk(xp - 1, yp)
-		    && RndLocOk(xp, yp)
-		    && RndLocOk(xp + 1, yp)
-		    && RndLocOk(xp - 1, yp + 1)
-		    && RndLocOk(xp, yp + 1)
-		    && RndLocOk(xp + 1, yp + 1)) {
-			break;
-		}
-	}
+	if (!RndLoc3x3(&xp, &yp))
+		return;
+
 	UberLeverRow = UberRow + 3;
 	UberLeverCol = UberCol - 1;
 	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
@@ -782,42 +801,35 @@ static void AddUberLever()
 
 static void AddLvl24Books()
 {
+	BYTE books[4];
+
 	AddUberLever();
 	switch (random_(0, 6)) {
 	case 0:
-		AddHBooks(5, UberRow + 3, UberCol);
-		AddHBooks(6, UberRow + 2, UberCol - 3);
-		AddHBooks(7, UberRow + 2, UberCol + 2);
+		books[0] = 5; books[1] = 6; books[2] = 7; books[3] = 0;
 		break;
 	case 1:
-		AddHBooks(5, UberRow + 3, UberCol);
-		AddHBooks(7, UberRow + 2, UberCol - 3);
-		AddHBooks(6, UberRow + 2, UberCol + 2);
+		books[0] = 5; books[1] = 7; books[2] = 6; books[3] = 0;
 		break;
 	case 2:
-		AddHBooks(6, UberRow + 3, UberCol);
-		AddHBooks(5, UberRow + 2, UberCol - 3);
-		AddHBooks(7, UberRow + 2, UberCol + 2);
+		books[0] = 6; books[1] = 5; books[2] = 7; books[3] = 0;
 		break;
 	case 3:
-		AddHBooks(6, UberRow + 3, UberCol);
-		AddHBooks(7, UberRow + 2, UberCol - 3);
-		AddHBooks(5, UberRow + 2, UberCol + 2);
+		books[0] = 6; books[1] = 7; books[2] = 5; books[3] = 0;
 		break;
 	case 4:
-		AddHBooks(7, UberRow + 3, UberCol);
-		AddHBooks(6, UberRow + 2, UberCol - 3);
-		AddHBooks(5, UberRow + 2, UberCol + 2);
+		books[0] = 7; books[1] = 6; books[2] = 5; books[3] = 0;
 		break;
 	case 5:
-		AddHBooks(7, UberRow + 3, UberCol);
-		AddHBooks(5, UberRow + 2, UberCol - 3);
-		AddHBooks(6, UberRow + 2, UberCol + 2);
+		books[0] = 7; books[1] = 5; books[2] = 6; books[3] = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	AddHBooks(books[0], UberRow + 3, UberCol);
+	AddHBooks(books[1], UberRow + 2, UberCol - 3);
+	AddHBooks(books[2], UberRow + 2, UberCol + 2);
 }
 
 static bool ProgressUberLever(int bookidx)
@@ -845,27 +857,10 @@ static bool ProgressUberLever(int bookidx)
 
 static void AddStoryBooks()
 {
-	int xp, yp, xx, yy, tries;
-	bool done;
+	int xp, yp;
 
-	tries = 0;
-	done = false;
-	while (!done) {
-		done = true;
-		xp = random_(139, DSIZEX) + DBORDERX;
-		yp = random_(139, DSIZEY) + DBORDERY;
-		for (yy = -2; yy <= 2; yy++) {
-			for (xx = -3; xx <= 3; xx++) {
-				if (!RndLocOk(xx + xp, yy + yp))
-					done = false;
-			}
-		}
-		if (!done) {
-			tries++;
-			if (tries > 20000)
-				return;
-		}
-	}
+	if (!RndLoc7x5(&xp, &yp))
+		return;
 
 	AddObject(OBJ_STORYBOOK, xp, yp);
 	AddObject(OBJ_STORYCANDLE, xp - 2, yp + 1);
@@ -932,28 +927,11 @@ static void AddL4Goodies()
 
 static void AddLazStand()
 {
-	int xp, yp, xx, yy, tries;
-	bool found;
+	int xp, yp;
 
-	tries = 0;
-	found = false;
-	while (!found) {
-		found = true;
-		xp = random_(139, DSIZEX) + DBORDERX;
-		yp = random_(139, DSIZEY) + DBORDERY;
-		for (yy = -3; yy <= 3; yy++) {
-			for (xx = -2; xx <= 3; xx++) {
-				if (!RndLocOk(xp + xx, yp + yy))
-					found = false;
-			}
-		}
-		if (!found) {
-			tries++;
-			if (tries > 10000) {
-				InitRndLocObj(1, 1, OBJ_LAZSTAND);
-				return;
-			}
-		}
+	if (!RndLoc6x7(&xp, &yp)) {
+		InitRndLocObj(1, 1, OBJ_LAZSTAND);
+		return;
 	}
 	AddObject(OBJ_LAZSTAND, xp, yp);
 	AddObject(OBJ_TNUDEM2, xp, yp + 2);
@@ -1010,15 +988,14 @@ void InitObjects()
 				AddCandles();
 			if (QuestStatus(Q_LTBANNER))
 				AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
-			InitRndLocBigObj(10, 15, OBJ_SARC);
+			InitRndSarcs();
 			AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
-			InitRndBarrels();
 			break;
 		case DTYPE_CATACOMBS:
 			if (QuestStatus(Q_ROCK))
-				InitRndLocObj5x5(1, 1, OBJ_STAND);
+				InitRndLocObj5x5(OBJ_STAND);
 			if (QuestStatus(Q_SCHAMB))
-				InitRndLocObj5x5(1, 1, OBJ_BOOK2R);
+				InitRndLocObj5x5(OBJ_BOOK2R);
 			AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 			AddL2Torches();
 			if (QuestStatus(Q_BLIND)) {
@@ -1035,12 +1012,10 @@ void InitObjects()
 				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 			}
-			InitRndBarrels();
 			break;
 		case DTYPE_CAVES:
 		case DTYPE_NEST:
 			AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
-			InitRndBarrels();
 			break;
 		case DTYPE_HELL:
 			if (QuestStatus(Q_WARLORD)) {
@@ -1053,18 +1028,17 @@ void InitObjects()
 			}
 			if (QuestStatus(Q_BETRAYER) && gbMaxPlayers == 1)
 				AddLazStand();
-			InitRndBarrels();
 			AddL4Goodies();
 			break;
 		case DTYPE_CRYPT:
-			InitRndLocBigObj(10, 15, OBJ_SARC);
+			InitRndSarcs();
 			AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
-			InitRndBarrels();
 			break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
+		InitRndBarrels();
 		InitRndLocObj(5, 10, OBJ_CHEST1);
 		InitRndLocObj(3, 6, OBJ_CHEST2);
 		InitRndLocObj(1, 5, OBJ_CHEST3);
