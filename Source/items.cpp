@@ -2358,7 +2358,8 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, idx, items_get_currlevel());
+	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	SetItemData(ii, idx);
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 	item[ii]._iSelFlag = 1;
@@ -2394,7 +2395,8 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, idx, items_get_currlevel());
+	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	SetItemData(ii, idx);
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 
@@ -2415,7 +2417,8 @@ void SpawnQuestItemInArea(int idx, int areasize)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, idx, items_get_currlevel());
+	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	SetItemData(ii, idx);
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 	item[ii]._iSelFlag = 1;
@@ -2475,7 +2478,8 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg)
 		return;
 
 	ii = itemavail[0];
-	GetItemAttrs(ii, idx, items_get_currlevel());
+	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
+	SetItemData(ii, idx);
 	SetupItem(ii);
 	item[ii]._iSelFlag = 2;
 	item[ii]._iPostDraw = TRUE;
