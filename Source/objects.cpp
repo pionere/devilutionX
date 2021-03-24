@@ -958,30 +958,10 @@ void InitObjects()
 		AddDiabObjs();
 	} else {
 		gbInitObjFlag = true;
-		if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
-			AddSlainHero();
-		if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel && quests[Q_MUSHROOM]._qactive == QUEST_INIT)
-			AddMushPatch();
-
-		if (currLvl._dLevelIdx == DLV_CATHEDRAL4
-		 || currLvl._dLevelIdx == DLV_CATACOMBS4
-		 || currLvl._dLevelIdx == DLV_CAVES4) {
-			AddStoryBooks();
-#ifdef HELLFIRE
-		} else if (currLvl._dLevelIdx == DLV_CRYPT1) {
-			AddLvl2xBooks(0);
-		} else if (currLvl._dLevelIdx == DLV_CRYPT2) {
-			AddLvl2xBooks(1);
-			AddLvl2xBooks(2);
-		} else if (currLvl._dLevelIdx == DLV_CRYPT3) {
-			AddLvl2xBooks(3);
-			AddLvl2xBooks(4);
-		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
-			AddLvl24Books();
-#endif
-		}
 		switch (currLvl._dType) {
 		case DTYPE_CATHEDRAL:
+			if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
+				AddStoryBooks();
 			if (QuestStatus(Q_BUTCHER))
 				AddTortures();
 			if (QuestStatus(Q_PWATER))
@@ -992,6 +972,8 @@ void InitObjects()
 			AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 			break;
 		case DTYPE_CATACOMBS:
+			if (currLvl._dLevelIdx == DLV_CATACOMBS4)
+				AddStoryBooks();
 			if (QuestStatus(Q_ROCK))
 				InitRndLocObj5x5(OBJ_STAND);
 			if (QuestStatus(Q_SCHAMB))
@@ -1014,7 +996,15 @@ void InitObjects()
 			}
 			break;
 		case DTYPE_CAVES:
+			if (QuestStatus(Q_MUSHROOM))
+				AddMushPatch();
+			if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
+				AddSlainHero();
+			else if (currLvl._dLevelIdx == DLV_CAVES4)
+				AddStoryBooks();
+#ifdef HELLFIRE
 		case DTYPE_NEST:
+#endif
 			AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
 			break;
 		case DTYPE_HELL:
@@ -1030,10 +1020,31 @@ void InitObjects()
 				AddLazStand();
 			AddL4Goodies();
 			break;
+#ifdef HELLFIRE
 		case DTYPE_CRYPT:
+			switch (currLvl._dLevelIdx) {
+			case DLV_CRYPT1:
+				AddLvl2xBooks(0);
+				break;
+			case DLV_CRYPT2:
+				AddLvl2xBooks(1);
+				AddLvl2xBooks(2);
+				break;
+			case DLV_CRYPT3:
+				AddLvl2xBooks(3);
+				AddLvl2xBooks(4);
+				break;
+			case DLV_CRYPT4:
+				AddLvl24Books();
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
+			}
 			InitRndSarcs();
 			AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
 			break;
+#endif
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -1507,52 +1518,26 @@ static void AddTorturedBody(int oi)
 	os->_oPreFlag = TRUE;
 }
 
-static void GetRndObjLoc(int randarea, int *xx, int *yy)
-{
-	bool failed;
-	int i, j, tries;
-
-	assert(randarea > 0);
-
-	tries = 0;
-	while (TRUE) {
-		tries++;
-		if (tries > 1000 && randarea > 1)
-			randarea--;
-		*xx = random_(0, DSIZEX) + DBORDERX;
-		*yy = random_(0, DSIZEY) + DBORDERY;
-		failed = false;
-		for (i = 0; i < randarea && !failed; i++) {
-			for (j = 0; j < randarea && !failed; j++) {
-				failed = !RndLocOk(i + *xx, j + *yy);
-			}
-		}
-		if (!failed)
-			break;
-	}
-}
-
 void AddMushPatch()
 {
 	int oi;
-	int y, x;
+	int xp, yp;
 
-	if (nobjects < MAXOBJECTS) {
-		GetRndObjLoc(5, &x, &y);
-		oi = AddObject(OBJ_MUSHPATCH, x + 2, y + 2);
-		oi = -(oi + 1);
-		dObject[x + 1][y + 1] = oi;
-		dObject[x + 2][y + 1] = oi;
-		dObject[x + 1][y + 2] = oi;
-	}
+	if (!RndLoc5x5(&xp, &yp))
+		return;
+	oi = AddObject(OBJ_MUSHPATCH, xp, yp);
+	oi = -(oi + 1);
+	dObject[xp - 1][yp - 1] = oi;
+	dObject[xp][yp - 1] = oi;
+	dObject[xp - 1][yp] = oi;
 }
 
 void AddSlainHero()
 {
-	int x, y;
+	int xp, yp;
 
-	GetRndObjLoc(5, &x, &y);
-	AddObject(OBJ_SLAINHERO, x + 2, y + 2);
+	if (RndLoc5x5(&xp, &yp))
+		AddObject(OBJ_SLAINHERO, xp, yp);
 }
 
 #ifdef HELLFIRE
