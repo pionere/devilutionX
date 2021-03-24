@@ -2341,6 +2341,15 @@ static void GetRandomItemSpace(int randarea, int ii)
 	SetItemLoc(ii, x, y);
 }
 
+/**
+ * Place an fixed item to the given location.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param x tile-coordinate of the target location
+ * @param y tile-coordinate of the target location
+ * @param sendmsg whether a message should be sent to register the item
+ * @param delta whether the item should be added to the delta directly
+ */
 void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 {
 	int ii;
@@ -2369,6 +2378,14 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	numitems++;
 }
 
+/**
+ * Place or drop a fixed item starting from the given location.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param x tile-coordinate of the target location
+ * @param y tile-coordinate of the target location
+ * @param sendmsg whether a message should be sent to register the item
+ */
 void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
 {
 	int ii;
@@ -2384,6 +2401,12 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
 	RegisterItem(ii, x, y, sendmsg, false); 
 }
 
+/**
+ * Place a fixed item to a random location where the space is large enough.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param areasize: the require size of the space (will be lowered if no matching place is found)
+ */
 void SpawnQuestItemInArea(int idx, int areasize)
 {
 	int ii;
@@ -2405,6 +2428,9 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	numitems++;
 }
 
+/**
+ * Place a rock(item) on a stand (OBJ_STAND).
+ */
 void SpawnRock()
 {
 	int i, oi;
@@ -2422,7 +2448,7 @@ void SpawnRock()
 		SetItemData(i, IDI_ROCK);
 		SetupItem(i);
 		item[i]._iSelFlag = 2;
-		item[i]._iPostDraw = TRUE;
+		item[i]._iPostDraw = TRUE; // draw it above the stand
 		item[i]._iAnimFrame = 11;
 		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
 
@@ -2433,7 +2459,15 @@ void SpawnRock()
 }
 
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg)
+/**
+ * Drop a fixed item starting from the given location.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param x tile-coordinate of the target location
+ * @param y tile-coordinate of the target location
+ * @param sendmsg whether a message should be sent to register the item
+ */
+void SpawnRewardItem(int idx, int x, int y, bool sendmsg)
 {
 	int ii;
 
@@ -2449,7 +2483,7 @@ void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg)
 	item[ii]._iAnimFlag = TRUE;
 	item[ii]._iIdentified = TRUE;
 
-	RegisterItem(ii, xx, yy, sendmsg, false);
+	RegisterItem(ii, x, y, sendmsg, false);
 }
 #endif
 
