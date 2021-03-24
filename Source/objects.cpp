@@ -686,23 +686,21 @@ static void AddChestTraps()
 	}
 }
 
-static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
+static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
 {
-	int rw, rh, i, j, oi, x2, y2;
+	BYTE *pMap = LoadFileInMem(map, NULL);
+	int rw, rh, i, j, oi, x2, y2, mapoff;
 	BYTE *lm;
-	long mapoff;
 
 	gbInitObjFlag = true;
 
-	lm = pMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	mapoff = (rw * rh + 1) * 2;
+	rw = pMap[0];
+	rh = pMap[2];
+	mapoff = (rw * rh + 2) * 2;
 	rw <<= 1;
 	rh <<= 1;
 	mapoff += rw * 2 * rh * 2;
-	lm += mapoff;
+	lm = &pMap[mapoff];
 
 	x2 = x1 + w;
 	y2 = y1 + h;
@@ -720,25 +718,27 @@ static void LoadMapObjects(BYTE *pMap, int startx, int starty, int x1, int y1, i
 		}
 	}
 	gbInitObjFlag = false;
+
+	mem_free_dbg(pMap);
 }
 
-static void LoadMapObjs(BYTE *pMap, int startx, int starty)
+static void LoadMapSetObjs(const char *map)
 {
+	BYTE *pMap = LoadFileInMem(map, NULL);
+	int startx = 2 * setpc_x, starty = 2 * setpc_y;
 	int rw, rh;
-	int i, j;
+	int i, j, mapoff;
 	BYTE *lm;
-	long mapoff;
 
 	gbInitObjFlag = true;
-	lm = pMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	mapoff = (rw * rh + 1) * 2;
+
+	rw = pMap[0];
+	rh = pMap[2];
+	mapoff = (rw * rh + 2) * 2;
 	rw <<= 1;
 	rh <<= 1;
-	mapoff += 2 * rw * rh * 2;
-	lm += mapoff;
+	mapoff += rw * 2 * rh * 2;
+	lm = &pMap[mapoff];
 
 	startx += DBORDERX;
 	starty += DBORDERY;
@@ -753,21 +753,15 @@ static void LoadMapObjs(BYTE *pMap, int startx, int starty)
 		}
 	}
 	gbInitObjFlag = false;
+
+	mem_free_dbg(pMap);
 }
 
 static void AddDiabObjs()
 {
-	BYTE *lpSetPiece;
-
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
-	LoadMapObjects(lpSetPiece, 2 * diabquad1x, 2 * diabquad1y, diabquad2x, diabquad2y, 11, 12, 1);
-	mem_free_dbg(lpSetPiece);
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
-	LoadMapObjects(lpSetPiece, 2 * diabquad2x, 2 * diabquad2y, diabquad3x, diabquad3y, 11, 11, 2);
-	mem_free_dbg(lpSetPiece);
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
-	LoadMapObjects(lpSetPiece, 2 * diabquad3x, 2 * diabquad3y, diabquad4x, diabquad4y, 9, 9, 3);
-	mem_free_dbg(lpSetPiece);
+	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * diabquad1x, 2 * diabquad1y, diabquad2x, diabquad2y, 11, 12, 1);
+	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * diabquad2x, 2 * diabquad2y, diabquad3x, diabquad3y, 11, 11, 2);
+	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * diabquad3x, 2 * diabquad3y, diabquad4x, diabquad4y, 9, 9, 3);
 }
 
 #ifdef HELLFIRE
@@ -948,7 +942,6 @@ static void AddLazStand()
 void InitObjects()
 {
 	int sp_id;
-	BYTE *mem;
 
 	ClrAllObjects();
 #ifdef HELLFIRE
@@ -984,9 +977,7 @@ void InitObjects()
 				sp_id = textSets[TXTS_BLINDING][plr[myplr]._pClass];
 				quests[Q_BLIND]._qmsg = sp_id;
 				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x + 1, setpc_h + setpc_y + 1, sp_id);
-				mem = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
-				LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
-				mem_free_dbg(mem);
+				LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 			}
 			if (QuestStatus(Q_BLOOD)) {
 				sp_id = textSets[TXTS_BLOODY][plr[myplr]._pClass];
@@ -1012,9 +1003,7 @@ void InitObjects()
 				sp_id = textSets[TXTS_BLOODWAR][plr[myplr]._pClass];
 				quests[Q_WARLORD]._qmsg = sp_id;
 				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
-				mem = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
-				LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
-				mem_free_dbg(mem);
+				LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 			}
 			if (QuestStatus(Q_BETRAYER) && gbMaxPlayers == 1)
 				AddLazStand();
@@ -3132,13 +3121,12 @@ static void OperateSarc(int oi, bool sendmsg)
 static void OperatePedistal(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	BYTE *mem;
 	int iv;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
 		return;
-	if (!deltaload && pnum != -1) {
+	if (!deltaload && pnum != -1) { // TODO: possible desync of player-items?
 		if (numitems >= MAXITEMS)
 			return;
 		if (!PlrHasItem(pnum, IDI_BLDSTONE, &iv))
@@ -3162,9 +3150,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		break;
 	case 4:
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		mem = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
-		LoadMapObjs(mem, 2 * setpc_x, 2 * setpc_y);
-		mem_free_dbg(mem);
+		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
 		os->_oSelFlag = 0;
 		break;
 	default:
@@ -3175,6 +3161,8 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	if (deltaload)
 		return;
 	switch (quests[Q_BLOOD]._qvar1) {
+	case 1:
+		break; // should not really happen
 	case 2:
 		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		break;
@@ -4401,10 +4389,6 @@ static void SyncBookLever(int oi)
 
 static void SyncPedistal(int oi)
 {
-	ObjectStruct *os;
-	BYTE *setp;
-
-	os = &object[oi];
 	switch (quests[Q_BLOOD]._qvar1) {
 	case 1:
 		break;
@@ -4415,9 +4399,7 @@ static void SyncPedistal(int oi)
 		break;
 	case 4:
 		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
-		LoadMapObjs(setp, 2 * setpc_x, 2 * setpc_y);
-		mem_free_dbg(setp);
+		LoadMapSetObjs("Levels\\L2Data\\Blood2.DUN");
 		break;
 	default:
 		ASSUME_UNREACHABLE
