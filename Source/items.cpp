@@ -2046,27 +2046,6 @@ static void RegisterItem(int ii, int x, int y, bool sendmsg, bool delta)
 	numitems++;
 }
 
-void SpawnUnique(int uid, int x, int y)
-{
-	int ii, idx;
-
-	if (numitems >= MAXITEMS)
-		return;
-
-	idx = 0;
-	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
-		idx++;
-	}
-	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
-
-	ii = itemavail[0];
-	GetItemAttrs(ii, idx, items_get_currlevel());
-	GetUniqueItem(ii, uid);
-	SetupItem(ii);
-
-	RegisterItem(ii, x, y, true, false); // TODO: sendmsg/delta?
-}
-
 static void ItemRndDur(int ii)
 {
 	if (item[ii]._iDurability != 0 && item[ii]._iDurability != DUR_INDESTRUCTIBLE)
@@ -2121,6 +2100,25 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 			GetUniqueItem(ii, iseed);
 	}
 	SetupItem(ii);
+}
+
+void SpawnUnique(int uid, int x, int y)
+{
+	int ii, idx;
+
+	if (numitems >= MAXITEMS)
+		return;
+
+	idx = 0;
+	while (AllItemsList[idx].iItemId != UniqueItemList[uid].UIItemId) {
+		idx++;
+	}
+	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
+
+	ii = itemavail[0];
+	SetupAllItems(ii, idx, uid, items_get_currlevel() << 1, 1, false, false, false);
+
+	RegisterItem(ii, x, y, true, false); // TODO: sendmsg/delta?
 }
 
 void SpawnItem(int mnum, int x, int y, bool sendmsg)
