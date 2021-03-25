@@ -251,7 +251,8 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 		for (i = rx1; i < rw; i++) {
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
-				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
+				// assert(dflags[i][j] != 0);
+				// dflags[i][j] = TRUE; //|= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
@@ -1296,7 +1297,8 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 		for (i = rx1; i < rx2; i++) {
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
-				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
+				// assert(dflags[i][j] != 0);
+				// dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
@@ -1605,7 +1607,7 @@ static void DRLG_L4(int entry)
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			L4SaveQuads();
 		}
-		//if (QuestStatus(Q_WARLORD) || currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		//if (pSetPiece != NULL) {
 			for (i = SP4x1; i < SP4x2; i++) {
 				for (j = SP4y1; j < SP4y2; j++) {
 					dflags[i][j] = TRUE;
