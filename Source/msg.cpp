@@ -1170,12 +1170,12 @@ void NetSendCmdBParam3(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2, BYTE 
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdQuest(bool bHiPri, BYTE q)
+void NetSendCmdQuest(bool bHiPri, BYTE q, bool extOnly)
 {
 	TCmdQuest cmd;
 
 	cmd.q = q;
-	cmd.bCmd = CMD_SYNCQUEST;
+	cmd.bCmd = extOnly ? CMD_SYNCQUESTEXT : CMD_SYNCQUEST;
 	cmd.qstate = quests[q]._qactive;
 	cmd.qlog = quests[q]._qlog;
 	cmd.qvar1 = quests[q]._qvar1;
@@ -2413,6 +2413,9 @@ static unsigned On_STRING(TCmd *pCmd, int pnum)
 	return On_STRING2(pnum, pCmd);
 }
 
+/**
+ * Sync Quest with every player.
+ */
 static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
 {
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
@@ -2421,6 +2424,24 @@ static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr)
+			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
+		_gbDeltaChanged = true;
+	}
+
+	return sizeof(*cmd);
+}
+
+/**
+ * Same as On_SYNCQUEST, but sends the message only to players on other levels.
+ */
+static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
+{
+	TCmdQuest *cmd = (TCmdQuest *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else {
+		if (currLvl._dLevelIdx != plr[pnum].plrlevel)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 		_gbDeltaChanged = true;
 	}
@@ -2483,18 +2504,6 @@ static unsigned On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 }
 
 #ifdef HELLFIRE
-static unsigned On_NAKRUL(TCmd *pCmd, int pnum)
-{
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
-		DoOpenUberRoom();
-		gbUberRoomOpened = true;
-		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		//quests[Q_NAKRUL]._qlog = FALSE;
-		WakeUberDiablo();
-	}
-	return sizeof(*pCmd);
-}
-
 static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
@@ -2648,6 +2657,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_STRING(pCmd, pnum);
 	case CMD_SYNCQUEST:
 		return On_SYNCQUEST(pCmd, pnum);
+	case CMD_SYNCQUESTEXT:
+		return On_SYNCQUESTEXT(pCmd, pnum);
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
@@ -2655,8 +2666,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 	case CMD_RESTOREHPVIT:
 		return On_RESTOREHPVIT(pCmd, pnum);
 #ifdef HELLFIRE
-	case CMD_NAKRUL:
-		return On_NAKRUL(pCmd, pnum);
 	case CMD_OPENHIVE:
 		return On_OPENHIVE(pCmd, pnum);
 	case CMD_OPENCRYPT:

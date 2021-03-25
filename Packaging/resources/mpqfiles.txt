@@ -7,6 +7,7 @@ Data\Inv\Inv.CEL
 Data\SpellBk.CEL
 Data\SpellBkB.CEL
 Data\Quest.CEL
+Levels\L1Data\Butcher.DUN
 Levels\TownData\Town.SOL
 Levels\TownData\Town.RDUN
 Missiles\Farrow1.CL2
@@ -75,3 +76,5 @@ Missiles\Parrow6.CL2
 Missiles\Parrow7.CL2
 Missiles\Parrow8.CL2
 Missiles\Parrow9.CL2
+NLevels\L5Data\Nakrul1.DUN
+NLevels\L5Data\Nakrul2.DUN

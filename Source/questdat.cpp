@@ -141,7 +141,7 @@ const QuestData questlist[NUM_QUESTS] = {
 /*Q_GIRL*/    { DLV_NEST1,                  -1, 0,               QUEST_SINGLE,  TEXT_GIRL2,    "Little Girl"              },
 /*Q_TRADER*/  { DLV_NEST3,                  -1, 0,               QUEST_SINGLE,  TEXT_TRADER,   "Wandering Trader"         },
 /*Q_DEFILER*/ { DLV_NEST1,           DLV_NEST1, 0,               QUEST_ANY,     TEXT_DEFILER1, "The Defiler"              },
-/*Q_NAKRUL*/  { DLV_CRYPT1,         DLV_CRYPT1, 0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
+/*Q_NAKRUL*/  { DLV_CRYPT4,         DLV_CRYPT4, 0,               QUEST_ANY,     TEXT_NAKRUL1,  "Na-Krul"                  },
 /*Q_JERSEY*/  { DLV_CAVES1,         DLV_CAVES1, 0,               QUEST_ANY,     TEXT_JERSEY4,  "The Jersey's Jersey"      },
 #endif
 	// clang-format on

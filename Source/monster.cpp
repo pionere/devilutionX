@@ -573,14 +573,14 @@ void WakeUberDiablo()
 {
 	MonsterStruct *mon;
 
-	if (currLvl._dLevelIdx == DLV_CRYPT4 && UberDiabloMonsterIndex >= 0) {
-		mon = &monster[UberDiabloMonsterIndex];
-		PlayEffect(UberDiabloMonsterIndex, 2);
-		mon->mArmorClass -= 50;
-		mon->mMagicRes = 0;
-		mon->_mmaxhp /= 2;
+	if (!deltaload)
+		PlayEffect(MAX_MINIONS, 2);
+	mon = &monster[MAX_MINIONS];
+	mon->mArmorClass -= 50;
+	mon->mMagicRes = 0;
+	mon->_mmaxhp /= 2;
+	if (mon->_mhitpoints > mon->_mmaxhp)
 		mon->_mhitpoints = mon->_mmaxhp;
-	}
 }
 #endif
 
@@ -689,7 +689,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		}
 		break;
 	case UMT_ZHAR:
-		if (zharlib >= 0 && zharlib < themeCount) {
+		assert(nummonsters == MAX_MINIONS);
+		if (zharlib != -1) {
 			xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
 			yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
 		}
@@ -739,13 +740,9 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:
-		if (UberRow == 0 || UberCol == 0) {
-			UberDiabloMonsterIndex = -1;
-			return;
-		}
-		xp = UberRow - 2;
-		yp = UberCol;
-		UberDiabloMonsterIndex = nummonsters;
+		assert(nummonsters == MAX_MINIONS);
+		xp = 2 * setpc_x + DBORDERX + 2;
+		yp = 2 * setpc_y + DBORDERY + 6;
 		break;
 #endif
 	}
@@ -1648,7 +1645,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
-		NetSendCmdQuest(true, Q_DIABLO);
+		NetSendCmdQuest(true, Q_DIABLO, false); // recipient should not matter
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
 		if (j == mnum)
@@ -1713,8 +1710,10 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		return;
 	case UMT_NAKRUL:
 		stream_stop();
-		quests[Q_NAKRUL]._qlog = FALSE; // TODO: instead of _qlog the _qactive should be set to QUEST_DONE?
-		UberDiabloMonsterIndex = -2;
+		quests[Q_NAKRUL]._qactive = QUEST_DONE;
+		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
+		if (sendmsg)
+			NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
 		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
 		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
 		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);
@@ -4501,7 +4500,8 @@ void ProcessMonsters()
 				PlaySfxLoc(USFX_CLEAVER, mx, my);
 #ifdef HELLFIRE
 			else if (mon->_mType == MT_NAKRUL)
-				PlaySfxLoc(gbUseCowFarmer ? USFX_NAKRUL6 : (gbUberRoomOpened ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
+				// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
+				PlaySfxLoc(gbUseCowFarmer ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
 			else if (mon->_mType == MT_DEFILER)
 				PlaySfxLoc(USFX_DEFILER8, mx, my);
 			MonEnemy(mnum);

@@ -537,18 +537,18 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 					quests[Q_SKELKING]._qvar1 = 1;
 				}
+				NetSendCmdQuest(true, Q_SKELKING, false);
 				tw->_tListener = pnum + 1;
 				InitQTextMsg(TEXT_KING2);
 				msgSaid = true;
-				NetSendCmdQuest(true, Q_SKELKING);
 			}
 			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qvar2 == 1 && !msgSaid) {
 				quests[Q_SKELKING]._qvar2 = 2;
 				quests[Q_SKELKING]._qvar1 = 2;
+				NetSendCmdQuest(true, Q_SKELKING, false);
 				tw->_tListener = pnum + 1;
 				InitQTextMsg(TEXT_KING4);
 				msgSaid = true;
-				NetSendCmdQuest(true, Q_SKELKING);
 			}
 		}
 		if (gbMaxPlayers == 1) {
@@ -594,10 +594,10 @@ void TalkToTowner(int pnum, int tnum)
 			quests[Q_BUTCHER]._qlog = TRUE;
 			quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
 			quests[Q_BUTCHER]._qvar1 = 1;
+			NetSendCmdQuest(true, Q_BUTCHER, false);
 			tw->_tListener = pnum + 1;
 			InitQTextMsg(TEXT_BUTCH9);
 			msgSaid = true;
-			NetSendCmdQuest(true, Q_BUTCHER);
 		}
 		break;
 	case TOWN_SMITH:
@@ -701,6 +701,7 @@ void TalkToTowner(int pnum, int tnum)
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
+			NetSendCmdQuest(true, Q_GRAVE, false);
 			InitQTextMsg(TEXT_GRAVE8);
 			msgSaid = true;
 		}
@@ -771,15 +772,15 @@ void TalkToTowner(int pnum, int tnum)
 				InitQTextMsg(TEXT_VILE1);
 				msgSaid = true;
 				quests[Q_BETRAYER]._qlog = TRUE;
-				NetSendCmdQuest(true, Q_BETRAYER);
+				NetSendCmdQuest(true, Q_BETRAYER, false);
 			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
 				quests[Q_BETRAYER]._qvar1 = 8;
+				NetSendCmdQuest(true, Q_BETRAYER, false);
 				tw->_tListener = pnum + 1;
 				InitQTextMsg(TEXT_VILE3);
 				msgSaid = true;
-				NetSendCmdQuest(true, Q_BETRAYER);
 				quests[Q_DIABLO]._qlog = TRUE;
-				NetSendCmdQuest(true, Q_DIABLO);
+				NetSendCmdQuest(true, Q_DIABLO, false);
 			}
 		}
 		TownerTalk(STORE_STORY, TEXT_STORY1);
@@ -837,9 +838,7 @@ void TalkToTowner(int pnum, int tnum)
 		if (qt != TEXT_NONE) {
 			InitQTextMsg(qt);
 		}
-		if (gbMaxPlayers != 1) {
-			NetSendCmdQuest(true, Q_FARMER);
-		}
+		NetSendCmdQuest(true, Q_FARMER, false);
 		break;
 	case TOWN_COWFARM:
 		if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
@@ -911,9 +910,7 @@ void TalkToTowner(int pnum, int tnum)
 		if (qt != TEXT_NONE) {
 			InitQTextMsg(qt);
 		}
-		if (gbMaxPlayers != 1) {
-			NetSendCmdQuest(true, Q_JERSEY);
-		}
+		NetSendCmdQuest(true, Q_JERSEY, false);
 		break;
 	case TOWN_GIRL:
 		qtsnd = false;
@@ -954,9 +951,7 @@ void TalkToTowner(int pnum, int tnum)
 				PlaySFX(alltext[qt].sfxnr);
 			}
 		}
-		if (gbMaxPlayers != 1) {
-			NetSendCmdQuest(true, Q_GIRL);
-		}
+		NetSendCmdQuest(true, Q_GIRL, false);
 		break;
 #endif
 	}

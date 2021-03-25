@@ -16,15 +16,6 @@ BOOL HR1;
 BOOL HR2;
 /** Specifies whether to generate a horizontal room at position 3 in the Cathedral. */
 BOOL HR3;
-#ifdef HELLFIRE
-int UberRow;
-int UberCol;
-bool gbUberRoomOpened;
-int UberLeverRow;
-int UberLeverCol;
-bool gbUberLeverActivated;
-int UberDiabloMonsterIndex;
-#endif
 /** Specifies whether to generate a vertical room at position 1 in the Cathedral. */
 BOOL VR1;
 /** Specifies whether to generate a vertical room at position 2 in the Cathedral. */
@@ -523,28 +514,6 @@ const BYTE byte_48A3C8[4] = { 1, 1, 1, 199 };
 const BYTE byte_48A3CC[4] = { 1, 1, 1, 201 };
 const BYTE byte_48A3D0[4] = { 1, 1, 2, 200 };
 const BYTE byte_48A3D4[4] = { 1, 1, 2, 202 };
-
-const BYTE UberRoomPattern[] = {
-	// clang-format off
-	4, 6,					// width, height
-	115, 130,   6,  13,
-	129, 108,   1,  13,
-	  1, 107, 103,  13,
-	146, 106, 102,  13,
-	129, 168,   1,  13,
-	  7,   2,   3,  13
-	// clang-format on
-};
-/*const BYTE CornerstoneRoomPattern[] = {
-	// clang-format off
-	5, 5,					// width, height
-	  4,   2,   2,  2,  6,
-	  1, 111, 172,  0,  1,
-	  1, 172,   0,  0, 25,
-	  1,   0,   0,  0,  1,
-	  7,   2,   2,  2,  3
-	// clang-format on
-};*/
 #endif
 
 /**
@@ -1086,7 +1055,11 @@ static void DRLG_LoadL1SP()
 	} else if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
 	} else if (QuestStatus(Q_BUTCHER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\rnd6.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN", NULL);
+#ifdef HELLFIRE
+	} else if (QuestStatus(Q_NAKRUL)) {
+		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN", NULL);
+#endif
 	}
 }
 
@@ -1877,66 +1850,6 @@ static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
 		}
 	}
 }
-
-static void DRLG_L5CryptSetRoom(int rx1, int ry1)
-{
-	int rw, rh, i, j, sp;
-
-	rw = UberRoomPattern[0];
-	rh = UberRoomPattern[1];
-
-	UberRow = 2 * rx1 + 6;
-	UberCol = 2 * ry1 + 8;
-	setpc_x = rx1;
-	setpc_y = ry1;
-	setpc_w = rw;
-	setpc_h = rh;
-	gbUberRoomOpened = false;
-	gbUberLeverActivated = false;
-
-	sp = 2;
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			assert(UberRoomPattern[sp] != 0);
-			dungeon[i][j] = UberRoomPattern[sp];
-			dflags[i][j] |= DLRG_PROTECTED;
-			sp++;
-		}
-	}
-}
-
-/*static void DRLG_L5CryptSetCornerRoom(int rx1, int ry1)
-{
-	int rw, rh, i, j, sp;
-
-	rw = CornerstoneRoomPattern[0];
-	rh = CornerstoneRoomPattern[1];
-
-	setpc_x = rx1;
-	setpc_y = ry1;
-	setpc_w = rw;
-	setpc_h = rh;
-
-	sp = 2;
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			if (CornerstoneRoomPattern[sp] != 0) {
-				dungeon[i][j] = CornerstoneRoomPattern[sp];
-				dflags[i][j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 13;
-			}
-			sp++;
-		}
-	}
-}*/
-
 #endif
 
 static void DRLG_L1Subs()
@@ -2045,141 +1958,6 @@ static void L1FillChambers()
 	if (VR1 && !VR2 && VR3)
 		DRLG_L1GHall(18, 12, 18, 28);
 
-#ifdef HELLFIRE
-	if (currLvl._dLevelIdx == DLV_CRYPT4) {
-		if (VR1 || VR2 || VR3) {
-			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
-				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2) != 0)
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (VR1 && VR2 && VR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L5CryptSetRoom(16, c);
-		} else {
-			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
-				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (HR1 && !HR2 && HR3) {
-				if (random_(0, 2) != 0)
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (HR1 && HR2 && HR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L5CryptSetRoom(c, 16);
-		}
-	}/* else if (currLvl._dLevelIdx == DLV_CRYPT1) {
-		if (VR1 || VR2 || VR3) {
-			c = 1;
-			if (!VR1 && VR2 && VR3 && random_(0, 2) != 0)
-				c = 2;
-			if (VR1 && VR2 && !VR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (VR1 && !VR2 && VR3) {
-				if (random_(0, 2) != 0)
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (VR1 && VR2 && VR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L5CryptSetCornerRoom(16, c);
-		} else {
-			c = 1;
-			if (!HR1 && HR2 && HR3 && random_(0, 2) != 0)
-				c = 2;
-			if (HR1 && HR2 && !HR3 && random_(0, 2) != 0)
-				c = 0;
-
-			if (HR1 && !HR2 && HR3) {
-				if (random_(0, 2))
-					c = 0;
-				else
-					c = 2;
-			}
-
-			if (HR1 && HR2 && HR3)
-				c = random_(0, 3);
-
-			switch (c) {
-			case 0:
-				c = 2;
-				break;
-			case 1:
-				c = 16;
-				break;
-			case 2:
-				c = 30;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			DRLG_L5CryptSetCornerRoom(c, 16);
-		}
-	}*/
-#endif
 	if (pSetPiece != NULL) {
 		if (VR1 || VR2 || VR3) {
 			c = 1;
@@ -2779,21 +2557,7 @@ static void DRLG_L1(int entry)
 
 void CreateL1Dungeon(DWORD rseed, int entry)
 {
-#ifdef HELLFIRE
-	int i, j;
-#endif
-
 	SetRndSeed(rseed);
-
-#ifdef HELLFIRE
-	UberRow = 0;
-	UberCol = 0;
-	gbUberRoomOpened = false;
-	UberLeverRow = 0;
-	UberLeverCol = 0;
-	gbUberLeverActivated = false;
-	UberDiabloMonsterIndex = 0;
-#endif
 
 	DRLG_InitSetPC();
 	DRLG_LoadL1SP();
@@ -2804,19 +2568,6 @@ void CreateL1Dungeon(DWORD rseed, int entry)
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_InitL5Vals();
-
-		for (j = DBORDERY; j < DSIZEY + DBORDERY; j++) {
-			for (i = DBORDERX; i < DSIZEX + DBORDERX; i++) {
-				if (dPiece[i][j] == 290) {
-					UberRow = i;
-					UberCol = j;
-				}
-				/*if (dPiece[i][j] == 317) {
-					CornerStone.x = i;
-					CornerStone.y = j;
-				}*/
-			}
-		}
 	} else
 #endif
 	{

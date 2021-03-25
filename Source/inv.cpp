@@ -1691,16 +1691,16 @@ int InvPutItem(int pnum, int x, int y)
 		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= DBORDERX + 69 && cursmx <= DBORDERX + 72 && cursmy >= DBORDERY + 51 && cursmy <= DBORDERY + 54) {
 			NetSendCmd(false, CMD_OPENHIVE);
 			quests[Q_FARMER]._qactive = QUEST_DONE;
-			if (gbMaxPlayers != 1) {
-				NetSendCmdQuest(true, Q_FARMER);
+			if (pnum == myplr) {
+				NetSendCmdQuest(true, Q_FARMER, false); // recipient should not matter
 			}
 			return -1;
 		}
 		if (plr[pnum].HoldItem._iIdx == IDI_MAPOFDOOM && cursmx >= DBORDERX + 25  && cursmx <= DBORDERX + 28 && cursmy >= DBORDERY + 10 && cursmy <= DBORDERY + 14) {
 			NetSendCmd(false, CMD_OPENCRYPT);
 			quests[Q_GRAVE]._qactive = QUEST_DONE;
-			if (gbMaxPlayers != 1) {
-				NetSendCmdQuest(true, Q_GRAVE);
+			if (pnum == myplr) {
+				NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
 			}
 			return -1;
 		}

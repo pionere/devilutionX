@@ -209,6 +209,7 @@ Levels\L19Data\L19_4.PAL
 Levels\L19Data\L19_5.PAL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
+Levels\L1Data\Butcher.DUN
 Levels\L1Data\L1.AMP
 Levels\L1Data\L1.CEL
 Levels\L1Data\L1.MIN
@@ -225,7 +226,7 @@ Levels\L1Data\L1_5.PAL
 Levels\L1Data\L1S.CEL
 Levels\L1Data\Lv1MazeA.DUN
 Levels\L1Data\Lv1MazeB.DUN
-Levels\L1Data\rnd6.DUN
+_Levels\L1Data\rnd6.DUN
 Levels\L1Data\SklKng1.DUN
 Levels\L1Data\SklKng2.DUN
 Levels\L1Data\SKngDO.DUN
@@ -1553,6 +1554,8 @@ NLevels\L5Data\L5.SOL
 NLevels\L5Data\L5.TIL
 NLevels\L5Data\L5Base.PAL
 NLevels\L5Data\L5S.CEL
+NLevels\L5Data\Nakrul1.DUN
+NLevels\L5Data\Nakrul2.DUN
 NLevels\L6Data\L6.AMP
 NLevels\L6Data\L6.CEL
 NLevels\L6Data\L6.MIN

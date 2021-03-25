@@ -243,25 +243,26 @@ bool QuestStatus(int qn)
 
 void CheckQuestKill(int mnum, bool sendmsg)
 {
-	int i, j;
+	int i, j, qn;
 
 	switch (monster[mnum]._uniqtype - 1) {
 	case UMT_GARBUD: //"Gharbad the Weak"
 		quests[Q_GARBUD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_61][plr[myplr]._pClass];
+		qn = Q_GARBUD;
 		break;
 	case UMT_SKELKING:
 		quests[Q_SKELKING]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_82][plr[myplr]._pClass];
-		if (sendmsg)
-			NetSendCmdQuest(true, Q_SKELKING);
+		qn = Q_SKELKING;
 		break;
 	case UMT_ZHAR: //"Zhar the Mad"
 		quests[Q_ZHAR]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_62][plr[myplr]._pClass];
+		qn = Q_ZHAR;
 		break;
 	case UMT_LAZURUS: //"Arch-Bishop Lazarus" - multi
 		if (gbMaxPlayers != 1) {
@@ -280,8 +281,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 				}
 			}
 			if (sendmsg) {
-				NetSendCmdQuest(true, Q_BETRAYER);
-				NetSendCmdQuest(true, Q_DIABLO);
+				NetSendCmdQuest(true, Q_DIABLO, false); // recipient should not matter
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
@@ -293,20 +293,31 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		}
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
+		qn = Q_BETRAYER;
 		break;
 	case UMT_WARLORD: //"Warlord of Blood"
 		quests[Q_WARLORD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_94][plr[myplr]._pClass];
+		qn = Q_WARLORD;
 		break;
 	case UMT_BUTCHER:
 		quests[Q_BUTCHER]._qactive = QUEST_DONE;
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_80][plr[myplr]._pClass];
-		if (sendmsg)
-			NetSendCmdQuest(true, Q_BUTCHER);
+		qn = Q_BUTCHER;
 		break;
+#ifdef HELLFIRE
+	case UMT_NAKRUL:
+		quests[Q_NAKRUL]._qactive = QUEST_DONE;
+		qn = Q_NAKRUL;
+		break;
+#endif
+	default:
+		return;
 	}
+	if (sendmsg)
+		NetSendCmdQuest(true, qn, false); // recipient should not matter
 }
 
 static void DrawButcher()
@@ -435,6 +446,13 @@ static void DrawBlood(int x, int y)
 	mem_free_dbg(setp);
 }
 
+#ifdef HELLFIRE
+static void DrawNakrul(int x, int y)
+{
+	DrawPreMap("NLevels\\L5Data\\Nakrul2.DUN", x, y);
+}
+#endif
+
 void DRLG_CheckQuests(int x, int y)
 {
 	int i;
@@ -463,6 +481,11 @@ void DRLG_CheckQuests(int x, int y)
 			case Q_SCHAMB:
 				DrawSChamber(x, y);
 				break;
+#ifdef HELLFIRE
+			case Q_NAKRUL:
+				DrawNakrul(x, y);
+				break;
+#endif
 			}
 		}
 	}
@@ -525,36 +548,36 @@ void ResyncMPQuests()
 	    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
 	    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
 		quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_SKELKING);
+		NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
 	}
 	if (quests[Q_BUTCHER]._qactive == QUEST_INIT
 	    && currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
 	    && currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {
 		quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_BUTCHER);
+		NetSendCmdQuest(true, Q_BUTCHER, false); // recipient should not matter
 	}
 	if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel - 1) {
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_BETRAYER);
+		NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
 	}
 	if (QuestStatus(Q_BETRAYER))
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
 	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
 		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_GRAVE);
+		NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
 	}
 	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel - 1) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_DEFILER);
+		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
 	}
-	if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
-		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_NAKRUL);
-	}
+	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
+	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
+	//}
 	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
 		quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_JERSEY);
+		NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
 	}
 #endif
 }

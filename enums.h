@@ -2412,8 +2412,8 @@ typedef enum dungeon_type_mask {
 	DTM_CATACOMBS = 1 << DTYPE_CATACOMBS,
 	DTM_CAVES     = 1 << DTYPE_CAVES,
 	DTM_HELL      = 1 << DTYPE_HELL,
-	DTM_NEST      = 1 << DTYPE_NEST,
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
+	DTM_NEST      = 1 << DTYPE_NEST,
 	DTM_ANY       = 0xFF,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
@@ -2950,6 +2950,7 @@ typedef enum _cmd_id {
 	CMD_ITEMEXTRA,
 	CMD_SYNCPUTITEM,
 	CMD_SYNCQUEST,
+	CMD_SYNCQUESTEXT,
 	//CMD_ENDSHIELD,
 	CMD_AWAKEGOLEM,
 	//CMD_NOVA,

@@ -12,16 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#ifdef HELLFIRE
-extern int UberRow;
-extern int UberCol;
-extern bool gbUberRoomOpened;
-extern int UberLeverRow;
-extern int UberLeverCol;
-extern bool gbUberLeverActivated;
-extern int UberDiabloMonsterIndex;
-#endif
-
 void LoadL1Dungeon(const char *sFileName, int vx, int vy);
 void LoadPreL1Dungeon(const char *sFileName);
 void CreateL1Dungeon(DWORD rseed, int entry);

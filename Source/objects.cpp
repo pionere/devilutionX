@@ -783,14 +783,10 @@ static void AddLvl2xBooks(int bookidx)
 
 static void AddUberLever()
 {
-	int xp, yp;
+	int oi;
 
-	if (!RndLoc3x3(&xp, &yp))
-		return;
-
-	UberLeverRow = UberRow + 3;
-	UberLeverCol = UberCol - 1;
-	AddObject(OBJ_LEVER, UberLeverRow, UberLeverCol);
+	oi = AddObject(OBJ_LEVER, 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 5);
+	SetObjMapRange(oi, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, 1);
 }
 
 static void AddLvl24Books()
@@ -821,31 +817,28 @@ static void AddLvl24Books()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddHBooks(books[0], UberRow + 3, UberCol);
-	AddHBooks(books[1], UberRow + 2, UberCol - 3);
-	AddHBooks(books[2], UberRow + 2, UberCol + 2);
+	AddHBooks(books[0], 2 * setpc_x + DBORDERX + 7, 2 * setpc_y + DBORDERY + 6);
+	AddHBooks(books[1], 2 * setpc_x + DBORDERX + 6, 2 * setpc_y + DBORDERY + 3);
+	AddHBooks(books[2], 2 * setpc_x + DBORDERX + 6, 2 * setpc_y + DBORDERY + 8);
 }
 
-static bool ProgressUberLever(int bookidx)
+static int ProgressUberLever(int bookidx, int status)
 {
+	if (status >= 4)
+		return status;
+
 	switch (bookidx) {
 	case 6:
-		UberLeverProgress = 1;
-		break;
+		return 1;
 	case 7:
-		if (UberLeverProgress == 1) {
-			UberLeverProgress = 2;
-		} else {
-			UberLeverProgress = 0;
-		}
-		break;
+		return status == 1 ? 2 : 0;
 	case 8:
-		if (UberLeverProgress == 2)
-			return true;
-		UberLeverProgress = 0;
+		return status == 2 ? 3 : 0;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
-	return false;
+	return 0;
 }
 #endif
 
@@ -2751,7 +2744,6 @@ static void OperateLever(int oi, bool sendmsg)
 {
 	ObjectStruct *os, *on;
 	int i;
-	bool mapflag;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
@@ -2764,26 +2756,22 @@ static void OperateLever(int oi, bool sendmsg)
 
 	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
-	mapflag = true;
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		for (i = 0; i < nobjects; i++) {
 			on = &object[objectactive[i]]; //         LEVER_INDEX
 			if (on->_otype == OBJ_SWITCHSKL && os->_oVar8 == on->_oVar8 && on->_oSelFlag != 0) {
-				mapflag = false;
-				break;
+				return;
 			}
 		}
 #ifdef HELLFIRE
-	} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
-		DoOpenUberRoom();
-		gbUberLeverActivated = true;
-		mapflag = false;
+	} else if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
+		if (quests[Q_NAKRUL]._qactive = QUEST_DONE)
+			return;
+		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
-		//quests[Q_NAKRUL]._qlog = FALSE;
 #endif
 	}
-	if (mapflag)
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
@@ -2905,7 +2893,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (pnum == myplr)
 		InitQTextMsg(os->_oVar7);     // LEVER_BOOK_MSG
 	if (sendmsg) {
-		NetSendCmdQuest(true, qn);
+		NetSendCmdQuest(true, qn, true);
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 	}
 }
@@ -3134,7 +3122,8 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		RemoveInvItem(pnum, iv);
 		quests[Q_BLOOD]._qvar1++;
 		if (sendmsg) {
-			NetSendCmdQuest(true, Q_BLOOD);
+			// TODO: recipient should be true, but that requires a synced inventory
+			NetSendCmdQuest(true, Q_BLOOD, false);
 			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 		}
 	}
@@ -3888,43 +3877,55 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 
 /**
  * Handle the reading of story books in the dungeon.
- * (In hellfire) The progress needs to be tracked separately for each player
- * since deltaload is not capable of handling the reading order.
- * This means the reading progress is reset on every re-enter.
- * No message is sent at the moment (it is pointless).
  */
-static void OperateStoryBook(int oi, bool sendmsg)
+static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
 	os = &object[oi];
 	// assert(os->_oSelFlag != 0);
-	//if (deltaload)
-	//	return;
-
-	// if (pnum != myplr)
-	if (!sendmsg)
-		return;
 
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_ANIM_FRAME
-	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	if (deltaload) {
 #ifdef HELLFIRE
-	if (os->_oVar8 != 0 && currLvl._dLevelIdx == DLV_CRYPT4) { // STORY_BOOK_NAKRUL_IDX
-		if (!gbUberLeverActivated && quests[Q_NAKRUL]._qactive != QUEST_DONE && ProgressUberLever(os->_oVar8)) {
-			// if (sendmsg)
-				NetSendCmd(false, CMD_NAKRUL);
-			return;
+		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == 8 && quests[Q_NAKRUL]._qvar1 >= 4) {
+			if (quests[Q_NAKRUL]._qvar1 == 4)
+				WakeUberDiablo();
+			OpenUberRoom();
 		}
-	} else if (currLvl._dType == DTYPE_CRYPT) {
-		quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-		quests[Q_NAKRUL]._qlog = TRUE;
-		quests[Q_NAKRUL]._qmsg = os->_oVar2; // STORY_BOOK_MSG
+#endif
+		return;
+	}
+	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	if (sendmsg)
+		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT && quests[Q_NAKRUL]._qactive != QUEST_DONE) {
+		if (os->_oVar8 != 0) { // STORY_BOOK_NAKRUL_IDX
+			assert(currLvl._dLevelIdx == DLV_CRYPT4);
+			if (pnum != -1) {
+				quests[Q_NAKRUL]._qvar1 = ProgressUberLever(os->_oVar8, quests[Q_NAKRUL]._qvar1);
+				if (sendmsg)
+					NetSendCmdQuest(true, Q_NAKRUL, true);
+			}
+			if (quests[Q_NAKRUL]._qvar1 == 3) {
+				quests[Q_NAKRUL]._qvar1 = 4;
+				quests[Q_NAKRUL]._qactive = QUEST_DONE;
+				if (sendmsg)
+					NetSendCmdQuest(true, Q_NAKRUL, true);
+				OpenUberRoom();
+				WakeUberDiablo();
+				return;
+			}
+		} else {
+			quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
+			quests[Q_NAKRUL]._qlog = TRUE;
+			quests[Q_NAKRUL]._qmsg = os->_oVar2; // STORY_BOOK_MSG
+		}
 	}
 #endif
-	//if (pnum == myplr)
+	if (pnum == myplr)
 		InitQTextMsg(os->_oVar2); // STORY_BOOK_MSG
-	//if (sendmsg)
-	//	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 }
 
 static void OperateLazStand(int oi, bool sendmsg)
@@ -4181,7 +4182,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateFountains(pnum, oi, sendmsg);
 		break;
 	case OBJ_STORYBOOK:
-		OperateStoryBook(oi, sendmsg);
+		OperateStoryBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_PEDISTAL:
 		OperatePedistal(pnum, oi, sendmsg);
@@ -4336,9 +4337,9 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_TEARFTN:
 		OperateFountains(pnum, oi, false);
 		break;
-	//case OBJ_STORYBOOK:
-	//	OperateStoryBook(oi, false);
-	//	break;
+	case OBJ_STORYBOOK:
+		OperateStoryBook(-1, oi, false);
+		break;
 	case OBJ_PEDISTAL:
 		OperatePedistal(-1, oi, false);
 		break;
@@ -4685,20 +4686,7 @@ void GetObjectStr(int oi)
 #ifdef HELLFIRE
 void OpenUberRoom()
 {
-	dPiece[UberRow][UberCol] = 298;
-	dPiece[UberRow][UberCol - 1] = 301;
-	dPiece[UberRow][UberCol - 2] = 300;
-	dPiece[UberRow][UberCol + 1] = 299;
-
-	SetDungeonMicros(UberRow, UberCol - 1, UberRow + 1, UberCol + 2);
-}
-
-void DoOpenUberRoom()
-{
-	if (currLvl._dLevelIdx == DLV_CRYPT4) {
-		PlaySfxLoc(IS_CROPEN, UberRow, UberCol);
-		OpenUberRoom();
-	}
+	ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 }
 #endif
 

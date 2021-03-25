@@ -454,13 +454,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	ProcessLightList();
 	ProcessVisionList();
 
-#ifdef HELLFIRE
-	// BUGFIX: TODO: does not belong here, DeltaLoadLevel should take care about this
-	if (currLvl._dLevelIdx == DLV_CRYPT4 && quests[Q_NAKRUL]._qactive == QUEST_DONE) {
-		OpenUberRoom();
-	}
-#endif
-
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 
 	while (!IncProgress())
