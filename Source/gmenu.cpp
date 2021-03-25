@@ -235,7 +235,7 @@ static void GameMenuMove()
 {
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 	static AxisDirectionRepeater repeater;
-	const AxisDirection move_dir = repeater.Get(GetLeftStickOrDpadDirection());
+	const AxisDirection move_dir = repeater.Get(controller.GetLeftStickOrDpadDirection());
 	if (move_dir.x != AxisDirectionX_NONE)
 		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
 	if (move_dir.y != AxisDirectionY_NONE)

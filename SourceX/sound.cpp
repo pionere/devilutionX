@@ -237,8 +237,8 @@ int sound_get_or_set_music_volume(int volume)
 
 	sglMusicVolume = volume;
 
-	if (sghMusic)
-		SFileDdaSetVolume(sghMusic, volume, 0);
+	if (sghMusic != NULL)
+		Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * volume / VOLUME_MIN);
 
 	return sglMusicVolume;
 }

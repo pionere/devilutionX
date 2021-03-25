@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 MenuAction GetMenuHeldUpDownAction()
 {
 	static AxisDirectionRepeater repeater;
-	const AxisDirection dir = repeater.Get(GetLeftStickOrDpadDirection());
+	const AxisDirection dir = repeater.Get(controller.GetLeftStickOrDpadDirection());
 	switch (dir.y) {
 	case AxisDirectionY_UP:
 		return MenuAction_UP;
