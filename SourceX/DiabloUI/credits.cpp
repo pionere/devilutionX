@@ -104,7 +104,7 @@ class CreditsRenderer {
 public:
 	CreditsRenderer()
 	{
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 #endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
@@ -116,7 +116,7 @@ public:
 
 	~CreditsRenderer()
 	{
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 		ArtBackgroundWidescreen.Unload();
 #endif
 		ArtBackground.Unload();
@@ -150,7 +150,7 @@ void CreditsRenderer::Render()
 	prev_offset_y_ = offset_y;
 
 	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
 	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);

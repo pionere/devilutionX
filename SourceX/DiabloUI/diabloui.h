@@ -27,7 +27,7 @@ typedef enum _artLogo {
 extern Art ArtLogos[3];
 extern Art ArtFocus[3];
 extern Art ArtBackground;
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 extern Art ArtBackgroundWidescreen;
 #endif
 extern Art ArtCursor;

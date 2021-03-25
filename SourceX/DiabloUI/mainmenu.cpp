@@ -42,7 +42,7 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	vecMenuItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	vecMenuItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
 #endif
 	LoadBackgroundArt(MENU_ART);
@@ -60,7 +60,7 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 
 void mainmenu_Free()
 {
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 	ArtBackgroundWidescreen.Unload();
 #endif
 	ArtBackground.Unload();

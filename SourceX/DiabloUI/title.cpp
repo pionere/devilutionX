@@ -10,7 +10,9 @@ void title_Load()
 {
 #ifdef HELLFIRE
 	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
+#ifdef WIDESCREEN
 	LoadArt("ui_art\\hf_titlew.pcx", &ArtBackgroundWidescreen);
+#endif
 #else
 	LoadBackgroundArt("ui_art\\title.pcx");
 	LoadMaskedArt("ui_art\\logo.pcx", &ArtLogos[LOGO_BIG], 15);
@@ -20,11 +22,12 @@ void title_Load()
 void title_Free()
 {
 	ArtBackground.Unload();
-#ifdef HELLFIRE
+#ifdef WIDESCREEN
 	ArtBackgroundWidescreen.Unload();
 #endif
+#ifndef HELLFIRE
 	ArtLogos[LOGO_BIG].Unload();
-
+#endif
 	for (unsigned i = 0; i < vecTitleScreen.size(); i++) {
 		UiItemBase *pUIItem = vecTitleScreen[i];
 		delete pUIItem;
@@ -36,7 +39,9 @@ void UiTitleDialog()
 {
 #ifdef HELLFIRE
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
+#ifdef WIDESCREEN
 	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
+#endif
 	vecTitleScreen.push_back(new UiImage(&ArtBackground, /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
 #else
 	UiAddBackground(&vecTitleScreen);
