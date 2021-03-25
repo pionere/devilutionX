@@ -16,8 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** The coordinates of the quest room. */
 int nSx1;
 int nSy1;
-int nSx2;
-int nSy2;
 /** The number of generated rooms. */
 int nRoomCnt;
 BYTE predungeon[DMAXX][DMAXY];
@@ -1931,6 +1929,15 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		return;
 	}
 
+	if (nX1 < 1)
+		nX1 = 1;
+	if (nX2 > DMAXX - 2)
+		nX2 = DMAXX - 2;
+	if (nY1 < 1)
+		nY1 = 1;
+	if (nY2 > DMAXY - 2)
+		nY2 = DMAXY - 2;
+
 	nAw = nX2 - nX1;
 	nAh = nY2 - nY1;
 	if (nAw < AREA_MIN || nAh < AREA_MIN) {
@@ -1938,16 +1945,16 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	}
 
 	if (nAw > ROOM_MAX) {
-		nRw = RandRange(ROOM_MIN, ROOM_MAX - 1);
+		nRw = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAw > ROOM_MIN) {
-		nRw = RandRange(ROOM_MIN, nAw - 1);
+		nRw = RandRange(ROOM_MIN, nAw);
 	} else {
 		nRw = nAw;
 	}
 	if (nAh > ROOM_MAX) {
-		nRh = RandRange(ROOM_MIN, ROOM_MAX - 1);
+		nRh = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAh > ROOM_MIN) {
-		nRh = RandRange(ROOM_MIN, nAh - 1);
+		nRh = RandRange(ROOM_MIN, nAh);
 	} else {
 		nRh = nAh;
 	}
@@ -1957,23 +1964,10 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		nRh = nH;
 	}
 
-	nRx1 = RandRange(nX1, nX2 - 1);
-	nRy1 = RandRange(nY1, nY2 - 1);
+	nRx1 = RandRange(nX1, nX2 - nRw);
+	nRy1 = RandRange(nY1, nY2 - nRh);
 	nRx2 = nRw + nRx1;
 	nRy2 = nRh + nRy1;
-	if (nRx2 > nX2) {
-		nRx2 = nX2;
-		nRx1 = nX2 - nRw;
-	}
-	if (nRy2 > nY2) {
-		nRy2 = nY2;
-		nRy1 = nY2 - nRh;
-	}
-
-	nRx1 = std::max(1, std::min(nRx1, DMAXX - 2));
-	nRy1 = std::max(1, std::min(nRy1, DMAXY - 2));
-	nRx2 = std::max(1, std::min(nRx2, DMAXX - 2));
-	nRy2 = std::max(1, std::min(nRy2, DMAXY - 2));
 
 	if (nW != 0) {
 		for (int i = nRx1; i <= nRx2; i++) {
@@ -1983,8 +1977,6 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		}
 		nSx1 = nRx1 + 2;
 		nSy1 = nRy1 + 2;
-		nSx2 = nRx2;
-		nSy2 = nRy2;
 	}
 	DefineRoom(nRx1, nRy1, nRx2, nRy2);
 
@@ -2669,7 +2661,7 @@ static bool DRLG_L2CreateDungeon()
 		break;
 	}
 
-	CreateRoom(2, 2, DMAXX - 1, DMAXY - 1, 0, 0, ForceH, ForceW);
+	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, 0, 0, ForceH, ForceW);
 
 	while (pHallList != NULL) {
 		GetHall(&nHx1, &nHy1, &nHx2, &nHy2, &nHd);
