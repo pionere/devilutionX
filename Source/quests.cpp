@@ -148,14 +148,8 @@ void CheckQuests()
 
 	qs = &quests[Q_BETRAYER];
 
-	if (gbMaxPlayers != 1) {
-		if (QuestStatus(Q_BETRAYER) && qs->_qvar1 == 2) {
-			AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
-			qs->_qvar1 = 3;
-			NetSendCmdQuest(true, Q_BETRAYER);
-		}
+	if (gbMaxPlayers != 1)
 		return;
-	}
 
 	if (!currLvl._dSetLvl) {
 		if (currLvl._dLevelIdx == qs->_qlevel
