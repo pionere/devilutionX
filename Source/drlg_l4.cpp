@@ -2,6 +2,8 @@
  * @file drlg_l4.cpp
  *
  * Implementation of the hell level generation algorithms.
+ *
+ * dflags matrix is used as a BOOLEAN matrix to protect the quest room and the quads in HELL4.
  */
 #include "all.h"
 
@@ -249,7 +251,7 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 		for (i = rx1; i < rw; i++) {
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
-				dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
@@ -290,7 +292,7 @@ static int L4HWallOk(int x, int y)
 		bv = dungeon[i][y];
 		if (bv != 6)
 			break;
-		if (dflags[i][y] != 0)
+		if (dflags[i][y])
 			break;
 		if (dungeon[i][y - 1] != 6)
 			break;
@@ -317,7 +319,7 @@ static int L4VWallOk(int x, int y)
 		bv = dungeon[x][j];
 		if (bv != 6)
 			break;
-		if (dflags[x][j] != 0)
+		if (dflags[x][j])
 			break;
 		if (dungeon[x - 1][j] != 6)
 			break;
@@ -415,7 +417,7 @@ static void L4AddWall()
 
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
-			if (dflags[i][j] != 0) {
+			if (dflags[i][j]) {
 				continue;
 			}
 			if (dungeon[i][j] == 10) {
@@ -979,7 +981,7 @@ static void DRLG_L4Subs()
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 3) == 0) {
 				c = L4BTYPES[dungeon[x][y]];
-				if (c != 0 && dflags[x][y] == 0) {
+				if (c != 0 && !dflags[x][y]) {
 					rv = random_(0, 16);
 					i = -1;
 					while (rv >= 0) {
@@ -999,7 +1001,7 @@ static void DRLG_L4Subs()
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			if (random_(0, 10) == 0) {
-				if (L4BTYPES[dungeon[x][y]] == 6 && dflags[x][y] == 0) {
+				if (L4BTYPES[dungeon[x][y]] == 6 && !dflags[x][y]) {
 					dungeon[x][y] = RandRange(95, 97);
 				}
 			}
@@ -1273,10 +1275,10 @@ static void L4SaveQuads()
 
 	for (j = y; j < y + 14; j++) {
 		for (i = x; i < x + 14; i++) {
-			dflags[i][j] = 1;
-			dflags[DMAXX - 1 - i][j] = 1;
-			dflags[i][DMAXY - 1 - j] = 1;
-			dflags[DMAXX - 1 - i][DMAXY - 1 - j] = 1;
+			dflags[i][j] = TRUE;
+			dflags[DMAXX - 1 - i][j] = TRUE;
+			dflags[i][DMAXY - 1 - j] = TRUE;
+			dflags[DMAXX - 1 - i][DMAXY - 1 - j] = TRUE;
 		}
 	}
 }
@@ -1294,7 +1296,7 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 		for (i = rx1; i < rx2; i++) {
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
-				dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
@@ -1355,7 +1357,7 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = false;
 				}
-				if (dflags[xx][yy] != 0) {
+				if (dflags[xx][yy]) {
 					done = false;
 				}
 				ii++;
@@ -1379,7 +1381,7 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
 				dungeon[xx][yy] = miniset[ii];
-				dflags[xx][yy] |= 8;
+				dflags[xx][yy] = TRUE; // |= 8;
 			}
 			ii++;
 		}
@@ -1606,7 +1608,7 @@ static void DRLG_L4(int entry)
 		//if (QuestStatus(Q_WARLORD) || currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
 			for (i = SP4x1; i < SP4x2; i++) {
 				for (j = SP4y1; j < SP4y2; j++) {
-					dflags[i][j] = 1;
+					dflags[i][j] = TRUE;
 				}
 			}
 		//}
@@ -1719,7 +1721,7 @@ void CreateL4Dungeon(DWORD rseed, int entry)
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
 				dungeon[i][j] = *lm;
-				dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
