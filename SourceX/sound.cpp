@@ -210,7 +210,7 @@ void sound_set_music_volume(int volume)
 	setIniInt("Diablo", "Music Volume", volume);
 
 	if (_ghMusic != NULL)
-		SFileDdaSetVolume(_ghMusic, volume, 0);
+		Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * volume / VOLUME_MIN);
 }
 
 int sound_get_sound_volume()

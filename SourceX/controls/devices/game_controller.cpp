@@ -126,20 +126,20 @@ bool GameController::ProcessAxisMotion(const SDL_Event &event)
 		return false;
 	switch (event.caxis.axis) {
 	case SDL_CONTROLLER_AXIS_LEFTX:
-		controller.leftStickXUnscaled = event.caxis.value;
-		controller.leftStickNeedsScaling = true;
+		leftStickXUnscaled = event.caxis.value;
+		leftStickNeedsScaling = true;
 		break;
 	case SDL_CONTROLLER_AXIS_LEFTY:
-		controller.leftStickYUnscaled = -event.caxis.value;
-		controller.leftStickNeedsScaling = true;
+		leftStickYUnscaled = -event.caxis.value;
+		leftStickNeedsScaling = true;
 		break;
 	case SDL_CONTROLLER_AXIS_RIGHTX:
-		controller.rightStickXUnscaled = event.caxis.value;
-		controller.rightStickNeedsScaling = true;
+		rightStickXUnscaled = event.caxis.value;
+		rightStickNeedsScaling = true;
 		break;
 	case SDL_CONTROLLER_AXIS_RIGHTY:
-		controller.rightStickYUnscaled = -event.caxis.value;
-		controller.rightStickNeedsScaling = true;
+		rightStickYUnscaled = -event.caxis.value;
+		rightStickNeedsScaling = true;
 		break;
 	default:
 		return false;
@@ -162,7 +162,9 @@ void GameController::Add(int joystick_index)
 	controllers_->push_back(result);
 
 	const SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdl_joystick);
-	SDL_Log("Opened game controller with mapping:\n%s", SDL_GameControllerMappingForGUID(guid));
+	char *mapping = SDL_GameControllerMappingForGUID(guid);
+	SDL_Log("Opened game controller with mapping:\n%s", mapping);
+	SDL_free(mapping);
 }
 
 void GameController::Remove(SDL_JoystickID instance_id)

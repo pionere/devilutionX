@@ -959,8 +959,8 @@ struct RightStickAccumulator {
 	{
 		const Uint32 tc = SDL_GetTicks();
 		const int dtc = tc - lastTc;
-		hiresDX += controller.rightStickX * dtc;
-		hiresDY += controller.rightStickY * dtc;
+		hiresDX += rightStickX * dtc;
+		hiresDY += rightStickY * dtc;
 		const int dx = hiresDX / slowdown;
 		const int dy = hiresDY / slowdown;
 		*x += dx;
@@ -1038,14 +1038,14 @@ bool IsAutomapActive()
 
 bool IsMovingMouseCursorWithController()
 {
-	return controller.rightStickX != 0 || controller.rightStickY != 0;
+	return rightStickX != 0 || rightStickY != 0;
 }
 
 void HandleRightStickMotion()
 {
 	static RightStickAccumulator acc;
 	// deadzone is handled in ScaleJoystickAxes() already
-	if (controller.rightStickX == 0 && controller.rightStickY == 0) {
+	if (rightStickX == 0 && rightStickY == 0) {
 		acc.clear();
 		return;
 	}

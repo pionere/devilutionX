@@ -165,7 +165,7 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 #ifdef __SWITCH__
 #if HAS_GAMECTRL == 1
-	// TODO: There is a bug in SDL2 on Switch where it does not repport controllers on startup (Jan 1, 2020)
+	// TODO: There is a bug in SDL2 on Switch where it does not report controllers on startup (Jan 1, 2020)
 	GameController::Add(0);
 #endif
 #endif

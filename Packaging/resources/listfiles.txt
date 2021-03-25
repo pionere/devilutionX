@@ -47,8 +47,10 @@ Gendata\Cutl1d.CEL
 Gendata\Cutl1d.pal
 Gendata\Cutportl.CEL
 Gendata\Cutportl.pal
+Gendata\Cutportlw.pcx
 Gendata\Cutportr.CEL
 Gendata\Cutportr.pal
+Gendata\Cutportrw.pcx
 Gendata\Cutstart.CEL
 Gendata\Cutstart.pal
 Gendata\Cuttt.CEL

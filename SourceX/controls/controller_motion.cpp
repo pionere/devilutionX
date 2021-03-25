@@ -12,8 +12,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-Controller controller;
-
 static void ScaleJoystickAxes(float *x, float *y)
 {
 	//radial and scaled dead_zone
@@ -67,7 +65,7 @@ static bool SimulateRightStickWithDpad(const SDL_Event &event, ControllerButtonE
 	static bool simulating = false;
 	if (ctrl_event.button == ControllerButton_BUTTON_BACK) {
 		if (ctrl_event.up && simulating) {
-			controller.rightStickX = controller.rightStickY = 0;
+			rightStickX = rightStickY = 0;
 			simulating = false;
 		}
 		return false;
@@ -76,39 +74,43 @@ static bool SimulateRightStickWithDpad(const SDL_Event &event, ControllerButtonE
 		return false;
 	switch (ctrl_event.button) {
 	case ControllerButton_BUTTON_DPAD_LEFT:
-		controller.rightStickX = ctrl_event.up ? 0.0f : -1.0f;
+		rightStickX = ctrl_event.up ? 0.0f : -1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_RIGHT:
-		controller.rightStickX = ctrl_event.up ? 0.0f : 1.0f;
+		rightStickX = ctrl_event.up ? 0.0f : 1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_UP:
-		controller.rightStickY = ctrl_event.up ? 0.0f : 1.0f;
+		rightStickY = ctrl_event.up ? 0.0f : 1.0f;
 		break;
 	case ControllerButton_BUTTON_DPAD_DOWN:
-		controller.rightStickY = ctrl_event.up ? 0.0f : -1.0f;
+		rightStickY = ctrl_event.up ? 0.0f : -1.0f;
 		break;
 	default:
 		return false;
 	}
-	simulating = !(controller.rightStickX == 0 && controller.rightStickY == 0);
+	simulating = !(rightStickX == 0 && rightStickY == 0);
 
 	return true;
 }
 
+float leftStickX, leftStickY, rightStickX, rightStickY;
+float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
+bool leftStickNeedsScaling, rightStickNeedsScaling;
+
 static void ScaleJoysticks()
 {
-	if (controller.leftStickNeedsScaling) {
-		controller.leftStickX = (float)controller.leftStickXUnscaled;
-		controller.leftStickY = (float)controller.leftStickYUnscaled;
-		ScaleJoystickAxes(&controller.leftStickX, &controller.leftStickY);
-		controller.leftStickNeedsScaling = false;
+	if (leftStickNeedsScaling) {
+		leftStickX = (float)leftStickXUnscaled;
+		leftStickY = (float)leftStickYUnscaled;
+		ScaleJoystickAxes(&leftStickX, &leftStickY);
+		leftStickNeedsScaling = false;
 	}
 
-	if (controller.rightStickNeedsScaling) {
-		controller.rightStickX = (float)controller.rightStickXUnscaled;
-		controller.rightStickY = (float)controller.rightStickYUnscaled;
-		ScaleJoystickAxes(&controller.rightStickX, &controller.rightStickY);
-		controller.rightStickNeedsScaling = false;
+	if (rightStickNeedsScaling) {
+		rightStickX = (float)rightStickXUnscaled;
+		rightStickY = (float)rightStickYUnscaled;
+		ScaleJoystickAxes(&rightStickX, &rightStickY);
+		rightStickNeedsScaling = false;
 	}
 }
 
@@ -142,8 +144,8 @@ bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrl_
 
 AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad)
 {
-	const float stickX = controller.leftStickX;
-	const float stickY = controller.leftStickY;
+	const float stickX = leftStickX;
+	const float stickY = leftStickY;
 
 	AxisDirection result { AxisDirectionX_NONE, AxisDirectionY_NONE };
 

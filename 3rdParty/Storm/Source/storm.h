@@ -177,8 +177,6 @@ bool
 bool STORMAPI SFileCloseArchive(HANDLE hArchive);
 void STORMAPI SFileCloseFile(HANDLE hFile);
 
-void STORMAPI SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume);
-
 DWORD STORMAPI SFileGetFileSize(HANDLE hFile);
 bool STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 

@@ -33,11 +33,6 @@ radon::File &getIni()
 	return ini;
 }
 
-void SFileDdaSetVolume(HANDLE hFile, signed int bigvolume, signed int volume)
-{
-	Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * bigvolume / VOLUME_MIN);
-}
-
 // Converts ASCII characters to lowercase
 // Converts slash (0x2F) / backslash (0x5C) to system file-separator
 #ifdef _WIN32
