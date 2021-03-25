@@ -1281,7 +1281,7 @@ static void L4SaveQuads()
 	}
 }
 
-static void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
+static void DRLG_L4SetRoom(int rx1, int ry1)
 {
 	int rx2, ry2, i, j;
 	BYTE *sp;
@@ -1305,34 +1305,34 @@ static void DRLG_L4SetRoom(BYTE *pSetPiece, int rx1, int ry1)
 
 static void DRLG_LoadDiabQuads(bool preflag)
 {
-	BYTE *lpSetPiece;
+	assert(pSetPiece == NULL);
 
-	lpSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
+	pSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
 	diabquad1x = 4 + l4holdx;
 	diabquad1y = 4 + l4holdy;
-	DRLG_L4SetRoom(lpSetPiece, diabquad1x, diabquad1y);
-	mem_free_dbg(lpSetPiece);
+	DRLG_L4SetRoom(diabquad1x, diabquad1y);
+	MemFreeDbg(pSetPiece);
 
-	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN", NULL);
 
 	diabquad2x = 27 - l4holdx;
 	diabquad2y = 1 + l4holdy;
-	DRLG_L4SetRoom(lpSetPiece, diabquad2x, diabquad2y);
-	mem_free_dbg(lpSetPiece);
+	DRLG_L4SetRoom(diabquad2x, diabquad2y);
+	MemFreeDbg(pSetPiece);
 
-	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN", NULL);
 
 	diabquad3x = 1 + l4holdx;
 	diabquad3y = 27 - l4holdy;
-	DRLG_L4SetRoom(lpSetPiece, diabquad3x, diabquad3y);
-	mem_free_dbg(lpSetPiece);
+	DRLG_L4SetRoom(diabquad3x, diabquad3y);
+	MemFreeDbg(pSetPiece);
 
-	lpSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN", NULL);
 
 	diabquad4x = 28 - l4holdx;
 	diabquad4y = 28 - l4holdy;
-	DRLG_L4SetRoom(lpSetPiece, diabquad4x, diabquad4y);
-	mem_free_dbg(lpSetPiece);
+	DRLG_L4SetRoom(diabquad4x, diabquad4y);
+	MemFreeDbg(pSetPiece);
 }
 
 static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
