@@ -1556,9 +1556,9 @@ static void GetItemInfo(ItemStruct *is)
 	}
 }
 
-static void DrawTooltip(const char* text, int x, int y, BYTE col)
+static int DrawTooltip(const char* text, int x, int y, BYTE col)
 {
-	int width;
+	int width, result = 0;
 	BYTE *dst;
 	const int border = 4, height = 16;
 
@@ -1566,12 +1566,15 @@ static void DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	y -= TILE_HEIGHT;
 	if (y < 0)
-		return;
+		return result;
 	x -= width / 2;
-	if (x < 0)
+	if (x < 0) {
+		result = -x;
 		x = 0;
-	else if (x > SCREEN_WIDTH - width)
+	} else if (x > SCREEN_WIDTH - width) {
+		result = (SCREEN_WIDTH - width) - x;
 		x = SCREEN_WIDTH - width;
+	}
 
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
@@ -1585,6 +1588,7 @@ static void DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	// print the info
 	PrintGameStr(x + border, y + height - 3, text, col);
+	return result;
 }
 
 static void DrawHealthBar(int hp, int maxhp, int x, int y)
@@ -1765,7 +1769,7 @@ void DrawInfoStr()
 			strcpy(infostr, towner[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
-		DrawTooltip(infostr, xx, yy, col);
+		xx += DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
 	} else if (pcursplr != -1) {
 		PlayerStruct* p = &plr[pcursplr];
