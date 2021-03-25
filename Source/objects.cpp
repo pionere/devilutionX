@@ -1363,12 +1363,7 @@ static void AddBookcase(int oi)
 	os->_oPreFlag = TRUE;
 }
 
-static void AddBookstand(int oi)
-{
-	object[oi]._oRndSeed = GetRndSeed();
-}
-
-static void AddBloodFtn(int oi)
+static void ObjAddRndSeed(int oi)
 {
 	object[oi]._oRndSeed = GetRndSeed();
 }
@@ -1414,11 +1409,6 @@ static void AddMurkyFountain(int oi)
 	object[oi]._oRndSeed = GetRndSeed();
 }
 
-static void AddTearFountain(int oi)
-{
-	object[oi]._oRndSeed = GetRndSeed();
-}
-
 static void AddDecap(int oi)
 {
 	ObjectStruct *os;
@@ -1445,11 +1435,6 @@ static void AddMagicCircle(int oi)
 	os->_oPreFlag = TRUE;
 	os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 	os->_oVar5 = 1; // VILE_CIRCLE_PROGRESS
-}
-
-static void AddBrnCross(int oi)
-{
-	object[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddStoryBook(int oi)
@@ -1642,11 +1627,13 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_SKELBOOK:
 	case OBJ_BOOKSTAND:
-		AddBookstand(oi);
+	case OBJ_BLOODBOOK:
+	case OBJ_PEDISTAL:
+		ObjAddRndSeed(oi);
 		break;
-	case OBJ_BLOODFTN:
-		AddBloodFtn(oi);
-		break;
+	//case OBJ_BLOODFTN:
+	//	ObjAddRndSeed(oi);
+	//	break;
 	case OBJ_DECAP:
 		AddDecap(oi);
 		break;
@@ -1664,9 +1651,9 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_MURKYFTN:
 		AddMurkyFountain(oi);
 		break;
-	case OBJ_TEARFTN:
-		AddTearFountain(oi);
-		break;
+	//case OBJ_TEARFTN:
+	//	ObjAddRndSeed(oi);
+	//	break;
 	case OBJ_BOOK2L:
 		AddVileBook(oi);
 		break;
@@ -1679,7 +1666,7 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_BCROSS:
 	case OBJ_TBCROSS:
-		AddBrnCross(oi);
+		// ObjAddRndSeed(oi);
 		AddObjLight(oi, 10);
 		break;
 	case OBJ_WARWEAP:
@@ -2874,8 +2861,10 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 		quests[qn]._qvar1 = 1;
 		quests[qn]._qactive = QUEST_ACTIVE;
 		quests[qn]._qlog = TRUE;
-		if (qn == Q_BLOOD && !deltaload)
+		if (qn == Q_BLOOD && !deltaload) {
+			SetRndSeed(os->_oRndSeed);
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
+		}
 	}
 
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
@@ -3153,12 +3142,15 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 	case 1:
 		break; // should not really happen
 	case 2:
+		SetRndSeed(os->_oRndSeed);
 		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 3, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		break;
 	case 3:
+		SetRndSeed(os->_oRndSeed + 1);
 		SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 15, 2 * setpc_y + DBORDERY + 10, sendmsg, false);
 		break;
 	case 4:
+		// SetRndSeed(os->_oRndSeed + 2);
 		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3);
 		break;
 	default:
