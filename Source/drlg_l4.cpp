@@ -216,7 +216,7 @@ static void InitL4Dungeon()
 static void DRLG_LoadL4SP()
 {
 	pSetPiece = NULL;
-	if (currLvl._dLevelIdx == DLV_HELL3 && gbMaxPlayers != 1) {
+	if (gbMaxPlayers != 1 && QuestStatus(Q_BETRAYER)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
@@ -1248,7 +1248,7 @@ static void L4firstRoom()
 		l4holdx = x;
 		l4holdy = y;
 	}
-	if (QuestStatus(Q_WARLORD) || currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+	if (pSetPiece != NULL) {
 		SP4x1 = x + 1;
 		SP4y1 = y + 1;
 		SP4x2 = SP4x1 + w;
@@ -1349,9 +1349,6 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 	tries = 0;
 	while (TRUE) {
 		done = true;
-		if (sx >= SP4x1 && sx <= SP4x2 && sy >= SP4y1 && sy <= SP4y2) {
-			done = false;
-		}
 		ii = 2;
 		for (yy = sy; yy < sy + sh && done; yy++) {
 			for (xx = sx; xx < sx + sw && done; xx++) {
