@@ -1555,32 +1555,32 @@ static void L1AddWall()
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dflags[i][j] == 0) {
-				if (dungeon[i][j] == 3 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 3) {
 					x = L1HWallOk(i, j);
 					if (x != -1)
 						L1HorizWall(i, j, 2, x);
 				}
-				if (dungeon[i][j] == 3 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 3) {
 					y = L1VWallOk(i, j);
 					if (y != -1)
 						L1VertWall(i, j, 1, y);
 				}
-				if (dungeon[i][j] == 6 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 6) {
 					x = L1HWallOk(i, j);
 					if (x != -1)
 						L1HorizWall(i, j, 4, x);
 				}
-				if (dungeon[i][j] == 7 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 7) {
 					y = L1VWallOk(i, j);
 					if (y != -1)
 						L1VertWall(i, j, 4, y);
 				}
-				if (dungeon[i][j] == 2 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 2) {
 					x = L1HWallOk(i, j);
 					if (x != -1)
 						L1HorizWall(i, j, 2, x);
 				}
-				if (dungeon[i][j] == 1 && random_(0, 100) < 100) {
+				if (dungeon[i][j] == 1) {
 					y = L1VWallOk(i, j);
 					if (y != -1)
 						L1VertWall(i, j, 1, y);
