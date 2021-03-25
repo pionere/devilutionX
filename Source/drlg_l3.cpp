@@ -2059,43 +2059,12 @@ static void DRLG_L3Wood()
 	FenceDoorFix();
 }
 
-static bool DRLG_L3Anvil()
+static void DRLG_L3Anvil(int sx, int sy)
 {
-	int sx, sy, sw, sh, xx, yy, ii, tries;
-	bool done;
+	int sw, sh, xx, yy, ii;
 
-	sw = L3ANVIL[0];
-	sh = L3ANVIL[1];
-	sx = random_(0, DMAXX - sw);
-	sy = random_(0, DMAXY - sh);
-
-	tries = 0;
-	while (TRUE) {
-		done = true;
-		ii = 2;
-		for (yy = sy; yy < sy + sh && done; yy++) {
-			for (xx = sx; xx < sx + sw  && done; xx++) {
-				if (L3ANVIL[ii] != 0 && dungeon[xx][yy] != L3ANVIL[ii]) {
-					done = false;
-				}
-				if (dflags[xx][yy] != 0) {
-					done = false;
-				}
-				ii++;
-			}
-		}
-		tries++;
-		if (done || tries == 200)
-			break;
-		if (++sx == DMAXX - sw) {
-			sx = 0;
-			if (++sy == DMAXY - sh) {
-				sy = 0;
-			}
-		}
-	}
-	if (tries == 200)
-		return false;
+	sh = setpc_h;
+	sw = setpc_w;
 
 	ii = sw * sh + 2;
 	for (yy = sy; yy < sy + sh; yy++) {
@@ -2108,12 +2077,10 @@ static bool DRLG_L3Anvil()
 		}
 	}
 
-	setpc_x = sx;
-	setpc_y = sy;
-	setpc_w = sw;
-	setpc_h = sh;
-
-	return true;
+	//setpc_x = sx;
+	//setpc_y = sy;
+	//setpc_w = sw;
+	//setpc_h = sh;
 }
 
 static void FixL3Warp()
@@ -2238,11 +2205,11 @@ static void DRLG_L3(int entry)
 				DRLG_L3CreateBlock(x1, y2, 2, 2);
 				DRLG_L3CreateBlock(x1, y1, 2, 3);
 				if (QuestStatus(Q_ANVIL)) {
-					x1 = RandRange(10, 19);
-					y1 = RandRange(10, 19);
-					x2 = x1 + 12;
-					y2 = y1 + 12;
-					DRLG_L3FloorArea(x1, y1, x2, y2);
+					setpc_x = RandRange(10, 19);
+					setpc_y = RandRange(10, 19);
+					setpc_w = L3ANVIL[0];
+					setpc_h = L3ANVIL[1];
+					DRLG_L3FloorArea(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 				}
 				DRLG_L3FillDiags();
 				DRLG_L3FillSingles();
@@ -2251,6 +2218,10 @@ static void DRLG_L3(int entry)
 				DRLG_L3Edges();
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
+			if (QuestStatus(Q_ANVIL)) {
+				DRLG_L3Anvil(setpc_x, setpc_y);
+			}
+
 #ifdef HELLFIRE
 			if (currLvl._dType == DTYPE_NEST) {
 				mini_set stairs[2] = {
@@ -2276,9 +2247,6 @@ static void DRLG_L3(int entry)
 					ViewX += 2;
 					ViewY -= 2;
 				}
-			}
-			if (doneflag && QuestStatus(Q_ANVIL)) {
-				doneflag = DRLG_L3Anvil();
 			}
 		} while (!doneflag);
 		// generate lava pools
