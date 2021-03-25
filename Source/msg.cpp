@@ -1538,11 +1538,11 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
+	int ii;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
 		if (delta_get_item(cmd, cmd->bLevel)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
@@ -1551,8 +1551,10 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
 						if (ii != -1)
 							InvGetItem(myplr, ii);
-					} else
+					} else {
+						ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
 						InvGetItem(myplr, ii);
+					}
 				} else
 					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
 			}
@@ -1605,7 +1607,6 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
 		if (delta_get_item(cmd, cmd->bLevel)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
