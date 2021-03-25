@@ -152,9 +152,6 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 #endif
 #endif
-#if HAS_KBCTRL == 1
-	KeyboardController::Add(0);
-#endif
 
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;

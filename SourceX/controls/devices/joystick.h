@@ -17,12 +17,11 @@
 #include "sdl2_to_1_2_backports.h"
 #endif
 
-#include "controls/controller.h"
-#include "controls/controller_buttons.h"
+#include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-class Joystick : public Controller {
+class Joystick {
 	static std::vector<Joystick> *const joysticks_;
 
 public:
@@ -33,8 +32,6 @@ public:
 	static const std::vector<Joystick> &All();
 	static bool IsPressedOnAnyJoystick(ControllerButton button);
 
-	// NOTE: Not idempotent.
-	// Must be called exactly once for each SDL input event.
 	ControllerButton ToControllerButton(const SDL_Event &event) const;
 	bool IsPressed(ControllerButton button) const;
 	bool ProcessAxisMotion(const SDL_Event &event);

@@ -15,12 +15,11 @@ static_assert(FALSE, "GameController is not supported in SDL1.");
 
 #include <SDL.h>
 
-#include "controls/controller.h"
-#include "controls/controller_buttons.h"
+#include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-class GameController : public Controller {
+class GameController {
 	static std::vector<GameController> *const controllers_;
 
 public:
