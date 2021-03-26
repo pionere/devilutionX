@@ -1412,118 +1412,6 @@ const BYTE PANCREAS2[] = {
 	0, 0,   0, 0, 0,
 	// clang-format on
 };
-/** Miniset: Move vertical doors away from west pillar 1. */
-const BYTE CTRDOOR1[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3, 1, 3,  // search
-	0, 4, 0,
-	0, 9, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 2. */
-const BYTE CTRDOOR2[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3, 1, 3, // search
-	0, 4, 0,
-	0, 8, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 3. */
-const BYTE CTRDOOR3[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3, 1, 3, // search
-	0, 4, 0,
-	0, 6, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 4. */
-const BYTE CTRDOOR4[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3, 1, 3, // search
-	0, 4, 0,
-	0, 7, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 5. */
-const BYTE CTRDOOR5[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3,  1, 3, // search
-	0,  4, 0,
-	0, 15, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 6. */
-const BYTE CTRDOOR6[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3,  1, 3, // search
-	0,  4, 0,
-	0, 13, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 7. */
-const BYTE CTRDOOR7[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3,  1, 3, // search
-	0,  4, 0,
-	0, 16, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
-/** Miniset: Move vertical doors away from west pillar 8. */
-const BYTE CTRDOOR8[] = {
-	// clang-format off
-	3, 3, // width, height
-
-	3,  1, 3, // search
-	0,  4, 0,
-	0, 14, 0,
-
-	0, 4, 0, // replace
-	0, 1, 0,
-	0, 0, 0,
-	// clang-format on
-};
 
 /*
  * Patterns with length of 9 and the replacement.
@@ -2908,6 +2796,83 @@ static void L2DoorFix()
 	}
 }
 
+static bool IsPillar(BYTE bv)
+{
+	return (bv >= 6 && bv <= 9) || (bv >= 13 && bv <= 16);
+}
+
+/*
+ * Move doors away from pillars.
+ */
+static void L2DoorFix2()
+{
+	int i, j;
+
+	for (i = 1; i < DMAXX - 1; i++) {
+		for (j = 1; j < DMAXY - 1; j++) {
+			if (dungeon[i][j] != 4 || dflags[i][j] != 0)
+				continue;
+			if (IsPillar(dungeon[i][j + 1])) {
+				//3, 1, 3,  search
+				//0, 4, 0,
+				//0, P, 0,
+
+				//0, 4, 0, replace
+				//0, 1, 0,
+				//0, 0, 0,
+				if (dungeon[i][j - 1] == 1
+				 && dungeon[i - 1][j - 1] == 3
+				 && dungeon[i + 1][j - 1] == 3) {
+					dungeon[i][j] = 1;
+					dungeon[i][j - 1] = 4;
+				}
+			} else if (IsPillar(dungeon[i][j - 1])) {
+				//0, P, 0,  search
+				//0, 4, 0,
+				//3, 1, 3,
+
+				//0, 0, 0, replace
+				//0, 1, 0,
+				//0, 4, 0,
+				if (dungeon[i][j + 1] == 1
+				 && dungeon[i - 1][j + 1] == 3
+				 && dungeon[i + 1][j + 1] == 3) {
+					dungeon[i][j] = 1;
+					dungeon[i][j + 1] = 4;
+				}
+			} else if (IsPillar(dungeon[i + 1][j])) {
+				//3, 0, 0,  search
+				//1, 4, P,
+				//3, 0, 0,
+
+				//0, 0, 0, replace
+				//4, 1, 0,
+				//0, 0, 0,
+				if (dungeon[i - 1][j] == 1
+				 && dungeon[i - 1][j + 1] == 3
+				 && dungeon[i - 1][j - 1] == 3) {
+					dungeon[i][j] = 1;
+					dungeon[i - 1][j] = 4;
+				}
+			} else if (IsPillar(dungeon[i - 1][j])) {
+				//0, 0, 3,  search
+				//P, 4, 1,
+				//0, 0, 3,
+
+				//0, 0, 0, replace
+				//0, 1, 4,
+				//0, 0, 0,
+				if (dungeon[i + 1][j] == 1
+				 && dungeon[i + 1][j - 1] == 3
+				 && dungeon[i + 1][j + 1] == 3) {
+					dungeon[i][j] = 1;
+					dungeon[i + 1][j] = 4;
+				}
+			}
+		}
+	}
+}
+
 struct mini_set {
 	const BYTE* data;
 	BOOL setview;
@@ -2969,14 +2934,9 @@ static void DRLG_L2(int entry)
 	L2DirtFix();
 
 	DRLG_PlaceThemeRooms(6, 10, 3, 0, false);
-	DRLG_L2PlaceRndSet(CTRDOOR1, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR2, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR3, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR4, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR5, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR6, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR7, 100);
-	DRLG_L2PlaceRndSet(CTRDOOR8, 100);
+
+	L2DoorFix2();
+
 	DRLG_L2PlaceRndSet(VARCH33, 100);
 	DRLG_L2PlaceRndSet(VARCH34, 100);
 	DRLG_L2PlaceRndSet(VARCH35, 100);
