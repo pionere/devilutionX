@@ -3143,24 +3143,11 @@ void LoadPreL2Dungeon(const char *sFileName)
 
 void CreateL2Dungeon(DWORD rseed, int entry)
 {
-	if (gbMaxPlayers == 1) {
-		if (currLvl._dLevelIdx == DLV_CATACOMBS3 && quests[Q_BLIND]._qactive == QUEST_NOTAVAIL) {
-			currLvl._dLevelIdx = DLV_CATACOMBS2;
-			CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS2], ENTRY_LOAD);
-			currLvl._dLevelIdx = DLV_CATACOMBS3;
-		}
-		if (currLvl._dLevelIdx == DLV_CATACOMBS4) {
-			if (quests[Q_BLIND]._qactive == QUEST_NOTAVAIL) {
-				currLvl._dLevelIdx = DLV_CATACOMBS2;
-				CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS2], ENTRY_LOAD);
-				currLvl._dLevelIdx = DLV_CATACOMBS4;
-			} else {
-				currLvl._dLevelIdx = DLV_CATACOMBS3;
-				CreateL2Dungeon(glSeedTbl[DLV_CATACOMBS3], ENTRY_LOAD);
-				currLvl._dLevelIdx = DLV_CATACOMBS4;
-			}
-		}
-	}
+	// in the original version the function was executed twice in case the quest of the
+	// current level was not available (only in single player mode). The point of this
+	// could have been to share the same layout between levels, but that does not make too
+	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
+	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
 
 	SetRndSeed(rseed);
 
