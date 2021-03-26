@@ -420,30 +420,7 @@ static void DrawBlind(int x, int y)
 
 static void DrawBlood(int x, int y)
 {
-	int rw, rh;
-	int i, j;
-	BYTE *sp, *setp;
-
-	setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
-	rw = *setp;
-	sp = setp + 2;
-	rh = *sp;
-	sp += 2;
-	setpc_x = x;
-	setpc_y = y;
-	setpc_w = rw;
-	setpc_h = rh;
-	rw += x;
-	rh += y;
-	for (j = y; j < rh; j++) {
-		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				dungeon[i][j] = *sp;
-			}
-			sp += 2;
-		}
-	}
-	mem_free_dbg(setp);
+	DrawMap("Levels\\L2Data\\Blood2.DUN", x, y, 3);
 }
 
 #ifdef HELLFIRE
