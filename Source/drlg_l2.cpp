@@ -2634,30 +2634,9 @@ static bool DRLG_L2CreateDungeon()
 	ForceW = 0;
 	ForceH = 0;
 
-	switch (currLvl._dLevelIdx) {
-	case DLV_CATACOMBS1:
-		if (quests[Q_BLOOD]._qactive != QUEST_NOTAVAIL) {
-			ForceW = 14;
-			ForceH = 20;
-		}
-		break;
-	case DLV_CATACOMBS2:
-		if (quests[Q_SCHAMB]._qactive != QUEST_NOTAVAIL) {
-			ForceW = 10;
-			ForceH = 10;
-		}
-		break;
-	case DLV_CATACOMBS3:
-		if (quests[Q_BLIND]._qactive != QUEST_NOTAVAIL) {
-			ForceW = 15;
-			ForceH = 15;
-		}
-		break;
-	case DLV_CATACOMBS4:
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+	if (pSetPiece != NULL) {
+		ForceW = pSetPiece[0] + 4; // TODO: add border to the setmaps?
+		ForceH = pSetPiece[2] + 4;
 	}
 
 	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, 0, 0, ForceH, ForceW);
