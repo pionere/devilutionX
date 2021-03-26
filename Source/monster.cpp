@@ -913,7 +913,7 @@ static void PlaceQuestMonsters()
 		}
 		if (QuestStatus(Q_ANVIL)) {
 			setp = LoadFileInMem("Levels\\L3Data\\Anvil.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x + 2, 2 * setpc_y + 2);
+			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_WARLORD)) {

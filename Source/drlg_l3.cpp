@@ -528,37 +528,6 @@ const BYTE L3XTRA5[] = {
 	// clang-format on
 };
 
-/** Miniset: Anvil of Fury island. */
-const BYTE L3ANVIL[] = {
-	// clang-format off
-	11, 11, // width, height
-
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // search
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, // replace
-	0,  0, 29, 26, 26, 26, 26, 26, 30,  0, 0,
-	0, 29, 34, 33, 33, 37, 36, 33, 35, 30, 0,
-	0, 25, 33, 37, 27, 32, 31, 36, 33, 28, 0,
-	0, 25, 37, 32,  7,  7,  7, 31, 27, 32, 0,
-	0, 25, 28,  7,  7,  7,  7,  2,  2,  2, 0,
-	0, 25, 35, 30,  7,  7,  7, 29, 26, 30, 0,
-	0, 25, 33, 35, 26, 30, 29, 34, 33, 28, 0,
-	0, 31, 36, 33, 33, 35, 34, 33, 37, 32, 0,
-	0,  0, 31, 27, 27, 27, 27, 27, 32,  0, 0,
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,
-	// clang-format on
-};
-
 #ifdef HELLFIRE
 const BYTE byte_48A76C[] = { 1, 1, 8, 25 };
 const BYTE byte_48A770[] = { 1, 1, 8, 26 };
@@ -871,6 +840,19 @@ static void InitL3Dungeon()
 {
 	memset(dungeon, 0, sizeof(dungeon));
 	memset(dflags, 0, sizeof(dflags));
+}
+
+static void DRLG_LoadL3SP()
+{
+	pSetPiece = NULL;
+	if (QuestStatus(Q_ANVIL)) {
+		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN", NULL);
+	}
+}
+
+static void DRLG_FreeL3SP()
+{
+	MemFreeDbg(pSetPiece);
 }
 
 static bool DRLG_L3FillRoom(int x1, int y1, int x2, int y2)
@@ -2059,28 +2041,30 @@ static void DRLG_L3Wood()
 	FenceDoorFix();
 }
 
-static void DRLG_L3Anvil(int sx, int sy)
+static void DRLG_L3SetRoom(int rx1, int ry1)
 {
-	int sw, sh, xx, yy, ii;
+	int rw, rh, i, j;
+	BYTE *sp;
 
-	sh = setpc_h;
-	sw = setpc_w;
+	rw = pSetPiece[0];
+	rh = pSetPiece[2];
 
-	ii = sw * sh + 2;
-	for (yy = sy; yy < sy + sh; yy++) {
-		for (xx = sx; xx < sx + sw; xx++) {
-			if (L3ANVIL[ii] != 0) {
-				dungeon[xx][yy] = L3ANVIL[ii];
-			}
-			dflags[xx][yy] |= DLRG_PROTECTED;
-			ii++;
+	assert(setpc_x == rx1);
+	assert(setpc_y == ry1);
+	assert(setpc_w == rw);
+	assert(setpc_h == rh);
+
+	sp = &pSetPiece[4];
+
+	rw += rx1;
+	rh += ry1;
+	for (j = ry1; j < rh; j++) {
+		for (i = rx1; i < rw; i++) {
+			dungeon[i][j] = *sp != 0 ? *sp : 7;
+			dflags[i][j] |= DLRG_PROTECTED;
+			sp += 2;
 		}
 	}
-
-	//setpc_x = sx;
-	//setpc_y = sy;
-	//setpc_w = sw;
-	//setpc_h = sh;
 }
 
 static void FixL3Warp()
@@ -2204,11 +2188,11 @@ static void DRLG_L3(int entry)
 				DRLG_L3CreateBlock(x2, y1, 2, 1);
 				DRLG_L3CreateBlock(x1, y2, 2, 2);
 				DRLG_L3CreateBlock(x1, y1, 2, 3);
-				if (QuestStatus(Q_ANVIL)) {
-					setpc_x = RandRange(10, 19);
-					setpc_y = RandRange(10, 19);
-					setpc_w = L3ANVIL[0];
-					setpc_h = L3ANVIL[1];
+				if (pSetPiece != NULL) {
+					setpc_w = pSetPiece[0];
+					setpc_h = pSetPiece[2];
+					setpc_x = RandRange(10, DMAXX - setpc_w - 10);
+					setpc_y = RandRange(10, DMAXY - setpc_h - 10);
 					DRLG_L3FloorArea(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 				}
 				DRLG_L3FillDiags();
@@ -2218,8 +2202,8 @@ static void DRLG_L3(int entry)
 				DRLG_L3Edges();
 			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
-			if (QuestStatus(Q_ANVIL)) {
-				DRLG_L3Anvil(setpc_x, setpc_y);
+			if (pSetPiece != NULL) {
+				DRLG_L3SetRoom(setpc_x, setpc_y);
 			}
 
 #ifdef HELLFIRE
@@ -2401,8 +2385,10 @@ void CreateL3Dungeon(DWORD rseed, int entry)
 
 	DRLG_InitTrans();
 	DRLG_InitSetPC();
+	DRLG_LoadL3SP();
 	DRLG_L3(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+	DRLG_FreeL3SP();
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {

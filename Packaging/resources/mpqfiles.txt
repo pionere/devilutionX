@@ -8,6 +8,7 @@ Data\SpellBk.CEL
 Data\SpellBkB.CEL
 Data\Quest.CEL
 Levels\L1Data\Butcher.DUN
+Levels\L3Data\Anvil.DUN
 Levels\TownData\Town.SOL
 Levels\TownData\Town.RDUN
 Missiles\Farrow1.CL2
