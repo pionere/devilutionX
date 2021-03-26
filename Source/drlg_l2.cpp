@@ -18,7 +18,6 @@ int nSx1;
 int nSy1;
 /** The number of generated rooms. */
 int nRoomCnt;
-BYTE predungeon[DMAXX][DMAXY];
 ROOMNODE RoomList[81];
 HALLNODE *pHallList = NULL;
 
@@ -1788,8 +1787,8 @@ static void DRLG_L2InitDungeon()
 {
 	memset(dflags, 0, sizeof(dflags));
 
-	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in DRLG_L2InitDungeon.");
-	memset(predungeon, 32, sizeof(predungeon));
+	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2InitDungeon.");
+	memset(pdungeon, 32, sizeof(pdungeon));
 }
 
 static void DRLG_LoadL2SP()
@@ -1850,41 +1849,41 @@ static void DefineRoom(int nX1, int nY1, int nX2, int nY2)
 	RoomList[nRoomCnt].nRoomy1 = nY1;
 	RoomList[nRoomCnt].nRoomy2 = nY2;
 
-	predungeon[nX1][nY1] = 67;
-	predungeon[nX1][nY2] = 69;
-	predungeon[nX2][nY1] = 66;
-	predungeon[nX2][nY2] = 65;
+	pdungeon[nX1][nY1] = 67;
+	pdungeon[nX1][nY2] = 69;
+	pdungeon[nX2][nY1] = 66;
+	pdungeon[nX2][nY2] = 65;
 
 	for (i = nX1 + 1; i < nX2; i++) {
-		predungeon[i][nY1] = 35;
-		predungeon[i][nY2] = 35;
+		pdungeon[i][nY1] = 35;
+		pdungeon[i][nY2] = 35;
 	}
 	for (j = nY1 + 1; j < nY2; j++) {
-		predungeon[nX1][j] = 35;
-		predungeon[nX2][j] = 35;
+		pdungeon[nX1][j] = 35;
+		pdungeon[nX2][j] = 35;
 	}
 	for (j = nY1 + 1; j < nY2; j++) {
 		for (i = nX1 + 1; i < nX2; i++) {
-			predungeon[i][j] = 46;
+			pdungeon[i][j] = 46;
 		}
 	}
 }
 
 static void CreateDoorType(int nX, int nY)
 {
-	if (predungeon[nX - 1][nY] != 68
-	 && predungeon[nX + 1][nY] != 68
-	 && predungeon[nX][nY - 1] != 68
-	 && predungeon[nX][nY + 1] != 68
-	 && (predungeon[nX][nY] < 65 || predungeon[nX][nY] > 69)) {
-		predungeon[nX][nY] = 68;
+	if (pdungeon[nX - 1][nY] != 68
+	 && pdungeon[nX + 1][nY] != 68
+	 && pdungeon[nX][nY - 1] != 68
+	 && pdungeon[nX][nY + 1] != 68
+	 && (pdungeon[nX][nY] < 65 || pdungeon[nX][nY] > 69)) {
+		pdungeon[nX][nY] = 68;
 	}
 }
 
 static void PlaceHallExt(int nX, int nY)
 {
-	if (predungeon[nX][nY] == 32) {
-		predungeon[nX][nY] = 44;
+	if (pdungeon[nX][nY] == 32) {
+		pdungeon[nX][nY] = 44;
 	}
 }
 
@@ -2061,7 +2060,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	nCurrd = nHd;
 	nX2 -= Dir_Xadd[nCurrd];
 	nY2 -= Dir_Yadd[nCurrd];
-	predungeon[nX2][nY2] = 44;
+	pdungeon[nX2][nY2] = 44;
 	fInroom = false;
 
 	while (TRUE) {
@@ -2077,21 +2076,21 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 		if (nY1 <= 1 && nCurrd == 1) {
 			nCurrd = 3;
 		}
-		if (predungeon[nX1][nY1] == 67 && (nCurrd == 1 || nCurrd == 4)) {
+		if (pdungeon[nX1][nY1] == 67 && (nCurrd == 1 || nCurrd == 4)) {
 			nCurrd = 2;
 		}
-		if (predungeon[nX1][nY1] == 66 && (nCurrd == 1 || nCurrd == 2)) {
+		if (pdungeon[nX1][nY1] == 66 && (nCurrd == 1 || nCurrd == 2)) {
 			nCurrd = 3;
 		}
-		if (predungeon[nX1][nY1] == 69 && (nCurrd == 4 || nCurrd == 3)) {
+		if (pdungeon[nX1][nY1] == 69 && (nCurrd == 4 || nCurrd == 3)) {
 			nCurrd = 1;
 		}
-		if (predungeon[nX1][nY1] == 65 && (nCurrd == 2 || nCurrd == 3)) {
+		if (pdungeon[nX1][nY1] == 65 && (nCurrd == 2 || nCurrd == 3)) {
 			nCurrd = 4;
 		}
 		nX1 += Dir_Xadd[nCurrd];
 		nY1 += Dir_Yadd[nCurrd];
-		if (predungeon[nX1][nY1] == 32) {
+		if (pdungeon[nX1][nY1] == 32) {
 			if (fInroom) {
 				CreateDoorType(nX1 - Dir_Xadd[nCurrd], nY1 - Dir_Yadd[nCurrd]);
 			} else {
@@ -2110,13 +2109,13 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 					}
 				}
 			}
-			predungeon[nX1][nY1] = 44;
+			pdungeon[nX1][nY1] = 44;
 			fInroom = false;
 		} else {
-			if (!fInroom && predungeon[nX1][nY1] == 35) {
+			if (!fInroom && pdungeon[nX1][nY1] == 35) {
 				CreateDoorType(nX1, nY1);
 			}
-			if (predungeon[nX1][nY1] != 44) {
+			if (pdungeon[nX1][nY1] != 44) {
 				fInroom = true;
 			}
 		}
@@ -2175,14 +2174,14 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				nCurrd = 3;
 			}
 		}
-		if (nDx == 0 && predungeon[nX1][nY1] != 32 && (nCurrd == 2 || nCurrd == 4)) {
+		if (nDx == 0 && pdungeon[nX1][nY1] != 32 && (nCurrd == 2 || nCurrd == 4)) {
 			if (nX2 <= nOrigX1 || nX1 >= DMAXX) {
 				nCurrd = 1;
 			} else {
 				nCurrd = 3;
 			}
 		}
-		if (nDy == 0 && predungeon[nX1][nY1] != 32 && (nCurrd == 1 || nCurrd == 3)) {
+		if (nDy == 0 && pdungeon[nX1][nY1] != 32 && (nCurrd == 1 || nCurrd == 3)) {
 			if (nY2 <= nOrigY1 || nY1 >= DMAXY) {
 				nCurrd = 4;
 			} else {
@@ -2213,42 +2212,42 @@ static void DoPatternCheck(int x, int y)
 			case 0:
 				continue;
 			case 1:
-				if (predungeon[xx][yy] == 35) {
+				if (pdungeon[xx][yy] == 35) {
 					continue;
 				}
 				break;
 			case 2:
-				if (predungeon[xx][yy] == 46) {
+				if (pdungeon[xx][yy] == 46) {
 					continue;
 				}
 				break;
 			case 3:
-				if (predungeon[xx][yy] == 68) {
+				if (pdungeon[xx][yy] == 68) {
 					continue;
 				}
 				break;
 			case 4:
-				if (predungeon[xx][yy] == 32) {
+				if (pdungeon[xx][yy] == 32) {
 					continue;
 				}
 				break;
 			case 5:
-				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 46) {
+				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 46) {
 					continue;
 				}
 				break;
 			case 6:
-				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35) {
+				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35) {
 					continue;
 				}
 				break;
 			case 7:
-				if (predungeon[xx][yy] == 32 || predungeon[xx][yy] == 46) {
+				if (pdungeon[xx][yy] == 32 || pdungeon[xx][yy] == 46) {
 					continue;
 				}
 				break;
 			case 8:
-				if (predungeon[xx][yy] == 68 || predungeon[xx][yy] == 35 || predungeon[xx][yy] == 46) {
+				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35 || pdungeon[xx][yy] == 46) {
 					continue;
 				}
 				break;
@@ -2295,8 +2294,8 @@ static int DL2_NumNoChar()
 	BYTE *pTmp;
 
 	rv = 0;
-	static_assert(sizeof(predungeon) == DMAXX * DMAXY, "Linear traverse of predungeon does not work in DL2_NumNoChar.");
-	pTmp = &predungeon[0][0];
+	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DL2_NumNoChar.");
+	pTmp = &pdungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		if (*pTmp == 32)
 			rv++;
@@ -2310,16 +2309,16 @@ static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
-			predungeon[i][j] = 46;
+			pdungeon[i][j] = 46;
 		}
 	}
 	for (j = y1; j <= y2; j++) {
-		predungeon[x1][j] = 35;
-		predungeon[x2][j] = 35;
+		pdungeon[x1][j] = 35;
+		pdungeon[x2][j] = 35;
 	}
 	for (i = x1; i <= x2; i++) {
-		predungeon[i][y1] = 35;
-		predungeon[i][y2] = 35;
+		pdungeon[i][y1] = 35;
+		pdungeon[i][y2] = 35;
 	}
 }
 
@@ -2328,31 +2327,31 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 	int i, j;
 
 	for (i = x1 + 1; i < x2; i++) {
-		if (predungeon[i][y1 - 1] == 46 && predungeon[i][y1 + 1] == 46) {
-			predungeon[i][y1] = 46;
+		if (pdungeon[i][y1 - 1] == 46 && pdungeon[i][y1 + 1] == 46) {
+			pdungeon[i][y1] = 46;
 		}
-		if (predungeon[i][y2 - 1] == 46 && predungeon[i][y2 + 1] == 46) {
-			predungeon[i][y2] = 46;
+		if (pdungeon[i][y2 - 1] == 46 && pdungeon[i][y2 + 1] == 46) {
+			pdungeon[i][y2] = 46;
 		}
-		if (predungeon[i][y1 - 1] == 68) {
-			predungeon[i][y1 - 1] = 46;
+		if (pdungeon[i][y1 - 1] == 68) {
+			pdungeon[i][y1 - 1] = 46;
 		}
-		if (predungeon[i][y2 + 1] == 68) {
-			predungeon[i][y2 + 1] = 46;
+		if (pdungeon[i][y2 + 1] == 68) {
+			pdungeon[i][y2 + 1] = 46;
 		}
 	}
 	for (j = y1 + 1; j < y2; j++) {
-		if (predungeon[x1 - 1][j] == 46 && predungeon[x1 + 1][j] == 46) {
-			predungeon[x1][j] = 46;
+		if (pdungeon[x1 - 1][j] == 46 && pdungeon[x1 + 1][j] == 46) {
+			pdungeon[x1][j] = 46;
 		}
-		if (predungeon[x2 - 1][j] == 46 && predungeon[x2 + 1][j] == 46) {
-			predungeon[x2][j] = 46;
+		if (pdungeon[x2 - 1][j] == 46 && pdungeon[x2 + 1][j] == 46) {
+			pdungeon[x2][j] = 46;
 		}
-		if (predungeon[x1 - 1][j] == 68) {
-			predungeon[x1 - 1][j] = 46;
+		if (pdungeon[x1 - 1][j] == 68) {
+			pdungeon[x1 - 1][j] = 46;
 		}
-		if (predungeon[x2 + 1][j] == 68) {
-			predungeon[x2 + 1][j] = 46;
+		if (pdungeon[x2 + 1][j] == 68) {
+			pdungeon[x2 + 1][j] = 46;
 		}
 	}
 }
@@ -2367,36 +2366,36 @@ static bool DL2_FillVoids()
 		do {
 			xx = RandRange(1, 38);
 			yy = RandRange(1, 38);
-		} while (predungeon[xx][yy] != 35);
-		if (predungeon[xx - 1][yy] == 32 && predungeon[xx + 1][yy] == 46) {
-			if (predungeon[xx + 1][yy - 1] != 46
-			 || predungeon[xx + 1][yy + 1] != 46
-			 || predungeon[xx - 1][yy - 1] != 32
-			 || predungeon[xx - 1][yy + 1] != 32)
+		} while (pdungeon[xx][yy] != 35);
+		if (pdungeon[xx - 1][yy] == 32 && pdungeon[xx + 1][yy] == 46) {
+			if (pdungeon[xx + 1][yy - 1] != 46
+			 || pdungeon[xx + 1][yy + 1] != 46
+			 || pdungeon[xx - 1][yy - 1] != 32
+			 || pdungeon[xx - 1][yy + 1] != 32)
 				continue;
 			xf2 = false;
 			xf1 = yf1 = yf2 = true;
-		} else if (predungeon[xx + 1][yy] == 32 && predungeon[xx - 1][yy] == 46) {
-			if (predungeon[xx - 1][yy - 1] != 46
-			 || predungeon[xx - 1][yy + 1] != 46
-			 || predungeon[xx + 1][yy - 1] != 32
-			 || predungeon[xx + 1][yy + 1] != 32)
+		} else if (pdungeon[xx + 1][yy] == 32 && pdungeon[xx - 1][yy] == 46) {
+			if (pdungeon[xx - 1][yy - 1] != 46
+			 || pdungeon[xx - 1][yy + 1] != 46
+			 || pdungeon[xx + 1][yy - 1] != 32
+			 || pdungeon[xx + 1][yy + 1] != 32)
 				continue;
 			xf1 = false;
 			xf2 = yf1 = yf2 = true;
-		} else if (predungeon[xx][yy - 1] == 32 && predungeon[xx][yy + 1] == 46) {
-			if (predungeon[xx - 1][yy + 1] != 46
-			 || predungeon[xx + 1][yy + 1] != 46
-			 || predungeon[xx - 1][yy - 1] != 32
-			 || predungeon[xx + 1][yy - 1] != 32)
+		} else if (pdungeon[xx][yy - 1] == 32 && pdungeon[xx][yy + 1] == 46) {
+			if (pdungeon[xx - 1][yy + 1] != 46
+			 || pdungeon[xx + 1][yy + 1] != 46
+			 || pdungeon[xx - 1][yy - 1] != 32
+			 || pdungeon[xx + 1][yy - 1] != 32)
 				continue;
 			yf2 = false;
 			yf1 = xf1 = xf2 = true;
-		} else if (predungeon[xx][yy + 1] == 32 && predungeon[xx][yy - 1] == 46) {
-			if (predungeon[xx - 1][yy - 1] != 46
-			 || predungeon[xx + 1][yy - 1] != 46
-			 || predungeon[xx - 1][yy + 1] != 32
-			 || predungeon[xx + 1][yy + 1] != 32)
+		} else if (pdungeon[xx][yy + 1] == 32 && pdungeon[xx][yy - 1] == 46) {
+			if (pdungeon[xx - 1][yy - 1] != 46
+			 || pdungeon[xx + 1][yy - 1] != 46
+			 || pdungeon[xx - 1][yy + 1] != 32
+			 || pdungeon[xx + 1][yy + 1] != 32)
 				continue;
 			yf1 = false;
 			yf2 = xf1 = xf2 = true;
@@ -2440,10 +2439,10 @@ static bool DL2_FillVoids()
 				if (yf2) {
 					y2++;
 				}
-				if (predungeon[x2][y1] != 32) {
+				if (pdungeon[x2][y1] != 32) {
 					yf1 = false;
 				}
-				if (predungeon[x2][y2] != 32) {
+				if (pdungeon[x2][y2] != 32) {
 					yf2 = false;
 				}
 			}
@@ -2458,7 +2457,7 @@ static bool DL2_FillVoids()
 						xf2 = false;
 					}
 					for (j = y1; j <= y2; j++) {
-						if (predungeon[x2][j] != 32) {
+						if (pdungeon[x2][j] != 32) {
 							xf2 = false;
 						}
 					}
@@ -2490,10 +2489,10 @@ static bool DL2_FillVoids()
 				if (yf2) {
 					y2++;
 				}
-				if (predungeon[x1][y1] != 32) {
+				if (pdungeon[x1][y1] != 32) {
 					yf1 = false;
 				}
-				if (predungeon[x1][y2] != 32) {
+				if (pdungeon[x1][y2] != 32) {
 					yf2 = false;
 				}
 			}
@@ -2508,7 +2507,7 @@ static bool DL2_FillVoids()
 						xf1 = false;
 					}
 					for (j = y1; j <= y2; j++) {
-						if (predungeon[x1][j] != 32) {
+						if (pdungeon[x1][j] != 32) {
 							xf1 = false;
 						}
 					}
@@ -2540,10 +2539,10 @@ static bool DL2_FillVoids()
 				if (xf2) {
 					x2++;
 				}
-				if (predungeon[x1][y2] != 32) {
+				if (pdungeon[x1][y2] != 32) {
 					xf1 = false;
 				}
-				if (predungeon[x2][y2] != 32) {
+				if (pdungeon[x2][y2] != 32) {
 					xf2 = false;
 				}
 			}
@@ -2558,7 +2557,7 @@ static bool DL2_FillVoids()
 						yf2 = false;
 					}
 					for (i = x1; i <= x2; i++) {
-						if (predungeon[i][y2] != 32) {
+						if (pdungeon[i][y2] != 32) {
 							yf2 = false;
 						}
 					}
@@ -2590,10 +2589,10 @@ static bool DL2_FillVoids()
 				if (xf2) {
 					x2++;
 				}
-				if (predungeon[x1][y1] != 32) {
+				if (pdungeon[x1][y1] != 32) {
 					xf1 = false;
 				}
-				if (predungeon[x2][y1] != 32) {
+				if (pdungeon[x2][y1] != 32) {
 					xf2 = false;
 				}
 			}
@@ -2608,7 +2607,7 @@ static bool DL2_FillVoids()
 						yf1 = false;
 					}
 					for (i = x1; i <= x2; i++) {
-						if (predungeon[i][y1] != 32) {
+						if (pdungeon[i][y1] != 32) {
 							yf1 = false;
 						}
 					}
@@ -2670,36 +2669,36 @@ static bool DRLG_L2CreateDungeon()
 
 	for (j = 0; j < DMAXY; j++) {     /// BUGFIX: change '<=' to '<' (fixed)
 		for (i = 0; i < DMAXX; i++) { /// BUGFIX: change '<=' to '<' (fixed)
-			if (predungeon[i][j] == 67
-			 || predungeon[i][j] == 66
-			 || predungeon[i][j] == 69
-			 || predungeon[i][j] == 65) {
-				predungeon[i][j] = 35;
-			} else if (predungeon[i][j] == 44) {
-				predungeon[i][j] = 46;
-				if (predungeon[i - 1][j - 1] == 32) {
-					predungeon[i - 1][j - 1] = 35;
+			if (pdungeon[i][j] == 67
+			 || pdungeon[i][j] == 66
+			 || pdungeon[i][j] == 69
+			 || pdungeon[i][j] == 65) {
+				pdungeon[i][j] = 35;
+			} else if (pdungeon[i][j] == 44) {
+				pdungeon[i][j] = 46;
+				if (pdungeon[i - 1][j - 1] == 32) {
+					pdungeon[i - 1][j - 1] = 35;
 				}
-				if (predungeon[i - 1][j] == 32) {
-					predungeon[i - 1][j] = 35;
+				if (pdungeon[i - 1][j] == 32) {
+					pdungeon[i - 1][j] = 35;
 				}
-				if (predungeon[i - 1][1 + j] == 32) {
-					predungeon[i - 1][1 + j] = 35;
+				if (pdungeon[i - 1][1 + j] == 32) {
+					pdungeon[i - 1][1 + j] = 35;
 				}
-				if (predungeon[i + 1][j - 1] == 32) {
-					predungeon[i + 1][j - 1] = 35;
+				if (pdungeon[i + 1][j - 1] == 32) {
+					pdungeon[i + 1][j - 1] = 35;
 				}
-				if (predungeon[i + 1][j] == 32) {
-					predungeon[i + 1][j] = 35;
+				if (pdungeon[i + 1][j] == 32) {
+					pdungeon[i + 1][j] = 35;
 				}
-				if (predungeon[i + 1][1 + j] == 32) {
-					predungeon[i + 1][1 + j] = 35;
+				if (pdungeon[i + 1][1 + j] == 32) {
+					pdungeon[i + 1][1 + j] = 35;
 				}
-				if (predungeon[i][j - 1] == 32) {
-					predungeon[i][j - 1] = 35;
+				if (pdungeon[i][j - 1] == 32) {
+					pdungeon[i][j - 1] = 35;
 				}
-				if (predungeon[i][j + 1] == 32) {
-					predungeon[i][j + 1] = 35;
+				if (pdungeon[i][j + 1] == 32) {
+					pdungeon[i][j + 1] = 35;
 				}
 			}
 		}
