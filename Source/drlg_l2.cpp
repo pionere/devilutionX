@@ -1510,7 +1510,7 @@ static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = false;
 				}
-				if (dflags[xx][yy] != 0) {
+				if (dflags[xx][yy]) {
 					done = false;
 				}
 				ii++;
@@ -1565,7 +1565,7 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = false;
 					}
-					if (dflags[xx][yy] != 0) {
+					if (dflags[xx][yy]) {
 						found = false;
 					}
 					ii++;
@@ -1603,7 +1603,7 @@ static void DRLG_L2Subs()
 
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
-			if (dflags[x][y] != 0)
+			if (dflags[x][y])
 				continue;
 			if (random_(0, 4) == 0) {
 				c = BTYPESL2[dungeon[x][y]];
@@ -1718,7 +1718,7 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 			if (*sp != 0) {
 				dungeon[i][j] = *sp;
 				//assert(dflags[i][j] != 0);
-				//dflags[i][j] |= DLRG_PROTECTED;
+				//dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 3;
 			}
@@ -1859,7 +1859,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	if (nW != 0) {
 		for (int i = nRx1; i <= nRx2; i++) {
 			for (int j = nRy1; j <= nRy2; j++) {
-				dflags[i][j] |= DLRG_PROTECTED;
+				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			}
 		}
 		nSx1 = nRx1 + 2;
@@ -2756,7 +2756,7 @@ static void L2LockoutFix()
 					}
 					i++;
 				} while (dungeon[i][j] == 2 || dungeon[i][j] == 5);
-				if (!doorok && dflags[i - 1][j] == 0) {
+				if (!doorok && !dflags[i - 1][j]) {
 					dungeon[i - 1][j] = 5;
 				}
 			}
@@ -2764,7 +2764,7 @@ static void L2LockoutFix()
 	}
 	for (i = 1; i < DMAXX - 1; i++) {
 		for (j = 1; j < DMAXY - 1; j++) {
-			if (dflags[i][j] != 0) {
+			if (dflags[i][j]) {
 				continue;
 			}
 			if ((dungeon[i][j] == 1 || dungeon[i][j] == 4) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
@@ -2779,7 +2779,7 @@ static void L2LockoutFix()
 					}
 					j++;
 				} while (dungeon[i][j] == 1 || dungeon[i][j] == 4);
-				if (!doorok && dflags[i][j - 1] == 0) {
+				if (!doorok && !dflags[i][j - 1]) {
 					dungeon[i][j - 1] = 4;
 				}
 			}
@@ -2817,7 +2817,7 @@ static void L2DoorFix2()
 
 	for (i = 1; i < DMAXX - 1; i++) {
 		for (j = 1; j < DMAXY - 1; j++) {
-			if (dungeon[i][j] != 4 || dflags[i][j] != 0)
+			if (dungeon[i][j] != 4 || dflags[i][j])
 				continue;
 			if (IsPillar(dungeon[i][j + 1])) {
 				//3, 1, 3,  search
