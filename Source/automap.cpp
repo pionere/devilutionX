@@ -558,13 +558,23 @@ static WORD GetAutomapType(int x, int y, bool view)
 		return 0;
 	}
 
-	rv = automaptype[(BYTE)dungeon[x][y]];
-	if (rv == 7) {
-		if (GetAutomapType(x - 1, y, false) & (MAPFLAG_HORZARCH << 8)) {
-			if (GetAutomapType(x, y - 1, false) & (MAPFLAG_VERTARCH << 8)) {
-				rv = 1;
+	rv = automaptype[dungeon[x][y]];
+	if (rv == 7) { // TODO: check for (rv & 7) == 7 instead to ignore the high bits?
+		// TODO: this feels like a hack. A better logic would be to check around
+		//  the tile and see if there is a wall. That way the automaptype of the 
+		//  pillars of the BONECHAMBER-stairs (39/40/41+42) could be set to 7 as well.
+		//  Which would eliminate the ugly corners in the catacombs.
+		// The check would be more 'expensive' though.
+		//if (x >= 1 && y >= 1) {
+		//	if ((automaptype[dungeon[x - 1][y]] & (MAPFLAG_HORZARCH << 8))
+		//	 && (automaptype[dungeon[x][y - 1]] & (MAPFLAG_VERTARCH << 8)))
+		//		rv = 1;
+			if (x >= 2 && y >= 2) {
+				if ((automaptype[dungeon[x - 2][y]] & (MAPFLAG_HORZARCH << 8))
+				 && (automaptype[dungeon[x][y - 2]] & (MAPFLAG_VERTARCH << 8)))
+					rv = 1;
 			}
-		}
+		//}
 	}
 	return rv;
 }
