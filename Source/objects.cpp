@@ -4383,6 +4383,7 @@ static void SyncBookLever(int oi)
 static void SyncPedistal(int oi)
 {
 	switch (quests[Q_BLOOD]._qvar1) {
+	case 0:
 	case 1:
 		break;
 	case 3:
