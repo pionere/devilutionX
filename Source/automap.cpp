@@ -68,9 +68,9 @@ void InitAutomapOnce()
  */
 void InitAutomap()
 {
-	BYTE b1, b2;
 	DWORD dwTiles;
 	BYTE *pAFile, *pTmp;
+	WORD *lm;
 	DWORD i;
 	const char* mapData;
 
@@ -85,12 +85,11 @@ void InitAutomap()
 
 	dwTiles /= 2;
 	assert(dwTiles < (DWORD)lengthof(automaptype));
-	pTmp = pAFile;
 
+	lm = (WORD*)pAFile;
 	for (i = 1; i <= dwTiles; i++) {
-		b1 = *pTmp++;
-		b2 = *pTmp++;
-		automaptype[i] = b1 + (b2 << 8);
+		automaptype[i] = SDL_SwapLE16(*lm);
+		lm++;
 	}
 
 	mem_free_dbg(pAFile);
