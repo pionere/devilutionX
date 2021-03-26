@@ -2,6 +2,8 @@
  * @file drlg_l3.cpp
  *
  * Implementation of the caves level generation algorithms.
+ *
+ * dflags matrix is used as a BOOLEAN matrix to protect the quest room.
  */
 
 #include "all.h"
@@ -1578,7 +1580,7 @@ static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview)
 				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 					done = false;
 				}
-				if (dflags[xx][yy] != 0) {
+				if (dflags[xx][yy]) {
 					done = false;
 				}
 				ii++;
@@ -1632,7 +1634,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = false;
 					}
-					if (dflags[xx][yy] != 0) {
+					if (dflags[xx][yy]) {
 						found = false;
 					}
 					ii++;
@@ -1688,7 +1690,7 @@ static void DRLG_L6Hive_rnd_piece(const BYTE *miniset, int rndper)
 					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
 						found = false;
 					}
-					if (dflags[xx][yy] != 0) {
+					if (dflags[xx][yy]) {
 						found = false;
 					}
 					ii++;
@@ -2061,7 +2063,7 @@ static void DRLG_L3SetRoom(int rx1, int ry1)
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : 7;
-			dflags[i][j] |= DLRG_PROTECTED;
+			dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
