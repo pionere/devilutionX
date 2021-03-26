@@ -1414,7 +1414,7 @@ const BYTE PANCREAS2[] = {
 };
 
 /*
- * Patterns with length of 9 and the replacement.
+ * Patterns with length of 9 (3x3) and the replacement.
  * The remaining(6) values are for alignment.
  */
 const int Patterns[][16] = {
@@ -2082,71 +2082,78 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	}
 }
 
-static void DoPatternCheck(int x, int y)
+static void DRLG_L2MakeMegas()
 {
-	int i, j, xx, yy;
+	int x, y, i, j, xx, yy;
 
-	for (i = 0; i < lengthof(Patterns); i++) {
-		xx = x - 1;
-		yy = y - 1;
-		for (j = 0; j < 9; j++, xx++) {
-			if (j == 3 || j == 6) {
-				yy++;
+	memset(dungeon, 3, sizeof(dungeon));
+
+	for (y = 0; y < DMAXY; y++) {
+		for (x = 0; x < DMAXX; x++) {
+			for (i = lengthof(Patterns) - 1; i >= 0; i--) {
 				xx = x - 1;
+				yy = y - 1;
+				for (j = 0; j < 9; j++, xx++) {
+					if (j == 3 || j == 6) {
+						yy++;
+						xx = x - 1;
+					}
+					if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY)
+						continue;
+					switch (Patterns[i][j]) {
+					case 0:
+						continue;
+					case 1:
+						if (pdungeon[xx][yy] == 35) {
+							continue;
+						}
+						break;
+					case 2:
+						if (pdungeon[xx][yy] == 46) {
+							continue;
+						}
+						break;
+					case 3:
+						if (pdungeon[xx][yy] == 68) {
+							continue;
+						}
+						break;
+					case 4:
+						if (pdungeon[xx][yy] == 32) {
+							continue;
+						}
+						break;
+					case 5:
+						if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 46) {
+							continue;
+						}
+						break;
+					case 6:
+						if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35) {
+							continue;
+						}
+						break;
+					case 7:
+						if (pdungeon[xx][yy] == 32 || pdungeon[xx][yy] == 46) {
+							continue;
+						}
+						break;
+					case 8:
+						if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35 || pdungeon[xx][yy] == 46) {
+							continue;
+						}
+						break;
+					default:
+						ASSUME_UNREACHABLE
+						break;
+					}
+					break;
+				}
+				if (j == 9) {
+					dungeon[x][y] = Patterns[i][9];
+					break;
+				}
 			}
-			if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY)
-				continue;
-			switch (Patterns[i][j]) {
-			case 0:
-				continue;
-			case 1:
-				if (pdungeon[xx][yy] == 35) {
-					continue;
-				}
-				break;
-			case 2:
-				if (pdungeon[xx][yy] == 46) {
-					continue;
-				}
-				break;
-			case 3:
-				if (pdungeon[xx][yy] == 68) {
-					continue;
-				}
-				break;
-			case 4:
-				if (pdungeon[xx][yy] == 32) {
-					continue;
-				}
-				break;
-			case 5:
-				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 46) {
-					continue;
-				}
-				break;
-			case 6:
-				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35) {
-					continue;
-				}
-				break;
-			case 7:
-				if (pdungeon[xx][yy] == 32 || pdungeon[xx][yy] == 46) {
-					continue;
-				}
-				break;
-			case 8:
-				if (pdungeon[xx][yy] == 68 || pdungeon[xx][yy] == 35 || pdungeon[xx][yy] == 46) {
-					continue;
-				}
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			break;
-		}
-		if (j == 9) {
-			dungeon[x][y] = Patterns[i][9];
 		}
 	}
 }
@@ -2900,12 +2907,7 @@ static void DRLG_L2(int entry)
 			DRLG_InitTrans();
 		} while (!DRLG_L2CreateDungeon());
 
-		memset(dungeon, 3, sizeof(dungeon));
-		for (int j = 0; j < DMAXY; j++) {
-			for (int i = 0; i < DMAXX; i++) {
-				DoPatternCheck(i, j);
-			}
-		}
+		DRLG_L2MakeMegas();
 
 		L2TileFix();
 		if (pSetPiece != NULL) {
