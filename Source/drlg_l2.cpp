@@ -13,9 +13,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L2 (12 - 1)
 
-/** The coordinates of the quest room. */
-int nSx1;
-int nSy1;
 /** The number of generated rooms. */
 int nRoomCnt;
 ROOMNODE RoomList[81];
@@ -1704,8 +1701,8 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
 
-	setpc_x = rx1;
-	setpc_y = ry1;
+	// assert(setpc_x == rx1);
+	// assert(setpc_y == ry1);
 	setpc_w = rw;
 	setpc_h = rh;
 
@@ -1715,13 +1712,8 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			if (*sp != 0) {
-				dungeon[i][j] = *sp;
-				//assert(dflags[i][j] != 0);
-				//dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 3;
-			}
+			dungeon[i][j] = *sp != 0 ? *sp : 3;
+			dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -1857,13 +1849,8 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	nRy2 = nRh + nRy1;
 
 	if (nW != 0) {
-		for (int i = nRx1; i <= nRx2; i++) {
-			for (int j = nRy1; j <= nRy2; j++) {
-				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
-			}
-		}
-		nSx1 = nRx1 + 2;
-		nSy1 = nRy1 + 2;
+		setpc_x = nRx1 + 2;
+		setpc_y = nRy1 + 2;
 	}
 	DefineRoom(nRx1, nRy1, nRx2, nRy2);
 
@@ -2911,7 +2898,7 @@ static void DRLG_L2(int entry)
 
 		L2TileFix();
 		if (pSetPiece != NULL) {
-			DRLG_L2SetRoom(nSx1, nSy1);
+			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
 		DRLG_L2FloodTVal();
 		DRLG_L2TransFix();
@@ -3045,7 +3032,7 @@ static void DRLG_L2(int entry)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
-	DRLG_CheckQuests(nSx1, nSy1);
+	DRLG_CheckQuests(setpc_x, setpc_y);
 }
 
 static void DRLG_InitL2Vals()

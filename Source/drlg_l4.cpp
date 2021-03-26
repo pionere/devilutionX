@@ -22,12 +22,7 @@ int diabquad4x;
 int diabquad4y;
 int l4holdx;
 int l4holdy;
-int SP4x1;
-int SP4y1;
-int SP4x2;
-int SP4y2;
 BYTE dung[20][20];
-//int dword_52A4DC;
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
@@ -238,8 +233,8 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
 
-	setpc_x = rx1;
-	setpc_y = ry1;
+	// assert(setpc_x == rx1);
+	// assert(setpc_y == ry1);
 	setpc_w = rw;
 	setpc_h = rh;
 
@@ -249,13 +244,8 @@ static void DRLG_L4SetSPRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			if (*sp != 0) {
-				dungeon[i][j] = *sp;
-				// assert(dflags[i][j] != 0);
-				// dflags[i][j] = TRUE; //|= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 6;
-			}
+			dungeon[i][j] = *sp != 0 ? *sp : 6;
+			dflags[i][j] = TRUE; //|= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -1252,15 +1242,8 @@ static void L4firstRoom()
 		l4holdy = y;
 	}
 	if (pSetPiece != NULL) {
-		SP4x1 = x + 1;
-		SP4y1 = y + 1;
-		SP4x2 = SP4x1 + w;
-		SP4y2 = SP4y1 + h;
-	} else {
-		SP4x1 = 0;
-		SP4y1 = 0;
-		SP4x2 = 0;
-		SP4y2 = 0;
+		setpc_x = x + 1;
+		setpc_y = y + 1;
 	}
 
 	L4drawRoom(x, y, w, h);
@@ -1295,13 +1278,8 @@ static void DRLG_L4SetRoom(int rx1, int ry1)
 
 	for (j = ry1; j < ry2; j++) {
 		for (i = rx1; i < rx2; i++) {
-			if (*sp != 0) {
-				dungeon[i][j] = *sp;
-				// assert(dflags[i][j] != 0);
-				// dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 6;
-			}
+			dungeon[i][j] = *sp != 0 ? *sp : 6;
+			dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}
@@ -1389,10 +1367,6 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 		}
 	}
 
-	if (currLvl._dLevelIdx == DLV_HELL3 && quests[Q_BETRAYER]._qactive >= QUEST_ACTIVE) { /// Lazarus staff skip bug fixed
-		quests[Q_BETRAYER]._qtx = sx + 1;
-		quests[Q_BETRAYER]._qty = sy + 1;
-	}
 	if (setview) {
 		ViewX = 2 * sx + DBORDERX + 5;
 		ViewY = 2 * sy + DBORDERY + 6;
@@ -1604,25 +1578,16 @@ static void DRLG_L4(int entry)
 		L4makeDungeon();
 		DRLG_L4MakeMegas();
 		L4tileFix();
-		if (currLvl._dLevelIdx == DLV_HELL4) {
-			L4SaveQuads();
+		if (pSetPiece != NULL) {
+			DRLG_L4SetSPRoom(setpc_x, setpc_y);
 		}
-		//if (pSetPiece != NULL) {
-			for (i = SP4x1; i < SP4x2; i++) {
-				for (j = SP4y1; j < SP4y2; j++) {
-					dflags[i][j] = TRUE;
-				}
-			}
-		//}
+		if (currLvl._dLevelIdx == DLV_HELL4) {
+			// L4SaveQuads();
+			DRLG_LoadDiabQuads(true);
+		}
 		L4AddWall();
 		DRLG_L4FloodTVal();
 		DRLG_L4TransFix();
-		if (pSetPiece != NULL) {
-			DRLG_L4SetSPRoom(SP4x1, SP4y1);
-		}
-		if (currLvl._dLevelIdx == DLV_HELL4) {
-			DRLG_LoadDiabQuads(true);
-		}
 		if (QuestStatus(Q_WARLORD)) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
@@ -1665,26 +1630,27 @@ static void DRLG_L4(int entry)
 	DRLG_L4Shadows();
 	DRLG_L4Corners();
 	DRLG_L4Subs();
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
 	DRLG_Init_Globals();
 
-	if (QuestStatus(Q_WARLORD)) {
-		memcpy(pdungeon, dungeon, sizeof(pdungeon));
-	}
-
-	DRLG_CheckQuests(SP4x1, SP4y1);
+	DRLG_CheckQuests(setpc_x, setpc_y);
 
 	if (currLvl._dLevelIdx == DLV_HELL3) {
 		for (j = 0; j < DMAXY; j++) {
 			for (i = 0; i < DMAXX; i++) {
 				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
+					// set the rportal position of Q_BETRAYER
+					quests[Q_BETRAYER]._qtx = i;
+					quests[Q_BETRAYER]._qty = j;
+					// prevent monsters from spawning around the pentagram
 					Make_SetPC(i - 1, j - 1, 5, 5);
 				}
 			}
 		}
 	}
 	if (currLvl._dLevelIdx == DLV_HELL4) {
-		memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
 		DRLG_LoadDiabQuads(false);
 	}
 }

@@ -1912,12 +1912,8 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 	rh += ry1;
 	for (j = ry1; j < rh; j++) {
 		for (i = rx1; i < rw; i++) {
-			if (*sp != 0) {
-				dungeon[i][j] = *sp;
-				dflags[i][j] |= DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 13;
-			}
+			dungeon[i][j] = *sp != 0 ? *sp : 13;
+			dflags[i][j] |= DLRG_PROTECTED;
 			sp += 2;
 		}
 	}

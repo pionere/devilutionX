@@ -2051,8 +2051,8 @@ static void DRLG_L3SetRoom(int rx1, int ry1)
 	rw = pSetPiece[0];
 	rh = pSetPiece[2];
 
-	assert(setpc_x == rx1);
-	assert(setpc_y == ry1);
+	// assert(setpc_x == rx1);
+	// assert(setpc_y == ry1);
 	assert(setpc_w == rw);
 	assert(setpc_h == rh);
 
