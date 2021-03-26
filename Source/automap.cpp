@@ -39,15 +39,14 @@ unsigned AmLine4;
 #define COLOR_ITEM (PAL8_BLUE + 1)
 
 #define MAPFLAG_TYPE 0x000F
-/** these are in the second byte */
-#define MAPFLAG_VERTDOOR 0x01
-#define MAPFLAG_HORZDOOR 0x02
-#define MAPFLAG_VERTARCH 0x04
-#define MAPFLAG_HORZARCH 0x08
-#define MAPFLAG_VERTGRATE 0x10
-#define MAPFLAG_HORZGRATE 0x20
-#define MAPFLAG_DIRT 0x40
-#define MAPFLAG_STAIRS 0x80
+#define MAPFLAG_VERTDOOR 0x0100
+#define MAPFLAG_HORZDOOR 0x0200
+#define MAPFLAG_VERTARCH 0x0400
+#define MAPFLAG_HORZARCH 0x0800
+#define MAPFLAG_VERTGRATE 0x1000
+#define MAPFLAG_HORZGRATE 0x2000
+#define MAPFLAG_DIRT 0x4000
+#define MAPFLAG_STAIRS 0x8000
 
 /**
  * @brief Initializes the automap.
@@ -189,9 +188,7 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	bool do_vert, do_horz, do_cave_horz, do_cave_vert;
 	int x1, y1, x2, y2;
 
-	BYTE flags = automap_type >> 8;
-
-	if (flags & MAPFLAG_DIRT) {
+	if (automap_type & MAPFLAG_DIRT) {
 		ENG_set_pixel(sx, sy, COLOR_DIM);
 		ENG_set_pixel(sx - AmLine8, sy - AmLine4, COLOR_DIM);
 		ENG_set_pixel(sx - AmLine8, sy + AmLine4, COLOR_DIM);
@@ -210,7 +207,7 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 		ENG_set_pixel(sx, sy + AmLine16, COLOR_DIM);
 	}
 
-	if (flags & MAPFLAG_STAIRS) {
+	if (automap_type & MAPFLAG_STAIRS) {
 		DrawLine(sx - AmLine8, sy - AmLine8 - AmLine4, sx + AmLine8 + AmLine16, sy + AmLine4, COLOR_BRIGHT);
 		DrawLine(sx - AmLine16, sy - AmLine8, sx + AmLine16, sy + AmLine8, COLOR_BRIGHT);
 		DrawLine(sx - AmLine16 - AmLine8, sy - AmLine4, sx + AmLine8, sy + AmLine8 + AmLine4, COLOR_BRIGHT);
@@ -265,7 +262,7 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	}
 
 	if (do_vert) {                      // right-facing obstacle
-		if (flags & MAPFLAG_VERTDOOR) { // two wall segments with a door in the middle
+		if (automap_type & MAPFLAG_VERTDOOR) { // two wall segments with a door in the middle
 			x1 = sx - AmLine32;
 			x2 = sx - AmLine16;
 			y1 = sy - AmLine16;
@@ -278,10 +275,10 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 			DrawLine(x2, sy, x1, y2, COLOR_BRIGHT);
 			DrawLine(x2, sy, sx, y2, COLOR_BRIGHT);
 		}
-		if (flags & MAPFLAG_VERTGRATE) { // right-facing half-wall
+		if (automap_type & MAPFLAG_VERTGRATE) { // right-facing half-wall
 			DrawLine(sx - AmLine16, sy - AmLine8, sx - AmLine32, sy, COLOR_DIM);
 		}
-		if (flags & (MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) { // window or passable column
+		if (automap_type & (MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) { // window or passable column
 			x1 = sx - AmLine16;
 			y1 = sy - AmLine16;
 			x2 = x1 + AmLine32;
@@ -292,12 +289,12 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 			DrawLine(sx, sy, x1, y2, COLOR_DIM);
 			DrawLine(sx, sy, x2, y2, COLOR_DIM);
 		}
-		if ((flags & (MAPFLAG_VERTDOOR | MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) == 0)
+		if ((automap_type & (MAPFLAG_VERTDOOR | MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) == 0)
 			DrawLine(sx, sy - AmLine16, sx - AmLine32, sy, COLOR_DIM);
 	}
 
 	if (do_horz) { // left-facing obstacle
-		if (flags & MAPFLAG_HORZDOOR) {
+		if (automap_type & MAPFLAG_HORZDOOR) {
 			x1 = sx + AmLine16;
 			x2 = sx + AmLine32;
 			y1 = sy - AmLine16;
@@ -310,10 +307,10 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 			DrawLine(x1, sy, sx, y2, COLOR_BRIGHT);
 			DrawLine(x1, sy, x2, y2, COLOR_BRIGHT);
 		}
-		if (flags & MAPFLAG_HORZGRATE) {
+		if (automap_type & MAPFLAG_HORZGRATE) {
 			DrawLine(sx + AmLine16, sy - AmLine8, sx + AmLine32, sy, COLOR_DIM);
 		}
-		if (flags & (MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) {
+		if (automap_type & (MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) {
 			x1 = sx - AmLine16;
 			y1 = sy - AmLine16;
 			x2 = x1 + AmLine32;
@@ -324,13 +321,13 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 			DrawLine(sx, sy, x1, y2, COLOR_DIM);
 			DrawLine(sx, sy, x2, y2, COLOR_DIM);
 		}
-		if ((flags & (MAPFLAG_HORZDOOR | MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) == 0)
+		if ((automap_type & (MAPFLAG_HORZDOOR | MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) == 0)
 			DrawLine(sx, sy - AmLine16, sx + AmLine32, sy, COLOR_DIM);
 	}
 
 	// for caves the horz/vert flags are switched
 	if (do_cave_horz) {
-		if (flags & MAPFLAG_VERTDOOR) {
+		if (automap_type & MAPFLAG_VERTDOOR) {
 			x1 = sx - AmLine32;
 			x2 = sx - AmLine16;
 			y1 = sy + AmLine16;
@@ -347,7 +344,7 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	}
 
 	if (do_cave_vert) {
-		if (flags & MAPFLAG_HORZDOOR) {
+		if (automap_type & MAPFLAG_HORZDOOR) {
 			x1 = sx + AmLine16;
 			x2 = sx + AmLine32;
 			y1 = sy + AmLine16;
@@ -532,18 +529,18 @@ static WORD GetAutomapType(int x, int y, bool view)
 	WORD rv;
 
 	if (view && x == -1 && y >= 0 && y < DMAXY && automapview[0][y]) {
-		if (GetAutomapType(0, y, false) & (MAPFLAG_DIRT << 8)) {
+		if (GetAutomapType(0, y, false) & MAPFLAG_DIRT) {
 			return 0;
 		} else {
-			return MAPFLAG_DIRT << 8;
+			return MAPFLAG_DIRT;
 		}
 	}
 
 	if (view && y == -1 && x >= 0 && x < DMAXY && automapview[x][0]) {
-		if (GetAutomapType(x, 0, false) & (MAPFLAG_DIRT << 8)) {
+		if (GetAutomapType(x, 0, false) & MAPFLAG_DIRT) {
 			return 0;
 		} else {
-			return MAPFLAG_DIRT << 8;
+			return MAPFLAG_DIRT;
 		}
 	}
 
@@ -565,12 +562,12 @@ static WORD GetAutomapType(int x, int y, bool view)
 		//  Which would eliminate the ugly corners in the catacombs.
 		// The check would be more 'expensive' though.
 		//if (x >= 1 && y >= 1) {
-		//	if ((automaptype[dungeon[x - 1][y]] & (MAPFLAG_HORZARCH << 8))
-		//	 && (automaptype[dungeon[x][y - 1]] & (MAPFLAG_VERTARCH << 8)))
+		//	if ((automaptype[dungeon[x - 1][y]] & MAPFLAG_HORZARCH)
+		//	 && (automaptype[dungeon[x][y - 1]] & MAPFLAG_VERTARCH))
 		//		rv = 1;
 			if (x >= 2 && y >= 2) {
-				if ((automaptype[dungeon[x - 2][y]] & (MAPFLAG_HORZARCH << 8))
-				 && (automaptype[dungeon[x][y - 2]] & (MAPFLAG_VERTARCH << 8)))
+				if ((automaptype[dungeon[x - 2][y]] & MAPFLAG_HORZARCH)
+				 && (automaptype[dungeon[x][y - 2]] & MAPFLAG_VERTARCH))
 					rv = 1;
 			}
 		//}
@@ -730,57 +727,57 @@ void SetAutomapView(int x, int y)
 	automapview[xx][yy] = TRUE;
 
 	maptype = GetAutomapType(xx, yy, false);
-	solid = maptype & (MAPFLAG_DIRT << 8);
+	solid = maptype & MAPFLAG_DIRT;
 
 	switch (maptype & MAPFLAG_TYPE) {
 	case 2:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 3:
 		if (solid) {
-			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
 	case 4:
 		if (solid) {
-			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
-			if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT)
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, false) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy - 1, false) & MAPFLAG_DIRT)
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
 	case 5:
 		if (solid) {
-			if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT)
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case 6:
 		if (solid) {
-			if (GetAutomapType(xx - 1, yy, false) & (MAPFLAG_DIRT << 8))
+			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == ((MAPFLAG_DIRT << 8) | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & (MAPFLAG_DIRT << 8)) {
+		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
