@@ -1857,6 +1857,7 @@ typedef enum _monster_id {
 	MT_NAKRUL   = 0x89,
 #endif
 	NUM_MTYPES, /// BUGFIX the count is off by one (fixed)
+	MT_INVALID = 0xFF
 } _monster_id;
 
 // this enum contains indexes from UniqMonst array for special unique monsters (usually quest related)

@@ -570,8 +570,6 @@ typedef struct MonsterData {
 	int Frames[6];
 	int Rate[6];
 	const char *mName;
-	BYTE mMinDLvl;
-	BYTE mMaxDLvl;
 	BYTE mLevel;
 	BYTE mAi;
 	int mMinHP;
@@ -1179,8 +1177,9 @@ typedef struct LevelDataStruct {
 	const char *dSetLvlDun;
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
+	BYTE dMonTypes[32];
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[9];
 #endif
 } LevelDataStruct;
 

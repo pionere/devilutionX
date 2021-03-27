@@ -186,10 +186,9 @@ static int AddMonsterType(int type, BOOL scatter)
 
 void GetLevelMTypes()
 {
-	int i;
-
+	int i, mtype;
 	int montypes[NUM_MTYPES];
-
+	const LevelDataStruct* lds;
 	BYTE lvl;
 	const int numskeltypes = 19;
 
@@ -232,26 +231,26 @@ void GetLevelMTypes()
 		if (QuestStatus(Q_WARLORD))
 			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, TRUE);
 
+		lds = &AllLevels[currLvl._dLevelIdx];
 		if (gbMaxPlayers != 1 && lvl == quests[Q_SKELKING]._qlevel) {
 
 			AddMonsterType(MT_SKING, FALSE);
 
-			nt = 0;
-			for (i = MT_WSKELAX; i <= MT_WSKELAX + numskeltypes; i++) {
-				if (IsSkel(i)) {
-					if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-						montypes[nt++] = i;
-					}
-				}
+			for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
+				mtype = lds->dMonTypes[nt];
+				if (mtype == MT_INVALID)
+					break;
+				if (IsSkel(mtype))
+					montypes[nt] = mtype;
 			}
 			AddMonsterType(montypes[random_(88, nt)], TRUE);
 		}
 
-		nt = 0;
-		for (i = 0; i < NUM_MTYPES; i++) {
-			if (lvl >= monsterdata[i].mMinDLvl && lvl <= monsterdata[i].mMaxDLvl) {
-				montypes[nt++] = i;
-			}
+		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
+			mtype = lds->dMonTypes[nt];
+			if (mtype == MT_INVALID)
+				break;
+			montypes[nt] = mtype;
 		}
 
 #ifdef _DEBUG
