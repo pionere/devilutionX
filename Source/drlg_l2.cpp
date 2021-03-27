@@ -3149,9 +3149,9 @@ static void DRLG_InitL2Vals()
 	dsp = &dSpecial[0][0];
 	dp = &dPiece[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 541 || *dp == 178 || *dp == 551 || *dp == 13)
+		if (*dp == 541 || *dp == 178 || *dp == 551)
 			pc = 5;
-		else if (*dp == 542 || *dp == 553 || *dp == 17)
+		else if (*dp == 542 || *dp == 553)
 			pc = 6;
 		else
 			continue;
