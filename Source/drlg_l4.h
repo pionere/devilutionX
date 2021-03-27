@@ -12,14 +12,15 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int diabquad1x;
-extern int diabquad1y;
-extern int diabquad2x;
-extern int diabquad2y;
-extern int diabquad3x;
-extern int diabquad3y;
-extern int diabquad4x;
-extern int diabquad4y;
+#define DIAB_QUAD_1X	(setpc_x + 3)
+#define DIAB_QUAD_1Y	(setpc_y + 3)
+#define DIAB_QUAD_2X	(28 - setpc_x)
+#define DIAB_QUAD_2Y	(setpc_y)
+#define DIAB_QUAD_3X	(setpc_x)
+#define DIAB_QUAD_3Y	(28 - setpc_y)
+#define DIAB_QUAD_4X	(29 - setpc_x)
+#define DIAB_QUAD_4Y	(29 - setpc_y)
+
 void CreateL4Dungeon(DWORD rseed, int entry);
 
 #ifdef __cplusplus

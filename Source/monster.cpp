@@ -936,16 +936,16 @@ static void PlaceQuestMonsters()
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
-			SetMapMonsters(setp, 2 * diabquad1x, 2 * diabquad1y);
+			SetMapMonsters(setp, 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
-			SetMapMonsters(setp, 2 * diabquad2x, 2 * diabquad2y);
+			SetMapMonsters(setp, 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
-			SetMapMonsters(setp, 2 * diabquad3x, 2 * diabquad3y);
+			SetMapMonsters(setp, 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
-			SetMapMonsters(setp, 2 * diabquad4x, 2 * diabquad4y);
+			SetMapMonsters(setp, 2 * DIAB_QUAD_4X, 2 * DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
 #ifdef HELLFIRE
 		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {

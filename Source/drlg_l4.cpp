@@ -12,16 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Starting position of the megatiles. */
 #define BASE_MEGATILE_L4 (30 - 1)
 
-int diabquad1x;
-int diabquad1y;
-int diabquad2x;
-int diabquad2y;
-int diabquad3x;
-int diabquad3y;
-int diabquad4x;
-int diabquad4y;
-int l4holdx;
-int l4holdy;
 BYTE dung[20][20];
 
 /**
@@ -1213,13 +1203,11 @@ static void L4firstRoom()
 	int x, y, w, h, xmin, xmax, ymin, ymax;
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		if (currLvl._dLevelIdx == quests[Q_WARLORD]._qlevel && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL) {
-			/// ASSERT: assert(gbMaxPlayers == 1);
-			w = 11;
-			h = 11;
-		} else if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
-			w = 11;
-			h = 11;
+		if (pSetPiece != NULL) {
+			w = pSetPiece[0] + 4; // TODO: add border to the setmaps
+			h = pSetPiece[0] + 4;
+			if (QuestStatus(Q_WARLORD))
+				w--;
 		} else {
 			w = RandRange(2, 6);
 			h = RandRange(2, 6);
@@ -1238,8 +1226,8 @@ static void L4firstRoom()
 	y = RandRange(ymin, ymax);
 
 	if (currLvl._dLevelIdx == DLV_HELL4) {
-		l4holdx = x;
-		l4holdy = y;
+		setpc_x = x + 1;
+		setpc_y = y + 1;
 	}
 	if (pSetPiece != NULL) {
 		setpc_x = x + 1;
@@ -1250,12 +1238,12 @@ static void L4firstRoom()
 	L4roomGen(x, y, w, h, random_(0, 2));
 }
 
-static void L4SaveQuads()
+/*static void L4SaveQuads()
 {
 	int i, j, x, y;
 
-	x = l4holdx;
-	y = l4holdy;
+	x = setpc_x - 1;
+	y = setpc_y - 1;
 
 	for (j = y; j < y + 14; j++) {
 		for (i = x; i < x + 14; i++) {
@@ -1265,7 +1253,7 @@ static void L4SaveQuads()
 			dflags[DMAXX - 1 - i][DMAXY - 1 - j] = TRUE;
 		}
 	}
-}
+}*/
 
 static void DRLG_L4SetRoom(int rx1, int ry1)
 {
@@ -1290,30 +1278,19 @@ static void DRLG_LoadDiabQuads(bool preflag)
 	assert(pSetPiece == NULL);
 
 	pSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
-	diabquad1x = 4 + l4holdx;
-	diabquad1y = 4 + l4holdy;
-	DRLG_L4SetRoom(diabquad1x, diabquad1y);
+	DRLG_L4SetRoom(DIAB_QUAD_1X, DIAB_QUAD_1Y);
 	MemFreeDbg(pSetPiece);
 
 	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN", NULL);
-
-	diabquad2x = 27 - l4holdx;
-	diabquad2y = 1 + l4holdy;
-	DRLG_L4SetRoom(diabquad2x, diabquad2y);
+	DRLG_L4SetRoom(DIAB_QUAD_2X, DIAB_QUAD_2Y);
 	MemFreeDbg(pSetPiece);
 
 	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN", NULL);
-
-	diabquad3x = 1 + l4holdx;
-	diabquad3y = 27 - l4holdy;
-	DRLG_L4SetRoom(diabquad3x, diabquad3y);
+	DRLG_L4SetRoom(DIAB_QUAD_3X, DIAB_QUAD_3Y);
 	MemFreeDbg(pSetPiece);
 
 	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN", NULL);
-
-	diabquad4x = 28 - l4holdx;
-	diabquad4y = 28 - l4holdy;
-	DRLG_L4SetRoom(diabquad4x, diabquad4y);
+	DRLG_L4SetRoom(DIAB_QUAD_4X, DIAB_QUAD_4Y);
 	MemFreeDbg(pSetPiece);
 }
 

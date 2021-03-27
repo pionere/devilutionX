@@ -759,9 +759,9 @@ static void LoadMapSetObjs(const char *map)
 
 static void AddDiabObjs()
 {
-	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * diabquad1x, 2 * diabquad1y, diabquad2x, diabquad2y, 11, 12, 1);
-	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * diabquad2x, 2 * diabquad2y, diabquad3x, diabquad3y, 11, 11, 2);
-	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * diabquad3x, 2 * diabquad3y, diabquad4x, diabquad4y, 9, 9, 3);
+	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y, DIAB_QUAD_2X, DIAB_QUAD_2Y, 11, 12, 1);
+	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y, DIAB_QUAD_3X, DIAB_QUAD_3Y, 11, 11, 2);
+	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y, DIAB_QUAD_4X, DIAB_QUAD_4Y, 9, 9, 3);
 }
 
 #ifdef HELLFIRE
