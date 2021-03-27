@@ -2188,10 +2188,6 @@ static void ObjL2Special(int x1, int y1, int x2, int y2)
 				dSpecial[i][j] = 6;
 			if (pn == 553)
 				dSpecial[i][j] = 6;
-			if (pn == 13)
-				dSpecial[i][j] = 5;
-			if (pn == 17)
-				dSpecial[i][j] = 6;
 		}
 	}
 	for (j = y1; j <= y2; j++) {
@@ -2365,6 +2361,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 			if (pn == 50 && dPiece[xp - 1][yp] == 396)
 				pn = 411;
 		}
+		dSpecial[xp][yp] = 0;
 		ObjSetMicro(xp - 1, yp, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2447,6 +2444,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 			if (pn == 50 && dPiece[xp][yp - 1] == 396)
 				pn = 412;
 		}
+		dSpecial[xp][yp] = 0;
 		ObjSetMicro(xp, yp - 1, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2479,6 +2477,7 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 17);
+		dSpecial[xp][yp] = 6;
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
@@ -2497,6 +2496,7 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 540);
+		dSpecial[xp][yp] = 0;
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
@@ -2528,6 +2528,7 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
 		ObjSetMicro(xp, yp, 13);
+		dSpecial[xp][yp] = 5;
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
@@ -2546,6 +2547,7 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, 538);
+		dSpecial[xp][yp] = 0;
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
