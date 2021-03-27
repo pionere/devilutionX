@@ -11,15 +11,15 @@ DEVILUTION_BEGIN_NAMESPACE
 static DWORD sgdwOwnerWait;
 static DWORD sgdwRecvOffset;
 static int sgnCurrMegaPlayer;
-static DLevel sgLevels[NUMLEVELS];
-static BYTE sbLastCmd;
 static TMegaPkt *sgpCurrPkt;
-static BYTE sgRecvBuf[sizeof(DLevel) + 1];
-static BYTE sgbRecvCmd;
-static LocalLevel sgLocals[NUMLEVELS];
-static DJunk sgJunk;
+static BYTE sgRecvBuf[sizeof(DLevel) + 3];
 static TMegaPkt *sgpMegaPkt;
-static bool _gbDeltaChanged;
+static DJunk sgJunk;
+static DLevel sgLevels[NUMLEVELS];
+static LocalLevel sgLocals[NUMLEVELS];
+static bool _gbLevelDeltaChanged[NUMLEVELS];
+static bool _gbJunkDeltaChanged;
+static BYTE _gbRecvCmd;
 static BYTE sgbDeltaChunks;
 BOOL deltaload;
 _msg_mode geBufferMsgs;
@@ -124,12 +124,12 @@ static int msg_wait_for_turns()
 
 	if (gbGameDestroyed)
 		return 100;
-	if (gbDeltaSender >= MAX_PLRS) {
+	/*if (gbDeltaSender >= MAX_PLRS) {
 		sgbDeltaChunks = 0;
-		sgbRecvCmd = CMD_DLEVEL_END;
+		_gbRecvCmd = CMD_DLEVEL_END;
 		gbDeltaSender = myplr;
 		nthread_set_turn_upper_bit();
-	}
+	}*/
 	if (sgbDeltaChunks == MAX_CHUNKS - 1) {
 		sgbDeltaChunks = MAX_CHUNKS;
 		return 99;
@@ -144,7 +144,9 @@ bool msg_wait_resync()
 	msg_get_next_packet();
 	sgbDeltaChunks = 0;
 	sgnCurrMegaPlayer = -1;
-	sgbRecvCmd = CMD_DLEVEL_END;
+	_gbRecvCmd = CMD_DLEVEL_END;
+	gbDeltaSender = MAX_PLRS;
+	sgdwRecvOffset = 0;
 	geBufferMsgs = MSG_DOWNLOAD_DELTA;
 	sgdwOwnerWait = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", 1, msg_wait_for_turns, 20);
@@ -343,100 +345,144 @@ void DeltaExportData(int pnum)
 	int size, i;
 	char src;
 
-	if (_gbDeltaChanged) {
-		dst = (BYTE *)DiabloAllocPtr(sizeof(DLevel) + 1);
+	dst = NULL;
+
+	for (i = 0; i < lengthof(sgLevels); i++)
+		if (_gbLevelDeltaChanged[i])
+			break;
+	if (i != lengthof(sgLevels)) {
+		dst = (BYTE *)DiabloAllocPtr(sizeof(sgRecvBuf));
 		for (i = 0; i < NUMLEVELS; i++) {
+			if (!_gbLevelDeltaChanged[i])
+				continue;
 			dstEnd = dst + 1;
+			*dstEnd = i;
+			dstEnd++;
 			dstEnd = DeltaExportItem(dstEnd, sgLevels[i].item);
 			dstEnd = DeltaExportObject(dstEnd, sgLevels[i].object);
 			dstEnd = DeltaExportMonster(dstEnd, sgLevels[i].monster);
 			size = msg_comp_level(dst, dstEnd);
-			dthread_send_delta(pnum, i + CMD_DLEVEL_0, dst, size);
+			dthread_send_delta(pnum, CMD_DLEVEL_DATA, dst, size);
+			src = 0;
+			dthread_send_delta(pnum, CMD_DLEVEL_SEP, &src, 1);
 		}
+	}
+	if (_gbJunkDeltaChanged) {
+		if (dst == NULL)
+			dst = (BYTE *)DiabloAllocPtr(sizeof(sgRecvBuf));
 		dstEnd = dst + 1;
 		dstEnd = DeltaExportJunk(dstEnd);
 		size = msg_comp_level(dst, dstEnd);
 		dthread_send_delta(pnum, CMD_DLEVEL_JUNK, dst, size);
-		mem_free_dbg(dst);
 	}
+	mem_free_dbg(dst);
+
 	src = 0;
 	dthread_send_delta(pnum, CMD_DLEVEL_END, &src, 1);
 }
 
-static void DeltaImportData(BYTE cmd, DWORD recv_offset)
+static void DeltaImportData()
 {
 	BYTE i;
 	BYTE *src;
 
-	if (sgRecvBuf[0] != 0)
-		PkwareDecompress(&sgRecvBuf[1], recv_offset, lengthof(sgRecvBuf) - 1);
+	//if (sgRecvBuf[0] != 0)
+	assert(sgRecvBuf[0] != 0);
+		PkwareDecompress(&sgRecvBuf[1], sgdwRecvOffset, lengthof(sgRecvBuf) - 1);
 
 	src = &sgRecvBuf[1];
-	if (cmd == CMD_DLEVEL_JUNK) {
-		DeltaImportJunk(src);
-#ifdef HELLFIRE
-	} else if (cmd >= CMD_DLEVEL_0 && cmd <= CMD_DLEVEL_24) {
-#else
-	} else if (cmd >= CMD_DLEVEL_0 && cmd <= CMD_DLEVEL_16) {
-#endif
-		i = cmd - CMD_DLEVEL_0;
+	if (_gbRecvCmd == CMD_DLEVEL_DATA) {
+		i = *src;
+		src++;
 		src = DeltaImportItem(src, sgLevels[i].item);
 		src = DeltaImportObject(src, sgLevels[i].object);
 		DeltaImportMonster(src, sgLevels[i].monster);
+		_gbLevelDeltaChanged[i] = true;
 	} else {
-		app_fatal("Unkown network message type: %d", cmd);
+		assert(_gbRecvCmd == CMD_DLEVEL_JUNK);
+		DeltaImportJunk(src);
+		_gbJunkDeltaChanged = true;
 	}
 
 	sgbDeltaChunks++;
-	_gbDeltaChanged = true;
 }
 
-static unsigned On_DLEVEL(int pnum, TCmd *pCmd)
+static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
 	if (gbDeltaSender != pnum) {
-		if (cmd->bCmd == CMD_DLEVEL_END) {
-			gbDeltaSender = pnum;
-			sgbRecvCmd = CMD_DLEVEL_END;
-		} else if (cmd->bCmd == CMD_DLEVEL_0 && cmd->wOffset == 0) {
-			gbDeltaSender = pnum;
-			sgbRecvCmd = CMD_DLEVEL_END;
-		} else {
-			return cmd->wBytes + sizeof(*cmd);
+		if (gbDeltaSender != MAX_PLRS) {
+			// delta is already on its way from a different player -> drop the packet
+			goto done;
 		}
-	}
-	if (sgbRecvCmd == CMD_DLEVEL_END) {
-		if (cmd->bCmd == CMD_DLEVEL_END) {
-			sgbDeltaChunks = MAX_CHUNKS - 1;
-			return cmd->wBytes + sizeof(*cmd);
-		} else if (cmd->bCmd == CMD_DLEVEL_0 && cmd->wOffset == 0) {
-			sgdwRecvOffset = 0;
-			sgbRecvCmd = cmd->bCmd;
-		} else {
-			return cmd->wBytes + sizeof(*cmd);
+		if (sgdwRecvOffset != 0) {
+			// the source of the delta is dropped -> drop the packages and quit
+			gbGameDestroyed = true;
+			goto done;
 		}
-	} else if (sgbRecvCmd != cmd->bCmd) {
-		DeltaImportData(sgbRecvCmd, sgdwRecvOffset);
 		if (cmd->bCmd == CMD_DLEVEL_END) {
+			// nothing received till now -> empty delta
+			gbDeltaSender = pnum;
+			// _gbRecvCmd = CMD_DLEVEL_END;
 			sgbDeltaChunks = MAX_CHUNKS - 1;
-			sgbRecvCmd = CMD_DLEVEL_END;
-			return cmd->wBytes + sizeof(*cmd);
+			goto done;
+		}
+		if (cmd->wOffset != 0) {
+			// invalid data starting offset -> drop the packet
+			goto done;
+		}
+		if (cmd->bCmd != CMD_DLEVEL_DATA && cmd->bCmd != CMD_DLEVEL_JUNK) {
+			// invalid data starting type -> drop the packet
+			goto done;
+		}
+		if (pnum >= MAX_PLRS) {
+			// message from an invalid player -> drop the packet
+			goto done;
+		}
+		// start receiving
+		gbDeltaSender = pnum;
+		_gbRecvCmd = cmd->bCmd;
+		// sgdwRecvOffset = 0;
+	} else {
+		// a packet from a previous sender
+		if (_gbRecvCmd != cmd->bCmd) {
+			// process previous package
+			if (_gbRecvCmd != CMD_DLEVEL_SEP && _gbRecvCmd != CMD_DLEVEL_END)
+				DeltaImportData();
+			_gbRecvCmd = cmd->bCmd;
+			if (_gbRecvCmd == CMD_DLEVEL_END) {
+				// final package -> done
+				sgbDeltaChunks = MAX_CHUNKS - 1;
+				goto done;
+			} else if (_gbRecvCmd == CMD_DLEVEL_SEP) {
+				// separator package -> wait for next
+				goto done;
+			} else if (_gbRecvCmd == CMD_DLEVEL_DATA || _gbRecvCmd == CMD_DLEVEL_JUNK) {
+				// start receiving a new package
+				sgdwRecvOffset = 0;
+			} else {
+				// invalid package in-between -> drop the connection
+				gbGameDestroyed = true;
+				goto done;
+			}
 		} else {
-			sgdwRecvOffset = 0;
-			sgbRecvCmd = cmd->bCmd;
+			// continue previous package
+			assert(_gbRecvCmd == CMD_DLEVEL_DATA || _gbRecvCmd == CMD_DLEVEL_JUNK);
 		}
 	}
 
 	/// ASSERT: assert(cmd->wOffset == sgdwRecvOffset);
 	memcpy(&sgRecvBuf[cmd->wOffset], &cmd[1], cmd->wBytes);
 	sgdwRecvOffset += cmd->wBytes;
+done:
 	return cmd->wBytes + sizeof(*cmd);
 }
 
 void delta_init()
 {
-	_gbDeltaChanged = false;
+	_gbJunkDeltaChanged = false;
+	memset(_gbLevelDeltaChanged, 0, sizeof(_gbLevelDeltaChanged));
 	memset(&sgJunk, 0xFF, sizeof(sgJunk));
 	memset(sgLevels, 0xFF, sizeof(sgLevels));
 	memset(sgLocals, 0, sizeof(sgLocals));
@@ -450,7 +496,7 @@ static void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
 	if (gbMaxPlayers == 1)
 		return;
 
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[mnum];
 	pD->_mx = x;
 	pD->_my = y;
@@ -465,7 +511,7 @@ static void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 	if (gbMaxPlayers == 1)
 		return;
 
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[mnum];
 	// In vanilla code the value was discarded if hp was higher than the current one.
 	// That disregards the healing monsters.
@@ -488,7 +534,7 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 	if (pD->_mhitpoints == 0)
 		return;
 
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
 	pD->_mx = pSync->_mx;
 	pD->_my = pSync->_my;
 	pD->_mactive = UCHAR_MAX;
@@ -502,7 +548,7 @@ static void delta_sync_golem(TCmdGolem *pG, int mnum, BYTE bLevel)
 	if (gbMaxPlayers == 1)
 		return;
 
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[mnum];
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
@@ -524,7 +570,7 @@ static void delta_leave_sync(BYTE bLevel)
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		if (monster[mnum]._mhitpoints != 0) {
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[bLevel] = true;
 			pD = &sgLevels[bLevel].monster[mnum];
 			pD->_menemy = encode_enemy(mnum);
 			pD->_mx = monster[mnum]._mx;
@@ -542,7 +588,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 	if (gbMaxPlayers == 1)
 		return;
 
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
 	sgLevels[bLevel].object[oi].bCmd = bCmd;
 }
 
@@ -563,11 +609,11 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 		case DCMD_TAKEN:
 			return true;
 		case DCMD_SPAWNED:
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[bLevel] = true;
 			pD->bCmd = DCMD_TAKEN;
 			return true;
 		case DCMD_DROPPED:
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[bLevel] = true;
 			pD->bCmd = 0xFF;
 			return true;
 		default:
@@ -582,7 +628,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[bLevel] = true;
 			pD->bCmd = DCMD_TAKEN;
 			pD->x = pI->x;
 			pD->y = pI->y;
@@ -636,7 +682,7 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[bLevel] = true;
 			copy_pod(*pD, *pI);
 			pD->bCmd = DCMD_DROPPED;
 			pD->x = x;
@@ -752,7 +798,7 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
-			_gbDeltaChanged = true;
+			_gbLevelDeltaChanged[currLvl._dLevelIdx] = true;
 			pD->bCmd = DCMD_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
@@ -1393,7 +1439,8 @@ static unsigned On_STRING2(int pnum, TCmd *pCmd)
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 {
-	_gbDeltaChanged = true;
+	_gbLevelDeltaChanged[bLevel] = true;
+	_gbLevelDeltaChanged[DLV_TOWN] = true;
 	sgJunk.portal[pnum].x = x;
 	sgJunk.portal[pnum].y = y;
 	sgJunk.portal[pnum].level = bLevel;
@@ -1402,7 +1449,8 @@ static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 void delta_close_portal(int pnum)
 {
 	memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
-	_gbDeltaChanged = true;
+	// assert(_gbLevelDeltaChanged[bLevel] == true);
+	// assert(_gbLevelDeltaChanged[DLV_TOWN] == true);
 }
 
 static void check_update_plr(int pnum)
@@ -2426,7 +2474,7 @@ static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
 	else {
 		if (pnum != myplr)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
-		_gbDeltaChanged = true;
+		_gbJunkDeltaChanged = true;
 	}
 
 	return sizeof(*cmd);
@@ -2444,7 +2492,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	else {
 		if (currLvl._dLevelIdx != plr[pnum].plrlevel)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
-		_gbDeltaChanged = true;
+		_gbJunkDeltaChanged = true;
 	}
 
 	return sizeof(*cmd);
@@ -2529,7 +2577,7 @@ static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 
 unsigned ParseCmd(int pnum, TCmd *pCmd)
 {
-	sbLastCmd = pCmd->bCmd;
+	BYTE sbLastCmd = pCmd->bCmd;
 	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
 		return 0;
 
@@ -2652,6 +2700,11 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_DEACTIVATEPORTAL:
 		return On_DEACTIVATEPORTAL(pCmd, pnum);
+	case CMD_DLEVEL_DATA:
+	case CMD_DLEVEL_SEP:
+	case CMD_DLEVEL_JUNK:
+	case CMD_DLEVEL_END:
+		return On_DLEVEL(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
 	case CMD_STRING:
@@ -2678,12 +2731,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_REMSHIELD(pCmd, pnum);
 	}
 
-	if (sbLastCmd < CMD_DLEVEL_0 || sbLastCmd > CMD_DLEVEL_END) {
-		SNetDropPlayer(pnum, LEAVE_DROP);
-		return 0;
-	}
-
-	return On_DLEVEL(pnum, pCmd);
+	SNetDropPlayer(pnum, LEAVE_DROP);
+	return 0;
 }
 
 DEVILUTION_END_NAMESPACE
