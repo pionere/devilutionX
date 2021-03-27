@@ -2349,6 +2349,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
+		dSpecial[xp][yp] = 0;
 
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 #ifdef HELLFIRE
@@ -2361,7 +2362,6 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 			if (pn == 50 && dPiece[xp - 1][yp] == 396)
 				pn = 411;
 		}
-		dSpecial[xp][yp] = 0;
 		ObjSetMicro(xp - 1, yp, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
@@ -2433,6 +2433,7 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
+		dSpecial[xp][yp] = 0;
 		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
@@ -2444,7 +2445,6 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 			if (pn == 50 && dPiece[xp][yp - 1] == 396)
 				pn = 412;
 		}
-		dSpecial[xp][yp] = 0;
 		ObjSetMicro(xp, yp - 1, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
