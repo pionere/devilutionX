@@ -909,7 +909,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 	blksizey = RandRange(3, 4);
 
 	switch (dir) {
-	case 0:
+	case 0: // block to the north
 		y2 = y - 1;
 		y1 = y2 - blksizey;
 		x1 = x;
@@ -919,7 +919,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
 		break;
-	case 1:
+	case 1: // block to the east
 		x1 = x + 1;
 		x2 = x1 + blksizex;
 		y1 = y;
@@ -929,7 +929,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
 		break;
-	case 2:
+	case 2: // block to the south
 		y1 = y + 1;
 		y2 = y1 + blksizey;
 		x1 = x;
@@ -939,7 +939,7 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 			x1 -= random_(0, blksizex);
 		x2 = blksizex + x1;
 		break;
-	case 3:
+	case 3: // block to the west
 		x2 = x - 1;
 		x1 = x2 - blksizex;
 		y1 = y;
@@ -949,12 +949,18 @@ static void DRLG_L3CreateBlock(int x, int y, int obs, int dir)
 			y1 -= random_(0, blksizey);
 		y2 = y1 + blksizey;
 		break;
+	case 4: // the central block
+		x1 = x;
+		y1 = y;
+		x2 = x1 + blksizex;
+		y2 = y1 + blksizey;
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
-	if (DRLG_L3FillRoom(x1, y1, x2, y2) && random_(0, 4) != 0) {
+	if (DRLG_L3FillRoom(x1, y1, x2, y2) && (random_(0, 4) != 0 || dir == 4)) {
 		if (dir != 2) {
 			DRLG_L3CreateBlock(x1, y1, blksizey, 0);
 		}
@@ -2174,22 +2180,13 @@ static bool DRLG_L3PlaceMiniSets(mini_set* minisets, int n)
 
 static void DRLG_L3(int entry)
 {
-	int x1, y1, x2, y2;
 	bool doneflag;
 
 	do {
 		do {
 			do {
 				InitL3Dungeon();
-				x1 = RandRange(10, 29);
-				y1 = RandRange(10, 29);
-				x2 = x1 + 2;
-				y2 = y1 + 2;
-				DRLG_L3FillRoom(x1, y1, x2, y2);
-				DRLG_L3CreateBlock(x1, y1, 2, 0);
-				DRLG_L3CreateBlock(x2, y1, 2, 1);
-				DRLG_L3CreateBlock(x1, y2, 2, 2);
-				DRLG_L3CreateBlock(x1, y1, 2, 3);
+				DRLG_L3CreateBlock(RandRange(10, 29), RandRange(10, 29), 0, 4);
 				if (pSetPiece != NULL) {
 					setpc_w = pSetPiece[0];
 					setpc_h = pSetPiece[2];
