@@ -1457,9 +1457,9 @@ void DrawLevelUpIcon()
 	CelDraw(SCREEN_X + 175, SCREEN_Y + SCREEN_HEIGHT - 24, pChrButtons, gbLvlbtndown ? 3 : 2, CHRBTN_WIDTH);
 }
 
-static void DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE col)
+static int DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE col)
 {
-	int width;
+	int width, result = 0;
 	BYTE *dst;
 	const int border = 4, height = 26;
 	int w1 = StringWidth(text1);
@@ -1469,12 +1469,15 @@ static void DrawTooltip2(const char *text1, const char* text2, int x, int y, BYT
 
 	y -= TILE_HEIGHT;
 	if (y < 0)
-		return;
+		return result;
 	x -= width / 2;
-	if (x < 0)
+	if (x < 0) {
+		result = -x;
 		x = 0;
-	else if (x > SCREEN_WIDTH - width)
+	} else if (x > SCREEN_WIDTH - width) {
+		result = (SCREEN_WIDTH - width) - x;
 		x = SCREEN_WIDTH - width;
+	}
 
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
@@ -1496,6 +1499,7 @@ static void DrawTooltip2(const char *text1, const char* text2, int x, int y, BYT
 	}
 	PrintGameStr(x + border + w1, y + height - 14, text1, col);
 	PrintGameStr(x + border + w2, y + height - 3, text2, COL_WHITE);
+	return result;
 }
 
 /*
@@ -1781,7 +1785,7 @@ void DrawInfoStr()
 		y = p->_py - 2;
 		GetMousePos(x, y, &xx, &yy);
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%i)" : "%s(%i)*", ClassStrTbl[p->_pClass], p->_pLevel);
-		DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
+		xx += DrawTooltip2(p->_pName, infostr, xx, yy, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, xx, yy + 10);
 	} else if (gbSkillListFlag) {
 		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
