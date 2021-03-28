@@ -2631,16 +2631,12 @@ typedef enum event_type {
 	EVENT_TYPE_15                 = 15,
 } event_type;
 
-typedef enum _copyprot_results {
-	COPYPROT_OK     = 1,
-	COPYPROT_CANCEL = 2,
-} _copyprot_results;
-
 typedef enum text_color {
-	COL_WHITE = 0x0,
-	COL_BLUE  = 0x1,
-	COL_RED   = 0x2,
-	COL_GOLD  = 0x3,
+	COL_WHITE,
+	COL_BLUE,
+	COL_RED,
+	COL_GOLD,
+	COL_BLACK,
 } text_color;
 
 typedef enum item_color {

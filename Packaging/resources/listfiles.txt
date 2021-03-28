@@ -35,6 +35,9 @@ Data\Square.CEL
 Data\TextBox.CEL
 Data\TextBox2.CEL
 Data\TextSlid.CEL
+_data\healthbox.pcx
+_data\health.pcx
+_data\resistance.pcx
 Gendata\Cut2.CEL
 Gendata\Cut2.pal
 Gendata\Cut3.CEL

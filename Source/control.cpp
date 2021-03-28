@@ -714,6 +714,10 @@ void PrintChar(int sx, int sy, int nCel, char col)
 			tbl[i] = pix;
 		}
 		break;
+	case COL_BLACK:
+		light_table_index = 15;
+		CelDrawLight(sx, sy, pPanelText, nCel, 13, NULL);
+		return;
 	default:
 		ASSUME_UNREACHABLE
 		break;
