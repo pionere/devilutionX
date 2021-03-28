@@ -360,10 +360,10 @@ void InitTowners()
 #ifdef HELLFIRE
 	if (gbUseCowFarmer) {
 		InitCowFarmer();
-	} else if (quests[Q_FARMER]._qactive != 10) {
-		InitFarmer();
+	} else { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
+		InitFarmer(); // in vanilla hellfire the farmer was gone after the quest is completed, but there is no reason for that
 	}
-	if (gbUseTheoQuest && plr->_pLvlVisited[17]) {
+	if (gbUseTheoQuest && plr->_pLvlVisited[DLV_NEST1]) {
 		InitGirl();
 	}
 #endif
