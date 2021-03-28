@@ -48,6 +48,7 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg);
 void SpawnRock();
 #ifdef HELLFIRE
 void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg, bool respawn);
+void CreateAmulet(int x, int y, bool sendmsg, bool respawn);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);
@@ -73,9 +74,6 @@ void SpawnStoreGold();
 void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
-#ifdef HELLFIRE
-void CreateAmulet(int x, int y, bool sendmsg);
-#endif
 void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 bool GetItemRecord(int nSeed, WORD wCI, int nIndex);
 void SetItemRecord(int nSeed, WORD wCI, int nIndex);

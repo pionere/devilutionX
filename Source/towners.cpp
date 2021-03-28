@@ -333,7 +333,7 @@ static void InitGirl()
 	BYTE *pBuf;
 
 	InitTownerInfo(numtowners, 96, TOWN_GIRL, 67 + DBORDERX, 33 + DBORDERY, -1);
-	if (quests[Q_GIRL]._qactive != QUEST_DONE) {
+	if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girlw1.CEL", NULL);
 	} else {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girls1.CEL", NULL);
@@ -363,7 +363,7 @@ void InitTowners()
 	} else { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
 		InitFarmer(); // in vanilla hellfire the farmer was gone after the quest is completed, but there is no reason for that
 	}
-	if (gbUseTheoQuest && plr->_pLvlVisited[DLV_NEST1]) {
+	if (gbUseTheoQuest && quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
 		InitGirl();
 	}
 #endif
@@ -918,38 +918,32 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_GIRL:
 		qtsnd = false;
-		if (!PlrHasItem(pnum, IDI_THEODORE, &i) || quests[Q_GIRL]._qactive == QUEST_DONE) {
-			switch (quests[Q_GIRL]._qactive) {
-			case QUEST_NOTAVAIL:
-			case QUEST_INIT:
-				qt = TEXT_GIRL2;
-				quests[Q_GIRL]._qactive = QUEST_ACTIVE;
-				quests[Q_GIRL]._qvar1 = 1;
-				quests[Q_GIRL]._qlog = TRUE;
-				quests[Q_GIRL]._qmsg = TEXT_GIRL2;
-				qn = Q_GIRL;
-				break;
-			case QUEST_ACTIVE:
-				qt = TEXT_GIRL3;
-				break;
-			case QUEST_DONE:
-				qt = TEXT_NONE;
-				break;
-			default:
-				quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
-				qn = Q_GIRL;
-				qt = TEXT_GIRL1;
-				qtsnd = true;
-				break;
-			}
-		} else {
+		if (quests[Q_GIRL]._qactive != QUEST_ACTIVE) {
+			qt = TEXT_NONE;
+		} else if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
 			qt = TEXT_GIRL4;
 			RemoveInvItem(pnum, i);
-			// SetRndSeed(tw->tRndSeed)	 FIXME check
-			CreateAmulet(tw->_tx, tw->_ty, true);
-			quests[Q_GIRL]._qlog = FALSE;
+			SetRndSeed(tw->_tSeed);
+			CreateAmulet(tw->_tx, tw->_ty, true, true);
+			// quests[Q_GIRL]._qlog = FALSE;
 			quests[Q_GIRL]._qactive = QUEST_DONE;
 			qn = Q_GIRL;
+		} else {
+			if (quests[Q_GIRL]._qvar1 == 0) {
+				if (quests[Q_GIRL]._qvar2++ == 0) {
+					qt = TEXT_GIRL1;
+					qtsnd = true;
+				} else {
+					qt = TEXT_GIRL2;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
+					quests[Q_GIRL]._qvar1 = 1;
+					quests[Q_GIRL]._qlog = TRUE;
+					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
+					qn = Q_GIRL;
+				}
+			} else {
+				qt = TEXT_GIRL3;
+			}
 		}
 		if (qt != TEXT_NONE) {
 			if (!qtsnd) {

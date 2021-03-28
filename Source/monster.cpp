@@ -1699,7 +1699,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		if (gbUseTheoQuest) {
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
 		} else {
-			CreateAmulet(mon->_mx, mon->_my, sendmsg);
+			CreateAmulet(mon->_mx, mon->_my, sendmsg, false);
 		}
 		return;
 	case UMT_DEFILER:

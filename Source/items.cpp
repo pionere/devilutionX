@@ -3886,7 +3886,7 @@ void CreateSpellBook(int ispell, int x, int y)
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y, bool sendmsg)
+void CreateAmulet(int x, int y, bool sendmsg, bool respawn)
 {
 	int ii, lvl, idx;
 
@@ -3898,11 +3898,14 @@ void CreateAmulet(int x, int y, bool sendmsg)
 	ii = itemavail[0];
 	while (TRUE) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
-		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false, true); // BUGFIX: pregen?
+		SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, true, false, false);
 		if (item[ii]._iCurs == ICURS_AMULET)
 			break;
 	}
-	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?
+	RegisterItem(ii, x, y, sendmsg, false);
+	if (respawn) {
+		NetSendCmdPItem(true, CMD_RESPAWNITEM, &item[ii], item[ii]._ix, item[ii]._iy);
+	}
 }
 #endif
 

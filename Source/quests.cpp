@@ -555,9 +555,14 @@ void ResyncMPQuests()
 	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
 	//}
-	if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
-		quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
+	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
+	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
+	//}
+	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GIRL]._qlevel) {
+		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
+		NetSendCmdQuest(true, Q_GIRL, false); // recipient should not matter
+		// TODO: send message to reinit the towners?
 	}
 #endif
 }
