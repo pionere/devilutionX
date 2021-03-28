@@ -236,12 +236,13 @@ void GetLevelMTypes()
 
 			AddMonsterType(MT_SKING, FALSE);
 
-			for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
-				mtype = lds->dMonTypes[nt];
+			nt = 0;
+			for (i = 0; i < lengthof(lds->dMonTypes); i++) {
+				mtype = lds->dMonTypes[i];
 				if (mtype == MT_INVALID)
 					break;
 				if (IsSkel(mtype))
-					montypes[nt] = mtype;
+					montypes[nt++] = mtype;
 			}
 			AddMonsterType(montypes[random_(88, nt)], TRUE);
 		}
