@@ -1366,21 +1366,23 @@ void CheckBeltClick()
 
 static void CheckQuestItem(int pnum, ItemStruct *is)
 {
-	PlayerStruct *p;
-	int idx;
+	int idx, delay;
+	const int *sfxSet; 
 
-	p = &plr[pnum];
 	idx = is->_iIdx;
-	if (idx == IDI_OPTAMULET && quests[Q_BLIND]._qactive == QUEST_ACTIVE)
+	if (idx == IDI_OPTAMULET && quests[Q_BLIND]._qactive == QUEST_ACTIVE) {
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-	else if (idx == IDI_MUSHROOM) {
-		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
-			sfxdelay = 10;
-			// BUGFIX: Voice for this quest might be wrong in MP
-			sfxdnum = sgSFXSets[SFXS_PLR_95][p->_pClass];
-			quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
-		}
-	} else if (idx == IDI_ANVIL && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
+		return;
+	}
+	if (idx == IDI_MUSHROOM) {
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHSPAWNED)
+			return;
+		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
+		delay = 10;
+		sfxSet = sgSFXSets[SFXS_PLR_95];
+	} else if (idx == IDI_ANVIL) {
+		if (quests[Q_ANVIL]._qactive == QUEST_NOTAVAIL)
+			return;
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
@@ -1388,14 +1390,18 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 				NetSendCmdQuest(true, Q_ANVIL, false); // recipient should not matter
 			}
 		}
-		if (pnum == myplr && quests[Q_ANVIL]._qlog) {
-			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_89][p->_pClass];
-		}
-	} else if (idx == IDI_GLDNELIX && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL) {
-		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_88][p->_pClass];
-	} else if (idx == IDI_ROCK && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
+		if (!quests[Q_ANVIL]._qlog)
+			return;
+		delay = 10;
+		sfxSet = sgSFXSets[SFXS_PLR_89];
+	} else if (idx == IDI_GLDNELIX) {
+		if (quests[Q_VEIL]._qactive == QUEST_NOTAVAIL)
+			return;
+		delay = 30;
+		sfxSet = sgSFXSets[SFXS_PLR_88];
+	} else if (idx == IDI_ROCK) {
+		if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
+			return;
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
@@ -1403,16 +1409,20 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 				NetSendCmdQuest(true, Q_ROCK, false); // recipient should not matter
 			}
 		}
-		if (pnum == myplr && quests[Q_ROCK]._qlog) {
-			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_87][p->_pClass];
-		}
-	} else if (idx == IDI_ARMOFVAL && quests[Q_BLOOD]._qactive == QUEST_ACTIVE) {
+		if (!quests[Q_ROCK]._qlog)
+			return;
+		delay = 10;
+		sfxSet = sgSFXSets[SFXS_PLR_87];
+	} else if (idx == IDI_ARMOFVAL) {
+		if (quests[Q_BLOOD]._qactive != QUEST_ACTIVE)
+			return;
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
-		sfxdelay = 20;
-		sfxdnum = sgSFXSets[SFXS_PLR_91][p->_pClass];
+		delay = 20;
+		sfxSet = sgSFXSets[SFXS_PLR_91];
 #ifdef HELLFIRE
-	} else if (idx == IDI_MAPOFDOOM && quests[Q_GRAVE]._qactive != QUEST_NOTAVAIL) {
+	} else if (idx == IDI_MAPOFDOOM) {
+		if (quests[Q_GRAVE]._qactive == QUEST_NOTAVAIL)
+			return;
 		if (quests[Q_GRAVE]._qactive == QUEST_INIT) {
 			// quests[Q_GRAVE]._qlog = FALSE;
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
@@ -1421,17 +1431,13 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 				NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
 			}
 		}
-		if (pnum == myplr) {
-			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
-		}
+		delay = 10;
+		sfxSet = sgSFXSets[SFXS_PLR_79];
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasItem(pnum, IDI_NOTE3, &nn))) {
-			sfxdelay = 10;
-			sfxdnum = sgSFXSets[SFXS_PLR_46][p->_pClass];
 			if (idx != IDI_NOTE1) {
 				PlrHasItem(pnum, IDI_NOTE1, &nn);
 				RemoveInvItem(pnum, nn);
@@ -1448,8 +1454,18 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			SetupItem(MAXITEMS);
 			copy_pod(*is, item[MAXITEMS]);
 			GetItemSeed(is);
+			delay = 10;
+			sfxSet = sgSFXSets[SFXS_PLR_46];
+		} else {
+			return;
 		}
 #endif
+	} else {
+		return;
+	}
+	if (pnum == myplr) {
+		sfxdelay = delay;
+		sfxdnum = sfxSet[plr[pnum]._pClass];
 	}
 }
 
