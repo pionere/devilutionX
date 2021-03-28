@@ -1384,8 +1384,11 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
+			if (pnum == myplr) {
+				NetSendCmdQuest(true, Q_ANVIL, false); // recipient should not matter
+			}
 		}
-		if (quests[Q_ANVIL]._qlog) {
+		if (pnum == myplr && quests[Q_ANVIL]._qlog) {
 			sfxdelay = 10;
 			sfxdnum = sgSFXSets[SFXS_PLR_89][p->_pClass];
 		}
@@ -1396,8 +1399,11 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
+			if (pnum == myplr) {
+				NetSendCmdQuest(true, Q_ROCK, false); // recipient should not matter
+			}
 		}
-		if (quests[Q_ROCK]._qlog) {
+		if (pnum == myplr && quests[Q_ROCK]._qlog) {
 			sfxdelay = 10;
 			sfxdnum = sgSFXSets[SFXS_PLR_87][p->_pClass];
 		}

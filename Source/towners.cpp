@@ -601,55 +601,46 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		break;
 	case TOWN_SMITH:
-		if (gbMaxPlayers == 1) {
-			if (plr[pnum]._pLvlVisited[4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
-				if (quests[Q_ROCK]._qvar2 == 0) {
-					quests[Q_ROCK]._qvar2 = 1;
-					quests[Q_ROCK]._qlog = TRUE;
-					if (quests[Q_ROCK]._qactive == QUEST_INIT) {
-						quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-						quests[Q_ROCK]._qvar1 = 1;
-					}
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_INFRA5);
-					msgSaid = true;
-				}
-				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) && !msgSaid) {
-					quests[Q_ROCK]._qactive = QUEST_DONE;
-					quests[Q_ROCK]._qvar2 = 2;
-					quests[Q_ROCK]._qvar1 = 2;
-					RemoveInvItem(pnum, i);
-					SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_INFRA7);
-					msgSaid = true;
-				}
+		qt = TEXT_NONE;
+		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
+			if (quests[Q_ROCK]._qvar1 <= 1) {
+				quests[Q_ROCK]._qvar1 = 2;
+				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
+				quests[Q_ROCK]._qlog = TRUE;
+				qn = Q_ROCK;
+				qt = TEXT_INFRA5;
+				msgSaid = true;
 			}
-			if (plr[pnum]._pLvlVisited[9] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
-				if ((quests[Q_ANVIL]._qactive == QUEST_INIT || quests[Q_ANVIL]._qactive == QUEST_ACTIVE) && quests[Q_ANVIL]._qvar2 == 0 && !msgSaid) {
-					if (quests[Q_ROCK]._qvar2 == 2 || quests[Q_ROCK]._qactive == QUEST_ACTIVE && quests[Q_ROCK]._qvar2 == 1) {
-						quests[Q_ANVIL]._qvar2 = 1;
-						quests[Q_ANVIL]._qlog = TRUE;
-						if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
-							quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-							quests[Q_ANVIL]._qvar1 = 1;
-						}
-						tw->_tListener = pnum + 1;
-						InitQTextMsg(TEXT_ANVIL5);
-						msgSaid = true;
-					}
-				}
-				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) && !msgSaid) {
-					quests[Q_ANVIL]._qactive = QUEST_DONE;
-					quests[Q_ANVIL]._qvar2 = 2;
-					quests[Q_ANVIL]._qvar1 = 2;
-					RemoveInvItem(pnum, i);
-					SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_ANVIL7);
-					msgSaid = true;
-				}
+			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && !msgSaid) {
+				RemoveInvItem(pnum, i);
+				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
+				quests[Q_ROCK]._qlog = FALSE;
+				qn = Q_ROCK;
+				qt = TEXT_INFRA7;
+				msgSaid = true;
 			}
+		}
+		if (plr[pnum]._pLvlVisited[DLV_CAVES1] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
+			if (quests[Q_ANVIL]._qvar1 <= 1 && !msgSaid) {
+				quests[Q_ANVIL]._qvar1 = 2;
+				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
+				quests[Q_ANVIL]._qlog = TRUE;
+				qn = Q_ANVIL;
+				qt = TEXT_ANVIL5;
+				msgSaid = true;
+			}
+			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && !msgSaid) {
+				RemoveInvItem(pnum, i);
+				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
+				quests[Q_ANVIL]._qactive = QUEST_DONE;
+				quests[Q_ANVIL]._qlog = FALSE;
+				qt = TEXT_ANVIL7;
+				msgSaid = true;
+			}
+		}
+		if (qt != TEXT_NONE) {
+			tw->_tListener = pnum + 1;
+			InitQTextMsg(qt);
 		}
 		TownerTalk(STORE_SMITH, TEXT_GRISWOLD1);
 		break;
