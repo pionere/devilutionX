@@ -1482,7 +1482,7 @@ static int DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
 	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 2, width);
+		memset(dst, PAL16_GRAY + 8, width);
 
 	// draw background
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
@@ -1587,7 +1587,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
 	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 2, width);
+		memset(dst, PAL16_GRAY + 8, width);
 
 	// draw background
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
@@ -1620,7 +1620,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
 	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 2, width);
+		memset(dst, PAL16_GRAY + 5, width);
 
 	// draw the bar
 	//width = (width - 2) * hp / maxhp;
@@ -1630,7 +1630,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	}
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
 	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_RED + 6, w);
+		memset(dst, PAL16_RED + 9, w);
 }
 
 static void DrawTrigInfo()
