@@ -233,10 +233,13 @@ int ForceQuests()
 
 bool QuestStatus(int qn)
 {
-	return currLvl._dLevelIdx == quests[qn]._qlevel
-		&& quests[qn]._qactive != QUEST_NOTAVAIL
-		&& (gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY))
-		&& !currLvl._dSetLvl; // TODO: is this necessary?
+	if (currLvl._dLevelIdx == quests[qn]._qlevel
+	 && quests[qn]._qactive != QUEST_NOTAVAIL) {
+		assert(gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY));
+		assert(!currLvl._dSetLvl);
+		return true;
+	}
+	return false;
 }
 
 void CheckQuestKill(int mnum, bool sendmsg)
