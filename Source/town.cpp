@@ -220,10 +220,9 @@ unsigned char GetOpenWarps()
 		twarps |= (1 << TWARP_CATACOMB) | (1 << TWARP_CAVES) | (1 << TWARP_HELL);
 	}
 #ifdef HELLFIRE
-	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_FARMER]._qactive == 10
-	 || quests[Q_JERSEY]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == 10)
+	if (quests[Q_FARMER]._qactive == QUEST_DONE || quests[Q_JERSEY]._qactive == QUEST_DONE)
 		twarps |= 1 << TWARP_NEST;
-	if (quests[Q_GRAVE]._qactive == QUEST_DONE || plr[myplr]._pLvlVisited[21])
+	if (quests[Q_GRAVE]._qactive == QUEST_DONE)
 		twarps |= 1 << TWARP_CRYPT;
 #endif
 	return twarps;

@@ -1412,12 +1412,19 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		sfxdelay = 20;
 		sfxdnum = sgSFXSets[SFXS_PLR_91][p->_pClass];
 #ifdef HELLFIRE
-	} else if (idx == IDI_MAPOFDOOM) {
-		quests[Q_GRAVE]._qlog = FALSE;
-		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-		quests[Q_GRAVE]._qvar1 = 1;
-		sfxdelay = 10;
-		sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
+	} else if (idx == IDI_MAPOFDOOM && quests[Q_GRAVE]._qactive != QUEST_NOTAVAIL) {
+		if (quests[Q_GRAVE]._qactive == QUEST_INIT) {
+			// quests[Q_GRAVE]._qlog = FALSE;
+			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
+			quests[Q_GRAVE]._qvar1 = 1;
+			if (pnum == myplr) {
+				NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
+			}
+		}
+		if (pnum == myplr) {
+			sfxdelay = 10;
+			sfxdnum = sgSFXSets[SFXS_PLR_79][p->_pClass];
+		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
