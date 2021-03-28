@@ -3700,9 +3700,6 @@ void PlayDungMsgs()
 	} else if (currLvl._dLevelIdx == DLV_NEST1 && !plr[myplr]._pLvlVisited[DLV_NEST1] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER1;
-		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
-		quests[Q_DEFILER]._qlog = TRUE;
-		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER;
 	} else if (currLvl._dLevelIdx == DLV_NEST3 && !plr[myplr]._pLvlVisited[DLV_NEST3] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
 		sfxdelay = 10;

@@ -1705,7 +1705,10 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	case UMT_DEFILER:
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
-		quests[Q_DEFILER]._qlog = FALSE;
+		// quests[Q_DEFILER]._qlog = FALSE;
+		quests[Q_DEFILER]._qactive = QUEST_DONE;
+		if (sendmsg)
+			NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
 		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg, false);
 		return;
 	case UMT_NAKRUL:
@@ -2358,7 +2361,7 @@ static bool MonDoTalk(int mnum)
 		}
 		if (mon->mtalkmsg == TEXT_GARBUD2 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			//SetRndSeed(mon->_mRndSeed);
-			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, TRUE);
+			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, true);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		break;
@@ -2403,7 +2406,7 @@ static bool MonDoTalk(int mnum)
 		}
 		if (mon->mtalkmsg == TEXT_VEIL11 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			//SetRndSeed(mon->_mRndSeed);
-			SpawnUnique(UITEM_STEELVEIL, mon->_mx + 1, mon->_my + 1);
+			SpawnUnique(UITEM_STEELVEIL, mon->_mx + 1, mon->_my + 1, true, false);
 			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		break;

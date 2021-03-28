@@ -2102,7 +2102,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 	SetupItem(ii);
 }
 
-void SpawnUnique(int uid, int x, int y)
+void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 {
 	int ii, idx;
 
@@ -2118,7 +2118,10 @@ void SpawnUnique(int uid, int x, int y)
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, uid, items_get_currlevel() << 1, 1, false, false, false);
 
-	RegisterItem(ii, x, y, true, false); // TODO: sendmsg/delta?
+	RegisterItem(ii, x, y, sendmsg, false);
+	if (respawn) {
+		NetSendCmdPItem(true, CMD_RESPAWNITEM, &item[ii], item[ii]._ix, item[ii]._iy);
+	}
 }
 
 void SpawnItem(int mnum, int x, int y, bool sendmsg)
@@ -2134,7 +2137,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 	if ((mon->MData->mTreasure & 0x8000) != 0 && gbMaxPlayers == 1) {
 		// fix drop in single player
 		idx = mon->MData->mTreasure & 0xFFF;
-		SpawnUnique(idx, x, y);
+		SpawnUnique(idx, x, y, sendmsg, false);
 		return;
 	}
 	if (mon->MData->mTreasure & 0x4000)
@@ -2422,12 +2425,15 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
+	item[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 	SetupItem(ii);
-	item[ii]._iPostDraw = TRUE;
-	item[ii]._iSelFlag = 1;
+	//item[ii]._iPostDraw = TRUE;
 	item[ii]._iAnimFrame = item[ii]._iAnimLen;
 	item[ii]._iAnimFlag = FALSE;
+	item[ii]._iSelFlag = 1;
+
 	GetRandomItemSpace(areasize, ii);
+	DeltaAddItem(ii);
 
 	itemactive[numitems] = ii;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];

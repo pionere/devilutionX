@@ -545,8 +545,10 @@ void ResyncMPQuests()
 	//	quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
 	//}
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel - 1) {
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+		quests[Q_DEFILER]._qlog = TRUE;
+		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
 	}
 	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {

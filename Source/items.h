@@ -35,7 +35,7 @@ void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
 void SetupItem(int ii);
-void SpawnUnique(int uid, int x, int y);
+void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn);
 void SpawnItem(int mnum, int x, int y, bool sendmsg);
 void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(int x, int y, bool sendmsg, bool delta);

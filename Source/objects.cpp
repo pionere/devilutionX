@@ -2875,7 +2875,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
-				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5);
+				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5, sendmsg, false);
 			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
 		}
 	}
@@ -3155,7 +3155,7 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		break;
 	case 4:
 		// SetRndSeed(os->_oRndSeed + 2);
-		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3);
+		SpawnUnique(UITEM_ARMOFVAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 3, sendmsg, false);
 		break;
 	default:
 		ASSUME_UNREACHABLE
