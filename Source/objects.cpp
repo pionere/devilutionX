@@ -916,6 +916,10 @@ static void AddLazStand()
 {
 	int xp, yp;
 
+	if (gbMaxPlayers != 1) {
+		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
+		return;
+	}
 	if (!RndLoc6x7(&xp, &yp)) {
 		InitRndLocObj(1, 1, OBJ_LAZSTAND);
 		return;
@@ -998,7 +1002,7 @@ void InitObjects()
 				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
 				LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 			}
-			if (QuestStatus(Q_BETRAYER) && gbMaxPlayers == 1)
+			if (QuestStatus(Q_BETRAYER))
 				AddLazStand();
 			AddL4Goodies();
 			break;

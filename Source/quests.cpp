@@ -538,8 +538,6 @@ void ResyncMPQuests()
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
 	}
-	if (QuestStatus(Q_BETRAYER))
-		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
 	//if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
 	//	quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
