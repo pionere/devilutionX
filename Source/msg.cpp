@@ -454,21 +454,27 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 			} else if (_gbRecvCmd == CMD_DLEVEL_SEP) {
 				// separator package -> wait for next
 				goto done;
-			} else if (_gbRecvCmd == CMD_DLEVEL_DATA || _gbRecvCmd == CMD_DLEVEL_JUNK) {
-				// start receiving a new package
-				sgdwRecvOffset = 0;
 			} else {
-				// invalid package in-between -> drop the connection
-				gbGameDestroyed = true;
-				goto done;
+				// start receiving a new package
+				assert(_gbRecvCmd == CMD_DLEVEL_DATA || _gbRecvCmd == CMD_DLEVEL_JUNK);
+				sgdwRecvOffset = 0;
 			}
 		} else {
 			// continue previous package
-			assert(_gbRecvCmd == CMD_DLEVEL_DATA || _gbRecvCmd == CMD_DLEVEL_JUNK);
+			if (_gbRecvCmd != CMD_DLEVEL_DATA && _gbRecvCmd != CMD_DLEVEL_JUNK) {
+				// lost or duplicated package -> drop the connection and quit
+				gbGameDestroyed = true;
+				goto done;
+			}
 		}
 	}
 
-	/// ASSERT: assert(cmd->wOffset == sgdwRecvOffset);
+	if (cmd->wOffset != sgdwRecvOffset) {
+		// lost or duplicated package -> drop the connection and quit
+		gbGameDestroyed = true;
+		goto done;
+	}
+
 	memcpy(&sgRecvBuf[cmd->wOffset], &cmd[1], cmd->wBytes);
 	sgdwRecvOffset += cmd->wBytes;
 done:
@@ -1435,8 +1441,7 @@ static unsigned On_STRING2(int pnum, TCmd *pCmd)
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 {
-	_gbLevelDeltaChanged[bLevel] = true;
-	_gbLevelDeltaChanged[DLV_TOWN] = true;
+	_gbJunkDeltaChanged = true;
 	sgJunk.portal[pnum].x = x;
 	sgJunk.portal[pnum].y = y;
 	sgJunk.portal[pnum].level = bLevel;
@@ -1445,8 +1450,7 @@ static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 void delta_close_portal(int pnum)
 {
 	memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
-	// assert(_gbLevelDeltaChanged[bLevel] == true);
-	// assert(_gbLevelDeltaChanged[DLV_TOWN] == true);
+	// assert(_gbJunkDeltaChanged == true);
 }
 
 static void check_update_plr(int pnum)
