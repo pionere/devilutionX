@@ -3111,6 +3111,8 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 		if (!PlrHasItem(pnum, IDI_BLDSTONE, &iv))
 			return;
 		RemoveInvItem(pnum, iv);
+		if (pnum != myplr)
+			return; // TODO: remove this if the Quest command below is not sent to players on the same level.
 		quests[Q_BLOOD]._qvar1++;
 		if (sendmsg) {
 			// TODO: recipient should be true, but that requires a synced inventory
