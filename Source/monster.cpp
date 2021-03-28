@@ -1696,7 +1696,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (gbUseTheoQuest) {
-			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg);
+			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
 		} else {
 			CreateAmulet(mon->_mx, mon->_my, sendmsg);
 		}
@@ -1705,7 +1705,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
 		quests[Q_DEFILER]._qlog = FALSE;
-		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg);
+		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg, false);
 		return;
 	case UMT_NAKRUL:
 		stream_stop();

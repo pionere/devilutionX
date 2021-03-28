@@ -283,14 +283,12 @@ static BYTE *DeltaExportJunk(BYTE *dst)
 
 	mq = sgJunk.quests;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (questlist[i]._qflags & QUEST_ANY) {
-			mq->qlog = quests[i]._qlog;
-			mq->qstate = quests[i]._qactive;
-			mq->qvar1 = quests[i]._qvar1;
-			copy_pod(*reinterpret_cast<MultiQuests *>(dst), *mq);
-			dst += sizeof(*mq);
-			mq++;
-		}
+		mq->qlog = quests[i]._qlog;
+		mq->qstate = quests[i]._qactive;
+		mq->qvar1 = quests[i]._qvar1;
+		copy_pod(*reinterpret_cast<MultiQuests *>(dst), *mq);
+		dst += sizeof(*mq);
+		mq++;
 	}
 
 	return dst;
@@ -317,14 +315,12 @@ static void DeltaImportJunk(BYTE *src)
 
 	mq = sgJunk.quests;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (questlist[i]._qflags & QUEST_ANY) {
-			copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
-			src += sizeof(*mq);
-			quests[i]._qlog = mq->qlog;
-			quests[i]._qactive = mq->qstate;
-			quests[i]._qvar1 = mq->qvar1;
-			mq++;
-		}
+		copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
+		src += sizeof(*mq);
+		quests[i]._qlog = mq->qlog;
+		quests[i]._qactive = mq->qstate;
+		quests[i]._qvar1 = mq->qvar1;
+		mq++;
 	}
 }
 
@@ -822,7 +818,7 @@ void DeltaSaveLevel()
 	delta_leave_sync(currLvl._dLevelIdx);
 }
 
-static void UnPackPItem(TCmdPItem *src)
+static void UnPackPItem(const TCmdPItem *src)
 {
 	if (src->wIndx == IDI_EAR) {
 		RecreateEar(
@@ -1596,7 +1592,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 				if (cmd->bPnum == myplr) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
 						UnPackGItem(cmd);
-						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
+						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, MAXITEMS, false);
 						if (ii != -1)
 							InvGetItem(myplr, ii);
 					} else {
@@ -1660,7 +1656,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 				if (cmd->bPnum == myplr) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
 						UnPackGItem(cmd);
-						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, &item[MAXITEMS]);
+						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, MAXITEMS, false);
 						if (ii != -1)
 							AutoGetItem(myplr, ii);
 					} else
@@ -1690,29 +1686,59 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
+{
+	if (iidx == IDI_RUNEBOMB
+	 && x >= DBORDERX + 69 && x <= DBORDERX + 72 && y >= DBORDERY + 51 && y <= DBORDERY + 54
+	 && quests[Q_FARMER]._qactive != QUEST_DONE) {
+		quests[Q_FARMER]._qactive = QUEST_DONE;
+		quests[Q_FARMER]._qvar1 = 2 + pnum;
+		quests[Q_FARMER]._qlog = TRUE;
+		if (pnum == myplr) {
+			// NetSendCmdQuest(true, Q_FARMER, true);
+			NetSendCmd(false, CMD_OPENHIVE);
+		}
+		return true;
+	}
+	if (iidx == IDI_MAPOFDOOM
+	 && x >= DBORDERX + 25  && x <= DBORDERX + 28 && y >= DBORDERY + 10 && y <= DBORDERY + 14
+	 && quests[Q_GRAVE]._qactive != QUEST_DONE) {
+		quests[Q_GRAVE]._qactive = QUEST_DONE;
+		if (pnum == myplr) {
+			// NetSendCmdQuest(true, Q_GRAVE, true);
+			NetSendCmd(false, CMD_OPENCRYPT);
+		}
+		return true;
+	}
+	return false;
+}
+
 static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 {
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
+	int x, y;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		int ii;
-		if (pnum == myplr)
-			ii = InvPutItem(pnum, cmd->x, cmd->y);
-		else {
-			UnPackPItem(cmd);
-			ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
-		}
-		if (ii != -1) {
-			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
-			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
-			check_update_plr(pnum);
-		}
-	} else {
-		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
-		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
+	else {
 		check_update_plr(pnum);
+		x = cmd->x;
+		y = cmd->y;
+#ifdef HELLFIRE
+		if (plr[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, cmd->wIndx)) {
+			return sizeof(*cmd);
+		}
+#endif
+		if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
+			UnPackPItem(cmd);
+			int ii = InvPutItem(pnum, x, y, MAXITEMS);
+			if (ii == -1)
+				return sizeof(*cmd);
+			x = item[ii]._ix;
+			y = item[ii]._iy;
+		}
+		delta_put_item(cmd, x, y, plr[pnum].plrlevel);
+		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 	}
 
 	return sizeof(*cmd);
@@ -1726,7 +1752,7 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		UnPackPItem(cmd);
-		int ii = SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
 			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
@@ -1750,7 +1776,7 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 	else {
 		if (currLvl._dLevelIdx == plr[pnum].plrlevel && pnum != myplr) {
 			UnPackPItem(cmd);
-			SyncPutItem(pnum, cmd->x, cmd->y, &item[MAXITEMS]);
+			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
 		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
@@ -2555,7 +2581,9 @@ static unsigned On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 #ifdef HELLFIRE
 static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else if (currLvl._dLevelIdx == DLV_TOWN) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
 		T_HiveOpen();
 		InitTriggers();
@@ -2565,11 +2593,12 @@ static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 
 static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else if (currLvl._dLevelIdx == DLV_TOWN) {
+		PlaySFX(IS_SARC);
 		T_CryptOpen();
 		InitTriggers();
-		if (currLvl._dLevelIdx == DLV_TOWN)
-			PlaySFX(IS_SARC);
 	}
 	return sizeof(*pCmd);
 }

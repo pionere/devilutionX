@@ -47,7 +47,7 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
 void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg);
 void SpawnRock();
 #ifdef HELLFIRE
-void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg);
+void SpawnRewardItem(int idx, int xx, int yy, bool sendmsg, bool respawn);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);

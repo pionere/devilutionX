@@ -2473,7 +2473,7 @@ void SpawnRock()
  * @param y tile-coordinate of the target location
  * @param sendmsg whether a message should be sent to register the item
  */
-void SpawnRewardItem(int idx, int x, int y, bool sendmsg)
+void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 {
 	int ii;
 
@@ -2491,6 +2491,9 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg)
 	item[ii]._iIdentified = TRUE;
 
 	RegisterItem(ii, x, y, sendmsg, false);
+	if (respawn) {
+		NetSendCmdPItem(true, CMD_RESPAWNITEM, &item[ii], item[ii]._ix, item[ii]._iy);
+	}
 }
 #endif
 

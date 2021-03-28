@@ -59,7 +59,7 @@ void InitQuests()
 {
 	QuestStruct *qs;
 	const QuestData *qdata;
-	int i, initiatedQuests;
+	int i;
 
 	if (gbMaxPlayers == 1) {
 		qs = quests;
@@ -81,21 +81,19 @@ void InitQuests()
 
 	gbQuestlog = false;
 	WaterDone = 0;
-	initiatedQuests = 0;
 
 	qs = quests;
 	qdata = questlist;
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
-		if (gbMaxPlayers != 1 && !(qdata->_qflags & QUEST_ANY))
-			continue;
 		if (gbMaxPlayers != 1) {
+			if (!(qdata->_qflags & QUEST_ANY))
+				continue;
 			qs->_qlevel = qdata->_qdmultlvl;
-			if (!delta_quest_inited(initiatedQuests)) {
+			if (!delta_quest_inited(i)) {
 				qs->_qactive = QUEST_INIT;
 				qs->_qvar1 = 0;
 				qs->_qlog = FALSE;
 			}
-			initiatedQuests++;
 		} else {
 			qs->_qactive = QUEST_INIT;
 			qs->_qlevel = qdata->_qdlvl;
@@ -540,10 +538,10 @@ void ResyncMPQuests()
 	if (QuestStatus(Q_BETRAYER))
 		AddObject(OBJ_ALTBOY, 2 * setpc_x + DBORDERX + 4, 2 * setpc_y + DBORDERY + 6);
 #ifdef HELLFIRE
-	if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
-		quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
-	}
+	//if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
+	//	quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
+	//}
 	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel - 1) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter

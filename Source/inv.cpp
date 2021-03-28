@@ -1676,58 +1676,46 @@ void DrawInvMsg(const char *msg)
 	}
 }
 
-int InvPutItem(int pnum, int x, int y)
+int InvPutItem(int pnum, int x, int y, int ii)
 {
-	int ii;
+	ii = SyncPutItem(pnum, x, y, ii, true);
 
-	if (numitems >= MAXITEMS)
-		return -1;
-
-	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
-		return -1;
-
-#ifdef HELLFIRE
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		if (plr[pnum].HoldItem._iCurs == ICURS_RUNE_BOMB && cursmx >= DBORDERX + 69 && cursmx <= DBORDERX + 72 && cursmy >= DBORDERY + 51 && cursmy <= DBORDERY + 54) {
-			NetSendCmd(false, CMD_OPENHIVE);
-			quests[Q_FARMER]._qactive = QUEST_DONE;
-			if (pnum == myplr) {
-				NetSendCmdQuest(true, Q_FARMER, false); // recipient should not matter
-			}
-			return -1;
-		}
-		if (plr[pnum].HoldItem._iIdx == IDI_MAPOFDOOM && cursmx >= DBORDERX + 25  && cursmx <= DBORDERX + 28 && cursmy >= DBORDERY + 10 && cursmy <= DBORDERY + 14) {
-			NetSendCmd(false, CMD_OPENCRYPT);
-			quests[Q_GRAVE]._qactive = QUEST_DONE;
-			if (pnum == myplr) {
-				NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
-			}
-			return -1;
-		}
+	if (ii != -1 && pnum == myplr) {
+		NewCursor(CURSOR_HAND);
 	}
-#endif
-	ii = itemavail[0];
-	dItem[x][y] = ii + 1;
-	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
-	itemactive[numitems] = ii;
-	copy_pod(item[ii], plr[pnum].HoldItem);
-	item[ii]._ix = x;
-	item[ii]._iy = y;
-	RespawnItem(ii, true);
-	numitems++;
-	NewCursor(CURSOR_HAND);
 	return ii;
 }
 
-int SyncPutItem(int pnum, int x, int y, ItemStruct *is)
+/**
+ * Place an item around the given position.
+ *
+ * @param pnum the id of the player who places the item / initiated the item placement
+ * @param x tile coordinate to place the item
+ * @param y tile coordinate to place the item
+ * @param ii the index of the item to place
+ * @param plrAround true: the item should be placed around the player
+ *                 false: the item should be placed around x:y
+ */
+int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround)
 {
-	int ii;
+	int xx, yy;
+	ItemStruct *is;
 
+	// assert(plr[pnum].plrlevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return -1;
 
-	if (!FindItemLocation(plr[pnum]._px, plr[pnum]._py, &x, &y, DSIZEX / 2))
+	if (plrAround) {
+		xx = plr[pnum]._px;
+		yy = plr[pnum]._py;
+	} else {
+		xx = x;
+		yy = y;
+	}
+	if (!FindItemLocation(xx, yy, &x, &y, DSIZEX / 2))
 		return -1;
+
+	is = &item[ii];
 
 	ii = itemavail[0];
 	dItem[x][y] = ii + 1;
