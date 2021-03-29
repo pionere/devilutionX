@@ -54,7 +54,7 @@ DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
 	}
 	while (curTurnsInTransit++ < gdwTurnsInTransit) {
 
-		turn = turn_upper_bit | new_cur_turn & 0x7FFFFFFF;
+		turn = turn_upper_bit | (new_cur_turn & 0x7FFFFFFF);
 		turn_upper_bit = 0;
 
 		if (!SNetSendTurn((char *)&turn, sizeof(turn))) {

@@ -1240,6 +1240,7 @@ static void AddL2Door(int oi, int x, int y, int type)
 	//os->_oMissFlag = FALSE;
 	os->_oDoorFlag = TRUE;
 	ObjSetMicro(x, y, type == OBJ_L2LDOOR ? 538 : 540);
+	dSpecial[x][y] = 0;
 }
 
 static void AddL3Door(int oi, int x, int y, int type)
@@ -4463,15 +4464,21 @@ static void SyncL2Doors(int oi)
 	x = os->_ox;
 	y = os->_oy;
 	if (os->_otype == OBJ_L2LDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED)
+		if (os->_oVar4 == DOOR_CLOSED) {
 			ObjSetMicro(x, y, 538);
-		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
+			dSpecial[x][y] = 0;
+		} else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
 			ObjSetMicro(x, y, 13);
+			dSpecial[x][y] = 5;
+		}
 	} else { // if (os->_otype == OBJ_L2RDOOR) {
-		if (os->_oVar4 == DOOR_CLOSED)
+		if (os->_oVar4 == DOOR_CLOSED) {
 			ObjSetMicro(x, y, 540);
-		else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
+			dSpecial[x][y] = 0;
+		} else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
 			ObjSetMicro(x, y, 17);
+			dSpecial[x][y] = 6;
+		}
 	}
 }
 

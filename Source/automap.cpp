@@ -698,7 +698,7 @@ void DrawAutomap()
 
 	/* disable this feature for the moment, since the other players should consent to this...
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive) {
+		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive && !plr[pnum]._pLvlChanging) {
 			DrawAutomapPlr(pnum);
 		}
 	}*/
