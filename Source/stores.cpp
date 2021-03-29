@@ -907,6 +907,8 @@ static void S_StartConfirm()
 	case STORE_SREPAIR:
 		copy_cstr(tempstr, "Are you sure you want to repair this item?");
 		break;
+	default:
+		app_fatal("Unknown store dialog %d", stextshold);
 	}
 	AddSText(0, 15, TRUE, tempstr, COL_WHITE, FALSE);
 	AddSText(0, 18, TRUE, "Yes", COL_WHITE, TRUE);
@@ -2402,7 +2404,7 @@ void CheckStoreBtn()
 					y--;
 				}
 			}
-			if (stext[y]._ssel || stextscrl && y == 22) {
+			if (stext[y]._ssel || (stextscrl && y == 22)) {
 				stextsel = y;
 				STextEnter();
 			}

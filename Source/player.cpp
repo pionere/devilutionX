@@ -3287,7 +3287,7 @@ static void ValidatePlayer()
 		p->_pExperience = p->_pNextExper;
 
 #ifdef HELLFIRE
-	limit = auricGold; // BUGFIX: change to MaxGold? Why would auricGold be used here?
+	limit = GOLD_MAX_LIMIT * 2; // BUGFIX: change to MaxGold? Why would auricGold be used here? (fixed)
 #else
 	limit = GOLD_MAX_LIMIT;
 #endif

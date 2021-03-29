@@ -1299,6 +1299,7 @@ static void AddL2Door(int oi, int x, int y, int type)
 		ObjSetMicro(x, y, 538);
 	else
 		ObjSetMicro(x, y, 540);
+	dSpecial[x][y] = 0;
 	os->_oVar4 = 0;
 }
 
@@ -4759,15 +4760,21 @@ static void SyncL2Doors(int oi)
 	y = os->_oy;
 	os->_oSelFlag = 2;
 	if (os->_otype == OBJ_L2LDOOR) {
-		if (os->_oVar4 == 0)
+		if (os->_oVar4 == 0) {
 			ObjSetMicro(x, y, 538);
-		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			dSpecial[x][y] = 0;
+		} else if (os->_oVar4 == 1 || os->_oVar4 == 2) {
 			ObjSetMicro(x, y, 13);
+			dSpecial[x][y] = 5;
+		}
 	} else if (os->_otype == OBJ_L2RDOOR) {
-		if (os->_oVar4 == 0)
+		if (os->_oVar4 == 0) {
 			ObjSetMicro(x, y, 540);
-		else if (os->_oVar4 == 1 || os->_oVar4 == 2)
+			dSpecial[x][y] = 0;
+		} else if (os->_oVar4 == 1 || os->_oVar4 == 2) {
 			ObjSetMicro(x, y, 17);
+			dSpecial[x][y] = 6;
+		}
 	}
 }
 

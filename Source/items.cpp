@@ -14,7 +14,6 @@ ItemGetRecordStruct itemrecord[MAXITEMS];
 ItemStruct item[MAXITEMS + 1];
 #ifdef HELLFIRE
 CornerStoneStruct CornerStone;
-int auricGold = 2 * GOLD_MAX_LIMIT;
 int MaxGold = GOLD_MAX_LIMIT;
 #endif
 BYTE *itemanims[ITEMTYPES];
@@ -824,12 +823,12 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	pi = &p->InvBody[INVLOC_AMULET];
 	if (pi->_itype == ITYPE_NONE || pi->_iIdx != IDI_AURIC) {
 		int half = MaxGold;
-		MaxGold = auricGold / 2;
+		MaxGold = GOLD_MAX_LIMIT;
 
 		if (half != MaxGold)
 			StripTopGold(pnum);
 	} else {
-		MaxGold = auricGold;
+		MaxGold = GOLD_MAX_LIMIT * 2;
 	}
 #endif
 
