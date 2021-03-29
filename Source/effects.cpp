@@ -1160,6 +1160,8 @@ static void stream_play(TSFX *pSFX, int lVolume, int lPan)
 	// assert(pSFX != NULL);
 	// assert(pSFX->bFlags & sfx_STREAM);
 	// assert(pSFX->pSnd != NULL);
+	if (pSFX == sgpStreamSFX)
+		return;
 	stream_stop();
 	lVolume += sound_get_sound_volume();
 	if (lVolume >= VOLUME_MIN) {
