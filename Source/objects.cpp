@@ -4467,7 +4467,7 @@ static void SyncL2Doors(int oi)
 		if (os->_oVar4 == DOOR_CLOSED) {
 			ObjSetMicro(x, y, 538);
 			dSpecial[x][y] = 0;
-		} else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
+		} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
 			ObjSetMicro(x, y, 13);
 			dSpecial[x][y] = 5;
 		}
@@ -4475,7 +4475,7 @@ static void SyncL2Doors(int oi)
 		if (os->_oVar4 == DOOR_CLOSED) {
 			ObjSetMicro(x, y, 540);
 			dSpecial[x][y] = 0;
-		} else // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
+		} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
 			ObjSetMicro(x, y, 17);
 			dSpecial[x][y] = 6;
 		}
