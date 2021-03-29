@@ -496,11 +496,8 @@ static void TownerTalk(int store, int talk)
 void TalkToTowner(int pnum, int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, qn = Q_INVALID;
+	int i, dx, dy, qt, qn = Q_INVALID;
 	bool msgSaid;
-#ifdef HELLFIRE
-	int qt;
-#endif
 
 	tw = &towner[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
