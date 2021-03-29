@@ -500,7 +500,6 @@ void TalkToTowner(int pnum, int tnum)
 	bool msgSaid;
 #ifdef HELLFIRE
 	int qt;
-	bool qtsnd;
 #endif
 
 	tw = &towner[tnum];
@@ -908,7 +907,6 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		break;
 	case TOWN_GIRL:
-		qtsnd = false;
 		if (quests[Q_GIRL]._qactive != QUEST_ACTIVE) {
 			qt = TEXT_NONE;
 		} else if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
@@ -923,7 +921,6 @@ void TalkToTowner(int pnum, int tnum)
 			if (quests[Q_GIRL]._qvar1 == 0) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;
-					qtsnd = true;
 				} else {
 					qt = TEXT_GIRL2;
 					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
@@ -937,11 +934,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 		}
 		if (qt != TEXT_NONE) {
-			if (!qtsnd) {
-				InitQTextMsg(qt);
-			} else {
-				PlaySFX(alltext[qt].sfxnr);
-			}
+			InitQTextMsg(qt);
 		}
 		break;
 #endif

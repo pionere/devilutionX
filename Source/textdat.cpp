@@ -581,7 +581,7 @@ const TextDataStruct alltext[NUM_TEXTS] = {
 	    TRUE, 0, TSFX_FARMER4 },
 	{ "Oh, such a trouble I have...maybe...No, I couldn't impose on you, what with all the other troubles. Maybe after you've cleansed the church of some of those creatures you could come back... and spare a little time to help a poor farmer?|",
 	    TRUE, 0, TSFX_FARMER5 },
-	{ "Waaaah! (sniff) Waaaah! (sniff)|", TRUE, 0, TSFX_TEDDYBR1 },
+	{ "Waaaah! (sniff) Waaaah! (sniff)|", FALSE, 0, TSFX_TEDDYBR1 },
 	{ "I lost Theo!  I lost my best friend!  We were playing over by the river, and Theo said he wanted to go look at the big green thing.  I said we shouldn't, but we snuck over there, and then suddenly this BUG came out!  We ran away but Theo fell down and the bug GRABBED him and took him away!|",
 	    TRUE, 0, TSFX_TEDDYBR2 },
 	{ "Didja find him?  You gotta find Theodore, please!  He's just little.  He can't take care of himself!  Please!|",
