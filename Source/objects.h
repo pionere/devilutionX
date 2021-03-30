@@ -16,7 +16,7 @@ extern int objectactive[MAXOBJECTS];
 extern int nobjects;
 extern int objectavail[MAXOBJECTS];
 extern ObjectStruct object[MAXOBJECTS];
-extern bool gbInitObjFlag;
+//extern bool gbInitObjFlag;
 
 void InitObjectGFX();
 void FreeObjectGFX();

@@ -31,8 +31,7 @@ int nobjects;
 int leverid;
 int objectavail[MAXOBJECTS];
 ObjectStruct object[MAXOBJECTS];
-bool gbInitObjFlag;
-int UberLeverProgress;
+//bool gbInitObjFlag;
 
 /** Specifies the X-coordinate delta between barrels. */
 const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
@@ -692,7 +691,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 	int rw, rh, i, j, oi, x2, y2, mapoff;
 	BYTE *lm;
 
-	gbInitObjFlag = true;
+	//gbInitObjFlag = true;
 
 	rw = pMap[0];
 	rh = pMap[2];
@@ -717,7 +716,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 			lm += 2;
 		}
 	}
-	gbInitObjFlag = false;
+	//gbInitObjFlag = false;
 
 	mem_free_dbg(pMap);
 }
@@ -730,7 +729,7 @@ static void LoadMapSetObjs(const char *map)
 	int i, j, mapoff;
 	BYTE *lm;
 
-	gbInitObjFlag = true;
+	//gbInitObjFlag = true;
 
 	rw = pMap[0];
 	rh = pMap[2];
@@ -752,7 +751,7 @@ static void LoadMapSetObjs(const char *map)
 			lm += 2;
 		}
 	}
-	gbInitObjFlag = false;
+	//gbInitObjFlag = false;
 
 	mem_free_dbg(pMap);
 }
@@ -941,13 +940,11 @@ void InitObjects()
 	int sp_id;
 
 	ClrAllObjects();
-#ifdef HELLFIRE
-	UberLeverProgress = 0;
-#endif
+
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		AddDiabObjs();
 	} else {
-		gbInitObjFlag = true;
+		//gbInitObjFlag = true;
 		switch (currLvl._dType) {
 		case DTYPE_CATHEDRAL:
 			if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
@@ -1045,7 +1042,7 @@ void InitObjects()
 		// BUGFIX: TODO no traps in CRYPT?
 		if (currLvl._dDunType != DTYPE_CATHEDRAL)
 			AddChestTraps();
-		gbInitObjFlag = false;
+		//gbInitObjFlag = false;
 	}
 }
 
@@ -1061,7 +1058,7 @@ void SetMapObjects(BYTE *pMap)
 	ClrAllObjects();
 	static_assert(false == 0, "SetMapObjects fills fileload with 0 instead of false values.");
 	memset(fileload, 0, sizeof(fileload));
-	gbInitObjFlag = true;
+	//gbInitObjFlag = true;
 
 	for (i = 0; i < NUM_OBJECTS; i++) { // TODO: use dType instead?
 		if (AllObjects[i].oload == 1 && currLvl._dDunType == AllObjects[i].oSetLvlType)
@@ -1106,7 +1103,7 @@ void SetMapObjects(BYTE *pMap)
 			lm += 2;
 		}
 	}
-	gbInitObjFlag = false;
+	//gbInitObjFlag = false;
 }
 
 static void DeleteObject_(int oi, int idx)
@@ -1311,11 +1308,11 @@ static void AddObjLight(int oi, int diffr)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	if (gbInitObjFlag) {
+	//if (gbInitObjFlag) {
 		if (diffr != 0)
 			DoLighting(os->_ox, os->_oy, diffr, -1);
 		os->_olid = -1;
-	}
+	//}
 }
 
 static void AddBarrel(int oi, int type)

@@ -998,7 +998,7 @@ void CreateThemeRooms()
 	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
-	gbInitObjFlag = true;
+	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
 		switch (themes[i].ttype) {
 		case THEME_BARREL:
@@ -1057,7 +1057,7 @@ void CreateThemeRooms()
 			break;
 		}
 	}
-	gbInitObjFlag = false;
+	//gbInitObjFlag = false;
 	if (currLvl._dType == DTYPE_HELL && themeCount > 0) {
 		UpdateL4Trans();
 	}

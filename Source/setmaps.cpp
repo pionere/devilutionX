@@ -151,8 +151,10 @@ void LoadSetMap()
 		DRLG_ListTrans(sizeof(SkelKingTrans2) / 4, &SkelKingTrans2[0]);
 		DRLG_AreaTrans(sizeof(SkelKingTrans3) / 4, &SkelKingTrans3[0]);
 		DRLG_ListTrans(sizeof(SkelKingTrans4) / 4, &SkelKingTrans4[0]);
+		// gbInitObjFlag = true;
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSKingObjs();
+		// gbInitObjFlag = false;
 		break;
 	case SL_BONECHAMB:
 		LoadPreL2Dungeon(lds->dSetLvlPreDun);
@@ -160,13 +162,17 @@ void LoadSetMap()
 		DRLG_ListTrans(sizeof(SkelChamTrans1) / 4, &SkelChamTrans1[0]);
 		DRLG_AreaTrans(sizeof(SkelChamTrans2) / 4, &SkelChamTrans2[0]);
 		DRLG_ListTrans(sizeof(SkelChamTrans3) / 4, &SkelChamTrans3[0]);
+		// gbInitObjFlag = true;
 		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddSChamObjs();
+		// gbInitObjFlag = false;
 		break;
 	case SL_MAZE:
 		LoadPreL1Dungeon(lds->dSetLvlPreDun);
 		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
+		// gbInitObjFlag = true;
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
+		// gbInitObjFlag = false;
 		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;
 	case SL_POISONWATER:
@@ -178,8 +184,10 @@ void LoadSetMap()
 	case SL_VILEBETRAYER:
 		LoadPreL1Dungeon(lds->dSetLvlPreDun);
 		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
+		// gbInitObjFlag = true;
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddVileObjs();
+		// gbInitObjFlag = false;
 		DRLG_SetMapTrans(lds->dSetLvlPreDun);
 		break;
 	default:
