@@ -21,16 +21,6 @@ int ReturnLvlY;
 int ReturnLvl;
 
 /**
- * Specifies a delta in X-coordinates from the quest entrance for
- * which the hover text of the cursor will be visible.
- */
-const char questxoff[7] = { 0, -1, 0, -1, -2, -1, -2 };
-/**
- * Specifies a delta in Y-coordinates from the quest entrance for
- * which the hover text of the cursor will be visible.
- */
-const char questyoff[7] = { 0, 0, -1, -1, -1, -2, -2 };
-/**
  * A quest group containing the three quests the Butcher,
  * Ogden's Sign and Gharbad the Weak, which ensures that exactly
  * two of these three quests appear in any single player game.
@@ -114,7 +104,7 @@ void InitQuests()
 #else
 	if (gbMaxPlayers == 1) {
 #endif
-		SetRndSeed(glSeedTbl[15]);
+		SetRndSeed(glSeedTbl[DLV_HELL3]);
 		if (random_(0, 2) != 0)
 			quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;
 		else
@@ -136,55 +126,11 @@ void InitQuests()
 
 void CheckQuests()
 {
-	QuestStruct *qs;
-	int i, rportx, rporty;
-
-	qs = &quests[Q_BETRAYER];
-
-	if (!currLvl._dSetLvl) {
-		if (currLvl._dLevelIdx == qs->_qlevel && gbMaxPlayers != 1
-		 && qs->_qvar1 >= 2
-		 && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
-		 && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
-			qs->_qtx = 2 * qs->_qtx + DBORDERX;
-			qs->_qty = 2 * qs->_qty + DBORDERY;
-			rportx = qs->_qtx;
-			rporty = qs->_qty;
-			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
-			qs->_qvar2 = 1;
-			if (qs->_qactive == QUEST_ACTIVE) {
-				qs->_qvar1 = 3;
-			}
-		}
-		if (plr[myplr]._pmode == PM_STAND) {
-			qs = quests;
-			for (i = NUM_QUESTS; i != 0; i--, qs++) {
-				if (currLvl._dLevelIdx == qs->_qlevel
-				 && qs->_qslvl != 0
-				 && qs->_qactive != QUEST_NOTAVAIL
-				 && plr[myplr]._px == qs->_qtx
-				 && plr[myplr]._py == qs->_qty) {
-					StartNewLvl(myplr, WM_DIABSETLVL, qs->_qslvl);
-				}
-			}
-		}
-	} else {
-		if (qs->_qactive == QUEST_DONE
-		 && currLvl._dLevelIdx == SL_VILEBETRAYER
-		 && qs->_qvar2 == 4) {
-			rportx = DBORDERX + 19;
-			rporty = DBORDERY + 16;
-			AddMissile(rportx, rporty, rportx, rporty, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
-			qs->_qvar2 = 3;
-		}
-
-		qs = &quests[Q_PWATER];
-		if (currLvl._dLevelIdx == qs->_qslvl
-		 && qs->_qactive != QUEST_INIT
-		 //&& currLvl._dType == qs->_qlvltype
-		 && nummonsters == MAX_MINIONS
-		 && qs->_qactive != QUEST_DONE) {
-			qs->_qactive = QUEST_DONE;
+	if (currLvl._dSetLvl) {
+		if (currLvl._dLevelIdx == quests[Q_PWATER]._qslvl
+		 && quests[Q_PWATER]._qactive == QUEST_ACTIVE
+		 && nummonsters == MAX_MINIONS) {
+			quests[Q_PWATER]._qactive = QUEST_DONE;
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;
@@ -198,20 +144,24 @@ void CheckQuests()
 
 int ForceQuests()
 {
-	int i, j, qx, qy;
+	int i;
 
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (i != Q_BETRAYER && currLvl._dLevelIdx == quests[i]._qlevel && quests[i]._qslvl != 0) {
-			qx = quests[i]._qtx;
-			qy = quests[i]._qty;
-
-			static_assert(lengthof(questxoff) == lengthof(questyoff), "Mismatching questoff tables.");
-			for (j = 0; j < lengthof(questxoff); j++) {
-				if (qx + questxoff[j] == cursmx && qy + questyoff[j] == cursmy) {
-					cursmx = qx;
-					cursmy = qy;
-					return -2 - i;
-				}
+	for (i = 0; i < numtrigs; i++) {
+		if (trigs[i]._tmsg == WM_DIABSETLVL) {
+			/*      ^
+			 *      |
+			 * ----++------>
+			 *    +++
+			 *    ++|
+			 *      |
+			 */
+			int dx = cursmx - (trigs[i]._tx - 1);
+			int dy = cursmy - (trigs[i]._ty - 1);
+			if (abs(dx) <= 1 && abs(dy) <= 1 &&	// select the 3x3 square around (-1;-1)
+				abs(dx - dy) < 2) {				// exclude the top left and bottom right positions
+				cursmx = trigs[i]._tx;
+				cursmy = trigs[i]._ty;
+				return i;
 			}
 		}
 	}
@@ -232,7 +182,7 @@ bool QuestStatus(int qn)
 
 void CheckQuestKill(int mnum, bool sendmsg)
 {
-	int i, j, qn;
+	int qn;
 
 	switch (monster[mnum]._uniqtype - 1) {
 	case UMT_GARBUD: //"Gharbad the Weak"
@@ -259,26 +209,15 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qvar1 = 7;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 
-			for (j = 0; j < MAXDUNY; j++) {
-				for (i = 0; i < MAXDUNX; i++) {
-					if (dPiece[i][j] == 370) {
-						trigs[numtrigs]._tx = i;
-						trigs[numtrigs]._ty = j;
-						trigs[numtrigs]._tmsg = WM_DIABNEXTLVL;
-						numtrigs++;
-					}
-				}
-			}
+			InitTriggers();
 			if (sendmsg) {
 				NetSendCmdQuest(true, Q_DIABLO, false); // recipient should not matter
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
-			InitVPTriggers();
 			quests[Q_BETRAYER]._qvar1 = 7;
-			quests[Q_BETRAYER]._qvar2 = 4;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			AddMissile(35, 32, 35, 32, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
+			InitVPReturnTrigger();
 		}
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
@@ -488,8 +427,6 @@ void SetReturnLvlPos()
 
 void GetReturnLvlPos()
 {
-	if (quests[Q_BETRAYER]._qactive == QUEST_DONE)
-		quests[Q_BETRAYER]._qvar2 = 2;
 	ViewX = ReturnLvlX;
 	ViewY = ReturnLvlY;
 	EnterLevel(ReturnLvl);
@@ -636,15 +573,14 @@ void ResyncQuests()
 		if (quests[Q_BETRAYER]._qvar1 >= 6)
 			ObjChangeMapResync(1, 18, 20, 24);
 		if (quests[Q_BETRAYER]._qvar1 >= 7)
-			InitVPTriggers();
+			InitVPReturnTrigger();
 		for (i = 0; i < nobjects; i++)
 			SyncObjectAnim(objectactive[i]);
 	}
-	if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel
-	    && !currLvl._dSetLvl // TODO: is this necessary?
-	    && (quests[Q_BETRAYER]._qvar2 == 1 || quests[Q_BETRAYER]._qvar2 >= 3)
-	    && (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE || quests[Q_BETRAYER]._qactive == QUEST_DONE)) {
-		quests[Q_BETRAYER]._qvar2 = 2;
+	if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel) {
+		if (quests[Q_BETRAYER]._qvar1 >= 2) {
+			InitVPEntryTrigger();
+		}
 	}
 }
 

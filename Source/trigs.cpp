@@ -297,36 +297,71 @@ static void InitL6Triggers()
 }
 #endif
 
+static void InitQuestTriggers()
+{
+	int i;
+	QuestStruct* qs;
+
+	for (i = 0; i < NUM_QUESTS; i++) {
+		qs = &quests[i];
+		if (qs->_qslvl != 0 && i != Q_BETRAYER
+		 && currLvl._dLevelIdx == qs->_qlevel && qs->_qactive != QUEST_NOTAVAIL) {
+			trigs[numtrigs]._tx = qs->_qtx;
+			trigs[numtrigs]._ty = qs->_qty;
+			trigs[numtrigs]._tmsg = WM_DIABSETLVL;
+			trigs[numtrigs]._tlvl = qs->_qslvl;
+			numtrigs++;
+		}
+	}
+}
+
 static void InitSKingTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = 82;
-	trigs[0]._ty = 42;
+	trigs[0]._tx = DBORDERX + 66;
+	trigs[0]._ty = DBORDERY + 26;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
 static void InitSChambTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = 70;
-	trigs[0]._ty = 39;
+	trigs[0]._tx = DBORDERX + 54;
+	trigs[0]._ty = DBORDERY + 23;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
 static void InitPWaterTriggers()
 {
 	numtrigs = 1;
-	trigs[0]._tx = 30;
-	trigs[0]._ty = 83;
+	trigs[0]._tx = DBORDERX + 14;
+	trigs[0]._ty = DBORDERY + 67;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
-void InitVPTriggers()
+void InitVPEntryTrigger()
+{
+	int i;
+
+	i = quests[Q_BETRAYER]._qactive == QUEST_DONE ? 2 : 1;
+
+	trigs[i]._tx = quests[Q_BETRAYER]._qtx;
+	trigs[i]._ty = quests[Q_BETRAYER]._qty;
+	trigs[i]._tmsg = WM_DIABSETLVL;
+	trigs[i]._tlvl = quests[Q_BETRAYER]._qslvl;
+	numtrigs = i + 1;
+
+	AddMissile(quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, 0, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
+}
+
+void InitVPReturnTrigger()
 {
 	numtrigs = 1;
-	trigs[0]._tx = 35;
-	trigs[0]._ty = 32;
+	trigs[0]._tx = DBORDERX + 19;
+	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
+
+	AddMissile(DBORDERX + 19, DBORDERY + 16, 0, 0, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
 }
 
 static int ForceTownTrig()
@@ -725,6 +760,7 @@ void InitTriggers()
 			ASSUME_UNREACHABLE
 			break;
 		}
+		InitQuestTriggers();
 		Freeupstairs();
 	} else {
 		switch (currLvl._dLevelIdx) {
@@ -826,6 +862,9 @@ void CheckTriggers()
 			break;
 		case WM_DIABRTNLVL:
 			StartNewLvl(myplr, WM_DIABRTNLVL, ReturnLvl);
+			break;
+		case WM_DIABSETLVL:
+			StartNewLvl(myplr, WM_DIABSETLVL, trigs[i]._tlvl);
 			break;
 		case WM_DIABTOWNWARP:
 			if (!(townwarps & (1 << i)))

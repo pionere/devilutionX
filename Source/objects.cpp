@@ -1777,10 +1777,11 @@ static void Obj_Circle(int oi)
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
-			if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+			//if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 				dx = DBORDERX + 19; dy = DBORDERY + 30;
 				GetVileMissPos(&dx, &dy);
-			}
+			//}
 			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, -1, myplr, 0, 0, 0);
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;

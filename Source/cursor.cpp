@@ -27,7 +27,6 @@ char pcursplr;
 /* Current highlighted trigger
  * 0 - MAXTRIGGERS : standard triggers
  * MAXTRIGGERS+1...: missile-id of townportals
- * -2 ...          : quest-id
  */
 int pcurstrig;
 /** Current highlighted tile row */

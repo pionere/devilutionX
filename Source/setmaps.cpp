@@ -178,11 +178,6 @@ void LoadSetMap()
 	case SL_VILEBETRAYER:
 		LoadPreL1Dungeon(lds->dSetLvlPreDun);
 		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		if (quests[Q_BETRAYER]._qactive == QUEST_DONE) {
-			quests[Q_BETRAYER]._qvar2 = 4;
-		} else if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE) {
-			quests[Q_BETRAYER]._qvar2 = 3;
-		}
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		AddVileObjs();
 		DRLG_SetMapTrans(lds->dSetLvlPreDun);

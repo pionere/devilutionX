@@ -938,7 +938,8 @@ static void PlaceQuestMonsters()
 
 void InitMonsters()
 {
-	int na, nt;
+	TriggerStruct *ts;
+	int na;
 	int i, j, xx, yy;
 	int numplacemonsters;
 	int mtype;
@@ -956,12 +957,13 @@ void InitMonsters()
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
-	nt = numtrigs;
-	if (currLvl._dLevelIdx == DLV_HELL3)
-		nt = 1;
-	for (i = 0; i < nt; i++) {
-		for (j = 0; j < lengthof(tdx); j++)
-			DoVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15, false, false);
+	for (i = 0; i < numtrigs; i++) {
+		ts = &trigs[i];
+		if (ts->_tmsg == WM_DIABTWARPUP || ts->_tmsg == WM_DIABPREVLVL
+		 || (ts->_tmsg == WM_DIABNEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
+			for (j = 0; j < lengthof(tdx); j++)
+				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false, false);
+		}
 	}
 	PlaceQuestMonsters();
 	if (!currLvl._dSetLvl) {
@@ -1000,9 +1002,13 @@ void InitMonsters()
 			PlaceGroup(mtype, na, 0, 0);
 		}
 	}
-	for (i = 0; i < nt; i++) {
-		for (j = 0; j < lengthof(tdx); j++)
-			DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
+	for (i = 0; i < numtrigs; i++) {
+		ts = &trigs[i];
+		if (ts->_tmsg == WM_DIABTWARPUP || ts->_tmsg == WM_DIABPREVLVL
+		 || (ts->_tmsg == WM_DIABNEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
+			for (j = 0; j < lengthof(tdx); j++)
+				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
+		}
 	}
 }
 

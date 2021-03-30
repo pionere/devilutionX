@@ -1655,7 +1655,7 @@ static void DrawTrigInfo()
 			DrawTooltip(infostr, xx, yy, COL_WHITE);
 		}
 		return;
-	} else if (pcurstrig >= 0) {
+	} else {
 		// standard trigger
 		switch (trigs[pcurstrig]._tmsg) {
 		case WM_DIABNEXTLVL:
@@ -1683,6 +1683,29 @@ static void DrawTrigInfo()
 				break;
 			}
 			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[quests[qn]._qlevel].dLevelName);
+			break;
+		case WM_DIABSETLVL:
+			// quest trigger
+			// TODO: use dLevelName?
+			switch (trigs[pcurstrig]._tlvl) {
+			case SL_SKELKING:
+				copy_cstr(infostr, "To King Leoric's Tomb");
+				break;
+			case SL_BONECHAMB:
+				copy_cstr(infostr, "To The Chamber of Bone");
+				break;
+			case SL_MAZE:
+				copy_cstr(infostr, "To Maze");
+				break;
+			case SL_POISONWATER:
+				copy_cstr(infostr, "To A Dark Passage");
+				break;
+			case SL_VILEBETRAYER:
+				copy_cstr(infostr, "To The Unholy Altar");
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
 			break;
 		case WM_DIABTOWNWARP:
 			switch (pcurstrig) {
@@ -1712,28 +1735,6 @@ static void DrawTrigInfo()
 			break;
 		case WM_DIABTWARPUP:
 			copy_cstr(infostr, "Up to town");
-			break;
-		default:
-			ASSUME_UNREACHABLE
-		}
-	} else {
-		// quest trigger
-		// TODO: use dLevelName?
-		switch (quests[quests[-2 - pcurstrig]._qidx]._qslvl) {
-		case SL_SKELKING:
-			copy_cstr(infostr, "To King Leoric's Tomb");
-			break;
-		case SL_BONECHAMB:
-			copy_cstr(infostr, "To The Chamber of Bone");
-			break;
-		case SL_MAZE:
-			copy_cstr(infostr, "To Maze");
-			break;
-		case SL_POISONWATER:
-			copy_cstr(infostr, "To A Dark Passage");
-			break;
-		case SL_VILEBETRAYER:
-			copy_cstr(infostr, "To The Unholy Altar");
 			break;
 		default:
 			ASSUME_UNREACHABLE

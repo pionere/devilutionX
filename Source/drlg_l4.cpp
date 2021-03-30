@@ -1619,8 +1619,8 @@ static void DRLG_L4(int entry)
 			for (i = 0; i < DMAXX; i++) {
 				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
 					// set the rportal position of Q_BETRAYER
-					quests[Q_BETRAYER]._qtx = i;
-					quests[Q_BETRAYER]._qty = j;
+					quests[Q_BETRAYER]._qtx = 2 * i + DBORDERX;
+					quests[Q_BETRAYER]._qty = 2 * j + DBORDERY;
 					// prevent monsters from spawning around the pentagram
 					Make_SetPC(i - 1, j - 1, 5, 5);
 				}
