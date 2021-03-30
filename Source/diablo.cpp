@@ -255,6 +255,7 @@ static void diablo_parse_flags(int argc, char **argv)
 
 void FreeGameMem()
 {
+	stream_stop();
 	music_stop();
 
 	MemFreeDbg(pDungeonCels);
