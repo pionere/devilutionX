@@ -3705,11 +3705,15 @@ void PlayDungMsgs()
 		sfxdelay = 10;
 		sfxdnum = USFX_DEFILER3;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER1;
-	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[DLV_CRYPT1] && !(plr[myplr].pDungMsgs & DMSG2_DEFILER2)) {
+	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[DLV_CRYPT1] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER2)) {
 		sfxdelay = 30;
 		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
-		plr[myplr].pDungMsgs |= DMSG2_DEFILER2;
+		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER2;
 #endif
+	} else if (currLvl._dLevelIdx == SL_SKELKING && !plr[myplr]._pLvlVisited[SL_SKELKING] && !(plr[myplr].pDungMsgs & DMSG_SKING)) {
+		sfxdelay = 30;
+		sfxdnum = USFX_SKING1;
+		plr[myplr].pDungMsgs |= DMSG_SKING;
 	}
 }
 

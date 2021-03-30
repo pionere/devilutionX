@@ -190,11 +190,10 @@ void GetLevelMTypes()
 	int montypes[NUM_MTYPES];
 	const LevelDataStruct* lds;
 	BYTE lvl;
-	const int numskeltypes = 19;
 
 	int nt; // number of types
 
-	AddMonsterType(MT_GOLEM, FALSE); // not necessary for setlevels, just for safety
+	AddMonsterType(MT_GOLEM, FALSE);
 	lvl = currLvl._dLevelIdx;
 	if (!currLvl._dSetLvl) {
 		if (lvl == DLV_HELL4) {
@@ -232,21 +231,6 @@ void GetLevelMTypes()
 			AddMonsterType(UniqMonst[UMT_WARLORD].mtype, TRUE);
 
 		lds = &AllLevels[currLvl._dLevelIdx];
-		if (gbMaxPlayers != 1 && lvl == quests[Q_SKELKING]._qlevel) {
-
-			AddMonsterType(MT_SKING, FALSE);
-
-			nt = 0;
-			for (i = 0; i < lengthof(lds->dMonTypes); i++) {
-				mtype = lds->dMonTypes[i];
-				if (mtype == MT_INVALID)
-					break;
-				if (IsSkel(mtype))
-					montypes[nt++] = mtype;
-			}
-			AddMonsterType(montypes[random_(88, nt)], TRUE);
-		}
-
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
 			mtype = lds->dMonTypes[nt];
 			if (mtype == MT_INVALID)
@@ -878,24 +862,12 @@ static void PlaceUniques()
 
 static void PlaceQuestMonsters()
 {
-	int skeltype;
 	BYTE *setp;
 
 	if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_BUTCHER)) {
 			PlaceUniqueMonst(UMT_BUTCHER, 0, 0);
 		}
-
-		if (currLvl._dLevelIdx == quests[Q_SKELKING]._qlevel && gbMaxPlayers != 1) {
-			for (skeltype = 0; skeltype < nummtypes; skeltype++) {
-				if (IsSkel(Monsters[skeltype].mtype)) {
-					break;
-				}
-			}
-
-			PlaceUniqueMonst(UMT_SKELKING, skeltype, 30);
-		}
-
 		if (QuestStatus(Q_LTBANNER)) {
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);

@@ -219,23 +219,21 @@ static void LoadLvlGFX()
  */
 static void CreateLevel(int lvldir)
 {
-	DWORD seed = glSeedTbl[currLvl._dLevelIdx];
-
 	switch (currLvl._dDunType) {
 	case DTYPE_TOWN:
 		CreateTown(lvldir);
 		break;
 	case DTYPE_CATHEDRAL:
-		CreateL1Dungeon(seed, lvldir);
+		CreateL1Dungeon(lvldir);
 		break;
 	case DTYPE_CATACOMBS:
-		CreateL2Dungeon(seed, lvldir);
+		CreateL2Dungeon(lvldir);
 		break;
 	case DTYPE_CAVES:
-		CreateL3Dungeon(seed, lvldir);
+		CreateL3Dungeon(lvldir);
 		break;
 	case DTYPE_HELL:
-		CreateL4Dungeon(seed, lvldir);
+		CreateL4Dungeon(lvldir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -298,6 +296,8 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	InitLevelMonsters();
 	IncProgress();
 
+	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
+
 	if (!currLvl._dSetLvl) {
 		CreateLevel(lvldir);
 		IncProgress();
@@ -341,9 +341,9 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
 		if (currLvl._dType != DTYPE_TOWN) {
-			if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currLvl._dLevelIdx] || gbMaxPlayers != 1) {
-				HoldThemeRooms();
-				InitMonsters();
+			HoldThemeRooms();
+			InitMonsters();
+			if (gbMaxPlayers != 1 || firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currLvl._dLevelIdx]) {
 				IncProgress();
 				InitObjects();
 				InitItems();
@@ -355,17 +355,13 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 				if (gbMaxPlayers != 1)
 					DeltaLoadLevel();
-
-				IncProgress();
 			} else {
-				HoldThemeRooms();
-				InitMonsters();
 				InitMissiles();
 				InitDead();
 				IncProgress();
 				LoadLevel();
-				IncProgress();
 			}
+			IncProgress();
 		} else {
 			InitTowners();
 			InitItems();
@@ -410,23 +406,19 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			}
 		}
 
-		//PlayDungMsgs();
-		if (currLvl._dLevelIdx == SL_SKELKING && quests[Q_SKELKING]._qactive == QUEST_ACTIVE) {
-			sfxdelay = 30;
-			sfxdnum = USFX_SKING1;
-		}
+		PlayDungMsgs();
 
 		IncProgress();
 		IncProgress();
-
-		if (firstflag || lvldir == ENTRY_LOAD || !plr[myplr]._pLvlVisited[currLvl._dLevelIdx]) {
-			InitItems();
-			SavePreLighting();
-		} else {
-			LoadLevel();
-		}
 
 		InitMissiles();
+		InitItems();
+		SavePreLighting();
+		if (gbMaxPlayers != 1)
+			DeltaLoadLevel();
+		else if (!firstflag && lvldir != ENTRY_LOAD && plr[myplr]._pLvlVisited[currLvl._dLevelIdx])
+			LoadLevel();
+
 		IncProgress();
 	}
 

@@ -15,9 +15,9 @@ static TMegaPkt *sgpCurrPkt;
 static BYTE sgRecvBuf[sizeof(DLevel) + 3];
 static TMegaPkt *sgpMegaPkt;
 static DJunk sgJunk;
-static DLevel sgLevels[NUMLEVELS];
-static LocalLevel sgLocals[NUMLEVELS];
-static bool _gbLevelDeltaChanged[NUMLEVELS];
+static DLevel sgLevels[NUMLEVELS + NUM_SETLVL];
+static LocalLevel sgLocals[NUMLEVELS + NUM_SETLVL];
+static bool _gbLevelDeltaChanged[NUMLEVELS + NUM_SETLVL];
 static bool _gbJunkDeltaChanged;
 static BYTE _gbRecvCmd;
 static BYTE sgbDeltaChunks;
@@ -348,7 +348,7 @@ void DeltaExportData(int pnum)
 			break;
 	if (i != lengthof(sgLevels)) {
 		dst = (BYTE *)DiabloAllocPtr(sizeof(sgRecvBuf));
-		for (i = 0; i < NUMLEVELS; i++) {
+		for (i = 0; i < lengthof(sgLevels); i++) {
 			if (!_gbLevelDeltaChanged[i])
 				continue;
 			dstEnd = dst + 1;
@@ -530,7 +530,7 @@ void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
 		return;
 
 	/// ASSERT: assert(pSync != NULL);
-	/// ASSERT: assert(bLevel < NUMLEVELS);
+	/// ASSERT: assert(bLevel < NUMLEVELS + NUM_SETLVL);
 
 	pD = &sgLevels[bLevel].monster[pSync->_mndx];
 	if (pD->_mhitpoints == 0)
@@ -547,8 +547,7 @@ static void delta_sync_golem(TCmdGolem *pG, int mnum, BYTE bLevel)
 {
 	DMonsterStr *pD;
 
-	if (gbMaxPlayers == 1)
-		return;
+	assert(gbMaxPlayers != 1);
 
 	_gbLevelDeltaChanged[bLevel] = true;
 	pD = &sgLevels[bLevel].monster[mnum];
@@ -565,8 +564,8 @@ static void delta_leave_sync(BYTE bLevel)
 	int i, mnum;
 	DMonsterStr *pD;
 
-	if (bLevel == 0) {
-		glSeedTbl[0] = GetRndSeed();
+	if (bLevel == DLV_TOWN) {
+		glSeedTbl[DLV_TOWN] = GetRndSeed();
 		return;
 	}
 	for (i = 0; i < nummonsters; i++) {
@@ -911,7 +910,7 @@ void DeltaLoadLevel()
 	assert(gbMaxPlayers != 1);
 
 	deltaload = TRUE;
-	if (currLvl._dLevelIdx != 0) {
+	if (currLvl._dLevelIdx != DLV_TOWN) {
 		mstr = sgLevels[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mx != 0xFF) {

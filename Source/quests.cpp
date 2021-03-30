@@ -130,10 +130,6 @@ void InitQuests()
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
 
-	if (quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
-		quests[Q_SKELKING]._qvar2 = 2;
-	if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
-		quests[Q_ROCK]._qvar2 = 2;
 	if (gbMaxPlayers != 1)
 		quests[Q_BETRAYER]._qvar1 = 2;
 }
@@ -145,11 +141,8 @@ void CheckQuests()
 
 	qs = &quests[Q_BETRAYER];
 
-	if (gbMaxPlayers != 1)
-		return;
-
 	if (!currLvl._dSetLvl) {
-		if (currLvl._dLevelIdx == qs->_qlevel
+		if (currLvl._dLevelIdx == qs->_qlevel && gbMaxPlayers != 1
 		 && qs->_qvar1 >= 2
 		 && (qs->_qactive == QUEST_ACTIVE || qs->_qactive == QUEST_DONE)
 		 && (qs->_qvar2 == 0 || qs->_qvar2 == 2)) {
@@ -206,10 +199,6 @@ void CheckQuests()
 int ForceQuests()
 {
 	int i, j, qx, qy;
-
-	if (gbMaxPlayers != 1) {
-		return -1;
-	}
 
 	for (i = 0; i < NUM_QUESTS; i++) {
 		if (i != Q_BETRAYER && currLvl._dLevelIdx == quests[i]._qlevel && quests[i]._qslvl != 0) {
@@ -548,12 +537,12 @@ void ResyncMPQuests()
 		ResyncBanner();
 	}
 	// TODO: eliminate relative level-indices?
-	if (quests[Q_SKELKING]._qactive == QUEST_INIT
-	    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
-	    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
-		quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
-	}
+	//if (quests[Q_SKELKING]._qactive == QUEST_INIT
+	//    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
+	//    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
+	//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
+	//}
 	if (quests[Q_BUTCHER]._qactive == QUEST_INIT
 	    && currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
 	    && currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {

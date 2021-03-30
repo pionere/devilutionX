@@ -21,7 +21,7 @@ extern "C" {
 #define DIAB_QUAD_4X	(29 - setpc_x)
 #define DIAB_QUAD_4Y	(29 - setpc_y)
 
-void CreateL4Dungeon(DWORD rseed, int entry);
+void CreateL4Dungeon(int entry);
 
 #ifdef __cplusplus
 }

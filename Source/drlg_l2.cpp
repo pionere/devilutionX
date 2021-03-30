@@ -3128,16 +3128,13 @@ void LoadPreL2Dungeon(const char *sFileName)
 	mem_free_dbg(pLevelMap);
 }
 
-void CreateL2Dungeon(DWORD rseed, int entry)
+void CreateL2Dungeon(int entry)
 {
 	// in the original version the function was executed twice in case the quest of the
 	// current level was not available (only in single player mode). The point of this
 	// could have been to share the same layout between levels, but that does not make too
 	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
-
-	SetRndSeed(rseed);
-
 	DRLG_InitSetPC();
 	DRLG_LoadL2SP();
 	DRLG_L2(entry);

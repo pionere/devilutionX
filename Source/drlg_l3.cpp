@@ -2376,11 +2376,9 @@ static void DRLG_L3(int entry)
 	DRLG_Init_Globals();
 }
 
-void CreateL3Dungeon(DWORD rseed, int entry)
+void CreateL3Dungeon(int entry)
 {
 	int i, j, pn;
-
-	SetRndSeed(rseed);
 
 	DRLG_InitTrans();
 	DRLG_InitSetPC();

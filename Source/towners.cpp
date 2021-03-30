@@ -525,22 +525,17 @@ void TalkToTowner(int pnum, int tnum)
 			qt = TEXT_INTRO;
 			msgSaid = true;
 		}
-		if ((plr[pnum]._pLvlVisited[DLV_CATHEDRAL2] || plr[pnum]._pLvlVisited[DLV_CATHEDRAL4]) && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_SKELKING]._qvar2 == 0 && !msgSaid) {
-				quests[Q_SKELKING]._qvar2 = 1;
+		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL2] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
+			if (quests[Q_SKELKING]._qactive == QUEST_INIT && !msgSaid) {
+				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
-				if (quests[Q_SKELKING]._qactive == QUEST_INIT) {
-					quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-					quests[Q_SKELKING]._qvar1 = 1;
-				}
-				NetSendCmdQuest(true, Q_SKELKING, false);
+				qn = Q_SKELKING;
 				qt = TEXT_KING2;
 				msgSaid = true;
 			}
-			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qvar2 == 1 && !msgSaid) {
-				quests[Q_SKELKING]._qvar2 = 2;
-				quests[Q_SKELKING]._qvar1 = 2;
-				NetSendCmdQuest(true, Q_SKELKING, false);
+			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qlog && !msgSaid) {
+				quests[Q_SKELKING]._qlog = FALSE;
+				// qn = Q_SKELKING; - let the others hear the final message
 				qt = TEXT_KING4;
 				msgSaid = true;
 			}

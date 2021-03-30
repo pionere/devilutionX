@@ -14,7 +14,7 @@ extern "C" {
 
 void LoadL1Dungeon(const char *sFileName, int vx, int vy);
 void LoadPreL1Dungeon(const char *sFileName);
-void CreateL1Dungeon(DWORD rseed, int entry);
+void CreateL1Dungeon(int entry);
 
 #ifdef __cplusplus
 }

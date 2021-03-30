@@ -2532,12 +2532,13 @@ typedef enum dungeon_message {
 	DMSG_CAVES     = 1 << 2,
 	DMSG_HELL      = 1 << 3,
 	DMSG_DIABLO    = 1 << 4,
+	DMSG_SKING     = 1 << 5,
 } dungeon_message;
 
 typedef enum dungeon_message2 {
 	DMSG2_DEFILER  = 1 << 0,
-	DMSG2_DEFILER1 = 1 << 2,
-	DMSG2_DEFILER2 = 1 << 5,
+	DMSG2_DEFILER1 = 1 << 1,
+	DMSG2_DEFILER2 = 1 << 2,
 } dungeon_message2;
 
 typedef enum diablo_message {

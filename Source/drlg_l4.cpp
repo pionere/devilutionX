@@ -1632,13 +1632,8 @@ static void DRLG_L4(int entry)
 	}
 }
 
-void CreateL4Dungeon(DWORD rseed, int entry)
+void CreateL4Dungeon(int entry)
 {
-	SetRndSeed(rseed);
-
-	//ViewX = DSIZEX / 2;
-	//ViewY = DSIZEY / 2;
-
 	DRLG_InitSetPC();
 	DRLG_LoadL4SP();
 	DRLG_L4(entry);

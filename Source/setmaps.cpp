@@ -147,10 +147,6 @@ void LoadSetMap()
 	case SL_SKELKING:
 		LoadPreL1Dungeon(lds->dSetLvlPreDun);
 		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
-		if (quests[Q_SKELKING]._qactive == QUEST_INIT) {
-			quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-			quests[Q_SKELKING]._qvar1 = 1;
-		}
 		DRLG_AreaTrans(sizeof(SkelKingTrans1) / 4, &SkelKingTrans1[0]);
 		DRLG_ListTrans(sizeof(SkelKingTrans2) / 4, &SkelKingTrans2[0]);
 		DRLG_AreaTrans(sizeof(SkelKingTrans3) / 4, &SkelKingTrans3[0]);

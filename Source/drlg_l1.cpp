@@ -1052,7 +1052,7 @@ static void DRLG_LoadL1SP()
 	pSetPiece = NULL;
 	if (QuestStatus(Q_LTBANNER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN", NULL);
-	} else if (QuestStatus(Q_SKELKING) && gbMaxPlayers == 1) {
+	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN", NULL);
 	} else if (QuestStatus(Q_BUTCHER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN", NULL);
@@ -2551,10 +2551,8 @@ static void DRLG_L1(int entry)
 	DRLG_CheckQuests(setpc_x, setpc_y);
 }
 
-void CreateL1Dungeon(DWORD rseed, int entry)
+void CreateL1Dungeon(int entry)
 {
-	SetRndSeed(rseed);
-
 	DRLG_InitSetPC();
 	DRLG_LoadL1SP();
 	DRLG_L1(entry);
