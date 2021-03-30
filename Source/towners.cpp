@@ -180,7 +180,7 @@ static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 	tw->_tAnimFrame = 1;
 }
 
-static void InitTownerInfo(int tnum, int w, int type, int x, int y, int ao)
+static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_talk, int x, int y, int ao)
 {
 	TownerStruct *tw;
 
@@ -189,6 +189,9 @@ static void InitTownerInfo(int tnum, int w, int type, int x, int y, int ao)
 	monster[tnum]._mfuty = monster[tnum]._my = y;
 	tw = &towner[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
+	// tw->_tListener = MAX_PLRS;
+	tw->_tStoreId = store_id;
+	tw->_tStoreTalk = store_talk;
 	tw->_tSelFlag = TRUE;
 	tw->_tAnimWidth = w;
 	tw->_tAnimWidth2 = (w - 64) >> 1;
@@ -205,7 +208,7 @@ static void InitTownerInfo(int tnum, int w, int type, int x, int y, int ao)
  */
 static void InitSmith()
 {
-	InitTownerInfo(numtowners, 96, TOWN_SMITH, 52 + DBORDERX, 53 + DBORDERY, 0);
+	InitTownerInfo(numtowners, 96, TOWN_SMITH, STORE_SMITH, TEXT_GRISWOLD1, 52 + DBORDERX, 53 + DBORDERY, 0);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL", NULL), 16, 3);
 	towner[numtowners]._tName = "Griswold the Blacksmith";
 	numtowners++;
@@ -213,7 +216,7 @@ static void InitSmith()
 
 static void InitBarOwner()
 {
-	InitTownerInfo(numtowners, 96, TOWN_TAVERN, 45 + DBORDERX, 52 + DBORDERY, 3);
+	InitTownerInfo(numtowners, 96, TOWN_TAVERN, STORE_TAVERN, TEXT_OGDEN1, 45 + DBORDERX, 52 + DBORDERY, 3);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL", NULL), 16, 3);
 	towner[numtowners]._tName = "Ogden the Tavern owner";
 	numtowners++;
@@ -221,7 +224,7 @@ static void InitBarOwner()
 
 static void InitTownDead()
 {
-	InitTownerInfo(numtowners, 96, TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_DEADGUY, STORE_NONE, TEXT_NONE, 14 + DBORDERX, 22 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL", NULL), 8, 6);
 	towner[numtowners]._tName = "Wounded Townsman";
 	numtowners++;
@@ -229,7 +232,7 @@ static void InitTownDead()
 
 static void InitWitch()
 {
-	InitTownerInfo(numtowners, 96, TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY, 5);
+	InitTownerInfo(numtowners, 96, TOWN_WITCH, STORE_WITCH, TEXT_ADRIA1, 70 + DBORDERX, 10 + DBORDERY, 5);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL", NULL), 19, 6);
 	towner[numtowners]._tName = "Adria the Witch";
 	numtowners++;
@@ -237,7 +240,7 @@ static void InitWitch()
 
 static void InitBarmaid()
 {
-	InitTownerInfo(numtowners, 96, TOWN_BMAID, 33 + DBORDERX, 56 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_BMAID, STORE_BARMAID, TEXT_GILLIAN1, 33 + DBORDERX, 56 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL", NULL), 18, 6);
 	towner[numtowners]._tName = "Gillian the Barmaid";
 	numtowners++;
@@ -245,7 +248,7 @@ static void InitBarmaid()
 
 static void InitBoy()
 {
-	InitTownerInfo(numtowners, 96, TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_PEGBOY, STORE_BOY, TEXT_WIRT1, 1 + DBORDERX, 43 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL", NULL), 20, 6);
 	towner[numtowners]._tName = "Wirt the Peg-legged boy";
 	numtowners++;
@@ -253,7 +256,7 @@ static void InitBoy()
 
 static void InitHealer()
 {
-	InitTownerInfo(numtowners, 96, TOWN_HEALER, 45 + DBORDERX, 69 + DBORDERY, 1);
+	InitTownerInfo(numtowners, 96, TOWN_HEALER, STORE_HEALER, TEXT_PEPIN1, 45 + DBORDERX, 69 + DBORDERY, 1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL", NULL), 20, 6);
 	towner[numtowners]._tName = "Pepin the Healer";
 	numtowners++;
@@ -261,7 +264,7 @@ static void InitHealer()
 
 static void InitTeller()
 {
-	InitTownerInfo(numtowners, 96, TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY, 2);
+	InitTownerInfo(numtowners, 96, TOWN_STORY, STORE_STORY, TEXT_STORY1, 52 + DBORDERX, 61 + DBORDERY, 2);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL", NULL), 25, 3);
 	towner[numtowners]._tName = "Cain the Elder";
 	numtowners++;
@@ -269,7 +272,7 @@ static void InitTeller()
 
 static void InitDrunk()
 {
-	InitTownerInfo(numtowners, 96, TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY, 4);
+	InitTownerInfo(numtowners, 96, TOWN_DRUNK, STORE_DRUNK, TEXT_FARNHAM1, 61 + DBORDERX, 74 + DBORDERY, 4);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL", NULL), 18, 3);
 	towner[numtowners]._tName = "Farnham the Drunk";
 	numtowners++;
@@ -287,7 +290,7 @@ static void InitCows()
 		x = TownCowX[i];
 		y = TownCowY[i];
 		dir = TownCowDir[i];
-		InitTownerInfo(numtowners, 128, TOWN_COW, x, y, -1);
+		InitTownerInfo(numtowners, 128, TOWN_COW, STORE_NONE, TEXT_NONE, x, y, -1);
 		InitCowAnim(numtowners, dir);
 		towner[numtowners]._tName = "Cow";
 
@@ -307,7 +310,7 @@ static void InitCows()
 #ifdef HELLFIRE
 static void InitFarmer()
 {
-	InitTownerInfo(numtowners, 96, TOWN_FARMER, 52 + DBORDERX, 6 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_FARMER, STORE_NONE, TEXT_NONE, 52 + DBORDERX, 6 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL", NULL), 15, 3);
 	towner[numtowners]._tName = "Lester the farmer";
 	numtowners++;
@@ -317,7 +320,7 @@ static void InitCowFarmer()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, TOWN_COWFARM, 51 + DBORDERX, 12 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_COWFARM, STORE_NONE, TEXT_NONE, 51 + DBORDERX, 12 + DBORDERY, -1);
 	if (quests[Q_JERSEY]._qactive != QUEST_DONE) {
 		pBuf = LoadFileInMem("Towners\\Farmer\\cfrmrn2.CEL", NULL);
 	} else {
@@ -332,7 +335,7 @@ static void InitGirl()
 {
 	BYTE *pBuf;
 
-	InitTownerInfo(numtowners, 96, TOWN_GIRL, 67 + DBORDERX, 33 + DBORDERY, -1);
+	InitTownerInfo(numtowners, 96, TOWN_GIRL, STORE_NONE, TEXT_NONE, 67 + DBORDERX, 33 + DBORDERY, -1);
 	if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 		pBuf = LoadFileInMem("Towners\\Girl\\Girlw1.CEL", NULL);
 	} else {
@@ -387,19 +390,18 @@ void FreeTownerGFX()
 
 static void TownCtrlMsg(TownerStruct *tw)
 {
-	PlayerStruct *p;
+	/*PlayerStruct *p;
 	int dx, dy;
 
-	if (tw->_tListener != 0) {
-		p = &plr[tw->_tListener - 1];
+	if (tw->_tListener != MAX_PLRS) {
+		p = &plr[tw->_tListener];
 		dx = abs(tw->_tx - p->_px);
 		dy = abs(tw->_ty - p->_py);
 		if (dx >= 2 || dy >= 2) {
-			tw->_tListener = 0;
-			gbQtextflag = false;
+			tw->_tListener = MAX_PLRS;
 			stream_stop();
 		}
-	}
+	}*/
 }
 
 void ProcessTowners()
@@ -496,8 +498,7 @@ static void TownerTalk(int store, int talk)
 void TalkToTowner(int pnum, int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, qt, qn = Q_INVALID;
-	bool msgSaid;
+	int i, dx, dy, qt, qn;
 
 	tw = &towner[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
@@ -512,83 +513,65 @@ void TalkToTowner(int pnum, int tnum)
 		return;
 	}
 
-	msgSaid = false;
-
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		return;
 	}
 
+	qt = TEXT_NONE;
+	qn = Q_INVALID;
+
 	switch (tw->_ttype) {
 	case TOWN_TAVERN:
-		qt = TEXT_NONE;
-		if (!plr[pnum]._pLvlVisited[DLV_TOWN] && !msgSaid) {
+		if (!plr[pnum]._pLvlVisited[DLV_TOWN]) {
 			qt = TEXT_INTRO;
-			msgSaid = true;
 		}
 		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL2] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_SKELKING]._qactive == QUEST_INIT && !msgSaid) {
+			if (quests[Q_SKELKING]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
 				qn = Q_SKELKING;
 				qt = TEXT_KING2;
-				msgSaid = true;
 			}
-			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qlog && !msgSaid) {
+			if (quests[Q_SKELKING]._qactive == QUEST_DONE && quests[Q_SKELKING]._qlog && qt == TEXT_NONE) {
 				quests[Q_SKELKING]._qlog = FALSE;
 				// qn = Q_SKELKING; - let the others hear the final message
 				qt = TEXT_KING4;
-				msgSaid = true;
 			}
 		}
 		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_LTBANNER]._qactive == QUEST_INIT && !msgSaid) {
+			if (quests[Q_LTBANNER]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
 				quests[Q_LTBANNER]._qlog = TRUE;
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER2;
-				msgSaid = true;
 			}
-			if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i) && !msgSaid) {
+			if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
 				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
 				quests[Q_LTBANNER]._qvar1 = 2;
 				qn = Q_LTBANNER;
 				qt = TEXT_BANNER3;
-				msgSaid = true;
 			}
 		}
-		if (qt != TEXT_NONE) {
-			tw->_tListener = pnum + 1;
-			InitQTextMsg(qt);
-		}
-		TownerTalk(STORE_TAVERN, TEXT_OGDEN1);
 		break;
 	case TOWN_DEADGUY:
 		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 1) {
-			tw->_tListener = pnum + 1;
-			quests[Q_BUTCHER]._qvar1 = 1;
 			i = sgSFXSets[SFXS_PLR_08][plr[pnum]._pClass];
-			if (!effect_is_playing(i))
+			if (!effect_is_playing(i)) {
+				// tw->_tListener = pnum;
 				PlaySFX(i);
-			msgSaid = true;
-		} else if (quests[Q_BUTCHER]._qactive == QUEST_DONE && quests[Q_BUTCHER]._qvar1 == 1) {
-			quests[Q_BUTCHER]._qvar1 = 1;
-			tw->_tListener = pnum + 1;
-			msgSaid = true;
+			}
 		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT || (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)) {
 			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 			quests[Q_BUTCHER]._qlog = TRUE;
 			quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
 			quests[Q_BUTCHER]._qvar1 = 1;
-			NetSendCmdQuest(true, Q_BUTCHER, false);
-			tw->_tListener = pnum + 1;
-			InitQTextMsg(TEXT_BUTCH9);
-			msgSaid = true;
+			qn = Q_BUTCHER;
+			qt = TEXT_BUTCH9;
 		}
 		break;
 	case TOWN_SMITH:
-		qt = TEXT_NONE;
 		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ROCK]._qvar1 <= 1) {
 				quests[Q_ROCK]._qvar1 = 2;
@@ -596,40 +579,31 @@ void TalkToTowner(int pnum, int tnum)
 				quests[Q_ROCK]._qlog = TRUE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA5;
-				msgSaid = true;
 			}
-			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && !msgSaid) {
+			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
 				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_ROCK]._qlog = FALSE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA7;
-				msgSaid = true;
 			}
 		}
 		if (plr[pnum]._pLvlVisited[DLV_CAVES1] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_ANVIL]._qvar1 <= 1 && !msgSaid) {
+			if (quests[Q_ANVIL]._qvar1 <= 1 && qt == TEXT_NONE) {
 				quests[Q_ANVIL]._qvar1 = 2;
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 				quests[Q_ANVIL]._qlog = TRUE;
 				qn = Q_ANVIL;
 				qt = TEXT_ANVIL5;
-				msgSaid = true;
 			}
-			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && !msgSaid) {
+			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
 				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
 				quests[Q_ANVIL]._qlog = FALSE;
 				qt = TEXT_ANVIL7;
-				msgSaid = true;
 			}
 		}
-		if (qt != TEXT_NONE) {
-			tw->_tListener = pnum + 1;
-			InitQTextMsg(qt);
-		}
-		TownerTalk(STORE_SMITH, TEXT_GRISWOLD1);
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i)) {
@@ -637,9 +611,7 @@ void TalkToTowner(int pnum, int tnum)
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 			quests[Q_MUSHROOM]._qlog = TRUE;
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
-			tw->_tListener = pnum + 1;
-			InitQTextMsg(TEXT_MUSH8);
-			msgSaid = true;
+			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 >= QS_TOMEGIVEN && quests[Q_MUSHROOM]._qvar1 <= QS_MUSHPICKED) {
 				if (PlrHasItem(pnum, IDI_MUSHROOM, &i)) {
@@ -648,30 +620,21 @@ void TalkToTowner(int pnum, int tnum)
 					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
 					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_MUSH10);
-					msgSaid = true;
+					qt = TEXT_MUSH10;
 				} else if (quests[Q_MUSHROOM]._qmsg != TEXT_MUSH9) {
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH9;
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_MUSH9);
-					msgSaid = true;
+					qt = TEXT_MUSH9;
 				}
 			} else {
 				if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_MUSH12);
-					msgSaid = true;
+					qt = TEXT_MUSH12;
 				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 					quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_MUSH11);
-					msgSaid = true;
+					qt = TEXT_MUSH11;
 				}
 			}
 		}
-		TownerTalk(STORE_WITCH, TEXT_ADRIA1);
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
@@ -680,55 +643,43 @@ void TalkToTowner(int pnum, int tnum)
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
 			qn = Q_GRAVE;
-			InitQTextMsg(TEXT_GRAVE8);
-			msgSaid = true;
+			qt = TEXT_GRAVE8;
 		}
 #endif
-		TownerTalk(STORE_BARMAID, TEXT_GILLIAN1);
 		break;
 	case TOWN_DRUNK:
-		TownerTalk(STORE_DRUNK, TEXT_FARNHAM1);
 		break;
 	case TOWN_HEALER:
 		if (gbMaxPlayers == 1) {
 #ifdef HELLFIRE
-			if (plr[pnum]._pLvlVisited[1] || plr[pnum]._pLvlVisited[5]) {
+			if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL1] || plr[pnum]._pLvlVisited[DLV_CATACOMBS1]) {
 #else
-			if (plr[pnum]._pLvlVisited[1]) {
+			if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL1]) {
 #endif
-				if (!msgSaid) {
 				if (quests[Q_PWATER]._qactive == QUEST_INIT) {
 					quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 					quests[Q_PWATER]._qlog = TRUE;
 					quests[Q_PWATER]._qmsg = TEXT_POISON3;
 					quests[Q_PWATER]._qvar1 = 1;
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_POISON3);
-					msgSaid = true;
+					qt = TEXT_POISON3;
 				} else if (quests[Q_PWATER]._qactive == QUEST_DONE && quests[Q_PWATER]._qvar1 != 2) {
 					quests[Q_PWATER]._qvar1 = 2;
 					SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, true, true);
-					tw->_tListener = pnum + 1;
-					InitQTextMsg(TEXT_POISON5);
-					msgSaid = true;
+					qt = TEXT_POISON5;
 				}
 			}
-			}
-			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && !msgSaid) {
+			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
 				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true);
-				InitQTextMsg(TEXT_MUSH4);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
+				qt = TEXT_MUSH4;
 			}
 		}
-		TownerTalk(STORE_HEALER, TEXT_PEPIN1);
 		break;
 	case TOWN_PEGBOY:
-		TownerTalk(STORE_BOY, TEXT_WIRT1);
 		break;
 	case TOWN_STORY:
-		qt = TEXT_NONE;
 		if (gbMaxPlayers == 1) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i)) {
 				RemoveInvItem(pnum, i);
@@ -736,35 +687,24 @@ void TalkToTowner(int pnum, int tnum)
 				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 				quests[Q_BETRAYER]._qlog = TRUE;
 				qt = TEXT_VILE1;
-				msgSaid = true;
-				tw->_tListener = pnum + 1;
 			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
 				quests[Q_BETRAYER]._qvar1 = 8;
 				quests[Q_DIABLO]._qlog = TRUE;
 				qt = TEXT_VILE3;
-				msgSaid = true;
-				tw->_tListener = pnum + 1;
 			}
 		} else {
 			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
 				quests[Q_BETRAYER]._qlog = TRUE;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE1;
-				msgSaid = true;
-				tw->_tListener = pnum + 1;
 			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
 				quests[Q_BETRAYER]._qvar1 = 8;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE3;
-				msgSaid = true;
-				tw->_tListener = pnum + 1;
 				quests[Q_DIABLO]._qlog = TRUE;
 				NetSendCmdQuest(true, Q_DIABLO, false);
 			}
 		}
-		if (qt != TEXT_NONE)
-			InitQTextMsg(qt);
-		TownerTalk(STORE_STORY, TEXT_STORY1);
 		break;
 	case TOWN_COW:
 		CowSFX(pnum);
@@ -773,7 +713,6 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_FARMER:
 		switch (quests[Q_FARMER]._qactive) {
 		case QUEST_NOTAVAIL:
-			qt = TEXT_NONE;
 			break;
 		case QUEST_INIT:
 			if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
@@ -811,16 +750,11 @@ void TalkToTowner(int pnum, int tnum)
 				qn = Q_FARMER;
 				qt = TEXT_FARMER4;
 				SpawnRewardItem(IDI_MANA, tw->_tx, tw->_ty, false, true);
-			} else {
-				qt = TEXT_NONE;
 			}
 			break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
-		}
-		if (qt != TEXT_NONE) {
-			InitQTextMsg(qt);
 		}
 		break;
 	case TOWN_COWFARM:
@@ -843,7 +777,6 @@ void TalkToTowner(int pnum, int tnum)
 		} else {
 			switch (quests[Q_JERSEY]._qactive) {
 			case QUEST_NOTAVAIL:
-				qt = TEXT_NONE;
 				break;
 			case QUEST_INIT:
 				switch (quests[Q_JERSEY]._qvar2++) {
@@ -890,28 +823,22 @@ void TalkToTowner(int pnum, int tnum)
 				break;
 			}
 		}
-		if (qt != TEXT_NONE) {
-			InitQTextMsg(qt);
-		}
 		break;
 	case TOWN_GIRL:
-		if (quests[Q_GIRL]._qactive != QUEST_ACTIVE) {
-			qt = TEXT_NONE;
-		} else if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
-			qt = TEXT_GIRL4;
-			RemoveInvItem(pnum, i);
-			SetRndSeed(tw->_tSeed);
-			CreateAmulet(tw->_tx, tw->_ty, true, true);
-			// quests[Q_GIRL]._qlog = FALSE;
-			quests[Q_GIRL]._qactive = QUEST_DONE;
-			qn = Q_GIRL;
-		} else {
-			if (quests[Q_GIRL]._qvar1 == 0) {
+		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
+			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
+				qt = TEXT_GIRL4;
+				RemoveInvItem(pnum, i);
+				SetRndSeed(tw->_tSeed);
+				CreateAmulet(tw->_tx, tw->_ty, true, true);
+				// quests[Q_GIRL]._qlog = FALSE;
+				quests[Q_GIRL]._qactive = QUEST_DONE;
+				qn = Q_GIRL;
+			} else if (quests[Q_GIRL]._qvar1 == 0) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;
 				} else {
 					qt = TEXT_GIRL2;
-					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 					quests[Q_GIRL]._qvar1 = 1;
 					quests[Q_GIRL]._qlog = TRUE;
 					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
@@ -921,14 +848,17 @@ void TalkToTowner(int pnum, int tnum)
 				qt = TEXT_GIRL3;
 			}
 		}
-		if (qt != TEXT_NONE) {
-			InitQTextMsg(qt);
-		}
 		break;
 #endif
 	}
 	if (qn != Q_INVALID)
 		NetSendCmdQuest(true, qn, false);
+	if (qt != TEXT_NONE) {
+		// tw->_tListener = pnum;
+		InitQTextMsg(qt);
+	} else if (tw->_tStoreId != STORE_NONE) {
+		TownerTalk(tw->_tStoreId, tw->_tStoreTalk);
+	}
 }
 
 DEVILUTION_END_NAMESPACE

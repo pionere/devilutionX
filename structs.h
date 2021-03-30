@@ -1291,10 +1291,12 @@ typedef struct TownerStruct {
 	int _tAnimLen;   // Number of frames in current animation
 	int _tAnimFrame; // Current frame of animation.
 	int _tAnimFrameCnt;
-	char _tAnimOrder;
 	int _tAnimWidth;
 	int _tAnimWidth2;
-	int _tListener;
+	char _tAnimOrder;
+	BYTE _tListener;
+	BYTE _tStoreId;
+	int _tStoreTalk;
 	BOOL _tSelFlag;
 	int _tSeed;
 	char *_tName;
