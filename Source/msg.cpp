@@ -2582,6 +2582,17 @@ static unsigned On_RESTOREHPVIT(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
+static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
+{
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else if (currLvl._dLevelIdx == quests[Q_LTBANNER]._qlevel) {
+		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		RedoPlayerVision();
+	}
+	return sizeof(*pCmd);
+}
+
 #ifdef HELLFIRE
 static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
@@ -2752,6 +2763,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
 	case CMD_RESTOREHPVIT:
 		return On_RESTOREHPVIT(pCmd, pnum);
+	case CMD_OPENSPIL:
+		return On_OPENSPIL(pCmd, pnum);
 #ifdef HELLFIRE
 	case CMD_OPENHIVE:
 		return On_OPENHIVE(pCmd, pnum);

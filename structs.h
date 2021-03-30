@@ -644,6 +644,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	BYTE _mListener;        // the player to whom the monster is talking to
 	unsigned char *_mAnimData;
 	int _mAnimDelay; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay

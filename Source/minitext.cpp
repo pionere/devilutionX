@@ -67,11 +67,11 @@ void InitQuestText()
 	gbQtextflag = false;
 }
 
-void InitQTextMsg(int m)
+void InitQTextMsg(int m, bool showText)
 {
 	int speed;
 
-	if (alltext[m].scrlltxt) {
+	if (alltext[m].scrlltxt && showText) {
 		gbQuestlog = false;
 		gbInvflag = false;
 		gbSbookflag = false;

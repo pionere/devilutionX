@@ -134,7 +134,6 @@ void InitQuests()
 		quests[Q_SKELKING]._qvar2 = 2;
 	if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
 		quests[Q_ROCK]._qvar2 = 2;
-	quests[Q_LTBANNER]._qvar1 = 1;
 	if (gbMaxPlayers != 1)
 		quests[Q_BETRAYER]._qvar1 = 2;
 }
@@ -519,8 +518,35 @@ void LoadPWaterPalette()
 	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
+static void ResyncBanner()
+{
+	int i;
+
+	if (quests[Q_LTBANNER]._qvar1 != 4) {
+		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
+		ObjChangeMapResync(
+		    setpc_w + setpc_x - 2,
+		    setpc_h + setpc_y - 2,
+		    setpc_w + setpc_x + 1,
+		    setpc_h + setpc_y + 1);
+		// TODO: add the opening of the entrance to Banner2.DUN?
+		//   in vanilla code the monsters room was also opened after the quest was activated
+		//   which caused that the player could teleport to the room and kill them.
+		//   if this was intended, they could have done it by adding them to Banner2.DUN too
+		//   maybe it was just a bug...
+	} else {
+		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
+		for (i = 0; i < nobjects; i++)
+			SyncObjectAnim(objectactive[i]);
+		//DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
+	}
+}
+
 void ResyncMPQuests()
 {
+	if (QuestStatus(Q_LTBANNER)) {
+		ResyncBanner();
+	}
 	// TODO: eliminate relative level-indices?
 	if (quests[Q_SKELKING]._qactive == QUEST_INIT
 	    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
@@ -567,10 +593,11 @@ void ResyncMPQuests()
 
 void ResyncQuests()
 {
-	int i, x, y;
+	int i;
 
 	if (QuestStatus(Q_LTBANNER)) {
-		if (quests[Q_LTBANNER]._qvar1 == 1)
+		ResyncBanner();
+		/*if (quests[Q_LTBANNER]._qvar1 == 1)
 			ObjChangeMapResync(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
@@ -588,13 +615,11 @@ void ResyncQuests()
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_LTBANNER]._qvar1 == 3) {
-			x = setpc_x;
-			y = setpc_y;
-			ObjChangeMapResync(x, y, x + setpc_w + 1, y + setpc_h + 1);
+			ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1);
 			for (i = 0; i < nobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
-		}
+		}*/
 	}
 	if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel) {
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && quests[Q_MUSHROOM]._qvar1 == QS_INIT) {
@@ -754,7 +779,7 @@ void SetMultiQuest(int qn, int qa, int qlog, int qvar)
 	if (qs->_qactive != QUEST_DONE) {
 		if (qa > qs->_qactive)
 			qs->_qactive = qa;
-		qs->_qlog |= qlog;
+		qs->_qlog = qlog;
 		if (qvar > qs->_qvar1)
 			qs->_qvar1 = qvar;
 	}

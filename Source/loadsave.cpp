@@ -417,7 +417,8 @@ static void LoadMonster(int mnum)
 	CopyInt(tbuff, &mon->_menemy);
 	CopyChar(tbuff, &mon->_menemyx);
 	CopyChar(tbuff, &mon->_menemyy);
-	tbuff += 2; // Alignment
+	CopyChar(tbuff, &mon->_mListener);
+	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
 	CopyInt(tbuff, &mon->_mAnimDelay);
@@ -1104,7 +1105,8 @@ static void SaveMonster(int mnum)
 	CopyInt(&mon->_menemy, tbuff);
 	CopyChar(&mon->_menemyx, tbuff);
 	CopyChar(&mon->_menemyy, tbuff);
-	tbuff += 2; // Alignment
+	CopyChar(&mon->_mListener, tbuff);
+	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
 	CopyInt(&mon->_mAnimDelay, tbuff);

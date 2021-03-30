@@ -16,7 +16,7 @@ extern bool gbQtextflag;
 
 void FreeQuestText();
 void InitQuestText();
-void InitQTextMsg(int m);
+void InitQTextMsg(int m, bool showText = true);
 void DrawQTextBack();
 void DrawQText();
 
