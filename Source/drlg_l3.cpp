@@ -2421,7 +2421,7 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 
 	InitL3Dungeon();
 
-	DRLG_InitTrans();
+	//DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	lm = pLevelMap;
@@ -2451,12 +2451,18 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 {
 	int i, j;
-	BYTE *pLevelMap = LoadL3DungeonData(sFileName);
+	BYTE *pLevelMap;
 
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-	DRLG_Init_Globals();
 	ViewX = vx;
 	ViewY = vy;
+
+	pLevelMap = LoadL3DungeonData(sFileName);
+
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+
+	DRLG_InitTrans();
+	DRLG_Init_Globals();
+
 	SetMapMonsters(pLevelMap, 0, 0);
 	SetMapObjects(pLevelMap);
 

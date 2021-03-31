@@ -1153,16 +1153,18 @@ void LoadL1Dungeon(const char *sFileName, int vx, int vy)
 {
 	BYTE *pLevelMap;
 
-	DRLG_InitTrans();
+	ViewX = vx;
+	ViewY = vy;
 
 	pLevelMap = LoadL1DungeonData(sFileName);
 
-	ViewX = vx;
-	ViewY = vy;
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+
+	DRLG_InitTrans();
 	DRLG_Init_Globals();
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 	DRLG_InitL1Vals();
+
 	SetMapMonsters(pLevelMap, 0, 0);
 	SetMapObjects(pLevelMap);
 	mem_free_dbg(pLevelMap);
