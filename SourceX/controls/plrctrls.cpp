@@ -923,7 +923,8 @@ HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 	return NULL;
 }
 
-void ProcessLeftStickOrDPadGameUI() {
+void ProcessLeftStickOrDPadGameUI()
+{
 	HandleLeftStickOrDPadFn handler = GetLeftStickOrDPadGameUIHandler();
 	if (handler != NULL)
 		handler(GetLeftStickOrDpadDirection(true));
@@ -1071,8 +1072,7 @@ void HandleRightStickMotion()
 		// cursor position events.
 		static int lastMouseSetTick = 0;
 		const int now = SDL_GetTicks();
-		if (now - lastMouseSetTick > 0)
-		{
+		if (now - lastMouseSetTick > 0) {
 			SetCursorPos(x, y);
 			lastMouseSetTick = now;
 		}

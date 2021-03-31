@@ -9,7 +9,8 @@ extern unsigned AmLine8;
 extern unsigned AmLine4;
 }
 
-TEST(Automap, InitAutomap) {
+TEST(Automap, InitAutomap)
+{
 	dvl::InitAutomapOnce();
 	EXPECT_EQ(dvl::automapflag, false);
 	EXPECT_EQ(dvl::AutoMapScale, 64);
@@ -20,14 +21,16 @@ TEST(Automap, InitAutomap) {
 	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
-TEST(Automap, StartAutomap) {
+TEST(Automap, StartAutomap)
+{
 	dvl::StartAutomap();
 	EXPECT_EQ(dvl::AutoMapXOfs, 0);
 	EXPECT_EQ(dvl::AutoMapYOfs, 0);
 	EXPECT_EQ(dvl::automapflag, true);
 }
 
-TEST(Automap, AutomapUp) {
+TEST(Automap, AutomapUp)
+{
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapUp();
@@ -35,7 +38,8 @@ TEST(Automap, AutomapUp) {
 	EXPECT_EQ(dvl::AutoMapYOfs, 0);
 }
 
-TEST(Automap, AutomapDown) {
+TEST(Automap, AutomapDown)
+{
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapDown();
@@ -43,7 +47,8 @@ TEST(Automap, AutomapDown) {
 	EXPECT_EQ(dvl::AutoMapYOfs, 2);
 }
 
-TEST(Automap, AutomapLeft) {
+TEST(Automap, AutomapLeft)
+{
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapLeft();
@@ -51,7 +56,8 @@ TEST(Automap, AutomapLeft) {
 	EXPECT_EQ(dvl::AutoMapYOfs, 2);
 }
 
-TEST(Automap, AutomapRight) {
+TEST(Automap, AutomapRight)
+{
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapRight();
@@ -59,7 +65,8 @@ TEST(Automap, AutomapRight) {
 	EXPECT_EQ(dvl::AutoMapYOfs, 0);
 }
 
-TEST(Automap, AutomapZoomIn) {
+TEST(Automap, AutomapZoomIn)
+{
 	dvl::AutoMapScale = 64;
 	dvl::AutomapZoomIn();
 	EXPECT_EQ(dvl::AutoMapScale, 76);
@@ -70,7 +77,8 @@ TEST(Automap, AutomapZoomIn) {
 	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
-TEST(Automap, AutomapZoomIn_Max) {
+TEST(Automap, AutomapZoomIn_Max)
+{
 	dvl::AutoMapScale = 244;
 	dvl::AutomapZoomIn();
 	dvl::AutomapZoomIn();
@@ -82,7 +90,8 @@ TEST(Automap, AutomapZoomIn_Max) {
 	EXPECT_EQ(dvl::AmLine4, 8);
 }
 
-TEST(Automap, AutomapZoomOut) {
+TEST(Automap, AutomapZoomOut)
+{
 	dvl::AutoMapScale = 256;
 	dvl::AutomapZoomOut();
 	EXPECT_EQ(dvl::AutoMapScale, 244);
@@ -93,7 +102,8 @@ TEST(Automap, AutomapZoomOut) {
 	EXPECT_EQ(dvl::AmLine4, 7);
 }
 
-TEST(Automap, AutomapZoomOut_Min) {
+TEST(Automap, AutomapZoomOut_Min)
+{
 	dvl::AutoMapScale = 76;
 	dvl::AutomapZoomOut();
 	dvl::AutomapZoomOut();
@@ -105,7 +115,8 @@ TEST(Automap, AutomapZoomOut_Min) {
 	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
-TEST(Automap, AutomapZoomReset) {
+TEST(Automap, AutomapZoomReset)
+{
 	dvl::AutoMapScale = 64;
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;

@@ -74,7 +74,7 @@ bool loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
 	caps->latencyms = 0;             // unused
 	caps->defaultturnssec = 10;      // ?
 	caps->defaultturnsintransit = 1; // maximum acceptable number
-									 // of turns in queue?
+	                                 // of turns in queue?
 	return true;
 }
 

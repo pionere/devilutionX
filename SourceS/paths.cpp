@@ -14,7 +14,8 @@ std::string *basePath = NULL;
 std::string *prefPath = NULL;
 std::string *configPath = NULL;
 
-void AddTrailingSlash(std::string *path) {
+void AddTrailingSlash(std::string *path)
+{
 #ifdef _WIN32
 	if (!path->empty() && path->back() != '\\')
 		*path += '\\';
@@ -24,7 +25,8 @@ void AddTrailingSlash(std::string *path) {
 #endif
 }
 
-std::string *FromSDL(char *s) {
+std::string *FromSDL(char *s)
+{
 	std::string *result = new std::string(s != NULL ? s : "");
 	if (s != NULL) {
 		SDL_free(s);
@@ -40,16 +42,19 @@ std::string *FromSDL(char *s) {
 const std::string &GetBasePath()
 {
 #ifdef __vita__
-	if (basePath == NULL) basePath = new std::string(GetPrefPath());
+	if (basePath == NULL)
+		basePath = new std::string(GetPrefPath());
 #else
-	if (basePath == NULL) basePath = FromSDL(SDL_GetBasePath());
+	if (basePath == NULL)
+		basePath = FromSDL(SDL_GetBasePath());
 #endif
 	return *basePath;
 }
 
 const std::string &GetPrefPath()
 {
-	if (prefPath == NULL) prefPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
+	if (prefPath == NULL)
+		prefPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
 	return *prefPath;
 }
 
@@ -62,14 +67,16 @@ const std::string &GetConfigPath()
 
 void SetBasePath(const char *path)
 {
-	if (basePath == NULL) basePath = new std::string;
+	if (basePath == NULL)
+		basePath = new std::string;
 	*basePath = path;
 	AddTrailingSlash(basePath);
 }
 
 void SetPrefPath(const char *path)
 {
-	if (prefPath == NULL) prefPath = new std::string;
+	if (prefPath == NULL)
+		prefPath = new std::string;
 	*prefPath = path;
 	AddTrailingSlash(prefPath);
 }

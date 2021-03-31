@@ -81,7 +81,8 @@ bool HandleStartAndSelect(const ControllerButtonEvent &ctrl_event, GameAction *a
 
 	if (in_game_menu && (start_is_down || select_is_down) && !ctrl_event.up) {
 		// If both are down, do nothing because `both_received` will trigger soon.
-		if (start_is_down && select_is_down) return true;
+		if (start_is_down && select_is_down)
+			return true;
 		*action = GameActionSendKey { DVL_VK_ESCAPE, ctrl_event.up };
 		return true;
 	}
@@ -124,14 +125,14 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 		case ControllerButton_BUTTON_LEFTSHOULDER:
 			if (select_modifier_active != switch_potions_and_clicks) {
 				if (!IsAutomapActive())
-					*action = GameActionSendMouseClick{ GameActionSendMouseClick::LEFT, ctrl_event.up };
+					*action = GameActionSendMouseClick { GameActionSendMouseClick::LEFT, ctrl_event.up };
 				return true;
 			}
 			break;
 		case ControllerButton_BUTTON_RIGHTSHOULDER:
 			if (select_modifier_active != switch_potions_and_clicks) {
 				if (!IsAutomapActive())
-					*action = GameActionSendMouseClick{ GameActionSendMouseClick::RIGHT, ctrl_event.up };
+					*action = GameActionSendMouseClick { GameActionSendMouseClick::RIGHT, ctrl_event.up };
 				return true;
 			}
 			break;
@@ -163,29 +164,27 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			switch (ctrl_event.button) {
 			case ControllerButton_BUTTON_DPAD_UP:
 				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-					*action = GameActionSendKey{ DVL_VK_F6, ctrl_event.up };
+					*action = GameActionSendKey { DVL_VK_F6, ctrl_event.up };
 				else
-					*action = GameActionSendKey{ DVL_VK_ESCAPE, ctrl_event.up };
+					*action = GameActionSendKey { DVL_VK_ESCAPE, ctrl_event.up };
 				return true;
 			case ControllerButton_BUTTON_DPAD_RIGHT:
 				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-					*action = GameActionSendKey{ DVL_VK_F8, ctrl_event.up };
-				else
-					if (!ctrl_event.up)
-						*action = GameAction(GameActionType_TOGGLE_INVENTORY);
+					*action = GameActionSendKey { DVL_VK_F8, ctrl_event.up };
+				else if (!ctrl_event.up)
+					*action = GameAction(GameActionType_TOGGLE_INVENTORY);
 				return true;
 			case ControllerButton_BUTTON_DPAD_DOWN:
 				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-					*action = GameActionSendKey{ DVL_VK_F7, ctrl_event.up };
+					*action = GameActionSendKey { DVL_VK_F7, ctrl_event.up };
 				else
-					*action = GameActionSendKey{ DVL_VK_TAB, ctrl_event.up };
+					*action = GameActionSendKey { DVL_VK_TAB, ctrl_event.up };
 				return true;
 			case ControllerButton_BUTTON_DPAD_LEFT:
 				if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-					*action = GameActionSendKey{ DVL_VK_F5, ctrl_event.up };
-				else
-					if (!ctrl_event.up)
-						*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
+					*action = GameActionSendKey { DVL_VK_F5, ctrl_event.up };
+				else if (!ctrl_event.up)
+					*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
 				return true;
 			default:
 				break;
@@ -194,14 +193,14 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 		if (start_modifier_active) {
 			switch (ctrl_event.button) {
 			case ControllerButton_BUTTON_DPAD_UP:
-				*action = GameActionSendKey{ DVL_VK_ESCAPE, ctrl_event.up };
+				*action = GameActionSendKey { DVL_VK_ESCAPE, ctrl_event.up };
 				return true;
 			case ControllerButton_BUTTON_DPAD_RIGHT:
 				if (!ctrl_event.up)
 					*action = GameAction(GameActionType_TOGGLE_INVENTORY);
 				return true;
 			case ControllerButton_BUTTON_DPAD_DOWN:
-				*action = GameActionSendKey{ DVL_VK_TAB, ctrl_event.up };
+				*action = GameActionSendKey { DVL_VK_TAB, ctrl_event.up };
 				return true;
 			case ControllerButton_BUTTON_DPAD_LEFT:
 				if (!ctrl_event.up)
@@ -243,7 +242,8 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 
 		// Bottom button: Closes menus or opens quick spell book if nothing is open.
 		if (ctrl_event.button == ControllerButton_BUTTON_A) { // Bottom button
-			if (ctrl_event.up) return true;
+			if (ctrl_event.up)
+				return true;
 			if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 				*action = GameActionSendKey { DVL_VK_F7, ctrl_event.up };
 			else if (gbInvflag)
@@ -266,7 +266,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			case ControllerButton_BUTTON_B: // Right button
 				if (!ctrl_event.up) {
 					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey{ DVL_VK_F8, ctrl_event.up };
+						*action = GameActionSendKey { DVL_VK_F8, ctrl_event.up };
 					else
 						*action = GameAction(GameActionType_PRIMARY_ACTION);
 				}
@@ -274,7 +274,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			case ControllerButton_BUTTON_Y: // Top button
 				if (!ctrl_event.up) {
 					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey{ DVL_VK_F6, ctrl_event.up };
+						*action = GameActionSendKey { DVL_VK_F6, ctrl_event.up };
 					else
 						*action = GameAction(GameActionType_SECONDARY_ACTION);
 				}
@@ -282,7 +282,7 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 			case ControllerButton_BUTTON_X: // Left button
 				if (!ctrl_event.up) {
 					if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
-						*action = GameActionSendKey{ DVL_VK_F5, ctrl_event.up };
+						*action = GameActionSendKey { DVL_VK_F5, ctrl_event.up };
 					else
 						*action = GameAction(GameActionType_CAST_SPELL);
 				}
@@ -311,24 +311,22 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrl_event, Gam
 		}
 	}
 
-
 	// DPad navigation is handled separately for these.
-	if (gmenu_is_active() || gbQuestlog || stextflag != STORE_NONE)
-	{
+	if (gmenu_is_active() || gbQuestlog || stextflag != STORE_NONE) {
 		switch (ctrl_event.button) {
-			case ControllerButton_BUTTON_DPAD_UP:
-			case ControllerButton_BUTTON_DPAD_DOWN:
-			case ControllerButton_BUTTON_DPAD_LEFT:
-			case ControllerButton_BUTTON_DPAD_RIGHT:
-				return true;
-			default:
-				break;
+		case ControllerButton_BUTTON_DPAD_UP:
+		case ControllerButton_BUTTON_DPAD_DOWN:
+		case ControllerButton_BUTTON_DPAD_LEFT:
+		case ControllerButton_BUTTON_DPAD_RIGHT:
+			return true;
+		default:
+			break;
 		}
 	}
 
 	// By default, map to a keyboard key.
 	if (ctrl_event.button != ControllerButton_NONE) {
-		*action = GameActionSendKey{ translate_controller_button_to_key(ctrl_event.button),
+		*action = GameActionSendKey { translate_controller_button_to_key(ctrl_event.button),
 			ctrl_event.up };
 		return true;
 	}
