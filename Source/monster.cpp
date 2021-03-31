@@ -2334,14 +2334,9 @@ static bool MonDoTalk(int mnum)
 	InitQTextMsg(mon->mtalkmsg, pnum == myplr);
 	switch (mon->_uniqtype - 1) {
 	case UMT_GARBUD:
-		if (mon->mtalkmsg == TEXT_GARBUD1) {
-			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
-			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
-		}
-		if (mon->mtalkmsg == TEXT_GARBUD2 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
-			//SetRndSeed(mon->_mRndSeed);
+		if (mon->mtalkmsg == TEXT_GARBUD2) {
+			SetRndSeed(mon->_mRndSeed);
 			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, true);
-			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
 		}
 		break;
 	case UMT_ZHAR:
@@ -4155,7 +4150,6 @@ void MAI_Counselor(int mnum)
 void MAI_Garbud(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Garbud: Invalid monster %d", mnum);
@@ -4165,26 +4159,27 @@ void MAI_Garbud(int mnum)
 		return;
 	}
 
-	md = MonGetDir(mnum);
+	mon->_mdir = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE)) {
-			if (mon->mtalkmsg == TEXT_GARBUD4 && !effect_is_playing(USFX_GARBUD4)) {
+		if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE)) { // MON_TIMER
+			if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
+				//if (effect_is_playing(USFX_GARBUD4) && gbQtextflag)
+				//	gbQtextflag = false;
 				mon->_mgoal = MGOAL_NORMAL;
-				mon->_msquelch = UCHAR_MAX;
+				// mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
 			}
 		} else {
-			if (mon->mtalkmsg < TEXT_GARBUD4 && mon->mtalkmsg >= TEXT_GARBUD1) {
+			if (quests[Q_GARBUD]._qvar1 < 4)
 				mon->_mgoal = MGOAL_INQUIRING;
-				mon->mtalkmsg++;
-			}
 		}
+	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_GARBUD]._qvar1 == 4) {
+		mon->_mgoal = MGOAL_NORMAL;
+		mon->mtalkmsg = 0;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_MOVE)
 		MAI_Round(mnum, true);
-
-	mon->_mdir = md;
 }
 
 void MAI_Zhar(int mnum)
@@ -5233,6 +5228,17 @@ void TalktoMonster(int mnum, int pnum)
 			if (pnum == myplr)
 				NetSendCmdQuest(true, Q_LTBANNER, true);
 		}
+	} else if (mon->_mAi == AI_GARBUD) {
+		assert(quests[Q_GARBUD]._qvar1 < 4);
+		mon->mtalkmsg = TEXT_GARBUD1 + quests[Q_GARBUD]._qvar1;
+		if (mon->mtalkmsg == TEXT_GARBUD1) {
+			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
+			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
+		} else if (mon->mtalkmsg == TEXT_GARBUD4)
+			mon->_mVar8 = 0; // init MON_TIMER
+		quests[Q_GARBUD]._qvar1++;
+		if (pnum == myplr)
+			NetSendCmdQuest(true, Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
 		if (QuestStatus(Q_VEIL) && mon->mtalkmsg >= TEXT_VEIL9) {
 			if (PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {

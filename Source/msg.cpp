@@ -2519,7 +2519,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (currLvl._dLevelIdx != plr[pnum].plrlevel)
+		if (currLvl._dLevelIdx != plr[pnum].plrlevel || plr[myplr]._pLvlChanging)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 		_gbJunkDeltaChanged = true;
 	}
