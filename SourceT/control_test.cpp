@@ -5,7 +5,8 @@ namespace dvl {
 extern int pSplType;
 }
 
-TEST(Control, SetSpell) {
+TEST(Control, SetSpell)
+{
 	dvl::spselflag = true;
 	dvl::pSpell = dvl::SPL_FIREBOLT;
 	dvl::pSplType = dvl::RSPLTYPE_CHARGES;
@@ -17,7 +18,8 @@ TEST(Control, SetSpell) {
 	//EXPECT_EQ(dvl::gbRedrawFlags, REDRAW_ALL);
 }
 
-TEST(Control, ClearPanel) {
+TEST(Control, ClearPanel)
+{
 	dvl::pinfoflag = true;
 	dvl::ClearPanel();
 	EXPECT_EQ(dvl::spselflag, false);

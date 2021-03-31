@@ -2,12 +2,14 @@
 #include "all.h"
 
 #ifndef HELLFIRE
-TEST(Doom, doom_get_frame_from_time) {
+TEST(Doom, doom_get_frame_from_time)
+{
 	//dvl::DoomQuestState = 1200 * 8 + 548;
 	//EXPECT_EQ(dvl::doom_get_frame_from_time(), 8);
 }
 
-TEST(Doom, doom_get_frame_from_time_max) {
+TEST(Doom, doom_get_frame_from_time_max)
+{
 	//dvl::DoomQuestState = 1200 * 30 + 1;
 	//EXPECT_EQ(dvl::doom_get_frame_from_time(), 31);
 }

@@ -48,7 +48,8 @@ void UnloadArtFonts()
 	FontTables[AFT_HUGE] = NULL;
 }
 
-void LoadTtfFont() {
+void LoadTtfFont()
+{
 	if (!TTF_WasInit()) {
 		if (TTF_Init() == -1) {
 			SDL_Log("TTF_Init: %s", TTF_GetError());
@@ -63,8 +64,7 @@ void LoadTtfFont() {
 		ttf_font_path = TTF_FONT_DIR TTF_FONT_NAME;
 	}
 #ifdef __linux__
-	if (!FileExists(ttf_font_path))
-	{
+	if (!FileExists(ttf_font_path)) {
 		ttf_font_path = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
 	}
 #endif
@@ -78,14 +78,16 @@ void LoadTtfFont() {
 	TTF_SetFontHinting(font, TTF_HINTING_MONO);
 }
 
-void UnloadTtfFont() {
+void UnloadTtfFont()
+{
 	if (font && TTF_WasInit())
 		TTF_CloseFont(font);
 	font = NULL;
 }
 
-void FontsCleanup() {
-	TTF_Quit();	
+void FontsCleanup()
+{
+	TTF_Quit();
 }
 
 DEVILUTION_END_NAMESPACE
