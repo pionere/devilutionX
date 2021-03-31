@@ -3089,7 +3089,7 @@ void MAI_SkelBow(int mnum)
 	if (!walking) {
 		if (random_(110, 100) < 2 * mon->_mint + 3) {
 			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
-				MonStartRAttack(mnum, MIS_ARROW);
+				MonStartRAttack(mnum, MIS_ARROWC);
 		}
 	}
 }
@@ -3448,7 +3448,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 
 void MAI_GoatBow(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARROW, false);
+	MAI_Ranged(mnum, MIS_ARROWC, false);
 }
 
 void MAI_Succ(int mnum)

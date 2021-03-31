@@ -1450,6 +1450,9 @@ typedef enum missile_id {
 	MIS_ARROW,
 	MIS_PBARROW,
 	MIS_ASARROW,
+	MIS_ARROWC,
+	MIS_PBARROWC,
+	MIS_ASARROWC,
 	MIS_FIREBOLT,
 	MIS_HBOLT,
 	MIS_FLARE,
@@ -3523,7 +3526,7 @@ typedef enum item_special_effect {
 	ISPL_DRAINLIFE      = 0x00000040,
 	//ISPL_UNKNOWN_1      = 0x00000080,
 	//ISPL_NOHEALPLR      = 0x00000100, /* unused */ 
-	ISPL_MULT_ARROWS    = 0x00000200, /* unsupported */
+	ISPL_MULT_ARROWS    = 0x00000200,
 	//ISPL_UNKNOWN_3      = 0x00000400,
 	ISPL_KNOCKBACK      = 0x00000800,
 	ISPL_NOHEALMON      = 0x00001000, /* unused */ 

@@ -12,9 +12,12 @@ DEVILUTION_BEGIN_NAMESPACE
 const MissileData missiledata[] = {
 	// clang-format off
 	// mName,             mAddProc,                   mProc,              mDraw, mType,                      mdFlags, mResist,        mFileNum,        mlSFX,       miSFX,       mlSFXCnt, miSFXCnt
-	{  MIS_ARROW,         &AddArrow,                  &MI_Arrow,          TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    -1,          1,        1        },
-	{  MIS_PBARROW,       &AddArrow,                  &MI_Arrow,          TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    -1,          1,        1        },
-	{  MIS_ASARROW,       &AddArrow,                  &MI_AsArrow,        TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    PS_BFIRE,    -1,          1,        1        },
+	{  MIS_ARROW,         &AddArrow,                  &MI_Arrow,          TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    -1,          -1,          1,        1        },
+	{  MIS_PBARROW,       &AddArrow,                  &MI_Arrow,          TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    -1,          -1,          1,        1        },
+	{  MIS_ASARROW,       &AddArrow,                  &MI_AsArrow,        TRUE,      0,                            0, MISR_NONE,      MFILE_ARROWS,    -1,          -1,          1,        1        },
+	{  MIS_ARROWC,        &AddArrowC,                 &MI_Dummy,          FALSE,     0,                            0, MISR_NONE,      MFILE_NONE,      PS_BFIRE,    -1,          1,        1        },
+	{  MIS_PBARROWC,      &AddArrowC,                 &MI_Dummy,          FALSE,     0,                            0, MISR_NONE,      MFILE_NONE,      PS_BFIRE,    -1,          1,        1        },
+	{  MIS_ASARROWC,      &AddArrowC,                 &MI_Dummy,          FALSE,     0,                            0, MISR_NONE,      MFILE_NONE,      PS_BFIRE,    -1,          1,        1        },
 	{  MIS_FIREBOLT,      &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                            0, MISR_FIRE,      MFILE_FIREBA,    LS_FBOLT1,   LS_FIRIMP2,  1,        1        },
 	{  MIS_HBOLT,         &AddFirebolt,               &MI_Firebolt,       TRUE,      1,                            0, MISR_ACID,      MFILE_HOLY,      LS_HOLYBOLT, LS_ELECIMP1, 1,        1        },
 	{  MIS_FLARE,         &AddFlare,                  &MI_Firebolt,       TRUE,      1,                            0, MISR_MAGIC,     MFILE_FLARE,     -1,          -1,          1,        1        },
