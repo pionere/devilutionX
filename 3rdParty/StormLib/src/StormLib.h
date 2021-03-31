@@ -1033,6 +1033,7 @@ bool   STORMAPI SFileCloseArchive(HANDLE hMpq);
 bool   STORMAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
 bool   STORMAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
 DWORD  STORMAPI SFileGetFileSize(HANDLE hFile);
+DWORD  STORMAPI SFileGetFilePointer(HANDLE hFile);
 DWORD  STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 bool   STORMAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, LPDWORD pdwRead);
 void   STORMAPI SFileCloseFile(HANDLE hFile);

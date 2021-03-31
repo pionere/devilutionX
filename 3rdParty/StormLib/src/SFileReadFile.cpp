@@ -203,8 +203,9 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
     return nError;
 }
 
-static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwToRead, LPDWORD pdwBytesRead)
+static int ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
+	DWORD dwFilePos = hf->dwFilePos;
     ULONGLONG RawFilePos = hf->RawFilePos;
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -325,8 +326,9 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     return ERROR_CAN_NOT_COMPLETE;
 }
 
-static int ReadMpkFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwToRead, LPDWORD pdwBytesRead)
+static int ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
+	DWORD dwFilePos = hf->dwFilePos;
     ULONGLONG RawFilePos = hf->RawFilePos + 0x0C;   // For some reason, MPK files start at position (hf->RawFilePos + 0x0C)
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -417,9 +419,10 @@ static int ReadMpkFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
 }
 
 
-static int ReadMpqFileSectorFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
+static int ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
 {
     TMPQArchive * ha = hf->ha;
+	DWORD dwFilePos = hf->dwFilePos;
     LPBYTE pbBuffer = (BYTE *)pvBuffer;
     DWORD dwTotalBytesRead = 0;                         // Total bytes read in all three parts
     DWORD dwSectorSizeMask = ha->dwSectorSize - 1;      // Mask for block size, usually 0x0FFF
@@ -530,8 +533,9 @@ static int ReadMpqFileSectorFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
 }
 
 #ifdef FULL
-static int ReadMpqFilePatchFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwToRead, LPDWORD pdwBytesRead)
+static int ReadMpqFilePatchFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
+	DWORD dwFilePos = hf->dwFilePos;
     TMPQPatcher Patcher;
     DWORD dwBytesToRead = dwToRead;
     DWORD dwBytesRead = 0;
@@ -549,10 +553,12 @@ static int ReadMpqFilePatchFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos,
         Patcher.cbFileData = hf->pFileEntry->dwFileSize;
 
         // Initialize the patcher object with initial file data
+		hf->dwFilePos = 0; // FIXME: check if this is safe
         if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT)
-            nError = ReadMpqFileSingleUnit(hf, Patcher.pbFileData1, 0, Patcher.cbFileData, &dwBytesRead);
+            nError = ReadMpqFileSingleUnit(hf, Patcher.pbFileData1, Patcher.cbFileData, &dwBytesRead);
         else
-            nError = ReadMpqFileSectorFile(hf, Patcher.pbFileData1, 0, Patcher.cbFileData, &dwBytesRead);
+            nError = ReadMpqFileSectorFile(hf, Patcher.pbFileData1, Patcher.cbFileData, &dwBytesRead);
+		hf->dwFilePos = dwFilePos;
 
         // Perform the patching process
         if(nError == ERROR_SUCCESS)
@@ -588,14 +594,16 @@ static int ReadMpqFilePatchFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos,
 }
 #endif
 
-static int ReadMpqFileLocalFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwToRead, LPDWORD pdwBytesRead)
+static int ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
-    ULONGLONG FilePosition1 = dwFilePos;
+    ULONGLONG FilePosition1;
     ULONGLONG FilePosition2;
     DWORD dwBytesRead = 0;
     int nError = ERROR_SUCCESS;
 
     assert(hf->pStream != NULL);
+
+	FileStream_GetPos(hf->pStream, &FilePosition1);
 
     // Because stream I/O functions are designed to read
     // "all or nothing", we compare file position before and after,
@@ -656,23 +664,23 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
 
     // If the file is local file, read the data directly from the stream
     if (hf->pStream != NULL) {
-        nError = ReadMpqFileLocalFile(hf, pvBuffer, hf->dwFilePos, dwToRead, &dwBytesRead);
+        nError = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead, &dwBytesRead);
 #ifdef FULL
     // If the file is a patch file, we have to read it special way
 	} else if (hf->hfPatch != NULL
 	 && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE) == 0) {
-        nError = ReadMpqFilePatchFile(hf, pvBuffer, hf->dwFilePos, dwToRead, &dwBytesRead);
+        nError = ReadMpqFilePatchFile(hf, pvBuffer, dwToRead, &dwBytesRead);
     }
 #endif
     // If the archive is a MPK archive, we need special way to read the file
 	} else if (hf->ha->dwSubType == MPQ_SUBTYPE_MPK) {
-        nError = ReadMpkFileSingleUnit(hf, pvBuffer, hf->dwFilePos, dwToRead, &dwBytesRead);
+        nError = ReadMpkFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
     // If the file is single unit file, redirect it to read file
 	} else if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) {
-        nError = ReadMpqFileSingleUnit(hf, pvBuffer, hf->dwFilePos, dwToRead, &dwBytesRead);
+        nError = ReadMpqFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
     // Otherwise read it as sector based MPQ file
 	} else {
-        nError = ReadMpqFileSectorFile(hf, pvBuffer, hf->dwFilePos, dwToRead, &dwBytesRead);
+        nError = ReadMpqFileSectorFile(hf, pvBuffer, dwToRead, &dwBytesRead);
     }
 
     // Increment the file position
@@ -733,6 +741,25 @@ DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
 
     SetLastError(ERROR_INVALID_HANDLE);
     return SFILE_INVALID_SIZE;
+}
+
+DWORD STORMAPI SFileGetFilePointer(HANDLE hFile)
+{
+	TMPQFile *hf = IsValidFileHandle(hFile);
+	ULONGLONG CurrPosition;
+
+	// If the hFile is not a valid file handle, return an error.
+	if (hf == NULL) {
+		SetLastError(ERROR_INVALID_HANDLE);
+		return SFILE_INVALID_POS;
+	}
+	// Retrieve the current file position
+	if (hf->pStream != NULL) {
+		FileStream_GetPos(hf->pStream, &CurrPosition);
+	} else {
+		CurrPosition = hf->dwFilePos;
+	}
+	return (DWORD)CurrPosition;
 }
 
 DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod)

@@ -154,19 +154,14 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	if (pdwBpp != NULL)
 		*pdwBpp = pcxhdr.BitsPerPixel;
 
-	if (pBuffer == NULL) {
-		SFileSetFilePointer(hFile, 0, DVL_FILE_END);
-		fileBuffer = NULL;
-	} else {
-		size = SFileGetFileSize(hFile) - SFileSetFilePointer(hFile, 0, DVL_FILE_CURRENT);
+	if (pBuffer != NULL) {
+		size = SFileGetFileSize(hFile) - SFileGetFilePointer(hFile);
 		fileBuffer = (BYTE *)malloc(size);
-	}
 
-	if (fileBuffer != NULL) {
 		SFileReadFile(hFile, fileBuffer, size, NULL);
 		dataPtr = fileBuffer;
 
-		for (int j = 0; j < height; j++) {
+		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; dataPtr++) {
 				byte = *dataPtr;
 				if (byte < 0xC0) {
@@ -191,7 +186,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
-		SFileSetFilePointer(hFile, -768, DVL_FILE_CURRENT);
+		SFileSetFilePointer(hFile, -768, DVL_FILE_END);
 		SFileReadFile(hFile, paldata, 768, NULL);
 		for (int i = 0; i < 256; i++) {
 			pPalette[i].r = paldata[i][0];

@@ -1,6 +1,8 @@
 #pragma once
 
-namespace dvl {
+#include "../../types.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 enum AxisDirectionX {
 	AxisDirectionX_NONE = 0,
@@ -45,4 +47,4 @@ private:
 	int min_interval_ms_;
 };
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

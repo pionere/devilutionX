@@ -178,6 +178,8 @@ bool STORMAPI SFileCloseArchive(HANDLE hArchive);
 void STORMAPI SFileCloseFile(HANDLE hFile);
 
 DWORD STORMAPI SFileGetFileSize(HANDLE hFile);
+DWORD STORMAPI SFileGetFilePointer(HANDLE hFile);
+DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 bool STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 
 bool STORMAPI SFileOpenFile(const char *filename, HANDLE *phFile);
@@ -295,7 +297,6 @@ bool SNetUnregisterEventHandler(int, SEVTHANDLER);
 bool SNetRegisterEventHandler(int, SEVTHANDLER);
 void SNetInitializeProvider(unsigned long provider);
 bool SNetGetProviderCaps(struct _SNETCAPS *);
-DWORD SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
