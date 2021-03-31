@@ -127,28 +127,11 @@ const char StoryBookName[][28] = {
 	"A Spellbook",
 #endif
 };
-/** Specifies the speech IDs of each dungeon type narrator book, for each player class. */
+/** Specifies the speech IDs of each dungeon type narrator book. */
 const int StoryText[3][3] = {
 	{ TEXT_BOOK11, TEXT_BOOK12, TEXT_BOOK13 },
 	{ TEXT_BOOK21, TEXT_BOOK22, TEXT_BOOK23 },
 	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
-};
-
-const int textSets[NUM_TXTSets][NUM_CLASSES] = {
-#ifdef HELLFIRE
-	{ TEXT_BLINDING, TEXT_RBLINDING, TEXT_MBLINDING, TEXT_HBLINDING, TEXT_BBLINDING, TEXT_BLINDING },
-	{ TEXT_BLOODY,   TEXT_RBLOODY,   TEXT_MBLOODY,   TEXT_HBLOODY,   TEXT_BBLOODY,   TEXT_BLOODY   },
-	{ TEXT_BLOODWAR, TEXT_RBLOODWAR, TEXT_MBLOODWAR, TEXT_HBLOODWAR, TEXT_BBLOODWAR, TEXT_BLOODWAR },
-	{ TEXT_BONER,    TEXT_RBONER,    TEXT_MBONER,    TEXT_HBONER,    TEXT_BBONER,    TEXT_BONER    },
-	{ TEXT_BOOKA,    TEXT_RBOOKA,    TEXT_MBOOKA,    TEXT_OBOOKA,    TEXT_BBOOKA,    TEXT_BOOKA    },
-	{ TEXT_BOOKB,    TEXT_RBOOKB,    TEXT_MBOOKB,    TEXT_OBOOKB,    TEXT_BBOOKB,    TEXT_BOOKB    },
-	{ TEXT_BOOKC,    TEXT_RBOOKC,    TEXT_MBOOKC,    TEXT_OBOOKC,    TEXT_BBOOKC,    TEXT_BOOKC    },
-#else
-	{ TEXT_BLINDING, TEXT_RBLINDING, TEXT_MBLINDING },
-	{ TEXT_BLOODY,   TEXT_RBLOODY,   TEXT_MBLOODY   },
-	{ TEXT_BLOODWAR, TEXT_RBLOODWAR, TEXT_MBLOODWAR },
-	{ TEXT_BONER,    TEXT_RBONER,    TEXT_MBONER    },
-#endif
 };
 
 const int flickers[1][32] = {
@@ -434,7 +417,7 @@ static void AddCandles()
 	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 2);
 }
 
-static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int msg)
+static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2, int qn)
 {
 	int oi;
 
@@ -445,7 +428,7 @@ static void AddBookLever(int type, int x, int y, int x1, int y1, int x2, int y2,
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
 	object[oi]._oVar6 = object[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
-	object[oi]._oVar7 = msg; // LEVER_BOOK_MSG
+	object[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
 static void InitRndBarrels()
@@ -937,8 +920,6 @@ static void AddLazStand()
 
 void InitObjects()
 {
-	int sp_id;
-
 	ClrAllObjects();
 
 	if (currLvl._dLevelIdx == DLV_HELL4) {
@@ -963,20 +944,17 @@ void InitObjects()
 				AddStoryBooks();
 			if (QuestStatus(Q_ROCK))
 				InitRndLocObj5x5(OBJ_STAND);
-			if (QuestStatus(Q_SCHAMB))
-				InitRndLocObj5x5(OBJ_BOOK2R);
+			if (QuestStatus(Q_SCHAMB)) {
+				AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
+			}
 			AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
 			AddL2Torches();
 			if (QuestStatus(Q_BLIND)) {
-				sp_id = textSets[TXTS_BLINDING][plr[myplr]._pClass];
-				quests[Q_BLIND]._qmsg = sp_id;
-				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x + 1, setpc_h + setpc_y + 1, sp_id);
+				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
 				LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
 			}
 			if (QuestStatus(Q_BLOOD)) {
-				sp_id = textSets[TXTS_BLOODY][plr[myplr]._pClass];
-				quests[Q_BLOOD]._qmsg = sp_id;
-				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, sp_id);
+				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, Q_BLOOD);
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
 			}
 			break;
@@ -994,9 +972,7 @@ void InitObjects()
 			break;
 		case DTYPE_HELL:
 			if (QuestStatus(Q_WARLORD)) {
-				sp_id = textSets[TXTS_BLOODWAR][plr[myplr]._pClass];
-				quests[Q_WARLORD]._qmsg = sp_id;
-				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, sp_id);
+				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, Q_WARLORD);
 				LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
 			}
 			if (QuestStatus(Q_BETRAYER))
@@ -1164,20 +1140,6 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 	os->_oVar4 = y2;
 	// LEVER_INDEX
 	os->_oVar8 = v;
-}
-
-static void AddSChambBook(int oi)
-{
-	ObjectStruct *os;
-
-	os = &object[oi];
-	// SCHBOOK_EFFECT
-	os->_oVar1 = setpc_x;
-	os->_oVar2 = setpc_y;
-	os->_oVar3 = setpc_w + setpc_x + 1;
-	os->_oVar4 = setpc_h + setpc_y + 1;
-	// SCHBOOK_ANIM_FRAME
-	os->_oVar6 = os->_oAnimFrame + 1;
 }
 
 static void AddChest(int oi, int type)
@@ -1529,7 +1491,7 @@ void SetupHBook(int oi, int bookidx)
 	os->_oAnimFrame = 5 - frame;
 	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_ANIM_FRAME
 	if (bookidx >= 5) {
-		os->_oVar2 = textSets[TXTS_BOOKA + bookidx - 5][plr[myplr]._pClass]; // STORY_BOOK_MSG
+		os->_oVar2 = TEXT_BOOKA + bookidx - 5; // STORY_BOOK_MSG
 		os->_oVar3 = 15;                    // STORY_BOOK_NAME
 		os->_oVar8 = bookidx + 1;           // STORY_BOOK_NAKRUL_IDX
 	} else {
@@ -1583,9 +1545,6 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		AddL3Door(oi, ox, oy, type);
-		break;
-	case OBJ_BOOK2R:
-		AddSChambBook(oi);
 		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
@@ -2805,9 +2764,6 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++;
 
-	//if (sendmsg) FIXME check - setlevel vs. delta
-	//	NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
-
 	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
 			return;
@@ -2816,10 +2772,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			plr[pnum]._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
 			plr[pnum]._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
 		}
-		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
-		// if (pnum == myplr) FIXME check
-		InitDiabloMsg(EMSG_BONECHAMB);
+		if (pnum == myplr)
+			InitDiabloMsg(EMSG_BONECHAMB);
 		AddMissile(
 		    plr[pnum]._px,
 		    plr[pnum]._py,
@@ -2832,6 +2787,11 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		    0,
 		    0,
 		    0);
+		quests[Q_SCHAMB]._qactive = QUEST_DONE;
+		if (sendmsg) {
+			NetSendCmdQuest(true, Q_SCHAMB, true); // recipient should not matter
+			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		}
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		for (i = 0; i < nobjects; i++)
@@ -2844,34 +2804,12 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	ObjectStruct *os;
 	int qn;
 
-	if (numitems >= MAXITEMS) {
+	if (numitems >= MAXITEMS && !deltaload) {
 		return;
 	}
 	os = &object[oi];
-	assert(os->_oSelFlag != 0);
-	switch (os->_otype) {
-	case OBJ_BLINDBOOK:
-		qn = Q_BLIND;
-		break;
-	case OBJ_BLOODBOOK:
-		qn = Q_BLOOD;
-		break;
-	case OBJ_STEELTOME:
-		qn = Q_WARLORD;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-	if (quests[qn]._qvar1 == 0) {
-		quests[qn]._qvar1 = 1;
-		quests[qn]._qactive = QUEST_ACTIVE;
-		quests[qn]._qlog = TRUE;
-		if (qn == Q_BLOOD && !deltaload) {
-			SetRndSeed(os->_oRndSeed);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
-		}
-	}
-
+	// assert(os->_oSelFlag != 0);
+	qn = os->_oVar7;     // LEVER_BOOK_QUEST
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_ANIM
 		if (qn != Q_BLOOD)
@@ -2885,36 +2823,20 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (deltaload)
 		return;
 	if (pnum == myplr)
-		InitQTextMsg(os->_oVar7);     // LEVER_BOOK_MSG
-	if (sendmsg) {
-		NetSendCmdQuest(true, qn, true);
-		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		InitQTextMsg(questlist[qn]._qdmsg);
+	if (quests[qn]._qvar1 == 0) {
+		quests[qn]._qvar1 = 1;
+		quests[qn]._qactive = QUEST_ACTIVE;
+		quests[qn]._qlog = TRUE;
+		if (qn == Q_BLOOD) {
+			SetRndSeed(os->_oRndSeed);
+			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
+		}
+		if (sendmsg) {
+			NetSendCmdQuest(true, qn, true);
+			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
+		}
 	}
-}
-
-static void OperateSChambBook(int oi, bool sendmsg)
-{
-	ObjectStruct *os;
-	int i, textdef;
-
-	os = &object[oi];
-	assert(os->_oSelFlag != 0 && (!gbQtextflag || !sendmsg));
-	if (os->_oAnimFrame != os->_oVar6) { // SCHBOOK_ANIM_FRAME
-		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // SCHBOOK_EFFECT
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
-		os->_oAnimFrame = os->_oVar6;    // SCHBOOK_ANIM_FRAME
-	}
-	if (quests[Q_SCHAMB]._qactive == QUEST_INIT) {
-		quests[Q_SCHAMB]._qactive = QUEST_ACTIVE;
-		quests[Q_SCHAMB]._qlog = TRUE;
-	}
-	// set qmsg out of order, since the quest might be completed by other players
-	textdef = textSets[TXTS_BONER][plr[myplr]._pClass];
-	quests[Q_SCHAMB]._qmsg = textdef;
-	// if (pnum == myplr)
-	if (sendmsg)
-		InitQTextMsg(quests[Q_SCHAMB]._qmsg);
 }
 
 static void OperateChest(int pnum, int oi, bool sendmsg)
@@ -4118,9 +4040,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_BOOK2L:
 		OperateVileBook(pnum, oi, sendmsg);
 		break;
-	case OBJ_BOOK2R:
-		OperateSChambBook(oi, sendmsg);
-		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
@@ -4138,6 +4057,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
+	//case OBJ_BOOKLVR:
+	case OBJ_BOOK2R:
 		OperateBookLever(pnum, oi, sendmsg);
 		break;
 	case OBJ_CRUX1:
@@ -4273,12 +4194,9 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
-	//case OBJ_BOOK2L:
-	//	OperateVileBook(pnum, oi, false);
-	//	break;
-	//case OBJ_BOOK2R:
-	//	OperateSChambBook(oi, false);
-	//	break;
+	case OBJ_BOOK2L:
+		OperateVileBook(pnum, oi, false);
+		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
@@ -4296,6 +4214,8 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
+	//case OBJ_BOOKLVR:
+	case OBJ_BOOK2R:
 		OperateBookLever(pnum, oi, false);
 		break;
 	case OBJ_CRUX1:

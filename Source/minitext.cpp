@@ -69,23 +69,29 @@ void InitQuestText()
 
 void InitQTextMsg(int m, bool showText)
 {
-	int speed;
+	const TextDataStruct *tds;
+	int speed, sfxnr;
 
-	if (alltext[m].scrlltxt && showText) {
+	tds = &alltext[m];
+	if (tds->scrlltxt && showText) {
 		gbQuestlog = false;
 		gbInvflag = false;
 		gbSbookflag = false;
-		qtextptr = alltext[m].txtstr;
+		qtextptr = tds->txtstr;
 		gbQtextflag = true;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
-		speed = alltext[m].txtspd;
+		speed = tds->txtspd;
 		if (speed <= 0)
 			scrolltexty = 50 / -(speed - 1);
 		else
 			scrolltexty = ((speed + 1) * 50) / speed;
 		qtextTime = SDL_GetTicks();
 	}
-	PlaySFX(alltext[m].sfxnr);
+	sfxnr = tds->sfxnr;
+	if (tds->txtsfxset) {
+		sfxnr = sgSFXSets[sfxnr][plr[myplr]._pClass];
+	}
+	PlaySFX(sfxnr);
 }
 
 /**
