@@ -468,55 +468,6 @@ static void ResyncBanner()
 	}
 }
 
-void ResyncMPQuests()
-{
-	if (QuestStatus(Q_LTBANNER)) {
-		ResyncBanner();
-	}
-	// TODO: eliminate relative level-indices?
-	//if (quests[Q_SKELKING]._qactive == QUEST_INIT
-	//    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
-	//    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
-	//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
-	//}
-	if (quests[Q_BUTCHER]._qactive == QUEST_INIT
-	    && currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
-	    && currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {
-		quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_BUTCHER, false); // recipient should not matter
-	}
-	if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel - 1) {
-		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
-	}
-#ifdef HELLFIRE
-	//if (quests[Q_GRAVE]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GRAVE]._qlevel - 1) {
-	//	quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_GRAVE, false); // recipient should not matter
-	//}
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel) {
-		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
-		quests[Q_DEFILER]._qlog = TRUE;
-		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
-		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
-	}
-	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
-	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
-	//}
-	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
-	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
-	//}
-	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GIRL]._qlevel) {
-		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_GIRL, false); // recipient should not matter
-		// TODO: send message to reinit the towners?
-	}
-#endif
-}
-
 void ResyncQuests()
 {
 	int i;
@@ -547,37 +498,78 @@ void ResyncQuests()
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}*/
 	}
-	if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel) {
-		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && quests[Q_MUSHROOM]._qvar1 == QS_INIT) {
-			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
-			quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
-		} else {
-			// TODO: why is this not done on currLvl._dLevelIdx == DLV_TOWN?
-			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
-				if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN) {
-					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
-					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
-				} else if (quests[Q_MUSHROOM]._qvar1 >= QS_BRAINGIVEN) {
-					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
+	if (gbMaxPlayers != 1) {
+		// TODO: eliminate relative level-indices?
+		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
+		//    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
+		//    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
+		//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
+		//	NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
+		//}
+		//if (quests[Q_BUTCHER]._qactive == QUEST_INIT
+		//	&& currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
+		//	&& currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {
+		//	quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
+		//	NetSendCmdQuest(true, Q_BUTCHER, false); // recipient should not matter
+		//}
+		if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel - 1) {
+			quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
+			NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
+		}
+	} else {
+		if (currLvl._dLevelIdx == quests[Q_MUSHROOM]._qlevel) {
+			if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && quests[Q_MUSHROOM]._qvar1 == QS_INIT) {
+				SpawnQuestItemInArea(IDI_FUNGALTM, 5);
+				quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
+			} else {
+				// TODO: why is this not done on currLvl._dLevelIdx == DLV_TOWN?
+				if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
+					if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN) {
+						Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
+						Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
+					} else if (quests[Q_MUSHROOM]._qvar1 >= QS_BRAINGIVEN) {
+						Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
+					}
 				}
 			}
 		}
-	}
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		if (quests[Q_BETRAYER]._qvar1 >= 4)
-			ObjChangeMapResync(1, 11, 20, 18);
-		if (quests[Q_BETRAYER]._qvar1 >= 6)
-			ObjChangeMapResync(1, 18, 20, 24);
-		if (quests[Q_BETRAYER]._qvar1 >= 7)
-			InitVPReturnTrigger();
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
-	}
-	if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel) {
-		if (quests[Q_BETRAYER]._qvar1 >= 2) {
-			InitVPEntryTrigger();
+		if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+			if (quests[Q_BETRAYER]._qvar1 >= 4)
+				ObjChangeMapResync(1, 11, 20, 18);
+			if (quests[Q_BETRAYER]._qvar1 >= 6)
+				ObjChangeMapResync(1, 18, 20, 24);
+			if (quests[Q_BETRAYER]._qvar1 >= 7)
+				InitVPReturnTrigger();
+			for (i = 0; i < nobjects; i++)
+				SyncObjectAnim(objectactive[i]);
+		}
+		if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel) {
+			if (quests[Q_BETRAYER]._qvar1 >= 2) {
+				InitVPEntryTrigger();
+			}
 		}
 	}
+#ifdef HELLFIRE
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel) {
+		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+		quests[Q_DEFILER]._qlog = TRUE;
+		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
+		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
+	}
+	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
+	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
+	//}
+	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
+	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
+	//	NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
+	//}
+	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GIRL]._qlevel) {
+		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
+		NetSendCmdQuest(true, Q_GIRL, false); // recipient should not matter
+		// TODO: send message to reinit the towners?
+	}
+#endif
 }
 
 static void PrintQLString(int x, int y, bool cjustflag, const char *str, int col)

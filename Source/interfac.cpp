@@ -376,10 +376,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 			IncProgress();
 		}
-		if (gbMaxPlayers == 1)
-			ResyncQuests();
-		else
-			ResyncMPQuests();
+		ResyncQuests();
 	} else {
 		LoadSetMap();
 		IncProgress();
