@@ -2352,9 +2352,6 @@ static bool MonDoTalk(int mnum)
 			mon->mtalkmsg = 0;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
-	case UMT_WARLORD:
-		quests[Q_WARLORD]._qvar1 = 2;
-		break;
 	}
 	return false;
 }
