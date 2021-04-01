@@ -2331,12 +2331,6 @@ static bool MonDoTalk(int mnum)
 	pnum = mon->_mListener;
 	InitQTextMsg(mon->mtalkmsg, pnum == myplr);
 	switch (mon->_uniqtype - 1) {
-	case UMT_GARBUD:
-		if (mon->mtalkmsg == TEXT_GARBUD2) {
-			SetRndSeed(mon->_mRndSeed);
-			SpawnItem(mnum, mon->_mx + 1, mon->_my + 1, true);
-		}
-		break;
 	case UMT_ZHAR:
 		if (gbMaxPlayers == 1 && mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
 			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
@@ -5219,6 +5213,9 @@ void TalktoMonster(int mnum, int pnum)
 		if (mon->mtalkmsg == TEXT_GARBUD1) {
 			quests[Q_GARBUD]._qactive = QUEST_ACTIVE;
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
+		} else if (mon->mtalkmsg == TEXT_GARBUD2) {
+			SetRndSeed(mon->_mRndSeed);
+			SpawnItem(mnum, plr[pnum]._px, plr[pnum]._py, true);
 		} else if (mon->mtalkmsg == TEXT_GARBUD4)
 			mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
