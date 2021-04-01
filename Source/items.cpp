@@ -251,10 +251,59 @@ const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format on
 };
 
-bool ItemPlace(int x, int y)
+static void SetItemLoc(int ii, int x, int y)
 {
-	return (dMonster[x][y] | dPlayer[x][y] | dItem[x][y] | dObject[x][y]
+	item[ii]._ix = x;
+	item[ii]._iy = y;
+	dItem[x][y] = ii + 1;
+}
+
+/**
+ * Check the location if an item can be placed there in the init phase.
+ * Must not consider the player's position, since it is already initialized
+ * and messes up the pseudo-random generated dungeon.
+ */
+static bool RandomItemPlace(int x, int y)
+{
+	return (dMonster[x][y] | /*dPlayer[x][y] |*/ dItem[x][y] | dObject[x][y]
 	 | (dFlags[x][y] & BFLAG_POPULATED) | nSolidTable[dPiece[x][y]]) == 0;
+}
+
+static void GetRandomItemSpace(int ii)
+{
+	int x, y;
+
+	do {
+		x = random_(12, DSIZEX) + DBORDERX;
+		y = random_(12, DSIZEY) + DBORDERY;
+	} while (!RandomItemPlace(x, y));
+	SetItemLoc(ii, x, y);
+}
+
+static void GetRandomItemSpace(int randarea, int ii)
+{
+	int x, y, i, j, tries;
+
+	assert(randarea > 0);
+
+	tries = 0;
+	while (TRUE) {
+		x = random_(0, DSIZEX) + DBORDERX;
+		y = random_(0, DSIZEY) + DBORDERY;
+		for (i = x; i < x + randarea; i++) {
+			for (j = y; j < y + randarea; j++) {
+				if (!RandomItemPlace(i, j))
+					goto fail;
+			}
+		}
+		break;
+fail:
+		tries++;
+		if (tries > 1000 && randarea > 1)
+			randarea--;
+	}
+
+	SetItemLoc(ii, x, y);
 }
 
 #ifdef HELLFIRE
@@ -265,7 +314,7 @@ static void SpawnNote()
 	do {
 		x = random_(12, DSIZEX) + DBORDERX;
 		y = random_(12, DSIZEY) + DBORDERY;
-	} while (!ItemPlace(x, y));
+	} while (!RandomItemPlace(x, y));
 	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "SpawnNote requires ordered IDI_NOTE indices I.");
 	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "SpawnNote requires ordered IDI_NOTE indices II.");
 	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "SpawnNote requires ordered DLV_CRYPT indices I.");
@@ -290,24 +339,6 @@ void InitItemGFX()
 		itemanims[i] = LoadFileInMem(arglist, NULL);
 	}
 	memset(UniqueItemFlag, 0, sizeof(UniqueItemFlag));
-}
-
-static void SetItemLoc(int ii, int x, int y)
-{
-	item[ii]._ix = x;
-	item[ii]._iy = y;
-	dItem[x][y] = ii + 1;
-}
-
-static void GetRandomItemSpace(int ii)
-{
-	int x, y;
-
-	do {
-		x = random_(12, DSIZEX) + DBORDERX;
-		y = random_(12, DSIZEY) + DBORDERY;
-	} while (!ItemPlace(x, y));
-	SetItemLoc(ii, x, y);
 }
 
 static void AddInitItems()
@@ -1197,6 +1228,9 @@ void CreatePlrItems(int pnum)
 	CalcPlrItemVals(pnum, false);
 }
 
+/**
+ * Check the location if an item can be placed there in 'runtime'.
+ */
 bool ItemSpaceOk(int x, int y)
 {
 	int oi, oi2;
@@ -2317,33 +2351,6 @@ void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch,
 	item[MAXITEMS]._ivalue = ivalue & 0x3F;
 	item[MAXITEMS]._iCreateInfo = ic;
 	item[MAXITEMS]._iSeed = iseed;
-}
-
-static void GetRandomItemSpace(int randarea, int ii)
-{
-	bool failed;
-	int x, y, i, j, tries;
-
-	assert(randarea > 0);
-
-	tries = 0;
-	while (TRUE) {
-		x = random_(0, DSIZEX) + DBORDERX;
-		y = random_(0, DSIZEY) + DBORDERY;
-		failed = FALSE;
-		for (i = x; i < x + randarea && !failed; i++) {
-			for (j = y; j < y + randarea && !failed; j++) {
-				failed = !ItemSpaceOk(i, j);
-			}
-		}
-		if (!failed)
-			break;
-		tries++;
-		if (tries > 1000 && randarea > 1)
-			randarea--;
-	}
-
-	SetItemLoc(ii, x, y);
 }
 
 /**
