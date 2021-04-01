@@ -357,6 +357,8 @@ void InitItems()
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
 			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
+		if (currLvl._dLevelIdx == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
+			SpawnQuestItemInArea(IDI_GLDNELIX, 5);
 #ifdef HELLFIRE
 		if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST4)
 			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);

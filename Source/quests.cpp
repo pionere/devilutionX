@@ -563,10 +563,6 @@ void ResyncQuests()
 			}
 		}
 	}
-	if (currLvl._dLevelIdx == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive == QUEST_ACTIVE && quests[Q_VEIL]._qvar1 == 0) {
-		quests[Q_VEIL]._qvar1 = 1;
-		SpawnQuestItemInArea(IDI_GLDNELIX, 5);
-	}
 	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		if (quests[Q_BETRAYER]._qvar1 >= 4)
 			ObjChangeMapResync(1, 11, 20, 18);

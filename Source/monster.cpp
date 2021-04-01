@@ -2360,17 +2360,6 @@ static bool MonDoTalk(int mnum)
 			mon->mtalkmsg = 0;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
-	case UMT_LACHDAN:
-		if (mon->mtalkmsg == TEXT_VEIL9) {
-			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
-			quests[Q_VEIL]._qlog = TRUE;
-		}
-		if (mon->mtalkmsg == TEXT_VEIL11 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
-			//SetRndSeed(mon->_mRndSeed);
-			SpawnUnique(UITEM_STEELVEIL, mon->_mx + 1, mon->_my + 1, true, false);
-			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
-		}
-		break;
 	case UMT_WARLORD:
 		quests[Q_WARLORD]._qvar1 = 2;
 		break;
@@ -4357,7 +4346,6 @@ void MAI_Lazhelp(int mnum)
 void MAI_Lachdanan(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lachdanan: Invalid monster %d", mnum);
@@ -4367,24 +4355,21 @@ void MAI_Lachdanan(int mnum)
 		return;
 	}
 
-	md = MonGetDir(mnum);
+	mon->_mdir = MonGetDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-			if (mon->mtalkmsg == TEXT_VEIL11 && !effect_is_playing(USFX_LACH3)) {
+		if (mon->mtalkmsg == TEXT_VEIL11) { // MON_TIMER
+			if (mon->_mVar8++ >= gnTicksRate * 32/*!effect_is_playing(USFX_LACH3)*/) {
 				mon->mtalkmsg = 0;
-				quests[Q_VEIL]._qactive = QUEST_DONE;
 				MonStartKill(mnum, -1);
 			}
-		} else {
-			if (mon->mtalkmsg == TEXT_VEIL9) {
-				mon->mtalkmsg = TEXT_VEIL10;
-				mon->_mgoal = MGOAL_INQUIRING;
-			}
+			return;
 		}
+		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VEIL9) {
+			mon->mtalkmsg = TEXT_VEIL10;
+		}
+		mon->_mgoal = MGOAL_INQUIRING;
 	}
-
-	mon->_mdir = md;
 }
 
 void MAI_Warlord(int mnum)
@@ -5240,12 +5225,22 @@ void TalktoMonster(int mnum, int pnum)
 		if (pnum == myplr)
 			NetSendCmdQuest(true, Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
-		if (QuestStatus(Q_VEIL) && mon->mtalkmsg >= TEXT_VEIL9) {
-			if (PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
-				RemoveInvItem(pnum, iv);
-				mon->mtalkmsg = TEXT_VEIL11;
-				mon->_mgoal = MGOAL_INQUIRING;
-			}
+		assert(QuestStatus(Q_VEIL));
+		assert(mon->mtalkmsg != 0);
+		if (quests[Q_VEIL]._qactive == QUEST_INIT) {
+			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
+			quests[Q_VEIL]._qlog = TRUE;
+			if (pnum == myplr)
+				NetSendCmdQuest(true, Q_VEIL, true);
+		} else if (PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
+			RemoveInvItem(pnum, iv);
+			mon->mtalkmsg = TEXT_VEIL11;
+			// mon->_mgoal = MGOAL_INQUIRING;
+			mon->_mVar8 = 0; // init MON_TIMER
+			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
+			quests[Q_VEIL]._qactive = QUEST_DONE;
+			if (pnum == myplr)
+				NetSendCmdQuest(true, Q_VEIL, true);
 		}
 	}
 }

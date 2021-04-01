@@ -1395,7 +1395,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		delay = 10;
 		sfxSet = sgSFXSets[SFXS_PLR_89];
 	} else if (idx == IDI_GLDNELIX) {
-		if (quests[Q_VEIL]._qactive == QUEST_NOTAVAIL)
+		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
 			return;
 		delay = 30;
 		sfxSet = sgSFXSets[SFXS_PLR_88];
