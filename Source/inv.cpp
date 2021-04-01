@@ -1370,8 +1370,13 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	const int *sfxSet; 
 
 	idx = is->_iIdx;
-	if (idx == IDI_OPTAMULET && quests[Q_BLIND]._qactive == QUEST_ACTIVE) {
+	if (idx == IDI_OPTAMULET) {
+		if (quests[Q_BLIND]._qactive != QUEST_ACTIVE)
+			return;
 		quests[Q_BLIND]._qactive = QUEST_DONE;
+		if (pnum == myplr) {
+			NetSendCmdQuest(true, Q_BLIND, false); // recipient should not matter
+		}
 		return;
 	}
 	if (idx == IDI_MUSHROOM) {
