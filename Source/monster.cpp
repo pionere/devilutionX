@@ -4262,7 +4262,6 @@ void MAI_SnotSpil(int mnum)
 void MAI_Lazurus(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lazurus: Invalid monster %d", mnum);
@@ -4272,7 +4271,7 @@ void MAI_Lazurus(int mnum)
 		return;
 	}
 
-	md = MonGetDir(mnum);
+	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
 			if (mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == DBORDERX + 19 && plr[myplr]._py == DBORDERY + 30) {
@@ -4285,13 +4284,18 @@ void MAI_Lazurus(int mnum)
 				RedoPlayerVision();
 				mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
-				quests[Q_BETRAYER]._qvar1 = 6;
 				mon->_mgoal = MGOAL_NORMAL;
+				quests[Q_BETRAYER]._qvar1 = 6;
 			}
 		} else {
-			if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_BETRAYER]._qvar1 <= 3) {
-				mon->_mmode = MM_TALK;
-				mon->_mListener = myplr;
+			if (mon->_mgoal == MGOAL_INQUIRING) {
+				if (quests[Q_BETRAYER]._qvar1 <= 3) {
+					mon->_mmode = MM_TALK;
+					mon->_mListener = myplr;
+				} else {
+					mon->mtalkmsg = 0;
+					mon->_mgoal = MGOAL_NORMAL;
+				}
 			}
 		}
 	}
@@ -4307,8 +4311,6 @@ void MAI_Lazurus(int mnum)
 #endif
 		MAI_Counselor(mnum);
 	}
-
-	mon->_mdir = md;
 }
 
 void MAI_Lazhelp(int mnum)
