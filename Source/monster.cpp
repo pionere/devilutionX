@@ -667,10 +667,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	xp = -1;
 	switch (uniqindex) {
 	case UMT_SKELKING:
-		if (gbMaxPlayers == 1) {
-			xp = DBORDERX + 19;
-			yp = DBORDERY + 31;
-		}
+		xp = DBORDERX + 19;
+		yp = DBORDERY + 31;
 		break;
 	case UMT_ZHAR:
 		assert(nummonsters == MAX_MINIONS);
