@@ -583,6 +583,7 @@ void TalkToTowner(int pnum, int tnum)
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
 				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
+				quests[Q_ROCK]._qactive = QUEST_DONE;
 				quests[Q_ROCK]._qlog = FALSE;
 				qn = Q_ROCK;
 				qt = TEXT_INFRA7;
@@ -601,6 +602,7 @@ void TalkToTowner(int pnum, int tnum)
 				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
 				quests[Q_ANVIL]._qlog = FALSE;
+				qn = Q_ANVIL;
 				qt = TEXT_ANVIL7;
 			}
 		}
@@ -729,7 +731,7 @@ void TalkToTowner(int pnum, int tnum)
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 				quests[Q_FARMER]._qvar1 = 1;
 				quests[Q_FARMER]._qlog = TRUE;
-				quests[Q_FARMER]._qmsg = TEXT_FARMER1;
+				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER2;
 			} else if (!plr[pnum]._pLvlVisited[DLV_CAVES1] && plr[pnum]._pLevel < 15) {
@@ -745,7 +747,7 @@ void TalkToTowner(int pnum, int tnum)
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
 				quests[Q_FARMER]._qvar1 = 1;
 				quests[Q_FARMER]._qlog = TRUE;
-				quests[Q_FARMER]._qmsg = TEXT_FARMER1;
+				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER1;
 				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, false, true);
@@ -780,7 +782,7 @@ void TalkToTowner(int pnum, int tnum)
 		} else if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
 			quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 			quests[Q_JERSEY]._qvar1 = 1;
-			quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
+			// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 			quests[Q_JERSEY]._qlog = TRUE;
 			qn = Q_JERSEY;
 			qt = TEXT_JERSEY5;
@@ -818,7 +820,7 @@ void TalkToTowner(int pnum, int tnum)
 					}
 				} else {
 					quests[Q_JERSEY]._qvar1 = 1;
-					quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
+					// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 					quests[Q_JERSEY]._qlog = TRUE;
 					qn = Q_JERSEY;
 					qt = TEXT_JERSEY4;
@@ -851,7 +853,7 @@ void TalkToTowner(int pnum, int tnum)
 					qt = TEXT_GIRL2;
 					quests[Q_GIRL]._qvar1 = 1;
 					quests[Q_GIRL]._qlog = TRUE;
-					quests[Q_GIRL]._qmsg = TEXT_GIRL2;
+					// quests[Q_GIRL]._qmsg = TEXT_GIRL2;
 					qn = Q_GIRL;
 				}
 			} else {
