@@ -449,86 +449,74 @@ void Make_SetPC(int x, int y, int w, int h)
 
 static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
 {
-	int ii, xx, yy;
-	int xSmallest, ySmallest;
+	int i, j, smallest;
 	int xArray[20], yArray[20];
-	int xCount, yCount;
-	bool yFlag, xFlag;
+	int size, bestSize, w, h;
 
-	yFlag = true;
-	xFlag = true;
-	xCount = 0;
-	yCount = 0;
+	// assert(maxSize <= 20);
 
 	// BUGFIX: change '&&' to '||' (fixed)
-	if (x > DMAXX - maxSize || y > DMAXY - maxSize) {
+	if (x + maxSize > DMAXX || y + maxSize > DMAXY) {
 		return false;
 	}
-	if (!SkipThemeRoom(x, y)) {
-		return false;
-	}
+	//if (!SkipThemeRoom(x, y)) {
+	//	return false;
+	//}
 
 	memset(xArray, 0, sizeof(xArray));
 	memset(yArray, 0, sizeof(yArray));
 
-	for (ii = 0; ii < maxSize; ii++) {
-		if (xFlag) {
-			for (xx = x; xx < x + maxSize; xx++) {
-				if (dungeon[xx][y + ii] != floor) {
-					if (xx >= minSize) {
-						break;
-					}
-					xFlag = false;
-				} else {
-					xCount++;
-				}
-			}
-			if (xFlag) {
-				xArray[ii] = xCount;
-				xCount = 0;
+	// find horizontal(x) limits
+	smallest = maxSize;
+	for (i = 0; i < maxSize; i++) {
+		for (j = 0; j < smallest; j++) {
+			if (dungeon[x + j][y + i] != floor) {
+				smallest = j;
+				break;
 			}
 		}
-		if (yFlag) {
-			for (yy = y; yy < y + maxSize; yy++) {
-				if (dungeon[x + ii][yy] != floor) {
-					if (yy >= minSize) {
-						break;
-					}
-					yFlag = false;
-				} else {
-					yCount++;
-				}
-			}
-			if (yFlag) {
-				yArray[ii] = yCount;
-				yCount = 0;
-			}
-		}
-	}
-
-	for (ii = 0; ii < minSize; ii++) {
-		if (xArray[ii] < minSize || yArray[ii] < minSize) {
-			return false;
-		}
-	}
-
-	xSmallest = xArray[0];
-	ySmallest = yArray[0];
-
-	for (ii = 0; ii < maxSize; ii++) {
-		if (xArray[ii] < minSize || yArray[ii] < minSize) {
+		if (smallest < minSize)
 			break;
+		xArray[i] = smallest;
+	}
+	if (i < minSize)
+		return false;
+
+	// find vertical(y) limits
+	smallest = maxSize;
+	for (i = 0; i < maxSize; i++) {
+		for (j = 0; j < smallest; j++) {
+			if (dungeon[x + i][y + j] != floor) {
+				smallest = j;
+				break;
+			}
 		}
-		if (xArray[ii] < xSmallest) {
-			xSmallest = xArray[ii];
+		if (smallest < minSize)
+			break;
+		yArray[i] = smallest;
+	}
+	if (i < minSize)
+		return false;
+
+	// select the best option
+	bestSize = minSize * minSize;
+	w = h = minSize;
+	for (i = minSize - 1; i < maxSize; i++) {
+		size = xArray[i] * (i + 1);
+		if (size > bestSize) {
+			bestSize = size;
+			w = xArray[i];
+			h = i + 1;
 		}
-		if (yArray[ii] < ySmallest) {
-			ySmallest = yArray[ii];
+		size = yArray[i] * (i + 1);
+		if (size > bestSize) {
+			bestSize = size;
+			w = i + 1;
+			h = yArray[i];
 		}
 	}
-
-	*width = xSmallest - 2;
-	*height = ySmallest - 2;
+	*width = w - 2;
+	*height = h - 2;
 	return true;
 }
 
@@ -617,7 +605,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 {
 	int i, j;
 	int themeW, themeH;
-	int min, max;
+	int min;
 
 	themeCount = 0;
 	for (j = 0; j < DMAXY; j++) {
@@ -625,25 +613,25 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 			if (dungeon[i][j] == floor && random_(0, freq) == 0 && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
 				if (rndSize) {
 					min = minSize - 2;
-					max = maxSize - 2;
-					themeW = min + random_(0, random_(0, themeW - min + 1));
-					if (themeW > max)
-						themeW = min;
-					themeH = min + random_(0, random_(0, themeH - min + 1));
-					if (themeH > max)
-						themeH = min;
+					themeW = RandRange(min, themeW);
+					themeH = RandRange(min, themeH);
 				}
 				themeLoc[themeCount].x = i + 1;
 				themeLoc[themeCount].y = j + 1;
 				themeLoc[themeCount].width = themeW;
 				themeLoc[themeCount].height = themeH;
 				themeLoc[themeCount].ttval = TransVal;
-				if (currLvl._dDunType == DTYPE_CAVES)
-					DRLG_RectTrans(2 * i + DBORDERX + 4, 2 * j + DBORDERY + 4, 2 * (i + themeW) - 1 + DBORDERX, 2 * (j + themeH) - 1 + DBORDERY);
-				else {
-					DRLG_MRectTrans(i + 1, j + 1, i + themeW, j + themeH, TransVal);
-					TransVal++;
+				int x1 = 2 * i + DBORDERX + 3;
+				int y1 = 2 * j + DBORDERY + 3;
+				int x2 = 2 * (i + themeW) + DBORDERX;
+				int y2 = 2 * (j + themeH) + DBORDERY;
+				if (currLvl._dDunType == DTYPE_CAVES) {
+					x1++;
+					y1++;
+					x2--;
+					y2--;
 				}
+				DRLG_RectTrans(x1, y1, x2, y2);
 				DRLG_CreateThemeRoom(themeCount);
 				themeCount++;
 			}
