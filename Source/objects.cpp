@@ -4286,7 +4286,7 @@ static void SyncLever(int oi)
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
+		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 }
 
 static void SyncBookLever(int oi)
