@@ -453,15 +453,12 @@ static void ResyncBanner()
 		    setpc_w + setpc_x + 1,
 		    setpc_h + setpc_y + 1);
 		// TODO: add the opening of the entrance to Banner2.DUN?
-		//   in vanilla code the monsters room was also opened after the quest was activated
-		//   which caused that the player could teleport to the room and kill them.
-		//   if this was intended, they could have done it by adding them to Banner2.DUN too
-		//   maybe it was just a bug...
 	} else {
 		ObjChangeMapResync(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
-		//DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
+		//for (i = 0; i < nobjects; i++)
+		//	SyncObjectAnim(objectactive[i]);
+		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
+		DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x + setpc_w - 1, setpc_y + setpc_h - 1, tv);
 	}
 }
 

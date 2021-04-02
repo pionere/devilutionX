@@ -2816,8 +2816,10 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4);    // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
-				SpawnUnique(UITEM_OPTAMULET, 2 * setpc_x + DBORDERX + 5, 2 * setpc_y + DBORDERY + 5, sendmsg, false);
-			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
+				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg, false);
+			int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
+			DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
+			DRLG_MRectTrans(os->_oVar1 + 6, os->_oVar2 + 6, os->_oVar1 + 8, os->_oVar2 + 8, tv); // LEVER_EFFECT
 		}
 	}
 	if (deltaload)
@@ -4295,7 +4297,9 @@ static void SyncBookLever(int oi)
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
 		if (os->_otype == OBJ_BLINDBOOK) {
-			DRLG_MRectTrans(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4, 9); // LEVER_EFFECT
+			int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
+			DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
+			DRLG_MRectTrans(os->_oVar1 + 6, os->_oVar2 + 6, os->_oVar1 + 8, os->_oVar2 + 8, tv); // LEVER_EFFECT
 		}
 	}
 }
