@@ -2568,76 +2568,6 @@ static bool DRLG_L2CreateDungeon()
 	return DL2_FillVoids();
 }
 
-static void DRLG_L2FTVR(int i, int j, int x, int y, int dir)
-{
-	if (dTransVal[x][y] != 0 || dungeon[i][j] != 3) {
-		switch (dir) {
-		case 1:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x][y + 1] = TransVal;
-			break;
-		case 2:
-			dTransVal[x + 1][y] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 3:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x + 1][y] = TransVal;
-			break;
-		case 4:
-			dTransVal[x][y + 1] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 5:
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 6:
-			dTransVal[x][y + 1] = TransVal;
-			break;
-		case 7:
-			dTransVal[x + 1][y] = TransVal;
-			break;
-		case 8:
-			dTransVal[x][y] = TransVal;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	} else {
-		dTransVal[x][y] = TransVal;
-		dTransVal[x + 1][y] = TransVal;
-		dTransVal[x][y + 1] = TransVal;
-		dTransVal[x + 1][y + 1] = TransVal;
-		DRLG_L2FTVR(i + 1, j, x + 2, y, 1);
-		DRLG_L2FTVR(i - 1, j, x - 2, y, 2);
-		DRLG_L2FTVR(i, j + 1, x, y + 2, 3);
-		DRLG_L2FTVR(i, j - 1, x, y - 2, 4);
-		DRLG_L2FTVR(i - 1, j - 1, x - 2, y - 2, 5);
-		DRLG_L2FTVR(i + 1, j - 1, x + 2, y - 2, 6);
-		DRLG_L2FTVR(i - 1, j + 1, x - 2, y + 2, 7);
-		DRLG_L2FTVR(i + 1, j + 1, x + 2, y + 2, 8);
-	}
-}
-
-static void DRLG_L2FloodTVal()
-{
-	int i, j, xx, yy;
-
-	yy = DBORDERY;
-	for (j = 0; j < DMAXY; j++) {
-		xx = DBORDERX;
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 3 && dTransVal[xx][yy] == 0) {
-				DRLG_L2FTVR(i, j, xx, yy, 0);
-				TransVal++;
-			}
-			xx += 2;
-		}
-		yy += 2;
-	}
-}
-
 static void DRLG_L2TransFix()
 {
 	int i, j, xx, yy;
@@ -2900,7 +2830,7 @@ static void DRLG_L2(int entry)
 		if (pSetPiece != NULL) {
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
-		DRLG_L2FloodTVal();
+		DRLG_FloodTVal(3);
 		DRLG_L2TransFix();
 
 		mini_set stairs[3] = {

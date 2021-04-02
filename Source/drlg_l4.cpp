@@ -1352,83 +1352,6 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
 	return true;
 }
 
-#if defined(__3DS__)
-#pragma GCC push_options
-#pragma GCC optimize("O0")
-#endif
-static void DRLG_L4FTVR(int i, int j, int x, int y, int dir)
-{
-	if (dTransVal[x][y] != 0 || dungeon[i][j] != 6) {
-		switch (dir) {
-		case 1:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x][y + 1] = TransVal;
-			break;
-		case 2:
-			dTransVal[x + 1][y] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 3:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x + 1][y] = TransVal;
-			break;
-		case 4:
-			dTransVal[x][y + 1] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 5:
-			dTransVal[x + 1][y + 1] = TransVal;
-			break;
-		case 6:
-			dTransVal[x][y + 1] = TransVal;
-			break;
-		case 7:
-			dTransVal[x + 1][y] = TransVal;
-			break;
-		case 8:
-			dTransVal[x][y] = TransVal;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	} else {
-		dTransVal[x][y] = TransVal;
-		dTransVal[x + 1][y] = TransVal;
-		dTransVal[x][y + 1] = TransVal;
-		dTransVal[x + 1][y + 1] = TransVal;
-		DRLG_L4FTVR(i + 1, j, x + 2, y, 1);
-		DRLG_L4FTVR(i - 1, j, x - 2, y, 2);
-		DRLG_L4FTVR(i, j + 1, x, y + 2, 3);
-		DRLG_L4FTVR(i, j - 1, x, y - 2, 4);
-		DRLG_L4FTVR(i - 1, j - 1, x - 2, y - 2, 5);
-		DRLG_L4FTVR(i + 1, j - 1, x + 2, y - 2, 6);
-		DRLG_L4FTVR(i - 1, j + 1, x - 2, y + 2, 7);
-		DRLG_L4FTVR(i + 1, j + 1, x + 2, y + 2, 8);
-	}
-}
-
-static void DRLG_L4FloodTVal()
-{
-	int i, j, xx, yy;
-
-	yy = DBORDERY;
-	for (j = 0; j < DMAXY; j++) {
-		xx = DBORDERX;
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 6 && dTransVal[xx][yy] == 0) {
-				DRLG_L4FTVR(i, j, xx, yy, 0);
-				TransVal++;
-			}
-			xx += 2;
-		}
-		yy += 2;
-	}
-}
-#if defined(__3DS__)
-#pragma GCC pop_options
-#endif
-
 static bool IsDURWall(BYTE dd)
 {
 	return dd == 25 || dd == 28 || dd == 23;
@@ -1563,7 +1486,7 @@ static void DRLG_L4(int entry)
 			DRLG_LoadDiabQuads(true);
 		}
 		L4AddWall();
-		DRLG_L4FloodTVal();
+		DRLG_FloodTVal(6);
 		DRLG_L4TransFix();
 		if (QuestStatus(Q_WARLORD)) {
 			mini_set stairs[2] = {

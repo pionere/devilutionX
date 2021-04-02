@@ -321,6 +321,92 @@ void DRLG_AreaTrans(int num, const BYTE *List)
 	TransVal++;
 }
 
+#if defined(__3DS__)
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+#endif
+static BYTE TVfloor;
+static void DRLG_FTVR(int i, int j, int x, int y, int dir)
+{
+	if (dungeon[i][j] != TVfloor) {
+		switch (dir) {
+		case 1:
+			dTransVal[x][y] = TransVal;
+			dTransVal[x][y + 1] = TransVal;
+			break;
+		case 2:
+			dTransVal[x + 1][y] = TransVal;
+			dTransVal[x + 1][y + 1] = TransVal;
+			break;
+		case 3:
+			dTransVal[x][y] = TransVal;
+			dTransVal[x + 1][y] = TransVal;
+			break;
+		case 4:
+			dTransVal[x][y + 1] = TransVal;
+			dTransVal[x + 1][y + 1] = TransVal;
+			break;
+		case 5:
+			dTransVal[x + 1][y + 1] = TransVal;
+			break;
+		case 6:
+			dTransVal[x][y + 1] = TransVal;
+			break;
+		case 7:
+			dTransVal[x + 1][y] = TransVal;
+			break;
+		case 8:
+			dTransVal[x][y] = TransVal;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+	} else {
+		if (dTransVal[x][y] != 0) {
+			// assert(dTransVal[x][y] == TransVal);
+			return;
+		}
+		dTransVal[x][y] = TransVal;
+		dTransVal[x + 1][y] = TransVal;
+		dTransVal[x][y + 1] = TransVal;
+		dTransVal[x + 1][y + 1] = TransVal;
+		DRLG_FTVR(i + 1, j, x + 2, y, 1);
+		DRLG_FTVR(i - 1, j, x - 2, y, 2);
+		DRLG_FTVR(i, j + 1, x, y + 2, 3);
+		DRLG_FTVR(i, j - 1, x, y - 2, 4);
+		DRLG_FTVR(i - 1, j - 1, x - 2, y - 2, 5);
+		DRLG_FTVR(i + 1, j - 1, x + 2, y - 2, 6);
+		DRLG_FTVR(i - 1, j + 1, x - 2, y + 2, 7);
+		DRLG_FTVR(i + 1, j + 1, x + 2, y + 2, 8);
+	}
+}
+
+void DRLG_FloodTVal(BYTE floor)
+{
+	int xx, yy, i, j;
+
+	TVfloor = floor;
+
+	yy = DBORDERY;
+
+	for (j = 0; j < DMAXY; j++) {
+		xx = DBORDERX;
+
+		for (i = 0; i < DMAXX; i++) {
+			if (dungeon[i][j] == TVfloor && dTransVal[xx][yy] == 0) {
+				DRLG_FTVR(i, j, xx, yy, 0);
+				TransVal++;
+			}
+			xx += 2;
+		}
+		yy += 2;
+	}
+}
+#if defined(__3DS__)
+#pragma GCC pop_options
+#endif
+
 void DRLG_InitSetPC()
 {
 	setpc_x = 0;
