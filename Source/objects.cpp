@@ -2886,12 +2886,6 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 < QS_TOMEGIVEN) {
-		if (!deltaload && pnum == myplr) {
-			PlaySFX(sgSFXSets[SFXS_PLR_13][plr[myplr]._pClass]);
-		}
-		return;
-	}
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
 		return;
@@ -2904,8 +2898,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg);
-	quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
+	SpawnQuestItemAround(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg, false);
 }
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
@@ -2934,7 +2927,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg);
+	SpawnQuestItemAround(IDI_BANNER, os->_ox, os->_oy, sendmsg, false);
 }
 
 static void OperateSlainHero(int pnum, int oi, bool sendmsg)
@@ -3867,7 +3860,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
-	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg);
+	SpawnQuestItemAround(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg, false);
 }
 
 static void OperateCrux(int pnum, int oi, bool sendmsg)

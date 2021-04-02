@@ -1380,9 +1380,11 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		return;
 	}
 	if (idx == IDI_MUSHROOM) {
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QS_MUSHSPAWNED)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
 			return;
-		quests[Q_MUSHROOM]._qvar1 = QS_MUSHPICKED;
+		if (quests[Q_MUSHROOM]._qvar2 == SFXS_PLR_95)
+			return;
+		quests[Q_MUSHROOM]._qvar2 = SFXS_PLR_95;
 		delay = 10;
 		sfxSet = sgSFXSets[SFXS_PLR_95];
 	} else if (idx == IDI_ANVIL) {

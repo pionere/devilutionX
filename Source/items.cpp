@@ -390,6 +390,8 @@ void InitItems()
 			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
 		if (currLvl._dLevelIdx == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			SpawnQuestItemInArea(IDI_GLDNELIX, 5);
+		if (QuestStatus(Q_MUSHROOM))
+			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
 #ifdef HELLFIRE
 		if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST4)
 			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
@@ -2190,6 +2192,8 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 	} else {
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
+		if (sendmsg)
+			NetSendCmdQuest(true, Q_MUSHROOM, true);
 	}
 
 	ii = itemavail[0];
@@ -2401,8 +2405,9 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
  * @param sendmsg whether a message should be sent to register the item
+ * @param respawn whether a respawn message should be sent to notify the other players
  */
-void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
+void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn)
 {
 	int ii;
 
@@ -2415,7 +2420,10 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg)
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
 
-	RegisterItem(ii, x, y, sendmsg, false); 
+	RegisterItem(ii, x, y, sendmsg, false);
+	if (respawn) {
+		NetSendCmdPItem(true, CMD_RESPAWNITEM, &item[ii], item[ii]._ix, item[ii]._iy);
+	}
 }
 
 /**
@@ -2487,6 +2495,7 @@ void SpawnRock()
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
  * @param sendmsg whether a message should be sent to register the item
+ * @param respawn whether a respawn message should be sent to notify the other players
  */
 void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 {

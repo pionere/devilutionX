@@ -14,7 +14,7 @@ extern "C" {
 
 extern const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL];
 extern QuestStruct quests[NUM_QUESTS];
-extern int Qtalklist[STORE_TOWNERS][NUM_QUESTS];
+extern const int Qtalklist[STORE_TOWNERS][NUM_QUESTS];
 extern const QuestData questlist[NUM_QUESTS];
 
 #ifdef __cplusplus

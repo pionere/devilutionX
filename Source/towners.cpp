@@ -611,23 +611,26 @@ void TalkToTowner(int pnum, int tnum)
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 			quests[Q_MUSHROOM]._qlog = TRUE;
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
+			qn = Q_MUSHROOM;
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
-			if (quests[Q_MUSHROOM]._qvar1 >= QS_TOMEGIVEN && quests[Q_MUSHROOM]._qvar1 <= QS_MUSHPICKED) {
+			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
 				if (PlrHasItem(pnum, IDI_MUSHROOM, &i)) {
 					RemoveInvItem(pnum, i);
-					quests[Q_MUSHROOM]._qvar1 = 5;
-					Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_MUSH3;
-					Qtalklist[TOWN_WITCH][Q_MUSHROOM] = TEXT_NONE;
+					quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
+					qn = Q_MUSHROOM;
 					qt = TEXT_MUSH10;
 				} else if (quests[Q_MUSHROOM]._qmsg != TEXT_MUSH9) {
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH9;
+					qn = Q_MUSHROOM;
 					qt = TEXT_MUSH9;
 				}
-			} else {
+			}
+			if (qt == TEXT_NONE) {
 				if (PlrHasItem(pnum, IDI_SPECELIX, &i) || PlrHasBeltItem(pnum, IDI_SPECELIX)) {
 					quests[Q_MUSHROOM]._qactive = QUEST_DONE;
+					qn = Q_MUSHROOM;
 					qt = TEXT_MUSH12;
 				} else if (PlrHasItem(pnum, IDI_BRAIN, &i) && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH11) {
 					quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH11;
@@ -668,12 +671,19 @@ void TalkToTowner(int pnum, int tnum)
 					qt = TEXT_POISON5;
 				}
 			}
-			if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qmsg == TEXT_MUSH10 && PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
+		}
+		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
+		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
+			if (PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
 				RemoveInvItem(pnum, i);
-				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true);
+				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
-				Qtalklist[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
+				quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
+				qn = Q_MUSHROOM;
 				qt = TEXT_MUSH4;
+			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
+				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
+				qt = TEXT_MUSH3;
 			}
 		}
 		break;
