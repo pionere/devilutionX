@@ -4152,6 +4152,7 @@ void MAI_Garbud(int mnum)
 				mon->_mgoal = MGOAL_INQUIRING;
 		}
 	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_GARBUD]._qvar1 == 4) {
+		// TODO: does not work when a player enters the level and the timer is running
 		mon->_mgoal = MGOAL_NORMAL;
 		mon->mtalkmsg = 0;
 	}
@@ -4238,6 +4239,7 @@ void MAI_SnotSpil(int mnum)
 		// mon->_msquelch = UCHAR_MAX;
 	case 4:
 		if (mon->mtalkmsg != 0) {
+			// TODO: does not work when a player enters the level and the timer is running
 			mon->mtalkmsg = 0;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -4307,7 +4309,6 @@ void MAI_Lazurus(int mnum)
 void MAI_Lazhelp(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Lazhelp: Invalid monster %d", mnum);
@@ -4316,7 +4317,7 @@ void MAI_Lazhelp(int mnum)
 	if (mon->_mmode != MM_STAND)
 		return;
 
-	md = MonGetDir(mnum);
+	mon->_mdir = MonGetDir(mnum);
 
 	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
 		if (gbMaxPlayers == 1) {
@@ -4331,7 +4332,6 @@ void MAI_Lazhelp(int mnum)
 	}
 	if (mon->_mgoal == MGOAL_NORMAL)
 		MAI_HlSpwn(mnum);
-	mon->_mdir = md;
 }
 
 void MAI_Lachdanan(int mnum)
@@ -4366,7 +4366,6 @@ void MAI_Lachdanan(int mnum)
 void MAI_Warlord(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Warlord: Invalid monster %d", mnum);
@@ -4376,22 +4375,44 @@ void MAI_Warlord(int mnum)
 		return;
 	}
 
-	md = MonGetDir(mnum);
-	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_WARLRD9) {
-		if (mon->_mgoal == MGOAL_INQUIRING) {
-			mon->_mmode = MM_TALK;
-			mon->_mListener = myplr;
-		} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_WARLRD1)) {
-			mon->_msquelch = UCHAR_MAX;
+	mon->_mdir = MonGetDir(mnum);
+
+	switch (quests[Q_WARLORD]._qvar1) {
+	case 0: // quest not started
+		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
+			return;
+		quests[Q_WARLORD]._qvar1 = 1;
+		if (mon->_menemy == myplr || !plr[mon->_menemy].plractive || plr[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
+			NetSendCmdQuest(true, Q_WARLORD, true);
+		}
+		mon->_mmode = MM_TALK;
+		mon->_mListener = mon->_menemy;
+		mon->_mVar8 = 0; // MON_TIMER
+		return;
+	case 1: // warlord spotted
+		//if (effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
+		//	return;
+		if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
+			return; // wait till the sfx is running, but don't rely on effect_is_playing
+		quests[Q_WARLORD]._qvar1 = 2;
+		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
+			NetSendCmdQuest(true, Q_WARLORD, true);
+		}
+		// mon->_msquelch = UCHAR_MAX;
+	case 2:
+		if (mon->mtalkmsg != 0) {
+			// TODO: does not work when a player enters the level and the timer is running
 			mon->mtalkmsg = 0;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL)
 		MAI_SkelSd(mnum);
-
-	mon->_mdir = md;
 }
 
 void DeleteMonsterList()
