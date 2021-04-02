@@ -770,70 +770,73 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		break;
 	case TOWN_COWFARM:
-		if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
-			RemoveInvItem(pnum, i);
-			qt = TEXT_JERSEY7;
-		} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
-			RemoveInvItem(pnum, i);
-			SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, true, true);
-			quests[Q_JERSEY]._qactive = QUEST_DONE;
-			qn = Q_JERSEY;
-			qt = TEXT_JERSEY8;
-		} else if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
-			quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-			quests[Q_JERSEY]._qvar1 = 1;
-			// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
-			quests[Q_JERSEY]._qlog = TRUE;
-			qn = Q_JERSEY;
-			qt = TEXT_JERSEY5;
-		} else {
-			switch (quests[Q_JERSEY]._qactive) {
-			case QUEST_NOTAVAIL:
-				break;
-			case QUEST_INIT:
-				switch (quests[Q_JERSEY]._qvar2++) {
-				case 0: qt = TEXT_JERSEY1; break;
-				case 1: qt = TEXT_JERSEY2; break;
-				default: qt = TEXT_JERSEY3;
-					quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-					qn = Q_JERSEY;
-					break;
-				}
-				break;
-			case QUEST_ACTIVE:
-				if (quests[Q_JERSEY]._qvar1 != 0) {
-					qt = TEXT_JERSEY5;
-				} else if (!plr[pnum]._pLvlVisited[DLV_CAVES1] && plr[pnum]._pLevel < 15) {
-					switch (random_(0, 4)) {
-					case 0:
-						qt = TEXT_JERSEY9;
-						break;
-					case 1:
-						qt = TEXT_JERSEY10;
-						break;
-					case 2:
-						qt = TEXT_JERSEY11;
-						break;
-					default:
-						qt = TEXT_JERSEY12;
-						break;
-					}
-				} else {
-					quests[Q_JERSEY]._qvar1 = 1;
-					// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
-					quests[Q_JERSEY]._qlog = TRUE;
-					qn = Q_JERSEY;
-					qt = TEXT_JERSEY4;
-					SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, false, true);
-				}
-				break;
-			case QUEST_DONE:
-				qt = TEXT_JERSEY1;
-				break;
-			default:
-				ASSUME_UNREACHABLE
+		switch (quests[Q_JERSEY]._qactive) {
+		case QUEST_NOTAVAIL:
+			break;
+		case QUEST_INIT:
+			if (PlrHasItem(pnum, IDI_RUNEBOMB, &i)) {
+				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
+				quests[Q_JERSEY]._qvar1 = 1;
+				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
+				quests[Q_JERSEY]._qlog = TRUE;
+				qn = Q_JERSEY;
+				qt = TEXT_JERSEY5;
 				break;
 			}
+			switch (quests[Q_JERSEY]._qvar2++) {
+			case 0: qt = TEXT_JERSEY1; break;
+			case 1: qt = TEXT_JERSEY2; break;
+			default: qt = TEXT_JERSEY3;
+				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
+				qn = Q_JERSEY;
+				break;
+			}
+			break;
+		case QUEST_ACTIVE:
+			if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
+				RemoveInvItem(pnum, i);
+				qt = TEXT_JERSEY7;
+				break;
+			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
+				RemoveInvItem(pnum, i);
+				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, true, true);
+				quests[Q_JERSEY]._qactive = QUEST_DONE;
+				qn = Q_JERSEY;
+				qt = TEXT_JERSEY8;
+				break;
+			}
+			if (quests[Q_JERSEY]._qvar1 != 0) {
+				qt = TEXT_JERSEY5;
+			} else if (!plr[pnum]._pLvlVisited[DLV_CAVES1] && plr[pnum]._pLevel < 15) {
+				switch (random_(0, 4)) {
+				case 0:
+					qt = TEXT_JERSEY9;
+					break;
+				case 1:
+					qt = TEXT_JERSEY10;
+					break;
+				case 2:
+					qt = TEXT_JERSEY11;
+					break;
+				default:
+					qt = TEXT_JERSEY12;
+					break;
+				}
+			} else {
+				quests[Q_JERSEY]._qvar1 = 1;
+				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
+				quests[Q_JERSEY]._qlog = TRUE;
+				qn = Q_JERSEY;
+				qt = TEXT_JERSEY4;
+				SpawnRewardItem(IDI_RUNEBOMB, tw->_tx, tw->_ty, false, true);
+			}
+			break;
+		case QUEST_DONE:
+			qt = TEXT_JERSEY1;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
 		}
 		break;
 	case TOWN_GIRL:
