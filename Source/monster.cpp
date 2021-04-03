@@ -543,10 +543,15 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mhitpoints = mon->_mmaxhp;
 }
 
+/**
+ * Check the location if a monster can be placed there in the init phase.
+ * Must not consider the player's position, since it is already initialized
+ * and messes up the pseudo-random generated dungeon.
+ */
 static bool MonstPlace(int xp, int yp)
 {
 	if (IN_DUNGEON_AREA(xp, yp)) {
-		return (dMonster[xp][yp] | dPlayer[xp][yp] | nSolidTable[dPiece[xp][yp]]
+		return (dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ nSolidTable[dPiece[xp][yp]]
 			 | (dFlags[xp][yp] & (BFLAG_VISIBLE | BFLAG_POPULATED))) == 0;
 	}
 	return false;
