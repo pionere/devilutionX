@@ -565,7 +565,7 @@ void TalkToTowner(int pnum, int tnum)
 		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT || (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)) {
 			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 			quests[Q_BUTCHER]._qlog = TRUE;
-			quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
+			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
 			quests[Q_BUTCHER]._qvar1 = 1;
 			qn = Q_BUTCHER;
 			qt = TEXT_BUTCH9;
@@ -664,7 +664,7 @@ void TalkToTowner(int pnum, int tnum)
 				if (quests[Q_PWATER]._qactive == QUEST_INIT) {
 					quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 					quests[Q_PWATER]._qlog = TRUE;
-					quests[Q_PWATER]._qmsg = TEXT_POISON3;
+					// quests[Q_PWATER]._qmsg = TEXT_POISON3;
 					quests[Q_PWATER]._qvar1 = 1;
 					qt = TEXT_POISON3;
 				} else if (quests[Q_PWATER]._qactive == QUEST_DONE && quests[Q_PWATER]._qvar1 != 2) {

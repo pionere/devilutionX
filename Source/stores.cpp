@@ -1104,7 +1104,7 @@ static void S_StartTalk()
 	AddSLine(5);
 	sn = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog)
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
 			sn++;
 	}
 
