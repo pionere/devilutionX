@@ -1995,7 +1995,6 @@ static bool MonDoWalk(int mnum)
 
 void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 {
-	MonsterStruct *dmon;
 	bool ret;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
@@ -2004,12 +2003,12 @@ void MonTryM2MHit(int offm, int defm, int hper, int mind, int maxd)
 	if (CheckMonsterHit(defm, &ret))
 		return;
 
-	dmon = &monster[defm];
-	int hit = dmon->_mmode == MM_STONE ? 0 : random_(4, 100);
+	hper = hper + (monster[offm].mLevel << 1) - (monster[defm].mLevel << 1);
+	int hit = monster[defm]._mmode == MM_STONE ? 0 : random_(4, 100);
 	if (hit < hper) {
 		int dam = RandRange(mind, maxd) << 6;
-		dmon->_mhitpoints -= dam;
-		if (dmon->_mhitpoints < (1 << 6)) {
+		monster[defm]._mhitpoints -= dam;
+		if (monster[defm]._mhitpoints < (1 << 6)) {
 			M2MStartKill(offm, defm);
 		} else {
 			M2MStartHit(defm, offm, dam);
