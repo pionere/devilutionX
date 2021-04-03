@@ -269,6 +269,9 @@
 #define SPLBOOKTABS		4
 #endif
 
+#define NIGHTMARE_LEVEL_BONUS   15
+#define HELL_LEVEL_BONUS        30
+
 #define NIGHTMARE_TO_HIT_BONUS  85
 #define HELL_TO_HIT_BONUS      120
 
