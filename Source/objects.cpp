@@ -3609,7 +3609,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 		random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg, false);
 }
 
-static void OperateBookCase(int oi, bool sendmsg)
+static void OperateBookCase(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 
@@ -3627,14 +3627,18 @@ static void OperateBookCase(int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
-	if (QuestStatus(Q_ZHAR)
-	 && (monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR
-	 && monster[MAX_MINIONS]._msquelch == UCHAR_MAX
-	 && monster[MAX_MINIONS]._mhitpoints != 0) {
+	if (QuestStatus(Q_ZHAR) && quests[Q_ZHAR]._qactive != QUEST_DONE
+	 && dTransVal[monster[MAX_MINIONS]._mx][monster[MAX_MINIONS]._my] == dTransVal[plr[pnum]._px][plr[pnum]._py]
+	 && monster[MAX_MINIONS].mtalkmsg == TEXT_ZHAR1) {
+		assert((monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
 		monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
-		MonStartStand(0, monster[MAX_MINIONS]._mdir);
+		//MonStartStand(MAX_MINIONS, monster[MAX_MINIONS]._mdir);
 		monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 		monster[MAX_MINIONS]._mmode = MM_TALK;
+		monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
+		quests[Q_ZHAR]._qvar1 = 2;
+		if (sendmsg)
+			NetSendCmdQuest(true, Q_ZHAR, true);
 	}
 }
 
@@ -4075,7 +4079,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(oi, sendmsg);
+		OperateBookCase(pnum, oi, sendmsg);
 		break;
 	case OBJ_DECAP:
 		OperateDecap(oi, sendmsg);
@@ -4232,7 +4236,7 @@ void SyncOpObject(int pnum, int oi)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		OperateBookCase(oi, false);
+		OperateBookCase(pnum, oi, false);
 		break;
 	case OBJ_DECAP:
 		OperateDecap(oi, false);

@@ -309,7 +309,7 @@ const TextDataStruct alltext[NUM_TEXTS] = {
 	    TRUE, FALSE, -1, USFX_GARBUD4 },
 	{ "What?! Why are you here? All these interruptions are enough to make one insane. Here, take this and leave me to my work. Trouble me no more! |",
 /* TEXT_ZHAR1 */ TRUE, FALSE, -1, USFX_ZHAR1 },
-	{ "Arrrrgh! Your curiosity will be the death of you!!! |", TRUE, FALSE, -2, USFX_ZHAR2 },
+	{ NULL/*"Arrrrgh! Your curiosity will be the death of you!!! |"*/, FALSE, FALSE, -2, USFX_ZHAR2 },
 	{ NULL/*"Hello, my friend. Stay awhile and listen... |"*/,
 /* TEXT_STORY1 */ FALSE, FALSE, 0, TSFX_STORY25 },
 	{ "While you are venturing deeper into the Labyrinth you may find tomes of great knowledge hidden there. \n \nRead them carefully for they can tell you things that even I cannot. |",

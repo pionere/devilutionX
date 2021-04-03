@@ -2323,7 +2323,7 @@ static bool MonDoHeal(int mnum)
 static bool MonDoTalk(int mnum)
 {
 	MonsterStruct *mon;
-	int tren, pnum;
+	int pnum;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
@@ -2335,22 +2335,7 @@ static bool MonDoTalk(int mnum)
 		return false;
 	pnum = mon->_mListener;
 	InitQTextMsg(mon->mtalkmsg, pnum == myplr);
-	switch (mon->_uniqtype - 1) {
-	case UMT_ZHAR:
-		if (gbMaxPlayers == 1 && mon->mtalkmsg == TEXT_ZHAR1 && !(mon->_mFlags & MFLAG_QUEST_COMPLETE)) {
-			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
-			quests[Q_ZHAR]._qlog = TRUE;
-			tren = SPL_SWIPE;
-			if (plr[myplr]._pClass == PC_ROGUE)
-				tren = SPL_POINT_BLANK;
-			else if (plr[myplr]._pClass == PC_SORCERER)
-				tren = SPL_LIGHTNING;
-			//SetRndSeed(mon->_mRndSeed);
-			CreateSpellBook(tren, mon->_mx + 1, mon->_my + 1);
-			mon->_mFlags |= MFLAG_QUEST_COMPLETE;
-		}
-		break;
-	case UMT_LAZURUS:
+	if (mon->_uniqtype - 1 == UMT_LAZURUS) {
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_msquelch = UCHAR_MAX;
@@ -4169,7 +4154,6 @@ void MAI_Garbud(int mnum)
 void MAI_Zhar(int mnum)
 {
 	MonsterStruct *mon;
-	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Zhar: Invalid monster %d", mnum);
@@ -4179,27 +4163,26 @@ void MAI_Zhar(int mnum)
 		return;
 	}
 
-	md = MonGetDir(mnum);
+	mon->_mdir = MonGetDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-			if (mon->mtalkmsg == TEXT_ZHAR2 && !effect_is_playing(USFX_ZHAR2)) {
-				mon->_msquelch = UCHAR_MAX;
+		if (quests[Q_ZHAR]._qvar1 == 1)
+			mon->_mgoal = MGOAL_INQUIRING;
+		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER - also set in objects.cpp
+			if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
+				// mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
-		} else {
-			if (mon->mtalkmsg == TEXT_ZHAR1) {
-				mon->mtalkmsg = TEXT_ZHAR2;
-				mon->_mgoal = MGOAL_INQUIRING;
-			}
 		}
+	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_ZHAR]._qvar1 == 2) {
+		// TODO: does not work when a player enters the level and the timer is running
+		mon->_mgoal = MGOAL_NORMAL;
+		mon->mtalkmsg = 0;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE)
 		MAI_Counselor(mnum);
-
-	mon->_mdir = md;
 }
 
 void MAI_SnotSpil(int mnum)
@@ -5261,6 +5244,27 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_VEIL]._qactive = QUEST_DONE;
 			if (pnum == myplr)
 				NetSendCmdQuest(true, Q_VEIL, true);
+		}
+	} else if (mon->_mAi == AI_ZHAR) {
+		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {
+			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
+			quests[Q_ZHAR]._qvar1 = 1;
+			quests[Q_ZHAR]._qlog = TRUE;
+			if (pnum == myplr)
+				NetSendCmdQuest(true, Q_ZHAR, true);
+			iv = SPL_SWIPE;
+			if (plr[pnum]._pClass == PC_ROGUE)
+				iv = SPL_POINT_BLANK;
+			else if (plr[pnum]._pClass == PC_SORCERER)
+				iv = SPL_LIGHTNING;
+			SetRndSeed(mon->_mRndSeed);
+			CreateSpellBook(iv, plr[pnum]._px, plr[pnum]._py);
+		} else if (quests[Q_ZHAR]._qvar1 == 1) {
+			mon->mtalkmsg = TEXT_ZHAR2;
+			mon->_mVar8 = 0; // init MON_TIMER
+			quests[Q_ZHAR]._qvar1 = 2;
+			if (pnum == myplr)
+				NetSendCmdQuest(true, Q_ZHAR, true);
 		}
 	}
 }
