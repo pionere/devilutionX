@@ -447,16 +447,30 @@ void Make_SetPC(int x, int y, int w, int h)
 	}
 }
 
+/**
+ * Find the largest available room (rectangle) starting from (x;y) using floor.
+ * 
+ * @param floor the id of the floor tile in dungeon
+ * @param x the x-coordinate of the starting position
+ * @param y the y-coordinate of the starting position
+ * @param minSize the minimum size of the room (must be less than 20)
+ * @param maxSize the maximum size of the room (must be less than 20)
+ * @param width the width of the room if found
+ * @param height the height of the room if found
+ * @return true if a room is found
+ */
 static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxSize, int *width, int *height)
 {
-	int i, j, smallest;
+	int xmax, ymax, i, j, smallest;
 	int xArray[20], yArray[20];
 	int size, bestSize, w, h;
 
-	// assert(maxSize <= 20);
+	// assert(maxSize < 20);
 
+	xmax = std::min(maxSize, DMAXX - x);
+	ymax = std::min(maxSize, DMAXY - y);
 	// BUGFIX: change '&&' to '||' (fixed)
-	if (x + maxSize > DMAXX || y + maxSize > DMAXY) {
+	if (xmax < minSize || ymax < minSize) {
 		return false;
 	}
 	//if (!SkipThemeRoom(x, y)) {
@@ -467,8 +481,8 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 	memset(yArray, 0, sizeof(yArray));
 
 	// find horizontal(x) limits
-	smallest = maxSize;
-	for (i = 0; i < maxSize; i++) {
+	smallest = xmax;
+	for (i = 0; i < ymax; ) {
 		for (j = 0; j < smallest; j++) {
 			if (dungeon[x + j][y + i] != floor) {
 				smallest = j;
@@ -477,14 +491,14 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 		}
 		if (smallest < minSize)
 			break;
-		xArray[i] = smallest;
+		xArray[++i] = smallest;
 	}
 	if (i < minSize)
 		return false;
 
 	// find vertical(y) limits
-	smallest = maxSize;
-	for (i = 0; i < maxSize; i++) {
+	smallest = ymax;
+	for (i = 0; i < xmax; ) {
 		for (j = 0; j < smallest; j++) {
 			if (dungeon[x + i][y + j] != floor) {
 				smallest = j;
@@ -493,28 +507,29 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 		}
 		if (smallest < minSize)
 			break;
-		yArray[i] = smallest;
+		yArray[++i] = smallest;
 	}
 	if (i < minSize)
 		return false;
 
 	// select the best option
-	bestSize = minSize * minSize;
-	w = h = minSize;
-	for (i = minSize - 1; i < maxSize; i++) {
-		size = xArray[i] * (i + 1);
+	xmax = std::max(xmax, ymax);
+	bestSize = 0;
+	for (i = minSize; i <= xmax; i++) {
+		size = xArray[i] * i;
 		if (size > bestSize) {
 			bestSize = size;
 			w = xArray[i];
-			h = i + 1;
+			h = i;
 		}
-		size = yArray[i] * (i + 1);
+		size = yArray[i] * i;
 		if (size > bestSize) {
 			bestSize = size;
-			w = i + 1;
+			w = i;
 			h = yArray[i];
 		}
 	}
+	// assert(bestSize != 0);
 	*width = w - 2;
 	*height = h - 2;
 	return true;
