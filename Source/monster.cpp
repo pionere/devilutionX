@@ -782,9 +782,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
-	if (gbMaxPlayers != 1 && mon->_mAi == AI_LAZHELP)
-		mon->mtalkmsg = 0;
-	else if (mon->mtalkmsg != 0)
+	if (mon->mtalkmsg != 0)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
@@ -4306,19 +4304,14 @@ void MAI_Lazhelp(int mnum)
 
 	mon->_mdir = MonGetDir(mnum);
 
-	if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
-		if (gbMaxPlayers == 1) {
-			if (quests[Q_BETRAYER]._qvar1 <= 5) {
-				mon->_mgoal = MGOAL_INQUIRING;
-			} else {
-				mon->mtalkmsg = 0;
-				mon->_mgoal = MGOAL_NORMAL;
-			}
-		} else
-			mon->_mgoal = MGOAL_NORMAL;
+	if (mon->_mgoal == MGOAL_INQUIRING) {
+		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 <= 5)
+			return;
+		mon->mtalkmsg = 0;
+		mon->_mgoal = MGOAL_NORMAL;
 	}
-	if (mon->_mgoal == MGOAL_NORMAL)
-		MAI_HlSpwn(mnum);
+
+	MAI_HlSpwn(mnum);
 }
 
 void MAI_Lachdanan(int mnum)
