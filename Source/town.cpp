@@ -245,7 +245,7 @@ void T_Pass3()
 	}
 #endif
 
-	if (quests[Q_PWATER]._qactive != QUEST_DONE && quests[Q_PWATER]._qactive != QUEST_NOTAVAIL) {
+	if (quests[Q_PWATER]._qvar1 != 2) {
 		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
 	}
 

@@ -119,15 +119,17 @@ void InitQuests()
 
 	if (gbMaxPlayers != 1)
 		quests[Q_BETRAYER]._qvar1 = 2;
+	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
+		quests[Q_PWATER]._qvar1 = 2;
 }
 
 void CheckQuests()
 {
-	if (currLvl._dSetLvl) {
-		if (currLvl._dLevelIdx == quests[Q_PWATER]._qslvl
-		 && quests[Q_PWATER]._qactive == QUEST_ACTIVE
+	if (currLvl._dLevelIdx == quests[Q_PWATER]._qslvl) {
+		if (quests[Q_PWATER]._qvar1 != 2
 		 && nummonsters == MAX_MINIONS) {
-			quests[Q_PWATER]._qactive = QUEST_DONE;
+			quests[Q_PWATER]._qvar1 = 2;
+			NetSendCmdQuest(true, Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;

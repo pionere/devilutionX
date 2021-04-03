@@ -655,24 +655,19 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_DRUNK:
 		break;
 	case TOWN_HEALER:
-		if (gbMaxPlayers == 1) {
-#ifdef HELLFIRE
-			if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL1] || plr[pnum]._pLvlVisited[DLV_CATACOMBS1]) {
-#else
-			if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL1]) {
-#endif
-				if (quests[Q_PWATER]._qactive == QUEST_INIT) {
-					quests[Q_PWATER]._qactive = QUEST_ACTIVE;
-					quests[Q_PWATER]._qlog = TRUE;
-					// quests[Q_PWATER]._qmsg = TEXT_POISON3;
-					quests[Q_PWATER]._qvar1 = 1;
-					qt = TEXT_POISON3;
-				} else if (quests[Q_PWATER]._qactive == QUEST_DONE && quests[Q_PWATER]._qvar1 != 2) {
-					quests[Q_PWATER]._qvar1 = 2;
-					SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, true, true);
-					qt = TEXT_POISON5;
-				}
-			}
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && plr[pnum]._pLvlVisited[DLV_CATHEDRAL1]) {
+			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
+			quests[Q_PWATER]._qlog = TRUE;
+			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
+			// quests[Q_PWATER]._qvar1 = 1;
+			qn = Q_PWATER;
+			qt = TEXT_POISON3;
+		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
+		 && quests[Q_PWATER]._qvar1 == 2) {
+			quests[Q_PWATER]._qactive = QUEST_DONE;
+			SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, true, true);
+			qn = Q_PWATER;
+			qt = TEXT_POISON5;
 		}
 		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
