@@ -53,7 +53,7 @@ static void snd_get_volume(const char *value_name, int *value)
 		}
 	} else
 		v = VOLUME_MAX;
-	v -= v % 100;
+	// v -= v % 100;
 
 	*value = v;
 }
