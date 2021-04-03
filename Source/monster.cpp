@@ -4337,7 +4337,7 @@ void MAI_Lachdanan(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (mon->mtalkmsg == TEXT_VEIL11) { // MON_TIMER
+		if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 			if (mon->_mVar8++ >= gnTicksRate * 32/*!effect_is_playing(USFX_LACH3)*/) {
 				mon->mtalkmsg = 0;
 				MonStartKill(mnum, -1);
@@ -5235,7 +5235,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_VEIL]._qlog = TRUE;
 			if (pnum == myplr)
 				NetSendCmdQuest(true, Q_VEIL, true);
-		} else if (PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
+		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
 			RemoveInvItem(pnum, iv);
 			mon->mtalkmsg = TEXT_VEIL11;
 			// mon->_mgoal = MGOAL_INQUIRING;
@@ -5243,7 +5243,8 @@ void TalktoMonster(int mnum, int pnum)
 			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
 			quests[Q_VEIL]._qactive = QUEST_DONE;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_VEIL, true);
+				// TODO: recipient should be true, but that requires a synced inventory
+				NetSendCmdQuest(true, Q_VEIL, false);
 		}
 	} else if (mon->_mAi == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {
