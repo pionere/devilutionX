@@ -340,7 +340,7 @@ static void DrawLTBanner(int x, int y)
 
 static void DrawBlind(int x, int y)
 {
-	DrawPreMap("Levels\\L2Data\\Blind1.DUN", x, y);
+	DrawMap("Levels\\L2Data\\Blind2.DUN", x, y, 3);
 }
 
 static void DrawBlood(int x, int y)
@@ -443,8 +443,6 @@ void LoadPWaterPalette()
 
 static void ResyncBanner()
 {
-	int i;
-
 	if (quests[Q_LTBANNER]._qvar1 != 4) {
 		// open the entrance of the setmap -> TODO: add these to Banner2.DUN ?
 		ObjChangeMapResync(

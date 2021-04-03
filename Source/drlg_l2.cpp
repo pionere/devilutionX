@@ -1680,7 +1680,7 @@ static void DRLG_LoadL2SP()
 {
 	pSetPiece = NULL;
 	if (QuestStatus(Q_BLIND)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN", NULL);
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN", NULL);
 	} else if (QuestStatus(Q_SCHAMB)) {
