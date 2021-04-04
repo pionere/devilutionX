@@ -201,7 +201,7 @@ static void LoadPlayer(int pnum)
 	CopyChar(tbuff, &p->plractive);
 	CopyChar(tbuff, &p->_pLvlChanging);
 	CopyChar(tbuff, &p->plrlevel);
-	CopyChar(tbuff, &p->_pBaseToBlk);
+	tbuff += 1; // Alignment
 	CopyInt(tbuff, &p->_px);
 	CopyInt(tbuff, &p->_py);
 	CopyInt(tbuff, &p->_pfutx);
@@ -348,10 +348,10 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIPcMaxDam
 	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip to Calc _pIHitChance
-	tbuff += 1; // Skip to Calc _pIBaseACBonus
-	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pICritChance
+	tbuff += 1; // Skip to Calc _pIBlockChance
+	tbuff += 1; // Alignment
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
 	tbuff += 8; // Skip to Calc _pISpells
@@ -889,7 +889,7 @@ static void SavePlayer(int pnum)
 	CopyChar(&p->plractive, tbuff);
 	CopyChar(&p->_pLvlChanging, tbuff);
 	CopyChar(&p->plrlevel, tbuff);
-	CopyChar(&p->_pBaseToBlk, tbuff);
+	tbuff += 1; // Alignment
 	CopyInt(&p->_px, tbuff);
 	CopyInt(&p->_py, tbuff);
 	CopyInt(&p->_pfutx, tbuff);
@@ -1037,10 +1037,10 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIPcMaxDam
 	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip to Calc _pIHitChance
-	tbuff += 1; // Skip to Calc _pIBaseACBonus
-	tbuff += 1; // Skip to Calc _pIBaseDamBonus
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
 	tbuff += 1; // Skip to Calc _pICritChance
+	tbuff += 1; // Skip to Calc _pIBlockChance
+	tbuff += 1; // Alignment
 	tbuff += 4; // Skip to Calc _pIMagToHit
 
 	tbuff += 8; // Skip to Calc _pISpells

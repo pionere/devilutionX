@@ -841,12 +841,15 @@ static bool PlayerTrapHit(int pnum, int mi)
 #endif
 			return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
-		tmp = p->_pBaseToBlk + p->_pDexterity;
-		if (tmp >= 100 || random_(73, 100) < tmp) {
-			PlrStartBlock(pnum, p->_pdir);
-			return true;
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+		tmp = p->_pIBlockChance;
+		if (tmp != 0 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
+			// assert(p->_pSkillFlags & SFLAG_BLOCK);
+			tmp = tmp - (currLvl._dLevel << 2);
+			if (tmp > random_(73, 100)) {
+				PlrStartBlock(pnum, p->_pdir);
+				return true;
+			}
 		}
 	}
 
@@ -905,15 +908,16 @@ static bool PlayerMHit(int pnum, int mi)
 #endif
 			return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && (p->_pSkillFlags & SFLAG_BLOCK) && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
-		tmp = p->_pBaseToBlk + p->_pDexterity
-			+ (p->_pLevel << 1)
-			- (mon->mLevel << 1);
-		if (tmp >= 100 || random_(73, 100) < tmp) {
-			tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
-			PlrStartBlock(pnum, tmp);
-			return true;
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+		tmp = p->_pIBlockChance;
+		if (tmp != 0 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
+			// assert(p->_pSkillFlags & SFLAG_BLOCK);
+			tmp = tmp - (mon->mLevel << 1);
+			if (tmp > random_(73, 100)) {
+				tmp = GetDirection(p->_px, p->_py, mon->_mx, mon->_my);
+				PlrStartBlock(pnum, tmp);
+				return true;
+			}
 		}
 	}
 
@@ -965,14 +969,15 @@ static bool Plr2PlrMHit(int defp, int mi)
 	if (random_(69, 100) >= hper)
 		return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)
-	 && (dps->_pSkillFlags & SFLAG_BLOCK) && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
-		blkper = dps->_pDexterity + dps->_pBaseToBlk
-			+ (dps->_pLevel << 1)
-			- (ops->_pLevel << 1);
-		if (blkper >= 100 || blkper > random_(73, 100)) {
-			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
-			return true;
+	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+		blkper = dps->_pIBlockChance;
+		if (blkper != 0 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
+			// assert(dps->_pSkillFlags & SFLAG_BLOCK);
+			blkper = blkper - (ops->_pLevel << 1);
+			if (blkper > random_(73, 100)) {
+				PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
+				return true;
+			}
 		}
 	}
 

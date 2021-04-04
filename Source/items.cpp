@@ -861,6 +861,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	p->_pIPcMinDam = minpc;
 	p->_pIPcMaxDam = maxpc;
 
+	// calculate block chance
+	p->_pIBlockChance = (p->_pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + ((p->_pStrength + p->_pDexterity) >> 4) + (p->_pLevel << 1)) : 0;
+
 	// calculate arrow velocity bonus
 	av = ArrowVelBonus(p->_pIFlags);
 /*  No other velocity bonus for the moment, 

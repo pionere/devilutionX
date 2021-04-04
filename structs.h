@@ -231,7 +231,6 @@ typedef struct PlayerStruct {
 	BOOLEAN plractive;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE plrlevel;
-	BYTE _pBaseToBlk;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
 	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
@@ -373,6 +372,7 @@ typedef struct PlayerStruct {
 	int _pIHitChance;
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
+	BYTE _pIBlockChance;
 	uint64_t _pISpells; // Bitmask of staff spell
 	int _pIFlags;
 	int _pIGetHit;

@@ -2061,12 +2061,12 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 #endif
 			return;
 
-	if ((p->_pSkillFlags & SFLAG_BLOCK)
+	blkper = p->_pIBlockChance;
+	if (blkper != 0
 	 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
-		blkper = p->_pDexterity + p->_pBaseToBlk
-			+ (p->_pLevel << 1)
-			- (mon->mLevel << 1);
-		if (blkper >= 100 || blkper > random_(98, 100)) {
+		// assert(p->_pSkillFlags & SFLAG_BLOCK);
+		blkper = blkper - (mon->mLevel << 1);
+		if (blkper > random_(98, 100)) {
 			PlrStartBlock(pnum, GetDirection(p->_px, p->_py, mon->_mx, mon->_my));
 			return;
 		}

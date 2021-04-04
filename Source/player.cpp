@@ -137,17 +137,6 @@ const int VitalityTbl[NUM_CLASSES] = {
 	35,
 #endif
 };
-/** Specifies the chance to block bonus of each player class.*/
-const BYTE ToBlkTbl[NUM_CLASSES] = {
-	30,
-	20,
-	10,
-#ifdef HELLFIRE
-	25,
-	25,
-	30,
-#endif
-};
 const int Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
 #ifdef HELLFIRE
@@ -648,8 +637,6 @@ void CreatePlayer(int pnum, char c)
 
 	p->_pClass = c;
 
-	p->_pBaseToBlk = ToBlkTbl[c];
-
 	val = StrengthTbl[c];
 	p->_pStrength = val;
 	p->_pBaseStr = val;
@@ -878,8 +865,6 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 
 	if (FirstTime) {
 		p->_pManaShield = 0;
-
-		p->_pBaseToBlk = ToBlkTbl[p->_pClass];
 
 		p->_pAblSkills = SPELL_MASK(Abilities[p->_pClass]);
 		p->_pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
@@ -2315,12 +2300,12 @@ static bool PlrHitPlr(int offp, int sn, int sl, int defp)
 	if (random_(4, 100) >= hper)
 		return false;
 
-	if ((dps->_pSkillFlags & SFLAG_BLOCK)
+	blkper = dps->_pIBlockChance;
+	if (blkper != 0
 	 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
-		blkper = dps->_pDexterity + dps->_pBaseToBlk
-			+ (dps->_pLevel << 1)
-			- (ops->_pLevel << 1);
-		if (blkper >= 100 || blkper > random_(5, 100)) {
+		// assert(dps->_pSkillFlags & SFLAG_BLOCK);
+		blkper = blkper - (ops->_pLevel << 1);
+		if (blkper > random_(5, 100)) {
 			PlrStartBlock(defp, GetDirection(dps->_px, dps->_py, ops->_px, ops->_py));
 			return true;
 		}
