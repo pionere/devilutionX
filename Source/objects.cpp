@@ -2047,7 +2047,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 	pn--;
 	pMap = &dpiece_defs_map_2[dx][dy];
 	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-	pPiece = (WORD *)pLevelPieces + blocks * pn;
+	pPiece = (WORD *)&pLevelPieces[2 * blocks * pn];
 	for (i = 0; i < blocks; i++) {
 		pMap->mt[i] = SDL_SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 	}

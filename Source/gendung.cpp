@@ -176,7 +176,7 @@ void FillSolidBlockTbls()
 
 void SetDungeonMicros(int x1, int y1, int x2, int y2)
 {
-	int i, x, y, lv, blocks;
+	int i, x, y, pn, blocks;
 	WORD *pPiece;
 	MICROS *pMap;
 
@@ -185,11 +185,11 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 
 	for (y = y1; y < y2; y++) {
 		for (x = x1; x < x2; x++) {
-			lv = dPiece[x][y];
+			pn = dPiece[x][y];
 			pMap = &dpiece_defs_map_2[x][y];
-			if (lv != 0) {
-				lv--;
-				pPiece = (WORD *)&pLevelPieces[2 * blocks * lv];
+			if (pn != 0) {
+				pn--;
+				pPiece = (WORD *)&pLevelPieces[2 * blocks * pn];
 				for (i = 0; i < blocks; i++)
 					pMap->mt[i] = SDL_SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 			} else {
