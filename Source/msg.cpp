@@ -2107,13 +2107,13 @@ static unsigned On_WARP(TCmd *pCmd, int pnum)
 
 static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
+	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-			MonSyncStartKill(cmd->wParam1, cmd->x, cmd->y, pnum);
+			MonSyncStartKill(cmd->wParam1, cmd->x, cmd->y, cmd->wParam2);
 		delta_kill_monster(cmd->wParam1, cmd->x, cmd->y, plr[pnum].plrlevel);
 	}
 

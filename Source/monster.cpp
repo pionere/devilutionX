@@ -1468,6 +1468,9 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
+	if (mon->_mmode == MM_DEATH)
+		return;
+
 	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
 
 	mon->_mmode = MM_GOTHIT;
@@ -1560,8 +1563,12 @@ static void MonFallenFear(int x, int y)
 void MonGetKnockback(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
-	int dir = OPPOSITE(mon->_mdir);
+	int dir;
 
+	if (mon->_mmode == MM_DEATH)
+		return;
+
+	dir = OPPOSITE(mon->_mdir);
 	if (DirOK(mnum, dir)) {
 		MonClearSquares(mnum);
 		mon->_moldx += offset_x[dir];
@@ -1752,7 +1759,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	}
 	mon = &monster[mnum];
 	if (sendmsg)
-		NetSendCmdLocParam1(true, CMD_MONSTDEATH, mon->_mx, mon->_my, mnum);
+		NetSendCmdLocParam2(true, CMD_MONSTDEATH, mon->_mx, mon->_my, mnum, mpnum);
 	mon->_mhitpoints = 0;
 
 	if (mnum >= MAX_MINIONS) {
@@ -1835,7 +1842,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncStartKill: Invalid monster %d", mnum);
 	}
-	if (monster[mnum]._mhitpoints == 0 || monster[mnum]._mmode == MM_DEATH) {
+	if (monster[mnum]._mmode == MM_DEATH) {
 		return;
 	}
 

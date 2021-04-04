@@ -204,13 +204,6 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 
 	mnum = symon->_mndx;
 	mon = &monster[mnum];
-#ifdef HELLFIRE
-	if (mon->_mhitpoints <= 0) {
-#else
-	if (mon->_mhitpoints == 0) {
-#endif
-		return;
-	}
 
 	delta = abs(plr[myplr]._px - mon->_mx) + abs(plr[myplr]._py - mon->_my);
 	if (delta > 255) {
@@ -223,7 +216,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	if (mon->_mfutx == symon->_mx && mon->_mfuty == symon->_my) {
 		return;
 	}
-	if (mon->_mmode == MM_CHARGE || mon->_mmode == MM_STONE) {
+	if (mon->_mhitpoints <= 0 || mon->_mmode == MM_DEATH || mon->_mmode == MM_CHARGE || mon->_mmode == MM_STONE) {
 		return;
 	}
 
