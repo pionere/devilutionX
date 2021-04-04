@@ -89,7 +89,7 @@ bool SFileOpenFile(const char *filename, HANDLE *phFile)
 	return result;
 }
 
-bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, DWORD dwBuffersize, DWORD *pdwWidth, DWORD *dwHeight, DWORD *pdwBpp)
+bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, size_t dwBuffersize, unsigned *pdwWidth, unsigned *dwHeight, unsigned *pdwBpp)
 {
 	HANDLE hFile;
 	size_t size;
@@ -105,15 +105,10 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	if (pdwBpp != NULL)
 		*pdwBpp = 0;
 
-	if (pszFileName == NULL || *pszFileName == '\0') {
-		return false;
-	}
-
-	if (pBuffer != NULL && dwBuffersize == 0) {
-		return false;
-	}
-
-	if (pPalette == NULL && pBuffer == NULL && pdwWidth == NULL && dwHeight == NULL) {
+	assert(pszFileName != NULL);
+	size = strlen(pszFileName);
+	// omit all types except PCX
+	if (size < 4 || strcasecmp(&pszFileName[size - 4], ".pcx")) {
 		return false;
 	}
 
@@ -121,40 +116,33 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		return false;
 	}
 
-	while (strchr(pszFileName, 92) != NULL)
-		pszFileName = strchr(pszFileName, 92) + 1;
-
-	while (strchr(pszFileName + 1, 46) != NULL)
-		pszFileName = strchr(pszFileName, 46);
-
-	// omit all types except PCX
-	if (pszFileName == NULL || strcasecmp(pszFileName, ".pcx")) {
-		return false;
-	}
-
-	if (!SFileReadFile(hFile, &pcxhdr, 128, NULL)) {
+	if (!SFileReadFile(hFile, &pcxhdr, sizeof(pcxhdr), NULL)) {
 		SFileCloseFile(hFile);
 		return false;
 	}
 
+	if (pdwBpp != NULL)
+		*pdwBpp = pcxhdr.BitsPerPixel;
 	int width = SDL_SwapLE16(pcxhdr.Xmax) - SDL_SwapLE16(pcxhdr.Xmin) + 1;
 	int height = SDL_SwapLE16(pcxhdr.Ymax) - SDL_SwapLE16(pcxhdr.Ymin) + 1;
-
-	// If the given buffer is larger than width * height, assume the extra data
-	// is scanline padding.
-	//
-	// This is useful because in SDL the pitch size is often slightly larger
-	// than image width for efficiency.
-	const int x_skip = dwBuffersize / height - width;
-
 	if (pdwWidth != NULL)
 		*pdwWidth = width;
 	if (dwHeight != NULL)
 		*dwHeight = height;
-	if (pdwBpp != NULL)
-		*pdwBpp = pcxhdr.BitsPerPixel;
 
 	if (pBuffer != NULL) {
+		// If the given buffer is larger than width * height, assume the extra data
+		// is scanline padding.
+		//
+		// This is useful because in SDL the pitch size is often slightly larger
+		// than image width for efficiency.
+		const int x_skip = dwBuffersize / height - width;
+		assert(x_skip >= 0);
+		//if (x_skip < 0) {
+		//	SFileCloseFile(hFile);
+		//	return false;
+		//}
+
 		size = SFileGetFileSize(hFile) - SFileGetFilePointer(hFile);
 		fileBuffer = (BYTE *)malloc(size);
 
@@ -199,7 +187,6 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	SFileCloseFile(hFile);
-
 	return true;
 }
 

@@ -207,10 +207,10 @@ bool
         const char *pszFileName,
         SDL_Color *pPalette,
         BYTE *pBuffer,
-        DWORD dwBuffersize,
-        DWORD *pdwWidth,
-        DWORD *pdwHeight,
-        DWORD *pdwBpp);
+        size_t dwBuffersize,
+        unsigned *pdwWidth,
+        unsigned *pdwHeight,
+        unsigned *pdwBpp);
 
 /*  SMemAlloc @ 401
  *

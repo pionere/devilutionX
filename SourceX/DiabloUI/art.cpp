@@ -10,8 +10,8 @@ void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 
 	art->frames = frames;
 
-	DWORD width, height, bpp;
-	if (!SBmpLoadImage(pszFile, 0, 0, 0, &width, &height, &bpp)) {
+	unsigned width, height, bpp;
+	if (!SBmpLoadImage(pszFile, NULL, NULL, 0, &width, &height, &bpp)) {
 		SDL_Log("Failed to load image meta");
 		return;
 	}
@@ -28,13 +28,13 @@ void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 		format = SDL_PIXELFORMAT_RGBA8888;
 		break;
 	default:
-		format = 0;
+		format = SDL_PIXELFORMAT_UNKNOWN;
 		break;
 	}
 	SDL_Surface *art_surface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE, width, height, bpp, format);
 
 	if (!SBmpLoadImage(pszFile, pPalette, static_cast<BYTE *>(art_surface->pixels),
-	        art_surface->pitch * art_surface->format->BytesPerPixel * height, 0, 0, 0)) {
+	        art_surface->pitch * art_surface->format->BytesPerPixel * height, NULL, NULL, NULL)) {
 		SDL_Log("Failed to load image");
 		SDL_FreeSurface(art_surface);
 		art->surface = NULL;
