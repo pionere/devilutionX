@@ -29,6 +29,7 @@ BYTE *pFlasks;
 BYTE *pTalkPnl;
 BYTE *pTalkBtns;
 bool _gabTalkbtndown[MAX_PLRS - 1];
+int _guTalkMask;
 /**
  * The 'highlighted' skill in the Skill-List or in the Spell-Book.
  */
@@ -40,7 +41,6 @@ BYTE currSkillType;
 BYTE infoclr;
 BYTE *pGBoxBuff;
 char tempstr[256];
-bool _gabWhisper[MAX_PLRS];
 /**
  * The current tab in the Spell-Book.
  */
@@ -925,8 +925,7 @@ void InitControlPan()
 		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL", NULL);
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
 		sgszTalkMsg[0] = '\0';
-		for (i = 0; i < lengthof(_gabWhisper); i++)
-			_gabWhisper[i] = true;
+		_guTalkMask = -1;
 		for (i = 0; i < lengthof(_gabTalkbtndown); i++)
 			_gabTalkbtndown[i] = false;
 	}
@@ -2258,11 +2257,10 @@ void DrawTalkPan()
 	// add the party members
 	sy += 61;
 	talk_btn = 0;
-	static_assert(lengthof(_gabWhisper) == MAX_PLRS, "Table _gabWhisper does not work with the current MAX_PLRS in DrawTalkPan.");
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
 			continue;
-		if (_gabWhisper[i]) {
+		if (_guTalkMask & (1 << i)) {
 			color = COL_GOLD;
 			nCel = 0;
 		} else {
@@ -2310,7 +2308,7 @@ void control_release_talk_btn()
 			if (_gabTalkbtndown[i] && y >= 0 && y <= 18) {
 				if (i >= myplr)
 					i++;
-				_gabWhisper[i] = !_gabWhisper[i];
+				_guTalkMask ^= (1 << i);
 			}
 		}
 	}
@@ -2348,16 +2346,24 @@ static void control_press_enter()
 {
 	int i, pmask;
 	BYTE talk_save;
+	char* msg;
 
-	if (sgszTalkMsg[0] != '\0') {
-		pmask = 0;
-
-		static_assert(lengthof(_gabWhisper) == MAX_PLRS, "Table _gabWhisper does not work with the current MAX_PLRS in control_press_enter.");
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (_gabWhisper[i])
-				pmask |= 1 << i;
+	pmask = _guTalkMask;
+	msg = sgszTalkMsg;
+	if (msg[0] == '/') {
+		if (msg[1] == 'p') {
+			i = strtol(&msg[2], &msg, 10);
+			if (msg != &sgszTalkMsg[2]) {
+				pmask = 1 << i;
+				if (*msg == ' ') {
+					msg++;
+				}
+			}
 		}
-		copy_str(gbNetMsg, sgszTalkMsg);
+	}
+
+	if (*msg != '\0') {
+		SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
 		NetSendCmdString(pmask);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
