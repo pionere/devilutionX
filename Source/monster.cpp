@@ -299,7 +299,6 @@ void InitMonsterGFX(int midx)
 			}
 		}
 
-		// TODO: either the AnimStruct members have wrong naming or the MonsterData ones it seems
 		cmon->Anims[anim].Frames = mdata->Frames[anim];
 		cmon->Anims[anim].Rate = mdata->Rate[anim];
 	}
