@@ -612,8 +612,8 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 
 		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`
 			if (!MonstPlace(xp, yp)
-			    || (dTransVal[xp][yp] != dTransVal[x1][y1])
-			    || (leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4))) {
+			 || (dTransVal[xp][yp] != dTransVal[x1][y1])
+			 || ((leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4)))) {
 				try2++;
 				continue;
 			}
@@ -990,7 +990,7 @@ void InitMonsters()
 			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE
-			else if (i == DLV_CATHEDRAL2 || i >= DLV_CRYPT1 && i <= DLV_CRYPT4)
+			else if (i == DLV_CATHEDRAL2 || (i >= DLV_CRYPT1 && i <= DLV_CRYPT4))
 #else
 			else if (i == DLV_CATHEDRAL2)
 #endif
@@ -1787,7 +1787,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	CheckQuestKill(mnum, sendmsg);
 	MonFallenFear(mon->_mx, mon->_my);
 #ifdef HELLFIRE
-	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID || mon->_mType == MT_SPIDLORD)
+	if ((mon->_mType >= MT_NACID && mon->_mType <= MT_XACID) || mon->_mType == MT_SPIDLORD)
 #else
 	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID)
 #endif
@@ -2574,15 +2574,15 @@ void MonWalkDir(int mnum, int md)
 
 bool IsSkel(int mt)
 {
-	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
-	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
-	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
 }
 
 bool IsGoat(int mt)
 {
-	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
-	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
+	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
+	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
 }
 
 static int MonSpawnSkel(int x, int y, int dir)
@@ -2862,7 +2862,7 @@ static bool MAI_Path(int mnum)
 	    mon->_my,
 	    mon->_menemyx,
 	    mon->_menemyy);
-	if (!clear || mon->_mpathcount >= 5 && mon->_mpathcount < 8) {
+	if (!clear || (mon->_mpathcount >= 5 && mon->_mpathcount < 8)) {
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 			MonstCheckDoors(mon->_mx, mon->_my);
 		mon->_mpathcount++;
@@ -3001,10 +3001,10 @@ void MAI_Bat(int mnum)
 			mon->_mmode = MM_CHARGE;
 		}
 	} else if (abs(xd) >= 2 || abs(yd) >= 2) {
-		if (mon->_mVar2 > 20 && v < mon->_mint + 13
-		    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+		if ((mon->_mVar2 > 20 && v < mon->_mint + 13)
+		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
-		        && v < mon->_mint + 63) {
+		        && v < mon->_mint + 63)) {
 			MonCallWalk(mnum, md);
 		}
 	} else if (v < 4 * mon->_mint + 8) {
@@ -3040,10 +3040,10 @@ void MAI_SkelBow(int mnum)
 
 	walking = false;
 	if (abs(mx) < 4 && abs(my) < 4) {
-		if (mon->_mVar2 > 20 && v < 2 * mon->_mint + 13
-		    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+		if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 13)
+		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
-		        && v < 2 * mon->_mint + 63) {
+		        && v < 2 * mon->_mint + 63)) {
 			walking = MonDumbWalk(mnum, OPPOSITE(md));
 		}
 	}
@@ -3075,10 +3075,10 @@ void MAI_Fat(int mnum)
 	mon->_mdir = md;
 	v = random_(111, 100);
 	if (abs(mx) >= 2 || abs(my) >= 2) {
-		if (mon->_mVar2 > 20 && v < 4 * mon->_mint + 20
-		    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+		if ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 20)
+		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
-		        && v < 4 * mon->_mint + 70) {
+		        && v < 4 * mon->_mint + 70)) {
 			MonCallWalk(mnum, md);
 		}
 	} else if (v < 4 * mon->_mint + 15) {
@@ -3139,7 +3139,7 @@ void MAI_Sneak(int mnum)
 					MonStartFadeout(mnum, md, true);
 				} else {
 					if (mon->_mgoal == MGOAL_RETREAT
-					    || dist >= 2 && (mon->_mVar2 > 20 && v < 4 * mon->_mint + 14 || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)) {
+					 || (dist >= 2 && ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
 						mon->_mgoalvar1++;
 						MonCallWalk(mnum, md);
 					}
@@ -3329,13 +3329,13 @@ static void MAI_Round(int mnum, bool special)
 		v = random_(114, 100);
 		dist = std::max(abs(mx), abs(my));
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
-			if (mon->_mgoal == MGOAL_MOVE || dist >= 4 && random_(115, 4) == 0) {
+			if (mon->_mgoal == MGOAL_MOVE || (dist >= 4 && random_(115, 4) == 0)) {
 				if (mon->_mgoal != MGOAL_MOVE) {
 					mon->_mgoalvar1 = 0;
 					mon->_mgoalvar2 = random_(116, 2);
 				}
 				mon->_mgoal = MGOAL_MOVE;
-				if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+				if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
 					MonStartDelay(mnum, RandRange(10, 19));
@@ -3345,10 +3345,10 @@ static void MAI_Round(int mnum, bool special)
 			mon->_mgoal = MGOAL_NORMAL;
 		if (mon->_mgoal == MGOAL_NORMAL) {
 			if (dist >= 2) {
-				if (mon->_mVar2 > 20 && v < 2 * mon->_mint + 28
-				    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+				if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 28)
+				 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 				        && mon->_mVar2 == 0
-				        && v < 2 * mon->_mint + 78) {
+				        && v < 2 * mon->_mint + 78)) {
 					MonCallWalk(mnum, md);
 				}
 			} else if (v < 2 * mon->_mint + 23) {
@@ -3663,14 +3663,14 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 		if (mon->_mgoal == MGOAL_NORMAL) {
-			if ((dist >= 3 && v < ((500 * (mon->_mint + 2)) >> lessmissiles)
+			if (((dist >= 3 && v < ((500 * (mon->_mint + 2)) >> lessmissiles))
 			        || v < ((500 * (mon->_mint + 1)) >> lessmissiles))
 			    && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				MonStartRSpAttack(mnum, mitype);
 			} else if (dist >= 2) {
 				v = random_(124, 100);
 				if (v < 1000 * (mon->_mint + 5)
-				    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0 && v < 1000 * (mon->_mint + 8)) {
+				 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0 && v < 1000 * (mon->_mint + 8))) {
 					MonCallWalk(mnum, md);
 				}
 			} else if (v < 1000 * (mon->_mint + 6)) {
@@ -3760,14 +3760,14 @@ static void MAI_RR2(int mnum, int mitype)
 		} else
 			mon->_mgoal = MGOAL_NORMAL;
 		if (mon->_mgoal == MGOAL_NORMAL) {
-			if ((dist >= 3 && v < 5 * (mon->_mint + 2) || v < 5 * (mon->_mint + 1) || mon->_mgoalvar3 == 4) && LineClear(mon->_mx, mon->_my, fx, fy)) {
+			if (((dist >= 3 && v < 5 * (mon->_mint + 2)) || v < 5 * (mon->_mint + 1) || mon->_mgoalvar3 == 4) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				MonStartRSpAttack(mnum, mitype);
 			} else if (dist >= 2) {
 				v = random_(124, 100);
 				if (v < 2 * (5 * mon->_mint + 25)
-				    || (mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+				 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 				        && mon->_mVar2 == 0
-				        && v < 2 * (5 * mon->_mint + 40)) {
+				        && v < 2 * (5 * mon->_mint + 40))) {
 					MonCallWalk(mnum, md);
 				}
 			} else {
@@ -3877,13 +3877,13 @@ void MAI_SkelKing(int mnum)
 		fy = mon->_menemyy;
 		dist = std::max(abs(mx - fx), abs(my - fy));
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
-			if (mon->_mgoal == MGOAL_MOVE || dist >= 3 && random_(127, 4) == 0) {
+			if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
 				if (mon->_mgoal != MGOAL_MOVE) {
 					mon->_mgoalvar1 = 0;
 					mon->_mgoalvar2 = random_(128, 2);
 				}
 				mon->_mgoal = MGOAL_MOVE;
-				if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+				if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 					mon->_mgoal = MGOAL_NORMAL;
 				} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) {
 					MonStartDelay(mnum, RandRange(10, 19));
@@ -3893,7 +3893,7 @@ void MAI_SkelKing(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 		if (mon->_mgoal == MGOAL_NORMAL) {
 			if (gbMaxPlayers == 1
-			    && (dist >= 3 && v < 4 * mon->_mint + 35 || v < 6)
+			    && ((dist >= 3 && v < 4 * mon->_mint + 35) || v < 6)
 			    && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				nx = mon->_mx + offset_x[md];
 				ny = mon->_my + offset_y[md];
@@ -3905,7 +3905,7 @@ void MAI_SkelKing(int mnum)
 				if (dist >= 2) {
 					v = random_(129, 100);
 					if (v >= mon->_mint + 25
-					    && (mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3 || mon->_mVar2 != 0 || (v >= mon->_mint + 75))) {
+					 && ((mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3) || mon->_mVar2 != 0 || (v >= mon->_mint + 75))) {
 						MonStartDelay(mnum, RandRange(10, 19));
 					} else {
 						MonCallWalk(mnum, md);
@@ -3940,7 +3940,7 @@ void MAI_Rhino(int mnum)
 		fy = mon->_menemyy;
 		dist = std::max(abs(mx - fx), abs(my - fy));
 		if (dist >= 2) {
-			if (mon->_mgoal == MGOAL_MOVE || dist >= 5 && random_(132, 4) != 0) {
+			if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 				if (mon->_mgoal != MGOAL_MOVE) {
 					mon->_mgoalvar1 = 0;
 					mon->_mgoalvar2 = random_(133, 2);
@@ -3968,7 +3968,7 @@ void MAI_Rhino(int mnum)
 				if (dist >= 2) {
 					v = random_(134, 100);
 					if (v >= 2 * mon->_mint + 33
-					    && (mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3
+					 && ((mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3)
 					           || mon->_mVar2 != 0
 					           || v >= 2 * mon->_mint + 83)) {
 						MonStartDelay(mnum, RandRange(10, 19));
@@ -4036,7 +4036,7 @@ void MAI_Horkdemon(int mnum)
 		} else {
 			v = random_(134, 100);
 			if (v < 2 * mon->_mint + 33
-			    || (mon->_mVar1 == 1 || mon->_mVar1 == 2 || mon->_mVar1 == 3) && mon->_mVar2 == 0 && v < 2 * mon->_mint + 83) {
+			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0 && v < 2 * mon->_mint + 83)) {
 				MonCallWalk(mnum, md);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
