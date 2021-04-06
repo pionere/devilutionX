@@ -97,9 +97,7 @@ void InitQuests()
 	}
 
 #ifdef _DEBUG
-	if (gbMaxPlayers == 1 && !allquests) {
-#else
-	if (gbMaxPlayers == 1) {
+	if (!allquests) {
 #endif
 		SetRndSeed(glSeedTbl[DLV_HELL3]);
 		if (random_(0, 2) != 0)
@@ -111,8 +109,8 @@ void InitQuests()
 		quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup4[random_(0, lengthof(QuestGroup4))]]._qactive = QUEST_NOTAVAIL;
-	}
 #ifdef _DEBUG
+	}
 	if (questdebug != -1)
 		quests[questdebug]._qactive = QUEST_ACTIVE;
 #endif
