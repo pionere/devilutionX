@@ -5,6 +5,7 @@
 
 #include "DiabloUI/art.h"
 #include "DiabloUI/ui_item.h"
+#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -35,6 +36,11 @@ extern Art ArtHero;
 
 extern void (*gfnSoundFunction)(const char *file);
 extern BOOL (*gfnHeroInfo)(BOOL (*fninfofunc)(_uiheroinfo *));
+
+inline SDL_Surface *DiabloUiSurface()
+{
+	return GetOutputSurface();
+}
 
 void UiFadeIn();
 void UiHandleEvents(SDL_Event *event);

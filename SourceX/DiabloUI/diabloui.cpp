@@ -570,7 +570,7 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 	fadeTc = 0;
 	fadeValue = 0;
 	BlackPalette();
-	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
+	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 	RenderPresent();
 }
 
@@ -605,7 +605,6 @@ void UiFadeIn()
 		}
 		SetFadeLevel(fadeValue);
 	}
-
 	RenderPresent();
 }
 
@@ -628,7 +627,7 @@ void DrawSelector(const SDL_Rect &rect)
 void UiClearScreen()
 {
 	if (SCREEN_WIDTH > 640) // Background size
-		SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
+		SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 }
 
 void UiPollAndRender()
