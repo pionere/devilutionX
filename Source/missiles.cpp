@@ -1066,7 +1066,7 @@ static bool PlrMissHit(int pnum, int mi)
 	if (mis->_miSource != -1) {
 		if (mis->_miCaster == 0) {
 			// player vs. player
-			return !gbFriendlyMode && pnum != mis->_miSource && Plr2PlrMHit(pnum, mi);
+			return plr[pnum]._pTeam != plr[mis->_miSource]._pTeam && Plr2PlrMHit(pnum, mi);
 		} else {
 			// monster vs. player
 			return PlayerMHit(pnum, mi);

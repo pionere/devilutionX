@@ -73,8 +73,6 @@ int dbgqst;
 int dbgmon;
 int arrowdebug;
 #endif
-/** Specifies whether players are in non-PvP mode. */
-bool gbFriendlyMode = true;
 /** Default controls. */
 // clang-format off
 BYTE WMButtonInputTransTbl[] = { ACT_NONE,
@@ -93,7 +91,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SKL0, ACT_SKLBOOK, ACT_CHAR, ACT_SKL2, ACT_SKL6, ACT_SKL3,
 // G,            H,                I,       J,        K,        L,        M,        N,        O,        P,
-  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_NONE, ACT_NONE, ACT_NONE, ACT_PAUSE,
+  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_NONE, ACT_PAUSE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
   ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_VER, ACT_SKL5, ACT_NONE, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
@@ -712,7 +710,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			}
 			return;
 		}
-		if (pcursplr != -1 && !gbFriendlyMode) {
+		if (pcursplr != -1 && plr[myplr]._pTeam != plr[pcursplr]._pTeam) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
 				NetSendCmdWBParam4(true, CMD_SPELLPID, pcursplr, atkSkill, asf, askl);
 			else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
@@ -864,7 +862,7 @@ static void ActionBtnDown(bool bShift)
 	assert(!gbDropGoldFlag);
 	assert(!gmenu_left_mouse(true));
 	assert(sgnTimeoutCurs == CURSOR_NONE);
-	assert(!gbTalkflag || !control_check_talk_btn());
+	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(!gbDeathflag);
 	assert(PauseMode != 2);
 	assert(!gbDoomflag);
@@ -922,6 +920,11 @@ static void ActionBtnDown(bool bShift)
 
 	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		SelectBookSkill(bShift, false);
+		return;
+	}
+
+	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		CheckTeamClick(bShift);
 		return;
 	}
 
@@ -985,6 +988,11 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
+	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		CheckTeamClick(bShift);
+		return;
+	}
+
 	AltActionBtnCmd(bShift);
 }
 
@@ -1027,8 +1035,6 @@ static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
 		gmenu_left_mouse(false);
-		if (gbTalkflag)
-			control_release_talk_btn();
 		if (gabPanbtn[PANBTN_MAINMENU])
 			CheckBtnUp();
 		if (gbChrbtnactive)
@@ -1094,18 +1100,25 @@ bool PressEscKey()
 	return rv;
 }
 
-static void ClearUI()
+void ClearPanels()
 {
 	gbHelpflag = false;
 	gbInvflag = false;
 	gbChrflag = false;
 	gbSbookflag = false;
+	gbTeamFlag = false;
 	gbSkillListFlag = false;
+	gbDropGoldFlag = false;
+	gbQuestlog = false;
+}
+
+static void ClearUI()
+{
+	ClearPanels();
 	if (gbQtextflag && currLvl._dType == DTYPE_TOWN) {
 		gbQtextflag = false;
 		stream_stop();
 	}
-	gbQuestlog = false;
 	gbAutomapflag = false;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
@@ -1223,29 +1236,11 @@ static void PressKey(int vkey)
 	case ACT_INV:
 		if (stextflag == STORE_NONE) {
 			HandlePanBtn(PANBTN_INVENTORY);
-			if (!gbInvflag || gbChrflag) {
-				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX + 160, MouseY);
-				}
-			} else {
-				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX - 160, MouseY);
-				}
-			}
 		}
 		break;
 	case ACT_CHAR:
 		if (stextflag == STORE_NONE) {
 			HandlePanBtn(PANBTN_CHARINFO);
-			if (!gbChrflag || gbInvflag) {
-				if (MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX - 160, MouseY);
-				}
-			} else {
-				if (MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-					SetCursorPos(MouseX + 160, MouseY);
-				}
-			}
 		}
 		break;
 	case ACT_SKLBOOK:
@@ -1289,12 +1284,6 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_CLEARUI:
-		if (!gbChrflag && gbInvflag && MouseX < 480 && MouseY < PANEL_TOP && PANELS_COVER) {
-			SetCursorPos(MouseX + 160, MouseY);
-		}
-		if (!gbInvflag && gbChrflag && MouseX > 160 && MouseY < PANEL_TOP && PANELS_COVER) {
-			SetCursorPos(MouseX - 160, MouseY);
-		}
 		ClearUI();
 		break;
 	case ACT_UP:
@@ -1346,6 +1335,11 @@ static void PressKey(int vkey)
 			QuestlogEnter();
 		} else {
 			control_type_message();
+		}
+		break;
+	case ACT_TEAM:
+		if (stextflag == STORE_NONE) {
+			HandlePanBtn(PANBTN_TEAMBOOK);
 		}
 		break;
 	case ACT_QUESTS:

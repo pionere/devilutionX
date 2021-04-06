@@ -724,6 +724,7 @@ bool PeekMessage(LPMSG lpMsg)
 				gbChrflag = false;
 				gbQuestlog = false;
 				gbSbookflag = false;
+				gbTeamFlag = false;
 				StoreSpellCoords();
 			}
 			break;
@@ -752,6 +753,7 @@ bool PeekMessage(LPMSG lpMsg)
 			} else {
 				gbSbookflag = false;
 				gbSkillListFlag = false;
+				gbTeamFlag = false;
 				gbInvflag = true;
 				if (pcurs == CURSOR_DISARM)
 					NewCursor(CURSOR_HAND);
@@ -762,6 +764,7 @@ bool PeekMessage(LPMSG lpMsg)
 			if (BlurInventory()) {
 				gbInvflag = false;
 				gbSkillListFlag = false;
+				gbTeamFlag = false;
 				gbSbookflag = !gbSbookflag;
 			}
 			break;

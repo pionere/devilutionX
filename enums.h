@@ -2869,7 +2869,6 @@ typedef enum _cmd_id {
 	CMD_CHESTCLOSE,
 	CMD_CHANGEPLRITEMS,
 	CMD_DELPLRITEMS,
-	CMD_PLRFRIENDY,
 	CMD_PLRDAMAGE,
 	CMD_PLRLEVEL,
 	CMD_PLRSKILLLVL,
@@ -2885,6 +2884,11 @@ typedef enum _cmd_id {
 	CMD_DLEVEL_END,
 	//CMD_HEALOTHER,
 	CMD_STRING,
+	CMD_INVITE,
+	CMD_ACK_INVITE,
+	CMD_DEC_INVITE,
+	CMD_REV_INVITE,
+	CMD_KICK_PLR,
 	//CMD_SETSTR,
 	//CMD_SETMAG,
 	//CMD_SETDEX,
@@ -2985,15 +2989,16 @@ typedef enum panel_button_id {
 	PANBTN_QLOG,
 	PANBTN_AUTOMAP,
 	PANBTN_SENDMSG,
-	PANBTN_FRIENDLY,
+	PANBTN_TEAMBOOK,
 	NUM_PANBTNS
 } panel_button_id;
 
 typedef enum attribute_id {
-	ATTRIB_STR = 0,
-	ATTRIB_MAG = 1,
-	ATTRIB_DEX = 2,
-	ATTRIB_VIT = 3,
+	ATTRIB_STR,
+	ATTRIB_MAG,
+	ATTRIB_DEX,
+	ATTRIB_VIT,
+	NUM_ATTRIBS
 } attribute_id;
 
 typedef enum _object_id {
@@ -3818,6 +3823,7 @@ typedef enum input_key {
 	ACT_PGUP,
 	ACT_PGDOWN,
 	ACT_RETURN,
+	ACT_TEAM,
 	ACT_QUESTS,
 	ACT_MSG0,
 	ACT_MSG1,

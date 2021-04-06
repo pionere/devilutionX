@@ -8,59 +8,79 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE sgbNextTalkSave;
-BYTE sgbTalkSavePos;
-BYTE *pDurIcons;
-BYTE *pChrButtons;
-bool gbDropGoldFlag;
-int initialDropGoldIndex;
-int initialDropGoldValue;
-int dropGoldValue;
-bool gabPanbtn[NUM_PANBTNS];
-bool _gabChrbtn[4];
+/** Menu button images CEL */
 BYTE *pPanelButtons;
-BYTE *pChrPanel;
-bool gbLvlbtndown;
-char sgszTalkSave[8][MAX_SEND_STR_LEN];
-bool gbChrbtnactive;
-char sgszTalkMsg[MAX_SEND_STR_LEN];
-BYTE *pPanelText;
-BYTE *pFlasks;
-BYTE *pTalkPnl;
-BYTE *pTalkBtns;
-bool _gabTalkbtndown[MAX_PLRS - 1];
-int _guTalkMask;
-/**
- * The 'highlighted' skill in the Skill-List or in the Spell-Book.
- */
-BYTE currSkill;
-/**
- * The type of the 'highlighted' skill in the Skill-List or in the Spell-Book.
- */
-BYTE currSkillType;
-BYTE infoclr;
-BYTE *pGBoxBuff;
-char tempstr[256];
-/**
- * The current tab in the Spell-Book.
- */
-int sbooktab;
-/**
- * Specifies whether the Chat-Panel is displayed.
- */
-bool gbTalkflag;
-BYTE *pSBkIconCels;
-/**
- * Specifies whether the Spell-Book is displayed.
- */
-bool gbSbookflag;
-/**
- * Specifies whether the Character-Panel is displayed.
- */
-bool gbChrflag;
-BYTE *pSpellBkCel;
-char infostr[256];
+/** The number of buttons in the menu. */
 int numpanbtns;
+/** Specifies whether the menu-button is pressed. */
+bool gabPanbtn[NUM_PANBTNS];
+/** Specifies whether the LevelUp-button is pressed. */
+bool gbLvlbtndown;
+/** Small-Text images CEL */
+BYTE *pPanelText;
+/** Flask images CEL */
+BYTE *pFlasks;
+/** Low-Durability images CEL */
+BYTE *pDurIcons;
+
+/** Specifies whether the Team-Panel is displayed. */
+bool gbTeamFlag;
+/** The current tab in the Team-Book. */
+unsigned guTeamTab;
+static_assert(MAX_PLRS < sizeof(int) * CHAR_BIT, "Players mask is used to maintain the team information.");
+/** The mask of players who invited to their team. */
+unsigned guTeamInviteRec;
+/** The mask of players who were invited to the current players team. */
+unsigned guTeamInviteSent;
+/** The mask of players who were muted. */
+unsigned guTeamMute;
+
+/** Specifies whether the Chat-Panel is displayed. */
+bool gbTalkflag;
+/** Chat-Panel background CEL */
+BYTE *pTalkPnl;
+/** Chat-Panel button images CEL */
+BYTE *pTalkBtns;
+/** The current message in the Chat-Panel. */
+char sgszTalkMsg[MAX_SEND_STR_LEN];
+/** The cached messages of the Chat-Panel. */
+char sgszTalkSave[8][MAX_SEND_STR_LEN];
+/** The next position in the sgszTalkSave to save the message. */
+BYTE sgbNextTalkSave;
+/** The index of selected message in the sgszTalkSave array. */
+BYTE sgbTalkSavePos;
+/** Specifies whether the Golddrop is displayed. */
+bool gbDropGoldFlag;
+/** Golddrop background CEL */
+BYTE *pGBoxBuff;
+/** The gold-stack index which is used as a source in Golddrop. */
+int initialDropGoldIndex;
+/** The gold-stack size which is used as a source in Golddrop. */
+int initialDropGoldValue;
+/** The current value in Golddrop. */
+int dropGoldValue;
+BYTE infoclr;
+char tempstr[256];
+char infostr[256];
+/**Specifies whether the Spell-Book is displayed. */
+bool gbSbookflag;
+/** SpellBook background CEL */
+BYTE *pSpellBkCel;
+/** SpellBook icons CEL */
+BYTE *pSBkIconCels;
+/** The current tab in the Spell-Book. */
+unsigned guBooktab;
+/** Specifies whether the Character-Panel is displayed. */
+bool gbChrflag;
+/** Char-Panel background CEL */
+BYTE *pChrPanel;
+/** Char-Panel button images CEL */
+BYTE *pChrButtons;
+/** Specifies whether the button of the given attribute is pressed on Character-Panel. */
+bool _gabChrbtn[NUM_ATTRIBS];
+/** Specifies whether any attribute-button is pressed on Character-Panel. */
+bool gbChrbtnactive;
+
 BYTE SplTransTbl[256];
 static_assert(RSPLTYPE_CHARGES != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_SCROLL != -1, "Cached value of spellTrans must not be -1.");
@@ -68,14 +88,15 @@ static_assert(RSPLTYPE_ABILITY != -1, "Cached value of spellTrans must not be -1
 static_assert(RSPLTYPE_SPELL != -1, "Cached value of spellTrans must not be -1.");
 static_assert(RSPLTYPE_INVALID != -1, "Cached value of spellTrans must not be -1.");
 char lastSt = -1;
-BYTE *pSpellCels;
-/**
- * Specifies whether the Skill-List is displayed.
- */
+/** Specifies whether the Skill-List is displayed. */
 bool gbSkillListFlag;
-/**
- * Specifies whether the cursor should be moved to the active skill in the Skill-List.
- */
+/** Skill-List images CEL */
+BYTE *pSpellCels;
+/** The 'highlighted' skill in the Skill-List or in the Spell-Book. */
+BYTE currSkill;
+/** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
+BYTE currSkillType;
+/** Specifies whether the cursor should be moved to the active skill in the Skill-List. */
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 BYTE _gbMoveCursor = 0;
 #endif
@@ -143,7 +164,7 @@ const int PanBtnPos[NUM_PANBTNS][2] = {
 	{   0, 20 + 5 * MENUBTN_HEIGHT }, // quests button
 	{   0, 20 + 6 * MENUBTN_HEIGHT }, // map button
 	{   0, 20 + 7 * MENUBTN_HEIGHT }, // chat button
-	{   0, 20 + 8 * MENUBTN_HEIGHT }, // pvp button
+	{   0, 20 + 8 * MENUBTN_HEIGHT }, // teams button
 	// clang-format on
 };
 const char *PanBtnTxt[NUM_PANBTNS] = {
@@ -156,11 +177,11 @@ const char *PanBtnTxt[NUM_PANBTNS] = {
 	"Quests",
 	"Map",
 	"Chat",
-	"PvP"
+	"Teams"
 	// clang-format on
 };
 /** Maps from attribute_id to the rectangle on screen used for attribute increment buttons. */
-const RECT32 ChrBtnsRect[4] = {
+const RECT32 ChrBtnsRect[NUM_ATTRIBS] = {
 	// clang-format off
 	{ 132, 102, CHRBTN_WIDTH, CHRBTN_HEIGHT },
 	{ 132, 130, CHRBTN_WIDTH, CHRBTN_HEIGHT },
@@ -170,13 +191,20 @@ const RECT32 ChrBtnsRect[4] = {
 };
 
 /** Maps from spellbook page number and position to spell_id. */
-int SpellPages[SPLBOOKTABS][7] = {
+#define NUM_BOOK_ENTRIES 7
+int SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	{ SPL_NULL, SPL_SWIPE, SPL_FIREBOLT, SPL_FIREBALL, SPL_FIREWALL, SPL_WAVE, SPL_FLAME },
 	{ SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_CBOLT, SPL_LIGHTNING, SPL_FLASH, SPL_NOVA, SPL_CHAIN },
 	{ SPL_HBOLT, SPL_FLARE, SPL_ELEMENT, SPL_STONE, SPL_TELEKINESIS, SPL_GOLEM, SPL_GUARDIAN },
 	{ SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN, SPL_RESURRECT },
 #ifdef HELLFIRE
 	{ SPL_IMMOLAT, SPL_FIRERING, SPL_LIGHTWALL, SPL_RUNEFIRE, SPL_RUNEIMMOLAT, SPL_RUNELIGHT, SPL_RUNENOVA },
+#endif
+};
+/** Maps from player-class to team-icon id. */
+int ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
+#ifdef HELLFIRE
+	41, 9, 38,
 #endif
 };
 
@@ -921,13 +949,14 @@ void InitControlPan()
 #endif
 	SetSpellTrans(RSPLTYPE_ABILITY);
 	gbTalkflag = false;
+	gbTeamFlag = false;
+	guTeamInviteRec = 0;
+	guTeamInviteSent = 0;
+	guTeamMute = 0;
+	sgszTalkMsg[0] = '\0';
 	if (gbMaxPlayers != 1) {
 		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL", NULL);
 		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
-		sgszTalkMsg[0] = '\0';
-		_guTalkMask = -1;
-		for (i = 0; i < lengthof(_gabTalkbtndown); i++)
-			_gabTalkbtndown[i] = false;
 	}
 	gbLvlbtndown = false;
 	pPanelButtons = LoadFileInMem("CtrlPan\\Menu.CEL", NULL);
@@ -945,7 +974,7 @@ void InitControlPan()
 	gbSkillListFlag = false;
 	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL", NULL);
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL", NULL);
-	sbooktab = 0;
+	guBooktab = 0;
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[plr[myplr]._pClass];
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL", NULL);
@@ -964,7 +993,6 @@ void DrawCtrlBtns()
 {
 	int i, x, y;
 	bool pb;
-	const char* text;
 
 	i = 0;
 	x = SCREEN_X + PanBtnPos[i][0];
@@ -978,10 +1006,7 @@ void DrawCtrlBtns()
 		pb = gabPanbtn[i];
 		CelDraw(x, y + 18, pPanelButtons, 1, 71);
 		// print the text of the button
-		text = PanBtnTxt[i];
-		if (i == PANBTN_FRIENDLY)
-			text = gbFriendlyMode ? "PvP:Off" : "PvP:On";
-		PrintString(x + 3, y + 15, x + 70, text, true, pb ? COL_GOLD : COL_WHITE, 1);
+		PrintString(x + 3, y + 15, x + 70, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, 1);
 	}
 }
 
@@ -1004,11 +1029,7 @@ void DoSkillList(bool altSkill)
 void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
-		gbInvflag = false;
-		gbChrflag = false;
-		gbQuestlog = false;
-		gbSbookflag = false;
-		gbHelpflag = false;
+		ClearPanels();
 		DoSkillList(altSkill);
 	} else {
 		gbSkillListFlag = false;
@@ -1107,10 +1128,12 @@ void HandlePanBtn(int i)
 	case PANBTN_INVENTORY:
 		gbSbookflag = false;
 		gbSkillListFlag = false;
+		gbTeamFlag = false;
 		gbInvflag = !gbInvflag;
 		break;
 	case PANBTN_SPELLBOOK:
 		gbInvflag = false;
+		gbTeamFlag = false;
 		gbSkillListFlag = false;
 		gbSbookflag = !gbSbookflag;
 		break;
@@ -1131,9 +1154,11 @@ void HandlePanBtn(int i)
 		else
 			control_type_message();
 		break;
-	case PANBTN_FRIENDLY:
-		gbFriendlyMode = !gbFriendlyMode;
-		NetSendCmdBParam1(TRUE, CMD_PLRFRIENDY, gbFriendlyMode);
+	case PANBTN_TEAMBOOK:
+		gbInvflag = false;
+		gbSkillListFlag = false;
+		gbSbookflag = false;
+		gbTeamFlag = !gbTeamFlag;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1526,14 +1551,6 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	if (!gbZoomflag) {
 		px <<= 1;
 		py <<= 1;
-	}
-
-	if (PANELS_COVER) {
-		if (gbChrflag | gbQuestlog) {
-			px += SPANEL_WIDTH / 2;
-		} else if (gbInvflag | gbSbookflag) {
-			px -= SPANEL_WIDTH / 2;
-		}
 	}
 
 	px += SCREEN_WIDTH / 2;
@@ -2002,7 +2019,7 @@ void DrawSpellBook()
 	// back panel
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
 	// selected page
-	snprintf(tempstr, sizeof(tempstr), "%d.", sbooktab + 1);
+	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
 	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
 	currSkill = SPL_INVALID;
@@ -2012,8 +2029,8 @@ void DrawSpellBook()
 
 	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
-	for (i = 0; i < lengthof(SpellPages[sbooktab]); i++) {
-		sn = SpellPages[sbooktab][i];
+	for (i = 0; i < lengthof(SpellPages[guBooktab]); i++) {
+		sn = SpellPages[guBooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
 			if (MouseX >= sx - BORDER_LEFT
@@ -2090,20 +2107,20 @@ void SelectBookSkill(bool shift, bool altSkill)
 	if (dy < 0)
 		return;
 
-	if (dy >= lengthof(SpellPages[sbooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
+	if (dy >= lengthof(SpellPages[guBooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
 		if (dx <= SBOOK_PAGER_WIDTH * 2) {
 			if (dx <= SBOOK_PAGER_WIDTH) {
-				sbooktab = 0;
+				guBooktab = 0;
 			} else {
-				if (sbooktab != 0)
-					sbooktab--;
+				if (guBooktab != 0)
+					guBooktab--;
 			}
 		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
 			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
-				sbooktab = SPLBOOKTABS - 1;
+				guBooktab = SPLBOOKTABS - 1;
 			} else {
-				if (sbooktab < SPLBOOKTABS - 1)
-					sbooktab++;
+				if (guBooktab < SPLBOOKTABS - 1)
+					guBooktab++;
 			}
 		}
 	}
@@ -2206,9 +2223,189 @@ void control_drop_gold(char vkey)
 	gbDropGoldFlag = false;
 }
 
+static void DrawTeamButton(int x, int y, int width, bool pressed, const char* label, int txtoff)
+{
+	const int height = 12;
+	BYTE* dst;
+	int color;
+
+	// draw gray border
+	color = pressed ? PAL16_GRAY + 8 : PAL16_GRAY + 6;
+	dst = &gpBuffer[SCREENXY(x - SCREEN_X, y - height - SCREEN_Y)];
+	for (int i = 0; i < height; i++, dst += BUFFER_WIDTH)
+		memset(dst, color, width);
+
+	// draw background
+	color = pressed ? PAL16_ORANGE + 8 : PAL16_ORANGE + 10;
+	dst = &gpBuffer[SCREENXY(x - SCREEN_X + 1, y - height - SCREEN_Y + 1)];
+	for (int i = 0; i < height - 2; i++, dst += BUFFER_WIDTH)
+		memset(dst, color, width - 2);
+
+	// label
+	color = pressed ? COL_GOLD : COL_WHITE;
+	x += txtoff;
+	PrintString(x, y - 1, x + SBOOK_LINE_LENGTH, label, false, color, 1);
+}
+
+static bool PlrHasTeam()
+{
+	int i;
+
+	for (i = 0; i < MAX_PLRS; i++)
+		if (i != myplr && plr[i]._pTeam == plr[myplr]._pTeam && plr[i].plractive)
+			return true;
+	return false;
+}
+
+#define TBOOK_BTN_WIDTH	60
+#define TBOOKTABS		((MAX_PLRS + NUM_BOOK_ENTRIES - 1) / NUM_BOOK_ENTRIES)
+void DrawTeamBook()
+{
+	PlayerStruct* p;
+	int i, pnum, sx, yp;
+	bool hasTeam;
+
+	// back panel
+	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
+	// selected page
+	snprintf(tempstr, sizeof(tempstr), "%d.", guTeamTab + 1);
+	PrintString(RIGHT_PANEL_X + 2, SCREEN_Y + SPANEL_HEIGHT - 7, RIGHT_PANEL_X + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
+
+	hasTeam = PlrHasTeam();
+
+	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
+	sx = RIGHT_PANEL_X + SBOOK_CELBORDER;
+	for (i = 0; i < NUM_BOOK_ENTRIES; i++) {
+		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
+		if (pnum >= MAX_PLRS)
+			break;
+		p = &plr[pnum];
+		if (!p->plractive)
+			continue;
+		// name
+		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, p->_pName, false, COL_WHITE, 0);
+		// class(level) - team
+		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
+		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[p->_pClass], p->_pLevel, 'a' + p->_pTeam);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 13, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
+
+		// mute
+		if (pnum != myplr) {
+			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 24, TBOOK_BTN_WIDTH,
+				(guTeamMute & (1 << pnum)) != 0, "mute", 10);
+		}
+
+		// drop/leave
+		if (hasTeam && (pnum == myplr || p->_pTeam == myplr)) {
+			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
+				pnum == myplr ? "leave" : "drop", pnum == myplr ? 8 : 12);
+		}
+
+		// accept/reject
+		if (guTeamInviteRec & (1 << pnum)) {
+			DrawTeamButton(sx + SBOOK_LINE_TAB, yp, TBOOK_BTN_WIDTH,
+				false, "accept", 2);
+			DrawTeamButton(sx + SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10, yp, TBOOK_BTN_WIDTH,
+				false, "reject", 6);
+		}
+
+		// invite/cancel
+		if (pnum != myplr && plr[pnum]._pTeam != plr[myplr]._pTeam && plr[myplr]._pTeam == myplr) {
+			unsigned invited = (guTeamInviteSent & (1 << pnum));
+			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
+				!invited ? "invite" : "cancel", !invited ? 7 : 2);
+		}
+
+		// icon
+		DrawSpellCel(sx, yp, pSBkIconCels, ClassIconTbl[p->_pClass], SBOOK_CELWIDTH);
+
+		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
+	}
+}
+
+void CheckTeamClick(bool shift)
+{
+	int dx, dy;
+
+	dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
+	if (dx < 0)
+		return;
+	dy = MouseY - SBOOK_TOP_BORDER;
+	if (dy < 0)
+		return;
+
+	if (dy < NUM_BOOK_ENTRIES * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
+		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+		pnum += guTeamTab * NUM_BOOK_ENTRIES;
+		if (pnum >= MAX_PLRS || !plr[pnum].plractive)
+			return;
+		if (dx <= SBOOK_CELWIDTH) {
+			// clicked on the icon
+			if (!gbTalkflag)
+				control_type_message();
+			if (!shift) {
+				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/p%d ", pnum);
+			} else {
+				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", plr[pnum]._pTeam);
+			}
+		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
+		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
+			// clicked on the right column of buttons
+			dy = 3 * dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+			if (dy == 0) {
+				// mute
+				if (pnum != myplr)
+					guTeamMute ^= (1 << pnum);
+			} else if (dy == 1) {
+				// drop/leave
+				if (PlrHasTeam() && (pnum == myplr || plr[pnum]._pTeam == myplr))
+					NetSendCmdBParam1(false, CMD_KICK_PLR, pnum);
+			} else /*if (dy == 2)*/ {
+				// invite/cancel
+				if (pnum != myplr && plr[pnum]._pTeam != plr[myplr]._pTeam && plr[myplr]._pTeam == myplr) {
+					if (guTeamInviteSent & (1 << pnum)) {
+						NetSendCmdBParam1(false, CMD_REV_INVITE, pnum);
+					} else {
+						NetSendCmdBParam1(false, CMD_INVITE, pnum);
+					}
+					guTeamInviteSent ^= (1 << pnum);
+				}
+			}
+		} else if (dy >= (2 * (SBOOK_CELBORDER + SBOOK_CELHEIGHT) / 3)) {
+			if (guTeamInviteRec & (1 << pnum)) {
+				if (dx > SBOOK_LINE_TAB && dx < SBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
+					// accept (invite)
+					NetSendCmdBParam1(false, CMD_ACK_INVITE, pnum);
+				} else if (dx > SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < SBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
+					// reject (invite)
+					NetSendCmdBParam1(false, CMD_DEC_INVITE, pnum);
+				}
+				guTeamInviteRec &= ~(1 << pnum);
+			}
+		}
+	} else {
+		if (dx <= SBOOK_PAGER_WIDTH * 2) {
+			if (dx <= SBOOK_PAGER_WIDTH) {
+				guTeamTab = 0;
+			} else {
+				if (guTeamTab != 0)
+					guTeamTab--;
+			}
+		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
+			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
+				guTeamTab = TBOOKTABS - 1;
+			} else {
+				if (guTeamTab < TBOOKTABS - 1)
+					guTeamTab++;
+			}
+		}
+	}
+}
+
 #define TALK_PNL_WIDTH		302
-#define TALK_PNL_HEIGHT		116
-#define TALK_PNL_TOP		(SCREEN_HEIGHT - 8 - TALK_PNL_HEIGHT)
+#define TALK_PNL_HEIGHT		51
+#define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
 #define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
 static char *control_print_talk_msg(char *msg, int *x, int y, int color)
 {
@@ -2230,7 +2427,7 @@ static char *control_print_talk_msg(char *msg, int *x, int y, int color)
 
 void DrawTalkPan()
 {
-	int i, talk_btn, color, nCel, x, y;
+	int x, y;
 	char *msg;
 
 	assert(gbTalkflag);
@@ -2253,74 +2450,10 @@ void DrawTalkPan()
 	if (msg != NULL)
 		*msg = '\0';
 	CelDraw(x, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
-
-	// add the party members
-	sy += 61;
-	talk_btn = 0;
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (i == myplr)
-			continue;
-		if (_guTalkMask & (1 << i)) {
-			color = COL_GOLD;
-			nCel = 0;
-		} else {
-			color = COL_RED;
-			nCel = 2;
-		}
-		if (_gabTalkbtndown[talk_btn])
-			nCel += 4;
-		if (nCel != 0)
-			CelDraw(sx + 3, sy + 2, pTalkBtns, nCel, 61);
-		if (plr[i].plractive) {
-			x = sx + 31 + 46;
-			control_print_talk_msg(plr[i]._pName, &x, sy, color);
-		}
-		sy += 18;
-		talk_btn++;
-	}
-}
-
-bool control_check_talk_btn()
-{
-	int i;
-
-	if (MouseX < TALK_PNL_LEFT + 3 || MouseX > TALK_PNL_LEFT + 64)
-		return false;
-	if (MouseY < TALK_PNL_TOP + 65 || MouseY > TALK_PNL_TOP + 65 + 18 * lengthof(_gabTalkbtndown))
-		return false;
-
-	for (i = 0; i < lengthof(_gabTalkbtndown); i++) {
-		_gabTalkbtndown[i] = false;
-	}
-
-	_gabTalkbtndown[(MouseY - (TALK_PNL_TOP + 65)) / 18] = true;
-
-	return true;
-}
-
-void control_release_talk_btn()
-{
-	int i, y;
-
-	if (MouseX >= TALK_PNL_LEFT + 3  && MouseX <= TALK_PNL_LEFT + 64) {
-		y = MouseY - (TALK_PNL_TOP + 65);
-		for (i = 0; i < lengthof(_gabTalkbtndown); i++, y -= 18) {
-			if (_gabTalkbtndown[i] && y >= 0 && y <= 18) {
-				if (i >= myplr)
-					i++;
-				_guTalkMask ^= (1 << i);
-			}
-		}
-	}
-	for (i = 0; i < lengthof(_gabTalkbtndown); i++) {
-		_gabTalkbtndown[i] = false;
-	}
 }
 
 void control_type_message()
 {
-	int i;
-
 	if (gbMaxPlayers == 1) {
 		return;
 	}
@@ -2328,9 +2461,6 @@ void control_type_message()
 	gbTalkflag = true;
 	SDL_StartTextInput();
 	sgszTalkMsg[0] = '\0';
-	for (i = 0; i < lengthof(_gabTalkbtndown); i++) {
-		_gabTalkbtndown[i] = false;
-	}
 	//gbRedrawFlags = REDRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 }
@@ -2344,19 +2474,42 @@ void control_reset_talk()
 
 static void control_press_enter()
 {
-	int i, pmask;
+	int i, team, pmask;
 	BYTE talk_save;
 	char* msg;
 
-	pmask = _guTalkMask;
+	pmask = -1;
 	msg = sgszTalkMsg;
 	if (msg[0] == '/') {
 		if (msg[1] == 'p') {
+			// "/pX msg" -> send message to player X
 			i = strtol(&msg[2], &msg, 10);
 			if (msg != &sgszTalkMsg[2]) {
 				pmask = 1 << i;
 				if (*msg == ' ') {
 					msg++;
+				}
+			} else {
+				msg = sgszTalkMsg;
+			}
+		} else if (msg[1] == 't') {
+			team = -1;
+			if (msg[2] == ' ') {
+				// "/t msg" -> send message to the player's team
+				team = plr[myplr]._pTeam;
+			} else {
+				// "/tX msg" -> send message to the team N
+				team= strtol(&msg[2], &msg, 10);
+				if (msg == &sgszTalkMsg[2]) {
+					team = -1;
+					msg = sgszTalkMsg;
+				}
+			}
+			if (team!= -1) {
+				pmask = 0;
+				for (i = 0; i < MAX_PLRS; i++) {
+					if (plr[i]._pTeam == team)
+						pmask |= 1 << i;
 				}
 			}
 		}
@@ -2399,7 +2552,7 @@ bool control_talk_last_key(int vkey)
 		return false;
 
 	result = strlen(sgszTalkMsg);
-	if (result < 78) {
+	if (result < sizeof(sgszTalkMsg) - 1) {
 		sgszTalkMsg[result] = vkey;
 		sgszTalkMsg[result + 1] = '\0';
 	}
@@ -2439,7 +2592,7 @@ bool control_presskeys(int vkey)
 	} else if (vkey == DVL_VK_UP) {
 		control_up_down(-1);
 	} else if (vkey == DVL_VK_LBUTTON) {
-		return control_check_talk_btn();
+		return false;
 	} else if (vkey == DVL_VK_RBUTTON) {
 		return false;
 	}

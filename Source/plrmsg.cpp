@@ -63,7 +63,7 @@ void SendPlrMsg(int pnum, const char *pszStr)
 	strlen(plr[pnum]._pName); /* these are used in debug */
 	strlen(pszStr);
 #endif
-	snprintf(pMsg->str, sizeof(pMsg->str), "%s (lvl %d): %s", plr[pnum]._pName, plr[pnum]._pLevel, pszStr);
+	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr[pnum]._pName, pszStr);
 }
 
 void ClearPlrMsg()
@@ -133,11 +133,11 @@ void DrawPlrMsg()
 	unsigned width = SCREEN_WIDTH - 20;
 	_plrmsg *pMsg;
 
-	if (gbChrflag || gbQuestlog) {
+	if (gbChrflag | gbQuestlog) {
 		x += SPANEL_WIDTH;
 		width -= SPANEL_WIDTH;
 	}
-	if (gbInvflag || gbSbookflag)
+	if (gbInvflag | gbSbookflag | gbTeamFlag)
 		width -= SPANEL_WIDTH;
 
 	if (width < 300)

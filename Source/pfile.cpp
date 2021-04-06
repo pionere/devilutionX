@@ -162,22 +162,6 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool 
 	heroinfo->herorank = p->_pDiabloKillLevel;
 }
 
-void pfile_create_player_description()
-{
-	//char desc[128];
-	_uiheroinfo uihero;
-
-	myplr = 0;
-	pfile_read_player_from_save();
-	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
-	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
-
-	/*if (dst != NULL && len != 0) {
-		UiCreatePlayerDescription(&uihero, GAME_ID, desc);
-		SStrCopy(dst, desc, len);
-	}*/
-}
-
 /*bool pfile_rename_hero(const char *name_1, const char *name_2)
 {
 	int i;
@@ -322,7 +306,7 @@ void pfile_delete_save(_uiheroinfo *hero_info)
 	}
 }
 
-void pfile_read_player_from_save()
+static void pfile_read_player_from_save()
 {
 	HANDLE archive;
 	unsigned save_num;
@@ -335,9 +319,26 @@ void pfile_read_player_from_save()
 	if (!pfile_read_hero(archive, &pkplr))
 		app_fatal("Unable to load character");
 
-	UnPackPlayer(&pkplr, myplr);
+	UnPackPlayer(&pkplr, 0); // myplr
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	pfile_SFileCloseArchive(archive);
+}
+
+void pfile_create_player_description()
+{
+	//char desc[128];
+	_uiheroinfo uihero;
+
+	pfile_read_player_from_save();
+	myplr = 0;
+	plr[0]._pTeam = 0;
+	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
+	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
+
+	/*if (dst != NULL && len != 0) {
+		UiCreatePlayerDescription(&uihero, GAME_ID, desc);
+		SStrCopy(dst, desc, len);
+	}*/
 }
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])

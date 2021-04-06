@@ -222,6 +222,25 @@ void multi_msg_countdown()
 	}
 }
 
+/**
+ * Re-assign players from a team to the first available one.
+ * @param pnum the team to disband
+ */
+void multi_disband_team(int pnum)
+{
+	int i, team;
+
+	team = -1;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (i == pnum || plr[i]._pTeam != pnum)
+			continue;
+		if (team == -1) {
+			team = i;
+		}
+		plr[i]._pTeam = team;
+	}
+}
+
 static void multi_player_left_msg(int pnum, bool left)
 {
 	const char *pszFmt;
@@ -230,6 +249,7 @@ static void multi_player_left_msg(int pnum, bool left)
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
+		multi_disband_team(pnum);
 		if (plr[pnum].plrlevel == currLvl._dLevelIdx) {
 			AddUnLight(plr[pnum]._plid);
 			AddUnVision(plr[pnum]._pvid);
@@ -251,6 +271,9 @@ static void multi_player_left_msg(int pnum, bool left)
 		}
 		plr[pnum].plractive = FALSE;
 		plr[pnum]._pName[0] = '\0';
+		guTeamInviteRec &= ~(1 << pnum);
+		guTeamInviteSent &= ~(1 << pnum);
+		guTeamMute &= ~(1 << pnum);
 		gbActivePlayers--;
 	}
 }
@@ -667,6 +690,7 @@ static bool multi_init_game(bool bSinglePlayer)
 			if (myplr != playerId) {
 				copy_pod(plr[playerId], plr[myplr]);
 				myplr = playerId;
+				plr[myplr]._pTeam = myplr;
 				//pfile_read_player_from_save();
 			}
 			gbJoinGame = true;
@@ -719,6 +743,7 @@ bool NetInit(bool bSinglePlayer)
 		multi_send_pinfo(-2, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
 		plr[myplr].plractive = TRUE;
+		assert(plr[myplr]._pTeam == myplr);
 		if (!gbJoinGame || msg_wait_resync())
 			break;
 		NetClose();

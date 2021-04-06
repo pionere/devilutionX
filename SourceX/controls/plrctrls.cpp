@@ -321,11 +321,11 @@ void CheckPlayerNearby()
 	int spl = plr[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = plr[myplr]._pAltMoveSkill;
-	if (gbFriendlyMode && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
-		return;
 
 	for (int i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
+			continue;
+		if (plr[i]._pTeam == plr[myplr]._pTeam && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
 			continue;
 		const int mx = plr[i]._pfutx;
 		const int my = plr[i]._pfuty;
@@ -440,7 +440,7 @@ void Interact()
 		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
 			NetSendCmdParam3(true, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
-		else if (pcursplr != -1 && !gbFriendlyMode)
+		else if (pcursplr != -1 && plr[myplr]._pTeam != plr[pcursplr]._pTeam)
 			NetSendCmdBParam3(true, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
 	}
 }
@@ -790,11 +790,11 @@ void SpellBookMove(AxisDirection dir)
 	dir = repeater.Get(dir);
 
 	if (dir.x == AxisDirectionX_LEFT) {
-		if (sbooktab > 0)
-			sbooktab--;
+		if (guBooktab > 0)
+			guBooktab--;
 	} else if (dir.x == AxisDirectionX_RIGHT) {
-		if (sbooktab < SPLBOOKTABS - 1)
-			sbooktab++;
+		if (guBooktab < SPLBOOKTABS - 1)
+			guBooktab++;
 	}
 }
 
@@ -1157,6 +1157,17 @@ void PerformPrimaryAction()
 		return;
 	}
 
+	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		SelectBookSkill(false, false);
+		return;
+	}
+
+	if (gbTeamFlag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
+		// in team panel
+		CheckTeamClick(false);
+		return;
+	}
+
 	if (gbSkillListFlag) {
 		SetSkill(false, false);
 		return;
@@ -1216,7 +1227,7 @@ bool TryDropItem()
 
 void PerformSpellAction()
 {
-	if (InGameMenu() || gbQuestlog || gbSbookflag)
+	if (InGameMenu() || gbQuestlog || gbSbookflag || gbTeamFlag)
 		return;
 
 	if (gbSkillListFlag) {

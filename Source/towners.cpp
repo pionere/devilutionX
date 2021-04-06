@@ -486,11 +486,7 @@ static void TownerTalk(int store, int talk)
 
 	_guCowClicks = 0;
 	_guCowMsg = 0;
-	gbSbookflag = false;
-	gbInvflag = false;
-	gbChrflag = false;
-	gbQuestlog = false;
-	gbDropGoldFlag = false; // should not be necessary, but ...
+	ClearPanels();
 	InitQTextMsg(talk);
 	StartStore(store);
 }

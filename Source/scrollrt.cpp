@@ -887,17 +887,6 @@ static void Zoom()
 	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
-	if (PANELS_COVER) {
-		if (gbChrflag || gbQuestlog) {
-			wdt >>= 1;
-			nSrcOff -= wdt;
-		} else if (gbInvflag || gbSbookflag) {
-			wdt >>= 1;
-			nSrcOff -= wdt;
-			nDstOff -= SPANEL_WIDTH;
-		}
-	}
-
 	BYTE *src = &gpBuffer[nSrcOff];
 	BYTE *dst = &gpBuffer[nDstOff];
 
@@ -1072,33 +1061,6 @@ static void DrawGame()
 	x += tileShiftX;
 	y += tileShiftY;
 
-	// Skip rendering parts covered by the panels
-	if (PANELS_COVER) {
-		if (gbZoomflag) {
-			if (gbChrflag || gbQuestlog) {
-				ShiftGrid(&x, &y, 2, 0);
-				columns -= 4;
-				sx += SPANEL_WIDTH - TILE_WIDTH / 2;
-			}
-			if (gbInvflag || gbSbookflag) {
-				ShiftGrid(&x, &y, 2, 0);
-				columns -= 4;
-				sx += -TILE_WIDTH / 2;
-			}
-		} else {
-			if (gbChrflag || gbQuestlog) {
-				ShiftGrid(&x, &y, 1, 0);
-				columns -= 2;
-				sx += -TILE_WIDTH / 2 / 2; // SPANEL_WIDTH accounted for in Zoom()
-			}
-			if (gbInvflag || gbSbookflag) {
-				ShiftGrid(&x, &y, 1, 0);
-				columns -= 2;
-				sx += -TILE_WIDTH / 2 / 2;
-			}
-		}
-	}
-
 	// Draw areas moving in and out of the screen
 	switch (ScrollInfo._sdir) {
 	case SDIR_NONE:
@@ -1179,6 +1141,8 @@ static void DrawView()
 		DrawInv();
 	} else if (gbSbookflag) {
 		DrawSpellBook();
+	} else if (gbTeamFlag) {
+		DrawTeamBook();
 	}
 
 	DrawDurIcon();

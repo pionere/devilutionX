@@ -29,6 +29,7 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
 void multi_msg_countdown();
 void multi_player_left(int pnum, int reason);
+void multi_disband_team(int pnum);
 void multi_net_ping();
 bool multi_handle_delta();
 void multi_process_network_packets();

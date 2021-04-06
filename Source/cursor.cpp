@@ -208,21 +208,6 @@ void CheckCursMove()
 	sx = MouseX;
 	sy = MouseY;
 
-	if (PANELS_COVER) {
-		if (gbChrflag || gbQuestlog) {
-			if (sx >= SCREEN_WIDTH / 2) { /// BUGFIX: (sx >= SCREEN_WIDTH / 2) (fixed)
-				sx -= SCREEN_WIDTH / 4;
-			} else {
-				sx = 0;
-			}
-		} else if (gbInvflag || gbSbookflag) {
-			if (sx <= SCREEN_WIDTH / 2) {
-				sx += SCREEN_WIDTH / 4;
-			} else {
-				sx = 0;
-			}
-		}
-	}
 	//if (sy > PANEL_TOP - 1 && MouseX >= PANEL_LEFT && MouseX < PANEL_LEFT + PANEL_WIDTH && track_isscrolling()) {
 	//	sy = PANEL_TOP - 1;
 	//}
@@ -318,7 +303,7 @@ void CheckCursMove()
 		cursmy = my;
 		return;
 	}
-	if ((gbInvflag | gbSbookflag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
+	if ((gbInvflag | gbSbookflag | gbTeamFlag) && MouseX > RIGHT_PANEL && MouseY <= SPANEL_HEIGHT) {
 		if (gbInvflag)
 			pcursinvitem = CheckInvItem();
 		return;

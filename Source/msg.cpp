@@ -1424,18 +1424,18 @@ void NetSendCmdString(unsigned int pmask)
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = CMD_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_msg_packet(pmask, (BYTE *)&cmd.bCmd, dwStrLen + 2);
+	multi_send_msg_packet(pmask, (BYTE *)&cmd, dwStrLen + 2);
 }
 
 static unsigned On_STRING2(int pnum, TCmd *pCmd)
 {
 	TCmdString *cmd = (TCmdString *)pCmd;
 
-	int len = strlen(cmd->str);
-	if (geBufferMsgs == MSG_NORMAL)
+	if (geBufferMsgs == MSG_NORMAL && !(guTeamMute & (1 << pnum))) {
 		SendPlrMsg(pnum, cmd->str);
+	}
 
-	return len + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
+	return strlen(cmd->str) + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
 }
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
@@ -2175,19 +2175,6 @@ static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_PLRFRIENDY(TCmd *pCmd, int pnum)
-{
-	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
-
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr) {
-		snprintf(tempstr, sizeof(tempstr), "%s is now %s.", plr[pnum]._pName, cmd->bParam1 ? "friendly" : "hostile");
-		ErrorPlrMsg(tempstr);
-	}
-	return sizeof(*cmd);
-}
-
 static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
@@ -2398,6 +2385,7 @@ static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 		if (myplr != pnum) {
 			if (!p->plractive) {
 				p->plractive = TRUE;
+				assert(p->_pTeam == pnum);
 				gbActivePlayers++;
 				EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);
 			}
@@ -2489,6 +2477,112 @@ static unsigned On_RETOWN(TCmd *pCmd, int pnum)
 static unsigned On_STRING(TCmd *pCmd, int pnum)
 {
 	return On_STRING2(pnum, pCmd);
+}
+
+static unsigned On_INVITE(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (geBufferMsgs != MSG_NORMAL)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	 // TODO: check (cmd->bParam1 == myplr) should not be necessary in a server/client solution
+	else if (cmd->bParam1 == myplr && plr[pnum]._pTeam == pnum) {
+		guTeamInviteRec |= (1 << pnum);
+		EventPlrMsg("%s invited to their team.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	} else {
+		guTeamInviteRec &= ~(1 << pnum);
+		guTeamInviteSent &= ~(1 << pnum);
+
+		plr[pnum]._pTeam = cmd->bParam1;
+		if (cmd->bParam1 == plr[myplr]._pTeam) {
+			if (pnum == myplr)
+				EventPlrMsg("You joined team %c.", 'a' + plr[pnum]._pTeam);
+			else
+				EventPlrMsg("%s joined your team.", plr[pnum]._pName);
+		} else {
+			EventPlrMsg("%s joined team %c.", plr[pnum]._pName, 'a' + plr[pnum]._pTeam);
+		}
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_DEC_INVITE(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (cmd->bParam1 == myplr) { // TODO: check should not be necessary in a server/client solution
+		guTeamInviteSent &= ~(1 << pnum);
+
+		EventPlrMsg("%s rejected your invitation.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_REV_INVITE(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	} else if (cmd->bParam1 == myplr) { // TODO: check should not be necessary in a server/client solution
+		guTeamInviteRec &= ~(1 << pnum);
+
+		EventPlrMsg("%s revoked the invitation.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+	int teamplr, team;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	} else {
+		teamplr = cmd->bParam1;
+		team = plr[teamplr]._pTeam;
+		if (pnum != teamplr) {
+			// drop
+			if (team == pnum) {
+				plr[teamplr]._pTeam = teamplr;
+
+				if (teamplr == myplr) {
+					EventPlrMsg("You were kicked from your team.");
+				} else {
+					EventPlrMsg("%s was kicked from %s team.", plr[teamplr]._pName, team == plr[myplr]._pTeam ? "your" : "their");
+				}
+			}
+		} else {
+			// leave
+			if (team == teamplr) {
+				multi_disband_team(teamplr);
+			} else {
+				plr[teamplr]._pTeam = teamplr;
+			}
+
+			if (teamplr == myplr)
+				EventPlrMsg("You left your team.");
+			else
+				EventPlrMsg("%s left %s team.", plr[teamplr]._pName, team == plr[myplr]._pTeam ? "your" : "their");
+		}
+	}
+
+	return sizeof(*cmd);
 }
 
 /**
@@ -2707,8 +2801,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_MONSTDAMAGE(pCmd, pnum);
 	case CMD_PLRDEAD:
 		return On_PLRDEAD(pCmd, pnum);
-	case CMD_PLRFRIENDY:
-		return On_PLRFRIENDY(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
 	case CMD_OPERATEOBJ:
@@ -2754,6 +2846,16 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_RETOWN(pCmd, pnum);
 	case CMD_STRING:
 		return On_STRING(pCmd, pnum);
+	case CMD_INVITE:
+		return On_INVITE(pCmd, pnum);
+	case CMD_ACK_INVITE:
+		return On_ACK_INVITE(pCmd, pnum);
+	case CMD_DEC_INVITE:
+		return On_DEC_INVITE(pCmd, pnum);
+	case CMD_REV_INVITE:
+		return On_REV_INVITE(pCmd, pnum);
+	case CMD_KICK_PLR:
+		return On_KICK_PLR(pCmd, pnum);
 	case CMD_SYNCQUEST:
 		return On_SYNCQUEST(pCmd, pnum);
 	case CMD_SYNCQUESTEXT:

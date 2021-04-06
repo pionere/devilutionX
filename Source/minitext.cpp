@@ -74,11 +74,9 @@ void InitQTextMsg(int m, bool showText)
 
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
-		gbQuestlog = false;
-		gbInvflag = false;
-		gbSbookflag = false;
-		qtextptr = tds->txtstr;
+		ClearPanels();
 		gbQtextflag = true;
+		qtextptr = tds->txtstr;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
 		speed = tds->txtspd;
 		if (speed <= 0)

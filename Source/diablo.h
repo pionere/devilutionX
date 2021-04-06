@@ -41,6 +41,7 @@ int DiabloMain(int argc, char **argv);
 void AltActionBtnCmd(bool bShift);
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
+void ClearPanels();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 void diablo_color_cyc_logic();
@@ -69,7 +70,6 @@ extern int dbgplr;
 extern int dbgqst;
 extern int dbgmon;
 #endif
-extern bool gbFriendlyMode;
 
 #ifdef __cplusplus
 }

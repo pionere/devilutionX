@@ -46,10 +46,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr[pnum];
-	pPack->destAction = p->destAction;
-	pPack->destParam1 = p->destParam1;
-	pPack->destParam2 = p->destParam2;
 	pPack->plrlevel = p->plrlevel;
+	pPack->pTeam = p->_pTeam;
 	pPack->px = p->_px;
 	pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
@@ -197,6 +195,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	p->_pfutx = pPack->px;
 	p->_pfuty = pPack->py;
 	p->plrlevel = pPack->plrlevel;
+	p->_pTeam = pPack->pTeam;
 	ClrPlrPath(pnum);
 	p->destAction = ACTION_NONE;
 	copy_str(p->_pName, pPack->pName);

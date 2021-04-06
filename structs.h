@@ -231,6 +231,7 @@ typedef struct PlayerStruct {
 	BOOLEAN plractive;
 	BOOLEAN _pLvlChanging; // True when the player is transitioning between levels
 	BYTE plrlevel;
+	BYTE _pTeam;
 	int _px;      // Tile X-position of player
 	int _py;      // Tile Y-position of player
 	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
@@ -1510,10 +1511,8 @@ typedef struct _FILETIME {
 
 typedef struct PkPlayerStruct {
 	FILETIME archiveTime;
-	char destAction;
-	char destParam1;
-	char destParam2;
 	BYTE plrlevel;
+	BYTE pTeam;
 	BYTE px;
 	BYTE py;
 	char pName[PLR_NAME_LEN];

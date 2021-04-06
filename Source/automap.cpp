@@ -31,6 +31,8 @@ unsigned AmLine4;
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
+#define COLOR_FRIEND (PAL8_BLUE + 0)
+#define COLOR_ENEMY (PAL8_RED + 2)
 /** color for bright map lines (doors, stairs etc.) */
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
@@ -386,12 +388,6 @@ static void SearchAutomapItem()
 	y = 2 * AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
-	if (PANELS_COVER) {
-		if (gbInvflag || gbSbookflag)
-			xoff -= 160;
-		if (gbChrflag || gbQuestlog)
-			xoff += 160;
-	}
 
 	p = &plr[myplr];
 	if (p->_pmode == PM_WALK3) {
@@ -436,17 +432,11 @@ static void SearchAutomapItem()
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
-static void DrawAutomapPlr(int pnum)
+static void DrawAutomapPlr(int pnum, int playerColor)
 {
 	PlayerStruct *p;
 	int px, py;
 	int x, y;
-	int playerColor;
-
-	//static_assert(8 * MAX_PLRS < 128, "Not enough color to differentiate between the players.");
-	// TODO: add this if the drawing of other players is enabled
-	//playerColor = COLOR_PLAYER + (8 * pnum) % 128;
-	playerColor = COLOR_PLAYER;
 
 	p = &plr[pnum];
 	if (p->_pmode == PM_WALK3) {
@@ -466,12 +456,6 @@ static void DrawAutomapPlr(int pnum)
 	x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * AmLine16 + SCREEN_WIDTH / 2 + SCREEN_X;
 	y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * AmLine8 + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
-	if (PANELS_COVER) {
-		if (gbInvflag || gbSbookflag)
-			x -= SCREEN_WIDTH / 4;
-		if (gbChrflag || gbQuestlog)
-			x += SCREEN_WIDTH / 4;
-	}
 	y -= AmLine8;
 
 	switch (p->_pdir) {
@@ -664,14 +648,6 @@ void DrawAutomap()
 
 	sx += ((int)AutoMapScale * ScrollInfo._sxoff / 128) >> 1;
 	sy += ((int)AutoMapScale * ScrollInfo._syoff / 128) >> 1;
-	if (PANELS_COVER) {
-		if (gbInvflag || gbSbookflag) {
-			sx -= SCREEN_WIDTH / 4;
-		}
-		if (gbChrflag || gbQuestlog) {
-			sx += SCREEN_WIDTH / 4;
-		}
-	}
 
 	for (i = 0; i <= cells + 1; i++) {
 		int x = sx;
@@ -696,13 +672,14 @@ void DrawAutomap()
 		sy += AmLine32;
 	}
 
-	/* disable this feature for the moment, since the other players should consent to this...
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive && !plr[pnum]._pLvlChanging) {
-			DrawAutomapPlr(pnum);
+			if (plr[pnum]._pTeam == plr[myplr]._pTeam)
+				DrawAutomapPlr(pnum, pnum == myplr ? COLOR_PLAYER : COLOR_FRIEND);
+			else if ((dFlags[plr[pnum]._px][plr[pnum]._py] & BFLAG_LIT) || plr[myplr]._pInfraFlag)
+				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}
-	}*/
-	DrawAutomapPlr(myplr);
+	}
 	//if (AutoMapShowItems)
 	//	SearchAutomapItem();
 	DrawAutomapText();

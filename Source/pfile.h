@@ -26,7 +26,6 @@ void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *cla
 bool pfile_ui_save_create(_uiheroinfo *heroinfo);
 bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH]);
 void pfile_delete_save(_uiheroinfo *hero_info);
-void pfile_read_player_from_save();
 void GetTempLevelNames(char (&szTemp)[MAX_PATH]);
 void GetPermLevelNames(char (&szPerm)[MAX_PATH]);
 void pfile_remove_temp_files();
