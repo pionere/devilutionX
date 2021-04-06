@@ -67,7 +67,7 @@ void StoresCheat()
 	int i;
 	ItemStruct holditem;
 
-	copy_pod(holditem, item[0]);
+	copy_pod(holditem, items[0]);
 
 	numpremium = 0;
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
@@ -80,7 +80,7 @@ void StoresCheat()
 
 	SpawnWitch(30);
 
-	copy_pod(item[0], holditem);
+	copy_pod(items[0], holditem);
 }
 
 void TakeGoldCheat()

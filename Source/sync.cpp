@@ -105,7 +105,7 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 		}
 		ii = itemactive[sync_inum++];
 		pHdr->bItemI = ii;
-		is = &item[ii];
+		is = &items[ii];
 		pHdr->bItemX = is->_ix;
 		pHdr->bItemY = is->_iy;
 		pHdr->wItemIndx = is->_iIdx;

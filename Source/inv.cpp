@@ -1165,7 +1165,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, bool bId)
 	RecreateItem(idx, wCI, seed, 0);
 
 	p = &plr[pnum];
-	copy_pod(p->HoldItem, item[MAXITEMS]);
+	copy_pod(p->HoldItem, items[MAXITEMS]);
 
 	if (bId) {
 		p->HoldItem._iIdentified = TRUE;
@@ -1459,7 +1459,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			}
 			SetItemData(MAXITEMS, IDI_FULLNOTE);
 			SetupItem(MAXITEMS);
-			copy_pod(*is, item[MAXITEMS]);
+			copy_pod(*is, items[MAXITEMS]);
 			GetItemSeed(is);
 			delay = 10;
 			sfxSet = sgSFXSets[SFXS_PLR_46];
@@ -1482,7 +1482,7 @@ void InvGetItem(int pnum, int ii)
 	ItemStruct *is;
 	int i;
 
-	is = &item[ii];
+	is = &items[ii];
 	if (dItem[is->_ix][is->_iy] == 0)
 		return;
 	dItem[is->_ix][is->_iy] = 0;
@@ -1519,7 +1519,7 @@ void AutoGetItem(int pnum, int ii)
 		return;
 	}
 
-	is = &item[ii];
+	is = &items[ii];
 	if (dItem[is->_ix][is->_iy] == 0)
 		return;
 
@@ -1560,7 +1560,7 @@ int FindGetItem(WORD idx, WORD ci, int iseed)
 
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		if (item[ii]._iIdx == idx && item[ii]._iSeed == iseed && item[ii]._iCreateInfo == ci)
+		if (items[ii]._iIdx == idx && items[ii]._iSeed == iseed && items[ii]._iCreateInfo == ci)
 			return ii;
 	}
 
@@ -1575,9 +1575,9 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	ii = dItem[x][y];
 	if (ii != 0) {
 		ii--;
-		if (item[ii]._iIdx != idx
-		 || item[ii]._iSeed != iseed
-		 || item[ii]._iCreateInfo != ci) {
+		if (items[ii]._iIdx != idx
+		 || items[ii]._iSeed != iseed
+		 || items[ii]._iCreateInfo != ci) {
 			ii = FindGetItem(idx, ci, iseed);
 		}
 	} else {
@@ -1585,7 +1585,7 @@ void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
 	}
 
 	if (ii != -1) {
-		is = &item[ii];
+		is = &items[ii];
 		dItem[is->_ix][is->_iy] = 0;
 		for (i = 0; i < numitems; ) {
 			if (itemactive[i] == ii) {
@@ -1751,15 +1751,15 @@ int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround)
 	if (!FindItemLocation(xx, yy, &x, &y, DSIZEX / 2))
 		return -1;
 
-	is = &item[ii];
+	is = &items[ii];
 
 	ii = itemavail[0];
 	dItem[x][y] = ii + 1;
 	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
 	itemactive[numitems] = ii;
-	copy_pod(item[ii], *is);
-	item[ii]._ix = x;
-	item[ii]._iy = y;
+	copy_pod(items[ii], *is);
+	items[ii]._ix = x;
+	items[ii]._iy = y;
 	RespawnItem(ii, true);
 	numitems++;
 	return ii;

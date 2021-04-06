@@ -86,7 +86,7 @@ void UiDestroy()
 	//UiInitList_clear();
 }
 
-void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
+void UiInitList(std::vector<UiItemBase *> uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -96,7 +96,7 @@ void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFoc
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListYesNo = fnYesNo;
-	gUiItems = items;
+	gUiItems = uiItems;
 	UiItemsWraps = itemsWraps;
 	if (fnFocus)
 		fnFocus(0);
@@ -105,10 +105,10 @@ void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFoc
 	SDL_StopTextInput(); // input is enabled by default
 #endif
 	textInputActive = false;
-	for (unsigned i = 0; i < items.size(); i++) {
-		if (items[i]->m_type == UI_EDIT) {
-			UiEdit *pItemUIEdit = (UiEdit *)items[i];
-			SDL_SetTextInputRect(&items[i]->m_rect);
+	for (unsigned i = 0; i < uiItems.size(); i++) {
+		if (uiItems[i]->m_type == UI_EDIT) {
+			UiEdit *pItemUIEdit = (UiEdit *)uiItems[i];
+			SDL_SetTextInputRect(&uiItems[i]->m_rect);
 			textInputActive = true;
 #ifdef __SWITCH__
 			switch_start_text_input("", pItemUIEdit->m_value, pItemUIEdit->m_max_length, /*multiline=*/0);
@@ -865,15 +865,15 @@ void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
 	}
 }
 
-void UiRenderItems(std::vector<UiItemBase *> items)
+void UiRenderItems(std::vector<UiItemBase *> uiItems)
 {
-	for (unsigned i = 0; i < items.size(); i++)
-		RenderItem((UiItemBase *)items[i]);
+	for (unsigned i = 0; i < uiItems.size(); i++)
+		RenderItem((UiItemBase *)uiItems[i]);
 }
 
-bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
+bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> uiItems)
 {
-	if (items.size() == 0) {
+	if (uiItems.size() == 0) {
 		return false;
 	}
 
@@ -883,8 +883,8 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 #endif
 
 	bool handled = false;
-	for (unsigned i = 0; i < items.size(); i++) {
-		if (HandleMouseEvent(*event, items[i])) {
+	for (unsigned i = 0; i < uiItems.size(); i++) {
+		if (HandleMouseEvent(*event, uiItems[i])) {
 			handled = true;
 			break;
 		}
@@ -892,8 +892,8 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 
 	if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
 		scrollBarState.downArrowPressed = scrollBarState.upArrowPressed = false;
-		for (unsigned i = 0; i < items.size(); ++i) {
-			UiItemBase *&item = items[i];
+		for (unsigned i = 0; i < uiItems.size(); ++i) {
+			UiItemBase *&item = uiItems[i];
 			if (item->m_type == UI_BUTTON)
 				HandleGlobalMouseUpButton((UiButton *)item);
 		}

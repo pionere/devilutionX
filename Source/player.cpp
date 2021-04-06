@@ -1755,9 +1755,9 @@ static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 	dItem[xx][yy] = i + 1;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = i;
-	copy_pod(item[i], *is);
-	item[i]._ix = xx;
-	item[i]._iy = yy;
+	copy_pod(items[i], *is);
+	items[i]._ix = xx;
+	items[i]._iy = yy;
 	RespawnItem(i, true);
 	numitems++;
 	NetSendCmdPItem(false, CMD_RESPAWNITEM, is, xx, yy);
@@ -2858,19 +2858,19 @@ static void CheckNewPath(int pnum)
 		case ACTION_PICKUPITEM:
 			if (pnum == myplr) {
 				i = p->destParam1;
-				x = abs(p->_px - item[i]._ix);
-				y = abs(p->_py - item[i]._iy);
-				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND && !item[i]._iRequest) {
+				x = abs(p->_px - items[i]._ix);
+				y = abs(p->_py - items[i]._iy);
+				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND && !items[i]._iRequest) {
 					NetSendCmdGItem(true, CMD_REQUESTGITEM, myplr, myplr, i);
-					item[i]._iRequest = TRUE;
+					items[i]._iRequest = TRUE;
 				}
 			}
 			break;
 		case ACTION_PICKUPAITEM:
 			if (pnum == myplr) {
 				i = p->destParam1;
-				x = abs(p->_px - item[i]._ix);
-				y = abs(p->_py - item[i]._iy);
+				x = abs(p->_px - items[i]._ix);
+				y = abs(p->_py - items[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
 					NetSendCmdGItem(true, CMD_REQUESTAGITEM, myplr, myplr, i);
 				}

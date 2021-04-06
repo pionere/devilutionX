@@ -1767,7 +1767,7 @@ void DrawInfoStr()
 	BYTE col;
 
 	if (pcursitem != -1) {
-		ItemStruct* is = &item[pcursitem];
+		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		x = is->_ix;
 		y = is->_iy;

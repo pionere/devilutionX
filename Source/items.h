@@ -14,7 +14,7 @@ extern "C" {
 
 extern int itemactive[MAXITEMS];
 extern int itemavail[MAXITEMS];
-extern ItemStruct item[MAXITEMS + 1];
+extern ItemStruct items[MAXITEMS + 1];
 extern BOOL UniqueItemFlag[NUM_UITEM];
 extern int numitems;
 

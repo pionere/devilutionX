@@ -124,8 +124,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 /**
  * Expand a PkItemStruct in to a ItemStruct
  *
- * Note: last slot of item[MAXITEMS] used as temporary buffer
- * find real name reference below, possibly [sizeof(item[])/sizeof(ItemStruct)]
+ * Note: last slot of items[MAXITEMS] used as temporary buffer
+ * find real name reference below, possibly [sizeof(items)/sizeof(ItemStruct)]
  * @param pis The source packed item
  * @param is The distination item
  */
@@ -153,14 +153,14 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 				SwapLE16(pis->iCreateInfo),
 				SwapLE32(pis->iSeed),
 				SwapLE16(pis->wValue));
-			item[MAXITEMS]._iMagical = pis->bId >> 1;
-			item[MAXITEMS]._iIdentified = pis->bId & 1;
-			item[MAXITEMS]._iDurability = pis->bDur;
-			item[MAXITEMS]._iMaxDur = pis->bMDur;
-			item[MAXITEMS]._iCharges = pis->bCh;
-			item[MAXITEMS]._iMaxCharges = pis->bMCh;
+			items[MAXITEMS]._iMagical = pis->bId >> 1;
+			items[MAXITEMS]._iIdentified = pis->bId & 1;
+			items[MAXITEMS]._iDurability = pis->bDur;
+			items[MAXITEMS]._iMaxDur = pis->bMDur;
+			items[MAXITEMS]._iCharges = pis->bCh;
+			items[MAXITEMS]._iMaxCharges = pis->bMCh;
 		}
-		copy_pod(*is, item[MAXITEMS]);
+		copy_pod(*is, items[MAXITEMS]);
 	}
 }
 

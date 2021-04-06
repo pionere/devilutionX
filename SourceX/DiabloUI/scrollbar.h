@@ -59,11 +59,11 @@ inline SDL_Rect BarRect(const UiScrollBar *sb)
 	return Tmp;
 }
 
-inline SDL_Rect ThumbRect(const UiScrollBar *sb, unsigned selected_index, unsigned num_items)
+inline SDL_Rect ThumbRect(const UiScrollBar *sb, unsigned selected_index, unsigned numItems)
 {
 	const int THUMB_OFFSET_X = 3;
 	const int thumb_max_y = BarHeight(sb) - sb->m_thumb->h();
-	const int thumb_y = (selected_index * thumb_max_y / (num_items - 1));
+	const int thumb_y = (selected_index * thumb_max_y / (numItems - 1));
 
 	SDL_Rect Tmp;
 	Tmp.x = static_cast<Sint16>(sb->m_rect.x + THUMB_OFFSET_X);

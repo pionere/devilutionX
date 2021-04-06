@@ -216,7 +216,7 @@ void Deinit()
 	vecOkDialog.clear();
 }
 
-void DialogLoop(std::vector<UiItemBase *> items, std::vector<UiItemBase *> renderBehind)
+void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> renderBehind)
 {
 	SDL_Event event;
 	dialogEnd = false;
@@ -225,7 +225,7 @@ void DialogLoop(std::vector<UiItemBase *> items, std::vector<UiItemBase *> rende
 			switch (event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				UiItemMouseEvents(&event, items);
+				UiItemMouseEvents(&event, uiItems);
 				break;
 			default:
 				switch (GetMenuAction(event)) {
@@ -246,7 +246,7 @@ void DialogLoop(std::vector<UiItemBase *> items, std::vector<UiItemBase *> rende
 		} else {
 			UiRenderItems(renderBehind);
 		}
-		UiRenderItems(items);
+		UiRenderItems(uiItems);
 		DrawMouse();
 		UiFadeIn();
 	} while (!dialogEnd);

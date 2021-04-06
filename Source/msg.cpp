@@ -782,7 +782,7 @@ void DeltaAddItem(int ii)
 	if (gbMaxPlayers == 1)
 		return;
 
-	is = &item[ii];
+	is = &items[ii];
 	pD = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
@@ -843,19 +843,19 @@ static void UnPackPItem(const TCmdPItem *src)
 			src->dwSeed,
 			src->wValue);
 		if (src->bId)
-			item[MAXITEMS]._iIdentified = TRUE;
-		item[MAXITEMS]._iDurability = src->bDur;
-		item[MAXITEMS]._iMaxDur = src->bMDur;
-		item[MAXITEMS]._iCharges = src->bCh;
-		item[MAXITEMS]._iMaxCharges = src->bMCh;
+			items[MAXITEMS]._iIdentified = TRUE;
+		items[MAXITEMS]._iDurability = src->bDur;
+		items[MAXITEMS]._iMaxDur = src->bMDur;
+		items[MAXITEMS]._iCharges = src->bCh;
+		items[MAXITEMS]._iMaxCharges = src->bMCh;
 #ifdef HELLFIRE
-		item[MAXITEMS]._iPLToHit = src->wToHit;
-		item[MAXITEMS]._iMinDam = src->bMinDam;
-		item[MAXITEMS]._iMaxDam = src->bMaxDam;
-		item[MAXITEMS]._iMinStr = src->bMinStr;
-		item[MAXITEMS]._iMinMag = src->bMinMag;
-		item[MAXITEMS]._iMinDex = src->bMinDex;
-		item[MAXITEMS]._iAC = src->bAC;
+		items[MAXITEMS]._iPLToHit = src->wToHit;
+		items[MAXITEMS]._iMinDam = src->bMinDam;
+		items[MAXITEMS]._iMaxDam = src->bMaxDam;
+		items[MAXITEMS]._iMinStr = src->bMinStr;
+		items[MAXITEMS]._iMinMag = src->bMinMag;
+		items[MAXITEMS]._iMinDex = src->bMinDex;
+		items[MAXITEMS]._iAC = src->bAC;
 #endif
 	}
 }
@@ -880,19 +880,19 @@ static void UnPackGItem(TCmdGItem *src)
 			src->dwSeed,
 			src->wValue);
 		if (src->bId)
-			item[MAXITEMS]._iIdentified = TRUE;
-		item[MAXITEMS]._iDurability = src->bDur;
-		item[MAXITEMS]._iMaxDur = src->bMDur;
-		item[MAXITEMS]._iCharges = src->bCh;
-		item[MAXITEMS]._iMaxCharges = src->bMCh;
+			items[MAXITEMS]._iIdentified = TRUE;
+		items[MAXITEMS]._iDurability = src->bDur;
+		items[MAXITEMS]._iMaxDur = src->bMDur;
+		items[MAXITEMS]._iCharges = src->bCh;
+		items[MAXITEMS]._iMaxCharges = src->bMCh;
 #ifdef HELLFIRE
-		item[MAXITEMS]._iPLToHit = src->wToHit;
-		item[MAXITEMS]._iMinDam = src->bMinDam;
-		item[MAXITEMS]._iMaxDam = src->bMaxDam;
-		item[MAXITEMS]._iMinStr = src->bMinStr;
-		item[MAXITEMS]._iMinMag = src->bMinMag;
-		item[MAXITEMS]._iMinDex = src->bMinDex;
-		item[MAXITEMS]._iAC = src->bAC;
+		items[MAXITEMS]._iPLToHit = src->wToHit;
+		items[MAXITEMS]._iMinDam = src->bMinDam;
+		items[MAXITEMS]._iMaxDam = src->bMaxDam;
+		items[MAXITEMS]._iMinStr = src->bMinStr;
+		items[MAXITEMS]._iMinMag = src->bMinMag;
+		items[MAXITEMS]._iMinDex = src->bMinDex;
+		items[MAXITEMS]._iAC = src->bAC;
 #endif
 	}
 }
@@ -986,8 +986,8 @@ void DeltaLoadLevel()
 				itm->wCI,
 				itm->dwSeed);
 			if (ii != -1) {
-				if (dItem[item[ii]._ix][item[ii]._iy] == ii + 1)
-					dItem[item[ii]._ix][item[ii]._iy] = 0;
+				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
+					dItem[items[ii]._ix][items[ii]._iy] = 0;
 				DeleteItem(ii, i);
 			}
 		} else if (itm->bCmd == DCMD_DROPPED) {
@@ -1000,9 +1000,9 @@ void DeltaLoadLevel()
 			ii = itemavail[0];
 			itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 			itemactive[numitems] = ii;
-			copy_pod(item[ii], item[MAXITEMS]);
-			item[ii]._ix = x;
-			item[ii]._iy = y;
+			copy_pod(items[ii], items[MAXITEMS]);
+			items[ii]._ix = x;
+			items[ii]._iy = y;
 			dItem[x][y] = ii + 1;
 			RespawnItem(ii, false);
 			numitems++;
@@ -1243,7 +1243,7 @@ void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 	cmd.bLevel = currLvl._dLevelIdx;
 	cmd.bCursitem = ii;
 	cmd.dwTime = 0;
-	is = &item[ii];
+	is = &items[ii];
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
 
@@ -1362,7 +1362,7 @@ void NetSendCmdDItem(bool bHiPri, int ii)
 	ItemStruct *is;
 	TCmdPItem cmd;
 
-	is = &item[ii];
+	is = &items[ii];
 	cmd.bCmd = CMD_DROPITEM;
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
@@ -1737,8 +1737,8 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			int ii = InvPutItem(pnum, x, y, MAXITEMS);
 			if (ii == -1)
 				return sizeof(*cmd);
-			x = item[ii]._ix;
-			y = item[ii]._iy;
+			x = items[ii]._ix;
+			y = items[ii]._iy;
 		}
 		delta_put_item(cmd, x, y, plr[pnum].plrlevel);
 		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
@@ -1758,7 +1758,7 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
 			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
-			delta_put_item(cmd, item[ii]._ix, item[ii]._iy, plr[pnum].plrlevel);
+			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
 	} else {

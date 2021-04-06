@@ -111,7 +111,7 @@ void FindItemOrObject()
 			if (i <= 0)
 				continue;
 			i--;
-			if (item[i]._itype == ITYPE_NONE || item[i]._iSelFlag == 0)
+			if (items[i]._itype == ITYPE_NONE || items[i]._iSelFlag == 0)
 				continue;
 			int newRotations = GetRotaryDistance(mx + xx, my + yy);
 			if (rotations < newRotations)

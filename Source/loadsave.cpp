@@ -565,7 +565,7 @@ static void LoadObject(int oi)
 
 static void LoadItem(int ii)
 {
-	LoadItemData(&item[ii]);
+	LoadItemData(&items[ii]);
 	GetItemFrm(ii);
 }
 
@@ -1366,7 +1366,7 @@ void SaveGame()
 	for (i = 0; i < MAXITEMS; i++)
 		SaveChar(itemavail[i]);
 	for (i = 0; i < numitems; i++)
-		SaveItemData(&item[itemactive[i]]);
+		SaveItemData(&items[itemactive[i]]);
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
 		SaveBool(UniqueItemFlag[i]);
@@ -1443,7 +1443,7 @@ void SaveLevel()
 	for (i = 0; i < MAXITEMS; i++)
 		SaveChar(itemavail[i]);
 	for (i = 0; i < numitems; i++)
-		SaveItemData(&item[itemactive[i]]);
+		SaveItemData(&items[itemactive[i]]);
 
 	for (i = 0; i < MAXDUNX; i++)
 		for (j = 0; j < MAXDUNY; j++)

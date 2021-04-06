@@ -626,7 +626,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 		dev_fatal("Invalid item (%d) to draw.", ii);
 	}
 
-	is = &item[ii];
+	is = &items[ii];
 	if (is->_iPostDraw == pre)
 		return;
 
