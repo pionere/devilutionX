@@ -9,7 +9,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Set to true when a fatal error is encountered and the application should shut down. */
-bool _gbTerminating;
+bool _gbTerminating = false;
 /** Thread id of the last callee to FreeDlg(). */
 SDL_threadID cleanup_thread_id;
 

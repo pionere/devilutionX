@@ -58,7 +58,7 @@ static void selgame_add_event_handlers()
 {
 	if (!SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler)
 	 || !SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents)) {
-		app_fatal("SNetRegisterEventHandler:\n%s", TraceLastError());
+		app_fatal("SNetRegisterEventHandler:\n%s", SDL_GetError());
 	}
 }
 

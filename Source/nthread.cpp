@@ -39,7 +39,7 @@ void nthread_terminate_game(const char *pszFcn)
 	} else if (sErr == STORM_ERROR_NOT_IN_GAME) {
 		gbGameDestroyed = true;
 	} else {
-		app_fatal("%s:\n%s", pszFcn, TraceLastError());
+		app_fatal("%s:\n%s", pszFcn, SDL_GetError());
 	}
 }
 
@@ -139,7 +139,6 @@ void nthread_set_turn_upper_bit()
 
 void nthread_start(bool set_turn_upper_bit)
 {
-	const char *err, *err2;
 	unsigned largestMsgSize;
 	_SNETCAPS caps;
 
@@ -153,8 +152,7 @@ void nthread_start(bool set_turn_upper_bit)
 		turn_upper_bit = 0;
 	//caps.size = 36;
 	if (!SNetGetProviderCaps(&caps)) {
-		err = TraceLastError();
-		app_fatal("SNetGetProviderCaps:\n%s", err);
+		app_fatal("nthread1:\n%s", SDL_GetError());
 	}
 	gdwTurnsInTransit = caps.defaultturnsintransit;
 	if (!caps.defaultturnsintransit)
@@ -186,8 +184,7 @@ void nthread_start(bool set_turn_upper_bit)
 		_sbNthreadShouldRun = true;
 		sghThread = CreateThread(nthread_handler, &glpNThreadId);
 		if (sghThread == NULL) {
-			err2 = TraceLastError();
-			app_fatal("nthread2:\n%s", err2);
+			app_fatal("nthread2:\n%s", SDL_GetError());
 		}
 	}
 }
