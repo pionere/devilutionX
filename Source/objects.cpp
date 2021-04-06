@@ -3635,7 +3635,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 		//MonStartStand(MAX_MINIONS, monster[MAX_MINIONS]._mdir);
 		monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 		monster[MAX_MINIONS]._mmode = MM_TALK;
-		monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
+		//monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
 		quests[Q_ZHAR]._qvar1 = 2;
 		if (sendmsg)
 			NetSendCmdQuest(true, Q_ZHAR, true);

@@ -2325,7 +2325,6 @@ static bool MonDoHeal(int mnum)
 static bool MonDoTalk(int mnum)
 {
 	MonsterStruct *mon;
-	int pnum;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonDoTalk: Invalid monster %d", mnum);
@@ -2335,8 +2334,7 @@ static bool MonDoTalk(int mnum)
 	mon->_mgoal = MGOAL_TALKING;
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
-	pnum = mon->_mListener;
-	InitQTextMsg(mon->mtalkmsg, pnum == myplr);
+	InitQTextMsg(mon->mtalkmsg, gbMaxPlayers == 1 /*mon->_mListener == myplr*/); // MON_TIMER
 	if (mon->_uniqtype - 1 == UMT_LAZURUS) {
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
@@ -4132,9 +4130,8 @@ void MAI_Garbud(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE)) { // MON_TIMER
-			if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
-				//if (effect_is_playing(USFX_GARBUD4) && gbQtextflag)
-				//	gbQtextflag = false;
+			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
+			if (quests[Q_GARBUD]._qvar1 == 4 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_GARBUD4))) {
 				mon->_mgoal = MGOAL_NORMAL;
 				// mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
@@ -4171,7 +4168,8 @@ void MAI_Zhar(int mnum)
 		if (quests[Q_ZHAR]._qvar1 == 1)
 			mon->_mgoal = MGOAL_INQUIRING;
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER - also set in objects.cpp
-			if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
+			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
+			if (quests[Q_ZHAR]._qvar1 == 2 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_ZHAR2))) {
 				// mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = 0;
 				mon->_mgoal = MGOAL_NORMAL;
@@ -4216,10 +4214,10 @@ void MAI_SnotSpil(int mnum)
 			mon->_mgoal = MGOAL_INQUIRING;
 		return;
 	case 3: // banner received or talked after the banner was given to ogden -> attack
-		//if (effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
-		//	return;
-		if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
-			return; // wait till the sfx is running, but don't rely on effect_is_playing
+		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
+		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
+		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_BANNER12].sfxnr))
+			return;
 		quests[Q_LTBANNER]._qactive = QUEST_DONE;
 		quests[Q_LTBANNER]._qvar1 = 4;
 		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
@@ -4335,7 +4333,8 @@ void MAI_Lachdanan(int mnum)
 
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
-			if (mon->_mVar8++ >= gnTicksRate * 32/*!effect_is_playing(USFX_LACH3)*/) {
+			//if (mon->_mVar8++ >= gnTicksRate * 32) {
+			if (gbMaxPlayers != 1 || !effect_is_playing(USFX_LACH3)) {
 				mon->mtalkmsg = 0;
 				MonStartKill(mnum, -1);
 			}
@@ -4372,13 +4371,13 @@ void MAI_Warlord(int mnum)
 		}
 		mon->_mmode = MM_TALK;
 		mon->_mListener = mon->_menemy;
-		mon->_mVar8 = 0; // MON_TIMER
+		//mon->_mVar8 = 0; // MON_TIMER
 		return;
 	case 1: // warlord spotted
-		//if (effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
-		//	return;
-		if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
-			return; // wait till the sfx is running, but don't rely on effect_is_playing
+		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
+		//	return; // wait till the sfx is running, but don't rely on effect_is_playing
+		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
+			return;
 		quests[Q_WARLORD]._qvar1 = 2;
 		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(true, Q_WARLORD, true);
@@ -5205,7 +5204,7 @@ void TalktoMonster(int mnum, int pnum)
 			mon->mtalkmsg = TEXT_BANNER12;
 		}
 		if (mon->mtalkmsg == TEXT_BANNER12) {
-			mon->_mVar8 = 0; // init MON_TIMER
+			// mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_LTBANNER]._qvar1 = 3;
 			if (pnum == myplr)
 				NetSendCmdQuest(true, Q_LTBANNER, true);
@@ -5219,8 +5218,8 @@ void TalktoMonster(int mnum, int pnum)
 		} else if (mon->mtalkmsg == TEXT_GARBUD2) {
 			SetRndSeed(mon->_mRndSeed);
 			SpawnItem(mnum, plr[pnum]._px, plr[pnum]._py, true);
-		} else if (mon->mtalkmsg == TEXT_GARBUD4)
-			mon->_mVar8 = 0; // init MON_TIMER
+		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
+		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
 		if (pnum == myplr)
 			NetSendCmdQuest(true, Q_GARBUD, true);
@@ -5236,7 +5235,7 @@ void TalktoMonster(int mnum, int pnum)
 			RemoveInvItem(pnum, iv);
 			mon->mtalkmsg = TEXT_VEIL11;
 			// mon->_mgoal = MGOAL_INQUIRING;
-			mon->_mVar8 = 0; // init MON_TIMER
+			//mon->_mVar8 = 0; // init MON_TIMER
 			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
 			quests[Q_VEIL]._qactive = QUEST_DONE;
 			if (pnum == myplr)
@@ -5259,7 +5258,7 @@ void TalktoMonster(int mnum, int pnum)
 			CreateSpellBook(iv, plr[pnum]._px, plr[pnum]._py);
 		} else if (quests[Q_ZHAR]._qvar1 == 1) {
 			mon->mtalkmsg = TEXT_ZHAR2;
-			mon->_mVar8 = 0; // init MON_TIMER
+			//mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_ZHAR]._qvar1 = 2;
 			if (pnum == myplr)
 				NetSendCmdQuest(true, Q_ZHAR, true);
