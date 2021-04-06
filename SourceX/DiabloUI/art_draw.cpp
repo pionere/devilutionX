@@ -1,4 +1,6 @@
 #include "DiabloUI/art_draw.h"
+
+#include "DiabloUI/diabloui.h"
 #include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -29,7 +31,7 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 		art->palette_version = pal_surface_palette_version;
 	}
 
-	if (SDL_BlitSurface(art->surface, &src_rect, GetOutputSurface(), &dst_rect) < 0)
+	if (SDL_BlitSurface(art->surface, &src_rect, DiabloUiSurface(), &dst_rect) < 0)
 		ErrSdl();
 }
 

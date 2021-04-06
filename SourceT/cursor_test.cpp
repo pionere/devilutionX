@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include "all.h"
 
+using namespace dvl;
+
 TEST(Cursor, SetCursor)
 {
-	int i = dvl::ICURS_SPIKED_CLUB + dvl::CURSOR_FIRSTITEM;
-	dvl::NewCursor(i);
-	EXPECT_EQ(dvl::pcurs, i);
-	EXPECT_EQ(dvl::cursW, 1 * 28);
-	EXPECT_EQ(dvl::cursH, 3 * 28);
+	int i = ICURS_SPIKED_CLUB + CURSOR_FIRSTITEM;
+	NewCursor(i);
+	EXPECT_EQ(pcurs, i);
+	EXPECT_EQ(cursW, 1 * 28);
+	EXPECT_EQ(cursH, 3 * 28);
 }
