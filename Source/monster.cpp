@@ -322,7 +322,6 @@ void InitMonsterGFX(int midx)
 			}
 		}
 
-		// TODO: either the AnimStruct members have wrong naming or the MonsterData ones it seems
 		cmon->Anims[anim].Frames = mdata->Frames[anim];
 		cmon->Anims[anim].Rate = mdata->Rate[anim];
 	}
@@ -997,7 +996,7 @@ void PlaceGroup(int mtype, int num, int leaderf, int leader)
 		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`
 			if (!MonstPlace(xp, yp)
 			    || (dTransVal[xp][yp] != dTransVal[x1][y1])
-			    || (leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4))) {
+			    || ((leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4)))) {
 				try2++;
 				continue;
 			}
@@ -5302,15 +5301,15 @@ BOOL PosOkMonst3(int mnum, int x, int y)
 
 BOOL IsSkel(int mt)
 {
-	return mt >= MT_WSKELAX && mt <= MT_XSKELAX
-	    || mt >= MT_WSKELBW && mt <= MT_XSKELBW
-	    || mt >= MT_WSKELSD && mt <= MT_XSKELSD;
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+	    || (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+	    || (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
 }
 
 BOOL IsGoat(int mt)
 {
-	return mt >= MT_NGOATMC && mt <= MT_GGOATMC
-	    || mt >= MT_NGOATBW && mt <= MT_GGOATBW;
+	return (mt >= MT_NGOATMC && mt <= MT_GGOATMC)
+	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
 }
 
 int MonSpawnSkel(int x, int y, int dir)

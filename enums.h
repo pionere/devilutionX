@@ -2256,6 +2256,25 @@ typedef enum _speech_id {
 	TEXT_GILLIAN24,
 	TEXT_GILLIAN25,
 	TEXT_GILLIAN26,
+	TEXT_PEPIN12,
+	TEXT_PEPIN13,
+	TEXT_PEPIN14,
+	TEXT_PEPIN15,
+	TEXT_PEPIN16,
+	TEXT_PEPIN17,
+	TEXT_PEPIN18,
+	TEXT_PEPIN19,
+	TEXT_PEPIN20,
+	TEXT_PEPIN21,
+	TEXT_PEPIN22,
+	TEXT_PEPIN23,
+	TEXT_PEPIN24,
+	TEXT_PEPIN25,
+	TEXT_PEPIN26,
+	TEXT_PEPIN27,
+	TEXT_PEPIN28,
+	TEXT_PEPIN29,
+	TEXT_PEPIN30,
 */
 	NUM_TEXTS,
 	TEXT_NONE       = -1,
@@ -2921,10 +2940,10 @@ typedef enum panel_button_id {
 } panel_button_id;
 
 typedef enum attribute_id {
-	ATTRIB_STR = 0,
-	ATTRIB_MAG = 1,
-	ATTRIB_DEX = 2,
-	ATTRIB_VIT = 3,
+	ATTRIB_STR,
+	ATTRIB_MAG,
+	ATTRIB_DEX,
+	ATTRIB_VIT,
 } attribute_id;
 
 typedef enum _object_id {
