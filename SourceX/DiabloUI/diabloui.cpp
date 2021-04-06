@@ -69,9 +69,21 @@ struct scrollBarState {
 
 void UiDestroy()
 {
+	ArtLogos[LOGO_SMALL].Unload();
+	ArtLogos[LOGO_MED].Unload();
+	ArtLogos[LOGO_BIG].Unload();
+	ArtFocus[FOCUS_SMALL].Unload();
+	ArtFocus[FOCUS_MED].Unload();
+	ArtFocus[FOCUS_BIG].Unload();
+#ifdef WIDESCREEN
+	ArtBackgroundWidescreen.Unload();
+#endif
+	ArtBackground.Unload();
+	//ArtCursor.Unload();
 	ArtHero.Unload();
 	UnloadTtfFont();
 	UnloadArtFonts();
+	//UiInitList_clear();
 }
 
 void UiInitList(std::vector<UiItemBase *> items, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
@@ -454,11 +466,6 @@ void UiInitialize()
 			ErrSdl();
 		}
 	}
-}
-
-const char **UiProfileGetString()
-{
-	return NULL;
 }
 
 char connect_plrinfostr[128];

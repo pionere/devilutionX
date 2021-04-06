@@ -493,10 +493,17 @@ bool StartGame(bool bSinglePlayer)
 			break;
 		}
 
+		// Save 1.3 MiB of RAM by freeing all main menu resources
+		// before starting the game.
+		UiDestroy();
+
 		run_game_loop((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
 		NetClose();
 		if (!gbRunGameResult)
 			break;
+		// If the player left the game into the main menu,
+		// initialize main menu resources.
+		UiInitialize();
 		pfile_create_player_description();
 	}
 
