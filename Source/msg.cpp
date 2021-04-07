@@ -1689,6 +1689,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+#ifdef HELLFIRE
 static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 {
 	if (iidx == IDI_RUNEBOMB
@@ -1715,6 +1716,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 	}
 	return false;
 }
+#endif
 
 static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 {

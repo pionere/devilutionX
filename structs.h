@@ -408,7 +408,7 @@ typedef struct PlayerStruct {
 #ifdef HELLFIRE
 	int alignment[435];
 #else
-	int alignment[439];
+	int alignment[437];
 #endif
 #endif
 } PlayerStruct;
