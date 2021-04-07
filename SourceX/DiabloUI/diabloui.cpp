@@ -49,10 +49,8 @@ bool textInputActive = true;
 
 static void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)]);
 
-namespace {
-
-DWORD fadeTc;
-int fadeValue = 0;
+static DWORD _gdwFadeTc;
+static int _gnFadeValue = 0;
 
 struct scrollBarState {
 	bool upArrowPressed;
@@ -64,27 +62,6 @@ struct scrollBarState {
 		downArrowPressed = false;
 	}
 } scrollBarState;
-
-} // namespace
-
-void UiDestroy()
-{
-	ArtLogos[LOGO_SMALL].Unload();
-	ArtLogos[LOGO_MED].Unload();
-	ArtLogos[LOGO_BIG].Unload();
-	ArtFocus[FOCUS_SMALL].Unload();
-	ArtFocus[FOCUS_MED].Unload();
-	ArtFocus[FOCUS_BIG].Unload();
-#ifdef WIDESCREEN
-	ArtBackgroundWidescreen.Unload();
-#endif
-	ArtBackground.Unload();
-	//ArtCursor.Unload();
-	ArtHero.Unload();
-	UnloadTtfFont();
-	UnloadArtFonts();
-	//UiInitList_clear();
-}
 
 void UiInitList(std::vector<UiItemBase *> uiItems, unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
@@ -433,13 +410,13 @@ void UiFocusNavigationYesNo()
 		UiPlaySelectSound();
 }
 
-bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
+static bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
 	return SDL_PointInRect(&point, &rect);
 }
 
-void LoadUiGFX()
+static void LoadUiGFX()
 {
 #ifdef HELLFIRE
 	LoadMaskedArt("ui_art\\hf_logo2.pcx", &ArtLogos[LOGO_MED], 16);
@@ -457,6 +434,18 @@ void LoadUiGFX()
 #endif
 }
 
+static void UnloadUiGFX()
+{
+	int i;
+
+	for (i = 0; i < lengthof(ArtLogos); i++)
+		ArtLogos[i].Unload();
+	for (i = 0; i < lengthof(ArtFocus); i++)
+		ArtFocus[i].Unload();
+	ArtCursor.Unload();
+	ArtHero.Unload();
+}
+
 void UiInitialize()
 {
 	LoadUiGFX();
@@ -466,6 +455,14 @@ void UiInitialize()
 			ErrSdl();
 		}
 	}
+}
+
+void UiDestroy()
+{
+	UnloadUiGFX();
+	UnloadTtfFont();
+	UnloadArtFonts();
+	//UiInitList_clear();
 }
 
 char connect_plrinfostr[128];
@@ -568,8 +565,8 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 	LoadPalInMem(pPal);
 	ApplyGamma(logical_palette, orig_palette, 256);
 
-	fadeTc = 0;
-	fadeValue = 0;
+	_gdwFadeTc = 0;
+	_gnFadeValue = 0;
 	BlackPalette();
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 	RenderPresent();
@@ -596,15 +593,15 @@ void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size, int y)
 
 void UiFadeIn()
 {
-	if (fadeValue < 256) {
-		if (fadeValue == 0 && fadeTc == 0)
-			fadeTc = SDL_GetTicks();
-		fadeValue = (SDL_GetTicks() - fadeTc) >> 1; // instead of >> 1 it was / 2.083 ... 32 frames @ 60hz
-		if (fadeValue > 256) {
-			fadeValue = 256;
-			fadeTc = 0;
+	if (_gnFadeValue < 256) {
+		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
+			_gdwFadeTc = SDL_GetTicks();
+		_gnFadeValue = (SDL_GetTicks() - _gdwFadeTc) >> 1; // instead of >> 1 it was / 2.083 ... 32 frames @ 60hz
+		if (_gnFadeValue > 256) {
+			_gnFadeValue = 256;
+			_gdwFadeTc = 0;
 		}
-		SetFadeLevel(fadeValue);
+		SetFadeLevel(_gnFadeValue);
 	}
 	RenderPresent();
 }

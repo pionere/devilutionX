@@ -493,7 +493,7 @@ bool StartGame(bool bSinglePlayer)
 			break;
 		}
 
-		// Save 1.3 MiB of RAM by freeing all main menu resources
+		// Save 2.8 MiB of RAM by freeing all main menu resources
 		// before starting the game.
 		UiDestroy();
 

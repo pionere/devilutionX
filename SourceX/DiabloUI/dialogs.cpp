@@ -1,7 +1,6 @@
 #include "dialogs.h"
 
 #include "controls/menu_controls.h"
-#include "all.h"
 #include "dx.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/button.h"
@@ -11,26 +10,21 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-namespace {
+static Art dialogArt;
+static bool _gbDialogEnd;
+static std::vector<UiItemBase *> vecNULL;
+static std::vector<UiItemBase *> vecOkDialog;
 
-Art dialogArt;
-bool fontWasLoaded;
-
-bool dialogEnd;
-
-void DialogActionOK()
+static void DialogActionOK()
 {
-	dialogEnd = true;
+	_gbDialogEnd = true;
 }
-
-std::vector<UiItemBase *> vecNULL;
-std::vector<UiItemBase *> vecOkDialog;
 
 // clang-format off
 #define BLANKCOLOR { 0, 0xFF, 0, 0 }
 // clang-format on
 
-void LoadFallbackPalette()
+static void LoadFallbackPalette()
 {
 	// clang-format off
 	static const SDL_Color fallback_palette[256] = {
@@ -153,7 +147,7 @@ void LoadFallbackPalette()
 	ApplyGamma(logical_palette, fallback_palette, 256);
 }
 
-void Init(const char *text, const char *caption, bool error, bool renderBehind)
+static void Init(const char *text, const char *caption, bool error, bool renderBehind)
 {
 	if (caption == NULL) {
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
@@ -196,18 +190,14 @@ void Init(const char *text, const char *caption, bool error, bool renderBehind)
 		}
 	}
 	LoadSmlButtonArt();
-
-	fontWasLoaded = font != NULL;
-	if (!fontWasLoaded)
-		LoadTtfFont();
+	LoadTtfFont();
 }
 
-void Deinit()
+static void Deinit()
 {
 	dialogArt.Unload();
 	UnloadSmlButtonArt();
-	if (!fontWasLoaded)
-		UnloadTtfFont();
+	UnloadTtfFont();
 
 	for (unsigned i = 0; i < vecOkDialog.size(); i++) {
 		UiItemBase *pUIItem = vecOkDialog[i];
@@ -216,10 +206,10 @@ void Deinit()
 	vecOkDialog.clear();
 }
 
-void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> renderBehind)
+static void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> renderBehind)
 {
 	SDL_Event event;
-	dialogEnd = false;
+	_gbDialogEnd = false;
 	do {
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -231,7 +221,7 @@ void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> ren
 				switch (GetMenuAction(event)) {
 				case MenuAction_BACK:
 				case MenuAction_SELECT:
-					dialogEnd = true;
+					_gbDialogEnd = true;
 					break;
 				default:
 					break;
@@ -249,12 +239,10 @@ void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> ren
 		UiRenderItems(uiItems);
 		DrawMouse();
 		UiFadeIn();
-	} while (!dialogEnd);
+	} while (!_gbDialogEnd);
 }
 
-} // namespace
-
-void UiOkDialog(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
+static void UiOkDialog(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
 {
 	static bool inDialog = false;
 
