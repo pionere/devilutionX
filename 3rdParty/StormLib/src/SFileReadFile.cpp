@@ -145,7 +145,7 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
                     }
                 }
             }
-#endif
+#endif // FULL
 
             // If the sector is really compressed, decompress it.
             // WARNING : Some sectors may not be compressed, it can be determined only
@@ -319,11 +319,10 @@ static int ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, L
 
         // Give the number of bytes read
         *pdwBytesRead = dwToRead;
-        return ERROR_SUCCESS;
     }
 
     // An error, sorry
-    return ERROR_CAN_NOT_COMPLETE;
+    return nError;
 }
 
 static int ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
@@ -378,7 +377,7 @@ static int ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, L
             if(!SCompDecompressMpk(hf->pbFileSector, &cbOutBuffer, pbRawData, (int)pFileEntry->dwCmpSize))
                 nError = ERROR_FILE_CORRUPT;
 #else
-			assert(0);
+            assert(0);
 #endif
         } else {
             if (pbRawData != hf->pbFileSector)
@@ -592,7 +591,7 @@ static int ReadMpqFilePatchFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LP
         *pdwBytesRead = dwBytesRead;
     return nError;
 }
-#endif
+#endif // FULL
 
 static int ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
@@ -627,7 +626,7 @@ static int ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LP
 //-----------------------------------------------------------------------------
 // SFileReadFile
 
-bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD pdwRead)
+bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD pdwRead)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);
     DWORD dwBytesRead = 0;                      // Number of bytes read
@@ -670,8 +669,7 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
 	} else if (hf->hfPatch != NULL
 	 && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE) == 0) {
         nError = ReadMpqFilePatchFile(hf, pvBuffer, dwToRead, &dwBytesRead);
-    }
-#endif
+#endif // FULL
     // If the archive is a MPK archive, we need special way to read the file
 	} else if (hf->ha->dwSubType == MPQ_SUBTYPE_MPK) {
         nError = ReadMpkFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
@@ -704,7 +702,7 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWO
 //-----------------------------------------------------------------------------
 // SFileGetFileSize
 
-DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
+DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 {
     ULONGLONG FileSize;
     TMPQFile *hf = IsValidFileHandle(hFile);
@@ -743,7 +741,7 @@ DWORD STORMAPI SFileGetFileSize(HANDLE hFile)
     return SFILE_INVALID_SIZE;
 }
 
-DWORD STORMAPI SFileGetFilePointer(HANDLE hFile)
+DWORD WINAPI SFileGetFilePointer(HANDLE hFile)
 {
 	TMPQFile *hf = IsValidFileHandle(hFile);
 	ULONGLONG CurrPosition;
@@ -762,7 +760,7 @@ DWORD STORMAPI SFileGetFilePointer(HANDLE hFile)
 	return (DWORD)CurrPosition;
 }
 
-DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod)
+DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);
     ULONGLONG OldPosition;
@@ -840,12 +838,13 @@ DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveM
     if (hf->pStream != NULL) {
         if (!FileStream_Read(hf->pStream, &NewPosition, NULL, 0))
             return SFILE_INVALID_POS;
-    } else {
-        hf->dwFilePos = (DWORD)NewPosition;
     }
 
-	// Return the new file position
-	//if (plFilePosHigh != NULL)
-	//   *plFilePosHigh = (LONG)(NewPosition >> 32);
-	return (DWORD)NewPosition;
+    // Also, store the new file position to the TMPQFile struct
+    hf->dwFilePos = (DWORD)NewPosition;
+
+    // Return the new file position
+    //if(plFilePosHigh != NULL)
+    //    *plFilePosHigh = (LONG)(NewPosition >> 32);
+    return (DWORD)NewPosition;
 }

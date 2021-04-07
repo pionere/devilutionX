@@ -6,9 +6,12 @@ namespace dvl {
 
 // Note to self: Linker error => forgot a return value in cpp
 
-// Storm API definition
-#ifndef STORMAPI
-#define STORMAPI
+// We declare the StormLib methods we use here.
+// StormLib uses the Windows calling convention on Windows for these methods.
+#ifdef _WIN32
+#define WINAPI __stdcall
+#else
+#define WINAPI
 #endif
 
 #ifdef __cplusplus
@@ -59,8 +62,8 @@ struct CCritSect {
 extern "C" {
 #endif
 
-bool STORMAPI SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData);
-bool STORMAPI SNetDestroy();
+bool SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData);
+bool SNetDestroy();
 
 /*  SNetDropPlayer @ 106
  *
@@ -71,20 +74,14 @@ bool STORMAPI SNetDestroy();
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool
-    STORMAPI
-    SNetDropPlayer(
-        int playerid,
-        unsigned flags);
+bool SNetDropPlayer(int playerid, unsigned flags);
 
 /*  SNetGetGameInfo @ 107
  *
  *  @param name:         The address and port of the game
  *  @param password:     The password of the game
  */
-void
-    STORMAPI
-    SNetGetGameInfo(const char **name, const char **password);
+void SNetGetGameInfo(const char **name, const char **password);
 
 /*  SNetGetTurnsInTransit @ 115
  *
@@ -96,11 +93,10 @@ void
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
 bool
-    STORMAPI
     SNetGetTurnsInTransit(
         DWORD *turns);
 
-bool STORMAPI SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
+bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
 
 /*  SNetLeaveGame @ 119
  *
@@ -110,15 +106,12 @@ bool STORMAPI SNetJoinGame(const char *gameName, unsigned port, const char *game
  *  type: The leave type. It doesn't appear to be important, no documentation available.
  *
  */
-void
-    STORMAPI
-    SNetLeaveGame(
-        int type);
+void SNetLeaveGame(int type);
 
-bool STORMAPI SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-bool STORMAPI SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
+bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
+bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 
-typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
+typedef void(*SEVTHANDLER)(struct _SNETEVENT *);
 
 /*  SNetSendMessage @ 127
  *
@@ -135,12 +128,7 @@ typedef void(STORMAPI *SEVTHANDLER)(struct _SNETEVENT *);
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool
-    STORMAPI
-    SNetSendMessage(
-        int playerID,
-        void *data,
-        unsigned int databytes);
+bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
 
 // Macro values to target specific players
 #define SNPLAYER_ALL    -1
@@ -168,24 +156,20 @@ bool
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool
-    STORMAPI
-    SNetSendTurn(
-        char *data,
-        unsigned int databytes);
+bool SNetSendTurn(char *data, unsigned int databytes);
 
-bool STORMAPI SFileCloseArchive(HANDLE hArchive);
-void STORMAPI SFileCloseFile(HANDLE hFile);
+bool WINAPI SFileCloseArchive(HANDLE hArchive);
+void WINAPI SFileCloseFile(HANDLE hFile);
 
-DWORD STORMAPI SFileGetFileSize(HANDLE hFile);
-DWORD STORMAPI SFileGetFilePointer(HANDLE hFile);
-DWORD STORMAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
-bool STORMAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
+DWORD WINAPI SFileGetFileSize(HANDLE hFile);
+DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
+DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
+bool WINAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 
-bool STORMAPI SFileOpenFile(const char *filename, HANDLE *phFile);
-bool STORMAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
+bool SFileOpenFile(const char *filename, HANDLE *phFile);
+bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
-bool STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);
+bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read);
 
 /*  SBmpLoadImage @ 323
  *
@@ -202,7 +186,6 @@ bool STORMAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRe
  *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
  */
 bool
-    STORMAPI
     SBmpLoadImage(
         const char *pszFileName,
         SDL_Color *pPalette,
@@ -223,7 +206,7 @@ bool
  *  Returns a pointer to the allocated memory. This pointer does NOT include
  *  the additional storm header.
  */
-void *STORMAPI SMemAlloc(size_t amount);
+void *SMemAlloc(size_t amount);
 
 /*  SMemFree @ 403
  *
@@ -233,7 +216,7 @@ void *STORMAPI SMemAlloc(size_t amount);
  *  location:     The memory location to be freed.
  *
  */
-void STORMAPI SMemFree(void *location);
+void SMemFree(void *location);
 
 bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue);
 bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize);
@@ -251,9 +234,7 @@ void SVidPlayEnd();
  *
  *  Returns the last error set within the Storm library.
  */
-DWORD
-STORMAPI
-SErrGetLastError();
+DWORD SErrGetLastError();
 
 /*  SErrSetLastError @ 465
  *
@@ -261,10 +242,7 @@ SErrGetLastError();
  *
  *  dwErrCode:  The error code that will be set.
  */
-void
-    STORMAPI
-    SErrSetLastError(
-        DWORD dwErrCode);
+void SErrSetLastError(DWORD dwErrCode);
 
 // Values for dwErrCode
 #define STORM_ERROR_GAME_TERMINATED              0x85100069
@@ -283,12 +261,7 @@ void
  *  max_length:   The maximum length of dest.
  *
  */
-void
-    STORMAPI
-    SStrCopy(
-        char *dest,
-        const char *src,
-        int max_length);
+void SStrCopy(char *dest, const char *src, int max_length);
 
 void SFileSetBasePath(const char *);
 bool SVidPlayContinue(void);
