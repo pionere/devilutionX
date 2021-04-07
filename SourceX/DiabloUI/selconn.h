@@ -1,3 +1,5 @@
+#pragma once
+
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
