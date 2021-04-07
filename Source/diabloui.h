@@ -33,6 +33,9 @@ extern void FontsCleanup();
 /* Defined in selconn.cpp */
 extern int provider;
 
+/* Defined in dialogs.h */
+void UiErrorOkDialog(const char *text, const char *caption, bool error = true);
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __DIABLOUI_H__ */

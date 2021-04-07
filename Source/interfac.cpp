@@ -4,7 +4,6 @@
  * Implementation of load screens.
  */
 #include "all.h"
-#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

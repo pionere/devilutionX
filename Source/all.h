@@ -21,7 +21,7 @@
 #include "../types.h"
 
 //#include "diabloui.h"
-//#include "display.h"
+#include "display.h"
 #include "dx.h"
 //#include "paths.h"
 //#include "plrctrls.h"

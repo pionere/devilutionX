@@ -8,10 +8,17 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+extern int screenWidth;
+extern int screenHeight;
+extern int viewportHeight;
+extern int widthAlignment;
+
 extern SDL_Window *ghMainWnd;
 extern SDL_Palette *palette;
 extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;
+
+bool SpawnWindow(const char *lpWindowName);
 
 DEVILUTION_END_NAMESPACE
 

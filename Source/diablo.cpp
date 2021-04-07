@@ -7,7 +7,6 @@
 #include <config.h>
 #include "paths.h"
 #include "diabloui.h"
-#include "display.h"
 #include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE

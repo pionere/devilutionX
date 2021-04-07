@@ -5,7 +5,6 @@
  */
 #include "all.h"
 #include "plrctrls.h"
-#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
