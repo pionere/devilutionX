@@ -705,7 +705,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 static void multi_event_handler(BOOL add)
 {
 	int i;
-	BOOL(STORMAPI * fn)
+	BOOL(* fn)
 	(int, SEVTHANDLER);
 
 	if (add)
