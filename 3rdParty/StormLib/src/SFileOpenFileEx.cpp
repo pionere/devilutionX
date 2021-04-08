@@ -40,7 +40,7 @@ static DWORD FindHashIndex(TMPQArchive * ha, DWORD dwFileIndex)
     // Return the hash table entry index
     return dwFirstIndex;
 }
-
+#ifdef FULL
 static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, char * szBuffer)
 {
     TMPQNamePrefix * pPrefix;
@@ -64,7 +64,7 @@ static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, 
 
     return szFileName;
 }
-
+#endif
 static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
 {
     TFileStream * pStream;
@@ -92,7 +92,8 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
     return false;
 }
 
-bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
+#ifdef FULL
+static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
 {
     TMPQArchive * haBase = NULL;
     TMPQArchive * ha = (TMPQArchive *)hMpq;
@@ -154,6 +155,7 @@ bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
         *PtrFile = (HANDLE)hfBase;
     return (hfBase != NULL);
 }
+#endif
 
 /*****************************************************************************/
 /* Public functions                                                          */
@@ -248,11 +250,13 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             case SFILE_OPEN_FROM_MPQ:
             case SFILE_OPEN_BASE_FILE:
             case SFILE_OPEN_CHECK_EXISTS:
-
+#ifdef FULL
                 // If this MPQ has no patches, open the file from this MPQ directly
                 if(ha->haPatch == NULL || dwSearchScope == SFILE_OPEN_BASE_FILE)
                 {
+#endif
                     pFileEntry = GetFileEntryLocale2(ha, szFileName, g_lcFileLocale, &dwHashIndex);
+#ifdef FULL
                 }
 
                 // If this MPQ is a patched archive, open the file as patched
@@ -268,6 +272,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 // No argument validation. Tries to open file with neutral locale first,
                 // then any other available.
                 pFileEntry = GetFileEntryLocale2(ha, szFileName, 0, &dwHashIndex);
+#endif
                 break;
 
             case SFILE_OPEN_LOCAL_FILE:

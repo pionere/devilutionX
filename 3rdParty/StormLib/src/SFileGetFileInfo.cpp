@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 // Local functions
 
-static DWORD GetMpqFileCount(TMPQArchive * ha)
+/*static DWORD GetMpqFileCount(TMPQArchive * ha)
 {
     TFileEntry * pFileTableEnd;
     TFileEntry * pFileEntry;
@@ -42,7 +42,7 @@ static DWORD GetMpqFileCount(TMPQArchive * ha)
     return dwFileCount;
 }
 
-/*static bool GetInfo_ReturnError(DWORD dwErrCode)
+static bool GetInfo_ReturnError(DWORD dwErrCode)
 {
     SetLastError(dwErrCode);
     return false;
@@ -524,7 +524,7 @@ static TFileHeader2Ext data2ext[] =
     {0, 0, 0, 0, NULL}                                          // Terminator
 };
 
-static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
+/*static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
 {
     TMPQFile * hf = (TMPQFile *)hFile;  // MPQ File handle
     DWORD FirstBytes[2] = {0, 0};       // The first 4 bytes of the file
@@ -566,7 +566,7 @@ static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * sz
     return ERROR_CAN_NOT_COMPLETE;
 }
 
-/*bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
+bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);  // MPQ File handle
     int nError = ERROR_INVALID_HANDLE;

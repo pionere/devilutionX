@@ -128,7 +128,7 @@ void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
     }
 }
 
-void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
+/*void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
 {
     char * szBufferEnd = szBuffer + cchMaxChars;
 
@@ -146,7 +146,7 @@ void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned in
     while(szExtension[0] == '.')
         szExtension++;
     StringCopy(szBuffer, (szBufferEnd - szBuffer), szExtension);
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Utility functions (UNICODE) only exist in the ANSI version of the library
@@ -1025,7 +1025,8 @@ void * LoadMpqTable(
     return pbMpqTable;
 }
 
-unsigned char * AllocateMd5Buffer(
+#ifdef FULL
+static unsigned char * AllocateMd5Buffer(
     DWORD dwRawDataSize,
     DWORD dwChunkSize,
     LPDWORD pcbMd5Size)
@@ -1048,7 +1049,7 @@ unsigned char * AllocateMd5Buffer(
         *pcbMd5Size = cbMd5Size;
     return md5_array;
 }
-
+#endif
 // Allocates sector buffer and sector offset table
 int AllocateSectorBuffer(TMPQFile * hf)
 {
@@ -1071,7 +1072,7 @@ int AllocateSectorBuffer(TMPQFile * hf)
     // Return result
     return (hf->pbFileSector != NULL) ? (int)ERROR_SUCCESS : (int)ERROR_NOT_ENOUGH_MEMORY;
 }
-
+#ifdef FULL
 // Allocates sector offset table
 int AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile)
 {
@@ -1135,7 +1136,7 @@ __AllocateAndLoadPatchInfo:
     hf->pPatchInfo->dwFlags  = 0x80000000;
     return ERROR_SUCCESS;
 }
-
+#endif
 // Allocates sector offset table
 int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
 {
@@ -1659,7 +1660,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
     }
 }
 
-bool IsInternalMpqFileName(const char * szFileName)
+/*bool IsInternalMpqFileName(const char * szFileName)
 {
     if(szFileName != NULL && szFileName[0] == '(')
     {
@@ -1672,7 +1673,7 @@ bool IsInternalMpqFileName(const char * szFileName)
     }
 
     return false;
-}
+}*/
 
 // Verifies if the file name is a pseudo-name
 bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)

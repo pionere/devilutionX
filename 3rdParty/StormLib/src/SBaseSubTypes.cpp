@@ -97,6 +97,7 @@ int ConvertSqpHeaderToFormat4(
     ULONGLONG FileSize,
     DWORD dwFlags)
 {
+#ifdef FULL
     TSQPHeader * pSqpHeader = (TSQPHeader *)ha->HeaderData;
     TMPQHeader Header;
 
@@ -151,11 +152,12 @@ int ConvertSqpHeaderToFormat4(
             return ERROR_SUCCESS;
         }
     }
-
+#endif
     return ERROR_FILE_CORRUPT;
 }
 
-void * LoadSqpTable(TMPQArchive * ha, DWORD dwByteOffset, DWORD cbTableSize, DWORD dwKey)
+#ifdef FULL
+static void * LoadSqpTable(TMPQArchive * ha, DWORD dwByteOffset, DWORD cbTableSize, DWORD dwKey)
 {
     ULONGLONG ByteOffset;
     LPBYTE pbSqpTable;
@@ -179,9 +181,11 @@ void * LoadSqpTable(TMPQArchive * ha, DWORD dwByteOffset, DWORD cbTableSize, DWO
 
     return NULL;
 }
+#endif
 
 TMPQHash * LoadSqpHashTable(TMPQArchive * ha)
 {
+#ifdef FULL
     TMPQHeader * pHeader = ha->pHeader;
     TSQPHash * pSqpHashTable;
     TSQPHash * pSqpHashEnd;
@@ -231,11 +235,15 @@ TMPQHash * LoadSqpHashTable(TMPQArchive * ha)
 
     // Return the converted hash table (or NULL on failure)
     return (TMPQHash *)pSqpHashTable;
+#else
+	return NULL;
+#endif
 }
 
 // Loads the SQP Block table and converts it to a MPQ block table
 TMPQBlock * LoadSqpBlockTable(TMPQArchive * ha)
 {
+#ifdef FULL
     TMPQHeader * pHeader = ha->pHeader;
     TSQPBlock * pSqpBlockTable;
     TSQPBlock * pSqpBlockEnd;
@@ -274,6 +282,9 @@ TMPQBlock * LoadSqpBlockTable(TMPQArchive * ha)
 
     // Return the converted hash table (or NULL on failure)
     return (TMPQBlock *)pSqpBlockTable;
+#else
+	return NULL;
+#endif
 }
 
 /*****************************************************************************/

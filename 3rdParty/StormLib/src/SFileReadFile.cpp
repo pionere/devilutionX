@@ -375,10 +375,8 @@ static int ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, L
 
             hf->dwCompression0 = pbRawData[0];
             if(!SCompDecompressMpk(hf->pbFileSector, &cbOutBuffer, pbRawData, (int)pFileEntry->dwCmpSize))
-                nError = ERROR_FILE_CORRUPT;
-#else
-            assert(0);
 #endif
+                nError = ERROR_FILE_CORRUPT;
         } else {
             if (pbRawData != hf->pbFileSector)
                 memcpy(hf->pbFileSector, pbRawData, hf->dwDataSize);
@@ -647,6 +645,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD
         return false;
     }
 
+#ifdef FULL
     // If we didn't load the patch info yet, do it now
     if (hf->pFileEntry != NULL
 	 && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
@@ -657,7 +656,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD
             return false;
         }
     }
-
+#endif
     // Clear the last used compression
     hf->dwCompression0 = 0;
 
@@ -712,6 +711,7 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
         // Make sure that the variable is initialized
         FileSize = 0;
 
+#ifdef FULL
         // If the file is patched file, we have to get the size of the last version
         if (hf->hfPatch != NULL) {
             // Walk through the entire patch chain, take the last version
@@ -723,14 +723,16 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
                 hf = hf->hfPatch;
             }
         } else {
+#endif // FULL
             // Is it a local file ?
             if (hf->pStream != NULL) {
                 FileStream_GetSize(hf->pStream, &FileSize);
             } else {
                 FileSize = hf->dwDataSize;
             }
+#ifdef FULL
         }
-
+#endif
         // If opened from archive, return file size
 		//if (pdwFileSizeHigh != NULL)
 		//    *pdwFileSizeHigh = (DWORD)(FileSize >> 32);

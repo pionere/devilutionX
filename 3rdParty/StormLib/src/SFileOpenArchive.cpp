@@ -24,6 +24,7 @@
 
 static MTYPE CheckMapType(LPCTSTR szFileName, LPBYTE pbHeaderBuffer, size_t cbHeaderBuffer)
 {
+#ifdef FULL
     LPDWORD HeaderInt32 = (LPDWORD)pbHeaderBuffer;
     LPCTSTR szExtension;
 
@@ -63,7 +64,7 @@ static MTYPE CheckMapType(LPCTSTR szFileName, LPBYTE pbHeaderBuffer, size_t cbHe
         if(0 < HeaderInt32[0x0F] && HeaderInt32[0x0F] < 0x10000)
             return MapTypeWarcraft3;
     }
-
+#endif
     // No special map type recognized
     return MapTypeNotRecognized;
 }

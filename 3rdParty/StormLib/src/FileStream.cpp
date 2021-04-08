@@ -47,6 +47,7 @@ void SetLastError(DWORD dwErrCode)
 }
 #endif
 
+#ifdef FULL
 static DWORD StringToInt(const char * szString)
 {
     DWORD dwValue = 0;
@@ -75,7 +76,7 @@ static void CreateNameWithSuffix(LPTSTR szBuffer, size_t cchMaxChars, LPCTSTR sz
     // Append the number
     IntToString(szBuffer, szBufferEnd - szBuffer + 1, nValue);
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // Dummy init function
 
@@ -663,7 +664,7 @@ static void BaseMap_Init(TFileStream * pStream)
 
 //-----------------------------------------------------------------------------
 // Local functions - base HTTP file support
-
+//#ifdef FULL
 static const TCHAR * BaseHttp_ExtractServerName(const TCHAR * szFileName, TCHAR * szServerName)
 {
     // Check for HTTP
@@ -900,7 +901,7 @@ static void BaseHttp_Init(TFileStream * pStream)
     // HTTP files are read-only
     pStream->dwFlags |= STREAM_FLAG_READ_ONLY;
 }
-
+//#endif
 //-----------------------------------------------------------------------------
 // Local functions - base block-based support
 
@@ -1077,8 +1078,10 @@ static STREAM_INIT StreamBaseInit[4] =
 {
     BaseFile_Init,
     BaseMap_Init,
+#ifdef FULL
     BaseHttp_Init,
     BaseNone_Init
+#endif
 };
 
 // This function allocates an empty structure for the file stream
@@ -1511,7 +1514,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 
 //-----------------------------------------------------------------------------
 // Local functions - partial stream support
-
+#ifdef FULL
 static bool IsPartHeader(PPART_FILE_HEADER pPartHdr)
 {
     // Version number must be 2
@@ -2414,7 +2417,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
 
     return pStream;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // Public functions
 
@@ -2507,7 +2510,7 @@ TFileStream * FileStream_OpenFile(
     {
         case STREAM_PROVIDER_FLAT:
             return FlatStream_Open(szFileName, dwStreamFlags);
-
+#ifdef FULL
         case STREAM_PROVIDER_PARTIAL:
             return PartStream_Open(szFileName, dwStreamFlags);
 
@@ -2516,7 +2519,7 @@ TFileStream * FileStream_OpenFile(
 
         case STREAM_PROVIDER_BLOCK4:
             return Block4Stream_Open(szFileName, dwStreamFlags);
-
+#endif
         default:
             SetLastError(ERROR_INVALID_PARAMETER);
             return NULL;
@@ -2757,7 +2760,7 @@ bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBu
     assert(pStream->StreamRead != NULL);
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }
-
+#ifdef FULL
 /**
  * This function writes data to the stream
  *
@@ -2781,7 +2784,7 @@ bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void
     assert(pStream->StreamWrite != NULL);
     return pStream->StreamWrite(pStream, pByteOffset, pvBuffer, dwBytesToWrite);
 }
-
+#endif
 /**
  * Returns the size of a file
  *

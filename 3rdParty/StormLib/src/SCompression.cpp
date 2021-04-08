@@ -1063,58 +1063,36 @@ int WINAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
     // We only recognize a fixed set of compression methods
     switch((unsigned char)CompressionMethod)
     {
-        case MPQ_COMPRESSION_ZLIB:
 #ifdef FULL
+        case MPQ_COMPRESSION_ZLIB:
             pfnDecompress1 = Decompress_ZLIB;
-#else
-            assert(0);
-#endif // FULL
             break;
-
+#endif // FULL
         case MPQ_COMPRESSION_PKWARE:
             pfnDecompress1 = Decompress_PKLIB;
             break;
 
-        case MPQ_COMPRESSION_BZIP2:
 #ifdef FULL
+        case MPQ_COMPRESSION_BZIP2:
             pfnDecompress1 = Decompress_BZIP2;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         case MPQ_COMPRESSION_LZMA:
-#ifdef FULL
             pfnDecompress1 = Decompress_LZMA;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         case MPQ_COMPRESSION_SPARSE:
-#ifdef FULL
             pfnDecompress1 = Decompress_SPARSE;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         case (MPQ_COMPRESSION_SPARSE | MPQ_COMPRESSION_ZLIB):
-#ifdef FULL
             pfnDecompress1 = Decompress_ZLIB;
             pfnDecompress2 = Decompress_SPARSE;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         case (MPQ_COMPRESSION_SPARSE | MPQ_COMPRESSION_BZIP2):
-#ifdef FULL
             pfnDecompress1 = Decompress_BZIP2;
             pfnDecompress2 = Decompress_SPARSE;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         //
@@ -1124,22 +1102,15 @@ int WINAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
         //
 
         case (MPQ_COMPRESSION_ADPCM_MONO | MPQ_COMPRESSION_HUFFMANN):
-#ifdef FULL
             pfnDecompress1 = Decompress_huff;
             pfnDecompress2 = Decompress_ADPCM_mono;
-#else
-            assert(0);
-#endif // FULL
             break;
 
         case (MPQ_COMPRESSION_ADPCM_STEREO | MPQ_COMPRESSION_HUFFMANN):
-#ifdef FULL
             pfnDecompress1 = Decompress_huff;
             pfnDecompress2 = Decompress_ADPCM_stereo;
-#else
-            assert(0);
-#endif // FULL
             break;
+#endif // FULL
 
         default:
             SetLastError(ERROR_FILE_CORRUPT);

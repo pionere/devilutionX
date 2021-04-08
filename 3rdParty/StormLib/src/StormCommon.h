@@ -149,7 +149,7 @@ extern unsigned char AsciiToUpperTable[256];
 
 //-----------------------------------------------------------------------------
 // Safe string functions
-
+#ifdef FULL
 template <typename XCHAR, typename XINT>
 XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nDigitCount = 0)
 {
@@ -186,10 +186,10 @@ XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nD
     szBuffer[0] = 0;
     return szBuffer;
 }
-
+#endif
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource);
 void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
-void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension);
+//void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension);
 
 #ifdef _UNICODE
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const char * szSource);
@@ -249,8 +249,9 @@ ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 
 int ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
 
+#ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
-
+#endif
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
@@ -291,7 +292,9 @@ void FreeBetTable(TMPQBetTable * pBetTable);
 // Functions for finding files in the file table
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID lcLocale);
+#ifdef FULL
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
+#endif
 
 // Allocates file name in the file entry
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName);
@@ -331,7 +334,9 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, bool * pbTableIsCut);
 int  AllocateSectorBuffer(TMPQFile * hf);
+#ifdef FULL
 int  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
+#endif
 int  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 int  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
 //int  WritePatchInfo(TMPQFile * hf);
@@ -369,7 +374,7 @@ void Patch_Finalize(TMPQPatcher * pPatcher);
 //-----------------------------------------------------------------------------
 // Utility functions
 
-bool IsInternalMpqFileName(const char * szFileName);
+//bool IsInternalMpqFileName(const char * szFileName);
 
 template <typename XCHAR>
 const XCHAR * GetPlainFileName(const XCHAR * szFileName)
@@ -388,7 +393,7 @@ const XCHAR * GetPlainFileName(const XCHAR * szFileName)
 
 //-----------------------------------------------------------------------------
 // Internal support for MPQ modifications
-
+#ifdef FULL
 int SFileAddFile_Init(
     TMPQArchive * ha,
     const char * szArchivedName,
@@ -432,7 +437,7 @@ int  SListFileSaveToMpq(TMPQArchive * ha);
 
 int SSignFileCreate(TMPQArchive * ha);
 int SSignFileFinish(TMPQArchive * ha);
-
+#endif
 //-----------------------------------------------------------------------------
 // Dump data support
 

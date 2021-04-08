@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 // Support for calculating bit sizes
-
+#ifdef FULL
 static void InitFileFlagArray(LPDWORD FlagArray)
 {
     memset(FlagArray, 0xCC, MAX_FLAG_INDEX * sizeof(DWORD));
@@ -229,7 +229,7 @@ void GetMPQBits(TMPQBits * pBits, unsigned int nBitPosition, unsigned int nBitLe
 {
     pBits->GetBits(nBitPosition, nBitLength, pvBuffer, nResultByteSize);
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // Support for MPQ header
 
@@ -666,12 +666,13 @@ int ConvertMpqHeaderToFormat4(
             if((pHeader->ArchiveSize64 >> 0x20) == 0 && pHeader->HiBlockTablePos64 != 0)
                 return ERROR_FAKE_MPQ_HEADER;
 
+#ifdef FULL
             // Is the "HET&BET" table tandem OK?
             bHetBetOffsetOK = VerifyTableTandemPositions(ByteOffset,
                                                          pHeader->HetTablePos64, pHeader->HetTableSize64,
                                                          pHeader->BetTablePos64, pHeader->BetTableSize64,
                                                          FileSize);
-
+#endif
             // Is the "Hash&Block" table tandem OK?
             bHashBlockOffsetOK = VerifyTableTandemPositions(ByteOffset,
                                                             pHeader->dwHashTablePos, pHeader->HashTableSize64,
@@ -729,6 +730,7 @@ int ConvertMpqHeaderToFormat4(
 //-----------------------------------------------------------------------------
 // Support for hash table
 
+#ifdef FULL
 // Hash entry verification when the file table does not exist yet
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash)
 {
@@ -736,7 +738,7 @@ bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash)
 
     return ((MPQ_BLOCK_INDEX(pHash) < ha->dwFileTableSize) && (pFileEntry->dwFlags & MPQ_FILE_EXISTS)) ? true : false;
 }
-
+#endif
 // Hash entry verification when the file table does not exist yet
 static bool IsValidHashEntry1(TMPQArchive * ha, TMPQHash * pHash, TMPQBlock * pBlockTable)
 {
@@ -801,6 +803,7 @@ static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName, 
     return pBestEntry;
 }
 
+#ifdef FULL
 // Returns a hash table entry in the following order:
 // 1) A hash table entry with the preferred locale
 // 2) NULL
@@ -823,6 +826,7 @@ static TMPQHash * GetHashEntryExact(TMPQArchive * ha, const char * szFileName, L
     // Not found
     return NULL;
 }
+#endif
 
 // Defragment the file table so it does not contain any gaps
 // Note: As long as all values of all TMPQHash::dwBlockIndex
@@ -1992,6 +1996,7 @@ TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID 
     return GetFileEntryLocale2(ha, szFileName, lcLocale, NULL);
 }
 
+#ifdef FULL
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
 {
     TMPQHash * pHash;
@@ -2008,7 +2013,6 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
         }
     }
 
-#ifdef FULL
     // If we have HET table in the MPQ, try to find the file in HET table
     if(ha->pHetTable != NULL)
     {
@@ -2020,11 +2024,11 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
             return ha->pFileTable + dwFileIndex;
         }
     }
-#endif // FULL
 
     // Not found
     return NULL;
 }
+#endif // FULL
 
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName)
 {
@@ -2687,7 +2691,7 @@ static int BuildFileTable_HetBet(TMPQArchive * ha)
 
     return nError;
 }
-#endif // FULL
+#endif
 
 int BuildFileTable(TMPQArchive * ha)
 {

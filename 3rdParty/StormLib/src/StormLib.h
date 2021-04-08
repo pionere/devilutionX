@@ -934,9 +934,9 @@ typedef struct _SFILE_MARKERS
 
 //-----------------------------------------------------------------------------
 // TMPQBits support - functions
-
+#ifdef FULL
 void GetMPQBits(TMPQBits * pBits, unsigned int nBitPosition, unsigned int nBitLength, void * pvBuffer, int nResultByteSize);
-
+#endif
 //-----------------------------------------------------------------------------
 // Stream support - functions
 
