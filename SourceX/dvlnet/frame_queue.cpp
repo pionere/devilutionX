@@ -1,8 +1,6 @@
-#include "dvlnet/frame_queue.h"
+#include "frame_queue.h"
 
 #include <cstring>
-
-#include "dvlnet/packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {

@@ -16,6 +16,7 @@ option(BINARY_RELEASE "Enable options for binary release" OFF)
 option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NONET "Disable network" OFF)
+option(ZEROTIER "Build with zerotier support" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 RELEASE_OPTION(CPACK "Configure CPack")
@@ -338,7 +339,10 @@ if(NOT NONET)
   list(APPEND devilutionx_SRCS
     SourceX/dvlnet/tcp_client.cpp
     SourceX/dvlnet/tcp_server.cpp
-    SourceX/dvlnet/udp_p2p.cpp)
+    SourceX/dvlnet/protocol_zt.cpp
+    SourceX/dvlnet/base_protocol.cpp
+    SourceX/dvlnet/zerotier_native.cpp
+    SourceX/dvlnet/zerotier_lwip.cpp)
 endif()
 
 set(BIN_TARGET devilutionx)
@@ -901,4 +905,9 @@ if(CPACK)
   set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
   set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
   include(CPack)
+endif()
+
+if(ZEROTIER)
+  add_subdirectory(3rdParty/libzt)
+  target_link_libraries(devilutionx PRIVATE zt-static)
 endif()

@@ -126,6 +126,13 @@ bool tcp_client::SNetLeaveGame(int type)
 	return ret;
 }
 
+std::string tcp_client::make_default_gamename()
+{
+	char addrstr[129] = "0.0.0.0";
+	getIniValue("dvlnet", "bindaddr", addrstr, 128);
+	return std::string(addrstr);
+}
+
 tcp_client::~tcp_client()
 {
 }

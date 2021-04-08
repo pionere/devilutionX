@@ -179,19 +179,6 @@ BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes);
 #define SFILE_OPEN_LOCAL_FILE       0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS     0xFFFFFFFC
 
-/*  SNetSendTurn @ 128
- *
- *  Sends a turn (data packet) to all players in the game. Network data
- *  is sent using class 02 and is retrieved by the other client using
- *  SNetReceiveTurns().
- *
- *  data:       A pointer to the data.
- *  databytes:  The amount of bytes that the data pointer contains.
- *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
- */
-BOOL SNetSendTurn(char *data, unsigned int databytes);
-
 BOOL WINAPI SFileCloseArchive(HANDLE hArchive);
 BOOL WINAPI SFileCloseFile(HANDLE hFile);
 
@@ -202,6 +189,7 @@ BOOL SFileOpenFile(const char *filename, HANDLE *phFile);
 BOOL WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
 BOOL WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read, LONG *lpDistanceToMoveHigh);
+DWORD WINAPI SFileSetFilePointer(HANDLE, LONG, LONG *, DWORD);
 
 /*  SBmpLoadImage @ 323
  *
@@ -314,13 +302,30 @@ void SStrCopy(char *dest, const char *src, int max_length);
 
 BOOL SFileSetBasePath(const char *);
 BOOL SVidPlayContinue(void);
+
+/*  SNetSendTurn @ 128
+ *
+ *  Sends a turn (data packet) to all players in the game. Network data
+ *  is sent using class 02 and is retrieved by the other client using
+ *  SNetReceiveTurns().
+ *
+ *  data:       A pointer to the data.
+ *  databytes:  The amount of bytes that the data pointer contains.
+ *
+ *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ */
+BOOL SNetSendTurn(char *data, unsigned int databytes);
 BOOL SNetGetOwnerTurnsWaiting(DWORD *);
 BOOL SNetUnregisterEventHandler(int, SEVTHANDLER);
 BOOL SNetRegisterEventHandler(int, SEVTHANDLER);
 BOOLEAN SNetSetBasePlayer(int);
 int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
 int SNetGetProviderCaps(struct _SNETCAPS *);
-DWORD WINAPI SFileSetFilePointer(HANDLE, LONG, LONG *, DWORD);
+#ifdef ZEROTIER
+void SNetSendInfoRequest();
+std::vector<std::string> SNetGetGamelist();
+void SNetSetPassword(std::string pw);
+#endif
 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);

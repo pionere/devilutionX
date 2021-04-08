@@ -23,6 +23,10 @@ void base::run_event_handler(_SNETEVENT &ev)
 	}
 }
 
+void base::disconnect_net(plr_t plr)
+{
+}
+
 void base::handle_accept(packet &pkt)
 {
 	if (plr_self != PLR_BROADCAST) {
@@ -34,7 +38,13 @@ void base::handle_accept(packet &pkt)
 	}
 	auto &pkt_info = pkt.info();
 	if (game_init_info != pkt_info) {
+#ifdef ZEROTIER
+		if(pkt.info().size() != sizeof(GameData)) {
+			ABORT();
+		}
 		// we joined and did not create
+		game_init_info = pkt.info();
+#endif
 		_SNETEVENT ev;
 		ev.eventid = EVENT_TYPE_PLAYER_CREATE_GAME;
 		ev.playerid = plr_self;
@@ -85,6 +95,7 @@ void base::recv_local(packet &pkt)
 				ev.databytes = sizeof(leaveinfo_t);
 				run_event_handler(ev);
 				connected_table[pkt_plr] = false;
+				disconnect_net(pkt_plr);
 				clear_msg(pkt_plr);
 				turn_queue[pkt_plr].clear();
 			}
