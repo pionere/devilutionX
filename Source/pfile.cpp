@@ -64,7 +64,7 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct *pPack)
 	DWORD dwlen;
 	BYTE *buf;
 
-	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, 0, &file)) {
+	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
 		return false;
 	} else {
 		bool ret = false;
@@ -206,7 +206,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	if (gbMaxPlayers != 1)
 		return false;
 
-	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, 0, &file))
+	if (!SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_FROM_MPQ, &file))
 		return false;
 
 	SFileCloseFile(file);
@@ -468,7 +468,7 @@ BYTE *pfile_read(const char *pszName)
 	if (archive == NULL)
 		app_fatal("Unable to open save file archive");
 
-	if (!SFileOpenFileEx(archive, pszName, 0, &save))
+	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save))
 		app_fatal("Unable to open save file");
 
 	len = SFileGetFileSize(save);
