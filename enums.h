@@ -3763,8 +3763,8 @@ typedef enum movie_flag {
 } movie_flag;
 
 typedef enum conn_type {
+	SELCONN_ZT,
 	SELCONN_TCP,
-	SELCONN_UDP,
 	SELCONN_LOOPBACK,
 } conn_type;
 

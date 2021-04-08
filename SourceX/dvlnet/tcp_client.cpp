@@ -123,6 +123,14 @@ void tcp_client::SNetLeaveGame(int type)
 		local_server->close();
 }
 
+std::string tcp_client::make_default_gamename()
+{
+	char pszGameName[128] = "0.0.0.0";
+
+	getIniValue("Network", "Bind Address", pszGameName, sizeof(pszGameName) - 1);
+	return std::string(pszGameName);
+}
+
 tcp_client::~tcp_client()
 {
 }

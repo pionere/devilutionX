@@ -2,8 +2,6 @@
 
 #include <cstring>
 
-#include "dvlnet/packet.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 

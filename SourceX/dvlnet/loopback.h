@@ -34,6 +34,7 @@ public:
 	virtual bool SNetDropPlayer(int playerid, unsigned flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
 	virtual bool SNetGetTurnsInTransit(DWORD *turns);
+	virtual std::string make_default_gamename();
 };
 
 } // namespace net

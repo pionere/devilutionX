@@ -145,19 +145,6 @@ bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
 #define SFILE_OPEN_LOCAL_FILE		0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS		0xFFFFFFFC
 
-/*  SNetSendTurn @ 128
- *
- *  Sends a turn (data packet) to all players in the game. Network data
- *  is sent using class 02 and is retrieved by the other client using
- *  SNetReceiveTurns().
- *
- *  data:       A pointer to the data.
- *  databytes:  The amount of bytes that the data pointer contains.
- *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
- */
-bool SNetSendTurn(char *data, unsigned int databytes);
-
 bool WINAPI SFileCloseArchive(HANDLE hArchive);
 void WINAPI SFileCloseFile(HANDLE hFile);
 
@@ -265,11 +252,29 @@ void SStrCopy(char *dest, const char *src, int max_length);
 
 void SFileSetBasePath(const char *);
 bool SVidPlayContinue(void);
+
+/*  SNetSendTurn @ 128
+ *
+ *  Sends a turn (data packet) to all players in the game. Network data
+ *  is sent using class 02 and is retrieved by the other client using
+ *  SNetReceiveTurns().
+ *
+ *  data:       A pointer to the data.
+ *  databytes:  The amount of bytes that the data pointer contains.
+ *
+ *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ */
+bool SNetSendTurn(char *data, unsigned int databytes);
 bool SNetGetOwnerTurnsWaiting(DWORD *);
-bool SNetUnregisterEventHandler(int, SEVTHANDLER);
-bool SNetRegisterEventHandler(int, SEVTHANDLER);
+bool SNetUnregisterEventHandler(event_type, SEVTHANDLER);
+bool SNetRegisterEventHandler(event_type, SEVTHANDLER);
 void SNetInitializeProvider(unsigned long provider);
 bool SNetGetProviderCaps(struct _SNETCAPS *);
+#ifdef ZEROTIER
+void SNetSendInfoRequest();
+std::vector<std::string> SNetGetGamelist();
+void SNetSetPassword(std::string pw);
+#endif
 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);

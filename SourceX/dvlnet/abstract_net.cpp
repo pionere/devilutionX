@@ -4,7 +4,8 @@
 #ifndef NONET
 #include "dvlnet/cdwrap.h"
 #include "dvlnet/tcp_client.h"
-#include "dvlnet/udp_p2p.h"
+#include "dvlnet/base_protocol.h"
+#include "dvlnet/protocol_zt.h"
 #endif
 #include "dvlnet/loopback.h"
 
@@ -19,9 +20,9 @@ std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
 	switch (provider) {
 	case SELCONN_TCP:
 		return std::unique_ptr<abstract_net>(new cdwrap<tcp_client>);
-#ifdef BUGGY
-	case SELCONN_UDP:
-		return std::unique_ptr<abstract_net>(new cdwrap<udp_p2p>);
+#ifdef ZEROTIER
+	case SELCONN_ZT:
+		return std::unique_ptr<abstract_net>(new cdwrap<base_protocol<protocol_zt>>);
 #endif
 	case SELCONN_LOOPBACK:
 		return std::unique_ptr<abstract_net>(new loopback);

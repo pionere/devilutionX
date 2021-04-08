@@ -27,14 +27,17 @@ public:
 	virtual bool SNetUnregisterEventHandler(event_type evtype,
 	    SEVTHANDLER func);
 	virtual void SNetLeaveGame(int type);
-	virtual bool SNetDropPlayer(int playerid, DWORD flags);
+	virtual bool SNetDropPlayer(int playerid, unsigned flags);
 	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
 	virtual bool SNetGetTurnsInTransit(DWORD *turns);
 
 	virtual void poll() = 0;
 	virtual void send(packet &pkt) = 0;
+	virtual void disconnect_net(plr_t plr);
 
 	void setup_gameinfo(buffer_t info);
+
+	virtual void setup_password(std::string pw);
 
 	virtual ~base() = default;
 
@@ -68,7 +71,6 @@ protected:
 
 	std::unique_ptr<packet_factory> pktfty;
 
-	void setup_password(std::string pw);
 	void handle_accept(packet &pkt);
 	void recv_local(packet &pkt);
 	void run_event_handler(_SNETEVENT &ev);
