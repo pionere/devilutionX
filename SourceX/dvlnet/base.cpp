@@ -38,7 +38,7 @@ void base::handle_accept(packet &pkt)
 	}
 	auto &pkt_info = pkt.info();
 #ifdef ZEROTIER
-	if(pkt_info.size() != sizeof(GameData)) {
+	if(pkt_info.size() != sizeof(_SNETGAMEDATA)) {
 		ABORT();
 	}
 	// we joined and did not create
