@@ -112,7 +112,6 @@ const unsigned kMaxViewportItems = 6;
 char textStats[5][4];
 char title[32];
 char selhero_Lable[32];
-char selhero_Description[256];
 int selhero_result;
 bool selhero_endMenu;
 bool selhero_navigateYesNo;
@@ -484,7 +483,9 @@ void selhero_Name_Select(unsigned index)
 				selhero_Load_Select(1);
 				return;
 			} else {
-				UiErrorOkDialog("Unable to create character.", vecSelDlgItems);
+				std::vector<UiItemBase*> allItems = vecSelHeroDialog;
+				allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
+				UiErrorOkDialog("Unable to create character.", allItems);
 			}
 		}
 	}

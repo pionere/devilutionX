@@ -309,7 +309,7 @@ set(devilutionx_SRCS
   SourceX/dvlnet/frame_queue.cpp
   SourceX/dvlnet/cdwrap.cpp
   SourceX/DiabloUI/art_draw.cpp
-  SourceX/DiabloUI/errorart.cpp
+  #SourceX/DiabloUI/errorart.cpp
   SourceX/DiabloUI/art.cpp
   SourceX/DiabloUI/button.cpp
   SourceX/DiabloUI/credits.cpp

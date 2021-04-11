@@ -558,6 +558,9 @@ int GetCenterOffset(int w, int bw)
 void LoadBackgroundArt(const char *pszFile, int frames)
 {
 	SDL_Color pPal[256];
+
+	assert(ArtBackground.surface == NULL);
+
 	LoadArt(pszFile, &ArtBackground, frames, pPal);
 	if (ArtBackground.surface == NULL)
 		return;
@@ -670,7 +673,7 @@ void Render(const UiImage *ui_image)
 	if (ui_image->m_animated) {
 		DrawAnimatedArt(ui_image->m_art, x, ui_image->m_rect.y);
 	} else {
-		DrawArt(x, ui_image->m_rect.y, ui_image->m_art, ui_image->m_frame, ui_image->m_rect.w);
+		DrawArt(x, ui_image->m_rect.y, ui_image->m_art, ui_image->m_frame, ui_image->m_rect.w, ui_image->m_rect.h);
 	}
 }
 

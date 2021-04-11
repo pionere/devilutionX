@@ -5,7 +5,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/button.h"
 #include "DiabloUI/fonts.h"
-#include "DiabloUI/errorart.h"
+//#include "DiabloUI/errorart.h"
 #include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -147,8 +147,33 @@ static void LoadFallbackPalette()
 	ApplyGamma(logical_palette, fallback_palette, 256);
 }
 
-static void Init(const char *text, const char *caption, bool error, bool renderBehind)
+static void Init(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
 {
+	if (renderBehind.size() == 0) {
+		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
+		if (ArtBackground.surface != NULL)
+			ArtBackground.Unload();
+		LoadBackgroundArt("ui_art\\black.pcx");
+		UiAddBackground(&vecOkDialog);
+		//if (ArtBackground.surface == NULL) {
+		//	//LoadFallbackPalette();
+		//}
+		LoadMaskedArt("ui_art\\cursor.pcx", &ArtCursor, 1, 0);
+	}
+	SetFadeLevel(256);
+	if (caption == NULL) {
+		LoadArt(error ? "ui_art\\srpopup.pcx" : "ui_art\\spopup.pcx", &dialogArt);
+	} else {
+		if (error) {
+			// LoadArt(&dialogArt, popupData, 385, 280);
+			LoadArt("ui_art\\lrpopup.pcx", &dialogArt);
+		} else {
+			LoadArt("ui_art\\lpopup.pcx", &dialogArt);
+		}
+	}
+	LoadSmlButtonArt();
+	LoadTtfFont();
+
 	if (caption == NULL) {
 		SDL_Rect rect1 = { PANEL_LEFT + 180, (UI_OFFSET_Y + 168), 280, 144 };
 		vecOkDialog.push_back(new UiImage(&dialogArt, rect1));
@@ -172,29 +197,14 @@ static void Init(const char *text, const char *caption, bool error, bool renderB
 		SDL_Rect rect4 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 335), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		vecOkDialog.push_back(new UiButton(&SmlButton, "OK", &DialogActionOK, rect4, 0));
 	}
-
-	if (!renderBehind) {
-		LoadBackgroundArt("ui_art\\black.pcx");
-		if (ArtBackground.surface == NULL) {
-			LoadFallbackPalette();
-		}
-	}
-	SetFadeLevel(256);
-	if (caption == NULL) {
-		LoadMaskedArt(error ? "ui_art\\srpopup.pcx" : "ui_art\\spopup.pcx", &dialogArt);
-	} else {
-		if (error) {
-			LoadArt(&dialogArt, popupData, 385, 280);
-		} else {
-			LoadMaskedArt("ui_art\\lpopup.pcx", &dialogArt);
-		}
-	}
-	LoadSmlButtonArt();
-	LoadTtfFont();
 }
 
-static void Deinit()
+static void Deinit(std::vector<UiItemBase *> renderBehind)
 {
+	if (renderBehind.size() == 0) {
+		ArtBackground.Unload();
+		ArtCursor.Unload();
+	}
 	dialogArt.Unload();
 	UnloadSmlButtonArt();
 	UnloadTtfFont();
@@ -231,11 +241,8 @@ static void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase
 			UiHandleEvents(&event);
 		}
 
-		if (renderBehind.size() == 0) {
-			SDL_FillRect(DiabloUiSurface(), NULL, 0);
-		} else {
-			UiRenderItems(renderBehind);
-		}
+		// UiClearScreen();
+		UiRenderItems(renderBehind);
 		UiRenderItems(uiItems);
 		DrawMouse();
 		UiFadeIn();
@@ -248,14 +255,14 @@ static void UiOkDialog(const char *text, const char *caption, bool error, std::v
 
 	if (gbActive && !inDialog) {
 		inDialog = true;
-		Init(text, caption, error, renderBehind.size() > 0);
+		Init(text, caption, error, renderBehind);
 		if (font != NULL) {
 			DialogLoop(vecOkDialog, renderBehind);
-			Deinit();
+			Deinit(renderBehind);
 			inDialog = false;
 			return;
 		}
-		Deinit();
+		Deinit(renderBehind);
 		inDialog = false;
 	}
 

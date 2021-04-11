@@ -4429,6 +4429,7 @@ ui_art\hf_logo2.pcx
 ui_art\hf_titlew.pcx
 ui_art\logo.pcx
 ui_art\lpopup.pcx
+ui_art\lrpopup.pcx
 ui_art\mainmenu.pcx
 ui_art\mainmenuw.pcx
 ui_art\prog_bg.pcx
@@ -4439,6 +4440,7 @@ ui_art\sb_thumb.pcx
 ui_art\selconn.pcx
 ui_art\selgame.pcx
 ui_art\selhero.pcx
+ui_art\smbutton.pcx
 ui_art\smlogo.pcx
 ui_art\spopup.pcx
 ui_art\srpopup.pcx
