@@ -393,10 +393,12 @@ void InitItems()
 		if (QuestStatus(Q_MUSHROOM))
 			SpawnQuestItemInArea(IDI_FUNGALTM, 5);
 #ifdef HELLFIRE
-		if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST4)
-			SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
-		else if (gbUseCowFarmer && currLvl._dLevelIdx == DLV_NEST3)
-			SpawnQuestItemInArea(IDI_GREYSUIT, 3);
+		if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
+			if (currLvl._dLevelIdx == DLV_NEST4)
+				SpawnQuestItemInArea(IDI_BROWNSUIT, 3);
+			else if (currLvl._dLevelIdx == DLV_NEST3)
+				SpawnQuestItemInArea(IDI_GREYSUIT, 3);
+		}
 #endif
 		// TODO: eliminate level range-check?
 		if (currLvl._dLevelIdx > 0 && currLvl._dLevelIdx < 16)

@@ -25,8 +25,6 @@ bool gbCineflag;
 int gbRedrawFlags;
 int PauseMode;
 #ifdef HELLFIRE
-bool gbUseTheoQuest;
-bool gbUseCowFarmer;
 bool gbUseNestArt;
 #endif
 int sgnTimeoutCurs;
@@ -149,8 +147,6 @@ static void print_help_and_exit()
 	printf("    %-20s %-30s\n", "-f", "Display frames per second");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
 #ifdef HELLFIRE
-	printf("    %-20s %-30s\n", "--theoquest", "Enable the Theo quest");
-	printf("    %-20s %-30s\n", "--cowquest", "Enable the Cow quest");
 	printf("    %-20s %-30s\n", "--nestart", "Use alternate nest palette");
 #endif
 #ifdef _DEBUG
@@ -195,10 +191,6 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
 #ifdef HELLFIRE
-		} else if (strcasecmp("--theoquest", argv[i]) == 0) {
-			gbUseTheoQuest = true;
-		} else if (strcasecmp("--cowquest", argv[i]) == 0) {
-			gbUseCowFarmer = true;
 		} else if (strcasecmp("--nestart", argv[i]) == 0) {
 			gbUseNestArt = true;
 #endif

@@ -23,27 +23,35 @@ int ReturnLvl;
 /**
  * A quest group containing the three quests the Butcher,
  * Ogden's Sign and Gharbad the Weak, which ensures that exactly
- * two of these three quests appear in any single player game.
+ * two of these three quests appear in any game.
  */
-int QuestGroup1[3] = { Q_BUTCHER, Q_LTBANNER, Q_GARBUD };
+const int QuestGroup1[3] = { Q_BUTCHER, Q_LTBANNER, Q_GARBUD };
 /**
  * A quest group containing the three quests Halls of the Blind,
  * the Magic Rock and Valor, which ensures that exactly two of
- * these three quests appear in any single player game.
+ * these three quests appear in any game.
  */
-int QuestGroup2[3] = { Q_BLIND, Q_ROCK, Q_BLOOD };
+const int QuestGroup2[3] = { Q_BLIND, Q_ROCK, Q_BLOOD };
 /**
  * A quest group containing the three quests Black Mushroom,
  * Zhar the Mad and Anvil of Fury, which ensures that exactly
- * two of these three quests appear in any single player game.
+ * two of these three quests appear in any game.
  */
-int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
+const int QuestGroup3[3] = { Q_MUSHROOM, Q_ZHAR, Q_ANVIL };
 /**
  * A quest group containing the two quests Lachdanan and Warlord
  * of Blood, which ensures that exactly one of these two quests
- * appears in any single player game.
+ * appears in any game.
  */
-int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
+const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
+#ifdef HELLFIRE
+/**
+ * A quest group containing the two quests CowFarmer and Farmer,
+ * which ensures that exactly one of these two quests
+ * appears in any game.
+ */
+const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
+#endif
 
 void InitQuests()
 {
@@ -104,11 +112,18 @@ void InitQuests()
 			quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;
 		else
 			quests[Q_SKELKING]._qactive = QUEST_NOTAVAIL;
+#ifdef HELLFIRE
+		if (random_(0, 2) != 0)
+			quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
+#endif
 
 		quests[QuestGroup1[random_(0, lengthof(QuestGroup1))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
 		quests[QuestGroup4[random_(0, lengthof(QuestGroup4))]]._qactive = QUEST_NOTAVAIL;
+#ifdef HELLFIRE
+		quests[QuestGroup5[random_(0, lengthof(QuestGroup5))]]._qactive = QUEST_NOTAVAIL;
+#endif
 #ifdef _DEBUG
 	}
 	if (questdebug != -1)

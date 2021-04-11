@@ -25,8 +25,6 @@ extern bool gbCineflag;
 extern int gbRedrawFlags;
 extern int PauseMode;
 #ifdef HELLFIRE
-extern bool gbUseTheoQuest;
-extern bool gbUseCowFarmer;
 extern bool gbUseNestArt;
 #endif
 extern bool gbActionBtnDown;

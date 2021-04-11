@@ -1679,7 +1679,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
-		if (gbUseTheoQuest) {
+		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
 		} else {
 			CreateAmulet(mon->_mx, mon->_my, sendmsg, false);
@@ -4456,7 +4456,7 @@ void ProcessMonsters()
 #ifdef HELLFIRE
 			else if (mon->_mType == MT_NAKRUL)
 				// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
-				PlaySfxLoc(gbUseCowFarmer ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
+				PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
 			else if (mon->_mType == MT_DEFILER)
 				PlaySfxLoc(USFX_DEFILER8, mx, my);
 			MonEnemy(mnum);

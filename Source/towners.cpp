@@ -361,12 +361,12 @@ void InitTowners()
 	if (quests[Q_BUTCHER]._qactive != QUEST_NOTAVAIL && quests[Q_BUTCHER]._qactive != QUEST_DONE)
 		InitTownDead();
 #ifdef HELLFIRE
-	if (gbUseCowFarmer) {
+	if (quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL) {
 		InitCowFarmer();
-	} else { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
+	} else if (quests[Q_FARMER]._qactive != QUEST_NOTAVAIL) { // if (quests[Q_FARMER]._qactive != QUEST_DONE || quests[Q_FARMER]._qlog) {
 		InitFarmer(); // in vanilla hellfire the farmer was gone after the quest is completed, but there is no reason for that
 	}
-	if (gbUseTheoQuest && quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
+	if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
 		InitGirl();
 	}
 #endif
