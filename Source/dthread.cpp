@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static CCritSect sgMemCrit;
 SDL_threadID glpDThreadId;
 TMegaPkt *sgpInfoHead; /* may not be right struct */
-BOOLEAN dthread_running;
+bool dthread_running;
 event_emul *sghWorkToDoEvent;
 
 /* rdata */
@@ -106,7 +106,7 @@ void dthread_start()
 		app_fatal("dthread:1\n%s", error_buf);
 	}
 
-	dthread_running = TRUE;
+	dthread_running = true;
 
 	sghThread = CreateThread(dthread_handler, &glpDThreadId);
 	if (sghThread == NULL) {
@@ -123,7 +123,7 @@ void dthread_cleanup()
 		return;
 	}
 
-	dthread_running = FALSE;
+	dthread_running = false;
 	SetEvent(sghWorkToDoEvent);
 	if (sghThread != NULL && glpDThreadId != SDL_GetThreadID(NULL)) {
 		SDL_WaitThread(sghThread, NULL);

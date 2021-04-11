@@ -355,6 +355,11 @@ if(SWITCH)
   set(BIN_TARGET devilutionx.elf)
 endif()
 
+if(VITA)
+  list(APPEND devilutionx_SRCS
+    SourceX/platform/vita/keyboard.cpp)
+endif()
+
 if(N3DS)
   list(APPEND devilutionx_SRCS
     SourceX/platform/ctr/system.cpp
@@ -367,25 +372,25 @@ endif()
 
 if(RUN_TESTS)
   list(APPEND devilutionx_SRCS
-    SourceT/appfat_test.cpp
-    SourceT/automap_test.cpp
-    SourceT/control_test.cpp
-    SourceT/cursor_test.cpp
-    SourceT/codec_test.cpp
-    SourceT/dead_test.cpp
-    SourceT/diablo_test.cpp
-    SourceT/doom_test.cpp
-    SourceT/drlg_l1_test.cpp
-    SourceT/drlg_l2_test.cpp
-    SourceT/drlg_l3_test.cpp
-    SourceT/drlg_l4_test.cpp
-    SourceT/effects_test.cpp
-    SourceT/file_util_test.cpp
-    SourceT/lighting_test.cpp
-    SourceT/missiles_test.cpp
-    SourceT/player_test.cpp
-    SourceT/scrollrt_test.cpp
-    SourceT/stores_test.cpp)
+    test/appfat_test.cpp
+    test/automap_test.cpp
+    test/control_test.cpp
+    test/cursor_test.cpp
+    test/codec_test.cpp
+    test/dead_test.cpp
+    test/diablo_test.cpp
+    test/doom_test.cpp
+    test/drlg_l1_test.cpp
+    test/drlg_l2_test.cpp
+    test/drlg_l3_test.cpp
+    test/drlg_l4_test.cpp
+    test/effects_test.cpp
+    test/file_util_test.cpp
+    test/lighting_test.cpp
+    test/missiles_test.cpp
+    test/player_test.cpp
+    test/scrollrt_test.cpp
+    test/stores_test.cpp)
 endif()
 
 if(HELLFIRE)
@@ -909,5 +914,5 @@ endif()
 
 if(ZEROTIER)
   add_subdirectory(3rdParty/libzt)
-  target_link_libraries(devilutionx PRIVATE zt-static)
+  target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()

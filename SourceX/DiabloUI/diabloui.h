@@ -64,6 +64,6 @@ void DvlIntSetting(const char *valuename, int *value);
 void DvlStringSetting(const char *valuename, char *string, int len);
 
 void mainmenu_restart_repintro();
-BOOL UiValidPlayerName(const char *name);
+bool UiValidPlayerName(const char *name);
 
 DEVILUTION_END_NAMESPACE

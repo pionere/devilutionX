@@ -19,7 +19,7 @@ int gamma_correction = 100;
 /** Specifies whether colour cycling is enabled. */
 BOOL color_cycling_enabled = TRUE;
 /** Specifies whether the palette has max brightness. */
-BOOLEAN sgbFadedIn = TRUE;
+bool sgbFadedIn = true;
 
 void palette_update()
 {
@@ -202,7 +202,7 @@ void PaletteFadeIn()
 	}
 	SetFadeLevel(256);
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
-	sgbFadedIn = TRUE;
+	sgbFadedIn = true;
 }
 
 void PaletteFadeOut()
@@ -218,7 +218,7 @@ void PaletteFadeOut()
 			RenderPresent();
 		}
 		SetFadeLevel(0);
-		sgbFadedIn = FALSE;
+		sgbFadedIn = false;
 	}
 }
 

@@ -7,7 +7,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 enum TextAlignment {
-	TextAlignment_BEGIN = 0,
+	TextAlignment_BEGIN,
 	TextAlignment_CENTER,
 	TextAlignment_END,
 };

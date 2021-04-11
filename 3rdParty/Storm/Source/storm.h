@@ -62,8 +62,8 @@ struct CCritSect {
 extern "C" {
 #endif
 
-BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, const char *creatorName, const char *a11, int *playerID);
-BOOL SNetDestroy();
+bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, const char *creatorName, const char *a11, int *playerID);
+bool SNetDestroy();
 
 /*  SNetDropPlayer @ 106
  *
@@ -72,9 +72,9 @@ BOOL SNetDestroy();
  *  playerid:     The player ID for the player to be dropped.
  *  flags:
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ *  Returns true if the function was called successfully and false otherwise.
  */
-BOOL SNetDropPlayer(int playerid, DWORD flags);
+bool SNetDropPlayer(int playerid, DWORD flags);
 
 /*  SNetGetGameInfo @ 107
  *
@@ -85,9 +85,9 @@ BOOL SNetDropPlayer(int playerid, DWORD flags);
  *  dst:          The destination buffer for the data.
  *  length:       The maximum size of the destination buffer.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ *  Returns true if the function was called successfully and false otherwise.
  */
-BOOL SNetGetGameInfo(int type, void *dst, unsigned int length);
+bool SNetGetGameInfo(int type, void *dst, unsigned int length);
 
 /*  SNetGetTurnsInTransit @ 115
  *
@@ -96,9 +96,9 @@ BOOL SNetGetGameInfo(int type, void *dst, unsigned int length);
  *
  *  turns: A pointer to an integer that will receive the value.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ *  Returns true if the function was called successfully and false otherwise.
  */
-BOOL
+bool
     SNetGetTurnsInTransit(
         DWORD *turns);
 
@@ -128,7 +128,7 @@ typedef struct _user_info {
 	DWORD dwUnknown;
 } user_info;
 
-BOOL SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, char *userStats, int *playerid);
+bool SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, char *userStats, int *playerid);
 
 /*  SNetLeaveGame @ 119
  *
@@ -137,13 +137,13 @@ BOOL SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, 
  *
  *  type: The leave type. It doesn't appear to be important, no documentation available.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ *  Returns true if the function was called successfully and false otherwise.
  */
-BOOL SNetLeaveGame(int type);
+bool SNetLeaveGame(int type);
 
-BOOL SNetPerformUpgrade(DWORD *upgradestatus);
-BOOL SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
+bool SNetPerformUpgrade(DWORD *upgradestatus);
+bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
+bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 
 typedef void(*SEVTHANDLER)(struct _SNETEVENT *);
 
@@ -160,9 +160,9 @@ typedef void(*SEVTHANDLER)(struct _SNETEVENT *);
  *  data:       A pointer to the data.
  *  databytes:  The amount of bytes that the data pointer contains.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ *  Returns true if the function was called successfully and false otherwise.
  */
-BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes);
+bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
 
 // Macro values to target specific players
 #define SNPLAYER_ALL    -1
@@ -179,13 +179,13 @@ BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes);
 #define SFILE_OPEN_LOCAL_FILE       0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS     0xFFFFFFFC
 
-BOOL WINAPI SFileCloseArchive(HANDLE hArchive);
-BOOL WINAPI SFileCloseFile(HANDLE hFile);
+bool WINAPI SFileCloseArchive(HANDLE hArchive);
+bool WINAPI SFileCloseFile(HANDLE hFile);
 
 LONG WINAPI SFileGetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-BOOL WINAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
+bool WINAPI SFileOpenArchive(const char *szMpqName, DWORD dwFlags, HANDLE *phMpq);
 
-BOOL SFileOpenFile(const char *filename, HANDLE *phFile);
+bool SFileOpenFile(const char *filename, HANDLE *phFile);
 BOOL WINAPI SFileOpenFileEx(HANDLE hMpq, const char *szFileName, DWORD dwSearchScope, HANDLE *phFile);
 
 BOOL WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead, DWORD *read, LONG *lpDistanceToMoveHigh);
@@ -203,9 +203,9 @@ DWORD WINAPI SFileSetFilePointer(HANDLE, LONG, LONG *, DWORD);
  *  pdwHeight:    An optional variable that receives the image height.
  *  pdwBpp:       An optional variable that receives the image bits per pixel.
  *
- *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
+ *  Returns true if the image was supported and loaded correctly, false otherwise.
  */
-BOOL
+bool
     SBmpLoadImage(
         const char *pszFileName,
         SDL_Color *pPalette,
@@ -300,8 +300,8 @@ void SErrSetLastError(DWORD dwErrCode);
  */
 void SStrCopy(char *dest, const char *src, int max_length);
 
-BOOL SFileSetBasePath(const char *);
-BOOL SVidPlayContinue(void);
+bool SFileSetBasePath(const char *);
+bool SVidPlayContinue(void);
 
 /*  SNetSendTurn @ 128
  *
@@ -314,11 +314,11 @@ BOOL SVidPlayContinue(void);
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-BOOL SNetSendTurn(char *data, unsigned int databytes);
-BOOL SNetGetOwnerTurnsWaiting(DWORD *);
+bool SNetSendTurn(char *data, unsigned int databytes);
+bool SNetGetOwnerTurnsWaiting(DWORD *);
 BOOL SNetUnregisterEventHandler(int, SEVTHANDLER);
 BOOL SNetRegisterEventHandler(int, SEVTHANDLER);
-BOOLEAN SNetSetBasePlayer(int);
+bool SNetSetBasePlayer(int);
 int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
 int SNetGetProviderCaps(struct _SNETCAPS *);
 #ifdef ZEROTIER
@@ -331,7 +331,7 @@ void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 DWORD HashStringSlash(const char * szFileName, DWORD dwHashType);
-BOOL SFileEnableDirectAccess(BOOL enable);
+bool SFileEnableDirectAccess(bool enable);
 void SLoadKeyMap(BYTE (&map)[256]);
 
 #if defined(__GNUC__) || defined(__cplusplus)

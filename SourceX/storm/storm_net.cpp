@@ -18,7 +18,7 @@ static char gpszGamePassword[128] = {};
 static std::mutex storm_net_mutex;
 #endif
 
-BOOL SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
+bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -30,7 +30,7 @@ BOOL SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
 	return true;
 }
 
-BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes)
+bool SNetSendMessage(int playerID, void *data, unsigned int databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -38,7 +38,7 @@ BOOL SNetSendMessage(int playerID, void *data, unsigned int databytes)
 	return dvlnet_inst->SNetSendMessage(playerID, data, databytes);
 }
 
-BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
+bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
     DWORD (&status)[MAX_PLRS])
 {
 #ifdef ZEROTIER
@@ -51,7 +51,7 @@ BOOL SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS],
 	return true;
 }
 
-BOOL SNetSendTurn(char *data, unsigned int databytes)
+bool SNetSendTurn(char *data, unsigned int databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -83,7 +83,7 @@ BOOL SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 	return dvlnet_inst->SNetRegisterEventHandler(*(event_type *)&evtype, func);
 }
 
-BOOL SNetDestroy()
+bool SNetDestroy()
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -91,7 +91,7 @@ BOOL SNetDestroy()
 	return true;
 }
 
-BOOL SNetDropPlayer(int playerid, DWORD flags)
+bool SNetDropPlayer(int playerid, DWORD flags)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -99,7 +99,7 @@ BOOL SNetDropPlayer(int playerid, DWORD flags)
 	return dvlnet_inst->SNetDropPlayer(playerid, flags);
 }
 
-BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
+bool SNetGetGameInfo(int type, void *dst, unsigned int length)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -116,7 +116,7 @@ BOOL SNetGetGameInfo(int type, void *dst, unsigned int length)
 	return true;
 }
 
-BOOL SNetLeaveGame(int type)
+bool SNetLeaveGame(int type)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -145,7 +145,7 @@ int SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *clie
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString,
+bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString,
 	DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount,
     const char *creatorName, const char *a11, int *playerID)
 {
@@ -158,7 +158,7 @@ BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	std::string default_name;
-	if(!pszGameName) {
+	if (!pszGameName) {
 		default_name = dvlnet_inst->make_default_gamename();
 		pszGameName = default_name.c_str();
 	}
@@ -170,7 +170,7 @@ BOOL SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 	return *playerID != -1;
 }
 
-BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
+bool SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -186,7 +186,7 @@ BOOL SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *player
 /**
  * @brief Is this the mirror image of SNetGetTurnsInTransit?
  */
-BOOL SNetGetOwnerTurnsWaiting(DWORD *turns)
+bool SNetGetOwnerTurnsWaiting(DWORD *turns)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -194,7 +194,7 @@ BOOL SNetGetOwnerTurnsWaiting(DWORD *turns)
 	return dvlnet_inst->SNetGetOwnerTurnsWaiting(turns);
 }
 
-BOOL SNetGetTurnsInTransit(DWORD *turns)
+bool SNetGetTurnsInTransit(DWORD *turns)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -205,7 +205,7 @@ BOOL SNetGetTurnsInTransit(DWORD *turns)
 /**
  * @brief engine calls this only once with argument 1
  */
-BOOLEAN SNetSetBasePlayer(int)
+bool SNetSetBasePlayer(int)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -216,7 +216,7 @@ BOOLEAN SNetSetBasePlayer(int)
 /**
  * @brief since we never signal STORM_ERROR_REQUIRES_UPGRADE the engine will not call this function
  */
-BOOL SNetPerformUpgrade(DWORD *upgradestatus)
+bool SNetPerformUpgrade(DWORD *upgradestatus)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
