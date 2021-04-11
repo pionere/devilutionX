@@ -7,7 +7,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 bool selyesno_endMenu;
 bool selyesno_value;
-char selyesno_confirmationMessage[256];
 
 std::vector<UiListItem *> vecSelYesNoDialogItems;
 std::vector<UiItemBase *> vecSelYesNoDialog;
@@ -46,6 +45,8 @@ void selyesno_Esc()
 
 bool UiSelHeroYesNoDialog(const char *title, const char *body)
 {
+	char selyesno_confirmationMessage[256];
+
 	LoadBackgroundArt("ui_art\\black.pcx");
 	UiAddBackground(&vecSelYesNoDialog);
 	UiAddLogo(&vecSelYesNoDialog);
@@ -65,7 +66,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 
 	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, NULL, true);
 
-	selyesno_value = true;
+	// selyesno_value = true;
 	selyesno_endMenu = false;
 	while (!selyesno_endMenu) {
 		UiClearScreen();

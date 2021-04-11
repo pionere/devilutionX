@@ -32,7 +32,7 @@ void mainmenu_restart_repintro()
 	dwAttractTicks = SDL_GetTicks() + mainmenu_attract_time_out * 1000;
 }
 
-void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
+static void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 {
 	gfnSoundFunction = fnSound;
 
@@ -58,7 +58,7 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, NULL, true);
 }
 
-void mainmenu_Free()
+static void mainmenu_Free()
 {
 #ifdef WIDESCREEN
 	ArtBackgroundWidescreen.Unload();

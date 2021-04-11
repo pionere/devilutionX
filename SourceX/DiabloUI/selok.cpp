@@ -5,13 +5,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-namespace {
-
-char dialogText[256];
-
-} // namespace
-
-int selok_endMenu;
+bool _gbSelokEndMenu;
 
 std::vector<UiListItem *> vecSelOkDialogItems;
 std::vector<UiItemBase *> vecSelOkDialog;
@@ -38,16 +32,18 @@ void selok_Free()
 
 void selok_Select(unsigned index)
 {
-	selok_endMenu = true;
+	_gbSelokEndMenu = true;
 }
 
 void selok_Esc()
 {
-	selok_endMenu = true;
+	_gbSelokEndMenu = true;
 }
 
 void UiSelOkDialog(const char *title, const char *body, bool background)
 {
+	char dialogText[256];
+
 	if (!background) {
 		LoadBackgroundArt("ui_art\\black.pcx");
 	} else {
@@ -76,8 +72,8 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 
 	UiInitList(vecSelOkDialog, 0, NULL, selok_Select, selok_Esc);
 
-	selok_endMenu = false;
-	while (!selok_endMenu) {
+	_gbSelokEndMenu = false;
+	while (!_gbSelokEndMenu) {
 		UiClearScreen();
 		UiRenderItems(vecSelOkDialog);
 		UiPollAndRender();

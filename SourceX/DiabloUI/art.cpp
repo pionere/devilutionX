@@ -5,7 +5,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 {
-	if (art == NULL || art->surface != NULL)
+	assert(art != NULL);
+	if (art->surface != NULL)
 		return;
 
 	art->frames = frames;
@@ -37,14 +38,14 @@ void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 	        art_surface->pitch * art_surface->format->BytesPerPixel * height, NULL, NULL, NULL)) {
 		SDL_Log("Failed to load image");
 		SDL_FreeSurface(art_surface);
-		art->surface = NULL;
+		//art->surface = NULL;
 		return;
 	}
 
 	art->surface = art_surface;
 	art->logical_width = art_surface->w;
 	art->frame_height = height / frames;
-
+	//art->palette_version = pal_surface_palette_version - 1;
 	ScaleSurfaceToOutput(&art->surface);
 }
 

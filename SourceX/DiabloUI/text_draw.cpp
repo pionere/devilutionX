@@ -10,11 +10,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern SDL_Surface *pal_surface;
-
-namespace {
-
-TextAlignment XAlignmentFromFlags(int flags)
+static TextAlignment XAlignmentFromFlags(int flags)
 {
 	if (flags & UIS_CENTER)
 		return TextAlignment_CENTER;
@@ -23,7 +19,7 @@ TextAlignment XAlignmentFromFlags(int flags)
 	return TextAlignment_BEGIN;
 }
 
-int AlignXOffset(int flags, const SDL_Rect &dest, int w)
+static int AlignXOffset(int flags, const SDL_Rect &dest, int w)
 {
 	if (flags & UIS_CENTER)
 		return (dest.w - w) / 2;
@@ -31,8 +27,6 @@ int AlignXOffset(int flags, const SDL_Rect &dest, int w)
 		return dest.w - w;
 	return 0;
 }
-
-} // namespace
 
 void DrawTTF(const char *text, const SDL_Rect &rectIn, int flags,
     const SDL_Color &text_color, const SDL_Color &shadow_color,
