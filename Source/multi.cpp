@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
+
 bool gbSomebodyWonGameKludge;
 TBuffer sgHiPriBuf;
 WORD sgwPackPlrOffsetTbl[MAX_PLRS];
@@ -94,7 +96,7 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 	PlayerStruct *p;
 
 	p = &plr[myplr];
-	pktHdr.wCheck = 'ip';
+	pktHdr.wCheck = PKT_HDR_CHECK;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
 	pktHdr.php = p->_pHitPoints;
@@ -465,7 +467,7 @@ void multi_process_network_packets()
 			continue;
 		if ((unsigned)pnum >= MAX_PLRS)
 			continue;
-		if (pkt->wCheck != 'ip')
+		if (pkt->wCheck != PKT_HDR_CHECK)
 			continue;
 		if (pkt->wLen != dwMsgSize)
 			continue;
@@ -523,7 +525,7 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 	dwOffset = 0;
 
 	while (dwLen != 0) {
-		pkt.hdr.wCheck = 'ip';
+		pkt.hdr.wCheck = PKT_HDR_CHECK;
 		pkt.hdr.php = 0;
 		pkt.hdr.pmhp = 0;
 		pkt.hdr.pmp = 0;
