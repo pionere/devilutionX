@@ -1410,7 +1410,7 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 	}
 
 	i = spawntable[i];
-	switch (dir) {
+	/*switch (dir) {
 	case 3: // DIR_S
 		if (i & 8)
 			return false;
@@ -1430,7 +1430,9 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 	default:
 		ASSUME_UNREACHABLE
 		break;
-	}
+	}*/
+	if (i & (1 << dir))
+		return false;
 
 	dungeon[x][y] |= 0x80;
 	lavaarea += 1;
@@ -1491,14 +1493,14 @@ static void DRLG_L3Pool()
 	int i, j;
 	bool badPos;
 
-	for (i = 1; i < DMAXY - 1; i++) {
-		for (j = 1; j < DMAXY - 1; j++) {
-			if (dungeon[i][j] != 8) {
+	for (i = 3; i < DMAXY - 3; i++) {
+		for (j = 3; j < DMAXY - 3; j++) {
+			if (dungeon[i][j] != 8 || random_(0, 2) != 0) {
 				continue;
 			}
 			lavaarea = 0;
 			badPos = DRLG_L3SpawnLava(i, j, 0);
-			if (badPos || lavaarea < 4/* || random_(0, 100) >= 25*/)
+			if (badPos || lavaarea < 4)
 				lavaarea = 0;
 			else
 				_guLavapools = MIN_LAVA_POOL;
