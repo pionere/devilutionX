@@ -304,12 +304,12 @@ static void InitQuestTriggers()
 
 	for (i = 0; i < NUM_QUESTS; i++) {
 		qs = &quests[i];
-		if (qs->_qslvl != 0 && i != Q_BETRAYER
-		 && currLvl._dLevelIdx == qs->_qlevel && qs->_qactive != QUEST_NOTAVAIL) {
+		if (questlist[i]._qslvl != 0 && i != Q_BETRAYER
+		 && currLvl._dLevelIdx == questlist[i]._qdlvl && qs->_qactive != QUEST_NOTAVAIL) {
 			trigs[numtrigs]._tx = qs->_qtx;
 			trigs[numtrigs]._ty = qs->_qty;
 			trigs[numtrigs]._tmsg = WM_DIABSETLVL;
-			trigs[numtrigs]._tlvl = qs->_qslvl;
+			trigs[numtrigs]._tlvl = questlist[i]._qslvl;
 			numtrigs++;
 		}
 	}
@@ -348,7 +348,7 @@ void InitVPEntryTrigger()
 	trigs[i]._tx = quests[Q_BETRAYER]._qtx;
 	trigs[i]._ty = quests[Q_BETRAYER]._qty;
 	trigs[i]._tmsg = WM_DIABSETLVL;
-	trigs[i]._tlvl = quests[Q_BETRAYER]._qslvl;
+	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
 	AddMissile(quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, 0, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
@@ -696,7 +696,7 @@ static void Freeupstairs()
 static int ForceSKingTrig()
 {
 	if (L1_UP_WARP) {
-		// Back to Level (quests[Q_SKELKING]._qlevel)
+		// Back to Level (questlist[Q_SKELKING]._qdlvl)
 		cursmx = trigs[0]._tx;
 		cursmy = trigs[0]._ty;
 		return 0;
@@ -708,7 +708,7 @@ static int ForceSKingTrig()
 static int ForceSChambTrig()
 {
 	if (L2_DOWN_WARP) {
-		// Back to Level (quests[Q_SCHAMB]._qlevel)
+		// Back to Level (questlist[Q_SCHAMB]._qdlvl)
 		cursmx = trigs[0]._tx;
 		cursmy = trigs[0]._ty;
 		return 0;
@@ -720,7 +720,7 @@ static int ForceSChambTrig()
 static int ForcePWaterTrig()
 {
 	if (L3_DOWN_WARP) {
-		// Back to Level (quests[Q_PWATER]._qlevel)
+		// Back to Level (questlist[Q_PWATER]._qdlvl)
 		cursmx = trigs[0]._tx;
 		cursmy = trigs[0]._ty;
 		return 0;

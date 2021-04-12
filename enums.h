@@ -3289,12 +3289,6 @@ typedef enum quest_state {
 	QUEST_DONE     = 3  // quest log closed and finished
 } quest_state;
 
-typedef enum quest_gametype {
-	QUEST_SINGLE = 0,
-	QUEST_ANY    = 1,
-	QUEST_MULTI  = 2,
-} quest_gametype;
-
 typedef enum quest_mush_state {
 	QS_INIT         = 0,
 	QS_TOMESPAWNED  = 1,

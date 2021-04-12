@@ -573,14 +573,11 @@ static void LoadQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
-	CopyChar(tbuff, &pQuest->_qlevel);
+	CopyChar(tbuff, &pQuest->_qidx);
 	CopyChar(tbuff, &pQuest->_qactive);
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &pQuest->_qtx);
 	CopyInt(tbuff, &pQuest->_qty);
-	CopyChar(tbuff, &pQuest->_qslvl);
-	CopyChar(tbuff, &pQuest->_qidx);
-	tbuff += 2; // Alignment
 	CopyInt(tbuff, &pQuest->_qmsg);
 	CopyChar(tbuff, &pQuest->_qvar1);
 	CopyChar(tbuff, &pQuest->_qvar2);
@@ -1253,14 +1250,11 @@ static void SaveQuest(int i)
 {
 	QuestStruct *pQuest = &quests[i];
 
-	CopyChar(&pQuest->_qlevel, tbuff);
+	CopyChar(&pQuest->_qidx, tbuff);
 	CopyChar(&pQuest->_qactive, tbuff);
 	tbuff += 2; // Alignment
 	CopyInt(&pQuest->_qtx, tbuff);
 	CopyInt(&pQuest->_qty, tbuff);
-	CopyChar(&pQuest->_qslvl, tbuff);
-	CopyChar(&pQuest->_qidx, tbuff);
-	tbuff += 2; // Alignment
 	CopyInt(&pQuest->_qmsg, tbuff);
 	CopyChar(&pQuest->_qvar1, tbuff);
 	CopyChar(&pQuest->_qvar2, tbuff);

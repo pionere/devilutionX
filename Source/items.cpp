@@ -388,7 +388,7 @@ void InitItems()
 			SpawnRock();
 		if (QuestStatus(Q_ANVIL))
 			SpawnQuestItemAt(IDI_ANVIL, 2 * setpc_x + DBORDERX + 11, 2 * setpc_y + DBORDERY + 11, false, true);
-		if (currLvl._dLevelIdx == quests[Q_VEIL]._qlevel + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
+		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			SpawnQuestItemInArea(IDI_GLDNELIX, 5);
 		if (QuestStatus(Q_MUSHROOM))
 			SpawnQuestItemInArea(IDI_FUNGALTM, 5);

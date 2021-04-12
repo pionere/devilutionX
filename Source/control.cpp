@@ -1698,7 +1698,7 @@ static void DrawTrigInfo()
 				ASSUME_UNREACHABLE;
 				break;
 			}
-			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[quests[qn]._qlevel].dLevelName);
+			snprintf(infostr, sizeof(infostr), "Back to %s", AllLevels[questlist[qn]._qdlvl].dLevelName);
 			break;
 		case WM_DIABSETLVL:
 			// quest trigger

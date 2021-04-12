@@ -59,21 +59,6 @@ void InitQuests()
 	const QuestData *qdata;
 	int i;
 
-	if (gbMaxPlayers == 1) {
-		qs = quests;
-		for (i = NUM_QUESTS; i != 0; i--, qs++) {
-			qs->_qactive = QUEST_NOTAVAIL;
-		}
-	} else {
-		qs = quests;
-		qdata = questlist;
-		for (i = NUM_QUESTS; i != 0; i--, qs++, qdata++) {
-			if (!(qdata->_qflags & QUEST_ANY)) {
-				qs->_qactive = QUEST_NOTAVAIL;
-			}
-		}
-	}
-
 	gbQuestlog = false;
 	WaterDone = 0;
 
@@ -81,9 +66,6 @@ void InitQuests()
 	qdata = questlist;
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
 		if (gbMaxPlayers != 1) {
-			if (!(qdata->_qflags & QUEST_ANY))
-				continue;
-			qs->_qlevel = qdata->_qdmultlvl;
 			if (!delta_quest_inited(i)) {
 				qs->_qactive = QUEST_INIT;
 				qs->_qvar1 = 0;
@@ -91,12 +73,10 @@ void InitQuests()
 			}
 		} else {
 			qs->_qactive = QUEST_INIT;
-			qs->_qlevel = qdata->_qdlvl;
 			qs->_qvar1 = 0;
 			qs->_qlog = FALSE;
 		}
 
-		qs->_qslvl = qdata->_qslvl;
 		qs->_qtx = 0;
 		qs->_qty = 0;
 		qs->_qidx = i;
@@ -138,7 +118,7 @@ void InitQuests()
 
 void CheckQuests()
 {
-	if (currLvl._dLevelIdx == quests[Q_PWATER]._qslvl) {
+	if (currLvl._dLevelIdx == questlist[Q_PWATER]._qslvl) {
 		if (quests[Q_PWATER]._qvar1 != 2
 		 && nummonsters == MAX_MINIONS) {
 			quests[Q_PWATER]._qvar1 = 2;
@@ -183,9 +163,8 @@ int ForceQuests()
 
 bool QuestStatus(int qn)
 {
-	if (currLvl._dLevelIdx == quests[qn]._qlevel
+	if (currLvl._dLevelIdx == questlist[qn]._qdlvl
 	 && quests[qn]._qactive != QUEST_NOTAVAIL) {
-		assert(gbMaxPlayers == 1 || (questlist[qn]._qflags & QUEST_ANY));
 		assert(!currLvl._dSetLvl);
 		return true;
 	}
@@ -414,22 +393,22 @@ void SetReturnLvlPos()
 	case SL_SKELKING:
 		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
 		ReturnLvlY = quests[Q_SKELKING]._qty;
-		ReturnLvl = quests[Q_SKELKING]._qlevel;
+		ReturnLvl = questlist[Q_SKELKING]._qdlvl;
 		break;
 	case SL_BONECHAMB:
 		ReturnLvlX = quests[Q_SCHAMB]._qtx + 1;
 		ReturnLvlY = quests[Q_SCHAMB]._qty;
-		ReturnLvl = quests[Q_SCHAMB]._qlevel;
+		ReturnLvl = questlist[Q_SCHAMB]._qdlvl;
 		break;
 	case SL_POISONWATER:
 		ReturnLvlX = quests[Q_PWATER]._qtx;
 		ReturnLvlY = quests[Q_PWATER]._qty + 1;
-		ReturnLvl = quests[Q_PWATER]._qlevel;
+		ReturnLvl = questlist[Q_PWATER]._qdlvl;
 		break;
 	case SL_VILEBETRAYER:
 		ReturnLvlX = quests[Q_BETRAYER]._qtx + 1;
 		ReturnLvlY = quests[Q_BETRAYER]._qty - 1;
-		ReturnLvl = quests[Q_BETRAYER]._qlevel;
+		ReturnLvl = questlist[Q_BETRAYER]._qdlvl;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -447,7 +426,7 @@ void GetReturnLvlPos()
 void LoadPWaterPalette()
 {
 	// TODO: this is ugly...
-	if (currLvl._dLevelIdx != quests[Q_PWATER]._qslvl) // || quests[Q_PWATER]._qslvl == 0 || quests[Q_PWATER]._qactive == QUEST_INIT) // || currLvl._dType != quests[Q_PWATER]._qlvltype)
+	if (currLvl._dLevelIdx != questlist[Q_PWATER]._qslvl) // || quests[Q_PWATER]._qslvl == 0 || quests[Q_PWATER]._qactive == QUEST_INIT) // || currLvl._dType != quests[Q_PWATER]._qlvltype)
 		return;
 
 	if (quests[Q_PWATER]._qactive == QUEST_DONE)
@@ -508,18 +487,18 @@ void ResyncQuests()
 	if (gbMaxPlayers != 1) {
 		// TODO: eliminate relative level-indices?
 		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
-		//    && currLvl._dLevelIdx >= quests[Q_SKELKING]._qlevel - 1
-		//    && currLvl._dLevelIdx <= quests[Q_SKELKING]._qlevel + 1) {
+		//    && currLvl._dLevelIdx >= questlist[Q_SKELKING]._qdlvl - 1
+		//    && currLvl._dLevelIdx <= questlist[Q_SKELKING]._qdlvl + 1) {
 		//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 		//	NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
 		//}
 		//if (quests[Q_BUTCHER]._qactive == QUEST_INIT
-		//	&& currLvl._dLevelIdx >= quests[Q_BUTCHER]._qlevel - 1
-		//	&& currLvl._dLevelIdx <= quests[Q_BUTCHER]._qlevel + 1) {
+		//	&& currLvl._dLevelIdx >= questlist[Q_BUTCHER]._qdlvl - 1
+		//	&& currLvl._dLevelIdx <= questlist[Q_BUTCHER]._qdlvl + 1) {
 		//	quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 		//	NetSendCmdQuest(true, Q_BUTCHER, false); // recipient should not matter
 		//}
-		if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel - 1) {
+		if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl - 1) {
 			quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 			NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
 		}
@@ -534,28 +513,28 @@ void ResyncQuests()
 			for (i = 0; i < nobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 		}
-		if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel) {
+		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
 			if (quests[Q_BETRAYER]._qvar1 >= 2) {
 				InitVPEntryTrigger();
 			}
 		}
 	}
 #ifdef HELLFIRE
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_DEFILER]._qlevel) {
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_DEFILER]._qdlvl) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
 	}
-	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_NAKRUL]._qlevel - 1) {
+	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_NAKRUL]._qdlvl - 1) {
 	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
 	//}
-	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_JERSEY]._qlevel - 1) {
+	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_JERSEY]._qdlvl - 1) {
 	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
 	//}
-	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == quests[Q_GIRL]._qlevel) {
+	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_GIRL]._qdlvl) {
 		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, Q_GIRL, false); // recipient should not matter
 		// TODO: send message to reinit the towners?

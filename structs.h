@@ -1195,18 +1195,16 @@ static_assert((sizeof(LevelDataStruct) & (sizeof(LevelDataStruct) - 1)) == 0, "A
 //////////////////////////////////////////////////
 
 typedef struct QuestStruct {
-	unsigned char _qlevel;
-	unsigned char _qactive;
+	BYTE _qidx;
+	BYTE _qactive;
 	int _qtx;
 	int _qty;
-	unsigned char _qslvl;
-	unsigned char _qidx;
 	unsigned int _qmsg;
 	unsigned char _qvar1;
 	unsigned char _qvar2;
 	BOOL _qlog;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[2];
 #endif
 } QuestStruct;
 
@@ -1215,10 +1213,8 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 #endif
 
 typedef struct QuestData {
-	unsigned char _qdlvl;
-	char _qdmultlvl;
-	unsigned char _qslvl;
-	int _qflags; /* unsigned char */
+	BYTE _qdlvl;
+	BYTE _qslvl;
 	int _qdmsg;
 	const char *_qlstr;
 } QuestData;

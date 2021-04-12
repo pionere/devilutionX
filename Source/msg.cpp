@@ -2681,7 +2681,7 @@ static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else if (currLvl._dLevelIdx == quests[Q_LTBANNER]._qlevel) {
+	else if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
 		DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x + setpc_w - 1, setpc_y + setpc_h - 1, tv);

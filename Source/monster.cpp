@@ -892,7 +892,7 @@ static void PlaceQuestMonsters()
 			mem_free_dbg(setp);
 		}
 
-		if (currLvl._dLevelIdx == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && gbMaxPlayers != 1) {
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
 			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
 			mem_free_dbg(setp);
