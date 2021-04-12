@@ -230,6 +230,30 @@ void NextDebugMonster()
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "Current debug monster = %i", dbgmon);
 	NetSendCmdString(1 << myplr);
 }
+
+void DumpDungeon()
+{
+	FILE *f0 = fopen("f:\\dundump0.txt", "wb");
+	FILE *f1 = fopen("f:\\dundump1.txt", "wb");
+	FILE *f2 = fopen("f:\\dundump2.txt", "wb");
+	for (int j = 0; j < 48; j++)
+		for (int i = 0; i < 48; i++) {
+			BYTE v;
+			if (i < 40 && j < 40) {
+				v = dungeon[i][j];
+			} else
+				v = 0;
+			if (i < 16)
+				fputc(v, f0);
+			else if (i < 32)
+				fputc(v, f1);
+			else
+				fputc(v, f2);
+		}
+	fclose(f0);
+	fclose(f1);
+	fclose(f2);
+}
 #endif
 
 DEVILUTION_END_NAMESPACE

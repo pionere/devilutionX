@@ -1392,110 +1392,93 @@ static void DRLG_L3River()
 	}
 }
 
-static bool DRLG_L3Spawn(int x, int y, int *totarea);
-
-static bool DRLG_L3SpawnEdge(int x, int y, int *totarea)
+static int lavaarea;
+static bool DRLG_L3SpawnLava(int x, int y, int dir)
 {
-	BYTE i;
-	static BYTE spawntable[15] = { 0x00, 0x0A, 0x43, 0x05, 0x2C, 0x06, 0x09, 0x00, 0x00, 0x1C, 0x83, 0x06, 0x09, 0x0A, 0x05 };
+	BYTE i; //                        0     1     2     3     4    ?5    ?6     7     8     9    10   ?11    12    13    14
+	static BYTE spawntable[15] = { 0x00, 0x0A, 0x08, 0x05, 0x01, 0x00, 0x00, 0xFF, 0x00, 0x02, 0x04, 0x00, 0x06, 0x05, 0x0A };
 
-	if (*totarea > 40) {
+	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
 		return true;
 	}
-	if (x < 0 || y < 0 || x >= DMAXX || y >= DMAXY) {
-		return true;
-	}
-	if (dungeon[x][y] & 0x80) {
+	i = dungeon[x][y];
+	if (i & 0x80) {
 		return false;
 	}
-	if (dungeon[x][y] > 15) {
+	if (i > 15) {
 		return true;
 	}
 
-	i = spawntable[dungeon[x][y]];
+	i = spawntable[i];
+	switch (dir) {
+	case 3: // DIR_S
+		if (i & 8)
+			return false;
+		break;
+	case 2: // DIR_N
+		if (i & 4)
+			return false;
+		break;
+	case 0: // DIR_E
+		if (i & 1)
+			return false;
+		break;
+	case 1: // DIR_W
+		if (i & 2)
+			return false;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
 	dungeon[x][y] |= 0x80;
-	*totarea += 1;
+	lavaarea += 1;
+	if (lavaarea > 40) {
+		return true;
+	}
 
-	if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea)) {
+	if (DRLG_L3SpawnLava(x + 1, y, 0)) {
 		return true;
 	}
-	if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea)) {
+	if (DRLG_L3SpawnLava(x - 1, y, 1)) {
 		return true;
 	}
-	if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea)) {
+	if (DRLG_L3SpawnLava(x, y + 1, 3)) {
 		return true;
 	}
-	if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea)) {
-		return true;
-	}
-	if (i & 0x80 && DRLG_L3Spawn(x, y - 1, totarea)) {
-		return true;
-	}
-	if (i & 0x40 && DRLG_L3Spawn(x, y + 1, totarea)) {
-		return true;
-	}
-	if (i & 0x20 && DRLG_L3Spawn(x + 1, y, totarea)) {
-		return true;
-	}
-	if (i & 0x10 && DRLG_L3Spawn(x - 1, y, totarea)) {
+	if (DRLG_L3SpawnLava(x, y - 1, 2)) {
 		return true;
 	}
 
 	return false;
 }
 
-static bool DRLG_L3Spawn(int x, int y, int *totarea)
+static void DRLG_L3DrawLava(int x, int y)
 {
-	BYTE i;
-	static BYTE spawntable[15] = { 0x00, 0x0A, 0x03, 0x05, 0x0C, 0x06, 0x09, 0x00, 0x00, 0x0C, 0x03, 0x06, 0x09, 0x0A, 0x05 };
+	BYTE i;                 //     0     1     2     3     4     5     6     7     8     9    10    11    12    13    14 
+	static BYTE poolsub[15] = { 0x00, 0x23, 0x1A, 0x24, 0x19, 0x1D, 0x22, 0x07, 0x21, 0x1C, 0x1B, 0x25, 0x20, 0x1F, 0x1E };
 
-	if (*totarea > 40) {
-		return true;
-	}
-	if (x < 0 || y < 0 || x >= DMAXX || y >= DMAXY) {
-		return true;
-	}
-	if (dungeon[x][y] & 0x80) {
-		return false;
-	}
-	if (dungeon[x][y] > 15) {
-		return true;
+	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
+		return;
 	}
 
 	i = dungeon[x][y];
-	dungeon[x][y] |= 0x80;
-	*totarea += 1;
-
-	if (i != 8) {
-		i = spawntable[i];
-		if (i & 8 && DRLG_L3SpawnEdge(x, y - 1, totarea)) {
-			return true;
-		}
-		if (i & 4 && DRLG_L3SpawnEdge(x, y + 1, totarea)) {
-			return true;
-		}
-		if (i & 2 && DRLG_L3SpawnEdge(x + 1, y, totarea)) {
-			return true;
-		}
-		if (i & 1 && DRLG_L3SpawnEdge(x - 1, y, totarea)) {
-			return true;
-		}
-	} else {
-		if (DRLG_L3Spawn(x + 1, y, totarea)) {
-			return true;
-		}
-		if (DRLG_L3Spawn(x - 1, y, totarea)) {
-			return true;
-		}
-		if (DRLG_L3Spawn(x, y + 1, totarea)) {
-			return true;
-		}
-		if (DRLG_L3Spawn(x, y - 1, totarea)) {
-			return true;
-		}
+	if (!(i & 0x80)) {
+		return;
 	}
 
-	return false;
+	i &= ~0x80;
+	if (lavaarea != 0) {
+		i = poolsub[i];
+	}
+
+	dungeon[x][y] = i;
+
+	DRLG_L3DrawLava(x + 1, y);
+	DRLG_L3DrawLava(x - 1, y);
+	DRLG_L3DrawLava(x, y + 1);
+	DRLG_L3DrawLava(x, y - 1);
 }
 
 /**
@@ -1505,63 +1488,21 @@ static bool DRLG_L3Spawn(int x, int y, int *totarea)
  */
 static void DRLG_L3Pool()
 {
-	int i, j, dunx, duny, totarea;
-	bool notFound, addpool;
-	BYTE k;
-	static BYTE poolsub[15] = { 0, 35, 26, 36, 25, 29, 34, 7, 33, 28, 27, 37, 32, 31, 30 };
+	int i, j;
+	bool badPos;
 
-	for (duny = 1; duny < DMAXY - 1; duny++) {
-		for (dunx = 1; dunx < DMAXY - 1; dunx++) {
-			if (dungeon[dunx][duny] != 8) {
+	for (i = 1; i < DMAXY - 1; i++) {
+		for (j = 1; j < DMAXY - 1; j++) {
+			if (dungeon[i][j] != 8) {
 				continue;
 			}
-			dungeon[dunx][duny] |= 0x80;
-			totarea = 1;
-			notFound = !DRLG_L3Spawn(dunx + 1, duny, &totarea)
-				&& !DRLG_L3Spawn(dunx - 1, duny, &totarea)
-				&& !DRLG_L3Spawn(dunx, duny + 1, &totarea)
-				&& !DRLG_L3Spawn(dunx, duny - 1, &totarea);
-			addpool = random_(0, 100) < 25 && totarea > 4 && notFound;
-			for (j = std::max(duny - totarea, 0); j < std::min(duny + totarea, DMAXY); j++) {
-				for (i = std::max(dunx - totarea, 0); i < std::min(dunx + totarea, DMAXX); i++) {
-					// BUGFIX: In the following swap the order to first do the
-					// index checks and only then access dungeon[i][j] (fixed)
-					if (dungeon[i][j] & 0x80) {
-						dungeon[i][j] &= ~0x80;
-						if (addpool) {
-							k = poolsub[dungeon[i][j]];
-							if (k != 0 && k <= 37) {
-								dungeon[i][j] = k;
-							}
-							_guLavapools = MIN_LAVA_POOL;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-static void DRLG_L3PoolFix()
-{
-	int dunx, duny;
-
-	for (duny = 1; duny < DMAXY - 1; duny++) {     // BUGFIX: Change '0' to '1' and 'DMAXY' to 'DMAXY - 1' (fixed)
-		for (dunx = 1; dunx < DMAXX - 1; dunx++) { // BUGFIX: Change '0' to '1' and 'DMAXX' to 'DMAXX - 1' (fixed)
-			if (dungeon[dunx][duny] == 8) {
-				if (dungeon[dunx - 1][duny - 1] >= 25 && dungeon[dunx - 1][duny - 1] <= 41
-				    && dungeon[dunx - 1][duny] >= 25 && dungeon[dunx - 1][duny] <= 41
-				    && dungeon[dunx - 1][duny + 1] >= 25 && dungeon[dunx - 1][duny + 1] <= 41
-				    && dungeon[dunx][duny - 1] >= 25 && dungeon[dunx][duny - 1] <= 41
-				    && dungeon[dunx][duny + 1] >= 25 && dungeon[dunx][duny + 1] <= 41
-				    && dungeon[dunx + 1][duny - 1] >= 25 && dungeon[dunx + 1][duny - 1] <= 41
-				    && dungeon[dunx + 1][duny] >= 25 && dungeon[dunx + 1][duny] <= 41
-				    && dungeon[dunx + 1][duny + 1] >= 25 && dungeon[dunx + 1][duny + 1] <= 41) {
-					dungeon[dunx][duny] = 33;
-				} else if (dungeon[dunx + 1][duny] == 35 || dungeon[dunx + 1][duny] == 37) {
-					dungeon[dunx][duny] = 33;
-				}
-			}
+			lavaarea = 0;
+			badPos = DRLG_L3SpawnLava(i, j, 0);
+			if (badPos || lavaarea < 4/* || random_(0, 100) >= 25*/)
+				lavaarea = 0;
+			else
+				_guLavapools = MIN_LAVA_POOL;
+			DRLG_L3DrawLava(i, j);
 		}
 	}
 }
@@ -2261,7 +2202,6 @@ static void DRLG_L3(int entry)
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CAVES);
-		DRLG_L3PoolFix();
 		FixL3Warp();
 
 		DRLG_L3PlaceRndSet(L3ISLE1, 70);
