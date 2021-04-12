@@ -407,19 +407,6 @@ void FindTrigger()
 			cursmy = ty;
 			pcurstrig = i;
 		}
-
-		if (pcurstrig == -1) {
-			for (int i = 0; i < NUM_QUESTS; i++) {
-				if (i == Q_BETRAYER || currLvl._dLevelIdx != quests[i]._qlevel || quests[i]._qslvl == 0)
-					continue;
-				const int newDdistance = GetDistance(quests[i]._qtx, quests[i]._qty, 2);
-				if (newDdistance == 0)
-					continue;
-				cursmx = quests[i]._qtx;
-				cursmy = quests[i]._qty;
-				pcurstrig = -2 - i;
-			}
-		}
 	}
 
 	if (pcursmonst != -1 || pcursplr != PLR_NONE || cursmx == -1 || cursmy == -1)
