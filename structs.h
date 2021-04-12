@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX
+#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
 #endif
 //////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 #pragma once
 // Unifies joystick, gamepad, and keyboard controller APIs.
 
+#include "../types.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 // NOTE: A, B, X, Y refer to physical positions on an XBox 360 controller.

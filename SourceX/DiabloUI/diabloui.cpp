@@ -532,7 +532,7 @@ bool UiValidPlayerName(const char *name)
 	char tmpname[PLR_NAME_LEN];
 	snprintf(tmpname, PLR_NAME_LEN, name);
 	for (BYTE *letter = (BYTE *)tmpname; *letter; letter++)
-		*letter++;
+		++*letter;
 
 	for (int i = 0; i < lengthof(reserved); i++) {
 		if (strstr(tmpname, reserved[i]))
@@ -801,7 +801,7 @@ bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
 
-	const int index = ui_list->indexAt(event.button.y) + ListOffset;
+	const unsigned index = ui_list->indexAt(event.button.y) + ListOffset;
 
 	if (gfnListFocus != NULL && SelectedItem != index) {
 		UiFocus(index);

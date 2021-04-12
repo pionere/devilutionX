@@ -1,6 +1,6 @@
 #pragma once
 
-#include "all.h"
+#include "../types.h"
 
 #include "DiabloUI/art.h"
 

@@ -49,7 +49,7 @@ static int doom_get_frame_from_time()
 }
 #endif
 
-static BOOLEAN doom_load_graphics()
+static void doom_load_graphics()
 {
 #ifdef HELLFIRE
 	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL");
@@ -62,7 +62,7 @@ static BOOLEAN doom_load_graphics()
 		snprintf(tempstr, sizeof(tempstr), "Items\\Map\\MapZ00%i.CEL", doom_quest_time);
 	}
 #endif
-	return LoadFileWithMem(tempstr, pDoomCel) != NULL;
+	LoadFileWithMem(tempstr, pDoomCel);
 }
 
 void doom_init()
@@ -75,10 +75,7 @@ void doom_init()
 #ifndef  HELLFIRE
 	doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
 #endif
-	if (!doom_load_graphics()) {
-		doom_close();
-		return;
-	}
+	doom_load_graphics();
 	doomflag = TRUE;
 }
 

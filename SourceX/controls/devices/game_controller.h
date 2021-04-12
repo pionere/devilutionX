@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types.h"
+#include "../types.h"
 
 #ifndef HAS_GAMECTRL
 #define HAS_GAMECTRL 0

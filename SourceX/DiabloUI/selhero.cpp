@@ -26,7 +26,6 @@ _uiheroinfo selhero_heroInfo;
 const size_t kMaxViewportItems = 6;
 char textStats[5][4];
 char title[32];
-char selhero_Lable[32];
 char selhero_Description[256];
 int selhero_result;
 bool selhero_endMenu;

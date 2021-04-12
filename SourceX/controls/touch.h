@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types.h"
+#include "../types.h"
 
 #ifndef HAS_TOUCHPAD
 #define HAS_TOUCHPAD 0

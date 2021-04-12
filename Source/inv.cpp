@@ -1920,27 +1920,27 @@ char CheckInvItem()
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:
 		rv = INVITEM_HEAD;
-		static_assert(INVLOC_HEAD == INVITEM_HEAD, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_HEAD == (int)INVITEM_HEAD, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		break;
 	case SLOT_RING_LEFT:
 		rv = INVITEM_RING_LEFT;
-		static_assert(INVLOC_RING_LEFT == INVITEM_RING_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_RING_LEFT == (int)INVITEM_RING_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		break;
 	case SLOT_RING_RIGHT:
 		rv = INVITEM_RING_RIGHT;
-		static_assert(INVLOC_RING_RIGHT == INVITEM_RING_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_RING_RIGHT == (int)INVITEM_RING_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		break;
 	case SLOT_AMULET:
 		rv = INVITEM_AMULET;
-		static_assert(INVLOC_AMULET == INVITEM_AMULET, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_AMULET == (int)INVITEM_AMULET, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		break;
 	case SLOT_HAND_LEFT:
 		rv = INVITEM_HAND_LEFT;
-		static_assert(INVLOC_HAND_LEFT == INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_HAND_LEFT == (int)INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		break;
 	case SLOT_HAND_RIGHT:
 		rv = INVITEM_HAND_LEFT;
-		static_assert(INVLOC_HAND_LEFT == INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_HAND_LEFT == (int)INVITEM_HAND_LEFT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		pi = &p->InvBody[rv];
 #ifdef HELLFIRE
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND
@@ -1949,12 +1949,12 @@ char CheckInvItem()
 		if (pi->_itype == ITYPE_NONE || pi->_iLoc != ILOC_TWOHAND) {
 #endif
 			rv = INVITEM_HAND_RIGHT;
-			static_assert(INVLOC_HAND_RIGHT == INVITEM_HAND_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+			static_assert((int)INVLOC_HAND_RIGHT == (int)INVITEM_HAND_RIGHT, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		}
 		break;
 	case SLOT_CHEST:
 		rv = INVITEM_CHEST;
-		static_assert(INVLOC_CHEST == INVITEM_CHEST, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
+		static_assert((int)INVLOC_CHEST == (int)INVITEM_CHEST, "INVLOC - INVITEM match is necessary in CheckInvBody 1.");
 		pi = &p->InvBody[rv];
 		break;
 	case SLOT_STORAGE:

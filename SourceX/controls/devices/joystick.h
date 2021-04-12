@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types.h"
+#include "../types.h"
 
 #ifndef HAS_JOYSTICK
 #define HAS_JOYSTICK 0
