@@ -3351,7 +3351,7 @@ static void OperateShrine(int pnum, int oi, int psfx, int psfxCnt)
 	int r, i;
 	int xx, yy;
 	int v1, v2, v3, v4;
-	unsigned __int64 spell, spells;
+	uint64_t spell, spells;
 
 	assert((DWORD)oi < MAXOBJECTS);
 

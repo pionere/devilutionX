@@ -436,7 +436,7 @@ static void multi_process_tmsgs()
 	int cnt;
 	TPkt pkt;
 
-	while (cnt = tmsg_get((BYTE *)&pkt, sizeof(TPkt))) {
+	while ((cnt = tmsg_get((BYTE *)&pkt, sizeof(TPkt))) != 0) {
 		multi_handle_all_packets(myplr, (BYTE *)&pkt, cnt);
 	}
 }

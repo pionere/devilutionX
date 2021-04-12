@@ -481,7 +481,7 @@ void CalcPlrItemVals(int pnum, BOOL Loadgfx)
 	int dadd = 0; // added dexterity
 	int vadd = 0; // added vitality
 
-	unsigned __int64 spl = 0; // bitarray for all enabled/active spells
+	uint64_t spl = 0; // bitarray for all enabled/active spells
 
 	int fr = 0; // fire resistance
 	int lr = 0; // lightning resistance

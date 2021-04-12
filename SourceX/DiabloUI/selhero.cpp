@@ -337,8 +337,9 @@ void selhero_ClassSelector_Focus(std::size_t index)
 
 void selhero_ClassSelector_Select(std::size_t index)
 {
-	int hClass = vecSelHeroDlgItems[index]->m_value;
 #ifdef SPAWN
+	int hClass = vecSelHeroDlgItems[index]->m_value;
+
 	if (hClass != PC_WARRIOR) {
 		ArtBackground.Unload();
 		UiSelOkDialog(NULL, "The Rogue and Sorcerer are only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.", false);

@@ -395,7 +395,7 @@ void DrawSpeedBook()
 {
 	PlayerStruct *p;
 	int i, sn, x, y, /*c,*/ s, t, lx, ly;
-	unsigned __int64 mask;
+	uint64_t mask;
 
 	pSpell = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
@@ -504,7 +504,7 @@ void SetSpeedSpell(int slot)
 void ToggleSpell(int slot)
 {
 	PlayerStruct *p;
-	unsigned __int64 spells;
+	uint64_t spells;
 
 	p = &plr[myplr];
 	switch (p->_pSplTHotKey[slot]) {
@@ -859,7 +859,7 @@ void DrawCtrlBtns()
 void DoSpeedBook()
 {
 	PlayerStruct *p;
-	unsigned __int64 spell, spells;
+	uint64_t spell, spells;
 	int xo, yo, X, Y, i, j;
 
 	p = &plr[myplr];
@@ -1930,7 +1930,7 @@ static char GetSBookTrans(int sn, BOOL townok)
 	char st;
 
 	p = &plr[myplr];
-	if (p->_pAblSpells & SPELL_MASK(sn)) { /// BUGFIX: missing (__int64) (fixed)
+	if (p->_pAblSpells & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
 		st = RSPLTYPE_SKILL;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
 		st = RSPLTYPE_CHARGES;
@@ -1960,7 +1960,7 @@ void DrawSpellBook()
 	PlayerStruct* p;
 	int i, sn, mana, lvl, sx, yp, offset, min, max;
 	char st;
-	unsigned __int64 spl;
+	uint64_t spl;
 
 	// back panel
 	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pSpellBkCel, 1, SPANEL_WIDTH);
@@ -2030,7 +2030,7 @@ void CheckSBook()
 	PlayerStruct *p;
 	int sn;
 	char st;
-	unsigned __int64 spl;
+	uint64_t spl;
 
 	int dx = MouseX - (RIGHT_PANEL + SBOOK_LEFT_BORDER);
 	if (dx < 0)
