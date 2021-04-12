@@ -3576,7 +3576,8 @@ typedef enum inv_item {
 	INVITEM_INV_LAST   = 46,
 	INVITEM_BELT_FIRST = 47,
 	INVITEM_BELT_LAST  = 54,
-	NUM_INVELEM
+	NUM_INVELEM,
+	INVITEM_NONE       = 0xFF
 } inv_item;
 
 typedef enum inv_body_loc {

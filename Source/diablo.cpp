@@ -708,7 +708,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			}
 			return;
 		}
-		if (pcursplr != -1 && plr[myplr]._pTeam != plr[pcursplr]._pTeam) {
+		if (pcursplr != PLR_NONE && plr[myplr]._pTeam != plr[pcursplr]._pTeam) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
 				NetSendCmdWBParam4(true, CMD_SPELLPID, pcursplr, atkSkill, asf, askl);
 			else if (plr[myplr]._pSkillFlags & SFLAG_RANGED)
@@ -754,12 +754,12 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		//return;
 	}
 
-	if (pcursplr != -1) {
+	if (pcursplr != PLR_NONE) {
 		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
 		//return;
 	}
 
-	if (pcursobj != -1) {
+	if (pcursobj != OBJ_NONE) {
 		bool bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
 		if ((moveSkill == SPL_WALK || bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
@@ -774,7 +774,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		return;
 	}
 
-	if (pcursitem != -1) {
+	if (pcursitem != ITEM_NONE) {
 		NetSendCmdLocParam1(true, gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 		return;
 	}
@@ -796,13 +796,13 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_IDENTIFY:
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
-		if (pcursinvitem != -1) {
+		if (pcursinvitem != INVITEM_NONE) {
 			PlayerStruct *p = &plr[myplr];
 			NetSendCmdLocBParam3(true, CMD_SPELLXY, p->_px, p->_py, p->_pTSpell, p->_pTSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != -1) {
+		if (pcursobj != OBJ_NONE) {
 			if (!bShift ||
 			 (abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2)) {
 				NetSendCmdLocParam1(true, CMD_DISARMXY, cursmx, cursmy, pcursobj);
@@ -811,19 +811,19 @@ bool TryIconCurs(bool bShift)
 		}
 		break;
 	case CURSOR_OIL:
-		if (pcursinvitem != -1)
+		if (pcursinvitem != INVITEM_NONE)
 			NetSendCmdBParam2(true, CMD_DOOIL, plr[myplr]._pOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
-		if (pcursobj != -1)
+		if (pcursobj != OBJ_NONE)
 			NetSendCmdParam1(true, CMD_OPOBJT, pcursobj);
-		if (pcursitem != -1)
+		if (pcursitem != ITEM_NONE)
 			NetSendCmdGItem(true, CMD_REQUESTAGITEM, myplr, myplr, pcursitem);
 		if (pcursmonst != -1 && !MonTalker(pcursmonst))
 			NetSendCmdParam1(true, CMD_KNOCKBACK, pcursmonst);
 		break;
 	case CURSOR_RESURRECT:
-		if (pcursplr != -1) {
+		if (pcursplr != PLR_NONE) {
 			int sn = plr[myplr]._pTSpell;
 			int sf = plr[myplr]._pTSplFrom;
 			NetSendCmdLocBParam3(true, CMD_SPELLXY, plr[pcursplr]._px, plr[pcursplr]._py, sn, sf, pcursplr);
@@ -835,13 +835,13 @@ bool TryIconCurs(bool bShift)
 		int sl = GetSpellLevel(myplr, sn);
 		if (pcursmonst != -1)
 			NetSendCmdWBParam4(true, CMD_SPELLID, pcursmonst, sn, sf, sl);
-		else if (pcursplr != -1)
+		else if (pcursplr != PLR_NONE)
 			NetSendCmdWBParam4(true, CMD_SPELLPID, pcursplr, sn, sf, sl);
 		else
 			NetSendCmdLocBParam3(true, CMD_SPELLXY, cursmx, cursmy, sn, sf, sl);
 	} break;
 	case CURSOR_HEALOTHER:
-		if (pcursplr != -1) {
+		if (pcursplr != PLR_NONE) {
 			int sn = plr[myplr]._pTSpell;
 			int sf = plr[myplr]._pTSplFrom;
 			int sl = GetSpellLevel(myplr, sn);
@@ -978,7 +978,7 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (pcursinvitem != -1 && UseInvItem(pcursinvitem))
+	if (pcursinvitem != INVITEM_NONE && UseInvItem(pcursinvitem))
 		return;
 
 	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
@@ -1397,7 +1397,7 @@ static void PressKey(int vkey)
 	if (vkey == DVL_VK_F2) {
 	}
 	else if (vkey == DVL_VK_F3) {
-		if (pcursitem != -1) {
+		if (pcursitem != ITEM_NONE) {
 			snprintf(
 			    gbNetMsg,
 				sizeof(gbNetMsg),

@@ -1766,14 +1766,14 @@ void DrawInfoStr()
 	int x, y, xx, yy;
 	BYTE col;
 
-	if (pcursitem != -1) {
+	if (pcursitem != ITEM_NONE) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		x = is->_ix;
 		y = is->_iy;
 		GetMousePos(x, y, &xx, &yy);
 		DrawTooltip(infostr, xx, yy, infoclr);
-	} else if (pcursobj != -1) {
+	} else if (pcursobj != OBJ_NONE) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &object[pcursobj];
 		x = os->_ox - 1;
@@ -1790,13 +1790,13 @@ void DrawInfoStr()
 			if (mon->_uniqtype != 0) {
 				col = COL_GOLD;
 			}
-		} else if (pcursitem == -1) {
+		} else if (pcursitem == ITEM_NONE) {
 			strcpy(infostr, towner[pcursmonst]._tName);
 		}
 		GetMousePos(x, y, &xx, &yy);
 		xx += DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
-	} else if (pcursplr != -1) {
+	} else if (pcursplr != PLR_NONE) {
 		PlayerStruct* p = &plr[pcursplr];
 		x = p->_px - 2;
 		y = p->_py - 2;
@@ -1829,7 +1829,7 @@ void DrawInfoStr()
 		}
 		snprintf(infostr, sizeof(infostr), fmt, spelldata[currSkill].sNameText);
 		DrawTooltip(infostr, MouseX, MouseY - 8, COL_WHITE);
-	} else if (pcursinvitem != -1) {
+	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();

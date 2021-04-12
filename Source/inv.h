@@ -38,8 +38,8 @@ bool DropItem();
 void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y, int ii);
 int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround);
-char CheckInvItem();
-char CheckInvBelt();
+BYTE CheckInvItem();
+BYTE CheckInvBelt();
 bool UseInvItem(int cii);
 void CalculateGold(int pnum);
 

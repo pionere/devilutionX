@@ -17,13 +17,13 @@ int pcursmonst = -1;
 BYTE *pCursCels;
 
 /** inv_item value */
-char pcursinvitem;
+BYTE pcursinvitem;
 /** Current highlighted item */
-char pcursitem;
+BYTE pcursitem;
 /** Current highlighted object */
-char pcursobj;
+BYTE pcursobj;
 /** Current highlighted player */
-char pcursplr;
+BYTE pcursplr;
 /* Current highlighted trigger
  * 0 - MAXTRIGGERS : standard triggers
  * MAXTRIGGERS+1...: missile-id of townportals
@@ -166,9 +166,9 @@ void InitLevelCursor()
 	cursmy = ViewY;
 	pcurstemp = -1;
 	pcursmonst = -1;
-	pcursobj = -1;
-	pcursitem = -1;
-	pcursplr = -1;
+	pcursobj = OBJ_NONE;
+	pcursitem = ITEM_NONE;
+	pcursplr = PLR_NONE;
 	ClearCursor();
 }
 
@@ -286,13 +286,13 @@ void CheckCursMove()
 
 	pcurstemp = pcursmonst;
 	pcursmonst = -1;
-	pcursobj = -1;
-	pcursitem = -1;
-	//if (pcursinvitem != -1) {
+	pcursobj = OBJ_NONE;
+	pcursitem = ITEM_NONE;
+	//if (pcursinvitem != INVITEM_NONE) {
 	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
 	//}
-	pcursinvitem = -1;
-	pcursplr = -1;
+	pcursinvitem = INVITEM_NONE;
+	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
 	if (plr[myplr]._pInvincible | gbDoomflag | gbSkillListFlag) {
@@ -580,7 +580,7 @@ void CheckCursMove()
 		}
 	}
 
-	if (pcursplr != -1) {
+	if (pcursplr != PLR_NONE) {
 		return;
 	}
 
@@ -624,7 +624,7 @@ void CheckCursMove()
 		}
 	}
 
-	if (pcursobj != -1)
+	if (pcursobj != OBJ_NONE)
 		return;
 
 	if (!flipflag) {
@@ -666,7 +666,7 @@ void CheckCursMove()
 			pcursitem = bv;
 		}
 	}
-	if (pcursitem == -1) {
+	if (pcursitem == ITEM_NONE) {
 		cursmx = mx;
 		cursmy = my;
 		CheckTrigForce();

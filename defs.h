@@ -75,6 +75,7 @@
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS				4
 #define MAX_MINIONS				MAX_PLRS
+#define PLR_NONE				0xFF
 
 #define MAX_CHARACTERS			99
 #define MAX_TOWNERS				16
@@ -102,11 +103,13 @@
 
 #define MAXDEAD					31
 #define MAXITEMS				127
+#define ITEM_NONE				0xFF
 #define MAXBELTITEMS			8
 #define MAXLIGHTS				32
 #define MAXMISSILES				125
 #define MAXMONSTERS				200
 #define MAXOBJECTS				127
+#define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				50
 #define MAXTILES				2047

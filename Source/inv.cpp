@@ -1197,7 +1197,7 @@ static void CheckInvCut()
 	}
 
 	r = pcursinvitem;
-	if (r == -1)
+	if (r == INVITEM_NONE)
 		return; // FALSE;
 
 	//p->HoldItem._itype = ITYPE_NONE;
@@ -1497,7 +1497,7 @@ void InvGetItem(int pnum, int ii)
 	ItemStatOk(pnum, is);
 	copy_pod(p->HoldItem, *is);
 	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
-	pcursitem = -1;
+	pcursitem = ITEM_NONE;
 
 	for (i = 0; i < numitems; ) {
 		if (itemactive[i] == ii) {
@@ -1765,7 +1765,7 @@ int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround)
 	return ii;
 }
 
-char CheckInvBelt()
+BYTE CheckInvBelt()
 {
 	int r;
 
@@ -1783,10 +1783,10 @@ char CheckInvBelt()
 		return INVITEM_BELT_FIRST + r;
 	}
 
-	return -1;
+	return INVITEM_NONE;
 }
 
-char CheckInvItem()
+BYTE CheckInvItem()
 {
 	int r;
 	ItemStruct *pi;
@@ -1846,19 +1846,19 @@ char CheckInvItem()
 	case SLOT_STORAGE:
 		r = p->InvGrid[r - SLOTXY_INV_FIRST];
 		if (r == 0)
-			return -1;
+			return INVITEM_NONE;
 		r = abs(r) - 1;
 		assert(p->InvList[r]._itype != ITYPE_NONE);
 		return INVITEM_INV_FIRST + r;
 	case SLOT_BELT:
-		return -1;
+		return INVITEM_NONE;
 	default:
 		ASSUME_UNREACHABLE
 	}
 
 	pi = &p->InvBody[rv];
 	if (pi->_itype == ITYPE_NONE)
-		return -1;
+		return INVITEM_NONE;
 
 	return rv;
 }

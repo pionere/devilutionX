@@ -125,7 +125,7 @@ void FindItemOrObject()
 		}
 	}
 
-	if (currLvl._dType == DTYPE_TOWN || pcursitem != -1)
+	if (currLvl._dType == DTYPE_TOWN || pcursitem != ITEM_NONE)
 		return; // Don't look for objects in town
 
 	for (int xx = -1; xx <= 1; xx++) {
@@ -342,10 +342,10 @@ void CheckPlayerNearby()
 				continue;
 		}
 
-		if (pcursplr != -1 && distance < newDdistance)
+		if (pcursplr != PLR_NONE && distance < newDdistance)
 			continue;
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (pcursplr != -1 && distance == newDdistance && rotations < newRotations)
+		if (pcursplr != PLR_NONE && distance == newDdistance && rotations < newRotations)
 			continue;
 
 		distance = newDdistance;
@@ -370,7 +370,7 @@ void FindTrigger()
 	int rotations;
 	int distance = 0;
 
-	if (pcursitem != -1 || pcursobj != -1)
+	if (pcursitem != ITEM_NONE || pcursobj != OBJ_NONE)
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < nummissiles; i++) {
@@ -422,7 +422,7 @@ void FindTrigger()
 		}
 	}
 
-	if (pcursmonst != -1 || pcursplr != -1 || cursmx == -1 || cursmy == -1)
+	if (pcursmonst != -1 || pcursplr != PLR_NONE || cursmx == -1 || cursmy == -1)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -440,7 +440,7 @@ void Interact()
 		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
 			NetSendCmdParam3(true, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
-		else if (pcursplr != -1 && plr[myplr]._pTeam != plr[pcursplr]._pTeam)
+		else if (pcursplr != PLR_NONE && plr[myplr]._pTeam != plr[pcursplr]._pTeam)
 			NetSendCmdBParam3(true, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
 	}
 }
@@ -1092,10 +1092,10 @@ void plrctrls_after_check_curs_move()
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
 		// Clear focuse set by cursor
-		pcursplr = -1;
+		pcursplr = PLR_NONE;
 		pcursmonst = -1;
-		pcursitem = -1;
-		pcursobj = -1;
+		pcursitem = ITEM_NONE;
+		pcursobj = OBJ_NONE;
 		pcurstrig = -1;
 		cursmx = -1;
 		cursmy = -1;
@@ -1194,7 +1194,7 @@ static bool SpellHasActorTarget()
 		cursmy = monster[pcursmonst]._my;
 	}
 
-	return pcursplr != -1 || pcursmonst != -1;
+	return pcursplr != PLR_NONE || pcursmonst != -1;
 }
 
 static void UpdateSpellTarget()
@@ -1202,7 +1202,7 @@ static void UpdateSpellTarget()
 	if (SpellHasActorTarget())
 		return;
 
-	pcursplr = -1;
+	pcursplr = PLR_NONE;
 	pcursmonst = -1;
 
 	const PlayerStruct &player = plr[myplr];
@@ -1245,8 +1245,8 @@ void PerformSpellAction()
 	int spl = plr[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = plr[myplr]._pAltMoveSkill;
-	if ((pcursplr == -1 && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
-	    || (pcursobj == -1 && spl == SPL_DISARM)) {
+	if ((pcursplr == PLR_NONE && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
+	    || (pcursobj == OBJ_NONE && spl == SPL_DISARM)) {
 		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
 		return;
 	}
@@ -1259,7 +1259,7 @@ static void CtrlUseInvItem()
 {
 	ItemStruct *is;
 
-	if (pcursinvitem == -1)
+	if (pcursinvitem == INVITEM_NONE)
 		return;
 
 	if (pcursinvitem <= INVITEM_INV_LAST)
@@ -1286,9 +1286,9 @@ void PerformSecondaryAction()
 	if (pcurs > CURSOR_HAND)
 		NewCursor(CURSOR_HAND);
 
-	if (pcursitem != -1) {
+	if (pcursitem != ITEM_NONE) {
 		NetSendCmdLocParam1(true, CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-	} else if (pcursobj != -1) {
+	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 	} else if (pcurstrig != -1) {
 		if (pcurstrig >= MAXTRIGGERS + 1) {
