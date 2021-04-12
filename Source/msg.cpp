@@ -643,15 +643,6 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 			pD->bMCh = pI->bMCh;
 			pD->wValue = pI->wValue;
 			pD->dwBuff = pI->dwBuff;
-#ifdef HELLFIRE
-			pD->wToHit = pI->wToHit;
-			pD->bMinDam = pI->bMinDam;
-			pD->bMaxDam = pI->bMaxDam;
-			pD->bMinStr = pI->bMinStr;
-			pD->bMinMag = pI->bMinMag;
-			pD->bMinDex = pI->bMinDex;
-			pD->bAC = pI->bAC;
-#endif
 			break;
 		}
 	}
@@ -726,15 +717,6 @@ static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
 		dest->wValue = src->_ivalue;
-#ifdef HELLFIRE
-		dest->wToHit = src->_iPLToHit;
-		dest->bMinDam = src->_iMinDam;
-		dest->bMaxDam = src->_iMaxDam;
-		dest->bMinStr = src->_iMinStr;
-		dest->bMinMag = src->_iMinMag;
-		dest->bMinDex = src->_iMinDex;
-		dest->bAC = src->_iAC;
-#endif
 	}
 }
 
@@ -761,15 +743,6 @@ static void PackGItem(TCmdGItem *dest, ItemStruct *src)
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
 		dest->wValue = src->_ivalue;
-#ifdef HELLFIRE
-		dest->wToHit = src->_iPLToHit;
-		dest->bMinDam = src->_iMinDam;
-		dest->bMaxDam = src->_iMaxDam;
-		dest->bMinStr = src->_iMinStr;
-		dest->bMinMag = src->_iMinMag;
-		dest->bMinDex = src->_iMinDex;
-		dest->bAC = src->_iAC;
-#endif
 	}
 }
 
@@ -848,15 +821,6 @@ static void UnPackPItem(const TCmdPItem *src)
 		items[MAXITEMS]._iMaxDur = src->bMDur;
 		items[MAXITEMS]._iCharges = src->bCh;
 		items[MAXITEMS]._iMaxCharges = src->bMCh;
-#ifdef HELLFIRE
-		items[MAXITEMS]._iPLToHit = src->wToHit;
-		items[MAXITEMS]._iMinDam = src->bMinDam;
-		items[MAXITEMS]._iMaxDam = src->bMaxDam;
-		items[MAXITEMS]._iMinStr = src->bMinStr;
-		items[MAXITEMS]._iMinMag = src->bMinMag;
-		items[MAXITEMS]._iMinDex = src->bMinDex;
-		items[MAXITEMS]._iAC = src->bAC;
-#endif
 	}
 }
 
@@ -885,15 +849,6 @@ static void UnPackGItem(TCmdGItem *src)
 		items[MAXITEMS]._iMaxDur = src->bMDur;
 		items[MAXITEMS]._iCharges = src->bCh;
 		items[MAXITEMS]._iMaxCharges = src->bMCh;
-#ifdef HELLFIRE
-		items[MAXITEMS]._iPLToHit = src->wToHit;
-		items[MAXITEMS]._iMinDam = src->bMinDam;
-		items[MAXITEMS]._iMaxDam = src->bMaxDam;
-		items[MAXITEMS]._iMinStr = src->bMinStr;
-		items[MAXITEMS]._iMinMag = src->bMinMag;
-		items[MAXITEMS]._iMinDex = src->bMinDex;
-		items[MAXITEMS]._iAC = src->bAC;
-#endif
 	}
 }
 
