@@ -24,7 +24,7 @@ static void DialogActionOK()
 #define BLANKCOLOR { 0, 0xFF, 0, 0 }
 // clang-format on
 
-static void LoadFallbackPalette()
+/*static void LoadFallbackPalette()
 {
 	// clang-format off
 	static const SDL_Color fallback_palette[256] = {
@@ -145,7 +145,7 @@ static void LoadFallbackPalette()
 	};
 	// clang-format on
 	ApplyGamma(logical_palette, fallback_palette, 256);
-}
+}*/
 
 static void Init(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
 {

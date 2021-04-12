@@ -111,7 +111,6 @@ _uiheroinfo selhero_heros[MAX_CHARACTERS];
 const unsigned kMaxViewportItems = 6;
 char textStats[5][4];
 char title[32];
-char selhero_Lable[32];
 int selhero_result;
 bool selhero_endMenu;
 bool selhero_navigateYesNo;
@@ -417,8 +416,6 @@ void selhero_ClassSelector_Focus(unsigned index)
 
 void selhero_ClassSelector_Select(unsigned index)
 {
-	int hClass = vecSelHeroDlgItems[index]->m_value;
-
 	snprintf(title, sizeof(title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #if defined __3DS__

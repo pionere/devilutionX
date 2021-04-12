@@ -65,7 +65,7 @@ int random_(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
 BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen);
-DWORD LoadFileWithMem(const char *pszName, BYTE *p);
+void LoadFileWithMem(const char *pszName, BYTE *p);
 void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel);
 void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
@@ -91,7 +91,8 @@ inline int RandRange(int minVal, int maxVal)
 #else
 #define DIAG_STR(s) #s
 #define DIAG_JOINSTR(x,y) DIAG_STR(x ## y)
-#define DIAG_PRAGMA(compiler,x) _Pragma(compiler diagnostic x)
+#define DO_DIAG_PRAGMA(x) _Pragma(#x)
+#define DIAG_PRAGMA(compiler,x) DO_DIAG_PRAGMA(compiler diagnostic x)
 #if defined(__clang__)
 # define DISABLE_WARNING(gcc_unused,clang_option,msvc_unused) DIAG_PRAGMA(clang,push) DIAG_PRAGMA(clang,ignored DIAG_JOINSTR(-W,clang_option))
 # define ENABLE_WARNING(gcc_unused,clang_option,msvc_unused) DIAG_PRAGMA(clang,pop)
@@ -116,9 +117,9 @@ template<DWORD N1, DWORD N2>
 inline void copy_str(char (&dest)[N1], char (&src)[N2])
 {
 	static_assert(N1 >= N2, "String does not fit the destination.");
-	DISABLE_WARNING(gcc_option, clang_option, 4996)
+	DISABLE_WARNING(gcc_option, deprecated-declarations, 4996)
 	strcpy(dest, src);
-	ENABLE_WARNING(gcc_option, clang_option, 4996)
+	ENABLE_WARNING(gcc_option, deprecated-declarations, 4996)
 }
 
 /*
@@ -129,7 +130,7 @@ template<DWORD N1, DWORD N2>
 inline void copy_cstr(char (&dest)[N1], const char (&src)[N2])
 {
 	static_assert(N1 >= N2, "String does not fit the destination.");
-	memcpy(dest, src, std::min(N1, ((N2 + sizeof(int) - 1) / sizeof(int)) * sizeof(int)));
+	memcpy(dest, src, std::min(N1, (DWORD)(((N2 + sizeof(int) - 1) / sizeof(int)) * sizeof(int))));
 }
 
 /*

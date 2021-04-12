@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
 #include "DiabloUI/fonts.h"
 
 DEVILUTION_BEGIN_NAMESPACE

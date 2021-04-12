@@ -274,7 +274,7 @@ struct Archive {
 				return false;
 			}
 			if (size > UINT32_MAX) {
-				SDL_Log("OpenArchive(\"%s\") failed. File too large (%d).", name, size);
+				SDL_Log("OpenArchive(\"%s\") failed. File too large (%lu).", name, size);
 				return false;
 			}
 #endif

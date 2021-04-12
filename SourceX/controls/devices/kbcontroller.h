@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types.h"
+#include "../types.h"
 
 // Keyboard keys acting like gamepad buttons
 #ifndef HAS_KBCTRL

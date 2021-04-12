@@ -1301,7 +1301,7 @@ typedef struct TownerStruct {
 	int _tStoreTalk;
 	BOOL _tSelFlag;
 	int _tSeed;
-	char *_tName;
+	const char *_tName;
 	unsigned char *_tNAnim[8];
 	int _tNFrames;
 	unsigned char *_tNData;

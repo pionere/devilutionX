@@ -166,6 +166,8 @@ int Joystick::ToSdlJoyButton(ControllerButton button) const
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return JOY_BUTTON_DPAD_RIGHT;
 #endif
+	default:
+		break;
 	}
 	return -1;
 }
@@ -189,6 +191,8 @@ bool Joystick::IsHatButtonPressed(ControllerButton button) const
 	case ControllerButton_BUTTON_DPAD_RIGHT:
 		return (SDL_JoystickGetHat(sdl_joystick_, JOY_HAT_DPAD_RIGHT_HAT) & JOY_HAT_DPAD_RIGHT) != 0;
 #endif
+	default:
+		break;
 	}
 	return false;
 }

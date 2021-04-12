@@ -783,9 +783,8 @@ BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
  * @brief Load a file in to the given buffer
  * @param pszName Path of file
  * @param p Target buffer
- * @return Size of file
  */
-DWORD LoadFileWithMem(const char *pszName, BYTE *p)
+void LoadFileWithMem(const char *pszName, BYTE *p)
 {
 	DWORD dwFileLen;
 	HANDLE hsFile;
@@ -804,8 +803,6 @@ DWORD LoadFileWithMem(const char *pszName, BYTE *p)
 
 	SFileReadFile(hsFile, p, dwFileLen, NULL);
 	SFileCloseFile(hsFile);
-
-	return dwFileLen;
 }
 
 /**

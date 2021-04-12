@@ -20,7 +20,7 @@ public:
 	virtual void send(packet &pkt);
 	virtual void disconnect_net(plr_t plr);
 
-	virtual bool SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int type);
 
 	virtual std::string make_default_gamename();
 	virtual void send_info_request();
@@ -96,7 +96,7 @@ bool base_protocol<P>::wait_firstpeer()
 template<class P>
 void base_protocol<P>::send_info_request()
 {
-	auto pkt = pktfty->make_packet<PT_INFO_REQUEST>(PLR_BROADCAST,
+	auto pkt = pktfty->make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST,
 	                                                PLR_MASTER);
 	proto.send_oob_mc(pkt->data());
 }
@@ -106,7 +106,7 @@ void base_protocol<P>::wait_join()
 {
 	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
 	                sizeof(cookie_t));
-	auto pkt = pktfty->make_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
+	auto pkt = pktfty->make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
 	                                                PLR_MASTER, cookie_self, game_init_info);
 	proto.send(firstpeer, pkt->data());
 	for (auto i = 0; i < 500; ++i) {
@@ -178,7 +178,7 @@ void base_protocol<P>::recv()
 		endpoint sender;
 		while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
 			try {
-				auto pkt = pktfty->make_packet(pkt_buf);
+				auto pkt = pktfty->make_in_packet(pkt_buf);
 				recv_decrypted(*pkt, sender);
 			} catch (packet_exception &e) {
 				// drop packet
@@ -208,12 +208,12 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 	}
 	for (plr_t j = 0; j < MAX_PLRS; ++j) {
 		if ((j != plr_self) && (j != i) && peers[j]) {
-			auto infopkt = pktfty->make_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
+			auto infopkt = pktfty->make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
 			proto.send(sender, infopkt->data());
 			break;
 		}
 	}
-	auto reply = pktfty->make_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST,
+	auto reply = pktfty->make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST,
 	    pkt.cookie(), i,
 	    game_init_info);
 	proto.send(sender, reply->data());
@@ -247,7 +247,7 @@ void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 				buffer_t buf;
 				buf.resize(gamename.size());
 				std::memcpy(buf.data(), &gamename[0], gamename.size());
-				auto reply = pktfty->make_packet<PT_INFO_REPLY>(PLR_BROADCAST,
+				auto reply = pktfty->make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST,
 				                                                PLR_MASTER,
 				                                                buf);
 				proto.send_oob(sender, reply->data());
@@ -284,11 +284,10 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 }
 
 template<class P>
-bool base_protocol<P>::SNetLeaveGame(int type)
+void base_protocol<P>::SNetLeaveGame(int type)
 {
-	auto ret = base::SNetLeaveGame(type);
+	base::SNetLeaveGame(type);
 	recv();
-	return ret;
 }
 
 template<class P>
