@@ -398,7 +398,7 @@ void FindTrigger()
 		for (int i = 0; i < numtrigs; i++) {
 			int tx = trigs[i]._tx;
 			int ty = trigs[i]._ty;
-			if (trigs[i]._tlvl == 13)
+			if (trigs[i]._tlvl == DLV_HELL1)
 				ty -= 1;
 			const int newDdistance = GetDistance(tx, ty, 2);
 			if (newDdistance == 0)

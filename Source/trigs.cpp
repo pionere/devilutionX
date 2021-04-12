@@ -87,7 +87,7 @@ static void InitTownTriggers()
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
 	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTOWNWARP;
-	trigs[TWARP_CATHEDRAL]._tlvl = 1;
+	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
 
 	townwarps = GetOpenWarps();
 
@@ -95,32 +95,32 @@ static void InitTownTriggers()
 		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
 		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
 		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_CATACOMB]._tlvl = 5;
+		trigs[TWARP_CATACOMB]._tlvl = DLV_CATACOMBS1;
 	}
 	if (townwarps & (1 << TWARP_CAVES)) {
 		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
 		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
 		trigs[TWARP_CAVES]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_CAVES]._tlvl = 9;
+		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
 	}
 	if (townwarps & (1 << TWARP_HELL)) {
 		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
 		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
 		trigs[TWARP_HELL]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_HELL]._tlvl = 13;
+		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
 	}
 #ifdef HELLFIRE
 	if (townwarps & (1 << TWARP_NEST)) {
 		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
 		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
 		trigs[TWARP_NEST]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_NEST]._tlvl = 17;
+		trigs[TWARP_NEST]._tlvl = DLV_NEST1;
 	}
 	if (townwarps & (1 << TWARP_CRYPT)) {
 		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
 		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
 		trigs[TWARP_CRYPT]._tmsg = WM_DIABTOWNWARP;
-		trigs[TWARP_CRYPT]._tlvl = 21;
+		trigs[TWARP_CRYPT]._tlvl = DLV_CRYPT1;
 	}
 #endif
 	static_assert(NUM_TWARP <= MAXTRIGGERS, "Too many trigger in town.");
