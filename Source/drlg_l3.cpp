@@ -531,15 +531,24 @@ const BYTE L3XTRA5[] = {
 };
 
 #ifdef HELLFIRE
-const BYTE byte_48A76C[] = { 1, 1, 8, 25 };
-const BYTE byte_48A770[] = { 1, 1, 8, 26 };
-const BYTE byte_48A774[] = { 1, 1, 8, 27 };
-const BYTE byte_48A778[] = { 1, 1, 8, 28 };
-const BYTE byte_48A77C[] = { 1, 1, 7, 29 };
-const BYTE byte_48A780[] = { 1, 1, 7, 30 };
-const BYTE byte_48A784[] = { 1, 1, 7, 31 };
-const BYTE byte_48A788[] = { 1, 1, 7, 32 };
-const BYTE byte_48A790[] = {
+/** Miniset: Use random external connection 1. */
+const BYTE L6EXTCON1[] = { 1, 1, 8, 25 };
+/** Miniset: Use random external connection 2. */
+const BYTE L6EXTCON2[] = { 1, 1, 8, 26 };
+/** Miniset: Use random external connection 3. */
+const BYTE L6EXTCON3[] = { 1, 1, 8, 27 };
+/** Miniset: Use random external connection 4. */
+const BYTE L6EXTCON4[] = { 1, 1, 8, 28 };
+/** Miniset: Use random floor tile 1. */
+const BYTE L6RNDFLOOR1[] = { 1, 1, 7, 29 };
+/** Miniset: Use random floor tile 2. */
+const BYTE L6RNDFLOOR2[] = { 1, 1, 7, 30 };
+/** Miniset: Use random floor tile 3. */
+const BYTE L6RNDFLOOR3[] = { 1, 1, 7, 31 };
+/** Miniset: Use random floor tile 4. */
+const BYTE L6RNDFLOOR4[] = { 1, 1, 7, 32 };
+/** Miniset: Small acid patch 1. */
+const BYTE L6PATCH1[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -552,7 +561,8 @@ const BYTE byte_48A790[] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A7A8[] = {
+/** Miniset: Small acid patch 2. */
+const BYTE L6PATCH2[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -565,25 +575,44 @@ const BYTE byte_48A7A8[] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A7BC[] = { 1, 1, 9, 33 };
-const BYTE byte_48A7C0[] = { 1, 1, 9, 34 };
-const BYTE byte_48A7C4[] = { 1, 1, 9, 35 };
-const BYTE byte_48A7C8[] = { 1, 1, 9, 36 };
-const BYTE byte_48A7CC[] = { 1, 1, 9, 37 };
-const BYTE byte_48A7D0[] = { 1, 1, 11, 38 };
-const BYTE byte_48A7D4[] = { 1, 1, 10, 39 };
-const BYTE byte_48A7D8[] = { 1, 1, 10, 40 };
-const BYTE byte_48A7DC[] = { 1, 1, 10, 41 };
-const BYTE byte_48A7E0[] = { 1, 1, 10, 42 };
-const BYTE byte_48A7E4[] = { 1, 1, 10, 43 };
-const BYTE byte_48A7E8[] = { 1, 1, 11, 44 };
-const BYTE byte_48A7EC[] = { 1, 1, 9, 45 };
-const BYTE byte_48A7F0[] = { 1, 1, 9, 46 };
-const BYTE byte_48A7F4[] = { 1, 1, 10, 47 };
-const BYTE byte_48A7F8[] = { 1, 1, 10, 48 };
-const BYTE byte_48A7FC[] = { 1, 1, 11, 49 };
-const BYTE byte_48A800[] = { 1, 1, 11, 50 };
-const BYTE byte_48A808[] = {
+/** Miniset: Use random vertical wall tile 1. */
+const BYTE L6VERTWALL1[] = { 1, 1, 9, 33 };
+/** Miniset: Use random vertical wall tile 2. */
+const BYTE L6VERTWALL2[] = { 1, 1, 9, 34 };
+/** Miniset: Use random vertical wall tile 3. */
+const BYTE L6VERTWALL3[] = { 1, 1, 9, 35 };
+/** Miniset: Use random vertical wall tile 4. */
+const BYTE L6VERTWALL4[] = { 1, 1, 9, 36 };
+/** Miniset: Use random vertical wall tile 5. */
+const BYTE L6VERTWALL5[] = { 1, 1, 9, 37 };
+/** Miniset: Use random corner wall tile. north 1. */
+const BYTE L6CORNERN1[] = { 1, 1, 11, 38 };
+/** Miniset: Use random horizontal wall tile 1. */
+const BYTE L6HORWALL1[] = { 1, 1, 10, 39 };
+/** Miniset: Use random horizontal wall tile 2. but 40 is a north-corner... */
+const BYTE L6HORWALL2[] = { 1, 1, 10, 40 };
+/** Miniset: Use random horizontal wall tile 3. */
+const BYTE L6HORWALL3[] = { 1, 1, 10, 41 };
+/** Miniset: Use random horizontal wall tile 4. */
+const BYTE L6HORWALL4[] = { 1, 1, 10, 42 };
+/** Miniset: Use random horizontal wall tile 5. */
+const BYTE L6HORWALL5[] = { 1, 1, 10, 43 };
+/** Miniset: Use random corner wall tile. north 2. */
+const BYTE L6CORNERN2[] = { 1, 1, 11, 44 };
+/** Miniset: Use random vertical wall tile 6. but 45 is a north-corner... */
+const BYTE L6VERTWALL6[] = { 1, 1, 9, 45 };
+/** Miniset: Use random vertical wall tile 7. */
+const BYTE L6VERTWALL7[] = { 1, 1, 9, 46 };
+/** Miniset: Use random horizontal wall tile 6. but 47 is blocked */
+const BYTE L6HORWALL6[] = { 1, 1, 10, 47 };
+/** Miniset: Use random horizontal wall tile 7. */
+const BYTE L6HORWALL7[] = { 1, 1, 10, 48 };
+/** Miniset: Use random corner wall tile. north 3. */
+const BYTE L6CORNERN3[] = { 1, 1, 11, 49 };
+/** Miniset: Use random corner wall tile. north 4. */
+const BYTE L6CORNERN4[] = { 1, 1, 11, 50 };
+/** Miniset: Two floor tiles with a vertical wall in the middle 1. */
+const BYTE L6MITE1[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -596,7 +625,8 @@ const BYTE byte_48A808[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A820[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 2. */
+const BYTE L6MITE2[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -609,7 +639,8 @@ const BYTE byte_48A820[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A838[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 3. */
+const BYTE L6MITE3[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -622,7 +653,8 @@ const BYTE byte_48A838[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A850[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 4. */
+const BYTE L6MITE4[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -635,7 +667,8 @@ const BYTE byte_48A850[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A868[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 5. */
+const BYTE L6MITE5[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -648,7 +681,8 @@ const BYTE byte_48A868[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A880[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 6. */
+const BYTE L6MITE6[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -661,7 +695,8 @@ const BYTE byte_48A880[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A898[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 7. */
+const BYTE L6MITE7[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -674,7 +709,8 @@ const BYTE byte_48A898[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A8B0[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 8. */
+const BYTE L6MITE8[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -687,7 +723,8 @@ const BYTE byte_48A8B0[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A8C8[] = {
+/** Miniset: Two floor tiles with a vertical wall in the middle 9. */
+const BYTE L6MITE9[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -700,7 +737,7 @@ const BYTE byte_48A8C8[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE byte_48A8E0[] = {
+const BYTE L6MITE10[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -772,7 +809,7 @@ const BYTE L6ISLE5[] = {
 	7, 7,
 	// clang-format on
 };
-const BYTE byte_48A948[] = {
+const BYTE L6SPOOL1[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -787,7 +824,7 @@ const BYTE byte_48A948[] = {
 	7,   7,   7, 7,
 	// clang-format on
 };
-const BYTE byte_48A970[] = {
+const BYTE L6SPOOL2[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -802,7 +839,7 @@ const BYTE byte_48A970[] = {
 	7,   7,   7, 7,
 	// clang-format on
 };
-const BYTE byte_48A998[] = {
+const BYTE L6LPOOL1[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -819,7 +856,7 @@ const BYTE byte_48A998[] = {
 	7,   7,   7, 7,
 	// clang-format on
 };
-const BYTE byte_48A9C8[] = {
+const BYTE L6LPOOL2[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -1621,7 +1658,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 }
 
 #ifdef HELLFIRE
-static void DRLG_L6Hive_rnd_piece(const BYTE *miniset, int rndper)
+static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
 	bool found, placed;
@@ -2179,10 +2216,10 @@ static void DRLG_L3(int entry)
 		_guLavapools = 0;
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_NEST) {
-			DRLG_L6Hive_rnd_piece(byte_48A998, 30);
-			DRLG_L6Hive_rnd_piece(byte_48A9C8, 40);
-			DRLG_L6Hive_rnd_piece(byte_48A948, 50);
-			DRLG_L6Hive_rnd_piece(byte_48A970, 60);
+			DRLG_L6PlaceRndPool(L6LPOOL1, 30);
+			DRLG_L6PlaceRndPool(L6LPOOL2, 40);
+			DRLG_L6PlaceRndPool(L6SPOOL1, 50);
+			DRLG_L6PlaceRndPool(L6SPOOL2, 60);
 		} else
 #endif
 		{
@@ -2229,54 +2266,54 @@ static void DRLG_L3(int entry)
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
-		DRLG_L3PlaceRndSet(byte_48A76C, 20);
-		DRLG_L3PlaceRndSet(byte_48A770, 20);
-		DRLG_L3PlaceRndSet(byte_48A774, 20);
-		DRLG_L3PlaceRndSet(byte_48A778, 20);
-		DRLG_L3PlaceRndSet(byte_48A808, 10);
-		DRLG_L3PlaceRndSet(byte_48A820, 15);
-		DRLG_L3PlaceRndSet(byte_48A838, 20);
-		DRLG_L3PlaceRndSet(byte_48A850, 25);
-		DRLG_L3PlaceRndSet(byte_48A868, 30);
-		DRLG_L3PlaceRndSet(byte_48A880, 35);
-		DRLG_L3PlaceRndSet(byte_48A898, 40);
-		DRLG_L3PlaceRndSet(byte_48A8B0, 45);
-		DRLG_L3PlaceRndSet(byte_48A8C8, 50);
-		DRLG_L3PlaceRndSet(byte_48A8E0, 55);
-		DRLG_L3PlaceRndSet(byte_48A8E0, 10);
-		DRLG_L3PlaceRndSet(byte_48A8C8, 15);
-		DRLG_L3PlaceRndSet(byte_48A8B0, 20);
-		DRLG_L3PlaceRndSet(byte_48A898, 25);
-		DRLG_L3PlaceRndSet(byte_48A880, 30);
-		DRLG_L3PlaceRndSet(byte_48A868, 35);
-		DRLG_L3PlaceRndSet(byte_48A850, 40);
-		DRLG_L3PlaceRndSet(byte_48A838, 45);
-		DRLG_L3PlaceRndSet(byte_48A820, 50);
-		DRLG_L3PlaceRndSet(byte_48A808, 55);
-		DRLG_L3PlaceRndSet(byte_48A790, 40);
-		DRLG_L3PlaceRndSet(byte_48A7A8, 45);
-		DRLG_L3PlaceRndSet(byte_48A77C, 25);
-		DRLG_L3PlaceRndSet(byte_48A780, 25);
-		DRLG_L3PlaceRndSet(byte_48A784, 25);
-		DRLG_L3PlaceRndSet(byte_48A788, 25);
-		DRLG_L3PlaceRndSet(byte_48A7BC, 25);
-		DRLG_L3PlaceRndSet(byte_48A7C0, 25);
-		DRLG_L3PlaceRndSet(byte_48A7C4, 25);
-		DRLG_L3PlaceRndSet(byte_48A7C8, 25);
-		DRLG_L3PlaceRndSet(byte_48A7CC, 25);
-		DRLG_L3PlaceRndSet(byte_48A7D4, 25);
-		DRLG_L3PlaceRndSet(byte_48A7D8, 25);
-		DRLG_L3PlaceRndSet(byte_48A7DC, 25);
-		DRLG_L3PlaceRndSet(byte_48A7E0, 25);
-		DRLG_L3PlaceRndSet(byte_48A7E4, 25);
-		DRLG_L3PlaceRndSet(byte_48A7EC, 25);
-		DRLG_L3PlaceRndSet(byte_48A7F0, 25);
-		DRLG_L3PlaceRndSet(byte_48A7F4, 25);
-		DRLG_L3PlaceRndSet(byte_48A7F8, 25);
-		DRLG_L3PlaceRndSet(byte_48A7D0, 25);
-		DRLG_L3PlaceRndSet(byte_48A7E8, 25);
-		DRLG_L3PlaceRndSet(byte_48A7FC, 25);
-		DRLG_L3PlaceRndSet(byte_48A800, 25);
+		DRLG_L3PlaceRndSet(L6EXTCON1, 20);
+		DRLG_L3PlaceRndSet(L6EXTCON2, 20);
+		DRLG_L3PlaceRndSet(L6EXTCON3, 20);
+		DRLG_L3PlaceRndSet(L6EXTCON4, 20);
+		DRLG_L3PlaceRndSet(L6MITE1, 10);
+		DRLG_L3PlaceRndSet(L6MITE2, 15);
+		DRLG_L3PlaceRndSet(L6MITE3, 20);
+		DRLG_L3PlaceRndSet(L6MITE4, 25);
+		DRLG_L3PlaceRndSet(L6MITE5, 30);
+		DRLG_L3PlaceRndSet(L6MITE6, 35);
+		DRLG_L3PlaceRndSet(L6MITE7, 40);
+		DRLG_L3PlaceRndSet(L6MITE8, 45);
+		DRLG_L3PlaceRndSet(L6MITE9, 50);
+		DRLG_L3PlaceRndSet(L6MITE10, 55);
+		DRLG_L3PlaceRndSet(L6MITE10, 10);
+		DRLG_L3PlaceRndSet(L6MITE9, 15);
+		DRLG_L3PlaceRndSet(L6MITE8, 20);
+		DRLG_L3PlaceRndSet(L6MITE7, 25);
+		DRLG_L3PlaceRndSet(L6MITE6, 30);
+		DRLG_L3PlaceRndSet(L6MITE5, 35);
+		DRLG_L3PlaceRndSet(L6MITE4, 40);
+		DRLG_L3PlaceRndSet(L6MITE3, 45);
+		DRLG_L3PlaceRndSet(L6MITE2, 50);
+		DRLG_L3PlaceRndSet(L6MITE1, 55);
+		DRLG_L3PlaceRndSet(L6PATCH1, 40);
+		DRLG_L3PlaceRndSet(L6PATCH2, 45);
+		DRLG_L3PlaceRndSet(L6RNDFLOOR1, 25);
+		DRLG_L3PlaceRndSet(L6RNDFLOOR2, 25);
+		DRLG_L3PlaceRndSet(L6RNDFLOOR3, 25);
+		DRLG_L3PlaceRndSet(L6RNDFLOOR4, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL1, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL2, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL3, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL4, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL5, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL1, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL2, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL3, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL4, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL5, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL6, 25);
+		DRLG_L3PlaceRndSet(L6VERTWALL7, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL6, 25);
+		DRLG_L3PlaceRndSet(L6HORWALL7, 25);
+		DRLG_L3PlaceRndSet(L6CORNERN1, 25);
+		DRLG_L3PlaceRndSet(L6CORNERN2, 25);
+		DRLG_L3PlaceRndSet(L6CORNERN3, 25);
+		DRLG_L3PlaceRndSet(L6CORNERN4, 25);
 	} else
 #endif
 	{
