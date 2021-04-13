@@ -405,6 +405,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 		if (pCelBuff == NULL) {
 			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, p->_pName);
 		}
+		// nCel = GetFrameToUseForPlayerRendering(pnum); ANIM_GAMELOGIC
 		nCel = p->_pAnimFrame;
 #ifdef _DEBUG
 		int frames = SDL_SwapLE32(*(DWORD *)pCelBuff);
@@ -1476,6 +1477,7 @@ void DrawAndBlit()
 	}
 
 	lock_buf(0);
+	// nthread_UpdateProgressToNextGameTick(); ANIM_GAMELOGIC
 	DrawView();
 	scrollrt_draw_cursor_item();
 
