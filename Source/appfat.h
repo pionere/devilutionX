@@ -6,6 +6,8 @@
 #ifndef __APPFAT_H__
 #define __APPFAT_H__
 
+#include "../types.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus
@@ -14,8 +16,8 @@ extern "C" {
 
 void TriggerBreak();
 #define TraceLastError SDL_GetError
-void app_fatal(const char *pszFmt, ...);
-void DrawDlg(const char *pszFmt, ...);
+void app_fatal(const char *pszFmt, ...); //  DVL_PRINTF_ATTRIBUTE(1, 2);
+void DrawDlg(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
 #ifdef _DEBUG
 void assert_fail(int nLineNo, const char *pszFile, const char *pszFail);
 #endif
