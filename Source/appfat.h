@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void app_fatal(const char *pszFmt, ...);
-void DrawDlg(const char *pszFmt, ...);
+void app_fatal(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
+void DrawDlg(const char *pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
 #ifdef _DEBUG
 void assert_fail(int nLineNo, const char *pszFile, const char *pszFail);
 #endif

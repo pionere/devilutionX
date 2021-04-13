@@ -220,6 +220,7 @@ private:
 		SDL_Log(fmt_with_error.c_str(), args..., error_message);
 #else
 		fmt_with_error.append(" failed (%d)");
+		//SDL_LogError(fmt_with_error.c_str(), args..., errno);
 		SDL_Log(fmt_with_error.c_str(), args..., errno);
 #endif
 	}
