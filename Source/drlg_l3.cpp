@@ -898,7 +898,7 @@ static bool DRLG_L3FillRoom(int x1, int y1, int x2, int y2)
 {
 	int i, j, v;
 
-	if (x1 <= 1 || x2 >= DMAXX - 6 || y1 <= 1 || y2 >= DMAXY - 2) {
+	if (x1 <= 1 || x2 >= DMAXX - 2 || y1 <= 1 || y2 >= DMAXY - 2) {
 		return false;
 	}
 
