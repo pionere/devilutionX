@@ -711,135 +711,7 @@ static void DRLG_L5Crypt_lavafloor()
 		for (i = 1; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			case 5:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 7:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 8:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 9:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 10:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 11:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 12:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 14:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 15:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 17:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 95:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 96:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 208;
-				break;
 			case 116:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 118:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 119:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 120:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 121:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 122:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 211;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 212;
-				break;
-			case 123:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 125:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 126:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 128:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
 			case 133:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 203;
@@ -848,27 +720,73 @@ static void DRLG_L5Crypt_lavafloor()
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
+			case 7:
+			case 15:
+			case 17:
+			case 118:
+			case 126:
+			case 128:
 			case 135:
+			case 152:
+			case 160:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 206;
 				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 207;
 				break;
+			case 8:
+			case 11:
+			case 14:
+			case 95:
+			case 119:
+			case 125:
 			case 136:
+			case 142:
+			case 153:
+			case 156:
+			case 159:
+			case 185:
+			case 186:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 203;
 				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 204;
+				break;
+			case 9:
+			case 120:
+			case 154:
+				if (dungeon[i - 1][j] == 13)
+					dungeon[i - 1][j] = 206;
+				if (dungeon[i - 1][j - 1] == 13)
+					dungeon[i - 1][j - 1] = 207;
+				if (dungeon[i][j - 1] == 13)
+					dungeon[i][j - 1] = 205;
+				break;
+			case 10:
+			case 12:
+			case 121:
+			case 123:
+			case 138:
+			case 155:
+				if (dungeon[i][j - 1] == 13)
+					dungeon[i][j - 1] = 205;
+				break;
+			case 96:
+			case 187:
+				if (dungeon[i][j - 1] == 13)
+					dungeon[i][j - 1] = 208;
+				break;
+			case 122:
+				if (dungeon[i - 1][j] == 13)
+					dungeon[i - 1][j] = 211;
+				if (dungeon[i - 1][j - 1] == 13)
+					dungeon[i - 1][j - 1] = 212;
 				break;
 			case 137:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 213;
 				if (dungeon[i - 1][j - 1] == 13)
 					dungeon[i - 1][j - 1] = 214;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 138:
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
@@ -879,21 +797,11 @@ static void DRLG_L5Crypt_lavafloor()
 					dungeon[i - 1][j - 1] = 216;
 				break;
 			case 140:
+			case 157:
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 217;
 				break;
-			case 142:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
 			case 143:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 213;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 214;
-				break;
 			case 145:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 213;
@@ -908,80 +816,8 @@ static void DRLG_L5Crypt_lavafloor()
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 217;
 				break;
-			case 152:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
-			case 153:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 154:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 155:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 205;
-				break;
-			case 156:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 157:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 217;
-				break;
-			case 159:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 160:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 206;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 207;
-				break;
 			case 162:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 209;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 210;
-				break;
 			case 167:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 209;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 210;
-				break;
-			case 187:
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 208;
-				break;
-			case 185:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 186:
-				if (dungeon[i - 1][j] == 13)
-					dungeon[i - 1][j] = 203;
-				if (dungeon[i - 1][j - 1] == 13)
-					dungeon[i - 1][j - 1] = 204;
-				break;
 			case 192:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 209;
