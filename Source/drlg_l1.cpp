@@ -1890,7 +1890,7 @@ static void L1tileFix()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5PlaceMiniSet(const BYTE *miniset, int rndper)
+static void DRLG_L5PlaceRndSet(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
@@ -2113,127 +2113,119 @@ static void L1FillChambers()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5Crypt_pattern1(int rndper)
-{
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALL4, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALL5, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL4, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL5, rndper);
-}
-
 static void DRLG_L5Crypt_pattern2(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL1, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH1, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERN1, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB1, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST1A, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLEAST1, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLWEST1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC1, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTCOL4, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZCOL4, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR9, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST1B, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDCOL2, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH1A, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH1B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLA1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDHORIZWALL1, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH1, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERN1, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLNORTH1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLB1, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST1A, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLEAST1, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLWEST1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLC1, rndper);
+	DRLG_L5PlaceRndSet(L5VERTCOL4, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZCOL4, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR9, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST1B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL2, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH1A, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH1B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern3(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA2, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL2, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH2, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERN2, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH2, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB2, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST2A, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLEAST2, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLWEST2, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC2, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTCOL5, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZCOL5, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR10, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST2B, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDCOL3, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH2A, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH2B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLA2, rndper);
+	DRLG_L5PlaceRndSet(L5RNDHORIZWALL2, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH2, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERN2, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLNORTH2, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLB2, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST2A, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLEAST2, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLWEST2, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLC2, rndper);
+	DRLG_L5PlaceRndSet(L5VERTCOL5, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZCOL5, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR10, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST2B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL3, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH2A, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH2B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern4(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA3, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL3, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH3, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERN3, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH3, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB3, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST3A, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLEAST3, rndper);
-	DRLG_L5PlaceMiniSet(L5EDGECOLWEST3, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC3, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTCOL6, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZCOL6, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR11, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNEREAST3B, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDCOL4, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH3A, rndper);
-	DRLG_L5PlaceMiniSet(L5CORNERNORTH3B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLA3, rndper);
+	DRLG_L5PlaceRndSet(L5RNDHORIZWALL3, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH3, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERN3, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLNORTH3, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLB3, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST3A, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLEAST3, rndper);
+	DRLG_L5PlaceRndSet(L5EDGECOLWEST3, rndper);
+	DRLG_L5PlaceRndSet(L5RNDVERTWALLC3, rndper);
+	DRLG_L5PlaceRndSet(L5VERTCOL6, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZCOL6, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR11, rndper);
+	DRLG_L5PlaceRndSet(L5CORNEREAST3B, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL4, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH3A, rndper);
+	DRLG_L5PlaceRndSet(L5CORNERNORTH3B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern5(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR2, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR3, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR4, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR5, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR6, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR7, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR5, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR6, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR7, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR8, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR2, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR3, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR4, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR5, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR6, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR7, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR5, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR6, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR7, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR8, rndper);
 }
 
 static void DRLG_L5Crypt_pattern6(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5VERTCOL2, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZCOL2, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTCOL3, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZCOL3, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLB0, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLB1, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLM0, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLM1, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLT0, rndper);
-	DRLG_L5PlaceMiniSet(L5VERTWALLT1, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE0, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE1, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE2, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE3, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE4, rndper);
-	DRLG_L5PlaceMiniSet(L5HORIZWALLE5, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR2_0, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR2_1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR1_0, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDCOL1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR3_0, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR3_1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR4_0, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_0, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_2, rndper);
+	DRLG_L5PlaceRndSet(L5VERTCOL2, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZCOL2, rndper);
+	DRLG_L5PlaceRndSet(L5VERTCOL3, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZCOL3, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLB0, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLB1, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLM0, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLM1, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLT0, rndper);
+	DRLG_L5PlaceRndSet(L5VERTWALLT1, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE0, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE1, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE2, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE3, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE4, rndper);
+	DRLG_L5PlaceRndSet(L5HORIZWALLE5, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR2_0, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR2_1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR1_0, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR3_0, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR3_1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR4_0, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_0, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_2, rndper);
 }
 
 static void DRLG_L5Crypt_pattern7(int rndper)
 {
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR1, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR2, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR3, rndper);
-	DRLG_L5PlaceMiniSet(L5RNDFLOOR4, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR1, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR2, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR3, rndper);
+	DRLG_L5PlaceRndSet(L5RNDFLOOR4, rndper);
 }
 #endif
 
@@ -2504,12 +2496,15 @@ static void DRLG_L1(int entry)
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_L5Crypt_pattern1(10);
-		DRLG_L5PlaceMiniSet(L5VERTCOL1, 95);
-		DRLG_L5PlaceMiniSet(L5HORIZCOL1, 95);
-		DRLG_L5PlaceMiniSet(L5PREVERTWALL, 100);
-		DRLG_L5PlaceMiniSet(L5PREHORIZWALL, 100);
-		DRLG_L5PlaceMiniSet(L5RNDLFLOOR1, 60);
+		DRLG_L5PlaceRndSet(L5RNDVERTWALL4, 10);
+		DRLG_L5PlaceRndSet(L5RNDVERTWALL5, 10);
+		DRLG_L5PlaceRndSet(L5RNDHORIZWALL4, 10);
+		DRLG_L5PlaceRndSet(L5RNDHORIZWALL5, 10);
+		DRLG_L5PlaceRndSet(L5VERTCOL1, 95);
+		DRLG_L5PlaceRndSet(L5HORIZCOL1, 95);
+		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
+		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
+		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
 		DRLG_L5Crypt_lavafloor();
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
