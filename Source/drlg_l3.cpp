@@ -1911,17 +1911,17 @@ static void FixL3Warp()
 {
 	int i, j;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	if (currLvl._dLevelIdx != DLV_CAVES1)
+		return;
+
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
 			if (dungeon[i][j] == 125 && dungeon[i + 1][j] == 125 && dungeon[i][j + 1] == 125 && dungeon[i + 1][j + 1] == 125) {
 				dungeon[i][j] = 156;
 				dungeon[i + 1][j] = 155;
 				dungeon[i][j + 1] = 153;
 				dungeon[i + 1][j + 1] = 154;
 				return;
-			}
-			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 7) {
-				dungeon[i][j] = 7;
 			}
 		}
 	}
@@ -1931,8 +1931,8 @@ static void FixL3HallofHeroes()
 {
 	int i, j;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	for (j = 0; j < DMAXY - 1; j++) {
+		for (i = 0; i < DMAXX - 1; i++) {
 			if (dungeon[i][j] == 5 && dungeon[i + 1][j + 1] == 7) {
 				dungeon[i][j] = 7;
 			}
