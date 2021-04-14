@@ -202,8 +202,7 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
 {
-	int i, j;
-	BYTE rv;
+	int i, j, rv; // rv could be BYTE, but in that case VC generates a pointless movzx...
 
 	rv = rndper * 128 / 100; // make the life of random_ easier
 
