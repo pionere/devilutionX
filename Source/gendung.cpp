@@ -200,6 +200,22 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 	}
 }
 
+void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
+{
+	int i, j;
+	BYTE rv;
+
+	rv = rndper * 128 / 100; // make the life of random_ easier
+
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			if (dungeon[i][j] == search && dflags[i][j] == 0 && random_(0, 128) < rv) {
+				dungeon[i][j] = replace;
+			}
+		}
+	}
+}
+
 void DRLG_PlaceMegaTiles(int lv)
 {
 	int i, j, xx, yy;
@@ -529,7 +545,7 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 			h = yArray[i];
 		}
 	}
-	// assert(bestSize != 0);
+	assert(bestSize != 0);
 	*width = w - 2;
 	*height = h - 2;
 	return true;

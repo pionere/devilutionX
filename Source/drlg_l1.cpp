@@ -361,58 +361,18 @@ const BYTE L5RNDLFLOOR1[20] = {
 	0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Column on the northern side of a vertical wall 2. pointless? same as 95 */
-const BYTE L5VERTCOL2[4] = { 1, 1, 11, 185 };
-/** Miniset: Column on the northern side of a vertical wall 3. pointless? same as 95 */
-const BYTE L5VERTCOL3[4] = { 1, 1, 11, 186 };
-/** Miniset: Column on the northern side of a horizontal wall 2. pointless? same as 96 */
-const BYTE L5HORIZCOL2[4] = { 1, 1, 12, 187 };
-/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
-const BYTE L5HORIZCOL3[4] = { 1, 1, 12, 188 };
-/** Miniset: Replace vertical wall tile on the bottom 1. */
-const BYTE L5VERTWALLB0[4] = { 1, 1, 89, 173 };
-/** Miniset: Replace vertical wall tile on the bottom 2. */
-const BYTE L5VERTWALLB1[4] = { 1, 1, 89, 174 };
-/** Miniset: Replace vertical wall tile in the middle 1. */
-const BYTE L5VERTWALLM0[4] = { 1, 1, 90, 175 };
-/** Miniset: Replace vertical wall tile in the middle 2. */
-const BYTE L5VERTWALLM1[4] = { 1, 1, 90, 176 };
-/** Miniset: Replace vertical wall tile on the top 1. */
-const BYTE L5VERTWALLT0[4] = { 1, 1, 91, 177 };
-/** Miniset: Replace vertical wall tile on the top 2. */
-const BYTE L5VERTWALLT1[4] = { 1, 1, 91, 178 };
-/** Miniset: Replace random horizontal wall tile on east 1. but pointless? */
-const BYTE L5HORIZWALLE0[4] = { 1, 1, 92, 179 };
-/** Miniset: Replace random horizontal wall tile on east 2. */
-const BYTE L5HORIZWALLE1[4] = { 1, 1, 92, 180 };
-/** Miniset: Replace random horizontal wall tile on east 3. */
-const BYTE L5HORIZWALLE2[4] = { 1, 1, 92, 181 };
-/** Miniset: Replace random horizontal wall tile on east 4. */
-const BYTE L5HORIZWALLE3[4] = { 1, 1, 92, 182 };
-/** Miniset: Replace random horizontal wall tile on east 5. */
-const BYTE L5HORIZWALLE4[4] = { 1, 1, 92, 183 };
-/** Miniset: Replace random horizontal wall tile on east 6. */
-const BYTE L5HORIZWALLE5[4] = { 1, 1, 92, 184 };
 /** Miniset: Replace random floor tile 2 with another one 1. */
 const BYTE L5RNDFLOOR2_0[4] = { 1, 1, 98, 189 };
 /** Miniset: Replace random floor tile 2 with another one 2. */
 const BYTE L5RNDFLOOR2_1[4] = { 1, 1, 98, 190 };
 /** Miniset: Replace random floor tile 1 with another one. */
 const BYTE L5RNDFLOOR1_0[4] = { 1, 1, 97, 191 };
-/** Miniset: Use random column 1. (Cracked) */
-const BYTE L5RNDCOL1[4] = { 1, 1, 15, 192 };
 /** Miniset: Replace random floor tile 3 with another one 1. */
 const BYTE L5RNDFLOOR3_0[4] = { 1, 1, 99, 193 };
 /** Miniset: Replace random floor tile 3 with another one 2. */
 const BYTE L5RNDFLOOR3_1[4] = { 1, 1, 99, 194 };
 /** Miniset: Replace random floor tile 4 with another one. */
 const BYTE L5RNDFLOOR4_0[4] = { 1, 1, 100, 195 };
-/** Miniset: Replace random large floor tile 1. */
-const BYTE L5RNDLFLOOR1_0[4] = { 1, 1, 101, 196 };
-/** Miniset: Replace random large floor tile 2. */
-const BYTE L5RNDLFLOOR1_1[4] = { 1, 1, 101, 197 };
-/** Miniset: Replace random large floor tile 3. */
-const BYTE L5RNDLFLOOR1_2[4] = { 1, 1, 101, 198 };
 /** Miniset: Lava fountain bowl. */
 const BYTE L5RNDLFLOOR2[20] = {
 	// clang-format off
@@ -496,124 +456,6 @@ const BYTE L5RNDLFLOOR7[20] = {
 	 0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Use random floor tile 5. */
-const BYTE L5RNDFLOOR5[4] = { 1, 1, 13, 163 };
-/** Miniset: Use random floor tile 6. */
-const BYTE L5RNDFLOOR6[4] = { 1, 1, 13, 164 };
-/** Miniset: Use random floor tile 7. */
-const BYTE L5RNDFLOOR7[4] = { 1, 1, 13, 165 };
-/** Miniset: Use random floor tile 8. */
-const BYTE L5RNDFLOOR8[4] = { 1, 1, 13, 166 };
-/** Miniset: Use random vertical wall tile A1. */
-const BYTE L5RNDVERTWALLA1[4] = { 1, 1, 1, 112 };
-/** Miniset: Use random horizontal wall tile 1. */
-const BYTE L5RNDHORIZWALL1[4] = { 1, 1, 2, 113 };
-/** Miniset: South-Edge column on the northern side 1. */
-const BYTE L5EDGECOLSOUTH1[4] = { 1, 1, 3, 114 };
-/** Miniset: Use random corner north 1. */
-const BYTE L5CORNERN1[4] = { 1, 1, 4, 115 };
-/** Miniset: North-Edge column on the northern side 1. */
-const BYTE L5EDGECOLNORTH1[4] = { 1, 1, 5, 116 };
-/** Miniset: Use random vertical wall tile B1. */
-const BYTE L5RNDVERTWALLB1[4] = { 1, 1, 6, 117 };
-/** Miniset: Use random concave corner east A1. */
-const BYTE L5CORNEREAST1A[4] = { 1, 1, 7, 118 };
-/** Miniset: East-Edge column on the northern side 1. */
-const BYTE L5EDGECOLEAST1[4] = { 1, 1, 8, 119 };
-/** Miniset: West-Edge column on the northern side 1. */
-const BYTE L5EDGECOLWEST1[4] = { 1, 1, 9, 120 };
-/** Miniset: Use random vertical wall tile C1. */
-const BYTE L5RNDVERTWALLC1[4] = { 1, 1, 10, 121 };
-/** Miniset: Column on the northern side of a vertical wall 4. */
-const BYTE L5VERTCOL4[4] = { 1, 1, 11, 122 };
-/** Miniset: Column on the northern side of a horizontal wall 4. */
-const BYTE L5HORIZCOL4[4] = { 1, 1, 12, 123 };
-/** Miniset: Use random floor tile 9. */
-const BYTE L5RNDFLOOR9[4] = { 1, 1, 13, 124 };
-/** Miniset: Use random concave corner east B1. */
-const BYTE L5CORNEREAST1B[4] = { 1, 1, 14, 125 };
-/** Miniset: Use random column 2. */
-const BYTE L5RNDCOL2[4] = { 1, 1, 15, 126 };
-/** Miniset: Use random concave corner north A1. */
-const BYTE L5CORNERNORTH1A[4] = { 1, 1, 16, 127 };
-/** Miniset: Use random concave corner north B1. */
-const BYTE L5CORNERNORTH1B[4] = { 1, 1, 17, 128 };
-/** Miniset: Use random vertical wall tile A2. */
-const BYTE L5RNDVERTWALLA2[4] = { 1, 1, 1, 129 };
-/** Miniset: Use random horizontal wall tile 2. */
-const BYTE L5RNDHORIZWALL2[4] = { 1, 1, 2, 130 };
-/** Miniset: South-Edge column on the northern side 2. */
-const BYTE L5EDGECOLSOUTH2[4] = { 1, 1, 3, 131 };
-/** Miniset: Use random corner north 2. */
-const BYTE L5CORNERN2[4] = { 1, 1, 4, 132 };
-/** Miniset: North-Edge column on the northern side 2. */
-const BYTE L5EDGECOLNORTH2[4] = { 1, 1, 5, 133 };
-/** Miniset: Use random vertical wall tile B2. */
-const BYTE L5RNDVERTWALLB2[4] = { 1, 1, 6, 134 };
-/** Miniset: Use random concave corner east A2. */
-const BYTE L5CORNEREAST2A[4] = { 1, 1, 7, 135 };
-/** Miniset: East-Edge column on the northern side 2. */
-const BYTE L5EDGECOLEAST2[4] = { 1, 1, 8, 136 };
-/** Miniset: West-Edge column on the northern side 2. */
-const BYTE L5EDGECOLWEST2[4] = { 1, 1, 9, 137 };
-/** Miniset: Use random vertical wall tile C2. */
-const BYTE L5RNDVERTWALLC2[4] = { 1, 1, 10, 138 };
-/** Miniset: Column on the northern side of a vertical wall 5. */
-const BYTE L5VERTCOL5[4] = { 1, 1, 11, 139 };
-/** Miniset: Column on the northern side of a horizontal wall 5. */
-const BYTE L5HORIZCOL5[4] = { 1, 1, 12, 140 };
-/** Miniset: Use random floor tile 10. */
-const BYTE L5RNDFLOOR10[4] = { 1, 1, 13, 141 };
-/** Miniset: Use random concave corner east B2. */
-const BYTE L5CORNEREAST2B[4] = { 1, 1, 14, 142 };
-/** Miniset: Use random column 3. (cracked column) */
-const BYTE L5RNDCOL3[4] = { 1, 1, 15, 143 };
-/** Miniset: Use random concave corner north A2. */
-const BYTE L5CORNERNORTH2A[4] = { 1, 1, 16, 144 };
-/** Miniset: Use random concave corner north B2. */
-const BYTE L5CORNERNORTH2B[4] = { 1, 1, 17, 145 };
-/** Miniset: Use random vertical wall tile A3. */
-const BYTE L5RNDVERTWALLA3[4] = { 1, 1, 1, 146 };
-/** Miniset: Use random horizontal wall tile 3. */
-const BYTE L5RNDHORIZWALL3[4] = { 1, 1, 2, 147 };
-/** Miniset: South-Edge column on the northern side 3. */
-const BYTE L5EDGECOLSOUTH3[4] = { 1, 1, 3, 148 };
-/** Miniset: Use random corner north 3. */
-const BYTE L5CORNERN3[4] = { 1, 1, 4, 149 };
-/** Miniset: North-Edge column on the northern side 3. */
-const BYTE L5EDGECOLNORTH3[4] = { 1, 1, 5, 150 };
-/** Miniset: Use random vertical wall tile B3. */
-const BYTE L5RNDVERTWALLB3[4] = { 1, 1, 6, 151 };
-/** Miniset: Use random concave corner east A3. */
-const BYTE L5CORNEREAST3A[4] = { 1, 1, 7, 152 };
-/** Miniset: East-Edge column on the northern side 3. */
-const BYTE L5EDGECOLEAST3[4] = { 1, 1, 8, 153 };
-/** Miniset: West-Edge column on the northern side 3. */
-const BYTE L5EDGECOLWEST3[4] = { 1, 1, 9, 154 };
-/** Miniset: Use random vertical wall tile C3. */
-const BYTE L5RNDVERTWALLC3[4] = { 1, 1, 10, 155 };
-/** Miniset: Column on the northern side of a vertical wall 6. */
-const BYTE L5VERTCOL6[4] = { 1, 1, 11, 156 };
-/** Miniset: Column on the northern side of a horizontal wall 6. */
-const BYTE L5HORIZCOL6[4] = { 1, 1, 12, 157 };
-/** Miniset: Use random floor tile 11. */
-const BYTE L5RNDFLOOR11[4] = { 1, 1, 13, 158 };
-/** Miniset: Use random concave corner east B3. */
-const BYTE L5CORNEREAST3B[4] = { 1, 1, 14, 159 };
-/** Miniset: Use random column 4. (Lava fountain) */
-const BYTE L5RNDCOL4[4] = { 1, 1, 15, 160 };
-/** Miniset: Use random concave corner north A3. */
-const BYTE L5CORNERNORTH3A[4] = { 1, 1, 16, 161 };
-/** Miniset: Use random concave corner north B3. */
-const BYTE L5CORNERNORTH3B[4] = { 1, 1, 17, 162 };
-/** Miniset: Use random vertical wall 4. (Statue). */
-const BYTE L5RNDVERTWALL4[4] = { 1, 1, 1, 199 };
-/** Miniset: Use random vertical wall 5. (Succubus statue) */
-const BYTE L5RNDVERTWALL5[4] = { 1, 1, 1, 201 };
-/** Miniset: Use random horizontal wall 4. (Statue). */
-const BYTE L5RNDHORIZWALL4[4] = { 1, 1, 2, 200 };
-/** Miniset: Use random horizontal wall 5. (Succubus statue) */
-const BYTE L5RNDHORIZWALL5[4] = { 1, 1, 2, 202 };
 #endif
 
 /**
@@ -956,20 +798,8 @@ static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
 
 static void DRLG_L1Floor()
 {
-	int i, j, rv;
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dflags[i][j] == 0 && dungeon[i][j] == 13) {
-				rv = random_(0, 3);
-
-				if (rv == 1)
-					dungeon[i][j] = 162;
-				if (rv == 2)
-					dungeon[i][j] = 163;
-			}
-		}
-	}
+	DRLG_PlaceRndTile(13, 162, 33);
+	DRLG_PlaceRndTile(13, 163, 50);
 }
 
 static void DRLG_LoadL1SP()
@@ -1724,7 +1554,7 @@ static void L1tileFix()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5PlaceRndSet(const BYTE *miniset, int rndper)
+static void DRLG_L5PlaceRndSet(const BYTE *miniset, BYTE rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
@@ -1947,70 +1777,121 @@ static void L1FillChambers()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5Crypt_pattern2(int rndper)
+static void DRLG_L5Crypt_pattern2(BYTE rndper)
 {
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLA1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDHORIZWALL1, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH1, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERN1, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLNORTH1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLB1, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST1A, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLEAST1, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLWEST1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLC1, rndper);
-	DRLG_L5PlaceRndSet(L5VERTCOL4, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZCOL4, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR9, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST1B, rndper);
-	DRLG_L5PlaceRndSet(L5RNDCOL2, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH1A, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH1B, rndper);
+	/** Miniset: Use random vertical wall tile A1. */
+	DRLG_PlaceRndTile(1, 112, rndper);
+	/** Miniset: Use random horizontal wall tile 1. */
+	DRLG_PlaceRndTile(2, 113, rndper);
+	/** Miniset: South-Edge column on the northern side 1. */
+	DRLG_PlaceRndTile(3, 114, rndper);
+	/** Miniset: Use random corner north 1. */
+	DRLG_PlaceRndTile(4, 115, rndper);
+	/** Miniset: North-Edge column on the northern side 1. */
+	DRLG_PlaceRndTile(5, 116, rndper);
+	/** Miniset: Use random vertical wall tile B1. */
+	DRLG_PlaceRndTile(6, 117, rndper);
+	/** Miniset: Use random concave corner east A1. */
+	DRLG_PlaceRndTile(7, 118, rndper);
+	/** Miniset: East-Edge column on the northern side 1. */
+	DRLG_PlaceRndTile(8, 119, rndper);
+	/** Miniset: West-Edge column on the northern side 1. */
+	DRLG_PlaceRndTile(9, 120, rndper);
+	/** Miniset: Use random vertical wall tile C1. */
+	DRLG_PlaceRndTile(10, 121, rndper);
+	/** Miniset: Column on the northern side of a vertical wall 4. */
+	DRLG_PlaceRndTile(11, 122, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 4. */
+	DRLG_PlaceRndTile(12, 123, rndper);
+	/** Miniset: Use random floor tile 9. */
+	DRLG_PlaceRndTile(13, 124, rndper);
+	/** Miniset: Use random concave corner east B1. */
+	DRLG_PlaceRndTile(14, 125, rndper);
+	/** Miniset: Use random column 2. */
+	DRLG_PlaceRndTile(15, 126, rndper);
+	/** Miniset: Use random concave corner north A1. */
+	DRLG_PlaceRndTile(16, 127, rndper);
+	/** Miniset: Use random concave corner north B1. */
+	DRLG_PlaceRndTile(17, 128, rndper);
 }
 
-static void DRLG_L5Crypt_pattern3(int rndper)
+static void DRLG_L5Crypt_pattern3(BYTE rndper)
 {
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLA2, rndper);
-	DRLG_L5PlaceRndSet(L5RNDHORIZWALL2, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH2, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERN2, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLNORTH2, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLB2, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST2A, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLEAST2, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLWEST2, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLC2, rndper);
-	DRLG_L5PlaceRndSet(L5VERTCOL5, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZCOL5, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR10, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST2B, rndper);
-	DRLG_L5PlaceRndSet(L5RNDCOL3, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH2A, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH2B, rndper);
+	/** Miniset: Use random vertical wall tile A2. */
+	DRLG_PlaceRndTile(1, 129, rndper);
+	/** Miniset: Use random horizontal wall tile 2. */
+	DRLG_PlaceRndTile(2, 130, rndper);
+	/** Miniset: South-Edge column on the northern side 2. */
+	DRLG_PlaceRndTile(3, 131, rndper);
+	/** Miniset: Use random corner north 2. */
+	DRLG_PlaceRndTile(4, 132, rndper);
+	/** Miniset: North-Edge column on the northern side 2. */
+	DRLG_PlaceRndTile(5, 133, rndper);
+	/** Miniset: Use random vertical wall tile B2. */
+	DRLG_PlaceRndTile(6, 134, rndper);
+	/** Miniset: Use random concave corner east A2. */
+	DRLG_PlaceRndTile(7, 135, rndper);
+	/** Miniset: East-Edge column on the northern side 2. */
+	DRLG_PlaceRndTile(8, 136, rndper);
+	/** Miniset: West-Edge column on the northern side 2. */
+	DRLG_PlaceRndTile(9, 137, rndper);
+	/** Miniset: Use random vertical wall tile C2. */
+	DRLG_PlaceRndTile(10, 138, rndper);
+	/** Miniset: Column on the northern side of a vertical wall 5. */
+	DRLG_PlaceRndTile(11, 139, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 5. */
+	DRLG_PlaceRndTile(12, 140, rndper);
+	/** Miniset: Use random floor tile 10. */
+	DRLG_PlaceRndTile(13, 141, rndper);
+	/** Miniset: Use random concave corner east B2. */
+	DRLG_PlaceRndTile(14, 142, rndper);
+	/** Miniset: Use random column 3. (cracked column) */
+	DRLG_PlaceRndTile(15, 143, rndper);
+	/** Miniset: Use random concave corner north A2. */
+	DRLG_PlaceRndTile(16, 144, rndper);
+	/** Miniset: Use random concave corner north B2. */
+	DRLG_PlaceRndTile(17, 145, rndper);
 }
 
-static void DRLG_L5Crypt_pattern4(int rndper)
+static void DRLG_L5Crypt_pattern4(BYTE rndper)
 {
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLA3, rndper);
-	DRLG_L5PlaceRndSet(L5RNDHORIZWALL3, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLSOUTH3, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERN3, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLNORTH3, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLB3, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST3A, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLEAST3, rndper);
-	DRLG_L5PlaceRndSet(L5EDGECOLWEST3, rndper);
-	DRLG_L5PlaceRndSet(L5RNDVERTWALLC3, rndper);
-	DRLG_L5PlaceRndSet(L5VERTCOL6, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZCOL6, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR11, rndper);
-	DRLG_L5PlaceRndSet(L5CORNEREAST3B, rndper);
-	DRLG_L5PlaceRndSet(L5RNDCOL4, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH3A, rndper);
-	DRLG_L5PlaceRndSet(L5CORNERNORTH3B, rndper);
+	/** Miniset: Use random vertical wall tile A3. */
+	DRLG_PlaceRndTile(1, 146, rndper);
+	/** Miniset: Use random horizontal wall tile 3. */
+	DRLG_PlaceRndTile(2, 147, rndper);
+	/** Miniset: South-Edge column on the northern side 3. */
+	DRLG_PlaceRndTile(3, 148, rndper);
+	/** Miniset: Use random corner north 3. */
+	DRLG_PlaceRndTile(4, 149, rndper);
+	/** Miniset: North-Edge column on the northern side 3. */
+	DRLG_PlaceRndTile(5, 150, rndper);
+	/** Miniset: Use random vertical wall tile B3. */
+	DRLG_PlaceRndTile(6, 151, rndper);
+	/** Miniset: Use random concave corner east A3. */
+	DRLG_PlaceRndTile(7, 152, rndper);
+	/** Miniset: East-Edge column on the northern side 3. */
+	DRLG_PlaceRndTile(8, 153, rndper);
+	/** Miniset: West-Edge column on the northern side 3. */
+	DRLG_PlaceRndTile(9, 154, rndper);
+	/** Miniset: Use random vertical wall tile C3. */
+	DRLG_PlaceRndTile(10, 155, rndper);
+	/** Miniset: Column on the northern side of a vertical wall 6. */
+	DRLG_PlaceRndTile(11, 156, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 6. */
+	DRLG_PlaceRndTile(12, 157, rndper);
+	/** Miniset: Use random floor tile 11. */
+	DRLG_PlaceRndTile(13, 158, rndper);
+	/** Miniset: Use random concave corner east B3. */
+	DRLG_PlaceRndTile(14, 159, rndper);
+	/** Miniset: Use random column 4. (Lava fountain) */
+	DRLG_PlaceRndTile(15, 160, rndper);
+	/** Miniset: Use random concave corner north A3. */
+	DRLG_PlaceRndTile(16, 161, rndper);
+	/** Miniset: Use random concave corner north B3. */
+	DRLG_PlaceRndTile(17, 162, rndper);
 }
 
-static void DRLG_L5Crypt_pattern5(int rndper)
+static void DRLG_L5Crypt_pattern5(BYTE rndper)
 {
 	DRLG_L5PlaceRndSet(L5RNDLFLOOR2, rndper);
 	DRLG_L5PlaceRndSet(L5RNDLFLOOR3, rndper);
@@ -2018,43 +1899,67 @@ static void DRLG_L5Crypt_pattern5(int rndper)
 	DRLG_L5PlaceRndSet(L5RNDLFLOOR5, rndper);
 	DRLG_L5PlaceRndSet(L5RNDLFLOOR6, rndper);
 	DRLG_L5PlaceRndSet(L5RNDLFLOOR7, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR5, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR6, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR7, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR8, rndper);
+	/** Miniset: Use random floor tile 5. */
+	DRLG_PlaceRndTile(13, 163, rndper);
+	/** Miniset: Use random floor tile 6. */
+	DRLG_PlaceRndTile(13, 164, rndper);
+	/** Miniset: Use random floor tile 7. */
+	DRLG_PlaceRndTile(13, 165, rndper);
+	/** Miniset: Use random floor tile 8. */
+	DRLG_PlaceRndTile(13, 166, rndper);
 }
 
-static void DRLG_L5Crypt_pattern6(int rndper)
+static void DRLG_L5Crypt_pattern6(BYTE rndper)
 {
-	DRLG_L5PlaceRndSet(L5VERTCOL2, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZCOL2, rndper);
-	DRLG_L5PlaceRndSet(L5VERTCOL3, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZCOL3, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLB0, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLB1, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLM0, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLM1, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLT0, rndper);
-	DRLG_L5PlaceRndSet(L5VERTWALLT1, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE0, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE1, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE2, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE3, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE4, rndper);
-	DRLG_L5PlaceRndSet(L5HORIZWALLE5, rndper);
+	/** Miniset: Column on the northern side of a vertical wall 2. pointless? same as 95 */
+	DRLG_PlaceRndTile(11, 185, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 2. pointless? same as 96 */
+	DRLG_PlaceRndTile(12, 187, rndper);
+	/** Miniset: Column on the northern side of a vertical wall 3. pointless? same as 95 */
+	DRLG_PlaceRndTile(11, 186, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
+	DRLG_PlaceRndTile(12, 188, rndper);
+	/** Miniset: Replace vertical wall tile on the bottom 1. */
+	DRLG_PlaceRndTile(89, 173, rndper);
+	/** Miniset: Replace vertical wall tile on the bottom 2. */
+	DRLG_PlaceRndTile(89, 174, rndper);
+	/** Miniset: Replace vertical wall tile in the middle 1. */
+	DRLG_PlaceRndTile(90, 175, rndper);
+	/** Miniset: Replace vertical wall tile in the middle 2. */
+	DRLG_PlaceRndTile(90, 176, rndper);
+	/** Miniset: Replace vertical wall tile on the top 1. */
+	DRLG_PlaceRndTile(91, 177, rndper);
+	/** Miniset: Replace vertical wall tile on the top 2. */
+	DRLG_PlaceRndTile(91, 178, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 1. but pointless? */
+	DRLG_PlaceRndTile(92, 179, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 2. */
+	DRLG_PlaceRndTile(92, 180, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 3. */
+	DRLG_PlaceRndTile(92, 181, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 4. */
+	DRLG_PlaceRndTile(92, 182, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 5. */
+	DRLG_PlaceRndTile(92, 183, rndper);
+	/** Miniset: Replace random horizontal wall tile on east 6. */
+	DRLG_PlaceRndTile(92, 184, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR2_0, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR2_1, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR1_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDCOL1, rndper);
+	/** Miniset: Use random column 1. (Cracked) */
+	DRLG_PlaceRndTile(15, 192, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR3_0, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR3_1, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR4_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDLFLOOR1_2, rndper);
+	/** Miniset: Replace random large floor tile 1. */
+	DRLG_PlaceRndTile(101, 196, rndper);
+	/** Miniset: Replace random large floor tile 2. */
+	DRLG_PlaceRndTile(101, 197, rndper);
+	/** Miniset: Replace random large floor tile 3. */
+	DRLG_PlaceRndTile(101, 198, rndper);
 }
 
-static void DRLG_L5Crypt_pattern7(int rndper)
+static void DRLG_L5Crypt_pattern7(BYTE rndper)
 {
 	DRLG_L5PlaceRndSet(L5RNDFLOOR1, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR2, rndper);
@@ -2330,10 +2235,14 @@ static void DRLG_L1(int entry)
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_L5PlaceRndSet(L5RNDVERTWALL4, 10);
-		DRLG_L5PlaceRndSet(L5RNDVERTWALL5, 10);
-		DRLG_L5PlaceRndSet(L5RNDHORIZWALL4, 10);
-		DRLG_L5PlaceRndSet(L5RNDHORIZWALL5, 10);
+		/** Miniset: Use random vertical wall 4. (Statue). */
+		DRLG_PlaceRndTile(1, 199, 10);
+		/** Miniset: Use random vertical wall 5. (Succubus statue) */
+		DRLG_PlaceRndTile(1, 201, 10);
+		/** Miniset: Use random horizontal wall 4. (Statue). */
+		DRLG_PlaceRndTile(2, 200, 10);
+		/** Miniset: Use random horizontal wall 5. (Succubus statue) */
+		DRLG_PlaceRndTile(2, 202, 10);
 		DRLG_L5PlaceRndSet(L5VERTCOL1, 95);
 		DRLG_L5PlaceRndSet(L5HORIZCOL1, 95);
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);

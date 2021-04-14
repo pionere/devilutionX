@@ -479,74 +479,7 @@ const BYTE L3ISLE5[] = {
 	7, 7,
 	// clang-format on
 };
-/** Miniset: Use random floor tile 1. */
-const BYTE L3XTRA1[] = {
-	// clang-format off
-	1, 1, // width, height
-
-	7, // search
-
-	106, // replace
-	// clang-format on
-};
-/** Miniset: Use random floor tile 2. */
-const BYTE L3XTRA2[] = {
-	// clang-format off
-	1, 1, // width, height
-
-	7, // search
-
-	107, // replace
-	// clang-format on
-};
-/** Miniset: Use random floor tile 3. */
-const BYTE L3XTRA3[] = {
-	// clang-format off
-	1, 1, // width, height
-
-	7, // search
-
-	108, // replace
-	// clang-format on
-};
-/** Miniset: Use random horizontal wall tile. */
-const BYTE L3XTRA4[] = {
-	// clang-format off
-	1, 1, // width, height
-
-	9, // search
-
-	109, // replace
-	// clang-format on
-};
-/** Miniset: Use random vertical wall tile. */
-const BYTE L3XTRA5[] = {
-	// clang-format off
-	1, 1, // width, height
-
-	10, // search
-
-	110, // replace
-	// clang-format on
-};
-
 #ifdef HELLFIRE
-/** Miniset: Use random external connection 1. */
-const BYTE L6EXTCON1[] = { 1, 1, 8, 25 };
-/** Miniset: Use random external connection 2. */
-const BYTE L6EXTCON2[] = { 1, 1, 8, 26 };
-/** Miniset: Use random external connection 3. */
-const BYTE L6EXTCON3[] = { 1, 1, 8, 27 };
-/** Miniset: Use random external connection 4. */
-const BYTE L6EXTCON4[] = { 1, 1, 8, 28 };
-/** Miniset: Use random floor tile 1. */
-const BYTE L6RNDFLOOR1[] = { 1, 1, 7, 29 };
-/** Miniset: Use random floor tile 2. */
-const BYTE L6RNDFLOOR2[] = { 1, 1, 7, 30 };
-/** Miniset: Use random floor tile 3. */
-const BYTE L6RNDFLOOR3[] = { 1, 1, 7, 31 };
-/** Miniset: Use random floor tile 4. */
-const BYTE L6RNDFLOOR4[] = { 1, 1, 7, 32 };
 /** Miniset: Small acid patch 1. */
 const BYTE L6PATCH1[] = {
 	// clang-format off
@@ -575,42 +508,6 @@ const BYTE L6PATCH2[] = {
 	0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Use random vertical wall tile 1. */
-const BYTE L6VERTWALL1[] = { 1, 1, 9, 33 };
-/** Miniset: Use random vertical wall tile 2. */
-const BYTE L6VERTWALL2[] = { 1, 1, 9, 34 };
-/** Miniset: Use random vertical wall tile 3. */
-const BYTE L6VERTWALL3[] = { 1, 1, 9, 35 };
-/** Miniset: Use random vertical wall tile 4. */
-const BYTE L6VERTWALL4[] = { 1, 1, 9, 36 };
-/** Miniset: Use random vertical wall tile 5. */
-const BYTE L6VERTWALL5[] = { 1, 1, 9, 37 };
-/** Miniset: Use random corner wall tile. north 1. */
-const BYTE L6CORNERN1[] = { 1, 1, 11, 38 };
-/** Miniset: Use random horizontal wall tile 1. */
-const BYTE L6HORWALL1[] = { 1, 1, 10, 39 };
-/** Miniset: Use random horizontal wall tile 2. but 40 is a north-corner... */
-const BYTE L6HORWALL2[] = { 1, 1, 10, 40 };
-/** Miniset: Use random horizontal wall tile 3. */
-const BYTE L6HORWALL3[] = { 1, 1, 10, 41 };
-/** Miniset: Use random horizontal wall tile 4. */
-const BYTE L6HORWALL4[] = { 1, 1, 10, 42 };
-/** Miniset: Use random horizontal wall tile 5. */
-const BYTE L6HORWALL5[] = { 1, 1, 10, 43 };
-/** Miniset: Use random corner wall tile. north 2. */
-const BYTE L6CORNERN2[] = { 1, 1, 11, 44 };
-/** Miniset: Use random vertical wall tile 6. but 45 is a north-corner... */
-const BYTE L6VERTWALL6[] = { 1, 1, 9, 45 };
-/** Miniset: Use random vertical wall tile 7. */
-const BYTE L6VERTWALL7[] = { 1, 1, 9, 46 };
-/** Miniset: Use random horizontal wall tile 6. but 47 is blocked */
-const BYTE L6HORWALL6[] = { 1, 1, 10, 47 };
-/** Miniset: Use random horizontal wall tile 7. */
-const BYTE L6HORWALL7[] = { 1, 1, 10, 48 };
-/** Miniset: Use random corner wall tile. north 3. */
-const BYTE L6CORNERN3[] = { 1, 1, 11, 49 };
-/** Miniset: Use random corner wall tile. north 4. */
-const BYTE L6CORNERN4[] = { 1, 1, 11, 50 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 1. */
 const BYTE L6MITE1[] = {
 	// clang-format off
@@ -1602,7 +1499,7 @@ static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, bool setview)
 	return true;
 }
 
-static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
+static void DRLG_L3PlaceRndSet(const BYTE *miniset, BYTE rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
@@ -1653,7 +1550,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 }
 
 #ifdef HELLFIRE
-static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
+static void DRLG_L6PlaceRndPool(const BYTE *miniset, BYTE rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
 	bool found, placed;
@@ -2256,10 +2153,14 @@ static void DRLG_L3(int entry)
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
-		DRLG_L3PlaceRndSet(L6EXTCON1, 20);
-		DRLG_L3PlaceRndSet(L6EXTCON2, 20);
-		DRLG_L3PlaceRndSet(L6EXTCON3, 20);
-		DRLG_L3PlaceRndSet(L6EXTCON4, 20);
+		/** Miniset: Use random external connection 1. */
+		DRLG_PlaceRndTile(8, 25, 20);
+		/** Miniset: Use random external connection 2. */
+		DRLG_PlaceRndTile(8, 26, 20);
+		/** Miniset: Use random external connection 3. */
+		DRLG_PlaceRndTile(8, 27, 20);
+		/** Miniset: Use random external connection 4. */
+		DRLG_PlaceRndTile(8, 28, 20);
 		DRLG_L3PlaceRndSet(L6MITE1, 10);
 		DRLG_L3PlaceRndSet(L6MITE2, 15);
 		DRLG_L3PlaceRndSet(L6MITE3, 20);
@@ -2282,28 +2183,50 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE3, 45);
 		DRLG_L3PlaceRndSet(L6MITE2, 50);
 		DRLG_L3PlaceRndSet(L6MITE1, 55);
-		DRLG_L3PlaceRndSet(L6RNDFLOOR1, 25);
-		DRLG_L3PlaceRndSet(L6RNDFLOOR2, 25);
-		DRLG_L3PlaceRndSet(L6RNDFLOOR3, 25);
-		DRLG_L3PlaceRndSet(L6RNDFLOOR4, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL1, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL2, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL3, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL4, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL5, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL1, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL2, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL3, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL4, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL5, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL6, 25);
-		DRLG_L3PlaceRndSet(L6VERTWALL7, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL6, 25);
-		DRLG_L3PlaceRndSet(L6HORWALL7, 25);
-		DRLG_L3PlaceRndSet(L6CORNERN1, 25);
-		DRLG_L3PlaceRndSet(L6CORNERN2, 25);
-		DRLG_L3PlaceRndSet(L6CORNERN3, 25);
-		DRLG_L3PlaceRndSet(L6CORNERN4, 25);
+		/** Miniset: Use random floor tile 1. */
+		DRLG_PlaceRndTile(7, 29, 25);
+		/** Miniset: Use random floor tile 2. */
+		DRLG_PlaceRndTile(7, 30, 25);
+		/** Miniset: Use random floor tile 3. */
+		DRLG_PlaceRndTile(7, 31, 25);
+		/** Miniset: Use random floor tile 4. */
+		DRLG_PlaceRndTile(7, 32, 25);
+		/** Miniset: Use random vertical wall tile 1. */
+		DRLG_PlaceRndTile(9, 33, 25);
+		/** Miniset: Use random vertical wall tile 2. */
+		DRLG_PlaceRndTile(9, 34, 25);
+		/** Miniset: Use random vertical wall tile 3. */
+		DRLG_PlaceRndTile(9, 35, 25);
+		/** Miniset: Use random vertical wall tile 4. */
+		DRLG_PlaceRndTile(9, 36, 25);
+		/** Miniset: Use random vertical wall tile 5. */
+		DRLG_PlaceRndTile(9, 37, 25);
+		/** Miniset: Use random horizontal wall tile 1. */
+		DRLG_PlaceRndTile(10, 39, 25);
+		/** Miniset: Use random horizontal wall tile 2. but 40 is a north-corner... */
+		DRLG_PlaceRndTile(10, 40, 25);
+		/** Miniset: Use random horizontal wall tile 3. */
+		DRLG_PlaceRndTile(10, 41, 25);
+		/** Miniset: Use random horizontal wall tile 4. */
+		DRLG_PlaceRndTile(10, 42, 25);
+		/** Miniset: Use random horizontal wall tile 5. */
+		DRLG_PlaceRndTile(10, 43, 25);
+		/** Miniset: Use random vertical wall tile 6. but 45 is a north-corner... */
+		DRLG_PlaceRndTile(9, 45, 25);
+		/** Miniset: Use random vertical wall tile 7. */
+		DRLG_PlaceRndTile(9, 46, 25);
+		/** Miniset: Use random horizontal wall tile 6. but 47 is blocked */
+		DRLG_PlaceRndTile(10, 47, 25);
+		/** Miniset: Use random horizontal wall tile 7. */
+		DRLG_PlaceRndTile(10, 48, 25);
+		/** Miniset: Use random corner wall tile. north 1. */
+		DRLG_PlaceRndTile(11, 38, 25);
+		/** Miniset: Use random corner wall tile. north 2. */
+		DRLG_PlaceRndTile(11, 44, 25);
+		/** Miniset: Use random corner wall tile. north 3. */
+		DRLG_PlaceRndTile(11, 49, 25);
+		/** Miniset: Use random corner wall tile. north 4. */
+		DRLG_PlaceRndTile(11, 50, 25);
 	} else
 #endif
 	{
@@ -2333,11 +2256,16 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L3CREV9, 30);
 		DRLG_L3PlaceRndSet(L3CREV10, 30);
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
-		DRLG_L3PlaceRndSet(L3XTRA1, 25);
-		DRLG_L3PlaceRndSet(L3XTRA2, 25);
-		DRLG_L3PlaceRndSet(L3XTRA3, 25);
-		DRLG_L3PlaceRndSet(L3XTRA4, 25);
-		DRLG_L3PlaceRndSet(L3XTRA5, 25);
+		/** Miniset: Use random floor tile 1. */
+		DRLG_PlaceRndTile(7, 106, 25);
+		/** Miniset: Use random floor tile 2. */
+		DRLG_PlaceRndTile(7, 107, 25);
+		/** Miniset: Use random floor tile 3. */
+		DRLG_PlaceRndTile(7, 108, 25);
+		/** Miniset: Use random horizontal wall tile. */
+		DRLG_PlaceRndTile(9, 109, 25);
+		/** Miniset: Use random vertical wall tile. */
+		DRLG_PlaceRndTile(10, 110, 25);
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
