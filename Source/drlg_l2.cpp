@@ -23,11 +23,12 @@ HALLNODE *pHallList = NULL;
 #define ROOM_MIN 4
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
-const ShadowStruct SPATSL2[2] = {
+const ShadowStruct L2SPATS[] = {
 	// clang-format off
 	// strig, s1, s2, s3, nv1, nv2, nv3
 	{      6,  3,  0,  3,  48,   0,  50 },
-	{      9,  3,  0,  3,  48,   0,  50 }
+	{      9,  3,  0,  3,  48,   0,  50 },
+	{      0,  0,  0,  0,   0,   0,   0 }
 	// clang-format on
 };
 /** Maps tile IDs to their corresponding base tile ID. */
@@ -1680,7 +1681,7 @@ static void DRLG_L2Subs()
 static void DRLG_L2Shadows()
 {
 	const ShadowStruct *ss;
-	int x, y, i;
+	int x, y;
 	BYTE sd00, sd10, sd01, sd11;
 
 	for (y = 1; y < DMAXY; y++) {
@@ -1689,8 +1690,7 @@ static void DRLG_L2Shadows()
 			sd10 = BSTYPESL2[dungeon[x - 1][y]];
 			sd01 = BSTYPESL2[dungeon[x][y - 1]];
 			sd11 = BSTYPESL2[dungeon[x - 1][y - 1]];
-			ss = SPATSL2;
-			for (i = 0; i < 2; i++) {
+			for (ss = L2SPATS; ss->strig != 0; ss++) {
 				if (ss->strig == sd00) {
 					if ((ss->s1 != 0 && ss->s1 != sd11)
 					 || (ss->s2 != 0 && ss->s2 != sd01)

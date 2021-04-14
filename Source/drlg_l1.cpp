@@ -24,7 +24,7 @@ BOOL VR2;
 BOOL VR3;
 
 /** Contains shadows for 2x2 blocks of base tile IDs in the Cathedral. */
-const ShadowStruct SPATS[37] = {
+const ShadowStruct L1SPATS[] = {
 	// clang-format off
 	// strig, s1, s2, s3, nv1, nv2, nv3
 	{      7, 13,  0, 13, 144,   0, 142 },
@@ -63,7 +63,8 @@ const ShadowStruct SPATS[37] = {
 	{     12, 13, 13,  0, 140, 140,   0 },
 	{     12,  0,  1,  0,   0, 146,   0 },
 	{     12, 13, 11,  0, 140, 147,   0 },
-	{      3, 13, 11, 12, 150,   0,   0 }
+	{      3, 13, 11, 12, 150,   0,   0 },
+	{      0,  0,  0,  0,   0,   0,   0 }
 	// clang-format on
 };
 
@@ -677,7 +678,7 @@ static void DRLG_L5Crypt_lavafloor()
 static void DRLG_L1Shadows()
 {
 	const ShadowStruct *ss;
-	int x, y, i;
+	int x, y;
 	BYTE sd00, sd10, sd01, sd11;
 	BYTE tnv3;
 
@@ -687,9 +688,7 @@ static void DRLG_L1Shadows()
 			sd10 = BSTYPES[dungeon[x - 1][y]];
 			sd01 = BSTYPES[dungeon[x][y - 1]];
 			sd11 = BSTYPES[dungeon[x - 1][y - 1]];
-
-			ss = SPATS;
-			for (i = 0; i < lengthof(SPATS); i++, ss++) {
+			for (ss = L1SPATS; ss->strig != 0; ss++) {
 				if (ss->strig == sd00) {
 					if ((ss->s1 != 0 && ss->s1 != sd11)
 					 || (ss->s2 != 0 && ss->s2 != sd01)
