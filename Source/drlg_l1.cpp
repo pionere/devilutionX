@@ -1071,15 +1071,6 @@ static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
 		tries = 0;
 		while (TRUE) {
 			done = true;
-			if (sx <= 12) {
-				sx++;
-				done = false;
-			}
-			if (sy <= 12) {
-				sy++;
-				done = false;
-			}
-
 			ii = 2;
 			for (yy = sy; yy < sy + sh && done; yy++) {
 				for (xx = sx; xx < sx + sw && done; xx++) {
