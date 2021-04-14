@@ -70,6 +70,7 @@ const ShadowStruct SPATS[37] = {
 // BUGFIX: This array should contain an additional 0 (207 elements).
 /** Maps tile IDs to their corresponding base tile ID. */
 const BYTE BSTYPES[] = {
+	// clang-format off
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14, 15, 16, 17, 0, 0,
 	0, 0, 0, 0, 0, 1, 2, 10, 4, 5,
@@ -91,20 +92,22 @@ const BYTE BSTYPES[] = {
 	41, 43, 40, 41, 42, 43, 25, 41, 43, 28,
 	28, 1, 2, 25, 26, 22, 22, 25, 26, 0,
 	0, 0, 0, 0, 0, 0, 0
+	// clang-format on
 };
 
 // BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
 /** Maps tile IDs to their corresponding undecorated tile ID. */
 const BYTE L1BTYPES[] = {
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-	10, 11, 12, 13, 14, 15, 16, 17, 0, 0,
-	0, 0, 0, 0, 0, 25, 26, 0, 28, 0,
-	30, 31, 0, 0, 0, 0, 0, 0, 0, 0,
-	40, 41, 42, 43, 0, 0, 0, 0, 0, 0,
+	// clang-format off
+	0, 1, 2, 0/*3*/, 0/*4*/, 0/*5*/, 0/*6*/, 0/*7*/, 0/*8*/, 0/*9*/,
+	0/*10*/, 11, 12, 13, 0/*14*/, 0/*15*/, 0/*16*/, 0/*17*/, 0, 0,
+	0, 0, 0, 0, 0, 25, 0/*26*/, 0, 0/*28*/, 0,
+	0/*30*/, 0/*31*/, 0, 0, 0, 0, 0, 0, 0, 0,
+	0/*40*/, 0/*41*/, 0/*42*/, 0/*43*/, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 79,
-	80, 0, 82, 0, 0, 0, 0, 0, 0, 79,
+	80, 0, 0/*82*/, 0, 0, 0, 0, 0, 0, 79,
 	0, 80, 0, 0, 79, 80, 0, 2, 2, 2,
 	1, 1, 11, 25, 13, 13, 13, 1, 2, 1,
 	2, 1, 2, 1, 2, 2, 2, 2, 12, 0,
@@ -117,6 +120,7 @@ const BYTE L1BTYPES[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0
+	// clang-format on
 };
 /** Miniset: stairs up on a corner wall. */
 const BYTE STAIRSUP[] = {
