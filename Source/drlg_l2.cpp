@@ -1487,7 +1487,7 @@ const int Patterns[][16] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 2, 8 },
 };
 
-static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, BOOL setview)
+static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, bool setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	bool done;
@@ -2799,7 +2799,7 @@ static void L2DoorFix2()
 
 struct mini_set {
 	const BYTE* data;
-	BOOL setview;
+	bool setview;
 };
 static bool DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
 {

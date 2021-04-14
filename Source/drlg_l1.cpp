@@ -2366,7 +2366,7 @@ static void DRLG_L1CornerFix()
 
 struct mini_set {
 	const BYTE* data;
-	BOOL setview;
+	bool setview;
 };
 static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
 {
@@ -2417,17 +2417,17 @@ static void DRLG_L1(int entry)
 
 		if (QuestStatus(Q_PWATER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, TRUE);
+				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, true);
 			} else {
-				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, FALSE);
+				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, false);
 				ViewY--;
 			}
 		}
 		if (QuestStatus(Q_LTBANNER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, TRUE);
+				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, true);
 			} else {
-				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, FALSE);
+				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, false);
 				if (entry == ENTRY_PREV) {
 					ViewX = 2 * setpc_x + DBORDERX + 4;
 					ViewY = 2 * setpc_y + DBORDERY + 12;
@@ -2469,23 +2469,23 @@ static void DRLG_L1(int entry)
 			}*/
 
 			if (entry == ENTRY_PREV) {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, FALSE)
-				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, TRUE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, false)
+				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, true))
 					doneflag = false;
 				ViewY--;
 			} else {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, TRUE)
-				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, FALSE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, true)
+				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, false))
 					doneflag = false;
 			}
 
 			/*if (entry == ENTRY_MAIN) {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, TRUE)
-				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, FALSE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, true)
+				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, false))
 					doneflag = false;
 			} else {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, FALSE)
-				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, TRUE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, false)
+				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, true))
 					doneflag = false;
 				ViewY--;
 			}*/
@@ -2571,7 +2571,7 @@ static void DRLG_L1(int entry)
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_L1Subs();
 		DRLG_L1Shadows();
-		DRLG_L1PlaceMiniSet(LAMPS, RandRange(5, 9), FALSE);
+		DRLG_L1PlaceMiniSet(LAMPS, RandRange(5, 9), false);
 		DRLG_L1Floor();
 	}
 

@@ -1546,7 +1546,7 @@ static void DRLG_L3Pool()
 	}
 }
 
-static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, BOOL setview)
+static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, bool setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	bool done;
@@ -2144,7 +2144,7 @@ static bool DRLG_L3Lockout()
 
 struct mini_set {
 	const BYTE* data;
-	BOOL setview;
+	bool setview;
 };
 static bool DRLG_L3PlaceMiniSets(mini_set* minisets, int n)
 {

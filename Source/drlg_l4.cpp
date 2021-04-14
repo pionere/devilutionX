@@ -1294,7 +1294,7 @@ static void DRLG_LoadDiabQuads(bool preflag)
 	MemFreeDbg(pSetPiece);
 }
 
-static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, BOOL setview)
+static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, bool setview)
 {
 	int sx, sy, sw, sh, xx, yy, ii, tries;
 	bool done;
@@ -1447,7 +1447,7 @@ static void DRLG_L4GeneralFix()
 
 struct mini_set {
 	const BYTE* data;
-	BOOL setview;
+	bool setview;
 };
 static bool DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
 {
