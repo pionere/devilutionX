@@ -1938,14 +1938,14 @@ static void DRLG_L5Crypt_pattern6(BYTE rndper)
 	DRLG_PlaceRndTile(92, 179, rndper);
 	/** Miniset: Replace random horizontal wall tile on east 2. */
 	DRLG_PlaceRndTile(92, 180, rndper);
-	/** Miniset: Replace random horizontal wall tile on east 3. */
-	DRLG_PlaceRndTile(92, 181, rndper);
-	/** Miniset: Replace random horizontal wall tile on east 4. */
-	DRLG_PlaceRndTile(92, 182, rndper);
-	/** Miniset: Replace random horizontal wall tile on east 5. */
-	DRLG_PlaceRndTile(92, 183, rndper);
-	/** Miniset: Replace random horizontal wall tile on east 6. */
-	DRLG_PlaceRndTile(92, 184, rndper);
+	/** Miniset: Replace random horizontal wall tile in the middle 1. */
+	DRLG_PlaceRndTile(93, 181, rndper);
+	/** Miniset: Replace random horizontal wall tile in the middle 2. */
+	DRLG_PlaceRndTile(93, 182, rndper);
+	/** Miniset: Replace random horizontal wall tile on west 1. */
+	DRLG_PlaceRndTile(94, 183, rndper);
+	/** Miniset: Replace random horizontal wall tile on west 2. */
+	DRLG_PlaceRndTile(94, 184, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR2_0, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR2_1, rndper);
 	DRLG_L5PlaceRndSet(L5RNDFLOOR1_0, rndper);
