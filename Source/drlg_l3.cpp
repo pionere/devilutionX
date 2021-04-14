@@ -647,30 +647,6 @@ const BYTE L6MITE10[] = {
 	 0,  0, 0,
 	// clang-format on
 };
-const BYTE L6ISLE1[] = {
-	// clang-format off
-	2, 3, // width, height
-
-	 5, 14, // search
-	 4,  9,
-	13, 12,
-
-	7, 7, // replace
-	7, 7,
-	7, 7,
-	// clang-format on
-};
-const BYTE L6ISLE2[] = {
-	// clang-format off
-	3, 2, // width, height
-
-	 5,  2, 14, // search
-	13, 10, 12,
-
-	7, 7, 7, // replace
-	7, 7, 7,
-	// clang-format on
-};
 const BYTE L6ISLE3[] = {
 	// clang-format off
 	2, 3, // width, height
@@ -693,17 +669,6 @@ const BYTE L6ISLE4[] = {
 
 	107, 120, 115, // replace
 	131, 121, 123,
-	// clang-format on
-};
-const BYTE L6ISLE5[] = {
-	// clang-format off
-	2, 2, // width, height
-
-	 5, 14, // search
-	13, 12,
-
-	7, 7, // replace
-	7, 7,
 	// clang-format on
 };
 const BYTE L6SPOOL1[] = {
@@ -2115,41 +2080,22 @@ static void DRLG_L3(int entry)
 		}
 	} while (_guLavapools < MIN_LAVA_POOL);
 
+	DRLG_L3PlaceRndSet(L3ISLE1, 70);
+	DRLG_L3PlaceRndSet(L3ISLE2, 70);
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
-		DRLG_L3PlaceRndSet(L6ISLE1, 70);
-		DRLG_L3PlaceRndSet(L6ISLE2, 70);
 		DRLG_L3PlaceRndSet(L6ISLE3, 30);
 		DRLG_L3PlaceRndSet(L6ISLE4, 30);
-		DRLG_L3PlaceRndSet(L6ISLE1, 100);
-		DRLG_L3PlaceRndSet(L6ISLE2, 100);
-		DRLG_L3PlaceRndSet(L6ISLE5, 90);
 	} else
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CAVES);
-		FixL3Warp();
-
-		DRLG_L3PlaceRndSet(L3ISLE1, 70);
-		DRLG_L3PlaceRndSet(L3ISLE2, 70);
 		DRLG_L3PlaceRndSet(L3ISLE3, 30);
 		DRLG_L3PlaceRndSet(L3ISLE4, 30);
-		DRLG_L3PlaceRndSet(L3ISLE1, 100);
-		DRLG_L3PlaceRndSet(L3ISLE2, 100);
-		DRLG_L3PlaceRndSet(L3ISLE5, 90);
-
-		FixL3HallofHeroes();
-		DRLG_L3River();
 	}
-
-	if (QuestStatus(Q_ANVIL)) {
-		dungeon[setpc_x + 7][setpc_y + 5] = 7;
-		dungeon[setpc_x + 8][setpc_y + 5] = 7;
-		dungeon[setpc_x + 9][setpc_y + 5] = 7;
-		if (dungeon[setpc_x + 10][setpc_y + 5] == 17 || dungeon[setpc_x + 10][setpc_y + 5] == 18) {
-			dungeon[setpc_x + 10][setpc_y + 5] = 45;
-		}
-	}
+	DRLG_L3PlaceRndSet(L3ISLE1, 100);
+	DRLG_L3PlaceRndSet(L3ISLE2, 100);
+	DRLG_L3PlaceRndSet(L3ISLE5, 90);
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
@@ -2231,6 +2177,17 @@ static void DRLG_L3(int entry)
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CAVES);
+		FixL3Warp();
+		FixL3HallofHeroes();
+		DRLG_L3River();
+		if (QuestStatus(Q_ANVIL)) {
+			dungeon[setpc_x + 7][setpc_y + 5] = 7;
+			dungeon[setpc_x + 8][setpc_y + 5] = 7;
+			dungeon[setpc_x + 9][setpc_y + 5] = 7;
+			if (dungeon[setpc_x + 10][setpc_y + 5] == 17 || dungeon[setpc_x + 10][setpc_y + 5] == 18) {
+				dungeon[setpc_x + 10][setpc_y + 5] = 45;
+			}
+		}
 		DRLG_PlaceThemeRooms(5, 10, 7, 0, false);
 
 		DRLG_L3Wood();
