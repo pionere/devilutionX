@@ -772,7 +772,6 @@ static void DRLG_L5Crypt_lavafloor()
 					dungeon[i][j - 1] = 205;
 				break;
 			case 96:
-			case 187:
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 208;
 				break;
@@ -818,7 +817,6 @@ static void DRLG_L5Crypt_lavafloor()
 				break;
 			case 162:
 			case 167:
-			case 192:
 				if (dungeon[i - 1][j] == 13)
 					dungeon[i - 1][j] = 209;
 				if (dungeon[i - 1][j - 1] == 13)
