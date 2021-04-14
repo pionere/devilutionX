@@ -2280,6 +2280,8 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE8, 45);
 		DRLG_L3PlaceRndSet(L6MITE9, 50);
 		DRLG_L3PlaceRndSet(L6MITE10, 55);
+		DRLG_L3PlaceRndSet(L6PATCH1, 40);
+		DRLG_L3PlaceRndSet(L6PATCH2, 45);
 		DRLG_L3PlaceRndSet(L6MITE10, 10);
 		DRLG_L3PlaceRndSet(L6MITE9, 15);
 		DRLG_L3PlaceRndSet(L6MITE8, 20);
@@ -2290,8 +2292,6 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE3, 45);
 		DRLG_L3PlaceRndSet(L6MITE2, 50);
 		DRLG_L3PlaceRndSet(L6MITE1, 55);
-		DRLG_L3PlaceRndSet(L6PATCH1, 40);
-		DRLG_L3PlaceRndSet(L6PATCH2, 45);
 		DRLG_L3PlaceRndSet(L6RNDFLOOR1, 25);
 		DRLG_L3PlaceRndSet(L6RNDFLOOR2, 25);
 		DRLG_L3PlaceRndSet(L6RNDFLOOR3, 25);
