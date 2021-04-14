@@ -311,9 +311,12 @@ const BYTE PWATERIN[] = {
 	// clang-format on
 };
 #ifdef HELLFIRE
-const BYTE byte_48A1B4[4] = { 1, 1, 11, 95 };
-const BYTE byte_48A1B8[8] = { 1, 1, 12, 96 };
-const BYTE byte_48A1C0[8] = {
+/** Miniset: Column on the northern side of a vertical wall 1. */
+const BYTE L5VERTCOL1[4] = { 1, 1, 11, 95 };
+/** Miniset: Column on the northern side of a horizontal wall 1. */
+const BYTE L5HORIZCOL1[4] = { 1, 1, 12, 96 };
+/** Miniset: Prepare random large vertical wall tile */
+const BYTE L5PREVERTWALL[8] = {
 	// clang-format off
 	1, 3, // width, height
 
@@ -326,7 +329,8 @@ const BYTE byte_48A1C0[8] = {
 	89,
 	// clang-format on
 };
-const BYTE byte_48A1C8[8] = {
+/** Miniset: Prepare random large horizontal wall tile */
+const BYTE L5PREHORIZWALL[8] = {
 	// clang-format off
 	3, 1, // width, height
 
@@ -335,11 +339,16 @@ const BYTE byte_48A1C8[8] = {
 	94, 93, 92, // replace
 	// clang-format on
 };
-const BYTE byte_48A1D0[4] = { 1, 1, 13, 97 };
-const BYTE byte_48A1D4[4] = { 1, 1, 13, 98 };
-const BYTE byte_48A1D8[4] = { 1, 1, 13, 99 };
-const BYTE byte_48A1DC[4] = { 1, 1, 13, 100 };
-const BYTE byte_48A1E0[20] = {
+/** Miniset: Use random floor tile 1. */
+const BYTE L5RNDFLOOR1[4] = { 1, 1, 13, 97 };
+/** Miniset: Use random floor tile 2. */
+const BYTE L5RNDFLOOR2[4] = { 1, 1, 13, 98 };
+/** Miniset: Use random floor tile 3. */
+const BYTE L5RNDFLOOR3[4] = { 1, 1, 13, 99 };
+/** Miniset: Use random floor tile 4. */
+const BYTE L5RNDFLOOR4[4] = { 1, 1, 13, 100 };
+/** Miniset: Use random large floor tile. */
+const BYTE L5RNDLFLOOR1[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -352,33 +361,60 @@ const BYTE byte_48A1E0[20] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A1F4[4] = { 1, 1, 11, 185 };
-const BYTE byte_48A1F8[4] = { 1, 1, 11, 186 };
-const BYTE byte_48A1FC[4] = { 1, 1, 12, 187 };
-const BYTE byte_48A200[4] = { 1, 1, 12, 188 };
-const BYTE byte_48A204[4] = { 1, 1, 89, 173 };
-const BYTE byte_48A208[4] = { 1, 1, 89, 174 };
-const BYTE byte_48A20C[4] = { 1, 1, 90, 175 };
-const BYTE byte_48A210[4] = { 1, 1, 90, 176 };
-const BYTE byte_48A214[4] = { 1, 1, 91, 177 };
-const BYTE byte_48A218[4] = { 1, 1, 91, 178 };
-const BYTE byte_48A21C[4] = { 1, 1, 92, 179 };
-const BYTE byte_48A220[4] = { 1, 1, 92, 180 };
-const BYTE byte_48A224[4] = { 1, 1, 92, 181 };
-const BYTE byte_48A228[4] = { 1, 1, 92, 182 };
-const BYTE byte_48A22C[4] = { 1, 1, 92, 183 };
-const BYTE byte_48A230[4] = { 1, 1, 92, 184 };
-const BYTE byte_48A234[4] = { 1, 1, 98, 189 };
-const BYTE byte_48A238[4] = { 1, 1, 98, 190 };
-const BYTE byte_48A23C[4] = { 1, 1, 97, 191 };
-const BYTE byte_48A240[4] = { 1, 1, 15, 192 };
-const BYTE byte_48A244[4] = { 1, 1, 99, 193 };
-const BYTE byte_48A248[4] = { 1, 1, 99, 194 };
-const BYTE byte_48A24C[4] = { 1, 1, 100, 195 };
-const BYTE byte_48A250[4] = { 1, 1, 101, 196 };
-const BYTE byte_48A254[4] = { 1, 1, 101, 197 };
-const BYTE byte_48A258[8] = { 1, 1, 101, 198 };
-const BYTE byte_48A260[24] = {
+/** Miniset: Column on the northern side of a vertical wall 2. pointless? same as 95 */
+const BYTE L5VERTCOL2[4] = { 1, 1, 11, 185 };
+/** Miniset: Column on the northern side of a vertical wall 3. pointless? same as 95 */
+const BYTE L5VERTCOL3[4] = { 1, 1, 11, 186 };
+/** Miniset: Column on the northern side of a horizontal wall 2. pointless? same as 96 */
+const BYTE L5HORIZCOL2[4] = { 1, 1, 12, 187 };
+/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
+const BYTE L5HORIZCOL3[4] = { 1, 1, 12, 188 };
+/** Miniset: Replace vertical wall tile on the bottom 1. */
+const BYTE L5VERTWALLB0[4] = { 1, 1, 89, 173 };
+/** Miniset: Replace vertical wall tile on the bottom 2. */
+const BYTE L5VERTWALLB1[4] = { 1, 1, 89, 174 };
+/** Miniset: Replace vertical wall tile in the middle 1. */
+const BYTE L5VERTWALLM0[4] = { 1, 1, 90, 175 };
+/** Miniset: Replace vertical wall tile in the middle 2. */
+const BYTE L5VERTWALLM1[4] = { 1, 1, 90, 176 };
+/** Miniset: Replace vertical wall tile on the top 1. */
+const BYTE L5VERTWALLT0[4] = { 1, 1, 91, 177 };
+/** Miniset: Replace vertical wall tile on the top 2. */
+const BYTE L5VERTWALLT1[4] = { 1, 1, 91, 178 };
+/** Miniset: Replace random horizontal wall tile on east 1. but pointless? */
+const BYTE L5HORIZWALLE0[4] = { 1, 1, 92, 179 };
+/** Miniset: Replace random horizontal wall tile on east 2. */
+const BYTE L5HORIZWALLE1[4] = { 1, 1, 92, 180 };
+/** Miniset: Replace random horizontal wall tile on east 3. */
+const BYTE L5HORIZWALLE2[4] = { 1, 1, 92, 181 };
+/** Miniset: Replace random horizontal wall tile on east 4. */
+const BYTE L5HORIZWALLE3[4] = { 1, 1, 92, 182 };
+/** Miniset: Replace random horizontal wall tile on east 5. */
+const BYTE L5HORIZWALLE4[4] = { 1, 1, 92, 183 };
+/** Miniset: Replace random horizontal wall tile on east 6. */
+const BYTE L5HORIZWALLE5[4] = { 1, 1, 92, 184 };
+/** Miniset: Replace random floor tile 2 with another one 1. */
+const BYTE L5RNDFLOOR2_0[4] = { 1, 1, 98, 189 };
+/** Miniset: Replace random floor tile 2 with another one 2. */
+const BYTE L5RNDFLOOR2_1[4] = { 1, 1, 98, 190 };
+/** Miniset: Replace random floor tile 1 with another one. */
+const BYTE L5RNDFLOOR1_0[4] = { 1, 1, 97, 191 };
+/** Miniset: Use random column 1. (Cracked) */
+const BYTE L5RNDCOL1[4] = { 1, 1, 15, 192 };
+/** Miniset: Replace random floor tile 3 with another one 1. */
+const BYTE L5RNDFLOOR3_0[4] = { 1, 1, 99, 193 };
+/** Miniset: Replace random floor tile 3 with another one 2. */
+const BYTE L5RNDFLOOR3_1[4] = { 1, 1, 99, 194 };
+/** Miniset: Replace random floor tile 4 with another one. */
+const BYTE L5RNDFLOOR4_0[4] = { 1, 1, 100, 195 };
+/** Miniset: Replace random large floor tile 1. */
+const BYTE L5RNDLFLOOR1_0[4] = { 1, 1, 101, 196 };
+/** Miniset: Replace random large floor tile 2. */
+const BYTE L5RNDLFLOOR1_1[4] = { 1, 1, 101, 197 };
+/** Miniset: Replace random large floor tile 3. */
+const BYTE L5RNDLFLOOR1_2[4] = { 1, 1, 101, 198 };
+/** Miniset: Lava fountain bowl. */
+const BYTE L5RNDLFLOOR2[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -391,7 +427,8 @@ const BYTE byte_48A260[24] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A278[24] = {
+/** Miniset: Mooring on a stone. */
+const BYTE L5RNDLFLOOR3[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -404,7 +441,8 @@ const BYTE byte_48A278[24] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A290[24] = {
+/** Miniset: A stone coffin(?). */
+const BYTE L5RNDLFLOOR4[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -416,7 +454,8 @@ const BYTE byte_48A290[24] = {
 	0, 169, 0,
 	0,   0, 0,
 };
-const BYTE byte_48A2A8[24] = {
+/** Miniset: A stone. TODO: bad collision check on the northern side */
+const BYTE L5RNDLFLOOR5[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -429,7 +468,8 @@ const BYTE byte_48A2A8[24] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A2C0[24] = {
+/** Miniset: A broken head of a stone-column. */
+const BYTE L5RNDLFLOOR6[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -442,7 +482,8 @@ const BYTE byte_48A2C0[24] = {
 	0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A2D8[20] = {
+/** Miniset: A leaf on the floor. */
+const BYTE L5RNDLFLOOR7[20] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -455,65 +496,124 @@ const BYTE byte_48A2D8[20] = {
 	 0,   0, 0,
 	// clang-format on
 };
-const BYTE byte_48A2EC[4] = { 1, 1, 13, 163 };
-const BYTE byte_48A2F0[4] = { 1, 1, 13, 164 };
-const BYTE byte_48A2F4[4] = { 1, 1, 13, 165 };
-const BYTE byte_48A2F8[4] = { 1, 1, 13, 166 };
-const BYTE byte_48A2FC[4] = { 1, 1, 1, 112 };
-const BYTE byte_48A300[4] = { 1, 1, 2, 113 };
-const BYTE byte_48A304[4] = { 1, 1, 3, 114 };
-const BYTE byte_48A308[4] = { 1, 1, 4, 115 };
-const BYTE byte_48A30C[4] = { 1, 1, 5, 116 };
-const BYTE byte_48A310[4] = { 1, 1, 6, 117 };
-const BYTE byte_48A314[4] = { 1, 1, 7, 118 };
-const BYTE byte_48A318[4] = { 1, 1, 8, 119 };
-const BYTE byte_48A31C[4] = { 1, 1, 9, 120 };
-const BYTE byte_48A320[4] = { 1, 1, 10, 121 };
-const BYTE byte_48A324[4] = { 1, 1, 11, 122 };
-const BYTE byte_48A328[4] = { 1, 1, 12, 123 };
-const BYTE byte_48A32C[4] = { 1, 1, 13, 124 };
-const BYTE byte_48A330[4] = { 1, 1, 14, 125 };
-const BYTE byte_48A334[4] = { 1, 1, 15, 126 };
-const BYTE byte_48A338[4] = { 1, 1, 16, 127 };
-const BYTE byte_48A33C[4] = { 1, 1, 17, 128 };
-const BYTE byte_48A340[4] = { 1, 1, 1, 129 };
-const BYTE byte_48A344[4] = { 1, 1, 2, 130 };
-const BYTE byte_48A348[4] = { 1, 1, 3, 131 };
-const BYTE byte_48A34C[4] = { 1, 1, 4, 132 };
-const BYTE byte_48A350[4] = { 1, 1, 5, 133 };
-const BYTE byte_48A354[4] = { 1, 1, 6, 134 };
-const BYTE byte_48A358[4] = { 1, 1, 7, 135 };
-const BYTE byte_48A35C[4] = { 1, 1, 8, 136 };
-const BYTE byte_48A360[4] = { 1, 1, 9, 137 };
-const BYTE byte_48A364[4] = { 1, 1, 10, 138 };
-const BYTE byte_48A368[4] = { 1, 1, 11, 139 };
-const BYTE byte_48A36C[4] = { 1, 1, 12, 140 };
-const BYTE byte_48A370[4] = { 1, 1, 13, 141 };
-const BYTE byte_48A374[4] = { 1, 1, 14, 142 };
-const BYTE byte_48A378[4] = { 1, 1, 15, 143 };
-const BYTE byte_48A37C[4] = { 1, 1, 16, 144 };
-const BYTE byte_48A380[4] = { 1, 1, 17, 145 };
-const BYTE byte_48A384[4] = { 1, 1, 1, 146 };
-const BYTE byte_48A388[4] = { 1, 1, 2, 147 };
-const BYTE byte_48A38C[4] = { 1, 1, 3, 148 };
-const BYTE byte_48A390[4] = { 1, 1, 4, 149 };
-const BYTE byte_48A394[4] = { 1, 1, 5, 150 };
-const BYTE byte_48A398[4] = { 1, 1, 6, 151 };
-const BYTE byte_48A39C[4] = { 1, 1, 7, 152 };
-const BYTE byte_48A3A0[4] = { 1, 1, 8, 153 };
-const BYTE byte_48A3A4[4] = { 1, 1, 9, 154 };
-const BYTE byte_48A3A8[4] = { 1, 1, 10, 155 };
-const BYTE byte_48A3AC[4] = { 1, 1, 11, 156 };
-const BYTE byte_48A3B0[4] = { 1, 1, 12, 157 };
-const BYTE byte_48A3B4[4] = { 1, 1, 13, 158 };
-const BYTE byte_48A3B8[4] = { 1, 1, 14, 159 };
-const BYTE byte_48A3BC[4] = { 1, 1, 15, 160 };
-const BYTE byte_48A3C0[4] = { 1, 1, 16, 161 };
-const BYTE byte_48A3C4[4] = { 1, 1, 17, 162 };
-const BYTE byte_48A3C8[4] = { 1, 1, 1, 199 };
-const BYTE byte_48A3CC[4] = { 1, 1, 1, 201 };
-const BYTE byte_48A3D0[4] = { 1, 1, 2, 200 };
-const BYTE byte_48A3D4[4] = { 1, 1, 2, 202 };
+/** Miniset: Use random floor tile 5. */
+const BYTE L5RNDFLOOR5[4] = { 1, 1, 13, 163 };
+/** Miniset: Use random floor tile 6. */
+const BYTE L5RNDFLOOR6[4] = { 1, 1, 13, 164 };
+/** Miniset: Use random floor tile 7. */
+const BYTE L5RNDFLOOR7[4] = { 1, 1, 13, 165 };
+/** Miniset: Use random floor tile 8. */
+const BYTE L5RNDFLOOR8[4] = { 1, 1, 13, 166 };
+/** Miniset: Use random vertical wall tile A1. */
+const BYTE L5RNDVERTWALLA1[4] = { 1, 1, 1, 112 };
+/** Miniset: Use random horizontal wall tile 1. */
+const BYTE L5RNDHORIZWALL1[4] = { 1, 1, 2, 113 };
+/** Miniset: South-Edge column on the northern side 1. */
+const BYTE L5EDGECOLSOUTH1[4] = { 1, 1, 3, 114 };
+/** Miniset: Use random corner north 1. */
+const BYTE L5CORNERN1[4] = { 1, 1, 4, 115 };
+/** Miniset: North-Edge column on the northern side 1. */
+const BYTE L5EDGECOLNORTH1[4] = { 1, 1, 5, 116 };
+/** Miniset: Use random vertical wall tile B1. */
+const BYTE L5RNDVERTWALLB1[4] = { 1, 1, 6, 117 };
+/** Miniset: Use random concave corner east A1. */
+const BYTE L5CORNEREAST1A[4] = { 1, 1, 7, 118 };
+/** Miniset: East-Edge column on the northern side 1. */
+const BYTE L5EDGECOLEAST1[4] = { 1, 1, 8, 119 };
+/** Miniset: West-Edge column on the northern side 1. */
+const BYTE L5EDGECOLWEST1[4] = { 1, 1, 9, 120 };
+/** Miniset: Use random vertical wall tile C1. */
+const BYTE L5RNDVERTWALLC1[4] = { 1, 1, 10, 121 };
+/** Miniset: Column on the northern side of a vertical wall 4. */
+const BYTE L5VERTCOL4[4] = { 1, 1, 11, 122 };
+/** Miniset: Column on the northern side of a horizontal wall 4. */
+const BYTE L5HORIZCOL4[4] = { 1, 1, 12, 123 };
+/** Miniset: Use random floor tile 9. */
+const BYTE L5RNDFLOOR9[4] = { 1, 1, 13, 124 };
+/** Miniset: Use random concave corner east B1. */
+const BYTE L5CORNEREAST1B[4] = { 1, 1, 14, 125 };
+/** Miniset: Use random column 2. */
+const BYTE L5RNDCOL2[4] = { 1, 1, 15, 126 };
+/** Miniset: Use random concave corner north A1. */
+const BYTE L5CORNERNORTH1A[4] = { 1, 1, 16, 127 };
+/** Miniset: Use random concave corner north B1. */
+const BYTE L5CORNERNORTH1B[4] = { 1, 1, 17, 128 };
+/** Miniset: Use random vertical wall tile A2. */
+const BYTE L5RNDVERTWALLA2[4] = { 1, 1, 1, 129 };
+/** Miniset: Use random horizontal wall tile 2. */
+const BYTE L5RNDHORIZWALL2[4] = { 1, 1, 2, 130 };
+/** Miniset: South-Edge column on the northern side 2. */
+const BYTE L5EDGECOLSOUTH2[4] = { 1, 1, 3, 131 };
+/** Miniset: Use random corner north 2. */
+const BYTE L5CORNERN2[4] = { 1, 1, 4, 132 };
+/** Miniset: North-Edge column on the northern side 2. */
+const BYTE L5EDGECOLNORTH2[4] = { 1, 1, 5, 133 };
+/** Miniset: Use random vertical wall tile B2. */
+const BYTE L5RNDVERTWALLB2[4] = { 1, 1, 6, 134 };
+/** Miniset: Use random concave corner east A2. */
+const BYTE L5CORNEREAST2A[4] = { 1, 1, 7, 135 };
+/** Miniset: East-Edge column on the northern side 2. */
+const BYTE L5EDGECOLEAST2[4] = { 1, 1, 8, 136 };
+/** Miniset: West-Edge column on the northern side 2. */
+const BYTE L5EDGECOLWEST2[4] = { 1, 1, 9, 137 };
+/** Miniset: Use random vertical wall tile C2. */
+const BYTE L5RNDVERTWALLC2[4] = { 1, 1, 10, 138 };
+/** Miniset: Column on the northern side of a vertical wall 5. */
+const BYTE L5VERTCOL5[4] = { 1, 1, 11, 139 };
+/** Miniset: Column on the northern side of a horizontal wall 5. */
+const BYTE L5HORIZCOL5[4] = { 1, 1, 12, 140 };
+/** Miniset: Use random floor tile 10. */
+const BYTE L5RNDFLOOR10[4] = { 1, 1, 13, 141 };
+/** Miniset: Use random concave corner east B2. */
+const BYTE L5CORNEREAST2B[4] = { 1, 1, 14, 142 };
+/** Miniset: Use random column 3. (cracked column) */
+const BYTE L5RNDCOL3[4] = { 1, 1, 15, 143 };
+/** Miniset: Use random concave corner north A2. */
+const BYTE L5CORNERNORTH2A[4] = { 1, 1, 16, 144 };
+/** Miniset: Use random concave corner north B2. */
+const BYTE L5CORNERNORTH2B[4] = { 1, 1, 17, 145 };
+/** Miniset: Use random vertical wall tile A3. */
+const BYTE L5RNDVERTWALLA3[4] = { 1, 1, 1, 146 };
+/** Miniset: Use random horizontal wall tile 3. */
+const BYTE L5RNDHORIZWALL3[4] = { 1, 1, 2, 147 };
+/** Miniset: South-Edge column on the northern side 3. */
+const BYTE L5EDGECOLSOUTH3[4] = { 1, 1, 3, 148 };
+/** Miniset: Use random corner north 3. */
+const BYTE L5CORNERN3[4] = { 1, 1, 4, 149 };
+/** Miniset: North-Edge column on the northern side 3. */
+const BYTE L5EDGECOLNORTH3[4] = { 1, 1, 5, 150 };
+/** Miniset: Use random vertical wall tile B3. */
+const BYTE L5RNDVERTWALLB3[4] = { 1, 1, 6, 151 };
+/** Miniset: Use random concave corner east A3. */
+const BYTE L5CORNEREAST3A[4] = { 1, 1, 7, 152 };
+/** Miniset: East-Edge column on the northern side 3. */
+const BYTE L5EDGECOLEAST3[4] = { 1, 1, 8, 153 };
+/** Miniset: West-Edge column on the northern side 3. */
+const BYTE L5EDGECOLWEST3[4] = { 1, 1, 9, 154 };
+/** Miniset: Use random vertical wall tile C3. */
+const BYTE L5RNDVERTWALLC3[4] = { 1, 1, 10, 155 };
+/** Miniset: Column on the northern side of a vertical wall 6. */
+const BYTE L5VERTCOL6[4] = { 1, 1, 11, 156 };
+/** Miniset: Column on the northern side of a horizontal wall 6. */
+const BYTE L5HORIZCOL6[4] = { 1, 1, 12, 157 };
+/** Miniset: Use random floor tile 11. */
+const BYTE L5RNDFLOOR11[4] = { 1, 1, 13, 158 };
+/** Miniset: Use random concave corner east B3. */
+const BYTE L5CORNEREAST3B[4] = { 1, 1, 14, 159 };
+/** Miniset: Use random column 4. (Lava fountain) */
+const BYTE L5RNDCOL4[4] = { 1, 1, 15, 160 };
+/** Miniset: Use random concave corner north A3. */
+const BYTE L5CORNERNORTH3A[4] = { 1, 1, 16, 161 };
+/** Miniset: Use random concave corner north B3. */
+const BYTE L5CORNERNORTH3B[4] = { 1, 1, 17, 162 };
+/** Miniset: Use random vertical wall 4. (Statue). */
+const BYTE L5RNDVERTWALL4[4] = { 1, 1, 1, 199 };
+/** Miniset: Use random vertical wall 5. (Succubus statue) */
+const BYTE L5RNDVERTWALL5[4] = { 1, 1, 1, 201 };
+/** Miniset: Use random horizontal wall 4. (Statue). */
+const BYTE L5RNDHORIZWALL4[4] = { 1, 1, 2, 200 };
+/** Miniset: Use random horizontal wall 5. (Succubus statue) */
+const BYTE L5RNDHORIZWALL5[4] = { 1, 1, 2, 202 };
 #endif
 
 /**
@@ -956,7 +1056,7 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static bool DRLG_PlaceMiniSet(const BYTE *miniset, int numt, BOOL setview)
+static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
 {
 	int sx, sy, sw, sh, xx, yy, i, ii, tries;
 	bool done;
@@ -1799,7 +1899,7 @@ static void L1tileFix()
 }
 
 #ifdef HELLFIRE
-static void DRLG_L5Crypt_rndset(const BYTE *miniset, int rndper)
+static void DRLG_L5PlaceMiniSet(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii, kk;
 	bool found;
@@ -2028,125 +2128,125 @@ static void L1FillChambers()
 #ifdef HELLFIRE
 static void DRLG_L5Crypt_pattern1(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A3C8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3CC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3D0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3D4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALL4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALL5, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL5, rndper);
 }
 
 static void DRLG_L5Crypt_pattern2(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A2FC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A300, rndper);
-	DRLG_L5Crypt_rndset(byte_48A304, rndper);
-	DRLG_L5Crypt_rndset(byte_48A308, rndper);
-	DRLG_L5Crypt_rndset(byte_48A30C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A310, rndper);
-	DRLG_L5Crypt_rndset(byte_48A314, rndper);
-	DRLG_L5Crypt_rndset(byte_48A318, rndper);
-	DRLG_L5Crypt_rndset(byte_48A31C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A320, rndper);
-	DRLG_L5Crypt_rndset(byte_48A324, rndper);
-	DRLG_L5Crypt_rndset(byte_48A328, rndper);
-	DRLG_L5Crypt_rndset(byte_48A32C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A330, rndper);
-	DRLG_L5Crypt_rndset(byte_48A334, rndper);
-	DRLG_L5Crypt_rndset(byte_48A338, rndper);
-	DRLG_L5Crypt_rndset(byte_48A33C, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL1, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH1, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERN1, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB1, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST1A, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLEAST1, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLWEST1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC1, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTCOL4, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZCOL4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR9, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST1B, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDCOL2, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH1A, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH1B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern3(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A340, rndper);
-	DRLG_L5Crypt_rndset(byte_48A344, rndper);
-	DRLG_L5Crypt_rndset(byte_48A348, rndper);
-	DRLG_L5Crypt_rndset(byte_48A34C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A350, rndper);
-	DRLG_L5Crypt_rndset(byte_48A354, rndper);
-	DRLG_L5Crypt_rndset(byte_48A358, rndper);
-	DRLG_L5Crypt_rndset(byte_48A35C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A360, rndper);
-	DRLG_L5Crypt_rndset(byte_48A364, rndper);
-	DRLG_L5Crypt_rndset(byte_48A368, rndper);
-	DRLG_L5Crypt_rndset(byte_48A36C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A370, rndper);
-	DRLG_L5Crypt_rndset(byte_48A374, rndper);
-	DRLG_L5Crypt_rndset(byte_48A378, rndper);
-	DRLG_L5Crypt_rndset(byte_48A37C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A380, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA2, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL2, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH2, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERN2, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH2, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB2, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST2A, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLEAST2, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLWEST2, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC2, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTCOL5, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZCOL5, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR10, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST2B, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDCOL3, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH2A, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH2B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern4(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A384, rndper);
-	DRLG_L5Crypt_rndset(byte_48A388, rndper);
-	DRLG_L5Crypt_rndset(byte_48A38C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A390, rndper);
-	DRLG_L5Crypt_rndset(byte_48A394, rndper);
-	DRLG_L5Crypt_rndset(byte_48A398, rndper);
-	DRLG_L5Crypt_rndset(byte_48A39C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3A0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3A4, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3A8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3AC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3B0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3B4, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3B8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3BC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3C0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A3C4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLA3, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDHORIZWALL3, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLSOUTH3, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERN3, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLNORTH3, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLB3, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST3A, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLEAST3, rndper);
+	DRLG_L5PlaceMiniSet(L5EDGECOLWEST3, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDVERTWALLC3, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTCOL6, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZCOL6, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR11, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNEREAST3B, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDCOL4, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH3A, rndper);
+	DRLG_L5PlaceMiniSet(L5CORNERNORTH3B, rndper);
 }
 
 static void DRLG_L5Crypt_pattern5(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A260, rndper);
-	DRLG_L5Crypt_rndset(byte_48A278, rndper);
-	DRLG_L5Crypt_rndset(byte_48A290, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2A8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2C0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2D8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2EC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2F0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2F4, rndper);
-	DRLG_L5Crypt_rndset(byte_48A2F8, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR2, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR3, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR4, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR5, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR6, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR7, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR5, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR6, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR7, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR8, rndper);
 }
 
 static void DRLG_L5Crypt_pattern6(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A1F4, rndper);
-	DRLG_L5Crypt_rndset(byte_48A1FC, rndper);
-	DRLG_L5Crypt_rndset(byte_48A1F8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A200, rndper);
-	DRLG_L5Crypt_rndset(byte_48A204, rndper);
-	DRLG_L5Crypt_rndset(byte_48A208, rndper);
-	DRLG_L5Crypt_rndset(byte_48A20C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A210, rndper);
-	DRLG_L5Crypt_rndset(byte_48A214, rndper);
-	DRLG_L5Crypt_rndset(byte_48A218, rndper);
-	DRLG_L5Crypt_rndset(byte_48A21C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A220, rndper);
-	DRLG_L5Crypt_rndset(byte_48A224, rndper);
-	DRLG_L5Crypt_rndset(byte_48A228, rndper);
-	DRLG_L5Crypt_rndset(byte_48A22C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A230, rndper);
-	DRLG_L5Crypt_rndset(byte_48A234, rndper);
-	DRLG_L5Crypt_rndset(byte_48A238, rndper);
-	DRLG_L5Crypt_rndset(byte_48A23C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A240, rndper);
-	DRLG_L5Crypt_rndset(byte_48A244, rndper);
-	DRLG_L5Crypt_rndset(byte_48A248, rndper);
-	DRLG_L5Crypt_rndset(byte_48A24C, rndper);
-	DRLG_L5Crypt_rndset(byte_48A250, rndper);
-	DRLG_L5Crypt_rndset(byte_48A254, rndper);
-	DRLG_L5Crypt_rndset(byte_48A258, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTCOL2, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZCOL2, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTCOL3, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZCOL3, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLB0, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLB1, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLM0, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLM1, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLT0, rndper);
+	DRLG_L5PlaceMiniSet(L5VERTWALLT1, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE0, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE1, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE2, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE3, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE4, rndper);
+	DRLG_L5PlaceMiniSet(L5HORIZWALLE5, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR2_0, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR2_1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR1_0, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDCOL1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR3_0, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR3_1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR4_0, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_0, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDLFLOOR1_2, rndper);
 }
 
 static void DRLG_L5Crypt_pattern7(int rndper)
 {
-	DRLG_L5Crypt_rndset(byte_48A1D0, rndper);
-	DRLG_L5Crypt_rndset(byte_48A1D4, rndper);
-	DRLG_L5Crypt_rndset(byte_48A1D8, rndper);
-	DRLG_L5Crypt_rndset(byte_48A1DC, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR1, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR2, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR3, rndper);
+	DRLG_L5PlaceMiniSet(L5RNDFLOOR4, rndper);
 }
 #endif
 
@@ -2268,12 +2368,12 @@ struct mini_set {
 	const BYTE* data;
 	BOOL setview;
 };
-static bool DRLG_PlaceMiniSets(mini_set* minisets, int n)
+static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		if (minisets[i].data != NULL && !DRLG_PlaceMiniSet(minisets[i].data, 1, minisets[i].setview)) {
+		if (minisets[i].data != NULL && !DRLG_L1PlaceMiniSet(minisets[i].data, 1, minisets[i].setview)) {
 			return false;
 		}
 	}
@@ -2317,17 +2417,17 @@ static void DRLG_L1(int entry)
 
 		if (QuestStatus(Q_PWATER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, TRUE);
+				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, TRUE);
 			} else {
-				doneflag = DRLG_PlaceMiniSet(PWATERIN, 1, FALSE);
+				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, FALSE);
 				ViewY--;
 			}
 		}
 		if (QuestStatus(Q_LTBANNER)) {
 			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, TRUE);
+				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, TRUE);
 			} else {
-				doneflag = DRLG_PlaceMiniSet(STAIRSUP, 1, FALSE);
+				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, FALSE);
 				if (entry == ENTRY_PREV) {
 					ViewX = 2 * setpc_x + DBORDERX + 4;
 					ViewY = 2 * setpc_y + DBORDERY + 12;
@@ -2341,7 +2441,7 @@ static void DRLG_L1(int entry)
 				{ currLvl._dLevelIdx != DLV_CRYPT1 ? L5USTAIRS : L5TWARP, entry != ENTRY_PREV },
 				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
 			};
-			doneflag = DRLG_PlaceMiniSets(stairs, 2);
+			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY += 3;
 			} else {
@@ -2353,7 +2453,7 @@ static void DRLG_L1(int entry)
 				{ STAIRSUP, entry != ENTRY_PREV },
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
-			doneflag &= DRLG_PlaceMiniSets(stairs, 2);
+			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY--;
 			}
@@ -2363,29 +2463,29 @@ static void DRLG_L1(int entry)
 				{ L1USTAIRS, entry != ENTRY_PREV },
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
-			doneflag = DRLG_PlaceMiniSets(stairs, 2);
+			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY--;
 			}*/
 
 			if (entry == ENTRY_PREV) {
-				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, FALSE)
-				|| !DRLG_PlaceMiniSet(L1DSTAIRS, 1, TRUE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, FALSE)
+				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, TRUE))
 					doneflag = false;
 				ViewY--;
 			} else {
-				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, TRUE)
-				 || !DRLG_PlaceMiniSet(L1DSTAIRS, 1, FALSE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, TRUE)
+				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, FALSE))
 					doneflag = false;
 			}
 
 			/*if (entry == ENTRY_MAIN) {
-				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, TRUE)
-				 || !DRLG_PlaceMiniSet(L1DSTAIRS, 1, FALSE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, TRUE)
+				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, FALSE))
 					doneflag = false;
 			} else {
-				if (!DRLG_PlaceMiniSet(L1USTAIRS, 1, FALSE)
-				|| !DRLG_PlaceMiniSet(L1DSTAIRS, 1, TRUE))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, FALSE)
+				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, TRUE))
 					doneflag = false;
 				ViewY--;
 			}*/
@@ -2418,11 +2518,11 @@ static void DRLG_L1(int entry)
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_L5Crypt_pattern1(10);
-		DRLG_L5Crypt_rndset(byte_48A1B4, 95);
-		DRLG_L5Crypt_rndset(byte_48A1B8, 95);
-		DRLG_L5Crypt_rndset(byte_48A1C0, 100);
-		DRLG_L5Crypt_rndset(byte_48A1C8, 100);
-		DRLG_L5Crypt_rndset(byte_48A1E0, 60);
+		DRLG_L5PlaceMiniSet(L5VERTCOL1, 95);
+		DRLG_L5PlaceMiniSet(L5HORIZCOL1, 95);
+		DRLG_L5PlaceMiniSet(L5PREVERTWALL, 100);
+		DRLG_L5PlaceMiniSet(L5PREHORIZWALL, 100);
+		DRLG_L5PlaceMiniSet(L5RNDLFLOOR1, 60);
 		DRLG_L5Crypt_lavafloor();
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
@@ -2471,7 +2571,7 @@ static void DRLG_L1(int entry)
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_L1Subs();
 		DRLG_L1Shadows();
-		DRLG_PlaceMiniSet(LAMPS, RandRange(5, 9), FALSE);
+		DRLG_L1PlaceMiniSet(LAMPS, RandRange(5, 9), FALSE);
 		DRLG_L1Floor();
 	}
 
