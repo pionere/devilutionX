@@ -1084,7 +1084,7 @@ static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
 
 			if (done)
 				break;
-			if (++tries > 4000)
+			if (++tries == (DMAXX * DMAXY))
 				return false;
 
 			if (++sx == DMAXX - sw) {
@@ -1094,7 +1094,7 @@ static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
 			}
 		}
 
-		ii = sw * sh + 2;
+		// assert(ii == sw * sh + 2);
 
 		for (yy = sy; yy < sy + sh; yy++) {
 			for (xx = sx; xx < sx + sw; xx++) {
@@ -1892,7 +1892,7 @@ static void L1tileFix()
 #ifdef HELLFIRE
 static void DRLG_L5PlaceMiniSet(const BYTE *miniset, int rndper)
 {
-	int sx, sy, sw, sh, xx, yy, ii, kk;
+	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
 
 	sw = miniset[0];
@@ -1913,30 +1913,26 @@ static void DRLG_L5PlaceMiniSet(const BYTE *miniset, int rndper)
 					ii++;
 				}
 			}
-			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
+			if (!found)
+				continue;
+			// assert(ii == sw * sh + 2);
+			if (miniset[ii] >= 84 && miniset[ii] <= 100) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84 (fixed)
-				if (sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100) {
-					found = false;
-				}
-				if (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100) {
-					found = false;
-				}
-				if (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100) {
-					found = false;
+				if ((sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100)
+				 || (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100)
+				 || (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100)
+				 || (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100)) {
+					continue;
 				}
 			}
-			if (found && random_(0, 100) < rndper) {
+			if (random_(0, 100) < rndper) {
 				for (yy = 0; yy < sh; yy++) {
 					for (xx = 0; xx < sw; xx++) {
-						if (miniset[kk] != 0) {
-							dungeon[xx + sx][yy + sy] = miniset[kk];
+						if (miniset[ii] != 0) {
+							dungeon[xx + sx][yy + sy] = miniset[ii];
 						}
-						kk++;
+						ii++;
 					}
 				}
 			}

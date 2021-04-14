@@ -1320,9 +1320,11 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, bool setview)
 				ii++;
 			}
 		}
-		tries++;
-		if (done || tries == 200)
+		if (done)
 			break;
+
+		if (++tries == 200)
+			return false;
 		if (++sx == DMAXX - sw) {
 			sx = 0;
 			if (++sy == DMAXY - sh) {
@@ -1330,10 +1332,8 @@ static bool DRLG_L4PlaceMiniSet(const BYTE *miniset, bool setview)
 			}
 		}
 	}
-	if (tries == 200)
-		return false;
 
-	ii = sw * sh + 2;
+	// assert(ii == sw * sh + 2);
 	for (yy = sy; yy < sy + sh; yy++) {
 		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {

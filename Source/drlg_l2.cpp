@@ -1513,9 +1513,10 @@ static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, bool setview)
 				ii++;
 			}
 		}
-		tries++;
-		if (done || tries == 200)
+		if (done)
 			break;
+		if (++tries == 200)
+			return false;
 
 		if (++sx == DMAXX - sw) {
 			sx = 0;
@@ -1524,10 +1525,8 @@ static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, bool setview)
 			}
 		}
 	}
-	if (tries == 200)
-		return false;
 
-	ii = sw * sh + 2;
+	//assert(ii == sw * sh + 2);
 	for (yy = sy; yy < sy + sh; yy++) {
 		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
@@ -1547,7 +1546,7 @@ static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, bool setview)
 
 static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 {
-	int sx, sy, sw, sh, xx, yy, ii, kk;
+	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
 
 	sw = miniset[0];
@@ -1568,24 +1567,24 @@ static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 					ii++;
 				}
 			}
-			kk = sw * sh + 2;
-			if (found) {
-				for (yy = std::max(sy - sh, 0); yy < std::min(sy + 2 * sh, DMAXY) && found; yy++) {
-					for (xx = std::max(sx - sw, 0); xx < std::min(sx + 2 * sw, DMAXX); xx++) {
-						// BUGFIX: yy and xx can go out of bounds (fixed)
-						if (dungeon[xx][yy] == miniset[kk]) {
-							found = false;
-						}
+			if (!found)
+				continue;
+			// assert(ii == sw * sh + 2);
+			for (yy = std::max(sy - sh, 0); yy < std::min(sy + 2 * sh, DMAXY) && found; yy++) {
+				for (xx = std::max(sx - sw, 0); xx < std::min(sx + 2 * sw, DMAXX) && found; xx++) {
+					// BUGFIX: yy and xx can go out of bounds (fixed)
+					if (dungeon[xx][yy] == miniset[ii]) {
+						found = false;
 					}
 				}
 			}
 			if (found && random_(0, 100) < rndper) {
 				for (yy = sy; yy < sy + sh; yy++) {
 					for (xx = sx; xx < sx + sw; xx++) {
-						if (miniset[kk] != 0) {
-							dungeon[xx][yy] = miniset[kk];
+						if (miniset[ii] != 0) {
+							dungeon[xx][yy] = miniset[ii];
 						}
-						kk++;
+						ii++;
 					}
 				}
 			}

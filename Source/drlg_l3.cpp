@@ -1572,9 +1572,10 @@ static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, bool setview)
 				ii++;
 			}
 		}
-		tries++;
-		if (done || tries == 200)
+		if (done)
 			break;
+		if (++tries == 200)
+			return false;
 		if (++sx == DMAXX - sw) {
 			sx = 0;
 			if (++sy == DMAXY - sh) {
@@ -1582,10 +1583,8 @@ static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, bool setview)
 			}
 		}
 	}
-	if (tries == 200)
-		return false;
 
-	ii = sw * sh + 2;
+	//assert(ii == sw * sh + 2);
 	for (yy = sy; yy < sy + sh; yy++) {
 		for (xx = sx; xx < sx + sw; xx++) {
 			if (miniset[ii] != 0) {
@@ -1605,7 +1604,7 @@ static bool DRLG_L3PlaceMiniSet(const BYTE *miniset, bool setview)
 
 static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 {
-	int sx, sy, sw, sh, xx, yy, ii, kk;
+	int sx, sy, sw, sh, xx, yy, ii;
 	bool found;
 
 	sw = miniset[0];
@@ -1626,30 +1625,26 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 					ii++;
 				}
 			}
-			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
+			if (!found)
+				continue;
+			// assert(ii == sw * sh + 2);
+			if (miniset[ii] >= 84 && miniset[ii] <= 100) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
-				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84.
-				if (sx - 1 >= 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (sx + 1 < 40 && sx - 1 >= 0 && dungeon[sx + 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (sy + 1 < 40 && sx - 1 >= 0 && dungeon[sx][sy + 1] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (sy - 1 >= 0 && sx - 1 >= 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
+				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84. (fixed)
+				if ((sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100)
+				 || (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100)
+				 || (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100)
+				 || (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100)) {
+					continue;
 				}
 			}
-			if (found && random_(0, 100) < rndper) {
+			if (random_(0, 100) < rndper) {
 				for (yy = sy; yy < sy + sh; yy++) {
 					for (xx = sx; xx < sx + sw; xx++) {
-						if (miniset[kk] != 0) {
-							dungeon[xx][yy] = miniset[kk];
+						if (miniset[ii] != 0) {
+							dungeon[xx][yy] = miniset[ii];
 						}
-						kk++;
+						ii++;
 					}
 				}
 			}
@@ -1660,7 +1655,7 @@ static void DRLG_L3PlaceRndSet(const BYTE *miniset, int rndper)
 #ifdef HELLFIRE
 static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 {
-	int sx, sy, sw, sh, xx, yy, ii, kk;
+	int sx, sy, sw, sh, xx, yy, ii;
 	bool found, placed;
 
 	placed = false;
@@ -1673,7 +1668,7 @@ static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 			ii = 2;
 			for (yy = sy; yy < sy + sh && found; yy++) {
 				for (xx = sx; xx < sx + sw && found; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
+					if (/*miniset[ii] != 0 &&*/ dungeon[xx][yy] != miniset[ii]) {
 						found = false;
 					}
 					if (dflags[xx][yy]) {
@@ -1682,31 +1677,26 @@ static void DRLG_L6PlaceRndPool(const BYTE *miniset, int rndper)
 					ii++;
 				}
 			}
-			kk = sw * sh + 2;
-			if (miniset[kk] >= 84 && miniset[kk] <= 100 && found) {
-				// BUGFIX: accesses to dungeon can go out of bounds
+			if (!found)
+				continue;
+			assert(ii == sw * sh + 2);
+			/*if (miniset[ii] >= 84 && miniset[ii] <= 100) {
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84.
-				if (dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
+				if ((dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100)
+				 || (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100)
+				 || (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100)
+				 || (dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100)) {
+					continue;
 				}
-				if (dungeon[sx + 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (dungeon[sx][sy + 1] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-				if (dungeon[sx][sy - 1] >= 84 && dungeon[sx - 1][sy] <= 100) {
-					found = false;
-				}
-			}
-			if (found && random_(0, 100) < rndper) {
+			}*/
+			if (random_(0, 100) < rndper) {
 				placed = true;
 				for (yy = sy; yy < sy + sh; yy++) {
 					for (xx = sx; xx < sx + sw; xx++) {
-						if (miniset[kk] != 0) {
-							dungeon[xx][yy] = miniset[kk];
-						}
-						kk++;
+						//if (miniset[ii] != 0) {
+							dungeon[xx][yy] = miniset[ii];
+						//}
+						ii++;
 					}
 				}
 			}
