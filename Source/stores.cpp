@@ -103,31 +103,30 @@ int PentSpn2Spin()
 	return (SDL_GetTicks() / 50) % 8 + 1;
 }
 
-void SetupTownStores()
+static int StoresLimitedItemLvl()
 {
-	int i, l;
+	int l = plr[myplr]._pLevel;
 
-	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
-	if (gbMaxPlayers == 1) {
-		l = 0;
-		for (i = 0; i < NUMLEVELS; i++) {
-			if (plr[myplr]._pLvlVisited[i])
-				l = i;
-		}
-	} else {
-		l = plr[myplr]._pLevel >> 1;
-	}
 	l += 2;
 	if (l < 6)
 		l = 6;
-	if (l > 16)
-		l = 16;
+	if (l > 32)
+		l = 32;
+	return l;
+}
+
+void SetupTownStores()
+{
+	int l;
+
+	SetRndSeed(glSeedTbl[currLvl._dLevelIdx] * SDL_GetTicks());
+	l = StoresLimitedItemLvl();
 	SpawnStoreGold();
 	SpawnSmith(l);
 	SpawnWitch(l);
 	SpawnHealer(l);
-	SpawnBoy(plr[myplr]._pLevel);
-	SpawnPremium(plr[myplr]._pLevel);
+	SpawnBoy(l);
+	SpawnPremium(l);
 }
 
 void FreeStoreMem()
@@ -1580,7 +1579,7 @@ static void SmithBuyPItem()
 
 	premiumitem[xx]._itype = ITYPE_NONE;
 	numpremium--;
-	SpawnPremium(plr[myplr]._pLevel);
+	SpawnPremium(StoresLimitedItemLvl());
 }
 
 static void S_SPBuyEnter()

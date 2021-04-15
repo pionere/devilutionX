@@ -139,27 +139,15 @@
 #define NET_DEFAULT_PORT		6112
 
 // todo: enums
-#ifdef HELLFIRE
-#define HEALER_ITEMS			20
+#define HEALER_ITEMS			16
 #define BOY_MAX_VALUE			200000
-#define WITCH_ITEMS				25
-#define WITCH_MAX_VALUE			200000
-#define SMITH_ITEMS				25
-#define SMITH_PREMIUM_ITEMS		15
-#define SMITH_MAX_VALUE			200000
-#define SMITH_MAX_PREMIUM_VALUE 200000
-#define STORE_LINES				104
-#else
-#define HEALER_ITEMS			20
-#define BOY_MAX_VALUE			90000
-#define WITCH_ITEMS				20
+#define WITCH_ITEMS				24
 #define WITCH_MAX_VALUE			140000
-#define SMITH_ITEMS				20
-#define SMITH_PREMIUM_ITEMS		6
+#define SMITH_ITEMS				16
+#define SMITH_PREMIUM_ITEMS		8
 #define SMITH_MAX_VALUE			140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
 #define STORE_LINES				24
-#endif
 
 // from diablo 2 beta
 #define MAXRESIST				75
@@ -270,8 +258,10 @@
 #define SPLBOOKTABS		4
 #endif
 
-#define NIGHTMARE_LEVEL_BONUS   15
-#define HELL_LEVEL_BONUS        30
+#define DIFFICULTY_EXP_BONUS   800
+
+#define NIGHTMARE_LEVEL_BONUS   16
+#define HELL_LEVEL_BONUS        32
 
 #define NIGHTMARE_TO_HIT_BONUS  85
 #define HELL_TO_HIT_BONUS      120

@@ -722,8 +722,9 @@ typedef struct UniqMonstStruct {
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
 	unsigned short mMagicRes;
-	unsigned short mUnqAttr;
-	BYTE mUnqVar1;
+	BYTE mUnqAttr;
+	BYTE mUnqHit;
+	BYTE mUnqAC;
 	char mQuestId;
 	int mtalkmsg;
 } UniqMonstStruct;

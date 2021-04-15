@@ -566,14 +566,7 @@ static void AddObjTraps()
 	int xp, yp;
 	int rndv;
 
-	if (currLvl._dLevel == 1)
-		rndv = 10;
-	if (currLvl._dLevel >= 2)
-		rndv = 15;
-	if (currLvl._dLevel >= 5)
-		rndv = 20;
-	if (currLvl._dLevel >= 7)
-		rndv = 25;
+	rndv = 10 + (currLvl._dLevel >> 1);
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			oi = dObject[i][j];
@@ -1252,8 +1245,8 @@ static void AddTrap(int oi)
 	int mt;
 
 	mt = currLvl._dLevel;
-	mt = mt / 3 + 1;
-	mt = random_(148, mt);
+	mt = mt / 6 + 1;
+	mt = random_(148, mt) & 3;
 	os = &object[oi];
 	// TRAP_MISTYPE
 	static_assert(MIS_ARROW == 0, "AddTrap might have an 'undefined'(0) missile-type, which is expected to be a standard arrow.");
@@ -1943,7 +1936,7 @@ static void Obj_BCrossDamage(int oi)
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
 		return;
 
-	damage = 4 + (currLvl._dLevel >> 1);
+	damage = 4 + (currLvl._dLevel >> 2);
 	fire_resist = p->_pFireResist;
 	if (fire_resist > 0)
 		damage -= fire_resist * damage / 100;
@@ -3093,7 +3086,7 @@ void DisarmObject(int pnum, int oi)
 		NewCursor(CURSOR_HAND);
 	os = &object[oi];
 	if (os->_oTrapFlag) {
-		trapdisper = 2 * plr[pnum]._pDexterity - 5 * currLvl._dLevel;
+		trapdisper = 2 * plr[pnum]._pDexterity - 8 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
 			for (i = 0; i < nobjects; i++) {
 				on = &object[objectactive[i]];
@@ -3436,7 +3429,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_SPIRITUAL:
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (p->InvGrid[i] == 0) {
-				r = 2 * currLvl._dLevel + random_(160, 4 * currLvl._dLevel);
+				r = currLvl._dLevel + random_(160, 2 * currLvl._dLevel);
 				pi = &p->InvList[p->_pNumInv]; // check
 				copy_pod(*pi, golditem);
 				pi->_iSeed = GetRndSeed();
@@ -3491,7 +3484,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 				myplr,
 				0,
 				0,
-				currLvl._dLevel);
+				currLvl._dLevel >> 1);
 		}
 		//if (pnum != myplr)
 		//	return;
@@ -3516,7 +3509,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		break;
 #ifdef HELLFIRE
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, p->_pLevel, 1000 * currLvl._dLevel);
+		AddPlrExperience(pnum, p->_pLevel, 500 * currLvl._dLevel);
 		AddMissile(
 		    os->_ox,
 		    os->_oy,
@@ -3544,7 +3537,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currLvl._dLevel);
+				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), -1, -1, 0, 0, currLvl._dLevel >> 1);
 			else
 				CreateTypeItem(xx, yy, false, ITYPE_MISC, IMISC_RUNE, sendmsg, false);
 		}
@@ -3665,7 +3658,6 @@ static void OperateArmorStand(int oi, bool sendmsg)
 {
 	ObjectStruct *os;
 	int itype;
-	bool uniqueRnd, onlygood;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)
@@ -3680,21 +3672,10 @@ static void OperateArmorStand(int oi, bool sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
-	uniqueRnd = random_(0, 2);
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		itype = ITYPE_LARMOR;
-		onlygood = true;
-	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		itype = ITYPE_MARMOR;
-		onlygood = uniqueRnd;
-	} else if (currLvl._dType == DTYPE_CAVES) {
-		itype = ITYPE_HARMOR;
-		onlygood = false;
-	} else {
-		itype = ITYPE_HARMOR;
-		onlygood = true;
-	}
-	CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, false);
+	static_assert(ITYPE_LARMOR + 1 == ITYPE_MARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors I.");
+	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
+	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
+	CreateTypeItem(os->_ox, os->_oy, true, itype, IMISC_NONE, sendmsg, false);
 }
 
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
@@ -3755,7 +3736,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		    pnum,
 		    0,
 		    0,
-		    (1 + currLvl._dLevel) >> 1);
+		    currLvl._dLevel >> 1);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
@@ -3788,11 +3769,12 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
+	assert(currLvl._dLevel >= 4); // must have an appropriate item for each type
+	static_assert(ITYPE_SWORD + 1 == ITYPE_AXE, "OperateWeaponRack expects an ordered ITYPE_ for weapons I.");
+	static_assert(ITYPE_AXE + 1 == ITYPE_BOW, "OperateWeaponRack expects an ordered ITYPE_ for weapons II.");
+	static_assert(ITYPE_BOW + 1 == ITYPE_MACE, "OperateWeaponRack expects an ordered ITYPE_ for weapons III.");
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy,
-		currLvl._dType != DTYPE_CATHEDRAL,
-		ITYPE_SWORD + random_(0, 4),
-		IMISC_NONE, sendmsg, false);
+	CreateTypeItem(os->_ox, os->_oy, true, ITYPE_SWORD + random_(0, 4),	IMISC_NONE, sendmsg, false);
 }
 
 /**

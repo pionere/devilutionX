@@ -455,6 +455,10 @@ void EnterLevel(BYTE lvl)
 	currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
 	currLvl._dType = AllLevels[lvl].dType;
 	currLvl._dDunType = AllLevels[lvl].dDunType;
+	if (gnDifficulty == DIFF_NIGHTMARE)
+		currLvl._dLevel += NIGHTMARE_LEVEL_BONUS;
+	else if (gnDifficulty == DIFF_NIGHTMARE)
+		currLvl._dLevel += HELL_LEVEL_BONUS;
 }
 
 void ShowProgress(unsigned int uMsg)

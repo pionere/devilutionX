@@ -45,9 +45,6 @@ const char *const MsgStrings[NUM_EMSGS] = {
 	"Mysteries are revealed in the light of reason.",	// EMSG_SHRINE_GLIMMERING
 	"There can be only one.",					 		// EMSG_SHRINE_TAINTED
 	"The warmth of a fireside calls.",					// EMSG_SHRINE_GLISTENING
-	"You must be at least level 8 to use this.",
-	"You must be at least level 13 to use this.",
-	"You must be at least level 17 to use this.",
 	"Arcane knowledge gained!",							// EMSG_BONECHAMB
 #ifdef HELLFIRE
 	"Some experience is gained by touch.",				// EMSG_SHRINE_SPARKLING
@@ -83,6 +80,9 @@ const char *const MsgStrings[NUM_EMSGS] = {
 //	"You feel stronger.",
 //	"You feel wiser.",
 //	"You feel refreshed.",
+//	"You must be at least level 8 to use this.",
+//	"You must be at least level 13 to use this.",
+//	"You must be at least level 17 to use this.",
 };
 
 void InitDiabloMsg(BYTE e)

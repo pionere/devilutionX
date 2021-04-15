@@ -243,11 +243,7 @@ int idoppely = DBORDERY;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format off
-#ifdef HELLFIRE
-	-1, -1, -1,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  3,  3
-#else
-	-1, -1,  0,  0,  1,  2
-#endif
+	-1, -1,  0,  0,  0,  0,  1,  1
 	// clang-format on
 };
 
@@ -1509,13 +1505,7 @@ void GetItemAttrs(int ii, int idata, int lvl)
 		GetScrollSpell(ii, lvl);
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
-		if (gnDifficulty == DIFF_NIGHTMARE)
-			lvl += 8;
-		else if (gnDifficulty == DIFF_HELL)
-			lvl += 16;
-		rndv = RandRange(4 * lvl, 16 * lvl);
-		if (currLvl._dType == DTYPE_HELL)
-			rndv += rndv >> 3;
+		rndv = RandRange(2 * lvl, 8 * lvl);
 		if (rndv > GOLD_MAX_LIMIT)
 			rndv = GOLD_MAX_LIMIT;
 
@@ -1654,11 +1644,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDur += r2;
 		is->_iDurability += r2;
 		break;
-#ifdef HELLFIRE
 	case IPL_CRYSTALLINE:
-		is->_iPLDam += 140 + r * 2;
+		is->_iPLDam += r * 2;
 		// no break
-#endif
 	case IPL_DUR_CURSE:
 		is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		is->_iDurability = is->_iMaxDur;
@@ -2097,10 +2085,10 @@ static void ItemRndDur(int ii)
 
 static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool onlygood, bool recreate, bool pregen)
 {
-	int iblvl, uid;
+	int uid;
 
 	SetRndSeed(iseed);
-	GetItemAttrs(ii, idx, lvl >> 1);
+	GetItemAttrs(ii, idx, lvl);
 	items[ii]._iSeed = iseed;
 	items[ii]._iCreateInfo = lvl;
 
@@ -2115,19 +2103,14 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 		items[ii]._iCreateInfo |= CF_UPER1;
 
 	if (items[ii]._iMiscId != IMISC_UNIQUE) {
-		iblvl = -1;
-		if (uper == 15)
-			iblvl = lvl + 4;
-		else if (onlygood
+		if (onlygood || uper == 15
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
 		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl)
-			iblvl = lvl;
-		if (iblvl != -1) {
-			uid = CheckUnique(ii, iblvl, uper, recreate);
+			uid = CheckUnique(ii, lvl, uper, recreate);
 			if (uid < 0) {
-				GetItemBonus(ii, iblvl >> 1, iblvl, onlygood, true);
+				GetItemBonus(ii, lvl >> 1, lvl, onlygood, true);
 			} else {
 				GetUniqueItem(ii, uid);
 			}
@@ -2136,11 +2119,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 			ItemRndDur(ii);
 	} else {
 		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
-			//uid = CheckUnique(ii, iblvl, uper, recreate);
-			//if (uid >= 0) {
-			//	GetUniqueItem(ii, uid);
-			//}
-			GetUniqueItem(ii, iseed);
+		GetUniqueItem(ii, iseed);
 	}
 	SetupItem(ii);
 }
@@ -2159,7 +2138,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
 
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, uid, items_get_currlevel() << 1, 1, false, false, false);
+	SetupAllItems(ii, idx, uid, items_get_currlevel(), 1, false, false, false);
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
@@ -2202,7 +2181,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 	}
 
 	ii = itemavail[0];
-	SetupAllItems(ii, idx, GetRndSeed(), mon->MData->mLevel,
+	SetupAllItems(ii, idx, GetRndSeed(), mon->mLevel,
 		onlygood ? 15 : 1, onlygood, false, false);
 
 	RegisterItem(ii, x, y, sendmsg, false); // TODO: delta?
@@ -2216,7 +2195,6 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta)
 		return;
 
 	lvl = items_get_currlevel();
-	lvl <<= 1;
 
 	if (onlygood)
 		idx = RndUItem(lvl);
@@ -2282,13 +2260,11 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 		return;
 
 	lvl = items_get_currlevel();
-	lvl <<= 1;
 
 	if (itype != ITYPE_GOLD)
 		idx = RndTypeItems(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-
 	ii = itemavail[0];
 	SetupAllItems(ii, idx, GetRndSeed(), lvl, 1, onlygood, false, delta);
 
@@ -3094,7 +3070,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_INVCURS:
 		copy_cstr(tempstr, " ");
 		break;
-#ifdef HELLFIRE
 	case IPL_CRYSTALLINE:
 		snprintf(tempstr, sizeof(tempstr), "low dur, %+i%% damage", is->_iPLDam);
 		break;
@@ -3104,7 +3079,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 	case IPL_LIFETOMANA:
 		copy_cstr(tempstr, "40% Health moved to Mana");
 		break;
-#endif
 	case IPL_FASTCAST:
 		if (is->_iFlags2 & ISPH_FASTESTCAST)
 			copy_cstr(tempstr, "fastest cast");
@@ -3551,30 +3525,14 @@ void SpawnPremium(int lvl)
 	}
 	while (premiumlevel < lvl) {
 		premiumlevel++;
-#ifdef HELLFIRE
 		copy_pod(premiumitem[0], premiumitem[3]);
 		copy_pod(premiumitem[1], premiumitem[4]);
 		copy_pod(premiumitem[2], premiumitem[5]);
-		copy_pod(premiumitem[3], premiumitem[6]);
-		copy_pod(premiumitem[4], premiumitem[7]);
-		copy_pod(premiumitem[5], premiumitem[8]);
-		copy_pod(premiumitem[6], premiumitem[9]);
-		copy_pod(premiumitem[7], premiumitem[10]);
-		copy_pod(premiumitem[8], premiumitem[11]);
-		copy_pod(premiumitem[9], premiumitem[12]);
-		SpawnOnePremium(10, premiumlevel + premiumlvladd[10]);
-		copy_pod(premiumitem[11], premiumitem[13]);
-		SpawnOnePremium(12, premiumlevel + premiumlvladd[12]);
-		copy_pod(premiumitem[13], premiumitem[14]);
-		SpawnOnePremium(14, premiumlevel + premiumlvladd[14]);
-#else
-		copy_pod(premiumitem[0], premiumitem[2]);
-		copy_pod(premiumitem[1], premiumitem[3]);
-		copy_pod(premiumitem[2], premiumitem[4]);
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
-		copy_pod(premiumitem[4], premiumitem[5]);
+		copy_pod(premiumitem[4], premiumitem[6]);
 		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
-#endif
+		copy_pod(premiumitem[6], premiumitem[7]);
+		SpawnOnePremium(7, premiumlevel + premiumlvladd[7]);
 	}
 }
 
@@ -3846,7 +3804,7 @@ void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed)
 {
 	int loc, lvl;
 
-	loc = (icreateinfo & CF_TOWN) >> 10;
+	loc = (icreateinfo & CF_TOWN) >> 8;
 	lvl = icreateinfo & CF_LEVEL;
 	switch (loc) {
 	case CFL_SMITH:
@@ -3894,7 +3852,6 @@ void CreateSpellBook(int ispell, int x, int y)
 
 	lvl = spelldata[ispell].sBookLvl;
 	assert(lvl != SPELL_NA);
-	lvl <<= 1;
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
@@ -3940,7 +3897,6 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 		return;
 
 	lvl = items_get_currlevel();
-	lvl <<= 1;
 
 	ii = itemavail[0];
 	while (TRUE) {

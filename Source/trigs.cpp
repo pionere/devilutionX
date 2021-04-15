@@ -841,8 +841,7 @@ void CheckTrigForce()
 void CheckTriggers()
 {
 	PlayerStruct *p;
-	int x, y, i;
-	char abortflag;
+	int i;
 
 	p = &plr[myplr];
 	if (p->_pmode != PM_STAND)
@@ -869,35 +868,6 @@ void CheckTriggers()
 		case WM_DIABTOWNWARP:
 			if (!(townwarps & (1 << i)))
 				continue;
-			if (gbMaxPlayers != 1) {
-				abortflag = EMSG_NONE;
-
-				if (i == TWARP_CATACOMB && p->_pLevel < 8) {
-					x = p->_px;
-					y = p->_py + 1;
-					abortflag = EMSG_REQUIRES_LVL_8;
-				}
-
-				if (i == TWARP_CAVES && p->_pLevel < 13) {
-					x = p->_px + 1;
-					y = p->_py;
-					abortflag = EMSG_REQUIRES_LVL_13;
-				}
-
-				if (i == TWARP_HELL && p->_pLevel < 17) {
-					x = p->_px;
-					y = p->_py + 1;
-					abortflag = EMSG_REQUIRES_LVL_17;
-				}
-
-				if (abortflag != EMSG_NONE) {
-					PlaySFX(sgSFXSets[SFXS_PLR_43][p->_pClass]);
-					InitDiabloMsg(abortflag);
-					NetSendCmdLoc(true, CMD_WALKXY, x, y);
-					return;
-				}
-			}
-
 			StartNewLvl(myplr, WM_DIABTOWNWARP, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:

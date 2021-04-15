@@ -138,12 +138,11 @@ typedef enum item_effect_type {
 	IPL_INFRAVISION,	/* unused */
 	IPL_SETAC,
 	IPL_AC,
-	// hellfire only
 	IPL_CRYSTALLINE,
-	IPL_MANATOLIFE,
-	IPL_LIFETOMANA,
-	IPL_FASTCAST,		/* unused */
-	IPL_FASTWALK,		/* unused */
+	IPL_MANATOLIFE,     /* only used in hellfire */
+	IPL_LIFETOMANA,     /* only used in hellfire */
+	IPL_FASTCAST,
+	IPL_FASTWALK,
 	IPL_INVALID          = 0xFF,
 } item_effect_type;
 
@@ -275,6 +274,7 @@ typedef enum item_cursor_graphic {
 	ICURS_SPLINT_MAIL                 = 136,
 	ICURS_ROBE                        = 137,
 	ICURS_UCLOAK                      = 138,
+	ICURS_TRELLISED_ARMOR             = 139,
 	ICURS_ANVIL_OF_FURY               = 140,
 	ICURS_BROAD_AXE                   = 141,
 	ICURS_LARGE_AXE                   = 142,
@@ -1399,7 +1399,6 @@ typedef enum sfx_set {
 	SFXS_PLR_29,
 	SFXS_PLR_34,
 	SFXS_PLR_35,
-	SFXS_PLR_43,
 	SFXS_PLR_46,
 	SFXS_PLR_54,
 	SFXS_PLR_55,
@@ -2477,12 +2476,12 @@ typedef enum goodorevil {
 } goodorevil;
 
 /*
- First 5 bits store level
- 6th bit stores onlygood flag
- 7th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
- 8th bit stores uper1 flag - this is loot from normal monsters, which has 1% to become unique
- 9th bit stores info if item is unique
- 10-12th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
+ First 8 bits store level
+ 9-10th bit stores info if item is from a specific source (griswold, wirt, adria, pepin and user crafted) 
+ 11th bit stores onlygood flag
+ 12th bit stores uper15 flag - uper means unique percent, this flag is true for unique monsters and loot from them has 15% to become unique
+ 13th bit stores uper1 flag - this is loot from normal monsters, which has 1% to become unique
+ 14th bit stores info if item is unique
  15th bit stores pregen flag
 
  combining CF_UPER15 and CF_UPER1 flags (CF_USEFUL) is used to mark potions and town portal scrolls created on the ground
@@ -2498,21 +2497,21 @@ typedef enum icreateinfo_loc {
 	CFL_CRAFTED,
 } icreateinfo_loc;
 typedef enum icreateinfo_flag {
-	CF_LEVEL        = (1 << 6) - 1,
-	CF_ONLYGOOD     = 1 << 6,
-	CF_UPER15       = 1 << 7,
-	CF_UPER1        = 1 << 8,
-	CF_UNIQUE       = 1 << 9,
-	CF_SMITH        = CFL_SMITH << 10,
-	CF_SMITHPREMIUM = CFL_SMITHPREMIUM << 10,
-	CF_BOY          = CFL_BOY << 10,
-	CF_WITCH        = CFL_WITCH << 10,
-	CF_HEALER       = CFL_HEALER << 10,
-	CF_CRAFTED      = CFL_CRAFTED << 10,
+	CF_LEVEL        = (1 << 8) - 1,
+	CF_SMITH        = CFL_SMITH << 8,
+	CF_SMITHPREMIUM = CFL_SMITHPREMIUM << 8,
+	CF_BOY          = CFL_BOY << 8,
+	CF_WITCH        = CFL_WITCH << 8,
+	CF_HEALER       = CFL_HEALER << 8,
+	CF_CRAFTED      = CFL_CRAFTED << 8,
+	CF_ONLYGOOD     = 1 << 11,
+	CF_UPER15       = 1 << 12,
+	CF_UPER1        = 1 << 13,
+	CF_UNIQUE       = 1 << 14,
 	CF_PREGEN       = 1 << 15,
 
 	CF_USEFUL = CF_UPER15 | CF_UPER1,
-	CF_TOWN   = 7 << 10,
+	CF_TOWN   = 7 << 8,
 } icreateinfo_flag;
 
 typedef enum dungeon_message {
@@ -2562,9 +2561,6 @@ typedef enum diablo_message {
 	EMSG_SHRINE_GLIMMERING,
 	EMSG_SHRINE_TAINTED,
 	EMSG_SHRINE_GLISTENING,
-	EMSG_REQUIRES_LVL_8,
-	EMSG_REQUIRES_LVL_13,
-	EMSG_REQUIRES_LVL_17,
 	EMSG_BONECHAMB,
 #ifdef HELLFIRE
 	EMSG_SHRINE_SPARKLING,
@@ -3163,8 +3159,8 @@ typedef enum item_type {
 	ITYPE_BOW    = 0x3,
 	ITYPE_MACE   = 0x4,
 	ITYPE_SHIELD = 0x5,
-	ITYPE_LARMOR = 0x6,
-	ITYPE_HELM   = 0x7,
+	ITYPE_HELM   = 0x6,
+	ITYPE_LARMOR = 0x7,
 	ITYPE_MARMOR = 0x8,
 	ITYPE_HARMOR = 0x9,
 	ITYPE_STAFF  = 0xA,
@@ -3227,9 +3223,9 @@ typedef enum _item_indexes {
 	IDI_BOOK4      = 0x6D,
 	IDI_DROPSHSTAFF= 0x91,
 #ifdef HELLFIRE
-	NUM_IDI        = 0xA0
+	NUM_IDI        = 0xA3
 #else
-	NUM_IDI        = 0x9B
+	NUM_IDI        = 0x9E
 #endif
 } _item_indexes;
 

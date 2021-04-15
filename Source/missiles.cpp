@@ -819,22 +819,17 @@ static bool PlayerTrapHit(int pnum, int mi)
 
 	mis = &missile[mi];
 	if (mis->_miSubType == 0) {
-		tmp = p->_pIAC;
-		hper = 100 - (tmp >> 1);
+		hper = 100 + (2 * currLvl._dLevel)
+		    + (2 * currLvl._dLevel)
+			- (2 * p->_pLevel)
+		    - p->_pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
-		hper = 40;
+		hper = 40
+			+ (2 * currLvl._dLevel)
+			- (2 * p->_pLevel);
 	}
 
-	tmp = 10;
-	if (currLvl._dLevelIdx == DLV_HELL2)
-		tmp = 20;
-	else if (currLvl._dLevelIdx == DLV_HELL3)
-		tmp = 25;
-	else if (currLvl._dLevelIdx == DLV_HELL4)
-		tmp = 30;
-	if (hper < tmp)
-		hper = tmp;
 	if (random_(72, 100) >= hper)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -845,7 +840,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 		tmp = p->_pIBlockChance;
 		if (tmp != 0 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 			// assert(p->_pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (currLvl._dLevel << 2);
+			tmp = tmp - (currLvl._dLevel << 1);
 			if (tmp > random_(73, 100)) {
 				PlrStartBlock(pnum, p->_pdir);
 				return true;
@@ -880,28 +875,18 @@ static bool PlayerMHit(int pnum, int mi)
 	mis = &missile[mi];
 	mon = &monster[mis->_miSource];
 	if (mis->_miSubType == 0) {
-		tmp = p->_pIAC;
 		hper = 30 + mon->mHit
-		    + (mon->mLevel << 1)
-			- (p->_pLevel << 1)
-		    - tmp;
+		    + (2 * mon->mLevel)
+			- (2 * p->_pLevel)
+		    - p->_pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
 		hper = 40
-			+ (mon->mLevel << 1)
-			- (p->_pLevel << 1)
+			+ (2 * mon->mLevel)
+			- (2 * p->_pLevel)
 			/*- (dist << 1)*/; // TODO: either don't care about it, or set it!
 	}
 
-	tmp = 10;
-	if (currLvl._dLevelIdx == DLV_HELL2)
-		tmp = 20;
-	else if (currLvl._dLevelIdx == DLV_HELL3)
-		tmp = 25;
-	else if (currLvl._dLevelIdx == DLV_HELL4)
-		tmp = 30;
-	if (hper < tmp)
-		hper = tmp;
 	if (random_(72, 100) >= hper)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -1832,8 +1817,8 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		mis->_miMinDam = ((p->_pMagic >> 3) + spllvl + 5) << (-3 + 6);
 		mis->_miMaxDam = ((p->_pMagic >> 3) + spllvl * 2 + 10) << (-3 + 6);
 	} else {
-		mis->_miMinDam = (15 + currLvl._dLevel) << (-3 + 6);
-		mis->_miMaxDam = (25 + currLvl._dLevel) << (-3 + 6);
+		mis->_miMinDam = (5 + currLvl._dLevel) << (-3 + 6);
+		mis->_miMaxDam = (10 + currLvl._dLevel) << (-3 + 6);
 	}
 	mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 	//mis->_miVar2 = 0;
@@ -1897,7 +1882,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			maxdam = monster[misource].mMaxDamage;
 		}
 	} else {
-		mindam = currLvl._dLevel << 1;
+		mindam = currLvl._dLevel;
 		maxdam = mindam + currLvl._dLevel;
 	}
 
@@ -2052,7 +2037,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			mis->_miMinDam = mis->_miMaxDam = monster[misource].mLevel << 1;
 		}
 	} else {
-		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel >> 1;
+		mis->_miMinDam = mis->_miMaxDam = currLvl._dLevel << 1;
 	}
 	//assert(mis->_miAnimLen == misfiledata[MFILE_BLUEXFR].mfAnimLen[0]);
 	mis->_miRange = 19;

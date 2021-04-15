@@ -509,9 +509,9 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->falign_CB = 0;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 3 * mon->_mmaxhp + (100 << 6);
+		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
 		mon->mLevel += NIGHTMARE_LEVEL_BONUS;
-		mon->mExp = 2 * (mon->mExp + 1000);
+		mon->mExp = 2 * (mon->mExp + DIFFICULTY_EXP_BONUS);
 		mon->mHit += NIGHTMARE_TO_HIT_BONUS;
 		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
 		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
@@ -522,7 +522,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	} else if (gnDifficulty == DIFF_HELL) {
 		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
 		mon->mLevel += HELL_LEVEL_BONUS;
-		mon->mExp = 4 * (mon->mExp + 1000);
+		mon->mExp = 4 * (mon->mExp + DIFFICULTY_EXP_BONUS);
 		mon->mHit += HELL_TO_HIT_BONUS;
 		mon->mMinDamage = 4 * mon->mMinDamage + 6;
 		mon->mMaxDamage = 4 * mon->mMaxDamage + 6;
@@ -565,6 +565,7 @@ void WakeUberDiablo()
 		PlayEffect(MAX_MINIONS, 2);
 	mon = &monster[MAX_MINIONS];
 	mon->mArmorClass -= 50;
+	mon->mLevel /= 2;
 	mon->mMagicRes = 0;
 	mon->_mmaxhp /= 2;
 	if (mon->_mhitpoints > mon->_mmaxhp)
@@ -789,8 +790,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 
 	mon->_uniqtrans = uniquetrans++;
 
-	if (uniqm->mUnqAttr & 4) {
-		mon->mHit = uniqm->mUnqVar1;
+	if (uniqm->mUnqHit != 0) {
+		mon->mHit = uniqm->mUnqHit;
 
 		if (gnDifficulty == DIFF_NIGHTMARE) {
 			mon->mHit += NIGHTMARE_TO_HIT_BONUS;
@@ -799,8 +800,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		}
 		mon->mHit2 = mon->mHit;
 	}
-	if (uniqm->mUnqAttr & 8) {
-		mon->mArmorClass = uniqm->mUnqVar1;
+	if (uniqm->mUnqAC != 0) {
+		mon->mArmorClass = uniqm->mUnqAC;
 
 		if (gnDifficulty == DIFF_NIGHTMARE) {
 			mon->mArmorClass += NIGHTMARE_AC_BONUS;
@@ -810,7 +811,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	}
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 3 * mon->_mmaxhp + (100 << 6);
+		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
 		mon->mLevel += NIGHTMARE_LEVEL_BONUS;
 		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
 		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);

@@ -287,41 +287,9 @@ static void ShowErrorMsgDialog()
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 }
 
-static bool IsDifficultyAllowed(int value)
-{
-	int limit = 0;
-	const char* mode;
-
-	switch (value) {
-	case DIFF_NORMAL:					break;
-	case DIFF_NIGHTMARE:	limit = 20;	break;
-	case DIFF_HELL:			limit = 30; break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-
-	//if (selgame_heroLevel >= limit)
-	if (selhero_heroInfo.level >= limit)
-		return true;
-
-	if (value == DIFF_NIGHTMARE)
-		mode = "Nightmare";
-	else // if (value == DIFF_HELL)
-		mode = "Hell";
-
-	snprintf(tempstr, sizeof(tempstr), "Your character must reach level %d before you can enter a multiplayer game of %s difficulty.", limit, mode);
-	ShowErrorMsgDialog();
-	return false;
-}
-
 void selgame_Diff_Select(unsigned index)
 {
 	int value = vecSelGameDlgItems[index]->m_value;
-
-	if (selconn_bMulti && !IsDifficultyAllowed(value)) {
-		selgame_GameSelection_Select(0);
-		return;
-	}
 
 	selgame_gameData->bDifficulty = value;
 
@@ -467,11 +435,6 @@ void selgame_Password_Select(unsigned index)
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
 		if (SNetJoinGame(selgame_Ip, port, selgame_Password)) {
-			if (!IsDifficultyAllowed(selgame_gameData->bDifficulty)) {
-				selgame_GameSelection_Select(1);
-				return;
-			}
-
 			UiInitList_clear();
 			selgame_result = SELGAME_JOIN;
 			selgame_endMenu = true;
