@@ -1533,63 +1533,6 @@ const int Patterns[][16] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 2, 8 },
 };
 
-static bool DRLG_L2PlaceMiniSet(const BYTE *miniset, bool setview)
-{
-	int sx, sy, sw, sh, xx, yy, ii, tries;
-	bool done;
-
-	sw = miniset[0];
-	sh = miniset[1];
-
-	sx = random_(0, DMAXX - sw);
-	sy = random_(0, DMAXY - sh);
-
-	tries = 0;
-	while (TRUE) {
-		done = true;
-		ii = 2;
-		for (yy = sy; yy < sy + sh && done; yy++) {
-			for (xx = sx; xx < sx + sw && done; xx++) {
-				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
-					done = false;
-				}
-				if (dflags[xx][yy]) {
-					done = false;
-				}
-				ii++;
-			}
-		}
-		if (done)
-			break;
-		if (++tries == 200)
-			return false;
-
-		if (++sx == DMAXX - sw) {
-			sx = 0;
-			if (++sy == DMAXY - sh) {
-				sy = 0;
-			}
-		}
-	}
-
-	//assert(ii == sw * sh + 2);
-	for (yy = sy; yy < sy + sh; yy++) {
-		for (xx = sx; xx < sx + sw; xx++) {
-			if (miniset[ii] != 0) {
-				dungeon[xx][yy] = miniset[ii];
-			}
-			ii++;
-		}
-	}
-
-	if (setview) {
-		ViewX = 2 * sx + DBORDERX + 5;
-		ViewY = 2 * sy + DBORDERY + 6;
-	}
-
-	return true;
-}
-
 static void DRLG_L2PlaceRndSet(const BYTE *miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
@@ -2848,10 +2791,17 @@ struct mini_set {
 static bool DRLG_L2PlaceMiniSets(mini_set* minisets, int n)
 {
 	int i;
+	POS32 mpos;
 
 	for (i = 0; i < n; i++) {
-		if (minisets[i].data != NULL && !DRLG_L2PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
+		if (minisets[i].data == NULL)
+			continue;
+		mpos = DRLG_PlaceMiniSet(minisets[i].data);
+		if (mpos.x == DMAXX)
 			return false;
+		if (minisets[i].setview) {
+			ViewX = 2 * mpos.x + DBORDERX + 5;
+			ViewY = 2 * mpos.y + DBORDERY + 6;
 		}
 	}
 	return true;

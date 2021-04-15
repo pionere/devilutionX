@@ -735,67 +735,18 @@ static void DRLG_L1Shadows()
 	}
 }
 
-static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, int numt, bool setview)
+static bool DRLG_L1PlaceMiniSet(const BYTE *miniset, bool setview)
 {
-	int sx, sy, sw, sh, xx, yy, i, ii, tries;
-	bool done;
+	POS32 result;
 
-	sw = miniset[0];
-	sh = miniset[1];
-
-	for (i = 0; i < numt; i++) {
-		sx = random_(0, DMAXX - sw);
-		sy = random_(0, DMAXY - sh);
-
-		tries = 0;
-		while (TRUE) {
-			done = true;
-			ii = 2;
-			for (yy = sy; yy < sy + sh && done; yy++) {
-				for (xx = sx; xx < sx + sw && done; xx++) {
-					if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii])
-						done = false;
-					if (dflags[xx][yy] != 0)
-						done = false;
-					ii++;
-				}
-			}
-
-			if (done)
-				break;
-			if (++tries == (DMAXX * DMAXY))
-				return false;
-
-			if (++sx == DMAXX - sw) {
-				sx = 0;
-				if (++sy == DMAXY - sh)
-					sy = 0;
-			}
-		}
-
-		// assert(ii == sw * sh + 2);
-
-		for (yy = sy; yy < sy + sh; yy++) {
-			for (xx = sx; xx < sx + sw; xx++) {
-				if (miniset[ii] != 0)
-					dungeon[xx][yy] = miniset[ii];
-				ii++;
-			}
-		}
-	}
-
-	if (miniset == PWATERIN) {
-		DRLG_MRectTrans(sx, sy + 2, sx + 5, sy + 4, 0);
-
-		quests[Q_PWATER]._qtx = 2 * sx + DBORDERX + 5;
-		quests[Q_PWATER]._qty = 2 * sy + DBORDERY + 6;
-	}
+	result = DRLG_PlaceMiniSet(miniset);
+	if (result.x == DMAXX)
+		return false;
 
 	if (setview) {
-		ViewX = 2 * sx + DBORDERX + 3;
-		ViewY = 2 * sy + DBORDERY + 4;
+		ViewX = 2 * result.x + DBORDERX + 3;
+		ViewY = 2 * result.y + DBORDERY + 4;
 	}
-
 	return true;
 }
 
@@ -2094,7 +2045,7 @@ static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
 	int i;
 
 	for (i = 0; i < n; i++) {
-		if (minisets[i].data != NULL && !DRLG_L1PlaceMiniSet(minisets[i].data, 1, minisets[i].setview)) {
+		if (minisets[i].data != NULL && !DRLG_L1PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
 			return false;
 		}
 	}
@@ -2137,25 +2088,22 @@ static void DRLG_L1(int entry)
 		doneflag = true;
 
 		if (QuestStatus(Q_PWATER)) {
-			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, true);
+			POS32 mpos = DRLG_PlaceMiniSet(PWATERIN);
+			if (mpos.x != DMAXX) {
+				DRLG_MRectTrans(mpos.x, mpos.y + 2, mpos.x + 5, mpos.y + 4, 0);
+
+				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
+				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
 			} else {
-				doneflag = DRLG_L1PlaceMiniSet(PWATERIN, 1, false);
-				ViewY--;
+				doneflag = false;
 			}
 		}
 		if (QuestStatus(Q_LTBANNER)) {
-			if (entry == ENTRY_MAIN) {
-				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, true);
-			} else {
-				doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, 1, false);
-				if (entry == ENTRY_PREV) {
-					ViewX = 2 * setpc_x + DBORDERX + 4;
-					ViewY = 2 * setpc_y + DBORDERY + 12;
-				} else {
-					ViewY--;
-				}
+			if (entry == ENTRY_PREV) {
+				ViewX = 2 * setpc_x + DBORDERX + 4;
+				ViewY = 2 * setpc_y + DBORDERY + 12;
 			}
+			doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, entry == ENTRY_MAIN);
 #ifdef HELLFIRE
 		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
@@ -2190,26 +2138,15 @@ static void DRLG_L1(int entry)
 			}*/
 
 			if (entry == ENTRY_PREV) {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, false)
-				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, true))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, false)
+				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, true))
 					doneflag = false;
 				ViewY--;
 			} else {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, true)
-				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, false))
+				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, true)
+				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, false))
 					doneflag = false;
 			}
-
-			/*if (entry == ENTRY_MAIN) {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, true)
-				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, false))
-					doneflag = false;
-			} else {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, 1, false)
-				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, 1, true))
-					doneflag = false;
-				ViewY--;
-			}*/
 #endif
 		}
 	} while (!doneflag);
@@ -2299,7 +2236,8 @@ static void DRLG_L1(int entry)
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_L1Subs();
 		DRLG_L1Shadows();
-		DRLG_L1PlaceMiniSet(LAMPS, RandRange(5, 9), false);
+		for (i = RandRange(5, 9); i > 0; i--)
+			DRLG_L1PlaceMiniSet(LAMPS, false);
 		DRLG_L1Floor();
 	}
 

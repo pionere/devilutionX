@@ -215,6 +215,58 @@ void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
 	}
 }
 
+POS32 DRLG_PlaceMiniSet(const BYTE *miniset)
+{
+	int sx, sy, sw, sh, xx, yy, ii, tries;
+	bool done;
+
+	sw = miniset[0];
+	sh = miniset[1];
+
+	tries = 0;
+	while (TRUE) {
+		done = true;
+		if ((tries & 0xFF) == 0) {
+			sx = random_(0, DMAXX - sw);
+			sy = random_(0, DMAXY - sh);
+		}
+		if (++tries == DMAXX * DMAXY)
+			return { DMAXX, DMAXY };
+		ii = 2;
+		for (yy = sy; yy < sy + sh && done; yy++) {
+			for (xx = sx; xx < sx + sw && done; xx++) {
+				if (miniset[ii] != 0 && dungeon[xx][yy] != miniset[ii]) {
+					done = false;
+				}
+				if (dflags[xx][yy]) {
+					done = false;
+				}
+				ii++;
+			}
+		}
+		if (done)
+			break;
+		if (++sx == DMAXX - sw) {
+			sx = 0;
+			if (++sy == DMAXY - sh) {
+				sy = 0;
+			}
+		}
+	}
+
+	//assert(ii == sw * sh + 2);
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
+			if (miniset[ii] != 0) {
+				dungeon[xx][yy] = miniset[ii];
+			}
+			ii++;
+		}
+	}
+
+	return { sx, sy };
+}
+
 void DRLG_PlaceMegaTiles(int lv)
 {
 	int i, j, xx, yy;
