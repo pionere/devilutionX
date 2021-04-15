@@ -2107,7 +2107,7 @@ static void SetupAllItems(int ii, int idx, int iseed, int lvl, int uper, bool on
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
 		 || items[ii]._itype == ITYPE_AMULET
-		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl)
+		 || random_(32, 100) <= 10 || random_(33, 100) <= lvl) {
 			uid = CheckUnique(ii, lvl, uper, recreate);
 			if (uid < 0) {
 				GetItemBonus(ii, lvl >> 1, lvl, onlygood, true);
