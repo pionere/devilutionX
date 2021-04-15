@@ -1943,7 +1943,7 @@ static int RndItem(int lvl)
 			ri++;
 		}
 	}
-
+	assert(ri != 0);
 	return ril[random_(24, ri)];
 }
 
@@ -1961,7 +1961,7 @@ static int RndUItem(int lvl)
 		ril[ri] = i;
 		ri++;
 	}
-
+	assert(ri != 0);
 	return ril[random_(25, ri)];
 }
 
@@ -1980,7 +1980,7 @@ static int RndAllItems(int lvl)
 		ril[ri] = i;
 		ri++;
 	}
-
+	assert(ri != 0);
 	return ril[random_(26, ri)];
 }
 
@@ -1998,7 +1998,7 @@ static int RndTypeItems(int itype, int imid, int lvl)
 		ril[ri] = i;
 		ri++;
 	}
-
+	assert(ri != 0);
 	return ril[random_(27, ri)];
 }
 
