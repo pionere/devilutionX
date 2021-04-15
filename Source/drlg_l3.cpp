@@ -2067,19 +2067,9 @@ static void DRLG_L3(int entry)
 		DRLG_L3PlaceRndSet(L6MITE7, 40);
 		DRLG_L3PlaceRndSet(L6MITE8, 45);
 		DRLG_L3PlaceRndSet(L6MITE9, 50);
-		DRLG_L3PlaceRndSet(L6MITE10, 55);
-		DRLG_L3PlaceRndSet(L6PATCH1, 40);
-		DRLG_L3PlaceRndSet(L6PATCH2, 45);
-		DRLG_L3PlaceRndSet(L6MITE10, 10);
-		DRLG_L3PlaceRndSet(L6MITE9, 15);
-		DRLG_L3PlaceRndSet(L6MITE8, 20);
-		DRLG_L3PlaceRndSet(L6MITE7, 25);
-		DRLG_L3PlaceRndSet(L6MITE6, 30);
-		DRLG_L3PlaceRndSet(L6MITE5, 35);
-		DRLG_L3PlaceRndSet(L6MITE4, 40);
-		DRLG_L3PlaceRndSet(L6MITE3, 45);
-		DRLG_L3PlaceRndSet(L6MITE2, 50);
-		DRLG_L3PlaceRndSet(L6MITE1, 55);
+		DRLG_L3PlaceRndSet(L6MITE10, 60);
+		DRLG_L3PlaceRndSet(L6PATCH1, 50);
+		DRLG_L3PlaceRndSet(L6PATCH2, 90);
 		/** Miniset: Use random floor tile 1. */
 		DRLG_PlaceRndTile(7, 29, 25);
 		/** Miniset: Use random floor tile 2. */
