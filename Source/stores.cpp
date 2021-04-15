@@ -1094,7 +1094,7 @@ static void S_StartIdShow()
 
 static void S_StartTalk()
 {
-	int i, sn, sn2, la;
+	int i, sn, la;
 
 	_gbStextsize = false;
 	_gbStextscrl = false;
@@ -1108,22 +1108,20 @@ static void S_StartTalk()
 	}
 
 	if (sn > 6) {
-		sn = 14 - (sn >> 1);
+		sn = 14 - std::min(sn >> 1, 12);
 		la = 1;
 	} else {
 		sn = 15 - sn;
 		la = 2;
 	}
 
-	sn2 = sn - 2;
-
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != -1 && quests[i]._qlog) {
+	AddSText(0, sn - 2, true, "Gossip", COL_BLUE, true);
+	for (i = 0; i < NUM_QUESTS && sn < 22; i++) {
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
 			AddSText(0, sn, true, questlist[i]._qlstr, COL_WHITE, true);
 			sn += la;
 		}
 	}
-	AddSText(0, sn2, true, "Gossip", COL_BLUE, true);
 	AddSText(0, 22, true, "Back", COL_WHITE, true);
 }
 
