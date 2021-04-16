@@ -4148,11 +4148,8 @@ void MI_Cbolt(int mi)
 		 && CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
-			mis->_mixoff = 0;
-			mis->_miyoff = 0;
 			SetMissAnim(mi, MFILE_LGHNING);
 			mis->_miRange = mis->_miAnimLen;
-			GetMissilePos(mi);
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}
