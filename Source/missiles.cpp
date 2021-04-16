@@ -459,7 +459,11 @@ static void GetMissilePos(int mi)
 	ChangeLightOff(mis->_miLid, lx - (dx * 8), ly - (dy * 8));
 }
 
-static void MoveMissilePos(int mi)
+/**
+ * Shift the missiles coordinates to place it in front of the view.
+ * @param mi the missile to be shifted
+ */
+static void ShiftMissilePos(int mi)
 {
 	MissileStruct *mis;
 	int dx, dy, x, y;
@@ -467,10 +471,8 @@ static void MoveMissilePos(int mi)
 	mis = &missile[mi];
 	switch (mis->_miDir) {
 	case DIR_S:
-		dx = 1;
-		dy = 1;
-		break;
 	case DIR_SW:
+	case DIR_SE:
 		dx = 1;
 		dy = 1;
 		break;
@@ -479,24 +481,15 @@ static void MoveMissilePos(int mi)
 		dy = 1;
 		break;
 	case DIR_NW:
-		dx = 0;
-		dy = 0;
-		break;
 	case DIR_N:
-		dx = 0;
-		dy = 0;
-		break;
 	case DIR_NE:
-		dx = 0;
-		dy = 0;
-		break;
+		return;
+		//dx = 0;
+		//dy = 0;
+		//break;
 	case DIR_E:
 		dx = 1;
 		dy = 0;
-		break;
-	case DIR_SE:
-		dx = 1;
-		dy = 1;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2187,17 +2180,11 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	MonsterStruct *mon;
 	AnimStruct *anim;
 
-	mon = &monster[misource];
-	if (mon->_mType < MT_HORNED || mon->_mType > MT_OBLORD) {
-		if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
-			anim = &mon->_mAnims[MA_WALK];
-		} else {
-			anim = &mon->_mAnims[MA_ATTACK];
-		}
-	} else {
-		anim = &mon->_mAnims[MA_SPECIAL];
-	}
 	GetMissileVel(mi, sx, sy, dx, dy, 18);
+	mon = &monster[misource];
+	anim = &mon->_mAnims[
+		(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
+		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
@@ -2214,8 +2201,8 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miUniqTrans = mon->_uniqtrans + 1;
 		mis->_miLid = mon->mlid;
 	}
-	mis->_miRange = 256;
-	PutMissile(mi);
+	// mis->_miRange = 256;
+	//PutMissile(mi);
 	return MIRES_DONE;
 }
 
@@ -2247,8 +2234,8 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	if (mon->_uniqtype != 0)
 		mis->_miUniqTrans = mon->_uniqtrans + 1;
 	dMonster[mon->_mx][mon->_my] = 0;
-	mis->_miRange = 256;
-	PutMissile(mi);
+	//mis->_miRange = 256;
+	//PutMissile(mi);
 	return MIRES_DONE;
 }
 
@@ -3847,7 +3834,7 @@ void MI_ApocaExp(int mi)
 void MI_Rhino(int mi)
 {
 	MissileStruct *mis;
-	int mix, miy, mix2, miy2, omx, omy, mnum;
+	int ax, ay, mix2, miy2, bx, by, mnum;
 
 	mis = &missile[mi];
 	mnum = mis->_miSource;
@@ -3855,10 +3842,11 @@ void MI_Rhino(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
+	// restore the real coordinates
 	GetMissilePos(mi);
-	mix = mis->_mix;
-	miy = mis->_miy;
-	dMonster[mix][miy] = 0;
+	ax = mis->_mix;
+	ay = mis->_miy;
+	dMonster[ax][ay] = 0;
 	if (monster[mnum]._mAi == AI_SNAKE) {
 		mis->_mitxoff += 2 * mis->_mixvel;
 		mis->_mityoff += 2 * mis->_miyvel;
@@ -3872,30 +3860,30 @@ void MI_Rhino(int mi)
 		mis->_mityoff += mis->_miyvel;
 	}
 	GetMissilePos(mi);
-	omx = mis->_mix;
-	omy = mis->_miy;
 	if (!PosOkMonst(mnum, mis->_mix, mis->_miy) || (monster[mnum]._mAi == AI_SNAKE && !PosOkMonst(mnum, mix2, miy2))) {
-		MissToMonst(mi, mix, miy);
+		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	monster[mnum]._mfutx = omx;
-	monster[mnum]._moldx = omx;
-	dMonster[omx][omy] = -(mnum + 1);
-	monster[mnum]._mx = omx;
-	monster[mnum]._mfuty = omy;
-	monster[mnum]._moldy = omy;
-	monster[mnum]._my = omy;
-	if (mis->_miLid != -1)
-		ChangeLightXY(mis->_miLid, omx, omy);
-	MoveMissilePos(mi);
+	bx = missile[mi]._mix;
+	by = missile[mi]._miy;
+	monster[mnum]._mfutx = bx;
+	monster[mnum]._moldx = bx;
+	monster[mnum]._mx = bx;
+	monster[mnum]._mfuty = by;
+	monster[mnum]._moldy = by;
+	monster[mnum]._my = by;
+	dMonster[bx][by] = -(mnum + 1);
+	if (missile[mi]._miLid != -1)
+		ChangeLightXY(missile[mi]._miLid, bx, by);
+	ShiftMissilePos(mi);
 	PutMissile(mi);
 }
 
 void MI_Fireman(int mi)
 {
 	MissileStruct *mis;
-	int mnum, enemy, ax, ay, bx, by, cx, cy, j;
+	int mnum, ax, ay, bx, by, cx, cy, tnum;
 
 	GetMissilePos(mi);
 	mis = &missile[mi];
@@ -3907,32 +3895,30 @@ void MI_Fireman(int mi)
 	mnum = mis->_miSource;
 	bx = mis->_mix;
 	by = mis->_miy;
-	enemy = monster[mnum]._menemy;
-	if (!(monster[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
-		cx = plr[enemy]._px;
-		cy = plr[enemy]._py;
-	} else {
-		cx = monster[enemy]._mx;
-		cy = monster[enemy]._my;
-	}
-	if ((bx != ax || by != ay) && (mis->_miVar1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4) || mis->_miVar2 > 1) && PosOkMonst(mnum, ax, ay)) {
+	cx = monster[mnum]._menemyx;
+	cy = monster[mnum]._menemyy;
+	if ((bx != ax || by != ay)
+	 && ((mis->_miVar1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4)) || mis->_miVar2 > 1)
+	 && PosOkMonst(mnum, ax, ay)) {
 		MissToMonst(mi, ax, ay);
 		mis->_miDelFlag = TRUE;
-	} else if (!(monster[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
-		j = dPlayer[bx][by];
-	} else {
-		j = dMonster[bx][by];
+		return;
 	}
-	if (!PosOkMissile(bx, by) || (j > 0 && !mis->_miVar1)) {
+	if (!(monster[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
+		tnum = dPlayer[bx][by];
+	} else {
+		tnum = dMonster[bx][by];
+	}
+	if (!PosOkMissile(bx, by) || (tnum > 0 && !mis->_miVar1)) {
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = OPPOSITE(mis->_miDir);
 		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].Data[mis->_miDir];
 		mis->_miVar2++;
-		if (j > 0)
+		if (tnum > 0)
 			mis->_miVar1 = TRUE;
 	}
-	MoveMissilePos(mi);
+	ShiftMissilePos(mi);
 	PutMissile(mi);
 }
 
