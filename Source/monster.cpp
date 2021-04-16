@@ -1494,7 +1494,7 @@ static void MonStartGetHit(int mnum)
 static void MonTeleport(int mnum)
 {
 	MonsterStruct *mon;
-	int k, j, x, y, _mx, _my, rx, ry;
+	int i, x, y, _mx, _my, rx;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonTeleport: Invalid monster %d", mnum);
@@ -1505,26 +1505,21 @@ static void MonTeleport(int mnum)
 
 	_mx = mon->_menemyx;
 	_my = mon->_menemyy;
-	rx = 2 * random_(100, 2) - 1;
-	ry = 2 * random_(100, 2) - 1;
-
-	for (j = -1; j <= 1; j++) {
-		for (k = -1; k <= 1; k++) {
-			if (j != 0 || k != 0) {
-				x = _mx + rx * j;
-				y = _my + ry * k;
-				if (IN_DUNGEON_AREA(x, y) && x != mon->_mx && y != mon->_my) {
-					if (PosOkMonst(mnum, x, y)) {
-						MonClearSquares(mnum);
-						dMonster[mon->_mx][mon->_my] = 0;
-						dMonster[x][y] = mnum + 1;
-						mon->_moldx = x;
-						mon->_moldy = y;
-						mon->_mdir = MonGetDir(mnum);
-						return;
-					}
-				}
-			}
+	rx = random_(100, 8);
+	static_assert(DBORDERX >= 1, "MonTeleport expects a large enough border I.");
+	static_assert(DBORDERY >= 1, "MonTeleport expects a large enough border II.");
+	for (i = 0; i < sizeof(offset_x); i++, rx = (rx + 1) & 7) {
+		x = _mx + offset_x[rx];
+		y = _my + offset_y[rx];
+		assert(IN_DUNGEON_AREA(x, y));
+		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
+			MonClearSquares(mnum);
+			dMonster[mon->_mx][mon->_my] = 0;
+			dMonster[x][y] = mnum + 1;
+			mon->_moldx = x;
+			mon->_moldy = y;
+			mon->_mdir = MonGetDir(mnum);
+			return;
 		}
 	}
 }
