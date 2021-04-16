@@ -2171,16 +2171,9 @@ static void DRLG_L3(int entry)
 	DRLG_Init_Globals();
 }
 
-void CreateL3Dungeon(int entry)
+static void DRLG_L3LightTiles()
 {
 	int i, j, pn;
-
-	DRLG_InitTrans();
-	DRLG_InitSetPC();
-	DRLG_LoadL3SP();
-	DRLG_L3(entry);
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-	DRLG_FreeL3SP();
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
@@ -2205,7 +2198,17 @@ void CreateL3Dungeon(int entry)
 			}
 		}
 	}
+}
 
+void CreateL3Dungeon(int entry)
+{
+	DRLG_InitTrans();
+	DRLG_InitSetPC();
+	DRLG_LoadL3SP();
+	DRLG_L3(entry);
+	DRLG_FreeL3SP();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+	DRLG_L3LightTiles();
 	DRLG_SetPC();
 }
 
@@ -2261,19 +2264,7 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 	SetMapMonsters(pLevelMap, 0, 0);
 	SetMapObjects(pLevelMap);
 
-	for (j = 0; j < MAXDUNY; j++) {
-		for (i = 0; i < MAXDUNX; i++) {
-			if (dPiece[i][j] >= 56 && dPiece[i][j] <= 147) {
-				DoLighting(i, j, 7, -1);
-			} else if (dPiece[i][j] >= 154 && dPiece[i][j] <= 161) {
-				DoLighting(i, j, 7, -1);
-			} else if (dPiece[i][j] == 150) {
-				DoLighting(i, j, 7, -1);
-			} else if (dPiece[i][j] == 152) {
-				DoLighting(i, j, 7, -1);
-			}
-		}
-	}
+	DRLG_L3LightTiles();
 
 	mem_free_dbg(pLevelMap);
 }
