@@ -4597,7 +4597,10 @@ bool DirOK(int mnum, int mdir)
 	}
 	fx = monster[mnum]._mx + offset_x[mdir];
 	fy = monster[mnum]._my + offset_y[mdir];
-	if (!IN_DUNGEON_AREA(fx, fy) || !PosOkMonst(mnum, fx, fy))
+	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
+	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
+	assert(IN_DUNGEON_AREA(fx, fy));
+	if (!PosOkMonst(mnum, fx, fy))
 		return false;
 	if (mdir == DIR_E) {
 		if (nSolidTable[dPiece[fx][fy + 1]] || dFlags[fx][fy + 1] & BFLAG_MONSTLR)
@@ -4623,17 +4626,16 @@ bool DirOK(int mnum, int mdir)
 	mcount = 0;
 	for (x = fx - 3; x <= fx + 3; x++) {
 		for (y = fy - 3; y <= fy + 3; y++) {
-			if (IN_DUNGEON_AREA(x, y)) {
-				ma = dMonster[x][y];
-				if (ma == 0)
-					continue;
-				ma = ma >= 0 ? ma - 1 : -(ma + 1);
-				if (monster[ma].leaderflag == MLEADER_PRESENT
-				    && monster[ma].leader == mnum
-				    && monster[ma]._mfutx == x
-					&& monster[ma]._mfuty == y) {
-					mcount++;
-				}
+			assert(IN_DUNGEON_AREA(x, y));
+			ma = dMonster[x][y];
+			if (ma == 0)
+				continue;
+			ma = ma >= 0 ? ma - 1 : -(ma + 1);
+			if (monster[ma].leaderflag == MLEADER_PRESENT
+			    && monster[ma].leader == mnum
+			    && monster[ma]._mfutx == x
+				&& monster[ma]._mfuty == y) {
+				mcount++;
 			}
 		}
 	}
