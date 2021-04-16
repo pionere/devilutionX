@@ -586,7 +586,7 @@ static void PlaceMonster(int mnum, int mtype, int x, int y)
 static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 {
 	int placed, offset, try1, try2;
-	int xp, yp, x1, y1;
+	int xp, yp, x1, y1, x2, y2;
 
 	if (num + nummonsters > totalmonsters) {
 		num = totalmonsters - nummonsters;
@@ -594,30 +594,37 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 
 	placed = 0;
 	for (try1 = 0; try1 < 10; try1++) {
-		while (placed) {
+		while (placed != 0) {
 			nummonsters--;
 			placed--;
 			dMonster[monster[nummonsters]._mx][monster[nummonsters]._my] = 0;
 		}
 
 		if (leaderf & 1) {
-			offset = random_(92, 8);
-			x1 = xp = monster[leader]._mx + offset_x[offset];
-			y1 = yp = monster[leader]._my + offset_y[offset];
+			x1 = monster[leader]._mx;
+			y1 = monster[leader]._my;
 		} else {
 			do {
-				x1 = xp = random_(93, DSIZEX) + DBORDERX;
-				y1 = yp = random_(93, DSIZEY) + DBORDERY;
-			} while (!MonstPlace(xp, yp));
+				x1 = random_(93, DSIZEX) + DBORDERX;
+				y1 = random_(93, DSIZEY) + DBORDERY;
+			} while (!MonstPlace(x1, y1));
 		}
 
-		for (try2 = 0; placed < num && try2 < 100; xp += offset_x[random_(94, 8)], yp += offset_x[random_(94, 8)]) { /// BUGFIX: `yp += offset_y`
-			if (!MonstPlace(xp, yp)
-			 || (dTransVal[xp][yp] != dTransVal[x1][y1])
-			 || ((leaderf & 2) && ((abs(xp - x1) >= 4) || (abs(yp - y1) >= 4)))) {
-				try2++;
+		static_assert(DBORDERX >= 1, "PlaceGroup expects a large enough border I.");
+		static_assert(DBORDERY >= 1, "PlaceGroup expects a large enough border II.");
+		xp = x1; yp = y1;
+		for (try2 = 0; placed < num && try2 < 128; try2++) {
+			offset = random_(94, 8);
+			x2 = xp + offset_x[offset];
+			y2 = yp + offset_y[offset];
+			if (dTransVal[x2][y2] != dTransVal[x1][y1]
+			 || ((leaderf & 2) && ((abs(x2 - x1) >= 4) || (abs(y2 - y1) >= 4)))) {
 				continue;
 			}
+			xp = x2;
+			yp = y2;
+			if ((!MonstPlace(xp, yp)) || random_(0, 2) != 0)
+				continue;
 
 			PlaceMonster(nummonsters, mtype, xp, yp);
 			if (leaderf & 1) {
