@@ -3015,7 +3015,7 @@ void MAI_Bat(int mnum)
 void MAI_SkelBow(int mnum)
 {
 	MonsterStruct *mon;
-	int mx, my, md, v;
+	int mx, my, v;
 	bool walking;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3029,8 +3029,7 @@ void MAI_SkelBow(int mnum)
 	mx = mon->_mx - mon->_menemyx;
 	my = mon->_my - mon->_menemyy;
 
-	md = MonGetDir(mnum);
-	mon->_mdir = md;
+	mon->_mdir = MonGetDir(mnum);
 	v = random_(110, 100);
 
 	walking = false;
@@ -3039,7 +3038,7 @@ void MAI_SkelBow(int mnum)
 		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
 		        && v < 2 * mon->_mint + 63)) {
-			walking = MonDumbWalk(mnum, OPPOSITE(md));
+			walking = MonDumbWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 	}
 
@@ -3054,7 +3053,7 @@ void MAI_SkelBow(int mnum)
 void MAI_Fat(int mnum)
 {
 	MonsterStruct *mon;
-	int mx, my, md, v;
+	int mx, my, v;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Fat: Invalid monster %d", mnum);
@@ -3066,15 +3065,14 @@ void MAI_Fat(int mnum)
 
 	mx = mon->_mx - mon->_menemyx;
 	my = mon->_my - mon->_menemyy;
-	md = MonGetDir(mnum);
-	mon->_mdir = md;
+	mon->_mdir = MonGetDir(mnum);
 	v = random_(111, 100);
 	if (abs(mx) >= 2 || abs(my) >= 2) {
 		if ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 20)
 		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
 		        && v < 4 * mon->_mint + 70)) {
-			MonCallWalk(mnum, md);
+			MonCallWalk(mnum, mon->_mdir);
 		}
 	} else if (v < 4 * mon->_mint + 15) {
 		MonStartAttack(mnum);
