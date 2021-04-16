@@ -3513,18 +3513,20 @@ void MAI_Scav(int mnum)
 		} else {
 			if (mon->_mgoalvar1 == 0) {
 				done = false;
+				static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
+				static_assert(DBORDERY >= 4, "MAI_Scav expects a large enough border II.");
 				if (random_(120, 2) != 0) {
 					for (y = -4; y <= 4 && !done; y++) {
 						for (x = -4; x <= 4 && !done; x++) {
-							// BUGFIX: incorrect check of offset against limits of the dungeon
-							if (IN_DUNGEON_AREA(x, y))
-								done = dDead[mon->_mx + x][mon->_my + y] != 0
-								    && LineClearF(
-								           CheckNoSolid,
-								           mon->_mx,
-								           mon->_my,
-								           mon->_mx + x,
-								           mon->_my + y);
+							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
+							//assert(IN_DUNGEON_AREA(mon->_mx + x, mon->_mx + y));
+							done = dDead[mon->_mx + x][mon->_my + y] != 0
+							    && LineClearF(
+							           CheckNoSolid,
+							           mon->_mx,
+							           mon->_my,
+							           mon->_mx + x,
+							           mon->_my + y);
 						}
 					}
 					x--;
@@ -3532,15 +3534,15 @@ void MAI_Scav(int mnum)
 				} else {
 					for (y = 4; y >= -4 && !done; y--) {
 						for (x = 4; x >= -4 && !done; x--) {
-							// BUGFIX: incorrect check of offset against limits of the dungeon
-							if (IN_DUNGEON_AREA(x, y))
-								done = dDead[mon->_mx + x][mon->_my + y] != 0
-								    && LineClearF(
-								           CheckNoSolid,
-								           mon->_mx,
-								           mon->_my,
-								           mon->_mx + x,
-								           mon->_my + y);
+							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
+							//assert(IN_DUNGEON_AREA(mon->_mx + x, mon->_mx + y));
+							done = dDead[mon->_mx + x][mon->_my + y] != 0
+							    && LineClearF(
+							           CheckNoSolid,
+							           mon->_mx,
+							           mon->_my,
+							           mon->_mx + x,
+							           mon->_my + y);
 						}
 					}
 					x++;
