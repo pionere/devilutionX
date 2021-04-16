@@ -1433,7 +1433,7 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
 	missile[mi]._miRange = 9;
 	missile[mi]._miVar1 = midir;
-	PutMissile(mi);
+	//PutMissile(mi);
 	return MIRES_DONE;
 }
 
@@ -1738,7 +1738,7 @@ int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	missile[mi]._miRange = 256;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam = 4 << 6;
-	PutMissile(mi);
+	//PutMissile(mi);
 	return MIRES_DONE;
 }
 
@@ -2290,7 +2290,7 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis->_miMinDam = monster[misource].mMinDamage << 6;
 	mis->_miMaxDam = monster[misource].mMaxDamage << 6;
 	//mis->_miLid = -1;
-	PutMissile(mi);
+	//PutMissile(mi);
 	return MIRES_DONE;
 }
 
