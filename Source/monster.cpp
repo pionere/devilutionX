@@ -2043,18 +2043,10 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
 		return;
 
-	tmp = p->_pIAC;
 	hper = 30 + Hit
-		+ (mon->mLevel << 1)
-		- (p->_pLevel << 1)
-		- tmp;
-	tmp = 15;
-	if (currLvl._dLevelIdx == DLV_HELL2)
-		tmp = 20;
-	else if (currLvl._dLevelIdx == DLV_HELL3)
-		tmp = 25;
-	else if (currLvl._dLevelIdx == DLV_HELL4)
-		tmp = 30;
+		+ (2 * mon->mLevel)
+		- (2 * p->_pLevel)
+		- p->_pIAC;
 	if (hper < tmp)
 		hper = tmp;
 	if (random_(98, 100) >= hper)
