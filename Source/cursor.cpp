@@ -282,7 +282,7 @@ void CheckCursMove()
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
 
-	flipflag = flipy && flipx || (flipy || flipx) && px < TILE_WIDTH / 2;
+	flipflag = (flipy && flipx) || ((flipy || flipx) && px < TILE_WIDTH / 2);
 
 	pcurstemp = pcursmonst;
 	pcursmonst = -1;

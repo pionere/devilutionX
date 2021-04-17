@@ -9,7 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static CCritSect sgMemCrit;
 SDL_threadID glpDThreadId;
-TMegaPkt *sgpInfoHead; /* may not be right struct */
+DMegaPkt *sgpInfoHead;
 bool _gbDthread_running;
 event_emul *sghWorkToDoEvent;
 
@@ -18,7 +18,7 @@ static SDL_Thread *sghThread = NULL;
 
 static unsigned int dthread_handler(void *data)
 {
-	TMegaPkt *pkt;
+	DMegaPkt *pkt;
 	DWORD dwMilliseconds;
 
 	while (_gbDthread_running) {
@@ -29,16 +29,15 @@ static unsigned int dthread_handler(void *data)
 		sgMemCrit.Enter();
 		pkt = sgpInfoHead;
 		if (sgpInfoHead != NULL)
-			sgpInfoHead = sgpInfoHead->pNext;
+			sgpInfoHead = sgpInfoHead->dmpNext;
 		else
 			ResetEvent(sghWorkToDoEvent);
 		sgMemCrit.Leave();
 
 		if (pkt != NULL) {
-			if (pkt->dwSpaceLeft != MAX_PLRS)
-				multi_send_zero_packet(pkt->dwSpaceLeft, pkt->data[0], &pkt->data[8], *(DWORD *)&pkt->data[4]);
-
-			dwMilliseconds = 1000 * *(DWORD *)&pkt->data[4] / gdwDeltaBytesSec;
+			if (pkt->dmpPlr != MAX_PLRS)
+				multi_send_zero_packet(pkt->dmpPlr, pkt->dmpCmd, &pkt->data[0], pkt->dmpLen);
+			dwMilliseconds = 1000 * pkt->dmpLen / gdwDeltaBytesSec;
 			if (dwMilliseconds >= 1)
 				dwMilliseconds = 1;
 
@@ -54,37 +53,35 @@ static unsigned int dthread_handler(void *data)
 
 void dthread_remove_player(int pnum)
 {
-	TMegaPkt *pkt;
+	DMegaPkt *pkt;
 
 	sgMemCrit.Enter();
-	for (pkt = sgpInfoHead; pkt; pkt = pkt->pNext) {
-		if (pkt->dwSpaceLeft == pnum)
-			pkt->dwSpaceLeft = MAX_PLRS;
+	for (pkt = sgpInfoHead; pkt != NULL; pkt = pkt->dmpNext) {
+		if (pkt->dmpPlr == pnum)
+			pkt->dmpPlr = MAX_PLRS;
 	}
 	sgMemCrit.Leave();
 }
 
 void dthread_send_delta(int pnum, char cmd, void *pbSrc, int dwLen)
 {
-	TMegaPkt *pkt;
-	TMegaPkt *p;
+	DMegaPkt *pkt;
+	DMegaPkt *p;
 
-	if (gbMaxPlayers == 1) {
-		return;
-	}
+	assert(gbMaxPlayers != 1);
 
-	pkt = (TMegaPkt *)DiabloAllocPtr(dwLen + 20);
-	pkt->pNext = NULL;
-	pkt->dwSpaceLeft = pnum;
-	pkt->data[0] = cmd;
-	*(DWORD *)&pkt->data[4] = dwLen;
-	memcpy(&pkt->data[8], pbSrc, dwLen);
+	pkt = (DMegaPkt *)DiabloAllocPtr(dwLen + 20);
+	pkt->dmpNext = NULL;
+	pkt->dmpPlr = pnum;
+	pkt->dmpCmd = cmd;
+	pkt->dmpLen = dwLen;
+	memcpy(&pkt->data[0], pbSrc, dwLen);
 	sgMemCrit.Enter();
-	p = (TMegaPkt *)&sgpInfoHead;
-	while (p->pNext) {
-		p = p->pNext;
+	p = (DMegaPkt *)&sgpInfoHead;
+	while (p->dmpNext) {
+		p = p->dmpNext;
 	}
-	p->pNext = pkt;
+	p->dmpNext = pkt;
 
 	SetEvent(sghWorkToDoEvent);
 	sgMemCrit.Leave();
@@ -111,7 +108,7 @@ void dthread_start()
 
 void dthread_cleanup()
 {
-	TMegaPkt *tmp;
+	DMegaPkt *tmp;
 
 	if (sghWorkToDoEvent == NULL) {
 		return;
@@ -126,8 +123,8 @@ void dthread_cleanup()
 	EndEvent(sghWorkToDoEvent);
 	sghWorkToDoEvent = NULL;
 
-	while (sgpInfoHead) {
-		tmp = sgpInfoHead->pNext;
+	while (sgpInfoHead != NULL) {
+		tmp = sgpInfoHead->dmpNext;
 		MemFreeDbg(sgpInfoHead);
 		sgpInfoHead = tmp;
 	}

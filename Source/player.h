@@ -24,7 +24,7 @@ void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, 
 //void NewPlrAnim(int pnum, BYTE *anims, int dir, unsigned numFrames, int Delay, int width, int numSkippedFrames = 0, bool processAnimationPending = false, int stopDistributingAfterFrame = 0);
 void SetPlrAnims(int pnum);
 //int GetFrameToUseForPlayerRendering(int pnum);
-void CreatePlayer(int pnum, char c);
+void CreatePlayer(int pnum, BYTE c);
 #ifdef _DEBUG
 void NextPlrLevel(int pnum);
 #endif

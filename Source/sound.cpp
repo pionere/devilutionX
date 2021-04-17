@@ -139,9 +139,8 @@ void snd_init()
 	snd_get_volume("Music Volume", &_gnMusicVolume);
 	gbMusicOn = _gnMusicVolume > VOLUME_MIN;
 
-	int result = Mix_OpenAudio(22050, AUDIO_S16LSB, 2, 1024);
-	if (result < 0) {
-		SDL_Log(Mix_GetError());
+	if (Mix_OpenAudio(22050, AUDIO_S16LSB, 2, 1024) < 0) {
+		SDL_Log("%s", Mix_GetError());
 	}
 	Mix_AllocateChannels(25);
 	Mix_ReserveChannels(1); // reserve one channel for naration (SFileDda*)

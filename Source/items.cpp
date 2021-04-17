@@ -462,11 +462,10 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int tac = 0;  // armor class
 
-	unsigned g, wt; // graphics, weapon-type
-	bool bf;        // blockflag
+	int g, wt; // graphics, weapon-type
+	bool bf;   // blockflag
 	int i;
 
-	int bdam = 0;   // bonus damage
 	int btohit = 0; // bonus chance to hit
 	int av;			// arrow velocity bonus
 

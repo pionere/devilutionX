@@ -449,7 +449,7 @@ void selgame_Password_Select(unsigned index)
 		}
 	}
 
-	snprintf(tempstr, sizeof(tempstr), SDL_GetError());
+	SStrCopy(tempstr, SDL_GetError(), sizeof(tempstr));
 	ShowErrorMsgDialog();
 	selgame_Password_Init(selgame_selectedGame);
 }

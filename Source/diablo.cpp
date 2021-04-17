@@ -761,7 +761,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (pcursobj != OBJ_NONE) {
 		bool bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
-		if ((moveSkill == SPL_WALK || bNear && object[pcursobj]._oBreak == 1)) {
+		if (moveSkill == SPL_WALK || (bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}

@@ -38,16 +38,17 @@ namespace {
 HANDLE init_test_access(const char *mpq_name)
 {
 	HANDLE archive;
-	const std::string *paths[2] = { &GetBasePath(), &GetPrefPath() };
+	const char *paths[2] = { GetBasePath(), GetPrefPath() };
 	std::string mpq_abspath;
 	DWORD mpq_flags = 0;
 #if !defined(__SWITCH__) && !defined(__AMIGA__) && !defined(__vita__)
 	mpq_flags |= MPQ_FLAG_READ_ONLY;
 #endif
 	for (int i = 0; i < 2; i++) {
-		mpq_abspath = *paths[i] + mpq_name;
+		mpq_abspath = paths[i];
+		mpq_abspath += mpq_name;
 		if (SFileOpenArchive(mpq_abspath.c_str(), mpq_flags, &archive)) {
-			SFileSetBasePath(paths[i]->c_str());
+			SFileSetBasePath(paths[i]);
 			return archive;
 		}
 	}
@@ -87,8 +88,8 @@ static void init_get_file_info()
 #ifdef _DEVMODE
 static void CreateMpq(const char* destMpqName, const char* folder, const char *files)
 {
-	std::string basePath = GetBasePath() + folder;
-	std::ifstream input(GetBasePath() + files);
+	std::string basePath = std::string(GetBasePath()) + folder;
+	std::ifstream input(std::string(GetBasePath()) + files);
 
 	int entryCount = 0;
 	std::string line;
@@ -107,11 +108,11 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 		hashCount <<= 1;
 	}
 	
-	std::string path = GetBasePath() + destMpqName;
+	std::string path = std::string(GetBasePath()) + destMpqName;
 	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
 	
-	input = std::ifstream(GetBasePath() + files);
+	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();
 		FILE *fp = fopen(path.c_str(), "rb");
@@ -197,7 +198,7 @@ void init_archives()
 	}
 	// create the mpq file
 	input.open("listfiles.txt");
-	std::string path = GetBasePath() + MPQONE;
+	std::string path = std::string(GetBasePath()) + MPQONE;
 	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {

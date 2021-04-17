@@ -1928,7 +1928,7 @@ static void S_BoyEnter()
 			TakePlrsMoney(50);
 			StartStore(STORE_BBOY);
 		}
-	} else if (stextsel == 8 && boyitem._itype != ITYPE_NONE || stextsel == 12 && boyitem._itype == ITYPE_NONE) {
+	} else if ((stextsel == 8 && boyitem._itype != ITYPE_NONE) || (stextsel == 12 && boyitem._itype == ITYPE_NONE)) {
 		talker = TOWN_PEGBOY;
 		stextshold = STORE_BOY;
 		stextlhold = stextsel;

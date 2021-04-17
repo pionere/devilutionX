@@ -1160,25 +1160,25 @@ static void DRLG_L3River()
 					river[1][riveramt] = ry;
 					river[2][riveramt] = RandRange(15, 16) + (1 - (dir >> 1)) * 2;
 					riveramt++;
-					if (dir == 0 && pdir == 2 || dir == 3 && pdir == 1) {
+					if ((dir == 0 && pdir == 2) || (dir == 3 && pdir == 1)) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 22;
 						}
 						nodir2 = dir == 0 ? 1 : 2;
 					}
-					if (dir == 0 && pdir == 3 || dir == 2 && pdir == 1) {
+					if ((dir == 0 && pdir == 3) || (dir == 2 && pdir == 1)) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 21;
 						}
 						nodir2 = dir + 1; // dir == 0 ? 1 : 3;
 					}
-					if (dir == 1 && pdir == 2 || dir == 3 && pdir == 0) {
+					if ((dir == 1 && pdir == 2) || (dir == 3 && pdir == 0)) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 20;
 						}
 						nodir2 = dir - 1; // dir == 1 ? 0 : 2;
 					}
-					if (dir == 1 && pdir == 3 || dir == 2 && pdir == 0) {
+					if ((dir == 1 && pdir == 3) || (dir == 2 && pdir == 0)) {
 						if (riveramt > 2) {
 							river[2][riveramt - 2] = 19;
 						}

@@ -1127,6 +1127,14 @@ typedef struct TMegaPkt {
 } TMegaPkt;
 #pragma pack(pop)
 
+typedef struct DMegaPkt {
+	struct DMegaPkt *dmpNext;
+	int dmpPlr;
+	unsigned dmpLen;
+	BYTE dmpCmd;
+	BYTE data[32000];
+} DMegaPkt;
+
 typedef struct TBuffer {
 	DWORD dwNextWriteOffset;
 	BYTE bData[4096];

@@ -30,6 +30,7 @@ static void T_FillTile(int xx, int yy, int t)
 	dPiece[xx + 1][yy + 1] = v4;
 }
 
+#ifdef HELLFIRE
 void T_HiveOpen()
 {
 	/*int miniset[9][6] = {
@@ -199,6 +200,7 @@ void T_CryptOpen()
 	dPiece[24 + DBORDERX][11 + DBORDERY] = 0x53c;
 	SetDungeonMicros(24 + DBORDERX, 11 + DBORDERY, 28 + DBORDERX, 15 + DBORDERY);
 }
+#endif
 
 /**
  * Return the available town-warps for the current player

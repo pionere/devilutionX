@@ -428,7 +428,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == myplr) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
-		} else if (!(dFlags[x][y] & BFLAG_LIT) || plr[myplr]._pInfraFlag && light_table_index > 8) {
+		} else if (!(dFlags[x][y] & BFLAG_LIT) || (plr[myplr]._pInfraFlag && light_table_index > 8)) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
 		} else {
 			l = light_table_index;

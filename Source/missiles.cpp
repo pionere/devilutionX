@@ -3262,13 +3262,13 @@ void MI_Fireball(int mi)
 				mis->_miyoff -= 32;
 			}
 			if (mis->_miyvel > 0
-			    && (TransList[dTransVal[mx + 1][my]] && nSolidTable[dPiece[mx + 1][my]]
-			        || TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]])) {
+			 && ((TransList[dTransVal[mx + 1][my]] && nSolidTable[dPiece[mx + 1][my]])
+			  || (TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]]))) {
 				mis->_miyoff -= 32;
 			}
 			if (mis->_mixvel > 0
-			    && (TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]
-			        || TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])) {
+			 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]])
+			  || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]]))) {
 				mis->_mixoff -= 32;
 			}
 			mis->_miDir = 0;
@@ -3625,7 +3625,7 @@ void MI_Guardian(int mi)
 	if (mis->_miVar2 > 0) {
 		mis->_miVar2--;
 	}
-	if (mis->_miRange == mis->_miVar1 || mis->_miDir == 2 && mis->_miVar2 == 0) {
+	if (mis->_miRange == mis->_miVar1 || (mis->_miDir == 2 && mis->_miVar2 == 0)) {
 		SetMissDir(mi, 1);
 	}
 

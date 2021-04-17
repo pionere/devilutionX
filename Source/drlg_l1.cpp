@@ -2128,24 +2128,13 @@ static void DRLG_L1(int entry)
 			}
 #else
 		} else {
-			/*mini_set stairs[2] = {
+			mini_set stairs[2] = {
 				{ L1USTAIRS, entry != ENTRY_PREV },
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
 			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY--;
-			}*/
-
-			if (entry == ENTRY_PREV) {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, false)
-				|| !DRLG_L1PlaceMiniSet(L1DSTAIRS, true))
-					doneflag = false;
-				ViewY--;
-			} else {
-				if (!DRLG_L1PlaceMiniSet(L1USTAIRS, true)
-				 || !DRLG_L1PlaceMiniSet(L1DSTAIRS, false))
-					doneflag = false;
 			}
 #endif
 		}

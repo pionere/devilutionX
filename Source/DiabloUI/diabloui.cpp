@@ -530,7 +530,7 @@ bool UiValidPlayerName(const char *name)
 	};
 
 	char tmpname[PLR_NAME_LEN];
-	snprintf(tmpname, PLR_NAME_LEN, name);
+	SStrCopy(tmpname, name, PLR_NAME_LEN);
 	for (BYTE *letter = (BYTE *)tmpname; *letter; letter++)
 		++*letter;
 

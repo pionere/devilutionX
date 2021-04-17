@@ -15,10 +15,11 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 void ReadOnlyTest()
 {
-	const std::string path = GetPrefPath() + "Diablo1ReadOnlyTest.foo";
+	std::string path = GetPrefPath();
+	path += "Diablo1ReadOnlyTest.foo";
 	FILE *f = FileOpen(path.c_str(), "wt");
 	if (f == NULL) {
-		DirErrorDlg(GetPrefPath().c_str());
+		DirErrorDlg(GetPrefPath());
 	}
 
 	fclose(f);

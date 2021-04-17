@@ -59,7 +59,7 @@ static void CopyShort(const void *src, void *dst)
 	memcpy(dst, &buf, 2);
 }
 
-static void CopyShorts(const void *src, const int n, void *dst)
+/*static void CopyShorts(const void *src, const int n, void *dst)
 {
 	const unsigned short *s = reinterpret_cast<const unsigned short *>(src);
 	unsigned short *d = reinterpret_cast<unsigned short *>(dst);
@@ -68,7 +68,7 @@ static void CopyShorts(const void *src, const int n, void *dst)
 		++d;
 		++s;
 	}
-}
+}*/
 
 static void CopyInt(const void *src, void *dst)
 {
@@ -611,13 +611,13 @@ static void LoadPortal(int i)
 	CopyInt(tbuff, &pPortal->level);
 }
 
-static void RedoPlayerLight()
+/*static void RedoPlayerLight()
 {
 	for (int i = 0; i < MAX_PLRS; i++) {
 		if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel)
 			ChangeLightXY(plr[i]._plid, plr[i]._px, plr[i]._py);
 	}
-}
+}*/
 
 /**
  * @brief Load game state

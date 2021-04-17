@@ -341,7 +341,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 
 static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
 {
-	int lvl, y;
+	int lvl = 0, y;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
 	if (spl == SPL_INVALID) {
@@ -2543,7 +2543,7 @@ static void control_press_enter()
 
 bool control_talk_last_key(int vkey)
 {
-	int result;
+	unsigned result;
 
 	assert(gbTalkflag);
 	assert(gbMaxPlayers != 1);

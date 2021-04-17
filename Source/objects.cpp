@@ -1075,14 +1075,14 @@ void SetMapObjects(BYTE *pMap)
 	//gbInitObjFlag = false;
 }
 
-static void DeleteObject_(int oi, int idx)
+/*static void DeleteObject_(int oi, int idx)
 {
 	objectavail[MAXOBJECTS - nobjects] = oi;
 	dObject[object[oi]._ox][object[oi]._oy] = 0;
 	nobjects--;
 	if (nobjects > 0 && idx != nobjects)
 		objectactive[idx] = objectactive[nobjects];
-}
+}*/
 
 static void SetupObject(int oi, int x, int y, int type)
 {
@@ -2928,7 +2928,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	char pc;
+	BYTE pc;
 
 	os = &object[oi];
 	if (os->_oSelFlag == 0)

@@ -43,7 +43,7 @@ std::string *SBasePath = NULL;
 
 radon::File &getIni()
 {
-	static radon::File ini(GetConfigPath() + "diablo.ini");
+	static radon::File ini(std::string(GetConfigPath()) + "diablo.ini");
 	return ini;
 }
 

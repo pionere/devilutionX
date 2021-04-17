@@ -377,7 +377,7 @@ static void DrawAutomapItem(int x, int y, BYTE color)
 	DrawLine(x, y2, x2, y, color);
 }
 
-static void SearchAutomapItem()
+/*static void SearchAutomapItem()
 {
 	PlayerStruct *p;
 	int x, y;
@@ -427,7 +427,7 @@ static void SearchAutomapItem()
 			}
 		}
 	}
-}
+}*/
 
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.

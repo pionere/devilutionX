@@ -35,7 +35,7 @@ static std::string *FromSDL(char *s)
 	return result;
 }
 
-const std::string &GetBasePath()
+const const char* GetBasePath()
 {
 #ifdef __vita__
 	if (basePath == NULL)
@@ -44,21 +44,21 @@ const std::string &GetBasePath()
 	if (basePath == NULL)
 		basePath = FromSDL(SDL_GetBasePath());
 #endif
-	return *basePath;
+	return basePath->c_str();
 }
 
-const std::string &GetPrefPath()
+const char* GetPrefPath()
 {
 	if (prefPath == NULL)
 		prefPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
-	return *prefPath;
+	return prefPath->c_str();
 }
 
-const std::string &GetConfigPath()
+const char *GetConfigPath()
 {
 	if (configPath == NULL)
 		configPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
-	return *configPath;
+	return configPath->c_str();
 }
 
 void SetBasePath(const char *path)
