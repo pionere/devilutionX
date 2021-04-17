@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "diabloui.h"
+#include <time.h>
 
 DEVILUTION_BEGIN_NAMESPACE
 

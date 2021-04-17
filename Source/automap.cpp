@@ -89,7 +89,7 @@ void InitAutomap()
 
 	lm = (WORD*)pAFile;
 	for (i = 1; i <= dwTiles; i++) {
-		automaptype[i] = SDL_SwapLE16(*lm);
+		automaptype[i] = SwapLE16(*lm);
 		lm++;
 	}
 

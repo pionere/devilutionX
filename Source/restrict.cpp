@@ -4,8 +4,8 @@
  * Implementation of functionality for checking if the game will be able run on the system.
  */
 #include "all.h"
-#include "paths.h"
-#include "file_util.h"
+#include "utils/paths.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

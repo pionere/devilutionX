@@ -7,7 +7,7 @@
 
 #include "all.h"
 #include <config.h>
-#include "paths.h"
+#include "utils/paths.h"
 #include <SDL.h>
 #include <string>
 #include <fstream>

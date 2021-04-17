@@ -2042,7 +2042,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
 	pPiece = (WORD *)&pLevelPieces[2 * blocks * pn];
 	for (i = 0; i < blocks; i++) {
-		pMap->mt[i] = SDL_SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
+		pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 	}
 }
 
@@ -2055,8 +2055,8 @@ static void objects_set_door_piece(int x, int y)
 
 	v1 = *((WORD *)pLevelPieces + 10 * pn + 8);
 	v2 = *((WORD *)pLevelPieces + 10 * pn + 9);
-	dpiece_defs_map_2[x][y].mt[0] = SDL_SwapLE16(v1);
-	dpiece_defs_map_2[x][y].mt[1] = SDL_SwapLE16(v2);
+	dpiece_defs_map_2[x][y].mt[0] = SwapLE16(v1);
+	dpiece_defs_map_2[x][y].mt[1] = SwapLE16(v2);
 }
 
 static void ObjSetMini(int x, int y, int v)
@@ -2066,10 +2066,10 @@ static void ObjSetMini(int x, int y, int v)
 	WORD *MegaTiles;
 
 	MegaTiles = (WORD *)&pMegaTiles[((WORD)v - 1) * 8];
-	v1 = SDL_SwapLE16(*(MegaTiles + 0)) + 1;
-	v2 = SDL_SwapLE16(*(MegaTiles + 1)) + 1;
-	v3 = SDL_SwapLE16(*(MegaTiles + 2)) + 1;
-	v4 = SDL_SwapLE16(*(MegaTiles + 3)) + 1;
+	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
+	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
+	v3 = SwapLE16(*(MegaTiles + 2)) + 1;
+	v4 = SwapLE16(*(MegaTiles + 3)) + 1;
 
 	xx = 2 * x + DBORDERX;
 	yy = 2 * y + DBORDERY;

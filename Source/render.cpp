@@ -204,7 +204,7 @@ void RenderTile(BYTE *pBuff, WORD levelCelBlock, _arch_draw_type adt)
 	dst = pBuff;
 	pFrameTable = (DWORD *)pDungeonCels;
 
-	src = &pDungeonCels[SDL_SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	src = &pDungeonCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	tile = (levelCelBlock & 0x7000) >> 12;
 	tbl = &pLightTbl[256 * light_table_index];
 

@@ -5,7 +5,7 @@
  */
 #include "all.h"
 #include <config.h>
-#include "paths.h"
+#include "utils/paths.h"
 #include "diabloui.h"
 #include "plrctrls.h"
 

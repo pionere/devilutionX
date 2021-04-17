@@ -1222,7 +1222,7 @@ BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB)
 	for (i = 1; i <= nCelA; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celA + 4 * (i + 1));
-		*pHead = SDL_SwapLE32(pBuf - cel);
+		*pHead = SwapLE32(pBuf - cel);
 		memcpy(pBuf, &celA[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
@@ -1233,14 +1233,14 @@ BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB)
 	for (i = 1; i <= nCelB; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celB + 4 * (i + 1));
-		*pHead = SDL_SwapLE32(pBuf - cel);
+		*pHead = SwapLE32(pBuf - cel);
 		memcpy(pBuf, &celB[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
 		pHead++;
 	}
 
-	*pHead = SDL_SwapLE32(pBuf - cel);
+	*pHead = SwapLE32(pBuf - cel);
 	// assert(*pHead == nDataSize);
 	return cel;
 }

@@ -233,7 +233,7 @@ static BYTE InvItemColor(ItemStruct *is)
 		return ICOL_RED;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL)
 		return ICOL_BLUE;
-	return ICOL_WHITE;
+	return ICOL_YELLOW;
 }
 
 /**
@@ -996,7 +996,6 @@ static void CheckInvPaste()
 	case ILOC_TWOHAND:
 		is = &p->InvBody[INVLOC_HAND_LEFT];
 		wRight = &p->InvBody[INVLOC_HAND_RIGHT];
-		NetSendCmdDelItem(false, INVLOC_HAND_RIGHT);
 		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
 			if (wRight->_itype != ITYPE_SHIELD)
 				wRight = is;
@@ -1006,6 +1005,7 @@ static void CheckInvPaste()
 			wRight->_itype = ITYPE_NONE;
 			wRight = &p->InvBody[INVLOC_HAND_RIGHT];
 		}
+		NetSendCmdDelItem(false, INVLOC_HAND_RIGHT);
 
 		if (is->_itype != ITYPE_NONE || wRight->_itype != ITYPE_NONE) {
 			NetSendCmdChItem(false, holditem, INVLOC_HAND_LEFT);

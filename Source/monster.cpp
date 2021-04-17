@@ -1031,9 +1031,9 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 			AddMonster(0, 0, 0, 0, false);
 	}
 	lm = (WORD *)pMap;
-	rw = SDL_SwapLE16(*lm);
+	rw = SwapLE16(*lm);
 	lm++;
-	rh = SDL_SwapLE16(*lm);
+	rh = SwapLE16(*lm);
 	lm++;
 	lm += rw * rh;
 	rw = rw << 1;
@@ -1047,7 +1047,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				mtype = AddMonsterType(MonstConvTbl[SDL_SwapLE16(*lm) - 1], FALSE);
+				mtype = AddMonsterType(MonstConvTbl[SwapLE16(*lm) - 1], FALSE);
 				PlaceMonster(nummonsters++, mtype, i, j);
 			}
 			lm++;

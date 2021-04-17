@@ -6,8 +6,8 @@
 #include "all.h"
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-#include "../SourceX/controls/axis_direction.h"
-#include "../SourceX/controls/controller_motion.h"
+#include "controls/axis_direction.h"
+#include "controls/controller_motion.h"
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE

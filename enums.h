@@ -2626,7 +2626,8 @@ typedef enum text_color {
 } text_color;
 
 typedef enum item_color {
-	ICOL_WHITE = PAL16_YELLOW + 5,
+	ICOL_YELLOW = PAL16_YELLOW + 5,
+	ICOL_WHITE = PAL16_GRAY + 5,
 	ICOL_BLUE  = PAL16_BLUE + 5,
 	ICOL_RED   = PAL16_RED + 5,
 } item_color;

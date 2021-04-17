@@ -76,7 +76,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	for (i = 0; i < 64; i++) {
 		pPack->pSkillExp[i] = SwapLE32(p->_pSkillExp[i]);
 	}
-	pPack->pMemSkills = SDL_SwapLE64(p->_pMemSkills);
+	pPack->pMemSkills = SwapLE64(p->_pMemSkills);
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];
@@ -230,7 +230,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	for (i = 0; i < 64; i++) {
 		p->_pSkillExp[i] = SwapLE32(pPack->pSkillExp[i]);
 	}
-	p->_pMemSkills = SDL_SwapLE64(pPack->pMemSkills);
+	p->_pMemSkills = SwapLE64(pPack->pMemSkills);
 
 	pki = &pPack->InvBody[0];
 	pi = &p->InvBody[0];

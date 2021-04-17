@@ -19,10 +19,10 @@ static void T_FillTile(int xx, int yy, int t)
 	WORD *Tiles;
 
 	Tiles = ((WORD *)&pMegaTiles[t * 8]);
-	v1 = SDL_SwapLE16(*(Tiles + 0)) + 1;
-	v2 = SDL_SwapLE16(*(Tiles + 1)) + 1;
-	v3 = SDL_SwapLE16(*(Tiles + 2)) + 1;
-	v4 = SDL_SwapLE16(*(Tiles + 3)) + 1;
+	v1 = SwapLE16(*(Tiles + 0)) + 1;
+	v2 = SwapLE16(*(Tiles + 1)) + 1;
+	v3 = SwapLE16(*(Tiles + 2)) + 1;
+	v4 = SwapLE16(*(Tiles + 3)) + 1;
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
@@ -240,7 +240,7 @@ void T_Pass3()
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	for (x = 0; x < MAXDUNX; x++) {
 		for (int y = 0; y < MAXDUNY; y++) {
-			dPiece[x][y] = SDL_SwapLE32(dPiece[x][y]);
+			dPiece[x][y] = SwapLE32(dPiece[x][y]);
 		}
 	}
 #endif
