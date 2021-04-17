@@ -1,4 +1,6 @@
-#include "DiabloUI/art.h"
+#include "art.h"
+
+#include "all.h"
 #include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE

@@ -1,4 +1,3 @@
-#include "control.h"
 #include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
 

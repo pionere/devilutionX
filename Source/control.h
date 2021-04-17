@@ -6,8 +6,6 @@
 #ifndef __CONTROL_H__
 #define __CONTROL_H__
 
-#include "../types.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus

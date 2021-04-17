@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

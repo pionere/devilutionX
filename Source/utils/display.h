@@ -3,10 +3,14 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "all.h"
+#include "../types.h"
 #include <SDL.h>
 
 DEVILUTION_BEGIN_NAMESPACE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
@@ -41,6 +45,10 @@ void ScaleOutputRect(SDL_Rect *rect);
 
 // If the output requires software scaling, replaces the given surface with a scaled one.
 void ScaleSurfaceToOutput(SDL_Surface **surface);
+
+#ifdef __cplusplus
+}
+#endif
 
 // Convert from output coordinates to logical (resolution-independent) coordinates.
 template <

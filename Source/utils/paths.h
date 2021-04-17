@@ -1,8 +1,13 @@
 #pragma once
 
 #include <string>
+#include "../types.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 const std::string &GetBasePath();
 const std::string &GetPrefPath();
@@ -12,4 +17,8 @@ void SetBasePath(const char *path);
 void SetPrefPath(const char *path);
 void SetConfigPath(const char *path);
 
-} // namespace dvl
+#ifdef __cplusplus
+}
+#endif
+
+DEVILUTION_END_NAMESPACE

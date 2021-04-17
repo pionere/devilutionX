@@ -6,15 +6,13 @@
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
-namespace {
+static std::string *basePath = NULL;
+static std::string *prefPath = NULL;
+static std::string *configPath = NULL;
 
-std::string *basePath = NULL;
-std::string *prefPath = NULL;
-std::string *configPath = NULL;
-
-void AddTrailingSlash(std::string *path)
+static void AddTrailingSlash(std::string *path)
 {
 #ifdef _WIN32
 	if (!path->empty() && path->back() != '\\')
@@ -25,7 +23,7 @@ void AddTrailingSlash(std::string *path)
 #endif
 }
 
-std::string *FromSDL(char *s)
+static std::string *FromSDL(char *s)
 {
 	std::string *result = new std::string(s != NULL ? s : "");
 	if (s != NULL) {
@@ -36,8 +34,6 @@ std::string *FromSDL(char *s)
 	}
 	return result;
 }
-
-} // namespace
 
 const std::string &GetBasePath()
 {
@@ -89,4 +85,4 @@ void SetConfigPath(const char *path)
 	AddTrailingSlash(configPath);
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

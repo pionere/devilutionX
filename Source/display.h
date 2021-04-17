@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int screenWidth;
 extern int screenHeight;
 extern int viewportHeight;
@@ -19,6 +23,10 @@ extern SDL_Surface *pal_surface;
 extern unsigned int pal_surface_palette_version;
 
 bool SpawnWindow(const char *lpWindowName);
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

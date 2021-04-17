@@ -28,6 +28,8 @@ void DirErrorDlg(const char *error);
 }
 #endif
 
+#define ErrSdl() ErrDlg("SDL Error", SDL_GetError(), __FILE__, __LINE__)
+
 #if defined(_DEVMODE) || defined(_DEBUG)
 template <typename... MsgArgs>
 void dev_fatal(const char *pszFmt, MsgArgs... args) {

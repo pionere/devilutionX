@@ -5,7 +5,6 @@
  *
  * dflags matrix is used as a BOOLEAN matrix to protect the quest room.
  */
-
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -2248,7 +2247,6 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 
 void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 {
-	int i, j;
 	BYTE *pLevelMap;
 
 	ViewX = vx;

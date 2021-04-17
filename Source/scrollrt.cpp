@@ -274,7 +274,7 @@ static void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 	}
 
 	for (i = 0; i < nummissiles; i++) {
-		assert(missileactive[i] < MAXMISSILES);
+		assert((unsigned)missileactive[i] < MAXMISSILES);
 		mis = &missile[missileactive[i]];
 		if (mis->_mix != x || mis->_miy != y)
 			continue;

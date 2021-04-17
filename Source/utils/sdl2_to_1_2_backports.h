@@ -60,13 +60,13 @@ inline void SDL_Log(const char *fmt, ...)
 	puts("");
 }
 //void SDL_Log(const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(1, 2);
-void SDL_LogVerbose(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogDebug(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogInfo(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogWarn(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogError(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogCritical(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
-void SDL_LogMessageV(int category, int priority, const char *fmt, va_list ap) DVL_PRINTF_ATTRIBUTE(3, 0);
+//void SDL_LogVerbose(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogDebug(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogInfo(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogWarn(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogError(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogCritical(int category, const char *fmt, ...) DVL_PRINTF_ATTRIBUTE(2, 3);
+//void SDL_LogMessageV(int category, int priority, const char *fmt, va_list ap) DVL_PRINTF_ATTRIBUTE(3, 0);
 
 void SDL_LogSetAllPriority(SDL_LogPriority priority);
 void SDL_LogSetPriority(int category, SDL_LogPriority priority);

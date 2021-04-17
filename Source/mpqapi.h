@@ -6,8 +6,6 @@
 #ifndef __MPQAPI_H__
 #define __MPQAPI_H__
 
-#include <stdint.h>
-
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus

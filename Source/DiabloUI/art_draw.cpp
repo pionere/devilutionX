@@ -1,4 +1,4 @@
-#include "DiabloUI/art_draw.h"
+#include "art_draw.h"
 
 #include "DiabloUI/diabloui.h"
 #include "utils/display.h"

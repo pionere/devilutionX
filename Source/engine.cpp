@@ -729,9 +729,8 @@ BYTE *DiabloAllocPtr(size_t dwBytes)
 	sgMemCrit.Leave();
 
 	if (buf == NULL) {
-		const char *text = "System memory exhausted.\n"
-		             "Make sure you have at least 64MB of free system memory before running the game";
-		ERR_DLG("Out of Memory Error", text);
+		app_fatal("System memory exhausted.\n"
+		             "Make sure you have at least 64MB of free system memory before running the game");
 	}
 
 	return buf;
