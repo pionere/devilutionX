@@ -97,7 +97,7 @@ static void CopyInt64(const void *src, void *dst)
 	unsigned long long buf;
 	memcpy(&buf, src, 8);
 	tbuff += 8;
-	buf = SDL_SwapLE64(buf);
+	buf = SwapLE64(buf);
 	memcpy(dst, &buf, 8);
 }
 
@@ -473,7 +473,10 @@ static void LoadMonster(int mnum)
 	tbuff += 1; // Alignment
 	CopyShort(tbuff, &mon->mExp);
 
-	tbuff += 1; // Skip mHit as it's already initialized
+	if (mnum < MAX_MINIONS)
+		CopyChar(tbuff, &mon->mHit);
+	else
+		tbuff += 1; // Skip mHit as it's already initialized
 	CopyChar(tbuff, &mon->mMinDamage);
 	CopyChar(tbuff, &mon->mMaxDamage);
 	tbuff += 1; // Skip mHit2 as it's already initialized

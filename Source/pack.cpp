@@ -68,7 +68,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pMaxHPBase = SwapLE32(p->_pMaxHPBase);
 	pPack->pManaBase = SwapLE32(p->_pManaBase);
 	pPack->pMaxManaBase = SwapLE32(p->_pMaxManaBase);
-	pPack->pMemSpells = SDL_SwapLE64(p->_pMemSpells);
+	pPack->pMemSpells = SwapLE64(p->_pMemSpells);
 
 	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
 		pPack->pSplLvl[i] = p->_pSplLvl[i];
@@ -223,7 +223,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum, BOOL killok)
 
 	p->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
 	p->_pManaBase = SwapLE32(pPack->pManaBase);
-	p->_pMemSpells = SDL_SwapLE64(pPack->pMemSpells);
+	p->_pMemSpells = SwapLE64(pPack->pMemSpells);
 
 	for (i = 0; i < 37; i++) // Should be NUM_SPELLS but set to 37 to make save games compatible
 		p->_pSplLvl[i] = pPack->pSplLvl[i];

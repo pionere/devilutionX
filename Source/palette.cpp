@@ -4,7 +4,7 @@
  * Implementation of functions for handling the engines color palette.
  */
 #include "all.h"
-#include "display.h"
+#include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

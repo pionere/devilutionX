@@ -9,10 +9,10 @@
 #define DEVILUTION_BEGIN_NAMESPACE namespace dvl {
 #define DEVILUTION_END_NAMESPACE }
 
-#include "miniwin.h"
-#include "soundsample.h"
-#include "thread.h"
-#include "ui_fwd.h"
+#include "miniwin/miniwin.h"
+#include "utils/soundsample.h"
+#include "utils/thread.h"
+#include "utils/ui_fwd.h"
 
 #include <limits.h>
 #include "defs.h"

@@ -147,7 +147,7 @@ BOOL msg_wait_resync()
 	sgbRecvCmd = CMD_DLEVEL_END;
 	gbBufferMsgs = 1;
 	sgdwOwnerWait = SDL_GetTicks();
-	success = UiProgressDialog("Waiting for game data...", 1, msg_wait_for_turns, 20);
+	success = UiProgressDialog("Waiting for game data...", msg_wait_for_turns, 20);
 	gbBufferMsgs = 0;
 	if (!success) {
 		msg_free_packets();
@@ -974,7 +974,7 @@ void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
 
 void NetSendCmdLoc(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y)
 {
-	ALIGN_BY_1 TCmdLoc cmd;
+	TCmdLoc cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.x = x;
@@ -1032,7 +1032,7 @@ void NetSendCmdLocParam3(BOOL bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, W
 
 void NetSendCmdParam1(BOOL bHiPri, BYTE bCmd, WORD wParam1)
 {
-	ALIGN_BY_1 TCmdParam1 cmd;
+	TCmdParam1 cmd;
 
 	cmd.bCmd = bCmd;
 	cmd.wParam1 = wParam1;

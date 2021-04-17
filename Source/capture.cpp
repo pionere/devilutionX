@@ -6,8 +6,8 @@
 #include <fstream>
 
 #include "all.h"
-#include "paths.h"
-#include "file_util.h"
+#include "utils/paths.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -27,12 +27,12 @@ static bool CaptureHdr(short width, short height, std::ofstream *out)
 	Buffer.Version = 5;
 	Buffer.Encoding = 1;
 	Buffer.BitsPerPixel = 8;
-	Buffer.Xmax = SDL_SwapLE16(width - 1);
-	Buffer.Ymax = SDL_SwapLE16(height - 1);
-	Buffer.HDpi = SDL_SwapLE16(width);
-	Buffer.VDpi = SDL_SwapLE16(height);
+	Buffer.Xmax = SwapLE16(width - 1);
+	Buffer.Ymax = SwapLE16(height - 1);
+	Buffer.HDpi = SwapLE16(width);
+	Buffer.VDpi = SwapLE16(height);
 	Buffer.NPlanes = 1;
-	Buffer.BytesPerLine = SDL_SwapLE16(width);
+	Buffer.BytesPerLine = SwapLE16(width);
 
 	out->write(reinterpret_cast<const char *>(&Buffer), sizeof(Buffer));
 	return !out->fail();

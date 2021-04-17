@@ -199,7 +199,7 @@ void RenderTile(BYTE *pBuff)
 	dst = pBuff;
 	pFrameTable = (DWORD *)pDungeonCels;
 
-	src = &pDungeonCels[SDL_SwapLE32(pFrameTable[level_cel_block & 0xFFF])];
+	src = &pDungeonCels[SwapLE32(pFrameTable[level_cel_block & 0xFFF])];
 	tile = (level_cel_block & 0x7000) >> 12;
 	tbl = &pLightTbl[256 * light_table_index];
 

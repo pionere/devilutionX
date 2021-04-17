@@ -6,7 +6,7 @@
 #include <string>
 
 #include "all.h"
-#include "paths.h"
+#include "utils/paths.h"
 #include <SDL.h>
 #include <config.h>
 #include <string>

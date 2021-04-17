@@ -12,7 +12,7 @@
 #include <type_traits>
 
 #include "all.h"
-#include "../SourceS/file_util.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -336,15 +336,15 @@ private:
 		_FILEHEADER fhdr;
 
 		memset(&fhdr, 0, sizeof(fhdr));
-		fhdr.signature = SDL_SwapLE32('\x1AQPM');
-		fhdr.headersize = SDL_SwapLE32(32);
-		fhdr.filesize = SDL_SwapLE32(static_cast<uint32_t>(size));
-		fhdr.version = SDL_SwapLE16(0);
-		fhdr.sectorsizeid = SDL_SwapLE16(3);
-		fhdr.hashoffset = SDL_SwapLE32(static_cast<uint32_t>(HashOffset()));
-		fhdr.blockoffset = SDL_SwapLE32(static_cast<uint32_t>(MPQ_BLOCK_OFFSET));
-		fhdr.hashcount = SDL_SwapLE32(hashCount);
-		fhdr.blockcount = SDL_SwapLE32(blockCount);
+		fhdr.signature = SwapLE32('\x1AQPM');
+		fhdr.headersize = SwapLE32(32);
+		fhdr.filesize = SwapLE32(static_cast<uint32_t>(size));
+		fhdr.version = SwapLE16(0);
+		fhdr.sectorsizeid = SwapLE16(3);
+		fhdr.hashoffset = SwapLE32(static_cast<uint32_t>(HashOffset()));
+		fhdr.blockoffset = SwapLE32(static_cast<uint32_t>(MPQ_BLOCK_OFFSET));
+		fhdr.hashcount = SwapLE32(hashCount);
+		fhdr.blockcount = SwapLE32(blockCount);
 
 		return stream.write(reinterpret_cast<const char *>(&fhdr), sizeof(fhdr));
 	}
@@ -372,15 +372,15 @@ Archive cur_archive;
 
 static void ByteSwapHdr(_FILEHEADER *hdr)
 {
-	hdr->signature = SDL_SwapLE32(hdr->signature);
-	hdr->headersize = SDL_SwapLE32(hdr->headersize);
-	hdr->filesize = SDL_SwapLE32(hdr->filesize);
-	hdr->version = SDL_SwapLE16(hdr->version);
-	hdr->sectorsizeid = SDL_SwapLE16(hdr->sectorsizeid);
-	hdr->hashoffset = SDL_SwapLE32(hdr->hashoffset);
-	hdr->blockoffset = SDL_SwapLE32(hdr->blockoffset);
-	hdr->hashcount = SDL_SwapLE32(hdr->hashcount);
-	hdr->blockcount = SDL_SwapLE32(hdr->blockcount);
+	hdr->signature = SwapLE32(hdr->signature);
+	hdr->headersize = SwapLE32(hdr->headersize);
+	hdr->filesize = SwapLE32(hdr->filesize);
+	hdr->version = SwapLE16(hdr->version);
+	hdr->sectorsizeid = SwapLE16(hdr->sectorsizeid);
+	hdr->hashoffset = SwapLE32(hdr->hashoffset);
+	hdr->blockoffset = SwapLE32(hdr->blockoffset);
+	hdr->hashcount = SwapLE32(hdr->hashcount);
+	hdr->blockcount = SwapLE32(hdr->blockcount);
 }
 
 static void InitDefaultMpqHeader(Archive *archive, _FILEHEADER *hdr)

@@ -11,12 +11,12 @@
 #include <SDL.h>
 
 #ifdef USE_SDL1
-#include "sdl2_to_1_2_backports.h"
+#include "utils/sdl2_to_1_2_backports.h"
 #else
-#include "sdl2_backports.h"
+#include "utils/sdl2_backports.h"
 #endif
 
-#include "sdl_compat.h"
+#include "utils/sdl_compat.h"
 
 #include "../types.h"
 
@@ -89,6 +89,6 @@
 #include "trigs.h"
 #include "render.h" // linked last, likely .s/.asm
 
-#include "../3rdParty/Storm/Source/storm.h"
+#include "storm/storm.h"
 
 #endif /* __ALL_H__ */

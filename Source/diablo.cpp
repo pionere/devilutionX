@@ -4,7 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
-#include "paths.h"
+#include "utils/paths.h"
 #include "diabloui.h"
 #include <config.h>
 #include "plrctrls.h"

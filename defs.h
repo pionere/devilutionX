@@ -347,6 +347,7 @@
 #define ALIGN_BY_1
 #endif
 
+#define SwapLE64 SDL_SwapLE64
 #define SwapLE32 SDL_SwapLE32
 #define SwapLE16 SDL_SwapLE16
 
