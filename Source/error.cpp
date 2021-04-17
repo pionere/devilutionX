@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 char msgtable[NUM_EMSGS];
 DWORD msgdelay;
 BYTE currmsg;
-char msgcnt;
+BYTE msgcnt;
 
 /** Maps from error_id to error message. */
 const char *const MsgStrings[NUM_EMSGS] = {
@@ -87,7 +87,7 @@ const char *const MsgStrings[NUM_EMSGS] = {
 
 void InitDiabloMsg(BYTE e)
 {
-	int i;
+	unsigned i;
 
 	for (i = 0; i < msgcnt; i++) {
 		if (msgtable[i] == e)
@@ -113,6 +113,9 @@ void DrawDiabloMsg()
 {
 	int i, len, width, sx, sy;
 	BYTE c;
+
+	//assert(currmsg != EMSG_NONE);
+	//assert(msgcnt > 0);
 
 	CelDraw(PANEL_X + 101, DIALOG_Y, pSTextSlidCels, 1, 12);
 	CelDraw(PANEL_X + 527, DIALOG_Y, pSTextSlidCels, 4, 12);

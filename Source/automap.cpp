@@ -363,7 +363,7 @@ static void DrawAutomapTile(int sx, int sy, WORD automap_type)
 	}
 }
 
-static void DrawAutomapItem(int x, int y, BYTE color)
+/*static void DrawAutomapItem(int x, int y, BYTE color)
 {
 	int x1, y1, x2, y2;
 
@@ -377,7 +377,7 @@ static void DrawAutomapItem(int x, int y, BYTE color)
 	DrawLine(x, y2, x2, y, color);
 }
 
-/*static void SearchAutomapItem()
+static void SearchAutomapItem()
 {
 	PlayerStruct *p;
 	int x, y;

@@ -1334,7 +1334,7 @@ static void GetSuperItemSpace(int x, int y, int ii)
 	}
 }
 
-static void GetSuperItemLoc(int x, int y, int ii)
+/*static void GetSuperItemLoc(int x, int y, int ii)
 {
 	int xx, yy;
 	int i, j, k;
@@ -1351,7 +1351,7 @@ static void GetSuperItemLoc(int x, int y, int ii)
 			}
 		}
 	}
-}
+}*/
 
 static void CalcItemValue(int ii)
 {

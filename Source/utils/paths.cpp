@@ -35,7 +35,7 @@ static std::string *FromSDL(char *s)
 	return result;
 }
 
-const const char* GetBasePath()
+const char* GetBasePath()
 {
 #ifdef __vita__
 	if (basePath == NULL)
