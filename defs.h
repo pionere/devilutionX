@@ -3,11 +3,6 @@
  *
  * Global definitions and Macros.
  */
-#define HELLFIRE 1
-#define MPQONE "hellone.mpq"
-#define _DEVMODE 1
-//#define MPQONE "diablone.mpq"
-
 #ifdef USE_SDL1
 // SDL1 controllers
 #ifndef HAS_JOYSTICK
