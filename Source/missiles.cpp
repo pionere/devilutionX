@@ -607,10 +607,6 @@ static bool MonsterTrapHit(int mnum, int mi)
 	mon = &monster[mnum];
 	mis = &missile[mi];
 	hper = 90 - mon->mArmorClass - mis->_miDist;
-	if (hper < 5)
-		hper = 5;
-	if (hper > 95)
-		hper = 95;
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -670,10 +666,6 @@ static bool MonsterMHit(int mnum, int mi)
 			- (mon->mLevel << 1)
 			/*- dist*/; // TODO: either don't care about it, or set it!
 	}
-	if (hper < 5)
-		hper = 5;
-	if (hper > 95)
-		hper = 95;
 	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -940,10 +932,6 @@ static bool Plr2PlrMHit(int defp, int mi)
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
 	}
-	if (hper < 5)
-		hper = 5;
-	if (hper > 95)
-		hper = 95;
 	if (random_(69, 100) >= hper)
 		return false;
 

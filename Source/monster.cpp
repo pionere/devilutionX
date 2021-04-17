@@ -2047,8 +2047,6 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		+ (2 * mon->mLevel)
 		- (2 * p->_pLevel)
 		- p->_pIAC;
-	if (hper < tmp)
-		hper = tmp;
 	if (random_(98, 100) >= hper)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)

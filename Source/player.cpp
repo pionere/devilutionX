@@ -2261,11 +2261,6 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (sn == SPL_SWIPE) {
 		hper -= 30 - sl * 2;
 	}
-
-	if (hper < 5)
-		hper = 5;
-	if (hper > 95)
-		hper = 95;
 	if (random_(4, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
