@@ -243,21 +243,23 @@ static void DrawButcher()
 {
 	int x, y;
 
+	assert(setpc_w == 6);
+	assert(setpc_h == 6);
 	x = 2 * setpc_x + DBORDERX;
 	y = 2 * setpc_y + DBORDERY;
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
-static void DrawSkelKing(int x, int y)
+static void DrawSkelKing()
 {
-	quests[Q_SKELKING]._qtx = 2 * x + DBORDERX + 12;
-	quests[Q_SKELKING]._qty = 2 * y + DBORDERY + 7;
+	quests[Q_SKELKING]._qtx = 2 * setpc_x + DBORDERX + 12;
+	quests[Q_SKELKING]._qty = 2 * setpc_y + DBORDERY + 7;
 }
 
-static void DrawMap(const char* name, int x, int y, int bv)
+static void DrawMap(const char* name, int bv)
 {
 	int rw, rh;
-	int i, j;
+	int x, y, i, j;
 	BYTE *sp, *setp;
 	int v;
 
@@ -266,10 +268,10 @@ static void DrawMap(const char* name, int x, int y, int bv)
 	sp = setp + 2;
 	rh = *sp;
 	sp += 2;
-	setpc_w = rw;
-	setpc_h = rh;
-	setpc_x = x;
-	setpc_y = y;
+	assert(setpc_w == rw);
+	assert(setpc_h == rh);
+	x = setpc_x;
+	y = setpc_y;
 	rw += x;
 	rh += y;
 	for (j = y; j < rh; j++) {
@@ -286,23 +288,23 @@ static void DrawMap(const char* name, int x, int y, int bv)
 	mem_free_dbg(setp);
 }
 
-static void DrawWarLord(int x, int y)
+static void DrawWarLord()
 {
-	DrawMap("Levels\\L4Data\\Warlord2.DUN", x, y, 6);
+	DrawMap("Levels\\L4Data\\Warlord2.DUN", 6);
 }
 
-static void DrawSChamber(int x, int y)
+static void DrawSChamber()
 {
-	quests[Q_SCHAMB]._qtx = 2 * x + DBORDERX + 6;
-	quests[Q_SCHAMB]._qty = 2 * y + DBORDERY + 7;
+	quests[Q_SCHAMB]._qtx = 2 * setpc_x + DBORDERX + 6;
+	quests[Q_SCHAMB]._qty = 2 * setpc_y + DBORDERY + 7;
 
-	DrawMap("Levels\\L2Data\\Bonestr1.DUN", x, y, 3);
+	DrawMap("Levels\\L2Data\\Bonestr1.DUN", 3);
 }
 
-static void DrawPreMap(const char* name, int x, int y)
+static void DrawPreMap(const char* name)
 {
 	int rw, rh;
-	int i, j;
+	int x, y, i, j;
 	BYTE *sp, *setp;
 
 	setp = LoadFileInMem(name, NULL);
@@ -310,10 +312,10 @@ static void DrawPreMap(const char* name, int x, int y)
 	sp = setp + 2;
 	rh = *sp;
 	sp += 2;
-	setpc_w = rw;
-	setpc_h = rh;
-	setpc_x = x;
-	setpc_y = y;
+	assert(setpc_w == rw);
+	assert(setpc_h == rh);
+	x = setpc_x;
+	y = setpc_y;
 	rw += x;
 	rh += y;
 	for (j = y; j < rh; j++) {
@@ -327,29 +329,29 @@ static void DrawPreMap(const char* name, int x, int y)
 	mem_free_dbg(setp);
 }
 
-static void DrawLTBanner(int x, int y)
+static void DrawLTBanner()
 {
-	DrawPreMap("Levels\\L1Data\\Banner1.DUN", x, y);
+	DrawPreMap("Levels\\L1Data\\Banner1.DUN");
 }
 
-static void DrawBlind(int x, int y)
+static void DrawBlind()
 {
-	DrawMap("Levels\\L2Data\\Blind2.DUN", x, y, 3);
+	DrawMap("Levels\\L2Data\\Blind2.DUN", 3);
 }
 
-static void DrawBlood(int x, int y)
+static void DrawBlood()
 {
-	DrawMap("Levels\\L2Data\\Blood2.DUN", x, y, 3);
+	DrawMap("Levels\\L2Data\\Blood2.DUN", 3);
 }
 
 #ifdef HELLFIRE
-static void DrawNakrul(int x, int y)
+static void DrawNakrul()
 {
-	DrawPreMap("NLevels\\L5Data\\Nakrul2.DUN", x, y);
+	DrawPreMap("NLevels\\L5Data\\Nakrul2.DUN");
 }
 #endif
 
-void DRLG_CheckQuests(int x, int y)
+void DRLG_CheckQuests()
 {
 	int i;
 
@@ -360,26 +362,26 @@ void DRLG_CheckQuests(int x, int y)
 				DrawButcher();
 				break;
 			case Q_LTBANNER:
-				DrawLTBanner(x, y);
+				DrawLTBanner();
 				break;
 			case Q_BLIND:
-				DrawBlind(x, y);
+				DrawBlind();
 				break;
 			case Q_BLOOD:
-				DrawBlood(x, y);
+				DrawBlood();
 				break;
 			case Q_WARLORD:
-				DrawWarLord(x, y);
+				DrawWarLord();
 				break;
 			case Q_SKELKING:
-				DrawSkelKing(x, y);
+				DrawSkelKing();
 				break;
 			case Q_SCHAMB:
-				DrawSChamber(x, y);
+				DrawSChamber();
 				break;
 #ifdef HELLFIRE
 			case Q_NAKRUL:
-				DrawNakrul(x, y);
+				DrawNakrul();
 				break;
 #endif
 			}

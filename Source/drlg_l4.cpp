@@ -1484,7 +1484,7 @@ static void DRLG_L4(int entry)
 
 	DRLG_Init_Globals();
 
-	DRLG_CheckQuests(setpc_x, setpc_y);
+	DRLG_CheckQuests();
 
 	if (currLvl._dLevelIdx == DLV_HELL3) {
 		for (j = 0; j < DMAXY; j++) {

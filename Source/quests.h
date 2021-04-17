@@ -23,7 +23,7 @@ void CheckQuests();
 int ForceQuests();
 bool QuestStatus(int qn);
 void CheckQuestKill(int mnum, bool sendmsg);
-void DRLG_CheckQuests(int x, int y);
+void DRLG_CheckQuests();
 void SetReturnLvlPos();
 void GetReturnLvlPos();
 void LoadPWaterPalette();

@@ -2956,7 +2956,7 @@ static void DRLG_L2(int entry)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
-	DRLG_CheckQuests(setpc_x, setpc_y);
+	DRLG_CheckQuests();
 }
 
 static void DRLG_InitL2Vals()

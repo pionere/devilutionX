@@ -2244,7 +2244,7 @@ static void DRLG_L1(int entry)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_Init_Globals();
-	DRLG_CheckQuests(setpc_x, setpc_y);
+	DRLG_CheckQuests();
 }
 
 void CreateL1Dungeon(int entry)
