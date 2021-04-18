@@ -1672,12 +1672,11 @@ void GetItemAttrs(int ii, int idata, int lvl)
 #endif
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
-		if (gnDifficulty == DIFF_NORMAL)
-			rndv = 5 * lvl + random_(21, 10 * lvl);
-		else if (gnDifficulty == DIFF_NIGHTMARE)
-			rndv = 5 * (lvl + 16) + random_(21, 10 * (lvl + 16));
+		if (gnDifficulty == DIFF_NIGHTMARE)
+			lvl += 16;
 		else if (gnDifficulty == DIFF_HELL)
-			rndv = 5 * (lvl + 32) + random_(21, 10 * (lvl + 32));
+			lvl += 32;
+		rndv = 5 * lvl + random_(21, 10 * lvl);
 		if (leveltype == DTYPE_HELL)
 			rndv += rndv >> 3;
 		if (rndv > GOLD_MAX_LIMIT)
@@ -2548,6 +2547,7 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 		// no drop
 		return;
 
+	onlygood = FALSE;
 	if (mon->_uniqtype != 0) {
 		idx = RndUItem(mon->mLevel);
 		onlygood = TRUE;
@@ -2555,7 +2555,6 @@ void SpawnItem(int mnum, int x, int y, BOOL sendmsg)
 		idx = RndItem(mon->mLevel);
 		if (idx < 0)
 			return;
-		onlygood = FALSE;
 	} else {
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;

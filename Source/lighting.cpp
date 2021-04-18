@@ -1205,7 +1205,7 @@ void InitVision()
 int AddVision(int x, int y, int r, BOOL mine)
 {
 	LightListStruct *vis;
-	int vnum; // BUGFIX: if numvision >= MAXVISION behavior is undefined
+	int vnum = -1; // BUGFIX: if numvision >= MAXVISION behavior is undefined (fixed)
 
 	if (numvision < MAXVISION) {
 		vis = &VisionList[numvision];

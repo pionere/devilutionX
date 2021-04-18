@@ -233,10 +233,10 @@ static void gamemenu_get_speed()
 	gmenu_slider_set(&sgOptionsMenu[3], 20, 50, ticks_per_sec);
 }
 
-static void gamemenu_get_color_cycling()
+/*static void gamemenu_get_color_cycling()
 {
 	sgOptionsMenu[3].pszStr = color_cycling_toggle_names[palette_get_color_cycling() & 1];
-}
+}*/
 
 static int gamemenu_slider_gamma()
 {

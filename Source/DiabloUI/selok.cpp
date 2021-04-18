@@ -71,7 +71,7 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 	vecSelOkDialogItems.push_back(new UiListItem("OK", 0));
 	vecSelOkDialog.push_back(new UiList(vecSelOkDialogItems, PANEL_LEFT + 230, (UI_OFFSET_Y + 390), 180, 35, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	snprintf(dialogText, sizeof(dialogText), body);
+	SStrCopy(dialogText, body, sizeof(dialogText));
 	WordWrapArtStr(dialogText, MESSAGE_WIDTH);
 
 	UiInitList(vecSelOkDialog, 0, NULL, selok_Select, selok_Esc);

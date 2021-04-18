@@ -137,7 +137,6 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char *f
 
 void init_archives()
 {
-	HANDLE fh = NULL;
 	memset(&fileinfo, 0, sizeof(fileinfo));
 	fileinfo.size = sizeof(fileinfo);
 	fileinfo.versionstring = gszVersionNumber;

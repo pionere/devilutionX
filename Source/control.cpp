@@ -369,7 +369,7 @@ static void DrawSpellIconOverlay(int sn, int st, int lvl, int x, int y)
 void DrawSpell()
 {
 	char st;
-	int spl, lvl;
+	int spl, lvl = 0;
 
 	spl = plr[myplr]._pRSpell;
 	st = plr[myplr]._pRSplType;
@@ -1618,6 +1618,7 @@ static void DrawTrigInfo()
 				xx = Q_PWATER;
 				break;
 			default:
+				xx = Q_INVALID;
 				app_fatal("Unrecognized setlevel %d to return.", setlvlnum);
 			}
 			snprintf(infostr, sizeof(infostr), "Back to Level %i", quests[xx]._qlevel);

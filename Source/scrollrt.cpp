@@ -417,7 +417,7 @@ static void DrawPlayer(int pnum, int x, int y, int px, int py, BYTE *pCelBuff, i
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
 				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);
-		} else if (!(dFlags[x][y] & BFLAG_LIT) || plr[myplr]._pInfraFlag && light_table_index > 8) {
+		} else if (!(dFlags[x][y] & BFLAG_LIT) || (plr[myplr]._pInfraFlag && light_table_index > 8)) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
 			if (plr[pnum].pManaShield != 0)
 				Cl2DrawLightTbl(

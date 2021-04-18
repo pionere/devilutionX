@@ -82,7 +82,7 @@ const int PWVel[NUM_CLASSES][3] = {
 #endif
 };
 /** Total number of frames in walk animation. */
-const int AnimLenFromClass[NUM_CLASSES] = {
+/*const int AnimLenFromClass[NUM_CLASSES] = {
 	8,
 	8,
 	8,
@@ -91,7 +91,7 @@ const int AnimLenFromClass[NUM_CLASSES] = {
 	8,
 	8,
 #endif
-};
+};*/
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
 	30,
@@ -658,7 +658,7 @@ void SetPlrAnims(int pnum)
 /**
  * @param c plr_classes value
  */
-void CreatePlayer(int pnum, char c)
+void CreatePlayer(int pnum, BYTE c)
 {
 	PlayerStruct *p;
 	int val, hp, mana;

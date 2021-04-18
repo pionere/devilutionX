@@ -1251,7 +1251,7 @@ static void L4firstRoom()
 		l4holdx = x;
 		l4holdy = y;
 	}
-	if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+	if (QuestStatus(Q_WARLORD) || (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1)) {
 		SP4x1 = x + 1;
 		SP4y1 = y + 1;
 		SP4x2 = SP4x1 + w;
@@ -1620,7 +1620,7 @@ static void DRLG_L4(int entry)
 		if (currlevel == 16) {
 			L4SaveQuads();
 		}
-		if (QuestStatus(Q_WARLORD) || currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1) {
+		if (QuestStatus(Q_WARLORD) || (currlevel == quests[Q_BETRAYER]._qlevel && gbMaxPlayers != 1)) {
 			for (i = SP4x1; i < SP4x2; i++) {
 				for (j = SP4y1; j < SP4y2; j++) {
 					dflags[i][j] = 1;

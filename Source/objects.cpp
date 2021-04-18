@@ -4042,7 +4042,7 @@ static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
 {
 	ObjectStruct *os;
 	int itype;
-	BOOL uniqueRnd, onlygood;
+	BOOL onlygood;
 
 	os = &object[oi];
 	if (os->_oSelFlag != 0) {
@@ -4050,24 +4050,18 @@ static void OperateArmorStand(int pnum, int oi, BOOLEAN sendmsg)
 		os->_oAnimFrame++;
 		if (!deltaload) {
 			SetRndSeed(os->_oRndSeed);
-			uniqueRnd = random_(0, 2);
+			onlygood = random_(0, 2);
+			itype = ITYPE_HARMOR;
 			if (currlevel <= 5) {
 				itype = ITYPE_LARMOR;
 				onlygood = TRUE;
 			} else if (currlevel <= 9) {
 				itype = ITYPE_MARMOR;
-				onlygood = uniqueRnd;
+				// onlygood = uniqueRnd;
 			} else if (currlevel <= 12) {
-				itype = ITYPE_HARMOR;
 				onlygood = FALSE;
-			} else if (currlevel <= 16) {
-				itype = ITYPE_HARMOR;
-				onlygood = TRUE;
-#ifdef HELLFIRE
 			} else {
-				itype = ITYPE_HARMOR;
 				onlygood = TRUE;
-#endif
 			}
 			CreateTypeItem(os->_ox, os->_oy, onlygood, itype, IMISC_NONE, sendmsg, FALSE);
 			if (pnum == myplr)

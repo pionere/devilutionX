@@ -100,7 +100,7 @@ DWORD codec_get_encoded_len(DWORD dwSrcBytes)
 	return dwSrcBytes + sizeof(CodecSignature);
 }
 
-void codec_encode(BYTE *pbSrcDst, DWORD size, int size_64, const char *pszPassword)
+void codec_encode(BYTE *pbSrcDst, DWORD size, DWORD encodedSize, const char *pszPassword)
 {
 	char buf[SHA1BlockSize];
 	char tmp[SHA1HashSize];
@@ -108,7 +108,7 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, int size_64, const char *pszPasswo
 	DWORD chunk;
 	CodecSignature *sig;
 
-	if (size_64 != codec_get_encoded_len(size))
+	if (encodedSize != codec_get_encoded_len(size))
 		app_fatal("Invalid encode parameters");
 	codec_init_key(pszPassword);
 

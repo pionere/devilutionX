@@ -1117,7 +1117,7 @@ static void S_StartTalk()
 #endif
 	sn = 0;
 	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog)
+		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != TEXT_NONE && quests[i]._qlog)
 			sn++;
 	}
 
@@ -1132,7 +1132,7 @@ static void S_StartTalk()
 	sn2 = sn - 2;
 
 	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog) {
+		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != TEXT_NONE && quests[i]._qlog) {
 			AddSText(0, sn, TRUE, questlist[i]._qlstr, COL_WHITE, TRUE);
 			sn += la;
 		}
@@ -1954,7 +1954,7 @@ static void S_BoyEnter()
 			TakePlrsMoney(50);
 			StartStore(STORE_BBOY);
 		}
-	} else if (stextsel == 8 && boyitem._itype != ITYPE_NONE || stextsel == 12 && boyitem._itype == ITYPE_NONE) {
+	} else if ((stextsel == 8 && boyitem._itype != ITYPE_NONE) || (stextsel == 12 && boyitem._itype == ITYPE_NONE)) {
 		talker = TOWN_PEGBOY;
 		stextshold = STORE_BOY;
 		stextlhold = stextsel;
@@ -2196,7 +2196,7 @@ static void S_TalkEnter()
 
 	sn = 0;
 	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog)
+		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != TEXT_NONE && quests[i]._qlog)
 			sn++;
 	}
 	if (sn > 6) {
@@ -2215,7 +2215,7 @@ static void S_TalkEnter()
 	}
 
 	for (i = 0; i < MAXQUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != -1 && quests[i]._qlog) {
+		if (quests[i]._qactive == QUEST_ACTIVE && ((DWORD *)&Qtalklist[talker])[i] != TEXT_NONE && quests[i]._qlog) {
 			if (sn == stextsel) {
 				InitQTextMsg(((DWORD *)&Qtalklist[talker])[i]);
 			}

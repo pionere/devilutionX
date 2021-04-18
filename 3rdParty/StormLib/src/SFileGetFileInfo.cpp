@@ -188,7 +188,7 @@ static bool GetInfo_PatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInf
 //  cbFileInfo - Size of the buffer pointed by pvFileInfo
 //  pcbLengthNeeded - Receives number of bytes necessary to store the information
 
-bool WINAPI SFileGetFileInfo(
+/*bool WINAPI SFileGetFileInfo(
     HANDLE hMpqOrFile,
     SFileInfoClass InfoClass,
     void * pvFileInfo,
@@ -449,7 +449,7 @@ bool WINAPI SFileGetFileInfo(
 
     // Invalid info class
     return GetInfo_ReturnError(ERROR_INVALID_PARAMETER);
-}
+}*/
 
 #ifdef FULL
 bool WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass)

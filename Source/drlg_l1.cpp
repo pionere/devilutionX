@@ -2568,7 +2568,7 @@ static void DRLG_L1CornerFix()
 		}
 	}
 }
-
+#ifdef HELLFIRE
 struct mini_set {
 	const BYTE* data;
 	BOOL setview;
@@ -2585,7 +2585,7 @@ static BOOL DRLG_PlaceMiniSets(mini_set* minisets, int n)
 	}
 	return result;
 }
-
+#endif
 static void DRLG_L1(int entry)
 {
 	int i, j;

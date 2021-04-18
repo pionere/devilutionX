@@ -634,7 +634,7 @@ static void ActionBtnCmd(BOOL bShift)
 			NetSendCmdLoc(TRUE, CMD_WALKXY, cursmx, cursmy);
 	} else {
 		bNear = abs(plr[myplr]._px - cursmx) < 2 && abs(plr[myplr]._py - cursmy) < 2;
-		if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
+		if (pcursobj != -1 && (!bShift || (bNear && object[pcursobj]._oBreak == 1))) {
 			NetSendCmdLocParam1(TRUE, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
 		}
