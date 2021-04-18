@@ -1727,7 +1727,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	NetSendCmdDwParam2(FALSE, CMD_MONSTDAMAGE, defm, dam);
 	PlayEffect(defm, 1);
 
-	if (dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV || dam >> 6 >= dmon->mLevel + 3) {
+	if ((dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV) || (dam >> 6) >= dmon->mLevel + 3) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
 		} else if ((dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV)
