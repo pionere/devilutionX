@@ -5,15 +5,15 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool selyesno_endMenu;
-bool selyesno_value;
+static bool _gbYNEndMenu;
+static bool _gbYNValue;
 
-std::vector<UiListItem *> vecSelYesNoDialogItems;
-std::vector<UiItemBase *> vecSelYesNoDialog;
+static std::vector<UiListItem *> vecSelYesNoDialogItems;
+static std::vector<UiItemBase *> vecSelYesNoDialog;
 
 #define MESSAGE_WIDTH 280
 
-void selyesno_Free()
+static void selyesno_Free()
 {
 	ArtBackground.Unload();
 
@@ -31,16 +31,16 @@ void selyesno_Free()
 	vecSelYesNoDialog.clear();
 }
 
-void selyesno_Select(unsigned index)
+static void selyesno_Select(unsigned index)
 {
-	selyesno_value = vecSelYesNoDialogItems[index]->m_value == 0;
-	selyesno_endMenu = true;
+	_gbYNValue = vecSelYesNoDialogItems[index]->m_value == 0;
+	_gbYNEndMenu = true;
 }
 
-void selyesno_Esc()
+static void selyesno_Esc()
 {
-	selyesno_value = false;
-	selyesno_endMenu = true;
+	_gbYNValue = false;
+	_gbYNEndMenu = true;
 }
 
 bool UiSelHeroYesNoDialog(const char *title, const char *body)
@@ -66,9 +66,9 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 
 	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, NULL, true);
 
-	// selyesno_value = true;
-	selyesno_endMenu = false;
-	while (!selyesno_endMenu) {
+	// _gbYNValue = true;
+	_gbYNEndMenu = false;
+	while (!_gbYNEndMenu) {
 		UiClearScreen();
 		UiRenderItems(vecSelYesNoDialog);
 		UiPollAndRender();
@@ -76,6 +76,6 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 
 	selyesno_Free();
 
-	return selyesno_value;
+	return _gbYNValue;
 }
 DEVILUTION_END_NAMESPACE

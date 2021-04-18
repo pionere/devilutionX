@@ -3,9 +3,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-std::vector<UiItemBase *> vecTitleScreen;
+static std::vector<UiItemBase *> vecTitleScreen;
 
-void title_Load()
+static void title_Load()
 {
 #ifdef HELLFIRE
 	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
@@ -18,7 +18,7 @@ void title_Load()
 #endif
 }
 
-void title_Free()
+static void title_Free()
 {
 	ArtBackground.Unload();
 #ifdef WIDESCREEN
