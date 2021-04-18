@@ -357,8 +357,7 @@ void DrawInv()
 		if (is->_iLoc == ILOC_TWOHAND) {
 #ifdef HELLFIRE
 			if (p->_pClass != PC_BARBARIAN
-			    || is->_itype != ITYPE_SWORD
-			        && is->_itype != ITYPE_MACE)
+			    || (is->_itype != ITYPE_SWORD && is->_itype != ITYPE_MACE))
 #endif
 			{
 				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;

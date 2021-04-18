@@ -2709,7 +2709,7 @@ static void OperateLever(int oi, bool sendmsg)
 		}
 #ifdef HELLFIRE
 	} else if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
-		if (quests[Q_NAKRUL]._qactive = QUEST_DONE)
+		if (quests[Q_NAKRUL]._qactive == QUEST_DONE)
 			return;
 		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
