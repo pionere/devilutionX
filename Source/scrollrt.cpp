@@ -195,28 +195,30 @@ static void scrollrt_draw_cursor_item()
 	}
 
 	mx++;
+	mx += SCREEN_X;
 	my++;
+	my += cursH + SCREEN_Y - 1;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y) - cursW - 2];
 
 	frame = pcurs;
 	cCels = pCursCels;
 	if (frame >= CURSOR_FIRSTITEM) {
-		col = PAL16_YELLOW + 5;
+		col = ICOL_YELLOW;
 		if (plr[myplr].HoldItem._iMagical != ITEM_QUALITY_NORMAL) {
-			col = PAL16_BLUE + 5;
+			col = ICOL_BLUE;
 		}
 		if (!plr[myplr].HoldItem._iStatFlag) {
-			col = PAL16_RED + 5;
+			col = ICOL_RED;
 		}
 
-		CelDrawOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
-		if (col != PAL16_RED + 5) {
-			CelClippedDraw(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+		CelDrawOutline(col, mx, my, cCels, frame, cursW);
+		if (col != ICOL_RED) {
+			CelClippedDraw(mx, my, cCels, frame, cursW);
 		} else {
-			CelDrawLightRed(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+			CelDrawLightRed(mx, my, cCels, frame, cursW);
 		}
 	} else {
-		CelClippedDraw(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
+		CelClippedDraw(mx, my, cCels, frame, cursW);
 	}
 }
 
@@ -642,7 +644,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 
 	sx -= is->_iAnimWidth2;
 	if (ii == pcursitem) {
-		CelDrawOutline(PAL16_BLUE + 5, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 	}
 	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 }
