@@ -165,7 +165,7 @@ void PaletteFadeIn()
 	ApplyGamma(logical_palette, orig_palette, 256);
 	DWORD tc = SDL_GetTicks();
 	const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
-	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) << 1) { // instead of << 1 it was *2.083 ... 32 frames @ 60hz
+	for (i = 0; i < 256; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 		SetFadeLevel(i);
 		BltFast(&SrcRect, NULL);
 		RenderPresent();
@@ -182,7 +182,7 @@ void PaletteFadeOut()
 	if (_gbFadedIn) {
 		DWORD tc = SDL_GetTicks();
 		const SDL_Rect SrcRect = { SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT };
-		for (i = 256; i > 0; i = 256 - ((SDL_GetTicks() - tc) >> 1)) { // instead of >> 1 it was /2.083 ... 32 frames @ 60hz
+		for (i = 256; i > 0; i = 256 - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast(&SrcRect, NULL);
 			RenderPresent();
