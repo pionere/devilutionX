@@ -14,7 +14,7 @@ extern "C" {
 
 extern BYTE sgbNetUpdateRate;
 extern DWORD gdwMsgLenTbl[MAX_PLRS];
-extern DWORD gdwDeltaBytesSec;
+extern unsigned gdwDeltaBytesSec;
 extern DWORD gdwTurnsInTransit;
 extern LPDWORD glpMsgTbl[MAX_PLRS];
 extern unsigned gdwLargestMsgSize;

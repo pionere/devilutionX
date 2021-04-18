@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE sgbNetUpdateRate;
 unsigned gdwMsgLenTbl[MAX_PLRS];
 static CCritSect sgMemCrit;
-DWORD gdwDeltaBytesSec;
+unsigned gdwDeltaBytesSec;
 bool _sbNthreadShouldRun;
 DWORD gdwTurnsInTransit;
 LPDWORD glpMsgTbl[MAX_PLRS];

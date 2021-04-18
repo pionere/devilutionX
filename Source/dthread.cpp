@@ -8,18 +8,16 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static CCritSect sgMemCrit;
-SDL_threadID glpDThreadId;
-DMegaPkt *sgpInfoHead;
-bool _gbDthread_running;
-event_emul *sghWorkToDoEvent;
-
-/* rdata */
+static SDL_threadID glpDThreadId;
+static DMegaPkt *sgpInfoHead;
+static bool _gbDthread_running;
+static event_emul *sghWorkToDoEvent;
 static SDL_Thread *sghThread = NULL;
 
 static unsigned int dthread_handler(void *data)
 {
 	DMegaPkt *pkt;
-	DWORD dwMilliseconds;
+	unsigned dwMilliseconds;
 
 	while (_gbDthread_running) {
 		if (sgpInfoHead == NULL && WaitForEvent(sghWorkToDoEvent) == -1) {
@@ -70,7 +68,7 @@ void dthread_send_delta(int pnum, char cmd, void *pbSrc, int dwLen)
 
 	assert(gbMaxPlayers != 1);
 
-	pkt = (DMegaPkt *)DiabloAllocPtr(dwLen + 20);
+	pkt = (DMegaPkt *)DiabloAllocPtr(dwLen + sizeof(DMegaPkt) - sizeof(pkt->data));
 	pkt->dmpNext = NULL;
 	pkt->dmpPlr = pnum;
 	pkt->dmpCmd = cmd;
