@@ -330,11 +330,6 @@ static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
 				cat_cstr(sstr, cursor, ",  ");
 			cat_str(sstr, cursor, "%s", tempstr);
 		}
-		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-			if (cursor != 0) // should not happen, but better safe than sorry
-				cat_cstr(sstr, cursor, ",  ");
-			cat_cstr(sstr, cursor, "Unique Item");
-		}
 	}
 	if (is->_iMiscId == IMISC_STAFF && is->_iMaxCharges != 0) {
 		if (cursor != 0)
@@ -409,8 +404,10 @@ static char StoreItemColor(ItemStruct *is)
 {
 	if (!is->_iStatFlag)
 		return COL_RED;
-	if (is->_iMagical != ITEM_QUALITY_NORMAL)
+	if (is->_iMagical == ITEM_QUALITY_MAGIC)
 		return COL_BLUE;
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
+		return COL_GOLD;
 	return COL_WHITE;
 }
 
