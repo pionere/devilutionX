@@ -514,7 +514,7 @@ static uint32_t mpqapi_find_free_block(uint32_t size, uint32_t *block_size)
 	return result;
 }
 
-static int mpqapi_get_hash_index(int index, int hash_a, int hash_b, int locale)
+static int mpqapi_get_hash_index(unsigned index, unsigned hash_a, unsigned hash_b)
 {
 	DWORD idx, i, hashCount;
 	_HASHENTRY *pHash;
@@ -524,10 +524,10 @@ static int mpqapi_get_hash_index(int index, int hash_a, int hash_b, int locale)
 	for (i = hashCount; i != 0; i--, idx++) {
 		idx &= hashCount - 1;
 		pHash = &cur_archive.sgpHashTbl[idx];
-		if (pHash->block == -1)
+		if (pHash->block == HASH_ENTRY_FREE)
 			break;
 		if (pHash->hashcheck[0] == hash_a && pHash->hashcheck[1] == hash_b
-		    && pHash->lcid == locale && pHash->block != -2)
+		    && pHash->lcid == 0 /*locale*/ && pHash->block != HASH_ENTRY_DELETED)
 			return idx;
 	}
 
@@ -536,7 +536,7 @@ static int mpqapi_get_hash_index(int index, int hash_a, int hash_b, int locale)
 
 static int FetchHandle(const char *pszName)
 {
-	return mpqapi_get_hash_index(HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX), HashStringSlash(pszName, MPQ_HASH_NAME_A), HashStringSlash(pszName, MPQ_HASH_NAME_B), 0);
+	return mpqapi_get_hash_index(HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX), HashStringSlash(pszName, MPQ_HASH_NAME_A), HashStringSlash(pszName, MPQ_HASH_NAME_B));
 }
 
 void mpqapi_remove_hash_entry(const char *pszName)
@@ -549,7 +549,7 @@ void mpqapi_remove_hash_entry(const char *pszName)
 	if (hIdx != -1) {
 		pHash = &cur_archive.sgpHashTbl[hIdx];
 		pBlock = &cur_archive.sgpBlockTbl[pHash->block];
-		pHash->block = -2;
+		pHash->block = HASH_ENTRY_DELETED;
 		block_offset = pBlock->offset;
 		block_size = pBlock->sizealloc;
 		memset(pBlock, 0, sizeof(*pBlock));
@@ -575,14 +575,14 @@ static _BLOCKENTRY *mpqapi_add_file(const char *pszName, _BLOCKENTRY *pBlk, int 
 	h1 = HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX);
 	h2 = HashStringSlash(pszName, MPQ_HASH_NAME_A);
 	h3 = HashStringSlash(pszName, MPQ_HASH_NAME_B);
-	if (mpqapi_get_hash_index(h1, h2, h3, 0) != -1)
+	if (mpqapi_get_hash_index(h1, h2, h3) != -1)
 		app_fatal("Hash collision between \"%s\" and existing file\n", pszName);
 
 	hashCount = cur_archive.hashCount;
 	for (i = hashCount; i != 0; i--, h1++) {
 		h1 &= hashCount - 1;
 		pHash = &cur_archive.sgpHashTbl[h1];
-		if (pHash->block == -1 || pHash->block == -2) {
+		if (pHash->block == HASH_ENTRY_FREE || pHash->block == HASH_ENTRY_DELETED) {
 			if (pBlk == NULL)
 				pBlk = mpqapi_new_block(&block_index);
 
@@ -702,7 +702,7 @@ void mpqapi_rename(char *pszOld, char *pszNew)
 		pHash = &cur_archive.sgpHashTbl[index];
 		block = pHash->block;
 		pBlock = &cur_archive.sgpBlockTbl[block];
-		pHash->block = -2;
+		pHash->block = HASH_ENTRY_DELETED;
 		mpqapi_add_file(pszNew, pBlock, block);
 		cur_archive.modified = true;
 	}

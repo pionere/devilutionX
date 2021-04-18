@@ -146,6 +146,8 @@ bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
 #define MPQ_HASH_NAME_A				0x100
 #define MPQ_HASH_NAME_B				0x200
 #define MPQ_HASH_FILE_KEY			0x300
+#define HASH_ENTRY_DELETED          0xFFFFFFFE  // Block index for deleted entry in the hash table
+#define HASH_ENTRY_FREE             0xFFFFFFFF  // Block index for free entry in the hash table
 #define SFILE_OPEN_FROM_MPQ			0
 #define SFILE_OPEN_LOCAL_FILE		0xFFFFFFFF
 #define SFILE_OPEN_CHECK_EXISTS		0xFFFFFFFC
