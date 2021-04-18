@@ -5,21 +5,54 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-char selconn_MaxPlayers[21];
-char selconn_Description[64];
-char selconn_Gateway[129];
-bool selconn_ReturnValue = false;
-bool selconn_EndMenu = false;
 bool selconn_bMulti = false;
-
 int provider;
 
-std::vector<UiListItem *> vecConnItems;
-std::vector<UiItemBase *> vecSelConnDlg;
+static char selconn_MaxPlayers[21];
+static char selconn_Description[64];
+static char selconn_Gateway[129];
+static bool selconn_ReturnValue = false;
+static bool selconn_EndMenu = false;
+
+static std::vector<UiListItem *> vecConnItems;
+static std::vector<UiItemBase *> vecSelConnDlg;
 
 #define DESCRIPTION_WIDTH 205
 
-void selconn_Load()
+// Forward-declare UI-handlers, used by other handlers.
+static void selconn_Select(unsigned index);
+
+static void selconn_Esc()
+{
+	selconn_ReturnValue = false;
+	selconn_EndMenu = true;
+}
+
+static void selconn_Focus(unsigned index)
+{
+	int players = MAX_PLRS;
+	switch (vecConnItems[index]->m_value) {
+	case SELCONN_TCP:
+		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
+		players = MAX_PLRS;
+		break;
+#ifdef ZEROTIER
+	case SELCONN_ZT:
+		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to the internet.");
+		players = MAX_PLRS;
+		break;
+#endif
+	case SELCONN_LOOPBACK:
+		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
+		players = 1;
+		break;
+	}
+
+	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", players);
+	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
+}
+
+static void selconn_Load()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 
@@ -69,7 +102,7 @@ void selconn_Load()
 	UiInitList(vecSelConnDlg, vecConnItems.size(), selconn_Focus, selconn_Select, selconn_Esc);
 }
 
-void selconn_Free()
+static void selconn_Free()
 {
 	ArtBackground.Unload();
 
@@ -87,37 +120,7 @@ void selconn_Free()
 	vecSelConnDlg.clear();
 }
 
-void selconn_Esc()
-{
-	selconn_ReturnValue = false;
-	selconn_EndMenu = true;
-}
-
-void selconn_Focus(unsigned index)
-{
-	int players = MAX_PLRS;
-	switch (vecConnItems[index]->m_value) {
-	case SELCONN_TCP:
-		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
-		players = MAX_PLRS;
-		break;
-#ifdef ZEROTIER
-	case SELCONN_ZT:
-		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to the internet.");
-		players = MAX_PLRS;
-		break;
-#endif
-	case SELCONN_LOOPBACK:
-		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
-		players = 1;
-		break;
-	}
-
-	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", players);
-	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
-}
-
-void selconn_Select(unsigned index)
+static void selconn_Select(unsigned index)
 {
 	provider = vecConnItems[index]->m_value;
 
