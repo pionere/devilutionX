@@ -649,15 +649,15 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(${BIN_TARGET} PUBLIC $<${DEBUG_GENEX}:-fno-omit-frame-pointer>)
 
   # Warnings for devilutionX
-  target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter)
+  target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts)
 
   # For ARM and other default unsigned char platforms
   target_compile_options(${BIN_TARGET} PRIVATE -fsigned-char)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${BIN_TARGET} PRIVATE "/W0")
-endif()
+#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#  target_compile_options(${BIN_TARGET} PRIVATE "/W0")
+#endif()
 
 if(APPLE)
   set_source_files_properties("./Packaging/macOS/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
