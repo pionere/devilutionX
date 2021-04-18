@@ -75,7 +75,7 @@ const char *const MsgStrings[NUM_EMSGS] = {
 // "There's no place like home.",
 // "Knowledge is power."
 // "Give and you shall receive.",
-// "Spirtual energy is restored."
+// "Spiritual energy is restored."
 //	"You feel more agile.",
 //	"You feel stronger.",
 //	"You feel wiser.",
