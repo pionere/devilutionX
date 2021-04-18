@@ -4,20 +4,20 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int mainmenu_attract_time_out; //seconds
-DWORD dwAttractTicks;
+static int _gnAttractTimeout; //seconds
+static DWORD _gdwAttractTicks;
 
-std::vector<UiItemBase *> vecMainMenuDialog;
-std::vector<UiListItem *> vecMenuItems;
+static std::vector<UiItemBase *> vecMainMenuDialog;
+static std::vector<UiListItem *> vecMenuItems;
 
-int MainMenuResult;
+static int _gnMainMenuResult;
 
-void UiMainMenuSelect(unsigned index)
+static void UiMainMenuSelect(unsigned index)
 {
-	MainMenuResult = vecMenuItems[index]->m_value;
+	_gnMainMenuResult = vecMenuItems[index]->m_value;
 }
 
-void mainmenu_Esc()
+static void mainmenu_Esc()
 {
 	unsigned last = vecMenuItems.size() - 1;
 	if (SelectedItem == last) {
@@ -29,7 +29,7 @@ void mainmenu_Esc()
 
 void mainmenu_restart_repintro()
 {
-	dwAttractTicks = SDL_GetTicks() + mainmenu_attract_time_out * 1000;
+	_gdwAttractTicks = SDL_GetTicks() + _gnAttractTimeout * 1000;
 }
 
 static void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
@@ -81,25 +81,25 @@ static void mainmenu_Free()
 
 void UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const char *file), int attractTimeOut)
 {
-	MainMenuResult = 0;
-	while (MainMenuResult == 0) {
-		mainmenu_attract_time_out = attractTimeOut;
+	_gnMainMenuResult = 0;
+	while (_gnMainMenuResult == 0) {
+		_gnAttractTimeout = attractTimeOut;
 		mainmenu_Load(name, fnSound);
 
 		mainmenu_restart_repintro(); // for automatic starts
 
-		while (MainMenuResult == 0) {
+		while (_gnMainMenuResult == 0) {
 			UiClearScreen();
 			UiPollAndRender();
-			if (SDL_GetTicks() >= dwAttractTicks) {
-				MainMenuResult = MAINMENU_ATTRACT_MODE;
+			if (SDL_GetTicks() >= _gdwAttractTicks) {
+				_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
 			}
 		}
 
 		mainmenu_Free();
 	}
 
-	*pdwResult = MainMenuResult;
+	*pdwResult = _gnMainMenuResult;
 }
 
 DEVILUTION_END_NAMESPACE

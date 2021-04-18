@@ -8,23 +8,22 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-Art dialogArt;
-char dialogText[256];
-Art progressArt;
-Art ArtPopupSm;
-Art ArtProgBG;
-Art ProgFil;
-SDL_Surface *msgSurface;
-SDL_Surface *msgShadow;
-std::vector<UiItemBase *> vecProgress;
-bool endMenu;
+static Art dialogArt;
+static Art progressArt;
+static Art ArtPopupSm;
+static Art ArtProgBG;
+static Art ProgFil;
+static SDL_Surface *msgSurface;
+static SDL_Surface *msgShadow;
+static std::vector<UiItemBase *> vecProgress;
+static bool _gbEndMenu;
 
-void DialogActionCancel()
+static void DialogActionCancel()
 {
-	endMenu = true;
+	_gbEndMenu = true;
 }
 
-void progress_Load(const char *msg)
+static void progress_Load(const char *msg)
 {
 	LoadBackgroundArt("ui_art\\black.pcx");
 	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
@@ -44,7 +43,7 @@ void progress_Load(const char *msg)
 	vecProgress.push_back(new UiButton(&SmlButton, "Cancel", &DialogActionCancel, rect3, 0));
 }
 
-void progress_Free()
+static void progress_Free()
 {
 	ArtBackground.Unload();
 	ArtPopupSm.Unload();
@@ -58,7 +57,7 @@ void progress_Free()
 	UnloadTtfFont();
 }
 
-void progress_Render(BYTE progress)
+static void progress_Render(BYTE progress)
 {
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 	DrawArt(0, 0, &ArtBackground);
@@ -92,11 +91,11 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)(), int rate)
 	progress_Load(msg);
 	SetFadeLevel(256);
 
-	endMenu = false;
+	_gbEndMenu = false;
 	int progress = 0;
 
 	SDL_Event event;
-	while (!endMenu && progress < 100) {
+	while (!_gbEndMenu && progress < 100) {
 		progress = fnfunc();
 		progress_Render(progress);
 		UiRenderItems(vecProgress);
@@ -115,13 +114,13 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)(), int rate)
 			case SDLK_ESCAPE:
 			case SDLK_RETURN:
 			case SDLK_SPACE:
-				endMenu = true;
+				_gbEndMenu = true;
 				break;
 			default:
 				switch (GetMenuAction(event)) {
 				case MenuAction_BACK:
 				case MenuAction_SELECT:
-					endMenu = true;
+					_gbEndMenu = true;
 					break;
 				default:
 					break;
