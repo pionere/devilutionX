@@ -2083,6 +2083,18 @@ static bool PlrDoStand(int pnum)
 	return false;
 }
 
+static inline void PlrStepAnim(int pnum)
+{
+	PlayerStruct *p;
+
+	p = &plr[pnum];
+	p->_pAnimCnt++;
+	if (p->_pAnimCnt > p->_pAnimDelay) {
+		p->_pAnimCnt = 0;
+		p->_pAnimFrame++;
+	}
+}
+
 static bool PlrDoWalk(int pnum)
 {
 	PlayerStruct *p;
@@ -2094,13 +2106,13 @@ static bool PlrDoWalk(int pnum)
 	p = &plr[pnum];
 	p->_pVar8++;
 	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
 		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTWALK) {
 		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	}
 
 	if ((p->_pAnimFrame & 3) == 3) {
@@ -2460,16 +2472,16 @@ static bool PlrDoAttack(int pnum)
 	p = &plr[pnum];
 	p->_pVar8++;
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
 		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTATTACK) {
 		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_QUICKATTACK) {
 		if ((p->_pVar8 & 7) == 4)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	}
 	if (p->_pAnimFrame < p->_pAFNum - 1)
 		return false;
@@ -2523,16 +2535,16 @@ static bool PlrDoRangeAttack(int pnum)
 	p = &plr[pnum];
 	p->_pVar8++;
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
 		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTATTACK) {
 		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_QUICKATTACK) {
 		if ((p->_pVar8 & 7) == 4)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	}
 	if (p->_pAnimFrame < p->_pAFNum)
 		return false;
@@ -2631,7 +2643,7 @@ static bool PlrDoBlock(int pnum)
 	}
 	p = &plr[pnum];
 	if (p->_pIFlags & ISPL_FASTBLOCK && p->_pAnimCnt == 0 && p->_pAnimFrame != 1) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	}
 
 	if (p->_pAnimFrame >= p->_pBFrames) {
@@ -2708,13 +2720,13 @@ static bool PlrDoSpell(int pnum)
 	p = &plr[pnum];
 	p->_pVar8++;
 	if (p->_pIFlags2 & ISPH_FASTESTCAST) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTERCAST) {
 		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTCAST) {
 		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	}
 
 	if (p->_pAnimFrame < p->_pSFNum)
@@ -2748,13 +2760,13 @@ static bool PlrDoGotHit(int pnum)
 	p = &plr[pnum];
 	p->_pVar8++;
 	if (p->_pIFlags & ISPL_FASTESTRECOVER) {
-		p->_pAnimFrame++;
+		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERRECOVER) {
 		if ((p->_pVar8 & 1) == 1)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTRECOVER) {
 		if ((p->_pVar8 & 3) == 2)
-			p->_pAnimFrame++;
+			PlrStepAnim(pnum);
 	}
 
 	if (p->_pAnimFrame < p->_pHFrames)
