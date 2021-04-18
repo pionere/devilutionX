@@ -1508,7 +1508,7 @@ static void MonTeleport(int mnum)
 	rx = random_(100, 8);
 	static_assert(DBORDERX >= 1, "MonTeleport expects a large enough border I.");
 	static_assert(DBORDERY >= 1, "MonTeleport expects a large enough border II.");
-	for (i = 0; i < sizeof(offset_x); i++, rx = (rx + 1) & 7) {
+	for (i = 0; i < lengthof(offset_x); i++, rx = (rx + 1) & 7) {
 		x = _mx + offset_x[rx];
 		y = _my + offset_y[rx];
 		assert(IN_DUNGEON_AREA(x, y));
