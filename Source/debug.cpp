@@ -143,7 +143,7 @@ void SetAllSpellsCheat()
 	SetSpellLevelCheat(SPL_NOVA, 1);
 	SetSpellLevelCheat(SPL_GOLEM, 2);
 	SetSpellLevelCheat(SPL_FLARE, 1);
-	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
+//	SetSpellLevelCheat(SPL_BONESPIRIT, 1);
 }
 
 void PrintDebugPlayer(bool bNextPlayer)
@@ -159,7 +159,7 @@ void PrintDebugPlayer(bool bNextPlayer)
 		NetSendCmdString(1 << myplr);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", plr[dbgplr].plrlevel, plr[dbgplr]._pLvlChanging);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : tx = %i, ty = %i", plr[dbgplr]._px, plr[dbgplr]._py, plr[dbgplr]._ptargx, plr[dbgplr]._ptargy);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : fx = %i, fy = %i", plr[dbgplr]._px, plr[dbgplr]._py, plr[dbgplr]._pfutx, plr[dbgplr]._pfuty);
 		NetSendCmdString(1 << myplr);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %i : daction = %i : walk[0] = %i", plr[dbgplr]._pmode, plr[dbgplr].destAction, plr[dbgplr].walkpath[0]);
 		NetSendCmdString(1 << myplr);

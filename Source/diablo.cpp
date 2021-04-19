@@ -1436,7 +1436,7 @@ static void PressChar(WPARAM vkey)
 		return;
 	}
 	switch (vkey) {
-	case ')':
+/*	case ')':
 	case '0':
 		if (debug_mode_key_inverted_v) {
 			if (arrowdebug > 2) {
@@ -1454,7 +1454,7 @@ static void PressChar(WPARAM vkey)
 			}
 			arrowdebug++;
 		}
-		break;
+		break;*/
 	case '9':
 		if (debug_mode_key_inverted_v || debug_mode_key_w) {
 			NetSendCmd(true, CMD_CHEAT_EXPERIENCE);

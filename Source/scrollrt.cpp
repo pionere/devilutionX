@@ -476,7 +476,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 			int nCel = p->_pAnimFrame;
 			int frames = SwapLE32(*(DWORD *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frame);
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;

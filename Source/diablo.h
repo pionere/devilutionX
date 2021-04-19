@@ -55,7 +55,7 @@ extern BOOL lightflag;
 extern BOOL light4flag;
 extern BOOL leveldebug;
 extern BOOL monstdebug;
-/** unused */
+extern int setseed;
 extern int debugmonsttypes;
 extern bool allquests;
 extern int questdebug;
