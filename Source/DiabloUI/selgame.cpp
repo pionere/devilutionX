@@ -1,5 +1,6 @@
 #include "selgame.h"
 
+#include <stdexcept>
 #include "config.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
