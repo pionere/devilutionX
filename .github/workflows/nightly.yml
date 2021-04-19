@@ -1,0 +1,179 @@
+name: Nightly
+
+# Timed-trigger
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '*/30 0 * * *'  
+
+env:
+  buildDir: '${{ github.workspace }}/build'
+
+jobs:
+  # Windows-builds
+  build1:
+    name: Nightly-Win
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-x64.zip'
+          - name: hellfire
+            cmakeargs: '-D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-x64.zip'
+          - name: hellone
+            cmakeargs: '-D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON'
+            artifact: 'hellone-nightly-x64.zip'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
+    - name: Create Build Environment
+      uses: lukka/run-vcpkg@v6
+      with:
+        setupOnly: true
+        vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
+    # Now that vcpkg is installed, it is being used to run with the desired arguments.
+    - run: |
+        $VCPKG_ROOT/vcpkg install sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows
+      shell: bash
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -D BINARY_RELEASE="ON" -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+    # Execute the build (-j 2 : with two cores).
+      run: cmake --build . -j 2 --target package --config Release
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  # Mac-builds
+  build2:
+    name: Nightly-Mac
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-mac.dmg'
+          - name: hellfire
+            cmakeargs: '-D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-mac.dmg'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Create Build Environment
+      run: brew bundle install
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake .. ${{ matrix.cmakeargs }}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build (-j 2 : with two cores).
+      run: cmake --build . -j 2 --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        path: ${{ env.buildDir }}/devilutionx.dmg
+        name: ${{ matrix.artifact }}
+  # Releases
+  release:
+    needs: [build1, build2]
+    runs-on: windows-latest
+    steps:
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x64.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x64.zip
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellone-nightly-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellone-nightly-x64.zip
+
+    - name: Download a diablo mac-artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-mac.dmg
+    - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-mac.dmg
+
+    - name: Download a hellfire mac-artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-mac.dmg
+    - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
+
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
+    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: true
+        tag_name: devilx-nightly
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: devilx-nightly
+        body: Latest nightly builds
+          
+          Filename | Description
+          
+          ------------ | -------------
+          
+          diablo-nightly-mac.dmg   | Diablo package for Mac
+          
+          diablo-nightly-x64.zip   | Diablo build for Windows x64
+          
+          hellfire-nightly-mac.dmg | Hellfire package for Mac
+          
+          hellfire-nightly-x64.zip | Hellfire build for Windows x64
+          
+          hellone-nightly-x64.zip | Minimal Hellfire build for Windows x64<br>- no internet or controller support<br>- merges the mpq files on the first run (takes a few minutes)
+        draft: false
+        prerelease: true
+        files: |
+          ${{github.workspace}}/hellfire-nightly-x64.zip
+          ${{github.workspace}}/diablo-nightly-x64.zip
+          ${{github.workspace}}/hellone-nightly-x64.zip
+          ${{github.workspace}}/diablo-nightly-mac.dmg
+          ${{github.workspace}}/hellfire-nightly-mac.dmg
+        fail_on_unmatched_files: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
