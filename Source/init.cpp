@@ -41,13 +41,9 @@ HANDLE init_test_access(const char *mpq_name)
 	HANDLE archive;
 	const std::string *paths[2] = { &GetBasePath(), &GetPrefPath() };
 	std::string mpq_abspath;
-	DWORD mpq_flags = 0;
-#if !defined(__SWITCH__) && !defined(__AMIGA__) && !defined(__vita__)
-	mpq_flags |= MPQ_FLAG_READ_ONLY;
-#endif
 	for (int i = 0; i < 2; i++) {
 		mpq_abspath = *paths[i] + mpq_name;
-		if (SFileOpenArchive(mpq_abspath.c_str(), mpq_flags, &archive)) {
+		if (SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY, &archive)) {
 			SFileSetBasePath(paths[i]->c_str());
 			return archive;
 		}
@@ -242,7 +238,9 @@ void init_create_window()
 	gbActive = true;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
 	gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_HEIGHT + SCREEN_Y));
+#ifndef USE_SDL1
 	SDL_DisableScreenSaver();
+#endif
 }
 
 void MainWndProc(UINT Msg, WPARAM wParam, LPARAM lParam)

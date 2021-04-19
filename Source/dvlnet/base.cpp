@@ -39,7 +39,7 @@ void base::handle_accept(packet &pkt)
 	auto &pkt_info = pkt.info();
 	if (game_init_info != pkt_info) {
 #ifdef ZEROTIER
-		if(pkt.info().size() != sizeof(GameData)) {
+		if (pkt.info().size() != sizeof(GameData)) {
 			ABORT();
 		}
 		// we joined and did not create

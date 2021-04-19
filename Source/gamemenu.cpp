@@ -348,12 +348,12 @@ void gamemenu_speed(BOOL bActivate)
 	tick_delay = 1000 / ticks_per_sec;
 }
 
-void gamemenu_color_cycling(BOOL bActivate)
+/*void gamemenu_color_cycling(BOOL bActivate)
 {
 	BOOL color_cycling;
 
 	color_cycling = palette_set_color_cycling(palette_get_color_cycling() == 0);
 	sgOptionsMenu[3].pszStr = color_cycling_toggle_names[color_cycling & 1];
-}
+}*/
 
 DEVILUTION_END_NAMESPACE
