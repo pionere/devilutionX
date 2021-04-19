@@ -4,6 +4,7 @@
  * Implementation of video playback.
  */
 #include "all.h"
+#include "storm/storm_svid.h"
 #include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE

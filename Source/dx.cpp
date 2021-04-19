@@ -69,8 +69,10 @@ static void dx_create_primary_surface()
 
 void dx_init()
 {
+#ifndef USE_SDL1
 	SDL_RaiseWindow(ghMainWnd);
 	SDL_ShowWindow(ghMainWnd);
+#endif
 
 	dx_create_primary_surface();
 	palette_init();
@@ -124,8 +126,10 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
+#ifndef USE_SDL1
 	if (ghMainWnd)
 		SDL_HideWindow(ghMainWnd);
+#endif
 	sgMemCrit.Enter();
 	_guLockCount = 0;
 	gpBuffer = NULL;
@@ -251,7 +255,6 @@ void LimitFrameRate()
 void RenderPresent()
 {
 	SDL_Surface *surface = GetOutputSurface();
-	assert(!SDL_MUSTLOCK(surface));
 
 	if (!gbActive) {
 		LimitFrameRate();

@@ -589,6 +589,8 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 	_gnFadeValue = 0;
 	BlackPalette();
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+	if (DiabloUiSurface() == pal_surface)
+		BltFast(NULL, NULL);
 	RenderPresent();
 }
 
@@ -623,6 +625,8 @@ void UiFadeIn()
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
+	if (DiabloUiSurface() == pal_surface)
+		BltFast(NULL, NULL);
 	RenderPresent();
 }
 
@@ -672,7 +676,7 @@ void Render(UiText *ui_text)
 	    ui_text->m_iFlags,
 	    ui_text->m_color,
 	    ui_text->m_shadow_color,
-	    &ui_text->m_render_cache);
+	    ui_text->m_render_cache);
 }
 
 void Render(const UiArtText *ui_art_text)

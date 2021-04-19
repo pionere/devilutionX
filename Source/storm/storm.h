@@ -97,9 +97,7 @@ void SNetGetGameInfo(const char **name, const char **password);
  *
  *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool
-    SNetGetTurnsInTransit(
-        DWORD *turns);
+bool SNetGetTurnsInTransit(DWORD *turns);
 
 bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
 
@@ -116,7 +114,7 @@ void SNetLeaveGame(int type);
 bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
 bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 
-typedef void(*SEVTHANDLER)(struct _SNETEVENT *);
+typedef void (*SEVTHANDLER)(struct _SNETEVENT *);
 
 /*  SNetSendMessage @ 127
  *
@@ -139,7 +137,7 @@ bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
 #define SNPLAYER_ALL    -1
 #define SNPLAYER_OTHERS -2
 
-#define MPQ_FLAG_READ_ONLY			1
+#define MPQ_OPEN_READ_ONLY			0x00000100
 #define MPQ_FILE_IMPLODE			0x00000100
 #define MPQ_FILE_EXISTS				0x80000000
 #define MPQ_HASH_TABLE_INDEX		0x000
@@ -179,15 +177,14 @@ bool WINAPI SFileReadFile(HANDLE hFile, void *buffer, DWORD nNumberOfBytesToRead
  *
  *  Returns TRUE if the image was supported and loaded correctly, FALSE otherwise.
  */
-bool
-    SBmpLoadImage(
-        const char *pszFileName,
-        SDL_Color *pPalette,
-        BYTE *pBuffer,
-        size_t dwBuffersize,
-        unsigned *pdwWidth,
-        unsigned *pdwHeight,
-        unsigned *pdwBpp);
+bool SBmpLoadImage(
+    const char *pszFileName,
+    SDL_Color *pPalette,
+    BYTE *pBuffer,
+    size_t dwBuffersize,
+    unsigned *pdwWidth,
+    unsigned *pdwHeight,
+    unsigned *pdwBpp);
 
 /*  SMemAlloc @ 401
  *
@@ -217,9 +214,6 @@ bool getIniValue(const char *sectionName, const char *keyName, char *string, int
 void setIniValue(const char *sectionName, const char *keyName, const char *value);
 bool getIniInt(const char *sectionName, const char *keyName, int *value);
 void setIniInt(const char *sectionName, const char *keyName, int value);
-
-HANDLE SVidPlayBegin(const char *filename, int flags);
-void SVidPlayEnd();
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h
@@ -269,7 +263,6 @@ void SErrSetLastError(DWORD dwErrCode);
 void SStrCopy(char *dest, const char *src, int max_length);
 
 void SFileSetBasePath(const char *);
-bool SVidPlayContinue(void);
 
 /*  SNetSendTurn @ 128
  *

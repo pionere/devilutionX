@@ -1073,16 +1073,15 @@ static void BlockStream_Close(TBlockStream * pStream)
 
 //-----------------------------------------------------------------------------
 // File stream allocation function
-
+#ifdef FULL
 static STREAM_INIT StreamBaseInit[4] =
 {
     BaseFile_Init,
     BaseMap_Init,
-#ifdef FULL
     BaseHttp_Init,
     BaseNone_Init
-#endif
 };
+#endif
 
 // This function allocates an empty structure for the file stream
 // The stream structure is created as flat block, variable length
@@ -1138,7 +1137,16 @@ static TFileStream * AllocateFileStream(
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
 
         // Initialize the stream functions
+#ifdef FULL
         StreamBaseInit[dwStreamFlags & 0x03](pStream);
+#else
+		if (dwStreamFlags & 0x03) {
+			SetLastError(ERROR_INVALID_PARAMETER);
+			return NULL;
+		} else {
+			BaseFile_Init(pStream);
+		}
+#endif
     }
 
     return pStream;
