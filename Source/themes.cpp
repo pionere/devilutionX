@@ -154,7 +154,7 @@ static bool TFit_SkelRoom(int tidx)
 
 	for (i = 0; i < nummtypes; i++) {
 		if (IsSkel(Monsters[i].cmType)) {
-			themeVar1 = i;
+			// themeVar1 = i;
 			return TFit_Obj5(tidx);
 		}
 	}
@@ -597,53 +597,55 @@ static void Theme_SkelRoom(int tidx)
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy - 1);
+		SpawnSkeleton(i, xx - 1, yy - 1, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERL, xx - 1, yy - 1);
 	}
 
 	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy - 1);
+	SpawnSkeleton(i, xx, yy - 1, DIR_OMNI);
 
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy - 1);
+		SpawnSkeleton(i, xx + 1, yy - 1, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERR, xx + 1, yy - 1);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy);
+		SpawnSkeleton(i, xx - 1, yy, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERM, xx - 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy);
+		SpawnSkeleton(i, xx + 1, yy, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERM, xx + 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy + 1);
+		SpawnSkeleton(i, xx - 1, yy + 1, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERR, xx - 1, yy + 1);
 	}
 
 	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy + 1);
+	SpawnSkeleton(i, xx, yy + 1, DIR_OMNI);
 
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy + 1);
+		SpawnSkeleton(i, xx + 1, yy + 1, DIR_OMNI);
 	} else {
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
 	}
 
 	if (dObject[xx][yy - 3] == 0) {
+		assert(dObject[xx][yy - 2] == 0);
 		AddObject(OBJ_SKELBOOK, xx, yy - 2);
 	}
 	if (dObject[xx][yy + 3] == 0) {
+		assert(dObject[xx][yy + 2] == 0);
 		AddObject(OBJ_SKELBOOK, xx, yy + 2);
 	}
 }

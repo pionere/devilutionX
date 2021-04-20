@@ -3004,7 +3004,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	if (os->_oVar1 <= 2) // SARC_ITEM
 		CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
 	if (os->_oVar1 >= 8) // SARC_SKELE
-		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy);
+		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_OMNI);
 }
 
 /**
@@ -3966,7 +3966,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 			else
 				CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
 		} else if (os->_oVar2 >= 8)
-			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy); // BARREL_SKELE
+			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_OMNI); // BARREL_SKELE
 	}
 	if (sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);

@@ -2571,31 +2571,13 @@ bool IsGoat(int mt)
 	    || (mt >= MT_NGOATBW && mt <= MT_GGOATBW);
 }
 
-static int MonSpawnSkel(int x, int y, int dir)
+static void MonSpawnSkel(int x, int y, int dir)
 {
-	int i, j, skeltypes, skel;
+	int i;
 
-	j = 0;
-	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].cmType))
-			j++;
-	}
-
-	if (j != 0) {
-		skeltypes = random_(136, j);
-		j = 0;
-		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].cmType))
-				j++;
-		}
-		skel = AddMonster(x, y, dir, i - 1, true);
-		if (skel != -1)
-			MonStartSpStand(skel, dir);
-
-		return skel;
-	}
-
-	return -1;
+	i = PreSpawnSkeleton();
+	assert(i != -1);
+	SpawnSkeleton(i, x, y, dir);
 }
 
 static void GroupUnity(int mnum)
@@ -5069,94 +5051,65 @@ static void ActivateSpawn(int mnum, int x, int y, int dir)
 	dMonster[x][y] = mnum + 1;
 	monster[mnum]._mx = x;
 	monster[mnum]._my = y;
-	monster[mnum]._mfutx = x;
-	monster[mnum]._mfuty = y;
-	monster[mnum]._moldx = x;
-	monster[mnum]._moldy = y;
+	//monster[mnum]._mfutx = x;
+	//monster[mnum]._mfuty = y;
+	//monster[mnum]._moldx = x;
+	//monster[mnum]._moldy = y;
 	MonStartSpStand(mnum, dir);
 }
 
-void SpawnSkeleton(int mnum, int x, int y)
+void SpawnSkeleton(int mnum, int x, int y, int dir)
 {
-	int dx, dy, xx, yy, dir, j, k, rs;
-	bool savail;
-	bool monstok[3][3];
+	int i, nok;
+	int monstok[DIR_OMNI];
 
 	if (mnum == -1)
 		return; // FALSE;
 
 	if (PosOkMonst(-1, x, y)) {
-		dir = GetDirection(x, y, x, y);
+		if (dir == DIR_OMNI)
+			dir = random_(11, DIR_OMNI);
 		ActivateSpawn(mnum, x, y, dir);
 		return; // TRUE;
 	}
 
-	savail = false;
-	yy = 0;
-	for (j = y - 1; j <= y + 1; j++) {
-		xx = 0;
-		for (k = x - 1; k <= x + 1; k++) {
-			monstok[xx][yy] = PosOkMonst(-1, k, j);
-			savail |= monstok[xx][yy];
-			xx++;
-		}
-		yy++;
-	}
-	if (!savail) {
-		return; // FALSE;
-	}
-
-	rs = RandRange(1, 15);
-	xx = 0;
-	yy = 0;
-	while (rs > 0) {
-		if (monstok[xx][yy])
-			rs--;
-		if (rs > 0) {
-			xx++;
-			if (xx == 3) {
-				xx = 0;
-				yy++;
-				if (yy == 3)
-					yy = 0;
-			}
+	nok = 0;
+	for (i = 0; i < lengthof(offset_x); i++) {
+		if (PosOkMonst(-1, x + offset_x[i], y + offset_y[i])) {
+			monstok[nok] = i;
+			nok++;
 		}
 	}
-
-	dx = x - 1 + xx;
-	dy = y - 1 + yy;
-	dir = GetDirection(dx, dy, x, y);
-	ActivateSpawn(mnum, dx, dy, dir);
+	if (nok == 0)
+		return;
+	dir = monstok[random_(12, nok)];
+	ActivateSpawn(mnum, x + offset_x[dir], y + offset_y[dir], dir);
 
 	// return TRUE;
 }
 
 int PreSpawnSkeleton()
 {
-	int i, j, skeltypes, skel;
+	int i, n;
+	int types[MAX_LVLMTYPES];
 
-	j = 0;
-
+	n = 0;
 	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].cmType))
-			j++;
-	}
-
-	if (j != 0) {
-		skeltypes = random_(136, j);
-		j = 0;
-		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].cmType))
-				j++;
+		if (IsSkel(Monsters[i].cmType)) {
+			types[n] = i;
+			n++;
 		}
-		skel = AddMonster(0, 0, 0, i - 1, false);
-		if (skel != -1)
-			MonStartStand(skel, 0);
-
-		return skel;
 	}
 
-	return -1;
+	if (n == 0)
+		return -1;
+
+	n = types[random_(136, n)];
+	n = AddMonster(0, 0, 0, n, false);
+	if (n != -1)
+		MonStartStand(n, 0);
+
+	return n;
 }
 
 void TalktoMonster(int mnum, int pnum)
