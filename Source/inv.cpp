@@ -1920,7 +1920,7 @@ static void InvAddMana()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncHp(myplr, mana);
+	PlrIncMana(myplr, mana);
 }
 
 bool UseInvItem(int cii)
