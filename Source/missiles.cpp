@@ -1167,7 +1167,7 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 		mis = &missile[mi];
 		mis->_miRange = 0;
 		mds = &missiledata[mis->_miType];
-		if (mds->miSFX != -1)
+		if (mds->miSFX != SFX_NONE)
 			PlaySfxLoc(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
 	}
 	return hit == 1;
@@ -2941,7 +2941,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, char micas
 	mis->_miAnimAdd = 1;
 	mis->_miLid = -1;
 
-	if (mds->mlSFX != -1) {
+	if (mds->mlSFX != SFX_NONE) {
 		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
 	}
 

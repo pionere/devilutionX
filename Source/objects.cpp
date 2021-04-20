@@ -160,7 +160,7 @@ void InitObjectGFX()
 		ods = &AllObjects[i];
 		if ((ods->oload == 1 && (ods->oLvlTypes & lvlMask))
 		 || (ods->otheme != THEME_NONE && themeload[ods->otheme])
-		 || (ods->oquest != -1 && QuestStatus(ods->oquest))) {
+		 || (ods->oquest != Q_INVALID && QuestStatus(ods->oquest))) {
 			fileload[ods->ofindex] = true;
 		}
 	}

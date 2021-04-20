@@ -572,8 +572,8 @@ typedef struct MonsterData {
 	BOOL snd_special;
 	BOOL has_trans;
 	const char *TransFile;
-	int Frames[6];
-	int Rate[6];
+	int Frames[NUM_MON_ANIM];
+	int Rate[NUM_MON_ANIM];
 	const char *mName;
 	BYTE mLevel;
 	BYTE mAi;
@@ -604,7 +604,7 @@ static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align Mon
 typedef struct CMonster {
 	int mtype;
 	BOOL mPlaceScatter;
-	AnimStruct Anims[6];
+	AnimStruct Anims[NUM_MON_ANIM];
 	TSnd *Snds[4][2];
 	int width;
 	int width2;

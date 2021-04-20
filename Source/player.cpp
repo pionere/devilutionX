@@ -1410,7 +1410,7 @@ static bool StartAttack(int pnum)
 		dy = monster[i]._mfuty;
 		if (abs(p->_px - dx) > 1 || abs(p->_py - dy) > 1)
 			return false;
-		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
+		if (monster[i].mtalkmsg != TEXT_NONE && monster[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i, pnum);
 			return true;
 		}
@@ -1491,7 +1491,7 @@ static void StartRangeAttack(int pnum)
 		sn = p->destParam3;
 		sl = p->destParam4;
 	} else if (p->destAction == ACTION_RATTACKMON) {
-		if (monster[i].mtalkmsg != 0 && monster[i].mtalkmsg != TEXT_VILE14) {
+		if (monster[i].mtalkmsg != TEXT_NONE && monster[i].mtalkmsg != TEXT_VILE14) {
 			TalktoMonster(i, pnum);
 			return;
 		}

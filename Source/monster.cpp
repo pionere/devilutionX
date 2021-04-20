@@ -58,7 +58,7 @@ const int MWVel[24][3] = {
 	{ 10, 21, 42 }
 };
 /** Maps from monster action to monster animation letter. */
-const char animletter[6] = { 'n', 'w', 'a', 'h', 'd', 's' };
+const char animletter[NUM_MON_ANIM] = { 'n', 'w', 'a', 'h', 'd', 's' };
 /** Maps from direction to a left turn from the direction. */
 const int left[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 /** Maps from direction to a right turn from the direction. */
@@ -281,7 +281,7 @@ void InitMonsterGFX(int midx)
 	mdata = &monsterdata[mtype];
 
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].Frames), "");
-	for (anim = 0; anim < lengthof(animletter); anim++) {
+	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->Frames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
@@ -496,7 +496,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mDelFlag = FALSE;
 	mon->_mRndSeed = GetRndSeed();
 	mon->_mAISeed = GetRndSeed();
-	mon->mtalkmsg = 0;
+	mon->mtalkmsg = TEXT_NONE;
 
 	mon->_uniqtype = 0;
 	mon->_uniqtrans = 0;
@@ -789,7 +789,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
-	if (mon->mtalkmsg != 0)
+	if (mon->mtalkmsg != TEXT_NONE)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
@@ -851,7 +851,7 @@ static void PlaceUniques()
 {
 	int u, mt;
 
-	for (u = 0; UniqMonst[u].mtype != -1; u++) {
+	for (u = 0; UniqMonst[u].mtype != MT_INVALID; u++) {
 		if (UniqMonst[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
 		if (UniqMonst[u].mQuestId != Q_INVALID
@@ -1100,7 +1100,7 @@ static bool MonRanged(int mnum)
 
 bool MonTalker(int mnum)
 {
-	return monster[mnum].mtalkmsg != 0;
+	return monster[mnum].mtalkmsg != TEXT_NONE;
 	/*char ai = monster[mnum]._mAi;
 	return ai == AI_LAZURUS
 	    || ai == AI_WARLORD
@@ -2331,7 +2331,7 @@ static bool MonDoTalk(int mnum)
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
 			mon->_msquelch = UCHAR_MAX;
-			mon->mtalkmsg = 0;
+			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
@@ -4126,7 +4126,7 @@ void MAI_Garbud(int mnum)
 			if (quests[Q_GARBUD]._qvar1 == 4 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_GARBUD4))) {
 				mon->_mgoal = MGOAL_NORMAL;
 				// mon->_msquelch = UCHAR_MAX;
-				mon->mtalkmsg = 0;
+				mon->mtalkmsg = TEXT_NONE;
 			}
 		} else {
 			if (quests[Q_GARBUD]._qvar1 < 4)
@@ -4135,7 +4135,7 @@ void MAI_Garbud(int mnum)
 	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_GARBUD]._qvar1 == 4) {
 		// TODO: does not work when a player enters the level and the timer is running
 		mon->_mgoal = MGOAL_NORMAL;
-		mon->mtalkmsg = 0;
+		mon->mtalkmsg = TEXT_NONE;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_MOVE)
@@ -4163,14 +4163,14 @@ void MAI_Zhar(int mnum)
 			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
 			if (quests[Q_ZHAR]._qvar1 == 2 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_ZHAR2))) {
 				// mon->_msquelch = UCHAR_MAX;
-				mon->mtalkmsg = 0;
+				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
 		}
 	} else if (mon->_mgoal == MGOAL_INQUIRING && quests[Q_ZHAR]._qvar1 == 2) {
 		// TODO: does not work when a player enters the level and the timer is running
 		mon->_mgoal = MGOAL_NORMAL;
-		mon->mtalkmsg = 0;
+		mon->mtalkmsg = TEXT_NONE;
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE)
@@ -4218,9 +4218,9 @@ void MAI_SnotSpil(int mnum)
 		}
 		// mon->_msquelch = UCHAR_MAX;
 	case 4:
-		if (mon->mtalkmsg != 0) {
+		if (mon->mtalkmsg != TEXT_NONE) {
 			// TODO: does not work when a player enters the level and the timer is running
-			mon->mtalkmsg = 0;
+			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 		break;
@@ -4256,7 +4256,7 @@ void MAI_Lazurus(int mnum)
 				ObjChangeMapResync(1, 18, 20, 24);
 				RedoPlayerVision();
 				mon->_msquelch = UCHAR_MAX;
-				mon->mtalkmsg = 0;
+				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 				quests[Q_BETRAYER]._qvar1 = 6;
 			}
@@ -4266,7 +4266,7 @@ void MAI_Lazurus(int mnum)
 					mon->_mmode = MM_TALK;
 					mon->_mListener = myplr;
 				} else {
-					mon->mtalkmsg = 0;
+					mon->mtalkmsg = TEXT_NONE;
 					mon->_mgoal = MGOAL_NORMAL;
 				}
 			}
@@ -4274,13 +4274,13 @@ void MAI_Lazurus(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE) {
-		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 == 4 && mon->mtalkmsg == 0) { // Fix save games affected by teleport bug
+		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 == 4 && mon->mtalkmsg == TEXT_NONE) { // Fix save games affected by teleport bug
 			ObjChangeMapResync(1, 18, 20, 24);
 			RedoPlayerVision();
 			quests[Q_BETRAYER]._qvar1 = 6;
 		}
 #ifndef HELLFIRE
-		mon->mtalkmsg = 0;
+		mon->mtalkmsg = TEXT_NONE;
 #endif
 		MAI_Counselor(mnum);
 	}
@@ -4302,7 +4302,7 @@ void MAI_Lazhelp(int mnum)
 	if (mon->_mgoal == MGOAL_INQUIRING) {
 		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 <= 5)
 			return;
-		mon->mtalkmsg = 0;
+		mon->mtalkmsg = TEXT_NONE;
 		mon->_mgoal = MGOAL_NORMAL;
 	}
 
@@ -4327,7 +4327,7 @@ void MAI_Lachdanan(int mnum)
 		if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 			//if (mon->_mVar8++ >= gnTicksRate * 32) {
 			if (gbMaxPlayers != 1 || !effect_is_playing(USFX_LACH3)) {
-				mon->mtalkmsg = 0;
+				mon->mtalkmsg = TEXT_NONE;
 				MonStartKill(mnum, -1);
 			}
 			return;
@@ -4376,9 +4376,9 @@ void MAI_Warlord(int mnum)
 		}
 		// mon->_msquelch = UCHAR_MAX;
 	case 2:
-		if (mon->mtalkmsg != 0) {
+		if (mon->mtalkmsg != TEXT_NONE) {
 			// TODO: does not work when a player enters the level and the timer is running
-			mon->mtalkmsg = 0;
+			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 		break;
@@ -5219,7 +5219,7 @@ void TalktoMonster(int mnum, int pnum)
 			NetSendCmdQuest(true, Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
 		assert(QuestStatus(Q_VEIL));
-		assert(mon->mtalkmsg != 0);
+		assert(mon->mtalkmsg != TEXT_NONE);
 		if (quests[Q_VEIL]._qactive == QUEST_INIT) {
 			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
 			quests[Q_VEIL]._qlog = TRUE;
@@ -5304,7 +5304,7 @@ bool CanTalkToMonst(int mnum)
 	// TODO: merge with MonTalker?
 	assert((monster[mnum]._mgoal != MGOAL_INQUIRING
 		&& monster[mnum]._mgoal != MGOAL_TALKING)
-		|| monster[mnum].mtalkmsg != 0);
+		|| monster[mnum].mtalkmsg != TEXT_NONE);
 	return monster[mnum]._mgoal == MGOAL_INQUIRING
 		|| monster[mnum]._mgoal == MGOAL_TALKING;
 }
@@ -5318,7 +5318,7 @@ bool CheckMonsterHit(int mnum, bool *ret)
 	}
 	mon = &monster[mnum];
 
-	if (mon->mtalkmsg != 0 || mon->_mmode == MM_CHARGE || mon->_mhitpoints < (1 << 6)
+	if (mon->mtalkmsg != TEXT_NONE || mon->_mmode == MM_CHARGE || mon->_mhitpoints < (1 << 6)
 	 || (mon->_mAi == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT)
 	 || (mon->_mAi == AI_COUNSLR && mon->_mgoal != MGOAL_NORMAL)) {
 		*ret = false;

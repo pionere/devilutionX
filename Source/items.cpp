@@ -1992,7 +1992,7 @@ static int RndTypeItems(int itype, int imid, int lvl)
 	for (i = 0; i < NUM_IDI; i++) {
 		if (AllItemsList[i].iRnd == IDROP_NEVER || lvl < AllItemsList[i].iMinMLvl
 		 || AllItemsList[i].itype != itype
-		 || (imid != -1 && AllItemsList[i].iMiscId != imid))
+		 || (/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid))
 			continue;
 		ril[ri] = i;
 		ri++;
