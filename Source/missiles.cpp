@@ -662,9 +662,15 @@ static bool MonsterMHit(int mnum, int mi)
 		hper = p->_pIHitChance - tmac
 		    - (mis->_miDist * mis->_miDist >> 1);
 	} else {
-		hper = 50 + p->_pMagic
-			- (mon->mLevel << 1)
-			/*- dist*/; // TODO: either don't care about it, or set it!
+		if (mis->_miFlags & MIF_AREA) {
+			hper = 40
+				+ (p->_pLevel << 1)
+				- (mon->mLevel << 1);
+		} else {
+			hper = 50 + p->_pMagic
+				- (mon->mLevel << 1)
+				/*- dist*/; // TODO: either don't care about it, or set it!
+		}
 	}
 	if (random_(69, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
@@ -821,7 +827,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 #endif
 			return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+	if (!(mis->_miFlags & MIF_NOBLOCK)) {
 		tmp = p->_pIBlockChance;
 		if (tmp != 0 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 			// assert(p->_pSkillFlags & SFLAG_BLOCK);
@@ -878,7 +884,7 @@ static bool PlayerMHit(int pnum, int mi)
 #endif
 			return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+	if (!(mis->_miFlags & MIF_NOBLOCK)) {
 		tmp = p->_pIBlockChance;
 		if (tmp != 0 && (p->_pmode == PM_STAND || p->_pmode == PM_BLOCK)) {
 			// assert(p->_pSkillFlags & SFLAG_BLOCK);
@@ -922,7 +928,7 @@ static bool Plr2PlrMHit(int defp, int mi)
 		    - (mis->_miDist * mis->_miDist >> 1)
 		    - dps->_pIAC;
 	} else {
-		if (mis->_miFlags & MIFLAG_AREA) {
+		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
 				+ (ops->_pLevel << 1)
 				- (dps->_pLevel << 1);
@@ -935,7 +941,7 @@ static bool Plr2PlrMHit(int defp, int mi)
 	if (random_(69, 100) >= hper)
 		return false;
 
-	if (!(mis->_miFlags & MIFLAG_NOBLOCK)) {
+	if (!(mis->_miFlags & MIF_NOBLOCK)) {
 		blkper = dps->_pIBlockChance;
 		if (blkper != 0 && (dps->_pmode == PM_STAND || dps->_pmode == PM_BLOCK)) {
 			// assert(dps->_pSkillFlags & SFLAG_BLOCK);

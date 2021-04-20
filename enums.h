@@ -1480,7 +1480,6 @@ typedef enum missile_id {
 	MIS_FLASH2,
 	MIS_MANASHIELD,
 	MIS_CHAIN,
-	//MIS_SENTINAL,	// TODO: Check beta
 	//MIS_BLODSTAR,	// TODO: Check beta
 	//MIS_BONE,		// TODO: Check beta
 	//MIS_METLHIT,	// TODO: Check beta
@@ -1488,9 +1487,7 @@ typedef enum missile_id {
 	MIS_TELEPORT,
 	//MIS_FARROW,
 	//MIS_DOOMSERP,
-	//MIS_FIREWALLA,	// TODO: Check beta
 	MIS_STONE,
-	//MIS_NULL_1F,
 	//MIS_INVISIBL,
 	MIS_GOLEM,
 	//MIS_ETHEREALIZE,
@@ -1527,27 +1524,14 @@ typedef enum missile_id {
 	MIS_EXAPOCA2,
 #ifdef HELLFIRE
 	MIS_BLODBOIL,
-	//MIS_MANA,
-	//MIS_MAGI,
 	MIS_LIGHTWALLC,
 	MIS_LIGHTWALL,
 	MIS_FIRENOVAC,
-	//MIS_SPECARROW,
 	MIS_FIREBALL2,
-	//MIS_LIGHTARROW,
-	//MIS_CBOLTARROW,
-	//MIS_HBOLTARROW,
-	//MIS_WARP,
 	//MIS_REFLECT,
-	//MIS_BERSERK,
 	MIS_FIRERING,
-	//MIS_STEALPOTS,
 	//MIS_MANATRAP,
 	MIS_LIGHTRING,
-	//MIS_SEARCH,
-	//MIS_FLASHFR,
-	//MIS_FLASHBK,
-	//MIS_FIREBALL3,
 	MIS_RUNEFIRE,
 	MIS_RUNELIGHT,
 	MIS_RUNENOVA,
@@ -1555,7 +1539,6 @@ typedef enum missile_id {
 	MIS_RUNESTONE,
 	MIS_HIVEEXP,
 	MIS_HORKDMN,
-	//MIS_JESTER,
 	MIS_HIVEEXPC,
 	MIS_LICH,
 	MIS_PSYCHORB,
@@ -1641,8 +1624,9 @@ typedef enum missile_graphic_id {
 } missile_graphic_id;
 
 typedef enum missile_flags {
-	MIFLAG_AREA    = 1 << 0,
-	MIFLAG_NOBLOCK = 1 << 1,
+	MIF_AREA    = 1 << 0,
+	MIF_NOBLOCK = 1 << 1,
+	MIF_DOT     = 1 << 2,
 } missile_flags;
 
 typedef enum missile_anim_flags {
