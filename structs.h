@@ -602,14 +602,14 @@ static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align Mon
 #endif
 
 typedef struct CMonster {
-	int mtype;
-	BOOL mPlaceScatter;
-	AnimStruct Anims[NUM_MON_ANIM];
-	TSnd *Snds[4][2];
-	int width;
-	int width2;
-	BYTE mdeadval;
-	const MonsterData *MData;
+	int cmType;
+	BOOL cmPlaceScatter;
+	AnimStruct cmAnims[NUM_MON_ANIM];
+	TSnd *cmSnds[4][2];
+	int cmWidth;
+	int cmWidth2;
+	BYTE cmDeadval;
+	const MonsterData *cmData;
 #ifdef X86_32bit_COMP
 	int alignment[10];
 #endif

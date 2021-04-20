@@ -135,12 +135,12 @@ static inline void InitMonsterTRN(const CMonster *cmon, const MonsterData *mdata
 
 	n = mdata->has_special ? 6 : 5;
 	for (i = 0; i < n; i++) {
-		if (i != 1 || cmon->mtype < MT_COUNSLR || cmon->mtype > MT_ADVOCATE) {
-			for (j = 0; j < lengthof(cmon->Anims[i].Data); j++) {
+		if (i != 1 || cmon->cmType < MT_COUNSLR || cmon->cmType > MT_ADVOCATE) {
+			for (j = 0; j < lengthof(cmon->cmAnims[i].Data); j++) {
 				Cl2ApplyTrans(
-				    cmon->Anims[i].Data[j],
+				    cmon->cmAnims[i].Data[j],
 				    tf,
-				    cmon->Anims[i].Frames);
+				    cmon->cmAnims[i].Frames);
 			}
 		}
 	}
@@ -169,19 +169,19 @@ static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
 
-	for (i = 0; i < nummtypes && Monsters[i].mtype != type; i++)
+	for (i = 0; i < nummtypes && Monsters[i].cmType != type; i++)
 		;
 
 	if (i == nummtypes) {
 		nummtypes++;
-		Monsters[i].mtype = type;
-		Monsters[i].mPlaceScatter = FALSE;
+		Monsters[i].cmType = type;
+		Monsters[i].cmPlaceScatter = FALSE;
 		monstimgtot += monsterdata[type].mImage;
 		InitMonsterGFX(i);
 		InitMonsterSND(i);
 	}
 
-	Monsters[i].mPlaceScatter |= scatter;
+	Monsters[i].cmPlaceScatter |= scatter;
 	return i;
 }
 
@@ -278,7 +278,7 @@ void InitMonsterGFX(int midx)
 	BYTE *celBuf;
 
 	cmon = &Monsters[midx];
-	mtype = cmon->mtype;
+	mtype = cmon->cmType;
 	mdata = &monsterdata[mtype];
 
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].Frames), "");
@@ -287,26 +287,26 @@ void InitMonsterGFX(int midx)
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff, NULL);
-			cmon->Anims[anim].CMem = celBuf;
+			cmon->cmAnims[anim].CMem = celBuf;
 
 			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
-				for (i = 0; i < lengthof(cmon->Anims[anim].Data); i++) {
-					cmon->Anims[anim].Data[i] = CelGetFrameStart(celBuf, i);
+				for (i = 0; i < lengthof(cmon->cmAnims[anim].Data); i++) {
+					cmon->cmAnims[anim].Data[i] = CelGetFrameStart(celBuf, i);
 				}
 			} else {
-				for (i = 0; i < lengthof(cmon->Anims[anim].Data); i++) {
-					cmon->Anims[anim].Data[i] = celBuf;
+				for (i = 0; i < lengthof(cmon->cmAnims[anim].Data); i++) {
+					cmon->cmAnims[anim].Data[i] = celBuf;
 				}
 			}
 		}
 
-		cmon->Anims[anim].Frames = mdata->Frames[anim];
-		cmon->Anims[anim].Rate = mdata->Rate[anim];
+		cmon->cmAnims[anim].Frames = mdata->Frames[anim];
+		cmon->cmAnims[anim].Rate = mdata->Rate[anim];
 	}
 
-	cmon->width = mdata->width;
-	cmon->width2 = (mdata->width - 64) >> 1;
-	cmon->MData = mdata;
+	cmon->cmWidth = mdata->width;
+	cmon->cmWidth2 = (mdata->width - 64) >> 1;
+	cmon->cmData = mdata;
 
 	if (mdata->has_trans) {
 		InitMonsterTRN(cmon, mdata);
@@ -451,30 +451,30 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_moldx = x;
 	mon->_moldy = y;
 	mon->MType = cmon;
-	mon->_mType = cmon->mtype;
-	mon->_mAnimWidth = cmon->width;
-	mon->_mAnimWidth2 = cmon->width2;
-	mon->MData = cmon->MData;
-	mon->mName = cmon->MData->mName;
-	mon->_mFlags = cmon->MData->mFlags;
-	mon->mLevel = cmon->MData->mLevel;
-	mon->_mAi = cmon->MData->mAi;
-	mon->_mint = cmon->MData->mInt;
-	mon->mArmorClass = cmon->MData->mArmorClass;
-	mon->mMinDamage = cmon->MData->mMinDamage;
-	mon->mMaxDamage = cmon->MData->mMaxDamage;
-	mon->mMinDamage2 = cmon->MData->mMinDamage2;
-	mon->mMaxDamage2 = cmon->MData->mMaxDamage2;
-	mon->mHit = cmon->MData->mHit;
-	mon->mHit2 = cmon->MData->mHit2;
-	mon->mMagicRes = cmon->MData->mMagicRes;
-	mon->mExp = cmon->MData->mExp;
-	mon->_mmaxhp = RandRange(cmon->MData->mMinHP, cmon->MData->mMaxHP) << 6;
-	mon->_mAnims = cmon->Anims;
-	mon->_mAnimData = cmon->Anims[MA_STAND].Data[dir];
-	mon->_mAnimDelay = cmon->Anims[MA_STAND].Rate;
+	mon->_mType = cmon->cmType;
+	mon->_mAnimWidth = cmon->cmWidth;
+	mon->_mAnimWidth2 = cmon->cmWidth2;
+	mon->MData = cmon->cmData;
+	mon->mName = cmon->cmData->mName;
+	mon->_mFlags = cmon->cmData->mFlags;
+	mon->mLevel = cmon->cmData->mLevel;
+	mon->_mAi = cmon->cmData->mAi;
+	mon->_mint = cmon->cmData->mInt;
+	mon->mArmorClass = cmon->cmData->mArmorClass;
+	mon->mMinDamage = cmon->cmData->mMinDamage;
+	mon->mMaxDamage = cmon->cmData->mMaxDamage;
+	mon->mMinDamage2 = cmon->cmData->mMinDamage2;
+	mon->mMaxDamage2 = cmon->cmData->mMaxDamage2;
+	mon->mHit = cmon->cmData->mHit;
+	mon->mHit2 = cmon->cmData->mHit2;
+	mon->mMagicRes = cmon->cmData->mMagicRes;
+	mon->mExp = cmon->cmData->mExp;
+	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
+	mon->_mAnims = cmon->cmAnims;
+	mon->_mAnimData = cmon->cmAnims[MA_STAND].Data[dir];
+	mon->_mAnimDelay = cmon->cmAnims[MA_STAND].Rate;
 	mon->_mAnimCnt = random_(88, mon->_mAnimDelay - 1);
-	mon->_mAnimLen = cmon->Anims[MA_STAND].Frames;
+	mon->_mAnimLen = cmon->cmAnims[MA_STAND].Frames;
 	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND;
@@ -523,7 +523,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
 		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
 		mon->mArmorClass += HELL_AC_BONUS;
-		mon->mMagicRes = cmon->MData->mMagicRes2;
+		mon->mMagicRes = cmon->cmData->mMagicRes2;
 	}
 
 	if (gbMaxPlayers == 1) {
@@ -664,7 +664,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	}
 
 	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
-		if (Monsters[uniqtype].mtype == UniqMonst[uniqindex].mtype) {
+		if (Monsters[uniqtype].cmType == UniqMonst[uniqindex].mtype) {
 			break;
 		}
 	}
@@ -851,7 +851,7 @@ static void PlaceUniques()
 		 && quests[UniqMonst[u].mQuestId]._qactive == QUEST_NOTAVAIL)
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
-			if (Monsters[mt].mtype == UniqMonst[u].mtype) {
+			if (Monsters[mt].cmType == UniqMonst[u].mtype) {
 				PlaceUniqueMonst(u, mt, 8);
 				break;
 			}
@@ -980,7 +980,7 @@ void InitMonsters()
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
-			if (Monsters[i].mPlaceScatter) {
+			if (Monsters[i].cmPlaceScatter) {
 				scattertypes[numscattypes] = i;
 				numscattypes++;
 			}
@@ -2577,7 +2577,7 @@ static int MonSpawnSkel(int x, int y, int dir)
 
 	j = 0;
 	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].mtype))
+		if (IsSkel(Monsters[i].cmType))
 			j++;
 	}
 
@@ -2585,7 +2585,7 @@ static int MonSpawnSkel(int x, int y, int dir)
 		skeltypes = random_(136, j);
 		j = 0;
 		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].mtype))
+			if (IsSkel(Monsters[i].cmType))
 				j++;
 		}
 		skel = AddMonster(x, y, dir, i - 1, true);
@@ -4566,10 +4566,10 @@ void FreeMonsters()
 	int i, j;
 
 	for (i = 0; i < nummtypes; i++) {
-		mtype = Monsters[i].mtype;
+		mtype = Monsters[i].cmType;
 		for (j = 0; j < lengthof(animletter); j++) {
 			if (animletter[j] != 's' || monsterdata[mtype].has_special) {
-				MemFreeDbg(Monsters[i].Anims[j].CMem);
+				MemFreeDbg(Monsters[i].cmAnims[j].CMem);
 			}
 		}
 	}
@@ -4819,11 +4819,11 @@ void SyncMonsterAnim(int mnum)
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
 	mon->MType = &Monsters[mon->_mMTidx];
-	mon->_mType = mon->MType->mtype;
-	mon->_mAnims = mon->MType->Anims;
-	mon->_mAnimWidth = mon->MType->width;
-	mon->_mAnimWidth2 = mon->MType->width2;
-	MData = mon->MType->MData;
+	mon->_mType = mon->MType->cmType;
+	mon->_mAnims = mon->MType->cmAnims;
+	mon->_mAnimWidth = mon->MType->cmWidth;
+	mon->_mAnimWidth2 = mon->MType->cmWidth2;
+	MData = mon->MType->cmData;
 	if (MData == NULL) {
 		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);
 	}
@@ -5138,7 +5138,7 @@ int PreSpawnSkeleton()
 	j = 0;
 
 	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].mtype))
+		if (IsSkel(Monsters[i].cmType))
 			j++;
 	}
 
@@ -5146,7 +5146,7 @@ int PreSpawnSkeleton()
 		skeltypes = random_(136, j);
 		j = 0;
 		for (i = 0; i < nummtypes && j <= skeltypes; i++) {
-			if (IsSkel(Monsters[i].mtype))
+			if (IsSkel(Monsters[i].cmType))
 				j++;
 		}
 		skel = AddMonster(0, 0, 0, i - 1, false);

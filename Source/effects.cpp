@@ -1203,17 +1203,17 @@ void InitMonsterSND(int midx)
 	assert(gbSndInited);
 
 	cmon = &Monsters[midx];
-	mdata = &monsterdata[cmon->mtype];
-	static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].Snds), "Mismatching tables MonstSndChar and CMonster::Snds.");
+	mdata = &monsterdata[cmon->cmType];
+	static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].cmSnds), "Mismatching tables MonstSndChar and CMonster::Snds.");
 	for (i = 0; i < lengthof(MonstSndChar); i++) {
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
-			for (j = 0; j < lengthof(cmon->Snds[i]); j++) {
+			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
 				int len = strlen(name) + 1;
 				char *path = (char *)DiabloAllocPtr(len);
 				memcpy(path, name, len);
 				TSnd *pSnd = sound_file_load(path);
-				cmon->Snds[i][j] = pSnd;
+				cmon->cmSnds[i][j] = pSnd;
 				if (pSnd == NULL)
 					mem_free_dbg(path);
 			}
@@ -1230,11 +1230,11 @@ void FreeMonsterSnd()
 
 	cmon = Monsters;
 	for (i = 0; i < nummtypes; i++, cmon++) {
-		for (j = 0; j < lengthof(cmon->Snds); ++j) {
-			for (k = 0; k < lengthof(cmon->Snds[j]); ++k) {
-				pSnd = cmon->Snds[j][k];
+		for (j = 0; j < lengthof(cmon->cmSnds); ++j) {
+			for (k = 0; k < lengthof(cmon->cmSnds[j]); ++k) {
+				pSnd = cmon->cmSnds[j][k];
 				if (pSnd != NULL) {
-					cmon->Snds[j][k] = NULL;
+					cmon->cmSnds[j][k] = NULL;
 					file = pSnd->sound_path;
 					pSnd->sound_path = NULL;
 					sound_file_cleanup(pSnd);
@@ -1321,7 +1321,7 @@ void PlayEffect(int mnum, int mode)
 
 	sndIdx = random_(164, 2);
 	mon = &monster[mnum];
-	snd = Monsters[mon->_mMTidx].Snds[mode][sndIdx];
+	snd = Monsters[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {
 		return;
 	}
