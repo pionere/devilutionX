@@ -201,8 +201,8 @@ static bool CheckThemeObj3(int x, int y, int tidx, int rndfrq)
 static bool TFit_Obj3(int tidx)
 {
 	int xx, yy;
-	const char objrnds[4] = { 4, 4, 3, 5 };
-	const char objrnd = objrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	const BYTE objrnds[4] = { 4, 4, 3, 5 };
+	const BYTE objrnd = objrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
@@ -525,7 +525,7 @@ static void Theme_Barrel(int tidx)
  */
 static void Theme_Shrine(int tidx)
 {
-	const char monstrnds[4] = { 6, 6, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 6, 3, 9 };
 
 	if (TFit_Shrine(tidx)) {
 		if (themeVar1 == 1) {
@@ -583,7 +583,7 @@ static void Theme_MonstPit(int tidx)
 static void Theme_SkelRoom(int tidx)
 {
 	int xx, yy, i;
-	const char monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	char monstrnd;
 
 	if (!TFit_SkelRoom(tidx))
@@ -688,8 +688,8 @@ static void Theme_Treasure(int tidx)
 static void Theme_Library(int tidx)
 {
 	int xx, yy, oi;
-	const char librnds[4] = { 1, 2, 2, 5 };
-	const char monstrnds[4] = { 5, 7, 3, 9 };
+	const BYTE librnds[4] = { 1, 2, 2, 5 };
+	const BYTE monstrnds[4] = { 5, 7, 3, 9 };
 	char librnd, monstrnd;
 
 	if (TFit_Shrine(tidx)) {
@@ -758,7 +758,7 @@ static void Theme_Torture(int tidx)
  */
 static void Theme_BloodFountain(int tidx)
 {
-	const char monstrnds[4] = { 6, 8, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_BLOODFTN, themex, themey);
@@ -800,7 +800,7 @@ static void Theme_Decap(int tidx)
  */
 static void Theme_PurifyingFountain(int tidx)
 {
-	const char monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_PURIFYINGFTN, themex, themey);
@@ -871,7 +871,7 @@ static void Theme_GoatShrine(int tidx)
  */
 static void Theme_Cauldron(int tidx)
 {
-	const char monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_CAULDRON, themex, themey);
@@ -885,7 +885,7 @@ static void Theme_Cauldron(int tidx)
  */
 static void Theme_MurkyFountain(int tidx)
 {
-	const char monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_MURKYFTN, themex, themey);
@@ -899,7 +899,7 @@ static void Theme_MurkyFountain(int tidx)
  */
 static void Theme_TearFountain(int tidx)
 {
-	const char monstrnds[4] = { 6, 7, 3, 9 };
+	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 
 	if (TFit_Obj5(tidx))
 		AddObject(OBJ_TEARFTN, themex, themey);

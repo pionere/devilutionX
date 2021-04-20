@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Contains the data related to each speech ID.
  * txtstr: the text to display
  * scrlltxt: whether the text should be shown or not
+ * txtsfxset: whether sfxnr refers to an sfx set instead of a single sfx number
  * txtspd: Positive numbers will delay scrolling 1 out of n frames,
  *         negative numbers will scroll 1+(-n) pixels.
  * sfxnr: the corresponding sfx number
