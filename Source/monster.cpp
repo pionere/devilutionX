@@ -305,10 +305,6 @@ void InitMonsterGFX(int midx)
 
 	cmon->width = mdata->width;
 	cmon->width2 = (mdata->width - 64) >> 1;
-	cmon->mMinHP = mdata->mMinHP;
-	cmon->mMaxHP = mdata->mMaxHP;
-	cmon->has_special = mdata->has_special;
-	cmon->mAFNum = mdata->mAFNum;
 	cmon->MData = mdata;
 
 	if (mdata->has_trans) {
@@ -474,6 +470,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->mHit2 = cmon->MData->mHit2;
 	mon->mMagicRes = cmon->MData->mMagicRes;
 	mon->mExp = cmon->MData->mExp;
+	mon->_mmaxhp = RandRange(cmon->MData->mMinHP, cmon->MData->mMaxHP) << 6;
 	mon->_mAnims = cmon->Anims;
 	mon->_mAnimData = cmon->Anims[MA_STAND].Data[dir];
 	mon->_mAnimDelay = cmon->Anims[MA_STAND].Rate;
@@ -483,9 +480,6 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND;
 	mon->_mVar2 = 0;
-
-	mon->_mmaxhp = RandRange(cmon->mMinHP, cmon->mMaxHP) << 6;
-
 	mon->_msquelch = 0;
 	mon->_mpathcount = 0;
 	mon->_mWhoHit = 0;

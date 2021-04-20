@@ -608,17 +608,13 @@ typedef struct CMonster {
 	TSnd *Snds[4][2];
 	int width;
 	int width2;
-	int mMinHP;
-	int mMaxHP;
-	BOOL has_special;
-	unsigned char mAFNum; // unused
 	BYTE mdeadval;
 	const MonsterData *MData;
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	BYTE *trans_file;
 #ifdef X86_32bit_COMP
-	int alignment[6];
+	int alignment[9];
 #endif
 } CMonster;
 #ifdef X86_32bit_COMP
