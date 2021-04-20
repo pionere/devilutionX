@@ -3292,8 +3292,9 @@ void MI_HorkSpawn(int mi)
 				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
 					if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dPlayer[tx][ty] | dObject[tx][ty]) == 0) {
 						i = 6;
-						int mon = AddMonster(tx, ty, mis->_miVar1, 1, true);
-						MonStartStand(mon, mis->_miVar1);
+						int mnum = AddMonster(tx, ty, mis->_miVar1, 1, true);
+						if (mnum != -1)
+							MonStartStand(mnum, mis->_miVar1);
 						break;
 					}
 				}
