@@ -610,11 +610,8 @@ typedef struct CMonster {
 	int width2;
 	BYTE mdeadval;
 	const MonsterData *MData;
-	// A TRN file contains a sequence of color transitions, represented
-	// as indexes into a palette. (a 256 byte array of palette indices)
-	BYTE *trans_file;
 #ifdef X86_32bit_COMP
-	int alignment[9];
+	int alignment[10];
 #endif
 } CMonster;
 #ifdef X86_32bit_COMP

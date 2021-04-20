@@ -118,32 +118,33 @@ void (*AiProc[])(int i) = {
 	&MAI_Storm2,
 };
 
-static void InitMonsterTRN(int midx, BOOL special)
+static inline void InitMonsterTRN(const CMonster *cmon, const MonsterData *mdata)
 {
-	CMonster *cmon;
-	BYTE *f;
+	BYTE *tf, *cf;
 	int i, n, j;
 
-	cmon = &Monsters[midx];
-	f = cmon->trans_file;
+	// A TRN file contains a sequence of color transitions, represented
+	// as indexes into a palette. (a 256 byte array of palette indices)
+	tf = cf = LoadFileInMem(mdata->TransFile, NULL);
 	for (i = 0; i < 256; i++) {
-		if (*f == 255) {
-			*f = 0;
+		if (*cf == 255) {
+			*cf = 0;
 		}
-		f++;
+		cf++;
 	}
 
-	n = special ? 6 : 5;
+	n = mdata->has_special ? 6 : 5;
 	for (i = 0; i < n; i++) {
 		if (i != 1 || cmon->mtype < MT_COUNSLR || cmon->mtype > MT_ADVOCATE) {
 			for (j = 0; j < lengthof(cmon->Anims[i].Data); j++) {
 				Cl2ApplyTrans(
 				    cmon->Anims[i].Data[j],
-				    cmon->trans_file,
+				    tf,
 				    cmon->Anims[i].Frames);
 			}
 		}
 	}
+	mem_free_dbg(tf);
 }
 
 void InitLevelMonsters()
@@ -308,9 +309,7 @@ void InitMonsterGFX(int midx)
 	cmon->MData = mdata;
 
 	if (mdata->has_trans) {
-		cmon->trans_file = LoadFileInMem(mdata->TransFile, NULL);
-		InitMonsterTRN(midx, mdata->has_special);
-		MemFreeDbg(cmon->trans_file);
+		InitMonsterTRN(cmon, mdata);
 	}
 
 	switch (mtype) {
