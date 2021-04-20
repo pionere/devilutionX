@@ -461,6 +461,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAi = cmon->cmData->mAi;
 	mon->_mint = cmon->cmData->mInt;
 	mon->mArmorClass = cmon->cmData->mArmorClass;
+	mon->_mEvasion = cmon->cmData->mEvasion;
 	mon->mMinDamage = cmon->cmData->mMinDamage;
 	mon->mMaxDamage = cmon->cmData->mMaxDamage;
 	mon->mMinDamage2 = cmon->cmData->mMinDamage2;
@@ -512,6 +513,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
 		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
 		mon->mArmorClass += NIGHTMARE_AC_BONUS;
+		mon->_mEvasion += NIGHTMARE_EVASION_BONUS;
 	} else if (gnDifficulty == DIFF_HELL) {
 		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
 		mon->mLevel += HELL_LEVEL_BONUS;
@@ -523,6 +525,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
 		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
 		mon->mArmorClass += HELL_AC_BONUS;
+		mon->_mEvasion += HELL_EVASION_BONUS;
 		mon->mMagicRes = cmon->cmData->mMagicRes2;
 	}
 
@@ -558,6 +561,7 @@ void WakeUberDiablo()
 		PlayEffect(MAX_MINIONS, 2);
 	mon = &monster[MAX_MINIONS];
 	mon->mArmorClass -= 50;
+	//mon->_mEvasion -= 20;
 	mon->mLevel /= 2;
 	mon->mMagicRes = 0;
 	mon->_mmaxhp /= 2;
@@ -5224,6 +5228,7 @@ void SpawnGolum(int mnum, int x, int y, int level)
 	mon->_moldy = y;
 	mon->_mpathcount = 0;
 	mon->mArmorClass = 25;
+	//mon->_mEvasion = 5;
 	mon->_mmaxhp = 2 * (320 * level + plr[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->mHit = 5 * (level + 8) + 2 * plr[mnum]._pLevel;

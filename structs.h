@@ -589,7 +589,8 @@ typedef struct MonsterData {
 	BYTE mAFNum2;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	BYTE mArmorClass;
+	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE mEvasion;    // evasion: used against magic-projectile
 	BYTE mMonstClass; // unused
 	unsigned short mMagicRes;
 	unsigned short mMagicRes2;
@@ -676,6 +677,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mAi;
 	BYTE _mint;
 	BYTE mArmorClass;
+	BYTE _mEvasion;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
@@ -693,7 +695,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mAnimWidth;
 	int _mAnimWidth2;
 #ifdef X86_32bit_COMP
-	int alignment[10];
+	int alignment[9];
 #endif
 } MonsterStruct;
 

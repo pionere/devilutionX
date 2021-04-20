@@ -669,6 +669,7 @@ static bool MonsterMHit(int mnum, int mi)
 		} else {
 			hper = 50 + p->_pMagic
 				- (mon->mLevel << 1)
+				- mon->_mEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
 	}
