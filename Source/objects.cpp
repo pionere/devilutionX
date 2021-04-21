@@ -1100,7 +1100,7 @@ static void SetupObject(int oi, int x, int y, int type)
 	if (ods->oAnimFlag) {
 		os->_oAnimCnt = random_(146, ods->oAnimFrameLen);
 		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = RandRange(1, ods->oAnimLen - 1);
+		os->_oAnimFrame = RandRange(1, ods->oAnimLen);
 	} else {
 		os->_oAnimCnt = 0;
 		os->_oAnimLen = ods->oAnimLen;
@@ -3681,8 +3681,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
-	if (deltaload)
-		object[oi]._oAnimFlag = TRUE;
+	object[oi]._oAnimFlag = TRUE;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)

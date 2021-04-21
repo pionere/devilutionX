@@ -474,9 +474,9 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
-	mon->_mAnimCnt = random_(88, mon->_mAnimFrameLen - 1);
+	mon->_mAnimCnt = random_(88, mon->_mAnimFrameLen);
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
-	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
+	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND;
 	mon->_mVar2 = 0;
