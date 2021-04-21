@@ -1918,8 +1918,8 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 		bmis = &missile[dx];
 		mis->_mix = bmis->_mix;
 		mis->_miy = bmis->_miy;
-		mis->_misx = bmis->_misx;
-		mis->_misy = bmis->_misy;
+		//mis->_misx = bmis->_mix;
+		//mis->_misy = bmis->_miy;
 		mis->_mixoff = bmis->_mixoff;
 		mis->_miyoff = bmis->_miyoff;
 		mis->_mitxoff = bmis->_mitxoff;
