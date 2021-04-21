@@ -554,7 +554,7 @@ typedef struct AnimStruct {
 	BYTE *CMem;
 	BYTE *Data[8];
 	int Frames;
-	int Rate;
+	int aFrameLen;
 #ifdef X86_32bit_COMP
 	int alignment[1];
 #endif
@@ -572,8 +572,8 @@ typedef struct MonsterData {
 	BOOL snd_special;
 	BOOL has_trans;
 	const char *TransFile;
-	int Frames[NUM_MON_ANIM];
-	int Rate[NUM_MON_ANIM];
+	int mAnimFrames[NUM_MON_ANIM];
+	int mAnimFrameLen[NUM_MON_ANIM];
 	const char *mName;
 	BYTE mLevel;
 	BYTE mAi;
@@ -645,7 +645,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
 	unsigned char *_mAnimData;
-	int _mAnimDelay; // Tick length of each frame in the current animation
+	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
 	int _mAnimLen;   // Number of frames in current animation
 	int _mAnimFrame; // Current frame of animation.

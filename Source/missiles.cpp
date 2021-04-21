@@ -2179,7 +2179,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
 	mis->_miAnimData = anim->Data[midir];
-	mis->_miAnimDelay = anim->Rate;
+	mis->_miAnimDelay = anim->aFrameLen;
 	mis->_miAnimLen = anim->Frames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimWidth2 = mon->_mAnimWidth2;
@@ -2213,7 +2213,7 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
 	mis->_miAnimData = anim->Data[midir];
-	mis->_miAnimDelay = anim->Rate;
+	mis->_miAnimDelay = anim->aFrameLen;
 	mis->_miAnimLen = anim->Frames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimWidth2 = mon->_mAnimWidth2;

@@ -283,7 +283,7 @@ void InitMonsterGFX(int midx)
 
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].Frames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		if ((animletter[anim] != 's' || mdata->has_special) && mdata->Frames[anim] > 0) {
+		if ((animletter[anim] != 's' || mdata->has_special) && mdata->mAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff, NULL);
@@ -300,8 +300,8 @@ void InitMonsterGFX(int midx)
 			}
 		}
 
-		cmon->cmAnims[anim].Frames = mdata->Frames[anim];
-		cmon->cmAnims[anim].Rate = mdata->Rate[anim];
+		cmon->cmAnims[anim].Frames = mdata->mAnimFrames[anim];
+		cmon->cmAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
 	}
 
 	cmon->cmWidth = mdata->width;
@@ -473,8 +473,8 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].Data[dir];
-	mon->_mAnimDelay = cmon->cmAnims[MA_STAND].Rate;
-	mon->_mAnimCnt = random_(88, mon->_mAnimDelay - 1);
+	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
+	mon->_mAnimCnt = random_(88, mon->_mAnimFrameLen - 1);
 	mon->_mAnimLen = cmon->cmAnims[MA_STAND].Frames;
 	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
 	mon->_mmode = MM_STAND;
@@ -1085,7 +1085,7 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 	mon->_mAnimLen = as->Frames;
 	mon->_mAnimCnt = 0;
 	mon->_mAnimFrame = 1;
-	mon->_mAnimDelay = as->Rate;
+	mon->_mAnimFrameLen = as->aFrameLen;
 	mon->_mFlags &= ~(MFLAG_REV_ANIMATION | MFLAG_LOCK_ANIMATION);
 }
 
@@ -4526,7 +4526,7 @@ void ProcessMonsters()
 		}
 		if (mon->_mmode != MM_STONE && !(mon->_mFlags & MFLAG_LOCK_ANIMATION)) {
 			mon->_mAnimCnt++;
-			if (mon->_mAnimCnt >= mon->_mAnimDelay) {
+			if (mon->_mAnimCnt >= mon->_mAnimFrameLen) {
 				mon->_mAnimCnt = 0;
 				if (mon->_mFlags & MFLAG_REV_ANIMATION) {
 					mon->_mAnimFrame--;

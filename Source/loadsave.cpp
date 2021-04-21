@@ -421,7 +421,7 @@ static void LoadMonster(int mnum)
 	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
-	CopyInt(tbuff, &mon->_mAnimDelay);
+	CopyInt(tbuff, &mon->_mAnimFrameLen);
 	CopyInt(tbuff, &mon->_mAnimCnt);
 	CopyInt(tbuff, &mon->_mAnimLen);
 	CopyInt(tbuff, &mon->_mAnimFrame);
@@ -1109,7 +1109,7 @@ static void SaveMonster(int mnum)
 	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
-	CopyInt(&mon->_mAnimDelay, tbuff);
+	CopyInt(&mon->_mAnimFrameLen, tbuff);
 	CopyInt(&mon->_mAnimCnt, tbuff);
 	CopyInt(&mon->_mAnimLen, tbuff);
 	CopyInt(&mon->_mAnimFrame, tbuff);
