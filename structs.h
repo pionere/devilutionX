@@ -462,7 +462,7 @@ typedef struct MisFileData {
 	int mfAnimFAmt;
 	const char *mfName;
 	int mfFlags;
-	unsigned char mfAnimDelay[16];
+	unsigned char mfAnimFrameLen[16];
 	unsigned char mfAnimLen[16];
 	int mfAnimWidth[16];
 	int mfAnimWidth2[16];
@@ -482,7 +482,7 @@ typedef struct MissileStruct {
 	BYTE _miAnimType;
 	int _miAnimFlags;
 	unsigned char *_miAnimData;
-	int _miAnimDelay; // Tick length of each frame in the current animation
+	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
 	int _miAnimWidth2;
