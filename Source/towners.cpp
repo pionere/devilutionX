@@ -34,7 +34,7 @@ const int snSFX[3][NUM_CLASSES] = {
 
 /* data */
 /** Specifies the animation frame sequence of a given NPC. */
-char AnimOrder[6][144] = {
+const char AnimOrder[6][144] = {
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
 	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
@@ -101,21 +101,21 @@ char AnimOrder[6][144] = {
 	    3, -1 }
 };
 /** Specifies the start X-coordinates of the cows in Tristram. */
-int TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
+const int TownCowX[] = { 48 + DBORDERX, 46 + DBORDERX, 49 + DBORDERX };
 /** Specifies the start Y-coordinates of the cows in Tristram. */
-int TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
+const int TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
 /** Specifies the start directions of the cows in Tristram. */
-int TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
+const int TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
 /** Maps from direction to X-coordinate delta, which is used when
  * placing cows in Tristram. A single cow may require space of up
  * to three tiles when being placed on the map.
  */
-int cowoffx[8] = { -1, 0, -1, -1, -1, 0, -1, -1 };
+const int cowoffx[8] = { -1, 0, -1, -1, -1, 0, -1, -1 };
 /** Maps from direction to Y-coordinate delta, which is used when
  * placing cows in Tristram. A single cow may require space of up
  * to three tiles when being placed on the map.
  */
-int cowoffy[8] = { -1, -1, -1, 0, -1, -1, -1, 0 };
+const int cowoffy[8] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 /** Specifies the active sound effect ID for interacting with cows. */
 int CowPlaying = -1;
 
@@ -145,38 +145,27 @@ static void CowSFX(int pnum)
 static void InitCowAnim(int tnum, int dir)
 {
 	TownerStruct *tw;
-	int i;
 
 	tw = &towner[tnum];
-	tw->_tNData = pCowCels;
-	for (i = 0; i < lengthof(tw->_tNAnim); i++) {
-		tw->_tNAnim[i] = CelGetFrameStart(pCowCels, i);
-	}
-	tw->_tNFrames = 12;
 
-	tw->_tAnimData = tw->_tNAnim[dir];
+	tw->_tAnimData = CelGetFrameStart(pCowCels, dir);
 	tw->_tAnimLen = 12;
 	tw->_tAnimCnt = 0;
-	tw->_tAnimDelay = 3;
+	tw->_tAnimFrameLen = 3;
 	tw->_tAnimFrame = RandRange(1, 11);
 }
 
 static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 {
 	TownerStruct *tw;
-	int i;
 
 	tw = &towner[tnum];
-	tw->_tNData = pAnim;
-	for (i = 0; i < lengthof(tw->_tNAnim); i++) {
-		tw->_tNAnim[i] = pAnim;
-	}
-	tw->_tNFrames = numFrames;
 
 	tw->_tAnimData = pAnim;
 	tw->_tAnimLen = numFrames;
 	tw->_tAnimCnt = 0;
-	tw->_tAnimDelay = Delay;
+	tw->_tAnimFrameCnt = 0;
+	tw->_tAnimFrameLen = Delay;
 	tw->_tAnimFrame = 1;
 }
 
@@ -296,12 +285,15 @@ static void InitCows()
 
 		xo = x + cowoffx[dir];
 		yo = y + cowoffy[dir];
-		if (dMonster[x][yo] == 0)
+
+		//assert(dMonster[xo][yo] == 0);
+		dMonster[xo][yo] = -(numtowners + 1);
+		if (xo != x && yo != y) {
+			//assert(dMonster[x][yo] == 0);
+			//assert(dMonster[xo][y] == 0);
 			dMonster[x][yo] = -(numtowners + 1);
-		if (dMonster[xo][y] == 0)
 			dMonster[xo][y] = -(numtowners + 1);
-		if (dMonster[xo][yo] == 0)
-			dMonster[xo][yo] = -(numtowners + 1);
+		}
 
 		numtowners++;
 	}
@@ -378,10 +370,10 @@ void FreeTownerGFX()
 	int i;
 
 	for (i = 0; i < numtowners; i++) {
-		if (towner[i]._tNData == pCowCels) {
-			towner[i]._tNData = NULL;
-		} else if (towner[i]._tNData != NULL) {
-			MemFreeDbg(towner[i]._tNData);
+		if (towner[i]._ttype == TOWN_COW) {
+			towner[i]._tAnimData = NULL;
+		} else {
+			MemFreeDbg(towner[i]._tAnimData);
 		}
 	}
 
@@ -416,7 +408,7 @@ void ProcessTowners()
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
 				if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
-						tw->_tAnimDelay = 1000;
+						tw->_tAnimFrameLen = 1000;
 						tw->_tAnimFrame = 1;
 						tw->_tName = "Slain Townsman";
 					}
@@ -429,7 +421,7 @@ void ProcessTowners()
 		}
 
 		tw->_tAnimCnt++;
-		if (tw->_tAnimCnt >= tw->_tAnimDelay) {
+		if (tw->_tAnimCnt >= tw->_tAnimFrameLen) {
 			tw->_tAnimCnt = 0;
 
 			if (tw->_tAnimOrder >= 0) {

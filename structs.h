@@ -486,7 +486,7 @@ typedef struct MissileStruct {
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
 	int _miAnimWidth2;
-	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _pAnimDelay
+	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
 	BOOL _miDelFlag; // Indicate weather the missile should be deleted
@@ -646,7 +646,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mListener;        // the player to whom the monster is talking to
 	unsigned char *_mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
-	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
+	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation
 	int _mAnimFrame; // Current frame of animation.
 	BOOL _mDelFlag;
@@ -766,7 +766,7 @@ typedef struct ObjectStruct {
 	BOOL _oAnimFlag;
 	unsigned char *_oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
-	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
+	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
 	int _oAnimLen;   // Number of frames in current animation
 	int _oAnimFrame; // Current frame of animation.
 	int _oAnimWidth;
@@ -1274,8 +1274,8 @@ typedef struct TownerStruct {
 	int _tyvel; // Y-velocity during movement (unused)
 	int _tdir;  // Facing of NPC (unused)
 	unsigned char *_tAnimData;
-	int _tAnimDelay; // Tick length of each frame in the current animation
-	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
+	int _tAnimFrameLen; // Tick length of each frame in the current animation
+	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
 	int _tAnimLen;   // Number of frames in current animation
 	int _tAnimFrame; // Current frame of animation.
 	int _tAnimFrameCnt;
@@ -1288,11 +1288,8 @@ typedef struct TownerStruct {
 	BOOL _tSelFlag;
 	int _tSeed;
 	const char *_tName;
-	unsigned char *_tNAnim[8];
-	int _tNFrames;
-	unsigned char *_tNData;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[11];
 #endif
 } TownerStruct;
 #ifdef X86_32bit_COMP
