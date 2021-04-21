@@ -933,6 +933,7 @@ static bool Plr2PlrMHit(int defp, int mi)
 		} else {
 			hper = 50 + ops->_pMagic
 				- (dps->_pLevel << 1)
+				- dps->_pIEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
 	}

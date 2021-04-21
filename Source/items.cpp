@@ -795,7 +795,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// add class bonuses as item bonus
 	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	p->_pIAC = tac + p->_pDexterity / 5;
+	p->_pIEvasion = p->_pDexterity / 5;
+	p->_pIAC = tac + p->_pIEvasion;
 	p->_pICritChance = 0;
 	btohit += 50 + p->_pLevel;
 	if (wt == SFLAG_MELEE) {

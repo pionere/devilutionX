@@ -346,6 +346,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIBlMaxDam
 	tbuff += 4; // Skip to Calc _pIPcMinDam
 	tbuff += 4; // Skip to Calc _pIPcMaxDam
+	//tbuff += 4; // Skip to Calc _pIEvasion
 	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus
@@ -1035,6 +1036,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIBlMaxDam
 	tbuff += 4; // Skip to Calc _pIPcMinDam
 	tbuff += 4; // Skip to Calc _pIPcMaxDam
+	//tbuff += 4; // Skip to Calc _pIEvasion
 	tbuff += 4; // Skip to Calc _pIAC
 	tbuff += 4; // Skip to Calc _pIHitChance
 	tbuff += 1; // Skip to Calc _pIBaseHitBonus

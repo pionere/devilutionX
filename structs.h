@@ -372,6 +372,7 @@ typedef struct PlayerStruct {
 	int _pIBlMaxDam;
 	int _pIPcMinDam;
 	int _pIPcMaxDam;
+	int _pIEvasion;
 	int _pIAC;
 	int _pIHitChance;
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
@@ -409,9 +410,9 @@ typedef struct PlayerStruct {
 	unsigned char *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[435];
+	int alignment[434];
 #else
-	int alignment[437];
+	int alignment[436];
 #endif
 #endif
 } PlayerStruct;
