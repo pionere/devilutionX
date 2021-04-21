@@ -539,7 +539,7 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oy);
 	CopyInt(tbuff, &os->_oAnimFlag);
 	tbuff += 4; // Skip pointer _oAnimData
-	CopyInt(tbuff, &os->_oAnimDelay);
+	CopyInt(tbuff, &os->_oAnimFrameLen);
 	CopyInt(tbuff, &os->_oAnimCnt);
 	CopyInt(tbuff, &os->_oAnimLen);
 	CopyInt(tbuff, &os->_oAnimFrame);
@@ -1225,7 +1225,7 @@ static void SaveObject(int oi)
 	CopyInt(&os->_oy, tbuff);
 	CopyInt(&os->_oAnimFlag, tbuff);
 	tbuff += 4; // Skip pointer _oAnimData
-	CopyInt(&os->_oAnimDelay, tbuff);
+	CopyInt(&os->_oAnimFrameLen, tbuff);
 	CopyInt(&os->_oAnimCnt, tbuff);
 	CopyInt(&os->_oAnimLen, tbuff);
 	CopyInt(&os->_oAnimFrame, tbuff);

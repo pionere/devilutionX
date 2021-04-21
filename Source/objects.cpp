@@ -1096,16 +1096,15 @@ static void SetupObject(int oi, int x, int y, int type)
 	ods = &AllObjects[type];
 	os->_oAnimData = pObjCels[ods->ofindex];
 	os->_oAnimFlag = ods->oAnimFlag;
+	os->_oAnimFrameLen = ods->oAnimFrameLen;
 	if (ods->oAnimFlag) {
-		os->_oAnimDelay = ods->oAnimDelay;
-		os->_oAnimCnt = random_(146, ods->oAnimDelay);
+		os->_oAnimCnt = random_(146, ods->oAnimFrameLen);
 		os->_oAnimLen = ods->oAnimLen;
 		os->_oAnimFrame = RandRange(1, ods->oAnimLen - 1);
 	} else {
-		os->_oAnimDelay = 1000;
 		os->_oAnimCnt = 0;
 		os->_oAnimLen = ods->oAnimLen;
-		os->_oAnimFrame = ods->oAnimDelay;
+		os->_oAnimFrame = ods->oAnimBaseFrame;
 	}
 	os->_oAnimWidth = ods->oAnimWidth;
 	os->_oAnimWidth2 = (os->_oAnimWidth - 64) >> 1;
@@ -1756,8 +1755,9 @@ static void Obj_StopAnim(int oi)
 
 	os = &object[oi];
 	if (os->_oAnimFrame == os->_oAnimLen) {
-		os->_oAnimCnt = 0;
-		os->_oAnimDelay = 1000;
+		os->_oAnimFlag = FALSE;
+		//os->_oAnimCnt = 0;
+		//os->_oAnimFrameLen = 1000;
 	}
 }
 
@@ -1795,7 +1795,7 @@ static void ActivateTrapLine(int tid)
 		if (os->_otype == OBJ_FLAMEHOLE && os->_oVar1 == tid) { // FLAMETRAP_ID
 			os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
 			os->_oAnimFlag = TRUE;
-			os->_oAnimDelay = 1;
+			//os->_oAnimFrameLen = 1;
 			os->_olid = AddLight(os->_ox, os->_oy, 1);
 		}
 	}
@@ -2012,7 +2012,7 @@ void ProcessObjects()
 
 		object[oi]._oAnimCnt++;
 
-		if (object[oi]._oAnimCnt < object[oi]._oAnimDelay)
+		if (object[oi]._oAnimCnt < object[oi]._oAnimFrameLen)
 			continue;
 
 		object[oi]._oAnimCnt = 0;
@@ -2999,7 +2999,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
 
 	os->_oAnimFlag = TRUE;
-	os->_oAnimDelay = 3;
+	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
 		CreateRndItem(os->_ox, os->_oy, false, sendmsg, false);
@@ -3194,7 +3194,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 
 	PlaySfxLoc(psfx, os->_ox, os->_oy, psfxCnt);
 	os->_oAnimFlag = TRUE;
-	os->_oAnimDelay = 1;
+	//os->_oAnimFrameLen = 1;
 
 	p = &plr[pnum];
 	switch (os->_oVar1) { // SHRINE_TYPE
@@ -3864,7 +3864,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oAnimFlag = TRUE;
 	os->_oAnimFrame = 1;
-	os->_oAnimDelay = 1;
+	//os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = -1;
@@ -3883,8 +3883,8 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
-		os->_oAnimCnt = 0;
-		os->_oAnimDelay = 1000;
+		//os->_oAnimCnt = 0;
+		//os->_oAnimFrameLen = 1000;
 		return;
 	}
 
@@ -3918,7 +3918,7 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	// os->_oVar1 = 0;
 	os->_oAnimFlag = TRUE;
 	os->_oAnimFrame = 1;
-	os->_oAnimDelay = 1;
+	//os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oBreak = -1;
@@ -3926,8 +3926,8 @@ static void OperateBarrel(bool forcebreak, int pnum, int oi, bool sendmsg)
 	os->_oPreFlag = TRUE;
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
-		os->_oAnimCnt = 0;
-		os->_oAnimDelay = 1000;
+		//os->_oAnimCnt = 0;
+		//os->_oAnimFrameLen = 1000;
 		return;
 	}
 

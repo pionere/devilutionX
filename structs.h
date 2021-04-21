@@ -740,7 +740,8 @@ typedef struct ObjDataStruct {
 	char otheme;
 	char oquest;
 	BOOL oAnimFlag;
-	int oAnimDelay; // Tick length of each frame in the current animation
+	int oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
+	int oAnimFrameLen; // Tick length of each frame in the current animation
 	int oAnimLen;   // Number of frames in current animation
 	int oAnimWidth;
 	BOOL oSolidFlag;
@@ -750,7 +751,7 @@ typedef struct ObjDataStruct {
 	char oSelFlag;
 	BOOL oTrapFlag;
 #ifdef X86_32bit_COMP
-	int alignment[5];
+	int alignment[4];
 #endif
 } ObjDataStruct;
 
@@ -764,7 +765,7 @@ typedef struct ObjectStruct {
 	int _oy;
 	BOOL _oAnimFlag;
 	unsigned char *_oAnimData;
-	int _oAnimDelay; // Tick length of each frame in the current animation
+	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
 	int _oAnimLen;   // Number of frames in current animation
 	int _oAnimFrame; // Current frame of animation.
