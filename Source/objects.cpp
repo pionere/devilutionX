@@ -3681,7 +3681,8 @@ static void OperateArmorStand(int oi, bool sendmsg)
 static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 {
 	OperateShrine(pnum, LS_GSHRINE, 1, oi, sendmsg);
-	object[oi]._oAnimDelay = 2;
+	if (deltaload)
+		object[oi]._oAnimFlag = TRUE;
 }
 
 static void OperateCauldron(int pnum, int oi, bool sendmsg)
