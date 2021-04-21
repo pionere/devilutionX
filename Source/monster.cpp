@@ -3222,9 +3222,11 @@ void MAI_Fallen(int mnum)
 			else
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
-		rad = std::min(2 * mon->_mint + 4, MAXDUNX / 2 - 1);
-		mx = std::min(std::max(mon->_mx, rad), MAXDUNX - rad - 1);
-		my = std::min(std::max(mon->_my, rad), MAXDUNY - rad - 1);
+		rad = 2 * mon->_mint + 4;
+		static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
+		assert(rad <= DBORDERX);
+		mx = mon->_mx;
+		my = mon->_my;
 		for (y = -rad; y <= rad; y++) {
 			for (x = -rad; x <= rad; x++) {
 				m = dMonster[x + mx][y + my];
