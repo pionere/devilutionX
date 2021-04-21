@@ -1072,7 +1072,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
 	if (mode > MM_WALK3 || mode < MM_WALK)
 		return (negate || mode == MM_STONE) ? mnum : -1;
-	halfOver = mon->_mVar8 >= (mon->_mAnims[MA_WALK].Frames >> 1);
+	halfOver = mon->_mVar8 >= (mon->_mAnims[MA_WALK].aFrames >> 1);
 	if (mode == MM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -2178,9 +2178,9 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
-	mis->_miAnimData = anim->Data[midir];
+	mis->_miAnimData = anim->aData[midir];
 	mis->_miAnimDelay = anim->aFrameLen;
-	mis->_miAnimLen = anim->Frames;
+	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimWidth2 = mon->_mAnimWidth2;
 	mis->_miAnimAdd = 1;
@@ -2212,9 +2212,9 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	mis->_miAnimFlags = 0;
-	mis->_miAnimData = anim->Data[midir];
+	mis->_miAnimData = anim->aData[midir];
 	mis->_miAnimDelay = anim->aFrameLen;
-	mis->_miAnimLen = anim->Frames;
+	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimWidth2 = mon->_mAnimWidth2;
 	mis->_miAnimAdd = 1;
@@ -3904,7 +3904,7 @@ void MI_Fireman(int mi)
 		mis->_mixvel *= -1;
 		mis->_miyvel *= -1;
 		mis->_miDir = OPPOSITE(mis->_miDir);
-		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].Data[mis->_miDir];
+		mis->_miAnimData = monster[mnum]._mAnims[MA_WALK].aData[mis->_miDir];
 		mis->_miVar2++;
 		if (tnum > 0)
 			mis->_miVar1 = TRUE;
@@ -4326,7 +4326,7 @@ void missiles_process_charge()
 				else
 					anim = MA_WALK;
 			}
-			mis->_miAnimData = mon->_mAnims[anim].Data[mis->_miDir];
+			mis->_miAnimData = mon->_mAnims[anim].aData[mis->_miDir];
 		}
 	}
 }

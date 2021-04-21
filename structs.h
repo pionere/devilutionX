@@ -551,9 +551,9 @@ typedef struct TSFX {
 //////////////////////////////////////////////////
 
 typedef struct AnimStruct {
-	BYTE *CMem;
-	BYTE *Data[8];
-	int Frames;
+	BYTE *aCelData;
+	BYTE *aData[8];
+	int aFrames;
 	int aFrameLen;
 #ifdef X86_32bit_COMP
 	int alignment[1];

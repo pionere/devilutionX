@@ -136,11 +136,11 @@ static inline void InitMonsterTRN(const CMonster *cmon, const MonsterData *mdata
 	n = mdata->has_special ? 6 : 5;
 	for (i = 0; i < n; i++) {
 		if (i != 1 || cmon->cmType < MT_COUNSLR || cmon->cmType > MT_ADVOCATE) {
-			for (j = 0; j < lengthof(cmon->cmAnims[i].Data); j++) {
+			for (j = 0; j < lengthof(cmon->cmAnims[i].aData); j++) {
 				Cl2ApplyTrans(
-				    cmon->cmAnims[i].Data[j],
+				    cmon->cmAnims[i].aData[j],
 				    tf,
-				    cmon->cmAnims[i].Frames);
+				    cmon->cmAnims[i].aFrames);
 			}
 		}
 	}
@@ -281,26 +281,26 @@ void InitMonsterGFX(int midx)
 	mtype = cmon->cmType;
 	mdata = &monsterdata[mtype];
 
-	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].Frames), "");
+	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->mAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff, NULL);
-			cmon->cmAnims[anim].CMem = celBuf;
+			cmon->cmAnims[anim].aCelData = celBuf;
 
 			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
-				for (i = 0; i < lengthof(cmon->cmAnims[anim].Data); i++) {
-					cmon->cmAnims[anim].Data[i] = CelGetFrameStart(celBuf, i);
+				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
+					cmon->cmAnims[anim].aData[i] = CelGetFrameStart(celBuf, i);
 				}
 			} else {
-				for (i = 0; i < lengthof(cmon->cmAnims[anim].Data); i++) {
-					cmon->cmAnims[anim].Data[i] = celBuf;
+				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
+					cmon->cmAnims[anim].aData[i] = celBuf;
 				}
 			}
 		}
 
-		cmon->cmAnims[anim].Frames = mdata->mAnimFrames[anim];
+		cmon->cmAnims[anim].aFrames = mdata->mAnimFrames[anim];
 		cmon->cmAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
 	}
 
@@ -472,10 +472,10 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->mExp = cmon->cmData->mExp;
 	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
-	mon->_mAnimData = cmon->cmAnims[MA_STAND].Data[dir];
+	mon->_mAnimData = cmon->cmAnims[MA_STAND].aData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].aFrameLen;
 	mon->_mAnimCnt = random_(88, mon->_mAnimFrameLen - 1);
-	mon->_mAnimLen = cmon->cmAnims[MA_STAND].Frames;
+	mon->_mAnimLen = cmon->cmAnims[MA_STAND].aFrames;
 	mon->_mAnimFrame = RandRange(1, mon->_mAnimLen - 1);
 	mon->_mmode = MM_STAND;
 	mon->_mVar1 = MM_STAND;
@@ -1081,8 +1081,8 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 	AnimStruct* as = &mon->_mAnims[anim];
 
 	mon->_mdir = md;
-	mon->_mAnimData = as->Data[md];
-	mon->_mAnimLen = as->Frames;
+	mon->_mAnimData = as->aData[md];
+	mon->_mAnimLen = as->aFrames;
 	mon->_mAnimCnt = 0;
 	mon->_mAnimFrame = 1;
 	mon->_mAnimFrameLen = as->aFrameLen;
@@ -1914,8 +1914,8 @@ static void MonStartHeal(int mnum)
 		dev_fatal("MonStartHeal: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_SPECIAL].Data[mon->_mdir];
-	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].Frames;
+	mon->_mAnimData = mon->_mAnims[MA_SPECIAL].aData[mon->_mdir];
+	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].aFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
 	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 8)); // the healing speed of the monster
@@ -1929,7 +1929,7 @@ static bool MonDoStand(int mnum)
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	mon->_mAnimData = mon->_mAnims[mon->_mType != MT_GOLEM ? MA_STAND : MA_WALK].Data[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[mon->_mType != MT_GOLEM ? MA_STAND : MA_WALK].aData[mon->_mdir];
 
 	if (mon->_mAnimFrame == mon->_mAnimLen)
 		MonEnemy(mnum);
@@ -1949,7 +1949,7 @@ static bool MonDoWalk(int mnum)
 	}
 	mon = &monster[mnum];
 	// WARNING: similar logic (using _mVar8) is used to check missile-monster collision in missile.cpp
-	if (mon->_mVar8 == mon->_mAnims[MA_WALK].Frames) {
+	if (mon->_mVar8 == mon->_mAnims[MA_WALK].aFrames) {
 		switch (mon->_mmode) {
 		case MM_WALK:
 			dMonster[mon->_mx][mon->_my] = 0;
@@ -2495,7 +2495,7 @@ static bool MonDoDelay(int mnum)
 		dev_fatal("MonDoDelay: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_STAND].Data[MonGetDir(mnum)];
+	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[MonGetDir(mnum)];
 
 	if (mon->_mVar2-- == 0) {
 		oFrame = mon->_mAnimFrame;
@@ -2530,7 +2530,7 @@ void MonWalkDir(int mnum, int md)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
 	}
-	mwi = MWVel[monster[mnum]._mAnims[MA_WALK].Frames - 1];
+	mwi = MWVel[monster[mnum]._mAnims[MA_WALK].aFrames - 1];
 	switch (md) {
 	case DIR_N:
 		MonStartWalk(mnum, 0, -mwi[1], -1, -1, DIR_N);
@@ -4555,7 +4555,7 @@ void FreeMonsters()
 		mtype = Monsters[i].cmType;
 		for (j = 0; j < lengthof(animletter); j++) {
 			if (animletter[j] != 's' || monsterdata[mtype].has_special) {
-				MemFreeDbg(Monsters[i].cmAnims[j].CMem);
+				MemFreeDbg(Monsters[i].cmAnims[j].aCelData);
 			}
 		}
 	}
@@ -4851,15 +4851,15 @@ void SyncMonsterAnim(int mnum)
 	case MM_CHARGE:
 		anim = MA_ATTACK;
 		mon->_mAnimFrame = 1;
-		mon->_mAnimLen = mon->_mAnims[MA_ATTACK].Frames;
+		mon->_mAnimLen = mon->_mAnims[MA_ATTACK].aFrames;
 		break;
 	default:
 		anim = MA_STAND;
 		mon->_mAnimFrame = 1;
-		mon->_mAnimLen = mon->_mAnims[MA_STAND].Frames;
+		mon->_mAnimLen = mon->_mAnims[MA_STAND].aFrames;
 		break;
 	}
-	mon->_mAnimData = mon->_mAnims[anim].Data[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[anim].aData[mon->_mdir];
 }
 
 void MissToMonst(int mi, int x, int y)

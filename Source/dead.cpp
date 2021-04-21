@@ -27,8 +27,8 @@ void InitDead()
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (!mtypes[cmon->cmType]) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-				dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].Frames;
+				dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].aData[d];
+			dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = cmon->cmWidth;
 			dead[nd]._deadWidth2 = cmon->cmWidth2;
 			dead[nd]._deadtrans = 0;
@@ -60,8 +60,8 @@ void InitDead()
 		mon = &monster[monstactive[i]];
 		if (mon->_uniqtype != 0) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)
-				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = mon->_mAnims[MA_DEATH].Frames;
+				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].aData[d];
+			dead[nd]._deadFrame = mon->_mAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = mon->_mAnimWidth;
 			dead[nd]._deadWidth2 = mon->_mAnimWidth2;
 			dead[nd]._deadtrans = mon->_uniqtrans + 4;
