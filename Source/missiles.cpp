@@ -185,6 +185,7 @@ static bool FindClosest(int sx, int sy, int &dx, int &dy)
 	int j, i, mid, tx, ty;
 	const char *cr;
 
+	static_assert(DBORDERX >= 16 && DBORDERY >= 16, "FindClosest expects a large enough border.");
 	for (i = 1; i < 16; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -209,6 +210,7 @@ static bool FindClosestChain(int sx, int sy, int &dx, int &dy)
 	int j, i, mid, tx, ty;
 	const char *cr;
 	
+	static_assert(DBORDERX >= 8 && DBORDERY >= 8, "FindClosestChain expects a large enough border.");
 	for (i = 1; i < 8; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -405,16 +407,12 @@ static void GetMissileVel(int mi, int sx, int sy, int dx, int dy, int v)
 
 	dx -= sx;
 	dy -= sy;
-	if (dx != 0 || dy != 0) {
-		dxp = (dx - dy) << 21;
-		dyp = (dy + dx) << 21;
-		dr = sqrt(dxp * dxp + dyp * dyp);
-		missile[mi]._mixvel = (dxp * (v << 16)) / dr;
-		missile[mi]._miyvel = (dyp * (v << 15)) / dr;
-	} else {
-		missile[mi]._mixvel = 0;
-		missile[mi]._miyvel = 0;
-	}
+	assert(dx != 0 || dy != 0);
+	dxp = (dx - dy) << 21;
+	dyp = (dy + dx) << 21;
+	dr = sqrt(dxp * dxp + dyp * dyp);
+	missile[mi]._mixvel = (dxp * (v << 16)) / dr;
+	missile[mi]._miyvel = (dyp * (v << 15)) / dr;
 }
 
 static void PutMissile(int mi)
@@ -423,9 +421,8 @@ static void PutMissile(int mi)
 
 	x = missile[mi]._mix;
 	y = missile[mi]._miy;
-	if (x <= 0 || y <= 0 || x >= MAXDUNX || y >= MAXDUNY)
-		missile[mi]._miDelFlag = TRUE;
-	else if (!missile[mi]._miDelFlag) {
+	assert(IN_DUNGEON_AREA(x, y));
+	if (!missile[mi]._miDelFlag) {
 		dFlags[x][y] |= BFLAG_MISSILE;
 		if (dMissile[x][y] == 0)
 			dMissile[x][y] = mi + 1;
@@ -1625,9 +1622,10 @@ int AddArrowC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	int pn, nTries;
+	int nTries;
 
 	assert((unsigned)misource < MAX_PLRS);
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddRndTeleport expects a large enough border.");
 	if (micaster == 0 || (dx == 0 && dy == 0)) {
 		nTries = 0;
 		do {
@@ -1643,11 +1641,8 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 				dy = -dy;
 			dx += sx;
 			dy += sy;
-#ifdef HELLFIRE
-			if (dx <= MAXDUNX && dx >= 0 && dy <= MAXDUNY && dy >= 0) ///BUGFIX: < MAXDUNX / < MAXDUNY
-#endif
-				pn = dPiece[dx][dy];
-		} while ((nSolidTable[pn] | dObject[dx][dy] | dMonster[dx][dy] | dPlayer[dx][dy]) != 0);
+			assert(IN_DUNGEON_AREA(dx, dy));
+		} while ((nSolidTable[dPiece[dx][dy]] | dObject[dx][dy] | dMonster[dx][dy] | dPlayer[dx][dy]) != 0);
 	}
 
 	mis = &missile[mi];
@@ -1744,22 +1739,22 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	const char *cr;
 
 	assert((unsigned)misource < MAX_PLRS);
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddTeleport expects a large enough border.");
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-				if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_misx = tx;
-					mis->_misy = ty;
-					dPlayer[tx][ty] = -(misource + 1);
-					mis->_miRange = 2;
-					return MIRES_DONE;
-				}
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
+				mis->_mix = tx;
+				mis->_miy = ty;
+				mis->_misx = tx;
+				mis->_misy = ty;
+				dPlayer[tx][ty] = -(misource + 1);
+				mis->_miRange = 2;
+				return MIRES_DONE;
 			}
 		}
 	}
@@ -1961,22 +1956,22 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis = &missile[mi];
 	if (currLvl._dType != DTYPE_TOWN) {
 		mis->_miDelFlag = TRUE;
+		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddTown expects a large enough border.");
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				tx = dx + *++cr;
 				ty = dy + *++cr;
-				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					pn = dPiece[tx][ty];
-					if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-						if (!CheckIfTrig(tx, ty)) {
-							mis->_miDelFlag = FALSE;
-							if (misource == myplr) {
-								NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
-							}
-							i = 6;
-							break;
+				assert(IN_DUNGEON_AREA(tx, ty));
+				pn = dPiece[tx][ty];
+				if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
+					if (!CheckIfTrig(tx, ty)) {
+						mis->_miDelFlag = FALSE;
+						if (misource == myplr) {
+							NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
 						}
+						i = 6;
+						break;
 					}
 				}
 			}
@@ -2096,36 +2091,36 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddGuardian expects a large enough border.");
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				if (LineClear(sx, sy, tx, ty)) {
-					pn = dPiece[tx][ty];
-					if ((dMonster[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
-						mis->_mix = tx;
-						mis->_miy = ty;
-						mis->_misx = tx;
-						mis->_misy = ty;
-						mis->_miLid = AddLight(tx, ty, 1);
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (LineClear(sx, sy, tx, ty)) {
+				pn = dPiece[tx][ty];
+				if ((dMonster[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
+					mis->_mix = tx;
+					mis->_miy = ty;
+					mis->_misx = tx;
+					mis->_misy = ty;
+					mis->_miLid = AddLight(tx, ty, 1);
 
-						range = spllvl + (plr[misource]._pLevel >> 1);
-						// TODO: add support for spell duration modifier
-						//range += (range * plr[misource]._pISplDur) >> 7;
-						if (range > 30)
-							range = 30;
-						range <<= 4;
-						if (range < 30)
-							range = 30;
+					range = spllvl + (plr[misource]._pLevel >> 1);
+					// TODO: add support for spell duration modifier
+					//range += (range * plr[misource]._pISplDur) >> 7;
+					if (range > 30)
+						range = 30;
+					range <<= 4;
+					if (range < 30)
+						range = 30;
 
-						mis->_miRange = range;
-						mis->_miVar1 = range - mis->_miAnimLen;
-						//mis->_miVar2 = 0;
-						mis->_miVar3 = 1;
-						return MIRES_DONE;
-					}
+					mis->_miRange = range;
+					mis->_miVar1 = range - mis->_miAnimLen;
+					//mis->_miVar2 = 0;
+					mis->_miVar3 = 1;
+					return MIRES_DONE;
 				}
 			}
 		}
@@ -2313,41 +2308,41 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 	assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddStone expects a large enough border.");
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-				mid = dMonster[tx][ty];
-				mid = mid >= 0 ? mid - 1 : -1 - mid;
-				if (mid < MAX_MINIONS)
-					continue;
-				mon = &monster[mid];
-				if (mon->_mAi != AI_DIABLO) {
+			assert(IN_DUNGEON_AREA(tx, ty));
+			mid = dMonster[tx][ty];
+			mid = mid >= 0 ? mid - 1 : -1 - mid;
+			if (mid < MAX_MINIONS)
+				continue;
+			mon = &monster[mid];
+			if (mon->_mAi != AI_DIABLO) {
 #ifdef HELLFIRE
-					if (mon->_mType == MT_NAKRUL)
-						continue;
+				if (mon->_mType == MT_NAKRUL)
+					continue;
 #endif
-					if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
-						mis->_miVar1 = mon->_mmode;
-						mis->_miVar2 = mid;
-						mon->_mmode = MM_STONE;
-						mis->_mix = tx;
-						mis->_miy = ty;
-						mis->_misx = mis->_mix;
-						mis->_misy = mis->_miy;
+				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mhitpoints >= (1 << 6)) {
+					mis->_miVar1 = mon->_mmode;
+					mis->_miVar2 = mid;
+					mon->_mmode = MM_STONE;
+					mis->_mix = tx;
+					mis->_miy = ty;
+					mis->_misx = mis->_mix;
+					mis->_misy = mis->_miy;
 
-						range = spllvl + 6;
-						// TODO: add support for spell duration modifier
-						//range += (range * plr[misource]._pISplDur) >> 7;
-						if (range > 15)
-							range = 15;
-						range <<= 4;
+					range = spllvl + 6;
+					// TODO: add support for spell duration modifier
+					//range += (range * plr[misource]._pISplDur) >> 7;
+					if (range > 15)
+						range = 15;
+					range <<= 4;
 
-						mis->_miRange = range;
-						return MIRES_DONE;
-					}
+					mis->_miRange = range;
+					return MIRES_DONE;
 				}
 			}
 		}
@@ -2526,27 +2521,27 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	const char *cr;
 
 	assert((unsigned)misource < MAX_PLRS);
+	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddWallC expects a large enough border.");
 	mis = &missile[mi];
 	for (i = 0; i < 6; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-				if (LineClear(sx, sy, tx, ty)) {
-					if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
-						midir = GetDirection8(sx, sy, dx, dy);
-						mis->_miVar1 = tx;
-						mis->_miVar2 = ty;
-						mis->_miVar3 = (midir - 2) & 7;
-						mis->_miVar4 = (midir + 2) & 7;
-						mis->_miVar5 = tx;
-						mis->_miVar6 = ty;
-						mis->_miVar7 = FALSE;
-						mis->_miVar8 = FALSE;
-						mis->_miRange = 1 + (spllvl >> 1);
-						return MIRES_DONE;
-					}
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (LineClear(sx, sy, tx, ty)) {
+				if ((sx != tx || sy != ty) && (nSolidTable[dPiece[tx][ty]] | dObject[tx][ty]) == 0) {
+					midir = GetDirection8(sx, sy, dx, dy);
+					mis->_miVar1 = tx;
+					mis->_miVar2 = ty;
+					mis->_miVar3 = (midir - 2) & 7;
+					mis->_miVar4 = (midir + 2) & 7;
+					mis->_miVar5 = tx;
+					mis->_miVar6 = ty;
+					mis->_miVar7 = FALSE;
+					mis->_miVar8 = FALSE;
+					mis->_miRange = 1 + (spllvl >> 1);
+					return MIRES_DONE;
 				}
 			}
 		}
@@ -2998,17 +2993,17 @@ void MI_Golem(int mi)
 	mis->_miDelFlag = TRUE;
 	src = mis->_miSource;
 	if (MINION_NR_INACTIVE(src)) {
+		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Golem expects a large enough border.");
 		for (i = 0; i < 6; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				tx = mis->_miVar4 + *++cr;
 				ty = mis->_miVar5 + *++cr;
-				if (0 < tx && tx < MAXDUNX && 0 < ty && ty < MAXDUNY) {
-					if (LineClear(mis->_misx, mis->_misy, tx, ty)) {
-						if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-							SpawnGolum(src, tx, ty, mis->_miSpllvl);
-							return;
-						}
+				assert(IN_DUNGEON_AREA(tx, ty));
+				if (LineClear(mis->_misx, mis->_misy, tx, ty)) {
+					if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
+						SpawnGolum(src, tx, ty, mis->_miSpllvl);
+						return;
 					}
 				}
 			}
@@ -3291,19 +3286,19 @@ void MI_HorkSpawn(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, false);
 	if (mis->_miRange <= 0) {
 		mis->_miDelFlag = TRUE;
+		static_assert(DBORDERX >= 2 && DBORDERY >= 2, "MI_HorkSpawn expects a large enough border.");
 		for (i = 0; i < 2; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = *cr; j > 0; j--) {
 				tx = mis->_mix + *++cr;
 				ty = mis->_miy + *++cr;
-				if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-					if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dPlayer[tx][ty] | dObject[tx][ty]) == 0) {
-						i = 6;
-						int mnum = AddMonster(tx, ty, mis->_miVar1, 1, true);
-						if (mnum != -1)
-							MonStartStand(mnum, mis->_miVar1);
-						break;
-					}
+				assert(IN_DUNGEON_AREA(tx, ty));
+				if ((nSolidTable[dPiece[tx][ty]] | dMonster[tx][ty] | dPlayer[tx][ty] | dObject[tx][ty]) == 0) {
+					i = 6;
+					int mnum = AddMonster(tx, ty, mis->_miVar1, 1, true);
+					if (mnum != -1)
+						MonStartStand(mnum, mis->_miVar1);
+					break;
 				}
 			}
 		}
@@ -3385,19 +3380,19 @@ void MI_RingC(int mi)
 	sx = mis->_mix;
 	sy = mis->_miy;
 
+	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "MI_RingC expects a large enough border.");
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
-		if (tx > 0 && tx < MAXDUNX && ty > 0 && ty < MAXDUNY) {
-			pn = dPiece[tx][ty];
-			if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
-				if (LineClear(sx, sy, tx, ty)) {
-					if (nMissileTable[pn])
-						break;
-					else
-						AddMissile(tx, ty, 0, 0, 0, mitype, caster, source, 0, 0, spllvl);
-				}
+		assert(IN_DUNGEON_AREA(tx, ty));
+		pn = dPiece[tx][ty];
+		if ((nSolidTable[pn] | dObject[tx][ty]) == 0) {
+			if (LineClear(sx, sy, tx, ty)) {
+				if (nMissileTable[pn])
+					break;
+				else
+					AddMissile(tx, ty, 0, 0, 0, mitype, caster, source, 0, 0, spllvl);
 			}
 		}
 	}
