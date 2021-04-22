@@ -185,7 +185,7 @@ GameController *GameController::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < controllers_->size(); ++i) {
 		GameController &controller = (*controllers_)[i];
-		if (controller.instance_id_ == instance_id)
+		if (controller.instance_id_ == instanceId)
 			return &controller;
 	}
 	return NULL;

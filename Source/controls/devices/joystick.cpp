@@ -287,7 +287,7 @@ Joystick *Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_->size(); ++i) {
 		Joystick &joystick = (*joysticks_)[i];
-		if (joystick.instance_id_ == instance_id)
+		if (joystick.instance_id_ == instanceId)
 			return &joystick;
 	}
 	return NULL;
