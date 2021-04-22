@@ -17,7 +17,7 @@ CornerStoneStruct CornerStone;
 int MaxGold = GOLD_MAX_LIMIT;
 #endif
 BYTE *itemanims[ITEMTYPES];
-BOOL UniqueItemFlag[NUM_UITEM];
+BOOL UniqueItemFlags[NUM_UITEM];
 int numitems;
 int gnNumGetRecords;
 
@@ -345,7 +345,7 @@ void InitItemGFX()
 		snprintf(arglist, sizeof(arglist), "Items\\%s.CEL", ItemDropNames[i]);
 		itemanims[i] = LoadFileInMem(arglist, NULL);
 	}
-	memset(UniqueItemFlag, 0, sizeof(UniqueItemFlag));
+	memset(UniqueItemFlags, 0, sizeof(UniqueItemFlags));
 }
 
 BOOL ItemPlace(int x, int y)
@@ -2391,7 +2391,7 @@ static int CheckUnique(int ii, int lvl, int uper, BOOL recreate)
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIItemId == uid
 		 && lvl >= UniqueItemList[i].UIMinLvl
-		 && (!uniq || !UniqueItemFlag[i])) {
+		 && (!uniq || !UniqueItemFlags[i])) {
 			uok[i] = TRUE;
 			ui++;
 		}
@@ -2419,7 +2419,7 @@ static void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
 
-	UniqueItemFlag[uid] = TRUE;
+	UniqueItemFlags[uid] = TRUE;
 	ui = &UniqueItemList[uid];
 	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b, 0, 0, 1);
 
@@ -2711,7 +2711,7 @@ void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
 			item[MAXITEMS]._iSeed = iseed;
 		} else {
 			if (icreateinfo & CF_TOWN) {
-				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed, ivalue);
+				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed);
 			} else if ((icreateinfo & CF_USEFUL) == CF_USEFUL) {
 				SetupAllUseful(MAXITEMS, iseed, icreateinfo & CF_LEVEL);
 			} else {
@@ -4129,7 +4129,7 @@ static void SpawnOnePremium(int i, int plvl)
 	} while (item[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	item[0]._iSeed = seed;
 	item[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
-	copy_pod(premiumitem[i], item[0]);
+	copy_pod(premiumitems[i], item[0]);
 }
 
 void SpawnPremium(int lvl)
@@ -4138,7 +4138,7 @@ void SpawnPremium(int lvl)
 
 	if (numpremium < SMITH_PREMIUM_ITEMS) {
 		for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
-			if (premiumitem[i]._itype == ITYPE_NONE)
+			if (premiumitems[i]._itype == ITYPE_NONE)
 				SpawnOnePremium(i, premiumlevel + premiumlvladd[i]);
 		}
 		numpremium = SMITH_PREMIUM_ITEMS;
@@ -4146,27 +4146,27 @@ void SpawnPremium(int lvl)
 	while (premiumlevel < lvl) {
 		premiumlevel++;
 #ifdef HELLFIRE
-		copy_pod(premiumitem[0], premiumitem[3]);
-		copy_pod(premiumitem[1], premiumitem[4]);
-		copy_pod(premiumitem[2], premiumitem[5]);
-		copy_pod(premiumitem[3], premiumitem[6]);
-		copy_pod(premiumitem[4], premiumitem[7]);
-		copy_pod(premiumitem[5], premiumitem[8]);
-		copy_pod(premiumitem[6], premiumitem[9]);
-		copy_pod(premiumitem[7], premiumitem[10]);
-		copy_pod(premiumitem[8], premiumitem[11]);
-		copy_pod(premiumitem[9], premiumitem[12]);
+		copy_pod(premiumitems[0], premiumitems[3]);
+		copy_pod(premiumitems[1], premiumitems[4]);
+		copy_pod(premiumitems[2], premiumitems[5]);
+		copy_pod(premiumitems[3], premiumitems[6]);
+		copy_pod(premiumitems[4], premiumitems[7]);
+		copy_pod(premiumitems[5], premiumitems[8]);
+		copy_pod(premiumitems[6], premiumitems[9]);
+		copy_pod(premiumitems[7], premiumitems[10]);
+		copy_pod(premiumitems[8], premiumitems[11]);
+		copy_pod(premiumitems[9], premiumitems[12]);
 		SpawnOnePremium(10, premiumlevel + premiumlvladd[10]);
-		copy_pod(premiumitem[11], premiumitem[13]);
+		copy_pod(premiumitems[11], premiumitems[13]);
 		SpawnOnePremium(12, premiumlevel + premiumlvladd[12]);
-		copy_pod(premiumitem[13], premiumitem[14]);
+		copy_pod(premiumitems[13], premiumitems[14]);
 		SpawnOnePremium(14, premiumlevel + premiumlvladd[14]);
 #else
-		copy_pod(premiumitem[0], premiumitem[2]);
-		copy_pod(premiumitem[1], premiumitem[3]);
-		copy_pod(premiumitem[2], premiumitem[4]);
+		copy_pod(premiumitems[0], premiumitems[2]);
+		copy_pod(premiumitems[1], premiumitems[3]);
+		copy_pod(premiumitems[2], premiumitems[4]);
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
-		copy_pod(premiumitem[4], premiumitem[5]);
+		copy_pod(premiumitems[4], premiumitems[5]);
 		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
 #endif
 	}
@@ -4433,7 +4433,7 @@ void SpawnStoreGold()
 	golditem._iStatFlag = TRUE;
 }
 
-static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
+static void RecreateSmithItem(int ii, int lvl, int iseed)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
@@ -4443,7 +4443,7 @@ static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
+static void RecreatePremiumItem(int ii, int plvl, int iseed)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndPremiumItem(plvl >> 2, plvl), plvl);
@@ -4454,7 +4454,7 @@ static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
+static void RecreateBoyItem(int ii, int lvl, int iseed)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
@@ -4494,14 +4494,14 @@ static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
 	item[ii]._iIdentified = TRUE;
 }
 
-void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed, int ivalue)
+void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed)
 {
 	if (icreateinfo & CF_SMITH)
-		RecreateSmithItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
+		RecreateSmithItem(ii, icreateinfo & CF_LEVEL, iseed);
 	else if (icreateinfo & CF_SMITHPREMIUM)
-		RecreatePremiumItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
+		RecreatePremiumItem(ii, icreateinfo & CF_LEVEL, iseed);
 	else if (icreateinfo & CF_BOY)
-		RecreateBoyItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
+		RecreateBoyItem(ii, icreateinfo & CF_LEVEL, iseed);
 	else if (icreateinfo & CF_WITCH)
 		RecreateWitchItem(ii, idx, icreateinfo & CF_LEVEL, iseed);
 	else if (icreateinfo & CF_HEALER)

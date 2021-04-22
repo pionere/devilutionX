@@ -133,11 +133,11 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		pszFileName = strchr(pszFileName, 46);
 
 	// omit all types except PCX
-	if (pszFileName == NULL || strcasecmp(pszFileName, ".pcx")) {
+	if (pszFileName == NULL || strcasecmp(pszFileName, ".pcx") != 0) {
 		return false;
 	}
 
-	if (!SFileReadFile(hFile, &pcxhdr, 128, 0, 0)) {
+	if (!SFileReadFile(hFile, &pcxhdr, 128, NULL, NULL)) {
 		SFileCloseFile(hFile);
 		return false;
 	}
@@ -150,7 +150,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	//
 	// This is useful because in SDL the pitch size is often slightly larger
 	// than image width for efficiency.
-	const int x_skip = dwBuffersize / height - width;
+	const int xSkip = dwBuffersize / height - width;
 
 	if (pdwWidth != NULL)
 		*pdwWidth = width;
@@ -168,7 +168,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	}
 
 	if (fileBuffer != NULL) {
-		SFileReadFile(hFile, fileBuffer, size, 0, 0);
+		SFileReadFile(hFile, fileBuffer, size, NULL, NULL);
 		dataPtr = fileBuffer;
 
 		for (int j = 0; j < height; j++) {
@@ -189,7 +189,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 				}
 			}
 			// Skip the pitch padding.
-			pBuffer += x_skip;
+			pBuffer += xSkip;
 		}
 
 		free(fileBuffer);
@@ -197,7 +197,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 
 	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
 		SFileSetFilePointer(hFile, -768, NULL, DVL_FILE_CURRENT);
-		SFileReadFile(hFile, paldata, 768, 0, NULL);
+		SFileReadFile(hFile, paldata, 768, NULL, NULL);
 		for (int i = 0; i < 256; i++) {
 			pPalette[i].r = paldata[i][0];
 			pPalette[i].g = paldata[i][1];

@@ -1764,7 +1764,7 @@ static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 	mem_free_dbg(pLevelMap);
 }
 
-static void LoadPreL4Dungeon(char *sFileName, int vx, int vy)
+static void LoadPreL4Dungeon(char *sFileName)
 {
 	BYTE *pLevelMap = LoadL4DungeonData(sFileName);
 

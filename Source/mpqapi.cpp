@@ -82,7 +82,7 @@ struct FStreamWrapper {
 public:
 	bool Open(const char *path, std::ios::openmode mode)
 	{
-		s_.reset(new std::fstream(path, mode));
+		s_ = std::make_unique<std::fstream>(path, mode);
 		if (!s_->fail()) {
 #ifdef _DEBUG
 			SDL_Log("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());

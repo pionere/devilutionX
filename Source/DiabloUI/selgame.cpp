@@ -37,14 +37,12 @@ std::vector<UiItemBase *> vecSelGameDialog;
 
 static void selgame_FreeVectors()
 {
-	for (std::size_t i = 0; i < vecSelGameDlgItems.size(); i++) {
-		UiListItem *pUIItem = vecSelGameDlgItems[i];
+	for (auto pUIItem : vecSelGameDlgItems) {
 		delete pUIItem;
 	}
 	vecSelGameDlgItems.clear();
 
-	for (std::size_t i = 0; i < vecSelGameDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelGameDialog[i];
+	for (auto pUIItem : vecSelGameDialog) {
 		delete pUIItem;
 	}
 	vecSelGameDialog.clear();
@@ -269,8 +267,8 @@ void selgame_Diff_Esc()
 	if (!selhero_isMultiPlayer) {
 		selgame_Free();
 
-		selhero_Init();
-		selhero_List_Init();
+		SelheroInit();
+		SelheroListInit();
 		return;
 	}
 
@@ -396,7 +394,7 @@ void selgame_Password_Select(std::size_t index)
 {
 	if (selgame_selectedGame) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		if (SNetJoinGame(selgame_selectedGame, selgame_Ip, selgame_Password, NULL, NULL, gdwPlayerId)) {
+		if (SNetJoinGame(selgame_Ip, selgame_Password, gdwPlayerId)) {
 			if (!IsDifficultyAllowed(m_client_info->initdata->bDiff)) {
 				selgame_GameSelection_Select(1);
 				return;
@@ -417,7 +415,7 @@ void selgame_Password_Select(std::size_t index)
 	info->bDiff = gbDifficulty;
 	info->bRate = gbTickRate;
 
-	if (SNetCreateGame(NULL, selgame_Password, NULL, 0, (char *)info, sizeof(_gamedata), MAX_PLRS, NULL, NULL, gdwPlayerId)) {
+	if (SNetCreateGame(NULL, selgame_Password, (char *)info, sizeof(_gamedata), gdwPlayerId)) {
 		UiInitList_clear();
 		selgame_endMenu = true;
 	} else {

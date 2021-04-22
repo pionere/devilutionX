@@ -22,7 +22,7 @@ std::vector<UiItemBase *> vecSelConnDlg;
 
 #define DESCRIPTION_WIDTH 205
 
-void selconn_Load()
+void SelconnLoad()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 
@@ -69,34 +69,31 @@ void selconn_Load()
 	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelConnDlg, vecConnItems.size(), selconn_Focus, selconn_Select, selconn_Esc);
+	UiInitList(vecSelConnDlg, vecConnItems.size(), SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
-void selconn_Free()
+void SelconnFree()
 {
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecConnItems.size(); i++) {
-		UiListItem *pUIItem = vecConnItems[i];
+	for (auto pUIItem : vecConnItems) {
 		delete pUIItem;
 	}
 	vecConnItems.clear();
 
-	for (std::size_t i = 0; i < vecSelConnDlg.size(); i++) {
-		UiItemBase *pUIMenuItem = vecSelConnDlg[i];
-		if (pUIMenuItem)
-			delete pUIMenuItem;
+	for (auto pUIMenuItem : vecSelConnDlg) {
+		delete pUIMenuItem;
 	}
 	vecSelConnDlg.clear();
 }
 
-void selconn_Esc()
+void SelconnEsc()
 {
 	selconn_ReturnValue = false;
 	selconn_EndMenu = true;
 }
 
-void selconn_Focus(std::size_t index)
+void SelconnFocus(std::size_t index)
 {
 	int players = MAX_PLRS;
 	switch (vecConnItems[index]->m_value) {
@@ -120,28 +117,26 @@ void selconn_Focus(std::size_t index)
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
 }
 
-void selconn_Select(std::size_t index)
+void SelconnSelect(std::size_t index)
 {
 	provider = vecConnItems[index]->m_value;
 
-	selconn_Free();
+	SelconnFree();
 	selconn_EndMenu = SNetInitializeProvider(provider, selconn_ClientInfo, selconn_UserInfo, selconn_UiInfo, selconn_FileInfo);
-	selconn_Load();
+	SelconnLoad();
 }
 
 int UiSelectProvider(
-    int a1,
     _SNETPROGRAMDATA *client_info,
     _SNETPLAYERDATA *user_info,
     _SNETUIDATA *ui_info,
-    _SNETVERSIONDATA *file_info,
-    int *type)
+    _SNETVERSIONDATA *file_info)
 {
 	selconn_ClientInfo = client_info;
 	selconn_UserInfo = user_info;
 	selconn_UiInfo = ui_info;
 	selconn_FileInfo = file_info;
-	selconn_Load();
+	SelconnLoad();
 
 	selconn_ReturnValue = true;
 	selconn_EndMenu = false;
@@ -149,7 +144,7 @@ int UiSelectProvider(
 		UiClearScreen();
 		UiPollAndRender();
 	}
-	selconn_Free();
+	SelconnFree();
 
 	return selconn_ReturnValue;
 }

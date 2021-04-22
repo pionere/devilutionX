@@ -1,9 +1,9 @@
-#include "control.h"
-#include "controls/menu_controls.h"
 #include "DiabloUI/art_draw.h"
 #include "DiabloUI/button.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/fonts.h"
+#include "control.h"
+#include "controls/menu_controls.h"
 #include "dx.h"
 #include "palette.h"
 #include "utils/display.h"
@@ -26,7 +26,7 @@ void DialogActionCancel()
 	endMenu = true;
 }
 
-void progress_Load(const char *msg)
+void ProgressLoad(const char *msg)
 {
 	LoadBackgroundArt("ui_art\\black.pcx");
 	LoadArt("ui_art\\spopup.pcx", &ArtPopupSm);
@@ -46,7 +46,7 @@ void progress_Load(const char *msg)
 	vecProgress.push_back(new UiButton(&SmlButton, "Cancel", &DialogActionCancel, rect3, 0));
 }
 
-void progress_Free()
+void ProgressFree()
 {
 	ArtBackground.Unload();
 	ArtPopupSm.Unload();
@@ -60,7 +60,7 @@ void progress_Free()
 	UnloadTtfFont();
 }
 
-void progress_Render(BYTE progress)
+void ProgressRender(BYTE progress)
 {
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 	DrawArt(0, 0, &ArtBackground);
@@ -76,22 +76,22 @@ void progress_Render(BYTE progress)
 	DrawArt(GetCenterOffset(110), y + 99, &SmlButton, 2, 110);
 
 	if (msgSurface) {
-		SDL_Rect dsc_rect = {
+		SDL_Rect dscRect = {
 			static_cast<Sint16>(x + 50 + 1),
 			static_cast<Sint16>(y + 8 + 1),
 			msgSurface->w,
 			msgSurface->h
 		};
-		Blit(msgShadow, NULL, &dsc_rect);
-		dsc_rect.x -= 1;
-		dsc_rect.y -= 1;
-		Blit(msgSurface, NULL, &dsc_rect);
+		Blit(msgShadow, NULL, &dscRect);
+		dscRect.x -= 1;
+		dscRect.y -= 1;
+		Blit(msgSurface, NULL, &dscRect);
 	}
 }
 
-bool UiProgressDialog(const char *msg, int (*fnfunc)(), int rate)
+bool UiProgressDialog(const char *msg, int (*fnfunc)())
 {
-	progress_Load(msg);
+	ProgressLoad(msg);
 	SetFadeLevel(256);
 
 	endMenu = false;
@@ -100,7 +100,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)(), int rate)
 	SDL_Event event;
 	while (!endMenu && progress < 100) {
 		progress = fnfunc();
-		progress_Render(progress);
+		ProgressRender(progress);
 		UiRenderItems(vecProgress);
 		DrawMouse();
 		RenderPresent();
@@ -133,7 +133,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)(), int rate)
 			UiHandleEvents(&event);
 		}
 	}
-	progress_Free();
+	ProgressFree();
 
 	return progress == 100;
 }

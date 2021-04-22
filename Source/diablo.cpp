@@ -431,16 +431,13 @@ static void run_game_loop(unsigned int uMsg)
 
 BOOL StartGame(BOOL bSinglePlayer)
 {
-	BOOL fExitProgram;
-
 	gbSelectProvider = TRUE;
 
 	while (TRUE) {
-		fExitProgram = FALSE;
 		gbLoadGame = FALSE;
 
-		if (!NetInit(bSinglePlayer, &fExitProgram)) {
-			gbRunGameResult = !fExitProgram;
+		if (!NetInit(bSinglePlayer)) {
+			gbRunGameResult = true;
 			break;
 		}
 
@@ -1407,7 +1404,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			spelldata[SPL_TELEPORT].sTownSpell = 1;
+			spelldata[SPL_TELEPORT].sTownSpell = TRUE;
 			plr[myplr]._pSplLvl[plr[myplr]._pSpell]++;
 		}
 		break;
@@ -1509,7 +1506,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
-	MainWndProc(uMsg, wParam, lParam);
+	MainWndProc(uMsg);
 }
 
 void GM_Game(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1586,7 +1583,7 @@ void GM_Game(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
-	MainWndProc(uMsg, wParam, lParam);
+	MainWndProc(uMsg);
 }
 
 static void LoadLvlGFX()

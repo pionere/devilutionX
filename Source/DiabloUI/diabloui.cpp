@@ -57,11 +57,11 @@ namespace {
 DWORD fadeTc;
 int fadeValue = 0;
 
-struct scrollBarState {
+struct ScrollBarState {
 	bool upArrowPressed;
 	bool downArrowPressed;
 
-	scrollBarState()
+	ScrollBarState()
 	{
 		upArrowPressed = false;
 		downArrowPressed = false;
@@ -77,7 +77,7 @@ void UiDestroy()
 	UnloadArtFonts();
 }
 
-void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index), void (*fnSelect)(std::size_t index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
+void UiInitList(const std::vector<UiItemBase *> &items, std::size_t listSize, void (*fnFocus)(std::size_t index), void (*fnSelect)(std::size_t index), void (*fnEsc)(), bool (*fnYesNo)(), bool itemsWraps)
 {
 	SelectedItem = 0;
 	SelectedItemMax = listSize != 0 ? listSize - 1 : 0;
@@ -96,10 +96,10 @@ void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fn
 	SDL_StopTextInput(); // input is enabled by default
 #endif
 	textInputActive = false;
-	for (std::size_t i = 0; i < items.size(); i++) {
-		if (items[i]->m_type == UI_EDIT) {
-			UiEdit *pItemUIEdit = (UiEdit *)items[i];
-			SDL_SetTextInputRect(&items[i]->m_rect);
+	for (auto &item : items) {
+		if (item->m_type == UI_EDIT) {
+			auto *pItemUIEdit = static_cast<UiEdit *>(item);
+			SDL_SetTextInputRect(&item->m_rect);
 			textInputActive = true;
 #ifdef __SWITCH__
 			switch_start_text_input("", pItemUIEdit->m_value, pItemUIEdit->m_max_length, /*multiline=*/0);
@@ -114,13 +114,13 @@ void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fn
 	}
 }
 
-void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size)
+void UiInitScrollBar(UiScrollBar *uiSb, std::size_t viewportSize)
 {
-	ListViewportSize = viewport_size;
+	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
-		ui_sb->add_flag(UIS_HIDDEN);
+		uiSb->add_flag(UIS_HIDDEN);
 	} else {
-		ui_sb->remove_flag(UIS_HIDDEN);
+		uiSb->remove_flag(UIS_HIDDEN);
 	}
 }
 
@@ -184,55 +184,55 @@ void UiFocusDown()
 
 void UiFocusPageUp()
 {
-	std::size_t page_start = ListOffset;
-	if (page_start == 0) {
+	std::size_t pageStart = ListOffset;
+	if (pageStart == 0) {
 		UiFocus(0);
 	} else {
-		std::size_t relpos = SelectedItem - page_start;
-		if (page_start >= ListViewportSize)
-			page_start -= ListViewportSize;
+		std::size_t relpos = SelectedItem - pageStart;
+		if (pageStart >= ListViewportSize)
+			pageStart -= ListViewportSize;
 		else
-			page_start = 0;
-		UiFocus(page_start);
-		UiFocus(page_start + relpos);
+			pageStart = 0;
+		UiFocus(pageStart);
+		UiFocus(pageStart + relpos);
 	}
 }
 
 void UiFocusPageDown()
 {
-	std::size_t page_end = ListOffset + ListViewportSize;
-	if (page_end > SelectedItemMax || page_end == 0) {
+	std::size_t pageEnd = ListOffset + ListViewportSize;
+	if (pageEnd > SelectedItemMax || pageEnd == 0) {
 		UiFocus(SelectedItemMax);
 	} else {
-		page_end--;
-		std::size_t relpos = page_end - SelectedItem;
-		if (page_end + ListViewportSize <= SelectedItemMax)
-			page_end += ListViewportSize;
+		pageEnd--;
+		std::size_t relpos = pageEnd - SelectedItem;
+		if (pageEnd + ListViewportSize <= SelectedItemMax)
+			pageEnd += ListViewportSize;
 		else
-			page_end = SelectedItemMax;
-		UiFocus(page_end);
-		UiFocus(page_end - relpos);
+			pageEnd = SelectedItemMax;
+		UiFocus(pageEnd);
+		UiFocus(pageEnd - relpos);
 	}
 }
 
-static void selhero_CatToName(char *in_buf, char *out_buf, int cnt)
+static void SelheroCatToName(char *inBuf, char *outBuf, int cnt)
 {
-	std::string output = utf8_to_latin1(in_buf);
-	int pos = strlen(out_buf);
-	SStrCopy(&out_buf[pos], output.c_str(), cnt - pos);
+	std::string output = utf8_to_latin1(inBuf);
+	int pos = strlen(outBuf);
+	SStrCopy(&outBuf[pos], output.c_str(), cnt - pos);
 }
 
 #ifdef __vita__
-static void selhero_SetName(char *in_buf, char *out_buf, int cnt)
+static void selhero_SetName(char *inBuf, char *outBuf, int cnt)
 {
-	std::string output = utf8_to_latin1(in_buf);
-	strncpy(out_buf, output.c_str(), cnt);
+	std::string output = utf8_to_latin1(inBuf);
+	strncpy(outBuf, output.c_str(), cnt);
 }
 #endif
 
-bool HandleMenuAction(MenuAction menu_action)
+bool HandleMenuAction(MenuAction menuAction)
 {
-	switch (menu_action) {
+	switch (menuAction) {
 	case MenuAction_SELECT:
 		UiFocusNavigationSelect();
 		return true;
@@ -313,7 +313,7 @@ void UiFocusNavigation(SDL_Event *event)
 					if (clipboard == NULL) {
 						SDL_Log("%s", SDL_GetError());
 					} else {
-						selhero_CatToName(clipboard, UiTextInput, UiTextInputLen);
+						SelheroCatToName(clipboard, UiTextInput, UiTextInputLen);
 					}
 				}
 				return;
@@ -336,7 +336,7 @@ void UiFocusNavigation(SDL_Event *event)
 					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 					utf8[0] = (char)unicode;
 					utf8[1] = '\0';
-					selhero_CatToName(utf8, UiTextInput, UiTextInputLen);
+					SelheroCatToName(utf8, UiTextInput, UiTextInputLen);
 				}
 			}
 #endif
@@ -348,7 +348,7 @@ void UiFocusNavigation(SDL_Event *event)
 #ifdef __vita__
 				selhero_SetName(event->text.text, UiTextInput, UiTextInputLen);
 #else
-				selhero_CatToName(event->text.text, UiTextInput, UiTextInputLen);
+				SelheroCatToName(event->text.text, UiTextInput, UiTextInputLen);
 #endif
 			}
 			return;
@@ -517,7 +517,7 @@ bool UiValidPlayerName(const char *name)
 		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
 			return false;
 
-	const char *const reserved[] = {
+	const char *const bannedNames[] = {
 		"gvdl",
 		"dvou",
 		"tiju",
@@ -533,8 +533,8 @@ bool UiValidPlayerName(const char *name)
 	for (BYTE *letter = (BYTE *)tmpname; *letter; letter++)
 		++*letter;
 
-	for (int i = 0; i < lengthof(reserved); i++) {
-		if (strstr(tmpname, reserved[i]))
+	for (int i = 0; i < lengthof(bannedNames); i++) {
+		if (strstr(tmpname, bannedNames[i]))
 			return false;
 	}
 
@@ -598,18 +598,18 @@ void UiAddBackground(std::vector<UiItemBase *> *vecDialog)
 #ifdef HELLFIRE
 	if (ArtBackgroundWidescreen.surface != NULL) {
 		SDL_Rect rectw = { 0, UI_OFFSET_Y, 0, 0 };
-		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, /*animated=*/false, /*frame=*/0, rectw, UIS_CENTER));
+		vecDialog->push_back(new UiImage(&ArtBackgroundWidescreen, /*bAnimated=*/false, /*iFrame=*/0, rectw, UIS_CENTER));
 	}
 #endif
 
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtBackground, /*animated=*/false, /*frame=*/0, rect, UIS_CENTER));
+	vecDialog->push_back(new UiImage(&ArtBackground, /*bAnimated=*/false, /*iFrame=*/0, rect, UIS_CENTER));
 }
 
 void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size, int y)
 {
 	SDL_Rect rect = { 0, UI_OFFSET_Y + y, 0, 0 };
-	vecDialog->push_back(new UiImage(&ArtLogos[size], /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
+	vecDialog->push_back(new UiImage(&ArtLogos[size], /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
 }
 
 void UiFadeIn()
@@ -668,91 +668,91 @@ void UiPollAndRender()
 
 namespace {
 
-void Render(UiText *ui_text)
+void Render(UiText *uiText)
 {
-	DrawTTF(ui_text->m_text,
-	    ui_text->m_rect,
-	    ui_text->m_iFlags,
-	    ui_text->m_color,
-	    ui_text->m_shadow_color,
-	    ui_text->m_render_cache);
+	DrawTTF(uiText->m_text,
+	    uiText->m_rect,
+	    uiText->m_iFlags,
+	    uiText->m_color,
+	    uiText->m_shadow_color,
+	    uiText->m_render_cache);
 }
 
-void Render(const UiArtText *ui_art_text)
+void Render(const UiArtText *uiArtText)
 {
-	DrawArtStr(ui_art_text->m_text, ui_art_text->m_rect, ui_art_text->m_iFlags);
+	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
 
-void Render(const UiImage *ui_image)
+void Render(const UiImage *uiImage)
 {
-	int x = ui_image->m_rect.x;
-	if ((ui_image->m_iFlags & UIS_CENTER) && ui_image->m_art != NULL) {
-		const int x_offset = GetCenterOffset(ui_image->m_art->w(), ui_image->m_rect.w);
-		x += x_offset;
+	int x = uiImage->m_rect.x;
+	if ((uiImage->m_iFlags & UIS_CENTER) && uiImage->m_art != nullptr) {
+		const int xOffset = GetCenterOffset(uiImage->m_art->w(), uiImage->m_rect.w);
+		x += xOffset;
 	}
-	if (ui_image->m_animated) {
-		DrawAnimatedArt(ui_image->m_art, x, ui_image->m_rect.y);
+	if (uiImage->m_animated) {
+		DrawAnimatedArt(uiImage->m_art, x, uiImage->m_rect.y);
 	} else {
-		DrawArt(x, ui_image->m_rect.y, ui_image->m_art, ui_image->m_frame, ui_image->m_rect.w);
+		DrawArt(x, uiImage->m_rect.y, uiImage->m_art, uiImage->m_frame, uiImage->m_rect.w);
 	}
 }
 
-void Render(const UiArtTextButton *ui_button)
+void Render(const UiArtTextButton *uiButton)
 {
-	DrawArtStr(ui_button->m_text, ui_button->m_rect, ui_button->m_iFlags);
+	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
-void Render(const UiList *ui_list)
+void Render(const UiList *uiList)
 {
-	for (std::size_t i = 0; i < ui_list->m_vecItems.size(); ++i) {
-		SDL_Rect rect = ui_list->itemRect(i);
-		const UiListItem *item = ui_list->GetItem(i);
+	for (std::size_t i = 0; i < uiList->m_vecItems.size(); ++i) {
+		SDL_Rect rect = uiList->itemRect(i);
+		const UiListItem *item = uiList->GetItem(i);
 		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
-		DrawArtStr(item->m_text, rect, ui_list->m_iFlags);
+		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }
 
-void Render(const UiScrollBar *ui_sb)
+void Render(const UiScrollBar *uiSb)
 {
 	// Bar background (tiled):
 	{
-		const int bg_y_end = DownArrowRect(ui_sb).y;
-		int bg_y = ui_sb->m_rect.y + ui_sb->m_arrow->h();
-		while (bg_y < bg_y_end) {
-			int drawH = std::min(bg_y + ui_sb->m_bg->h(), bg_y_end) - bg_y;
-			DrawArt(ui_sb->m_rect.x, bg_y, ui_sb->m_bg, 0, SCROLLBAR_BG_WIDTH, drawH);
-			bg_y += drawH;
+		const int bgYEnd = DownArrowRect(uiSb).y;
+		int bgY = uiSb->m_rect.y + uiSb->m_arrow->h();
+		while (bgY < bgYEnd) {
+			int drawH = std::min(bgY + uiSb->m_bg->h(), bgYEnd) - bgY;
+			DrawArt(uiSb->m_rect.x, bgY, uiSb->m_bg, 0, SCROLLBAR_BG_WIDTH, drawH);
+			bgY += drawH;
 		}
 	}
 
 	// Arrows:
 	{
-		const SDL_Rect rect = UpArrowRect(ui_sb);
+		const SDL_Rect rect = UpArrowRect(uiSb);
 		const int frame = static_cast<int>(scrollBarState.upArrowPressed ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP);
-		DrawArt(rect.x, rect.y, ui_sb->m_arrow, frame, rect.w);
+		DrawArt(rect.x, rect.y, uiSb->m_arrow, frame, rect.w);
 	}
 	{
-		const SDL_Rect rect = DownArrowRect(ui_sb);
+		const SDL_Rect rect = DownArrowRect(uiSb);
 		const int frame = static_cast<int>(scrollBarState.downArrowPressed ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN);
-		DrawArt(rect.x, rect.y, ui_sb->m_arrow, frame, rect.w);
+		DrawArt(rect.x, rect.y, uiSb->m_arrow, frame, rect.w);
 	}
 
 	// Thumb:
 	if (SelectedItemMax > 0) {
-		const SDL_Rect rect = ThumbRect(ui_sb, SelectedItem, SelectedItemMax + 1);
-		DrawArt(rect.x, rect.y, ui_sb->m_thumb);
+		const SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax + 1);
+		DrawArt(rect.x, rect.y, uiSb->m_thumb);
 	}
 }
 
-void Render(const UiEdit *ui_edit)
+void Render(const UiEdit *uiEdit)
 {
-	DrawSelector(ui_edit->m_rect);
-	SDL_Rect rect = ui_edit->m_rect;
+	DrawSelector(uiEdit->m_rect);
+	SDL_Rect rect = uiEdit->m_rect;
 	rect.x += 43;
 	rect.y += 1;
 	rect.w -= 86;
-	DrawArtStr(ui_edit->m_value, rect, ui_edit->m_iFlags, /*drawTextCursor=*/true);
+	DrawArtStr(uiEdit->m_value, rect, uiEdit->m_iFlags, /*drawTextCursor=*/true);
 }
 
 void RenderItem(UiItemBase *item)
@@ -787,11 +787,11 @@ void RenderItem(UiItemBase *item)
 	}
 }
 
-bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton *ui_button)
+bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton *uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
-	ui_button->m_action();
+	uiButton->m_action();
 	return true;
 }
 
@@ -799,12 +799,12 @@ bool HandleMouseEventArtTextButton(const SDL_Event &event, const UiArtTextButton
 Uint32 dbClickTimer;
 #endif
 
-bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
+bool HandleMouseEventList(const SDL_Event &event, UiList *uiList)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT)
 		return false;
 
-	const unsigned index = ui_list->indexAt(event.button.y) + ListOffset;
+	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
 
 	if (gfnListFocus != NULL && SelectedItem != index) {
 		UiFocus(index);
@@ -825,32 +825,34 @@ bool HandleMouseEventList(const SDL_Event &event, UiList *ui_list)
 	return true;
 }
 
-bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar *ui_sb)
+bool HandleMouseEventScrollBar(const SDL_Event &event, const UiScrollBar *uiSb)
 {
 	if (event.button.button != SDL_BUTTON_LEFT)
 		return false;
 	if (event.type == SDL_MOUSEBUTTONUP) {
-		if (scrollBarState.upArrowPressed && IsInsideRect(event, UpArrowRect(ui_sb))) {
+		if (scrollBarState.upArrowPressed && IsInsideRect(event, UpArrowRect(uiSb))) {
 			UiFocusUp();
 			return true;
-		} else if (scrollBarState.downArrowPressed && IsInsideRect(event, DownArrowRect(ui_sb))) {
+		}
+		if (scrollBarState.downArrowPressed && IsInsideRect(event, DownArrowRect(uiSb))) {
 			UiFocusDown();
 			return true;
 		}
 	} else if (event.type == SDL_MOUSEBUTTONDOWN) {
-		if (IsInsideRect(event, BarRect(ui_sb))) {
+		if (IsInsideRect(event, BarRect(uiSb))) {
 			// Scroll up or down based on thumb position.
-			const SDL_Rect thumb_rect = ThumbRect(ui_sb, SelectedItem, SelectedItemMax + 1);
-			if (event.button.y < thumb_rect.y) {
+			const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax + 1);
+			if (event.button.y < thumbRect.y) {
 				UiFocusPageUp();
-			} else if (event.button.y > thumb_rect.y + thumb_rect.h) {
+			} else if (event.button.y > thumbRect.y + thumbRect.h) {
 				UiFocusPageDown();
 			}
 			return true;
-		} else if (IsInsideRect(event, UpArrowRect(ui_sb))) {
+		}
+		if (IsInsideRect(event, UpArrowRect(uiSb))) {
 			scrollBarState.upArrowPressed = true;
 			return true;
-		} else if (IsInsideRect(event, DownArrowRect(ui_sb))) {
+		} else if (IsInsideRect(event, DownArrowRect(uiSb))) {
 			scrollBarState.downArrowPressed = true;
 			return true;
 		}
@@ -864,13 +866,13 @@ bool HandleMouseEvent(const SDL_Event &event, UiItemBase *item)
 		return false;
 	switch (item->m_type) {
 	case UI_ART_TEXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, (UiArtTextButton *)item);
+		return HandleMouseEventArtTextButton(event, static_cast<UiArtTextButton *>(item));
 	case UI_BUTTON:
-		return HandleMouseEventButton(event, (UiButton *)item);
+		return HandleMouseEventButton(event, static_cast<UiButton *>(item));
 	case UI_LIST:
-		return HandleMouseEventList(event, (UiList *)item);
+		return HandleMouseEventList(event, static_cast<UiList *>(item));
 	case UI_SCROLLBAR:
-		return HandleMouseEventScrollBar(event, (UiScrollBar *)item);
+		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar *>(item));
 	default:
 		return false;
 	}
@@ -885,15 +887,15 @@ void LoadPalInMem(const SDL_Color (&pPal)[lengthof(orig_palette)])
 	}
 }
 
-void UiRenderItems(std::vector<UiItemBase *> items)
+void UiRenderItems(const std::vector<UiItemBase *> &items)
 {
-	for (std::size_t i = 0; i < items.size(); i++)
-		RenderItem((UiItemBase *)items[i]);
+	for (auto &item : items)
+		RenderItem(item);
 }
 
-bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
+bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &items)
 {
-	if (items.size() == 0) {
+	if (items.empty()) {
 		return false;
 	}
 
@@ -903,8 +905,8 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 #endif
 
 	bool handled = false;
-	for (std::size_t i = 0; i < items.size(); i++) {
-		if (HandleMouseEvent(*event, items[i])) {
+	for (auto &item : items) {
+		if (HandleMouseEvent(*event, item)) {
 			handled = true;
 			break;
 		}
@@ -912,10 +914,9 @@ bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items)
 
 	if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
 		scrollBarState.downArrowPressed = scrollBarState.upArrowPressed = false;
-		for (std::size_t i = 0; i < items.size(); ++i) {
-			UiItemBase *&item = items[i];
+		for (auto &item : items) {
 			if (item->m_type == UI_BUTTON)
-				HandleGlobalMouseUpButton((UiButton *)item);
+				HandleGlobalMouseUpButton(static_cast<UiButton *>(item));
 		}
 	}
 

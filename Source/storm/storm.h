@@ -67,7 +67,7 @@ struct CCritSect {
 extern "C" {
 #endif
 
-bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString, DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount, const char *creatorName, const char *a11, int *playerID);
+bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, char *GameTemplateData, int GameTemplateSize, int *playerID);
 bool SNetDestroy();
 
 /*  SNetDropPlayer @ 106
@@ -131,7 +131,7 @@ typedef struct _user_info {
 	DWORD dwUnknown;
 } user_info;
 
-bool SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, char *userStats, int *playerid);
+bool SNetJoinGame(char *gameName, char *gamePassword, int *playerid);
 
 /*  SNetLeaveGame @ 119
  *
@@ -144,7 +144,6 @@ bool SNetJoinGame(int id, char *gameName, char *gamePassword, char *playerName, 
  */
 bool SNetLeaveGame(int type);
 
-bool SNetPerformUpgrade(DWORD *upgradestatus);
 bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
 bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MAX_PLRS], DWORD (&status)[MAX_PLRS]);
 
@@ -298,7 +297,6 @@ void SErrSetLastError(DWORD dwErrCode);
 #define STORM_ERROR_INVALID_PLAYER               0x8510006a
 #define STORM_ERROR_NO_MESSAGES_WAITING          0x8510006b
 #define STORM_ERROR_NOT_IN_GAME                  0x85100070
-#define STORM_ERROR_REQUIRES_UPGRADE             0x85100077
 
 /*  SStrCopy @ 501
  *

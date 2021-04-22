@@ -1,12 +1,12 @@
+#include "DiabloUI/diabloui.h"
 #include "control.h"
 #include "controls/menu_controls.h"
-#include "DiabloUI/diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 std::vector<UiItemBase *> vecTitleScreen;
 
-void title_Load()
+void TitleLoad()
 {
 #ifdef HELLFIRE
 	LoadBackgroundArt("ui_art\\hf_logo1.pcx", 16);
@@ -17,7 +17,7 @@ void title_Load()
 #endif
 }
 
-void title_Free()
+void TitleFree()
 {
 	ArtBackground.Unload();
 #ifdef HELLFIRE
@@ -25,8 +25,7 @@ void title_Free()
 #endif
 	ArtLogos[LOGO_BIG].Unload();
 
-	for (std::size_t i = 0; i < vecTitleScreen.size(); i++) {
-		UiItemBase *pUIItem = vecTitleScreen[i];
+	for (auto pUIItem : vecTitleScreen) {
 		delete pUIItem;
 	}
 	vecTitleScreen.clear();
@@ -36,8 +35,8 @@ void UiTitleDialog()
 {
 #ifdef HELLFIRE
 	SDL_Rect rect = { 0, UI_OFFSET_Y, 0, 0 };
-	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
-	vecTitleScreen.push_back(new UiImage(&ArtBackground, /*animated=*/true, /*frame=*/0, rect, UIS_CENTER));
+	vecTitleScreen.push_back(new UiImage(&ArtBackgroundWidescreen, /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
+	vecTitleScreen.push_back(new UiImage(&ArtBackground, /*bAnimated=*/true, /*iFrame=*/0, rect, UIS_CENTER));
 #else
 	UiAddBackground(&vecTitleScreen);
 	UiAddLogo(&vecTitleScreen, LOGO_BIG, 182);
@@ -46,7 +45,7 @@ void UiTitleDialog()
 	vecTitleScreen.push_back(new UiArtText("Copyright \xA9 1996-2001 Blizzard Entertainment", rect, UIS_MED | UIS_CENTER));
 #endif
 
-	title_Load();
+	TitleLoad();
 
 	bool endMenu = false;
 	Uint32 timeOut = SDL_GetTicks() + 7000;
@@ -71,7 +70,7 @@ void UiTitleDialog()
 		}
 	}
 
-	title_Free();
+	TitleFree();
 }
 
 DEVILUTION_END_NAMESPACE

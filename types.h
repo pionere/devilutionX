@@ -14,7 +14,7 @@
 #include "utils/thread.h"
 #include "utils/ui_fwd.h"
 
-#include <limits.h>
+#include <climits>
 #include "defs.h"
 #include "enums.h"
 #include "structs.h"

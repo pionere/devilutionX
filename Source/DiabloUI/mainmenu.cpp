@@ -18,7 +18,7 @@ void UiMainMenuSelect(std::size_t index)
 	MainMenuResult = vecMenuItems[index]->m_value;
 }
 
-void mainmenu_Esc()
+void MainmenuEsc()
 {
 	std::size_t last = vecMenuItems.size() - 1;
 	if (SelectedItem == last) {
@@ -33,7 +33,7 @@ void mainmenu_restart_repintro()
 	dwAttractTicks = SDL_GetTicks() + mainmenu_attract_time_out * 1000;
 }
 
-void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
+void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 {
 	gfnSoundFunction = fnSound;
 
@@ -56,26 +56,23 @@ void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	SDL_Rect rect = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
 	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
 
-	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, NULL, true);
+	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, MainmenuEsc, NULL, true);
 }
 
-void mainmenu_Free()
+void MainmenuFree()
 {
 #ifdef HELLFIRE
 	ArtBackgroundWidescreen.Unload();
 #endif
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecMainMenuDialog.size(); i++) {
-		UiItemBase *pUIItem = vecMainMenuDialog[i];
+	for (auto pUIItem : vecMainMenuDialog) {
 		delete pUIItem;
 	}
 	vecMainMenuDialog.clear();
 
-	for (std::size_t i = 0; i < vecMenuItems.size(); i++) {
-		UiListItem *pUIMenuItem = vecMenuItems[i];
-		if (pUIMenuItem)
-			delete pUIMenuItem;
+	for (auto pUIMenuItem : vecMenuItems) {
+		delete pUIMenuItem;
 	}
 	vecMenuItems.clear();
 }
@@ -85,7 +82,7 @@ bool UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 	MainMenuResult = 0;
 	while (MainMenuResult == 0) {
 		mainmenu_attract_time_out = attractTimeOut;
-		mainmenu_Load(name, fnSound);
+		MainmenuLoad(name, fnSound);
 
 		mainmenu_restart_repintro(); // for automatic starts
 
@@ -99,7 +96,7 @@ bool UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 #endif
 		}
 
-		mainmenu_Free();
+		MainmenuFree();
 
 #ifdef SPAWN
 		if (MainMenuResult == MAINMENU_REPLAY_INTRO) {

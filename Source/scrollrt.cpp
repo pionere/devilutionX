@@ -176,13 +176,15 @@ static void scrollrt_draw_cursor_item()
 	mx = MouseX - 1;
 	if (mx < 0 - cursW - 1) {
 		return;
-	} else if (mx > SCREEN_WIDTH - 1) {
+	}
+	if (mx > SCREEN_WIDTH - 1) {
 		return;
 	}
 	my = MouseY - 1;
 	if (my < 0 - cursH - 1) {
 		return;
-	} else if (my > SCREEN_HEIGHT - 1) {
+	}
+	if (my > SCREEN_HEIGHT - 1) {
 		return;
 	}
 
@@ -515,8 +517,8 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 			return;
 		xx = os->_ox - x;
 		yy = os->_oy - y;
-		sx = (xx << 5) + ox - os->_oAnimWidth2 - (yy << 5);
-		sy = oy + (yy << 4) + (xx << 4);
+		sx = (xx * (TILE_WIDTH / 2)) + ox - os->_oAnimWidth2 - (yy * (TILE_WIDTH / 2));
+		sy = oy + (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
 
 	assert((unsigned char)oi < MAXOBJECTS);
@@ -662,7 +664,7 @@ static void DrawMonsterHelper(int x, int y, int oy, int sx, int sy)
 	mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
 
 	if (leveltype == DTYPE_TOWN) {
-		tw = &towner[mnum];
+		tw = &towners[mnum];
 		px = sx - tw->_tAnimWidth2;
 		if (mnum == pcursmonst) {
 			CelBlitOutline(166, px, sy, tw->_tAnimData, tw->_tAnimFrame, tw->_tAnimWidth);

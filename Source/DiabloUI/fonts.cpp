@@ -16,10 +16,10 @@ static void LoadArtFont(const char *pszFile, int size, int color)
 
 void LoadArtFonts()
 {
-	FontTables[AFT_SMALL] = LoadFileInMem("ui_art\\font16.bin", 0);
-	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin", 0);
-	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin", 0);
-	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin", 0);
+	FontTables[AFT_SMALL] = LoadFileInMem("ui_art\\font16.bin", NULL);
+	FontTables[AFT_MED] = LoadFileInMem("ui_art\\font24.bin", NULL);
+	FontTables[AFT_BIG] = LoadFileInMem("ui_art\\font30.bin", NULL);
+	FontTables[AFT_HUGE] = LoadFileInMem("ui_art\\font42.bin", NULL);
 	LoadArtFont("ui_art\\font16s.pcx", AFT_SMALL, AFC_SILVER);
 	LoadArtFont("ui_art\\font16g.pcx", AFT_SMALL, AFC_GOLD);
 	LoadArtFont("ui_art\\font24s.pcx", AFT_MED, AFC_SILVER);
@@ -58,17 +58,17 @@ void LoadTtfFont()
 		was_fonts_init = true;
 	}
 
-	const char* ttf_font_path = TTF_FONT_NAME;
-	if (!FileExists(ttf_font_path))
+	const char* ttfFontPath = TTF_FONT_NAME;
+	if (!FileExists(ttfFontPath))
 	{
-		ttf_font_path = TTF_FONT_DIR TTF_FONT_NAME;
+		ttfFontPath = TTF_FONT_DIR TTF_FONT_NAME;
 	}
 #ifdef __linux__
-	if (!FileExists(ttf_font_path)) {
-		ttf_font_path = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
+	if (!FileExists(ttfFontPath)) {
+		ttfFontPath = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
 	}
 #endif
-	font = TTF_OpenFont(ttf_font_path, 17);
+	font = TTF_OpenFont(ttfFontPath, 17);
 	if (font == NULL) {
 		SDL_Log("TTF_OpenFont: %s", TTF_GetError());
 		return;

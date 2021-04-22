@@ -55,7 +55,7 @@ inline SDL_Surface *DiabloUiSurface()
 
 void UiFadeIn();
 void UiHandleEvents(SDL_Event *event);
-bool UiItemMouseEvents(SDL_Event *event, std::vector<UiItemBase *> items);
+bool UiItemMouseEvents(SDL_Event *event, const std::vector<UiItemBase *> &items);
 int GetCenterOffset(int w, int bw = 0);
 void DrawMouse();
 void LoadBackgroundArt(const char *pszFile, int frames = 1);
@@ -64,11 +64,11 @@ void UiAddLogo(std::vector<UiItemBase *> *vecDialog, int size = LOGO_MED, int y 
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationYesNo();
-void UiInitList(std::vector<UiItemBase *> items, std::size_t listSize, void (*fnFocus)(std::size_t index) = NULL, void (*fnSelect)(std::size_t index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
+void UiInitList(const std::vector<UiItemBase *> &items, std::size_t listSize, void (*fnFocus)(std::size_t index) = NULL, void (*fnSelect)(std::size_t index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL, bool wraps = false);
 void UiInitScrollBar(UiScrollBar *ui_sb, std::size_t viewport_size);
 void UiClearScreen();
 void UiPollAndRender();
-void UiRenderItems(std::vector<UiItemBase *> items);
+void UiRenderItems(const std::vector<UiItemBase *> &items);
 void UiInitList_clear();
 
 void DvlIntSetting(const char *valuename, int *value);

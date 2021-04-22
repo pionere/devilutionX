@@ -2,6 +2,7 @@
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
+#include "control.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,31 +15,28 @@ std::vector<UiItemBase *> vecSelYesNoDialog;
 
 #define MESSAGE_WIDTH 280
 
-void selyesno_Free()
+void SelyesnoFree()
 {
 	ArtBackground.Unload();
 
-	for (std::size_t i = 0; i < vecSelYesNoDialogItems.size(); i++) {
-		UiListItem *pUIListItem = vecSelYesNoDialogItems[i];
-		if (pUIListItem)
-			delete pUIListItem;
+	for (auto pUIListItem : vecSelYesNoDialogItems) {
+		delete pUIListItem;
 	}
 	vecSelYesNoDialogItems.clear();
 
-	for (std::size_t i = 0; i < vecSelYesNoDialog.size(); i++) {
-		UiItemBase *pUIItem = vecSelYesNoDialog[i];
+	for (auto pUIItem : vecSelYesNoDialog) {
 		delete pUIItem;
 	}
 	vecSelYesNoDialog.clear();
 }
 
-void selyesno_Select(std::size_t index)
+void SelyesnoSelect(std::size_t index)
 {
 	selyesno_value = vecSelYesNoDialogItems[index]->m_value == 0;
 	selyesno_endMenu = true;
 }
 
-void selyesno_Esc()
+void SelyesnoEsc()
 {
 	selyesno_value = false;
 	selyesno_endMenu = true;
@@ -63,7 +61,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH);
 
-	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, NULL, true);
+	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, SelyesnoSelect, SelyesnoEsc, NULL, true);
 
 	selyesno_value = true;
 	selyesno_endMenu = false;
@@ -73,7 +71,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 		UiPollAndRender();
 	}
 
-	selyesno_Free();
+	SelyesnoFree();
 
 	return selyesno_value;
 }

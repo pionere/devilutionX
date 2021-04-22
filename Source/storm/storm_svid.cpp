@@ -20,13 +20,17 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static double SVidFrameEnd;
 static double SVidFrameLength;
-static BYTE SVidLoop;
+static bool SVidLoop;
 static smk SVidSMK;
 static SDL_Color SVidPreviousPalette[256];
 static SDL_Palette *SVidPalette;
 static SDL_Surface *SVidSurface;
 static BYTE *SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
+
+#ifdef USE_SDL1
+static bool IsSVidVideoMode = false;
+#endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 SDL_AudioDeviceID deviceId;
@@ -159,9 +163,9 @@ void SVidPlayBegin(const char *filename, int flags, HANDLE *video)
 
 	SFileOpenFile(filename, video);
 
-	int bytestoread = SFileGetFileSize(*video, 0);
+	int bytestoread = SFileGetFileSize(*video, NULL);
 	SVidBuffer = DiabloAllocPtr(bytestoread);
-	SFileReadFile(*video, SVidBuffer, bytestoread, NULL, 0);
+	SFileReadFile(*video, SVidBuffer, bytestoread, NULL, NULL);
 
 	SVidSMK = smk_open_memory(SVidBuffer, bytestoread);
 	if (SVidSMK == NULL) {
@@ -302,19 +306,19 @@ bool SVidPlayContinue(void)
 {
 	if (smk_palette_updated(SVidSMK)) {
 		SDL_Color colors[256];
-		const unsigned char *palette_data = smk_get_palette(SVidSMK);
+		const unsigned char *paletteData = smk_get_palette(SVidSMK);
 
 		for (int i = 0; i < 256; i++) {
-			colors[i].r = palette_data[i * 3 + 0];
-			colors[i].g = palette_data[i * 3 + 1];
-			colors[i].b = palette_data[i * 3 + 2];
+			colors[i].r = paletteData[i * 3 + 0];
+			colors[i].g = paletteData[i * 3 + 1];
+			colors[i].b = paletteData[i * 3 + 2];
 #ifndef USE_SDL1
 			colors[i].a = SDL_ALPHA_OPAQUE;
 #endif
 
-			orig_palette[i].r = palette_data[i * 3 + 0];
-			orig_palette[i].g = palette_data[i * 3 + 1];
-			orig_palette[i].b = palette_data[i * 3 + 2];
+			orig_palette[i].r = paletteData[i * 3 + 0];
+			orig_palette[i].g = paletteData[i * 3 + 1];
+			orig_palette[i].b = paletteData[i * 3 + 2];
 		}
 		memcpy(logical_palette, orig_palette, sizeof(logical_palette));
 
@@ -352,11 +356,11 @@ bool SVidPlayContinue(void)
 	} else
 #endif
 	{
-		SDL_Surface *output_surface = GetOutputSurface();
+		SDL_Surface *outputSurface = GetOutputSurface();
 		int factor;
-		int wFactor = output_surface->w / SVidWidth;
-		int hFactor = output_surface->h / SVidHeight;
-		if (wFactor > hFactor && (unsigned int)output_surface->h > SVidHeight) {
+		int wFactor = outputSurface->w / SVidWidth;
+		int hFactor = outputSurface->h / SVidHeight;
+		if (wFactor > hFactor && (unsigned int)outputSurface->h > SVidHeight) {
 			factor = hFactor;
 		} else {
 			factor = wFactor;
@@ -365,13 +369,13 @@ bool SVidPlayContinue(void)
 		const int scaledH = SVidHeight * factor;
 
 		SDL_Rect pal_surface_offset = {
-			(output_surface->w - scaledW) / 2,
-			(output_surface->h - scaledH) / 2,
+			(outputSurface->w - scaledW) / 2,
+			(outputSurface->h - scaledH) / 2,
 			scaledW,
 			scaledH
 		};
 		if (factor == 1) {
-			if (SDL_BlitSurface(SVidSurface, NULL, output_surface, &pal_surface_offset) <= -1) {
+			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &pal_surface_offset) <= -1) {
 				ErrSdl();
 			}
 		} else {
@@ -381,7 +385,7 @@ bool SVidPlayContinue(void)
 			Uint32 format = SDL_GetWindowPixelFormat(ghMainWnd);
 			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, format, 0);
 #endif
-			if (SDL_BlitScaled(tmp, NULL, output_surface, &pal_surface_offset) <= -1) {
+			if (SDL_BlitScaled(tmp, NULL, outputSurface, &pal_surface_offset) <= -1) {
 				SDL_Log("%s", SDL_GetError());
 				return false;
 			}

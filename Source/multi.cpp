@@ -645,28 +645,6 @@ static void SetupLocalCoords()
 	p->destAction = ACTION_NONE;
 }
 
-static BOOL multi_upgrade(BOOL *pfExitProgram)
-{
-	BOOL result;
-	int status;
-
-	SNetPerformUpgrade((LPDWORD)&status);
-	result = TRUE;
-	if (status != 0 && status != 1) {
-		if (status != 2) {
-			if (status == -1) {
-				DrawDlg("Network upgrade failed");
-			}
-		} else {
-			*pfExitProgram = 1;
-		}
-
-		result = FALSE;
-	}
-
-	return result;
-}
-
 static void multi_handle_events(_SNETEVENT *pEvt)
 {
 	DWORD LeftReason;
@@ -737,7 +715,7 @@ void NetClose()
 		SDL_Delay(2000);
 }
 
-BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
+BOOL NetInit(BOOL bSinglePlayer)
 {
 	int i;
 	_SNETPROGRAMDATA ProgramData;
@@ -745,7 +723,6 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 	_SNETPLAYERDATA plrdata;
 
 	while (TRUE) {
-		*pfExitProgram = FALSE;
 		SetRndSeed(0);
 		sgGameInitInfo.dwSeed = time(NULL);
 		sgGameInitInfo.bDiff = gnDifficulty;
@@ -778,7 +755,7 @@ BOOL NetInit(BOOL bSinglePlayer, BOOL *pfExitProgram)
 			if (!multi_init_single(&ProgramData, &plrdata, &UiData))
 				return FALSE;
 		} else {
-			if (!multi_init_multi(&ProgramData, &plrdata, &UiData, pfExitProgram))
+			if (!multi_init_multi(&ProgramData, &plrdata, &UiData))
 				return FALSE;
 		}
 		sgbNetInited = TRUE;
@@ -833,7 +810,7 @@ BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info
 	}
 
 	unused = 0;
-	if (!SNetCreateGame("local", "local", "local", 0, (char *)&sgGameInitInfo, sizeof(sgGameInitInfo), 1, "local", "local", &unused)) {
+	if (!SNetCreateGame("local", "local", (char *)&sgGameInitInfo, sizeof(sgGameInitInfo), &unused)) {
 		app_fatal("SNetCreateGame1:\n%s", TraceLastError());
 	}
 
@@ -843,21 +820,14 @@ BOOL multi_init_single(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info
 	return TRUE;
 }
 
-BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, BOOL *pfExitProgram)
+BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info)
 {
 	BOOL first;
 	int playerId;
-	int type;
 
 	for (first = TRUE;; first = FALSE) {
-		type = 0x00;
-		if (gbSelectProvider) {
-			if (!UiSelectProvider(0, client_info, user_info, ui_info, &fileinfo, &type)
-			    && (!first || SErrGetLastError() != STORM_ERROR_REQUIRES_UPGRADE || !multi_upgrade(pfExitProgram))) {
-				return FALSE;
-			}
-			if (type == 'BNET')
-				plr[0].pBattleNet = TRUE;
+		if (gbSelectProvider && !UiSelectProvider(client_info, user_info, ui_info, &fileinfo)) {
+			return FALSE;
 		}
 
 		multi_event_handler(TRUE);
@@ -874,10 +844,6 @@ BOOL multi_init_multi(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info,
 		gbMaxPlayers = MAX_PLRS;
 
 		pfile_read_player_from_save();
-
-		if (type == 'BNET')
-			plr[myplr].pBattleNet = TRUE;
-
 		return TRUE;
 	}
 }

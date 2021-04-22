@@ -29,8 +29,8 @@ bool loopback::SNetReceiveMessage(int *sender, char **data, int *size)
 bool loopback::SNetSendMessage(int dest, void *data, unsigned int size)
 {
 	if (dest == plr_single || dest == SNPLAYER_ALL) {
-		unsigned char *raw_message = reinterpret_cast<unsigned char *>(data);
-		buffer_t message(raw_message, raw_message + size);
+		auto *rawMessage = reinterpret_cast<unsigned char *>(data);
+		buffer_t message(rawMessage, rawMessage + size);
 		message_queue.push(message);
 	}
 	return true;

@@ -11,10 +11,10 @@
 #include "utils/sdl2_backports.h"
 #endif
 
+#include <lwip/igmp.h>
+#include <lwip/mld6.h>
 #include <lwip/sockets.h>
 #include <lwip/tcpip.h>
-#include <lwip/mld6.h>
-#include <lwip/igmp.h>
 
 #include "dvlnet/zerotier_native.h"
 
@@ -129,7 +129,8 @@ bool protocol_zt::send_queued_peer(const endpoint &peer)
 		if (r < 0) {
 			// handle error
 			return false;
-		} else if (decltype(len)(r) < len) {
+		}
+		if (decltype(len)(r) < len) {
 			// partial send
 			auto it = peer_list[peer].send_queue.front().begin();
 			peer_list[peer].send_queue.front().erase(it, it + r);
@@ -153,9 +154,8 @@ bool protocol_zt::recv_peer(const endpoint &peer)
 		} else {
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
 	}
 }
@@ -194,7 +194,7 @@ bool protocol_zt::recv_from_udp()
 	buffer_t data(buf, buf + len);
 	endpoint ep;
 	std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, ep.addr.begin());
-	oob_recv_queue.push_back(std::make_pair(std::move(ep), std::move(data)));
+	oob_recv_queue.emplace_back(ep, std::move(data));
 	return true;
 }
 
@@ -266,9 +266,9 @@ void protocol_zt::close_all()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	for (auto &i : peer_list) {
-		if (i.second.fd != -1)
-			lwip_close(i.second.fd);
+	for (auto &peer : peer_list) {
+		if (peer.second.fd != -1)
+			lwip_close(peer.second.fd);
 	}
 	peer_list.clear();
 }
@@ -285,7 +285,7 @@ void protocol_zt::endpoint::from_string(const std::string &str)
 		return;
 	if (!IP_IS_V6_VAL(a))
 		return;
-	const unsigned char *r = reinterpret_cast<const unsigned char *>(a.u_addr.ip6.addr);
+	const auto *r = reinterpret_cast<const unsigned char *>(a.u_addr.ip6.addr);
 	std::copy(r, r + 16, addr.begin());
 }
 
@@ -297,11 +297,11 @@ uint64_t protocol_zt::current_ms()
 std::string protocol_zt::make_default_gamename()
 {
 	std::string ret;
-	std::string allowed_chars = "abcdefghkopqrstuvwxyz";
+	std::string allowedChars = "abcdefghkopqrstuvwxyz";
 	std::random_device rd;
-	std::uniform_int_distribution<int> dist(0, allowed_chars.size() - 1);
+	std::uniform_int_distribution<int> dist(0, allowedChars.size() - 1);
 	for (int i = 0; i < 5; ++i) {
-		ret += allowed_chars.at(dist(rd));
+		ret += allowedChars.at(dist(rd));
 	}
 	return ret;
 }

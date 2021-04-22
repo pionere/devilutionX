@@ -2,6 +2,7 @@
 #ifdef ZEROTIER
 #include <mutex>
 #include <thread>
+#include <utility>
 #endif
 
 #include "all.h"
@@ -145,22 +146,20 @@ int SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *clie
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const char *pszGameStatString,
-	DWORD dwGameType, char *GameTemplateData, int GameTemplateSize, int playerCount,
-    const char *creatorName, const char *a11, int *playerID)
+bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, char *gameTemplateData, int gameTemplateSize, int *playerID)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	if (GameTemplateSize != sizeof(_gamedata))
+	if (gameTemplateSize != sizeof(_gamedata))
 		ABORT();
-	net::buffer_t game_init_info(GameTemplateData, GameTemplateData + GameTemplateSize);
-	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
+	net::buffer_t gameInitInfo(gameTemplateData, gameTemplateData + gameTemplateSize);
+	dvlnet_inst->setup_gameinfo(std::move(gameInitInfo));
 
-	std::string default_name;
+	std::string defaultName;
 	if (!pszGameName) {
-		default_name = dvlnet_inst->make_default_gamename();
-		pszGameName = default_name.c_str();
+		defaultName = dvlnet_inst->make_default_gamename();
+		pszGameName = defaultName.c_str();
 	}
 
 	SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
@@ -170,7 +169,7 @@ bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, const 
 	return *playerID != -1;
 }
 
-bool SNetJoinGame(int id, char *pszGameName, char *pszGamePassword, char *playerName, char *userStats, int *playerID)
+bool SNetJoinGame(char *pszGameName, char *pszGamePassword, int *playerID)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -213,17 +212,6 @@ bool SNetSetBasePlayer(int)
 	return true;
 }
 
-/**
- * @brief since we never signal STORM_ERROR_REQUIRES_UPGRADE the engine will not call this function
- */
-bool SNetPerformUpgrade(DWORD *upgradestatus)
-{
-#ifdef ZEROTIER
-	std::lock_guard<std::mutex> lg(storm_net_mutex);
-#endif
-	UNIMPLEMENTED();
-}
-
 #ifdef ZEROTIER
 void SNetSendInfoRequest()
 {
@@ -237,7 +225,7 @@ std::vector<std::string> SNetGetGamelist()
 
 void SNetSetPassword(std::string pw)
 {
-	dvlnet_inst->setup_password(pw);
+	dvlnet_inst->setup_password(std::move(pw));
 }
 #endif
 

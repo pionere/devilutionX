@@ -795,7 +795,7 @@ void LoadGame(BOOL firstflag)
 
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
-		UniqueItemFlag[i] = LoadBool();
+		UniqueItemFlags[i] = LoadBool();
 	for ( ; i < 128; i++)
 		LoadBool();
 
@@ -851,7 +851,7 @@ void LoadGame(BOOL firstflag)
 	premiumlevel = LoadInt();
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		LoadItemData(&premiumitem[i]);
+		LoadItemData(&premiumitems[i]);
 
 	automapflag = LoadBool();
 	AutoMapScale = LoadInt();
@@ -1541,7 +1541,7 @@ void SaveGame()
 		SaveItemData(&item[itemactive[i]]);
 	static_assert(NUM_UITEM <= 128, "Save files are no longer compatible.");
 	for (i = 0; i < NUM_UITEM; i++)
-		SaveBool(UniqueItemFlag[i]);
+		SaveBool(UniqueItemFlags[i]);
 	for ( ; i < 128; i++)
 		SaveBool(FALSE);
 
@@ -1597,7 +1597,7 @@ void SaveGame()
 	SaveInt(premiumlevel);
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		SaveItemData(&premiumitem[i]);
+		SaveItemData(&premiumitems[i]);
 
 	SaveBool(automapflag);
 	SaveInt(AutoMapScale);

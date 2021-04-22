@@ -19,7 +19,7 @@ ItemStruct boyitem;
 ItemStruct smithitem[SMITH_ITEMS];
 int premiumlevel;
 int numpremium;
-ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
+ItemStruct premiumitems[SMITH_PREMIUM_ITEMS];
 ItemStruct witchitem[WITCH_ITEMS];
 ItemStruct healitem[HEALER_ITEMS];
 
@@ -92,7 +92,7 @@ void InitStores()
 	premiumlevel = 1;
 
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		premiumitem[i]._itype = ITYPE_NONE;
+		premiumitems[i]._itype = ITYPE_NONE;
 
 	boyitem._itype = ITYPE_NONE;
 	boylevel = 0;
@@ -477,11 +477,11 @@ static void S_ScrollSPBuy()
 
 	boughtitems = stextsidx;
 	for (idx = 0; boughtitems != 0; idx++)
-		if (premiumitem[idx]._itype != ITYPE_NONE)
+		if (premiumitems[idx]._itype != ITYPE_NONE)
 			boughtitems--;
 
 	for (l = 5; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
-		is = &premiumitem[idx];
+		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemSell(is);
 			AddSText(20, l, FALSE, is->_iIName, iclr, TRUE);
@@ -506,7 +506,7 @@ static BOOL S_StartSPBuy()
 
 	storenumh = 0;
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		if (premiumitem[i]._itype != ITYPE_NONE)
+		if (premiumitems[i]._itype != ITYPE_NONE)
 			storenumh++;
 
 	if (storenumh == 0) {
@@ -1595,13 +1595,13 @@ static void SmithBuyPItem()
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
 	xx = 0;
 	for (i = 0; idx >= 0; i++) {
-		if (premiumitem[i]._itype != ITYPE_NONE) {
+		if (premiumitems[i]._itype != ITYPE_NONE) {
 			idx--;
 			xx = i;
 		}
 	}
 
-	premiumitem[xx]._itype = ITYPE_NONE;
+	premiumitems[xx]._itype = ITYPE_NONE;
 	numpremium--;
 	SpawnPremium(plr[myplr]._pLevel);
 }
@@ -1620,15 +1620,15 @@ static void S_SPBuyEnter()
 		xx = stextsidx + ((stextsel - stextup) >> 2);
 		idx = 0;
 		for (i = 0; xx >= 0; i++) {
-			if (premiumitem[i]._itype != ITYPE_NONE) {
+			if (premiumitems[i]._itype != ITYPE_NONE) {
 				xx--;
 				idx = i;
 			}
 		}
-		if (plr[myplr]._pGold < premiumitem[idx]._iIvalue) {
+		if (plr[myplr]._pGold < premiumitems[idx]._iIvalue) {
 			StartStore(STORE_NOMONEY);
 		} else {
-			copy_pod(plr[myplr].HoldItem, premiumitem[idx]);
+			copy_pod(plr[myplr].HoldItem, premiumitems[idx]);
 			if (StoreAutoPlace(FALSE))
 				StartStore(STORE_CONFIRM);
 			else
@@ -2208,7 +2208,7 @@ static void S_TalkEnter()
 	}
 
 	if (stextsel == sn - 2) {
-		SetRndSeed(towner[talker]._tSeed);
+		SetRndSeed(towners[talker]._tSeed);
 		tq = RandRange(gossipstart, gossipend);
 		InitQTextMsg(tq);
 		return;

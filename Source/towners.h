@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern TownerStruct towner[NUM_TOWNERS];
+extern TownerStruct towners[NUM_TOWNERS];
 
 void InitTowners();
 void FreeTownerGFX();

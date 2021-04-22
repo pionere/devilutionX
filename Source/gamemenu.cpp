@@ -56,7 +56,7 @@ const char *const sound_toggle_names[] = {
 /** Specifies the menu names for colour cycling disabled and enabled. */
 const char *const color_cycling_toggle_names[] = { "Color Cycling Off", "Color Cycling On" };
 
-static void gamemenu_update_single(TMenuItem *pMenuItems)
+static void gamemenu_update_single()
 {
 	BOOL enable;
 
@@ -69,7 +69,7 @@ static void gamemenu_update_single(TMenuItem *pMenuItems)
 	gmenu_enable(&sgSingleMenu[0], enable);
 }
 
-static void gamemenu_update_multi(TMenuItem *pMenuItems)
+static void gamemenu_update_multi()
 {
 	gmenu_enable(&sgMultiMenu[2], deathflag);
 }

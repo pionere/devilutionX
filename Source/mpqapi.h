@@ -6,7 +6,7 @@
 #ifndef __MPQAPI_H__
 #define __MPQAPI_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 DEVILUTION_BEGIN_NAMESPACE
 

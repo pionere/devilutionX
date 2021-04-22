@@ -7,19 +7,19 @@ DEVILUTION_BEGIN_NAMESPACE
 extern bool selhero_isMultiPlayer;
 extern bool selhero_endMenu;
 
-void selhero_Init();
-void selhero_List_Init();
-void selhero_List_Focus(std::size_t index);
-void selhero_List_Select(std::size_t index);
-bool selhero_List_DeleteYesNo();
-void selhero_List_Esc();
-void selhero_ClassSelector_Focus(std::size_t index);
-void selhero_ClassSelector_Select(std::size_t index);
-void selhero_ClassSelector_Esc();
-void selhero_UiFocusNavigationYesNo();
-void selhero_Name_Select(std::size_t index);
-void selhero_Name_Esc();
-void selhero_Load_Focus(std::size_t index);
-void selhero_Load_Select(std::size_t index);
+void SelheroInit();
+void SelheroListInit();
+void SelheroListFocus(std::size_t index);
+void SelheroListSelect(std::size_t index);
+bool SelheroListDeleteYesNo();
+void SelheroListEsc();
+void SelheroClassSelectorFocus(std::size_t index);
+void SelheroClassSelectorSelect(std::size_t index);
+void SelheroClassSelectorEsc();
+void SelheroUiFocusNavigationYesNo();
+void SelheroNameSelect(std::size_t index);
+void SelheroNameEsc();
+void SelheroLoadFocus(std::size_t index);
+void SelheroLoadSelect(std::size_t index);
 
 DEVILUTION_END_NAMESPACE
