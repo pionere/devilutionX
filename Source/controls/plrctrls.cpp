@@ -930,7 +930,7 @@ void Movement()
 	}
 
 	if (GetLeftStickOrDPadGameUIHandler() == NULL) {
-		WalkInDir(move_dir);
+		WalkInDir(moveDir);
 	}
 }
 
