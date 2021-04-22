@@ -154,7 +154,7 @@ void FindItemOrObject()
 void CheckTownersNearby()
 {
 	for (int i = 0; i < numtowners; i++) {
-		int distance = GetDistance(towner[i]._tx, towner[i]._ty, 2);
+		int distance = GetDistance(towners[i]._tx, towners[i]._ty, 2);
 		if (distance == 0)
 			continue;
 		pcursmonst = i;
@@ -240,10 +240,10 @@ void FindMeleeTarget()
 	std::list<SearchNode> queue;
 
 	{
-		const int start_x = plr[myplr]._pfutx;
-		const int start_y = plr[myplr]._pfuty;
-		visited[start_x][start_y] = true;
-		queue.push_back({ start_x, start_y, 0 });
+		const int startX = plr[myplr]._pfutx;
+		const int startY = plr[myplr]._pfuty;
+		visited[startX][startY] = true;
+		queue.push_back({ startX, startY, 0 });
 	}
 
 	while (!queue.empty()) {
@@ -420,7 +420,7 @@ void Interact()
 {
 	if (currLvl._dType == DTYPE_TOWN) {
 		if (pcursmonst != -1)
-			NetSendCmdLocParam1(true, CMD_TALKXY, towner[pcursmonst]._tx, towner[pcursmonst]._ty, pcursmonst);
+			NetSendCmdLocParam1(true, CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
 	} else {
 		int attack = plr[myplr]._pAtkSkill;
 		int sl = GetSpellLevel(myplr, attack);
@@ -785,13 +785,13 @@ void SpellBookMove(AxisDirection dir)
 	}
 }
 
-static const direction kFaceDir[3][3] = {
+static const direction FaceDir[3][3] = {
 	// NONE      UP      DOWN
 	{ DIR_OMNI, DIR_N, DIR_S }, // NONE
 	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
 	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
 };
-static const int kOffsets[8][2] = {
+static const int Offsets[8][2] = {
 	{ 1, 1 },   // DIR_S
 	{ 0, 1 },   // DIR_SW
 	{ -1, 1 },  // DIR_W
@@ -837,10 +837,10 @@ bool IsPathBlocked(int x, int y, int dir)
 		return false;
 	}
 
-	d1x = x + kOffsets[d1][0];
-	d1y = y + kOffsets[d1][1];
-	d2x = x + kOffsets[d2][0];
-	d2y = y + kOffsets[d2][1];
+	d1x = x + Offsets[d1][0];
+	d1y = y + Offsets[d1][1];
+	d2x = x + Offsets[d2][0];
+	d2y = y + Offsets[d2][1];
 
 	if (!nSolidTable[dPiece[d1x][d1y]] && !nSolidTable[dPiece[d2x][d2y]])
 		return false;
@@ -859,9 +859,9 @@ void WalkInDir(AxisDirection dir)
 		return;
 	}
 
-	const int pdir = kFaceDir[static_cast<unsigned>(dir.x)][static_cast<unsigned>(dir.y)];
-	const int dx = x + kOffsets[pdir][0];
-	const int dy = y + kOffsets[pdir][1];
+	const int pdir = FaceDir[static_cast<unsigned>(dir.x)][static_cast<unsigned>(dir.y)];
+	const int dx = x + Offsets[pdir][0];
+	const int dy = y + Offsets[pdir][1];
 	plr[myplr]._pdir = pdir;
 
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
@@ -870,23 +870,23 @@ void WalkInDir(AxisDirection dir)
 	NetSendCmdLoc(true, CMD_WALKXY, dx, dy);
 }
 
-void QuestLogMove(AxisDirection move_dir)
+void QuestLogMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	move_dir = repeater.Get(move_dir);
-	if (move_dir.y == AxisDirectionY_UP)
+	moveDir = repeater.Get(moveDir);
+	if (moveDir.y == AxisDirectionY_UP)
 		QuestlogUp();
-	else if (move_dir.y == AxisDirectionY_DOWN)
+	else if (moveDir.y == AxisDirectionY_DOWN)
 		QuestlogDown();
 }
 
-void StoreMove(AxisDirection move_dir)
+void StoreMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	move_dir = repeater.Get(move_dir);
-	if (move_dir.y == AxisDirectionY_UP)
+	moveDir = repeater.Get(moveDir);
+	if (moveDir.y == AxisDirectionY_UP)
 		STextUp();
-	else if (move_dir.y == AxisDirectionY_DOWN)
+	else if (moveDir.y == AxisDirectionY_DOWN)
 		STextDown();
 }
 
@@ -924,8 +924,8 @@ void Movement()
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 		return;
 
-	AxisDirection move_dir = GetMoveDirection();
-	if (move_dir.x != AxisDirectionX_NONE || move_dir.y != AxisDirectionY_NONE) {
+	AxisDirection moveDir = GetMoveDirection();
+	if (moveDir.x != AxisDirectionX_NONE || moveDir.y != AxisDirectionY_NONE) {
 		sgbControllerActive = true;
 	}
 
@@ -943,7 +943,7 @@ struct RightStickAccumulator {
 		hiresDY = 0;
 	}
 
-	void pool(int *x, int *y, int slowdown)
+	void Pool(int *x, int *y, int slowdown)
 	{
 		const Uint32 tc = SDL_GetTicks();
 		const int dtc = tc - lastTc;
@@ -959,7 +959,7 @@ struct RightStickAccumulator {
 		hiresDY -= dy * slowdown;
 	}
 
-	void clear()
+	void Clear()
 	{
 		lastTc = SDL_GetTicks();
 	}
@@ -1034,13 +1034,13 @@ void HandleRightStickMotion()
 	static RightStickAccumulator acc;
 	// deadzone is handled in ScaleJoystickAxes() already
 	if (rightStickX == 0 && rightStickY == 0) {
-		acc.clear();
+		acc.Clear();
 		return;
 	}
 
 	if (IsAutomapActive()) { // move map
 		int dx = 0, dy = 0;
-		acc.pool(&dx, &dy, 32);
+		acc.Pool(&dx, &dy, 32);
 		AutoMapXOfs += dy + dx;
 		AutoMapYOfs += dy - dx;
 		return;
@@ -1050,7 +1050,7 @@ void HandleRightStickMotion()
 		sgbControllerActive = false;
 		int x = MouseX;
 		int y = MouseY;
-		acc.pool(&x, &y, 2);
+		acc.Pool(&x, &y, 2);
 		x = std::min(std::max(x, 0), SCREEN_WIDTH - 1);
 		y = std::min(std::max(y, 0), SCREEN_HEIGHT - 1);
 
@@ -1198,8 +1198,8 @@ static void UpdateSpellTarget()
 	if (plr[myplr]._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
-	cursmx = player._pfutx + kOffsets[player._pdir][0] * range;
-	cursmy = player._pfuty + kOffsets[player._pdir][1] * range;
+	cursmx = player._pfutx + Offsets[player._pdir][0] * range;
+	cursmy = player._pfuty + Offsets[player._pdir][1] * range;
 }
 
 /**

@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static _uiheroinfo selhero_heros[MAX_CHARACTERS];
-static const unsigned kMaxViewportItems = 6;
+static const unsigned MaxViewportItems = 6;
 static char textStats[5][4];
 static char selhero_title[32];
 static int selhero_result;
@@ -36,12 +36,12 @@ static UiArtTextButton *SELLIST_DIALOG_DELETE_BUTTON;
 static UiImage *SELHERO_DIALOG_HERO_IMG;
 
 // Forward-declare UI-handlers, used by other handlers.
-static void selhero_List_Select(unsigned index);
-static void selhero_ClassSelector_Select(unsigned index);
-static void selhero_Name_Select(unsigned index);
+static void SelheroListSelect(unsigned index);
+static void SelheroClassSelectorSelect(unsigned index);
+static void SelheroNameSelect(unsigned index);
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-static const char *selhero_GenerateName(BYTE hero_class)
+static const char *SelheroGenerateName(BYTE hero_class)
 {
 	static const char *const kNames[NUM_CLASSES][10] = {
 		{ // WARRIOR
@@ -126,13 +126,13 @@ static const char *selhero_GenerateName(BYTE hero_class)
 }
 #endif
 
-static void selhero_UiFocusNavigationYesNo()
+static void SelheroUiFocusNavigationYesNo()
 {
 	if (selhero_deleteEnabled)
 		UiFocusNavigationYesNo();
 }
 
-static void selhero_FreeListItems()
+static void SelheroFreeListItems()
 {
 	for (unsigned i = 0; i < vecSelHeroDlgItems.size(); i++) {
 		UiListItem *pUIItem = vecSelHeroDlgItems[i];
@@ -141,7 +141,7 @@ static void selhero_FreeListItems()
 	vecSelHeroDlgItems.clear();
 }
 
-static void selhero_FreeDlgItems()
+static void SelheroFreeDlgItems()
 {
 	for (unsigned i = 0; i < vecSelDlgItems.size(); i++) {
 		UiItemBase *pUIItem = vecSelDlgItems[i];
@@ -150,7 +150,7 @@ static void selhero_FreeDlgItems()
 	vecSelDlgItems.clear();
 }
 
-static void selhero_Free()
+static void SelheroFree()
 {
 	ArtBackground.Unload();
 
@@ -160,11 +160,11 @@ static void selhero_Free()
 	}
 	vecSelHeroDialog.clear();
 
-	selhero_FreeDlgItems();
-	selhero_FreeListItems();
+	SelheroFreeDlgItems();
+	SelheroFreeListItems();
 }
 
-static void selhero_SetStats()
+static void SelheroSetStats()
 {
 	int heroclass = selhero_heroInfo.heroclass;
 #ifdef HELLFIRE
@@ -179,41 +179,41 @@ static void selhero_SetStats()
 	snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.vitality);
 }
 
-static void selhero_UpdateViewportItems()
+static void SelheroUpdateViewportItems()
 {
-	const unsigned num_viewport_heroes = std::min(selhero_SaveCount - ListOffset, kMaxViewportItems);
-	for (unsigned i = 0; i < num_viewport_heroes; i++) {
+	const unsigned numViewportHeroes = std::min(selhero_SaveCount - ListOffset, MaxViewportItems);
+	for (unsigned i = 0; i < numViewportHeroes; i++) {
 		const unsigned index = i + ListOffset;
 		vecSelHeroDlgItems[i]->m_text = selhero_heros[index].name;
 		vecSelHeroDlgItems[i]->m_value = index;
 	}
-	if (num_viewport_heroes < kMaxViewportItems) {
-		vecSelHeroDlgItems[num_viewport_heroes]->m_text = "New Hero";
-		vecSelHeroDlgItems[num_viewport_heroes]->m_value = selhero_SaveCount;
+	if (numViewportHeroes < MaxViewportItems) {
+		vecSelHeroDlgItems[numViewportHeroes]->m_text = "New Hero";
+		vecSelHeroDlgItems[numViewportHeroes]->m_value = selhero_SaveCount;
 	}
 }
 
-static void selhero_ScrollIntoView(unsigned index)
+static void SelheroScrollIntoView(unsigned index)
 {
-	unsigned new_offset = ListOffset;
-	if (index >= ListOffset + kMaxViewportItems)
-		new_offset = index - (kMaxViewportItems - 1);
+	unsigned newOffset = ListOffset;
+	if (index >= ListOffset + MaxViewportItems)
+		newOffset = index - (MaxViewportItems - 1);
 	if (index < ListOffset)
-		new_offset = index;
-	if (new_offset != ListOffset) {
-		ListOffset = new_offset;
-		selhero_UpdateViewportItems();
+		newOffset = index;
+	if (newOffset != ListOffset) {
+		ListOffset = newOffset;
+		SelheroUpdateViewportItems();
 	}
 }
 
-static void selhero_Init()
+static void SelheroInit()
 {
 	LoadBackgroundArt("ui_art\\selhero.pcx");
 	UiAddBackground(&vecSelHeroDialog);
 	UiAddLogo(&vecSelHeroDialog);
 	LoadScrollBar();
 
-	selhero_FreeDlgItems();
+	SelheroFreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 	vecSelHeroDialog.push_back(new UiArtText(selhero_title, rect1, UIS_CENTER | UIS_BIG));
 
@@ -251,7 +251,7 @@ static void selhero_Init()
 	vecSelHeroDialog.push_back(new UiArtText(textStats[4], rect13, UIS_CENTER));
 }
 
-static void selhero_List_Esc()
+static void SelheroListEsc()
 {
 	UiInitList_clear();
 
@@ -259,13 +259,13 @@ static void selhero_List_Esc()
 	selhero_result = SELHERO_PREVIOUS;
 }
 
-static void selhero_List_Focus(unsigned index)
+static void SelheroListFocus(unsigned index)
 {
-	selhero_ScrollIntoView(index);
+	SelheroScrollIntoView(index);
 	int baseFlags = UIS_CENTER | UIS_BIG;
 	if (selhero_SaveCount && index < selhero_SaveCount) {
 		memcpy(&selhero_heroInfo, &selhero_heros[index], sizeof(selhero_heroInfo));
-		selhero_SetStats();
+		SelheroSetStats();
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
 		selhero_deleteEnabled = true;
 		return;
@@ -285,26 +285,26 @@ static void selhero_List_Focus(unsigned index)
 	selhero_deleteEnabled = false;
 }
 
-static bool selhero_List_DeleteYesNo()
+static bool SelheroListDeleteYesNo()
 {
 	selhero_navigateYesNo = selhero_deleteEnabled;
 
 	return selhero_navigateYesNo;
 }
 
-static void selhero_List_Init()
+static void SelheroListInit()
 {
-	selhero_FreeDlgItems();
+	SelheroFreeDlgItems();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 	vecSelDlgItems.push_back(new UiArtText("Select Hero", rect1, UIS_CENTER | UIS_BIG));
 
-	selhero_FreeListItems();
-	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, kMaxViewportItems);
+	SelheroFreeListItems();
+	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MaxViewportItems);
 	for (unsigned i = 0; i < num_viewport_heroes; i++) {
 		vecSelHeroDlgItems.push_back(new UiListItem("", -1));
 	}
-	selhero_UpdateViewportItems();
+	SelheroUpdateViewportItems();
 
 	vecSelDlgItems.push_back(new UiList(vecSelHeroDlgItems, PANEL_LEFT + 265, (UI_OFFSET_Y + 256), 320, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
 
@@ -316,35 +316,35 @@ static void selhero_List_Init()
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect4 = { PANEL_LEFT + 364, (UI_OFFSET_Y + 429), 120, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &selhero_UiFocusNavigationYesNo, rect4, UIS_CENTER | UIS_BIG | UIS_DISABLED);
+	SELLIST_DIALOG_DELETE_BUTTON = new UiArtTextButton("Delete", &SelheroUiFocusNavigationYesNo, rect4, UIS_CENTER | UIS_BIG | UIS_DISABLED);
 	vecSelDlgItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
 	SDL_Rect rect5 = { PANEL_LEFT + 489, (UI_OFFSET_Y + 429), 120, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect5, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, selhero_List_Focus, selhero_List_Select, selhero_List_Esc, selhero_List_DeleteYesNo, false);
-	UiInitScrollBar(scrollBar, kMaxViewportItems);
+	UiInitList(vecSelDlgItems, selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo, false);
+	UiInitScrollBar(scrollBar, MaxViewportItems);
 	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
 
-static void selhero_ClassSelector_Esc()
+static void SelheroClassSelectorEsc()
 {
-	selhero_FreeDlgItems();
-	selhero_FreeListItems();
+	SelheroFreeDlgItems();
+	SelheroFreeListItems();
 
 	if (selhero_SaveCount) {
-		selhero_List_Init();
+		SelheroListInit();
 		return;
 	}
 
-	selhero_List_Esc();
+	SelheroListEsc();
 }
 
-static void selhero_Load_Focus(unsigned index)
+static void SelheroLoadFocus(unsigned index)
 {
 }
 
-static void selhero_ClassSelector_Focus(unsigned index)
+static void SelheroClassSelectorFocus(unsigned index)
 {
 	_uidefaultstats defaults;
 	gfnHeroStats(index, &defaults);
@@ -356,25 +356,25 @@ static void selhero_ClassSelector_Focus(unsigned index)
 	selhero_heroInfo.dexterity = defaults.dexterity;
 	selhero_heroInfo.vitality = defaults.vitality;
 
-	selhero_SetStats();
+	SelheroSetStats();
 }
 
-static void selhero_Load_Select(unsigned index)
+static void SelheroLoadSelect(unsigned index)
 {
 	UiInitList_clear();
 	selhero_endMenu = true;
 	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
 
-static void selhero_List_Select(unsigned index)
+static void SelheroListSelect(unsigned index)
 {
 	if (index == selhero_SaveCount) {
-		selhero_FreeDlgItems();
+		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 		vecSelDlgItems.push_back(new UiArtText("Choose Class", rect1, UIS_CENTER | UIS_BIG));
 
-		selhero_FreeListItems();
+		SelheroFreeListItems();
 		int itemH = 33;
 		vecSelHeroDlgItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
 		vecSelHeroDlgItems.push_back(new UiListItem("Rogue", PC_ROGUE));
@@ -395,19 +395,19 @@ static void selhero_List_Select(unsigned index)
 		SDL_Rect rect3 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), selhero_ClassSelector_Focus, selhero_ClassSelector_Select, selhero_ClassSelector_Esc);
+		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
 		memset(&selhero_heroInfo.name, 0, sizeof(selhero_heroInfo.name));
 		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		return;
 	}
 
 	if (selhero_heroInfo.hassaved) {
-		selhero_FreeDlgItems();
+		SelheroFreeDlgItems();
 
 		SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 		vecSelDlgItems.push_back(new UiArtText("Save File Exists", rect1, UIS_CENTER | UIS_BIG));
 
-		selhero_FreeListItems();
+		SelheroFreeListItems();
 		vecSelHeroDlgItems.push_back(new UiListItem("Load Game", 0));
 		vecSelHeroDlgItems.push_back(new UiListItem("New Game", 1));
 		vecSelDlgItems.push_back(new UiList(vecSelHeroDlgItems, PANEL_LEFT + 265, (UI_OFFSET_Y + 285), 320, 33, UIS_CENTER | UIS_MED | UIS_GOLD));
@@ -418,32 +418,32 @@ static void selhero_List_Select(unsigned index)
 		SDL_Rect rect3 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), selhero_Load_Focus, selhero_Load_Select, selhero_List_Init, NULL, true);
+		UiInitList(vecSelDlgItems, vecSelHeroDlgItems.size(), SelheroLoadFocus, SelheroLoadSelect, SelheroListInit, NULL, true);
 		snprintf(selhero_title, sizeof(selhero_title), "Single Player Characters");
 		return;
 	}
 
-	selhero_Load_Select(1);
+	SelheroLoadSelect(1);
 }
 
-static void selhero_Name_Esc()
+static void SelheroNameEsc()
 {
-	selhero_List_Select(selhero_SaveCount);
+	SelheroListSelect(selhero_SaveCount);
 }
 
-static void selhero_ClassSelector_Select(unsigned index)
+static void SelheroClassSelectorSelect(unsigned index)
 {
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #if defined __3DS__
-	ctr_vkbdInput("Enter Hero name..", selhero_GenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
+	ctr_vkbdInput("Enter Hero name..", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
 #elif defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif
-		SStrCopy(selhero_heroInfo.name, selhero_GenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
+		SStrCopy(selhero_heroInfo.name, SelheroGenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
 #endif
-	selhero_FreeDlgItems();
+	SelheroFreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
 
@@ -456,10 +456,10 @@ static void selhero_ClassSelector_Select(unsigned index)
 	SDL_Rect rect4 = { PANEL_LEFT + 429, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelDlgItems, 0, NULL, selhero_Name_Select, selhero_Name_Esc);
+	UiInitList(vecSelDlgItems, 0, NULL, SelheroNameSelect, SelheroNameEsc);
 }
 
-static void selhero_Name_Select(unsigned index)
+static void SelheroNameSelect(unsigned index)
 {
 	if (!UiValidPlayerName(selhero_heroInfo.name)) {
 		ArtBackground.Unload();
@@ -480,20 +480,21 @@ static void selhero_Name_Select(unsigned index)
 
 		if (overwrite) {
 			if (gfnHeroCreate(&selhero_heroInfo)) {
-				selhero_Load_Select(1);
+				SelheroLoadSelect(1);
 				return;
 			} else {
 				std::vector<UiItemBase*> allItems = vecSelHeroDialog;
 				allItems.insert(allItems.end(), vecSelDlgItems.begin(), vecSelDlgItems.end());
 				UiErrorOkDialog("Unable to create character.", allItems);
 			}
+			UiErrorOkDialog("Unable to create character.", vecSelDlgItems);
 		}
 	}
 
-	selhero_ClassSelector_Select(0);
+	SelheroClassSelectorSelect(0);
 }
 
-static void SelHero_GetHeroInfo(_uiheroinfo *pInfo)
+static void SelHeroGetHeroInfo(_uiheroinfo *pInfo)
 {
 	selhero_heros[selhero_SaveCount] = *pInfo;
 	selhero_SaveCount++;
@@ -506,7 +507,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 	char (&name)[16])
 {
 	do {
-		selhero_Init();
+		SelheroInit();
 
 		gfnHeroCreate = fncreate;
 		gfnHeroStats = fnstats;
@@ -515,13 +516,13 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 		selhero_navigateYesNo = false;
 
 		selhero_SaveCount = 0;
-		fninfo(SelHero_GetHeroInfo);
+		fninfo(SelHeroGetHeroInfo);
 		std::reverse(selhero_heros, selhero_heros + selhero_SaveCount);
 
 		if (selhero_SaveCount != 0) {
-			selhero_List_Init();
+			SelheroListInit();
 		} else {
-			selhero_List_Select(0);
+			SelheroListSelect(0);
 		}
 
 		selhero_endMenu = false;
@@ -530,7 +531,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo *)),
 			UiRenderItems(vecSelHeroDialog);
 			UiPollAndRender();
 		}
-		selhero_Free();
+		SelheroFree();
 
 		if (selhero_navigateYesNo) {
 			char dialogTitle[32];

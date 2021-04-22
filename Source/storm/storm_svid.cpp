@@ -9,7 +9,6 @@
 #include <smacker.h>
 
 #include "all.h"
-#include "storm.h"
 #include "utils/display.h"
 #include "utils/sdl_compat.h"
 
@@ -31,10 +30,66 @@ static unsigned long SVidWidth, SVidHeight;
 static BYTE SVidAudioDepth;
 static double SVidVolume;
 //int SVidVolume;
+
+static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
+{
+	return srcW * dstH > dstW * srcH;
+}
+
 #ifdef USE_SDL1
+// Whether we've changed the video mode temporarily for SVid.
+// If true, we must restore it once the video has finished playing.
 static bool IsSVidVideoMode = false;
+
+// Set the video mode close to the SVid resolution while preserving aspect ratio.
+void TrySetVideoModeToSVidForSDL1()
+{
+	const SDL_Surface *display = SDL_GetVideoSurface();
+	IsSVidVideoMode = (display->flags & (SDL_FULLSCREEN | SDL_NOFRAME)) != 0;
+	if (!IsSVidVideoMode)
+		return;
+
+	int w;
+	int h;
+	if (IsLandscapeFit(SVidWidth, SVidHeight, display->w, display->h)) {
+		w = SVidWidth;
+		h = SVidWidth * display->h / display->w;
+	} else {
+		w = SVidHeight * display->w / display->h;
+		h = SVidHeight;
+	}
+
+#ifndef SDL1_FORCE_SVID_VIDEO_MODE
+	IsSVidVideoMode = SDL_VideoModeOK(
+	    w, h, /*bpp=*/display->format->BitsPerPixel, display->flags);
+
+	if (!IsSVidVideoMode) {
+		// Get available fullscreen/hardware modes
+		SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
+
+		// Check is there are any modes available.
+		if (modes == NULL)
+		    || modes == reinterpret_cast<SDL_Rect **>(-1)) { // should not happen, since the first try was rejected...
+			return;
+		}
+
+		// Search for a usable video mode
+		bool found = false;
+		for (int i = 0; modes[i] != NULL; i++) {
+			if (modes[i]->w == w || modes[i]->h == h) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			return;
+		IsSVidVideoMode = true;
+	}
 #endif
 
+	SetVideoMode(w, h, display->format->BitsPerPixel, display->flags);
+}
+#endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 SDL_AudioDeviceID deviceId = 0;
@@ -228,45 +283,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		}
 	}
 #else
-	// Set the video mode close to the SVid resolution while preserving aspect ratio.
-	{
-		const SDL_Surface *display = SDL_GetVideoSurface();
-		IsSVidVideoMode = (display->flags & (SDL_FULLSCREEN | SDL_NOFRAME)) != 0;
-
-		if (IsSVidVideoMode) {
-			/* Get available fullscreen/hardware modes */
-			SDL_Rect **modes = SDL_ListModes(NULL, display->flags);
-
-			/* Check is there are any modes available */
-			if (modes == NULL) {
-				IsSVidVideoMode = false;
-			}
-			/* Check if our resolution is restricted */
-			else if (modes != (SDL_Rect **)-1) {
-				// Search for a usable video mode
-				bool UsableModeFound = false;
-				for (int i = 0; modes[i] != NULL; i++) {
-					if (modes[i]->w == SVidWidth || modes[i]->h == SVidHeight) {
-						UsableModeFound = true;
-						break;
-					}
-				}
-				IsSVidVideoMode = UsableModeFound;
-			}
-		}
-
-		if (IsSVidVideoMode) {
-			int w, h;
-			if (display->w * SVidWidth > display->h * SVidHeight) {
-				w = SVidWidth;
-				h = SVidWidth * display->h / display->w;
-			} else {
-				w = SVidHeight * display->w / display->h;
-				h = SVidHeight;
-			}
-			SetVideoMode(w, h, display->format->BitsPerPixel, display->flags);
-		}
-	}
+	TrySetVideoModeToSVidForSDL1();
 #endif
 	memcpy(SVidPreviousPalette, orig_palette, sizeof(SVidPreviousPalette));
 
@@ -329,23 +346,23 @@ static BYTE *SVidApplyVolume(const BYTE *raw, unsigned long rawLen)
 	return scaled;
 }
 
-bool SVidPlayContinue(void)
+bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
 		SDL_Color colors[256];
-		const unsigned char *palette_data = smk_get_palette(SVidSMK);
+		const unsigned char *paletteData = smk_get_palette(SVidSMK);
 
 		for (int i = 0; i < 256; i++) {
-			colors[i].r = palette_data[i * 3 + 0];
-			colors[i].g = palette_data[i * 3 + 1];
-			colors[i].b = palette_data[i * 3 + 2];
+			colors[i].r = paletteData[i * 3 + 0];
+			colors[i].g = paletteData[i * 3 + 1];
+			colors[i].b = paletteData[i * 3 + 2];
 #ifndef USE_SDL1
 			colors[i].a = SDL_ALPHA_OPAQUE;
 #endif
 
-			orig_palette[i].r = palette_data[i * 3 + 0];
-			orig_palette[i].g = palette_data[i * 3 + 1];
-			orig_palette[i].b = palette_data[i * 3 + 2];
+			orig_palette[i].r = paletteData[i * 3 + 0];
+			orig_palette[i].g = paletteData[i * 3 + 1];
+			orig_palette[i].b = paletteData[i * 3 + 2];
 		}
 		memcpy(logical_palette, orig_palette, sizeof(logical_palette));
 
@@ -365,6 +382,7 @@ bool SVidPlayContinue(void)
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) <= -1) {
 			SDL_Log("%s", SDL_GetError());
+			return false;
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -385,36 +403,43 @@ bool SVidPlayContinue(void)
 	} else
 #endif
 	{
-		SDL_Surface *output_surface = GetOutputSurface();
-		int factor;
-		int wFactor = output_surface->w / SVidWidth;
-		int hFactor = output_surface->h / SVidHeight;
-		if (wFactor > hFactor && (unsigned int)output_surface->h > SVidHeight) {
-			factor = hFactor;
+		SDL_Surface *outputSurface = GetOutputSurface();
+#ifdef USE_SDL1
+		const bool is_indexed_output_format = SDLBackport_IsPixelFormatIndexed(output_surface->format);
+#else
+		const Uint32 wndFormat = SDL_GetWindowPixelFormat(ghMainWnd);
+		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(wndFormat);
+#endif
+		SDL_Rect outputRect;
+		if (isIndexedOutputFormat) {
+			// Cannot scale if the output format is indexed (8-bit palette).
+			outputRect.w = static_cast<int>(SVidWidth);
+			outputRect.h = static_cast<int>(SVidHeight);
+		} else if (IsLandscapeFit(SVidWidth, SVidHeight, outputSurface->w, outputSurface->h)) {
+			outputRect.w = outputSurface->w;
+			outputRect.h = SVidHeight * outputSurface->w / SVidWidth;
 		} else {
-			factor = wFactor;
+			outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
+			outputRect.h = outputSurface->h;
 		}
-		const int scaledW = SVidWidth * factor;
-		const int scaledH = SVidHeight * factor;
+		outputRect.x = (outputSurface->w - outputRect.w) / 2;
+		outputRect.y = (outputSurface->h - outputRect.h) / 2;
 
-		SDL_Rect pal_surface_offset = {
-			(output_surface->w - scaledW) / 2,
-			(output_surface->h - scaledH) / 2,
-			scaledW,
-			scaledH
-		};
-		if (factor == 1) {
-			if (SDL_BlitSurface(SVidSurface, NULL, output_surface, &pal_surface_offset) <= -1) {
+		if (isIndexedOutputFormat
+		    || outputSurface->w == static_cast<int>(SVidWidth)
+		    || outputSurface->h == static_cast<int>(SVidHeight)) {
+			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) <= -1) {
 				ErrSdl();
 			}
 		} else {
+			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
+			// We must convert to the output format before calling SDL_BlitScaled.
 #ifdef USE_SDL1
 			SDL_Surface *tmp = SDL_ConvertSurface(SVidSurface, ghMainWnd->format, 0);
 #else
-			Uint32 format = SDL_GetWindowPixelFormat(ghMainWnd);
-			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, format, 0);
+			SDL_Surface *tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
-			if (SDL_BlitScaled(tmp, NULL, output_surface, &pal_surface_offset) <= -1) {
+			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) <= -1) {
 				SDL_Log("%s", SDL_GetError());
 				return false;
 			}
@@ -470,8 +495,10 @@ void SVidPlayEnd()
 		}
 	}
 #else
-	if (IsSVidVideoMode)
-		SetVideoModeToPrimary(IsFullScreen(), screenWidth, screenHeight);
+	if (IsSVidVideoMode) {
+		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		IsSVidVideoMode = false;
+	}
 #endif
 }
 

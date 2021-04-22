@@ -27,7 +27,7 @@ static void DialogActionOK()
 /*static void LoadFallbackPalette()
 {
 	// clang-format off
-	static const SDL_Color fallback_palette[256] = {
+	static const SDL_Color FallbackPalette[256] = {
 		{ 0x00, 0x00, 0x00, 0 },
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,
@@ -144,12 +144,12 @@ static void DialogActionOK()
 		BLANKCOLOR,
 	};
 	// clang-format on
-	ApplyGamma(logical_palette, fallback_palette, 256);
+	ApplyGamma(logical_palette, FallbackPalette, 256);
 }*/
 
 static void Init(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
 {
-	if (renderBehind.size() == 0) {
+	if (renderBehind.empty()) {
 		//assert(error || (ArtBackground.surface == NULL && ArtCursor.surface == NULL));
 		if (ArtBackground.surface != NULL)
 			ArtBackground.Unload();
@@ -216,7 +216,7 @@ static void Deinit(std::vector<UiItemBase *> renderBehind)
 	vecOkDialog.clear();
 }
 
-static void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase *> renderBehind)
+static void DialogLoop(const std::vector<UiItemBase *> &uiItems, const std::vector<UiItemBase *> &renderBehind)
 {
 	SDL_Event event;
 	_gbDialogEnd = false;
@@ -249,7 +249,7 @@ static void DialogLoop(std::vector<UiItemBase *> uiItems, std::vector<UiItemBase
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char *text, const char *caption, bool error, std::vector<UiItemBase *> renderBehind)
+static void UiOkDialog(const char *text, const char *caption, bool error, const std::vector<UiItemBase *> &renderBehind)
 {
 	static bool inDialog = false;
 
@@ -280,7 +280,7 @@ static void UiOkDialog(const char *text, const char *caption, bool error, std::v
 	}
 }
 
-void UiErrorOkDialog(const char *text, const char *caption, std::vector<UiItemBase *> renderBehind)
+void UiErrorOkDialog(const char *text, const char *caption, const std::vector<UiItemBase *> &renderBehind)
 {
 	UiOkDialog(text, caption, /*error=*/true, renderBehind);
 }
@@ -290,7 +290,7 @@ void UiErrorOkDialog(const char *text, const char *caption, bool error)
 	UiOkDialog(text, caption, error, vecNULL);
 }
 
-void UiErrorOkDialog(const char *text, std::vector<UiItemBase *> renderBehind)
+void UiErrorOkDialog(const char *text, const std::vector<UiItemBase *> &renderBehind)
 {
 	UiErrorOkDialog(text, NULL, renderBehind);
 }

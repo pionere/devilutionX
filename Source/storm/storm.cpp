@@ -113,7 +113,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	assert(pszFileName != NULL);
 	size = strlen(pszFileName);
 	// omit all types except PCX
-	if (size < 4 || strcasecmp(&pszFileName[size - 4], ".pcx")) {
+	if (size < 4 || strcasecmp(&pszFileName[size - 4], ".pcx") != 0) {
 		return false;
 	}
 
@@ -141,9 +141,9 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		//
 		// This is useful because in SDL the pitch size is often slightly larger
 		// than image width for efficiency.
-		const int x_skip = dwBuffersize / height - width;
-		assert(x_skip >= 0);
-		//if (x_skip < 0) {
+		const int xSkip = dwBuffersize / height - width;
+		assert(xSkip >= 0);
+		//if (xSkip < 0) {
 		//	SFileCloseFile(hFile);
 		//	return false;
 		//}
@@ -172,7 +172,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 				}
 			}
 			// Skip the pitch padding.
-			pBuffer += x_skip;
+			pBuffer += xSkip;
 		}
 
 		free(fileBuffer);

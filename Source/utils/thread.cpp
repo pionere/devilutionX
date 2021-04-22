@@ -7,24 +7,24 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int SDLCALL thread_translate(void *ptr)
+static int SDLCALL ThreadTranslate(void *ptr)
 {
-	unsigned int (*handler)(void *) = (unsigned int (*)(void *))ptr;
+	auto handler = (unsigned int (*)(void *))ptr;
 
 	return handler(NULL);
 }
 
-SDL_Thread *CreateThread(unsigned int (*handler)(void *), SDL_threadID *ThreadID)
+SDL_Thread *CreateThread(unsigned int (*handler)(void *), SDL_threadID *threadId)
 {
 #ifdef USE_SDL1
 	SDL_Thread *ret = SDL_CreateThread(thread_translate, (void *)handler);
 #else
-	SDL_Thread *ret = SDL_CreateThread(thread_translate, NULL, (void *)handler);
+	SDL_Thread *ret = SDL_CreateThread(ThreadTranslate, NULL, (void *)handler);
 #endif
 	if (ret == NULL) {
 		ErrSdl();
 	}
-	*ThreadID = SDL_GetThreadID(ret);
+	*threadId = SDL_GetThreadID(ret);
 	return ret;
 }
 

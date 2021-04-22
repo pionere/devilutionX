@@ -58,17 +58,17 @@ void LoadTtfFont()
 		gbWasFontsInit = true;
 	}
 
-	const char* ttf_font_path = TTF_FONT_NAME;
-	if (!FileExists(ttf_font_path))
+	const char* ttfFontPath = TTF_FONT_NAME;
+	if (!FileExists(ttfFontPath))
 	{
-		ttf_font_path = TTF_FONT_DIR TTF_FONT_NAME;
+		ttfFontPath = TTF_FONT_DIR TTF_FONT_NAME;
 	}
 #ifdef __linux__
-	if (!FileExists(ttf_font_path)) {
-		ttf_font_path = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
+	if (!FileExists(ttfFontPath)) {
+		ttfFontPath = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
 	}
 #endif
-	font = TTF_OpenFont(ttf_font_path, 17);
+	font = TTF_OpenFont(ttfFontPath, 17);
 	if (font == NULL) {
 		SDL_Log("TTF_OpenFont: %s", TTF_GetError());
 		return;

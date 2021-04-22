@@ -1,9 +1,9 @@
 #include "zerotier_lwip.h"
 #ifdef ZEROTIER
+#include <lwip/igmp.h>
+#include <lwip/mld6.h>
 #include <lwip/sockets.h>
 #include <lwip/tcpip.h>
-#include <lwip/mld6.h>
-#include <lwip/igmp.h>
 
 #include <SDL.h>
 
@@ -21,7 +21,7 @@ namespace net {
 void print_ip6_addr(void *x)
 {
 	char ipstr[INET6_ADDRSTRLEN];
-	struct sockaddr_in6 *in = (struct sockaddr_in6 *)x;
+	auto *in = static_cast<sockaddr_in6 *>(x);
 	lwip_inet_ntop(AF_INET6, &(in->sin6_addr), ipstr, INET6_ADDRSTRLEN);
 	SDL_Log("ZeroTier: ZTS_EVENT_ADDR_NEW_IP6, addr=%s\n", ipstr);
 }

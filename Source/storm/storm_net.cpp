@@ -2,6 +2,7 @@
 #ifdef ZEROTIER
 #include <mutex>
 #include <thread>
+#include <utility>
 #endif
 
 #include "all.h"
@@ -195,7 +196,7 @@ std::vector<std::string> SNetGetGamelist()
 
 void SNetSetPassword(std::string pw)
 {
-	dvlnet_inst->setup_password(pw);
+	dvlnet_inst->setup_password(std::move(pw));
 }
 #endif
 DEVILUTION_END_NAMESPACE

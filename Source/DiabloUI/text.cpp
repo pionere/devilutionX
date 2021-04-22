@@ -25,7 +25,8 @@ void WordWrapArtStr(char *text, unsigned width)
 		if (text[i] == '\n') {
 			lineStart = i + 1;
 			continue;
-		} else if (text[i] != ' ' && i != len) {
+		}
+		if (text[i] != ' ' && i != len) {
 			continue;
 		}
 

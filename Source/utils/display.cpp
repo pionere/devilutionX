@@ -4,12 +4,12 @@
 #include <psp2/power.h>
 #endif
 
+#include "DiabloUI/diabloui.h"
 #include "control.h"
 #include "controls/controller.h"
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
-#include "DiabloUI/diabloui.h"
 
 #ifdef USE_SDL1
 #ifndef SDL1_VIDEO_MODE_BPP

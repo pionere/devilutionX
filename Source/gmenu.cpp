@@ -22,7 +22,7 @@ int LogoAnim_tick;
 BYTE LogoAnim_frame;
 #endif
 int PentSpin_tick;
-void (*gmUpdateFunc)(TMenuItem *);
+void (*gmUpdateFunc)();
 TMenuItem *sgpCurrentMenu;
 BYTE *option_cel;
 BYTE *sgpLogo;
@@ -155,7 +155,7 @@ static void gmenu_left_right(BOOL isRight)
 	sgpCurrItem->fnMenu(FALSE);
 }
 
-void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
+void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)())
 {
 	int i;
 
@@ -164,8 +164,8 @@ void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *))
 	sgpCurrentMenu = pItem;
 	gmUpdateFunc = gmUpdFunc;
 	if (gmUpdFunc != NULL) {
-		gmUpdateFunc(sgpCurrentMenu);
-		pItem = sgpCurrentMenu;
+		gmUpdateFunc();
+		pItem = sgpCurrentMenu; // TODO: is this necessary?
 	}
 	sgCurrentMenuIdx = 0;
 	if (sgpCurrentMenu != NULL) {
@@ -251,7 +251,7 @@ void gmenu_draw()
 	assert(sgpCurrentMenu != NULL);
 		GameMenuMove();
 		if (gmUpdateFunc != NULL)
-			gmUpdateFunc(sgpCurrentMenu);
+			gmUpdateFunc();
 #ifdef HELLFIRE
 		DWORD ticks = SDL_GetTicks();
 		if ((int)(ticks - LogoAnim_tick) > 25) {

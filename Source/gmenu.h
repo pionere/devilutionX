@@ -18,7 +18,7 @@ void gmenu_draw_pause();
 void FreeGMenu();
 void gmenu_init_menu();
 bool gmenu_is_active();
-void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)(TMenuItem *));
+void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)());
 void gmenu_draw();
 bool gmenu_presskeys(int vkey);
 void gmenu_on_mouse_move();

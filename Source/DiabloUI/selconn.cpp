@@ -20,15 +20,15 @@ static std::vector<UiItemBase *> vecSelConnDlg;
 #define DESCRIPTION_WIDTH 205
 
 // Forward-declare UI-handlers, used by other handlers.
-static void selconn_Select(unsigned index);
+static void SelconnSelect(unsigned index);
 
-static void selconn_Esc()
+static void SelconnEsc()
 {
 	selconn_ReturnValue = false;
 	selconn_EndMenu = true;
 }
 
-static void selconn_Focus(unsigned index)
+static void SelconnFocus(unsigned index)
 {
 	int players = MAX_PLRS;
 	switch (vecConnItems[index]->m_value) {
@@ -52,7 +52,7 @@ static void selconn_Focus(unsigned index)
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
 }
 
-static void selconn_Load()
+static void SelconnLoad()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 
@@ -99,10 +99,10 @@ static void selconn_Load()
 	SDL_Rect rect10 = { PANEL_LEFT + 454, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelConnDlg.push_back(new UiArtTextButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(vecSelConnDlg, vecConnItems.size(), selconn_Focus, selconn_Select, selconn_Esc);
+	UiInitList(vecSelConnDlg, vecConnItems.size(), SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
-static void selconn_Free()
+static void SelconnFree()
 {
 	ArtBackground.Unload();
 
@@ -114,38 +114,37 @@ static void selconn_Free()
 
 	for (unsigned i = 0; i < vecSelConnDlg.size(); i++) {
 		UiItemBase *pUIMenuItem = vecSelConnDlg[i];
-		if (pUIMenuItem)
-			delete pUIMenuItem;
+		delete pUIMenuItem;
 	}
 	vecSelConnDlg.clear();
 }
 
-static void selconn_Select(unsigned index)
+static void SelconnSelect(unsigned index)
 {
 	provider = vecConnItems[index]->m_value;
 
-	selconn_Free();
+	SelconnFree();
 	SNetInitializeProvider(provider);
 	selconn_EndMenu = true;
-	selconn_Load();
+	SelconnLoad();
 }
 
 bool UiSelectProvider(bool bMulti)
 {
 	selconn_bMulti = bMulti;
-	selconn_Load();
+	SelconnLoad();
 
 	selconn_ReturnValue = true;
 	selconn_EndMenu = false;
 
 	if (!selconn_bMulti)
-		selconn_Select(1);
+		SelconnSelect(1);
 
 	while (!selconn_EndMenu) {
 		UiClearScreen();
 		UiPollAndRender();
 	}
-	selconn_Free();
+	SelconnFree();
 
 	return selconn_ReturnValue;
 }

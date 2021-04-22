@@ -13,7 +13,7 @@ ItemGetRecordStruct itemrecord[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
 BYTE *itemanims[ITEMTYPES];
-BOOL UniqueItemFlag[NUM_UITEM];
+BOOL UniqueItemFlags[NUM_UITEM];
 int numitems;
 int gnNumGetRecords;
 
@@ -334,7 +334,7 @@ void InitItemGFX()
 		snprintf(arglist, sizeof(arglist), "Items\\%s.CEL", ItemDropNames[i]);
 		itemanims[i] = LoadFileInMem(arglist, NULL);
 	}
-	memset(UniqueItemFlag, 0, sizeof(UniqueItemFlag));
+	memset(UniqueItemFlags, 0, sizeof(UniqueItemFlags));
 }
 
 static void AddInitItems()
@@ -2020,7 +2020,7 @@ static int CheckUnique(int ii, int lvl, int uper, bool recreate)
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIItemId == uid
 		 && lvl >= UniqueItemList[i].UIMinLvl
-		 && (!uniq || !UniqueItemFlag[i])) {
+		 && (!uniq || !UniqueItemFlags[i])) {
 			uok[ui] = i;
 			ui++;
 		}
@@ -2036,7 +2036,7 @@ static void GetUniqueItem(int ii, int uid)
 {
 	const UItemStruct *ui;
 
-	UniqueItemFlag[uid] = TRUE;
+	UniqueItemFlags[uid] = TRUE;
 	ui = &UniqueItemList[uid];
 	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b, 0, 0, 1);
 
@@ -3509,7 +3509,7 @@ static void SpawnOnePremium(int i, int plvl)
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
 	items[0]._iCreateInfo = plvl | CF_SMITHPREMIUM;
-	copy_pod(premiumitem[i], items[0]);
+	copy_pod(premiumitems[i], items[0]);
 }
 
 void SpawnPremium(int lvl)
@@ -3518,20 +3518,20 @@ void SpawnPremium(int lvl)
 
 	if (numpremium < SMITH_PREMIUM_ITEMS) {
 		for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
-			if (premiumitem[i]._itype == ITYPE_NONE)
+			if (premiumitems[i]._itype == ITYPE_NONE)
 				SpawnOnePremium(i, premiumlevel + premiumlvladd[i]);
 		}
 		numpremium = SMITH_PREMIUM_ITEMS;
 	}
 	while (premiumlevel < lvl) {
 		premiumlevel++;
-		copy_pod(premiumitem[0], premiumitem[3]);
-		copy_pod(premiumitem[1], premiumitem[4]);
-		copy_pod(premiumitem[2], premiumitem[5]);
+		copy_pod(premiumitems[0], premiumitems[3]);
+		copy_pod(premiumitems[1], premiumitems[4]);
+		copy_pod(premiumitems[2], premiumitems[5]);
 		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
-		copy_pod(premiumitem[4], premiumitem[6]);
+		copy_pod(premiumitems[4], premiumitems[6]);
 		SpawnOnePremium(5, premiumlevel + premiumlvladd[5]);
-		copy_pod(premiumitem[6], premiumitem[7]);
+		copy_pod(premiumitems[6], premiumitems[7]);
 		SpawnOnePremium(7, premiumlevel + premiumlvladd[7]);
 	}
 }

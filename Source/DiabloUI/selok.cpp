@@ -18,8 +18,7 @@ void selok_Free()
 
 	for (unsigned i = 0; i < vecSelOkDialogItems.size(); i++) {
 		UiListItem *pUIListItem = vecSelOkDialogItems[i];
-		if (pUIListItem)
-			delete pUIListItem;
+		delete pUIListItem;
 	}
 	vecSelOkDialogItems.clear();
 
@@ -53,7 +52,7 @@ void UiSelOkDialog(const char *title, const char *body, bool background)
 	UiAddBackground(&vecSelOkDialog);
 	UiAddLogo(&vecSelOkDialog);
 
-	if (title != NULL) {
+	if (title != nullptr) {
 		SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
 		vecSelOkDialog.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG));
 

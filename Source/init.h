@@ -23,7 +23,7 @@ extern HANDLE diabdat_mpqs[NUM_MPQS];
 void init_cleanup();
 void init_archives();
 void init_create_window();
-void MainWndProc(UINT Msg, WPARAM wParam, LPARAM lParam);
+void MainWndProc(UINT Msg);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
 extern char gszProductName[MAX_SEND_STR_LEN];

@@ -17,7 +17,7 @@ static void UiMainMenuSelect(unsigned index)
 	_gnMainMenuResult = vecMenuItems[index]->m_value;
 }
 
-static void mainmenu_Esc()
+static void MainmenuEsc()
 {
 	unsigned last = vecMenuItems.size() - 1;
 	if (SelectedItem == last) {
@@ -32,7 +32,7 @@ void mainmenu_restart_repintro()
 	_gdwAttractTicks = SDL_GetTicks() + _gnAttractTimeout * 1000;
 }
 
-static void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
+static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 {
 	gfnSoundFunction = fnSound;
 
@@ -55,10 +55,10 @@ static void mainmenu_Load(const char *name, void (*fnSound)(const char *file))
 	SDL_Rect rect = { 17, (SCREEN_HEIGHT - 36), 605, 21 };
 	vecMainMenuDialog.push_back(new UiArtText(name, rect, UIS_SMALL));
 
-	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, mainmenu_Esc, NULL, true);
+	UiInitList(vecMainMenuDialog, vecMenuItems.size(), NULL, UiMainMenuSelect, MainmenuEsc, NULL, true);
 }
 
-static void mainmenu_Free()
+static void MainmenuFree()
 {
 #ifdef WIDESCREEN
 	ArtBackgroundWidescreen.Unload();
@@ -73,8 +73,7 @@ static void mainmenu_Free()
 
 	for (unsigned i = 0; i < vecMenuItems.size(); i++) {
 		UiListItem *pUIMenuItem = vecMenuItems[i];
-		if (pUIMenuItem)
-			delete pUIMenuItem;
+		delete pUIMenuItem;
 	}
 	vecMenuItems.clear();
 }
@@ -84,7 +83,7 @@ void UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 	_gnMainMenuResult = 0;
 	while (_gnMainMenuResult == 0) {
 		_gnAttractTimeout = attractTimeOut;
-		mainmenu_Load(name, fnSound);
+		MainmenuLoad(name, fnSound);
 
 		mainmenu_restart_repintro(); // for automatic starts
 
@@ -96,7 +95,7 @@ void UiMainMenuDialog(const char *name, int *pdwResult, void (*fnSound)(const ch
 			}
 		}
 
-		mainmenu_Free();
+		MainmenuFree();
 	}
 
 	*pdwResult = _gnMainMenuResult;

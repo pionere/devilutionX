@@ -11,7 +11,7 @@ unsigned _guCowMsg;
 int numtowners;
 unsigned _guCowClicks;
 BYTE *pCowCels;
-TownerStruct towner[MAX_TOWNERS];
+TownerStruct towners[MAX_TOWNERS];
 
 /**
  * Maps from active cow sound effect index and player class to sound
@@ -146,7 +146,7 @@ static void InitCowAnim(int tnum, int dir)
 {
 	TownerStruct *tw;
 
-	tw = &towner[tnum];
+	tw = &towners[tnum];
 
 	tw->_tAnimData = CelGetFrameStart(pCowCels, dir);
 	tw->_tAnimLen = 12;
@@ -159,7 +159,7 @@ static void InitTownerAnim(int tnum, BYTE *pAnim, int numFrames, int Delay)
 {
 	TownerStruct *tw;
 
-	tw = &towner[tnum];
+	tw = &towners[tnum];
 
 	tw->_tAnimData = pAnim;
 	tw->_tAnimLen = numFrames;
@@ -176,7 +176,7 @@ static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_ta
 	dMonster[x][y] = tnum + 1;
 	monster[tnum]._mfutx = monster[tnum]._mx = x;
 	monster[tnum]._mfuty = monster[tnum]._my = y;
-	tw = &towner[tnum];
+	tw = &towners[tnum];
 	memset(tw, 0, sizeof(TownerStruct));
 	// tw->_tListener = MAX_PLRS;
 	tw->_tStoreId = store_id;
@@ -199,7 +199,7 @@ static void InitSmith()
 {
 	InitTownerInfo(numtowners, 96, TOWN_SMITH, STORE_SMITH, TEXT_GRISWOLD1, 52 + DBORDERX, 53 + DBORDERY, 0);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Smith\\SmithN.CEL", NULL), 16, 3);
-	towner[numtowners]._tName = "Griswold the Blacksmith";
+	towners[numtowners]._tName = "Griswold the Blacksmith";
 	numtowners++;
 }
 
@@ -207,7 +207,7 @@ static void InitBarOwner()
 {
 	InitTownerInfo(numtowners, 96, TOWN_TAVERN, STORE_TAVERN, TEXT_OGDEN1, 45 + DBORDERX, 52 + DBORDERY, 3);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TwnF\\TwnFN.CEL", NULL), 16, 3);
-	towner[numtowners]._tName = "Ogden the Tavern owner";
+	towners[numtowners]._tName = "Ogden the Tavern owner";
 	numtowners++;
 }
 
@@ -215,7 +215,7 @@ static void InitTownDead()
 {
 	InitTownerInfo(numtowners, 96, TOWN_DEADGUY, STORE_NONE, TEXT_NONE, 14 + DBORDERX, 22 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Butch\\Deadguy.CEL", NULL), 8, 6);
-	towner[numtowners]._tName = "Wounded Townsman";
+	towners[numtowners]._tName = "Wounded Townsman";
 	numtowners++;
 }
 
@@ -223,7 +223,7 @@ static void InitWitch()
 {
 	InitTownerInfo(numtowners, 96, TOWN_WITCH, STORE_WITCH, TEXT_ADRIA1, 70 + DBORDERX, 10 + DBORDERY, 5);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\Witch.CEL", NULL), 19, 6);
-	towner[numtowners]._tName = "Adria the Witch";
+	towners[numtowners]._tName = "Adria the Witch";
 	numtowners++;
 }
 
@@ -231,7 +231,7 @@ static void InitBarmaid()
 {
 	InitTownerInfo(numtowners, 96, TOWN_BMAID, STORE_BARMAID, TEXT_GILLIAN1, 33 + DBORDERX, 56 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownWmn1\\WmnN.CEL", NULL), 18, 6);
-	towner[numtowners]._tName = "Gillian the Barmaid";
+	towners[numtowners]._tName = "Gillian the Barmaid";
 	numtowners++;
 }
 
@@ -239,7 +239,7 @@ static void InitBoy()
 {
 	InitTownerInfo(numtowners, 96, TOWN_PEGBOY, STORE_BOY, TEXT_WIRT1, 1 + DBORDERX, 43 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\TownBoy\\PegKid1.CEL", NULL), 20, 6);
-	towner[numtowners]._tName = "Wirt the Peg-legged boy";
+	towners[numtowners]._tName = "Wirt the Peg-legged boy";
 	numtowners++;
 }
 
@@ -247,7 +247,7 @@ static void InitHealer()
 {
 	InitTownerInfo(numtowners, 96, TOWN_HEALER, STORE_HEALER, TEXT_PEPIN1, 45 + DBORDERX, 69 + DBORDERY, 1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Healer\\Healer.CEL", NULL), 20, 6);
-	towner[numtowners]._tName = "Pepin the Healer";
+	towners[numtowners]._tName = "Pepin the Healer";
 	numtowners++;
 }
 
@@ -255,7 +255,7 @@ static void InitTeller()
 {
 	InitTownerInfo(numtowners, 96, TOWN_STORY, STORE_STORY, TEXT_STORY1, 52 + DBORDERX, 61 + DBORDERY, 2);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Strytell\\Strytell.CEL", NULL), 25, 3);
-	towner[numtowners]._tName = "Cain the Elder";
+	towners[numtowners]._tName = "Cain the Elder";
 	numtowners++;
 }
 
@@ -263,7 +263,7 @@ static void InitDrunk()
 {
 	InitTownerInfo(numtowners, 96, TOWN_DRUNK, STORE_DRUNK, TEXT_FARNHAM1, 61 + DBORDERX, 74 + DBORDERY, 4);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Drunk\\TwnDrunk.CEL", NULL), 18, 3);
-	towner[numtowners]._tName = "Farnham the Drunk";
+	towners[numtowners]._tName = "Farnham the Drunk";
 	numtowners++;
 }
 
@@ -281,7 +281,7 @@ static void InitCows()
 		dir = TownCowDir[i];
 		InitTownerInfo(numtowners, 128, TOWN_COW, STORE_NONE, TEXT_NONE, x, y, -1);
 		InitCowAnim(numtowners, dir);
-		towner[numtowners]._tName = "Cow";
+		towners[numtowners]._tName = "Cow";
 
 		xo = x + cowoffx[dir];
 		yo = y + cowoffy[dir];
@@ -304,7 +304,7 @@ static void InitFarmer()
 {
 	InitTownerInfo(numtowners, 96, TOWN_FARMER, STORE_NONE, TEXT_NONE, 52 + DBORDERX, 6 + DBORDERY, -1);
 	InitTownerAnim(numtowners, LoadFileInMem("Towners\\Farmer\\Farmrn2.CEL", NULL), 15, 3);
-	towner[numtowners]._tName = "Lester the farmer";
+	towners[numtowners]._tName = "Lester the farmer";
 	numtowners++;
 }
 
@@ -319,7 +319,7 @@ static void InitCowFarmer()
 		pBuf = LoadFileInMem("Towners\\Farmer\\mfrmrn2.CEL", NULL);
 	}
 	InitTownerAnim(numtowners, pBuf, 15, 3);
-	towner[numtowners]._tName = "Complete Nut";
+	towners[numtowners]._tName = "Complete Nut";
 	numtowners++;
 }
 
@@ -334,7 +334,7 @@ static void InitGirl()
 		pBuf = LoadFileInMem("Towners\\Girl\\Girls1.CEL", NULL);
 	}
 	InitTownerAnim(numtowners, pBuf, 20, 6);
-	towner[numtowners]._tName = "Celia";
+	towners[numtowners]._tName = "Celia";
 	numtowners++;
 }
 #endif
@@ -370,10 +370,10 @@ void FreeTownerGFX()
 	int i;
 
 	for (i = 0; i < numtowners; i++) {
-		if (towner[i]._ttype == TOWN_COW) {
-			towner[i]._tAnimData = NULL;
+		if (towners[i]._ttype == TOWN_COW) {
+			towners[i]._tAnimData = NULL;
 		} else {
-			MemFreeDbg(towner[i]._tAnimData);
+			MemFreeDbg(towners[i]._tAnimData);
 		}
 	}
 
@@ -401,7 +401,7 @@ void ProcessTowners()
 	TownerStruct *tw;
 	int i, ao;
 
-	tw = towner;
+	tw = towners;
 	for (i = numtowners; i > 0; i--, tw++) {
 		TownCtrlMsg(tw);
 		if (tw->_ttype == TOWN_DEADGUY) {
@@ -488,7 +488,7 @@ void TalkToTowner(int pnum, int tnum)
 	TownerStruct *tw;
 	int i, dx, dy, qt, qn;
 
-	tw = &towner[tnum];
+	tw = &towners[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
 	dy = abs(plr[pnum]._py - tw->_ty);
 	if (dx >= 2 || dy >= 2)

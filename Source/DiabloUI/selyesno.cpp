@@ -13,14 +13,13 @@ static std::vector<UiItemBase *> vecSelYesNoDialog;
 
 #define MESSAGE_WIDTH 280
 
-static void selyesno_Free()
+static void SelyesnoFree()
 {
 	ArtBackground.Unload();
 
 	for (unsigned i = 0; i < vecSelYesNoDialogItems.size(); i++) {
 		UiListItem *pUIListItem = vecSelYesNoDialogItems[i];
-		if (pUIListItem)
-			delete pUIListItem;
+		delete pUIListItem;
 	}
 	vecSelYesNoDialogItems.clear();
 
@@ -31,13 +30,13 @@ static void selyesno_Free()
 	vecSelYesNoDialog.clear();
 }
 
-static void selyesno_Select(unsigned index)
+static void SelyesnoSelect(unsigned index)
 {
 	_gbYNValue = vecSelYesNoDialogItems[index]->m_value == 0;
 	_gbYNEndMenu = true;
 }
 
-static void selyesno_Esc()
+static void SelyesnoEsc()
 {
 	_gbYNValue = false;
 	_gbYNEndMenu = true;
@@ -64,7 +63,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
 	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH);
 
-	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, selyesno_Select, selyesno_Esc, NULL, true);
+	UiInitList(vecSelYesNoDialog, vecSelYesNoDialogItems.size(), NULL, SelyesnoSelect, SelyesnoEsc, NULL, true);
 
 	// _gbYNValue = true;
 	_gbYNEndMenu = false;
@@ -74,7 +73,7 @@ bool UiSelHeroYesNoDialog(const char *title, const char *body)
 		UiPollAndRender();
 	}
 
-	selyesno_Free();
+	SelyesnoFree();
 
 	return _gbYNValue;
 }

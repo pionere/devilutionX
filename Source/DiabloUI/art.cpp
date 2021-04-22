@@ -34,18 +34,18 @@ void LoadArt(const char *pszFile, Art *art, int frames, SDL_Color *pPalette)
 		format = SDL_PIXELFORMAT_UNKNOWN;
 		break;
 	}
-	SDL_Surface *art_surface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE, width, height, bpp, format);
+	SDL_Surface *artSurface = SDL_CreateRGBSurfaceWithFormat(SDL_SWSURFACE, width, height, bpp, format);
 
-	if (!SBmpLoadImage(pszFile, pPalette, static_cast<BYTE *>(art_surface->pixels),
-	        art_surface->pitch * art_surface->format->BytesPerPixel * height, NULL, NULL, NULL)) {
+	if (!SBmpLoadImage(pszFile, pPalette, static_cast<BYTE *>(artSurface->pixels),
+	        artSurface->pitch * artSurface->format->BytesPerPixel * height, NULL, NULL, NULL)) {
 		SDL_Log("Failed to load image");
-		SDL_FreeSurface(art_surface);
+		SDL_FreeSurface(artSurface);
 		//art->surface = NULL;
 		return;
 	}
 
-	art->surface = art_surface;
-	art->logical_width = art_surface->w;
+	art->surface = artSurface;
+	art->logical_width = artSurface->w;
 	art->frame_height = height / frames;
 	//art->palette_version = pal_surface_palette_version - 1;
 	ScaleSurfaceToOutput(&art->surface);

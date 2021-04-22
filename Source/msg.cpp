@@ -149,7 +149,7 @@ bool msg_wait_resync()
 	sgdwRecvOffset = 0;
 	geBufferMsgs = MSG_DOWNLOAD_DELTA;
 	sgdwOwnerWait = SDL_GetTicks();
-	success = UiProgressDialog("Waiting for game data...", msg_wait_for_turns, 20);
+	success = UiProgressDialog("Waiting for game data...", msg_wait_for_turns);
 	geBufferMsgs = MSG_NORMAL;
 	if (!success) {
 		msg_free_packets();

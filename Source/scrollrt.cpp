@@ -157,13 +157,15 @@ static void scrollrt_draw_cursor_item()
 	mx = MouseX - 1;
 	if (mx < 0 - cursW - 1) {
 		return;
-	} else if (mx > SCREEN_WIDTH - 1) {
+	}
+	if (mx > SCREEN_WIDTH - 1) {
 		return;
 	}
 	my = MouseY - 1;
 	if (my < 0 - cursH - 1) {
 		return;
-	} else if (my > SCREEN_HEIGHT - 1) {
+	}
+	if (my > SCREEN_HEIGHT - 1) {
 		return;
 	}
 
@@ -371,7 +373,7 @@ static void DrawTowner(int tnum, int x, int y, int sx, int sy)
 	int tx, nCel, nWidth;
 	BYTE *pCelBuff;
 
-	tw = &towner[tnum];
+	tw = &towners[tnum];
 	tx = sx - tw->_tAnimWidth2;
 	pCelBuff = tw->_tAnimData;
 	nCel = tw->_tAnimFrame;
@@ -518,8 +520,8 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 			return;
 		xx = os->_ox - x;
 		yy = os->_oy - y;
-		sx = (xx << 5) + ox - os->_oAnimWidth2 - (yy << 5);
-		sy = oy + (yy << 4) + (xx << 4);
+		sx = (xx * (TILE_WIDTH / 2)) + ox - os->_oAnimWidth2 - (yy * (TILE_WIDTH / 2));
+		sy = oy + (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
 
 	assert((unsigned char)oi < MAXOBJECTS);

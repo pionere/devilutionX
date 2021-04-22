@@ -34,7 +34,7 @@ extern int premiumlevel;
 /** Number of premium items for sale by Griswold */
 extern int numpremium;
 /** Premium items sold by Griswold */
-extern ItemStruct premiumitem[SMITH_PREMIUM_ITEMS];
+extern ItemStruct premiumitems[SMITH_PREMIUM_ITEMS];
 /** Items sold by Adria */
 extern ItemStruct witchitem[WITCH_ITEMS];
 /** Items sold by Pepin */

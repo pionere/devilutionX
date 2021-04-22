@@ -1574,7 +1574,7 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
-	MainWndProc(uMsg, wParam, lParam);
+	MainWndProc(uMsg);
 }
 
 void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1651,7 +1651,7 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
-	MainWndProc(uMsg, wParam, lParam);
+	MainWndProc(uMsg);
 }
 
 

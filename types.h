@@ -13,7 +13,7 @@
 #include "utils/soundsample.h"
 #include "utils/thread.h"
 
-#include <limits.h>
+#include <climits>
 #include "defs.h"
 #include "enums.h"
 #include "structs.h"
