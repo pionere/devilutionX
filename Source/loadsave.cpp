@@ -216,7 +216,7 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_nextdir);
 	CopyInt(tbuff, &p->_pgfxnum);
 	tbuff += 4; // Skip pointer _pAnimData
-	CopyInt(tbuff, &p->_pAnimDelay);
+	CopyInt(tbuff, &p->_pAnimFrameLen);
 	CopyInt(tbuff, &p->_pAnimCnt);
 	CopyInt(tbuff, &p->_pAnimLen);
 	CopyInt(tbuff, &p->_pAnimFrame);
@@ -905,7 +905,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_nextdir, tbuff);
 	CopyInt(&p->_pgfxnum, tbuff);
 	tbuff += 4; // Skip pointer _pAnimData
-	CopyInt(&p->_pAnimDelay, tbuff);
+	CopyInt(&p->_pAnimFrameLen, tbuff);
 	CopyInt(&p->_pAnimCnt, tbuff);
 	CopyInt(&p->_pAnimLen, tbuff);
 	CopyInt(&p->_pAnimFrame, tbuff);

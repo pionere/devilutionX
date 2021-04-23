@@ -786,7 +786,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		LoadPlrGFX(pnum, PFILE_STAND);
 		SetPlrAnims(pnum);
 
-		NewPlrAnim(pnum, p->_pNAnim, p->_pdir, p->_pNFrames, 3, p->_pNWidth);
+		NewPlrAnim(pnum, p->_pNAnim, p->_pdir, p->_pNFrames, 4, p->_pNWidth);
 	} else {
 		p->_pgfxnum = g;
 	}

@@ -452,13 +452,13 @@ void FreePlayerGFX(int pnum)
  * @param anims Pointer to Animation Data
  * @param dir the direction of the player
  * @param numFrames Number of Frames in Animation
- * @param Delay Delay after each Animation sequence
+ * @param frameLen the length of a single animation frame
  * @param width Width of sprite
  * @param numSkippedFrames Number of Frames that will be skipped (for example with modifier "faster attack")
  * @param processAnimationPending true if first ProcessAnimation will be called in same gametick after NewPlrAnim
  * @param stopDistributingAfterFrame Distribute the NumSkippedFrames only before this frame
 */
-void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
+void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width) //, int numSkippedFrames /*= 0*/, bool processAnimationPending /*= false*/, int stopDistributingAfterFrame /*= 0*/)
 {
 	PlayerStruct *p;
 
@@ -471,7 +471,7 @@ void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, 
 	p->_pAnimLen = numFrames;
 	p->_pAnimFrame = 1;
 	p->_pAnimCnt = 0;
-	p->_pAnimDelay = Delay;
+	p->_pAnimFrameLen = frameLen;
 	p->_pAnimWidth = width;
 	p->_pAnimXOffset = (width - 64) >> 1;
 	//p->_pAnimNumSkippedFrames = numSkippedFrames; ANIM_GAMELOGIC
@@ -921,12 +921,12 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 
 		/*if (p->_pHitPoints >= (1 << 6)) {
 			p->_pmode = PM_STAND;
-			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 3, p->_pNWidth);
+			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 4, p->_pNWidth);
 			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
 			p->_pAnimCnt = random_(2, 3);
 		} else {
 			p->_pmode = PM_DEATH;
-			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 1, p->_pDWidth);
+			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 2, p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
 			p->_pVar8 = 2 * p->_pAnimLen;
 		}*/
@@ -1076,7 +1076,7 @@ void PlrStartStand(int pnum, int dir)
 			LoadPlrGFX(pnum, PFILE_STAND);
 		}
 
-		NewPlrAnim(pnum, p->_pNAnim, dir, p->_pNFrames, 3, p->_pNWidth);
+		NewPlrAnim(pnum, p->_pNAnim, dir, p->_pNFrames, 4, p->_pNWidth);
 		p->_pmode = PM_STAND;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
@@ -1209,8 +1209,8 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
-	//NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth, 0, true); ANIM_GAMELOGIC
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
+	//NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth, 0, true); ANIM_GAMELOGIC
 
 	if (pnum != myplr) {
 		return;
@@ -1288,7 +1288,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1369,7 +1369,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 0, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1453,7 +1453,7 @@ static bool StartAttack(int pnum)
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth);
 	/* ANIM_GAMELOGIC
 	// Every Attack start with Frame 2. Because ProcessPlayerAnimation is called after 
 	//  StartAttack and its increases the AnimationFrame.
@@ -1467,7 +1467,7 @@ static bool StartAttack(int pnum)
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
 		skippedAnimationFrames += 2;
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
 
 	FixPlayerLocation(pnum);
 	return true;
@@ -1520,7 +1520,7 @@ static void StartRangeAttack(int pnum)
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth);
 	/* ANIM_GAMELOGIC
 	// Every Attack start with Frame 2. Because ProcessPlayerAnimation is called after
 	//  StartRangeAttack and its increases the AnimationFrame.
@@ -1528,7 +1528,7 @@ static void StartRangeAttack(int pnum)
 	if (p->_pIFlags & ISPL_FASTATTACK) {
 		skippedAnimationFrames += 1;
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 0, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
 
 	FixPlayerLocation(pnum);
 }
@@ -1546,7 +1546,7 @@ static void StartBlock(int pnum, int dir)
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
-	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 2, p->_pBWidth);
+	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 3, p->_pBWidth);
 	/* ANIM_GAMELOGIC
 	// Block can start with Frame 1 if Player 2 hits Player 1. In this case Player 1 will
 	//  not call again ProcessPlayerAnimation.
@@ -1554,7 +1554,7 @@ static void StartBlock(int pnum, int dir)
 	if (p->_pIFlags & ISPL_FASTBLOCK) {
 		skippedAnimationFrames = (p->_pBFrames - 1); // ISPL_FASTBLOCK means there is only one AnimationFrame.
 	}
-	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 2, p->_pBWidth, skippedAnimationFrames);*/
+	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 3, p->_pBWidth, skippedAnimationFrames);*/
 
 	FixPlayerLocation(pnum);
 }
@@ -1617,8 +1617,8 @@ static void StartSpell(int pnum)
 	if (!(p->_pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
-	NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 0, p->_pSWidth);
-	//NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 0, p->_pSWidth, 1, true); ANIM_GAMELOGIC
+	NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 1, p->_pSWidth);
+	//NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 1, p->_pSWidth, 1, true); ANIM_GAMELOGIC
 
 	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
@@ -1759,7 +1759,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	if (!(p->_pGFXLoad & PFILE_HIT)) {
 		LoadPlrGFX(pnum, PFILE_HIT);
 	}
-	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 0, p->_pHWidth);
+	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 1, p->_pHWidth);
 	/* ANIM_GAMELOGIC
 	// GotHit can start with Frame 1. GotHit can for example be called in ProcessMonsters()
 	//  and this is after ProcessPlayers().
@@ -1779,7 +1779,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	} else {
 		skippedAnimationFrames = 0;
 	}
-	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 0, p->_pHWidth, skippedAnimationFrames);*/
+	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 1, p->_pHWidth, skippedAnimationFrames);*/
 
 	p->_pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
@@ -1871,7 +1871,7 @@ void StartPlrKill(int pnum, int earflag)
 		LoadPlrGFX(pnum, PFILE_DEATH);
 	}
 
-	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, 1, p->_pDWidth);
+	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, 2, p->_pDWidth);
 
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;
@@ -2089,7 +2089,7 @@ static inline void PlrStepAnim(int pnum)
 
 	p = &plr[pnum];
 	p->_pAnimCnt++;
-	if (p->_pAnimCnt > p->_pAnimDelay) {
+	if (p->_pAnimCnt >= p->_pAnimFrameLen) {
 		p->_pAnimCnt = 0;
 		p->_pAnimFrame++;
 	}
@@ -2654,7 +2654,7 @@ static bool PlrDoBlock(int pnum)
 				p->_pAnimData = p->_pBAnim[p->destParam1];
 				// _pVar1 = _pBFrames * (BASE_DELAY + 1) / 2 (+ 1)
 				p->_pVar1 = p->_pBFrames + (p->_pBFrames >> 1) + 1;
-				p->_pAnimDelay = p->_pVar1;
+				p->_pAnimFrameLen = p->_pVar1;
 				p->_pAnimCnt = 0;
 			} else {
 				PlrStartStand(pnum, p->_pdir);
@@ -2800,7 +2800,7 @@ static bool PlrDoDeath(int pnum)
 			}
 		}
 
-		p->_pAnimDelay = 10000;
+		p->_pAnimFrameLen = 10000;
 		p->_pAnimFrame = p->_pAnimLen;
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 	} else {
@@ -3184,7 +3184,7 @@ void ProcessPlayers()
 
 			plr[pnum]._pAnimCnt++;
 			//plr[pnum]._pAnimGameTicksSinceSequenceStarted++; ANIM_GAMELOGIC
-			if (plr[pnum]._pAnimCnt > plr[pnum]._pAnimDelay) {
+			if (plr[pnum]._pAnimCnt >= plr[pnum]._pAnimFrameLen) {
 				plr[pnum]._pAnimCnt = 0;
 				plr[pnum]._pAnimFrame++;
 				if (plr[pnum]._pAnimFrame > plr[pnum]._pAnimLen) {
@@ -3230,8 +3230,8 @@ void ProcessPlayers()
 	float progressToNextGameTick = gfProgressToNextGameTick;
 	float totalGameTicksForCurrentAnimationSequence = progressToNextGameTick + (float)p->_pAnimGameTicksSinceSequenceStarted; // we don't use the processed game ticks alone but also the fragtion of the next game tick (if a rendering happens between game ticks). This helps to smooth the animations.
 	int animationMaxGameTickets = relevantAnimationLength;
-	if (p->_pAnimDelay > 1)
-		animationMaxGameTickets = (relevantAnimationLength * p->_pAnimDelay);
+	if (p->_pAnimFrameLen > 1)
+		animationMaxGameTickets = (relevantAnimationLength * p->_pAnimFrameLen);
 	float gameTickModifier = (float)animationMaxGameTickets / (float)(relevantAnimationLength - p->_pAnimNumSkippedFrames); // if we skipped Frames we need to expand the GameTicks to make one GameTick for this Animation "faster"
 	int absolutAnimationFrame = 1 + (int)(totalGameTicksForCurrentAnimationSequence * gameTickModifier); // 1 added for rounding reasons. float to int cast always truncate.
 	if (absolutAnimationFrame > relevantAnimationLength) // this can happen if we are at the last frame and the next game tick is due (nthread_GetProgressToNextGameTick returns 1.0f)

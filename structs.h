@@ -246,7 +246,7 @@ typedef struct PlayerStruct {
 	int _nextdir; // unused
 	int _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BYTE *_pAnimData;
-	int _pAnimDelay; // Tick length of each frame in the current animation
+	int _pAnimFrameLen; // Tick length of each frame in the current animation
 	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
