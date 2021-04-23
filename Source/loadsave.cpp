@@ -422,7 +422,7 @@ static void LoadMonster(int mnum)
 	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
-	CopyInt(tbuff, &mon->_mAnimFrameLen);
+	tbuff += 4; // Skip _mAnimFrameLen
 	CopyInt(tbuff, &mon->_mAnimCnt);
 	CopyInt(tbuff, &mon->_mAnimLen);
 	CopyInt(tbuff, &mon->_mAnimFrame);
@@ -490,7 +490,7 @@ static void LoadMissile(int mi)
 	CopyChar(tbuff, &mis->_miAnimType);
 	CopyInt(tbuff, &mis->_miAnimFlags);
 	tbuff += 4; // Skip pointer _miAnimData
-	CopyInt(tbuff, &mis->_miAnimFrameLen);
+	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(tbuff, &mis->_miAnimLen);
 	CopyInt(tbuff, &mis->_miAnimWidth);
 	CopyInt(tbuff, &mis->_miAnimWidth2);
@@ -540,7 +540,7 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oy);
 	CopyInt(tbuff, &os->_oAnimFlag);
 	tbuff += 4; // Skip pointer _oAnimData
-	CopyInt(tbuff, &os->_oAnimFrameLen);
+	tbuff += 4; // Skip _oAnimFrameLen
 	CopyInt(tbuff, &os->_oAnimCnt);
 	CopyInt(tbuff, &os->_oAnimLen);
 	CopyInt(tbuff, &os->_oAnimFrame);
@@ -760,7 +760,7 @@ void LoadGame(bool firstflag)
 	//RedoPlayerVision();
 	//ProcessVisionList();
 
-	missiles_process_charge();
+	SyncMissilesAnim();
 	ResetPal();
 	NewCursor(CURSOR_HAND);
 	gbProcessPlayers = true;
@@ -1111,7 +1111,7 @@ static void SaveMonster(int mnum)
 	tbuff += 1; // Alignment
 
 	tbuff += 4; // Skip pointer _mAnimData
-	CopyInt(&mon->_mAnimFrameLen, tbuff);
+	tbuff += 4; // Skip _mAnimFrameLen
 	CopyInt(&mon->_mAnimCnt, tbuff);
 	CopyInt(&mon->_mAnimLen, tbuff);
 	CopyInt(&mon->_mAnimFrame, tbuff);
@@ -1177,7 +1177,7 @@ static void SaveMissile(int mi)
 	CopyChar(&mis->_miAnimType, tbuff);
 	CopyInt(&mis->_miAnimFlags, tbuff);
 	tbuff += 4; // Skip pointer _miAnimData
-	CopyInt(&mis->_miAnimFrameLen, tbuff);
+	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(&mis->_miAnimLen, tbuff);
 	CopyInt(&mis->_miAnimWidth, tbuff);
 	CopyInt(&mis->_miAnimWidth2, tbuff);
@@ -1227,7 +1227,7 @@ static void SaveObject(int oi)
 	CopyInt(&os->_oy, tbuff);
 	CopyInt(&os->_oAnimFlag, tbuff);
 	tbuff += 4; // Skip pointer _oAnimData
-	CopyInt(&os->_oAnimFrameLen, tbuff);
+	tbuff += 4; // Skip _oAnimFrameLen
 	CopyInt(&os->_oAnimCnt, tbuff);
 	CopyInt(&os->_oAnimLen, tbuff);
 	CopyInt(&os->_oAnimFrame, tbuff);

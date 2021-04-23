@@ -4307,27 +4307,24 @@ void ProcessMissiles()
 	}
 }
 
-void missiles_process_charge()
+void SyncMissilesAnim()
 {
 	MonsterStruct *mon;
-	int anim;
+	AnimStruct *anim;
 	MissileStruct *mis;
 	int i;
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		mis->_miAnimData = misanimdata[mis->_miAnimType][mis->_miDir];
+		mis->_miAnimFrameLen = misfiledata[mis->_miAnimType].mfAnimFrameLen[mis->_miDir];
 		if (mis->_miType == MIS_RHINO) {
 			mon = &monster[mis->_miSource];
-			if (mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) {
-				anim = MA_SPECIAL;
-			} else {
-				if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE)
-					anim = MA_ATTACK;
-				else
-					anim = MA_WALK;
-			}
-			mis->_miAnimData = mon->_mAnims[anim].aData[mis->_miDir];
+			anim = &mon->_mAnims[
+				(mon->_mType >= MT_HORNED && mon->_mType <= MT_OBLORD) ? MA_SPECIAL :
+				(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
+			mis->_miAnimData = anim->aData[mis->_miDir];
+			mis->_miAnimFrameLen = anim->aFrameLen;
 		}
 	}
 }

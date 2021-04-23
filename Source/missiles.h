@@ -30,7 +30,7 @@ void FreeMissiles();
 void FreeMissiles2();
 void InitMissiles();
 void ProcessMissiles();
-void missiles_process_charge();
+void SyncMissilesAnim();
 void ClearMissileSpot(int mi);
 
 #ifdef __cplusplus

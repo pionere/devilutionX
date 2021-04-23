@@ -4410,6 +4410,7 @@ void SyncObjectAnim(int oi)
 
 	type = object[oi]._otype;
 	object[oi]._oAnimData = pObjCels[AllObjects[type].ofindex];
+	object[oi]._oAnimFrameLen = AllObjects[type].oAnimFrameLen;
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
