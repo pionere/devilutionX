@@ -58,19 +58,38 @@ const int plryoff[MAX_PLRS] = { 0, 2, 2, 0 }; //, 1, 1, 0, 1, 2 };
 const int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
 /** Specifies the Y-coordinate delta from a player, used for instanced when casting resurrect. */
 const int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
-/** Specifies the frame of each animation for which an action is triggered, for each player class. */
-const BYTE PlrGFXAnimLens[NUM_CLASSES][11] = {
-	{ 10, 16, 8, 2, 20, 20, 6, 20, 8, 9, 14 },
-	{ 8, 18, 8, 4, 20, 16, 7, 20, 8, 10, 12 },
-	{ 8, 16, 8, 6, 20, 12, 8, 20, 8, 12, 8 },
+/** Specifies the number of frames of each animation for each player class. */
+const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
+	// clang-format off
+	{ 10, 16, 8, 2, 20, 20, 6 },
+	{  8, 18, 8, 4, 20, 16, 7 },
+	{  8, 16, 8, 6, 20, 12, 8 },
 #ifdef HELLFIRE
-	{ 8, 16, 8, 3, 20, 18, 6, 20, 8, 12, 13 },
-	{ 8, 18, 8, 4, 20, 16, 7, 20, 8, 10, 12 },
-	{ 10, 16, 8, 2, 20, 20, 6, 20, 8, 9, 14 },
+	{  8, 16, 8, 3, 20, 18, 6 },
+	{  8, 18, 8, 4, 20, 16, 7 },
+	{ 10, 16, 8, 2, 20, 20, 6 },
 #endif
+	// clang-format on
 };
+/** Specifies the frame of attack and spell animation for which the action is triggered, for each player class. */
+const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
+	// clang-format off
+	{  9, 14 },
+	{ 10, 12 },
+	{ 12,  8 },
+#ifdef HELLFIRE
+	{ 12, 13 },
+	{ 10, 12 },
+	{  9, 14 },
+#endif
+	// clang-format on
+};
+/** Specifies the length of a frame for each animation. */
+const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
+
 /** Maps from player class to player velocity. */
 const int PWVel[NUM_CLASSES][3] = {
+	// clang-format off
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
@@ -79,20 +98,11 @@ const int PWVel[NUM_CLASSES][3] = {
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
 #endif
+	// clang-format on
 };
-/** Total number of frames in walk animation. */
-/*const int AnimLenFromClass[NUM_CLASSES] = {
-	8,
-	8,
-	8,
-#ifdef HELLFIRE
-	8,
-	8,
-	8,
-#endif
-};*/
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
+	// clang-format off
 	20,
 	15,
 	10,
@@ -101,6 +111,7 @@ const int StrengthTbl[NUM_CLASSES] = {
 	15,
 	35,
 #endif
+	// clang-format on
 };
 /** Maps from player_class to starting stat in magic. */
 const int MagicTbl[NUM_CLASSES] = {
@@ -117,6 +128,7 @@ const int MagicTbl[NUM_CLASSES] = {
 };
 /** Maps from player_class to starting stat in dexterity. */
 const int DexterityTbl[NUM_CLASSES] = {
+	// clang-format off
 	20,
 	25,
 	20,
@@ -125,9 +137,11 @@ const int DexterityTbl[NUM_CLASSES] = {
 	25,
 	10,
 #endif
+	// clang-format on
 };
 /** Maps from player_class to starting stat in vitality. */
 const int VitalityTbl[NUM_CLASSES] = {
+	// clang-format off
 	30,
 	20,
 	20,
@@ -136,6 +150,7 @@ const int VitalityTbl[NUM_CLASSES] = {
 	20,
 	35,
 #endif
+	// clang-format on
 };
 const int Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE
@@ -354,14 +369,15 @@ static unsigned GetPlrGFXSize(const char *szCel)
 
 	for (c = 0; c < NUM_CLASSES; c++) {
 		GetPlrGFXCells(c, &cc, &cst);
-		for (a = &ArmourChar[0]; *a; a++) {
-			for (w = &WepChar[0]; *w; w++) { // BUGFIX loads non-existing animations; DT is only for N, BT is only for U, D & H (fixed)
-				if (szCel[0] == 'D' && szCel[1] == 'T' && *w != 'N') {
-					continue; //Death has no weapon
+		for (a = &ArmourChar[0]; *a != '\0'; a++) {
+			for (w = &WepChar[0]; *w != '\0'; w++) { // BUGFIX loads non-existing animations; DT is only for N, BL is only for U, D & H (fixed)
+				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && *a != 'L' && *w != 'N') {
+					continue; //Death has no weapon or armor
 				}
+				/* BUGFIX monks can block unarmed and without shield (fixed)
 				if (szCel[0] == 'B' && szCel[1] == 'L' && (*w != 'U' && *w != 'D' && *w != 'H')) {
 					continue; //No block without weapon
-				}
+				}*/
 				snprintf(Type, sizeof(Type), "%c%c%c", *cc, *a, *w);
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", cst, Type, Type, szCel);
 				if (SFileOpenFile(pszName, &hsFile)) {
@@ -515,30 +531,22 @@ void SetPlrAnims(int pnum)
 	p->_pBWidth = 96;
 
 	pc = p->_pClass;
+	p->_pAFNum = PlrGFXAnimActFrames[pc][0];
+	p->_pSFNum = PlrGFXAnimActFrames[pc][1];
 
-	if (currLvl._dType == DTYPE_TOWN) {
-		p->_pNFrames = PlrGFXAnimLens[pc][7];
-		p->_pWFrames = PlrGFXAnimLens[pc][8];
-		p->_pDFrames = PlrGFXAnimLens[pc][4];
-		p->_pSFrames = PlrGFXAnimLens[pc][5];
-	} else {
-		p->_pNFrames = PlrGFXAnimLens[pc][0];
-		p->_pWFrames = PlrGFXAnimLens[pc][2];
-		p->_pAFrames = PlrGFXAnimLens[pc][1];
-		p->_pHFrames = PlrGFXAnimLens[pc][6];
-		p->_pSFrames = PlrGFXAnimLens[pc][5];
-		p->_pDFrames = PlrGFXAnimLens[pc][4];
-		p->_pBFrames = PlrGFXAnimLens[pc][3];
-		p->_pAFNum = PlrGFXAnimLens[pc][9];
-	}
-	p->_pSFNum = PlrGFXAnimLens[pc][10];
+	p->_pNFrames = PlrGFXAnimLens[pc][PA_STAND];
+	p->_pAFrames = PlrGFXAnimLens[pc][PA_ATTACK];
+	p->_pWFrames = PlrGFXAnimLens[pc][PA_WALK];
+	p->_pBFrames = PlrGFXAnimLens[pc][PA_BLOCK];
+	p->_pDFrames = PlrGFXAnimLens[pc][PA_DEATH];
+	p->_pSFrames = PlrGFXAnimLens[pc][PA_SPELL];
+	p->_pHFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
 
 	gn = p->_pgfxnum & 0xF;
-	if (pc == PC_WARRIOR) {
+	switch (pc) {
+	case PC_WARRIOR:
 		if (gn == ANIM_ID_BOW) {
-			if (currLvl._dType != DTYPE_TOWN) {
-				p->_pNFrames = 8;
-			}
+			p->_pNFrames = 8;
 			p->_pAWidth = 96;
 			p->_pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
@@ -548,7 +556,8 @@ void SetPlrAnims(int pnum)
 			// p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		}
-	} else if (pc == PC_ROGUE) {
+		break;
+	case PC_ROGUE:
 		if (gn == ANIM_ID_AXE) {
 			p->_pAFrames = 22;
 			p->_pAFNum = 13;
@@ -559,7 +568,8 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		}
-	} else if (pc == PC_SORCERER) {
+		break;
+	case PC_SORCERER:
 		p->_pSWidth = 128;
 		if (gn == ANIM_ID_UNARMED) {
 			p->_pAFrames = 20;
@@ -572,8 +582,9 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 24;
 			p->_pAFNum = 16;
 		}
+		break;
 #ifdef HELLFIRE
-	} else if (pc == PC_MONK) {
+	case PC_MONK:
 		p->_pNWidth = 112;
 		p->_pWWidth = 112;
 		p->_pAWidth = 130;
@@ -601,7 +612,8 @@ void SetPlrAnims(int pnum)
 			p->_pAFNum = 8;
 			break;
 		}
-	} else if (pc == PC_BARD) {
+		break;
+	case PC_BARD:
 		if (gn == ANIM_ID_AXE) {
 			p->_pAFrames = 22;
 			p->_pAFNum = 13;
@@ -614,14 +626,13 @@ void SetPlrAnims(int pnum)
 		} else if (gn == ANIM_ID_SWORD_SHIELD || gn == ANIM_ID_SWORD) {
 			p->_pAFrames = 10;
 		}
-	} else if (pc == PC_BARBARIAN) {
+		break;
+	case PC_BARBARIAN:
 		if (gn == ANIM_ID_AXE) {
 			p->_pAFrames = 20;
 			p->_pAFNum = 8;
 		} else if (gn == ANIM_ID_BOW) {
-			if (currLvl._dType != DTYPE_TOWN) {
-				p->_pNFrames = 8;
-			}
+			p->_pNFrames = 8;
 			p->_pAWidth = 96;
 			p->_pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
@@ -630,7 +641,15 @@ void SetPlrAnims(int pnum)
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
 			p->_pAFNum = 8;
 		}
+		break;
 #endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (currLvl._dType == DTYPE_TOWN) {
+		p->_pNFrames = 20;
+		//p->_pWFrames = 8;
 	}
 }
 
@@ -921,12 +940,12 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 
 		/*if (p->_pHitPoints >= (1 << 6)) {
 			p->_pmode = PM_STAND;
-			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, 4, p->_pNWidth);
+			NewPlrAnim(pnum, p->_pNAnim, DIR_S, p->_pNFrames, PlrAnimFrameLens[PA_STAND], p->_pNWidth);
 			p->_pAnimFrame = RandRange(1, p->_pNFrames - 1);
 			p->_pAnimCnt = random_(2, 3);
 		} else {
 			p->_pmode = PM_DEATH;
-			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, 2, p->_pDWidth);
+			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
 			p->_pVar8 = 2 * p->_pAnimLen;
 		}*/
@@ -1076,7 +1095,7 @@ void PlrStartStand(int pnum, int dir)
 			LoadPlrGFX(pnum, PFILE_STAND);
 		}
 
-		NewPlrAnim(pnum, p->_pNAnim, dir, p->_pNFrames, 4, p->_pNWidth);
+		NewPlrAnim(pnum, p->_pNAnim, dir, p->_pNFrames, PlrAnimFrameLens[PA_STAND], p->_pNWidth);
 		p->_pmode = PM_STAND;
 		RemovePlrFromMap(pnum);
 		dPlayer[p->_px][p->_py] = pnum + 1;
@@ -1209,8 +1228,8 @@ static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndD
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
 
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
-	//NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth, 0, true); ANIM_GAMELOGIC
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, PlrAnimFrameLens[PA_WALK], p->_pWWidth);
+	//NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, PlrAnimFrameLens[PA_WALK], p->_pWWidth, 0, true); ANIM_GAMELOGIC
 
 	if (pnum != myplr) {
 		return;
@@ -1288,7 +1307,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, PlrAnimFrameLens[PA_WALK], p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1369,7 +1388,7 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	if (!(p->_pGFXLoad & PFILE_WALK)) {
 		LoadPlrGFX(pnum, PFILE_WALK);
 	}
-	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, 1, p->_pWWidth);
+	NewPlrAnim(pnum, p->_pWAnim, EndDir, p->_pWFrames, PlrAnimFrameLens[PA_WALK], p->_pWWidth);
 
 	if (pnum != myplr) {
 		return;
@@ -1453,7 +1472,7 @@ static bool StartAttack(int pnum)
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, PlrAnimFrameLens[PA_ATTACK], p->_pAWidth);
 	/* ANIM_GAMELOGIC
 	// Every Attack start with Frame 2. Because ProcessPlayerAnimation is called after 
 	//  StartAttack and its increases the AnimationFrame.
@@ -1467,7 +1486,7 @@ static bool StartAttack(int pnum)
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
 		skippedAnimationFrames += 2;
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, PlrAnimFrameLens[PA_ATTACK], p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
 
 	FixPlayerLocation(pnum);
 	return true;
@@ -1520,7 +1539,7 @@ static void StartRangeAttack(int pnum)
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth);
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, PlrAnimFrameLens[PA_ATTACK], p->_pAWidth);
 	/* ANIM_GAMELOGIC
 	// Every Attack start with Frame 2. Because ProcessPlayerAnimation is called after
 	//  StartRangeAttack and its increases the AnimationFrame.
@@ -1528,7 +1547,7 @@ static void StartRangeAttack(int pnum)
 	if (p->_pIFlags & ISPL_FASTATTACK) {
 		skippedAnimationFrames += 1;
 	}
-	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, 1, p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
+	NewPlrAnim(pnum, p->_pAAnim, dir, p->_pAFrames, PlrAnimFrameLens[PA_ATTACK], p->_pAWidth, skippedAnimationFrames, true, p->_pAFNum);*/
 
 	FixPlayerLocation(pnum);
 }
@@ -1546,7 +1565,7 @@ static void StartBlock(int pnum, int dir)
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
-	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 3, p->_pBWidth);
+	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, PlrAnimFrameLens[PA_BLOCK], p->_pBWidth);
 	/* ANIM_GAMELOGIC
 	// Block can start with Frame 1 if Player 2 hits Player 1. In this case Player 1 will
 	//  not call again ProcessPlayerAnimation.
@@ -1554,7 +1573,7 @@ static void StartBlock(int pnum, int dir)
 	if (p->_pIFlags & ISPL_FASTBLOCK) {
 		skippedAnimationFrames = (p->_pBFrames - 1); // ISPL_FASTBLOCK means there is only one AnimationFrame.
 	}
-	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, 3, p->_pBWidth, skippedAnimationFrames);*/
+	NewPlrAnim(pnum, p->_pBAnim, dir, p->_pBFrames, PlrAnimFrameLens[PA_BLOCK], p->_pBWidth, skippedAnimationFrames);*/
 
 	FixPlayerLocation(pnum);
 }
@@ -1617,8 +1636,8 @@ static void StartSpell(int pnum)
 	if (!(p->_pGFXLoad & gfx)) {
 		LoadPlrGFX(pnum, gfx);
 	}
-	NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 1, p->_pSWidth);
-	//NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, 1, p->_pSWidth, 1, true); ANIM_GAMELOGIC
+	NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, PlrAnimFrameLens[PA_SPELL], p->_pSWidth);
+	//NewPlrAnim(pnum, anim, p->_pdir, p->_pSFrames, PlrAnimFrameLens[PA_SPELL], p->_pSWidth, 1, true); ANIM_GAMELOGIC
 
 	PlaySfxLoc(sd->sSFX, p->_px, p->_py);
 
@@ -1759,7 +1778,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	if (!(p->_pGFXLoad & PFILE_HIT)) {
 		LoadPlrGFX(pnum, PFILE_HIT);
 	}
-	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 1, p->_pHWidth);
+	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, PlrAnimFrameLens[PA_GOTHIT], p->_pHWidth);
 	/* ANIM_GAMELOGIC
 	// GotHit can start with Frame 1. GotHit can for example be called in ProcessMonsters()
 	//  and this is after ProcessPlayers().
@@ -1779,7 +1798,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 	} else {
 		skippedAnimationFrames = 0;
 	}
-	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, 1, p->_pHWidth, skippedAnimationFrames);*/
+	NewPlrAnim(pnum, p->_pHAnim, p->_pdir, p->_pHFrames, PlrAnimFrameLens[PA_GOTHIT], p->_pHWidth, skippedAnimationFrames);*/
 
 	p->_pmode = PM_GOTHIT;
 	RemovePlrFromMap(pnum);
@@ -1871,7 +1890,7 @@ void StartPlrKill(int pnum, int earflag)
 		LoadPlrGFX(pnum, PFILE_DEATH);
 	}
 
-	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, 2, p->_pDWidth);
+	NewPlrAnim(pnum, p->_pDAnim, p->_pdir, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
 
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;

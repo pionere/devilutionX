@@ -2674,6 +2674,17 @@ typedef enum PLR_MODE {
 	PM_QUIT    = 11,
 } PLR_MODE;
 
+typedef enum PLR_ANIM {
+	PA_STAND,
+	PA_ATTACK,
+	PA_WALK,
+	PA_BLOCK,
+	PA_DEATH,
+	PA_SPELL,
+	PA_GOTHIT,
+	NUM_PLR_ANIMS
+} PLR_ANIM;
+
 typedef enum spell_type {
 	RSPLTYPE_ABILITY = 0x0,
 	RSPLTYPE_SPELL   = 0x1,
