@@ -3370,7 +3370,7 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 void SyncPlrAnim(int pnum)
 {
 	PlayerStruct *p;
-	int sType;
+	int sType, aType;
 	unsigned char** anim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -3380,24 +3380,30 @@ void SyncPlrAnim(int pnum)
 	switch (p->_pmode) {
 	case PM_STAND:
 		anim = p->_pNAnim;
+		aType = PA_STAND;
 		break;
 	case PM_WALK:
 	case PM_WALK2:
 	case PM_WALK3:
 		anim = p->_pWAnim;
+		aType = PA_WALK;
 		break;
 	case PM_ATTACK:
 	case PM_RATTACK:
 		anim = p->_pAAnim;
+		aType = PA_ATTACK;
 		break;
 	case PM_BLOCK:
 		anim = p->_pBAnim;
+		aType = PA_BLOCK;
 		break;
 	case PM_GOTHIT:
 		anim = p->_pHAnim;
+		aType = PA_GOTHIT;
 		break;
 	case PM_DEATH:
 		anim = p->_pDAnim;
+		aType = PA_DEATH;
 		break;
 	case PM_SPELL:
 		if (pnum == myplr)
@@ -3410,15 +3416,18 @@ void SyncPlrAnim(int pnum)
 		case STYPE_MAGIC:     anim = p->_pTAnim; break;
 		default: ASSUME_UNREACHABLE;
 		}
+		aType = PA_SPELL;
 		break;
 	case PM_NEWLVL:
 	case PM_QUIT:
 		anim = p->_pNAnim;
+		aType = PA_STAND;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	p->_pAnimFrameLen = PlrGFXAnimLens[p->_pClass][aType];
 	p->_pAnimData = anim[p->_pdir];
 }
 
