@@ -953,8 +953,8 @@ static void SavePlayer(int pnum)
 	CopyBytes(p->_pName, PLR_NAME_LEN, tbuff);
 	CopyChar(&p->_pClass, tbuff);
 	CopyChar(&p->_pLevel, tbuff);
-	CopyChar(&p->_pManaShield, tbuff);
 	CopyChar(&p->_pLightRad, tbuff);
+	CopyChar(&p->_pManaShield, tbuff);
 	CopyShort(&p->_pBaseStr, tbuff);
 	CopyShort(&p->_pBaseMag, tbuff);
 	CopyShort(&p->_pBaseDex, tbuff);
