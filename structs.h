@@ -245,7 +245,7 @@ typedef struct PlayerStruct {
 	int _pdir;    // Direction faced by player (direction enum)
 	int _nextdir; // unused
 	int _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
-	unsigned char *_pAnimData;
+	BYTE *_pAnimData;
 	int _pAnimDelay; // Tick length of each frame in the current animation
 	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
 	unsigned _pAnimLen;   // Number of frames in current animation
@@ -335,29 +335,29 @@ typedef struct PlayerStruct {
 	int _pVar8;
 	BOOLEAN _pLvlVisited[NUMLEVELS + NUM_SETLVL];
 	int _pGFXLoad;
-	unsigned char *_pNAnim[8]; // Stand animations
+	BYTE *_pNAnim[8]; // Stand animations
 	unsigned _pNFrames;
 	int _pNWidth;
-	unsigned char *_pWAnim[8]; // Walk animations
+	BYTE *_pWAnim[8]; // Walk animations
 	unsigned _pWFrames;
 	int _pWWidth;
-	unsigned char *_pAAnim[8]; // Attack animations
+	BYTE *_pAAnim[8]; // Attack animations
 	unsigned _pAFrames;
 	int _pAWidth;
 	unsigned _pAFNum;
-	unsigned char *_pLAnim[8]; // Lightning spell cast animations
-	unsigned char *_pFAnim[8]; // Fire spell cast animations
-	unsigned char *_pTAnim[8]; // Generic spell cast animations
+	BYTE *_pLAnim[8]; // Lightning spell cast animations
+	BYTE *_pFAnim[8]; // Fire spell cast animations
+	BYTE *_pTAnim[8]; // Generic spell cast animations
 	unsigned _pSFrames;
 	int _pSWidth;
 	unsigned _pSFNum;
-	unsigned char *_pHAnim[8]; // Getting hit animations
+	BYTE *_pHAnim[8]; // Getting hit animations
 	unsigned _pHFrames;
 	int _pHWidth;
-	unsigned char *_pDAnim[8]; // Death animations
+	BYTE *_pDAnim[8]; // Death animations
 	unsigned _pDFrames;
 	int _pDWidth;
-	unsigned char *_pBAnim[8]; // Block animations
+	BYTE *_pBAnim[8]; // Block animations
 	unsigned _pBFrames;
 	int _pBWidth;
 	ItemStruct InvBody[NUM_INVLOC];
@@ -399,15 +399,15 @@ typedef struct PlayerStruct {
 	BYTE pLvlLoad;
 	BYTE pDungMsgs;
 	BYTE pDungMsgs2;
-	unsigned char *_pNData;
-	unsigned char *_pWData;
-	unsigned char *_pAData;
-	unsigned char *_pLData;
-	unsigned char *_pFData;
-	unsigned char *_pTData;
-	unsigned char *_pHData;
-	unsigned char *_pDData;
-	unsigned char *_pBData;
+	BYTE *_pNData;
+	BYTE *_pWData;
+	BYTE *_pAData;
+	BYTE *_pLData;
+	BYTE *_pFData;
+	BYTE *_pTData;
+	BYTE *_pHData;
+	BYTE *_pDData;
+	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
 	int alignment[434];
@@ -465,14 +465,14 @@ typedef struct MisFileData {
 	int mfFlags;
 	unsigned char mfAnimFrameLen[16];
 	unsigned char mfAnimLen[16];
-	int mfAnimWidth[16];
-	int mfAnimWidth2[16];
+	int mfAnimWidth;
+	int mfAnimWidth2;
 #ifdef X86_32bit_COMP
-	int alignment[5];
+	int alignment[3];
 #endif
 } MisFileData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 128, "Align MisFileData to power of 2 for better performance.");
+static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
 #endif
 
 typedef struct MissileStruct {
@@ -645,7 +645,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
 	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
 	BYTE _mListener;        // the player to whom the monster is talking to
-	unsigned char *_mAnimData;
+	BYTE *_mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation

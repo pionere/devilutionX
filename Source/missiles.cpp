@@ -1192,8 +1192,8 @@ static void SetMissAnim(int mi, int animtype)
 	mis->_miAnimFlags = mfd->mfFlags;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
-	mis->_miAnimWidth = mfd->mfAnimWidth[dir];
-	mis->_miAnimWidth2 = mfd->mfAnimWidth2[dir];
+	mis->_miAnimWidth = mfd->mfAnimWidth;
+	mis->_miAnimWidth2 = mfd->mfAnimWidth2;
 	mis->_miAnimCnt = 0;
 	mis->_miAnimFrame = 1;
 }

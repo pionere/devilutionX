@@ -443,11 +443,11 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
 			/*if (plr[pnum].pManaShield != 0)
 				Cl2DrawLight(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2[0],
+				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mfAnimWidth[0]);*/
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth);*/
 			light_table_index = l;
 		}
 	}
