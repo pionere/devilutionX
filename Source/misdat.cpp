@@ -129,7 +129,7 @@ const MissileData missiledata[] = {
 /** Data related to each missile graphic ID. */
 const MisFileData misfiledata[NUM_MFILE + 1] = {
 	// clang-format off
-// anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth, mfAnimWidth2
+// anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth, mfAnimXOffset
 /*MFILE_ARROWS*/    {       1, "Arrows",    MAFLAG_LOCK_ANIMATION, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 16,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,           16 },
 /*MFILE_FIREBA*/    {      16, "Fireba",    0,                     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },          96,           16 },
 /*MFILE_GUARD*/     {       3, "Guard",     0,                     { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 15, 14,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,           16 },
@@ -201,7 +201,7 @@ const MisFileData misfiledata[NUM_MFILE + 1] = {
 unsigned char *misanimdata[NUM_MFILE + 1][16] = { { 0 } };
 
 /* Unused missile graphic:
-// anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth[16],                                                            mfAnimWidth2[16]
+// anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth[16],                                                            mfAnimXOffset[16]
 ..MFILE_BLOOD..		{       4, "Blood",     MAFLAG_UNUSED,         { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 15,  8,  8,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, {  96, 128, 128, 128,   0,   0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0 }, {  16, 32, 32, 32,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
 */
 DEVILUTION_END_NAMESPACE

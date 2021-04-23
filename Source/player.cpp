@@ -473,7 +473,7 @@ void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int Delay, 
 	p->_pAnimCnt = 0;
 	p->_pAnimDelay = Delay;
 	p->_pAnimWidth = width;
-	p->_pAnimWidth2 = (width - 64) >> 1;
+	p->_pAnimXOffset = (width - 64) >> 1;
 	//p->_pAnimNumSkippedFrames = numSkippedFrames; ANIM_GAMELOGIC
 	//p->_pAnimGameTicksSinceSequenceStarted = processAnimationPending ? -1 : 0;
 	//p->_pAnimStopDistributingAfterFrame = stopDistributingAfterFrame;

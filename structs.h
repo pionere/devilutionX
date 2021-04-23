@@ -133,7 +133,7 @@ typedef struct ItemStruct {
 	int _iAnimLen;             // Number of frames in current animation
 	int _iAnimFrame;           // Current frame of animation.
 	int _iAnimWidth;
-	int _iAnimWidth2; // width 2?
+	int _iAnimXOffset;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
 	char _iName[64];
@@ -251,7 +251,7 @@ typedef struct PlayerStruct {
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
-	int _pAnimWidth2;
+	int _pAnimXOffset;
 	//int _pAnimNumSkippedFrames;              // Number of Frames that will be skipped (for example with modifier "faster attack")
 	//int _pAnimGameTicksSinceSequenceStarted; // Number of GameTicks after the current animation sequence started
 	//int _pAnimStopDistributingAfterFrame;    // Distribute the NumSkippedFrames only before this frame
@@ -466,7 +466,7 @@ typedef struct MisFileData {
 	unsigned char mfAnimFrameLen[16];
 	unsigned char mfAnimLen[16];
 	int mfAnimWidth;
-	int mfAnimWidth2;
+	int mfAnimXOffset;
 #ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
@@ -486,7 +486,7 @@ typedef struct MissileStruct {
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
-	int _miAnimWidth2;
+	int _miAnimXOffset;
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
@@ -609,7 +609,7 @@ typedef struct CMonster {
 	AnimStruct cmAnims[NUM_MON_ANIM];
 	TSnd *cmSnds[4][2];
 	int cmWidth;
-	int cmWidth2;
+	int cmXOffset;
 	BYTE cmDeadval;
 	const MonsterData *cmData;
 #ifdef X86_32bit_COMP
@@ -694,7 +694,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mType;
 	AnimStruct *_mAnims;
 	int _mAnimWidth;
-	int _mAnimWidth2;
+	int _mAnimXOffset;
 #ifdef X86_32bit_COMP
 	int alignment[9];
 #endif
@@ -771,7 +771,7 @@ typedef struct ObjectStruct {
 	int _oAnimLen;   // Number of frames in current animation
 	int _oAnimFrame; // Current frame of animation.
 	int _oAnimWidth;
-	int _oAnimWidth2;
+	int _oAnimXOffset;
 	//BOOL _oDelFlag;
 	BOOL _oSolidFlag;
 	BOOL _oMissFlag;
@@ -1281,7 +1281,7 @@ typedef struct TownerStruct {
 	int _tAnimFrame; // Current frame of animation.
 	int _tAnimFrameCnt;
 	int _tAnimWidth;
-	int _tAnimWidth2;
+	int _tAnimXOffset;
 	char _tAnimOrder;
 	BYTE _tListener;
 	BYTE _tStoreId;
@@ -1404,7 +1404,7 @@ typedef struct DeadStruct {
 	unsigned char *_deadData[8];
 	int _deadFrame;
 	int _deadWidth;
-	int _deadWidth2;
+	int _deadXOffset;
 	char _deadtrans;
 } DeadStruct;
 

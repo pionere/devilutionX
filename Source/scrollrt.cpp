@@ -248,7 +248,7 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
 	}
-	mx = sx + mis->_mixoff - mis->_miAnimWidth2;
+	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
 	my = sy + mis->_miyoff;
 	if (mis->_miUniqTrans != 0)
 		Cl2DrawLightTbl(mx, my, mis->_miAnimData, mis->_miAnimFrame, mis->_miAnimWidth, mis->_miUniqTrans + 3);
@@ -313,7 +313,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 		return;
 	}
 
-	mx = sx + mon->_mxoff - mon->_mAnimWidth2;
+	mx = sx + mon->_mxoff - mon->_mAnimXOffset;
 	my = sy + mon->_myoff;
 
 	pCelBuff = mon->_mAnimData;
@@ -374,7 +374,7 @@ static void DrawTowner(int tnum, int x, int y, int sx, int sy)
 	BYTE *pCelBuff;
 
 	tw = &towners[tnum];
-	tx = sx - tw->_tAnimWidth2;
+	tx = sx - tw->_tAnimXOffset;
 	pCelBuff = tw->_tAnimData;
 	nCel = tw->_tAnimFrame;
 	nWidth = tw->_tAnimWidth;
@@ -403,7 +403,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 
 	if (dFlags[x][y] & BFLAG_LIT || plr[myplr]._pInfraFlag) {
 		p = &plr[pnum];
-		px = sx + p->_pxoff - p->_pAnimWidth2;
+		px = sx + p->_pxoff - p->_pAnimXOffset;
 		py = sy + p->_pyoff;
 		pCelBuff = p->_pAnimData;
 		if (pCelBuff == NULL) {
@@ -443,7 +443,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
 			/*if (plr[pnum].pManaShield != 0)
 				Cl2DrawLight(
-				    px + plr[pnum]._pAnimWidth2 - misfiledata[MFILE_MANASHLD].mfAnimWidth2,
+				    px + plr[pnum]._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
@@ -511,7 +511,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 		os = &object[oi];
 		if (os->_oPreFlag != pre)
 			return;
-		sx = ox - os->_oAnimWidth2;
+		sx = ox - os->_oAnimXOffset;
 		sy = oy;
 	} else {
 		oi = -(oi + 1);
@@ -520,7 +520,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 			return;
 		xx = os->_ox - x;
 		yy = os->_oy - y;
-		sx = (xx * (TILE_WIDTH / 2)) + ox - os->_oAnimWidth2 - (yy * (TILE_WIDTH / 2));
+		sx = (xx * (TILE_WIDTH / 2)) + ox - os->_oAnimXOffset - (yy * (TILE_WIDTH / 2));
 		sy = oy + (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
 
@@ -644,7 +644,7 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iIName, nCel, pFrameTable[0], is->_itype);
 	}
 
-	sx -= is->_iAnimWidth2;
+	sx -= is->_iAnimXOffset;
 	if (ii == pcursitem) {
 		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
 	}
@@ -723,7 +723,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (light_table_index < LIGHTMAX && bDead != 0) {
 		pDeadGuy = &dead[(bDead & 0x1F) - 1];
 		dd = (bDead >> 5) & 7;
-		px = dx - pDeadGuy->_deadWidth2;
+		px = dx - pDeadGuy->_deadXOffset;
 		pCelBuff = pDeadGuy->_deadData[dd];
 		if (pCelBuff == NULL) {
 			dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);

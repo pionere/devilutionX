@@ -30,7 +30,7 @@ void InitDead()
 				dead[nd]._deadData[d] = cmon->cmAnims[MA_DEATH].aData[d];
 			dead[nd]._deadFrame = cmon->cmAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = cmon->cmWidth;
-			dead[nd]._deadWidth2 = cmon->cmWidth2;
+			dead[nd]._deadXOffset = cmon->cmXOffset;
 			dead[nd]._deadtrans = 0;
 			cmon->cmDeadval = nd + 1;
 			mtypes[cmon->cmType] = true;
@@ -42,7 +42,7 @@ void InitDead()
 		dead[nd]._deadData[d] = misanimdata[MFILE_BLODBUR][0];
 	dead[nd]._deadFrame = 8;
 	dead[nd]._deadWidth = 128;
-	dead[nd]._deadWidth2 = 32;
+	dead[nd]._deadXOffset = 32;
 	dead[nd]._deadtrans = 0;
 	spurtndx = nd + 1;
 	nd++;*/
@@ -51,7 +51,7 @@ void InitDead()
 		dead[nd]._deadData[d] = misanimdata[MFILE_SHATTER1][0];
 	dead[nd]._deadFrame = 12;
 	dead[nd]._deadWidth = 128;
-	dead[nd]._deadWidth2 = 32;
+	dead[nd]._deadXOffset = 32;
 	dead[nd]._deadtrans = 0;
 	stonendx = nd + 1;
 	nd++;
@@ -63,7 +63,7 @@ void InitDead()
 				dead[nd]._deadData[d] = mon->_mAnims[MA_DEATH].aData[d];
 			dead[nd]._deadFrame = mon->_mAnims[MA_DEATH].aFrames;
 			dead[nd]._deadWidth = mon->_mAnimWidth;
-			dead[nd]._deadWidth2 = mon->_mAnimWidth2;
+			dead[nd]._deadXOffset = mon->_mAnimXOffset;
 			dead[nd]._deadtrans = mon->_uniqtrans + 4;
 			mon->_udeadval = nd + 1;
 			nd++;

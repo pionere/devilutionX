@@ -1107,7 +1107,7 @@ static void SetupObject(int oi, int x, int y, int type)
 		os->_oAnimFrame = ods->oAnimBaseFrame;
 	}
 	os->_oAnimWidth = ods->oAnimWidth;
-	os->_oAnimWidth2 = (os->_oAnimWidth - 64) >> 1;
+	os->_oAnimXOffset = (os->_oAnimWidth - 64) >> 1;
 	os->_oSolidFlag = ods->oSolidFlag;
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oLight = ods->oLightFlag;

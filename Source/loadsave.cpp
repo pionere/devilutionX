@@ -112,7 +112,7 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iAnimLen);
 	CopyInt(tbuff, &is->_iAnimFrame);
 	CopyInt(tbuff, &is->_iAnimWidth);
-	CopyInt(tbuff, &is->_iAnimWidth2);
+	CopyInt(tbuff, &is->_iAnimXOffset);
 	CopyInt(tbuff, &is->_iPostDraw);
 	CopyInt(tbuff, &is->_iIdentified);
 	CopyBytes(tbuff, 64, is->_iName);
@@ -221,7 +221,7 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &p->_pAnimLen);
 	CopyInt(tbuff, &p->_pAnimFrame);
 	CopyInt(tbuff, &p->_pAnimWidth);
-	CopyInt(tbuff, &p->_pAnimWidth2);
+	CopyInt(tbuff, &p->_pAnimXOffset);
 	CopyInt(tbuff, &p->_plid);
 	CopyInt(tbuff, &p->_pvid);
 
@@ -493,7 +493,7 @@ static void LoadMissile(int mi)
 	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(tbuff, &mis->_miAnimLen);
 	CopyInt(tbuff, &mis->_miAnimWidth);
-	CopyInt(tbuff, &mis->_miAnimWidth2);
+	CopyInt(tbuff, &mis->_miAnimXOffset);
 	CopyInt(tbuff, &mis->_miAnimCnt);
 	CopyInt(tbuff, &mis->_miAnimAdd);
 	CopyInt(tbuff, &mis->_miAnimFrame);
@@ -545,7 +545,7 @@ static void LoadObject(int oi)
 	CopyInt(tbuff, &os->_oAnimLen);
 	CopyInt(tbuff, &os->_oAnimFrame);
 	CopyInt(tbuff, &os->_oAnimWidth);
-	CopyInt(tbuff, &os->_oAnimWidth2);
+	CopyInt(tbuff, &os->_oAnimXOffset);
 	CopyInt(tbuff, &os->_oSolidFlag);
 	CopyInt(tbuff, &os->_oMissFlag);
 	CopyInt(tbuff, &os->_oLight);
@@ -801,7 +801,7 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iAnimLen, tbuff);
 	CopyInt(&is->_iAnimFrame, tbuff);
 	CopyInt(&is->_iAnimWidth, tbuff);
-	CopyInt(&is->_iAnimWidth2, tbuff);
+	CopyInt(&is->_iAnimXOffset, tbuff);
 	CopyInt(&is->_iPostDraw, tbuff);
 	CopyInt(&is->_iIdentified, tbuff);
 	CopyBytes(is->_iName, 64, tbuff);
@@ -910,7 +910,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&p->_pAnimLen, tbuff);
 	CopyInt(&p->_pAnimFrame, tbuff);
 	CopyInt(&p->_pAnimWidth, tbuff);
-	CopyInt(&p->_pAnimWidth2, tbuff);
+	CopyInt(&p->_pAnimXOffset, tbuff);
 	CopyInt(&p->_plid, tbuff);
 	CopyInt(&p->_pvid, tbuff);
 
@@ -1180,7 +1180,7 @@ static void SaveMissile(int mi)
 	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(&mis->_miAnimLen, tbuff);
 	CopyInt(&mis->_miAnimWidth, tbuff);
-	CopyInt(&mis->_miAnimWidth2, tbuff);
+	CopyInt(&mis->_miAnimXOffset, tbuff);
 	CopyInt(&mis->_miAnimCnt, tbuff);
 	CopyInt(&mis->_miAnimAdd, tbuff);
 	CopyInt(&mis->_miAnimFrame, tbuff);
@@ -1232,7 +1232,7 @@ static void SaveObject(int oi)
 	CopyInt(&os->_oAnimLen, tbuff);
 	CopyInt(&os->_oAnimFrame, tbuff);
 	CopyInt(&os->_oAnimWidth, tbuff);
-	CopyInt(&os->_oAnimWidth2, tbuff);
+	CopyInt(&os->_oAnimXOffset, tbuff);
 	CopyInt(&os->_oSolidFlag, tbuff);
 	CopyInt(&os->_oMissFlag, tbuff);
 	CopyInt(&os->_oLight, tbuff);

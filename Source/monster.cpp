@@ -305,7 +305,7 @@ void InitMonsterGFX(int midx)
 	}
 
 	cmon->cmWidth = mdata->width;
-	cmon->cmWidth2 = (mdata->width - 64) >> 1;
+	cmon->cmXOffset = (mdata->width - 64) >> 1;
 	cmon->cmData = mdata;
 
 	if (mdata->has_trans) {
@@ -453,7 +453,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->MType = cmon;
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
-	mon->_mAnimWidth2 = cmon->cmWidth2;
+	mon->_mAnimXOffset = cmon->cmXOffset;
 	mon->MData = cmon->cmData;
 	mon->mName = cmon->cmData->mName;
 	mon->_mFlags = cmon->cmData->mFlags;
@@ -4827,7 +4827,7 @@ void SyncMonsterAnim(int mnum)
 	mon->_mType = mon->MType->cmType;
 	mon->_mAnims = mon->MType->cmAnims;
 	mon->_mAnimWidth = mon->MType->cmWidth;
-	mon->_mAnimWidth2 = mon->MType->cmWidth2;
+	mon->_mAnimXOffset = mon->MType->cmXOffset;
 	MData = mon->MType->cmData;
 	if (MData == NULL) {
 		dev_fatal("SyncMonsterAnim: Monster %d \"%s\" MData NULL", mon->_mMTidx, mon->mName);

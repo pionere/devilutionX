@@ -183,7 +183,7 @@ static void InitTownerInfo(int tnum, int w, int type, int store_id, int store_ta
 	tw->_tStoreTalk = store_talk;
 	tw->_tSelFlag = TRUE;
 	tw->_tAnimWidth = w;
-	tw->_tAnimWidth2 = (w - 64) >> 1;
+	tw->_tAnimXOffset = (w - 64) >> 1;
 	tw->_ttype = type;
 	tw->_tx = x;
 	tw->_ty = y;

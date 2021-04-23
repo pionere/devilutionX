@@ -1193,7 +1193,7 @@ static void SetMissAnim(int mi, int animtype)
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth;
-	mis->_miAnimWidth2 = mfd->mfAnimWidth2;
+	mis->_miAnimXOffset = mfd->mfAnimXOffset;
 	mis->_miAnimCnt = 0;
 	mis->_miAnimFrame = 1;
 }
@@ -2183,7 +2183,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
-	mis->_miAnimWidth2 = mon->_mAnimWidth2;
+	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = 1;
 	if (mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE)
 		mis->_miAnimFrame = 7;
@@ -2217,7 +2217,7 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	mis->_miAnimLen = anim->aFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
-	mis->_miAnimWidth2 = mon->_mAnimWidth2;
+	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = 1;
 	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = 0;
