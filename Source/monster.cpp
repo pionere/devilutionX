@@ -1238,6 +1238,15 @@ static void MonStartDelay(int mnum, int len)
 	}
 }
 
+/*
+ * Start the special standing of monsters.
+ *
+ * Golem: spawning
+ * Skeleton: spawning
+
+ * Fallen with spear: taunting
+ * Fallen with sword: backflip
+ */
 static void MonStartSpStand(int mnum, int md)
 {
 	MonsterStruct *mon;
@@ -1389,6 +1398,12 @@ static void MonStartRAttack(int mnum, int mitype)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
+/*
+ * Start the special ranged-attacks of monsters.
+ * Used by: Thin(STORM), Acid, SkeletonKing, Magma, DemonSkeleton,
+ *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat
+ * Not implemented for Nakrul.
+ */
 static void MonStartRSpAttack(int mnum, int mitype)
 {
 	int md = MonGetDir(mnum);
@@ -1405,21 +1420,20 @@ static void MonStartRSpAttack(int mnum, int mitype)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
+/*
+ * Start the special 'attack' of monsters.
+ *
+ * Goat with maces: roundkick
+ * Toad(AI_FAT): punch
+ * Defiler: scorpion-hit
+ *
+ * Scavengers: eating
+ * Gravediggers: digging
+ * Gargoyle: standing up
+
+ * Rhino: running effect - handled by MIS_RHINO and MM_CHARGE
+ */
 static void MonStartSpAttack(int mnum)
-{
-	int md = MonGetDir(mnum);
-	MonsterStruct *mon;
-
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
-	mon = &monster[mnum];
-	mon->_mmode = MM_SATTACK;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
-}
-
-static void MonStartEat(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
@@ -1856,6 +1870,10 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 	MonstStartKill(mnum, pnum, false);
 }
 
+/*
+ * Start fade in using the special effect of monsters.
+ * Used by: Sneak, Fireman, Mage, DarkMage
+ */
 static void MonStartFadein(int mnum, int md, bool backwards)
 {
 	MonsterStruct *mon;
@@ -3467,7 +3485,7 @@ void MAI_Scav(int mnum)
 	if (mon->_mgoal == MGOAL_HEALING && mon->_mgoalvar3 != 0) {
 		mon->_mgoalvar3--;
 		if (dDead[mon->_mx][mon->_my] != 0) {
-			MonStartEat(mnum);
+			MonStartSpAttack(mnum);
 			maxhp = mon->_mmaxhp;
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
@@ -3564,8 +3582,7 @@ void MAI_Garg(int mnum)
 			}
 		} else if (mon->_mmode != MM_SATTACK) {
 			if (mon->leaderflag == MLEADER_NONE && mon->_uniqtype == 0) {
-				mon->_mmode = MM_SATTACK;
-				NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
+				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
 				mon->_mFlags &= ~MFLAG_GARG_STONE;
