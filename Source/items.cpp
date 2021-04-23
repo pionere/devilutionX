@@ -350,10 +350,8 @@ static void AddInitItems()
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl | CF_PREGEN;
+		// assert(plr[myplr].pLvlLoad != 0);
 		SetupItem(ii);
-		items[ii]._iAnimFrame = items[ii]._iAnimLen;
-		items[ii]._iAnimFlag = FALSE;
-		items[ii]._iSelFlag = 1;
 
 		GetRandomItemSpace(ii);
 		DeltaAddItem(ii);
