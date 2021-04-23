@@ -102,8 +102,8 @@ static void AddSChamObjs()
 
 static void AddVileObjs()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 1, 1, 9, 10, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 1, 20, 10, 2);
+	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
 	SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
 }
 

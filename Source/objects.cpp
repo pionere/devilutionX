@@ -2787,8 +2787,8 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		}
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 		ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-		for (i = 0; i < nobjects; i++)
-			SyncObjectAnim(objectactive[i]);
+		//for (i = 0; i < nobjects; i++)
+		//	SyncObjectAnim(objectactive[i]);
 	}
 }
 

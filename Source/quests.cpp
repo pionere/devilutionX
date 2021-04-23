@@ -512,8 +512,8 @@ void ResyncQuests()
 				ObjChangeMapResync(1, 18, 20, 24);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
 				InitVPReturnTrigger();
-			for (i = 0; i < nobjects; i++)
-				SyncObjectAnim(objectactive[i]);
+			//for (i = 0; i < nobjects; i++)
+			//	SyncObjectAnim(objectactive[i]);
 		}
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
 			if (quests[Q_BETRAYER]._qvar1 >= 2) {
