@@ -288,9 +288,11 @@ void CreateTown(int entry)
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
 
-	if (entry == ENTRY_MAIN) { // New game - set by SetupLocalCoords in multi.cpp
-		ViewX = plr[myplr]._px; // ViewX = 65 + DBORDERX;
-		ViewY = plr[myplr]._py; // ViewY = 58 + DBORDERY;
+	if (entry == ENTRY_MAIN) {
+		// New game - set by SetupLocalCoords in multi.cpp
+		//  or Restart in Town - _px/_py is not set
+		ViewX = plr[myplr]._px = 65 + DBORDERX;
+		ViewY = plr[myplr]._py = 58 + DBORDERY;
 	} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;
