@@ -254,9 +254,9 @@ typedef struct PlayerStruct {
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
 	int _pAnimXOffset;
-	//int _pAnimNumSkippedFrames;              // Number of Frames that will be skipped (for example with modifier "faster attack")
-	//int _pAnimGameTicksSinceSequenceStarted; // Number of GameTicks after the current animation sequence started
-	//int _pAnimStopDistributingAfterFrame;    // Distribute the NumSkippedFrames only before this frame
+	//float _pAnimGameTickModifier;                     // Number of Frames that will be skipped (for example with modifier "faster attack")
+	//int _pAnimGameTicksSinceSequenceStarted;          // Number of GameTicks after the current animation sequence started
+	//int _pAnimRelevantAnimationFramesForDistributing; // Distribute the NumSkippedFrames only before this frame
 	int _plid;
 	int _pvid;
 	BYTE _pAtkSkill;         // the selected attack skill for the primary action
@@ -1436,7 +1436,6 @@ typedef struct _uiheroinfo {
 	WORD magic;
 	WORD dexterity;
 	WORD vitality;
-	int gold;
 	bool hassaved;
 } _uiheroinfo;
 

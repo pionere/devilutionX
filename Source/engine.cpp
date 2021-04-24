@@ -118,7 +118,7 @@ static void CelBlitLight(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nW
 						dst += 2;
 					}
 					width >>= 1;
-					for (; width; width--) {
+					for ( ; width != 0; width--) {
 						dst[0] = tbl[src[0]];
 						dst[1] = tbl[src[1]];
 						dst[2] = tbl[src[2]];
@@ -307,7 +307,7 @@ static void CelBlitLightTrans(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, i
 								dst += 2;
 							}
 							width >>= 1;
-							for (; width; width--) {
+							for ( ; width != 0; width--) {
 								dst[0] = tbl[src[0]];
 								dst[2] = tbl[src[2]];
 								src += 4;
@@ -329,7 +329,7 @@ static void CelBlitLightTrans(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, i
 								dst += 2;
 							}
 							width >>= 1;
-							for (; width; width--) {
+							for ( ; width != 0; width--) {
 								dst[1] = tbl[src[1]];
 								dst[3] = tbl[src[3]];
 								src += 4;
@@ -950,7 +950,7 @@ static void Cl2BlitOutline(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int 
 			if (width > 65) {
 				width -= 65;
 				nDataSize--;
-				if (*src++ && dst < gpBufEnd && dst > gpBufStart) {
+				if (*src++ != 0 && dst < gpBufEnd && dst > gpBufStart) {
 					w -= width;
 					dst[-1] = col;
 					dst[width] = col;
@@ -971,7 +971,7 @@ static void Cl2BlitOutline(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int 
 				if (dst < gpBufEnd && dst > gpBufStart) {
 					w -= width;
 					while (width != 0) {
-						if (*src++) {
+						if (*src++ != 0) {
 							dst[-1] = col;
 							dst[1] = col;
 							dst[-BUFFER_WIDTH] = col;
@@ -1195,7 +1195,7 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	if (light_table_index)
+	if (light_table_index != 0)
 		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, &pLightTbl[light_table_index * 256]);
 	else
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);

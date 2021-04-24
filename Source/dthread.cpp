@@ -76,7 +76,7 @@ void dthread_send_delta(int pnum, char cmd, void *pbSrc, int dwLen)
 	memcpy(&pkt->data[0], pbSrc, dwLen);
 	sgMemCrit.Enter();
 	p = (DMegaPkt *)&sgpInfoHead;
-	while (p->dmpNext) {
+	while (p->dmpNext != NULL) {
 		p = p->dmpNext;
 	}
 	p->dmpNext = pkt;

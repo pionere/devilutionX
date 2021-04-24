@@ -78,7 +78,7 @@ void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, voi
 	gfnListYesNo = fnYesNo;
 	gUiItems = uiItems;
 	UiItemsWraps = itemsWraps;
-	if (fnFocus)
+	if (fnFocus != NULL)
 		fnFocus(0);
 
 #ifndef __SWITCH__
@@ -128,13 +128,13 @@ void UiInitList_clear()
 
 void UiPlayMoveSound()
 {
-	if (gfnSoundFunction)
+	if (gfnSoundFunction != NULL)
 		gfnSoundFunction("sfx\\items\\titlemov.wav");
 }
 
 void UiPlaySelectSound()
 {
-	if (gfnSoundFunction)
+	if (gfnSoundFunction != NULL)
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
@@ -149,7 +149,7 @@ void UiFocus(unsigned itemIndex)
 
 	UiPlayMoveSound();
 
-	if (gfnListFocus)
+	if (gfnListFocus != NULL)
 		gfnListFocus(itemIndex);
 }
 
@@ -241,7 +241,7 @@ bool HandleMenuAction(MenuAction menuAction)
 		UiFocusNavigationYesNo();
 		return true;
 	case MenuAction_BACK:
-		if (!gfnListEsc)
+		if (gfnListEsc == NULL)
 			return false;
 		UiFocusNavigationEsc();
 		return true;
@@ -364,7 +364,7 @@ void UiHandleEvents(SDL_Event *event)
 
 	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_RETURN) {
 		const Uint8 *state = SDLC_GetKeyState();
-		if (state[SDLC_KEYSTATE_LALT] || state[SDLC_KEYSTATE_RALT]) {
+		if (state[SDLC_KEYSTATE_LALT] != 0 || state[SDLC_KEYSTATE_RALT] != 0) {
 			dx_reinit();
 			return;
 		}
@@ -400,7 +400,7 @@ void UiFocusNavigationSelect()
 		UiTextInput = NULL;
 		UiTextInputLen = 0;
 	}
-	if (gfnListSelect)
+	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
 
@@ -414,7 +414,7 @@ void UiFocusNavigationEsc()
 		UiTextInput = NULL;
 		UiTextInputLen = 0;
 	}
-	if (gfnListEsc)
+	if (gfnListEsc != NULL)
 		gfnListEsc();
 }
 
@@ -430,7 +430,7 @@ void UiFocusNavigationYesNo()
 static bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
-	return SDL_PointInRect(&point, &rect);
+	return SDL_PointInRect(&point, &rect) == SDL_TRUE;
 }
 
 static void LoadUiGFX()
@@ -482,39 +482,15 @@ void UiDestroy()
 	//UiInitList_clear();
 }
 
-char connect_plrinfostr[128];
-char connect_categorystr[128];
-void UiSetupPlayerInfo(const char *infostr, const _uiheroinfo *pInfo, DWORD type)
-{
-	SStrCopy(connect_plrinfostr, infostr, sizeof(connect_plrinfostr));
-	const char fmt[] = " %d %d %d %d %d %d %d %d";
-	char format[sizeof(DWORD) + sizeof(fmt)];
-	*(DWORD *)format = type;
-	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
-
-	snprintf(
-	    connect_categorystr,
-	    sizeof(connect_categorystr),
-	    format,
-	    pInfo->level,
-	    pInfo->heroclass,
-	    pInfo->herorank,
-	    pInfo->strength,
-	    pInfo->magic,
-	    pInfo->dexterity,
-	    pInfo->vitality,
-	    pInfo->gold);
-}
-
 bool UiValidPlayerName(const char *name)
 {
-	if (!strlen(name))
+	if (strlen(name) == 0)
 		return false;
 
-	if (strpbrk(name, ",<>%&\\\"?*#/:") || strpbrk(name, " "))
+	if (strpbrk(name, ",<>%&\\\"?*#/:") != NULL || strpbrk(name, " ") != NULL)
 		return false;
 
-	for (BYTE *letter = (BYTE *)name; *letter; letter++)
+	for (BYTE *letter = (BYTE *)name; *letter != '\0'; letter++)
 		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
 			return false;
 
@@ -535,32 +511,11 @@ bool UiValidPlayerName(const char *name)
 		++*letter;
 
 	for (int i = 0; i < lengthof(bannedNames); i++) {
-		if (strstr(tmpname, bannedNames[i]))
+		if (strstr(tmpname, bannedNames[i] != NULL))
 			return false;
 	}
 
 	return true;
-}
-
-void UiCreatePlayerDescription(const _uiheroinfo *info, DWORD mode, char (&desc)[128])
-{
-	const char fmt[] = " %d %d %d %d %d %d %d %d";
-	char format[sizeof(DWORD) + sizeof(fmt)];
-	*(DWORD *)format = mode;
-	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
-
-	snprintf(
-	    desc,
-	    sizeof(desc),
-	    format,
-	    info->level,
-	    info->heroclass,
-	    info->herorank,
-	    info->strength,
-	    info->magic,
-	    info->dexterity,
-	    info->vitality,
-	    info->gold);
 }
 
 int GetCenterOffset(int w, int bw)
@@ -655,7 +610,7 @@ void UiClearScreen()
 void UiPollAndRender()
 {
 	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
+	while (SDL_PollEvent(&event) != 0) {
 		UiFocusNavigation(&event);
 		UiHandleEvents(&event);
 	}

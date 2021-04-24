@@ -50,7 +50,7 @@ void UnloadArtFonts()
 
 void LoadTtfFont()
 {
-	if (!TTF_WasInit()) {
+	if (TTF_WasInit() == 0) {
 		if (TTF_Init() == -1) {
 			SDL_Log("TTF_Init: %s", TTF_GetError());
 			diablo_quit(1);
@@ -74,13 +74,13 @@ void LoadTtfFont()
 		return;
 	}
 
-	TTF_SetFontKerning(font, false);
+	TTF_SetFontKerning(font, 0);
 	TTF_SetFontHinting(font, TTF_HINTING_MONO);
 }
 
 void UnloadTtfFont()
 {
-	if (font && TTF_WasInit())
+	if (font != NULL && TTF_WasInit() != 0)
 		TTF_CloseFont(font);
 	font = NULL;
 }

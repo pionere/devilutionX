@@ -1023,7 +1023,7 @@ void CalcViewportGeometry()
 			tileRows++;
 			tileOffsetY -= TILE_HEIGHT / 2;
 		}
-	} else if (tileColums & 1 && lrow & 1) {
+	} else if ((tileColums & 1) && (lrow & 1)) {
 		// Offset tile to vertically align the player when both rows and colums are odd
 		ShiftGrid(&tileShiftX, &tileShiftY, 0, -1);
 		tileRows++;

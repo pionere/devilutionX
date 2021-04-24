@@ -51,7 +51,7 @@ static unsigned pfile_get_save_num_from_name(const char *name)
 	unsigned i;
 
 	for (i = 0; i < MAX_CHARACTERS; i++) {
-		if (!strcasecmp(hero_names[i], name))
+		if (strcasecmp(hero_names[i], name) == 0)
 			break;
 	}
 
@@ -157,7 +157,6 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool 
 	heroinfo->magic = p->_pMagic;
 	heroinfo->dexterity = p->_pDexterity;
 	heroinfo->vitality = p->_pVitality;
-	heroinfo->gold = p->_pGold;
 	heroinfo->hassaved = bHasSaveFile;
 	heroinfo->herorank = p->_pDiabloKillLevel;
 }
@@ -189,7 +188,6 @@ static void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, bool 
 	if (!strcasecmp(gszHero, name_1))
 		SStrCopy(gszHero, name_2, sizeof(gszHero));
 	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
-	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 	pfile_write_hero();
 	return true;
 }*/
@@ -333,12 +331,6 @@ void pfile_create_player_description()
 	myplr = 0;
 	plr[0]._pTeam = 0;
 	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
-	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
-
-	/*if (dst != NULL && len != 0) {
-		UiCreatePlayerDescription(&uihero, GAME_ID, desc);
-		SStrCopy(dst, desc, len);
-	}*/
 }
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])

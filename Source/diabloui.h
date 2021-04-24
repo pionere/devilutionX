@@ -23,9 +23,6 @@ bool UiSelectProvider(bool bMulti);
 int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt));
 void UIDisconnectGame();
 
-void UiCreatePlayerDescription(const _uiheroinfo *info, DWORD mode, char (&desc)[128]);
-void UiSetupPlayerInfo(const char *infostr, const _uiheroinfo *pInfo, DWORD type);
-
 /* These are defined in fonts.h */
 extern bool gbWasFontsInit;
 extern void FontsCleanup();

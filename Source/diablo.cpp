@@ -588,7 +588,7 @@ static void diablo_deinit()
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
 	if (gbWasFontsInit)
 		FontsCleanup();
-	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC))
+	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
 		SDL_Quit();
 }
 
@@ -1069,7 +1069,7 @@ bool PressEscKey()
 		gbQtextflag = false;
 		stream_stop();
 		rv = true;
-	} else if (stextflag) {
+	} else if (stextflag != STORE_NONE) {
 		STextESC();
 		rv = true;
 	}
@@ -1285,7 +1285,7 @@ static void PressKey(int vkey)
 		ClearUI();
 		break;
 	case ACT_UP:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextUp();
 		} else if (gbQuestlog) {
 			QuestlogUp();
@@ -1296,7 +1296,7 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_DOWN:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextDown();
 		} else if (gbQuestlog) {
 			QuestlogDown();
@@ -1317,12 +1317,12 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_PGUP:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextPrior();
 		}
 		break;
 	case ACT_PGDOWN:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextNext();
 		}
 		break;

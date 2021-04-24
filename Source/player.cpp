@@ -24,9 +24,25 @@ int plr_sframe_size;
 int plr_dframe_size;
 
 /** Maps from armor animation to letter used in graphic files. */
-const char ArmourChar[4] = { 'L', 'M', 'H', 0 };
+const char ArmourChar[4] = {
+	'L', // light
+	'M', // medium
+	'H', // heavy
+	0
+};
 /** Maps from weapon animation to letter used in graphic files. */
-const char WepChar[10] = { 'N', 'U', 'S', 'D', 'B', 'A', 'M', 'H', 'T', 0 };
+const char WepChar[10] = {
+	'N', // unarmed
+	'U', // no weapon + shield
+	'S', // sword + no shield
+	'D', // sword + shield
+	'B', // bow
+	'A', // axe
+	'M', // blunt + no shield
+	'H', // blunt + shield
+	'T', // staff
+	0
+};
 /** Maps from player class to letter used in graphic files. */
 const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #ifdef HELLFIRE
@@ -3229,37 +3245,38 @@ void ProcessPlayers()
 
 	p = &plr[pnum];
 	// Normal logic is used,
-	// - if no frame-skipping is required and so we have exactly one Animationframe per GameTick (_pAnimUsedNumFrames = 0)
+	// - if no frame-skipping is required and so we have exactly one Animationframe per GameTick
 	// or
 	// - if we load from a savegame where the new variables are not stored (we don't want to break savegame compatiblity because of smoother rendering of one animation)
-	if (p->_pAnimNumSkippedFrames <= 0)
-		return p->_pAnimFrame;
-	// After an attack hits (_pAFNum or _pSFNum) it can be canceled or another attack can be queued and this means the animation is canceled.
-	// In normal attacks frame skipping always happens before the attack actual hit.
-	// This has the advantage that the sword or bow always points to the enemy when the hit happens (_pAFNum or _pSFNum).
-	// Our distribution logic must also regard this behaviour, so we are not allowed to distribute the skipped animations after the actual hit (_pAnimStopDistributingAfterFrame).
-	int relevantAnimationLength;
-	if (p->_pAnimStopDistributingAfterFrame != 0) {
-		if (p->_pAnimFrame >= p->_pAnimStopDistributingAfterFrame)
-			return p->_pAnimFrame;
-		relevantAnimationLength = p->_pAnimStopDistributingAfterFrame - 1;
-	} else {
-		relevantAnimationLength = p->_pAnimLen;
-	}
+	int relevantAnimationFramesForDistributing = pPlayer->_pAnimRelevantAnimationFramesForDistributing;
+	if (relevantAnimationFramesForDistributing <= 0)
+		return pPlayer->_pAnimFrame;
+
+	if (pPlayer->_pAnimFrame > relevantAnimationFramesForDistributing)
+		return pPlayer->_pAnimFrame;
+
+	assert(pPlayer->_pAnimGameTicksSinceSequenceStarted >= 0);
+
 	float progressToNextGameTick = gfProgressToNextGameTick;
-	float totalGameTicksForCurrentAnimationSequence = progressToNextGameTick + (float)p->_pAnimGameTicksSinceSequenceStarted; // we don't use the processed game ticks alone but also the fragtion of the next game tick (if a rendering happens between game ticks). This helps to smooth the animations.
-	int animationMaxGameTickets = relevantAnimationLength;
-	if (p->_pAnimFrameLen > 1)
-		animationMaxGameTickets = (relevantAnimationLength * p->_pAnimFrameLen);
-	float gameTickModifier = (float)animationMaxGameTickets / (float)(relevantAnimationLength - p->_pAnimNumSkippedFrames); // if we skipped Frames we need to expand the GameTicks to make one GameTick for this Animation "faster"
-	int absolutAnimationFrame = 1 + (int)(totalGameTicksForCurrentAnimationSequence * gameTickModifier); // 1 added for rounding reasons. float to int cast always truncate.
-	if (absolutAnimationFrame > relevantAnimationLength) // this can happen if we are at the last frame and the next game tick is due (nthread_GetProgressToNextGameTick returns 1.0f)
-		return relevantAnimationLength;
-	if (absolutAnimationFrame <= 0) {
-		SDL_Log("GetFrameToUseForPlayerRendering: Calculated an invalid Animation Frame");
+
+	// we don't use the processed game ticks alone but also the fragtion of the next game tick (if a rendering happens between game ticks). This helps to smooth the animations.
+	float totalGameTicksForCurrentAnimationSequence = progressToNextGameTick + (float)pPlayer->_pAnimGameTicksSinceSequenceStarted;
+
+	// 1 added for rounding reasons. float to int cast always truncate.
+	int absoluteAnimationFrame = 1 + (int)(totalGameTicksForCurrentAnimationSequence * pPlayer->_pAnimGameTickModifier);
+	if (absoluteAnimationFrame > relevantAnimationFramesForDistributing) {
+		// this can happen if we are at the last frame and the next game tick is due (nthread_GetProgressToNextGameTick returns 1.0f)
+		if (absoluteAnimationFrame > (relevantAnimationFramesForDistributing + 1)) {
+			// we should never have +2 frames even if next game tick is due
+			SDL_Log("GetFrameToUseForPlayerRendering: Calculated an invalid Animation Frame (Calculated %d MaxFrame %d)", absoluteAnimationFrame, relevantAnimationFramesForDistributing);
+		}
+		return relevantAnimationFramesForDistributing;
+	}
+	if (absoluteAnimationFrame <= 0) {
+		SDL_Log("GetFrameToUseForPlayerRendering: Calculated an invalid Animation Frame (Calculated %d)", absoluteAnimationFrame);
 		return 1;
 	}
-	return absolutAnimationFrame;
+	return absoluteAnimationFrame;
 }*/
 
 void ClrPlrPath(int pnum)

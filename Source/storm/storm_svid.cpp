@@ -272,7 +272,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 	smk_enable_video(SVidSMK, enableVideo);
 	smk_first(SVidSMK); // Decode first frame
 #ifndef USE_SDL1
-	if (renderer) {
+	if (renderer != NULL) {
 		SDL_DestroyTexture(texture);
 		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SVidWidth, SVidHeight);
 		if (texture == NULL) {
@@ -395,7 +395,7 @@ bool SVidPlayContinue()
 	}
 
 #ifndef USE_SDL1
-	if (renderer) {
+	if (renderer != NULL) {
 		if (SDL_BlitSurface(SVidSurface, NULL, GetOutputSurface(), NULL) <= -1) {
 			SDL_Log("%s", SDL_GetError());
 			return false;
@@ -405,7 +405,7 @@ bool SVidPlayContinue()
 	{
 		SDL_Surface *outputSurface = GetOutputSurface();
 #ifdef USE_SDL1
-		const bool is_indexed_output_format = SDLBackport_IsPixelFormatIndexed(output_surface->format);
+		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
 #else
 		const Uint32 wndFormat = SDL_GetWindowPixelFormat(ghMainWnd);
 		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(wndFormat);
@@ -484,7 +484,7 @@ void SVidPlayEnd()
 
 	memcpy(orig_palette, SVidPreviousPalette, sizeof(orig_palette));
 #ifndef USE_SDL1
-	if (renderer) {
+	if (renderer != NULL) {
 		SDL_DestroyTexture(texture);
 		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (texture == NULL) {

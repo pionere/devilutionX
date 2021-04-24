@@ -8,7 +8,7 @@ unsigned GetArtStrWidth(const char *str, unsigned size)
 
 	for (unsigned i = 0; i < strlen(str); i++) {
 		BYTE w = FontTables[size][*(BYTE *)&str[i] + 2];
-		if (w)
+		if (w != 0)
 			strWidth += w;
 		else
 			strWidth += FontTables[size][0];

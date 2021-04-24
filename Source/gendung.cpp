@@ -158,13 +158,13 @@ void FillSolidBlockTbls()
 
 	for (i = 1; i <= dwTiles; i++) {
 		bv = *pTmp++;
-		if (bv & 1)
+		if (bv & 0x01)
 			nSolidTable[i] = TRUE;
-		if (bv & 2)
+		if (bv & 0x02)
 			nBlockTable[i] = true;
-		if (bv & 4)
+		if (bv & 0x04)
 			nMissileTable[i] = true;
-		if (bv & 8)
+		if (bv & 0x08)
 			nTransTable[i] = true;
 		if (bv & 0x80)
 			nTrapTable[i] = true;

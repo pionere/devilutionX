@@ -90,6 +90,10 @@ if(SWITCH)
 endif()
 
 if(VITA)
+  # Work around a missing setting in the toolchain file.
+  # Fix sent upstream: https://github.com/vitasdk/vita-toolchain/pull/182
+  set(PKG_CONFIG_EXECUTABLE "$ENV{VITASDK}/bin/arm-vita-eabi-pkg-config")
+
   include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
   include(vita_defs)
 endif()
@@ -871,7 +875,11 @@ if(CPACK)
 
     # -G DEB
     set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
-    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    if(USE_SDL1)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
+    else()
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
+    endif()
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
     # -G RPM

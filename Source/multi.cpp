@@ -187,7 +187,7 @@ static void multi_handle_turn_upper_bit(int pnum)
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (player_state[i] & PS_CONNECTED && i != pnum)
+		if ((player_state[i] & PS_CONNECTED) && i != pnum)
 			break;
 	}
 

@@ -18,7 +18,7 @@ int speedspellcount = 0;
  */
 bool InGameMenu()
 {
-	return stextflag > 0
+	return stextflag != STORE_NONE
 	    || gbHelpflag
 	    || gbTalkflag
 	    || gbQtextflag
@@ -999,7 +999,7 @@ void StoreSpellCoords()
 		}
 		std::uint64_t spell = 1;
 		for (int j = 1; j < NUM_SPELLS; j++) {
-			if ((spell & spells)) {
+			if ((spell & spells) != 0) {
 				speedspellscoords[speedspellcount] = { xo, yo };
 				++speedspellcount;
 				xo -= SPLICONLENGTH;
@@ -1010,7 +1010,7 @@ void StoreSpellCoords()
 			}
 			spell <<= 1;
 		}
-		if (spells && xo != END_X)
+		if (spells != 0 && xo != END_X)
 			xo -= SPLICONLENGTH;
 		if (xo < START_X) {
 			xo = END_X;
