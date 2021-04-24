@@ -507,11 +507,11 @@ bool UiValidPlayerName(const char *name)
 
 	char tmpname[PLR_NAME_LEN];
 	SStrCopy(tmpname, name, PLR_NAME_LEN);
-	for (BYTE *letter = (BYTE *)tmpname; *letter; letter++)
+	for (BYTE *letter = (BYTE *)tmpname; *letter != '\0'; letter++)
 		++*letter;
 
 	for (int i = 0; i < lengthof(bannedNames); i++) {
-		if (strstr(tmpname, bannedNames[i] != NULL))
+		if (strstr(tmpname, bannedNames[i]) != NULL)
 			return false;
 	}
 
