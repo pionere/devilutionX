@@ -1198,7 +1198,7 @@ void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, bool bId)
 	CalcPlrInv(pnum, true);
 }
 
-static void CheckInvCut()
+static void CheckInvCut(bool bShift)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -1278,10 +1278,18 @@ static void CheckInvCut()
 					}
 				}
 			}
+			if (bShift && AutoPlaceBelt(myplr, pi, true)) {
+				pi->_itype = ITYPE_NONE;
+				return; // TRUE;
+			}
 		} else { // r >= INVITEM_BELT_FIRST
 			pi = &p->SpdList[r - INVITEM_BELT_FIRST];
 			assert(pi->_itype != ITYPE_NONE);
 			//gbRedrawFlags |= REDRAW_SPEED_BAR;
+			if (bShift && AutoPlaceInv(myplr, pi, true)) {
+				pi->_itype = ITYPE_NONE;
+				return; // TRUE;
+			}
 		}
 		break;
 	}
@@ -1358,24 +1366,24 @@ void RemoveSpdBarItem(int pnum, int iv)
 	//gbRedrawFlags |= REDRAW_SPEED_BAR;
 }
 
-void CheckInvClick()
+void CheckInvClick(bool bShift)
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
-		CheckInvCut();
+		CheckInvCut(bShift);
 	}
 }
 
 /**
  * Check for interactions with belt
  */
-void CheckBeltClick()
+void CheckBeltClick(bool bShift)
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
-		/*return*/ CheckInvCut();
+		/*return*/ CheckInvCut(bShift);
 	}
 }
 

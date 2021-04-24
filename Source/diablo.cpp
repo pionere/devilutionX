@@ -901,7 +901,7 @@ static void ActionBtnDown(bool bShift)
 	if (MouseX <= InvRect[SLOTXY_BELT_LAST].X + INV_SLOT_SIZE_PX && MouseY >= SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST].Y - INV_SLOT_SIZE_PX) {
 		// in belt
 		// assert(!DoPanBtn());
-		CheckBeltClick();
+		CheckBeltClick(bShift);
 		return;
 	}
 
@@ -912,7 +912,7 @@ static void ActionBtnDown(bool bShift)
 
 	if (gbInvflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
 		// in inventory
-		CheckInvClick();
+		CheckInvClick(bShift);
 		return;
 	}
 

@@ -458,7 +458,7 @@ static void ResyncBanner()
 
 void ResyncQuests()
 {
-	int i;
+	//int i;
 
 	if (QuestStatus(Q_LTBANNER)) {
 		ResyncBanner();
