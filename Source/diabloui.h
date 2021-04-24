@@ -24,8 +24,6 @@ void InitUICallbacks(_SNETUIDATA &UiData);
 bool UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *a6);
 bool UiSelectProvider(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info);
 
-bool UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
-
 DEVILUTION_END_NAMESPACE
 
 #endif /* __DIABLOUI_H__ */

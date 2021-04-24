@@ -516,30 +516,6 @@ bool UiValidPlayerName(const char *name)
 	return true;
 }
 
-bool UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128])
-{
-	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
-	char format[sizeof(DWORD) + sizeof(fmt)];
-	*(DWORD *)format = mode;
-	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
-
-	snprintf(
-	    desc,
-	    sizeof(desc),
-	    format,
-	    info->level,
-	    info->heroclass,
-	    info->herorank,
-	    info->strength,
-	    info->magic,
-	    info->dexterity,
-	    info->vitality,
-	    info->gold,
-	    info->spawned);
-
-	return true;
-}
-
 int GetCenterOffset(int w, int bw)
 {
 	if (bw == 0) {

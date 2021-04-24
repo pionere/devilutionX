@@ -20,10 +20,8 @@ bool mainmenu_select_hero_dialog(
     const _SNETPLAYERDATA *user_info,
     const _SNETUIDATA *ui_info,
     const _SNETVERSIONDATA *fileinfo,
-    DWORD mode,               // 4 chars, e.g. 'IPXN', 'BNET' etc. */
-    char *cname, DWORD clen,  // character name will be copied here
-    char *cdesc, DWORD cdlen, // character "description" will be copied here (used to advertise games)
-    BOOL *multi);             // new character? - unsure about this
+    DWORD mode               // 4 chars, e.g. 'IPXN', 'BNET' etc. */
+);
 void mainmenu_loop();
 
 #ifdef __cplusplus
