@@ -1510,6 +1510,7 @@ void TakePlrsMoney(int cost)
 static bool StoreAutoPlace(bool saveflag)
 {
 	return WeaponAutoPlace(myplr, &plr[myplr].HoldItem, saveflag)
+		|| AutoPlaceBelt(myplr, &plr[myplr].HoldItem, saveflag)
 		|| AutoPlaceInv(myplr, &plr[myplr].HoldItem, saveflag);
 }
 

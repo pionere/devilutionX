@@ -20,6 +20,7 @@ void FreeInvGFX();
 void InitInv();
 void DrawInv();
 void DrawInvBelt();
+bool AutoPlaceBelt(int pnum, ItemStruct *is, bool saveflag);
 bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag);
 bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag);
 void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, bool bId);

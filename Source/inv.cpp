@@ -681,6 +681,33 @@ bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag)
 	return false;
 }
 
+bool AutoPlaceBelt(int pnum, ItemStruct *is, bool saveflag)
+{
+	int i, w, h;
+
+	if (!AllItemsList[is->_iIdx].iUsable || !is->_iStatFlag)
+		return false;
+
+	i = is->_iCurs + CURSOR_FIRSTITEM;
+	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
+	h = InvItemHeight[i] / INV_SLOT_SIZE_PX;
+
+	if (w != 1 || h != 1)
+		return false;
+
+	for (i = 0; i < MAXBELTITEMS; i++) {
+		if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
+			if (saveflag) {
+				copy_pod(plr[pnum].SpdList[i], *is);
+				CalcPlrScrolls(pnum);
+				//gbRedrawFlags |= REDRAW_SPEED_BAR;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag)
 {
 	ItemStruct *pi;
@@ -692,18 +719,6 @@ bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag)
 
 	pi = saveflag ? is : NULL;
 	if (w == 1 && h == 1) {
-		if (AllItemsList[is->_iIdx].iUsable && is->_iStatFlag) {
-			for (i = 0; i < MAXBELTITEMS; i++) {
-				if (plr[pnum].SpdList[i]._itype == ITYPE_NONE) {
-					if (pi != NULL) {
-						copy_pod(plr[pnum].SpdList[i], *pi);
-						CalcPlrScrolls(pnum);
-						//gbRedrawFlags |= REDRAW_SPEED_BAR;
-					}
-					return true;
-				}
-			}
-		}
 		for (i = 30; i <= 39; i++) {
 			if (AutoPlace(pnum, i, w, h, pi))
 				return true;
@@ -1268,6 +1283,7 @@ static void CheckInvCut()
 			assert(pi->_itype != ITYPE_NONE);
 			//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		}
+		break;
 	}
 
 	copy_pod(p->HoldItem, *pi);
@@ -1532,6 +1548,7 @@ void AutoGetItem(int pnum, int ii)
 		done = GoldAutoPlace(pnum, is);
 	} else {
 		done = WeaponAutoPlace(pnum, is, true)
+			|| AutoPlaceBelt(pnum, is, true)
 			|| AutoPlaceInv(pnum, is, true);
 	}
 	if (done) {
