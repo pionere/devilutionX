@@ -109,6 +109,8 @@ static void LoadItemData(ItemStruct *is)
 	CopyInt(tbuff, &is->_iy);
 	CopyInt(tbuff, &is->_iAnimFlag);
 	tbuff += 4; // Skip pointer _iAnimData
+	tbuff += 4; // Skip _iAnimFrameLen
+	CopyInt(tbuff, &is->_iAnimCnt);
 	CopyInt(tbuff, &is->_iAnimLen);
 	CopyInt(tbuff, &is->_iAnimFrame);
 	CopyInt(tbuff, &is->_iAnimWidth);
@@ -570,7 +572,7 @@ static void LoadObject(int oi)
 static void LoadItem(int ii)
 {
 	LoadItemData(&items[ii]);
-	GetItemFrm(ii);
+	SyncItemAnim(ii);
 }
 
 static void LoadQuest(int i)
@@ -798,6 +800,8 @@ static void SaveItemData(ItemStruct *is)
 	CopyInt(&is->_iy, tbuff);
 	CopyInt(&is->_iAnimFlag, tbuff);
 	tbuff += 4; // Skip pointer _iAnimData
+	tbuff += 4; // Skip _iAnimFrameLen
+	CopyInt(&is->_iAnimCnt, tbuff);
 	CopyInt(&is->_iAnimLen, tbuff);
 	CopyInt(&is->_iAnimFrame, tbuff);
 	CopyInt(&is->_iAnimWidth, tbuff);

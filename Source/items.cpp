@@ -1900,6 +1900,7 @@ void SetupItem(int ii)
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = ItemAnimLs[it];
+	is->_iAnimFrameLen = 1;
 	is->_iAnimWidth = 96;
 	is->_iAnimXOffset = 16;
 	is->_iIdentified = FALSE;
@@ -2419,11 +2420,9 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
+	// assert(plr[myplr].pLvlLoad != 0);
 	SetupItem(ii);
 	//items[ii]._iPostDraw = TRUE;
-	items[ii]._iAnimFrame = items[ii]._iAnimLen;
-	items[ii]._iAnimFlag = FALSE;
-	items[ii]._iSelFlag = 1;
 
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
@@ -2506,6 +2505,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = ItemAnimLs[it];
+	is->_iAnimFrameLen = 1;
 	is->_iAnimWidth = 96;
 	is->_iAnimXOffset = 16;
 	is->_iPostDraw = FALSE;
@@ -2562,20 +2562,24 @@ void ProcessItems()
 	for (i = 0; i < numitems; i++) {
 		is = &items[itemactive[i]];
 		if (is->_iAnimFlag) {
-			is->_iAnimFrame++;
-			if (is->_iCurs == ICURS_MAGIC_ROCK) {
-				if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
-					is->_iAnimFrame = 1;
-				if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
-					is->_iAnimFrame = 11;
-			} else {
-				if (is->_iAnimFrame == is->_iAnimLen >> 1)
-					PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[is->_iCurs]], is->_ix, is->_iy);
+			is->_iAnimCnt++;
+			if (is->_iAnimCnt >= is->_iAnimFrameLen) {
+				is->_iAnimCnt = 0;
+				is->_iAnimFrame++;
+				if (is->_iCurs == ICURS_MAGIC_ROCK) {
+					if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
+						is->_iAnimFrame = 1;
+					if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
+						is->_iAnimFrame = 11;
+				} else {
+					if (is->_iAnimFrame == is->_iAnimLen >> 1)
+						PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[is->_iCurs]], is->_ix, is->_iy);
 
-				if (is->_iAnimFrame >= is->_iAnimLen) {
-					is->_iAnimFrame = is->_iAnimLen;
-					is->_iAnimFlag = FALSE;
-					is->_iSelFlag = 1;
+					if (is->_iAnimFrame >= is->_iAnimLen) {
+						is->_iAnimFrame = is->_iAnimLen;
+						is->_iAnimFlag = FALSE;
+						is->_iSelFlag = 1;
+					}
 				}
 			}
 		}
@@ -2592,9 +2596,10 @@ void FreeItemGFX()
 	}
 }
 
-void GetItemFrm(int ii)
+void SyncItemAnim(int ii)
 {
 	items[ii]._iAnimData = itemanims[ItemCAnimTbl[items[ii]._iCurs]];
+	items[ii]._iAnimFrameLen = 1;
 }
 
 void CheckIdentify(int pnum, int cii)

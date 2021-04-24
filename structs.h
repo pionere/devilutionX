@@ -129,9 +129,11 @@ typedef struct ItemStruct {
 	int _ix;
 	int _iy;
 	BOOL _iAnimFlag;
-	unsigned char *_iAnimData; // PSX name -> ItemFrame
-	int _iAnimLen;             // Number of frames in current animation
-	int _iAnimFrame;           // Current frame of animation.
+	BYTE *_iAnimData;        // PSX name -> ItemFrame
+	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
+	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
+	unsigned _iAnimLen;      // Number of frames in current animation
+	unsigned _iAnimFrame;    // Current frame of animation.
 	int _iAnimWidth;
 	int _iAnimXOffset;
 	BOOL _iPostDraw;
@@ -200,7 +202,7 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[11];
+	int alignment[9];
 #endif
 } ItemStruct;
 
@@ -247,7 +249,7 @@ typedef struct PlayerStruct {
 	int _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BYTE *_pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
-	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimDelay
+	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;

@@ -54,7 +54,7 @@ void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);
 void ProcessItems();
 void FreeItemGFX();
-void GetItemFrm(int ii);
+void SyncItemAnim(int ii);
 void CheckIdentify(int pnum, int cii);
 void DoRepair(int pnum, int cii);
 void DoRecharge(int pnum, int cii);
