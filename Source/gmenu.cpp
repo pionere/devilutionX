@@ -136,7 +136,7 @@ static void gmenu_left_right(BOOL isRight)
 {
 	int step, steps;
 
-	if (!(sgpCurrItem->dwFlags & GMENU_SLIDER))
+	if ((sgpCurrItem->dwFlags & GMENU_SLIDER) == 0)
 		return;
 
 	step = sgpCurrItem->dwFlags & 0xFFF;
@@ -196,7 +196,7 @@ static int gmenu_get_lfont(TMenuItem *pItem)
 	int i;
 	BYTE c;
 
-	if (pItem->dwFlags & GMENU_SLIDER)
+	if ((pItem->dwFlags & GMENU_SLIDER) != 0)
 		return 490;
 	text = pItem->pszStr;
 	i = 0;
@@ -211,7 +211,7 @@ static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 {
 	DWORD w, x, nSteps, step, pos;
 	w = gmenu_get_lfont(pItem);
-	if (pItem->dwFlags & GMENU_SLIDER) {
+	if ((pItem->dwFlags & GMENU_SLIDER) != 0) {
 		x = 16 + w / 2 + SCREEN_X;
 		CelDraw(x + PANEL_LEFT, y - 10, optbar_cel, 1, 287);
 		step = pItem->dwFlags & 0xFFF;
@@ -378,7 +378,7 @@ BOOL gmenu_left_mouse(BOOL isDown)
 	}
 	sgpCurrItem = pItem;
 	PlaySFX(IS_TITLEMOV);
-	if (pItem->dwFlags & GMENU_SLIDER) {
+	if ((pItem->dwFlags & GMENU_SLIDER) != 0) {
 		mouseNavigation = gmenu_get_mouse_slider(&dummy);
 		gmenu_on_mouse_move();
 	} else {

@@ -302,7 +302,7 @@ static BOOLEAN RndLocOk(int xp, int yp)
 
 static BOOLEAN WallTrapLocOk(int xp, int yp)
 {
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
+	if ((dFlags[xp][yp] & BFLAG_POPULATED) != 0)
 		return FALSE;
 
 	if (nTrapTable[dPiece[xp][yp]] != FALSE)

@@ -21,11 +21,10 @@ bool UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const cha
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
 void InitUICallbacks(_SNETUIDATA &UiData);
-int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *a6);
-int UiSelectProvider(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info);
+bool UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info, int *a6);
+bool UiSelectProvider(_SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info, _SNETVERSIONDATA *file_info);
 
 bool UiCreatePlayerDescription(_uiheroinfo *info, DWORD mode, char (&desc)[128]);
-void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type);
 
 DEVILUTION_END_NAMESPACE
 

@@ -447,7 +447,7 @@ BOOL StartGame(BOOL bSinglePlayer)
 		NetClose();
 		if (!gbRunGameResult)
 			break;
-		pfile_create_player_description(NULL, 0);
+		pfile_create_player_description();
 	}
 
 	SNetDestroy();
@@ -545,7 +545,7 @@ static void diablo_deinit()
 		dx_cleanup(); // Cleanup SDL surfaces stuff, so we have to do it before SDL_Quit().
 	if (was_fonts_init)
 		FontsCleanup();
-	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC))
+	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
 		SDL_Quit();
 }
 
@@ -1000,7 +1000,7 @@ BOOL PressEscKey()
 		qtextflag = FALSE;
 		stream_stop();
 		rv = TRUE;
-	} else if (stextflag) {
+	} else if (stextflag != STORE_NONE) {
 		STextESC();
 		rv = TRUE;
 	}
@@ -1217,7 +1217,7 @@ static void PressKey(int vkey)
 		ClearUI();
 		break;
 	case ACT_UP:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextUp();
 		} else if (questlog) {
 			QuestlogUp();
@@ -1228,7 +1228,7 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_DOWN:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextDown();
 		} else if (questlog) {
 			QuestlogDown();
@@ -1249,12 +1249,12 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_PGUP:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextPrior();
 		}
 		break;
 	case ACT_PGDOWN:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextNext();
 		}
 		break;
@@ -1726,7 +1726,7 @@ void LoadGameLevel(BOOL firstflag, int lvldir)
 	}
 
 #ifdef _DEBUG
-	if (setseed)
+	if (setseed != 0)
 		glSeedTbl[currlevel] = setseed;
 #endif
 

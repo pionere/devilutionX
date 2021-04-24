@@ -30,7 +30,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
 void multi_msg_countdown();
 void multi_player_left(int pnum, int reason);
 void multi_net_ping();
-BOOL multi_handle_delta();
+bool multi_handle_delta();
 void multi_process_network_packets();
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen);
 void NetClose();

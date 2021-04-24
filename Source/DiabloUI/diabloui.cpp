@@ -89,7 +89,7 @@ void UiInitList(const std::vector<UiItemBase *> &items, std::size_t listSize, vo
 	gfnListYesNo = fnYesNo;
 	gUiItems = items;
 	UiItemsWraps = itemsWraps;
-	if (fnFocus)
+	if (fnFocus != NULL)
 		fnFocus(0);
 
 #ifndef __SWITCH__
@@ -139,13 +139,13 @@ void UiInitList_clear()
 
 void UiPlayMoveSound()
 {
-	if (gfnSoundFunction)
+	if (gfnSoundFunction != NULL)
 		gfnSoundFunction("sfx\\items\\titlemov.wav");
 }
 
 void UiPlaySelectSound()
 {
-	if (gfnSoundFunction)
+	if (gfnSoundFunction != NULL)
 		gfnSoundFunction("sfx\\items\\titlslct.wav");
 }
 
@@ -160,7 +160,7 @@ void UiFocus(std::size_t itemIndex)
 
 	UiPlayMoveSound();
 
-	if (gfnListFocus)
+	if (gfnListFocus != NULL)
 		gfnListFocus(itemIndex);
 }
 
@@ -252,7 +252,7 @@ bool HandleMenuAction(MenuAction menuAction)
 		UiFocusNavigationYesNo();
 		return true;
 	case MenuAction_BACK:
-		if (!gfnListEsc)
+		if (gfnListEsc == NULL)
 			return false;
 		UiFocusNavigationEsc();
 		return true;
@@ -308,7 +308,7 @@ void UiFocusNavigation(SDL_Event *event)
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
 			case SDLK_v:
-				if (SDL_GetModState() & KMOD_CTRL) {
+				if ((SDL_GetModState() & KMOD_CTRL) != 0) {
 					char *clipboard = SDL_GetClipboardText();
 					if (clipboard == NULL) {
 						SDL_Log("%s", SDL_GetError());
@@ -377,7 +377,7 @@ void UiHandleEvents(SDL_Event *event)
 
 	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_RETURN) {
 		const Uint8 *state = SDLC_GetKeyState();
-		if (state[SDLC_KEYSTATE_LALT] || state[SDLC_KEYSTATE_RALT]) {
+		if (state[SDLC_KEYSTATE_LALT] != 0 || state[SDLC_KEYSTATE_RALT] != 0) {
 			dx_reinit();
 			return;
 		}
@@ -413,7 +413,7 @@ void UiFocusNavigationSelect()
 		UiTextInput = NULL;
 		UiTextInputLen = 0;
 	}
-	if (gfnListSelect)
+	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
 
@@ -427,7 +427,7 @@ void UiFocusNavigationEsc()
 		UiTextInput = NULL;
 		UiTextInputLen = 0;
 	}
-	if (gfnListEsc)
+	if (gfnListEsc != NULL)
 		gfnListEsc();
 }
 
@@ -443,7 +443,7 @@ void UiFocusNavigationYesNo()
 bool IsInsideRect(const SDL_Event &event, const SDL_Rect &rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
-	return SDL_PointInRect(&point, &rect);
+	return SDL_PointInRect(&point, &rect) == SDL_TRUE;
 }
 
 void LoadUiGFX()
@@ -480,40 +480,15 @@ const char **UiProfileGetString()
 	return NULL;
 }
 
-char connect_plrinfostr[128];
-char connect_categorystr[128];
-void UiSetupPlayerInfo(char *infostr, _uiheroinfo *pInfo, DWORD type)
-{
-	SStrCopy(connect_plrinfostr, infostr, sizeof(connect_plrinfostr));
-	const char fmt[] = " %d %d %d %d %d %d %d %d %d";
-	char format[sizeof(DWORD) + sizeof(fmt)];
-	*(DWORD *)format = type;
-	memcpy(&format[sizeof(DWORD)], fmt, sizeof(fmt));
-
-	snprintf(
-	    connect_categorystr,
-	    sizeof(connect_categorystr),
-	    format,
-	    pInfo->level,
-	    pInfo->heroclass,
-	    pInfo->herorank,
-	    pInfo->strength,
-	    pInfo->magic,
-	    pInfo->dexterity,
-	    pInfo->vitality,
-	    pInfo->gold,
-	    pInfo->spawned);
-}
-
 bool UiValidPlayerName(const char *name)
 {
-	if (!strlen(name))
+	if (strlen(name) == 0)
 		return false;
 
-	if (strpbrk(name, ",<>%&\\\"?*#/:") || strpbrk(name, " "))
+	if (strpbrk(name, ",<>%&\\\"?*#/:") != NULL || strpbrk(name, " ") != NULL)
 		return false;
 
-	for (BYTE *letter = (BYTE *)name; *letter; letter++)
+	for (BYTE *letter = (BYTE *)name; *letter != '\0'; letter++)
 		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
 			return false;
 
@@ -534,7 +509,7 @@ bool UiValidPlayerName(const char *name)
 		++*letter;
 
 	for (int i = 0; i < lengthof(bannedNames); i++) {
-		if (strstr(tmpname, bannedNames[i]))
+		if (strstr(tmpname, bannedNames[i]) != NULL)
 			return false;
 	}
 
@@ -654,7 +629,7 @@ void UiClearScreen()
 void UiPollAndRender()
 {
 	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
+	while (SDL_PollEvent(&event) != 0) {
 		UiFocusNavigation(&event);
 		UiHandleEvents(&event);
 	}
@@ -686,7 +661,7 @@ void Render(const UiArtText *uiArtText)
 void Render(const UiImage *uiImage)
 {
 	int x = uiImage->m_rect.x;
-	if ((uiImage->m_iFlags & UIS_CENTER) && uiImage->m_art != nullptr) {
+	if ((uiImage->m_iFlags & UIS_CENTER) != 0 && uiImage->m_art != NULL) {
 		const int xOffset = GetCenterOffset(uiImage->m_art->w(), uiImage->m_rect.w);
 		x += xOffset;
 	}

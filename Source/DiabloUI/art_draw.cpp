@@ -18,9 +18,9 @@ void DrawArt(int screenX, int screenY, Art *art, int nFrame, int srcW, int srcH)
 
 	ScaleOutputRect(&srcRect);
 
-	if (srcW && srcW < srcRect.w)
+	if (srcW != 0 && srcW < srcRect.w)
 		srcRect.w = srcW;
-	if (srcH && srcH < srcRect.h)
+	if (srcH != 0 && srcH < srcRect.h)
 		srcRect.h = srcH;
 	SDL_Rect dstRect = { screenX, screenY, srcRect.w, srcRect.h };
 	ScaleOutputRect(&dstRect);

@@ -37,7 +37,7 @@ void tmsg_add(BYTE *pbMsg, BYTE bLen)
 	msg->hdr.dwTime = SDL_GetTicks() + tick_delay * 10;
 	msg->hdr.bLen = bLen;
 	memcpy(msg->body, pbMsg, bLen);
-	for (tail = &sgpTimedMsgHead; *tail; tail = &(*tail)->hdr.pNext) {
+	for (tail = &sgpTimedMsgHead; *tail != NULL; tail = &(*tail)->hdr.pNext) {
 		;
 	}
 	*tail = msg;

@@ -204,7 +204,7 @@ static void multi_handle_turn_upper_bit(int pnum)
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (player_state[i] & PS_CONNECTED && i != pnum)
+		if ((player_state[i] & PS_CONNECTED) != 0 && i != pnum)
 			break;
 	}
 
@@ -235,14 +235,14 @@ void multi_msg_countdown()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (player_state[i] & PS_TURN_ARRIVED) {
+		if ((player_state[i] & PS_TURN_ARRIVED) != 0) {
 			if (gdwMsgLenTbl[i] == 4)
 				multi_parse_turn(i, *(DWORD *)glpMsgTbl[i]);
 		}
 	}
 }
 
-static void multi_player_left_msg(int pnum, int left)
+static void multi_player_left_msg(int pnum, bool left)
 {
 	const char *pszFmt;
 
@@ -280,7 +280,7 @@ static void multi_clear_left_tbl()
 			if (gbBufferMsgs == 1)
 				msg_send_drop_pkt(i, sgdwPlayerLeftReasonTbl[i]);
 			else
-				multi_player_left_msg(i, 1);
+				multi_player_left_msg(i, true);
 
 			sgbPlayerLeftGameTbl[i] = FALSE;
 			sgdwPlayerLeftReasonTbl[i] = 0;
@@ -341,11 +341,11 @@ static void multi_begin_timeout()
 	bGroupCount = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		nState = player_state[i];
-		if (nState & PS_CONNECTED) {
+		if ((nState & PS_CONNECTED) != 0) {
 			if (nLowestPlayer == -1) {
 				nLowestPlayer = i;
 			}
-			if (nState & PS_ACTIVE) {
+			if ((nState & PS_ACTIVE) != 0) {
 				bGroupPlayers++;
 				if (nLowestActive == -1) {
 					nLowestActive = i;
@@ -376,14 +376,14 @@ static void multi_begin_timeout()
 /**
  * @return Always true for singleplayer
  */
-BOOL multi_handle_delta()
+bool multi_handle_delta()
 {
 	int i;
 	BOOL received;
 
 	if (gbGameDestroyed) {
 		gbRunGame = FALSE;
-		return FALSE;
+		return false;
 	}
 
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -396,7 +396,7 @@ BOOL multi_handle_delta()
 	sgbSentThisCycle = nthread_send_and_recv_turn(sgbSentThisCycle, 1);
 	if (!nthread_recv_turns(&received)) {
 		multi_begin_timeout();
-		return FALSE;
+		return false;
 	}
 
 	sgbTimeout = FALSE;
@@ -415,7 +415,7 @@ BOOL multi_handle_delta()
 	}
 	multi_mon_seeds();
 
-	return TRUE;
+	return true;
 }
 
 static void multi_handle_all_packets(int pnum, BYTE *pData, int nSize)
@@ -874,7 +874,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, BOOL recv)
 	}
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
-	multi_player_left_msg(pnum, 0);
+	multi_player_left_msg(pnum, false);
 	plr[pnum]._pGFXLoad = 0;
 	UnPackPlayer(&netplr[pnum], pnum, TRUE);
 

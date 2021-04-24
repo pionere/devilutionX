@@ -296,7 +296,7 @@ void DrawMissile(int x, int y, int sx, int sy, BOOL pre)
 	int i;
 	MissileStruct *mis;
 
-	if (!(dFlags[x][y] & BFLAG_MISSILE))
+	if ((dFlags[x][y] & BFLAG_MISSILE) == 0)
 		return;
 
 	if (dMissile[x][y] != -1) {
@@ -355,7 +355,7 @@ static void DrawMonster(int x, int y, int mx, int my, int mnum)
 	}
 #endif
 
-	if (!(dFlags[x][y] & BFLAG_LIT)) {
+	if ((dFlags[x][y] & BFLAG_LIT) == 0) {
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mon->_mAnimWidth, 1);
 	} else {
 		if (plr[myplr]._pInfraFlag && light_table_index > 8)
@@ -780,14 +780,14 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	}
 	DrawObject(sx, sy, dx, dy, TRUE);
 	DrawItem(sx, sy, dx, dy, TRUE);
-	if (bFlag & BFLAG_PLAYERLR) {
+	if ((bFlag & BFLAG_PLAYERLR) != 0) {
 		assert((DWORD)(sy - 1) < MAXDUNY);
 		DrawPlayerHelper(sx, sy - 1, dx, dy);
 	}
 	if (bFlag & BFLAG_MONSTLR && mnum < 0) {
 		DrawMonsterHelper(sx, sy, -1, dx, dy);
 	}
-	if (bFlag & BFLAG_DEAD_PLAYER) {
+	if ((bFlag & BFLAG_DEAD_PLAYER) != 0) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
 	if (dPlayer[sx][sy] > 0) {
@@ -854,7 +854,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != 0) {
 			x++;
 			columns--;
 			sx += TILE_WIDTH / 2;
@@ -913,7 +913,7 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != 0) {
 			x++;
 			columns--;
 			sx += TILE_WIDTH / 2;
@@ -1077,7 +1077,7 @@ void CalcViewportGeometry()
 			tileRows++;
 			tileOffsetY -= TILE_HEIGHT / 2;
 		}
-	} else if (tileColums & 1 && lrow & 1) {
+	} else if ((tileColums & 1) != 0 && (lrow & 1) != 0) {
 		// Offset tile to vertically align the player when both rows and colums are odd
 		ShiftGrid(&tileShiftX, &tileShiftY, 0, -1);
 		tileRows++;

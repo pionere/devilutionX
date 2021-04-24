@@ -24,7 +24,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 _SNETVERSIONDATA fileinfo;
 /** True if the game is the current active window */
-int gbActive;
+bool gbActive;
 /** The current input handler function */
 WNDPROC CurrentProc;
 /** A handle to the mpq archives. */

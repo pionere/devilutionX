@@ -220,7 +220,7 @@ void SelheroListFocus(std::size_t index)
 {
 	SelheroScrollIntoView(index);
 	int baseFlags = UIS_CENTER | UIS_BIG;
-	if (selhero_SaveCount && index < selhero_SaveCount) {
+	if (selhero_SaveCount != 0 && index < selhero_SaveCount) {
 		memcpy(&selhero_heroInfo, &selhero_heros[index], sizeof(selhero_heroInfo));
 		SelheroSetStats();
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
@@ -377,7 +377,7 @@ void SelheroClassSelectorEsc()
 	SelheroFreeDlgItems();
 	SelheroFreeListItems();
 
-	if (selhero_SaveCount) {
+	if (selhero_SaveCount != 0) {
 		SelheroListInit();
 		return;
 	}

@@ -25,9 +25,25 @@ int deathdelay;
 int plr_dframe_size;
 
 /** Maps from armor animation to letter used in graphic files. */
-const char ArmourChar[4] = { 'L', 'M', 'H', 0 };
+const char ArmourChar[4] = {
+	'L', // light
+	'M', // medium
+	'H', // heavy
+	0
+};
 /** Maps from weapon animation to letter used in graphic files. */
-const char WepChar[10] = { 'N', 'U', 'S', 'D', 'B', 'A', 'M', 'H', 'T', 0 };
+const char WepChar[10] = {
+	'N', // unarmed
+	'U', // no weapon + shield
+	'S', // sword + no shield
+	'D', // sword + shield
+	'B', // bow
+	'A', // axe
+	'M', // blunt + no shield
+	'H', // blunt + shield
+	'T', // staff
+	0
+};
 /** Maps from player class to letter used in graphic files. */
 const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #ifdef HELLFIRE
@@ -1819,7 +1835,7 @@ void StartPlrKill(int pnum, int earflag)
 		SetPlrAnims(pnum);
 	}
 
-	if (!(p->_pGFXLoad & PFILE_DEATH)) {
+	if ((p->_pGFXLoad & PFILE_DEATH) == 0) {
 		LoadPlrGFX(pnum, PFILE_DEATH);
 	}
 

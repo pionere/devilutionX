@@ -40,7 +40,7 @@ bool loopback::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned int (&size)[MA
 {
 	for (auto i = 0; i < MAX_PLRS; ++i) {
 		size[i] = 0;
-		data[i] = nullptr;
+		data[i] = NULL;
 	}
 	return true;
 }

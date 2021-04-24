@@ -83,10 +83,7 @@ BOOL mainmenu_select_hero_dialog(
     const _SNETPLAYERDATA *user_info,
     const _SNETUIDATA *ui_info,
     const _SNETVERSIONDATA *fileinfo,
-    DWORD mode,
-    char *cname, DWORD clen,
-    char *cdesc, DWORD cdlen,
-    BOOL *multi)
+    DWORD mode)
 {
 	BOOL hero_is_created = TRUE;
 	int dlgresult = 0;
@@ -117,16 +114,7 @@ BOOL mainmenu_select_hero_dialog(
 		return FALSE;
 	}
 
-	pfile_create_player_description(cdesc, cdlen);
-	if (multi) {
-		if (mode == 'BNET')
-			*multi = hero_is_created || !plr[myplr].pBattleNet;
-		else
-			*multi = hero_is_created;
-	}
-	if (cname && clen)
-		SStrCopy(cname, gszHero, clen);
-
+	pfile_create_player_description();
 	return TRUE;
 }
 

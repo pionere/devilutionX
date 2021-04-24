@@ -328,7 +328,7 @@ bool SNetGetOwnerTurnsWaiting(DWORD *);
 BOOL SNetUnregisterEventHandler(int, SEVTHANDLER);
 BOOL SNetRegisterEventHandler(int, SEVTHANDLER);
 bool SNetSetBasePlayer(int);
-int SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
+bool SNetInitializeProvider(unsigned long, struct _SNETPROGRAMDATA *, struct _SNETPLAYERDATA *, struct _SNETUIDATA *, struct _SNETVERSIONDATA *);
 int SNetGetProviderCaps(struct _SNETCAPS *);
 #ifdef ZEROTIER
 void SNetSendInfoRequest();

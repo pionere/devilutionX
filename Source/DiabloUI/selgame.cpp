@@ -392,7 +392,7 @@ void selgame_Password_Init(std::size_t index)
 
 void selgame_Password_Select(std::size_t index)
 {
-	if (selgame_selectedGame) {
+	if (selgame_selectedGame != 0) {
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
 		if (SNetJoinGame(selgame_Ip, selgame_Password, gdwPlayerId)) {
 			if (!IsDifficultyAllowed(m_client_info->initdata->bDiff)) {
@@ -434,7 +434,7 @@ void selgame_Password_Esc()
 		selgame_GameSpeedSelection();
 }
 
-int UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info,
+bool UiSelectGame(int a1, _SNETPROGRAMDATA *client_info, _SNETPLAYERDATA *user_info, _SNETUIDATA *ui_info,
     _SNETVERSIONDATA *file_info, int *playerId)
 {
 	gdwPlayerId = playerId;

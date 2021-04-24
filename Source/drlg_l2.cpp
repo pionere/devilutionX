@@ -2907,7 +2907,7 @@ static void L2LockoutFix()
 	}
 	for (j = 1; j < DMAXY - 1; j++) {
 		for (i = 1; i < DMAXX - 1; i++) {
-			if (dflags[i][j] & DLRG_PROTECTED) {
+			if ((dflags[i][j] & DLRG_PROTECTED) != 0) {
 				continue;
 			}
 			if ((dungeon[i][j] == 2 || dungeon[i][j] == 5) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
@@ -2922,7 +2922,7 @@ static void L2LockoutFix()
 					}
 					i++;
 				} while (dungeon[i][j] == 2 || dungeon[i][j] == 5);
-				if (!doorok && !(dflags[i - 1][j] & DLRG_PROTECTED)) {
+				if (!doorok && (dflags[i - 1][j] & DLRG_PROTECTED) == 0) {
 					dungeon[i - 1][j] = 5;
 				}
 			}

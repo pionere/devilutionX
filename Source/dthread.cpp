@@ -23,7 +23,7 @@ static unsigned int dthread_handler(void *data)
 	DWORD dwMilliseconds;
 
 	while (dthread_running) {
-		if (!sgpInfoHead && WaitForEvent(sghWorkToDoEvent) == -1) {
+		if (sgpInfoHead == NULL && WaitForEvent(sghWorkToDoEvent) == -1) {
 			error_buf = TraceLastError();
 			app_fatal("dthread4:\n%s", error_buf);
 		}
@@ -59,7 +59,7 @@ void dthread_remove_player(int pnum)
 	TMegaPkt *pkt;
 
 	sgMemCrit.Enter();
-	for (pkt = sgpInfoHead; pkt; pkt = pkt->pNext) {
+	for (pkt = sgpInfoHead; pkt != NULL; pkt = pkt->pNext) {
 		if (pkt->dwSpaceLeft == pnum)
 			pkt->dwSpaceLeft = MAX_PLRS;
 	}
@@ -83,7 +83,7 @@ void dthread_send_delta(int pnum, char cmd, void *pbSrc, int dwLen)
 	memcpy(&pkt->data[8], pbSrc, dwLen);
 	sgMemCrit.Enter();
 	p = (TMegaPkt *)&sgpInfoHead;
-	while (p->pNext) {
+	while (p->pNext != NULL) {
 		p = p->pNext;
 	}
 	p->pNext = pkt;
@@ -132,7 +132,7 @@ void dthread_cleanup()
 	EndEvent(sghWorkToDoEvent);
 	sghWorkToDoEvent = NULL;
 
-	while (sgpInfoHead) {
+	while (sgpInfoHead != NULL) {
 		tmp = sgpInfoHead->pNext;
 		MemFreeDbg(sgpInfoHead);
 		sgpInfoHead = tmp;

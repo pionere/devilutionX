@@ -132,7 +132,7 @@ bool SNetLeaveGame(int type)
  * @param provider BNET, IPXN, MODM, SCBL or UDPN
  * @param fileinfo Ignore
  */
-int SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *client_info,
+bool SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *client_info,
     struct _SNETPLAYERDATA *user_info, struct _SNETUIDATA *ui_info,
     struct _SNETVERSIONDATA *fileinfo)
 {
@@ -157,13 +157,13 @@ bool SNetCreateGame(const char *pszGameName, const char *pszGamePassword, char *
 	dvlnet_inst->setup_gameinfo(std::move(gameInitInfo));
 
 	std::string defaultName;
-	if (!pszGameName) {
+	if (pszGameName == NULL) {
 		defaultName = dvlnet_inst->make_default_gamename();
 		pszGameName = defaultName.c_str();
 	}
 
 	SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
-	if (pszGamePassword)
+	if (pszGamePassword != NULL)
 		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->create(pszGameName, pszGamePassword);
 	return *playerID != -1;
@@ -174,9 +174,9 @@ bool SNetJoinGame(char *pszGameName, char *pszGamePassword, int *playerID)
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	if (pszGameName)
+	if (pszGameName != NULL)
 		SStrCopy(gpszGameName, pszGameName, sizeof(gpszGameName));
-	if (pszGamePassword)
+	if (pszGamePassword != NULL)
 		SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	*playerID = dvlnet_inst->join(pszGameName, pszGamePassword);
 	return *playerID != -1;

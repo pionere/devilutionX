@@ -63,8 +63,8 @@ void AdjustToScreenGeometry(int width, int height)
 	screenHeight = height;
 
 	borderRight = 64;
-	if (screenWidth % 4) {
-		// The buffer needs to be devisable by 4 for the engine to blit correctly
+	if ((screenWidth % 4) != 0) {
+		// The buffer needs to be divisible by 4 for the engine to blit correctly
 		borderRight += 4 - screenWidth % 4;
 	}
 
@@ -282,7 +282,7 @@ SDL_Surface *GetOutputSurface()
 #ifdef USE_SDL1
 	return SDL_GetVideoSurface();
 #else
-	if (renderer)
+	if (renderer != NULL)
 		return renderer_texture_surface;
 	return SDL_GetWindowSurface(ghMainWnd);
 #endif

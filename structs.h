@@ -1396,7 +1396,6 @@ typedef struct _uidefaultstats {
 } _uidefaultstats;
 
 typedef struct _uiheroinfo {
-	struct _uiheroinfo *next;
 	char name[16];
 	WORD level;
 	BYTE heroclass;
@@ -1405,7 +1404,6 @@ typedef struct _uiheroinfo {
 	WORD magic;
 	WORD dexterity;
 	WORD vitality;
-	int gold;
 	int hassaved;
 	BOOL spawned;
 } _uiheroinfo;
@@ -1494,15 +1492,12 @@ typedef struct _SNETUIDATA {
 	void (*categorylistcallback)();
 	void (*newaccountcallback)();
 	const char **profilefields;
-	int (*selectnamecallback)(
+	bool (*selectnamecallback)(
 	    const struct _SNETPROGRAMDATA *,
 	    const struct _SNETPLAYERDATA *,
 	    const struct _SNETUIDATA *,
 	    const struct _SNETVERSIONDATA *,
-	    DWORD provider, /* e.g. 'BNET', 'IPXN', 'MODM', 'SCBL' */
-	    char *, DWORD,  /* character name will be copied here */
-	    char *, DWORD,  /* character "description" will be copied here (used to advertise games) */
-	    BOOL *          /* new character? - unsure about this */
+	    DWORD provider /* e.g. 'BNET', 'IPXN', 'MODM', 'SCBL' */
 	);
 	void (*changenamecallback)();
 } _SNETUIDATA;

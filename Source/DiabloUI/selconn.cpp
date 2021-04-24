@@ -126,7 +126,7 @@ void SelconnSelect(std::size_t index)
 	SelconnLoad();
 }
 
-int UiSelectProvider(
+bool UiSelectProvider(
     _SNETPROGRAMDATA *client_info,
     _SNETPLAYERDATA *user_info,
     _SNETUIDATA *ui_info,

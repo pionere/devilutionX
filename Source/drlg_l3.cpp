@@ -1420,7 +1420,7 @@ static BOOL DRLG_L3SpawnEdge(int x, int y, int *totarea)
 	if (x < 0 || y < 0 || x >= DMAXX || y >= DMAXY) {
 		return TRUE;
 	}
-	if (dungeon[x][y] & 0x80) {
+	if ((dungeon[x][y] & 0x80) != 0) {
 		return FALSE;
 	}
 	if (dungeon[x][y] > 15) {
@@ -1470,7 +1470,7 @@ static BOOL DRLG_L3Spawn(int x, int y, int *totarea)
 	if (x < 0 || y < 0 || x >= DMAXX || y >= DMAXY) {
 		return TRUE;
 	}
-	if (dungeon[x][y] & 0x80) {
+	if ((dungeon[x][y] & 0x80) != 0) {
 		return FALSE;
 	}
 	if (dungeon[x][y] > 15) {
@@ -1541,7 +1541,7 @@ static void DRLG_L3Pool()
 				for (i = std::max(dunx - totarea, 0); i < std::min(dunx + totarea, DMAXX); i++) {
 					// BUGFIX: In the following swap the order to first do the
 					// index checks and only then access dungeon[i][j] (fixed)
-					if (dungeon[i][j] & 0x80) {
+					if ((dungeon[i][j] & 0x80) != 0) {
 						dungeon[i][j] &= ~0x80;
 						if (addpool) {
 							k = poolsub[dungeon[i][j]];

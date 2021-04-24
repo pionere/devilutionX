@@ -64,7 +64,7 @@ static DWORD pfile_get_save_num_from_name(const char *name)
 	DWORD i;
 
 	for (i = 0; i < MAX_CHARACTERS; i++) {
-		if (!strcasecmp(hero_names[i], name))
+		if (strcasecmp(hero_names[i], name) == 0)
 			break;
 	}
 
@@ -160,21 +160,13 @@ void pfile_write_hero()
 	}
 }
 
-void pfile_create_player_description(char *dst, DWORD len)
+void pfile_create_player_description()
 {
-	char desc[128];
 	_uiheroinfo uihero;
 
 	myplr = 0;
 	pfile_read_player_from_save();
 	game_2_ui_player(plr, &uihero, gbValidSaveFile);
-	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
-
-	if (dst != NULL && len != 0) {
-		if (UiCreatePlayerDescription(&uihero, GAME_ID, desc) == 0)
-			return;
-		SStrCopy(dst, desc, len);
-	}
 }
 
 BOOL pfile_rename_hero(const char *name_1, const char *name_2)
@@ -204,7 +196,6 @@ BOOL pfile_rename_hero(const char *name_1, const char *name_2)
 	if (!strcasecmp(gszHero, name_1))
 		SStrCopy(gszHero, name_2, sizeof(gszHero));
 	game_2_ui_player(plr, &uihero, gbValidSaveFile);
-	UiSetupPlayerInfo(gszHero, &uihero, GAME_ID);
 	pfile_write_hero();
 	return TRUE;
 }
@@ -224,7 +215,6 @@ void game_2_ui_player(const PlayerStruct *p, _uiheroinfo *heroinfo, BOOL bHasSav
 	heroinfo->magic = p->_pMagic;
 	heroinfo->dexterity = p->_pDexterity;
 	heroinfo->vitality = p->_pVitality;
-	heroinfo->gold = p->_pGold;
 	heroinfo->hassaved = bHasSaveFile;
 	heroinfo->herorank = p->pDiabloKillLevel;
 #ifdef SPAWN

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 extern _SNETVERSIONDATA fileinfo;
-extern int gbActive;
+extern bool gbActive;
 extern WNDPROC CurrentProc;
 #ifdef MPQONE
 extern HANDLE diabdat_mpq;

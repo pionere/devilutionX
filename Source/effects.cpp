@@ -1140,7 +1140,7 @@ BOOL effect_is_playing(int nSFX)
 	if (sfx->pSnd != NULL)
 		return snd_playing(sfx->pSnd);
 
-	if (sfx->bFlags & sfx_STREAM)
+	if ((sfx->bFlags & sfx_STREAM) != 0)
 		return sfx == sgpStreamSFX;
 
 	return FALSE;
@@ -1276,7 +1276,7 @@ static void PlaySFX_priv(TSFX *pSFX, BOOL loc, int x, int y)
 		return;
 	}
 
-	if (pSFX->bFlags & sfx_STREAM) {
+	if ((pSFX->bFlags & sfx_STREAM) != 0) {
 		stream_play(pSFX, lVolume, lPan);
 		return;
 	}
@@ -1385,11 +1385,11 @@ static void priv_sound_init(BYTE bLoadMask)
 			continue;
 		}
 
-		if (sgSFX[i].bFlags & sfx_STREAM) {
+		if ((sgSFX[i].bFlags & sfx_STREAM) != 0) {
 			continue;
 		}
 
-		if (!(sgSFX[i].bFlags & bLoadMask)) {
+		if ((sgSFX[i].bFlags & bLoadMask) == 0) {
 			continue;
 		}
 
