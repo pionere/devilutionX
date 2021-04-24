@@ -1443,16 +1443,13 @@ static void GetScrollSpell(int ii, int lvl)
 	is->_iIvalue += sd->sStaffCost;
 }
 
-static bool GetStaffSpell(int ii, int lvl)
+static void GetStaffSpell(int ii, int lvl)
 {
 	SpellData *sd;
 	ItemStruct *is;
 	int rv, v, bs;
 	char istr[64];
 
-	if (random_(17, 4) == 0) {
-		return false;
-	}
 	rv = random_(18, NUM_SPELLS);
 
 	if (lvl < STAFF_MIN)
@@ -1486,7 +1483,6 @@ static bool GetStaffSpell(int ii, int lvl)
 	v = is->_iCharges * sd->sStaffCost / 5;
 	is->_ivalue += v;
 	is->_iIvalue += v;
-	return true;
 }
 
 void GetItemAttrs(int ii, int idata, int lvl)
@@ -1872,7 +1868,8 @@ static void GetItemBonus(int ii, int minlvl, int maxlvl, bool onlygood, bool all
 		break;
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
-		if (allowspells && GetStaffSpell(ii, maxlvl)) {
+		if (allowspells && random_(17, 4) != 0) {
+			GetStaffSpell(ii, maxlvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;

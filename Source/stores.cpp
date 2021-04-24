@@ -1529,6 +1529,20 @@ static void SmithBuyItem()
 	} while (smithitem[idx]._itype != ITYPE_NONE);
 }
 
+static void StoreStartBuy(ItemStruct *is, int price)
+{
+	if (plr[myplr]._pGold < price) {
+		StartStore(STORE_NOMONEY);
+	} else {
+		copy_pod(plr[myplr].HoldItem, *is);
+		plr[myplr].HoldItem._iIvalue = price; // only for boyitem
+		if (StoreAutoPlace(false))
+			StartStore(STORE_CONFIRM);
+		else
+			StartStore(STORE_NOROOM);
+	}
+}
+
 static void S_SBuyEnter()
 {
 	int idx;
@@ -1541,15 +1555,7 @@ static void S_SBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		if (plr[myplr]._pGold < smithitem[idx]._iIvalue) {
-			StartStore(STORE_NOMONEY);
-		} else {
-			copy_pod(plr[myplr].HoldItem, smithitem[idx]);
-			if (StoreAutoPlace(false))
-				StartStore(STORE_CONFIRM);
-			else
-				StartStore(STORE_NOROOM);
-		}
+		StoreStartBuy(&smithitem[idx], smithitem[idx]._iIvalue);
 	}
 }
 
@@ -1596,15 +1602,7 @@ static void S_SPBuyEnter()
 				idx = i;
 			}
 		}
-		if (plr[myplr]._pGold < premiumitems[idx]._iIvalue) {
-			StartStore(STORE_NOMONEY);
-		} else {
-			copy_pod(plr[myplr].HoldItem, premiumitems[idx]);
-			if (StoreAutoPlace(false))
-				StartStore(STORE_CONFIRM);
-			else
-				StartStore(STORE_NOROOM);
-		}
+		StoreStartBuy(&premiumitems[idx], premiumitems[idx]._iIvalue);
 	}
 }
 
@@ -1838,15 +1836,7 @@ static void S_WBuyEnter()
 		stextshold = STORE_WBUY;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
 
-		if (plr[myplr]._pGold < witchitem[idx]._iIvalue) {
-			StartStore(STORE_NOMONEY);
-		} else {
-			copy_pod(plr[myplr].HoldItem, witchitem[idx]);
-			if (StoreAutoPlace(false))
-				StartStore(STORE_CONFIRM);
-			else
-				StartStore(STORE_NOROOM);
-		}
+		StoreStartBuy(&witchitem[idx], witchitem[idx]._iIvalue);
 	}
 }
 
@@ -1986,16 +1976,7 @@ static void S_BBuyEnter()
 #else
 		sellValue = boyitem._iIvalue + (boyitem._iIvalue >> 1);
 #endif
-		if (plr[myplr]._pGold < sellValue) {
-			StartStore(STORE_NOMONEY);
-		} else {
-			copy_pod(plr[myplr].HoldItem, boyitem);
-			plr[myplr].HoldItem._iIvalue = sellValue;
-			if (StoreAutoPlace(false))
-				StartStore(STORE_CONFIRM);
-			else
-				StartStore(STORE_NOROOM);
-		}
+		StoreStartBuy(&boyitem, sellValue);
 	} else {
 		stextflag = STORE_NONE;
 	}
@@ -2103,15 +2084,7 @@ static void S_HBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
 		idx = stextsidx + ((stextsel - stextup) >> 2);
-		if (plr[myplr]._pGold < healitem[idx]._iIvalue) {
-			StartStore(STORE_NOMONEY);
-		} else {
-			copy_pod(plr[myplr].HoldItem, healitem[idx]);
-			if (StoreAutoPlace(false))
-				StartStore(STORE_CONFIRM);
-			else
-				StartStore(STORE_NOROOM);
-		}
+		StoreStartBuy(&healitem[idx], healitem[idx]._iIvalue);
 	}
 }
 
