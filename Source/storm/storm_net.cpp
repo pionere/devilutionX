@@ -140,7 +140,7 @@ bool SNetInitializeProvider(unsigned long provider, struct _SNETPROGRAMDATA *cli
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
 	dvlnet_inst = net::abstract_net::make_net(provider);
-	return ui_info->selectnamecallback(client_info, user_info, ui_info, fileinfo, provider, NULL, 0, NULL, 0, NULL);
+	return ui_info->selectnamecallback(client_info, user_info, ui_info, fileinfo, provider);
 }
 
 /**

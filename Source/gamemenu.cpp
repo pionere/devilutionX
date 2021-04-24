@@ -54,7 +54,7 @@ const char *const sound_toggle_names[] = {
 };
 
 /** Specifies the menu names for colour cycling disabled and enabled. */
-const char *const color_cycling_toggle_names[] = { "Color Cycling Off", "Color Cycling On" };
+//const char *const color_cycling_toggle_names[] = { "Color Cycling Off", "Color Cycling On" };
 
 static void gamemenu_update_single()
 {
