@@ -488,7 +488,7 @@ static void LoadMissile(int mi)
 	CopyChar(tbuff, &mis->_miFlags);
 	CopyChar(tbuff, &mis->_miResist);
 	CopyChar(tbuff, &mis->_miAnimType);
-	CopyInt(tbuff, &mis->_miAnimFlags);
+	CopyInt(tbuff, &mis->_miAnimFlag);
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(tbuff, &mis->_miAnimLen);
@@ -1175,7 +1175,7 @@ static void SaveMissile(int mi)
 	CopyChar(&mis->_miFlags, tbuff);
 	CopyChar(&mis->_miResist, tbuff);
 	CopyChar(&mis->_miAnimType, tbuff);
-	CopyInt(&mis->_miAnimFlags, tbuff);
+	CopyInt(&mis->_miAnimFlag, tbuff);
 	tbuff += 4; // Skip pointer _miAnimData
 	tbuff += 4; // Skip _miAnimFrameLen
 	CopyInt(&mis->_miAnimLen, tbuff);

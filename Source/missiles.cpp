@@ -1189,7 +1189,7 @@ static void SetMissAnim(int mi, int animtype)
 	dir = mis->_miDir;
 	mis->_miAnimData = misanimdata[animtype][dir];
 	mfd = &misfiledata[animtype];
-	mis->_miAnimFlags = mfd->mfFlags;
+	mis->_miAnimFlag = (mfd->mfFlags & MFLAG_LOCK_ANIMATION) == 0;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth;
@@ -2178,7 +2178,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		(mon->_mType >= MT_NSNAKE && mon->_mType <= MT_GSNAKE) ? MA_ATTACK : MA_WALK];
 	mis = &missile[mi];
 	mis->_miDir = midir;
-	mis->_miAnimFlags = 0;
+	mis->_miAnimFlag = TRUE;
 	mis->_miAnimData = anim->aData[midir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	mis->_miAnimLen = anim->aFrames;
@@ -2212,7 +2212,7 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	anim = &mon->_mAnims[MA_WALK];
 	mis = &missile[mi];
 	mis->_miDir = midir;
-	mis->_miAnimFlags = 0;
+	mis->_miAnimFlag = TRUE;
 	mis->_miAnimData = anim->aData[midir];
 	mis->_miAnimFrameLen = anim->aFrameLen;
 	mis->_miAnimLen = anim->aFrames;
@@ -4284,7 +4284,7 @@ void ProcessMissiles()
 		mi = missileactive[i];
 		mis = &missile[mi];
 		missiledata[mis->_miType].mProc(mi);
-		if (!(mis->_miAnimFlags & MAFLAG_LOCK_ANIMATION)) {
+		if (mis->_miAnimFlag) {
 			mis->_miAnimCnt++;
 			if (mis->_miAnimCnt >= mis->_miAnimFrameLen) {
 				mis->_miAnimCnt = 0;

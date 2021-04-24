@@ -481,7 +481,7 @@ typedef struct MissileStruct {
 	BYTE _miFlags;
 	BYTE _miResist;
 	BYTE _miAnimType;
-	int _miAnimFlags;
+	BOOL _miAnimFlag;
 	unsigned char *_miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
