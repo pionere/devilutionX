@@ -796,27 +796,32 @@ if(CPACK)
       #  DESTINATION "LICENSE"
       #)
     else()
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/libfreetype-6.dll"
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
+      install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/freetype_x86-windows/bin/freetype.dll"
         DESTINATION "."
       )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/i686-w64-mingw32/bin/SDL2.dll"
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/x86_64-w64-mingw32/bin/SDL2.dll"
+      install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2_x86-windows/bin/SDL2.dll"
         DESTINATION "."
       )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/i686-w64-mingw32/bin/SDL2_mixer.dll"
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_mixer-2.0.4/x86_64-w64-mingw32/bin/SDL2_mixer.dll"
+      install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-mixer_x86-windows/bin/SDL2_mixer.dll"
         DESTINATION "."
       )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/SDL2_ttf.dll"
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/SDL2_ttf.dll"
+      install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/sdl2-ttf_x86-windows/bin/SDL2_ttf.dll"
         DESTINATION "."
       )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/zlib1.dll"
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/zlib1.dll"
+      install(FILES "${PROJECT_SOURCE_DIR}/vcpkg/packages/zlib_x86-windows/bin/zlib1.dll"
         DESTINATION "."
       )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/i686-w64-mingw32/bin/LICENSE.freetype.txt"
-        DESTINATION "LICENSE"
-      )
-      install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
-        DESTINATION "LICENSE"
-      )
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/LICENSE.freetype.txt"
+      #  DESTINATION "LICENSE"
+      #)
+      #install(FILES "${PROJECT_SOURCE_DIR}/SDL2-2.0.14/README-SDL.txt"
+      #  DESTINATION "LICENSE"
+      #)
     endif()
 
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")

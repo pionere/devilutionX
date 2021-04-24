@@ -19,13 +19,26 @@ jobs:
       matrix:
         name: [diablo, hellfire]
         include:
+          # x86 builds
           - name: diablo
+            packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501'
+            artifact: 'diablo-nightly-x86.zip'
+          - name: hellfire
+            packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-x86.zip'
+          # x64 builds
+          - name: diablo
+            packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
             cmakeargs: ''
             artifact: 'diablo-nightly-x64.zip'
           - name: hellfire
+            packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
             cmakeargs: '-D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
           - name: hellone
+            packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
             cmakeargs: '-D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON'
             artifact: 'hellone-nightly-x64.zip'
     steps:
@@ -41,7 +54,7 @@ jobs:
         vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     - run: |
-        $VCPKG_ROOT/vcpkg install sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows
+        $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
       shell: bash
 
     - name: Configure CMake
@@ -106,6 +119,20 @@ jobs:
     needs: [build1, build2]
     runs-on: windows-latest
     steps:
+    # x86 builds
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: diablo-nightly-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x86.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellfire-nightly-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
+
+    # x64 builds
     - name: Download a diablo artifact
       uses: actions/download-artifact@v2
       with:
@@ -161,19 +188,25 @@ jobs:
           
           diablo-nightly-x64.zip   | Diablo build for Windows x64
           
+          diablo-nightly-x86.zip   | Diablo build for Windows x86
+          
           hellfire-nightly-mac.dmg | Hellfire package for Mac
           
           hellfire-nightly-x64.zip | Hellfire build for Windows x64
+          
+          hellfire-nightly-x86.zip | Hellfire build for Windows x86
           
           hellone-nightly-x64.zip | Minimal Hellfire build for Windows x64<br>- no internet or controller support<br>- merges the mpq files on the first run (takes a few minutes)
         draft: false
         prerelease: true
         files: |
-          ${{github.workspace}}/hellfire-nightly-x64.zip
-          ${{github.workspace}}/diablo-nightly-x64.zip
-          ${{github.workspace}}/hellone-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mac.dmg
+          ${{github.workspace}}/diablo-nightly-x64.zip
+          ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-mac.dmg
+          ${{github.workspace}}/hellfire-nightly-x64.zip
+          ${{github.workspace}}/hellfire-nightly-x86.zip
+          ${{github.workspace}}/hellone-nightly-x64.zip
         fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
