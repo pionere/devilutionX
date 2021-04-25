@@ -17,9 +17,9 @@ DEVILUTION_BEGIN_NAMESPACE
 void T_FillTile(BYTE *P3Tiles, int xx, int yy, int t)
 {
 	long v1, v2, v3, v4;
-	WORD *Tiles;
+	uint16_t *Tiles;
 
-	Tiles = ((WORD *)&P3Tiles[t * 8]);
+	Tiles = ((uint16_t *)&P3Tiles[t * 8]);
 	v1 = SwapLE16(*(Tiles + 0)) + 1;
 	v2 = SwapLE16(*(Tiles + 1)) + 1;
 	v3 = SwapLE16(*(Tiles + 2)) + 1;
