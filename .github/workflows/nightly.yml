@@ -20,11 +20,11 @@ jobs:
         name: [diablo, hellfire]
         include:
           # x86 builds
-          - name: diablo
+          - name: diablo-x86
             packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501'
             artifact: 'diablo-nightly-x86.zip'
-          - name: hellfire
+          - name: hellfire-x86
             packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
