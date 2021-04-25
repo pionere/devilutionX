@@ -4164,8 +4164,8 @@ void MI_Element(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	CheckMissileCol(mi, cx, cy, false);
-	if (!mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {
+	if ((CheckMissileCol(mi, cx, cy, false) || mis->_miRange != 0)   // did not hit a wall
+	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) { // destination reached the first time
 		mis->_miVar3 = TRUE;
 		mis->_miRange = 255;
 		if (FindClosest(cx, cy, dx, dy)) {
