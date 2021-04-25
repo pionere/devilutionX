@@ -1178,6 +1178,42 @@ static bool CheckMissileCol(int mi, int mx, int my, bool nodel)
 	return hit == 1;
 }
 
+static void CheckSplashCol(int mi)
+{
+	MissileStruct *mis;
+	int i, mx, my, lx, ly, tx, ty;
+
+	mis = &missile[mi];
+	mx = mis->_mix;
+	my = mis->_miy;
+	if (!nMissileTable[dPiece[mx][my]]) {
+		// monster/player/object hit -> hit everything around
+		for (i = 0; i < lengthof(offset_x); i++) {
+			CheckMissileCol(mi, mx + offset_x[i], my + offset_y[i], true);
+		}
+		return;
+	}
+	// wall hit -> limit the explosion area
+	mis->_mitxoff -= mis->_mixvel;
+	mis->_mityoff -= mis->_miyvel;
+	GetMissilePos(mi);
+
+	lx = mis->_mix;
+	ly = mis->_miy;
+
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+
+	// assert(lx != mx || ly != my);
+	for (i = 0; i < lengthof(offset_x); i++) {
+		tx = mx + offset_x[i];
+		ty = my + offset_y[i];
+		if (abs(tx - lx) <= 1 && abs(ty - ly) <= 1)
+			CheckMissileCol(mi, tx, ty, true);
+	}
+}
+
 static void SetMissAnim(int mi, int animtype)
 {
 	MissileStruct *mis;
@@ -1463,15 +1499,11 @@ int AddHiveexp(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	CheckMissileCol(mi, sx - 1, sy - 1, true);
-	CheckMissileCol(mi, sx, sy - 1, true);
-	CheckMissileCol(mi, sx + 1, sy - 1, true);
-	CheckMissileCol(mi, sx - 1, sy, true);
 	CheckMissileCol(mi, sx, sy, true);
-	CheckMissileCol(mi, sx + 1, sy, true);
-	CheckMissileCol(mi, sx - 1, sy + 1, true);
-	CheckMissileCol(mi, sx, sy + 1, true);
-	CheckMissileCol(mi, sx + 1, sy + 1, true);
+	// assert(mis->_mix == sx);
+	// assert(mis->_miy == sy);
+	// assert(!nMissileTable[dPiece[sx][sy]]);
+	CheckSplashCol(mi);
 	return MIRES_DONE;
 }
 
@@ -3238,14 +3270,7 @@ void MI_Fireball(int mi)
 			ChangeLight(mis->_miLid, mx, my, mis->_miAnimFrame);
 			//CheckMissileCol(mi, mx, my, true);
 			// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-			CheckMissileCol(mi, mx, my + 1, true);
-			CheckMissileCol(mi, mx, my - 1, true);
-			CheckMissileCol(mi, mx + 1, my, true);
-			CheckMissileCol(mi, mx + 1, my - 1, true);
-			CheckMissileCol(mi, mx + 1, my + 1, true);
-			CheckMissileCol(mi, mx - 1, my, true);
-			CheckMissileCol(mi, mx - 1, my + 1, true);
-			CheckMissileCol(mi, mx - 1, my - 1, true);
+			CheckSplashCol(mi);
 			if (!TransList[dTransVal[mx][my]]
 			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
 				mis->_mix++;
@@ -3525,20 +3550,10 @@ void MI_Town(int mi)
 void MI_Flash(int mi)
 {
 	MissileStruct *mis;
-	int mx, my;
 
+	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
+	CheckSplashCol(mi);
 	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
-	CheckMissileCol(mi, mx - 1, my, true);
-	CheckMissileCol(mi, mx + 1, my, true);
-	CheckMissileCol(mi, mx - 1, my + 1, true);
-	CheckMissileCol(mi, mx, my + 1, true);
-	CheckMissileCol(mi, mx + 1, my + 1, true);
-	// Flash2
-	CheckMissileCol(mi, mx - 1, my - 1, true);
-	CheckMissileCol(mi, mx, my - 1, true);
-	CheckMissileCol(mi, mx + 1, my - 1, true);
 	mis->_miRange--;
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
@@ -4186,14 +4201,7 @@ void MI_Element(int mi)
 	if (mis->_miRange == 0) {
 		//CheckMissileCol(mi, cx, cy, true);
 		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-		CheckMissileCol(mi, cx, cy + 1, true);
-		CheckMissileCol(mi, cx, cy - 1, true);
-		CheckMissileCol(mi, cx + 1, cy, true); /* check x/y */
-		CheckMissileCol(mi, cx + 1, cy - 1, true);
-		CheckMissileCol(mi, cx + 1, cy + 1, true);
-		CheckMissileCol(mi, cx - 1, cy, true);
-		CheckMissileCol(mi, cx - 1, cy + 1, true);
-		CheckMissileCol(mi, cx - 1, cy - 1, true);
+		CheckSplashCol(mi);
 
 		AddMissile(mis->_mix, mis->_miy, mi, 0, 0, MIS_EXELE, mis->_miCaster, mis->_miSource, 0, 0, 0);
 		mis->_miDelFlag = TRUE;
