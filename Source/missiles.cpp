@@ -1327,7 +1327,7 @@ int AddHiveexpC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 	return MIRES_DELETE;
 }
 
-static bool place_rune(int mi, int dx, int dy, int mitype, int mirange)
+static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
 	const char *cr;
@@ -1337,8 +1337,8 @@ static bool place_rune(int mi, int dx, int dy, int mitype, int mirange)
 		for (j = *cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
-			if (IN_DUNGEON_AREA(tx, ty)
-			 && ((nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dMissile[tx][ty]) == 0)) {
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if ((nSolidTable[dPiece[tx][ty]] | nMissileTable[dPiece[tx][ty]] | dObject[tx][ty] | dMissile[tx][ty]) == 0) {
 				missile[mi]._mix = tx;
 				missile[mi]._miy = ty;
 				missile[mi]._miVar1 = mitype;
@@ -1359,7 +1359,7 @@ static bool place_rune(int mi, int dx, int dy, int mitype, int mirange)
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_HIVEEXP, 0))
+		if (PlaceRune(mi, dx, dy, MIS_HIVEEXP, 0))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1372,7 +1372,7 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_LIGHTNINGC, 1))
+		if (PlaceRune(mi, dx, dy, MIS_LIGHTNINGC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1385,7 +1385,7 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_LIGHTNOVAC, 1))
+		if (PlaceRune(mi, dx, dy, MIS_LIGHTNOVAC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1398,7 +1398,7 @@ int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_FIRENOVAC, 1))
+		if (PlaceRune(mi, dx, dy, MIS_FIRENOVAC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -1411,7 +1411,7 @@ int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char mi
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (place_rune(mi, dx, dy, MIS_STONE, 0))
+		if (PlaceRune(mi, dx, dy, MIS_STONE, 0))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
