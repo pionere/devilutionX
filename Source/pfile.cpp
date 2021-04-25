@@ -324,13 +324,9 @@ static void pfile_read_player_from_save()
 
 void pfile_create_player_description()
 {
-	//char desc[128];
-	_uiheroinfo uihero;
-
 	pfile_read_player_from_save();
 	myplr = 0;
 	plr[0]._pTeam = 0;
-	game_2_ui_player(&plr[0], &uihero, gbValidSaveFile);
 }
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])
