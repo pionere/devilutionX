@@ -16,9 +16,9 @@ DEVILUTION_BEGIN_NAMESPACE
 static void T_FillTile(int xx, int yy, int t)
 {
 	long v1, v2, v3, v4;
-	WORD *Tiles;
+	uint16_t *Tiles;
 
-	Tiles = ((WORD *)&pMegaTiles[t * 8]);
+	Tiles = ((uint16_t *)&pMegaTiles[t * 8]);
 	v1 = SwapLE16(*(Tiles + 0)) + 1;
 	v2 = SwapLE16(*(Tiles + 1)) + 1;
 	v3 = SwapLE16(*(Tiles + 2)) + 1;

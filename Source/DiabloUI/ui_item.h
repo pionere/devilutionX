@@ -291,7 +291,7 @@ typedef std::vector<UiListItem *> vUiListItem;
 
 class UiList : public UiItemBase {
 public:
-	UiList(vUiListItem vItems, Sint16 x, Sint16 y, Uint16 item_width, Uint16 item_height, int flags = 0)
+	UiList(vUiListItem vItems, int16_t x, int16_t y, uint16_t item_width, uint16_t item_height, int flags = 0)
 	    : UiItemBase(x, y, item_width, item_height * vItems.size(), flags)
 	{
 		m_type = UI_LIST;
@@ -315,7 +315,7 @@ public:
 		return tmp;
 	}
 
-	int indexAt(Sint16 y) const
+	int indexAt(int16_t y) const
 	{
 		ASSERT(y >= m_rect.y);
 		const unsigned index = (y - m_rect.y) / m_height;
@@ -329,8 +329,8 @@ public:
 	}
 
 	//private:
-	Sint16 m_x, m_y;
-	Uint16 m_width, m_height;
+	int16_t m_x, m_y;
+	uint16_t m_width, m_height;
 	std::vector<UiListItem *> m_vecItems;
 };
 DEVILUTION_END_NAMESPACE
