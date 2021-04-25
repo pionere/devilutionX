@@ -39,7 +39,7 @@ static void ProgressLoad(const char *msg)
 		msgSurface = TTF_RenderUTF8_Solid(font, msg, color);
 		msgShadow = TTF_RenderUTF8_Solid(font, msg, black);
 	}
-	SDL_Rect rect3 = { (Sint16)(PANEL_LEFT + 265), (Sint16)(UI_OFFSET_Y + 267), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect3 = { PANEL_LEFT + 265, UI_OFFSET_Y + 267, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	vecProgress.push_back(new UiButton(&SmlButton, "Cancel", &DialogActionCancel, rect3, 0));
 }
 
@@ -74,8 +74,8 @@ static void ProgressRender(BYTE progress)
 
 	if (msgSurface != NULL) {
 		SDL_Rect dscRect = {
-			static_cast<Sint16>(x + 50 + 1),
-			static_cast<Sint16>(y + 8 + 1),
+			x + 50 + 1,
+			y + 8 + 1,
 			msgSurface->w,
 			msgSurface->h
 		};

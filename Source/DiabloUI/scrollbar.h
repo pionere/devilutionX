@@ -27,7 +27,7 @@ inline SDL_Rect UpArrowRect(const UiScrollBar *sb)
 	Tmp.x = sb->m_rect.x;
 	Tmp.y = sb->m_rect.y;
 	Tmp.w = SCROLLBAR_ARROW_WIDTH;
-	Tmp.h = static_cast<Uint16>(sb->m_arrow->h());
+	Tmp.h = sb->m_arrow->h();
 
 	return Tmp;
 }
@@ -36,14 +36,14 @@ inline SDL_Rect DownArrowRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = static_cast<Sint16>(sb->m_rect.y + sb->m_rect.h - sb->m_arrow->h());
+	Tmp.y = sb->m_rect.y + sb->m_rect.h - sb->m_arrow->h();
 	Tmp.w = SCROLLBAR_ARROW_WIDTH,
-	Tmp.h = static_cast<Uint16>(sb->m_arrow->h());
+	Tmp.h = sb->m_arrow->h();
 
 	return Tmp;
 }
 
-inline Uint16 BarHeight(const UiScrollBar *sb)
+inline int BarHeight(const UiScrollBar *sb)
 {
 	return sb->m_rect.h - 2 * sb->m_arrow->h();
 }
@@ -52,7 +52,7 @@ inline SDL_Rect BarRect(const UiScrollBar *sb)
 {
 	SDL_Rect Tmp;
 	Tmp.x = sb->m_rect.x;
-	Tmp.y = static_cast<Sint16>(sb->m_rect.y + sb->m_arrow->h());
+	Tmp.y = sb->m_rect.y + sb->m_arrow->h();
 	Tmp.w = SCROLLBAR_ARROW_WIDTH,
 	Tmp.h = BarHeight(sb);
 
@@ -66,10 +66,10 @@ inline SDL_Rect ThumbRect(const UiScrollBar *sb, unsigned selected_index, unsign
 	const int thumb_y = (selected_index * thumb_max_y / (numItems - 1));
 
 	SDL_Rect Tmp;
-	Tmp.x = static_cast<Sint16>(sb->m_rect.x + THUMB_OFFSET_X);
-	Tmp.y = static_cast<Sint16>(sb->m_rect.y + sb->m_arrow->h() + thumb_y);
-	Tmp.w = static_cast<Uint16>(sb->m_rect.w - THUMB_OFFSET_X);
-	Tmp.h = static_cast<Uint16>(sb->m_thumb->h());
+	Tmp.x = sb->m_rect.x + THUMB_OFFSET_X;
+	Tmp.y = sb->m_rect.y + sb->m_arrow->h() + thumb_y;
+	Tmp.w = sb->m_rect.w - THUMB_OFFSET_X;
+	Tmp.h = sb->m_thumb->h();
 
 	return Tmp;
 }
