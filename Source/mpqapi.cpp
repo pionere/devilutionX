@@ -44,6 +44,7 @@ struct check_size : assert_eq<sizeof(T), S>, assert_lte<alignof(T), sizeof(T)> {
 static_assert(check_size<_HASHENTRY, 4 * 4>::value, "");
 static_assert(check_size<_BLOCKENTRY, 4 * 4>::value, "");
 
+#ifdef _DEBUG
 const char *DirToString(std::ios::seekdir dir)
 {
 	switch (dir) {
@@ -77,6 +78,7 @@ std::string OpenModeToString(std::ios::openmode mode)
 		result.resize(result.size() - 3);
 	return result;
 }
+#endif
 
 struct FStreamWrapper {
 public:
@@ -85,11 +87,11 @@ public:
 		s_ = std::make_unique<std::fstream>(path, mode);
 		if (!s_->fail()) {
 #ifdef _DEBUG
-			SDL_Log("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+			SDL_Log("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
 #endif
 			return true;
 		}
-		PrintError("new std::fstream(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+		PrintError("Open(\"%s\", %d)", path, mode);
 		return false;
 	}
 
@@ -125,7 +127,7 @@ public:
 #endif
 			return true;
 		}
-		PrintError("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		PrintError("seekg(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
 		return false;
 	}
 
@@ -151,7 +153,7 @@ public:
 #endif
 			return true;
 		}
-		PrintError("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
+		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
 		return false;
 	}
 
