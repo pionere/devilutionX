@@ -758,7 +758,10 @@ if(CPACK)
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
-    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    #install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
+      DESTINATION "."
+    )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
@@ -774,29 +777,35 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
       DESTINATION "LICENSE"
     )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/freetype.dll"
-      DESTINATION "."
-    )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/libpng16.dll"
-      DESTINATION "."
-    )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2.dll"
-      DESTINATION "."
-    )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_mixer.dll"
-      DESTINATION "."
-    )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_ttf.dll"
-      DESTINATION "."
-    )
-    install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/zlib1.dll"
-      DESTINATION "."
-    )
-    if(NOT NONET AND DEVILUTIONX_STATIC_LIBSODIUM)
-      install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/libsodium.dll"
-        DESTINATION "."
-      )
-    endif()
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/brotlidec.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bz2.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/freetype.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/libpng16.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_mixer.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/SDL2_ttf.dll"
+    #  DESTINATION "."
+    #)
+    #install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/zlib1.dll"
+    #  DESTINATION "."
+    #)
+    #if(NOT NONET AND DEVILUTIONX_STATIC_LIBSODIUM)
+    #  install(FILES "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/libsodium.dll"
+    #    DESTINATION "."
+    #  )
+    #endif()
     ##if (SYSTEM_BITS MATCHES x64)
     #if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
     #  #install(FILES "${PROJECT_SOURCE_DIR}/SDL2_ttf-2.0.15/x86_64-w64-mingw32/bin/libfreetype-6.dll"
