@@ -2708,36 +2708,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:
 		return On_WALKXY(pCmd, pnum);
-	case CMD_ADDSTR:
-		return On_ADDSTR(pCmd, pnum);
-	case CMD_ADDDEX:
-		return On_ADDDEX(pCmd, pnum);
-	case CMD_ADDMAG:
-		return On_ADDMAG(pCmd, pnum);
-	case CMD_ADDVIT:
-		return On_ADDVIT(pCmd, pnum);
-	case CMD_BLOCK:
-		return On_BLOCK(pCmd, pnum);
-	case CMD_GOTOGETITEM:
-		return On_GOTOGETITEM(pCmd, pnum);
-	case CMD_REQUESTGITEM:
-		return On_REQUESTGITEM(pCmd, pnum);
-	case CMD_GETITEM:
-		return On_GETITEM(pCmd, pnum);
-	case CMD_GOTOAGETITEM:
-		return On_GOTOAGETITEM(pCmd, pnum);
-	case CMD_REQUESTAGITEM:
-		return On_REQUESTAGITEM(pCmd, pnum);
-	case CMD_AGETITEM:
-		return On_AGETITEM(pCmd, pnum);
-	case CMD_ITEMEXTRA:
-		return On_ITEMEXTRA(pCmd, pnum);
-	case CMD_PUTITEM:
-		return On_PUTITEM(pCmd, pnum);
-	case CMD_SYNCPUTITEM:
-		return On_SYNCPUTITEM(pCmd, pnum);
-	case CMD_RESPAWNITEM:
-		return On_RESPAWNITEM(pCmd, pnum);
 	case CMD_ATTACKXY:
 		return On_ATTACKXY(pCmd, pnum);
 	case CMD_SATTACKXY:
@@ -2746,16 +2716,10 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_RATTACKXY(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
-	case CMD_DOABILITY:
-		return On_DOABILITY(pCmd, pnum);
-	case CMD_DOOIL:
-		return On_DOOIL(pCmd, pnum);
 	case CMD_OPOBJXY:
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:
 		return On_DISARMXY(pCmd, pnum);
-	case CMD_OPOBJT:
-		return On_OPOBJT(pCmd, pnum);
 	case CMD_ATTACKID:
 		return On_ATTACKID(pCmd, pnum);
 	case CMD_ATTACKPID:
@@ -2768,30 +2732,76 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SPELLID(pCmd, pnum);
 	case CMD_SPELLPID:
 		return On_SPELLPID(pCmd, pnum);
+	case CMD_BLOCK:
+		return On_BLOCK(pCmd, pnum);
 	case CMD_KNOCKBACK:
 		return On_KNOCKBACK(pCmd, pnum);
 	case CMD_TALKXY:
 		return On_TALKXY(pCmd, pnum);
-	case CMD_DEBUG:
-		return On_DEBUG(pCmd, pnum);
-	case CMD_NEWLVL:
-		return On_NEWLVL(pCmd, pnum);
-	case CMD_WARP:
-		return On_WARP(pCmd, pnum);
 	case CMD_MONSTDEATH:
 		return On_MONSTDEATH(pCmd, pnum);
-	case CMD_AWAKEGOLEM:
-		return On_AWAKEGOLEM(pCmd, pnum);
 	case CMD_MONSTDAMAGE:
 		return On_MONSTDAMAGE(pCmd, pnum);
+	case CMD_AWAKEGOLEM:
+		return On_AWAKEGOLEM(pCmd, pnum);
 	case CMD_PLRDEAD:
 		return On_PLRDEAD(pCmd, pnum);
 	case CMD_PLRRESURRECT:
 		return On_PLRRESURRECT(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
+	case CMD_PLRLEVEL:
+		return On_PLRLEVEL(pCmd, pnum);
+	case CMD_PLRSKILLLVL:
+		return On_PLRSKILLLVL(pCmd, pnum);
+	case CMD_SETSHIELD:
+		return On_SETSHIELD(pCmd, pnum);
+	case CMD_REMSHIELD:
+		return On_REMSHIELD(pCmd, pnum);
+	case CMD_ADDSTR:
+		return On_ADDSTR(pCmd, pnum);
+	case CMD_ADDMAG:
+		return On_ADDMAG(pCmd, pnum);
+	case CMD_ADDDEX:
+		return On_ADDDEX(pCmd, pnum);
+	case CMD_ADDVIT:
+		return On_ADDVIT(pCmd, pnum);
+	case CMD_DOABILITY:
+		return On_DOABILITY(pCmd, pnum);
+	case CMD_DOOIL:
+		return On_DOOIL(pCmd, pnum);
+	case CMD_CHANGEPLRITEM:
+		return On_CHANGEPLRITEM(pCmd, pnum);
+	case CMD_DELPLRITEM:
+		return On_DELPLRITEM(pCmd, pnum);
+	case CMD_USEPLRITEM:
+		return On_USEPLRITEM(pCmd, pnum);
+	case CMD_DROPITEM:
+		return On_DROPITEM(pCmd, pnum);
+	case CMD_GETITEM:
+		return On_GETITEM(pCmd, pnum);
+	case CMD_AGETITEM:
+		return On_AGETITEM(pCmd, pnum);
+	case CMD_PUTITEM:
+		return On_PUTITEM(pCmd, pnum);
+	case CMD_SYNCPUTITEM:
+		return On_SYNCPUTITEM(pCmd, pnum);
+	case CMD_RESPAWNITEM:
+		return On_RESPAWNITEM(pCmd, pnum);
+	case CMD_REQUESTGITEM:
+		return On_REQUESTGITEM(pCmd, pnum);
+	case CMD_REQUESTAGITEM:
+		return On_REQUESTAGITEM(pCmd, pnum);
+	case CMD_GOTOGETITEM:
+		return On_GOTOGETITEM(pCmd, pnum);
+	case CMD_GOTOAGETITEM:
+		return On_GOTOAGETITEM(pCmd, pnum);
+	case CMD_ITEMEXTRA:
+		return On_ITEMEXTRA(pCmd, pnum);
 	case CMD_OPERATEOBJ:
 		return On_OPERATEOBJ(pCmd, pnum);
+	case CMD_OPOBJT:
+		return On_OPOBJT(pCmd, pnum);
 	case CMD_DOOROPEN:
 		return On_DOOROPEN(pCmd, pnum);
 	case CMD_DOORCLOSE:
@@ -2804,35 +2814,27 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_CHESTCLOSE:
 		return On_CHESTCLOSE(pCmd, pnum);
-	case CMD_CHANGEPLRITEM:
-		return On_CHANGEPLRITEM(pCmd, pnum);
-	case CMD_DELPLRITEM:
-		return On_DELPLRITEM(pCmd, pnum);
-	case CMD_USEPLRITEM:
-		return On_USEPLRITEM(pCmd, pnum);
-	case CMD_PLRLEVEL:
-		return On_PLRLEVEL(pCmd, pnum);
-	case CMD_PLRSKILLLVL:
-		return On_PLRSKILLLVL(pCmd, pnum);
-	case CMD_DROPITEM:
-		return On_DROPITEM(pCmd, pnum);
-	case CMD_ACK_PLRINFO:
-		return On_ACK_PLRINFO(pCmd, pnum);
-	case CMD_SEND_PLRINFO:
-		return On_SEND_PLRINFO(pCmd, pnum);
-	case CMD_PLAYER_JOINLEVEL:
-		return On_PLAYER_JOINLEVEL(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_DEACTIVATEPORTAL:
 		return On_DEACTIVATEPORTAL(pCmd, pnum);
+	case CMD_NEWLVL:
+		return On_NEWLVL(pCmd, pnum);
+	case CMD_WARP:
+		return On_WARP(pCmd, pnum);
+	case CMD_RETOWN:
+		return On_RETOWN(pCmd, pnum);
+	case CMD_PLAYER_JOINLEVEL:
+		return On_PLAYER_JOINLEVEL(pCmd, pnum);
+	case CMD_ACK_PLRINFO:
+		return On_ACK_PLRINFO(pCmd, pnum);
+	case CMD_SEND_PLRINFO:
+		return On_SEND_PLRINFO(pCmd, pnum);
 	case CMD_DLEVEL_DATA:
 	case CMD_DLEVEL_SEP:
 	case CMD_DLEVEL_JUNK:
 	case CMD_DLEVEL_END:
 		return On_DLEVEL(pCmd, pnum);
-	case CMD_RETOWN:
-		return On_RETOWN(pCmd, pnum);
 	case CMD_STRING:
 		return On_STRING(pCmd, pnum);
 	case CMD_INVITE:
@@ -2849,10 +2851,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_SYNCQUEST(pCmd, pnum);
 	case CMD_SYNCQUESTEXT:
 		return On_SYNCQUESTEXT(pCmd, pnum);
-	case CMD_CHEAT_EXPERIENCE:
-		return On_CHEAT_EXPERIENCE(pCmd, pnum);
-	case CMD_CHEAT_SPELL_LEVEL:
-		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
 #ifdef HELLFIRE
@@ -2861,10 +2859,12 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 	case CMD_OPENCRYPT:
 		return On_OPENCRYPT(pCmd, pnum);
 #endif
-	case CMD_SETSHIELD:
-		return On_SETSHIELD(pCmd, pnum);
-	case CMD_REMSHIELD:
-		return On_REMSHIELD(pCmd, pnum);
+	case CMD_CHEAT_EXPERIENCE:
+		return On_CHEAT_EXPERIENCE(pCmd, pnum);
+	case CMD_CHEAT_SPELL_LEVEL:
+		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
+	case CMD_DEBUG:
+		return On_DEBUG(pCmd, pnum);
 	}
 
 	SNetDropPlayer(pnum, LEAVE_DROP);
