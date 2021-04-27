@@ -70,7 +70,7 @@ void InitQuestText()
 void InitQTextMsg(int m, bool showText)
 {
 	const TextDataStruct *tds;
-	int speed, sfxnr;
+	int sfxnr;
 
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
@@ -78,11 +78,7 @@ void InitQTextMsg(int m, bool showText)
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
 		qtexty = 340 + SCREEN_Y + UI_OFFSET_Y;
-		speed = tds->txtspd;
-		if (speed <= 0)
-			scrolltexty = 50 / -(speed - 1);
-		else
-			scrolltexty = ((speed + 1) * 50) / speed;
+		scrolltexty = tds->txtspd;
 		qtextTime = SDL_GetTicks();
 	}
 	sfxnr = tds->sfxnr;
