@@ -2109,8 +2109,11 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 	if (dam <= 0)
 		dam = 1;
 	dam <<= 6;
-	if (mon->_mFlags & MFLAG_LIFESTEAL)
+	if (mon->_mFlags & MFLAG_LIFESTEAL) {
 		mon->_mhitpoints += dam;
+		if (mon->_mhitpoints > mon->_mmaxhp)
+			mon->_mhitpoints = mon->_mmaxhp;
+	}
 	if (pnum == myplr) {
 		if (PlrDecHp(pnum, dam, 0)) {
 #ifdef HELLFIRE
