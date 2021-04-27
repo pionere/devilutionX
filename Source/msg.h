@@ -42,12 +42,12 @@ void NetSendCmdWBParam4(bool bHiPri, BYTE bCmd, WORD wParam1, BYTE wParam2, BYTE
 void NetSendCmdBParam1(bool bHiPri, BYTE bCmd, BYTE bParam1);
 void NetSendCmdBParam2(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdBParam3(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2, BYTE bParam3);
-void NetSendCmdQuest(bool bHiPri, BYTE q, bool extOnly);
 void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii);
 void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y);
-void NetSendCmdChItem(bool bHiPri, ItemStruct *is, BYTE bLoc);
-void NetSendCmdDelItem(bool bHiPri, BYTE bLoc);
 void NetSendCmdDItem(bool bHiPri, int ii);
+void NetSendCmdChItem(ItemStruct *is, BYTE bLoc);
+void NetSendCmdDelItem(BYTE bLoc);
+void NetSendCmdQuest(BYTE q, bool extOnly);
 void NetSendCmdDwParam2(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2);
 void NetSendCmdDwParam3(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2, DWORD dwParam3);
 void NetSendCmdString(unsigned int pmask);

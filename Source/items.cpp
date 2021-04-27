@@ -998,31 +998,18 @@ static void CalcPlrItemMin(int pnum)
 	}
 }
 
-void CalcPlrBookVals(int pnum)
-{
-	ItemStruct *pi;
-	int i;
-
-	pi = plr[pnum].InvList;
-	for (i = plr[pnum]._pNumInv; i > 0; i--, pi++) {
-		if (pi->_iMiscId == IMISC_BOOK) {
-			ItemStatOk(pnum, pi);
-		}
-	}
-}
-
 void CalcPlrInv(int pnum, bool Loadgfx)
 {
 	//CalcPlrItemMin(pnum);
 	CalcSelfItems(pnum);
 	CalcPlrItemVals(pnum, Loadgfx);
 	CalcPlrItemMin(pnum);
-	if (pnum == myplr) {
+	//if (pnum == myplr) {
 		CalcPlrSpells(pnum);
-		CalcPlrBookVals(pnum);
+		//CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
 		//CalcPlrStaff(pnum);
-	}
+	//}
 }
 
 void SetItemData(int ii, int idata)
@@ -2173,7 +2160,7 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg)
 		idx = IDI_BRAIN;
 		quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
 		if (sendmsg)
-			NetSendCmdQuest(true, Q_MUSHROOM, true);
+			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
 	ii = itemavail[0];
@@ -2602,7 +2589,7 @@ void SyncItemAnim(int ii)
 	items[ii]._iAnimFrameLen = 1;
 }
 
-void CheckIdentify(int pnum, int cii)
+static void DoIdentify(int pnum, int cii)
 {
 	ItemStruct *pi;
 
@@ -2623,7 +2610,7 @@ static void RepairItem(ItemStruct *is, int lvl)
 	rep = is->_iDurability;
 
 	while (rep < md) {
-		rep += lvl + random_(37, lvl);
+		rep += lvl + lvl; // random_(37, lvl);
 		d = md / (lvl + 9);
 		if (d < 1)
 			d = 1;
@@ -2636,23 +2623,26 @@ static void RepairItem(ItemStruct *is, int lvl)
 	is->_iDurability = rep;
 }
 
-void DoRepair(int pnum, int cii)
+static void DoRepair(int pnum, int cii)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
 
 	p = &plr[pnum];
 
-	if (cii >= NUM_INVLOC) {
-		pi = &p->InvList[cii - NUM_INVLOC];
+	if (cii >= INVITEM_INV_FIRST) {
+		pi = &p->InvList[cii - INVITEM_INV_FIRST];
 	} else {
 		pi = &p->InvBody[cii];
 	}
 
 	RepairItem(pi, p->_pLevel);
 	if (pi->_iMaxDur == 0) {
-		// NetSendCmdDelItem(true, cii);
-		pi->_itype = ITYPE_NONE;
+		if (cii >= INVITEM_INV_FIRST) {
+			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
+		} else {
+			pi->_itype = ITYPE_NONE;
+		}
 	}
 	CalcPlrInv(pnum, true);
 }
@@ -2675,7 +2665,7 @@ static void RechargeItem(ItemStruct *is, int r)
 	is->_iCharges = cc;
 }
 
-void DoRecharge(int pnum, int cii)
+static void DoRecharge(int pnum, int cii)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -2689,7 +2679,8 @@ void DoRecharge(int pnum, int cii)
 	}
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
 		r = spelldata[pi->_iSpell].sBookLvl;
-		r = random_(38, p->_pLevel / r) + 1;
+		//r = random_(38, p->_pLevel / r) + 1;
+		r = p->_pLevel / r + 1;
 		RechargeItem(pi, r);
 		CalcPlrInv(pnum, true);
 	}
@@ -2726,7 +2717,7 @@ static void DoClean(ItemStruct *pi, bool whittle)
 }
 
 #ifdef HELLFIRE
-void DoWhittle(int pnum, int cii)
+static void DoWhittle(int pnum, int cii)
 {
 	PlayerStruct *p;
 	ItemStruct *pi;
@@ -2760,13 +2751,41 @@ static ItemStruct* PlrItem(int pnum, int cii)
 
 static void RemovePlrItem(int pnum, int cii)
 {
-	if (cii <= INVITEM_INV_LAST) {
+	if (cii < INVITEM_BELT_FIRST) {
 		if (cii < INVITEM_INV_FIRST) {
 			plr[pnum].InvBody[cii]._itype = ITYPE_NONE;
 		} else
 			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
 	} else {
 		RemoveSpdBarItem(pnum, cii - INVITEM_BELT_FIRST);
+	}
+}
+
+void DoAbility(int pnum, int cii)
+{
+	// TODO: add to Abilities table in player.cpp?
+	switch (plr[pnum]._pClass) {
+	case PC_WARRIOR:
+		DoRepair(pnum, cii);
+		break;
+	case PC_ROGUE:
+		break;
+	case PC_SORCERER:
+		DoRecharge(pnum, cii);
+		break;
+#ifdef HELLFIRE
+	case PC_MONK:
+		DoWhittle(pnum, cii);
+		break;
+	case PC_BARD:
+		DoIdentify(pnum, cii);
+		break;
+	case PC_BARBARIAN:
+		break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 

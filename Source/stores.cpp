@@ -1488,7 +1488,7 @@ void TakePlrsMoney(int cost)
 		if (cost < 0) {
 			SetGoldItemValue(pi, -cost);
 		} else {
-			RemoveInvItem(myplr, i);
+			PlrInvItemRemove(myplr, i);
 			i--;
 		}
 	}
@@ -1501,7 +1501,7 @@ void TakePlrsMoney(int cost)
 		if (cost < 0) {
 			SetGoldItemValue(pi, -cost);
 		} else {
-			RemoveInvItem(myplr, i);
+			PlrInvItemRemove(myplr, i);
 			i--;
 		}
 	}
@@ -1654,10 +1654,11 @@ static void PlaceStoreGold(int v)
 	p = &plr[myplr];
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (p->InvGrid[i] == 0) {
-			ii = p->_pNumInv;
+			SetGoldItemValue(&golditem, v);
 			GetGoldSeed(myplr, &golditem);
+			ii = p->_pNumInv;
+			NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + ii);
 			copy_pod(p->InvList[ii], golditem);
-			SetGoldItemValue(&p->InvList[ii], v);
 			p->_pNumInv++;
 			p->InvGrid[i] = p->_pNumInv;
 			break;
@@ -1675,10 +1676,16 @@ static void StoreSellItem()
 	int i, idx, cost, val;
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	if (storehidx[idx] >= 0)
-		RemoveInvItem(myplr, storehidx[idx]);
-	else
-		RemoveSpdBarItem(myplr, -(storehidx[idx] + 1));
+	i = storehidx[idx];
+	if (i >= 0) {
+		RemoveInvItem(myplr, i);
+		i += INVITEM_INV_FIRST;
+	} else {
+		i = -(i + 1);
+		RemoveSpdBarItem(myplr, i);
+		i += INVITEM_BELT_FIRST;
+	}
+	NetSendCmdDelItem(i);
 	cost = storehold[idx]._iIvalue;
 	storenumh--;
 	while (idx < storenumh) {
@@ -1744,7 +1751,6 @@ static void SmithRepairItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	storehold[idx]._iDurability = storehold[idx]._iMaxDur;
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -1872,7 +1878,6 @@ static void WitchRechargeItem()
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 
 	idx = stextvhold + ((stextlhold - stextup) >> 2);
-	storehold[idx]._iCharges = storehold[idx]._iMaxCharges;
 
 	i = storehidx[idx];
 	if (i < 0)
@@ -1985,14 +1990,15 @@ static void S_BBuyEnter()
 
 static void StoryIdItem()
 {
+	ItemStruct *pi;
 	int idx;
 
 	idx = storehidx[((stextlhold - stextup) >> 2) + stextvhold];
-	if (idx < 0) {
-		plr[myplr].InvBody[-(idx + 1)]._iIdentified = TRUE;
-	} else {
-		plr[myplr].InvList[idx]._iIdentified = TRUE;
-	}
+	if (idx < 0)
+		pi = &plr[myplr].InvBody[-(idx + 1)];
+	else
+		pi = &plr[myplr].InvList[idx];
+	pi->_iIdentified = TRUE;
 	plr[myplr].HoldItem._iIdentified = TRUE;
 	TakePlrsMoney(plr[myplr].HoldItem._iIvalue);
 	CalcPlrInv(myplr, true);

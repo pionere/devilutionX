@@ -122,7 +122,7 @@ void CheckQuests()
 		if (quests[Q_PWATER]._qvar1 != 2
 		 && nummonsters == MAX_MINIONS) {
 			quests[Q_PWATER]._qvar1 = 2;
-			NetSendCmdQuest(true, Q_PWATER, true);
+			NetSendCmdQuest(Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, plr[myplr]._px, plr[myplr]._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;
@@ -202,7 +202,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 
 			InitTriggers();
 			if (sendmsg) {
-				NetSendCmdQuest(true, Q_DIABLO, false); // recipient should not matter
+				NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 			}
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
@@ -236,7 +236,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		return;
 	}
 	if (sendmsg)
-		NetSendCmdQuest(true, qn, false); // recipient should not matter
+		NetSendCmdQuest(qn, false); // recipient should not matter
 }
 
 static void DrawButcher()
@@ -492,17 +492,17 @@ void ResyncQuests()
 		//    && currLvl._dLevelIdx >= questlist[Q_SKELKING]._qdlvl - 1
 		//    && currLvl._dLevelIdx <= questlist[Q_SKELKING]._qdlvl + 1) {
 		//	quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
-		//	NetSendCmdQuest(true, Q_SKELKING, false); // recipient should not matter
+		//	NetSendCmdQuest(Q_SKELKING, false); // recipient should not matter
 		//}
 		//if (quests[Q_BUTCHER]._qactive == QUEST_INIT
 		//	&& currLvl._dLevelIdx >= questlist[Q_BUTCHER]._qdlvl - 1
 		//	&& currLvl._dLevelIdx <= questlist[Q_BUTCHER]._qdlvl + 1) {
 		//	quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
-		//	NetSendCmdQuest(true, Q_BUTCHER, false); // recipient should not matter
+		//	NetSendCmdQuest(Q_BUTCHER, false); // recipient should not matter
 		//}
 		if (quests[Q_BETRAYER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl - 1) {
 			quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
-			NetSendCmdQuest(true, Q_BETRAYER, false); // recipient should not matter
+			NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
 		}
 	} else {
 		if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
@@ -526,19 +526,19 @@ void ResyncQuests()
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
 		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
-		NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
+		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
 	}
 	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_NAKRUL]._qdlvl - 1) {
 	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
+	//	NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 	//}
 	//if (quests[Q_JERSEY]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_JERSEY]._qdlvl - 1) {
 	//	quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-	//	NetSendCmdQuest(true, Q_JERSEY, false); // recipient should not matter
+	//	NetSendCmdQuest(Q_JERSEY, false); // recipient should not matter
 	//}
 	if (quests[Q_GIRL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_GIRL]._qdlvl) {
 		quests[Q_GIRL]._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, Q_GIRL, false); // recipient should not matter
+		NetSendCmdQuest(Q_GIRL, false); // recipient should not matter
 		// TODO: send message to reinit the towners?
 	}
 #endif

@@ -978,7 +978,7 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (pcursinvitem != INVITEM_NONE && UseInvItem(pcursinvitem))
+	if (pcursinvitem != INVITEM_NONE && InvUseItem(pcursinvitem))
 		return;
 
 	if (gbSbookflag && MouseX > RIGHT_PANEL && MouseY < SPANEL_HEIGHT) {
@@ -1266,7 +1266,7 @@ static void PressKey(int vkey)
 		static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
 		static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
 		static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
-		UseInvItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		break;
 	case ACT_AUTOMAP:
 		HandlePanBtn(PANBTN_AUTOMAP);

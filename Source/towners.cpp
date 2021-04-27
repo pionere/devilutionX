@@ -534,7 +534,7 @@ void TalkToTowner(int pnum, int tnum)
 				qt = TEXT_BANNER2;
 			}
 			if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i) && qt == TEXT_NONE) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
 				quests[Q_LTBANNER]._qvar1 = 2;
@@ -569,7 +569,7 @@ void TalkToTowner(int pnum, int tnum)
 				qt = TEXT_INFRA5;
 			}
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && qt == TEXT_NONE) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_ROCK]._qactive = QUEST_DONE;
 				quests[Q_ROCK]._qlog = FALSE;
@@ -586,7 +586,7 @@ void TalkToTowner(int pnum, int tnum)
 				qt = TEXT_ANVIL5;
 			}
 			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && qt == TEXT_NONE) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
 				quests[Q_ANVIL]._qlog = FALSE;
@@ -597,7 +597,7 @@ void TalkToTowner(int pnum, int tnum)
 		break;
 	case TOWN_WITCH:
 		if (quests[Q_MUSHROOM]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_FUNGALTM, &i)) {
-			RemoveInvItem(pnum, i);
+			PlrInvItemRemove(pnum, i);
 			quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 			quests[Q_MUSHROOM]._qlog = TRUE;
 			quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
@@ -606,7 +606,7 @@ void TalkToTowner(int pnum, int tnum)
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
 			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
 				if (PlrHasItem(pnum, IDI_MUSHROOM, &i)) {
-					RemoveInvItem(pnum, i);
+					PlrInvItemRemove(pnum, i);
 					quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
 					quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 					qn = Q_MUSHROOM;
@@ -660,7 +660,7 @@ void TalkToTowner(int pnum, int tnum)
 		if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
 			if (PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
@@ -677,7 +677,7 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_STORY:
 		if (gbMaxPlayers == 1) {
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasItem(pnum, IDI_LAZSTAFF, &i)) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				quests[Q_BETRAYER]._qvar1 = 2;
 				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 				quests[Q_BETRAYER]._qlog = TRUE;
@@ -697,7 +697,7 @@ void TalkToTowner(int pnum, int tnum)
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE3;
 				quests[Q_DIABLO]._qlog = TRUE;
-				NetSendCmdQuest(true, Q_DIABLO, false);
+				NetSendCmdQuest(Q_DIABLO, false);
 			}
 		}
 		break;
@@ -777,11 +777,11 @@ void TalkToTowner(int pnum, int tnum)
 			break;
 		case QUEST_ACTIVE:
 			if (PlrHasItem(pnum, IDI_GREYSUIT, &i)) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				qt = TEXT_JERSEY7;
 				break;
 			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, true, true);
 				quests[Q_JERSEY]._qactive = QUEST_DONE;
 				qn = Q_JERSEY;
@@ -826,7 +826,7 @@ void TalkToTowner(int pnum, int tnum)
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
 				qt = TEXT_GIRL4;
-				RemoveInvItem(pnum, i);
+				PlrInvItemRemove(pnum, i);
 				SetRndSeed(tw->_tSeed);
 				CreateAmulet(tw->_tx, tw->_ty, true, true);
 				// quests[Q_GIRL]._qlog = FALSE;
@@ -850,7 +850,7 @@ void TalkToTowner(int pnum, int tnum)
 #endif
 	}
 	if (qn != Q_INVALID)
-		NetSendCmdQuest(true, qn, false);
+		NetSendCmdQuest(qn, false);
 	if (qt != TEXT_NONE) {
 		// tw->_tListener = pnum;
 		InitQTextMsg(qt);

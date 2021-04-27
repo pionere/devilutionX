@@ -1981,6 +1981,39 @@ void SyncPlrKill(int pnum, int earflag)
 	StartPlrKill(pnum, earflag);
 }
 
+void SyncPlrResurrect(int pnum)
+{
+	PlayerStruct *p;
+
+	if ((unsigned)pnum >= MAX_PLRS)
+		return;
+
+	p = &plr[pnum];
+	if (p->_pHitPoints >= (1 << 6))
+		return;
+
+	if (pnum == myplr) {
+		gbDeathflag = false;
+		gamemenu_off();
+	}
+
+	ClrPlrPath(pnum);
+	p->destAction = ACTION_NONE;
+	p->_pInvincible = FALSE;
+
+	PlrSetHp(pnum, std::min(10 << 6, p->_pMaxHPBase));
+	PlrSetMana(pnum, 0);
+
+	CalcPlrInv(pnum, true);
+
+	if (p->plrlevel == currLvl._dLevelIdx) {
+		PlacePlayer(pnum);
+		PlrStartStand(pnum, p->_pdir);
+	} else {
+		p->_pmode = PM_STAND;
+	}
+}
+
 void RemovePlrMissiles(int pnum)
 {
 	int i, mi;
@@ -2224,8 +2257,8 @@ static bool WeaponDur(int pnum, int durrnd)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_LEFT);
 			CalcPlrInv(pnum, true);
 			return true;
 		}
@@ -2239,8 +2272,8 @@ static bool WeaponDur(int pnum, int durrnd)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
 			CalcPlrInv(pnum, true);
 			return true;
 		}
@@ -2253,8 +2286,8 @@ static bool WeaponDur(int pnum, int durrnd)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
 			CalcPlrInv(pnum, true);
 			return true;
 		}
@@ -2268,8 +2301,8 @@ static bool WeaponDur(int pnum, int durrnd)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_LEFT);
 			CalcPlrInv(pnum, true);
 			return true;
 		}
@@ -2627,8 +2660,8 @@ static void ShieldDur(int pnum)
 
 		pi->_iDurability--;
 		if (pi->_iDurability == 0) {
-			NetSendCmdDelItem(true, INVLOC_HAND_LEFT);
 			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_LEFT);
 			CalcPlrInv(pnum, true);
 		}
 	}
@@ -2638,8 +2671,8 @@ static void ShieldDur(int pnum)
 		if (pi->_iDurability != DUR_INDESTRUCTIBLE) {
 			pi->_iDurability--;
 			if (pi->_iDurability == 0) {
-				NetSendCmdDelItem(true, INVLOC_HAND_RIGHT);
 				pi->_itype = ITYPE_NONE;
+				NetSendCmdDelItem(INVLOC_HAND_RIGHT);
 				CalcPlrInv(pnum, true);
 			}
 		}
@@ -2740,8 +2773,8 @@ static void ArmorDur(int pnum)
 		return;
 	}
 
-	NetSendCmdDelItem(true, loc);
 	pi->_itype = ITYPE_NONE;
+	NetSendCmdDelItem(loc);
 	CalcPlrInv(pnum, true);
 }
 

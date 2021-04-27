@@ -2530,10 +2530,10 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	return MIRES_DONE;
 }
 
-int AddIdentify(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	assert((unsigned)misource < MAX_PLRS);
-	CheckIdentify(misource, spllvl);
+	if (myplr == misource)
+		NetSendCmdBParam1(true, CMD_DOABILITY, spllvl);
 	return MIRES_DELETE;
 }
 
@@ -2673,29 +2673,6 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		CalcPlrItemVals(misource, true);
 		return MIRES_DONE;
 	}
-}
-#endif
-
-int AddRepair(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	assert((unsigned)misource < MAX_PLRS);
-	DoRepair(misource, spllvl);
-	return MIRES_DELETE;
-}
-
-int AddRecharge(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	assert((unsigned)misource < MAX_PLRS);
-	DoRecharge(misource, spllvl);
-	return MIRES_DELETE;
-}
-
-#ifdef HELLFIRE
-int AddWhittle(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	assert((unsigned)misource < MAX_PLRS);
-	DoWhittle(misource, spllvl);
-	return MIRES_DELETE;
 }
 #endif
 
@@ -2844,38 +2821,9 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	PlayerStruct *tp;
-	int tnum = spllvl;
 
-	assert((unsigned)misource < MAX_PLRS);
-
-	if ((unsigned)tnum >= MAX_PLRS)
-		return MIRES_DELETE;
-
-	tp = &plr[tnum];
-	if (tp->_pHitPoints >= (1 << 6))
-		return MIRES_DELETE;
-
-	if (tnum == myplr) {
-		gbDeathflag = false;
-		gamemenu_off();
-	}
-
-	ClrPlrPath(tnum);
-	tp->destAction = ACTION_NONE;
-	tp->_pInvincible = FALSE;
-
-	PlrSetHp(tnum, std::min(10 << 6, tp->_pMaxHPBase));
-	PlrSetMana(tnum, 0);
-
-	CalcPlrInv(tnum, true);
-
-	if (tp->plrlevel == currLvl._dLevelIdx) {
-		PlacePlayer(tnum);
-		PlrStartStand(tnum, tp->_pdir);
-	} else {
-		tp->_pmode = PM_STAND;
-	}
+	if (spllvl == myplr)
+		NetSendCmd(true, CMD_PLRRESURRECT);
 
 	mis = &missile[mi];
 	mis->_mix = dx;

@@ -2782,7 +2782,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 		    0);
 		quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
-			NetSendCmdQuest(true, Q_SCHAMB, true); // recipient should not matter
+			NetSendCmdQuest(Q_SCHAMB, true); // recipient should not matter
 			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 		}
 	} else if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
@@ -2828,7 +2828,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 			SpawnQuestItemAt(IDI_BLDSTONE, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 17, sendmsg, false);
 		}
 		if (sendmsg) {
-			NetSendCmdQuest(true, qn, true);
+			NetSendCmdQuest(qn, true);
 			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 		}
 	}
@@ -3023,13 +3023,11 @@ static void OperatePedistal(int pnum, int oi, bool sendmsg)
 			return;
 		if (!PlrHasItem(pnum, IDI_BLDSTONE, &iv))
 			return;
-		RemoveInvItem(pnum, iv);
-		if (pnum != myplr)
-			return; // TODO: remove this if the Quest command below is not sent to players on the same level.
 		quests[Q_BLOOD]._qvar1++;
 		if (sendmsg) {
-			// TODO: recipient should be true, but that requires a synced inventory
-			NetSendCmdQuest(true, Q_BLOOD, false);
+			// assert(pnum == myplr);
+			PlrInvItemRemove(pnum, iv);
+			NetSendCmdQuest(Q_BLOOD, false);
 			NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 		}
 	}
@@ -3430,13 +3428,14 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 			if (p->InvGrid[i] == 0) {
 				r = currLvl._dLevel + random_(160, 2 * currLvl._dLevel);
-				pi = &p->InvList[p->_pNumInv]; // check
-				copy_pod(*pi, golditem);
-				pi->_iSeed = GetRndSeed();
+				p->_pGold += r;
+				SetGoldItemValue(&golditem, r);
+				golditem._iSeed = GetRndSeed();
+				cnt = p->_pNumInv;
+				NetSendCmdChItem(&golditem, INVITEM_INV_FIRST + cnt);
+				copy_pod(p->InvList[cnt], golditem);
 				p->_pNumInv++;
 				p->InvGrid[i] = p->_pNumInv;
-				SetGoldItemValue(pi, r);
-				p->_pGold += r;
 			}
 		}
 		if (pnum != myplr)
@@ -3555,7 +3554,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 				r /= 2;
 				if (r == 0) {
 					if (pnum == myplr)
-						NetSendCmdDelItem(true, i);
+						NetSendCmdDelItem(i);
 					pi->_itype = ITYPE_NONE;
 				}
 				else
@@ -3631,7 +3630,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 		//monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
 		quests[Q_ZHAR]._qvar1 = 2;
 		if (sendmsg)
-			NetSendCmdQuest(true, Q_ZHAR, true);
+			NetSendCmdQuest(Q_ZHAR, true);
 	}
 }
 
@@ -3808,13 +3807,13 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 			if (pnum != -1) {
 				quests[Q_NAKRUL]._qvar1 = ProgressUberLever(os->_oVar8, quests[Q_NAKRUL]._qvar1);
 				if (sendmsg)
-					NetSendCmdQuest(true, Q_NAKRUL, true);
+					NetSendCmdQuest(Q_NAKRUL, true);
 			}
 			if (quests[Q_NAKRUL]._qvar1 == 3) {
 				quests[Q_NAKRUL]._qvar1 = 4;
 				quests[Q_NAKRUL]._qactive = QUEST_DONE;
 				if (sendmsg)
-					NetSendCmdQuest(true, Q_NAKRUL, true);
+					NetSendCmdQuest(Q_NAKRUL, true);
 				OpenUberRoom();
 				WakeUberDiablo();
 				return;

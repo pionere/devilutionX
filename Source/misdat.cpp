@@ -76,9 +76,8 @@ const MissileData missiledata[] = {
 	{  MIS_RESURRECT,     &AddResurrect,              &MI_Resurrect,      TRUE,      1,                                0, MISR_NONE,      MFILE_RESSUR1,   SFX_NONE,    LS_RESUR,    1,        1        },
 	{  MIS_TELEKINESIS,   &AddTelekinesis,            &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ETHEREAL, SFX_NONE,    1,        1        },
 	//{  MIS_LARROW,        NULL,                       NULL,               TRUE,      0,                                0, MISR_LIGHTNING, MFILE_LARROW,    SFX_NONE,    SFX_NONE,    1,        1        },
-	{  MIS_IDENTIFY,      &AddIdentify,               &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
-	{  MIS_REPAIR,        &AddRepair,                 &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      IS_REPAIR,   SFX_NONE,    1,        1        },
-	{  MIS_RECHARGE,      &AddRecharge,               &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
+	{  MIS_ABILITY,       &AddAbility,                &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
+	{  MIS_REPAIR,        &AddAbility,                &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      IS_REPAIR,   SFX_NONE,    1,        1        },
 	{  MIS_DISARM,        &AddDisarm,                 &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      LS_TRAPDIS,  SFX_NONE,    1,        1        },
 	{  MIS_FLAMEC,        &AddFlameC,                 &MI_FlameC,         FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_FLAME,         &AddFlame,                  &MI_Flame,          TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_INFERNO,   LS_SPOUTSTR, SFX_NONE,    1,        1        },
@@ -121,7 +120,6 @@ const MissileData missiledata[] = {
 	{  MIS_EXBL2,         &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_EXBL2,     LS_FIRIMP2,  SFX_NONE,    1,        1        },
 	{  MIS_EXBL3,         &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_EXBL3,     LS_FIRIMP2,  SFX_NONE,    1,        1        },
 	{  MIS_EXORA1,        &AddMisexp,                 &MI_Misexp,         TRUE,      2,                                0, MISR_NONE,      MFILE_EXORA1,    LS_FIRIMP2,  SFX_NONE,    1,        1        },
-	{  MIS_WHITTLE,       &AddWhittle,                &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 #endif
 	// clang-format on
 };

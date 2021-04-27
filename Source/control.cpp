@@ -2163,25 +2163,17 @@ void DrawGoldSplit(int amount)
 static void control_remove_gold()
 {
 	ItemStruct *is;
-	int gi, val;
-	int pnum = myplr, gold_index = initialDropGoldIndex;
+	int val;
+	int pnum = myplr, gi = initialDropGoldIndex;
 
-	if (gold_index <= INVITEM_INV_LAST) {
-		gi = gold_index - INVITEM_INV_FIRST;
-		is = &plr[pnum].InvList[gi];
-		val = is->_ivalue - dropGoldValue;
-		if (val > 0)
-			SetGoldItemValue(is, val);
-		else
-			RemoveInvItem(pnum, gi);
+	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
+	is = &plr[pnum].InvList[gi];
+	val = is->_ivalue - dropGoldValue;
+	if (val > 0) {
+		SetGoldItemValue(is, val);
 	} else {
-		gi = gold_index - INVITEM_BELT_FIRST;
-		is = &plr[pnum].SpdList[gi];
-		val = is->_ivalue - dropGoldValue;
-		if (val > 0)
-			SetGoldItemValue(is, val);
-		else
-			RemoveSpdBarItem(pnum, gi);
+		PlrInvItemRemove(pnum, gi);
 	}
 	is = &plr[pnum].HoldItem;
 	CreateBaseItem(is, IDI_GOLD);

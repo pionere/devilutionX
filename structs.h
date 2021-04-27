@@ -989,13 +989,10 @@ typedef struct TCmdChItem {
 	WORD wIndx;
 	WORD wCI;
 	INT dwSeed;
+	BYTE bCh;
+	BYTE bMCh;
 	BOOLEAN bId;
 } TCmdChItem;
-
-typedef struct TCmdDelItem {
-	BYTE bCmd;
-	BYTE bLoc;
-} TCmdDelItem;
 
 typedef struct TCmdPlrInfoHdr {
 	BYTE bCmd;

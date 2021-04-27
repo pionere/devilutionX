@@ -770,9 +770,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 {
 	PlayerStruct* p;
 
-	if (myplr == pnum) {
-		return;
-	}
+	// assert(myplr != pnum);
 	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
 
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {

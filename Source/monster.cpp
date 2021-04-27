@@ -1642,7 +1642,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 
 	quests[Q_DIABLO]._qactive = QUEST_DONE;
 	if (sendmsg)
-		NetSendCmdQuest(true, Q_DIABLO, false); // recipient should not matter
+		NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 	for (i = 0; i < nummonsters; i++) {
 		j = monstactive[i];
 		if (j == mnum)
@@ -1705,7 +1705,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		// quests[Q_DEFILER]._qlog = FALSE;
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
-			NetSendCmdQuest(true, Q_DEFILER, false); // recipient should not matter
+			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
 		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg, false);
 		return;
 	case UMT_NAKRUL:
@@ -1713,7 +1713,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
 		if (sendmsg)
-			NetSendCmdQuest(true, Q_NAKRUL, false); // recipient should not matter
+			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
 		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
 		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);
@@ -4212,7 +4212,7 @@ void MAI_SnotSpil(int mnum)
 		quests[Q_LTBANNER]._qvar1 = 4;
 		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmd(true, CMD_OPENSPIL);
-			NetSendCmdQuest(true, Q_LTBANNER, true);
+			NetSendCmdQuest(Q_LTBANNER, true);
 		}
 		// mon->_msquelch = UCHAR_MAX;
 	case 4:
@@ -4357,7 +4357,7 @@ void MAI_Warlord(int mnum)
 			return;
 		quests[Q_WARLORD]._qvar1 = 1;
 		if (mon->_menemy == myplr || !plr[mon->_menemy].plractive || plr[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
-			NetSendCmdQuest(true, Q_WARLORD, true);
+			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
 		mon->_mListener = mon->_menemy;
@@ -4370,7 +4370,7 @@ void MAI_Warlord(int mnum)
 			return;
 		quests[Q_WARLORD]._qvar1 = 2;
 		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
-			NetSendCmdQuest(true, Q_WARLORD, true);
+			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		// mon->_msquelch = UCHAR_MAX;
 	case 2:
@@ -5158,10 +5158,12 @@ void TalktoMonster(int mnum, int pnum)
 			assert(mon->mtalkmsg == TEXT_BANNER10);
 			quests[Q_LTBANNER]._qvar1 = 1;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_LTBANNER, true);
+				NetSendCmdQuest(Q_LTBANNER, true);
 		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
 			if (PlrHasItem(pnum, IDI_BANNER, &iv)) {
-				RemoveInvItem(pnum, iv);
+				if (pnum == myplr) {
+					PlrInvItemRemove(pnum, iv);
+				}
 				mon->mtalkmsg = TEXT_BANNER12;
 			}
 		} else if (quests[Q_LTBANNER]._qvar1 == 2) {
@@ -5171,7 +5173,7 @@ void TalktoMonster(int mnum, int pnum)
 			// mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_LTBANNER]._qvar1 = 3;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_LTBANNER, true);
+				NetSendCmdQuest(Q_LTBANNER, true);
 		}
 	} else if (mon->_mAi == AI_GARBUD) {
 		assert(quests[Q_GARBUD]._qvar1 < 4);
@@ -5186,7 +5188,7 @@ void TalktoMonster(int mnum, int pnum)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
 		if (pnum == myplr)
-			NetSendCmdQuest(true, Q_GARBUD, true);
+			NetSendCmdQuest(Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
 		assert(QuestStatus(Q_VEIL));
 		assert(mon->mtalkmsg != TEXT_NONE);
@@ -5194,17 +5196,17 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
 			quests[Q_VEIL]._qlog = TRUE;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_VEIL, true);
+				NetSendCmdQuest(Q_VEIL, true);
 		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
-			RemoveInvItem(pnum, iv);
 			mon->mtalkmsg = TEXT_VEIL11;
 			// mon->_mgoal = MGOAL_INQUIRING;
 			//mon->_mVar8 = 0; // init MON_TIMER
-			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
 			quests[Q_VEIL]._qactive = QUEST_DONE;
-			if (pnum == myplr)
-				// TODO: recipient should be true, but that requires a synced inventory
-				NetSendCmdQuest(true, Q_VEIL, false);
+			if (pnum == myplr) {
+				PlrInvItemRemove(pnum, iv);
+				NetSendCmdQuest(Q_VEIL, false);
+			}
+			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
 		}
 	} else if (mon->_mAi == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {
@@ -5212,7 +5214,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_ZHAR]._qvar1 = 1;
 			quests[Q_ZHAR]._qlog = TRUE;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_ZHAR, true);
+				NetSendCmdQuest(Q_ZHAR, true);
 			iv = SPL_SWIPE;
 			if (plr[pnum]._pClass == PC_ROGUE)
 				iv = SPL_POINT_BLANK;
@@ -5225,7 +5227,7 @@ void TalktoMonster(int mnum, int pnum)
 			//mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_ZHAR]._qvar1 = 2;
 			if (pnum == myplr)
-				NetSendCmdQuest(true, Q_ZHAR, true);
+				NetSendCmdQuest(Q_ZHAR, true);
 		}
 	}
 }

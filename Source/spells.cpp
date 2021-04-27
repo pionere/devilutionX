@@ -34,44 +34,23 @@ int GetManaAmount(int pnum, int sn)
 
 void UseMana(int pnum, int sn, int sf)
 {
-	ItemStruct *is;
 	int ma; // mana cost
 
-	if (pnum == myplr) {
-		if (sf == SPLFROM_MANA) {
+	if (pnum != myplr)
+		return;
+
+	if (sf == SPLFROM_MANA) {
 #ifdef _DEBUG
-			if (debug_mode_key_inverted_v)
-				return;
+		if (debug_mode_key_inverted_v)
+			return;
 #endif
-			ma = GetManaAmount(pnum, sn);
-			plr[pnum]._pMana -= ma;
-			plr[pnum]._pManaBase -= ma;
-			plr[pnum]._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr[pnum]._pSkillActivity[sn], UCHAR_MAX);
-			gbRedrawFlags |= REDRAW_MANA_FLASK;
-		} else if (sf != SPLFROM_ABILITY) {
-			static_assert((int)NUM_INVLOC == (int)INVITEM_INV_FIRST, "Equipped items must preceed INV items in UseMana.");
-			static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in UseMana.");
-			if (sf < INVITEM_INV_FIRST) {
-				is = &plr[pnum].InvBody[sf];
-				assert(is->_itype != ITYPE_NONE);
-				assert(is->_iSpell == sn);
-				assert(is->_iCharges > 0);
-				is->_iCharges--;
-				CalcPlrStaff(pnum);
-			} else if (sf < INVITEM_BELT_FIRST) {
-				is = &plr[pnum].InvList[sf - INVITEM_INV_FIRST];
-				assert(is->_itype != ITYPE_NONE);
-				assert(is->_iSpell == sn);
-				assert(is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
-				RemoveInvItem(pnum, sf - INVITEM_INV_FIRST);
-			} else {
-				is = &plr[pnum].SpdList[sf - INVITEM_BELT_FIRST];
-				assert(is->_itype != ITYPE_NONE);
-				assert(is->_iSpell == sn);
-				assert(is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
-				RemoveSpdBarItem(pnum, sf - INVITEM_BELT_FIRST);
-			}
-		}
+		ma = GetManaAmount(pnum, sn);
+		plr[pnum]._pMana -= ma;
+		plr[pnum]._pManaBase -= ma;
+		plr[pnum]._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr[pnum]._pSkillActivity[sn], UCHAR_MAX);
+		gbRedrawFlags |= REDRAW_MANA_FLASK;
+	} else if (sf != SPLFROM_ABILITY) {
+		NetSendCmdBParam1(true, CMD_USEPLRITEM, sf);
 	}
 }
 
@@ -79,26 +58,27 @@ bool HasMana(int pnum, int sn, int sf)
 {
 	ItemStruct *is;
 
-	if (pnum == myplr) {
-		if (sf == SPLFROM_MANA) {
+	if (sf == SPLFROM_MANA) {
+		if (pnum != myplr)
+			return true;
 #ifdef _DEBUG
-			if (debug_mode_key_inverted_v)
-				return true;
+		if (debug_mode_key_inverted_v)
+			return true;
 #endif
-			return plr[pnum]._pMana >= GetManaAmount(pnum, sn);
-		} else if (sf != SPLFROM_ABILITY) {
-			static_assert((int)NUM_INVLOC == (int)INVITEM_INV_FIRST, "Equipped items must preceed INV items in HasMana.");
-			static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in HasMana.");
-			if (sf < INVITEM_INV_FIRST) {
-				is = &plr[pnum].InvBody[sf];
-				return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
-			} else if (sf < INVITEM_BELT_FIRST) {
-				is = &plr[pnum].InvList[sf - INVITEM_INV_FIRST];
-			} else {
-				is = &plr[pnum].SpdList[sf - INVITEM_BELT_FIRST];
-			}
-			return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
+		return plr[pnum]._pMana >= GetManaAmount(pnum, sn);
+	}
+	if (sf != SPLFROM_ABILITY) {
+		static_assert((int)NUM_INVLOC == (int)INVITEM_INV_FIRST, "Equipped items must preceed INV items in HasMana.");
+		static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in HasMana.");
+		if (sf < INVITEM_INV_FIRST) {
+			is = &plr[pnum].InvBody[sf];
+			return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
+		} else if (sf < INVITEM_BELT_FIRST) {
+			is = &plr[pnum].InvList[sf - INVITEM_INV_FIRST];
+		} else {
+			is = &plr[pnum].SpdList[sf - INVITEM_BELT_FIRST];
 		}
+		return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 	}
 	return true;
 }

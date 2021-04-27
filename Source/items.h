@@ -22,7 +22,6 @@ void InitItemGFX();
 void InitItems();
 void CalcPlrItemVals(int pnum, bool Loadgfx);
 void CalcPlrSpells(int pnum);
-void CalcPlrBookVals(int pnum);
 void CalcPlrScrolls(int pnum);
 void CalcPlrStaff(int pnum);
 void ItemStatOk(int pnum, ItemStruct *is);
@@ -55,12 +54,7 @@ void DeleteItem(int ii, int i);
 void ProcessItems();
 void FreeItemGFX();
 void SyncItemAnim(int ii);
-void CheckIdentify(int pnum, int cii);
-void DoRepair(int pnum, int cii);
-void DoRecharge(int pnum, int cii);
-#ifdef HELLFIRE
-void DoWhittle(int pnum, int cii);
-#endif
+void DoAbility(int pnum, int cii);
 void DoOil(int pnum, int from, int cii);
 void PrintItemPower(BYTE plidx, const ItemStruct *is);
 void DrawUniqueInfo();

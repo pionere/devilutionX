@@ -23,8 +23,9 @@ void DrawInvBelt();
 bool AutoPlaceBelt(int pnum, ItemStruct *is, bool saveflag);
 bool AutoPlaceInv(int pnum, ItemStruct *is, bool saveflag);
 bool WeaponAutoPlace(int pnum, ItemStruct *is, bool saveflag);
-void CheckInvSwap(int pnum, BYTE bLoc, int idx, WORD wCI, int seed, bool bId);
-void inv_update_rem_item(int pnum, BYTE iv);
+void SyncPlrItemChange(int pnum, BYTE bLoc, int ii);
+void SyncPlrItemRemove(int pnum, BYTE bLoc);
+void PlrInvItemRemove(int pnum, int iv);
 void RemoveInvItem(int pnum, int iv);
 void RemoveSpdBarItem(int pnum, int iv);
 void CheckInvClick(bool bShift);
@@ -41,7 +42,8 @@ int InvPutItem(int pnum, int x, int y, int ii);
 int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();
-bool UseInvItem(int cii);
+bool InvUseItem(int cii);
+void SyncUseItem(int pnum, int cii);
 void CalculateGold(int pnum);
 
 #ifdef __cplusplus

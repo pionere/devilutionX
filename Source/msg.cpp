@@ -1172,7 +1172,7 @@ void NetSendCmdBParam3(bool bHiPri, BYTE bCmd, BYTE bParam1, BYTE bParam2, BYTE 
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdQuest(bool bHiPri, BYTE q, bool extOnly)
+void NetSendCmdQuest(BYTE q, bool extOnly)
 {
 	TCmdQuest cmd;
 
@@ -1181,10 +1181,8 @@ void NetSendCmdQuest(bool bHiPri, BYTE q, bool extOnly)
 	cmd.qstate = quests[q]._qactive;
 	cmd.qlog = quests[q]._qlog;
 	cmd.qvar1 = quests[q]._qvar1;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
@@ -1283,33 +1281,30 @@ void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdChItem(bool bHiPri, ItemStruct *is, BYTE bLoc)
+void NetSendCmdChItem(ItemStruct *is, BYTE bLoc)
 {
 	TCmdChItem cmd;
 
-	cmd.bCmd = CMD_CHANGEPLRITEMS;
+	cmd.bCmd = CMD_CHANGEPLRITEM;
 	cmd.bLoc = bLoc;
 	cmd.wIndx = is->_iIdx;
 	cmd.wCI = is->_iCreateInfo;
 	cmd.dwSeed = is->_iSeed;
+	cmd.bCh = is->_iCharges;
+	cmd.bMCh = is->_iMaxCharges;
 	cmd.bId = is->_iIdentified;
 
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdDelItem(bool bHiPri, BYTE bLoc)
+void NetSendCmdDelItem(BYTE bLoc)
 {
-	TCmdDelItem cmd;
+	TCmdBParam1 cmd;
 
-	cmd.bLoc = bLoc;
-	cmd.bCmd = CMD_DELPLRITEMS;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+	cmd.bParam1 = bLoc;
+	cmd.bCmd = CMD_DELPLRITEM;
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdDItem(bool bHiPri, int ii)
@@ -1380,17 +1375,6 @@ void NetSendCmdString(unsigned int pmask)
 	cmd.bCmd = CMD_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
 	multi_send_msg_packet(pmask, (BYTE *)&cmd, dwStrLen + 2);
-}
-
-static unsigned On_STRING2(int pnum, TCmd *pCmd)
-{
-	TCmdString *cmd = (TCmdString *)pCmd;
-
-	if (geBufferMsgs == MSG_NORMAL && !(guTeamMute & (1 << pnum))) {
-		SendPlrMsg(pnum, cmd->str);
-	}
-
-	return strlen(cmd->str) + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
 }
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
@@ -1654,7 +1638,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_FARMER]._qvar1 = 2 + pnum;
 		quests[Q_FARMER]._qlog = TRUE;
 		if (pnum == myplr) {
-			// NetSendCmdQuest(true, Q_FARMER, true);
+			// NetSendCmdQuest(Q_FARMER, true);
 			NetSendCmd(false, CMD_OPENHIVE);
 		}
 		return true;
@@ -1664,7 +1648,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 	 && quests[Q_GRAVE]._qactive != QUEST_DONE) {
 		quests[Q_GRAVE]._qactive = QUEST_DONE;
 		if (pnum == myplr) {
-			// NetSendCmdQuest(true, Q_GRAVE, true);
+			// NetSendCmdQuest(Q_GRAVE, true);
 			NetSendCmd(false, CMD_OPENCRYPT);
 		}
 		return true;
@@ -1825,6 +1809,17 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 			plr[pnum].destParam1c = cmd->bParam3; // spllvl
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_DOABILITY(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+		DoAbility(pnum, cmd->bParam1);
 	}
 
 	return sizeof(*cmd);
@@ -2132,6 +2127,19 @@ static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static unsigned On_PLRRESURRECT(TCmd *pCmd, int pnum)
+{
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else {
+		SyncPlrResurrect(pnum);
+		if (pnum == myplr)
+			check_update_plr(pnum);
+	}		
+
+	return sizeof(*pCmd);
+}
+
 static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
@@ -2252,26 +2260,45 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_CHANGEPLRITEMS(TCmd *pCmd, int pnum)
+static unsigned On_CHANGEPLRITEM(TCmd *pCmd, int pnum)
 {
 	TCmdChItem *cmd = (TCmdChItem *)pCmd;
+	ItemStruct *is;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr)
-		CheckInvSwap(pnum, cmd->bLoc, cmd->wIndx, cmd->wCI, cmd->dwSeed, cmd->bId);
+	else if (pnum != myplr) {
+		RecreateItem(cmd->wIndx, cmd->wCI, cmd->dwSeed, 0);
+		is = &items[MAXITEMS];
+		is->_iCharges = cmd->bCh;
+		is->_iMaxCharges = cmd->bMCh;
+		is->_iIdentified = cmd->bId;
+		SyncPlrItemChange(pnum, cmd->bLoc, MAXITEMS);
+	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_DELPLRITEMS(TCmd *pCmd, int pnum)
+static unsigned On_DELPLRITEM(TCmd *pCmd, int pnum)
 {
-	TCmdDelItem *cmd = (TCmdDelItem *)pCmd;
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
-		inv_update_rem_item(pnum, cmd->bLoc);
+		SyncPlrItemRemove(pnum, cmd->bParam1);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
+{
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else // if (pnum != myplr)
+		SyncUseItem(pnum, cmd->bParam1);
 
 	return sizeof(*cmd);
 }
@@ -2318,7 +2345,7 @@ static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, cmd->wBytes + sizeof(*cmd));
-	else
+	else if (pnum != myplr)
 		recv_plrinfo(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
 
 	return cmd->wBytes + sizeof(*cmd);
@@ -2433,7 +2460,13 @@ static unsigned On_RETOWN(TCmd *pCmd, int pnum)
 
 static unsigned On_STRING(TCmd *pCmd, int pnum)
 {
-	return On_STRING2(pnum, pCmd);
+	TCmdString *cmd = (TCmdString *)pCmd;
+
+	if (geBufferMsgs == MSG_NORMAL && !(guTeamMute & (1 << pnum))) {
+		SendPlrMsg(pnum, cmd->str);
+	}
+
+	return strlen(cmd->str) + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
 }
 
 static unsigned On_INVITE(TCmd *pCmd, int pnum)
@@ -2625,13 +2658,6 @@ static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static unsigned On_RESTOREHPVIT(TCmd *pCmd, int pnum)
-{
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
-		RestorePlrHpVit(pnum);
-	return sizeof(*pCmd);
-}
-
 static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
@@ -2720,6 +2746,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_RATTACKXY(pCmd, pnum);
 	case CMD_SPELLXY:
 		return On_SPELLXY(pCmd, pnum);
+	case CMD_DOABILITY:
+		return On_DOABILITY(pCmd, pnum);
 	case CMD_DOOIL:
 		return On_DOOIL(pCmd, pnum);
 	case CMD_OPOBJXY:
@@ -2758,6 +2786,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_MONSTDAMAGE(pCmd, pnum);
 	case CMD_PLRDEAD:
 		return On_PLRDEAD(pCmd, pnum);
+	case CMD_PLRRESURRECT:
+		return On_PLRRESURRECT(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return On_PLRDAMAGE(pCmd, pnum);
 	case CMD_OPERATEOBJ:
@@ -2774,10 +2804,12 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_CHESTCLOSE:
 		return On_CHESTCLOSE(pCmd, pnum);
-	case CMD_CHANGEPLRITEMS:
-		return On_CHANGEPLRITEMS(pCmd, pnum);
-	case CMD_DELPLRITEMS:
-		return On_DELPLRITEMS(pCmd, pnum);
+	case CMD_CHANGEPLRITEM:
+		return On_CHANGEPLRITEM(pCmd, pnum);
+	case CMD_DELPLRITEM:
+		return On_DELPLRITEM(pCmd, pnum);
+	case CMD_USEPLRITEM:
+		return On_USEPLRITEM(pCmd, pnum);
 	case CMD_PLRLEVEL:
 		return On_PLRLEVEL(pCmd, pnum);
 	case CMD_PLRSKILLLVL:
@@ -2821,8 +2853,6 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
-	case CMD_RESTOREHPVIT:
-		return On_RESTOREHPVIT(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
 #ifdef HELLFIRE

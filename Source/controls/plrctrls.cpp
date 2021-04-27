@@ -201,8 +201,8 @@ void FindRangedTarget()
 	int distance = 0;
 	bool canTalk = false;
 
-	// The first MAX_PLRS monsters are reserved for players' golems.
-	for (int mi = MAX_PLRS; mi < MAXMONSTERS; mi++) {
+	// The first MAX_MINIONS monsters are reserved for players' golems.
+	for (int mi = MAX_MINIONS; mi < MAXMONSTERS; mi++) {
 		if (!CanTargetMonster(mi))
 			continue;
 		const bool newCanTalk = CanTalkToMonst(mi);
@@ -1117,7 +1117,7 @@ void UseBeltItem(int type)
 		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (UseInvItem(INVITEM_BELT_FIRST + i))
+			if (InvUseItem(INVITEM_BELT_FIRST + i))
 				break;
 		}
 	}
@@ -1258,7 +1258,7 @@ static void CtrlUseInvItem()
 		return;
 	}
 
-	UseInvItem(pcursinvitem);
+	InvUseItem(pcursinvitem);
 }
 
 void PerformSecondaryAction()
