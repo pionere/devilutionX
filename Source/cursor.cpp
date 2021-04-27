@@ -518,7 +518,7 @@ void CheckCursMove()
 
 	if (!flipflag) {
 		bv = dPlayer[mx + 1][my];
-		if (bv != 0) {
+		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_LIT)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 				cursmx = mx + 1;
@@ -528,7 +528,7 @@ void CheckCursMove()
 		}
 	} else {
 		bv = dPlayer[mx][my + 1];
-		if (bv != 0) {
+		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_LIT)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 				cursmx = mx;
@@ -538,7 +538,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dPlayer[mx][my];
-	if (bv != 0) {
+	if (bv != 0 && (dFlags[mx][my] & BFLAG_LIT)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (bv != myplr) {
 			cursmx = mx;
@@ -546,7 +546,7 @@ void CheckCursMove()
 			pcursplr = bv;
 		}
 	}
-	if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
+	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (plr[i]._px == mx && plr[i]._py == my && i != myplr) {
 				cursmx = mx;
@@ -558,7 +558,7 @@ void CheckCursMove()
 	if (pcurs == CURSOR_RESURRECT) {
 		for (xx = -1; xx <= 1; xx++) {
 			for (yy = -1; yy <= 1; yy++) {
-				if (dFlags[mx + xx][my + yy] & BFLAG_DEAD_PLAYER) {
+				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
 					for (i = 0; i < MAX_PLRS; i++) {
 						if (plr[i]._px == mx + xx && plr[i]._py == my + yy && i != myplr) {
 							cursmx = mx + xx;
@@ -571,7 +571,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dPlayer[mx + 1][my + 1];
-	if (bv != 0) {
+	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_LIT)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (bv != myplr && plr[bv]._pHitPoints >= (1 << 6)) {
 			cursmx = mx + 1;
