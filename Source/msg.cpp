@@ -70,6 +70,8 @@ static void msg_pre_packet()
 				pktSize = sizeof(*cmd);
 			} else {
 				pktSize = ParseCmd(i, (TCmd *)data);
+				if (pktSize == 0)
+					break;
 			}
 			data += pktSize;
 			dataLeft -= pktSize;
@@ -2737,8 +2739,6 @@ static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 unsigned ParseCmd(int pnum, TCmd *pCmd)
 {
 	BYTE sbLastCmd = pCmd->bCmd;
-	if (sgwPackPlrOffsetTbl[pnum] != 0 && sbLastCmd != CMD_ACK_PLRINFO && sbLastCmd != CMD_SEND_PLRINFO)
-		return 0;
 
 	switch (sbLastCmd) {
 	case CMD_SYNCDATA:
