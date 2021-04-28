@@ -1770,9 +1770,9 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
-	mon = &monster[mnum];
 	if (sendmsg)
-		NetSendCmdLocParam2(true, CMD_MONSTDEATH, mon->_mx, mon->_my, mnum, mpnum);
+		NetSendCmdMonstKill(mnum, mpnum);
+	mon = &monster[mnum];
 	mon->_mhitpoints = 0;
 
 	if (mnum >= MAX_MINIONS) {

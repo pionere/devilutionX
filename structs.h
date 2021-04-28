@@ -928,6 +928,16 @@ typedef struct TCmdDwParam3 {
 	DWORD dwParam3;
 } TCmdDwParam3;
 
+typedef struct TCmdMonstKill {
+	BYTE bCmd;
+	WORD mkMnum;
+	BYTE mkLevel;
+	BYTE mkX;
+	BYTE mkY;
+	BYTE mkDir;
+	BYTE mkPnum;
+} TCmdMonstKill;
+
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE _mx;

@@ -491,18 +491,18 @@ void delta_init()
 	deltaload = FALSE;
 }
 
-static void delta_kill_monster(int mnum, BYTE x, BYTE y, BYTE bLevel)
+static void delta_kill_monster(const TCmdMonstKill* mon)
 {
 	DMonsterStr *pD;
 
 	if (gbMaxPlayers == 1)
 		return;
 
-	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevels[bLevel].monster[mnum];
-	pD->_mx = x;
-	pD->_my = y;
-	pD->_mdir = monster[mnum]._mdir;
+	_gbLevelDeltaChanged[mon->mkLevel] = true;
+	pD = &sgLevels[mon->mkLevel].monster[mon->mkMnum];
+	pD->_mx = mon->mkX;
+	pD->_my = mon->mkY;
+	pD->_mdir = mon->mkDir;
 	pD->_mhitpoints = 0;
 }
 
@@ -554,14 +554,15 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	assert(wLen == 0);
 }
 
-static void delta_sync_golem(TCmdGolem *pG, int mnum, BYTE bLevel)
+static void delta_awake_golem(TCmdGolem *pG, int mnum)
 {
 	DMonsterStr *pD;
 
-	assert(gbMaxPlayers != 1);
+	if (gbMaxPlayers == 1)
+		return;
 
-	_gbLevelDeltaChanged[bLevel] = true;
-	pD = &sgLevels[bLevel].monster[mnum];
+	_gbLevelDeltaChanged[pG->_currlevel] = true;
+	pD = &sgLevels[pG->_currlevel].monster[mnum];
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
 	pD->_mactive = UCHAR_MAX;
@@ -581,7 +582,8 @@ static void delta_leave_sync(BYTE bLevel)
 	}
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
-		if (monster[mnum]._mhitpoints != 0) {
+		if (monster[mnum]._mhitpoints != 0
+		 && (mnum >= MAX_MINIONS || !MINION_NR_INACTIVE(mnum))) {
 			_gbLevelDeltaChanged[bLevel] = true;
 			pD = &sgLevels[bLevel].monster[mnum];
 			pD->_menemy = encode_enemy(mnum);
@@ -880,7 +882,8 @@ void DeltaLoadLevel()
 		mstr = sgLevels[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mx != 0xFF) {
-				MonClearSquares(i);
+				if (i >= MAX_MINIONS)
+					MonClearSquares(i);
 				x = mstr->_mx;
 				y = mstr->_my;
 				mon = &monster[i];
@@ -899,8 +902,7 @@ void DeltaLoadLevel()
 					AddDead(i);
 				} else {
 					decode_enemy(i, mstr->_menemy);
-					if (i >= MAX_MINIONS || !(MINION_INACTIVE(mon)))
-						dMonster[mon->_mx][mon->_my] = i + 1;
+					dMonster[mon->_mx][mon->_my] = i + 1;
 					MonStartStand(i, mon->_mdir);
 					mon->_msquelch = mstr->_mactive;
 				}
@@ -987,6 +989,21 @@ void NetSendCmd(bool bHiPri, BYTE bCmd)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdMonstKill(int mnum, int pnum)
+{
+	TCmdMonstKill cmd;
+
+	cmd.bCmd = CMD_MONSTDEATH;
+	cmd.mkMnum = mnum;
+	cmd.mkPnum = pnum;
+	cmd.mkX = monster[mnum]._mx;
+	cmd.mkY = monster[mnum]._my;
+	cmd.mkDir = monster[mnum]._mdir;
+	cmd.mkLevel = plr[pnum].plrlevel;
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
@@ -2080,14 +2097,14 @@ static unsigned On_WARP(TCmd *pCmd, int pnum)
 
 static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 {
-	TCmdLocParam2 *cmd = (TCmdLocParam2 *)pCmd;
+	TCmdMonstKill *cmd = (TCmdMonstKill *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-			MonSyncStartKill(cmd->wParam1, cmd->x, cmd->y, cmd->wParam2);
-		delta_kill_monster(cmd->wParam1, cmd->x, cmd->y, plr[pnum].plrlevel);
+		if (pnum != myplr && currLvl._dLevelIdx == cmd->mkLevel)
+			MonSyncStartKill(cmd->mkMnum, cmd->mkX, cmd->mkY, cmd->mkPnum);
+		delta_kill_monster(cmd);
 	}
 
 	return sizeof(*cmd);
@@ -2099,13 +2116,8 @@ static unsigned On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (pnum != myplr) {
-		if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
-			// BUGFIX: is this even necessary? CMD_SPELLXY should have notified us already...
-			AddMissile(plr[pnum]._px, plr[pnum]._py, cmd->_mx, cmd->_my, cmd->_mdir, MIS_GOLEM, 0, pnum, 0, 0, 1);
-		} else
-			delta_sync_golem(cmd, pnum, cmd->_currlevel);
-	}
+	else
+		delta_awake_golem(cmd, pnum);
 
 	return sizeof(*cmd);
 }
