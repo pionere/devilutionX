@@ -2509,7 +2509,7 @@ static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs != MSG_NORMAL) {
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	} else {
 		guTeamInviteRec &= ~(1 << pnum);
@@ -2546,7 +2546,7 @@ static unsigned On_REV_INVITE(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs != MSG_NORMAL) {
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	} else if (cmd->bParam1 == myplr) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteRec &= ~(1 << pnum);
@@ -2562,7 +2562,7 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 	int teamplr, team;
 
-	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs != MSG_NORMAL) {
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	} else {
 		teamplr = cmd->bParam1;
