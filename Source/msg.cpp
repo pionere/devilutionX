@@ -1835,12 +1835,12 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 
 static unsigned On_DOABILITY(TCmd *pCmd, int pnum)
 {
-	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
+	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) 
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
-		DoAbility(pnum, cmd->bParam1);
+		DoAbility(pnum, cmd->bParam1, cmd->bParam2);
 
 	return sizeof(*cmd);
 }

@@ -77,6 +77,7 @@ const MissileData missiledata[] = {
 	{  MIS_TELEKINESIS,   &AddTelekinesis,            &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_ETHEREAL, SFX_NONE,    1,        1        },
 	//{  MIS_LARROW,        NULL,                       NULL,               TRUE,      0,                                0, MISR_LIGHTNING, MFILE_LARROW,    SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_ABILITY,       &AddAbility,                &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
+	{  MIS_IDENTIFY,      &AddAbility,                &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_REPAIR,        &AddAbility,                &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      IS_REPAIR,   SFX_NONE,    1,        1        },
 	{  MIS_DISARM,        &AddDisarm,                 &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      LS_TRAPDIS,  SFX_NONE,    1,        1        },
 	{  MIS_FLAMEC,        &AddFlameC,                 &MI_FlameC,         FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },

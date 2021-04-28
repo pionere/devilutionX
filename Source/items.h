@@ -54,7 +54,7 @@ void DeleteItem(int ii, int i);
 void ProcessItems();
 void FreeItemGFX();
 void SyncItemAnim(int ii);
-void DoAbility(int pnum, int cii);
+void DoAbility(int pnum, BOOL id, int cii);
 void DoOil(int pnum, int from, int cii);
 void PrintItemPower(BYTE plidx, const ItemStruct *is);
 void DrawUniqueInfo();

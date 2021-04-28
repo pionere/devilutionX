@@ -2761,9 +2761,18 @@ static void RemovePlrItem(int pnum, int cii)
 	}
 }
 
-void DoAbility(int pnum, int cii)
+/*
+ * Do the ability of the player, or identify an item.
+ * @param pnum the id of the player
+ * @param id whether the item should be identified, or the ability of the player used.
+ */
+void DoAbility(int pnum, BOOL id, int cii)
 {
 	// TODO: add to Abilities table in player.cpp?
+	if (id) {
+		DoIdentify(pnum, cii);
+		return;
+	}
 	switch (plr[pnum]._pClass) {
 	case PC_WARRIOR:
 		DoRepair(pnum, cii);

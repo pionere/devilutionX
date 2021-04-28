@@ -2533,7 +2533,7 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (myplr == misource)
-		NetSendCmdBParam1(true, CMD_DOABILITY, spllvl);
+		NetSendCmdBParam2(true, CMD_DOABILITY, missile[mi]._miType == MIS_IDENTIFY ? TRUE : FALSE, spllvl);
 	return MIRES_DELETE;
 }
 
