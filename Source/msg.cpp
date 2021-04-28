@@ -2677,14 +2677,14 @@ static unsigned On_DEBUG(TCmd *pCmd, int pnum)
 
 static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 {
-	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
+	TCmdBParam1 *cmd = (TCmdBParam1*)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
-		plr[pnum]._pManaShield = p->bParam1;
+		plr[pnum]._pManaShield = cmd->bParam1;
 
-	return sizeof(*p);
+	return sizeof(*cmd);
 }
 
 static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
