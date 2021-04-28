@@ -10,8 +10,8 @@ DEVILUTION_BEGIN_NAMESPACE
 WORD monster_dists[MAXMONSTERS];
 WORD monster_prio[MAXMONSTERS];
 int sync_mnum;	// next monster to be synchronized
-int sync_inum;	// next active item to be synchronized
-int sync_pinum;	// next item to be synchronized on the body of the current player
+//int sync_inum;	// next active item to be synchronized
+//int sync_pinum;	// next item to be synchronized on the body of the current player
 
 static void sync_init_monsters()
 {
@@ -94,7 +94,7 @@ static bool sync_prio_monster(TSyncMonster *symon)
 	return true;
 }
 
-static void SyncPlrInv(TSyncHeader *pHdr)
+/*static void SyncPlrInv(TSyncHeader *pHdr)
 {
 	int ii;
 	ItemStruct *is;
@@ -151,7 +151,7 @@ static void SyncPlrInv(TSyncHeader *pHdr)
 	if (sync_pinum >= NUM_INVLOC) {
 		sync_pinum = 0;
 	}
-}
+}*/
 
 DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 {
@@ -173,7 +173,7 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 	pHdr->bCmd = CMD_SYNCDATA;
 	pHdr->bLevel = currLvl._dLevelIdx;
 	pHdr->wLen = 0;
-	SyncPlrInv(pHdr);
+	//SyncPlrInv(pHdr);
 	assert(dwMaxLen <= 0xffff);
 	sync_init_monsters();
 
@@ -243,32 +243,22 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	}
 }
 
-DWORD sync_update(int pnum, const BYTE *pbBuf)
+void sync_update(int pnum, const TSyncHeader *pHdr)
 {
-	TSyncHeader *pHdr;
+	const BYTE *pbBuf;
 	WORD wLen;
 
-	pHdr = (TSyncHeader *)pbBuf;
-	pbBuf += sizeof(*pHdr);
+	pbBuf = (const BYTE *)&pHdr[1];
 
-	if (pHdr->bCmd != CMD_SYNCDATA) {
-		app_fatal("bad sync command");
-	}
-
+	//assert(pHdr->bCmd == CMD_SYNCDATA);
+	//assert(currLvl._dLevelIdx == pHdr->bLevel);
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr) {
-		for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
-			if (currLvl._dLevelIdx == pHdr->bLevel) {
-				sync_monster(pnum, (TSyncMonster *)pbBuf);
-			}
-			delta_sync_monster((TSyncMonster *)pbBuf, pHdr->bLevel);
-			pbBuf += sizeof(TSyncMonster);
-		}
-
-		assert(wLen == 0);
+	//assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr);
+	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+		sync_monster(pnum, (TSyncMonster *)pbBuf);
+		pbBuf += sizeof(TSyncMonster);
 	}
-
-	return pHdr->wLen + sizeof(*pHdr);
+	//assert(wLen == 0);
 }
 
 void sync_init()

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen);
-DWORD sync_update(int pnum, const BYTE *pbBuf);
+void sync_update(int pnum, const TSyncHeader *pbBuf);
 void sync_init();
 
 #ifdef __cplusplus

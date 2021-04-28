@@ -1020,7 +1020,7 @@ typedef struct TSyncHeader {
 	BYTE bCmd;
 	BYTE bLevel;
 	WORD wLen;
-	BYTE bObjId;
+	/*BYTE bObjId;
 	BYTE bObjCmd;
 	BYTE bItemI;
 	BYTE bItemX;
@@ -1047,7 +1047,7 @@ typedef struct TSyncHeader {
 	BYTE bMinMag;
 	BYTE bMinDex;
 	BYTE bAC;
-#endif
+#endif*/
 } TSyncHeader;
 
 typedef struct TSyncMonster {

@@ -522,25 +522,36 @@ static void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 		pD->_mhitpoints = hp;
 }
 
-void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel)
+static void delta_sync_monster(const TSyncHeader *pHdr)
 {
+	DLevel* pDLvl;
 	DMonsterStr *pD;
+	WORD wLen;
+	const TSyncMonster* pSync;
+	const BYTE *pbBuf;
 
 	if (gbMaxPlayers == 1)
 		return;
 
-	/// ASSERT: assert(pSync != NULL);
-	/// ASSERT: assert(bLevel < NUMLEVELS + NUM_SETLVL);
+	/// ASSERT: assert(pHdr->bLevel < NUMLEVELS + NUM_SETLVL);
 
-	pD = &sgLevels[bLevel].monster[pSync->_mndx];
-	if (pD->_mhitpoints == 0)
-		return;
+	_gbLevelDeltaChanged[pHdr->bLevel] = true;
+	pDLvl = &sgLevels[pHdr->bLevel];
 
-	_gbLevelDeltaChanged[bLevel] = true;
-	pD->_mx = pSync->_mx;
-	pD->_my = pSync->_my;
-	pD->_mactive = UCHAR_MAX;
-	pD->_menemy = pSync->_menemy;
+	pbBuf = (const BYTE *)&pHdr[1];
+
+	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+		pSync = (TSyncMonster *)pbBuf;
+		pD = &pDLvl->monster[pSync->_mndx];
+		if (pD->_mhitpoints != 0) {
+			pD->_mx = pSync->_mx;
+			pD->_my = pSync->_my;
+			pD->_mactive = UCHAR_MAX;
+			pD->_menemy = pSync->_menemy;
+		}
+		pbBuf += sizeof(TSyncMonster);
+	}
+	assert(wLen == 0);
 }
 
 static void delta_sync_golem(TCmdGolem *pG, int mnum, BYTE bLevel)
@@ -1418,7 +1429,15 @@ static void msg_errorf(const char *pszFmt, ...)
 
 static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 {
-	return sync_update(pnum, (const BYTE *)pCmd);
+	TSyncHeader *pHdr = (TSyncHeader *)pCmd;
+
+	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr) {
+		if (currLvl._dLevelIdx == pHdr->bLevel)
+			sync_update(pnum, pHdr);
+		delta_sync_monster(pHdr);
+	}
+	return pHdr->wLen + sizeof(*pHdr);
 }
 
 static unsigned On_WALKXY(TCmd *pCmd, int pnum)
