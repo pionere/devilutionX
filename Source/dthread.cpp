@@ -36,13 +36,11 @@ static unsigned int dthread_handler(void *data)
 			if (pkt->dmpPlr != MAX_PLRS)
 				multi_send_zero_packet(pkt->dmpPlr, pkt->dmpCmd, &pkt->data[0], pkt->dmpLen);
 			dwMilliseconds = 1000 * pkt->dmpLen / gdwDeltaBytesSec;
-			if (dwMilliseconds >= 1)
-				dwMilliseconds = 1;
 
 			mem_free_dbg(pkt);
 
 			if (dwMilliseconds != 0)
-				SDL_Delay(dwMilliseconds);
+				SDL_Delay(1);
 		}
 	}
 

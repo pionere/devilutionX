@@ -17,6 +17,7 @@ extern BYTE *pQLogCel;
 extern int ReturnLvlX;
 extern int ReturnLvlY;
 extern int ReturnLvl;
+extern QuestStruct quests[NUM_QUESTS];
 
 void InitQuests();
 void CheckQuests();
