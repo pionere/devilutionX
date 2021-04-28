@@ -759,8 +759,11 @@ if(CPACK)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
     #install(TARGETS ${BIN_TARGET} DESTINATION .)
-    install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
       DESTINATION "."
+      PATTERN "*"
+      EXCLUDE PATTERN "*.lib"
+      EXCLUDE PATTERN "*.h"
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
