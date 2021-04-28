@@ -1837,9 +1837,10 @@ static unsigned On_DOABILITY(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) 
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
 		DoAbility(pnum, cmd->bParam1);
-	}
 
 	return sizeof(*cmd);
 }
@@ -1848,9 +1849,10 @@ static unsigned On_DOOIL(TCmd *pCmd, int pnum)
 {
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) 
+		msg_send_packet(pnum, cmd, sizeof(*cmd));
+	else
 		DoOil(pnum, cmd->bParam1, cmd->bParam2);
-	}
 
 	return sizeof(*cmd);
 }
@@ -2663,7 +2665,9 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *p = (TCmdBParam1*)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else
 		plr[pnum]._pManaShield = p->bParam1;
 
 	return sizeof(*p);
@@ -2671,7 +2675,9 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 
 static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 {
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
+	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+	else
 		plr[pnum]._pManaShield = 0;
 
 	return sizeof(*pCmd);

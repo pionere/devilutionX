@@ -21,7 +21,6 @@ bool msg_wait_resync();
 void run_delta_info();
 void DeltaExportData(int pnum);
 void delta_init();
-void delta_sync_monster(const TSyncMonster *pSync, BYTE bLevel);
 bool delta_portal_inited(int i);
 bool delta_quest_inited(int i);
 void DeltaAddItem(int ii);
