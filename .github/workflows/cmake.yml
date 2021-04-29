@@ -26,7 +26,7 @@ jobs:
   # Windows-builds
   build1:
     needs: build0
-	if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
     name: Nightly-Win
     runs-on: windows-latest
     strategy:
@@ -75,7 +75,7 @@ jobs:
   # Releases
   release:
     needs: [build0, build1]
-	if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
     # x86 builds
