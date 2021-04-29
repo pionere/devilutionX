@@ -10,8 +10,27 @@ env:
   buildDir: '${{ github.workspace }}/build'
 
 jobs:
+  # Check if there was a commit in 24hours
+  build0:
+    runs-on: ubuntu-latest
+    name: Check latest commit
+    outputs:
+      should_run: ${{ steps.should_run.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: print latest_commit
+        run: echo ${{ github.sha }}
+
+      - id: should_run
+        continue-on-error: true
+        name: check latest commit is less than a day
+        if: ${{ github.event_name == 'schedule' }}
+        run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+
   # Windows-builds
   build1:
+    needs: build0
+    if: ${{ needs.build0.outputs.should_run != 'false' }}
     name: Nightly-Win
     runs-on: windows-latest
     strategy:
@@ -76,6 +95,8 @@ jobs:
         name: ${{ matrix.artifact }}
   # Mac-builds
   build2:
+    needs: build0
+    if: ${{ needs.build0.outputs.should_run != 'false' }}
     name: Nightly-Mac
     strategy:
       fail-fast: false
@@ -116,7 +137,8 @@ jobs:
         name: ${{ matrix.artifact }}
   # Releases
   release:
-    needs: [build1, build2]
+    needs: [build0, build1, build2]
+    if: ${{ needs.build0.outputs.should_run != 'false' }}
     runs-on: windows-latest
     steps:
     # x86 builds
@@ -163,9 +185,9 @@ jobs:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
-    - name: Show content of workspace
-      run: find $RUNNER_WORKSPACE
-      shell: bash
+    #- name: Show content of workspace
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
 
     - uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
