@@ -2234,7 +2234,6 @@ static bool PlrDoWalk(int pnum)
 
 static bool WeaponDur(int pnum, int durrnd)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 	if (pnum != myplr) {
 		return false;
@@ -2248,24 +2247,9 @@ static bool WeaponDur(int pnum, int durrnd)
 		return false;
 	}
 
-	p = &plr[pnum];
-	pi = &p->InvBody[INVLOC_HAND_LEFT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return false;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_LEFT);
-			CalcPlrInv(pnum, true);
-			return true;
-		}
-	}
-
-	pi = &p->InvBody[INVLOC_HAND_RIGHT];
-	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON) {
+	// check dual-wield
+	pi = &plr[pnum].InvBody[INVLOC_HAND_RIGHT];
+	if (pi->_itype != ITYPE_NONE && pi->_iClass == ICLASS_WEAPON && random_(3, 2) != 0) {
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
 			return false;
 		}
@@ -2277,24 +2261,13 @@ static bool WeaponDur(int pnum, int durrnd)
 			CalcPlrInv(pnum, true);
 			return true;
 		}
+		return false;
 	}
 
-	if (p->InvBody[INVLOC_HAND_LEFT]._itype == ITYPE_NONE && pi->_itype == ITYPE_SHIELD) {
-		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
-			return false;
-		}
-
-		pi->_iDurability--;
-		if (pi->_iDurability == 0) {
-			pi->_itype = ITYPE_NONE;
-			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
-			CalcPlrInv(pnum, true);
-			return true;
-		}
-	}
-
-	pi = &p->InvBody[INVLOC_HAND_LEFT];
-	if (p->InvBody[INVLOC_HAND_RIGHT]._itype == ITYPE_NONE && pi->_itype == ITYPE_SHIELD) {
+	// check weapon in left hand
+	pi = &plr[pnum].InvBody[INVLOC_HAND_LEFT];
+	if (pi->_itype != ITYPE_NONE) {
+		assert(pi->_iClass == ICLASS_WEAPON);
 		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
 			return false;
 		}
@@ -2303,6 +2276,24 @@ static bool WeaponDur(int pnum, int durrnd)
 		if (pi->_iDurability == 0) {
 			pi->_itype = ITYPE_NONE;
 			NetSendCmdDelItem(INVLOC_HAND_LEFT);
+			CalcPlrInv(pnum, true);
+			return true;
+		}
+		return false;
+	}
+
+	// check armor in right hand if left hand is empty
+	pi = &plr[pnum].InvBody[INVLOC_HAND_RIGHT];
+	if (pi->_itype != ITYPE_NONE) {
+		assert(pi->_itype == ITYPE_SHIELD);
+		if (pi->_iDurability == DUR_INDESTRUCTIBLE) {
+			return false;
+		}
+
+		pi->_iDurability--;
+		if (pi->_iDurability == 0) {
+			pi->_itype = ITYPE_NONE;
+			NetSendCmdDelItem(INVLOC_HAND_RIGHT);
 			CalcPlrInv(pnum, true);
 			return true;
 		}
@@ -2576,7 +2567,7 @@ static bool PlrDoAttack(int pnum)
 					p->_px + offset_x[(dir + 7) % 8], p->_py + offset_y[(dir + 7) % 8]);
 			}
 
-			if (hitcnt != 0 && WeaponDur(pnum, 16 + hitcnt * 16)) {
+			if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
 				PlrStartStand(pnum, dir);
 				ClearPlrPVars(pnum);
 				return true;
