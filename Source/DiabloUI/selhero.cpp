@@ -349,7 +349,7 @@ void SelheroClassSelectorSelect(std::size_t index)
 	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #if defined __3DS__
-	ctr_vkbdInput("Enter Hero name..", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
+	ctr_vkbdInput("Enter Name", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
 #else
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)

@@ -35,6 +35,11 @@ public:
 			return (addr != empty);
 		}
 
+		bool operator==(const endpoint &rhs) const
+		{
+			return addr == rhs.addr;
+		}
+
 		bool operator<(const endpoint &rhs) const
 		{
 			return addr < rhs.addr;
@@ -62,6 +67,7 @@ public:
 	bool send_oob(const endpoint &peer, const buffer_t &data);
 	bool send_oob_mc(const buffer_t &data);
 	bool recv(endpoint &peer, buffer_t &data);
+	bool get_disconnected(endpoint &peer);
 	bool network_online();
 	static std::string make_default_gamename();
 
@@ -76,6 +82,7 @@ private:
 	};
 
 	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
+	std::deque<endpoint> disconnect_queue;
 
 	std::map<endpoint, peer_state> peer_list;
 	int fd_tcp = -1;

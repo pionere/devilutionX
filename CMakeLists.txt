@@ -1,4 +1,11 @@
-cmake_minimum_required(VERSION 3.13) # CMP0083 NEW
+cmake_minimum_required(VERSION 3.13)
+
+if(POLICY CMP0083)
+  cmake_policy(SET CMP0083 NEW)
+endif()
+if(POLICY CMP0111)
+  cmake_policy(SET CMP0111 NEW)
+endif()
 
 include(CMakeDependentOption)
 include(CMake/out_of_tree.cmake)
@@ -175,13 +182,26 @@ if(USE_SDL1)
   find_package(SDL_mixer REQUIRED)
   include_directories(${SDL_INCLUDE_DIR})
 else()
-  if(SWITCH)
-    find_package(SDL2_STATIC CONFIG QUIET)
+  find_package(SDL2 REQUIRED)
+  if(TARGET SDL2::SDL2)
+    set(SDL2_MAIN SDL2::SDL2main)
+  elseif(TARGET SDL2::SDL2-static)
+    # On some distros, such as vitasdk, only the SDL2::SDL2-static target is available.
+    # Alias to SDL2::SDL2 because some finder scripts may refer to SDL2::SDL2.
+    if(CMAKE_VERSION VERSION_LESS "3.18")
+      # Aliasing local targets is not supported on CMake < 3.18, so make it global.
+      set_target_properties(SDL2::SDL2-static PROPERTIES IMPORTED_GLOBAL TRUE)
+    endif()
+    add_library(SDL2::SDL2 ALIAS SDL2::SDL2-static)
+    set(SDL2_MAIN SDL2::SDL2main)
   else()
-    find_package(SDL2 MODULE QUIET)
-  endif()
-  if (NOT SDL2_FOUND)
-    find_package(SDL2 REQUIRED)
+    # Assume an older Debian derivate that comes with an sdl2-config.cmake
+    # that only defines `SDL2_LIBRARIES` (as -lSDL2) and `SDL2_INCLUDE_DIRS`.
+    add_library(SDL2_lib INTERFACE)
+    target_link_libraries(SDL2_lib INTERFACE ${SDL2_LIBRARIES})
+    target_include_directories(SDL2_lib INTERFACE ${SDL2_INCLUDE_DIRS})
+    # Can't define an INTERFACE target with ::, so alias instead
+    add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
   find_package(SDL2_ttf REQUIRED)
   find_package(SDL2_mixer REQUIRED)
@@ -564,7 +584,7 @@ if(USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     SDL2::SDL2
-    SDL2::SDL2main
+    ${SDL2_MAIN}
     SDL2::SDL2_ttf
     SDL2::SDL2_mixer)
 endif()
@@ -585,18 +605,7 @@ endif()
 
 if (VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
-        SceAppMgr_stub
-        SceAudio_stub
-        SceCommonDialog_stub
-        SceCtrl_stub
-        SceDisplay_stub
-        SceGxm_stub
-        SceHid_stub
-        SceIofilemgr_stub
-        SceMotion_stub
         ScePower_stub
-        SceSysmodule_stub
-        SceTouch_stub
         freetype
         png
         m
@@ -669,6 +678,8 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(${BIN_TARGET} PRIVATE "/W0")
+  target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
 endif()
 
 if(APPLE)
@@ -725,6 +736,8 @@ if(VITA)
     FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
     FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
     FILE Packaging/resources/CharisSILB.ttf CharisSILB.ttf
+    FILE Packaging/resources/devilutionx.mpq devilutionx.mpq
+    FILE Packaging/resources/devilx.mpq devilx.mpq
   )
 endif()
 
