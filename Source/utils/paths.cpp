@@ -12,14 +12,14 @@ static std::string *basePath = NULL;
 static std::string *prefPath = NULL;
 static std::string *configPath = NULL;
 
-static void AddTrailingSlash(std::string *path)
+static void AddTrailingSlash(std::string &path)
 {
 #ifdef _WIN32
-	if (!path->empty() && path->back() != '\\')
-		*path += '\\';
+	if (!path.empty() && path.back() != '\\')
+		path += '\\';
 #else
-	if (!path->empty() && path->back() != '/')
-		*path += '/';
+	if (!path.empty() && path.back() != '/')
+		path += '/';
 #endif
 }
 
@@ -37,13 +37,8 @@ static std::string *FromSDL(char *s)
 
 const char* GetBasePath()
 {
-#ifdef __vita__
-	if (basePath == NULL)
-		basePath = new std::string(GetPrefPath());
-#else
 	if (basePath == NULL)
 		basePath = FromSDL(SDL_GetBasePath());
-#endif
 	return basePath->c_str();
 }
 
@@ -66,7 +61,7 @@ void SetBasePath(const char *path)
 	if (basePath == NULL)
 		basePath = new std::string;
 	*basePath = path;
-	AddTrailingSlash(basePath);
+	AddTrailingSlash(*basePath);
 }
 
 void SetPrefPath(const char *path)
@@ -74,7 +69,7 @@ void SetPrefPath(const char *path)
 	if (prefPath == NULL)
 		prefPath = new std::string;
 	*prefPath = path;
-	AddTrailingSlash(prefPath);
+	AddTrailingSlash(*prefPath);
 }
 
 void SetConfigPath(const char *path)
@@ -82,7 +77,7 @@ void SetConfigPath(const char *path)
 	if (configPath == NULL)
 		configPath = new std::string;
 	*configPath = path;
-	AddTrailingSlash(configPath);
+	AddTrailingSlash(*configPath);
 }
 
 DEVILUTION_END_NAMESPACE

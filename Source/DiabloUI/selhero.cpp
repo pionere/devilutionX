@@ -436,7 +436,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
 #if defined __3DS__
-	ctr_vkbdInput("Enter Hero name..", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
+	ctr_vkbdInput("Enter Name", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
 #elif defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)

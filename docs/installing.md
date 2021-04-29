@@ -117,7 +117,7 @@ sudo apt install devilutionx
 
 - Copy [devilutionx-rg350.opk](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-rg350.opk) to `/media/sdcard/APPS/`.
 - Copy the MPQ files to `/media/home/.local/share/diasurgical/devilution/`
-- 
+-
  **NOTE:** You can copy the MPQ files to sdcard instead and create a symlink at the expected location. To do this, SSH into your RG350 and run:
 
  ~~~bash
