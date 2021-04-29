@@ -456,12 +456,13 @@ static void LoadMonster(int mnum)
 	CopyChar(tbuff, &mon->falign_CB); // Alignment
 
 	CopyChar(tbuff, &mon->mLevel);
+	CopyChar(tbuff, &mon->_mSelFlag);
 	CopyChar(tbuff, &mon->_mAi);
 	CopyChar(tbuff, &mon->_mint);
-	CopyChar(tbuff, &mon->mArmorClass);
 
+	CopyChar(tbuff, &mon->mArmorClass);
 	CopyChar(tbuff, &mon->_mEvasion);
-	tbuff += 3; // Alignment
+	tbuff += 2; // Alignment
 
 	CopyChar(tbuff, &mon->mMinDamage);
 	CopyChar(tbuff, &mon->mMaxDamage);
@@ -1147,12 +1148,13 @@ static void SaveMonster(int mnum)
 	CopyChar(&mon->falign_CB, tbuff); // Alignment
 
 	CopyChar(&mon->mLevel, tbuff);
+	CopyChar(&mon->_mSelFlag, tbuff);
 	CopyChar(&mon->_mAi, tbuff);
 	CopyChar(&mon->_mint, tbuff);
-	CopyChar(&mon->mArmorClass, tbuff);
 
+	CopyChar(&mon->mArmorClass, tbuff);
 	CopyChar(&mon->_mEvasion, tbuff);
-	tbuff += 3; // Alignment
+	tbuff += 2; // Alignment
 
 	CopyChar(&mon->mMinDamage, tbuff);
 	CopyChar(&mon->mMaxDamage, tbuff);

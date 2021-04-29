@@ -458,6 +458,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->mName = cmon->cmData->mName;
 	mon->_mFlags = cmon->cmData->mFlags;
 	mon->mLevel = cmon->cmData->mLevel;
+	mon->_mSelFlag = cmon->cmData->mSelFlag;
 	mon->_mAi = cmon->cmData->mAi;
 	mon->_mint = cmon->cmData->mInt;
 	mon->mArmorClass = cmon->cmData->mArmorClass;

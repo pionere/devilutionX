@@ -598,7 +598,7 @@ typedef struct MonsterData {
 	unsigned short mMagicRes;
 	unsigned short mMagicRes2;
 	unsigned short mTreasure;
-	char mSelFlag;
+	BYTE mSelFlag;
 	unsigned short mExp;
 } MonsterData;
 #ifdef X86_32bit_COMP
@@ -677,6 +677,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE leaderflag;
 	BYTE packsize;
 	BYTE mLevel;
+	BYTE _mSelFlag;
 	BYTE _mAi;
 	BYTE _mint;
 	BYTE mArmorClass;
