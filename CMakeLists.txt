@@ -761,8 +761,8 @@ if(CPACK)
     #install(TARGETS ${BIN_TARGET} DESTINATION .)
     install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
       DESTINATION "."
-      PATTERN "*.lib" EXCLUDE
-      PATTERN "*.h" EXCLUDE
+      #PATTERN "*.lib" EXCLUDE
+      #PATTERN "*.h" EXCLUDE
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
