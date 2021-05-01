@@ -603,7 +603,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon = &monster[mnum];
 	mis = &missile[mi];
-	hper = 90 - mon->mArmorClass - mis->_miDist;
+	hper = 90 - mon->_mArmorClass - mis->_miDist;
 	if (random_(68, 100) >= hper && mon->_mmode != MM_STONE)
 #ifdef _DEBUG
 		if (!debug_mode_god_mode)
@@ -648,7 +648,7 @@ static bool MonsterMHit(int mnum, int mi)
 	pnum = mis->_miSource;
 	p = &plr[pnum];
 	if (mis->_miSubType == 0) {
-		tmac = mon->mArmorClass;
+		tmac = mon->_mArmorClass;
 		if (p->_pIEnAc > 0) {
 			int _pIEnAc = p->_pIEnAc - 1;
 			if (_pIEnAc > 0)
@@ -864,16 +864,23 @@ static bool PlayerMHit(int pnum, int mi)
 	mis = &missile[mi];
 	mon = &monster[mis->_miSource];
 	if (mis->_miSubType == 0) {
-		hper = 30 + mon->mHit
+		hper = 30 + mon->_mHit
 		    + (2 * mon->mLevel)
 			- (2 * p->_pLevel)
 		    - p->_pIAC;
 		hper -= mis->_miDist << 1;
 	} else {
-		hper = 40
-			+ (2 * mon->mLevel)
-			- (2 * p->_pLevel)
-			/*- (dist << 1)*/; // TODO: either don't care about it, or set it!
+		if (mis->_miFlags & MIF_AREA) {
+			hper = 40
+				+ (2 * mon->mLevel)
+				- (2 * p->_pLevel);
+		} else {
+			hper = 50 + mon->_mMagic
+				- (2 * p->_pLevel)
+				- p->_pIEvasion
+				/*- dist*/; // TODO: either don't care about it, or set it!
+		}
+
 	}
 
 	if (random_(72, 100) >= hper)
@@ -928,11 +935,11 @@ static bool Plr2PlrMHit(int defp, int mi)
 	} else {
 		if (mis->_miFlags & MIF_AREA) {
 			hper = 40
-				+ (ops->_pLevel << 1)
-				- (dps->_pLevel << 1);
+				+ (2 * ops->_pLevel)
+				- (2 * dps->_pLevel);
 		} else {
 			hper = 50 + ops->_pMagic
-				- (dps->_pLevel << 1)
+				- (2 * dps->_pLevel)
 				- dps->_pIEvasion
 				/*- dist*/; // TODO: either don't care about it, or set it!
 		}
@@ -1602,8 +1609,8 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 				mis->_miVar2 = dy;
 			}
 		} else {
-			mis->_miMinDam = monster[misource].mMinDamage << 6;
-			mis->_miMaxDam = monster[misource].mMaxDamage << 6;
+			mis->_miMinDam = monster[misource]._mMinDamage << 6;
+			mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
 		}
 	} else {
 		mis->_miMinDam = currLvl._dLevel << 6;
@@ -1719,8 +1726,8 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		}
 	} else {
 		av = 26;
-		mindam = monster[misource].mMinDamage;
-		maxdam = monster[misource].mMaxDamage;
+		mindam = monster[misource]._mMinDamage;
+		maxdam = monster[misource]._mMaxDamage;
 	}
 	GetMissileVel(mi, sx, sy, dx, dy, av);
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
@@ -1748,8 +1755,8 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	mis->_mityoff += 3 * mis->_miyvel;
 	GetMissilePos(mi);
 	mis->_miRange = 256;
-	mis->_miMinDam = monster[misource].mMinDamage << 6;
-	mis->_miMaxDam = monster[misource].mMaxDamage << 6;
+	mis->_miMinDam = monster[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -1866,8 +1873,8 @@ int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, char micaster
 		if (i > 50)
 			i = 50;
 	} else {
-		mindam = monster[misource].mMinDamage;
-		maxdam = monster[misource].mMaxDamage;
+		mindam = monster[misource]._mMinDamage;
+		maxdam = monster[misource]._mMaxDamage;
 		i = 16;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
@@ -1894,8 +1901,8 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 			mindam = 1;
 			maxdam = plr[misource]._pMagic + (spllvl << 3);
 		} else {
-			mindam = monster[misource].mMinDamage;
-			maxdam = monster[misource].mMaxDamage;
+			mindam = monster[misource]._mMinDamage;
+			maxdam = monster[misource]._mMaxDamage;
 		}
 	} else {
 		mindam = currLvl._dLevel;
@@ -2290,8 +2297,8 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			PlrDecHp(misource, 320, 0);
 		mis->_miMinDam = mis->_miMaxDam = (plr[misource]._pMagic * (spllvl + 1)) << (-3 + 6);
 	} else {
-		mis->_miMinDam = monster[misource].mMinDamage << 6;
-		mis->_miMaxDam = monster[misource].mMaxDamage << 6;
+		mis->_miMinDam = monster[misource]._mMinDamage << 6;
+		mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
 	}
 	return MIRES_DONE;
 }
@@ -2310,8 +2317,8 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
 	mis->_miRange = 5 * (monster[misource]._mint + 4);
-	mis->_miMinDam = monster[misource].mMinDamage << 6;
-	mis->_miMaxDam = monster[misource].mMaxDamage << 6;
+	mis->_miMinDam = monster[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monster[misource]._mMaxDamage << 6;
 	//mis->_miLid = -1;
 	//PutMissile(mi);
 	return MIRES_DONE;
@@ -2718,8 +2725,8 @@ int AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miMinDam = plr[misource]._pMagic;
 		mis->_miMaxDam = mis->_miMinDam + (spllvl << 4);
 	} else {
-		mis->_miMinDam = monster[misource].mMinDamage << 1;
-		mis->_miMaxDam = monster[misource].mMaxDamage << 1;
+		mis->_miMinDam = monster[misource]._mMinDamage << 1;
+		mis->_miMaxDam = monster[misource]._mMaxDamage << 1;
 	}
 	return MIRES_DONE;
 }

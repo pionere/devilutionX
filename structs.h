@@ -585,10 +585,12 @@ typedef struct MonsterData {
 	int mFlags;
 	BYTE mInt;
 	unsigned short mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	BYTE mMagic;
 	BYTE mAFNum;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	unsigned short mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE mMagic2;     // unused
 	BYTE mAFNum2;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
@@ -680,14 +682,18 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mSelFlag;
 	BYTE _mAi;
 	BYTE _mint;
-	BYTE mArmorClass;
-	BYTE _mEvasion;
-	BYTE mMinDamage;
-	BYTE mMaxDamage;
-	BYTE mMinDamage2;
-	BYTE mMaxDamage2;
-	unsigned short mHit;
-	unsigned short mHit2;
+	unsigned short _mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	BYTE _mMagic;
+	BYTE _mAFNum;
+	BYTE _mMinDamage;
+	BYTE _mMaxDamage;
+	unsigned short _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	BYTE _mMagic2;     // unused
+	BYTE _mAFNum2;
+	BYTE _mMinDamage2;
+	BYTE _mMaxDamage2;
+	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	BYTE _mEvasion;    // evasion: used against magic-projectile
 	unsigned short mMagicRes;
 	unsigned short mExp;
 	int mtalkmsg;
@@ -699,7 +705,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mAnimWidth;
 	int _mAnimXOffset;
 #ifdef X86_32bit_COMP
-	int alignment[9];
+	int alignment[8];
 #endif
 } MonsterStruct;
 

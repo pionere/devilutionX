@@ -461,14 +461,18 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mSelFlag = cmon->cmData->mSelFlag;
 	mon->_mAi = cmon->cmData->mAi;
 	mon->_mint = cmon->cmData->mInt;
-	mon->mArmorClass = cmon->cmData->mArmorClass;
+	mon->_mHit = cmon->cmData->mHit;
+	mon->_mMagic = cmon->cmData->mMagic;
+	mon->_mAFNum = cmon->cmData->mAFNum;
+	mon->_mMinDamage = cmon->cmData->mMinDamage;
+	mon->_mMaxDamage = cmon->cmData->mMaxDamage;
+	mon->_mHit2 = cmon->cmData->mHit2;
+	mon->_mMagic2 = cmon->cmData->mMagic2;
+	mon->_mAFNum2 = cmon->cmData->mAFNum2;
+	mon->_mMinDamage2 = cmon->cmData->mMinDamage2;
+	mon->_mMaxDamage2 = cmon->cmData->mMaxDamage2;
+	mon->_mArmorClass = cmon->cmData->mArmorClass;
 	mon->_mEvasion = cmon->cmData->mEvasion;
-	mon->mMinDamage = cmon->cmData->mMinDamage;
-	mon->mMaxDamage = cmon->cmData->mMaxDamage;
-	mon->mMinDamage2 = cmon->cmData->mMinDamage2;
-	mon->mMaxDamage2 = cmon->cmData->mMaxDamage2;
-	mon->mHit = cmon->cmData->mHit;
-	mon->mHit2 = cmon->cmData->mHit2;
 	mon->mMagicRes = cmon->cmData->mMagicRes;
 	mon->mExp = cmon->cmData->mExp;
 	mon->_mmaxhp = RandRange(cmon->cmData->mMinHP, cmon->cmData->mMaxHP) << 6;
@@ -507,25 +511,29 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
 		mon->mLevel += NIGHTMARE_LEVEL_BONUS;
 		mon->mExp = 2 * (mon->mExp + DIFFICULTY_EXP_BONUS);
-		mon->mHit += NIGHTMARE_TO_HIT_BONUS;
-		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
-		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
-		mon->mHit2 += NIGHTMARE_TO_HIT_BONUS;
-		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
-		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
-		mon->mArmorClass += NIGHTMARE_AC_BONUS;
+		mon->_mHit += NIGHTMARE_TO_HIT_BONUS;
+		mon->_mMagic += NIGHTMARE_MAGIC_BONUS;
+		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
+		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
+		mon->_mHit2 += NIGHTMARE_TO_HIT_BONUS;
+		//mon->_mMagic2 += NIGHTMARE_MAGIC_BONUS;
+		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
+		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
+		mon->_mArmorClass += NIGHTMARE_AC_BONUS;
 		mon->_mEvasion += NIGHTMARE_EVASION_BONUS;
 	} else if (gnDifficulty == DIFF_HELL) {
 		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
 		mon->mLevel += HELL_LEVEL_BONUS;
 		mon->mExp = 4 * (mon->mExp + DIFFICULTY_EXP_BONUS);
-		mon->mHit += HELL_TO_HIT_BONUS;
-		mon->mMinDamage = 4 * mon->mMinDamage + 6;
-		mon->mMaxDamage = 4 * mon->mMaxDamage + 6;
-		mon->mHit2 += HELL_TO_HIT_BONUS;
-		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
-		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
-		mon->mArmorClass += HELL_AC_BONUS;
+		mon->_mHit += HELL_TO_HIT_BONUS;
+		mon->_mMagic += HELL_MAGIC_BONUS;
+		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
+		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
+		mon->_mHit2 += HELL_TO_HIT_BONUS;
+		//mon->_mMagic2 += HELL_MAGIC_BONUS;
+		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
+		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
+		mon->_mArmorClass += HELL_AC_BONUS;
 		mon->_mEvasion += HELL_EVASION_BONUS;
 		mon->mMagicRes = cmon->cmData->mMagicRes2;
 	}
@@ -561,7 +569,7 @@ void WakeUberDiablo()
 	if (!deltaload)
 		PlayEffect(MAX_MINIONS, 2);
 	mon = &monster[MAX_MINIONS];
-	mon->mArmorClass -= 50;
+	mon->_mArmorClass -= 50;
 	//mon->_mEvasion -= 20;
 	mon->mLevel /= 2;
 	mon->mMagicRes = 0;
@@ -784,10 +792,10 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 
 	mon->_mAi = uniqm->mAi;
 	mon->_mint = uniqm->mint;
-	mon->mMinDamage = uniqm->mMinDamage;
-	mon->mMaxDamage = uniqm->mMaxDamage;
-	mon->mMinDamage2 = uniqm->mMinDamage2;
-	mon->mMaxDamage2 = uniqm->mMaxDamage2;
+	mon->_mMinDamage = uniqm->mMinDamage;
+	mon->_mMaxDamage = uniqm->mMaxDamage;
+	mon->_mMinDamage2 = uniqm->mMinDamage2;
+	mon->_mMaxDamage2 = uniqm->mMaxDamage2;
 	mon->mMagicRes = uniqm->mMagicRes;
 	mon->mtalkmsg = uniqm->mtalkmsg;
 	if (mon->mtalkmsg != TEXT_NONE)
@@ -799,39 +807,39 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	mon->_uniqtrans = uniquetrans++;
 
 	if (uniqm->mUnqHit != 0) {
-		mon->mHit = uniqm->mUnqHit;
+		mon->_mHit = uniqm->mUnqHit;
 
 		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->mHit += NIGHTMARE_TO_HIT_BONUS;
+			mon->_mHit += NIGHTMARE_TO_HIT_BONUS;
 		} else if (gnDifficulty == DIFF_HELL) {
-			mon->mHit += HELL_TO_HIT_BONUS;
+			mon->_mHit += HELL_TO_HIT_BONUS;
 		}
-		mon->mHit2 = mon->mHit;
+		mon->_mHit2 = mon->_mHit;
 	}
 	if (uniqm->mUnqAC != 0) {
-		mon->mArmorClass = uniqm->mUnqAC;
+		mon->_mArmorClass = uniqm->mUnqAC;
 
 		if (gnDifficulty == DIFF_NIGHTMARE) {
-			mon->mArmorClass += NIGHTMARE_AC_BONUS;
+			mon->_mArmorClass += NIGHTMARE_AC_BONUS;
 		} else if (gnDifficulty == DIFF_HELL) {
-			mon->mArmorClass += HELL_AC_BONUS;
+			mon->_mArmorClass += HELL_AC_BONUS;
 		}
 	}
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
 		mon->_mmaxhp = 2 * mon->_mmaxhp + (100 << 6);
 		mon->mLevel += NIGHTMARE_LEVEL_BONUS;
-		mon->mMinDamage = 2 * (mon->mMinDamage + 2);
-		mon->mMaxDamage = 2 * (mon->mMaxDamage + 2);
-		mon->mMinDamage2 = 2 * (mon->mMinDamage2 + 2);
-		mon->mMaxDamage2 = 2 * (mon->mMaxDamage2 + 2);
+		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
+		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
+		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
+		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
 	} else if (gnDifficulty == DIFF_HELL) {
 		mon->_mmaxhp = 4 * mon->_mmaxhp + (200 << 6);
 		mon->mLevel += HELL_LEVEL_BONUS;
-		mon->mMinDamage = 4 * mon->mMinDamage + 6;
-		mon->mMaxDamage = 4 * mon->mMaxDamage + 6;
-		mon->mMinDamage2 = 4 * mon->mMinDamage2 + 6;
-		mon->mMaxDamage2 = 4 * mon->mMaxDamage2 + 6;
+		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
+		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
+		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
+		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 	}
 	if (gbMaxPlayers == 1) {
 		mon->_mmaxhp = mon->_mmaxhp >> 1;
@@ -1249,6 +1257,7 @@ static void MonStartDelay(int mnum, int len)
  *
  * Golem: spawning
  * Skeleton: spawning
+ * SkeletonKing: raising a skeleton
 
  * Fallen with spear: taunting
  * Fallen with sword: backflip
@@ -1406,8 +1415,8 @@ static void MonStartRAttack(int mnum, int mitype)
 
 /*
  * Start the special ranged-attacks of monsters.
- * Used by: Thin(STORM), Acid, SkeletonKing, Magma, DemonSkeleton,
- *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat
+ * Used by: Thin(STORM), Acid, Magma, DemonSkeleton,
+ *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat, Torchant
  * Not implemented for Nakrul.
  */
 static void MonStartRSpAttack(int mnum, int mitype)
@@ -2152,17 +2161,17 @@ static bool MonDoAttack(int mnum)
 		dev_fatal("MonDoAttack: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->MData->mAFNum) {
-		MonTryH2HHit(mnum, mon->_menemy, mon->mHit, mon->mMinDamage, mon->mMaxDamage);
+	if (mon->_mAnimFrame == mon->_mAFNum) {
+		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		if (mon->_mAi != AI_SNAKE)
 			PlayEffect(mnum, 0);
 	} else if (mon->_mAi == AI_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
-		MonTryH2HHit(mnum, mon->_menemy, mon->mHit + 10, mon->mMinDamage - 2, mon->mMaxDamage - 2);
+		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
 		PlayEffect(mnum, 0);
 	} else if (mon->_mAi == AI_STORM2 && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
-		MonTryH2HHit(mnum, mon->_menemy, mon->mHit - 20, mon->mMinDamage + 4, mon->mMaxDamage + 4);
+		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
 		PlayEffect(mnum, 0);
 	} else if (mon->_mAi == AI_SNAKE && mon->_mAnimFrame == 1)
 		PlayEffect(mnum, 0);
@@ -2183,7 +2192,7 @@ static bool MonDoRAttack(int mnum)
 		dev_fatal("MonDoRAttack: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->MData->mAFNum) {
+	if (mon->_mAnimFrame == mon->_mAFNum) {
 		AddMissile(
 		    mon->_mx,
 		    mon->_my,
@@ -2215,7 +2224,7 @@ static bool MonDoRSpAttack(int mnum)
 		dev_fatal("MonDoRSpAttack: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->MData->mAFNum2 && mon->_mAnimCnt == 0) {
+	if (mon->_mAnimFrame == mon->_mAFNum2 && mon->_mAnimCnt == 0) {
 		AddMissile(
 		    mon->_mx,
 		    mon->_my,
@@ -2255,8 +2264,8 @@ static bool MonDoSAttack(int mnum)
 		dev_fatal("MonDoSAttack: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->MData->mAFNum2)
-		MonTryH2HHit(mnum, mon->_menemy, mon->mHit2, mon->mMinDamage2, mon->mMaxDamage2);
+	if (mon->_mAnimFrame == mon->_mAFNum2)
+		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		MonStartStand(mnum, mon->_mdir);
@@ -2502,7 +2511,7 @@ static bool MonDoSpStand(int mnum)
 		dev_fatal("MonDoSpStand: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mAnimFrame == mon->MData->mAFNum2)
+	if (mon->_mAnimFrame == mon->_mAFNum2)
 		PlayEffect(mnum, 3);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
@@ -3199,7 +3208,7 @@ void MAI_Fireman(int mnum)
 		return;
 
 	if (abs(xd) < 2 && abs(yd) < 2 && mon->_mgoal == MGOAL_NORMAL) {
-		MonTryH2HHit(mnum, mon->_menemy, mon->mHit, mon->mMinDamage, mon->mMaxDamage);
+		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		mon->_mgoal = MGOAL_RETREAT;
 		if (!MonCallWalk(mnum, OPPOSITE(md))) {
 			MonStartFadein(mnum, md, false);
@@ -4930,7 +4939,7 @@ void MissToMonst(int mi, int x, int y)
 		if (tnum > 0) {
 			tnum--;
 			if (mon->_mType != MT_GLOOM && (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN)) {
-				MonTryH2HHit(mnum, tnum, 500, mon->mMinDamage2, mon->mMaxDamage2);
+				MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 				if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
 					if (plr[tnum]._pmode != PM_GOTHIT && plr[tnum]._pmode != PM_DEATH)
 						StartPlrHit(tnum, 0, true);
@@ -4951,7 +4960,7 @@ void MissToMonst(int mi, int x, int y)
 		if (tnum > 0) {
 			tnum--;
 			if (mon->_mType != MT_GLOOM && (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN)) {
-				MonTryM2MHit(mnum, tnum, 500, mon->mMinDamage2, mon->mMaxDamage2);
+				MonTryM2MHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 				if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
 					newx = oldx + offset_x[mon->_mdir];
 					newy = oldy + offset_y[mon->_mdir];
@@ -5258,13 +5267,13 @@ void SpawnGolum(int mnum, int x, int y, int level)
 	mon->_moldx = x;
 	mon->_moldy = y;
 	mon->_mpathcount = 0;
-	mon->mArmorClass = 25;
+	mon->_mArmorClass = 25;
 	//mon->_mEvasion = 5;
 	mon->_mmaxhp = 2 * (320 * level + plr[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->mHit = 5 * (level + 8) + 2 * plr[mnum]._pLevel;
-	mon->mMinDamage = 2 * (level + 4);
-	mon->mMaxDamage = 2 * (level + 8);
+	mon->_mHit = 5 * (level + 8) + 2 * plr[mnum]._pLevel;
+	mon->_mMinDamage = 2 * (level + 4);
+	mon->_mMaxDamage = 2 * (level + 8);
 	MonStartSpStand(mnum, 0);
 	MonEnemy(mnum);
 	if (mnum == myplr) {

@@ -2320,7 +2320,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	p = &plr[pnum];
 	mon = &monster[mnum];
 
-	tmac = mon->mArmorClass;
+	tmac = mon->_mArmorClass;
 	if (p->_pIEnAc > 0) {
 		int _pIEnAc = p->_pIEnAc - 1;
 		if (_pIEnAc > 0)

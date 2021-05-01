@@ -460,16 +460,22 @@ static void LoadMonster(int mnum)
 	CopyChar(tbuff, &mon->_mAi);
 	CopyChar(tbuff, &mon->_mint);
 
-	CopyChar(tbuff, &mon->mArmorClass);
+	CopyShort(tbuff, &mon->_mHit);
+	CopyChar(tbuff, &mon->_mMagic);
+	CopyChar(tbuff, &mon->_mAFNum);
+	CopyChar(tbuff, &mon->_mMinDamage);
+	CopyChar(tbuff, &mon->_mMaxDamage);
+
+	CopyShort(tbuff, &mon->_mHit2);
+	CopyChar(tbuff, &mon->_mMagic2);
+	CopyChar(tbuff, &mon->_mAFNum2);
+	CopyChar(tbuff, &mon->_mMinDamage2);
+	CopyChar(tbuff, &mon->_mMaxDamage2);
+
+	CopyChar(tbuff, &mon->_mArmorClass);
 	CopyChar(tbuff, &mon->_mEvasion);
 	tbuff += 2; // Alignment
 
-	CopyChar(tbuff, &mon->mMinDamage);
-	CopyChar(tbuff, &mon->mMaxDamage);
-	CopyChar(tbuff, &mon->mMinDamage2);
-	CopyChar(tbuff, &mon->mMaxDamage2);
-	CopyShort(tbuff, &mon->mHit);
-	CopyShort(tbuff, &mon->mHit2);
 	CopyShort(tbuff, &mon->mMagicRes);
 	CopyShort(tbuff, &mon->mExp);
 
@@ -1152,16 +1158,22 @@ static void SaveMonster(int mnum)
 	CopyChar(&mon->_mAi, tbuff);
 	CopyChar(&mon->_mint, tbuff);
 
-	CopyChar(&mon->mArmorClass, tbuff);
+	CopyShort(&mon->_mHit, tbuff);
+	CopyChar(&mon->_mMagic, tbuff);
+	CopyChar(&mon->_mAFNum, tbuff);
+	CopyChar(&mon->_mMinDamage, tbuff);
+	CopyChar(&mon->_mMaxDamage, tbuff);
+
+	CopyShort(&mon->_mHit2, tbuff);
+	CopyChar(&mon->_mMagic2, tbuff);
+	CopyChar(&mon->_mAFNum2, tbuff);
+	CopyChar(&mon->_mMinDamage2, tbuff);
+	CopyChar(&mon->_mMaxDamage2, tbuff);
+
+	CopyChar(&mon->_mArmorClass, tbuff);
 	CopyChar(&mon->_mEvasion, tbuff);
 	tbuff += 2; // Alignment
 
-	CopyChar(&mon->mMinDamage, tbuff);
-	CopyChar(&mon->mMaxDamage, tbuff);
-	CopyChar(&mon->mMinDamage2, tbuff);
-	CopyChar(&mon->mMaxDamage2, tbuff);
-	CopyShort(&mon->mHit, tbuff);
-	CopyShort(&mon->mHit2, tbuff);
 	CopyShort(&mon->mMagicRes, tbuff);
 	CopyShort(&mon->mExp, tbuff);
 
