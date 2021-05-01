@@ -271,6 +271,9 @@
 #define NIGHTMARE_EVASION_BONUS 35
 #define HELL_EVASION_BONUS      50
 
+#define NIGHTMARE_MAGIC_BONUS 35
+#define HELL_MAGIC_BONUS      50
+
 #define IN_DUNGEON_AREA(x, y) \
 	(x >= 0                   \
 	&& x < MAXDUNX            \
