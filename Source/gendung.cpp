@@ -156,6 +156,9 @@ void FillSolidBlockTbls()
 	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
 
+	// dpiece 0 is always black/void -> make it non-passable to reduce the necessary checks
+	nSolidTable[0] = TRUE;
+
 	for (i = 1; i <= dwTiles; i++) {
 		bv = *pTmp++;
 		if (bv & 0x01)
@@ -172,6 +175,13 @@ void FillSolidBlockTbls()
 	}
 
 	mem_free_dbg(pSBFile);
+
+	// patch dSolidTable - L4.SOL
+	if (currLvl._dType == DTYPE_HELL) {
+		nMissileTable[141] = false;
+		nSolidTable[130] = TRUE;
+		nSolidTable[132] = TRUE;
+	}
 }
 
 void SetDungeonMicros(int x1, int y1, int x2, int y2)

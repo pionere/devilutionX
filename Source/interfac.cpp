@@ -297,10 +297,10 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 
+	FillSolidBlockTbls();
 	if (!currLvl._dSetLvl) {
 		CreateLevel(lvldir);
 		IncProgress();
-		FillSolidBlockTbls();
 		if (currLvl._dType != DTYPE_TOWN) {
 			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
@@ -386,8 +386,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitMissileGFX();
 		IncProgress();
 		InitDead();
-		IncProgress();
-		FillSolidBlockTbls();
 		IncProgress();
 
 		if (lvldir == ENTRY_WARPLVL)

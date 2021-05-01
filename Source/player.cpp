@@ -3316,7 +3316,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 {
 	int mpo;
 
-	if (IN_DUNGEON_AREA(x, y) && dPiece[x][y] != 0 && !nSolidTable[dPiece[x][y]]) {
+	if (IN_DUNGEON_AREA(x, y) && /*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]]) {
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
