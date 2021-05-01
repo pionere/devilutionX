@@ -1000,27 +1000,29 @@ static void L1firstRoom()
 	int xs, xe, x;
 
 	if (random_(0, 2) == 0) {
-		ys = 1;
-		ye = DMAXY - 1;
+		// place the main rooms vertically
+		ys = 11; // was 1
+		ye = 29; // was DMAXY - 1;
 
 		VR1 = random_(0, 2);
 		VR2 = random_(0, 2);
 		VR3 = random_(0, 2);
-
+		// make sure there are at least two set
 		if (!(VR1 & VR3))
 			VR2 = TRUE;
+		// draw the selected rooms
 		if (VR1)
 			L1drawRoom(15, 1, 10, 10);
 		else
-			ys = 18;
+			ys = 25; // was 18;
 
 		if (VR2)
 			L1drawRoom(15, 15, 10, 10);
 		if (VR3)
 			L1drawRoom(15, 29, 10, 10);
 		else
-			ye = 22;
-
+			ye = 15; // was 22;
+		// draw a hallway between the rooms
 		for (y = ys; y < ye; y++) {
 			dungeon[17][y] = 1;
 			dungeon[18][y] = 1;
@@ -1029,7 +1031,7 @@ static void L1firstRoom()
 			dungeon[21][y] = 1;
 			dungeon[22][y] = 1;
 		}
-
+		// spread additional rooms starting from the main rooms
 		if (VR1)
 			L1roomGen(15, 1, 10, 10, 0);
 		if (VR2)
@@ -1041,27 +1043,29 @@ static void L1firstRoom()
 		HR2 = FALSE;
 		HR1 = FALSE;
 	} else {
-		xs = 1;
-		xe = DMAXX - 1;
+		// place the main rooms horizontally
+		xs = 11; // was 1
+		xe = 29; // was DMAXX - 1;
 
 		HR1 = random_(0, 2);
 		HR2 = random_(0, 2);
 		HR3 = random_(0, 2);
-
+		// make sure there are at least two set
 		if (!(HR1 & HR3))
 			HR2 = TRUE;
+		// draw the selected rooms
 		if (HR1)
 			L1drawRoom(1, 15, 10, 10);
 		else
-			xs = 18;
+			xs = 25; // was 18;
 
 		if (HR2)
 			L1drawRoom(15, 15, 10, 10);
 		if (HR3)
 			L1drawRoom(29, 15, 10, 10);
 		else
-			xe = 22;
-
+			xe = 15; // was 22;
+		// draw a hallway between the rooms
 		for (x = xs; x < xe; x++) {
 			dungeon[x][17] = 1;
 			dungeon[x][18] = 1;
@@ -1070,7 +1074,7 @@ static void L1firstRoom()
 			dungeon[x][21] = 1;
 			dungeon[x][22] = 1;
 		}
-
+		// spread additional rooms starting from the main rooms
 		if (HR1)
 			L1roomGen(1, 15, 10, 10, 1);
 		if (HR2)
@@ -1636,28 +1640,25 @@ static void L1FillChambers()
 
 	if (HR1)
 		DRLG_L1GChamber(0, 14, FALSE, FALSE, FALSE, TRUE);
-
-	if (HR2) {
+	if (HR2)
 		DRLG_L1GChamber(14, 14, FALSE, FALSE, HR1, HR3);
-	}
-
 	if (HR3)
 		DRLG_L1GChamber(28, 14, FALSE, FALSE, TRUE, FALSE);
+
 	if (HR1 && HR2)
 		DRLG_L1GHall(12, 18, 14, 18);
 	if (HR2 && HR3)
 		DRLG_L1GHall(26, 18, 28, 18);
 	if (HR1 && !HR2 && HR3)
 		DRLG_L1GHall(12, 18, 28, 18);
+
 	if (VR1)
 		DRLG_L1GChamber(14, 0, FALSE, TRUE, FALSE, FALSE);
-
-	if (VR2) {
+	if (VR2)
 		DRLG_L1GChamber(14, 14, VR1, VR3, FALSE, FALSE);
-	}
-
 	if (VR3)
 		DRLG_L1GChamber(14, 28, TRUE, FALSE, FALSE, FALSE);
+
 	if (VR1 && VR2)
 		DRLG_L1GHall(18, 12, 18, 14);
 	if (VR2 && VR3)
