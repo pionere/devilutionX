@@ -877,33 +877,33 @@ static void PlaceQuestMonsters()
 		}
 		if (QuestStatus(Q_LTBANNER)) {
 			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_BLOOD)) {
 			setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_BLIND)) {
 			setp = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_ANVIL)) {
 			setp = LoadFileInMem("Levels\\L3Data\\Anvil.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_WARLORD)) {
 			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && gbMaxPlayers != 1) {
 			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
-			SetMapMonsters(setp, 2 * setpc_x, 2 * setpc_y);
+			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 
 			AddMonsterType(UniqMonst[UMT_LAZURUS].mtype, FALSE);
@@ -915,16 +915,16 @@ static void PlaceQuestMonsters()
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
 			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
-			SetMapMonsters(setp, 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y);
+			SetMapMonsters(setp, DIAB_QUAD_1X, DIAB_QUAD_1Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
-			SetMapMonsters(setp, 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y);
+			SetMapMonsters(setp, DIAB_QUAD_2X, DIAB_QUAD_2Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
-			SetMapMonsters(setp, 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y);
+			SetMapMonsters(setp, DIAB_QUAD_3X, DIAB_QUAD_3Y);
 			mem_free_dbg(setp);
 			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
-			SetMapMonsters(setp, 2 * DIAB_QUAD_4X, 2 * DIAB_QUAD_4Y);
+			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
 #ifdef HELLFIRE
 		} else if (currLvl._dLevelIdx == DLV_CRYPT4) {
@@ -1041,7 +1041,9 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	rh = rh << 1;
 	lm += rw * rh;
 
+	startx *= 2;
 	startx += DBORDERX;
+	starty *= 2;
 	starty += DBORDERY;
 	rw += startx;
 	rh += starty;
