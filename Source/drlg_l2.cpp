@@ -7,6 +7,7 @@
  */
 
 #include "all.h"
+#include <vector>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,9 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #define BASE_MEGATILE_L2 (12 - 1)
 
 /** The number of generated rooms. */
-int nRoomCnt;
-ROOMNODE RoomList[81];
-HALLNODE *pHallList = NULL;
+#define L2_MAXROOMS   81
+std::vector<ROOMHALLNODE>* RoomHallNodes;
 
 #define AREA_MIN 2
 #define ROOM_MAX 10
@@ -1663,6 +1663,17 @@ static void DRLG_L2InitDungeon()
 	memset(pdungeon, 32, sizeof(pdungeon));
 }
 
+static void DRLG_L2AllocateRooms()
+{
+	RoomHallNodes = new std::vector<ROOMHALLNODE>();
+	RoomHallNodes->reserve(L2_MAXROOMS);
+}
+static void DRLG_L2FreeRooms()
+{
+	delete RoomHallNodes;
+	RoomHallNodes = NULL;
+}
+
 static void DRLG_LoadL2SP()
 {
 	pSetPiece = NULL;
@@ -1706,15 +1717,18 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	}
 }
 
-static void DefineRoom(int nX1, int nY1, int nX2, int nY2)
+static void DefineRoom(int parentId, int nX1, int nY1, int nX2, int nY2)
 {
 	int i, j;
+	ROOMHALLNODE room;
 
-	nRoomCnt++;
-	RoomList[nRoomCnt].nRoomx1 = nX1;
-	RoomList[nRoomCnt].nRoomx2 = nX2;
-	RoomList[nRoomCnt].nRoomy1 = nY1;
-	RoomList[nRoomCnt].nRoomy2 = nY2;
+	room.nRoomParent = parentId;
+	room.nRoomx1 = nX1;
+	room.nRoomy1 = nY1;
+	room.nRoomx2 = nX2;
+	room.nRoomy2 = nY2;
+
+	RoomHallNodes->push_back(room);
 
 	pdungeon[nX1][nY1] = 67;
 	pdungeon[nX1][nY2] = 69;
@@ -1756,24 +1770,13 @@ static void PlaceHallExt(int nX, int nY)
 
 static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 {
-	HALLNODE *p1, *p2;
+	ROOMHALLNODE &rhn = RoomHallNodes->back();
 
-	p1 = (HALLNODE *)DiabloAllocPtr(sizeof(*p1));
-	p2 = pHallList;
-	if (p2 == NULL) {
-		pHallList = p1;
-	} else {
-		while (p2->pNext != NULL) {
-			p2 = p2->pNext;
-		}
-		p2->pNext = p1;
-	}
-	p1->nHallx1 = nX1;
-	p1->nHally1 = nY1;
-	p1->nHallx2 = nX2;
-	p1->nHally2 = nY2;
-	p1->nHalldir = nHd;
-	p1->pNext = NULL;
+	rhn.nHallx1 = nX1;
+	rhn.nHally1 = nY1;
+	rhn.nHallx2 = nX2;
+	rhn.nHally2 = nY2;
+	rhn.nHalldir = nHd;
 }
 
 /**
@@ -1782,7 +1785,7 @@ static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
  * @param nY1 Lower Y boundary of the area to draw into.
  * @param nX2 Upper X boundary of the area to draw into.
  * @param nY2 Upper Y boundary of the area to draw into.
- * @param nRDest The room number of the parent room this call was invoked for. Zero for empty
+ * @param nRDest The room number of the parent room this call was invoked for. negative if empty
  * @param nHDir The direction of the hall from nRDest to this room.
  * @param nH Height of the room, if not zero.
  * @param nW Width of the room, if set
@@ -1791,7 +1794,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHw, nHh, nHx1, nHy1, nHx2, nHy2, nRid;
 
-	if (nRoomCnt >= lengthof(RoomList) - 1) {
+	if (RoomHallNodes->size() == L2_MAXROOMS) {
 		return;
 	}
 
@@ -1839,40 +1842,38 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		setpc_x = nRx1 + 2;
 		setpc_y = nRy1 + 2;
 	}
-	DefineRoom(nRx1, nRy1, nRx2, nRy2);
+	DefineRoom(nRDest, nRx1, nRy1, nRx2, nRy2);
 
-	nRid = nRoomCnt;
-	RoomList[nRid].nRoomDest = nRDest;
-
-	if (nRDest != 0) {
+	if (nRDest >= 0) {
+		ROOMHALLNODE &parentRoom = (*RoomHallNodes)[nRDest];
 		switch (nHDir) {
 		case 1:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy1;
-			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
-			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
-			nHy2 = RoomList[nRDest].nRoomy2;
+			nHw = parentRoom.nRoomx2 - parentRoom.nRoomx1 - 2;
+			nHx2 = random_(0, nHw) + parentRoom.nRoomx1 + 1;
+			nHy2 = parentRoom.nRoomy2;
 			break;
 		case 3:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
 			nHy1 = nRy2;
-			nHw = RoomList[nRDest].nRoomx2 - RoomList[nRDest].nRoomx1 - 2;
-			nHx2 = random_(0, nHw) + RoomList[nRDest].nRoomx1 + 1;
-			nHy2 = RoomList[nRDest].nRoomy1;
+			nHw = parentRoom.nRoomx2 - parentRoom.nRoomx1 - 2;
+			nHx2 = random_(0, nHw) + parentRoom.nRoomx1 + 1;
+			nHy2 = parentRoom.nRoomy1;
 			break;
 		case 2:
 			nHx1 = nRx2;
 			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
-			nHx2 = RoomList[nRDest].nRoomx1;
-			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
-			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
+			nHx2 = parentRoom.nRoomx1;
+			nHh = parentRoom.nRoomy2 - parentRoom.nRoomy1 - 2;
+			nHy2 = random_(0, nHh) + parentRoom.nRoomy1 + 1;
 			break;
 		case 4:
 			nHx1 = nRx1;
 			nHy1 = RandRange(nRy1 + 1, nRy2 - 2);
-			nHx2 = RoomList[nRDest].nRoomx2;
-			nHh = RoomList[nRDest].nRoomy2 - RoomList[nRDest].nRoomy1 - 2;
-			nHy2 = random_(0, nHh) + RoomList[nRDest].nRoomy1 + 1;
+			nHx2 = parentRoom.nRoomx2;
+			nHh = parentRoom.nRoomy2 - parentRoom.nRoomy1 - 2;
+			nHy2 = random_(0, nHh) + parentRoom.nRoomy1 + 1;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -1881,6 +1882,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		AddHall(nHx1, nHy1, nHx2, nHy2, nHDir);
 	}
 
+	nRid = RoomHallNodes->size() - 1;
 	if (nRh > nRw) {
 		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, 0, 0);
 		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, 0, 0);
@@ -1892,20 +1894,6 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		CreateRoom(nX1 + 2, nRy1 + 2, nRx1 - 2, nY2 - 2, nRid, 2, 0, 0);
 		CreateRoom(nRx2 + 2, nY1 + 2, nX2 - 2, nRy2 - 2, nRid, 4, 0, 0);
 	}
-}
-
-static void GetHall(int *nX1, int *nY1, int *nX2, int *nY2, int *nHd)
-{
-	HALLNODE *p1;
-
-	p1 = pHallList->pNext;
-	*nX1 = pHallList->nHallx1;
-	*nY1 = pHallList->nHally1;
-	*nX2 = pHallList->nHallx2;
-	*nY2 = pHallList->nHally2;
-	*nHd = pHallList->nHalldir;
-	MemFreeDbg(pHallList);
-	pHallList = p1;
 }
 
 static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
@@ -2498,7 +2486,7 @@ static bool DL2_FillVoids()
 
 static bool DRLG_L2CreateDungeon()
 {
-	int i, j, nHx1, nHy1, nHx2, nHy2, nHd, ForceH, ForceW;
+	int i, j, ForceH, ForceW;
 
 	ForceW = 0;
 	ForceH = 0;
@@ -2508,12 +2496,11 @@ static bool DRLG_L2CreateDungeon()
 		ForceH = pSetPiece[2] + 4;
 	}
 
-	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, 0, 0, ForceH, ForceW);
+	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, 0, ForceH, ForceW);
 
-	while (pHallList != NULL) {
-		GetHall(&nHx1, &nHy1, &nHx2, &nHy2, &nHd);
-		ConnectHall(nHx1, nHy1, nHx2, nHy2, nHd);
-	}
+	for (std::vector<ROOMHALLNODE>::iterator it = RoomHallNodes->begin() + 1; it != RoomHallNodes->end(); it++)
+		ConnectHall(it->nHallx1, it->nHally1, it->nHallx2, it->nHally2, it->nHalldir);
+	RoomHallNodes->clear();
 
 	for (j = 0; j < DMAXY; j++) {     /// BUGFIX: change '<=' to '<' (fixed)
 		for (i = 0; i < DMAXX; i++) { /// BUGFIX: change '<=' to '<' (fixed)
@@ -2814,7 +2801,6 @@ static void DRLG_L2(int entry)
 
 	do {
 		do {
-			nRoomCnt = 0;
 			DRLG_L2InitDungeon();
 		} while (!DRLG_L2CreateDungeon());
 
@@ -3069,8 +3055,10 @@ void CreateL2Dungeon(int entry)
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
 	DRLG_InitSetPC();
 	DRLG_LoadL2SP();
+	DRLG_L2AllocateRooms();
 	DRLG_L2(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
+	DRLG_L2FreeRooms();
 	DRLG_FreeL2SP();
 	DRLG_InitL2Vals();
 	DRLG_SetPC();

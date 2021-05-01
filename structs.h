@@ -1351,22 +1351,18 @@ typedef struct ShadowStruct {
 	unsigned char nv3;
 } ShadowStruct;
 
-typedef struct HALLNODE {
+typedef struct ROOMHALLNODE {
+	int nRoomParent;
+	int nRoomx1;
+	int nRoomy1;
+	int nRoomx2;
+	int nRoomy2;
 	int nHallx1;
 	int nHally1;
 	int nHallx2;
 	int nHally2;
 	int nHalldir;
-	struct HALLNODE *pNext;
-} HALLNODE;
-
-typedef struct ROOMNODE {
-	int nRoomx1;
-	int nRoomy1;
-	int nRoomx2;
-	int nRoomy2;
-	int nRoomDest;
-} ROOMNODE;
+} ROOMHALLNODE;
 
 //////////////////////////////////////////////////
 // themes
