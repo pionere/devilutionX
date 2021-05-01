@@ -187,7 +187,7 @@ void FillSolidBlockTbls()
 void SetDungeonMicros(int x1, int y1, int x2, int y2)
 {
 	int i, x, y, pn, blocks;
-	WORD *pPiece;
+	uint16_t *pPiece;
 	MICROS *pMap;
 
 	MicroTileLen = AllLevels[currLvl._dLevelIdx].dMicroTileLen;
@@ -199,7 +199,7 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 			pMap = &dpiece_defs_map_2[x][y];
 			if (pn != 0) {
 				pn--;
-				pPiece = (WORD *)&pLevelPieces[2 * blocks * pn];
+				pPiece = (uint16_t *)&pLevelPieces[2 * blocks * pn];
 				for (i = 0; i < blocks; i++)
 					pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 			} else {
@@ -281,14 +281,14 @@ void DRLG_PlaceMegaTiles(int lv)
 {
 	int i, j, xx, yy;
 	int v1, v2, v3, v4;
-	WORD *MegaTiles;
+	uint16_t *MegaTiles;
 
 	/*int cursor = 0;
 	char tmpstr[1024];
 	long lvs[] = { 22, 56, 57, 58, 59, 60, 61 };
 	for (i = 0; i < lengthof(lvs); i++) {
 		lv = lvs[i];
-		MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+		MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
 		v1 = SwapLE16(*(MegaTiles + 0)) + 1;
 		v2 = SwapLE16(*(MegaTiles + 1)) + 1;
 		v3 = SwapLE16(*(MegaTiles + 2)) + 1;
@@ -297,7 +297,7 @@ void DRLG_PlaceMegaTiles(int lv)
 	}
 	app_fatal(tmpstr);*/
 
-	MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+	MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
 	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
 	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
 	v3 = SwapLE16(*(MegaTiles + 2)) + 1;
@@ -318,7 +318,7 @@ void DRLG_PlaceMegaTiles(int lv)
 		for (i = 0; i < DMAXX; i++) {
 			lv = dungeon[i][j] - 1;
 			assert(lv >= 0);
-			MegaTiles = (WORD *)&pMegaTiles[lv * 8];
+			MegaTiles = (uint16_t *)&pMegaTiles[lv * 8];
 			v1 = SwapLE16(*(MegaTiles + 0)) + 1;
 			v2 = SwapLE16(*(MegaTiles + 1)) + 1;
 			v3 = SwapLE16(*(MegaTiles + 2)) + 1;

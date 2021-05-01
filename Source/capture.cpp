@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
  * @param out File stream to write to
  * @return True on success
  */
-static bool CaptureHdr(short width, short height, std::ofstream *out)
+static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream *out)
 {
 	PCXHEADER Buffer;
 
@@ -110,7 +110,7 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
  * @param pixels Raw pixel buffer
  * @return True if successful, else false
  */
-static bool CapturePix(WORD width, WORD height, WORD stride, BYTE *pixels, std::ofstream *out)
+static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE *pixels, std::ofstream *out)
 {
 	int i, writeSize;
 	BYTE *pBuffer, *pBufferEnd;

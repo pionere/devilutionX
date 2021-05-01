@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /**
  * Maps from tile_id to automap type.
  */
-WORD automaptype[256];
+uint16_t automaptype[256];
 static int AutoMapX;
 static int AutoMapY;
 /** Specifies whether the automap is enabled. */
@@ -71,7 +71,7 @@ void InitAutomap()
 {
 	DWORD dwTiles;
 	BYTE *pAFile, *pTmp;
-	WORD *lm;
+	uint16_t *lm;
 	DWORD i;
 	const char* mapData;
 
@@ -87,7 +87,7 @@ void InitAutomap()
 	dwTiles /= 2;
 	assert(dwTiles < (DWORD)lengthof(automaptype));
 
-	lm = (WORD*)pAFile;
+	lm = (uint16_t*)pAFile;
 	for (i = 1; i <= dwTiles; i++) {
 		automaptype[i] = SwapLE16(*lm);
 		lm++;
@@ -185,7 +185,7 @@ void AutomapZoomOut()
 /**
  * @brief Renders the given automap shape at the specified screen coordinates.
  */
-static void DrawAutomapTile(int sx, int sy, WORD automap_type)
+static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 {
 	bool do_vert, do_horz, do_cave_horz, do_cave_vert;
 	int x1, y1, x2, y2;
@@ -508,9 +508,9 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-static WORD GetAutomapType(int x, int y, bool view)
+static uint16_t GetAutomapType(int x, int y, bool view)
 {
-	WORD rv;
+	uint16_t rv;
 
 	if (view && x == -1 && y >= 0 && y < DMAXY && automapview[0][y]) {
 		if (GetAutomapType(0, y, false) & MAPFLAG_DIRT) {
@@ -654,7 +654,7 @@ void DrawAutomap()
 		int y;
 
 		for (j = 0; j < cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, true);
+			uint16_t maptype = GetAutomapType(mapx + j, mapy - j, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, sy, maptype);
 			x += AmLine64;
@@ -663,7 +663,7 @@ void DrawAutomap()
 		x = sx - AmLine32;
 		y = sy + AmLine16;
 		for (j = 0; j <= cells; j++) {
-			WORD maptype = GetAutomapType(mapx + j, mapy - j, true);
+			uint16_t maptype = GetAutomapType(mapx + j, mapy - j, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, y, maptype);
 			x += AmLine64;
@@ -691,7 +691,7 @@ void DrawAutomap()
  */
 void SetAutomapView(int x, int y)
 {
-	WORD maptype, solid;
+	uint16_t maptype, solid;
 	int xx, yy;
 
 	xx = (x - DBORDERX) >> 1;

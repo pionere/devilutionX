@@ -194,7 +194,7 @@ __attribute__((no_sanitize("shift-base")))
  *      frameType := block & 0x7000 >> 12
  * @param adt the type of arches to render.
  */
-void RenderTile(BYTE *pBuff, WORD levelCelBlock, _arch_draw_type adt)
+void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 {
 	int i, j;
 	char c, v, tile;

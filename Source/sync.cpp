@@ -246,7 +246,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 void sync_update(int pnum, const TSyncHeader *pHdr)
 {
 	const BYTE *pbBuf;
-	WORD wLen;
+	unsigned wLen;
 
 	pbBuf = (const BYTE *)&pHdr[1];
 

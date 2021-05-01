@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void RenderTile(BYTE *pBuff, WORD levelCelBlock, _arch_draw_type adt);
+void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt);
 void world_draw_black_tile(int sx, int sy);
 void trans_rect(int sx, int sy, int width, int height);
 

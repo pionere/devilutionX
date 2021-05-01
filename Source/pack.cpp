@@ -131,7 +131,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
  */
 void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 {
-	WORD idx = SwapLE16(pis->idx);
+	uint16_t idx = SwapLE16(pis->idx);
 
 	if (idx == 0xFFFF) {
 		is->_itype = ITYPE_NONE;

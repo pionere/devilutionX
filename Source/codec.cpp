@@ -11,10 +11,10 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 typedef struct CodecSignature {
-	DWORD checksum;
+	uint32_t checksum;
 	BYTE error;
 	BYTE last_chunk_size;
-	WORD unused;
+	uint16_t unused;
 } CodecSignature;
 
 static void codec_init_key(const char *pszPassword)
@@ -80,7 +80,7 @@ int codec_decode(BYTE *pbSrcDst, DWORD size, const char *pszPassword)
 	}
 
 	SHA1Result(0, dst);
-	if (sig->checksum != *(DWORD *)dst) {
+	if (sig->checksum != *(uint32_t *)dst) {
 		memset(dst, 0, sizeof(dst));
 		goto error;
 	}
@@ -132,7 +132,7 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, DWORD encodedSize, const char *psz
 	sig = (CodecSignature *)pbSrcDst;
 	sig->error = 0;
 	sig->unused = 0;
-	sig->checksum = *(DWORD *)&tmp[0];
+	sig->checksum = *(uint32_t *)&tmp[0];
 	sig->last_chunk_size = chunk;
 	SHA1Clear();
 }

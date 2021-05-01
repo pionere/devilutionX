@@ -1029,8 +1029,8 @@ void InitMonsters()
 
 void SetMapMonsters(BYTE *pMap, int startx, int starty)
 {
-	WORD rw, rh;
-	WORD *lm;
+	uint16_t rw, rh;
+	uint16_t *lm;
 	int i, j;
 	int mtype;
 
@@ -1039,7 +1039,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
-	lm = (WORD *)pMap;
+	lm = (uint16_t *)pMap;
 	rw = SwapLE16(*lm);
 	lm++;
 	rh = SwapLE16(*lm);

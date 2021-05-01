@@ -2032,7 +2032,7 @@ void ProcessObjects()
 
 void ObjSetMicro(int dx, int dy, int pn)
 {
-	WORD *pPiece;
+	uint16_t *pPiece;
 	MICROS *pMap;
 	int i, blocks;
 
@@ -2040,7 +2040,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 	pn--;
 	pMap = &dpiece_defs_map_2[dx][dy];
 	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-	pPiece = (WORD *)&pLevelPieces[2 * blocks * pn];
+	pPiece = (uint16_t *)&pLevelPieces[2 * blocks * pn];
 	for (i = 0; i < blocks; i++) {
 		pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 	}
@@ -2049,12 +2049,12 @@ void ObjSetMicro(int dx, int dy, int pn)
 static void objects_set_door_piece(int x, int y)
 {
 	int pn;
-	WORD v1, v2;
+	uint16_t v1, v2;
 
 	pn = dPiece[x][y] - 1;
 
-	v1 = *((WORD *)pLevelPieces + 10 * pn + 8);
-	v2 = *((WORD *)pLevelPieces + 10 * pn + 9);
+	v1 = *((uint16_t *)pLevelPieces + 10 * pn + 8);
+	v2 = *((uint16_t *)pLevelPieces + 10 * pn + 9);
 	dpiece_defs_map_2[x][y].mt[0] = SwapLE16(v1);
 	dpiece_defs_map_2[x][y].mt[1] = SwapLE16(v2);
 }
@@ -2063,9 +2063,9 @@ static void ObjSetMini(int x, int y, int v)
 {
 	int xx, yy;
 	long v1, v2, v3, v4;
-	WORD *MegaTiles;
+	uint16_t *MegaTiles;
 
-	MegaTiles = (WORD *)&pMegaTiles[((WORD)v - 1) * 8];
+	MegaTiles = (uint16_t *)&pMegaTiles[(v - 1) * 8];
 	v1 = SwapLE16(*(MegaTiles + 0)) + 1;
 	v2 = SwapLE16(*(MegaTiles + 1)) + 1;
 	v3 = SwapLE16(*(MegaTiles + 2)) + 1;

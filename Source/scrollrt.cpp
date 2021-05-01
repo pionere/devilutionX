@@ -556,7 +556,7 @@ static void DrawObject(int x, int y, int ox, int oy, BOOL pre)
 static void drawCell(int x, int y, int sx, int sy)
 {
 	BYTE *dst;
-	WORD levelCelBlock;
+	uint16_t levelCelBlock;
 	MICROS *pMap;
 
 	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
@@ -587,7 +587,7 @@ static void drawCell(int x, int y, int sx, int sy)
 static void drawFloor(int x, int y, int sx, int sy)
 {
 	BYTE *dst;
-	WORD levelCelBlock;
+	uint16_t levelCelBlock;
 	MICROS *pMap;
 
 	gbCelTransparencyActive = false;
