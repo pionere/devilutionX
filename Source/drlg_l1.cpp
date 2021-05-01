@@ -2007,8 +2007,8 @@ static void DRLG_L1DirtFix()
 	BYTE bv;
 
 	if (currLvl._dType == DTYPE_CRYPT) {
-		for (j = 0; j < DMAXY - 1; j++) {
-			for (i = 0; i < DMAXX - 1; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			for (i = 0; i < DMAXX; i++) {
 				switch (dungeon[i][j]) {
 				case 18: bv = 82; break;
 				case 19: bv = 83; break;
