@@ -12,31 +12,31 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
 bool gbSomebodyWonGameKludge;
-TBuffer sgHiPriBuf;
-WORD sgwPackPlrOffsetTbl[MAX_PLRS];
-PkPlayerStruct netplr[MAX_PLRS];
-bool gbJoinGame;
-bool sgbPlayerLeftGameTbl[MAX_PLRS];
-DWORD sgbSentThisCycle;
-bool gbShouldValidatePackage;
+static TBuffer sgHiPriBuf;
+static TBuffer sgLoPriBuf;
+static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
+static PkPlayerStruct netplr[MAX_PLRS];
+static bool gbJoinGame;
+static bool sgbPlayerLeftGameTbl[MAX_PLRS];
+static DWORD sgbSentThisCycle;
+static bool gbShouldValidatePackage;
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
-BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
-_SNETGAMEDATA sgGameInitInfo;
+static BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
+static _SNETGAMEDATA sgGameInitInfo;
 bool gbSelectProvider;
 bool gbSelectHero;
-int sglTimeoutStart;
-int sgdwPlayerLeftReasonTbl[MAX_PLRS];
-TBuffer sgLoPriBuf;
-DWORD sgdwGameLoops;
+static int sglTimeoutStart;
+static int sgdwPlayerLeftReasonTbl[MAX_PLRS];
+static DWORD sgdwGameLoops;
 /**
  * Specifies the maximum number of players in a game, where 1
  * represents a single player game and 4 represents a multi player game.
  */
 BYTE gbMaxPlayers;
-bool _gbTimeout;
+static bool _gbTimeout;
 BYTE gbDeltaSender;
-bool _gbNetInited;
+static bool _gbNetInited;
 const char *szGameName;
 const char *szGamePassword;
 unsigned player_state[MAX_PLRS];
@@ -300,7 +300,7 @@ static void multi_clear_left_tbl()
 
 void multi_player_left(int pnum, int reason)
 {
-	sgbPlayerLeftGameTbl[pnum] = TRUE;
+	sgbPlayerLeftGameTbl[pnum] = true;
 	sgdwPlayerLeftReasonTbl[pnum] = reason;
 	multi_clear_left_tbl();
 }

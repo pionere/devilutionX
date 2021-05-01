@@ -1940,7 +1940,7 @@ static void DRLG_L1TransFix()
 
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
-			/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
+			/ commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
 			case 18:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);

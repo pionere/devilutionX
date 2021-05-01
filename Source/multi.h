@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 extern bool gbSomebodyWonGameKludge;
-extern WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 extern BYTE gbActivePlayers;
 extern bool gbGameDestroyed;
 extern bool gbSelectProvider;
