@@ -121,8 +121,10 @@ static bool CapturePix(WORD width, WORD height, WORD stride, BYTE *pixels, std::
 		pixels += stride;
 		writeSize = pBufferEnd - pBuffer;
 		out->write(reinterpret_cast<const char *>(pBuffer), writeSize);
-		if (out->fail())
+		if (out->fail()) {
+			mem_free_dbg(pBuffer);
 			return false;
+		}
 	}
 	mem_free_dbg(pBuffer);
 	return true;

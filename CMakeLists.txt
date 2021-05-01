@@ -43,9 +43,11 @@ if(NIGHTLY_BUILD OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   set(CPACK ON)
 endif()
 
-option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
-cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                       "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+if(NOT NONET)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
+                        "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+endif()
 
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
@@ -365,7 +367,6 @@ if(NOT NONET)
     Source/dvlnet/tcp_client.cpp
     Source/dvlnet/tcp_server.cpp
     Source/dvlnet/protocol_zt.cpp
-    Source/dvlnet/base_protocol.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
 endif()
