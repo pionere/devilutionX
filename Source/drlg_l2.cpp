@@ -2557,6 +2557,7 @@ static bool DRLG_L2CreateDungeon()
 
 static void DRLG_L2TransFix()
 {
+	/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
 	int i, j, xx, yy;
 
 	yy = DBORDERY;
@@ -2593,7 +2594,7 @@ static void DRLG_L2TransFix()
 			xx += 2;
 		}
 		yy += 2;
-	}
+	}*/
 }
 
 static void L2DirtFix()
@@ -2815,7 +2816,6 @@ static void DRLG_L2(int entry)
 		do {
 			nRoomCnt = 0;
 			DRLG_L2InitDungeon();
-			DRLG_InitTrans();
 		} while (!DRLG_L2CreateDungeon());
 
 		DRLG_L2MakeMegas();
@@ -2824,8 +2824,6 @@ static void DRLG_L2(int entry)
 		if (pSetPiece != NULL) {
 			DRLG_L2SetRoom(setpc_x, setpc_y);
 		}
-		DRLG_FloodTVal(3);
-		DRLG_L2TransFix();
 
 		mini_set stairs[3] = {
 				{ L2USTAIRS, entry == ENTRY_MAIN },
@@ -2845,6 +2843,10 @@ static void DRLG_L2(int entry)
 	L2LockoutFix();
 	L2DoorFix();
 	L2DirtFix();
+
+	DRLG_InitTrans();
+	DRLG_FloodTVal(3);
+	DRLG_L2TransFix();
 
 	DRLG_PlaceThemeRooms(6, 10, 3, 0, false);
 
@@ -3038,10 +3040,10 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 
 	pLevelMap = LoadL2DungeonData(sFileName);
 
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-
 	DRLG_InitTrans();
+	DRLG_FloodTVal(3);
 	DRLG_Init_Globals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_InitL2Vals();
 
 	SetMapMonsters(pLevelMap, 0, 0);

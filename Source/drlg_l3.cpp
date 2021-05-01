@@ -1060,6 +1060,37 @@ static void DRLG_L3MakeMegas()
 		dungeon[i][DMAXY - 1] = 8;
 }
 
+static void DRLG_L3FloodTVal()
+{
+	//const POS32 offs[12] = { { 0, -1}, { 1, -1 },
+	//	{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 2, 0 },
+	//	{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 2, 1 },
+	//	{ 0, 2 }, { 1, 2 } };
+	//const BYTE L3ConvTbl[16] =     { 8, 11,  3, 10,  1,  9, 12, 12,  6, 13,  4, 13,  2, 14,  5,  7 };
+	//                                 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+	//const BYTE L3BackConvTbl[16] = { 0, 10,  3, 12,  5, 15,  1, 15,  0, 10, 12,  8, 15, 15, 15,  0 };
+	//int i, j, k;
+	int i, j;
+
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			/*if (dungeon[i][j] == 7) {
+				for (k = 0; k < lengthof(offs); k++)
+					dTransVal[DBORDERX + i * 2 + offs[k].x][DBORDERY + j * 2 + offs[k].y] = 1;
+			}*/
+			if (dungeon[i][j] != 8) {
+				dTransVal[DBORDERX + i * 2 + 0][DBORDERY + j * 2 + 0] = 1;
+				dTransVal[DBORDERX + i * 2 + 1][DBORDERY + j * 2 + 0] = 1;
+				dTransVal[DBORDERX + i * 2 + 0][DBORDERY + j * 2 + 1] = 1;
+				dTransVal[DBORDERX + i * 2 + 1][DBORDERY + j * 2 + 1] = 1;
+			}
+		}
+	}
+
+	assert(TransVal == 1);
+	TransVal = 2;
+}
+
 static void DRLG_L3River()
 {
 	int rx, ry, px, py, dir, pdir, nodir, nodir2, dircheck;
@@ -2047,6 +2078,8 @@ static void DRLG_L3(int entry)
 	DRLG_L3PlaceRndSet(L3ISLE2, 100);
 	DRLG_L3PlaceRndSet(L3ISLE5, 90);
 
+	DRLG_InitTrans();
+	DRLG_L3FloodTVal();
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
 		/** Miniset: Use random external connection 1. */
@@ -2127,6 +2160,9 @@ static void DRLG_L3(int entry)
 			if (dungeon[setpc_x + 10][setpc_y + 5] == 17 || dungeon[setpc_x + 10][setpc_y + 5] == 18) {
 				dungeon[setpc_x + 10][setpc_y + 5] = 45;
 			}
+			dTransVal[DBORDERX + (setpc_x + 7) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
+			dTransVal[DBORDERX + (setpc_x + 8) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
+			dTransVal[DBORDERX + (setpc_x + 9) * 2][DBORDERY + (setpc_y + 5) * 2] = 1;
 		}
 		DRLG_PlaceThemeRooms(5, 10, 7, 0, false);
 
@@ -2201,7 +2237,6 @@ static void DRLG_L3LightTiles()
 
 void CreateL3Dungeon(int entry)
 {
-	DRLG_InitTrans();
 	DRLG_InitSetPC();
 	DRLG_LoadL3SP();
 	DRLG_L3(entry);
@@ -2218,7 +2253,6 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 
 	InitL3Dungeon();
 
-	//DRLG_InitTrans();
 	pLevelMap = LoadFileInMem(sFileName, NULL);
 
 	lm = pLevelMap;
@@ -2254,10 +2288,10 @@ void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 
 	pLevelMap = LoadL3DungeonData(sFileName);
 
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-
 	DRLG_InitTrans();
+	DRLG_L3FloodTVal();
 	DRLG_Init_Globals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 
 	SetMapMonsters(pLevelMap, 0, 0);
 	SetMapObjects(pLevelMap);

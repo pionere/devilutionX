@@ -247,13 +247,28 @@ static void DrawButcher()
 	assert(setpc_h == 6);
 	x = 2 * setpc_x + DBORDERX;
 	y = 2 * setpc_y + DBORDERY;
+	// fix transVal on the bottom left corner of the room
+	DRLG_CopyTrans(x, y + 9, x + 1, y + 9);
+	DRLG_CopyTrans(x, y + 10, x + 1, y + 10);
+	// set transVal in the room
 	DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);
 }
 
 static void DrawSkelKing()
 {
-	quests[Q_SKELKING]._qtx = 2 * setpc_x + DBORDERX + 12;
-	quests[Q_SKELKING]._qty = 2 * setpc_y + DBORDERY + 7;
+	int x, y;
+
+	x = 2 * setpc_x + DBORDERX;
+	y = 2 * setpc_y + DBORDERY;
+	// fix transVal on the bottom left corner of the box
+	DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
+	DRLG_CopyTrans(x, y + 12, x + 1, y + 12);
+	// fix transVal at the entrance
+	DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
+	DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
+
+	quests[Q_SKELKING]._qtx = x + 12;
+	quests[Q_SKELKING]._qty = y + 7;
 }
 
 static void DrawMap(const char* name, int bv)

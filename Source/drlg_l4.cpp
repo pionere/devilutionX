@@ -382,7 +382,7 @@ static void L4VertWall(int i, int j, int dy)
 	yy = RandRange(1, dy - 3);
 	dungeon[i][j + yy] = 53;
 	dungeon[i][j + yy + 2] = 52;
-	dungeon[i][j + yy + 1] = 6;
+	dungeon[i][j + yy + 1] = 60;
 
 	if (dungeon[i - 1][j + yy] == 6) {
 		dungeon[i - 1][j + yy] = 54;
@@ -1294,55 +1294,461 @@ static void DRLG_LoadDiabQuads(bool preflag)
 	MemFreeDbg(pSetPiece);
 }
 
-static bool IsDURWall(BYTE dd)
-{
-	return dd == 25 || dd == 28 || dd == 23;
-}
-
-static bool IsDLLWall(BYTE dd)
-{
-	return dd == 27 || dd == 26 || dd == 22;
-}
-
 static void DRLG_L4TransFix()
 {
 	int i, j, xx, yy;
+	BYTE tv;
 
 	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
-			if (IsDURWall(dungeon[i][j])) {
+			switch (dungeon[i][j]) {
+			/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
+			case 23:
+			case 25:
+			case 28:
 				if (dungeon[i][j - 1] == 18) {
 					DRLG_CopyTrans(xx, yy, xx + 1, yy);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
-			} else if (IsDLLWall(dungeon[i][j])) {
+				break;
+			case 22:
+			case 26:
+			case 27:
 				if (dungeon[i + 1][j] == 19) {
 					DRLG_CopyTrans(xx, yy, xx, yy + 1);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
-			} else if (dungeon[i][j] == 18) {
+				break;
+			case 18:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-			} else if (dungeon[i][j] == 19) {
+				break;
+			case 19:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-			} else if (dungeon[i][j] == 24) {
+				break;
+			case 24:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-			} else if (dungeon[i][j] == 57) {
-				DRLG_CopyTrans(xx, yy + 1, xx - 1, yy);
-				DRLG_CopyTrans(xx, yy + 1, xx, yy);
-			} else if (dungeon[i][j] == 53) {
-				DRLG_CopyTrans(xx + 1, yy, xx, yy - 1);
+				break;*/
+			// fix transVals of 'doors'
+			case 52:
+				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
+				break;
+			case 53:
 				DRLG_CopyTrans(xx + 1, yy, xx, yy);
+				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy + 1);
+				break;
+			case 56:
+				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
+				break;
+			case 57:
+				DRLG_CopyTrans(xx, yy + 1, xx + 1, yy);
+				break;
+			case 60:
+				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
+				DRLG_CopyTrans(xx + 1, yy + 1, xx + 1, yy);
+				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy + 1);
+				break;
+			case 54:
+				tv = dTransVal[xx][yy];
+				if (tv != 0 && dTransVal[xx][yy + 1] == tv) {
+					// the tile has a valid tv - use it
+					dTransVal[xx + 1][yy] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the south side - in case the tile is in the corner
+					if (dTransVal[xx + 1][yy + 2] == 0)
+						dTransVal[xx + 1][yy + 2] = tv;
+					// fix the wall on the north side - in case 55 is not placed
+					if (dTransVal[xx + 1][yy - 1] == 0)
+						dTransVal[xx + 1][yy - 1] = tv;
+					break;
+				}
+				tv = dTransVal[xx][yy + 1];
+				if (tv != 0) {
+					// there is a valid tv on the south side - use it
+					dTransVal[xx][yy] = tv;
+					dTransVal[xx + 1][yy] = tv;
+					// fix the wall on the west side
+					if (dTransVal[xx - 1][yy] == 0)
+						dTransVal[xx - 1][yy] = tv;
+					if (dTransVal[xx - 1][yy + 1] == 0)
+						dTransVal[xx - 1][yy + 1] = tv;
+					// fix the wall on the east side
+					if (dTransVal[xx + 2][yy] == 0)
+						dTransVal[xx + 2][yy] = tv;
+					if (dTransVal[xx + 2][yy + 1] == 0)
+						dTransVal[xx + 2][yy + 1] = tv;
+					// fix the wall on the north side - in case 55 is not placed
+					if (dTransVal[xx][yy - 1] == 0)
+						dTransVal[xx][yy - 1] = tv;
+					if (dTransVal[xx + 1][yy - 1] == 0)
+						dTransVal[xx + 1][yy - 1] = tv;
+					break;
+				}
+				// no valid tv on the south side -> there must be a one on the north side
+				tv = dTransVal[xx][yy - 3];
+				assert(tv != 0);
+				// use it on the current tile
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix the wall on the south side
+				assert(dTransVal[xx][yy + 2] == 0);
+				dTransVal[xx][yy + 2] = tv;
+				assert(dTransVal[xx + 1][yy + 2] == 0);
+				dTransVal[xx + 1][yy + 2] = tv;
+				// fix the wall on the west side
+				if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				// fix the corner on south-west
+				if (dTransVal[xx - 1][yy + 2] == 0)
+					dTransVal[xx - 1][yy + 2] = tv;
+				// fix the wall on the east side
+				if (dTransVal[xx + 2][yy] == 0)
+					dTransVal[xx + 2][yy] = tv;
+				if (dTransVal[xx + 2][yy + 1] == 0)
+					dTransVal[xx + 2][yy + 1] = tv;
+				// fix the corner on south-east
+				if (dTransVal[xx + 2][yy + 2] == 0)
+					dTransVal[xx + 2][yy + 2] = tv;
+				break;
+			case 55:
+				tv = dTransVal[xx][yy + 1];
+				if (tv != 0 && dTransVal[xx][yy] == tv) {
+					// the tile has a valid tv - use it
+					dTransVal[xx + 1][yy] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the north side - in case the tile is in the corner
+					if (dTransVal[xx + 1][yy - 1] == 0)
+						dTransVal[xx + 1][yy - 1] = tv;
+					// fix the wall on the south side - in case 54 is not placed
+					if (dTransVal[xx + 1][yy + 2] == 0)
+						dTransVal[xx + 1][yy + 2] = tv;
+					break;
+				}
+				tv = dTransVal[xx][yy];
+				if (tv != 0) {
+					// there is a valid tv on the north side - use it
+					dTransVal[xx][yy + 1] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the west side
+					if (dTransVal[xx - 1][yy] == 0)
+						dTransVal[xx - 1][yy] = tv;
+					if (dTransVal[xx - 1][yy + 1] == 0)
+						dTransVal[xx - 1][yy + 1] = tv;
+					// fix the wall on the east side
+					if (dTransVal[xx + 2][yy] == 0)
+						dTransVal[xx + 2][yy] = tv;
+					if (dTransVal[xx + 2][yy + 1] == 0)
+						dTransVal[xx + 2][yy + 1] = tv;
+					// fix the wall on the south side - in case 54 is not placed
+					if (dTransVal[xx][yy + 2] == 0)
+						dTransVal[xx][yy + 2] = tv;
+					if (dTransVal[xx + 1][yy + 2] == 0)
+						dTransVal[xx + 1][yy + 2] = tv;
+					break;
+				}
+				// no valid tv on the north side -> there must be a one on the south side
+				tv = dTransVal[xx][yy + 4];
+				assert(tv != 0);
+				// use it on the current tile
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix the wall on the north side
+				assert(dTransVal[xx][yy - 1] == 0);
+				dTransVal[xx][yy - 1] = tv;
+				assert(dTransVal[xx + 1][yy - 1] == 0);
+				dTransVal[xx + 1][yy - 1] = tv;
+				// fix the wall on the west side
+				if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				// fix the corner on north-west
+				if (dTransVal[xx - 1][yy - 1] == 0)
+					dTransVal[xx - 1][yy - 1] = tv;
+				// fix the wall on the east side
+				if (dTransVal[xx + 2][yy] == 0)
+					dTransVal[xx + 2][yy] = tv;
+				if (dTransVal[xx + 2][yy + 1] == 0)
+					dTransVal[xx + 2][yy + 1] = tv;
+				// fix the corner on north-east
+				if (dTransVal[xx + 2][yy - 1] == 0)
+					dTransVal[xx + 2][yy - 1] = tv;
+				break;
+			case 58:
+				tv = dTransVal[xx + 1][yy];
+				if (tv != 0 && dTransVal[xx][yy] == tv) {
+					// the tile has a valid tv - use it
+					dTransVal[xx][yy + 1] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the west side - in case the tile is in the corner
+					if (dTransVal[xx - 1][yy + 1] == 0)
+						dTransVal[xx - 1][yy + 1] = tv;
+					// fix the wall on the east side - in case 59 is not placed
+					if (dTransVal[xx + 2][yy + 1] == 0)
+						dTransVal[xx + 2][yy + 1] = tv;
+					break;
+				}
+				tv = dTransVal[xx][yy];
+				if (tv != 0) {
+					// there is a valid tv on the west side - use it
+					dTransVal[xx + 1][yy] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the north side
+					if (dTransVal[xx][yy - 1] == 0)
+						dTransVal[xx][yy - 1] = tv;
+					if (dTransVal[xx + 1][yy - 1] == 0)
+						dTransVal[xx + 1][yy - 1] = tv;
+					// fix the wall on the south side
+					if (dTransVal[xx][yy + 2] == 0)
+						dTransVal[xx][yy + 2] = tv;
+					if (dTransVal[xx + 1][yy + 2] == 0)
+						dTransVal[xx + 1][yy + 2] = tv;
+					// fix the wall on the east side - in case 59 is not placed
+					if (dTransVal[xx + 2][yy] == 0)
+						dTransVal[xx + 2][yy] = tv;
+					if (dTransVal[xx + 2][yy + 1] == 0)
+						dTransVal[xx + 2][yy + 1] = tv;
+					break;
+				}
+				// no valid tv on the west side -> there must be a one on the east side
+				tv = dTransVal[xx + 4][yy];
+				assert(tv != 0);
+				// use it on the current tile
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix the wall on the west side
+				assert(dTransVal[xx - 1][yy] == 0);
+				dTransVal[xx - 1][yy] = tv;
+				assert(dTransVal[xx - 1][yy + 1] == 0);
+				dTransVal[xx - 1][yy + 1] = tv;
+				// fix the wall on the north side
+				if (dTransVal[xx][yy - 1] == 0)
+					dTransVal[xx][yy - 1] = tv;
+				if (dTransVal[xx + 1][yy - 1] == 0)
+					dTransVal[xx + 1][yy - 1] = tv;
+				// fix the corner on north-west
+				if (dTransVal[xx - 1][yy - 1] == 0)
+					dTransVal[xx - 1][yy - 1] = tv;
+				// fix the wall on the south side
+				if (dTransVal[xx][yy + 2] == 0)
+					dTransVal[xx][yy + 2] = tv;
+				if (dTransVal[xx + 1][yy + 2] == 0)
+					dTransVal[xx + 1][yy + 2] = tv;
+				// fix the corner on south-west
+				if (dTransVal[xx - 1][yy + 2] == 0)
+					dTransVal[xx - 1][yy + 2] = tv;
+				break;
+			case 59:
+				tv = dTransVal[xx][yy];
+				if (tv != 0 && dTransVal[xx + 1][yy] == tv) {
+					// the tile has a valid tv - use it
+					dTransVal[xx][yy + 1] = tv;
+					dTransVal[xx + 1][yy + 1] = tv;
+					// fix the wall on the east side - in case the tile is in the corner
+					if (dTransVal[xx + 2][yy + 1] == 0)
+						dTransVal[xx + 2][yy + 1] = tv;
+					// fix the wall on the west side - in case 58 is not placed
+					if (dTransVal[xx - 1][yy + 1] == 0)
+						dTransVal[xx - 1][yy + 1] = tv;
+					break;
+				}
+				tv = dTransVal[xx + 1][yy];
+				if (tv != 0) {
+					// there is a valid tv on the east side - use it
+					dTransVal[xx][yy] = tv;
+					dTransVal[xx][yy + 1] = tv;
+					// fix the wall on the north side
+					if (dTransVal[xx][yy - 1] == 0)
+						dTransVal[xx][yy - 1] = tv;
+					if (dTransVal[xx + 1][yy - 1] == 0)
+						dTransVal[xx + 1][yy - 1] = tv;
+					// fix the wall on the south side
+					if (dTransVal[xx][yy + 2] == 0)
+						dTransVal[xx][yy + 2] = tv;
+					if (dTransVal[xx + 1][yy + 2] == 0)
+						dTransVal[xx + 1][yy + 2] = tv;
+					// fix the wall on the west side - in case 58 is not placed
+					if (dTransVal[xx - 1][yy] == 0)
+						dTransVal[xx - 1][yy] = tv;
+					if (dTransVal[xx - 1][yy + 1] == 0)
+						dTransVal[xx - 1][yy + 1] = tv;
+					break;
+				}
+				// no valid tv on the east side -> there must be a one on the west side
+				tv = dTransVal[xx - 3][yy];
+				assert(tv != 0);
+				// use it on the current tile
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix the wall on the east side
+				assert(dTransVal[xx + 2][yy] == 0);
+				dTransVal[xx + 2][yy] = tv;
+				assert(dTransVal[xx + 2][yy + 1] == 0);
+				dTransVal[xx + 2][yy + 1] = tv;
+				// fix the wall on the north side
+				if (dTransVal[xx][yy - 1] == 0)
+					dTransVal[xx][yy - 1] = tv;
+				if (dTransVal[xx + 1][yy - 1] == 0)
+					dTransVal[xx + 1][yy - 1] = tv;
+				// fix the corner on north-east
+				if (dTransVal[xx + 2][yy - 1] == 0)
+					dTransVal[xx + 2][yy - 1] = tv;
+				// fix the wall on the south side
+				if (dTransVal[xx][yy + 2] == 0)
+					dTransVal[xx][yy + 2] = tv;
+				if (dTransVal[xx + 1][yy + 2] == 0)
+					dTransVal[xx + 1][yy + 2] = tv;
+				// fix the corner on south-east
+				if (dTransVal[xx + 1][yy + 2] == 0)
+					dTransVal[xx + 1][yy + 2] = tv;
+				break;
+			// fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
+			// - due to complex cases with the horizontal/vertical 'doors', this is not really feasible
+			/*case 36:
+			case 134:
+				tv = dTransVal[xx][yy];
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix the wall on the west side
+				//if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				//if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				break;
+			case 37:
+			case 135:
+				tv = dTransVal[xx][yy + 1];
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				// fix the wall on the west side
+				//if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				//if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				break;
+			case 38:
+			case 136:
+				tv = dTransVal[xx][yy];
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				break;
+			case 32:
+			case 130:
+				tv = dTransVal[xx][yy];
+				// fix the wall on the east side
+				//if (dTransVal[xx + 3][yy] == 0)
+					dTransVal[xx + 3][yy] = tv;
+				//if (dTransVal[xx + 3][yy + 1] == 0)
+					dTransVal[xx + 3][yy + 1] = tv;
+				break;*/
 			}
 			xx += 2;
 		}
 		yy += 2;
 	}
+
+	/* fix transVals of the diablo-level
+	   - commented out because it does not really matter. The tiles with zero value are contained
+	     in the quads. the few random monsters are not bothered by them.
+	if (currLvl._dLevelIdx == DLV_HELL4) {
+		xx = DBORDERX + 2 * DIAB_QUAD_1X;
+		yy = DBORDERY + 2 * DIAB_QUAD_1Y;
+		tv = dTransVal[xx][yy];
+		assert(tv != 0);
+		// middle tiles of the 1. quad
+		const POS32 mm_offs[] = {
+			{  1,  9 }, {  1, 10 },
+			{  3,  9 }, {  4,  9 }, {  9,  3 },
+		};
+		for (i = 0; i < lengthof(mm_offs); i++)
+			dTransVal[xx + mm_offs[i].x][yy + mm_offs[i].y] = tv;
+
+		xx = DBORDERX + 2 * DIAB_QUAD_2X;
+		yy = DBORDERY + 2 * DIAB_QUAD_2Y;
+		tv = dTransVal[xx][yy];
+		assert(tv != 0);
+		// many tiles of the 2. quad
+		for (i = xx; i <= xx + 22; i++) {
+			for (j = yy; j <= yy + 22; j++) {
+				if (dTransVal[i][j] == 0)
+					dTransVal[i][j] = tv;
+			}
+		}
+
+		// outer tiles of the 3. quad
+		xx = DBORDERX + 2 * DIAB_QUAD_3X;
+		yy = DBORDERY + 2 * DIAB_QUAD_3Y;
+		tv = dTransVal[xx][yy];
+		assert(tv != 0);
+		const POS32 oo_offs[] = {
+			{  1,  1 }, {  1,  2 }, {  1,  3 },
+			{  2,  1 }, {  2,  2 }, {  2,  3 },
+			{  3,  1 }, {  3,  2 }, {  3,  3 },
+
+			{  1, 17 }, {  1, 18 }, {  1, 19 }, {  1, 20 },
+			{  2, 17 }, {  2, 18 }, {  2, 19 }, {  2, 20 },
+			{  3, 17 }, {  3, 18 }, {  3, 19 }, {  3, 20 },
+
+			{ 17,  1 }, { 17,  2 }, { 17,  3 },
+			{ 18,  1 }, { 18,  2 }, { 18,  3 },
+			{ 19,  1 }, { 19,  2 }, { 19,  3 },
+			{ 20,  1 }, { 20,  2 }, { 20,  3 },
+		
+			{ 17, 17 }, { 17, 18 }, { 17, 19 }, { 17, 20 },
+			{ 18, 17 }, { 18, 18 }, { 18, 19 }, { 18, 20 },
+			{ 19, 17 }, { 19, 18 }, { 19, 19 }, { 19, 20 },
+			{ 20, 17 }, { 20, 18 }, { 20, 19 }, { 20, 20 },
+		};
+
+		for (i = 0; i < lengthof(oo_offs); i++)
+			dTransVal[xx + oo_offs[i].x][yy + oo_offs[i].y] = tv;
+
+		// inner tiles of the 3. quad
+		tv = dTransVal[xx + 6][yy + 6];
+		assert(tv != 0);
+		const POS32 ii_offs[] = {
+			{  1,  5 }, {  1,  6 }, {  1,  7 }, {  1,  8 },
+			{  2,  5 }, {  2,  6 }, {  2,  7 }, {  2,  8 },
+			{  5,  1 }, {  5,  2 }, {  5,  3 }, {  5,  4 },
+			{  6,  1 }, {  6,  2 }, {  6,  3 }, {  6,  4 },
+			{  7, 11 }, {  7, 12 }, 
+
+			{ 13,  9 }, { 13, 10 }, { 13, 11 }, { 13, 12 },
+			{ 14,  9 }, { 14, 10 }, { 14, 11 }, { 14, 12 },
+
+			{ 15,  1 }, { 15,  2 }, { 15,  3 }, { 15,  4 },
+			{ 19,  5 }, { 19,  6 },
+		};
+		for (i = 0; i < lengthof(ii_offs); i++)
+			dTransVal[xx + ii_offs[i].x][yy + ii_offs[i].y] = tv;
+
+		xx = DBORDERX + 2 * DIAB_QUAD_4X;
+		yy = DBORDERY + 2 * DIAB_QUAD_4Y;
+		tv = dTransVal[xx][yy];
+		assert(tv != 0);
+		// inner tiles of the 4. quad
+		for (i = xx; i <= xx + 16; i++) {
+			for (j = yy; j <= yy + 16; j++) {
+				if (dTransVal[i][j] == 0)
+					dTransVal[i][j] = tv;
+			}
+		}
+	}*/
 }
 
 static void DRLG_L4Corners()
@@ -1416,7 +1822,6 @@ static void DRLG_L4(int entry)
 	bool doneflag;
 
 	do {
-		DRLG_InitTrans();
 		do {
 			InitL4Dungeon();
 			L4firstRoom();
@@ -1435,8 +1840,8 @@ static void DRLG_L4(int entry)
 			DRLG_LoadDiabQuads(true);
 		}
 		L4AddWall();
+		DRLG_InitTrans();
 		DRLG_FloodTVal(6);
-		DRLG_L4TransFix();
 		if (QuestStatus(Q_WARLORD)) {
 			mini_set stairs[2] = {
 				{ L4USTAIRS, entry == ENTRY_MAIN },
@@ -1471,6 +1876,7 @@ static void DRLG_L4(int entry)
 	} while (!doneflag);
 
 	DRLG_L4GeneralFix();
+	DRLG_L4TransFix();
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		DRLG_PlaceThemeRooms(7, 10, 6, 8, true);

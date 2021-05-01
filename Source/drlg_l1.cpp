@@ -124,19 +124,19 @@ const BYTE L1BTYPES[] = {
 	// clang-format on
 };
 /** Miniset: stairs up on a corner wall. */
-const BYTE STAIRSUP[] = {
-	// clang-format off
-	4, 4, // width, height
-
-	13, 13, 13, 13, // search
-	 2,  2,  2,  2,
-	13, 13, 13, 13,
-	13, 13, 13, 13,
-
-	 0, 66,  6,  0, // replace
-	63, 64, 65,  0,
-	 0, 67, 68,  0,
-	 0,  0,  0,  0,
+//const BYTE STAIRSUP[] = {
+//	// clang-format off
+//	4, 4, // width, height
+//
+//	13, 13, 13, 13, // search
+//	 2,  2,  2,  2,
+//	13, 13, 13, 13,
+//	13, 13, 13, 13,
+//
+//	 0, 66,  6,  0, // replace
+//	63, 64, 65,  0,
+//	 0, 67, 68,  0,
+//	 0,  0,  0,  0,
 /*    0,  0,   137,138,    13,  2,     0,  0,	// MegaTiles
 	  0,  0,   139,140,     3,  4,     0,  0,
 
@@ -160,7 +160,7 @@ const BYTE STAIRSUP[] = {
 	  0,  0,     0,  0,     0,  0,     0,  0,
 	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
-};
+//};
 #ifdef HELLFIRE
 const BYTE L5USTAIRS[] = {
 	// clang-format off
@@ -193,7 +193,7 @@ const BYTE L5USTAIRS[] = {
 	  0,  0,    0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
-#else
+#endif
 /** Miniset: stairs up. */
 const BYTE L1USTAIRS[] = {
 	// clang-format off
@@ -221,27 +221,31 @@ const BYTE L1USTAIRS[] = {
 	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
-#endif
-/** Miniset: stairs down. */
+/*
+ * Miniset: stairs down.
+ * Added an extra line to the top to prevent placing it too close to other entities (eg. upstair)
+ */
 const BYTE L1DSTAIRS[] = {
 	// clang-format off
-	4, 3, // width, height
+	4, 4, // width, height
 
 	13, 13, 13, 13, // search
 	13, 13, 13, 13,
 	13, 13, 13, 13,
+	13, 13, 13, 13,
 
+	 0,  0,  0,  0,
 	62, 57, 58,  0, // replace
 	61, 59, 60,  0,
 	 0,  0,  0,  0,
-/*  124,  2,   106,107,   110,111,     0,  0,	// MegaTiles
+/*	  0,  0,     0,  0,     0,  0,     0,  0,
+	  0,  0,     0,  0,     0,  0,     0,  0, 
+
+	124,  2,   106,107,   110,111,     0,  0,	// MegaTiles
 	125,126,   108,109,   112,113,     0,  0,
 
 	122,123,   114,115,   118,119,     0,  0,
 	  7,  4,   116,117,   120,121,     0,  0,
-
-	  0,  0,   141,142,   143,  2,     0,  0,
-	  0,  0,     7,  4,     7,  4,     0,  0,
 
 	  0,  0,     0,  0,     0,  0,     0,  0,
 	  0,  0,     0,  0,     0,  0,     0,  0, */
@@ -1924,7 +1928,9 @@ static void DRLG_L5Crypt_pattern7(BYTE rndper)
 
 static void DRLG_L1TransFix()
 {
+	/* commented out - see the individual entries for more details
 	int xx, yy, i, j;
+	BYTE tv;
 
 	yy = DBORDERY;
 
@@ -1933,6 +1939,7 @@ static void DRLG_L1TransFix()
 
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
+			/* commented out because DRLG_FloodTVal makes this unnecessary (spreads to more than just the floor tiles)
 			case 18:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
@@ -1959,12 +1966,37 @@ static void DRLG_L1TransFix()
 					DRLG_CopyTrans(xx, yy, xx, yy + 1);
 					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				}
+				break;/
+			// fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
+			// - due to id conflict between hellfire and diablo, this does not work on tile 63
+			case 55:
+			case 58:
+			case 61:
+			case 62:
+			case 63:
+			case 66:
+				tv = dTransVal[xx + 6][yy];
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix walls on the west side
+				//if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				//if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				break;
+			case 67:
+				DRLG_CopyTrans(xx, yy + 1, xx + 1, yy);
+				break;
+			case 68:
+				DRLG_CopyTrans(xx, yy + 1, xx, yy);
 				break;
 			}
 			xx += 2;
 		}
 		yy += 2;
-	}
+	}*/
 }
 
 static void DRLG_L1DirtFix()
@@ -2071,8 +2103,6 @@ static void DRLG_L1(int entry)
 	}
 
 	do {
-		DRLG_InitTrans();
-
 		do {
 			InitL1Dungeon();
 			L1firstRoom();
@@ -2083,6 +2113,7 @@ static void DRLG_L1(int entry)
 		L1tileFix();
 		L1AddWall();
 		L1ClearFlags();
+		DRLG_InitTrans();
 		DRLG_FloodTVal(13);
 
 		doneflag = true;
@@ -2090,7 +2121,9 @@ static void DRLG_L1(int entry)
 		if (QuestStatus(Q_PWATER)) {
 			POS32 mpos = DRLG_PlaceMiniSet(PWATERIN);
 			if (mpos.x != DMAXX) {
-				DRLG_MRectTrans(mpos.x, mpos.y + 2, mpos.x + 5, mpos.y + 4, 0);
+				// fix transVal of the set-map
+				// - uncommented since the pieces are blocked anyway
+				//DRLG_MRectTrans(mpos.x + 1, mpos.y + 1, mpos.x + 4, mpos.y + 2, 0);
 
 				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
 				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
@@ -2099,11 +2132,15 @@ static void DRLG_L1(int entry)
 			}
 		}
 		if (QuestStatus(Q_LTBANNER)) {
+			// fix transVal behind the stairs
+			// - uncommented since the set-map is 'populated' -> monsters are not spawn there
+			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
+			//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
 			if (entry == ENTRY_PREV) {
 				ViewX = 2 * setpc_x + DBORDERX + 4;
 				ViewY = 2 * setpc_y + DBORDERY + 12;
 			}
-			doneflag = DRLG_L1PlaceMiniSet(STAIRSUP, entry == ENTRY_MAIN);
+			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry == ENTRY_MAIN); // was STAIRSUP
 #ifdef HELLFIRE
 		} else if (currLvl._dType == DTYPE_CRYPT) {
 			mini_set stairs[2] = {
@@ -2116,40 +2153,19 @@ static void DRLG_L1(int entry)
 			} else {
 				ViewY++;
 			}
+#endif
 		} else {
 			// assert(currLvl._dType == DTYPE_CATHEDRAL);
 			mini_set stairs[2] = {
-				{ STAIRSUP, entry != ENTRY_PREV },
+				{ L1USTAIRS, entry != ENTRY_PREV }, // was STAIRSUP in hellfire
 				{ L1DSTAIRS, entry == ENTRY_PREV },
 			};
 			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
 				ViewY--;
 			}
-#else
-		} else {
-			mini_set stairs[2] = {
-				{ L1USTAIRS, entry != ENTRY_PREV },
-				{ L1DSTAIRS, entry == ENTRY_PREV },
-			};
-			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewY--;
-			}
-#endif
 		}
 	} while (!doneflag);
-
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
-			if (dungeon[i][j] == 64) {
-				int xx = 2 * i + DBORDERX; /* todo: fix loop */
-				int yy = 2 * j + DBORDERY;
-				DRLG_CopyTrans(xx, yy + 1, xx, yy);
-				DRLG_CopyTrans(xx + 1, yy + 1, xx + 1, yy);
-			}
-		}
-	}
 
 	DRLG_L1TransFix();
 	DRLG_L1DirtFix();
