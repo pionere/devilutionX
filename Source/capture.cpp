@@ -112,20 +112,20 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
  */
 static bool CapturePix(WORD width, WORD height, WORD stride, BYTE *pixels, std::ofstream *out)
 {
-	int writeSize;
+	int i, writeSize;
 	BYTE *pBuffer, *pBufferEnd;
 
 	pBuffer = (BYTE *)DiabloAllocPtr(2 * width);
-	while (height--) {
+	for (i = height; i > 0; i--) {
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
 		writeSize = pBufferEnd - pBuffer;
 		out->write(reinterpret_cast<const char *>(pBuffer), writeSize);
 		if (out->fail())
-			return false;
+			break;
 	}
 	mem_free_dbg(pBuffer);
-	return true;
+	return i == 0;
 }
 
 /**

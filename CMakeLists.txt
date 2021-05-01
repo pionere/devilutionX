@@ -21,7 +21,7 @@ option(DIST "Dynamically link only glibc and SDL2" OFF)
 option(BINARY_RELEASE "Enable options for binary release" OFF)
 option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
-option(NONET "Disable network" OFF)
+option(NONET "Disable network support" OFF)
 option(ZEROTIER "Build with zerotier support" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
@@ -42,9 +42,11 @@ if(NIGHTLY_BUILD OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   set(CPACK ON)
 endif()
 
-option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
-cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
-                       "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+if(NOT NONET)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" OFF
+                        "DEVILUTIONX_SYSTEM_LIBSODIUM AND NOT DIST" ON)
+endif()
 
 if(NOT VERSION_NUM)
   include(CMake/git.cmake)
@@ -365,7 +367,6 @@ if(NOT NONET)
     Source/dvlnet/tcp_client.cpp
     Source/dvlnet/tcp_server.cpp
     Source/dvlnet/protocol_zt.cpp
-    Source/dvlnet/base_protocol.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
 endif()
