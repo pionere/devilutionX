@@ -97,9 +97,7 @@ bool SFileOpenFile(const char *filename, HANDLE *phFile)
 bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, size_t dwBuffersize, unsigned *pdwWidth, unsigned *dwHeight, unsigned *pdwBpp)
 {
 	HANDLE hFile;
-	size_t size;
-	PCXHEADER pcxhdr;
-	BYTE paldata[256][3];
+	size_t dataSize;
 	BYTE *dataPtr, *fileBuffer;
 	BYTE byte;
 
@@ -110,31 +108,45 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 	if (pdwBpp != NULL)
 		*pdwBpp = 0;
 
-	assert(pszFileName != NULL);
-	size = strlen(pszFileName);
 	// omit all types except PCX
-	if (size < 4 || strcasecmp(&pszFileName[size - 4], ".pcx") != 0) {
+	assert(pszFileName != NULL);
+	dataSize = strlen(pszFileName);
+	if (dataSize < 4 || strcasecmp(&pszFileName[dataSize - 4], ".pcx") != 0) {
 		return false;
 	}
 
+	// check if the file exists
 	if (!SFileOpenFile(pszFileName, &hFile)) {
 		return false;
 	}
 
-	if (!SFileReadFile(hFile, &pcxhdr, sizeof(pcxhdr), NULL)) {
+	// open/read the required data
+	if (pPalette == NULL && pBuffer == NULL) {
+		dataSize = sizeof(PCXHEADER);
+	} else {
+		dataSize = SFileGetFileSize(hFile);
+	}
+	fileBuffer = (BYTE *)malloc(dataSize);
+	if (dataSize < sizeof(PCXHEADER) || !SFileReadFile(hFile, fileBuffer, dataSize, NULL)) {
+		free(fileBuffer);
 		SFileCloseFile(hFile);
 		return false;
 	}
+	SFileCloseFile(hFile);
 
+	// process the header
+	PCXHEADER &pcxhdr = *(PCXHEADER *)fileBuffer;
 	if (pdwBpp != NULL)
 		*pdwBpp = pcxhdr.BitsPerPixel;
+	if (pcxhdr.BitsPerPixel != 8)
+		pPalette = NULL;
 	int width = SwapLE16(pcxhdr.Xmax) - SwapLE16(pcxhdr.Xmin) + 1;
 	int height = SwapLE16(pcxhdr.Ymax) - SwapLE16(pcxhdr.Ymin) + 1;
 	if (pdwWidth != NULL)
 		*pdwWidth = width;
 	if (dwHeight != NULL)
 		*dwHeight = height;
-
+	// process the body
 	if (pBuffer != NULL) {
 		// If the given buffer is larger than width * height, assume the extra data
 		// is scanline padding.
@@ -143,17 +155,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		// than image width for efficiency.
 		const int xSkip = dwBuffersize / height - width;
 		assert(xSkip >= 0);
-		//if (xSkip < 0) {
-		//	SFileCloseFile(hFile);
-		//	return false;
-		//}
-
-		size = SFileGetFileSize(hFile) - SFileGetFilePointer(hFile);
-		fileBuffer = (BYTE *)malloc(size);
-
-		SFileReadFile(hFile, fileBuffer, size, NULL);
-		dataPtr = fileBuffer;
-
+		dataPtr = fileBuffer + sizeof(PCXHEADER);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; dataPtr++) {
 				byte = *dataPtr;
@@ -174,13 +176,10 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 			// Skip the pitch padding.
 			pBuffer += xSkip;
 		}
-
-		free(fileBuffer);
 	}
-
-	if (pPalette != NULL && pcxhdr.BitsPerPixel == 8) {
-		SFileSetFilePointer(hFile, -768, DVL_FILE_END);
-		SFileReadFile(hFile, paldata, 768, NULL);
+	// process the palette at the end of the body
+	if (pPalette != NULL) {
+		BYTE (&paldata)[256][3] = (BYTE (&)[256][3])*(fileBuffer + dataSize - (256 * 3));
 		for (int i = 0; i < 256; i++) {
 			pPalette[i].r = paldata[i][0];
 			pPalette[i].g = paldata[i][1];
@@ -191,7 +190,7 @@ bool SBmpLoadImage(const char *pszFileName, SDL_Color *pPalette, BYTE *pBuffer, 
 		}
 	}
 
-	SFileCloseFile(hFile);
+	free(fileBuffer);
 	return true;
 }
 
