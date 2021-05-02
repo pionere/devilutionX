@@ -178,17 +178,19 @@ static void gamemenu_restart_town(bool bActivate)
 
 static void gamemenu_sound_music_toggle(const char *const *names, TMenuItem *menu_item, int volume)
 {
+#ifndef NOSOUND
 	assert(gbSndInited);
 	//if (gbSndInited) {
 		menu_item->dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
 		menu_item->pszStr = *names;
 		gmenu_slider_steps(menu_item, 17);
 		gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
-	/*	return;
-	}
-
+	//	return;
+	//}
+#else
 	menu_item->dwFlags &= ~(GMENU_ENABLED | GMENU_SLIDER);
-	menu_item->pszStr = names[1];*/
+	menu_item->pszStr = names[1];
+#endif
 }
 
 static int gamemenu_slider_music_sound(TMenuItem *menu_item)
@@ -252,6 +254,7 @@ static void gamemenu_settings(bool bActivate)
 
 static void gamemenu_music_volume(bool bActivate)
 {
+#ifndef NOSOUND
 	int volume;
 
 	if (bActivate) {
@@ -272,12 +275,15 @@ static void gamemenu_music_volume(bool bActivate)
 		gbMusicOn = true;
 		music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 	}
+#endif
 	gamemenu_get_music();
 }
 
 static void gamemenu_sound_volume(bool bActivate)
 {
+#ifndef NOSOUND
 	int volume;
+
 	if (bActivate) {
 		if (gbSoundOn) {
 			gbSoundOn = false;
@@ -300,6 +306,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		}
 	}
 	PlaySFX(IS_TITLEMOV);
+#endif
 	gamemenu_get_sound();
 }
 

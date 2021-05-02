@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef NOSOUND
+
 #include <SDL_mixer.h>
 #include "miniwin/miniwin.h"
 
@@ -18,3 +20,7 @@ private:
 } SoundSample;
 
 } // namespace dvl
+#else
+typedef struct SoundSample {
+} SoundSample;
+#endif // NOSOUND

@@ -3154,7 +3154,7 @@ void ProcessPlayers()
 	if (plr[myplr].pLvlLoad > 0) {
 		plr[myplr].pLvlLoad--;
 	}
-
+#ifndef NOSOUND
 	if (sfxdelay > 0) {
 		sfxdelay--;
 		if (sfxdelay == 0) {
@@ -3180,7 +3180,7 @@ void ProcessPlayers()
 #endif
 		}
 	}
-
+#endif
 	ValidatePlayer();
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {

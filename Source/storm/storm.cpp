@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <SDL_endian.h>
 #include <SDL.h>
-#include <SDL_mixer.h>
 #include <string>
 
 #include "all.h"

@@ -5,7 +5,9 @@
  */
 #include "all.h"
 #include <SDL.h>
+#ifndef NOSOUND
 #include <SDL_mixer.h>
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,6 +16,7 @@ bool gbSoundOn = false;
 /** Specifies whether music effects are enabled. */
 bool gbMusicOn = false;
 
+#ifndef NOSOUND
 /** Mix_Music entity of the background music */
 Mix_Music *_gMusic;
 
@@ -215,5 +218,7 @@ void sound_set_sound_volume(int volume)
 	gbSoundOn = volume > VOLUME_MIN;
 	setIniInt("Diablo", "Sound Volume", volume);
 }
+
+#endif // NOT NOSOUND
 
 DEVILUTION_END_NAMESPACE

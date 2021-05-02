@@ -5,7 +5,9 @@
 #include <cstring>
 
 #include <SDL.h>
+#ifndef NOSOUND
 #include <SDL_mixer.h>
+#endif
 #include <smacker.h>
 
 #include "all.h"
@@ -91,6 +93,7 @@ void TrySetVideoModeToSVidForSDL1()
 }
 #endif
 
+#ifndef NOSOUND
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 SDL_AudioDeviceID deviceId = 0;
 static bool HaveAudio()
@@ -102,7 +105,7 @@ static bool HaveAudio()
 {
 	return SDL_GetAudioStatus() != SDL_AUDIO_STOPPED;
 }
-#endif
+#endif // SDL_VERSION_ATLEAST
 
 static void SVidRestartMixer()
 {
@@ -112,7 +115,6 @@ static void SVidRestartMixer()
 	Mix_AllocateChannels(25);
 	Mix_ReserveChannels(1);
 }
-
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 struct AudioQueueItem {
 	unsigned char *data;
@@ -135,15 +137,15 @@ public:
 
 	void Enqueue(const unsigned char *data, unsigned long len)
 	{
-#if SDL_VERSION_ATLEAST(2, 0, 4)
-		SDL_LockAudioDevice(deviceId);
-		EnqueueUnsafe(data, len);
-		SDL_UnlockAudioDevice(deviceId);
-#else
+//#if SDL_VERSION_ATLEAST(2, 0, 4)
+//		SDL_LockAudioDevice(deviceId);
+//		EnqueueUnsafe(data, len);
+//		SDL_UnlockAudioDevice(deviceId);
+//#else
 		SDL_LockAudio();
 		EnqueueUnsafe(data, len);
 		SDL_UnlockAudio();
-#endif
+//#endif
 	}
 
 	void Clear()
@@ -202,6 +204,7 @@ private:
 
 static AudioQueue *sVidAudioQueue = new AudioQueue();
 #endif
+#endif // NOSOUND
 
 HANDLE SVidPlayBegin(const char *filename, int flags)
 {
@@ -231,6 +234,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 		return NULL;
 	}
 
+#ifndef NOSOUND
 	if (enableAudio) {
 		unsigned char channels[7], depth[7];
 		unsigned long rate[7];
@@ -265,6 +269,7 @@ HANDLE SVidPlayBegin(const char *filename, int flags)
 #endif
 		}
 	}
+#endif // NOSOUND
 
 	smk_info_all(SVidSMK, NULL, NULL, &SVidFrameLength);
 	smk_info_video(SVidSMK, &SVidWidth, &SVidHeight, NULL);
@@ -375,7 +380,7 @@ bool SVidPlayContinue()
 	if (SDL_GetTicks() * 1000 >= SVidFrameEnd) {
 		return SVidLoadNextFrame(); // Skip video and audio if the system is to slow
 	}
-
+#ifndef NOSOUND
 	if (HaveAudio()) {
 		unsigned long len = smk_get_audio_size(SVidSMK, 0);
 		BYTE *audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
@@ -389,7 +394,7 @@ bool SVidPlayContinue()
 #endif
 		mem_free_dbg(audio);
 	}
-
+#endif // NOSOUND
 	if (SDL_GetTicks() * 1000 >= SVidFrameEnd) {
 		return SVidLoadNextFrame(); // Skip video if the system is to slow
 	}
@@ -459,6 +464,7 @@ bool SVidPlayContinue()
 
 void SVidPlayEnd()
 {
+#ifndef NOSOUND
 	if (HaveAudio()) {
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		SDL_ClearQueuedAudio(deviceId);
@@ -470,7 +476,7 @@ void SVidPlayEnd()
 #endif
 		SVidRestartMixer();
 	}
-
+#endif // NOSOUND
 	if (SVidSMK != NULL)
 		smk_close(SVidSMK);
 

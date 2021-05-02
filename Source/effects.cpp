@@ -4,12 +4,18 @@
  * Implementation of functions for loading and playing sounds.
  */
 #include "all.h"
+#ifndef NOSOUND
 #include <SDL_mixer.h>
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
 int sfxdelay;
 int sfxdnum;
+
+#ifdef NOSOUND
+const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
+#else
 /** Specifies the sound file and the playback state of the current sound effect. */
 static TSFX *sgpStreamSFX = NULL;
 
@@ -1432,5 +1438,7 @@ void effects_play_sound(const char *snd_file)
 		}
 	}
 }
+
+#endif // NOSOUND
 
 DEVILUTION_END_NAMESPACE

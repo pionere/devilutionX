@@ -22,10 +22,11 @@ void play_movie(const char *pszMovie, int movieFlags)
 	HANDLE video_stream;
 
 	gbMoviePlaying = true;
+#ifndef NOSOUND
 	sound_disable_music();
 	stream_stop();
 	effects_play_sound("Sfx\\Misc\\blank.wav");
-
+#endif
 	video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	MSG Msg;
 	while (video_stream != NULL) {
@@ -54,7 +55,11 @@ void play_movie(const char *pszMovie, int movieFlags)
 			break;
 		}
 	}
+
+#ifndef NOSOUND
 	sound_start_music();
+#endif
+
 	gbMoviePlaying = false;
 	SDL_GetMouseState(&MouseX, &MouseY);
 	OutputToLogical(&MouseX, &MouseY);

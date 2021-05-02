@@ -1,5 +1,7 @@
 #include "soundsample.h"
 
+#ifndef NOSOUND
+
 #include <SDL.h>
 #ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
@@ -103,3 +105,5 @@ int SoundSample::SetChunk(BYTE *fileData, DWORD dwBytes)
 };
 
 DEVILUTION_END_NAMESPACE
+
+#endif // NOSOUND

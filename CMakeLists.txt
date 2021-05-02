@@ -22,6 +22,7 @@ option(BINARY_RELEASE "Enable options for binary release" OFF)
 option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NONET "Disable network support" OFF)
+option(NOSOUND "Disable sound support" OFF)
 option(ZEROTIER "Build with zerotier support" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
@@ -180,7 +181,10 @@ endif()
 if(USE_SDL1)
   find_package(SDL REQUIRED)
   find_package(SDL_ttf REQUIRED)
-  find_package(SDL_mixer REQUIRED)
+  if (NOT NOSOUND)
+    find_package(SDL_mixer REQUIRED)
+    #set(SDL_MIXER_LIBRARY SDL::SDL_mixer) ?
+  endif()
   include_directories(${SDL_INCLUDE_DIR})
 else()
   find_package(SDL2 REQUIRED)
@@ -205,7 +209,10 @@ else()
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
   find_package(SDL2_ttf REQUIRED)
-  find_package(SDL2_mixer REQUIRED)
+  if (NOT NOSOUND)
+    find_package(SDL2_mixer REQUIRED)
+    set(SDL_MIXER_LIBRARY SDL2::SDL2_mixer)
+  endif()
 endif()
 
 add_library(smacker STATIC
@@ -492,6 +499,7 @@ target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
 # Defines without value
 foreach(
   def_name
+  NOSOUND
   NONET
   PREFILL_PLAYER_NAME
   GPERF
@@ -578,15 +586,17 @@ target_link_libraries(${BIN_TARGET} PUBLIC $<${UBSAN_GENEX}:-fsanitize=undefined
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_TTF_LIBRARY}
-    ${SDL_MIXER_LIBRARY}
     ${SDL_LIBRARY})
   target_compile_definitions(${BIN_TARGET} PRIVATE USE_SDL1)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     SDL2::SDL2
     ${SDL2_MAIN}
-    SDL2::SDL2_ttf
-    SDL2::SDL2_mixer)
+    SDL2::SDL2_ttf)
+endif()
+
+if(NOT NOSOUND)
+  target_link_libraries(${BIN_TARGET} PRIVATE ${SDL_MIXER_LIBRARY})
 endif()
 
 if(SWITCH)
@@ -926,10 +936,18 @@ if(CPACK)
 
     # -G DEB
     set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
-    if(USE_SDL1)
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
+    if (NOT NOSOUND)
+      if(USE_SDL1)
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-mixer1.2, libsdl-ttf2.0-0")
+      else()
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
+      endif()
     else()
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-mixer-2.0-0, libsdl2-ttf-2.0-0")
+      if(USE_SDL1)
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-ttf2.0-0")
+      else()
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0, libsdl2-ttf-2.0-0")
+      endif()
     endif()
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
