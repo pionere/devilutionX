@@ -9,20 +9,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Specifies whether background music is enabled. */
-HANDLE _ghMusic = NULL;
+/** Specifies whether sound effects are enabled. */
+bool gbSoundOn = false;
+/** Specifies whether music effects are enabled. */
+bool gbMusicOn = false;
 
+/** Mix_Music entity of the background music */
 Mix_Music *_gMusic;
-BYTE *_gMusicBuffer;
 
 /** The volume of the sound channel. */
 int _gnSoundVolume;
 /** The volume of the music channel. */
 int _gnMusicVolume;
-/** Specifies whether sound effects are enabled. */
-bool gbSoundOn = false;
-/** Specifies whether music effects are enabled. */
-bool gbMusicOn = false;
 /** Specifies the active background music track id. */
 int _gnMusicTrack = NUM_MUSIC;
 /** Maps from track ID to track name. */
@@ -146,13 +144,10 @@ void snd_init()
 
 void music_stop()
 {
-	if (_ghMusic != NULL) {
+	if (_gMusic != NULL) {
 		Mix_HaltMusic();
-		SFileCloseFile(_ghMusic);
-		_ghMusic = NULL;
 		Mix_FreeMusic(_gMusic);
 		_gMusic = NULL;
-		MemFreeDbg(_gMusicBuffer);
 		_gnMusicTrack = NUM_MUSIC;
 	}
 }
@@ -162,10 +157,11 @@ void music_start(int nTrack)
 	assert((unsigned)nTrack < NUM_MUSIC);
 	if (gbMusicOn) {
 		music_stop();
-		if (SFileOpenFile(sgszMusicTracks[nTrack], &_ghMusic)) {
-			DWORD bytestoread = SFileGetFileSize(_ghMusic);
-			_gMusicBuffer = DiabloAllocPtr(bytestoread);
-			SFileReadFile(_ghMusic, _gMusicBuffer, bytestoread, NULL);
+		HANDLE hMusic;
+		if (SFileOpenFile(sgszMusicTracks[nTrack], &hMusic)) {
+			DWORD bytestoread = SFileGetFileSize(hMusic);
+			BYTE *_gMusicBuffer = DiabloAllocPtr(bytestoread);
+			SFileReadFile(hMusic, _gMusicBuffer, bytestoread, NULL);
 
 			SDL_RWops *musicRw = SDL_RWFromConstMem(_gMusicBuffer, bytestoread);
 			if (musicRw == NULL) {
@@ -176,10 +172,8 @@ void music_start(int nTrack)
 			Mix_PlayMusic(_gMusic, -1);
 
 			_gnMusicTrack = nTrack;
-		} else {
-			SFileCloseFile(_ghMusic);
-			_ghMusic = NULL;
 		}
+		SFileCloseFile(hMusic);
 	}
 }
 
@@ -206,7 +200,7 @@ void sound_set_music_volume(int volume)
 	gbMusicOn = volume > VOLUME_MIN;
 	setIniInt("Diablo", "Music Volume", volume);
 
-	if (_ghMusic != NULL)
+	if (_gMusic != NULL)
 		Mix_VolumeMusic(MIX_MAX_VOLUME - MIX_MAX_VOLUME * volume / VOLUME_MIN);
 }
 
