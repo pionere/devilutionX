@@ -2163,7 +2163,7 @@ static void DRLG_L1(int entry)
 			};
 			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
 			if (entry == ENTRY_PREV) {
-				ViewY--;
+				ViewY++;
 			}
 		}
 	} while (!doneflag);
