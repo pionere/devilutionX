@@ -47,6 +47,10 @@ jobs:
             packages: 'sdl2:x86-windows sdl2-mixer:x86-windows sdl2-ttf:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
+          - name: hellone-x86
+            packages: 'sdl2:x86-windows sdl2-ttf:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON NOSOUND=ON SCREEN_WIDTH=640 SCREEN_HEIGHT=480'
+            artifact: 'hellone-nightly-x86.zip'
           # x64 builds
           - name: diablo
             packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
@@ -57,7 +61,7 @@ jobs:
             cmakeargs: '-D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
           - name: hellone
-            packages: 'sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows libsodium:x64-windows'
+            packages: 'sdl2:x64-windows sdl2-ttf:x64-windows'
             cmakeargs: '-D HELLFIRE=ON -D MPQONE="hellone.mpq" -D HAS_JOYSTICK=0 -D HAS_DPAD=0 -D HAS_GAMECTRL=0 -D HAS_TOUCHPAD=0 -D NONET=ON NOSOUND=ON SCREEN_WIDTH=640 SCREEN_HEIGHT=480'
             artifact: 'hellone-nightly-x64.zip'
     steps:
@@ -154,6 +158,12 @@ jobs:
         name: hellfire-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
 
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: hellone-nightly-x86.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellone-nightly-x86.zip
+
     # x64 builds
     - name: Download a diablo artifact
       uses: actions/download-artifact@v2
@@ -219,6 +229,8 @@ jobs:
           hellfire-nightly-x86.zip | Hellfire build for Windows x86
           
           hellone-nightly-x64.zip | Minimal Hellfire build for Windows x64<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
+          
+          hellone-nightly-x86.zip | Minimal Hellfire build for Windows x86<br>- no internet, controller, sound or widescreen support<br>- merges the mpq files on the first run (takes a few minutes)
         draft: false
         prerelease: true
         files: |
@@ -229,6 +241,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellone-nightly-x64.zip
+          ${{github.workspace}}/hellone-nightly-x86.zip
         fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
