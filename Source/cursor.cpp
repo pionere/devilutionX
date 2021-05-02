@@ -141,7 +141,7 @@ void InitCursor()
 	mem_free_dbg(aCursCels);
 	mem_free_dbg(bCursCels);
 #else
-	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", NULL);
+	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
 #endif
 	ClearCursor();
 }

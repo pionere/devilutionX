@@ -125,7 +125,7 @@ static inline void InitMonsterTRN(const CMonster *cmon, const MonsterData *mdata
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
-	tf = cf = LoadFileInMem(mdata->TransFile, NULL);
+	tf = cf = LoadFileInMem(mdata->TransFile);
 	for (i = 0; i < 256; i++) {
 		if (*cf == 255) {
 			*cf = 0;
@@ -286,7 +286,7 @@ void InitMonsterGFX(int midx)
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->mAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
 
-			celBuf = LoadFileInMem(strBuff, NULL);
+			celBuf = LoadFileInMem(strBuff);
 			cmon->cmAnims[anim].aCelData = celBuf;
 
 			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
@@ -884,33 +884,33 @@ static void PlaceQuestMonsters()
 			PlaceUniqueMonst(UMT_BUTCHER, 0, 0);
 		}
 		if (QuestStatus(Q_LTBANNER)) {
-			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_BLOOD)) {
-			setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_BLIND)) {
-			setp = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L2Data\\Blind2.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_ANVIL)) {
-			setp = LoadFileInMem("Levels\\L3Data\\Anvil.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 		if (QuestStatus(Q_WARLORD)) {
-			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 		}
 
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && gbMaxPlayers != 1) {
-			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 			SetMapMonsters(setp, setpc_x, setpc_y);
 			mem_free_dbg(setp);
 
@@ -922,16 +922,16 @@ static void PlaceQuestMonsters()
 			PlaceUniqueMonst(UMT_BLACKJADE, 0, 0);
 		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
-			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_1X, DIAB_QUAD_1Y);
 			mem_free_dbg(setp);
-			setp = LoadFileInMem("Levels\\L4Data\\diab2a.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\diab2a.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_2X, DIAB_QUAD_2Y);
 			mem_free_dbg(setp);
-			setp = LoadFileInMem("Levels\\L4Data\\diab3a.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\diab3a.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_3X, DIAB_QUAD_3Y);
 			mem_free_dbg(setp);
-			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN", NULL);
+			setp = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
 			SetMapMonsters(setp, DIAB_QUAD_4X, DIAB_QUAD_4Y);
 			mem_free_dbg(setp);
 #ifdef HELLFIRE

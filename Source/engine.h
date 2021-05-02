@@ -64,7 +64,7 @@ Sint32 GetRndSeed();
 int random_(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
-BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen);
+BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen = NULL);
 void LoadFileWithMem(const char *pszName, BYTE *p);
 void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel);
 void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);

@@ -939,13 +939,13 @@ void InitControlPan()
 {
 	int i;
 
-	pFlasks = LoadFileInMem("CtrlPan\\Flasks.CEL", NULL);;
-	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL", NULL);
-	pChrPanel = LoadFileInMem("Data\\Char.CEL", NULL);
+	pFlasks = LoadFileInMem("CtrlPan\\Flasks.CEL");;
+	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL");
+	pChrPanel = LoadFileInMem("Data\\Char.CEL");
 #ifdef HELLFIRE
-	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL", NULL);
+	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL");
 #else
-	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL", NULL);
+	pSpellCels = LoadFileInMem("CtrlPan\\SpelIcon.CEL");
 #endif
 	SetSpellTrans(RSPLTYPE_ABILITY);
 	gbTalkflag = false;
@@ -955,30 +955,30 @@ void InitControlPan()
 	guTeamMute = 0;
 	sgszTalkMsg[0] = '\0';
 	if (gbMaxPlayers != 1) {
-		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL", NULL);
-		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL", NULL);
+		pTalkPnl = LoadFileInMem("CtrlPan\\TalkPnl.CEL");
+		pTalkBtns = LoadFileInMem("CtrlPan\\TalkButt.CEL");
 	}
 	gbLvlbtndown = false;
-	pPanelButtons = LoadFileInMem("CtrlPan\\Menu.CEL", NULL);
+	pPanelButtons = LoadFileInMem("CtrlPan\\Menu.CEL");
 	for (i = 0; i < lengthof(gabPanbtn); i++)
 		gabPanbtn[i] = false;
 	numpanbtns = gbMaxPlayers == 1 ? NUM_PANBTNS - 2 : NUM_PANBTNS;
-	pChrButtons = LoadFileInMem("Data\\CharBut.CEL", NULL);
+	pChrButtons = LoadFileInMem("Data\\CharBut.CEL");
 	for (i = 0; i < lengthof(_gabChrbtn); i++)
 		_gabChrbtn[i] = false;
 	gbChrbtnactive = false;
-	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL", NULL);
+	pDurIcons = LoadFileInMem("Items\\DurIcons.CEL");
 	infostr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbChrflag = false;
 	gbSkillListFlag = false;
-	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL", NULL);
-	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL", NULL);
+	pSpellBkCel = LoadFileInMem("Data\\SpellBk.CEL");
+	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL");
 	guBooktab = 0;
 	gbSbookflag = false;
 	SpellPages[0][0] = Abilities[plr[myplr]._pClass];
-	pQLogCel = LoadFileInMem("Data\\Quest.CEL", NULL);
-	pGBoxBuff = LoadFileInMem("CtrlPan\\Golddrop.cel", NULL);
+	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
+	pGBoxBuff = LoadFileInMem("CtrlPan\\Golddrop.cel");
 	gbDropGoldFlag = false;
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;

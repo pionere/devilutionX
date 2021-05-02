@@ -204,9 +204,9 @@ static void DRLG_LoadL4SP()
 {
 	pSetPiece = NULL;
 	if (gbMaxPlayers != 1 && QuestStatus(Q_BETRAYER)) {
-		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 	} else if (QuestStatus(Q_WARLORD)) {
-		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 	}
 }
 
@@ -1277,19 +1277,19 @@ static void DRLG_LoadDiabQuads(bool preflag)
 {
 	assert(pSetPiece == NULL);
 
-	pSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN", NULL);
+	pSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_1X, DIAB_QUAD_1Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_2X, DIAB_QUAD_2Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_3X, DIAB_QUAD_3Y);
 	MemFreeDbg(pSetPiece);
 
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN", NULL);
+	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN");
 	DRLG_L4SetRoom(DIAB_QUAD_4X, DIAB_QUAD_4Y);
 	MemFreeDbg(pSetPiece);
 }
@@ -1927,7 +1927,7 @@ void CreateL4Dungeon(int entry)
 
 	//DRLG_InitTrans();
 	InitL4Dungeon();
-	pLevelMap = LoadFileInMem(sFileName, NULL);
+	pLevelMap = LoadFileInMem(sFileName);
 
 	lm = pLevelMap;
 	rw = *lm;

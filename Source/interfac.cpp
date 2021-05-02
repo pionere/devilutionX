@@ -53,12 +53,12 @@ static void InitCutscene(unsigned int uMsg)
 		default:
 			ASSUME_UNREACHABLE
 		}
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		break;
 	case WM_DIABPREVLVL:
 		lvl = currLvl._dLevelIdx;
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		assert(currLvl._dType == AllLevels[lvl].dType);
 		switch (AllLevels[lvl].dType) {
@@ -80,7 +80,7 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case WM_DIABSETLVL:
 		lvl = plr[myplr].plrlevel; // the destination level
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		if (lvl == SL_BONECHAMB) {
 			progress_id = 2;
@@ -92,7 +92,7 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case WM_DIABRTNLVL:
 		lvl = currLvl._dLevelIdx;
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		if (lvl == SL_BONECHAMB) {
 			progress_id = 2;
@@ -103,13 +103,13 @@ static void InitCutscene(unsigned int uMsg)
 		}
 		break;
 	case WM_DIABWARPLVL:
-		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL", NULL);
+		sgpBackCel = LoadFileInMem("Gendata\\Cutportl.CEL");
 		LoadPalette("Gendata\\Cutportl.pal");
 		progress_id = 1;
 		break;
 	case WM_DIABLOADGAME:
 	case WM_DIABNEWGAME:
-		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL", NULL);
+		sgpBackCel = LoadFileInMem("Gendata\\Cutstart.CEL");
 		LoadPalette("Gendata\\Cutstart.pal");
 		progress_id = 1;
 		break;
@@ -117,7 +117,7 @@ static void InitCutscene(unsigned int uMsg)
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN: {
 		lvl = plr[myplr].plrlevel; // the destination level
-		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels, NULL);
+		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		switch (AllLevels[lvl].dType) {
 		case DTYPE_TOWN:
@@ -207,10 +207,10 @@ static void LoadLvlGFX()
 	assert(pDungeonCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
 
-	pDungeonCels = LoadFileInMem(lds->dDunCels, NULL);
-	pMegaTiles = LoadFileInMem(lds->dMegaTiles, NULL);
-	pLevelPieces = LoadFileInMem(lds->dLvlPieces, NULL);
-	pSpecialCels = LoadFileInMem(lds->dSpecCels, NULL);
+	pDungeonCels = LoadFileInMem(lds->dDunCels);
+	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
+	pLevelPieces = LoadFileInMem(lds->dLvlPieces);
+	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 }
 
 /**

@@ -115,7 +115,7 @@ static void DRLG_SetMapTrans(const char *sFileName)
 	BYTE *d;
 	unsigned dwOffset;
 
-	pLevelMap = LoadFileInMem(sFileName, NULL);
+	pLevelMap = LoadFileInMem(sFileName);
 	d = pLevelMap + 2;
 	x = pLevelMap[0];
 	y = *d;

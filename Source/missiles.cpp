@@ -1260,12 +1260,12 @@ void LoadMissileGFX(BYTE midx)
 	if (n == 1) {
 		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", name);
 		if (mad[0] == NULL)
-			mad[0] = LoadFileInMem(pszName, NULL);
+			mad[0] = LoadFileInMem(pszName);
 	} else {
 		for (i = 0; i < n; i++) {
 			snprintf(pszName, sizeof(pszName), "Missiles\\%s%i.CL2", name, i + 1);
 			if (mad[i] == NULL) {
-				mad[i] = LoadFileInMem(pszName, NULL);
+				mad[i] = LoadFileInMem(pszName);
 			}
 		}
 	}

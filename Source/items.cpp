@@ -332,7 +332,7 @@ void InitItemGFX()
 
 	for (i = 0; i < ITEMTYPES; i++) {
 		snprintf(arglist, sizeof(arglist), "Items\\%s.CEL", ItemDropNames[i]);
-		itemanims[i] = LoadFileInMem(arglist, NULL);
+		itemanims[i] = LoadFileInMem(arglist);
 	}
 	memset(UniqueItemFlags, 0, sizeof(UniqueItemFlags));
 }

@@ -97,11 +97,11 @@ void gmenu_init_menu()
 	gmUpdateFunc = NULL;
 	sgCurrentMenuIdx = 0;
 	_gbMouseNavigation = false;
-	sgpLogo = LoadFileInMem(LOGO_DATA, NULL);
-	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL", NULL);
-	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL", NULL);
-	option_cel = LoadFileInMem("Data\\option.CEL", NULL);
-	optbar_cel = LoadFileInMem("Data\\optbar.CEL", NULL);
+	sgpLogo = LoadFileInMem(LOGO_DATA);
+	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL");
+	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL");
+	option_cel = LoadFileInMem("Data\\option.CEL");
+	optbar_cel = LoadFileInMem("Data\\optbar.CEL");
 }
 
 static void gmenu_up_down(bool isDown)

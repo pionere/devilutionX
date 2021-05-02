@@ -746,7 +746,7 @@ static void DRLG_LoadL3SP()
 {
 	pSetPiece = NULL;
 	if (QuestStatus(Q_ANVIL)) {
-		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 	}
 }
 
@@ -2253,7 +2253,7 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 
 	InitL3Dungeon();
 
-	pLevelMap = LoadFileInMem(sFileName, NULL);
+	pLevelMap = LoadFileInMem(sFileName);
 
 	lm = pLevelMap;
 	rw = *lm;

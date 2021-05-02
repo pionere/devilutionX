@@ -282,7 +282,7 @@ static void DrawMap(const char* name, int bv)
 	BYTE *sp, *setp;
 	int v;
 
-	setp = LoadFileInMem(name, NULL);
+	setp = LoadFileInMem(name);
 	rw = *setp;
 	sp = setp + 2;
 	rh = *sp;
@@ -326,7 +326,7 @@ static void DrawPreMap(const char* name)
 	int x, y, i, j;
 	BYTE *sp, *setp;
 
-	setp = LoadFileInMem(name, NULL);
+	setp = LoadFileInMem(name);
 	rw = *setp;
 	sp = setp + 2;
 	rh = *sp;

@@ -198,8 +198,8 @@ void FreeInvGFX()
 
 void InitInv()
 {
-	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL", NULL);
-	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL", NULL);
+	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL");
+	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL");
 	gbInvflag = false;
 }
 

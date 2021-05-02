@@ -177,7 +177,7 @@ void InitObjectGFX()
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		if (fileload[i]) {
 			snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objlist[i]);
-			pObjCels[i] = LoadFileInMem(filestr, NULL);
+			pObjCels[i] = LoadFileInMem(filestr);
 		}
 	}
 }
@@ -663,7 +663,7 @@ static void AddChestTraps()
 
 static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
 {
-	BYTE *pMap = LoadFileInMem(map, NULL);
+	BYTE *pMap = LoadFileInMem(map);
 	int rw, rh, i, j, oi, x2, y2, mapoff;
 	BYTE *lm;
 
@@ -699,7 +699,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 
 static void LoadMapSetObjs(const char *map)
 {
-	BYTE *pMap = LoadFileInMem(map, NULL);
+	BYTE *pMap = LoadFileInMem(map);
 	int startx = 2 * setpc_x, starty = 2 * setpc_y;
 	int rw, rh;
 	int i, j, mapoff;
@@ -1059,7 +1059,7 @@ void SetMapObjects(BYTE *pMap)
 			continue;
 
 		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", ObjMasterLoadList[i]);
-		pObjCels[i] = LoadFileInMem(filestr, NULL);
+		pObjCels[i] = LoadFileInMem(filestr);
 	}
 
 	lm = h;

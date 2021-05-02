@@ -840,13 +840,13 @@ void MakeLightTable()
 	}
 #endif
 
-	trn = LoadFileInMem("PlrGFX\\Infra.TRN", NULL);
+	trn = LoadFileInMem("PlrGFX\\Infra.TRN");
 	for (i = 0; i < 256; i++) {
 		*tbl++ = trn[i];
 	}
 	mem_free_dbg(trn);
 
-	trn = LoadFileInMem("PlrGFX\\Stone.TRN", NULL);
+	trn = LoadFileInMem("PlrGFX\\Stone.TRN");
 	for (i = 0; i < 256; i++) {
 		*tbl++ = trn[i];
 	}

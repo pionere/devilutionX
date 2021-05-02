@@ -81,9 +81,9 @@ void InitStores()
 {
 	int i;
 
-	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL", NULL);
-	pSPentSpn2Cels = LoadFileInMem("Data\\PentSpn2.CEL", NULL);
-	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL", NULL);
+	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
+	pSPentSpn2Cels = LoadFileInMem("Data\\PentSpn2.CEL");
+	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
 	_gbStextsize = false;

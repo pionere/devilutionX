@@ -1667,11 +1667,11 @@ static void DRLG_LoadL2SP()
 {
 	pSetPiece = NULL;
 	if (QuestStatus(Q_BLIND)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
 	} else if (QuestStatus(Q_BLOOD)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
 	} else if (QuestStatus(Q_SCHAMB)) {
-		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN", NULL);
+		pSetPiece = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
 	}
 }
 
@@ -2945,7 +2945,7 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 
 	//DRLG_L2InitDungeon();
 	//DRLG_InitTrans();
-	pLevelMap = LoadFileInMem(sFileName, NULL);
+	pLevelMap = LoadFileInMem(sFileName);
 
 	memset(dflags, 0, sizeof(dflags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
