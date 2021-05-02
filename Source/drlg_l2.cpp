@@ -15,12 +15,12 @@ DEVILUTION_BEGIN_NAMESPACE
 #define BASE_MEGATILE_L2 (12 - 1)
 
 /** The number of generated rooms. */
-#define L2_MAXROOMS   81
-std::vector<ROOMHALLNODE>* RoomHallNodes;
-
+#define L2_MAXROOMS   16
 #define AREA_MIN 2
 #define ROOM_MAX 10
 #define ROOM_MIN 4
+static int nRoomCnt;
+static ROOMHALLNODE RoomList[L2_MAXROOMS];
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
 const ShadowStruct L2SPATS[] = {
@@ -1663,17 +1663,6 @@ static void DRLG_L2InitDungeon()
 	memset(pdungeon, 32, sizeof(pdungeon));
 }
 
-static void DRLG_L2AllocateRooms()
-{
-	RoomHallNodes = new std::vector<ROOMHALLNODE>();
-	RoomHallNodes->reserve(L2_MAXROOMS);
-}
-static void DRLG_L2FreeRooms()
-{
-	delete RoomHallNodes;
-	RoomHallNodes = NULL;
-}
-
 static void DRLG_LoadL2SP()
 {
 	pSetPiece = NULL;
@@ -1717,34 +1706,20 @@ static void DRLG_L2SetRoom(int rx1, int ry1)
 	}
 }
 
-static void DefineRoom(int parentId, int nX1, int nY1, int nX2, int nY2)
+static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
 {
 	int i, j;
-	ROOMHALLNODE room;
 
-	room.nRoomParent = parentId;
-	room.nRoomx1 = nX1;
-	room.nRoomy1 = nY1;
-	room.nRoomx2 = nX2;
-	room.nRoomy2 = nY2;
-
-	RoomHallNodes->push_back(room);
-
-	pdungeon[nX1][nY1] = 67;
-	pdungeon[nX1][nY2] = 69;
-	pdungeon[nX2][nY1] = 66;
-	pdungeon[nX2][nY2] = 65;
-
-	for (i = nX1 + 1; i < nX2; i++) {
-		pdungeon[i][nY1] = 35;
-		pdungeon[i][nY2] = 35;
+	for (j = y1; j <= y2; j++) {
+		pdungeon[x1][j] = 35;
+		pdungeon[x2][j] = 35;
 	}
-	for (j = nY1 + 1; j < nY2; j++) {
-		pdungeon[nX1][j] = 35;
-		pdungeon[nX2][j] = 35;
+	for (i = x1; i <= x2; i++) {
+		pdungeon[i][y1] = 35;
+		pdungeon[i][y2] = 35;
 	}
-	for (j = nY1 + 1; j < nY2; j++) {
-		for (i = nX1 + 1; i < nX2; i++) {
+	for (i = x1 + 1; i < x2; i++) {
+		for (j = y1 + 1; j < y2; j++) {
 			pdungeon[i][j] = 46;
 		}
 	}
@@ -1768,17 +1743,6 @@ static void PlaceHallExt(int nX, int nY)
 	}
 }
 
-static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
-{
-	ROOMHALLNODE &rhn = RoomHallNodes->back();
-
-	rhn.nHallx1 = nX1;
-	rhn.nHally1 = nY1;
-	rhn.nHallx2 = nX2;
-	rhn.nHally2 = nY2;
-	rhn.nHalldir = nHd;
-}
-
 /**
  * Draws a random room rectangle, and then subdivides the rest of the passed in rectangle into 4 and recurses.
  * @param nX1 Lower X boundary of the area to draw into.
@@ -1793,10 +1757,6 @@ static void AddHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir, int nH, int nW)
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHw, nHh, nHx1, nHy1, nHx2, nHy2, nRid;
-
-	if (RoomHallNodes->size() == L2_MAXROOMS) {
-		return;
-	}
 
 	if (nX1 < 1)
 		nX1 = 1;
@@ -1813,14 +1773,14 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		return;
 	}
 
-	if (nAw > ROOM_MAX) {
+	if (nAw >= ROOM_MAX) {
 		nRw = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAw > ROOM_MIN) {
 		nRw = RandRange(ROOM_MIN, nAw);
 	} else {
 		nRw = nAw;
 	}
-	if (nAh > ROOM_MAX) {
+	if (nAh >= ROOM_MAX) {
 		nRh = RandRange(ROOM_MIN, ROOM_MAX);
 	} else if (nAh > ROOM_MIN) {
 		nRh = RandRange(ROOM_MIN, nAh);
@@ -1842,10 +1802,22 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 		setpc_x = nRx1 + 2;
 		setpc_y = nRy1 + 2;
 	}
-	DefineRoom(nRDest, nRx1, nRy1, nRx2, nRy2);
 
+	// draw the room
+	DL2_DrawRoom(nRx1, nRy1, nRx2, nRy2);
+	pdungeon[nRx1][nRy1] = 67;
+	pdungeon[nRx1][nRy2] = 69;
+	pdungeon[nRx2][nRy1] = 66;
+	pdungeon[nRx2][nRy2] = 65;
+
+	// add entry to RoomList
+	RoomList[nRoomCnt].nRoomParent = nRDest;
+	RoomList[nRoomCnt].nRoomx1 = nRx1;
+	RoomList[nRoomCnt].nRoomy1 = nRy1;
+	RoomList[nRoomCnt].nRoomx2 = nRx2;
+	RoomList[nRoomCnt].nRoomy2 = nRy2;
 	if (nRDest >= 0) {
-		ROOMHALLNODE &parentRoom = (*RoomHallNodes)[nRDest];
+		ROOMHALLNODE &parentRoom = RoomList[nRDest];
 		switch (nHDir) {
 		case 1:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 2);
@@ -1879,10 +1851,17 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 			ASSUME_UNREACHABLE
 			break;
 		}
-		AddHall(nHx1, nHy1, nHx2, nHy2, nHDir);
+		RoomList[nRoomCnt].nHallx1 = nHx1;
+		RoomList[nRoomCnt].nHally1 = nHy1;
+		RoomList[nRoomCnt].nHallx2 = nHx2;
+		RoomList[nRoomCnt].nHally2 = nHy2;
+		RoomList[nRoomCnt].nHalldir = nHDir;
 	}
 
-	nRid = RoomHallNodes->size() - 1;
+	nRid = nRoomCnt;
+	if (++nRoomCnt == L2_MAXROOMS)
+		return;
+
 	if (nRh > nRw) {
 		CreateRoom(nX1 + 2, nY1 + 2, nRx1 - 2, nRy2 - 2, nRid, 2, 0, 0);
 		CreateRoom(nRx2 + 2, nRy1 + 2, nX2 - 2, nY2 - 2, nRid, 4, 0, 0);
@@ -2158,25 +2137,6 @@ static int DL2_NumNoChar()
 			rv++;
 
 	return rv;
-}
-
-static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
-{
-	int i, j;
-
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			pdungeon[i][j] = 46;
-		}
-	}
-	for (j = y1; j <= y2; j++) {
-		pdungeon[x1][j] = 35;
-		pdungeon[x2][j] = 35;
-	}
-	for (i = x1; i <= x2; i++) {
-		pdungeon[i][y1] = 35;
-		pdungeon[i][y2] = 35;
-	}
 }
 
 static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
@@ -2496,11 +2456,11 @@ static bool DRLG_L2CreateDungeon()
 		ForceH = pSetPiece[2] + 4;
 	}
 
+	nRoomCnt = 0;
 	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, 0, ForceH, ForceW);
 
-	for (std::vector<ROOMHALLNODE>::iterator it = RoomHallNodes->begin() + 1; it != RoomHallNodes->end(); it++)
-		ConnectHall(it->nHallx1, it->nHally1, it->nHallx2, it->nHally2, it->nHalldir);
-	RoomHallNodes->clear();
+	for (i = 1; i < nRoomCnt; i++)
+		ConnectHall(RoomList[i].nHallx1, RoomList[i].nHally1, RoomList[i].nHallx2, RoomList[i].nHally2, RoomList[i].nHalldir);
 
 	for (j = 0; j < DMAXY; j++) {     /// BUGFIX: change '<=' to '<' (fixed)
 		for (i = 0; i < DMAXX; i++) { /// BUGFIX: change '<=' to '<' (fixed)
@@ -3055,10 +3015,8 @@ void CreateL2Dungeon(int entry)
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
 	DRLG_InitSetPC();
 	DRLG_LoadL2SP();
-	DRLG_L2AllocateRooms();
 	DRLG_L2(entry);
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_L2FreeRooms();
 	DRLG_FreeL2SP();
 	DRLG_InitL2Vals();
 	DRLG_SetPC();
