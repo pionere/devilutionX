@@ -84,7 +84,7 @@ struct FStreamWrapper {
 public:
 	bool Open(const char *path, std::ios::openmode mode)
 	{
-		s_ = std::make_unique<std::fstream>(path, mode);
+		s_ = new std::fstream(path, mode);
 		if (!s_->fail()) {
 #ifdef _DEBUG
 			SDL_Log("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
@@ -97,6 +97,7 @@ public:
 
 	void Close()
 	{
+		delete s_;
 		s_ = NULL;
 	}
 
@@ -227,7 +228,7 @@ private:
 #endif
 	}
 
-	std::unique_ptr<std::fstream> s_;
+	std::fstream *s_;
 };
 
 //#define MPQ_BLOCK_SIZE			0x8000
@@ -618,28 +619,31 @@ static bool mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 	// We populate the table of sector offset while we write the data.
 	// We can't pre-populate it because we don't know the compressed sector sizes yet.
 	// First offset is the start of the first sector, last offset is the end of the last sector.
-	std::unique_ptr<uint32_t[]> sectoroffsettable { new uint32_t[num_sectors + 1] };
-
+	uint32_t *sectoroffsettable = (uint32_t *)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
+	{
 #ifdef CAN_SEEKP_BEYOND_EOF
 	if (!cur_archive.stream.seekp(pBlk->offset + offset_table_bytesize, std::ios::beg))
-		return false;
+		goto on_error;
 #else
 	// Ensure we do not seekp beyond EOF by filling the missing space.
 	std::streampos stream_end;
 	if (!cur_archive.stream.seekp(0, std::ios::end) || !cur_archive.stream.tellp(&stream_end))
-		return false;
-	const std::uintmax_t cur_size = stream_end - cur_archive.stream_begin;
-	if (cur_size < pBlk->offset + offset_table_bytesize) {
-		if (cur_size < pBlk->offset) {
-			std::unique_ptr<char[]> filler { new char[pBlk->offset - cur_size] };
-			if (!cur_archive.stream.write(filler.get(), pBlk->offset - cur_size))
-				return false;
+		goto on_error;
+	std::size_t curSize = stream_end - cur_archive.stream_begin;
+	if (curSize < pBlk->offset + offset_table_bytesize) {
+		if (curSize < pBlk->offset) {
+			curSize = pBlk->offset - curSize;
+			char *filler = (char *)DiabloAllocPtr(curSize);
+			bool res = cur_archive.stream.write(filler, curSize);
+			mem_free_dbg(filler);
+			if (!res)
+				goto on_error;
 		}
-		if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable.get()), offset_table_bytesize))
-			return false;
+		if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable), offset_table_bytesize))
+			goto on_error;
 	} else {
 		if (!cur_archive.stream.seekp(pBlk->offset + offset_table_bytesize, std::ios::beg))
-			return false;
+			goto on_error;
 	}
 #endif
 
@@ -651,8 +655,8 @@ static bool mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 		memcpy(mpq_buf, pbData, len);
 		pbData += len;
 		len = PkwareCompress(mpq_buf, len);
-		if (!cur_archive.stream.write((char *)mpq_buf, len))
-			return false;
+		if (!cur_archive.stream.write(reinterpret_cast<const char *>(mpq_buf), len))
+			goto on_error;
 		sectoroffsettable[cur_sector++] = SwapLE32(destsize);
 		destsize += len; // compressed length
 		if (dwLen > kSectorSize)
@@ -663,11 +667,11 @@ static bool mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 
 	sectoroffsettable[num_sectors] = SwapLE32(destsize);
 	if (!cur_archive.stream.seekp(pBlk->offset, std::ios::beg))
-		return false;
-	if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable.get()), offset_table_bytesize))
-		return false;
+		goto on_error;
+	if (!cur_archive.stream.write(reinterpret_cast<const char *>(sectoroffsettable), offset_table_bytesize))
+		goto on_error;
 	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, std::ios::cur))
-		return false;
+		goto on_error;
 
 	if (destsize < pBlk->sizealloc) {
 		const uint32_t block_size = pBlk->sizealloc - destsize;
@@ -677,6 +681,10 @@ static bool mpqapi_write_file_contents(const char *pszName, const BYTE *pbData, 
 		}
 	}
 	return true;
+	}
+on_error:
+	mem_free_dbg(sectoroffsettable);
+	return false;
 }
 
 bool mpqapi_write_file(const char *pszName, const BYTE *pbData, DWORD dwLen)
