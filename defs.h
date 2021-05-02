@@ -195,8 +195,12 @@
 #define DEFAULT_HEIGHT	480
 #endif
 
+#ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH	dvl::screenWidth
+#endif
+#ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT	dvl::screenHeight
+#endif
 
 // If defined, use 32-bit colors instead of 8-bit [Default -> Undefined]
 //#define RGBMODE
