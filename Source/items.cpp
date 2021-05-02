@@ -1888,8 +1888,8 @@ void SetupItem(int ii)
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = ItemAnimLs[it];
 	is->_iAnimFrameLen = 1;
-	is->_iAnimWidth = 96;
-	is->_iAnimXOffset = 16;
+	//is->_iAnimWidth = 96;
+	//is->_iAnimXOffset = 16;
 	is->_iIdentified = FALSE;
 	is->_iPostDraw = FALSE;
 
@@ -2493,8 +2493,8 @@ void RespawnItem(int ii, bool FlipFlag)
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = ItemAnimLs[it];
 	is->_iAnimFrameLen = 1;
-	is->_iAnimWidth = 96;
-	is->_iAnimXOffset = 16;
+	//is->_iAnimWidth = 96;
+	//is->_iAnimXOffset = 16;
 	is->_iPostDraw = FALSE;
 	is->_iRequest = FALSE;
 	if (FlipFlag) {

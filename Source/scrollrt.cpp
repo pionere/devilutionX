@@ -644,11 +644,11 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iIName, nCel, pFrameTable[0], is->_itype);
 	}
 
-	sx -= is->_iAnimXOffset;
+	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
 	if (ii == pcursitem) {
-		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
 	}
-	CelClippedDrawLight(sx, sy, pCelBuff, nCel, is->_iAnimWidth);
+	CelClippedDrawLight(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); //is->_iAnimWidth);
 }
 
 /**

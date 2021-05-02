@@ -134,8 +134,8 @@ typedef struct ItemStruct {
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
 	unsigned _iAnimLen;      // Number of frames in current animation
 	unsigned _iAnimFrame;    // Current frame of animation.
-	int _iAnimWidth;
-	int _iAnimXOffset;
+	//int _iAnimWidth;
+	//int _iAnimXOffset;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
 	char _iName[64];
@@ -202,7 +202,7 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[9];
+	int alignment[11];
 #endif
 } ItemStruct;
 
