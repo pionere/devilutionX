@@ -538,7 +538,6 @@ static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Ali
 //////////////////////////////////////////////////
 
 typedef struct TSnd {
-	const char *sound_path;
 	SoundSample *DSB;
 	int start_tc;
 } TSnd;

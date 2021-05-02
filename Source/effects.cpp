@@ -1149,13 +1149,10 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 bool effect_is_playing(int nSFX)
 {
 	TSFX *sfx = &sgSFX[nSFX];
-	if (sfx->pSnd != NULL)
-		return snd_playing(sfx->pSnd);
 
 	if (sfx->bFlags & sfx_STREAM)
 		return sfx == sgpStreamSFX;
-
-	return false;
+	return snd_playing(sfx->pSnd);
 }
 
 void stream_stop()
@@ -1209,13 +1206,7 @@ void InitMonsterSND(int midx)
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
-				int len = strlen(name) + 1;
-				char *path = (char *)DiabloAllocPtr(len);
-				memcpy(path, name, len);
-				TSnd *pSnd = sound_file_load(path);
-				cmon->cmSnds[i][j] = pSnd;
-				if (pSnd == NULL)
-					mem_free_dbg(path);
+				cmon->cmSnds[i][j] = sound_file_load(name);
 			}
 		}
 	}
@@ -1225,7 +1216,6 @@ void FreeMonsterSnd()
 {
 	CMonster *cmon;
 	int i, j, k;
-	const char *file;
 	TSnd *pSnd;
 
 	cmon = Monsters;
@@ -1235,12 +1225,7 @@ void FreeMonsterSnd()
 				pSnd = cmon->cmSnds[j][k];
 				if (pSnd != NULL) {
 					cmon->cmSnds[j][k] = NULL;
-					file = pSnd->sound_path;
-					pSnd->sound_path = NULL;
 					sound_file_cleanup(pSnd);
-
-					// pSnd->sound_path is malloc'd (but only for monsters).
-					mem_free_dbg(const_cast<char *>(file));
 				}
 			}
 		}

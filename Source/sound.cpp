@@ -4,7 +4,6 @@
  * Implementation of functions setting up the audio pipeline.
  */
 #include "all.h"
-#include "utils/stubs.h"
 #include <SDL.h>
 #include <SDL_mixer.h>
 
@@ -100,7 +99,6 @@ TSnd *sound_file_load(const char *path)
 	SFileOpenFile(path, &file);
 	pSnd = (TSnd *)DiabloAllocPtr(sizeof(TSnd));
 	memset(pSnd, 0, sizeof(TSnd));
-	pSnd->sound_path = path;
 	pSnd->start_tc = SDL_GetTicks() - 80 - 1;
 
 	dwBytes = SFileGetFileSize(file);
