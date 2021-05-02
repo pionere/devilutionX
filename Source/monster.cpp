@@ -616,7 +616,7 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 			} while (!MonstPlace(x1, y1));
 		}
 
-		assert(dTransVal[x1][y1] != 0);
+		assert(dTransVal[x1][y1] != 0 || currLvl._dLevelIdx == DLV_HELL4); // quads of the diablo level is fixed
 		static_assert(DBORDERX >= 1, "PlaceGroup expects a large enough border I.");
 		static_assert(DBORDERY >= 1, "PlaceGroup expects a large enough border II.");
 		xp = x1; yp = y1;
