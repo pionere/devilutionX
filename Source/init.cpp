@@ -198,6 +198,10 @@ void init_archives()
 	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
 		app_fatal("Unable to open MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
+#ifdef NOSOUND
+		if (line.size() >= 4 && strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
+			continue;
+#endif
 		for (i = 0; i < NUM_MPQS; i++) {
 			HANDLE hFile;
 			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
