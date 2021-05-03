@@ -267,8 +267,6 @@ static void DrawSkelKing()
 	DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
 	DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 	// patch dSolidTable - L1.SOL
-	nBlockTable[299] = true;
-	nMissileTable[299] = true;
 	nSolidTable[299] = TRUE;
 
 	quests[Q_SKELKING]._qtx = x + 12;
