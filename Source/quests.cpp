@@ -118,7 +118,7 @@ void InitQuests()
 
 void CheckQuests()
 {
-	if (currLvl._dLevelIdx == questlist[Q_PWATER]._qslvl) {
+	if (currLvl._dLevelIdx == SL_POISONWATER) {
 		if (quests[Q_PWATER]._qvar1 != 2
 		 && nummonsters == MAX_MINIONS) {
 			quests[Q_PWATER]._qvar1 = 2;
@@ -445,7 +445,7 @@ void GetReturnLvlPos()
 void LoadPWaterPalette()
 {
 	// TODO: this is ugly...
-	if (currLvl._dLevelIdx != questlist[Q_PWATER]._qslvl) // || quests[Q_PWATER]._qslvl == 0 || quests[Q_PWATER]._qactive == QUEST_INIT) // || currLvl._dType != quests[Q_PWATER]._qlvltype)
+	if (currLvl._dLevelIdx != SL_POISONWATER)
 		return;
 
 	if (quests[Q_PWATER]._qactive == QUEST_DONE)
