@@ -3158,26 +3158,7 @@ void ProcessPlayers()
 	if (sfxdelay > 0) {
 		sfxdelay--;
 		if (sfxdelay == 0) {
-#ifdef HELLFIRE
-			switch (sfxdnum) {
-			case USFX_DEFILER1:
-				InitQTextMsg(TEXT_DEFILER1);
-				break;
-			case USFX_DEFILER2:
-				InitQTextMsg(TEXT_DEFILER2);
-				break;
-			case USFX_DEFILER3:
-				InitQTextMsg(TEXT_DEFILER3);
-				break;
-			case USFX_DEFILER4:
-				InitQTextMsg(TEXT_DEFILER4);
-				break;
-			default:
-				PlaySFX(sfxdnum);
-			}
-#else
-				PlaySFX(sfxdnum);
-#endif
+			InitQTextMsg(sfxdnum);
 		}
 	}
 #endif
@@ -3856,41 +3837,41 @@ void PlayDungMsgs()
 
 	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !plr[myplr]._pLvlVisited[DLV_CATHEDRAL1] && !(plr[myplr].pDungMsgs & DMSG_CATHEDRAL)) {
 		sfxdelay = 40;
-		sfxdnum = sgSFXSets[SFXS_PLR_97][plr[myplr]._pClass];
+		sfxdnum = TEXT_DM_CATHEDRAL;
 		plr[myplr].pDungMsgs |= DMSG_CATHEDRAL;
 	} else if (currLvl._dLevelIdx == DLV_CATACOMBS1 && !plr[myplr]._pLvlVisited[DLV_CATACOMBS1] && !(plr[myplr].pDungMsgs & DMSG_CATACOMBS)) {
 		sfxdelay = 40;
-		sfxdnum = sgSFXSets[SFXS_PLR_96][plr[myplr]._pClass];
+		sfxdnum = TEXT_DM_CATACOMBS;
 		plr[myplr].pDungMsgs |= DMSG_CATACOMBS;
 	} else if (currLvl._dLevelIdx == DLV_CAVES1 && !plr[myplr]._pLvlVisited[DLV_CAVES1] && !(plr[myplr].pDungMsgs & DMSG_CAVES)) {
 		sfxdelay = 40;
-		sfxdnum = sgSFXSets[SFXS_PLR_98][plr[myplr]._pClass];
+		sfxdnum = TEXT_DM_CAVES;
 		plr[myplr].pDungMsgs |= DMSG_CAVES;
 	} else if (currLvl._dLevelIdx == DLV_HELL1 && !plr[myplr]._pLvlVisited[DLV_HELL1] && !(plr[myplr].pDungMsgs & DMSG_HELL)) {
 		sfxdelay = 40;
-		sfxdnum = sgSFXSets[SFXS_PLR_99][plr[myplr]._pClass];
+		sfxdnum = TEXT_DM_HELL;
 		plr[myplr].pDungMsgs |= DMSG_HELL;
 	} else if (currLvl._dLevelIdx == DLV_HELL4 && !plr[myplr]._pLvlVisited[DLV_HELL4] && !(plr[myplr].pDungMsgs & DMSG_DIABLO)) { // BUGFIX: _pLvlVisited should check 16 or this message will never play
 		sfxdelay = 40;
-		sfxdnum = PS_DIABLVLINT;
+		sfxdnum = TEXT_DM_DIABLO;
 		plr[myplr].pDungMsgs |= DMSG_DIABLO;
 #ifdef HELLFIRE
 	} else if (currLvl._dLevelIdx == DLV_NEST1 && !plr[myplr]._pLvlVisited[DLV_NEST1] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER)) {
 		sfxdelay = 10;
-		sfxdnum = USFX_DEFILER1;
+		sfxdnum = TEXT_DM_NEST;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER;
 	} else if (currLvl._dLevelIdx == DLV_NEST3 && !plr[myplr]._pLvlVisited[DLV_NEST3] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER1)) {
 		sfxdelay = 10;
-		sfxdnum = USFX_DEFILER3;
+		sfxdnum = TEXT_DM_DEFILER;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER1;
 	} else if (currLvl._dLevelIdx == DLV_CRYPT1 && !plr[myplr]._pLvlVisited[DLV_CRYPT1] && !(plr[myplr].pDungMsgs2 & DMSG2_DEFILER2)) {
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_92][plr[myplr]._pClass];
+		sfxdnum = TEXT_DM_CRYPT;
 		plr[myplr].pDungMsgs2 |= DMSG2_DEFILER2;
 #endif
 	} else if (currLvl._dLevelIdx == SL_SKELKING && !plr[myplr]._pLvlVisited[SL_SKELKING] && !(plr[myplr].pDungMsgs & DMSG_SKING)) {
 		sfxdelay = 30;
-		sfxdnum = USFX_SKING1;
+		sfxdnum = TEXT_DM_SKING;
 		plr[myplr].pDungMsgs |= DMSG_SKING;
 	}
 }

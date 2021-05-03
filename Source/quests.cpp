@@ -179,19 +179,19 @@ void CheckQuestKill(int mnum, bool sendmsg)
 	case UMT_GARBUD: //"Gharbad the Weak"
 		quests[Q_GARBUD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_61][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_GARBUD;
 		qn = Q_GARBUD;
 		break;
 	case UMT_SKELKING:
 		quests[Q_SKELKING]._qactive = QUEST_DONE;
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_82][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_SKING;
 		qn = Q_SKELKING;
 		break;
 	case UMT_ZHAR: //"Zhar the Mad"
 		quests[Q_ZHAR]._qactive = QUEST_DONE;
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_62][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_ZHAR;
 		qn = Q_ZHAR;
 		break;
 	case UMT_LAZURUS: //"Arch-Bishop Lazarus" - multi
@@ -211,19 +211,19 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			InitVPReturnTrigger();
 		}
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_83][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_LAZURUS;
 		qn = Q_BETRAYER;
 		break;
 	case UMT_WARLORD: //"Warlord of Blood"
 		quests[Q_WARLORD]._qactive = QUEST_DONE;
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_94][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_WARLORD;
 		qn = Q_WARLORD;
 		break;
 	case UMT_BUTCHER:
 		quests[Q_BUTCHER]._qactive = QUEST_DONE;
 		sfxdelay = 30;
-		sfxdnum = sgSFXSets[SFXS_PLR_80][plr[myplr]._pClass];
+		sfxdnum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
 		break;
 #ifdef HELLFIRE
@@ -544,7 +544,6 @@ void ResyncQuests()
 	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_DEFILER]._qdlvl) {
 		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
 		quests[Q_DEFILER]._qlog = TRUE;
-		quests[Q_DEFILER]._qmsg = TEXT_DEFILER1;
 		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
 	}
 	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_NAKRUL]._qdlvl - 1) {

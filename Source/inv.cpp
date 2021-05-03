@@ -1426,7 +1426,6 @@ void CheckBeltClick(bool bShift)
 static void CheckQuestItem(int pnum, ItemStruct *is)
 {
 	int idx, delay;
-	const int *sfxSet; 
 
 	idx = is->_iIdx;
 	if (idx == IDI_OPTAMULET) {
@@ -1445,7 +1444,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			return;
 		quests[Q_MUSHROOM]._qvar2 = SFXS_PLR_95;
 		delay = 10;
-		sfxSet = sgSFXSets[SFXS_PLR_95];
+		idx = TEXT_IM_MUSHROOM;
 	} else if (idx == IDI_ANVIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_NOTAVAIL)
 			return;
@@ -1459,12 +1458,12 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (!quests[Q_ANVIL]._qlog)
 			return;
 		delay = 10;
-		sfxSet = sgSFXSets[SFXS_PLR_89];
+		idx =TEXT_IM_ANVIL;
 	} else if (idx == IDI_GLDNELIX) {
 		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
 			return;
 		delay = 30;
-		sfxSet = sgSFXSets[SFXS_PLR_88];
+		idx = TEXT_IM_GLDNELIX;
 	} else if (idx == IDI_ROCK) {
 		if (quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
 			return;
@@ -1478,13 +1477,13 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (!quests[Q_ROCK]._qlog)
 			return;
 		delay = 10;
-		sfxSet = sgSFXSets[SFXS_PLR_87];
+		idx = TEXT_IM_ROCK;
 	} else if (idx == IDI_ARMOFVAL) {
 		if (quests[Q_BLOOD]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_BLOOD]._qactive = QUEST_DONE;
 		delay = 20;
-		sfxSet = sgSFXSets[SFXS_PLR_91];
+		idx = TEXT_IM_ARMOFVAL;
 #ifdef HELLFIRE
 	} else if (idx == IDI_MAPOFDOOM) {
 		if (quests[Q_GRAVE]._qactive == QUEST_NOTAVAIL)
@@ -1498,7 +1497,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			}
 		}
 		delay = 10;
-		sfxSet = sgSFXSets[SFXS_PLR_79];
+		idx = TEXT_IM_MAPOFDOOM;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i;
 		if ((idx == IDI_NOTE1 || PlrHasItem(pnum, IDI_NOTE1, &nn))
@@ -1517,7 +1516,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			copy_pod(*is, items[MAXITEMS]);
 			GetItemSeed(is);
 			delay = 10;
-			sfxSet = sgSFXSets[SFXS_PLR_46];
+			idx = TEXT_IM_FULLNOTE;
 		} else {
 			return;
 		}
@@ -1527,7 +1526,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	}
 	if (pnum == myplr) {
 		sfxdelay = delay;
-		sfxdnum = sfxSet[plr[pnum]._pClass];
+		sfxdnum = idx;
 	}
 }
 
@@ -2015,13 +2014,13 @@ bool InvUseItem(int cii)
 	}
 	if (is->_iIdx == IDI_MUSHROOM) {
 		sfxdelay = 10;
-		sfxdnum = sgSFXSets[SFXS_PLR_95][plr[pnum]._pClass];
+		sfxdnum = TEXT_IM_MUSHROOM;
 		return true;
 	}
 	if (is->_iIdx == IDI_FUNGALTM) {
 		PlaySFX(IS_IBOOK);
 		sfxdelay = 10;
-		sfxdnum = sgSFXSets[SFXS_PLR_29][plr[pnum]._pClass];
+		sfxdnum = TEXT_IM_FUNGALTM;
 		return true;
 	}
 

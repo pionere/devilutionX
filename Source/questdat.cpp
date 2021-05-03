@@ -173,7 +173,7 @@ const QuestData questlist[NUM_QUESTS] = {
 /*Q_FARMER*/  { DLV_CAVES1,     0,               TEXT_FARMER1,  "Farmer's Orchard"         },
 /*Q_GIRL*/    { DLV_NEST1,      0,               TEXT_GIRL2,    "Little Girl"              },
 /*Q_TRADER*/  { DLV_NEST3,      0,               TEXT_TRADER,   "Wandering Trader"         },
-/*Q_DEFILER*/ { DLV_NEST1,      0,               TEXT_DEFILER1, "The Defiler"              },
+/*Q_DEFILER*/ { DLV_NEST1,      0,               TEXT_DM_NEST,  "The Defiler"              },
 /*Q_NAKRUL*/  { DLV_CRYPT4,     0,               TEXT_NAKRUL1,  "Na-Krul"                  },
 /*Q_JERSEY*/  { DLV_CAVES1,     0,               TEXT_JERSEY4,  "The Jersey's Jersey"      },
 #endif
