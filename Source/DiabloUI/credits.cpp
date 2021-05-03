@@ -104,7 +104,7 @@ class CreditsRenderer {
 public:
 	CreditsRenderer()
 	{
-#ifdef WIDESCREEN
+#ifndef NOWIDESCREEN
 		LoadArt("ui_art\\creditsw.pcx", &ArtBackgroundWidescreen);
 #endif
 		LoadBackgroundArt("ui_art\\credits.pcx");
@@ -116,7 +116,7 @@ public:
 
 	~CreditsRenderer()
 	{
-#ifdef WIDESCREEN
+#ifndef NOWIDESCREEN
 		ArtBackgroundWidescreen.Unload();
 #endif
 		ArtBackground.Unload();
@@ -150,7 +150,7 @@ void CreditsRenderer::Render()
 	prev_offset_y_ = offsetY;
 
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
-#ifdef WIDESCREEN
+#ifndef NOWIDESCREEN
 	DrawArt(PANEL_LEFT - 320, UI_OFFSET_Y, &ArtBackgroundWidescreen);
 #endif
 	DrawArt(PANEL_LEFT, UI_OFFSET_Y, &ArtBackground);

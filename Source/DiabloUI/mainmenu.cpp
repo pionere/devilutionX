@@ -42,7 +42,7 @@ static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 	vecMenuItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
 	vecMenuItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
 
-#ifdef WIDESCREEN
+#ifndef NOWIDESCREEN
 	LoadArt("ui_art\\mainmenuw.pcx", &ArtBackgroundWidescreen);
 #endif
 	LoadBackgroundArt(MENU_ART);
@@ -60,7 +60,7 @@ static void MainmenuLoad(const char *name, void (*fnSound)(const char *file))
 
 static void MainmenuFree()
 {
-#ifdef WIDESCREEN
+#ifndef NOWIDESCREEN
 	ArtBackgroundWidescreen.Unload();
 #endif
 	ArtBackground.Unload();

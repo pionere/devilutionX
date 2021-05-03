@@ -23,6 +23,7 @@ option(NIGHTLY_BUILD "Enable options for nightly build" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NONET "Disable network support" OFF)
 option(NOSOUND "Disable sound support" OFF)
+option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(ZEROTIER "Build with zerotier support" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
@@ -516,6 +517,7 @@ foreach(
   DEFAULT_HEIGHT
   SCREEN_WIDTH
   SCREEN_HEIGHT
+  NOWIDESCREEN
   TTF_FONT_DIR
   TTF_FONT_NAME
   SDL1_VIDEO_MODE_BPP
