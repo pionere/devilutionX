@@ -47,16 +47,10 @@ void ApplyGamma(SDL_Color *dst, const SDL_Color *src, int n)
 	gbRedrawFlags = REDRAW_ALL;
 }
 
-static void SaveGamma()
-{
-	setIniInt("Diablo", "Gamma Correction", _gnGammaCorrection);
-}
-
 void palette_init()
 {
 	int value;
 
-	value = _gnGammaCorrection;
 	if (!getIniInt("Diablo", "Gamma Correction", &value))
 		value = 100;
 	if (value < 30) {
@@ -64,7 +58,7 @@ void palette_init()
 	} else if (value > 100) {
 		value = 100;
 	}
-	_gnGammaCorrection = value - value % 5;
+	_gnGammaCorrection = value;
 
 	gbColorCyclingEnabled = getIniBool("Diablo", "Color Cycling", true);
 
@@ -130,14 +124,17 @@ void DecreaseGamma()
 	}
 }
 
-int UpdateGamma(int gamma)
+void UpdateGamma(int gamma)
 {
-	if (gamma != 0) {
-		_gnGammaCorrection = 130 - gamma;
-		ApplyGamma(system_palette, logical_palette, 256);
-		palette_update();
-	}
-	SaveGamma();
+	gamma = 130 - gamma;
+	setIniInt("Diablo", "Gamma Correction", gamma);
+	_gnGammaCorrection = gamma;
+	ApplyGamma(system_palette, logical_palette, 256);
+	palette_update();
+}
+
+int GetGamma()
+{
 	return 130 - _gnGammaCorrection;
 }
 

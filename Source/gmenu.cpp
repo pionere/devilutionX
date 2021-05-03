@@ -12,21 +12,20 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE *optbar_cel;
-bool _gbMouseNavigation;
-BYTE *PentSpin_cel;
-TMenuItem *sgpCurrItem;
-BYTE *BigTGold_cel;
+static BYTE *optbar_cel;
+static BYTE *PentSpin_cel;
+static BYTE *BigTGold_cel;
+static BYTE *option_cel;
+static BYTE *sgpLogo;
+static bool _gbMouseNavigation;
 #ifdef HELLFIRE
-int LogoAnim_tick;
-BYTE LogoAnim_frame;
+static int LogoAnim_tick;
+static BYTE LogoAnim_frame;
 #endif
-int PentSpin_tick;
-void (*gmUpdateFunc)();
+static void (*gmUpdateFunc)();
 TMenuItem *sgpCurrentMenu;
-BYTE *option_cel;
-BYTE *sgpLogo;
-int sgCurrentMenuIdx;
+static TMenuItem *sgpCurrItem;
+static int _gCurrentMenuSize;
 
 /** Maps from font index to bigtgold.cel frame number. */
 const BYTE lfontframe[] = {
@@ -59,7 +58,7 @@ static void gmenu_print_text(int x, int y, const char *pszStr)
 {
 	BYTE c;
 
-	while (*pszStr) {
+	while (*pszStr != '\0') {
 		c = gbFontTransTbl[(BYTE)*pszStr++];
 		c = lfontframe[c];
 		if (c != 0)
@@ -95,7 +94,7 @@ void gmenu_init_menu()
 	sgpCurrentMenu = NULL;
 	sgpCurrItem = NULL;
 	gmUpdateFunc = NULL;
-	sgCurrentMenuIdx = 0;
+	_gCurrentMenuSize = 0;
 	_gbMouseNavigation = false;
 	sgpLogo = LoadFileInMem(LOGO_DATA);
 	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL");
@@ -112,7 +111,7 @@ static void gmenu_up_down(bool isDown)
 		return;
 	}
 	_gbMouseNavigation = false;
-	i = sgCurrentMenuIdx;
+	i = _gCurrentMenuSize;
 	while (i != 0) {
 		i--;
 		if (isDown) {
@@ -120,11 +119,11 @@ static void gmenu_up_down(bool isDown)
 			if (sgpCurrItem->fnMenu == NULL)
 				sgpCurrItem = &sgpCurrentMenu[0];
 		} else {
-			if (sgpCurrItem == sgpCurrentMenu)
-				sgpCurrItem = &sgpCurrentMenu[sgCurrentMenuIdx];
+			if (sgpCurrItem == &sgpCurrentMenu[0])
+				sgpCurrItem = &sgpCurrentMenu[_gCurrentMenuSize];
 			sgpCurrItem--;
 		}
-		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
+		if (sgpCurrItem->dwFlags & GMENU_ENABLED) {
 			if (i != 0)
 				PlaySFX(IS_TITLEMOV);
 			return;
@@ -132,7 +131,7 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
-static void gmenu_left_right(BOOL isRight)
+static void gmenu_left_right(bool isRight)
 {
 	int step, steps;
 
@@ -140,42 +139,34 @@ static void gmenu_left_right(BOOL isRight)
 		return;
 
 	step = sgpCurrItem->dwFlags & 0xFFF;
-	steps = (int)(sgpCurrItem->dwFlags & 0xFFF000) >> 12;
-	if (isRight) {
-		if (step == steps)
-			return;
-		step++;
-	} else {
-		if (step == 0)
-			return;
-		step--;
+	steps = (sgpCurrItem->dwFlags & 0xFFF000) >> 12;
+	step += isRight ? 1 : -1;
+	if (step < 0 || step >= steps) {
+		// PlaySFX(IS_TITLEMOV);
+		return;
 	}
 	sgpCurrItem->dwFlags &= 0xFFFFF000;
 	sgpCurrItem->dwFlags |= step;
-	sgpCurrItem->fnMenu(FALSE);
+	sgpCurrItem->fnMenu(false);
 }
 
 void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)())
 {
-	int i;
-
 	PauseMode = 0;
 	_gbMouseNavigation = false;
 	sgpCurrentMenu = pItem;
 	gmUpdateFunc = gmUpdFunc;
 	if (gmUpdFunc != NULL) {
 		gmUpdateFunc();
-		pItem = sgpCurrentMenu; // TODO: is this necessary?
 	}
-	sgCurrentMenuIdx = 0;
-	if (sgpCurrentMenu != NULL) {
-		for (i = 0; sgpCurrentMenu[i].fnMenu != NULL; i++) {
-			sgCurrentMenuIdx++;
-		}
+	sgpCurrItem = NULL;
+	_gCurrentMenuSize = 0;
+	if (pItem != NULL) {
+		sgpCurrItem = &pItem[0];
+		while (pItem[_gCurrentMenuSize].fnMenu != NULL)
+			_gCurrentMenuSize++;
 	}
-	// BUGFIX: OOB access when sgCurrentMenuIdx is 0; should be set to NULL instead. (fixed)
-	sgpCurrItem = sgCurrentMenuIdx > 0 ? &sgpCurrentMenu[sgCurrentMenuIdx - 1] : NULL;
-	gmenu_up_down(true);
+	PlaySFX(IS_TITLEMOV);
 }
 
 static void gmenu_clear_buffer(int x, int y, int width, int height)
@@ -210,14 +201,13 @@ static int gmenu_get_lfont(TMenuItem *pItem)
 static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 {
 	DWORD w, x, nSteps, step, pos;
+
 	w = gmenu_get_lfont(pItem);
 	if (pItem->dwFlags & GMENU_SLIDER) {
 		x = 16 + w / 2 + SCREEN_X;
 		CelDraw(x + PANEL_LEFT, y - 10, optbar_cel, 1, 287);
 		step = pItem->dwFlags & 0xFFF;
 		nSteps = (pItem->dwFlags & 0xFFF000) >> 12;
-		if (nSteps < 2)
-			nSteps = 2;
 		pos = step * 256 / nSteps;
 		gmenu_clear_buffer(x + 2 + PANEL_LEFT, y - 12, pos + 13, 28);
 		CelDraw(x + 2 + pos + PANEL_LEFT, y - 12, option_cel, 1, 27);
@@ -276,14 +266,12 @@ bool gmenu_presskeys(int vkey)
 	case DVL_VK_LBUTTON:
 		return gmenu_left_mouse(true);
 	case DVL_VK_RETURN:
-		if ((sgpCurrItem->dwFlags & GMENU_ENABLED) != 0) {
-			PlaySFX(IS_TITLEMOV);
+		if (sgpCurrItem->dwFlags & GMENU_ENABLED) {
 			sgpCurrItem->fnMenu(true);
 		}
 		break;
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
-		PlaySFX(IS_TITLEMOV);
 		gmenu_set_items(NULL, NULL);
 		break;
 	case DVL_VK_LEFT:
@@ -321,17 +309,13 @@ static bool gmenu_get_mouse_slider(int *plOffset)
 
 void gmenu_on_mouse_move()
 {
-	int step, nSteps;
+	int offset;
 
 	if (!_gbMouseNavigation)
 		return; // FALSE;
-	gmenu_get_mouse_slider(&step);
-	nSteps = (int)(sgpCurrItem->dwFlags & 0xFFF000) >> 12;
-	step *= nSteps;
-	step /= 256;
+	gmenu_get_mouse_slider(&offset);
 
-	sgpCurrItem->dwFlags &= 0xFFFFF000;
-	sgpCurrItem->dwFlags |= step;
+	gmenu_slider_set(sgpCurrItem, 0, 256, offset);
 	sgpCurrItem->fnMenu(false);
 	// return TRUE;
 }
@@ -361,7 +345,7 @@ bool gmenu_left_mouse(bool isDown)
 		return true;
 	}
 	i /= 45;
-	if (i >= sgCurrentMenuIdx) {
+	if (i >= _gCurrentMenuSize) {
 		return true;
 	}
 	pItem = &sgpCurrentMenu[i];
@@ -376,7 +360,6 @@ bool gmenu_left_mouse(bool isDown)
 		return true;
 	}
 	sgpCurrItem = pItem;
-	PlaySFX(IS_TITLEMOV);
 	if (pItem->dwFlags & GMENU_SLIDER) {
 		_gbMouseNavigation = gmenu_get_mouse_slider(&dummy);
 		gmenu_on_mouse_move();
@@ -402,11 +385,9 @@ void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
 	int nSteps;
 
 	assert(pItem != NULL);
-	nSteps = (int)(pItem->dwFlags & 0xFFF000) >> 12;
-	if (nSteps < 2)
-		nSteps = 2;
+	nSteps = (pItem->dwFlags & 0xFFF000) >> 12;
 	pItem->dwFlags &= 0xFFFFF000;
-	pItem->dwFlags |= ((max - min - 1) / 2 + (value - min) * nSteps) / (max - min);
+	pItem->dwFlags |= ((max - min - 1) + (value - min) * nSteps) / (max - min);
 }
 
 /**
@@ -417,10 +398,9 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
 	int nSteps, step;
 
 	step = pItem->dwFlags & 0xFFF;
-	nSteps = (int)(pItem->dwFlags & 0xFFF000) >> 12;
-	if (nSteps < 2)
-		nSteps = 2;
-	return min + (step * (max - min) + (nSteps - 1) / 2) / nSteps;
+	nSteps = (pItem->dwFlags & 0xFFF000) >> 12;
+
+	return min + step * (max - min) / nSteps;
 }
 
 /**
@@ -428,8 +408,9 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
  */
 void gmenu_slider_steps(TMenuItem *pItem, int steps)
 {
+	// assert(steps >= 2);
 	pItem->dwFlags &= 0xFF000FFF;
-	pItem->dwFlags |= (steps << 12) & 0xFFF000;
+	pItem->dwFlags |= ((steps - 1) << 12) & 0xFFF000;
 }
 
 DEVILUTION_END_NAMESPACE

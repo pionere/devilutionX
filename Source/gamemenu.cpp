@@ -193,14 +193,9 @@ static void gamemenu_sound_music_toggle(const char *const *names, TMenuItem *men
 #endif
 }
 
-static int gamemenu_slider_music_sound(TMenuItem *menu_item)
-{
-	return gmenu_slider_get(menu_item, VOLUME_MIN, VOLUME_MAX);
-}
-
 static void gamemenu_get_music()
 {
-	gamemenu_sound_music_toggle(music_toggle_names, sgOptionsMenu, sound_get_music_volume());
+	gamemenu_sound_music_toggle(music_toggle_names, &sgOptionsMenu[0], sound_get_music_volume());
 }
 
 static void gamemenu_get_sound()
@@ -211,7 +206,7 @@ static void gamemenu_get_sound()
 static void gamemenu_get_gamma()
 {
 	gmenu_slider_steps(&sgOptionsMenu[2], 15);
-	gmenu_slider_set(&sgOptionsMenu[2], 30, 100, UpdateGamma(0));
+	gmenu_slider_set(&sgOptionsMenu[2], 30, 100, GetGamma());
 }
 
 static void gamemenu_get_speed()
@@ -234,13 +229,8 @@ static void gamemenu_get_speed()
 	sgOptionsMenu[3].dwFlags |= GMENU_ENABLED | GMENU_SLIDER;
 
 	sgOptionsMenu[3].pszStr = "Speed";
-	gmenu_slider_steps(&sgOptionsMenu[3], 46);
+	gmenu_slider_steps(&sgOptionsMenu[3], SPEED_FASTEST - SPEED_NORMAL + 1);
 	gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
-}
-
-static int gamemenu_slider_gamma()
-{
-	return gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
 }
 
 static void gamemenu_settings(bool bActivate)
@@ -256,87 +246,90 @@ static void gamemenu_music_volume(bool bActivate)
 {
 #ifndef NOSOUND
 	int volume;
+	bool musicOn = gbMusicOn;
 
 	if (bActivate) {
-		if (gbMusicOn)
+		if (musicOn)
 			volume = VOLUME_MIN;
 		else
 			volume = VOLUME_MAX;
 	} else {
-		volume = gamemenu_slider_music_sound(&sgOptionsMenu[0]);
+		volume = gmenu_slider_get(&sgOptionsMenu[0], VOLUME_MIN, VOLUME_MAX);
 	}
 	sound_set_music_volume(volume);
 	if (volume == VOLUME_MIN) {
-		if (gbMusicOn) {
-			gbMusicOn = false;
+		// assert(!gbMusicOn);
+		if (musicOn)
 			music_stop();
-		}
-	} else if (!gbMusicOn) {
-		gbMusicOn = true;
-		music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+	} else {
+		// assert(gbMusicOn);
+		if (!musicOn)
+			music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 	}
-#endif
 	gamemenu_get_music();
+	PlaySFX(IS_TITLEMOV);
+#endif
 }
 
 static void gamemenu_sound_volume(bool bActivate)
 {
 #ifndef NOSOUND
 	int volume;
+	bool soundOn = gbSoundOn;
 
 	if (bActivate) {
-		if (gbSoundOn) {
-			gbSoundOn = false;
-			sound_stop();
-			sound_set_sound_volume(VOLUME_MIN);
-		} else {
-			gbSoundOn = true;
-			sound_set_sound_volume(VOLUME_MAX);
-		}
+		if (soundOn)
+			volume = VOLUME_MIN;
+		else
+			volume = VOLUME_MAX;
 	} else {
-		volume = gamemenu_slider_music_sound(&sgOptionsMenu[1]);
-		sound_set_sound_volume(volume);
-		if (volume == VOLUME_MIN) {
-			if (gbSoundOn) {
-				gbSoundOn = false;
-				sound_stop();
-			}
-		} else if (!gbSoundOn) {
-			gbSoundOn = true;
-		}
+		volume = gmenu_slider_get(&sgOptionsMenu[1], VOLUME_MIN, VOLUME_MAX);
 	}
+	sound_set_sound_volume(volume);
+	if (volume == VOLUME_MIN) {
+		// assert(!gbSoundOn);
+		if (soundOn)
+			sound_stop();
+	} else {
+		; // assert(gbSoundOn);
+	}
+	gamemenu_get_sound();
 	PlaySFX(IS_TITLEMOV);
 #endif
-	gamemenu_get_sound();
 }
 
 static void gamemenu_gamma(bool bActivate)
 {
 	int gamma;
+
 	if (bActivate) {
-		gamma = UpdateGamma(0);
+		gamma = GetGamma();
 		if (gamma == 30)
 			gamma = 100;
 		else
 			gamma = 30;
 	} else {
-		gamma = gamemenu_slider_gamma();
+		gamma = gmenu_slider_get(&sgOptionsMenu[2], 30, 100);
 	}
-
 	UpdateGamma(gamma);
 	gamemenu_get_gamma();
+	PlaySFX(IS_TITLEMOV);
 }
 
 static void gamemenu_speed(bool bActivate)
 {
 	if (bActivate) {
-		gmenu_slider_set(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
+		if (gnTicksRate == SPEED_NORMAL)
+			gnTicksRate = SPEED_FASTEST;
+		else
+			gnTicksRate = SPEED_NORMAL;
 	} else {
 		gnTicksRate = gmenu_slider_get(&sgOptionsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
-		gnTickDelay = 1000 / gnTicksRate;
-
-		setIniInt("devilutionx", "game speed", gnTicksRate);
 	}
+	setIniInt("devilutionx", "game speed", gnTicksRate);
+	gnTickDelay = 1000 / gnTicksRate;
+	gamemenu_get_speed();
+	PlaySFX(IS_TITLEMOV);
 }
 
 DEVILUTION_END_NAMESPACE
