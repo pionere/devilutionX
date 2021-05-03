@@ -27,7 +27,7 @@ int TWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the crypt from town. */
 #define TOWN_L6_WARP		(PIECE >= 1331 && PIECE <= 1338)
 /** Specifies the dungeon piece IDs which constitute stairways leading up from the cathedral. */
-#define L1_UP_WARP			(PIECE >= 127 && PIECE <= 140 && PIECE != 128 && PIECE != 134 && PIECE != 136)
+#define L1_UP_WARP			(PIECE >= 129 && PIECE <= 140 && PIECE != 134 && PIECE != 136)
 /** Specifies the dungeon piece IDs which constitute stairways leading down from the cathedral. */
 //							{ 106, 107, 108, 109, 110, /*111,*/ 112, /*113,*/ 114, 115, /*116, 117,*/ 118, }
 #define L1_DOWN_WARP		((PIECE >= 106 && PIECE <= 115 && PIECE != 111 && PIECE != 113) || PIECE == 118)
