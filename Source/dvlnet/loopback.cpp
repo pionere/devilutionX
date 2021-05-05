@@ -29,7 +29,7 @@ void loopback::send(packet &pkt)
 	ABORT();
 }
 
-bool loopback::SNetReceiveMessage(int *sender, char **data, int *size)
+bool loopback::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 {
 	if (message_queue.empty())
 		return false;
@@ -41,32 +41,30 @@ bool loopback::SNetReceiveMessage(int *sender, char **data, int *size)
 	return true;
 }
 
-bool loopback::SNetSendMessage(int dest, void *data, unsigned int size)
+void loopback::SNetSendMessage(int dest, void *data, unsigned int size)
 {
 	if (dest == plr_single || dest == SNPLAYER_ALL) {
 		unsigned char *rawMessage = reinterpret_cast<unsigned char *>(data);
 		buffer_t message(rawMessage, rawMessage + size);
 		message_queue.push(message);
 	}
-	return true;
 }
 
-bool loopback::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+bool loopback::SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 {
 	// todo: check that this is safe
 	//for (auto i = 0; i < MAX_PLRS; ++i) {
-	//	size[i] = 0;
-	//	data[i] = NULL;
+	//	turns[i] = NULL;
+	//	status[i] = 0;
 	//}
 	return true;
 }
 
-bool loopback::SNetSendTurn(char *data, unsigned int size)
+void loopback::SNetSendTurn(uint32_t turn)
 {
-	return true;
 }
 
-bool loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
+void loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 	//caps->size = 0;                  // engine writes only ?!?
 	caps->flags = 0;                 // unused
@@ -78,28 +76,24 @@ bool loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
 	caps->defaultturnssec = 10;      // ?
 	caps->defaultturnsintransit = 1; // maximum acceptable number
 	                                 // of turns in queue?
-	return true;
 }
 
 void loopback::SNetLeaveGame(int type)
 {
 }
 
-bool loopback::SNetDropPlayer(int playerid, unsigned flags)
+void loopback::SNetDropPlayer(int playerid)
 {
-	return true;
 }
 
-bool loopback::SNetGetOwnerTurnsWaiting(DWORD *turns)
+uint32_t loopback::SNetGetOwnerTurnsWaiting()
 {
-	*turns = 0;
-	return true;
+	return 0;
 }
 
-bool loopback::SNetGetTurnsInTransit(DWORD *turns)
+uint32_t loopback::SNetGetTurnsInTransit()
 {
-	*turns = 0;
-	return true;
+	return 0;
 }
 
 std::string loopback::make_default_gamename()

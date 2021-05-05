@@ -18,7 +18,7 @@ static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 static PkPlayerStruct netplr[MAX_PLRS];
 static bool gbJoinGame;
 static bool sgbPlayerLeftGameTbl[MAX_PLRS];
-static DWORD sgbSentThisCycle;
+static uint32_t sgbSentThisCycle;
 static bool gbShouldValidatePackage;
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
@@ -28,7 +28,7 @@ bool gbSelectProvider;
 bool gbSelectHero;
 static int sglTimeoutStart;
 static int sgdwPlayerLeftReasonTbl[MAX_PLRS];
-static DWORD sgdwGameLoops;
+static uint32_t sgdwGameLoops;
 /**
  * Specifies the maximum number of players in a game, where 1
  * represents a single player game and 4 represents a multi player game.
@@ -113,8 +113,9 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 	NetRecvPlrData(pkt.hdr);
 	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
 	memcpy(pkt.body, packet, dwSize);
-	if (!SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen))
-		nthread_terminate_game("SNetSendMessage0");
+	SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen);
+	//if (!SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen))
+	//	nthread_terminate_game("SNetSendMessage0");
 }
 
 static void validate_package()
@@ -131,8 +132,9 @@ static void validate_package()
 	size = sync_all_monsters(lowpri_body, size);
 	len = gdwNormalMsgSize - size;
 	pkt.hdr.wLen = len;
-	if (!SNetSendMessage(-2, &pkt.hdr, len))
-		nthread_terminate_game("SNetSendMessage");
+	SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len);
+	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len))
+	//	nthread_terminate_game("SNetSendMessage");
 }
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
@@ -163,10 +165,11 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 	memcpy(pkt.body, src, len);
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
-			if (!SNetSendMessage(i, &pkt.hdr, msglen) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
+			SNetSendMessage(i, &pkt.hdr, msglen);
+			/*if (!SNetSendMessage(i, &pkt.hdr, msglen) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;
-			}
+			}*/
 		}
 	}
 }
@@ -174,7 +177,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 static void multi_mon_seeds()
 {
 	int i;
-	DWORD l;
+	uint32_t l;
 
 	sgdwGameLoops++;
 	l = (sgdwGameLoops >> 8) | (sgdwGameLoops << 24); // _rotr(sgdwGameLoops, 8)
@@ -198,9 +201,9 @@ static void multi_handle_turn_upper_bit(int pnum)
 	}
 }
 
-static void multi_parse_turn(int pnum, int turn)
+static void multi_parse_turn(int pnum, uint32_t turn)
 {
-	DWORD absTurns;
+	uint32_t absTurns;
 
 	if (turn >> 31)
 		multi_handle_turn_upper_bit(pnum);
@@ -219,8 +222,7 @@ void multi_msg_countdown()
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (player_state[i] & PS_TURN_ARRIVED) {
-			if (gdwMsgLenTbl[i] == 4)
-				multi_parse_turn(i, *glpMsgTbl[i]);
+			multi_parse_turn(i, *glpMsgTbl[i]);
 		}
 	}
 }
@@ -317,7 +319,7 @@ static void multi_check_drop_player()
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (!(player_state[i] & PS_ACTIVE) && player_state[i] & PS_CONNECTED) {
-			SNetDropPlayer(i, LEAVE_DROP);
+			SNetDropPlayer(i);
 		}
 	}
 }
@@ -456,13 +458,13 @@ void multi_process_network_packets()
 {
 	int dx, dy;
 	TPktHdr *pkt;
-	DWORD dwMsgSize;
+	unsigned dwMsgSize;
 	int pnum;
 	PlayerStruct *p;
 
 	multi_clear_left_tbl();
 	multi_process_tmsgs();
-	while (SNetReceiveMessage(&pnum, (char **)&pkt, (int *)&dwMsgSize)) {
+	while (SNetReceiveMessage(&pnum, (char **)&pkt, &dwMsgSize)) {
 		multi_clear_left_tbl();
 		if (dwMsgSize < sizeof(TPktHdr))
 			continue;
@@ -547,10 +549,11 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 		dwMsg += sizeof(*p);
 		dwMsg += p->wBytes;
 		pkt.hdr.wLen = dwMsg;
-		if (!SNetSendMessage(pnum, &pkt, dwMsg)) {
+		SNetSendMessage(pnum, &pkt, dwMsg);
+		/*if (!SNetSendMessage(pnum, &pkt, dwMsg)) {
 			nthread_terminate_game("SNetSendMessage2");
 			return;
-		}
+		}*/
 		pbSrc += p->wBytes;
 		dwLen -= p->wBytes;
 		dwOffset += p->wBytes;

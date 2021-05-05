@@ -1018,7 +1018,7 @@ static void diablo_hotkey_msg(DWORD dwMsg)
 	if (!getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)))
 		return;
 
-	NetSendCmdString(-1);
+	NetSendCmdString(SNPLAYER_ALL);
 }
 
 static bool PressSysKey(int wParam)

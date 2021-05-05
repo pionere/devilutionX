@@ -26,26 +26,18 @@ class abstract_net {
 public:
 	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
-	virtual bool SNetReceiveMessage(int *sender, char **data,
-	    int *size)
+	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size) = 0;
+	virtual void SNetSendMessage(int dest, void *data, unsigned size) = 0;
+	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 	    = 0;
-	virtual bool SNetSendMessage(int dest, void *data,
-	    unsigned int size)
-	    = 0;
-	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
-	    = 0;
-	virtual bool SNetSendTurn(char *data, unsigned int size) = 0;
-	virtual bool SNetGetProviderCaps(struct _SNETCAPS *caps) = 0;
-	virtual bool SNetRegisterEventHandler(event_type evtype,
-	    SEVTHANDLER func)
-	    = 0;
-	virtual bool SNetUnregisterEventHandler(event_type evtype,
-	    SEVTHANDLER func)
-	    = 0;
+	virtual void SNetSendTurn(uint32_t turn) = 0;
+	virtual void SNetGetProviderCaps(struct _SNETCAPS *caps) = 0;
+	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func) = 0;
+	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func) = 0;
 	virtual void SNetLeaveGame(int type) = 0;
-	virtual bool SNetDropPlayer(int playerid, unsigned flags) = 0;
-	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns) = 0;
-	virtual bool SNetGetTurnsInTransit(DWORD *turns) = 0;
+	virtual void SNetDropPlayer(int playerid) = 0;
+	virtual uint32_t SNetGetOwnerTurnsWaiting() = 0;
+	virtual uint32_t SNetGetTurnsInTransit() = 0;
 	virtual void setup_gameinfo(buffer_t info) = 0;
 	virtual ~abstract_net() = default;
 

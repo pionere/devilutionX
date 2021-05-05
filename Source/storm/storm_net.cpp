@@ -19,7 +19,7 @@ static char gpszGamePassword[128] = {};
 static std::mutex storm_net_mutex;
 #endif
 
-bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
+bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -31,56 +31,56 @@ bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes)
 	return true;
 }
 
-bool SNetSendMessage(int playerID, void *data, unsigned int databytes)
+void SNetSendMessage(int playerID, void *data, unsigned int databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetSendMessage(playerID, data, databytes);
+	dvlnet_inst->SNetSendMessage(playerID, data, databytes);
 }
 
-bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	if (!dvlnet_inst->SNetReceiveTurns(data, size, status)) {
+	if (!dvlnet_inst->SNetReceiveTurns(turns, status)) {
 		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);
 		return false;
 	}
 	return true;
 }
 
-bool SNetSendTurn(char *data, unsigned int databytes)
+void SNetSendTurn(uint32_t turn)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetSendTurn(data, databytes);
+	dvlnet_inst->SNetSendTurn(turn);
 }
 
-bool SNetGetProviderCaps(struct _SNETCAPS *caps)
+void SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetGetProviderCaps(caps);
+	dvlnet_inst->SNetGetProviderCaps(caps);
 }
 
-bool SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
+void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetUnregisterEventHandler(evtype, func);
+	dvlnet_inst->SNetUnregisterEventHandler(evtype, func);
 }
 
-bool SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
+void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetRegisterEventHandler(evtype, func);
+	dvlnet_inst->SNetRegisterEventHandler(evtype, func);
 }
 
 bool SNetDestroy()
@@ -91,12 +91,12 @@ bool SNetDestroy()
 	return true;
 }
 
-bool SNetDropPlayer(int playerid, unsigned flags)
+void SNetDropPlayer(int playerid)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetDropPlayer(playerid, flags);
+	dvlnet_inst->SNetDropPlayer(playerid);
 }
 
 void SNetGetGameInfo(const char** name, const char **password)
@@ -167,20 +167,20 @@ bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePas
 /**
  * @brief Is this the mirror image of SNetGetTurnsInTransit?
  */
-bool SNetGetOwnerTurnsWaiting(DWORD *turns)
+uint32_t SNetGetOwnerTurnsWaiting()
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetGetOwnerTurnsWaiting(turns);
+	return dvlnet_inst->SNetGetOwnerTurnsWaiting();
 }
 
-bool SNetGetTurnsInTransit(DWORD *turns)
+uint32_t SNetGetTurnsInTransit()
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetGetTurnsInTransit(turns);
+	return dvlnet_inst->SNetGetTurnsInTransit();
 }
 
 #ifdef ZEROTIER

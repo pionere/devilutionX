@@ -8,12 +8,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 BYTE sgbNetUpdateRate;
-unsigned gdwMsgLenTbl[MAX_PLRS];
 static CCritSect sgMemCrit;
 unsigned gdwDeltaBytesSec;
 bool _sbNthreadShouldRun;
-DWORD gdwTurnsInTransit;
-LPDWORD glpMsgTbl[MAX_PLRS];
+uint32_t gdwTurnsInTransit;
+uint32_t* glpMsgTbl[MAX_PLRS];
 SDL_threadID glpNThreadId;
 char sgbSyncCountdown;
 int turn_upper_bit;
@@ -44,24 +43,26 @@ void nthread_terminate_game(const char *pszFcn)
 	}
 }
 
-DWORD nthread_send_and_recv_turn(DWORD cur_turn, int turn_delta)
+uint32_t nthread_send_and_recv_turn(uint32_t cur_turn, int turn_delta)
 {
-	DWORD turn, new_cur_turn, curTurnsInTransit;
+	uint32_t turn, new_cur_turn, curTurnsInTransit;
 
 	new_cur_turn = cur_turn;
-	if (!SNetGetTurnsInTransit(&curTurnsInTransit)) {
+	curTurnsInTransit = SNetGetTurnsInTransit();
+	/*if (!SNetGetTurnsInTransit(&curTurnsInTransit)) {
 		nthread_terminate_game("SNetGetTurnsInTransit");
 		return 0;
-	}
+	}*/
 	while (curTurnsInTransit++ < gdwTurnsInTransit) {
 
 		turn = turn_upper_bit | (new_cur_turn & 0x7FFFFFFF);
 		turn_upper_bit = 0;
 
-		if (!SNetSendTurn((char *)&turn, sizeof(turn))) {
+		SNetSendTurn(turn);
+		/*if (!SNetSendTurn(turn)) {
 			nthread_terminate_game("SNetSendTurn");
 			return 0;
-		}
+		}*/
 
 		new_cur_turn += turn_delta;
 		if (new_cur_turn >= 0x7FFFFFFF)
@@ -89,7 +90,7 @@ bool nthread_recv_turns(bool *received)
 #ifdef __3DS__
 	return false;
 #else
-	if (!SNetReceiveTurns((char*(&)[MAX_PLRS])glpMsgTbl, gdwMsgLenTbl, player_state)) {
+	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
 		_gbTicsOutOfSync = false;
@@ -152,9 +153,10 @@ void nthread_start(bool set_turn_upper_bit)
 	else
 		turn_upper_bit = 0;
 	//caps.size = 36;
-	if (!SNetGetProviderCaps(&caps)) {
+	SNetGetProviderCaps(&caps);
+	/*if (!SNetGetProviderCaps(&caps)) {
 		app_fatal("nthread1:\n%s", SDL_GetError());
-	}
+	}*/
 	gdwTurnsInTransit = caps.defaultturnsintransit;
 	if (!caps.defaultturnsintransit)
 		gdwTurnsInTransit = 1;

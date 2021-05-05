@@ -108,7 +108,7 @@ void base::recv_local(packet &pkt)
 	}
 }
 
-bool base::SNetReceiveMessage(int *sender, char **data, int *size)
+bool base::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 {
 	poll();
 	if (message_queue.empty())
@@ -121,11 +121,11 @@ bool base::SNetReceiveMessage(int *sender, char **data, int *size)
 	return true;
 }
 
-bool base::SNetSendMessage(int playerID, void *data, unsigned int size)
+void base::SNetSendMessage(int playerID, void *data, unsigned size)
 {
 	if (playerID != SNPLAYER_ALL && playerID != SNPLAYER_OTHERS
 	    && (playerID < 0 || playerID >= MAX_PLRS))
-		abort();
+		ABORT();
 	auto rawMessage = reinterpret_cast<unsigned char *>(data);
 	buffer_t message(rawMessage, rawMessage + size);
 	if (playerID == plr_self || playerID == SNPLAYER_ALL)
@@ -139,10 +139,9 @@ bool base::SNetSendMessage(int playerID, void *data, unsigned int size)
 		auto pkt = pktfty->make_out_packet<PT_MESSAGE>(plr_self, dest, message);
 		send(*pkt);
 	}
-	return true;
 }
 
-bool base::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
+bool base::SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 {
 	poll();
 	bool allTurnsArrived = true;
@@ -157,11 +156,10 @@ bool base::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS],
 	if (allTurnsArrived) {
 		for (auto i = 0; i < MAX_PLRS; ++i) {
 			if (connected_table[i]) {
-				size[i] = sizeof(turn_t);
 				status[i] |= PS_ACTIVE | PS_TURN_ARRIVED;
 				turn_last[i] = turn_queue[i].front();
 				turn_queue[i].pop_front();
-				data[i] = reinterpret_cast<char *>(&turn_last[i]);
+				data[i] = &turn_last[i];
 			}
 		}
 		return true;
@@ -176,19 +174,15 @@ bool base::SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS],
 	return false;
 }
 
-bool base::SNetSendTurn(char *data, unsigned int size)
+void base::SNetSendTurn(uint32_t turn)
 {
-	if (size != sizeof(turn_t))
-		ABORT();
-	turn_t turn;
-	std::memcpy(&turn, data, sizeof(turn));
+	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty->make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
 	send(*pkt);
 	turn_queue[plr_self].push_back(pkt->turn());
-	return true;
 }
 
-bool base::SNetGetProviderCaps(struct _SNETCAPS *caps)
+void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 	//caps->size = 0;                  // engine writes only ?!?
 	caps->flags = 0;                 // unused
@@ -200,13 +194,11 @@ bool base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 	caps->defaultturnssec = 10;      // ?
 	caps->defaultturnsintransit = 1; // maximum acceptable number
 	                                 // of turns in queue?
-	return true;
 }
 
-bool base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
+void base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
 	registered_handlers.erase(evtype);
-	return true;
 }
 
 /*
@@ -217,28 +209,26 @@ bool base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
  *  EVENT_TYPE_PLAYER_MESSAGE:
  *    not implemented
  */
-bool base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
+void base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 {
 	registered_handlers[evtype] = func;
-	return true;
 }
 
 void base::SNetLeaveGame(int type)
 {
 	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
-	    plr_self, type);
+	    plr_self, (leaveinfo_t)type);
 	send(*pkt);
 }
 
-bool base::SNetDropPlayer(int playerid, unsigned flags)
+void base::SNetDropPlayer(int playerid)
 {
 	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self,
 	    PLR_BROADCAST,
 	    (plr_t)playerid,
-	    (leaveinfo_t)flags);
+	    (leaveinfo_t)LEAVE_DROP);
 	send(*pkt);
 	recv_local(*pkt);
-	return true;
 }
 
 plr_t base::get_owner()
@@ -251,16 +241,14 @@ plr_t base::get_owner()
 	return PLR_BROADCAST; // should be unreachable
 }
 
-bool base::SNetGetOwnerTurnsWaiting(DWORD *turns)
+uint32_t base::SNetGetOwnerTurnsWaiting()
 {
-	*turns = turn_queue[get_owner()].size();
-	return true;
+	return turn_queue[get_owner()].size();
 }
 
-bool base::SNetGetTurnsInTransit(DWORD *turns)
+uint32_t base::SNetGetTurnsInTransit()
 {
-	*turns = turn_queue[plr_self].size();
-	return true;
+	return turn_queue[plr_self].size();
 }
 
 } // namespace net

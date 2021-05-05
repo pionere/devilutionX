@@ -75,11 +75,9 @@ bool SNetDestroy();
  *  Drops a player from the current game.
  *
  *  playerid:     The player ID for the player to be dropped.
- *  flags:
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool SNetDropPlayer(int playerid, unsigned flags);
+void SNetDropPlayer(int playerid);
 
 /*  SNetGetGameInfo @ 107
  *
@@ -87,17 +85,6 @@ bool SNetDropPlayer(int playerid, unsigned flags);
  *  @param password:     The password of the game
  */
 void SNetGetGameInfo(const char **name, const char **password);
-
-/*  SNetGetTurnsInTransit @ 115
- *
- *  Retrieves the number of turns (buffers) that have been queued
- *  before sending them over the network.
- *
- *  turns: A pointer to an integer that will receive the value.
- *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
- */
-bool SNetGetTurnsInTransit(DWORD *turns);
 
 bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword);
 
@@ -111,8 +98,28 @@ bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword)
  */
 void SNetLeaveGame(int type);
 
-bool SNetReceiveMessage(int *senderplayerid, char **data, int *databytes);
-bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
+/*  SNetSendTurn @ 128
+ *
+ *  Sends a turn (data packet) to all players in the game. Network data
+ *  is sent using class 02 and is retrieved by the other client using
+ *  SNetReceiveTurns().
+ *
+ *  turn:       the data packet.
+ *
+ *  Returns TRUE if the function was called successfully and FALSE otherwise.
+ */
+void SNetSendTurn(uint32_t turn);
+bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
+
+/*  SNetGetTurnsInTransit @ 115
+ *
+ *  Retrieves the number of turns (buffers) that have been queued
+ *  before sending them over the network.
+ *
+ *  @return the number of turns
+ */
+uint32_t SNetGetTurnsInTransit();
+uint32_t SNetGetOwnerTurnsWaiting();
 
 typedef void (*SEVTHANDLER)(struct _SNETEVENT *);
 
@@ -129,9 +136,19 @@ typedef void (*SEVTHANDLER)(struct _SNETEVENT *);
  *  data:       A pointer to the data.
  *  databytes:  The amount of bytes that the data pointer contains.
  *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
  */
-bool SNetSendMessage(int playerID, void *data, unsigned int databytes);
+void SNetSendMessage(int playerID, void *data, unsigned databytes);
+bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes);
+
+void SNetUnregisterEventHandler(event_type, SEVTHANDLER);
+void SNetRegisterEventHandler(event_type, SEVTHANDLER);
+void SNetInitializeProvider(unsigned long provider);
+void SNetGetProviderCaps(struct _SNETCAPS *);
+#ifdef ZEROTIER
+void SNetSendInfoRequest();
+std::vector<std::string> SNetGetGamelist();
+void SNetSetPassword(std::string pw);
+#endif
 
 // Macro values to target specific players
 #define SNPLAYER_ALL    -1
@@ -262,29 +279,6 @@ void SErrSetLastError(DWORD dwErrCode);
 void SStrCopy(char *dest, const char *src, int max_length);
 
 void SFileSetBasePath(const char *);
-
-/*  SNetSendTurn @ 128
- *
- *  Sends a turn (data packet) to all players in the game. Network data
- *  is sent using class 02 and is retrieved by the other client using
- *  SNetReceiveTurns().
- *
- *  data:       A pointer to the data.
- *  databytes:  The amount of bytes that the data pointer contains.
- *
- *  Returns TRUE if the function was called successfully and FALSE otherwise.
- */
-bool SNetSendTurn(char *data, unsigned int databytes);
-bool SNetGetOwnerTurnsWaiting(DWORD *);
-bool SNetUnregisterEventHandler(event_type, SEVTHANDLER);
-bool SNetRegisterEventHandler(event_type, SEVTHANDLER);
-void SNetInitializeProvider(unsigned long provider);
-bool SNetGetProviderCaps(struct _SNETCAPS *);
-#ifdef ZEROTIER
-void SNetSendInfoRequest();
-std::vector<std::string> SNetGetGamelist();
-void SNetSetPassword(std::string pw);
-#endif
 
 void  InitializeMpqCryptography();
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);

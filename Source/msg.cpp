@@ -109,12 +109,13 @@ void msg_send_drop_pkt(int pnum, int reason)
 static int msg_wait_for_turns()
 {
 	bool received;
-	DWORD turns;
+	uint32_t turns;
 
 	if (sgbDeltaChunks == 0) {
 		nthread_send_and_recv_turn(0, 0);
-		if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
-			return 100;
+		turns = SNetGetOwnerTurnsWaiting();
+		//if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
+		//	return 100;
 		if (SDL_GetTicks() - sgdwOwnerWait <= 2000 && turns < gdwTurnsInTransit)
 			return 0;
 		sgbDeltaChunks++;
@@ -2904,7 +2905,7 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_DEBUG(pCmd, pnum);
 	}
 
-	SNetDropPlayer(pnum, LEAVE_DROP);
+	SNetDropPlayer(pnum);
 	return 0;
 }
 

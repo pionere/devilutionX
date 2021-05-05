@@ -24,15 +24,15 @@ public:
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
-	virtual bool SNetReceiveMessage(int *sender, char **data, int *size);
-	virtual bool SNetSendMessage(int dest, void *data, unsigned int size);
-	virtual bool SNetReceiveTurns(char *(&data)[MAX_PLRS], unsigned (&size)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
-	virtual bool SNetSendTurn(char *data, unsigned int size);
-	virtual bool SNetGetProviderCaps(struct _SNETCAPS *caps);
+	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size);
+	virtual void SNetSendMessage(int dest, void *data, unsigned size);
+	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
+	virtual void SNetSendTurn(uint32_t turn);
+	virtual void SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual void SNetLeaveGame(int type);
-	virtual bool SNetDropPlayer(int playerid, unsigned flags);
-	virtual bool SNetGetOwnerTurnsWaiting(DWORD *turns);
-	virtual bool SNetGetTurnsInTransit(DWORD *turns);
+	virtual void SNetDropPlayer(int playerid);
+	virtual uint32_t SNetGetOwnerTurnsWaiting();
+	virtual uint32_t SNetGetTurnsInTransit();
 	virtual std::string make_default_gamename();
 };
 
