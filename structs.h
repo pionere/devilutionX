@@ -1579,22 +1579,14 @@ typedef struct SHA1Context {
 // tmsg
 //////////////////////////////////////////////////
 
-#pragma pack(push, 1)
-typedef struct TMsg TMsg;
-
 typedef struct TMsgHdr {
-	TMsg *pNext;
-	INT dwTime;
-	BYTE bLen;
-} TMsgHdr;
-
-typedef struct TMsg {
-	TMsgHdr hdr;
+	TMsgHdr *pNext;
+	uint32_t dwTime;
+	//BYTE bLen;
 	// this is actually alignment padding, but the message body is appended to the struct
 	// so it's convenient to use byte-alignment and name it "body"
-	BYTE body[3];
-} TMsg;
-#pragma pack(pop)
+	//BYTE body[3];
+} TMsgHdr;
 
 //////////////////////////////////////////////////
 // mpqapi

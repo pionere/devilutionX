@@ -446,11 +446,10 @@ static void multi_handle_all_packets(int pnum, BYTE *pData, int nSize)
 
 static void multi_process_tmsgs()
 {
-	int cnt;
-	TPkt pkt;
+	TCmdGItem pkt;
 
-	while ((cnt = tmsg_get(&pkt)) != 0) {
-		multi_handle_all_packets(myplr, (BYTE *)&pkt, cnt);
+	while (tmsg_get(&pkt)) {
+		multi_handle_all_packets(myplr, (BYTE *)&pkt, sizeof(pkt));
 	}
 }
 
