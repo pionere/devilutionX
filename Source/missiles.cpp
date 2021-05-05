@@ -2356,7 +2356,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty];
-			mid = mid >= 0 ? mid - 1 : -1 - mid;
+			mid = mid >= 0 ? mid - 1 : -(mid + 1);
 			if (mid < MAX_MINIONS)
 				continue;
 			mon = &monster[mid];
@@ -3630,7 +3630,7 @@ void MI_Guardian(int mi)
 void MI_Chain(int mi)
 {
 	MissileStruct *mis;
-	int mx, my, range, sd, dx, dy;
+	int mx, my, sd, dx, dy;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -3643,8 +3643,7 @@ void MI_Chain(int mi)
 	my = mis->_miy;
 	if (mx != mis->_misx || my != mis->_misy) {
 		if (!nMissileTable[dPiece[mx][my]]) {
-			range = mis->_miRange;
-			if (CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
+			if (CheckMissileCol(mi, mx, my, false)) {
 				if (mis->_miVar1-- != 0) {
 					// set the new position as the starting point
 					mis->_misx = mx;
@@ -3657,6 +3656,13 @@ void MI_Chain(int mi)
 					mis->_miRange = 256;
 					// find new target
 					if (!FindClosestChain(mx, my, dx, dy)) {
+						// create pseudo-random seed using the monster which was hit (or the first real monster)
+						sd = dMonster[mx][my];
+						if (sd != 0)
+							sd = sd >= 0 ? sd - 1 : -(sd + 1);
+						else
+							sd = MAX_MINIONS;
+						SetRndSeed(monster[sd]._mRndSeed);
 						sd = random_(0, lengthof(offset_x));
 						dx = mx + offset_x[sd];
 						dy = my + offset_y[sd];
