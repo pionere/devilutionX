@@ -171,7 +171,7 @@ void FillSolidBlockTbls()
 			nTransTable[i] = true;
 		if (bv & 0x80)
 			nTrapTable[i] = true;
-		block_lvid[i] = (bv & 0x70) >> 4; /* beta: (bv >> 4) & 7 */
+		block_lvid[i] = bv & 0x70;
 	}
 
 	mem_free_dbg(pSBFile);

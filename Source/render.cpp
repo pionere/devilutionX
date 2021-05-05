@@ -216,7 +216,8 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 		} else if (adt == RADT_LEFT) {
 			if (tile != RT_LTRIANGLE) {
 				c = block_lvid[level_piece_id];
-				if (c == 1 || c == 3) {
+				//if (c == (1 << 4) || c == (3 << 4)) {
+				if ((c & (5 << 4)) == (1 << 4)) {
 					mask = &LeftMask[TILE_HEIGHT - 1];
 				}
 			}
@@ -224,7 +225,8 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			// assert(adt == RADT_RIGHT);
 			if (tile != RT_RTRIANGLE) {
 				c = block_lvid[level_piece_id];
-				if (c == 2 || c == 3) {
+				//if (c == (2 << 4) || c == (3 << 4)) {
+				if ((c & (6 << 4)) == (2 << 4)) {
 					mask = &RightMask[TILE_HEIGHT - 1];
 				}
 			}
