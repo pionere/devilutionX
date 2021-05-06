@@ -8,25 +8,25 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int numthemes;
-bool _gbArmorFlag;
-bool _gbWeaponFlag;
-bool _gbTreasureFlag;
-bool _gbMFountainFlag;
-bool _gbCauldronFlag;
-bool _gbTFountainFlag;
-bool _gbPFountainFlag;
-bool _gbBFountainFlag;
-bool _gbBCrossFlag;
+static bool _gbArmorFlag;
+static bool _gbWeaponFlag;
+static bool _gbTreasureFlag;
+static bool _gbMFountainFlag;
+static bool _gbCauldronFlag;
+static bool _gbTFountainFlag;
+static bool _gbPFountainFlag;
+static bool _gbBFountainFlag;
+static bool _gbBCrossFlag;
 int zharlib;
-int themex;
-int themey;
-int themeVar1;
+static int themex;
+static int themey;
+static int themeVar1;
 ThemeStruct themes[MAXTHEMES];
 
 /** Specifies the set of special theme IDs from which one will be selected at random. */
-int ThemeGood[4] = { THEME_GOATSHRINE, THEME_SHRINE, THEME_SKELROOM, THEME_LIBRARY };
+static const int ThemeGood[4] = { THEME_GOATSHRINE, THEME_SHRINE, THEME_SKELROOM, THEME_LIBRARY };
 /** Specifies a 5x5 area to fit theme objects. */
-int trm5x[] = {
+static const int trm5x[] = {
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2,
@@ -34,7 +34,7 @@ int trm5x[] = {
 	-2, -1, 0, 1, 2
 };
 /** Specifies a 5x5 area to fit theme objects. */
-int trm5y[] = {
+static const int trm5y[] = {
 	-2, -2, -2, -2, -2,
 	-1, -1, -1, -1, -1,
 	0, 0, 0, 0, 0,
@@ -42,13 +42,13 @@ int trm5y[] = {
 	2, 2, 2, 2, 2
 };
 /** Specifies a 3x3 area to fit theme objects. */
-int trm3x[] = {
+static const int trm3x[] = {
 	-1, 0, 1,
 	-1, 0, 1,
 	-1, 0, 1
 };
 /** Specifies a 3x3 area to fit theme objects. */
-int trm3y[] = {
+static const int trm3y[] = {
 	-1, -1, -1,
 	0, 0, 0,
 	1, 1, 1
@@ -64,22 +64,34 @@ static bool TFit_Shrine(int tidx)
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv) {
 			if (nTrapTable[dPiece[xx][yy - 1]]
+			 // make sure the place is wide enough
 			 && !nSolidTable[dPiece[xx - 1][yy]]
 			 && !nSolidTable[dPiece[xx + 1][yy]]
+			 // make sure it is in the same room
 			 && dTransVal[xx - 1][yy] == tv
 			 && dTransVal[xx + 1][yy] == tv
+			 // make sure there is no door on the wall
 			 && dObject[xx - 1][yy - 1] == 0
 			 && dObject[xx + 1][yy - 1] == 0) {
+				// assert(dObject[xx][yy] == 0);
+				// assert(dObject[xx - 1][yy] == 0);
+				// assert(dObject[xx + 1][yy] == 0);
 				found = 1;
 				break;
 			}
 			if (nTrapTable[dPiece[xx - 1][yy]]
+			 // make sure the place is wide enough
 			 && !nSolidTable[dPiece[xx][yy - 1]]
 			 && !nSolidTable[dPiece[xx][yy + 1]]
+			 // make sure it is in the same room
 			 && dTransVal[xx][yy - 1] == tv
 			 && dTransVal[xx][yy + 1] == tv
+			 // make sure there is no door on the wall
 			 && dObject[xx - 1][yy - 1] == 0
 			 && dObject[xx - 1][yy + 1] == 0) {
+				// assert(dObject[xx][yy] == 0);
+				// assert(dObject[xx][yy - 1] == 0);
+				// assert(dObject[xx][yy + 1] == 0);
 				found = 2;
 				break;
 			}
