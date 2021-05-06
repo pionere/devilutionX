@@ -1754,8 +1754,6 @@ static void Obj_StopAnim(int oi)
 	os = &object[oi];
 	if (os->_oAnimFrame == os->_oAnimLen) {
 		os->_oAnimFlag = FALSE;
-		//os->_oAnimCnt = 0;
-		//os->_oAnimFrameLen = 1000;
 	}
 }
 
@@ -1772,15 +1770,6 @@ static void Obj_Door(int oi)
 	dy = os->_oy;
 	dok = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0;
 	os->_oVar4 = dok ? DOOR_OPEN : DOOR_BLOCKED;
-}
-
-static void Obj_Sarc(int oi)
-{
-	ObjectStruct *os;
-
-	os = &object[oi];
-	if (os->_oAnimFrame == os->_oAnimLen)
-		os->_oAnimFlag = FALSE;
 }
 
 static void ActivateTrapLine(int tid)
@@ -1965,6 +1954,7 @@ void ProcessObjects()
 		case OBJ_CRUX1:
 		case OBJ_CRUX2:
 		case OBJ_CRUX3:
+		case OBJ_SARC:
 		case OBJ_BARREL:
 		case OBJ_BARRELEX:
 		case OBJ_SHRINEL:
@@ -1985,9 +1975,6 @@ void ProcessObjects()
 		case OBJ_TORCHR2:
 			Obj_Light(oi, 5, flickers[1]);
 			break;*/
-		case OBJ_SARC:
-			Obj_Sarc(oi);
-			break;
 		case OBJ_FLAMEHOLE:
 			Obj_FlameTrap(oi);
 			break;
