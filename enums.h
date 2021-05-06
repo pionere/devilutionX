@@ -2474,6 +2474,17 @@ typedef enum dungeon_level {
 #endif
 } dungeon_level;
 
+typedef enum piece_flag {
+	PFLAG_BLOCK_PATH       = 1 << 0,
+	PFLAG_BLOCK_LIGHT      = 1 << 1,
+	PFLAG_BLOCK_MISSILE    = 1 << 2,
+	PFLAG_TRANSPARENT      = 1 << 3,
+	PFLAG_TRANS_MASK_LEFT  = 1 << 4,
+	PFLAG_TRANS_MASK_RIGHT = 1 << 5,
+	// PFLAG_TRANS_MASK_NONE  = 1 << 6, - unused. masked the LEFT/RIGHT flags in vanilla.
+	PFLAG_TRAP_SOURCE      = 1 << 7,
+} piece_flag;
+
 typedef enum dflag {
 	BFLAG_MISSILE     = 0x01,
 	BFLAG_VISIBLE     = 0x02,

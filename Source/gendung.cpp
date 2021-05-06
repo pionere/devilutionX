@@ -29,9 +29,9 @@ BYTE *pMegaTiles;
 BYTE *pLevelPieces;
 BYTE *pDungeonCels;
 /**
- * List of transparancy masks to use for dPieces
+ * The original flags of the dPieces
  */
-BYTE block_lvid[MAXTILES + 1];
+BYTE pieceFlags[MAXTILES + 1];
 /**
  * List of light blocking dPieces
  */
@@ -39,7 +39,7 @@ bool nBlockTable[MAXTILES + 1];
 /**
  * List of path blocking dPieces
  */
-BOOLEAN nSolidTable[MAXTILES + 1];
+bool nSolidTable[MAXTILES + 1];
 /**
  * List of transparent dPieces
  */
@@ -48,7 +48,6 @@ bool nTransTable[MAXTILES + 1];
  * List of missile blocking dPieces
  */
 bool nMissileTable[MAXTILES + 1];
-bool nTrapTable[MAXTILES + 1];
 int gnDifficulty;
 /** Contains the data of the active dungeon level. */
 LevelStruct currLvl;
@@ -145,33 +144,28 @@ void FillSolidBlockTbls()
 	DWORD i, dwTiles;
 	BYTE *pSBFile, *pTmp;
 
+#ifdef _DEBUG
 	static_assert(false == 0, "FillSolidBlockTbls fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
 	memset(nTransTable, 0, sizeof(nTransTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
-	memset(nTrapTable, 0, sizeof(nTrapTable));
+#endif
 
 	pSBFile = LoadFileInMem(AllLevels[currLvl._dLevelIdx].dSolidTable, &dwTiles);
 	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
 
 	// dpiece 0 is always black/void -> make it non-passable to reduce the necessary checks
-	nSolidTable[0] = TRUE;
+	nSolidTable[0] = true;
 
 	for (i = 1; i <= dwTiles; i++) {
 		bv = *pTmp++;
-		if (bv & 0x01)
-			nSolidTable[i] = TRUE;
-		if (bv & 0x02)
-			nBlockTable[i] = true;
-		if (bv & 0x04)
-			nMissileTable[i] = true;
-		if (bv & 0x08)
-			nTransTable[i] = true;
-		if (bv & 0x80)
-			nTrapTable[i] = true;
-		block_lvid[i] = bv & 0x70;
+		pieceFlags[i] = bv;
+		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
+		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
+		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
+		nTransTable[i] = (bv & PFLAG_TRANSPARENT) != 0;
 	}
 
 	mem_free_dbg(pSBFile);
@@ -179,8 +173,8 @@ void FillSolidBlockTbls()
 	// patch dSolidTable - L4.SOL
 	if (currLvl._dType == DTYPE_HELL) {
 		nMissileTable[141] = false;
-		nSolidTable[130] = TRUE;
-		nSolidTable[132] = TRUE;
+		nSolidTable[130] = true;
+		nSolidTable[132] = true;
 	}
 }
 

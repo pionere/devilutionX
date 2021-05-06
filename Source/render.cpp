@@ -215,18 +215,16 @@ void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt)
 			mask = &WallMask[TILE_HEIGHT - 1];
 		} else if (adt == RADT_LEFT) {
 			if (tile != RT_LTRIANGLE) {
-				c = block_lvid[level_piece_id];
-				//if (c == (1 << 4) || c == (3 << 4)) {
-				if ((c & (5 << 4)) == (1 << 4)) {
+				c = pieceFlags[level_piece_id];
+				if (c & PFLAG_TRANS_MASK_LEFT) {
 					mask = &LeftMask[TILE_HEIGHT - 1];
 				}
 			}
 		} else {
 			// assert(adt == RADT_RIGHT);
 			if (tile != RT_RTRIANGLE) {
-				c = block_lvid[level_piece_id];
-				//if (c == (2 << 4) || c == (3 << 4)) {
-				if ((c & (6 << 4)) == (2 << 4)) {
+				c = pieceFlags[level_piece_id];
+				if (c & PFLAG_TRANS_MASK_RIGHT) {
 					mask = &RightMask[TILE_HEIGHT - 1];
 				}
 			}

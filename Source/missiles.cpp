@@ -3227,19 +3227,19 @@ void MI_Fireball(int mi)
 			// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 			CheckSplashCol(mi);
 			if (!TransList[dTransVal[mx][my]]
-			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]])))) {
+			    || (mis->_mixvel < 0 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]]) || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]])))) {
 				mis->_mix++;
 				mis->_miy++;
 				mis->_miyoff -= 32;
 			}
 			if (mis->_miyvel > 0
-			 && ((TransList[dTransVal[mx + 1][my]] && nSolidTable[dPiece[mx + 1][my]])
-			  || (TransList[dTransVal[mx - 1][my]] && nSolidTable[dPiece[mx - 1][my]]))) {
+			 && ((TransList[dTransVal[mx + 1][my]] & nSolidTable[dPiece[mx + 1][my]])
+			  || (TransList[dTransVal[mx - 1][my]] & nSolidTable[dPiece[mx - 1][my]]))) {
 				mis->_miyoff -= 32;
 			}
 			if (mis->_mixvel > 0
-			 && ((TransList[dTransVal[mx][my + 1]] && nSolidTable[dPiece[mx][my + 1]])
-			  || (TransList[dTransVal[mx][my - 1]] && nSolidTable[dPiece[mx][my - 1]]))) {
+			 && ((TransList[dTransVal[mx][my + 1]] & nSolidTable[dPiece[mx][my + 1]])
+			  || (TransList[dTransVal[mx][my - 1]] & nSolidTable[dPiece[mx][my - 1]]))) {
 				mis->_mixoff -= 32;
 			}
 			mis->_miDir = 0;
