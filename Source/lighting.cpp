@@ -710,20 +710,20 @@ void InitLightTable()
 
 void MakeLightTable()
 {
-	int i, j, k, l, lights, shade, l1, l2, cnt, rem, div;
+	int i, j, k, l, shade, l1, l2, cnt, rem, div;
 	double fs, fa;
 	BYTE col, max;
-	BYTE *tbl, *trn;
+	BYTE *tbl;
 	BYTE blood[16];
+
+#ifndef _DEBUG
+	const int lights = 15;
+#else
+	const int lights = light4flag ? 3 : 15;
+#endif
 
 	tbl = pLightTbl;
 	shade = 0;
-	lights = 15;
-#ifdef _DEBUG
-	if (light4flag)
-		lights = 3;
-#endif
-
 	for (i = 0; i < lights; i++) {
 		*tbl++ = 0;
 		for (j = 0; j < 8; j++) {
@@ -779,12 +779,11 @@ void MakeLightTable()
 			shade++;
 	}
 
-	for (i = 0; i < 256; i++) {
-		*tbl++ = 0;
-	}
+	// assert(tbl == &pLightTbl[lights * 256]);
+	tbl = pLightTbl;
+	memset(&tbl[lights * 256], 0, 256);
 
 	if (currLvl._dType == DTYPE_HELL) {
-		tbl = pLightTbl;
 		for (i = 0; i < lights; i++) {
 			l1 = lights - i;
 			l2 = l1;
@@ -822,11 +821,8 @@ void MakeLightTable()
 			*tbl++ = 1;
 		}
 		tbl += 224;
-	}
-
 #ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
-		tbl = pLightTbl;
+	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
 		for (i = 0; i < lights; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
@@ -837,21 +833,14 @@ void MakeLightTable()
 		for (j = 1; j < 16; j++)
 			*tbl++ = 1;
 		tbl += 240;
-	}
 #endif
-
-	trn = LoadFileInMem("PlrGFX\\Infra.TRN");
-	for (i = 0; i < 256; i++) {
-		*tbl++ = trn[i];
 	}
-	mem_free_dbg(trn);
 
-	trn = LoadFileInMem("PlrGFX\\Stone.TRN");
-	for (i = 0; i < 256; i++) {
-		*tbl++ = trn[i];
-	}
-	mem_free_dbg(trn);
+	tbl = pLightTbl;
+	LoadFileWithMem("PlrGFX\\Infra.TRN", &tbl[(lights + 1) * 256]);
+	LoadFileWithMem("PlrGFX\\Stone.TRN", &tbl[(lights + 2) * 256]);
 
+	tbl = &tbl[(lights + 3) * 256];
 	for (i = 0; i < 8; i++) {
 		for (col = 226; col < 239; col++) {
 			if (i != 0 || col != 226) {

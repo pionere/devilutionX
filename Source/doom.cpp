@@ -70,8 +70,7 @@ void doom_init()
 	doom_close();
 
 	pDoomCel = DiabloAllocPtr(DOOM_CELSIZE);
-	if (pDoomCel == NULL)
-		return;
+	// assert(pDoomCel != NULL);
 #ifndef  HELLFIRE
 	doom_quest_time = doom_get_frame_from_time() == 31 ? 31 : 0;
 #endif
