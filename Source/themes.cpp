@@ -54,13 +54,21 @@ static const int trm3y[] = {
 	1, 1, 1
 };
 
+typedef struct PosDir {
+	int x;
+	int y;
+	int dir;
+} PosDir;
+
 static bool TFit_Shrine(int tidx)
 {
-	int xx, yy, found;
+	int xx, yy, i, numMatches;
+	PosDir matches[5];
 	const BYTE tv = themes[tidx].ttval;
 
 	xx = DBORDERX;
 	yy = DBORDERY;
+	numMatches = 0;
 	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 			if ((pieceFlags[dPiece[xx][yy - 1]] & PFLAG_TRAP_SOURCE)
@@ -76,8 +84,9 @@ static bool TFit_Shrine(int tidx)
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx - 1][yy] == 0);
 				// assert(dObject[xx + 1][yy] == 0);
-				found = 1;
-				break;
+				matches[numMatches] = { xx, yy, 1 };
+				if (++numMatches == lengthof(matches))
+					break;
 			}
 			if ((pieceFlags[dPiece[xx - 1][yy]] & PFLAG_TRAP_SOURCE)
 			 // make sure the place is wide enough
@@ -92,71 +101,69 @@ static bool TFit_Shrine(int tidx)
 				// assert(dObject[xx][yy] == 0);
 				// assert(dObject[xx][yy - 1] == 0);
 				// assert(dObject[xx][yy + 1] == 0);
-				found = 2;
-				break;
+				matches[numMatches] = { xx, yy, 2 };
+				if (++numMatches == lengthof(matches))
+					break;
 			}
 		}
-		xx++;
-		if (xx == DBORDERX + DSIZEX) {
+		if (++xx == DBORDERX + DSIZEX) {
 			xx = DBORDERX;
-			yy++;
-			if (yy == DBORDERY + DSIZEY)
-				return false;
+			if (++yy == DBORDERY + DSIZEY)
+				break;
 		}
 	}
-	themex = xx;
-	themey = yy;
-	themeVar1 = found;
+	if (numMatches == 0)
+		return false;
+
+	i = random_(0, numMatches);
+
+	themex = matches[i].x;
+	themey = matches[i].y;
+	themeVar1 = matches[i].dir;
 	return true;
 }
 
 static bool TFit_Obj5(int tidx)
 {
-	int xx, yy;
-	int i, r, rs;
-	bool found;
+	int xx, yy, i, numMatches;
+	POS32 matches[5];
 	const BYTE tv = themes[tidx].ttval;
 
 	xx = DBORDERX;
 	yy = DBORDERY;
-	r = RandRange(1, 5);
-	rs = r;
-	while (r > 0) {
-		found = false;
+	numMatches = 0;
+	while (TRUE) {
 		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			found = true;
 			static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
-			for (i = 0; found && i < lengthof(trm5x); i++) {
+			for (i = 0; i < lengthof(trm5x); i++) {
 				if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
-					found = false;
+					break;
 				}
 				if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
-					found = false;
+					break;
 				}
+			}
+			if (i == lengthof(trm5x)) {
+				matches[numMatches] = { xx, yy };
+				if (++numMatches == lengthof(matches))
+					break;
 			}
 		}
 
-		if (!found) {
-			xx++;
-			if (xx == DBORDERX + DSIZEX) {
-				xx = DBORDERX;
-				yy++;
-				if (yy == DBORDERY + DSIZEY) {
-					if (r == rs) {
-						return false;
-					}
-					yy = DBORDERY;
-				}
-			}
-			continue;
+		if (++xx == DBORDERX + DSIZEX) {
+			xx = DBORDERX;
+			if (++yy == DBORDERY + DSIZEY)
+				break;
 		}
-
-		r--;
 	}
 
-	themex = xx;
-	themey = yy;
+	if (numMatches == 0)
+		return false;
 
+	i = random_(0, numMatches);
+
+	themex = matches[i].x;
+	themey = matches[i].y;
 	return true;
 }
 
