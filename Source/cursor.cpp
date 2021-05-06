@@ -130,7 +130,7 @@ void InitCursor()
 	assert(pCursCels == NULL);
 	
 #ifdef HELLFIRE
-	DWORD sizeA, sizeB;
+	size_t sizeA, sizeB;
 	BYTE *aCursCels, *bCursCels;
 
 	aCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL", &sizeA);

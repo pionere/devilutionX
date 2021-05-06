@@ -755,11 +755,11 @@ void mem_free_dbg(void *p)
  * @param pdwFileLen Will be set to file size if non-NULL
  * @return Buffer with content of file
  */
-BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen)
+BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen)
 {
 	HANDLE file;
 	BYTE *buf;
-	int fileLen;
+	size_t fileLen;
 
 	SFileOpenFile(pszName, &file);
 	fileLen = SFileGetFileSize(file);
@@ -1201,9 +1201,10 @@ void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
-BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB)
+BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 {
-	DWORD nDataSize, i, nCelA, nCelB, cData, nData;
+	size_t nDataSize;
+	DWORD i, nCelA, nCelB, cData, nData;
 	BYTE *cel, *pBuf;
 	DWORD *pHead;
 

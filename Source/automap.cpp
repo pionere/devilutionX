@@ -69,10 +69,9 @@ void InitAutomapOnce()
  */
 void InitAutomap()
 {
-	DWORD dwTiles;
+	size_t dwTiles, i;
 	BYTE *pAFile, *pTmp;
 	uint16_t *lm;
-	DWORD i;
 	const char* mapData;
 
 	mapData = AllLevels[currLvl._dLevelIdx].dAutomapData;
@@ -85,7 +84,7 @@ void InitAutomap()
 	pAFile = LoadFileInMem(mapData, &dwTiles);
 
 	dwTiles /= 2;
-	assert(dwTiles < (DWORD)lengthof(automaptype));
+	assert(dwTiles < (size_t)lengthof(automaptype));
 
 	lm = (uint16_t*)pAFile;
 	for (i = 1; i <= dwTiles; i++) {

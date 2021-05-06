@@ -141,7 +141,7 @@ void DRLG_Init_Globals()
 void FillSolidBlockTbls()
 {
 	BYTE bv;
-	DWORD i, dwTiles;
+	size_t i, dwTiles;
 	BYTE *pSBFile, *pTmp;
 
 #ifdef _DEBUG
@@ -153,6 +153,7 @@ void FillSolidBlockTbls()
 #endif
 
 	pSBFile = LoadFileInMem(AllLevels[currLvl._dLevelIdx].dSolidTable, &dwTiles);
+
 	assert(dwTiles <= MAXTILES);
 	pTmp = pSBFile;
 
@@ -343,8 +344,8 @@ void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv)
 	x2 = 2 * x2 + DBORDERX;
 	y2 = 2 * y2 + DBORDERY;
 
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
 			dTransVal[i][j] = tv;
 		}
 	}

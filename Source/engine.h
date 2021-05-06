@@ -64,7 +64,7 @@ Sint32 GetRndSeed();
 int random_(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
-BYTE *LoadFileInMem(const char *pszName, DWORD *pdwFileLen = NULL);
+BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);
 void LoadFileWithMem(const char *pszName, BYTE *p);
 void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel);
 void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
@@ -72,7 +72,7 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light);
 void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 
-BYTE* CelMerge(BYTE* celA, int nDataSizeA, BYTE* celB, int nDataSizeB);
+BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char *pszMovie);
 
