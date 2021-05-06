@@ -62,7 +62,7 @@ static bool TFit_Shrine(int tidx)
 	xx = DBORDERX;
 	yy = DBORDERY;
 	while (TRUE) {
-		if (dTransVal[xx][yy] == tv) {
+		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 			if (nTrapTable[dPiece[xx][yy - 1]]
 			 // make sure the place is wide enough
 			 && !nSolidTable[dPiece[xx - 1][yy]]
