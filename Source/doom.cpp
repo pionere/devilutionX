@@ -10,11 +10,9 @@ DEVILUTION_BEGIN_NAMESPACE
 BYTE *pDoomCel = NULL;
 bool gbDoomflag;
 
-#ifdef HELLFIRE
-#define DOOM_CELSIZE 0x39000
-#else
 #define DOOM_CELSIZE 0x38000
 
+#ifndef HELLFIRE
 int doom_quest_time;
 int doom_stars_drawn;
 int DoomQuestState;
@@ -22,20 +20,20 @@ int DoomQuestState;
 /*
 stastic void doom_reset_state()
 {
-    if (DoomQuestState <= 0) {
-        DoomQuestState = 0;
-    }
+	if (DoomQuestState < 0) {
+		DoomQuestState = 0;
+	}
 }
 
 static void doom_play_movie()
 {
-    if (DoomQuestState < 36001) {
-        DoomQuestState++;
-        if (DoomQuestState == 36001) {
-            PlayInGameMovie("gendata\\doom.smk");
-            DoomQuestState++;
-        }
-    }
+	if (DoomQuestState < 36001) {
+		DoomQuestState++;
+		if (DoomQuestState == 36001) {
+			PlayInGameMovie("gendata\\doom.smk");
+			DoomQuestState++;
+		}
+	}
 }
 */
 
@@ -52,7 +50,7 @@ static int doom_get_frame_from_time()
 static void doom_load_graphics()
 {
 #ifdef HELLFIRE
-	copy_cstr(tempstr, "Items\\Map\\MapZtown.CEL");
+	LoadFileWithMem("Items\\Map\\MapZtown.CEL", pDoomCel);
 #else
 	if (doom_quest_time == 31) {
 		copy_cstr(tempstr, "Items\\Map\\MapZDoom.CEL");
@@ -61,8 +59,8 @@ static void doom_load_graphics()
 	} else {
 		snprintf(tempstr, sizeof(tempstr), "Items\\Map\\MapZ00%i.CEL", doom_quest_time);
 	}
-#endif
 	LoadFileWithMem(tempstr, pDoomCel);
+#endif
 }
 
 void doom_init()
