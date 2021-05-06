@@ -375,7 +375,7 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyChar(tbuff, &p->pTownWarps);
-	CopyChar(tbuff, &p->pLvlLoad);
+	CopyChar(tbuff, &p->palign_CB);
 	CopyChar(tbuff, &p->pDungMsgs);
 	CopyChar(tbuff, &p->pDungMsgs2);
 
@@ -1075,7 +1075,7 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
 	CopyChar(&p->pTownWarps, tbuff);
-	CopyChar(&p->pLvlLoad, tbuff);
+	CopyChar(&p->palign_CB, tbuff);
 	CopyChar(&p->pDungMsgs, tbuff);
 	CopyChar(&p->pDungMsgs2, tbuff);
 

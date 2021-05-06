@@ -1267,7 +1267,7 @@ static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
-	if (plr[myplr].pLvlLoad != 0 && gbMaxPlayers != 1) {
+	if (lvlLoad != 0 && gbMaxPlayers != 1) {
 		return;
 	}
 	if (!gbSoundOn || geBufferMsgs != MSG_NORMAL) {
@@ -1302,7 +1302,7 @@ void PlayEffect(int mnum, int mode)
 	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
-	if (plr[myplr].pLvlLoad != 0) {
+	if (lvlLoad != 0) {
 		return;
 	}
 

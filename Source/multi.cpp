@@ -594,9 +594,9 @@ static void SetupLocalCoords()
 	p->_pfuty = y;
 	p->plrlevel = currLvl._dLevelIdx;
 	p->_pLvlChanging = TRUE;
-	p->pLvlLoad = 0;
 	p->_pmode = PM_NEWLVL;
 	p->destAction = ACTION_NONE;
+	lvlLoad = 10;
 }
 
 static void multi_handle_events(_SNETEVENT *pEvt)

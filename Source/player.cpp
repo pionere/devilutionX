@@ -10,6 +10,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int myplr;
 PlayerStruct plr[MAX_PLRS];
+/* Counter to suppress animations in case the current player is changing the level. */
+BYTE lvlLoad;
 bool gbDeathflag;
 int deathdelay;
 bool _gbPlrGfxSizeLoaded = false;
@@ -2053,7 +2055,7 @@ static void InitLevelChange(int pnum)
 			gbQtextflag = false;
 			stream_stop();
 		}
-		p->pLvlLoad = 10;
+		lvlLoad = 10;
 		dPlayer[p->_px][p->_py] = pnum + 1;
 	} else {
 		p->_pLvlVisited[p->plrlevel] = TRUE;
@@ -3151,8 +3153,8 @@ void ProcessPlayers()
 		app_fatal("ProcessPlayers: illegal player %d", myplr);
 	}
 
-	if (plr[myplr].pLvlLoad > 0) {
-		plr[myplr].pLvlLoad--;
+	if (lvlLoad > 0) {
+		lvlLoad--;
 	}
 #ifndef NOSOUND
 	if (sfxdelay > 0) {

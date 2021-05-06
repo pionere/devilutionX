@@ -274,7 +274,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	memcpy(p->_pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(p->_pAltMoveSkillTypeHotKey));
 
 	p->pTownWarps = 0;
-	p->pLvlLoad = 0;
+	p->palign_CB = 0;
 	p->pDungMsgs = 0;
 	p->pDungMsgs2 = 0;
 	p->_plid = -1;

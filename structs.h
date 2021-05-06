@@ -398,7 +398,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam;
 	int _pIAMaxDam;
 	BYTE pTownWarps;
-	BYTE pLvlLoad;
+	BYTE palign_CB;
 	BYTE pDungMsgs;
 	BYTE pDungMsgs2;
 	BYTE *_pNData;
