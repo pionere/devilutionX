@@ -207,14 +207,6 @@ static bool RndLocOk(int xp, int yp)
 	return false;
 }
 
-static bool WallTrapLocOk(int xp, int yp)
-{
-	if (dFlags[xp][yp] & BFLAG_POPULATED)
-		return false;
-
-	return nTrapTable[dPiece[xp][yp]];
-}
-
 static bool RndLoc3x3(int *x, int *y)
 {
 	int xp, yp, i, j, tries;
@@ -562,8 +554,7 @@ static void AddL2Torches()
 
 static void AddObjTraps()
 {
-	int i, j, oi, on;
-	int xp, yp;
+	int i, j, oi, tx, ty, on;
 	int rndv;
 
 	rndv = 10 + (currLvl._dLevel >> 1);
@@ -580,24 +571,31 @@ static void AddObjTraps()
 			if (random_(144, 100) >= rndv)
 				continue;
 			if (random_(144, 2) == 0) {
-				xp = i - 1;
-				while (!nSolidTable[dPiece[xp][j]])
-					xp--;
+				tx = i - 1;
+				while (!nSolidTable[dPiece[tx][j]])
+					tx--;
 
-				if (!WallTrapLocOk(xp, j) || i - xp <= 1)
+				if (i - tx <= 1)
 					continue;
 
-				on = AddObject(OBJ_TRAPL, xp, j);
+				ty = j;
+				on = OBJ_TRAPL;
 			} else {
-				yp = j - 1;
-				while (!nSolidTable[dPiece[i][yp]])
-					yp--;
+				ty = j - 1;
+				while (!nSolidTable[dPiece[i][ty]])
+					ty--;
 
-				if (!WallTrapLocOk(i, yp) || j - yp <= 1)
+				if (j - ty <= 1)
 					continue;
 
-				on = AddObject(OBJ_TRAPR, i, yp);
+				tx = i;
+				on = OBJ_TRAPR;
 			}
+			if (dFlags[tx][ty] & BFLAG_POPULATED)
+				continue;
+			if (!nTrapTable[dPiece[tx][ty]])
+				continue;
+			on = AddObject(on, tx, ty);
 			if (on == -1)
 				return;
 			object[oi]._oTrapFlag = TRUE;
