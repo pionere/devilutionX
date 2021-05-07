@@ -112,9 +112,12 @@ static_assert((sizeof(ItemDataStruct) & (sizeof(ItemDataStruct) - 1)) == 0, "Ali
 
 typedef struct ItemGetRecordStruct {
 	int nSeed;
-	unsigned short wCI;
-	int nIndex;
+	WORD nIndex;
+	WORD wCI;
 	unsigned int dwTimestamp;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } ItemGetRecordStruct;
 
 #ifdef X86_32bit_COMP
@@ -860,14 +863,6 @@ typedef struct TCmdLocParam1 {
 	WORD wParam1;
 } TCmdLocParam1;
 
-typedef struct TCmdLocParam2 {
-	BYTE bCmd;
-	BYTE x;
-	BYTE y;
-	WORD wParam1;
-	WORD wParam2;
-} TCmdLocParam2;
-
 typedef struct TCmdLocBParam3 {
 	BYTE bCmd;
 	BYTE x;
@@ -970,9 +965,9 @@ typedef struct TCmdGItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
+	INT dwSeed;
 	WORD wIndx;
 	WORD wCI;
-	INT dwSeed;
 	BYTE bId;
 	BYTE bDur;
 	BYTE bMDur;
@@ -987,9 +982,9 @@ typedef struct TCmdPItem {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
+	INT dwSeed;
 	WORD wIndx;
 	WORD wCI;
-	INT dwSeed;
 	BYTE bId;
 	BYTE bDur;
 	BYTE bMDur;
@@ -1002,9 +997,9 @@ typedef struct TCmdPItem {
 typedef struct TCmdChItem {
 	BYTE bCmd;
 	BYTE bLoc;
+	INT dwSeed;
 	WORD wIndx;
 	WORD wCI;
-	INT dwSeed;
 	BYTE bCh;
 	BYTE bMCh;
 	BOOLEAN bId;

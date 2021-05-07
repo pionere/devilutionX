@@ -2254,47 +2254,47 @@ void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool send
 	RegisterItem(ii, x, y, sendmsg, delta);
 }
 
-void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue)
+void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 {
 	int uper;
 	bool onlygood, recreate, pregen;
 
-	if (idx == IDI_GOLD) {
+	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
 		items[MAXITEMS]._iSeed = iseed;
-		items[MAXITEMS]._iCreateInfo = icreateinfo;
+		items[MAXITEMS]._iCreateInfo = wCI;
 		SetGoldItemValue(&items[MAXITEMS], ivalue);
 	} else {
-		if (icreateinfo == 0) {
-			SetItemData(MAXITEMS, idx);
+		if (wCI == 0) {
+			SetItemData(MAXITEMS, wIndex);
 			items[MAXITEMS]._iSeed = iseed;
 		} else {
-			if (icreateinfo & CF_TOWN) {
-				RecreateTownItem(MAXITEMS, idx, icreateinfo, iseed);
-			} else if ((icreateinfo & CF_USEFUL) == CF_USEFUL) {
-				SetupAllUseful(MAXITEMS, iseed, icreateinfo & CF_LEVEL);
+			if (wCI & CF_TOWN) {
+				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
+			} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
+				SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
 			} else {
 				uper = 0;
 				onlygood = false;
 				recreate = false;
 				pregen = false;
-				if (icreateinfo & CF_UPER1)
+				if (wCI & CF_UPER1)
 					uper = 1;
-				if (icreateinfo & CF_UPER15)
+				if (wCI & CF_UPER15)
 					uper = 15;
-				if (icreateinfo & CF_ONLYGOOD)
+				if (wCI & CF_ONLYGOOD)
 					onlygood = true;
-				if (icreateinfo & CF_UNIQUE)
+				if (wCI & CF_UNIQUE)
 					recreate = true;
-				if (icreateinfo & CF_PREGEN)
+				if (wCI & CF_PREGEN)
 					pregen = true;
-				SetupAllItems(MAXITEMS, idx, iseed, icreateinfo & CF_LEVEL, uper, onlygood, recreate, pregen);
+				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, uper, onlygood, recreate, pregen);
 			}
 		}
 	}
 }
 
-void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
+void RecreateEar(int iseed, WORD ic, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
 {
 	SetItemData(MAXITEMS, IDI_EAR);
 	tempstr[0] = (ic >> 8) & 0x7F;
@@ -2522,6 +2522,19 @@ void DeleteItem(int ii, int i)
 		itemactive[i] = itemactive[numitems];
 }
 
+void DeleteItems(int ii)
+{
+	int i;
+
+	for (i = 0; i < numitems; ) {
+		if (itemactive[i] == ii) {
+			DeleteItem(ii, i);
+		} else {
+			i++;
+		}
+	}
+}
+
 static void ItemDoppel()
 {
 	int i;
@@ -2703,7 +2716,7 @@ static void DoClean(ItemStruct *pi, bool whittle)
 	}
 
 	while (TRUE) {
-		RecreateItem(idx, ci, seed, 0);
+		RecreateItem(seed, idx, ci, 0);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iPrePower == IPL_INVALID
 		 && items[MAXITEMS]._iSufPower == IPL_INVALID
@@ -2888,7 +2901,7 @@ void DoOil(int pnum, int from, int cii)
 	seed = pi->_iSeed;
 
 	while (TRUE) {
-		RecreateItem(idx, ci, seed, 0);
+		RecreateItem(seed, idx, ci, 0);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iSpell == spell
 		 && ((items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
@@ -3761,7 +3774,7 @@ void SpawnStoreGold()
 	golditem._iStatFlag = TRUE;
 }
 
-static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
+static void RecreateSmithItem(int ii, int iseed, int idx, int lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
@@ -3770,17 +3783,17 @@ static void RecreateSmithItem(int ii, int idx, int lvl, int iseed)
 	items[ii]._iCreateInfo = lvl | CF_SMITH;
 }
 
-static void RecreatePremiumItem(int ii, int idx, int plvl, int iseed)
+static void RecreatePremiumItem(int ii, int iseed, int idx, int lvl)
 {
 	SetRndSeed(iseed);
-	GetItemAttrs(ii, RndPremiumItem(plvl >> 2, plvl), plvl);
-	GetItemBonus(ii, plvl >> 1, plvl, TRUE, FALSE);
+	GetItemAttrs(ii, RndPremiumItem(lvl >> 2, lvl), lvl);
+	GetItemBonus(ii, lvl >> 1, lvl, TRUE, FALSE);
 
 	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = plvl | CF_SMITHPREMIUM;
+	items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 }
 
-static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
+static void RecreateBoyItem(int ii, int iseed, int idx, int lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
@@ -3789,7 +3802,7 @@ static void RecreateBoyItem(int ii, int idx, int lvl, int iseed)
 	items[ii]._iCreateInfo = lvl | CF_BOY;
 }
 
-static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
+static void RecreateWitchItem(int ii, int iseed, int idx, int lvl)
 {
 	if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		GetItemAttrs(ii, idx, lvl);
@@ -3804,7 +3817,7 @@ static void RecreateWitchItem(int ii, int idx, int lvl, int iseed)
 	items[ii]._iCreateInfo = lvl | CF_WITCH;
 }
 
-static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
+static void RecreateHealerItem(int ii, int iseed, int idx, int lvl)
 {
 	if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
 		GetItemAttrs(ii, idx, lvl);
@@ -3817,7 +3830,7 @@ static void RecreateHealerItem(int ii, int idx, int lvl, int iseed)
 	items[ii]._iCreateInfo = lvl | CF_HEALER;
 }
 
-static void RecreateCraftedItem(int ii, int idx, int lvl, int iseed)
+static void RecreateCraftedItem(int ii, int iseed, int idx, int lvl)
 {
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
@@ -3828,7 +3841,7 @@ static void RecreateCraftedItem(int ii, int idx, int lvl, int iseed)
 	items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
-void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed)
+void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
 {
 	int loc, lvl;
 
@@ -3836,22 +3849,22 @@ void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed)
 	lvl = icreateinfo & CF_LEVEL;
 	switch (loc) {
 	case CFL_SMITH:
-		RecreateSmithItem(ii, idx, lvl, iseed);
+		RecreateSmithItem(ii, iseed, idx, lvl);
 		break;
 	case CFL_SMITHPREMIUM:
-		RecreatePremiumItem(ii, idx, lvl, iseed);
+		RecreatePremiumItem(ii, iseed, idx, lvl);
 		break;
 	case CFL_BOY:
-		RecreateBoyItem(ii, idx, lvl, iseed);
+		RecreateBoyItem(ii, iseed, idx, lvl);
 		break;
 	case CFL_WITCH:
-		RecreateWitchItem(ii, idx, lvl, iseed);
+		RecreateWitchItem(ii, iseed, idx, lvl);
 		break;
 	case CFL_HEALER:
-		RecreateHealerItem(ii, idx, lvl, iseed);
+		RecreateHealerItem(ii, iseed, idx, lvl);
 		break;
 	case CFL_CRAFTED:
-		RecreateCraftedItem(ii, idx, lvl, iseed);
+		RecreateCraftedItem(ii, iseed, idx, lvl);
 		break;
 	default:
 		ASSUME_UNREACHABLE;
@@ -3944,13 +3957,13 @@ static void NextItemRecord(int i)
 		return;
 	}
 
-	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
 	itemrecord[i].nSeed = itemrecord[gnNumGetRecords].nSeed;
-	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
 	itemrecord[i].nIndex = itemrecord[gnNumGetRecords].nIndex;
+	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
+	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
 }
 
-bool GetItemRecord(int nSeed, WORD wCI, int nIndex)
+bool GetItemRecord(int nSeed, WORD wIndex, WORD wCI)
 {
 	int i;
 	DWORD dwTicks;
@@ -3961,7 +3974,7 @@ bool GetItemRecord(int nSeed, WORD wCI, int nIndex)
 		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
 			NextItemRecord(i);
 			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && nIndex == itemrecord[i].nIndex) {
+		} else if (nSeed == itemrecord[i].nSeed && wIndex == itemrecord[i].nIndex && wCI == itemrecord[i].wCI) {
 			return false;
 		}
 	}
@@ -3969,7 +3982,7 @@ bool GetItemRecord(int nSeed, WORD wCI, int nIndex)
 	return true;
 }
 
-void SetItemRecord(int nSeed, WORD wCI, int nIndex)
+void SetItemRecord(int nSeed, WORD wIndex, WORD wCI)
 {
 	if (gnNumGetRecords == MAXITEMS) {
 		return;
@@ -3977,12 +3990,12 @@ void SetItemRecord(int nSeed, WORD wCI, int nIndex)
 
 	itemrecord[gnNumGetRecords].dwTimestamp = SDL_GetTicks();
 	itemrecord[gnNumGetRecords].nSeed = nSeed;
+	itemrecord[gnNumGetRecords].nIndex = wIndex;
 	itemrecord[gnNumGetRecords].wCI = wCI;
-	itemrecord[gnNumGetRecords].nIndex = nIndex;
 	gnNumGetRecords++;
 }
 
-void PutItemRecord(int nSeed, WORD wCI, int nIndex)
+void PutItemRecord(int nSeed, WORD wIndex, WORD wCI)
 {
 	int i;
 	DWORD dwTicks;
@@ -3993,7 +4006,7 @@ void PutItemRecord(int nSeed, WORD wCI, int nIndex)
 		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
 			NextItemRecord(i);
 			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && nIndex == itemrecord[i].nIndex) {
+		} else if (nSeed == itemrecord[i].nSeed && wIndex == itemrecord[i].nIndex && wCI == itemrecord[i].wCI) {
 			NextItemRecord(i);
 			break;
 		}

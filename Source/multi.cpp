@@ -100,10 +100,10 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 	pktHdr.wCheck = PKT_HDR_CHECK;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
-	pktHdr.php = p->_pHitPoints;
-	pktHdr.pmhp = p->_pMaxHP;
-	pktHdr.pmp = p->_pMana;
-	pktHdr.pmmp = p->_pMaxMana;
+	pktHdr.php = SwapLE32(p->_pHitPoints);
+	pktHdr.pmhp = SwapLE32(p->_pMaxHP);
+	pktHdr.pmp = SwapLE32(p->_pMana);
+	pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
 static void multi_send_packet(void *packet, BYTE dwSize)
@@ -131,7 +131,7 @@ static void validate_package()
 	lowpri_body = multi_recv_packet(&sgLoPriBuf, hipri_body, &size);
 	size = sync_all_monsters(lowpri_body, size);
 	len = gdwNormalMsgSize - size;
-	pkt.hdr.wLen = len;
+	pkt.hdr.wLen = SwapLE16(len);
 	SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len);
 	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len))
 	//	nthread_terminate_game("SNetSendMessage");
@@ -161,7 +161,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 
 	NetRecvPlrData(pkt.hdr);
 	msglen = len + sizeof(pkt.hdr);
-	pkt.hdr.wLen = msglen;
+	pkt.hdr.wLen = SwapLE16(msglen);
 	memcpy(pkt.body, src, len);
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
@@ -471,15 +471,15 @@ void multi_process_network_packets()
 			continue;
 		if (pkt->wCheck != PKT_HDR_CHECK)
 			continue;
-		if (pkt->wLen != dwMsgSize)
+		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		p = &plr[pnum];
 		if (pnum != myplr) {
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-			p->_pHitPoints = pkt->php;
-			p->_pMaxHP = pkt->pmhp;
-			p->_pMana = pkt->pmp;
-			p->_pMaxMana = pkt->pmmp;
+			p->_pHitPoints = SwapLE32(pkt->php);
+			p->_pMaxHP = SwapLE32(pkt->pmhp);
+			p->_pMana = SwapLE32(pkt->pmp);
+			p->_pMaxMana = SwapLE32(pkt->pmmp);
 			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && p->plractive && p->_pHitPoints >= (1 << 6)) {
 				if (currLvl._dLevelIdx == p->plrlevel && !p->_pLvlChanging) {
 					dx = abs(p->_px - pkt->px);
@@ -536,26 +536,24 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 		pkt.hdr.py = 0;
 		p = (TCmdPlrInfoHdr *)pkt.body;
 		p->bCmd = bCmd;
-		p->wOffset = dwOffset;
+		p->wOffset = SwapLE16(dwOffset);
 		dwBody = gdwLargestMsgSize - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}
 		/// ASSERT: assert(dwBody <= 0x0ffff);
-		p->wBytes = dwBody;
-		memcpy(&pkt.body[sizeof(*p)], pbSrc, p->wBytes);
-		dwMsg = sizeof(pkt.hdr);
-		dwMsg += sizeof(*p);
-		dwMsg += p->wBytes;
-		pkt.hdr.wLen = dwMsg;
+		p->wBytes = SwapLE16(dwBody);
+		memcpy(&pkt.body[sizeof(*p)], pbSrc, dwBody);
+		dwMsg = dwBody + sizeof(pkt.hdr) + sizeof(*p);
+		pkt.hdr.wLen = SwapLE16(dwMsg);
 		SNetSendMessage(pnum, &pkt, dwMsg);
 		/*if (!SNetSendMessage(pnum, &pkt, dwMsg)) {
 			nthread_terminate_game("SNetSendMessage2");
 			return;
 		}*/
-		pbSrc += p->wBytes;
-		dwLen -= p->wBytes;
-		dwOffset += p->wBytes;
+		pbSrc += dwBody;
+		dwLen -= dwBody;
+		dwOffset += dwBody;
 	}
 }
 

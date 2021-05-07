@@ -2130,7 +2130,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			mon->_mhitpoints = mon->_mmaxhp;
 	}
 	if (pnum == myplr) {
-		if (PlrDecHp(pnum, dam, 0)) {
+		if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 #ifdef HELLFIRE
 			MonStartStand(mnum, mon->_mdir);
 #endif

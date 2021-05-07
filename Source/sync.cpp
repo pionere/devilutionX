@@ -158,6 +158,7 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 	TSyncHeader *pHdr;
 	int i;
 	bool sync;
+	WORD wLen;
 
 	if (nummonsters < 1) {
 		return dwMaxLen;
@@ -166,16 +167,15 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 		return dwMaxLen;
 	}
 
+	sync_init_monsters();
+
 	pHdr = (TSyncHeader *)pbBuf;
 	pbBuf += sizeof(*pHdr);
 	dwMaxLen -= sizeof(*pHdr);
 
-	pHdr->bCmd = CMD_SYNCDATA;
-	pHdr->bLevel = currLvl._dLevelIdx;
-	pHdr->wLen = 0;
+	wLen = 0;
 	//SyncPlrInv(pHdr);
 	assert(dwMaxLen <= 0xffff);
-	sync_init_monsters();
 
 	for (i = 0; i < nummonsters && dwMaxLen >= sizeof(TSyncMonster); i++) {
 		sync = false;
@@ -189,10 +189,12 @@ DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
 			break;
 		}
 		pbBuf += sizeof(TSyncMonster);
-		pHdr->wLen += sizeof(TSyncMonster);
+		wLen += sizeof(TSyncMonster);
 		dwMaxLen -= sizeof(TSyncMonster);
 	}
-
+	pHdr->bCmd = CMD_SYNCDATA;
+	pHdr->bLevel = currLvl._dLevelIdx;
+	pHdr->wLen = SwapLE16(wLen);
 	return dwMaxLen;
 }
 
@@ -254,7 +256,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 	//assert(currLvl._dLevelIdx == pHdr->bLevel);
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 	//assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr);
-	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		sync_monster(pnum, (TSyncMonster *)pbBuf);
 		pbBuf += sizeof(TSyncMonster);
 	}

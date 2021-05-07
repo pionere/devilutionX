@@ -2738,6 +2738,12 @@ typedef enum PLR_ANIM {
 	NUM_PLR_ANIMS
 } PLR_ANIM;
 
+typedef enum PLR_EAR {
+	DMGTYPE_NPC,
+	DMGTYPE_PLAYER,
+	DMGTYPE_UNKNOWN,
+} PLR_EAR;
+
 typedef enum spell_type {
 	RSPLTYPE_ABILITY = 0x0,
 	RSPLTYPE_SPELL   = 0x1,

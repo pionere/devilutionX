@@ -1928,7 +1928,7 @@ static void Obj_BCrossDamage(int oi)
 	if (fire_resist > 0)
 		damage -= fire_resist * damage / 100;
 
-	if (!PlrDecHp(myplr, damage, 0))
+	if (!PlrDecHp(myplr, damage, DMGTYPE_NPC))
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_68][p->_pClass], p->_px, p->_py);
 }
 

@@ -673,7 +673,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	if (atkSkill != SPL_INVALID) {
 		if (atkSkill == SPL_BLOCK) {
 			int dir = GetDirection(plr[myplr]._px, plr[myplr]._py, cursmx, cursmy);
-			NetSendCmdParam1(true, CMD_BLOCK, dir);
+			NetSendCmdBParam1(true, CMD_BLOCK, dir);
 			return;
 		}
 

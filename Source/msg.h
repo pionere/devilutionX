@@ -31,7 +31,6 @@ void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl);
 void NetSendCmdMonstKill(int mnum, int pnum);
 void NetSendCmdLoc(bool bHiPri, BYTE bCmd, BYTE x, BYTE y);
 void NetSendCmdLocParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1);
-void NetSendCmdLocParam2(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, WORD wParam2);
 void NetSendCmdLocBParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE wParam1);
 void NetSendCmdLocBParam2(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2);
 void NetSendCmdLocBParam3(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2, BYTE bParam3);

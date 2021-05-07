@@ -138,8 +138,8 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 	} else {
 		if (idx == IDI_EAR) {
 			RecreateEar(
-			    SwapLE16(pis->iCreateInfo),
 			    SwapLE32(pis->iSeed),
+			    SwapLE16(pis->iCreateInfo),
 			    pis->bId,
 			    pis->bDur,
 			    pis->bMDur,
@@ -149,9 +149,9 @@ void UnPackItem(PkItemStruct *pis, ItemStruct *is)
 			    SwapLE32(pis->dwBuff));
 		} else {
 			RecreateItem(
+				SwapLE32(pis->iSeed),
 				idx,
 				SwapLE16(pis->iCreateInfo),
-				SwapLE32(pis->iSeed),
 				SwapLE16(pis->wValue));
 			items[MAXITEMS]._iMagical = pis->bId >> 1;
 			items[MAXITEMS]._iIdentified = pis->bId & 1;

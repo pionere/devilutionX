@@ -502,7 +502,7 @@ static void delta_kill_monster(const TCmdMonstKill* mon)
 		return;
 
 	_gbLevelDeltaChanged[mon->mkLevel] = true;
-	pD = &sgLevels[mon->mkLevel].monster[mon->mkMnum];
+	pD = &sgLevels[mon->mkLevel].monster[SwapLE16(mon->mkMnum)];
 	pD->_mx = mon->mkX;
 	pD->_my = mon->mkY;
 	pD->_mdir = mon->mkDir;
@@ -522,7 +522,7 @@ static void delta_monster_hp(int mnum, int hp, BYTE bLevel)
 	// That disregards the healing monsters.
 	// Now it is always updated except the monster is already dead.
 	if (pD->_mhitpoints != 0)
-		pD->_mhitpoints = hp;
+		pD->_mhitpoints = SwapLE32(hp);
 }
 
 static void delta_sync_monster(const TSyncHeader *pHdr)
@@ -543,7 +543,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 
 	pbBuf = (const BYTE *)&pHdr[1];
 
-	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
+	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster *)pbBuf;
 		pD = &pDLvl->monster[pSync->_mndx];
 		if (pD->_mhitpoints != 0) {
@@ -593,7 +593,7 @@ static void delta_leave_sync(BYTE bLevel)
 			pD->_mx = monster[mnum]._mx;
 			pD->_my = monster[mnum]._my;
 			pD->_mdir = monster[mnum]._mdir;
-			pD->_mhitpoints = monster[mnum]._mhitpoints;
+			pD->_mhitpoints = SwapLE32(monster[mnum]._mhitpoints);
 			pD->_mactive = monster[mnum]._msquelch;
 		}
 	}
@@ -619,7 +619,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF || pD->wIndx != pI->wIndx || pD->wCI != pI->wCI || pD->dwSeed != pI->dwSeed)
+		if (pD->bCmd == 0xFF || pD->dwSeed != pI->dwSeed || pD->wIndx != pI->wIndx || pD->wCI != pI->wCI)
 			continue;
 
 		switch (pD->bCmd) {
@@ -649,9 +649,9 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 			pD->bCmd = DCMD_TAKEN;
 			pD->x = pI->x;
 			pD->y = pI->y;
+			pD->dwSeed = pI->dwSeed;
 			pD->wIndx = pI->wIndx;
 			pD->wCI = pI->wCI;
-			pD->dwSeed = pI->dwSeed;
 			pD->bId = pI->bId;
 			pD->bDur = pI->bDur;
 			pD->bMDur = pI->bMDur;
@@ -676,9 +676,9 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
+		 && pD->dwSeed == pI->dwSeed
 		 && pD->wIndx == pI->wIndx
-		 && pD->wCI == pI->wCI
-		 && pD->dwSeed == pI->dwSeed) {
+		 && pD->wCI == pI->wCI) {
 			if (pD->bCmd == DCMD_DROPPED)
 				return;
 			if (pD->bCmd == DCMD_TAKEN)
@@ -712,53 +712,53 @@ bool delta_quest_inited(int i)
 
 static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 {
-	dest->wIndx = src->_iIdx;
-
 	if (src->_iIdx == IDI_EAR) {
-		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
-		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->wIndx = SwapLE16(IDI_EAR);
+		dest->wCI = SwapLE16(src->_iName[8] | (src->_iName[7] << 8));
+		dest->dwSeed = SwapLE32(src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8));
 		dest->bId = src->_iName[13];
 		dest->bDur = src->_iName[14];
 		dest->bMDur = src->_iName[15];
 		dest->bCh = src->_iName[16];
 		dest->bMCh = src->_iName[17];
-		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6);
-		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
+		dest->dwBuff = SwapLE32(src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8));
 	} else {
-		dest->wCI = src->_iCreateInfo;
-		dest->dwSeed = src->_iSeed;
+		dest->dwSeed = SwapLE32(src->_iSeed);
+		dest->wIndx = SwapLE16(src->_iIdx);
+		dest->wCI = SwapLE16(src->_iCreateInfo);
 		dest->bId = src->_iIdentified;
 		dest->bDur = src->_iDurability;
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
-		dest->wValue = src->_ivalue;
+		dest->wValue = SwapLE16(src->_ivalue);
 	}
 }
 
 static void PackGItem(TCmdGItem *dest, ItemStruct *src)
 {
-	dest->wIndx = src->_iIdx;
-
 	if (src->_iIdx == IDI_EAR) {
-		dest->wCI = src->_iName[8] | (src->_iName[7] << 8);
-		dest->dwSeed = src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8);
+		dest->wIndx = SwapLE16(IDI_EAR);
+		dest->wCI = SwapLE16(src->_iName[8] | (src->_iName[7] << 8));
+		dest->dwSeed = SwapLE32(src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8));
 		dest->bId = src->_iName[13];
 		dest->bDur = src->_iName[14];
 		dest->bMDur = src->_iName[15];
 		dest->bCh = src->_iName[16];
 		dest->bMCh = src->_iName[17];
-		dest->wValue = src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6);
-		dest->dwBuff = src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8);
+		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
+		dest->dwBuff = SwapLE32(src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8));
 	} else {
-		dest->wCI = src->_iCreateInfo;
-		dest->dwSeed = src->_iSeed;
+		dest->dwSeed = SwapLE32(src->_iSeed);
+		dest->wIndx = SwapLE16(src->_iIdx);
+		dest->wCI = SwapLE16(src->_iCreateInfo);
 		dest->bId = src->_iIdentified;
 		dest->bDur = src->_iDurability;
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
-		dest->wValue = src->_ivalue;
+		dest->wValue = SwapLE16(src->_ivalue);
 	}
 }
 
@@ -775,9 +775,9 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-		 && pD->wIndx == is->_iIdx
-		 && pD->wCI == is->_iCreateInfo
-		 && pD->dwSeed == is->_iSeed) {
+		 && pD->dwSeed == SwapLE32(is->_iSeed)
+		 && pD->wIndx == SwapLE16(is->_iIdx)
+		 && pD->wCI == SwapLE16(is->_iCreateInfo)) {
 			if (pD->bCmd == DCMD_TAKEN || pD->bCmd == DCMD_SPAWNED)
 				return;
 			if (pD->bCmd == DCMD_DROPPED)
@@ -814,23 +814,25 @@ void DeltaSaveLevel()
 
 static void UnPackPItem(const TCmdPItem *src)
 {
-	if (src->wIndx == IDI_EAR) {
+	uint16_t idx = SwapLE16(src->wIndx);
+
+	if (idx == IDI_EAR) {
 		RecreateEar(
-			src->wCI,
-			src->dwSeed,
+			SwapLE32(src->dwSeed),
+			SwapLE16(src->wCI),
 			src->bId,
 			src->bDur,
 			src->bMDur,
 			src->bCh,
 			src->bMCh,
-			src->wValue,
-			src->dwBuff);
+			SwapLE16(src->wValue),
+			SwapLE32(src->dwBuff));
 	} else {
 		RecreateItem(
-			src->wIndx,
-			src->wCI,
-			src->dwSeed,
-			src->wValue);
+			SwapLE32(src->dwSeed),
+			idx,
+			SwapLE16(src->wCI),
+			SwapLE16(src->wValue));
 		if (src->bId)
 			items[MAXITEMS]._iIdentified = TRUE;
 		items[MAXITEMS]._iDurability = src->bDur;
@@ -842,23 +844,25 @@ static void UnPackPItem(const TCmdPItem *src)
 
 static void UnPackGItem(TCmdGItem *src)
 {
-	if (src->wIndx == IDI_EAR) {
+	uint16_t idx = SwapLE16(src->wIndx);
+
+	if (idx == IDI_EAR) {
 		RecreateEar(
-			src->wCI,
-			src->dwSeed,
+			SwapLE32(src->dwSeed),
+			SwapLE16(src->wCI),
 			src->bId,
 			src->bDur,
 			src->bMDur,
 			src->bCh,
 			src->bMCh,
-			src->wValue,
-			src->dwBuff);
+			SwapLE16(src->wValue),
+			SwapLE32(src->dwBuff));
 	} else {
 		RecreateItem(
-			src->wIndx,
-			src->wCI,
-			src->dwSeed,
-			src->wValue);
+			SwapLE32(src->dwSeed),
+			idx,
+			SwapLE16(src->wCI),
+			SwapLE16(src->wValue));
 		if (src->bId)
 			items[MAXITEMS]._iIdentified = TRUE;
 		items[MAXITEMS]._iDurability = src->bDur;
@@ -897,7 +901,7 @@ void DeltaLoadLevel()
 				mon->_mfutx = x;
 				mon->_mfuty = y;
 				if (mstr->_mhitpoints != -1)
-					mon->_mhitpoints = mstr->_mhitpoints;
+					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 				if (mstr->_mhitpoints == 0) {
 					// SetDead: inline for better performance
 					if (mon->mlid != 0)
@@ -952,10 +956,7 @@ void DeltaLoadLevel()
 	itm = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_TAKEN) {
-			ii = FindGetItem(
-				itm->wIndx,
-				itm->wCI,
-				itm->dwSeed);
+			ii = FindGetItem(SwapLE32(itm->dwSeed), SwapLE16(itm->wIndx), SwapLE16(itm->wCI));
 			if (ii != -1) {
 				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
 					dItem[items[ii]._ix][items[ii]._iy] = 0;
@@ -999,13 +1000,12 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	TCmdMonstKill cmd;
 
 	cmd.bCmd = CMD_MONSTDEATH;
-	cmd.mkMnum = mnum;
+	cmd.mkMnum = SwapLE16(mnum);
 	cmd.mkPnum = pnum;
 	cmd.mkX = monster[mnum]._mx;
 	cmd.mkY = monster[mnum]._my;
 	cmd.mkDir = monster[mnum]._mdir;
 	cmd.mkLevel = plr[pnum].plrlevel;
-
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
@@ -1018,7 +1018,7 @@ void NetSendCmdGolem(BYTE mx, BYTE my, BYTE dir, BYTE menemy, int hp, BYTE cl)
 	cmd._my = my;
 	cmd._mdir = dir;
 	cmd._menemy = menemy;
-	cmd._mhitpoints = hp;
+	cmd._mhitpoints = SwapLE32(hp);
 	cmd._currlevel = cl;
 	NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1057,22 +1057,7 @@ void NetSendCmdLocParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1)
 	cmd.bCmd = bCmd;
 	cmd.x = x;
 	cmd.y = y;
-	cmd.wParam1 = wParam1;
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdLocParam2(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1, WORD wParam2)
-{
-	TCmdLocParam2 cmd;
-
-	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
-	cmd.wParam1 = wParam1;
-	cmd.wParam2 = wParam2;
+	cmd.wParam1 = SwapLE16(wParam1);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1115,7 +1100,7 @@ void NetSendCmdParam1(bool bHiPri, BYTE bCmd, WORD wParam1)
 	TCmdParam1 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.wParam1 = wParam1;
+	cmd.wParam1 = SwapLE16(wParam1);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1127,8 +1112,8 @@ void NetSendCmdParam2(bool bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2)
 	TCmdParam2 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.wParam1 = wParam1;
-	cmd.wParam2 = wParam2;
+	cmd.wParam1 = SwapLE16(wParam1);
+	cmd.wParam2 = SwapLE16(wParam2);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1140,9 +1125,9 @@ void NetSendCmdParam3(bool bHiPri, BYTE bCmd, WORD wParam1, WORD wParam2, WORD w
 	TCmdParam3 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.wParam1 = wParam1;
-	cmd.wParam2 = wParam2;
-	cmd.wParam3 = wParam3;
+	cmd.wParam1 = SwapLE16(wParam1);
+	cmd.wParam2 = SwapLE16(wParam2);
+	cmd.wParam3 = SwapLE16(wParam3);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1154,7 +1139,7 @@ void NetSendCmdWBParam4(bool bHiPri, BYTE bCmd, WORD wParam1, BYTE bParam2, BYTE
 	TCmdWBParam4 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.wParam1 = wParam1;
+	cmd.wParam1 = SwapLE16(wParam1);
 	cmd.bParam2 = bParam2;
 	cmd.bParam3 = bParam3;
 	cmd.bParam4 = bParam4;
@@ -1207,8 +1192,8 @@ void NetSendCmdQuest(BYTE q, bool extOnly)
 {
 	TCmdQuest cmd;
 
-	cmd.q = q;
 	cmd.bCmd = extOnly ? CMD_SYNCQUESTEXT : CMD_SYNCQUEST;
+	cmd.q = q;
 	cmd.qstate = quests[q]._qactive;
 	cmd.qlog = quests[q]._qlog;
 	cmd.qvar1 = quests[q]._qvar1;
@@ -1239,13 +1224,12 @@ void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
 
 	copy_pod(cmd, *p);
-	cmd.bPnum = pnum;
 	cmd.bCmd = bCmd;
 	cmd.bMaster = mast;
 
@@ -1265,15 +1249,14 @@ static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, BYTE pnum, TCmdG
 	tmsg_add(&cmd);
 }
 
-static bool NetSendCmdReq2(BYTE bCmd, BYTE mast, BYTE pnum, TCmdGItem *p)
+static bool NetSendCmdReq2(BYTE bCmd, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
 
 	copy_pod(cmd, *p);
 	cmd.bCmd = bCmd;
-	cmd.bPnum = pnum;
-	cmd.bMaster = mast;
+	cmd.bMaster = myplr;
 
 	ticks = SDL_GetTicks();
 	if (cmd.dwTime == 0)
@@ -1318,9 +1301,9 @@ void NetSendCmdChItem(ItemStruct *is, BYTE bLoc)
 
 	cmd.bCmd = CMD_CHANGEPLRITEM;
 	cmd.bLoc = bLoc;
-	cmd.wIndx = is->_iIdx;
-	cmd.wCI = is->_iCreateInfo;
-	cmd.dwSeed = is->_iSeed;
+	cmd.dwSeed = SwapLE32(is->_iSeed);
+	cmd.wIndx = SwapLE16(is->_iIdx);
+	cmd.wCI = SwapLE16(is->_iCreateInfo);
 	cmd.bCh = is->_iCharges;
 	cmd.bMCh = is->_iMaxCharges;
 	cmd.bId = is->_iIdentified;
@@ -1375,8 +1358,8 @@ void NetSendCmdDwParam2(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2)
 	TCmdDwParam2 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.dwParam1 = dwParam1;
-	cmd.dwParam2 = dwParam2;
+	cmd.dwParam1 = SwapLE32(dwParam1);
+	cmd.dwParam2 = SwapLE32(dwParam2);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1388,9 +1371,9 @@ void NetSendCmdDwParam3(bool bHiPri, BYTE bCmd, DWORD dwParam1, DWORD dwParam2, 
 	TCmdDwParam3 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.dwParam1 = dwParam1;
-	cmd.dwParam2 = dwParam2;
-	cmd.dwParam3 = dwParam3;
+	cmd.dwParam1 = SwapLE32(dwParam1);
+	cmd.dwParam2 = SwapLE32(dwParam2);
+	cmd.dwParam3 = SwapLE32(dwParam3);
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	else
@@ -1457,7 +1440,7 @@ static unsigned On_SYNCDATA(TCmd *pCmd, int pnum)
 			sync_update(pnum, pHdr);
 		delta_sync_monster(pHdr);
 	}
-	return pHdr->wLen + sizeof(*pHdr);
+	return SwapLE16(pHdr->wLen) + sizeof(*pHdr);
 }
 
 static unsigned On_WALKXY(TCmd *pCmd, int pnum)
@@ -1515,12 +1498,12 @@ static unsigned On_ADDVIT(TCmd *pCmd, int pnum)
 
 static unsigned On_BLOCK(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
 		plr[pnum].destAction = ACTION_BLOCK;
-		plr[pnum].destParam1 = cmd->wParam1; // direction
+		plr[pnum].destParam1 = cmd->bParam1; // direction
 	}
 	return sizeof(*cmd);
 }
@@ -1532,7 +1515,7 @@ static unsigned On_GOTOGETITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_PICKUPITEM;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1543,16 +1526,16 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
-			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+		if (GetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI))) {
+			int ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 			if (ii != -1) {
-				NetSendCmdGItem2(false, CMD_GETITEM, myplr, cmd->bPnum, cmd);
+				NetSendCmdGItem2(false, CMD_GETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
-					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+					SyncGetItemIdx(ii);
 				else
 					InvGetItem(myplr, ii);
-				SetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
-			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, myplr, cmd->bPnum, cmd))
+				SetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, cmd))
 				NetSendCmdExtra(cmd);
 		}
 	}
@@ -1577,14 +1560,14 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 						if (ii != -1)
 							InvGetItem(myplr, ii);
 					} else {
-						ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+						ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 						InvGetItem(myplr, ii);
 					}
 				} else
-					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 			}
 		} else
-			NetSendCmdGItem2(true, CMD_GETITEM, cmd->bMaster, cmd->bPnum, cmd);
+			NetSendCmdGItem2(true, CMD_GETITEM, cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1597,7 +1580,7 @@ static unsigned On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_PICKUPAITEM;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1608,16 +1591,16 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx)) {
-			int ii = FindGetItem(cmd->wIndx, cmd->wCI, cmd->dwSeed);
+		if (GetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI))) {
+			int ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 			if (ii != -1) {
-				NetSendCmdGItem2(false, CMD_AGETITEM, myplr, cmd->bPnum, cmd);
+				NetSendCmdGItem2(false, CMD_AGETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
-					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+					SyncGetItemIdx(ii);
 				else
 					AutoGetItem(myplr, cmd->bCursitem);
-				SetItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
-			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, myplr, cmd->bPnum, cmd))
+				SetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, cmd))
 				NetSendCmdExtra(cmd);
 		}
 	}
@@ -1643,10 +1626,10 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 					} else
 						AutoGetItem(myplr, cmd->bCursitem);
 				} else
-					SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 			}
 		} else
-			NetSendCmdGItem2(true, CMD_AGETITEM, cmd->bMaster, cmd->bPnum, cmd);
+			NetSendCmdGItem2(true, CMD_AGETITEM, cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1661,7 +1644,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	else {
 		delta_get_item(cmd, cmd->bLevel);
 		if (currLvl._dLevelIdx == plr[pnum].plrlevel)
-			SyncGetItem(cmd->x, cmd->y, cmd->wIndx, cmd->wCI, cmd->dwSeed);
+			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 	}
 
 	return sizeof(*cmd);
@@ -1708,7 +1691,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (plr[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, cmd->wIndx)) {
+		if (plr[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->wIndx))) {
 			return sizeof(*cmd);
 		}
 #endif
@@ -1721,7 +1704,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			y = items[ii]._iy;
 		}
 		delta_put_item(cmd, x, y, plr[pnum].plrlevel);
-		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 	}
 
 	return sizeof(*cmd);
@@ -1737,12 +1720,12 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 		UnPackPItem(cmd);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
-			PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+			PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
 	} else {
-		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 		check_update_plr(pnum);
 	}
@@ -1761,7 +1744,7 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 			UnPackPItem(cmd);
 			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
-		PutItemRecord(cmd->dwSeed, cmd->wCI, cmd->wIndx);
+		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 	}
 
@@ -1882,7 +1865,7 @@ static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		int oi = cmd->wParam1;
+		int oi = SwapLE16(cmd->wParam1);
 		plr[pnum].destAction = ACTION_OPERATE;
 		plr[pnum].destParam1 = oi;
 		plr[pnum].destParam2 = cmd->x;
@@ -1898,7 +1881,7 @@ static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		int oi = cmd->wParam1;
+		int oi = SwapLE16(cmd->wParam1);
 		plr[pnum].destAction = ACTION_DISARM;
 		plr[pnum].destParam1 = oi;
 		plr[pnum].destParam2 = cmd->x;
@@ -1915,7 +1898,7 @@ static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		plr[pnum].destAction = ACTION_OPERATETK;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1927,17 +1910,17 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 	int mnum, x, y, sn;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		mnum = cmd->wParam1;
+		mnum = SwapLE16(cmd->wParam1);
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
 		if (abs(plr[pnum]._px - x) > 1 || abs(plr[pnum]._py - y) > 1)
 			MakePlrPath(pnum, x, y, false);
-		sn = cmd->wParam2;
+		sn = SwapLE16(cmd->wParam2);
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_ATTACKMON;
 			plr[pnum].destParam1 = mnum;
-			plr[pnum].destParam2 = sn;           // attack skill
-			plr[pnum].destParam3 = cmd->wParam3; // attack skill-level
+			plr[pnum].destParam2 = sn;                     // attack skill
+			plr[pnum].destParam3 = SwapLE16(cmd->wParam3); // attack skill-level
 		} else
 			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
@@ -1973,12 +1956,12 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		ClrPlrPath(pnum);
-		sn = cmd->wParam2;
+		sn = SwapLE16(cmd->wParam2);
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_RATTACKMON;
-			plr[pnum].destParam1 = cmd->wParam1; // target id
-			plr[pnum].destParam2 = sn;           // attack skill
-			plr[pnum].destParam3 = cmd->wParam3; // attack skill-level
+			plr[pnum].destParam1 = SwapLE16(cmd->wParam1); // target id
+			plr[pnum].destParam2 = sn;                     // attack skill
+			plr[pnum].destParam3 = SwapLE16(cmd->wParam3); // attack skill-level
 		} else
 			msg_errorf("%s using an illegal skill.", plr[pnum]._pName);
 	}
@@ -2016,10 +1999,10 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 		sn = cmd->bParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_SPELLMON;
-			plr[pnum].destParam1a = sn; // spell
-			plr[pnum].destParam1b = cmd->bParam3; // invloc
-			plr[pnum].destParam1c = cmd->bParam4; // spllvl
-			plr[pnum].destParam2 = cmd->wParam1; // mnum
+			plr[pnum].destParam1a = sn;                    // spell
+			plr[pnum].destParam1b = cmd->bParam3;          // invloc
+			plr[pnum].destParam1c = cmd->bParam4;          // spllvl
+			plr[pnum].destParam2 = SwapLE16(cmd->wParam1); // mnum
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -2037,10 +2020,10 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 		sn = cmd->bParam2;
 		if ((spelldata[sn].sFlags & plr[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
 			plr[pnum].destAction = ACTION_SPELLPLR;
-			plr[pnum].destParam1a = sn; // spell
-			plr[pnum].destParam1b = cmd->bParam3; // invloc
-			plr[pnum].destParam1c = cmd->bParam4; // spllvl
-			plr[pnum].destParam2 = cmd->wParam1; // pnum
+			plr[pnum].destParam1a = sn;                    // spell
+			plr[pnum].destParam1b = cmd->bParam3;          // invloc
+			plr[pnum].destParam1c = cmd->bParam4;          // spllvl
+			plr[pnum].destParam2 = SwapLE16(cmd->wParam1); // pnum
 		} else
 			msg_errorf("%s has cast an illegal spell.", plr[pnum]._pName);
 	}
@@ -2053,8 +2036,8 @@ static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		MonGetKnockback(cmd->wParam1);
-		MonStartHit(cmd->wParam1, pnum, 0);
+		MonGetKnockback(SwapLE16(cmd->wParam1));
+		MonStartHit(SwapLE16(cmd->wParam1), pnum, 0);
 	}
 
 	return sizeof(*cmd);
@@ -2067,7 +2050,7 @@ static unsigned On_TALKXY(TCmd *pCmd, int pnum)
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr[pnum].plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
 		plr[pnum].destAction = ACTION_TALK;
-		plr[pnum].destParam1 = cmd->wParam1;
+		plr[pnum].destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -2080,7 +2063,7 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
-		StartNewLvl(pnum, cmd->wParam1, cmd->wParam2);
+		StartNewLvl(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
 
 	return sizeof(*cmd);
 }
@@ -2092,7 +2075,7 @@ static unsigned On_WARP(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		StartWarpLvl(pnum, cmd->wParam1);
+		StartWarpLvl(pnum, SwapLE16(cmd->wParam1));
 	}
 
 	return sizeof(*cmd);
@@ -2106,7 +2089,7 @@ static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currLvl._dLevelIdx == cmd->mkLevel)
-			MonSyncStartKill(cmd->mkMnum, cmd->mkX, cmd->mkY, cmd->mkPnum);
+			MonSyncStartKill(SwapLE16(cmd->mkMnum), cmd->mkX, cmd->mkY, cmd->mkPnum);
 		delta_kill_monster(cmd);
 	}
 
@@ -2133,10 +2116,10 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		mnum = cmd->dwParam1;
-		hp = cmd->dwParam2;
+		mnum = SwapLE32(cmd->dwParam1);
+		hp = SwapLE32(cmd->dwParam2);
 		if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-			nhp = monster[mnum]._mhitpoints - cmd->dwParam3;
+			nhp = monster[mnum]._mhitpoints - SwapLE32(cmd->dwParam3);
 			if (nhp < hp)
 				hp = nhp;
 			if (hp < (1 << 6))
@@ -2151,12 +2134,12 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 
 static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 {
-	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
+	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr)
-		StartPlrKill(pnum, cmd->wParam1);
+		StartPlrKill(pnum, cmd->bParam1);
 	else
 		check_update_plr(pnum);
 
@@ -2180,10 +2163,10 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 {
 	TCmdDwParam2 *cmd = (TCmdDwParam2 *)pCmd;
 
-	if (cmd->dwParam1 == myplr && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
+	if (SwapLE32(cmd->dwParam1) == myplr && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr[pnum].plrlevel) {
-			if (!plr[myplr]._pInvincible && cmd->dwParam2 <= 192000) {
-				PlrDecHp(myplr, cmd->dwParam2, 1);
+			if (!plr[myplr]._pInvincible && SwapLE32(cmd->dwParam2) <= 192000) {
+				PlrDecHp(myplr, SwapLE32(cmd->dwParam2), DMGTYPE_PLAYER);
 			}
 		}
 	}
@@ -2199,8 +2182,8 @@ static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncDoorOpen(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_DOOROPEN, plr[pnum].plrlevel);
+		//	SyncDoorOpen(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOOROPEN, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2214,8 +2197,8 @@ static unsigned On_DOORCLOSE(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncDoorClose(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_DOORCLOSE, plr[pnum].plrlevel);
+		//	SyncDoorClose(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOORCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2229,8 +2212,8 @@ static unsigned On_TRAPDISABLE(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncTrapDisable(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_TRAPDISABLE, plr[pnum].plrlevel);
+		//	SyncTrapDisable(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPDISABLE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2244,8 +2227,8 @@ static unsigned On_TRAPOPEN(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncTrapOpen(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_TRAPOPEN, plr[pnum].plrlevel);
+		//	SyncTrapOpen(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPOPEN, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2259,8 +2242,8 @@ static unsigned On_TRAPCLOSE(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncTrapClose(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_TRAPCLOSE, plr[pnum].plrlevel);
+		//	SyncTrapClose(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2274,8 +2257,8 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-			SyncOpObject(pnum, cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr[pnum].plrlevel);
+			SyncOpObject(pnum, SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2289,8 +2272,8 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != myplr && currLvl._dLevelIdx == plr[pnum].plrlevel)
-		//	SyncChestClose(cmd->wParam1);
-		delta_sync_object(cmd->wParam1, CMD_CHESTCLOSE, plr[pnum].plrlevel);
+		//	SyncChestClose(SwapLE16(cmd->wParam1));
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, plr[pnum].plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2304,7 +2287,7 @@ static unsigned On_CHANGEPLRITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != myplr) {
-		RecreateItem(cmd->wIndx, cmd->wCI, cmd->dwSeed, 0);
+		RecreateItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI), 0);
 		is = &items[MAXITEMS];
 		is->_iCharges = cmd->bCh;
 		is->_iMaxCharges = cmd->bMCh;

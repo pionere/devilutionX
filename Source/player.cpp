@@ -1051,6 +1051,16 @@ static bool PlrDirOK(int pnum, int dir)
 	return true;
 }
 
+static void SyncPlrKill(int pnum, int dmgtype)
+{
+	if (currLvl._dType == DTYPE_TOWN) {
+		PlrSetHp(pnum, 64);
+		return;
+	}
+
+	StartPlrKill(pnum, dmgtype);
+}
+
 /*void PlrClrTrans(int x, int y)
 {
 	int i, j;
@@ -1119,7 +1129,7 @@ void PlrStartStand(int pnum, int dir)
 		dPlayer[p->_px][p->_py] = pnum + 1;
 		FixPlayerLocation(pnum);
 	} else {
-		SyncPlrKill(pnum, -1);
+		SyncPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 }
 
@@ -1782,7 +1792,7 @@ void StartPlrHit(int pnum, int dam, bool forcehit)
 
 	p = &plr[pnum];
 	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
+		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -1873,7 +1883,7 @@ static void PlrDeadItem(ItemStruct *is, PlayerStruct *p)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void StartPlrKill(int pnum, int earflag)
+void StartPlrKill(int pnum, int dmgtype)
 {
 	bool diablolevel;
 	int i;
@@ -1891,7 +1901,7 @@ void StartPlrKill(int pnum, int earflag)
 	}
 
 	if (myplr == pnum) {
-		NetSendCmdParam1(true, CMD_PLRDEAD, earflag);
+		NetSendCmdBParam1(true, CMD_PLRDEAD, dmgtype);
 	}
 
 	diablolevel = gbMaxPlayers != 1 && p->plrlevel == 16;
@@ -1914,7 +1924,7 @@ void StartPlrKill(int pnum, int earflag)
 	p->_pInvincible = TRUE;
 	p->_pVar8 = 1;
 
-	if (pnum != myplr && !earflag && !diablolevel) {
+	if (pnum != myplr && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		for (i = 0; i < NUM_INVLOC; i++) {
 			p->InvBody[i]._itype = ITYPE_NONE;
 		}
@@ -1934,53 +1944,39 @@ void StartPlrKill(int pnum, int earflag)
 				NewCursor(CURSOR_HAND);
 			}
 
-			if (earflag != -1) {
-				if (earflag != 0) {
-					// pvp
-					CreateBaseItem(&ear, IDI_EAR);
-					snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
-					const int earSets[NUM_CLASSES] = {
-							ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
+			if (dmgtype == DMGTYPE_PLAYER) {
+				CreateBaseItem(&ear, IDI_EAR);
+				snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", p->_pName);
+				const int earSets[NUM_CLASSES] = {
+						ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
 #ifdef HELLFIRE
-							, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
+						, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
 #endif
-					};
-					ear._iCurs = earSets[p->_pClass];
+				};
+				ear._iCurs = earSets[p->_pClass];
 
-					ear._iCreateInfo = p->_pName[0] << 8 | p->_pName[1];
-					ear._iSeed = p->_pName[2] << 24 | p->_pName[3] << 16 | p->_pName[4] << 8 | p->_pName[5];
-					ear._ivalue = p->_pLevel;
+				ear._iCreateInfo = p->_pName[0] << 8 | p->_pName[1];
+				ear._iSeed = p->_pName[2] << 24 | p->_pName[3] << 16 | p->_pName[4] << 8 | p->_pName[5];
+				ear._ivalue = p->_pLevel;
 
-					if (FindGetItem(IDI_EAR, ear._iCreateInfo, ear._iSeed) == -1) {
-						PlrDeadItem(&ear, p);
+				if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo) == -1) {
+					PlrDeadItem(&ear, p);
+				}
+			} else if (dmgtype == DMGTYPE_NPC) {
+				plr->_pExperience -= (plr->_pExperience - PlrExpLvlsTbl[plr->_pLevel - 1]) >> 2;
+
+				if (!diablolevel) {
+					pi = &p->InvBody[0];
+					for (i = NUM_INVLOC; i != 0; i--, pi++) {
+						PlrDeadItem(pi, p);
 					}
-				} else {
-					// pvm
-					plr->_pExperience -= (plr->_pExperience - PlrExpLvlsTbl[plr->_pLevel - 1]) >> 2;
 
-					if (!diablolevel) {
-						pi = &p->InvBody[0];
-						for (i = NUM_INVLOC; i != 0; i--, pi++) {
-							PlrDeadItem(pi, p);
-						}
-
-						CalcPlrInv(pnum, false);
-					}
+					CalcPlrInv(pnum, false);
 				}
 			}
 		}
 	}
 	PlrSetHp(pnum, 0);
-}
-
-void SyncPlrKill(int pnum, int earflag)
-{
-	if (currLvl._dType == DTYPE_TOWN) {
-		PlrSetHp(pnum, 64);
-		return;
-	}
-
-	StartPlrKill(pnum, earflag);
 }
 
 void SyncPlrResurrect(int pnum)
@@ -2682,7 +2678,7 @@ void PlrStartBlock(int pnum, int dir)
 
 	p = &plr[pnum];
 	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
+		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -2887,7 +2883,7 @@ static void CheckNewPath(int pnum)
 	}
 	p = &plr[pnum];
 	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, -1); // BUGFIX: is this really necessary?
+		SyncPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return;
 	}
 
@@ -3171,12 +3167,12 @@ void ProcessPlayers()
 			CheckCheatStats(pnum);
 
 			if (!PlrDeathModeOK(pnum) && plr[pnum]._pHitPoints < (1 << 6)) {
-				SyncPlrKill(pnum, -1);
+				SyncPlrKill(pnum, DMGTYPE_UNKNOWN);
 			}
 
 			if (pnum == myplr) {
 				if ((plr[pnum]._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr[pnum]._pInvincible) {
-					PlrDecHp(pnum, 4, 0);
+					PlrDecHp(pnum, 4, DMGTYPE_NPC);
 				}
 				if (plr[pnum]._pIFlags & ISPL_NOMANA && plr[pnum]._pMana > 0) {
 					PlrSetMana(pnum, 0);
@@ -3604,7 +3600,7 @@ void PlrIncMana(int pnum, int mana)
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
 }
 
-bool PlrDecHp(int pnum, int hp, int earflag)
+bool PlrDecHp(int pnum, int hp, int dmgtype)
 {
 	PlayerStruct *p;
 
@@ -3629,7 +3625,7 @@ bool PlrDecHp(int pnum, int hp, int earflag)
 	p->_pHPBase -= hp;
 	p->_pHitPoints -= hp;
 	if (p->_pHitPoints < (1 << 6)) {
-		SyncPlrKill(pnum, earflag);
+		SyncPlrKill(pnum, dmgtype);
 		return true;
 	}
 	if (pnum == myplr)

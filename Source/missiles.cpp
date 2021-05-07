@@ -845,7 +845,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	if (dam < 64)
 		dam = 64;
 
-	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
+	if (pnum != myplr || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -909,7 +909,7 @@ static bool PlayerMHit(int pnum, int mi)
 	if (dam < 64)
 		dam = 64;
 
-	if (pnum != myplr || !PlrDecHp(pnum, dam, 0))
+	if (pnum != myplr || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -2294,7 +2294,7 @@ int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	mis->_miLid = AddLight(sx, sy, 8);
 	if (micaster == 0) {
 		if (!plr[misource]._pInvincible)
-			PlrDecHp(misource, 320, 0);
+			PlrDecHp(misource, 320, DMGTYPE_NPC);
 		mis->_miMinDam = mis->_miMaxDam = (plr[misource]._pMagic * (spllvl + 1)) << (-3 + 6);
 	} else {
 		mis->_miMinDam = monster[misource]._mMinDamage << 6;

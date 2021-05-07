@@ -39,8 +39,8 @@ void SpawnItem(int mnum, int x, int y, bool sendmsg);
 void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(int x, int y, bool sendmsg, bool delta);
 void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta);
-void RecreateItem(int idx, WORD icreateinfo, int iseed, int ivalue);
-void RecreateEar(WORD ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
+void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue);
+void RecreateEar(int iseed, WORD wCI, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void SpawnQuestItemInArea(int idx, int areasize);
 void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
 void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn);
@@ -51,6 +51,7 @@ void CreateAmulet(int x, int y, bool sendmsg, bool respawn);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii, int i);
+void DeleteItems(int ii);
 void ProcessItems();
 void FreeItemGFX();
 void SyncItemAnim(int ii);
@@ -65,13 +66,13 @@ void SpawnWitch(int lvl);
 void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);
 void SpawnStoreGold();
-void RecreateTownItem(int ii, int idx, WORD icreateinfo, int iseed);
+void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
 void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
-bool GetItemRecord(int nSeed, WORD wCI, int nIndex);
-void SetItemRecord(int nSeed, WORD wCI, int nIndex);
-void PutItemRecord(int nSeed, WORD wCI, int nIndex);
+bool GetItemRecord(int nSeed, WORD wIndex, WORD wCI);
+void SetItemRecord(int nSeed, WORD wIndex, WORD wCI);
+void PutItemRecord(int nSeed, WORD wIndex, WORD wCI);
 
 /* data */
 

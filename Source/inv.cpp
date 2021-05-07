@@ -1553,20 +1553,13 @@ void InvGetItem(int pnum, int ii)
 	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
 	pcursitem = ITEM_NONE;
 
-	for (i = 0; i < numitems; ) {
-		if (itemactive[i] == ii) {
-			DeleteItem(ii, i);
-		} else {
-			i++;
-		}
-	}
+	DeleteItems(ii);
 }
 
 void AutoGetItem(int pnum, int ii)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	int i;
 	bool done;
 
 	if (pcurs != CURSOR_HAND) {
@@ -1592,13 +1585,7 @@ void AutoGetItem(int pnum, int ii)
 	}
 	if (done) {
 		dItem[is->_ix][is->_iy] = 0;
-		for (i = 0; i < numitems; ) {
-			if (itemactive[i] == ii) {
-				DeleteItem(ii, i);
-			} else {
-				i++;
-			}
-		}
+		DeleteItems(ii);
 	} else {
 		if (pnum == myplr) {
 			PlaySFX(sgSFXSets[SFXS_PLR_14][p->_pClass], 3);
@@ -1609,46 +1596,46 @@ void AutoGetItem(int pnum, int ii)
 	}
 }
 
-int FindGetItem(WORD idx, WORD ci, int iseed)
+int FindGetItem(int iseed, WORD wIndex, WORD wCI)
 {
 	int i, ii;
 
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		if (items[ii]._iIdx == idx && items[ii]._iSeed == iseed && items[ii]._iCreateInfo == ci)
+		if (items[ii]._iSeed == iseed && items[ii]._iIdx == wIndex && items[ii]._iCreateInfo == wCI)
 			return ii;
 	}
 
 	return -1;
 }
 
-void SyncGetItem(int x, int y, int idx, WORD ci, int iseed)
+void SyncGetItemIdx(int ii)
 {
 	ItemStruct *is;
-	int i, ii;
+
+	is = &items[ii];
+	dItem[is->_ix][is->_iy] = 0;
+	DeleteItems(ii);
+}
+
+void SyncGetItemAt(int x, int y, int iseed, WORD wIndex, WORD wCI)
+{
+	int ii;
 
 	ii = dItem[x][y];
 	if (ii != 0) {
 		ii--;
-		if (items[ii]._iIdx != idx
-		 || items[ii]._iSeed != iseed
-		 || items[ii]._iCreateInfo != ci) {
-			ii = FindGetItem(idx, ci, iseed);
+		if (items[ii]._iSeed != iseed
+		 || items[ii]._iIdx != wIndex
+		 || items[ii]._iCreateInfo != wCI) {
+			ii = FindGetItem(iseed, wIndex, wCI);
 		}
 	} else {
-		ii = FindGetItem(idx, ci, iseed);
+		ii = FindGetItem(iseed, wIndex, wCI);
 	}
 
 	if (ii != -1) {
-		is = &items[ii];
-		dItem[is->_ix][is->_iy] = 0;
-		for (i = 0; i < numitems; ) {
-			if (itemactive[i] == ii) {
-				DeleteItem(ii, i);
-			} else {
-				i++;
-			}
-		}
+		SyncGetItemIdx(ii);
 	}
 }
 
