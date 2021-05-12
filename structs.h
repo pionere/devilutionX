@@ -832,7 +832,7 @@ static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align P
 
 #pragma pack(push, 1)
 typedef struct PkItemStruct {
-	DWORD dwSeed;
+	INT dwSeed;
 	WORD wIndx;
 	WORD wCI;
 	BYTE bId;

@@ -59,8 +59,8 @@ void engine_draw_pixel(int sx, int sy);
 #endif
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col);
 int GetDirection(int x1, int y1, int x2, int y2);
-void SetRndSeed(Sint32 s);
-Sint32 GetRndSeed();
+void SetRndSeed(int32_t s);
+int32_t GetRndSeed();
 int random_(BYTE idx, int v);
 BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);

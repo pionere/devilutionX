@@ -1763,7 +1763,7 @@ static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
 	}
 }
 
-static void CreateDoorType(int nX, int nY)
+/*static void CreateDoorType(int nX, int nY)
 {
 	if (pdungeon[nX - 1][nY] != 68
 	 && pdungeon[nX + 1][nY] != 68
@@ -1772,7 +1772,7 @@ static void CreateDoorType(int nX, int nY)
 	 && (pdungeon[nX][nY] < 65 || pdungeon[nX][nY] > 69)) {
 		pdungeon[nX][nY] = 68;
 	}
-}
+}*/
 
 /**
  * Draws a random room rectangle, and then subdivides the rest of the passed in rectangle into 4 and recurses.
@@ -2241,7 +2241,6 @@ static void DRLG_L2MakeMegas()
 
 	memset(dungeon, 3, sizeof(dungeon));
 
-	bool diff = false;
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			if (pdungeon[x][y] == 32) { // void

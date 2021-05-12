@@ -680,7 +680,7 @@ int GetDirection(int x1, int y1, int x2, int y2)
  * @brief Set the RNG seed
  * @param s RNG seed
  */
-void SetRndSeed(Sint32 s)
+void SetRndSeed(int32_t s)
 {
 #ifdef _DEBUG
 	SeedCount = 0;
@@ -692,12 +692,12 @@ void SetRndSeed(Sint32 s)
  * @brief Get the current RNG seed
  * @return RNG seed
  */
-Sint32 GetRndSeed()
+int32_t GetRndSeed()
 {
 #ifdef _DEBUG
 	SeedCount++;
 #endif
-	sglGameSeed = RndMult * static_cast<Uint32>(sglGameSeed) + RndInc;
+	sglGameSeed = RndMult * static_cast<uint32_t>(sglGameSeed) + RndInc;
 	return abs(sglGameSeed);
 }
 
