@@ -1896,6 +1896,12 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 	MissileStruct *mis;
 	int mindam, maxdam;
 
+	if (sx == dx && sy == dy) {
+		dx += XDirAdd[midir];
+		dy += YDirAdd[midir];
+	}
+	GetMissileVel(mi, sx, sy, dx, dy, 32);
+
 	if (misource != -1) {
 		if (micaster == 0) {
 			mindam = 1;
@@ -1908,8 +1914,6 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 		mindam = currLvl._dLevel;
 		maxdam = mindam + currLvl._dLevel;
 	}
-
-	GetMissileVel(mi, sx, sy, dx, dy, 32);
 
 	mis = &missile[mi];
 	mis->_miMinDam = mindam;
@@ -4112,7 +4116,7 @@ void MI_Cbolt(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-		if ((mis->_misx != mis->_mix || mis->_misy != mis->_miy)
+		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
 		 && CheckMissileCol(mi, mis->_mix, mis->_miy, false)) {
 			mis->_miVar1 = 8;
 			mis->_miDir = 0;
@@ -4140,7 +4144,8 @@ void MI_Element(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if ((CheckMissileCol(mi, cx, cy, false) || mis->_miRange != 0)   // did not hit a wall
+	if ((cx != mis->_misx || cy != mis->_misy)                       // not on the starting position
+	 && (CheckMissileCol(mi, cx, cy, false) || mis->_miRange != 0)   // did not hit a wall
 	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) { // destination reached the first time
 		mis->_miVar3 = TRUE;
 		mis->_miRange = 255;
