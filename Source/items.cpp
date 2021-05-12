@@ -2322,7 +2322,7 @@ void RecreateEar(int iseed, WORD ic, int Id, int dur, int mdur, int ch, int mch,
 }
 
 /**
- * Place an fixed item to the given location.
+ * Place a fixed item to the given location.
  * 
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
@@ -2341,7 +2341,7 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	SetupItem(ii);
-	items[ii]._iPostDraw = TRUE;
+	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iSelFlag = 1;
 	items[ii]._iAnimFrame = items[ii]._iAnimLen;
 	items[ii]._iAnimFlag = FALSE;
@@ -2382,7 +2382,8 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn)
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
 	SetupItem(ii);
-	items[ii]._iPostDraw = TRUE;
+	//items[ii]._iPostDraw = TRUE;
+	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
@@ -2406,10 +2407,11 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	ii = itemavail[0];
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 	// assert(lvlLoad != 0);
 	SetupItem(ii);
 	//items[ii]._iPostDraw = TRUE;
+	items[ii]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
+	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
 	DeltaAddItem(ii);
@@ -2441,6 +2443,7 @@ void SpawnRock()
 		items[i]._iSelFlag = 2;
 		items[i]._iPostDraw = TRUE; // draw it above the stand
 		items[i]._iAnimFrame = 11;
+		items[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
 
 		itemactive[numitems] = i;
@@ -2471,10 +2474,12 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 	SetItemData(ii, idx);
 	SetupItem(ii);
 	items[ii]._iSelFlag = 2;
-	items[ii]._iPostDraw = TRUE;
-	items[ii]._iAnimFrame = 1;
-	items[ii]._iAnimFlag = TRUE;
-	items[ii]._iIdentified = TRUE;
+	//items[ii]._iPostDraw = TRUE;
+	//items[ii]._iAnimFrame = 1;
+	//items[ii]._iAnimFlag = TRUE;
+	//items[ii]._iIdentified = TRUE;
+	items[ii]._iCreateInfo = items_get_currlevel(); // add level info to THEODORE
+	items[ii]._iSeed = GetRndSeed(); // make sure it is unique
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
@@ -3907,14 +3912,14 @@ void CreateSpellBook(int ispell, int x, int y)
 }
 
 #ifdef HELLFIRE
-void CreateAmulet(int x, int y, bool sendmsg, bool respawn)
+void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 {
 	int ii, lvl, idx;
 
 	if (numitems >= MAXITEMS)
 		return;
 
-	lvl = 26; // BUGFIX: make sure there is an amulet which fits?
+	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
 	ii = itemavail[0];
 	while (TRUE) {

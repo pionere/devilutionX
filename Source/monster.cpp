@@ -1710,10 +1710,11 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
 			SpawnRewardItem(IDI_THEODORE, mon->_mx, mon->_my, sendmsg, false);
-		} else {
+			return;
+		}/*else {
 			CreateAmulet(mon->_mx, mon->_my, sendmsg, false);
-		}
-		return;
+		}*/
+		break;
 	case UMT_DEFILER:
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
@@ -1729,10 +1730,11 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
-		CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
+		/*CreateMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
 		CreateMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
-		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);
-		return;
+		CreateMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
+		SpawnItem(mnum, mon->_mx, mon->_my, sendmsg); // double reward
+		break;
 #endif
 	}
 	SpawnItem(mnum, mon->_mx, mon->_my, sendmsg);

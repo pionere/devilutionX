@@ -486,7 +486,7 @@ static void TownerTalk(int store, int talk)
 void TalkToTowner(int pnum, int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, qt, qn;
+	int i, ii, dx, dy, qt, qn;
 
 	tw = &towners[tnum];
 	dx = abs(plr[pnum]._px - tw->_tx);
@@ -825,12 +825,13 @@ void TalkToTowner(int pnum, int tnum)
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
-				qt = TEXT_GIRL4;
+				ii = plr[pnum].InvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				SetRndSeed(plr[pnum].InvList[i]._iSeed); // and uses its seed
 				PlrInvItemRemove(pnum, i);
-				SetRndSeed(tw->_tSeed);
-				CreateAmulet(tw->_tx, tw->_ty, true, true);
+				CreateAmulet(ii, tw->_tx, tw->_ty, true, true);
 				// quests[Q_GIRL]._qlog = FALSE;
 				quests[Q_GIRL]._qactive = QUEST_DONE;
+				qt = TEXT_GIRL4;
 				qn = Q_GIRL;
 			} else if (quests[Q_GIRL]._qvar1 == 0) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {

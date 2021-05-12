@@ -1534,7 +1534,6 @@ void InvGetItem(int pnum, int ii)
 {
 	PlayerStruct *p;
 	ItemStruct *is;
-	int i;
 
 	is = &items[ii];
 	if (dItem[is->_ix][is->_iy] == 0)
