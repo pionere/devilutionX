@@ -1132,7 +1132,7 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 	os->_oVar8 = v;
 }
 
-static void AddChest(int oi, int type)
+static void AddChest(int oi)
 {
 	ObjectStruct *os;
 
@@ -1141,7 +1141,7 @@ static void AddChest(int oi, int type)
 		os->_oAnimFrame += 3;
 	os->_oRndSeed = GetRndSeed();
 	// CHEST_ITEM_NUM
-	switch (type) {
+	switch (os->_otype) {
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
 		os->_oVar1 = currLvl._dSetLvl ? 1 : random_(147, 2);
@@ -1159,11 +1159,15 @@ static void AddChest(int oi, int type)
 	os->_oVar2 = random_(147, 8);
 }
 
-static void AddL1Door(int oi, int x, int y, int type)
+static void SyncL1Doors(int oi);
+static void AddL1Door(int oi)
 {
 	ObjectStruct *os;
+	int x, y;
 
 	os = &object[oi];
+	x = os->_ox;
+	y = os->_oy;
 	os->_oVar4 = DOOR_CLOSED;
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
@@ -1171,38 +1175,52 @@ static void AddL1Door(int oi, int x, int y, int type)
 	os->_oDoorFlag = TRUE;
 	os->_oVar1 = dPiece[x][y];     // DOOR_PIECE_CLOSED
 	// DOOR_BACK_PIECE_CLOSED
-	if (type == OBJ_L1LDOOR) {
-		os->_oVar2 = dPiece[x][y - 1];
-	} else {
-		os->_oVar2 = dPiece[x - 1][y];
+	if (os->_otype == OBJ_L1RDOOR)
+		x--;
+	else
+		y--;
+	os->_oVar2 = dPiece[x][y];
+	//SyncL1Doors(oi);
+}
+
+static void SyncL2Doors(int oi);
+static void AddL2Door(int oi)
+{
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oDoorFlag = TRUE;
+	os->_oVar4 = dMonster[os->_ox][os->_oy] == 0 ? DOOR_CLOSED : DOOR_OPEN;
+	if (os->_oVar4 == DOOR_OPEN) {
+		os->_oPreFlag = TRUE;
+		os->_oSelFlag = 2;
+		os->_oMissFlag = TRUE;
+		os->_oAnimFrame += 2;
 	}
+	//os->_oPreFlag = FALSE;
+	//os->_oSelFlag = 3;
+	//os->_oMissFlag = FALSE;
+	SyncL2Doors(oi);
 }
 
-static void AddL2Door(int oi, int x, int y, int type)
+static void SyncL3Doors(int oi);
+static void AddL3Door(int oi)
 {
 	ObjectStruct *os;
 
 	os = &object[oi];
-	os->_oVar4 = DOOR_CLOSED;
+	os->_oDoorFlag = TRUE;
+	os->_oVar4 = dMonster[os->_ox][os->_oy] == 0 ? DOOR_CLOSED : DOOR_OPEN;
+	if (os->_oVar4 == DOOR_OPEN) {
+		os->_oPreFlag = TRUE;
+		os->_oSelFlag = 2;
+		os->_oMissFlag = TRUE;
+		os->_oAnimFrame += 2;
+	}
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
-	os->_oDoorFlag = TRUE;
-	ObjSetMicro(x, y, type == OBJ_L2LDOOR ? 538 : 540);
-	dSpecial[x][y] = 0;
-}
-
-static void AddL3Door(int oi, int x, int y, int type)
-{
-	ObjectStruct *os;
-
-	os = &object[oi];
-	os->_oVar4 = DOOR_CLOSED;
-	//os->_oPreFlag = FALSE;
-	//os->_oSelFlag = 3;
-	//os->_oMissFlag = FALSE;
-	os->_oDoorFlag = TRUE;
-	ObjSetMicro(x, y, type == OBJ_L3LDOOR ? 531 : 534);
+	SyncL3Doors(oi);
 }
 
 static void AddSarc(int oi)
@@ -1267,14 +1285,14 @@ static void AddObjLight(int oi, int diffr)
 	//}
 }
 
-static void AddBarrel(int oi, int type)
+static void AddBarrel(int oi)
 {
 	ObjectStruct *os;
 
 	os = &object[oi];
 	//os->_oVar1 = 0;
 	os->_oRndSeed = GetRndSeed();
-	os->_oVar2 = (type == OBJ_BARRELEX) ? 0 : random_(149, 10); // BARREL_ITEM
+	os->_oVar2 = (os->_otype == OBJ_BARRELEX) ? 0 : random_(149, 10); // BARREL_ITEM
 	os->_oVar3 = random_(149, 3);        // BARREL_ITEM_TYPE
 
 	if (os->_oVar2 >= 8)
@@ -1526,25 +1544,25 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		AddL1Door(oi, ox, oy, type);
+		AddL1Door(oi);
 		break;
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		AddL2Door(oi, ox, oy, type);
+		AddL2Door(oi);
 		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		AddL3Door(oi, ox, oy, type);
+		AddL3Door(oi);
 		break;
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
-		AddChest(oi, type);
+		AddChest(oi);
 		break;
 	case OBJ_TCHEST1:
 	case OBJ_TCHEST2:
 	case OBJ_TCHEST3:
-		AddChest(oi, type);
+		AddChest(oi);
 		object[oi]._oTrapFlag = TRUE;
 		object[oi]._oVar4 = random_(0, currLvl._dType == DTYPE_CATACOMBS ? 2 : 3); // CHEST_TRAP_TYPE
 		break;
@@ -1566,7 +1584,7 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
-		AddBarrel(oi, type);
+		AddBarrel(oi);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -2238,7 +2256,7 @@ void RedoPlayerVision()
 static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	int xp, yp, pn;
+	int xp, yp;
 
 	os = &object[oi];
 	xp = os->_ox;
@@ -2255,21 +2273,16 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 #ifdef HELLFIRE
 		if (!deltaload)
 			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-		ObjSetMicro(xp, yp, currLvl._dType != DTYPE_CRYPT ? 395 : 209);
-		dSpecial[xp][yp] = currLvl._dType != DTYPE_CRYPT ? 8 : 2;
 #else
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, 395);
-		dSpecial[xp][yp] = 8;
 #endif
-		objects_set_door_piece(xp, yp - 1);
-		DoorSet(oi, xp - 1, yp);
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL1Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2288,26 +2301,12 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
-		dSpecial[xp][yp] = 0;
-
-		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_CRYPT) {
-			if (pn == 86 && dPiece[xp - 1][yp] == 210)
-				pn = 232;
-		} else
-#endif
-		{
-			if (pn == 50 && dPiece[xp - 1][yp] == 396)
-				pn = 411;
-		}
-		ObjSetMicro(xp - 1, yp, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL1Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -2317,7 +2316,7 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 {
 	ObjectStruct *os;
-	int xp, yp, pn;
+	int xp, yp;
 
 	os = &object[oi];
 	xp = os->_ox;
@@ -2335,25 +2334,16 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 #ifdef HELLFIRE
 		if (!deltaload)
 			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-		if (currLvl._dType != DTYPE_CRYPT) {
-			ObjSetMicro(xp, yp, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
-		} else {
-			ObjSetMicro(xp, yp, 206);
-		}
-		dSpecial[xp][yp] = currLvl._dType != DTYPE_CRYPT ? 7 : 1;
 #else
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
-		dSpecial[xp][yp] = 7;
 #endif
-		objects_set_door_piece(xp - 1, yp);
-		DoorSet(oi, xp, yp - 1);
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL1Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2372,25 +2362,12 @@ static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, os->_oVar1); // DOOR_PIECE_CLOSED
-		dSpecial[xp][yp] = 0;
-		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
-#ifdef HELLFIRE
-		if (currLvl._dType == DTYPE_CRYPT) {
-			if (pn == 86 && dPiece[xp][yp - 1] == 210)
-				pn = 234;
-		} else
-#endif
-		{
-			if (pn == 50 && dPiece[xp][yp - 1] == 396)
-				pn = 412;
-		}
-		ObjSetMicro(xp, yp - 1, pn);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL1Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -2416,13 +2393,12 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, 17);
-		dSpecial[xp][yp] = 6;
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL2Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2435,13 +2411,12 @@ static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, 540);
-		dSpecial[xp][yp] = 0;
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL2Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -2467,13 +2442,12 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, 13);
-		dSpecial[xp][yp] = 5;
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL2Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2486,13 +2460,12 @@ static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, 538);
-		dSpecial[xp][yp] = 0;
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL2Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -2518,12 +2491,12 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, 541);
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL3Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2536,12 +2509,12 @@ static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, 534);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL3Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -2567,12 +2540,12 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
 		if (!deltaload)
 			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		ObjSetMicro(xp, yp, 538);
 		os->_oVar4 = DOOR_OPEN;
 		os->_oPreFlag = TRUE;
 		os->_oSelFlag = 2;
 		os->_oMissFlag = TRUE;
 		os->_oAnimFrame += 2;
+		SyncL3Doors(oi);
 		RedoPlayerVision();
 		return;
 	}
@@ -2585,12 +2558,12 @@ static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		ObjSetMicro(xp, yp, 531);
 		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		SyncL3Doors(oi);
 		RedoPlayerVision();
 	} else {
 		os->_oVar4 = DOOR_BLOCKED;
@@ -4298,14 +4271,36 @@ static void SyncPedistal(int oi)
 static void SyncL1Doors(int oi)
 {
 	ObjectStruct *os;
-	int x, y;
+	int x, y, pn;
 
 	os = &object[oi];
-	if (os->_oVar4 == DOOR_CLOSED)
-		return;
 
 	x = os->_ox;
 	y = os->_oy;
+	if (os->_oVar4 == DOOR_CLOSED) {
+		ObjSetMicro(x, y, os->_oVar1); // DOOR_PIECE_CLOSED
+		dSpecial[x][y] = 0;
+
+		pn = os->_oVar2;                 // DOOR_BACK_PIECE_CLOSED
+
+		if (os->_otype == OBJ_L1RDOOR)
+			x--;
+		else
+			y--;
+#ifdef HELLFIRE
+		if (currLvl._dType == DTYPE_CRYPT) {
+			if (pn == 86 && dPiece[x][y] == 210)
+				pn = os->_otype == OBJ_L1RDOOR ? 232 : 234;
+		} else
+#endif
+		{
+			if (pn == 50 && dPiece[x][y] == 396)
+				pn = os->_otype == OBJ_L1RDOOR ? 411 : 412;
+		}
+		ObjSetMicro(x, y, pn);
+		return;
+	}
+
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		if (os->_otype == OBJ_L1LDOOR) {
@@ -4323,10 +4318,7 @@ static void SyncL1Doors(int oi)
 #endif
 	{
 		if (os->_otype == OBJ_L1LDOOR) {
-			if (os->_oVar1 == 214) // DOOR_PIECE_CLOSED
-				ObjSetMicro(x, y, 408);
-			else
-				ObjSetMicro(x, y, 393);
+			ObjSetMicro(x, y, os->_oVar1 == 214 ? 408 : 393); // DOOR_PIECE_CLOSED
 			dSpecial[x][y] = 7;
 			objects_set_door_piece(x - 1, y);
 			y--;
