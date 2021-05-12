@@ -827,6 +827,72 @@ static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align P
 #endif
 
 //////////////////////////////////////////////////
+// pack
+//////////////////////////////////////////////////
+
+#pragma pack(push, 1)
+typedef struct PkItemStruct {
+	DWORD dwSeed;
+	WORD wIndx;
+	WORD wCI;
+	BYTE bId;
+	BYTE bDur;
+	BYTE bMDur;
+	BYTE bCh;
+	BYTE bMCh;
+	WORD wValue;
+	DWORD dwBuff;
+} PkItemStruct;
+
+typedef struct _FILETIME {
+	DWORD dwLowDateTime;
+	DWORD dwHighDateTime;
+} FILETIME;
+
+typedef struct PkPlayerStruct {
+	FILETIME archiveTime;
+	BYTE plrlevel;
+	BYTE pTeam;
+	BYTE px;
+	BYTE py;
+	char pName[PLR_NAME_LEN];
+	BYTE pClass;
+	BYTE pLevel;
+	BYTE pLightRad;
+	BYTE pManaShield;
+	WORD pBaseStr;
+	WORD pBaseMag;
+	WORD pBaseDex;
+	WORD pBaseVit;
+	BYTE pDiabloKillLevel;
+	WORD pStatPts;
+	DWORD pExperience;
+	INT pGold;
+	INT pHPBase;
+	INT pMaxHPBase;
+	INT pManaBase;
+	INT pMaxManaBase;
+	BYTE pSkillLvl[64];
+	BYTE pSkillActivity[64];
+	DWORD pSkillExp[64];
+	uint64_t pMemSkills;
+	PkItemStruct InvBody[NUM_INVLOC];
+	PkItemStruct SpdList[MAXBELTITEMS];
+	PkItemStruct InvList[NUM_INV_GRID_ELEM];
+	char InvGrid[NUM_INV_GRID_ELEM];
+	BYTE _pNumInv;
+	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
+	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
+	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
+	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
+	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
+	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
+	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
+	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
+} PkPlayerStruct;
+#pragma pack(pop)
+
+//////////////////////////////////////////////////
 // msg
 //////////////////////////////////////////////////
 
@@ -965,16 +1031,7 @@ typedef struct TCmdGItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
-	INT dwSeed;
-	WORD wIndx;
-	WORD wCI;
-	BYTE bId;
-	BYTE bDur;
-	BYTE bMDur;
-	BYTE bCh;
-	BYTE bMCh;
-	WORD wValue;
-	DWORD dwBuff;
+	PkItemStruct item;
 	INT dwTime;
 } TCmdGItem;
 
@@ -982,16 +1039,7 @@ typedef struct TCmdPItem {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
-	INT dwSeed;
-	WORD wIndx;
-	WORD wCI;
-	BYTE bId;
-	BYTE bDur;
-	BYTE bMDur;
-	BYTE bCh;
-	BYTE bMCh;
-	WORD wValue;
-	DWORD dwBuff;
+	PkItemStruct item;
 } TCmdPItem;
 
 typedef struct TCmdChItem {
@@ -1474,72 +1522,6 @@ typedef struct _SNETEVENT {
 	void *_eData;
 	DWORD databytes;
 } _SNETEVENT;
-
-//////////////////////////////////////////////////
-// pack
-//////////////////////////////////////////////////
-
-#pragma pack(push, 1)
-typedef struct PkItemStruct {
-	DWORD iSeed;
-	WORD iCreateInfo;
-	WORD idx;
-	BYTE bId;
-	BYTE bDur;
-	BYTE bMDur;
-	BYTE bCh;
-	BYTE bMCh;
-	WORD wValue;
-	DWORD dwBuff;
-} PkItemStruct;
-
-typedef struct _FILETIME {
-	DWORD dwLowDateTime;
-	DWORD dwHighDateTime;
-} FILETIME;
-
-typedef struct PkPlayerStruct {
-	FILETIME archiveTime;
-	BYTE plrlevel;
-	BYTE pTeam;
-	BYTE px;
-	BYTE py;
-	char pName[PLR_NAME_LEN];
-	BYTE pClass;
-	BYTE pLevel;
-	BYTE pLightRad;
-	BYTE pManaShield;
-	WORD pBaseStr;
-	WORD pBaseMag;
-	WORD pBaseDex;
-	WORD pBaseVit;
-	BYTE pDiabloKillLevel;
-	WORD pStatPts;
-	DWORD pExperience;
-	INT pGold;
-	INT pHPBase;
-	INT pMaxHPBase;
-	INT pManaBase;
-	INT pMaxManaBase;
-	BYTE pSkillLvl[64];
-	BYTE pSkillActivity[64];
-	DWORD pSkillExp[64];
-	uint64_t pMemSkills;
-	PkItemStruct InvBody[NUM_INVLOC];
-	PkItemStruct SpdList[MAXBELTITEMS];
-	PkItemStruct InvList[NUM_INV_GRID_ELEM];
-	char InvGrid[NUM_INV_GRID_ELEM];
-	BYTE _pNumInv;
-	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-} PkPlayerStruct;
-#pragma pack(pop)
 
 //////////////////////////////////////////////////
 // path

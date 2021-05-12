@@ -14,10 +14,6 @@ extern "C" {
 
 void PackPlayer(PkPlayerStruct *pPack, int pnum);
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum);
-#ifdef HELLFIRE
-void PackItem(PkItemStruct *pis, ItemStruct *is);
-void UnPackItem(PkItemStruct *pis, ItemStruct *is);
-#endif
 
 /* rdata */
 #ifdef __cplusplus

@@ -619,7 +619,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == 0xFF || pD->dwSeed != pI->dwSeed || pD->wIndx != pI->wIndx || pD->wCI != pI->wCI)
+		if (pD->bCmd == 0xFF || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
 			continue;
 
 		switch (pD->bCmd) {
@@ -639,7 +639,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 		}
 	}
 
-	if ((pI->wCI & CF_PREGEN) == 0)
+	if ((pI->item.wCI & CF_PREGEN) == 0)
 		return false;
 
 	pD = sgLevels[bLevel].item;
@@ -649,16 +649,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 			pD->bCmd = DCMD_TAKEN;
 			pD->x = pI->x;
 			pD->y = pI->y;
-			pD->dwSeed = pI->dwSeed;
-			pD->wIndx = pI->wIndx;
-			pD->wCI = pI->wCI;
-			pD->bId = pI->bId;
-			pD->bDur = pI->bDur;
-			pD->bMDur = pI->bMDur;
-			pD->bCh = pI->bCh;
-			pD->bMCh = pI->bMCh;
-			pD->wValue = pI->wValue;
-			pD->dwBuff = pI->dwBuff;
+			copy_pod(pD->item, pI->item);
 			break;
 		}
 	}
@@ -676,9 +667,9 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-		 && pD->dwSeed == pI->dwSeed
-		 && pD->wIndx == pI->wIndx
-		 && pD->wCI == pI->wCI) {
+		 && pD->item.dwSeed == pI->item.dwSeed
+		 && pD->item.wIndx == pI->item.wIndx
+		 && pD->item.wCI == pI->item.wCI) {
 			if (pD->bCmd == DCMD_DROPPED)
 				return;
 			if (pD->bCmd == DCMD_TAKEN)
@@ -710,9 +701,19 @@ bool delta_quest_inited(int i)
 	return sgJunk.quests[i].qstate != 0xFF;
 }
 
-static void PackPItem(TCmdPItem *dest, ItemStruct *src)
+void PackPkItem(PkItemStruct *dest, const ItemStruct *src)
 {
-	if (src->_iIdx == IDI_EAR) {
+	if (src->_iIdx != IDI_EAR) {
+		dest->dwSeed = SwapLE32(src->_iSeed);
+		dest->wIndx = SwapLE16(src->_iIdx);
+		dest->wCI = SwapLE16(src->_iCreateInfo);
+		dest->bId = src->_iIdentified;
+		dest->bDur = src->_iDurability;
+		dest->bMDur = src->_iMaxDur;
+		dest->bCh = src->_iCharges;
+		dest->bMCh = src->_iMaxCharges;
+		dest->wValue = SwapLE16(src->_ivalue);
+	} else {
 		dest->wIndx = SwapLE16(IDI_EAR);
 		dest->wCI = SwapLE16(src->_iName[8] | (src->_iName[7] << 8));
 		dest->dwSeed = SwapLE32(src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8));
@@ -723,42 +724,6 @@ static void PackPItem(TCmdPItem *dest, ItemStruct *src)
 		dest->bMCh = src->_iName[17];
 		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
 		dest->dwBuff = SwapLE32(src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8));
-	} else {
-		dest->dwSeed = SwapLE32(src->_iSeed);
-		dest->wIndx = SwapLE16(src->_iIdx);
-		dest->wCI = SwapLE16(src->_iCreateInfo);
-		dest->bId = src->_iIdentified;
-		dest->bDur = src->_iDurability;
-		dest->bMDur = src->_iMaxDur;
-		dest->bCh = src->_iCharges;
-		dest->bMCh = src->_iMaxCharges;
-		dest->wValue = SwapLE16(src->_ivalue);
-	}
-}
-
-static void PackGItem(TCmdGItem *dest, ItemStruct *src)
-{
-	if (src->_iIdx == IDI_EAR) {
-		dest->wIndx = SwapLE16(IDI_EAR);
-		dest->wCI = SwapLE16(src->_iName[8] | (src->_iName[7] << 8));
-		dest->dwSeed = SwapLE32(src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8));
-		dest->bId = src->_iName[13];
-		dest->bDur = src->_iName[14];
-		dest->bMDur = src->_iName[15];
-		dest->bCh = src->_iName[16];
-		dest->bMCh = src->_iName[17];
-		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-		dest->dwBuff = SwapLE32(src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8));
-	} else {
-		dest->dwSeed = SwapLE32(src->_iSeed);
-		dest->wIndx = SwapLE16(src->_iIdx);
-		dest->wCI = SwapLE16(src->_iCreateInfo);
-		dest->bId = src->_iIdentified;
-		dest->bDur = src->_iDurability;
-		dest->bMDur = src->_iMaxDur;
-		dest->bCh = src->_iCharges;
-		dest->bMCh = src->_iMaxCharges;
-		dest->wValue = SwapLE16(src->_ivalue);
 	}
 }
 
@@ -775,9 +740,9 @@ void DeltaAddItem(int ii)
 	pD = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
-		 && pD->dwSeed == SwapLE32(is->_iSeed)
-		 && pD->wIndx == SwapLE16(is->_iIdx)
-		 && pD->wCI == SwapLE16(is->_iCreateInfo)) {
+		 && pD->item.dwSeed == SwapLE32(is->_iSeed)
+		 && pD->item.wIndx == SwapLE16(is->_iIdx)
+		 && pD->item.wCI == SwapLE16(is->_iCreateInfo)) {
 			if (pD->bCmd == DCMD_TAKEN || pD->bCmd == DCMD_SPAWNED)
 				return;
 			if (pD->bCmd == DCMD_DROPPED)
@@ -792,8 +757,7 @@ void DeltaAddItem(int ii)
 			pD->bCmd = DCMD_SPAWNED;
 			pD->x = is->_ix;
 			pD->y = is->_iy;
-
-			PackPItem(pD, is);
+			PackPkItem(&pD->item, is);
 			return;
 		}
 	}
@@ -812,11 +776,22 @@ void DeltaSaveLevel()
 	delta_leave_sync(currLvl._dLevelIdx);
 }
 
-static void UnPackPItem(const TCmdPItem *src)
+void UnPackPkItem(const PkItemStruct *src)
 {
 	uint16_t idx = SwapLE16(src->wIndx);
 
-	if (idx == IDI_EAR) {
+	if (idx != IDI_EAR) {
+		RecreateItem(
+			SwapLE32(src->dwSeed),
+			SwapLE16(src->wIndx),
+			SwapLE16(src->wCI),
+			SwapLE16(src->wValue));
+		items[MAXITEMS]._iIdentified = src->bId;
+		items[MAXITEMS]._iDurability = src->bDur;
+		items[MAXITEMS]._iMaxDur = src->bMDur;
+		items[MAXITEMS]._iCharges = src->bCh;
+		items[MAXITEMS]._iMaxCharges = src->bMCh;
+	} else {
 		RecreateEar(
 			SwapLE32(src->dwSeed),
 			SwapLE16(src->wCI),
@@ -827,48 +802,6 @@ static void UnPackPItem(const TCmdPItem *src)
 			src->bMCh,
 			SwapLE16(src->wValue),
 			SwapLE32(src->dwBuff));
-	} else {
-		RecreateItem(
-			SwapLE32(src->dwSeed),
-			idx,
-			SwapLE16(src->wCI),
-			SwapLE16(src->wValue));
-		if (src->bId)
-			items[MAXITEMS]._iIdentified = TRUE;
-		items[MAXITEMS]._iDurability = src->bDur;
-		items[MAXITEMS]._iMaxDur = src->bMDur;
-		items[MAXITEMS]._iCharges = src->bCh;
-		items[MAXITEMS]._iMaxCharges = src->bMCh;
-	}
-}
-
-static void UnPackGItem(TCmdGItem *src)
-{
-	uint16_t idx = SwapLE16(src->wIndx);
-
-	if (idx == IDI_EAR) {
-		RecreateEar(
-			SwapLE32(src->dwSeed),
-			SwapLE16(src->wCI),
-			src->bId,
-			src->bDur,
-			src->bMDur,
-			src->bCh,
-			src->bMCh,
-			SwapLE16(src->wValue),
-			SwapLE32(src->dwBuff));
-	} else {
-		RecreateItem(
-			SwapLE32(src->dwSeed),
-			idx,
-			SwapLE16(src->wCI),
-			SwapLE16(src->wValue));
-		if (src->bId)
-			items[MAXITEMS]._iIdentified = TRUE;
-		items[MAXITEMS]._iDurability = src->bDur;
-		items[MAXITEMS]._iMaxDur = src->bMDur;
-		items[MAXITEMS]._iCharges = src->bCh;
-		items[MAXITEMS]._iMaxCharges = src->bMCh;
 	}
 }
 
@@ -956,14 +889,14 @@ void DeltaLoadLevel()
 	itm = sgLevels[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_TAKEN) {
-			ii = FindGetItem(SwapLE32(itm->dwSeed), SwapLE16(itm->wIndx), SwapLE16(itm->wCI));
+			ii = FindGetItem(SwapLE32(itm->item.dwSeed), SwapLE16(itm->item.wIndx), SwapLE16(itm->item.wCI));
 			if (ii != -1) {
 				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
 					dItem[items[ii]._ix][items[ii]._iy] = 0;
 				DeleteItem(ii, i);
 			}
 		} else if (itm->bCmd == DCMD_DROPPED) {
-			UnPackPItem(itm);
+			UnPackPkItem(&itm->item);
 			x = itm->x;
 			y = itm->y;
 			if (!CanPut(x, y))
@@ -1216,7 +1149,7 @@ void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
 
-	PackGItem(&cmd, is);
+	PackPkItem(&cmd.item, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -1287,7 +1220,7 @@ void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 	cmd.x = x;
 	cmd.y = y;
 
-	PackPItem(&cmd, is);
+	PackPkItem(&cmd.item, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -1331,7 +1264,7 @@ void NetSendCmdDItem(bool bHiPri, int ii)
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
 
-	PackPItem(&cmd, is);
+	PackPkItem(&cmd.item, is);
 
 	if (bHiPri)
 		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
@@ -1526,15 +1459,15 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI))) {
-			int ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+		if (GetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI))) {
+			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
 				NetSendCmdGItem2(false, CMD_GETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
 					SyncGetItemIdx(ii);
 				else
 					InvGetItem(myplr, ii);
-				SetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+				SetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, cmd))
 				NetSendCmdExtra(cmd);
 		}
@@ -1555,16 +1488,16 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
-						UnPackGItem(cmd);
+						UnPackPkItem(&cmd->item);
 						ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, MAXITEMS, false);
 						if (ii != -1)
 							InvGetItem(myplr, ii);
 					} else {
-						ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+						ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 						InvGetItem(myplr, ii);
 					}
 				} else
-					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
 			NetSendCmdGItem2(true, CMD_GETITEM, cmd->bMaster, cmd);
@@ -1591,15 +1524,15 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI))) {
-			int ii = FindGetItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+		if (GetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI))) {
+			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
 				NetSendCmdGItem2(false, CMD_AGETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
 					SyncGetItemIdx(ii);
 				else
 					AutoGetItem(myplr, cmd->bCursitem);
-				SetItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+				SetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, cmd))
 				NetSendCmdExtra(cmd);
 		}
@@ -1619,14 +1552,14 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == myplr) && cmd->bMaster != myplr) {
 				if (cmd->bPnum == myplr) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
-						UnPackGItem(cmd);
+						UnPackPkItem(&cmd->item);
 						int ii = SyncPutItem(myplr, plr[myplr]._px, plr[myplr]._py, MAXITEMS, false);
 						if (ii != -1)
 							AutoGetItem(myplr, ii);
 					} else
 						AutoGetItem(myplr, cmd->bCursitem);
 				} else
-					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
 			NetSendCmdGItem2(true, CMD_AGETITEM, cmd->bMaster, cmd);
@@ -1644,7 +1577,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	else {
 		delta_get_item(cmd, cmd->bLevel);
 		if (currLvl._dLevelIdx == plr[pnum].plrlevel)
-			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 	}
 
 	return sizeof(*cmd);
@@ -1691,12 +1624,12 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (plr[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->wIndx))) {
+		if (plr[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
 			return sizeof(*cmd);
 		}
 #endif
 		if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
-			UnPackPItem(cmd);
+			UnPackPkItem(&cmd->item);
 			int ii = InvPutItem(pnum, x, y, MAXITEMS);
 			if (ii == -1)
 				return sizeof(*cmd);
@@ -1704,7 +1637,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			y = items[ii]._iy;
 		}
 		delta_put_item(cmd, x, y, plr[pnum].plrlevel);
-		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 	}
 
 	return sizeof(*cmd);
@@ -1717,15 +1650,15 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (currLvl._dLevelIdx == plr[pnum].plrlevel) {
-		UnPackPItem(cmd);
+		UnPackPkItem(&cmd->item);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
-			PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+			PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
 	} else {
-		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 		check_update_plr(pnum);
 	}
@@ -1741,10 +1674,10 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		if (currLvl._dLevelIdx == plr[pnum].plrlevel && pnum != myplr) {
-			UnPackPItem(cmd);
+			UnPackPkItem(&cmd->item);
 			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
-		PutItemRecord(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI));
+		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 	}
 

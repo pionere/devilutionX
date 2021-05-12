@@ -53,6 +53,9 @@ void NetSendCmdString(unsigned int pmask);
 void delta_close_portal(int pnum);
 unsigned ParseCmd(int pnum, TCmd *pCmd);
 
+void UnPackPkItem(const PkItemStruct*src);
+void PackPkItem(PkItemStruct *dest, const ItemStruct *src);
+
 #ifdef __cplusplus
 }
 #endif

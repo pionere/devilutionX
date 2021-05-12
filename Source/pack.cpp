@@ -7,33 +7,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-void PackItem(PkItemStruct *pis, ItemStruct *is)
+static void PackItem(PkItemStruct *pis, const ItemStruct *is)
 {
 	if (is->_itype == ITYPE_NONE) {
-		pis->idx = 0xFFFF;
+		pis->wIndx = 0xFFFF;
 	} else {
-		pis->idx = SwapLE16(is->_iIdx);
-		if (is->_iIdx == IDI_EAR) {
-			pis->iCreateInfo = is->_iName[8] | (is->_iName[7] << 8);
-			pis->iSeed = SwapLE32(is->_iName[12] | ((is->_iName[11] | ((is->_iName[10] | (is->_iName[9] << 8)) << 8)) << 8));
-			pis->bId = is->_iName[13];
-			pis->bDur = is->_iName[14];
-			pis->bMDur = is->_iName[15];
-			pis->bCh = is->_iName[16];
-			pis->bMCh = is->_iName[17];
-			pis->wValue = SwapLE16(is->_ivalue | (is->_iName[18] << 8) | ((is->_iCurs - ICURS_EAR_SORCERER) << 6));
-			pis->dwBuff = SwapLE32(is->_iName[22] | ((is->_iName[21] | ((is->_iName[20] | (is->_iName[19] << 8)) << 8)) << 8));
-		} else {
-			pis->iSeed = SwapLE32(is->_iSeed);
-			pis->iCreateInfo = SwapLE16(is->_iCreateInfo);
-			pis->bId = is->_iIdentified + 2 * is->_iMagical;
-			pis->bDur = is->_iDurability;
-			pis->bMDur = is->_iMaxDur;
-			pis->bCh = is->_iCharges;
-			pis->bMCh = is->_iMaxCharges;
-			if (is->_iIdx == IDI_GOLD)
-				pis->wValue = SwapLE16(is->_ivalue);
-		}
+		PackPkItem(pis, is);
 	}
 }
 
@@ -129,37 +108,14 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
  * @param pis The source packed item
  * @param is The distination item
  */
-void UnPackItem(PkItemStruct *pis, ItemStruct *is)
+static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 {
-	uint16_t idx = SwapLE16(pis->idx);
+	uint16_t idx = SwapLE16(pis->wIndx);
 
 	if (idx == 0xFFFF) {
 		is->_itype = ITYPE_NONE;
 	} else {
-		if (idx == IDI_EAR) {
-			RecreateEar(
-			    SwapLE32(pis->iSeed),
-			    SwapLE16(pis->iCreateInfo),
-			    pis->bId,
-			    pis->bDur,
-			    pis->bMDur,
-			    pis->bCh,
-			    pis->bMCh,
-			    SwapLE16(pis->wValue),
-			    SwapLE32(pis->dwBuff));
-		} else {
-			RecreateItem(
-				SwapLE32(pis->iSeed),
-				idx,
-				SwapLE16(pis->iCreateInfo),
-				SwapLE16(pis->wValue));
-			items[MAXITEMS]._iMagical = pis->bId >> 1;
-			items[MAXITEMS]._iIdentified = pis->bId & 1;
-			items[MAXITEMS]._iDurability = pis->bDur;
-			items[MAXITEMS]._iMaxDur = pis->bMDur;
-			items[MAXITEMS]._iCharges = pis->bCh;
-			items[MAXITEMS]._iMaxCharges = pis->bMCh;
-		}
+		UnPackPkItem(pis);
 		copy_pod(*is, items[MAXITEMS]);
 	}
 }
