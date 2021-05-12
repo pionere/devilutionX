@@ -99,6 +99,9 @@ void InitAutomap()
 	pTmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
 		*pTmp &= ~BFLAG_EXPLORED;
+	// patch dAutomapData - L2.AMP
+	if (currLvl._dType == DTYPE_CATACOMBS)
+		automaptype[42] &= ~MAPFLAG_HORZARCH;
 }
 
 /**
