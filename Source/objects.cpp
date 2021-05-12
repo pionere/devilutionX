@@ -913,9 +913,6 @@ void InitObjects()
 {
 	ClrAllObjects();
 
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		AddDiabObjs();
-	} else {
 		//gbInitObjFlag = true;
 		switch (currLvl._dType) {
 		case DTYPE_CATHEDRAL:
@@ -962,6 +959,10 @@ void InitObjects()
 			AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
 			break;
 		case DTYPE_HELL:
+			if (currLvl._dLevelIdx == DLV_HELL4) {
+				AddDiabObjs();
+				return;
+			}
 			if (QuestStatus(Q_WARLORD)) {
 				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, Q_WARLORD);
 				LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
@@ -1010,7 +1011,6 @@ void InitObjects()
 		if (currLvl._dDunType != DTYPE_CATHEDRAL)
 			AddChestTraps();
 		//gbInitObjFlag = false;
-	}
 }
 
 void SetMapObjects(BYTE *pMap)
@@ -2169,8 +2169,7 @@ static void DoorSet(int oi, int dx, int dy)
 
 	pn = dPiece[dx][dy];
 #ifdef HELLFIRE
-	// TODO: use dType instead?
-	if (currLvl._dLevelIdx >= DLV_NEST1) {
+	if (currLvl._dType == DTYPE_CRYPT) {
 		if (pn == 75)
 			ObjSetMicro(dx, dy, 204);
 		if (pn == 79)
