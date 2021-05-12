@@ -744,7 +744,7 @@ static void InitL3Dungeon()
 
 static void DRLG_LoadL3SP()
 {
-	pSetPiece = NULL;
+	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_ANVIL)) {
 		pSetPiece = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 	}

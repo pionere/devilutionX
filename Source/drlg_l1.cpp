@@ -762,7 +762,7 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
-	pSetPiece = NULL;
+	assert(pSetPiece == NULL);
 	if (QuestStatus(Q_LTBANNER)) {
 		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
 	} else if (QuestStatus(Q_SKELKING)) {

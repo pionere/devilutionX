@@ -22,7 +22,7 @@ int setpc_w;
 /** Specifies the height of the active set level of the map. */
 int setpc_h;
 /** Contains the contents of the single player quest DUN file. */
-BYTE *pSetPiece;
+BYTE *pSetPiece = NULL;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
 BYTE *pMegaTiles;

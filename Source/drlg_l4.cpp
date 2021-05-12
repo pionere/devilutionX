@@ -202,7 +202,7 @@ static void InitL4Dungeon()
 
 static void DRLG_LoadL4SP()
 {
-	pSetPiece = NULL;
+	assert(pSetPiece == NULL);
 	if (gbMaxPlayers != 1 && QuestStatus(Q_BETRAYER)) {
 		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
 	} else if (QuestStatus(Q_WARLORD)) {
