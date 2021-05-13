@@ -18,12 +18,12 @@ void ReadOnlyTest()
 	std::string path = GetPrefPath();
 	path += "Diablo1ReadOnlyTest.foo";
 	FILE *f = FileOpen(path.c_str(), "wt");
-	if (f == NULL) {
+	if (f != NULL) {
+		fclose(f);
+		remove(path.c_str());
+	} else {
 		DirErrorDlg(GetPrefPath());
 	}
-
-	fclose(f);
-	remove(path.c_str());
 }
 
 DEVILUTION_END_NAMESPACE

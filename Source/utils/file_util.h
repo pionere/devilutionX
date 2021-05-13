@@ -111,10 +111,7 @@ inline void RemoveFile(const char *lpFileName)
 {
 	std::string name = lpFileName;
 	std::replace(name.begin(), name.end(), '\\', '/');
-	FILE *f = FileOpen(name.c_str(), "r+");
-	if (f != NULL) {
-		fclose(f);
-		remove(name.c_str());
+	if (remove(name.c_str()) == 0) {
 		SDL_Log("Removed file: %s", name.c_str());
 	} else {
 		SDL_Log("Failed to remove file: %s", name.c_str());
