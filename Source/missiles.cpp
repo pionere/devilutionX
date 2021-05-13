@@ -1482,7 +1482,7 @@ int AddStealPots(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 							case IMISC_HEAL:
 							case IMISC_MANA:
 								RemoveSpdBarItem(pnum, si);
-								continue;
+								break;
 							case IMISC_FULLMANA:
 								ii = IDI_MANA;
 								break;

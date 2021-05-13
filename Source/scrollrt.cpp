@@ -230,19 +230,17 @@ static void scrollrt_draw_cursor_item()
 			col = PAL16_RED + 5;
 		}
 
-		i = 1;
 #ifdef HELLFIRE
 		if (frame > 179) {
 			frame -= 179;
 			cCels = pCursCels2;
-			i = 0;
 		}
 #endif
 		CelBlitOutline(col, mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		if (col != PAL16_RED + 5) {
 			CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);
 		} else {
-			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW, i);
+			CelDrawLightRedSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW, 1);
 		}
 	} else {
 		CelClippedDrawSafe(mx + SCREEN_X, my + cursH + SCREEN_Y - 1, cCels, frame, cursW);

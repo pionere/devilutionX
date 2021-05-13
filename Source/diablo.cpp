@@ -11,6 +11,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
+#include <gperftools/heap-profiler.h>
+#endif
 SDL_Window *ghMainWnd;
 DWORD glSeedTbl[NUMLEVELS];
 int gnLevelTypeTbl[NUMLEVELS];
@@ -78,7 +81,6 @@ int debug_mode_key_s;
 int debug_mode_key_w;
 int debug_mode_key_inverted_v;
 BOOL debug_mode_god_mode;
-int debug_mode_key_d;
 int debug_mode_key_i;
 int dbgplr;
 int dbgqst;
@@ -170,14 +172,11 @@ static void print_help_and_exit()
 #endif
 #ifdef _DEBUG
 	printf("\nDebug options:\n");
-	printf("    %-20s %-30s\n", "-d", "Increased item drops");
 	printf("    %-20s %-30s\n", "-w", "Enable cheats");
 	printf("    %-20s %-30s\n", "-$", "Enable god mode");
 	printf("    %-20s %-30s\n", "-^", "Enable god mode and debug tools");
-	//printf("    %-20s %-30s\n", "-b", "Enable item drop log");
 	printf("    %-20s %-30s\n", "-v", "Highlight visibility");
 	printf("    %-20s %-30s\n", "-i", "Ignore network timeout");
-	//printf("    %-20s %-30s\n", "-j <##>", "Init trigger at level");
 	printf("    %-20s %-30s\n", "-l <##> <##>", "Start in level as type");
 	printf("    %-20s %-30s\n", "-m <##>", "Add debug monster, up to 10 allowed");
 	printf("    %-20s %-30s\n", "-q <#>", "Force a certain quest");
@@ -227,8 +226,6 @@ static void diablo_parse_flags(int argc, char **argv)
 		} else if (strcasecmp("-b", argv[i]) == 0) {
 			debug_mode_key_b = 1;
 		*/
-		} else if (strcasecmp("-d", argv[i]) == 0) {
-			debug_mode_key_d = TRUE;
 		} else if (strcasecmp("-i", argv[i]) == 0) {
 			debug_mode_key_i = TRUE;
 			/*
@@ -385,6 +382,9 @@ static void run_game_loop(unsigned int uMsg)
 	gbGameLoopStartup = TRUE;
 	nthread_ignore_mutex(FALSE);
 
+#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
+	unsigned run_game_iteration = 0;
+#endif
 	while (gbRunGame) {
 		while (PeekMessage(&msg)) {
 			if (msg.message == DVL_WM_QUIT) {
@@ -407,6 +407,10 @@ static void run_game_loop(unsigned int uMsg)
 		game_loop(gbGameLoopStartup);
 		gbGameLoopStartup = FALSE;
 		DrawAndBlit();
+#ifdef GPERF_HEAP_FIRST_GAME_ITERATION
+	if (run_game_iteration++ == 0)
+		HeapProfilerDump("first_game_iteration");
+#endif
 	}
 
 	if (gbMaxPlayers != 1) {

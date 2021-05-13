@@ -8,6 +8,9 @@
 #ifdef RUN_TESTS
 #include <gtest/gtest.h>
 #endif
+#ifdef GPERF_HEAP_MAIN
+#include <gperftools/heap-profiler.h>
+#endif
 
 #include "all.h"
 
@@ -30,6 +33,12 @@ int main(int argc, char **argv)
 #ifdef __3DS__
 	ctr_sys_init();
 #endif
-
-	return dvl::DiabloMain(argc, argv);
+#ifdef GPERF_HEAP_MAIN
+	HeapProfilerStart("main");
+#endif
+	const int result = dvl::DiabloMain(argc, argv);
+#ifdef GPERF_HEAP_MAIN
+	HeapProfilerStop();
+#endif
+	return result;
 }

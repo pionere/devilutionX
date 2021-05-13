@@ -4,6 +4,9 @@
 #include <psp2/power.h>
 #endif
 
+#ifdef __3DS__
+#include "platform/ctr/display.hpp"
+#endif
 #include "control.h"
 #include "controls/controller.h"
 #include "controls/devices/game_controller.h"
@@ -33,11 +36,13 @@ int borderRight;
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 {
 	SDL_Log("Setting video mode %dx%d bpp=%u flags=0x%08X", width, height, bpp, flags);
-	SDL_SetVideoMode(width, height, bpp, flags);
+	ghMainWnd = SDL_SetVideoMode(width, height, bpp, flags);
+	if (ghMainWnd == NULL) {
+		ErrSdl();
+	}
 	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
 	SDL_Log("Video mode is now %dx%d bpp=%u flags=0x%08X",
 	    current.current_w, current.current_h, current.vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
-	ghMainWnd = SDL_GetVideoSurface();
 }
 
 void SetVideoModeToPrimary(bool fullscreen, int width, int height)
@@ -45,6 +50,12 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	int flags = SDL1_VIDEO_MODE_FLAGS | SDL_HWPALETTE;
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
+#ifdef __3DS__
+	flags &= ~SDL_FULLSCREEN;
+	BOOL oar = false;
+	DvlIntSetting("original aspect ratio", &oar);
+	flags |= Get3DSScalingFlag(!oar, width, height);
+#endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 	if (OutputRequiresScaling())
 		SDL_Log("Using software scaling");

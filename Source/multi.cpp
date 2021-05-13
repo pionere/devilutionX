@@ -615,7 +615,7 @@ static void SetupLocalCoords()
 	x = 65 + DBORDERX;
 	y = 58 + DBORDERY;
 #ifdef _DEBUG
-	if (debug_mode_key_inverted_v || debug_mode_key_d) {
+	if (debug_mode_key_inverted_v) {
 		x = 39 + DBORDERX;
 		y = 13 + DBORDERY;
 	}

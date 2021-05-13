@@ -16,6 +16,7 @@ DEBUG_OPTION(UBSAN "Enable undefined behaviour sanitizer")
 option(TSAN "Enable thread sanitizer (not compatible with ASAN=ON)" OFF)
 DEBUG_OPTION(DEBUG "Enable debug mode in engine")
 option(GPERF "Build with GPerfTools profiler" OFF)
+cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
 option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
 option(PIE "Generate position-independent code" OFF)
 option(SPAWN "Build the shareware version" OFF)
@@ -90,6 +91,21 @@ if(NOT DISABLE_LTO)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake")
+
+if(GPERF)
+  if(GPERF_HEAP_FIRST_GAME_ITERATION)
+    set(GPERF_HEAP_MAIN ON)
+  endif()
+
+  # Compile with information about file and line numbers for everything
+  # even in non-Debug build types.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-g2>")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Use the more size-efficient `-gmlt` option on clang.
+    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-gmlt>")
+  endif()
+endif()
 
 if(SWITCH)
   set(ASAN OFF)
@@ -210,16 +226,21 @@ else()
   find_package(SDL2_mixer REQUIRED)
 endif()
 
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE 3rdParty/asio/include)
+
 add_library(smacker STATIC
   3rdParty/libsmacker/smk_bitstream.c
   3rdParty/libsmacker/smk_hufftree.c
   3rdParty/libsmacker/smacker.c)
+target_include_directories(smacker PUBLIC 3rdParty/libsmacker)
 
 add_library(Radon STATIC
   3rdParty/Radon/Radon/source/File.cpp
   3rdParty/Radon/Radon/source/Key.cpp
   3rdParty/Radon/Radon/source/Named.cpp
   3rdParty/Radon/Radon/source/Section.cpp)
+target_include_directories(Radon PUBLIC 3rdParty/Radon/Radon/include)
 
 add_library(StormLib STATIC
   3rdParty/StormLib/src/FileStream.cpp
@@ -234,9 +255,15 @@ add_library(StormLib STATIC
   3rdParty/StormLib/src/SFileOpenFileEx.cpp
   3rdParty/StormLib/src/SFileReadFile.cpp)
 
+#if(WIN32)
+## Enable Unicode for StormLib wchar_t* file APIs
+#target_compile_definitions(StormLib PRIVATE -DUNICODE -D_UNICODE)
+#endif()
+
 add_library(PKWare STATIC
   3rdParty/PKWare/explode.cpp
   3rdParty/PKWare/implode.cpp)
+target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
 set(devilutionx_SRCS
   Source/appfat.cpp
@@ -390,7 +417,9 @@ endif()
 if(N3DS)
   list(APPEND devilutionx_SRCS
     Source/platform/ctr/system.cpp
-    Source/platform/ctr/keyboard.cpp)
+    Source/platform/ctr/keyboard.cpp
+    Source/platform/ctr/display.cpp
+    Source/platform/ctr/messagebox.cpp)
 if(HELLFIRE)
   set(BIN_TARGET hellfire)
 endif()
@@ -465,10 +494,6 @@ endif()
 
 target_include_directories(${BIN_TARGET} PRIVATE
   Source
-  3rdParty/PKWare
-  3rdParty/asio/include
-  3rdParty/Radon/Radon/include
-  3rdParty/libsmacker
   ${CMAKE_CURRENT_BINARY_DIR})
 
 if(NOT N3DS)
@@ -477,6 +502,7 @@ if(NOT N3DS)
 endif()
 
 target_link_libraries(${BIN_TARGET} PRIVATE
+  asio
   PKWare
   StormLib
   smacker
@@ -497,6 +523,8 @@ foreach(
   NONET
   PREFILL_PLAYER_NAME
   GPERF
+  GPERF_HEAP_MAIN
+  GPERF_HEAP_FIRST_GAME_ITERATION
 )
 if(${def_name})
   list(APPEND def_list ${def_name})
@@ -641,7 +669,7 @@ if (GPERF)
   target_link_libraries(${BIN_TARGET} PRIVATE ${GPERFTOOLS_LIBRARIES})
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT HAIKU AND NOT VITA)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
 endif()
 
@@ -758,7 +786,10 @@ if(N3DS)
   set(APP_AUDIO       "${PROJECT_SOURCE_DIR}/Packaging/ctr/audio_silent.wav")
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
-  set(APP_ROMFS_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf")
+  set(APP_ROMFS_FILES
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
 	  set(APP_TITLE       "DevilutionX: Hellfire")
 	  set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon_hellfire.png")

@@ -9,9 +9,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /**
  * Maps from tile_id to automap type.
- * BUGFIX: only the first 256 elements are ever read
  */
-WORD automaptype[512];
+WORD automaptype[256];
 static int AutoMapX;
 static int AutoMapY;
 /** Specifies whether the automap is enabled. */
@@ -105,6 +104,7 @@ void InitAutomap()
 	}
 
 	dwTiles /= 2;
+	assert(dwTiles < (DWORD)lengthof(automaptype));
 	pTmp = pAFile;
 
 	for (i = 1; i <= dwTiles; i++) {
