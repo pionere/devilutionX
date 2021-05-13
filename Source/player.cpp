@@ -642,7 +642,7 @@ void SetPlrAnims(int pnum)
 			p->_pAFrames = 16;
 			p->_pAFNum = 11;
 		} else if (gn == ANIM_ID_SWORD_SHIELD || gn == ANIM_ID_SWORD) {
-			p->_pAFrames = 10;
+			p->_pAFrames = 10; // TODO: check for onehanded swords or daggers?
 		}
 		break;
 	case PC_BARBARIAN:

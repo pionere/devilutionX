@@ -350,3 +350,9 @@
 #else
 #define DVL_PRINTF_ATTRIBUTE(fmtargnum, firstarg)
 #endif
+
+#if DVL_HAVE_ATTRIBUTE(hot)
+#define DVL_ATTRIBUTE_HOT __attribute__((hot))
+#else
+#define DVL_ATTRIBUTE_HOT
+#endif

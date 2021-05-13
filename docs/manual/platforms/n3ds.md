@@ -3,7 +3,7 @@
 
 ## Installation
 
-Start by downloading [devilutionx-n3ds.zip](https://github.com/diasurgical/devilutionX/releases/download/latest/devilutionx-n3ds.zip).
+Start by downloading [devilutionx-n3ds.zip](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-n3ds.zip).
 
 <details><summary>.3dsx installation</summary>
 
@@ -21,7 +21,7 @@ Start by downloading [devilutionx-n3ds.zip](https://github.com/diasurgical/devil
 
 #### Install DevilutionX: Diablo
 1. Extract `devilutionx.cia` and place it on your SD card.
-2. Extract `devilutionx.mpq` and `devilx.mpq`, and put it into `sd:/3ds/devilutionx/`.
+2. Extract `devilutionx.mpq` and `devilx.mpq`, and put them into `sd:/3ds/devilutionx/`.
 3. Copy `diabdat.mpq` from your Diablo CD (or GoG install folder) to `sd:/3ds/devilutionx/`.
 4. Put the SD card back into the 3DS and install `devilutionx.cia` using a title manager (e.g. [FBI](https://github.com/Steveice10/FBI)).
     1. `devilutionx.cia` can be removed after being installed.

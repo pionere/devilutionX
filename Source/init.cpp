@@ -38,9 +38,13 @@ namespace {
 HANDLE init_test_access(const char *mpq_name)
 {
 	HANDLE archive;
+#ifdef __3DS_
+	const char *paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
+#else
 	const char *paths[2] = { GetBasePath(), GetPrefPath() };
+#endif
 	std::string mpq_abspath;
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < lengthof(paths); i++) { 
 		mpq_abspath = paths[i];
 		mpq_abspath += mpq_name;
 		if (SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY, &archive)) {
