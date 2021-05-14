@@ -530,6 +530,7 @@ foreach(
   def_name
   NOSOUND
   NONET
+  NOWIDESCREEN
   PREFILL_PLAYER_NAME
   GPERF
   GPERF_HEAP_MAIN
@@ -547,7 +548,6 @@ foreach(
   DEFAULT_HEIGHT
   SCREEN_WIDTH
   SCREEN_HEIGHT
-  NOWIDESCREEN
   TTF_FONT_DIR
   TTF_FONT_NAME
   SDL1_VIDEO_MODE_BPP
@@ -688,8 +688,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
 endif()
 
 if(WIN32)
-  target_link_libraries(${BIN_TARGET} PRIVATE wsock32 ws2_32 wininet)
-
+  if(NOT NONET)
+    target_link_libraries(${BIN_TARGET} PRIVATE wsock32 ws2_32 wininet)
+  endif()
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${BIN_TARGET} PUBLIC $<$<CONFIG:Debug>:-gstabs>)
   endif()
