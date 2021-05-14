@@ -20,7 +20,7 @@ bool _gbNotInView;
 #endif
 
 /**
- * @brief Set the value of a single pixel in the back buffer, checks bounds
+ * @brief Set the value of a single pixel in the back buffer, DOES NOT checks bounds
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param col Color index from current palette
@@ -29,26 +29,12 @@ void AutomapDrawPixel(int sx, int sy, BYTE col)
 {
 	BYTE *dst;
 
-	assert(gpBuffer != NULL);
+	//assert(gpBuffer != NULL);
 
-	if (sy < SCREEN_Y || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X) {
-		sx -= SCREEN_X;
-		sy -= SCREEN_Y;
-		extern int aminx, aminy, amaxx, amaxy;
-		if (sx > amaxx)
-			amaxx = sx;
-		if (sx < aminx)
-			aminx = sx;
-		if (sy > amaxy)
-			amaxy = sy;
-		if (sy < aminy)
-			aminy = sy;
-		return;
-	}
-	//assert(sy >= SCREEN_Y && sy < SCREEN_HEIGHT + SCREEN_Y && sx >= SCREEN_X && sx < SCREEN_WIDTH + SCREEN_X);
+	//if (sy < SCREEN_Y || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X)
+	//	return;
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
-	//assert(dst < gpBufEnd && dst > gpBufStart);
 	//if (dst < gpBufEnd && dst > gpBufStart)
 		*dst = col;
 }
