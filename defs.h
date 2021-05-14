@@ -195,12 +195,15 @@
 #define DEFAULT_HEIGHT	480
 #endif
 
+// automap expects a lower than 2:1 SCREEN_WIDTH to VIEWPORT_HEIGHT ratio
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH	dvl::screenWidth
 #endif
 #ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT	dvl::screenHeight
 #endif
+
+#define VIEWPORT_HEIGHT dvl::viewportHeight
 
 // If defined, use 32-bit colors instead of 8-bit [Default -> Undefined]
 //#define RGBMODE
@@ -214,7 +217,7 @@
 #define BORDER_LEFT		64
 #define BORDER_TOP		160
 #define BORDER_RIGHT	64
-#define BORDER_BOTTOM	16
+#define BORDER_BOTTOM	32
 
 #define SCREEN_X		BORDER_LEFT
 #define SCREEN_Y		BORDER_TOP
@@ -239,8 +242,6 @@
 
 #define RIGHT_PANEL		(SCREEN_WIDTH - SPANEL_WIDTH)
 #define RIGHT_PANEL_X	(SCREEN_X + RIGHT_PANEL)
-
-#define VIEWPORT_HEIGHT dvl::viewportHeight
 
 #define DIALOG_TOP		((SCREEN_HEIGHT - PANEL_HEIGHT) / 2 - 18)
 #define DIALOG_Y		(SCREEN_Y + DIALOG_TOP)
