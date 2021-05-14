@@ -15,7 +15,6 @@ extern "C" {
 extern int screenWidth;
 extern int screenHeight;
 extern int viewportHeight;
-extern int widthAlignment;
 
 extern SDL_Window *ghMainWnd;
 extern SDL_Palette *palette;
