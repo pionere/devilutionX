@@ -32,7 +32,7 @@ extern bool gbAltActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 
-void FreeGameMem();
+void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char **argv);

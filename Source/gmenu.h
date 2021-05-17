@@ -16,7 +16,7 @@ extern TMenuItem *sgpCurrentMenu;
 
 void gmenu_draw_pause();
 void FreeGMenu();
-void gmenu_init_menu();
+void InitGMenu();
 bool gmenu_is_active();
 void gmenu_set_items(TMenuItem *pItem, void (*gmUpdFunc)());
 void gmenu_draw();

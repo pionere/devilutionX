@@ -642,7 +642,7 @@ void LoadGame(bool firstflag)
 	BYTE *LoadBuff;
 	int _ViewX, _ViewY, _nummonsters, _numitems, _nummissiles, _nobjects;
 
-	FreeGameMem();
+	FreeLevelMem();
 	pfile_remove_temp_files();
 	LoadBuff = pfile_read(SAVEFILE_GAME);
 	tbuff = LoadBuff;

@@ -86,7 +86,7 @@ void FreeGMenu()
 	MemFreeDbg(optbar_cel);
 }
 
-void gmenu_init_menu()
+void InitGMenu()
 {
 #ifdef HELLFIRE
 	LogoAnim_frame = 1;

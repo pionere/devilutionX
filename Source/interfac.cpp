@@ -213,6 +213,14 @@ static void LoadLvlGFX()
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 }
 
+void FreeLvlGFX()
+{
+	MemFreeDbg(pDungeonCels);
+	MemFreeDbg(pMegaTiles);
+	MemFreeDbg(pLevelPieces);
+	MemFreeDbg(pSpecialCels);
+}
+
 /**
  * @param lvldir method of entry
  */
@@ -247,10 +255,12 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	int i;
 
 	if (firstflag && lvldir == ENTRY_MAIN) {
+		// initialize values which are stored in save files
 		InitLevels();
 		InitQuests();
 		InitPortals();
 		InitDungMsgs(myplr);
+		InitAutomapOnce();
 	}
 
 #ifdef _DEBUG
@@ -269,17 +279,18 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	IncProgress();
 
 	if (firstflag) {
-		InitInv();
-		InitItemGFX();
-		InitQuestText();
+		// initialize values which are not stored in savefiles
+		InitHelp(); // values
+
+		InitInv(); // gfx + values
+		InitItemGFX(); // gfx + values (some stored in savefiles)
+		InitQuestText(); // gfx + values
 
 		for (i = 0; i < gbMaxPlayers; i++)
-			InitPlrGFXMem(i);
+			InitPlrGFXMem(i); // gfx
 
-		InitStores();
-		InitAutomapOnce();
-		InitHelp();
-		InitControlPan();
+		InitStores(); // gfx + values (some stored in savefiles)
+		InitControlPan(); // gfx + values
 	}
 
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
@@ -490,7 +501,7 @@ void ShowProgress(unsigned int uMsg)
 		break;
 	case WM_DIABNEWGAME:
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		IncProgress();
 		pfile_remove_temp_files();
 		IncProgress();
@@ -505,7 +516,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		assert(plr[myplr].plrlevel == currLvl._dLevelIdx + 1);
 		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
@@ -520,7 +531,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		assert(plr[myplr].plrlevel == currLvl._dLevelIdx - 1);
 		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
@@ -536,8 +547,8 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
+		FreeLevelMem();
 		EnterLevel(plr[myplr].plrlevel);
-		FreeGameMem();
 		IncProgress();
 		LoadGameLevel(false, ENTRY_SETLVL);
 		IncProgress();
@@ -550,7 +561,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		IncProgress();
 		GetReturnLvlPos();
 		LoadGameLevel(false, ENTRY_RTNLVL);
@@ -564,7 +575,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		GetPortalLevel();
 		IncProgress();
 		LoadGameLevel(false, ENTRY_WARPLVL);
@@ -578,7 +589,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPDN);
@@ -592,7 +603,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPUP);
@@ -606,7 +617,7 @@ void ShowProgress(unsigned int uMsg)
 			DeltaSaveLevel();
 		}
 		IncProgress();
-		FreeGameMem();
+		FreeLevelMem();
 		EnterLevel(plr[myplr].plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);

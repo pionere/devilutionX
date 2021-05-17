@@ -239,16 +239,12 @@ static void diablo_parse_flags(int argc, char **argv)
 	}
 }
 
-void FreeGameMem()
+void FreeLevelMem()
 {
 	stream_stop();
 	music_stop();
 
-	MemFreeDbg(pDungeonCels);
-	MemFreeDbg(pMegaTiles);
-	MemFreeDbg(pLevelPieces);
-	MemFreeDbg(pSpecialCels);
-
+	FreeLvlGFX();
 	FreeMissiles();
 	FreeMonsters();
 	FreeObjectGFX();
@@ -269,7 +265,7 @@ static void start_game(unsigned int uMsg)
 	assert(ghMainWnd != NULL);
 	music_stop();
 	ShowProgress(uMsg);
-	gmenu_init_menu();
+	InitGMenu();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;
@@ -295,7 +291,7 @@ static void free_game()
 #ifdef _DEBUG
 	FreeDebugGFX();
 #endif
-	FreeGameMem();
+	FreeLevelMem();
 }
 
 static void PressKey(int vkey);
@@ -1331,7 +1327,7 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_RETURN:
-		if (stextflag) {
+		if (stextflag != STORE_NONE) {
 			STextEnter();
 		} else if (gbQuestlog) {
 			QuestlogEnter();

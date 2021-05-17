@@ -65,11 +65,7 @@ void InitAutomapOnce()
 {
 	gbAutomapflag = false;
 	AutoMapScale = MAP_SCALE_MIN;
-	AmLine64 = 32;
-	AmLine32 = 16;
-	AmLine16 = 8;
-	AmLine8 = 4;
-	AmLine4 = 2;
+	AutomapZoomReset();
 }
 
 /**

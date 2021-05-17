@@ -17,6 +17,7 @@ bool IncProgress();
 void ShowProgress(unsigned int uMsg);
 void LoadGameLevel(bool firstflag, int lvldir);
 void EnterLevel(BYTE lvl);
+void FreeLvlGFX();
 
 #ifdef __cplusplus
 }
