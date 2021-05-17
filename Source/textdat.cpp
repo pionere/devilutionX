@@ -17,7 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
  *         negative numbers will scroll 1+(-n) pixels.
  * sfxnr: the corresponding sfx number
  */
-const int TxS(int speed)
+int TxS(int speed)
 {
 	if (speed <= 0)
 		return 50 / -(speed - 1);

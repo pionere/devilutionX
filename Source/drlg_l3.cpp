@@ -466,7 +466,7 @@ const BYTE L3HORZWALLFIX2[] = {
 	// clang-format on
 };
 /** Miniset: Replace small wall with floor 3. */
-const BYTE L3ISLE5[] = {
+/*const BYTE L3ISLE5[] = {
 	// clang-format off
 	2, 2, // width, height
 
@@ -476,7 +476,7 @@ const BYTE L3ISLE5[] = {
 	7, 7, // replace
 	7, 7,
 	// clang-format on
-};
+};*/
 #ifdef HELLFIRE
 /** Miniset: Small acid patch 1. */
 const BYTE L6PATCH1[] = {
