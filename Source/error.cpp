@@ -19,7 +19,7 @@ const char *const MsgStrings[NUM_EMSGS] = {
 	"Loading...",
 	"Saving...",
 	"New strength is forged through destruction.",		// EMSG_SHRINE_HIDDEN
-	"Keep your swords sharp but wit sharper",			// EMSG_SHRINE_GLOOMY
+	"Keep your swords sharp but wit sharper.",			// EMSG_SHRINE_GLOOMY
 	"Know your priorities.",							// EMSG_SHRINE_WEIRD
 	"Time cannot diminish the power of steel.",			// EMSG_SHRINE_RELIGIOUS
 	"While the spirit is vigilant the body thrives.",	// EMSG_SHRINE_MAGICAL
@@ -111,55 +111,36 @@ void ClrDiabloMsg()
 
 void DrawDiabloMsg()
 {
-	int i, len, width, sx, sy;
-	BYTE c;
+	int i, x, y, sx, sy;
 
 	//assert(currmsg != EMSG_NONE);
 	//assert(msgcnt > 0);
 
-	CelDraw(PANEL_X + 101, DIALOG_Y, pSTextSlidCels, 1, 12);
-	CelDraw(PANEL_X + 527, DIALOG_Y, pSTextSlidCels, 4, 12);
-	CelDraw(PANEL_X + 101, DIALOG_Y + 48, pSTextSlidCels, 2, 12);
-	CelDraw(PANEL_X + 527, DIALOG_Y + 48, pSTextSlidCels, 3, 12);
+	x = PANEL_X + 101;
+	y = DIALOG_Y;
 
-	sx = PANEL_X + 109;
+	CelDraw(x, y, pSTextSlidCels, 1, 12);
+	CelDraw(x + 426, y, pSTextSlidCels, 4, 12);
+	CelDraw(x, y + 48, pSTextSlidCels, 2, 12);
+	CelDraw(x + 426, y + 48, pSTextSlidCels, 3, 12);
+
+	sx = x + 8;
 	for (i = 0; i < 35; i++) {
-		CelDraw(sx, DIALOG_Y, pSTextSlidCels, 5, 12);
-		CelDraw(sx, DIALOG_Y + 48, pSTextSlidCels, 7, 12);
+		CelDraw(sx, y, pSTextSlidCels, 5, 12);
+		CelDraw(sx, y + 48, pSTextSlidCels, 7, 12);
 		sx += 12;
 	}
-	sy = DIALOG_Y + 12;
+	sy = y + 12;
 	for (i = 0; i < 3; i++) {
-		CelDraw(PANEL_X + 101, sy, pSTextSlidCels, 6, 12);
-		CelDraw(PANEL_X + 527, sy, pSTextSlidCels, 8, 12);
+		CelDraw(x, sy, pSTextSlidCels, 6, 12);
+		CelDraw(x + 426, sy, pSTextSlidCels, 8, 12);
 		sy += 12;
 	}
 
-	assert(gpBuffer != NULL);
-
-	trans_rect(PANEL_X + 104, DIALOG_Y - 8, 432, 54);
+	trans_rect(x + 3, y - 8, 432, 54);
 
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	sx = PANEL_X + 101;
-	sy = DIALOG_Y + 24;
-	len = strlen(tempstr);
-	width = 0;
-
-	for (i = 0; i < len; i++) {
-		width += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[i]]]] + 1;
-	}
-
-	if (width < 442) {
-		sx += (442 - width) >> 1;
-	}
-
-	for (i = 0; i < len; i++) {
-		c = fontframe[gbFontTransTbl[(BYTE)tempstr[i]]];
-		if (c != '\0') {
-			PrintChar(sx, sy, c, COL_GOLD);
-		}
-		sx += fontkern[c] + 1;
-	}
+	PrintString(x, y + 24, x + PANEL_WIDTH - 2 * 101, tempstr, true, COL_GOLD, 1);
 
 	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
 		msgdelay = 0;

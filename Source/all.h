@@ -94,6 +94,7 @@
 #include "towners.h"
 #include "trigs.h"
 #include "render.h" // linked last, likely .s/.asm
+#include "engine/render/text_render.hpp"
 
 #include "storm/storm.h"
 

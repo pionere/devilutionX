@@ -246,6 +246,12 @@
 #define DIALOG_TOP		((SCREEN_HEIGHT - PANEL_HEIGHT) / 2 - 18)
 #define DIALOG_Y		(SCREEN_Y + DIALOG_TOP)
 
+#define QPANEL_WIDTH	591
+#define QPANEL_X		PANEL_X + 24
+
+#define STORE_PNL_WIDTH	271
+#define STORE_PNL_X		PANEL_X + 344
+
 #define SCREENXY(x, y) ((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
 
 #define MENUBTN_WIDTH	71

@@ -18,7 +18,6 @@ extern int initialDropGoldValue;
 extern int initialDropGoldIndex;
 extern bool gbLvlbtndown;
 extern bool gbChrbtnactive;
-extern BYTE *pPanelText;
 extern BYTE infoclr;
 extern char infostr[256];
 extern char tempstr[256];
@@ -38,8 +37,6 @@ void DrawSkillList();
 void SetSkill(bool shift, bool altSkill);
 void SetSkillHotKey(int slot, bool altSkill);
 void SelectHotKeySkill(int slot, bool altSkill);
-void PrintChar(int sx, int sy, int nCel, char col);
-void PrintString(int x, int y, int endX, const char *pszStr, bool center, BYTE col, int kern);
 void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSkillIcons();
@@ -52,8 +49,6 @@ void CheckBtnUp();
 void HandlePanBtn(int i);
 void HandleSkillBtn(bool altSkill);
 void FreeControlPan();
-bool control_WriteStringToBuffer(BYTE *str);
-void PrintGameStr(int x, int y, const char *str, BYTE color);
 void DrawChr();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
@@ -74,11 +69,6 @@ void control_type_message();
 void control_reset_talk();
 bool control_talk_last_key(int vkey);
 bool control_presskeys(int vkey);
-
-/* rdata */
-extern const BYTE fontframe[128];
-extern const BYTE fontkern[68];
-extern const BYTE gbFontTransTbl[256];
 
 /* data */
 

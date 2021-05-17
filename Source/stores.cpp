@@ -53,7 +53,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP		12
 #define STORE_DRUNK_EXIT		18
 
-BYTE *pSPentSpn2Cels;
 BYTE *pSTextBoxCels;
 BYTE *pSTextSlidCels;
 
@@ -126,7 +125,6 @@ void InitStores()
 	int i;
 
 	pSTextBoxCels = LoadFileInMem("Data\\TextBox2.CEL");
-	pSPentSpn2Cels = LoadFileInMem("Data\\PentSpn2.CEL");
 	pSTextSlidCels = LoadFileInMem("Data\\TextSlid.CEL");
 	ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
@@ -140,11 +138,6 @@ void InitStores()
 
 	boyitem._itype = ITYPE_NONE;
 	boylevel = 0;
-}
-
-int PentSpn2Spin()
-{
-	return (SDL_GetTicks() / 50) % 8 + 1;
 }
 
 static int StoresLimitedItemLvl()
@@ -176,86 +169,63 @@ void SetupTownStores()
 void FreeStoreMem()
 {
 	MemFreeDbg(pSTextBoxCels);
-	MemFreeDbg(pSPentSpn2Cels);
 	MemFreeDbg(pSTextSlidCels);
 }
 
 static void DrawSTextBack()
 {
-	CelDraw(PANEL_X + 344, 327 + SCREEN_Y + UI_OFFSET_Y, pSTextBoxCels, 1, 271);
-	trans_rect(PANEL_X + 347, SCREEN_Y + UI_OFFSET_Y + 28, 265, 297);
+	CelDraw(STORE_PNL_X, 327 + SCREEN_Y + UI_OFFSET_Y, pSTextBoxCels, 1, STORE_PNL_WIDTH);
+	trans_rect(STORE_PNL_X + 3, SCREEN_Y + UI_OFFSET_Y + 28, STORE_PNL_WIDTH - 2 * 3, 297);
 }
 
-void PrintSString(int x, int y, bool cjustflag, const char *str, char col, int val)
+void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val)
 {
-	int xx, yy;
-	int len, width, sx, sy, i, k, s;
+	int sx, sy, px;
+	int width, limit, i;
 	BYTE c;
 	char valstr[32];
 
-	s = y * 12 + stext[y]._syoff;
-	if (_gbStextsize)
-		xx = PANEL_X + 32;
-	else
-		xx = PANEL_X + 352;
-	sx = xx + x;
-	sy = s + 44 + SCREEN_Y + UI_OFFSET_Y;
-	len = strlen(str);
-	if (_gbStextsize)
-		yy = 577;
-	else
-		yy = 257;
-	k = 0;
+	sx = (_gbStextsize ? QPANEL_X + 7 : STORE_PNL_X + 7) + x;
+	sy = 44 + SCREEN_Y + UI_OFFSET_Y + y * 12 + stext[y]._syoff;
+	limit = _gbStextsize ? QPANEL_WIDTH - 7 * 2 : STORE_PNL_WIDTH - 7 * 2;
 	if (cjustflag) {
-		width = 0;
-		for (i = 0; i < len; i++)
-			width += fontkern[fontframe[gbFontTransTbl[(BYTE)str[i]]]] + 1;
-		if (width < yy)
-			k = (yy - width) >> 1;
-		sx += k;
-	}
-	if (stextsel == y) {
-		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
-	}
-	for (i = 0; i < len; i++) {
-		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
-		k += fontkern[c] + 1;
-		if (c != '\0' && k <= yy) {
-			PrintChar(sx, sy, c, col);
+		width = GetStringWidth(str);
+		if (width < limit) {
+			sx += (limit - width) >> 1;
 		}
-		sx += fontkern[c] + 1;
 	}
-	if (!cjustflag && val >= 0) {
-		snprintf(valstr, sizeof(valstr), "%i", val);
+	px = stextsel == y ? sx : INT_MAX;
+	sx = PrintLimitedString(sx, sy, str, limit, col);
+	if (val >= 0) {
+		assert(!cjustflag);
+		snprintf(valstr, sizeof(valstr), "%d", val);
 		sx = PANEL_X + 592 - x;
 		for (i = strlen(valstr) - 1; i >= 0; i--) {
-			c = fontframe[gbFontTransTbl[(BYTE)valstr[i]]];
-			sx -= fontkern[c] + 1;
-			if (c != '\0') {
+			c = sfontframe[gbFontTransTbl[(BYTE)valstr[i]]];
+			sx -= sfontkern[c] + 1;
+			if (c != 0) {
 				PrintChar(sx, sy, c, col);
 			}
 		}
 	}
-	if (stextsel == y) {
-		CelDraw(cjustflag ? (xx + x + k + 4) : (PANEL_X + 596 - x), sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	if (px != INT_MAX) {
+		DrawPentSpn2(px - 20, cjustflag ? sx + 6 : (PANEL_X + 596 - x), sy + 1);
 	}
 }
 
 void DrawSLine(int y)
 {
-	int xy, yy, width, line, sy;
+	int sxy, dxy, width, line;
 
-	sy = y * 12;
+	width = BUFFER_WIDTH;
+	sxy = SCREENXY(PANEL_LEFT + 26, 25 + UI_OFFSET_Y);
+	dxy = SCREENXY(PANEL_LEFT + 26, y * 12  + 38 + UI_OFFSET_Y);
 	if (_gbStextsize) {
-		xy = SCREENXY(PANEL_LEFT + 26, 25 + UI_OFFSET_Y);
-		yy = BUFFER_WIDTH * (sy + 38 + SCREEN_Y + UI_OFFSET_Y) + 26 + PANEL_X;
-		width = 586 / 4;           // BUGFIX: should be 587, not 586
-		line = BUFFER_WIDTH - 586; // BUGFIX: should be 587, not 586
+		line = QPANEL_WIDTH - 4; // BUGFIX: should be 587, not 586 (fixed)
 	} else {
-		xy = SCREENXY(PANEL_LEFT + 346, 25 + UI_OFFSET_Y);
-		yy = BUFFER_WIDTH * (sy + 38 + SCREEN_Y + UI_OFFSET_Y) + 346 + PANEL_X;
-		width = 266 / 4;           // BUGFIX: should be 267, not 266
-		line = BUFFER_WIDTH - 266; // BUGFIX: should be 267, not 266
+		sxy += QPANEL_WIDTH - STORE_PNL_WIDTH;
+		dxy += QPANEL_WIDTH - STORE_PNL_WIDTH;
+		line = STORE_PNL_WIDTH - 4; // BUGFIX: should be 267, not 266 (fixed)
 	}
 
 	/// ASSERT: assert(gpBuffer != NULL);
@@ -263,11 +233,11 @@ void DrawSLine(int y)
 	int i;
 	BYTE *src, *dst;
 
-	src = &gpBuffer[xy];
-	dst = &gpBuffer[yy];
+	src = &gpBuffer[sxy];
+	dst = &gpBuffer[dxy];
 
-	for (i = 0; i < 3; i++, src += BUFFER_WIDTH, dst += BUFFER_WIDTH)
-		memcpy(dst, src, BUFFER_WIDTH - line);
+	for (i = 0; i < 3; i++, src += width, dst += width)
+		memcpy(dst, src, line);
 }
 
 static void DrawSSlider(int y1, int y2)
@@ -337,7 +307,7 @@ static void OffsetSTextY(int y, int yo)
 	stext[y]._syoff = yo;
 }
 
-static void AddSText(int x, int y, bool j, const char *str, char clr, bool sel)
+static void AddSText(int x, int y, bool j, const char *str, BYTE clr, bool sel)
 {
 	STextStruct *ss;
 
@@ -351,7 +321,7 @@ static void AddSText(int x, int y, bool j, const char *str, char clr, bool sel)
 	ss->_ssel = sel;
 }
 
-static void PrintStoreItem(const ItemStruct *is, int l, char iclr)
+static void PrintStoreItem(const ItemStruct *is, int l, BYTE iclr)
 {
 	int cursor;
 	char sstr[128];
@@ -437,7 +407,7 @@ static void S_StartSmith()
 	AddSLine(5);
 }
 
-static char StoreItemColor(ItemStruct *is)
+static BYTE StoreItemColor(ItemStruct *is)
 {
 	if (!is->_iStatFlag)
 		return COL_RED;
@@ -448,7 +418,7 @@ static char StoreItemColor(ItemStruct *is)
 	return COL_WHITE;
 }
 
-static char StorePrepareItemBuy(ItemStruct *is)
+static BYTE StorePrepareItemBuy(ItemStruct *is)
 {
 	ItemStatOk(myplr, is);
 	if (is->_iMagical != ITEM_QUALITY_NORMAL)
@@ -460,7 +430,7 @@ static void S_ScrollSBuy()
 {
 	ItemStruct *is;
 	int l;
-	char iclr;
+	BYTE iclr;
 
 	ClearSText(5, STORE_LIST_FOOTER);
 	stextup = 5;
@@ -519,7 +489,7 @@ static void S_ScrollSPBuy()
 {
 	ItemStruct* is;
 	int idx, l, boughtitems;
-	char iclr;
+	BYTE iclr;
 
 	ClearSText(5, STORE_LIST_FOOTER);
 	stextup = 5;
@@ -614,7 +584,7 @@ static void S_ScrollSSell()
 {
 	ItemStruct* is;
 	int idx, l;
-	char iclr;
+	BYTE iclr;
 
 	ClearSText(5, STORE_LIST_FOOTER);
 	stextup = 5;
@@ -763,7 +733,7 @@ static void S_ScrollWBuy()
 {
 	ItemStruct *is;
 	int l;
-	char iclr;
+	BYTE iclr;
 
 	ClearSText(5, STORE_LIST_FOOTER);
 	stextup = 5;
@@ -925,7 +895,7 @@ static void S_StartNoRoom()
 
 static void S_StartConfirm()
 {
-	char iclr;
+	BYTE iclr;
 
 	StartStore(stextshold);
 	_gbStextscrl = false;
@@ -992,7 +962,7 @@ static void S_StartBoy()
 
 static void S_StartBBoy()
 {
-	int iclr;
+	BYTE iclr;
 
 	_gbStextsize = true;
 	_gbStextscrl = false;
@@ -1033,7 +1003,7 @@ static void S_ScrollHBuy()
 {
 	ItemStruct* is;
 	int l;
-	char iclr;
+	BYTE iclr;
 
 	ClearSText(5, STORE_LIST_FOOTER);
 	stextup = 5;
@@ -1145,7 +1115,7 @@ static void S_StartSIdentify()
 static void S_StartIdShow()
 {
 	ItemStruct *is;
-	char iclr;
+	BYTE iclr;
 
 	//assert(stextshold == STORE_SIDENTIFY);
 	//StartStore(STORE_SIDENTIFY);

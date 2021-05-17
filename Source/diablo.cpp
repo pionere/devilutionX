@@ -277,6 +277,7 @@ static void free_game()
 	int i;
 
 	FreeControlPan();
+	FreeText();
 	FreeInvGFX();
 	FreeGMenu();
 	FreeQuestText();

@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int help_select_line;
+int helpFirstLine;
 bool gbHelpflag;
 int HelpTop;
 
@@ -73,86 +73,68 @@ const char gszHelpText[] = {
 	"|"
 	"$Skill Books|"
 	"Reading more than one book increases your knowledge of that "
-	"skill, allowing you to use it more effectively.|"
-	"&"
-};
+	"skill, allowing you to use it more effectively.|" };
 
 void InitHelp()
 {
 	gbHelpflag = false;
 }
 
-static void DrawHelpLine(int x, int y, char *text, char color)
+static const char* ReadHelpLine(const char* str)
 {
-	int sx, sy, width;
+	const int limit = QPANEL_WIDTH - 2 * 7;
+	int w;
 	BYTE c;
 
-	width = 0;
-	sx = x + 32 + PANEL_X;
-	sy = y * 12 + 44 + SCREEN_Y + UI_OFFSET_Y;
-	while (*text != '\0') {
-		c = gbFontTransTbl[(BYTE)*text];
-		text++;
-		c = fontframe[c];
-		width += fontkern[c] + 1;
-		if (c != '\0') {
-			if (width <= 577)
-				PrintChar(sx, sy, c, color);
-		}
-		sx += fontkern[c] + 1;
+	c = 0;
+	w = 0;
+	while (*str != '|' && w < limit) {
+		tempstr[c] = *str;
+		w += sfontkern[sfontframe[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
+		c++;
+		str++;
 	}
+	if (w >= limit) {
+		c--;
+		while (tempstr[c] != ' ') {
+			str--;
+			c--;
+		}
+	}
+	tempstr[c] = '\0';
+	return str;
 }
 
 void DrawHelp()
 {
-	int i, c, w;
-	char col;
+	int i;
+	BYTE col;
 	const char *s;
 
 	DrawSTextHelp();
 	DrawQTextBack();
-	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD, 0);
+
+	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
 	DrawSLine(5);
 
 	s = &gszHelpText[0];
 
-	for (i = 0; i < help_select_line; i++) {
-		c = 0;
-		w = 0;
-		while (*s == '\0') {
-			s++;
+	for (i = 0; i < helpFirstLine; i++) {
+		if (*s == '\0') {
+			break;
 		}
 		if (*s == '$') {
 			s++;
 		}
-		if (*s == '&') {
-			continue;
-		}
-		while (*s != '|' && w < 577) {
-			while (*s == '\0') {
-				s++;
-			}
-			tempstr[c] = *s;
-			w += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
-			c++;
-			s++;
-		}
-		if (w >= 577) {
-			c--;
-			while (tempstr[c] != ' ') {
-				s--;
-				c--;
-			}
-		}
+		s = ReadHelpLine(s);
 		if (*s == '|') {
 			s++;
 		}
 	}
 	for (i = 7; i < 22; i++) {
-		c = 0;
-		w = 0;
-		while (*s == '\0') {
-			s++;
+		if (*s == '\0') {
+			HelpTop = helpFirstLine;
+			break;
 		}
 		if (*s == '$') {
 			s++;
@@ -160,55 +142,33 @@ void DrawHelp()
 		} else {
 			col = COL_WHITE;
 		}
-		if (*s == '&') {
-			HelpTop = help_select_line;
-			continue;
-		}
-		while (*s != '|' && w < 577) {
-			while (*s == '\0') {
-				s++;
-			}
-			tempstr[c] = *s;
-			w += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[c]]]] + 1;
-			c++;
-			s++;
-		}
-		if (w >= 577) {
-			c--;
-			while (tempstr[c] != ' ') {
-				s--;
-				c--;
-			}
-		}
-		if (c != 0) {
-			tempstr[c] = '\0';
-			DrawHelpLine(0, i, tempstr, col);
-		}
+		s = ReadHelpLine(s);
+		PrintSString(0, i, false, tempstr, col);
 		if (*s == '|') {
 			s++;
 		}
 	}
 
-	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD, 0);
+	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD);
 }
 
 void DisplayHelp()
 {
-	help_select_line = 0;
+	helpFirstLine = 0;
 	gbHelpflag = true;
 	HelpTop = 5000;
 }
 
 void HelpScrollUp()
 {
-	if (help_select_line > 0)
-		help_select_line--;
+	if (helpFirstLine > 0)
+		helpFirstLine--;
 }
 
 void HelpScrollDown()
 {
-	if (help_select_line < HelpTop)
-		help_select_line++;
+	if (helpFirstLine < HelpTop)
+		helpFirstLine++;
 }
 
 DEVILUTION_END_NAMESPACE

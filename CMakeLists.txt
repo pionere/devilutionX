@@ -355,6 +355,7 @@ set(devilutionx_SRCS
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
   Source/engine/render/automap_render.cpp
+  Source/engine/render/text_render.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
   Source/utils/soundsample.cpp

@@ -16,8 +16,6 @@ extern "C" {
 extern BYTE *pSTextBoxCels;
 /** Scrollbar graphics */
 extern BYTE *pSTextSlidCels;
-/** Small text selection cursor */
-extern BYTE *pSPentSpn2Cels;
 /** Currently active store */
 extern char stextflag;
 
@@ -41,10 +39,9 @@ extern ItemStruct witchitem[WITCH_ITEMS];
 extern ItemStruct healitem[HEALER_ITEMS];
 
 void InitStores();
-int PentSpn2Spin();
 void SetupTownStores();
 void FreeStoreMem();
-void PrintSString(int x, int y, bool cjustflag, const char *str, char col, int val);
+void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val = -1);
 void DrawSLine(int y);
 void DrawSTextHelp();
 void ClearSText(int s, int e);

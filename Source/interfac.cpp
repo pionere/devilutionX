@@ -290,6 +290,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			InitPlrGFXMem(i); // gfx
 
 		InitStores(); // gfx + values (some stored in savefiles)
+		InitText(); // gfx
 		InitControlPan(); // gfx + values
 	}
 

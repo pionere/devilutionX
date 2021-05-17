@@ -86,21 +86,19 @@ void InitPlrMsg()
 
 static void PrintPlrMsg(unsigned x, unsigned y, unsigned width, const char *str, BYTE col)
 {
-	int line = 0;
+	BYTE c;
+	int sx, line = 0;
+	unsigned len;
+	const char *sstr, *endstr;
 
 	while (*str != '\0') {
-		BYTE c;
-		int sx = x;
-		unsigned len = 0;
-		const char *sstr = str;
-		const char *endstr = sstr;
-
+		len = 0;
+		sstr = endstr = str;
 		while (TRUE) {
 			if (*sstr != '\0') {
-				c = gbFontTransTbl[(BYTE)*sstr++];
-				c = fontframe[c];
-				len += fontkern[c] + 1;
-				if (c == '\0') // allow wordwrap on blank glyph
+				c = sfontframe[gbFontTransTbl[(BYTE)*sstr++]];
+				len += sfontkern[c] + 1;
+				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;
 				else if (len >= width)
 					break;
@@ -110,17 +108,16 @@ static void PrintPlrMsg(unsigned x, unsigned y, unsigned width, const char *str,
 			}
 		}
 
+		sx = x;
 		while (str < endstr) {
-			c = gbFontTransTbl[(BYTE)*str++];
-			c = fontframe[c];
-			if (c != '\0')
+			c = sfontframe[gbFontTransTbl[(BYTE)*str++]];
+			if (c != 0)
 				PrintChar(sx, y, c, col);
-			sx += fontkern[c] + 1;
+			sx += sfontkern[c] + 1;
 		}
 
 		y += 10;
-		line++;
-		if (line == 3)
+		if (++line == 3)
 			break;
 	}
 }

@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "engine/render/text_render.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -16,8 +17,6 @@ int numpanbtns;
 bool gabPanbtn[NUM_PANBTNS];
 /** Specifies whether the LevelUp-button is pressed. */
 bool gbLvlbtndown;
-/** Small-Text images CEL */
-BYTE *pPanelText;
 /** Flask images CEL */
 BYTE *pFlasks;
 /** Low-Durability images CEL */
@@ -100,59 +99,6 @@ BYTE currSkillType;
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 BYTE _gbMoveCursor = 0;
 #endif
-
-/** Maps from font index to smaltext.cel frame number. */
-const BYTE fontframe[128] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 54, 44, 57, 58, 56, 55, 47, 40, 41, 59, 39, 50, 37, 51, 52,
-	36, 27, 28, 29, 30, 31, 32, 33, 34, 35, 48, 49, 60, 38, 61, 53,
-	62, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 42, 63, 43, 64, 65,
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 40, 66, 41, 67, 0
-};
-
-/**
- * Maps from smaltext.cel frame number to character width. Note, the
- * character width may be distinct from the frame width, which is 13 for every
- * smaltext.cel frame.
- */
-const BYTE fontkern[68] = {
-	8, 10, 7, 9, 8, 7, 6, 8, 8, 3,
-	3, 8, 6, 11, 9, 10, 6, 9, 9, 6,
-	9, 11, 10, 13, 10, 11, 7, 5, 7, 7,
-	8, 7, 7, 7, 7, 7, 10, 4, 5, 6,
-	3, 3, 4, 3, 6, 6, 3, 3, 3, 3,
-	3, 2, 7, 6, 3, 10, 10, 6, 6, 7,
-	4, 4, 9, 6, 6, 12, 3, 7
-};
-
-/**
- * Maps ASCII character code to font index, as used by the
- * small, medium and large sized fonts; which corresponds to smaltext.cel,
- * medtexts.cel and bigtgold.cel respectively.
- */
-const BYTE gbFontTransTbl[256] = {
-	// clang-format off
-	'\0', 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	' ',  '!',  '\"', '#',  '$',  '%',  '&',  '\'', '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
-	'0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',
-	'@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-	'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',  'Z',  '[',  '\\', ']',  '^',  '_',
-	'`',  'a',  'b',  'c',  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
-	'p',  'q',  'r',  's',  't',  'u',  'v',  'w',  'x',  'y',  'z',  '{',  '|',  '}',  '~',  0x01,
-	'C',  'u',  'e',  'a',  'a',  'a',  'a',  'c',  'e',  'e',  'e',  'i',  'i',  'i',  'A',  'A',
-	'E',  'a',  'A',  'o',  'o',  'o',  'u',  'u',  'y',  'O',  'U',  'c',  'L',  'Y',  'P',  'f',
-	'a',  'i',  'o',  'u',  'n',  'N',  'a',  'o',  '?',  0x01, 0x01, 0x01, 0x01, '!',  '<',  '>',
-	'o',  '+',  '2',  '3',  '\'', 'u',  'P',  '.',  ',',  '1',  '0',  '>',  0x01, 0x01, 0x01, '?',
-	'A',  'A',  'A',  'A',  'A',  'A',  'A',  'C',  'E',  'E',  'E',  'E',  'I',  'I',  'I',  'I',
-	'D',  'N',  'O',  'O',  'O',  'O',  'O',  'X',  '0',  'U',  'U',  'U',  'U',  'Y',  'b',  'B',
-	'a',  'a',  'a',  'a',  'a',  'a',  'a',  'c',  'e',  'e',  'e',  'e',  'i',  'i',  'i',  'i',
-	'o',  'n',  'o',  'o',  'o',  'o',  'o',  '/',  '0',  'u',  'u',  'u',  'u',  'y',  'b',  'y',
-	// clang-format on
-};
 
 const int PanBtnPos[NUM_PANBTNS][2] = {
 	// clang-format off
@@ -693,66 +639,6 @@ void SelectHotKeySkill(int slot, bool altSkill)
 	}
 }
 
-/**
- * @brief Print letter to the back buffer
- * @param sx Backbuffer offset
- * @param sy Backbuffer offset
- * @param nCel Number of letter in Windows-1252
- * @param col text_color color value
- */
-void PrintChar(int sx, int sy, int nCel, char col)
-{
-	assert(gpBuffer != NULL);
-
-	int i;
-	BYTE pix;
-	BYTE tbl[256];
-
-	switch (col) {
-	case COL_WHITE:
-		CelDraw(sx, sy, pPanelText, nCel, 13);
-		return;
-	case COL_BLUE:
-		for (i = 0; i < lengthof(tbl); i++) {
-			pix = i;
-			if (pix > PAL16_GRAY + 13)
-				pix = PAL16_BLUE + 15;
-			else if (pix >= PAL16_GRAY)
-				pix -= PAL16_GRAY - (PAL16_BLUE + 2);
-			tbl[i] = pix;
-		}
-		break;
-	case COL_RED:
-		for (i = 0; i < lengthof(tbl); i++) {
-			pix = i;
-			if (pix >= PAL16_GRAY)
-				pix -= PAL16_GRAY - PAL16_RED;
-			tbl[i] = pix;
-		}
-		break;
-	case COL_GOLD:
-		for (i = 0; i < lengthof(tbl); i++) {
-			pix = i;
-			if (pix >= PAL16_GRAY) {
-				if (pix >= PAL16_GRAY + 14)
-					pix = PAL16_YELLOW + 15;
-				else
-					pix -= PAL16_GRAY - (PAL16_YELLOW + 2);
-			}
-			tbl[i] = pix;
-		}
-		break;
-	case COL_BLACK:
-		light_table_index = 15;
-		CelDrawLight(sx, sy, pPanelText, nCel, 13, NULL);
-		return;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	CelDrawLight(sx, sy, pPanelText, nCel, 13, tbl);
-}
-
 /*void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
 {
 	int nSrcOff, nDstOff;
@@ -940,7 +826,6 @@ void InitControlPan()
 	int i;
 
 	pFlasks = LoadFileInMem("CtrlPan\\Flasks.CEL");;
-	pPanelText = LoadFileInMem("CtrlPan\\SmalText.CEL");
 	pChrPanel = LoadFileInMem("Data\\Char.CEL");
 #ifdef HELLFIRE
 	pSpellCels = LoadFileInMem("Data\\SpelIcon.CEL");
@@ -1200,7 +1085,6 @@ void CheckBtnUp()
 
 void FreeControlPan()
 {
-	MemFreeDbg(pPanelText);
 	MemFreeDbg(pChrPanel);
 	MemFreeDbg(pSpellCels);
 	MemFreeDbg(pPanelButtons);
@@ -1213,89 +1097,7 @@ void FreeControlPan()
 	MemFreeDbg(pGBoxBuff);
 }
 
-bool control_WriteStringToBuffer(BYTE *str)
-{
-	int k;
-
-	k = 0;
-	while (*str != '\0') {
-		k += fontkern[fontframe[gbFontTransTbl[*str]]];
-		str++;
-		if (k >= 125)
-			return false;
-	}
-
-	return true;
-}
-
-static int StringWidth(const char *str)
-{
-	BYTE c;
-	int strWidth;
-
-	strWidth = 0;
-	while (*str != '\0') {
-		c = gbFontTransTbl[(BYTE)*str++];
-		strWidth += fontkern[fontframe[c]] + 1; // + kern
-	}
-	return strWidth;
-}
-
-/**
- * @brief Render text string to back buffer
- * @param x Screen coordinate
- * @param y Screen coordinate
- * @param endX End of line in screen coordinate
- * @param pszStr String to print, in Windows-1252 encoding
- * @param center 
- * @param col text_color color value
- * @param kern Letter spacing
- */
-void PrintString(int x, int y, int endX, const char *pszStr, bool center, BYTE col, int kern)
-{
-	BYTE c;
-	const char *tmp;
-	int strEnd;
-	int cw;
-
-	if (center) {
-		strEnd = x;
-		tmp = pszStr;
-		while (*tmp != '\0') {
-			c = gbFontTransTbl[(BYTE)*tmp++];
-			strEnd += fontkern[fontframe[c]] + kern;
-		}
-		if (strEnd < endX) {
-			x += (endX - strEnd) >> 1;
-		}
-	}
-	while (*pszStr != '\0') {
-		c = gbFontTransTbl[(BYTE)*pszStr++];
-		c = fontframe[c];
-		cw = fontkern[c] + kern;
-		if (x + cw < endX && c != '\0') {
-			PrintChar(x, y, c, col);
-		}
-		x += cw;
-	}
-}
-
 #define ADD_PlrStringXY(x, y, endX, pszStr, col) PrintString(x + SCREEN_X, y + SCREEN_Y, endX + SCREEN_X, pszStr, true, col, 1)
-
-void PrintGameStr(int x, int y, const char *str, BYTE color)
-{
-	BYTE c;
-	int sx, sy;
-	sx = x + SCREEN_X;
-	sy = y + SCREEN_Y;
-	while (*str != '\0') {
-		c = gbFontTransTbl[(BYTE)*str++];
-		c = fontframe[c];
-		if (c != '\0')
-			PrintChar(sx, sy, c, color);
-		sx += fontkern[c] + 1;
-	}
-}
 
 void DrawChr()
 {
@@ -1486,8 +1288,8 @@ static int DrawTooltip2(const char *text1, const char* text2, int x, int y, BYTE
 	int width, result = 0;
 	BYTE *dst;
 	const int border = 4, height = 26;
-	int w1 = StringWidth(text1);
-	int w2 = StringWidth(text2);
+	int w1 = GetStringWidth(text1);
+	int w2 = GetStringWidth(text2);
 
 	width = std::max(w1, w2) + 2 * border;
 
@@ -1586,7 +1388,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 	BYTE *dst;
 	const int border = 4, height = 16;
 
-	width = StringWidth(text) + 2 * border;
+	width = GetStringWidth(text) + 2 * border;
 
 	y -= TILE_HEIGHT;
 	if (y < 0)
@@ -2138,7 +1940,7 @@ const char *get_pieces_str(int nGold)
 
 void DrawGoldSplit(int amount)
 {
-	int screen_x, i;
+	int screen_x;
 
 	screen_x = 0;
 	CelDraw(351 + SCREEN_X, 178 + SCREEN_Y, pGBoxBuff, 1, 261);
@@ -2150,14 +1952,12 @@ void DrawGoldSplit(int amount)
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%u", amount);
 		PrintGameStr(388, 140, tempstr, COL_WHITE);
-		for (i = 0; i < tempstr[i]; i++) {
-			screen_x += fontkern[fontframe[gbFontTransTbl[(BYTE)tempstr[i]]]] + 1;
-		}
+		screen_x += GetStringWidth(tempstr);
 		screen_x += 452;
 	} else {
 		screen_x = 450;
 	}
-	CelDraw(screen_x, 140 + SCREEN_Y, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	DrawSinglePentSpn2(screen_x, 140 + SCREEN_Y);
 }
 
 static void control_remove_gold()
@@ -2397,22 +2197,24 @@ void CheckTeamClick(bool shift)
 
 #define TALK_PNL_WIDTH		302
 #define TALK_PNL_HEIGHT		51
+#define TALK_PNL_BORDER		15
 #define TALK_PNL_TOP		(SCREEN_HEIGHT - 48 - TALK_PNL_HEIGHT)
 #define TALK_PNL_LEFT		((SCREEN_WIDTH - TALK_PNL_WIDTH) / 2)
-static char *control_print_talk_msg(char *msg, int *x, int y, int color)
+static char *control_print_talk_msg(char *msg, int *x, int y)
 {
+	int limit = TALK_PNL_WIDTH - 2 * TALK_PNL_BORDER;
 	BYTE c;
 
 	while (*msg != '\0') {
-		c = gbFontTransTbl[(BYTE)*msg];
-		c = fontframe[c];
-		if ((*x + fontkern[c] + 1) > SCREEN_X + TALK_PNL_LEFT + TALK_PNL_WIDTH - 15)
+		c = sfontframe[gbFontTransTbl[(BYTE)*msg]];
+		limit -= sfontkern[c] + 1;
+		if (limit < 0)
 			return msg;
 		msg++;
-		if (c != '\0') {
-			PrintChar(*x, y, c, color);
+		if (c != 0) {
+			PrintChar(*x, y, c, COL_WHITE);
 		}
-		*x += fontkern[c] + 1;
+		*x += sfontkern[c] + 1;
 	}
 	return NULL;
 }
@@ -2432,16 +2234,17 @@ void DrawTalkPan()
 
 	// print the current (not sent) message
 	sy += 17;
+	sx += TALK_PNL_BORDER;
 	msg = sgszTalkMsg;
 	for (y = sy; ; y += 13) {
-		x = sx + 15;
-		msg = control_print_talk_msg(msg, &x, y, COL_WHITE);
+		x = sx;
+		msg = control_print_talk_msg(msg, &x, y);
 		if (msg == NULL)
 			break;
 	}
 	if (msg != NULL)
 		*msg = '\0';
-	CelDraw(x, y, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	DrawSinglePentSpn2(x, y);
 }
 
 void control_type_message()

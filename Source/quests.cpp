@@ -560,36 +560,20 @@ void ResyncQuests()
 #endif
 }
 
-static void PrintQLString(int x, int y, bool cjustflag, const char *str, int col)
+static void PrintQLString(int y, const char *str)
 {
-	int len, width, i, k, sx, sy;
-	BYTE c;
+	int width, sx, sy, px;
 
-	sx = x + 12 + SCREEN_X;
+	sx = /*x*/0 + 12 + SCREEN_X;
 	sy = y * 24 + 10 + 12 + SCREEN_Y;
-	len = strlen(str);
-	k = 0;
-	if (cjustflag) {
-		width = 0;
-		for (i = 0; i < len; i++)
-			width += fontkern[fontframe[gbFontTransTbl[(BYTE)str[i]]]] + 1;
-		if (width < 270)
-			k = (270 - width) >> 1;
-		sx += k;
+	width = GetStringWidth(str);
+	if (width < 270) {
+		sx += (270 - width) >> 1;
 	}
-	if (qline == y) {
-		CelDraw(sx - 20, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
-	}
-	for (i = 0; i < len; i++) {
-		c = fontframe[gbFontTransTbl[(BYTE)str[i]]];
-		k += fontkern[c] + 1;
-		if (c != '\0' && k <= 270) {
-			PrintChar(sx, sy, c, col);
-		}
-		sx += fontkern[c] + 1;
-	}
-	if (qline == y) {
-		CelDraw(cjustflag ? x + k + 36 + SCREEN_X : 294 - 12 + SCREEN_X - x, sy + 1, pSPentSpn2Cels, PentSpn2Spin(), 12);
+	px = qline == y ? sx : INT_MAX;
+	sx = PrintLimitedString(sx, sy, str, 270, COL_WHITE);
+	if (px != INT_MAX) {
+		DrawPentSpn2(px - 20, sx + 6, sy + 1);
 	}
 }
 
@@ -599,9 +583,9 @@ void DrawQuestLog()
 
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pQLogCel, 1, SPANEL_WIDTH);
 	for (i = 0; i < numqlines; i++) {
-		PrintQLString(0, qtopline + i, true, questlist[qlist[i]]._qlstr, COL_WHITE);
+		PrintQLString(qtopline + i, questlist[qlist[i]]._qlstr);
 	}
-	PrintQLString(0, 11, true, "Close Quest Log", COL_WHITE);
+	PrintQLString(11, "Close Quest Log");
 }
 
 void StartQuestlog()

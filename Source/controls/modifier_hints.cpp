@@ -13,11 +13,7 @@ namespace {
 
 int CalculateTextWidth(const char *s)
 {
-	int l = 0;
-	while (*s != '\0') {
-		l += fontkern[fontframe[gbFontTransTbl[static_cast<unsigned char>(*s++)]]] + 1;
-	}
-	return l;
+	return *s == '\0' ? 0 : GetStringWidth(s);
 }
 
 int SpaceWidth()

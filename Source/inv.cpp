@@ -493,8 +493,8 @@ void DrawInvBelt()
 
 		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {
 			fi = i + 49; // '1' + i;
-			ff = fontframe[gbFontTransTbl[fi]];
-			PrintChar(screen_x + INV_SLOT_SIZE_PX - fontkern[ff], screen_y, ff, COL_WHITE);
+			ff = sfontframe[gbFontTransTbl[fi]];
+			PrintChar(screen_x + INV_SLOT_SIZE_PX - sfontkern[ff], screen_y, ff, COL_WHITE);
 		}
 	}
 }

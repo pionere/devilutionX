@@ -1619,7 +1619,7 @@ typedef struct STextStruct {
 	int _syoff;
 	char _sstr[128];
 	bool _sjust;
-	char _sclr;
+	BYTE _sclr;
 	bool _sline;
 	bool _ssel;
 	int _sval;

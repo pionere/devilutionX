@@ -13,8 +13,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static BYTE *optbar_cel;
-static BYTE *PentSpin_cel;
-static BYTE *BigTGold_cel;
 static BYTE *option_cel;
 static BYTE *sgpLogo;
 static bool _gbMouseNavigation;
@@ -27,61 +25,19 @@ TMenuItem *sgpCurrentMenu;
 static TMenuItem *sgpCurrItem;
 static int _gCurrentMenuSize;
 
-/** Maps from font index to bigtgold.cel frame number. */
-const BYTE lfontframe[] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 37, 49, 38, 0, 39, 40, 47,
-	42, 43, 41, 45, 52, 44, 53, 55, 36, 27,
-	28, 29, 30, 31, 32, 33, 34, 35, 51, 50,
-	0, 46, 0, 54, 0, 1, 2, 3, 4, 5,
-	6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-	26, 42, 0, 43, 0, 0, 0, 1, 2, 3,
-	4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-	14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-	24, 25, 26, 20, 0, 21, 0, 0
-};
-
-/** Maps from bigtgold.cel frame number to character width. */
-const BYTE lfontkern[] = {
-	18, 33, 21, 26, 28, 19, 19, 26, 25, 11,
-	12, 25, 19, 34, 28, 32, 20, 32, 28, 20,
-	28, 36, 35, 46, 33, 33, 24, 11, 23, 22,
-	22, 21, 22, 21, 21, 21, 32, 10, 20, 36,
-	31, 17, 13, 12, 13, 18, 16, 11, 20, 21,
-	11, 10, 12, 11, 21, 23
-};
-
-static void gmenu_print_text(int x, int y, const char *pszStr)
-{
-	BYTE c;
-
-	while (*pszStr != '\0') {
-		c = gbFontTransTbl[(BYTE)*pszStr++];
-		c = lfontframe[c];
-		if (c != 0)
-			CelDrawLight(x, y, BigTGold_cel, c, 46, NULL);
-		x += lfontkern[c] + 2;
-	}
-}
-
 void gmenu_draw_pause()
 {
 	if (currLvl._dLevelIdx != DLV_TOWN)
 		RedBack();
 	if (sgpCurrentMenu == NULL) {
 		light_table_index = 0;
-		gmenu_print_text(316 + PANEL_LEFT, 336, "Pause");
+		PrintLargeString(316 + PANEL_LEFT, 336, "Pause");
 	}
 }
 
 void FreeGMenu()
 {
 	MemFreeDbg(sgpLogo);
-	MemFreeDbg(BigTGold_cel);
-	MemFreeDbg(PentSpin_cel);
 	MemFreeDbg(option_cel);
 	MemFreeDbg(optbar_cel);
 }
@@ -97,8 +53,6 @@ void InitGMenu()
 	_gCurrentMenuSize = 0;
 	_gbMouseNavigation = false;
 	sgpLogo = LoadFileInMem(LOGO_DATA);
-	BigTGold_cel = LoadFileInMem("Data\\BigTGold.CEL");
-	PentSpin_cel = LoadFileInMem("Data\\PentSpin.CEL");
 	option_cel = LoadFileInMem("Data\\option.CEL");
 	optbar_cel = LoadFileInMem("Data\\optbar.CEL");
 }
@@ -183,19 +137,9 @@ static void gmenu_clear_buffer(int x, int y, int width, int height)
 
 static int gmenu_get_lfont(TMenuItem *pItem)
 {
-	const char *text;
-	int i;
-	BYTE c;
-
 	if (pItem->dwFlags & GMENU_SLIDER)
 		return 490;
-	text = pItem->pszStr;
-	i = 0;
-	while (*text != '\0') {
-		c = gbFontTransTbl[(BYTE)*text++];
-		i += lfontkern[lfontframe[c]] + 2;
-	}
-	return i - 2;
+	return GetLargeStringWidth(pItem->pszStr);
 }
 
 static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
@@ -213,11 +157,10 @@ static void gmenu_draw_menu_item(TMenuItem *pItem, int y)
 		CelDraw(x + 2 + pos + PANEL_LEFT, y - 12, option_cel, 1, 27);
 	}
 	x = SCREEN_WIDTH / 2 - w / 2 + SCREEN_X;
-	light_table_index = (pItem->dwFlags & GMENU_ENABLED) ? 0 : 15;
-	gmenu_print_text(x, y, pItem->pszStr);
+	light_table_index = (pItem->dwFlags & GMENU_ENABLED) ? 0 : LIGHTMAX;
+	PrintLargeString(x, y, pItem->pszStr);
 	if (pItem == sgpCurrItem) {
-		CelDraw(x - 54, y + 1, PentSpin_cel, PentSpn2Spin(), 48);
-		CelDraw(x + 4 + w, y + 1, PentSpin_cel, PentSpn2Spin(), 48);
+		DrawPentSpn(x - 54, x + 4 + w, y + 1);
 	}
 }
 

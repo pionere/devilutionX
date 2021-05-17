@@ -1457,7 +1457,7 @@ static void GetStaffSpell(int ii, int lvl)
 	is = &items[ii];
 	sd = &spelldata[bs];
 	snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
-	if (!control_WriteStringToBuffer((BYTE *)istr))
+	if (GetStringWidth(istr) < 125)
 		snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
 	copy_str(is->_iName, istr);
 	copy_str(is->_iIName, istr);
