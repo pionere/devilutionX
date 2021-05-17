@@ -8,22 +8,93 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+// fields to handle item records
+static ItemGetRecordStruct itemrecord[MAXITEMS];
+static int gnNumGetRecords;
+
+// fields to handle delta-information
 static DWORD sgdwOwnerWait;
 static DWORD sgdwRecvOffset;
 static int sgnCurrMegaPlayer;
 static TMegaPkt *sgpCurrPkt;
 static BYTE sgRecvBuf[sizeof(DLevel) + 3];
 static TMegaPkt *sgpMegaPkt;
+BOOL deltaload;
 static DJunk sgJunk;
 static DLevel sgLevels[NUMLEVELS + NUM_SETLVL];
 static LocalLevel sgLocals[NUMLEVELS + NUM_SETLVL];
 static bool _gbLevelDeltaChanged[NUMLEVELS + NUM_SETLVL];
 static bool _gbJunkDeltaChanged;
-static BYTE _gbRecvCmd;
 static BYTE sgbDeltaChunks;
-BOOL deltaload;
+static BYTE _gbRecvCmd;
+// the current messaging mode
 _msg_mode geBufferMsgs;
+// character message to send over to other players
 char gbNetMsg[MAX_SEND_STR_LEN];
+
+static void DeleteItemRecord(int i)
+{
+	gnNumGetRecords--;
+
+	if (gnNumGetRecords == 0) {
+		return;
+	}
+
+	itemrecord[i].nSeed = itemrecord[gnNumGetRecords].nSeed;
+	itemrecord[i].nIndex = itemrecord[gnNumGetRecords].nIndex;
+	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
+	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
+}
+
+static bool ExistsItemRecord(const PkItemStruct *pki)
+{
+	int i;
+	Uint32 dwTicks;
+
+	dwTicks = SDL_GetTicks();
+
+	for (i = 0; i < gnNumGetRecords; i++) {
+		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
+			DeleteItemRecord(i);
+			i--;
+		} else if (pki->dwSeed == itemrecord[i].nSeed && pki->wIndx == itemrecord[i].nIndex && pki->wCI == itemrecord[i].wCI) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static void AddItemRecord(const PkItemStruct *pki)
+{
+	if (gnNumGetRecords == MAXITEMS) {
+		return;
+	}
+
+	itemrecord[gnNumGetRecords].dwTimestamp = SDL_GetTicks();
+	itemrecord[gnNumGetRecords].nSeed = pki->dwSeed;
+	itemrecord[gnNumGetRecords].nIndex = pki->wIndx;
+	itemrecord[gnNumGetRecords].wCI = pki->wCI;
+	gnNumGetRecords++;
+}
+
+static void RemoveItemRecord(const PkItemStruct *pki)
+{
+	int i;
+	Uint32 dwTicks;
+
+	dwTicks = SDL_GetTicks();
+
+	for (i = 0; i < gnNumGetRecords; i++) {
+		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
+			DeleteItemRecord(i);
+			i--;
+		} else if (pki->dwSeed == itemrecord[i].nSeed && pki->wIndx == itemrecord[i].nIndex && pki->wCI == itemrecord[i].wCI) {
+			DeleteItemRecord(i);
+			break;
+		}
+	}
+}
 
 static void msg_get_next_packet()
 {
@@ -1157,7 +1228,19 @@ void NetSendCmdGItem(bool bHiPri, BYTE bCmd, BYTE mast, BYTE pnum, BYTE ii)
 		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, TCmdGItem *p)
+static void NetReSendCmdGItem(BYTE bCmd, BYTE mast, TCmdGItem *p)
+{
+	TCmdGItem cmd;
+
+	copy_pod(cmd, *p);
+	cmd.bCmd = bCmd;
+	cmd.bMaster = mast;
+	cmd.dwTime = 0;
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+static bool NetSendCmdTMsg(BYTE bCmd, BYTE mast, TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
@@ -1166,31 +1249,6 @@ static void NetSendCmdGItem2(bool usonly, BYTE bCmd, BYTE mast, TCmdGItem *p)
 	cmd.bCmd = bCmd;
 	cmd.bMaster = mast;
 
-	if (!usonly) {
-		cmd.dwTime = 0;
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-		return;
-	}
-
-	ticks = SDL_GetTicks();
-	if (cmd.dwTime == 0) {
-		cmd.dwTime = ticks;
-	} else if (ticks - cmd.dwTime > 5000) {
-		return;
-	}
-
-	tmsg_add(&cmd);
-}
-
-static bool NetSendCmdReq2(BYTE bCmd, TCmdGItem *p)
-{
-	int ticks;
-	TCmdGItem cmd;
-
-	copy_pod(cmd, *p);
-	cmd.bCmd = bCmd;
-	cmd.bMaster = myplr;
-
 	ticks = SDL_GetTicks();
 	if (cmd.dwTime == 0)
 		cmd.dwTime = ticks;
@@ -1198,18 +1256,7 @@ static bool NetSendCmdReq2(BYTE bCmd, TCmdGItem *p)
 		return false;
 
 	tmsg_add(&cmd);
-
 	return true;
-}
-
-static void NetSendCmdExtra(TCmdGItem *p)
-{
-	TCmdGItem cmd;
-
-	copy_pod(cmd, *p);
-	cmd.dwTime = 0;
-	cmd.bCmd = CMD_ITEMEXTRA;
-	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
@@ -1459,17 +1506,17 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI))) {
+		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
-				NetSendCmdGItem2(false, CMD_GETITEM, myplr, cmd);
+				NetReSendCmdGItem(CMD_GETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
 					SyncGetItemIdx(ii);
 				else
 					InvGetItem(myplr, ii);
-				SetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
-			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, cmd))
-				NetSendCmdExtra(cmd);
+				AddItemRecord(&cmd->item);
+			} else if (!NetSendCmdTMsg(CMD_REQUESTGITEM, myplr, cmd))
+				NetReSendCmdGItem(CMD_ITEMEXTRA, cmd->bMaster, cmd);
 		}
 	}
 
@@ -1500,7 +1547,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
-			NetSendCmdGItem2(true, CMD_GETITEM, cmd->bMaster, cmd);
+			NetSendCmdTMsg(CMD_GETITEM, cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1524,17 +1571,17 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr[pnum].plrlevel)) {
-		if (GetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI))) {
+		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
-				NetSendCmdGItem2(false, CMD_AGETITEM, myplr, cmd);
+				NetReSendCmdGItem(CMD_AGETITEM, myplr, cmd);
 				if (cmd->bPnum != myplr)
 					SyncGetItemIdx(ii);
 				else
 					AutoGetItem(myplr, cmd->bCursitem);
-				SetItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
-			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, cmd))
-				NetSendCmdExtra(cmd);
+				AddItemRecord(&cmd->item);
+			} else if (!NetSendCmdTMsg(CMD_REQUESTAGITEM, myplr, cmd))
+				NetReSendCmdGItem(CMD_ITEMEXTRA, cmd->bMaster, cmd);
 		}
 	}
 
@@ -1562,7 +1609,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
-			NetSendCmdGItem2(true, CMD_AGETITEM, cmd->bMaster, cmd);
+			NetSendCmdTMsg(CMD_AGETITEM, cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1637,7 +1684,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			y = items[ii]._iy;
 		}
 		delta_put_item(cmd, x, y, plr[pnum].plrlevel);
-		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+		RemoveItemRecord(&cmd->item);
 	}
 
 	return sizeof(*cmd);
@@ -1653,12 +1700,12 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 		UnPackPkItem(&cmd->item);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
-			PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+			RemoveItemRecord(&cmd->item);
 			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr[pnum].plrlevel);
 			check_update_plr(pnum);
 		}
 	} else {
-		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+		RemoveItemRecord(&cmd->item);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 		check_update_plr(pnum);
 	}
@@ -1677,7 +1724,7 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 			UnPackPkItem(&cmd->item);
 			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
-		PutItemRecord(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
+		RemoveItemRecord(&cmd->item);
 		delta_put_item(cmd, cmd->x, cmd->y, plr[pnum].plrlevel);
 	}
 

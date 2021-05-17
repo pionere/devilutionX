@@ -111,7 +111,7 @@ static_assert((sizeof(ItemDataStruct) & (sizeof(ItemDataStruct) - 1)) == 0, "Ali
 #endif
 
 typedef struct ItemGetRecordStruct {
-	int nSeed;
+	INT nSeed;
 	WORD nIndex;
 	WORD wCI;
 	unsigned int dwTimestamp;

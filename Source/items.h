@@ -70,9 +70,6 @@ void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo);
 int ItemNoFlippy();
 void CreateSpellBook(int ispell, int x, int y);
 void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
-bool GetItemRecord(int nSeed, WORD wIndex, WORD wCI);
-void SetItemRecord(int nSeed, WORD wIndex, WORD wCI);
-void PutItemRecord(int nSeed, WORD wIndex, WORD wCI);
 
 /* data */
 

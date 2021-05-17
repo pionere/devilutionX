@@ -9,13 +9,11 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int itemactive[MAXITEMS];
 int itemavail[MAXITEMS];
-ItemGetRecordStruct itemrecord[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
 BYTE *itemanims[ITEMTYPES];
 BOOL UniqueItemFlags[NUM_UITEM];
 int numitems;
-int gnNumGetRecords;
 
 /** Maps from item_cursor_graphic to in-memory item (drop) type. */
 const BYTE ItemCAnimTbl[NUM_ICURS] = {
@@ -3955,70 +3953,6 @@ void CreateMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 			break;
 	}
 	RegisterItem(ii, x, y, sendmsg, false);
-}
-
-static void NextItemRecord(int i)
-{
-	gnNumGetRecords--;
-
-	if (gnNumGetRecords == 0) {
-		return;
-	}
-
-	itemrecord[i].nSeed = itemrecord[gnNumGetRecords].nSeed;
-	itemrecord[i].nIndex = itemrecord[gnNumGetRecords].nIndex;
-	itemrecord[i].wCI = itemrecord[gnNumGetRecords].wCI;
-	itemrecord[i].dwTimestamp = itemrecord[gnNumGetRecords].dwTimestamp;
-}
-
-bool GetItemRecord(int nSeed, WORD wIndex, WORD wCI)
-{
-	int i;
-	DWORD dwTicks;
-
-	dwTicks = SDL_GetTicks();
-
-	for (i = 0; i < gnNumGetRecords; i++) {
-		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
-			NextItemRecord(i);
-			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wIndex == itemrecord[i].nIndex && wCI == itemrecord[i].wCI) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-void SetItemRecord(int nSeed, WORD wIndex, WORD wCI)
-{
-	if (gnNumGetRecords == MAXITEMS) {
-		return;
-	}
-
-	itemrecord[gnNumGetRecords].dwTimestamp = SDL_GetTicks();
-	itemrecord[gnNumGetRecords].nSeed = nSeed;
-	itemrecord[gnNumGetRecords].nIndex = wIndex;
-	itemrecord[gnNumGetRecords].wCI = wCI;
-	gnNumGetRecords++;
-}
-
-void PutItemRecord(int nSeed, WORD wIndex, WORD wCI)
-{
-	int i;
-	DWORD dwTicks;
-
-	dwTicks = SDL_GetTicks();
-
-	for (i = 0; i < gnNumGetRecords; i++) {
-		if (dwTicks - itemrecord[i].dwTimestamp > 6000) {
-			NextItemRecord(i);
-			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wIndex == itemrecord[i].nIndex && wCI == itemrecord[i].wCI) {
-			NextItemRecord(i);
-			break;
-		}
-	}
 }
 
 DEVILUTION_END_NAMESPACE
