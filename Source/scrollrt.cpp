@@ -339,7 +339,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 #endif
 	nWidth = mon->_mAnimWidth;
 	if (mnum == pcursmonst) {
-		Cl2DrawOutline(233, mx, my, pCelBuff, nCel, nWidth);
+		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, 1);
