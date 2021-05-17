@@ -295,9 +295,10 @@ void CheckCursMove()
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
-	if (plr[myplr]._pInvincible | gbDoomflag | gbSkillListFlag) {
+	if (plr[myplr]._pInvincible | gbDoomflag | gbSkillListFlag)
 		return;
-	}
+	if (stextflag != STORE_NONE)
+		return;
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		cursmx = mx;
 		cursmy = my;
