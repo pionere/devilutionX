@@ -2271,6 +2271,8 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 		} else {
 			if (wCI & CF_TOWN) {
 				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
+				items[MAXITEMS]._iSeed = iseed;
+				items[MAXITEMS]._iCreateInfo = wCI;
 			} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
 				SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
 			} else {
@@ -2515,8 +2517,8 @@ void RespawnItem(int ii, bool FlipFlag)
 	if (is->_iCurs == ICURS_MAGIC_ROCK) {
 		is->_iSelFlag = 1;
 		PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[ICURS_MAGIC_ROCK]], is->_ix, is->_iy);
-	} else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
-		is->_iSelFlag = 1;
+	} /*else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
+		is->_iSelFlag = 1;*/
 }
 
 void DeleteItem(int ii, int i)
@@ -3784,8 +3786,8 @@ static void RecreateSmithItem(int ii, int iseed, int idx, int lvl)
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_SMITH;
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_SMITH;
 }
 
 static void RecreatePremiumItem(int ii, int iseed, int idx, int lvl)
@@ -3794,8 +3796,8 @@ static void RecreatePremiumItem(int ii, int iseed, int idx, int lvl)
 	GetItemAttrs(ii, RndPremiumItem(lvl >> 2, lvl), lvl);
 	GetItemBonus(ii, lvl >> 1, lvl, TRUE, FALSE);
 
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 }
 
 static void RecreateBoyItem(int ii, int iseed, int idx, int lvl)
@@ -3803,8 +3805,9 @@ static void RecreateBoyItem(int ii, int iseed, int idx, int lvl)
 	SetRndSeed(iseed);
 	GetItemAttrs(ii, RndBoyItem(lvl), lvl);
 	GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_BOY;
+
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_BOY;
 }
 
 static void RecreateWitchItem(int ii, int iseed, int idx, int lvl)
@@ -3818,8 +3821,8 @@ static void RecreateWitchItem(int ii, int iseed, int idx, int lvl)
 			GetItemBonus(ii, lvl, lvl << 1, TRUE, TRUE);
 	}
 
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_WITCH;
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_WITCH;
 }
 
 static void RecreateHealerItem(int ii, int iseed, int idx, int lvl)
@@ -3831,8 +3834,8 @@ static void RecreateHealerItem(int ii, int iseed, int idx, int lvl)
 		GetItemAttrs(ii, RndHealerItem(lvl), lvl);
 	}
 
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_HEALER;
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_HEALER;
 }
 
 static void RecreateCraftedItem(int ii, int iseed, int idx, int lvl)
@@ -3842,8 +3845,8 @@ static void RecreateCraftedItem(int ii, int iseed, int idx, int lvl)
 	if (random_(51, 2) != 0)
 		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, TRUE, TRUE);
 
-	items[ii]._iSeed = iseed;
-	items[ii]._iCreateInfo = lvl | CF_CRAFTED;
+	//items[ii]._iSeed = iseed;
+	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
 void RecreateTownItem(int ii, int iseed, WORD idx, WORD icreateinfo)
