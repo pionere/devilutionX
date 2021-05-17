@@ -2093,17 +2093,15 @@ static void DRLG_L3(int entry)
 	DRLG_L3PlaceRndSet(L3HORZWALLFIX1, 70);
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
-		DRLG_L3PlaceRndSet(L6VERTWALLFIX2, 30);
-		DRLG_L3PlaceRndSet(L6HORZWALLFIX2, 30);
+		DRLG_L3PlaceRndSet(L6VERTWALLFIX2, 100);
+		DRLG_L3PlaceRndSet(L6HORZWALLFIX2, 100);
 	} else
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CAVES);
-		DRLG_L3PlaceRndSet(L3VERTWALLFIX2, 30);
-		DRLG_L3PlaceRndSet(L3HORZWALLFIX2, 30);
+		DRLG_L3PlaceRndSet(L3VERTWALLFIX2, 100);
+		DRLG_L3PlaceRndSet(L3HORZWALLFIX2, 100);
 	}
-	DRLG_L3PlaceRndSet(L3VERTWALLFIX1, 100);
-	DRLG_L3PlaceRndSet(L3HORZWALLFIX1, 100);
 	// not possible because of DRLG_L3FillDiags and DRLG_L3FillSingles
 	// DRLG_L3PlaceRndSet(L3ISLE5, 90);
 
