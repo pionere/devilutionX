@@ -2232,7 +2232,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 		mis->_miAnimFrame = 7;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0) {
-		mis->_miUniqTrans = mon->_uniqtrans + 1;
+		mis->_miUniqTrans = mon->_uniqtrans + 4;
 		mis->_miLid = mon->mlid;
 	}
 	// mis->_miRange = 256;
@@ -2266,7 +2266,7 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	//mis->_miVar2 = 0;
 	mis->_miLightFlag = TRUE;
 	if (mon->_uniqtype != 0)
-		mis->_miUniqTrans = mon->_uniqtrans + 1;
+		mis->_miUniqTrans = mon->_uniqtrans + 4;
 	dMonster[mon->_mx][mon->_my] = 0;
 	//mis->_miRange = 256;
 	//PutMissile(mi);
