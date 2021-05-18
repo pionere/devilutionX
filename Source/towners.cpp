@@ -535,7 +535,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasItem(pnum, IDI_BANNER, &i) && qt == TEXT_NONE) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, true, true);
+				SpawnUnique(UITEM_HARCREST, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_LTBANNER]._qlog = FALSE;
 				quests[Q_LTBANNER]._qvar1 = 2;
 				qn = Q_LTBANNER;
@@ -570,7 +570,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (quests[Q_ROCK]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ROCK, &i) && qt == TEXT_NONE) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, true, true);
+				SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_ROCK]._qactive = QUEST_DONE;
 				quests[Q_ROCK]._qlog = FALSE;
 				qn = Q_ROCK;
@@ -587,7 +587,7 @@ void TalkToTowner(int pnum, int tnum)
 			}
 			if (quests[Q_ANVIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_ANVIL, &i) && qt == TEXT_NONE) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, true, true);
+				SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1, false, true);
 				quests[Q_ANVIL]._qactive = QUEST_DONE;
 				quests[Q_ANVIL]._qlog = FALSE;
 				qn = Q_ANVIL;
@@ -653,7 +653,7 @@ void TalkToTowner(int pnum, int tnum)
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
 		 && quests[Q_PWATER]._qvar1 == 2) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, true, true);
+			SpawnUnique(UITEM_TRING, tw->_tx, tw->_ty + 1, false, true);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		}
@@ -661,7 +661,7 @@ void TalkToTowner(int pnum, int tnum)
 		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
 			if (PlrHasItem(pnum, IDI_BRAIN, &i) && qt == TEXT_NONE) {
 				PlrInvItemRemove(pnum, i);
-				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, true, true);
+				SpawnQuestItemAround(IDI_SPECELIX, tw->_tx, tw->_ty, false, true);
 				quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
 				quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 				qn = Q_MUSHROOM;
@@ -782,7 +782,7 @@ void TalkToTowner(int pnum, int tnum)
 				break;
 			} else if (PlrHasItem(pnum, IDI_BROWNSUIT, &i)) {
 				PlrInvItemRemove(pnum, i);
-				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, true, true);
+				SpawnUnique(UITEM_BOVINE, tw->_tx + 1, tw->_ty, false, true);
 				quests[Q_JERSEY]._qactive = QUEST_DONE;
 				qn = Q_JERSEY;
 				qt = TEXT_JERSEY8;
