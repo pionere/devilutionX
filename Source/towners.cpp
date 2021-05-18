@@ -406,17 +406,17 @@ void ProcessTowners()
 		TownCtrlMsg(tw);
 		if (tw->_ttype == TOWN_DEADGUY) {
 			if (quests[Q_BUTCHER]._qactive != QUEST_INIT) {
-				if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
+				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
-						tw->_tAnimFrameLen = 1000;
+						//tw->_tAnimFrameLen = 1000;
 						tw->_tAnimFrame = 1;
 						tw->_tName = "Slain Townsman";
 					}
-					tw->_tAnimCnt = 0;
-				} else {
+					continue; //tw->_tAnimCnt = 0;
+				/*} else {
 					if (gbQtextflag)
 						tw->_tAnimCnt = 0;
-				}
+				}*/
 			}
 		}
 
@@ -544,17 +544,17 @@ void TalkToTowner(int pnum, int tnum)
 		}
 		break;
 	case TOWN_DEADGUY:
-		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 1) {
+		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE /*&& quests[Q_BUTCHER]._qvar1 == 1*/) {
 			i = sgSFXSets[SFXS_PLR_08][plr[pnum]._pClass];
 			if (!effect_is_playing(i)) {
 				// tw->_tListener = pnum;
 				PlaySFX(i);
 			}
-		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT || (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)) {
+		} else if (quests[Q_BUTCHER]._qactive == QUEST_INIT /*|| (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE && quests[Q_BUTCHER]._qvar1 == 0)*/) {
 			quests[Q_BUTCHER]._qactive = QUEST_ACTIVE;
 			quests[Q_BUTCHER]._qlog = TRUE;
 			// quests[Q_BUTCHER]._qmsg = TEXT_BUTCH9;
-			quests[Q_BUTCHER]._qvar1 = 1;
+			//quests[Q_BUTCHER]._qvar1 = 1;
 			qn = Q_BUTCHER;
 			qt = TEXT_BUTCH9;
 		}
