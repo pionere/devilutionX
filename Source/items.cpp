@@ -2294,33 +2294,6 @@ void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue)
 	}
 }
 
-void RecreateEar(int iseed, WORD ic, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff)
-{
-	SetItemData(MAXITEMS, IDI_EAR);
-	tempstr[0] = (ic >> 8) & 0x7F;
-	tempstr[1] = ic & 0x7F;
-	tempstr[2] = (iseed >> 24) & 0x7F;
-	tempstr[3] = (iseed >> 16) & 0x7F;
-	tempstr[4] = (iseed >> 8) & 0x7F;
-	tempstr[5] = iseed & 0x7F;
-	tempstr[6] = Id & 0x7F;
-	tempstr[7] = dur & 0x7F;
-	tempstr[8] = mdur & 0x7F;
-	tempstr[9] = ch & 0x7F;
-	tempstr[10] = mch & 0x7F;
-	tempstr[11] = (ivalue >> 8) & 0x7F;
-	tempstr[12] = (ibuff >> 24) & 0x7F;
-	tempstr[13] = (ibuff >> 16) & 0x7F;
-	tempstr[14] = (ibuff >> 8) & 0x7F;
-	tempstr[15] = ibuff & 0x7F;
-	tempstr[16] = '\0';
-	snprintf(items[MAXITEMS]._iName, sizeof(items[MAXITEMS]._iName), "Ear of %s", tempstr);
-	items[MAXITEMS]._iCurs = ((ivalue >> 6) & 3) + ICURS_EAR_SORCERER;
-	items[MAXITEMS]._ivalue = ivalue & 0x3F;
-	items[MAXITEMS]._iCreateInfo = ic;
-	items[MAXITEMS]._iSeed = iseed;
-}
-
 /**
  * Place a fixed item to the given location.
  * 

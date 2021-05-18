@@ -40,7 +40,6 @@ void CreateRndItem(int x, int y, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(int x, int y, bool sendmsg, bool delta);
 void CreateTypeItem(int x, int y, bool onlygood, int itype, int imisc, bool sendmsg, bool delta);
 void RecreateItem(int iseed, WORD wIndex, WORD wCI, int ivalue);
-void RecreateEar(int iseed, WORD wCI, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void SpawnQuestItemInArea(int idx, int areasize);
 void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta);
 void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn);

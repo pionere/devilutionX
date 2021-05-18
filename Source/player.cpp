@@ -1955,8 +1955,8 @@ void StartPlrKill(int pnum, int dmgtype)
 				};
 				ear._iCurs = earSets[p->_pClass];
 
-				ear._iCreateInfo = p->_pName[0] << 8 | p->_pName[1];
-				ear._iSeed = p->_pName[2] << 24 | p->_pName[3] << 16 | p->_pName[4] << 8 | p->_pName[5];
+				ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
+				ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
 				ear._ivalue = p->_pLevel;
 
 				if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo) == -1) {

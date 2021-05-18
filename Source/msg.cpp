@@ -786,15 +786,15 @@ void PackPkItem(PkItemStruct *dest, const ItemStruct *src)
 		dest->wValue = SwapLE16(src->_ivalue);
 	} else {
 		dest->wIndx = SwapLE16(IDI_EAR);
-		dest->wCI = SwapLE16(src->_iName[8] | (src->_iName[7] << 8));
-		dest->dwSeed = SwapLE32(src->_iName[12] | ((src->_iName[11] | ((src->_iName[10] | (src->_iName[9] << 8)) << 8)) << 8));
+		dest->wCI = SwapLE16(*(WORD*)&src->_iName[7]);
+		dest->dwSeed = SwapLE32(*(DWORD*)&src->_iName[9]);
 		dest->bId = src->_iName[13];
 		dest->bDur = src->_iName[14];
 		dest->bMDur = src->_iName[15];
 		dest->bCh = src->_iName[16];
 		dest->bMCh = src->_iName[17];
 		dest->wValue = SwapLE16(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-		dest->dwBuff = SwapLE32(src->_iName[22] | ((src->_iName[21] | ((src->_iName[20] | (src->_iName[19] << 8)) << 8)) << 8));
+		dest->dwBuff = SwapLE32(*(DWORD*)&src->_iName[19]);
 	}
 }
 
@@ -847,6 +847,26 @@ void DeltaSaveLevel()
 	delta_leave_sync(currLvl._dLevelIdx);
 }
 
+static void UnPackEar(const PkItemStruct *src)
+{
+	*(WORD*)&tempstr[0] = SwapLE16(src->wCI);
+	*(DWORD*)&tempstr[2] = SwapLE32(src->dwSeed);
+	tempstr[6] = src->bId;
+	tempstr[7] = src->bDur;
+	tempstr[8] = src->bMDur;
+	tempstr[9] = src->bCh;
+	tempstr[10] = src->bMCh;
+	tempstr[11] = SwapLE16(src->wValue) >> 8;
+	*(DWORD*)&tempstr[12] = SwapLE32(src->dwBuff);
+	tempstr[16] = '\0';
+	items[MAXITEMS]._iCurs = ((SwapLE16(src->wValue) >> 6) & 3) + ICURS_EAR_SORCERER;
+	items[MAXITEMS]._ivalue = SwapLE16(src->wValue) & 0x3F;
+
+	snprintf(items[MAXITEMS]._iName, sizeof(items[MAXITEMS]._iName), "Ear of %s", tempstr);
+	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD *)&items[MAXITEMS]._iName[7]);
+	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD *)&items[MAXITEMS]._iName[9]);
+}
+
 void UnPackPkItem(const PkItemStruct *src)
 {
 	uint16_t idx = SwapLE16(src->wIndx);
@@ -863,16 +883,8 @@ void UnPackPkItem(const PkItemStruct *src)
 		items[MAXITEMS]._iCharges = src->bCh;
 		items[MAXITEMS]._iMaxCharges = src->bMCh;
 	} else {
-		RecreateEar(
-			SwapLE32(src->dwSeed),
-			SwapLE16(src->wCI),
-			src->bId,
-			src->bDur,
-			src->bMDur,
-			src->bCh,
-			src->bMCh,
-			SwapLE16(src->wValue),
-			SwapLE32(src->dwBuff));
+		SetItemData(MAXITEMS, IDI_EAR);
+		UnPackEar(src);
 	}
 }
 
