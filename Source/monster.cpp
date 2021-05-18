@@ -1614,7 +1614,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	if ((unsigned)pnum < MAX_PLRS) {
 		mon->_mWhoHit |= 1 << pnum;
 		if (pnum == myplr) {
-			NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, mnum, mon->_mhitpoints, dam);
+			NetSendCmdMonstDamage(mnum, mon->_mhitpoints, dam);
 		}
 	}
 	PlayEffect(mnum, 1);
@@ -1750,7 +1750,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->_mWhoHit |= 1 << offm;
 		if (offm == myplr) {
-			NetSendCmdDwParam3(false, CMD_MONSTDAMAGE, defm, dmon->_mhitpoints, dam);
+			NetSendCmdMonstDamage(defm, dmon->_mhitpoints, dam);
 		}
 	}
 	PlayEffect(defm, 1);

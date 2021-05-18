@@ -929,15 +929,6 @@ typedef struct TCmdLocParam1 {
 	WORD wParam1;
 } TCmdLocParam1;
 
-typedef struct TCmdLocBParam3 {
-	BYTE bCmd;
-	BYTE x;
-	BYTE y;
-	BYTE bParam1;
-	BYTE bParam2;
-	BYTE bParam3;
-} TCmdLocBParam3;
-
 typedef struct TCmdParam1 {
 	BYTE bCmd;
 	WORD wParam1;
@@ -956,14 +947,6 @@ typedef struct TCmdParam3 {
 	WORD wParam3;
 } TCmdParam3;
 
-typedef struct TCmdWBParam4 {
-	BYTE bCmd;
-	WORD wParam1;
-	BYTE bParam2;
-	BYTE bParam3;
-	BYTE bParam4;
-} TCmdWBParam4;
-
 typedef struct TCmdBParam1 {
 	BYTE bCmd;
 	BYTE bParam1;
@@ -975,25 +958,65 @@ typedef struct TCmdBParam2 {
 	BYTE bParam2;
 } TCmdBParam2;
 
-typedef struct TCmdBParam3 {
+typedef struct TCmdLocAttack {
 	BYTE bCmd;
-	BYTE bParam1;
-	BYTE bParam2;
-	BYTE bParam3;
-} TCmdBParam3;
+	BYTE x;
+	BYTE y;
+	BYTE laSkill;
+	BYTE laLevel;
+} TCmdLocAttack;
 
-typedef struct TCmdDwParam2 {
+typedef struct TCmdLocSkill {
 	BYTE bCmd;
-	DWORD dwParam1;
-	DWORD dwParam2;
-} TCmdDwParam2;
+	BYTE x;
+	BYTE y;
+	BYTE lsSkill;
+	BYTE lsFrom;
+	BYTE lsLevel;
+} TCmdLocSkill;
 
-typedef struct TCmdDwParam3 {
+typedef struct TCmdPlrAttack {
 	BYTE bCmd;
-	DWORD dwParam1;
-	DWORD dwParam2;
-	DWORD dwParam3;
-} TCmdDwParam3;
+	BYTE paPnum;
+	BYTE paSkill;
+	BYTE paLevel;
+} TCmdPlrAttack;
+
+typedef struct TCmdPlrSkill {
+	BYTE bCmd;
+	BYTE psPnum;
+	BYTE psSkill;
+	BYTE psFrom;
+	BYTE psLevel;
+} TCmdPlrSkill;
+
+typedef struct TCmdPlrDamage {
+	BYTE bCmd;
+	BYTE pdPnum;
+	DWORD pdDamage;
+} TCmdPlrDamage;
+
+typedef struct TCmdMonstAttack {
+	BYTE bCmd;
+	WORD maMnum;
+	BYTE maSkill;
+	BYTE maLevel;
+} TCmdMonstAttack;
+
+typedef struct TCmdMonstSkill {
+	BYTE bCmd;
+	WORD msMnum;
+	BYTE msSkill;
+	BYTE msFrom;
+	BYTE msLevel;
+} TCmdMonstSkill;
+
+typedef struct TCmdMonstDamage {
+	BYTE bCmd;
+	WORD mdMnum;
+	INT mdHitpoints;
+	DWORD mdDamage;
+} TCmdMonstDamage;
 
 typedef struct TCmdMonstKill {
 	BYTE bCmd;
@@ -1010,7 +1033,7 @@ typedef struct TCmdGolem {
 	BYTE _mx;
 	BYTE _my;
 	BYTE _mdir;
-	char _menemy;
+	BYTE _menemy;
 	INT _mhitpoints;
 	BYTE _currlevel;
 } TCmdGolem;

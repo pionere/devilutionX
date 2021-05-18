@@ -2049,7 +2049,7 @@ static void RegisterItem(int ii, int x, int y, bool sendmsg, bool delta)
 	GetSuperItemSpace(x, y, ii);
 
 	if (sendmsg)
-		NetSendCmdDItem(false, ii);
+		NetSendCmdDItem(ii);
 	if (delta)
 		DeltaAddItem(ii);
 
@@ -2353,7 +2353,7 @@ void SpawnQuestItemAt(int idx, int x, int y, bool sendmsg, bool delta)
 	SetItemLoc(ii, x, y);
 
 	if (sendmsg)
-		NetSendCmdDItem(false, ii);
+		NetSendCmdDItem(ii);
 	if (delta)
 		DeltaAddItem(ii);
 

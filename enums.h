@@ -2890,7 +2890,6 @@ typedef enum spell_id {
 typedef enum _cmd_id {
 	CMD_SYNCDATA,
 	CMD_WALKXY,
-	CMD_ATTACKXY,
 	CMD_SATTACKXY,
 	CMD_RATTACKXY,
 	CMD_SPELLXY,

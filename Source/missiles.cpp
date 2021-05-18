@@ -1012,7 +1012,7 @@ static bool Plr2PlrMHit(int defp, int mi)
 	}
 
 	if (offp == myplr)
-		NetSendCmdDwParam2(true, CMD_PLRDAMAGE, defp, dam);
+		NetSendCmdPlrDamage(defp, dam);
 	StartPlrHit(defp, dam, false);
 	return true;
 }

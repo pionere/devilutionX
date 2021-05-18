@@ -2055,8 +2055,7 @@ bool InvUseItem(int cii)
 			plr[pnum]._pTSpell = sn;
 			plr[pnum]._pTSplFrom = cii;
 		} else {
-			NetSendCmdLocBParam3(true, CMD_SPELLXY,
-				cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
+			NetSendCmdLocSkill(cursmx, cursmy, sn, cii, GetSpellLevel(pnum, sn));
 		}
 		return true;
 	case IMISC_BOOK:

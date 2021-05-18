@@ -426,9 +426,9 @@ void Interact()
 		int sl = GetSpellLevel(myplr, attack);
 		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
-			NetSendCmdParam3(true, (melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
+			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
 		else if (pcursplr != PLR_NONE && plr[myplr]._pTeam != plr[pcursplr]._pTeam)
-			NetSendCmdBParam3(true, melee ? CMD_ATTACKPID : CMD_RATTACKPID, pcursplr, attack, sl);
+			NetSendCmdPlrAttack(pcursplr, attack, sl);
 	}
 }
 

@@ -2487,7 +2487,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int defp)
 	}
 
 	if (offp == myplr)
-		NetSendCmdDwParam2(true, CMD_PLRDAMAGE, defp, dam);
+		NetSendCmdPlrDamage(defp, dam);
 	StartPlrHit(defp, dam, false);
 	return true;
 }
@@ -2993,7 +2993,7 @@ static void CheckNewPath(int pnum)
 				x = abs(p->_px - items[i]._ix);
 				y = abs(p->_py - items[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND && !items[i]._iRequest) {
-					NetSendCmdGItem(true, CMD_REQUESTGITEM, myplr, myplr, i);
+					NetSendCmdGItem(CMD_REQUESTGITEM, i);
 					items[i]._iRequest = TRUE;
 				}
 			}
@@ -3004,7 +3004,7 @@ static void CheckNewPath(int pnum)
 				x = abs(p->_px - items[i]._ix);
 				y = abs(p->_py - items[i]._iy);
 				if (x <= 1 && y <= 1 && pcurs == CURSOR_HAND) {
-					NetSendCmdGItem(true, CMD_REQUESTAGITEM, myplr, myplr, i);
+					NetSendCmdGItem(CMD_REQUESTAGITEM, i);
 				}
 			}
 			break;
