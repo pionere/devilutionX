@@ -1345,7 +1345,7 @@ static void GetMousePos(int x, int y, int *outx, int *outy)
 	
 	px = 0;
 	py = 0;
-	ShiftGrid(&px, &py, -y, x);
+	SHIFT_GRID(px, py, -y, x);
 
 	px *= TILE_WIDTH / 2;
 	py *= TILE_HEIGHT / 2;

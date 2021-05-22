@@ -41,7 +41,7 @@ void T_HiveOpen()
 		{    0, 0x516, 0x51c, 0x51e, 0x520, 0x522}, // 71
 		{0x517, 0x519, 0x523, 0x525, 0x527, 0x529}, // 72
 		{0x518, 0x51a, 0x524, 0x526, 0x528, 0x52a}, // 73
-		{    0, 0x118, 0x118, 0x118, 0x118,     0}, // 74
+		{0x008, 0x118, 0x118, 0x118, 0x118,     0}, // 74
 		{0x118, 0x118, 0x013, 0x008, 0x008,     0}, // 75
 		{0x0d9, 0x018,     0,     0,     0,     0}, // 76
 	};*/
@@ -80,18 +80,19 @@ void T_HiveOpen()
 	dPiece[73 + DBORDERX][52 + DBORDERY] = 0x524;
 	dPiece[72 + DBORDERX][53 + DBORDERY] = 0x525;
 	dPiece[73 + DBORDERX][53 + DBORDERY] = 0x526;
+	dPiece[74 + DBORDERX][50 + DBORDERY] = 0x8; // new
 	dPiece[74 + DBORDERX][51 + DBORDERY] = 0x118;
 	dPiece[74 + DBORDERX][52 + DBORDERY] = 0x118;
 	dPiece[74 + DBORDERX][53 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][50 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][51 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
-	dPiece[75 + DBORDERX][54 + DBORDERY] = 8;
-	dPiece[76 + DBORDERX][50 + DBORDERY] = 0xd9;
-	dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
-	dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
+	//dPiece[75 + DBORDERX][50 + DBORDERY] = 0x118;
+	//dPiece[75 + DBORDERX][51 + DBORDERY] = 0x118;
+	//dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
+	//dPiece[75 + DBORDERX][54 + DBORDERY] = 8;
+	//dPiece[76 + DBORDERX][50 + DBORDERY] = 0xd9;
+	//dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
+	//dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
 	dPiece[74 + DBORDERX][54 + DBORDERY] = 0x118;
-	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 77 + DBORDERX, 56 + DBORDERY);
+	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 75/*77*/ + DBORDERX, 56 + DBORDERY);
 }
 
 static void T_HiveClosed()
@@ -104,7 +105,7 @@ static void T_HiveClosed()
 		{0x4f6, 0x4f8, 0x4fe, 0x500, 0x502, 0x504}, // 71
 		{0x4f9, 0x4fb, 0x505, 0x507, 0x509, 0x50b}, // 72
 		{0x4fa, 0x4fc, 0x506, 0x508, 0x50a, 0x50c}, // 73
-		{    0, 0x118, 0x118, 0x118, 0x118,     0}, // 74
+		{0x008, 0x118, 0x118, 0x118, 0x118,     0}, // 74
 		{0x118, 0x118, 0x013, 0x008, 0x008,     0}, // 75
 		{0x0d9, 0x018,     0,     0,     0,     0}, // 76
 	};*/
@@ -143,18 +144,19 @@ static void T_HiveClosed()
 	dPiece[73 + DBORDERX][52 + DBORDERY] = 0x506;
 	dPiece[72 + DBORDERX][53 + DBORDERY] = 0x507;
 	dPiece[73 + DBORDERX][53 + DBORDERY] = 0x508;
+	dPiece[74 + DBORDERX][50 + DBORDERY] = 0x8; //new
 	dPiece[74 + DBORDERX][51 + DBORDERY] = 0x118;
 	dPiece[74 + DBORDERX][52 + DBORDERY] = 0x118;
 	dPiece[74 + DBORDERX][53 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][50 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][51 + DBORDERY] = 0x118;
-	dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
-	dPiece[75 + DBORDERX][54 + DBORDERY] = 8;
-	dPiece[76 + DBORDERX][50 + DBORDERY] = 0xd9;
-	dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
+	//dPiece[75 + DBORDERX][50 + DBORDERY] = 0x118;
+	//dPiece[75 + DBORDERX][51 + DBORDERY] = 0x118;
+	//dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
+	//dPiece[75 + DBORDERX][54 + DBORDERY] = 8;
+	//dPiece[76 + DBORDERX][50 + DBORDERY] = 0xd9;
+	//dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
 	dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
 	dPiece[74 + DBORDERX][54 + DBORDERY] = 0x118;
-	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 77 + DBORDERX, 56 + DBORDERY);
+	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 75/*77*/ + DBORDERX, 56 + DBORDERY);
 }
 
 static void T_CryptClosed()

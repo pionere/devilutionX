@@ -1036,7 +1036,10 @@ static bool PlrDirOK(int pnum, int dir)
 	px = plr[pnum]._px + offset_x[dir];
 	py = plr[pnum]._py + offset_y[dir];
 
-	if (px < 0 || !dPiece[px][py] || !PosOkPlayer(pnum, px, py)) {
+	//assert(px >= DBORDERX - 1 && px < DBORDERX + DSIZEX + 1);
+	//assert(py >= DBORDERY - 1 && px < DBORDERY + DSIZEX + 1);
+	//assert(dPiece[px][py] != 0);
+	if (/*px < 0 || !dPiece[px][py] ||*/ !PosOkPlayer(pnum, px, py)) {
 		return false;
 	}
 

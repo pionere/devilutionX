@@ -583,7 +583,7 @@ static void DrawAutomapText()
 void DrawAutomap()
 {
 	int sx, sy, mapx, mapy;
-	unsigned i, j, cells;
+	int i, j, cells;
 
 	if (!_gbAutomapData) {
 		DrawAutomapText();
@@ -666,20 +666,27 @@ void DrawAutomap()
 		int x = sx;
 
 		for (j = 0; j < cells; j++) { // foreach xcells 1.
-			uint16_t maptype = GetAutomapType(mapx + j, mapy - j, true);
+			uint16_t maptype = GetAutomapType(mapx, mapy, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, sy, maptype);
+			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += AmLine64;
 		}
+		// Return to start of row
+		SHIFT_GRID(mapx, mapy, -cells, 0);
+
 		mapy++;
 		x = sx + AmLine32;
 		sy += AmLine16;
 		for (j = 1; j < cells; j++) { // foreach xcells 2.
-			uint16_t maptype = GetAutomapType(mapx + j, mapy - j, true);
+			SHIFT_GRID(mapx, mapy, 1, 0);
+			uint16_t maptype = GetAutomapType(mapx, mapy, true);
 			if (maptype != 0)
 				DrawAutomapTile(x, sy, maptype);
 			x += AmLine64;
 		}
+		// Return to start of row
+		SHIFT_GRID(mapx, mapy, -(cells - 1), 0);
 		mapx++;
 		sy += AmLine16;
 	}

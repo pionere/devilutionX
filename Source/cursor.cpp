@@ -233,14 +233,13 @@ void CheckCursMove()
 	}
 
 	// Convert to tile grid
-	mx = ViewX;
-	my = ViewY;
-
 	TilesInView(&columns, &rows);
 	int lrow = rows - RowsCoveredByPanel();
 
 	// Center player tile on screen
-	ShiftGrid(&mx, &my, -columns / 2, -lrow / 2);
+	mx = ViewX;
+	my = ViewY;
+	SHIFT_GRID(mx, my, -columns / 2, -lrow / 2);
 
 	// Align grid
 	if ((columns & 1) == 0 && (lrow & 1) == 0) {
@@ -257,7 +256,7 @@ void CheckCursMove()
 
 	tx = sx / TILE_WIDTH;
 	ty = sy / TILE_HEIGHT;
-	ShiftGrid(&mx, &my, tx, ty);
+	SHIFT_GRID(mx, my, tx, ty);
 
 	// Shift position to match diamond grid aligment
 	px = sx % TILE_WIDTH;

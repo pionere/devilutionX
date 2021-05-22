@@ -12,6 +12,18 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+	/**
+ * @brief Shifting the view area along the logical grid
+ *        Note: this won't allow you to shift between even and odd rows
+ * @param horizontal Shift the screen left or right
+ * @param vertical Shift the screen up or down
+ */
+#define SHIFT_GRID(x, y, horizontal, vertical)	\
+{												\
+	x += vertical + horizontal;					\
+	y += vertical - horizontal;					\
+}
+
 extern int light_table_index;
 extern bool gbFrameflag;
 extern bool gbCelTransparencyActive;
@@ -19,7 +31,6 @@ extern bool gbCelFoliageActive;
 extern int level_piece_id;
 
 void ClearCursor();
-void ShiftGrid(int *x, int *y, int horizontal, int vertical);
 int RowsCoveredByPanel();
 void CalcTileOffset(int *offsetX, int *offsetY);
 void TilesInView(int *columns, int *rows);

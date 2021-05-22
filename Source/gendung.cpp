@@ -158,7 +158,8 @@ void FillSolidBlockTbls()
 	pTmp = pSBFile;
 
 	// dpiece 0 is always black/void -> make it non-passable to reduce the necessary checks
-	nSolidTable[0] = true;
+	// no longer necessary, because dPiece is never zero
+	//nSolidTable[0] = true;
 
 	for (i = 1; i <= dwTiles; i++) {
 		bv = *pTmp++;
@@ -192,15 +193,16 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 		for (x = x1; x < x2; x++) {
 			pn = dPiece[x][y];
 			pMap = &dpiece_defs_map_2[x][y];
-			if (pn != 0) {
+			assert(pn != 0 && (unsigned)pn < MAXTILES);
+			//if (pn != 0) {
 				pn--;
 				pPiece = (uint16_t *)&pLevelPieces[2 * blocks * pn];
 				for (i = 0; i < blocks; i++)
 					pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
-			} else {
-				for (i = 0; i < blocks; i++)
-					pMap->mt[i] = 0;
-			}
+			//} else {
+			//	for (i = 0; i < blocks; i++)
+			//		pMap->mt[i] = 0;
+			//}
 		}
 	}
 }
