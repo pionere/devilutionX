@@ -1645,7 +1645,7 @@ static bool WoodHorzDoor(BYTE bv)
 
 static bool WoodVertDoor(BYTE bv)
 {
-	return bv > 131 && bv < 140 && bv != 134 && bv != 136;
+	return bv >= 131 && bv < 140 && bv != 134 && bv != 136;
 	//return bv == 131 || bv == 132 || bv == 133 || bv == 135
 	//	|| bv == 137 || bv == 138 || bv == 139;
 }
