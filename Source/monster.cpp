@@ -4316,7 +4316,7 @@ void MAI_Lazhelp(int mnum)
 
 	mon->_mdir = MonGetDir(mnum);
 
-	if (mon->_mgoal == MGOAL_INQUIRING) {
+	if (mon->_mgoal == MGOAL_INQUIRING || mon->_mgoal == MGOAL_TALKING) {
 		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 <= 5)
 			return;
 		mon->mtalkmsg = TEXT_NONE;
