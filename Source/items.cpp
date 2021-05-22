@@ -236,8 +236,8 @@ const int ItemInvSnds[ITEMTYPES] = {
 	IS_ILARM,
 #endif
 };
-/** Specifies the current Y-coordinate used for validation of items on ground. */
-int idoppely = DBORDERY;
+/** Specifies the current X-coordinate used for validation of items on ground. */
+static int idoppelx = DBORDERX;
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format off
@@ -2519,16 +2519,16 @@ static void ItemDoppel()
 	ItemStruct *is;
 
 	if (gbMaxPlayers != 1) {
-		for (i = DBORDERX; i < DSIZEX + DBORDERX; i++) {
-			if (dItem[i][idoppely] != 0) {
-				is = &items[dItem[i][idoppely] - 1];
-				if (is->_ix != i || is->_iy != idoppely)
-					dItem[i][idoppely] = 0;
+		for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
+			if (dItem[idoppelx][i] != 0) {
+				is = &items[dItem[idoppelx][i] - 1];
+				if (is->_ix != idoppelx || is->_iy != i)
+					dItem[idoppelx][i] = 0;
 			}
 		}
-		idoppely++;
-		if (idoppely == DSIZEY + DBORDERY)
-			idoppely = DBORDERY;
+		idoppelx++;
+		if (idoppelx == DSIZEX + DBORDERX)
+			idoppelx = DBORDERX;
 	}
 }
 
