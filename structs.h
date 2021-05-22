@@ -1176,7 +1176,7 @@ typedef struct DLevel {
 } DLevel;
 
 typedef struct LocalLevel {
-	BYTE automapsv[DMAXX][DMAXY];
+	BOOLEAN automapsv[DMAXX][DMAXY];
 } LocalLevel;
 
 typedef struct DPortal {

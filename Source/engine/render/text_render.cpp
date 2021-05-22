@@ -14,31 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
  * small, medium and large sized fonts; which corresponds to smaltext.cel,
  * medtexts.cel and bigtgold.cel respectively.
  */
-/*const BYTE gbFontTransTbl[256] = {
-	// clang-format off
-	'\0', 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	' ',  '!',  '\"', '#',  '$',  '%',  '&',  '\'', '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
-	'0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',
-	'@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-	'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',  'Z',  '[',  '\\', ']',  '^',  '_',
-	'`',  'a',  'b',  'c',  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
-	'p',  'q',  'r',  's',  't',  'u',  'v',  'w',  'x',  'y',  'z',  '{',  '|',  '}',  '~',  0x01,
-	'C',  'u',  'e',  'a',  'a',  'a',  'a',  'c',  'e',  'e',  'e',  'i',  'i',  'i',  'A',  'A',
-	'E',  'a',  'A',  'o',  'o',  'o',  'u',  'u',  'y',  'O',  'U',  'c',  'L',  'Y',  'P',  'f',
-	'a',  'i',  'o',  'u',  'n',  'N',  'a',  'o',  '?',  0x01, 0x01, 0x01, 0x01, '!',  '<',  '>',
-	'o',  '+',  '2',  '3',  '\'', 'u',  'P',  '.',  ',',  '1',  '0',  '>',  0x01, 0x01, 0x01, '?',
-	'A',  'A',  'A',  'A',  'A',  'A',  'A',  'C',  'E',  'E',  'E',  'E',  'I',  'I',  'I',  'I',
-	'D',  'N',  'O',  'O',  'O',  'O',  'O',  'X',  '0',  'U',  'U',  'U',  'U',  'Y',  'b',  'B',
-	'a',  'a',  'a',  'a',  'a',  'a',  'a',  'c',  'e',  'e',  'e',  'e',  'i',  'i',  'i',  'i',
-	'o',  'n',  'o',  'o',  'o',  'o',  'o',  '/',  '0',  'u',  'u',  'u',  'u',  'y',  'b',  'y',
-	// clang-format on
-};*/
-/**
- * Maps ASCII character code to font index, as used by the
- * small, medium and large sized fonts; which corresponds to smaltext.cel,
- * medtexts.cel and bigtgold.cel respectively.
- */
 const BYTE gbFontTransTbl[256] = {
 	// clang-format off
 	'\0', 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
@@ -340,31 +315,6 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	}
 }
 
-/*int GetLineWidth(const char *text, GameFontTables size)
-{
-	int lineWidth = 0;
-
-	size_t textLength = strlen(text);
-	for (unsigned i = 0; i < textLength; i++) {
-		if (text[i] == '\n')
-			break;
-
-		uint8_t frame = fontframe[size][gbFontTransTbl[static_cast<uint8_t>(text[i])]];
-		lineWidth += fontkern[size][frame] + 1;
-	}
-
-	return lineWidth != 0 ? (lineWidth - 1) : 0;
-}*/
-
-/*int GetTextWidth()
-{
-	int i, width, len;
-
-	len = strlen(str);
-	width = 0;
-	for (i = 0; i < len; i++)
-		width += fontkern[fontframe[gbFontTransTbl[(BYTE)str[i]]]] + 1;
-}*/
 int GetLargeStringWidth(const char* text)
 {
 	int i;
@@ -392,45 +342,6 @@ int GetStringWidth(const char* text)
 	return i - 1;
 }
 
-/*void WordWrapGameString(char *text, size_t width, size_t size)
-{
-	const size_t textLength = strlen(text);
-	size_t lineStart = 0;
-	size_t lineWidth = 0;
-	for (unsigned i = 0; i < textLength; i++) {
-		if (text[i] == '\n') { // Existing line break, scan next line
-			lineStart = i + 1;
-			lineWidth = 0;
-			continue;
-		}
-
-		uint8_t frame = fontframe[size][gbFontTransTbl[static_cast<uint8_t>(text[i])]];
-		lineWidth += fontkern[size][frame] + 1;
-
-		if (lineWidth - 1 <= width) {
-			continue; // String is still within the limit, continue to the next line
-		}
-
-		size_t j; // Backtrack to the previous space
-		for (j = i; j >= lineStart; j--) {
-			if (text[j] == ' ') {
-				break;
-			}
-		}
-
-		if (j == lineStart) { // Single word longer then width
-			if (i == textLength)
-				break;
-			j = i;
-		}
-
-		// Break line and continue to next line
-		i = j;
-		text[i] = '\n';
-		lineStart = i + 1;
-		lineWidth = 0;
-	}
-}*/
 void PrintGameStr(int x, int y, const char *text, BYTE color)
 {
 	BYTE c;
@@ -510,61 +421,6 @@ void PrintLargeString(int x, int y, const char *text)
 		x += lfontkern[c] + 2;
 	}
 }
-
-/**
- * @todo replace SDL_Rect with croped CelOutputBuffer
- */
-/*void DrawString(const CelOutputBuffer &out, const char *text, const SDL_Rect &rect, uint16_t flags, bool drawTextCursor)
-{
-	GameFontTables size = GameFontSmall;
-	if ((flags & UIS_MED) != 0)
-		size = GameFontMed;
-	else if ((flags & UIS_HUGE) != 0)
-		size = GameFontBig;
-
-	text_color color = COL_GOLD;
-	if ((flags & UIS_SILVER) != 0)
-		color = COL_WHITE;
-	else if ((flags & UIS_BLUE) != 0)
-		color = COL_BLUE;
-	else if ((flags & UIS_RED) != 0)
-		color = COL_RED;
-	else if ((flags & UIS_BLACK) != 0)
-		color = COL_BLACK;
-
-	const int w = rect.w != 0 ? rect.w : out.w() - rect.x;
-	const int h = rect.h != 0 ? rect.h : out.h() - rect.x;
-
-	int sx = rect.x;
-	if ((flags & UIS_CENTER) != 0)
-		sx += (w - GetLineWidth(text, size)) / 2;
-	int sy = rect.y;
-
-	int rightMargin = rect.x + w;
-	int bottomMargin = rect.y + h;
-
-	const size_t textLength = strlen(text);
-	for (unsigned i = 0; i < textLength; i++) {
-		uint8_t frame = fontframe[size][gbFontTransTbl[static_cast<uint8_t>(text[i])]];
-		int symbolWidth = fontkern[size][frame] + 1;
-		if (text[i] == '\n' || sx + symbolWidth - 1 > rightMargin) {
-			sx = rect.x;
-			if ((flags & UIS_CENTER) != 0)
-				sx += (w - GetLineWidth(&text[i + 1], size)) / 2;
-			sy += LineHeights[size];
-			if (sy > bottomMargin)
-				return;
-		}
-		if (frame != 0) {
-			PrintChar(out, sx, sy, frame, color);
-		}
-		if (text[i] != '\n')
-			sx += symbolWidth;
-	}
-	if (drawTextCursor) {
-		CelDrawTo(out, sx, sy, *pSPentSpn2Cels, PentSpn2Spin());
-	}
-}*/
 
 static int PentSpn2Spin()
 {

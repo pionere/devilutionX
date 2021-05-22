@@ -933,7 +933,7 @@ void DeltaLoadLevel()
 		}
 		// SetDead();
 
-		memcpy(automapview, &sgLocals[currLvl._dLevelIdx], sizeof(automapview));
+		memcpy(automapview, sgLocals[currLvl._dLevelIdx].automapsv, sizeof(automapview));
 
 		dstr = sgLevels[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {

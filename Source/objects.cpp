@@ -2039,6 +2039,7 @@ void ObjSetMicro(int dx, int dy, int pn)
 	MICROS *pMap;
 	int i, blocks;
 
+	// assert(pn != 0 && pn < MAXTILES);
 	dPiece[dx][dy] = pn;
 	pn--;
 	pMap = &dpiece_defs_map_2[dx][dy];

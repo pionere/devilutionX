@@ -26,19 +26,6 @@ extern const BYTE gbFontTransTbl[256];
 void InitText();
 void FreeText();
 
-/**
- * @brief Print letter to the given buffer
- * @param out The buffer to print to
- * @param sx Backbuffer offset
- * @param sy Backbuffer offset
- * @param nCel Number of letter in Windows-1252
- * @param col text_color color value
- */
-//void PrintChar(int sx, int sy, int nCel, text_color col);
-//int GetLineWidth(const char *text, int size = GameFontSmall);
-//void DrawString(const char *text, uint16_t flags = 0, bool drawTextCursor = false);
-
-//int GetTextWidth(const char *text);
 int GetLargeStringWidth(const char *text);
 int GetStringWidth(const char* text);
 
