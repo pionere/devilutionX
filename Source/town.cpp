@@ -154,7 +154,7 @@ static void T_HiveClosed()
 	//dPiece[75 + DBORDERX][54 + DBORDERY] = 8;
 	//dPiece[76 + DBORDERX][50 + DBORDERY] = 0xd9;
 	//dPiece[76 + DBORDERX][51 + DBORDERY] = 0x18;
-	dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
+	//dPiece[75 + DBORDERX][52 + DBORDERY] = 0x13;
 	dPiece[74 + DBORDERX][54 + DBORDERY] = 0x118;
 	SetDungeonMicros(68 + DBORDERX, 50 + DBORDERY, 75/*77*/ + DBORDERX, 56 + DBORDERY);
 }
