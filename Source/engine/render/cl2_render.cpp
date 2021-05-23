@@ -311,7 +311,7 @@ static void Cl2BlitLight(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nW
 }
 
 /**
- * @brief Blit CL2 sprite, to the back buffer at the given coordianates
+ * @brief Blit CL2 sprite, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff CL2 buffer
@@ -337,7 +337,7 @@ void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 }
 
 /**
- * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordianates
+ * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -367,7 +367,7 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 }
 
 /**
- * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordianates
+ * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff CL2 buffer

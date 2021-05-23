@@ -48,7 +48,7 @@ static void CelBlit(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
 }
 
 /**
- * @brief Blit CEL sprite, and apply lighting, to the given buffer, checks for drawing outside the buffer
+ * @brief apply lighting to the CEL sprite and blit to the given buffer
  * @param pDecodeTo The output buffer
  * @param pRLEBytes CEL pixel stream (run-length encoded)
  * @param nDataSize Size of CEL in bytes
@@ -110,25 +110,6 @@ static void CelBlitLight(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nW
 }
 
 /**
- * @brief Blit a given CEL frame to the given buffer
- * @param pBuff Target buffer
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-static void CelBlitFrame(BYTE *pBuff, BYTE *pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize;
-	BYTE *pRLEBytes;
-
-	assert(pCelBuff != NULL);
-	assert(pBuff != NULL);
-
-	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
-	CelBlit(pBuff, pRLEBytes, nDataSize, nWidth);
-}
-
-/**
  * @brief Blit CEL sprite to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -138,7 +119,15 @@ static void CelBlitFrame(BYTE *pBuff, BYTE *pCelBuff, int nCel, int nWidth)
  */
 void CelDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 {
-	CelBlitFrame(&gpBuffer[sx + BUFFER_WIDTH * sy], pCelBuff, nCel, nWidth);
+	BYTE *pRLEBytes;
+	int nDataSize;
+
+	assert(gpBuffer != NULL);
+	assert(pCelBuff != NULL);
+
+	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
+
+	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, nWidth);
 }
 
 /**
@@ -159,15 +148,11 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 
-	CelBlit(
-	    &gpBuffer[sx + BUFFER_WIDTH * sy],
-	    pRLEBytes,
-	    nDataSize,
-	    nWidth);
+	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, nWidth);
 }
 
 /**
- * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates
+ * @brief Apply lighting to the CEL sprite and blit to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
@@ -193,7 +178,7 @@ void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tb
 }
 
 /**
- * @brief Same as CelDrawLight but with the option to skip parts of the top and bottom of the sprite
+ * @brief Same as CelDrawLight with the option to skip parts of the top and bottom of the sprite
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
@@ -218,7 +203,7 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 }
 
 /**
- * @brief Same as CelBlitLightSafe, with stippled transparancy applied
+ * @brief Same as CelBlitLight with stippled transparency applied
  * @param pDecodeTo The output buffer
  * @param pRLEBytes CEL pixel stream (run-length encoded)
  * @param nDataSize Size of CEL in bytes
@@ -305,7 +290,7 @@ static void CelBlitLightTrans(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, i
 }
 
 /**
- * @brief Same as CelBlitLightTransSafe
+ * @brief Apply lighting and transparency to the CEL sprite and blit to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
@@ -332,7 +317,7 @@ void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
 }
 
 /**
- * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates, translated to a red hue
+ * @brief Apply red hue to the CEL sprite and blit to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  * @param pCelBuff Cel data
@@ -423,7 +408,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
 }*/
 
 /**
- * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the back buffer at the given coordianates
+ * @brief Blit a solid, colder shape one pixel larger then the given sprite's shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
