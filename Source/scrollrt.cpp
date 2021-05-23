@@ -573,11 +573,11 @@ static void drawCell(int x, int y, int sx, int sy)
 		limit -= 2;
 	}*/
 	/*i = 0;
-	while (sy > SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT) {
+	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) {
 		sy -= TILE_HEIGHT;
 		i += 2;
 	}*/
-	tmp = (sy - (SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT) + (TILE_HEIGHT - 1)) / TILE_HEIGHT;
+	tmp = (sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) + (TILE_HEIGHT - 1)) / TILE_HEIGHT;
 	i = 0;
 	if (tmp > 0) {
 		sy -= TILE_HEIGHT * tmp;
@@ -585,14 +585,14 @@ static void drawCell(int x, int y, int sx, int sy)
 		if (i >= limit)
 			return;
 	}
-	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
+	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	pMap = &dpiece_defs_map_2[x][y];
 	level_piece_id = dPiece[x][y];
 	gbCelTransparencyActive = (nTransTable[level_piece_id] & TransList[dTransVal[x][y]]);
 	gbCelFoliageActive = !nSolidTable[level_piece_id];
 
-	for ( ; i < (BYTE)limit; i += 2) {
+	for ( ; i < limit; i += 2) {
 		levelCelBlock = pMap->mt[i];
 		if (levelCelBlock != 0) {
 			RenderTile(dst, levelCelBlock, i == 0 ? RADT_LEFT : RADT_NONE);
@@ -621,10 +621,10 @@ static void drawFloor(int x, int y, int sx, int sy)
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return;
 
-	if (sy <= SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT)
+	if (sy <= SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
 		return;
 
-	dst = &gpBuffer[sx + sy * BUFFER_WIDTH];
+	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	gbCelTransparencyActive = false;
 	gbCelFoliageActive = false;
