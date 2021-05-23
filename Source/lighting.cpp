@@ -632,8 +632,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool doautomap, bool visible)
 	int d, dx, dy, xinc, yinc;
 	const char vFlags = visible ? BFLAG_LIT | BFLAG_VISIBLE : BFLAG_VISIBLE;
 
-	if (!(IN_DUNGEON_AREA(nXPos, nYPos)))
-		return;
+	assert(IN_DUNGEON_AREA(nXPos, nYPos));
 	if (doautomap) {
 		if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
 			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
