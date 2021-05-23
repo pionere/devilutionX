@@ -274,6 +274,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	IncProgress();
+	InitLightMax();
 	MakeLightTable();
 	LoadLvlGFX();
 	IncProgress();
@@ -445,7 +446,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 	SetDungeonMicros(0, 0, MAXDUNX, MAXDUNY);
 
-	InitLightMax();
 	IncProgress();
 	IncProgress();
 	IncProgress();

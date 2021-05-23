@@ -1753,7 +1753,7 @@ void RedBack()
 {
 	int idx;
 
-	idx = 4608;
+	idx = 4608; // lightidx(33);
 #ifdef _DEBUG
 	if (light4flag)
 		idx = 1536;
