@@ -246,6 +246,8 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				return true;
 			if (IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 				*action = GameActionSendKey { DVL_VK_F7, ctrlEvent.up };
+			else if (gbDoomflag)
+				*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
 			else if (gbInvflag)
 				*action = GameAction(GameActionType_TOGGLE_INVENTORY);
 			else if (gbSbookflag)

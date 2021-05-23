@@ -233,8 +233,9 @@ else()
   endif()
 endif()
 
-add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE 3rdParty/asio/include)
+if(NOT NONET)
+  add_subdirectory(3rdParty/asio)
+endif()
 
 add_library(smacker STATIC
   3rdParty/libsmacker/smk_bitstream.c
@@ -512,19 +513,22 @@ if(NOT N3DS)
 endif()
 
 target_link_libraries(${BIN_TARGET} PRIVATE
-  asio
   PKWare
   StormLib
   smacker
   Radon)
 
 if(NOT NONET)
+  target_link_libraries(${BIN_TARGET} PRIVATE asio)
   target_link_libraries(${BIN_TARGET} PRIVATE sodium)
 endif()
 
 genex_for_option(DEBUG)
 target_compile_definitions(${BIN_TARGET} PUBLIC "$<${DEBUG_GENEX}:_DEBUG>")
-target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
+
+if(NOT NONET)
+  target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
+endif()
 
 # Defines without value
 foreach(
@@ -690,6 +694,7 @@ endif()
 
 if(WIN32)
   if(NOT NONET)
+    #target_link_libraries(${BIN_TARGET} PRIVATE shlwapi wsock32 ws2_32 wininet)
     target_link_libraries(${BIN_TARGET} PRIVATE wsock32 ws2_32 wininet)
   endif()
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
