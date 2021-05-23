@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "monstai.h"
+#include "engine/render/cl2_render.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 

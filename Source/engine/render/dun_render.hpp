@@ -1,10 +1,12 @@
 /**
- * @file render.h
+ * @file dun_render.hpp
  *
  * Interface of functionality for rendering the level tiles.
  */
-#ifndef __RENDER_H__
-#define __RENDER_H__
+#ifndef __DUN_RENDER_H__
+#define __DUN_RENDER_H__
+
+#include "../types.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,7 +16,6 @@ extern "C" {
 
 void RenderTile(BYTE *pBuff, uint16_t levelCelBlock, _arch_draw_type adt);
 void world_draw_black_tile(int sx, int sy);
-void trans_rect(int sx, int sy, int width, int height);
 
 #ifdef __cplusplus
 }
@@ -22,4 +23,4 @@ void trans_rect(int sx, int sy, int width, int height);
 
 DEVILUTION_END_NAMESPACE
 
-#endif /* __RENDER_H__ */
+#endif /* __DUN_RENDER_H__ */

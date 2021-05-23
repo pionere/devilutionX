@@ -328,7 +328,6 @@ set(devilutionx_SRCS
   Source/portal.cpp
   Source/questdat.cpp
   Source/quests.cpp
-  Source/render.cpp
   Source/restrict.cpp
   Source/scrollrt.cpp
   Source/setmaps.cpp
@@ -356,6 +355,9 @@ set(devilutionx_SRCS
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
   Source/engine/render/automap_render.cpp
+  Source/engine/render/cel_render.cpp
+  Source/engine/render/cl2_render.cpp
+  Source/engine/render/dun_render.cpp
   Source/engine/render/text_render.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp

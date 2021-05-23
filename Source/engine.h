@@ -45,13 +45,6 @@ inline BYTE *CelGetFrameClipped(BYTE *pCelBuff, int nCel, int *nDataSize)
 	return pRLEBytes + nDataStart;
 }
 
-void CelDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tbl);
-void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 int GetDirection(int x1, int y1, int x2, int y2);
 void SetRndSeed(int32_t s);
 int32_t GetRndSeed();
@@ -60,13 +53,10 @@ BYTE *DiabloAllocPtr(size_t dwBytes);
 void mem_free_dbg(void *p);
 BYTE *LoadFileInMem(const char *pszName, size_t *pdwFileLen = NULL);
 void LoadFileWithMem(const char *pszName, BYTE *p);
-void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel);
-void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
-void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light);
-void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
 
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
+
+void trans_rect(int sx, int sy, int width, int height);
 
 void PlayInGameMovie(const char *pszMovie);
 
