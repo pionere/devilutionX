@@ -1487,7 +1487,6 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	} else if (idx == IDI_ANVIL && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-			quests[Q_ANVIL]._qvar1 = 1;
 		}
 		if (quests[Q_ANVIL]._qlog) {
 			sfxdelay = 10;
@@ -1499,7 +1498,6 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	} else if (idx == IDI_ROCK && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-			quests[Q_ROCK]._qvar1 = 1;
 		}
 		if (quests[Q_ROCK]._qlog) {
 			sfxdelay = 10;

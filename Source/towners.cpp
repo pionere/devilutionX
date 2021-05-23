@@ -670,7 +670,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_ROCK]._qlog = TRUE;
 					if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 						quests[Q_ROCK]._qactive = QUEST_ACTIVE;
-						quests[Q_ROCK]._qvar1 = 1;
 					}
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
@@ -680,7 +679,6 @@ void TalkToTowner(int pnum, int tnum)
 				if (quests[Q_ROCK]._qvar2 == 1 && PlrHasItem(pnum, IDI_ROCK, &i) && !tw->_tMsgSaid) {
 					quests[Q_ROCK]._qactive = QUEST_DONE;
 					quests[Q_ROCK]._qvar2 = 2;
-					quests[Q_ROCK]._qvar1 = 2;
 					RemoveInvItem(pnum, i);
 					SpawnUnique(UITEM_INFRARING, tw->_tx, tw->_ty + 1);
 					tw->_tbtcnt = 150;
@@ -696,7 +694,6 @@ void TalkToTowner(int pnum, int tnum)
 						quests[Q_ANVIL]._qlog = TRUE;
 						if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 							quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
-							quests[Q_ANVIL]._qvar1 = 1;
 						}
 						tw->_tbtcnt = 150;
 						tw->_tVar1 = pnum;
@@ -707,7 +704,6 @@ void TalkToTowner(int pnum, int tnum)
 				if (quests[Q_ANVIL]._qvar2 == 1 && PlrHasItem(pnum, IDI_ANVIL, &i) && !tw->_tMsgSaid) {
 					quests[Q_ANVIL]._qactive = QUEST_DONE;
 					quests[Q_ANVIL]._qvar2 = 2;
-					quests[Q_ANVIL]._qvar1 = 2;
 					RemoveInvItem(pnum, i);
 					SpawnUnique(UITEM_GRISWOLD, tw->_tx, tw->_ty + 1);
 					tw->_tbtcnt = 150;
@@ -813,7 +809,6 @@ void TalkToTowner(int pnum, int tnum)
 					quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 					quests[Q_PWATER]._qlog = TRUE;
 					quests[Q_PWATER]._qmsg = TEXT_POISON3;
-					quests[Q_PWATER]._qvar1 = 1;
 					tw->_tbtcnt = 150;
 					tw->_tVar1 = pnum;
 					InitQTextMsg(TEXT_POISON3);

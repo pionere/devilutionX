@@ -854,6 +854,21 @@ bool IsPathBlocked(int x, int y, int dir)
 	return !PosOkPlayer(myplr, d1x, d1y) && !PosOkPlayer(myplr, d2x, d2y);
 }
 
+static bool CanChangeDirection()
+{
+	PlayerStruct *p = &plr[myplr];
+
+	if (p->_pmode == PM_STAND)
+		return true;
+	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > p->_pAFNum)
+		return true;
+	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum)
+		return true;
+	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum)
+		return true;
+	return false;
+}
+
 void WalkInDir(AxisDirection dir)
 {
 	const int x = plr[myplr]._pfutx;
@@ -868,7 +883,8 @@ void WalkInDir(AxisDirection dir)
 	const int pdir = FaceDir[static_cast<std::size_t>(dir.x)][static_cast<std::size_t>(dir.y)];
 	const int dx = x + Offsets[pdir][0];
 	const int dy = y + Offsets[pdir][1];
-	plr[myplr]._pdir = pdir;
+	if (CanChangeDirection())
+		plr[myplr]._pdir = pdir;
 
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
@@ -1092,6 +1108,12 @@ void plrctrls_after_check_curs_move()
 		pcurstrig = -1;
 		cursmx = -1;
 		cursmy = -1;
+		if (plr[myplr]._pInvincible) {
+			return;
+		}
+		if (doomflag) {
+			return;
+		}
 		if (!invflag) {
 			*infostr = '\0';
 			FindActor();
