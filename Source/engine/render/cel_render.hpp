@@ -22,7 +22,7 @@ extern "C" {
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Same as CelDraw but with the option to skip parts of the top and bottom of the sprite
@@ -33,7 +33,7 @@ void CelDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelClippedDraw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates
@@ -43,7 +43,7 @@ void CelClippedDraw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tbl);
+void CelDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, const BYTE *tbl);
 
 /**
  * @brief Same as CelDrawLight but with the option to skip parts of the top and bottom of the sprite
@@ -53,7 +53,7 @@ void CelDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, BYTE *tb
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelClippedDrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Same as CelClippedDrawLight
@@ -63,7 +63,7 @@ void CelClippedDrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelClippedDrawLightTrans(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit CEL sprite, and apply lighting, to the back buffer at the given coordinates, translated to a red hue
@@ -73,7 +73,7 @@ void CelClippedDrawLightTrans(int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 /**
  * @brief Blit a solid colder shape one pixel larger then the given sprite shape, to the target buffer at the given coordinates
@@ -84,7 +84,7 @@ void CelDrawLightRed(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
-void CelDrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth);
+void CelDrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth);
 
 }
 

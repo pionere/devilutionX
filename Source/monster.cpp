@@ -292,7 +292,7 @@ void InitMonsterGFX(int midx)
 
 			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
 				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
-					cmon->cmAnims[anim].aData[i] = CelGetFrameStart(celBuf, i);
+					cmon->cmAnims[anim].aData[i] = const_cast<BYTE *>(CelGetFrameStart(celBuf, i));
 				}
 			} else {
 				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {

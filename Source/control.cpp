@@ -720,7 +720,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
 
 static void DrawFlask2(int sx, int filled, int emptyCel, int fullCel, int w)
 {
-	BYTE *empty, *full;
+	const BYTE *empty, *full;
 	int sy, dataSize, i;
 	char width;
 

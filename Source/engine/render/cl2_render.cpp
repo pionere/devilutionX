@@ -29,9 +29,9 @@ static inline int lightidx(char light)
  * @brief Apply the color swaps to a CL2 sprite
  * @param p CL2 buffer
  * @param ttbl Palette translation table
- * @param nCel Frame number in CL2 file
+ * @param nCel number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel)
+void Cl2ApplyTrans(BYTE *p, const BYTE *ttbl, int nCel)
 {
 	int i, nDataSize;
 	char width;
@@ -41,7 +41,7 @@ void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel)
 	assert(ttbl != NULL);
 
 	for (i = 1; i <= nCel; i++) {
-		dst = CelGetFrame(p, i, &nDataSize) + 10;
+		dst = const_cast<BYTE *>(CelGetFrame(p, i, &nDataSize)) + 10;
 		nDataSize -= 10;
 		while (nDataSize != 0) {
 			width = *dst++;
@@ -74,12 +74,12 @@ void Cl2ApplyTrans(BYTE *p, BYTE *ttbl, int nCel)
  * @param nDataSize Size of CL2 in bytes
  * @param nWidth Width of sprite
  */
-static void Cl2Blit(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
+static void Cl2Blit(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, int nWidth)
 {
 	int w;
 	char width;
-	BYTE fill;
-	BYTE *src, *dst;
+	BYTE fill, *dst;
+	const BYTE *src;
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
@@ -153,11 +153,12 @@ static void Cl2Blit(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth)
  * @param nWidth Width of sprite
  * @param col Color index from current palette
  */
-static void Cl2BlitOutline(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE col)
+static void Cl2BlitOutline(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE col)
 {
 	int w;
 	char width;
-	BYTE *src, *dst;
+	const BYTE *src;
+	BYTE *dst;
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
@@ -238,12 +239,12 @@ static void Cl2BlitOutline(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int 
  * @param nWidth With of CL2 sprite
  * @param pTable Light color table
  */
-static void Cl2BlitLight(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nWidth, BYTE *pTable)
+static void Cl2BlitLight(BYTE *pDecodeTo, const BYTE *pRLEBytes, int nDataSize, int nWidth, const BYTE *pTable)
 {
 	int w, spriteWidth;
 	char width;
-	BYTE fill;
-	BYTE *src, *dst;
+	BYTE fill, *dst;
+	const BYTE *src;
 
 	src = pRLEBytes;
 	dst = pDecodeTo;
@@ -318,10 +319,10 @@ static void Cl2BlitLight(BYTE *pDecodeTo, BYTE *pRLEBytes, int nDataSize, int nW
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
-void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
+void Cl2Draw(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 {
-	BYTE *pRLEBytes;
 	int nDataSize;
+	const BYTE *pRLEBytes;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -345,10 +346,10 @@ void Cl2Draw(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
-void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
+void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize;
-	BYTE *pRLEBytes;
+	const BYTE *pRLEBytes;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -375,10 +376,11 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, BYTE *pCelBuff, int nCel, int nWid
  * @param nWidth Width of sprite
  * @param light Light shade to use
  */
-void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char light)
+void Cl2DrawLightTbl(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth, char light)
 {
 	int nDataSize;
-	BYTE *pRLEBytes, *pDecodeTo, *tbl;
+	const BYTE *pRLEBytes, *tbl;
+	BYTE *pDecodeTo;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
@@ -404,10 +406,11 @@ void Cl2DrawLightTbl(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth, char 
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
-void Cl2DrawLight(int sx, int sy, BYTE *pCelBuff, int nCel, int nWidth)
+void Cl2DrawLight(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 {
 	int nDataSize;
-	BYTE *pRLEBytes, *pDecodeTo;
+	const BYTE *pRLEBytes;
+	BYTE *pDecodeTo;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);

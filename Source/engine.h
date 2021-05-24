@@ -15,34 +15,34 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-inline BYTE *CelGetFrameStart(BYTE *pCelBuff, int nCel)
+inline const BYTE *CelGetFrameStart(const BYTE *pCelBuff, int nCel)
 {
-	DWORD *pFrameTable;
+	const DWORD *pFrameTable;
 
-	pFrameTable = (DWORD *)pCelBuff;
+	pFrameTable = (const DWORD *)pCelBuff;
 
-	return pCelBuff + SwapLE32(pFrameTable[nCel]);
+	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
 }
 
 #define LOAD_LE32(b) (((DWORD)(b)[3] << 24) | ((DWORD)(b)[2] << 16) | ((DWORD)(b)[1] << 8) | (DWORD)(b)[0])
-inline BYTE *CelGetFrame(BYTE *pCelBuff, int nCel, int *nDataSize)
+inline const BYTE *CelGetFrame(const BYTE *pCelBuff, int nCel, int *nDataSize)
 {
 	DWORD nCellStart;
 
 	nCellStart = LOAD_LE32(&pCelBuff[nCel * 4]);
 	*nDataSize = LOAD_LE32(&pCelBuff[(nCel + 1) * 4]) - nCellStart;
-	return pCelBuff + nCellStart;
+	return &pCelBuff[nCellStart];
 }
 
-inline BYTE *CelGetFrameClipped(BYTE *pCelBuff, int nCel, int *nDataSize)
+inline const BYTE *CelGetFrameClipped(const BYTE *pCelBuff, int nCel, int *nDataSize)
 {
 	DWORD nDataStart;
-	BYTE *pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
+	const BYTE *pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
 
 	nDataStart = pRLEBytes[1] << 8 | pRLEBytes[0];
 	*nDataSize -= nDataStart;
 
-	return pRLEBytes + nDataStart;
+	return &pRLEBytes[nDataStart];
 }
 
 int GetDirection(int x1, int y1, int x2, int y2);

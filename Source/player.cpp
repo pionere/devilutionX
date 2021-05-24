@@ -257,7 +257,7 @@ static void SetPlayerGPtrs(BYTE *pData, BYTE *(&pAnim)[8])
 	int i;
 
 	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = CelGetFrameStart(pData, i);
+		pAnim[i] = const_cast<BYTE *>(CelGetFrameStart(pData, i));
 	}
 }
 
@@ -1614,7 +1614,7 @@ static void StartSpell(int pnum)
 	PlayerStruct *p;
 	int i, dx, dy;
 	player_graphic gfx;
-	unsigned char **anim;
+	BYTE **anim;
 	SpellData *sd;
 
 	if ((unsigned)pnum >= MAX_PLRS)
@@ -3394,7 +3394,7 @@ void SyncPlrAnim(int pnum)
 {
 	PlayerStruct *p;
 	int sType, aType;
-	unsigned char** anim;
+	BYTE** anim;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("SyncPlrAnim: illegal player %d", pnum);

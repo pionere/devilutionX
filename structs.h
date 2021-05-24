@@ -1355,7 +1355,7 @@ typedef struct TownerStruct {
 	int _txvel; // X-velocity during movement (unused)
 	int _tyvel; // Y-velocity during movement (unused)
 	int _tdir;  // Facing of NPC (unused)
-	unsigned char *_tAnimData;
+	BYTE *_tAnimData;
 	int _tAnimFrameLen; // Tick length of each frame in the current animation
 	int _tAnimCnt;   // Increases by one each game tick, counting how close we are to _tAnimFrameLen
 	int _tAnimLen;   // Number of frames in current animation

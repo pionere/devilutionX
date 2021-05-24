@@ -148,7 +148,7 @@ static void InitCowAnim(int tnum, int dir)
 
 	tw = &towners[tnum];
 
-	tw->_tAnimData = CelGetFrameStart(pCowCels, dir);
+	tw->_tAnimData = const_cast<BYTE *>(CelGetFrameStart(pCowCels, dir));
 	tw->_tAnimLen = 12;
 	tw->_tAnimCnt = 0;
 	tw->_tAnimFrameLen = 3;
