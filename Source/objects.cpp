@@ -378,24 +378,21 @@ static void AddTortures()
 {
 	int ox, oy;
 
-	for (oy = 0; oy < MAXDUNY; oy++) {
-		for (ox = 0; ox < MAXDUNX; ox++) {
-			if (dPiece[ox][oy] == 367) {
-				AddObject(OBJ_TORTURE1, ox, oy + 1);
-				AddObject(OBJ_TORTURE3, ox + 2, oy - 1);
-				AddObject(OBJ_TORTURE2, ox, oy + 3);
-				AddObject(OBJ_TORTURE4, ox + 4, oy - 1);
-				AddObject(OBJ_TORTURE5, ox, oy + 5);
-				AddObject(OBJ_TNUDEM1, ox + 1, oy + 3);
-				AddObject(OBJ_TNUDEM2, ox + 4, oy + 5);
-				AddObject(OBJ_TNUDEM3, ox + 2, oy);
-				AddObject(OBJ_TNUDEM4, ox + 3, oy + 2);
-				AddObject(OBJ_TNUDEW1, ox + 2, oy + 4);
-				AddObject(OBJ_TNUDEW2, ox + 2, oy + 1);
-				AddObject(OBJ_TNUDEW3, ox + 4, oy + 2);
-			}
-		}
-	}
+	ox = 2 * setpc_x + DBORDERX + 3;
+	oy = 2 * setpc_y + DBORDERY + 3;
+
+	AddObject(OBJ_TORTURE1, ox, oy + 1);
+	AddObject(OBJ_TORTURE3, ox + 2, oy - 1);
+	AddObject(OBJ_TORTURE2, ox, oy + 3);
+	AddObject(OBJ_TORTURE4, ox + 4, oy - 1);
+	AddObject(OBJ_TORTURE5, ox, oy + 5);
+	AddObject(OBJ_TNUDEM1, ox + 1, oy + 3);
+	AddObject(OBJ_TNUDEM2, ox + 4, oy + 5);
+	AddObject(OBJ_TNUDEM3, ox + 2, oy);
+	AddObject(OBJ_TNUDEM4, ox + 3, oy + 2);
+	AddObject(OBJ_TNUDEW1, ox + 2, oy + 4);
+	AddObject(OBJ_TNUDEW2, ox + 2, oy + 1);
+	AddObject(OBJ_TNUDEW3, ox + 4, oy + 2);
 }
 static void AddCandles()
 {

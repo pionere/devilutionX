@@ -667,7 +667,6 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	int uniqtype;
 	int count2;
 	char filestr[64];
-	bool done;
 	const UniqMonstStruct *uniqm;
 	MonsterStruct *mon;
 	int count;
@@ -731,12 +730,8 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		yp = 2 * setpc_y + DBORDERY + 7;
 		break;
 	case UMT_BUTCHER:
-		done = false;
-		for (yp = 0; yp < MAXDUNY && !done; yp++) {
-			for (xp = 0; xp < MAXDUNX && !done; xp++) {
-				done = dPiece[xp][yp] == 367;
-			}
-		}
+		xp = 2 * setpc_x + DBORDERX + 3;
+		yp = 2 * setpc_y + DBORDERY + 3;
 		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:
