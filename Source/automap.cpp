@@ -112,6 +112,11 @@ void InitAutomap()
 	// patch dAutomapData - L2.AMP
 	if (currLvl._dType == DTYPE_CATACOMBS)
 		automaptype[42] &= ~MAPFLAG_HORZARCH;
+	// patch dAutomapData - L4.AMP
+	if (currLvl._dType == DTYPE_HELL) {
+		automaptype[52] |= MAPFLAG_VERTGRATE;
+		automaptype[56] |= MAPFLAG_HORZGRATE;
+	}
 
 	memset(automapview, 0, sizeof(automapview));
 }
