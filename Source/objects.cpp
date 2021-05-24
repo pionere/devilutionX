@@ -3098,8 +3098,9 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	PlayerStruct *p;
 	ItemStruct *pi;
 	int i, r, cnt;
+#ifdef HELLFIRE
 	int xx, yy;
-
+#endif
 	assert((unsigned)oi < MAXOBJECTS);
 
 	os = &object[oi];
