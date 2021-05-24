@@ -209,7 +209,7 @@ static void LoadLvlGFX()
 
 	pDungeonCels = LoadFileInMem(lds->dDunCels);
 	pMegaTiles = LoadFileInMem(lds->dMegaTiles);
-	pLevelPieces = LoadFileInMem(lds->dLvlPieces);
+	pLevelPieces = (uint16_t *)LoadFileInMem(lds->dLvlPieces);
 	pSpecialCels = LoadFileInMem(lds->dSpecCels);
 }
 

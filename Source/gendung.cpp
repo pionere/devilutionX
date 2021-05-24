@@ -26,7 +26,7 @@ BYTE *pSetPiece = NULL;
 BYTE *pSpecialCels;
 /** Specifies the tile definitions of the active dungeon type; (e.g. levels/l1data/l1.til). */
 BYTE *pMegaTiles;
-BYTE *pLevelPieces;
+uint16_t *pLevelPieces;
 BYTE *pDungeonCels;
 /**
  * The original flags of the dPieces
@@ -194,7 +194,7 @@ void SetDungeonMicros(int x1, int y1, int x2, int y2)
 			assert(pn != 0 && (unsigned)pn < MAXTILES);
 			//if (pn != 0) {
 				pn--;
-				pPiece = (uint16_t *)&pLevelPieces[2 * blocks * pn];
+				pPiece = &pLevelPieces[blocks * pn];
 				for (i = 0; i < blocks; i++)
 					pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 			//} else {

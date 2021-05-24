@@ -2021,23 +2021,24 @@ void ObjSetMicro(int dx, int dy, int pn)
 	pn--;
 	pMap = &dpiece_defs_map_2[dx][dy];
 	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
-	pPiece = (uint16_t *)&pLevelPieces[2 * blocks * pn];
+	pPiece = &pLevelPieces[blocks * pn];
 	for (i = 0; i < blocks; i++) {
 		pMap->mt[i] = SwapLE16(pPiece[(i & 1) + blocks - 2 - (i & 0xE)]);
 	}
 }
 
-static void objects_set_door_piece(int x, int y)
+static void objects_set_door_piece(int dx, int dy)
 {
-	int pn;
-	uint16_t v1, v2;
+	int pn, blocks;
+	uint16_t *pPiece;
+	MICROS *pMap;
 
-	pn = dPiece[x][y] - 1;
-
-	v1 = *((uint16_t *)pLevelPieces + 10 * pn + 8);
-	v2 = *((uint16_t *)pLevelPieces + 10 * pn + 9);
-	dpiece_defs_map_2[x][y].mt[0] = SwapLE16(v1);
-	dpiece_defs_map_2[x][y].mt[1] = SwapLE16(v2);
+	pn = dPiece[dx][dy] - 1;
+	pMap = &dpiece_defs_map_2[dx][dy];
+	blocks = AllLevels[currLvl._dLevelIdx].dBlocks;
+	pPiece = &pLevelPieces[blocks * pn];
+	pMap->mt[0] = SwapLE16(pPiece[8]);
+	pMap->mt[1] = SwapLE16(pPiece[9]);
 }
 
 static void ObjSetMini(int x, int y, int v)
@@ -2152,12 +2153,8 @@ static void DoorSet(int oi, int dx, int dy)
 			ObjSetMicro(dx, dy, 204);
 		if (pn == 79)
 			ObjSetMicro(dx, dy, 208);
-		if (pn == 86) {
-			if (object[oi]._otype == OBJ_L1LDOOR)
-				ObjSetMicro(dx, dy, 232);
-			else if (object[oi]._otype == OBJ_L1RDOOR)
-				ObjSetMicro(dx, dy, 234);
-		}
+		if (pn == 86)
+			ObjSetMicro(dx, dy, object[oi]._otype == OBJ_L1LDOOR ? 232 : 234);
 		if (pn == 91)
 			ObjSetMicro(dx, dy, 215);
 		if (pn == 93)
@@ -2185,12 +2182,8 @@ static void DoorSet(int oi, int dx, int dy)
 		ObjSetMicro(dx, dy, 392);
 	if (pn == 45)
 		ObjSetMicro(dx, dy, 394);
-	if (pn == 50) {
-		if (object[oi]._otype == OBJ_L1LDOOR)
-			ObjSetMicro(dx, dy, 411);
-		else if (object[oi]._otype == OBJ_L1RDOOR)
-			ObjSetMicro(dx, dy, 412);
-	}
+	if (pn == 50)
+		ObjSetMicro(dx, dy, object[oi]._otype == OBJ_L1LDOOR ? 411 : 412);
 	if (pn == 54)
 		ObjSetMicro(dx, dy, 397);
 	if (pn == 55)

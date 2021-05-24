@@ -22,7 +22,7 @@ extern int setpc_h;
 extern BYTE *pSetPiece;
 extern BYTE *pSpecialCels;
 extern BYTE *pMegaTiles;
-extern BYTE *pLevelPieces;
+extern uint16_t *pLevelPieces;
 extern BYTE *pDungeonCels;
 extern BYTE pieceFlags[MAXTILES + 1];
 extern bool nBlockTable[MAXTILES + 1];
