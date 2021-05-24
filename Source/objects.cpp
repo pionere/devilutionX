@@ -890,104 +890,104 @@ void InitObjects()
 {
 	ClrAllObjects();
 
-		//gbInitObjFlag = true;
-		switch (currLvl._dType) {
-		case DTYPE_CATHEDRAL:
-			if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
-				AddStoryBooks();
-			if (QuestStatus(Q_BUTCHER))
-				LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
-			if (QuestStatus(Q_PWATER))
-				AddCandles();
-			if (QuestStatus(Q_LTBANNER))
-				AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
-			InitRndSarcs();
-			AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
-			break;
-		case DTYPE_CATACOMBS:
-			if (currLvl._dLevelIdx == DLV_CATACOMBS4)
-				AddStoryBooks();
-			if (QuestStatus(Q_ROCK))
-				InitRndLocObj5x5(OBJ_STAND);
-			if (QuestStatus(Q_SCHAMB)) {
-				AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
-			}
-			AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
-			AddL2Torches();
-			if (QuestStatus(Q_BLIND)) {
-				AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
-				LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
-			}
-			if (QuestStatus(Q_BLOOD)) {
-				AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, Q_BLOOD);
-				AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
-			}
-			break;
-		case DTYPE_CAVES:
-			if (QuestStatus(Q_MUSHROOM))
-				AddMushPatch();
-			if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
-				AddSlainHero();
-			else if (currLvl._dLevelIdx == DLV_CAVES4)
-				AddStoryBooks();
+	//gbInitObjFlag = true;
+	switch (currLvl._dType) {
+	case DTYPE_CATHEDRAL:
+		if (currLvl._dLevelIdx == DLV_CATHEDRAL4)
+			AddStoryBooks();
+		if (QuestStatus(Q_BUTCHER))
+			LoadMapSetObjs("Levels\\L1Data\\Butcher.DUN");
+		if (QuestStatus(Q_PWATER))
+			AddCandles();
+		if (QuestStatus(Q_LTBANNER))
+			AddObject(OBJ_SIGNCHEST, 2 * setpc_x + DBORDERX + 10, 2 * setpc_y + DBORDERY + 3);
+		InitRndSarcs();
+		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
+		break;
+	case DTYPE_CATACOMBS:
+		if (currLvl._dLevelIdx == DLV_CATACOMBS4)
+			AddStoryBooks();
+		if (QuestStatus(Q_ROCK))
+			InitRndLocObj5x5(OBJ_STAND);
+		if (QuestStatus(Q_SCHAMB)) {
+			AddBookLever(OBJ_BOOK2R, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_SCHAMB);
+		}
+		AddL2Objs(0, 0, MAXDUNX, MAXDUNY);
+		AddL2Torches();
+		if (QuestStatus(Q_BLIND)) {
+			AddBookLever(OBJ_BLINDBOOK, -1, 0, setpc_x, setpc_y, setpc_w + setpc_x, setpc_h + setpc_y, Q_BLIND);
+			LoadMapSetObjs("Levels\\L2Data\\Blind2.DUN");
+		}
+		if (QuestStatus(Q_BLOOD)) {
+			AddBookLever(OBJ_BLOODBOOK, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 24, setpc_x, setpc_y + 3, setpc_x + 2, setpc_y + 7, Q_BLOOD);
+			AddObject(OBJ_PEDISTAL, 2 * setpc_x + DBORDERX + 9, 2 * setpc_y + DBORDERY + 16);
+		}
+		break;
+	case DTYPE_CAVES:
+		if (QuestStatus(Q_MUSHROOM))
+			AddMushPatch();
+		if (currLvl._dLevelIdx == DLV_CAVES1 && gbMaxPlayers == 1)
+			AddSlainHero();
+		else if (currLvl._dLevelIdx == DLV_CAVES4)
+			AddStoryBooks();
 #ifdef HELLFIRE
-		case DTYPE_NEST:
+	case DTYPE_NEST:
 #endif
-			AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
-			break;
-		case DTYPE_HELL:
-			if (currLvl._dLevelIdx == DLV_HELL4) {
-				AddDiabObjs();
-				return;
-			}
-			if (QuestStatus(Q_WARLORD)) {
-				AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, Q_WARLORD);
-				LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
-			}
-			if (QuestStatus(Q_BETRAYER))
-				AddLazStand();
-			AddL4Goodies();
-			break;
+		AddL3Objs(0, 0, MAXDUNX, MAXDUNY);
+		break;
+	case DTYPE_HELL:
+		if (currLvl._dLevelIdx == DLV_HELL4) {
+			AddDiabObjs();
+			return;
+		}
+		if (QuestStatus(Q_WARLORD)) {
+			AddBookLever(OBJ_STEELTOME, -1, 0, setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h, Q_WARLORD);
+			LoadMapSetObjs("Levels\\L4Data\\Warlord.DUN");
+		}
+		if (QuestStatus(Q_BETRAYER))
+			AddLazStand();
+		AddL4Goodies();
+	break;
 #ifdef HELLFIRE
-		case DTYPE_CRYPT:
-			switch (currLvl._dLevelIdx) {
-			case DLV_CRYPT1:
-				AddLvl2xBooks(0);
-				break;
-			case DLV_CRYPT2:
-				AddLvl2xBooks(1);
-				AddLvl2xBooks(2);
-				break;
-			case DLV_CRYPT3:
-				AddLvl2xBooks(3);
-				AddLvl2xBooks(4);
-				break;
-			case DLV_CRYPT4:
-				AddLvl24Books();
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			InitRndSarcs();
-			AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
+	case DTYPE_CRYPT:
+		switch (currLvl._dLevelIdx) {
+		case DLV_CRYPT1:
+			AddLvl2xBooks(0);
 			break;
-#endif
+		case DLV_CRYPT2:
+			AddLvl2xBooks(1);
+			AddLvl2xBooks(2);
+			break;
+		case DLV_CRYPT3:
+			AddLvl2xBooks(3);
+			AddLvl2xBooks(4);
+			break;
+		case DLV_CRYPT4:
+			AddLvl24Books();
+			break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		InitRndBarrels();
-		InitRndLocObj(5, 10, OBJ_CHEST1);
-		InitRndLocObj(3, 6, OBJ_CHEST2);
-		InitRndLocObj(1, 5, OBJ_CHEST3);
-		// TODO: use dType instead?
-		if (currLvl._dDunType != DTYPE_HELL && currLvl._dDunType != DTYPE_CAVES)
-			AddObjTraps();
-		// BUGFIX: TODO no traps in CRYPT?
-		if (currLvl._dDunType != DTYPE_CATHEDRAL)
-			AddChestTraps();
-		//gbInitObjFlag = false;
+		InitRndSarcs();
+		AddCryptObjs(0, 0, MAXDUNX, MAXDUNY);
+		break;
+#endif
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	InitRndBarrels();
+	InitRndLocObj(5, 10, OBJ_CHEST1);
+	InitRndLocObj(3, 6, OBJ_CHEST2);
+	InitRndLocObj(1, 5, OBJ_CHEST3);
+	// TODO: use dType instead?
+	if (currLvl._dDunType != DTYPE_HELL && currLvl._dDunType != DTYPE_CAVES)
+		AddObjTraps();
+	// BUGFIX: TODO no traps in CRYPT?
+	if (currLvl._dDunType != DTYPE_CATHEDRAL)
+		AddChestTraps();
+	//gbInitObjFlag = false;
 }
 
 void SetMapObjects(BYTE *pMap)
