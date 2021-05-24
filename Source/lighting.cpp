@@ -715,11 +715,7 @@ void MakeLightTable()
 	BYTE *tbl;
 	BYTE blood[16];
 
-#ifndef _DEBUG
-	const int lights = 15;
-#else
-	const int lights = light4flag ? 3 : 15;
-#endif
+	const int lights = LIGHTMAX;
 
 	tbl = pLightTbl;
 	shade = 0;

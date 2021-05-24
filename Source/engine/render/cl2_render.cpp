@@ -13,11 +13,7 @@ static inline int lightidx(char light)
 {
 	int idx;
 
-	idx = 4096;
-#ifdef _DEBUG
-	if (light4flag)
-		idx = 1024;
-#endif
+	idx = (LIGHTMAX + 1) * 256;
 	if (light == 2)
 		idx += 256; // gray colors
 	if (light >= 4)

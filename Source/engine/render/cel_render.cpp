@@ -348,7 +348,7 @@ void CelDrawLightRed(int sx, int sy, const BYTE *pCelBuff, int nCel, int nWidth)
 
 	//tbl = &pLightTbl[lightidx(light)];
 	//tbl = &pLightTbl[lightidx(0)];
-	tbl = &pLightTbl[4096];
+	tbl = &pLightTbl[(LIGHTMAX + 1) * 256];
 
 	end = &pRLEBytes[nDataSize];
 

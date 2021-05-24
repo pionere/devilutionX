@@ -672,10 +672,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	MonsterStruct *mon;
 	int count;
 
-	count = 0;
-	uniqm = &UniqMonst[uniqindex];
-
-	if ((uniquetrans + 19) << 8 >= LIGHTSIZE) {
+	if (uniquetrans >= (LIGHTSIZE / 256 - (LIGHTMAX + 4))) {
 		return;
 	}
 
@@ -751,6 +748,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	}
 
 	if (xp == -1) {
+		count = 0;
 		while (TRUE) {
 			xp = random_(91, DSIZEX) + DBORDERX;
 			yp = random_(91, DSIZEY) + DBORDERY;
@@ -784,6 +782,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
+	uniqm = &UniqMonst[uniqindex];
 	mon->mLevel = uniqm->muLevel;
 
 	mon->mExp *= 2;
@@ -802,7 +801,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 		mon->_mgoal = MGOAL_INQUIRING;
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, &pLightTbl[256 * (uniquetrans + 19)]);
+	LoadFileWithMem(filestr, &pLightTbl[256 * (LIGHTMAX + 4 + uniquetrans)]);
 
 	mon->_uniqtrans = uniquetrans++;
 

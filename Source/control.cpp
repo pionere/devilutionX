@@ -1751,13 +1751,8 @@ void DrawDurIcon()
 
 void RedBack()
 {
-	int idx;
+	const int idx = (LIGHTMAX + 3) * 256;
 
-	idx = 4608; // lightidx(33);
-#ifdef _DEBUG
-	if (light4flag)
-		idx = 1536;
-#endif
 	assert(gpBuffer != NULL);
 
 	int w, h;
