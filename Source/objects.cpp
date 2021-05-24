@@ -3380,12 +3380,8 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_SECLUDED:
 		if (pnum != myplr)
 			return;
-
-		for (yy = 0; yy < DMAXY; yy++) {
-			for (xx = 0; xx < DMAXX; xx++) {
-				automapview[xx][yy] = TRUE;
-			}
-		}
+		static_assert(sizeof(automapview) == DMAXY * DMAXX, "Linear traverse of automapview does not work in OperateShrine.");
+		memset(automapview, TRUE, DMAXX * DMAXY);
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
 		break;
 	case SHRINE_GLIMMERING:
