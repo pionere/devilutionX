@@ -2,7 +2,7 @@
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #include <cstdint>
-#include <list>
+#include <queue>
 
 #include "controls/controller_motion.h"
 #include "controls/game_controls.h"
@@ -182,7 +182,7 @@ bool CanTargetMonster(int mi)
 	const MonsterStruct &monst = monster[mi];
 	if (monst._mFlags & MFLAG_HIDDEN)
 		return false;
-	if (monst._mhitpoints >> 6 <= 0) // dead
+	if (monst._mhitpoints < (1 << 6)) // dead
 		return false;
 
 	const int mx = monst._mx;
@@ -237,31 +237,26 @@ void FindMeleeTarget()
 		int x, y;
 		int steps;
 	};
-	std::list<SearchNode> queue;
-
+	std::queue<SearchNode> nodes;
 	{
 		const int startX = plr[myplr]._pfutx;
 		const int startY = plr[myplr]._pfuty;
 		visited[startX][startY] = true;
-		queue.push_back({ startX, startY, 0 });
+		nodes.push({ startX, startY, 0 });
 	}
 
-	while (!queue.empty()) {
-		SearchNode node = queue.front();
-		queue.pop_front();
+	while (!nodes.empty()) {
+		SearchNode node = nodes.front();
+		nodes.pop();
 
+		if (node.steps > maxSteps)
+			break;
 		static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
 		for (int i = 0; i < lengthof(pathxdir); i++) {
 			const int dx = node.x + pathxdir[i];
 			const int dy = node.y + pathydir[i];
-
 			if (visited[dx][dy])
-				continue; // already visisted
-
-			if (node.steps > maxSteps) {
-				visited[dx][dy] = true;
-				continue;
-			}
+				continue; // already visited
 
 			if (!PosOkPlayer(myplr, dx, dy)) {
 				visited[dx][dy] = true;
@@ -292,7 +287,7 @@ void FindMeleeTarget()
 			pPath.y = node.y;
 
 			if (path_solid_pieces(&pPath, dx, dy)) {
-				queue.push_back({ dx, dy, node.steps + 1 });
+				nodes.push({ dx, dy, node.steps + 1 });
 				visited[dx][dy] = true;
 			}
 		}
