@@ -106,7 +106,7 @@ const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
 const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
 
 /** Maps from player class to player velocity. */
-/*const int PWVel[NUM_CLASSES][3] = {
+const int PWVel[NUM_CLASSES][3] = {
 	// clang-format off
 	{ 2048, 1024, 512 },
 	{ 2048, 1024, 512 },
@@ -117,7 +117,7 @@ const BYTE PlrAnimFrameLens[NUM_PLR_ANIMS] = { 4, 1, 1, 3, 2, 1, 1 };
 	{ 2048, 1024, 512 },
 #endif
 	// clang-format on
-};*/
+};
 /** Maps from player_class to starting stat in strength. */
 const int StrengthTbl[NUM_CLASSES] = {
 	// clang-format off
@@ -935,16 +935,6 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 			p->_pAtkSkill = SPL_RATTACK;
 
 		p->_pNextExper = PlrExpLvlsTbl[p->_pLevel];
-
-		// REMOVEME
-		p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-		if (p->_pSkillLvl[SPL_TELEPORT] == 0) {
-			p->_pSkillLvl[SPL_TELEPORT] = 1;
-		}
-		p->_pMemSkills |= SPELL_MASK(SPL_GOLEM);
-		if (p->_pSkillLvl[SPL_GOLEM] == 0) {
-			p->_pSkillLvl[SPL_GOLEM] = 1;
-		}
 	}
 
 #ifdef _DEBUG
@@ -1224,7 +1214,7 @@ static void PlrChangeOffset(int pnum)
 /**
  * @brief Starting a move action towards NW, N, or NE
  */
-static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int sdir)
+static void StartWalk(int pnum, int xvel, int yvel, int xadd, int yadd, int EndDir, int sdir)
 {
 	PlayerStruct *p;
 	int px, py;
@@ -1234,6 +1224,8 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd, int End
 	}
 
 	p = &plr[pnum];
+
+	SetPlayerOld(p);
 
 	px = xadd + p->_px;
 	py = yadd + p->_py;
@@ -1303,6 +1295,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	}
 
 	p = &plr[pnum];
+
+	SetPlayerOld(p);
 
 	px = xadd + p->_px;
 	py = yadd + p->_py;
@@ -1380,6 +1374,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 
 	p = &plr[pnum];
 
+	SetPlayerOld(p);
+
 	px = xadd + p->_px;
 	py = yadd + p->_py;
 	x = mapx + p->_px;
@@ -1439,55 +1435,6 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 		ScrollInfo._sdir = SDIR_NONE;
 	} else {
 		ScrollInfo._sdir = sdir;
-	}
-}
-
-static void StartWalk(int pnum)
-{
-	PlayerStruct *p;
-	int xvel3, xvel, yvel;
-
-	//if (currLvl._dLevelIdx != DLV_TOWN) {
-			//	xvel3 = PWVel[p->_pClass][0];
-			//	xvel = PWVel[p->_pClass][1];
-			//	yvel = PWVel[p->_pClass][2];
-			//} else {
-				xvel3 = 2048;
-				xvel = 1024;
-				yvel = 512;
-			//}
-	p = &plr[pnum];
-
-	SetPlayerOld(p);
-
-	switch (p->walkpath[0]) {
-	case WALK_N:
-		StartWalk1(pnum, 0, -xvel, -1, -1, DIR_N, SDIR_N);
-		break;
-	case WALK_NE:
-		StartWalk1(pnum, xvel, -yvel, 0, -1, DIR_NE, SDIR_NE);
-		break;
-	case WALK_E:
-		StartWalk3(pnum, xvel3, 0, -32, -16, 1, -1, 1, 0, DIR_E, SDIR_E);
-		break;
-	case WALK_SE:
-		StartWalk2(pnum, xvel, yvel, -32, -16, 1, 0, DIR_SE, SDIR_SE);
-		break;
-	case WALK_S:
-		StartWalk2(pnum, 0, xvel, 0, -32, 1, 1, DIR_S, SDIR_S);
-		break;
-	case WALK_SW:
-		StartWalk2(pnum, -xvel, yvel, 32, -16, 0, 1, DIR_SW, SDIR_SW);
-		break;
-	case WALK_W:
-		StartWalk3(pnum, -xvel3, 0, 32, -16, -1, 1, 0, 1, DIR_W, SDIR_W);
-		break;
-	case WALK_NW:
-		StartWalk1(pnum, -xvel, -yvel, -1, 0, DIR_NW, SDIR_NW);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
 	}
 }
 
@@ -2932,6 +2879,7 @@ static void CheckNewPath(int pnum)
 {
 	PlayerStruct *p;
 	int i, x, y;
+	int xvel3, xvel, yvel;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("CheckNewPath: illegal player %d", pnum);
@@ -2960,7 +2908,45 @@ static void CheckNewPath(int pnum)
 				}
 			}
 
-			StartWalk(pnum);
+			if (currLvl._dLevelIdx != DLV_TOWN) {
+				xvel3 = PWVel[p->_pClass][0];
+				xvel = PWVel[p->_pClass][1];
+				yvel = PWVel[p->_pClass][2];
+			} else {
+				xvel3 = 2048;
+				xvel = 1024;
+				yvel = 512;
+			}
+
+			switch (p->walkpath[0]) {
+			case WALK_N:
+				StartWalk(pnum, 0, -xvel, -1, -1, DIR_N, SDIR_N);
+				break;
+			case WALK_NE:
+				StartWalk(pnum, xvel, -yvel, 0, -1, DIR_NE, SDIR_NE);
+				break;
+			case WALK_E:
+				StartWalk3(pnum, xvel3, 0, -32, -16, 1, -1, 1, 0, DIR_E, SDIR_E);
+				break;
+			case WALK_SE:
+				StartWalk2(pnum, xvel, yvel, -32, -16, 1, 0, DIR_SE, SDIR_SE);
+				break;
+			case WALK_S:
+				StartWalk2(pnum, 0, xvel, 0, -32, 1, 1, DIR_S, SDIR_S);
+				break;
+			case WALK_SW:
+				StartWalk2(pnum, -xvel, yvel, 32, -16, 0, 1, DIR_SW, SDIR_SW);
+				break;
+			case WALK_W:
+				StartWalk3(pnum, -xvel3, 0, 32, -16, -1, 1, 0, 1, DIR_W, SDIR_W);
+				break;
+			case WALK_NW:
+				StartWalk(pnum, -xvel, -yvel, -1, 0, DIR_NW, SDIR_NW);
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
+			}
 
 			for (i = 0; i < MAX_PATH_LENGTH; i++) {
 				p->walkpath[i] = p->walkpath[i + 1];
@@ -3365,6 +3351,40 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 
 	if (!endspace) {
 		path--;
+
+		switch (plr[pnum].walkpath[path]) {
+		case WALK_NE:
+			yy++;
+			break;
+		case WALK_NW:
+			xx++;
+			break;
+		case WALK_SE:
+			xx--;
+			break;
+		case WALK_SW:
+			yy--;
+			break;
+		case WALK_N:
+			xx++;
+			yy++;
+			break;
+		case WALK_E:
+			xx--;
+			yy++;
+			break;
+		case WALK_S:
+			xx--;
+			yy--;
+			break;
+		case WALK_W:
+			xx++;
+			yy--;
+			break;
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
 	}
 
 	plr[pnum].walkpath[path] = WALK_NONE;
