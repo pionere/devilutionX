@@ -229,7 +229,7 @@ void FindRangedTarget()
 void FindMeleeTarget()
 {
 	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
-	int maxSteps = MAX_PATH_LENGTH; // Max steps for FindPath is 25
+	int maxSteps = MAX_PATH_LENGTH;
 	int rotations = 0;
 	bool canTalk = false;
 
@@ -286,7 +286,7 @@ void FindMeleeTarget()
 			pPath.x = node.x;
 			pPath.y = node.y;
 
-			if (path_solid_pieces(&pPath, dx, dy)) {
+			if (PathWalkable(&pPath, dx, dy)) {
 				nodes.push({ dx, dy, node.steps + 1 });
 				visited[dx][dy] = true;
 			}

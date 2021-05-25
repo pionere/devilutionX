@@ -219,7 +219,7 @@ static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 256, "Align Ite
 
 typedef struct PlayerStruct {
 	int _pmode;
-	char walkpath[MAX_PATH_LENGTH];
+	char walkpath[MAX_PATH_LENGTH + 1];
 	int destAction;
 	union {
 		int destParam1;
@@ -1551,9 +1551,9 @@ typedef struct _SNETEVENT {
 //////////////////////////////////////////////////
 
 typedef struct PATHNODE {
-	char f;
-	char h;
-	char g;
+	BYTE totalCost;
+	BYTE remainingCost;
+	BYTE walkCost;
 	int x;
 	int y;
 	struct PATHNODE *Parent;

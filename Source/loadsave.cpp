@@ -194,7 +194,7 @@ static void LoadPlayer(int pnum)
 	PlayerStruct *p = &plr[pnum];
 
 	CopyInt(tbuff, &p->_pmode);
-	CopyBytes(tbuff, MAX_PATH_LENGTH, p->walkpath);
+	CopyBytes(tbuff, lengthof(p->walkpath), p->walkpath);
 	CopyInt(tbuff, &p->destAction);
 	CopyInt(tbuff, &p->destParam1);
 	CopyInt(tbuff, &p->destParam2);
@@ -892,7 +892,8 @@ static void SavePlayer(int pnum)
 	PlayerStruct *p = &plr[pnum];
 
 	CopyInt(&p->_pmode, tbuff);
-	CopyBytes(p->walkpath, MAX_PATH_LENGTH, tbuff);
+	static_assert(sizeof(p->walkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
+	CopyBytes(p->walkpath, lengthof(p->walkpath), tbuff);
 	CopyInt(&p->destAction, tbuff);
 	CopyInt(&p->destParam1, tbuff);
 	CopyInt(&p->destParam2, tbuff);

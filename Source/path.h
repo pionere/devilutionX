@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char *path);
-bool path_solid_pieces(PATHNODE *pPath, int dx, int dy);
+bool PathWalkable(PATHNODE *pPath, int dx, int dy);
 
 /* rdata */
 

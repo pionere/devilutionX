@@ -160,7 +160,7 @@
 
 #define MAXPATHNODES			300
 
-#define MAX_PATH_LENGTH			25
+#define MAX_PATH_LENGTH			24
 
 // 256 kilobytes + 3 bytes (demo leftover) for file magic (262147)
 // final game uses 4-byte magic instead of 3
