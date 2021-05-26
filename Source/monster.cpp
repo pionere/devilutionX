@@ -1287,10 +1287,22 @@ static void MonChangeLightOff(int mnum)
 	CondChangeLightOff(mon->mlid, lx, ly);
 }
 
-static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int EndDir)
+static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 {
-	MonsterStruct *mon = &monster[mnum];
+	MonsterStruct *mon;
 	int mx, my;
+
+	mon = &monster[mnum];
+	mon->_mmode = MM_WALK;
+	mon->_mxvel = xvel;
+	mon->_myvel = yvel;
+	mon->_mxoff = 0;
+	mon->_myoff = 0;
+	//mon->_mVar1 = xadd; // dx after the movement
+	//mon->_mVar2 = yadd; // dy after the movement
+	mon->_mVar6 = 0;    // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = 0;    // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -1299,83 +1311,79 @@ static void MonStartWalk(int mnum, int xvel, int yvel, int xadd, int yadd, int E
 
 	mx += xadd;
 	my += yadd;
-	dMonster[mx][my] = -(mnum + 1);
 	mon->_mfutx = mx;
 	mon->_mfuty = my;
-	mon->_mmode = MM_WALK;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
-	mon->_mVar1 = xadd; // dx after the movement
-	mon->_mVar2 = yadd; // dy after the movement
-	NewMonsterAnim(mnum, MA_WALK, EndDir);
-	mon->_mVar6 = 0;    // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar7 = 0;    // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
+
+	dMonster[mx][my] = -(mnum + 1);
 }
 
-static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int EndDir)
+static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd)
 {
-	MonsterStruct *mon = &monster[mnum];
+	MonsterStruct *mon;
 	int mx, my;
+
+	mon = &monster[mnum];
+	mon->_mmode = MM_WALK2;
+	mon->_mxvel = xvel;
+	mon->_myvel = yvel;
+	mon->_mxoff = xoff;
+	mon->_myoff = yoff;
+	mon->_mVar6 = xoff << 4; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = yoff << 4; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
 	dMonster[mx][my] = -(mnum + 1);
-	mon->_mVar1 = mon->_moldx = mx; // the starting x-coordinate of the monster
-	mon->_mVar2 = mon->_moldy = my; // the starting y-coordinate of the monster
-
+	/*mon->_mVar1 =*/ mon->_moldx = mx; // the starting x-coordinate of the monster
+	/*mon->_mVar2 =*/ mon->_moldy = my; // the starting y-coordinate of the monster
 	mx += xadd;
 	my += yadd;
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	mon->_mxoff = xoff;
-	mon->_myoff = yoff;
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		ChangeLightXY(mon->mlid, mx, my);
 		MonChangeLightOff(mnum);
 	}
-	mon->_mmode = MM_WALK2;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
-	NewMonsterAnim(mnum, MA_WALK, EndDir);
-	mon->_mVar6 = 16 * xoff; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar7 = 16 * yoff; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 }
 
-static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy, int EndDir)
+static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int xadd, int yadd, int mapx, int mapy)
 {
-	MonsterStruct *mon = &monster[mnum];
-	int fx = xadd + mon->_mx;
-	int fy = yadd + mon->_my;
-	mapx += mon->_mx;
-	mapy += mon->_my;
+	MonsterStruct *mon;
+	int mx, my, x, y;
 
-	dMonster[mon->_mx][mon->_my] = -(mnum + 1);
-	dMonster[fx][fy] = -(mnum + 1);
-	mon->_mVar4 = mapx; // Used for storing X-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
-	mon->_mVar5 = mapy; // Used for storing Y-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
-	dFlags[mapx][mapy] |= BFLAG_MONSTLR;
-	mon->_moldx = mon->_mx;
-	mon->_moldy = mon->_my;
-	mon->_mfutx = fx;
-	mon->_mfuty = fy;
+	mon = &monster[mnum];
+	mon->_mmode = MM_WALK3;
+	mon->_mxvel = xvel;
+	mon->_myvel = yvel;
 	mon->_mxoff = xoff;
 	mon->_myoff = yoff;
+	mon->_mVar6 = xoff << 4; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar7 = yoff << 4; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
+	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
+
+	mx = mon->_mx;
+	my = mon->_my;
+
+	mon->_moldx = mx;
+	mon->_moldy = my;
+
+	dMonster[mx][my] = -(mnum + 1);
+	x = mapx + mx;
+	y = mapy + my;
+	mon->_mVar4 = x; // X-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
+	mon->_mVar5 = y; // Y-position of a tile which should have its BFLAG_MONSTLR flag removed after walking. When starting to walk the game places the monster in the dMonster array -1 in the Y coordinate, and uses BFLAG_MONSTLR to check if it should be using -1 to the Y coordinate when rendering the monster
+	dFlags[x][y] |= BFLAG_MONSTLR;
+	mx += xadd;
+	my += yadd;
+	mon->_mfutx = /*mon->_mVar1 =*/ mx; // the Monster's x-coordinate after the movement
+	mon->_mfuty = /*mon->_mVar2 =*/ my; // the Monster's y-coordinate after the movement
+	dMonster[mx][my] = -(mnum + 1);
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		//ChangeLightXY(mon->mlid, mon->_mVar4, mon->_mVar5);
 		MonChangeLightOff(mnum);
 	}
-	mon->_mmode = MM_WALK3;
-	mon->_mxvel = xvel;
-	mon->_myvel = yvel;
-	mon->_mVar1 = fx;        // the Monster's x-coordinate after the movement
-	mon->_mVar2 = fy;        // the Monster's y-coordinate after the movement
-	NewMonsterAnim(mnum, MA_WALK, EndDir);
-	mon->_mVar6 = 16 * xoff; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar7 = 16 * yoff; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 }
 
 static void MonStartAttack(int mnum)
@@ -1982,18 +1990,23 @@ static bool MonDoWalk(int mnum)
 		switch (mon->_mmode) {
 		case MM_WALK:
 			dMonster[mon->_mx][mon->_my] = 0;
-			mon->_mx += mon->_mVar1;
-			mon->_my += mon->_mVar2;
+			//mon->_mx += mon->_mVar1;
+			//mon->_my += mon->_mVar2;
+			mon->_mx = mon->_mfutx;
+			mon->_my = mon->_mfuty;
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			break;
 		case MM_WALK2:
-			dMonster[mon->_mVar1][mon->_mVar2] = 0;
+			//dMonster[mon->_mVar1][mon->_mVar2] = 0;
+			dMonster[mon->_moldx][mon->_moldy] = 0;
 			break;
 		case MM_WALK3:
-			dMonster[mon->_mx][mon->_my] = 0;
-			mon->_mx = mon->_mVar1;
-			mon->_my = mon->_mVar2;
 			dFlags[mon->_mVar4][mon->_mVar5] &= ~BFLAG_MONSTLR;
+			dMonster[mon->_mx][mon->_my] = 0;
+			//mon->_mx = mon->_mVar1;
+			//mon->_my = mon->_mVar2;
+			mon->_mx = mon->_mfutx;
+			mon->_my = mon->_mfuty;
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			break;
 		default:
@@ -2562,31 +2575,32 @@ void MonWalkDir(int mnum, int md)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonWalkDir: Invalid monster %d", mnum);
 	}
+	NewMonsterAnim(mnum, MA_WALK, md);
 	mwi = MWVel[monster[mnum]._mAnims[MA_WALK].aFrames - 1];
 	switch (md) {
 	case DIR_N:
-		MonStartWalk(mnum, 0, -mwi[1], -1, -1, DIR_N);
+		MonStartWalk1(mnum, 0, -mwi[1], -1, -1);
 		break;
 	case DIR_NE:
-		MonStartWalk(mnum, mwi[1], -mwi[0], 0, -1, DIR_NE);
+		MonStartWalk1(mnum, mwi[1], -mwi[0], 0, -1);
 		break;
 	case DIR_E:
-		MonStartWalk3(mnum, mwi[2], 0, -32, -16, 1, -1, 1, 0, DIR_E);
+		MonStartWalk3(mnum, mwi[2], 0, -32, -16, 1, -1, 1, 0);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi[1], mwi[0], -32, -16, 1, 0, DIR_SE);
+		MonStartWalk2(mnum, mwi[1], mwi[0], -32, -16, 1, 0);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, mwi[1], 0, -32, 1, 1, DIR_S);
+		MonStartWalk2(mnum, 0, mwi[1], 0, -32, 1, 1);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, -mwi[1], mwi[0], 32, -16, 0, 1, DIR_SW);
+		MonStartWalk2(mnum, -mwi[1], mwi[0], 32, -16, 0, 1);
 		break;
 	case DIR_W:
-		MonStartWalk3(mnum, -mwi[2], 0, 32, -16, -1, 1, 0, 1, DIR_W);
+		MonStartWalk3(mnum, -mwi[2], 0, 32, -16, -1, 1, 0, 1);
 		break;
 	case DIR_NW:
-		MonStartWalk(mnum, -mwi[1], -mwi[0], -1, 0, DIR_NW);
+		MonStartWalk1(mnum, -mwi[1], -mwi[0], -1, 0);
 		break;
 	default:
 		ASSUME_UNREACHABLE
