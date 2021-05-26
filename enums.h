@@ -3667,8 +3667,8 @@ typedef enum player_graphic_idx {
 	PFIDX_WALK,
 	PFIDX_ATTACK,
 	PFIDX_HIT,
-	PFIDX_LIGHTNING,
 	PFIDX_FIRE,
+	PFIDX_LIGHTNING,
 	PFIDX_MAGIC,
 	PFIDX_DEATH,
 	PFIDX_BLOCK,
@@ -3680,8 +3680,8 @@ typedef enum player_graphic {
 	PFILE_WALK      = 1 << PFIDX_WALK,
 	PFILE_ATTACK    = 1 << PFIDX_ATTACK,
 	PFILE_HIT       = 1 << PFIDX_HIT,
-	PFILE_LIGHTNING = 1 << PFIDX_LIGHTNING,
 	PFILE_FIRE      = 1 << PFIDX_FIRE,
+	PFILE_LIGHTNING = 1 << PFIDX_LIGHTNING,
 	PFILE_MAGIC     = 1 << PFIDX_MAGIC,
 	PFILE_DEATH     = 1 << PFIDX_DEATH,
 	PFILE_BLOCK     = 1 << PFIDX_BLOCK,
@@ -3759,24 +3759,24 @@ typedef enum shrine_type {
 } shrine_type;
 
 typedef enum action_id {
-	ACTION_WALK        = -2, // Automatic walk when using gamepad
-	ACTION_NONE        = -1,
-	ACTION_ATTACK      = 9,
-	ACTION_RATTACK     = 10,
-	ACTION_SPELL       = 12,
-	ACTION_OPERATE     = 13,
-	ACTION_DISARM      = 14,
-	ACTION_PICKUPITEM  = 15, // put item in hand (inventory screen open)
-	ACTION_PICKUPAITEM = 16, // put item in inventory
-	ACTION_TALK        = 17,
-	ACTION_OPERATETK   = 18, // operate via telekinesis
-	ACTION_ATTACKMON   = 20,
-	ACTION_ATTACKPLR   = 21,
-	ACTION_RATTACKMON  = 22,
-	ACTION_RATTACKPLR  = 23,
-	ACTION_SPELLMON    = 24,
-	ACTION_SPELLPLR    = 25,
-	ACTION_BLOCK       = 26, //ACTION_SPELLWALL in vanilla
+	ACTION_NONE,
+	ACTION_ATTACK,
+	ACTION_ATTACKMON,
+	ACTION_ATTACKPLR,
+	ACTION_OPERATE,
+	ACTION_DISARM,
+	ACTION_RATTACK,
+	ACTION_RATTACKMON,
+	ACTION_RATTACKPLR,
+	ACTION_SPELL,
+	ACTION_SPELLMON,
+	ACTION_SPELLPLR,
+	ACTION_BLOCK,
+	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
+	ACTION_PICKUPAITEM, // put item in inventory
+	ACTION_OPERATETK,   // operate via telekinesis
+	ACTION_TALK,
+	ACTION_WALK,        // Automatic walk when using gamepad
 } action_id;
 
 typedef enum dlrg_flag {

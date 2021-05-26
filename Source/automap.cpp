@@ -381,13 +381,9 @@ static void SearchAutomapItem()
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
 
 	p = &plr[myplr];
-	if (p->_pmode == PM_WALK3) {
-		x = p->_pfutx;
-		y = p->_pfuty;
-		if (p->_pdir == DIR_W)
-			x++;
-		else
-			y++;
+	if (p->_pmode == PM_WALK2) {
+		x = p->_poldx;
+		y = p->_poldy;
 	} else {
 		x = p->_px;
 		y = p->_py;
@@ -402,15 +398,15 @@ static void SearchAutomapItem()
 		y1 = 0;
 
 	x2 = x + 8;
-	if (x2 > MAXDUNX)
-		x2 = MAXDUNX;
+	if (x2 > MAXDUNX - 1)
+		x2 = MAXDUNX - 1;
 
 	y2 = y + 8;
-	if (y2 > MAXDUNY)
-		y2 = MAXDUNY;
+	if (y2 > MAXDUNY - 1)
+		y2 = MAXDUNY - 1;
 
-	for (i = x1; i < x2; i++) {
-		for (j = y1; j < y2; j++) {
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
 			if (dItem[i][j] != 0) {
 				x = xoff + (i - j) * AmLine16;
 				y = yoff + (i + j) * AmLine8;

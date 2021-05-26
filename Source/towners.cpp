@@ -483,10 +483,10 @@ static void TownerTalk(int store, int talk)
 	StartStore(store);
 }
 
-void TalkToTowner(int pnum, int tnum)
+void TalkToTowner(int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, qt, qn;
+	int i, dx, dy, qt, qn, pnum = myplr;
 #ifdef HELLFIRE
 	int ii;
 #endif

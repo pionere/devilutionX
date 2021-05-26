@@ -22,7 +22,6 @@ void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
 void NewPlrAnim(int pnum, BYTE **anims, int dir, unsigned numFrames, int frameLen, int width);
-//void NewPlrAnim(int pnum, BYTE *anims, int dir, unsigned numFrames, int frameLen, int width, int numSkippedFrames = 0, bool processAnimationPending = false, int stopDistributingAfterFrame = 0);
 void SetPlrAnims(int pnum);
 //int GetFrameToUseForPlayerRendering(int pnum);
 void CreatePlayer(int pnum, BYTE c);
@@ -58,7 +57,7 @@ void ProcessPlayers();
 void ClrPlrPath(int pnum);
 bool PosOkPlayer(int pnum, int x, int y);
 void MakePlrPath(int pnum, int xx, int yy, bool endspace);
-void SyncPlrAnim(int pnum);
+void SyncPlrAnim();
 void SyncInitPlrPos(int pnum);
 void SyncInitPlr(int pnum);
 void IncreasePlrStr(int pnum);
@@ -66,7 +65,7 @@ void IncreasePlrMag(int pnum);
 void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
 void RestorePlrHpVit(int pnum);
-void InitDungMsgs(int pnum);
+void InitDungMsgs();
 void PlayDungMsgs();
 
 inline void SetPlayerOld(PlayerStruct *p)

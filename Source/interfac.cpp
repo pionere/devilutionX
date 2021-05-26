@@ -259,7 +259,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitLevels();
 		InitQuests();
 		InitPortals();
-		InitDungMsgs(myplr);
+		InitDungMsgs();
 		InitAutomapOnce();
 	}
 

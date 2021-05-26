@@ -680,7 +680,7 @@ void LoadGame(bool firstflag)
 		LoadPortal(i);
 
 	LoadGameLevel(firstflag, ENTRY_LOAD);
-	SyncPlrAnim(myplr);
+	SyncPlrAnim();
 
 	ViewX = _ViewX;
 	ViewY = _ViewY;

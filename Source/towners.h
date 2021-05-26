@@ -19,7 +19,7 @@ void InitTowners();
 void FreeTownerGFX();
 void ProcessTowners();
 bool PlrHasItem(int pnum, int item, int *outidx);
-void TalkToTowner(int pnum, int tnum);
+void TalkToTowner(int tnum);
 
 #ifdef __cplusplus
 }

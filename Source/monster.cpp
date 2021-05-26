@@ -25,7 +25,7 @@ int nummtypes;
 #define MON_LIGHTRAD 3
 
 /** Maps from walking path step to facing direction. */
-static const char plr2monst[9] = { 0, 5, 3, 7, 1, 4, 6, 0, 2 };
+const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
 /** Maps from monster intelligence factor to missile type. */
 const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 
@@ -2702,7 +2702,7 @@ static bool MonPathWalk(int mnum)
 		Check = PosOkMonst;
 
 	if (FindPath(Check, mnum, monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy, path) != 0) {
-		MonCallWalk(mnum, plr2monst[path[0]]); /* plr2monst is local */
+		MonCallWalk(mnum, walk2dir[path[0]]);
 		return true;
 	}
 
