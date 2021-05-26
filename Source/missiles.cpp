@@ -1057,7 +1057,6 @@ static bool PlrMissHit(int pnum, int mi)
 
 /**
  * Check if the monster is on a given tile.
- * Uses _mVar8 of MonsterStruct! -> TODO: move to monster.cpp?
  */
 static int CheckMonCol(int mnum, int mx, int my)
 {
@@ -1080,7 +1079,7 @@ static int CheckMonCol(int mnum, int mx, int my)
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs II.");
 	if (mode > MM_WALK3 || mode < MM_WALK)
 		return (negate || mode == MM_STONE) ? mnum : -1;
-	halfOver = mon->_mVar8 >= (mon->_mAnims[MA_WALK].aFrames >> 1);
+	halfOver = mon->_mAnimFrame > (mon->_mAnims[MA_WALK].aFrames >> 1);
 	if (mode == MM_WALK) {
 		if (negate)
 			halfOver = !halfOver;

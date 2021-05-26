@@ -1302,7 +1302,7 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int xadd, int yadd)
 	//mon->_mVar2 = yadd; // dy after the movement
 	mon->_mVar6 = 0;    // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
 	mon->_mVar7 = 0;    // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
+	//mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -1330,7 +1330,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_myoff = yoff;
 	mon->_mVar6 = xoff << 4; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
 	mon->_mVar7 = yoff << 4; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
+	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -1361,7 +1361,7 @@ static void MonStartWalk3(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_myoff = yoff;
 	mon->_mVar6 = xoff << 4; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
 	mon->_mVar7 = yoff << 4; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
+	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -1985,8 +1985,7 @@ static bool MonDoWalk(int mnum)
 		dev_fatal("MonDoWalk: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	// WARNING: similar logic (using _mVar8) is used to check missile-monster collision in missile.cpp
-	if (mon->_mVar8 == mon->_mAnims[MA_WALK].aFrames) {
+	if (mon->_mAnimFrame == mon->_mAnims[MA_WALK].aFrames) {
 		switch (mon->_mmode) {
 		case MM_WALK:
 			dMonster[mon->_mx][mon->_my] = 0;
@@ -2018,19 +2017,19 @@ static bool MonDoWalk(int mnum)
 		MonStartStand(mnum, mon->_mdir);
 		rv = true;
 	} else {
-		if (mon->_mAnimCnt == 0) {
+		//if (mon->_mAnimCnt == 0) {
 #ifdef HELLFIRE
-			if (mon->_mVar8 == 0 && mon->_mType == MT_FLESTHNG)
+			if (mon->_mAnimFrame == 1 && mon->_mType == MT_FLESTHNG)
 				PlayEffect(mnum, 3);
 #endif
-			mon->_mVar8++;
+			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel;
 			mon->_mVar7 += mon->_myvel;
 			mon->_mxoff = mon->_mVar6 >> 4;
 			mon->_myoff = mon->_mVar7 >> 4;
 			if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 				MonChangeLightOff(mnum);
-		}
+		//}
 		rv = false;
 	}
 
