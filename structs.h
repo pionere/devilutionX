@@ -1556,7 +1556,14 @@ typedef struct PATHNODE {
 	struct PATHNODE *Parent;
 	struct PATHNODE *Child[8];
 	struct PATHNODE *NextNode;
+#ifdef X86_32bit_COMP
+	int alignment[3];
+#endif
 } PATHNODE;
+
+#ifdef X86_32bit_COMP
+static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
+#endif
 
 // TPDEF PTR FCN UCHAR CHECKFUNC1
 

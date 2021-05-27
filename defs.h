@@ -158,7 +158,7 @@
 
 #define PLR_NAME_LEN			32
 
-#define MAXPATHNODES			300
+#define MAXPATHNODES			256
 
 #define MAX_PATH_LENGTH			24
 

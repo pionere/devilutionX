@@ -282,11 +282,7 @@ void FindMeleeTarget()
 				continue;
 			}
 
-			PATHNODE pPath;
-			pPath.x = node.x;
-			pPath.y = node.y;
-
-			if (PathWalkable(&pPath, dx, dy)) {
+			if (PathWalkable(node.x, node.y, dx, dy)) {
 				nodes.push({ dx, dy, node.steps + 1 });
 				visited[dx][dy] = true;
 			}

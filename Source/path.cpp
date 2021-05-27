@@ -17,8 +17,6 @@ static char reversePathDirs[MAX_PATH_LENGTH];
 static PATHNODE *pathVisitedNodes;
 /** A stack for recursively update nodes. */
 static PATHNODE *pathUpdateStack[MAXPATHNODES];
-/** Size of the pathUpdateStack. */
-static int gnUpdateStackSize = 0;
 /** A linked list of the A* frontier, sorted by distance. */
 static PATHNODE *pathFrontNodes;
 /** The target location. */
@@ -78,45 +76,25 @@ static void PathAddNode(PATHNODE *pPath)
 
 	current = pathFrontNodes;
 	next = pathFrontNodes->NextNode;
-	if (next != NULL) {
-		currCost = pPath->totalCost;
-		while (next != NULL && next->totalCost < currCost) {
-			current = next;
-			next = next->NextNode;
-		}
-		pPath->NextNode = next;
+	currCost = pPath->totalCost;
+	while (next != NULL && next->totalCost < currCost) {
+		current = next;
+		next = next->NextNode;
 	}
+	pPath->NextNode = next;
 	current->NextNode = pPath;
 }
 
 /**
- * @brief push pPath onto the pnode_tblptr stack
- */
-static void path_push_active_step(PATHNODE *pPath)
-{
-	pathUpdateStack[gnUpdateStackSize] = pPath;
-	gnUpdateStackSize++;
-}
-
-/**
- * @brief pop and return a node from the pnode_tblptr stack
- */
-static PATHNODE *path_pop_active_step()
-{
-	gnUpdateStackSize--;
-	return pathUpdateStack[gnUpdateStackSize];
-}
-
-/**
- * @brief return 2 if pPath is horizontally/vertically aligned with (dx,dy), else 3
+ * @brief return 2 if (sx,sy) is horizontally/vertically aligned with (dx,dy), else 3
  *
  * This approximates that diagonal movement on a square grid should have a cost
  * of sqrt(2). That's approximately 1.5, so they multiply all step costs by 2,
  * except diagonal steps which are times 3
  */
-static int PathStepCost(PATHNODE *pPath, int dx, int dy)
+static inline int PathStepCost(int sx, int sy, int dx, int dy)
 {
-	return (pPath->x == dx || pPath->y == dy) ? 2 : 3;
+	return (sx == dx || sy == dy) ? 2 : 3;
 }
 
 /**
@@ -126,28 +104,31 @@ static void PathUpdateCosts(PATHNODE *pPath)
 {
 	PATHNODE *PathOld;
 	PATHNODE *PathAct;
+	int updateStackSize;
 	BYTE i, newWalkCost;
 
-	assert(gnUpdateStackSize == 0);
-	path_push_active_step(pPath);
-	while (gnUpdateStackSize != 0) {
-		PathOld = path_pop_active_step();
+	pathUpdateStack[0] = pPath;
+	updateStackSize = 1;
+	do {
+		updateStackSize--;
+		PathOld = pathUpdateStack[updateStackSize];
 		for (i = 0; i < lengthof(PathOld->Child); i++) {
 			PathAct = PathOld->Child[i];
 			if (PathAct == NULL)
 				break;
 
-			newWalkCost = PathOld->walkCost + PathStepCost(PathOld, PathAct->x, PathAct->y);
+			newWalkCost = PathOld->walkCost + PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
 			if (newWalkCost < PathAct->walkCost) {
-				if (PathWalkable(PathOld, PathAct->x, PathAct->y)) {
+				if (PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)) {
 					PathAct->Parent = PathOld;
 					PathAct->walkCost = newWalkCost;
 					PathAct->totalCost = newWalkCost + PathAct->remainingCost;
-					path_push_active_step(PathAct);
+					pathUpdateStack[updateStackSize] = PathAct;
+					updateStackSize++;
 				}
 			}
 		}
-	}
+	} while (updateStackSize != 0);
 }
 
 /**
@@ -200,27 +181,25 @@ static bool path_parent_path(PATHNODE *pPath, int dx, int dy)
 	BYTE nextWalkCost;
 	PATHNODE *dxdy;
 
-	nextWalkCost = pPath->walkCost + PathStepCost(pPath, dx, dy);
+	nextWalkCost = pPath->walkCost + PathStepCost(pPath->x, pPath->y, dx, dy);
 
 	// 3 cases to consider
 	// case 1: (dx,dy) is already on the frontier
 	dxdy = PathFrontNodeAt(dx, dy);
 	if (dxdy != NULL) {
 		PathAppendChild(pPath, dxdy);
-		if (nextWalkCost < dxdy->walkCost) {
-			if (PathWalkable(pPath, dx, dy)) {
-				// we'll explore it later, just update
-				dxdy->Parent = pPath;
-				dxdy->walkCost = nextWalkCost;
-				dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
-			}
+		if (nextWalkCost < dxdy->walkCost && PathWalkable(pPath->x, pPath->y, dx, dy)) {
+			// we'll explore it later, just update
+			dxdy->Parent = pPath;
+			dxdy->walkCost = nextWalkCost;
+			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
 		}
 	} else {
 		// case 2: (dx,dy) was already visited
 		dxdy = PathVisitedNodeAt(dx, dy);
 		if (dxdy != NULL) {
 			PathAppendChild(pPath, dxdy);
-			if (nextWalkCost < dxdy->walkCost && PathWalkable(pPath, dx, dy)) {
+			if (nextWalkCost < dxdy->walkCost && PathWalkable(pPath->x, pPath->y, dx, dy)) {
 				// update the node
 				dxdy->Parent = pPath;
 				dxdy->walkCost = nextWalkCost;
@@ -263,7 +242,7 @@ static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE *
 		dx = pPath->x + pathxdir[i];
 		dy = pPath->y + pathydir[i];
 		ok = PosOk(PosOkArg, dx, dy);
-		if ((ok && PathWalkable(pPath, dx, dy)) || (!ok && dx == gnTx && dy == gnTy)) {
+		if ((ok && PathWalkable(pPath->x, pPath->y, dx, dy)) || (!ok && dx == gnTx && dy == gnTy)) {
 			if (!path_parent_path(pPath, dx, dy))
 				return false;
 		}
@@ -301,7 +280,6 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 
 	// clear all nodes, create root nodes for the visited/frontier linked lists
 	gnCurNodes = 0;
-	//gnUpdateStackSize = 0;
 	pathFrontNodes = path_new_step();
 	pathVisitedNodes = path_new_step();
 	gnTx = dx;
@@ -337,7 +315,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 }
 
 /**
- * @brief check if stepping from pPath to (dx,dy) cuts a corner.
+ * @brief check if stepping from (sx,sy) to (dx,dy) cuts a corner.
  *
  * If you step from A to B, both Xs need to be clear:
  *
@@ -346,11 +324,11 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
  *
  *  @return true if step is allowed
  */
-bool PathWalkable(PATHNODE *pPath, int dx, int dy)
+bool PathWalkable(int sx, int sy, int dx, int dy)
 {
 	bool rv = true;
 
-	switch (path_directions[3 * (dy - pPath->y) + 3 - pPath->x + 1 + dx]) {
+	switch (path_directions[3 * (dy - sy) + 3 - sx + 1 + dx]) {
 	case WALK_N:
 		rv = !nSolidTable[dPiece[dx][dy + 1]] && !nSolidTable[dPiece[dx + 1][dy]];
 		break;
