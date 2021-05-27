@@ -25,7 +25,7 @@ int nummtypes;
 #define MON_LIGHTRAD 3
 
 /** Maps from walking path step to facing direction. */
-const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
+//const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
 /** Maps from monster intelligence factor to missile type. */
 const BYTE counsmiss[4] = { MIS_FIREBOLT, MIS_CBOLTC, MIS_LIGHTNINGC, MIS_FIREBALL };
 
@@ -2715,7 +2715,8 @@ static bool MonPathWalk(int mnum)
 		Check = PosOkMonst;
 
 	if (FindPath(Check, mnum, monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy, path) != 0) {
-		MonCallWalk(mnum, walk2dir[path[0]]);
+		//MonCallWalk(mnum, walk2dir[path[0]]);
+		MonCallWalk(mnum, path[0]);
 		return true;
 	}
 
@@ -5112,14 +5113,14 @@ static void ActivateSpawn(int mnum, int x, int y, int dir)
 void SpawnSkeleton(int mnum, int x, int y, int dir)
 {
 	int i, nok;
-	int monstok[DIR_OMNI];
+	int monstok[NUM_DIRS];
 
 	if (mnum == -1)
 		return; // FALSE;
 
 	if (PosOkMonst(-1, x, y)) {
-		if (dir == DIR_OMNI)
-			dir = random_(11, DIR_OMNI);
+		if (dir == DIR_NONE)
+			dir = random_(11, NUM_DIRS);
 		ActivateSpawn(mnum, x, y, dir);
 		return; // TRUE;
 	}

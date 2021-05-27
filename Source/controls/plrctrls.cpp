@@ -282,7 +282,7 @@ void FindMeleeTarget()
 				continue;
 			}
 
-			if (PathWalkable(node.x, node.y, dx, dy)) {
+			if (PathWalkable(node.x, node.y, i)) {
 				nodes.push({ dx, dy, node.steps + 1 });
 				visited[dx][dy] = true;
 			}
@@ -778,7 +778,7 @@ void SpellBookMove(AxisDirection dir)
 
 static const direction FaceDir[3][3] = {
 	// NONE      UP      DOWN
-	{ DIR_OMNI, DIR_N, DIR_S }, // NONE
+	{ DIR_NONE, DIR_N, DIR_S }, // NONE
 	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
 	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
 };
@@ -860,7 +860,7 @@ void WalkInDir(AxisDirection dir)
 	const int y = plr[myplr]._pfuty;
 
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
-		if (sgbControllerActive && plr[myplr].walkpath[0] != WALK_NONE && plr[myplr].destAction == ACTION_NONE)
+		if (sgbControllerActive && plr[myplr].walkpath[0] != DIR_NONE && plr[myplr].destAction == ACTION_NONE)
 			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
 		return;
 	}

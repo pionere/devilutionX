@@ -616,45 +616,45 @@ static void Theme_SkelRoom(int tidx)
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy - 1, DIR_OMNI);
+		SpawnSkeleton(i, xx - 1, yy - 1, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERL, xx - 1, yy - 1);
 	}
 
 	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy - 1, DIR_OMNI);
+	SpawnSkeleton(i, xx, yy - 1, DIR_NONE);
 
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy - 1, DIR_OMNI);
+		SpawnSkeleton(i, xx + 1, yy - 1, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERR, xx + 1, yy - 1);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy, DIR_OMNI);
+		SpawnSkeleton(i, xx - 1, yy, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERM, xx - 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy, DIR_OMNI);
+		SpawnSkeleton(i, xx + 1, yy, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERM, xx + 1, yy);
 	}
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx - 1, yy + 1, DIR_OMNI);
+		SpawnSkeleton(i, xx - 1, yy + 1, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERR, xx - 1, yy + 1);
 	}
 
 	i = PreSpawnSkeleton();
-	SpawnSkeleton(i, xx, yy + 1, DIR_OMNI);
+	SpawnSkeleton(i, xx, yy + 1, DIR_NONE);
 
 	if (random_(0, monstrnd) != 0) {
 		i = PreSpawnSkeleton();
-		SpawnSkeleton(i, xx + 1, yy + 1, DIR_OMNI);
+		SpawnSkeleton(i, xx + 1, yy + 1, DIR_NONE);
 	} else {
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
 	}

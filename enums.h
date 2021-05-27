@@ -2775,15 +2775,16 @@ typedef enum cursor_id {
 } cursor_id;
 
 typedef enum direction {
-	DIR_S    = 0x0,
-	DIR_SW   = 0x1,
-	DIR_W    = 0x2,
-	DIR_NW   = 0x3,
-	DIR_N    = 0x4,
-	DIR_NE   = 0x5,
-	DIR_E    = 0x6,
-	DIR_SE   = 0x7,
-	DIR_OMNI = 0x8,
+	DIR_S,
+	DIR_SW,
+	DIR_W,
+	DIR_NW,
+	DIR_N,
+	DIR_NE,
+	DIR_E,
+	DIR_SE,
+	NUM_DIRS,
+	DIR_NONE = NUM_DIRS,
 } direction;
 
 typedef enum _scroll_direction {
@@ -2797,6 +2798,17 @@ typedef enum _scroll_direction {
 	SDIR_W    = 0x7,
 	SDIR_NW   = 0x8,
 } _scroll_direction;
+
+typedef enum _path_direction {
+	PDIR_N,
+	PDIR_W,
+	PDIR_E,
+	PDIR_S,
+	PDIR_NW,
+	PDIR_NE,
+	PDIR_SE,
+	PDIR_SW
+} _path_direction;
 
 typedef enum interface_mode {
 	WM_DIABNEXTLVL  = 0x402, // dungeon -> next level  WM_USER+2
@@ -3499,7 +3511,7 @@ typedef enum plr_class {
 	NUM_CLASSES
 } plr_class;
 
-typedef enum _walk_path {
+/*typedef enum _walk_path {
 	WALK_NE   = 0x1,
 	WALK_NW   = 0x2,
 	WALK_SE   = 0x3,
@@ -3508,8 +3520,7 @@ typedef enum _walk_path {
 	WALK_E    = 0x6,
 	WALK_S    = 0x7,
 	WALK_W    = 0x8,
-	WALK_NONE = -1,
-} _walk_path;
+} _walk_path;*/
 
 typedef enum player_skill_flags {
 	SFLAG_ANY     = 0,

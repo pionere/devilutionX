@@ -73,7 +73,7 @@ void decode_enemy(int mnum, int enemy);
 
 extern const int offset_x[8];
 extern const int offset_y[8];
-extern const char walk2dir[9];
+//extern const char walk2dir[9];
 
 #ifdef __cplusplus
 }

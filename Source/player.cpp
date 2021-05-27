@@ -984,7 +984,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 		//p->_pfutx = p->_px;
 		//p->_pfuty = p->_py;
 
-		p->walkpath[0] = WALK_NONE;
+		p->walkpath[0] = DIR_NONE;
 		p->destAction = ACTION_NONE;
 
 		if (pnum == myplr) {
@@ -1222,7 +1222,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 	p->_pyvel = yvel;
 	p->_pxoff = 0;
 	p->_pyoff = 0;
-	//p->_pVar3 = dDir; // Player's direction when ending movement.
+	//p->_pVar3 = dir; // Player's direction when ending movement.
 	p->_pVar6 = 0;      // Same as _pxoff but contains the value in a higher range
 	p->_pVar7 = 0;      // Same as _pyoff but contains the value in a higher range
 	p->_pVar8 = 0;      // speed helper
@@ -1327,13 +1327,13 @@ static bool StartWalk(int pnum)
 	}
 
 	p = &plr[pnum];
-	assert(p->walkpath[MAX_PATH_LENGTH] == WALK_NONE);
+	assert(p->walkpath[MAX_PATH_LENGTH] == DIR_NONE);
 	dir = p->walkpath[0];
 	for (i = 0; i < MAX_PATH_LENGTH; i++) {
 		p->walkpath[i] = p->walkpath[i + 1];
 	}
 
-	dir = walk2dir[dir];
+	//dir = walk2dir[dir];
 	if (!PlrDirOK(pnum, dir)) {
 		return false;
 	}
@@ -2160,7 +2160,7 @@ static bool PlrDoWalk(int pnum)
 		ViewY = p->_py - ScrollInfo._sdy;
 	}
 
-	if (p->walkpath[0] != WALK_NONE) {
+	if (p->walkpath[0] != DIR_NONE) {
 		StartWalkStand(pnum);
 	} else {
 		PlrStartStand(pnum, p->_pdir);
@@ -2835,7 +2835,7 @@ static void CheckNewPath(int pnum)
 		MakePlrPath(pnum, plr[p->destParam1]._pfutx, plr[p->destParam1]._pfuty, false);
 	}
 
-	if (p->walkpath[0] != WALK_NONE) {
+	if (p->walkpath[0] != DIR_NONE) {
 		if (p->_pmode == PM_STAND) {
 			if (pnum == myplr) {
 				if (p->destAction == ACTION_ATTACKMON || p->destAction == ACTION_ATTACKPLR) {
@@ -3129,7 +3129,7 @@ void ClrPlrPath(int pnum)
 		app_fatal("ClrPlrPath: illegal player %d", pnum);
 	}
 
-	memset(plr[pnum].walkpath, WALK_NONE, sizeof(plr[pnum].walkpath));
+	memset(plr[pnum].walkpath, DIR_NONE, sizeof(plr[pnum].walkpath));
 }
 
 bool PosOkPlayer(int pnum, int x, int y)
@@ -3191,7 +3191,7 @@ void MakePlrPath(int pnum, int xx, int yy, bool endspace)
 		path--;
 	}
 
-	plr[pnum].walkpath[path] = WALK_NONE;
+	plr[pnum].walkpath[path] = DIR_NONE;
 }
 
 void SyncPlrAnim()

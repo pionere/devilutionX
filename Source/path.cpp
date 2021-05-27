@@ -23,6 +23,7 @@ static PATHNODE *pathFrontNodes;
 static int gnTx, gnTy;
 
 /** For iterating over the 8 possible movement directions. */
+//                     PDIR_N   W   E   S  NW  NE  SE  SW
 const char pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
 const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
 /**
@@ -34,7 +35,8 @@ const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
  * dy 0|2 0 3
  *    1|8 4 7
  */
-char path_directions[9] = { WALK_N, WALK_NE, WALK_E, WALK_NW, 0, WALK_SE, WALK_W, WALK_SW, WALK_S };
+//char path_directions[9] = { WALK_N, WALK_NE, WALK_E, WALK_NW, 0, WALK_SE, WALK_W, WALK_SW, WALK_S };
+char path_directions[9] = { DIR_N, DIR_NE, DIR_E, DIR_NW, DIR_NONE, DIR_SE, DIR_W, DIR_SW, DIR_S };
 
 /**
  * @brief return a node for (dx,dy) on the frontier, or NULL if not found
@@ -118,14 +120,12 @@ static void PathUpdateCosts(PATHNODE *pPath)
 				break;
 
 			newWalkCost = PathOld->walkCost + PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
-			if (newWalkCost < PathAct->walkCost) {
-				if (PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)) {
-					PathAct->Parent = PathOld;
-					PathAct->walkCost = newWalkCost;
-					PathAct->totalCost = newWalkCost + PathAct->remainingCost;
-					pathUpdateStack[updateStackSize] = PathAct;
-					updateStackSize++;
-				}
+			if (newWalkCost < PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/) {
+				PathAct->Parent = PathOld;
+				PathAct->walkCost = newWalkCost;
+				PathAct->totalCost = newWalkCost + PathAct->remainingCost;
+				pathUpdateStack[updateStackSize] = PathAct;
+				updateStackSize++;
 			}
 		}
 	} while (updateStackSize != 0);
@@ -188,7 +188,7 @@ static bool path_parent_path(PATHNODE *pPath, int dx, int dy)
 	dxdy = PathFrontNodeAt(dx, dy);
 	if (dxdy != NULL) {
 		PathAppendChild(pPath, dxdy);
-		if (nextWalkCost < dxdy->walkCost && PathWalkable(pPath->x, pPath->y, dx, dy)) {
+		if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
 			// we'll explore it later, just update
 			dxdy->Parent = pPath;
 			dxdy->walkCost = nextWalkCost;
@@ -199,7 +199,7 @@ static bool path_parent_path(PATHNODE *pPath, int dx, int dy)
 		dxdy = PathVisitedNodeAt(dx, dy);
 		if (dxdy != NULL) {
 			PathAppendChild(pPath, dxdy);
-			if (nextWalkCost < dxdy->walkCost && PathWalkable(pPath->x, pPath->y, dx, dy)) {
+			if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
 				// update the node
 				dxdy->Parent = pPath;
 				dxdy->walkCost = nextWalkCost;
@@ -242,7 +242,7 @@ static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE *
 		dx = pPath->x + pathxdir[i];
 		dy = pPath->y + pathydir[i];
 		ok = PosOk(PosOkArg, dx, dy);
-		if ((ok && PathWalkable(pPath->x, pPath->y, dx, dy)) || (!ok && dx == gnTx && dy == gnTy)) {
+		if ((ok && PathWalkable(pPath->x, pPath->y, i)) || (!ok && dx == gnTx && dy == gnTy)) {
 			if (!path_parent_path(pPath, dx, dy))
 				return false;
 		}
@@ -324,7 +324,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
  *
  *  @return true if step is allowed
  */
-bool PathWalkable(int sx, int sy, int dx, int dy)
+/*bool PathWalkable(int sx, int sy, int dx, int dy)
 {
 	bool rv = true;
 
@@ -340,6 +340,26 @@ bool PathWalkable(int sx, int sy, int dx, int dy)
 		break;
 	case WALK_W:
 		rv = !nSolidTable[dPiece[dx + 1][dy]] && !nSolidTable[dPiece[dx][dy - 1]];
+		break;
+	}
+	return rv;
+}*/
+bool PathWalkable(int sx, int sy, int pdir)
+{
+	bool rv = true;
+
+	switch (pdir) {
+	case PDIR_N:
+		rv = !(nSolidTable[dPiece[sx - 1][sy]] | nSolidTable[dPiece[sx][sy - 1]]);
+		break;
+	case PDIR_E:
+		rv = !(nSolidTable[dPiece[sx + 1][sy]] | nSolidTable[dPiece[sx][sy - 1]]);
+		break;
+	case PDIR_S:
+		rv = !(nSolidTable[dPiece[sx + 1][sy]] | nSolidTable[dPiece[sx][sy + 1]]);
+		break;
+	case PDIR_W:
+		rv = !(nSolidTable[dPiece[sx][sy + 1]] | nSolidTable[dPiece[sx - 1][sy]]);
 		break;
 	}
 	return rv;
