@@ -632,7 +632,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	p->_pIAMaxDam = amax * pdmod >> (-6 + 9);
 
 	p->_pISpells = spl;
-	if (pnum == myplr)
+	if (pnum == mypnum)
 		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
 
 	lrad = std::max(2, std::min(15, lrad));
@@ -697,7 +697,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	p->_pHitPoints = ihp + p->_pHPBase;
 	p->_pMaxHP = ihp + p->_pMaxHPBase;
 
-	if (pnum == myplr && p->_pHitPoints < (1 << 6)) {
+	if (pnum == mypnum && p->_pHitPoints < (1 << 6)) {
 		PlrSetHp(pnum, 0);
 	}
 
@@ -1002,7 +1002,7 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 	CalcSelfItems(pnum);
 	CalcPlrItemVals(pnum, Loadgfx);
 	CalcPlrItemMin(pnum);
-	//if (pnum == myplr) {
+	//if (pnum == mypnum) {
 		CalcPlrSpells(pnum);
 		//CalcPlrBookVals(pnum);
 		CalcPlrScrolls(pnum);
@@ -1080,7 +1080,7 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 			if (items[ii]._iSeed == s)
 				doneflag = false;
 		}
-		if (pnum == myplr) {
+		if (pnum == mypnum) {
 			for (i = 0; i < players[pnum]._pNumInv; i++) {
 				if (players[pnum].InvList[i]._iSeed == s)
 					doneflag = false;
@@ -1712,12 +1712,12 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 #ifdef HELLFIRE
 	case IPL_MANATOLIFE:
-		r2 = ((players[myplr]._pMaxManaBase >> 6) * 50 / 100);
+		r2 = ((players[mypnum]._pMaxManaBase >> 6) * 50 / 100);
 		is->_iPLMana -= (r2 << 6);
 		is->_iPLHP += (r2 << 6);
 		break;
 	case IPL_LIFETOMANA:
-		r2 = ((players[myplr]._pMaxHPBase >> 6) * 40 / 100);
+		r2 = ((players[mypnum]._pMaxHPBase >> 6) * 40 / 100);
 		is->_iPLHP -= (r2 << 6);
 		is->_iPLMana += (r2 << 6);
 		break;
@@ -3330,7 +3330,7 @@ static void PrintItemMiscInfo(const ItemStruct *is, int x, int &y)
 
 void DrawInvItemDetails()
 {
-	ItemStruct* is = PlrItem(myplr, pcursinvitem);
+	ItemStruct* is = PlrItem(mypnum, pcursinvitem);
 	int x = SCREEN_X + (RIGHT_PANEL - 271) / 2 + 8;
 	int y = SCREEN_Y + 44 + 24;
 

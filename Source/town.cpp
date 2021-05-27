@@ -211,13 +211,13 @@ unsigned char GetOpenWarps()
 {
 	unsigned char twarps = 1 << TWARP_CATHEDRAL;
 	if (gbMaxPlayers == 1) {
-		twarps |= players[myplr].pTownWarps << 1;
+		twarps |= players[mypnum].pTownWarps << 1;
 #ifdef HELLFIRE
-		if (players[myplr]._pLevel >= 10)
+		if (players[mypnum]._pLevel >= 10)
 			twarps |= 1 << TWARP_CATACOMB;
-		if (players[myplr]._pLevel >= 15)
+		if (players[mypnum]._pLevel >= 15)
 			twarps |= 1 << TWARP_CAVES;
-		if (players[myplr]._pLevel >= 20)
+		if (players[mypnum]._pLevel >= 20)
 			twarps |= 1 << TWARP_HELL;
 #endif
 	} else {
@@ -293,8 +293,8 @@ void CreateTown(int entry)
 	if (entry == ENTRY_MAIN) {
 		// New game - set by SetupLocalCoords in multi.cpp
 		//  or Restart in Town - _px/_py is not set
-		ViewX = players[myplr]._px = 65 + DBORDERX;
-		ViewY = players[myplr]._py = 58 + DBORDERY;
+		ViewX = players[mypnum]._px = 65 + DBORDERX;
+		ViewY = players[mypnum]._py = 58 + DBORDERY;
 	} else if (entry == ENTRY_PREV) { // Cathedral
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;

@@ -112,7 +112,7 @@ static bool pfile_open_archive()
 {
 	unsigned save_num;
 
-	save_num = pfile_get_save_num_from_name(players[myplr]._pName);
+	save_num = pfile_get_save_num_from_name(players[mypnum]._pName);
 	assert(save_num < MAX_CHARACTERS);
 	return pfile_open_save_mpq(save_num);
 }
@@ -141,7 +141,7 @@ void pfile_write_hero()
 	PkPlayerStruct pkplr;
 
 	if (pfile_open_archive()) {
-		PackPlayer(&pkplr, myplr);
+		PackPlayer(&pkplr, mypnum);
 		pfile_encode_hero(&pkplr);
 		pfile_flush(gbMaxPlayers == 1);
 	}
@@ -317,7 +317,7 @@ static void pfile_read_player_from_save()
 	if (!pfile_read_hero(archive, &pkplr))
 		app_fatal("Unable to load character");
 
-	UnPackPlayer(&pkplr, 0); // myplr
+	UnPackPlayer(&pkplr, 0); // mypnum
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	pfile_SFileCloseArchive(archive);
 }
@@ -325,7 +325,7 @@ static void pfile_read_player_from_save()
 void pfile_create_player_description()
 {
 	pfile_read_player_from_save();
-	myplr = 0;
+	mypnum = 0;
 	players[0]._pTeam = 0;
 }
 
@@ -451,7 +451,7 @@ BYTE *pfile_read(const char *pszName)
 	HANDLE archive, save;
 	BYTE *buf;
 
-	save_num = pfile_get_save_num_from_name(players[myplr]._pName);
+	save_num = pfile_get_save_num_from_name(players[mypnum]._pName);
 	archive = pfile_open_save_archive(save_num);
 	if (archive == NULL)
 		app_fatal("Unable to open save file archive");

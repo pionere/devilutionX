@@ -351,7 +351,7 @@ void InitVPEntryTrigger()
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
-	AddMissile(quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, 0, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
+	AddMissile(quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, 0, 0, MIS_RPORTAL, 0, mypnum, 0, 0, 0);
 }
 
 void InitVPReturnTrigger()
@@ -361,7 +361,7 @@ void InitVPReturnTrigger()
 	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 
-	AddMissile(DBORDERX + 19, DBORDERY + 16, 0, 0, 0, MIS_RPORTAL, 0, myplr, 0, 0, 0);
+	AddMissile(DBORDERX + 19, DBORDERY + 16, 0, 0, 0, MIS_RPORTAL, 0, mypnum, 0, 0, 0);
 }
 
 static int ForceTownTrig()
@@ -843,7 +843,7 @@ void CheckTriggers()
 	PlayerStruct *p;
 	int i;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	if (p->_pmode != PM_STAND)
 		return;
 
@@ -854,25 +854,25 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-			StartNewLvl(myplr, WM_DIABNEXTLVL, currLvl._dLevelIdx + 1);
+			StartNewLvl(mypnum, WM_DIABNEXTLVL, currLvl._dLevelIdx + 1);
 			break;
 		case WM_DIABPREVLVL:
-			StartNewLvl(myplr, WM_DIABPREVLVL, currLvl._dLevelIdx - 1);
+			StartNewLvl(mypnum, WM_DIABPREVLVL, currLvl._dLevelIdx - 1);
 			break;
 		case WM_DIABRTNLVL:
-			StartNewLvl(myplr, WM_DIABRTNLVL, ReturnLvl);
+			StartNewLvl(mypnum, WM_DIABRTNLVL, ReturnLvl);
 			break;
 		case WM_DIABSETLVL:
-			StartNewLvl(myplr, WM_DIABSETLVL, trigs[i]._tlvl);
+			StartNewLvl(mypnum, WM_DIABSETLVL, trigs[i]._tlvl);
 			break;
 		case WM_DIABTOWNWARP:
 			if (!(townwarps & (1 << i)))
 				continue;
-			StartNewLvl(myplr, WM_DIABTOWNWARP, trigs[i]._tlvl);
+			StartNewLvl(mypnum, WM_DIABTOWNWARP, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:
 			TWarpFrom = currLvl._dLevelIdx;
-			StartNewLvl(myplr, WM_DIABTWARPUP, 0);
+			StartNewLvl(mypnum, WM_DIABTWARPUP, 0);
 			break;
 		default:
 			ASSUME_UNREACHABLE;

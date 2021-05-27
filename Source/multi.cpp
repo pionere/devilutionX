@@ -96,7 +96,7 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 {
 	PlayerStruct *p;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	pktHdr.wCheck = PKT_HDR_CHECK;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
@@ -113,8 +113,8 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 	NetRecvPlrData(pkt.hdr);
 	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
 	memcpy(pkt.body, packet, dwSize);
-	SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen);
-	//if (!SNetSendMessage(myplr, &pkt.hdr, pkt.hdr.wLen))
+	SNetSendMessage(mypnum, &pkt.hdr, pkt.hdr.wLen);
+	//if (!SNetSendMessage(mypnum, &pkt.hdr, pkt.hdr.wLen))
 	//	nthread_terminate_game("SNetSendMessage0");
 }
 
@@ -194,9 +194,9 @@ static void multi_handle_turn_upper_bit(int pnum)
 			break;
 	}
 
-	if (myplr == i) {
+	if (mypnum == i) {
 		sgbSendDeltaTbl[pnum] = TRUE;
-	} else if (myplr == pnum) {
+	} else if (mypnum == pnum) {
 		gbDeltaSender = i;
 	}
 }
@@ -377,10 +377,10 @@ static void multi_begin_timeout()
 	} else if (bGroupPlayers == bGroupCount) {
 		if (nLowestPlayer != nLowestActive) {
 			gbGameDestroyed = true;
-		} else if (nLowestActive == myplr) {
+		} else if (nLowestActive == mypnum) {
 			multi_check_drop_player();
 		}
-	} else if (nLowestActive == myplr) {
+	} else if (nLowestActive == mypnum) {
 		multi_check_drop_player();
 	}
 }
@@ -449,7 +449,7 @@ static void multi_process_tmsgs()
 	TCmdGItem pkt;
 
 	while (tmsg_get(&pkt)) {
-		multi_handle_all_packets(myplr, (BYTE *)&pkt, sizeof(pkt));
+		multi_handle_all_packets(mypnum, (BYTE *)&pkt, sizeof(pkt));
 	}
 }
 
@@ -474,7 +474,7 @@ void multi_process_network_packets()
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
 		p = &players[pnum];
-		if (pnum != myplr) {
+		if (pnum != mypnum) {
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 			p->_pHitPoints = SwapLE32(pkt->php);
 			p->_pMaxHP = SwapLE32(pkt->pmhp);
@@ -520,7 +520,7 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, DWORD dwLen)
 	TPkt pkt;
 	TCmdPlrInfoHdr *p;
 
-	/// ASSERT: assert(pnum != myplr);
+	/// ASSERT: assert(pnum != mypnum);
 	/// ASSERT: assert(pbSrc != NULL);
 	/// ASSERT: assert(dwLen <= 0x0ffff);
 
@@ -561,7 +561,7 @@ static void multi_send_pinfo(int pnum, char cmd)
 {
 	PkPlayerStruct pkplr;
 
-	PackPlayer(&pkplr, myplr);
+	PackPlayer(&pkplr, mypnum);
 	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
 }
 
@@ -583,9 +583,9 @@ static void SetupLocalCoords()
 #else
 	EnterLevel(DLV_TOWN);
 #endif
-	x += plrxoff[myplr];
-	y += plryoff[myplr];
-	p = &players[myplr];
+	x += plrxoff[mypnum];
+	y += plryoff[mypnum];
+	p = &players[mypnum];
 	p->_px = x;
 	p->_py = y;
 	p->_pfutx = x;
@@ -642,7 +642,7 @@ static bool multi_init_game(bool bSinglePlayer)
 	int dlgresult, playerId;
 
 	while (TRUE) {
-		// myplr = 0;
+		// mypnum = 0;
 
 		// select provider
 		if (gbSelectProvider) {
@@ -675,7 +675,7 @@ static bool multi_init_game(bool bSinglePlayer)
 		pfile_create_player_description();
 
 		if (gbLoadGame) {
-			// myplr = 0;
+			// mypnum = 0;
 			sgGameInitInfo.bMaxPlayers = 1;
 			sgGameInitInfo.bTickRate = gnTicksRate;
 			break;
@@ -690,10 +690,10 @@ static bool multi_init_game(bool bSinglePlayer)
 
 		if (dlgresult == SELGAME_JOIN) {
 			playerId = sgGameInitInfo.bPlayerId;
-			if (myplr != playerId) {
-				copy_pod(players[playerId], players[myplr]);
-				myplr = playerId;
-				players[myplr]._pTeam = myplr;
+			if (mypnum != playerId) {
+				copy_pod(players[playerId], players[mypnum]);
+				mypnum = playerId;
+				players[mypnum]._pTeam = mypnum;
 				//pfile_read_player_from_save();
 			}
 			gbJoinGame = true;
@@ -739,20 +739,20 @@ bool NetInit(bool bSinglePlayer)
 		tmsg_start();
 		sgdwGameLoops = 0;
 		sgbSentThisCycle = 0;
-		gbDeltaSender = myplr;
+		gbDeltaSender = mypnum;
 		gbSomebodyWonGameKludge = false;
 		nthread_send_and_recv_turn(0, 0);
 		SetupLocalCoords();
 		if (!bSinglePlayer)
 			multi_send_pinfo(-2, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
-		players[myplr].plractive = TRUE;
-		assert(players[myplr]._pTeam == myplr);
+		players[mypnum].plractive = TRUE;
+		assert(players[mypnum]._pTeam == mypnum);
 		if (!gbJoinGame || msg_wait_resync())
 			break;
 		NetClose();
 	}
-	assert(myplr == sgGameInitInfo.bPlayerId);
+	assert(mypnum == sgGameInitInfo.bPlayerId);
 	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
 	gnDifficulty = sgGameInitInfo.bDifficulty;
 	gnTicksRate = sgGameInitInfo.bTickRate;
@@ -770,7 +770,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 {
 	PlayerStruct* p;
 
-	// assert(myplr != pnum);
+	// assert(pnum != mypnum);
 	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
 
 	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {

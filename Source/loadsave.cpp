@@ -668,7 +668,7 @@ void LoadGame(bool firstflag)
 		glSeedTbl[i] = LoadInt();
 	}
 
-	LoadPlayer(myplr);
+	LoadPlayer(mypnum);
 
 	ReturnLvlX = LoadInt();
 	ReturnLvlY = LoadInt();
@@ -1339,7 +1339,7 @@ void SaveGame()
 		SaveInt(glSeedTbl[i]);
 	}
 
-	SavePlayer(myplr);
+	SavePlayer(mypnum);
 
 	SaveInt(ReturnLvlX);
 	SaveInt(ReturnLvlY);
@@ -1486,7 +1486,7 @@ void SaveLevel()
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
 
-	players[myplr]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
+	players[mypnum]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 }
 
 void LoadLevel()

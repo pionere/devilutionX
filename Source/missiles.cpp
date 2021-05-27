@@ -25,10 +25,10 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	PlayerStruct *p;
 	int k, sl;
 
-	assert((unsigned)myplr < MAX_PLRS);
+	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
-	sl = GetSpellLevel(myplr, sn);
-	p = &players[myplr];
+	sl = GetSpellLevel(mypnum, sn);
+	p = &players[mypnum];
 
 	switch (sn) {
 	case SPL_FIREBOLT:
@@ -733,7 +733,7 @@ static bool MonsterMHit(int mnum, int mi)
 			return false;
 	}
 
-	if (pnum == myplr)
+	if (pnum == mypnum)
 		mon->_mhitpoints -= dam;
 
 	if (mon->_mhitpoints < (1 << 6)) {
@@ -845,7 +845,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	if (dam < 64)
 		dam = 64;
 
-	if (pnum != myplr || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
+	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -909,7 +909,7 @@ static bool PlayerMHit(int pnum, int mi)
 	if (dam < 64)
 		dam = 64;
 
-	if (pnum != myplr || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
+	if (pnum != mypnum || !PlrDecHp(pnum, dam, DMGTYPE_NPC))
 		StartPlrHit(pnum, dam, false);
 	return true;
 }
@@ -1011,7 +1011,7 @@ static bool Plr2PlrMHit(int defp, int mi)
 		dam >>= 1;
 	}
 
-	if (offp == myplr)
+	if (offp == mypnum)
 		NetSendCmdPlrDamage(defp, dam);
 	StartPlrHit(defp, dam, false);
 	return true;
@@ -1320,12 +1320,12 @@ void InitMissiles()
 	int i;
 	BYTE *pTmp;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_INFRA && mis->_miSource == myplr) {
-				CalcPlrItemVals(myplr, true);
+			if (mis->_miType == MIS_INFRA && mis->_miSource == mypnum) {
+				CalcPlrItemVals(mypnum, true);
 			}
 		}
 	}
@@ -1335,9 +1335,9 @@ void InitMissiles()
 		p->_pSpellFlags &= ~(PSE_BLOOD_BOIL | PSE_LETHARGY);
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_BLODBOIL && mis->_miSource == myplr) {
+			if (mis->_miType == MIS_BLODBOIL && mis->_miSource == mypnum) {
 				int missingHP = p->_pMaxHP - p->_pHitPoints;
-				CalcPlrItemVals(myplr, true);
+				CalcPlrItemVals(mypnum, true);
 				p->_pHitPoints -= missingHP + mis->_miVar2;
 				if (p->_pHitPoints < (1 << 6)) {
 					p->_pHitPoints = (1 << 6);
@@ -2010,7 +2010,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 				if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 					if (!CheckIfTrig(tx, ty)) {
 						mis->_miDelFlag = FALSE;
-						if (misource == myplr) {
+						if (misource == mypnum) {
 							NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
 						}
 						i = 6;
@@ -2085,7 +2085,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, char micast
 {
 	assert((unsigned)misource < MAX_PLRS);
 
-	if (misource == myplr) {
+	if (misource == mypnum) {
 		if (players[misource]._pManaShield == 0)
 			NetSendCmdBParam1(true, CMD_SETSHIELD, spllvl);
 		else
@@ -2412,7 +2412,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	mis->_miVar4 = dx;
 	mis->_miVar5 = dy;
-	if (!(MINION_NR_INACTIVE(misource)) && misource == myplr)
+	if (!(MINION_NR_INACTIVE(misource)) && misource == mypnum)
 		MonStartKill(misource, misource);
 	return MIRES_DONE;
 }
@@ -2542,7 +2542,7 @@ int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	if (myplr == misource)
+	if (misource == mypnum)
 		NetSendCmdBParam2(true, CMD_DOABILITY, missile[mi]._miType == MIS_IDENTIFY ? TRUE : FALSE, spllvl);
 	return MIRES_DELETE;
 }
@@ -2690,7 +2690,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 {
 	assert((unsigned)misource < MAX_PLRS);
 
-	if (misource == myplr) {
+	if (misource == mypnum) {
 		NewCursor(CURSOR_DISARM);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 		if (sgbControllerActive) {
@@ -2832,7 +2832,7 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 {
 	MissileStruct *mis;
 
-	if (spllvl == myplr)
+	if (spllvl == mypnum)
 		NetSendCmd(true, CMD_PLRRESURRECT);
 
 	mis = &missile[mi];
@@ -2848,7 +2848,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 {
 	assert((unsigned)misource < MAX_PLRS);
 
-	if (misource == myplr)
+	if (misource == mypnum)
 		NewCursor(CURSOR_TELEKINESIS);
 	return MIRES_DELETE;
 }
@@ -3497,7 +3497,7 @@ void MI_Town(int mi)
 		mis->_miVar2++;
 	}
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
 		NetSendCmdParam1(true, CMD_WARP, mis->_miSource);
 	}
@@ -3752,7 +3752,7 @@ void MI_Teleport(int mi)
 	dPlayer[px][py] = mis->_miSource + 1;
 	ChangeLightXY(p->_plid, px, py);
 	ChangeVisionXY(p->_pvid, px, py);
-	if (mis->_miSource == myplr) {
+	if (mis->_miSource == mypnum) {
 		ViewX = px - ScrollInfo._sdx;
 		ViewY = py - ScrollInfo._sdy;
 	}

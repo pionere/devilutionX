@@ -72,7 +72,7 @@ static void gamemenu_update_single()
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 
 	enable = false;
-	if (players[myplr]._pmode != PM_DEATH && !gbDeathflag)
+	if (players[mypnum]._pmode != PM_DEATH && !gbDeathflag)
 		enable = true;
 
 	gmenu_enable(&sgSingleMenu[0], enable);
@@ -152,7 +152,7 @@ static void gamemenu_save_game(bool bActivate)
 		return;
 	}
 
-	if (players[myplr]._pmode == PM_DEATH || gbDeathflag) {
+	if (players[mypnum]._pmode == PM_DEATH || gbDeathflag) {
 		gamemenu_off();
 		return;
 	}

@@ -152,7 +152,7 @@ static void scrollrt_draw_cursor_item()
 	}
 
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !players[myplr]._pLvlUp))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !players[mypnum]._pLvlUp))
 		return;
 #endif
 
@@ -208,10 +208,10 @@ static void scrollrt_draw_cursor_item()
 	cCels = pCursCels;
 	if (frame >= CURSOR_FIRSTITEM) {
 		col = ICOL_YELLOW;
-		if (players[myplr].HoldItem._iMagical != ITEM_QUALITY_NORMAL) {
+		if (players[mypnum].HoldItem._iMagical != ITEM_QUALITY_NORMAL) {
 			col = ICOL_BLUE;
 		}
-		if (!players[myplr].HoldItem._iStatFlag) {
+		if (!players[mypnum].HoldItem._iStatFlag) {
 			col = ICOL_RED;
 		}
 
@@ -303,7 +303,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 	char trans;
 	BYTE *pCelBuff;
 
-	if (!(dFlags[x][y] & BFLAG_LIT) && !players[myplr]._pInfraFlag)
+	if (!(dFlags[x][y] & BFLAG_LIT) && !players[mypnum]._pInfraFlag)
 		return;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -346,7 +346,7 @@ static void DrawMonster(int mnum, int x, int y, int sx, int sy)
 	if (!(dFlags[x][y] & BFLAG_LIT)) {
 		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, 1);
 	} else {
-		if (players[myplr]._pInfraFlag && light_table_index > 8)
+		if (players[mypnum]._pInfraFlag && light_table_index > 8)
 			trans = 1;
 		else if (mon->_mmode == MM_STONE)
 			trans = 2;
@@ -403,7 +403,7 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 	int px, py, nCel, nWidth, l;
 	BYTE *pCelBuff;
 
-	if (dFlags[x][y] & BFLAG_LIT || players[myplr]._pInfraFlag) {
+	if (dFlags[x][y] & BFLAG_LIT || players[mypnum]._pInfraFlag) {
 		p = &players[pnum];
 		px = sx + p->_pxoff - p->_pAnimXOffset;
 		py = sy + p->_pyoff;
@@ -431,9 +431,9 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 		nWidth = p->_pAnimWidth;
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
-		if (pnum == myplr) {
+		if (pnum == mypnum) {
 			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
-		} else if (!(dFlags[x][y] & BFLAG_LIT) || (players[myplr]._pInfraFlag && light_table_index > 8)) {
+		} else if (!(dFlags[x][y] & BFLAG_LIT) || (players[mypnum]._pInfraFlag && light_table_index > 8)) {
 			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, 1);
 		} else {
 			l = light_table_index;
@@ -1180,7 +1180,7 @@ static void DrawView()
 	} else if (gbQuestlog) {
 		DrawQuestLog();
 	}
-	if (players[myplr]._pLvlUp && stextflag == STORE_NONE) {
+	if (players[mypnum]._pLvlUp && stextflag == STORE_NONE) {
 		DrawLevelUpIcon();
 	}
 	if (gbQtextflag) {

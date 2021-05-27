@@ -17,8 +17,8 @@ static void sync_init_monsters()
 {
 	int i, mnum, px, py;
 
-	px = players[myplr]._px;
-	py = players[myplr]._py;
+	px = players[mypnum]._px;
+	py = players[mypnum]._py;
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		monster_dists[mnum] = abs(px - monster[mnum]._mx) + abs(py - monster[mnum]._my);
@@ -136,7 +136,7 @@ static bool sync_prio_monster(TSyncMonster *symon)
 	}
 
 	assert((unsigned)sync_pinum < NUM_INVLOC);
-	is = &players[myplr].InvBody[sync_pinum];
+	is = &players[mypnum].InvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;
 		pHdr->wPInvIndx = is->_iIdx;
@@ -207,12 +207,12 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	mnum = symon->_mndx;
 	mon = &monster[mnum];
 
-	delta = abs(players[myplr]._px - mon->_mx) + abs(players[myplr]._py - mon->_my);
+	delta = abs(players[mypnum]._px - mon->_mx) + abs(players[mypnum]._py - mon->_my);
 	if (delta > 255) {
 		delta = 255;
 	}
 
-	if (delta < symon->_mdelta || (delta == symon->_mdelta && pnum > myplr)) {
+	if (delta < symon->_mdelta || (delta == symon->_mdelta && pnum > mypnum)) {
 		return;
 	}
 	if (mon->_mfutx == symon->_mx && mon->_mfuty == symon->_my) {
@@ -255,7 +255,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 	//assert(pHdr->bCmd == CMD_SYNCDATA);
 	//assert(currLvl._dLevelIdx == pHdr->bLevel);
 	/// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-	//assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != myplr);
+	//assert(geBufferMsgs != MSG_DOWNLOAD_DELTA && pnum != mypnum);
 	for (wLen = SwapLE16(pHdr->wLen); wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		sync_monster(pnum, (TSyncMonster *)pbBuf);
 		pbBuf += sizeof(TSyncMonster);
@@ -265,7 +265,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 
 void sync_init()
 {
-	sync_mnum = 16 * myplr;
+	sync_mnum = 16 * mypnum;
 	memset(monster_prio, 255, sizeof(monster_prio));
 }
 

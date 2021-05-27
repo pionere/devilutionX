@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int myplr;
+extern int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern BYTE lvlLoad;
 extern bool gbDeathflag;

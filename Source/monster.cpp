@@ -1616,7 +1616,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	mon = &monster[mnum];
 	if ((unsigned)pnum < MAX_PLRS) {
 		mon->_mWhoHit |= 1 << pnum;
-		if (pnum == myplr) {
+		if (pnum == mypnum) {
 			NetSendCmdMonstDamage(mnum, mon->_mhitpoints, dam);
 		}
 	}
@@ -1752,7 +1752,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if ((unsigned)offm < MAX_MINIONS) {
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->_mWhoHit |= 1 << offm;
-		if (offm == myplr) {
+		if (offm == mypnum) {
 			NetSendCmdMonstDamage(defm, dmon->_mhitpoints, dam);
 		}
 	}
@@ -1839,12 +1839,12 @@ static void M2MStartKill(int offm, int defm)
 	}
 	static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartKill requires that owner of a monster has the same id as the monster itself.");
 	// check if it is a golem vs. monster/golem -> the attacker's owner should send the message
-	if (offm == myplr)
+	if (offm == mypnum)
 		sendmsg = true;
 	else if (offm < MAX_MINIONS)
 		sendmsg = false;
 	// check if it is a monster vs. golem -> the golem's owner should send the message
-	else if (defm == myplr)
+	else if (defm == mypnum)
 		sendmsg = true;
 	else if (defm < MAX_MINIONS)
 		sendmsg = false;
@@ -1861,7 +1861,7 @@ static void M2MStartKill(int offm, int defm)
 
 void MonStartKill(int mnum, int pnum)
 {
-	if (myplr != pnum && pnum != -1)
+	if (pnum != mypnum && pnum != -1)
 		// Wait for the message from the killer so we get the exact location as well.
 		// Necessary to have synced drops. Sendmsg should be false anyway.
 		return;
@@ -2101,7 +2101,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 			return;
 		}
 	}
-	if (mon->_mType == MT_YZOMBIE && pnum == myplr) {
+	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
 #ifdef HELLFIRE
 		if (p->_pMaxHP > 64) {
 #else
@@ -2137,7 +2137,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		if (mon->_mhitpoints > mon->_mmaxhp)
 			mon->_mhitpoints = mon->_mmaxhp;
 	}
-	if (pnum == myplr) {
+	if (pnum == mypnum) {
 		if (PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 #ifdef HELLFIRE
 			MonStartStand(mnum, mon->_mdir);
@@ -2367,7 +2367,7 @@ static bool MonDoTalk(int mnum)
 	mon->_mgoal = MGOAL_TALKING;
 	if (effect_is_playing(alltext[mon->mtalkmsg].sfxnr))
 		return false;
-	InitQTextMsg(mon->mtalkmsg, gbMaxPlayers == 1 /*mon->_mListener == myplr*/); // MON_TIMER
+	InitQTextMsg(mon->mtalkmsg, gbMaxPlayers == 1 /*mon->_mListener == mypnum*/); // MON_TIMER
 	if (mon->_uniqtype - 1 == UMT_LAZURUS) {
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
@@ -2433,7 +2433,7 @@ void DoEnding()
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
 	};
-	play_movie(vicSets[players[myplr]._pClass], 0);
+	play_movie(vicSets[players[mypnum]._pClass], 0);
 	play_movie("gendata\\Diabend.smk", 0);
 
 	bMusicOn = gbMusicOn;
@@ -2461,8 +2461,8 @@ void PrepDoEnding(bool soundOn)
 	gbCineflag = true;
 
 	killLevel = gnDifficulty + 1;
-	if (killLevel > players[myplr]._pDiabloKillLevel)
-		players[myplr]._pDiabloKillLevel = killLevel;
+	if (killLevel > players[mypnum]._pDiabloKillLevel)
+		players[mypnum]._pDiabloKillLevel = killLevel;
 
 	if (gbMaxPlayers == 1) {
 		// save the hero + items
@@ -4238,7 +4238,7 @@ void MAI_SnotSpil(int mnum)
 			return;
 		quests[Q_LTBANNER]._qactive = QUEST_DONE;
 		quests[Q_LTBANNER]._qvar1 = 4;
-		if (mon->_mListener == myplr || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == mypnum || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmd(true, CMD_OPENSPIL);
 			NetSendCmdQuest(Q_LTBANNER, true);
 		}
@@ -4273,10 +4273,10 @@ void MAI_Lazurus(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
-			if (mon->_mgoal == MGOAL_INQUIRING && players[myplr]._px == DBORDERX + 19 && players[myplr]._py == DBORDERY + 30) {
+			if (mon->_mgoal == MGOAL_INQUIRING && players[mypnum]._px == DBORDERX + 19 && players[mypnum]._py == DBORDERY + 30) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
-				mon->_mListener = myplr;
+				mon->_mListener = mypnum;
 				quests[Q_BETRAYER]._qvar1 = 5;
 			} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_LAZ1)) {
 				ObjChangeMapResync(1, 18, 20, 24);
@@ -4290,7 +4290,7 @@ void MAI_Lazurus(int mnum)
 			if (mon->_mgoal == MGOAL_INQUIRING) {
 				if (quests[Q_BETRAYER]._qvar1 <= 3) {
 					mon->_mmode = MM_TALK;
-					mon->_mListener = myplr;
+					mon->_mListener = mypnum;
 				} else {
 					mon->mtalkmsg = TEXT_NONE;
 					mon->_mgoal = MGOAL_NORMAL;
@@ -4384,7 +4384,7 @@ void MAI_Warlord(int mnum)
 		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
 			return;
 		quests[Q_WARLORD]._qvar1 = 1;
-		if (mon->_menemy == myplr || !players[mon->_menemy].plractive || players[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_menemy == mypnum || !players[mon->_menemy].plractive || players[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
@@ -4397,7 +4397,7 @@ void MAI_Warlord(int mnum)
 		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
 			return;
 		quests[Q_WARLORD]._qvar1 = 2;
-		if (mon->_mListener == myplr || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == mypnum || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		// mon->_msquelch = UCHAR_MAX;
@@ -5185,11 +5185,11 @@ void TalktoMonster(int mnum, int pnum)
 		if (quests[Q_LTBANNER]._qvar1 == 0) {
 			assert(mon->mtalkmsg == TEXT_BANNER10);
 			quests[Q_LTBANNER]._qvar1 = 1;
-			if (pnum == myplr)
+			if (pnum == mypnum)
 				NetSendCmdQuest(Q_LTBANNER, true);
 		} else if (quests[Q_LTBANNER]._qvar1 == 1) {
 			if (PlrHasItem(pnum, IDI_BANNER, &iv)) {
-				if (pnum == myplr) {
+				if (pnum == mypnum) {
 					PlrInvItemRemove(pnum, iv);
 				}
 				mon->mtalkmsg = TEXT_BANNER12;
@@ -5200,7 +5200,7 @@ void TalktoMonster(int mnum, int pnum)
 		if (mon->mtalkmsg == TEXT_BANNER12) {
 			// mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_LTBANNER]._qvar1 = 3;
-			if (pnum == myplr)
+			if (pnum == mypnum)
 				NetSendCmdQuest(Q_LTBANNER, true);
 		}
 	} else if (mon->_mAi == AI_GARBUD) {
@@ -5215,7 +5215,7 @@ void TalktoMonster(int mnum, int pnum)
 		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
-		if (pnum == myplr)
+		if (pnum == mypnum)
 			NetSendCmdQuest(Q_GARBUD, true);
 	} else if (mon->_mAi == AI_LACHDAN) {
 		assert(QuestStatus(Q_VEIL));
@@ -5223,14 +5223,14 @@ void TalktoMonster(int mnum, int pnum)
 		if (quests[Q_VEIL]._qactive == QUEST_INIT) {
 			quests[Q_VEIL]._qactive = QUEST_ACTIVE;
 			quests[Q_VEIL]._qlog = TRUE;
-			if (pnum == myplr)
+			if (pnum == mypnum)
 				NetSendCmdQuest(Q_VEIL, true);
 		} else if (quests[Q_VEIL]._qactive != QUEST_DONE && PlrHasItem(pnum, IDI_GLDNELIX, &iv)) {
 			mon->mtalkmsg = TEXT_VEIL11;
 			// mon->_mgoal = MGOAL_INQUIRING;
 			//mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_VEIL]._qactive = QUEST_DONE;
-			if (pnum == myplr) {
+			if (pnum == mypnum) {
 				PlrInvItemRemove(pnum, iv);
 				NetSendCmdQuest(Q_VEIL, false);
 			}
@@ -5241,7 +5241,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
 			quests[Q_ZHAR]._qvar1 = 1;
 			quests[Q_ZHAR]._qlog = TRUE;
-			if (pnum == myplr)
+			if (pnum == mypnum)
 				NetSendCmdQuest(Q_ZHAR, true);
 			iv = SPL_SWIPE;
 			if (players[pnum]._pClass == PC_ROGUE)
@@ -5254,7 +5254,7 @@ void TalktoMonster(int mnum, int pnum)
 			mon->mtalkmsg = TEXT_ZHAR2;
 			//mon->_mVar8 = 0; // init MON_TIMER
 			quests[Q_ZHAR]._qvar1 = 2;
-			if (pnum == myplr)
+			if (pnum == mypnum)
 				NetSendCmdQuest(Q_ZHAR, true);
 		}
 	}
@@ -5286,7 +5286,7 @@ void SpawnGolum(int mnum, int x, int y, int level)
 	mon->_mMaxDamage = 2 * (level + 8);
 	MonStartSpStand(mnum, 0);
 	MonEnemy(mnum);
-	if (mnum == myplr) {
+	if (mnum == mypnum) {
 		NetSendCmdGolem(
 		    mon->_mx,
 		    mon->_my,

@@ -250,7 +250,7 @@ void DrawInv()
 
 	cCels = pCursCels;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	is = &p->InvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
 		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X;
@@ -466,7 +466,7 @@ void DrawInvBelt()
 
 	cCels = pCursCels;
 
-	is = players[myplr].SpdList;
+	is = players[mypnum].SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, is++) {
 		if (is->_itype == ITYPE_NONE) {
 			continue;
@@ -810,7 +810,7 @@ static void CheckInvPaste()
 	bool done;
 	int il, cn, it, iv, ig, gt;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	holditem = &p->HoldItem;
 
 	//r = holditem->_iCurs + CURSOR_FIRSTITEM;
@@ -1016,7 +1016,7 @@ static void CheckInvPaste()
 		if (is->_itype != ITYPE_NONE && wRight->_itype != ITYPE_NONE) {
 			if (wRight->_itype != ITYPE_SHIELD)
 				wRight = is;
-			if (!AutoPlaceInv(myplr, wRight, true))
+			if (!AutoPlaceInv(mypnum, wRight, true))
 				return;
 
 			wRight->_itype = ITYPE_NONE;
@@ -1097,7 +1097,7 @@ static void CheckInvPaste()
 					p->_pGold += holditem->_ivalue;
 				cn = SwapItem(&p->InvList[il], holditem);
 				if (holditem->_itype == ITYPE_GOLD)
-					CalculateGold(myplr);
+					CalculateGold(mypnum);
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (abs(p->InvGrid[i]) == it)
 						p->InvGrid[i] = 0;
@@ -1125,7 +1125,7 @@ static void CheckInvPaste()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	CalcPlrInv(myplr, true);
+	CalcPlrInv(mypnum, true);
 	if (cn == CURSOR_HAND)
 		SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
 	NewCursor(cn);
@@ -1150,7 +1150,7 @@ static void CheckBeltPaste()
 	if (r > SLOTXY_BELT_LAST)
 		return; // FALSE;
 
-	holditem = &players[myplr].HoldItem;
+	holditem = &players[mypnum].HoldItem;
 
 	// BUGFIX: TODO why is _iLoc not set to ILOC_BELT?
 	if (holditem->_iLoc != ILOC_BELT
@@ -1165,7 +1165,7 @@ static void CheckBeltPaste()
 	r -= SLOTXY_BELT_FIRST;
 	NetSendCmdChItem(holditem, INVITEM_BELT_FIRST + r);
 
-	is = &players[myplr].SpdList[r];
+	is = &players[mypnum].SpdList[r];
 	cn = CURSOR_HAND;
 	if (is->_itype == ITYPE_NONE) {
 		copy_pod(*is, *holditem);
@@ -1173,8 +1173,8 @@ static void CheckBeltPaste()
 		cn = SwapItem(is, holditem);
 	}
 	//gbRedrawFlags |= REDRAW_SPEED_BAR;
-	CalcPlrScrolls(myplr);
-	//CalcPlrInv(myplr, true);
+	CalcPlrScrolls(mypnum);
+	//CalcPlrInv(mypnum, true);
 	if (cn == CURSOR_HAND)
 		SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
 	NewCursor(cn);
@@ -1218,7 +1218,7 @@ static void CheckInvCut(bool bShift)
 	char ii;
 	int r, i, j;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	if (p->_pmode > PM_WALK3) {
 		return; // FALSE;
 	}
@@ -1286,7 +1286,7 @@ static void CheckInvCut(bool bShift)
 					}
 				}
 			}
-			if (bShift && AutoPlaceBelt(myplr, pi, true)) {
+			if (bShift && AutoPlaceBelt(mypnum, pi, true)) {
 				pi->_itype = ITYPE_NONE;
 				return; // TRUE;
 			}
@@ -1294,7 +1294,7 @@ static void CheckInvCut(bool bShift)
 			pi = &p->SpdList[r - INVITEM_BELT_FIRST];
 			assert(pi->_itype != ITYPE_NONE);
 			//gbRedrawFlags |= REDRAW_SPEED_BAR;
-			if (bShift && AutoPlaceInv(myplr, pi, true)) {
+			if (bShift && AutoPlaceInv(mypnum, pi, true)) {
 				pi->_itype = ITYPE_NONE;
 				return; // TRUE;
 			}
@@ -1304,12 +1304,12 @@ static void CheckInvCut(bool bShift)
 
 	copy_pod(p->HoldItem, *pi);
 	if (pi->_itype == ITYPE_GOLD) {
-		CalculateGold(myplr);
+		CalculateGold(mypnum);
 	}
 	pi->_itype = ITYPE_NONE;
 
-	CalcPlrInv(myplr, true);
-	ItemStatOk(myplr, &p->HoldItem);
+	CalcPlrInv(mypnum, true);
+	ItemStatOk(mypnum, &p->HoldItem);
 
 	PlaySFX(IS_IGRAB);
 	NewCursor(p->HoldItem._iCurs + CURSOR_FIRSTITEM);
@@ -1432,7 +1432,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (quests[Q_BLIND]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-		if (pnum == myplr) {
+		if (pnum == mypnum) {
 			NetSendCmdQuest(Q_BLIND, false); // recipient should not matter
 		}
 		return;
@@ -1451,7 +1451,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (quests[Q_ANVIL]._qactive == QUEST_INIT) {
 			quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
 			quests[Q_ANVIL]._qvar1 = 1;
-			if (pnum == myplr) {
+			if (pnum == mypnum) {
 				NetSendCmdQuest(Q_ANVIL, false); // recipient should not matter
 			}
 		}
@@ -1470,7 +1470,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 		if (quests[Q_ROCK]._qactive == QUEST_INIT) {
 			quests[Q_ROCK]._qactive = QUEST_ACTIVE;
 			quests[Q_ROCK]._qvar1 = 1;
-			if (pnum == myplr) {
+			if (pnum == mypnum) {
 				NetSendCmdQuest(Q_ROCK, false); // recipient should not matter
 			}
 		}
@@ -1492,7 +1492,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 			// quests[Q_GRAVE]._qlog = FALSE;
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qvar1 = 1;
-			if (pnum == myplr) {
+			if (pnum == mypnum) {
 				NetSendCmdQuest(Q_GRAVE, false); // recipient should not matter
 			}
 		}
@@ -1524,7 +1524,7 @@ static void CheckQuestItem(int pnum, ItemStruct *is)
 	} else {
 		return;
 	}
-	if (pnum == myplr) {
+	if (pnum == mypnum) {
 		sfxdelay = delay;
 		sfxdnum = idx;
 	}
@@ -1541,7 +1541,7 @@ void InvGetItem(int pnum, int ii)
 	dItem[is->_ix][is->_iy] = 0;
 
 	p = &players[pnum];
-	if (myplr == pnum && pcurs >= CURSOR_FIRSTITEM)
+	if (mypnum == pnum && pcurs >= CURSOR_FIRSTITEM)
 		NetSendCmdPItem(true, CMD_SYNCPUTITEM, &p->HoldItem, p->_px, p->_py);
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
@@ -1586,7 +1586,7 @@ void AutoGetItem(int pnum, int ii)
 		dItem[is->_ix][is->_iy] = 0;
 		DeleteItems(ii);
 	} else {
-		if (pnum == myplr) {
+		if (pnum == mypnum) {
 			PlaySFX(sgSFXSets[SFXS_PLR_14][p->_pClass], 3);
 		}
 		RespawnItem(ii, true);
@@ -1734,10 +1734,10 @@ bool DropItem()
 
 	x = cursmx;
 	y = cursmy;
-	if (!FindItemLocation(players[myplr]._px, players[myplr]._py, &x, &y, 1))
+	if (!FindItemLocation(players[mypnum]._px, players[mypnum]._py, &x, &y, 1))
 		return false;
 
-	NetSendCmdPItem(true, CMD_PUTITEM, &players[myplr].HoldItem, cursmx, cursmy);
+	NetSendCmdPItem(true, CMD_PUTITEM, &players[mypnum].HoldItem, cursmx, cursmy);
 	NewCursor(CURSOR_HAND);
 	return true;
 }
@@ -1757,7 +1757,7 @@ int InvPutItem(int pnum, int x, int y, int ii)
 {
 	ii = SyncPutItem(pnum, x, y, ii, true);
 
-	if (ii != -1 && pnum == myplr) {
+	if (ii != -1 && pnum == mypnum) {
 		NewCursor(CURSOR_HAND);
 	}
 	return ii;
@@ -1819,7 +1819,7 @@ BYTE CheckInvBelt()
 		}
 	}
 	r -= SLOTXY_BELT_FIRST;
-	if (r < MAXBELTITEMS && players[myplr].SpdList[r]._itype != ITYPE_NONE) {
+	if (r < MAXBELTITEMS && players[mypnum].SpdList[r]._itype != ITYPE_NONE) {
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		return INVITEM_BELT_FIRST + r;
 	}
@@ -1843,7 +1843,7 @@ BYTE CheckInvItem()
 		}
 	}
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	switch (InvSlotTbl[r]) {
 	case SLOT_HEAD:
 		rv = INVITEM_HEAD;
@@ -1906,11 +1906,11 @@ BYTE CheckInvItem()
 
 static void StartGoldDrop()
 {
-	if (gbTalkflag || players[myplr]._pmode != PM_STAND)
+	if (gbTalkflag || players[mypnum]._pmode != PM_STAND)
 		return;
 	initialDropGoldIndex = pcursinvitem;
 	assert(pcursinvitem >= INVITEM_INV_FIRST && pcursinvitem <= INVITEM_INV_LAST);
-	initialDropGoldValue = players[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST]._ivalue;
+	initialDropGoldValue = players[mypnum].InvList[pcursinvitem - INVITEM_INV_FIRST]._ivalue;
 	gbDropGoldFlag = true;
 	dropGoldValue = 0;
 }
@@ -1920,7 +1920,7 @@ static void InvAddHp()
 	PlayerStruct *p;
 	int hp;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	hp = p->_pMaxHP >> 8;
 	hp = ((hp >> 1) + random_(39, hp)) << 6;
 	switch (p->_pClass) {
@@ -1938,7 +1938,7 @@ static void InvAddHp()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncHp(myplr, hp);
+	PlrIncHp(mypnum, hp);
 }
 
 static void InvAddMana()
@@ -1946,7 +1946,7 @@ static void InvAddMana()
 	PlayerStruct *p;
 	int mana;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	mana = p->_pMaxMana >> 8;
 	mana = ((mana >> 1) + random_(40, mana)) << 6;
 	switch (p->_pClass) {
@@ -1962,7 +1962,7 @@ static void InvAddMana()
 	default:
 		ASSUME_UNREACHABLE
 	}
-	PlrIncMana(myplr, mana);
+	PlrIncMana(mypnum, mana);
 }
 
 bool InvUseItem(int cii)
@@ -1970,7 +1970,7 @@ bool InvUseItem(int cii)
 	int iv, sn;
 	ItemStruct *is;
 	bool speedlist;
-	int pnum = myplr;
+	int pnum = mypnum;
 	PlayerStruct *p;
 
 	if (players[pnum]._pHitPoints < (1 << 6))

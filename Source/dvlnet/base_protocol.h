@@ -155,7 +155,7 @@ void base_protocol<P>::send(packet &pkt)
 	plr_t pkt_plr = pkt.dest();
 
 	if (pkt_plr < MAX_PLRS) {
-		if (pkt_plr == myplr)
+		if (pkt_plr == mypnum)
 			return;
 		if (peers[pkt_plr])
 			proto.send(peers[pkt_plr], pkt.data());

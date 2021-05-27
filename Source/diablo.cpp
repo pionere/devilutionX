@@ -614,7 +614,7 @@ BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
 {
 	PlayerStruct *p;
 
-	p = &players[myplr];
+	p = &players[mypnum];
 	if (sn == SPL_INVALID
 	 || (spelldata[sn].sFlags & p->_pSkillFlags) != spelldata[sn].sFlags) {
 		// PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
@@ -627,7 +627,7 @@ BYTE ValidateSkill(BYTE sn, BYTE splType, int *sf)
 		*sf = SPLFROM_ABILITY;
 		break;
 	case RSPLTYPE_SPELL:
-		if (CheckSpell(myplr, sn)) {
+		if (CheckSpell(mypnum, sn)) {
 			*sf = SPLFROM_MANA;
 		} else {
 			*sf = SPLFROM_INVALID;
@@ -673,17 +673,17 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (atkSkill != SPL_INVALID) {
 		if (atkSkill == SPL_BLOCK) {
-			int dir = GetDirection(players[myplr]._px, players[myplr]._py, cursmx, cursmy);
+			int dir = GetDirection(players[mypnum]._px, players[mypnum]._py, cursmx, cursmy);
 			NetSendCmdBParam1(true, CMD_BLOCK, dir);
 			return;
 		}
 
-		int askl = GetSpellLevel(myplr, atkSkill);
+		int askl = GetSpellLevel(mypnum, atkSkill);
 
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
 			NewCursor(spelldata[atkSkill].spCurs);
-			players[myplr]._pTSpell = atkSkill;
-			players[myplr]._pTSplFrom = asf;
+			players[mypnum]._pTSpell = atkSkill;
+			players[mypnum]._pTSplFrom = asf;
 			return;
 		}
 
@@ -700,14 +700,14 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			} else {
 				if (spelldata[atkSkill].sType != STYPE_NONE)
 					NetSendCmdMonstSkill(pcursmonst, atkSkill, asf, askl);
-				else if (players[myplr]._pSkillFlags & SFLAG_RANGED)
+				else if (players[mypnum]._pSkillFlags & SFLAG_RANGED)
 					NetSendCmdMonstAttack(CMD_RATTACKID, pcursmonst, atkSkill, askl);
 				else
 					NetSendCmdMonstAttack(CMD_ATTACKID, pcursmonst, atkSkill, askl);
 			}
 			return;
 		}
-		if (pcursplr != PLR_NONE && players[myplr]._pTeam != players[pcursplr]._pTeam) {
+		if (pcursplr != PLR_NONE && players[mypnum]._pTeam != players[pcursplr]._pTeam) {
 			if (spelldata[atkSkill].sType != STYPE_NONE)
 				NetSendCmdPlrSkill(pcursplr, atkSkill, asf, askl);
 			else
@@ -727,7 +727,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			sfx = sgSFXSets[SFXS_PLR_35]; // no mana
 		else
 			sfx = sgSFXSets[SFXS_PLR_34]; // nothing to do/not ready
-		PlaySFX(sfx[players[myplr]._pClass]);
+		PlaySFX(sfx[players[mypnum]._pClass]);
 		return;
 	}
 
@@ -755,7 +755,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 
 	if (pcursobj != OBJ_NONE) {
-		bool bNear = abs(players[myplr]._px - cursmx) < 2 && abs(players[myplr]._py - cursmy) < 2;
+		bool bNear = abs(players[mypnum]._px - cursmx) < 2 && abs(players[mypnum]._py - cursmy) < 2;
 		if (moveSkill == SPL_WALK || (bNear && object[pcursobj]._oBreak == 1)) {
 			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursmx, cursmy, pcursobj);
 			return;
@@ -764,7 +764,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 	if (moveSkill != SPL_WALK) {
 		// TODO: check if cursmx/y == _px/y ?
-		int mskl = GetSpellLevel(myplr, moveSkill);
+		int mskl = GetSpellLevel(mypnum, moveSkill);
 		NetSendCmdLocSkill(cursmx, cursmy, moveSkill, msf, mskl);
 		return;
 	}
@@ -781,8 +781,8 @@ static void ActionBtnCmd(bool bShift)
 {
 	assert(pcurs == CURSOR_HAND);
 
-	DoActionBtnCmd(players[myplr]._pMoveSkill, players[myplr]._pMoveSkillType,
-		players[myplr]._pAtkSkill, players[myplr]._pAtkSkillType, bShift);
+	DoActionBtnCmd(players[mypnum]._pMoveSkill, players[mypnum]._pMoveSkillType,
+		players[mypnum]._pAtkSkill, players[mypnum]._pAtkSkillType, bShift);
 }
 
 bool TryIconCurs(bool bShift)
@@ -792,14 +792,14 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
 		if (pcursinvitem != INVITEM_NONE) {
-			PlayerStruct *p = &players[myplr];
+			PlayerStruct *p = &players[mypnum];
 			NetSendCmdLocSkill(p->_px, p->_py, p->_pTSpell, p->_pTSplFrom, pcursinvitem);
 		}
 		break;
 	case CURSOR_DISARM:
 		if (pcursobj != OBJ_NONE) {
 			if (!bShift ||
-			 (abs(players[myplr]._px - cursmx) < 2 && abs(players[myplr]._py - cursmy) < 2)) {
+			 (abs(players[mypnum]._px - cursmx) < 2 && abs(players[mypnum]._py - cursmy) < 2)) {
 				NetSendCmdLocParam1(true, CMD_DISARMXY, cursmx, cursmy, pcursobj);
 				return true;
 			}
@@ -807,7 +807,7 @@ bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE)
-			NetSendCmdBParam2(true, CMD_DOOIL, players[myplr]._pOilFrom, pcursinvitem);
+			NetSendCmdBParam2(true, CMD_DOOIL, players[mypnum]._pOilFrom, pcursinvitem);
 		break;
 	case CURSOR_TELEKINESIS:
 		if (pcursobj != OBJ_NONE)
@@ -819,15 +819,15 @@ bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_RESURRECT:
 		if (pcursplr != PLR_NONE) {
-			int sn = players[myplr]._pTSpell;
-			int sf = players[myplr]._pTSplFrom;
+			int sn = players[mypnum]._pTSpell;
+			int sf = players[mypnum]._pTSplFrom;
 			NetSendCmdLocSkill(players[pcursplr]._px, players[pcursplr]._py, sn, sf, pcursplr);
 		}
 		break;
 	case CURSOR_TELEPORT: {
-		int sn = players[myplr]._pTSpell;
-		int sf = players[myplr]._pTSplFrom;
-		int sl = GetSpellLevel(myplr, sn);
+		int sn = players[mypnum]._pTSpell;
+		int sf = players[mypnum]._pTSplFrom;
+		int sl = GetSpellLevel(mypnum, sn);
 		if (pcursmonst != -1)
 			NetSendCmdMonstSkill(pcursmonst, sn, sf, sl);
 		else if (pcursplr != PLR_NONE)
@@ -837,9 +837,9 @@ bool TryIconCurs(bool bShift)
 	} break;
 	case CURSOR_HEALOTHER:
 		if (pcursplr != PLR_NONE) {
-			int sn = players[myplr]._pTSpell;
-			int sf = players[myplr]._pTSplFrom;
-			int sl = GetSpellLevel(myplr, sn);
+			int sn = players[mypnum]._pTSpell;
+			int sf = players[mypnum]._pTSplFrom;
+			int sl = GetSpellLevel(mypnum, sn);
 			NetSendCmdPlrSkill(pcursplr, sn, sf, sl);
 		}
 		break;
@@ -933,8 +933,8 @@ void AltActionBtnCmd(bool bShift)
 {
 	assert(pcurs == CURSOR_HAND);
 
-	DoActionBtnCmd(players[myplr]._pAltMoveSkill, players[myplr]._pAltMoveSkillType,
-		players[myplr]._pAltAtkSkill, players[myplr]._pAltAtkSkillType, bShift);
+	DoActionBtnCmd(players[mypnum]._pAltMoveSkill, players[mypnum]._pAltMoveSkillType,
+		players[mypnum]._pAltAtkSkill, players[mypnum]._pAltAtkSkillType, bShift);
 }
 
 static void AltActionBtnDown(bool bShift)
@@ -944,7 +944,7 @@ static void AltActionBtnDown(bool bShift)
 	assert(PauseMode != 2);
 	assert(!gbDoomflag);
 
-	if (players[myplr]._pInvincible)
+	if (players[mypnum]._pInvincible)
 		return;
 
 	if (gbSkillListFlag) {
@@ -1362,11 +1362,11 @@ static void PressKey(int vkey)
 	case ACT_VER:
 		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
 			copy_str(gbNetMsg, gszProductName);
-			NetSendCmdString(1 << myplr);
+			NetSendCmdString(1 << mypnum);
 		} else {
 			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
 			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
-			NetSendCmdString(1 << myplr);
+			NetSendCmdString(1 << mypnum);
 		}
 		break;
 	case ACT_HELP:
@@ -1400,10 +1400,10 @@ static void PressKey(int vkey)
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << myplr);
+			NetSendCmdString(1 << mypnum);
 		}
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %i", numitems);
-		NetSendCmdString(1 << myplr);
+		NetSendCmdString(1 << mypnum);
 	}
 	else if (vkey == DVL_VK_F4) {
 		PrintDebugQuest();
@@ -1438,14 +1438,14 @@ static void PressChar(WPARAM vkey)
 				arrowdebug = 0;
 			}
 			if (arrowdebug == 0) {
-				players[myplr]._pIFlags &= ~ISPL_FIRE_ARROWS;
-				players[myplr]._pIFlags &= ~ISPL_LIGHT_ARROWS;
+				players[mypnum]._pIFlags &= ~ISPL_FIRE_ARROWS;
+				players[mypnum]._pIFlags &= ~ISPL_LIGHT_ARROWS;
 			}
 			if (arrowdebug == 1) {
-				players[myplr]._pIFlags |= ISPL_FIRE_ARROWS;
+				players[mypnum]._pIFlags |= ISPL_FIRE_ARROWS;
 			}
 			if (arrowdebug == 2) {
-				players[myplr]._pIFlags |= ISPL_LIGHT_ARROWS;
+				players[mypnum]._pIFlags |= ISPL_LIGHT_ARROWS;
 			}
 			arrowdebug++;
 		}
@@ -1472,7 +1472,7 @@ static void PressChar(WPARAM vkey)
 		break;
 	case 'a':
 		if (debug_mode_key_inverted_v) {
-			players[myplr]._pSkillLvl[players[myplr]._pAltAtkSkill]++;
+			players[mypnum]._pSkillLvl[players[mypnum]._pAltAtkSkill]++;
 		}
 		break;
 	case 'D':
@@ -1496,15 +1496,15 @@ static void PressChar(WPARAM vkey)
 	case 'R':
 	case 'r':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %i", glSeedTbl[currLvl._dLevelIdx]);
-		NetSendCmdString(1 << myplr);
+		NetSendCmdString(1 << mypnum);
 		break;
 	case 'T':
 	case 't':
 		if (debug_mode_key_inverted_v) {
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %i  PY = %i", players[myplr]._px, players[myplr]._py);
-			NetSendCmdString(1 << myplr);
+			snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %i  PY = %i", players[mypnum]._px, players[mypnum]._py);
+			NetSendCmdString(1 << mypnum);
 			snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %i  CY = %i  DP = %i", cursmx, cursmy, dungeon[cursmx][cursmy]);
-			NetSendCmdString(1 << myplr);
+			NetSendCmdString(1 << mypnum);
 		}
 		break;
 	case '|':

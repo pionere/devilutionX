@@ -486,7 +486,7 @@ static void TownerTalk(int store, int talk)
 void TalkToTowner(int tnum)
 {
 	TownerStruct *tw;
-	int i, dx, dy, qt, qn, pnum = myplr;
+	int i, dx, dy, qt, qn, pnum = mypnum;
 #ifdef HELLFIRE
 	int ii;
 #endif
