@@ -818,6 +818,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 			NewPlrAnim(pnum, plr[pnum]._pDAnim, DIR_S, plr[pnum]._pDFrames, PlrAnimFrameLens[PA_DEATH], plr[pnum]._pDWidth);
 			plr[pnum]._pAnimFrame = plr[pnum]._pAnimLen - 1;
 			plr[pnum]._pVar8 = 2 * plr[pnum]._pAnimLen;
+			plr[pnum]._pVar7 = 0; // DEATH_DELAY
 			dFlags[plr[pnum]._px][plr[pnum]._py] |= BFLAG_DEAD_PLAYER;
 		}*/
 	}

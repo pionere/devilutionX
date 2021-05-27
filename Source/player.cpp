@@ -13,7 +13,6 @@ PlayerStruct plr[MAX_PLRS];
 /* Counter to suppress animations in case the current player is changing the level. */
 BYTE lvlLoad;
 bool gbDeathflag;
-int deathdelay;
 bool _gbPlrGfxSizeLoaded = false;
 int plr_lframe_size;
 int plr_wframe_size;
@@ -963,6 +962,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
 			p->_pVar8 = 2 * p->_pAnimLen;
+			p->_pVar7 = 0; // DEATH_DELAY
 		}*/
 
 		if (pnum == myplr) {
@@ -1014,7 +1014,6 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 		// TODO: BUGFIX: sure?
 		//    - what if we just joined with a dead player?
 		//    - what if the player was killed while entering a portal?
-		deathdelay = 0;
 		gbDeathflag = false;
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
@@ -1860,6 +1859,7 @@ void StartPlrKill(int pnum, int dmgtype)
 
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;
+	p->_pVar7 = 0; // DEATH_DELAY
 	p->_pVar8 = 1;
 
 	if (pnum != myplr && dmgtype == DMGTYPE_NPC && !diablolevel) {
@@ -1875,7 +1875,7 @@ void StartPlrKill(int pnum, int dmgtype)
 		FixPlayerLocation(pnum);
 
 		if (pnum == myplr) {
-			deathdelay = 30;
+			p->_pVar7 = 30; // DEATH_DELAY
 
 			if (pcurs >= CURSOR_FIRSTITEM) {
 				PlrDeadItem(&p->HoldItem, p);
@@ -2790,9 +2790,9 @@ static bool PlrDoDeath(int pnum)
 
 	p = &plr[pnum];
 	if ((unsigned)p->_pVar8 >= 2 * p->_pDFrames) {
-		if (deathdelay > 1 && pnum == myplr) {
-			deathdelay--;
-			if (deathdelay == 1) {
+		if (p->_pVar7 > 0) { // DEATH_DELAY
+			// assert(pnum == myplr);
+			if (--p->_pVar7 == 0) {
 				gbDeathflag = true;
 				if (gbMaxPlayers == 1) {
 					gamemenu_on();
