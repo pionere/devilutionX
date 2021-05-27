@@ -2373,7 +2373,7 @@ static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 					p->_pmode = PM_DEATH;
 					NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
 					p->_pAnimFrame = p->_pAnimLen - 1;
-					p->_pVar8 = 2 * p->_pAnimLen;
+					p->_pVar8 = 2 * p->_pAnimLen; // DEATH_TICK
 					p->_pVar7 = 0; // DEATH_DELAY
 					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 				}*/

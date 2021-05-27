@@ -961,7 +961,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 			p->_pmode = PM_DEATH;
 			NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
 			p->_pAnimFrame = p->_pAnimLen - 1;
-			p->_pVar8 = 2 * p->_pAnimLen;
+			p->_pVar8 = 2 * p->_pAnimLen; // DEATH_TICK
 			p->_pVar7 = 0; // DEATH_DELAY
 		}*/
 
@@ -1183,8 +1183,8 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	p = &plr[pnum];
-	px = p->_pVar6 >> 8;
-	py = p->_pVar7 >> 8;
+	px = p->_pVar6 >> 8; // WALK_XOFF
+	py = p->_pVar7 >> 8; // WALK_YOFF
 
 	p->_pVar6 += p->_pxvel;
 	p->_pVar7 += p->_pyvel;
@@ -1222,9 +1222,9 @@ static void StartWalk1(int pnum, int xvel, int yvel, int xadd, int yadd)
 	p->_pxoff = 0;
 	p->_pyoff = 0;
 	//p->_pVar3 = dir; // Player's direction when ending movement.
-	p->_pVar6 = 0;      // Same as _pxoff but contains the value in a higher range
-	p->_pVar7 = 0;      // Same as _pyoff but contains the value in a higher range
-	p->_pVar8 = 0;      // speed helper
+	p->_pVar6 = 0;      // WALK_XOFF : _pxoff value in a higher range
+	p->_pVar7 = 0;      // WALK_YOFF : _pyoff value in a higher range
+	p->_pVar8 = 0;      // WALK_TICK : speed helper
 
 	px = xadd + p->_px;
 	py = yadd + p->_py;
@@ -1252,10 +1252,10 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pyvel = yvel;
 	p->_pxoff = xoff;       // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
-	p->_pVar6 = xoff << 8;  // Same as _pxoff but contains the value in a higher range
-	p->_pVar7 = yoff << 8;  // Same as _pyoff but contains the value in a higher range
+	p->_pVar6 = xoff << 8;  // WALK_XOFF : _pxoff value in a higher range
+	p->_pVar7 = yoff << 8;  // WALK_YOFF : _pyoff value in a higher range
 	//p->_pVar3 = dir;      // Player's direction when ending movement.
-	p->_pVar8 = 0;          // speed helper
+	p->_pVar8 = 0;          // WALK_TICK : speed helper
 
 	px = p->_px;
 	py = p->_py;
@@ -1291,10 +1291,10 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	p->_pyvel = yvel;
 	p->_pxoff = xoff;       // Offset player sprite to align with their previous tile position
 	p->_pyoff = yoff;
-	p->_pVar6 = xoff << 8;  // Same as _pxoff but contains the value in a higher range
-	p->_pVar7 = yoff << 8;  // Same as _pyoff but contains the value in a higher range
+	p->_pVar6 = xoff << 8;  // WALK_XOFF : _pxoff value in a higher range
+	p->_pVar7 = yoff << 8;  // WALK_YOFF : _pyoff value in a higher range
 	//p->_pVar3 = dir;      // Player's direction when ending movement.
-	p->_pVar8 = 0;          // speed helper
+	p->_pVar8 = 0;          // WALK_TICK : speed helper
 
 	px = p->_px;
 	py = p->_py;
@@ -1302,8 +1302,8 @@ static void StartWalk3(int pnum, int xvel, int yvel, int xoff, int yoff, int xad
 	dPlayer[px][py] = -(pnum + 1);
 	x = mapx + px;
 	y = mapy + py;
-	p->_pVar4 = x;  // X-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
-	p->_pVar5 = y;  // Y-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
+	p->_pVar4 = x;  // WALK_FLAG_X : X-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
+	p->_pVar5 = y;  // WALK_FLAG_Y : Y-position of a tile which should have its BFLAG_PLAYERLR flag removed after walking. When starting to walk the game places the player in the dPlayer array -1 in the Y coordinate, and uses BFLAG_PLAYERLR to check if it should be using -1 to the Y coordinate when rendering the player
 	dFlags[x][y] |= BFLAG_PLAYERLR;
 	px += xadd;
 	py += yadd;
@@ -1469,10 +1469,10 @@ static bool StartAttack(int pnum)
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
 	p->_pmode = PM_ATTACK;
-	p->_pVar5 = sn; // attack 'spell'
-	p->_pVar6 = sl; // attack 'spell'-level
-	p->_pVar7 = 0;  // 'flags' of sfx and hit
-	p->_pVar8 = 0;  // speed helper
+	p->_pVar5 = sn; // ATTACK_SKILL
+	p->_pVar6 = sl; // ATTACK_SKILL_LEVEL
+	p->_pVar7 = 0;  // ATTACK_ACTION_PROGRESS : 'flags' of sfx and hit
+	p->_pVar8 = 0;  // ATTACK_TICK : speed helper
 
 	if (!(p->_pGFXLoad & PFILE_ATTACK)) {
 		LoadPlrGFX(pnum, PFILE_ATTACK);
@@ -1523,12 +1523,12 @@ static void StartRangeAttack(int pnum)
 		break;
 	}
 
-	p->_pVar1 = dx;
-	p->_pVar2 = dy;
-	p->_pVar5 = sn; // attack 'spell'
-	p->_pVar6 = sl; // attack 'spell'-level
-	p->_pVar7 = 0;  // 'flag' of launch
-	p->_pVar8 = 0;  // speed helper
+	p->_pVar1 = dx;    // RATTACK_TARGET_X
+	p->_pVar2 = dy;    // RATTACK_TARGET_Y
+	p->_pVar5 = sn;    // RATTACK_SKILL
+	p->_pVar6 = sl;    // RATTACK_SKILL_LEVEL
+	p->_pVar7 = FALSE; // RATTACK_ACTION_PROGRESS : 'flag' of launch
+	p->_pVar8 = 0;     // RATTACK_TICK : speed helper
 	p->_pmode = PM_RATTACK;
 
 	dir = GetDirection(p->_px, p->_py, dx, dy);
@@ -1550,7 +1550,7 @@ static void StartBlock(int pnum, int dir)
 
 	p = &plr[pnum];
 	p->_pmode = PM_BLOCK;
-	p->_pVar1 = 0; // extended blocking
+	p->_pVar1 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(p->_pGFXLoad & PFILE_BLOCK)) {
 		LoadPlrGFX(pnum, PFILE_BLOCK);
 	}
@@ -1590,16 +1590,16 @@ static void StartSpell(int pnum)
 		break;
 	}
 
-	p->_pVar1 = dx;                   // x-tile of the target
-	p->_pVar2 = dy;                   // y-tile of the target
-	p->_pVar3 = p->destParam1a;       // the spell to be cast -- used in SyncPlrAnim
-	p->_pVar4 = p->destParam1c;       // the level of the spell to be used
-	p->_pVar5 = (char)p->destParam1b; // source of the spell
-	p->_pVar7 = FALSE;                // 'flag' of cast
-	p->_pVar8 = 0;                    // speed helper
+	p->_pVar1 = dx;                   // SPELL_TARGET_X
+	p->_pVar2 = dy;                   // SPELL_TARGET_Y
+	p->_pVar3 = p->destParam1a;       // SPELL_NUM : the spell to be cast
+	p->_pVar4 = p->destParam1c;       // SPELL_LEVEL
+	p->_pVar5 = (char)p->destParam1b; // SPELL_SOURCE
+	p->_pVar7 = FALSE;                // SPELL_ACTION_PROGRESS : 'flag' of cast
+	p->_pVar8 = 0;                    // SPELL_TICK : speed helper
 	p->_pmode = PM_SPELL;
 
-	sd = &spelldata[p->_pVar3];
+	sd = &spelldata[p->_pVar3]; // SPELL_NUM
 	if (sd->sTargeted)
 		p->_pdir = GetDirection(p->_px, p->_py, dx, dy);
 	switch (sd->sType) {
@@ -1860,7 +1860,7 @@ void StartPlrKill(int pnum, int dmgtype)
 	p->_pmode = PM_DEATH;
 	p->_pInvincible = TRUE;
 	p->_pVar7 = 0; // DEATH_DELAY
-	p->_pVar8 = 1;
+	p->_pVar8 = 1; // DEATH_TICK
 
 	if (pnum != myplr && dmgtype == DMGTYPE_NPC && !diablolevel) {
 		for (i = 0; i < NUM_INVLOC; i++) {
@@ -2108,7 +2108,7 @@ static bool PlrDoWalk(int pnum)
 	}
 
 	p = &plr[pnum];
-	p->_pVar8++;
+	p->_pVar8++; // WALK_TICK
 	if (p->_pIFlags2 & ISPH_FASTESTWALK) {
 		PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTERWALK) {
@@ -2142,7 +2142,7 @@ static bool PlrDoWalk(int pnum)
 		dPlayer[p->_poldx][p->_poldy] = 0;
 		break;
 	case PM_WALK3: // Movement towards W and E
-		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR;
+		dFlags[p->_pVar4][p->_pVar5] &= ~BFLAG_PLAYERLR; // WALK_FLAG_X, WALK_FLAG_Y
 		dPlayer[p->_px][p->_py] = 0;
 		//p->_px = p->_pVar1;
 		//p->_py = p->_pVar2;
@@ -2470,7 +2470,7 @@ static bool PlrDoAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	p->_pVar8++;
+	p->_pVar8++; // ATTACK_TICK
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
 		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
@@ -2485,7 +2485,7 @@ static bool PlrDoAttack(int pnum)
 	}
 	if (p->_pAnimFrame < p->_pAFNum - 1)
 		return false;
-	if (p->_pVar7 == 0) {
+	if (p->_pVar7 == 0) { // ATTACK_ACTION_PROGRESS
 		p->_pVar7++;
 		PlaySfxLoc(PS_SWING, p->_px, p->_py, 2);
 	}
@@ -2496,9 +2496,9 @@ static bool PlrDoAttack(int pnum)
 	if (p->_pVar7 == 1) {
 		p->_pVar7++;
 
-		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA)) {
+		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA)) { // ATTACK_SKILL
 			UseMana(pnum, p->_pVar5, SPLFROM_MANA);
-			hitcnt = PlrTryHit(pnum, p->_pVar5, p->_pVar6,
+			hitcnt = PlrTryHit(pnum, p->_pVar5, p->_pVar6, // ATTACK_SKILL_LEVEL
 				p->_px + offset_x[dir], p->_py + offset_y[dir]);
 			if (p->_pVar5 == SPL_SWIPE) {
 				hitcnt += PlrTryHit(pnum, SPL_SWIPE, p->_pVar6,
@@ -2533,7 +2533,7 @@ static bool PlrDoRangeAttack(int pnum)
 	}
 
 	p = &plr[pnum];
-	p->_pVar8++;
+	p->_pVar8++; // RATTACK_TICK
 	if (p->_pIFlags & ISPL_FASTESTATTACK) {
 		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERATTACK) {
@@ -2549,11 +2549,11 @@ static bool PlrDoRangeAttack(int pnum)
 	if (p->_pAnimFrame < p->_pAFNum)
 		return false;
 
-	if (p->_pVar7 == 0) {
-		p->_pVar7++;
-		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA)
-		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
-			 spelldata[p->_pVar5].sMissile, 0, pnum, 0, 0, p->_pVar6)) {
+	if (!p->_pVar7) { // RATTACK_ACTION_PROGRESS
+		p->_pVar7 = TRUE;
+		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA) // ATTACK_SKILL
+		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, // ATTACK_TARGET_X, ATTACK_TARGET_X
+			 spelldata[p->_pVar5].sMissile, 0, pnum, 0, 0, p->_pVar6)) { // RATTACK_SKILL_LEVEL
 			UseMana(pnum, p->_pVar5, SPLFROM_MANA);
 
 			if (WeaponDur(pnum, 40)) {
@@ -2647,7 +2647,7 @@ static bool PlrDoBlock(int pnum)
 	}
 
 	if (p->_pAnimFrame >= p->_pBFrames) {
-		if (p->_pVar1 == 0) {
+		if (p->_pVar1 == 0) { // BLOCK_EXTENSION
 			if (p->destAction == ACTION_BLOCK) {
 				// extend the blocking animation TODO: does not work with too fast animations (WARRIORs)
 				p->destAction = ACTION_NONE;
@@ -2718,7 +2718,7 @@ static bool PlrDoSpell(int pnum)
 		dev_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	p->_pVar8++;
+	p->_pVar8++; // SPELL_TICK
 	if (p->_pIFlags2 & ISPH_FASTESTCAST) {
 		PlrStepAnim(pnum);
 	} else if (p->_pIFlags2 & ISPH_FASTERCAST) {
@@ -2732,13 +2732,13 @@ static bool PlrDoSpell(int pnum)
 	if (p->_pAnimFrame < p->_pSFNum)
 		return false;
 
-	if (!p->_pVar7) {
+	if (!p->_pVar7) { // SPELL_ACTION_PROGRESS
 		p->_pVar7 = TRUE;
 
-		if (HasMana(pnum, p->_pVar3, p->_pVar5)
-		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir,
-				spelldata[p->_pVar3].sMissile, 0, pnum, 0, 0, p->_pVar4) != -1) {
-			UseMana(pnum, p->_pVar3, p->_pVar5);
+		if (HasMana(pnum, p->_pVar3, p->_pVar5) // SPELL_NUM, SPELL_SOURCE
+		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, // SPELL_TARGET_X, SPELL_TARGET_Y
+				spelldata[p->_pVar3].sMissile, 0, pnum, 0, 0, p->_pVar4) != -1) { // SPELL_LEVEL
+			UseMana(pnum, p->_pVar3, p->_pVar5); // SPELL_NUM, SPELL_SOURCE
 		}
 	}
 
@@ -2758,7 +2758,7 @@ static bool PlrDoGotHit(int pnum)
 		dev_fatal("PlrDoGotHit: illegal player %d", pnum);
 	}
 	p = &plr[pnum];
-	p->_pVar8++;
+	p->_pVar8++; // GOTHIT_TICK
 	if (p->_pIFlags & ISPL_FASTESTRECOVER) {
 		PlrStepAnim(pnum);
 	} else if (p->_pIFlags & ISPL_FASTERRECOVER) {
@@ -2789,7 +2789,7 @@ static bool PlrDoDeath(int pnum)
 	}
 
 	p = &plr[pnum];
-	if ((unsigned)p->_pVar8 >= 2 * p->_pDFrames) {
+	if ((unsigned)p->_pVar8 >= 2 * p->_pDFrames) { // DEATH_TICK
 		if (p->_pVar7 > 0) { // DEATH_DELAY
 			// assert(pnum == myplr);
 			if (--p->_pVar7 == 0) {
@@ -2804,7 +2804,7 @@ static bool PlrDoDeath(int pnum)
 		p->_pAnimFrame = p->_pAnimLen;
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 	} else {
-		p->_pVar8++;
+		p->_pVar8++; // DEATH_TICK
 	}
 
 	return false;
@@ -3236,7 +3236,7 @@ void SyncPlrAnim()
 	case PM_SPELL:
 		//assert(pnum == myplr);
 		//if (pnum == myplr)
-			sType = spelldata[p->_pVar3].sType;
+			sType = spelldata[p->_pVar3].sType; // SPELL_NUM
 		//else
 		//	sType = STYPE_FIRE;
 		switch (sType) {

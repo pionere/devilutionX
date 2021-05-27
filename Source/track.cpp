@@ -18,7 +18,7 @@ void track_process()
 
 	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)
 		return;
-
+	// WALK_TICK
 	if (plr[myplr]._pVar8 <= 6 && plr[myplr]._pmode != PM_STAND)
 		return;
 
