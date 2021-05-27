@@ -1900,7 +1900,7 @@ void StartPlrKill(int pnum, int dmgtype)
 					PlrDeadItem(&ear, p);
 				}
 			} else if (dmgtype == DMGTYPE_NPC) {
-				plr->_pExperience -= (plr->_pExperience - PlrExpLvlsTbl[plr->_pLevel - 1]) >> 2;
+				p->_pExperience -= (p->_pExperience - PlrExpLvlsTbl[p->_pLevel - 1]) >> 2;
 
 				if (!diablolevel) {
 					pi = &p->InvBody[0];
