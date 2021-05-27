@@ -1242,8 +1242,8 @@ static bool calc_snd_position(int x, int y, int *plVolume, int *plPan)
 {
 	int pan, volume;
 
-	x -= plr[myplr]._px;
-	y -= plr[myplr]._py;
+	x -= players[myplr]._px;
+	y -= players[myplr]._py;
 
 	pan = (x - y) * 256;
 	*plPan = pan;
@@ -1410,7 +1410,7 @@ void sound_init()
 		mask |= sfx_MONK;
 #endif
 	} else {
-		mask |= sgSFXSets[SFXS_MASK][plr[myplr]._pClass];
+		mask |= sgSFXSets[SFXS_MASK][players[myplr]._pClass];
 	}
 
 	priv_sound_init(mask);

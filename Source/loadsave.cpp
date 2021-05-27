@@ -191,7 +191,7 @@ static void LoadItems(ItemStruct *pItem, const int n)
 
 static void LoadPlayer(int pnum)
 {
-	PlayerStruct *p = &plr[pnum];
+	PlayerStruct *p = &players[pnum];
 
 	CopyInt(tbuff, &p->_pmode);
 	CopyBytes(tbuff, lengthof(p->walkpath), p->walkpath);
@@ -627,8 +627,8 @@ static void LoadPortal(int i)
 /*static void RedoPlayerLight()
 {
 	for (int i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel)
-			ChangeLightXY(plr[i]._plid, plr[i]._px, plr[i]._py);
+		if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel)
+			ChangeLightXY(players[i]._plid, players[i]._px, players[i]._py);
 	}
 }*/
 
@@ -889,7 +889,7 @@ static void SaveItems(ItemStruct *pItem, const int n)
 
 static void SavePlayer(int pnum)
 {
-	PlayerStruct *p = &plr[pnum];
+	PlayerStruct *p = &players[pnum];
 
 	CopyInt(&p->_pmode, tbuff);
 	static_assert(sizeof(p->walkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
@@ -1486,7 +1486,7 @@ void SaveLevel()
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
 
-	plr[myplr]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
+	players[myplr]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 }
 
 void LoadLevel()

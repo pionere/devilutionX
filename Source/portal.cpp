@@ -113,10 +113,10 @@ void GetPortalLevel()
 {
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		EnterLevel(DLV_TOWN);
-		assert(plr[myplr].plrlevel == DLV_TOWN);
+		assert(players[myplr].plrlevel == DLV_TOWN);
 	} else {
 		EnterLevel(portal[portalindex].level);
-		assert(plr[myplr].plrlevel == currLvl._dLevelIdx);
+		assert(players[myplr].plrlevel == currLvl._dLevelIdx);
 		if (portalindex == myplr) {
 			NetSendCmd(true, CMD_DEACTIVATEPORTAL);
 			DeactivatePortal(portalindex);

@@ -238,7 +238,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st, int lvl)
 	ItemStruct *pi;
 	int t, v;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	switch (st) {
 	case RSPLTYPE_ABILITY:
 		break;
@@ -293,7 +293,7 @@ static void DrawSkillIcon(BYTE spl, BYTE st, BYTE offset)
 	if (spl == SPL_INVALID) {
 		st = RSPLTYPE_INVALID;
 		spl = SPL_NULL;
-	} else if ((spelldata[spl].sFlags & plr[myplr]._pSkillFlags) != spelldata[spl].sFlags)
+	} else if ((spelldata[spl].sFlags & players[myplr]._pSkillFlags) != spelldata[spl].sFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
 		lvl = GetSpellLevel(myplr, spl);
@@ -315,7 +315,7 @@ void DrawSkillIcons()
 	PlayerStruct *p;
 	BYTE spl, type;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (p->_pAtkSkill == SPL_INVALID) {
 		spl = p->_pMoveSkill;
 		type = p->_pMoveSkillType;
@@ -388,7 +388,7 @@ void DrawSkillList()
 	currSkill = SPL_INVALID;
 	x = PANEL_X + 12 + SPLICONLENGTH * SPLROWICONLS;
 	y = PANEL_Y - 17;
-	p = &plr[myplr];
+	p = &players[myplr];
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_SCROLL == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
@@ -431,7 +431,7 @@ void DrawSkillList()
 				sl = GetSpellLevel(myplr, j);
 				st = sl > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 			}
-			if ((spelldata[j].sFlags & plr[myplr]._pSkillFlags) != spelldata[j].sFlags)
+			if ((spelldata[j].sFlags & players[myplr]._pSkillFlags) != spelldata[j].sFlags)
 				st = RSPLTYPE_INVALID;
 			SetSpellTrans(st);
 			DrawSpellCel(x, y, pSpellCels, spelldata[j].sIcon, SPLICONLENGTH);
@@ -507,7 +507,7 @@ void SetSkill(bool shift, bool altSkill)
 	// TODO: add flag for movement-skills
 	moveskill = sn == SPL_WALK || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (shift) {
 		if (!altSkill) {
 			if (moveskill) {
@@ -593,7 +593,7 @@ void SetSkillHotKey(int slot, bool altSkill)
 		if (sn == SPL_NULL)
 			sn = SPL_INVALID;
 
-		p = &plr[myplr];
+		p = &players[myplr];
 		if (!altSkill) {
 			if (moveskill)
 				SetSkillHotKey(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot, sn);
@@ -625,7 +625,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
 {
 	PlayerStruct *p;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (!altSkill) {
 		SelectHotKeySkill(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot,
 			&p->_pMoveSkill, &p->_pMoveSkillType);
@@ -779,17 +779,17 @@ void DrawLifeFlask()
 	int x;
 
 	if (gbRedrawFlags & REDRAW_HP_FLASK) {
-		maxHP = plr[myplr]._pMaxHP;
-		hp = plr[myplr]._pHitPoints;
+		maxHP = players[myplr]._pMaxHP;
+		hp = players[myplr]._pHitPoints;
 		if (hp <= 0 || maxHP <= 0)
 			filled = 0;
 		else
 			filled = 82 * hp / maxHP;
 		if (filled > 82)
 			filled = 82;
-		plr[myplr]._pHPPer = filled;
+		players[myplr]._pHPPer = filled;
 	} else {
-		filled = plr[myplr]._pHPPer;
+		filled = players[myplr]._pHPPer;
 	}
 
 	x = SCREEN_X + 80 - 28;
@@ -803,8 +803,8 @@ void DrawManaFlask()
 	int x;
 
 	if (gbRedrawFlags & REDRAW_MANA_FLASK) {
-		maxMana = plr[myplr]._pMaxMana;
-		mana = plr[myplr]._pMana;
+		maxMana = players[myplr]._pMaxMana;
+		mana = players[myplr]._pMana;
 
 		if (mana <= 0 || maxMana <= 0)
 			filled = 0;
@@ -812,13 +812,13 @@ void DrawManaFlask()
 			filled = 82 * mana / maxMana;
 		if (filled > 82)
 			filled = 82;
-		plr[myplr]._pManaPer = filled;
+		players[myplr]._pManaPer = filled;
 	} else {
-		filled = plr[myplr]._pManaPer;
+		filled = players[myplr]._pManaPer;
 	}
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92);
-	DrawFlask2(x, filled, 3, plr[myplr]._pManaShield == 0 ? 4 : 5, 93);
+	DrawFlask2(x, filled, 3, players[myplr]._pManaShield == 0 ? 4 : 5, 93);
 }
 
 void InitControlPan()
@@ -861,7 +861,7 @@ void InitControlPan()
 	pSBkIconCels = LoadFileInMem("Data\\SpellI2.CEL");
 	guBooktab = 0;
 	gbSbookflag = false;
-	SpellPages[0][0] = Abilities[plr[myplr]._pClass];
+	SpellPages[0][0] = Abilities[players[myplr]._pClass];
 	pQLogCel = LoadFileInMem("Data\\Quest.CEL");
 	pGBoxBuff = LoadFileInMem("CtrlPan\\Golddrop.cel");
 	gbDropGoldFlag = false;
@@ -973,7 +973,7 @@ bool DoPanBtn()
 		HandleSkillBtn(my < SCREEN_HEIGHT - (SPLICONLENGTH + 4));
 		return true;
 	}
-	if (plr[myplr]._pLvlUp && InLvlUpRect())
+	if (players[myplr]._pLvlUp && InLvlUpRect())
 		gbLvlbtndown = true;
 	return gbLvlbtndown;
 }
@@ -1007,7 +1007,7 @@ void HandlePanBtn(int i)
 	case PANBTN_CHARINFO:
 		gbQuestlog = false;
 		gbSkillListFlag = false;
-		plr[myplr]._pLvlUp = FALSE;
+		players[myplr]._pLvlUp = FALSE;
 		gbChrflag = !gbChrflag;
 		break;
 	case PANBTN_INVENTORY:
@@ -1106,7 +1106,7 @@ void DrawChr()
 	char chrstr[64];
 	int pc, val, mindam, maxdam;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	pc = p->_pClass;
 
 	CelDraw(SCREEN_X, SCREEN_Y + SPANEL_HEIGHT - 1, pChrPanel, 1, SPANEL_WIDTH);
@@ -1460,7 +1460,7 @@ static void DrawTrigInfo()
 		MissileStruct *mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
-			snprintf(tempstr, sizeof(tempstr), "(%s)", plr[mis->_miSource]._pName);
+			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
 			GetMousePos(cursmx - 2, cursmy - 2, &xx, &yy);
 			DrawTooltip2(infostr, tempstr, xx, yy, COL_WHITE);
 		} else {
@@ -1599,7 +1599,7 @@ void DrawInfoStr()
 		xx += DrawTooltip(infostr, xx, yy, col);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, xx, yy);
 	} else if (pcursplr != PLR_NONE) {
-		PlayerStruct* p = &plr[pcursplr];
+		PlayerStruct* p = &players[pcursplr];
 		x = p->_px - 2;
 		y = p->_py - 2;
 		GetMousePos(x, y, &xx, &yy);
@@ -1636,7 +1636,7 @@ void DrawInfoStr()
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcurs >= CURSOR_FIRSTITEM) {
-		ItemStruct *is = &plr[myplr].HoldItem;
+		ItemStruct *is = &players[myplr].HoldItem;
 		GetItemInfo(is);
 		DrawTooltip(infostr, MouseX + cursW / 2, MouseY, infoclr);
 	}
@@ -1647,7 +1647,7 @@ bool CheckChrBtns()
 {
 	int i;
 
-	if (plr[myplr]._pStatPts != 0 && !gbChrbtnactive) {
+	if (players[myplr]._pStatPts != 0 && !gbChrbtnactive) {
 		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
 			if (MouseX < ChrBtnsRect[i].x
 			 || MouseX > ChrBtnsRect[i].x + ChrBtnsRect[i].w
@@ -1694,7 +1694,7 @@ void ReleaseChrBtns()
 					ASSUME_UNREACHABLE
 					break;
 				}
-				plr[myplr]._pStatPts--;
+				players[myplr]._pStatPts--;
 			}
 		}
 	}
@@ -1742,7 +1742,7 @@ void DrawDurIcon()
 
 	x = SCREEN_X + SCREEN_WIDTH - (SPLICONLENGTH + 92 + 32);
 
-	inv = plr[myplr].InvBody;
+	inv = players[myplr].InvBody;
 	x = DrawDurIcon4Item(&inv[INVLOC_HEAD], x, 4);
 	x = DrawDurIcon4Item(&inv[INVLOC_CHEST], x, 3);
 	x = DrawDurIcon4Item(&inv[INVLOC_HAND_LEFT], x, 0);
@@ -1783,7 +1783,7 @@ static char GetSBookTrans(int sn)
 	PlayerStruct *p;
 	char st;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
 		st = RSPLTYPE_ABILITY;
 	} else if (p->_pISpells & SPELL_MASK(sn)) {
@@ -1821,7 +1821,7 @@ void DrawSpellBook()
 
 	currSkill = SPL_INVALID;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	spl = p->_pMemSkills | p->_pISpells | p->_pAblSkills;
 
 	yp = SCREEN_Y + SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
@@ -1873,7 +1873,7 @@ void DrawSpellBook()
 				PrintString(sx + SBOOK_LINE_TAB, yp - 1, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
 			}
 
-			if ((spelldata[sn].sFlags & plr[myplr]._pSkillFlags) != spelldata[sn].sFlags)
+			if ((spelldata[sn].sFlags & players[myplr]._pSkillFlags) != spelldata[sn].sFlags)
 				st = RSPLTYPE_INVALID;
 			SetSpellTrans(st);
 			DrawSpellCel(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SBOOK_CELWIDTH);
@@ -1963,14 +1963,14 @@ static void control_remove_gold()
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
-	is = &plr[pnum].InvList[gi];
+	is = &players[pnum].InvList[gi];
 	val = is->_ivalue - dropGoldValue;
 	if (val > 0) {
 		SetGoldItemValue(is, val);
 	} else {
 		PlrInvItemRemove(pnum, gi);
 	}
-	is = &plr[pnum].HoldItem;
+	is = &players[pnum].HoldItem;
 	CreateBaseItem(is, IDI_GOLD);
 	is->_iStatFlag = TRUE;
 	SetGoldItemValue(is, dropGoldValue);
@@ -1982,7 +1982,7 @@ void control_drop_gold(char vkey)
 {
 	int newValue;
 
-	if (plr[myplr]._pHitPoints < (1 << 6)) {
+	if (players[myplr]._pHitPoints < (1 << 6)) {
 		gbDropGoldFlag = false;
 		return;
 	}
@@ -2039,7 +2039,7 @@ static bool PlrHasTeam()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++)
-		if (i != myplr && plr[i]._pTeam == plr[myplr]._pTeam && plr[i].plractive)
+		if (i != myplr && players[i]._pTeam == players[myplr]._pTeam && players[i].plractive)
 			return true;
 	return false;
 }
@@ -2066,7 +2066,7 @@ void DrawTeamBook()
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
 			break;
-		p = &plr[pnum];
+		p = &players[pnum];
 		if (!p->plractive)
 			continue;
 		// name
@@ -2097,7 +2097,7 @@ void DrawTeamBook()
 		}
 
 		// invite/cancel
-		if (pnum != myplr && plr[pnum]._pTeam != plr[myplr]._pTeam && plr[myplr]._pTeam == myplr) {
+		if (pnum != myplr && players[pnum]._pTeam != players[myplr]._pTeam && players[myplr]._pTeam == myplr) {
 			unsigned invited = (guTeamInviteSent & (1 << pnum));
 			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
 				!invited ? "invite" : "cancel", !invited ? 7 : 2);
@@ -2125,7 +2125,7 @@ void CheckTeamClick(bool shift)
 		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
-		if (pnum >= MAX_PLRS || !plr[pnum].plractive)
+		if (pnum >= MAX_PLRS || !players[pnum].plractive)
 			return;
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
@@ -2134,7 +2134,7 @@ void CheckTeamClick(bool shift)
 			if (!shift) {
 				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/p%d ", pnum);
 			} else {
-				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", plr[pnum]._pTeam);
+				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", players[pnum]._pTeam);
 			}
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
@@ -2146,11 +2146,11 @@ void CheckTeamClick(bool shift)
 					guTeamMute ^= (1 << pnum);
 			} else if (dy == 1) {
 				// drop/leave
-				if (PlrHasTeam() && (pnum == myplr || plr[pnum]._pTeam == myplr))
+				if (PlrHasTeam() && (pnum == myplr || players[pnum]._pTeam == myplr))
 					NetSendCmdBParam1(false, CMD_KICK_PLR, pnum);
 			} else /*if (dy == 2)*/ {
 				// invite/cancel
-				if (pnum != myplr && plr[pnum]._pTeam != plr[myplr]._pTeam && plr[myplr]._pTeam == myplr) {
+				if (pnum != myplr && players[pnum]._pTeam != players[myplr]._pTeam && players[myplr]._pTeam == myplr) {
 					if (guTeamInviteSent & (1 << pnum)) {
 						NetSendCmdBParam1(false, CMD_REV_INVITE, pnum);
 					} else {
@@ -2286,7 +2286,7 @@ static void control_press_enter()
 			team = -1;
 			if (msg[2] == ' ') {
 				// "/t msg" -> send message to the player's team
-				team = plr[myplr]._pTeam;
+				team = players[myplr]._pTeam;
 			} else {
 				// "/tX msg" -> send message to the team N
 				team= strtol(&msg[2], &msg, 10);
@@ -2298,7 +2298,7 @@ static void control_press_enter()
 			if (team!= -1) {
 				pmask = 0;
 				for (i = 0; i < MAX_PLRS; i++) {
-					if (plr[i]._pTeam == team)
+					if (players[i]._pTeam == team)
 						pmask |= 1 << i;
 				}
 			}

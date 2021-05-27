@@ -24,7 +24,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	PkItemStruct *pki;
 
 	memset(pPack, 0, sizeof(*pPack));
-	p = &plr[pnum];
+	p = &players[pnum];
 	pPack->plrlevel = p->plrlevel;
 	pPack->pTeam = p->_pTeam;
 	pPack->px = p->_px;
@@ -145,7 +145,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	p->_px = pPack->px;
 	p->_py = pPack->py;
 	p->_pfutx = pPack->px;

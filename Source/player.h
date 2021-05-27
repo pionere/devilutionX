@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 extern int myplr;
-extern PlayerStruct plr[MAX_PLRS];
+extern PlayerStruct players[MAX_PLRS];
 extern BYTE lvlLoad;
 extern bool gbDeathflag;
 

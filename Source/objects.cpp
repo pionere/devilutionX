@@ -1646,9 +1646,9 @@ static void Obj_Light(int oi)
 #endif
 	{
 		for (i = 0; i < MAX_PLRS && !turnon; i++) {
-			if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
-				dx = abs(plr[i]._px - ox);
-				dy = abs(plr[i]._py - oy);
+			if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel) {
+				dx = abs(players[i]._px - ox);
+				dy = abs(players[i]._py - oy);
 				if (dx < tr && dy < tr)
 					turnon = true;
 			}
@@ -1701,7 +1701,7 @@ static void Obj_Circle(int oi)
 	os = &object[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	if (plr[myplr]._px == ox && plr[myplr]._py == oy) {
+	if (players[myplr]._px == ox && players[myplr]._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 2;
 		else {
@@ -1912,7 +1912,7 @@ static void Obj_BCrossDamage(int oi)
 	PlayerStruct *p;
 	int fire_resist, damage;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (p->_pInvincible)
 		return;
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
@@ -2217,8 +2217,8 @@ void RedoPlayerVision()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (plr[i].plractive && currLvl._dLevelIdx == plr[i].plrlevel) {
-			ChangeVisionXY(plr[i]._pvid, plr[i]._px, plr[i]._py);
+		if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel) {
+			ChangeVisionXY(players[i]._pvid, players[i]._px, players[i]._py);
 		}
 	}
 }
@@ -2676,7 +2676,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 			on->_oVar6 = VILE_CIRCLE_TARGET_CENTER;
 			object[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 			GetVileMissPos(&dx, &dy);
-			AddMissile(plr[pnum]._px, plr[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
+			AddMissile(players[pnum]._px, players[pnum]._py, dx, dy, 0, MIS_RNDTELEPORT, -1, pnum, 0, 0, 0);
 			missile_added = true;
 		}
 		if (!missile_added)
@@ -2688,20 +2688,20 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	if (currLvl._dLevelIdx == SL_BONECHAMB) {
 		if (deltaload)
 			return;
-		if (plr[pnum]._pSkillLvl[SPL_GUARDIAN] == 0) {
-			plr[pnum]._pSkillLvl[SPL_GUARDIAN] = 1;
-			plr[pnum]._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
-			plr[pnum]._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
+		if (players[pnum]._pSkillLvl[SPL_GUARDIAN] == 0) {
+			players[pnum]._pSkillLvl[SPL_GUARDIAN] = 1;
+			players[pnum]._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
+			players[pnum]._pMemSkills |= SPELL_MASK(SPL_GUARDIAN);
 		}
 		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
 		if (pnum == myplr)
 			InitDiabloMsg(EMSG_BONECHAMB);
 		AddMissile(
-		    plr[pnum]._px,
-		    plr[pnum]._py,
+		    players[pnum]._px,
+		    players[pnum]._py,
 		    os->_ox - 2,
 		    os->_oy - 4,
-		    plr[pnum]._pdir,
+		    players[pnum]._pdir,
 		    MIS_GUARDIAN,
 		    0,
 		    pnum,
@@ -2796,8 +2796,8 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapFlag) {
 		os->_oTrapFlag = FALSE;
-		mdir = GetDirection(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py);
-		AddMissile(os->_ox, os->_oy, plr[pnum]._px, plr[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0); // CHEST_TRAP_TYPE
+		mdir = GetDirection(os->_ox, os->_oy, players[pnum]._px, players[pnum]._py);
+		AddMissile(os->_ox, os->_oy, players[pnum]._px, players[pnum]._py, mdir, os->_oVar4, 1, -1, 0, 0, 0); // CHEST_TRAP_TYPE
 	}
 }
 
@@ -2834,7 +2834,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 
 	if (quests[Q_LTBANNER]._qvar1 != 1) {
 		if (!deltaload && pnum == myplr) {
-			PlaySFX(sgSFXSets[SFXS_PLR_24][plr[pnum]._pClass]);
+			PlaySFX(sgSFXSets[SFXS_PLR_24][players[pnum]._pClass]);
 		}
 		return;
 	}
@@ -2869,7 +2869,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(false, CMD_OPERATEOBJ, oi);
 
-	pc = plr[pnum]._pClass;
+	pc = players[pnum]._pClass;
 	const int typeCurs[NUM_CLASSES][2] = {
 		{ ITYPE_SWORD, ICURS_BASTARD_SWORD },
 		{ ITYPE_BOW, ICURS_LONG_WAR_BOW },
@@ -2882,7 +2882,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	};
 	SetRndSeed(os->_oRndSeed);
 	CreateMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
-	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr[pnum]._px, plr[pnum]._py);
+	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], players[pnum]._px, players[pnum]._py);
 }
 
 static void OperateFlameTrapLever(int oi, bool sendmsg)
@@ -3012,7 +3012,7 @@ void DisarmObject(int pnum, int oi)
 		NewCursor(CURSOR_HAND);
 	os = &object[oi];
 	if (os->_oTrapFlag) {
-		trapdisper = 2 * plr[pnum]._pDexterity - 8 * currLvl._dLevel;
+		trapdisper = 2 * players[pnum]._pDexterity - 8 * currLvl._dLevel;
 		if (random_(154, 100) <= trapdisper) {
 			for (i = 0; i < nobjects; i++) {
 				on = &object[objectactive[i]];
@@ -3123,7 +3123,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	os->_oAnimFlag = TRUE;
 	//os->_oAnimFrameLen = 1;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	switch (os->_oVar1) { // SHRINE_TYPE
 	case SHRINE_HIDDEN:
 		cnt = 0;
@@ -3398,10 +3398,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_TAINTED:
 		if (MINION_NR_INACTIVE(myplr)) {
 			AddMissile(
-				plr[myplr]._px,
-				plr[myplr]._py,
-				plr[myplr]._px,
-				plr[myplr]._py,
+				players[myplr]._px,
+				players[myplr]._py,
+				players[myplr]._px,
+				players[myplr]._py,
 				0,
 				MIS_GOLEM,
 				0,
@@ -3456,8 +3456,8 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEIMMOLAT, "SHRINE_SOLAR expects runes in a given order III.");
 		const char *cr = &CrawlTable[CrawlNum[3]];
 		for (i = (BYTE)*cr; i > 0; i--) {
-			xx = plr[pnum]._px + *++cr;
-			yy = plr[pnum]._py + *++cr;
+			xx = players[pnum]._px + *++cr;
+			yy = players[pnum]._py + *++cr;
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
@@ -3545,7 +3545,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, false, ITYPE_MISC, IMISC_BOOK, sendmsg, false);
 	if (QuestStatus(Q_ZHAR) && quests[Q_ZHAR]._qactive != QUEST_DONE
-	 && dTransVal[monster[MAX_MINIONS]._mx][monster[MAX_MINIONS]._my] == dTransVal[plr[pnum]._px][plr[pnum]._py]
+	 && dTransVal[monster[MAX_MINIONS]._mx][monster[MAX_MINIONS]._my] == dTransVal[players[pnum]._px][players[pnum]._py]
 	 && monster[MAX_MINIONS].mtalkmsg == TEXT_ZHAR1) {
 		assert((monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
 		monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
@@ -3648,7 +3648,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
-		p = &plr[pnum];
+		p = &players[pnum];
 		AddMissile(
 		    0,
 		    0,
@@ -3669,7 +3669,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
 
 		PlrIncHp(pnum, 64);
-		if (plr[pnum]._pMana >= 64)
+		if (players[pnum]._pMana >= 64)
 			PlrDecMana(pnum, 64);
 		break;
 	}
@@ -3906,37 +3906,37 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		if (TeleFlag)
 			OperateL1LDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL1LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL1LDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L1RDOOR:
 		if (TeleFlag)
 			OperateL1RDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL1RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL1RDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L2LDOOR:
 		if (TeleFlag)
 			OperateL2LDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL2LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL2LDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L2RDOOR:
 		if (TeleFlag)
 			OperateL2RDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL2RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL2RDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L3LDOOR:
 		if (TeleFlag)
 			OperateL3LDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL3LDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL3LDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_L3RDOOR:
 		if (TeleFlag)
 			OperateL3RDoor(-1, -1, oi, sendmsg);
 		else //if (sendmsg) // pnum == myplr
-			OperateL3RDoor(plr[pnum]._px, plr[pnum]._py, oi, sendmsg);
+			OperateL3RDoor(players[pnum]._px, players[pnum]._py, oi, sendmsg);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
@@ -4527,7 +4527,7 @@ void GetObjectStr(int oi)
 		break;
 	}
 	infoclr = COL_WHITE;
-	if (plr[myplr]._pClass == PC_ROGUE) {
+	if (players[myplr]._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
 			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
 			copy_str(infostr, tempstr);

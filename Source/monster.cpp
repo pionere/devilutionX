@@ -1129,10 +1129,10 @@ static void MonEnemy(int mnum)
 	bestsameroom = false;
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!plr[i].plractive || currLvl._dLevelIdx != plr[i].plrlevel || plr[i]._pLvlChanging || plr[i]._pHitPoints < (1 << 6))
+			if (!players[i].plractive || currLvl._dLevelIdx != players[i].plrlevel || players[i]._pLvlChanging || players[i]._pHitPoints < (1 << 6))
 				continue;
-			sameroom = tv == dTransVal[plr[i]._px][plr[i]._py];
-			dist = std::max(abs(mon->_mx - plr[i]._px), abs(mon->_my - plr[i]._py));
+			sameroom = tv == dTransVal[players[i]._px][players[i]._py];
+			dist = std::max(abs(mon->_mx - players[i]._px), abs(mon->_my - players[i]._py));
 			if (sameroom == bestsameroom) {
 				if (dist >= best_dist)
 					continue;
@@ -1195,8 +1195,8 @@ static void MonEnemy(int mnum)
 		if (enemy > 0) {
 			enemy--;
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
-			mon->_menemyx = plr[enemy]._pfutx;
-			mon->_menemyy = plr[enemy]._pfuty;
+			mon->_menemyx = players[enemy]._pfutx;
+			mon->_menemyy = players[enemy]._pfuty;
 		} else {
 			enemy = -(enemy + 1);
 			mon->_mFlags |= MFLAG_TARGETS_MONSTER;
@@ -1627,8 +1627,8 @@ void MonStartHit(int mnum, int pnum, int dam)
 		if (pnum >= 0) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;
-			mon->_menemyx = plr[pnum]._pfutx;
-			mon->_menemyy = plr[pnum]._pfuty;
+			mon->_menemyx = players[pnum]._pfutx;
+			mon->_menemyy = players[pnum]._pfuty;
 			if (mon->_mmode != MM_STONE)
 				mon->_mdir = MonGetDir(mnum);
 		}
@@ -2075,7 +2075,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		MonTryM2MHit(mnum, pnum, Hit, MinDam, MaxDam);
 		return;
 	}
-	p = &plr[pnum];
+	p = &players[pnum];
 	if (p->_pInvincible)
 		return;
 	if (abs(mon->_mx - p->_px) >= 2 || abs(mon->_my - p->_py) >= 2)
@@ -2433,7 +2433,7 @@ void DoEnding()
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
 	};
-	play_movie(vicSets[plr[myplr]._pClass], 0);
+	play_movie(vicSets[players[myplr]._pClass], 0);
 	play_movie("gendata\\Diabend.smk", 0);
 
 	bMusicOn = gbMusicOn;
@@ -2461,8 +2461,8 @@ void PrepDoEnding(bool soundOn)
 	gbCineflag = true;
 
 	killLevel = gnDifficulty + 1;
-	if (killLevel > plr[myplr]._pDiabloKillLevel)
-		plr[myplr]._pDiabloKillLevel = killLevel;
+	if (killLevel > players[myplr]._pDiabloKillLevel)
+		players[myplr]._pDiabloKillLevel = killLevel;
 
 	if (gbMaxPlayers == 1) {
 		// save the hero + items
@@ -2471,10 +2471,10 @@ void PrepDoEnding(bool soundOn)
 		pfile_delete_save_file(SAVEFILE_GAME);
 	} else {
 		for (i = 0; i < MAX_PLRS; i++) {
-			plr[i]._pmode = PM_QUIT;
-			plr[i]._pInvincible = TRUE;
-			if (plr[i]._pHitPoints < (1 << 6))
-				plr[i]._pHitPoints = (1 << 6);
+			players[i]._pmode = PM_QUIT;
+			players[i]._pInvincible = TRUE;
+			if (players[i]._pHitPoints < (1 << 6))
+				players[i]._pHitPoints = (1 << 6);
 		}
 	}
 }
@@ -3138,7 +3138,7 @@ void MAI_Sneak(int mnum)
 				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
 					md = GetDirection(monster[md]._mx, monster[md]._my, mon->_mx, mon->_my);
 				else
-					md = GetDirection(plr[md]._px, plr[md]._py, mon->_mx, mon->_my);
+					md = GetDirection(players[md]._px, players[md]._py, mon->_mx, mon->_my);
 				if (mon->_mType == MT_UNSEEN) {
 					if (random_(112, 2) != 0)
 						md = left[md];
@@ -3863,7 +3863,7 @@ void MAI_Golum(int mnum)
 	if (mon->_mpathcount > 8)
 		mon->_mpathcount = 5;
 
-	md = plr[mnum]._pdir;
+	md = players[mnum]._pdir;
 	if (!MonCallWalk(mnum, md)) {
 		for (j = 0; j < 8; j++) {
 			md = (md + 1) & 7;
@@ -4238,7 +4238,7 @@ void MAI_SnotSpil(int mnum)
 			return;
 		quests[Q_LTBANNER]._qactive = QUEST_DONE;
 		quests[Q_LTBANNER]._qvar1 = 4;
-		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == myplr || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmd(true, CMD_OPENSPIL);
 			NetSendCmdQuest(Q_LTBANNER, true);
 		}
@@ -4273,7 +4273,7 @@ void MAI_Lazurus(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
-			if (mon->_mgoal == MGOAL_INQUIRING && plr[myplr]._px == DBORDERX + 19 && plr[myplr]._py == DBORDERY + 30) {
+			if (mon->_mgoal == MGOAL_INQUIRING && players[myplr]._px == DBORDERX + 19 && players[myplr]._py == DBORDERY + 30) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
 				mon->_mListener = myplr;
@@ -4384,7 +4384,7 @@ void MAI_Warlord(int mnum)
 		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
 			return;
 		quests[Q_WARLORD]._qvar1 = 1;
-		if (mon->_menemy == myplr || !plr[mon->_menemy].plractive || plr[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_menemy == myplr || !players[mon->_menemy].plractive || players[mon->_menemy].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
@@ -4397,7 +4397,7 @@ void MAI_Warlord(int mnum)
 		if (gbMaxPlayers == 1 && effect_is_playing(alltext[TEXT_WARLRD9].sfxnr))
 			return;
 		quests[Q_WARLORD]._qvar1 = 2;
-		if (mon->_mListener == myplr || !plr[mon->_mListener].plractive || plr[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
+		if (mon->_mListener == myplr || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		// mon->_msquelch = UCHAR_MAX;
@@ -4493,8 +4493,8 @@ void ProcessMonsters()
 			if ((unsigned)_menemy >= MAX_PLRS) {
 				dev_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
 			}
-			mon->_menemyx = plr[_menemy]._pfutx;
-			mon->_menemyy = plr[_menemy]._pfuty;
+			mon->_menemyx = players[_menemy]._pfutx;
+			mon->_menemyy = players[_menemy]._pfuty;
 			if (dFlags[mx][my] & BFLAG_VISIBLE) {
 				mon->_msquelch = UCHAR_MAX;
 				mon->_lastx = mon->_menemyx;
@@ -4951,13 +4951,13 @@ void MissToMonst(int mi, int x, int y)
 			if (mon->_mType != MT_GLOOM && (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN)) {
 				MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
 				if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-					if (plr[tnum]._pmode != PM_GOTHIT && plr[tnum]._pmode != PM_DEATH)
+					if (players[tnum]._pmode != PM_GOTHIT && players[tnum]._pmode != PM_DEATH)
 						StartPlrHit(tnum, 0, true);
 					newx = oldx + offset_x[mon->_mdir];
 					newy = oldy + offset_y[mon->_mdir];
 					if (PosOkPlayer(tnum, newx, newy)) {
-						plr[tnum]._px = newx;
-						plr[tnum]._py = newy;
+						players[tnum]._px = newx;
+						players[tnum]._py = newy;
 						RemovePlrFromMap(tnum);
 						dPlayer[newx][newy] = tnum + 1;
 						FixPlayerLocation(tnum);
@@ -5211,7 +5211,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
 		} else if (mon->mtalkmsg == TEXT_GARBUD2) {
 			SetRndSeed(mon->_mRndSeed);
-			SpawnItem(mnum, plr[pnum]._px, plr[pnum]._py, true);
+			SpawnItem(mnum, players[pnum]._px, players[pnum]._py, true);
 		} //else if (mon->mtalkmsg == TEXT_GARBUD4)
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++;
@@ -5234,7 +5234,7 @@ void TalktoMonster(int mnum, int pnum)
 				PlrInvItemRemove(pnum, iv);
 				NetSendCmdQuest(Q_VEIL, false);
 			}
-			SpawnUnique(UITEM_STEELVEIL, plr[pnum]._px, plr[pnum]._py, true, false);
+			SpawnUnique(UITEM_STEELVEIL, players[pnum]._px, players[pnum]._py, true, false);
 		}
 	} else if (mon->_mAi == AI_ZHAR) {
 		if (quests[Q_ZHAR]._qactive == QUEST_INIT) {
@@ -5244,12 +5244,12 @@ void TalktoMonster(int mnum, int pnum)
 			if (pnum == myplr)
 				NetSendCmdQuest(Q_ZHAR, true);
 			iv = SPL_SWIPE;
-			if (plr[pnum]._pClass == PC_ROGUE)
+			if (players[pnum]._pClass == PC_ROGUE)
 				iv = SPL_POINT_BLANK;
-			else if (plr[pnum]._pClass == PC_SORCERER)
+			else if (players[pnum]._pClass == PC_SORCERER)
 				iv = SPL_LIGHTNING;
 			SetRndSeed(mon->_mRndSeed);
-			CreateSpellBook(iv, plr[pnum]._px, plr[pnum]._py);
+			CreateSpellBook(iv, players[pnum]._px, players[pnum]._py);
 		} else if (quests[Q_ZHAR]._qvar1 == 1) {
 			mon->mtalkmsg = TEXT_ZHAR2;
 			//mon->_mVar8 = 0; // init MON_TIMER
@@ -5279,9 +5279,9 @@ void SpawnGolum(int mnum, int x, int y, int level)
 	mon->_mpathcount = 0;
 	mon->_mArmorClass = 25;
 	//mon->_mEvasion = 5;
-	mon->_mmaxhp = 2 * (320 * level + plr[mnum]._pMaxMana / 3);
+	mon->_mmaxhp = 2 * (320 * level + players[mnum]._pMaxMana / 3);
 	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mHit = 5 * (level + 8) + 2 * plr[mnum]._pLevel;
+	mon->_mHit = 5 * (level + 8) + 2 * players[mnum]._pLevel;
 	mon->_mMinDamage = 2 * (level + 4);
 	mon->_mMaxDamage = 2 * (level + 8);
 	MonStartSpStand(mnum, 0);
@@ -5349,8 +5349,8 @@ void decode_enemy(int mnum, int enemy)
 	if (enemy < MAX_PLRS) {
 		monster[mnum]._mFlags &= ~MFLAG_TARGETS_MONSTER;
 		monster[mnum]._menemy = enemy;
-		monster[mnum]._menemyx = plr[enemy]._pfutx;
-		monster[mnum]._menemyy = plr[enemy]._pfuty;
+		monster[mnum]._menemyx = players[enemy]._pfutx;
+		monster[mnum]._menemyy = players[enemy]._pfuty;
 	} else {
 		monster[mnum]._mFlags |= MFLAG_TARGETS_MONSTER;
 		enemy -= MAX_PLRS;

@@ -426,7 +426,7 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct *p;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	// check if the current RSplType is a valid/allowed spell
 	if (p->_pAtkSkillType == type && !(mask & SPELL_MASK(p->_pAtkSkill))) {
 		p->_pAtkSkill = SPL_INVALID;
@@ -510,7 +510,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	unsigned amin = 0;  // min acid damage
 	unsigned amax = 0;  // max acid damage
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	pi = p->InvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
@@ -882,7 +882,7 @@ void CalcPlrSpells(int pnum)
 {
 	PlayerStruct *p;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	// switch between normal attacks
 	if (p->_pSkillFlags & SFLAG_MELEE) {
 		if (p->_pAtkSkill == SPL_RATTACK)
@@ -903,7 +903,7 @@ void CalcPlrScrolls(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	p->_pScrlSkills = 0;
 
 	pi = p->InvList;
@@ -925,7 +925,7 @@ void CalcPlrStaff(int pnum)
 	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	p->_pISpells = 0;
 	pi = &p->InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
@@ -942,7 +942,7 @@ static void CalcSelfItems(int pnum)
 	bool changeflag;
 	int sa, ma, da;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 
 	sa = p->_pBaseStr;
 	ma = p->_pBaseMag;
@@ -983,12 +983,12 @@ static void CalcPlrItemMin(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	pi = plr[pnum].InvList;
-	for (i = plr[pnum]._pNumInv; i != 0; i--, pi++) {
+	pi = players[pnum].InvList;
+	for (i = players[pnum]._pNumInv; i != 0; i--, pi++) {
 		ItemStatOk(pnum, pi);
 	}
 
-	pi = plr[pnum].SpdList;
+	pi = players[pnum].SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			ItemStatOk(pnum, pi);
@@ -1081,8 +1081,8 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 				doneflag = false;
 		}
 		if (pnum == myplr) {
-			for (i = 0; i < plr[pnum]._pNumInv; i++) {
-				if (plr[pnum].InvList[i]._iSeed == s)
+			for (i = 0; i < players[pnum]._pNumInv; i++) {
+				if (players[pnum].InvList[i]._iSeed == s)
 					doneflag = false;
 			}
 		}
@@ -1114,7 +1114,7 @@ void CreatePlrItems(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 
 	pi = p->InvBody;
 	for (i = NUM_INVLOC; i != 0; i--) {
@@ -1712,12 +1712,12 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 #ifdef HELLFIRE
 	case IPL_MANATOLIFE:
-		r2 = ((plr[myplr]._pMaxManaBase >> 6) * 50 / 100);
+		r2 = ((players[myplr]._pMaxManaBase >> 6) * 50 / 100);
 		is->_iPLMana -= (r2 << 6);
 		is->_iPLHP += (r2 << 6);
 		break;
 	case IPL_LIFETOMANA:
-		r2 = ((plr[myplr]._pMaxHPBase >> 6) * 40 / 100);
+		r2 = ((players[myplr]._pMaxHPBase >> 6) * 40 / 100);
 		is->_iPLHP -= (r2 << 6);
 		is->_iPLMana += (r2 << 6);
 		break;
@@ -2585,9 +2585,9 @@ static void DoIdentify(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= NUM_INVLOC)
-		pi = &plr[pnum].InvList[cii - NUM_INVLOC];
+		pi = &players[pnum].InvList[cii - NUM_INVLOC];
 	else
-		pi = &plr[pnum].InvBody[cii];
+		pi = &players[pnum].InvBody[cii];
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);
@@ -2619,7 +2619,7 @@ static void DoRepair(int pnum, int cii)
 	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 
 	if (cii >= INVITEM_INV_FIRST) {
 		pi = &p->InvList[cii - INVITEM_INV_FIRST];
@@ -2662,7 +2662,7 @@ static void DoRecharge(int pnum, int cii)
 	ItemStruct *pi;
 	int r;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	if (cii >= NUM_INVLOC) {
 		pi = &p->InvList[cii - NUM_INVLOC];
 	} else {
@@ -2713,7 +2713,7 @@ static void DoWhittle(int pnum, int cii)
 	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	if (cii >= NUM_INVLOC) {
 		pi = &p->InvList[cii - NUM_INVLOC];
 	} else {
@@ -2732,11 +2732,11 @@ static ItemStruct* PlrItem(int pnum, int cii)
 {
 	if (cii <= INVITEM_INV_LAST) {
 		if (cii < INVITEM_INV_FIRST) {
-			return &plr[pnum].InvBody[cii];
+			return &players[pnum].InvBody[cii];
 		} else
-			return &plr[pnum].InvList[cii - INVITEM_INV_FIRST];
+			return &players[pnum].InvList[cii - INVITEM_INV_FIRST];
 	} else {
-		return &plr[pnum].SpdList[cii - INVITEM_BELT_FIRST];
+		return &players[pnum].SpdList[cii - INVITEM_BELT_FIRST];
 	}
 }
 
@@ -2744,7 +2744,7 @@ static void RemovePlrItem(int pnum, int cii)
 {
 	if (cii < INVITEM_BELT_FIRST) {
 		if (cii < INVITEM_INV_FIRST) {
-			plr[pnum].InvBody[cii]._itype = ITYPE_NONE;
+			players[pnum].InvBody[cii]._itype = ITYPE_NONE;
 		} else
 			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
 	} else {
@@ -2764,7 +2764,7 @@ void DoAbility(int pnum, BOOL id, int cii)
 		DoIdentify(pnum, cii);
 		return;
 	}
-	switch (plr[pnum]._pClass) {
+	switch (players[pnum]._pClass) {
 	case PC_WARRIOR:
 		DoRepair(pnum, cii);
 		break;
@@ -3406,7 +3406,7 @@ void DrawInvItemDetails()
 
 void ItemStatOk(int pnum, ItemStruct *is)
 {
-	PlayerStruct *p = &plr[pnum];
+	PlayerStruct *p = &players[pnum];
 
 	is->_iStatFlag = p->_pStrength >= is->_iMinStr
 				  && p->_pDexterity >= is->_iMinDex

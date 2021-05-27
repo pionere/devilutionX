@@ -843,7 +843,7 @@ void CheckTriggers()
 	PlayerStruct *p;
 	int i;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (p->_pmode != PM_STAND)
 		return;
 

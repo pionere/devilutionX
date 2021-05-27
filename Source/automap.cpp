@@ -380,7 +380,7 @@ static void SearchAutomapItem()
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * AmLine16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * AmLine8 - AmLine8;
 
-	p = &plr[myplr];
+	p = &players[myplr];
 	if (p->_pmode == PM_WALK2) {
 		x = p->_poldx;
 		y = p->_poldy;
@@ -425,7 +425,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	int px, py;
 	int x, y;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	if (p->_pmode == PM_WALK3) {
 		px = p->_pfutx;
 		py = p->_pfuty;
@@ -693,10 +693,10 @@ void DrawAutomap()
 	}
 
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr[pnum].plrlevel == plr[myplr].plrlevel && plr[pnum].plractive && !plr[pnum]._pLvlChanging) {
-			if (plr[pnum]._pTeam == plr[myplr]._pTeam)
+		if (players[pnum].plrlevel == players[myplr].plrlevel && players[pnum].plractive && !players[pnum]._pLvlChanging) {
+			if (players[pnum]._pTeam == players[myplr]._pTeam)
 				DrawAutomapPlr(pnum, pnum == myplr ? COLOR_PLAYER : COLOR_FRIEND);
-			else if ((dFlags[plr[pnum]._px][plr[pnum]._py] & BFLAG_LIT) || plr[myplr]._pInfraFlag)
+			else if ((dFlags[players[pnum]._px][players[pnum]._py] & BFLAG_LIT) || players[myplr]._pInfraFlag)
 				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}
 	}

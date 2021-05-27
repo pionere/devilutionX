@@ -17,8 +17,8 @@ static void sync_init_monsters()
 {
 	int i, mnum, px, py;
 
-	px = plr[myplr]._px;
-	py = plr[myplr]._py;
+	px = players[myplr]._px;
+	py = players[myplr]._py;
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		monster_dists[mnum] = abs(px - monster[mnum]._mx) + abs(py - monster[mnum]._my);
@@ -136,7 +136,7 @@ static bool sync_prio_monster(TSyncMonster *symon)
 	}
 
 	assert((unsigned)sync_pinum < NUM_INVLOC);
-	is = &plr[myplr].InvBody[sync_pinum];
+	is = &players[myplr].InvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;
 		pHdr->wPInvIndx = is->_iIdx;
@@ -207,7 +207,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	mnum = symon->_mndx;
 	mon = &monster[mnum];
 
-	delta = abs(plr[myplr]._px - mon->_mx) + abs(plr[myplr]._py - mon->_my);
+	delta = abs(players[myplr]._px - mon->_mx) + abs(players[myplr]._py - mon->_my);
 	if (delta > 255) {
 		delta = 255;
 	}

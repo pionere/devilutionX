@@ -127,7 +127,7 @@ static void CowSFX(int pnum)
 
 	_guCowClicks++;
 
-	p = &plr[pnum];
+	p = &players[pnum];
 	if (_guCowClicks >= 8) {
 		PlaySfxLoc(TSFX_COW1, p->_px, p->_py + 5);
 		_guCowClicks = 4;
@@ -386,7 +386,7 @@ static void TownCtrlMsg(TownerStruct *tw)
 	int dx, dy;
 
 	if (tw->_tListener != MAX_PLRS) {
-		p = &plr[tw->_tListener];
+		p = &players[tw->_tListener];
 		dx = abs(tw->_tx - p->_px);
 		dy = abs(tw->_ty - p->_py);
 		if (dx >= 2 || dy >= 2) {
@@ -445,8 +445,8 @@ bool PlrHasItem(int pnum, int item, int *outidx)
 	ItemStruct* pi;
 	int i;
 
-	pi = plr[pnum].InvList;
-	for (i = 0; i < plr[pnum]._pNumInv; i++, pi++) {
+	pi = players[pnum].InvList;
+	for (i = 0; i < players[pnum]._pNumInv; i++, pi++) {
 		if (pi->_iIdx == item) {
 			*outidx = i;
 			return true;
@@ -461,7 +461,7 @@ static bool PlrHasBeltItem(int pnum, int item)
 	ItemStruct* pi;
 	int i;
 
-	pi = plr[pnum].SpdList;
+	pi = players[pnum].SpdList;
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		if (pi->_iIdx == item) {
 			return true;
@@ -492,8 +492,8 @@ void TalkToTowner(int tnum)
 #endif
 
 	tw = &towners[tnum];
-	dx = abs(plr[pnum]._px - tw->_tx);
-	dy = abs(plr[pnum]._py - tw->_ty);
+	dx = abs(players[pnum]._px - tw->_tx);
+	dy = abs(players[pnum]._py - tw->_ty);
 	if (dx >= 2 || dy >= 2)
 		return;
 
@@ -510,10 +510,10 @@ void TalkToTowner(int tnum)
 
 	switch (tw->_ttype) {
 	case TOWN_TAVERN:
-		if (!plr[pnum]._pLvlVisited[DLV_TOWN]) {
+		if (!players[pnum]._pLvlVisited[DLV_TOWN]) {
 			qt = TEXT_INTRO;
 		}
-		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL2] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
+		if (players[pnum]._pLvlVisited[DLV_CATHEDRAL2] && quests[Q_SKELKING]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_SKELKING]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
 				quests[Q_SKELKING]._qlog = TRUE;
@@ -526,7 +526,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_KING4;
 			}
 		}
-		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
+		if (players[pnum]._pLvlVisited[DLV_CATHEDRAL3] && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_LTBANNER]._qactive == QUEST_INIT && qt == TEXT_NONE) {
 				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
 				quests[Q_LTBANNER]._qlog = TRUE;
@@ -545,7 +545,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_DEADGUY:
 		if (quests[Q_BUTCHER]._qactive == QUEST_ACTIVE /*&& quests[Q_BUTCHER]._qvar1 == 1*/) {
-			i = sgSFXSets[SFXS_PLR_08][plr[pnum]._pClass];
+			i = sgSFXSets[SFXS_PLR_08][players[pnum]._pClass];
 			if (!effect_is_playing(i)) {
 				// tw->_tListener = pnum;
 				PlaySFX(i);
@@ -560,7 +560,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_SMITH:
-		if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
+		if (players[pnum]._pLvlVisited[DLV_CATHEDRAL4] && quests[Q_ROCK]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ROCK]._qvar1 <= 1) {
 				quests[Q_ROCK]._qvar1 = 2;
 				quests[Q_ROCK]._qactive = QUEST_ACTIVE;
@@ -577,7 +577,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_INFRA7;
 			}
 		}
-		if (plr[pnum]._pLvlVisited[DLV_CAVES1] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
+		if (players[pnum]._pLvlVisited[DLV_CAVES1] && quests[Q_ANVIL]._qactive != QUEST_NOTAVAIL) {
 			if (quests[Q_ANVIL]._qvar1 <= 1 && qt == TEXT_NONE) {
 				quests[Q_ANVIL]._qvar1 = 2;
 				quests[Q_ANVIL]._qactive = QUEST_ACTIVE;
@@ -631,7 +631,7 @@ void TalkToTowner(int tnum)
 		break;
 	case TOWN_BMAID:
 #ifdef HELLFIRE
-		if (!plr[pnum]._pLvlVisited[DLV_CRYPT1] && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
+		if (!players[pnum]._pLvlVisited[DLV_CRYPT1] && PlrHasItem(pnum, IDI_MAPOFDOOM, &i)) {
 			quests[Q_GRAVE]._qactive = QUEST_ACTIVE;
 			quests[Q_GRAVE]._qlog = TRUE;
 			quests[Q_GRAVE]._qmsg = TEXT_GRAVE8;
@@ -643,7 +643,7 @@ void TalkToTowner(int tnum)
 	case TOWN_DRUNK:
 		break;
 	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && plr[pnum]._pLvlVisited[DLV_CATHEDRAL1]) {
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && players[pnum]._pLvlVisited[DLV_CATHEDRAL1]) {
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 			quests[Q_PWATER]._qlog = TRUE;
 			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
@@ -717,12 +717,12 @@ void TalkToTowner(int tnum)
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
 				qt = TEXT_FARMER2;
-			} else if (!plr[pnum]._pLvlVisited[DLV_CAVES1] && plr[pnum]._pLevel < 15) {
-				if (plr[pnum]._pLvlVisited[DLV_CATACOMBS3])
+			} else if (!players[pnum]._pLvlVisited[DLV_CAVES1] && players[pnum]._pLevel < 15) {
+				if (players[pnum]._pLvlVisited[DLV_CATACOMBS3])
 					qt = TEXT_FARMER9;
-				else if (plr[pnum]._pLvlVisited[DLV_CATACOMBS1])
+				else if (players[pnum]._pLvlVisited[DLV_CATACOMBS1])
 					qt = TEXT_FARMER7;
-				else if (plr[pnum]._pLvlVisited[DLV_CATHEDRAL2])
+				else if (players[pnum]._pLvlVisited[DLV_CATHEDRAL2])
 					qt = TEXT_FARMER5;
 				else
 					qt = TEXT_FARMER8;
@@ -790,7 +790,7 @@ void TalkToTowner(int tnum)
 			}
 			if (quests[Q_JERSEY]._qvar1 != 0) {
 				qt = TEXT_JERSEY5;
-			} else if (!plr[pnum]._pLvlVisited[DLV_CAVES1] && plr[pnum]._pLevel < 15) {
+			} else if (!players[pnum]._pLvlVisited[DLV_CAVES1] && players[pnum]._pLevel < 15) {
 				switch (random_(0, 4)) {
 				case 0:
 					qt = TEXT_JERSEY9;
@@ -825,8 +825,8 @@ void TalkToTowner(int tnum)
 	case TOWN_GIRL:
 		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
 			if (PlrHasItem(pnum, IDI_THEODORE, &i)) {
-				ii = plr[pnum].InvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-				SetRndSeed(plr[pnum].InvList[i]._iSeed); // and uses its seed
+				ii = players[pnum].InvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
+				SetRndSeed(players[pnum].InvList[i]._iSeed); // and uses its seed
 				PlrInvItemRemove(pnum, i);
 				CreateAmulet(ii, tw->_tx, tw->_ty, true, true);
 				// quests[Q_GIRL]._qlog = FALSE;

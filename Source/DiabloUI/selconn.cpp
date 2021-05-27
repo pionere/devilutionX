@@ -30,25 +30,25 @@ static void SelconnEsc()
 
 static void SelconnFocus(unsigned index)
 {
-	int players = MAX_PLRS;
+	int numplayers = MAX_PLRS;
 	switch (vecConnItems[index]->m_value) {
 	case SELCONN_TCP:
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
-		players = MAX_PLRS;
+		numplayers = MAX_PLRS;
 		break;
 #ifdef ZEROTIER
 	case SELCONN_ZT:
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to the internet.");
-		players = MAX_PLRS;
+		numplayers = MAX_PLRS;
 		break;
 #endif
 	case SELCONN_LOOPBACK:
 		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
-		players = 1;
+		numplayers = 1;
 		break;
 	}
 
-	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", players);
+	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", numplayers);
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH);
 }
 

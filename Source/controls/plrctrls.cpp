@@ -24,7 +24,7 @@ bool InGameMenu()
 	    || gbQtextflag
 	    || gmenu_is_active()
 	    || PauseMode == 2
-	    || plr[myplr]._pInvincible;
+	    || players[myplr]._pInvincible;
 }
 
 namespace {
@@ -41,11 +41,11 @@ int GetRotaryDistance(int x, int y)
 {
 	int d, d1, d2;
 
-	if (plr[myplr]._pfutx == x && plr[myplr]._pfuty == y)
+	if (players[myplr]._pfutx == x && players[myplr]._pfuty == y)
 		return -1;
 
-	d1 = plr[myplr]._pdir;
-	d2 = GetDirection(plr[myplr]._pfutx, plr[myplr]._pfuty, x, y);
+	d1 = players[myplr]._pdir;
+	d2 = GetDirection(players[myplr]._pfutx, players[myplr]._pfuty, x, y);
 
 	d = abs(d1 - d2);
 	if (d > 4)
@@ -61,7 +61,7 @@ int GetRotaryDistance(int x, int y)
  */
 int GetMinDistance(int dx, int dy)
 {
-	return std::max(abs(plr[myplr]._pfutx - dx), abs(plr[myplr]._pfuty - dy));
+	return std::max(abs(players[myplr]._pfutx - dx), abs(players[myplr]._pfuty - dy));
 }
 
 /**
@@ -78,7 +78,7 @@ int GetDistance(int dx, int dy, int maxDistance)
 	}
 
 	char walkpath[MAX_PATH_LENGTH];
-	int steps = FindPath(PosOkPlayer, myplr, plr[myplr]._pfutx, plr[myplr]._pfuty, dx, dy, walkpath);
+	int steps = FindPath(PosOkPlayer, myplr, players[myplr]._pfutx, players[myplr]._pfuty, dx, dy, walkpath);
 	if (steps > maxDistance)
 		return 0;
 
@@ -92,16 +92,16 @@ int GetDistance(int dx, int dy, int maxDistance)
  */
 int GetDistanceRanged(int dx, int dy)
 {
-	int a = plr[myplr]._pfutx - dx;
-	int b = plr[myplr]._pfuty - dy;
+	int a = players[myplr]._pfutx - dx;
+	int b = players[myplr]._pfuty - dy;
 
 	return sqrt(a * a + b * b);
 }
 
 void FindItemOrObject()
 {
-	int mx = plr[myplr]._pfutx;
-	int my = plr[myplr]._pfuty;
+	int mx = players[myplr]._pfutx;
+	int my = players[myplr]._pfuty;
 	int rotations = 5;
 
 	// As the player can not stand on the edge fo the map this is safe from OOB
@@ -163,15 +163,15 @@ void CheckTownersNearby()
 
 bool HasRangedSpell()
 {
-	int spl = plr[myplr]._pAltAtkSkill;
+	int spl = players[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
-		spl = plr[myplr]._pAltMoveSkill;
+		spl = players[myplr]._pAltMoveSkill;
 
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
 	    && spelldata[spl].sTargeted
-	    && (spelldata[spl].sFlags & plr[myplr]._pSkillFlags) != 0;
+	    && (spelldata[spl].sFlags & players[myplr]._pSkillFlags) != 0;
 }
 
 bool CanTargetMonster(int mi)
@@ -239,8 +239,8 @@ void FindMeleeTarget()
 	};
 	std::queue<SearchNode> nodes;
 	{
-		const int startX = plr[myplr]._pfutx;
-		const int startY = plr[myplr]._pfuty;
+		const int startX = players[myplr]._pfutx;
+		const int startY = players[myplr]._pfuty;
 		visited[startX][startY] = true;
 		nodes.push({ startX, startY, 0 });
 	}
@@ -292,7 +292,7 @@ void FindMeleeTarget()
 
 void CheckMonstersNearby()
 {
-	if ((plr[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
+	if ((players[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
 		FindRangedTarget();
 		return;
 	}
@@ -309,23 +309,23 @@ void CheckPlayerNearby()
 	if (pcursmonst != -1)
 		return;
 
-	int spl = plr[myplr]._pAltAtkSkill;
+	int spl = players[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
-		spl = plr[myplr]._pAltMoveSkill;
+		spl = players[myplr]._pAltMoveSkill;
 
 	for (int i = 0; i < MAX_PLRS; i++) {
 		if (i == myplr)
 			continue;
-		if (plr[i]._pTeam == plr[myplr]._pTeam && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
+		if (players[i]._pTeam == players[myplr]._pTeam && spl != SPL_RESURRECT && spl != SPL_HEALOTHER)
 			continue;
-		const int mx = plr[i]._pfutx;
-		const int my = plr[i]._pfuty;
+		const int mx = players[i]._pfutx;
+		const int my = players[i]._pfuty;
 		if (dPlayer[mx][my] == 0
 		    || !(dFlags[mx][my] & BFLAG_LIT)
-		    || (plr[i]._pHitPoints == 0 && spl != SPL_RESURRECT))
+		    || (players[i]._pHitPoints == 0 && spl != SPL_RESURRECT))
 			continue;
 
-		if ((plr[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell() || spl == SPL_HEALOTHER) {
+		if ((players[myplr]._pSkillFlags & SFLAG_RANGED) || HasRangedSpell() || spl == SPL_HEALOTHER) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
@@ -413,12 +413,12 @@ void Interact()
 		if (pcursmonst != -1)
 			NetSendCmdLocParam1(true, CMD_TALKXY, towners[pcursmonst]._tx, towners[pcursmonst]._ty, pcursmonst);
 	} else {
-		int attack = plr[myplr]._pAtkSkill;
+		int attack = players[myplr]._pAtkSkill;
 		int sl = GetSpellLevel(myplr, attack);
-		bool melee = (plr[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
+		bool melee = (players[myplr]._pSkillFlags & SFLAG_MELEE) != 0;
 		if (pcursmonst != -1)
 			NetSendCmdMonstAttack((melee || CanTalkToMonst(pcursmonst)) ? CMD_ATTACKID : CMD_RATTACKID, pcursmonst, attack, sl);
-		else if (pcursplr != PLR_NONE && plr[myplr]._pTeam != plr[pcursplr]._pTeam)
+		else if (pcursplr != PLR_NONE && players[myplr]._pTeam != players[pcursplr]._pTeam)
 			NetSendCmdPlrAttack(pcursplr, attack, sl);
 	}
 }
@@ -430,7 +430,7 @@ void AttrIncBtnSnap(AxisDirection dir)
 	if (dir.y == AxisDirectionY_NONE)
 		return;
 
-	if (gbChrbtnactive && plr[myplr]._pStatPts <= 0)
+	if (gbChrbtnactive && players[myplr]._pStatPts <= 0)
 		return;
 
 	// first, find our cursor location
@@ -719,9 +719,9 @@ void HotSpellMove(AxisDirection dir)
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
 
-	int spbslot = plr[myplr]._pAltAtkSkill;
+	int spbslot = players[myplr]._pAltAtkSkill;
 	if (spbslot == SPL_INVALID)
-		spbslot = plr[myplr]._pAltMoveSkill;
+		spbslot = players[myplr]._pAltMoveSkill;
 	for (int r = 0; r < speedspellcount; r++) {
 		if (MouseX >= speedspellscoords[r].x - SPLICONLENGTH / 2
 		 && MouseX <= speedspellscoords[r].x + SPLICONLENGTH / 2
@@ -841,7 +841,7 @@ bool IsPathBlocked(int x, int y, int dir)
 
 static bool CanChangeDirection()
 {
-	PlayerStruct *p = &plr[myplr];
+	PlayerStruct *p = &players[myplr];
 
 	if (p->_pmode == PM_STAND)
 		return true;
@@ -856,11 +856,11 @@ static bool CanChangeDirection()
 
 void WalkInDir(AxisDirection dir)
 {
-	const int x = plr[myplr]._pfutx;
-	const int y = plr[myplr]._pfuty;
+	const int x = players[myplr]._pfutx;
+	const int y = players[myplr]._pfuty;
 
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
-		if (sgbControllerActive && plr[myplr].walkpath[0] != DIR_NONE && plr[myplr].destAction == ACTION_NONE)
+		if (sgbControllerActive && players[myplr].walkpath[0] != DIR_NONE && players[myplr].destAction == ACTION_NONE)
 			NetSendCmdLoc(true, CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
@@ -869,7 +869,7 @@ void WalkInDir(AxisDirection dir)
 	const int dx = x + Offsets[pdir][0];
 	const int dy = y + Offsets[pdir][1];
 	if (CanChangeDirection())
-		plr[myplr]._pdir = pdir;
+		players[myplr]._pdir = pdir;
 
 	if (PosOkPlayer(myplr, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
@@ -903,7 +903,7 @@ HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 {
 	if (gbInvflag) {
 		return &InvMove;
-	} else if (gbChrflag && plr[myplr]._pStatPts > 0) {
+	} else if (gbChrflag && players[myplr]._pStatPts > 0) {
 		return &AttrIncBtnSnap;
 	} else if (gbSkillListFlag) {
 		return &HotSpellMove;
@@ -990,16 +990,16 @@ void StoreSpellCoords()
 		std::uint64_t spells;
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			spells = plr[myplr]._pAblSkills;
+			spells = players[myplr]._pAblSkills;
 			break;
 		case RSPLTYPE_SPELL:
-			spells = plr[myplr]._pMemSkills;
+			spells = players[myplr]._pMemSkills;
 			break;
 		case RSPLTYPE_SCROLL:
-			spells = plr[myplr]._pScrlSkills;
+			spells = players[myplr]._pScrlSkills;
 			break;
 		case RSPLTYPE_CHARGES:
-			spells = plr[myplr]._pISpells;
+			spells = players[myplr]._pISpells;
 			break;
 		default:
 			continue;
@@ -1093,7 +1093,7 @@ void plrctrls_after_check_curs_move()
 		pcurstrig = -1;
 		cursmx = -1;
 		cursmy = -1;
-		if (plr[myplr]._pInvincible) {
+		if (players[myplr]._pInvincible) {
 			return;
 		}
 		if (gbDoomflag) {
@@ -1123,7 +1123,7 @@ void UseBeltItem(int type)
 {
 	ItemStruct *pi;
 
-	pi = plr[myplr].SpdList;
+	pi = players[myplr].SpdList;
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = AllItemsList[pi->_iIdx].iMiscId;
 		const int spellId = AllItemsList[pi->_iIdx].iSpell;
@@ -1183,9 +1183,9 @@ void PerformPrimaryAction()
 
 static bool SpellHasActorTarget()
 {
-	int spl = plr[myplr]._pAltAtkSkill;
+	int spl = players[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
-		spl = plr[myplr]._pAltMoveSkill;
+		spl = players[myplr]._pAltMoveSkill;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
@@ -1205,10 +1205,10 @@ static void UpdateSpellTarget()
 	pcursplr = PLR_NONE;
 	pcursmonst = -1;
 
-	const PlayerStruct &player = plr[myplr];
+	const PlayerStruct &player = players[myplr];
 
 	int range = 1;
-	if (plr[myplr]._pAltMoveSkill == SPL_TELEPORT)
+	if (players[myplr]._pAltMoveSkill == SPL_TELEPORT)
 		range = 4;
 
 	cursmx = player._pfutx + Offsets[player._pdir][0] * range;
@@ -1220,8 +1220,8 @@ static void UpdateSpellTarget()
  */
 bool TryDropItem()
 {
-	cursmx = plr[myplr]._pfutx + 1;
-	cursmy = plr[myplr]._pfuty;
+	cursmx = players[myplr]._pfutx + 1;
+	cursmy = players[myplr]._pfuty;
 	return DropItem();
 }
 
@@ -1242,12 +1242,12 @@ void PerformSpellAction()
 		return;
 	}
 
-	int spl = plr[myplr]._pAltAtkSkill;
+	int spl = players[myplr]._pAltAtkSkill;
 	if (spl == SPL_INVALID)
-		spl = plr[myplr]._pAltMoveSkill;
+		spl = players[myplr]._pAltMoveSkill;
 	if ((pcursplr == PLR_NONE && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
 	    || (pcursobj == OBJ_NONE && spl == SPL_DISARM)) {
-		PlaySFX(sgSFXSets[SFXS_PLR_27][plr[myplr]._pClass]);
+		PlaySFX(sgSFXSets[SFXS_PLR_27][players[myplr]._pClass]);
 		return;
 	}
 
@@ -1263,9 +1263,9 @@ static void CtrlUseInvItem()
 		return;
 
 	if (pcursinvitem <= INVITEM_INV_LAST)
-		is = &plr[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
+		is = &players[myplr].InvList[pcursinvitem - INVITEM_INV_FIRST];
 	else
-		is = &plr[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
+		is = &players[myplr].SpdList[pcursinvitem - INVITEM_BELT_FIRST];
 
 	if (is->_iMiscId == IMISC_SCROLL && spelldata[is->_iSpell].sTargeted) {
 		return;
@@ -1300,7 +1300,7 @@ void PerformSecondaryAction()
 			int qn = -2 - pcurstrig;
 			MakePlrPath(myplr, quests[qn]._qtx, quests[qn]._qty, true);
 		}
-		plr[myplr].destAction = ACTION_WALK;
+		players[myplr].destAction = ACTION_WALK;
 	}
 }
 

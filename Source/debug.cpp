@@ -52,12 +52,12 @@ void GiveGoldCheat()
 	int i;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (plr[myplr].InvGrid[i] == 0) {
-			pi = &plr[myplr].InvList[plr[myplr]._pNumInv];
+		if (players[myplr].InvGrid[i] == 0) {
+			pi = &players[myplr].InvList[players[myplr]._pNumInv];
 			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-			plr[myplr]._pGold += GOLD_MAX_LIMIT;
-			plr[myplr].InvGrid[i] = ++plr[myplr]._pNumInv;
+			players[myplr]._pGold += GOLD_MAX_LIMIT;
+			players[myplr].InvGrid[i] = ++players[myplr]._pNumInv;
 		}
 	}
 }
@@ -89,17 +89,17 @@ void TakeGoldCheat()
 	char ig;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		ig = plr[myplr].InvGrid[i];
-		if (ig > 0 && plr[myplr].InvList[ig - 1]._itype == ITYPE_GOLD)
+		ig = players[myplr].InvGrid[i];
+		if (ig > 0 && players[myplr].InvList[ig - 1]._itype == ITYPE_GOLD)
 			RemoveInvItem(myplr, ig - 1);
 	}
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (plr[myplr].SpdList[i]._itype == ITYPE_GOLD)
-			plr[myplr].SpdList[i]._itype = ITYPE_NONE;
+		if (players[myplr].SpdList[i]._itype == ITYPE_GOLD)
+			players[myplr].SpdList[i]._itype = ITYPE_NONE;
 	}
 
-	plr[myplr]._pGold = 0;
+	players[myplr]._pGold = 0;
 }
 
 void MaxSpellsCheat()
@@ -108,16 +108,16 @@ void MaxSpellsCheat()
 
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
-			plr[myplr]._pMemSkills |= SPELL_MASK(i);
-			plr[myplr]._pSkillLvl[i] = 10;
+			players[myplr]._pMemSkills |= SPELL_MASK(i);
+			players[myplr]._pSkillLvl[i] = 10;
 		}
 	}
 }
 
 void SetSpellLevelCheat(char spl, int spllvl)
 {
-	plr[myplr]._pMemSkills |= SPELL_MASK(spl);
-	plr[myplr]._pSkillLvl[spl] = spllvl;
+	players[myplr]._pMemSkills |= SPELL_MASK(spl);
+	players[myplr]._pSkillLvl[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()
@@ -151,19 +151,19 @@ void PrintDebugPlayer(bool bNextPlayer)
 	if (bNextPlayer)
 		dbgplr = ((BYTE)dbgplr + 1) & 3;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, plr[dbgplr].plractive);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Plr %i : Active = %i", dbgplr, players[dbgplr].plractive);
 	NetSendCmdString(1 << myplr);
 
-	if (plr[dbgplr].plractive) {
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, plr[dbgplr]._pName);
+	if (players[dbgplr].plractive) {
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Plr %i is %s", dbgplr, players[dbgplr]._pName);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", plr[dbgplr].plrlevel, plr[dbgplr]._pLvlChanging);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  Lvl = %i : Change = %i", players[dbgplr].plrlevel, players[dbgplr]._pLvlChanging);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : fx = %i, fy = %i", plr[dbgplr]._px, plr[dbgplr]._py, plr[dbgplr]._pfutx, plr[dbgplr]._pfuty);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %i, y = %i : fx = %i, fy = %i", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %i : daction = %i : walk[0] = %i", plr[dbgplr]._pmode, plr[dbgplr].destAction, plr[dbgplr].walkpath[0]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %i : daction = %i : walk[0] = %i", players[dbgplr]._pmode, players[dbgplr].destAction, players[dbgplr].walkpath[0]);
 		NetSendCmdString(1 << myplr);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %i : hp = %i", plr[dbgplr]._pInvincible, plr[dbgplr]._pHitPoints);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %i : hp = %i", players[dbgplr]._pInvincible, players[dbgplr]._pHitPoints);
 		NetSendCmdString(1 << myplr);
 	}
 }
