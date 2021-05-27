@@ -2799,8 +2799,8 @@ static bool PlrDoDeath(int pnum)
 				}
 			}
 		}
-
-		p->_pAnimFrameLen = 10000;
+		assert(PlrAnimFrameLens[PA_DEATH] > 1);
+		p->_pAnimCnt = 0;
 		p->_pAnimFrame = p->_pAnimLen;
 		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 	} else {
