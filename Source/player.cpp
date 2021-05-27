@@ -2802,7 +2802,7 @@ static bool PlrDoDeath(int pnum)
 		assert(PlrAnimFrameLens[PA_DEATH] > 1);
 		p->_pAnimCnt = 0;
 		p->_pAnimFrame = p->_pAnimLen;
-		dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
+		//dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
 	} else {
 		p->_pVar8++; // DEATH_TICK
 	}
