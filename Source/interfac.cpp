@@ -638,7 +638,7 @@ void ShowProgress(unsigned int uMsg)
 	plrmsg_delay(false);
 	ResetPal();
 
-	if (gbSomebodyWonGameKludge && players[myplr].plrlevel == 16) {
+	if (gbSomebodyWonGameKludge && players[myplr].plrlevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
 	}
 
