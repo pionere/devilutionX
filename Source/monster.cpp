@@ -2844,13 +2844,13 @@ void MAI_SkelSd(int mnum)
 		if (mon->_mVar1 == MM_DELAY || (random_(106, 100) >= 35 - 4 * mon->_mint)) {
 			MonCallWalk(mnum, md);
 		} else {
-			MonStartDelay(mnum, 15 - 2 * mon->_mint + random_(106, 10));
+			MonStartDelay(mnum, RandRange(15, 24) - 2 * mon->_mint);
 		}
 	} else {
 		if (mon->_mVar1 == MM_DELAY || (random_(105, 100) < 2 * mon->_mint + 20)) {
 			MonStartAttack(mnum);
 		} else {
-			MonStartDelay(mnum, 2 * (5 - mon->_mint) + random_(105, 10));
+			MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 		}
 	}
 }
@@ -2962,7 +2962,7 @@ void MAI_Snake(int mnum)
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
 				MonCallWalk2(mnum, mon->_mdir);
 		} else {
-			MonStartDelay(mnum, 15 - mon->_mint + random_(106, 10));
+			MonStartDelay(mnum, RandRange(15, 24) - mon->_mint);
 		}
 	} else { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY
@@ -2970,15 +2970,15 @@ void MAI_Snake(int mnum)
 		    || (random_(105, 100) < mon->_mint + 20)) {
 			MonStartAttack(mnum);
 		} else
-			MonStartDelay(mnum, 10 - mon->_mint + random_(105, 10));
+			MonStartDelay(mnum, RandRange(10, 19) - mon->_mint);
 	}
 }
 
 void MAI_Bat(int mnum)
 {
 	MonsterStruct *mon;
-	int md, v, pnum;
-	int fx, fy, xd, yd;
+	int md, v;
+	int fx, fy, xd, yd, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Bat: Invalid monster %d", mnum);
@@ -3002,20 +3002,20 @@ void MAI_Bat(int mnum)
 	}
 
 	v = random_(107, 100);
-	pnum = mon->_menemy;
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	xd = mon->_mx - fx;
 	yd = mon->_my - fy;
+	dist = std::max(abs(xd), abs(yd));
 	if (mon->_mType == MT_GLOOM
-	    && (abs(xd) >= 5 || abs(yd) >= 5)
+	    && (dist >= 5)
 	    && v < 4 * mon->_mint + 33
 	    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 		if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
 			dMonster[mon->_mx][mon->_my] = -(mnum + 1);
 			mon->_mmode = MM_CHARGE;
 		}
-	} else if (abs(xd) >= 2 || abs(yd) >= 2) {
+	} else if (dist >= 2) {
 		if ((mon->_mVar2 > 20 && v < mon->_mint + 13) // STAND_TICK, STAND_PREV_MODE
 		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 		        && mon->_mVar2 == 0
@@ -3063,7 +3063,7 @@ void MAI_SkelBow(int mnum)
 	}
 
 	if (!walking) {
-		if (random_(110, 100) < 2 * mon->_mint + 3) {
+		if (v < 2 * mon->_mint + 3) {
 			if (LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy))
 				MonStartRAttack(mnum, MIS_ARROWC);
 		}
@@ -3781,10 +3781,10 @@ static void MAI_RR2(int mnum, int mitype)
 			MonStartRSpAttack(mnum, mitype);
 		} else if (dist >= 2) {
 			v = random_(124, 100);
-			if (v < 2 * (5 * mon->_mint + 25) // STAND_PREV_MODE
+			if (v < 10 * (mon->_mint + 5) // STAND_PREV_MODE
 			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 			        && mon->_mVar2 == 0 // STAND_TICK
-			        && v < 2 * (5 * mon->_mint + 40))) {
+			        && v < 10 * (mon->_mint + 8))) {
 				MonCallWalk(mnum, md);
 			}
 		} else {
@@ -4085,7 +4085,6 @@ void MAI_Counselor(int mnum)
 	mx = mon->_mx - fx;
 	my = mon->_my - fy;
 	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
-	v = random_(121, 100);
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (mon->_mgoalvar1++ <= 3) // RETREAT_DISTANCE
 			MonCallWalk(mnum, OPPOSITE(md));
@@ -4095,18 +4094,15 @@ void MAI_Counselor(int mnum)
 		}
 	} else if (mon->_mgoal == MGOAL_MOVE) {
 		dist = std::max(abs(mx), abs(my));
-		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
-			if (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md)) { // MOVE_DISTANCE
-				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION??
-			} else {
-				mon->_mgoal = MGOAL_NORMAL;
-				MonStartFadein(mnum, md, true);
-			}
+		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
+		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
+			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION??
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
 		}
 	} else if (mon->_mgoal == MGOAL_NORMAL) {
+		v = random_(121, 100);
 		if (abs(mx) >= 2 || abs(my) >= 2) {
 			if (v < 5 * (mon->_mint + 10) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				MonStartRAttack(mnum, counsmiss[mon->_mint]);
@@ -4115,7 +4111,7 @@ void MAI_Counselor(int mnum)
 				mon->_mgoalvar1 = 0; // MOVE_DISTANCE
 				MonStartFadeout(mnum, md, false);
 			} else
-				MonStartDelay(mnum, random_(105, 10) + 2 * (5 - mon->_mint));
+				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 		} else {
 			mon->_mdir = md;
 			if (mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
@@ -4123,11 +4119,12 @@ void MAI_Counselor(int mnum)
 				mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, md, false);
 			} else if (mon->_mVar1 == MM_DELAY // STAND_PREV_MODE
-			    || random_(105, 100) < 2 * mon->_mint + 20) {
+			    || v < 2 * mon->_mint + 20) {
 				MonStartRAttack(mnum, MIS_FLASH);
 			} else
-				MonStartDelay(mnum, random_(105, 10) + 2 * (5 - mon->_mint));
+				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 		}
+		return;
 	}
 	if (mon->_mmode == MM_STAND) {
 		MonStartDelay(mnum, RandRange(5, 14));
