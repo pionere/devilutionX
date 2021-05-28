@@ -2990,21 +2990,18 @@ void MAI_Bat(int mnum)
 
 	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
 	mon->_mdir = md;
-	v = random_(107, 100);
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		if (mon->_mgoalvar1 == 0) { // RETREAT_FINISHED
-			MonCallWalk(mnum, OPPOSITE(md));
 			mon->_mgoalvar1++;
+			MonCallWalk(mnum, OPPOSITE(md));
 		} else {
-			if (random_(108, 2) != 0)
-				MonCallWalk(mnum, left[md]);
-			else
-				MonCallWalk(mnum, right[md]);
 			mon->_mgoal = MGOAL_NORMAL;
+			MonCallWalk(mnum, random_(108, 2) != 0 ? left[md] : right[md]);
 		}
 		return;
 	}
 
+	v = random_(107, 100);
 	pnum = mon->_menemy;
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
@@ -3120,10 +3117,10 @@ void MAI_Sneak(int mnum)
 		if (dLight[mx][my] != LIGHTMAX) {
 			mx -= mon->_menemyx;
 			my -= mon->_menemyy;
+			dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
 
 			md = MonGetDir(mnum);
 			range = 5 - mon->_mint;
-			dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
 			if (mon->_mVar1 == MM_GOTHIT && mon->_mgoal != MGOAL_RETREAT) {
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
@@ -3150,23 +3147,21 @@ void MAI_Sneak(int mnum)
 			v = random_(112, 100);
 			if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 				MonStartFadein(mnum, md, false);
+			} else if ((dist >= range + 1) && !(mon->_mFlags & MFLAG_HIDDEN)) {
+				MonStartFadeout(mnum, md, true);
 			} else {
-				if ((dist >= range + 1) && !(mon->_mFlags & MFLAG_HIDDEN)) {
-					MonStartFadeout(mnum, md, true);
-				} else {
-					if (mon->_mgoal == MGOAL_RETREAT
-					 || (dist >= 2 &&
-						 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
-						 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-							 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
-						mon->_mgoalvar1++; // RETREAT_DISTANCE ?
-						MonCallWalk(mnum, md);
-					}
+				if (mon->_mgoal == MGOAL_RETREAT
+				 || (dist >= 2 &&
+					 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
+					 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+						 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
+					mon->_mgoalvar1++; // RETREAT_DISTANCE ?
+					MonCallWalk(mnum, md);
 				}
-			}
-			if (mon->_mmode == MM_STAND
-			 && (dist < 2 && v < 4 * mon->_mint + 10)) {
-				MonStartAttack(mnum);
+				if (mon->_mmode == MM_STAND
+				 && (dist < 2 && v < 4 * mon->_mint + 10)) {
+					MonStartAttack(mnum);
+				}
 			}
 		}
 	}
@@ -3174,10 +3169,8 @@ void MAI_Sneak(int mnum)
 
 void MAI_Fireman(int mnum)
 {
-	int xd, yd;
-	int md, pnum;
-	int fx, fy;
 	MonsterStruct *mon;
+	int mx, my, fx, fy, md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Fireman: Invalid monster %d", mnum);
@@ -3186,16 +3179,14 @@ void MAI_Fireman(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	pnum = mon->_menemy;
+	mx = mon->_mx;
+	my = mon->_my;
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
-	xd = mon->_mx - fx;
-	yd = mon->_my - fy;
-
 	md = MonGetDir(mnum);
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (LineClear(mon->_mx, mon->_my, fx, fy)
-		    && AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0, 0) != -1) {
+		if (LineClear(mx, my, fx, fy)
+		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK2;
 			mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
@@ -3204,7 +3195,7 @@ void MAI_Fireman(int mnum)
 		if (mon->_mgoalvar1 == 3) { // FIREMAN_ACTION_PROGRESS
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadeout(mnum, md, true);
-		} else if (LineClear(mon->_mx, mon->_my, fx, fy)) {
+		} else if (LineClear(mx, my, fx, fy)) {
 			MonStartRAttack(mnum, MIS_KRULL);
 			mon->_mgoalvar1++;
 		} else {
@@ -3216,11 +3207,12 @@ void MAI_Fireman(int mnum)
 		mon->_mgoal = MGOAL_ATTACK2;
 	}
 	mon->_mdir = md;
-	random_(112, 100);
 	if (mon->_mmode != MM_STAND)
 		return;
 
-	if (abs(xd) < 2 && abs(yd) < 2 && mon->_mgoal == MGOAL_NORMAL) {
+	mx -= fx;
+	my -= fy;
+	if (abs(mx) < 2 && abs(my) < 2 && mon->_mgoal == MGOAL_NORMAL) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		mon->_mgoal = MGOAL_RETREAT;
 		if (!MonCallWalk(mnum, OPPOSITE(md))) {
@@ -3316,12 +3308,11 @@ void MAI_Cleaver(int mnum)
 
 	mx = mon->_mx;
 	my = mon->_my;
-	x = mx - mon->_menemyx;
-	y = my - mon->_menemyy;
-
 	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
 	mon->_mdir = md;
 
+	x = mx - mon->_menemyx;
+	y = my - mon->_menemyy;
 	if (abs(x) >= 2 || abs(y) >= 2)
 		MonCallWalk(mnum, md);
 	else
@@ -3341,22 +3332,22 @@ static void MAI_Round(int mnum, bool special)
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
-	if (mon->_msquelch < UCHAR_MAX && mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
+	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	fy = mon->_menemyy;
 	fx = mon->_menemyx;
 	mx = mon->_mx - fx;
 	my = mon->_my - fy;
+	dist = std::max(abs(mx), abs(my));
 	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
 	v = random_(114, 100);
-	dist = std::max(abs(mx), abs(my));
 	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 4 && random_(115, 4) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoal = MGOAL_MOVE;
 			if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
@@ -3404,11 +3395,11 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 	if (mon->_msquelch == UCHAR_MAX || (mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
 		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 			MonstCheckDoors(mon->_mx, mon->_my);
+		mon->_mdir = MonGetDir(mnum);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
-		mon->_mdir = MonGetDir(mnum);
 		if (mon->_mVar1 == MM_RATTACK) { // STAND_PREV_MODE
 			MonStartDelay(mnum, random_(118, 20));
 		} else if (abs(mx) < 4 && abs(my) < 4) {
@@ -3597,7 +3588,7 @@ void MAI_Scav(int mnum)
 void MAI_Garg(int mnum)
 {
 	MonsterStruct *mon;
-	int mx, my;
+	int mx, my, dist;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Garg: Invalid monster %d", mnum);
@@ -3608,7 +3599,8 @@ void MAI_Garg(int mnum)
 			MonEnemy(mnum);
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
-			if (abs(mx) < mon->_mint + 2 && abs(my) < mon->_mint + 2) {
+			dist = std::max(abs(mx), abs(my));
+			if (dist < mon->_mint + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 			}
 		} else if (mon->_mmode != MM_SATTACK) {
@@ -3634,7 +3626,8 @@ void MAI_Garg(int mnum)
 	if (mon->_mgoal == MGOAL_RETREAT) {
 		mx = mon->_mx - mon->_lastx;
 		my = mon->_my - mon->_lasty;
-		if (abs(mx) >= mon->_mint + 2 || abs(my) >= mon->_mint + 2) {
+		dist = std::max(abs(mx), abs(my));
+		if (dist >= mon->_mint + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartHeal(mnum);
 		} else if (!MonCallWalk(mnum, OPPOSITE(MonGetDir(mnum)))) {
@@ -3664,16 +3657,16 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	fy = mon->_menemyy;
 	mx = mon->_mx - fx;
 	my = mon->_my - fy;
+	dist = std::max(abs(mx), abs(my));
 	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
 	v = random_(121, 10000);
-	dist = std::max(abs(mx), abs(my));
 	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoal = MGOAL_MOVE;
 			if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (v < ((500 * (mon->_mint + 1)) >> lessmissiles)
@@ -3770,10 +3763,10 @@ static void MAI_RR2(int mnum, int mitype)
 	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
 			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoal = MGOAL_MOVE;
 			mon->_mgoalvar3 = 4;                   // MOVE_POSITIONED
 			if (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md)) {
 				if (v < 5 * (mon->_mint + 16))
@@ -3826,10 +3819,9 @@ void MAI_Golum(int mnum)
 	mon = &monster[mnum];
 	assert(!MINION_INACTIVE(mon));
 
-	if (mon->_mmode == MM_DEATH
-	 || mon->_mmode == MM_SPSTAND
-	 || mon->_mmode == MM_ATTACK
-	 || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3)) {
+	if (mon->_mmode != MM_STAND && mon->_mmode != MM_GOTHIT) {
+		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
+		// || mon->_mmode == MM_ATTACK || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3));
 		return;
 	}
 
@@ -3906,10 +3898,10 @@ void MAI_SkelKing(int mnum)
 	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoal = MGOAL_MOVE;
 			if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
@@ -3970,10 +3962,10 @@ void MAI_Rhino(int mnum)
 	if (dist >= 2) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 			}
-			mon->_mgoal = MGOAL_MOVE;
 			if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
@@ -4039,10 +4031,10 @@ void MAI_Horkdemon(int mnum)
 		mon->_mgoal = MGOAL_NORMAL;
 	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 5 && random_(132, 4) != 0)) {
 		if (mon->_mgoal != MGOAL_MOVE) {
+			mon->_mgoal = MGOAL_MOVE;
 			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 			mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 		}
-		mon->_mgoal = MGOAL_MOVE;
 		if (mon->_mgoalvar1++ >= 2 * dist || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
 			mon->_mgoal = MGOAL_NORMAL;
 		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
