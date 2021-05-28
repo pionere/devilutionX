@@ -1597,7 +1597,7 @@ void MonGetKnockback(int mnum)
 
 	if (mon->_mmode == MM_DEATH)
 		return;
-
+	// assert(mnum >= MAX_MINIONS);
 	dir = OPPOSITE(mon->_mdir);
 	if (DirOK(mnum, dir)) {
 		MonClearSquares(mnum);
@@ -1757,7 +1757,8 @@ static void M2MStartHit(int defm, int offm, int dam)
 		}
 	}
 	PlayEffect(defm, 1);
-
+	if (defm < MAX_MINIONS)
+		return;
 	if ((dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (dmon->mLevel + 3)) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
@@ -1771,8 +1772,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 			dmon->_mgoalvar1 = 0;
 			dmon->_mgoalvar2 = 0;
 #endif
-		} else if (dmon->_mType == MT_GOLEM)
-			return;
+		}
 
 		if (dmon->_mmode != MM_STONE) {
 			if (offm >= 0)
@@ -3819,7 +3819,7 @@ void MAI_Golum(int mnum)
 	mon = &monster[mnum];
 	assert(!MINION_INACTIVE(mon));
 
-	if (mon->_mmode != MM_STAND && mon->_mmode != MM_GOTHIT) {
+	if (mon->_mmode != MM_STAND) {
 		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
 		// || mon->_mmode == MM_ATTACK || (mon->_mmode >= MM_WALK && mon->_mmode <= MM_WALK3));
 		return;

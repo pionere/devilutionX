@@ -2012,6 +2012,7 @@ static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+		// assert(cmd->wParam1 >= MAX_MINIONS); TODO: validate data from internet
 		MonGetKnockback(SwapLE16(cmd->wParam1));
 		MonStartHit(SwapLE16(cmd->wParam1), pnum, 0);
 	}
