@@ -4301,14 +4301,6 @@ void MAI_Lazurus(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT || mon->_mgoal == MGOAL_MOVE) {
-		if (gbMaxPlayers == 1 && quests[Q_BETRAYER]._qvar1 == 4 && mon->mtalkmsg == TEXT_NONE) { // Fix save games affected by teleport bug
-			ObjChangeMapResync(1, 18, 20, 24);
-			RedoPlayerVision();
-			quests[Q_BETRAYER]._qvar1 = 6;
-		}
-#ifndef HELLFIRE
-		mon->mtalkmsg = TEXT_NONE;
-#endif
 		MAI_Counselor(mnum);
 	}
 }

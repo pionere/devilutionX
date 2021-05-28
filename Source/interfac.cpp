@@ -388,7 +388,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 			IncProgress();
 		}
-		ResyncQuests();
 	} else {
 		LoadSetMap();
 		IncProgress();
@@ -429,6 +428,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		IncProgress();
 	}
 
+	ResyncQuests();
 	SyncPortals();
 
 	for (i = 0; i < MAX_PLRS; i++) {

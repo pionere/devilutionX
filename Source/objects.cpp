@@ -1715,7 +1715,7 @@ static void Obj_Circle(int oi)
 		} else if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 3) { // VILE_CIRCLE_PROGRESS
 			os->_oVar6 = VILE_CIRCLE_TARGET_CENTER;
 			ObjChangeMapResync(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4); // LEVER_EFFECT
-			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
+			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < 4) // BUGFIX stepping on the circle again will break the quest state (fixed)
 				quests[Q_BETRAYER]._qvar1 = 4;
 			int dx = 0, dy = 0;
 			//if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
