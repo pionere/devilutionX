@@ -2550,8 +2550,8 @@ static bool PlrDoRangeAttack(int pnum)
 
 	if (!p->_pVar7) { // RATTACK_ACTION_PROGRESS
 		p->_pVar7 = TRUE;
-		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA) // ATTACK_SKILL
-		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, // ATTACK_TARGET_X, ATTACK_TARGET_X
+		if (HasMana(pnum, p->_pVar5, SPLFROM_MANA) // RATTACK_SKILL
+		 && AddMissile(p->_px, p->_py, p->_pVar1, p->_pVar2, p->_pdir, // RATTACK_TARGET_X, RATTACK_TARGET_X
 			 spelldata[p->_pVar5].sMissile, 0, pnum, 0, 0, p->_pVar6)) { // RATTACK_SKILL_LEVEL
 			UseMana(pnum, p->_pVar5, SPLFROM_MANA);
 
