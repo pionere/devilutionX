@@ -3268,7 +3268,7 @@ void MAI_Fallen(int mnum)
 void MAI_Cleaver(int mnum)
 {
 	MonsterStruct *mon;
-	int mx, my, md;
+	int mx, my;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Cleaver: Invalid monster %d", mnum);
@@ -4881,45 +4881,41 @@ void MissToMonst(int mi, int x, int y)
 	}
 	mis = &missile[mi];
 	mnum = mis->_miSource;
-
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MissToMonst: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	oldx = mis->_mix;
-	oldy = mis->_miy;
 	dMonster[x][y] = mnum + 1;
-	mon->_mdir = mis->_miDir;
 	mon->_mx = x;
 	mon->_my = y;
+	mon->_mdir = mis->_miDir;
 	MonStartStand(mnum, mon->_mdir);
-	if (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN) {
-		if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
-			MonStartHit(mnum, -1, 0);
-		else
-			M2MStartHit(mnum, -1, 0);
-	} else {
+	if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, mon->_mdir, false);
+		return;
 	}
+	PlayEffect(mnum, 1);
+	if (mon->_mType == MT_GLOOM)
+		return;
 
+	oldx = mis->_mix;
+	oldy = mis->_miy;
 	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
 		tnum = dPlayer[oldx][oldy];
 		if (tnum > 0) {
 			tnum--;
-			if (mon->_mType != MT_GLOOM && (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN)) {
-				MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
-				if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
-					if (players[tnum]._pmode != PM_GOTHIT && players[tnum]._pmode != PM_DEATH)
-						StartPlrHit(tnum, 0, true);
-					newx = oldx + offset_x[mon->_mdir];
-					newy = oldy + offset_y[mon->_mdir];
-					if (PosOkPlayer(tnum, newx, newy)) {
-						players[tnum]._px = newx;
-						players[tnum]._py = newy;
-						RemovePlrFromMap(tnum);
-						dPlayer[newx][newy] = tnum + 1;
-						FixPlayerLocation(tnum);
-					}
+			MonTryH2HHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+			if (tnum == dPlayer[oldx][oldy] - 1 && (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE)) {
+				if (players[tnum]._pmode != PM_GOTHIT && players[tnum]._pmode != PM_DEATH)
+					StartPlrHit(tnum, 0, true);
+				newx = oldx + offset_x[mon->_mdir];
+				newy = oldy + offset_y[mon->_mdir];
+				if (PosOkPlayer(tnum, newx, newy)) {
+					players[tnum]._px = newx;
+					players[tnum]._py = newy;
+					RemovePlrFromMap(tnum);
+					dPlayer[newx][newy] = tnum + 1;
+					FixPlayerLocation(tnum);
 				}
 			}
 		}
@@ -4927,21 +4923,19 @@ void MissToMonst(int mi, int x, int y)
 		tnum = dMonster[oldx][oldy];
 		if (tnum > 0) {
 			tnum--;
-			if (mon->_mType != MT_GLOOM && (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN)) {
-				MonTryM2MHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
-				if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
-					newx = oldx + offset_x[mon->_mdir];
-					newy = oldy + offset_y[mon->_mdir];
-					if (PosOkMonst(dMonster[oldx][oldy] - 1, newx, newy)) {
-						mnum = dMonster[oldx][oldy];
-						dMonster[newx][newy] = mnum;
-						dMonster[oldx][oldy] = 0;
-						mnum--;
-						monster[mnum]._mx = newx;
-						monster[mnum]._mfutx = newx;
-						monster[mnum]._my = newy;
-						monster[mnum]._mfuty = newy;
-					}
+			MonTryM2MHit(mnum, tnum, 500, mon->_mMinDamage2, mon->_mMaxDamage2);
+			if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
+				newx = oldx + offset_x[mon->_mdir];
+				newy = oldy + offset_y[mon->_mdir];
+				if (PosOkMonst(dMonster[oldx][oldy] - 1, newx, newy)) {
+					mnum = dMonster[oldx][oldy];
+					dMonster[oldx][oldy] = 0;
+					dMonster[newx][newy] = mnum;
+					mnum--;
+					monster[mnum]._mx = newx;
+					monster[mnum]._mfutx = newx;
+					monster[mnum]._my = newy;
+					monster[mnum]._mfuty = newy;
 				}
 			}
 		}
