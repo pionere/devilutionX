@@ -3666,9 +3666,9 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 			MonStartRSpAttack(mnum, mitype);
 		} else if (dist >= 2) {
 			v = random_(124, 100);
-			if (v < 1000 * (mon->_mint + 5) // STAND_PREV_MODE
+			if (v < 10 * (mon->_mint + 5) // STAND_PREV_MODE
 			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < 1000 * (mon->_mint + 8))) { // STAND_TICK
+				 && mon->_mVar2 == 0 && v < 10 * (mon->_mint + 8))) { // STAND_TICK
 				MonCallWalk(mnum, md);
 			}
 		} else if (v < 1000 * (mon->_mint + 6)) {
