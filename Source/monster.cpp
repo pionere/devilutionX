@@ -1614,12 +1614,6 @@ void MonStartHit(int mnum, int pnum, int dam)
 		}
 		if (mon->_mType == MT_BLINK) {
 			MonTeleport(mnum);
-		} else if (mon->_mAi == AI_SCAV) {
-			mon->_mgoal = MGOAL_NORMAL;
-#ifdef HELLFIRE
-			mon->_mgoalvar1 = 0;
-			mon->_mgoalvar2 = 0;
-#endif
 		}
 		if (mon->_mmode != MM_STONE) {
 			MonStartGetHit(mnum);
@@ -1738,14 +1732,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if ((dam << 2) >= dmon->_mmaxhp) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
-		} else if (dmon->_mAi == AI_SCAV) {
-			dmon->_mgoal = MGOAL_NORMAL;
-#ifdef HELLFIRE
-			dmon->_mgoalvar1 = 0;
-			dmon->_mgoalvar2 = 0;
-#endif
 		}
-
 		if (dmon->_mmode != MM_STONE) {
 			//if (offm >= 0)
 				dmon->_mdir = OPPOSITE(monster[offm]._mdir);
