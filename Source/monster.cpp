@@ -1603,7 +1603,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	PlayEffect(mnum, 1);
 	if (mnum < MAX_MINIONS)
 		return;
-	if ((mon->_mType >= MT_SNEAK && mon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (mon->mLevel + 3)) {
+	if ((dam << 2) >= mon->_mmaxhp) {
 		if (pnum >= 0) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;
@@ -1739,7 +1739,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	PlayEffect(defm, 1);
 	if (defm < MAX_MINIONS)
 		return;
-	if ((dmon->_mType >= MT_SNEAK && dmon->_mType <= MT_ILLWEAV) || (dam >> 6) >= (dmon->mLevel + 3)) {
+	if ((dam << 2) >= dmon->_mmaxhp) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
 		} else if ((dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV)
