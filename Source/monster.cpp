@@ -3164,44 +3164,40 @@ void MAI_Fireman(int mnum)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	md = MonGetDir(mnum);
+	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (LineClear(mx, my, fx, fy)
 		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, 1, mnum, 0, 0, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK2;
-			mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
+			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
+		} else {
+			mx -= fx;
+			my -= fy;
+			if (abs(mx) < 2 && abs(my) < 2) {
+				MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
+				mon->_mgoal = MGOAL_RETREAT;
+				md = OPPOSITE(md);
+			}
+			if (!MonCallWalk(mnum, md)) {
+				mon->_mgoal = MGOAL_ATTACK2;
+				MonStartFadein(mnum, mon->_mdir, false);
+			}
 		}
 	} else if (mon->_mgoal == MGOAL_ATTACK2) {
-		if (mon->_mgoalvar1 == 3) { // FIREMAN_ACTION_PROGRESS
+		if (++mon->_mgoalvar1 > 3) { // FIREMAN_ACTION_PROGRESS
 			mon->_mgoal = MGOAL_NORMAL;
+			mon->_mgoalvar1 = 0;
 			MonStartFadeout(mnum, md, true);
 		} else if (LineClear(mx, my, fx, fy)) {
 			MonStartRAttack(mnum, MIS_KRULL);
-			mon->_mgoalvar1++;
 		} else {
 			MonStartDelay(mnum, RandRange(5, 14));
-			mon->_mgoalvar1++;
 		}
-	} else if (mon->_mgoal == MGOAL_RETREAT) {
-		MonStartFadein(mnum, md, false);
+	} else {
+		assert(mon->_mgoal == MGOAL_RETREAT);
 		mon->_mgoal = MGOAL_ATTACK2;
-	}
-	mon->_mdir = md;
-	if (mon->_mmode != MM_STAND)
-		return;
-
-	mx -= fx;
-	my -= fy;
-	if (abs(mx) < 2 && abs(my) < 2 && mon->_mgoal == MGOAL_NORMAL) {
-		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
-		mon->_mgoal = MGOAL_RETREAT;
-		if (!MonCallWalk(mnum, OPPOSITE(md))) {
-			MonStartFadein(mnum, md, false);
-			mon->_mgoal = MGOAL_ATTACK2;
-		}
-	} else if (!MonCallWalk(mnum, md) && (mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT)) {
 		MonStartFadein(mnum, md, false);
-		mon->_mgoal = MGOAL_ATTACK2;
 	}
 }
 
