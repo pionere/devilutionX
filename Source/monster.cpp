@@ -3091,58 +3091,55 @@ void MAI_Sneak(int mnum)
 		dev_fatal("MAI_Sneak: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode == MM_STAND) {
-		mx = mon->_mx;
-		my = mon->_my;
-		if (dLight[mx][my] != LIGHTMAX) {
-			mx -= mon->_menemyx;
-			my -= mon->_menemyy;
-			dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
+	if (mon->_mmode != MM_STAND)
+		return;
+	mx = mon->_mx;
+	my = mon->_my;
+	if (dLight[mx][my] == LIGHTMAX)
+		return;
+	mx -= mon->_menemyx;
+	my -= mon->_menemyy;
+	dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
 
-			md = MonGetDir(mnum);
-			range = 5 - mon->_mint;
-			if (mon->_mVar1 == MM_GOTHIT && mon->_mgoal != MGOAL_RETREAT) {
-				mon->_mgoal = MGOAL_RETREAT;
-				mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
-			} else {
-				if (dist >= range + 3 || mon->_mgoalvar1 > 8) { // RETREAT_DISTANCE
-					mon->_mgoal = MGOAL_NORMAL;
-					mon->_mgoalvar1 = 0;
-				}
-			}
-			if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
-				md = mon->_menemy;
-				if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
-					md = GetDirection(monster[md]._mx, monster[md]._my, mon->_mx, mon->_my);
-				else
-					md = GetDirection(players[md]._px, players[md]._py, mon->_mx, mon->_my);
-				if (mon->_mType == MT_UNSEEN) {
-					if (random_(112, 2) != 0)
-						md = left[md];
-					else
-						md = right[md];
-				}
-			}
-			mon->_mdir = md;
-			v = random_(112, 100);
-			if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
-				MonStartFadein(mnum, md, false);
-			} else if ((dist >= range + 1) && !(mon->_mFlags & MFLAG_HIDDEN)) {
-				MonStartFadeout(mnum, md, true);
-			} else {
-				if (mon->_mgoal == MGOAL_RETREAT
-				 || (dist >= 2 &&
-					 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
-					 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-						 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
-					mon->_mgoalvar1++; // RETREAT_DISTANCE ?
-					MonCallWalk(mnum, md);
-				}
-				if (mon->_mmode == MM_STAND
-				 && (dist < 2 && v < 4 * mon->_mint + 10)) {
-					MonStartAttack(mnum);
-				}
-			}
+	md = MonGetDir(mnum);
+	range = 5 - mon->_mint;
+	if (mon->_mVar1 == MM_GOTHIT && mon->_mgoal != MGOAL_RETREAT) {
+		mon->_mgoal = MGOAL_RETREAT;
+		mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
+	} else {
+		if (dist >= range + 3 || mon->_mgoalvar1 > 8) { // RETREAT_DISTANCE
+			mon->_mgoal = MGOAL_NORMAL;
+			mon->_mgoalvar1 = 0;
+		}
+	}
+	if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
+		md = mon->_menemy;
+		if (mon->_mFlags & MFLAG_TARGETS_MONSTER)
+			md = GetDirection(monster[md]._mx, monster[md]._my, mon->_mx, mon->_my);
+		else
+			md = GetDirection(players[md]._px, players[md]._py, mon->_mx, mon->_my);
+		if (mon->_mType == MT_UNSEEN) {
+			md = random_(112, 2) != 0 ? left[md] : right[md];
+		}
+	}
+	mon->_mdir = md;
+	v = random_(112, 100);
+	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
+		MonStartFadein(mnum, md, false);
+	} else if ((dist >= range + 1) && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		MonStartFadeout(mnum, md, true);
+	} else {
+		if (mon->_mgoal == MGOAL_RETREAT
+		 || (dist >= 2 &&
+			 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
+			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+				 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
+			mon->_mgoalvar1++; // RETREAT_DISTANCE ?
+			MonCallWalk(mnum, md);
+		}
+		if (mon->_mmode == MM_STAND
+		 && (dist < 2 && v < 4 * mon->_mint + 10)) {
+			MonStartAttack(mnum);
 		}
 	}
 }
