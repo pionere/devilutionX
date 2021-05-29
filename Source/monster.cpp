@@ -4076,7 +4076,7 @@ void MAI_Counselor(int mnum)
 		dist = std::max(abs(mx), abs(my));
 		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
 		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
-			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION??
+			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
@@ -4088,7 +4088,8 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, counsmiss[mon->_mint]);
 			} else if (random_(124, 100) < 30) {
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 0; // MOVE_DISTANCE
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(125, 2); // MOVE_TURN_DIRECTION
 				MonStartFadeout(mnum, md, false);
 			} else
 				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
