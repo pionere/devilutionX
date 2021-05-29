@@ -3437,7 +3437,7 @@ void MAI_Torchant(int mnum)
 void MAI_Scav(int mnum)
 {
 	bool done;
-	int x, y, maxhp;
+	int dx, dy, dir, maxhp;
 	MonsterStruct *mon;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -3485,48 +3485,47 @@ void MAI_Scav(int mnum)
 				static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
 				static_assert(DBORDERY >= 4, "MAI_Scav expects a large enough border II.");
 				if (random_(120, 2) != 0) {
-					for (y = -4; y <= 4 && !done; y++) {
-						for (x = -4; x <= 4 && !done; x++) {
+					for (dy = -4; dy <= 4 && !done; dy++) {
+						for (dx = -4; dx <= 4 && !done; dx++) {
 							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
-							//assert(IN_DUNGEON_AREA(mon->_mx + x, mon->_mx + y));
-							done = dDead[mon->_mx + x][mon->_my + y] != 0
+							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
+							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
 							    && LineClearF(
 							           CheckNoSolid,
 							           mon->_mx,
 							           mon->_my,
-							           mon->_mx + x,
-							           mon->_my + y);
+							           mon->_mx + dx,
+							           mon->_my + dy);
 						}
 					}
-					x--;
-					y--;
+					dx--;
+					dy--;
 				} else {
-					for (y = 4; y >= -4 && !done; y--) {
-						for (x = 4; x >= -4 && !done; x--) {
+					for (dy = 4; dy >= -4 && !done; dy--) {
+						for (dx = 4; dx >= -4 && !done; dx--) {
 							// BUGFIX: incorrect check of offset against limits of the dungeon (fixed)
-							//assert(IN_DUNGEON_AREA(mon->_mx + x, mon->_mx + y));
-							done = dDead[mon->_mx + x][mon->_my + y] != 0
+							//assert(IN_DUNGEON_AREA(mon->_mx + dx, mon->_mx + dy));
+							done = dDead[mon->_mx + dx][mon->_my + dy] != 0
 							    && LineClearF(
 							           CheckNoSolid,
 							           mon->_mx,
 							           mon->_my,
-							           mon->_mx + x,
-							           mon->_my + y);
+							           mon->_mx + dx,
+							           mon->_my + dy);
 						}
 					}
-					x++;
-					y++;
+					dx++;
+					dy++;
 				}
 				if (done) {
-					mon->_mgoalvar1 = x + mon->_mx + 1; // HEALING_LOCATION_X
-					mon->_mgoalvar2 = y + mon->_my + 1; // HEALING_LOCATION_Y
+					mon->_mgoalvar1 = mon->_mx + dx; // HEALING_LOCATION_X
+					mon->_mgoalvar2 = mon->_my + dy; // HEALING_LOCATION_Y
 				}
 			}
 			if (mon->_mgoalvar1 != 0) {
-				x = mon->_mgoalvar1 - 1; // HEALING_LOCATION_X
-				y = mon->_mgoalvar2 - 1; // HEALING_LOCATION_Y
-				mon->_mdir = GetDirection(mon->_mx, mon->_my, x, y);
-				MonCallWalk(mnum, mon->_mdir);
+				//                                  HEALING_LOCATION_X, HEALING_LOCATION_Y
+				dir = GetDirection(mon->_mx, mon->_my, mon->_mgoalvar1, mon->_mgoalvar2);
+				MonCallWalk(mnum, dir);
 			}
 		}
 	}
