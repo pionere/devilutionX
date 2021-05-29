@@ -3870,21 +3870,21 @@ void MAI_SkelKing(int mnum)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
-			if (mon->_mgoal != MGOAL_MOVE) {
-				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-				mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
-			}
-			if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
-				mon->_mgoal = MGOAL_NORMAL;
-			} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-				MonStartDelay(mnum, RandRange(10, 19));
-			}
-		}
-	} else
+	if (dist < 2 || mon->_msquelch != UCHAR_MAX) {
 		mon->_mgoal = MGOAL_NORMAL;
+	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
+		if (mon->_mgoal != MGOAL_MOVE) {
+			mon->_mgoal = MGOAL_MOVE;
+			mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+			mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
+		}
+		if ((mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) || dTransVal[mon->_mx][mon->_my] != dTransVal[fx][fy]) {
+			mon->_mgoal = MGOAL_NORMAL;
+		} else if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+			MonStartDelay(mnum, RandRange(10, 19));
+		}
+	}
+		
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (gbMaxPlayers == 1
 		    && ((dist >= 3 && v < 4 * mon->_mint + 35) || v < 6)
@@ -3895,19 +3895,19 @@ void MAI_SkelKing(int mnum)
 				MonSpawnSkel(nx, ny, md);
 				MonStartSpStand(mnum, md);
 			}
-		} else {
-			if (dist >= 2) {
-				v = random_(129, 100);
-				if (v >= mon->_mint + 25 // STAND_PREV_MODE
-				 && ((mon->_mVar1 != MM_WALK && mon->_mVar1 != MM_WALK2 && mon->_mVar1 != MM_WALK3)
-					 || mon->_mVar2 != 0 || (v >= mon->_mint + 75))) { // STAND_TICK
-					MonStartDelay(mnum, RandRange(10, 19));
-				} else {
-					MonCallWalk(mnum, md);
-				}
-			} else if (v < mon->_mint + 20) {
+		} else if (dist < 2) {
+			if (v < mon->_mint + 20) {
 				mon->_mdir = md;
 				MonStartAttack(mnum);
+			}
+		} else {
+			v = random_(129, 100);
+			if (v < mon->_mint + 25 // STAND_PREV_MODE
+			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
+				 && mon->_mVar2 == 0 && v < mon->_mint + 75)) { // STAND_TICK
+				MonCallWalk(mnum, md);
+			} else {
+				MonStartDelay(mnum, RandRange(10, 19));
 			}
 		}
 	}
