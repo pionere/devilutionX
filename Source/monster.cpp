@@ -1604,7 +1604,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 	if (mnum < MAX_MINIONS)
 		return;
 	if ((dam << 2) >= mon->_mmaxhp) {
-		if (pnum >= 0) {
+		if ((unsigned)pnum < MAX_PLRS) {
 			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemy = pnum;
 			mon->_menemyx = players[pnum]._pfutx;
@@ -1614,11 +1614,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 		}
 		if (mon->_mType == MT_BLINK) {
 			MonTeleport(mnum);
-		} else if ((mon->_mType >= MT_NSCAV && mon->_mType <= MT_YSCAV)
-#ifdef HELLFIRE
-				 || mon->_mType == MT_GRAVEDIG
-#endif
-			) {
+		} else if (mon->_mAi == AI_SCAV) {
 			mon->_mgoal = MGOAL_NORMAL;
 #ifdef HELLFIRE
 			mon->_mgoalvar1 = 0;
@@ -1742,11 +1738,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if ((dam << 2) >= dmon->_mmaxhp) {
 		if (dmon->_mType == MT_BLINK) {
 			MonTeleport(defm);
-		} else if ((dmon->_mType >= MT_NSCAV && dmon->_mType <= MT_YSCAV)
-#ifdef HELLFIRE
-				 || dmon->_mType == MT_GRAVEDIG
-#endif
-		) {
+		} else if (dmon->_mAi == AI_SCAV) {
 			dmon->_mgoal = MGOAL_NORMAL;
 #ifdef HELLFIRE
 			dmon->_mgoalvar1 = 0;
@@ -1755,7 +1747,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 		}
 
 		if (dmon->_mmode != MM_STONE) {
-			if (offm >= 0)
+			//if (offm >= 0)
 				dmon->_mdir = OPPOSITE(monster[offm]._mdir);
 			MonStartGetHit(defm);
 		}
