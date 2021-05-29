@@ -1555,36 +1555,16 @@ static void MonTeleport(int mnum)
 static void MonFallenFear(int x, int y)
 {
 	MonsterStruct *mon;
-	int i, rundist;
+	int i;
 
 	for (i = 0; i < nummonsters; i++) {
 		mon = &monster[monstactive[i]];
-		switch (mon->_mType) {
-		case MT_RFALLSP:
-		case MT_RFALLSD:
-			rundist = 7;
-			break;
-		case MT_DFALLSP:
-		case MT_DFALLSD:
-			rundist = 5;
-			break;
-		case MT_YFALLSP:
-		case MT_YFALLSD:
-			rundist = 3;
-			break;
-		case MT_BFALLSP:
-		case MT_BFALLSD:
-			rundist = 2;
-			break;
-		default:
-			continue;
-		}
 		if (mon->_mAi == AI_FALLEN
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
 		 && mon->_mhitpoints >= (1 << 6)) {
 			mon->_mgoal = MGOAL_RETREAT;
-			mon->_mgoalvar1 = rundist; // RETREAT_DISTANCE
+			mon->_mgoalvar1 = 7 - 2 * mon->_mint; // RETREAT_DISTANCE
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
 		}
 	}
@@ -3245,7 +3225,7 @@ void MAI_Fallen(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_RETREAT) {
-		if (mon->_mgoalvar1-- == 0) { // RETREAT_DISTANCE
+		if (--mon->_mgoalvar1 < 0) { // RETREAT_DISTANCE
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartStand(mnum, OPPOSITE(mon->_mdir));
 		}
