@@ -1561,7 +1561,7 @@ static void MonFallenFear(int x, int y)
 		 && abs(y - mon->_my) < 5
 		 && mon->_mhitpoints >= (1 << 6)) {
 			mon->_mgoal = MGOAL_RETREAT;
-			mon->_mgoalvar1 = 7 - 2 * mon->_mint; // RETREAT_DISTANCE
+			mon->_mgoalvar1 = 8 - 2 * mon->_mint; // RETREAT_DISTANCE
 			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
 		}
 	}
@@ -3164,61 +3164,58 @@ void MAI_Fallen(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mgoal == MGOAL_ATTACK2) {
-		if (mon->_mgoalvar1 != 0) // FALLEN_ALARM_TICK
-			mon->_mgoalvar1--;
-		else
+		if (--mon->_mgoalvar1 == 0) // FALLEN_ALARM_TICK
 			mon->_mgoal = MGOAL_NORMAL;
 	}
+
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
 	}
 
-	if (mon->_mgoal == MGOAL_RETREAT) {
-		if (--mon->_mgoalvar1 < 0) { // RETREAT_DISTANCE
-			mon->_mgoal = MGOAL_NORMAL;
-			MonStartStand(mnum, OPPOSITE(mon->_mdir));
-		}
-	}
-
-	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		if (random_(113, 4) != 0) {
-			return;
-		}
-		if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+	if (mon->_mgoal == MGOAL_NORMAL) {
+		if (mon->_mAnimFrame == mon->_mAnimLen && random_(113, 4) != 0) {
 			MonStartSpStand(mnum, mon->_mdir);
-			rad = mon->_mhitpoints + 2 * mon->_mint + 2;
-			if (mon->_mmaxhp >= rad)
-				mon->_mhitpoints = rad;
-			else
-				mon->_mhitpoints = mon->_mmaxhp;
-		}
-		rad = 2 * mon->_mint + 4;
-		static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
-		assert(rad <= DBORDERX);
-		mx = mon->_mx;
-		my = mon->_my;
-		for (y = -rad; y <= rad; y++) {
-			for (x = -rad; x <= rad; x++) {
-				m = dMonster[x + mx][y + my];
-				if (m > 0) {
-					m--;
-					if (monster[m]._mAi == AI_FALLEN) {
-						monster[m]._mgoal = MGOAL_ATTACK2;
-						monster[m]._mgoalvar1 = 30 * mon->_mint + 105; // FALLEN_ALARM_TICK
+			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+				rad = mon->_mhitpoints + 2 * mon->_mint + 2;
+				if (mon->_mmaxhp >= rad)
+					mon->_mhitpoints = rad;
+				else
+					mon->_mhitpoints = mon->_mmaxhp;
+			}
+			rad = 2 * mon->_mint + 4;
+			static_assert(DBORDERX == DBORDERY && DBORDERX >= 10, "MAI_Fallen expects a large enough border.");
+			assert(rad <= DBORDERX);
+			mx = mon->_mx;
+			my = mon->_my;
+			for (y = -rad; y <= rad; y++) {
+				for (x = -rad; x <= rad; x++) {
+					m = dMonster[x + mx][y + my];
+					if (m > 0) {
+						m--;
+						if (monster[m]._mAi == AI_FALLEN) {
+							monster[m]._mgoal = MGOAL_ATTACK2;
+							monster[m]._mgoalvar1 = 30 * mon->_mint + 106; // FALLEN_ALARM_TICK
+						}
 					}
 				}
 			}
+		} else {
+			MAI_SkelSd(mnum);
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
-		MonCallWalk(mnum, mon->_mdir);
-	} else if (mon->_mgoal == MGOAL_ATTACK2) {
+		if (--mon->_mgoalvar1 != 0) { // RETREAT_DISTANCE
+			MonCallWalk(mnum, mon->_mdir);
+		} else {
+			mon->_mgoal = MGOAL_NORMAL;
+			MonStartStand(mnum, OPPOSITE(mon->_mdir));
+		}
+	} else {
+		assert(mon->_mgoal == MGOAL_ATTACK2);
 		if (abs(mon->_mx - mon->_menemyx) < 2 && abs(mon->_my - mon->_menemyy) < 2) {
 			MonStartAttack(mnum);
 		} else {
 			MonCallWalk(mnum, MonGetDir(mnum));
 		}
-	} else {
-		MAI_SkelSd(mnum);
 	}
 }
 
