@@ -3074,14 +3074,16 @@ void MAI_Sneak(int mnum)
 	dist = std::max(abs(mx), abs(my)); // STAND_PREV_MODE
 
 	md = MonGetDir(mnum);
-	range = 5 - mon->_mint;
-	if (mon->_mVar1 == MM_GOTHIT && mon->_mgoal != MGOAL_RETREAT) {
-		mon->_mgoal = MGOAL_RETREAT;
-		mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
+	range = 7 - mon->_mint;
+	if (mon->_mgoal != MGOAL_RETREAT) {
+		if (mon->_mVar1 == MM_GOTHIT) {
+			mon->_mgoal = MGOAL_RETREAT;
+			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
+		}
 	} else {
-		if (dist >= range + 3 || mon->_mgoalvar1 > 8) { // RETREAT_DISTANCE
+		if (dist > range || --mon->_mgoalvar1 == 0) { // RETREAT_DISTANCE
 			mon->_mgoal = MGOAL_NORMAL;
-			mon->_mgoalvar1 = 0;
+			//mon->_mgoalvar1 = 0;
 		}
 	}
 	if (mon->_mgoal == MGOAL_RETREAT && !(mon->_mFlags & MFLAG_NO_ENEMY)) {
@@ -3096,18 +3098,18 @@ void MAI_Sneak(int mnum)
 	}
 	mon->_mdir = md;
 	v = random_(112, 100);
+	range -= 2;
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
-		MonStartFadein(mnum, md, false);
-	} else if ((dist >= range + 1) && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		MonStartFadeout(mnum, md, true);
+		MonStartFadein(mnum, mon->_mdir, false);
+	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
+		MonStartFadeout(mnum, mon->_mdir, true);
 	} else {
 		if (mon->_mgoal == MGOAL_RETREAT
 		 || (dist >= 2 &&
 			 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
 			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
 				 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
-			mon->_mgoalvar1++; // RETREAT_DISTANCE ?
-			MonCallWalk(mnum, md);
+			MonCallWalk(mnum, mon->_mdir);
 		}
 		if (mon->_mmode == MM_STAND
 		 && (dist < 2 && v < 4 * mon->_mint + 10)) {
