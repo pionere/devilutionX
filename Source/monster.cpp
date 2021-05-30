@@ -3905,7 +3905,7 @@ void MAI_Rhino(int mnum)
 		if (dist >= 5 && v < 2 * mon->_mint + 43
 		    && LineClearF1(PosOkMonst, mnum, mon->_mx, mon->_my, fx, fy)) {
 			if (AddMissile(mon->_mx, mon->_my, fx, fy, md, MIS_RHINO, 1, mnum, 0, 0, 0) != -1) {
-				if (mon->MData->snd_special)
+				//if (mon->MData->snd_special)
 					PlayEffect(mnum, 3);
 				mon->_mmode = MM_CHARGE;
 				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
