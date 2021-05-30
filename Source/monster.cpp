@@ -2850,7 +2850,6 @@ void MAI_Snake(int mnum)
 {
 	MonsterStruct *mon;
 	int fx, fy, mx, my, dist, md;
-	int tmp;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Snake: Invalid monster %d", mnum);
@@ -2874,23 +2873,27 @@ void MAI_Snake(int mnum)
 				mon->_mmode = MM_CHARGE;
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mint) {
-			tmp = md + pattern[mon->_mgoalvar1]; // SNAKE_DIRECTION_DELTA
-			tmp = tmp & 7;
+			// calculate the desired direction
+			md = md + pattern[mon->_mgoalvar1]; // SNAKE_DIRECTION_DELTA
+			md = md & 7;
 			mon->_mgoalvar1++;
 			if (mon->_mgoalvar1 >= lengthof(pattern))
 				mon->_mgoalvar1 = 0;
-			md = tmp - mon->_mgoalvar2; // SNAKE_DIRECTION
-			md = (md + 8) & 7;
-			if (md > 0) {
+			// check if it is matching with the current one
+			md = md - mon->_mgoalvar2; // SNAKE_DIRECTION
+			if (md != 0) {
+				md = (md + NUM_DIRS) & 7;
 				if (md < 4) {
-					md = (mon->_mgoalvar2 + 1) & 7;
-					mon->_mgoalvar2 = md;
+					// adjust the direction to the right
+					md = 1;
 				} else if (md == 4) {
-					mon->_mgoalvar2 = tmp;
+					// turn around
+					md = 4;
 				} else {
-					md = (mon->_mgoalvar2 + 7) & 7;
-					mon->_mgoalvar2 = md;
+					// adjust the direction to the left
+					md = 7;
 				}
+				mon->_mgoalvar2 = (mon->_mgoalvar2 + md) & 7;
 			}
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
 				MonCallWalk2(mnum, mon->_mdir);
