@@ -3173,7 +3173,7 @@ void MAI_Fallen(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (mon->_mAnimFrame == mon->_mAnimLen && random_(113, 4) != 0) {
+		if (mon->_mAnimFrame == mon->_mAnimLen && random_(113, 4) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
 			if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 				rad = mon->_mhitpoints + 2 * mon->_mint + 2;
