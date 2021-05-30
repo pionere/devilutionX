@@ -2336,7 +2336,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		if (p->_pIFlags & ISPL_NOHEALMON) {
 			mon->_mFlags |= MFLAG_NOHEAL;
 		}
-		if ((p->_pIFlags & ISPL_KNOCKBACK) && mon->_mmode != MM_STONE) {
+		if (p->_pIFlags & ISPL_KNOCKBACK) {
 			MonGetKnockback(mnum);
 		}
 		MonStartHit(mnum, pnum, dam);

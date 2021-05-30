@@ -1573,7 +1573,7 @@ void MonGetKnockback(int mnum)
 	MonsterStruct *mon = &monster[mnum];
 	int dir;
 
-	if (mon->_mmode == MM_DEATH)
+	if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
 		return;
 	// assert(mnum >= MAX_MINIONS);
 	dir = OPPOSITE(mon->_mdir);
