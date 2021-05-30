@@ -2855,7 +2855,7 @@ void MAI_Snake(int mnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Snake: Invalid monster %d", mnum);
 	}
-	const char pattern[6] = { 1, 1, 0, -1, -1, 0 };
+	const BYTE pattern[6] = { 1, 1, 0, 7, 7, 0 };
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
@@ -2875,38 +2875,20 @@ void MAI_Snake(int mnum)
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mint) {
 			tmp = md + pattern[mon->_mgoalvar1]; // SNAKE_DIRECTION_DELTA
-			if (tmp < 0) {
-				tmp += NUM_DIRS;
-			} else if (tmp >= NUM_DIRS) {
-				tmp -= NUM_DIRS;
-			}
+			tmp = tmp & 7;
 			mon->_mgoalvar1++;
 			if (mon->_mgoalvar1 >= lengthof(pattern))
 				mon->_mgoalvar1 = 0;
 			md = tmp - mon->_mgoalvar2; // SNAKE_DIRECTION
-			if (md < 0) {
-				md += NUM_DIRS;
-			} else if (md >= NUM_DIRS) {
-				md -= NUM_DIRS;
-			}
+			md = (md + 8) & 7;
 			if (md > 0) {
 				if (md < 4) {
-					md = mon->_mgoalvar2 + 1;
-					if (md < 0) {
-						md += NUM_DIRS;
-					} else if (md >= NUM_DIRS) {
-						md -= NUM_DIRS;
-					}
+					md = (mon->_mgoalvar2 + 1) & 7;
 					mon->_mgoalvar2 = md;
 				} else if (md == 4) {
 					mon->_mgoalvar2 = tmp;
 				} else {
-					md = mon->_mgoalvar2 - 1;
-					if (md < 0) {
-						md += NUM_DIRS;
-					} else if (md >= NUM_DIRS) {
-						md -= NUM_DIRS;
-					}
+					md = (mon->_mgoalvar2 + 7) & 7;
 					mon->_mgoalvar2 = md;
 				}
 			}

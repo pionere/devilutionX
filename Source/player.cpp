@@ -2501,10 +2501,10 @@ static bool PlrDoAttack(int pnum)
 				p->_px + offset_x[dir], p->_py + offset_y[dir]);
 			if (p->_pVar5 == SPL_SWIPE) {
 				hitcnt += PlrTryHit(pnum, SPL_SWIPE, p->_pVar6,
-					p->_px + offset_x[(dir + 1) % 8], p->_py + offset_y[(dir + 1) % 8]);
+					p->_px + offset_x[(dir + 1) & 7], p->_py + offset_y[(dir + 1) & 7]);
 
 				hitcnt += PlrTryHit(pnum, SPL_SWIPE, p->_pVar6,
-					p->_px + offset_x[(dir + 7) % 8], p->_py + offset_y[(dir + 7) % 8]);
+					p->_px + offset_x[(dir + 7) & 7], p->_py + offset_y[(dir + 7) & 7]);
 			}
 
 			if (hitcnt != 0 && WeaponDur(pnum, 40 - hitcnt * 8)) {
