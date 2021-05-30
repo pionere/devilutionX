@@ -1526,8 +1526,7 @@ static void MonTeleport(int mnum)
 		dev_fatal("MonTeleport: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode == MM_STONE)
-		return;
+	//assert(mon->_mmode != MM_STONE);
 
 	_mx = mon->_menemyx;
 	_my = mon->_menemyy;
@@ -1540,7 +1539,7 @@ static void MonTeleport(int mnum)
 		assert(IN_DUNGEON_AREA(x, y));
 		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
 			MonClearSquares(mnum);
-			dMonster[mon->_mx][mon->_my] = 0;
+			//assert(dMonster[mon->_mx][mon->_my] == 0);
 			dMonster[x][y] = mnum + 1;
 			mon->_moldx = x;
 			mon->_moldy = y;
@@ -1610,10 +1609,10 @@ void MonStartHit(int mnum, int pnum, int dam)
 			if (mon->_mmode != MM_STONE)
 				mon->_mdir = MonGetDir(mnum);
 		}
-		if (mon->_mType == MT_BLINK) {
-			MonTeleport(mnum);
-		}
 		if (mon->_mmode != MM_STONE) {
+			if (mon->_mType == MT_BLINK) {
+				MonTeleport(mnum);
+			}
 			MonStartGetHit(mnum);
 		}
 	}
@@ -1728,10 +1727,10 @@ static void M2MStartHit(int defm, int offm, int dam)
 	if (defm < MAX_MINIONS)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp) {
-		if (dmon->_mType == MT_BLINK) {
-			MonTeleport(defm);
-		}
 		if (dmon->_mmode != MM_STONE) {
+			if (dmon->_mType == MT_BLINK) {
+				MonTeleport(defm);
+			}
 			//if (offm >= 0)
 				dmon->_mdir = OPPOSITE(monster[offm]._mdir);
 			MonStartGetHit(defm);
