@@ -2745,24 +2745,18 @@ static bool MonRoundWalk(int mnum, int md, int *dir)
 void MAI_Zombie(int mnum)
 {
 	MonsterStruct *mon;
-	int mx, my, md;
+	int md;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Zombie: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode != MM_STAND) {
-		return;
-	}
-
-	mx = mon->_mx;
-	my = mon->_my;
-	if (!(dFlags[mx][my] & BFLAG_VISIBLE)) {
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
 		return;
 	}
 
 	if (random_(103, 100) < 2 * mon->_mint + 10) {
-		md = std::max(abs(mx - mon->_menemyx), abs(my - mon->_menemyy));
+		md = std::max(abs(mon->_mx - mon->_menemyx), abs(mon->_my - mon->_menemyy));
 		if (md >= 2) {
 			if (md >= 2 * mon->_mint + 4) {
 				md = mon->_mdir;
