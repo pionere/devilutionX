@@ -3550,7 +3550,7 @@ static void OperateBookCase(int pnum, int oi, bool sendmsg)
 		assert((monster[MAX_MINIONS]._uniqtype - 1) == UMT_ZHAR);
 		monster[MAX_MINIONS].mtalkmsg = TEXT_ZHAR2;
 		//MonStartStand(MAX_MINIONS, monster[MAX_MINIONS]._mdir);
-		monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
+		//monster[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
 		monster[MAX_MINIONS]._mmode = MM_TALK;
 		//monster[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
 		quests[Q_ZHAR]._qvar1 = 2;

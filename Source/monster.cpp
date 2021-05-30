@@ -4021,30 +4021,15 @@ void MAI_Counselor(int mnum)
 		return;
 	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
+	mx = mon->_mx;
+	my = mon->_my;
+	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
-	mx = mon->_mx - fx;
-	my = mon->_my - fy;
-	md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
-	if (mon->_mgoal == MGOAL_RETREAT) {
-		if (mon->_mgoalvar1++ <= 3) // RETREAT_DISTANCE
-			MonCallWalk(mnum, OPPOSITE(md));
-		else {
-			mon->_mgoal = MGOAL_NORMAL;
-			MonStartFadein(mnum, md, true);
-		}
-	} else if (mon->_mgoal == MGOAL_MOVE) {
-		dist = std::max(abs(mx), abs(my));
-		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
-		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
-			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
-		} else {
-			mon->_mgoal = MGOAL_NORMAL;
-			MonStartFadein(mnum, md, true);
-		}
-	} else if (mon->_mgoal == MGOAL_NORMAL) {
+	dist = std::max(abs(mx - fx), abs(my - fy));
+	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(121, 100);
-		if (abs(mx) >= 2 || abs(my) >= 2) {
+		if (dist >= 2) {
 			if (v < 5 * (mon->_mint + 10) && LineClear(mon->_mx, mon->_my, fx, fy)) {
 				MonStartRAttack(mnum, counsmiss[mon->_mint]);
 			} else if (random_(124, 100) < 30) {
@@ -4058,7 +4043,7 @@ void MAI_Counselor(int mnum)
 			mon->_mdir = md;
 			if (mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
 				mon->_mgoal = MGOAL_RETREAT;
-				mon->_mgoalvar1 = 0; // RETREAT_DISTANCE
+				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, md, false);
 			} else if (mon->_mVar1 == MM_DELAY // STAND_PREV_MODE
 			    || v < 2 * mon->_mint + 20) {
@@ -4067,6 +4052,22 @@ void MAI_Counselor(int mnum)
 				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 		}
 		return;
+	} else if (mon->_mgoal == MGOAL_RETREAT) {
+		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
+			MonCallWalk(mnum, OPPOSITE(md));
+		else {
+			mon->_mgoal = MGOAL_NORMAL;
+			MonStartFadein(mnum, md, true);
+		}
+	} else {
+		assert(mon->_mgoal == MGOAL_MOVE);
+		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
+		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
+			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
+		} else {
+			mon->_mgoal = MGOAL_NORMAL;
+			MonStartFadein(mnum, md, true);
+		}
 	}
 	if (mon->_mmode == MM_STAND) {
 		MonStartDelay(mnum, RandRange(5, 14));
