@@ -1240,10 +1240,8 @@ static void MonStartDelay(int mnum, int len)
 	}
 
 	mon = &monster[mnum];
-	if (mon->_mAi != AI_LAZURUS) {
-		mon->_mVar2 = len;      // DELAY_TICK : length of the delay
-		mon->_mmode = MM_DELAY;
-	}
+	mon->_mVar2 = len;      // DELAY_TICK : length of the delay
+	mon->_mmode = MM_DELAY;
 }
 
 /*
@@ -4037,8 +4035,7 @@ void MAI_Counselor(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(125, 2); // MOVE_TURN_DIRECTION
 				MonStartFadeout(mnum, md, false);
-			} else
-				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
+			}
 		} else {
 			mon->_mdir = md;
 			if (mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
@@ -4048,10 +4045,8 @@ void MAI_Counselor(int mnum)
 			} else if (mon->_mVar1 == MM_DELAY // STAND_PREV_MODE
 			    || v < 2 * mon->_mint + 20) {
 				MonStartRAttack(mnum, MIS_FLASH);
-			} else
-				MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
+			}
 		}
-		return;
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
 			MonCallWalk(mnum, OPPOSITE(md));
@@ -4069,8 +4064,8 @@ void MAI_Counselor(int mnum)
 			MonStartFadein(mnum, md, true);
 		}
 	}
-	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(5, 14));
+	if (mon->_mmode == MM_STAND && mon->_mAi != AI_LAZURUS) {
+		MonStartDelay(mnum, RandRange(10, 19) - 2 * mon->_mint);
 	}
 }
 
