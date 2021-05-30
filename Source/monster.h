@@ -63,7 +63,7 @@ bool IsGoat(int mt);
 void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void TalktoMonster(int mnum, int pnum);
-void SpawnGolum(int mnum, int x, int y, int level);
+void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool *ret);
 int encode_enemy(int mnum);

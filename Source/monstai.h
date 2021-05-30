@@ -47,7 +47,7 @@ void MAI_Storm2(int mnum);
 void MAI_Acid(int mnum);
 void MAI_Diablo(int mnum);
 void MAI_Mega(int mnum);
-void MAI_Golum(int mnum);
+void MAI_Golem(int mnum);
 void MAI_SkelKing(int mnum);
 void MAI_Rhino(int mnum);
 void MAI_Counselor(int mnum);

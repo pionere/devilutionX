@@ -2993,7 +2993,7 @@ void MI_Golem(int mi)
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (LineClear(mis->_misx, mis->_misy, tx, ty)) {
 					if ((dMonster[tx][ty] | nSolidTable[dPiece[tx][ty]] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
-						SpawnGolum(src, tx, ty, mis->_miSpllvl);
+						SpawnGolem(src, tx, ty, mis->_miSpllvl);
 						return;
 					}
 				}

@@ -95,7 +95,7 @@ void (*AiProc[])(int i) = {
 	&MAI_Garbud,
 	&MAI_Acid,
 	&MAI_AcidUniq,
-	&MAI_Golum,
+	&MAI_Golem,
 	&MAI_Zhar,
 	&MAI_SnotSpil,
 	&MAI_Snake,
@@ -3736,13 +3736,13 @@ void MAI_Mega(int mnum)
 	MAI_RR2(mnum, MIS_FLAMEC);
 }
 
-void MAI_Golum(int mnum)
+void MAI_Golem(int mnum)
 {
 	MonsterStruct *mon, *tmon;
 	int md, j, k;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MAI_Golum: Invalid monster %d", mnum);
+		dev_fatal("MAI_Golem: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
 	assert(!MINION_INACTIVE(mon));
@@ -3770,8 +3770,8 @@ void MAI_Golum(int mnum)
 				tmon->_msquelch = UCHAR_MAX;
 				tmon->_lastx = mon->_mx;
 				tmon->_lasty = mon->_my;
-				static_assert(DBORDERX >= 2, "MAI_Golum expects a large enough border I.");
-				static_assert(DBORDERY >= 2, "MAI_Golum expects a large enough border II.");
+				static_assert(DBORDERX >= 2, "MAI_Golem expects a large enough border I.");
+				static_assert(DBORDERY >= 2, "MAI_Golem expects a large enough border II.");
 				for (j = -2; j <= 2; j++) {
 					for (k = -2; k <= 2; k++) {
 						md = dMonster[mon->_mx + k][mon->_my + j];
@@ -5166,13 +5166,13 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void SpawnGolum(int mnum, int x, int y, int level)
+void SpawnGolem(int mnum, int x, int y, int level)
 {
 	MonsterStruct *mon;
 
-	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolum requires that owner of a monster has the same id as the monster itself.");
+	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolem requires that owner of a monster has the same id as the monster itself.");
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("SpawnGolum: Invalid monster %d", mnum);
+		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
 	dMonster[x][y] = mnum + 1;
 	mon = &monster[mnum];
