@@ -1151,7 +1151,7 @@ static void MonEnemy(int mnum)
 			if (MINION_INACTIVE(tmon))
 				continue;
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
-			if (dist >= 2 && !MonRanged(mnum)) {
+			if (dist > 3 && !MonRanged(mnum)) {
 				continue;
 			}
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
@@ -1190,11 +1190,11 @@ static void MonEnemy(int mnum)
 			bestsameroom = sameroom;
 		}
 	}
-
+	// clear previous target-flags
+	mon->_mFlags &= ~(MFLAG_TARGETS_MONSTER | MFLAG_NO_ENEMY);
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
-			mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 			mon->_menemyx = players[enemy]._pfutx;
 			mon->_menemyy = players[enemy]._pfuty;
 		} else {
@@ -1203,7 +1203,6 @@ static void MonEnemy(int mnum)
 			mon->_menemyx = monster[enemy]._mfutx;
 			mon->_menemyy = monster[enemy]._mfuty;
 		}
-		mon->_mFlags &= ~MFLAG_NO_ENEMY;
 		mon->_menemy = enemy;
 	} else {
 		mon->_mFlags |= MFLAG_NO_ENEMY;
