@@ -397,9 +397,9 @@ static void LoadMonster(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
-	CopyInt(tbuff, &mon->_mMTidx);
 	CopyInt(tbuff, &mon->_mmode);
-	CopyChar(tbuff, &mon->_msquelch);
+	CopyInt(tbuff, &mon->_msquelch);
+	CopyChar(tbuff, &mon->_mMTidx);
 	CopyChar(tbuff, &mon->_mpathcount);
 	CopyChar(tbuff, &mon->_mWhoHit);
 	CopyChar(tbuff, &mon->_mgoal);
@@ -1096,9 +1096,9 @@ static void SaveMonster(int mnum)
 {
 	MonsterStruct *mon = &monster[mnum];
 
-	CopyInt(&mon->_mMTidx, tbuff);
 	CopyInt(&mon->_mmode, tbuff);
-	CopyChar(&mon->_msquelch, tbuff);
+	CopyInt(&mon->_msquelch, tbuff);
+	CopyChar(&mon->_mMTidx, tbuff);
 	CopyChar(&mon->_mpathcount, tbuff);
 	CopyChar(&mon->_mWhoHit, tbuff);
 	CopyChar(&mon->_mgoal, tbuff);

@@ -624,9 +624,9 @@ static_assert((sizeof(CMonster) & (sizeof(CMonster) - 1)) == 256, "Align CMonste
 #endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
-	int _mMTidx;
 	int _mmode; /* MON_MODE */
-	BYTE _msquelch;
+	unsigned _msquelch;
+	BYTE _mMTidx;
 	BYTE _mpathcount;
 	BYTE _mWhoHit;
 	BYTE _mgoal;
@@ -665,8 +665,8 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	int _mmaxhp;
 	int _mhitpoints;
 	int _mFlags;
-	int _lastx;
-	int _lasty;
+	int _lastx; // the last known X-coordinate of the enemy
+	int _lasty; // the last known Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
 	BYTE _uniqtype;
@@ -1158,7 +1158,7 @@ typedef struct DMonsterStr {
 	BYTE _my;
 	BYTE _mdir;
 	BYTE _menemy;
-	BYTE _mactive;
+	DWORD _mactive;
 	INT _mhitpoints;
 } DMonsterStr;
 
