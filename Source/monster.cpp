@@ -24,6 +24,9 @@ int nummtypes;
 /** Light radius of unique monsters */
 #define MON_LIGHTRAD 3
 
+/** Check if the monster just finished a WALK (STAND_PREV_MODE, STAND_TICK)*/
+#define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3) && mon->_mVar2 == 0)
+
 /** Maps from walking path step to facing direction. */
 //const char walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
 /** Maps from monster intelligence factor to missile type. */
@@ -2945,10 +2948,8 @@ void MAI_Bat(int mnum)
 			mon->_mmode = MM_CHARGE;
 		}
 	} else if (dist >= 2) {
-		if ((mon->_mVar2 > 20 && v < mon->_mint + 13) // STAND_TICK, STAND_PREV_MODE
-		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-		        && mon->_mVar2 == 0
-		        && v < mon->_mint + 63)) {
+		if ((mon->_mVar2 > 20 && v < mon->_mint + 13) // STAND_TICK
+		 || (MON_JUST_WALKED && v < mon->_mint + 63)) {
 			MonCallWalk(mnum, md);
 		}
 	} else if (v < 4 * mon->_mint + 8) {
@@ -2982,10 +2983,8 @@ void MAI_SkelBow(int mnum)
 
 	walking = false;
 	if (abs(mx) < 4 && abs(my) < 4) {
-		if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 13) // STAND_TICK, STAND_PREV_MODE
-		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-		        && mon->_mVar2 == 0
-		        && v < 2 * mon->_mint + 63)) {
+		if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 13) // STAND_TICK
+		 || (MON_JUST_WALKED && v < 2 * mon->_mint + 63)) {
 			walking = MonDumbWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 	}
@@ -3015,10 +3014,8 @@ void MAI_Fat(int mnum)
 	mx = mon->_mx - mon->_menemyx;
 	my = mon->_my - mon->_menemyy;
 	if (abs(mx) >= 2 || abs(my) >= 2) {
-		if ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 20) // STAND_TICK, STAND_PREV_MODE
-		 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-		        && mon->_mVar2 == 0
-		        && v < 4 * mon->_mint + 70)) {
+		if ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 20) // STAND_TICK
+		 || (MON_JUST_WALKED && v < 4 * mon->_mint + 70)) {
 			MonCallWalk(mnum, mon->_mdir);
 		}
 	} else if (v < 4 * mon->_mint + 15) {
@@ -3081,9 +3078,8 @@ void MAI_Sneak(int mnum)
 	} else {
 		if (mon->_mgoal == MGOAL_RETREAT
 		 || (dist >= 2 &&
-			 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK, STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < 4 * mon->_mint + 64)))) {
+			 ((mon->_mVar2 > 20 && v < 4 * mon->_mint + 14) // STAND_TICK
+			 || (MON_JUST_WALKED && v < 4 * mon->_mint + 64)))) {
 			MonCallWalk(mnum, mon->_mdir);
 		}
 		if (mon->_mmode == MM_STAND
@@ -3275,10 +3271,8 @@ static void MAI_Round(int mnum, bool special)
 		mon->_mgoal = MGOAL_NORMAL;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 2) {
-			if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 28) // STAND_TICK, STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-			        && mon->_mVar2 == 0
-			        && v < 2 * mon->_mint + 78)) {
+			if ((mon->_mVar2 > 20 && v < 2 * mon->_mint + 28) // STAND_TICK
+			 || (MON_JUST_WALKED && v < 2 * mon->_mint + 78)) {
 				MonCallWalk(mnum, md);
 			}
 		} else if (v < 2 * mon->_mint + 23) {
@@ -3600,9 +3594,8 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 			MonStartRSpAttack(mnum, mitype);
 		} else if (dist >= 2) {
 			v = random_(124, 100);
-			if (v < 10 * (mon->_mint + 5) // STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < 10 * (mon->_mint + 8))) { // STAND_TICK
+			if (v < 10 * (mon->_mint + 5)
+			 || (MON_JUST_WALKED && v < 10 * (mon->_mint + 8))) {
 				MonCallWalk(mnum, md);
 			}
 		} else if (v < 1000 * (mon->_mint + 6)) {
@@ -3696,10 +3689,8 @@ static void MAI_RR2(int mnum, int mitype)
 		}
 		v = random_(124, 100);
 		if (dist >= 2) {
-			if (v < 10 * (mon->_mint + 5) // STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-			        && mon->_mVar2 == 0 // STAND_TICK
-			        && v < 10 * (mon->_mint + 8))) {
+			if (v < 10 * (mon->_mint + 5)
+			 || (MON_JUST_WALKED && v < 10 * (mon->_mint + 8))) {
 				MonCallWalk(mnum, md);
 			}
 		} else {
@@ -3825,9 +3816,8 @@ void MAI_SkelKing(int mnum)
 			}
 		} else {
 			v = random_(129, 100);
-			if (v < mon->_mint + 25 // STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < mon->_mint + 75)) { // STAND_TICK
+			if (v < mon->_mint + 25
+			 || (MON_JUST_WALKED && v < mon->_mint + 75)) {
 				MonCallWalk(mnum, md);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
@@ -3887,9 +3877,8 @@ void MAI_Rhino(int mnum)
 			}
 		} else {
 			v = random_(134, 100);
-			if (v < 2 * mon->_mint + 33 // STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < 2 * mon->_mint + 83)) { // STAND_TICK
+			if (v < 2 * mon->_mint + 33
+			 || (MON_JUST_WALKED && v < 2 * mon->_mint + 83)) {
 				MonCallWalk(mnum, md);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
@@ -3946,9 +3935,8 @@ void MAI_Horkdemon(int mnum)
 			}
 		} else {
 			v = random_(134, 100);
-			if (v < 2 * mon->_mint + 33 // STAND_PREV_MODE
-			 || ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2 || mon->_mVar1 == MM_WALK3)
-				 && mon->_mVar2 == 0 && v < 2 * mon->_mint + 83)) { // STAND_TICK
+			if (v < 2 * mon->_mint + 33
+			 || (MON_JUST_WALKED && v < 2 * mon->_mint + 83)) {
 				MonCallWalk(mnum, md);
 			} else {
 				MonStartDelay(mnum, RandRange(10, 19));
