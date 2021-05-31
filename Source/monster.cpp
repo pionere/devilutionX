@@ -4312,13 +4312,15 @@ void DeleteMonsterList()
 
 	for (i = 0; i < MAX_MINIONS; i++) {
 		if (monster[i]._mDelFlag) {
+			monster[i]._mDelFlag = FALSE;
 			monster[i]._mx = 0;
 			monster[i]._my = 0;
-			monster[i]._mfutx = 0;
-			monster[i]._mfuty = 0;
+			// do not reset mfutx/y to zero, otherwise monsters targeting this minion might try to
+			// reach out of the dungeon. If necessary, add a check in ProcessMonsters to prevent the OOB.
+			//monster[i]._mfutx = 0;
+			//monster[i]._mfuty = 0;
 			monster[i]._moldx = 0;
 			monster[i]._moldy = 0;
-			monster[i]._mDelFlag = FALSE;
 			assert(MINION_NR_INACTIVE(i));
 		}
 	}
