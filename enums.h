@@ -1858,20 +1858,18 @@ typedef enum {
 } _uniq_monsterid;
 
 typedef enum monster_flag {
-	MFLAG_HIDDEN          = 0x01,
-	MFLAG_REV_ANIMATION   = 0x02,
-	MFLAG_LOCK_ANIMATION  = 0x04,
-	MFLAG_NOHEAL          = 0x08,
-	MFLAG_TARGETS_MONSTER = 0x10,
-	//MFLAG_GOLEM           = 0x20,
-	MFLAG_QUEST_COMPLETE  = 0x40,
-	MFLAG_KNOCKBACK       = 0x80,
-	MFLAG_SEARCH          = 0x100,
-	MFLAG_CAN_OPEN_DOOR   = 0x200,
-	MFLAG_NO_ENEMY        = 0x400,
-	//MFLAG_BERSERK         = 0x800,
-	MFLAG_LIFESTEAL       = 0x1000,
-	MFLAG_GARG_STONE      = 0x2000,
+	MFLAG_HIDDEN          = 0x0001,
+	MFLAG_REV_ANIMATION   = 0x0002,
+	MFLAG_LOCK_ANIMATION  = 0x0004,
+	MFLAG_GARG_STONE      = 0x0008,
+	MFLAG_KNOCKBACK       = 0x0010,
+	MFLAG_LIFESTEAL       = 0x0020,
+	MFLAG_CAN_OPEN_DOOR   = 0x0040,
+	MFLAG_SEARCH          = 0x0080,
+	MFLAG_TARGETS_MONSTER = 0x0100,
+	MFLAG_NO_ENEMY        = 0x0200,
+	MFLAG_NOSTONE         = 0x0400,
+	MFLAG_NOHEAL          = 0x0800,
 } monster_flag;
 
 typedef enum monster_goal {
