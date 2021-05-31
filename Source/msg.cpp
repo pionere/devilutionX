@@ -916,6 +916,7 @@ void DeltaLoadLevel()
 				mon->_moldy = y;
 				mon->_mfutx = x;
 				mon->_mfuty = y;
+				// check if only the position of the monster was modified
 				if (mstr->_mhitpoints != -1)
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
 				if (mstr->_mhitpoints == 0) {
