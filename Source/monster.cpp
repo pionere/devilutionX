@@ -2329,7 +2329,7 @@ static bool MonDoTalk(int mnum)
 	if (mon->_uniqtype - 1 == UMT_LAZURUS) {
 		if (gbMaxPlayers != 1) {
 			quests[Q_BETRAYER]._qvar1 = 6;
-			mon->_msquelch = UCHAR_MAX;
+			mon->_msquelch = SQUELCH_MAX;
 			mon->mtalkmsg = TEXT_NONE;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -3245,7 +3245,7 @@ static void MAI_Round(int mnum, bool special)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3254,7 +3254,7 @@ static void MAI_Round(int mnum, bool special)
 	fx = mon->_menemyx;
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	v = random_(114, 100);
-	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 4 && random_(115, 4) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3302,9 +3302,9 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
-	if (mon->_msquelch >= UCHAR_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
+	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
 		mon->_mdir = MonGetDir(mnum);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
@@ -3559,7 +3559,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3568,7 +3568,7 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
 	v = random_(121, 10000);
-	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3662,11 +3662,11 @@ static void MAI_RR2(int mnum, int mitype)
 		return;
 	}
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mx, my);
 	md = GetDirection(mx, my, mon->_lastx, mon->_lasty);
 	v = random_(121, 100);
-	if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mx][my] == dTransVal[fx][fy]) {
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mx][my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || dist >= 3) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
@@ -3776,7 +3776,7 @@ void MAI_SkelKing(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3785,7 +3785,7 @@ void MAI_SkelKing(int mnum)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	if (dist < 2 || mon->_msquelch != UCHAR_MAX) {
+	if (dist < 2 || mon->_msquelch != SQUELCH_MAX) {
 		mon->_mgoal = MGOAL_NORMAL;
 	} else if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
 		if (mon->_mgoal != MGOAL_MOVE) {
@@ -3838,7 +3838,7 @@ void MAI_Rhino(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3900,7 +3900,7 @@ void MAI_Horkdemon(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3958,7 +3958,7 @@ void MAI_Counselor(int mnum)
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
 
-	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3997,7 +3997,7 @@ void MAI_Counselor(int mnum)
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
-		if (dist >= 2 && mon->_msquelch == UCHAR_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
+		if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
 		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
 			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 		} else {
@@ -4027,7 +4027,7 @@ void MAI_Garbud(int mnum)
 			//if (quests[Q_GARBUD]._qvar1 == 4 && mon->_mVar8++ >= gnTicksRate * 6) {
 			if (quests[Q_GARBUD]._qvar1 == 4 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_GARBUD4))) {
 				mon->_mgoal = MGOAL_NORMAL;
-				// mon->_msquelch = UCHAR_MAX;
+				// mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;
 			}
 		} else {
@@ -4063,7 +4063,7 @@ void MAI_Zhar(int mnum)
 		if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) { // MON_TIMER - also set in objects.cpp
 			//if (quests[Q_ZHAR]._qvar1 == 2 && mon->_mVar8++ >= gnTicksRate * 4/*!effect_is_playing(USFX_ZHAR2)*/) {
 			if (quests[Q_ZHAR]._qvar1 == 2 && (gbMaxPlayers != 1 || !effect_is_playing(USFX_ZHAR2))) {
-				// mon->_msquelch = UCHAR_MAX;
+				// mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -4116,7 +4116,7 @@ void MAI_SnotSpil(int mnum)
 			NetSendCmd(true, CMD_OPENSPIL);
 			NetSendCmdQuest(Q_LTBANNER, true);
 		}
-		// mon->_msquelch = UCHAR_MAX;
+		// mon->_msquelch = SQUELCH_MAX;
 	case 4:
 		if (mon->mtalkmsg != TEXT_NONE) {
 			// TODO: does not work when a player enters the level and the timer is running
@@ -4154,7 +4154,7 @@ void MAI_Lazurus(int mnum)
 			} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_LAZ1)) {
 				ObjChangeMapResync(1, 18, 20, 24);
 				RedoPlayerVision();
-				//mon->_msquelch = UCHAR_MAX;
+				//mon->_msquelch = SQUELCH_MAX;
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 				quests[Q_BETRAYER]._qvar1 = 6;
@@ -4263,7 +4263,7 @@ void MAI_Warlord(int mnum)
 		if (mon->_mListener == mypnum || !players[mon->_mListener].plractive || players[mon->_mListener].plrlevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
-		// mon->_msquelch = UCHAR_MAX;
+		// mon->_msquelch = SQUELCH_MAX;
 	case 2:
 		if (mon->mtalkmsg != TEXT_NONE) {
 			// TODO: does not work when a player enters the level and the timer is running
@@ -4341,7 +4341,7 @@ void ProcessMonsters()
 			}
 			mon->_lastx = mon->_menemyx = monster[_menemy]._mfutx;
 			mon->_lasty = mon->_menemyy = monster[_menemy]._mfuty;
-			mon->_msquelch = std::max((BYTE)(UCHAR_MAX - 1), mon->_msquelch);
+			mon->_msquelch = std::max((unsigned)(SQUELCH_MAX - 1), mon->_msquelch);
 		} else {
 			if ((unsigned)_menemy >= MAX_PLRS) {
 				dev_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
@@ -4351,7 +4351,7 @@ void ProcessMonsters()
 			if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
 				mon->_lastx = mon->_menemyx;
 				mon->_lasty = mon->_menemyy;
-				mon->_msquelch = UCHAR_MAX;
+				mon->_msquelch = SQUELCH_MAX;
 			} else if (mon->_msquelch != 0) { // && mon->_mType != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType' (fixed)
 				mon->_msquelch--;
 			}

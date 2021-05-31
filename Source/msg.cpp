@@ -620,7 +620,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 		if (pD->_mhitpoints != 0) {
 			pD->_mx = pSync->_mx;
 			pD->_my = pSync->_my;
-			pD->_mactive = UCHAR_MAX;
+			pD->_mactive = SQUELCH_MAX;
 			pD->_menemy = pSync->_menemy;
 		}
 		pbBuf += sizeof(TSyncMonster);
@@ -639,7 +639,7 @@ static void delta_awake_golem(TCmdGolem *pG, int mnum)
 	pD = &sgLevels[pG->_currlevel].monster[mnum];
 	pD->_mx = pG->_mx;
 	pD->_my = pG->_my;
-	pD->_mactive = UCHAR_MAX;
+	pD->_mactive = SQUELCH_MAX;
 	pD->_menemy = pG->_menemy;
 	pD->_mdir = pG->_mdir;
 	pD->_mhitpoints = pG->_mhitpoints;

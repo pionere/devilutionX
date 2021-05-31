@@ -221,7 +221,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 				MonClearSquares(mnum);
 				dMonster[mon->_mx][mon->_my] = mnum + 1;
 				MonWalkDir(mnum, md);
-				mon->_msquelch = UCHAR_MAX;
+				mon->_msquelch = SQUELCH_MAX;
 			}
 		}
 	} else if (dMonster[symon->_mx][symon->_my] == 0) {
@@ -231,7 +231,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 		mon->_my = symon->_my;
 		md = GetDirection(symon->_mx, symon->_my, mon->_menemyx, mon->_menemyy);
 		MonStartStand(mnum, md);
-		mon->_msquelch = UCHAR_MAX;
+		mon->_msquelch = SQUELCH_MAX;
 	}
 }
 

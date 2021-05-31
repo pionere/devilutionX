@@ -753,7 +753,7 @@ static bool MonsterMHit(int mnum, int mi)
 	}
 
 	if (mon->_msquelch == 0) {
-		mon->_msquelch = UCHAR_MAX;
+		mon->_msquelch = SQUELCH_MAX;
 		mon->_lastx = p->_px;
 		mon->_lasty = p->_py;
 	}
