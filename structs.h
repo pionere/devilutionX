@@ -412,15 +412,15 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[434];
+	int alignment[434 + 2048];
 #else
-	int alignment[436];
+	int alignment[436 + 2048];
 #endif
 #endif
 } PlayerStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 16384, "Align PlayerStruct closer to power of 2 for better performance.");
+static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align PlayerStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////

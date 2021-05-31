@@ -2493,7 +2493,6 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
-	PlayerStruct *p;
 	int magic, i, mindam, maxdam;
 
 	assert((unsigned)misource < MAX_PLRS);
@@ -2851,7 +2850,6 @@ int AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 
 int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	PlayerStruct *p;
 	int pnum;
 
 	for (pnum = 0; pnum < gbMaxPlayers; pnum++) {
