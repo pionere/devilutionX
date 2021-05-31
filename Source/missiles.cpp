@@ -28,7 +28,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
 	sl = GetSpellLevel(mypnum, sn);
-	p = &players[mypnum];
+	p = &myplr;
 
 	switch (sn) {
 	case SPL_FIREBOLT:
@@ -1320,7 +1320,7 @@ void InitMissiles()
 	int i;
 	BYTE *pTmp;
 
-	p = &players[mypnum];
+	p = &myplr;
 	if (p->_pInfraFlag) {
 		for (i = 0; i < nummissiles; ++i) {
 			mis = &missile[missileactive[i]];
@@ -3491,7 +3491,7 @@ void MI_Town(int mi)
 		mis->_miVar2++;
 	}
 
-	p = &players[mypnum];
+	p = &myplr;
 	if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
 		NetSendCmdParam1(true, CMD_WARP, mis->_miSource);
 	}

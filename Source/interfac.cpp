@@ -43,7 +43,7 @@ static void InitCutscene(unsigned int uMsg)
 			progress_id = 1;
 			break;
 		case DTYPE_HELL:
-			lvl = players[mypnum].plrlevel; // the destination level
+			lvl = myplr.plrlevel; // the destination level
 			progress_id = 1;
 			break;
 		case DTYPE_CRYPT:
@@ -79,7 +79,7 @@ static void InitCutscene(unsigned int uMsg)
 		}
 		break;
 	case WM_DIABSETLVL:
-		lvl = players[mypnum].plrlevel; // the destination level
+		lvl = myplr.plrlevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		if (lvl == SL_BONECHAMB) {
@@ -116,7 +116,7 @@ static void InitCutscene(unsigned int uMsg)
 	case WM_DIABTOWNWARP:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN: {
-		lvl = players[mypnum].plrlevel; // the destination level
+		lvl = myplr.plrlevel; // the destination level
 		sgpBackCel = LoadFileInMem(AllLevels[lvl].dLoadCels);
 		LoadPalette(AllLevels[lvl].dLoadPal);
 		switch (AllLevels[lvl].dType) {
@@ -355,7 +355,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
 			InitMonsters();
-			if (gbMaxPlayers != 1 || firstflag || lvldir == ENTRY_LOAD || !players[mypnum]._pLvlVisited[currLvl._dLevelIdx]) {
+			if (gbMaxPlayers != 1 || firstflag || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
 				IncProgress();
 				InitObjects();
 				InitItems();
@@ -383,7 +383,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 			if (gbMaxPlayers != 1)
 				DeltaLoadLevel();
-			else if (!firstflag && lvldir != ENTRY_LOAD && players[mypnum]._pLvlVisited[currLvl._dLevelIdx])
+			else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
 				LoadLevel();
 
 			IncProgress();
@@ -422,7 +422,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		SavePreLighting();
 		if (gbMaxPlayers != 1)
 			DeltaLoadLevel();
-		else if (!firstflag && lvldir != ENTRY_LOAD && players[mypnum]._pLvlVisited[currLvl._dLevelIdx])
+		else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
 			LoadLevel();
 
 		IncProgress();
@@ -518,8 +518,8 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		assert(players[mypnum].plrlevel == currLvl._dLevelIdx + 1);
-		EnterLevel(players[mypnum].plrlevel);
+		assert(myplr.plrlevel == currLvl._dLevelIdx + 1);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();
@@ -533,8 +533,8 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		assert(players[mypnum].plrlevel == currLvl._dLevelIdx - 1);
-		EnterLevel(players[mypnum].plrlevel);
+		assert(myplr.plrlevel == currLvl._dLevelIdx - 1);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_PREV);
 		IncProgress();
@@ -549,7 +549,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		EnterLevel(players[mypnum].plrlevel);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_SETLVL);
 		IncProgress();
@@ -591,7 +591,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		EnterLevel(players[mypnum].plrlevel);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPDN);
 		IncProgress();
@@ -605,7 +605,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		EnterLevel(players[mypnum].plrlevel);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_TWARPUP);
 		IncProgress();
@@ -619,7 +619,7 @@ void ShowProgress(unsigned int uMsg)
 		}
 		IncProgress();
 		FreeLevelMem();
-		EnterLevel(players[mypnum].plrlevel);
+		EnterLevel(myplr.plrlevel);
 		IncProgress();
 		LoadGameLevel(false, ENTRY_MAIN);
 		IncProgress();
@@ -634,11 +634,11 @@ void ShowProgress(unsigned int uMsg)
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == DisableInputWndProc);
 
-	NetSendCmdLocBParam1(true, CMD_PLAYER_JOINLEVEL, players[mypnum]._px, players[mypnum]._py, players[mypnum].plrlevel);
+	NetSendCmdLocBParam1(true, CMD_PLAYER_JOINLEVEL, myplr._px, myplr._py, myplr.plrlevel);
 	plrmsg_delay(false);
 	ResetPal();
 
-	if (gbSomebodyWonGameKludge && players[mypnum].plrlevel == DLV_HELL4) {
+	if (gbSomebodyWonGameKludge && myplr.plrlevel == DLV_HELL4) {
 		PrepDoEnding(gbSoundOn);
 	}
 

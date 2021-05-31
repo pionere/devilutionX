@@ -52,12 +52,12 @@ void GiveGoldCheat()
 	int i;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		if (players[mypnum].InvGrid[i] == 0) {
-			pi = &players[mypnum].InvList[players[mypnum]._pNumInv];
+		if (myplr.InvGrid[i] == 0) {
+			pi = &myplr.InvList[myplr._pNumInv];
 			CreateBaseItem(pi, IDI_GOLD);
 			SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-			players[mypnum]._pGold += GOLD_MAX_LIMIT;
-			players[mypnum].InvGrid[i] = ++players[mypnum]._pNumInv;
+			myplr._pGold += GOLD_MAX_LIMIT;
+			myplr.InvGrid[i] = ++myplr._pNumInv;
 		}
 	}
 }
@@ -89,17 +89,17 @@ void TakeGoldCheat()
 	char ig;
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-		ig = players[mypnum].InvGrid[i];
-		if (ig > 0 && players[mypnum].InvList[ig - 1]._itype == ITYPE_GOLD)
+		ig = myplr.InvGrid[i];
+		if (ig > 0 && myplr.InvList[ig - 1]._itype == ITYPE_GOLD)
 			RemoveInvItem(mypnum, ig - 1);
 	}
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
-		if (players[mypnum].SpdList[i]._itype == ITYPE_GOLD)
-			players[mypnum].SpdList[i]._itype = ITYPE_NONE;
+		if (myplr.SpdList[i]._itype == ITYPE_GOLD)
+			myplr.SpdList[i]._itype = ITYPE_NONE;
 	}
 
-	players[mypnum]._pGold = 0;
+	myplr._pGold = 0;
 }
 
 void MaxSpellsCheat()
@@ -108,16 +108,16 @@ void MaxSpellsCheat()
 
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
-			players[mypnum]._pMemSkills |= SPELL_MASK(i);
-			players[mypnum]._pSkillLvl[i] = 10;
+			myplr._pMemSkills |= SPELL_MASK(i);
+			myplr._pSkillLvl[i] = 10;
 		}
 	}
 }
 
 void SetSpellLevelCheat(char spl, int spllvl)
 {
-	players[mypnum]._pMemSkills |= SPELL_MASK(spl);
-	players[mypnum]._pSkillLvl[spl] = spllvl;
+	myplr._pMemSkills |= SPELL_MASK(spl);
+	myplr._pSkillLvl[spl] = spllvl;
 }
 
 void SetAllSpellsCheat()

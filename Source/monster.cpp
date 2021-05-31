@@ -2389,7 +2389,7 @@ void DoEnding()
 		, "gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk"
 #endif
 	};
-	play_movie(vicSets[players[mypnum]._pClass], 0);
+	play_movie(vicSets[myplr._pClass], 0);
 	play_movie("gendata\\Diabend.smk", 0);
 
 	bMusicOn = gbMusicOn;
@@ -2417,8 +2417,8 @@ void PrepDoEnding(bool soundOn)
 	gbCineflag = true;
 
 	killLevel = gnDifficulty + 1;
-	if (killLevel > players[mypnum]._pDiabloKillLevel)
-		players[mypnum]._pDiabloKillLevel = killLevel;
+	if (killLevel > myplr._pDiabloKillLevel)
+		myplr._pDiabloKillLevel = killLevel;
 
 	if (gbMaxPlayers == 1) {
 		// save the hero + items
@@ -4146,7 +4146,7 @@ void MAI_Lazurus(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
-			if (mon->_mgoal == MGOAL_INQUIRING && players[mypnum]._px == DBORDERX + 19 && players[mypnum]._py == DBORDERY + 30) {
+			if (mon->_mgoal == MGOAL_INQUIRING && myplr._px == DBORDERX + 19 && myplr._py == DBORDERY + 30) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
 				mon->_mListener = mypnum;

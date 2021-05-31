@@ -96,7 +96,7 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 {
 	PlayerStruct *p;
 
-	p = &players[mypnum];
+	p = &myplr;
 	pktHdr.wCheck = PKT_HDR_CHECK;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
@@ -585,7 +585,7 @@ static void SetupLocalCoords()
 #endif
 	x += plrxoff[mypnum];
 	y += plryoff[mypnum];
-	p = &players[mypnum];
+	p = &myplr;
 	p->_px = x;
 	p->_py = y;
 	p->_pfutx = x;
@@ -691,9 +691,9 @@ static bool multi_init_game(bool bSinglePlayer)
 		if (dlgresult == SELGAME_JOIN) {
 			playerId = sgGameInitInfo.bPlayerId;
 			if (mypnum != playerId) {
-				copy_pod(players[playerId], players[mypnum]);
+				copy_pod(players[playerId], myplr);
 				mypnum = playerId;
-				players[mypnum]._pTeam = mypnum;
+				myplr._pTeam = mypnum;
 				//pfile_read_player_from_save();
 			}
 			gbJoinGame = true;
@@ -746,8 +746,8 @@ bool NetInit(bool bSinglePlayer)
 		if (!bSinglePlayer)
 			multi_send_pinfo(-2, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
-		players[mypnum].plractive = TRUE;
-		assert(players[mypnum]._pTeam == mypnum);
+		myplr.plractive = TRUE;
+		assert(myplr._pTeam == mypnum);
 		if (!gbJoinGame || msg_wait_resync())
 			break;
 		NetClose();

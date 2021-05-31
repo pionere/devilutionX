@@ -112,7 +112,7 @@ static bool pfile_open_archive()
 {
 	unsigned save_num;
 
-	save_num = pfile_get_save_num_from_name(players[mypnum]._pName);
+	save_num = pfile_get_save_num_from_name(myplr._pName);
 	assert(save_num < MAX_CHARACTERS);
 	return pfile_open_save_mpq(save_num);
 }
@@ -451,7 +451,7 @@ BYTE *pfile_read(const char *pszName)
 	HANDLE archive, save;
 	BYTE *buf;
 
-	save_num = pfile_get_save_num_from_name(players[mypnum]._pName);
+	save_num = pfile_get_save_num_from_name(myplr._pName);
 	archive = pfile_open_save_archive(save_num);
 	if (archive == NULL)
 		app_fatal("Unable to open save file archive");

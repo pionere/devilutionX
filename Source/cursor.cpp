@@ -224,10 +224,10 @@ void CheckCursMove()
 
 	// Predict the next frame when walking to avoid input jitter
 	if (ScrollInfo._sdir != SDIR_NONE) {
-		fx = players[mypnum]._pVar6 / 256; // WALK_XOFF
-		fy = players[mypnum]._pVar7 / 256; // WALK_YOFF
-		fx -= (players[mypnum]._pVar6 + players[mypnum]._pxvel) / 256;
-		fy -= (players[mypnum]._pVar7 + players[mypnum]._pyvel) / 256;
+		fx = myplr._pVar6 / 256; // WALK_XOFF
+		fy = myplr._pVar7 / 256; // WALK_YOFF
+		fx -= (myplr._pVar6 + myplr._pxvel) / 256;
+		fy -= (myplr._pVar7 + myplr._pyvel) / 256;
 		sx -= fx;
 		sy -= fy;
 	}
@@ -294,7 +294,7 @@ void CheckCursMove()
 	pcursplr = PLR_NONE;
 	pcurstrig = -1;
 
-	if (players[mypnum]._pInvincible | gbDoomflag | gbSkillListFlag | gbQtextflag)
+	if (myplr._pInvincible | gbDoomflag | gbSkillListFlag | gbQtextflag)
 		return;
 	if (stextflag != STORE_NONE)
 		return;

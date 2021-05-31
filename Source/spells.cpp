@@ -89,7 +89,7 @@ int SpellSourceInv(int sn)
 	ItemStruct *pi;
 	int i;
 
-	p = &players[mypnum];
+	p = &myplr;
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_INVALID || (int)INVITEM_INV_LAST < (int)SPLFROM_INVALID, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_INVALID.");
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_MANA || (int)INVITEM_INV_LAST < (int)SPLFROM_MANA, "SpellSourceInv expects the INV indices to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_INV_LAST < (int)SPLFROM_ABILITY, "SpellSourceInv expects the INV indices to be distinct from SPLFROM_ABILITY.");
@@ -117,7 +117,7 @@ int SpellSourceEquipment(int sn)
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_INVALID, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_INVALID.");
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_MANA, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPL_MANA.");
 	static_assert((int)INVITEM_HAND_LEFT != (int)SPLFROM_ABILITY, "SpellSourceEquipment expects the LEFT_HAND index to be distinct from SPLFROM_ABILITY.");
-	pi = &players[mypnum].InvBody[INVLOC_HAND_LEFT];
+	pi = &myplr.InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0) {
 		return INVITEM_HAND_LEFT;
 	}

@@ -19,10 +19,10 @@ void track_process()
 	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)
 		return;
 	// WALK_TICK
-	if (players[mypnum]._pVar8 <= 6 && players[mypnum]._pmode != PM_STAND)
+	if (myplr._pVar8 <= 6 && myplr._pmode != PM_STAND)
 		return;
 
-	if (cursmx != players[mypnum]._ptargx || cursmy != players[mypnum]._ptargy) {
+	if (cursmx != myplr._ptargx || cursmy != myplr._ptargy) {
 		DWORD tick = SDL_GetTicks();
 		if ((int)(tick - sgdwLastWalk) >= tick_delay * 6) {
 			sgdwLastWalk = tick;

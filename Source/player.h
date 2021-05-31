@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define myplr					players[mypnum]
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -2444,7 +2444,7 @@ static bool PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
 		return !CanTalkToMonst(mpo) && PlrHitMonst(pnum, sn, sl, mpo);
 	}
 	mpo = dPlayer[dx][dy];
-	if (mpo != 0 && players[mypnum]._pTeam != players[mpo]._pTeam) {
+	if (mpo != 0 && myplr._pTeam != players[mpo]._pTeam) {
 		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 		return PlrHitPlr(pnum, sn, sl, mpo);
 	}
@@ -2974,7 +2974,7 @@ static void ValidatePlayer()
 	if ((unsigned)mypnum >= MAX_PLRS) {
 		dev_fatal("ValidatePlayer: illegal player %d", mypnum);
 	}
-	p = &players[mypnum];
+	p = &myplr;
 	if (p->_pLevel > MAXCHARLEVEL)
 		p->_pLevel = MAXCHARLEVEL;
 	if (p->_pExperience > p->_pNextExper)
@@ -3624,9 +3624,9 @@ void InitDungMsgs()
 		dev_fatal("InitDungMsgs: illegal player %d", mypnum);
 	}
 
-	players[mypnum].pDungMsgs = 0;
+	myplr.pDungMsgs = 0;
 #ifdef HELLFIRE
-	players[mypnum].pDungMsgs2 = 0;
+	myplr.pDungMsgs2 = 0;
 #endif
 }
 
@@ -3641,7 +3641,7 @@ void PlayDungMsgs()
 	if ((unsigned)mypnum >= MAX_PLRS) {
 		dev_fatal("PlayDungMsgs: illegal player %d", mypnum);
 	}
-	p = &players[mypnum];
+	p = &myplr;
 	if (currLvl._dLevelIdx == DLV_CATHEDRAL1 && !p->_pLvlVisited[DLV_CATHEDRAL1] && !(p->pDungMsgs & DMSG_CATHEDRAL)) {
 		p->pDungMsgs |= DMSG_CATHEDRAL;
 		sfxdelay = 40;

@@ -1701,7 +1701,7 @@ static void Obj_Circle(int oi)
 	os = &object[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	if (players[mypnum]._px == ox && players[mypnum]._py == oy) {
+	if (myplr._px == ox && myplr._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 2;
 		else {
@@ -1912,7 +1912,7 @@ static void Obj_BCrossDamage(int oi)
 	PlayerStruct *p;
 	int fire_resist, damage;
 
-	p = &players[mypnum];
+	p = &myplr;
 	if (p->_pInvincible)
 		return;
 	if (p->_px != object[oi]._ox || p->_py != object[oi]._oy - 1)
@@ -3398,10 +3398,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_TAINTED:
 		if (MINION_NR_INACTIVE(mypnum)) {
 			AddMissile(
-				players[mypnum]._px,
-				players[mypnum]._py,
-				players[mypnum]._px,
-				players[mypnum]._py,
+				myplr._px,
+				myplr._py,
+				myplr._px,
+				myplr._py,
 				0,
 				MIS_GOLEM,
 				0,
@@ -4527,7 +4527,7 @@ void GetObjectStr(int oi)
 		break;
 	}
 	infoclr = COL_WHITE;
-	if (players[mypnum]._pClass == PC_ROGUE) {
+	if (myplr._pClass == PC_ROGUE) {
 		if (os->_oTrapFlag) {
 			snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
 			copy_str(infostr, tempstr);

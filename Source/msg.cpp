@@ -843,7 +843,7 @@ void DeltaSaveLevel()
 		if (i != mypnum)
 			players[i]._pGFXLoad = 0;
 	}
-	players[mypnum]._pLvlVisited[currLvl._dLevelIdx] = TRUE;
+	myplr._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 	delta_leave_sync(currLvl._dLevelIdx);
 }
 
@@ -1270,7 +1270,7 @@ void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl)
 {
 	TCmdLocAttack cmd;
 
-	cmd.bCmd = (players[mypnum]._pSkillFlags & SFLAG_MELEE) ? CMD_SATTACKXY : CMD_RATTACKXY;
+	cmd.bCmd = (myplr._pSkillFlags & SFLAG_MELEE) ? CMD_SATTACKXY : CMD_RATTACKXY;
 	cmd.x = x;
 	cmd.y = y;
 	cmd.laSkill = skill;
@@ -1297,7 +1297,7 @@ void NetSendCmdPlrAttack(int pnum, int skill, int level)
 {
 	TCmdPlrAttack cmd;
 
-	cmd.bCmd = (players[mypnum]._pSkillFlags & SFLAG_MELEE) ? CMD_ATTACKPID : CMD_RATTACKPID;
+	cmd.bCmd = (myplr._pSkillFlags & SFLAG_MELEE) ? CMD_ATTACKPID : CMD_RATTACKPID;
 	cmd.paPnum = pnum;
 	cmd.paSkill = skill;
 	cmd.paLevel = level;
@@ -1542,7 +1542,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 				if (cmd->bPnum == mypnum) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
 						UnPackPkItem(&cmd->item);
-						ii = SyncPutItem(mypnum, players[mypnum]._px, players[mypnum]._py, MAXITEMS, false);
+						ii = SyncPutItem(mypnum, myplr._px, myplr._py, MAXITEMS, false);
 						if (ii != -1)
 							InvGetItem(mypnum, ii);
 					} else {
@@ -1606,7 +1606,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 				if (cmd->bPnum == mypnum) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
 						UnPackPkItem(&cmd->item);
-						int ii = SyncPutItem(mypnum, players[mypnum]._px, players[mypnum]._py, MAXITEMS, false);
+						int ii = SyncPutItem(mypnum, myplr._px, myplr._py, MAXITEMS, false);
 						if (ii != -1)
 							AutoGetItem(mypnum, ii);
 					} else
@@ -2143,7 +2143,7 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 
 	if (cmd->pdPnum == mypnum && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == players[pnum].plrlevel) {
-			if (!players[mypnum]._pInvincible && SwapLE32(cmd->pdDamage) <= 192000) {
+			if (!myplr._pInvincible && SwapLE32(cmd->pdDamage) <= 192000) {
 				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
 			}
 		}
@@ -2481,7 +2481,7 @@ static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
 		guTeamInviteSent &= ~(1 << pnum);
 
 		players[pnum]._pTeam = cmd->bParam1;
-		if (cmd->bParam1 == players[mypnum]._pTeam) {
+		if (cmd->bParam1 == myplr._pTeam) {
 			if (pnum == mypnum)
 				EventPlrMsg("You joined team %c.", 'a' + players[pnum]._pTeam);
 			else
@@ -2540,7 +2540,7 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 				if (teamplr == mypnum) {
 					EventPlrMsg("You were kicked from your team.");
 				} else {
-					EventPlrMsg("%s was kicked from %s team.", players[teamplr]._pName, team == players[mypnum]._pTeam ? "your" : "their");
+					EventPlrMsg("%s was kicked from %s team.", players[teamplr]._pName, team == myplr._pTeam ? "your" : "their");
 				}
 			}
 		} else {
@@ -2554,7 +2554,7 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 			if (teamplr == mypnum)
 				EventPlrMsg("You left your team.");
 			else
-				EventPlrMsg("%s left %s team.", players[teamplr]._pName, team == players[mypnum]._pTeam ? "your" : "their");
+				EventPlrMsg("%s left %s team.", players[teamplr]._pName, team == myplr._pTeam ? "your" : "their");
 		}
 	}
 
@@ -2589,7 +2589,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (currLvl._dLevelIdx != players[pnum].plrlevel || players[mypnum]._pLvlChanging)
+		if (currLvl._dLevelIdx != players[pnum].plrlevel || myplr._pLvlChanging)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 		_gbJunkDeltaChanged = true;
 	}

@@ -44,7 +44,7 @@ void SetCursorPos(int x, int y)
 // Moves the mouse to the first attribute "+" button.
 void FocusOnCharInfo()
 {
-	if (gbInvflag || players[mypnum]._pStatPts <= 0)
+	if (gbInvflag || myplr._pStatPts <= 0)
 		return;
 
 	// Jump to the first incrementable stat.
@@ -612,7 +612,7 @@ bool BlurInventory()
 {
 	if (pcurs >= CURSOR_FIRSTITEM) {
 		if (!TryDropItem()) {
-			int pc = players[mypnum]._pClass;
+			int pc = myplr._pClass;
 			PlaySFX(sgSFXSets[SFXS_PLR_16][pc], sgSFXSets[SFXS_PLR_16][pc] == PS_WARR16 ? 3 : 1);
 			return false;
 		}

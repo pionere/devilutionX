@@ -17,8 +17,8 @@ static void sync_init_monsters()
 {
 	int i, mnum, px, py;
 
-	px = players[mypnum]._px;
-	py = players[mypnum]._py;
+	px = myplr._px;
+	py = myplr._py;
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
 		static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit I.");
@@ -129,7 +129,7 @@ static int sync_prio_monster()
 	}
 
 	assert((unsigned)sync_pinum < NUM_INVLOC);
-	is = &players[mypnum].InvBody[sync_pinum];
+	is = &myplr.InvBody[sync_pinum];
 	if (is->_itype != ITYPE_NONE) {
 		pHdr->bPInvLoc = sync_pinum;
 		pHdr->wPInvIndx = is->_iIdx;
@@ -197,7 +197,7 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 	mnum = symon->_mndx;
 	mon = &monster[mnum];
 
-	delta = abs(players[mypnum]._px - mon->_mx) + abs(players[mypnum]._py - mon->_my);
+	delta = abs(myplr._px - mon->_mx) + abs(myplr._py - mon->_my);
 	if (delta > 255) {
 		delta = 255;
 	}

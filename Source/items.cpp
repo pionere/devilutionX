@@ -1712,12 +1712,12 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 #ifdef HELLFIRE
 	case IPL_MANATOLIFE:
-		r2 = ((players[mypnum]._pMaxManaBase >> 6) * 50 / 100);
+		r2 = ((myplr._pMaxManaBase >> 6) * 50 / 100);
 		is->_iPLMana -= (r2 << 6);
 		is->_iPLHP += (r2 << 6);
 		break;
 	case IPL_LIFETOMANA:
-		r2 = ((players[mypnum]._pMaxHPBase >> 6) * 40 / 100);
+		r2 = ((myplr._pMaxHPBase >> 6) * 40 / 100);
 		is->_iPLHP -= (r2 << 6);
 		is->_iPLMana += (r2 << 6);
 		break;

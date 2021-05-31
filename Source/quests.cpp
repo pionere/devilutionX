@@ -123,7 +123,7 @@ void CheckQuests()
 		 && nummonsters == MAX_MINIONS) {
 			quests[Q_PWATER]._qvar1 = 2;
 			NetSendCmdQuest(Q_PWATER, true);
-			PlaySfxLoc(IS_QUESTDN, players[mypnum]._px, players[mypnum]._py);
+			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
 			LoadPalette("Levels\\L3Data\\L3pwater.pal");
 			WaterDone = 32;
 		}
@@ -408,7 +408,7 @@ void DRLG_CheckQuests()
 
 void SetReturnLvlPos()
 {
-	switch (players[mypnum].plrlevel) {
+	switch (myplr.plrlevel) {
 	case SL_SKELKING:
 		ReturnLvlX = quests[Q_SKELKING]._qtx + 1;
 		ReturnLvlY = quests[Q_SKELKING]._qty;

@@ -47,7 +47,7 @@ void InitQTextMsg(int m, bool showText)
 	}
 	sfxnr = tds->sfxnr;
 	if (tds->txtsfxset) {
-		sfxnr = sgSFXSets[sfxnr][players[mypnum]._pClass];
+		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
 	PlaySFX(sfxnr);
 }
