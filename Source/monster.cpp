@@ -4310,8 +4310,9 @@ void DeleteMonsterList()
 
 void ProcessMonsters()
 {
-	int i, mnum, mx, my, _menemy;
+	int i, mnum, _menemy;
 	bool raflag;
+	BYTE lastSquelch;
 	MonsterStruct *mon;
 
 	DeleteMonsterList();
@@ -4331,22 +4332,8 @@ void ProcessMonsters()
 			if (mon->_mhitpoints > mon->_mmaxhp)
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
-		mx = mon->_mx;
-		my = mon->_my;
 
-		if (dFlags[mx][my] & BFLAG_VISIBLE && mon->_msquelch == 0) {
-			if (mon->_mType == MT_CLEAVER)
-				PlaySfxLoc(USFX_CLEAVER, mx, my);
-#ifdef HELLFIRE
-			else if (mon->_mType == MT_NAKRUL)
-				// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
-				PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mx, my);
-			else if (mon->_mType == MT_DEFILER)
-				PlaySfxLoc(USFX_DEFILER8, mx, my);
-			MonEnemy(mnum);
-#endif
-		}
-
+		lastSquelch = mon->_msquelch;
 		_menemy = mon->_menemy;
 		if (mon->_mFlags & MFLAG_TARGETS_MONSTER) {
 			if ((unsigned)_menemy >= MAXMONSTERS) {
@@ -4361,7 +4348,7 @@ void ProcessMonsters()
 			}
 			mon->_menemyx = players[_menemy]._pfutx;
 			mon->_menemyy = players[_menemy]._pfuty;
-			if (dFlags[mx][my] & BFLAG_VISIBLE) {
+			if (dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) {
 				mon->_lastx = mon->_menemyx;
 				mon->_lasty = mon->_menemyy;
 				mon->_msquelch = UCHAR_MAX;
@@ -4369,6 +4356,19 @@ void ProcessMonsters()
 				mon->_msquelch--;
 			}
 		}
+
+		if (lastSquelch == 0 && mon->_msquelch != 0) {
+			if (mon->_mType == MT_CLEAVER)
+				PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
+#ifdef HELLFIRE
+			else if (mon->_mType == MT_NAKRUL)
+				// quests[Q_NAKRUL]._qvar1 == 4 -> UberRoom was opened by the books
+				PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == 4 ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
+			else if (mon->_mType == MT_DEFILER)
+				PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
+#endif
+		}
+
 		while (TRUE) {
 			if (!(mon->_mFlags & MFLAG_SEARCH)) {
 				AiProc[mon->_mAi](mnum);
