@@ -9,6 +9,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define myplr					players[mypnum]
+#define plr						players[pnum]
+#define plx(x)					players[x]
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,10 +72,10 @@ void RestorePlrHpVit(int pnum);
 void InitDungMsgs();
 void PlayDungMsgs();
 
-inline void SetPlayerOld(PlayerStruct *p)
+inline void SetPlayerOld(int pnum)
 {
-	p->_poldx = p->_px;
-	p->_poldy = p->_py;
+	plr._poldx = plr._px;
+	plr._poldy = plr._py;
 }
 
 /* data */

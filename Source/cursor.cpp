@@ -201,7 +201,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int i, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi, columns, rows, xo, yo;
+	int pnum, sx, sy, fx, fy, mx, my, tx, ty, px, py, xx, yy, mi, columns, rows, xo, yo;
 	char bv;
 	bool flipflag, flipx, flipy;
 
@@ -519,7 +519,7 @@ void CheckCursMove()
 		bv = dPlayer[mx + 1][my];
 		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_LIT)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && players[bv]._pHitPoints >= (1 << 6)) {
+			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 				cursmx = mx + 1;
 				cursmy = my;
 				pcursplr = bv;
@@ -529,7 +529,7 @@ void CheckCursMove()
 		bv = dPlayer[mx][my + 1];
 		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_LIT)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && players[bv]._pHitPoints >= (1 << 6)) {
+			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 				cursmx = mx;
 				cursmy = my + 1;
 				pcursplr = bv;
@@ -546,11 +546,11 @@ void CheckCursMove()
 		}
 	}
 	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (players[i]._px == mx && players[i]._py == my && i != mypnum) {
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr._px == mx && plr._py == my && pnum != mypnum) {
 				cursmx = mx;
 				cursmy = my;
-				pcursplr = i;
+				pcursplr = pnum;
 			}
 		}
 	}
@@ -558,11 +558,11 @@ void CheckCursMove()
 		for (xx = -1; xx <= 1; xx++) {
 			for (yy = -1; yy <= 1; yy++) {
 				if ((dFlags[mx + xx][my + yy] & (BFLAG_DEAD_PLAYER | BFLAG_LIT)) == (BFLAG_DEAD_PLAYER | BFLAG_LIT)) {
-					for (i = 0; i < MAX_PLRS; i++) {
-						if (players[i]._px == mx + xx && players[i]._py == my + yy && i != mypnum) {
+					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+						if (plr._px == mx + xx && plr._py == my + yy && pnum != mypnum) {
 							cursmx = mx + xx;
 							cursmy = my + yy;
-							pcursplr = i;
+							pcursplr = pnum;
 						}
 					}
 				}
@@ -572,7 +572,7 @@ void CheckCursMove()
 	bv = dPlayer[mx + 1][my + 1];
 	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_LIT)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (bv != mypnum && players[bv]._pHitPoints >= (1 << 6)) {
+		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
 			cursmx = mx + 1;
 			cursmy = my + 1;
 			pcursplr = bv;

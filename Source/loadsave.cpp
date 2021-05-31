@@ -191,156 +191,154 @@ static void LoadItems(ItemStruct *pItem, const int n)
 
 static void LoadPlayer(int pnum)
 {
-	PlayerStruct *p = &players[pnum];
-
-	CopyInt(tbuff, &p->_pmode);
-	CopyBytes(tbuff, lengthof(p->walkpath), p->walkpath);
-	CopyInt(tbuff, &p->destAction);
-	CopyInt(tbuff, &p->destParam1);
-	CopyInt(tbuff, &p->destParam2);
-	CopyInt(tbuff, &p->destParam3);
-	CopyInt(tbuff, &p->destParam4);
-	CopyChar(tbuff, &p->plractive);
-	CopyChar(tbuff, &p->_pLvlChanging);
-	CopyChar(tbuff, &p->plrlevel);
+	CopyInt(tbuff, &plr._pmode);
+	CopyBytes(tbuff, lengthof(plr.walkpath), plr.walkpath);
+	CopyInt(tbuff, &plr.destAction);
+	CopyInt(tbuff, &plr.destParam1);
+	CopyInt(tbuff, &plr.destParam2);
+	CopyInt(tbuff, &plr.destParam3);
+	CopyInt(tbuff, &plr.destParam4);
+	CopyChar(tbuff, &plr.plractive);
+	CopyChar(tbuff, &plr._pLvlChanging);
+	CopyChar(tbuff, &plr.plrlevel);
 	tbuff += 1; // Alignment
-	CopyInt(tbuff, &p->_px);
-	CopyInt(tbuff, &p->_py);
-	CopyInt(tbuff, &p->_pfutx);
-	CopyInt(tbuff, &p->_pfuty);
-	CopyInt(tbuff, &p->_poldx);
-	CopyInt(tbuff, &p->_poldy);
-	CopyInt(tbuff, &p->_pxoff);
-	CopyInt(tbuff, &p->_pyoff);
-	CopyInt(tbuff, &p->_pxvel);
-	CopyInt(tbuff, &p->_pyvel);
-	CopyInt(tbuff, &p->_pdir);
-	CopyInt(tbuff, &p->_nextdir);
-	CopyInt(tbuff, &p->_pgfxnum);
+	CopyInt(tbuff, &plr._px);
+	CopyInt(tbuff, &plr._py);
+	CopyInt(tbuff, &plr._pfutx);
+	CopyInt(tbuff, &plr._pfuty);
+	CopyInt(tbuff, &plr._poldx);
+	CopyInt(tbuff, &plr._poldy);
+	CopyInt(tbuff, &plr._pxoff);
+	CopyInt(tbuff, &plr._pyoff);
+	CopyInt(tbuff, &plr._pxvel);
+	CopyInt(tbuff, &plr._pyvel);
+	CopyInt(tbuff, &plr._pdir);
+	CopyInt(tbuff, &plr._nextdir);
+	CopyInt(tbuff, &plr._pgfxnum);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
-	CopyInt(tbuff, &p->_pAnimCnt);
-	CopyInt(tbuff, &p->_pAnimLen);
-	CopyInt(tbuff, &p->_pAnimFrame);
-	CopyInt(tbuff, &p->_pAnimWidth);
-	CopyInt(tbuff, &p->_pAnimXOffset);
-	CopyInt(tbuff, &p->_plid);
-	CopyInt(tbuff, &p->_pvid);
+	CopyInt(tbuff, &plr._pAnimCnt);
+	CopyInt(tbuff, &plr._pAnimLen);
+	CopyInt(tbuff, &plr._pAnimFrame);
+	CopyInt(tbuff, &plr._pAnimWidth);
+	CopyInt(tbuff, &plr._pAnimXOffset);
+	CopyInt(tbuff, &plr._plid);
+	CopyInt(tbuff, &plr._pvid);
 
-	CopyChar(tbuff, &p->_pAtkSkill);
-	CopyChar(tbuff, &p->_pAtkSkillType);
-	CopyChar(tbuff, &p->_pMoveSkill);
-	CopyChar(tbuff, &p->_pMoveSkillType);
-	CopyChar(tbuff, &p->_pAltAtkSkill);
-	CopyChar(tbuff, &p->_pAltAtkSkillType);
-	CopyChar(tbuff, &p->_pAltMoveSkill);
-	CopyChar(tbuff, &p->_pAltMoveSkillType);
+	CopyChar(tbuff, &plr._pAtkSkill);
+	CopyChar(tbuff, &plr._pAtkSkillType);
+	CopyChar(tbuff, &plr._pMoveSkill);
+	CopyChar(tbuff, &plr._pMoveSkillType);
+	CopyChar(tbuff, &plr._pAltAtkSkill);
+	CopyChar(tbuff, &plr._pAltAtkSkillType);
+	CopyChar(tbuff, &plr._pAltMoveSkill);
+	CopyChar(tbuff, &plr._pAltMoveSkillType);
 
-	CopyChar(tbuff, &p->_pTSpell);
-	CopyChar(tbuff, &p->_pTSplFrom);
-	CopyChar(tbuff, &p->_pOilFrom);
+	CopyChar(tbuff, &plr._pTSpell);
+	CopyChar(tbuff, &plr._pTSplFrom);
+	CopyChar(tbuff, &plr._pOilFrom);
 	tbuff += 1; // Alignment
 
-	CopyBytes(tbuff, 64, p->_pSkillLvl);
-	CopyBytes(tbuff, 64, p->_pSkillActivity);
-	CopyInts(tbuff, 64, p->_pSkillExp);
-	CopyInt64(tbuff, &p->_pMemSkills);
-	CopyInt64(tbuff, &p->_pAblSkills);
-	CopyInt64(tbuff, &p->_pScrlSkills);
+	CopyBytes(tbuff, 64, plr._pSkillLvl);
+	CopyBytes(tbuff, 64, plr._pSkillActivity);
+	CopyInts(tbuff, 64, plr._pSkillExp);
+	CopyInt64(tbuff, &plr._pMemSkills);
+	CopyInt64(tbuff, &plr._pAblSkills);
+	CopyInt64(tbuff, &plr._pScrlSkills);
 
-	CopyBytes(tbuff, 4, p->_pAtkSkillHotKey);
-	CopyBytes(tbuff, 4, p->_pAtkSkillTypeHotKey);
-	CopyBytes(tbuff, 4, p->_pMoveSkillHotKey);
-	CopyBytes(tbuff, 4, p->_pMoveSkillTypeHotKey);
-	CopyBytes(tbuff, 4, p->_pAltAtkSkillHotKey);
-	CopyBytes(tbuff, 4, p->_pAltAtkSkillTypeHotKey);
-	CopyBytes(tbuff, 4, p->_pAltMoveSkillHotKey);
-	CopyBytes(tbuff, 4, p->_pAltMoveSkillTypeHotKey);
+	CopyBytes(tbuff, 4, plr._pAtkSkillHotKey);
+	CopyBytes(tbuff, 4, plr._pAtkSkillTypeHotKey);
+	CopyBytes(tbuff, 4, plr._pMoveSkillHotKey);
+	CopyBytes(tbuff, 4, plr._pMoveSkillTypeHotKey);
+	CopyBytes(tbuff, 4, plr._pAltAtkSkillHotKey);
+	CopyBytes(tbuff, 4, plr._pAltAtkSkillTypeHotKey);
+	CopyBytes(tbuff, 4, plr._pAltMoveSkillHotKey);
+	CopyBytes(tbuff, 4, plr._pAltMoveSkillTypeHotKey);
 
-	CopyChar(tbuff, &p->_pSkillFlags);
-	CopyChar(tbuff, &p->_pSpellFlags);
-	CopyChar(tbuff, &p->_pInvincible);
+	CopyChar(tbuff, &plr._pSkillFlags);
+	CopyChar(tbuff, &plr._pSpellFlags);
+	CopyChar(tbuff, &plr._pInvincible);
 	tbuff += 1; // Alignment
 
-	CopyBytes(tbuff, PLR_NAME_LEN, p->_pName);
-	CopyChar(tbuff, &p->_pClass);
-	CopyChar(tbuff, &p->_pLevel);
-	CopyChar(tbuff, &p->_pLightRad);
-	CopyChar(tbuff, &p->_pManaShield);
-	CopyShort(tbuff, &p->_pBaseStr);
-	CopyShort(tbuff, &p->_pBaseMag);
-	CopyShort(tbuff, &p->_pBaseDex);
-	CopyShort(tbuff, &p->_pBaseVit);
-	CopyInt(tbuff, &p->_pStrength);
-	CopyInt(tbuff, &p->_pMagic);
-	CopyInt(tbuff, &p->_pDexterity);
-	CopyInt(tbuff, &p->_pVitality);
-	CopyInt(tbuff, &p->_pHPBase);
-	CopyInt(tbuff, &p->_pMaxHPBase);
-	CopyInt(tbuff, &p->_pHitPoints);
-	CopyInt(tbuff, &p->_pMaxHP);
-	CopyInt(tbuff, &p->_pHPPer);
-	CopyInt(tbuff, &p->_pManaBase);
-	CopyInt(tbuff, &p->_pMaxManaBase);
-	CopyInt(tbuff, &p->_pMana);
-	CopyInt(tbuff, &p->_pMaxMana);
-	CopyInt(tbuff, &p->_pManaPer);
-	CopyShort(tbuff, &p->_pStatPts);
-	CopyChar(tbuff, &p->_pLvlUp);
-	CopyChar(tbuff, &p->_pDiabloKillLevel);
-	CopyInt(tbuff, &p->_pExperience);
-	CopyInt(tbuff, &p->_pNextExper);
+	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
+	CopyChar(tbuff, &plr._pClass);
+	CopyChar(tbuff, &plr._pLevel);
+	CopyChar(tbuff, &plr._pLightRad);
+	CopyChar(tbuff, &plr._pManaShield);
+	CopyShort(tbuff, &plr._pBaseStr);
+	CopyShort(tbuff, &plr._pBaseMag);
+	CopyShort(tbuff, &plr._pBaseDex);
+	CopyShort(tbuff, &plr._pBaseVit);
+	CopyInt(tbuff, &plr._pStrength);
+	CopyInt(tbuff, &plr._pMagic);
+	CopyInt(tbuff, &plr._pDexterity);
+	CopyInt(tbuff, &plr._pVitality);
+	CopyInt(tbuff, &plr._pHPBase);
+	CopyInt(tbuff, &plr._pMaxHPBase);
+	CopyInt(tbuff, &plr._pHitPoints);
+	CopyInt(tbuff, &plr._pMaxHP);
+	CopyInt(tbuff, &plr._pHPPer);
+	CopyInt(tbuff, &plr._pManaBase);
+	CopyInt(tbuff, &plr._pMaxManaBase);
+	CopyInt(tbuff, &plr._pMana);
+	CopyInt(tbuff, &plr._pMaxMana);
+	CopyInt(tbuff, &plr._pManaPer);
+	CopyShort(tbuff, &plr._pStatPts);
+	CopyChar(tbuff, &plr._pLvlUp);
+	CopyChar(tbuff, &plr._pDiabloKillLevel);
+	CopyInt(tbuff, &plr._pExperience);
+	CopyInt(tbuff, &plr._pNextExper);
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
 	tbuff += 1; // Skip to Calc _pAcidResist
-	CopyInt(tbuff, &p->_pGold);
+	CopyInt(tbuff, &plr._pGold);
 
-	CopyInt(tbuff, &p->_pInfraFlag);
-	CopyInt(tbuff, &p->_pVar1);
-	CopyInt(tbuff, &p->_pVar2);
-	CopyInt(tbuff, &p->_pVar3);
-	CopyInt(tbuff, &p->_pVar4);
-	CopyInt(tbuff, &p->_pVar5);
-	CopyInt(tbuff, &p->_pVar6);
-	CopyInt(tbuff, &p->_pVar7);
-	CopyInt(tbuff, &p->_pVar8);
-	CopyBytes(tbuff, NUMLEVELS + NUM_SETLVL, p->_pLvlVisited);
+	CopyInt(tbuff, &plr._pInfraFlag);
+	CopyInt(tbuff, &plr._pVar1);
+	CopyInt(tbuff, &plr._pVar2);
+	CopyInt(tbuff, &plr._pVar3);
+	CopyInt(tbuff, &plr._pVar4);
+	CopyInt(tbuff, &plr._pVar5);
+	CopyInt(tbuff, &plr._pVar6);
+	CopyInt(tbuff, &plr._pVar7);
+	CopyInt(tbuff, &plr._pVar8);
+	CopyBytes(tbuff, NUMLEVELS + NUM_SETLVL, plr._pLvlVisited);
 	tbuff += 1; // Alignment
 
-	CopyInt(tbuff, &p->_pGFXLoad);
+	CopyInt(tbuff, &plr._pGFXLoad);
 	tbuff += 4 * 8; // Skip pointers _pNAnim
-	CopyInt(tbuff, &p->_pNFrames);
-	CopyInt(tbuff, &p->_pNWidth);
+	CopyInt(tbuff, &plr._pNFrames);
+	CopyInt(tbuff, &plr._pNWidth);
 	tbuff += 4 * 8; // Skip pointers _pWAnim
-	CopyInt(tbuff, &p->_pWFrames);
-	CopyInt(tbuff, &p->_pWWidth);
+	CopyInt(tbuff, &plr._pWFrames);
+	CopyInt(tbuff, &plr._pWWidth);
 	tbuff += 4 * 8; // Skip pointers _pAAnim
-	CopyInt(tbuff, &p->_pAFrames);
-	CopyInt(tbuff, &p->_pAWidth);
-	CopyInt(tbuff, &p->_pAFNum);
+	CopyInt(tbuff, &plr._pAFrames);
+	CopyInt(tbuff, &plr._pAWidth);
+	CopyInt(tbuff, &plr._pAFNum);
 	tbuff += 4 * 8; // Skip pointers _pLAnim
 	tbuff += 4 * 8; // Skip pointers _pFAnim
 	tbuff += 4 * 8; // Skip pointers _pTAnim
-	CopyInt(tbuff, &p->_pSFrames);
-	CopyInt(tbuff, &p->_pSWidth);
-	CopyInt(tbuff, &p->_pSFNum);
+	CopyInt(tbuff, &plr._pSFrames);
+	CopyInt(tbuff, &plr._pSWidth);
+	CopyInt(tbuff, &plr._pSFNum);
 	tbuff += 4 * 8; // Skip pointers _pHAnim
-	CopyInt(tbuff, &p->_pHFrames);
-	CopyInt(tbuff, &p->_pHWidth);
+	CopyInt(tbuff, &plr._pHFrames);
+	CopyInt(tbuff, &plr._pHWidth);
 	tbuff += 4 * 8; // Skip pointers _pDAnim
-	CopyInt(tbuff, &p->_pDFrames);
-	CopyInt(tbuff, &p->_pDWidth);
+	CopyInt(tbuff, &plr._pDFrames);
+	CopyInt(tbuff, &plr._pDWidth);
 	tbuff += 4 * 8; // Skip pointers _pBAnim
-	CopyInt(tbuff, &p->_pBFrames);
-	CopyInt(tbuff, &p->_pBWidth);
+	CopyInt(tbuff, &plr._pBFrames);
+	CopyInt(tbuff, &plr._pBWidth);
 
-	LoadItems(p->InvBody, NUM_INVLOC);
-	LoadItems(p->SpdList, MAXBELTITEMS);
-	LoadItems(p->InvList, NUM_INV_GRID_ELEM);
-	CopyBytes(tbuff, NUM_INV_GRID_ELEM, p->InvGrid);
-	CopyInt(tbuff, &p->_pNumInv);
-	LoadItemData(&p->HoldItem);
+	LoadItems(plr.InvBody, NUM_INVLOC);
+	LoadItems(plr.SpdList, MAXBELTITEMS);
+	LoadItems(plr.InvList, NUM_INV_GRID_ELEM);
+	CopyBytes(tbuff, NUM_INV_GRID_ELEM, plr.InvGrid);
+	CopyInt(tbuff, &plr._pNumInv);
+	LoadItemData(&plr.HoldItem);
 
 	tbuff += 4; // Skip to Calc _pISlMinDam
 	tbuff += 4; // Skip to Calc _pISlMaxDam
@@ -374,10 +372,10 @@ static void LoadPlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIMMaxDam
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
-	CopyChar(tbuff, &p->pTownWarps);
-	CopyChar(tbuff, &p->palign_CB);
-	CopyChar(tbuff, &p->pDungMsgs);
-	CopyChar(tbuff, &p->pDungMsgs2);
+	CopyChar(tbuff, &plr.pTownWarps);
+	CopyChar(tbuff, &plr.palign_CB);
+	CopyChar(tbuff, &plr.pDungMsgs);
+	CopyChar(tbuff, &plr.pDungMsgs2);
 
 	CalcPlrInv(pnum, false);
 
@@ -626,9 +624,9 @@ static void LoadPortal(int i)
 
 /*static void RedoPlayerLight()
 {
-	for (int i = 0; i < MAX_PLRS; i++) {
-		if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel)
-			ChangeLightXY(players[i]._plid, players[i]._px, players[i]._py);
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel)
+			ChangeLightXY(plr._plid, plr._px, plr._py);
 	}
 }*/
 
@@ -889,158 +887,156 @@ static void SaveItems(ItemStruct *pItem, const int n)
 
 static void SavePlayer(int pnum)
 {
-	PlayerStruct *p = &players[pnum];
-
-	CopyInt(&p->_pmode, tbuff);
-	static_assert(sizeof(p->walkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
-	CopyBytes(p->walkpath, lengthof(p->walkpath), tbuff);
-	CopyInt(&p->destAction, tbuff);
-	CopyInt(&p->destParam1, tbuff);
-	CopyInt(&p->destParam2, tbuff);
-	CopyInt(&p->destParam3, tbuff);
-	CopyInt(&p->destParam4, tbuff);
-	CopyChar(&p->plractive, tbuff);
-	CopyChar(&p->_pLvlChanging, tbuff);
-	CopyChar(&p->plrlevel, tbuff);
+	CopyInt(&plr._pmode, tbuff);
+	static_assert(sizeof(plr.walkpath) == MAX_PATH_LENGTH + 1, "Save files are no longer compatible.");
+	CopyBytes(plr.walkpath, lengthof(plr.walkpath), tbuff);
+	CopyInt(&plr.destAction, tbuff);
+	CopyInt(&plr.destParam1, tbuff);
+	CopyInt(&plr.destParam2, tbuff);
+	CopyInt(&plr.destParam3, tbuff);
+	CopyInt(&plr.destParam4, tbuff);
+	CopyChar(&plr.plractive, tbuff);
+	CopyChar(&plr._pLvlChanging, tbuff);
+	CopyChar(&plr.plrlevel, tbuff);
 	tbuff += 1; // Alignment
-	CopyInt(&p->_px, tbuff);
-	CopyInt(&p->_py, tbuff);
-	CopyInt(&p->_pfutx, tbuff);
-	CopyInt(&p->_pfuty, tbuff);
-	CopyInt(&p->_poldx, tbuff);
-	CopyInt(&p->_poldy, tbuff);
-	CopyInt(&p->_pxoff, tbuff);
-	CopyInt(&p->_pyoff, tbuff);
-	CopyInt(&p->_pxvel, tbuff);
-	CopyInt(&p->_pyvel, tbuff);
-	CopyInt(&p->_pdir, tbuff);
-	CopyInt(&p->_nextdir, tbuff);
-	CopyInt(&p->_pgfxnum, tbuff);
+	CopyInt(&plr._px, tbuff);
+	CopyInt(&plr._py, tbuff);
+	CopyInt(&plr._pfutx, tbuff);
+	CopyInt(&plr._pfuty, tbuff);
+	CopyInt(&plr._poldx, tbuff);
+	CopyInt(&plr._poldy, tbuff);
+	CopyInt(&plr._pxoff, tbuff);
+	CopyInt(&plr._pyoff, tbuff);
+	CopyInt(&plr._pxvel, tbuff);
+	CopyInt(&plr._pyvel, tbuff);
+	CopyInt(&plr._pdir, tbuff);
+	CopyInt(&plr._nextdir, tbuff);
+	CopyInt(&plr._pgfxnum, tbuff);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
-	CopyInt(&p->_pAnimCnt, tbuff);
-	CopyInt(&p->_pAnimLen, tbuff);
-	CopyInt(&p->_pAnimFrame, tbuff);
-	CopyInt(&p->_pAnimWidth, tbuff);
-	CopyInt(&p->_pAnimXOffset, tbuff);
-	CopyInt(&p->_plid, tbuff);
-	CopyInt(&p->_pvid, tbuff);
+	CopyInt(&plr._pAnimCnt, tbuff);
+	CopyInt(&plr._pAnimLen, tbuff);
+	CopyInt(&plr._pAnimFrame, tbuff);
+	CopyInt(&plr._pAnimWidth, tbuff);
+	CopyInt(&plr._pAnimXOffset, tbuff);
+	CopyInt(&plr._plid, tbuff);
+	CopyInt(&plr._pvid, tbuff);
 
-	CopyChar(&p->_pAtkSkill, tbuff);
-	CopyChar(&p->_pAtkSkillType, tbuff);
-	CopyChar(&p->_pMoveSkill, tbuff);
-	CopyChar(&p->_pMoveSkillType, tbuff);
+	CopyChar(&plr._pAtkSkill, tbuff);
+	CopyChar(&plr._pAtkSkillType, tbuff);
+	CopyChar(&plr._pMoveSkill, tbuff);
+	CopyChar(&plr._pMoveSkillType, tbuff);
 
-	CopyChar(&p->_pAltAtkSkill, tbuff);
-	CopyChar(&p->_pAltAtkSkillType, tbuff);
-	CopyChar(&p->_pAltMoveSkill, tbuff);
-	CopyChar(&p->_pAltMoveSkillType, tbuff);
+	CopyChar(&plr._pAltAtkSkill, tbuff);
+	CopyChar(&plr._pAltAtkSkillType, tbuff);
+	CopyChar(&plr._pAltMoveSkill, tbuff);
+	CopyChar(&plr._pAltMoveSkillType, tbuff);
 
-	CopyChar(&p->_pTSpell, tbuff);
-	CopyChar(&p->_pTSplFrom, tbuff);
-	CopyChar(&p->_pOilFrom, tbuff);
+	CopyChar(&plr._pTSpell, tbuff);
+	CopyChar(&plr._pTSplFrom, tbuff);
+	CopyChar(&plr._pOilFrom, tbuff);
 	tbuff += 1; // Alignment
 
-	CopyBytes(p->_pSkillLvl, 64, tbuff);
-	CopyBytes(p->_pSkillActivity, 64, tbuff);
-	CopyInts(p->_pSkillExp, 64, tbuff);
-	CopyInt64(&p->_pMemSkills, tbuff);
-	CopyInt64(&p->_pAblSkills, tbuff);
-	CopyInt64(&p->_pScrlSkills, tbuff);
+	CopyBytes(plr._pSkillLvl, 64, tbuff);
+	CopyBytes(plr._pSkillActivity, 64, tbuff);
+	CopyInts(plr._pSkillExp, 64, tbuff);
+	CopyInt64(&plr._pMemSkills, tbuff);
+	CopyInt64(&plr._pAblSkills, tbuff);
+	CopyInt64(&plr._pScrlSkills, tbuff);
 
-	CopyBytes(p->_pAtkSkillHotKey, 4, tbuff);
-	CopyBytes(p->_pAtkSkillTypeHotKey, 4, tbuff);
-	CopyBytes(p->_pMoveSkillHotKey, 4, tbuff);
-	CopyBytes(p->_pMoveSkillTypeHotKey, 4, tbuff);
-	CopyBytes(p->_pAltAtkSkillHotKey, 4, tbuff);
-	CopyBytes(p->_pAltAtkSkillTypeHotKey, 4, tbuff);
-	CopyBytes(p->_pAltMoveSkillHotKey, 4, tbuff);
-	CopyBytes(p->_pAltMoveSkillTypeHotKey, 4, tbuff);
+	CopyBytes(plr._pAtkSkillHotKey, 4, tbuff);
+	CopyBytes(plr._pAtkSkillTypeHotKey, 4, tbuff);
+	CopyBytes(plr._pMoveSkillHotKey, 4, tbuff);
+	CopyBytes(plr._pMoveSkillTypeHotKey, 4, tbuff);
+	CopyBytes(plr._pAltAtkSkillHotKey, 4, tbuff);
+	CopyBytes(plr._pAltAtkSkillTypeHotKey, 4, tbuff);
+	CopyBytes(plr._pAltMoveSkillHotKey, 4, tbuff);
+	CopyBytes(plr._pAltMoveSkillTypeHotKey, 4, tbuff);
 
-	CopyChar(&p->_pSkillFlags, tbuff);
-	CopyChar(&p->_pSpellFlags, tbuff);
-	CopyChar(&p->_pInvincible, tbuff);
+	CopyChar(&plr._pSkillFlags, tbuff);
+	CopyChar(&plr._pSpellFlags, tbuff);
+	CopyChar(&plr._pInvincible, tbuff);
 	tbuff += 1; // Alignment
 
-	CopyBytes(p->_pName, PLR_NAME_LEN, tbuff);
-	CopyChar(&p->_pClass, tbuff);
-	CopyChar(&p->_pLevel, tbuff);
-	CopyChar(&p->_pLightRad, tbuff);
-	CopyChar(&p->_pManaShield, tbuff);
-	CopyShort(&p->_pBaseStr, tbuff);
-	CopyShort(&p->_pBaseMag, tbuff);
-	CopyShort(&p->_pBaseDex, tbuff);
-	CopyShort(&p->_pBaseVit, tbuff);
-	CopyInt(&p->_pStrength, tbuff);
-	CopyInt(&p->_pMagic, tbuff);
-	CopyInt(&p->_pDexterity, tbuff);
-	CopyInt(&p->_pVitality, tbuff);
-	CopyInt(&p->_pHPBase, tbuff);
-	CopyInt(&p->_pMaxHPBase, tbuff);
-	CopyInt(&p->_pHitPoints, tbuff);
-	CopyInt(&p->_pMaxHP, tbuff);
-	CopyInt(&p->_pHPPer, tbuff);
-	CopyInt(&p->_pManaBase, tbuff);
-	CopyInt(&p->_pMaxManaBase, tbuff);
-	CopyInt(&p->_pMana, tbuff);
-	CopyInt(&p->_pMaxMana, tbuff);
-	CopyInt(&p->_pManaPer, tbuff);
-	CopyShort(&p->_pStatPts, tbuff);
-	CopyChar(&p->_pLvlUp, tbuff);
-	CopyChar(&p->_pDiabloKillLevel, tbuff);
-	CopyInt(&p->_pExperience, tbuff);
-	CopyInt(&p->_pNextExper, tbuff);
+	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
+	CopyChar(&plr._pClass, tbuff);
+	CopyChar(&plr._pLevel, tbuff);
+	CopyChar(&plr._pLightRad, tbuff);
+	CopyChar(&plr._pManaShield, tbuff);
+	CopyShort(&plr._pBaseStr, tbuff);
+	CopyShort(&plr._pBaseMag, tbuff);
+	CopyShort(&plr._pBaseDex, tbuff);
+	CopyShort(&plr._pBaseVit, tbuff);
+	CopyInt(&plr._pStrength, tbuff);
+	CopyInt(&plr._pMagic, tbuff);
+	CopyInt(&plr._pDexterity, tbuff);
+	CopyInt(&plr._pVitality, tbuff);
+	CopyInt(&plr._pHPBase, tbuff);
+	CopyInt(&plr._pMaxHPBase, tbuff);
+	CopyInt(&plr._pHitPoints, tbuff);
+	CopyInt(&plr._pMaxHP, tbuff);
+	CopyInt(&plr._pHPPer, tbuff);
+	CopyInt(&plr._pManaBase, tbuff);
+	CopyInt(&plr._pMaxManaBase, tbuff);
+	CopyInt(&plr._pMana, tbuff);
+	CopyInt(&plr._pMaxMana, tbuff);
+	CopyInt(&plr._pManaPer, tbuff);
+	CopyShort(&plr._pStatPts, tbuff);
+	CopyChar(&plr._pLvlUp, tbuff);
+	CopyChar(&plr._pDiabloKillLevel, tbuff);
+	CopyInt(&plr._pExperience, tbuff);
+	CopyInt(&plr._pNextExper, tbuff);
 	tbuff += 1; // Skip to Calc _pMagResist
 	tbuff += 1; // Skip to Calc _pFireResist
 	tbuff += 1; // Skip to Calc _pLghtResist
 	tbuff += 1; // Skip to Calc _pAcidResist
-	CopyInt(&p->_pGold, tbuff);
+	CopyInt(&plr._pGold, tbuff);
 
-	CopyInt(&p->_pInfraFlag, tbuff);
-	CopyInt(&p->_pVar1, tbuff);
-	CopyInt(&p->_pVar2, tbuff);
-	CopyInt(&p->_pVar3, tbuff);
-	CopyInt(&p->_pVar4, tbuff);
-	CopyInt(&p->_pVar5, tbuff);
-	CopyInt(&p->_pVar6, tbuff);
-	CopyInt(&p->_pVar7, tbuff);
-	CopyInt(&p->_pVar8, tbuff);
-	CopyBytes(p->_pLvlVisited, NUMLEVELS + NUM_SETLVL, tbuff);
+	CopyInt(&plr._pInfraFlag, tbuff);
+	CopyInt(&plr._pVar1, tbuff);
+	CopyInt(&plr._pVar2, tbuff);
+	CopyInt(&plr._pVar3, tbuff);
+	CopyInt(&plr._pVar4, tbuff);
+	CopyInt(&plr._pVar5, tbuff);
+	CopyInt(&plr._pVar6, tbuff);
+	CopyInt(&plr._pVar7, tbuff);
+	CopyInt(&plr._pVar8, tbuff);
+	CopyBytes(plr._pLvlVisited, NUMLEVELS + NUM_SETLVL, tbuff);
 	tbuff += 1;                                     // Alignment
 
-	CopyInt(&p->_pGFXLoad, tbuff);
+	CopyInt(&plr._pGFXLoad, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pNAnim
-	CopyInt(&p->_pNFrames, tbuff);
-	CopyInt(&p->_pNWidth, tbuff);
+	CopyInt(&plr._pNFrames, tbuff);
+	CopyInt(&plr._pNWidth, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pWAnim
-	CopyInt(&p->_pWFrames, tbuff);
-	CopyInt(&p->_pWWidth, tbuff);
+	CopyInt(&plr._pWFrames, tbuff);
+	CopyInt(&plr._pWWidth, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pAAnim
-	CopyInt(&p->_pAFrames, tbuff);
-	CopyInt(&p->_pAWidth, tbuff);
-	CopyInt(&p->_pAFNum, tbuff);
+	CopyInt(&plr._pAFrames, tbuff);
+	CopyInt(&plr._pAWidth, tbuff);
+	CopyInt(&plr._pAFNum, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pLAnim
 	tbuff += 4 * 8; // Skip pointers _pFAnim
 	tbuff += 4 * 8; // Skip pointers _pTAnim
-	CopyInt(&p->_pSFrames, tbuff);
-	CopyInt(&p->_pSWidth, tbuff);
-	CopyInt(&p->_pSFNum, tbuff);
+	CopyInt(&plr._pSFrames, tbuff);
+	CopyInt(&plr._pSWidth, tbuff);
+	CopyInt(&plr._pSFNum, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pHAnim
-	CopyInt(&p->_pHFrames, tbuff);
-	CopyInt(&p->_pHWidth, tbuff);
+	CopyInt(&plr._pHFrames, tbuff);
+	CopyInt(&plr._pHWidth, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pDAnim
-	CopyInt(&p->_pDFrames, tbuff);
-	CopyInt(&p->_pDWidth, tbuff);
+	CopyInt(&plr._pDFrames, tbuff);
+	CopyInt(&plr._pDWidth, tbuff);
 	tbuff += 4 * 8; // Skip pointers _pBAnim
-	CopyInt(&p->_pBFrames, tbuff);
-	CopyInt(&p->_pBWidth, tbuff);
+	CopyInt(&plr._pBFrames, tbuff);
+	CopyInt(&plr._pBWidth, tbuff);
 
-	SaveItems(p->InvBody, NUM_INVLOC);
-	SaveItems(p->SpdList, MAXBELTITEMS);
-	SaveItems(p->InvList, NUM_INV_GRID_ELEM);
-	CopyBytes(p->InvGrid, NUM_INV_GRID_ELEM, tbuff);
-	CopyInt(&p->_pNumInv, tbuff);
-	SaveItemData(&p->HoldItem);
+	SaveItems(plr.InvBody, NUM_INVLOC);
+	SaveItems(plr.SpdList, MAXBELTITEMS);
+	SaveItems(plr.InvList, NUM_INV_GRID_ELEM);
+	CopyBytes(plr.InvGrid, NUM_INV_GRID_ELEM, tbuff);
+	CopyInt(&plr._pNumInv, tbuff);
+	SaveItemData(&plr.HoldItem);
 
 	tbuff += 4; // Skip to Calc _pISlMinDam
 	tbuff += 4; // Skip to Calc _pISlMaxDam
@@ -1075,10 +1071,10 @@ static void SavePlayer(int pnum)
 	tbuff += 4; // Skip to Calc _pIMMaxDam
 	tbuff += 4; // Skip to Calc _pIAMinDam
 	tbuff += 4; // Skip to Calc _pIAMaxDam
-	CopyChar(&p->pTownWarps, tbuff);
-	CopyChar(&p->palign_CB, tbuff);
-	CopyChar(&p->pDungMsgs, tbuff);
-	CopyChar(&p->pDungMsgs2, tbuff);
+	CopyChar(&plr.pTownWarps, tbuff);
+	CopyChar(&plr.palign_CB, tbuff);
+	CopyChar(&plr.pDungMsgs, tbuff);
+	CopyChar(&plr.pDungMsgs2, tbuff);
 
 	// Omit pointer _pNData
 	// Omit pointer _pWData

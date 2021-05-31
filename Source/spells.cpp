@@ -14,10 +14,10 @@ int GetManaAmount(int pnum, int sn)
 
 	ma = spelldata[sn].sManaCost;
 	if (sn == SPL_HEAL || sn == SPL_HEALOTHER) {
-		ma += 2 * players[pnum]._pLevel;
+		ma += 2 * plr._pLevel;
 	}
 
-	sl = players[pnum]._pSkillLvl[sn] + players[pnum]._pISplLvlAdd - 1;
+	sl = plr._pSkillLvl[sn] + plr._pISplLvlAdd - 1;
 	if (sl < 0)
 		sl = 0;
 	adj = sl * spelldata[sn].sManaAdj;
@@ -28,7 +28,7 @@ int GetManaAmount(int pnum, int sn)
 		ma = mm;
 	ma <<= 6;
 
-	//return ma * (100 - players[pnum]._pISplCost) / 100;
+	//return ma * (100 - plr._pISplCost) / 100;
 	return ma;
 }
 
@@ -45,9 +45,9 @@ void UseMana(int pnum, int sn, int sf)
 			return;
 #endif
 		ma = GetManaAmount(pnum, sn);
-		players[pnum]._pMana -= ma;
-		players[pnum]._pManaBase -= ma;
-		players[pnum]._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + players[pnum]._pSkillActivity[sn], UCHAR_MAX);
+		plr._pMana -= ma;
+		plr._pManaBase -= ma;
+		plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
 		gbRedrawFlags |= REDRAW_MANA_FLASK;
 	} else if (sf != SPLFROM_ABILITY) {
 		NetSendCmdBParam1(true, CMD_USEPLRITEM, sf);
@@ -65,18 +65,18 @@ bool HasMana(int pnum, int sn, int sf)
 		if (debug_mode_key_inverted_v)
 			return true;
 #endif
-		return players[pnum]._pMana >= GetManaAmount(pnum, sn);
+		return plr._pMana >= GetManaAmount(pnum, sn);
 	}
 	if (sf != SPLFROM_ABILITY) {
 		static_assert((int)NUM_INVLOC == (int)INVITEM_INV_FIRST, "Equipped items must preceed INV items in HasMana.");
 		static_assert(INVITEM_INV_FIRST < INVITEM_BELT_FIRST, "INV items must preceed BELT items in HasMana.");
 		if (sf < INVITEM_INV_FIRST) {
-			is = &players[pnum].InvBody[sf];
+			is = &plr.InvBody[sf];
 			return is->_itype != ITYPE_NONE && is->_iSpell == sn && is->_iCharges > 0;
 		} else if (sf < INVITEM_BELT_FIRST) {
-			is = &players[pnum].InvList[sf - INVITEM_INV_FIRST];
+			is = &plr.InvList[sf - INVITEM_INV_FIRST];
 		} else {
-			is = &players[pnum].SpdList[sf - INVITEM_BELT_FIRST];
+			is = &plr.SpdList[sf - INVITEM_BELT_FIRST];
 		}
 		return is->_itype != ITYPE_NONE && is->_iSpell == sn && (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_RUNE);
 	}
@@ -129,7 +129,7 @@ int GetSpellLevel(int pnum, int sn)
 {
 	int result;
 
-	result = players[pnum]._pISplLvlAdd + players[pnum]._pSkillLvl[sn];
+	result = plr._pISplLvlAdd + plr._pSkillLvl[sn];
 	if (result < 0)
 		result = 0;
 	return result;
@@ -142,7 +142,7 @@ bool CheckSpell(int pnum, int sn)
 		return true;
 #endif
 
-	return GetSpellLevel(pnum, sn) > 0 && players[pnum]._pMana >= GetManaAmount(pnum, sn);
+	return GetSpellLevel(pnum, sn) > 0 && plr._pMana >= GetManaAmount(pnum, sn);
 }
 
 DEVILUTION_END_NAMESPACE

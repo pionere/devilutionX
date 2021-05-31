@@ -426,7 +426,7 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct *p;
 
-	p = &players[pnum];
+	p = &plr;
 	// check if the current RSplType is a valid/allowed spell
 	if (p->_pAtkSkillType == type && !(mask & SPELL_MASK(p->_pAtkSkill))) {
 		p->_pAtkSkill = SPL_INVALID;
@@ -452,7 +452,6 @@ static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 
 void CalcPlrItemVals(int pnum, bool Loadgfx)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 	ItemStruct *wRight, *wLeft;
 
@@ -510,8 +509,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	unsigned amin = 0;  // min acid damage
 	unsigned amax = 0;  // max acid damage
 
-	p = &players[pnum];
-	pi = p->InvBody;
+	pi = plr.InvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
 			if (pi->_iSpell != SPL_NULL) {
@@ -596,58 +594,58 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 #ifdef HELLFIRE
-	if (p->_pSpellFlags & PSE_BLOOD_BOIL) {
-		sadd += 2 * p->_pLevel;
-		dadd += p->_pLevel + p->_pLevel / 2;
-		vadd += 2 * p->_pLevel;
+	if (plr._pSpellFlags & PSE_BLOOD_BOIL) {
+		sadd += 2 * plr._pLevel;
+		dadd += plr._pLevel + plr._pLevel / 2;
+		vadd += 2 * plr._pLevel;
 	}
-	if (p->_pSpellFlags & PSE_LETHARGY) {
-		sadd -= 2 * p->_pLevel;
-		dadd -= p->_pLevel + p->_pLevel / 2;
-		vadd -= 2 * p->_pLevel;
+	if (plr._pSpellFlags & PSE_LETHARGY) {
+		sadd -= 2 * plr._pLevel;
+		dadd -= plr._pLevel + plr._pLevel / 2;
+		vadd -= 2 * plr._pLevel;
 	}
 #endif
-	p->_pStrength = std::max(0, sadd + p->_pBaseStr);
-	p->_pMagic = std::max(0, madd + p->_pBaseMag);
-	p->_pDexterity = std::max(0, dadd + p->_pBaseDex);
-	p->_pVitality = std::max(0, vadd + p->_pBaseVit);
+	plr._pStrength = std::max(0, sadd + plr._pBaseStr);
+	plr._pMagic = std::max(0, madd + plr._pBaseMag);
+	plr._pDexterity = std::max(0, dadd + plr._pBaseDex);
+	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
-	p->_pIFlags = iflgs;
-	p->_pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
-	p->_pIFlags2 = iflgs2;
-	p->_pIGetHit = ghit;
-	p->_pIEnAc = enac;
-	p->_pISplLvlAdd = spllvladd;
-	p->_pILifeSteal = lifesteal;
-	p->_pIManaSteal = manasteal;
+	plr._pIFlags = iflgs;
+	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
+	plr._pIFlags2 = iflgs2;
+	plr._pIGetHit = ghit;
+	plr._pIEnAc = enac;
+	plr._pISplLvlAdd = spllvladd;
+	plr._pILifeSteal = lifesteal;
+	plr._pIManaSteal = manasteal;
 
-	pdmod = (1 << 9) + (8 * p->_pMagic);
-	p->_pIFMinDam = fmin * pdmod >> (-6 + 9);
-	p->_pIFMaxDam = fmax * pdmod >> (-6 + 9);
-	p->_pILMinDam = lmin * pdmod >> (-6 + 9);
-	p->_pILMaxDam = lmax * pdmod >> (-6 + 9);
-	p->_pIMMinDam = mmin * pdmod >> (-6 + 9);
-	p->_pIMMaxDam = mmax * pdmod >> (-6 + 9);
-	p->_pIAMinDam = amin * pdmod >> (-6 + 9);
-	p->_pIAMaxDam = amax * pdmod >> (-6 + 9);
+	pdmod = (1 << 9) + (8 * plr._pMagic);
+	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
+	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
+	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
+	plr._pILMaxDam = lmax * pdmod >> (-6 + 9);
+	plr._pIMMinDam = mmin * pdmod >> (-6 + 9);
+	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
+	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
+	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
 
-	p->_pISpells = spl;
+	plr._pISpells = spl;
 	if (pnum == mypnum)
 		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
 
 	lrad = std::max(2, std::min(15, lrad));
-	if (p->_pLightRad != lrad) {
-		p->_pLightRad = lrad;
-		ChangeLightRadius(p->_plid, lrad);
-		ChangeVisionRadius(p->_pvid, std::max(PLR_MIN_VISRAD, lrad));
+	if (plr._pLightRad != lrad) {
+		plr._pLightRad = lrad;
+		ChangeLightRadius(plr._plid, lrad);
+		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
 #ifdef HELLFIRE
-	if (p->_pSpellFlags & PSE_LETHARGY) {
-		fr -= p->_pLevel;
-		lr -= p->_pLevel;
-		mr -= p->_pLevel;
-		ar -= p->_pLevel;
+	if (plr._pSpellFlags & PSE_LETHARGY) {
+		fr -= plr._pLevel;
+		lr -= plr._pLevel;
+		mr -= plr._pLevel;
+		ar -= plr._pLevel;
 	}
 #endif
 
@@ -665,7 +663,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	else if (fr < 0)
 		fr = 0;
 #endif
-	p->_pFireResist = fr;
+	plr._pFireResist = fr;
 
 	if (lr > MAXRESIST)
 		lr = MAXRESIST;
@@ -673,7 +671,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	else if (lr < 0)
 		lr = 0;
 #endif
-	p->_pLghtResist = lr;
+	plr._pLghtResist = lr;
 
 	if (mr > MAXRESIST)
 		mr = MAXRESIST;
@@ -681,7 +679,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	else if (mr < 0)
 		mr = 0;
 #endif
-	p->_pMagResist = mr;
+	plr._pMagResist = mr;
 
 	if (ar > MAXRESIST)
 		ar = MAXRESIST;
@@ -689,23 +687,23 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	else if (ar < 0)
 		ar = 0;
 #endif
-	p->_pAcidResist = ar;
+	plr._pAcidResist = ar;
 
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
 	imana += madd << (6 + 1);
 
-	p->_pHitPoints = ihp + p->_pHPBase;
-	p->_pMaxHP = ihp + p->_pMaxHPBase;
+	plr._pHitPoints = ihp + plr._pHPBase;
+	plr._pMaxHP = ihp + plr._pMaxHPBase;
 
-	if (pnum == mypnum && p->_pHitPoints < (1 << 6)) {
+	if (pnum == mypnum && plr._pHitPoints < (1 << 6)) {
 		PlrSetHp(pnum, 0);
 	}
 
-	p->_pMana = imana + p->_pManaBase;
-	p->_pMaxMana = imana + p->_pMaxManaBase;
+	plr._pMana = imana + plr._pManaBase;
+	plr._pMaxMana = imana + plr._pMaxManaBase;
 
-	wLeft = &p->InvBody[INVLOC_HAND_LEFT];
-	wRight = &p->InvBody[INVLOC_HAND_RIGHT];
+	wLeft = &plr.InvBody[INVLOC_HAND_LEFT];
+	wRight = &plr.InvBody[INVLOC_HAND_RIGHT];
 
 	bf = false;
 	wt = SFLAG_MELEE;
@@ -742,17 +740,17 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 #ifdef HELLFIRE
-	if (p->_pClass == PC_MONK) {
+	if (plr._pClass == PC_MONK) {
 		if (wLeft->_itype == ITYPE_STAFF && wLeft->_iStatFlag) {
 			bf = true;
-			p->_pIFlags |= ISPL_FASTBLOCK;
+			plr._pIFlags |= ISPL_FASTBLOCK;
 		} else if (wRight->_itype == ITYPE_NONE
 		 && (wLeft->_itype == ITYPE_NONE || wLeft->_iLoc != ILOC_TWOHAND))
 			bf = true;
 	}
 #endif
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag) {
-		tac += ((p->_pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
+		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
 		g++;
 	}
@@ -765,71 +763,71 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			minbl = 1 << 1;
 			maxbl = 1 << 1;
 		}
-		minbl += p->_pLevel >> (2 - 1);
-		maxbl += p->_pLevel >> (1 - 1);
+		minbl += plr._pLevel >> (2 - 1);
+		maxbl += plr._pLevel >> (1 - 1);
 		minbl *= 100;
 		maxbl *= 100;
 	}
 
-	pi = &p->InvBody[INVLOC_CHEST];
+	pi = &plr.InvBody[INVLOC_CHEST];
 	if (pi->_itype == ITYPE_MARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_MEDIUM_ARMOR;
 	} else if (pi->_itype == ITYPE_HARMOR && pi->_iStatFlag) {
 		g += ANIM_ID_HEAVY_ARMOR;
 	}
 
-	if (p->_pgfxnum != g && Loadgfx) {
-		p->_pgfxnum = g;
-		p->_pGFXLoad = 0;
+	if (plr._pgfxnum != g && Loadgfx) {
+		plr._pgfxnum = g;
+		plr._pGFXLoad = 0;
 		LoadPlrGFX(pnum, PFILE_STAND);
 		SetPlrAnims(pnum);
 
-		NewPlrAnim(pnum, p->_pNAnim, p->_pdir, p->_pNFrames, PlrAnimFrameLens[PA_STAND], p->_pNWidth);
+		NewPlrAnim(pnum, plr._pNAnim, plr._pdir, plr._pNFrames, PlrAnimFrameLens[PA_STAND], plr._pNWidth);
 	} else {
-		p->_pgfxnum = g;
+		plr._pgfxnum = g;
 	}
 
 	// add class bonuses as item bonus
-	p->_pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	p->_pIEvasion = p->_pDexterity / 5;
-	p->_pIAC = tac + p->_pIEvasion;
-	p->_pICritChance = 0;
-	btohit += 50 + p->_pLevel;
+	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	plr._pIEvasion = plr._pDexterity / 5;
+	plr._pIAC = tac + plr._pIEvasion;
+	plr._pICritChance = 0;
+	btohit += 50 + plr._pLevel;
 	if (wt == SFLAG_MELEE) {
-		btohit += 20 + (p->_pDexterity >> 1);
-		p->_pICritChance = p->_pLevel;
+		btohit += 20 + (plr._pDexterity >> 1);
+		plr._pICritChance = plr._pLevel;
 	} else {
 		// assert(wt == SFLAG_RANGED);
-		btohit += p->_pDexterity;
+		btohit += plr._pDexterity;
 	}
-	p->_pIHitChance = btohit;
+	plr._pIHitChance = btohit;
 
 	// calculate skill flags
 	if (currLvl._dType != DTYPE_TOWN)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
-	p->_pSkillFlags = wt;
+	plr._pSkillFlags = wt;
 
 	// calculate the damages for each type
 	if (maxsl != 0) {
-		pdmod = 512 + p->_pStrength * 6 + p->_pDexterity * 2;
+		pdmod = 512 + plr._pStrength * 6 + plr._pDexterity * 2;
 		minsl = minsl * pdmod / (100 * 512 / 64);
 		maxsl = maxsl * pdmod / (100 * 512 / 64);
 	}
 	if (maxbl != 0) {
 		if (wLeft->_itype == ITYPE_STAFF)
-			pdmod = 512 + p->_pStrength * 4 + p->_pDexterity * 4;
+			pdmod = 512 + plr._pStrength * 4 + plr._pDexterity * 4;
 		else
-			pdmod = 512 + p->_pStrength * 6 + p->_pVitality * 2;
+			pdmod = 512 + plr._pStrength * 6 + plr._pVitality * 2;
 		minbl = minbl * pdmod / (100 * 512 / 64);
 		maxbl = maxbl * pdmod / (100 * 512 / 64);
 	}
 	if (maxpc != 0) {
 		if (wLeft->_itype == ITYPE_BOW)
-			pdmod = 512 + p->_pDexterity * 8;
+			pdmod = 512 + plr._pDexterity * 8;
 		else // dagger
-			pdmod = 512 + p->_pStrength * 2 + p->_pDexterity * 6;
+			pdmod = 512 + plr._pStrength * 2 + plr._pDexterity * 6;
 		minpc = minpc * pdmod / (100 * 512 / 64);
 		maxpc = maxpc * pdmod / (100 * 512 / 64);
 	}
@@ -848,32 +846,32 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			maxpc = maxpc * 5 / 8;
 		}
 	}
-	p->_pISlMinDam = minsl;
-	p->_pISlMaxDam = maxsl;
-	p->_pIBlMinDam = minbl;
-	p->_pIBlMaxDam = maxbl;
-	p->_pIPcMinDam = minpc;
-	p->_pIPcMaxDam = maxpc;
+	plr._pISlMinDam = minsl;
+	plr._pISlMaxDam = maxsl;
+	plr._pIBlMinDam = minbl;
+	plr._pIBlMaxDam = maxbl;
+	plr._pIPcMinDam = minpc;
+	plr._pIPcMaxDam = maxpc;
 
 	// calculate block chance
-	p->_pIBlockChance = (p->_pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(p->_pStrength, p->_pDexterity) >> 1)) : 0;
+	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(plr._pStrength, plr._pDexterity) >> 1)) : 0;
 
 	// calculate arrow velocity bonus
-	av = ArrowVelBonus(p->_pIFlags);
+	av = ArrowVelBonus(plr._pIFlags);
 /*  No other velocity bonus for the moment, 
    otherwise POINT_BLANK and FAR_SHOT do not work well...
 #ifdef HELLFIRE
-	if (p->_pClass == PC_ROGUE)
-		av += (p->_pLevel - 1) >> 2;
-	else if (p->_pClass == PC_WARRIOR || p->_pClass == PC_BARD)
-		av += (p->_pLevel - 1) >> 3;
+	if (plr._pClass == PC_ROGUE)
+		av += (plr._pLevel - 1) >> 2;
+	else if (plr._pClass == PC_WARRIOR || plr._pClass == PC_BARD)
+		av += (plr._pLevel - 1) >> 3;
 #else
-	if (p->_pClass == PC_ROGUE)
-		av += (p->_pLevel - 1) >> 2;
-	else if (p->_pClass == PC_WARRIOR)
-		av += (p->_pLevel - 1) >> 3;
+	if (plr._pClass == PC_ROGUE)
+		av += (plr._pLevel - 1) >> 2;
+	else if (plr._pClass == PC_WARRIOR)
+		av += (plr._pLevel - 1) >> 3;
 #endif*/
-	p->_pIArrowVelBonus = av;
+	plr._pIArrowVelBonus = av;
 
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
 }
@@ -882,7 +880,7 @@ void CalcPlrSpells(int pnum)
 {
 	PlayerStruct *p;
 
-	p = &players[pnum];
+	p = &plr;
 	// switch between normal attacks
 	if (p->_pSkillFlags & SFLAG_MELEE) {
 		if (p->_pAtkSkill == SPL_RATTACK)
@@ -899,56 +897,49 @@ void CalcPlrSpells(int pnum)
 
 void CalcPlrScrolls(int pnum)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 	int i;
 
-	p = &players[pnum];
-	p->_pScrlSkills = 0;
+	plr._pScrlSkills = 0;
 
-	pi = p->InvList;
-	for (i = p->_pNumInv; i > 0; i--, pi++) {
+	pi = plr.InvList;
+	for (i = plr._pNumInv; i > 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
-			p->_pScrlSkills |= SPELL_MASK(pi->_iSpell);
+			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
-	pi = p->SpdList;
+	pi = plr.SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iMiscId == IMISC_SCROLL && pi->_iStatFlag)
-			p->_pScrlSkills |= SPELL_MASK(pi->_iSpell);
+			plr._pScrlSkills |= SPELL_MASK(pi->_iSpell);
 	}
 
-	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, p->_pScrlSkills);
+	ValidateActionSkills(pnum, RSPLTYPE_SCROLL, plr._pScrlSkills);
 }
 
 void CalcPlrStaff(int pnum)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &players[pnum];
-	p->_pISpells = 0;
-	pi = &p->InvBody[INVLOC_HAND_LEFT];
+	plr._pISpells = 0;
+	pi = &plr.InvBody[INVLOC_HAND_LEFT];
 	if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag) {
-		p->_pISpells |= SPELL_MASK(pi->_iSpell);
+		plr._pISpells |= SPELL_MASK(pi->_iSpell);
 	}
-	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, p->_pISpells);
+	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, plr._pISpells);
 }
 
 static void CalcSelfItems(int pnum)
 {
 	int i;
-	PlayerStruct *p;
 	ItemStruct *pi;
 	bool changeflag;
 	int sa, ma, da;
 
-	p = &players[pnum];
+	sa = plr._pBaseStr;
+	ma = plr._pBaseMag;
+	da = plr._pBaseDex;
 
-	sa = p->_pBaseStr;
-	ma = p->_pBaseMag;
-	da = p->_pBaseDex;
-
-	pi = p->InvBody;
+	pi = plr.InvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
@@ -961,7 +952,7 @@ static void CalcSelfItems(int pnum)
 	}
 	do {
 		changeflag = false;
-		pi = p->InvBody;
+		pi = plr.InvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
 				if (sa < pi->_iMinStr || ma < pi->_iMinMag || da < pi->_iMinDex) {
@@ -983,12 +974,12 @@ static void CalcPlrItemMin(int pnum)
 	ItemStruct *pi;
 	int i;
 
-	pi = players[pnum].InvList;
-	for (i = players[pnum]._pNumInv; i != 0; i--, pi++) {
+	pi = plr.InvList;
+	for (i = plr._pNumInv; i != 0; i--, pi++) {
 		ItemStatOk(pnum, pi);
 	}
 
-	pi = players[pnum].SpdList;
+	pi = plr.SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			ItemStatOk(pnum, pi);
@@ -1081,8 +1072,8 @@ void GetGoldSeed(int pnum, ItemStruct *is)
 				doneflag = false;
 		}
 		if (pnum == mypnum) {
-			for (i = 0; i < players[pnum]._pNumInv; i++) {
-				if (players[pnum].InvList[i]._iSeed == s)
+			for (i = 0; i < plr._pNumInv; i++) {
+				if (plr.InvList[i]._iSeed == s)
 					doneflag = false;
 			}
 		}
@@ -1110,13 +1101,10 @@ void SetGoldItemValue(ItemStruct *is, int value)
 
 void CreatePlrItems(int pnum)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 	int i;
 
-	p = &players[pnum];
-
-	pi = p->InvBody;
+	pi = plr.InvBody;
 	for (i = NUM_INVLOC; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
@@ -1124,91 +1112,91 @@ void CreatePlrItems(int pnum)
 
 	// converting this to a for loop creates a `rep stosd` instruction,
 	// so this probably actually was a memset
-	memset(&p->InvGrid, 0, sizeof(p->InvGrid));
+	memset(&plr.InvGrid, 0, sizeof(plr.InvGrid));
 
-	pi = p->InvList;
+	pi = plr.InvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
 	}
 
-	p->_pNumInv = 0;
+	plr._pNumInv = 0;
 
-	pi = p->SpdList;
+	pi = plr.SpdList;
 	for (i = MAXBELTITEMS; i != 0; i--) {
 		pi->_itype = ITYPE_NONE;
 		pi++;
 	}
 
-	switch (p->_pClass) {
+	switch (plr._pClass) {
 	case PC_WARRIOR:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_WARRSWORD);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 		break;
 	case PC_ROGUE:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_ROGUEBOW);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_ROGUEBOW);
 
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 		break;
 	case PC_SORCERER:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_SORCSTAFF);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_SORCSTAFF);
 
 #ifdef HELLFIRE
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 #else
-		CreateBaseItem(&p->SpdList[0], IDI_MANA);
-		CreateBaseItem(&p->SpdList[1], IDI_MANA);
+		CreateBaseItem(&plr.SpdList[0], IDI_MANA);
+		CreateBaseItem(&plr.SpdList[1], IDI_MANA);
 #endif
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_MONKSTAFF);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_MONKSTAFF);
 
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARD:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
 
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 		break;
 	case PC_BARBARIAN:
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
-		CreateBaseItem(&p->InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
+		CreateBaseItem(&plr.InvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
 
-		CreateBaseItem(&p->SpdList[0], IDI_HEAL);
-		CreateBaseItem(&p->SpdList[1], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[0], IDI_HEAL);
+		CreateBaseItem(&plr.SpdList[1], IDI_HEAL);
 		break;
 #endif
 	}
 
-	CreateBaseItem(&p->HoldItem, IDI_GOLD);
+	CreateBaseItem(&plr.HoldItem, IDI_GOLD);
 
 #ifdef _DEBUG
 	if (debug_mode_key_w) {
-		SetGoldItemValue(&p->HoldItem, GOLD_MAX_LIMIT);
+		SetGoldItemValue(&plr.HoldItem, GOLD_MAX_LIMIT);
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (p->InvGrid[i] == 0) {
-				GetItemSeed(&p->HoldItem);
-				copy_pod(p->InvList[p->_pNumInv], p->HoldItem);
-				p->InvGrid[i] = ++p->_pNumInv;
-				p->_pGold += GOLD_MAX_LIMIT;
+			if (plr.InvGrid[i] == 0) {
+				GetItemSeed(&plr.HoldItem);
+				copy_pod(plr.InvList[plr._pNumInv], plr.HoldItem);
+				plr.InvGrid[i] = ++plr._pNumInv;
+				plr._pGold += GOLD_MAX_LIMIT;
 			}
 		}
 	} else
 #endif
 	{
-		SetGoldItemValue(&p->HoldItem, 100);
-		p->_pGold = p->HoldItem._ivalue;
-		copy_pod(p->InvList[p->_pNumInv++], p->HoldItem);
-		p->InvGrid[30] = p->_pNumInv;
+		SetGoldItemValue(&plr.HoldItem, 100);
+		plr._pGold = plr.HoldItem._ivalue;
+		copy_pod(plr.InvList[plr._pNumInv++], plr.HoldItem);
+		plr.InvGrid[30] = plr._pNumInv;
 	}
 
 	CalcPlrItemVals(pnum, false);
@@ -2585,9 +2573,9 @@ static void DoIdentify(int pnum, int cii)
 	ItemStruct *pi;
 
 	if (cii >= NUM_INVLOC)
-		pi = &players[pnum].InvList[cii - NUM_INVLOC];
+		pi = &plr.InvList[cii - NUM_INVLOC];
 	else
-		pi = &players[pnum].InvBody[cii];
+		pi = &plr.InvBody[cii];
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);
@@ -2616,18 +2604,15 @@ static void RepairItem(ItemStruct *is, int lvl)
 
 static void DoRepair(int pnum, int cii)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &players[pnum];
-
 	if (cii >= INVITEM_INV_FIRST) {
-		pi = &p->InvList[cii - INVITEM_INV_FIRST];
+		pi = &plr.InvList[cii - INVITEM_INV_FIRST];
 	} else {
-		pi = &p->InvBody[cii];
+		pi = &plr.InvBody[cii];
 	}
 
-	RepairItem(pi, p->_pLevel);
+	RepairItem(pi, plr._pLevel);
 	if (pi->_iMaxDur == 0) {
 		if (cii >= INVITEM_INV_FIRST) {
 			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
@@ -2658,20 +2643,18 @@ static void RechargeItem(ItemStruct *is, int r)
 
 static void DoRecharge(int pnum, int cii)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 	int r;
 
-	p = &players[pnum];
 	if (cii >= NUM_INVLOC) {
-		pi = &p->InvList[cii - NUM_INVLOC];
+		pi = &plr.InvList[cii - NUM_INVLOC];
 	} else {
-		pi = &p->InvBody[cii];
+		pi = &plr.InvBody[cii];
 	}
 	if (pi->_itype == ITYPE_STAFF && pi->_iSpell != SPL_NULL) {
 		r = spelldata[pi->_iSpell].sBookLvl;
-		//r = random_(38, p->_pLevel / r) + 1;
-		r = p->_pLevel / r + 1;
+		//r = random_(38, plr._pLevel / r) + 1;
+		r = plr._pLevel / r + 1;
 		RechargeItem(pi, r);
 		CalcPlrInv(pnum, true);
 	}
@@ -2710,14 +2693,12 @@ static void DoClean(ItemStruct *pi, bool whittle)
 #ifdef HELLFIRE
 static void DoWhittle(int pnum, int cii)
 {
-	PlayerStruct *p;
 	ItemStruct *pi;
 
-	p = &players[pnum];
 	if (cii >= NUM_INVLOC) {
-		pi = &p->InvList[cii - NUM_INVLOC];
+		pi = &plr.InvList[cii - NUM_INVLOC];
 	} else {
-		pi = &p->InvBody[cii];
+		pi = &plr.InvBody[cii];
 	}
 
 	if (pi->_itype == ITYPE_STAFF
@@ -2732,11 +2713,11 @@ static ItemStruct* PlrItem(int pnum, int cii)
 {
 	if (cii <= INVITEM_INV_LAST) {
 		if (cii < INVITEM_INV_FIRST) {
-			return &players[pnum].InvBody[cii];
+			return &plr.InvBody[cii];
 		} else
-			return &players[pnum].InvList[cii - INVITEM_INV_FIRST];
+			return &plr.InvList[cii - INVITEM_INV_FIRST];
 	} else {
-		return &players[pnum].SpdList[cii - INVITEM_BELT_FIRST];
+		return &plr.SpdList[cii - INVITEM_BELT_FIRST];
 	}
 }
 
@@ -2744,7 +2725,7 @@ static void RemovePlrItem(int pnum, int cii)
 {
 	if (cii < INVITEM_BELT_FIRST) {
 		if (cii < INVITEM_INV_FIRST) {
-			players[pnum].InvBody[cii]._itype = ITYPE_NONE;
+			plr.InvBody[cii]._itype = ITYPE_NONE;
 		} else
 			RemoveInvItem(pnum, cii - INVITEM_INV_FIRST);
 	} else {
@@ -2764,7 +2745,7 @@ void DoAbility(int pnum, BOOL id, int cii)
 		DoIdentify(pnum, cii);
 		return;
 	}
-	switch (players[pnum]._pClass) {
+	switch (plr._pClass) {
 	case PC_WARRIOR:
 		DoRepair(pnum, cii);
 		break;
@@ -3406,11 +3387,9 @@ void DrawInvItemDetails()
 
 void ItemStatOk(int pnum, ItemStruct *is)
 {
-	PlayerStruct *p = &players[pnum];
-
-	is->_iStatFlag = p->_pStrength >= is->_iMinStr
-				  && p->_pDexterity >= is->_iMinDex
-				  && p->_pMagic >= is->_iMinMag;
+	is->_iStatFlag = plr._pStrength >= is->_iMinStr
+				  && plr._pDexterity >= is->_iMinDex
+				  && plr._pMagic >= is->_iMinMag;
 }
 
 static bool SmithItemOk(int i)

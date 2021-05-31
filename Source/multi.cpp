@@ -229,20 +229,20 @@ void multi_msg_countdown()
 
 /**
  * Re-assign players from a team to the first available one.
- * @param pnum the team to disband
+ * @param team the team to disband
  */
-void multi_disband_team(int pnum)
+void multi_disband_team(int team)
 {
-	int i, team;
+	int pnum, new_team;
 
-	team = -1;
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (i == pnum || players[i]._pTeam != pnum)
+	new_team = -1;
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (pnum == team || plr._pTeam != team)
 			continue;
-		if (team == -1) {
-			team = i;
+		if (new_team == -1) {
+			new_team = pnum;
 		}
-		players[i]._pTeam = team;
+		plr._pTeam = new_team;
 	}
 }
 
@@ -250,14 +250,14 @@ static void multi_player_left_msg(int pnum, bool left)
 {
 	const char *pszFmt;
 
-	if (players[pnum].plractive) {
+	if (plr.plractive) {
 		RemovePortalMissile(pnum);
 		DeactivatePortal(pnum);
 		delta_close_portal(pnum);
 		multi_disband_team(pnum);
-		if (players[pnum].plrlevel == currLvl._dLevelIdx) {
-			AddUnLight(players[pnum]._plid);
-			AddUnVision(players[pnum]._pvid);
+		if (plr.plrlevel == currLvl._dLevelIdx) {
+			AddUnLight(plr._plid);
+			AddUnVision(plr._pvid);
 			RemovePlrFromMap(pnum);
 			RemovePlrMissiles(pnum);
 		}
@@ -272,10 +272,10 @@ static void multi_player_left_msg(int pnum, bool left)
 				pszFmt = "Player '%s' dropped due to timeout";
 				break;
 			}
-			EventPlrMsg(pszFmt, players[pnum]._pName);
+			EventPlrMsg(pszFmt, plr._pName);
 		}
-		players[pnum].plractive = FALSE;
-		players[pnum]._pName[0] = '\0';
+		plr.plractive = FALSE;
+		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
 		guTeamMute &= ~(1 << pnum);
@@ -459,7 +459,6 @@ void multi_process_network_packets()
 	TPktHdr *pkt;
 	unsigned dwMsgSize;
 	int pnum;
-	PlayerStruct *p;
 
 	multi_clear_left_tbl();
 	multi_process_tmsgs();
@@ -473,38 +472,37 @@ void multi_process_network_packets()
 			continue;
 		if (pkt->wLen != SwapLE16(dwMsgSize))
 			continue;
-		p = &players[pnum];
 		if (pnum != mypnum) {
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-			p->_pHitPoints = SwapLE32(pkt->php);
-			p->_pMaxHP = SwapLE32(pkt->pmhp);
-			p->_pMana = SwapLE32(pkt->pmp);
-			p->_pMaxMana = SwapLE32(pkt->pmmp);
-			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && p->plractive && p->_pHitPoints >= (1 << 6)) {
-				if (currLvl._dLevelIdx == p->plrlevel && !p->_pLvlChanging) {
-					dx = abs(p->_px - pkt->px);
-					dy = abs(p->_py - pkt->py);
+			plr._pHitPoints = SwapLE32(pkt->php);
+			plr._pMaxHP = SwapLE32(pkt->pmhp);
+			plr._pMana = SwapLE32(pkt->pmp);
+			plr._pMaxMana = SwapLE32(pkt->pmmp);
+			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && plr.plractive && plr._pHitPoints >= (1 << 6)) {
+				if (currLvl._dLevelIdx == plr.plrlevel && !plr._pLvlChanging) {
+					dx = abs(plr._px - pkt->px);
+					dy = abs(plr._py - pkt->py);
 					if ((dx > 3 || dy > 3) && dPlayer[pkt->px][pkt->py] == 0) {
 						RemovePlrFromMap(pnum);
-						SetPlayerOld(p);
+						SetPlayerOld(pnum);
 						RemovePlrFromMap(pnum);
-						p->_px = pkt->px;
-						p->_py = pkt->py;
-						p->_pfutx = pkt->px;
-						p->_pfuty = pkt->py;
-						dPlayer[p->_px][p->_py] = pnum + 1;
+						plr._px = pkt->px;
+						plr._py = pkt->py;
+						plr._pfutx = pkt->px;
+						plr._pfuty = pkt->py;
+						dPlayer[plr._px][plr._py] = pnum + 1;
 					}
-					dx = abs(p->_pfutx - p->_px);
-					dy = abs(p->_pfuty - p->_py);
+					dx = abs(plr._pfutx - plr._px);
+					dy = abs(plr._pfuty - plr._py);
 					if (dx > 1 || dy > 1) {
-						p->_pfutx = p->_px;
-						p->_pfuty = p->_py;
+						plr._pfutx = plr._px;
+						plr._pfuty = plr._py;
 					}
 				} else {
-					p->_px = pkt->px;
-					p->_py = pkt->py;
-					p->_pfutx = pkt->px;
-					p->_pfuty = pkt->py;
+					plr._px = pkt->px;
+					plr._py = pkt->py;
+					plr._pfutx = pkt->px;
+					plr._pfuty = pkt->py;
 				}
 			}
 		}
@@ -639,7 +637,7 @@ void NetClose()
 
 static bool multi_init_game(bool bSinglePlayer)
 {
-	int dlgresult, playerId;
+	int dlgresult, pnum;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -689,10 +687,10 @@ static bool multi_init_game(bool bSinglePlayer)
 		}
 
 		if (dlgresult == SELGAME_JOIN) {
-			playerId = sgGameInitInfo.bPlayerId;
-			if (mypnum != playerId) {
-				copy_pod(players[playerId], myplr);
-				mypnum = playerId;
+			pnum = sgGameInitInfo.bPlayerId;
+			if (mypnum != pnum) {
+				copy_pod(plr, myplr);
+				mypnum = pnum;
 				myplr._pTeam = mypnum;
 				//pfile_read_player_from_save();
 			}
@@ -768,8 +766,6 @@ bool NetInit(bool bSinglePlayer)
 
 void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 {
-	PlayerStruct* p;
-
 	// assert(pnum != mypnum);
 	/// ASSERT: assert((unsigned)pnum < MAX_PLRS);
 
@@ -797,29 +793,28 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 		return;
 	}
 
-	p = &players[pnum];
-	assert(!p->plractive);
-	p->plractive = TRUE;
+	assert(!plr.plractive);
+	plr.plractive = TRUE;
 	gbActivePlayers++;
-	EventPlrMsg("Player '%s' (level %d) is already in the game", p->_pName, p->_pLevel);
+	EventPlrMsg("Player '%s' (level %d) is already in the game", plr._pName, plr._pLevel);
 
-	p->_pGFXLoad = 0;
-	if (p->plrlevel == currLvl._dLevelIdx) {
+	plr._pGFXLoad = 0;
+	if (plr.plrlevel == currLvl._dLevelIdx) {
 		SyncInitPlr(pnum);
 		//PlrStartStand(pnum, DIR_S);
 		/*LoadPlrGFX(pnum, PFILE_STAND);
 		SyncInitPlr(pnum);
-		if (players[pnum]._pHitPoints >= (1 << 6)) {
+		if (plr._pHitPoints >= (1 << 6)) {
 			PlrStartStand(pnum, DIR_S);
 		} else {
-			players[pnum]._pgfxnum = ANIM_ID_UNARMED;
+			plr._pgfxnum = ANIM_ID_UNARMED;
 			LoadPlrGFX(pnum, PFILE_DEATH);
-			players[pnum]._pmode = PM_DEATH;
-			NewPlrAnim(pnum, players[pnum]._pDAnim, DIR_S, players[pnum]._pDFrames, PlrAnimFrameLens[PA_DEATH], players[pnum]._pDWidth);
-			players[pnum]._pAnimFrame = players[pnum]._pAnimLen - 1;
-			players[pnum]._pVar8 = 2 * players[pnum]._pAnimLen; // DEATH_TICK
-			players[pnum]._pVar7 = 0; // DEATH_DELAY
-			dFlags[players[pnum]._px][players[pnum]._py] |= BFLAG_DEAD_PLAYER;
+			plr._pmode = PM_DEATH;
+			NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
+			plr._pAnimFrame = plr._pAnimLen - 1;
+			plr._pVar8 = 2 * plr._pAnimLen; // DEATH_TICK
+			plr._pVar7 = 0; // DEATH_DELAY
+			dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		}*/
 	}
 }

@@ -1558,9 +1558,9 @@ static bool StoreAutoPlace(bool saveflag)
 {
 	int pnum = mypnum;
 
-	return WeaponAutoPlace(pnum, &players[pnum].HoldItem, saveflag)
-		|| AutoPlaceBelt(pnum, &players[pnum].HoldItem, saveflag)
-		|| AutoPlaceInv(pnum, &players[pnum].HoldItem, saveflag);
+	return WeaponAutoPlace(pnum, &plr.HoldItem, saveflag)
+		|| AutoPlaceBelt(pnum, &plr.HoldItem, saveflag)
+		|| AutoPlaceInv(pnum, &plr.HoldItem, saveflag);
 }
 
 /**

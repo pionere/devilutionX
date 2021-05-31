@@ -836,12 +836,12 @@ void DeltaAddItem(int ii)
 
 void DeltaSaveLevel()
 {
-	int i;
+	int pnum;
 
 	assert(gbMaxPlayers != 1);
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (i != mypnum)
-			players[i]._pGFXLoad = 0;
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (pnum != mypnum)
+			plr._pGFXLoad = 0;
 	}
 	myplr._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 	delta_leave_sync(currLvl._dLevelIdx);
@@ -1022,7 +1022,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	cmd.mkX = monster[mnum]._mx;
 	cmd.mkY = monster[mnum]._my;
 	cmd.mkDir = monster[mnum]._mdir;
-	cmd.mkLevel = players[pnum].plrlevel;
+	cmd.mkLevel = plr.plrlevel;
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
@@ -1254,16 +1254,16 @@ void NetSendCmdDItem(int ii)
 
 static bool i_own_level(int nReqLevel)
 {
-	int i;
+	int pnum;
 
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (players[i].plractive
-		 && !players[i]._pLvlChanging
-		 && players[i].plrlevel == nReqLevel
-		 && (i != mypnum || geBufferMsgs == MSG_NORMAL))
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr.plractive
+		 && !plr._pLvlChanging
+		 && plr.plrlevel == nReqLevel
+		 && (pnum != mypnum || geBufferMsgs == MSG_NORMAL))
 			break;
 	}
-	return i == mypnum;
+	return pnum == mypnum;
 }
 
 void NetSendCmdLocAttack(BYTE x, BYTE y, int skill, int lvl)
@@ -1433,10 +1433,10 @@ static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLoc *cmd = (TCmdLoc *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		MakePlrPath(pnum, cmd->x, cmd->y, true);
-		players[pnum].destAction = ACTION_NONE;
+		plr.destAction = ACTION_NONE;
 	}
 
 	return sizeof(*cmd);
@@ -1486,10 +1486,10 @@ static unsigned On_BLOCK(TCmd *pCmd, int pnum)
 {
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
-		players[pnum].destAction = ACTION_BLOCK;
-		players[pnum].destParam1 = cmd->bParam1; // direction
+		plr.destAction = ACTION_BLOCK;
+		plr.destParam1 = cmd->bParam1; // direction
 	}
 	return sizeof(*cmd);
 }
@@ -1498,10 +1498,10 @@ static unsigned On_GOTOGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
-		players[pnum].destAction = ACTION_PICKUPITEM;
-		players[pnum].destParam1 = SwapLE16(cmd->wParam1);
+		plr.destAction = ACTION_PICKUPITEM;
+		plr.destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1511,7 +1511,7 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(players[pnum].plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr.plrlevel)) {
 		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
@@ -1563,10 +1563,10 @@ static unsigned On_GOTOAGETITEM(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
-		players[pnum].destAction = ACTION_PICKUPAITEM;
-		players[pnum].destParam1 = SwapLE16(cmd->wParam1);
+		plr.destAction = ACTION_PICKUPAITEM;
+		plr.destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1576,7 +1576,7 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(players[pnum].plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr.plrlevel)) {
 		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
@@ -1629,7 +1629,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		delta_get_item(cmd, cmd->bLevel);
-		if (currLvl._dLevelIdx == players[pnum].plrlevel)
+		if (currLvl._dLevelIdx == plr.plrlevel)
 			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 	}
 
@@ -1677,11 +1677,11 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (players[pnum].plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
+		if (plr.plrlevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, SwapLE16(cmd->item.wIndx))) {
 			return sizeof(*cmd);
 		}
 #endif
-		if (currLvl._dLevelIdx == players[pnum].plrlevel) {
+		if (currLvl._dLevelIdx == plr.plrlevel) {
 			UnPackPkItem(&cmd->item);
 			int ii = InvPutItem(pnum, x, y, MAXITEMS);
 			if (ii == -1)
@@ -1689,7 +1689,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			x = items[ii]._ix;
 			y = items[ii]._iy;
 		}
-		delta_put_item(cmd, x, y, players[pnum].plrlevel);
+		delta_put_item(cmd, x, y, plr.plrlevel);
 		RemoveItemRecord(&cmd->item);
 	}
 
@@ -1702,17 +1702,17 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (currLvl._dLevelIdx == players[pnum].plrlevel) {
+	else if (currLvl._dLevelIdx == plr.plrlevel) {
 		UnPackPkItem(&cmd->item);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
 			RemoveItemRecord(&cmd->item);
-			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, players[pnum].plrlevel);
+			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr.plrlevel);
 			check_update_plr(pnum);
 		}
 	} else {
 		RemoveItemRecord(&cmd->item);
-		delta_put_item(cmd, cmd->x, cmd->y, players[pnum].plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
 		check_update_plr(pnum);
 	}
 
@@ -1726,12 +1726,12 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (currLvl._dLevelIdx == players[pnum].plrlevel && pnum != mypnum) {
+		if (currLvl._dLevelIdx == plr.plrlevel && pnum != mypnum) {
 			UnPackPkItem(&cmd->item);
 			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
 		RemoveItemRecord(&cmd->item);
-		delta_put_item(cmd, cmd->x, cmd->y, players[pnum].plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -1744,7 +1744,7 @@ static unsigned On_DROPITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
-		delta_put_item(cmd, cmd->x, cmd->y, players[pnum].plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
 
 	return sizeof(*cmd);
 }
@@ -1754,17 +1754,17 @@ static unsigned On_SATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 	int sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->laSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_ATTACK;
-			players[pnum].destParam1 = cmd->x;
-			players[pnum].destParam2 = cmd->y;
-			players[pnum].destParam3 = sn;           // attack skill
-			players[pnum].destParam4 = cmd->laLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_ATTACK;
+			plr.destParam1 = cmd->x;
+			plr.destParam2 = cmd->y;
+			plr.destParam3 = sn;           // attack skill
+			plr.destParam4 = cmd->laLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1775,17 +1775,17 @@ static unsigned On_RATTACKXY(TCmd *pCmd, int pnum)
 	TCmdLocAttack *cmd = (TCmdLocAttack *)pCmd;
 	int sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->laSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_RATTACK;
-			players[pnum].destParam1 = cmd->x;
-			players[pnum].destParam2 = cmd->y;
-			players[pnum].destParam3 = sn;           // attack skill
-			players[pnum].destParam4 = cmd->laLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_RATTACK;
+			plr.destParam1 = cmd->x;
+			plr.destParam2 = cmd->y;
+			plr.destParam3 = sn;           // attack skill
+			plr.destParam4 = cmd->laLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1796,18 +1796,18 @@ static unsigned On_SPELLXY(TCmd *pCmd, int pnum)
 	TCmdLocSkill *cmd = (TCmdLocSkill *)pCmd;
 	BYTE sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->lsSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_SPELL;
-			players[pnum].destParam2 = cmd->x;
-			players[pnum].destParam3 = cmd->y;
-			players[pnum].destParam1a = sn;           // spell
-			players[pnum].destParam1b = cmd->lsFrom;  // invloc
-			players[pnum].destParam1c = cmd->lsLevel; // spllvl
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_SPELL;
+			plr.destParam2 = cmd->x;
+			plr.destParam3 = cmd->y;
+			plr.destParam1a = sn;           // spell
+			plr.destParam1b = cmd->lsFrom;  // invloc
+			plr.destParam1c = cmd->lsLevel; // spllvl
 		} else
-			msg_errorf("%s has cast an illegal spell.", players[pnum]._pName);
+			msg_errorf("%s has cast an illegal spell.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1841,12 +1841,12 @@ static unsigned On_OPOBJXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		int oi = SwapLE16(cmd->wParam1);
-		players[pnum].destAction = ACTION_OPERATE;
-		players[pnum].destParam1 = oi;
-		players[pnum].destParam2 = cmd->x;
-		players[pnum].destParam3 = cmd->y;
+		plr.destAction = ACTION_OPERATE;
+		plr.destParam1 = oi;
+		plr.destParam2 = cmd->x;
+		plr.destParam3 = cmd->y;
 		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
 	}
 
@@ -1857,12 +1857,12 @@ static unsigned On_DISARMXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		int oi = SwapLE16(cmd->wParam1);
-		players[pnum].destAction = ACTION_DISARM;
-		players[pnum].destParam1 = oi;
-		players[pnum].destParam2 = cmd->x;
-		players[pnum].destParam3 = cmd->y;
+		plr.destAction = ACTION_DISARM;
+		plr.destParam1 = oi;
+		plr.destParam2 = cmd->x;
+		plr.destParam3 = cmd->y;
 		MakePlrPath(pnum, cmd->x, cmd->y, !(object[oi]._oSolidFlag | object[oi]._oDoorFlag));
 	}
 
@@ -1873,9 +1873,9 @@ static unsigned On_OPOBJT(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
-		players[pnum].destAction = ACTION_OPERATETK;
-		players[pnum].destParam1 = SwapLE16(cmd->wParam1);
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
+		plr.destAction = ACTION_OPERATETK;
+		plr.destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -1886,20 +1886,20 @@ static unsigned On_ATTACKID(TCmd *pCmd, int pnum)
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 	int mnum, x, y, sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		mnum = SwapLE16(cmd->maMnum);
 		x = monster[mnum]._mfutx;
 		y = monster[mnum]._mfuty;
-		if (abs(players[pnum]._px - x) > 1 || abs(players[pnum]._py - y) > 1)
+		if (abs(plr._px - x) > 1 || abs(plr._py - y) > 1)
 			MakePlrPath(pnum, x, y, false);
 		sn = cmd->maSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_ATTACKMON;
-			players[pnum].destParam1 = mnum;
-			players[pnum].destParam2 = sn;           // attack skill
-			players[pnum].destParam3 = cmd->maLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_ATTACKMON;
+			plr.destParam1 = mnum;
+			plr.destParam2 = sn;           // attack skill
+			plr.destParam3 = cmd->maLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1910,17 +1910,17 @@ static unsigned On_ATTACKPID(TCmd *pCmd, int pnum)
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 	int tnum, sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		tnum = cmd->paPnum;
-		MakePlrPath(pnum, players[tnum]._pfutx, players[tnum]._pfuty, false);
+		MakePlrPath(pnum, plx(tnum)._pfutx, plx(tnum)._pfuty, false);
 		sn = cmd->paSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_ATTACKPLR;
-			players[pnum].destParam1 = tnum;
-			players[pnum].destParam2 = sn;           // attack skill
-			players[pnum].destParam3 = cmd->paLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_ATTACKPLR;
+			plr.destParam1 = tnum;
+			plr.destParam2 = sn;           // attack skill
+			plr.destParam3 = cmd->paLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1931,16 +1931,16 @@ static unsigned On_RATTACKID(TCmd *pCmd, int pnum)
 	TCmdMonstAttack *cmd = (TCmdMonstAttack *)pCmd;
 	int sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->maSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_RATTACKMON;
-			players[pnum].destParam1 = SwapLE16(cmd->maMnum);  // target id
-			players[pnum].destParam2 = sn;                     // attack skill
-			players[pnum].destParam3 = cmd->maLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_RATTACKMON;
+			plr.destParam1 = SwapLE16(cmd->maMnum);  // target id
+			plr.destParam2 = sn;                     // attack skill
+			plr.destParam3 = cmd->maLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1951,16 +1951,16 @@ static unsigned On_RATTACKPID(TCmd *pCmd, int pnum)
 	TCmdPlrAttack *cmd = (TCmdPlrAttack *)pCmd;
 	int sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->paSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_RATTACKPLR;
-			players[pnum].destParam1 = cmd->paPnum;  // target id
-			players[pnum].destParam2 = sn;           // attack skill
-			players[pnum].destParam3 = cmd->paLevel; // attack skill-level
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_RATTACKPLR;
+			plr.destParam1 = cmd->paPnum;  // target id
+			plr.destParam2 = sn;           // attack skill
+			plr.destParam3 = cmd->paLevel; // attack skill-level
 		} else
-			msg_errorf("%s using an illegal skill.", players[pnum]._pName);
+			msg_errorf("%s using an illegal skill.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1971,17 +1971,17 @@ static unsigned On_SPELLID(TCmd *pCmd, int pnum)
 	TCmdMonstSkill *cmd = (TCmdMonstSkill *)pCmd;
 	BYTE sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->msSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_SPELLMON;
-			players[pnum].destParam1a = sn;                    // spell
-			players[pnum].destParam1b = cmd->msFrom;           // invloc
-			players[pnum].destParam1c = cmd->msLevel;          // spllvl
-			players[pnum].destParam2 = SwapLE16(cmd->msMnum);  // mnum
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_SPELLMON;
+			plr.destParam1a = sn;                    // spell
+			plr.destParam1b = cmd->msFrom;           // invloc
+			plr.destParam1c = cmd->msLevel;          // spllvl
+			plr.destParam2 = SwapLE16(cmd->msMnum);  // mnum
 		} else
-			msg_errorf("%s has cast an illegal spell.", players[pnum]._pName);
+			msg_errorf("%s has cast an illegal spell.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -1992,17 +1992,17 @@ static unsigned On_SPELLPID(TCmd *pCmd, int pnum)
 	TCmdPlrSkill *cmd = (TCmdPlrSkill *)pCmd;
 	BYTE sn;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		ClrPlrPath(pnum);
 		sn = cmd->psSkill;
-		if ((spelldata[sn].sFlags & players[pnum]._pSkillFlags) == spelldata[sn].sFlags) {
-			players[pnum].destAction = ACTION_SPELLPLR;
-			players[pnum].destParam1a = sn;           // spell
-			players[pnum].destParam1b = cmd->psFrom;  // invloc
-			players[pnum].destParam1c = cmd->psLevel; // spllvl
-			players[pnum].destParam2 = cmd->psPnum;   // pnum
+		if ((spelldata[sn].sFlags & plr._pSkillFlags) == spelldata[sn].sFlags) {
+			plr.destAction = ACTION_SPELLPLR;
+			plr.destParam1a = sn;           // spell
+			plr.destParam1b = cmd->psFrom;  // invloc
+			plr.destParam1c = cmd->psLevel; // spllvl
+			plr.destParam2 = cmd->psPnum;   // pnum
 		} else
-			msg_errorf("%s has cast an illegal spell.", players[pnum]._pName);
+			msg_errorf("%s has cast an illegal spell.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -2012,7 +2012,7 @@ static unsigned On_KNOCKBACK(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		// assert(cmd->wParam1 >= MAX_MINIONS); TODO: validate data from internet
 		MonGetKnockback(SwapLE16(cmd->wParam1));
 		MonStartHit(SwapLE16(cmd->wParam1), pnum, 0);
@@ -2025,10 +2025,10 @@ static unsigned On_TALKXY(TCmd *pCmd, int pnum)
 {
 	TCmdLocParam1 *cmd = (TCmdLocParam1 *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == players[pnum].plrlevel) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && currLvl._dLevelIdx == plr.plrlevel) {
 		MakePlrPath(pnum, cmd->x, cmd->y, false);
-		players[pnum].destAction = ACTION_TALK;
-		players[pnum].destParam1 = SwapLE16(cmd->wParam1);
+		plr.destAction = ACTION_TALK;
+		plr.destParam1 = SwapLE16(cmd->wParam1);
 	}
 
 	return sizeof(*cmd);
@@ -2096,7 +2096,7 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	else {
 		mnum = SwapLE16(cmd->mdMnum);
 		hp = SwapLE32(cmd->mdHitpoints);
-		if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel) {
+		if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel) {
 			nhp = monster[mnum]._mhitpoints - SwapLE32(cmd->mdDamage);
 			if (nhp < hp)
 				hp = nhp;
@@ -2104,7 +2104,7 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 				hp = 1 << 6;
 			monster[mnum]._mhitpoints = hp;
 		}
-		delta_monster_hp(mnum, hp, players[pnum].plrlevel);
+		delta_monster_hp(mnum, hp, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2142,7 +2142,7 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 	TCmdPlrDamage *cmd = (TCmdPlrDamage *)pCmd;
 
 	if (cmd->pdPnum == mypnum && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
-		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == players[pnum].plrlevel) {
+		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr.plrlevel) {
 			if (!myplr._pInvincible && SwapLE32(cmd->pdDamage) <= 192000) {
 				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
 			}
@@ -2159,9 +2159,9 @@ static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncDoorOpen(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOOROPEN, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOOROPEN, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2174,9 +2174,9 @@ static unsigned On_DOORCLOSE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncDoorClose(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOORCLOSE, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_DOORCLOSE, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2189,9 +2189,9 @@ static unsigned On_TRAPDISABLE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapDisable(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPDISABLE, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPDISABLE, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2204,9 +2204,9 @@ static unsigned On_TRAPOPEN(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapOpen(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPOPEN, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPOPEN, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2219,9 +2219,9 @@ static unsigned On_TRAPCLOSE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapClose(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPCLOSE, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_TRAPCLOSE, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2234,9 +2234,9 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 			SyncOpObject(pnum, SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_OPERATEOBJ, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2249,9 +2249,9 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		//if (pnum != mypnum && currLvl._dLevelIdx == players[pnum].plrlevel)
+		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncChestClose(SwapLE16(cmd->wParam1));
-		delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, players[pnum].plrlevel);
+		delta_sync_object(SwapLE16(cmd->wParam1), CMD_CHESTCLOSE, plr.plrlevel);
 	}
 
 	return sizeof(*cmd);
@@ -2307,7 +2307,7 @@ static unsigned On_PLRLEVEL(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum && cmd->bParam1 <= MAXCHARLEVEL)
-		players[pnum]._pLevel = cmd->bParam1;
+		plr._pLevel = cmd->bParam1;
 
 	return sizeof(*cmd);
 }
@@ -2319,7 +2319,7 @@ static unsigned On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum && cmd->bParam2 <= MAXSPLLEVEL)
-		players[pnum]._pSkillLvl[cmd->bParam1] = cmd->bParam2;
+		plr._pSkillLvl[cmd->bParam1] = cmd->bParam2;
 
 	return sizeof(*cmd);
 }
@@ -2344,44 +2344,42 @@ static unsigned On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
-	PlayerStruct* p;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		p = &players[pnum];
-		p->_pLvlChanging = FALSE;
+		plr._pLvlChanging = FALSE;
 		if (pnum != mypnum) {
-			if (!p->plractive) {
-				p->plractive = TRUE;
-				assert(p->_pTeam == pnum);
+			if (!plr.plractive) {
+				plr.plractive = TRUE;
+				assert(plr._pTeam == pnum);
 				gbActivePlayers++;
-				EventPlrMsg("Player '%s' (level %d) just joined the game", p->_pName, p->_pLevel);
+				EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 			}
-			p->_px = cmd->x;
-			p->_py = cmd->y;
-			p->plrlevel = cmd->bParam1;
-			p->_pGFXLoad = 0;
-			if (currLvl._dLevelIdx == p->plrlevel) {
+			plr._px = cmd->x;
+			plr._py = cmd->y;
+			plr.plrlevel = cmd->bParam1;
+			plr._pGFXLoad = 0;
+			if (currLvl._dLevelIdx == plr.plrlevel) {
 				SyncInitPlr(pnum);
 				//PlrStartStand(pnum, DIR_S);
 				/*LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
-				if (p->_pHitPoints >= (1 << 6))
+				if (plr._pHitPoints >= (1 << 6))
 					PlrStartStand(pnum, DIR_S);
 				else {
-					p->_pgfxnum = ANIM_ID_UNARMED;
+					plr._pgfxnum = ANIM_ID_UNARMED;
 					LoadPlrGFX(pnum, PFILE_DEATH);
-					p->_pmode = PM_DEATH;
-					NewPlrAnim(pnum, p->_pDAnim, DIR_S, p->_pDFrames, PlrAnimFrameLens[PA_DEATH], p->_pDWidth);
-					p->_pAnimFrame = p->_pAnimLen - 1;
-					p->_pVar8 = 2 * p->_pAnimLen; // DEATH_TICK
-					p->_pVar7 = 0; // DEATH_DELAY
-					dFlags[p->_px][p->_py] |= BFLAG_DEAD_PLAYER;
+					plr._pmode = PM_DEATH;
+					NewPlrAnim(pnum, plr._pDAnim, DIR_S, plr._pDFrames, PlrAnimFrameLens[PA_DEATH], plr._pDWidth);
+					plr._pAnimFrame = plr._pAnimLen - 1;
+					plr._pVar8 = 2 * plr._pAnimLen; // DEATH_TICK
+					plr._pVar7 = 0; // DEATH_DELAY
+					dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 				}*/
 
-				//p->_pvid = AddVision(p->_px, p->_py, p->_pLightRad, pnum == mypnum);
-				//p->_plid = -1;
+				//plr._pvid = AddVision(plr._px, plr._py, plr._pLightRad, pnum == mypnum);
+				//plr._plid = -1;
 			}
 		}
 	}
@@ -2400,7 +2398,7 @@ static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 		if (pnum != mypnum) {
 			if (currLvl._dLevelIdx == 0)
 				AddInTownPortal(pnum);
-			else if (currLvl._dLevelIdx == players[pnum].plrlevel) {
+			else if (currLvl._dLevelIdx == plr.plrlevel) {
 				int i;
 				for (i = 0; i < nummissiles; i++) {
 					MissileStruct *mis = &missile[missileactive[i]];
@@ -2462,9 +2460,9 @@ static unsigned On_INVITE(TCmd *pCmd, int pnum)
 	if (geBufferMsgs != MSG_NORMAL)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	 // TODO: check (cmd->bParam1 == mypnum) should not be necessary in a server/client solution
-	else if (cmd->bParam1 == mypnum && players[pnum]._pTeam == pnum) {
+	else if (cmd->bParam1 == mypnum && plr._pTeam == pnum) {
 		guTeamInviteRec |= (1 << pnum);
-		EventPlrMsg("%s invited to their team.", players[pnum]._pName);
+		EventPlrMsg("%s invited to their team.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -2480,14 +2478,14 @@ static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
 
-		players[pnum]._pTeam = cmd->bParam1;
+		plr._pTeam = cmd->bParam1;
 		if (cmd->bParam1 == myplr._pTeam) {
 			if (pnum == mypnum)
-				EventPlrMsg("You joined team %c.", 'a' + players[pnum]._pTeam);
+				EventPlrMsg("You joined team %c.", 'a' + plr._pTeam);
 			else
-				EventPlrMsg("%s joined your team.", players[pnum]._pName);
+				EventPlrMsg("%s joined your team.", plr._pName);
 		} else {
-			EventPlrMsg("%s joined team %c.", players[pnum]._pName, 'a' + players[pnum]._pTeam);
+			EventPlrMsg("%s joined team %c.", plr._pName, 'a' + plr._pTeam);
 		}
 	}
 
@@ -2501,7 +2499,7 @@ static unsigned On_DEC_INVITE(TCmd *pCmd, int pnum)
 	if (cmd->bParam1 == mypnum) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteSent &= ~(1 << pnum);
 
-		EventPlrMsg("%s rejected your invitation.", players[pnum]._pName);
+		EventPlrMsg("%s rejected your invitation.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -2516,7 +2514,7 @@ static unsigned On_REV_INVITE(TCmd *pCmd, int pnum)
 	} else if (cmd->bParam1 == mypnum) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteRec &= ~(1 << pnum);
 
-		EventPlrMsg("%s revoked the invitation.", players[pnum]._pName);
+		EventPlrMsg("%s revoked the invitation.", plr._pName);
 	}
 
 	return sizeof(*cmd);
@@ -2531,16 +2529,16 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	} else {
 		teamplr = cmd->bParam1;
-		team = players[teamplr]._pTeam;
+		team = plx(teamplr)._pTeam;
 		if (pnum != teamplr) {
 			// drop
 			if (team == pnum) {
-				players[teamplr]._pTeam = teamplr;
+				plx(teamplr)._pTeam = teamplr;
 
 				if (teamplr == mypnum) {
 					EventPlrMsg("You were kicked from your team.");
 				} else {
-					EventPlrMsg("%s was kicked from %s team.", players[teamplr]._pName, team == myplr._pTeam ? "your" : "their");
+					EventPlrMsg("%s was kicked from %s team.", plx(teamplr)._pName, team == myplr._pTeam ? "your" : "their");
 				}
 			}
 		} else {
@@ -2548,13 +2546,13 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 			if (team == teamplr) {
 				multi_disband_team(teamplr);
 			} else {
-				players[teamplr]._pTeam = teamplr;
+				plx(teamplr)._pTeam = teamplr;
 			}
 
 			if (teamplr == mypnum)
 				EventPlrMsg("You left your team.");
 			else
-				EventPlrMsg("%s left %s team.", players[teamplr]._pName, team == myplr._pTeam ? "your" : "their");
+				EventPlrMsg("%s left %s team.", plx(teamplr)._pName, team == myplr._pTeam ? "your" : "their");
 		}
 	}
 
@@ -2589,7 +2587,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (currLvl._dLevelIdx != players[pnum].plrlevel || myplr._pLvlChanging)
+		if (currLvl._dLevelIdx != plr.plrlevel || myplr._pLvlChanging)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
 		_gbJunkDeltaChanged = true;
 	}
@@ -2602,8 +2600,8 @@ static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 #ifdef _DEBUG
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
-	else if (players[pnum]._pLevel < MAXCHARLEVEL) {
-		players[pnum]._pExperience = players[pnum]._pNextExper;
+	else if (plr._pLevel < MAXCHARLEVEL) {
+		plr._pExperience = plr._pNextExper;
 		NextPlrLevel(pnum);
 	}
 #endif
@@ -2616,7 +2614,7 @@ static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		players[pnum]._pSkillLvl[players[pnum]._pAltAtkSkill]++;
+		plr._pSkillLvl[plr._pAltAtkSkill]++;
 #endif	
 	return sizeof(*pCmd);
 }
@@ -2633,7 +2631,7 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
-		players[pnum]._pManaShield = cmd->bParam1;
+		plr._pManaShield = cmd->bParam1;
 
 	return sizeof(*cmd);
 }
@@ -2643,7 +2641,7 @@ static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
-		players[pnum]._pManaShield = 0;
+		plr._pManaShield = 0;
 
 	return sizeof(*pCmd);
 }

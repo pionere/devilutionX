@@ -252,7 +252,7 @@ static void CreateLevel(int lvldir)
 
 void LoadGameLevel(bool firstflag, int lvldir)
 {
-	int i;
+	int pnum;
 
 	if (firstflag && lvldir == ENTRY_MAIN) {
 		// initialize values which are stored in save files
@@ -287,8 +287,8 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		InitItemGFX(); // gfx + values (some stored in savefiles)
 		InitQuestText(); // gfx + values
 
-		for (i = 0; i < gbMaxPlayers; i++)
-			InitPlrGFXMem(i); // gfx
+		for (pnum = 0; pnum < gbMaxPlayers; pnum++)
+			InitPlrGFXMem(pnum); // gfx
 
 		InitStores(); // gfx + values (some stored in savefiles)
 		InitText(); // gfx
@@ -339,11 +339,11 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 		IncProgress();
 
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel) {
-				InitPlayerGFX(i);
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
+				InitPlayerGFX(pnum);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag, true);
+					InitPlayer(pnum, firstflag, true);
 			}
 		}
 
@@ -404,11 +404,11 @@ void LoadGameLevel(bool firstflag, int lvldir)
 			GetPortalLvlPos();
 		IncProgress();
 
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (players[i].plractive && currLvl._dLevelIdx == players[i].plrlevel) {
-				InitPlayerGFX(i);
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel) {
+				InitPlayerGFX(pnum);
 				if (lvldir != ENTRY_LOAD)
-					InitPlayer(i, firstflag, true);
+					InitPlayer(pnum, firstflag, true);
 			}
 		}
 
@@ -431,15 +431,15 @@ void LoadGameLevel(bool firstflag, int lvldir)
 	ResyncQuests();
 	SyncPortals();
 
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (players[i].plractive && players[i].plrlevel == currLvl._dLevelIdx && (!players[i]._pLvlChanging || i == mypnum)) {
-			if (players[i]._pHitPoints >= (1 << 6)) {
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr.plractive && plr.plrlevel == currLvl._dLevelIdx && (!plr._pLvlChanging || pnum == mypnum)) {
+			if (plr._pHitPoints >= (1 << 6)) {
 				/*if (gbMaxPlayers == 1)
-					dPlayer[players[i]._px][players[i]._py] = i + 1;
+					dPlayer[plr._px][plr._py] = pnum + 1;
 				else*/
-					SyncInitPlrPos(i);
+					SyncInitPlrPos(pnum);
 			} else {
-				dFlags[players[i]._px][players[i]._py] |= BFLAG_DEAD_PLAYER;
+				dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 			}
 		}
 	}

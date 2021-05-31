@@ -60,10 +60,10 @@ void SendPlrMsg(int pnum, const char *pszStr)
 	pMsg->player = pnum;
 	pMsg->time = SDL_GetTicks();
 #ifdef _DEBUG
-	strlen(players[pnum]._pName); /* these are used in debug */
+	strlen(plr._pName); /* these are used in debug */
 	strlen(pszStr);
 #endif
-	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", players[pnum]._pName, pszStr);
+	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr._pName, pszStr);
 }
 
 void ClearPlrMsg()

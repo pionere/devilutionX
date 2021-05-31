@@ -399,36 +399,34 @@ static void DrawTowner(int tnum, int x, int y, int sx, int sy)
  */
 static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 {
-	PlayerStruct *p;
 	int px, py, nCel, nWidth, l;
 	BYTE *pCelBuff;
 
 	if (dFlags[x][y] & BFLAG_LIT || myplr._pInfraFlag) {
-		p = &players[pnum];
-		px = sx + p->_pxoff - p->_pAnimXOffset;
-		py = sy + p->_pyoff;
-		pCelBuff = p->_pAnimData;
+		px = sx + plr._pxoff - plr._pAnimXOffset;
+		py = sy + plr._pyoff;
+		pCelBuff = plr._pAnimData;
 		if (pCelBuff == NULL) {
-			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, p->_pName);
+			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
-		nCel = p->_pAnimFrame;
+		nCel = plr._pAnimFrame;
 #ifdef _DEBUG
 		int frames = SwapLE32(*(DWORD *)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char *szMode = "unknown action";
-			if (p->_pmode <= PM_QUIT)
-				szMode = szPlrModeAssert[p->_pmode];
+			if (plr._pmode <= PM_QUIT)
+				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
 				"Drawing player %d \"%s\" %s: facing %d, frame %d of %d",
 				pnum,
-				p->_pName,
+				plr._pName,
 				szMode,
-				p->_pdir,
+				plr._pdir,
 				nCel,
 				frames);
 		}
 #endif
-		nWidth = p->_pAnimWidth;
+		nWidth = plr._pAnimWidth;
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
@@ -442,9 +440,9 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
 			else
 				light_table_index -= 5;
 			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
-			/*if (players[pnum].pManaShield != 0)
+			/*if (plr.pManaShield != 0)
 				Cl2DrawLight(
-				    px + players[pnum]._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
+				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
@@ -463,27 +461,24 @@ static void DrawPlayer(int pnum, int x, int y, int sx, int sy)
  */
 void DrawDeadPlayer(int x, int y, int sx, int sy)
 {
-	int i;
-	PlayerStruct *p;
-
+	int pnum;
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
 
-	for (i = 0; i < MAX_PLRS; i++) {
-		p = &players[i];
-		if (p->plractive && p->_pHitPoints < (1 << 6) && p->plrlevel == currLvl._dLevelIdx && p->_px == x && p->_py == y) {
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr.plractive && plr._pHitPoints < (1 << 6) && plr.plrlevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #ifdef _DEBUG
-			BYTE *pCelBuff = p->_pAnimData;
+			BYTE *pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, p->_pName);
+				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", i, plr._pName);
 			}
-			int nCel = p->_pAnimFrame;
+			int nCel = plr._pAnimFrame;
 			int frames = SwapLE32(*(DWORD *)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, p->_pName, p->_pdir, nCel, frames);
+				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", i, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			DrawPlayer(i, x, y, sx, sy);
+			DrawPlayer(pnum, x, y, sx, sy);
 		}
 	}
 }

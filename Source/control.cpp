@@ -1961,14 +1961,14 @@ static void control_remove_gold()
 
 	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
 	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
-	is = &players[pnum].InvList[gi];
+	is = &plr.InvList[gi];
 	val = is->_ivalue - dropGoldValue;
 	if (val > 0) {
 		SetGoldItemValue(is, val);
 	} else {
 		PlrInvItemRemove(pnum, gi);
 	}
-	is = &players[pnum].HoldItem;
+	is = &plr.HoldItem;
 	CreateBaseItem(is, IDI_GOLD);
 	is->_iStatFlag = TRUE;
 	SetGoldItemValue(is, dropGoldValue);
@@ -2034,10 +2034,10 @@ static void DrawTeamButton(int x, int y, int width, bool pressed, const char* la
 
 static bool PlrHasTeam()
 {
-	int i;
+	int pnum;
 
-	for (i = 0; i < MAX_PLRS; i++)
-		if (i != mypnum && players[i]._pTeam == myplr._pTeam && players[i].plractive)
+	for (pnum = 0; pnum < MAX_PLRS; pnum++)
+		if (pnum != mypnum && plr._pTeam == myplr._pTeam && plr.plractive)
 			return true;
 	return false;
 }
@@ -2046,7 +2046,6 @@ static bool PlrHasTeam()
 #define TBOOKTABS		((MAX_PLRS + NUM_BOOK_ENTRIES - 1) / NUM_BOOK_ENTRIES)
 void DrawTeamBook()
 {
-	PlayerStruct* p;
 	int i, pnum, sx, yp;
 	bool hasTeam;
 
@@ -2064,14 +2063,13 @@ void DrawTeamBook()
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
 			break;
-		p = &players[pnum];
-		if (!p->plractive)
+		if (!plr.plractive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, p->_pName, false, COL_WHITE, 0);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, false, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
-		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[p->_pClass], p->_pLevel, 'a' + p->_pTeam);
+		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
 		PrintString(sx + SBOOK_LINE_TAB, yp - 13, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, tempstr, false, COL_WHITE, 1);
 
 		// mute
@@ -2081,7 +2079,7 @@ void DrawTeamBook()
 		}
 
 		// drop/leave
-		if (hasTeam && (pnum == mypnum || p->_pTeam == mypnum)) {
+		if (hasTeam && (pnum == mypnum || plr._pTeam == mypnum)) {
 			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
 				pnum == mypnum ? "leave" : "drop", pnum == mypnum ? 8 : 12);
 		}
@@ -2095,14 +2093,14 @@ void DrawTeamBook()
 		}
 
 		// invite/cancel
-		if (pnum != mypnum && players[pnum]._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
+		if (pnum != mypnum && plr._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
 			unsigned invited = (guTeamInviteSent & (1 << pnum));
 			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
 				!invited ? "invite" : "cancel", !invited ? 7 : 2);
 		}
 
 		// icon
-		DrawSpellCel(sx, yp, pSBkIconCels, ClassIconTbl[p->_pClass], SBOOK_CELWIDTH);
+		DrawSpellCel(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SBOOK_CELWIDTH);
 
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
@@ -2123,7 +2121,7 @@ void CheckTeamClick(bool shift)
 		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
-		if (pnum >= MAX_PLRS || !players[pnum].plractive)
+		if (pnum >= MAX_PLRS || !plr.plractive)
 			return;
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
@@ -2132,7 +2130,7 @@ void CheckTeamClick(bool shift)
 			if (!shift) {
 				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/p%d ", pnum);
 			} else {
-				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", players[pnum]._pTeam);
+				snprintf(sgszTalkMsg, sizeof(sgszTalkMsg), "/t%d ", plr._pTeam);
 			}
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
@@ -2144,11 +2142,11 @@ void CheckTeamClick(bool shift)
 					guTeamMute ^= (1 << pnum);
 			} else if (dy == 1) {
 				// drop/leave
-				if (PlrHasTeam() && (pnum == mypnum || players[pnum]._pTeam == mypnum))
+				if (PlrHasTeam() && (pnum == mypnum || plr._pTeam == mypnum))
 					NetSendCmdBParam1(false, CMD_KICK_PLR, pnum);
 			} else /*if (dy == 2)*/ {
 				// invite/cancel
-				if (pnum != mypnum && players[pnum]._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
+				if (pnum != mypnum && plr._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
 					if (guTeamInviteSent & (1 << pnum)) {
 						NetSendCmdBParam1(false, CMD_REV_INVITE, pnum);
 					} else {

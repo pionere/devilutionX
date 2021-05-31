@@ -425,7 +425,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	int px, py;
 	int x, y;
 
-	p = &players[pnum];
+	p = &plr;
 	if (p->_pmode == PM_WALK3) {
 		px = p->_pfutx;
 		py = p->_pfuty;
@@ -693,10 +693,10 @@ void DrawAutomap()
 	}
 
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (players[pnum].plrlevel == myplr.plrlevel && players[pnum].plractive && !players[pnum]._pLvlChanging) {
-			if (players[pnum]._pTeam == myplr._pTeam)
+		if (plr.plrlevel == myplr.plrlevel && plr.plractive && !plr._pLvlChanging) {
+			if (plr._pTeam == myplr._pTeam)
 				DrawAutomapPlr(pnum, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
-			else if ((dFlags[players[pnum]._px][players[pnum]._py] & BFLAG_LIT) || myplr._pInfraFlag)
+			else if ((dFlags[plr._px][plr._py] & BFLAG_LIT) || myplr._pInfraFlag)
 				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}
 	}

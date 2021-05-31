@@ -24,7 +24,7 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	PkItemStruct *pki;
 
 	memset(pPack, 0, sizeof(*pPack));
-	p = &players[pnum];
+	p = &plr;
 	pPack->plrlevel = p->plrlevel;
 	pPack->pTeam = p->_pTeam;
 	pPack->px = p->_px;
@@ -120,76 +120,56 @@ static void UnPackItem(const PkItemStruct *pis, ItemStruct *is)
 	}
 }
 
-static void VerifyGoldSeeds(PlayerStruct *p)
-{
-	int i, j;
-
-	for (i = 0; i < p->_pNumInv; i++) {
-		if (p->InvList[i]._iIdx == IDI_GOLD) {
-			for (j = 0; j < p->_pNumInv; j++) {
-				if (i != j) {
-					if (p->InvList[j]._iIdx == IDI_GOLD && p->InvList[i]._iSeed == p->InvList[j]._iSeed) {
-						p->InvList[i]._iSeed = GetRndSeed();
-						j = -1;
-					}
-				}
-			}
-		}
-	}
-}
-
 void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 {
-	PlayerStruct *p;
-	int i;
+	int i, j;
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
-	p = &players[pnum];
-	p->_px = pPack->px;
-	p->_py = pPack->py;
-	p->_pfutx = pPack->px;
-	p->_pfuty = pPack->py;
-	p->plrlevel = pPack->plrlevel;
-	p->_pTeam = pPack->pTeam;
+	plr._px = pPack->px;
+	plr._py = pPack->py;
+	plr._pfutx = pPack->px;
+	plr._pfuty = pPack->py;
+	plr.plrlevel = pPack->plrlevel;
+	plr._pTeam = pPack->pTeam;
 	ClrPlrPath(pnum);
-	p->destAction = ACTION_NONE;
-	copy_str(p->_pName, pPack->pName);
-	p->_pClass = pPack->pClass;
-	p->_pLevel = pPack->pLevel;
-	p->_pLightRad = pPack->pLightRad;
-	p->_pManaShield = pPack->pManaShield;
-	p->_pDiabloKillLevel = pPack->pDiabloKillLevel;
-	p->_pStatPts = SwapLE16(pPack->pStatPts);
+	plr.destAction = ACTION_NONE;
+	copy_str(plr._pName, pPack->pName);
+	plr._pClass = pPack->pClass;
+	plr._pLevel = pPack->pLevel;
+	plr._pLightRad = pPack->pLightRad;
+	plr._pManaShield = pPack->pManaShield;
+	plr._pDiabloKillLevel = pPack->pDiabloKillLevel;
+	plr._pStatPts = SwapLE16(pPack->pStatPts);
 	InitPlayer(pnum, true, false);
-	p->_pBaseStr = SwapLE16(pPack->pBaseStr);
-	p->_pBaseMag = SwapLE16(pPack->pBaseMag);
-	p->_pBaseDex = SwapLE16(pPack->pBaseDex);
-	p->_pBaseVit = SwapLE16(pPack->pBaseVit);
-	p->_pExperience = SwapLE32(pPack->pExperience);
-	p->_pGold = SwapLE32(pPack->pGold);
-	p->_pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
-	p->_pHPBase = SwapLE32(pPack->pHPBase);
-	if (p->_pHPBase < 64) // TODO: is this necessary?
-		p->_pHPBase = 64;
+	plr._pBaseStr = SwapLE16(pPack->pBaseStr);
+	plr._pBaseMag = SwapLE16(pPack->pBaseMag);
+	plr._pBaseDex = SwapLE16(pPack->pBaseDex);
+	plr._pBaseVit = SwapLE16(pPack->pBaseVit);
+	plr._pExperience = SwapLE32(pPack->pExperience);
+	plr._pGold = SwapLE32(pPack->pGold);
+	plr._pMaxHPBase = SwapLE32(pPack->pMaxHPBase);
+	plr._pHPBase = SwapLE32(pPack->pHPBase);
+	if (plr._pHPBase < 64) // TODO: is this necessary?
+		plr._pHPBase = 64;
 
-	p->_pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
-	p->_pManaBase = SwapLE32(pPack->pManaBase);
+	plr._pMaxManaBase = SwapLE32(pPack->pMaxManaBase);
+	plr._pManaBase = SwapLE32(pPack->pManaBase);
 
-	static_assert(sizeof(p->_pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
+	static_assert(sizeof(plr._pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy V.");
 	static_assert(sizeof(pPack->pSkillLvl[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VI.");
-	memcpy(p->_pSkillLvl, pPack->pSkillLvl, sizeof(pPack->pSkillLvl));
-	static_assert(sizeof(p->_pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VII.");
+	memcpy(plr._pSkillLvl, pPack->pSkillLvl, sizeof(pPack->pSkillLvl));
+	static_assert(sizeof(plr._pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VII.");
 	static_assert(sizeof(pPack->pSkillActivity[0]) == 1, "Big vs. Little-Endian requires a byte-by-byte copy VIII.");
-	memcpy(p->_pSkillActivity, pPack->pSkillActivity, sizeof(pPack->pSkillActivity));
+	memcpy(plr._pSkillActivity, pPack->pSkillActivity, sizeof(pPack->pSkillActivity));
 	static_assert(NUM_SPELLS <= 64, "UnPacking of PkPlayerStruct is no longer compatible.");
 	for (i = 0; i < 64; i++) {
-		p->_pSkillExp[i] = SwapLE32(pPack->pSkillExp[i]);
+		plr._pSkillExp[i] = SwapLE32(pPack->pSkillExp[i]);
 	}
-	p->_pMemSkills = SwapLE64(pPack->pMemSkills);
+	plr._pMemSkills = SwapLE64(pPack->pMemSkills);
 
 	pki = &pPack->InvBody[0];
-	pi = &p->InvBody[0];
+	pi = &plr.InvBody[0];
 
 	for (i = 0; i < NUM_INVLOC; i++) {
 		UnPackItem(pki, pi);
@@ -198,7 +178,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 	pki = &pPack->SpdList[0];
-	pi = &p->SpdList[0];
+	pi = &plr.SpdList[0];
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		UnPackItem(pki, pi);
@@ -207,7 +187,7 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 	pki = &pPack->InvList[0];
-	pi = &p->InvList[0];
+	pi = &plr.InvList[0];
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		UnPackItem(pki, pi);
@@ -216,27 +196,40 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++)
-		p->InvGrid[i] = pPack->InvGrid[i];
+		plr.InvGrid[i] = pPack->InvGrid[i];
 
-	p->_pNumInv = pPack->_pNumInv;
+	plr._pNumInv = pPack->_pNumInv;
 
-	memcpy(p->_pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(p->_pAtkSkillHotKey));
-	memcpy(p->_pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(p->_pAtkSkillTypeHotKey));
-	memcpy(p->_pMoveSkillHotKey, pPack->pMoveSkillHotKey, sizeof(p->_pMoveSkillHotKey));
-	memcpy(p->_pMoveSkillTypeHotKey, pPack->pMoveSkillTypeHotKey, sizeof(p->_pMoveSkillTypeHotKey));
-	memcpy(p->_pAltAtkSkillHotKey, pPack->pAltAtkSkillHotKey, sizeof(p->_pAltAtkSkillHotKey));
-	memcpy(p->_pAltAtkSkillTypeHotKey, pPack->pAltAtkSkillTypeHotKey, sizeof(p->_pAltAtkSkillTypeHotKey));
-	memcpy(p->_pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(p->_pAltMoveSkillHotKey));
-	memcpy(p->_pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(p->_pAltMoveSkillTypeHotKey));
+	memcpy(plr._pAtkSkillHotKey, pPack->pAtkSkillHotKey, sizeof(plr._pAtkSkillHotKey));
+	memcpy(plr._pAtkSkillTypeHotKey, pPack->pAtkSkillTypeHotKey, sizeof(plr._pAtkSkillTypeHotKey));
+	memcpy(plr._pMoveSkillHotKey, pPack->pMoveSkillHotKey, sizeof(plr._pMoveSkillHotKey));
+	memcpy(plr._pMoveSkillTypeHotKey, pPack->pMoveSkillTypeHotKey, sizeof(plr._pMoveSkillTypeHotKey));
+	memcpy(plr._pAltAtkSkillHotKey, pPack->pAltAtkSkillHotKey, sizeof(plr._pAltAtkSkillHotKey));
+	memcpy(plr._pAltAtkSkillTypeHotKey, pPack->pAltAtkSkillTypeHotKey, sizeof(plr._pAltAtkSkillTypeHotKey));
+	memcpy(plr._pAltMoveSkillHotKey, pPack->pAltMoveSkillHotKey, sizeof(plr._pAltMoveSkillHotKey));
+	memcpy(plr._pAltMoveSkillTypeHotKey, pPack->pAltMoveSkillTypeHotKey, sizeof(plr._pAltMoveSkillTypeHotKey));
 
-	p->pTownWarps = 0;
-	p->palign_CB = 0;
-	p->pDungMsgs = 0;
-	p->pDungMsgs2 = 0;
-	p->_plid = -1;
-	p->_pvid = -1;
+	plr.pTownWarps = 0;
+	plr.palign_CB = 0;
+	plr.pDungMsgs = 0;
+	plr.pDungMsgs2 = 0;
+	plr._plid = -1;
+	plr._pvid = -1;
 
-	VerifyGoldSeeds(p);
+	// verify the gold-seeds
+	for (i = 0; i < plr._pNumInv; i++) {
+		if (plr.InvList[i]._iIdx == IDI_GOLD) {
+			for (j = 0; j < plr._pNumInv; j++) {
+				if (i != j) {
+					if (plr.InvList[j]._iIdx == IDI_GOLD && plr.InvList[i]._iSeed == plr.InvList[j]._iSeed) {
+						plr.InvList[i]._iSeed = GetRndSeed();
+						j = -1;
+					}
+				}
+			}
+		}
+	}
+	// recalculate the cached fields
 	CalcPlrInv(pnum, false);
 }
 
