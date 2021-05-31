@@ -3313,13 +3313,11 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 		dev_fatal("MAI_Ranged: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mmode != MM_STAND) {
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
-	}
-
-	if (mon->_msquelch == UCHAR_MAX || (mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
-		if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
-			MonstCheckDoors(mon->_mx, mon->_my);
+	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+		MonstCheckDoors(mon->_mx, mon->_my);
+	if (mon->_msquelch >= UCHAR_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
 		mon->_mdir = MonGetDir(mnum);
 		fx = mon->_menemyx;
 		fy = mon->_menemyy;
@@ -3339,7 +3337,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 					MonStartRAttack(mnum, mitype);
 			}
 		}
-	} else if (mon->_msquelch != 0) {
+	} else {
 		md = GetDirection(mon->_mx, mon->_my, mon->_lastx, mon->_lasty);
 		MonCallWalk(mnum, md);
 	}
@@ -3574,7 +3572,6 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	mon = &monster[mnum];
 	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
-
 	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
@@ -3736,7 +3733,7 @@ void MAI_Mega(int mnum)
 void MAI_Golem(int mnum)
 {
 	MonsterStruct *mon, *tmon;
-	int md, j, k;
+	int md, i;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MAI_Golem: Invalid monster %d", mnum);
@@ -3763,21 +3760,6 @@ void MAI_Golem(int mnum)
 		} else {
 			mon->_menemyx = tmon->_mx;
 			mon->_menemyy = tmon->_my;
-			if (tmon->_msquelch == 0) {
-				tmon->_msquelch = UCHAR_MAX;
-				tmon->_lastx = mon->_mx;
-				tmon->_lasty = mon->_my;
-				static_assert(DBORDERX >= 2, "MAI_Golem expects a large enough border I.");
-				static_assert(DBORDERY >= 2, "MAI_Golem expects a large enough border II.");
-				for (j = -2; j <= 2; j++) {
-					for (k = -2; k <= 2; k++) {
-						md = dMonster[mon->_mx + k][mon->_my + j];
-						if (md > 0)
-							monster[md - 1]._msquelch = UCHAR_MAX;
-					}
-				}
-
-			}
 			MonStartAttack(mnum);
 			return;
 		}
@@ -3789,7 +3771,7 @@ void MAI_Golem(int mnum)
 
 	md = players[mnum]._pdir;
 	if (!MonCallWalk(mnum, md)) {
-		for (j = 0; j < NUM_DIRS; j++) {
+		for (i = 0; i < NUM_DIRS; i++) {
 			md = (md + 1) & 7;
 			if (DirOK(mnum, md)) {
 				MonWalkDir(mnum, md);
@@ -3935,10 +3917,8 @@ void MAI_Horkdemon(int mnum)
 	}
 
 	mon = &monster[mnum];
-	if (mon->_mmode != MM_STAND || mon->_msquelch == 0) {
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
 		return;
-	}
-
 	if (mon->_msquelch < UCHAR_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mx = mon->_mx;
@@ -4198,7 +4178,7 @@ void MAI_Lazurus(int mnum)
 			} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_LAZ1)) {
 				ObjChangeMapResync(1, 18, 20, 24);
 				RedoPlayerVision();
-				mon->_msquelch = UCHAR_MAX;
+				//mon->_msquelch = UCHAR_MAX;
 				mon->mtalkmsg = TEXT_NONE;
 				mon->_mgoal = MGOAL_NORMAL;
 				quests[Q_BETRAYER]._qvar1 = 6;
@@ -4398,6 +4378,7 @@ void ProcessMonsters()
 			}
 			mon->_lastx = mon->_menemyx = monster[_menemy]._mfutx;
 			mon->_lasty = mon->_menemyy = monster[_menemy]._mfuty;
+			mon->_msquelch = std::max((BYTE)(UCHAR_MAX - 1), mon->_msquelch);
 		} else {
 			if ((unsigned)_menemy >= MAX_PLRS) {
 				dev_fatal("Illegal enemy player %d for monster \"%s\"", _menemy, mon->mName);
@@ -4405,10 +4386,10 @@ void ProcessMonsters()
 			mon->_menemyx = players[_menemy]._pfutx;
 			mon->_menemyy = players[_menemy]._pfuty;
 			if (dFlags[mx][my] & BFLAG_VISIBLE) {
-				mon->_msquelch = UCHAR_MAX;
 				mon->_lastx = mon->_menemyx;
 				mon->_lasty = mon->_menemyy;
-			} else if (mon->_msquelch != 0 && mon->_mType != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType' (fixed)
+				mon->_msquelch = UCHAR_MAX;
+			} else if (mon->_msquelch != 0) { // && mon->_mType != MT_DIABLO) { /// BUGFIX: change '_mAi' to '_mType' (fixed)
 				mon->_msquelch--;
 			}
 		}
