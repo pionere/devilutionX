@@ -21,9 +21,11 @@ static void sync_init_monsters()
 	py = players[mypnum]._py;
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
+		static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit I.");
 		monster_dists[mnum] = abs(px - monster[mnum]._mx) + abs(py - monster[mnum]._my);
 		if (monster[mnum]._msquelch == 0) {
-			monster_dists[mnum] += 0x1000;
+			static_assert(MAXDUNX + MAXDUNY < 0x1000, "sync_init_monsters expects a dungeon to fit to 16-bit I/a.");
+			monster_dists[mnum] |= 0x1000;
 		} else if (monster_prio[mnum] != 0) {
 			monster_prio[mnum]--;
 		}
@@ -38,22 +40,24 @@ static void sync_monster_pos(TSyncMonster *symon, int mnum)
 	symon->_menemy = encode_enemy(mnum);
 	symon->_mdelta = monster_dists[mnum] > 255 ? 255 : monster_dists[mnum];
 
-	monster_dists[mnum] = 0xFFFF;
+	static_assert(MAXDUNX + MAXDUNY + 0x1000 < 0xFFFE, "sync_init_monsters expects a dungeon to fit to 16-bit II.");
+	monster_dists[mnum] = 0xFFFE;
 	monster_prio[mnum] = monster[mnum]._msquelch == 0 ? 0xFFFF : 0xFFFE;
 }
 
 static bool sync_closest_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
-	DWORD lru;
+	WORD minDist;
 
 	ndx = -1;
-	lru = 0xFFFFFFFF;
+	minDist = 0xFFFF;
 
 	for (i = 0; i < nummonsters; i++) {
 		mnum = monstactive[i];
-		if (monster_dists[mnum] < lru && monster_prio[mnum] < 0xFFFE) {
-			lru = monster_dists[mnum];
+		//assert(monster_dists[mnum] < 0xFFFF);
+		if (monster_dists[mnum] < minDist && monster_prio[mnum] < 0xFFFE) {
+			minDist = monster_dists[mnum];
 			ndx = mnum;
 		}
 	}
@@ -69,21 +73,20 @@ static bool sync_closest_monster(TSyncMonster *symon)
 static bool sync_prio_monster(TSyncMonster *symon)
 {
 	int i, mnum, ndx;
-	DWORD lru;
+	WORD minPrio;
 
 	ndx = -1;
-	lru = 0xFFFE;
+	minPrio = 0xFFFE;
 
 	for (i = 0; i < nummonsters; i++) {
-		if (sync_mnum >= nummonsters) {
+		if (++sync_mnum >= nummonsters) {
 			sync_mnum = 0;
 		}
 		mnum = monstactive[sync_mnum];
-		if (monster_prio[mnum] < lru) {
-			lru = monster_prio[mnum];
+		if (monster_prio[mnum] < minPrio) {
+			minPrio = monster_prio[mnum];
 			ndx = mnum;
 		}
-		sync_mnum++;
 	}
 
 	if (ndx == -1) {
