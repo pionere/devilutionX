@@ -77,7 +77,7 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, net_siz
 	while (con->recv_queue.packet_ready()) {
 		try {
 			auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
-			if (con->plr == PLR_BROADCAST) {
+			if (con->pnum == PLR_BROADCAST) {
 				handle_recv_newplr(con, *pkt);
 			} else {
 				con->timeout = timeout_active;
@@ -95,23 +95,23 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, net_siz
 void tcp_server::send_connect(const scc &con)
 {
 	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
-	    con->plr);
+	    con->pnum);
 	send_packet(*pkt);
 }
 
 void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
-	auto newplr = next_free();
-	if (newplr == PLR_BROADCAST)
+	auto pnum = next_free();
+	if (pnum == PLR_BROADCAST)
 		throw server_exception();
 	if (empty())
 		game_init_info = pkt.info();
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-	    pkt.cookie(), newplr,
+	    pkt.cookie(), pnum,
 	    game_init_info);
 	start_send(con, *reply);
-	con->plr = newplr;
-	connections[newplr] = con;
+	con->pnum = pnum;
+	connections[pnum] = con;
 	con->timeout = timeout_active;
 	send_connect(con);
 }
@@ -205,10 +205,10 @@ void tcp_server::handle_timeout(const scc &con, const asio::error_code &ec)
 
 void tcp_server::drop_connection(const scc &con)
 {
-	if (con->plr != PLR_BROADCAST) {
+	if (con->pnum != PLR_BROADCAST) {
 		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-		    con->plr, LEAVE_DROP);
-		connections[con->plr] = NULL;
+		    con->pnum, LEAVE_DROP);
+		connections[con->pnum] = NULL;
 		send_packet(*pkt);
 		// TODO: investigate if it is really ok for the server to
 		//       drop a client directly.

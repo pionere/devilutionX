@@ -18,7 +18,7 @@ public:
 	virtual int join(std::string addrstr, std::string passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
-	virtual void disconnect_net(plr_t plr);
+	virtual void disconnect_net(plr_t pnum);
 
 	virtual void SNetLeaveGame(int type);
 
@@ -71,10 +71,10 @@ bool base_protocol<P>::wait_network()
 }
 
 template <class P>
-void base_protocol<P>::disconnect_net(plr_t plr)
+void base_protocol<P>::disconnect_net(plr_t pnum)
 {
-	proto.disconnect(peers[plr]);
-	peers[plr] = endpoint();
+	proto.disconnect(peers[pnum]);
+	peers[pnum] = endpoint();
 }
 
 template <class P>

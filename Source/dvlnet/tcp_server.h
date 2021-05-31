@@ -38,7 +38,7 @@ private:
 	struct client_connection {
 		frame_queue recv_queue;
 		buffer_t recv_buffer = buffer_t(frame_queue::max_frame_size);
-		plr_t plr = PLR_BROADCAST;
+		plr_t pnum = PLR_BROADCAST;
 		asio::ip::tcp::socket socket;
 		asio::steady_timer timer;
 		int timeout;

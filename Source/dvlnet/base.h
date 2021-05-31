@@ -31,7 +31,7 @@ public:
 
 	virtual void poll() = 0;
 	virtual void send(packet &pkt) = 0;
-	virtual void disconnect_net(plr_t plr);
+	virtual void disconnect_net(plr_t pnum);
 
 	void setup_gameinfo(buffer_t info);
 
@@ -75,7 +75,7 @@ protected:
 
 private:
 	plr_t get_owner();
-	void clear_msg(plr_t plr);
+	void clear_msg(plr_t pnum);
 };
 
 } // namespace net

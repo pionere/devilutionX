@@ -24,7 +24,7 @@ void base::run_event_handler(_SNETEVENT &ev)
 	}
 }
 
-void base::disconnect_net(plr_t plr)
+void base::disconnect_net(plr_t pnum)
 {
 }
 
@@ -53,12 +53,12 @@ void base::handle_accept(packet &pkt)
 	run_event_handler(ev);
 }
 
-void base::clear_msg(plr_t plr)
+void base::clear_msg(plr_t pnum)
 {
 	message_queue.erase(std::remove_if(message_queue.begin(),
 	                        message_queue.end(),
 	                        [&](message_t &msg) {
-		                        return msg.sender == plr;
+		                        return msg.sender == pnum;
 	                        }),
 	    message_queue.end());
 }
