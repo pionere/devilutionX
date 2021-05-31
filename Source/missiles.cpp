@@ -2658,8 +2658,6 @@ int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 		plr._pSpellFlags |= PSE_BLOOD_BOIL;
 		lvl = plr._pLevel;
 		mis->_miVar2 = (3 * lvl) << 7;
-		if (pnum <= 0)
-			lvl = 1;
 		lvl *= 2;
 		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(pnum, true);
