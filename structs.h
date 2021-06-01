@@ -242,7 +242,6 @@ typedef struct PlayerStruct {
 	int _pxvel;   // Pixel X-velocity while walking. Indirectly applied to _pxoff via _pvar6
 	int _pyvel;   // Pixel Y-velocity while walking. Indirectly applied to _pyoff via _pvar7
 	int _pdir;    // Direction faced by player (direction enum)
-	int _nextdir; // unused
 	int _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BYTE *_pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -406,9 +405,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[179];
+	int alignment[180];
 #else
-	int alignment[181];
+	int alignment[182];
 #endif
 #endif
 } PlayerStruct;

@@ -212,7 +212,6 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &plr._pxvel);
 	CopyInt(tbuff, &plr._pyvel);
 	CopyInt(tbuff, &plr._pdir);
-	CopyInt(tbuff, &plr._nextdir);
 	CopyInt(tbuff, &plr._pgfxnum);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
@@ -908,7 +907,6 @@ static void SavePlayer(int pnum)
 	CopyInt(&plr._pxvel, tbuff);
 	CopyInt(&plr._pyvel, tbuff);
 	CopyInt(&plr._pdir, tbuff);
-	CopyInt(&plr._nextdir, tbuff);
 	CopyInt(&plr._pgfxnum, tbuff);
 	tbuff += 4; // Skip pointer _pAnimData
 	tbuff += 4; // Skip _pAnimFrameLen
