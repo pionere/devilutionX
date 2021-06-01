@@ -335,29 +335,29 @@ typedef struct PlayerStruct {
 	int _pVar8;
 	BOOLEAN _pLvlVisited[NUMLEVELS + NUM_SETLVL];
 	int _pGFXLoad;
-	BYTE *_pNAnim[8]; // Stand animations
+	BYTE *_pNAnim[NUM_DIRS]; // Stand animations
 	unsigned _pNFrames;
 	int _pNWidth;
-	BYTE *_pWAnim[8]; // Walk animations
+	BYTE *_pWAnim[NUM_DIRS]; // Walk animations
 	unsigned _pWFrames;
 	int _pWWidth;
-	BYTE *_pAAnim[8]; // Attack animations
+	BYTE *_pAAnim[NUM_DIRS]; // Attack animations
 	unsigned _pAFrames;
 	int _pAWidth;
 	unsigned _pAFNum;
-	BYTE *_pLAnim[8]; // Lightning spell cast animations
-	BYTE *_pFAnim[8]; // Fire spell cast animations
-	BYTE *_pTAnim[8]; // Generic spell cast animations
+	BYTE *_pLAnim[NUM_DIRS]; // Lightning spell cast animations
+	BYTE *_pFAnim[NUM_DIRS]; // Fire spell cast animations
+	BYTE *_pTAnim[NUM_DIRS]; // Generic spell cast animations
 	unsigned _pSFrames;
 	int _pSWidth;
 	unsigned _pSFNum;
-	BYTE *_pHAnim[8]; // Getting hit animations
+	BYTE *_pHAnim[NUM_DIRS]; // Getting hit animations
 	unsigned _pHFrames;
 	int _pHWidth;
-	BYTE *_pDAnim[8]; // Death animations
+	BYTE *_pDAnim[NUM_DIRS]; // Death animations
 	unsigned _pDFrames;
 	int _pDWidth;
-	BYTE *_pBAnim[8]; // Block animations
+	BYTE *_pBAnim[NUM_DIRS]; // Block animations
 	unsigned _pBFrames;
 	int _pBWidth;
 	ItemStruct InvBody[NUM_INVLOC];
@@ -552,7 +552,7 @@ typedef struct TSFX {
 
 typedef struct AnimStruct {
 	BYTE *aCelData;
-	BYTE *aData[8];
+	BYTE *aData[NUM_DIRS];
 	int aFrames;
 	int aFrameLen;
 #ifdef X86_32bit_COMP
@@ -1473,7 +1473,7 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 //////////////////////////////////////////////////
 
 typedef struct DeadStruct {
-	unsigned char *_deadData[8];
+	unsigned char *_deadData[NUM_DIRS];
 	int _deadFrame;
 	int _deadWidth;
 	int _deadXOffset;
@@ -1552,7 +1552,7 @@ typedef struct PATHNODE {
 	int x;
 	int y;
 	struct PATHNODE *Parent;
-	struct PATHNODE *Child[8];
+	struct PATHNODE *Child[NUM_DIRS];
 	struct PATHNODE *NextNode;
 #ifdef X86_32bit_COMP
 	int alignment[3];
