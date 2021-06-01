@@ -108,12 +108,7 @@ if(GPERF)
   endif()
 endif()
 
-if(SWITCH)
-  set(ASAN OFF)
-  set(UBSAN OFF)
-
-  list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/switch")
-  find_package(LIBNX REQUIRED)
+if(NINTENDO_SWITCH)
   include(switch_defs)
 endif()
 
@@ -414,12 +409,11 @@ endif()
 
 set(BIN_TARGET devilutionx)
 
-if(SWITCH)
+if(NINTENDO_SWITCH)
   list(APPEND devilutionx_SRCS
     Source/platform/switch/network.cpp
     Source/platform/switch/keyboard.cpp
     Source/platform/switch/docking.cpp)
-  set(BIN_TARGET devilutionx.elf)
 endif()
 
 if(VITA)
@@ -646,11 +640,6 @@ if(NOT NOSOUND)
   target_link_libraries(${BIN_TARGET} PRIVATE ${SDL_MIXER_LIBRARY})
 endif()
 
-if(SWITCH)
-  target_link_libraries(${BIN_TARGET} PRIVATE switch::libnx
-    -lfreetype -lvorbisfile -lvorbis -logg -lmodplug -lmpg123 -lSDL2 -lopusfile -lopus -lEGL -lglapi -ldrm_nouveau -lpng -lbz2 -lz -lnx)
-endif()
-
 if(AMIGA)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${FREETYPE_LIBRARY}
@@ -769,13 +758,38 @@ if(APPLE)
   set(CPACK On)
 endif()
 
-if(SWITCH)
-  set(APP_TITLE "DevilutionX")
-  set(APP_AUTHOR "Devilution Team")
-  set(APP_ICON "${PROJECT_SOURCE_DIR}/Packaging/switch/icon.jpg")
-  set(APP_VERSION ${PROJECT_VERSION})
-  include(nx-utils)
-  build_switch_binaries(${BIN_TARGET})
+if(NINTENDO_SWITCH)
+
+  target_link_libraries(${BIN_TARGET} PRIVATE
+        freetype
+        vorbisfile
+        vorbis
+        ogg
+        modplug
+        mpg123
+        SDL2
+        opusfile
+        opus
+        png
+        bz2
+        z
+        #EGL
+        #glapi
+        #drm_nouveau
+        #nx
+  )
+
+  nx_generate_nacp (${BIN_TARGET}.nacp
+    NAME    "DevilutionX"
+    AUTHOR  "Devilution Team"
+    VERSION "${PROJECT_VERSION}"
+  )
+
+  nx_create_nro(${BIN_TARGET}
+    NACP ${BIN_TARGET}.nacp
+    ICON "${PROJECT_SOURCE_DIR}/Packaging/switch/icon.jpg"
+  )
+
 endif()
 
 if(VITA)

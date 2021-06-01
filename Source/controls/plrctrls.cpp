@@ -10,7 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool sgbControllerActive = false;
-coords speedspellscoords[50];
+POS32 speedspellscoords[50];
 int speedspellcount = 0;
 
 /**
