@@ -439,9 +439,7 @@ static void S_ScrollSBuy()
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
-
-			AddSText(20, l, false, is->_iIName, iclr, true);
-
+			AddSText(20, l, false, is->_iName, iclr, true);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
@@ -503,7 +501,7 @@ static void S_ScrollSPBuy()
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
-			AddSText(20, l, false, is->_iIName, iclr, true);
+			AddSText(20, l, false, is->_iName, iclr, true);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
@@ -594,15 +592,8 @@ static void S_ScrollSSell()
 		is = &storehold[idx];
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StoreItemColor(is);
-
-			if (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) {
-				AddSText(20, l, false, is->_iIName, iclr, true);
-				AddSTextVal(l, is->_iIvalue);
-			} else {
-				AddSText(20, l, false, is->_iName, iclr, true);
-				AddSTextVal(l, is->_ivalue);
-			}
-
+			AddSText(20, l, false, ItemName(is), iclr, true);
+			AddSTextVal(l, is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
 		}
@@ -742,9 +733,7 @@ static void S_ScrollWBuy()
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
-
-			AddSText(20, l, false, is->_iIName, iclr, true);
-
+			AddSText(20, l, false, is->_iName, iclr, true);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
@@ -895,19 +884,17 @@ static void S_StartNoRoom()
 
 static void S_StartConfirm()
 {
+	ItemStruct* is;
 	BYTE iclr;
 
 	StartStore(stextshold);
 	_gbStextscrl = false;
 	ClearSText(5, STORE_LINES);
-	iclr = StoreItemColor(&myplr.HoldItem);
-
-	AddSText(20, 8, false,
-		myplr.HoldItem._iIdentified ? myplr.HoldItem._iIName : myplr.HoldItem._iName,
-		iclr, false);
-
-	AddSTextVal(8, myplr.HoldItem._iIvalue);
-	PrintStoreItem(&myplr.HoldItem, 9, iclr);
+	is = &myplr.HoldItem;
+	iclr = StoreItemColor(is);
+	AddSText(20, 8, false, ItemName(is), iclr, false);
+	AddSTextVal(8, is->_iIvalue);
+	PrintStoreItem(is, 9, iclr);
 
 	switch (stextshold) {
 	case STORE_BBOY:
@@ -972,9 +959,7 @@ static void S_StartBBoy()
 	AddSLine(21);
 
 	iclr = StorePrepareItemBuy(&boyitem);
-
-	AddSText(20, STORE_BOY_BUY, false, boyitem._iIName, iclr, true);
-
+	AddSText(20, STORE_BOY_BUY, false, ItemName(&boyitem), iclr, true);
 #ifdef HELLFIRE
 	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue - (boyitem._iIvalue >> 2));
 #else
@@ -1012,8 +997,7 @@ static void S_ScrollHBuy()
 	for (l = 5; l < 20; l += 4) {
 		if (is->_itype != ITYPE_NONE) {
 			iclr = StorePrepareItemBuy(is);
-
-			AddSText(20, l, false, is->_iIName, iclr, true);
+			AddSText(20, l, false, is->_iName, iclr, true);
 			AddSTextVal(l, is->_iIvalue);
 			PrintStoreItem(is, l + 1, iclr);
 			stextdown = l;
@@ -1129,7 +1113,7 @@ static void S_StartIdShow()
 
 	AddSLine(3);
 	AddSText(0, 7, true, "This item is:", COL_WHITE, false);
-	AddSText(20, 11, false, is->_iIName, iclr, false);
+	AddSText(20, 11, false, ItemName(is), iclr, false);
 	PrintStoreItem(is, 12, iclr);
 	AddSText(0, 18, true, "Done", COL_WHITE, true);
 	AddSLine(21);

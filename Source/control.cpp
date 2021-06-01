@@ -1371,10 +1371,7 @@ static void GetItemInfo(ItemStruct *is)
 {
 	infoclr = DrawItemColor(is);
 	if (is->_itype != ITYPE_GOLD) {
-		if (is->_iIdentified)
-			copy_str(infostr, is->_iIName);
-		else
-			copy_str(infostr, is->_iName);
+		copy_str(infostr, is->_iName);
 	} else {
 		snprintf(infostr, sizeof(infostr), "%i gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
@@ -2066,7 +2063,7 @@ void DrawTeamBook()
 		if (!plr.plractive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, false, COL_WHITE, 0);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH,plr._pName, false, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);

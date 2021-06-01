@@ -667,12 +667,12 @@ static void DrawItem(int x, int y, int sx, int sy, BOOL pre)
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iIName);
+		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
 	}
 	pFrameTable = (DWORD *)pCelBuff;
 	nCel = is->_iAnimFrame;
 	if (nCel < 1 || pFrameTable[0] > 50 || nCel > (int)pFrameTable[0]) {
-		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iIName, nCel, pFrameTable[0], is->_itype);
+		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, pFrameTable[0], is->_itype);
 	}
 
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;

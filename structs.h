@@ -84,7 +84,6 @@ typedef struct ItemDataStruct {
 	char itype;
 	char iItemId;
 	const char *iName;
-	const char *iSName;
 	char iMinMLvl;
 	short iDurability;
 	BYTE iDamType;
@@ -102,7 +101,7 @@ typedef struct ItemDataStruct {
 	BOOLEAN iUsable;
 	int iValue;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[2];
 #endif
 } ItemDataStruct;
 
@@ -141,8 +140,7 @@ typedef struct ItemStruct {
 	//int _iAnimXOffset;
 	BOOL _iPostDraw;
 	BOOL _iIdentified;
-	char _iName[64];
-	char _iIName[64];
+	char _iName[32];
 	BYTE _iSelFlag;
 	BYTE _iMagical;
 	BYTE _iLoc;
@@ -205,12 +203,12 @@ typedef struct ItemStruct {
 	BOOL _iStatFlag;
 	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
-	int alignment[11];
+	int alignment[3];
 #endif
 } ItemStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 256, "Align ItemStruct closer to power of 2 for better performance.");
+static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -412,9 +410,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[434 + 2048];
+	int alignment[179];
 #else
-	int alignment[436 + 2048];
+	int alignment[181];
 #endif
 #endif
 } PlayerStruct;

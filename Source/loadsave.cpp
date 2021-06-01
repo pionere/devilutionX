@@ -117,8 +117,7 @@ static void LoadItemData(ItemStruct *is)
 	tbuff += 4; // CopyInt(tbuff, &is->_iAnimXOffset);
 	CopyInt(tbuff, &is->_iPostDraw);
 	CopyInt(tbuff, &is->_iIdentified);
-	CopyBytes(tbuff, 64, is->_iName);
-	CopyBytes(tbuff, 64, is->_iIName);
+	CopyBytes(tbuff, sizeof(is->_iName), is->_iName);
 	CopyChar(tbuff, &is->_iSelFlag);
 	CopyChar(tbuff, &is->_iMagical);
 	CopyChar(tbuff, &is->_iLoc);
@@ -813,8 +812,7 @@ static void SaveItemData(ItemStruct *is)
 	tbuff += 4; // CopyInt(&is->_iAnimXOffset, tbuff);
 	CopyInt(&is->_iPostDraw, tbuff);
 	CopyInt(&is->_iIdentified, tbuff);
-	CopyBytes(is->_iName, 64, tbuff);
-	CopyBytes(is->_iIName, 64, tbuff);
+	CopyBytes(is->_iName, sizeof(is->_iName), tbuff);
 	CopyChar(&is->_iSelFlag, tbuff);
 	CopyChar(&is->_iMagical, tbuff);
 	CopyChar(&is->_iLoc, tbuff);

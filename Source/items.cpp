@@ -1015,7 +1015,6 @@ void SetItemData(int ii, int idata)
 	is->_itype = ids->itype;
 	is->_iCurs = ids->iCurs;
 	strcpy(is->_iName, ids->iName);
-	strcpy(is->_iIName, ids->iName);
 	is->_iLoc = ids->iLoc;
 	is->_iClass = ids->iClass;
 	is->_iDamType = ids->iDamType;
@@ -1371,7 +1370,6 @@ static void GetBookSpell(int ii, int lvl)
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 	strcat(is->_iName, sd->sNameText);
-	strcat(is->_iIName, sd->sNameText);
 	is->_iMinMag = sd->sMinInt;
 	is->_ivalue += sd->sBookCost;
 	is->_iIvalue += sd->sBookCost;
@@ -1410,7 +1408,6 @@ static void GetScrollSpell(int ii, int lvl)
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 	strcat(is->_iName, sd->sNameText);
-	strcat(is->_iIName, sd->sNameText);
 	is->_iMinMag = sd->sMinInt > 20 ? sd->sMinInt - 20 : 0;
 	is->_ivalue += sd->sStaffCost;
 	is->_iIvalue += sd->sStaffCost;
@@ -1421,7 +1418,7 @@ static void GetStaffSpell(int ii, int lvl)
 	SpellData *sd;
 	ItemStruct *is;
 	int rv, v, bs;
-	char istr[64];
+	char istr[32];
 
 	rv = random_(18, NUM_SPELLS);
 
@@ -1442,11 +1439,11 @@ static void GetStaffSpell(int ii, int lvl)
 	}
 	is = &items[ii];
 	sd = &spelldata[bs];
-	snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText);
-	if (GetStringWidth(istr) < 125)
+	static_assert(sizeof(istr) == sizeof(is->_iName), "Mismatching _iName and local string sizes in GetStaffSpell.");
+	if (snprintf(istr, sizeof(istr), "%s of %s", is->_iName, sd->sNameText) >= sizeof(istr))
+	//if (GetStringWidth(istr) < 125)
 		snprintf(istr, sizeof(istr), "Staff of %s", sd->sNameText);
 	copy_str(is->_iName, istr);
-	copy_str(is->_iIName, istr);
 
 	is->_iSpell = bs;
 	is->_iCharges = RandRange(sd->sStaffMin, sd->sStaffMax);
@@ -2021,7 +2018,6 @@ static void GetUniqueItem(int ii, int uid)
 		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b, 0, 0, 1);
 	}}}}}
 
-	strcpy(items[ii]._iIName, ui->UIName);
 	items[ii]._iIvalue = ui->UIValue;
 
 	if (items[ii]._iMiscId == IMISC_UNIQUE)
@@ -3163,6 +3159,16 @@ void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 	PrintUniquePower(uis->UIPower6, is, x, y);
 }
 
+const char *ItemName(const ItemStruct* is)
+{
+	const char *name;
+
+	name = is->_iName;
+	if (is->_iMagical == ITEM_QUALITY_UNIQUE && is->_iIdentified)
+		name = UniqueItemList[is->_iUid].UIName;
+	return name;
+}
+
 static int ItemColor(ItemStruct *is)
 {
 	if (is->_iMagical == ITEM_QUALITY_MAGIC)
@@ -3320,8 +3326,7 @@ void DrawInvItemDetails()
 	trans_rect(x - 5, SCREEN_Y + 28, 265, 297);
 
 	// print the name as title
-	PrintItemString(x, y, 
-		is->_iIdentified ? is->_iIName : is->_iName, ItemColor(is));
+	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
 	// add separator
 	DrawULine(x);
