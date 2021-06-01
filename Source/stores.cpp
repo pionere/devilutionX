@@ -960,11 +960,7 @@ static void S_StartBBoy()
 
 	iclr = StorePrepareItemBuy(&boyitem);
 	AddSText(20, STORE_BOY_BUY, false, ItemName(&boyitem), iclr, true);
-#ifdef HELLFIRE
-	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue - (boyitem._iIvalue >> 2));
-#else
-	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue + (boyitem._iIvalue >> 1));
-#endif
+	AddSTextVal(STORE_BOY_BUY, boyitem._iIvalue);
 	PrintStoreItem(&boyitem, 11, iclr);
 	AddSText(0, 22, true, "Leave", COL_WHITE, true);
 	OffsetSTextY(22, 6);
@@ -1569,7 +1565,7 @@ static void StoreStartBuy(ItemStruct *is, int price)
 		StartStore(STORE_NOMONEY);
 	} else {
 		copy_pod(myplr.HoldItem, *is);
-		myplr.HoldItem._iIvalue = price; // only for boyitem
+		//myplr.HoldItem._iIvalue = price; // only for boyitem
 		if (StoreAutoPlace(false))
 			StartStore(STORE_CONFIRM);
 		else
@@ -1982,7 +1978,7 @@ static void BoyBuyItem()
 {
 	TakePlrsMoney(myplr.HoldItem._iIvalue);
 	// restore the price of the item
-	myplr.HoldItem._iIvalue = boyitem._iIvalue;
+	//myplr.HoldItem._iIvalue = boyitem._iIvalue;
 	StoreAutoPlace(true);
 	boyitem._itype = ITYPE_NONE;
 }
@@ -2014,18 +2010,11 @@ static void HealerBuyItem()
 
 static void S_BBuyEnter()
 {
-	int sellValue;
-
 	if (stextsel == STORE_BOY_BUY) {
 		stextshold = STORE_BBOY;
 		stextvhold = stextsidx;
 		stextlhold = STORE_BOY_BUY;
-#ifdef HELLFIRE
-		sellValue = boyitem._iIvalue - (boyitem._iIvalue >> 2);
-#else
-		sellValue = boyitem._iIvalue + (boyitem._iIvalue >> 1);
-#endif
-		StoreStartBuy(&boyitem, sellValue);
+		StoreStartBuy(&boyitem, boyitem._iIvalue);
 	} else {
 		stextflag = STORE_NONE;
 	}
