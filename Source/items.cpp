@@ -1345,7 +1345,7 @@ static void CalcItemValue(int ii)
 
 static void GetBookSpell(int ii, int lvl)
 {
-	SpellData *sd;
+	const SpellData *sd;
 	ItemStruct *is;
 	int rv, bs;
 
@@ -1383,7 +1383,7 @@ static void GetBookSpell(int ii, int lvl)
 
 static void GetScrollSpell(int ii, int lvl)
 {
-	SpellData *sd;
+	const SpellData *sd;
 	ItemStruct *is;
 	int rv, bs;
 
@@ -1415,7 +1415,7 @@ static void GetScrollSpell(int ii, int lvl)
 
 static void GetStaffSpell(int ii, int lvl)
 {
-	SpellData *sd;
+	const SpellData *sd;
 	ItemStruct *is;
 	int rv, v, bs;
 	char istr[32];

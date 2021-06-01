@@ -20,7 +20,7 @@ extern "C" {
 /* Minimum level requirement of a scroll. */
 #define SCRL_MIN		 1
 
-extern SpellData spelldata[NUM_SPELLS];
+extern const SpellData spelldata[NUM_SPELLS];
 
 #ifdef __cplusplus
 }

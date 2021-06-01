@@ -1505,7 +1505,7 @@ static void StartSpell(int pnum)
 	int i, dx, dy;
 	player_graphic gfx;
 	BYTE **anim;
-	SpellData *sd;
+	const SpellData *sd;
 
 	if ((unsigned)pnum >= MAX_PLRS)
 		dev_fatal("StartSpell: illegal player %d", pnum);
