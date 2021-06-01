@@ -2029,12 +2029,12 @@ static bool PlrDoWalk(int pnum)
 	}
 
 	plr._pVar8++; // WALK_TICK
-	if (plr._pIFlags2 & ISPH_FASTESTWALK) {
+	if (plr._pIFlags & ISPL_FASTESTWALK) {
 		PlrStepAnim(pnum);
-	} else if (plr._pIFlags2 & ISPH_FASTERWALK) {
+	} else if (plr._pIFlags & ISPL_FASTERWALK) {
 		if ((plr._pVar8 & 1) == 1)
 			PlrStepAnim(pnum);
-	} else if (plr._pIFlags2 & ISPH_FASTWALK) {
+	} else if (plr._pIFlags & ISPL_FASTWALK) {
 		if ((plr._pVar8 & 3) == 2)
 			PlrStepAnim(pnum);
 	}
@@ -2620,12 +2620,12 @@ static bool PlrDoSpell(int pnum)
 		dev_fatal("PlrDoSpell: illegal player %d", pnum);
 	}
 	plr._pVar8++; // SPELL_TICK
-	if (plr._pIFlags2 & ISPH_FASTESTCAST) {
+	if (plr._pIFlags & ISPL_FASTESTCAST) {
 		PlrStepAnim(pnum);
-	} else if (plr._pIFlags2 & ISPH_FASTERCAST) {
+	} else if (plr._pIFlags & ISPL_FASTERCAST) {
 		if ((plr._pVar8 & 1) == 1)
 			PlrStepAnim(pnum);
-	} else if (plr._pIFlags2 & ISPH_FASTCAST) {
+	} else if (plr._pIFlags & ISPL_FASTCAST) {
 		if ((plr._pVar8 & 3) == 2)
 			PlrStepAnim(pnum);
 	}

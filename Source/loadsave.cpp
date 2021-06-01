@@ -130,7 +130,6 @@ static void LoadItemData(ItemStruct *is)
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &is->_iAC);
 	CopyInt(tbuff, &is->_iFlags);
-	CopyInt(tbuff, &is->_iFlags2);
 	CopyInt(tbuff, &is->_iMiscId);
 	CopyInt(tbuff, &is->_iSpell);
 	CopyInt(tbuff, &is->_iCharges);
@@ -360,7 +359,6 @@ static void LoadPlayer(int pnum)
 	tbuff += 1; // Skip to Calc _pIArrowVelBonus
 	tbuff += 1; // Skip to Calc _pILifeSteal
 	tbuff += 1; // Skip to Calc _pIManaSteal
-	tbuff += 4; // Skip to Calc _pIFlags2
 	tbuff += 4; // Skip to Calc _pIEnAc
 	tbuff += 4; // Skip to Calc _pIFMinDam
 	tbuff += 4; // Skip to Calc _pIFMaxDam
@@ -824,7 +822,6 @@ static void SaveItemData(ItemStruct *is)
 	tbuff += 2; // Alignment
 	CopyInt(&is->_iAC, tbuff);
 	CopyInt(&is->_iFlags, tbuff);
-	CopyInt(&is->_iFlags2, tbuff);
 	CopyInt(&is->_iMiscId, tbuff);
 	CopyInt(&is->_iSpell, tbuff);
 	CopyInt(&is->_iCharges, tbuff);
@@ -1057,7 +1054,6 @@ static void SavePlayer(int pnum)
 	tbuff += 1; // Skip to Calc _pIArrowVelBonus (_pISplCost in vanilla)
 	tbuff += 1; // Skip to Calc _pILifeSteal
 	tbuff += 1; // Skip to Calc _pIManaSteal
-	tbuff += 4; // Skip to Calc _pIFlags2
 	tbuff += 4; // Skip to Calc _pIEnAc
 	tbuff += 4; // Skip to Calc _pIFMinDam
 	tbuff += 4; // Skip to Calc _pIFMaxDam

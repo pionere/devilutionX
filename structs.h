@@ -152,7 +152,6 @@ typedef struct ItemStruct {
 	BYTE _iMaxDam;
 	int _iAC;
 	int _iFlags;	// item_special_effect
-	int _iFlags2;	// item_added_effects
 	int _iMiscId;	// item_misc_id
 	int _iSpell;	// spell_id
 	int _iCharges;
@@ -199,7 +198,7 @@ typedef struct ItemStruct {
 	BYTE _iMinDex;
 	BOOL _iStatFlag;
 #ifdef X86_32bit_COMP
-	int alignment[3];
+	int alignment[4];
 #endif
 } ItemStruct;
 
@@ -380,7 +379,6 @@ typedef struct PlayerStruct {
 	char _pIArrowVelBonus; // _pISplCost in vanilla code
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
-	int _pIFlags2; // _pISplDur in vanilla code
 	int _pIEnAc;
 	int _pIFMinDam;
 	int _pIFMaxDam;
@@ -405,9 +403,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[180];
+	int alignment[181];
 #else
-	int alignment[182];
+	int alignment[183];
 #endif
 #endif
 } PlayerStruct;

@@ -465,7 +465,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int av;			// arrow velocity bonus
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
-	int iflgs2 = ISPH_NONE;// item_special_effect flags2
 
 	int sadd = 0; // added strength
 	int madd = 0; // added magic
@@ -524,7 +523,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL && pi->_iIdentified) {
 				btohit += pi->_iPLToHit;
 				iflgs |= pi->_iFlags;
-				iflgs2 |= pi->_iFlags2;
 
 				sadd += pi->_iPLStr;
 				madd += pi->_iPLMag;
@@ -612,7 +610,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	plr._pIFlags = iflgs;
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
-	plr._pIFlags2 = iflgs2;
 	plr._pIGetHit = ghit;
 	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;
@@ -1708,18 +1705,18 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 #endif
 	case IPL_FASTCAST:
-		static_assert((ISPH_FASTCAST & (ISPH_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
-		static_assert(ISPH_FASTCAST == ISPH_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
-		static_assert(ISPH_FASTERCAST == ISPH_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
+		static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
+		static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
+		static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
 		if ((unsigned)(param1 - 1) < 3)
-			is->_iFlags2 |= ISPH_FASTCAST << (param1 - 1);
+			is->_iFlags |= ISPL_FASTCAST << (param1 - 1);
 		break;
 	case IPL_FASTWALK:
-		static_assert((ISPH_FASTWALK & (ISPH_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
-		static_assert(ISPH_FASTWALK == ISPH_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
-		static_assert(ISPH_FASTERWALK == ISPH_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
+		static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
+		static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
+		static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
 		if ((unsigned)(param1 - 1) < 3)
-			is->_iFlags2 |= ISPH_FASTWALK << (param1 - 1);
+			is->_iFlags |= ISPL_FASTWALK << (param1 - 1);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -3076,19 +3073,19 @@ void PrintItemPower(BYTE plidx, const ItemStruct *is)
 		copy_cstr(tempstr, "40% Health moved to Mana");
 		break;
 	case IPL_FASTCAST:
-		if (is->_iFlags2 & ISPH_FASTESTCAST)
+		if (is->_iFlags & ISPL_FASTESTCAST)
 			copy_cstr(tempstr, "fastest cast");
-		else if (is->_iFlags2 & ISPH_FASTERCAST)
+		else if (is->_iFlags & ISPL_FASTERCAST)
 			copy_cstr(tempstr, "faster cast");
-		else if (is->_iFlags2 & ISPH_FASTCAST)
+		else if (is->_iFlags & ISPL_FASTCAST)
 			copy_cstr(tempstr, "fast cast");
 		break;
 	case IPL_FASTWALK:
-		if (is->_iFlags2 & ISPH_FASTESTWALK)
+		if (is->_iFlags & ISPL_FASTESTWALK)
 			copy_cstr(tempstr, "fastest walk");
-		else if (is->_iFlags2 & ISPH_FASTERWALK)
+		else if (is->_iFlags & ISPL_FASTERWALK)
 			copy_cstr(tempstr, "faster walk");
-		else if (is->_iFlags2 & ISPH_FASTWALK)
+		else if (is->_iFlags & ISPL_FASTWALK)
 			copy_cstr(tempstr, "fast walk");
 		break;
 	default:
