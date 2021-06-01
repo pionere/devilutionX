@@ -254,6 +254,81 @@ void DumpDungeon()
 	fclose(f1);
 	fclose(f2);
 }
+
+void ValidateData()
+{
+	// monsters
+	for (int i = 0; i < NUM_MTYPES; i++) {
+		const MonsterData& md = monsterdata[i];
+		// check RETREAT_DISTANCE for MonFallenFear
+		if (md.mAi == AI_FALLEN && md.mInt > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+	}
+
+	// items
+	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
+	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
+	for (int i = 0; i < NUM_IDI; i++) {
+		const ItemDataStruct& ids = AllItemsList[i];
+		if (strlen(ids.iName) > 32 - 1)
+			app_fatal("Too long name for %s (%d)", ids.iName, i);
+		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor)
+			minLightArmor = ids.iMinMLvl;
+		if (ids.itype == ITYPE_MARMOR && ids.iMinMLvl < minMediumArmor)
+			minMediumArmor = ids.iMinMLvl;
+		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor)
+			minHeavyArmor = ids.iMinMLvl;
+		if (ids.itype == ITYPE_AMULET && ids.iMinMLvl < minAmu)
+			minAmu = ids.iMinMLvl;
+		//if (ids.itype == ITYPE_STAFF && strlen(ids.iName) > maxStaff)
+		//	maxStaff = strlen(ids.iName);
+	}
+	if (minLightArmor > 1)
+		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
+	if (minMediumArmor > 10)
+		app_fatal("No medium armor for OperateArmorStand. Current minimum is level %d", minMediumArmor);
+	if (minHeavyArmor > 24)
+		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
+
+	/*for (const PLStruct *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+
+	}
+	for (const PLStruct *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+
+	}*/
+
+	// spells
+	for (int i = 0; i < NUM_SPELLS; i++) {
+		const SpellData& sd = spelldata[i];
+		if (i != sd.sName)
+			app_fatal("Invalid sName %d for %s (%d:%d)", sd.sName, sd.sNameText, i, sd.sName);
+		if (sd.sBookLvl != SPELL_NA) {
+			if (sd.sBookLvl < BOOK_MIN)
+				app_fatal("Invalid sBookLvl %d for %s (%d:%d)", sd.sBookLvl, sd.sNameText, i, sd.sName);
+			if (sd.sBookCost <= 0)
+				app_fatal("Invalid sBookCost %d for %s (%d:%d)", sd.sBookCost, sd.sNameText, i, sd.sName);
+			if (strlen(sd.sNameText) > 32 - (strlen("Book of ") + 1))
+				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+		}
+		if (sd.sStaffLvl != SPELL_NA) {
+			if (sd.sStaffLvl < STAFF_MIN)
+				app_fatal("Invalid sStaffLvl %d for %s (%d:%d)", sd.sStaffLvl, sd.sNameText, i, sd.sName);
+			if (sd.sStaffCost <= 0)
+				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
+			//if (strlen(sd.sNameText) > 32 - (maxStaff + 4 + 1))
+			if (strlen(sd.sNameText) > 32 - (strlen("Staff of ") + 1))
+				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+		}
+		if (sd.sScrollLvl != SPELL_NA) {
+			if (sd.sScrollLvl < SCRL_MIN)
+				app_fatal("Invalid sScrollLvl %d for %s (%d:%d)", sd.sScrollLvl, sd.sNameText, i, sd.sName);
+			if (sd.sStaffCost <= 0)
+				app_fatal("Invalid sStaffCost %d for %s (%d:%d)", sd.sStaffCost, sd.sNameText, i, sd.sName);
+			if (strlen(sd.sNameText) > 32 - (strlen("Scroll of ") + 1))
+				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
+		}
+	}
+}
 #endif
 
 DEVILUTION_END_NAMESPACE

@@ -27,6 +27,7 @@ void PrintDebugPlayer(bool bNextPlayer);
 void PrintDebugQuest();
 void GetDebugMonster();
 void NextDebugMonster();
+void ValidateData();
 #endif
 
 #ifdef __cplusplus
