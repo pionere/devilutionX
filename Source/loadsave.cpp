@@ -130,6 +130,7 @@ static void LoadItemData(ItemStruct *is)
 	tbuff += 2; // Alignment
 	CopyInt(tbuff, &is->_iAC);
 	CopyInt(tbuff, &is->_iFlags);
+	CopyInt(tbuff, &is->_iFlags2);
 	CopyInt(tbuff, &is->_iMiscId);
 	CopyInt(tbuff, &is->_iSpell);
 	CopyInt(tbuff, &is->_iCharges);
@@ -178,7 +179,6 @@ static void LoadItemData(ItemStruct *is)
 	CopyChar(tbuff, &is->_iMinDex);
 	tbuff += 1; // Alignment
 	CopyInt(tbuff, &is->_iStatFlag);
-	CopyInt(tbuff, &is->_iFlags2);
 }
 
 static void LoadItems(ItemStruct *pItem, const int n)
@@ -825,6 +825,7 @@ static void SaveItemData(ItemStruct *is)
 	tbuff += 2; // Alignment
 	CopyInt(&is->_iAC, tbuff);
 	CopyInt(&is->_iFlags, tbuff);
+	CopyInt(&is->_iFlags2, tbuff);
 	CopyInt(&is->_iMiscId, tbuff);
 	CopyInt(&is->_iSpell, tbuff);
 	CopyInt(&is->_iCharges, tbuff);
@@ -873,7 +874,6 @@ static void SaveItemData(ItemStruct *is)
 	CopyChar(&is->_iMinDex, tbuff);
 	tbuff += 1; // Alignment
 	CopyInt(&is->_iStatFlag, tbuff);
-	CopyInt(&is->_iFlags2, tbuff);
 }
 
 static void SaveItems(ItemStruct *pItem, const int n)

@@ -142,22 +142,19 @@ typedef struct ItemStruct {
 	BOOL _iIdentified;
 	char _iName[32];
 	BYTE _iSelFlag;
-	BYTE _iMagical;
-	BYTE _iLoc;
-	// item_class enum
-	BYTE _iClass;
-	int _iCurs;
+	BYTE _iMagical;	// item_quality
+	BYTE _iLoc;		// item_equip_type
+	BYTE _iClass;	// item_class enum
+	int _iCurs;		// item_cursor_graphic
 	int _ivalue;
 	int _iIvalue;
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	int _iAC;
-	// item_special_effect
-	int _iFlags;
-	// item_misc_id
-	int _iMiscId;
-	// spell_id
-	int _iSpell;
+	int _iFlags;	// item_special_effect
+	int _iFlags2;	// item_added_effects
+	int _iMiscId;	// item_misc_id
+	int _iSpell;	// spell_id
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -180,7 +177,7 @@ typedef struct ItemStruct {
 	char _iPLLight;
 	BYTE _iDamType;
 	char _iSplLvlAdd;
-	char _iRequest;
+	BOOLEAN _iRequest;
 	BYTE _iManaSteal;
 	BYTE _iLifeSteal;
 	int _iUid;
@@ -201,7 +198,6 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOL _iStatFlag;
-	int _iFlags2; // _oldlight or _iInvalid reused to store additional item effects
 #ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
