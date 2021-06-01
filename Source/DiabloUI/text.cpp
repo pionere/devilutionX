@@ -45,7 +45,7 @@ void WordWrapArtStr(char *text, std::size_t width)
 			}
 		}
 
-		if (j == lineStart) { // Single word longer then width
+		if (j == lineStart) { // Single word longer than width
 			if (i == len)
 				break;
 			j = i;
