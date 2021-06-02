@@ -52,7 +52,7 @@ static void CopyChar(const void *src, void *dst)
 
 static void CopyShort(const void *src, void *dst)
 {
-	unsigned short buf;
+	uint16_t buf;
 	memcpy(&buf, src, 2);
 	tbuff += 2;
 	buf = SwapLE16(buf);
@@ -61,8 +61,8 @@ static void CopyShort(const void *src, void *dst)
 
 /*static void CopyShorts(const void *src, const int n, void *dst)
 {
-	const unsigned short *s = reinterpret_cast<const unsigned short *>(src);
-	unsigned short *d = reinterpret_cast<unsigned short *>(dst);
+	const uint16_t *s = reinterpret_cast<const uint16_t *>(src);
+	uint16_t *d = reinterpret_cast<uint16_t *>(dst);
 	for (int i = 0; i < n; i++) {
 		CopyShort(s, d);
 		++d;

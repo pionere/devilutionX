@@ -502,7 +502,7 @@ static void ShiftMissilePos(int mi)
 	}
 }
 
-unsigned CalcMonsterDam(unsigned short mor, unsigned char mRes, unsigned mindam, unsigned maxdam)
+unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam)
 {
 	unsigned dam;
 	BYTE resist;

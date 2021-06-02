@@ -1523,8 +1523,8 @@ static void PressChar(WPARAM vkey)
 
 static void GetMousePos(LPARAM lParam)
 {
-	MouseX = (short)(lParam & 0xffff);
-	MouseY = (short)((lParam >> 16) & 0xffff);
+	MouseX = (int16_t)(lParam & 0xFFFF);
+	MouseY = (int16_t)((lParam >> 16) & 0xFFFF);
 }
 
 static void UpdateActionBtnState(int vKey, bool dir)

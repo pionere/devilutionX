@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#if INT_MAX == INT32_MAX && SHRT_MAX == INT16_MAX && INTPTR_MAX == INT32_MAX
+#if INT_MAX == INT32_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
 #endif
 //////////////////////////////////////////////////
@@ -85,7 +85,7 @@ typedef struct ItemDataStruct {
 	char iItemId;
 	const char *iName;
 	char iMinMLvl;
-	short iDurability;
+	int16_t iDurability;
 	BYTE iDamType;
 	BYTE iMinDam;
 	BYTE iMaxDam;
@@ -574,12 +574,12 @@ typedef struct MonsterData {
 	int mMaxHP;
 	int mFlags;
 	BYTE mInt;
-	unsigned short mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	uint16_t mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
 	BYTE mMagic;
 	BYTE mAFNum;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
-	unsigned short mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE mMagic2;     // unused
 	BYTE mAFNum2;
 	BYTE mMinDamage2;
@@ -587,11 +587,11 @@ typedef struct MonsterData {
 	BYTE mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE mEvasion;    // evasion: used against magic-projectile
 	BYTE mMonstClass; // unused
-	unsigned short mMagicRes;
-	unsigned short mMagicRes2;
-	unsigned short mTreasure;
+	uint16_t mMagicRes;
+	uint16_t mMagicRes2;
+	uint16_t mTreasure;
 	BYTE mSelFlag;
-	unsigned short mExp;
+	uint16_t mExp;
 } MonsterData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -672,20 +672,20 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	BYTE _mSelFlag;
 	BYTE _mAi;
 	BYTE _mint;
-	unsigned short _mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
+	uint16_t _mHit; // BUGFIX: Some monsters overflow this value on high difficultys (fixed)
 	BYTE _mMagic;
 	BYTE _mAFNum;
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
-	unsigned short _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
+	uint16_t _mHit2; // BUGFIX: Some monsters overflow this value on high difficulty (fixed)
 	BYTE _mMagic2;     // unused
 	BYTE _mAFNum2;
 	BYTE _mMinDamage2;
 	BYTE _mMaxDamage2;
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
-	unsigned short mMagicRes;
-	unsigned short mExp;
+	uint16_t mMagicRes;
+	uint16_t mExp;
 	int mtalkmsg;
 	const char *mName;
 	CMonster *MType;
@@ -709,14 +709,14 @@ typedef struct UniqMonstStruct {
 	const char *mTrnName;
 	BYTE muLevelIdx; // level-index to place the monster
 	BYTE muLevel;    // difficulty level of the monster
-	unsigned short mmaxhp;
+	uint16_t mmaxhp;
 	BYTE mAi;
 	BYTE mint;
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	unsigned short mMagicRes;
+	uint16_t mMagicRes;
 	BYTE mUnqAttr;
 	BYTE mUnqHit;
 	BYTE mUnqAC;

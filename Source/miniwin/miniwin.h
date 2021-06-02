@@ -4,20 +4,13 @@
 
 namespace dvl {
 
-typedef uint16_t SHORT;
 typedef int32_t INT;
-typedef int32_t LONG;
 typedef uint8_t BOOLEAN;
-
-typedef unsigned char UCHAR;
 
 typedef uint32_t DWORD;
 typedef int BOOL;
 typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef DWORD *LPDWORD;
-typedef void *LPVOID;
-typedef void *PVOID;
+typedef uint16_t WORD;
 
 typedef unsigned int UINT;
 
