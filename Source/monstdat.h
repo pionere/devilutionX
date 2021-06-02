@@ -13,11 +13,7 @@ extern "C" {
 #endif
 
 extern const MonsterData monsterdata[NUM_MTYPES];
-#ifdef HELLFIRE
-extern const int MonstConvTbl[];
-#else
 extern const BYTE MonstConvTbl[];
-#endif
 extern const UniqMonstStruct UniqMonst[];
 
 #ifdef __cplusplus

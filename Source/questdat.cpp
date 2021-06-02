@@ -82,7 +82,7 @@ const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL] = {
 					},
 /*DLV_HELL4*/		{      32, FALSE,   DTYPE_HELL,      DTYPE_HELL,      TMUSIC_L4,              12,      16, "Diablo",
 						"Levels\\L4Data\\L4.AMP", "Levels\\L4Data\\L4.SOL",     "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L4Data\\L4_%i.PAL",     "Gendata\\Cutgate.CEL", "Gendata\\Cutgate.pal",  NULL,                          NULL,                                        0,             0,
-						{ MT_BTBLACK, MT_HLSPWN, MT_GSNAKE, MT_SOLBRNR, MT_CABALIST, MT_ADVOCATE, MT_INVALID },
+						{ MT_INVALID }, /* MT_RBLACK, MT_ADVOCATE */
 					},
 #ifdef HELLFIRE
 /*DLV_NEST1*/		{      18, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 1",
@@ -91,11 +91,11 @@ const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL] = {
 					},
 /*DLV_NEST2*/		{      20, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 2",
 						"NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.SOL",   "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "Levels\\L1Data\\L1S.CEL",     "NLevels\\L6Data\\L6Base%i.PAL", "Nlevels\\Cutl6.CEL",   "Nlevels\\Cutl6.pal",    NULL,                          NULL,                                        0,             0,
-						{ MT_HELLBOAR, MT_STINGER, MT_PSYCHORB, MT_ARACHNON, MT_FELLTWIN, MT_HORKSPWN, MT_UNRAV, MT_INVALID },
+						{ MT_HELLBOAR, MT_STINGER, MT_PSYCHORB, MT_ARACHNON, MT_FELLTWIN, MT_UNRAV, MT_INVALID }, /* MT_HORKSPWN */
 					},
 /*DLV_NEST3*/		{      22, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 3",
 						"NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.SOL",   "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "Levels\\L1Data\\L1S.CEL",     "NLevels\\L6Data\\L6Base%i.PAL", "Nlevels\\Cutl6.CEL",   "Nlevels\\Cutl6.pal",    NULL,                          NULL,                                        0,             0,
-						{ MT_HORKSPWN, MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID },
+						{ MT_VENMTAIL, MT_NECRMORB, MT_SPIDLORD, MT_LASHWORM, MT_TORCHANT, MT_INVALID }, /* MT_HORKSPWN */
 					},
 /*DLV_NEST4*/		{      24, FALSE,   DTYPE_NEST,      DTYPE_CAVES,     TMUSIC_L6,              10,      10, "Nest 4",
 						"NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.SOL",   "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "Levels\\L1Data\\L1S.CEL",     "NLevels\\L6Data\\L6Base%i.PAL", "Nlevels\\Cutl6.CEL",   "Nlevels\\Cutl6.pal",    NULL,                          NULL,                                        0,             0,
@@ -115,7 +115,7 @@ const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL] = {
 					},
 /*DLV_CRYPT4*/		{      34, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 4",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",   "Nlevels\\Cutl5.pal",    NULL,                          NULL,                                        0,             0,
-						{ MT_HELLBAT, MT_BONEDEMN, MT_ARCHLICH, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID },
+						{ MT_HELLBAT, MT_BONEDEMN, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID }, /* MT_ARCHLICH */
 					},
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,

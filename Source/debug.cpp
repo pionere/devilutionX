@@ -257,12 +257,60 @@ void DumpDungeon()
 
 void ValidateData()
 {
+	// quests
+	for (int i = 0; i < lengthof(AllLevels); i++) {
+		int j = 0;
+		for ( ; j < lengthof(AllLevels[i].dMonTypes); j++) {
+			if (AllLevels[i].dMonTypes[j] == MT_INVALID)
+				break;
+		}
+		if (j == lengthof(AllLevels[i].dMonTypes))
+			app_fatal("Missing closing MT_INVALID on level %s (%d)", AllLevels[i].dLevelName, i);
+	}
+
 	// monsters
 	for (int i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		// check RETREAT_DISTANCE for MonFallenFear
 		if (md.mAi == AI_FALLEN && md.mInt > 3)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+	}
+
+	// umt checks for GetLevelMTypes
+#ifdef HELLFIRE
+	assert(UniqMonst[UMT_HORKDMN].mtype == MT_HORKDMN);
+	assert(UniqMonst[UMT_DEFILER].mtype == MT_DEFILER);
+	assert(UniqMonst[UMT_NAKRUL].mtype == MT_NAKRUL);
+#endif
+	assert(UniqMonst[UMT_BUTCHER].mtype == MT_CLEAVER);
+	assert(UniqMonst[UMT_GARBUD].mtype == MT_NGOATMC);
+	assert(UniqMonst[UMT_ZHAR].mtype == MT_COUNSLR);
+	assert(UniqMonst[UMT_SNOTSPIL].mtype == MT_BFALLSP);
+	assert(UniqMonst[UMT_LACHDAN].mtype == MT_RBLACK);
+	assert(UniqMonst[UMT_WARLORD].mtype == MT_BTBLACK);
+	// umt checks for PlaceQuestMonsters
+	assert(UniqMonst[UMT_LAZURUS].mtype == MT_ADVOCATE);
+	assert(UniqMonst[UMT_BLACKJADE].mtype == MT_HLSPWN);
+	assert(UniqMonst[UMT_RED_VEX].mtype == MT_HLSPWN);
+
+	for (int i = 0; UniqMonst[i].mtype != MT_INVALID; i++) {
+		int j = 0;
+		int lvl = UniqMonst[i].muLevelIdx;
+		if (lvl != 0 && UniqMonst[i].mQuestId == Q_INVALID
+		 && (lvl != DLV_HELL4 || (UniqMonst[i].mtype != MT_ADVOCATE && UniqMonst[i].mtype != MT_RBLACK))
+#ifdef HELLFIRE
+		 && ((lvl != DLV_NEST2 && lvl != DLV_NEST3) || (UniqMonst[i].mtype != MT_HORKSPWN))
+		 && (lvl != DLV_CRYPT4 || (UniqMonst[i].mtype != MT_ARCHLICH))
+		 && (lvl != DLV_NEST3 || UniqMonst[i].mtype != MT_HORKDMN)
+		 && (lvl != DLV_NEST4 || UniqMonst[i].mtype != MT_DEFILER)
+#endif
+		 ) {
+			for (j = 0; AllLevels[lvl].dMonTypes[j] != MT_INVALID; j++)
+				if (AllLevels[lvl].dMonTypes[j] == UniqMonst[i].mtype)
+					break;
+			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
+				app_fatal("Useless unique monster %s (%d)", UniqMonst[i].mName, i);
+		}
 	}
 
 	// items
@@ -289,7 +337,8 @@ void ValidateData()
 		app_fatal("No medium armor for OperateArmorStand. Current minimum is level %d", minMediumArmor);
 	if (minHeavyArmor > 24)
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
-
+	if (UniqMonst[UMT_HORKDMN].muLevel < minAmu)
+		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, UniqMonst[UMT_HORKDMN].muLevel);
 	/*for (const PLStruct *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 
 	}
