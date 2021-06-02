@@ -2143,7 +2143,7 @@ static unsigned On_PLRDAMAGE(TCmd *pCmd, int pnum)
 
 	if (cmd->pdPnum == mypnum && geBufferMsgs != MSG_DOWNLOAD_DELTA) {
 		if (currLvl._dType != DTYPE_TOWN && currLvl._dLevelIdx == plr.plrlevel) {
-			if (!myplr._pInvincible && SwapLE32(cmd->pdDamage) <= 192000) {
+			if (!myplr._pInvincible /*&& SwapLE32(cmd->pdDamage) <= 192000*/) {
 				PlrDecHp(mypnum, SwapLE32(cmd->pdDamage), DMGTYPE_PLAYER);
 			}
 		}
@@ -2595,27 +2595,24 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+#ifdef _DEBUG
 static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
-#ifdef _DEBUG
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else if (plr._pLevel < MAXCHARLEVEL) {
 		plr._pExperience = plr._pNextExper;
 		NextPlrLevel(pnum);
 	}
-#endif
 	return sizeof(*pCmd);
 }
 
 static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 {
-#ifdef _DEBUG
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
 	else
 		plr._pSkillLvl[plr._pAltAtkSkill]++;
-#endif	
 	return sizeof(*pCmd);
 }
 
@@ -2623,6 +2620,7 @@ static unsigned On_DEBUG(TCmd *pCmd, int pnum)
 {
 	return sizeof(*pCmd);
 }
+#endif
 
 static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 {
@@ -2843,12 +2841,14 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 	case CMD_OPENCRYPT:
 		return On_OPENCRYPT(pCmd, pnum);
 #endif
+#ifdef _DEBUG
 	case CMD_CHEAT_EXPERIENCE:
 		return On_CHEAT_EXPERIENCE(pCmd, pnum);
 	case CMD_CHEAT_SPELL_LEVEL:
 		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
 	case CMD_DEBUG:
 		return On_DEBUG(pCmd, pnum);
+#endif	
 	}
 
 	SNetDropPlayer(pnum);

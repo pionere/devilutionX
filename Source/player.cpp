@@ -2855,6 +2855,7 @@ static void CheckNewPath(int pnum)
 	return plr._pmode == PM_DEATH || plr._pmode == PM_QUIT || plr._pmode == PM_NEWLVL;
 }*/
 
+#ifdef _DEVMODE
 static void ValidatePlayer()
 {
 	PlayerStruct *p;
@@ -2866,35 +2867,41 @@ static void ValidatePlayer()
 		dev_fatal("ValidatePlayer: illegal player %d", mypnum);
 	}
 	p = &myplr;
-	if (p->_pLevel > MAXCHARLEVEL)
-		p->_pLevel = MAXCHARLEVEL;
-	if (p->_pExperience > p->_pNextExper)
-		p->_pExperience = p->_pNextExper;
+	//if (p->_pLevel > MAXCHARLEVEL)
+	//	p->_pLevel = MAXCHARLEVEL;
+	assert(p->_pLevel <= MAXCHARLEVEL);
+	//if (p->_pExperience > p->_pNextExper)
+	//	p->_pExperience = p->_pNextExper;
+	assert(p->_pExperience <= p->_pNextExper);
 
 	gt = 0;
 	pi = p->InvList;
 	for (i = p->_pNumInv; i != 0; i--, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
-			if (pi->_ivalue > GOLD_MAX_LIMIT)
-				pi->_ivalue = GOLD_MAX_LIMIT;
+			//if (pi->_ivalue > GOLD_MAX_LIMIT)
+			//	pi->_ivalue = GOLD_MAX_LIMIT;
+			assert(pi->_ivalue <= GOLD_MAX_LIMIT);
 			gt += pi->_ivalue;
 		}
 	}
-	p->_pGold = gt;
+	//p->_pGold = gt;
+	assert(p->_pGold == gt);
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
-			if (p->_pSkillLvl[i] > MAXSPLLEVEL)
-				p->_pSkillLvl[i] = MAXSPLLEVEL;
+			//if (p->_pSkillLvl[i] > MAXSPLLEVEL)
+			//	p->_pSkillLvl[i] = MAXSPLLEVEL;
+			assert(p->_pSkillLvl[i] <= MAXSPLLEVEL);
 		}
 	}
-
-	p->_pMemSkills &= msk;
+	//p->_pMemSkills &= msk;
+	assert((p->_pMemSkills & ~msk) == 0);
 }
+#endif
 
-static void CheckCheatStats(int pnum)
+/*static void CheckCheatStats(int pnum)
 {
 	if (plr._pStrength > 750) {
 		plr._pStrength = 750;
@@ -2919,7 +2926,7 @@ static void CheckCheatStats(int pnum)
 	if (plr._pMana > 128000) {
 		plr._pMana = 128000;
 	}
-}
+}*/
 
 void ProcessPlayers()
 {
@@ -2941,11 +2948,12 @@ void ProcessPlayers()
 		}
 	}
 #endif
+#ifdef _DEVMODE
 	ValidatePlayer();
-
+#endif
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr.plractive && currLvl._dLevelIdx == plr.plrlevel && (pnum == mypnum || !plr._pLvlChanging)) {
-			CheckCheatStats(pnum);
+			//CheckCheatStats(pnum);
 
 			if (pnum == mypnum) {
 				//if (!PlrDeathModeOK(pnum) && plr._pHitPoints < (1 << 6)) {
