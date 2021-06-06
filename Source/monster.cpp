@@ -3292,7 +3292,7 @@ void MAI_GoatMc(int mnum)
 	MAI_Round(mnum, true);
 }
 
-static void MAI_Ranged(int mnum, int mitype, bool special)
+static void MAI_Ranged(int mnum, int mitype, int attackMode)
 {
 	int fx, fy, mx, my, md;
 	MonsterStruct *mon;
@@ -3312,7 +3312,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 		fy = mon->_menemyy;
 		mx = mon->_mx - fx;
 		my = mon->_my - fy;
-		if (mon->_mVar1 == MM_RATTACK) { // STAND_PREV_MODE
+		if (mon->_mVar1 == attackMode) { // STAND_PREV_MODE
 			MonStartDelay(mnum, random_(118, 20));
 		} else if (abs(mx) < 4 && abs(my) < 4) {
 			if (random_(119, 100) < 10 * (mon->_mint + 7))
@@ -3320,7 +3320,7 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 		}
 		if (mon->_mmode == MM_STAND) {
 			if (LineClear(mon->_mx, mon->_my, fx, fy)) {
-				if (special)
+				if (attackMode == MM_RSPATTACK)
 					MonStartRSpAttack(mnum, mitype);
 				else
 					MonStartRAttack(mnum, mitype);
@@ -3334,65 +3334,65 @@ static void MAI_Ranged(int mnum, int mitype, bool special)
 
 void MAI_GoatBow(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARROWC, false);
+	MAI_Ranged(mnum, MIS_ARROWC, MM_RATTACK);
 }
 
 void MAI_Succ(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FLARE, false);
+	MAI_Ranged(mnum, MIS_FLARE, MM_RATTACK);
 }
 
 void MAI_SnowWich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_SNOWWICH, false);
+	MAI_Ranged(mnum, MIS_SNOWWICH, MM_RATTACK);
 }
 
 void MAI_HlSpwn(int mnum)
 {
-	MAI_Ranged(mnum, MIS_HLSPWN, false);
+	MAI_Ranged(mnum, MIS_HLSPWN, MM_RATTACK);
 }
 
 void MAI_SolBrnr(int mnum)
 {
-	MAI_Ranged(mnum, MIS_SOLBRNR, false);
+	MAI_Ranged(mnum, MIS_SOLBRNR, MM_RATTACK);
 }
 
 #ifdef HELLFIRE
 void MAI_Lich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_LICH, false);
+	MAI_Ranged(mnum, MIS_LICH, MM_RATTACK);
 }
 
 void MAI_ArchLich(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ARCHLICH, false);
+	MAI_Ranged(mnum, MIS_ARCHLICH, MM_RATTACK);
 }
 
 void MAI_PsychOrb(int mnum)
 {
-	MAI_Ranged(mnum, MIS_PSYCHORB, false);
+	MAI_Ranged(mnum, MIS_PSYCHORB, MM_RATTACK);
 }
 
 void MAI_NecromOrb(int mnum)
 {
-	MAI_Ranged(mnum, MIS_NECROMORB, false);
+	MAI_Ranged(mnum, MIS_NECROMORB, MM_RATTACK);
 }
 #endif
 
 void MAI_AcidUniq(int mnum)
 {
-	MAI_Ranged(mnum, MIS_ACID, true);
+	MAI_Ranged(mnum, MIS_ACID, MM_RSPATTACK);
 }
 
 #ifdef HELLFIRE
 void MAI_Firebat(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FIREBOLT, false);
+	MAI_Ranged(mnum, MIS_FIREBOLT, MM_RATTACK);
 }
 
 void MAI_Torchant(int mnum)
 {
-	MAI_Ranged(mnum, MIS_FIREBALL, false);
+	MAI_Ranged(mnum, MIS_FIREBALL, MM_RATTACK);
 }
 #endif
 
