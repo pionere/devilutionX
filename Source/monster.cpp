@@ -3568,38 +3568,43 @@ static void MAI_RoundRanged(int mnum, int mitype, int lessmissiles)
 	fx = mon->_menemyx;
 	fy = mon->_menemyy;
 	dist = std::max(abs(mx - fx), abs(my - fy));
-	v = random_(121, 10000);
+	//v = random_(121, 10000);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]) {
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(122, 4 << lessmissiles) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
+				mon->_mgoalvar1 = 4 + RandRange(2, dist); // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(123, 2);        // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ >= 2 * dist && DirOK(mnum, md)) {
+			/*if ((--mon->_mgoalvar1 <= 4 && DirOK(mnum, md)) || mon->_mgoalvar1 == 0) {
 				mon->_mgoal = MGOAL_NORMAL;
-			} else if (v < ((500 * (mon->_mint + 1)) >> lessmissiles)
+			} else if (v < ((6 * (mon->_mint + 1)) >> lessmissiles)
 			    && (LineClear(mon->_mx, mon->_my, fx, fy))) {
 				MonStartRSpAttack(mnum, mitype);
 			} else {
 				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
+			}*/
+			if (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !DirOK(mnum, md))) { // MOVE_DISTANCE
+				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
+			} else {
+				mon->_mgoal = MGOAL_NORMAL;
 			}
 		}
 	} else {
 		mon->_mgoal = MGOAL_NORMAL;
 	}
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (((dist >= 3 && v < ((500 * (mon->_mint + 2)) >> lessmissiles))
-		        || v < ((500 * (mon->_mint + 1)) >> lessmissiles))
+		v = random_(124, 100);
+		if (((dist >= 3 && v < ((8 * (mon->_mint + 2)) >> lessmissiles))
+		        || v < ((8 * (mon->_mint + 1)) >> lessmissiles))
 		    && LineClear(mon->_mx, mon->_my, fx, fy)) {
 			MonStartRSpAttack(mnum, mitype);
 		} else if (dist >= 2) {
-			v = random_(124, 100);
 			if (v < 10 * (mon->_mint + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mint + 8))) {
 				MonCallWalk(mnum, md);
 			}
-		} else if (v < 1000 * (mon->_mint + 6)) {
+		} else if (v < 10 * (mon->_mint + 6)) {
 			MonStartAttack(mnum);
 		}
 	}
