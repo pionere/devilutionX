@@ -196,8 +196,6 @@ void GetLevelMTypes()
 
 	AddMonsterType(MT_GOLEM, FALSE);
 	lvl = currLvl._dLevelIdx;
-	if (lvl == DLV_CATACOMBS4)
-		AddMonsterType(MT_YMAGMA, TRUE);
 	if (!currLvl._dSetLvl) {
 		if (lvl == DLV_HELL4) {
 			AddMonsterType(MT_ADVOCATE, TRUE);
@@ -388,7 +386,6 @@ void InitMonsterGFX(int midx)
 		LoadMissileGFX(MFILE_FIREPLAR);
 		break;
 #ifdef HELLFIRE
-	case MT_SKLWING:
 	case MT_BONEDEMN:
 		if (!(MissileFileFlag & 0x400)) {
 			MissileFileFlag |= 0x400;
@@ -618,11 +615,6 @@ static void PlaceGroup(int mtype, int num, int leaderf, int leader)
 			} while (!MonstPlace(x1, y1));
 		}
 
-		if (dTransVal[x1][y1] == 0 && currLvl._dLevelIdx != DLV_HELL4) {
-			extern char gamestr[256];
-			snprintf(gamestr, 256, "b%d:%d", x1, y1);
-			continue;
-		}
 		assert(dTransVal[x1][y1] != 0 || currLvl._dLevelIdx == DLV_HELL4); // quads of the diablo level is fixed
 		static_assert(DBORDERX >= 1, "PlaceGroup expects a large enough border I.");
 		static_assert(DBORDERY >= 1, "PlaceGroup expects a large enough border II.");
@@ -2034,11 +2026,7 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		MonTryM2MHit(mnum, pnum, Hit, MinDam, MaxDam);
 		return;
 	}
-	//if (plr._pInvincible) // REMOVEME
-	extern int sumDmg, lastDmg;
-	lastDmg = RandRange(MinDam, MaxDam);
-	lastDmg <<= 6;
-	sumDmg += lastDmg;
+	if (plr._pInvincible)
 		return;
 	if (abs(mon->_mx - plr._px) >= 2 || abs(mon->_my - plr._py) >= 2)
 		return;
@@ -4387,16 +4375,12 @@ void ProcessMonsters()
 #endif
 		}
 
-		int rounds = 0, lastmode, lastgoal, lastgoalvar;
 		while (TRUE) {
 			if (!(mon->_mFlags & MFLAG_SEARCH)) {
 				AiProc[mon->_mAi](mnum);
 			} else if (!MAI_Path(mnum)) {
 				AiProc[mon->_mAi](mnum);
 			}
-			lastmode = mon->_mmode;
-			lastgoal = mon->_mgoal;
-			lastgoalvar = mon->_mgoalvar1;
 			switch (mon->_mmode) {
 			case MM_STAND:
 				raflag = MonDoStand(mnum);
@@ -4454,8 +4438,6 @@ void ProcessMonsters()
 				break;
 			}
 			if (raflag) {
-				if (++rounds > 10000)
-					app_fatal("Uhh%d:%d, %d. g%d..%d, lg:%d, lgv:%d", mon->_mAi, mon->_mmode, lastmode, mon->_mgoal, mon->_mgoalvar1, lastgoal, lastgoalvar);
 				GroupUnity(mnum);
 				continue;
 			}
@@ -4513,9 +4495,6 @@ bool DirOK(int mnum, int mdir)
 	fy = monster[mnum]._my + offset_y[mdir];
 	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
 	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
-	if (!IN_DUNGEON_AREA(fx, fy)) {
-		app_fatal("Who %d type%d ai%d mode%d goal%d gv%d? to %d:%d via %d", mnum, monster[mnum]._mType, monster[mnum]._mAi, monster[mnum]._mmode, monster[mnum]._mgoal, monster[mnum]._mgoalvar1, fx, fy, mdir);
-	}
 	assert(IN_DUNGEON_AREA(fx, fy));
 	if (!PosOkMonst(mnum, fx, fy))
 		return false;
