@@ -274,6 +274,8 @@ void ValidateData()
 		// check RETREAT_DISTANCE for MonFallenFear
 		if (md.mAi == AI_FALLEN && md.mInt > 3)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+		if (md.mAi == AI_COUNSLR && md.mInt > 5)
+			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 	}
 
 	// umt checks for GetLevelMTypes
@@ -294,23 +296,28 @@ void ValidateData()
 	assert(UniqMonst[UMT_RED_VEX].mtype == MT_HLSPWN);
 
 	for (int i = 0; UniqMonst[i].mtype != MT_INVALID; i++) {
+		const UniqMonstStruct& um = UniqMonst[i];
 		int j = 0;
-		int lvl = UniqMonst[i].muLevelIdx;
-		if (lvl != 0 && UniqMonst[i].mQuestId == Q_INVALID
-		 && (lvl != DLV_HELL4 || (UniqMonst[i].mtype != MT_ADVOCATE && UniqMonst[i].mtype != MT_RBLACK))
+		int lvl = um.muLevelIdx;
+		if (lvl != 0 && um.mQuestId == Q_INVALID
+		 && (lvl != DLV_HELL4 || (um.mtype != MT_ADVOCATE && um.mtype != MT_RBLACK))
 #ifdef HELLFIRE
-		 && ((lvl != DLV_NEST2 && lvl != DLV_NEST3) || (UniqMonst[i].mtype != MT_HORKSPWN))
-		 && (lvl != DLV_CRYPT4 || (UniqMonst[i].mtype != MT_ARCHLICH))
-		 && (lvl != DLV_NEST3 || UniqMonst[i].mtype != MT_HORKDMN)
-		 && (lvl != DLV_NEST4 || UniqMonst[i].mtype != MT_DEFILER)
+		 && ((lvl != DLV_NEST2 && lvl != DLV_NEST3) || (um.mtype != MT_HORKSPWN))
+		 && (lvl != DLV_CRYPT4 || (um.mtype != MT_ARCHLICH))
+		 && (lvl != DLV_NEST3 || um.mtype != MT_HORKDMN)
+		 && (lvl != DLV_NEST4 || um.mtype != MT_DEFILER)
 #endif
 		 ) {
 			for (j = 0; AllLevels[lvl].dMonTypes[j] != MT_INVALID; j++)
-				if (AllLevels[lvl].dMonTypes[j] == UniqMonst[i].mtype)
+				if (AllLevels[lvl].dMonTypes[j] == um.mtype)
 					break;
 			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
-				app_fatal("Useless unique monster %s (%d)", UniqMonst[i].mName, i);
+				app_fatal("Useless unique monster %s (%d)", um.mName, i);
 		}
+		if (um.mAi == AI_FALLEN && um.mint > 3)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mint, um.mName, i);
+		if (um.mAi == AI_COUNSLR && um.mint > 5)
+			app_fatal("Invalid mInt %d for %s (%d)", um.mint, um.mName, i);
 	}
 
 	// items
