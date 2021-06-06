@@ -63,14 +63,10 @@ const int MWVel[24][3] = {
 };
 /** Maps from monster action to monster animation letter. */
 const char animletter[NUM_MON_ANIM] = { 'n', 'w', 'a', 'h', 'd', 's' };
-/** Maps from direction to a left turn from the direction. */
-const int left[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
-/** Maps from direction to a right turn from the direction. */
-const int right[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
 /** Maps from direction to delta X-offset. */
-const int offset_x[8] = { 1, 0, -1, -1, -1, 0, 1, 1 };
+const int offset_x[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to delta Y-offset. */
-const int offset_y[8] = { 1, 1, 1, 0, -1, -1, -1, 0 };
+const int offset_y[NUM_DIRS] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
 /** Maps from monster AI ID to monster AI function. */
 void (*AiProc[])(int i) = {
@@ -2634,20 +2630,24 @@ static bool MonCallWalk(int mnum, int md)
 	int mdtemp;
 	bool ok;
 
-	mdtemp = md;
 	ok = DirOK(mnum, md);
-	if (random_(101, 2) != 0)
-		ok = ok || (md = left[mdtemp], DirOK(mnum, md)) || (md = right[mdtemp], DirOK(mnum, md));
-	else
-		ok = ok || (md = right[mdtemp], DirOK(mnum, md)) || (md = left[mdtemp], DirOK(mnum, md));
-	if (random_(102, 2) != 0)
-		ok = ok
-		    || (md = right[right[mdtemp]], DirOK(mnum, md))
-		    || (md = left[left[mdtemp]], DirOK(mnum, md));
-	else
-		ok = ok
-		    || (md = left[left[mdtemp]], DirOK(mnum, md))
-		    || (md = right[right[mdtemp]], DirOK(mnum, md));
+	if (!ok) {
+		mdtemp = md;
+		if (random_(101, 2) != 0)
+			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
+			  || (md = (mdtemp + 1) & 7, DirOK(mnum, md));
+		else
+			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
+			  || (md = (mdtemp - 1) & 7, DirOK(mnum, md));
+		if (!ok) {
+			if (random_(102, 2) != 0)
+				ok = (md = (mdtemp + 2) & 7, DirOK(mnum, md))
+				 || (md = (mdtemp - 2) & 7, DirOK(mnum, md));
+			else
+				ok = (md = (mdtemp - 2) & 7, DirOK(mnum, md))
+				 || (md = (mdtemp + 2) & 7, DirOK(mnum, md));
+		}
+	}
 	if (ok)
 		MonWalkDir(mnum, md);
 	return ok;
@@ -2680,16 +2680,20 @@ static void MonCallWalk2(int mnum, int md)
 	bool ok;
 	int mdtemp;
 
-	mdtemp = md;
 	ok = DirOK(mnum, md);       // Can we continue in the same direction
-	if (random_(101, 2) != 0) { // Randomly go left or right
-		ok = ok || (mdtemp = left[md], DirOK(mnum, left[md])) || (mdtemp = right[md], DirOK(mnum, right[md]));
-	} else {
-		ok = ok || (mdtemp = right[md], DirOK(mnum, right[md])) || (mdtemp = left[md], DirOK(mnum, left[md]));
+	if (!ok) {
+		mdtemp = md;
+		if (random_(101, 2) != 0) { // Randomly go left or right
+			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
+			 || (md = (mdtemp + 1) & 7, DirOK(mnum, md));
+		} else {
+			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
+			 || (md = (mdtemp - 1) & 7, DirOK(mnum, md));
+		}
 	}
 
 	if (ok)
-		MonWalkDir(mnum, mdtemp);
+		MonWalkDir(mnum, md);
 
 	//return ok;
 }
@@ -2711,19 +2715,19 @@ static bool MonRoundWalk(int mnum, int md, int *dir)
 	bool ok;
 
 	if (*dir)
-		md = left[left[md]];
+		md = (md - 2) & 7;
 	else
-		md = right[right[md]];
+		md = (md + 2) & 7;
 
 	ok = DirOK(mnum, md);
 	mdtemp = md;
 	if (!ok) {
 		if (*dir) {
-			md = right[mdtemp];
-			ok = DirOK(mnum, md) || (md = right[right[mdtemp]], DirOK(mnum, md));
+			ok = (md = (mdtemp + 1) & 7, DirOK(mnum, md))
+			  || (md = (mdtemp + 2) & 7, DirOK(mnum, md));
 		} else {
-			md = left[mdtemp];
-			ok = (DirOK(mnum, md) || (md = left[left[mdtemp]], DirOK(mnum, md)));
+			ok = (md = (mdtemp - 1) & 7, DirOK(mnum, md))
+			  || (md = (mdtemp - 2) & 7, DirOK(mnum, md));
 		}
 	}
 	if (ok) {
@@ -2924,7 +2928,8 @@ void MAI_Bat(int mnum)
 			MonCallWalk(mnum, OPPOSITE(md));
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
-			MonCallWalk(mnum, random_(108, 2) != 0 ? left[md] : right[md]);
+			//MonCallWalk(mnum, random_(108, 2) != 0 ? left[md] : right[md]);
+			MonCallWalk(mnum, (md + 2 * random_(108, 2) - 1) & 7);
 		}
 		return;
 	}
@@ -3061,7 +3066,8 @@ void MAI_Sneak(int mnum)
 		else
 			md = GetDirection(plx(md)._px, plx(md)._py, mon->_mx, mon->_my);
 		if (mon->_mType == MT_UNSEEN) {
-			md = random_(112, 2) != 0 ? left[md] : right[md];
+			//md = random_(112, 2) != 0 ? left[md] : right[md];
+			md = (md + 2 * random_(112, 2) - 1) & 7;
 		}
 	}
 	mon->_mdir = md;
