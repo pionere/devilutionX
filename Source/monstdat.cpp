@@ -289,7 +289,7 @@ const BYTE MonstConvTbl[] = {
 	0, // Snotspill from banner2.dun
 	0,
 	0,
-	MT_BIGFALL,
+	0, //MT_BIGFALL,
 	0, //MT_DARKMAGE,
 /*#ifdef HELLFIRE
 	MT_HELLBOAR,
