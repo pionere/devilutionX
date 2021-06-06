@@ -1748,14 +1748,14 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	return MIRES_DONE;
 }
 
-int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	GetMissileVel(mi, sx, sy, dx, dy, 16);
 	missile[mi]._miRange = 256;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam = 4 << 6;
 	//PutMissile(mi);
 	return MIRES_DONE;
-}
+}*/
 
 int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -2231,7 +2231,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
  * Var1: target found
  * Var2: attempts to find a target
  */
-int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+/*int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	AnimStruct *anim;
@@ -2258,7 +2258,7 @@ int AddFireman(int mi, int sx, int sy, int dx, int dy, int midir, char micaster,
 	//mis->_miRange = 256;
 	//PutMissile(mi);
 	return MIRES_DONE;
-}
+}*/
 
 /**
  * Var1: x coordinate of the missile-light
@@ -3111,7 +3111,7 @@ void MI_Lightball(int mi)
 	PutMissile(mi);
 }
 
-void MI_Krull(int mi)
+/*void MI_Krull(int mi)
 {
 	MissileStruct *mis;
 
@@ -3124,7 +3124,7 @@ void MI_Krull(int mi)
 	if (mis->_miRange == 0)
 		mis->_miDelFlag = TRUE;
 	PutMissile(mi);
-}
+}*/
 
 void MI_Acidpud(int mi)
 {
@@ -3826,7 +3826,7 @@ void MI_Rhino(int mi)
 	PutMissile(mi);
 }
 
-void MI_Fireman(int mi)
+/*void MI_Fireman(int mi)
 {
 	MissileStruct *mis;
 	int mnum, ax, ay, bx, by, cx, cy, tnum;
@@ -3866,7 +3866,7 @@ void MI_Fireman(int mi)
 	}
 	ShiftMissilePos(mi);
 	PutMissile(mi);
-}
+}*/
 
 void MI_WallC(int mi)
 {

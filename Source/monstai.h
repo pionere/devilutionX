@@ -19,7 +19,7 @@ void MAI_Bat(int mnum);
 void MAI_SkelBow(int mnum);
 void MAI_Fat(int mnum);
 void MAI_Sneak(int mnum);
-void MAI_Fireman(int mnum);
+//void MAI_Fireman(int mnum);
 void MAI_Fallen(int mnum);
 void MAI_Cleaver(int mnum);
 void MAI_GoatMc(int mnum);
