@@ -22,7 +22,7 @@ static uint32_t sgbSentThisCycle;
 static bool gbShouldValidatePackage;
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
-static BOOLEAN sgbSendDeltaTbl[MAX_PLRS];
+static unsigned guSendDelta;
 static _SNETGAMEDATA sgGameInitInfo;
 bool gbSelectProvider;
 bool gbSelectHero;
@@ -154,7 +154,7 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 	}
 }
 
-void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
+void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE len)
 {
 	DWORD i, msglen;
 	TPkt pkt;
@@ -163,6 +163,7 @@ void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len)
 	msglen = len + sizeof(pkt.hdr);
 	pkt.hdr.wLen = SwapLE16(msglen);
 	memcpy(pkt.body, src, len);
+	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
 			SNetSendMessage(i, &pkt.hdr, msglen);
@@ -195,7 +196,7 @@ static void multi_handle_turn_upper_bit(int pnum)
 	}
 
 	if (mypnum == i) {
-		sgbSendDeltaTbl[pnum] = TRUE;
+		guSendDelta |= 1 << pnum;
 	} else if (mypnum == pnum) {
 		gbDeltaSender = i;
 	}
@@ -397,11 +398,11 @@ bool multi_handle_turn()
 		gbRunGame = false;
 		return false;
 	}
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (sgbSendDeltaTbl[i]) {
-			sgbSendDeltaTbl[i] = FALSE;
-			DeltaExportData(i);
+	static_assert(sizeof(guSendDelta) * CHAR_BIT > MAX_PLRS, "Sending delta info with unsigned int mask does not work.");
+	if (guSendDelta != 0) {
+		for (i = 0; i < MAX_PLRS; i++, guSendDelta >>= 1) {
+			if (guSendDelta & 1)
+				DeltaExportData(i);
 		}
 	}
 
@@ -610,7 +611,7 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 	if (LeftReason == LEAVE_ENDING)
 		gbSomebodyWonGameKludge = true;
 
-	sgbSendDeltaTbl[pnum] = FALSE;
+	guSendDelta |= 1 << pnum;
 	dthread_remove_player(pnum);
 
 	if (gbDeltaSender == pnum)
@@ -720,7 +721,7 @@ bool NetInit(bool bSinglePlayer)
 		gbGameDestroyed = false;
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
 		memset(sgdwPlayerLeftReasonTbl, 0, sizeof(sgdwPlayerLeftReasonTbl));
-		memset(sgbSendDeltaTbl, 0, sizeof(sgbSendDeltaTbl));
+		guSendDelta = 0;
 		memset(players, 0, sizeof(players));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
 		if (!multi_init_game(bSinglePlayer))
