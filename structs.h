@@ -563,7 +563,6 @@ typedef struct MonsterData {
 	BOOL has_special;
 	const char *sndfile;
 	BOOL snd_special;
-	BOOL has_trans;
 	const char *TransFile;
 	int mAnimFrames[NUM_MON_ANIM];
 	int mAnimFrameLen[NUM_MON_ANIM];
@@ -592,6 +591,9 @@ typedef struct MonsterData {
 	uint16_t mTreasure;
 	BYTE mSelFlag;
 	uint16_t mExp;
+#ifdef X86_32bit_COMP
+	int alignment[1];
+#endif
 } MonsterData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");

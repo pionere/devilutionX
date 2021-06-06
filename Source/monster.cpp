@@ -312,7 +312,7 @@ void InitMonsterGFX(int midx)
 	cmon->cmXOffset = (mdata->width - 64) >> 1;
 	cmon->cmData = mdata;
 
-	if (mdata->has_trans) {
+	if (mdata->TransFile != NULL) {
 		InitMonsterTRN(cmon, mdata);
 	}
 
