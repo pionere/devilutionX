@@ -1326,7 +1326,7 @@ static void AddPurifyingFountain(int oi)
 	dObject[ox][oy - 1] = -(oi + 1);
 	dObject[ox - 1][oy] = -(oi + 1);
 	dObject[ox - 1][oy - 1] = -(oi + 1);
-	object[oi]._oRndSeed = GetRndSeed();
+	//object[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddArmorStand(int oi)
@@ -1355,7 +1355,7 @@ static void AddMurkyFountain(int oi)
 	dObject[ox][oy - 1] = -(oi + 1);
 	dObject[ox - 1][oy] = -(oi + 1);
 	dObject[ox - 1][oy - 1] = -(oi + 1);
-	object[oi]._oRndSeed = GetRndSeed();
+	//object[oi]._oRndSeed = GetRndSeed();
 }
 
 static void AddDecap(int oi)
@@ -1380,7 +1380,7 @@ static void AddMagicCircle(int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	os->_oRndSeed = GetRndSeed();
+	//os->_oRndSeed = GetRndSeed();
 	os->_oPreFlag = TRUE;
 	os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 	os->_oVar5 = 1; // VILE_CIRCLE_PROGRESS
@@ -1420,7 +1420,7 @@ static void AddTorturedBody(int oi)
 	ObjectStruct *os;
 
 	os = &object[oi];
-	os->_oRndSeed = GetRndSeed();
+	//os->_oRndSeed = GetRndSeed();
 	os->_oAnimFrame = RandRange(1, 4);
 	os->_oPreFlag = TRUE;
 }
@@ -1574,6 +1574,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_BOOKSTAND:
 	case OBJ_BLOODBOOK:
 	case OBJ_PEDISTAL:
+	case OBJ_SLAINHERO:
 		ObjAddRndSeed(oi);
 		break;
 	//case OBJ_BLOODFTN:
