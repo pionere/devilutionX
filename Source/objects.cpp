@@ -1391,8 +1391,7 @@ static void AddStoryBook(int oi)
 	ObjectStruct *os;
 	int bookframe;
 
-	SetRndSeed(glSeedTbl[16]);
-	bookframe = random_(0, 3);
+	bookframe = quests[Q_DIABLO]._qvar1;
 
 	os = &object[oi];
 	os->_oVar1 = bookframe;

@@ -84,10 +84,11 @@ void InitQuests()
 		qs->_qmsg = qdata->_qdmsg;
 	}
 
+	SetRndSeed(glSeedTbl[DLV_HELL3]);
+	quests[Q_DIABLO]._qvar1 = random_(0, 3);
 #ifdef _DEBUG
 	if (!allquests) {
 #endif
-		SetRndSeed(glSeedTbl[DLV_HELL3]);
 		if (random_(0, 2) != 0)
 			quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;
 		else
