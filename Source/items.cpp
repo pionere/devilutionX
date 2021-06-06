@@ -610,7 +610,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	plr._pIFlags = iflgs;
 	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
-	plr._pIGetHit = ghit;
+	plr._pIGetHit = ghit << 6;
 	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;
 	plr._pILifeSteal = lifesteal;

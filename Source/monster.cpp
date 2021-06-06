@@ -2077,11 +2077,10 @@ static void MonTryH2HHit(int mnum, int pnum, int Hit, int MinDam, int MaxDam)
 		else
 			MonStartHit(mnum, pnum, tmp);
 	}
-	dam = RandRange(MinDam, MaxDam);
+	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
-	if (dam <= 0)
-		dam = 1;
-	dam <<= 6;
+	if (dam < 64)
+		dam = 64;
 	if (mon->_mFlags & MFLAG_LIFESTEAL) {
 		mon->_mhitpoints += dam;
 		if (mon->_mhitpoints > mon->_mmaxhp)

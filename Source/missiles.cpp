@@ -836,8 +836,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-
-	dam += plr._pIGetHit;
+	dam += (!(mis->_miFlags & MIF_DOT)) ? plr._pIGetHit : (plr._pIGetHit >> 6);
 	if (dam < 64)
 		dam = 64;
 
@@ -899,7 +898,7 @@ static bool PlayerMHit(int pnum, int mi)
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 	if (dam == 0)
 		return false;
-	dam += plr._pIGetHit;
+	dam += (!(mis->_miFlags & MIF_DOT)) ? plr._pIGetHit : (plr._pIGetHit >> 6);
 	if (dam < 64)
 		dam = 64;
 
