@@ -386,6 +386,7 @@ void InitMonsterGFX(int midx)
 		LoadMissileGFX(MFILE_FIREPLAR);
 		break;
 #ifdef HELLFIRE
+	case MT_SKLWING:
 	case MT_BONEDEMN:
 		if (!(MissileFileFlag & 0x400)) {
 			MissileFileFlag |= 0x400;
