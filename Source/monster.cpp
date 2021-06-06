@@ -3979,8 +3979,8 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, counsmiss[mon->_mint]);
 			} else if (random_(124, 100) < 30) {
 				mon->_mgoal = MGOAL_MOVE;
-				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
-				mon->_mgoalvar2 = random_(125, 2); // MOVE_TURN_DIRECTION
+				mon->_mgoalvar1 = 4 + RandRange(dist, 2 * dist); // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(125, 2);               // MOVE_TURN_DIRECTION
 				MonStartFadeout(mnum, md, false);
 			}
 		} else {
@@ -4004,7 +4004,7 @@ void MAI_Counselor(int mnum)
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
 		if (dist >= 2 && mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]
-		 && (mon->_mgoalvar1++ < 2 * dist || !DirOK(mnum, md))) { // MOVE_DISTANCE
+		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !DirOK(mnum, md)))) { // MOVE_DISTANCE
 			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
