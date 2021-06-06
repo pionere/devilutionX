@@ -388,7 +388,7 @@ static void multi_begin_timeout()
 /**
  * @return Always true for singleplayer
  */
-bool multi_handle_delta()
+bool multi_handle_turn()
 {
 	int i;
 	bool received;

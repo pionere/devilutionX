@@ -18,7 +18,7 @@ char sgbSyncCountdown;
 int turn_upper_bit;
 bool _gbTicsOutOfSync;
 char sgbPacketCountdown;
-bool _gbThreadIsRunning;
+bool _gbMutexDisabled;
 unsigned gdwLargestMsgSize;
 unsigned gdwNormalMsgSize;
 int last_tick;
@@ -181,7 +181,7 @@ void nthread_start(bool set_turn_upper_bit)
 	if (gdwNormalMsgSize > largestMsgSize)
 		gdwNormalMsgSize = largestMsgSize;
 	if (gbMaxPlayers != 1) {
-		_gbThreadIsRunning = false;
+		_gbMutexDisabled = false;
 		sgMemCrit.Enter();
 		_sbNthreadShouldRun = true;
 		sghThread = CreateThread(nthread_handler, &glpNThreadId);
@@ -198,7 +198,7 @@ void nthread_cleanup()
 	gdwNormalMsgSize = 0;
 	gdwLargestMsgSize = 0;
 	if (sghThread != NULL && glpNThreadId != SDL_GetThreadID(NULL)) {
-		if (!_gbThreadIsRunning)
+		if (!_gbMutexDisabled)
 			sgMemCrit.Leave();
 		SDL_WaitThread(sghThread, NULL);
 		sghThread = NULL;
@@ -212,7 +212,7 @@ void nthread_ignore_mutex(bool bStart)
 			sgMemCrit.Leave();
 		else
 			sgMemCrit.Enter();
-		_gbThreadIsRunning = bStart;
+		_gbMutexDisabled = bStart;
 	}
 }
 

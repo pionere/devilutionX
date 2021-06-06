@@ -379,7 +379,7 @@ static void game_loop(bool bStartup)
 	i = gbMaxPlayers == 1 ? 1 : (bStartup ? gnTicksRate * 3 : 3);
 
 	do {
-		if (!multi_handle_delta()) {
+		if (!multi_handle_turn()) {
 			static_assert(CURSOR_NONE == 0, "BitOr optimization of timeout_cursor depends on CURSOR_NONE being 0.");
 			if ((sgnTimeoutCurs | gbActionBtnDown | gbAltActionBtnDown) == 0) {
 				sgnTimeoutCurs = pcurs;
