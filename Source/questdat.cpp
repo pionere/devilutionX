@@ -103,7 +103,7 @@ const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL] = {
 					},
 /*DLV_CRYPT1*/		{      26, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 1",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",   "Nlevels\\Cutl5.pal",    NULL,                          NULL,                                        0,             0,
-						{ MT_LRDSAYTR, MT_GRAVEDIG, MT_BIGFALL, MT_TOMBRAT, MT_FIREBAT, MT_SKLWING, MT_LICH, MT_INVALID },
+						{ MT_LRDSAYTR, MT_GRAVEDIG, MT_BIGFALL, MT_TOMBRAT, MT_FIREBAT, MT_LICH, MT_INVALID },
 					},
 /*DLV_CRYPT2*/		{      28, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 2",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",   "Nlevels\\Cutl5.pal",    NULL,                          NULL,                                        0,             0,
@@ -115,7 +115,7 @@ const LevelDataStruct AllLevels[NUMLEVELS + NUM_SETLVL] = {
 					},
 /*DLV_CRYPT4*/		{      32, FALSE,   DTYPE_CRYPT,     DTYPE_CATHEDRAL, TMUSIC_L5,              10,      10, "Crypt 4",
 						"NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.SOL",   "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "NLevels\\L5Data\\L5Base.PAL",   "Nlevels\\Cutl5.CEL",   "Nlevels\\Cutl5.pal",    NULL,                          NULL,                                        0,             0,
-						{ MT_HELLBAT, MT_BONEDEMN, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID }, /* MT_ARCHLICH */
+						{ MT_HELLBAT, MT_BICLOPS, MT_FLESTHNG, MT_REAPER, MT_INVALID }, /* MT_ARCHLICH */
 					},
 #endif
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
