@@ -599,20 +599,21 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 {
 	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
 
-	DWORD LeftReason;
-	sgbPlayerLeftGameTbl[pEvt->playerid] = true;
+	DWORD pnum, LeftReason;
 
 	LeftReason = 0;
 	if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
 		LeftReason = *(DWORD *)pEvt->_eData;
-	sgdwPlayerLeftReasonTbl[pEvt->playerid] = LeftReason;
+	pnum = pEvt->playerid;
+	sgbPlayerLeftGameTbl[pnum] = true;
+	sgdwPlayerLeftReasonTbl[pnum] = LeftReason;
 	if (LeftReason == LEAVE_ENDING)
 		gbSomebodyWonGameKludge = true;
 
-	sgbSendDeltaTbl[pEvt->playerid] = FALSE;
-	dthread_remove_player(pEvt->playerid);
+	sgbSendDeltaTbl[pnum] = FALSE;
+	dthread_remove_player(pnum);
 
-	if (gbDeltaSender == pEvt->playerid)
+	if (gbDeltaSender == pnum)
 		gbDeltaSender = MAX_PLRS;
 }
 
