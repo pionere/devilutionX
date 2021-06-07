@@ -77,6 +77,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_DISARM:
 #ifdef HELLFIRE
 	case SPL_BLODBOIL:
+	case SPL_BUCKLE:
 	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
 #endif

@@ -2884,6 +2884,7 @@ typedef enum spell_id {
 	SPL_DISARM,
 #ifdef HELLFIRE
 	SPL_BLODBOIL,
+	SPL_BUCKLE,
 	SPL_WHITTLE,
 	SPL_LIGHTWALL,
 	SPL_IMMOLAT,
@@ -3276,6 +3277,7 @@ typedef enum _item_indexes {
 	IDI_FULLREJUV  = 0x4C,
 	IDI_BOOK1      = 0x6A,
 	IDI_BOOK4      = 0x6D,
+	IDI_CLUB       = 0x85,
 	IDI_DROPSHSTAFF= 0x91,
 #ifdef HELLFIRE
 	NUM_IDI        = 0xA3

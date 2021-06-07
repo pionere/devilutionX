@@ -2700,6 +2700,57 @@ static void DoWhittle(int pnum, int cii)
 		CalcPlrInv(pnum, true);
 	}
 }
+
+/*
+ * Convert a shield to a (spiked-)club.
+ */
+static void BuckleItem(ItemStruct *pi)
+{
+	int seed;
+	WORD ci, idx;
+	BYTE magic;
+
+	ci = (pi->_iCreateInfo & CF_LEVEL);
+	seed = pi->_iSeed;
+	SetRndSeed(seed);
+	idx = (random_(111, 100) < 25 + ci) ? IDI_BARBCLUB : IDI_CLUB;
+	magic = pi->_iMagical == ITEM_QUALITY_NORMAL ? ITEM_QUALITY_NORMAL : ITEM_QUALITY_MAGIC;
+
+	ci |= CF_CRAFTED;
+	while (TRUE) {
+		RecreateItem(seed, idx, ci, 0);
+		assert(items[MAXITEMS]._iIdx == idx);
+		if (items[MAXITEMS]._iMagical == magic)
+			break;
+		seed = GetRndSeed();
+	}
+	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
+	//items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
+	copy_pod(*pi, items[MAXITEMS]);
+}
+
+static void DoBuckle(int pnum, int cii)
+{
+	ItemStruct *pi;
+
+	if (cii >= NUM_INVLOC) {
+		return; //pi = &plr.InvList[cii - NUM_INVLOC];
+	} else {
+		pi = &plr.InvBody[cii];
+	}
+
+	if (pi->_itype == ITYPE_SHIELD) {
+		// move the item to the left hand
+		if (plr.InvBody[INVITEM_HAND_LEFT]._itype == ITYPE_NONE) {
+			// assert(pi == &plr.InvBody[INVITEM_HAND_RIGHT]);
+			copy_pod(plr.InvBody[INVITEM_HAND_LEFT], plr.InvBody[INVITEM_HAND_RIGHT]);
+			plr.InvBody[INVITEM_HAND_RIGHT]._itype = ITYPE_NONE;
+			pi = &plr.InvBody[INVITEM_HAND_LEFT];
+		}
+		BuckleItem(pi);
+		CalcPlrInv(pnum, true);
+	}
+}
 #endif
 
 static ItemStruct* PlrItem(int pnum, int cii)
@@ -2755,6 +2806,7 @@ void DoAbility(int pnum, BOOL id, int cii)
 		DoIdentify(pnum, cii);
 		break;
 	case PC_BARBARIAN:
+		DoBuckle(pnum, cii);
 		break;
 #endif
 	default:
