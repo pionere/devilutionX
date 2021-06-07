@@ -1160,6 +1160,7 @@ static void AddL1Door(int oi)
 	//SyncL1Doors(oi);
 }
 
+static void OpenDoor(int oi);
 static void SyncL2Doors(int oi);
 static void AddL2Door(int oi)
 {
@@ -1167,16 +1168,12 @@ static void AddL2Door(int oi)
 
 	os = &object[oi];
 	os->_oDoorFlag = TRUE;
-	os->_oVar4 = dMonster[os->_ox][os->_oy] == 0 ? DOOR_CLOSED : DOOR_OPEN;
-	if (os->_oVar4 == DOOR_OPEN) {
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-	}
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
+	os->_oVar4 = DOOR_CLOSED;
+	if (dMonster[os->_ox][os->_oy] != 0)
+		OpenDoor(oi);
 	SyncL2Doors(oi);
 }
 
@@ -1187,16 +1184,12 @@ static void AddL3Door(int oi)
 
 	os = &object[oi];
 	os->_oDoorFlag = TRUE;
-	os->_oVar4 = dMonster[os->_ox][os->_oy] == 0 ? DOOR_CLOSED : DOOR_OPEN;
-	if (os->_oVar4 == DOOR_OPEN) {
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-	}
 	//os->_oPreFlag = FALSE;
 	//os->_oSelFlag = 3;
 	//os->_oMissFlag = FALSE;
+	os->_oVar4 = DOOR_CLOSED;
+	if (dMonster[os->_ox][os->_oy] != 0)
+		OpenDoor(oi);
 	SyncL3Doors(oi);
 }
 
@@ -2223,7 +2216,19 @@ void RedoPlayerVision()
 	}
 }
 
-static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
+static void OpenDoor(int oi)
+{
+	ObjectStruct *os;
+
+	os = &object[oi];
+	os->_oVar4 = DOOR_OPEN;
+	os->_oPreFlag = TRUE;
+	os->_oSelFlag = 2;
+	os->_oMissFlag = TRUE;
+	os->_oAnimFrame += 2;
+}
+
+static bool CloseDoor(int oi)
 {
 	ObjectStruct *os;
 	int xp, yp;
@@ -2231,313 +2236,168 @@ static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
 	os = &object[oi];
 	xp = os->_ox;
 	yp = os->_oy;
-	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) > 1 || abs(yp - y) != 1)
-			return;
-	}
-	// open a closed door
+	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
 	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-#ifdef HELLFIRE
-		if (!deltaload)
-			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-#else
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-#endif
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL1Doors(oi);
-		RedoPlayerVision();
-		return;
-	}
-	// try to close the door
-	if (os->_oVar4 == DOOR_BLOCKED) {
-		if (!deltaload)
-			PlaySfxLoc(IS_DOORCLOS, xp, yp);
-		return;
-	}
-	if (!deltaload)
-#ifdef HELLFIRE
-		PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
-#else
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-#endif
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
 		os->_oPreFlag = FALSE;
 		os->_oSelFlag = 3;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
+		return true;
+	}
+	return false;
+}
+
+static void OperateL1Door(int oi, bool sendmsg)
+{
+	ObjectStruct *os;
+	int sfx;
+
+	os = &object[oi];
+	// open a closed door
+	if (os->_oVar4 == DOOR_CLOSED) {
+		if (sendmsg)
+			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
+		if (!deltaload) {
+#ifdef HELLFIRE
+			sfx = currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN;
+#else
+			sfx = IS_DOOROPEN;
+#endif
+			PlaySfxLoc(sfx, os->_ox, os->_oy);
+			RedoPlayerVision();
+		}
+		OpenDoor(oi);
+		SyncL1Doors(oi);
+		return;
+	}
+	// try to close the door
+	if (!deltaload) {
+#ifdef HELLFIRE
+		sfx = (currLvl._dType != DTYPE_CRYPT || os->_oVar4 == DOOR_BLOCKED) ? IS_DOORCLOS : IS_CRCLOS;
+#else
+		sfx = IS_DOORCLOS;
+#endif
+		PlaySfxLoc(sfx, os->_ox, os->_oy);
+	}
+	if (os->_oVar4 == DOOR_BLOCKED)
+		return;
+
+	if (CloseDoor(oi)) {
+		if (sendmsg)
+			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
 		SyncL1Doors(oi);
 		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
 	}
+}
+
+static void OperateL1RDoor(int x, int y, int oi, bool sendmsg)
+{
+	// check if (x;y) is the right position
+	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
+		return;
+	OperateL1Door(oi, sendmsg);
 }
 
 static void OperateL1LDoor(int x, int y, int oi, bool sendmsg)
 {
+	// check if (x;y) is the right position
+	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
+		return;
+	OperateL1Door(oi, sendmsg);
+}
+
+static void OperateL2Door(int oi, bool sendmsg)
+{
 	ObjectStruct *os;
-	int xp, yp;
 
 	os = &object[oi];
-	xp = os->_ox;
-	yp = os->_oy;
-
-	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) != 1 || abs(yp - y) > 1)
-			return;
-	}
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-#ifdef HELLFIRE
-		if (!deltaload)
-			PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOOROPEN : IS_CROPEN, xp, yp);
-#else
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-#endif
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL1Doors(oi);
-		RedoPlayerVision();
+		if (!deltaload) {
+			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
+			RedoPlayerVision();
+		}
+		OpenDoor(oi);
+		SyncL2Doors(oi);
 		return;
 	}
 	// try to close the door
-	if (os->_oVar4 == DOOR_BLOCKED) {
-		if (!deltaload)
-			PlaySfxLoc(IS_DOORCLOS, xp, yp);
-		return;
-	}
 	if (!deltaload)
-#ifdef HELLFIRE
-		PlaySfxLoc(currLvl._dType != DTYPE_CRYPT ? IS_DOORCLOS : IS_CRCLOS, xp, yp);
-#else
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-#endif
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
+		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
+	if (os->_oVar4 == DOOR_BLOCKED)
+		return;
+
+	if (CloseDoor(oi)) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		SyncL1Doors(oi);
+		SyncL2Doors(oi);
 		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
 	}
 }
 
 static void OperateL2RDoor(int x, int y, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
-	int xp, yp;
-
-	os = &object[oi];
-	xp = os->_ox;
-	yp = os->_oy;
 	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) > 1 || abs(yp - y) != 1)
-			return;
-	}
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL2Doors(oi);
-		RedoPlayerVision();
+	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
 		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		SyncL2Doors(oi);
-		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
-	}
+	OperateL2Door(oi, sendmsg);
 }
 
 static void OperateL2LDoor(int x, int y, int oi, bool sendmsg)
 {
+	// check if (x;y) is the right position
+	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
+		return;
+	OperateL2Door(oi, sendmsg);
+}
+
+static void OperateL3Door(int oi, bool sendmsg)
+{
 	ObjectStruct *os;
-	int xp, yp;
 
 	os = &object[oi];
-	xp = os->_ox;
-	yp = os->_oy;
-	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) != 1 || abs(yp - y) > 1)
-			return;
-	}
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL2Doors(oi);
-		RedoPlayerVision();
+		if (!deltaload) {
+			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
+			RedoPlayerVision();
+		}
+		OpenDoor(oi);
+		SyncL3Doors(oi);
 		return;
 	}
 	// try to close the door
 	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
+		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
 	if (os->_oVar4 == DOOR_BLOCKED)
 		return;
 
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
+	if (CloseDoor(oi)) {
 		if (sendmsg)
 			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		SyncL2Doors(oi);
+		SyncL3Doors(oi);
 		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
 	}
 }
 
 static void OperateL3RDoor(int x, int y, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
-	int xp, yp;
-
-	os = &object[oi];
-	xp = os->_ox;
-	yp = os->_oy;
 	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) != 1 || abs(yp - y) > 1)
-			return;
-	}
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL3Doors(oi);
-		RedoPlayerVision();
+	if (abs(object[oi]._ox - x) != 1 || abs(object[oi]._oy - y) > 1)
 		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		SyncL3Doors(oi);
-		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
-	}
+	OperateL3Door(oi, sendmsg);
 }
 
 static void OperateL3LDoor(int x, int y, int oi, bool sendmsg)
 {
-	ObjectStruct *os;
-	int xp, yp;
-
-	os = &object[oi];
-	xp = os->_ox;
-	yp = os->_oy;
 	// check if (x;y) is the right position
-	if (x != -1) {
-		if (abs(xp - x) > 1 || abs(yp - y) != 1)
-			return;
-	}
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOOROPEN, oi);
-		if (!deltaload)
-			PlaySfxLoc(IS_DOOROPEN, xp, yp);
-		os->_oVar4 = DOOR_OPEN;
-		os->_oPreFlag = TRUE;
-		os->_oSelFlag = 2;
-		os->_oMissFlag = TRUE;
-		os->_oAnimFrame += 2;
-		SyncL3Doors(oi);
-		RedoPlayerVision();
+	if (abs(object[oi]._ox - x) > 1 || abs(object[oi]._oy - y) != 1)
 		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, xp, yp);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if ((dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0) {
-		if (sendmsg)
-			NetSendCmdParam1(true, CMD_DOORCLOSE, oi);
-		os->_oVar4 = DOOR_CLOSED;
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		SyncL3Doors(oi);
-		RedoPlayerVision();
-	} else {
-		os->_oVar4 = DOOR_BLOCKED;
-	}
+	OperateL3Door(oi, sendmsg);
 }
 
 void MonstCheckDoors(int mx, int my)
@@ -2549,7 +2409,7 @@ void MonstCheckDoors(int mx, int my)
 			oi = dObject[mx + i][my + j];
 			if (oi != 0) {
 				oi = oi >= 0 ? oi - 1 : -(oi + 1);
-				if (object[oi]._oVar4 != DOOR_CLOSED)
+				if (!object[oi]._oDoorFlag || object[oi]._oVar4 != DOOR_CLOSED)
 					continue;
 				if (object[oi]._otype == OBJ_L1LDOOR) {
 					OperateL1LDoor(mx, my, oi, true);
@@ -2561,7 +2421,8 @@ void MonstCheckDoors(int mx, int my)
 					OperateL2RDoor(mx, my, oi, true);
 				} else if (object[oi]._otype == OBJ_L3LDOOR) {
 					OperateL3LDoor(mx, my, oi, true);
-				} else if (object[oi]._otype == OBJ_L3RDOOR) {
+				} else {
+					//assert(object[oi]._otype == OBJ_L3RDOOR);
 					OperateL3RDoor(mx, my, oi, true);
 				}
 			}
@@ -3894,37 +3755,37 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
 		if (TeleFlag)
-			OperateL1LDoor(-1, -1, oi, sendmsg);
+			OperateL1Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL1LDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L1RDOOR:
 		if (TeleFlag)
-			OperateL1RDoor(-1, -1, oi, sendmsg);
+			OperateL1Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL1RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L2LDOOR:
 		if (TeleFlag)
-			OperateL2LDoor(-1, -1, oi, sendmsg);
+			OperateL2Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL2LDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L2RDOOR:
 		if (TeleFlag)
-			OperateL2RDoor(-1, -1, oi, sendmsg);
+			OperateL2Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL2RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L3LDOOR:
 		if (TeleFlag)
-			OperateL3LDoor(-1, -1, oi, sendmsg);
+			OperateL3Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL3LDoor(plr._px, plr._py, oi, sendmsg);
 		break;
 	case OBJ_L3RDOOR:
 		if (TeleFlag)
-			OperateL3RDoor(-1, -1, oi, sendmsg);
+			OperateL3Door(oi, sendmsg);
 		else //if (sendmsg) // pnum == mypnum
 			OperateL3RDoor(plr._px, plr._py, oi, sendmsg);
 		break;
@@ -4068,22 +3929,16 @@ void SyncOpObject(int pnum, int oi)
 {
 	switch (object[oi]._otype) {
 	case OBJ_L1LDOOR:
-		OperateL1LDoor(-1, -1, oi, false);
-		break;
 	case OBJ_L1RDOOR:
-		OperateL1RDoor(-1, -1, oi, false);
+		OperateL1Door(oi, false);
 		break;
 	case OBJ_L2LDOOR:
-		OperateL2LDoor(-1, -1, oi, false);
-		break;
 	case OBJ_L2RDOOR:
-		OperateL2RDoor(-1, -1, oi, false);
+		OperateL2Door(oi, false);
 		break;
 	case OBJ_L3LDOOR:
-		OperateL3LDoor(-1, -1, oi, false);
-		break;
 	case OBJ_L3RDOOR:
-		OperateL3RDoor(-1, -1, oi, false);
+		OperateL3Door(oi, false);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
