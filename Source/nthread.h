@@ -13,10 +13,10 @@ extern "C" {
 #endif
 
 extern BYTE sgbNetUpdateRate;
-extern unsigned gdwDeltaBytesSec;
+extern const unsigned gdwDeltaBytesSec;
 extern uint32_t gdwTurnsInTransit;
 extern uint32_t* glpMsgTbl[MAX_PLRS];
-extern unsigned gdwLargestMsgSize;
+extern const unsigned gdwLargestMsgSize;
 extern unsigned gdwNormalMsgSize;
 
 void nthread_terminate_game(const char *pszFcn);

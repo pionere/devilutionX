@@ -27,7 +27,6 @@ public:
 	virtual void SNetSendMessage(int dest, void *data, unsigned int size);
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func);
 	virtual void SNetLeaveGame(int type);
@@ -102,12 +101,6 @@ template <class T>
 void cdwrap<T>::SNetSendTurn(uint32_t turn)
 {
 	dvlnet_wrap->SNetSendTurn(turn);
-}
-
-template <class T>
-void cdwrap<T>::SNetGetProviderCaps(struct _SNETCAPS *caps)
-{
-	dvlnet_wrap->SNetGetProviderCaps(caps);
 }
 
 template <class T>

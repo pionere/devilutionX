@@ -41,7 +41,7 @@ bool loopback::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 	return true;
 }
 
-void loopback::SNetSendMessage(int dest, void *data, unsigned int size)
+void loopback::SNetSendMessage(int dest, void *data, unsigned size)
 {
 	if (dest == plr_single || dest == SNPLAYER_ALL) {
 		unsigned char *rawMessage = reinterpret_cast<unsigned char *>(data);
@@ -62,20 +62,6 @@ bool loopback::SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)
 
 void loopback::SNetSendTurn(uint32_t turn)
 {
-}
-
-void loopback::SNetGetProviderCaps(struct _SNETCAPS *caps)
-{
-	//caps->size = 0;                  // engine writes only ?!?
-	caps->flags = 0;                 // unused
-	caps->maxmessagesize = 512;      // capped to 512; underflow if < 24
-	caps->maxqueuesize = 0;          // unused
-	caps->maxplayers = MAX_PLRS;     // capped to 4
-	caps->bytessec = 1000000;        // ?
-	caps->latencyms = 0;             // unused
-	caps->defaultturnssec = 10;      // ?
-	caps->defaultturnsintransit = 1; // maximum acceptable number
-	                                 // of turns in queue?
 }
 
 void loopback::SNetLeaveGame(int type)

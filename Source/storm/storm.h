@@ -143,7 +143,6 @@ bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes);
 void SNetUnregisterEventHandler(event_type, SEVTHANDLER);
 void SNetRegisterEventHandler(event_type, SEVTHANDLER);
 void SNetInitializeProvider(unsigned long provider);
-void SNetGetProviderCaps(struct _SNETCAPS *);
 #ifdef ZEROTIER
 void SNetSendInfoRequest();
 std::vector<std::string> SNetGetGamelist();

@@ -9,7 +9,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE sgbNetUpdateRate;
 static CCritSect sgMemCrit;
-unsigned gdwDeltaBytesSec;
 bool _sbNthreadShouldRun;
 uint32_t gdwTurnsInTransit;
 uint32_t* glpMsgTbl[MAX_PLRS];
@@ -17,9 +16,10 @@ SDL_threadID glpNThreadId;
 char sgbSyncCountdown;
 int turn_upper_bit;
 bool _gbTicsOutOfSync;
-char sgbPacketCountdown;
+static BYTE sgbPacketCountdown;
 bool _gbMutexDisabled;
-unsigned gdwLargestMsgSize;
+const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to _SNETGAMEDATA ? (was bytessec and 1000000 in vanilla)
+const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to _SNETGAMEDATA ? (was maxmessagesize in vanilla)
 unsigned gdwNormalMsgSize;
 int last_tick;
 
@@ -74,7 +74,7 @@ bool nthread_recv_turns(bool *received)
 {
 	*received = false;
 	sgbPacketCountdown--;
-	if (sgbPacketCountdown) {
+	if (sgbPacketCountdown != 0) {
 		last_tick += gnTickDelay;
 		return true;
 	}
@@ -140,9 +140,6 @@ void nthread_set_turn_upper_bit()
 
 void nthread_start(bool set_turn_upper_bit)
 {
-	unsigned largestMsgSize;
-	_SNETCAPS caps;
-
 	last_tick = SDL_GetTicks();
 	sgbPacketCountdown = 1;
 	sgbSyncCountdown = 1;
@@ -151,35 +148,23 @@ void nthread_start(bool set_turn_upper_bit)
 		nthread_set_turn_upper_bit();
 	else
 		turn_upper_bit = 0;
-	//caps.size = 36;
-	SNetGetProviderCaps(&caps);
-	/*if (!SNetGetProviderCaps(&caps)) {
-		app_fatal("nthread1:\n%s", SDL_GetError());
-	}*/
-	gdwTurnsInTransit = caps.defaultturnsintransit;
-	if (!caps.defaultturnsintransit)
-		gdwTurnsInTransit = 1;
-	if (caps.defaultturnssec <= 20 && caps.defaultturnssec)
-		sgbNetUpdateRate = 20 / caps.defaultturnssec;
-	else
-		sgbNetUpdateRate = 1;
-	largestMsgSize = 512;
-	if (caps.maxmessagesize < 512)
-		largestMsgSize = caps.maxmessagesize;
-	gdwDeltaBytesSec = caps.bytessec >> 2;
-	gdwLargestMsgSize = largestMsgSize;
-	gdwNormalMsgSize = caps.bytessec * sgbNetUpdateRate / 20;
+	//_SNETCAPS caps;
+	//SNetGetProviderCaps(&caps);
+	gdwTurnsInTransit = 1; // TODO: add to _SNETGAMEDATA ? (was defaultturnsintransit in vanilla)
+	sgbNetUpdateRate = 2;  // TODO: add to _SNETGAMEDATA ? (was defaultturnssec in vanilla)
+	// FIXME: instead of 20, gnTicksRate should be used, but does not really matter at the moment
+	//  and gnTicksRate is not set at this point
+	gdwNormalMsgSize = gdwDeltaBytesSec * sgbNetUpdateRate / 20;
 	gdwNormalMsgSize *= 3;
 	gdwNormalMsgSize >>= 2;
-	if (caps.maxplayers > MAX_PLRS)
-		caps.maxplayers = MAX_PLRS;
-	gdwNormalMsgSize /= caps.maxplayers;
-	while (gdwNormalMsgSize < 0x80) {
+	gdwNormalMsgSize /= gbMaxPlayers;
+	static_assert(sizeof(TPktHdr) < 128, "TPktHdr does not fit in a message.");
+	while (gdwNormalMsgSize < 128) {
 		gdwNormalMsgSize *= 2;
 		sgbNetUpdateRate *= 2;
 	}
-	if (gdwNormalMsgSize > largestMsgSize)
-		gdwNormalMsgSize = largestMsgSize;
+	if (gdwNormalMsgSize > gdwLargestMsgSize)
+		gdwNormalMsgSize = gdwLargestMsgSize;
 	if (gbMaxPlayers != 1) {
 		_gbMutexDisabled = false;
 		sgMemCrit.Enter();
@@ -195,8 +180,8 @@ void nthread_cleanup()
 {
 	_sbNthreadShouldRun = false;
 	gdwTurnsInTransit = 0;
-	gdwNormalMsgSize = 0;
-	gdwLargestMsgSize = 0;
+	//gdwNormalMsgSize = 0;
+	//gdwLargestMsgSize = 0;
 	if (sghThread != NULL && glpNThreadId != SDL_GetThreadID(NULL)) {
 		if (!_gbMutexDisabled)
 			sgMemCrit.Leave();

@@ -182,19 +182,18 @@ void base::SNetSendTurn(uint32_t turn)
 	turn_queue[plr_self].push_back(pkt->turn());
 }
 
-void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
+/*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
-	//caps->size = 0;                  // engine writes only ?!?
+	//caps->size = 0;                  // unused
 	caps->flags = 0;                 // unused
-	caps->maxmessagesize = 512;      // capped to 512; underflow if < 24
+	caps->maxmessagesize = MAX_NETMSG_SIZE; // the largest message to send during delta-load
 	caps->maxqueuesize = 0;          // unused
-	caps->maxplayers = MAX_PLRS;     // capped to 4
-	caps->bytessec = 1000000;        // ?
+	caps->maxplayers = MAX_PLRS;     // unused (part of _SNETGAMEDATA)
+	caps->bytessec = 1000000;        // estimated speed of the connection (to determine if wait is necessary during delta load)
 	caps->latencyms = 0;             // unused
-	caps->defaultturnssec = 10;      // ?
-	caps->defaultturnsintransit = 1; // maximum acceptable number
-	                                 // of turns in queue?
-}
+	caps->defaultturnssec = 10;      // number of turns to process in a second (to determine the net-update-rate)
+	caps->defaultturnsintransit = 1; // maximum acceptable number of turns in queue?
+}*/
 
 void base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
 {

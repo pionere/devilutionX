@@ -21,7 +21,6 @@ public:
 	virtual void SNetSendMessage(int dest, void *data, unsigned size);
 	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetGetProviderCaps(struct _SNETCAPS *caps);
 	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func);
 	virtual void SNetLeaveGame(int type);

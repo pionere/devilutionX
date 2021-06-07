@@ -1143,7 +1143,7 @@ typedef struct TPktHdr {
 
 typedef struct TPkt {
 	TPktHdr hdr;
-	BYTE body[493];
+	BYTE body[MAX_NETMSG_SIZE - sizeof(TPktHdr)];
 } TPkt;
 
 typedef struct DMonsterStr {
@@ -1517,7 +1517,7 @@ typedef struct _SNETGAMEDATA {
 	BYTE bMaxPlayers;
 } _SNETGAMEDATA;
 
-typedef struct _SNETCAPS {
+/*typedef struct _SNETCAPS {
 	//DWORD size;
 	DWORD flags;
 	DWORD maxmessagesize;
@@ -1527,7 +1527,7 @@ typedef struct _SNETCAPS {
 	DWORD latencyms;
 	DWORD defaultturnssec;
 	DWORD defaultturnsintransit;
-} _SNETCAPS;
+} _SNETCAPS;*/
 
 typedef struct _SNETEVENT {
 	DWORD eventid;

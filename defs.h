@@ -96,6 +96,7 @@
 #endif
 
 #define MAX_CHUNKS				(MAX_LVLS + 5)
+#define MAX_NETMSG_SIZE			512
 
 // #define MAX_PATH				260
 #define MAX_SEND_STR_LEN		80
