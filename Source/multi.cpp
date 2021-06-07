@@ -23,7 +23,6 @@ static bool gbShouldValidatePackage;
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
 static unsigned guSendDelta;
-static _SNETGAMEDATA sgGameInitInfo;
 bool gbSelectProvider;
 bool gbSelectHero;
 static int sglTimeoutStart;
@@ -637,7 +636,7 @@ void NetClose()
 		pfile_rename_hero(name_1, name_2);
 }*/
 
-static bool multi_init_game(bool bSinglePlayer)
+static bool multi_init_game(bool bSinglePlayer, _SNETGAMEDATA &sgGameInitInfo)
 {
 	int dlgresult, pnum;
 
@@ -707,6 +706,7 @@ static bool multi_init_game(bool bSinglePlayer)
 
 bool NetInit(bool bSinglePlayer)
 {
+	_SNETGAMEDATA sgGameInitInfo;
 	int i;
 
 	while (TRUE) {
@@ -724,7 +724,7 @@ bool NetInit(bool bSinglePlayer)
 		guSendDelta = 0;
 		memset(players, 0, sizeof(players));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
-		if (!multi_init_game(bSinglePlayer))
+		if (!multi_init_game(bSinglePlayer, sgGameInitInfo))
 			return false;
 		_gbNetInited = true;
 		_gbTimeout = false;
