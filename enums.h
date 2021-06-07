@@ -1551,6 +1551,7 @@ typedef enum missile_id {
 	MIS_EXBL3,
 	MIS_EXORA1,
 #endif
+	NUM_MISTYPES
 } missile_id;
 
 typedef enum missile_graphic_id {
@@ -2959,7 +2960,8 @@ typedef enum _cmd_id {
 	CMD_NEWLVL,
 	CMD_WARP,
 	CMD_RETOWN,
-	CMD_PLAYER_JOINLEVEL,
+	CMD_ACK_JOINLEVEL,
+	CMD_SEND_JOINLEVEL,
 	CMD_ACK_PLRINFO,
 	CMD_SEND_PLRINFO,
 	CMD_DLEVEL_DATA,

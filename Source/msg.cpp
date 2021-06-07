@@ -1001,6 +1001,17 @@ void DeltaLoadLevel()
 	deltaload = FALSE;
 }
 
+static void LevelExportData(int pnum)
+{
+	TCmdJoinLevel cmd;
+
+	cmd.bCmd = CMD_ACK_JOINLEVEL;
+	cmd.lManashield = myplr._pManaShield;
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
+}
+
 void NetSendCmd(bool bHiPri, BYTE bCmd)
 {
 	TCmd cmd;
@@ -2341,7 +2352,20 @@ static unsigned On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 	return On_SEND_PLRINFO(pCmd, pnum);
 }
 
-static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
+static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
+{
+	TCmdJoinLevel *cmd = (TCmdJoinLevel *)pCmd;
+
+	//if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
+	//	msg_send_packet(pnum, cmd, sizeof(*cmd));
+	//else {
+		plr._pManaShield = cmd->lManashield;
+	//}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
 
@@ -2362,6 +2386,7 @@ static unsigned On_PLAYER_JOINLEVEL(TCmd *pCmd, int pnum)
 			plr._pGFXLoad = 0;
 			if (currLvl._dLevelIdx == plr.plrlevel) {
 				SyncInitPlr(pnum);
+				LevelExportData(pnum);
 				//PlrStartStand(pnum, DIR_S);
 				/*LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);
@@ -2806,8 +2831,10 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_WARP(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
-	case CMD_PLAYER_JOINLEVEL:
-		return On_PLAYER_JOINLEVEL(pCmd, pnum);
+	case CMD_ACK_JOINLEVEL:
+		return On_ACK_JOINLEVEL(pCmd, pnum);
+	case CMD_SEND_JOINLEVEL:
+		return On_SEND_JOINLEVEL(pCmd, pnum);
 	case CMD_ACK_PLRINFO:
 		return On_ACK_PLRINFO(pCmd, pnum);
 	case CMD_SEND_PLRINFO:

@@ -1185,9 +1185,12 @@ typedef struct DJunk {
 	DPortal portal[MAXPORTAL];
 	MultiQuests quests[NUM_QUESTS];
 } DJunk;
-#pragma pack(pop)
 
-#pragma pack(push, 1)
+typedef struct TCmdJoinLevel {
+	BYTE bCmd;
+	BYTE lManashield;
+} TCmdJoinLevel;
+
 typedef struct TMegaPkt {
 	struct TMegaPkt *pNext;
 	DWORD dwSpaceLeft;

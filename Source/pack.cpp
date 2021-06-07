@@ -31,11 +31,13 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->py = p->_py;
 	copy_str(pPack->pName, p->_pName);
 	pPack->pClass = p->_pClass;
+	pPack->pLevel = p->_pLevel;
+	pPack->pLightRad = p->_pLightRad;
+	pPack->pManaShield = p->_pManaShield;
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
 	pPack->pBaseVit = SwapLE16(p->_pBaseVit);
-	pPack->pLevel = p->_pLevel;
 	pPack->pDiabloKillLevel = p->_pDiabloKillLevel;
 	pPack->pStatPts = SwapLE16(p->_pStatPts);
 	pPack->pExperience = SwapLE32(p->_pExperience);
@@ -88,7 +90,6 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 		pPack->InvGrid[i] = p->InvGrid[i];
 
 	pPack->_pNumInv = p->_pNumInv;
-	pPack->pManaShield = p->_pManaShield;
 
 	memcpy(pPack->pAtkSkillHotKey, p->_pAtkSkillHotKey, sizeof(pPack->pAtkSkillHotKey));
 	memcpy(pPack->pAtkSkillTypeHotKey, p->_pAtkSkillTypeHotKey, sizeof(pPack->pAtkSkillTypeHotKey));
