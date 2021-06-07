@@ -384,6 +384,13 @@ void ValidateData()
 				app_fatal("Too long name for %s (%d:%d)", sd.sNameText, i, sd.sName);
 		}
 	}
+
+	// missiles
+	for (int i = 0; i < NUM_MISTYPES; i++) {
+		const MissileData &md = missiledata[i];
+		if (md.mName != i)
+			app_fatal("Invalid mName %d for missile %d.", md.mName, i);
+	}
 }
 #endif
 
