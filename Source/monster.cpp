@@ -1744,11 +1744,20 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
-	if (sendmsg)
-		NetSendCmdMonstKill(mnum, mpnum);
+	// fix the location of the monster before spawning loot or sending a message
+	MonClearSquares(mnum);
+
 	mon = &monster[mnum];
 	mon->_mhitpoints = 0;
+	mon->_mxoff = 0;
+	mon->_myoff = 0;
+	mon->_mx = mon->_mfutx = mon->_moldx;
+	mon->_my = mon->_mfuty = mon->_moldy;
+	dMonster[mon->_mx][mon->_my] = mnum + 1;
 
+	CheckQuestKill(mnum, sendmsg);
+	if (sendmsg)
+		NetSendCmdMonstKill(mnum, mpnum);
 	if (mnum >= MAX_MINIONS) {
 		if ((unsigned)mpnum < MAX_PLRS)
 			mon->_mWhoHit |= 1 << mpnum;
@@ -1766,13 +1775,6 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 		// TODO: might want to turn towards the offending enemy. Might not, though...
 		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
 	}
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mx = mon->_mfutx = mon->_moldx;
-	mon->_my = mon->_mfuty = mon->_moldy;
-	MonClearSquares(mnum);
-	dMonster[mon->_mx][mon->_my] = mnum + 1;
-	CheckQuestKill(mnum, sendmsg);
 	MonFallenFear(mon->_mx, mon->_my);
 #ifdef HELLFIRE
 	if ((mon->_mType >= MT_NACID && mon->_mType <= MT_XACID) || mon->_mType == MT_SPIDLORD)
@@ -1832,11 +1834,11 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 	if (monster[mnum]._mmode == MM_DEATH) {
 		return;
 	}
-
-	if (dMonster[x][y] == 0) {
+	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
 		MonClearSquares(mnum);
-		monster[mnum]._mx = x;
-		monster[mnum]._my = y;
+		//dMonster[x][y] = mnum + 1;
+		//monster[mnum]._mx = x;
+		//monster[mnum]._my = y;
 		monster[mnum]._moldx = x;
 		monster[mnum]._moldy = y;
 	}
