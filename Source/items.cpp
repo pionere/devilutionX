@@ -591,18 +591,11 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-#ifdef HELLFIRE
-	if (plr._pSpellFlags & PSE_BLOOD_BOIL) {
+	if (plr._pTimer[PT_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
-		dadd += plr._pLevel + plr._pLevel / 2;
+		dadd += plr._pLevel;
 		vadd += 2 * plr._pLevel;
 	}
-	if (plr._pSpellFlags & PSE_LETHARGY) {
-		sadd -= 2 * plr._pLevel;
-		dadd -= plr._pLevel + plr._pLevel / 2;
-		vadd -= 2 * plr._pLevel;
-	}
-#endif
 	plr._pStrength = std::max(0, sadd + plr._pBaseStr);
 	plr._pMagic = std::max(0, madd + plr._pBaseMag);
 	plr._pDexterity = std::max(0, dadd + plr._pBaseDex);
@@ -637,15 +630,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
 	}
 
-#ifdef HELLFIRE
-	if (plr._pSpellFlags & PSE_LETHARGY) {
-		fr -= plr._pLevel;
-		lr -= plr._pLevel;
-		mr -= plr._pLevel;
-		ar -= plr._pLevel;
-	}
-#endif
-
 	if (iflgs & ISPL_ALLRESZERO) {
 		// reset resistances to zero if the respective special effect is active
 		fr = 0;
@@ -656,34 +640,18 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	if (fr > MAXRESIST)
 		fr = MAXRESIST;
-#ifdef HELLFIRE
-	else if (fr < 0)
-		fr = 0;
-#endif
 	plr._pFireResist = fr;
 
 	if (lr > MAXRESIST)
 		lr = MAXRESIST;
-#ifdef HELLFIRE
-	else if (lr < 0)
-		lr = 0;
-#endif
 	plr._pLghtResist = lr;
 
 	if (mr > MAXRESIST)
 		mr = MAXRESIST;
-#ifdef HELLFIRE
-	else if (mr < 0)
-		mr = 0;
-#endif
 	plr._pMagResist = mr;
 
 	if (ar > MAXRESIST)
 		ar = MAXRESIST;
-#ifdef HELLFIRE
-	else if (ar < 0)
-		ar = 0;
-#endif
 	plr._pAcidResist = ar;
 
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
@@ -804,6 +772,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
+	if (plr._pTimer[PT_RAGE] == 0)
+		wt |= SFLAG_RAGE;
 	plr._pSkillFlags = wt;
 
 	// calculate the damages for each type

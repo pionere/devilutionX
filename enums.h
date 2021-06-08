@@ -1522,8 +1522,8 @@ typedef enum missile_id {
 	//MIS_BONESPIRIT,
 	MIS_APOCAC2,
 	MIS_EXAPOCA2,
+	MIS_RAGE,
 #ifdef HELLFIRE
-	MIS_BLODBOIL,
 	MIS_LIGHTWALLC,
 	MIS_LIGHTWALL,
 	MIS_FIRENOVAC,
@@ -2854,6 +2854,7 @@ typedef enum spell_id {
 	SPL_RATTACK,
 	SPL_POINT_BLANK,
 	SPL_FAR_SHOT,
+	SPL_RAGE,
 	SPL_FIREBOLT,
 	SPL_CBOLT,
 	SPL_HBOLT,
@@ -2884,7 +2885,6 @@ typedef enum spell_id {
 	SPL_RECHARGE,
 	SPL_DISARM,
 #ifdef HELLFIRE
-	SPL_BLODBOIL,
 	SPL_BUCKLE,
 	SPL_WHITTLE,
 	SPL_LIGHTWALL,
@@ -3531,6 +3531,7 @@ typedef enum player_skill_flags {
 	SFLAG_MELEE   = 1 << 1,
 	SFLAG_RANGED  = 1 << 2,
 	SFLAG_BLOCK   = 1 << 3,
+	SFLAG_RAGE    = 1 << 4,
 } player_skill_flags;
 
 typedef enum item_class {
@@ -3673,10 +3674,10 @@ typedef enum player_graphic {
 	PFILE_NONDEATH = 0x17F
 } player_graphic;
 
-typedef enum player_spell_effects {
-	PSE_BLOOD_BOIL  = 1 << 0,
-	PSE_LETHARGY    = 1 << 1,
-} player_spell_effects;
+typedef enum player_timer {
+	PT_RAGE = 1,
+	NUM_PLRTIMERS
+} player_timer;
 
 typedef enum anim_weapon_id {
 	ANIM_ID_UNARMED        = 0x00,

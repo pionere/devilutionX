@@ -277,8 +277,8 @@ typedef struct PlayerStruct {
 	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
 	BYTE _pSkillFlags;     // Bitmask of allowed skill-types (SFLAG_*)
-	BYTE _pSpellFlags;     // Bitmask of spells affecting the player
 	BOOLEAN _pInvincible;
+	int16_t _pTimer[NUM_PLRTIMERS];
 	char _pName[PLR_NAME_LEN];
 	// plr_class enum value.
 	// TODO: this could very well be `enum plr_class _pClass`
@@ -403,9 +403,9 @@ typedef struct PlayerStruct {
 	BYTE *_pBData;
 #ifdef X86_32bit_COMP
 #ifdef HELLFIRE
-	int alignment[181];
+	int alignment[180];
 #else
-	int alignment[183];
+	int alignment[182];
 #endif
 #endif
 } PlayerStruct;
@@ -850,6 +850,7 @@ typedef struct PkPlayerStruct {
 	BYTE pLevel;
 	BYTE pLightRad;
 	BYTE pManaShield;
+	WORD pTimer[NUM_PLRTIMERS];
 	WORD pBaseStr;
 	WORD pBaseMag;
 	WORD pBaseDex;
@@ -1189,6 +1190,8 @@ typedef struct DJunk {
 typedef struct TCmdJoinLevel {
 	BYTE bCmd;
 	BYTE lManashield;
+	WORD lTimer1;
+	WORD lTimer2;
 } TCmdJoinLevel;
 
 typedef struct TMegaPkt {

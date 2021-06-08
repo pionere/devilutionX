@@ -61,6 +61,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_RATTACK:
 	case SPL_POINT_BLANK:
 	case SPL_FAR_SHOT:
+	case SPL_RAGE:
 	case SPL_STONE:
 	case SPL_INFRA:
 	case SPL_MANASHIELD:
@@ -76,7 +77,6 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 	case SPL_RECHARGE:
 	case SPL_DISARM:
 #ifdef HELLFIRE
-	case SPL_BLODBOIL:
 	case SPL_BUCKLE:
 	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
@@ -1318,23 +1318,6 @@ void InitMissiles()
 			}
 		}
 	}
-
-#ifdef HELLFIRE
-	if (p->_pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY)) {
-		p->_pSpellFlags &= ~(PSE_BLOOD_BOIL | PSE_LETHARGY);
-		for (i = 0; i < nummissiles; ++i) {
-			mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_BLODBOIL && mis->_miSource == mypnum) {
-				int missingHP = p->_pMaxHP - p->_pHitPoints;
-				CalcPlrItemVals(mypnum, true);
-				p->_pHitPoints -= missingHP + mis->_miVar2;
-				if (p->_pHitPoints < (1 << 6)) {
-					p->_pHitPoints = (1 << 6);
-				}
-			}
-		}
-	}
-#endif
 
 	nummissiles = 0;
 	memset(missileactive, 0, sizeof(missileactive));
@@ -2637,33 +2620,20 @@ int AddFireNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
 	// mis->_miRange = 1;
 	return MIRES_DONE;
 }
-
-/**
- * Var1: length of the effect
- * Var2: hp penalty
- */
-int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+#endif
+int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
-	int pnum, lvl;
+	int pnum;
 
 	pnum = misource;
 	assert((unsigned)pnum < MAX_PLRS);
-	mis = &missile[mi];
-	if (plr._pSpellFlags & (PSE_BLOOD_BOIL | PSE_LETHARGY) || plr._pHitPoints <= plr._pLevel << 6) {
-		return MIRES_FAIL_DELETE;
-	} else {
+	if (plr._pTimer[PT_RAGE] == 0) {
+		plr._pTimer[PT_RAGE] = 32 * spllvl + 245;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
-		plr._pSpellFlags |= PSE_BLOOD_BOIL;
-		lvl = plr._pLevel;
-		mis->_miVar2 = (3 * lvl) << 7;
-		lvl *= 2;
-		mis->_miVar1 = mis->_miRange = lvl + 10 * spllvl + 245;
 		CalcPlrItemVals(pnum, true);
-		return MIRES_DONE;
 	}
+	return MIRES_DELETE;
 }
-#endif
 
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -3958,42 +3928,6 @@ void MI_FireWaveC(int mi)
 		}
 	}
 }
-
-#ifdef HELLFIRE
-void MI_Bloodboil(int mi)
-{
-	MissileStruct *mis;
-	int pnum, hpdif;
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange == 0) {
-		pnum = mis->_miSource;
-		hpdif = plr._pMaxHP - plr._pHitPoints;
-		if (plr._pSpellFlags & PSE_BLOOD_BOIL) {
-			plr._pSpellFlags &= ~PSE_BLOOD_BOIL;
-			plr._pSpellFlags |= PSE_LETHARGY;
-			mis->_miRange = mis->_miVar1;
-		} else {
-			mis->_miDelFlag = TRUE;
-			plr._pSpellFlags &= ~PSE_LETHARGY;
-			hpdif += mis->_miVar2;
-		}
-		CalcPlrItemVals(pnum, true);
-		plr._pHitPoints -= hpdif;
-		if (plr._pHitPoints < (1 << 6))
-			plr._pHitPoints = (1 << 6);
-		// unnecessary since CalcPlrItemVals always asks for a redraw of hp and mana
-		// gbRedrawFlags |= REDRAW_HP_FLASK;
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
-	}
-}
-#else
-void MI_Bloodboil(int mi)
-{
-	missile[mi]._miDelFlag = TRUE;
-}
-#endif
 
 void MI_Flame(int mi)
 {

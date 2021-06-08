@@ -61,7 +61,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddLightNovaC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddBloodboil(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddAbility(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
@@ -111,7 +111,6 @@ void MI_Infra(int mi);
 void MI_ApocaC(int mi);
 void MI_FireWaveC(int mi);
 void MI_NovaC(int mi);
-void MI_Bloodboil(int mi);
 void MI_Flame(int mi);
 void MI_FlameC(int mi);
 void MI_FireTrap(int mi);

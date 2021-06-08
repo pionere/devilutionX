@@ -1007,6 +1007,7 @@ static void LevelExportData(int pnum)
 
 	cmd.bCmd = CMD_ACK_JOINLEVEL;
 	cmd.lManashield = myplr._pManaShield;
+	cmd.lTimer2 = myplr._pTimer[PT_RAGE];
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
@@ -2360,6 +2361,8 @@ static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 	//	msg_send_packet(pnum, cmd, sizeof(*cmd));
 	//else {
 		plr._pManaShield = cmd->lManashield;
+		plr._pTimer[PT_RAGE] = cmd->lTimer2;
+		CalcPlrItemVals(pnum, true);
 	//}
 
 	return sizeof(*cmd);

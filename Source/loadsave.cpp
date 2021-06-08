@@ -253,9 +253,9 @@ static void LoadPlayer(int pnum)
 	CopyBytes(tbuff, 4, plr._pAltMoveSkillTypeHotKey);
 
 	CopyChar(tbuff, &plr._pSkillFlags);
-	CopyChar(tbuff, &plr._pSpellFlags);
 	CopyChar(tbuff, &plr._pInvincible);
-	tbuff += 1; // Alignment
+	tbuff += 2; // Alignment
+	CopyShort(tbuff, &plr._pTimer[PT_RAGE]);
 
 	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
 	CopyChar(tbuff, &plr._pClass);
@@ -947,9 +947,9 @@ static void SavePlayer(int pnum)
 	CopyBytes(plr._pAltMoveSkillTypeHotKey, 4, tbuff);
 
 	CopyChar(&plr._pSkillFlags, tbuff);
-	CopyChar(&plr._pSpellFlags, tbuff);
 	CopyChar(&plr._pInvincible, tbuff);
-	tbuff += 1; // Alignment
+	tbuff += 2; // Alignment
+	CopyShort(&plr._pTimer[PT_RAGE], tbuff);
 
 	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
 	CopyChar(&plr._pClass, tbuff);

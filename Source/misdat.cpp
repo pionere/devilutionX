@@ -93,8 +93,8 @@ const MissileData missiledata[] = {
 	//{  MIS_BONESPIRIT,    &AddBoneSpirit,             &MI_Bonespirit,     TRUE,      1,                                0, MISR_MAGIC,     MFILE_SKLBALL,   LS_BONESP,   LS_BSIMPCT,  1,        1        },
 	{  MIS_APOCAC2,       &AddApocaC2,                &MI_Dummy,          FALSE,     2,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_EXAPOCA2,      &AddApocaExp,               &MI_ApocaExp,       TRUE,      2,                                0, MISR_NONE,      MFILE_FIREPLAR,  SFX_NONE,    SFX_NONE,    1,        1        },
+	{  MIS_RAGE,          &AddRage,                   &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 #ifdef HELLFIRE
-	{  MIS_BLODBOIL,      &AddBloodboil,              &MI_Bloodboil,      FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    LS_BLODBOIL, 1,        1        },
 	{  MIS_LIGHTWALLC,    &AddWallC,                  &MI_WallC,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_LIGHTWALL,     &AddLightwall,              &MI_Lightwall,      TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_LIGHTNING, MFILE_LGHNING,   LS_LMAG,     LS_ELECIMP1, 1,        1        },
 	{  MIS_FIRENOVAC,     &AddFireNovaC,              &MI_NovaC,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_FBOLT1,   SFX_NONE,    1,        1        },
