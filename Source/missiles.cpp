@@ -108,6 +108,9 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = 1;
 		*maxd = p->_pMagic;
 		break;
+#ifdef HELLFIRE
+	case SPL_RUNEWAVE:
+#endif
 	case SPL_WAVE:
 		*mind = ((p->_pMagic >> 3) + sl + 1) * 4;
 		*maxd = ((p->_pMagic >> 3) + 2 * sl + 2) * 4;
@@ -119,7 +122,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = 1;
 		*maxd = (p->_pMagic >> 1) + (sl << 4);
 		break;
-	case SPL_FLAME:
+	case SPL_INFERNO:
 		*mind = (p->_pMagic * 20) >> 6;
 		*maxd = ((p->_pMagic + (sl << 4)) * 30) >> 6;
 		break;
@@ -127,7 +130,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*mind = 2 * sl + 8;
 		*maxd = 2 * sl + 16;
 		break;
-	case SPL_ELEMENT:
+	case SPL_ELEMENTAL:
 		*mind = (p->_pMagic >> 3) + 2 * sl + 4;
 		*maxd = (p->_pMagic >> 3) + 4 * sl + 20;
 		for (k = 0; k < sl; k++) {
@@ -148,11 +151,11 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 		*maxd = *mind;
 		break;
 #ifdef HELLFIRE
-	case SPL_LIGHTWALL:
+	/*case SPL_LIGHTWALL:
 		*mind = 1;
 		*maxd = ((p->_pMagic >> 1) + sl) << (-3 + 5);
 		break;
-	case SPL_RUNEIMMOLAT:
+	case SPL_RUNEWAVE:
 	case SPL_IMMOLAT:
 		*mind = 1 + (p->_pMagic >> 3);
 		*maxd = *mind + 4;
@@ -160,7 +163,7 @@ void GetDamageAmt(int sn, int *mind, int *maxd)
 			*mind += *mind >> 3;
 			*maxd += *maxd >> 3;
 		}
-		break;
+		break;*/
 	case SPL_RUNEFIRE:
 		*mind = 2 * p->_pLevel + 4;
 		*maxd = *mind + 18;
@@ -1384,7 +1387,7 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
  */
-int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
 		if (PlaceRune(mi, dx, dy, MIS_LIGHTNOVAC, 1))
@@ -1397,10 +1400,10 @@ int AddGreatLightRune(int mi, int sx, int sy, int dx, int dy, int midir, char mi
  * Var1: mitype to fire upon impact
  * Var2: range of the rune
  */
-int AddImmolationRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	if (LineClear(sx, sy, dx, dy)) {
-		if (PlaceRune(mi, dx, dy, MIS_FIRENOVAC, 1))
+		if (PlaceRune(mi, dx, dy, MIS_FIREWAVEC, 1))
 			return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
@@ -2461,7 +2464,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, char micaste
  * Var4: x coordinate of the destination
  * Var5: y coordinate of the destination
  */
-int AddElement(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	int magic, i, mindam, maxdam;
@@ -2639,7 +2642,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 /**
  * Var2: animation timer
  */
-int AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 	MissileStruct *bmis;
@@ -2674,7 +2677,7 @@ int AddFlame(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
  * Var2: y coordinate of the missile
  * Var3: timer to dissipate
  */
-int AddFlameC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	MissileStruct *mis;
 
@@ -3290,7 +3293,7 @@ void MI_RingC(int mi)
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-	mitype = mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
+	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
 	caster = mis->_miCaster;
 	source = mis->_miSource;
 	spllvl = mis->_miSpllvl;
@@ -3325,11 +3328,11 @@ void MI_NovaC(int mi)
 
 	mis = &missile[mi];
 	mis->_miDelFlag = TRUE;
-#ifdef HELLFIRE
-	mitype = mis->_miType == MIS_FIRENOVAC ? MIS_FIREBALL2 : MIS_LIGHTBALL;
-#else
+//#ifdef HELLFIRE
+//	mitype = mis->_miType == MIS_FIRENOVAC ? MIS_FIREBALL2 : MIS_LIGHTBALL;
+//#else
 	mitype = MIS_LIGHTBALL;
-#endif
+//#endif
 	caster = mis->_miCaster;
 	source = mis->_miSource;
 	mindam = mis->_miMinDam;
@@ -3836,11 +3839,11 @@ void MI_WallC(int mi)
 	if (mis->_miRange == 0) {
 		mis->_miDelFlag = TRUE;
 	}
-#ifdef HELLFIRE
-	mitype = mis->_miType == MIS_FIREWALLC ? MIS_FIREWALL : MIS_LIGHTWALL;
-#else
+//#ifdef HELLFIRE
+//	mitype = mis->_miType == MIS_FIREWALLC ? MIS_FIREWALL : MIS_LIGHTWALL;
+//#else
 	mitype = MIS_FIREWALL;
-#endif
+//#endif
 	if (!mis->_miVar8) {
 		tx = mis->_miVar1;
 		ty = mis->_miVar2;
@@ -3901,7 +3904,7 @@ void MI_FireWaveC(int mi)
 	}
 }
 
-void MI_Flame(int mi)
+void MI_Inferno(int mi)
 {
 	MissileStruct *mis;
 	int k;
@@ -3928,7 +3931,7 @@ void MI_Flame(int mi)
 	}
 }
 
-void MI_FlameC(int mi)
+void MI_InfernoC(int mi)
 {
 	MissileStruct *mis;
 
@@ -3946,7 +3949,7 @@ void MI_FlameC(int mi)
 			    0,
 			    0,
 			    mi,
-			    MIS_FLAME,
+			    MIS_INFERNO,
 			    mis->_miCaster,
 			    mis->_miSource,
 			    0,
@@ -4011,7 +4014,7 @@ void MI_Cbolt(int mi)
 	PutMissile(mi);
 }
 
-void MI_Element(int mi)
+void MI_Elemental(int mi)
 {
 	MissileStruct *mis;
 	int sd, cx, cy, dx, dy;

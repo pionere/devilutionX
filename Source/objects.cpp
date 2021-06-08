@@ -3306,7 +3306,7 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_SOLAR: { // BUGFIX: missiles are not added/handled by the delta info...
 		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
-		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEIMMOLAT, "SHRINE_SOLAR expects runes in a given order III.");
+		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
 		const char *cr = &CrawlTable[CrawlNum[3]];
 		for (i = (BYTE)*cr; i > 0; i--) {
 			xx = plr._px + *++cr;

@@ -3706,7 +3706,7 @@ static void MAI_RR2(int mnum, int mitype)
 
 void MAI_Mega(int mnum)
 {
-	MAI_RR2(mnum, MIS_FLAMEC);
+	MAI_RR2(mnum, MIS_INFERNOC);
 }
 
 void MAI_Golem(int mnum)
@@ -4854,7 +4854,7 @@ static bool monster_posok(int mnum, int x, int y)
 	if (mi == 0 || mnum < 0)
 		return true;
 
-#ifdef HELLFIRE
+/*#ifdef HELLFIRE
 	bool lightning = false;
 
 	if (mi > 0) {
@@ -4879,7 +4879,7 @@ static bool monster_posok(int mnum, int x, int y)
 		ret = false;
 	if (lightning && (monster[mnum].mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
 		ret = false;
-#else
+#else*/
 	if (mi > 0) {
 		if (missile[mi - 1]._miType == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
 			fire = true;
@@ -4893,7 +4893,7 @@ static bool monster_posok(int mnum, int x, int y)
 	}
 	if (fire && (monster[mnum].mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
 		ret = false;
-#endif
+//#endif
 	return ret;
 }
 
