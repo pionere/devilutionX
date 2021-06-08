@@ -888,6 +888,7 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	}
 	if (FirstTime) {
 		plr._pManaShield = 0;
+		plr._pTimer[PT_INFRAVISION] = 0;
 		plr._pTimer[PT_RAGE] = 0;
 
 		plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
@@ -2970,6 +2971,12 @@ void ProcessPlayers()
 				}
 				if ((plr._pIFlags & ISPL_NOMANA) && plr._pMana > 0) {
 					PlrSetMana(pnum, 0);
+				}
+				if (plr._pTimer[PT_INFRAVISION] != 0) {
+					plr._pTimer[PT_INFRAVISION]--;
+					if (plr._pTimer[PT_INFRAVISION] == 0) {
+						CalcPlrItemVals(pnum, true);
+					}
 				}
 			}
 

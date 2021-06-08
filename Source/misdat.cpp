@@ -66,7 +66,7 @@ const MissileData missiledata[] = {
 	//{  MIS_EXAPOCA,       &AddApocaExp,               &MI_ApocaExp,       TRUE,      2,                                0, MISR_NONE,      MFILE_NEWEXP,    SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_FIREWALLC,     &AddWallC,                  &MI_WallC,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_FIREWALL,      &AddFirewall,               &MI_Firewall,       TRUE,      1, MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   LS_WALLLOOP, LS_FIRIMP2,  1,        1        },
-	{  MIS_INFRA,         &AddInfra,                  &MI_Infra,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_INFRAVIS, SFX_NONE,    1,        1        },
+	{  MIS_INFRA,         &AddInfra,                  &MI_Dummy,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_INFRAVIS, SFX_NONE,    1,        1        },
 	{  MIS_FIREWAVEC,     &AddFireWaveC,              &MI_FireWaveC,      FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_FLAMWAVE, SFX_NONE,    1,        1        },
 	{  MIS_FIREWAVE,      &AddFireWave,               &MI_FireWave,       TRUE,      1,               MIF_AREA | MIF_DOT, MISR_FIRE,      MFILE_FIREWAL,   SFX_NONE,    SFX_NONE,    1,        1        },
 	{  MIS_LIGHTNOVAC,    &AddLightNovaC,             &MI_NovaC,          FALSE,     1,                                0, MISR_NONE,      MFILE_NONE,      LS_NOVA,     SFX_NONE,    1,        1        },

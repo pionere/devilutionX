@@ -1304,20 +1304,8 @@ void FreeMissiles2()
 
 void InitMissiles()
 {
-	MissileStruct *mis;
-	PlayerStruct *p;
 	int i;
 	BYTE *pTmp;
-
-	p = &myplr;
-	if (p->_pInfraFlag) {
-		for (i = 0; i < nummissiles; ++i) {
-			mis = &missile[missileactive[i]];
-			if (mis->_miType == MIS_INFRA && mis->_miSource == mypnum) {
-				CalcPlrItemVals(mypnum, true);
-			}
-		}
-	}
 
 	nummissiles = 0;
 	memset(missileactive, 0, sizeof(missileactive));
@@ -2559,19 +2547,17 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis;
 	int i, range;
 
 	assert((unsigned)misource < MAX_PLRS);
-	mis = &missile[mi];
 	range = 1584;
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
 	}
 	// TODO: add support for spell duration modifier
 	//range += range * plx(misource)._pISplDur >> 7;
-	mis->_miRange = range;
-	return MIRES_DONE;
+	plx(misource)._pTimer[PT_INFRAVISION] = range;
+	return MIRES_DELETE;
 }
 
 /**
@@ -3878,20 +3864,6 @@ void MI_WallC(int mi)
 		} else {
 			mis->_miVar7 = TRUE;
 		}
-	}
-}
-
-void MI_Infra(int mi)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		CalcPlrItemVals(mis->_miSource, true);
-	} else {
-		plx(mis->_miSource)._pInfraFlag = TRUE;
 	}
 }
 

@@ -3675,7 +3675,8 @@ typedef enum player_graphic {
 } player_graphic;
 
 typedef enum player_timer {
-	PT_RAGE = 1,
+	PT_INFRAVISION,
+	PT_RAGE,
 	NUM_PLRTIMERS
 } player_timer;
 

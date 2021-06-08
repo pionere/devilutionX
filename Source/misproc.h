@@ -107,7 +107,6 @@ void MI_ApocaExp(int mi);
 void MI_Rhino(int mi);
 //void MI_Fireman(int mi);
 void MI_WallC(int mi);
-void MI_Infra(int mi);
 void MI_ApocaC(int mi);
 void MI_FireWaveC(int mi);
 void MI_NovaC(int mi);

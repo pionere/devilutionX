@@ -602,7 +602,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
 	plr._pIFlags = iflgs;
-	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0;
+	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PT_INFRAVISION] > 0;
 	plr._pIGetHit = ghit << 6;
 	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;

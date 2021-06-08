@@ -254,7 +254,7 @@ static void LoadPlayer(int pnum)
 
 	CopyChar(tbuff, &plr._pSkillFlags);
 	CopyChar(tbuff, &plr._pInvincible);
-	tbuff += 2; // Alignment
+	CopyShort(tbuff, &plr._pTimer[PT_INFRAVISION]);
 	CopyShort(tbuff, &plr._pTimer[PT_RAGE]);
 
 	CopyBytes(tbuff, PLR_NAME_LEN, plr._pName);
@@ -948,7 +948,7 @@ static void SavePlayer(int pnum)
 
 	CopyChar(&plr._pSkillFlags, tbuff);
 	CopyChar(&plr._pInvincible, tbuff);
-	tbuff += 2; // Alignment
+	CopyShort(&plr._pTimer[PT_INFRAVISION], tbuff);
 	CopyShort(&plr._pTimer[PT_RAGE], tbuff);
 
 	CopyBytes(plr._pName, PLR_NAME_LEN, tbuff);
