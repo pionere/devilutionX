@@ -1460,38 +1460,24 @@ static void MonStartSpAttack(int mnum)
 
 void MonClearSquares(int mnum)
 {
-	int x, y, mx, my, m1, m2;
+	int x, y, mx, my, m1;
 
 	mx = monster[mnum]._moldx;
 	my = monster[mnum]._moldy;
-	m1 = -1 - mnum;
-	m2 = mnum + 1;
-
-#ifdef HELLFIRE
-	for (y = my - 1; y <= my + 1; y++) {
-		for (x = mx - 1; x <= mx + 1; x++) {
-			if (dMonster[x][y] == m1 || dMonster[x][y] == m2)
-				dMonster[x][y] = 0;
-		}
-	}
 
 	dFlags[mx + 1][my] &= ~BFLAG_MONSTLR;
 	dFlags[mx][my + 1] &= ~BFLAG_MONSTLR;
-#else
+
+	m1 = mnum + 1;
+
+	static_assert(DBORDERX >= 1, "MonClearSquares expects a large enough border I.");
+	static_assert(DBORDERY >= 1, "MonClearSquares expects a large enough border I.");
 	for (y = my - 1; y <= my + 1; y++) {
-		if (y >= 0 && y < MAXDUNY) {
-			for (x = mx - 1; x <= mx + 1; x++) {
-				if (x >= 0 && x < MAXDUNX && (dMonster[x][y] == m1 || dMonster[x][y] == m2))
-					dMonster[x][y] = 0;
-			}
+		for (x = mx - 1; x <= mx + 1; x++) {
+			if (abs(dMonster[x][y]) == m1)
+				dMonster[x][y] = 0;
 		}
 	}
-
-	if (mx + 1 < MAXDUNX)
-		dFlags[mx + 1][my] &= ~BFLAG_MONSTLR;
-	if (my + 1 < MAXDUNY)
-		dFlags[mx][my + 1] &= ~BFLAG_MONSTLR;
-#endif
 }
 
 static void MonStartGetHit(int mnum)
