@@ -1747,7 +1747,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if (mnum >= MAX_MINIONS) {
 		if ((unsigned)mpnum < MAX_PLRS)
 			mon->_mWhoHit |= 1 << mpnum;
-		AddPlrMonstExper(mon->mLevel, mon->mExp, mon->_mWhoHit);
+		AddPlrMonstExper(mnum);
 		SpawnLoot(mnum, sendmsg);
 	}
 

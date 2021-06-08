@@ -859,10 +859,14 @@ void AddPlrExperience(int pnum, int lvl, int exp)
 	}
 }
 
-void AddPlrMonstExper(int lvl, int exp, char pmask)
+void AddPlrMonstExper(int mnum)
 {
+	MonsterStruct *mon;
 	int totplrs, i, e;
+	BYTE pmask;
 
+	mon = &monster[mnum];
+	pmask = mon->_mWhoHit;
 	if (!(pmask & (1 << mypnum)))
 		return;
 
@@ -873,8 +877,8 @@ void AddPlrMonstExper(int lvl, int exp, char pmask)
 		}
 	}
 
-	e = exp / totplrs;
-	AddPlrExperience(mypnum, lvl, e);
+	e = mon->mExp / totplrs;
+	AddPlrExperience(mypnum, mon->mLevel, e);
 }
 
 void InitPlayer(int pnum, bool FirstTime, bool active)

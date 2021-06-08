@@ -33,7 +33,7 @@ void CreatePlayer(int pnum, BYTE c);
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, int exp);
-void AddPlrMonstExper(int lvl, int exp, char pmask);
+void AddPlrMonstExper(int mnum);
 void InitPlayer(int pnum, bool FirstTime, bool active);
 //void PlrClrTrans(int x, int y);
 //void PlrDoTrans(int x, int y);
