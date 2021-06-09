@@ -2654,9 +2654,9 @@ typedef enum event_type {
 } event_type;
 
 typedef enum player_status {
-	PS_CONNECTED    = 0x10000,
-	PS_TURN_ARRIVED = 0x20000,
-	PS_ACTIVE       = 0x40000,
+	PS_CONNECTED    = 0x01, // was 0x10000
+	PS_TURN_ARRIVED = 0x02, // was 0x20000
+	PS_ACTIVE       = 0x04, // was 0x40000
 } player_status;
 
 typedef enum leave_reason {

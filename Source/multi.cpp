@@ -162,7 +162,7 @@ void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE bLen)
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
 			SNetSendMessage(i, &pkt, len);
-			/*if (!SNetSendMessage(i, &pkt.hdr, len) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
+			/*if (!SNetSendMessage(i, &pkt, len) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;
 			}*/
@@ -258,19 +258,16 @@ static void multi_player_left_msg(int pnum, int reason)
 			RemovePlrMissiles(pnum);
 		}
 		if (reason != LEAVE_NONE) {
+			pszFmt = "Player '%s' just left the game";
 			switch (reason) {
-			case LEAVE_UNKNOWN:
-				pszFmt = "Player '%s' just left the game";
-				break;
+			//case LEAVE_UNKNOWN:
+			//	break;
 			case LEAVE_ENDING:
 				pszFmt = "Player '%s' killed Diablo and left the game!";
 				gbSomebodyWonGameKludge = true;
 				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
-				break;
-			default:
-				ASSUME_UNREACHABLE
 				break;
 			}
 			EventPlrMsg(pszFmt, plr._pName);
@@ -318,7 +315,7 @@ static void multi_check_drop_player()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (!(player_state[i] & PS_ACTIVE) && player_state[i] & PS_CONNECTED) {
+		if ((player_state[i] & (PS_ACTIVE | PS_CONNECTED)) == PS_CONNECTED) {
 			SNetDropPlayer(i);
 		}
 	}
