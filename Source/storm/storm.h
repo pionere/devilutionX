@@ -86,10 +86,10 @@ bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword)
  *  Notifies Storm that the player has left the game. Storm will
  *  notify all connected peers through the network provider.
  *
- *  type: The leave type. It doesn't appear to be important, no documentation available.
+ *  reason: see leave_reason enum.
  *
  */
-void SNetLeaveGame(int type);
+void SNetLeaveGame(int reason);
 
 /*  SNetSendTurn @ 128
  *

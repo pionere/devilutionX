@@ -487,7 +487,7 @@ int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEv
 void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(3);
+	SNetLeaveGame(LEAVE_UNKNOWN);
 	if (gbMaxPlayers != 1 && provider != SELCONN_LOOPBACK)
 		SDL_Delay(2000);
 }

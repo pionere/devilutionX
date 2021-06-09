@@ -29,7 +29,7 @@ public:
 	virtual void SNetSendTurn(uint32_t turn);
 	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func);
 	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func);
-	virtual void SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();

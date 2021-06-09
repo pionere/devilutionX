@@ -22,7 +22,7 @@ public:
 	virtual void poll();
 	virtual void send(packet &pkt);
 
-	virtual void SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int reason);
 
 	virtual ~tcp_client();
 

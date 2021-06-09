@@ -40,7 +40,7 @@ static void FreeDlg()
 	cleanup_thread_id = SDL_GetThreadID(NULL);
 
 	if (gbMaxPlayers != 1) {
-		SNetLeaveGame(3);
+		SNetLeaveGame(LEAVE_UNKNOWN);
 		SDL_Delay(2000);
 	}
 

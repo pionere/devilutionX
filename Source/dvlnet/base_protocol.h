@@ -20,7 +20,7 @@ public:
 	virtual void send(packet &pkt);
 	virtual void disconnect_net(plr_t pnum);
 
-	virtual void SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int reason);
 
 	virtual std::string make_default_gamename();
 	virtual void send_info_request();

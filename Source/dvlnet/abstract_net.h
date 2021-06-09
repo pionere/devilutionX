@@ -33,7 +33,7 @@ public:
 	virtual void SNetSendTurn(uint32_t turn) = 0;
 	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func) = 0;
-	virtual void SNetLeaveGame(int type) = 0;
+	virtual void SNetLeaveGame(int reason) = 0;
 	virtual void SNetDropPlayer(int playerid) = 0;
 	virtual uint32_t SNetGetOwnerTurnsWaiting() = 0;
 	virtual uint32_t SNetGetTurnsInTransit() = 0;
