@@ -2660,8 +2660,10 @@ typedef enum player_status {
 } player_status;
 
 typedef enum leave_reason {
-	LEAVE_ENDING = 0x40000004,
-	LEAVE_DROP   = 0x40000006,
+	LEAVE_NONE,
+	LEAVE_UNKNOWN,
+	LEAVE_ENDING, // was 0x40000004
+	LEAVE_DROP,   // was 0x40000006
 } leave_reason;
 
 typedef enum text_color {

@@ -21,8 +21,7 @@ static PkPlayerStruct netplr[MAX_PLRS];
 /* Current offset in netplr. */
 static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 static bool gbJoinGame;
-static bool sgbPlayerLeftGameTbl[MAX_PLRS];
-static int sgdwPlayerLeftReasonTbl[MAX_PLRS];
+static int sgbPlayerLeftGameTbl[MAX_PLRS];
 static uint32_t sgbSentThisCycle;
 static bool gbPacketSentRecently;
 BYTE gbActivePlayers;
@@ -243,7 +242,7 @@ void multi_disband_team(int team)
 	}
 }
 
-static void multi_player_left_msg(int pnum, bool left)
+static void multi_player_left_msg(int pnum, int reason)
 {
 	const char *pszFmt;
 
@@ -258,15 +257,20 @@ static void multi_player_left_msg(int pnum, bool left)
 			RemovePlrFromMap(pnum);
 			RemovePlrMissiles(pnum);
 		}
-		if (left) {
-			pszFmt = "Player '%s' just left the game";
-			switch (sgdwPlayerLeftReasonTbl[pnum]) {
+		if (reason != LEAVE_NONE) {
+			switch (reason) {
+			case LEAVE_UNKNOWN:
+				pszFmt = "Player '%s' just left the game";
+				break;
 			case LEAVE_ENDING:
 				pszFmt = "Player '%s' killed Diablo and left the game!";
 				gbSomebodyWonGameKludge = true;
 				break;
 			case LEAVE_DROP:
 				pszFmt = "Player '%s' dropped due to timeout";
+				break;
+			default:
+				ASSUME_UNREACHABLE
 				break;
 			}
 			EventPlrMsg(pszFmt, plr._pName);
@@ -285,22 +289,21 @@ static void multi_clear_left_tbl()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (sgbPlayerLeftGameTbl[i]) {
+		if (sgbPlayerLeftGameTbl[i] != LEAVE_NONE) {
 			if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-				msg_send_drop_plr(i, sgdwPlayerLeftReasonTbl[i]);
+				msg_send_drop_plr(i, sgbPlayerLeftGameTbl[i]);
 			else
-				multi_player_left_msg(i, true);
+				multi_player_left_msg(i, sgbPlayerLeftGameTbl[i]);
 
-			sgbPlayerLeftGameTbl[i] = false;
-			sgdwPlayerLeftReasonTbl[i] = 0;
+			sgbPlayerLeftGameTbl[i] = LEAVE_NONE;
 		}
 	}
 }
 
 void multi_player_left(int pnum, int reason)
 {
-	sgbPlayerLeftGameTbl[pnum] = true;
-	sgdwPlayerLeftReasonTbl[pnum] = reason;
+	//assert(reason != LEAVE_NONE);
+	sgbPlayerLeftGameTbl[pnum] = reason;
 	multi_clear_left_tbl();
 }
 
@@ -596,12 +599,11 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 
 	DWORD pnum, LeftReason;
 
-	LeftReason = 0;
+	LeftReason = LEAVE_UNKNOWN;
 	if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
 		LeftReason = *(DWORD *)pEvt->_eData;
 	pnum = pEvt->playerid;
-	sgbPlayerLeftGameTbl[pnum] = true;
-	sgdwPlayerLeftReasonTbl[pnum] = LeftReason;
+	sgbPlayerLeftGameTbl[pnum] = LeftReason;
 	if (LeftReason == LEAVE_ENDING)
 		gbSomebodyWonGameKludge = true;
 
@@ -714,8 +716,8 @@ bool NetInit(bool bSinglePlayer)
 		sgGameInitInfo.bMaxPlayers = MAX_PLRS;
 		gbJoinGame = false;
 		gbGameDestroyed = false;
+		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
-		memset(sgdwPlayerLeftReasonTbl, 0, sizeof(sgdwPlayerLeftReasonTbl));
 		guSendDelta = 0;
 		memset(players, 0, sizeof(players));
 		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
@@ -783,7 +785,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 	}
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
-	multi_player_left_msg(pnum, false);
+	multi_player_left_msg(pnum, LEAVE_NONE);
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
 	if (!recv) {
