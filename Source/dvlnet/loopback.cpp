@@ -41,10 +41,10 @@ bool loopback::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 	return true;
 }
 
-void loopback::SNetSendMessage(int dest, void *data, unsigned size)
+void loopback::SNetSendMessage(int dest, const void *data, unsigned size)
 {
 	if (dest == plr_single || dest == SNPLAYER_ALL) {
-		unsigned char *rawMessage = reinterpret_cast<unsigned char *>(data);
+		const unsigned char *rawMessage = reinterpret_cast<const unsigned char *>(data);
 		buffer_t message(rawMessage, rawMessage + size);
 		message_queue.push(message);
 	}

@@ -27,7 +27,7 @@ public:
 	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
 	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size) = 0;
-	virtual void SNetSendMessage(int dest, void *data, unsigned size) = 0;
+	virtual void SNetSendMessage(int dest, const void *data, unsigned size) = 0;
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 	    = 0;
 	virtual void SNetSendTurn(uint32_t turn) = 0;
