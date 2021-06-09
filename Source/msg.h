@@ -26,6 +26,7 @@ bool delta_quest_inited(int i);
 void DeltaAddItem(int ii);
 void DeltaSaveLevel();
 void DeltaLoadLevel();
+void NetSendCmdSendJoinLevel();
 void NetSendCmd(bool bHiPri, BYTE bCmd);
 void NetSendCmdLoc(bool bHiPri, BYTE bCmd, BYTE x, BYTE y);
 void NetSendCmdLocParam1(bool bHiPri, BYTE bCmd, BYTE x, BYTE y, WORD wParam1);

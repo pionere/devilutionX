@@ -1001,14 +1001,28 @@ void DeltaLoadLevel()
 	deltaload = FALSE;
 }
 
-static void LevelExportData(int pnum)
+void NetSendCmdSendJoinLevel()
 {
-	TCmdJoinLevel cmd;
+	TCmdSendJoinLevel cmd;
+
+	cmd.bCmd = CMD_SEND_JOINLEVEL;
+	cmd.lLevel = myplr.plrlevel; // currLvl._dLevelIdx
+	cmd.px = myplr._px;
+	cmd.py = myplr._py;
+	cmd.lTimer1 = SwapLE16(myplr._pTimer[PT_INFRAVISION]);
+	cmd.lTimer2 = SwapLE16(myplr._pTimer[PT_RAGE]);
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdAckJoinLevel()
+{
+	TCmdAckJoinLevel cmd;
 
 	cmd.bCmd = CMD_ACK_JOINLEVEL;
 	cmd.lManashield = myplr._pManaShield;
-	cmd.lTimer1 = myplr._pTimer[PT_INFRAVISION];
-	cmd.lTimer2 = myplr._pTimer[PT_RAGE];
+	cmd.lTimer1 = SwapLE16(myplr._pTimer[PT_INFRAVISION]);
+	cmd.lTimer2 = SwapLE16(myplr._pTimer[PT_RAGE]);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
@@ -2356,7 +2370,7 @@ static unsigned On_ACK_PLRINFO(TCmd *pCmd, int pnum)
 
 static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 {
-	TCmdJoinLevel *cmd = (TCmdJoinLevel *)pCmd;
+	TCmdAckJoinLevel *cmd = (TCmdAckJoinLevel *)pCmd;
 
 	//if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 	//	msg_send_packet(pnum, cmd, sizeof(*cmd));
@@ -2372,7 +2386,7 @@ static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 
 static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 {
-	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
+	TCmdSendJoinLevel *cmd = (TCmdSendJoinLevel *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
@@ -2385,13 +2399,16 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 				gbActivePlayers++;
 				EventPlrMsg("Player '%s' (level %d) just joined the game", plr._pName, plr._pLevel);
 			}
-			plr._px = cmd->x;
-			plr._py = cmd->y;
-			plr.plrlevel = cmd->bParam1;
+			plr._px = cmd->px;
+			plr._py = cmd->py;
+			plr.plrlevel = cmd->lLevel;
+			plr._pTimer[PT_INFRAVISION] = cmd->lTimer1;
+			plr._pTimer[PT_RAGE] = cmd->lTimer2;
 			plr._pGFXLoad = 0;
 			if (currLvl._dLevelIdx == plr.plrlevel) {
 				SyncInitPlr(pnum);
-				LevelExportData(pnum);
+				CalcPlrItemVals(pnum, true);
+				NetSendCmdAckJoinLevel();
 				//PlrStartStand(pnum, DIR_S);
 				/*LoadPlrGFX(pnum, PFILE_STAND);
 				SyncInitPlr(pnum);

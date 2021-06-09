@@ -1187,12 +1187,21 @@ typedef struct DJunk {
 	MultiQuests quests[NUM_QUESTS];
 } DJunk;
 
-typedef struct TCmdJoinLevel {
+typedef struct TCmdSendJoinLevel {
+	BYTE bCmd;
+	BYTE lLevel;
+	BYTE px;
+	BYTE py;
+	WORD lTimer1;
+	WORD lTimer2;
+} TCmdSendJoinLevel;
+
+typedef struct TCmdAckJoinLevel {
 	BYTE bCmd;
 	BYTE lManashield;
 	WORD lTimer1;
 	WORD lTimer2;
-} TCmdJoinLevel;
+} TCmdAckJoinLevel;
 
 typedef struct TMegaPkt {
 	struct TMegaPkt *pNext;
