@@ -73,9 +73,9 @@ static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 
 	if (pBuf->dwDataSize != 0) {
 		src_ptr = &pBuf->bData[0];
-		while (*src_ptr != 0) {
+		while (TRUE) {
 			chunk_size = *src_ptr;
-			if (chunk_size > *size)
+			if (chunk_size == 0 || chunk_size > *size)
 				break;
 			src_ptr++;
 			memcpy(dest, src_ptr, chunk_size);
@@ -83,18 +83,19 @@ static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		memcpy(&pBuf->bData[0], src_ptr, (&pBuf->bData[0] - src_ptr) + pBuf->dwDataSize + 1);
-		pBuf->dwDataSize += (&pBuf->bData[0] - src_ptr);
+		pBuf->dwDataSize -= (src_ptr - &pBuf->bData[0]);
+		memcpy(&pBuf->bData[0], src_ptr, pBuf->dwDataSize + 1);
 	}
 	return dest;
 }
 
-static void multi_init_pkt_header(TPktHdr &pktHdr)
+static void multi_init_pkt_header(TPktHdr &pktHdr, unsigned len)
 {
 	PlayerStruct *p;
 
-	p = &myplr;
+	pktHdr.wLen = SwapLE16(len);
 	pktHdr.wCheck = PKT_HDR_CHECK;
+	p = &myplr;
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
 	pktHdr.php = SwapLE32(p->_pHitPoints);
@@ -106,11 +107,12 @@ static void multi_init_pkt_header(TPktHdr &pktHdr)
 static void multi_send_mypacket(void *packet, BYTE dwSize)
 {
 	TPkt pkt;
+	unsigned len = dwSize;
 
-	multi_init_pkt_header(pkt.hdr);
-	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
-	memcpy(&pkt.body[0], packet, dwSize);
-	SNetSendMessage(mypnum, &pkt, pkt.hdr.wLen);
+	memcpy(&pkt.body[0], packet, len);
+	len += sizeof(pkt.hdr);
+	multi_init_pkt_header(pkt.hdr, len);
+	SNetSendMessage(mypnum, &pkt, len);
 	//if (!SNetSendMessage(mypnum, &pkt, pkt.hdr.wLen))
 	//	nthread_terminate_game("SNetSendMessage0");
 }
@@ -121,13 +123,12 @@ static void multi_send_packet()
 	unsigned size, len;
 	TPkt pkt;
 
-	multi_init_pkt_header(pkt.hdr);
 	size = gdwNormalMsgSize - sizeof(TPktHdr);
 	dstEnd = multi_add_chunks(&sgHiPriBuf, &pkt.body[0], &size);
 	dstEnd = multi_add_chunks(&sgLoPriBuf, dstEnd, &size);
 	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
-	pkt.hdr.wLen = SwapLE16(len);
+	multi_init_pkt_header(pkt.hdr, len);
 	SNetSendMessage(SNPLAYER_OTHERS, &pkt, len);
 	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt, len))
 	//	nthread_terminate_game("SNetSendMessage");
@@ -150,20 +151,19 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 	}
 }
 
-void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE len)
+void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE bLen)
 {
-	DWORD i, msglen;
+	unsigned i, len = bLen;
 	TPkt pkt;
 
-	multi_init_pkt_header(pkt.hdr);
-	msglen = len + sizeof(pkt.hdr);
-	pkt.hdr.wLen = SwapLE16(msglen);
 	memcpy(&pkt.body[0], src, len);
+	len += sizeof(pkt.hdr);
+	multi_init_pkt_header(pkt.hdr, len);
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
-			SNetSendMessage(i, &pkt, msglen);
-			/*if (!SNetSendMessage(i, &pkt.hdr, msglen) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
+			SNetSendMessage(i, &pkt, len);
+			/*if (!SNetSendMessage(i, &pkt.hdr, len) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;
 			}*/
@@ -411,9 +411,7 @@ bool multi_handle_turn()
 	_gbTimeout = false;
 	if (received) {
 		if (!gbPacketSentRecently) {
-			gbPacketSentRecently = true;
 			multi_send_packet();
-			gbPacketSentRecently = false;
 		} else {
 			gbPacketSentRecently = false;
 			if (sgHiPriBuf.dwDataSize != 0) {
