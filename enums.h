@@ -2653,6 +2653,17 @@ typedef enum event_type {
 	EVENT_TYPE_15                 = 15,
 } event_type;
 
+typedef enum player_status {
+	PS_CONNECTED    = 0x10000,
+	PS_TURN_ARRIVED = 0x20000,
+	PS_ACTIVE       = 0x40000,
+} player_status;
+
+typedef enum leave_reason {
+	LEAVE_ENDING = 0x40000004,
+	LEAVE_DROP   = 0x40000006,
+} leave_reason;
+
 typedef enum text_color {
 	COL_WHITE,
 	COL_BLUE,
@@ -2836,14 +2847,14 @@ typedef enum lvl_entry {
 	ENTRY_TWARPUP = 7,
 } lvl_entry;
 
-typedef enum game_info {
+/*typedef enum game_info {
 	GAMEINFO_NAME         = 1,
 	GAMEINFO_PASSWORD     = 2,
 	GAMEINFO_STATS        = 3,
 	GAMEINFO_MODEFLAG     = 4,
 	GAMEINFO_GAMETEMPLATE = 5,
 	GAMEINFO_PLAYERS      = 6,
-} game_info;
+} game_info;*/
 
 typedef enum spell_id {
 	SPL_NULL,
