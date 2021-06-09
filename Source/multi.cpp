@@ -12,12 +12,17 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
 bool gbSomebodyWonGameKludge;
+/* Buffer to hold chunks with high priority. */
 static TBuffer sgHiPriBuf;
+/* Buffer to hold chunks with low priority. */
 static TBuffer sgLoPriBuf;
-static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
+/* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
+/* Current offset in netplr. */
+static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
 static bool gbJoinGame;
 static bool sgbPlayerLeftGameTbl[MAX_PLRS];
+static int sgdwPlayerLeftReasonTbl[MAX_PLRS];
 static uint32_t sgbSentThisCycle;
 static bool gbPacketSentRecently;
 BYTE gbActivePlayers;
@@ -26,7 +31,6 @@ static unsigned guSendDelta;
 bool gbSelectProvider;
 bool gbSelectHero;
 static int sglTimeoutStart;
-static int sgdwPlayerLeftReasonTbl[MAX_PLRS];
 static uint32_t sgdwGameLoops;
 /**
  * Specifies the maximum number of players in a game, where 1
@@ -50,7 +54,7 @@ static void multi_queue_chunk(TBuffer *buf, void *chunk, BYTE size)
 {
 	BYTE *p;
 
-	if (buf->dwDataSize + size + 2 > 0x1000) {
+	if (buf->dwDataSize + size + 2 > sizeof(buf->bData)) {
 		return;
 	}
 
@@ -68,7 +72,7 @@ static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 	size_t chunk_size;
 
 	if (pBuf->dwDataSize != 0) {
-		src_ptr = pBuf->bData;
+		src_ptr = &pBuf->bData[0];
 		while (*src_ptr != 0) {
 			chunk_size = *src_ptr;
 			if (chunk_size > *size)
@@ -79,8 +83,8 @@ static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		memcpy(pBuf->bData, src_ptr, (pBuf->bData - src_ptr) + pBuf->dwDataSize + 1);
-		pBuf->dwDataSize += (pBuf->bData - src_ptr);
+		memcpy(&pBuf->bData[0], src_ptr, (&pBuf->bData[0] - src_ptr) + pBuf->dwDataSize + 1);
+		pBuf->dwDataSize += (&pBuf->bData[0] - src_ptr);
 	}
 	return dest;
 }
@@ -105,9 +109,9 @@ static void multi_send_mypacket(void *packet, BYTE dwSize)
 
 	multi_init_pkt_header(pkt.hdr);
 	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
-	memcpy(pkt.body, packet, dwSize);
-	SNetSendMessage(mypnum, &pkt.hdr, pkt.hdr.wLen);
-	//if (!SNetSendMessage(mypnum, &pkt.hdr, pkt.hdr.wLen))
+	memcpy(&pkt.body[0], packet, dwSize);
+	SNetSendMessage(mypnum, &pkt, pkt.hdr.wLen);
+	//if (!SNetSendMessage(mypnum, &pkt, pkt.hdr.wLen))
 	//	nthread_terminate_game("SNetSendMessage0");
 }
 
@@ -119,13 +123,13 @@ static void multi_send_packet()
 
 	multi_init_pkt_header(pkt.hdr);
 	size = gdwNormalMsgSize - sizeof(TPktHdr);
-	dstEnd = multi_add_chunks(&sgHiPriBuf, pkt.body, &size);
+	dstEnd = multi_add_chunks(&sgHiPriBuf, &pkt.body[0], &size);
 	dstEnd = multi_add_chunks(&sgLoPriBuf, dstEnd, &size);
 	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
 	pkt.hdr.wLen = SwapLE16(len);
-	SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len);
-	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len))
+	SNetSendMessage(SNPLAYER_OTHERS, &pkt, len);
+	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt, len))
 	//	nthread_terminate_game("SNetSendMessage");
 }
 
@@ -154,11 +158,11 @@ void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE len)
 	multi_init_pkt_header(pkt.hdr);
 	msglen = len + sizeof(pkt.hdr);
 	pkt.hdr.wLen = SwapLE16(msglen);
-	memcpy(pkt.body, src, len);
+	memcpy(&pkt.body[0], src, len);
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 		if (pmask & 1) {
-			SNetSendMessage(i, &pkt.hdr, msglen);
+			SNetSendMessage(i, &pkt, msglen);
 			/*if (!SNetSendMessage(i, &pkt.hdr, msglen) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
 				nthread_terminate_game("SNetSendMessage");
 				return;
@@ -287,7 +291,7 @@ static void multi_clear_left_tbl()
 			else
 				multi_player_left_msg(i, true);
 
-			sgbPlayerLeftGameTbl[i] = FALSE;
+			sgbPlayerLeftGameTbl[i] = false;
 			sgdwPlayerLeftReasonTbl[i] = 0;
 		}
 	}
