@@ -213,10 +213,10 @@ void base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 	registered_handlers[evtype] = func;
 }
 
-void base::SNetLeaveGame(int type)
+void base::SNetLeaveGame(int reason)
 {
 	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
-	    plr_self, (leaveinfo_t)type);
+	    plr_self, (leaveinfo_t)reason);
 	send(*pkt);
 }
 

@@ -64,7 +64,7 @@ void loopback::SNetSendTurn(uint32_t turn)
 {
 }
 
-void loopback::SNetLeaveGame(int type)
+void loopback::SNetLeaveGame(int reason)
 {
 }
 

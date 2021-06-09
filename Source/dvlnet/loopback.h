@@ -28,7 +28,7 @@ public:
 	virtual void SNetSendMessage(int dest, void *data, unsigned size);
 	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetLeaveGame(int type);
+	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();

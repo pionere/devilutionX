@@ -1210,7 +1210,7 @@ typedef struct DMegaPkt {
 } DMegaPkt;
 
 typedef struct TBuffer {
-	DWORD dwNextWriteOffset;
+	DWORD dwDataSize;
 	BYTE bData[4096];
 } TBuffer;
 

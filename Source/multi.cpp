@@ -19,7 +19,7 @@ static PkPlayerStruct netplr[MAX_PLRS];
 static bool gbJoinGame;
 static bool sgbPlayerLeftGameTbl[MAX_PLRS];
 static uint32_t sgbSentThisCycle;
-static bool gbShouldValidatePackage;
+static bool gbPacketSentRecently;
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
 static unsigned guSendDelta;
@@ -42,56 +42,50 @@ unsigned player_state[MAX_PLRS];
 
 static void buffer_init(TBuffer *pBuf)
 {
-	pBuf->dwNextWriteOffset = 0;
+	pBuf->dwDataSize = 0;
 	pBuf->bData[0] = 0;
 }
 
-// Microsoft VisualC 2-11/net runtime
-static int multi_check_pkt_valid(TBuffer *pBuf)
-{
-	return pBuf->dwNextWriteOffset == 0;
-}
-
-static void multi_copy_packet(TBuffer *buf, void *packet, BYTE size)
+static void multi_queue_chunk(TBuffer *buf, void *chunk, BYTE size)
 {
 	BYTE *p;
 
-	if (buf->dwNextWriteOffset + size + 2 > 0x1000) {
+	if (buf->dwDataSize + size + 2 > 0x1000) {
 		return;
 	}
 
-	p = &buf->bData[buf->dwNextWriteOffset];
-	buf->dwNextWriteOffset += size + 1;
+	p = &buf->bData[buf->dwDataSize];
+	buf->dwDataSize += size + 1;
 	*p = size;
 	p++;
-	memcpy(p, packet, size);
+	memcpy(p, chunk, size);
 	p[size] = 0;
 }
 
-static BYTE *multi_recv_packet(TBuffer *pBuf, BYTE *body, unsigned *size)
+static BYTE *multi_add_chunks(TBuffer *pBuf, BYTE *dest, unsigned *size)
 {
 	BYTE *src_ptr;
 	size_t chunk_size;
 
-	if (pBuf->dwNextWriteOffset != 0) {
+	if (pBuf->dwDataSize != 0) {
 		src_ptr = pBuf->bData;
 		while (*src_ptr != 0) {
 			chunk_size = *src_ptr;
 			if (chunk_size > *size)
 				break;
 			src_ptr++;
-			memcpy(body, src_ptr, chunk_size);
-			body += chunk_size;
+			memcpy(dest, src_ptr, chunk_size);
+			dest += chunk_size;
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		memcpy(pBuf->bData, src_ptr, (pBuf->bData - src_ptr) + pBuf->dwNextWriteOffset + 1);
-		pBuf->dwNextWriteOffset += (pBuf->bData - src_ptr);
+		memcpy(pBuf->bData, src_ptr, (pBuf->bData - src_ptr) + pBuf->dwDataSize + 1);
+		pBuf->dwDataSize += (pBuf->bData - src_ptr);
 	}
-	return body;
+	return dest;
 }
 
-static void NetRecvPlrData(TPktHdr &pktHdr)
+static void multi_init_pkt_header(TPktHdr &pktHdr)
 {
 	PlayerStruct *p;
 
@@ -105,11 +99,11 @@ static void NetRecvPlrData(TPktHdr &pktHdr)
 	pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
-static void multi_send_packet(void *packet, BYTE dwSize)
+static void multi_send_mypacket(void *packet, BYTE dwSize)
 {
 	TPkt pkt;
 
-	NetRecvPlrData(pkt.hdr);
+	multi_init_pkt_header(pkt.hdr);
 	pkt.hdr.wLen = dwSize + sizeof(pkt.hdr);
 	memcpy(pkt.body, packet, dwSize);
 	SNetSendMessage(mypnum, &pkt.hdr, pkt.hdr.wLen);
@@ -117,18 +111,17 @@ static void multi_send_packet(void *packet, BYTE dwSize)
 	//	nthread_terminate_game("SNetSendMessage0");
 }
 
-static void validate_package()
+static void multi_send_packet()
 {
-	BYTE *hipri_body;
-	BYTE *lowpri_body;
+	BYTE *dstEnd;
 	unsigned size, len;
 	TPkt pkt;
 
-	NetRecvPlrData(pkt.hdr);
+	multi_init_pkt_header(pkt.hdr);
 	size = gdwNormalMsgSize - sizeof(TPktHdr);
-	hipri_body = multi_recv_packet(&sgHiPriBuf, pkt.body, &size);
-	lowpri_body = multi_recv_packet(&sgLoPriBuf, hipri_body, &size);
-	size = sync_all_monsters(lowpri_body, size);
+	dstEnd = multi_add_chunks(&sgHiPriBuf, pkt.body, &size);
+	dstEnd = multi_add_chunks(&sgLoPriBuf, dstEnd, &size);
+	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
 	pkt.hdr.wLen = SwapLE16(len);
 	SNetSendMessage(SNPLAYER_OTHERS, &pkt.hdr, len);
@@ -138,18 +131,18 @@ static void validate_package()
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
 {
-	multi_copy_packet(&sgLoPriBuf, pbMsg, bLen);
-	multi_send_packet(pbMsg, bLen);
+	multi_queue_chunk(&sgLoPriBuf, pbMsg, bLen);
+	multi_send_mypacket(pbMsg, bLen);
 }
 
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 {
-	multi_copy_packet(&sgHiPriBuf, pbMsg, bLen);
-	multi_send_packet(pbMsg, bLen);
+	multi_queue_chunk(&sgHiPriBuf, pbMsg, bLen);
+	multi_send_mypacket(pbMsg, bLen);
 
-	if (!gbShouldValidatePackage) {
-		gbShouldValidatePackage = true;
-		validate_package();
+	if (!gbPacketSentRecently) {
+		gbPacketSentRecently = true;
+		multi_send_packet();
 	}
 }
 
@@ -158,7 +151,7 @@ void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE len)
 	DWORD i, msglen;
 	TPkt pkt;
 
-	NetRecvPlrData(pkt.hdr);
+	multi_init_pkt_header(pkt.hdr);
 	msglen = len + sizeof(pkt.hdr);
 	pkt.hdr.wLen = SwapLE16(msglen);
 	memcpy(pkt.body, src, len);
@@ -290,7 +283,7 @@ static void multi_clear_left_tbl()
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (sgbPlayerLeftGameTbl[i]) {
 			if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-				msg_send_drop_pkt(i, sgdwPlayerLeftReasonTbl[i]);
+				msg_send_drop_plr(i, sgdwPlayerLeftReasonTbl[i]);
 			else
 				multi_player_left_msg(i, true);
 
@@ -413,15 +406,15 @@ bool multi_handle_turn()
 
 	_gbTimeout = false;
 	if (received) {
-		if (!gbShouldValidatePackage) {
-			gbShouldValidatePackage = true;
-			validate_package();
-			gbShouldValidatePackage = false;
+		if (!gbPacketSentRecently) {
+			gbPacketSentRecently = true;
+			multi_send_packet();
+			gbPacketSentRecently = false;
 		} else {
-			gbShouldValidatePackage = false;
-			if (!multi_check_pkt_valid(&sgHiPriBuf)) {
-				gbShouldValidatePackage = true;
-				validate_package();
+			gbPacketSentRecently = false;
+			if (sgHiPriBuf.dwDataSize != 0) {
+				gbPacketSentRecently = true;
+				multi_send_packet();
 			}
 		}
 	}
@@ -732,7 +725,7 @@ bool NetInit(bool bSinglePlayer)
 		InitPlrMsg();
 		buffer_init(&sgHiPriBuf);
 		buffer_init(&sgLoPriBuf);
-		gbShouldValidatePackage = false;
+		gbPacketSentRecently = false;
 		sync_init();
 		nthread_start(gbJoinGame);
 		dthread_start();

@@ -16,7 +16,7 @@ extern BOOL deltaload;
 extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
-void msg_send_drop_pkt(int pnum, int reason);
+void msg_send_drop_plr(int pnum, int reason);
 bool msg_wait_resync();
 void run_delta_info();
 void DeltaExportData(int pnum);

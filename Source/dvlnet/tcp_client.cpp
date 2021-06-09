@@ -116,9 +116,9 @@ void tcp_client::send(packet &pkt)
 	});
 }
 
-void tcp_client::SNetLeaveGame(int type)
+void tcp_client::SNetLeaveGame(int reason)
 {
-	base::SNetLeaveGame(type);
+	base::SNetLeaveGame(reason);
 	poll();
 	if (local_server != NULL)
 		local_server->close();

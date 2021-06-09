@@ -86,9 +86,9 @@ bool cdwrap<T>::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 }
 
 template <class T>
-void cdwrap<T>::SNetSendMessage(int playerID, void *data, unsigned int size)
+void cdwrap<T>::SNetSendMessage(int dest, void *data, unsigned int size)
 {
-	dvlnet_wrap->SNetSendMessage(playerID, data, size);
+	dvlnet_wrap->SNetSendMessage(dest, data, size);
 }
 
 template <class T>
@@ -120,9 +120,9 @@ void cdwrap<T>::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
 }
 
 template <class T>
-void cdwrap<T>::SNetLeaveGame(int type)
+void cdwrap<T>::SNetLeaveGame(int reason)
 {
-	dvlnet_wrap->SNetLeaveGame(type);
+	dvlnet_wrap->SNetLeaveGame(reason);
 }
 
 template <class T>

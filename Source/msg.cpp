@@ -167,7 +167,7 @@ static void msg_send_packet(int pnum, const void *packet, unsigned dwSize)
 	sgpCurrPkt->dwSpaceLeft -= dwSize;
 }
 
-void msg_send_drop_pkt(int pnum, int reason)
+void msg_send_drop_plr(int pnum, int reason)
 {
 	TFakeDropPlr cmd;
 

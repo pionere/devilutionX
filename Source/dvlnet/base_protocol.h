@@ -291,9 +291,9 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 }
 
 template <class P>
-void base_protocol<P>::SNetLeaveGame(int type)
+void base_protocol<P>::SNetLeaveGame(int reason)
 {
-	base::SNetLeaveGame(type);
+	base::SNetLeaveGame(reason);
 	recv();
 }
 
