@@ -1297,7 +1297,7 @@ void NetSendCmdDItem(int ii)
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-static bool i_own_level(int nReqLevel)
+static bool i_own_level(BYTE nReqLevel)
 {
 	int pnum;
 
@@ -1556,7 +1556,7 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr.plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(cmd->bLevel)) {
 		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
@@ -1621,7 +1621,7 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 {
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
-	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(plr.plrlevel)) {
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA && i_own_level(cmd->bLevel)) {
 		if (!ExistsItemRecord(&cmd->item)) {
 			int ii = FindGetItem(SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			if (ii != -1) {
@@ -1674,7 +1674,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
 		delta_get_item(cmd);
-		if (currLvl._dLevelIdx == plr.plrlevel)
+		if (currLvl._dLevelIdx == cmd->bLevel)
 			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 	}
 
