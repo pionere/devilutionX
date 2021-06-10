@@ -256,7 +256,7 @@ void run_delta_info()
 	msg_free_packets();
 }
 
-static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
+static BYTE *DeltaExportItem(BYTE *dst, DItemStr *src)
 {
 	int i;
 
@@ -265,27 +265,27 @@ static BYTE *DeltaExportItem(BYTE *dst, TCmdPItem *src)
 			*dst = 0xFF;
 			dst++;
 		} else {
-			copy_pod(*reinterpret_cast<TCmdPItem *>(dst), *src);
-			dst += sizeof(TCmdPItem);
+			copy_pod(*reinterpret_cast<DItemStr *>(dst), *src);
+			dst += sizeof(DItemStr);
 		}
 	}
 
 	return dst;
 }
 
-static BYTE *DeltaImportItem(BYTE *src, TCmdPItem *dst)
+static BYTE *DeltaImportItem(BYTE *src, DItemStr *dst)
 {
 	int i;
 
 	for (i = 0; i < MAXITEMS; i++, dst++) {
 		if (*src == 0xFF) {
-			memset(dst, 0xFF, sizeof(TCmdPItem));
+			memset(dst, 0xFF, sizeof(DItemStr));
 			src++;
 		} else {
-			copy_pod(*dst, *reinterpret_cast<TCmdPItem *>(src));
+			copy_pod(*dst, *reinterpret_cast<DItemStr *>(src));
 			// TODO: validate data from internet
 			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
-			src += sizeof(TCmdPItem);
+			src += sizeof(DItemStr);
 		}
 	}
 
@@ -682,7 +682,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 
 static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 {
-	TCmdPItem *pD;
+	DItemStr *pD;
 	int i;
 
 	if (gbMaxPlayers == 1)
@@ -730,7 +730,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 {
 	int i;
-	TCmdPItem *pD;
+	DItemStr *pD;
 
 	if (gbMaxPlayers == 1)
 		return;
@@ -753,10 +753,10 @@ static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF) {
 			_gbLevelDeltaChanged[bLevel] = true;
-			copy_pod(*pD, *pI);
 			pD->bCmd = DCMD_DROPPED;
 			pD->x = x;
 			pD->y = y;
+			copy_pod(pD->item, pI->item);
 			return;
 		}
 	}
@@ -802,7 +802,7 @@ void DeltaAddItem(int ii)
 {
 	ItemStruct *is;
 	int i;
-	TCmdPItem *pD;
+	DItemStr *pD;
 
 	if (gbMaxPlayers == 1)
 		return;
@@ -893,7 +893,7 @@ void DeltaLoadLevel()
 	DMonsterStr *mstr;
 	DObjectStr *dstr;
 	MonsterStruct *mon;
-	TCmdPItem* itm;
+	DItemStr* itm;
 	int ii;
 	int i;
 	int x, y;

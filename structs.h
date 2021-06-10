@@ -1160,8 +1160,15 @@ typedef struct DObjectStr {
 	BYTE bCmd;
 } DObjectStr;
 
+typedef struct DItemStr {
+	BYTE bCmd;
+	BYTE x;
+	BYTE y;
+	PkItemStruct item;
+} DItemStr;
+
 typedef struct DLevel {
-	TCmdPItem item[MAXITEMS];
+	DItemStr item[MAXITEMS];
 	DObjectStr object[MAXOBJECTS];
 	DMonsterStr monster[MAXMONSTERS];
 } DLevel;
