@@ -1528,7 +1528,7 @@ void InvGetItem(int pnum, int ii)
 	dItem[is->_ix][is->_iy] = 0;
 
 	if (mypnum == pnum && pcurs >= CURSOR_FIRSTITEM)
-		NetSendCmdPItem(CMD_SYNCPUTITEM, &plr.HoldItem, plr._px, plr._py);
+		NetSendCmdPutHoldItem(CMD_SYNCPUTITEM, plr._px, plr._py);
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	is->_iCreateInfo &= ~CF_PREGEN;
@@ -1574,7 +1574,7 @@ void AutoGetItem(int pnum, int ii)
 			PlaySFX(sgSFXSets[SFXS_PLR_14][plr._pClass], 3);
 		}
 		RespawnItem(ii, true);
-		NetSendCmdPItem(CMD_RESPAWNITEM, is, is->_ix, is->_iy);
+		NetSendCmdRespawnItem(ii);
 		NewCursor(CURSOR_HAND);
 	}
 }
@@ -1721,7 +1721,7 @@ bool DropItem()
 	if (!FindItemLocation(myplr._px, myplr._py, &x, &y, 1))
 		return false;
 
-	NetSendCmdPItem(CMD_PUTITEM, &myplr.HoldItem, cursmx, cursmy);
+	NetSendCmdPutHoldItem(CMD_PUTITEM, cursmx, cursmy);
 	NewCursor(CURSOR_HAND);
 	return true;
 }

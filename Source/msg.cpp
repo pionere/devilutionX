@@ -1223,7 +1223,7 @@ static bool NetSendCmdTMsg(BYTE mast, const TCmdGItem *p)
 	return true;
 }
 
-void NetSendCmdPItem(BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
+void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
 {
 	TCmdPItem cmd;
 
@@ -1231,7 +1231,20 @@ void NetSendCmdPItem(BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 	cmd.x = x;
 	cmd.y = y;
 
-	PackPkItem(&cmd.item, is);
+	PackPkItem(&cmd.item, &myplr.HoldItem);
+
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdRespawnItem(int ii)
+{
+	TCmdPItem cmd;
+
+	cmd.bCmd = CMD_RESPAWNITEM;
+	cmd.x = items[ii]._ix;
+	cmd.y = items[ii]._iy;
+
+	PackPkItem(&cmd.item, &items[ii]);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }

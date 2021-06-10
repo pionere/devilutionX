@@ -2074,7 +2074,7 @@ void SpawnUnique(int uid, int x, int y, bool sendmsg, bool respawn)
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
-		NetSendCmdPItem(CMD_RESPAWNITEM, &items[ii], items[ii]._ix, items[ii]._iy);
+		NetSendCmdRespawnItem(ii);
 	}
 }
 
@@ -2311,7 +2311,7 @@ void SpawnQuestItemAround(int idx, int x, int y, bool sendmsg, bool respawn)
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
-		NetSendCmdPItem(CMD_RESPAWNITEM, &items[ii], items[ii]._ix, items[ii]._iy);
+		NetSendCmdRespawnItem(ii);
 	}
 }
 
@@ -2407,7 +2407,7 @@ void SpawnRewardItem(int idx, int x, int y, bool sendmsg, bool respawn)
 
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
-		NetSendCmdPItem(CMD_RESPAWNITEM, &items[ii], items[ii]._ix, items[ii]._iy);
+		NetSendCmdRespawnItem(ii);
 	}
 }
 #endif
@@ -3907,7 +3907,7 @@ void CreateAmulet(WORD wCI, int x, int y, bool sendmsg, bool respawn)
 	}
 	RegisterItem(ii, x, y, sendmsg, false);
 	if (respawn) {
-		NetSendCmdPItem(CMD_RESPAWNITEM, &items[ii], items[ii]._ix, items[ii]._iy);
+		NetSendCmdRespawnItem(ii);
 	}
 }
 #endif

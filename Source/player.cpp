@@ -1753,7 +1753,7 @@ static void PlrDeadItem(int pnum, ItemStruct *is)
 	items[i]._iy = yy;
 	RespawnItem(i, true);
 	numitems++;
-	NetSendCmdPItem(CMD_RESPAWNITEM, is, xx, yy);
+	NetSendCmdRespawnItem(i);
 
 	is->_itype = ITYPE_NONE;
 }
