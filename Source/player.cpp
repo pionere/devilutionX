@@ -1748,14 +1748,13 @@ static void PlrDeadItem(int pnum, ItemStruct *is)
 	dItem[xx][yy] = i + 1;
 	itemavail[0] = itemavail[MAXITEMS - numitems - 1];
 	itemactive[numitems] = i;
+	numitems++;
 	copy_pod(items[i], *is);
+	is->_itype = ITYPE_NONE;
 	items[i]._ix = xx;
 	items[i]._iy = yy;
 	RespawnItem(i, true);
-	numitems++;
 	NetSendCmdRespawnItem(i);
-
-	is->_itype = ITYPE_NONE;
 }
 
 #if defined(__clang__) || defined(__GNUC__)

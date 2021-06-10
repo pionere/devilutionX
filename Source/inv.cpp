@@ -1782,11 +1782,11 @@ int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround)
 	dItem[x][y] = ii + 1;
 	itemavail[0] = itemavail[MAXITEMS - (numitems + 1)];
 	itemactive[numitems] = ii;
+	numitems++;
 	copy_pod(items[ii], *is);
 	items[ii]._ix = x;
 	items[ii]._iy = y;
 	RespawnItem(ii, true);
-	numitems++;
 	return ii;
 }
 

@@ -85,7 +85,7 @@ typedef struct ItemDataStruct {
 	char iItemId;
 	const char *iName;
 	char iMinMLvl;
-	int16_t iDurability;
+	uint16_t iDurability;
 	BYTE iDamType;
 	BYTE iMinDam;
 	BYTE iMaxDam;

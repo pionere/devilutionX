@@ -3067,6 +3067,12 @@ typedef enum _selgame_selections {
 	SELGAME_PREVIOUS    = 3
 } _selgame_selections;
 
+typedef enum conn_type {
+	SELCONN_ZT,
+	SELCONN_TCP,
+	SELCONN_LOOPBACK,
+} conn_type;
+
 typedef enum panel_button_id {
 	PANBTN_MAINMENU,
 	PANBTN_OPTIONS,
@@ -3794,12 +3800,6 @@ typedef enum movie_flag {
 	MOV_SKIP       = 1 << 0, // Makes the video unskippable.
 	MOV_LOOP       = 2 << 0, // Playback in loop.
 } movie_flag;
-
-typedef enum conn_type {
-	SELCONN_ZT,
-	SELCONN_TCP,
-	SELCONN_LOOPBACK,
-} conn_type;
 
 typedef enum _artfonts {
 	AF_SMALL     = 0,

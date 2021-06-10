@@ -1238,13 +1238,15 @@ void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
 
 void NetSendCmdRespawnItem(int ii)
 {
+	ItemStruct *is;
 	TCmdPItem cmd;
 
+	is = &items[ii];
 	cmd.bCmd = CMD_RESPAWNITEM;
-	cmd.x = items[ii]._ix;
-	cmd.y = items[ii]._iy;
+	cmd.x = is->_ix;
+	cmd.y = is->_iy;
 
-	PackPkItem(&cmd.item, &items[ii]);
+	PackPkItem(&cmd.item, is);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
