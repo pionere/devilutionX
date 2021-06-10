@@ -47,7 +47,7 @@ extern char dPlayer[MAXDUNX][MAXDUNY];
 extern int dMonster[MAXDUNX][MAXDUNY];
 extern BYTE dDead[MAXDUNX][MAXDUNY];
 extern char dObject[MAXDUNX][MAXDUNY];
-extern char dItem[MAXDUNX][MAXDUNY];
+extern BYTE dItem[MAXDUNX][MAXDUNY];
 extern char dMissile[MAXDUNX][MAXDUNY];
 extern BYTE dSpecial[MAXDUNX][MAXDUNY];
 extern int themeCount;

@@ -100,7 +100,7 @@ char dObject[MAXDUNX][MAXDUNY];
  * Contains the item numbers (items array indices) of the map.
  *   ii + 1 : the item is on the floor on the given location.
  */
-char dItem[MAXDUNX][MAXDUNY];
+BYTE dItem[MAXDUNX][MAXDUNY];
 /**
  * Contains the missile numbers (missiles array indices) of the map.
  *   mi + 1 : the missile is on the given location.
