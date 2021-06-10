@@ -444,7 +444,7 @@ static void multi_process_tmsgs()
 	TCmdGItem pkt;
 
 	while (tmsg_get(&pkt)) {
-		multi_handle_all_packets(mypnum, (BYTE *)&pkt, sizeof(pkt));
+		ParseCmd(mypnum, (TCmd *)&pkt);
 	}
 }
 
