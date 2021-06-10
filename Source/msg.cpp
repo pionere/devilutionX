@@ -680,14 +680,16 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 	sgLevels[bLevel].object[oi].bCmd = bCmd;
 }
 
-static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
+static bool delta_get_item(const TCmdGItem *pI)
 {
 	DItemStr *pD;
 	int i;
+	BYTE bLevel;
 
 	if (gbMaxPlayers == 1)
 		return true;
 
+	bLevel = pI->bLevel;
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == 0xFF || pD->item.dwSeed != pI->item.dwSeed || pD->item.wIndx != pI->item.wIndx || pD->item.wCI != pI->item.wCI)
@@ -727,7 +729,7 @@ static bool delta_get_item(TCmdGItem *pI, BYTE bLevel)
 	return true;
 }
 
-static void delta_put_item(TCmdPItem *pI, int x, int y, BYTE bLevel)
+static void delta_put_item(const TCmdPItem *pI, int x, int y, BYTE bLevel)
 {
 	int i;
 	DItemStr *pD;
@@ -1203,13 +1205,12 @@ static void NetReSendCmdGItem(BYTE bCmd, BYTE mast, TCmdGItem *p)
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
-static bool NetSendCmdTMsg(BYTE bCmd, BYTE mast, TCmdGItem *p)
+static bool NetSendCmdTMsg(BYTE mast, const TCmdGItem *p)
 {
 	int ticks;
 	TCmdGItem cmd;
 
 	copy_pod(cmd, *p);
-	cmd.bCmd = bCmd;
 	cmd.bMaster = mast;
 
 	ticks = SDL_GetTicks();
@@ -1548,7 +1549,7 @@ static unsigned On_REQUESTGITEM(TCmd *pCmd, int pnum)
 				else
 					InvGetItem(mypnum, ii);
 				AddItemRecord(&cmd->item);
-			} else if (!NetSendCmdTMsg(CMD_REQUESTGITEM, mypnum, cmd))
+			} else if (!NetSendCmdTMsg(mypnum, cmd))
 				NetReSendCmdGItem(CMD_ITEMEXTRA, cmd->bMaster, cmd);
 		}
 	}
@@ -1564,7 +1565,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (delta_get_item(cmd, cmd->bLevel)) {
+		if (delta_get_item(cmd)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == mypnum) && cmd->bMaster != mypnum) {
 				if (cmd->bPnum == mypnum) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
@@ -1580,7 +1581,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
-			NetSendCmdTMsg(CMD_GETITEM, cmd->bMaster, cmd);
+			NetSendCmdTMsg(cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1613,7 +1614,7 @@ static unsigned On_REQUESTAGITEM(TCmd *pCmd, int pnum)
 				else
 					AutoGetItem(mypnum, cmd->bCursitem);
 				AddItemRecord(&cmd->item);
-			} else if (!NetSendCmdTMsg(CMD_REQUESTAGITEM, mypnum, cmd))
+			} else if (!NetSendCmdTMsg(mypnum, cmd))
 				NetReSendCmdGItem(CMD_ITEMEXTRA, cmd->bMaster, cmd);
 		}
 	}
@@ -1628,7 +1629,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (delta_get_item(cmd, cmd->bLevel)) {
+		if (delta_get_item(cmd)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == mypnum) && cmd->bMaster != mypnum) {
 				if (cmd->bPnum == mypnum) {
 					if (currLvl._dLevelIdx != cmd->bLevel) {
@@ -1642,7 +1643,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 					SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 			}
 		} else
-			NetSendCmdTMsg(CMD_AGETITEM, cmd->bMaster, cmd);
+			NetSendCmdTMsg(cmd->bMaster, cmd);
 	}
 
 	return sizeof(*cmd);
@@ -1655,7 +1656,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		delta_get_item(cmd, cmd->bLevel);
+		delta_get_item(cmd);
 		if (currLvl._dLevelIdx == plr.plrlevel)
 			SyncGetItemAt(cmd->x, cmd->y, SwapLE32(cmd->item.dwSeed), SwapLE16(cmd->item.wIndx), SwapLE16(cmd->item.wCI));
 	}
