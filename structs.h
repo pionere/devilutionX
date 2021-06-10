@@ -1051,6 +1051,7 @@ typedef struct TCmdGItem {
 
 typedef struct TCmdPItem {
 	BYTE bCmd;
+	BYTE bLevel;
 	BYTE x;
 	BYTE y;
 	PkItemStruct item;

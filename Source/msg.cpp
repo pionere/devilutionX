@@ -729,14 +729,16 @@ static bool delta_get_item(const TCmdGItem *pI)
 	return true;
 }
 
-static void delta_put_item(const TCmdPItem *pI, int x, int y, BYTE bLevel)
+static void delta_put_item(const TCmdPItem *pI, int x, int y)
 {
 	int i;
 	DItemStr *pD;
+	BYTE bLevel;
 
 	if (gbMaxPlayers == 1)
 		return;
 
+	bLevel = pI->bLevel;
 	pD = sgLevels[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != 0xFF
@@ -1230,6 +1232,7 @@ void NetSendCmdPutHoldItem(BYTE bCmd, BYTE x, BYTE y)
 	cmd.bCmd = bCmd;
 	cmd.x = x;
 	cmd.y = y;
+	cmd.bLevel = currLvl._dLevelIdx;
 
 	PackPkItem(&cmd.item, &myplr.HoldItem);
 
@@ -1245,6 +1248,7 @@ void NetSendCmdRespawnItem(int ii)
 	cmd.bCmd = CMD_RESPAWNITEM;
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
+	cmd.bLevel = currLvl._dLevelIdx;
 
 	PackPkItem(&cmd.item, is);
 
@@ -1286,6 +1290,7 @@ void NetSendCmdDItem(int ii)
 	cmd.bCmd = CMD_DROPITEM;
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
+	cmd.bLevel = currLvl._dLevelIdx;
 
 	PackPkItem(&cmd.item, is);
 
@@ -1721,7 +1726,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			return sizeof(*cmd);
 		}
 #endif
-		if (currLvl._dLevelIdx == plr.plrlevel) {
+		if (currLvl._dLevelIdx == cmd->bLevel) {
 			UnPackPkItem(&cmd->item);
 			int ii = InvPutItem(pnum, x, y, MAXITEMS);
 			if (ii == -1)
@@ -1729,7 +1734,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 			x = items[ii]._ix;
 			y = items[ii]._iy;
 		}
-		delta_put_item(cmd, x, y, plr.plrlevel);
+		delta_put_item(cmd, x, y);
 		RemoveItemRecord(&cmd->item);
 	}
 
@@ -1742,17 +1747,17 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
-	else if (currLvl._dLevelIdx == plr.plrlevel) {
+	else if (currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
 		if (ii != -1) {
 			RemoveItemRecord(&cmd->item);
-			delta_put_item(cmd, items[ii]._ix, items[ii]._iy, plr.plrlevel);
+			delta_put_item(cmd, items[ii]._ix, items[ii]._iy);
 			check_update_plr(pnum);
 		}
 	} else {
 		RemoveItemRecord(&cmd->item);
-		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y);
 		check_update_plr(pnum);
 	}
 
@@ -1766,12 +1771,12 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else {
-		if (currLvl._dLevelIdx == plr.plrlevel && pnum != mypnum) {
+		if (currLvl._dLevelIdx == cmd->bLevel && pnum != mypnum) {
 			UnPackPkItem(&cmd->item);
 			SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, false);
 		}
 		RemoveItemRecord(&cmd->item);
-		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y);
 	}
 
 	return sizeof(*cmd);
@@ -1784,7 +1789,7 @@ static unsigned On_DROPITEM(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		msg_send_packet(pnum, cmd, sizeof(*cmd));
 	else
-		delta_put_item(cmd, cmd->x, cmd->y, plr.plrlevel);
+		delta_put_item(cmd, cmd->x, cmd->y);
 
 	return sizeof(*cmd);
 }
