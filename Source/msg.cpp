@@ -1223,7 +1223,7 @@ static bool NetSendCmdTMsg(BYTE mast, const TCmdGItem *p)
 	return true;
 }
 
-void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
+void NetSendCmdPItem(BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 {
 	TCmdPItem cmd;
 
@@ -1233,10 +1233,7 @@ void NetSendCmdPItem(bool bHiPri, BYTE bCmd, ItemStruct *is, BYTE x, BYTE y)
 
 	PackPkItem(&cmd.item, is);
 
-	if (bHiPri)
-		NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
-	else
-		NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 void NetSendCmdChItem(ItemStruct *is, BYTE bLoc)
@@ -1277,7 +1274,7 @@ void NetSendCmdDItem(int ii)
 
 	PackPkItem(&cmd.item, is);
 
-	NetSendLoPri((BYTE *)&cmd, sizeof(cmd));
+	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
 
 static bool i_own_level(int nReqLevel)
