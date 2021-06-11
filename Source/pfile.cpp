@@ -277,14 +277,14 @@ bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
 			return false;
 		fmt = SAVEFILE_HERO;
 	} else {
-		if (lvl < NUMLEVELS)
+		if (lvl < NUM_STDLVLS)
 			fmt = "perml%02d";
-		else if (lvl < NUMLEVELS * 2) {
-			lvl -= NUMLEVELS;
+		else if (lvl < NUM_STDLVLS * 2) {
+			lvl -= NUM_STDLVLS;
 			fmt = "perms%02d";
-		} else if (lvl == NUMLEVELS * 2)
+		} else if (lvl == NUM_STDLVLS * 2)
 			fmt = SAVEFILE_GAME;
-		else if (lvl == NUMLEVELS * 2 + 1)
+		else if (lvl == NUM_STDLVLS * 2 + 1)
 			fmt = SAVEFILE_HERO;
 		else
 			return false;
@@ -332,7 +332,7 @@ void pfile_create_player_description()
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 {
 	if (currLvl._dSetLvl)
-		snprintf(szTemp, sizeof(szTemp), "temps%02d", currLvl._dLevelIdx - NUMLEVELS);
+		snprintf(szTemp, sizeof(szTemp), "temps%02d", currLvl._dLevelIdx - NUM_STDLVLS);
 	else
 		snprintf(szTemp, sizeof(szTemp), "templ%02d", currLvl._dLevelIdx);
 }
@@ -349,7 +349,7 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 	pfile_flush(true);
 	if (!has_file) {
 		if (currLvl._dSetLvl)
-			snprintf(szPerm, sizeof(szPerm), "perms%02d", currLvl._dLevelIdx - NUMLEVELS);
+			snprintf(szPerm, sizeof(szPerm), "perms%02d", currLvl._dLevelIdx - NUM_STDLVLS);
 		else
 			snprintf(szPerm, sizeof(szPerm), "perml%02d", currLvl._dLevelIdx);
 	}
@@ -359,10 +359,10 @@ static bool GetPermSaveNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
-	if (dwIndex < NUMLEVELS)
+	if (dwIndex < NUM_STDLVLS)
 		fmt = "perml%02d";
-	else if (dwIndex < NUMLEVELS * 2) {
-		dwIndex -= NUMLEVELS;
+	else if (dwIndex < NUM_STDLVLS * 2) {
+		dwIndex -= NUM_STDLVLS;
 		fmt = "perms%02d";
 	} else
 		return false;
@@ -375,10 +375,10 @@ static bool GetTempSaveNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 {
 	const char *fmt;
 
-	if (dwIndex < NUMLEVELS)
+	if (dwIndex < NUM_STDLVLS)
 		fmt = "templ%02d";
-	else if (dwIndex < NUMLEVELS * 2) {
-		dwIndex -= NUMLEVELS;
+	else if (dwIndex < NUM_STDLVLS * 2) {
+		dwIndex -= NUM_STDLVLS;
 		fmt = "temps%02d";
 	} else
 		return false;

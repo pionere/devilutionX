@@ -79,23 +79,14 @@
 #define MAX_CHARACTERS			99
 #define MAX_TOWNERS				16
 #define STORE_TOWNERS			8
+#define MAX_LVLMTYPES			16
 
 #ifdef HELLFIRE
-#define NUMLEVELS				25
-#define MAX_LVLS				24
-#define MAX_LVLMTYPES			24
-#define MAXMULTIQUESTS			10
 #define MAXTRIGGERS				7
 #else
-#define MAXTOWNERS				16
-#define NUMLEVELS				17
-#define MAX_LVLS				16
-#define MAX_LVLMTYPES			16
-#define MAXMULTIQUESTS			4
 #define MAXTRIGGERS				5
 #endif
 
-#define MAX_CHUNKS				(MAX_LVLS + 5)
 #define MAX_NETMSG_SIZE			512
 
 // #define MAX_PATH				260

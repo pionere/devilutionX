@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 #include <gperftools/heap-profiler.h>
 #endif
-DWORD glSeedTbl[NUMLEVELS + NUM_SETLVL];
+DWORD glSeedTbl[NUM_LEVELS];
 int MouseX;
 int MouseY;
 bool _gbGameLoopStartup;
@@ -409,7 +409,7 @@ static void run_game_loop(unsigned int uMsg)
 	start_game(uMsg);
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GameWndProc);
-	run_delta_info();
+	RunDeltaInfo();
 	gbRunGame = true;
 	gbProcessPlayers = true;
 	gbRunGameResult = true;

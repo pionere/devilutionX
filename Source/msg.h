@@ -12,13 +12,13 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BOOL deltaload;
+extern bool deltaload;
 extern _msg_mode geBufferMsgs;
 extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 void msg_send_drop_plr(int pnum, int reason);
-bool msg_wait_resync();
-void run_delta_info();
+bool DownloadDeltaInfo();
+void RunDeltaInfo();
 void DeltaExportData(int pnum);
 void delta_init();
 bool delta_portal_inited(int i);

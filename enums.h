@@ -2472,7 +2472,19 @@ typedef enum dungeon_level {
 	DLV_CRYPT3,
 	DLV_CRYPT4,
 #endif
+	NUM_STDLVLS
 } dungeon_level;
+
+typedef enum _setlevels {
+	SL_BUTCHCHAMB   = NUM_STDLVLS,
+	SL_SKELKING,
+	SL_BONECHAMB,
+	SL_MAZE,
+	SL_POISONWATER,
+	SL_VILEBETRAYER,
+	NUM_SETLVLS = SL_VILEBETRAYER - NUM_STDLVLS + 1,
+	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS
+} _setlevels;
 
 typedef enum piece_flag {
 	PFLAG_BLOCK_PATH       = 1 << 0,
@@ -3314,16 +3326,6 @@ typedef enum _item_damage_type {
 	IDAM_SB_MIX     = 0x03,
 	IDAM_PUNCTURE   = 0x04,
 } _item_damage_type;
-
-typedef enum _setlevels {
-	SL_BUTCHCHAMB   = NUMLEVELS,
-	SL_SKELKING,
-	SL_BONECHAMB,
-	SL_MAZE,
-	SL_POISONWATER,
-	SL_VILEBETRAYER,
-	NUM_SETLVL = SL_VILEBETRAYER - NUMLEVELS + 1
-} _setlevels;
 
 typedef enum quest_id {
 	Q_ROCK,

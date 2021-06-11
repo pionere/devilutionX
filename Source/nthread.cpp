@@ -14,7 +14,8 @@ uint32_t gdwTurnsInTransit;
 uint32_t* glpMsgTbl[MAX_PLRS];
 SDL_threadID glpNThreadId;
 char sgbSyncCountdown;
-int turn_upper_bit;
+/* flag to tell the receiver, whether a delta should be sent */
+uint32_t turn_delta_request;
 bool _gbTicsOutOfSync;
 static BYTE sgbPacketCountdown;
 bool _gbMutexDisabled;
@@ -54,8 +55,8 @@ uint32_t nthread_send_and_recv_turn(uint32_t cur_turn, int turn_delta)
 	}*/
 	while (curTurnsInTransit++ < gdwTurnsInTransit) {
 
-		turn = turn_upper_bit | (new_cur_turn & 0x7FFFFFFF);
-		turn_upper_bit = 0;
+		turn = turn_delta_request | (new_cur_turn & 0x7FFFFFFF);
+		turn_delta_request = 0;
 
 		SNetSendTurn(turn);
 		/*if (!SNetSendTurn(turn)) {
@@ -133,21 +134,21 @@ static unsigned int nthread_handler(void *data)
 	return 0;
 }
 
-void nthread_set_turn_upper_bit()
+void nthread_request_delta()
 {
-	turn_upper_bit = 0x80000000;
+	turn_delta_request = 0x80000000;
 }
 
-void nthread_start(bool set_turn_upper_bit)
+void nthread_start(bool request_delta)
 {
 	last_tick = SDL_GetTicks();
 	sgbPacketCountdown = 1;
 	sgbSyncCountdown = 1;
 	_gbTicsOutOfSync = true;
-	if (set_turn_upper_bit)
-		nthread_set_turn_upper_bit();
+	if (request_delta)
+		nthread_request_delta();
 	else
-		turn_upper_bit = 0;
+		turn_delta_request = 0;
 	//_SNETCAPS caps;
 	//SNetGetProviderCaps(&caps);
 	gdwTurnsInTransit = 1; // TODO: add to _SNETGAMEDATA ? (was defaultturnsintransit in vanilla)

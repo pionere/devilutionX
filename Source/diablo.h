@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern DWORD glSeedTbl[NUMLEVELS + NUM_SETLVL];
+extern DWORD glSeedTbl[NUM_LEVELS];
 extern int MouseX;
 extern int MouseY;
 extern bool gbSndInited;

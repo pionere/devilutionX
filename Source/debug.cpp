@@ -11,12 +11,12 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define DEBUGSEEDS 4096
 int seed_index;
-int level_seeds[NUMLEVELS + 1];
+int level_seeds[NUM_LEVELS + 1];
 int seed_table[DEBUGSEEDS];
 
 BYTE *pSquareCel;
-char dMonsDbg[NUMLEVELS][MAXDUNX][MAXDUNY];
-char dFlagDbg[NUMLEVELS][MAXDUNX][MAXDUNY];
+char dMonsDbg[NUM_LEVELS][MAXDUNX][MAXDUNY];
+char dFlagDbg[NUM_LEVELS][MAXDUNX][MAXDUNY];
 
 void LoadDebugGFX()
 {

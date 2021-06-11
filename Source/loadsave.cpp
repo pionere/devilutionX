@@ -300,7 +300,7 @@ static void LoadPlayer(int pnum)
 	CopyInt(tbuff, &plr._pVar6);
 	CopyInt(tbuff, &plr._pVar7);
 	CopyInt(tbuff, &plr._pVar8);
-	CopyBytes(tbuff, NUMLEVELS + NUM_SETLVL, plr._pLvlVisited);
+	CopyBytes(tbuff, NUM_LEVELS, plr._pLvlVisited);
 	tbuff += 1; // Alignment
 
 	CopyInt(tbuff, &plr._pGFXLoad);
@@ -658,7 +658,7 @@ void LoadGame(bool firstflag)
 	_nummissiles = LoadInt();
 	_nobjects = LoadInt();
 
-	for (i = 0; i < NUMLEVELS; i++) {
+	for (i = 0; i < NUM_LEVELS; i++) {
 		glSeedTbl[i] = LoadInt();
 	}
 
@@ -994,7 +994,7 @@ static void SavePlayer(int pnum)
 	CopyInt(&plr._pVar6, tbuff);
 	CopyInt(&plr._pVar7, tbuff);
 	CopyInt(&plr._pVar8, tbuff);
-	CopyBytes(plr._pLvlVisited, NUMLEVELS + NUM_SETLVL, tbuff);
+	CopyBytes(plr._pLvlVisited, NUM_LEVELS, tbuff);
 	tbuff += 1;                                     // Alignment
 
 	CopyInt(&plr._pGFXLoad, tbuff);
@@ -1323,7 +1323,7 @@ void SaveGame()
 	SaveInt(nummissiles);
 	SaveInt(nobjects);
 
-	for (i = 0; i < NUMLEVELS; i++) {
+	for (i = 0; i < NUM_LEVELS; i++) {
 		SaveInt(glSeedTbl[i]);
 	}
 

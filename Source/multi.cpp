@@ -741,7 +741,7 @@ bool NetInit(bool bSinglePlayer)
 		gbActivePlayers = 1;
 		myplr.plractive = TRUE;
 		assert(myplr._pTeam == mypnum);
-		if (!gbJoinGame || msg_wait_resync())
+		if (!gbJoinGame || DownloadDeltaInfo())
 			break;
 		NetClose();
 	}
@@ -752,7 +752,7 @@ bool NetInit(bool bSinglePlayer)
 	gnTickDelay = 1000 / gnTicksRate;
 	SetRndSeed(sgGameInitInfo.dwSeed);
 
-	for (i = 0; i < NUMLEVELS + NUM_SETLVL; i++) {
+	for (i = 0; i < NUM_LEVELS; i++) {
 		glSeedTbl[i] = GetRndSeed();
 	}
 	SNetGetGameInfo(&szGameName, &szGamePassword);

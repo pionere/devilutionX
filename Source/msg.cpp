@@ -8,29 +8,50 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MAX_CHUNKS				(NUM_LEVELS + 5)
+
 // fields to handle item records
 static ItemGetRecordStruct itemrecord[MAXITEMS];
 static int gnNumGetRecords;
 
 // fields to handle delta-information
-static DWORD sgdwOwnerWait;
-static DWORD sgdwRecvOffset;
-static int sgnCurrMegaPlayer;
+/* The timestamp of the delta download-start. */
+static Uint32 guDeltaStart;
+/* Linked list of TMegaPkt entities to keep the data received during delta-load. */
+static TMegaPkt *sgpMegaPkt;
+/* The tail of the sgpMegaPkt linked list. */
 static TMegaPkt *sgpCurrPkt;
+/* The sender of the latest messages during delta-load. */
+static int sgnCurrMegaPlayer;
 /* Buffer to send/receive delta info. */
 static DBuffer sgSendRecvBuf;
-static TMegaPkt *sgpMegaPkt;
-BOOL deltaload;
+/* Current offset in the delta info buffer. */
+static DWORD sgdwRecvOffset;
+/* Flag to tell if the delta info is currently processed. */
+bool deltaload;
+/* Container to keep the delta info of portals and quests. */
 static DJunk sgJunk;
-static DLevel sgLevels[NUMLEVELS + NUM_SETLVL];
-static LocalLevel sgLocals[NUMLEVELS + NUM_SETLVL];
-static bool _gbLevelDeltaChanged[NUMLEVELS + NUM_SETLVL];
+/* Container to keep the delta info of items/monsters/objects for each level. */
+static DLevel sgLevels[NUM_LEVELS];
+/* Container to keep the delta info of the automap. */
+static LocalLevel sgLocals[NUM_LEVELS];
+/* Container to keep the flags if there is active delta info for each level. */
+static bool _gbLevelDeltaChanged[NUM_LEVELS];
+/* Specifies whether there is an active delta info in sgJunk. */
 static bool _gbJunkDeltaChanged;
+/* Counter to keep the progress of delta-load
+ * 0. connect
+ * 1..NUM_LEVELS : level data
+ * NUM_LEVELS + 1: junk data (portals/quests)
+ * MAX_CHUNKS - 1: end of data
+ * MAX_CHUNKS    : download success
+ */
 static BYTE sgbDeltaChunks;
+/* the type of the last delta-load message. (CMD_DLEVEL_*) */
 static BYTE _gbRecvCmd;
-// the current messaging mode
+/* the current messaging mode. (MSG_*) */
 _msg_mode geBufferMsgs;
-// character message to send over to other players
+/* Buffer holding the character message to send over to other players */
 char gbNetMsg[MAX_SEND_STR_LEN];
 
 static void DeleteItemRecord(int i)
@@ -97,7 +118,7 @@ static void RemoveItemRecord(const PkItemStruct *pki)
 	}
 }
 
-static void msg_get_next_packet()
+static void DeltaAllocMegaPkt()
 {
 	TMegaPkt *result;
 
@@ -112,7 +133,7 @@ static void msg_get_next_packet()
 	result->pNext = sgpCurrPkt;
 }
 
-static void msg_free_packets()
+static void DeltaFreeMegaPkts()
 {
 	while (sgpMegaPkt != NULL) {
 		sgpCurrPkt = sgpMegaPkt->pNext;
@@ -121,7 +142,7 @@ static void msg_free_packets()
 	}
 }
 
-static void msg_pre_packet()
+static void DeltaProcessMegaPkts()
 {
 	int i;
 	int dataLeft, pktSize;
@@ -151,7 +172,7 @@ static void msg_pre_packet()
 	}
 }
 
-static void msg_send_packet(int pnum, const void *packet, unsigned dwSize)
+static void DeltaQueuePacket(int pnum, const void *packet, unsigned dwSize)
 {
 	TFakeCmdPlr cmd;
 
@@ -159,10 +180,10 @@ static void msg_send_packet(int pnum, const void *packet, unsigned dwSize)
 		sgnCurrMegaPlayer = pnum;
 		cmd.bCmd = FAKE_CMD_SETID;
 		cmd.bPlr = pnum;
-		msg_send_packet(pnum, &cmd, sizeof(cmd));
+		DeltaQueuePacket(pnum, &cmd, sizeof(cmd));
 	}
 	if (sgpCurrPkt->dwSpaceLeft < dwSize)
-		msg_get_next_packet();
+		DeltaAllocMegaPkt();
 
 	memcpy(sgpCurrPkt->data + sizeof(sgpCurrPkt->data) - sgpCurrPkt->dwSpaceLeft, packet, dwSize);
 	sgpCurrPkt->dwSpaceLeft -= dwSize;
@@ -175,7 +196,7 @@ void msg_send_drop_plr(int pnum, int reason)
 	cmd.dwReason = reason;
 	cmd.bCmd = FAKE_CMD_DROPID;
 	cmd.bPlr = pnum;
-	msg_send_packet(pnum, &cmd, sizeof(cmd));
+	DeltaQueuePacket(pnum, &cmd, sizeof(cmd));
 }
 
 static int msg_wait_for_turns()
@@ -188,7 +209,7 @@ static int msg_wait_for_turns()
 		turns = SNetGetOwnerTurnsWaiting();
 		//if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
 		//	return 100;
-		if (SDL_GetTicks() - sgdwOwnerWait <= 2000 && turns < gdwTurnsInTransit)
+		if (SDL_GetTicks() - guDeltaStart <= 2000 && turns < gdwTurnsInTransit)
 			return 0;
 		sgbDeltaChunks++;
 	}
@@ -203,7 +224,7 @@ static int msg_wait_for_turns()
 		sgbDeltaChunks = 0;
 		_gbRecvCmd = CMD_DLEVEL_END;
 		gbDeltaSender = mypnum;
-		nthread_set_turn_upper_bit();
+		nthread_request_delta();
 	}*/
 	if (sgbDeltaChunks == MAX_CHUNKS - 1) {
 		sgbDeltaChunks = MAX_CHUNKS;
@@ -212,49 +233,50 @@ static int msg_wait_for_turns()
 	return 100 * sgbDeltaChunks / MAX_CHUNKS;
 }
 
-bool msg_wait_resync()
+bool DownloadDeltaInfo()
 {
 	bool success;
 
-	msg_get_next_packet();
+	// assert(gbMaxPlayers != 1);
+	DeltaAllocMegaPkt();
 	sgbDeltaChunks = 0;
 	sgnCurrMegaPlayer = -1;
 	_gbRecvCmd = CMD_DLEVEL_END;
 	gbDeltaSender = MAX_PLRS;
 	sgdwRecvOffset = 0;
 	geBufferMsgs = MSG_DOWNLOAD_DELTA;
-	sgdwOwnerWait = SDL_GetTicks();
+	guDeltaStart = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", msg_wait_for_turns);
 	geBufferMsgs = MSG_NORMAL;
 	if (!success) {
-		msg_free_packets();
+		DeltaFreeMegaPkts();
 		return false;
 	}
 
 	if (gbGameDestroyed) {
 		DrawDlg("The game ended");
-		msg_free_packets();
+		DeltaFreeMegaPkts();
 		return false;
 	}
 
 	if (sgbDeltaChunks != MAX_CHUNKS) {
 		DrawDlg("Unable to get level data");
-		msg_free_packets();
+		DeltaFreeMegaPkts();
 		return false;
 	}
 
 	return true;
 }
 
-void run_delta_info()
+void RunDeltaInfo()
 {
 	if (gbMaxPlayers == 1)
 		return;
 
 	geBufferMsgs = MSG_RUN_DELTA;
-	msg_pre_packet();
+	DeltaProcessMegaPkts();
 	geBufferMsgs = MSG_NORMAL;
-	msg_free_packets();
+	DeltaFreeMegaPkts();
 }
 
 static BYTE *DeltaExportLevel(BYTE bLvl)
@@ -543,7 +565,7 @@ void delta_init()
 	memset(&sgJunk, 0xFF, sizeof(sgJunk));
 	memset(sgLevels, 0xFF, sizeof(sgLevels));
 	memset(sgLocals, 0, sizeof(sgLocals));
-	deltaload = FALSE;
+	deltaload = false;
 }
 
 static void delta_kill_monster(const TCmdMonstKill* mon)
@@ -588,7 +610,7 @@ static void delta_sync_monster(const TSyncHeader *pHdr)
 	if (gbMaxPlayers == 1)
 		return;
 
-	/// ASSERT: assert(pHdr->bLevel < NUMLEVELS + NUM_SETLVL);
+	/// ASSERT: assert(pHdr->bLevel < NUM_LEVELS);
 
 	_gbLevelDeltaChanged[pHdr->bLevel] = true;
 	pDLvl = &sgLevels[pHdr->bLevel];
@@ -885,7 +907,7 @@ void DeltaLoadLevel()
 
 	assert(gbMaxPlayers != 1);
 
-	deltaload = TRUE;
+	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		mstr = sgLevels[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
@@ -983,7 +1005,7 @@ void DeltaLoadLevel()
 		}
 	}
 
-	deltaload = FALSE;
+	deltaload = false;
 }
 
 void NetSendCmdSendJoinLevel()
@@ -1473,7 +1495,7 @@ static unsigned On_WALKXY(TCmd *pCmd, int pnum)
 static unsigned On_ADDSTR(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrStr(pnum);
 
@@ -1483,7 +1505,7 @@ static unsigned On_ADDSTR(TCmd *pCmd, int pnum)
 static unsigned On_ADDMAG(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrMag(pnum);
 
@@ -1493,7 +1515,7 @@ static unsigned On_ADDMAG(TCmd *pCmd, int pnum)
 static unsigned On_ADDDEX(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrDex(pnum);
 
@@ -1503,7 +1525,7 @@ static unsigned On_ADDDEX(TCmd *pCmd, int pnum)
 static unsigned On_ADDVIT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		IncreasePlrVit(pnum);
 
@@ -1563,7 +1585,7 @@ static unsigned On_GETITEM(TCmd *pCmd, int pnum)
 	int ii;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (delta_get_item(cmd)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == mypnum) && cmd->bMaster != mypnum) {
@@ -1627,7 +1649,7 @@ static unsigned On_AGETITEM(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (delta_get_item(cmd)) {
 			if ((currLvl._dLevelIdx == cmd->bLevel || cmd->bPnum == mypnum) && cmd->bMaster != mypnum) {
@@ -1654,7 +1676,7 @@ static unsigned On_ITEMEXTRA(TCmd *pCmd, int pnum)
 	TCmdGItem *cmd = (TCmdGItem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		delta_get_item(cmd);
 		if (currLvl._dLevelIdx == cmd->bLevel)
@@ -1699,7 +1721,7 @@ static unsigned On_PUTITEM(TCmd *pCmd, int pnum)
 	int x, y;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		check_update_plr(pnum);
 		x = cmd->x;
@@ -1729,7 +1751,7 @@ static unsigned On_SYNCPUTITEM(TCmd *pCmd, int pnum)
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		int ii = SyncPutItem(pnum, cmd->x, cmd->y, MAXITEMS, true);
@@ -1752,7 +1774,7 @@ static unsigned On_RESPAWNITEM(TCmd *pCmd, int pnum)
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (currLvl._dLevelIdx == cmd->bLevel && pnum != mypnum) {
 			UnPackPkItem(&cmd->item);
@@ -1770,7 +1792,7 @@ static unsigned On_DROPITEM(TCmd *pCmd, int pnum)
 	TCmdPItem *cmd = (TCmdPItem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else
 		delta_put_item(cmd, cmd->x, cmd->y);
 
@@ -1846,7 +1868,7 @@ static unsigned On_DOABILITY(TCmd *pCmd, int pnum)
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) 
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else
 		DoAbility(pnum, cmd->bParam1, cmd->bParam2);
 
@@ -1858,7 +1880,7 @@ static unsigned On_DOOIL(TCmd *pCmd, int pnum)
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA) 
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else
 		DoOil(pnum, cmd->bParam1, cmd->bParam2);
 
@@ -2067,7 +2089,7 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 	TCmdParam2 *cmd = (TCmdParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum)
 		StartNewLvl(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
 
@@ -2079,7 +2101,7 @@ static unsigned On_WARP(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		StartWarpLvl(pnum, SwapLE16(cmd->wParam1));
 	}
@@ -2092,7 +2114,7 @@ static unsigned On_MONSTDEATH(TCmd *pCmd, int pnum)
 	TCmdMonstKill *cmd = (TCmdMonstKill *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkLevel)
 			MonSyncStartKill(SwapLE16(cmd->mkMnum), cmd->mkX, cmd->mkY, cmd->mkPnum);
@@ -2107,7 +2129,7 @@ static unsigned On_AWAKEGOLEM(TCmd *pCmd, int pnum)
 	TCmdGolem *cmd = (TCmdGolem *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else
 		delta_awake_golem(cmd, pnum);
 
@@ -2120,7 +2142,7 @@ static unsigned On_MONSTDAMAGE(TCmd *pCmd, int pnum)
 	int mnum, hp, nhp;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		mnum = SwapLE16(cmd->mdMnum);
 		hp = SwapLE32(cmd->mdHitpoints);
@@ -2143,7 +2165,7 @@ static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum)
 		StartPlrKill(pnum, cmd->bParam1);
 	else
@@ -2155,7 +2177,7 @@ static unsigned On_PLRDEAD(TCmd *pCmd, int pnum)
 static unsigned On_PLRRESURRECT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else {
 		SyncPlrResurrect(pnum);
 		if (pnum == mypnum)
@@ -2185,7 +2207,7 @@ static unsigned On_DOOROPEN(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncDoorOpen(SwapLE16(cmd->wParam1));
@@ -2200,7 +2222,7 @@ static unsigned On_DOORCLOSE(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncDoorClose(SwapLE16(cmd->wParam1));
@@ -2215,7 +2237,7 @@ static unsigned On_TRAPDISABLE(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapDisable(SwapLE16(cmd->wParam1));
@@ -2230,7 +2252,7 @@ static unsigned On_TRAPOPEN(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapOpen(SwapLE16(cmd->wParam1));
@@ -2245,7 +2267,7 @@ static unsigned On_TRAPCLOSE(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncTrapClose(SwapLE16(cmd->wParam1));
@@ -2260,7 +2282,7 @@ static unsigned On_OPERATEOBJ(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 			SyncOpObject(pnum, SwapLE16(cmd->wParam1));
@@ -2275,7 +2297,7 @@ static unsigned On_CHESTCLOSE(TCmd *pCmd, int pnum)
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		//if (pnum != mypnum && currLvl._dLevelIdx == plr.plrlevel)
 		//	SyncChestClose(SwapLE16(cmd->wParam1));
@@ -2291,7 +2313,7 @@ static unsigned On_CHANGEPLRITEM(TCmd *pCmd, int pnum)
 	ItemStruct *is;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum) {
 		RecreateItem(SwapLE32(cmd->dwSeed), SwapLE16(cmd->wIndx), SwapLE16(cmd->wCI), 0);
 		is = &items[MAXITEMS];
@@ -2309,7 +2331,7 @@ static unsigned On_DELPLRITEM(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum)
 		SyncPlrItemRemove(pnum, cmd->bParam1);
 
@@ -2321,7 +2343,7 @@ static unsigned On_USEPLRITEM(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else // if (pnum != mypnum)
 		SyncUseItem(pnum, cmd->bParam1);
 
@@ -2333,7 +2355,7 @@ static unsigned On_PLRLEVEL(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum && cmd->bParam1 <= MAXCHARLEVEL)
 		plr._pLevel = cmd->bParam1;
 
@@ -2345,7 +2367,7 @@ static unsigned On_PLRSKILLLVL(TCmd *pCmd, int pnum)
 	TCmdBParam2 *cmd = (TCmdBParam2 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else if (pnum != mypnum && cmd->bParam2 <= MAXSPLLEVEL)
 		plr._pSkillLvl[cmd->bParam1] = cmd->bParam2;
 
@@ -2357,7 +2379,7 @@ static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, cmd->wBytes + sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else if (pnum != mypnum)
 		recv_plrinfo(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
 
@@ -2374,7 +2396,7 @@ static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 	TCmdAckJoinLevel *cmd = (TCmdAckJoinLevel *)pCmd;
 
 	//if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-	//	msg_send_packet(pnum, cmd, sizeof(*cmd));
+	//	DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	//else {
 		plr._pManaShield = cmd->lManashield;
 		plr._pTimer[PT_INFRAVISION] = cmd->lTimer1;
@@ -2390,7 +2412,7 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 	TCmdSendJoinLevel *cmd = (TCmdSendJoinLevel *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		plr._pLvlChanging = FALSE;
 		if (pnum != mypnum) {
@@ -2440,7 +2462,7 @@ static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 	TCmdLocBParam1 *cmd = (TCmdLocBParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1);
 		if (pnum != mypnum) {
@@ -2468,7 +2490,7 @@ static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 static unsigned On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else {
 		if (PortalOnLevel(pnum))
 			RemovePortalMissile(pnum);
@@ -2482,7 +2504,7 @@ static unsigned On_DEACTIVATEPORTAL(TCmd *pCmd, int pnum)
 static unsigned On_RETOWN(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else {
 		RestartTownLvl(pnum);
 	}
@@ -2506,7 +2528,7 @@ static unsigned On_INVITE(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_NORMAL)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	 // TODO: check (cmd->bParam1 == mypnum) should not be necessary in a server/client solution
 	else if (cmd->bParam1 == mypnum && plr._pTeam == pnum) {
 		guTeamInviteRec |= (1 << pnum);
@@ -2521,7 +2543,7 @@ static unsigned On_ACK_INVITE(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_NORMAL) {
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	} else {
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
@@ -2558,7 +2580,7 @@ static unsigned On_REV_INVITE(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1 *)pCmd;
 
 	if (geBufferMsgs != MSG_NORMAL) {
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	} else if (cmd->bParam1 == mypnum) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteRec &= ~(1 << pnum);
 
@@ -2574,7 +2596,7 @@ static unsigned On_KICK_PLR(TCmd *pCmd, int pnum)
 	int teamplr, team;
 
 	if (geBufferMsgs != MSG_NORMAL) {
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	} else {
 		teamplr = cmd->bParam1;
 		team = plx(teamplr)._pTeam;
@@ -2615,7 +2637,7 @@ static unsigned On_SYNCQUEST(TCmd *pCmd, int pnum)
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (pnum != mypnum)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
@@ -2633,7 +2655,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 	TCmdQuest *cmd = (TCmdQuest *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
 		if (currLvl._dLevelIdx != plr.plrlevel || myplr._pLvlChanging)
 			SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
@@ -2647,7 +2669,7 @@ static unsigned On_SYNCQUESTEXT(TCmd *pCmd, int pnum)
 static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else if (plr._pLevel < MAXCHARLEVEL) {
 		plr._pExperience = plr._pNextExper;
 		NextPlrLevel(pnum);
@@ -2658,7 +2680,7 @@ static unsigned On_CHEAT_EXPERIENCE(TCmd *pCmd, int pnum)
 static unsigned On_CHEAT_SPELL_LEVEL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		plr._pSkillLvl[plr._pAltAtkSkill]++;
 	return sizeof(*pCmd);
@@ -2675,7 +2697,7 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 	TCmdBParam1 *cmd = (TCmdBParam1*)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, cmd, sizeof(*cmd));
+		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else
 		plr._pManaShield = cmd->bParam1;
 
@@ -2685,7 +2707,7 @@ static unsigned On_SETSHIELD(TCmd *pCmd, int pnum)
 static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else
 		plr._pManaShield = 0;
 
@@ -2695,7 +2717,7 @@ static unsigned On_REMSHIELD(TCmd *pCmd, int pnum)
 static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else if (currLvl._dLevelIdx == questlist[Q_LTBANNER]._qdlvl) {
 		ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h);
 		BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
@@ -2709,7 +2731,7 @@ static unsigned On_OPENSPIL(TCmd *pCmd, int pnum)
 static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else if (currLvl._dLevelIdx == DLV_TOWN) {
 		AddMissile(70 + DBORDERX, 52 + DBORDERY, 71 + DBORDERX, 53 + DBORDERY, 0, MIS_HIVEEXPC, 0, pnum, 0, 0, 0);
 		T_HiveOpen();
@@ -2721,7 +2743,7 @@ static unsigned On_OPENHIVE(TCmd *pCmd, int pnum)
 static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
-		msg_send_packet(pnum, pCmd, sizeof(*pCmd));
+		DeltaQueuePacket(pnum, pCmd, sizeof(*pCmd));
 	else if (currLvl._dLevelIdx == DLV_TOWN) {
 		PlaySFX(IS_SARC);
 		T_CryptOpen();
