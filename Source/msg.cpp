@@ -17,7 +17,8 @@ static DWORD sgdwOwnerWait;
 static DWORD sgdwRecvOffset;
 static int sgnCurrMegaPlayer;
 static TMegaPkt *sgpCurrPkt;
-static BYTE sgRecvBuf[sizeof(DLevel) + 3];
+/* Buffer to send/receive delta info. */
+static DBuffer sgSendRecvBuf;
 static TMegaPkt *sgpMegaPkt;
 BOOL deltaload;
 static DJunk sgJunk;
@@ -256,64 +257,41 @@ void run_delta_info()
 	msg_free_packets();
 }
 
-static BYTE *DeltaExportItem(BYTE *dst, DItemStr *src)
+static BYTE *DeltaExportLevel(BYTE bLvl)
 {
+	DItemStr *item;
+	DMonsterStr *mon;
 	int i;
+	BYTE *dst = sgSendRecvBuf.content;
 
-	for (i = 0; i < MAXITEMS; i++, src++) {
-		if (src->bCmd == 0xFF) {
+	// level-index
+	*dst = bLvl;
+	dst++;
+
+	// export items
+	item = sgLevels[bLvl].item;
+	for (i = 0; i < lengthof(sgLevels[bLvl].item); i++, item++) {
+		if (item->bCmd == 0xFF) {
 			*dst = 0xFF;
 			dst++;
 		} else {
-			copy_pod(*reinterpret_cast<DItemStr *>(dst), *src);
+			copy_pod(*reinterpret_cast<DItemStr *>(dst), *item);
 			dst += sizeof(DItemStr);
 		}
 	}
 
-	return dst;
-}
+	// export objects
+	memcpy(dst, sgLevels[bLvl].object, sizeof(sgLevels[bLvl].object));
+	dst += sizeof(sgLevels[bLvl].object);
 
-static BYTE *DeltaImportItem(BYTE *src, DItemStr *dst)
-{
-	int i;
-
-	for (i = 0; i < MAXITEMS; i++, dst++) {
-		if (*src == 0xFF) {
-			memset(dst, 0xFF, sizeof(DItemStr));
-			src++;
-		} else {
-			copy_pod(*dst, *reinterpret_cast<DItemStr *>(src));
-			// TODO: validate data from internet
-			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
-			src += sizeof(DItemStr);
-		}
-	}
-
-	return src;
-}
-
-static BYTE *DeltaExportObject(BYTE *dst, DObjectStr *src)
-{
-	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
-	return dst + sizeof(DObjectStr) * MAXOBJECTS;
-}
-
-static BYTE *DeltaImportObject(BYTE *src, DObjectStr *dst)
-{
-	memcpy(dst, src, sizeof(DObjectStr) * MAXOBJECTS);
-	return src + sizeof(DObjectStr) * MAXOBJECTS;
-}
-
-static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
-{
-	int i;
-
-	for (i = 0; i < MAXMONSTERS; i++, src++) {
-		if (src->_mx == 0xFF) {
+	// export monsters
+	mon = sgLevels[bLvl].monster;
+	for (i = 0; i < lengthof(sgLevels[bLvl].monster); i++, mon++) {
+		if (mon->_mx == 0xFF) {
 			*dst = 0xFF;
 			dst++;
 		} else {
-			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *src);
+			copy_pod(*reinterpret_cast<DMonsterStr *>(dst), *mon);
 			dst += sizeof(DMonsterStr);
 		}
 	}
@@ -321,131 +299,141 @@ static BYTE *DeltaExportMonster(BYTE *dst, DMonsterStr *src)
 	return dst;
 }
 
-static BYTE *DeltaImportMonster(BYTE *src, DMonsterStr *dst)
+static void DeltaImportLevel()
 {
+	DItemStr *item;
+	DMonsterStr *mon;
 	int i;
+	BYTE *src, bLvl;
 
-	for (i = 0; i < MAXMONSTERS; i++, dst++) {
+	src = sgSendRecvBuf.content;
+	// level-index
+	bLvl = *src;
+	src++;
+
+	_gbLevelDeltaChanged[bLvl] = true;
+
+	// import items
+	item = sgLevels[bLvl].item;
+	for (i = 0; i < MAXITEMS; i++, item++) {
 		if (*src == 0xFF) {
-			memset(dst, 0xFF, sizeof(DMonsterStr));
+			memset(item, 0xFF, sizeof(DItemStr));
 			src++;
 		} else {
-			copy_pod(*dst, *reinterpret_cast<DMonsterStr *>(src));
+			copy_pod(*item, *reinterpret_cast<DItemStr *>(src));
+			// TODO: validate data from internet
+			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
+			src += sizeof(DItemStr);
+		}
+	}
+	// import objects
+	memcpy(sgLevels[bLvl].object, src, sizeof(sgLevels[bLvl].object));
+	src += sizeof(sgLevels[bLvl].object);
+
+	// import monsters
+	mon = sgLevels[bLvl].monster;
+	for (i = 0; i < MAXMONSTERS; i++, mon++) {
+		if (*src == 0xFF) {
+			memset(mon, 0xFF, sizeof(DMonsterStr));
+			src++;
+		} else {
+			copy_pod(*mon, *reinterpret_cast<DMonsterStr *>(src));
 			src += sizeof(DMonsterStr);
 		}
 	}
-
-	return src;
 }
 
-static BYTE *DeltaExportJunk(BYTE *dst)
+static BYTE *DeltaExportJunk()
 {
-	DPortal *pD;
 	MultiQuests *mq;
 	int i;
+	BYTE *dst = sgSendRecvBuf.content;
 
-	pD = sgJunk.portal;
-	for (i = 0; i < MAXPORTAL; i++, pD++) {
-		if (pD->x == 0xFF) {
-			*dst = 0xFF;
-			dst++;
-		} else {
-			copy_pod(*reinterpret_cast<DPortal *>(dst), *pD);
-			dst += sizeof(*pD);
-		}
-	}
-
+	// TODO: add delta_SetMultiQuest instead?
 	mq = sgJunk.quests;
 	for (i = 0; i < NUM_QUESTS; i++) {
 		mq->qlog = quests[i]._qlog;
 		mq->qstate = quests[i]._qactive;
 		mq->qvar1 = quests[i]._qvar1;
-		copy_pod(*reinterpret_cast<MultiQuests *>(dst), *mq);
-		dst += sizeof(*mq);
 		mq++;
 	}
+	// export portals + quests
+	memcpy(dst, &sgJunk, sizeof(sgJunk));
+	dst += sizeof(sgJunk);
 
 	return dst;
 }
 
-static void DeltaImportJunk(BYTE *src)
+static void DeltaImportJunk()
 {
 	DPortal *pD;
 	MultiQuests *mq;
 	int i;
+	BYTE *src = sgSendRecvBuf.content;
 
+	// import portals + quests
+	memcpy(&sgJunk, src, sizeof(sgJunk));
+	//src += sizeof(sgJunk);
+
+	// update the game state
+	// portals
 	pD = sgJunk.portal;
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
-		if (*src == 0xFF) {
-			memset(pD, 0xFF, sizeof(*pD));
-			src++;
-			SetPortalStats(i, false, 0, 0, 0);
-		} else {
-			copy_pod(*pD, *reinterpret_cast<DPortal *>(src));
-			src += sizeof(*pD);
+		if (pD->x != 0xFF) {
+			// assert(delta_portal_inited(i));
 			SetPortalStats(i, true,	pD->x, pD->y, pD->level);
 		}
+		//else
+		//	SetPortalStats(i, false, 0, 0, 0);
 	}
-
+	// quests
 	mq = sgJunk.quests;
-	for (i = 0; i < NUM_QUESTS; i++) {
-		copy_pod(*mq, *reinterpret_cast<MultiQuests *>(src));
-		src += sizeof(*mq);
-		quests[i]._qlog = mq->qlog;
-		quests[i]._qactive = mq->qstate;
-		quests[i]._qvar1 = mq->qvar1;
-		mq++;
+	for (i = 0; i < NUM_QUESTS; i++, mq++) {
+		if (mq->qstate != 0xFF) {
+			// assert(delta_quest_inited(i));
+			quests[i]._qlog = mq->qlog;
+			quests[i]._qactive = mq->qstate;
+			quests[i]._qvar1 = mq->qvar1;
+		}
 	}
 }
 
-static DWORD msg_comp_level(BYTE *buffer, BYTE *end)
+static DWORD DeltaCompressData(BYTE *end)
 {
 	DWORD size, pkSize;
 
-	size = end - buffer - 1;
-	pkSize = PkwareCompress(buffer + 1, size);
-	*buffer = size != pkSize;
+	size = end - sgSendRecvBuf.content;
+	pkSize = PkwareCompress(sgSendRecvBuf.content, size);
+	sgSendRecvBuf.compressed = size != pkSize;
 
-	return pkSize + 1;
+	return pkSize + sizeof(sgSendRecvBuf.compressed);
 }
 
 void DeltaExportData(int pnum)
 {
-	BYTE *dst, *dstEnd;
+	BYTE *dstEnd;
 	int size, i;
-	char src;
-
-	dst = NULL;
+	BYTE src;
 
 	for (i = 0; i < lengthof(sgLevels); i++)
 		if (_gbLevelDeltaChanged[i])
 			break;
 	if (i != lengthof(sgLevels)) {
-		dst = (BYTE *)DiabloAllocPtr(sizeof(sgRecvBuf));
 		for (i = 0; i < lengthof(sgLevels); i++) {
 			if (!_gbLevelDeltaChanged[i])
 				continue;
-			dstEnd = dst + 1;
-			*dstEnd = i;
-			dstEnd++;
-			dstEnd = DeltaExportItem(dstEnd, sgLevels[i].item);
-			dstEnd = DeltaExportObject(dstEnd, sgLevels[i].object);
-			dstEnd = DeltaExportMonster(dstEnd, sgLevels[i].monster);
-			size = msg_comp_level(dst, dstEnd);
-			dthread_send_delta(pnum, CMD_DLEVEL_DATA, dst, size);
+			dstEnd = DeltaExportLevel(i);
+			size = DeltaCompressData(dstEnd);
+			dthread_send_delta(pnum, CMD_DLEVEL_DATA, &sgSendRecvBuf, size);
 			src = 0;
 			dthread_send_delta(pnum, CMD_DLEVEL_SEP, &src, 1);
 		}
 	}
 	if (_gbJunkDeltaChanged) {
-		if (dst == NULL)
-			dst = (BYTE *)DiabloAllocPtr(sizeof(sgRecvBuf));
-		dstEnd = dst + 1;
-		dstEnd = DeltaExportJunk(dstEnd);
-		size = msg_comp_level(dst, dstEnd);
-		dthread_send_delta(pnum, CMD_DLEVEL_JUNK, dst, size);
+		dstEnd = DeltaExportJunk();
+		size = DeltaCompressData(dstEnd);
+		dthread_send_delta(pnum, CMD_DLEVEL_JUNK, &sgSendRecvBuf, size);
 	}
-	mem_free_dbg(dst);
 
 	src = 0;
 	dthread_send_delta(pnum, CMD_DLEVEL_END, &src, 1);
@@ -453,24 +441,14 @@ void DeltaExportData(int pnum)
 
 static void DeltaImportData()
 {
-	BYTE i;
-	BYTE *src;
+	if (sgSendRecvBuf.compressed)
+		PkwareDecompress(sgSendRecvBuf.content, sgdwRecvOffset, sizeof(sgSendRecvBuf.content));
 
-	//if (sgRecvBuf[0] != 0)
-	assert(sgRecvBuf[0] != 0);
-		PkwareDecompress(&sgRecvBuf[1], sgdwRecvOffset, lengthof(sgRecvBuf) - 1);
-
-	src = &sgRecvBuf[1];
 	if (_gbRecvCmd == CMD_DLEVEL_DATA) {
-		i = *src;
-		src++;
-		src = DeltaImportItem(src, sgLevels[i].item);
-		src = DeltaImportObject(src, sgLevels[i].object);
-		DeltaImportMonster(src, sgLevels[i].monster);
-		_gbLevelDeltaChanged[i] = true;
+		DeltaImportLevel();
 	} else {
 		assert(_gbRecvCmd == CMD_DLEVEL_JUNK);
-		DeltaImportJunk(src);
+		DeltaImportJunk();
 		_gbJunkDeltaChanged = true;
 	}
 
@@ -480,6 +458,9 @@ static void DeltaImportData()
 static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 {
 	TCmdPlrInfoHdr *cmd = (TCmdPlrInfoHdr *)pCmd;
+
+	if (geBufferMsgs != MSG_DOWNLOAD_DELTA)
+		goto done; // the player is already active -> drop the packet
 
 	if (gbDeltaSender != pnum) {
 		if (gbDeltaSender != MAX_PLRS) {
@@ -549,7 +530,7 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 		goto done;
 	}
 
-	memcpy(&sgRecvBuf[cmd->wOffset], &cmd[1], cmd->wBytes);
+	memcpy(((BYTE*)&sgSendRecvBuf) + cmd->wOffset, &cmd[1], cmd->wBytes);
 	sgdwRecvOffset += cmd->wBytes;
 done:
 	return cmd->wBytes + sizeof(*cmd);
@@ -768,7 +749,7 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 
 bool delta_portal_inited(int i)
 {
-	return sgJunk.portal[i].x == 0xFF;
+	return sgJunk.portal[i].x != 0xFF;
 }
 
 bool delta_quest_inited(int i)
@@ -1432,7 +1413,9 @@ static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
 
 void delta_close_portal(int pnum)
 {
-	memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
+	//memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
+	sgJunk.portal[pnum].x = 0xFF;
+	// assert(!delta_portal_inited(pnum));
 	// assert(_gbJunkDeltaChanged == true);
 }
 

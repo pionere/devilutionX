@@ -181,7 +181,7 @@ static void multi_mon_seeds()
 		monster[i]._mAISeed = l + i;
 }
 
-static void multi_handle_turn_upper_bit(int pnum)
+static void multi_handle_delta_request(int pnum)
 {
 	int i;
 
@@ -201,8 +201,8 @@ static void multi_parse_turn(int pnum, uint32_t turn)
 {
 	uint32_t absTurns;
 
-	if (turn >> 31)
-		multi_handle_turn_upper_bit(pnum);
+	if (turn & 0x80000000)
+		multi_handle_delta_request(pnum);
 	absTurns = turn & 0x7FFFFFFF;
 	if (sgbSentThisCycle < gdwTurnsInTransit + absTurns) {
 		if (absTurns >= 0x7FFFFFFF)

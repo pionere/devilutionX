@@ -22,7 +22,7 @@ void InitPortals()
 	int i;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (delta_portal_inited(i))
+		if (!delta_portal_inited(i))
 			portal[i]._wopen = false;
 	}
 }

@@ -1195,6 +1195,11 @@ typedef struct DJunk {
 	MultiQuests quests[NUM_QUESTS];
 } DJunk;
 
+typedef struct DBuffer {
+	BOOLEAN compressed;
+	BYTE content[(sizeof(DLevel) > sizeof(DJunk)) ? sizeof(DLevel) : sizeof(DJunk)];
+} DBuffer;
+
 typedef struct TCmdSendJoinLevel {
 	BYTE bCmd;
 	BYTE lLevel;

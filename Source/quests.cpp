@@ -65,13 +65,7 @@ void InitQuests()
 	qs = quests;
 	qdata = questlist;
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
-		if (gbMaxPlayers != 1) {
-			if (!delta_quest_inited(i)) {
-				qs->_qactive = QUEST_INIT;
-				qs->_qvar1 = 0;
-				qs->_qlog = FALSE;
-			}
-		} else {
+		if (!delta_quest_inited(i)) {
 			qs->_qactive = QUEST_INIT;
 			qs->_qvar1 = 0;
 			qs->_qlog = FALSE;
