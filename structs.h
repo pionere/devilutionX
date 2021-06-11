@@ -1134,9 +1134,9 @@ typedef struct TSyncMonster {
 
 typedef struct TPktHdr {
 	INT php;
-	INT pmhp;
+	//INT pmhp;
 	INT pmp;
-	INT pmmp;
+	//INT pmmp;
 	BYTE px;
 	BYTE py;
 	WORD wCheck;

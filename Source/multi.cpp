@@ -98,9 +98,9 @@ static void multi_init_pkt_header(TPktHdr &pktHdr, unsigned len)
 	pktHdr.px = p->_px;
 	pktHdr.py = p->_py;
 	pktHdr.php = SwapLE32(p->_pHitPoints);
-	pktHdr.pmhp = SwapLE32(p->_pMaxHP);
+	//pktHdr.pmhp = SwapLE32(p->_pMaxHP);
 	pktHdr.pmp = SwapLE32(p->_pMana);
-	pktHdr.pmmp = SwapLE32(p->_pMaxMana);
+	//pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
 static void multi_send_mypacket(void *packet, BYTE dwSize)
@@ -470,9 +470,9 @@ void multi_process_network_packets()
 		if (pnum != mypnum) {
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
 			plr._pHitPoints = SwapLE32(pkt->php);
-			plr._pMaxHP = SwapLE32(pkt->pmhp);
+			//plr._pMaxHP = SwapLE32(pkt->pmhp);
 			plr._pMana = SwapLE32(pkt->pmp);
-			plr._pMaxMana = SwapLE32(pkt->pmmp);
+			//plr._pMaxMana = SwapLE32(pkt->pmmp);
 			if (geBufferMsgs != MSG_DOWNLOAD_DELTA && plr.plractive && plr._pHitPoints >= (1 << 6)) {
 				if (currLvl._dLevelIdx == plr.plrlevel && !plr._pLvlChanging) {
 					dx = abs(plr._px - pkt->px);
@@ -522,9 +522,9 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen)
 	while (dwLen != 0) {
 		pkt.hdr.wCheck = PKT_HDR_CHECK;
 		pkt.hdr.php = 0;
-		pkt.hdr.pmhp = 0;
+		//pkt.hdr.pmhp = 0;
 		pkt.hdr.pmp = 0;
-		pkt.hdr.pmmp = 0;
+		//pkt.hdr.pmmp = 0;
 		pkt.hdr.px = 0;
 		pkt.hdr.py = 0;
 		p = (TCmdPlrInfoHdr *)pkt.body;
