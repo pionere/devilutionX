@@ -1215,20 +1215,20 @@ typedef struct TCmdAckJoinLevel {
 	WORD lTimer1;
 	WORD lTimer2;
 } TCmdAckJoinLevel;
+#pragma pack(pop)
 
 typedef struct TMegaPkt {
 	struct TMegaPkt *pNext;
-	DWORD dwSpaceLeft;
-	BYTE data[32000];
+	unsigned dwSpaceLeft;
+	BYTE data[0x8000 - sizeof(TMegaPkt *) - sizeof(unsigned)];
 } TMegaPkt;
-#pragma pack(pop)
 
 typedef struct DMegaPkt {
 	struct DMegaPkt *dmpNext;
 	int dmpPlr;
 	unsigned dmpLen;
 	BYTE dmpCmd;
-	BYTE data[32000];
+	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
 } DMegaPkt;
 
 typedef struct TBuffer {
