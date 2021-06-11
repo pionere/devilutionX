@@ -268,28 +268,54 @@ bool pfile_ui_save_create(_uiheroinfo *heroinfo)
 	return true;
 }
 
-bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
+static bool GetPermSaveNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 {
 	const char *fmt;
 
+	if (dwIndex < NUM_STDLVLS)
+		fmt = "perml%02d";
+	else if (dwIndex < NUM_LEVELS) {
+		dwIndex -= NUM_STDLVLS;
+		fmt = "perms%02d";
+	} else
+		return false;
+
+	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
+	return true;
+}
+
+static bool GetTempSaveNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
+{
+	const char *fmt;
+
+	if (dwIndex < NUM_STDLVLS)
+		fmt = "templ%02d";
+	else if (dwIndex < NUM_LEVELS) {
+		dwIndex -= NUM_STDLVLS;
+		fmt = "temps%02d";
+	} else
+		return false;
+
+	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
+	return true;
+}
+
+bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
+{
 	if (gbMaxPlayers != 1) {
 		if (lvl != 0)
 			return false;
-		fmt = SAVEFILE_HERO;
+		copy_cstr(dst, SAVEFILE_HERO);
 	} else {
-		if (lvl < NUM_STDLVLS)
-			fmt = "perml%02d";
-		else if (lvl < NUM_STDLVLS * 2) {
-			lvl -= NUM_STDLVLS;
-			fmt = "perms%02d";
-		} else if (lvl == NUM_STDLVLS * 2)
-			fmt = SAVEFILE_GAME;
-		else if (lvl == NUM_STDLVLS * 2 + 1)
-			fmt = SAVEFILE_HERO;
+		if (lvl < NUM_LEVELS)
+			return GetPermSaveNames(lvl, dst);
+		if (lvl == NUM_LEVELS)
+			copy_cstr(dst, SAVEFILE_GAME);
+		else if (lvl == NUM_LEVELS + 1)
+			copy_cstr(dst, SAVEFILE_HERO);
 		else
 			return false;
 	}
-	snprintf(dst, sizeof(dst), fmt, lvl);
 	return true;
 }
 
@@ -331,10 +357,7 @@ void pfile_create_player_description()
 
 void GetTempLevelNames(char (&szTemp)[MAX_PATH])
 {
-	if (currLvl._dSetLvl)
-		snprintf(szTemp, sizeof(szTemp), "temps%02d", currLvl._dLevelIdx - NUM_STDLVLS);
-	else
-		snprintf(szTemp, sizeof(szTemp), "templ%02d", currLvl._dLevelIdx);
+	GetTempSaveNames(currLvl._dLevelIdx, szTemp);
 }
 
 void GetPermLevelNames(char (&szPerm)[MAX_PATH])
@@ -348,43 +371,8 @@ void GetPermLevelNames(char (&szPerm)[MAX_PATH])
 	has_file = mpqapi_has_file(szPerm);
 	pfile_flush(true);
 	if (!has_file) {
-		if (currLvl._dSetLvl)
-			snprintf(szPerm, sizeof(szPerm), "perms%02d", currLvl._dLevelIdx - NUM_STDLVLS);
-		else
-			snprintf(szPerm, sizeof(szPerm), "perml%02d", currLvl._dLevelIdx);
+		GetPermSaveNames(currLvl._dLevelIdx, szPerm);
 	}
-}
-
-static bool GetPermSaveNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
-{
-	const char *fmt;
-
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "perml%02d";
-	else if (dwIndex < NUM_STDLVLS * 2) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "perms%02d";
-	} else
-		return false;
-
-	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
-	return true;
-}
-
-static bool GetTempSaveNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
-{
-	const char *fmt;
-
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "templ%02d";
-	else if (dwIndex < NUM_STDLVLS * 2) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "temps%02d";
-	} else
-		return false;
-
-	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
-	return true;
 }
 
 void pfile_remove_temp_files()
