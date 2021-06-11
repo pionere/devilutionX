@@ -604,7 +604,6 @@ static void multi_handle_events(_SNETEVENT *pEvt)
 	if (LeftReason == LEAVE_ENDING)
 		gbSomebodyWonGameKludge = true;
 
-	guSendDelta |= 1 << pnum;
 	dthread_remove_player(pnum);
 
 	if (gbDeltaSender == pnum)
