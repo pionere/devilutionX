@@ -509,7 +509,7 @@ static unsigned On_DLEVEL(TCmd *pCmd, int pnum)
 			// invalid data starting type -> drop the packet
 			goto done;
 		}
-		if (pnum >= MAX_PLRS) {
+		if ((unsigned)pnum >= MAX_PLRS) {
 			// message from an invalid player -> drop the packet
 			goto done;
 		}
