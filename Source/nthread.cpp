@@ -9,23 +9,21 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE sgbNetUpdateRate;
 static CCritSect sgMemCrit;
-bool _sbNthreadShouldRun;
 uint32_t gdwTurnsInTransit;
 uint32_t* glpMsgTbl[MAX_PLRS];
-SDL_threadID glpNThreadId;
-char sgbSyncCountdown;
-/* flag to tell the receiver, whether a delta should be sent */
-uint32_t turn_delta_request;
-bool _gbTicsOutOfSync;
+/* flag to tell the receiver whether a delta should be sent */
+static uint32_t turn_delta_request;
 static BYTE sgbPacketCountdown;
-bool _gbMutexDisabled;
+static BYTE sgbSyncCountdown;
+static bool _gbMutexDisabled;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to _SNETGAMEDATA ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to _SNETGAMEDATA ? (was maxmessagesize in vanilla)
 unsigned gdwNormalMsgSize;
-int last_tick;
-
-/* data */
+static Uint32 guLastTick;
+static bool _gbTickInSync;
+static SDL_threadID glpNThreadId;
 static SDL_Thread *sghThread = NULL;
+static bool _sbNthreadShouldRun;
 
 void nthread_terminate_game(const char *pszFcn)
 {
@@ -76,15 +74,14 @@ bool nthread_recv_turns(bool *received)
 	*received = false;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown != 0) {
-		last_tick += gnTickDelay;
+		guLastTick += gnTickDelay;
 		return true;
 	}
 	sgbSyncCountdown--;
 	sgbPacketCountdown = sgbNetUpdateRate;
 	if (sgbSyncCountdown != 0) {
-
 		*received = true;
-		last_tick += gnTickDelay;
+		guLastTick += gnTickDelay;
 		return true;
 	}
 #ifdef __3DS__
@@ -93,19 +90,19 @@ bool nthread_recv_turns(bool *received)
 	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
-		_gbTicsOutOfSync = false;
-		sgbSyncCountdown = 1;
+		_gbTickInSync = false;
 		sgbPacketCountdown = 1;
+		sgbSyncCountdown = 1;
 		return false;
 	} else {
-		if (!_gbTicsOutOfSync) {
-			_gbTicsOutOfSync = true;
-			last_tick = SDL_GetTicks();
+		if (!_gbTickInSync) {
+			_gbTickInSync = true;
+			guLastTick = SDL_GetTicks();
 		}
 		sgbSyncCountdown = 4;
 		multi_msg_countdown();
 		*received = true;
-		last_tick += gnTickDelay;
+		guLastTick += gnTickDelay;
 		return true;
 	}
 #endif
@@ -124,7 +121,7 @@ static unsigned int nthread_handler(void *data)
 		}
 		nthread_send_and_recv_turn(0, 0);
 		if (nthread_recv_turns(&received))
-			delta = last_tick - SDL_GetTicks();
+			delta = guLastTick - SDL_GetTicks();
 		else
 			delta = gnTickDelay;
 		sgMemCrit.Leave();
@@ -141,10 +138,10 @@ void nthread_request_delta()
 
 void nthread_start(bool request_delta)
 {
-	last_tick = SDL_GetTicks();
+	guLastTick = SDL_GetTicks();
+	_gbTickInSync = true;
 	sgbPacketCountdown = 1;
 	sgbSyncCountdown = 1;
-	_gbTicsOutOfSync = true;
 	if (request_delta)
 		nthread_request_delta();
 	else
@@ -208,13 +205,13 @@ void nthread_ignore_mutex(bool bStart)
  */
 bool nthread_has_500ms_passed()
 {
-	DWORD currentTickCount;
+	Uint32 currentTickCount;
 	int ticksElapsed;
 
 	currentTickCount = SDL_GetTicks();
-	ticksElapsed = currentTickCount - last_tick;
+	ticksElapsed = currentTickCount - guLastTick;
 	if (gbMaxPlayers == 1 && ticksElapsed > (int)(10 * gnTickDelay)) {
-		last_tick = currentTickCount;
+		guLastTick = currentTickCount;
 		ticksElapsed = 0;
 	}
 	return ticksElapsed >= 0;
