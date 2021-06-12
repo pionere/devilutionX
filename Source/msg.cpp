@@ -403,7 +403,7 @@ static void DeltaImportJunk()
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
 		if (pD->x != 0xFF) {
 			// assert(delta_portal_inited(i));
-			SetPortalStats(i, true,	pD->x, pD->y, pD->level);
+			ActivatePortal(i, pD->x, pD->y, pD->level);
 		}
 		//else
 		//	SetPortalStats(i, false, 0, 0, 0);
@@ -2466,9 +2466,9 @@ static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 	else {
 		ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1);
 		if (pnum != mypnum) {
-			if (currLvl._dLevelIdx == 0)
+			if (currLvl._dLevelIdx == DLV_TOWN)
 				AddInTownPortal(pnum);
-			else if (currLvl._dLevelIdx == plr.plrlevel) {
+			else if (currLvl._dLevelIdx == cmd->bParam1) {
 				int i;
 				for (i = 0; i < nummissiles; i++) {
 					MissileStruct *mis = &missile[missileactive[i]];
@@ -2478,8 +2478,7 @@ static unsigned On_ACTIVATEPORTAL(TCmd *pCmd, int pnum)
 				}
 				if (i == nummissiles)
 					AddWarpMissile(pnum, cmd->x, cmd->y);
-			} else
-				RemovePortalMissile(pnum);
+			}
 		}
 		delta_open_portal(pnum, cmd->x, cmd->y, cmd->bParam1);
 	}

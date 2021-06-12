@@ -27,13 +27,13 @@ void InitPortals()
 	}
 }
 
-void SetPortalStats(int i, bool o, int x, int y, int lvl)
+/*void SetPortalStats(int i, bool o, int x, int y, int lvl)
 {
 	portal[i]._wopen = o;
 	portal[i].x = x;
 	portal[i].y = y;
 	portal[i].level = lvl;
-}
+}*/
 
 void AddWarpMissile(int i, int x, int y)
 {
@@ -65,13 +65,12 @@ void AddInTownPortal(int i)
 
 void ActivatePortal(int i, int x, int y, int lvl)
 {
+	// TODO: check data from internet
+	assert(lvl != DLV_TOWN);
 	portal[i]._wopen = true;
-
-	if (lvl != DLV_TOWN) {
-		portal[i].x = x;
-		portal[i].y = y;
-		portal[i].level = lvl;
-	}
+	portal[i].x = x;
+	portal[i].y = y;
+	portal[i].level = lvl;
 }
 
 void DeactivatePortal(int i)
@@ -96,8 +95,7 @@ void RemovePortalMissile(int pnum)
 			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MISSILE;
 			dMissile[mis->_mix][mis->_miy] = 0;
 
-			if (portal[pnum].level != 0)
-				AddUnLight(mis->_miLid);
+			AddUnLight(mis->_miLid);
 
 			DeleteMissile(mi, i);
 		}

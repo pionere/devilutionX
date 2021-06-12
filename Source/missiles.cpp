@@ -1957,11 +1957,10 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	int i, j, tx, ty, pn;
 	const char *cr;
 
-	mis = &missile[mi];
 	if (currLvl._dType != DTYPE_TOWN) {
-		mis->_miDelFlag = TRUE;
-		static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddTown expects a large enough border.");
-		for (i = 0; i < 6; i++) {
+		const int RANGE = 6;
+		static_assert(DBORDERX >= RANGE && DBORDERY >= RANGE, "AddTown expects a large enough border.");
+		for (i = 0; i < RANGE; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				tx = dx + *++cr;
@@ -1970,25 +1969,27 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 				pn = dPiece[tx][ty];
 				if ((dMissile[tx][ty] | nSolidTable[pn] | nMissileTable[pn] | dObject[tx][ty] | dPlayer[tx][ty]) == 0) {
 					if (!CheckIfTrig(tx, ty)) {
-						mis->_miDelFlag = FALSE;
-						if (misource == mypnum) {
-							NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
-						}
-						i = 6;
+						i = RANGE;
 						break;
 					}
 				}
 			}
 		}
+		if (i == RANGE)
+			return MIRES_FAIL_DELETE;
+		PlaySfxLoc(LS_SENTINEL, tx, ty);
+		if (misource == mypnum) {
+			NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
+		}
 	} else {
 		tx = dx;
 		ty = dy;
 	}
+	mis = &missile[mi];
 	mis->_mix = mis->_misx = tx;
 	mis->_miy = mis->_misy = ty;
 	mis->_miRange = 100;
 	if (spllvl >= 0) {
-		PlaySfxLoc(LS_SENTINEL, tx, ty);
 		mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 		// mis->_miVar2 = 0;
 	} else {

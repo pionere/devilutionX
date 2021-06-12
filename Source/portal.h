@@ -15,7 +15,7 @@ extern "C" {
 extern PortalStruct portal[MAXPORTAL];
 
 void InitPortals();
-void SetPortalStats(int i, bool o, int x, int y, int lvl);
+//void SetPortalStats(int i, bool o, int x, int y, int lvl);
 void AddWarpMissile(int i, int x, int y);
 void SyncPortals();
 void AddInTownPortal(int i);
