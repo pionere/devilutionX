@@ -733,7 +733,6 @@ void LoadGame(bool firstflag)
 		LoadBool();
 
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPlayer);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
@@ -1383,7 +1382,6 @@ void SaveGame()
 		SaveBool(FALSE);
 
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dFlags, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dPlayer, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
@@ -1460,7 +1458,6 @@ void SaveLevel()
 
 	CopyBytes(dItem, MAXDUNX * MAXDUNY, tbuff);
 	CopyBytes(dLight, MAXDUNX * MAXDUNY, tbuff);
-	CopyBytes(dPreLight, MAXDUNX * MAXDUNY, tbuff);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(dMonster, MAXDUNX * MAXDUNY, tbuff);
@@ -1523,7 +1520,6 @@ void LoadLevel()
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dFlags);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dItem);
 	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dLight);
-	CopyBytes(tbuff, MAXDUNX * MAXDUNY, dPreLight);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		CopyInts(tbuff, MAXDUNX * MAXDUNY, dMonster);

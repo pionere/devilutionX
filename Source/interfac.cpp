@@ -317,19 +317,17 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		if (currLvl._dType != DTYPE_TOWN) {
 			SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 			GetLevelMTypes();
+			IncProgress();
 			InitThemes();
 			IncProgress();
-			IncProgress();
 			InitObjectGFX();
-			IncProgress();
 		} else {
 			SetupTownStores();
 			IncProgress();
 			IncProgress();
-			IncProgress();
 		}
-		InitMissileGFX();
 		IncProgress();
+		InitMissileGFX();
 		IncProgress();
 
 		if (lvldir == ENTRY_RTNLVL)
@@ -355,37 +353,18 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		if (currLvl._dType != DTYPE_TOWN) {
 			HoldThemeRooms();
 			InitMonsters();
+			IncProgress();
 			if (gbMaxPlayers != 1 || firstflag || lvldir == ENTRY_LOAD || !myplr._pLvlVisited[currLvl._dLevelIdx]) {
-				IncProgress();
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
-				IncProgress();
-				InitMissiles();
-				InitDead();
-				SavePreLighting();
-
-				if (gbMaxPlayers != 1)
-					DeltaLoadLevel();
-			} else {
-				InitMissiles();
-				InitDead();
-				IncProgress();
-				LoadLevel();
 			}
 			IncProgress();
+			InitDead();
 		} else {
 			InitTowners();
-			InitItems();
-			InitMissiles();
-			SavePreLighting();
 			IncProgress();
-
-			if (gbMaxPlayers != 1)
-				DeltaLoadLevel();
-			else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
-				LoadLevel();
-
+			InitItems();
 			IncProgress();
 		}
 	} else {
@@ -417,16 +396,16 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		IncProgress();
 		IncProgress();
 
-		InitMissiles();
 		InitItems();
-		SavePreLighting();
-		if (gbMaxPlayers != 1)
-			DeltaLoadLevel();
-		else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
-			LoadLevel();
-
-		IncProgress();
 	}
+	InitMissiles();
+	SavePreLighting();
+	if (gbMaxPlayers != 1)
+		DeltaLoadLevel();
+	else if (!firstflag && lvldir != ENTRY_LOAD && myplr._pLvlVisited[currLvl._dLevelIdx])
+		LoadLevel();
+
+	IncProgress();
 
 	ResyncQuests();
 	SyncPortals();
