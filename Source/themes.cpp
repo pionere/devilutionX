@@ -712,9 +712,7 @@ static void Theme_Treasure(int tidx)
 				if (random_(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, false, ITYPE_GOLD, IMISC_NONE, false, true);
 					ItemNoFlippy();
-				}
-				// BUGFIX: should probably be `random_(0, 2*treasrnd...) == 0`
-				if (random_(0, treasrnd) == 0) {
+				} else if (random_(0, treasrnd) == 0) {
 					CreateRndItem(xx, yy, false, false, true);
 					ItemNoFlippy();
 				}
