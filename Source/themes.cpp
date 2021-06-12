@@ -473,6 +473,29 @@ void HoldThemeRooms()
 	}
 }
 
+/*
+ * Place a theme object with the specified frequency.
+ * @param tidx: the index of the selected theme
+ * @param type: the type of the object to place
+ * @param rndfrq: the frequency to place the object
+ */
+static void Place_Obj3(int tidx, int type, int rndfrq)
+{
+	int xx, yy;
+	const BYTE tv = themes[tidx].ttval;
+
+	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
+			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+				if (CheckThemeObj3(xx, yy, tidx, -1)) {
+					if (random_(0, rndfrq) == 0) {
+						AddObject(type, xx, yy);
+					}
+				}
+			}
+		}
+	}
+}
 /**
  * PlaceThemeMonsts places theme monsters with the specified frequency.
  *
@@ -752,24 +775,12 @@ static void Theme_Library(int tidx)
  */
 static void Theme_Torture(int tidx)
 {
-	int xx, yy;
 	const BYTE tortrnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE tv = themes[tidx].ttval;
 
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tidx, -1)) {
-					if (random_(0, tortrnd) == 0) {
-						AddObject(OBJ_TNUDEM2, xx, yy);
-					}
-				}
-			}
-		}
-	}
+	Place_Obj3(tidx, OBJ_TNUDEM2, tortrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 }
 
@@ -793,24 +804,12 @@ static void Theme_BloodFountain(int tidx)
  */
 static void Theme_Decap(int tidx)
 {
-	int xx, yy;
 	const BYTE decaprnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE decaprnd = decaprnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE tv = themes[tidx].ttval;
 
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tidx, -1)) {
-					if (random_(0, decaprnd) == 0) {
-						AddObject(OBJ_DECAP, xx, yy);
-					}
-				}
-			}
-		}
-	}
+	Place_Obj3(tidx, OBJ_DECAP, decaprnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 }
 
@@ -835,29 +834,16 @@ static void Theme_PurifyingFountain(int tidx)
  */
 static void Theme_ArmorStand(int tidx)
 {
-	int xx, yy;
 	const BYTE armorrnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	const BYTE armorrnd = armorrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	BYTE tv;
 
 	if (_gbArmorFlag) {
 		if (TFit_Obj3(tidx))
 			AddObject(OBJ_ARMORSTAND, themex, themey);
 	}
-	tv = themes[tidx].ttval;
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tidx, -1)) {
-					if (random_(0, armorrnd) == 0) {
-						AddObject(OBJ_ARMORSTANDN, xx, yy);
-					}
-				}
-			}
-		}
-	}
+	Place_Obj3(tidx, OBJ_ARMORSTANDN, armorrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 	_gbArmorFlag = false;
 }
@@ -934,24 +920,12 @@ static void Theme_TearFountain(int tidx)
  */
 static void Theme_BrnCross(int tidx)
 {
-	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
 	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE tv = themes[tidx].ttval;
 
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tidx, -1)) {
-					if (random_(0, bcrossrnd) == 0) {
-						AddObject(OBJ_TBCROSS, xx, yy);
-					}
-				}
-			}
-		}
-	}
+	Place_Obj3(tidx, OBJ_TBCROSS, bcrossrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 	_gbBCrossFlag = true;
 }
@@ -963,12 +937,11 @@ static void Theme_BrnCross(int tidx)
  */
 static void Theme_WeaponRack(int tidx)
 {
-	int xx, yy, type;
+	int type;
 	const BYTE weaponrnds[4] = { 6, 8, 5, 8 };
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	const BYTE weaponrnd = weaponrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
-	const BYTE tv = themes[tidx].ttval;
 
 	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
 	type = OBJ_WEAPONRACKL + 2 * random_(0, 2);
@@ -979,17 +952,7 @@ static void Theme_WeaponRack(int tidx)
 	static_assert(OBJ_WEAPONRACKL + 1 == OBJ_WEAPONRACKLN, "Theme_WeaponRack depends on the order of WEAPONRACKL(N)");
 	static_assert(OBJ_WEAPONRACKR + 1 == OBJ_WEAPONRACKRN, "Theme_WeaponRack depends on the order of WEAPONRACKR(N)");
 	type += 1;
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tidx, -1)) {
-					if (random_(0, weaponrnd) == 0) {
-						AddObject(type, xx, yy);
-					}
-				}
-			}
-		}
-	}
+	Place_Obj3(tidx, type, weaponrnd);
 	PlaceThemeMonsts(tidx, monstrnd);
 	_gbWeaponFlag = false;
 }
