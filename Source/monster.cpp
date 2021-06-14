@@ -4907,12 +4907,7 @@ bool PosOkMonst3(int mnum, int x, int y)
 static void ActivateSpawn(int mnum, int x, int y, int dir)
 {
 	dMonster[x][y] = mnum + 1;
-	monster[mnum]._mx = x;
-	monster[mnum]._my = y;
-	//monster[mnum]._mfutx = x;
-	//monster[mnum]._mfuty = y;
-	//monster[mnum]._moldx = x;
-	//monster[mnum]._moldy = y;
+	SetMonsterLoc(&monster[mnum], x, y);
 	MonStartSpStand(mnum, dir);
 }
 
@@ -5076,12 +5071,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	}
 	dMonster[x][y] = mnum + 1;
 	mon = &monster[mnum];
-	mon->_mx = x;
-	mon->_my = y;
-	mon->_mfutx = x;
-	mon->_mfuty = y;
-	mon->_moldx = x;
-	mon->_moldy = y;
+	SetMonsterLoc(mon, x, y);
 	mon->_mpathcount = 0;
 	mon->_mArmorClass = 25;
 	//mon->_mEvasion = 5;

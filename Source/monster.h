@@ -70,6 +70,12 @@ bool CheckMonsterHit(int mnum, bool *ret);
 int encode_enemy(int mnum);
 void decode_enemy(int mnum, int enemy);
 
+inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
+{
+	mon->_mx = mon->_mfutx = mon->_moldx = x;
+	mon->_my = mon->_mfuty = mon->_moldy = y;
+}
+
 /* data */
 
 extern const int offset_x[8];

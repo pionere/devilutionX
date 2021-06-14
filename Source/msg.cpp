@@ -916,12 +916,7 @@ void DeltaLoadLevel()
 				x = mstr->_mx;
 				y = mstr->_my;
 				mon = &monster[i];
-				mon->_mx = x;
-				mon->_my = y;
-				mon->_moldx = x;
-				mon->_moldy = y;
-				mon->_mfutx = x;
-				mon->_mfuty = y;
+				SetMonsterLoc(mon, x, y);
 				// check if only the position of the monster was modified
 				if (mstr->_mhitpoints != -1)
 					mon->_mhitpoints = SwapLE32(mstr->_mhitpoints);
