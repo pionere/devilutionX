@@ -1481,7 +1481,7 @@ int AddObject(int type, int ox, int oy)
 		AddObjLight(oi, 0);
 		break;
 	case OBJ_SKFIRE:
-	case OBJ_CANDLE1:
+	//case OBJ_CANDLE1:
 	case OBJ_CANDLE2:
 	case OBJ_BOOKCANDLE:
 		AddObjLight(oi, 5);
@@ -1522,7 +1522,7 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_SARC:
 		AddSarc(oi);
 		break;
-	case OBJ_FLAMEHOLE:
+	/*case OBJ_FLAMEHOLE:
 		AddFlameTrap(oi);
 		break;
 	case OBJ_FLAMELVR:
@@ -1530,7 +1530,7 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_WATER:
 		object[oi]._oAnimFrame = 1;
-		break;
+		break;*/
 	case OBJ_TRAPL:
 	case OBJ_TRAPR:
 		AddTrap(oi);
@@ -1741,7 +1741,7 @@ static void Obj_Door(int oi)
 	os->_oVar4 = dok ? DOOR_OPEN : DOOR_BLOCKED;
 }
 
-static void ActivateTrapLine(int tid)
+/*static void ActivateTrapLine(int tid)
 {
 	ObjectStruct *os;
 	int i;
@@ -1802,7 +1802,7 @@ static void Obj_FlameTrap(int oi)
 		else if (os->_oAnimFrame <= 5)
 			ChangeLightRadius(os->_olid, os->_oAnimFrame);
 	}
-}
+}*/
 
 static void Obj_Trap(int oi)
 {
@@ -1944,9 +1944,9 @@ void ProcessObjects()
 		case OBJ_TORCHR2:
 			Obj_Light(oi, 5, flickers[1]);
 			break;*/
-		case OBJ_FLAMEHOLE:
-			Obj_FlameTrap(oi);
-			break;
+		//case OBJ_FLAMEHOLE:
+		//	Obj_FlameTrap(oi);
+		//	break;
 		case OBJ_TRAPL:
 		case OBJ_TRAPR:
 			Obj_Trap(oi);
@@ -2726,7 +2726,7 @@ static void OperateSlainHero(int pnum, int oi, bool sendmsg)
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr._px, plr._py);
 }
 
-static void OperateFlameTrapLever(int oi, bool sendmsg)
+/*static void OperateFlameTrapLever(int oi, bool sendmsg)
 {
 	ObjectStruct *os, *on;
 	int i;
@@ -2747,7 +2747,7 @@ static void OperateFlameTrapLever(int oi, bool sendmsg)
 			on->_oVar2 = disable ? TRAP_INACTIVE : TRAP_ACTIVE;
 		}
 	}
-}
+}*/
 
 static void OperateSarc(int oi, bool sendmsg)
 {
@@ -3787,9 +3787,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_SARC:
 		OperateSarc(oi, sendmsg);
 		break;
-	case OBJ_FLAMELVR:
-		OperateFlameTrapLever(oi, sendmsg);
-		break;
+	//case OBJ_FLAMELVR:
+	//	OperateFlameTrapLever(oi, sendmsg);
+	//	break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
@@ -3936,9 +3936,9 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_SARC:
 		OperateSarc(oi, false);
 		break;
-	case OBJ_FLAMELVR:
-		OperateFlameTrapLever(oi, false);
-		break;
+	//case OBJ_FLAMELVR:
+	//	OperateFlameTrapLever(oi, false);
+	//	break;
 	case OBJ_BLINDBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_STEELTOME:
@@ -4211,7 +4211,7 @@ void GetObjectStr(int oi)
 	os = &object[oi];
 	switch (os->_otype) {
 	case OBJ_LEVER:
-	case OBJ_FLAMELVR:
+	//case OBJ_FLAMELVR:
 		copy_cstr(infostr, "Lever");
 		break;
 	case OBJ_CHEST1:
@@ -4261,9 +4261,9 @@ void GetObjectStr(int oi)
 	case OBJ_SARC:
 		copy_cstr(infostr, "Sarcophagus");
 		break;
-	case OBJ_BOOKSHELF:
-		copy_cstr(infostr, "Bookshelf");
-		break;
+	//case OBJ_BOOKSHELF:
+	//	copy_cstr(infostr, "Bookshelf");
+	//	break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
 #ifdef HELLFIRE
