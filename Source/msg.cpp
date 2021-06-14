@@ -911,7 +911,8 @@ void DeltaLoadLevel()
 		mstr = sgLevels[currLvl._dLevelIdx].monster;
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mx != 0xFF) {
-				if (i >= MAX_MINIONS)
+				// skip minions and prespawn skeletons
+				if (!MINION_NR_INACTIVE(i))
 					RemoveMonFromMap(i);
 				x = mstr->_mx;
 				y = mstr->_my;
