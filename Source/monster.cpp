@@ -1005,7 +1005,8 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				mtype = AddMonsterType(MonstConvTbl[SwapLE16(*lm) - 1], FALSE);
+				assert(SwapLE16(*lm) < lengthof(MonstConvTbl) && MonstConvTbl[SwapLE16(*lm)] != 0);
+				mtype = AddMonsterType(MonstConvTbl[SwapLE16(*lm)], FALSE);
 				PlaceMonster(nummonsters++, mtype, i, j);
 			}
 			lm++;
