@@ -1175,19 +1175,27 @@ static int MonGetDir(int mnum)
 	return GetDirection(monster[mnum]._mx, monster[mnum]._my, monster[mnum]._menemyx, monster[mnum]._menemyy);
 }
 
+static void FixMonLocation(int mnum)
+{
+	MonsterStruct *mon;
+
+	mon = &monster[mnum];
+	mon->_mxoff = 0;
+	mon->_myoff = 0;
+	mon->_mfutx = mon->_moldx = mon->_mx;
+	mon->_mfuty = mon->_moldy = mon->_my;
+}
+
 void MonStartStand(int mnum, int md)
 {
 	MonsterStruct *mon;
 
 	mon = &monster[mnum];
 	NewMonsterAnim(mnum, MA_STAND, md);
+	FixMonLocation(mnum);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 	MonEnemy(mnum);
 }
 
@@ -1584,17 +1592,10 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		//if (mon->_msquelch == 0)
 		//	continue;
 		NewMonsterAnim(j, MA_DEATH, mon->_mdir);
-		mon->_mxoff = 0;
-		mon->_myoff = 0;
 		mon->_mmode = MM_DEATH;
 		RemoveMonFromMap(j);
-		mx = mon->_moldx;
-		my = mon->_moldy;
-		mon->_my = my;
-		mon->_mfuty = my;
-		mon->_mx = mx;
-		mon->_mfutx = mx;
-		dMonster[mx][my] = j + 1;
+		FixMonLocation(j);
+		dMonster[mon->_mx][mon->_my] = j + 1;
 	}
 	mon = &monster[mnum];
 	mon->_mVar1 = 0;         // DIABLO_TICK
@@ -4795,15 +4796,12 @@ void MissToMonst(int mi, int x, int y)
 			if (mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE) {
 				newx = oldx + offset_x[mon->_mdir];
 				newy = oldy + offset_y[mon->_mdir];
-				if (PosOkMonst(dMonster[oldx][oldy] - 1, newx, newy)) {
-					mnum = dMonster[oldx][oldy];
-					dMonster[oldx][oldy] = 0;
-					dMonster[newx][newy] = mnum;
-					mnum--;
-					monster[mnum]._mx = newx;
-					monster[mnum]._mfutx = newx;
-					monster[mnum]._my = newy;
-					monster[mnum]._mfuty = newy;
+				if (PosOkMonst(tnum, newx, newy)) {
+					monster[tnum]._mx = newx;
+					monster[tnum]._my = newy;
+					RemoveMonFromMap(tnum);
+					dMonster[newx][newy] = tnum + 1;
+					FixMonLocation(tnum);
 				}
 			}
 		}
