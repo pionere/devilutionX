@@ -977,7 +977,6 @@ void SetMapObjects(BYTE *pMap)
 {
 	int i, j;
 	uint16_t rw, rh, *lm, *h;
-	long mapoff;
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
 
@@ -1189,7 +1188,7 @@ static void AddSarc(int oi)
 		os->_oVar2 = PreSpawnSkeleton(); // SARC_SKELE
 }
 
-static void AddFlameTrap(int oi)
+/*static void AddFlameTrap(int oi)
 {
 	ObjectStruct *os;
 
@@ -1206,7 +1205,7 @@ static void AddFlameLever(int oi)
 
 	os = &object[oi];
 	os->_oVar1 = trapid; // FLAMETRAP_ID
-}
+}*/
 
 static void AddTrap(int oi)
 {
