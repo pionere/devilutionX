@@ -129,10 +129,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	ItemStruct *pi;
 	PkItemStruct *pki;
 
-	plr._px = pPack->px;
-	plr._py = pPack->py;
-	plr._pfutx = pPack->px;
-	plr._pfuty = pPack->py;
+	// TODO: validate data from the internet
+	SetPlayerLoc(&plr, pPack->px, pPack->py);
 	plr.plrlevel = pPack->plrlevel;
 	plr._pTeam = pPack->pTeam;
 	ClrPlrPath(pnum);

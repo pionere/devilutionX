@@ -579,10 +579,7 @@ static void SetupLocalCoords()
 	x += plrxoff[mypnum];
 	y += plryoff[mypnum];
 	p = &myplr;
-	p->_px = x;
-	p->_py = y;
-	p->_pfutx = x;
-	p->_pfuty = y;
+	SetPlayerLoc(p, x, y);
 	p->plrlevel = currLvl._dLevelIdx;
 	p->_pLvlChanging = TRUE;
 	p->_pmode = PM_NEWLVL;

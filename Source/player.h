@@ -78,6 +78,15 @@ inline void SetPlayerOld(int pnum)
 	plr._poldy = plr._py;
 }
 
+// Set each location to the input location.
+// Oldx/y could be set to an invalid value so RemovePlrFromMap could check if the player was placed on the map earlier,
+//  but it is not worth it at the moment.
+inline void SetPlayerLoc(PlayerStruct* p, int x, int y)
+{
+	p->_px = p->_pfutx = p->_poldx = x;
+	p->_py = p->_pfuty = p->_poldy = y;
+}
+
 /* data */
 
 extern const int plrxoff[MAX_PLRS];
