@@ -1964,9 +1964,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr._pmode = PM_NEWLVL;
 		plr._pInvincible = TRUE;
 		PostMessage(fom, 0, 0);
-		if (gbMaxPlayers != 1) {
-			NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
-		}
+		NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
 	}
 }
 
