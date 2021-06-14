@@ -1908,6 +1908,7 @@ void RemovePlrMissiles(int pnum)
 static void InitLevelChange(int pnum)
 {
 	ClrPlrPath(pnum);
+	plr._pLvlVisited[plr.plrlevel] = TRUE;
 	if (plr.plrlevel == currLvl._dLevelIdx) {
 		AddUnLight(plr._plid);
 		AddUnVision(plr._pvid);
@@ -1922,8 +1923,6 @@ static void InitLevelChange(int pnum)
 		}
 		lvlLoad = 10;
 		dPlayer[plr._px][plr._py] = pnum + 1;
-	} else {
-		plr._pLvlVisited[plr.plrlevel] = TRUE;
 	}
 
 	plr.destAction = ACTION_NONE;

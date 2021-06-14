@@ -1470,8 +1470,6 @@ void SaveLevel()
 	dwLen = codec_get_encoded_len(tbuff - SaveBuff);
 	pfile_write_save_file(szName, SaveBuff, tbuff - SaveBuff, dwLen);
 	mem_free_dbg(SaveBuff);
-
-	myplr._pLvlVisited[currLvl._dLevelIdx] = TRUE;
 }
 
 void LoadLevel()
