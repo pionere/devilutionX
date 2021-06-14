@@ -12,14 +12,24 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Tracks which missile files are already loaded */
 int MissileFileFlag;
 
-int monstactive[MAXMONSTERS];
-int nummonsters;
-MonsterStruct monster[MAXMONSTERS];
+/* Limit the number of monsters to be placed. */
 int totalmonsters;
-MapMonData mapMonTypes[MAX_LVLMTYPES];
+/* Limit the number of monster-types on the current level by the required resources.
+ * In CRYPT where the values are not valid).
+ */
 int monstimgtot;
-int uniquetrans;
+/* Number of active monsters on the current level (minions are considered active). */
+int nummonsters;
+/* The list of the indices of the active monsters. */
+int monstactive[MAXMONSTERS];
+/* The data of the monsters on the current level. */
+MonsterStruct monster[MAXMONSTERS];
+/* Monster types on the current level. */
+MapMonData mapMonTypes[MAX_LVLMTYPES];
+/* The number of monster types on the current level. */
 int nummtypes;
+/* The number of unique monsters on the current level. */
+int uniquetrans;
 
 /** Light radius of unique monsters */
 #define MON_LIGHTRAD 3
