@@ -1624,8 +1624,7 @@ bool PlacePlayer(int pnum)
 
 void RemovePlrFromMap(int pnum)
 {
-	int pp, pn;
-	int dx, dy, y, x;
+	int pp, dx, dy, y, x;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("RemovePlrFromMap: illegal player %d", pnum);
@@ -1633,55 +1632,21 @@ void RemovePlrFromMap(int pnum)
 
 	dx = plr._poldx;
 	dy = plr._poldy;
-	// BUGFIX: is this necessary?
-	if (!IN_DUNGEON_AREA(dx, dy))
-		return;
+	assert(dx >= DBORDERX && dx < DBORDERX + DSIZEX);
+	assert(dy >= DBORDERY && dy < DBORDERY + DSIZEY);
 
-	if (dx < MAXDUNX - 1)
-		dFlags[dx + 1][dy] &= ~BFLAG_PLAYERLR;
-	if (dy < MAXDUNY - 1)
-		dFlags[dx][dy + 1] &= ~BFLAG_PLAYERLR;
-
-	// BUGFIX: is this necessary?
-	if (dx < 1)
-		dx = 1;
-	else if (dx >= MAXDUNX - 1)
-		dx = MAXDUNX - 2;
-	if (dy < 1)
-		dy = 1;
-	else if (dy >= MAXDUNY - 1)
-		dy = MAXDUNY - 2;
+	dFlags[dx + 1][dy] &= ~BFLAG_PLAYERLR;
+	dFlags[dx][dy + 1] &= ~BFLAG_PLAYERLR;
 
 	pp = pnum + 1;
-	pn = -(pnum + 1);
-	for (y = dy - 1; y <= dy + 1; y++) {
-		for (x = dx - 1; x <= dx + 1; x++) {
-			if (dPlayer[x][y] == pp || dPlayer[x][y] == pn) {
+	for (x = dx - 1; x <= dx + 1; x++) {
+		for (y = dy - 1; y <= dy + 1; y++) {
+			if (abs(dPlayer[x][y]) == pp) {
 				dPlayer[x][y] = 0;
 			}
 		}
 	}
 }
-
-/*void RemovePlrFromMap(int pnum)
-{
-	int x, y;
-	int pp, pn;
-
-	pp = pnum + 1;
-	pn = -(pnum + 1);
-
-	for (y = 0; y < MAXDUNY; y++)
-		for (x = 0; x < MAXDUNX; x++)
-			if (dPlayer[x][y] == pp || dPlayer[x][y] == pn) {
-				dPlayer[x][y] = 0;
-
-				if (x < MAXDUNX - 1)
-					dFlags[x + 1][y] &= ~BFLAG_PLAYERLR;
-				if (y < MAXDUNY - 1)
-					dFlags[x][y + 1] &= ~BFLAG_PLAYERLR;
-			}
-}*/
 
 void StartPlrHit(int pnum, int dam, bool forcehit)
 {
