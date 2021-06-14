@@ -913,7 +913,7 @@ void DeltaLoadLevel()
 		for (i = 0; i < nummonsters; i++, mstr++) {
 			if (mstr->_mx != 0xFF) {
 				if (i >= MAX_MINIONS)
-					MonClearSquares(i);
+					RemoveMonFromMap(i);
 				x = mstr->_mx;
 				y = mstr->_my;
 				mon = &monster[i];

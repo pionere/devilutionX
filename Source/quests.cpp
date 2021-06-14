@@ -272,14 +272,14 @@ static void DrawMap(const char* name, int bv)
 {
 	int rw, rh;
 	int x, y, i, j;
-	BYTE *sp, *setp;
+	BYTE *lm, *pMap;
 	int v;
 
-	setp = LoadFileInMem(name);
-	rw = *setp;
-	sp = setp + 2;
-	rh = *sp;
-	sp += 2;
+	pMap = LoadFileInMem(name);
+	rw = *pMap;
+	lm = pMap + 2;
+	rh = *lm;
+	lm += 2;
 	assert(setpc_w == rw);
 	assert(setpc_h == rh);
 	x = setpc_x;
@@ -288,16 +288,16 @@ static void DrawMap(const char* name, int bv)
 	rh += y;
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				v = *sp;
+			if (*lm != 0) {
+				v = *lm;
 			} else {
 				v = bv;
 			}
 			dungeon[i][j] = v;
-			sp += 2;
+			lm += 2;
 		}
 	}
-	mem_free_dbg(setp);
+	mem_free_dbg(pMap);
 }
 
 static void DrawWarLord()
@@ -317,13 +317,13 @@ static void DrawPreMap(const char* name)
 {
 	int rw, rh;
 	int x, y, i, j;
-	BYTE *sp, *setp;
+	BYTE *lm, *pMap;
 
-	setp = LoadFileInMem(name);
-	rw = *setp;
-	sp = setp + 2;
-	rh = *sp;
-	sp += 2;
+	pMap = LoadFileInMem(name);
+	rw = *pMap;
+	lm = pMap + 2;
+	rh = *lm;
+	lm += 2;
 	assert(setpc_w == rw);
 	assert(setpc_h == rh);
 	x = setpc_x;
@@ -332,13 +332,13 @@ static void DrawPreMap(const char* name)
 	rh += y;
 	for (j = y; j < rh; j++) {
 		for (i = x; i < rw; i++) {
-			if (*sp != 0) {
-				pdungeon[i][j] = *sp;
+			if (*lm != 0) {
+				pdungeon[i][j] = *lm;
 			}
-			sp += 2;
+			lm += 2;
 		}
 	}
-	mem_free_dbg(setp);
+	mem_free_dbg(pMap);
 }
 
 static void DrawLTBanner()

@@ -22,7 +22,7 @@ extern "C" {
 extern int monstactive[MAXMONSTERS];
 extern int nummonsters;
 extern MonsterStruct monster[MAXMONSTERS];
-extern CMonster Monsters[MAX_LVLMTYPES];
+extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 extern int nummtypes;
 
 void InitLevelMonsters();
@@ -36,7 +36,7 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty);
 int AddMonster(int x, int y, int dir, int mtype, bool InMap);
 bool MonTalker(int mnum);
 void MonStartStand(int mnum, int md);
-void MonClearSquares(int mnum);
+void RemoveMonFromMap(int mnum);
 void MonGetKnockback(int mnum);
 void MonStartHit(int mnum, int pnum, int dam);
 void MonStartKill(int mnum, int pnum);

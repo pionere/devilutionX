@@ -1923,13 +1923,13 @@ void CreateL4Dungeon(int entry)
 /*static BYTE *LoadL4DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm;
+	BYTE *pMap, *lm;
 
 	//DRLG_InitTrans();
 	InitL4Dungeon();
-	pLevelMap = LoadFileInMem(sFileName);
+	pMap = LoadFileInMem(sFileName);
 
-	lm = pLevelMap;
+	lm = pMap;
 	rw = *lm;
 	lm += 2;
 	rh = *lm;
@@ -1946,32 +1946,32 @@ void CreateL4Dungeon(int entry)
 			lm += 2;
 		}
 	}
-	return pLevelMap;
+	return pMap;
 }
 
 static void LoadL4Dungeon(char *sFileName, int vx, int vy)
 {
-	BYTE *pLevelMap;
+	BYTE *pMap;
 
 	DRLG_InitTrans();
 
-	pLevelMap = LoadL4DungeonData(sFileName);
+	pMap = LoadL4DungeonData(sFileName);
 
 	ViewX = vx;
 	ViewY = vy;
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 	DRLG_Init_Globals();
 
-	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap);
-	mem_free_dbg(pLevelMap);
+	SetMapMonsters(pMap, 0, 0);
+	SetMapObjects(pMap);
+	mem_free_dbg(pMap);
 }
 
 static void LoadPreL4Dungeon(char *sFileName)
 {
-	BYTE *pLevelMap = LoadL4DungeonData(sFileName);
+	BYTE *pMap = LoadL4DungeonData(sFileName);
 
-	mem_free_dbg(pLevelMap);
+	mem_free_dbg(pMap);
 }*/
 
 DEVILUTION_END_NAMESPACE

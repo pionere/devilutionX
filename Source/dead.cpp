@@ -15,7 +15,7 @@ int stonendx;
 void InitDead()
 {
 	MonsterStruct *mon;
-	CMonster *cmon;
+	MapMonData *cmon;
 	int i, d, nd;
 	bool mtypes[NUM_MTYPES];
 
@@ -23,7 +23,7 @@ void InitDead()
 	memset(mtypes, 0, sizeof(mtypes));
 
 	nd = 0;
-	cmon = Monsters;
+	cmon = mapMonTypes;
 	for (i = nummtypes; i > 0; i--, cmon++) {
 		if (!mtypes[cmon->cmType]) {
 			for (d = 0; d < lengthof(dead[nd]._deadData); d++)

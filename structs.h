@@ -559,9 +559,9 @@ static_assert((sizeof(AnimStruct) & (sizeof(AnimStruct) - 1)) == 32, "Align Anim
 typedef struct MonsterData {
 	int width;
 	int mImage;
-	const char *GraphicType;
+	const char *mGfxFile;
 	BOOL has_special;
-	const char *sndfile;
+	const char *mSndFile;
 	BOOL snd_special;
 	const char *TransFile;
 	int mAnimFrames[NUM_MON_ANIM];
@@ -599,7 +599,7 @@ typedef struct MonsterData {
 static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
 #endif
 
-typedef struct CMonster {
+typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
 	AnimStruct cmAnims[NUM_MON_ANIM];
@@ -611,9 +611,9 @@ typedef struct CMonster {
 #ifdef X86_32bit_COMP
 	int alignment[10];
 #endif
-} CMonster;
+} MapMonData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(CMonster) & (sizeof(CMonster) - 1)) == 256, "Align CMonster closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 256, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterStruct { // note: missing field _mAFNum
@@ -690,7 +690,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 	uint16_t mExp;
 	int mtalkmsg;
 	const char *mName;
-	CMonster *MType;
+	MapMonData *MType;
 	const MonsterData *MData;
 	int _mType;
 	AnimStruct *_mAnims;

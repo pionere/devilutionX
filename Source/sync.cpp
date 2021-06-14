@@ -218,14 +218,14 @@ static void sync_monster(int pnum, const TSyncMonster *symon)
 		if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK3) {
 			md = GetDirection(mon->_mx, mon->_my, symon->_mx, symon->_my);
 			if (DirOK(mnum, md)) {
-				MonClearSquares(mnum);
+				RemoveMonFromMap(mnum);
 				dMonster[mon->_mx][mon->_my] = mnum + 1;
 				MonWalkDir(mnum, md);
 				mon->_msquelch = SQUELCH_MAX;
 			}
 		}
 	} else if (dMonster[symon->_mx][symon->_my] == 0) {
-		MonClearSquares(mnum);
+		RemoveMonFromMap(mnum);
 		dMonster[symon->_mx][symon->_my] = mnum + 1;
 		mon->_mx = symon->_mx;
 		mon->_my = symon->_my;

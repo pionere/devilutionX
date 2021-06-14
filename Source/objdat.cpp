@@ -8,12 +8,12 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Maps from dun_object_id to object_id. */
-const int ObjTypeConv[] = {
+const int ObjConvTbl[] = {
 	0,
 	OBJ_LEVER,
-	OBJ_CRUX1,
-	OBJ_CRUX2,
-	OBJ_CRUX3,
+	OBJ_CRUXM,
+	OBJ_CRUXR,
+	OBJ_CRUXL,
 	OBJ_ANGEL,
 	OBJ_BANNERL,
 	OBJ_BANNERM,
@@ -174,9 +174,9 @@ const ObjDataStruct AllObjects[NUM_OBJECTS] = {
 /*OBJ_SKSTICK3*/	{      2, OFILE_L1BRAZ,   0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              0,             0,        0,          0, FALSE,      FALSE,     FALSE,           0,        0, FALSE     },
 /*OBJ_SKSTICK4*/	{      2, OFILE_L1BRAZ,   0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              0,             0,        0,          0, FALSE,      FALSE,     FALSE,           0,        0, FALSE     },
 /*OBJ_SKSTICK5*/	{      2, OFILE_L1BRAZ,   0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              0,             0,        0,          0, FALSE,      FALSE,     FALSE,           0,        0, FALSE     },
-/*OBJ_CRUX1*/		{      2, OFILE_CRUXSK1,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
-/*OBJ_CRUX2*/		{      2, OFILE_CRUXSK2,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
-/*OBJ_CRUX3*/		{      2, OFILE_CRUXSK3,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
+/*OBJ_CRUXM*/		{      2, OFILE_CRUXSK1,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
+/*OBJ_CRUXR*/		{      2, OFILE_CRUXSK2,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
+/*OBJ_CRUXL*/		{      2, OFILE_CRUXSK3,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
 /*OBJ_STAND*/		{      2, OFILE_ROCKSTAN, 0,                                         0,               THEME_NONE,              Q_ROCK,         FALSE,              1,             0,        0,         96, TRUE,       TRUE,      TRUE,            0,        0, FALSE     },
 /*OBJ_ANGEL*/		{      2, OFILE_ANGEL,    0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
 /*OBJ_BCROSS*/		{      2, OFILE_BURNCROS, 0,                                         0,               THEME_NONE,              Q_INVALID,       TRUE,              0,             0,       10,        160, TRUE,       FALSE,     FALSE,           0,        0, FALSE     },

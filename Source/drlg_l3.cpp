@@ -2277,13 +2277,13 @@ void CreateL3Dungeon(int entry)
 static BYTE *LoadL3DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm, *pTmp;
+	BYTE *pMap, *lm, *pTmp;
 
 	InitL3Dungeon();
 
-	pLevelMap = LoadFileInMem(sFileName);
+	pMap = LoadFileInMem(sFileName);
 
-	lm = pLevelMap;
+	lm = pMap;
 	rw = *lm;
 	lm += 2;
 	rh = *lm;
@@ -2304,37 +2304,37 @@ static BYTE *LoadL3DungeonData(const char *sFileName)
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		if (*pTmp == 0)
 			*pTmp = 8;
-	return pLevelMap;
+	return pMap;
 }
 
 void LoadL3Dungeon(const char *sFileName, int vx, int vy)
 {
-	BYTE *pLevelMap;
+	BYTE *pMap;
 
 	ViewX = vx;
 	ViewY = vy;
 
-	pLevelMap = LoadL3DungeonData(sFileName);
+	pMap = LoadL3DungeonData(sFileName);
 
 	DRLG_InitTrans();
 	DRLG_L3FloodTVal();
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 
-	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap);
+	SetMapMonsters(pMap, 0, 0);
+	SetMapObjects(pMap);
 
 	DRLG_L3LightTiles();
 
-	mem_free_dbg(pLevelMap);
+	mem_free_dbg(pMap);
 }
 
 void LoadPreL3Dungeon(const char *sFileName)
 {
-	BYTE *pLevelMap = LoadL3DungeonData(sFileName);
+	BYTE *pMap = LoadL3DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-	mem_free_dbg(pLevelMap);
+	mem_free_dbg(pMap);
 }
 
 DEVILUTION_END_NAMESPACE

@@ -661,7 +661,7 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				oi = AddObject(ObjTypeConv[*lm], i, j);
+				oi = AddObject(ObjConvTbl[*lm], i, j);
 				SetObjMapRange(oi, x1, y1, x2, y2, leveridx);
 			}
 			lm += 2;
@@ -697,7 +697,7 @@ static void LoadMapSetObjs(const char *map)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				AddObject(ObjTypeConv[*lm], i, j);
+				AddObject(ObjConvTbl[*lm], i, j);
 			}
 			lm += 2;
 		}
@@ -1023,7 +1023,7 @@ void SetMapObjects(BYTE *pMap)
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
-				fileload[AllObjects[ObjTypeConv[*lm]].ofindex] = true;
+				fileload[AllObjects[ObjConvTbl[*lm]].ofindex] = true;
 			}
 			lm += 2;
 		}
@@ -1043,7 +1043,7 @@ void SetMapObjects(BYTE *pMap)
 	for (j = DBORDERY; j < rh; j++) {
 		for (i = DBORDERX; i < rw; i++) {
 			if (*lm != 0)
-				AddObject(ObjTypeConv[*lm], i, j);
+				AddObject(ObjConvTbl[*lm], i, j);
 			lm += 2;
 		}
 	}
@@ -1939,9 +1939,9 @@ void ProcessObjects()
 		case OBJ_STORYCANDLE:
 			Obj_Light(oi, 3);
 			break;*/
-		case OBJ_CRUX1:
-		case OBJ_CRUX2:
-		case OBJ_CRUX3:
+		case OBJ_CRUXM:
+		case OBJ_CRUXR:
+		case OBJ_CRUXL:
 		case OBJ_SARC:
 		case OBJ_BARREL:
 		case OBJ_BARRELEX:
@@ -3646,7 +3646,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	triggered = true;
 	for (i = 0; i < nobjects; i++) {
 		on = &object[objectactive[i]];
-		if (on->_otype != OBJ_CRUX1 && on->_otype != OBJ_CRUX2 && on->_otype != OBJ_CRUX3)
+		if (on->_otype != OBJ_CRUXM && on->_otype != OBJ_CRUXR && on->_otype != OBJ_CRUXL)
 			continue;
 		if (os->_oVar8 != on->_oVar8 || on->_oBreak == -1)
 			continue;
@@ -3817,9 +3817,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_BOOK2R:
 		OperateBookLever(pnum, oi, sendmsg);
 		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
+	case OBJ_CRUXM:
+	case OBJ_CRUXR:
+	case OBJ_CRUXL:
 		OperateCrux(pnum, oi, sendmsg);
 		break;
 	case OBJ_BARREL:
@@ -3968,9 +3968,9 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_BOOK2R:
 		OperateBookLever(pnum, oi, false);
 		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
+	case OBJ_CRUXM:
+	case OBJ_CRUXR:
+	case OBJ_CRUXL:
 		OperateCrux(pnum, oi, false);
 		break;
 	case OBJ_BARREL:
@@ -4277,9 +4277,9 @@ void GetObjectStr(int oi)
 	case OBJ_SIGNCHEST:
 		copy_cstr(infostr, "Large Chest");
 		break;
-	case OBJ_CRUX1:
-	case OBJ_CRUX2:
-	case OBJ_CRUX3:
+	case OBJ_CRUXM:
+	case OBJ_CRUXR:
+	case OBJ_CRUXL:
 		copy_cstr(infostr, "Crucified Skeleton");
 		break;
 	case OBJ_SARC:

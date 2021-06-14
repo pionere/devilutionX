@@ -3261,17 +3261,17 @@ static void DRLG_InitL2Vals()
 static BYTE *LoadL2DungeonData(const char *sFileName)
 {
 	int i, j, rw, rh;
-	BYTE *pLevelMap, *lm, *pTmp;
+	BYTE *pMap, *lm, *pTmp;
 
 	//DRLG_L2InitDungeon();
 	//DRLG_InitTrans();
-	pLevelMap = LoadFileInMem(sFileName);
+	pMap = LoadFileInMem(sFileName);
 
 	memset(dflags, 0, sizeof(dflags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, 12, sizeof(dungeon));
 
-	lm = pLevelMap;
+	lm = pMap;
 	rw = *lm;
 	lm += 2;
 	rh = *lm;
@@ -3294,17 +3294,17 @@ static BYTE *LoadL2DungeonData(const char *sFileName)
 		if (*pTmp == 0)
 			*pTmp = 12;
 
-	return pLevelMap;
+	return pMap;
 }
 
 void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 {
-	BYTE *pLevelMap;
+	BYTE *pMap;
 
 	ViewX = vx;
 	ViewY = vy;
 
-	pLevelMap = LoadL2DungeonData(sFileName);
+	pMap = LoadL2DungeonData(sFileName);
 
 	DRLG_InitTrans();
 	DRLG_FloodTVal(3);
@@ -3312,18 +3312,18 @@ void LoadL2Dungeon(const char *sFileName, int vx, int vy)
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_InitL2Vals();
 
-	SetMapMonsters(pLevelMap, 0, 0);
-	SetMapObjects(pLevelMap);
-	mem_free_dbg(pLevelMap);
+	SetMapMonsters(pMap, 0, 0);
+	SetMapObjects(pMap);
+	mem_free_dbg(pMap);
 }
 
 void LoadPreL2Dungeon(const char *sFileName)
 {
-	BYTE *pLevelMap = LoadL2DungeonData(sFileName);
+	BYTE *pMap = LoadL2DungeonData(sFileName);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-	mem_free_dbg(pLevelMap);
+	mem_free_dbg(pMap);
 }
 
 void CreateL2Dungeon(int entry)

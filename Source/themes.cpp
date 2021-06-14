@@ -172,7 +172,7 @@ static bool TFit_SkelRoom(int tidx)
 	int i;
 
 	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].cmType)) {
+		if (IsSkel(mapMonTypes[i].cmType)) {
 			// themeVar1 = i;
 			return TFit_Obj5(tidx);
 		}
@@ -186,7 +186,7 @@ static bool TFit_GoatShrine(int tidx)
 	int i;
 
 	for (i = 0; i < nummtypes; i++) {
-		if (IsGoat(Monsters[i].cmType)) {
+		if (IsGoat(mapMonTypes[i].cmType)) {
 			themeVar1 = i;
 			return TFit_Obj5(tidx);
 		}
@@ -511,7 +511,7 @@ static void PlaceThemeMonsts(int tidx, int rndfrq)
 
 	numscattypes = 0;
 	for (i = 0; i < nummtypes; i++) {
-		if (Monsters[i].cmPlaceScatter) {
+		if (mapMonTypes[i].cmPlaceScatter) {
 			scattertypes[numscattypes] = i;
 			numscattypes++;
 		}

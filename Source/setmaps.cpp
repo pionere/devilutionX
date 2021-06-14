@@ -111,29 +111,29 @@ static void DRLG_SetMapTrans(const char *sFileName)
 {
 	int x, y;
 	int i, j;
-	BYTE *pLevelMap;
-	BYTE *d;
+	BYTE *pMap;
+	BYTE *lm;
 	unsigned dwOffset;
 
-	pLevelMap = LoadFileInMem(sFileName);
-	d = pLevelMap + 2;
-	x = pLevelMap[0];
-	y = *d;
+	pMap = LoadFileInMem(sFileName);
+	lm = pMap + 2;
+	x = pMap[0];
+	y = *lm;
 	dwOffset = (x * y + 1) * 2;
 	x <<= 1;
 	y <<= 1;
 	dwOffset += 3 * x * y * 2;
-	d += dwOffset;
+	lm += dwOffset;
 
 	x += DBORDERX;
 	y += DBORDERY;
 	for (j = DBORDERY; j < y; j++) {
 		for (i = DBORDERX; i < x; i++) {
-			dTransVal[i][j] = *d;
-			d += 2;
+			dTransVal[i][j] = *lm;
+			lm += 2;
 		}
 	}
-	mem_free_dbg(pLevelMap);
+	mem_free_dbg(pMap);
 }
 
 /**

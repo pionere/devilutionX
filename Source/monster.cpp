@@ -16,7 +16,7 @@ int monstactive[MAXMONSTERS];
 int nummonsters;
 MonsterStruct monster[MAXMONSTERS];
 int totalmonsters;
-CMonster Monsters[MAX_LVLMTYPES];
+MapMonData mapMonTypes[MAX_LVLMTYPES];
 int monstimgtot;
 int uniquetrans;
 int nummtypes;
@@ -118,7 +118,7 @@ void (*AiProc[])(int i) = {
 	&MAI_Storm2,
 };
 
-static inline void InitMonsterTRN(const CMonster *cmon, const MonsterData *mdata)
+static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mdata)
 {
 	BYTE *tf, *cf;
 	int i, n, j;
@@ -169,19 +169,19 @@ static int AddMonsterType(int type, BOOL scatter)
 {
 	int i;
 
-	for (i = 0; i < nummtypes && Monsters[i].cmType != type; i++)
+	for (i = 0; i < nummtypes && mapMonTypes[i].cmType != type; i++)
 		;
 
 	if (i == nummtypes) {
 		nummtypes++;
-		Monsters[i].cmType = type;
-		Monsters[i].cmPlaceScatter = FALSE;
+		mapMonTypes[i].cmType = type;
+		mapMonTypes[i].cmPlaceScatter = FALSE;
 		monstimgtot -= monsterdata[type].mImage;
 		InitMonsterGFX(i);
 		InitMonsterSND(i);
 	}
 
-	Monsters[i].cmPlaceScatter |= scatter;
+	mapMonTypes[i].cmPlaceScatter |= scatter;
 	return i;
 }
 
@@ -271,20 +271,20 @@ void GetLevelMTypes()
 
 void InitMonsterGFX(int midx)
 {
-	CMonster *cmon;
+	MapMonData *cmon;
 	const MonsterData *mdata;
 	int mtype, anim, i;
 	char strBuff[256];
 	BYTE *celBuf;
 
-	cmon = &Monsters[midx];
+	cmon = &mapMonTypes[midx];
 	mtype = cmon->cmType;
 	mdata = &monsterdata[mtype];
 
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
 		if ((animletter[anim] != 's' || mdata->has_special) && mdata->mAnimFrames[anim] > 0) {
-			snprintf(strBuff, sizeof(strBuff), mdata->GraphicType, animletter[anim]);
+			snprintf(strBuff, sizeof(strBuff), mdata->mGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
 			cmon->cmAnims[anim].aCelData = celBuf;
@@ -440,7 +440,7 @@ void InitMonsterGFX(int midx)
 
 static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
-	CMonster *cmon = &Monsters[mtidx];
+	MapMonData *cmon = &mapMonTypes[mtidx];
 	MonsterStruct *mon = &monster[mnum];
 
 	mon->_mMTidx = mtidx;
@@ -676,7 +676,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	}
 
 	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
-		if (Monsters[uniqtype].cmType == UniqMonst[uniqindex].mtype) {
+		if (mapMonTypes[uniqtype].cmType == UniqMonst[uniqindex].mtype) {
 			break;
 		}
 	}
@@ -861,7 +861,7 @@ static void PlaceUniques()
 		 && quests[UniqMonst[u].mQuestId]._qactive == QUEST_NOTAVAIL)
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
-			if (Monsters[mt].cmType == UniqMonst[u].mtype) {
+			if (mapMonTypes[mt].cmType == UniqMonst[u].mtype) {
 				PlaceUniqueMonst(u, mt, 8);
 				break;
 			}
@@ -988,7 +988,7 @@ void InitMonsters()
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
 		for (i = 0; i < nummtypes; i++) {
-			if (Monsters[i].cmPlaceScatter) {
+			if (mapMonTypes[i].cmPlaceScatter) {
 				scattertypes[numscattypes] = i;
 				numscattypes++;
 			}
@@ -1458,7 +1458,7 @@ static void MonStartSpAttack(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void MonClearSquares(int mnum)
+void RemoveMonFromMap(int mnum)
 {
 	int x, y, mx, my, m1;
 
@@ -1470,8 +1470,8 @@ void MonClearSquares(int mnum)
 
 	m1 = mnum + 1;
 
-	static_assert(DBORDERX >= 1, "MonClearSquares expects a large enough border I.");
-	static_assert(DBORDERY >= 1, "MonClearSquares expects a large enough border I.");
+	static_assert(DBORDERX >= 1, "RemoveMonFromMap expects a large enough border I.");
+	static_assert(DBORDERY >= 1, "RemoveMonFromMap expects a large enough border II.");
 	for (y = my - 1; y <= my + 1; y++) {
 		for (x = mx - 1; x <= mx + 1; x++) {
 			if (abs(dMonster[x][y]) == m1)
@@ -1496,7 +1496,7 @@ static void MonStartGetHit(int mnum)
 	mon->_my = mon->_mfuty = mon->_moldy;
 	if (mon->mlid != 0 && !(mon->_mFlags & MFLAG_HIDDEN))
 		ChangeLightXYOff(mon->mlid, mon->_mx, mon->_my);
-	MonClearSquares(mnum);
+	RemoveMonFromMap(mnum);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
 }
 
@@ -1521,7 +1521,7 @@ static void MonTeleport(int mnum)
 		y = _my + offset_y[rx];
 		assert(IN_DUNGEON_AREA(x, y));
 		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
-			MonClearSquares(mnum);
+			RemoveMonFromMap(mnum);
 			//assert(dMonster[mon->_mx][mon->_my] == 0);
 			dMonster[x][y] = mnum + 1;
 			mon->_moldx = x;
@@ -1560,7 +1560,7 @@ void MonGetKnockback(int mnum)
 	// assert(mnum >= MAX_MINIONS);
 	dir = OPPOSITE(mon->_mdir);
 	if (DirOK(mnum, dir)) {
-		MonClearSquares(mnum);
+		RemoveMonFromMap(mnum);
 		mon->_moldx += offset_x[dir];
 		mon->_moldy += offset_y[dir];
 		MonStartGetHit(mnum);
@@ -1624,7 +1624,7 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 		mon->_mxoff = 0;
 		mon->_myoff = 0;
 		mon->_mmode = MM_DEATH;
-		MonClearSquares(j);
+		RemoveMonFromMap(j);
 		mx = mon->_moldx;
 		my = mon->_moldy;
 		mon->_my = my;
@@ -1731,7 +1731,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 		dev_fatal("MonstStartKill: Invalid monster %d", mnum);
 	}
 	// fix the location of the monster before spawning loot or sending a message
-	MonClearSquares(mnum);
+	RemoveMonFromMap(mnum);
 
 	mon = &monster[mnum];
 	mon->_mhitpoints = 0;
@@ -1821,7 +1821,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 		return;
 	}
 	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
-		MonClearSquares(mnum);
+		RemoveMonFromMap(mnum);
 		//dMonster[x][y] = mnum + 1;
 		//monster[mnum]._mx = x;
 		//monster[mnum]._my = y;
@@ -4460,10 +4460,10 @@ void FreeMonsters()
 	int i, j;
 
 	for (i = 0; i < nummtypes; i++) {
-		mtype = Monsters[i].cmType;
+		mtype = mapMonTypes[i].cmType;
 		for (j = 0; j < lengthof(animletter); j++) {
 			if (animletter[j] != 's' || monsterdata[mtype].has_special) {
-				MemFreeDbg(Monsters[i].cmAnims[j].aCelData);
+				MemFreeDbg(mapMonTypes[i].cmAnims[j].aCelData);
 			}
 		}
 	}
@@ -4712,7 +4712,7 @@ void SyncMonsterAnim(int mnum)
 	if ((unsigned)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
-	mon->MType = &Monsters[mon->_mMTidx];
+	mon->MType = &mapMonTypes[mon->_mMTidx];
 	mon->_mType = mon->MType->cmType;
 	mon->_mAnims = mon->MType->cmAnims;
 	mon->_mAnimWidth = mon->MType->cmWidth;
@@ -5002,7 +5002,7 @@ int PreSpawnSkeleton()
 
 	n = 0;
 	for (i = 0; i < nummtypes; i++) {
-		if (IsSkel(Monsters[i].cmType)) {
+		if (IsSkel(mapMonTypes[i].cmType)) {
 			types[n] = i;
 			n++;
 		}

@@ -1200,18 +1200,18 @@ void InitMonsterSND(int midx)
 {
 	char name[MAX_PATH];
 	int i, j;
-	CMonster *cmon;
+	MapMonData *cmon;
 	const MonsterData *mdata;
 
 	assert(gbSndInited);
 
-	cmon = &Monsters[midx];
+	cmon = &mapMonTypes[midx];
 	mdata = &monsterdata[cmon->cmType];
 	static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].cmSnds), "Mismatching tables MonstSndChar and CMonster::Snds.");
 	for (i = 0; i < lengthof(MonstSndChar); i++) {
 		if (MonstSndChar[i] != 's' || mdata->snd_special) {
 			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
-				snprintf(name, sizeof(name), mdata->sndfile, MonstSndChar[i], j + 1);
+				snprintf(name, sizeof(name), mdata->mSndFile, MonstSndChar[i], j + 1);
 				cmon->cmSnds[i][j] = sound_file_load(name);
 			}
 		}
@@ -1220,11 +1220,11 @@ void InitMonsterSND(int midx)
 
 void FreeMonsterSnd()
 {
-	CMonster *cmon;
+	MapMonData *cmon;
 	int i, j, k;
 	TSnd *pSnd;
 
-	cmon = Monsters;
+	cmon = mapMonTypes;
 	for (i = 0; i < nummtypes; i++, cmon++) {
 		for (j = 0; j < lengthof(cmon->cmSnds); ++j) {
 			for (k = 0; k < lengthof(cmon->cmSnds[j]); ++k) {
@@ -1312,7 +1312,7 @@ void PlayEffect(int mnum, int mode)
 
 	sndIdx = random_(164, 2);
 	mon = &monster[mnum];
-	snd = Monsters[mon->_mMTidx].cmSnds[mode][sndIdx];
+	snd = mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {
 		return;
 	}
