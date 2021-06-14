@@ -636,10 +636,17 @@ static void AddChestTraps()
 	}
 }
 
-static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
+typedef struct LeverRect {
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int leveridx;
+} LeverRect;
+static void LoadMapSetObjects(const char *map, int startx, int starty, const LeverRect *lvrRect)
 {
 	BYTE *pMap = LoadFileInMem(map);
-	int i, j, oi, x2, y2;
+	int i, j, oi;
 	uint16_t rw, rh, *lm;
 
 	//gbInitObjFlag = true;
@@ -653,8 +660,6 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 	rh <<= 1;
 	lm += 2 * rw * rh; // skip items?, monsters
 
-	x2 = x1 + w;
-	y2 = y1 + h;
 	startx += DBORDERX;
 	starty += DBORDERY;
 	rw += startx;
@@ -663,7 +668,8 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
 				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
-				SetObjMapRange(oi, x1, y1, x2, y2, leveridx);
+				if (lvrRect != NULL)
+					SetObjMapRange(oi, lvrRect->x1, lvrRect->y1, lvrRect->x2, lvrRect->y2, lvrRect->leveridx);
 			}
 			lm++;
 		}
@@ -675,44 +681,18 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 
 static void LoadMapSetObjs(const char *map)
 {
-	BYTE *pMap = LoadFileInMem(map);
-	int startx = 2 * setpc_x, starty = 2 * setpc_y;
-	int i, j;
-	uint16_t rw, rh, *lm;
-
-	//gbInitObjFlag = true;
-	lm = (uint16_t *)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 2 * rw * rh; // skip items?, monsters
-
-	startx += DBORDERX;
-	starty += DBORDERY;
-	rw += startx;
-	rh += starty;
-	for (j = starty; j < rh; j++) {
-		for (i = startx; i < rw; i++) {
-			if (*lm != 0) {
-				AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
-			}
-			lm++;
-		}
-	}
-	//gbInitObjFlag = false;
-
-	mem_free_dbg(pMap);
+	LoadMapSetObjects(map, 2 * setpc_x, 2 * setpc_y, NULL);
 }
 
 static void AddDiabObjs()
 {
-	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y, DIAB_QUAD_2X, DIAB_QUAD_2Y, 11, 12, 1);
-	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y, DIAB_QUAD_3X, DIAB_QUAD_3Y, 11, 11, 2);
-	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y, DIAB_QUAD_4X, DIAB_QUAD_4Y, 9, 9, 3);
+	LeverRect lr;
+	lr = { DIAB_QUAD_2X, DIAB_QUAD_2Y, DIAB_QUAD_2X + 11, DIAB_QUAD_2Y + 12, 1 };
+	LoadMapSetObjects("Levels\\L4Data\\diab1.DUN", 2 * DIAB_QUAD_1X, 2 * DIAB_QUAD_1Y, &lr);
+	lr = { DIAB_QUAD_3X, DIAB_QUAD_3Y, DIAB_QUAD_3X + 11, DIAB_QUAD_3Y + 11, 2 };
+	LoadMapSetObjects("Levels\\L4Data\\diab2a.DUN", 2 * DIAB_QUAD_2X, 2 * DIAB_QUAD_2Y, &lr);
+	lr = { DIAB_QUAD_4X, DIAB_QUAD_4Y, DIAB_QUAD_4X + 9, DIAB_QUAD_4Y + 9, 3 };
+	LoadMapSetObjects("Levels\\L4Data\\diab3a.DUN", 2 * DIAB_QUAD_3X, 2 * DIAB_QUAD_3Y, &lr);
 }
 
 #ifdef HELLFIRE
