@@ -1913,18 +1913,20 @@ static void InitLevelChange(int pnum)
 		AddUnLight(plr._plid);
 		AddUnVision(plr._pvid);
 		RemovePlrMissiles(pnum);
-		RemovePlrFromMap(pnum);
-	}
-	SetPlayerOld(pnum);
-	if (pnum == mypnum) {
-		if (gbQtextflag) {
-			gbQtextflag = false;
-			stream_stop();
+		if (pnum == mypnum) {
+			if (gbQtextflag) {
+				gbQtextflag = false;
+				stream_stop();
+			}
+			lvlLoad = 10;
+			// show the current player on the last frames before changing the level
+			//RemovePlrFromMap(pnum);
+		} else {
+			RemovePlrFromMap(pnum);
 		}
-		lvlLoad = 10;
-		dPlayer[plr._px][plr._py] = pnum + 1;
+	} else {
+		assert(pnum != mypnum);
 	}
-
 	plr.destAction = ACTION_NONE;
 	plr._pLvlChanging = TRUE;
 }
@@ -1934,11 +1936,10 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartNewLvl(int pnum, int fom, int lvl)
 {
-	InitLevelChange(pnum);
-
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("StartNewLvl: illegal player %d", pnum);
 	}
+	InitLevelChange(pnum);
 
 	switch (fom) {
 	case WM_DIABNEXTLVL:
@@ -1951,8 +1952,10 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr.plrlevel = lvl;
 		break;
 	case WM_DIABTWARPUP:
-		if (pnum == mypnum)
+		if (pnum == mypnum) {
+			assert(currLvl._dType >= 2);
 			plr.pTownWarps |= 1 << (currLvl._dType - 2);
+		}
 		plr.plrlevel = lvl;
 		break;
 	default:
@@ -1970,10 +1973,10 @@ void StartNewLvl(int pnum, int fom, int lvl)
 
 void RestartTownLvl(int pnum)
 {
-	InitLevelChange(pnum);
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("RestartTownLvl: illegal player %d", pnum);
 	}
+	InitLevelChange(pnum);
 
 	plr.plrlevel = 0;
 	plr._pInvincible = FALSE;
@@ -1994,6 +1997,9 @@ void RestartTownLvl(int pnum)
 
 void StartWarpLvl(int pnum, int pidx)
 {
+	if ((unsigned)pnum >= MAX_PLRS) {
+		app_fatal("StartWarpLvl: illegal player %d", pnum);
+	}
 	InitLevelChange(pnum);
 
 	if (plr.plrlevel != 0) {
