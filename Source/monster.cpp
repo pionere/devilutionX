@@ -1031,8 +1031,7 @@ void InitMonsters()
 
 void SetMapMonsters(BYTE *pMap, int startx, int starty)
 {
-	uint16_t rw, rh;
-	uint16_t *lm;
+	uint16_t rw, rh, *lm;
 	int i, j;
 	int mtype;
 
@@ -1046,10 +1045,10 @@ void SetMapMonsters(BYTE *pMap, int startx, int starty)
 	lm++;
 	rh = SwapLE16(*lm);
 	lm++;
-	lm += rw * rh;
-	rw = rw << 1;
-	rh = rh << 1;
-	lm += rw * rh;
+	lm += rw * rh; // skip dun
+	rw <<= 1;
+	rh <<= 1;
+	lm += rw * rh; // skip items?
 
 	startx *= 2;
 	startx += DBORDERX;

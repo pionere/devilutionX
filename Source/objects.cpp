@@ -639,18 +639,19 @@ static void AddChestTraps()
 static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, int y1, int w, int h, int leveridx)
 {
 	BYTE *pMap = LoadFileInMem(map);
-	int rw, rh, i, j, oi, x2, y2, mapoff;
-	BYTE *lm;
+	int i, j, oi, x2, y2;
+	uint16_t rw, rh, *lm;
 
 	//gbInitObjFlag = true;
-
-	rw = pMap[0];
-	rh = pMap[2];
-	mapoff = (rw * rh + 2) * 2;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
+	lm += rw * rh; // skip dun
 	rw <<= 1;
 	rh <<= 1;
-	mapoff += rw * 2 * rh * 2;
-	lm = &pMap[mapoff];
+	lm += 2 * rw * rh; // skip items?, monsters
 
 	x2 = x1 + w;
 	y2 = y1 + h;
@@ -661,10 +662,10 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, int x1, i
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				oi = AddObject(ObjConvTbl[*lm], i, j);
+				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
 				SetObjMapRange(oi, x1, y1, x2, y2, leveridx);
 			}
-			lm += 2;
+			lm++;
 		}
 	}
 	//gbInitObjFlag = false;
@@ -676,19 +677,19 @@ static void LoadMapSetObjs(const char *map)
 {
 	BYTE *pMap = LoadFileInMem(map);
 	int startx = 2 * setpc_x, starty = 2 * setpc_y;
-	int rw, rh;
-	int i, j, mapoff;
-	BYTE *lm;
+	int i, j;
+	uint16_t rw, rh, *lm;
 
 	//gbInitObjFlag = true;
-
-	rw = pMap[0];
-	rh = pMap[2];
-	mapoff = (rw * rh + 2) * 2;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
+	lm += rw * rh; // skip dun
 	rw <<= 1;
 	rh <<= 1;
-	mapoff += rw * 2 * rh * 2;
-	lm = &pMap[mapoff];
+	lm += 2 * rw * rh; // skip items?, monsters
 
 	startx += DBORDERX;
 	starty += DBORDERY;
@@ -697,9 +698,9 @@ static void LoadMapSetObjs(const char *map)
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
-				AddObject(ObjConvTbl[*lm], i, j);
+				AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
 			}
-			lm += 2;
+			lm++;
 		}
 	}
 	//gbInitObjFlag = false;
@@ -992,9 +993,8 @@ void InitObjects()
 
 void SetMapObjects(BYTE *pMap)
 {
-	int rw, rh;
 	int i, j;
-	BYTE *lm, *h;
+	uint16_t rw, rh, *lm, *h;
 	long mapoff;
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
@@ -1009,23 +1009,24 @@ void SetMapObjects(BYTE *pMap)
 			fileload[AllObjects[i].ofindex] = true;
 	}
 
-	lm = pMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	mapoff = (rw * rh + 1) * 2;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
+	lm += rw * rh; // skip dun
 	rw <<= 1;
 	rh <<= 1;
-	mapoff += 2 * rw * rh * 2;
-	lm += mapoff;
+	lm += 2 * rw * rh; // skip items?, monsters
+
 	h = lm;
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
-				fileload[AllObjects[ObjConvTbl[*lm]].ofindex] = true;
+				fileload[AllObjects[ObjConvTbl[SwapLE16(*lm)]].ofindex] = true;
 			}
-			lm += 2;
+			lm++;
 		}
 	}
 
@@ -1043,8 +1044,8 @@ void SetMapObjects(BYTE *pMap)
 	for (j = DBORDERY; j < rh; j++) {
 		for (i = DBORDERX; i < rw; i++) {
 			if (*lm != 0)
-				AddObject(ObjConvTbl[*lm], i, j);
-			lm += 2;
+				AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
+			lm++;
 		}
 	}
 	//gbInitObjFlag = false;

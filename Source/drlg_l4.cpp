@@ -1922,28 +1922,29 @@ void CreateL4Dungeon(int entry)
 
 /*static BYTE *LoadL4DungeonData(const char *sFileName)
 {
-	int i, j, rw, rh;
-	BYTE *pMap, *lm;
+	int i, j;
+	BYTE *pMap;
+	uint16_t rw, rh, *lm;
 
 	//DRLG_InitTrans();
 	InitL4Dungeon();
 	pMap = LoadFileInMem(sFileName);
 
-	lm = pMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
-				dungeon[i][j] = *lm;
+				dungeon[i][j] = SwapLE16(*lm);
 				dflags[i][j] = TRUE; // |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 6;
 			}
-			lm += 2;
+			lm++;
 		}
 	}
 	return pMap;

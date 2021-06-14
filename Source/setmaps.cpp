@@ -109,28 +109,27 @@ static void AddVileObjs()
 
 static void DRLG_SetMapTrans(const char *sFileName)
 {
-	int x, y;
 	int i, j;
 	BYTE *pMap;
-	BYTE *lm;
-	unsigned dwOffset;
+	uint16_t rw, rh, *lm;
 
 	pMap = LoadFileInMem(sFileName);
-	lm = pMap + 2;
-	x = pMap[0];
-	y = *lm;
-	dwOffset = (x * y + 1) * 2;
-	x <<= 1;
-	y <<= 1;
-	dwOffset += 3 * x * y * 2;
-	lm += dwOffset;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
+	lm += rw * rh; // skip dun
+	rw <<= 1;
+	rh <<= 1;
+	lm += 3 * rw * rh; // skip items?, monsters, objects
 
-	x += DBORDERX;
-	y += DBORDERY;
-	for (j = DBORDERY; j < y; j++) {
-		for (i = DBORDERX; i < x; i++) {
-			dTransVal[i][j] = *lm;
-			lm += 2;
+	rw += DBORDERX;
+	rh += DBORDERY;
+	for (j = DBORDERY; j < rh; j++) {
+		for (i = DBORDERX; i < rw; i++) {
+			dTransVal[i][j] = SwapLE16(*lm);
+			lm++;
 		}
 	}
 	mem_free_dbg(pMap);

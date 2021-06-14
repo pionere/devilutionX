@@ -830,8 +830,9 @@ static void DRLG_InitL1Vals()
 
 static BYTE *LoadL1DungeonData(const char *sFileName)
 {
-	int i, j, rw, rh;
-	BYTE *pMap, *lm;
+	int i, j;
+	BYTE *pMap;
+	uint16_t rw, rh, *lm;
 
 	//DRLG_InitTrans();
 	pMap = LoadFileInMem(sFileName);
@@ -840,21 +841,21 @@ static BYTE *LoadL1DungeonData(const char *sFileName)
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, 22, sizeof(dungeon));
 
-	lm = pMap;
-	rw = *lm;
-	lm += 2;
-	rh = *lm;
-	lm += 2;
+	lm = (uint16_t *)pMap;
+	rw = SwapLE16(*lm);
+	lm++;
+	rh = SwapLE16(*lm);
+	lm++;
 
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
-				dungeon[i][j] = *lm;
+				dungeon[i][j] = SwapLE16(*lm);
 				dflags[i][j] |= DLRG_PROTECTED;
 			} else {
 				dungeon[i][j] = 13;
 			}
-			lm += 2;
+			lm++;
 		}
 	}
 
