@@ -9,9 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Tracks which missile files are already loaded */
-int MissileFileFlag;
-
 /* Limit the number of monsters to be placed. */
 int totalmonsters;
 /* Limit the number of monster-types on the current level by the required resources.
@@ -164,7 +161,6 @@ void InitLevelMonsters()
 	nummonsters = 0;
 	nummtypes = 0;
 	monstimgtot = 4000;
-	MissileFileFlag = 0;
 	uniquetrans = 0;
 
 	memset(monster, 0, sizeof(monster));
@@ -322,40 +318,29 @@ void InitMonsterGFX(int midx)
 		InitMonsterTRN(cmon, mdata);
 	}
 
+	// load optional missile-gfxs
 	switch (mtype) {
 	case MT_NMAGMA:
 	case MT_YMAGMA:
 	case MT_BMAGMA:
 	case MT_WMAGMA:
-		if (!(MissileFileFlag & 1)) {
-			MissileFileFlag |= 1;
-			LoadMissileGFX(MFILE_MAGBALL);
-		}
+		LoadMissileGFX(MFILE_MAGBALL);
 		break;
 	/*case MT_INCIN:
 	case MT_FLAMLRD:
 	case MT_DOOMFIRE:
 	case MT_HELLBURN:
-		if (!(MissileFileFlag & 8)) {
-			MissileFileFlag |= 8;
-			LoadMissileGFX(MFILE_KRULL);
-		}
+		LoadMissileGFX(MFILE_KRULL);
 		break;*/
 	case MT_STORM:
 	case MT_RSTORM:
 	case MT_STORML:
 	case MT_MAEL:
-		if (!(MissileFileFlag & 2)) {
-			MissileFileFlag |= 2;
-			LoadMissileGFX(MFILE_THINLGHT);
-		}
+		LoadMissileGFX(MFILE_THINLGHT);
 		break;
 	/*case MT_SUCCUBUS:
-		if (!(MissileFileFlag & 4)) {
-			MissileFileFlag |= 4;
-			LoadMissileGFX(MFILE_FLARE);
-			LoadMissileGFX(MFILE_FLAREEXP);
-		}
+		LoadMissileGFX(MFILE_FLARE);
+		LoadMissileGFX(MFILE_FLAREEXP);
 		break;*/
 	case MT_NACID:
 	case MT_RACID:
@@ -364,33 +349,21 @@ void InitMonsterGFX(int midx)
 #ifdef HELLFIRE
 	case MT_SPIDLORD:
 #endif
-		if (!(MissileFileFlag & 0x10)) {
-			MissileFileFlag |= 0x10;
-			LoadMissileGFX(MFILE_ACIDBF);
-			LoadMissileGFX(MFILE_ACIDSPLA);
-			LoadMissileGFX(MFILE_ACIDPUD);
-		}
+		LoadMissileGFX(MFILE_ACIDBF);
+		LoadMissileGFX(MFILE_ACIDSPLA);
+		LoadMissileGFX(MFILE_ACIDPUD);
 		break;
 	case MT_SNOWWICH:
-		if (!(MissileFileFlag & 0x20)) {
-			MissileFileFlag |= 0x20;
-			LoadMissileGFX(MFILE_SCUBMISB);
-			LoadMissileGFX(MFILE_SCBSEXPB);
-		}
+		LoadMissileGFX(MFILE_SCUBMISB);
+		LoadMissileGFX(MFILE_SCBSEXPB);
 		break;
 	case MT_HLSPWN:
-		if (!(MissileFileFlag & 0x40)) {
-			MissileFileFlag |= 0x40;
-			LoadMissileGFX(MFILE_SCUBMISD);
-			LoadMissileGFX(MFILE_SCBSEXPD);
-		}
+		LoadMissileGFX(MFILE_SCUBMISD);
+		LoadMissileGFX(MFILE_SCBSEXPD);
 		break;
 	case MT_SOLBRNR:
-		if (!(MissileFileFlag & 0x80)) {
-			MissileFileFlag |= 0x80;
-			LoadMissileGFX(MFILE_SCUBMISC);
-			LoadMissileGFX(MFILE_SCBSEXPC);
-		}
+		LoadMissileGFX(MFILE_SCUBMISC);
+		LoadMissileGFX(MFILE_SCBSEXPC);
 		break;
 	case MT_DIABLO:
 		LoadMissileGFX(MFILE_FIREPLAR);
@@ -398,51 +371,27 @@ void InitMonsterGFX(int midx)
 #ifdef HELLFIRE
 	case MT_SKLWING:
 	case MT_BONEDEMN:
-		if (!(MissileFileFlag & 0x400)) {
-			MissileFileFlag |= 0x400;
-			LoadMissileGFX(MFILE_BONEDEMON);
-		}
-		if (!(MissileFileFlag & 0x2000)) {
-			MissileFileFlag |= 0x2000;
-			LoadMissileGFX(MFILE_EXBL3);
-		}
+		LoadMissileGFX(MFILE_BONEDEMON);
+		LoadMissileGFX(MFILE_EXBL3);
 		break;
 	case MT_PSYCHORB:
-		if (!(MissileFileFlag & 0x400)) {
-			MissileFileFlag |= 0x400;
-			LoadMissileGFX(MFILE_BONEDEMON);
-		}
-		if (!(MissileFileFlag & 0x1000)) {
-			MissileFileFlag |= 0x1000;
-			LoadMissileGFX(MFILE_EXBL2);
-		}
+		LoadMissileGFX(MFILE_BONEDEMON);
+		LoadMissileGFX(MFILE_EXBL2);
 		break;
 	case MT_NECRMORB:
-		if (!(MissileFileFlag & 0x800)) {
-			MissileFileFlag |= 0x800;
-			LoadMissileGFX(MFILE_NECROMORB);
-			LoadMissileGFX(MFILE_EXRED3);
-		}
+		LoadMissileGFX(MFILE_NECROMORB);
+		LoadMissileGFX(MFILE_EXRED3);
 		break;
 	case MT_HORKDMN:
-		if (!(MissileFileFlag & 0x4000)) {
-			MissileFileFlag |= 0x4000;
-			LoadMissileGFX(MFILE_SPAWNS);
-		}
+		LoadMissileGFX(MFILE_SPAWNS);
 		break;
 	case MT_LICH:
-		if (!(MissileFileFlag & 0x100)) {
-			MissileFileFlag |= 0x100;
-			LoadMissileGFX(MFILE_LICH);
-			LoadMissileGFX(MFILE_EXORA1);
-		}
+		LoadMissileGFX(MFILE_LICH);
+		LoadMissileGFX(MFILE_EXORA1);
 		break;
 	case MT_ARCHLICH:
-		if (!(MissileFileFlag & 0x200)) {
-			MissileFileFlag |= 0x200;
-			LoadMissileGFX(MFILE_ARCHLICH);
-			LoadMissileGFX(MFILE_EXYEL2);
-		}
+		LoadMissileGFX(MFILE_ARCHLICH);
+		LoadMissileGFX(MFILE_EXYEL2);
 		break;
 #endif
 	}
