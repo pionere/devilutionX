@@ -21,6 +21,10 @@ extern "C" {
 #define DIAB_QUAD_4X	(29 - setpc_x)
 #define DIAB_QUAD_4Y	(29 - setpc_y)
 
+// position of the circle in front of Lazurus (single player)
+#define LAZ_CIRCLE_X	DBORDERX + 19
+#define LAZ_CIRCLE_Y	DBORDERY + 30
+
 void CreateL4Dungeon(int entry);
 
 #ifdef __cplusplus

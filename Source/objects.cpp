@@ -1699,7 +1699,7 @@ static void Obj_Circle(int oi)
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 2;
 		else {
-			assert(os->_otype == OBJ_MCIRCLE2);
+			//assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 4;
 		}
 		if (ox == DBORDERX + 29 && oy == DBORDERY + 31) {
@@ -1714,14 +1714,14 @@ static void Obj_Circle(int oi)
 			int dx = 0, dy = 0;
 			//if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
-				dx = DBORDERX + 19; dy = DBORDERY + 30;
-				GetVileMissPos(&dx, &dy);
+				dx = LAZ_CIRCLE_X; dy = LAZ_CIRCLE_Y;
+			//	GetVileMissPos(&dx, &dy);
 			//}
 			AddMissile(ox, oy, dx, dy, 0, MIS_RNDTELEPORT, -1, mypnum, 0, 0, 0);
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
 			ClrPlrPath(mypnum);
-			PlrStartStand(mypnum, 0);
+			PlrStartStand(mypnum, DIR_NW);
 		} else {
 			os->_oVar6 = VILE_CIRCLE_TARGET_NONE;
 		}
@@ -1729,7 +1729,7 @@ static void Obj_Circle(int oi)
 		if (os->_otype == OBJ_MCIRCLE1)
 			os->_oAnimFrame = 1;
 		else {
-			assert(os->_otype == OBJ_MCIRCLE2);
+			//assert(os->_otype == OBJ_MCIRCLE2);
 			os->_oAnimFrame = 3;
 		}
 		os->_oVar6 = VILE_CIRCLE_TARGET_NONE;

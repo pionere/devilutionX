@@ -1615,6 +1615,10 @@ static void SpawnLoot(int mnum, bool sendmsg)
 			return;
 		}
 		break;
+	case UMT_LAZURUS:
+		//if (effect_is_playing(USFX_LAZ1))
+			stream_stop();
+		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
@@ -1625,7 +1629,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		}*/
 		break;
 	case UMT_DEFILER:
-		if (effect_is_playing(USFX_DEFILER8))
+		//if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
 		// quests[Q_DEFILER]._qlog = FALSE;
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
@@ -1634,7 +1638,8 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		SpawnRewardItem(IDI_MAPOFDOOM, mon->_mx, mon->_my, sendmsg, false);
 		return;
 	case UMT_NAKRUL:
-		stream_stop();
+		//if (effect_is_playing(USFX_NAKRUL4) || effect_is_playing(USFX_NAKRUL5) || effect_is_playing(USFX_NAKRUL6))
+			stream_stop();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		quests[Q_NAKRUL]._qvar1 = 5; // set to higher than 4 so innocent monters are not 'woke'
 		if (sendmsg)
@@ -4097,12 +4102,13 @@ void MAI_Lazurus(int mnum)
 	mon->_mdir = MonGetDir(mnum);
 	if ((dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE) && mon->mtalkmsg == TEXT_VILE13) {
 		if (gbMaxPlayers == 1) {
-			if (mon->_mgoal == MGOAL_INQUIRING && myplr._px == DBORDERX + 19 && myplr._py == DBORDERY + 30) {
+			if (mon->_mgoal == MGOAL_INQUIRING && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y) {
 				PlayInGameMovie("gendata\\fprst3.smk");
 				mon->_mmode = MM_TALK;
 				mon->_mListener = mypnum;
 				quests[Q_BETRAYER]._qvar1 = 5;
-			} else if (mon->_mgoal == MGOAL_TALKING && !effect_is_playing(USFX_LAZ1)) {
+			} else if (mon->_mgoal == MGOAL_TALKING &&
+				(!effect_is_playing(USFX_LAZ1) || myplr._px != LAZ_CIRCLE_X || myplr._py != LAZ_CIRCLE_Y)) {
 				ObjChangeMapResync(1, 18, 20, 24);
 				RedoPlayerVision();
 				//mon->_msquelch = SQUELCH_MAX;
