@@ -603,7 +603,7 @@ typedef struct MapMonData {
 	int cmType;
 	BOOL cmPlaceScatter;
 	AnimStruct cmAnims[NUM_MON_ANIM];
-	TSnd *cmSnds[4][2];
+	TSnd *cmSnds[NUM_MON_SFX][2];
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmDeadval;

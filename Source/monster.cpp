@@ -577,7 +577,7 @@ void WakeUberDiablo()
 	MonsterStruct *mon;
 
 	if (!deltaload)
-		PlayEffect(MAX_MINIONS, 2);
+		PlayEffect(MAX_MINIONS, MS_DEATH);
 	mon = &monster[MAX_MINIONS];
 	mon->_mArmorClass -= 50;
 	//mon->_mEvasion -= 20;
@@ -1590,7 +1590,7 @@ void MonStartHit(int mnum, int pnum, int dam)
 			NetSendCmdMonstDamage(mnum, mon->_mhitpoints, dam);
 		}
 	}
-	PlayEffect(mnum, 1);
+	PlayEffect(mnum, MS_GOTHIT);
 	if (mnum < MAX_MINIONS)
 		return;
 	if ((dam << 2) >= mon->_mmaxhp) {
@@ -1717,7 +1717,7 @@ static void M2MStartHit(int defm, int offm, int dam)
 			NetSendCmdMonstDamage(defm, dmon->_mhitpoints, dam);
 		}
 	}
-	PlayEffect(defm, 1);
+	PlayEffect(defm, MS_GOTHIT);
 	if (defm < MAX_MINIONS)
 		return;
 	if ((dam << 2) >= dmon->_mmaxhp) {
@@ -1763,7 +1763,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	if (mon->_mType == MT_DIABLO)
 		MonDiabloDeath(mnum, sendmsg);
 	else
-		PlayEffect(mnum, 2);
+		PlayEffect(mnum, MS_DEATH);
 
 	if (mon->_mmode != MM_STONE) {
 		mon->_mmode = MM_DEATH;
@@ -1971,7 +1971,7 @@ static bool MonDoWalk(int mnum)
 		//if (mon->_mAnimCnt == 0) {
 #ifdef HELLFIRE
 			if (mon->_mAnimFrame == 1 && mon->_mType == MT_FLESTHNG)
-				PlayEffect(mnum, 3);
+				PlayEffect(mnum, MS_SPECIAL);
 #endif
 			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mxvel; // MWALK_XOFF
@@ -2119,17 +2119,17 @@ static bool MonDoAttack(int mnum)
 	if (mon->_mAnimFrame == mon->_mAFNum) {
 		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
 		if (mon->_mAi != AI_SNAKE)
-			PlayEffect(mnum, 0);
+			PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
 		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
-		PlayEffect(mnum, 0);
+		PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_STORM2 && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_STORM && mon->_mType <= MT_MAEL
 		MonTryH2HHit(mnum, mon->_menemy, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
-		PlayEffect(mnum, 0);
+		PlayEffect(mnum, MS_ATTACK);
 	} else if (mon->_mAi == AI_SNAKE && mon->_mAnimFrame == 1)
-		PlayEffect(mnum, 0);
+		PlayEffect(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		MonStartStand(mnum, mon->_mdir);
@@ -2160,7 +2160,7 @@ static bool MonDoRAttack(int mnum)
 		    0,
 		    0,
 		    0);
-		PlayEffect(mnum, 0);
+		PlayEffect(mnum, MS_ATTACK);
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
@@ -2192,7 +2192,7 @@ static bool MonDoRSpAttack(int mnum)
 		    0,
 		    0,
 		    0);
-		PlayEffect(mnum, 3);
+		PlayEffect(mnum, MS_SPECIAL);
 	}
 
 	if (mon->_mAi == AI_MEGA && mon->_mAnimFrame == 3) {
@@ -2466,7 +2466,7 @@ static bool MonDoSpStand(int mnum)
 	}
 	mon = &monster[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2)
-		PlayEffect(mnum, 3);
+		PlayEffect(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		MonStartStand(mnum, mon->_mdir);

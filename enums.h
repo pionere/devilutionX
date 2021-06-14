@@ -2737,6 +2737,14 @@ typedef enum MON_ANIM {
 	NUM_MON_ANIM
 } MON_ANIM;
 
+typedef enum MON_SFX {
+	MS_ATTACK,
+	MS_GOTHIT,
+	MS_DEATH,
+	MS_SPECIAL,
+	NUM_MON_SFX
+} MON_SFX;
+
 typedef enum PLR_MODE {
 	PM_STAND   = 0,
 	PM_WALK    = 1, //Movement towards N, NW, or NE

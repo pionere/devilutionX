@@ -631,7 +631,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 		MonStartKill(mnum, -1);
 	} else {
 		/*if (resist) {
-			PlayEffect(mnum, 1);
+			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
 			MonStartHit(mnum, -1, dam);
 		//}
@@ -742,7 +742,7 @@ static bool MonsterMHit(int mnum, int mi)
 		MonStartKill(mnum, pnum);
 	} else {
 		/*if (resist != MORT_NONE) {
-			PlayEffect(mnum, 1);
+			PlayEffect(mnum, MS_GOTHIT);
 		} else {*/
 			if (mis->_miSubType == 0) {
 				if (plr._pIFlags & ISPL_NOHEALMON)

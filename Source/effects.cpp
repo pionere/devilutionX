@@ -19,14 +19,8 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] = { };
 /** Specifies the sound file and the playback state of the current sound effect. */
 static TSFX *sgpStreamSFX = NULL;
 
-/**
- * Monster sound type prefix
- * a: Attack
- * h: Hit
- * d: Death
- * s: Special
- */
-const char MonstSndChar[] = { 'a', 'h', 'd', 's' };
+/** Maps from monster sfx to monster sound letter. */
+static const char MonstSndChar[NUM_MON_SFX] = { 'a', 'h', 'd', 's' };
 
 /* data */
 /** List of all sounds, except monsters and music */
@@ -1207,9 +1201,9 @@ void InitMonsterSND(int midx)
 
 	cmon = &mapMonTypes[midx];
 	mdata = &monsterdata[cmon->cmType];
-	static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].cmSnds), "Mismatching tables MonstSndChar and CMonster::Snds.");
-	for (i = 0; i < lengthof(MonstSndChar); i++) {
-		if (MonstSndChar[i] != 's' || mdata->snd_special) {
+	//static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].cmSnds), "Mismatching tables MonstSndChar and CMonster::Snds.");
+	for (i = 0; i < NUM_MON_SFX; i++) {
+		if (i != MS_SPECIAL || mdata->snd_special) {
 			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
 				snprintf(name, sizeof(name), mdata->mSndFile, MonstSndChar[i], j + 1);
 				cmon->cmSnds[i][j] = sound_file_load(name);
@@ -1226,7 +1220,7 @@ void FreeMonsterSnd()
 
 	cmon = mapMonTypes;
 	for (i = 0; i < nummtypes; i++, cmon++) {
-		for (j = 0; j < lengthof(cmon->cmSnds); ++j) {
+		for (j = 0; j < NUM_MON_SFX; ++j) {
 			for (k = 0; k < lengthof(cmon->cmSnds[j]); ++k) {
 				pSnd = cmon->cmSnds[j][k];
 				if (pSnd != NULL) {
