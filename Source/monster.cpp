@@ -4411,7 +4411,6 @@ void ProcessMonsters()
 
 void FreeMonsters()
 {
-	int mtype;
 	int i, j;
 
 	for (i = 0; i < nummtypes; i++) {

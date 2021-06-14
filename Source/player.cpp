@@ -1978,7 +1978,7 @@ void RestartTownLvl(int pnum)
 	}
 	InitLevelChange(pnum);
 
-	plr.plrlevel = 0;
+	plr.plrlevel = DLV_TOWN;
 	plr._pInvincible = FALSE;
 
 	PlrSetHp(pnum, 64);
@@ -2002,8 +2002,8 @@ void StartWarpLvl(int pnum, int pidx)
 	}
 	InitLevelChange(pnum);
 
-	if (plr.plrlevel != 0) {
-		plr.plrlevel = 0;
+	if (plr.plrlevel != DLV_TOWN) {
+		plr.plrlevel = DLV_TOWN;
 	} else {
 		plr.plrlevel = portal[pidx].level;
 	}

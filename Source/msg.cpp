@@ -2753,9 +2753,7 @@ static unsigned On_OPENCRYPT(TCmd *pCmd, int pnum)
 
 unsigned ParseCmd(int pnum, TCmd *pCmd)
 {
-	BYTE sbLastCmd = pCmd->bCmd;
-
-	switch (sbLastCmd) {
+	switch (pCmd->bCmd) {
 	case CMD_SYNCDATA:
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:

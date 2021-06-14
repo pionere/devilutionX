@@ -1201,7 +1201,6 @@ void InitMonsterSND(int midx)
 
 	cmon = &mapMonTypes[midx];
 	mdata = &monsterdata[cmon->cmType];
-	//static_assert(lengthof(MonstSndChar) == lengthof(Monsters[0].cmSnds), "Mismatching tables MonstSndChar and CMonster::Snds.");
 	for (i = 0; i < NUM_MON_SFX; i++) {
 		if (i != MS_SPECIAL || mdata->snd_special) {
 			for (j = 0; j < lengthof(cmon->cmSnds[i]); j++) {
@@ -1304,7 +1303,7 @@ void PlayEffect(int mnum, int mode)
 		return;
 	}
 
-	sndIdx = random_(164, 2);
+	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	mon = &monster[mnum];
 	snd = mapMonTypes[mon->_mMTidx].cmSnds[mode][sndIdx];
 	if (snd == NULL || snd_playing(snd)) {
