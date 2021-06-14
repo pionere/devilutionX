@@ -1507,9 +1507,9 @@ static void DrawTrigInfo()
 			case SL_BONECHAMB:
 				copy_cstr(infostr, "To The Chamber of Bone");
 				break;
-			case SL_MAZE:
+			/*case SL_MAZE:
 				copy_cstr(infostr, "To Maze");
-				break;
+				break;*/
 			case SL_POISONWATER:
 				copy_cstr(infostr, "To A Dark Passage");
 				break;

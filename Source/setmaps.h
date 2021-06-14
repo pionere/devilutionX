@@ -15,7 +15,7 @@ extern "C" {
 void LoadSetMap();
 
 /* rdata */
-extern const char *const quest_level_names[];
+//extern const char *const quest_level_names[];
 
 #ifdef __cplusplus
 }

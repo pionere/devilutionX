@@ -62,14 +62,14 @@ const BYTE SkelChamTrans3[] = {
 };
 
 /** Maps from quest level to quest level names. */
-const char *const quest_level_names[] = {
+/*const char *const quest_level_names[] = {
 	"",
 	"Skeleton King's Lair",
 	"Chamber of Bone",
 	"Maze",
 	"Poisoned Water Supply",
 	"Archbishop Lazarus' Lair",
-};
+};*/
 
 static int ObjIndex(int x, int y)
 {
@@ -106,6 +106,15 @@ static void AddVileObjs()
 	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
 	SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
 }
+
+/*static void AddMazeObjs()
+{
+	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 25), 0?, 0?, 45?, ?, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 15, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 27, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 57), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
+}*/
 
 static void DRLG_SetMapTrans(const char *sFileName)
 {
@@ -166,14 +175,14 @@ void LoadSetMap()
 		AddSChamObjs();
 		// gbInitObjFlag = false;
 		break;
-	case SL_MAZE:
+	/*case SL_MAZE:
 		LoadPreL1Dungeon(lds->dSetLvlPreDun);
 		LoadL1Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
 		// gbInitObjFlag = true;
 		AddL1Objs(0, 0, MAXDUNX, MAXDUNY);
 		// gbInitObjFlag = false;
 		DRLG_SetMapTrans(lds->dSetLvlPreDun);
-		break;
+		break;*/
 	case SL_POISONWATER:
 		LoadPreL3Dungeon(lds->dSetLvlPreDun);
 		LoadL3Dungeon(lds->dSetLvlDun, lds->dSetLvlDunX, lds->dSetLvlDunY);
