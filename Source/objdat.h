@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const int ObjConvTbl[];
+extern const BYTE ObjConvTbl[128];
 extern const ObjDataStruct AllObjects[NUM_OBJECTS];
 extern const char *const ObjMasterLoadList[NUM_OFILE_TYPES];
 #ifdef HELLFIRE

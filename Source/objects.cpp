@@ -667,6 +667,8 @@ static void LoadMapSetObjects(const char *map, int startx, int starty, const Lev
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
 			if (*lm != 0) {
+				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
+				assert(pObjCels[AllObjects[ObjConvTbl[SwapLE16(*lm)]].ofindex] != NULL);
 				oi = AddObject(ObjConvTbl[SwapLE16(*lm)], i, j);
 				if (lvrRect != NULL)
 					SetObjMapRange(oi, lvrRect->x1, lvrRect->y1, lvrRect->x2, lvrRect->y2, lvrRect->leveridx);
@@ -1004,6 +1006,7 @@ void SetMapObjects(BYTE *pMap)
 	for (j = 0; j < rh; j++) {
 		for (i = 0; i < rw; i++) {
 			if (*lm != 0) {
+				assert(SwapLE16(*lm) < lengthof(ObjConvTbl) && ObjConvTbl[SwapLE16(*lm)] != 0);
 				fileload[AllObjects[ObjConvTbl[SwapLE16(*lm)]].ofindex] = true;
 			}
 			lm++;
