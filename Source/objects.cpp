@@ -1564,7 +1564,6 @@ int AddObject(int type, int ox, int oy)
 		AddPurifyingFountain(oi);
 		break;
 	case OBJ_ARMORSTAND:
-	case OBJ_WARARMOR:
 		AddArmorStand(oi);
 		break;
 	case OBJ_GOATSHRINE:
@@ -1587,12 +1586,10 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_STORYBOOK:
 		AddStoryBook(oi);
 		break;
-	case OBJ_BCROSS:
 	case OBJ_TBCROSS:
 		// ObjAddRndSeed(oi);
 		AddObjLight(oi, 10);
 		break;
-	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		AddWeaponRack(oi);
@@ -1958,7 +1955,6 @@ void ProcessObjects()
 		case OBJ_MCIRCLE2:
 			Obj_Circle(oi);
 			break;
-		case OBJ_BCROSS:
 		case OBJ_TBCROSS:
 			//Obj_Light(oi, 5);
 			Obj_BCrossDamage(oi);
@@ -3826,7 +3822,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateDecap(oi, sendmsg);
 		break;
 	case OBJ_ARMORSTAND:
-	case OBJ_WARARMOR:
 		OperateArmorStand(oi, sendmsg);
 		break;
 	case OBJ_GOATSHRINE:
@@ -3847,7 +3842,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_PEDISTAL:
 		OperatePedistal(pnum, oi, sendmsg);
 		break;
-	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, sendmsg);
@@ -3977,7 +3971,6 @@ void SyncOpObject(int pnum, int oi)
 		OperateDecap(oi, false);
 		break;
 	case OBJ_ARMORSTAND:
-	case OBJ_WARARMOR:
 		OperateArmorStand(oi, false);
 		break;
 	case OBJ_GOATSHRINE:
@@ -3996,7 +3989,6 @@ void SyncOpObject(int pnum, int oi)
 	case OBJ_PEDISTAL:
 		OperatePedistal(-1, oi, false);
 		break;
-	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, false);
@@ -4316,7 +4308,6 @@ void GetObjectStr(int oi)
 		copy_cstr(infostr, "Purifying Spring");
 		break;
 	case OBJ_ARMORSTAND:
-	case OBJ_WARARMOR:
 		copy_cstr(infostr, "Armor");
 		break;
 	case OBJ_GOATSHRINE:
@@ -4337,7 +4328,6 @@ void GetObjectStr(int oi)
 	case OBJ_STORYBOOK:
 		copy_cstr(infostr, StoryBookName[os->_oVar3]); // STORY_BOOK_NAME
 		break;
-	case OBJ_WARWEAP:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		copy_cstr(infostr, "Weapon Rack");

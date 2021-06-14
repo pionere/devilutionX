@@ -25,7 +25,7 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	OBJ_BOOK2L, // Q_SCHAMB, Q_BETRAYER
 	0, //OBJ_BOOK2R,
-	OBJ_BCROSS, // Q_SCHAMB
+	OBJ_TBCROSS, // Q_SCHAMB
 	0,
 	0, //OBJ_CANDLE1,
 	OBJ_CANDLE2, // Q_SCHAMB
@@ -117,8 +117,8 @@ const BYTE ObjConvTbl[128] = {
 	OBJ_ALTBOY, // Q_BETRAYER
 	0,
 	0,
-	OBJ_WARARMOR, // Q_WARLORD
-	OBJ_WARWEAP, // Q_WARLORD
+	OBJ_ARMORSTAND, // Q_WARLORD
+	OBJ_WEAPONRACKL, // Q_WARLORD
 	OBJ_TORCHR2, // Q_BLOOD
 	OBJ_TORCHL2, // Q_BLOOD
 	0, //OBJ_MUSHPATCH,
@@ -179,7 +179,6 @@ const ObjDataStruct AllObjects[NUM_OBJECTS] = {
 /*OBJ_CRUXL*/		{      2, OFILE_CRUXSK3,  0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             1,       15,         96, TRUE,       FALSE,     TRUE,            1,        3, FALSE     },
 /*OBJ_STAND*/		{      2, OFILE_ROCKSTAN, 0,                                         0,               THEME_NONE,              Q_ROCK,         FALSE,              1,             0,        0,         96, TRUE,       TRUE,      TRUE,            0,        0, FALSE     },
 /*OBJ_ANGEL*/		{      2, OFILE_ANGEL,    0,                                         0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
-/*OBJ_BCROSS*/		{      2, OFILE_BURNCROS, 0,                                         0,               THEME_NONE,              Q_INVALID,       TRUE,              0,             0,       10,        160, TRUE,       FALSE,     FALSE,           0,        0, FALSE     },
 /*OBJ_NUDEW2R*/		{      2, OFILE_NUDE2,    0,                                         0,               THEME_NONE,              Q_INVALID,       TRUE,              0,             3,        6,        128, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
 /*OBJ_SWITCHSKL*/	{      1, OFILE_SWITCH4,  DTM_HELL,                                  0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       TRUE,      TRUE,            0,        1, TRUE      },
 /*OBJ_TNUDEM1*/		{      1, OFILE_TNUDEM,   DTM_HELL,                                  0,               THEME_NONE,              Q_BUTCHER,      FALSE,              1,             0,        0,        128, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
@@ -232,7 +231,7 @@ const ObjDataStruct AllObjects[NUM_OBJECTS] = {
 /*OBJ_L3LDOOR*/		{      1, OFILE_L3DOORS,  DTM_CAVES,                                 0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         64, FALSE,      FALSE,     TRUE,            0,        3, TRUE      },
 /*OBJ_L3RDOOR*/		{      1, OFILE_L3DOORS,  DTM_CAVES,                                 0,               THEME_NONE,              Q_INVALID,      FALSE,              2,             0,        0,         64, FALSE,      FALSE,     TRUE,            0,        3, TRUE      },
 /*OBJ_PURIFYINGFTN*/{      3, OFILE_PFOUNTN,  0,                                         0,               THEME_PURIFYINGFOUNTAIN, Q_INVALID,       TRUE,              0,             2,       10,        128, TRUE,       TRUE,      TRUE,            0,        3, FALSE     },
-/*OBJ_ARMORSTAND*/	{      3, OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
+/*OBJ_ARMORSTAND*/	{      3, OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_WARLORD,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
 /*OBJ_ARMORSTANDN*/	{      3, OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_INVALID,      FALSE,              2,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
 /*OBJ_GOATSHRINE*/	{      3, OFILE_GOATSHRN, 0,                                         0,               THEME_GOATSHRINE,        Q_INVALID,       TRUE,              0,             2,       10,         96, TRUE,       TRUE,      TRUE,            0,        3, FALSE     },
 /*OBJ_CAULDRON*/	{      1, OFILE_CAULDREN, DTM_HELL,                                  0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
@@ -243,10 +242,8 @@ const ObjDataStruct AllObjects[NUM_OBJECTS] = {
 /*OBJ_MCIRCLE2*/	{      2, OFILE_MCIRL,    0,                                         0,               THEME_NONE,              Q_BETRAYER,     FALSE,              1,             0,        0,         96, FALSE,      TRUE,      TRUE,            0,        0, FALSE     },
 /*OBJ_STORYBOOK*/	{      1, OFILE_BKSLBRNT, DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, 0,               THEME_NONE,              Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       TRUE,      TRUE,            0,        3, FALSE     }, // BUGFIX should only be loaded on level 1-12 (crypt masks as 1-4) (fixed)
 /*OBJ_STORYCANDLE*/	{      1, OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, 0,               THEME_NONE,              Q_BETRAYER,      TRUE,              0,             2,        4,         96, TRUE,       TRUE,      TRUE,            0,        0, FALSE     },
-/*OBJ_WARARMOR*/	{      2, OFILE_ARMSTAND, 0,                                         0,               THEME_NONE,              Q_WARLORD,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
-/*OBJ_WARWEAP*/		{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_NONE,              Q_WARLORD,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
 /*OBJ_TBCROSS*/		{      2, OFILE_BURNCROS, 0,                                         0,               THEME_BRNCROSS,          Q_INVALID,       TRUE,              0,             1,       10,        160, TRUE,       FALSE,     FALSE,           0,        0, FALSE     },
-/*OBJ_WEAPONRACKL*/	{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
+/*OBJ_WEAPONRACKL*/	{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_WARLORD,      FALSE,              1,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
 /*OBJ_WEAPONRACKLN*/{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,      FALSE,              2,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
 /*OBJ_WEAPONRACKR*/	{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,      FALSE,              3,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        3, FALSE     },
 /*OBJ_WEAPONRACKRN*/{      2, OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,      FALSE,              4,             0,        0,         96, TRUE,       FALSE,     TRUE,            0,        0, FALSE     },
