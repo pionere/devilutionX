@@ -1977,7 +1977,6 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 		}
 		if (i == RANGE)
 			return MIRES_FAIL_DELETE;
-		PlaySfxLoc(LS_SENTINEL, tx, ty);
 		if (misource == mypnum) {
 			NetSendCmdLocBParam1(true, CMD_ACTIVATEPORTAL, tx, ty, currLvl._dLevelIdx);
 		}
@@ -1990,6 +1989,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 	mis->_miy = mis->_misy = ty;
 	mis->_miRange = 100;
 	if (spllvl >= 0) {
+		PlaySfxLoc(LS_SENTINEL, tx, ty);
 		mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
 		// mis->_miVar2 = 0;
 	} else {
