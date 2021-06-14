@@ -128,7 +128,8 @@ void (*AiProc[])(int i) = {
 static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mdata)
 {
 	BYTE *tf, *cf;
-	int i, n, j;
+	int i, j;
+	const AnimStruct *as;
 
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
@@ -140,14 +141,11 @@ static inline void InitMonsterTRN(const MapMonData *cmon, const MonsterData *mda
 		cf++;
 	}
 
-	n = mdata->has_special ? 6 : 5;
-	for (i = 0; i < n; i++) {
-		if (i != 1 || cmon->cmType < MT_COUNSLR || cmon->cmType > MT_ADVOCATE) {
-			for (j = 0; j < lengthof(cmon->cmAnims[i].aData); j++) {
-				Cl2ApplyTrans(
-				    cmon->cmAnims[i].aData[j],
-				    tf,
-				    cmon->cmAnims[i].aFrames);
+	for (i = 0; i < NUM_MON_ANIM; i++) {
+		as = &cmon->cmAnims[i];
+		if (as->aFrames > 1) {
+			for (j = 0; j < lengthof(as->aData); j++) {
+				Cl2ApplyTrans(as->aData[j], tf, as->aFrames);
 			}
 		}
 	}
@@ -289,13 +287,15 @@ void InitMonsterGFX(int midx)
 
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].aFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		if ((animletter[anim] != 's' || mdata->has_special) && mdata->mAnimFrames[anim] > 0) {
+		cmon->cmAnims[anim].aFrames = mdata->mAnimFrames[anim];
+		cmon->cmAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
+		if (mdata->mAnimFrames[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mdata->mGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
 			cmon->cmAnims[anim].aCelData = celBuf;
 
-			if (mtype != MT_GOLEM || (animletter[anim] != 's' && animletter[anim] != 'd')) {
+			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
 				for (i = 0; i < lengthof(cmon->cmAnims[anim].aData); i++) {
 					cmon->cmAnims[anim].aData[i] = const_cast<BYTE *>(CelGetFrameStart(celBuf, i));
 				}
@@ -305,9 +305,6 @@ void InitMonsterGFX(int midx)
 				}
 			}
 		}
-
-		cmon->cmAnims[anim].aFrames = mdata->mAnimFrames[anim];
-		cmon->cmAnims[anim].aFrameLen = mdata->mAnimFrameLen[anim];
 	}
 
 	cmon->cmWidth = mdata->width;
@@ -4418,11 +4415,8 @@ void FreeMonsters()
 	int i, j;
 
 	for (i = 0; i < nummtypes; i++) {
-		mtype = mapMonTypes[i].cmType;
-		for (j = 0; j < lengthof(animletter); j++) {
-			if (animletter[j] != 's' || monsterdata[mtype].has_special) {
-				MemFreeDbg(mapMonTypes[i].cmAnims[j].aCelData);
-			}
+		for (j = 0; j < NUM_MON_ANIM; j++) {
+			MemFreeDbg(mapMonTypes[i].cmAnims[j].aCelData);
 		}
 	}
 

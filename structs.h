@@ -560,7 +560,6 @@ typedef struct MonsterData {
 	int width;
 	int mImage;
 	const char *mGfxFile;
-	BOOL has_special;
 	const char *mSndFile;
 	BOOL snd_special;
 	const char *TransFile;
@@ -592,7 +591,7 @@ typedef struct MonsterData {
 	BYTE mSelFlag;
 	uint16_t mExp;
 #ifdef X86_32bit_COMP
-	int alignment[1];
+	int alignment[2];
 #endif
 } MonsterData;
 #ifdef X86_32bit_COMP
