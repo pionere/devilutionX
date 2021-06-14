@@ -315,6 +315,13 @@ void InitMonsterGFX(int midx)
 		InitMonsterTRN(cmon, mdata);
 	}
 
+	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
+	if (mtype == MT_GOLEM) {
+		copy_pod(cmon->cmAnims[MA_STAND].aData, cmon->cmAnims[MA_WALK].aData);
+		cmon->cmAnims[MA_STAND].aFrames = cmon->cmAnims[MA_WALK].aFrames;
+		cmon->cmAnims[MA_STAND].aFrameLen = cmon->cmAnims[MA_WALK].aFrameLen;
+	}
+
 	// load optional missile-gfxs
 	switch (mtype) {
 	case MT_NMAGMA:
@@ -1173,7 +1180,7 @@ void MonStartStand(int mnum, int md)
 	MonsterStruct *mon;
 
 	mon = &monster[mnum];
-	NewMonsterAnim(mnum, mon->_mType == MT_GOLEM ? MA_WALK : MA_STAND, md);
+	NewMonsterAnim(mnum, MA_STAND, md);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
@@ -1869,7 +1876,7 @@ static bool MonDoStand(int mnum)
 		dev_fatal("MonDoStand: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	mon->_mAnimData = mon->_mAnims[mon->_mType != MT_GOLEM ? MA_STAND : MA_WALK].aData[mon->_mdir];
+	mon->_mAnimData = mon->_mAnims[MA_STAND].aData[mon->_mdir];
 
 	if (mon->_mAnimFrame == mon->_mAnimLen)
 		MonEnemy(mnum);
