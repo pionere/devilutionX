@@ -39,9 +39,18 @@ namespace {
 HANDLE init_test_access(const char *mpq_name)
 {
 	HANDLE archive;
-#ifdef __3DS_
+#ifdef __ANDROID__
+	const std::string extStorage = std::string(getenv("EXTERNAL_STORAGE")) + "/devilutionx/";
+	const std::string secStorage = std::string(getenv("SECONDARY_STORAGE")) + "/devilutionx/";
+	const std::string sdcStorage = std::string(getenv("EXTERNAL_SDCARD_STORAGE")) + "/devilutionx/";
+	const std::string *paths[3] = { &extStorage, &secStorage, &sdcStorage };
+#elif defined(__3DS__)
 	const std::string romfs = "romfs:/";
 	const std::string *paths[3] = { &GetBasePath(), &GetPrefPath(), &romfs };
+#elif defined(__linux__)
+	const std::string share = "/usr/share/diasurgical/devilutionx/";
+	const std::string local = "/usr/local/share/diasurgical/devilutionx/";
+	const std::string *paths[4] = { &GetBasePath(), &GetPrefPath(), &share, &local };
 #else
 	const std::string *paths[2] = { &GetBasePath(), &GetPrefPath() };
 #endif

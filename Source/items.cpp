@@ -2853,6 +2853,9 @@ void SpawnQuestItemAt(int idx, int x, int y)
 	item[ii]._iSelFlag = 1;
 	item[ii]._iAnimFrame = item[ii]._iAnimLen;
 	item[ii]._iAnimFlag = FALSE;
+	// set Seed for the bloodstones, otherwise quick successive pickup and use
+	// will be prevented by the ItemRecord logic
+	item[ii]._iSeed = GetRndSeed();
 	SetItemLoc(ii, x, y);
 
 	itemactive[numitems] = ii;
@@ -2871,6 +2874,7 @@ void SpawnQuestItemAround(int idx, int x, int y)
 	GetItemAttrs(ii, idx, items_get_currlevel());
 	SetupItem(ii);
 	item[ii]._iPostDraw = TRUE;
+	item[ii]._iSeed = GetRndSeed(); // make sure it is unique
 	GetSuperItemLoc(x, y, ii);
 
 	itemactive[numitems] = ii;
@@ -2892,6 +2896,7 @@ void SpawnQuestItemInArea(int idx, int areasize)
 	item[ii]._iSelFlag = 1;
 	item[ii]._iAnimFrame = item[ii]._iAnimLen;
 	item[ii]._iAnimFlag = FALSE;
+	item[ii]._iSeed = GetRndSeed(); // make sure it is unique
 	GetRandomItemSpace(areasize, ii);
 
 	itemactive[numitems] = ii;
@@ -2918,6 +2923,7 @@ void SpawnRock()
 		item[i]._iSelFlag = 2;
 		item[i]._iPostDraw = TRUE;
 		item[i]._iAnimFrame = 11;
+		item[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
 
 		itemactive[numitems] = i;
@@ -2942,6 +2948,7 @@ void SpawnRewardItem(int idx, int xx, int yy)
 	item[ii]._iAnimFrame = 1;
 	item[ii]._iAnimFlag = TRUE;
 	item[ii]._iIdentified = TRUE;
+	item[ii]._iSeed = GetRndSeed(); // make sure it is unique
 	GetSuperItemSpace(xx, yy, ii);
 
 	itemactive[numitems] = ii;

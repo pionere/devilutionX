@@ -40,23 +40,28 @@ jobs:
       - run: /opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -S. -Bbuild .. -DNIGHTLY_BUILD=ON
       - run: cmake --build build -j 2
       - store_artifacts: {path: ./build/devilutionx.nro, destination: devilutionx.nro}
+  android:
+    docker:
+      - image: circleci/android:api-28-ndk
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: sudo apt update -y
+      - run: sudo apt install -y g++ cmake ninja-build
+      - run: cd android-project && ./gradlew assembleDebug
+      - store_artifacts: {path: ./android-project/app/build/outputs/apk/debug/app-debug.apk, destination: devilutionx-debug.apk}
   3ds:
     docker:
       - image: devkitpro/devkitarm:latest
     working_directory: ~/repo
     steps:
       - checkout
-      - run: echo deb http://deb.debian.org/debian stretch-backports main > /etc/apt/sources.list.d/debian-backports.list
-      - run: echo deb http://deb.debian.org/debian stretch-backports-sloppy main >> /etc/apt/sources.list.d/debian-backports.list
-      - run: apt-get update && apt-get install -y -t 'stretch-backports*' cmake unzip
-      - run: dkp-pacman -Syu --noconfirm
-      - run: dkp-pacman -S --needed --noconfirm --quiet devkitpro-pkgbuild-helpers
       - run: wget https://github.com/Steveice10/bannertool/releases/download/1.2.0/bannertool.zip
       - run: unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
       - run: wget https://github.com/jakcron/Project_CTR/releases/download/v0.16/makerom_016_ctrtool.zip
       - run: unzip -j "makerom_016_ctrtool.zip" "Ubuntu/makerom" -d "/opt/devkitpro/tools/bin"
       - run: sudo chmod +rx /opt/devkitpro/tools/bin/makerom
-      - run: cmake -S. -Bbuild -DNIGHTLY_BUILD=ON -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/3ds.cmake
+      - run: cmake -S. -Bbuild -DNIGHTLY_BUILD=ON -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
       - run: cmake --build build -j 2
       - store_artifacts: {path: ./build/devilutionx.3dsx, destination: devilutionx.3dsx}
       - store_artifacts: {path: ./build/devilutionx.cia, destination: devilutionx.cia}
@@ -90,6 +95,7 @@ workflows:
       - linux_x86_64
       - linux_x86_64_test
       - switch
+      - android
       - 3ds
       - amigaos-m68k
       - vita

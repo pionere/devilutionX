@@ -124,6 +124,7 @@ bool tcp_client::SNetLeaveGame(int type)
 	poll();
 	if (local_server != NULL)
 		local_server->close();
+	sock.close();
 	return ret;
 }
 
