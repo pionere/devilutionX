@@ -125,17 +125,14 @@ void GetPortalLevel()
 void GetPortalLvlPos()
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
-		ViewX = WarpDropX[portalindex] + 1;
-		ViewY = WarpDropY[portalindex] + 1;
+		ViewX = WarpDropX[portalindex];
+		ViewY = WarpDropY[portalindex];
 	} else {
 		ViewX = portal[portalindex].x;
 		ViewY = portal[portalindex].y;
-
-		if (portalindex != mypnum) {
-			ViewX++;
-			ViewY++;
-		}
 	}
+	ViewX++;
+	ViewY++;
 }
 
 bool PosOkPortal(int x, int y)

@@ -113,7 +113,7 @@ static void InitCutscene(unsigned int uMsg)
 		LoadPalette("Gendata\\Cutstart.pal");
 		progress_id = 1;
 		break;
-	case WM_DIABTOWNWARP:
+	case WM_DIABTWARPDN:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN: {
 		lvl = myplr.plrlevel; // the destination level
@@ -561,7 +561,7 @@ void ShowProgress(unsigned int uMsg)
 		LoadGameLevel(false, ENTRY_WARPLVL);
 		IncProgress();
 		break;
-	case WM_DIABTOWNWARP:
+	case WM_DIABTWARPDN:
 		IncProgress();
 		if (gbMaxPlayers == 1) {
 			SaveLevel();

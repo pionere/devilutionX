@@ -2091,14 +2091,14 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_WARP(TCmd *pCmd, int pnum)
+static unsigned On_TWARP(TCmd *pCmd, int pnum)
 {
 	TCmdParam1 *cmd = (TCmdParam1 *)pCmd;
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	else {
-		StartWarpLvl(pnum, SwapLE16(cmd->wParam1));
+		StartTWarp(pnum, SwapLE16(cmd->wParam1));
 	}
 
 	return sizeof(*cmd);
@@ -2864,8 +2864,8 @@ unsigned ParseCmd(int pnum, TCmd *pCmd)
 		return On_DEACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:
 		return On_NEWLVL(pCmd, pnum);
-	case CMD_WARP:
-		return On_WARP(pCmd, pnum);
+	case CMD_TWARP:
+		return On_TWARP(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
 	case CMD_ACK_JOINLEVEL:

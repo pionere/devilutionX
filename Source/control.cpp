@@ -1520,7 +1520,7 @@ static void DrawTrigInfo()
 				ASSUME_UNREACHABLE
 			}
 			break;
-		case WM_DIABTOWNWARP:
+		case WM_DIABTWARPDN:
 			switch (pcurstrig) {
 			case TWARP_CATHEDRAL:
 				copy_cstr(infostr, "Down to dungeon");

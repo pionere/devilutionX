@@ -48,7 +48,7 @@ void SyncPlrResurrect(int pnum);
 void RemovePlrMissiles(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
-void StartWarpLvl(int pnum, int pidx);
+void StartTWarp(int pnum, int pidx);
 void PlrFillHp(int pnum);
 void PlrFillMana(int pnum);
 void PlrSetHp(int pnum, int hp);

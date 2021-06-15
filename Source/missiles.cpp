@@ -1953,7 +1953,7 @@ static bool CheckIfTrig(int x, int y)
  */
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
-	MissileStruct *mis, *bmis;
+	MissileStruct *mis;
 	int i, j, tx, ty, pn;
 	const char *cr;
 
@@ -1984,24 +1984,40 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 		tx = dx;
 		ty = dy;
 	}
+	// 'delete' previous portal of the misource
+	for (i = 0; i < nummissiles; i++) {
+		mis = &missile[missileactive[i]];
+		if (mis->_miType == MIS_TOWN && mis->_miSource == misource)
+			mis->_miRange = 0;
+	}
+	// setup the new portal
+	return AddPortal(mi, 0, 0, tx, ty, 0, 0, 0, spllvl);
+}
+
+/**
+ * Var1: animation
+ * Var2: light strength
+ */
+int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
+{
+	MissileStruct *mis;
+	constexpr int P_RANGE = 100;
+
 	mis = &missile[mi];
-	mis->_mix = mis->_misx = tx;
-	mis->_miy = mis->_misy = ty;
-	mis->_miRange = 100;
+	mis->_mix = mis->_misx = dx;
+	mis->_miy = mis->_misy = dy;
+	mis->_miRange = P_RANGE;
 	if (spllvl >= 0) {
-		PlaySfxLoc(LS_SENTINEL, tx, ty);
-		mis->_miVar1 = mis->_miRange - mis->_miAnimLen;
+		PlaySfxLoc(LS_SENTINEL, dx, dy);
+		mis->_miVar1 = P_RANGE - mis->_miAnimLen;
 		// mis->_miVar2 = 0;
 	} else {
-		// a portal recreated by AddWarpMissile
-		mis->_miVar1 = mis->_miRange - 1;
+		// a recreated portal (by AddWarpMissile or InitVP*Trigger)
+		mis->_miVar1 = P_RANGE - 1;
+		// make sure the portal is in its final form even on the first frame
+		SetMissDir(mi, 1);
+		PutMissile(mi);
 	}
-	for (i = 0; i < nummissiles; i++) {
-		bmis = &missile[missileactive[i]];
-		if (bmis->_miType == MIS_TOWN && bmis != mis && bmis->_miSource == misource)
-			bmis->_miRange = 0;
-	}
-	PutMissile(mi);
 	return MIRES_DONE;
 }
 
@@ -2793,22 +2809,6 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micas
 	return MIRES_DELETE;
 }
 
-/**
- * Var1: animation
- * Var2: light strength
- */
-int AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
-{
-	MissileStruct *mis;
-
-	mis = &missile[mi];
-	mis->_miRange = 100;
-	mis->_miVar1 = 100 - mis->_miAnimLen;
-	//mis->_miVar2 = 0;
-	PutMissile(mi);
-	return MIRES_DONE;
-}
-
 int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
 	int pnum;
@@ -3408,7 +3408,7 @@ void MI_Lightning(int mi)
 	PutMissile(mi);
 }
 
-void MI_Town(int mi)
+void MI_Portal(int mi)
 {
 	MissileStruct *mis;
 	int ExpLight[17] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 15 };
@@ -3434,9 +3434,11 @@ void MI_Town(int mi)
 		mis->_miVar2++;
 	}
 
-	p = &myplr;
-	if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
-		NetSendCmdParam1(true, CMD_WARP, mis->_miSource);
+	if (mis->_miType == MIS_TOWN) {
+		p = &myplr;
+		if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
+			NetSendCmdParam1(true, CMD_TWARP, mis->_miSource);
+		}
 	}
 
 	PutMissile(mi);
@@ -4084,30 +4086,6 @@ void MI_Resurrect(int mi)
 	missile[mi]._miRange--;
 	if (missile[mi]._miRange == 0)
 		missile[mi]._miDelFlag = TRUE;
-	PutMissile(mi);
-}
-
-void MI_Rportal(int mi)
-{
-	MissileStruct *mis;
-	int ExpLight[17] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 15 };
-
-	mis = &missile[mi];
-	if (mis->_miRange > 1)
-		mis->_miRange--;
-	if (mis->_miRange == mis->_miVar1)
-		SetMissDir(mi, 1);
-
-	if (mis->_miRange == 0) {
-		mis->_miDelFlag = TRUE;
-		AddUnLight(mis->_miLid);
-	} else if (currLvl._dType != DLV_TOWN && mis->_miDir != 1) {
-		if (mis->_miVar2 == 0)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, 1);
-		else
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, ExpLight[mis->_miVar2]);
-		mis->_miVar2++;
-	}
 	PutMissile(mi);
 }
 

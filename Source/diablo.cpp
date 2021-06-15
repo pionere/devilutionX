@@ -1624,7 +1624,7 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DIABRTNLVL:
 	case WM_DIABSETLVL:
 	case WM_DIABWARPLVL:
-	case WM_DIABTOWNWARP:
+	case WM_DIABTWARPDN:
 	case WM_DIABTWARPUP:
 	case WM_DIABRETOWN:
 		if (gbMaxPlayers != 1)

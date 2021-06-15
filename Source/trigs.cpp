@@ -86,7 +86,7 @@ static void InitTownTriggers()
 {
 	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
 	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
-	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTOWNWARP;
+	trigs[TWARP_CATHEDRAL]._tmsg = WM_DIABTWARPDN;
 	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
 
 	townwarps = GetOpenWarps();
@@ -94,32 +94,32 @@ static void InitTownTriggers()
 	if (townwarps & (1 << TWARP_CATACOMB)) {
 		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
 		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
-		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CATACOMB]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_CATACOMB]._tlvl = DLV_CATACOMBS1;
 	}
 	if (townwarps & (1 << TWARP_CAVES)) {
 		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
 		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
-		trigs[TWARP_CAVES]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CAVES]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
 	}
 	if (townwarps & (1 << TWARP_HELL)) {
 		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
 		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
-		trigs[TWARP_HELL]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_HELL]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
 	}
 #ifdef HELLFIRE
 	if (townwarps & (1 << TWARP_NEST)) {
 		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
 		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
-		trigs[TWARP_NEST]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_NEST]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_NEST]._tlvl = DLV_NEST1;
 	}
 	if (townwarps & (1 << TWARP_CRYPT)) {
 		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
 		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
-		trigs[TWARP_CRYPT]._tmsg = WM_DIABTOWNWARP;
+		trigs[TWARP_CRYPT]._tmsg = WM_DIABTWARPDN;
 		trigs[TWARP_CRYPT]._tlvl = DLV_CRYPT1;
 	}
 #endif
@@ -339,7 +339,7 @@ static void InitPWaterTriggers()
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
-void InitVPEntryTrigger()
+void InitVPEntryTrigger(bool recreate)
 {
 	int i;
 
@@ -351,17 +351,17 @@ void InitVPEntryTrigger()
 	trigs[i]._tlvl = questlist[Q_BETRAYER]._qslvl;
 	numtrigs = i + 1;
 
-	AddMissile(quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, 0, 0, MIS_RPORTAL, 0, mypnum, 0, 0, 0);
+	AddMissile(0, 0, quests[Q_BETRAYER]._qtx, quests[Q_BETRAYER]._qty, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
 }
 
-void InitVPReturnTrigger()
+void InitVPReturnTrigger(bool recreate)
 {
 	numtrigs = 1;
 	trigs[0]._tx = DBORDERX + 19;
 	trigs[0]._ty = DBORDERX + 16;
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 
-	AddMissile(DBORDERX + 19, DBORDERY + 16, 0, 0, 0, MIS_RPORTAL, 0, mypnum, 0, 0, 0);
+	AddMissile(0, 0, DBORDERX + 19, DBORDERY + 16, 0, MIS_RPORTAL, 0, 0, 0, 0, recreate ? -1 : 0);
 }
 
 static int ForceTownTrig()
@@ -865,10 +865,10 @@ void CheckTriggers()
 		case WM_DIABSETLVL:
 			StartNewLvl(mypnum, WM_DIABSETLVL, trigs[i]._tlvl);
 			break;
-		case WM_DIABTOWNWARP:
+		case WM_DIABTWARPDN:
 			if (!(townwarps & (1 << i)))
 				continue;
-			StartNewLvl(mypnum, WM_DIABTOWNWARP, trigs[i]._tlvl);
+			StartNewLvl(mypnum, WM_DIABTWARPDN, trigs[i]._tlvl);
 			break;
 		case WM_DIABTWARPUP:
 			TWarpFrom = currLvl._dLevelIdx;

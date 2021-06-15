@@ -2849,7 +2849,7 @@ typedef enum interface_mode {
 	WM_DIABRTNLVL   = 0x404, // setlevel -> dungeon
 	WM_DIABSETLVL   = 0x405, // dungeon -> setlevel
 	WM_DIABWARPLVL  = 0x406, // portal
-	WM_DIABTOWNWARP = 0x407, // town -> dungeon
+	WM_DIABTWARPDN  = 0x407, // town -> dungeon
 	WM_DIABTWARPUP  = 0x408, // dungeon -> town
 	WM_DIABRETOWN   = 0x409, // restart in town
 	WM_DIABNEWGAME  = 0x40A,
@@ -2991,7 +2991,7 @@ typedef enum _cmd_id {
 	CMD_ACTIVATEPORTAL,
 	CMD_DEACTIVATEPORTAL,
 	CMD_NEWLVL,
-	CMD_WARP,
+	CMD_TWARP,
 	CMD_RETOWN,
 	CMD_ACK_JOINLEVEL,
 	CMD_SEND_JOINLEVEL,

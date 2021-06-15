@@ -1910,7 +1910,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	case WM_DIABNEXTLVL:
 	case WM_DIABPREVLVL:
 	case WM_DIABRTNLVL:
-	case WM_DIABTOWNWARP:
+	case WM_DIABTWARPDN:
 		plr.plrlevel = lvl;
 		break;
 	case WM_DIABSETLVL:
@@ -1960,7 +1960,7 @@ void RestartTownLvl(int pnum)
 	}
 }
 
-void StartWarpLvl(int pnum, int pidx)
+void StartTWarp(int pnum, int pidx)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		app_fatal("StartWarpLvl: illegal player %d", pnum);

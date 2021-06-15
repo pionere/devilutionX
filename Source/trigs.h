@@ -17,8 +17,8 @@ extern TriggerStruct trigs[MAXTRIGGERS];
 extern int TWarpFrom;
 
 void InitTriggers();
-void InitVPEntryTrigger();
-void InitVPReturnTrigger();
+void InitVPEntryTrigger(bool recreate);
+void InitVPReturnTrigger(bool recreate);
 void CheckTrigForce();
 void CheckTriggers();
 

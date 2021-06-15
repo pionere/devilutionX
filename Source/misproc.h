@@ -72,7 +72,7 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, 
 int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
-int AddRportal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
+int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl);
 void MI_Dummy(int mi);
 void MI_Golem(int mi);
@@ -93,7 +93,7 @@ void MI_RingC(int mi);
 #endif
 void MI_LightningC(int mi);
 void MI_Lightning(int mi);
-void MI_Town(int mi);
+void MI_Portal(int mi);
 void MI_Flash(int mi);
 void MI_Flash2(int mi);
 void MI_FireWave(int mi);
@@ -117,7 +117,6 @@ void MI_Cbolt(int mi);
 void MI_Elemental(int mi);
 void MI_EleExp(int mi);
 void MI_Resurrect(int mi);
-void MI_Rportal(int mi);
 
 #ifdef __cplusplus
 }

@@ -203,7 +203,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = 7;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			InitVPReturnTrigger();
+			InitVPReturnTrigger(false);
 		}
 		sfxdelay = 30;
 		sfxdnum = TEXT_QM_LAZURUS;
@@ -524,13 +524,18 @@ void ResyncQuests()
 			if (quests[Q_BETRAYER]._qvar1 >= 6)
 				ObjChangeMapResync(1, 18, 20, 24);
 			if (quests[Q_BETRAYER]._qvar1 >= 7)
-				InitVPReturnTrigger();
+				InitVPReturnTrigger(true);
 			//for (i = 0; i < nobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		}
 		if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
 			if (quests[Q_BETRAYER]._qvar1 >= 2) {
-				InitVPEntryTrigger();
+				if (quests[Q_BETRAYER]._qvar1 == 2) {
+					quests[Q_BETRAYER]._qvar1 = 3;
+					InitVPEntryTrigger(false);
+				} else {
+					InitVPEntryTrigger(true);
+				}
 			}
 		}
 	}
