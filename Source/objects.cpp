@@ -1095,28 +1095,20 @@ void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
 static void AddChest(int oi)
 {
 	ObjectStruct *os;
+	int num;
 
 	os = &object[oi];
 	if (random_(147, 2) == 0)
 		os->_oAnimFrame += 3;
 	os->_oRndSeed = GetRndSeed();
-	// CHEST_ITEM_NUM
-	switch (os->_otype) {
-	case OBJ_CHEST1:
-	case OBJ_TCHEST1:
-		os->_oVar1 = currLvl._dSetLvl ? 1 : random_(147, 2);
-		break;
-	case OBJ_TCHEST2:
-	case OBJ_CHEST2:
-		os->_oVar1 = currLvl._dSetLvl ? 2 : random_(147, 3);
-		break;
-	case OBJ_TCHEST3:
-	case OBJ_CHEST3:
-		os->_oVar1 = currLvl._dSetLvl ? 3 : random_(147, 4);
-		break;
-	}
-	// CHEST_ITEM_TYPE
-	os->_oVar2 = random_(147, 8);
+	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
+	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
+	num = os->_otype;
+	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
+	if (!currLvl._dSetLvl)
+		num = random_(147, num + 1);
+	os->_oVar1 = num;             // CHEST_ITEM_NUM
+	os->_oVar2 = random_(147, 8); // CHEST_ITEM_TYPE
 }
 
 static void SyncL1Doors(int oi);
@@ -3072,12 +3064,8 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < nobjects; i++) {
 			os = &object[objectactive[i]];
-			if (os->_otype == OBJ_CHEST1
-			 || os->_otype == OBJ_CHEST2
-			 || os->_otype == OBJ_CHEST3
-			 || os->_otype == OBJ_TCHEST1
-			 || os->_otype == OBJ_TCHEST2
-			 || os->_otype == OBJ_TCHEST3) {
+			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
+			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
 				CloseChest(objectactive[i], sendmsg);
 			}
 		}
