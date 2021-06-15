@@ -205,7 +205,7 @@ static int msg_wait_for_turns()
 	uint32_t turns;
 
 	if (sgbDeltaChunks == 0) {
-		nthread_send_and_recv_turn(0, 0);
+		nthread_send_turn(0, 0);
 		turns = SNetGetOwnerTurnsWaiting();
 		//if (!SNetGetOwnerTurnsWaiting(&turns) && SErrGetLastError() == STORM_ERROR_NOT_IN_GAME)
 		//	return 100;
@@ -214,7 +214,7 @@ static int msg_wait_for_turns()
 		sgbDeltaChunks++;
 	}
 	multi_process_network_packets();
-	nthread_send_and_recv_turn(0, 0);
+	nthread_send_turn(0, 0);
 	if (nthread_has_500ms_passed())
 		nthread_recv_turns(&received);
 
@@ -268,7 +268,7 @@ bool DownloadDeltaInfo()
 	return true;
 }
 
-void RunDeltaInfo()
+void RunDeltaPackets()
 {
 	if (gbMaxPlayers == 1)
 		return;

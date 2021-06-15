@@ -197,28 +197,23 @@ static void multi_handle_delta_request(int pnum)
 	}
 }
 
-static void multi_parse_turn(int pnum, uint32_t turn)
+void multi_parse_turns()
 {
-	uint32_t absTurns;
+	int pnum;
+	uint32_t turn, absTurns;
 
-	if (turn & 0x80000000)
-		multi_handle_delta_request(pnum);
-	absTurns = turn & 0x7FFFFFFF;
-	if (sgbSentThisCycle < gdwTurnsInTransit + absTurns) {
-		if (absTurns >= 0x7FFFFFFF)
-			absTurns &= 0xFFFF;
-		sgbSentThisCycle = absTurns + gdwTurnsInTransit;
-		sgdwGameLoops = 4 * absTurns * sgbNetUpdateRate;
-	}
-}
-
-void multi_msg_countdown()
-{
-	int i;
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (player_state[i] & PS_TURN_ARRIVED) {
-			multi_parse_turn(i, *glpMsgTbl[i]);
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (player_state[pnum] & PS_TURN_ARRIVED) {
+			turn = *glpMsgTbl[pnum];
+			if (turn & 0x80000000)
+				multi_handle_delta_request(pnum);
+			absTurns = turn & 0x7FFFFFFF;
+			if (sgbSentThisCycle < gdwTurnsInTransit + absTurns) {
+				if (absTurns >= 0x7FFFFFFF)
+					absTurns &= 0xFFFF;
+				sgbSentThisCycle = absTurns + gdwTurnsInTransit;
+				sgdwGameLoops = 4 * absTurns * sgbNetUpdateRate;
+			}
 		}
 	}
 }
@@ -242,7 +237,7 @@ void multi_disband_team(int team)
 	}
 }
 
-static void multi_player_left_msg(int pnum, int reason)
+static void multi_deactivate_player(int pnum, int reason)
 {
 	const char *pszFmt;
 
@@ -290,7 +285,7 @@ static void multi_clear_left_tbl()
 			if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 				msg_send_drop_plr(i, sgbPlayerLeftGameTbl[i]);
 			else
-				multi_player_left_msg(i, sgbPlayerLeftGameTbl[i]);
+				multi_deactivate_player(i, sgbPlayerLeftGameTbl[i]);
 
 			sgbPlayerLeftGameTbl[i] = LEAVE_NONE;
 		}
@@ -402,7 +397,7 @@ bool multi_handle_turn()
 		}
 	}
 
-	sgbSentThisCycle = nthread_send_and_recv_turn(sgbSentThisCycle, 1);
+	sgbSentThisCycle = nthread_send_turn(sgbSentThisCycle, 1);
 	if (!nthread_recv_turns(&received)) {
 		multi_begin_timeout();
 		return false;
@@ -731,7 +726,7 @@ bool NetInit(bool bSinglePlayer)
 		sgbSentThisCycle = 0;
 		gbDeltaSender = mypnum;
 		gbSomebodyWonGameKludge = false;
-		nthread_send_and_recv_turn(0, 0);
+		nthread_send_turn(0, 0);
 		SetupLocalCoords();
 		if (!bSinglePlayer)
 			multi_send_pinfo(-2, CMD_SEND_PLRINFO);
@@ -778,7 +773,7 @@ void recv_plrinfo(int pnum, TCmdPlrInfoHdr *piHdr, bool recv)
 	}
 
 	sgwPackPlrOffsetTbl[pnum] = 0;
-	multi_player_left_msg(pnum, LEAVE_NONE);
+	multi_deactivate_player(pnum, LEAVE_NONE);
 	// TODO: validate PkPlayerStruct coming from internet?
 	UnPackPlayer(&netplr[pnum], pnum);
 	if (!recv) {

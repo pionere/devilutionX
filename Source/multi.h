@@ -26,7 +26,7 @@ extern unsigned player_state[MAX_PLRS];
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
 void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
-void multi_msg_countdown();
+void multi_parse_turns();
 void multi_player_left(int pnum, int reason);
 void multi_disband_team(int pnum);
 void multi_net_ping();

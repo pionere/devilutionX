@@ -41,7 +41,7 @@ void nthread_terminate_game(const char *pszFcn)
 	}
 }
 
-uint32_t nthread_send_and_recv_turn(uint32_t cur_turn, int turn_delta)
+uint32_t nthread_send_turn(uint32_t cur_turn, int turn_delta)
 {
 	uint32_t turn, new_cur_turn, curTurnsInTransit;
 
@@ -100,7 +100,7 @@ bool nthread_recv_turns(bool *received)
 			guLastTick = SDL_GetTicks();
 		}
 		sgbSyncCountdown = 4;
-		multi_msg_countdown();
+		multi_parse_turns();
 		*received = true;
 		guLastTick += gnTickDelay;
 		return true;
@@ -119,7 +119,7 @@ static unsigned int nthread_handler(void *data)
 			sgMemCrit.Leave();
 			break;
 		}
-		nthread_send_and_recv_turn(0, 0);
+		nthread_send_turn(0, 0);
 		if (nthread_recv_turns(&received))
 			delta = guLastTick - SDL_GetTicks();
 		else

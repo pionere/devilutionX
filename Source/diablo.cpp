@@ -409,7 +409,7 @@ static void run_game_loop(unsigned int uMsg)
 	start_game(uMsg);
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GameWndProc);
-	RunDeltaInfo();
+	RunDeltaPackets();
 	gbRunGame = true;
 	gbProcessPlayers = true;
 	gbRunGameResult = true;
