@@ -141,7 +141,7 @@ const int flickers[1][32] = {
 
 void InitObjectGFX()
 {
-	const ObjDataStruct *ods;
+	const ObjectData *ods;
 	bool themeload[NUM_THEMES];
 	bool fileload[NUM_OFILE_TYPES];
 	char filestr[32];
@@ -1045,7 +1045,7 @@ void SetMapObjects(BYTE *pMap)
 static void SetupObject(int oi, int x, int y, int type)
 {
 	ObjectStruct *os;
-	const ObjDataStruct *ods;
+	const ObjectData *ods;
 
 	os = &object[oi];
 	os->_ox = x;

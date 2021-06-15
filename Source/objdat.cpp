@@ -151,7 +151,7 @@ const BYTE ObjConvTbl[128] = {
 };
 
 /** Contains the data related to each object ID. */
-const ObjDataStruct AllObjects[NUM_OBJECTS] = {
+const ObjectData AllObjects[NUM_OBJECTS] = {
 	// clang-format off
 					// oload, ofindex,        oLvlTypes,                                 oSetLvlType,     otheme,                  oquest,     oAnimFlag, oAnimBaseFrame, oAnimFrameLen, oAnimLen, oAnimWidth, oSolidFlag, oMissFlag, oLightFlag, oBreak, oSelFlag, oTrapFlag
 /*OBJ_L1LIGHT*/		{      1, OFILE_L1BRAZ,   DTM_CATHEDRAL,                             DTYPE_CATHEDRAL, THEME_NONE,              Q_INVALID,       TRUE,              0,             1,       26,         64, TRUE,       TRUE,      FALSE,           0,        0, FALSE     },

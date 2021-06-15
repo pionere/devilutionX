@@ -328,7 +328,7 @@ const BYTE MonstConvTbl[128] = {
 };
 
 /** Contains the data related to each unique monster ID. */
-const UniqMonstStruct UniqMonst[] = {
+const UniqMonData uniqMonData[] = {
 	// clang-format off
 	// mtype,       mName,                      mTrnName,  muLevelIdx,    muLevel,  mmaxhp, mAi,      mint, mMinDamage, mMaxDamage, mMinDamage2, mMaxDamage2, mMagicRes,                                                                                                                                               mUnqAttr,  mUnqHit, mUnqAC, mQuestId,   mtalkmsg
 	{  MT_NGOATMC,  "Gharbad the Weak",         "BSDB",    DLV_CATHEDRAL4,      8,     120, AI_GARBUD,   3,          8,         16,           8,          16, MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED |                                        MORS_LIGHTNING_IMMUNE | MORS_ACID_IMMUNE,        0,        0,      0, Q_GARBUD,   TEXT_GARBUD1   },

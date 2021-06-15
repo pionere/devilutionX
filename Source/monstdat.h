@@ -14,7 +14,7 @@ extern "C" {
 
 extern const MonsterData monsterdata[NUM_MTYPES];
 extern const BYTE MonstConvTbl[128];
-extern const UniqMonstStruct UniqMonst[];
+extern const UniqMonData uniqMonData[];
 
 #ifdef __cplusplus
 }

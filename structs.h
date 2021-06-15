@@ -29,7 +29,7 @@ typedef struct RECT32 {
 // items
 //////////////////////////////////////////////////
 
-typedef struct PLStruct {
+typedef struct AffixData {
 	const char *PLName;
 	BYTE PLPower;
 	int PLParam1;
@@ -42,9 +42,9 @@ typedef struct PLStruct {
 	int PLMinVal;
 	int PLMaxVal;
 	int PLMultVal;
-} PLStruct;
+} AffixData;
 
-typedef struct UItemStruct {
+typedef struct UniqItemData {
 	const char *UIName;
 	char UIItemId;
 	BYTE UIMinLvl;
@@ -70,13 +70,13 @@ typedef struct UItemStruct {
 #ifdef X86_32bit_COMP
 	int alignment[3];
 #endif
-} UItemStruct;
+} UniqItemData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(UItemStruct) & (sizeof(UItemStruct) - 1)) == 64, "Align UItemStruct to power of 2 for better performance.");
+static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align UniqItemData to power of 2 for better performance.");
 #endif
 
-typedef struct ItemDataStruct {
+typedef struct ItemData {
 	int iRnd;
 	BYTE iClass;
 	BYTE iLoc;
@@ -103,10 +103,10 @@ typedef struct ItemDataStruct {
 #ifdef X86_32bit_COMP
 	int alignment[2];
 #endif
-} ItemDataStruct;
+} ItemData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(ItemDataStruct) & (sizeof(ItemDataStruct) - 1)) == 0, "Align ItemDataStruct to power of 2 for better performance.");
+static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
 typedef struct ItemGetRecordStruct {
@@ -418,13 +418,13 @@ static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align P
 // textdat
 //////////////////////////////////////////////////
 
-typedef struct TextDataStruct {
+typedef struct TextData {
 	const char *txtstr;
 	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
 	int txtspd;
 	int sfxnr;
-} TextDataStruct;
+} TextData;
 
 //////////////////////////////////////////////////
 // missiles
@@ -704,7 +704,7 @@ typedef struct MonsterStruct { // note: missing field _mAFNum
 static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
 
-typedef struct UniqMonstStruct {
+typedef struct UniqMonData {
 	int mtype;
 	const char *mName;
 	const char *mTrnName;
@@ -723,17 +723,17 @@ typedef struct UniqMonstStruct {
 	BYTE mUnqAC;
 	char mQuestId;
 	int mtalkmsg;
-} UniqMonstStruct;
+} UniqMonData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(UniqMonstStruct) & (sizeof(UniqMonstStruct) - 1)) == 0, "Align UniqMonstStruct to power of 2 for better performance.");
+static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
 // objects
 //////////////////////////////////////////////////
 
-typedef struct ObjDataStruct {
+typedef struct ObjectData {
 	char oload;
 	char ofindex;
 	BYTE oLvlTypes;
@@ -754,10 +754,10 @@ typedef struct ObjDataStruct {
 #ifdef X86_32bit_COMP
 	int alignment[4];
 #endif
-} ObjDataStruct;
+} ObjectData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(ObjDataStruct) & (sizeof(ObjDataStruct) - 1)) == 0, "Align ObjDataStruct closer to power of 2 for better performance.");
+static_assert((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align ObjectData closer to power of 2 for better performance.");
 #endif
 
 typedef struct ObjectStruct {
@@ -1247,7 +1247,7 @@ typedef struct LevelStruct {
 	BYTE _dDunType;   // cached type of the dungeon
 } LevelStruct;
 
-typedef struct LevelDataStruct {
+typedef struct LevelData {
 	BYTE dLevel;
 	BOOLEAN dSetLvl;
 	BYTE dType;
@@ -1273,10 +1273,10 @@ typedef struct LevelDataStruct {
 #ifdef X86_32bit_COMP
 	int alignment[9];
 #endif
-} LevelDataStruct;
+} LevelData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(LevelDataStruct) & (sizeof(LevelDataStruct) - 1)) == 0, "Align LevelDataStruct to power of 2 for better performance.");
+static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////

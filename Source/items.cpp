@@ -971,7 +971,7 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 void SetItemData(int ii, int idata)
 {
 	ItemStruct *is;
-	const ItemDataStruct *ids;
+	const ItemData *ids;
 
 	is = &items[ii];
 	// zero-initialize struct
@@ -1696,8 +1696,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 static void GetItemPower(int ii, int minlvl, int maxlvl, int flgs, bool onlygood)
 {
 	int pre, post, nl;
-	const PLStruct *pres, *sufs;
-	const PLStruct *l[256];
+	const AffixData *pres, *sufs;
+	const AffixData *l[256];
 	BYTE goe;
 
 	pre = random_(23, 4);
@@ -1967,7 +1967,7 @@ static int CheckUnique(int ii, int lvl, int uper, bool recreate)
 
 static void GetUniqueItem(int ii, int uid)
 {
-	const UItemStruct *ui;
+	const UniqItemData *ui;
 
 	UniqueItemFlags[uid] = TRUE;
 	ui = &UniqueItemList[uid];
@@ -3157,7 +3157,7 @@ static void PrintUniquePower(BYTE plidx, ItemStruct *is, int x, int &y)
 
 void DrawUniqueInfo(ItemStruct *is, int x, int &y)
 {
-	const UItemStruct *uis;
+	const UniqItemData *uis;
 
 	uis = &UniqueItemList[is->_iUid];
 	PrintUniquePower(uis->UIPower1, is, x, y);

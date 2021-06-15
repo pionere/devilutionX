@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const LevelDataStruct AllLevels[NUM_LEVELS];
+extern const LevelData AllLevels[NUM_LEVELS];
 extern const int Qtalklist[STORE_TOWNERS][NUM_QUESTS];
 extern const QuestData questlist[NUM_QUESTS];
 

@@ -193,7 +193,7 @@ void GetLevelMTypes()
 {
 	int i, mtype;
 	int montypes[lengthof(AllLevels[0].dMonTypes)];
-	const LevelDataStruct* lds;
+	const LevelData* lds;
 	BYTE lvl;
 
 	int nt; // number of types
@@ -630,7 +630,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	int uniqtype;
 	int count2;
 	char filestr[64];
-	const UniqMonstStruct *uniqm;
+	const UniqMonData *uniqm;
 	MonsterStruct *mon;
 	int count;
 
@@ -639,7 +639,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 	}
 
 	for (uniqtype = 0; uniqtype < nummtypes; uniqtype++) {
-		if (mapMonTypes[uniqtype].cmType == UniqMonst[uniqindex].mtype) {
+		if (mapMonTypes[uniqtype].cmType == uniqMonData[uniqindex].mtype) {
 			break;
 		}
 	}
@@ -740,7 +740,7 @@ static void PlaceUniqueMonst(int uniqindex, int miniontype, int bosspacksize)
 #endif
 		mon->mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 
-	uniqm = &UniqMonst[uniqindex];
+	uniqm = &uniqMonData[uniqindex];
 	mon->mLevel = uniqm->muLevel;
 
 	mon->mExp *= 2;
@@ -817,14 +817,14 @@ static void PlaceUniques()
 {
 	int u, mt;
 
-	for (u = 0; UniqMonst[u].mtype != MT_INVALID; u++) {
-		if (UniqMonst[u].muLevelIdx != currLvl._dLevelIdx)
+	for (u = 0; uniqMonData[u].mtype != MT_INVALID; u++) {
+		if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
-		if (UniqMonst[u].mQuestId != Q_INVALID
-		 && quests[UniqMonst[u].mQuestId]._qactive == QUEST_NOTAVAIL)
+		if (uniqMonData[u].mQuestId != Q_INVALID
+		 && quests[uniqMonData[u].mQuestId]._qactive == QUEST_NOTAVAIL)
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
-			if (mapMonTypes[mt].cmType == UniqMonst[u].mtype) {
+			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
 				PlaceUniqueMonst(u, mt, 8);
 				break;
 			}
@@ -2567,7 +2567,7 @@ static void GroupUnity(int mnum)
 			leader->_msquelch = mon->_msquelch - 1;
 		}
 	} else if (mon->_uniqtype != 0) {
-		if (UniqMonst[mon->_uniqtype - 1].mUnqAttr & 2) {
+		if (uniqMonData[mon->_uniqtype - 1].mUnqAttr & 2) {
 			for (i = 0; i < nummonsters; i++) {
 				bmon = &monster[monstactive[i]];
 				if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
@@ -4472,7 +4472,7 @@ bool DirOK(int mnum, int mdir)
 		}
 		return true;
 	}
-	if (monster[mnum]._uniqtype == 0 || !(UniqMonst[monster[mnum]._uniqtype - 1].mUnqAttr & 2))
+	if (monster[mnum]._uniqtype == 0 || !(uniqMonData[monster[mnum]._uniqtype - 1].mUnqAttr & 2))
 		return true;
 	mcount = 0;
 	for (x = fx - 3; x <= fx + 3; x++) {
@@ -4689,7 +4689,7 @@ void SyncMonsterAnim(int mnum)
 	}
 	mon->MData = MData;
 	if (mon->_uniqtype != 0)
-		mon->mName = UniqMonst[mon->_uniqtype - 1].mName;
+		mon->mName = uniqMonData[mon->_uniqtype - 1].mName;
 	else
 		mon->mName = MData->mName;
 

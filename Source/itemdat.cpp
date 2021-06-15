@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Contains the data related to each item ID. */
-const ItemDataStruct AllItemsList[NUM_IDI] = {
+const ItemData AllItemsList[NUM_IDI] = {
 	// clang-format off
 //_item_index          iRnd,          iClass,        iLoc,             iCurs,                             itype,        iItemId,            iName,                         iMinMLvl, iDurability, iDamType, iMinDam, iMaxDam, iMinAC, iMaxAC, iMinStr, iMinMag, iMinDex, iMiscId,         iSpell,          iUsable, iValue
 /*IDI_GOLD       */ {  IDROP_REGULAR, ICLASS_GOLD,   ILOC_UNEQUIPABLE, ICURS_GOLD_SMALL,                  ITYPE_GOLD,   UITYPE_NONE,        "Gold",                               1,           0, IDAM_NONE,      0,       0,      0,      0,       0,       0,       0, IMISC_NONE,      SPL_NULL,        FALSE,        0 },
@@ -195,7 +195,7 @@ const ItemDataStruct AllItemsList[NUM_IDI] = {
 };
 
 /** Contains the data related to each item prefix. */
-const PLStruct PL_Prefix[] = {
+const AffixData PL_Prefix[] = {
 	// clang-format off
 	// PLName,          PLPower,         PLParam1, PLParam2, PLMinLvl, PLIType,                                                          PLGOE,    PLDouble, PLOk,  PLMinVal, PLMaxVal, PLMultVal
 	{ "tin",            IPL_TOHIT,            -10,       -6,        3,                       PLT_MELEE | PLT_STAFF | PLT_BOW | PLT_MISC,  GOE_ANY,  TRUE,    FALSE,        0,        0,        -3 },
@@ -310,7 +310,7 @@ const PLStruct PL_Prefix[] = {
 };
 
 /** Contains the data related to each item suffix. */
-const PLStruct PL_Suffix[] = {
+const AffixData PL_Suffix[] = {
 	// clang-format off
 	// PLName,          PLPower,       PLParam1, PLParam2, PLMinLvl, PLIType,                                                             PLGOE,    PLDouble, PLOk,  PLMinVal, PLMaxVal, PLMultVal
 	{  "quality",       IPL_DAMMOD,           1,        2,        2,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     GOE_ANY,  FALSE,    TRUE,       100,      200,         4 },
@@ -422,7 +422,7 @@ const PLStruct PL_Suffix[] = {
 };
 
 /** Contains the data related to each unique item ID. */
-const UItemStruct UniqueItemList[NUM_UITEM] = {
+const UniqItemData UniqueItemList[NUM_UITEM] = {
 	// clang-format off
 	// UIName,                    UIItemId,     UIMinLvl, UIValue, UIPower1,    UIParam1a, UIParam1b, UIPower2,                UIParam2a, UIParam2b, UIPower3,                  UIParam3a, UIParam3b, UIPower4,               UIParam4a, UIParam4b, UIPower5,                   UIParam5a, UIParam5b, UIPower6,                UIParam6a, UIParam6b
 	{  "The Butcher's Cleaver",   UITYPE_CLEAVER,      1,    3650, IPL_STR,            10,        10, IPL_SETDAM,                      4,        24, IPL_SETDUR,                       10,        10, IPL_INVALID,                    0,         0, IPL_INVALID,                        0,         0, IPL_INVALID,                     0,         0 },

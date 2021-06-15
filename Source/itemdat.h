@@ -15,10 +15,10 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const ItemDataStruct AllItemsList[NUM_IDI];
-extern const PLStruct PL_Prefix[];
-extern const PLStruct PL_Suffix[];
-extern const UItemStruct UniqueItemList[NUM_UITEM];
+extern const ItemData AllItemsList[NUM_IDI];
+extern const AffixData PL_Prefix[];
+extern const AffixData PL_Suffix[];
+extern const UniqItemData UniqueItemList[NUM_UITEM];
 
 #ifdef __cplusplus
 }

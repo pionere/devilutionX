@@ -280,23 +280,23 @@ void ValidateData()
 
 	// umt checks for GetLevelMTypes
 #ifdef HELLFIRE
-	assert(UniqMonst[UMT_HORKDMN].mtype == MT_HORKDMN);
-	assert(UniqMonst[UMT_DEFILER].mtype == MT_DEFILER);
-	assert(UniqMonst[UMT_NAKRUL].mtype == MT_NAKRUL);
+	assert(uniqMonData[UMT_HORKDMN].mtype == MT_HORKDMN);
+	assert(uniqMonData[UMT_DEFILER].mtype == MT_DEFILER);
+	assert(uniqMonData[UMT_NAKRUL].mtype == MT_NAKRUL);
 #endif
-	assert(UniqMonst[UMT_BUTCHER].mtype == MT_CLEAVER);
-	assert(UniqMonst[UMT_GARBUD].mtype == MT_NGOATMC);
-	assert(UniqMonst[UMT_ZHAR].mtype == MT_COUNSLR);
-	assert(UniqMonst[UMT_SNOTSPIL].mtype == MT_BFALLSP);
-	assert(UniqMonst[UMT_LACHDAN].mtype == MT_RBLACK);
-	assert(UniqMonst[UMT_WARLORD].mtype == MT_BTBLACK);
+	assert(uniqMonData[UMT_BUTCHER].mtype == MT_CLEAVER);
+	assert(uniqMonData[UMT_GARBUD].mtype == MT_NGOATMC);
+	assert(uniqMonData[UMT_ZHAR].mtype == MT_COUNSLR);
+	assert(uniqMonData[UMT_SNOTSPIL].mtype == MT_BFALLSP);
+	assert(uniqMonData[UMT_LACHDAN].mtype == MT_RBLACK);
+	assert(uniqMonData[UMT_WARLORD].mtype == MT_BTBLACK);
 	// umt checks for PlaceQuestMonsters
-	assert(UniqMonst[UMT_LAZURUS].mtype == MT_ADVOCATE);
-	assert(UniqMonst[UMT_BLACKJADE].mtype == MT_HLSPWN);
-	assert(UniqMonst[UMT_RED_VEX].mtype == MT_HLSPWN);
+	assert(uniqMonData[UMT_LAZURUS].mtype == MT_ADVOCATE);
+	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_HLSPWN);
+	assert(uniqMonData[UMT_RED_VEX].mtype == MT_HLSPWN);
 
-	for (int i = 0; UniqMonst[i].mtype != MT_INVALID; i++) {
-		const UniqMonstStruct& um = UniqMonst[i];
+	for (int i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
+		const UniqMonData& um = uniqMonData[i];
 		int j = 0;
 		int lvl = um.muLevelIdx;
 		if (lvl != 0 && um.mQuestId == Q_INVALID
@@ -324,7 +324,7 @@ void ValidateData()
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
 	for (int i = 0; i < NUM_IDI; i++) {
-		const ItemDataStruct& ids = AllItemsList[i];
+		const ItemData& ids = AllItemsList[i];
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_LARMOR && ids.iMinMLvl < minLightArmor)
@@ -344,12 +344,12 @@ void ValidateData()
 		app_fatal("No medium armor for OperateArmorStand. Current minimum is level %d", minMediumArmor);
 	if (minHeavyArmor > 24)
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
-	if (UniqMonst[UMT_HORKDMN].muLevel < minAmu)
-		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, UniqMonst[UMT_HORKDMN].muLevel);
-	/*for (const PLStruct *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
+		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
+	/*for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 
 	}
-	for (const PLStruct *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+	for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
 
 	}*/
 

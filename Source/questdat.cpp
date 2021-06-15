@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-const LevelDataStruct AllLevels[NUM_LEVELS] = {
+const LevelData AllLevels[NUM_LEVELS] = {
 	// clang-format off
 					// dLevel, dSetLvl, dType,           dDunType,        dMusic,      dMicroTileLen, dBlocks, dLevelName,
 /*DLV_TOWN*/		{       0, FALSE,   DTYPE_TOWN,      DTYPE_TOWN,      TMUSIC_TOWN,            16,      16, "Tristram",

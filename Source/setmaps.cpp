@@ -149,7 +149,7 @@ static void DRLG_SetMapTrans(const char *sFileName)
  */
 void LoadSetMap()
 {
-	const LevelDataStruct *lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData *lds = &AllLevels[currLvl._dLevelIdx];
 
 	switch (currLvl._dLevelIdx) {
 	case SL_SKELKING:

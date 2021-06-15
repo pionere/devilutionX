@@ -203,7 +203,7 @@ bool IncProgress()
 
 static void LoadLvlGFX()
 {
-	const LevelDataStruct *lds;
+	const LevelData *lds;
 	assert(pDungeonCels == NULL);
 	lds = &AllLevels[currLvl._dLevelIdx];
 

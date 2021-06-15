@@ -33,7 +33,7 @@ void InitQuestText()
 
 void InitQTextMsg(int m, bool showText)
 {
-	const TextDataStruct *tds;
+	const TextData *tds;
 	int sfxnr;
 
 	tds = &alltext[m];
