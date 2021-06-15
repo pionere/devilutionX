@@ -162,9 +162,22 @@ if(AMIGA)
   include(amiga_defs)
 endif()
 
-if(N3DS)
+if(NINTENDO_3DS)
   list(APPEND CMAKE_MODULE_PATH "${DevilutionX_SOURCE_DIR}/CMake/ctr")
   include(n3ds_defs)
+endif()
+
+if(ANDROID)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/android-project/CMake")
+
+  set(ASAN OFF)
+  set(UBSAN OFF)
+  set(NONET ON)
+  set(TTF_FONT_DIR \"\")
+
+  file(
+    COPY "${DevilutionX_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
+    DESTINATION "${DevilutionX_SOURCE_DIR}/android-project/app/src/main/assets")
 endif()
 
 if(PIE)
@@ -178,7 +191,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-if(NOT N3DS)
+if(NOT NINTENDO_3DS)
   find_package(Threads REQUIRED)
 endif()
 
@@ -191,7 +204,10 @@ if(NOT NONET)
   endif()
 endif()
 
-if(USE_SDL1)
+if(ANDROID)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/android-project/3rdParty/SDL2)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/android-project/3rdParty/SDL2_ttf)
+elseif(USE_SDL1)
   find_package(SDL REQUIRED)
   find_package(SDL_ttf REQUIRED)
   if (NOT NOSOUND)
@@ -388,11 +404,7 @@ set(devilutionx_SRCS
   Source/storm/storm.cpp
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
-  Source/miniwin/misc_msg.cpp
-  Source/devilutionx.exe.manifest
-  Packaging/macOS/AppIcon.icns
-  Packaging/resources/CharisSILB.ttf
-  Packaging/windows/devilutionx.rc)
+  Source/miniwin/misc_msg.cpp)
 
 if(USE_SDL1)
   list(APPEND devilutionx_SRCS Source/utils/sdl2_to_1_2_backports.cpp)
@@ -421,7 +433,7 @@ if(VITA)
     Source/platform/vita/keyboard.cpp)
 endif()
 
-if(N3DS)
+if(NINTENDO_3DS)
   list(APPEND devilutionx_SRCS
     Source/platform/ctr/system.cpp
     Source/platform/ctr/keyboard.cpp
@@ -459,8 +471,16 @@ endif()
 if(HELLFIRE)
   add_definitions(-DHELLFIRE)
 endif()
-
-add_executable(${BIN_TARGET} WIN32 MACOSX_BUNDLE ${devilutionx_SRCS})
+if (NOT ANDROID)
+  add_executable(${BIN_TARGET}
+    WIN32
+    MACOSX_BUNDLE
+    ${devilutionx_SRCS}
+    Source/devilutionx.exe.manifest
+    Packaging/macOS/AppIcon.icns
+    Packaging/resources/CharisSILB.ttf
+    Packaging/windows/devilutionx.rc)
+endif()
 
 # Copy the font, devilutionx.mpq and devilx.mpq to the build directory to it works from the build directory
 file(COPY "Packaging/resources/CharisSILB.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -503,7 +523,7 @@ target_include_directories(${BIN_TARGET} PRIVATE
   Source
   ${CMAKE_CURRENT_BINARY_DIR})
 
-if(NOT N3DS)
+if(NOT NINTENDO_3DS)
   target_link_libraries(${BIN_TARGET} PUBLIC
   Threads::Threads)
 endif()
@@ -666,7 +686,7 @@ if (VITA)
   target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
-if(N3DS)
+if(NINTENDO_3DS)
   target_link_libraries(${BIN_TARGET} PRIVATE ${TREMOR_LIBRARIES})
   target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
@@ -815,7 +835,7 @@ if(VITA)
   )
 endif()
 
-if(N3DS)
+if(NINTENDO_3DS)
   set(APP_TITLE       "DevilutionX")
   set(APP_DESCRIPTION "DevilutionX port for 3DS")
   set(APP_AUTHOR      "Diasurgical Team")

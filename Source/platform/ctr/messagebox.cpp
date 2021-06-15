@@ -1,6 +1,5 @@
 #include <3ds.h>
 #include <SDL.h>
-#include <fmt/core.h>
 #include "utils/sdl2_to_1_2_backports.h"
 
 int SDL_ShowSimpleMessageBox(Uint32 flags,
@@ -12,14 +11,16 @@ int SDL_ShowSimpleMessageBox(Uint32 flags,
 		SDL_Log("%s", SDL_GetError());
 
 	bool init = !gspHasGpuRight();
-	auto text = fmt::format("{}\n\n{}", title, message);
+
+	char text[1024];
+	snprintf(text, sizeof(text), "%s\n\n%s", title, message)
 
 	if (init)
 		gfxInitDefault();
 
 	errorConf error;
 	errorInit(&error, ERROR_TEXT, CFG_LANGUAGE_EN);
-	errorText(&error, text.c_str());
+	errorText(&error, text);
 	errorDisp(&error);
 
 	if (init)

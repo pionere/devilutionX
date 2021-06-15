@@ -122,6 +122,7 @@ void tcp_client::SNetLeaveGame(int reason)
 	poll();
 	if (local_server != NULL)
 		local_server->close();
+	sock.close();
 }
 
 std::string tcp_client::make_default_gamename()

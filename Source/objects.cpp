@@ -3074,7 +3074,10 @@ static void OperateShrine(int pnum, int psfx, int psfxCnt, int oi, bool sendmsg)
 			os = &object[objectactive[i]];
 			if (os->_otype == OBJ_CHEST1
 			 || os->_otype == OBJ_CHEST2
-			 || os->_otype == OBJ_CHEST3) {
+			 || os->_otype == OBJ_CHEST3
+			 || os->_otype == OBJ_TCHEST1
+			 || os->_otype == OBJ_TCHEST2
+			 || os->_otype == OBJ_TCHEST3) {
 				CloseChest(objectactive[i], sendmsg);
 			}
 		}

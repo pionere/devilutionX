@@ -63,7 +63,7 @@ void LoadTtfFont()
 	{
 		ttfFontPath = TTF_FONT_DIR TTF_FONT_NAME;
 	}
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
 	if (!FileExists(ttfFontPath)) {
 		ttfFontPath = "/usr/share/fonts/truetype/" TTF_FONT_NAME;
 	}
