@@ -2760,14 +2760,10 @@ static bool MAI_Path(int mnum)
 		dev_fatal("MAI_Path: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
-	if (mon->_mType != MT_GOLEM) {
-		if (mon->_msquelch == 0)
-			return false;
-		if (mon->_mmode != MM_STAND)
-			return false;
-		if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
-			return false;
-	}
+	if (mon->_mmode != MM_STAND || mon->_msquelch == 0)
+		return false;
+	if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_MOVE && mon->_mgoal != MGOAL_ATTACK2)
+		return false;
 
 	clear = LineClearF1(
 	    PosOkMonst2,
@@ -2786,8 +2782,7 @@ static bool MAI_Path(int mnum)
 			return true;
 	}
 
-	if (mon->_mType != MT_GOLEM)
-		mon->_mpathcount = 0;
+	mon->_mpathcount = 0;
 
 	return false;
 }
@@ -3690,9 +3685,12 @@ void MAI_Golem(int mnum)
 		MonEnemy(mnum);
 
 	if (!(mon->_mFlags & MFLAG_NO_ENEMY)) {
+		mon->_msquelch = SQUELCH_MAX;
 		tmon = &monster[mon->_menemy];
 
 		if (abs(mon->_mx - tmon->_mfutx) >= 2 || abs(mon->_my - tmon->_mfuty) >= 2) {
+			// assert(mon->_mgoal == MGOAL_NORMAL);
+			mon->_mpathcount = 5; // make sure MonPathWalk is always called
 			if (MAI_Path(mnum)) {
 				return;
 			}
@@ -3703,10 +3701,6 @@ void MAI_Golem(int mnum)
 			return;
 		}
 	}
-
-	mon->_mpathcount++;
-	if (mon->_mpathcount > 8)
-		mon->_mpathcount = 5;
 
 	md = plx(mnum)._pdir;
 	if (!MonCallWalk(mnum, md)) {
