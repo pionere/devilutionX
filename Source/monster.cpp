@@ -1186,6 +1186,19 @@ static void FixMonLocation(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
+void AssertFixMonLocation(int mnum)
+{
+	MonsterStruct *mon;
+
+	mon = &monster[mnum];
+	assert(mon->_mxoff == 0);
+	assert(mon->_myoff == 0);
+	assert(mon->_mfutx == mon->_mx);
+	assert(mon->_moldx == mon->_mx);
+	assert(mon->_mfuty == mon->_my);
+	assert(mon->_moldy == mon->_my);
+}
+
 void MonStartStand(int mnum, int md)
 {
 	MonsterStruct *mon;
@@ -1227,12 +1240,9 @@ static void MonStartSpStand(int mnum, int md)
 	MonsterStruct *mon;
 
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	AssertFixMonLocation(mnum);
 	mon = &monster[mnum];
 	mon->_mmode = MM_SPSTAND;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
 static void MonChangeLightOff(int mnum)
@@ -1358,12 +1368,9 @@ static void MonStartAttack(int mnum)
 	MonsterStruct *mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
+	AssertFixMonLocation(mnum);
 	mon = &monster[mnum];
 	mon->_mmode = MM_ATTACK;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
 static void MonStartRAttack(int mnum, int mitype)
@@ -1372,13 +1379,10 @@ static void MonStartRAttack(int mnum, int mitype)
 	MonsterStruct *mon;
 
 	NewMonsterAnim(mnum, MA_ATTACK, md);
+	AssertFixMonLocation(mnum);
 	mon = &monster[mnum];
 	mon->_mmode = MM_RATTACK;
 	mon->_mVar1 = mitype; // RATTACK_SKILL
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
 /*
@@ -1393,14 +1397,11 @@ static void MonStartRSpAttack(int mnum, int mitype)
 	MonsterStruct *mon;
 
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	AssertFixMonLocation(mnum);
 	mon = &monster[mnum];
 	mon->_mmode = MM_RSPATTACK;
 	mon->_mVar1 = mitype; // SPATTACK_SKILL
 	mon->_mVar2 = 0;      // SPATTACK_ANIM : counter to enable/disable MFLAG_LOCK_ANIMATION for certain monsters
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
 /*
@@ -1423,10 +1424,7 @@ static void MonStartSpAttack(int mnum)
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
 	mon->_mmode = MM_SATTACK;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
+	AssertFixMonLocation(mnum);
 }
 
 void RemoveMonFromMap(int mnum)
@@ -1813,13 +1811,10 @@ static void MonStartFadein(int mnum, int md, bool backwards)
 		dev_fatal("MonStartFadein: Invalid monster %d", mnum);
 	}
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	AssertFixMonLocation(mnum);
 
 	mon = &monster[mnum];
 	mon->_mmode = MM_FADEIN;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 	mon->_mFlags &= ~MFLAG_HIDDEN;
 	if (backwards) {
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
@@ -1838,13 +1833,10 @@ static void MonStartFadeout(int mnum, int md, bool backwards)
 		dev_fatal("MonStartFadeout: Invalid monster %d", mnum);
 	}
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	AssertFixMonLocation(mnum);
 
 	mon = &monster[mnum];
 	mon->_mmode = MM_FADEOUT;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
 	if (backwards) {
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
 		mon->_mAnimFrame = mon->_mAnimLen;
