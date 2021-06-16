@@ -343,7 +343,7 @@ static bool SpecialThemeFit(int tidx, int theme)
 	return rv;
 }
 
-static bool CheckThemeRoom(int tv)
+static bool CheckThemeRoom(BYTE tv)
 {
 	int i, j, tarea;
 
@@ -407,44 +407,40 @@ void InitThemes()
 	zharlib = -1;
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
-		for (i = 0; i < 256 && numthemes < MAXTHEMES; i++) {
+		themeCount = 0;
+		for (i = 0; i < numtrans && themeCount < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
-				themes[numthemes].ttval = i;
-				j = ThemeGood[random_(0, 4)];
-				while (!SpecialThemeFit(numthemes, j))
-					j = random_(0, NUM_THEMES);
-				themes[numthemes].ttype = j;
-				numthemes++;
+				themeLoc[themeCount].ttval = i;
+				themeCount++;
 			}
 		}
-	} else {
-		for (i = 0; i < themeCount; i++) {
-			themes[i].ttype = THEME_NONE;
-			themes[i].ttval = themeLoc[i].ttval;
-		}
-		if (QuestStatus(Q_ZHAR)) {
-			for (i = 0; i < themeCount; i++) {
-				if (SpecialThemeFit(i, THEME_LIBRARY)) {
-					themes[i].ttype = THEME_LIBRARY;
-					zharlib = i;
-					break;
-				}
-			}
-			if (zharlib == -1) {
-				quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
-				// TODO: RemoveMonsterType(UniqMonst[UMT_ZHAR].mtype); ?
-			}
-		}
-		for (i = 0; i < themeCount; i++) {
-			if (themes[i].ttype == THEME_NONE) {
-				j = ThemeGood[random_(0, 4)];
-				while (!SpecialThemeFit(i, j))
-					j = random_(0, NUM_THEMES);
-				themes[i].ttype = j;
-			}
-		}
-		numthemes += themeCount;
 	}
+	for (i = 0; i < themeCount; i++) {
+		themes[i].ttype = THEME_NONE;
+		themes[i].ttval = themeLoc[i].ttval;
+	}
+	if (QuestStatus(Q_ZHAR)) {
+		for (i = 0; i < themeCount; i++) {
+			if (SpecialThemeFit(i, THEME_LIBRARY)) {
+				themes[i].ttype = THEME_LIBRARY;
+				zharlib = i;
+				break;
+			}
+		}
+		if (zharlib == -1) {
+			quests[Q_ZHAR]._qactive = QUEST_NOTAVAIL;
+			// TODO: RemoveMonsterType(UniqMonst[UMT_ZHAR].mtype); ?
+		}
+	}
+	for (i = 0; i < themeCount; i++) {
+		if (themes[i].ttype == THEME_NONE) {
+			j = ThemeGood[random_(0, lengthof(ThemeGood))];
+			while (!SpecialThemeFit(i, j))
+				j = random_(0, NUM_THEMES);
+			themes[i].ttype = j;
+		}
+	}
+	numthemes = themeCount;
 }
 
 /**
@@ -454,9 +450,10 @@ void HoldThemeRooms()
 {
 	int i, xx, yy;
 	BYTE v;
-
-	if (currLvl._dLevelIdx == DLV_HELL4)
+	// assert(currLvl._dType != DTYPE_TOWN);
+	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
+
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		for (i = 0; i < numthemes; i++) {
 			v = themes[i].ttval;
@@ -469,6 +466,7 @@ void HoldThemeRooms()
 			}
 		}
 	} else {
+		//assert(numthemes == themeCount);
 		DRLG_HoldThemeRooms();
 	}
 }
@@ -958,7 +956,7 @@ static void Theme_WeaponRack(int tidx)
 /**
  * UpdateL4Trans sets each value of the transparency map to 1.
  */
-static void UpdateL4Trans()
+/*static void UpdateL4Trans()
 {
 	int i;
 	BYTE *pTmp;
@@ -968,7 +966,7 @@ static void UpdateL4Trans()
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++)
 		if (*pTmp != 0)
 			*pTmp = 1;
-}
+}*/
 
 /**
  * CreateThemeRooms adds thematic elements to rooms.
@@ -976,7 +974,7 @@ static void UpdateL4Trans()
 void CreateThemeRooms()
 {
 	int i;
-
+	// assert(currLvl._dType != DTYPE_TOWN);
 	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
@@ -1040,9 +1038,10 @@ void CreateThemeRooms()
 		}
 	}
 	//gbInitObjFlag = false;
-	if (currLvl._dType == DTYPE_HELL && themeCount > 0) {
-		UpdateL4Trans();
-	}
+	// TODO: why was this necessary in the vanilla code?
+	//if (currLvl._dType == DTYPE_HELL && numthemes > 0) {
+	//	UpdateL4Trans();
+	//}
 }
 
 DEVILUTION_END_NAMESPACE

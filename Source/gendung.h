@@ -35,7 +35,7 @@ extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
 extern int MicroTileLen;
-extern BYTE TransVal;
+extern BYTE numtrans;
 extern bool TransList[256];
 extern int dPiece[MAXDUNX][MAXDUNY];
 extern MICROS dpiece_defs_map_2[MAXDUNX][MAXDUNY];

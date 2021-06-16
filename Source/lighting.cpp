@@ -1246,7 +1246,7 @@ void ProcessVisionList()
 				DoUnVision(vis->_lx, vis->_ly, vis->_lradius);
 			}
 		}
-		for (i = 0; i < TransVal; i++) {
+		for (i = 0; i < numtrans; i++) {
 			TransList[i] = false;
 		}
 		for (i = 0; i < numvision; ) {

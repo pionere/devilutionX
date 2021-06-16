@@ -57,14 +57,15 @@ int ViewX;
 int ViewY;
 ScrollStruct ScrollInfo;
 int MicroTileLen;
-BYTE TransVal;
+/** Specifies the number of transparency blocks on the map. */
+BYTE numtrans;
 /** Specifies the active transparency indices. */
 bool TransList[256];
 /** Contains the piece IDs of each tile on the map. */
 int dPiece[MAXDUNX][MAXDUNY];
 /** Specifies the dungeon piece information for a given coordinate and block number. */
 MICROS dpiece_defs_map_2[MAXDUNX][MAXDUNY];
-/** Specifies the transparency at each coordinate of the map. */
+/** Specifies the transparency index at each coordinate of the map. */
 BYTE dTransVal[MAXDUNX][MAXDUNY];
 char dLight[MAXDUNX][MAXDUNY];
 char dPreLight[MAXDUNX][MAXDUNY];
@@ -113,6 +114,7 @@ char dMissile[MAXDUNX][MAXDUNY];
  * "levels/towndata/towns.cel") contains trees rather than arches.
  */
 BYTE dSpecial[MAXDUNX][MAXDUNY];
+/** Specifies the number of themes generated in the dungeon. */
 int themeCount;
 THEME_LOC themeLoc[MAXTHEMES];
 
@@ -332,7 +334,7 @@ void DRLG_InitTrans()
 {
 	memset(dTransVal, 0, sizeof(dTransVal));
 	//memset(TransList, 0, sizeof(TransList));
-	TransVal = 1;
+	numtrans = 1;
 }
 
 void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv)
@@ -357,10 +359,10 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 
 	for (j = y1; j <= y2; j++) {
 		for (i = x1; i <= x2; i++) {
-			dTransVal[i][j] = TransVal;
+			dTransVal[i][j] = numtrans;
 		}
 	}
-	TransVal++;
+	numtrans++;
 }
 
 void DRLG_ListTrans(int num, const BYTE *List)
@@ -388,9 +390,9 @@ void DRLG_AreaTrans(int num, const BYTE *List)
 		x2 = *List++;
 		y2 = *List++;
 		DRLG_RectTrans(x1, y1, x2, y2);
-		TransVal--;
+		numtrans--;
 	}
-	TransVal++;
+	numtrans++;
 }
 
 #if defined(__3DS__)
@@ -403,32 +405,32 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 	if (dungeon[i][j] != TVfloor) {
 		switch (dir) {
 		case 1:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x][y + 1] = TransVal;
+			dTransVal[x][y] = numtrans;
+			dTransVal[x][y + 1] = numtrans;
 			break;
 		case 2:
-			dTransVal[x + 1][y] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
+			dTransVal[x + 1][y] = numtrans;
+			dTransVal[x + 1][y + 1] = numtrans;
 			break;
 		case 3:
-			dTransVal[x][y] = TransVal;
-			dTransVal[x + 1][y] = TransVal;
+			dTransVal[x][y] = numtrans;
+			dTransVal[x + 1][y] = numtrans;
 			break;
 		case 4:
-			dTransVal[x][y + 1] = TransVal;
-			dTransVal[x + 1][y + 1] = TransVal;
+			dTransVal[x][y + 1] = numtrans;
+			dTransVal[x + 1][y + 1] = numtrans;
 			break;
 		case 5:
-			dTransVal[x + 1][y + 1] = TransVal;
+			dTransVal[x + 1][y + 1] = numtrans;
 			break;
 		case 6:
-			dTransVal[x][y + 1] = TransVal;
+			dTransVal[x][y + 1] = numtrans;
 			break;
 		case 7:
-			dTransVal[x + 1][y] = TransVal;
+			dTransVal[x + 1][y] = numtrans;
 			break;
 		case 8:
-			dTransVal[x][y] = TransVal;
+			dTransVal[x][y] = numtrans;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -439,10 +441,10 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 			// assert(dTransVal[x][y] == TransVal);
 			return;
 		}
-		dTransVal[x][y] = TransVal;
-		dTransVal[x + 1][y] = TransVal;
-		dTransVal[x][y + 1] = TransVal;
-		dTransVal[x + 1][y + 1] = TransVal;
+		dTransVal[x][y] = numtrans;
+		dTransVal[x + 1][y] = numtrans;
+		dTransVal[x][y + 1] = numtrans;
+		dTransVal[x + 1][y + 1] = numtrans;
 		DRLG_FTVR(i + 1, j, x + 2, y, 1);
 		DRLG_FTVR(i - 1, j, x - 2, y, 2);
 		DRLG_FTVR(i, j + 1, x, y + 2, 3);
@@ -468,7 +470,7 @@ void DRLG_FloodTVal(BYTE floor)
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == TVfloor && dTransVal[xx][yy] == 0) {
 				DRLG_FTVR(i, j, xx, yy, 0);
-				TransVal++;
+				numtrans++;
 			}
 			xx += 2;
 		}
@@ -707,7 +709,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 				themeLoc[themeCount].y = j + 1;
 				themeLoc[themeCount].width = themeW;
 				themeLoc[themeCount].height = themeH;
-				themeLoc[themeCount].ttval = TransVal;
+				themeLoc[themeCount].ttval = numtrans;
 				int x1 = 2 * i + DBORDERX + 3;
 				int y1 = 2 * j + DBORDERY + 3;
 				int x2 = 2 * (i + themeW) + DBORDERX;

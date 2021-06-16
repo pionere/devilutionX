@@ -738,7 +738,7 @@ typedef struct ObjectData {
 	char ofindex;
 	BYTE oLvlTypes;
 	BYTE oSetLvlType;
-	char otheme;
+	BYTE otheme;
 	char oquest;
 	BOOL oAnimFlag;
 	int oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
@@ -1410,7 +1410,7 @@ typedef struct ScrollStruct {
 typedef struct THEME_LOC {
 	int x;
 	int y;
-	int ttval;
+	BYTE ttval;
 	int width;
 	int height;
 } THEME_LOC;
@@ -1451,8 +1451,8 @@ typedef struct ROOMHALLNODE {
 //////////////////////////////////////////////////
 
 typedef struct ThemeStruct {
-	char ttype; /* aligned 4 */
-	int ttval;
+	BYTE ttype;
+	BYTE ttval;
 } ThemeStruct;
 
 #ifdef X86_32bit_COMP

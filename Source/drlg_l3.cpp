@@ -1124,8 +1124,8 @@ static void DRLG_L3FloodTVal()
 		}
 	}
 
-	assert(TransVal == 1);
-	TransVal = 2;
+	assert(numtrans == 1);
+	numtrans = 2;
 }
 
 static void DRLG_L3River()
