@@ -3360,7 +3360,7 @@ typedef enum quest_id {
 	Q_JERSEY,
 #endif
 	NUM_QUESTS,
-	Q_INVALID  = -1,
+	Q_INVALID  = 0xFF,
 } quest_id;
 
 typedef enum quest_state {

@@ -721,7 +721,7 @@ typedef struct UniqMonData {
 	BYTE mUnqAttr;
 	BYTE mUnqHit;
 	BYTE mUnqAC;
-	char mQuestId;
+	BYTE mQuestId;
 	int mtalkmsg;
 } UniqMonData;
 
@@ -739,7 +739,7 @@ typedef struct ObjectData {
 	BYTE oLvlTypes;
 	BYTE oSetLvlType;
 	BYTE otheme;
-	char oquest;
+	BYTE oquest;
 	BOOL oAnimFlag;
 	int oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	int oAnimFrameLen; // Tick length of each frame in the current animation

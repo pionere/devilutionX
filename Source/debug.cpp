@@ -276,6 +276,8 @@ void ValidateData()
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
 		if (md.mAi == AI_COUNSLR && md.mInt > 5)
 			app_fatal("Invalid mInt %d for %s (%d)", md.mInt, md.mName, i);
+		if (md.mAnimFrames[MA_WALK] > 24) // required by MonWalkDir
+			app_fatal("Too many(%d) walk-frames for %s (%d).", md.mAnimFrames[MA_WALK], md.mName, i);
 	}
 
 	// umt checks for GetLevelMTypes
@@ -299,6 +301,8 @@ void ValidateData()
 		const UniqMonData& um = uniqMonData[i];
 		int j = 0;
 		int lvl = um.muLevelIdx;
+		if (lvl == 0 && um.mQuestId != Q_INVALID)
+			app_fatal("Inconsistent unique monster %s (%d). Has a quest, but no quest-level.", um.mName, i);
 		if (lvl != 0 && um.mQuestId == Q_INVALID
 		 && (lvl != DLV_HELL4 || (um.mtype != MT_ADVOCATE && um.mtype != MT_RBLACK))
 #ifdef HELLFIRE

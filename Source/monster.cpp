@@ -158,12 +158,12 @@ void InitLevelMonsters()
 
 	nummonsters = 0;
 	nummtypes = 0;
-	monstimgtot = 4000;
 	uniquetrans = 0;
+	monstimgtot = 4000;
+	totalmonsters = MAXMONSTERS;
 
 	memset(monster, 0, sizeof(monster));
 
-	totalmonsters = MAXMONSTERS;
 	for (i = 0; i < MAXMONSTERS; i++) {
 		monstactive[i] = i;
 	}
@@ -235,7 +235,7 @@ void GetLevelMTypes()
 		if (QuestStatus(Q_WARLORD))
 			AddMonsterType(MT_BTBLACK, TRUE);
 
-		lds = &AllLevels[currLvl._dLevelIdx];
+		lds = &AllLevels[lvl];
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
 			mtype = lds->dMonTypes[nt];
 			if (mtype == MT_INVALID)
@@ -408,12 +408,7 @@ static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
-	mon->_mx = x;
-	mon->_my = y;
-	mon->_mfutx = x;
-	mon->_mfuty = y;
-	mon->_moldx = x;
-	mon->_moldy = y;
+	SetMonsterLoc(mon, x, y);
 	mon->MType = cmon;
 	mon->_mType = cmon->cmType;
 	mon->_mAnimWidth = cmon->cmWidth;
@@ -918,7 +913,6 @@ void InitMonsters()
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
-	numscattypes = 0;
 #ifdef _DEBUG
 	if (gbMaxPlayers != 1)
 		CheckDungeonClear();
@@ -927,6 +921,7 @@ void InitMonsters()
 		for (i = 0; i < MAX_MINIONS; i++)
 			AddMonster(0, 0, 0, 0, false);
 	}
+	// reserve the entry/exit area
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
 		if (ts->_tmsg == WM_DIABTWARPUP || ts->_tmsg == WM_DIABPREVLVL
@@ -935,10 +930,10 @@ void InitMonsters()
 				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false, false);
 		}
 	}
+	// place the mandatory monsters
 	PlaceQuestMonsters();
 	if (!currLvl._dSetLvl) {
-		PlaceUniques();
-
+		// calculate the available space for monsters
 		na = 0;
 		for (xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
 			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
@@ -950,6 +945,9 @@ void InitMonsters()
 		if (numplacemonsters > MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters)
 			numplacemonsters = MAXMONSTERS - (MAX_MINIONS + 6) - nummonsters;
 		totalmonsters = nummonsters + numplacemonsters;
+		// place the optional monsters
+		PlaceUniques();
+		numscattypes = 0;
 		for (i = 0; i < nummtypes; i++) {
 			if (mapMonTypes[i].cmPlaceScatter) {
 				scattertypes[numscattypes] = i;
@@ -1441,8 +1439,8 @@ void RemoveMonFromMap(int mnum)
 
 	static_assert(DBORDERX >= 1, "RemoveMonFromMap expects a large enough border I.");
 	static_assert(DBORDERY >= 1, "RemoveMonFromMap expects a large enough border II.");
-	for (y = my - 1; y <= my + 1; y++) {
-		for (x = mx - 1; x <= mx + 1; x++) {
+	for (x = mx - 1; x <= mx + 1; x++) {
+		for (y = my - 1; y <= my + 1; y++) {
 			if (abs(dMonster[x][y]) == m1)
 				dMonster[x][y] = 0;
 		}
