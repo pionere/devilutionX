@@ -2536,6 +2536,7 @@ static void GroupUnity(int mnum)
 		dev_fatal("GroupUnity: Invalid monster %d", mnum);
 	}
 	mon = &monster[mnum];
+	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->leaderflag != MLEADER_NONE) {
 		leader = &monster[mon->leader];
 		clear = LineClearF(CheckNoSolid, mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
@@ -2550,24 +2551,23 @@ static void GroupUnity(int mnum)
 			leader->packsize--;
 			mon->leaderflag = MLEADER_AWAY;
 		}
-	}
-
-	if (mon->leaderflag == MLEADER_PRESENT) {
-		if (mon->_msquelch > leader->_msquelch) {
-			leader->_lastx = mon->_mx;
-			leader->_lasty = mon->_my;
-			leader->_msquelch = mon->_msquelch - 1;
+		if (mon->leaderflag == MLEADER_PRESENT) {
+			if (mon->_msquelch > leader->_msquelch) {
+				leader->_lastx = mon->_lastx; // BUGFIX: use _lastx instead of _mx (fixed)
+				leader->_lasty = mon->_lasty; // BUGFIX: use _lasty instead of _my (fixed)
+				leader->_msquelch = mon->_msquelch - 1;
+			}
 		}
-	} else if (mon->_uniqtype != 0) {
-		if (uniqMonData[mon->_uniqtype - 1].mUnqAttr & 2) {
-			for (i = 0; i < nummonsters; i++) {
-				bmon = &monster[monstactive[i]];
-				if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
-					if (mon->_msquelch > bmon->_msquelch) {
-						bmon->_lastx = mon->_mx;
-						bmon->_lasty = mon->_my;
-						bmon->_msquelch = mon->_msquelch - 1;
-					}
+	}
+	// update squelch value + enemy location of the pack monsters
+	if (mon->_uniqtype != 0 && uniqMonData[mon->_uniqtype - 1].mUnqAttr & 2) {
+		for (i = 0; i < nummonsters; i++) {
+			bmon = &monster[monstactive[i]];
+			if (bmon->leaderflag == MLEADER_PRESENT && bmon->leader == mnum) {
+				if (mon->_msquelch > bmon->_msquelch) {
+					bmon->_lastx = mon->_lastx; // BUGFIX: use _lastx instead of _mx (fixed)
+					bmon->_lasty = mon->_lasty; // BUGFIX: use _lasty instead of _my (fixed)
+					bmon->_msquelch = mon->_msquelch - 1;
 				}
 			}
 		}
