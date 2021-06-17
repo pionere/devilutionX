@@ -1529,6 +1529,7 @@ static void StartSpell(int pnum)
 	case ACTION_SPELLPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
