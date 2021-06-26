@@ -17,7 +17,7 @@ typedef struct CodecSignature {
 	uint16_t unused;
 } CodecSignature;
 
-static void codec_init_key(const char *pszPassword)
+static void CodecInitKey(const char *pszPassword)
 {
 	char key[72 + SHA1BlockSize]; // last 64 bytes are the SHA1
 	uint32_t rand_state = 0x7058;
@@ -56,7 +56,7 @@ int codec_decode(BYTE *pbSrcDst, DWORD size, const char *pszPassword)
 	int i;
 	CodecSignature *sig;
 
-	codec_init_key(pszPassword);
+	CodecInitKey(pszPassword);
 	if (size <= sizeof(CodecSignature))
 		return 0;
 	size -= sizeof(CodecSignature);
@@ -109,7 +109,7 @@ void codec_encode(BYTE *pbSrcDst, DWORD size, DWORD encodedSize, const char *psz
 	CodecSignature *sig;
 
 	assert(encodedSize == codec_get_encoded_len(size));
-	codec_init_key(pszPassword);
+	CodecInitKey(pszPassword);
 
 	chunk = 0;
 	while (size != 0) {

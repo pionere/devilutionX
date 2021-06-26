@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <3ds.h>
 #include "platform/ctr/system.h"
+#include "platform/ctr/random.hpp"
+#include "platform/ctr/sockets.hpp"
 
 bool isN3DS;
 
@@ -76,4 +78,16 @@ void ctr_sys_init()
 
 	romfsInit();
 	atexit([]() { romfsExit(); });
+
+	acInit();
+	atexit([]() { acExit(); });
+
+	n3ds_socInit();
+	atexit([]() { n3ds_socExit(); });
+
+	randombytes_ctrrandom_init();
+	atexit([]() {
+		if (psGetSessionHandle())
+			psExit();
+	});
 }

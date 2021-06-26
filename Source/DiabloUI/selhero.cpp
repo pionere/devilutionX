@@ -9,10 +9,6 @@
 #include "DiabloUI/selconn.h"
 #include "controls/plrctrls.h"
 
-#ifdef __3DS__
-#include "platform/ctr/keyboard.h"
-#endif
-
 DEVILUTION_BEGIN_NAMESPACE
 
 static _uiheroinfo selhero_heroInfo;
@@ -435,9 +431,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 {
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#if defined __3DS__
-	ctr_vkbdInput("Enter Name", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
-#elif defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+#if defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif
@@ -448,7 +442,7 @@ static void SelheroClassSelectorSelect(unsigned index)
 	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
-	vecSelDlgItems.push_back(new UiEdit(selhero_heroInfo.name, 15, rect2, UIS_MED | UIS_GOLD));
+	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.name, 15, rect2, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));

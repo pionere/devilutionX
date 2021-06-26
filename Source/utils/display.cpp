@@ -154,6 +154,8 @@ bool SpawnWindow(const char *lpWindowName)
 #endif
 #ifndef USE_SDL1
 	initFlags |= SDL_INIT_GAMECONTROLLER;
+
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 	if (SDL_Init(initFlags) <= -1) {
 		ErrSdl();
@@ -188,18 +190,18 @@ bool SpawnWindow(const char *lpWindowName)
 
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
-#ifndef __vita__
 	getIniInt("devilutionx", "Width", &width);
 	getIniInt("devilutionx", "Height", &height);
-#endif
 	bool integerScalingEnabled = getIniBool("devilutionx", "Integer Scaling", false);
 
+#ifndef __vita__
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("devilutionx", "Fullscreen", true);
+#endif
 
 	bool grabInput = getIniBool("devilutionx", "Grab Input", false);
 
-#ifdef __vita__
+#ifdef USE_SDL1
 	bool upscale = false;
 #else
 	bool upscale = getIniBool("devilutionx", "Upscale", true);

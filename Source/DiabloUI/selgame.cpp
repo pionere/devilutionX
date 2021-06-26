@@ -145,7 +145,7 @@ void selgame_GameSelection_Focus(unsigned index)
 		snprintf(selgame_Description, sizeof(selgame_Description), "Create a new game with a difficulty setting of your choice.");
 		break;
 	case 1:
-		snprintf(selgame_Description, sizeof(selgame_Description), "Enter an IP or a hostname and join a game already in progress at that address.");
+		snprintf(selgame_Description, sizeof(selgame_Description), "Enter an IP or a hostname and join a game already in progress.");
 		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
@@ -240,10 +240,10 @@ void selgame_GameSelection_Select(unsigned index)
 		snprintf(title, sizeof(title), "Join TCP Games");
 
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
-		vecSelGameDialog.push_back(new UiArtText("Enter address", rect4, UIS_CENTER | UIS_BIG));
+		vecSelGameDialog.push_back(new UiArtText("Enter Address", rect4, UIS_CENTER | UIS_BIG));
 
 		SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
-		vecSelGameDialog.push_back(new UiEdit(selgame_Ip, sizeof(selgame_Ip) - 1, rect5, UIS_MED | UIS_GOLD));
+		vecSelGameDialog.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5, UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 		vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -418,7 +418,7 @@ void selgame_Password_Init(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText("Enter Password", rect4, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
-	vecSelGameDialog.push_back(new UiEdit(selgame_Password, sizeof(selgame_Password) - 1, rect5, UIS_MED | UIS_GOLD));
+	vecSelGameDialog.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));

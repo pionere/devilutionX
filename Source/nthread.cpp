@@ -84,9 +84,6 @@ bool nthread_recv_turns(bool *received)
 		guLastTick += gnTickDelay;
 		return true;
 	}
-#ifdef __3DS__
-	return false;
-#else
 	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
@@ -105,7 +102,6 @@ bool nthread_recv_turns(bool *received)
 		guLastTick += gnTickDelay;
 		return true;
 	}
-#endif
 }
 
 static unsigned int nthread_handler(void *data)

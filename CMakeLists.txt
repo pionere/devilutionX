@@ -169,15 +169,7 @@ endif()
 
 if(ANDROID)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/android-project/CMake")
-
-  set(ASAN OFF)
-  set(UBSAN OFF)
-  set(NONET ON)
-  set(TTF_FONT_DIR \"\")
-
-  file(
-    COPY "${DevilutionX_SOURCE_DIR}/Packaging/resources/CharisSILB.ttf"
-    DESTINATION "${DevilutionX_SOURCE_DIR}/android-project/app/src/main/assets")
+  include(android_defs)
 endif()
 
 if(PIE)
@@ -246,6 +238,13 @@ endif()
 
 if(NOT NONET)
   add_subdirectory(3rdParty/asio)
+  if(NINTENDO_3DS)
+      target_compile_definitions(asio INTERFACE
+        ASIO_DISABLE_THREADS=ON
+        ASIO_HAS_UNISTD_H=ON)
+
+      target_include_directories(asio BEFORE INTERFACE CMake/ctr/asio/include)
+  endif()
 endif()
 
 add_library(smacker STATIC
@@ -438,7 +437,12 @@ if(NINTENDO_3DS)
     Source/platform/ctr/system.cpp
     Source/platform/ctr/keyboard.cpp
     Source/platform/ctr/display.cpp
-    Source/platform/ctr/messagebox.cpp)
+    Source/platform/ctr/messagebox.cpp
+    Source/platform/ctr/random.cpp
+    Source/platform/ctr/sockets.cpp
+    Source/platform/ctr/asio/net/if.c
+    Source/platform/ctr/asio/sys/socket.c
+    Source/platform/ctr/asio/sys/uio.c)
 if(HELLFIRE)
   set(BIN_TARGET hellfire)
 endif()

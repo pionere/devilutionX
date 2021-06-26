@@ -22,6 +22,10 @@
 // for virtual keyboard on Vita
 #include "platform/vita/keyboard.h"
 #endif
+#ifdef __3DS__
+// for virtual keyboard on 3DS
+#include "platform/ctr/keyboard.h"
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -91,9 +95,11 @@ void UiInitList(const std::vector<UiItemBase *> &uiItems, unsigned listSize, voi
 			SDL_SetTextInputRect(&uiItems[i]->m_rect);
 			textInputActive = true;
 #ifdef __SWITCH__
-			switch_start_text_input("", pItemUIEdit->m_value, pItemUIEdit->m_max_length, /*multiline=*/0);
+			switch_start_text_input(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_max_length, /*multiline=*/0);
 #elif defined(__vita__)
-			vita_start_text_input("", pItemUIEdit->m_value, pItemUIEdit->m_max_length);
+			vita_start_text_input(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_max_length);
+#elif defined(__3DS__)
+			ctr_vkbdInput(pItemUIEdit->m_hint, pItemUIEdit->m_value, pItemUIEdit->m_value, pItemUIEdit->m_max_length);
 #else
 			SDL_StartTextInput();
 #endif
@@ -620,6 +626,11 @@ void UiPollAndRender()
 	UiRenderItems(gUiItems);
 	DrawMouse();
 	UiFadeIn();
+#ifdef __3DS__
+	// Keyboard blocks until input is finished
+	// so defer until after render and fade-in
+	ctr_vkbdFlush();
+#endif
 }
 
 namespace {
