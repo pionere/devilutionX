@@ -184,7 +184,7 @@ static void selgame_Port_Init(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText("Enter Port", rect4, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect5 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 314), 285, 33 };
-	vecSelGameDialog.push_back(new UiEdit(selgame_Port, sizeof(selgame_Port) - 1, rect5, UIS_MED | UIS_GOLD));
+	vecSelGameDialog.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 427), 140, 35 };
 	vecSelGameDialog.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
