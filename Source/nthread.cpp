@@ -88,9 +88,6 @@ BOOL nthread_recv_turns(BOOL *received)
 		last_tick += tick_delay;
 		return TRUE;
 	}
-#ifdef __3DS__
-	return FALSE;
-#else
 	if (!SNetReceiveTurns((char*(&)[MAX_PLRS])glpMsgTbl, gdwMsgLenTbl, player_state)) {
 		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
 			nthread_terminate_game("SNetReceiveTurns");
@@ -109,7 +106,6 @@ BOOL nthread_recv_turns(BOOL *received)
 		last_tick += tick_delay;
 		return TRUE;
 	}
-#endif
 }
 
 static unsigned int nthread_handler(void *data)

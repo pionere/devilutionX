@@ -12,10 +12,6 @@
 
 #include "controls/plrctrls.h"
 
-#ifdef __3DS__
-#include "platform/ctr/keyboard.h"
-#endif
-
 DEVILUTION_BEGIN_NAMESPACE
 
 const char *SelheroGenerateName(uint8_t hero_class);
@@ -348,20 +344,16 @@ void SelheroClassSelectorSelect(std::size_t index)
 
 	snprintf(title, sizeof(title), "New %s Player Hero", selhero_isMultiPlayer ? "Multi" : "Single");
 	memset(selhero_heroInfo.name, '\0', sizeof(selhero_heroInfo.name));
-#if defined __3DS__
-	ctr_vkbdInput("Enter Name", SelheroGenerateName(selhero_heroInfo.heroclass), selhero_heroInfo.name);
-#else
 #ifndef PREFILL_PLAYER_NAME
 	if (sgbControllerActive)
 #endif
 		SStrCopy(selhero_heroInfo.name, SelheroGenerateName(selhero_heroInfo.heroclass), sizeof(selhero_heroInfo.name));
-#endif
 	SelheroFreeDlgItems();
 	SDL_Rect rect1 = { PANEL_LEFT + 264, (UI_OFFSET_Y + 211), 320, 33 };
 	vecSelDlgItems.push_back(new UiArtText("Enter Name", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 265, (UI_OFFSET_Y + 317), 320, 33 };
-	vecSelDlgItems.push_back(new UiEdit(selhero_heroInfo.name, 15, rect2, UIS_MED | UIS_GOLD));
+	vecSelDlgItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.name, 15, rect2, UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { PANEL_LEFT + 279, (UI_OFFSET_Y + 429), 140, 35 };
 	vecSelDlgItems.push_back(new UiArtTextButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));

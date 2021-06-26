@@ -142,6 +142,8 @@ bool SpawnWindow(const char *lpWindowName)
 	int initFlags = SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
 #ifndef USE_SDL1
 	initFlags |= SDL_INIT_GAMECONTROLLER;
+
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
 	if (SDL_Init(initFlags) <= -1) {
 		ErrSdl();
@@ -174,20 +176,20 @@ bool SpawnWindow(const char *lpWindowName)
 
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
-#ifndef __vita__
 	DvlIntSetting("width", &width);
 	DvlIntSetting("height", &height);
-#endif
 	BOOL integerScalingEnabled = false;
 	DvlIntSetting("integer scaling", &integerScalingEnabled);
 
+#ifndef __vita__
 	if (fullscreen)
 		DvlIntSetting("fullscreen", &fullscreen);
+#endif
 
 	int grabInput = 0;
 	DvlIntSetting("grab input", &grabInput);
 
-#ifdef __vita__
+#ifdef USE_SDL1
 	BOOL upscale = false;
 #else
 	BOOL upscale = true;
