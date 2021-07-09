@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 char msgtable[NUM_EMSGS];
-DWORD msgdelay;
+Uint32 msgdelay;
 BYTE currmsg;
 BYTE msgcnt;
 

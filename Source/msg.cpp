@@ -21,7 +21,7 @@ static Uint32 guDeltaStart;
 static TMegaPkt *sgpMegaPkt;
 /* The tail of the sgpMegaPkt linked list. */
 static TMegaPkt *sgpCurrPkt;
-/* The sender of the latest messages during delta-load. */
+/* The sender of the latest requeued messages during delta-load. */
 static int sgnCurrMegaPlayer;
 /* Buffer to send/receive delta info. */
 static DBuffer sgSendRecvBuf;
@@ -286,6 +286,8 @@ static BYTE *DeltaExportLevel(BYTE bLvl)
 	int i;
 	BYTE *dst = sgSendRecvBuf.content;
 
+	static_assert(sizeof(sgSendRecvBuf.content) >= sizeof(DLevel) + 1, "Delta-Level might not fit to the buffer.");
+
 	// level-index
 	*dst = bLvl;
 	dst++;
@@ -367,7 +369,7 @@ static void DeltaImportLevel()
 
 static BYTE *DeltaExportJunk()
 {
-	MultiQuests *mq;
+	DQuest *mq;
 	int i;
 	BYTE *dst = sgSendRecvBuf.content;
 
@@ -379,6 +381,8 @@ static BYTE *DeltaExportJunk()
 		mq->qvar1 = quests[i]._qvar1;
 		mq++;
 	}
+
+	static_assert(sizeof(sgSendRecvBuf.content) >= sizeof(sgJunk), "Delta-Junk does not fit to the buffer.");
 	// export portals + quests
 	memcpy(dst, &sgJunk, sizeof(sgJunk));
 	dst += sizeof(sgJunk);
@@ -389,7 +393,7 @@ static BYTE *DeltaExportJunk()
 static void DeltaImportJunk()
 {
 	DPortal *pD;
-	MultiQuests *mq;
+	DQuest *mq;
 	int i;
 	BYTE *src = sgSendRecvBuf.content;
 
@@ -437,20 +441,17 @@ void DeltaExportData(int pnum)
 	int size, i;
 	BYTE src;
 
-	for (i = 0; i < lengthof(sgLevels); i++)
-		if (_gbLevelDeltaChanged[i])
-			break;
-	if (i != lengthof(sgLevels)) {
-		for (i = 0; i < lengthof(sgLevels); i++) {
-			if (!_gbLevelDeltaChanged[i])
-				continue;
-			dstEnd = DeltaExportLevel(i);
-			size = DeltaCompressData(dstEnd);
-			dthread_send_delta(pnum, CMD_DLEVEL_DATA, &sgSendRecvBuf, size);
-			src = 0;
-			dthread_send_delta(pnum, CMD_DLEVEL_SEP, &src, 1);
-		}
+	// levels
+	for (i = 0; i < lengthof(sgLevels); i++) {
+		if (!_gbLevelDeltaChanged[i])
+			continue;
+		dstEnd = DeltaExportLevel(i);
+		size = DeltaCompressData(dstEnd);
+		dthread_send_delta(pnum, CMD_DLEVEL_DATA, &sgSendRecvBuf, size);
+		src = 0;
+		dthread_send_delta(pnum, CMD_DLEVEL_SEP, &src, 1);
 	}
+	// junk
 	if (_gbJunkDeltaChanged) {
 		dstEnd = DeltaExportJunk();
 		size = DeltaCompressData(dstEnd);

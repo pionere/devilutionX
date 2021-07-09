@@ -1183,20 +1183,20 @@ typedef struct DPortal {
 	BYTE level;
 } DPortal;
 
-typedef struct MultiQuests {
+typedef struct DQuest {
 	BYTE qstate;
 	BYTE qlog;
 	BYTE qvar1;
-} MultiQuests;
+} DQuest;
 
 typedef struct DJunk {
 	DPortal portal[MAXPORTAL];
-	MultiQuests quests[NUM_QUESTS];
+	DQuest quests[NUM_QUESTS];
 } DJunk;
 
 typedef struct DBuffer {
 	BOOLEAN compressed;
-	BYTE content[(sizeof(DLevel) > sizeof(DJunk)) ? sizeof(DLevel) : sizeof(DJunk)];
+	BYTE content[sizeof(DLevel) + 1];
 } DBuffer;
 
 typedef struct TCmdSendJoinLevel {
