@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PROGRESS_CANCEL 101
+
 static Art dialogArt;
 static Art progressArt;
 static Art ArtPopupSm;
@@ -16,11 +18,11 @@ static Art ProgFil;
 static SDL_Surface *msgSurface;
 static SDL_Surface *msgShadow;
 static std::vector<UiItemBase *> vecProgress;
-static bool _gbEndMenu;
+static int _gnProgress;
 
 static void DialogActionCancel()
 {
-	_gbEndMenu = true;
+	_gnProgress = PROGRESS_CANCEL;
 }
 
 static void ProgressLoad(const char *msg)
@@ -57,7 +59,7 @@ static void ProgressFree()
 	UnloadTtfFont();
 }
 
-static void ProgressRender(BYTE progress)
+static void ProgressRender()
 {
 	SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 	DrawArt(0, 0, &ArtBackground);
@@ -67,8 +69,8 @@ static void ProgressRender(BYTE progress)
 
 	DrawArt(x, y, &ArtPopupSm, 0, 280, 140);
 	DrawArt(GetCenterOffset(227), y + 52, &ArtProgBG, 0, 227);
-	if (progress != 0) {
-		DrawArt(GetCenterOffset(227), y + 52, &ProgFil, 0, 227 * progress / 100);
+	if (_gnProgress != 0) {
+		DrawArt(GetCenterOffset(227), y + 52, &ProgFil, 0, 227 * _gnProgress / 100);
 	}
 	DrawArt(GetCenterOffset(110), y + 99, &SmlButton, 2, 110);
 
@@ -91,13 +93,12 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 	ProgressLoad(msg);
 	SetFadeLevel(256);
 
-	_gbEndMenu = false;
-	int progress = 0;
+	_gnProgress = 0;
 
 	SDL_Event event;
-	while (!_gbEndMenu && progress < 100) {
-		progress = fnfunc();
-		ProgressRender(progress);
+	while (_gnProgress < 100) {
+		_gnProgress = fnfunc();
+		ProgressRender();
 		UiRenderItems(vecProgress);
 		DrawMouse();
 		RenderPresent();
@@ -114,13 +115,13 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 			case SDLK_ESCAPE:
 			case SDLK_RETURN:
 			case SDLK_SPACE:
-				_gbEndMenu = true;
+				_gnProgress = PROGRESS_CANCEL;
 				break;
 			default:
 				switch (GetMenuAction(event)) {
 				case MenuAction_BACK:
 				case MenuAction_SELECT:
-					_gbEndMenu = true;
+					_gnProgress = PROGRESS_CANCEL;
 					break;
 				default:
 					break;
@@ -132,7 +133,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 	}
 	ProgressFree();
 
-	return progress == 100;
+	return _gnProgress == 100;
 }
 
 DEVILUTION_END_NAMESPACE
