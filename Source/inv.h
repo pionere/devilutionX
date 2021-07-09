@@ -38,7 +38,6 @@ void SyncGetItemIdx(int ii);
 bool CanPut(int x, int y);
 bool FindItemLocation(int sx, int sy, int *dx, int *dy, int rad);
 bool DropItem();
-void DrawInvMsg(const char *msg);
 int InvPutItem(int pnum, int x, int y, int ii);
 int SyncPutItem(int pnum, int x, int y, int ii, bool plrAround);
 BYTE CheckInvItem();

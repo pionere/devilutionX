@@ -11,7 +11,6 @@ DEVILUTION_BEGIN_NAMESPACE
 bool gbInvflag;
 BYTE *pInvCels;
 BYTE *pBeltCels;
-int sgdwLastTime; // check name
 
 /**
  * Maps from inventory slot to screen position. The inventory slots are
@@ -1724,17 +1723,6 @@ bool DropItem()
 	NetSendCmdPutHoldItem(CMD_PUTITEM, cursmx, cursmy);
 	NewCursor(CURSOR_HAND);
 	return true;
-}
-
-void DrawInvMsg(const char *msg)
-{
-	DWORD dwTicks;
-
-	dwTicks = SDL_GetTicks();
-	if (dwTicks - sgdwLastTime >= 5000) {
-		sgdwLastTime = dwTicks;
-		ErrorPlrMsg(msg);
-	}
 }
 
 int InvPutItem(int pnum, int x, int y, int ii)
