@@ -1950,6 +1950,7 @@ static bool CheckIfTrig(int x, int y)
 /**
  * Var1: animation
  * Var2: light strength
+ * Var3: triggered
  */
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -1997,6 +1998,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 /**
  * Var1: animation
  * Var2: light strength
+ * Var3: triggered (only for MIS_TOWN)
  */
 int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, int misource, int spllvl)
 {
@@ -3436,7 +3438,8 @@ void MI_Portal(int mi)
 
 	if (mis->_miType == MIS_TOWN) {
 		p = &myplr;
-		if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND) {
+		if (p->_px == mis->_mix && p->_py == mis->_miy && !p->_pLvlChanging && p->_pmode == PM_STAND && !mis->_miVar3) {
+			mis->_miVar3 = TRUE;
 			NetSendCmdParam1(true, CMD_TWARP, mis->_miSource);
 		}
 	}
