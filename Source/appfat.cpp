@@ -9,11 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Set to true when a fatal error is encountered and the application should shut down. */
-bool _gbTerminating = false;
-/** Thread id of the last callee to FreeDlg(). */
-SDL_threadID cleanup_thread_id;
-
 /**
  * @brief Displays an error message box based on the given format string and variable argument list.
  * @param pszFmt Error message format
@@ -33,18 +28,7 @@ static void MsgBox(const char *pszFmt, va_list va)
  */
 static void FreeDlg()
 {
-	if (_gbTerminating && cleanup_thread_id != SDL_GetThreadID(NULL))
-		SDL_Delay(20000);
-
-	_gbTerminating = true;
-	cleanup_thread_id = SDL_GetThreadID(NULL);
-
-	if (gbMaxPlayers != 1) {
-		SNetLeaveGame(LEAVE_UNKNOWN);
-		SDL_Delay(2000);
-	}
-
-	SNetDestroy();
+	NetClose();
 }
 
 /**
