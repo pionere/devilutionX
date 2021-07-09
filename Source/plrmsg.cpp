@@ -10,9 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 static BYTE plr_msg_slot;
 _plrmsg plr_msgs[PMSG_COUNT];
 
-/** Maps from player_num to text color, as used in chat messages. */
-const char text_color_from_player_num[MAX_PLRS + 1] = { COL_WHITE, COL_WHITE, COL_WHITE, COL_WHITE, COL_GOLD };
-
 void plrmsg_delay(bool delay)
 {
 	int i;
@@ -30,6 +27,7 @@ void plrmsg_delay(bool delay)
 		pMsg->time += plrmsg_ticks;
 }
 
+#ifdef _DEBUG
 void ErrorPlrMsg(const char *pszMsg)
 {
 	_plrmsg *pMsg = &plr_msgs[plr_msg_slot];
@@ -38,6 +36,7 @@ void ErrorPlrMsg(const char *pszMsg)
 	pMsg->time = SDL_GetTicks();
 	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
 }
+#endif
 
 void EventPlrMsg(const char *pszFmt, ...)
 {
@@ -143,7 +142,7 @@ void DrawPlrMsg()
 	pMsg = plr_msgs;
 	for (i = 0; i < PMSG_COUNT; i++) {
 		if (pMsg->str[0] != '\0')
-			PrintPlrMsg(x, y, width, pMsg->str, text_color_from_player_num[pMsg->player]);
+			PrintPlrMsg(x, y, width, pMsg->str, pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE);
 		pMsg++;
 		y += 35;
 	}
