@@ -1912,22 +1912,20 @@ void StartNewLvl(int pnum, int fom, int lvl)
 	case WM_DIABPREVLVL:
 	case WM_DIABRTNLVL:
 	case WM_DIABTWARPDN:
-		plr.plrlevel = lvl;
-		break;
 	case WM_DIABSETLVL:
-		plr.plrlevel = lvl;
 		break;
 	case WM_DIABTWARPUP:
 		if (pnum == mypnum) {
+			TWarpFrom = currLvl._dLevelIdx;
 			assert(currLvl._dType >= 2);
 			plr.pTownWarps |= 1 << (currLvl._dType - 2);
 		}
-		plr.plrlevel = lvl;
 		break;
 	default:
 		app_fatal("StartNewLvl %d", fom);
 		break;
 	}
+	plr.plrlevel = lvl;
 
 	if (pnum == mypnum) {
 		plr._pmode = PM_NEWLVL;

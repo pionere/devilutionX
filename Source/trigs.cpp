@@ -841,7 +841,7 @@ void CheckTrigForce()
 void CheckTriggers()
 {
 	PlayerStruct *p;
-	int i;
+	int i, fom, lvl;
 
 	p = &myplr;
 	if (p->_pmode != PM_STAND)
@@ -854,30 +854,37 @@ void CheckTriggers()
 
 		switch (trigs[i]._tmsg) {
 		case WM_DIABNEXTLVL:
-			StartNewLvl(mypnum, WM_DIABNEXTLVL, currLvl._dLevelIdx + 1);
+			fom = WM_DIABNEXTLVL;
+			lvl = currLvl._dLevelIdx + 1;
 			break;
 		case WM_DIABPREVLVL:
-			StartNewLvl(mypnum, WM_DIABPREVLVL, currLvl._dLevelIdx - 1);
+			fom = WM_DIABPREVLVL;
+			lvl = currLvl._dLevelIdx - 1;
 			break;
 		case WM_DIABRTNLVL:
-			StartNewLvl(mypnum, WM_DIABRTNLVL, ReturnLvl);
+			fom = WM_DIABRTNLVL;
+			lvl = ReturnLvl;
 			break;
 		case WM_DIABSETLVL:
-			StartNewLvl(mypnum, WM_DIABSETLVL, trigs[i]._tlvl);
+			fom = WM_DIABSETLVL;
+			lvl = trigs[i]._tlvl;
 			break;
 		case WM_DIABTWARPDN:
 			if (!(townwarps & (1 << i)))
 				continue;
-			StartNewLvl(mypnum, WM_DIABTWARPDN, trigs[i]._tlvl);
+			fom = WM_DIABTWARPDN;
+			lvl = trigs[i]._tlvl;
 			break;
 		case WM_DIABTWARPUP:
-			TWarpFrom = currLvl._dLevelIdx;
-			StartNewLvl(mypnum, WM_DIABTWARPUP, 0);
+			fom = WM_DIABTWARPUP;
+			lvl = 0;
 			break;
 		default:
 			ASSUME_UNREACHABLE;
 			break;
 		}
+		NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
+		numtrigs = 0; // prevent triggering again
 	}
 }
 
