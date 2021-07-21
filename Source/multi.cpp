@@ -160,13 +160,13 @@ void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE bLen)
 	len += sizeof(pkt.hdr);
 	multi_init_pkt_header(pkt.hdr, len);
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
-	for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
-		if (pmask & 1) {
-			SNetSendMessage(i, &pkt, len);
-			/*if (!SNetSendMessage(i, &pkt, len) && SErrGetLastError() != STORM_ERROR_INVALID_PLAYER) {
-				nthread_terminate_game("SNetSendMessage");
-				return;
-			}*/
+	if (pmask == SNPLAYER_ALL) {
+		SNetSendMessage(SNPLAYER_ALL, &pkt, len);
+	} else {
+		for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
+			if (pmask & 1) {
+				SNetSendMessage(i, &pkt, len);
+			}
 		}
 	}
 }
@@ -729,7 +729,7 @@ bool NetInit(bool bSinglePlayer)
 		nthread_send_turn(0, 0);
 		SetupLocalCoords();
 		if (!bSinglePlayer)
-			multi_send_pinfo(-2, CMD_SEND_PLRINFO);
+			multi_send_pinfo(SNPLAYER_OTHERS, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
 		myplr.plractive = TRUE;
 		assert(myplr._pTeam == mypnum);

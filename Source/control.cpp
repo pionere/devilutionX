@@ -6,6 +6,7 @@
 #include "all.h"
 #include "plrctrls.h"
 #include "engine/render/text_render.hpp"
+#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -2063,7 +2064,7 @@ void DrawTeamBook()
 		if (!plr.plractive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH,plr._pName, false, COL_WHITE, 0);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, false, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
@@ -2261,7 +2262,7 @@ static void control_press_enter()
 	BYTE talk_save;
 	char* msg;
 
-	pmask = -1;
+	pmask = SNPLAYER_ALL;
 	msg = sgszTalkMsg;
 	if (msg[0] == '/') {
 		if (msg[1] == 'p') {
