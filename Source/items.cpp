@@ -591,7 +591,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	if (plr._pTimer[PT_RAGE] > 0) {
+	if (plr._pTimer[PLTR_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
 		dadd += plr._pLevel;
 		vadd += 2 * plr._pLevel;
@@ -602,7 +602,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
 	plr._pIFlags = iflgs;
-	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PT_INFRAVISION] > 0;
+	plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pIGetHit = ghit << 6;
 	plr._pIEnAc = enac;
 	plr._pISplLvlAdd = spllvladd;
@@ -772,7 +772,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		wt |= SFLAG_DUNGEON;
 	if (bf)
 		wt |= SFLAG_BLOCK;
-	if (plr._pTimer[PT_RAGE] == 0)
+	if (plr._pTimer[PLTR_RAGE] == 0)
 		wt |= SFLAG_RAGE;
 	plr._pSkillFlags = wt;
 

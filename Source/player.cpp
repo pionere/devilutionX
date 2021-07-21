@@ -888,8 +888,8 @@ void InitPlayer(int pnum, bool FirstTime, bool active)
 	}
 	if (FirstTime) {
 		plr._pManaShield = 0;
-		plr._pTimer[PT_INFRAVISION] = 0;
-		plr._pTimer[PT_RAGE] = 0;
+		plr._pTimer[PLTR_INFRAVISION] = 0;
+		plr._pTimer[PLTR_RAGE] = 0;
 
 		plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 		plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK)
@@ -2935,20 +2935,20 @@ void ProcessPlayers()
 				if ((plr._pIFlags & ISPL_NOMANA) && plr._pMana > 0) {
 					PlrSetMana(pnum, 0);
 				}
-				if (plr._pTimer[PT_INFRAVISION] != 0) {
-					plr._pTimer[PT_INFRAVISION]--;
-					if (plr._pTimer[PT_INFRAVISION] == 0) {
+				if (plr._pTimer[PLTR_INFRAVISION] != 0) {
+					plr._pTimer[PLTR_INFRAVISION]--;
+					if (plr._pTimer[PLTR_INFRAVISION] == 0) {
 						CalcPlrItemVals(pnum, true);
 					}
 				}
 			}
 
-			int16_t nextTimer = plr._pTimer[PT_RAGE];
+			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
 			if (nextTimer != 0) {
-				plr._pTimer[PT_RAGE] = nextTimer + (nextTimer < 0 ? 1 : -1);
-				if (plr._pTimer[PT_RAGE] == 0) {
+				plr._pTimer[PLTR_RAGE] = nextTimer + (nextTimer < 0 ? 1 : -1);
+				if (plr._pTimer[PLTR_RAGE] == 0) {
 					if (nextTimer >= 0) {
-						plr._pTimer[PT_RAGE] = -1200;
+						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
 						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
 					}
 					CalcPlrItemVals(pnum, true);

@@ -2579,7 +2579,7 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, i
 	}
 	// TODO: add support for spell duration modifier
 	//range += range * plx(misource)._pISplDur >> 7;
-	plx(misource)._pTimer[PT_INFRAVISION] = range;
+	plx(misource)._pTimer[PLTR_INFRAVISION] = range;
 	return MIRES_DELETE;
 }
 
@@ -2636,8 +2636,8 @@ int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, char micaster, in
 
 	pnum = misource;
 	assert((unsigned)pnum < MAX_PLRS);
-	if (plr._pTimer[PT_RAGE] == 0) {
-		plr._pTimer[PT_RAGE] = 32 * spllvl + 245;
+	if (plr._pTimer[PLTR_RAGE] == 0) {
+		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
 		CalcPlrItemVals(pnum, true);
 	}

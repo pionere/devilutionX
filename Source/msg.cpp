@@ -1013,8 +1013,8 @@ void NetSendCmdSendJoinLevel()
 	cmd.lLevel = myplr.plrlevel; // currLvl._dLevelIdx
 	cmd.px = myplr._px;
 	cmd.py = myplr._py;
-	cmd.lTimer1 = SwapLE16(myplr._pTimer[PT_INFRAVISION]);
-	cmd.lTimer2 = SwapLE16(myplr._pTimer[PT_RAGE]);
+	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
+	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 }
@@ -1025,8 +1025,8 @@ void NetSendCmdAckJoinLevel()
 
 	cmd.bCmd = CMD_ACK_JOINLEVEL;
 	cmd.lManashield = myplr._pManaShield;
-	cmd.lTimer1 = SwapLE16(myplr._pTimer[PT_INFRAVISION]);
-	cmd.lTimer2 = SwapLE16(myplr._pTimer[PT_RAGE]);
+	cmd.lTimer1 = SwapLE16(myplr._pTimer[PLTR_INFRAVISION]);
+	cmd.lTimer2 = SwapLE16(myplr._pTimer[PLTR_RAGE]);
 
 	NetSendHiPri((BYTE *)&cmd, sizeof(cmd));
 	//dthread_send_delta(pnum, CMD_ACK_JOINLEVEL, &cmd, sizeof(cmd));
@@ -2395,8 +2395,8 @@ static unsigned On_ACK_JOINLEVEL(TCmd *pCmd, int pnum)
 	//	DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
 	//else {
 		plr._pManaShield = cmd->lManashield;
-		plr._pTimer[PT_INFRAVISION] = cmd->lTimer1;
-		plr._pTimer[PT_RAGE] = cmd->lTimer2;
+		plr._pTimer[PLTR_INFRAVISION] = cmd->lTimer1;
+		plr._pTimer[PLTR_RAGE] = cmd->lTimer2;
 		CalcPlrItemVals(pnum, true);
 	//}
 
@@ -2421,8 +2421,8 @@ static unsigned On_SEND_JOINLEVEL(TCmd *pCmd, int pnum)
 			plr._px = cmd->px;
 			plr._py = cmd->py;
 			plr.plrlevel = cmd->lLevel;
-			plr._pTimer[PT_INFRAVISION] = cmd->lTimer1;
-			plr._pTimer[PT_RAGE] = cmd->lTimer2;
+			plr._pTimer[PLTR_INFRAVISION] = cmd->lTimer1;
+			plr._pTimer[PLTR_RAGE] = cmd->lTimer2;
 			plr._pGFXLoad = 0;
 			if (currLvl._dLevelIdx == plr.plrlevel) {
 				SyncInitPlr(pnum);

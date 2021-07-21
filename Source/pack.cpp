@@ -34,8 +34,8 @@ void PackPlayer(PkPlayerStruct *pPack, int pnum)
 	pPack->pLevel = p->_pLevel;
 	pPack->pLightRad = p->_pLightRad;
 	pPack->pManaShield = p->_pManaShield;
-	pPack->pTimer[PT_INFRAVISION] = SwapLE16(p->_pTimer[PT_INFRAVISION]);
-	pPack->pTimer[PT_RAGE] = SwapLE16(p->_pTimer[PT_RAGE]);
+	pPack->pTimer[PLTR_INFRAVISION] = SwapLE16(p->_pTimer[PLTR_INFRAVISION]);
+	pPack->pTimer[PLTR_RAGE] = SwapLE16(p->_pTimer[PLTR_RAGE]);
 	pPack->pBaseStr = SwapLE16(p->_pBaseStr);
 	pPack->pBaseMag = SwapLE16(p->_pBaseMag);
 	pPack->pBaseDex = SwapLE16(p->_pBaseDex);
@@ -140,8 +140,8 @@ void UnPackPlayer(PkPlayerStruct *pPack, int pnum)
 	plr._pLevel = pPack->pLevel;
 	plr._pLightRad = pPack->pLightRad;
 	plr._pManaShield = pPack->pManaShield;
-	plr._pTimer[PT_INFRAVISION] = SwapLE16(pPack->pTimer[PT_INFRAVISION]);
-	plr._pTimer[PT_RAGE] = SwapLE16(pPack->pTimer[PT_RAGE]);
+	plr._pTimer[PLTR_INFRAVISION] = SwapLE16(pPack->pTimer[PLTR_INFRAVISION]);
+	plr._pTimer[PLTR_RAGE] = SwapLE16(pPack->pTimer[PLTR_RAGE]);
 	plr._pDiabloKillLevel = pPack->pDiabloKillLevel;
 	plr._pStatPts = SwapLE16(pPack->pStatPts);
 	InitPlayer(pnum, true, false);
