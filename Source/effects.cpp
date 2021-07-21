@@ -1260,12 +1260,8 @@ static void PlaySFX_priv(TSFX *pSFX, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 
-	if (lvlLoad != 0 && gbMaxPlayers != 1) {
+	if (!gbSoundOn || lvlLoad != 0)
 		return;
-	}
-	if (!gbSoundOn || geBufferMsgs != MSG_NORMAL) {
-		return;
-	}
 
 	lPan = 0;
 	lVolume = 0;
@@ -1295,13 +1291,8 @@ void PlayEffect(int mnum, int mode)
 	int sndIdx, lVolume, lPan;
 	TSnd *snd;
 
-	if (lvlLoad != 0) {
+	if (!gbSoundOn || lvlLoad != 0)
 		return;
-	}
-
-	if (!gbSoundOn || geBufferMsgs != MSG_NORMAL) {
-		return;
-	}
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	mon = &monster[mnum];
