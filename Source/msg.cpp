@@ -2086,7 +2086,7 @@ static unsigned On_NEWLVL(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
-	else if (pnum != mypnum)
+	else
 		StartNewLvl(pnum, SwapLE16(cmd->wParam1), SwapLE16(cmd->wParam2));
 
 	return sizeof(*cmd);
@@ -2098,9 +2098,8 @@ static unsigned On_TWARP(TCmd *pCmd, int pnum)
 
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		DeltaQueuePacket(pnum, cmd, sizeof(*cmd));
-	else {
+	else
 		StartTWarp(pnum, SwapLE16(cmd->wParam1));
-	}
 
 	return sizeof(*cmd);
 }

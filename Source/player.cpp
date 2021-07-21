@@ -1931,7 +1931,6 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		plr._pmode = PM_NEWLVL;
 		plr._pInvincible = TRUE;
 		PostMessage(fom, 0, 0);
-		NetSendCmdParam2(true, CMD_NEWLVL, fom, lvl);
 	}
 }
 
