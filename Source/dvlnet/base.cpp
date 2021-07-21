@@ -18,7 +18,7 @@ void base::setup_password(std::string pw)
 
 void base::run_event_handler(_SNETEVENT &ev)
 {
-	auto f = registered_handlers[static_cast<event_type>(ev.eventid)];
+	auto f = registered_handlers[ev.eventid];
 	if (f != NULL) {
 		f(&ev);
 	}
@@ -195,9 +195,9 @@ void base::SNetSendTurn(uint32_t turn)
 	caps->defaultturnsintransit = 1; // maximum acceptable number of turns in queue?
 }*/
 
-void base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
+void base::SNetUnregisterEventHandler(int evtype)
 {
-	registered_handlers.erase(evtype);
+	registered_handlers[evtype] = NULL;
 }
 
 /*
@@ -208,7 +208,7 @@ void base::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
  *  EVENT_TYPE_PLAYER_MESSAGE:
  *    not implemented
  */
-void base::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
+void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 {
 	registered_handlers[evtype] = func;
 }

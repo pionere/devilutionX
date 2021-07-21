@@ -21,8 +21,8 @@ public:
 	virtual void SNetSendMessage(int dest, const void *data, unsigned size);
 	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func);
-	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func);
+	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
+	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
@@ -39,7 +39,7 @@ public:
 	virtual ~base() = default;
 
 protected:
-	std::map<event_type, SEVTHANDLER> registered_handlers;
+	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
 
 	struct message_t {

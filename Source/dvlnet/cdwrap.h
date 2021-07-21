@@ -15,7 +15,7 @@ template <class T>
 class cdwrap : public abstract_net {
 private:
 	std::unique_ptr<abstract_net> dvlnet_wrap;
-	std::map<event_type, SEVTHANDLER> registered_handlers;
+	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
 
 	void reset();
@@ -27,8 +27,8 @@ public:
 	virtual void SNetSendMessage(int dest, const void *data, unsigned int size);
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
-	virtual void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func);
-	virtual void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func);
+	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
+	virtual void SNetUnregisterEventHandler(int evtype);
 	virtual void SNetLeaveGame(int reason);
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
@@ -49,11 +49,13 @@ cdwrap<T>::cdwrap()
 template <class T>
 void cdwrap<T>::reset()
 {
+	int i;
+
 	dvlnet_wrap.reset(new T);
 	dvlnet_wrap->setup_gameinfo(game_init_info);
 
-	for (const auto &pair : registered_handlers)
-		dvlnet_wrap->SNetRegisterEventHandler(pair.first, pair.second);
+	for (i = 0; i < NUM_EVT_TYPES; i++)
+		dvlnet_wrap->SNetRegisterEventHandler(i, registered_handlers[i]);
 }
 
 template <class T>
@@ -104,15 +106,15 @@ void cdwrap<T>::SNetSendTurn(uint32_t turn)
 }
 
 template <class T>
-void cdwrap<T>::SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
+void cdwrap<T>::SNetUnregisterEventHandler(int evtype)
 {
-	registered_handlers.erase(evtype);
+	registered_handlers[evtype] = NULL;
 	if (dvlnet_wrap)
-		dvlnet_wrap->SNetUnregisterEventHandler(evtype, func);
+		dvlnet_wrap->SNetUnregisterEventHandler(evtype);
 }
 
 template <class T>
-void cdwrap<T>::SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
+void cdwrap<T>::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 {
 	registered_handlers[evtype] = func;
 	if (dvlnet_wrap)

@@ -69,15 +69,15 @@ void SNetSendTurn(uint32_t turn)
 	dvlnet_inst->SNetGetProviderCaps(caps);
 }*/
 
-void SNetUnregisterEventHandler(event_type evtype, SEVTHANDLER func)
+void SNetUnregisterEventHandler(int evtype)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	dvlnet_inst->SNetUnregisterEventHandler(evtype, func);
+	dvlnet_inst->SNetUnregisterEventHandler(evtype);
 }
 
-void SNetRegisterEventHandler(event_type evtype, SEVTHANDLER func)
+void SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);

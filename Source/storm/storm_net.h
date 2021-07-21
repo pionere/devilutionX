@@ -85,8 +85,8 @@ typedef void (*SEVTHANDLER)(struct _SNETEVENT *);
 void SNetSendMessage(int playerID, void *data, unsigned databytes);
 bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes);
 
-void SNetUnregisterEventHandler(event_type, SEVTHANDLER);
-void SNetRegisterEventHandler(event_type, SEVTHANDLER);
+void SNetUnregisterEventHandler(int eventType);
+void SNetRegisterEventHandler(int eventType, SEVTHANDLER func);
 void SNetInitializeProvider(unsigned long provider);
 #ifdef ZEROTIER
 void SNetSendInfoRequest();

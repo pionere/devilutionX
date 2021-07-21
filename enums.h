@@ -2648,21 +2648,9 @@ typedef enum theme_id {
 } theme_id;
 
 typedef enum event_type {
-	EVENT_TYPE_JOIN_ACCEPTED      = 1,
-	EVENT_TYPE_2                  = 2,
-	EVENT_TYPE_PLAYER_LEAVE_GAME  = 3,
-	EVENT_TYPE_4                  = 4, // unused EVENT_TYPE_PLAYER_MESSAGE?
-	EVENT_TYPE_5                  = 5,
-	EVENT_TYPE_6                  = 6,
-	EVENT_TYPE_7                  = 7,
-	EVENT_TYPE_8                  = 8,
-	EVENT_TYPE_9                  = 9,
-	EVENT_TYPE_10                 = 10,
-	EVENT_TYPE_11                 = 11,
-	EVENT_TYPE_12                 = 12,
-	EVENT_TYPE_13                 = 13,
-	EVENT_TYPE_14                 = 14,
-	EVENT_TYPE_15                 = 15,
+	EVENT_TYPE_JOIN_ACCEPTED,
+	EVENT_TYPE_PLAYER_LEAVE_GAME,
+	NUM_EVT_TYPES,
 } event_type;
 
 typedef enum player_status {

@@ -25,7 +25,6 @@ bool selgame_endMenu;
 //int selgame_heroLevel;
 
 _SNETGAMEDATA *selgame_gameData;
-void (*selgame_eventHandler)(_SNETEVENT *pEvt);
 
 #define DESCRIPTION_WIDTH 205
 
@@ -52,20 +51,16 @@ static void selgame_handleEvents(_SNETEVENT *pEvt)
 	selgame_gameData->bPlayerId = playerId;
 }
 
-static void selgame_add_event_handlers()
+static void selgame_add_event_handlers(void (*event_handler)(_SNETEVENT *pEvt))
 {
-	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler);
+	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
-	/*if (!SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler)
-	 || !SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents)) {
-		app_fatal("SNetRegisterEventHandler:\n%s", SDL_GetError());
-	}*/
 }
 
 static void selgame_remove_event_handlers()
 {
-	SNetUnregisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, selgame_eventHandler);
-	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
+	SNetUnregisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME);
+	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED);
 }
 
 static void selgame_FreeVectors()
@@ -471,9 +466,8 @@ void selgame_Password_Esc()
 int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt))
 {
 	selgame_gameData = game_data;
-	selgame_eventHandler = event_handler;
 
-	selgame_add_event_handlers();
+	selgame_add_event_handlers(event_handler);
 
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 	selgame_GameSelection_Init();
