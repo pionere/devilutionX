@@ -1926,10 +1926,9 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		break;
 	}
 	plr.plrlevel = lvl;
-
+	plr._pmode = PM_NEWLVL;
+	plr._pInvincible = TRUE;
 	if (pnum == mypnum) {
-		plr._pmode = PM_NEWLVL;
-		plr._pInvincible = TRUE;
 		PostMessage(fom, 0, 0);
 	}
 }
@@ -1942,7 +1941,8 @@ void RestartTownLvl(int pnum)
 	InitLevelChange(pnum);
 
 	plr.plrlevel = DLV_TOWN;
-	plr._pInvincible = FALSE;
+	plr._pmode = PM_NEWLVL;
+	plr._pInvincible = TRUE;
 
 	PlrSetHp(pnum, 64);
 	PlrSetMana(pnum, 0);
@@ -1952,8 +1952,6 @@ void RestartTownLvl(int pnum)
 	if (pnum == mypnum) {
 		gbDeathflag = false;
 		gamemenu_off();
-		plr._pmode = PM_NEWLVL;
-		plr._pInvincible = TRUE;
 		PostMessage(WM_DIABRETOWN, 0, 0);
 	}
 }
@@ -1970,11 +1968,11 @@ void StartTWarp(int pnum, int pidx)
 	} else {
 		plr.plrlevel = portal[pidx].level;
 	}
+	plr._pmode = PM_NEWLVL;
+	plr._pInvincible = TRUE;
 
 	if (pnum == mypnum) {
 		SetCurrentPortal(pidx);
-		plr._pmode = PM_NEWLVL;
-		plr._pInvincible = TRUE;
 		PostMessage(WM_DIABWARPLVL, 0, 0);
 	}
 }
