@@ -562,20 +562,7 @@ static uint16_t GetAutomapType(int x, int y, bool view)
  */
 static void DrawAutomapText()
 {
-	char desc[256];
-	int nextline = 20;
-
-	if (gbMaxPlayers != 1) {
-		PrintGameStr(8, nextline, szGameName, COL_GOLD);
-		nextline += 15;
-		if (szGamePassword[0] != '\0') {
-			snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
-			PrintGameStr(8, nextline, desc, COL_GOLD);
-			nextline += 15;
-		}
-	}
-
-	PrintGameStr(8, nextline, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
+	PrintGameStr(8, 20, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
 }
 
 /**

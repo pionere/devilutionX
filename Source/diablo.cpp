@@ -1361,13 +1361,19 @@ static void PressKey(int vkey)
 		CalcViewportGeometry();
 		break;
 	case ACT_VER:
-		if (GetAsyncKeyState(DVL_VK_SHIFT)) {
-			copy_str(gbNetMsg, gszProductName);
-			NetSendCmdString(1 << mypnum);
+		EventPlrMsg(gszProductName);
+		if (!GetAsyncKeyState(DVL_VK_SHIFT)) {
+			if (gbMaxPlayers != 1) {
+				EventPlrMsg(szGameName);
+				if (szGamePassword[0] != '\0') {
+					char desc[128];
+					snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
+					EventPlrMsg(desc);
+				}
+			}
 		} else {
 			const char *difficulties[3] = { "Normal", "Nightmare", "Hell" };
-			snprintf(gbNetMsg, sizeof(gbNetMsg), "%s, mode = %s", gszProductName, difficulties[gnDifficulty]);
-			NetSendCmdString(1 << mypnum);
+			EventPlrMsg(difficulties[gnDifficulty]);
 		}
 		break;
 	case ACT_HELP:
