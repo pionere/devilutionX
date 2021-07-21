@@ -2664,10 +2664,9 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	if (quests[Q_LTBANNER]._qvar1 != 1) {
-		if (!deltaload && pnum == mypnum) {
+	if (quests[Q_LTBANNER]._qvar1 != 1 && !deltaload) {
+		if (pnum == mypnum)
 			PlaySFX(sgSFXSets[SFXS_PLR_24][plr._pClass]);
-		}
 		return;
 	}
 	os = &object[oi];
