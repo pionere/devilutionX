@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern BYTE sgbNetUpdateRate;
+extern BYTE gbNetUpdateRate;
 extern const unsigned gdwDeltaBytesSec;
 extern uint32_t gdwTurnsInTransit;
 extern uint32_t* glpMsgTbl[MAX_PLRS];
@@ -26,7 +26,7 @@ bool nthread_recv_turns(bool *received);
 void nthread_start(bool request_delta);
 void nthread_cleanup();
 void nthread_ignore_mutex(bool bStart);
-bool nthread_has_500ms_passed();
+bool nthread_has_50ms_passed();
 
 #ifdef __cplusplus
 }

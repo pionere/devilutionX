@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-BYTE sgbNetUpdateRate;
+BYTE gbNetUpdateRate;
 static CCritSect sgMemCrit;
 uint32_t gdwTurnsInTransit;
 uint32_t* glpMsgTbl[MAX_PLRS];
@@ -79,7 +79,7 @@ bool nthread_recv_turns(bool *received)
 		return true;
 	}
 	sgbSyncCountdown--;
-	sgbPacketCountdown = sgbNetUpdateRate;
+	sgbPacketCountdown = gbNetUpdateRate;
 	if (sgbSyncCountdown != 0) {
 		*received = true;
 		guLastTick += gnTickDelay;
@@ -146,17 +146,17 @@ void nthread_start(bool request_delta)
 	//_SNETCAPS caps;
 	//SNetGetProviderCaps(&caps);
 	gdwTurnsInTransit = 1; // TODO: add to _SNETGAMEDATA ? (was defaultturnsintransit in vanilla)
-	sgbNetUpdateRate = 2;  // TODO: add to _SNETGAMEDATA ? (was defaultturnssec in vanilla)
+	gbNetUpdateRate = 2;  // TODO: add to _SNETGAMEDATA ? (was defaultturnssec in vanilla)
 	// FIXME: instead of 20, gnTicksRate should be used, but does not really matter at the moment
 	//  and gnTicksRate is not set at this point
-	gdwNormalMsgSize = gdwDeltaBytesSec * sgbNetUpdateRate / 20;
+	gdwNormalMsgSize = gdwDeltaBytesSec * gbNetUpdateRate / 20;
 	gdwNormalMsgSize *= 3;
 	gdwNormalMsgSize >>= 2;
 	gdwNormalMsgSize /= gbMaxPlayers;
 	static_assert(sizeof(TPktHdr) < 128, "TPktHdr does not fit in a message.");
 	while (gdwNormalMsgSize < 128) {
 		gdwNormalMsgSize *= 2;
-		sgbNetUpdateRate *= 2;
+		gbNetUpdateRate *= 2;
 	}
 	if (gdwNormalMsgSize > gdwLargestMsgSize)
 		gdwNormalMsgSize = gdwLargestMsgSize;
@@ -200,7 +200,7 @@ void nthread_ignore_mutex(bool bStart)
  * @brief Checks if it's time for the logic to advance
  * @return True if the engine should tick
  */
-bool nthread_has_500ms_passed()
+bool nthread_has_50ms_passed()
 {
 	Uint32 currentTickCount;
 	int ticksElapsed;

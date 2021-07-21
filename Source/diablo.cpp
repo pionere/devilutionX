@@ -398,7 +398,7 @@ static void game_loop(bool bStartup)
 			gbRedrawFlags = REDRAW_ALL;
 		}
 		game_logic();
-	} while (--i != 0 && gbRunGame && nthread_has_500ms_passed());
+	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
 }
 
 static void run_game_loop(unsigned int uMsg)
@@ -437,7 +437,7 @@ static void run_game_loop(unsigned int uMsg)
 		}
 		if (!gbRunGame)
 			break;
-		if (!nthread_has_500ms_passed()) {
+		if (!nthread_has_50ms_passed()) {
 			ProcessInput();
 			DrawAndBlit();
 			continue;
