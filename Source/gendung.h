@@ -71,7 +71,6 @@ void Make_SetPC(int x, int y, int w, int h);
 void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize);
 void DRLG_HoldThemeRooms();
 bool SkipThemeRoom(int x, int y);
-void InitLevels();
 
 inline void DRLG_CopyTrans(int sx, int sy, int dx, int dy)
 {

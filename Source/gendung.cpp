@@ -759,13 +759,4 @@ bool SkipThemeRoom(int x, int y)
 	return true;
 }
 
-void InitLevels()
-{
-#ifdef _DEBUG
-	if (leveldebug)
-		return;
-#endif
-	EnterLevel(DLV_TOWN); // TODO: is this necessary?
-}
-
 DEVILUTION_END_NAMESPACE

@@ -256,7 +256,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 	if (firstflag && lvldir == ENTRY_MAIN) {
 		// initialize values which are stored in save files
-		InitLevels();
 		InitQuests();
 		InitPortals();
 		InitDungMsgs();
