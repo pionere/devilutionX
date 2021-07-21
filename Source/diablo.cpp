@@ -425,13 +425,8 @@ static void run_game_loop(unsigned int uMsg)
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
 #endif
-	while (gbRunGame) {
-		while (PeekMessage(&msg)) {
-			if (msg.message == DVL_WM_QUIT) {
-				gbRunGameResult = false;
-				gbRunGame = false;
-				break;
-			}
+	while (TRUE) {
+		while (gbRunGame && PeekMessage(&msg)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -1595,12 +1590,13 @@ void GameWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return;
 		break;
 	case DVL_WM_SYSCOMMAND:
-		if (wParam == DVL_SC_CLOSE) {
-			gbRunGame = false;
-			gbRunGameResult = false;
-			return;
-		}
-		break;
+		if (wParam != DVL_SC_CLOSE)
+			break;
+		/* fall-through */
+	case DVL_WM_QUIT:
+		gbRunGame = false;
+		gbRunGameResult = false;
+		return;
 	case DVL_WM_MOUSEMOVE:
 		GetMousePos(lParam);
 		gmenu_on_mouse_move();
