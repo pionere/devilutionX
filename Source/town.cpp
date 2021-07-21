@@ -299,20 +299,20 @@ void CreateTown(int entry)
 		ViewX = 15 + DBORDERX;
 		ViewY = 21 + DBORDERY;
 	} else if (entry == ENTRY_TWARPUP) {
-		if (TWarpFrom == 5) {
+		if (TWarpFrom == DLV_CATACOMBS1) {
 			ViewX = 39 + DBORDERX;
 			ViewY = 12 + DBORDERY;
-		} else if (TWarpFrom == 9) {
+		} else if (TWarpFrom == DLV_CAVES1) {
 			ViewX = 8 + DBORDERX;
 			ViewY = 59 + DBORDERY;
-		} else if (TWarpFrom == 13) {
+		} else if (TWarpFrom == DLV_HELL1) {
 			ViewX = 31 + DBORDERX;
 			ViewY = 71 + DBORDERY;
 #ifdef HELLFIRE
-		} else if (TWarpFrom == 17) {
+		} else if (TWarpFrom == DLV_NEST1) {
 			ViewX = 69 + DBORDERX;
 			ViewY = 52 + DBORDERY;
-		} else if (TWarpFrom == 21) {
+		} else if (TWarpFrom == DLV_CRYPT1) {
 			ViewX = 26 + DBORDERX;
 			ViewY = 15 + DBORDERY;
 #endif
