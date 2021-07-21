@@ -146,13 +146,13 @@ static int sync_prio_monster()
 	}
 }*/
 
-DWORD sync_all_monsters(const BYTE *pbBuf, DWORD dwMaxLen)
+unsigned sync_all_monsters(const BYTE *pbBuf, unsigned dwMaxLen)
 {
 	TSyncHeader *pHdr;
 	int i, idx;
 	WORD wLen;
 
-	if (nummonsters < 1) {
+	if (gbMaxPlayers == 1 /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
 		return dwMaxLen;
 	}
 	if (dwMaxLen < sizeof(*pHdr) + sizeof(TSyncMonster)) {
