@@ -2,15 +2,12 @@
 
 #include <deque>
 #include <exception>
-#include <vector>
 #include <cstdint>
 
-#include "dvlnet/packet.h"
+#include "packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
-
-typedef std::vector<unsigned char> buffer_t;
 
 class frame_queue_exception : public std::exception {
 public:
@@ -20,22 +17,22 @@ public:
 	}
 };
 
-typedef uint32_t framesize_t;
-
 class frame_queue {
 public:
-	constexpr static framesize_t max_frame_size = 0xFFFF;
+	constexpr static uint32_t MAX_FRAME_SIZE = 0xFFFF;
 
 private:
-	framesize_t current_size = 0;
+	uint32_t current_size = 0;
 	std::deque<buffer_t> buffer_deque;
-	framesize_t nextsize = 0;
+	uint32_t nextsize = 0;
 
-	framesize_t size();
-	buffer_t read(framesize_t s);
+	buffer_t read(uint32_t s);
 
 public:
 	bool packet_ready();
+	/*
+	 * Read the next packet from the queue. Assumes the packet is ready (packet_ready returns true).
+	 */
 	buffer_t read_packet();
 	void write(buffer_t buf);
 
