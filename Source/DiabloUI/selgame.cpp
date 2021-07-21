@@ -299,7 +299,7 @@ void selgame_Diff_Select(unsigned index)
 	if (!selconn_bMulti) {
 		selgame_gameData->bMaxPlayers = 1;
 		selgame_gameData->bTickRate = gnTicksRate;
-		snprintf(selgame_Password, sizeof(selgame_Password), "local");
+		selgame_Password[0] = '\0';
 		selgame_Password_Select(0);
 		return;
 	}
@@ -390,6 +390,7 @@ void selgame_Speed_Select(unsigned index)
 	selgame_gameData->bTickRate = vecSelGameDlgItems[index]->m_value;
 
 	if (provider == SELCONN_LOOPBACK) {
+		selgame_Password[0] = '\0';
 		selgame_Password_Select(0);
 		return;
 	}
