@@ -20,7 +20,6 @@ char selgame_Ip[128] = "";
 char selgame_Port[8] = "";
 char selgame_Password[16] = "";
 char selgame_Description[256];
-int selgame_result;
 int selgame_selectedGame;
 bool selgame_endMenu;
 //int selgame_heroLevel;
@@ -29,8 +28,6 @@ _SNETGAMEDATA *selgame_gameData;
 void (*selgame_eventHandler)(_SNETEVENT *pEvt);
 
 #define DESCRIPTION_WIDTH 205
-
-char title[32];
 
 std::vector<UiListItem *> vecSelGameDlgItems;
 std::vector<UiItemBase *> vecSelGameDialog;
@@ -96,11 +93,9 @@ static void selgame_Free()
 void selgame_GameSelection_Init()
 {
 	if (provider == SELCONN_LOOPBACK) {
-		selgame_GameSelection_Select(0);
+		selgame_GameSelection_Select(SELGAME_CREATE);
 		return;
 	}
-
-	selgame_selectedGame = 0;
 
 	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
 	int port = NET_DEFAULT_PORT;
@@ -114,7 +109,7 @@ void selgame_GameSelection_Init()
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Client-Server (TCP)", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
@@ -125,8 +120,8 @@ void selgame_GameSelection_Init()
 	SDL_Rect rect4 = { PANEL_LEFT + 300, (UI_OFFSET_Y + 211), 295, 33 };
 	vecSelGameDialog.push_back(new UiArtText("Select Action", rect4, UIS_CENTER | UIS_BIG));
 
-	vecSelGameDlgItems.push_back(new UiListItem("Create Game", 0));
-	vecSelGameDlgItems.push_back(new UiListItem("Join Game", 1));
+	vecSelGameDlgItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
+	vecSelGameDlgItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
 	vecSelGameDialog.push_back(new UiList(vecSelGameDlgItems, PANEL_LEFT + 305, (UI_OFFSET_Y + 255), 285, 26, UIS_CENTER | UIS_MED | UIS_GOLD));
 
@@ -142,11 +137,14 @@ void selgame_GameSelection_Init()
 void selgame_GameSelection_Focus(unsigned index)
 {
 	switch (vecSelGameDlgItems[index]->m_value) {
-	case 0:
+	case SELGAME_CREATE:
 		snprintf(selgame_Description, sizeof(selgame_Description), "Create a new game with a difficulty setting of your choice.");
 		break;
-	case 1:
+	case SELGAME_JOIN:
 		snprintf(selgame_Description, sizeof(selgame_Description), "Enter an IP or a hostname and join a game already in progress.");
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
@@ -173,7 +171,7 @@ static void selgame_Port_Init(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Client-Server (TCP)", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText("Join Game", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
@@ -198,6 +196,8 @@ static void selgame_Port_Init(unsigned index)
 
 void selgame_GameSelection_Select(unsigned index)
 {
+	assert(index == vecSelGameDlgItems[index]->m_value);
+
 	selgame_selectedGame = index;
 
 	//gfnHeroInfo(UpdateHeroLevel);
@@ -208,7 +208,7 @@ void selgame_GameSelection_Select(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText(title, rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 34, (UI_OFFSET_Y + 211), 205, 33 };
 	vecSelGameDialog.push_back(new UiArtText(selgame_Label, rect2, UIS_CENTER | UIS_BIG));
@@ -217,9 +217,7 @@ void selgame_GameSelection_Select(unsigned index)
 	vecSelGameDialog.push_back(new UiArtText(selgame_Description, rect3));
 
 	switch (index) {
-	case 0: {
-		snprintf(title, sizeof(title), "Create Game");
-
+	case SELGAME_CREATE: {
 		SDL_Rect rect4 = { PANEL_LEFT + 299, (UI_OFFSET_Y + 211), 295, 35 };
 		vecSelGameDialog.push_back(new UiArtText("Select Difficulty", rect4, UIS_CENTER | UIS_BIG));
 
@@ -237,9 +235,7 @@ void selgame_GameSelection_Select(unsigned index)
 
 		UiInitList(vecSelGameDialog, vecSelGameDlgItems.size(), selgame_Diff_Focus, selgame_Diff_Select, selgame_Diff_Esc, NULL, true);
 	} break;
-	case 1: {
-		snprintf(title, sizeof(title), "Join TCP Games");
-
+	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { PANEL_LEFT + 305, (UI_OFFSET_Y + 211), 285, 33 };
 		vecSelGameDialog.push_back(new UiArtText("Enter Address", rect4, UIS_CENTER | UIS_BIG));
 
@@ -254,13 +250,16 @@ void selgame_GameSelection_Select(unsigned index)
 
 		UiInitList(vecSelGameDialog, 0, NULL, selgame_Port_Init, selgame_GameSelection_Init);
 	} break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 }
 
 void selgame_GameSelection_Esc()
 {
 	UiInitList_clear();
-	selgame_result = SELGAME_PREVIOUS;
+	selgame_selectedGame = SELGAME_PREVIOUS;
 	selgame_endMenu = true;
 }
 
@@ -279,6 +278,9 @@ void selgame_Diff_Focus(unsigned index)
 		snprintf(selgame_Label, sizeof(selgame_Label), "Hell");
 		snprintf(selgame_Description, sizeof(selgame_Description), "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm.");
 		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
 }
@@ -286,7 +288,7 @@ void selgame_Diff_Focus(unsigned index)
 static void ShowErrorMsgDialog()
 {
 	selgame_Free();
-	UiSelOkDialog(title, tempstr, false);
+	UiSelOkDialog(selgame_selectedGame == SELGAME_CREATE ? "Create Game" : "Join Game", tempstr, false);
 	LoadBackgroundArt("ui_art\\selgame.pcx");
 }
 
@@ -376,13 +378,14 @@ void selgame_Speed_Focus(unsigned index)
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		break;
 	}
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH);
 }
 
 void selgame_Speed_Esc()
 {
-	selgame_GameSelection_Select(0);
+	selgame_GameSelection_Select(SELGAME_CREATE);
 }
 
 void selgame_Speed_Select(unsigned index)
@@ -408,7 +411,7 @@ void selgame_Password_Init(unsigned index)
 	UiAddLogo(&vecSelGameDialog);
 
 	SDL_Rect rect1 = { PANEL_LEFT + 24, (UI_OFFSET_Y + 161), 590, 35 };
-	vecSelGameDialog.push_back(new UiArtText("Client-Server (TCP)", rect1, UIS_CENTER | UIS_BIG));
+	vecSelGameDialog.push_back(new UiArtText(selgame_selectedGame == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 35, (UI_OFFSET_Y + 211), 205, 192 };
 	vecSelGameDialog.push_back(new UiArtText("Description:", rect2, UIS_MED));
@@ -433,21 +436,20 @@ void selgame_Password_Init(unsigned index)
 
 void selgame_Password_Select(unsigned index)
 {
-	if (selgame_selectedGame != 0) {
+	if (selgame_selectedGame == SELGAME_CREATE) {
+		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
+			UiInitList_clear();
+			selgame_endMenu = true;
+			return;
+		}
+	} else {
+		assert(selgame_selectedGame == SELGAME_JOIN);
 		setIniValue("Phone Book", "Entry1", selgame_Ip);
 		setIniValue("Phone Book", "Entry1Port", selgame_Port);
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
 		if (SNetJoinGame(selgame_Ip, port, selgame_Password)) {
 			UiInitList_clear();
-			selgame_result = SELGAME_JOIN;
-			selgame_endMenu = true;
-			return;
-		}
-	} else {
-		if (SNetCreateGame(selgame_Password, selgame_gameData)) {
-			UiInitList_clear();
-			selgame_result = SELGAME_CREATE;
 			selgame_endMenu = true;
 			return;
 		}
@@ -455,13 +457,13 @@ void selgame_Password_Select(unsigned index)
 
 	SStrCopy(tempstr, SDL_GetError(), sizeof(tempstr));
 	ShowErrorMsgDialog();
-	selgame_Password_Init(selgame_selectedGame);
+	selgame_Password_Init(0);
 }
 
 void selgame_Password_Esc()
 {
-	if (selgame_selectedGame == 1)
-		selgame_GameSelection_Select(1);
+	if (selgame_selectedGame == SELGAME_JOIN)
+		selgame_GameSelection_Select(SELGAME_JOIN);
 	else
 		selgame_GameSpeedSelection();
 }
@@ -483,7 +485,7 @@ int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEv
 	}
 	selgame_Free();
 
-	return selgame_result;
+	return selgame_selectedGame;
 }
 
 void UIDisconnectGame()

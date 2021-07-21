@@ -3082,9 +3082,9 @@ typedef enum _selhero_selections {
 } _selhero_selections;
 
 typedef enum _selgame_selections {
-	SELGAME_JOIN        = 1,
-	SELGAME_CREATE      = 2,
-	SELGAME_PREVIOUS    = 3
+	SELGAME_CREATE,
+	SELGAME_JOIN,
+	SELGAME_PREVIOUS
 } _selgame_selections;
 
 typedef enum conn_type {
