@@ -30,7 +30,7 @@ public:
 
 private:
 	frame_queue recv_queue;
-	buffer_t recv_buffer = buffer_t(frame_queue::max_frame_size);
+	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 
 	asio::io_context ioc;
 	asio::ip::tcp::resolver resolver = asio::ip::tcp::resolver(ioc);
