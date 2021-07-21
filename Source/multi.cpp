@@ -718,7 +718,6 @@ bool NetInit(bool bSinglePlayer)
 		buffer_init(&sgHiPriBuf);
 		buffer_init(&sgLoPriBuf);
 		gbPacketSentRecently = false;
-		sync_init();
 		nthread_start(gbJoinGame);
 		dthread_start();
 		tmsg_start();

@@ -253,7 +253,7 @@ void sync_update(int pnum, const TSyncHeader *pHdr)
 	//assert(wLen == 0);
 }
 
-void sync_init()
+void InitSync()
 {
 	sync_mnum = 16 * mypnum;
 	memset(monster_prio, 255, sizeof(monster_prio));

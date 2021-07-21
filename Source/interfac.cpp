@@ -407,6 +407,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 	IncProgress();
 
+	InitSync();
 	ResyncQuests();
 	SyncPortals();
 
