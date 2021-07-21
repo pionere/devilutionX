@@ -73,7 +73,7 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, net_siz
 	}
 	con->recv_buffer.resize(bytesRead);
 	con->recv_queue.write(std::move(con->recv_buffer));
-	con->recv_buffer.resize(frame_queue::max_frame_size);
+	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (con->recv_queue.packet_ready()) {
 		try {
 			auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
