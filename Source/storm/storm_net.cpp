@@ -1,3 +1,5 @@
+#include "storm_net.h"
+
 #include <memory>
 #ifdef ZEROTIER
 #include <mutex>

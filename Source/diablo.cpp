@@ -8,6 +8,7 @@
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "plrctrls.h"
+#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

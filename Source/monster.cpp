@@ -6,6 +6,7 @@
 #include "all.h"
 #include "monstai.h"
 #include "engine/render/cl2_render.hpp"
+#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
