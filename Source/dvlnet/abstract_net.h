@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "all.h"
+#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {

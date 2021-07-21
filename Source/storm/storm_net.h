@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../types.h"
 #ifdef ZEROTIER
 #include <vector>
 #include <string>
