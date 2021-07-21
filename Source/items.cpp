@@ -2367,8 +2367,10 @@ void SpawnRock()
 		items[i]._iSelFlag = 2;
 		items[i]._iPostDraw = TRUE; // draw it above the stand
 		items[i]._iAnimFrame = 11;
+		items[i]._iCreateInfo = items_get_currlevel() | CF_PREGEN;
 		items[i]._iSeed = GetRndSeed(); // make sure it is unique
 		SetItemLoc(i, object[oi]._ox, object[oi]._oy);
+		DeltaAddItem(i);
 
 		itemactive[numitems] = i;
 		itemavail[0] = itemavail[MAXITEMS - numitems - 1];
