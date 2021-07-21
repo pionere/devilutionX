@@ -583,15 +583,14 @@ static void SetupLocalCoords()
 	lvlLoad = 10;
 }
 
-static void multi_handle_events(_SNETEVENT *pEvt)
+static void multi_handle_events(SNetEvent *pEvt)
 {
+	unsigned pnum, LeftReason;
+
 	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
+	assert(pEvt->databytes == 1);
 
-	DWORD pnum, LeftReason;
-
-	LeftReason = LEAVE_UNKNOWN;
-	if (pEvt->_eData != NULL && pEvt->databytes >= sizeof(DWORD))
-		LeftReason = *(DWORD *)pEvt->_eData;
+	LeftReason = pEvt->_eData[0];
 	pnum = pEvt->playerid;
 	sgbPlayerLeftGameTbl[pnum] = LeftReason;
 	if (LeftReason == LEAVE_ENDING)
@@ -622,7 +621,7 @@ void NetClose()
 		pfile_rename_hero(name_1, name_2);
 }*/
 
-static bool multi_init_game(bool bSinglePlayer, _SNETGAMEDATA &sgGameInitInfo)
+static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
 	int dlgresult, pnum;
 
@@ -692,7 +691,7 @@ static bool multi_init_game(bool bSinglePlayer, _SNETGAMEDATA &sgGameInitInfo)
 
 bool NetInit(bool bSinglePlayer)
 {
-	_SNETGAMEDATA sgGameInitInfo;
+	SNetGameData sgGameInitInfo;
 	int i;
 
 	while (TRUE) {

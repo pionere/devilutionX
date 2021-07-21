@@ -127,7 +127,7 @@ void SNetInitializeProvider(unsigned long provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char *pszGamePassword, _SNETGAMEDATA* gameData)
+bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
 {
 	// assert(gameData != NULL && pszGamePassword != NULL);
 #ifdef ZEROTIER

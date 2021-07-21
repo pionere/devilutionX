@@ -20,7 +20,7 @@ void UiMainMenuDialog(const char *name, int *pdwResult, void(*fnSound)(const cha
 bool UiProgressDialog(const char *msg, int(*fnfunc)());
 
 bool UiSelectProvider(bool bMulti);
-int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt));
+int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt));
 void UIDisconnectGame();
 
 /* These are defined in fonts.h */

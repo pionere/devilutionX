@@ -70,7 +70,7 @@ protected:
 
 	void handle_accept(packet &pkt);
 	void recv_local(packet &pkt);
-	void run_event_handler(_SNETEVENT &ev);
+	void run_event_handler(SNetEvent &ev);
 
 private:
 	plr_t get_owner();

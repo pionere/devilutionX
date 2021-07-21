@@ -34,7 +34,7 @@ const char *packet_type_to_string(uint8_t packet_type);
 typedef uint8_t plr_t;
 typedef DWORD cookie_t;
 typedef DWORD turn_t;
-typedef INT leaveinfo_t; // TODO: change to DWORD?
+typedef uint8_t leaveinfo_t;
 #ifndef NONET
 typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 #else

@@ -24,7 +24,7 @@ int selgame_selectedGame;
 bool selgame_endMenu;
 //int selgame_heroLevel;
 
-_SNETGAMEDATA *selgame_gameData;
+SNetGameData *selgame_gameData;
 
 #define DESCRIPTION_WIDTH 205
 
@@ -33,25 +33,25 @@ std::vector<UiItemBase *> vecSelGameDialog;
 
 } // namespace
 
-static void selgame_handleEvents(_SNETEVENT *pEvt)
+static void selgame_handleEvents(SNetEvent* pEvt)
 {
-	_SNETGAMEDATA *gameData;
-	DWORD playerId;
+	SNetGameData* gameData;
+	unsigned playerId;
 
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
+	assert(pEvt->databytes == sizeof(SNetGameData));
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 
-	gameData = (_SNETGAMEDATA *)pEvt->_eData;
+	gameData = (SNetGameData*)pEvt->_eData;
 	if (gameData->dwVersionId != GAME_VERSION)
 		throw std::runtime_error("Mismatching game versions.");
-	assert(pEvt->databytes == sizeof(_SNETGAMEDATA));
 	copy_pod(*selgame_gameData, *gameData);
 	selgame_gameData->bPlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(_SNETEVENT *pEvt))
+static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
 {
 	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
@@ -463,7 +463,7 @@ void selgame_Password_Esc()
 		selgame_GameSpeedSelection();
 }
 
-int UiSelectGame(_SNETGAMEDATA *game_data, void (*event_handler)(_SNETEVENT *pEvt))
+int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt))
 {
 	selgame_gameData = game_data;
 

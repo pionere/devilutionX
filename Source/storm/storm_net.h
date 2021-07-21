@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-bool SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData);
+bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData);
 
 /*  SNetDropPlayer @ 106
  *
@@ -65,7 +65,7 @@ bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]
 uint32_t SNetGetTurnsInTransit();
 uint32_t SNetGetOwnerTurnsWaiting();
 
-typedef void (*SEVTHANDLER)(struct _SNETEVENT *);
+typedef void (*SEVTHANDLER)(SNetEvent* );
 
 /*  SNetSendMessage @ 127
  *

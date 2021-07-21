@@ -16,7 +16,7 @@ void base::setup_password(std::string pw)
 	pktfty = std::make_unique<packet_factory>(pw);
 }
 
-void base::run_event_handler(_SNETEVENT &ev)
+void base::run_event_handler(SNetEvent &ev)
 {
 	auto f = registered_handlers[ev.eventid];
 	if (f != NULL) {
@@ -39,13 +39,13 @@ void base::handle_accept(packet &pkt)
 	}
 	auto &pkt_info = pkt.info();
 #ifdef ZEROTIER
-	if (pkt_info.size() != sizeof(_SNETGAMEDATA)) {
+	if (pkt_info.size() != sizeof(SNetGameData)) {
 		ABORT();
 	}
 	// we joined and did not create
 	game_init_info = pkt.info();
 #endif
-	_SNETEVENT ev;
+	SNetEvent ev;
 	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
 	ev.playerid = plr_self;
 	ev._eData = const_cast<unsigned char *>(pkt_info.data());
@@ -87,7 +87,7 @@ void base::recv_local(packet &pkt)
 		if (pkt_plr != plr_self) {
 			if (connected_table[pkt_plr]) {
 				auto leaveinfo = pkt.leaveinfo();
-				_SNETEVENT ev;
+				SNetEvent ev;
 				ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 				ev.playerid = pkt_plr;
 				ev._eData = reinterpret_cast<unsigned char *>(&leaveinfo);
@@ -188,7 +188,7 @@ void base::SNetSendTurn(uint32_t turn)
 	caps->flags = 0;                 // unused
 	caps->maxmessagesize = MAX_NETMSG_SIZE; // the largest message to send during delta-load
 	caps->maxqueuesize = 0;          // unused
-	caps->maxplayers = MAX_PLRS;     // unused (part of _SNETGAMEDATA)
+	caps->maxplayers = MAX_PLRS;     // unused (part of SNetGameData)
 	caps->bytessec = 1000000;        // estimated speed of the connection (to determine if wait is necessary during delta load)
 	caps->latencyms = 0;             // unused
 	caps->defaultturnssec = 10;      // number of turns to process in a second (to determine the net-update-rate)

@@ -17,8 +17,8 @@ static uint32_t turn_delta_request;
 static BYTE sgbPacketCountdown;
 static BYTE sgbSyncCountdown;
 static bool _gbMutexDisabled;
-const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to _SNETGAMEDATA ? (was bytessec and 1000000 in vanilla)
-const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to _SNETGAMEDATA ? (was maxmessagesize in vanilla)
+const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
+const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
 unsigned gdwNormalMsgSize;
 static Uint32 guLastTick;
 static bool _gbTickInSync;
@@ -145,8 +145,8 @@ void nthread_start(bool request_delta)
 		turn_delta_request = 0;
 	//_SNETCAPS caps;
 	//SNetGetProviderCaps(&caps);
-	gdwTurnsInTransit = 1; // TODO: add to _SNETGAMEDATA ? (was defaultturnsintransit in vanilla)
-	gbNetUpdateRate = 2;  // TODO: add to _SNETGAMEDATA ? (was defaultturnssec in vanilla)
+	gdwTurnsInTransit = 1; // TODO: add to SNetGameData ? (was defaultturnsintransit in vanilla)
+	gbNetUpdateRate = 2;  // TODO: add to SNetGameData ? (was defaultturnssec in vanilla)
 	// FIXME: instead of 20, gnTicksRate should be used, but does not really matter at the moment
 	//  and gnTicksRate is not set at this point
 	gdwNormalMsgSize = gdwDeltaBytesSec * gbNetUpdateRate / 20;

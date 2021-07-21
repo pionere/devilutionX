@@ -1532,17 +1532,19 @@ typedef struct _uiheroinfo {
 } _uiheroinfo;
 
 //////////////////////////////////////////////////
-// storm
+// storm-net
 //////////////////////////////////////////////////
 
-typedef struct _SNETGAMEDATA {
+#pragma pack(push, 1)
+typedef struct SNetGameData {
 	INT dwSeed;
 	DWORD dwVersionId;
 	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;
 	BYTE bMaxPlayers;
-} _SNETGAMEDATA;
+} SNetGameData;
+#pragma pack(pop)
 
 /*typedef struct _SNETCAPS {
 	//DWORD size;
@@ -1556,12 +1558,12 @@ typedef struct _SNETGAMEDATA {
 	DWORD defaultturnsintransit;
 } _SNETCAPS;*/
 
-typedef struct _SNETEVENT {
-	DWORD eventid;
-	DWORD playerid;
-	void *_eData;
-	DWORD databytes;
-} _SNETEVENT;
+typedef struct SNetEvent {
+	unsigned eventid;
+	unsigned playerid;
+	BYTE* _eData;
+	unsigned databytes;
+} SNetEvent;
 
 //////////////////////////////////////////////////
 // path
