@@ -59,10 +59,12 @@ extern "C" {
 #endif
 
 /* OPEN OPERATIONS */
+#ifdef FULL
 /** open an smk (from a file) */
 smk smk_open_file(const char* filename, const unsigned char mode);
 /** open an smk (from a file pointer) */
 smk smk_open_filepointer(FILE* file, const unsigned char mode);
+#endif
 /** read an smk (from a memory buffer) */
 smk smk_open_memory(const unsigned char* buffer, const unsigned long size);
 

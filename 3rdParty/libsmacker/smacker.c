@@ -140,7 +140,7 @@ static char smk_read_file(void* buf, const size_t size, FILE* fp)
 	size_t bytesRead = fread(buf,1,size,fp);
 	if (bytesRead != size)
 	{
-		fprintf(stderr, "libsmacker::smk_read_file(buf,%lu,fp) - ERROR: Short read, %lu bytes returned\n\tReason: %s\n", (unsigned long)size, (unsigned long)bytesRead, strerror(errno));
+		fprintf(stderr, "libsmacker::smk_read_file(buf,%lu,fp) - ERROR: Short read, %lu bytes returned\n\tReason: %d\n", (unsigned long)size, (unsigned long)bytesRead, errno/*strerror(errno)*/);
 		return -1;
 	}
 	return 0;
@@ -381,7 +381,9 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 
 	/* Handle the rest of the data.
 		For MODE_MEMORY, read the chunks and store */
+#ifdef FULL
 	if (s->mode == SMK_MODE_MEMORY)
+#endif
 	{
 		smk_malloc(s->source.chunk_data,(s->f + s->ring_frame) * sizeof(unsigned char*));
 		for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++)
@@ -390,6 +392,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 			smk_read(s->source.chunk_data[temp_u],s->chunk_size[temp_u]);
 		}
 	}
+#ifdef FULL
 	else
 	{
 		/* MODE_STREAM: don't read anything now, just precompute offsets.
@@ -406,6 +409,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 			}
 		}
 	}
+#endif
 
 	return s;
 
@@ -438,6 +442,7 @@ error:
 	return s;
 }
 
+#ifdef FULL
 /* open an smk (from a file) */
 smk smk_open_filepointer(FILE* file, const unsigned char mode)
 {
@@ -491,6 +496,7 @@ smk smk_open_file(const char* filename, const unsigned char mode)
 error:
 	return NULL;
 }
+#endif // FULL
 
 /* close out an smk file and clean up memory */
 void smk_close(smk s)
@@ -517,6 +523,7 @@ void smk_close(smk s)
 	smk_free(s->keyframe);
 	smk_free(s->frame_type);
 
+#ifdef FULL
 	if (s->mode == SMK_MODE_DISK)
 	{
 		/* disk-mode */
@@ -527,6 +534,7 @@ void smk_close(smk s)
 		smk_free(s->source.file.chunk_offset);
 	}
 	else
+#endif
 	{
 		/* mem-mode */
 		if (s->source.chunk_data != NULL)
@@ -1227,6 +1235,7 @@ static char smk_render(smk s)
 		goto error;
 	}
 
+#ifdef FULL
 	if (s->mode == SMK_MODE_DISK)
 	{
 		/* Skip to frame in file */
@@ -1248,6 +1257,7 @@ static char smk_render(smk s)
 		}
 	}
 	else
+#endif
 	{
 		/* Just point buffer at the right place */
 		if (!s->source.chunk_data[s->cur_frame])
@@ -1322,20 +1332,24 @@ static char smk_render(smk s)
 		smk_render_video(&(s->video), p,i);
 	}
 
+#ifdef FULL
 	if (s->mode == SMK_MODE_DISK)
 	{
 		/* Remember that buffer we allocated?  Trash it */
 		smk_free(buffer);
 	}
+#endif
 
 	return 0;
 
 error:
+#ifdef FULL
 	if (s->mode == SMK_MODE_DISK)
 	{
 		/* Remember that buffer we allocated?  Trash it */
 		smk_free(buffer);
 	}
+#endif
 
 	return -1;
 }

@@ -52,7 +52,7 @@
 }
 
 /**
-	Safe malloc: exits if calloc() returns NULL.
+	//Safe calloc: exits if calloc() returns NULL.
 		Also initializes blocks to 0.
 	Optionally warns on attempts to malloc over an existing pointer.
 	Ideally, one should not exit() in a library. However, if you cannot
@@ -66,12 +66,13 @@
 		free(p); \
 	} */ \
 	p = calloc(1, x); \
-	if (!p) \
+	smk_assert(p); \
+	/*if (!p) \
 	{ \
 		fprintf(stderr, "libsmacker::smk_malloc(" #p ", %lu) - ERROR: calloc() returned NULL (file: %s, line: %lu)\n\tReason: [%d] %s\n", \
 			(unsigned long) (x), __FILE__, (unsigned long)__LINE__, errno, strerror(errno)); \
 		exit(EXIT_FAILURE); \
-	} \
+	}*/ \
 }
 
 #endif
