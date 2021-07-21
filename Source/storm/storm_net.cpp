@@ -85,14 +85,6 @@ void SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 	dvlnet_inst->SNetRegisterEventHandler(evtype, func);
 }
 
-bool SNetDestroy()
-{
-#ifdef ZEROTIER
-	std::lock_guard<std::mutex> lg(storm_net_mutex);
-#endif
-	return true;
-}
-
 void SNetDropPlayer(int playerid)
 {
 #ifdef ZEROTIER

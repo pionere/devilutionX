@@ -500,7 +500,6 @@ bool StartGame(bool bSinglePlayer)
 		pfile_create_player_description();
 	}
 
-	SNetDestroy();
 	return gbRunGameResult;
 }
 

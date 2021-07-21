@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 bool SNetCreateGame(const char *pszGamePassword, struct _SNETGAMEDATA *gameData);
-bool SNetDestroy();
 
 /*  SNetDropPlayer @ 106
  *
