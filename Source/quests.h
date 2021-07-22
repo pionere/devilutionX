@@ -20,6 +20,7 @@ extern int ReturnLvl;
 extern QuestStruct quests[NUM_QUESTS];
 
 void InitQuests();
+void InitQuestGfx();
 void CheckQuests();
 int ForceQuests();
 bool QuestStatus(int qn);

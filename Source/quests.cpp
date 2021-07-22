@@ -53,14 +53,17 @@ const int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 const int QuestGroup5[2] = { Q_JERSEY, Q_FARMER };
 #endif
 
+void InitQuestGfx()
+{
+	gbQuestlog = false;
+	WaterDone = 0;
+}
+
 void InitQuests()
 {
 	QuestStruct *qs;
 	const QuestData *qdata;
 	int i;
-
-	gbQuestlog = false;
-	WaterDone = 0;
 
 	qs = quests;
 	qdata = questlist;

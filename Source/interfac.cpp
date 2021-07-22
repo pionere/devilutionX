@@ -276,6 +276,7 @@ void LoadGameLevel(bool firstflag, int lvldir)
 
 		InitInv(); // gfx + values
 		InitItemGFX(); // gfx + values (some stored in savefiles)
+		InitQuestGfx(); // values
 		InitQuestText(); // gfx + values
 
 		for (pnum = 0; pnum < gbMaxPlayers; pnum++)
