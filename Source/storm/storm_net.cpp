@@ -42,7 +42,7 @@ bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetReceiveTurn(status);
+	return dvlnet_inst->SNetReceiveTurns(turns, status);
 }
 
 void SNetSendTurn(uint32_t turn)
