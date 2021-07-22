@@ -95,7 +95,7 @@ void SNetSetPassword(std::string pw);
 
 // Macro values to target specific players
 #define SNPLAYER_ALL    -1
-#define SNPLAYER_OTHERS -2
+//#define SNPLAYER_OTHERS -2
 
 #if defined(__GNUC__) || defined(__cplusplus)
 }

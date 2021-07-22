@@ -123,7 +123,7 @@ bool base::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 
 void base::SNetSendMessage(int playerID, const void *data, unsigned size)
 {
-	if (playerID != SNPLAYER_ALL && playerID != SNPLAYER_OTHERS
+	if (playerID != SNPLAYER_ALL /*&& playerID != SNPLAYER_OTHERS*/
 	    && (playerID < 0 || playerID >= MAX_PLRS))
 		ABORT();
 	auto rawMessage = reinterpret_cast<const unsigned char *>(data);
@@ -131,7 +131,7 @@ void base::SNetSendMessage(int playerID, const void *data, unsigned size)
 	if (playerID == plr_self || playerID == SNPLAYER_ALL)
 		message_queue.emplace_back(plr_self, message);
 	plr_t dest;
-	if (playerID == SNPLAYER_ALL || playerID == SNPLAYER_OTHERS)
+	if (playerID == SNPLAYER_ALL /*|| playerID == SNPLAYER_OTHERS*/)
 		dest = PLR_BROADCAST;
 	else
 		dest = playerID;
