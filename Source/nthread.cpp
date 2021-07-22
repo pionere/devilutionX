@@ -86,8 +86,6 @@ bool nthread_recv_turns(bool *received)
 		return true;
 	}
 	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
-		if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
-			nthread_terminate_game("SNetReceiveTurns");
 		_gbTickInSync = false;
 		sgbPacketCountdown = 1;
 		sgbSyncCountdown = 1;

@@ -24,8 +24,8 @@ public:
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
-	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size);
-	virtual void SNetSendMessage(int dest, const void *data, unsigned size);
+	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
+	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
 	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
 	virtual void SNetLeaveGame(int reason);

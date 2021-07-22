@@ -29,7 +29,7 @@ void loopback::send(packet &pkt)
 	ABORT();
 }
 
-bool loopback::SNetReceiveMessage(int *sender, char **data, unsigned *size)
+bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 {
 	if (message_queue.empty())
 		return false;
@@ -37,15 +37,14 @@ bool loopback::SNetReceiveMessage(int *sender, char **data, unsigned *size)
 	message_queue.pop();
 	*sender = plr_single;
 	*size = message_last.size();
-	*data = reinterpret_cast<char *>(message_last.data());
+	*data = message_last.data();
 	return true;
 }
 
-void loopback::SNetSendMessage(int dest, const void *data, unsigned size)
+void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	if (dest == plr_single || dest == SNPLAYER_ALL) {
-		const unsigned char *rawMessage = reinterpret_cast<const unsigned char *>(data);
-		buffer_t message(rawMessage, rawMessage + size);
+		buffer_t message(data, data + size);
 		message_queue.push(message);
 	}
 }

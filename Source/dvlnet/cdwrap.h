@@ -23,8 +23,8 @@ private:
 public:
 	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
-	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size);
-	virtual void SNetSendMessage(int dest, const void *data, unsigned int size);
+	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
+	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
 	virtual void SNetSendTurn(uint32_t turn);
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
@@ -82,15 +82,15 @@ void cdwrap<T>::setup_gameinfo(buffer_t info)
 }
 
 template <class T>
-bool cdwrap<T>::SNetReceiveMessage(int *sender, char **data, unsigned *size)
+bool cdwrap<T>::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 {
 	return dvlnet_wrap->SNetReceiveMessage(sender, data, size);
 }
 
 template <class T>
-void cdwrap<T>::SNetSendMessage(int dest, const void *data, unsigned int size)
+void cdwrap<T>::SNetSendMessage(int receiver, const BYTE* data, unsigned int size)
 {
-	dvlnet_wrap->SNetSendMessage(dest, data, size);
+	dvlnet_wrap->SNetSendMessage(receiver, data, size);
 }
 
 template <class T>
