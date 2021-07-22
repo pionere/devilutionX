@@ -258,8 +258,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 		// initialize values which are stored in save files
 		InitQuests();
 		InitPortals();
-		InitDungMsgs();
-		InitAutomapOnce();
 	}
 
 #ifdef _DEBUG

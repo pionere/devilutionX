@@ -69,7 +69,6 @@ void IncreasePlrMag(int pnum);
 void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
 void RestorePlrHpVit(int pnum);
-void InitDungMsgs();
 void PlayDungMsgs();
 
 inline void SetPlayerOld(int pnum)

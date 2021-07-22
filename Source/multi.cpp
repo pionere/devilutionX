@@ -531,7 +531,7 @@ static void multi_send_pinfo(int pnum, char cmd)
 	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
 }
 
-static void SetupLocalCoords()
+static void SetupLocalPlr()
 {
 	PlayerStruct *p;
 	int x, y;
@@ -557,7 +557,16 @@ static void SetupLocalCoords()
 	p->_pLvlChanging = TRUE;
 	p->_pmode = PM_NEWLVL;
 	p->destAction = ACTION_NONE;
+	p->pDungMsgs = 0;
+#ifdef HELLFIRE
+	p->pDungMsgs2 = 0;
+#endif
 	lvlLoad = 10;
+	gbActivePlayers = 1;
+	p->plractive = TRUE;
+	assert(p->_pTeam == mypnum);
+	// initialize values which are stored in save files TODO: move to LoadGameLevel?
+	InitAutomapOnce();
 }
 
 static void multi_handle_events(SNetEvent *pEvt)
@@ -703,13 +712,11 @@ bool NetInit(bool bSinglePlayer)
 		gbDeltaSender = mypnum;
 		gbSomebodyWonGameKludge = false;
 		nthread_send_turn(0, 0);
-		SetupLocalCoords();
-		if (gbJoinGame)
-			multi_send_pinfo(SNPLAYER_ALL, CMD_SEND_PLRINFO);
-		gbActivePlayers = 1;
-		myplr.plractive = TRUE;
-		assert(myplr._pTeam == mypnum);
-		if (!gbJoinGame || DownloadDeltaInfo())
+		SetupLocalPlr();
+		if (!gbJoinGame)
+			break;
+		multi_send_pinfo(SNPLAYER_ALL, CMD_SEND_PLRINFO);
+		if (DownloadDeltaInfo())
 			break;
 		NetClose();
 	}

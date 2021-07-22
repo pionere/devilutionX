@@ -729,7 +729,6 @@ void CreatePlayer(int pnum, BYTE c)
 	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
 
-	//InitDungMsgs(pnum);
 	CreatePlrItems(pnum);
 	//SetRndSeed(0);
 }
@@ -3464,18 +3463,6 @@ void RestorePlrHpVit(int pnum)
 	PlrFillHp(pnum);
 
 	// CalcPlrInv(pnum, true);
-}
-
-void InitDungMsgs()
-{
-	if ((unsigned)mypnum >= MAX_PLRS) {
-		dev_fatal("InitDungMsgs: illegal player %d", mypnum);
-	}
-
-	myplr.pDungMsgs = 0;
-#ifdef HELLFIRE
-	myplr.pDungMsgs2 = 0;
-#endif
 }
 
 void PlayDungMsgs()
