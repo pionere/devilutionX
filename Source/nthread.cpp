@@ -20,7 +20,7 @@ static bool _gbMutexDisabled;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
 unsigned gdwNormalMsgSize;
-static Uint32 guLastTick;
+static Uint32 guNextTick;
 static bool _gbTickInSync;
 static SDL_threadID glpNThreadId;
 static SDL_Thread *sghThread = NULL;
@@ -75,14 +75,14 @@ bool nthread_recv_turns(bool *received)
 	*received = false;
 	sgbPacketCountdown--;
 	if (sgbPacketCountdown != 0) {
-		guLastTick += gnTickDelay;
+		guNextTick += gnTickDelay;
 		return true;
 	}
 	sgbSyncCountdown--;
 	sgbPacketCountdown = gbNetUpdateRate;
 	if (sgbSyncCountdown != 0) {
 		*received = true;
-		guLastTick += gnTickDelay;
+		guNextTick += gnTickDelay;
 		return true;
 	}
 	if (!SNetReceiveTurns(glpMsgTbl, player_state)) {
@@ -95,12 +95,12 @@ bool nthread_recv_turns(bool *received)
 	} else {
 		if (!_gbTickInSync) {
 			_gbTickInSync = true;
-			guLastTick = SDL_GetTicks();
+			guNextTick = SDL_GetTicks();
 		}
 		sgbSyncCountdown = 4;
 		multi_parse_turns();
 		*received = true;
-		guLastTick += gnTickDelay;
+		guNextTick += gnTickDelay;
 		return true;
 	}
 }
@@ -118,7 +118,7 @@ static unsigned int nthread_handler(void *data)
 		}
 		nthread_send_turn(0, 0);
 		if (nthread_recv_turns(&received))
-			delta = guLastTick - SDL_GetTicks();
+			delta = guNextTick - SDL_GetTicks();
 		else
 			delta = gnTickDelay;
 		sgMemCrit.Leave();
@@ -135,7 +135,7 @@ void nthread_request_delta()
 
 void nthread_start(bool request_delta)
 {
-	guLastTick = SDL_GetTicks();
+	guNextTick = SDL_GetTicks();
 	_gbTickInSync = true;
 	sgbPacketCountdown = 1;
 	sgbSyncCountdown = 1;
@@ -206,9 +206,9 @@ bool nthread_has_50ms_passed()
 	int ticksElapsed;
 
 	currentTickCount = SDL_GetTicks();
-	ticksElapsed = currentTickCount - guLastTick;
+	ticksElapsed = currentTickCount - guNextTick;
 	if (gbMaxPlayers == 1 && ticksElapsed > (int)(10 * gnTickDelay)) {
-		guLastTick = currentTickCount;
+		guNextTick = currentTickCount;
 		ticksElapsed = 0;
 	}
 	return ticksElapsed >= 0;
