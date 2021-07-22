@@ -104,19 +104,6 @@ static void multi_init_pkt_header(TPktHdr &pktHdr, unsigned len)
 	//pktHdr.pmmp = SwapLE32(p->_pMaxMana);
 }
 
-static void multi_send_mypacket(void *packet, BYTE dwSize)
-{
-	TPkt pkt;
-	unsigned len = dwSize;
-
-	memcpy(&pkt.body[0], packet, len);
-	len += sizeof(pkt.hdr);
-	multi_init_pkt_header(pkt.hdr, len);
-	SNetSendMessage(mypnum, &pkt, len);
-	//if (!SNetSendMessage(mypnum, &pkt, pkt.hdr.wLen))
-	//	nthread_terminate_game("SNetSendMessage0");
-}
-
 static void multi_send_packet()
 {
 	BYTE *dstEnd;
@@ -129,21 +116,17 @@ static void multi_send_packet()
 	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
 	multi_init_pkt_header(pkt.hdr, len);
-	SNetSendMessage(SNPLAYER_OTHERS, &pkt, len);
-	//if (!SNetSendMessage(SNPLAYER_OTHERS, &pkt, len))
-	//	nthread_terminate_game("SNetSendMessage");
+	SNetSendMessage(SNPLAYER_ALL, &pkt, len);
 }
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
 {
 	multi_queue_chunk(&sgLoPriBuf, pbMsg, bLen);
-	multi_send_mypacket(pbMsg, bLen);
 }
 
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 {
 	multi_queue_chunk(&sgHiPriBuf, pbMsg, bLen);
-	multi_send_mypacket(pbMsg, bLen);
 
 	if (!gbPacketSentRecently) {
 		gbPacketSentRecently = true;
