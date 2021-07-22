@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 typedef std::vector<unsigned char> buffer_t;
-typedef unsigned long provider_t;
 typedef size_t net_size_t;
 
 static constexpr uint8_t PLR_MASTER = SNPLAYER_MASTER;
@@ -30,8 +29,8 @@ class abstract_net {
 public:
 	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
 	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
-	virtual bool SNetReceiveMessage(int *sender, char **data, unsigned *size) = 0;
-	virtual void SNetSendMessage(int dest, const void *data, unsigned size) = 0;
+	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
+	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
 	    = 0;
 	virtual void SNetSendTurn(uint32_t turn) = 0;
@@ -59,7 +58,7 @@ public:
 		return std::vector<std::string>();
 	}
 #endif
-	static std::unique_ptr<abstract_net> make_net(provider_t provider);
+	static std::unique_ptr<abstract_net> make_net(unsigned provider);
 };
 
 } // namespace net

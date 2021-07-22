@@ -1,6 +1,5 @@
 #include "abstract_net.h"
 
-#include "utils/stubs.h"
 #ifndef NONET
 #include "dvlnet/base_protocol.h"
 #include "dvlnet/cdwrap.h"
@@ -12,7 +11,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
+std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 {
 #ifdef NONET
 	return std::make_unique<loopback>();
@@ -28,7 +27,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(provider_t provider)
 		return std::make_unique<loopback>();
 	default:
 		ASSUME_UNREACHABLE
-		ABORT();
+		return NULL;
 	}
 #endif
 }
