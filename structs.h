@@ -1131,7 +1131,7 @@ typedef struct TSyncMonster {
 	BYTE _mdelta;
 } TSyncMonster;
 
-typedef struct TPktHdr {
+typedef struct TurnPktHdr {
 	INT php;
 	//INT pmhp;
 	INT pmp;
@@ -1140,12 +1140,12 @@ typedef struct TPktHdr {
 	BYTE py;
 	WORD wCheck;
 	WORD wLen;
-} TPktHdr;
+} TurnPktHdr;
 
-typedef struct TPkt {
-	TPktHdr hdr;
-	BYTE body[MAX_NETMSG_SIZE - sizeof(TPktHdr)];
-} TPkt;
+typedef struct TurnPkt {
+	TurnPktHdr hdr;
+	BYTE body[MAX_NETMSG_SIZE - sizeof(TurnPktHdr)];
+} TurnPkt;
 
 typedef struct DMonsterStr {
 	BYTE _mx;

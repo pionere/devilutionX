@@ -25,7 +25,7 @@ extern unsigned player_state[MAX_PLRS];
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen);
 void NetSendHiPri(BYTE *pbMsg, BYTE bLen);
-void multi_send_msg_packet(unsigned int pmask, BYTE *src, BYTE len);
+void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
 void multi_parse_turns();
 void multi_player_left(int pnum, int reason);
 void multi_disband_team(int pnum);
@@ -35,7 +35,7 @@ void multi_process_network_packets();
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen);
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void recv_plrinfo(int pnum, TCmdPlrInfoHdr *p, bool recv);
+void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* plrInfo, bool recv);
 
 #ifdef __cplusplus
 }

@@ -1407,7 +1407,7 @@ void NetSendCmdString(unsigned int pmask)
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = CMD_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_msg_packet(pmask, (BYTE *)&cmd, dwStrLen + 2);
+	multi_send_direct_msg(pmask, (BYTE *)&cmd, dwStrLen + 2);
 }
 
 static void delta_open_portal(int pnum, BYTE x, BYTE y, BYTE bLevel)
@@ -2364,7 +2364,7 @@ static unsigned On_SEND_PLRINFO(TCmd *pCmd, int pnum)
 	if (geBufferMsgs == MSG_DOWNLOAD_DELTA)
 		DeltaQueuePacket(pnum, cmd, cmd->wBytes + sizeof(*cmd));
 	else if (pnum != mypnum)
-		recv_plrinfo(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
+		multi_recv_plrinfo_msg(pnum, cmd, cmd->bCmd == CMD_ACK_PLRINFO);
 
 	return cmd->wBytes + sizeof(*cmd);
 }

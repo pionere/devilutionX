@@ -21,7 +21,7 @@ bool tmsg_get(TCmdGItem *pMsg)
 		return false;
 	sgpTimedMsgHead = head->pNext;
 	//len = head->hdr.bLen;
-	//static_assert(sizeof(TPkt) >= UCHAR_MAX && sizeof(head->hdr.bLen) == 1, "tmsg_get does not check len before writing to an address.");
+	//static_assert(sizeof(TurnPkt) >= UCHAR_MAX && sizeof(head->hdr.bLen) == 1, "tmsg_get does not check len before writing to an address.");
 	memcpy(pMsg, &head[1], sizeof(TCmdGItem)); //len);
 	mem_free_dbg(head);
 	return true;

@@ -151,7 +151,7 @@ void nthread_start(bool request_delta)
 	gdwNormalMsgSize *= 3;
 	gdwNormalMsgSize >>= 2;
 	gdwNormalMsgSize /= gbMaxPlayers;
-	static_assert(sizeof(TPktHdr) < 128, "TPktHdr does not fit in a message.");
+	static_assert(sizeof(TurnPktHdr) < 128, "TurnPktHdr does not fit in a message.");
 	while (gdwNormalMsgSize < 128) {
 		gdwNormalMsgSize *= 2;
 		gbNetUpdateRate *= 2;
