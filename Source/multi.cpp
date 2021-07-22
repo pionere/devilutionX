@@ -12,36 +12,52 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
+/* Flag to test if Diablo was beaten while the player loaded its level. */
 bool gbSomebodyWonGameKludge;
-/* Buffer to hold chunks with high priority. */
+/* Buffer to hold turn-chunks with high priority. */
 static TBuffer sgHiPriBuf;
-/* Buffer to hold chunks with low priority. */
+/* Buffer to hold turn-chunks with low priority. */
 static TBuffer sgLoPriBuf;
 /* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
 /* Current offset in netplr. */
 static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
+/* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
+/* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
 static int sgbPlayerLeftGameTbl[MAX_PLRS];
+/* The id of the next turn to be sent. */
 static uint32_t sgbSentThisCycle;
+/* Specifies whether a turn-packet is sent recently. */
 static bool gbPacketSentRecently;
+/* The number of active players in the game. */
 BYTE gbActivePlayers;
 bool gbGameDestroyed;
+/* Mask of pnum values who requested delta-info. */
 static unsigned guSendDelta;
+/* Specifies whether the provider needs to be selected in the menu. */
 bool gbSelectProvider;
+/* Specifies whether the hero needs to be selected in the menu. */
 bool gbSelectHero;
+/* The last tick before the timeout happened. */
 static int sglTimeoutStart;
+/* The base value to initialize the AI_Seeds of monsters in multi-player games. */
 static uint32_t sgdwGameLoops;
 /**
  * Specifies the maximum number of players in a game, where 1
  * represents a single player game and 4 represents a multi player game.
  */
 BYTE gbMaxPlayers;
+/* Specifies whether there is a timeout at the moment. */
 static bool _gbTimeout;
+/* Specifies the pnum of the delta-sender. */
 BYTE gbDeltaSender;
 static bool _gbNetInited;
+/* The name/address of the current game. (multiplayer games) */
 const char *szGameName;
+/* The password of the current game. (multiplayer games) */
 const char *szGamePassword;
+/* The network-state of the players. (PS_) */
 unsigned player_state[MAX_PLRS];
 
 static void buffer_init(TBuffer *pBuf)
@@ -119,12 +135,24 @@ static void multi_send_turn_packet()
 	SNetSendMessage(SNPLAYER_ALL, (BYTE*)&pkt, len);
 }
 
-void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
+/**
+ * Broadcast a message with low priority using the queue.
+ *
+ * @param pbMsg: the content of the message
+ * @param bLen: the length of the message
+ */
+void NetSendLoPri(BYTE* pbMsg, BYTE bLen)
 {
 	multi_queue_chunk(&sgLoPriBuf, pbMsg, bLen);
 }
 
-void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
+/**
+ * Broadcast a message with high priority using the queue.
+ *
+ * @param pbMsg: the content of the message
+ * @param bLen: the length of the message
+ */
+void NetSendHiPri(BYTE* pbMsg, BYTE bLen)
 {
 	multi_queue_chunk(&sgHiPriBuf, pbMsg, bLen);
 
@@ -134,7 +162,14 @@ void NetSendHiPri(BYTE *pbMsg, BYTE bLen)
 	}
 }
 
-void multi_send_direct_msg(unsigned pmask, BYTE *src, BYTE bLen)
+/**
+ * Send a packet to the target player(s) selected by the pmask without using the queue.
+ *
+ * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
+ * @param src: the content of the message
+ * @param bLen: the length of the message
+ */
+void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
 {
 	unsigned i, len = bLen;
 	TurnPkt pkt;

@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
 DWORD glSeedTbl[NUM_LEVELS];
 int MouseX;
 int MouseY;
-bool _gbGameLoopStartup;
+static bool _gbGameLoopStartup;
 bool gbRunGame;
 bool gbRunGameResult;
 bool gbZoomflag;
@@ -31,7 +31,8 @@ int PauseMode;
 #ifdef HELLFIRE
 bool gbUseNestArt;
 #endif
-int sgnTimeoutCurs;
+/* Cursor before a timeout happened. */
+static int sgnTimeoutCurs;
 bool gbActionBtnDown;
 bool gbAltActionBtnDown;
 DWORD sgdwLastABD, sgdwLastAABD; // tick counter when the last time one of the mouse-buttons were pressed down
