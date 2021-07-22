@@ -32,7 +32,7 @@ public:
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();
-	virtual std::string make_default_gamename();
+	virtual void make_default_gamename(char (&gamename)[128]);
 };
 
 } // namespace net

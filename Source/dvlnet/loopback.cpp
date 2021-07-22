@@ -82,9 +82,9 @@ uint32_t loopback::SNetGetTurnsInTransit()
 	return 0;
 }
 
-std::string loopback::make_default_gamename()
+void loopback::make_default_gamename(char (&gamename)[128])
 {
-	return std::string("loopback");
+	copy_cstr(gamename, "loopback");
 }
 
 } // namespace net

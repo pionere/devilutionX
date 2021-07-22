@@ -44,7 +44,7 @@ public:
 	virtual void setup_gameinfo(buffer_t info) = 0;
 	virtual ~abstract_net() = default;
 
-	virtual std::string make_default_gamename() = 0;
+	virtual void make_default_gamename(char (&gamename)[128]) = 0;
 #ifdef ZEROTIER
 	virtual void setup_password(std::string passwd)
 	{

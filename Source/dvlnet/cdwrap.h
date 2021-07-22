@@ -34,7 +34,7 @@ public:
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();
 	virtual void setup_gameinfo(buffer_t info);
-	virtual std::string make_default_gamename();
+	virtual void make_default_gamename(char (&gamename)[128]);
 
 	cdwrap();
 	virtual ~cdwrap() = default;
@@ -146,9 +146,9 @@ uint32_t cdwrap<T>::SNetGetTurnsInTransit()
 }
 
 template <class T>
-std::string cdwrap<T>::make_default_gamename()
+void cdwrap<T>::make_default_gamename(char (&gamename)[128])
 {
-	return dvlnet_wrap->make_default_gamename();
+	dvlnet_wrap->make_default_gamename(gamename);
 }
 
 } // namespace net

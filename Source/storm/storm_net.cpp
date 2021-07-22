@@ -129,6 +129,8 @@ void SNetInitializeProvider(unsigned long provider)
  */
 bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
 {
+	bool result;
+
 	// assert(gameData != NULL && pszGamePassword != NULL);
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -138,13 +140,13 @@ bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
 	net::buffer_t game_init_info(gData, gData + sizeof(*gameData));
 	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
-	std::string default_name = dvlnet_inst->make_default_gamename();
-	const char *pszGameName = default_name.c_str();
+	dvlnet_inst->make_default_gamename(gpszGameName);
 	int port = NET_DEFAULT_PORT;
 	getIniInt("Network", "Port", &port);
-	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
-	return dvlnet_inst->create(pszGameName, port, pszGamePassword);
+	result = dvlnet_inst->create(gpszGameName, port, pszGamePassword);
+	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
+	return result;
 }
 
 bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword)

@@ -26,7 +26,7 @@ public:
 
 	virtual ~tcp_client();
 
-	virtual std::string make_default_gamename();
+	virtual void make_default_gamename(char (&gamename)[128]);
 
 private:
 	frame_queue recv_queue;

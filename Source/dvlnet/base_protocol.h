@@ -22,7 +22,7 @@ public:
 
 	virtual void SNetLeaveGame(int reason);
 
-	virtual std::string make_default_gamename();
+	virtual void make_default_gamename(char (&gamename)[128]);
 	virtual void send_info_request();
 	virtual std::vector<std::string> get_gamelist();
 
@@ -298,9 +298,9 @@ void base_protocol<P>::SNetLeaveGame(int reason)
 }
 
 template <class P>
-std::string base_protocol<P>::make_default_gamename()
+void base_protocol<P>::make_default_gamename(char (&gamename)[128])
 {
-	return proto.make_default_gamename();
+	proto.make_default_gamename(gamename);
 }
 
 } // namespace net

@@ -125,12 +125,10 @@ void tcp_client::SNetLeaveGame(int reason)
 	sock.close();
 }
 
-std::string tcp_client::make_default_gamename()
+void tcp_client::make_default_gamename(char (&gamename)[128])
 {
-	char pszGameName[128] = "0.0.0.0";
-
-	getIniValue("Network", "Bind Address", pszGameName, sizeof(pszGameName) - 1);
-	return std::string(pszGameName);
+	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1))
+		copy_cstr(gamename, "0.0.0.0");
 }
 
 tcp_client::~tcp_client()
