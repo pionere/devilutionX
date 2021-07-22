@@ -710,8 +710,8 @@ bool NetInit(bool bSinglePlayer)
 		gbSomebodyWonGameKludge = false;
 		nthread_send_turn(0, 0);
 		SetupLocalCoords();
-		if (!bSinglePlayer)
-			multi_send_pinfo(SNPLAYER_OTHERS, CMD_SEND_PLRINFO);
+		if (gbJoinGame)
+			multi_send_pinfo(SNPLAYER_ALL, CMD_SEND_PLRINFO);
 		gbActivePlayers = 1;
 		myplr.plractive = TRUE;
 		assert(myplr._pTeam == mypnum);
