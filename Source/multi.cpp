@@ -436,7 +436,7 @@ void multi_process_network_packets()
 
 	multi_clear_left_tbl();
 	multi_process_tmsgs();
-	while (SNetReceiveMessage(&pnum, (char **)&pkt, &dwMsgSize)) {
+	while (SNetReceiveMessage(&pnum, (BYTE**)&pkt, &dwMsgSize)) {
 		multi_clear_left_tbl();
 		if (dwMsgSize < sizeof(TPktHdr))
 			continue;
@@ -482,8 +482,6 @@ void multi_process_network_packets()
 		}
 		multi_handle_all_packets(pnum, (BYTE *)(pkt + 1), dwMsgSize - sizeof(TPktHdr));
 	}
-	if (SErrGetLastError() != STORM_ERROR_NO_MESSAGES_WAITING)
-		nthread_terminate_game("SNetReceiveMsg");
 }
 
 void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen)
