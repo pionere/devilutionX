@@ -253,7 +253,7 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static void start_game(unsigned int uMsg)
+static void InitGameUI()
 {
 	gbZoomflag = true;
 	CalcViewportGeometry();
@@ -265,7 +265,7 @@ static void start_game(unsigned int uMsg)
 #endif
 	assert(ghMainWnd != NULL);
 	music_stop();
-	ShowProgress(uMsg);
+	ShowProgress((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
 	InitGMenu();
 	InitLevelCursor();
 	sgnTimeoutCurs = CURSOR_NONE;
@@ -273,7 +273,7 @@ static void start_game(unsigned int uMsg)
 	gbAltActionBtnDown = false;
 }
 
-static void free_game()
+static void FreeGameUI()
 {
 	int i;
 
@@ -336,9 +336,6 @@ static bool ProcessInput()
 
 static void game_logic()
 {
-	if (!ProcessInput()) {
-		return;
-	}
 	if (gbProcessPlayers) {
 		ProcessPlayers();
 	}
@@ -364,10 +361,6 @@ static void game_logic()
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
-
-#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-	plrctrls_after_game_logic();
-#endif
 }
 
 /**
@@ -397,17 +390,22 @@ static void game_loop(bool bStartup)
 			sgnTimeoutCurs = CURSOR_NONE;
 			gbRedrawFlags = REDRAW_ALL;
 		}
-		game_logic();
+		if (ProcessInput()) {
+			game_logic();
+#if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
+			plrctrls_after_game_logic();
+#endif
+		}
 	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
 }
 
-static void run_game_loop(unsigned int uMsg)
+static void run_game_loop()
 {
 	WNDPROC saveProc;
 	MSG msg;
 
 	nthread_ignore_mutex(true);
-	start_game(uMsg);
+	InitGameUI();
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(GameWndProc);
 	RunDeltaPackets();
@@ -460,7 +458,7 @@ static void run_game_loop(unsigned int uMsg)
 	scrollrt_draw_game_screen(true);
 	saveProc = SetWindowProc(saveProc);
 	assert(saveProc == GameWndProc);
-	free_game();
+	FreeGameUI();
 
 	if (gbCineflag) {
 		gbCineflag = false;
@@ -485,7 +483,7 @@ bool StartGame(bool bSinglePlayer)
 		// before starting the game.
 		UiDestroy();
 
-		run_game_loop((gbLoadGame && gbValidSaveFile) ? WM_DIABLOADGAME : WM_DIABNEWGAME);
+		run_game_loop();
 		NetClose();
 		if (!gbRunGameResult)
 			break;
