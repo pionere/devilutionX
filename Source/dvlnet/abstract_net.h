@@ -15,6 +15,9 @@ typedef std::vector<unsigned char> buffer_t;
 typedef unsigned long provider_t;
 typedef size_t net_size_t;
 
+static constexpr uint8_t PLR_MASTER = SNPLAYER_MASTER;
+static constexpr uint8_t PLR_BROADCAST = SNPLAYER_ALL;
+
 class dvlnet_exception : public std::exception {
 public:
 	const char *what() const throw() override

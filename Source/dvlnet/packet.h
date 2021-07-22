@@ -42,9 +42,6 @@ typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 using key_t = uint8_t;
 #endif
 
-static constexpr plr_t PLR_MASTER = 0xFE;
-static constexpr plr_t PLR_BROADCAST = 0xFF;
-
 class packet_exception : public dvlnet_exception {
 public:
 	const char *what() const throw() override
