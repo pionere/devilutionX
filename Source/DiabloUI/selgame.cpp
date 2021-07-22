@@ -45,10 +45,12 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	assert((DWORD)playerId < MAX_PLRS);
 
 	gameData = (SNetGameData*)pEvt->_eData;
-	if (gameData->dwVersionId != GAME_VERSION)
-		throw std::runtime_error("Mismatching game versions.");
 	copy_pod(*selgame_gameData, *gameData);
+	selgame_gameData->dwSeed = SwapLE32(selgame_gameData->dwSeed);
+	selgame_gameData->dwVersionId = SwapLE32(selgame_gameData->dwVersionId);
 	selgame_gameData->bPlayerId = playerId;
+	if (selgame_gameData->dwVersionId != GAME_VERSION)
+		throw std::runtime_error("Mismatching game versions.");
 }
 
 static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
@@ -191,7 +193,7 @@ static void selgame_Port_Init(unsigned index)
 
 void selgame_GameSelection_Select(unsigned index)
 {
-	assert(index == vecSelGameDlgItems[index]->m_value);
+	assert(index == (unsigned)vecSelGameDlgItems[index]->m_value);
 
 	selgame_selectedGame = index;
 
