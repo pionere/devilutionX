@@ -609,7 +609,7 @@ void NetClose()
 
 static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 {
-	int dlgresult, pnum;
+	int i, dlgresult, pnum;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -672,13 +672,23 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	}
 
 	gbMaxPlayers = sgGameInitInfo.bMaxPlayers;
+	gnTicksRate = sgGameInitInfo.bTickRate;
+	gnTickDelay = 1000 / gnTicksRate;
+	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
+	assert(mypnum == sgGameInitInfo.bPlayerId);
+	gnDifficulty = sgGameInitInfo.bDifficulty;
+	SetRndSeed(sgGameInitInfo.dwSeed);
+
+	for (i = 0; i < NUM_LEVELS; i++) {
+		glSeedTbl[i] = GetRndSeed();
+	}
+	SNetGetGameInfo(&szGameName, &szGamePassword);
 	return true;
 }
 
 bool NetInit(bool bSinglePlayer)
 {
 	SNetGameData sgGameInitInfo;
-	int i;
 
 	while (TRUE) {
 		SetRndSeed(0);
@@ -722,15 +732,10 @@ bool NetInit(bool bSinglePlayer)
 	}
 	assert(mypnum == sgGameInitInfo.bPlayerId);
 	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
-	gnDifficulty = sgGameInitInfo.bDifficulty;
-	gnTicksRate = sgGameInitInfo.bTickRate;
-	gnTickDelay = 1000 / gnTicksRate;
-	SetRndSeed(sgGameInitInfo.dwSeed);
-
-	for (i = 0; i < NUM_LEVELS; i++) {
-		glSeedTbl[i] = GetRndSeed();
-	}
-	SNetGetGameInfo(&szGameName, &szGamePassword);
+	assert(gnTicksRate == sgGameInitInfo.bTickRate);
+	assert(gnTickDelay == 1000 / gnTicksRate);
+	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);
+	assert(gnDifficulty == sgGameInitInfo.bDifficulty);
 	return true;
 }
 
