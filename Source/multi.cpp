@@ -674,7 +674,6 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 	gbMaxPlayers = sgGameInitInfo.bMaxPlayers;
 	gnTicksRate = sgGameInitInfo.bTickRate;
 	gnTickDelay = 1000 / gnTicksRate;
-	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
 	assert(mypnum == sgGameInitInfo.bPlayerId);
 	gnDifficulty = sgGameInitInfo.bDifficulty;
 	SetRndSeed(sgGameInitInfo.dwSeed);
@@ -737,7 +736,6 @@ bool NetInit(bool bSinglePlayer)
 	assert(gbMaxPlayers == sgGameInitInfo.bMaxPlayers);
 	assert(gnTicksRate == sgGameInitInfo.bTickRate);
 	assert(gnTickDelay == 1000 / gnTicksRate);
-	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);
 	assert(gnDifficulty == sgGameInitInfo.bDifficulty);
 	return true;
 }
