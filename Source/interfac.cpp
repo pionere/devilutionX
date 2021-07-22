@@ -254,12 +254,6 @@ void LoadGameLevel(bool firstflag, int lvldir)
 {
 	int pnum;
 
-	if (firstflag && lvldir == ENTRY_MAIN) {
-		// initialize values which are stored in save files
-		InitQuests();
-		InitPortals();
-	}
-
 #ifdef _DEBUG
 	if (setseed)
 		glSeedTbl[currLvl._dLevelIdx] = setseed;

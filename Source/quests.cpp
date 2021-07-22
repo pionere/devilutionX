@@ -65,15 +65,12 @@ void InitQuests()
 	qs = quests;
 	qdata = questlist;
 	for (i = 0; i < NUM_QUESTS; i++, qs++, qdata++) {
-		if (!delta_quest_inited(i)) {
-			qs->_qactive = QUEST_INIT;
-			qs->_qvar1 = 0;
-			qs->_qlog = FALSE;
-		}
-
+		qs->_qactive = QUEST_INIT;
+		qs->_qlog = FALSE;
 		qs->_qtx = 0;
 		qs->_qty = 0;
 		qs->_qidx = i;
+		qs->_qvar1 = 0;
 		qs->_qvar2 = 0;
 		qs->_qmsg = qdata->_qdmsg;
 	}

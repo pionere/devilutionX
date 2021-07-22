@@ -407,7 +407,6 @@ static void DeltaImportJunk()
 	pD = sgJunk.portal;
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
 		if (pD->x != 0xFF) {
-			// assert(delta_portal_inited(i));
 			ActivatePortal(i, pD->x, pD->y, pD->level);
 		}
 		//else
@@ -417,7 +416,6 @@ static void DeltaImportJunk()
 	mq = sgJunk.quests;
 	for (i = 0; i < NUM_QUESTS; i++, mq++) {
 		if (mq->qstate != 0xFF) {
-			// assert(delta_quest_inited(i));
 			quests[i]._qlog = mq->qlog;
 			quests[i]._qactive = mq->qstate;
 			quests[i]._qvar1 = mq->qvar1;
@@ -769,16 +767,6 @@ static void delta_put_item(const TCmdPItem *pI, int x, int y)
 			return;
 		}
 	}
-}
-
-bool delta_portal_inited(int i)
-{
-	return sgJunk.portal[i].x != 0xFF;
-}
-
-bool delta_quest_inited(int i)
-{
-	return sgJunk.quests[i].qstate != 0xFF;
 }
 
 void PackPkItem(PkItemStruct *dest, const ItemStruct *src)
@@ -1434,7 +1422,6 @@ void delta_close_portal(int pnum)
 {
 	//memset(&sgJunk.portal[pnum], 0xFF, sizeof(sgJunk.portal[pnum]));
 	sgJunk.portal[pnum].x = 0xFF;
-	// assert(!delta_portal_inited(pnum));
 	// assert(_gbJunkDeltaChanged == true);
 }
 

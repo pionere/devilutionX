@@ -21,8 +21,6 @@ bool DownloadDeltaInfo();
 void RunDeltaPackets();
 void DeltaExportData(int pnum);
 void delta_init();
-bool delta_portal_inited(int i);
-bool delta_quest_inited(int i);
 void DeltaAddItem(int ii);
 void DeltaSaveLevel();
 void DeltaLoadLevel();

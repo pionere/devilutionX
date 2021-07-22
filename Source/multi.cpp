@@ -683,6 +683,9 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		glSeedTbl[i] = GetRndSeed();
 	}
 	SNetGetGameInfo(&szGameName, &szGamePassword);
+
+	InitQuests();
+	InitPortals();
 	return true;
 }
 
