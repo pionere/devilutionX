@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef ZEROTIER
 #include <string>
 #include <set>
 #include <map>
@@ -14,8 +14,8 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual int create(std::string addrstr, std::string passwd);
-	virtual int join(std::string addrstr, std::string passwd);
+	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 	virtual void disconnect_net(plr_t pnum);
@@ -118,7 +118,7 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-int base_protocol<P>::create(std::string addrstr, std::string passwd)
+bool base_protocol<P>::create(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	setup_password(passwd);
 	gamename = addrstr;
@@ -128,11 +128,11 @@ int base_protocol<P>::create(std::string addrstr, std::string passwd)
 		connected_table[plr_self] = true;
 	}
 
-	return (plr_self == PLR_BROADCAST ? MAX_PLRS : plr_self);
+	return plr_self != PLR_BROADCAST;
 }
 
 template <class P>
-int base_protocol<P>::join(std::string addrstr, std::string passwd)
+bool base_protocol<P>::join(const std::string &addrstr, unsigned port, const std::string &passwd)
 {
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
 	setup_password(passwd);
@@ -140,7 +140,7 @@ int base_protocol<P>::join(std::string addrstr, std::string passwd)
 	if (wait_network())
 		if (wait_firstpeer())
 			wait_join();
-	return (plr_self == PLR_BROADCAST ? MAX_PLRS : plr_self);
+	return plr_self != PLR_BROADCAST;
 }
 
 template <class P>
@@ -305,3 +305,4 @@ void base_protocol<P>::make_default_gamename(char (&gamename)[128])
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif
