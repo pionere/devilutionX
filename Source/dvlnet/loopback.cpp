@@ -43,7 +43,7 @@ bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 
 void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
-	if (dest == plr_single || dest == SNPLAYER_ALL) {
+	if (receiver == plr_single || receiver == SNPLAYER_ALL) {
 		buffer_t message(data, data + size);
 		message_queue.push(message);
 	}
