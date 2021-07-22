@@ -116,7 +116,7 @@ static void multi_send_packet()
 	size = sync_all_monsters(dstEnd, size);
 	len = gdwNormalMsgSize - size;
 	multi_init_pkt_header(pkt.hdr, len);
-	SNetSendMessage(SNPLAYER_ALL, &pkt, len);
+	SNetSendMessage(SNPLAYER_ALL, (BYTE*)&pkt, len);
 }
 
 void NetSendLoPri(BYTE *pbMsg, BYTE bLen)
@@ -144,11 +144,11 @@ void multi_send_msg_packet(unsigned pmask, BYTE *src, BYTE bLen)
 	multi_init_pkt_header(pkt.hdr, len);
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	if (pmask == SNPLAYER_ALL) {
-		SNetSendMessage(SNPLAYER_ALL, &pkt, len);
+		SNetSendMessage(SNPLAYER_ALL, (BYTE*)&pkt, len);
 	} else {
 		for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
 			if (pmask & 1) {
-				SNetSendMessage(i, &pkt, len);
+				SNetSendMessage(i, (BYTE*)&pkt, len);
 			}
 		}
 	}
@@ -518,11 +518,7 @@ void multi_send_zero_packet(int pnum, BYTE bCmd, BYTE *pbSrc, unsigned dwLen)
 		memcpy(&pkt.body[sizeof(*p)], pbSrc, dwBody);
 		dwMsg = dwBody + sizeof(pkt.hdr) + sizeof(*p);
 		pkt.hdr.wLen = SwapLE16(dwMsg);
-		SNetSendMessage(pnum, &pkt, dwMsg);
-		/*if (!SNetSendMessage(pnum, &pkt, dwMsg)) {
-			nthread_terminate_game("SNetSendMessage2");
-			return;
-		}*/
+		SNetSendMessage(pnum, (BYTE*)&pkt, dwMsg);
 		pbSrc += dwBody;
 		dwLen -= dwBody;
 		dwOffset += dwBody;

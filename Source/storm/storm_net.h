@@ -73,7 +73,7 @@ typedef void (*SEVTHANDLER)(SNetEvent* );
  *  is sent using class 01 and is retrieved by the other client using
  *  SNetReceiveMessage().
  *
- *  playerID:   The player index of the player to receive the data.
+ *  receiver:   The player index of the player to receive the data.
  *              Conversely, this field can be one of the following constants:
  *                  SNPLAYER_ALL      | Sends the message to all players, including oneself.
  *                  SNPLAYER_OTHERS   | Sends the message to all players, except for oneself.
@@ -81,12 +81,12 @@ typedef void (*SEVTHANDLER)(SNetEvent* );
  *  databytes:  The amount of bytes that the data pointer contains.
  *
  */
-void SNetSendMessage(int playerID, void *data, unsigned databytes);
-bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes);
+void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes);
+bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes);
 
 void SNetUnregisterEventHandler(int eventType);
 void SNetRegisterEventHandler(int eventType, SEVTHANDLER func);
-void SNetInitializeProvider(unsigned long provider);
+void SNetInitializeProvider(unsigned provider);
 #ifdef ZEROTIER
 void SNetSendInfoRequest();
 std::vector<std::string> SNetGetGamelist();

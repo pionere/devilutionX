@@ -21,24 +21,20 @@ static char gpszGamePassword[128] = {};
 static std::mutex storm_net_mutex;
 #endif
 
-bool SNetReceiveMessage(int *senderplayerid, char **data, unsigned *databytes)
+bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	if (!dvlnet_inst->SNetReceiveMessage(senderplayerid, data, databytes)) {
-		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);
-		return false;
-	}
-	return true;
+	return dvlnet_inst->SNetReceiveMessage(sender, data, databytes);
 }
 
-void SNetSendMessage(int playerID, void *data, unsigned int databytes)
+void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	dvlnet_inst->SNetSendMessage(playerID, data, databytes);
+	dvlnet_inst->SNetSendMessage(receiver, data, databytes);
 }
 
 bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
@@ -46,11 +42,7 @@ bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	if (!dvlnet_inst->SNetReceiveTurns(turns, status)) {
-		SErrSetLastError(STORM_ERROR_NO_MESSAGES_WAITING);
-		return false;
-	}
-	return true;
+	return dvlnet_inst->SNetReceiveTurn(status);
 }
 
 void SNetSendTurn(uint32_t turn)
@@ -116,7 +108,7 @@ void SNetLeaveGame(int reason)
  * @brief Called by engine for single, called by ui for multi
  * @param provider BNET, IPXN, MODM, SCBL or UDPN
  */
-void SNetInitializeProvider(unsigned long provider)
+void SNetInitializeProvider(unsigned provider)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
