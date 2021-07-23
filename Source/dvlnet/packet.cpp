@@ -1,5 +1,7 @@
 #include "packet.h"
 
+#include "utils/stubs.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
@@ -66,94 +68,67 @@ void CheckPacketTypeOneOf(std::initializer_list<packet_type> expectedTypes, std:
 
 const buffer_t &packet::data()
 {
-	if (!have_decrypted || !have_encrypted)
-		ABORT();
 	return encrypted_buffer;
 }
 
 packet_type packet::type()
 {
-	if (!have_decrypted)
-		ABORT();
 	return m_type;
 }
 
 plr_t packet::src()
 {
-	if (!have_decrypted)
-		ABORT();
 	return m_src;
 }
 
 plr_t packet::dest()
 {
-	if (!have_decrypted)
-		ABORT();
 	return m_dest;
 }
 
 const buffer_t &packet::message()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_MESSAGE }, m_type);
 	return m_message;
 }
 
 turn_t packet::turn()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_TURN }, m_type);
 	return m_turn;
 }
 
 cookie_t packet::cookie()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_JOIN_REQUEST, PT_JOIN_ACCEPT }, m_type);
 	return m_cookie;
 }
 
 plr_t packet::newplr()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_JOIN_ACCEPT, PT_CONNECT, PT_DISCONNECT }, m_type);
 	return m_newplr;
 }
 
 const buffer_t &packet::info()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_JOIN_REQUEST, PT_JOIN_ACCEPT, PT_CONNECT, PT_INFO_REPLY }, m_type);
 	return m_info;
 }
 
 leaveinfo_t packet::leaveinfo()
 {
-	if (!have_decrypted)
-		ABORT();
 	CheckPacketTypeOneOf({ PT_DISCONNECT }, m_type);
 	return m_leaveinfo;
 }
 
 void packet_in::create(buffer_t buf)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
 	encrypted_buffer = std::move(buf);
-	have_encrypted = true;
 }
 
 void packet_in::decrypt()
 {
-	if (!have_encrypted)
-		ABORT();
-	if (have_decrypted)
-		return;
 #ifndef NONET
 	if (!DisableEncryption) {
 		if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
@@ -181,17 +156,10 @@ void packet_in::decrypt()
 	}
 
 	process_data();
-
-	have_decrypted = true;
 }
 
 void packet_out::encrypt()
 {
-	if (!have_decrypted)
-		ABORT();
-	if (have_encrypted)
-		return;
-
 	process_data();
 
 #ifndef NONET
@@ -212,7 +180,6 @@ void packet_out::encrypt()
 			ABORT();
 	}
 #endif
-	have_encrypted = true;
 }
 
 void packet_factory::setup_password(const char* passwd)

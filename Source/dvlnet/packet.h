@@ -9,22 +9,21 @@
 #include <sodium.h>
 #endif
 
-#include "dvlnet/abstract_net.h"
-#include "utils/stubs.h"
+#include "abstract_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 enum packet_type : uint8_t {
 	// clang-format off
-	PT_MESSAGE      = 0x01,
-	PT_TURN         = 0x02,
-	PT_JOIN_REQUEST = 0x11,
-	PT_JOIN_ACCEPT  = 0x12,
-	PT_CONNECT      = 0x13,
-	PT_DISCONNECT   = 0x14,
-	PT_INFO_REQUEST = 0x21,
-	PT_INFO_REPLY   = 0x22,
+	PT_MESSAGE,
+	PT_TURN,
+	PT_JOIN_REQUEST,
+	PT_JOIN_ACCEPT,
+	PT_CONNECT,			// zt-only
+	PT_DISCONNECT,
+	PT_INFO_REQUEST,	// zt-only
+	PT_INFO_REPLY,		// zt-only
 	// clang-format on
 };
 
@@ -38,7 +37,7 @@ typedef uint8_t leaveinfo_t;
 #ifndef NONET
 typedef std::array<unsigned char, crypto_secretbox_KEYBYTES> key_t;
 #else
-// Stub out the key_t defintion as we're not doing any encryption.
+// Stub out the key_t definition as we're not doing any encryption.
 using key_t = uint8_t;
 #endif
 
@@ -76,8 +75,6 @@ protected:
 	leaveinfo_t m_leaveinfo;
 
 	const key_t &key;
-	bool have_encrypted = false;
-	bool have_decrypted = false;
 	buffer_t encrypted_buffer;
 	buffer_t decrypted_buffer;
 
@@ -186,9 +183,6 @@ void packet_in::process_element(T &x)
 template <>
 inline void packet_out::create<PT_INFO_REQUEST>(plr_t s, plr_t d)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_INFO_REQUEST;
 	m_src = s;
 	m_dest = d;
@@ -197,9 +191,6 @@ inline void packet_out::create<PT_INFO_REQUEST>(plr_t s, plr_t d)
 template <>
 inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, buffer_t i)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_INFO_REPLY;
 	m_src = s;
 	m_dest = d;
@@ -209,9 +200,6 @@ inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, buffer_t i)
 template <>
 inline void packet_out::create<PT_MESSAGE>(plr_t s, plr_t d, buffer_t m)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_MESSAGE;
 	m_src = s;
 	m_dest = d;
@@ -221,9 +209,6 @@ inline void packet_out::create<PT_MESSAGE>(plr_t s, plr_t d, buffer_t m)
 template <>
 inline void packet_out::create<PT_TURN>(plr_t s, plr_t d, turn_t u)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_TURN;
 	m_src = s;
 	m_dest = d;
@@ -234,9 +219,6 @@ template <>
 inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d,
     cookie_t c, buffer_t i)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_JOIN_REQUEST;
 	m_src = s;
 	m_dest = d;
@@ -248,9 +230,6 @@ template <>
 inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
     plr_t n, buffer_t i)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_JOIN_ACCEPT;
 	m_src = s;
 	m_dest = d;
@@ -262,9 +241,6 @@ inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
 template <>
 inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, buffer_t i)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_CONNECT;
 	m_src = s;
 	m_dest = d;
@@ -275,9 +251,6 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, buffer_t i
 template <>
 inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_CONNECT;
 	m_src = s;
 	m_dest = d;
@@ -288,9 +261,6 @@ template <>
 inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n,
     leaveinfo_t l)
 {
-	if (have_encrypted || have_decrypted)
-		ABORT();
-	have_decrypted = true;
 	m_type = PT_DISCONNECT;
 	m_src = s;
 	m_dest = d;
@@ -321,9 +291,9 @@ public:
 	std::unique_ptr<packet> make_fake_out_packet(Args... args);
 
 	template <class T>
-	static const unsigned char *begin(const T &x);
+	static const BYTE* begin(const T &x);
 	template <class T>
-	static const unsigned char *end(const T &x);
+	static const BYTE* end(const T &x);
 };
 
 inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
@@ -352,15 +322,15 @@ std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
 }
 
 template <class T>
-const unsigned char *packet_factory::begin(const T &x)
+const BYTE* packet_factory::begin(const T &x)
 {
-	return reinterpret_cast<const unsigned char *>(&x);
+	return reinterpret_cast<const BYTE*>(&x);
 }
 
 template <class T>
-const unsigned char *packet_factory::end(const T &x)
+const BYTE* packet_factory::end(const T &x)
 {
-	return reinterpret_cast<const unsigned char *>(&x) + sizeof(T);
+	return reinterpret_cast<const BYTE*>(&x) + sizeof(T);
 }
 } // namespace net
 DEVILUTION_END_NAMESPACE
