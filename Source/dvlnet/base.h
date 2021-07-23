@@ -28,10 +28,6 @@ public:
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();
 
-	virtual void poll() = 0;
-	virtual void send(packet &pkt) = 0;
-	virtual void disconnect_net(plr_t pnum);
-
 	virtual ~base() = default;
 
 protected:
@@ -66,6 +62,9 @@ protected:
 
 	void setup_password(const char* passwd);
 	void setup_gameinfo(buffer_t info);
+	virtual void poll() = 0;
+	virtual void send_packet(packet &pkt) = 0;
+	virtual void disconnect_net(plr_t pnum);
 	void handle_accept(packet &pkt);
 	void recv_local(packet &pkt);
 	void run_event_handler(SNetEvent &ev);

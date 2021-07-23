@@ -18,14 +18,15 @@ public:
 	bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
 	bool join_game(const char* addrstr, unsigned port, const char* passwd);
 
-	virtual void poll();
-	virtual void send(packet &pkt);
-
 	virtual void SNetLeaveGame(int reason);
 
 	virtual ~tcp_client() = default;
 
 	virtual void make_default_gamename(char (&gamename)[128]);
+
+protected:
+	virtual void poll();
+	virtual void send_packet(packet &pkt);
 
 private:
 	frame_queue recv_queue;

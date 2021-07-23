@@ -1,7 +1,6 @@
 #pragma once
 
 #include <queue>
-#include <string>
 
 #include "base.h"
 
@@ -22,8 +21,6 @@ public:
 
 	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
-	virtual void poll();
-	virtual void send(packet &pkt);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
 	virtual bool SNetReceiveTurns(uint32_t *(&turns)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
@@ -33,6 +30,10 @@ public:
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();
 	virtual void make_default_gamename(char (&gamename)[128]);
+
+protected:
+	virtual void poll();
+	virtual void send_packet(packet &pkt);
 };
 
 } // namespace net

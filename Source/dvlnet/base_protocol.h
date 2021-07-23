@@ -16,9 +16,6 @@ class base_protocol : public base {
 public:
 	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
-	virtual void poll();
-	virtual void send(packet &pkt);
-	virtual void disconnect_net(plr_t pnum);
 
 	virtual void SNetLeaveGame(int reason);
 
@@ -27,7 +24,10 @@ public:
 	virtual std::vector<std::string> get_gamelist();
 
 	virtual ~base_protocol() = default;
-
+protected:
+	virtual void poll();
+	virtual void send_packet(packet &pkt);
+	virtual void disconnect_net(plr_t pnum);
 private:
 	P proto;
 	typedef typename P::endpoint endpoint;
@@ -152,7 +152,7 @@ void base_protocol<P>::poll()
 }
 
 template <class P>
-void base_protocol<P>::send(packet &pkt)
+void base_protocol<P>::send_packet(packet &pkt)
 {
 	plr_t pkt_plr = pkt.dest();
 

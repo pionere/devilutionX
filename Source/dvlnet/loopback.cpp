@@ -25,7 +25,7 @@ void loopback::poll()
 	ABORT();
 }
 
-void loopback::send(packet &pkt)
+void loopback::send_packet(packet &pkt)
 {
 	ABORT();
 }
