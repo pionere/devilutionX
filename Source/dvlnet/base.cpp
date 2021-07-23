@@ -13,7 +13,7 @@ void base::setup_gameinfo(buffer_t info)
 
 void base::setup_password(const char* passwd)
 {
-	pktfty = std::make_unique<packet_factory>(passwd);
+	pktfty.setup_password(passwd);
 }
 
 void base::run_event_handler(SNetEvent &ev)
@@ -135,7 +135,7 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 	else
 		dest = receiver;
 	if (dest != plr_self) {
-		auto pkt = pktfty->make_out_packet<PT_MESSAGE>(plr_self, dest, message);
+		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, message);
 		send(*pkt);
 	}
 }
@@ -176,7 +176,7 @@ bool base::SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_
 void base::SNetSendTurn(uint32_t turn)
 {
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
-	auto pkt = pktfty->make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
+	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
 	send(*pkt);
 	turn_queue[plr_self].push_back(pkt->turn());
 }
@@ -214,14 +214,14 @@ void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 
 void base::SNetLeaveGame(int reason)
 {
-	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
 	    plr_self, (leaveinfo_t)reason);
 	send(*pkt);
 }
 
 void base::SNetDropPlayer(int playerid)
 {
-	auto pkt = pktfty->make_out_packet<PT_DISCONNECT>(plr_self,
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self,
 	    PLR_BROADCAST,
 	    (plr_t)playerid,
 	    (leaveinfo_t)LEAVE_DROP);

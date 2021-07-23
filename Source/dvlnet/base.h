@@ -62,7 +62,7 @@ protected:
 	plr_t plr_self = PLR_BROADCAST;
 	cookie_t cookie_self = 0;
 
-	std::unique_ptr<packet_factory> pktfty;
+	packet_factory pktfty;
 
 	void setup_password(const char* passwd);
 	void setup_gameinfo(buffer_t info);

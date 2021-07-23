@@ -65,7 +65,7 @@ buffer_t frame_queue::make_frame(buffer_t packetbuf)
 	if (packetbuf.size() > MAX_FRAME_SIZE)
 		ABORT();
 	uint32_t size = SwapLE32(packetbuf.size());
-	ret.insert(ret.end(), packet_out::begin(size), packet_out::end(size));
+	ret.insert(ret.end(), packet_factory::begin(size), packet_factory::end(size));
 	ret.insert(ret.end(), packetbuf.begin(), packetbuf.end());
 	return ret;
 }

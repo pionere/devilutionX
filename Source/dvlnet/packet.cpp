@@ -215,7 +215,7 @@ void packet_out::encrypt()
 	have_encrypted = true;
 }
 
-packet_factory::packet_factory(const char* passwd)
+void packet_factory::setup_password(const char* passwd)
 {
 #ifndef NONET
 	if (sodium_init() < 0)

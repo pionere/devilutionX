@@ -125,10 +125,6 @@ public:
 	void process_element(buffer_t &x);
 	template <class T>
 	void process_element(T &x);
-	template <class T>
-	static const unsigned char *begin(const T &x);
-	template <class T>
-	static const unsigned char *end(const T &x);
 	void encrypt();
 };
 
@@ -313,30 +309,21 @@ void packet_out::process_element(T &x)
 	encrypted_buffer.insert(encrypted_buffer.end(), begin(x), end(x));
 }
 
-template <class T>
-const unsigned char *packet_out::begin(const T &x)
-{
-	return reinterpret_cast<const unsigned char *>(&x);
-}
-
-template <class T>
-const unsigned char *packet_out::end(const T &x)
-{
-	return reinterpret_cast<const unsigned char *>(&x) + sizeof(T);
-}
-
 class packet_factory {
 	key_t key = {};
 
 public:
-	static constexpr unsigned short max_packet_size = 0xFFFF;
-
-	packet_factory(const char *passwd);
+	void setup_password(const char* passwd);
 	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_out_packet(Args... args);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_fake_out_packet(Args... args);
+
+	template <class T>
+	static const unsigned char *begin(const T &x);
+	template <class T>
+	static const unsigned char *end(const T &x);
 };
 
 inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
@@ -364,5 +351,16 @@ std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
 	return std::unique_ptr<packet>(std::move(ret));
 }
 
+template <class T>
+const unsigned char *packet_factory::begin(const T &x)
+{
+	return reinterpret_cast<const unsigned char *>(&x);
+}
+
+template <class T>
+const unsigned char *packet_factory::end(const T &x)
+{
+	return reinterpret_cast<const unsigned char *>(&x) + sizeof(T);
+}
 } // namespace net
 DEVILUTION_END_NAMESPACE

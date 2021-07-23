@@ -7,7 +7,7 @@ namespace net {
 bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
 	setup_gameinfo(std::move(info));
-	auto reply = pktfty->make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
+	auto reply = pktfty.make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 		cookie_self, plr_single,
 		game_init_info);
 
