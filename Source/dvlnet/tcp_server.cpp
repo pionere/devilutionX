@@ -18,8 +18,9 @@ tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
 {
 	auto addr = asio::ip::address::from_string(bindAddr);
 	auto ep = asio::ip::tcp::endpoint(addr, port);
-	acceptor = new asio::ip::tcp::acceptor>(ioc, ep, true);
+	acceptor = new asio::ip::tcp::acceptor(ioc, ep, true);
 	start_accept();
+	start_timeout();
 }
 
 void tcp_server::make_default_gamename(char (&gamename)[128])
@@ -157,33 +158,39 @@ void tcp_server::handle_accept(const scc &con, const asio::error_code &ec)
 		con->socket.set_option(option);
 		con->timeout = TIMEOUT_CONNECT;
 		start_recv(con);
-		start_timeout(con);
 	}
 	start_accept();
 }
 
-void tcp_server::start_timeout(const scc &con)
+void tcp_server::start_timeout()
 {
-	con->timer.expires_after(std::chrono::seconds(1));
-	con->timer.async_wait(std::bind(&tcp_server::handle_timeout, this, con,
-	    std::placeholders::_1));
+	connTimer.expires_after(std::chrono::seconds(1));
+	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this,
+		std::placeholders::_1));
 }
 
-void tcp_server::handle_timeout(const scc &con, const asio::error_code &ec)
+void tcp_server::handle_timeout(const asio::error_code &ec)
 {
-	if (ec) {
-		drop_connection(con);
+	int i, n;
+
+	if (ec)
 		return;
+
+	scc expired_connections[MAX_PLRS] = { };
+	n = 0;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (connections[i] != NULL) {
+			if (connections[i]->timeout > 0) {
+				connections[i]->timeout--;
+			} else {
+				expired_connections[n] = connections[i];
+				n++;
+			}
+		}
 	}
-	if (con->timeout > 0)
-		con->timeout -= 1;
-	if (con->timeout < 0)
-		con->timeout = 0;
-	if (!con->timeout) {
-		drop_connection(con);
-		return;
-	}
-	start_timeout(con);
+	for (i = 0; i < n; i++)
+		drop_connection(expired_connections[i]);
+	start_timeout();
 }
 
 void tcp_server::drop_connection(const scc &con)
@@ -196,7 +203,6 @@ void tcp_server::drop_connection(const scc &con)
 		// TODO: investigate if it is really ok for the server to
 		//       drop a client directly.
 	}
-	con->timer.cancel();
 	con->socket.close();
 }
 
@@ -205,6 +211,10 @@ void tcp_server::close()
 	if (acceptor == NULL)
 		return;
 	acceptor->close();
+	connTimer.cancel();
+
+	ioc.poll();
+
 	delete acceptor;
 	acceptor = NULL;
 }

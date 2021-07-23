@@ -39,11 +39,9 @@ private:
 		buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 		plr_t pnum = PLR_BROADCAST;
 		asio::ip::tcp::socket socket;
-		asio::steady_timer timer;
 		int timeout;
 		client_connection(asio::io_context &ioc)
 		    : socket(ioc)
-		    , timer(ioc)
 		{
 		}
 	};
@@ -53,6 +51,7 @@ private:
 	asio::io_context &ioc;
 	packet_factory pktfty;
 	asio::ip::tcp::acceptor* acceptor = NULL;
+	asio::steady_timer connTimer;
 	scc connections[MAX_PLRS];
 	buffer_t game_init_info;
 
@@ -68,8 +67,8 @@ private:
 	void send_packet(packet &pkt);
 	void start_send(const scc &con, packet &pkt);
 	void handle_send(const scc &con, const asio::error_code &ec, net_size_t bytes_sent);
-	void start_timeout(const scc &con);
-	void handle_timeout(const scc &con, const asio::error_code &ec);
+	void start_timeout();
+	void handle_timeout(const asio::error_code &ec);
 	void drop_connection(const scc &con);
 };
 
