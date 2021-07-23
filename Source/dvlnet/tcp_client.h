@@ -23,7 +23,7 @@ public:
 
 	virtual void SNetLeaveGame(int reason);
 
-	virtual ~tcp_client();
+	virtual ~tcp_client() = default;
 
 	virtual void make_default_gamename(char (&gamename)[128]);
 
@@ -33,11 +33,12 @@ private:
 
 	asio::io_context ioc;
 	asio::ip::tcp::socket sock = asio::ip::tcp::socket(ioc);
-	std::unique_ptr<tcp_server> local_server; // must be declared *after* ioc
+	tcp_server* local_server = NULL;
 
-	void handle_recv(const asio::error_code &error, net_size_t bytes_read);
+	void handle_recv(const asio::error_code &ec, net_size_t bytesRead);
 	void start_recv();
-	void handle_send(const asio::error_code &error, net_size_t bytes_sent);
+	void handle_send(const asio::error_code &ec, net_size_t bytesSent);
+	void close();
 };
 
 } // namespace net

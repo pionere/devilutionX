@@ -19,20 +19,26 @@ bool tcp_client::create_game(const char* addrstr, unsigned port, const char* pas
 {
 	setup_gameinfo(std::move(info));
 	try {
-		local_server = std::make_unique<tcp_server>(ioc, addrstr, port, passwd, game_init_info);
+		local_server = new tcp_server(ioc, addrstr, port, passwd, game_init_info);
 		return join_game(addrstr, port, passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError("%s", e.what());
+		close();
 		return false;
 	}
 }
 
 bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
-	constexpr int MsSleep = 10;
-	constexpr int NoSleep = 250;
+	int i;
+	constexpr int MS_SLEEP = 10;
+	constexpr int NUM_SLEEP = 250;
 
 	setup_password(passwd);
+	plr_self = PLR_BROADCAST;
+	memset(connected_table, 0, sizeof(connected_table));
+	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
+	    sizeof(cookie_t));
 	try {
 		std::string strPort = std::to_string(port);
 		auto resolver = asio::ip::tcp::resolver(ioc);
@@ -44,29 +50,24 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 		return false;
 	}
 	start_recv();
-	{
-		randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
-		    sizeof(cookie_t));
-		auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-		    PLR_MASTER, cookie_self);
-		send(*pkt);
-		for (auto i = 0; i < NoSleep; ++i) {
-			try {
-				poll();
-			} catch (const std::runtime_error &e) {
-				if (plr_self != PLR_BROADCAST) {
-					connected_table[plr_self] = false;
-					plr_self = PLR_BROADCAST;
-				}
-				SDL_SetError("%s", e.what());
-				return false;
-			}
-			if (plr_self != PLR_BROADCAST)
-				return true; // join successful
-			SDL_Delay(MsSleep);
+
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
+	    PLR_MASTER, cookie_self);
+	send(*pkt);
+	for (i = 0; i < NUM_SLEEP; i++) {
+		try {
+			poll();
+		} catch (const std::runtime_error &e) {
+			SDL_SetError("%s", e.what());
+			break;
 		}
+		if (plr_self != PLR_BROADCAST)
+			return true; // join successful
+		SDL_Delay(MS_SLEEP);
 	}
-	SDL_SetError("Unable to connect");
+	if (i == NUM_SLEEP)
+		SDL_SetError("Unable to connect");
+	close();
 	return false;
 }
 
@@ -75,16 +76,13 @@ void tcp_client::poll()
 	ioc.poll();
 }
 
-void tcp_client::handle_recv(const asio::error_code &error, net_size_t bytesRead)
+void tcp_client::handle_recv(const asio::error_code &ec, net_size_t bytesRead)
 {
-	if (error) {
+	if (ec || bytesRead == 0) {
 		// error in recv from server
 		// returning and doing nothing should be the same
 		// as if all connections to other clients were lost
 		return;
-	}
-	if (bytesRead == 0) {
-		throw std::runtime_error("error: read 0 bytes from server");
 	}
 	recv_buffer.resize(bytesRead);
 	recv_queue.write(std::move(recv_buffer));
@@ -103,7 +101,7 @@ void tcp_client::start_recv()
 	        std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcp_client::handle_send(const asio::error_code &error, net_size_t bytesSent)
+void tcp_client::handle_send(const asio::error_code &ec, net_size_t bytesSent)
 {
 	// empty for now
 }
@@ -112,28 +110,42 @@ void tcp_client::send(packet &pkt)
 {
 	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.data()));
 	auto buf = asio::buffer(*frame);
-	asio::async_write(sock, buf, [this, frame](const asio::error_code &error, size_t bytesSent) {
-		handle_send(error, bytesSent);
+	asio::async_write(sock, buf, [this, frame](const asio::error_code &ec, size_t bytesSent) {
+		handle_send(ec, bytesSent);
 		delete frame;
 	});
+}
+
+void tcp_client::close()
+{
+	// close the server
+	if (local_server != NULL) {
+		local_server->close();
+		delete local_server;
+		local_server = NULL;
+	}
+
+	// close the client
+	recv_queue.clear();
+
+	if (sock.is_open()) {
+		sock.shutdown(asio::socket_base::shutdown_both);
+		sock.close();
+
+		poll();
+	}
 }
 
 void tcp_client::SNetLeaveGame(int reason)
 {
 	base::SNetLeaveGame(reason);
 	poll();
-	if (local_server != NULL)
-		local_server->close();
-	sock.close();
+	close();
 }
 
 void tcp_client::make_default_gamename(char (&gamename)[128])
 {
 	tcp_server::make_default_gamename(gamename);
-}
-
-tcp_client::~tcp_client()
-{
 }
 
 } // namespace net
