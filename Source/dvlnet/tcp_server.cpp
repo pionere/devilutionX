@@ -13,8 +13,8 @@ namespace net {
 tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
     unsigned short port, const char* passwd, buffer_t info)
     : ioc(ioc)
-    , game_init_info(info)
     , pktfty(passwd)
+    , game_init_info(info)
 {
 	auto addr = asio::ip::address::from_string(bindAddr);
 	auto ep = asio::ip::tcp::endpoint(addr, port);

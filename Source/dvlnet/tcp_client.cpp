@@ -20,7 +20,7 @@ bool tcp_client::create_game(const char* addrstr, unsigned port, const char* pas
 	try {
 		local_server = std::make_unique<tcp_server>(ioc, addrstr, port, passwd, game_init_info);
 		std::string localhost = local_server->localhost_self();
-		return join(localhost.c_str(), port, passwd);
+		return join_game(localhost.c_str(), port, passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError("%s", e.what());
 		return false;
