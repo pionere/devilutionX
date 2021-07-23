@@ -65,7 +65,8 @@ protected:
 	virtual void poll() = 0;
 	virtual void send_packet(packet &pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
-	void handle_accept(packet &pkt);
+	void recv_accept(packet &pkt);
+	void recv_disconnect(packet &pkt);
 	void recv_local(packet &pkt);
 	void run_event_handler(SNetEvent &ev);
 

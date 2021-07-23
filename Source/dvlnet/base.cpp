@@ -29,7 +29,7 @@ void base::disconnect_net(plr_t pnum)
 {
 }
 
-void base::handle_accept(packet &pkt)
+void base::recv_accept(packet &pkt)
 {
 	if (plr_self != PLR_BROADCAST) {
 		return; // already have player id - should not happen...
@@ -64,6 +64,29 @@ void base::clear_msg(plr_t pnum)
 	    message_queue.end());
 }
 
+void base::recv_disconnect(packet &pkt)
+{
+	plr_t pkt_plr = pkt.newplr();
+
+	if (pkt_plr != plr_self) {
+		if (connected_table[pkt_plr]) {
+			auto leaveinfo = pkt.leaveinfo();
+			SNetEvent ev;
+			ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
+			ev.playerid = pkt_plr;
+			ev._eData = reinterpret_cast<unsigned char *>(&leaveinfo);
+			ev.databytes = sizeof(leaveinfo);
+			run_event_handler(ev);
+			connected_table[pkt_plr] = false;
+			disconnect_net(pkt_plr);
+			clear_msg(pkt_plr);
+			turn_queue[pkt_plr].clear();
+		}
+	} else {
+		ABORT(); // we were dropped by the owner?!?
+	}
+}
+
 void base::recv_local(packet &pkt)
 {
 	plr_t pkt_plr = pkt.src();
@@ -78,30 +101,13 @@ void base::recv_local(packet &pkt)
 		turn_queue[pkt_plr].push_back(pkt.turn());
 		break;
 	case PT_JOIN_ACCEPT:
-		handle_accept(pkt);
+		recv_accept(pkt);
 		break;
 	case PT_CONNECT:
 		connected_table[pkt.newplr()] = true; // this can probably be removed
 		break;
 	case PT_DISCONNECT:
-		pkt_plr = pkt.newplr();
-		if (pkt_plr != plr_self) {
-			if (connected_table[pkt_plr]) {
-				auto leaveinfo = pkt.leaveinfo();
-				SNetEvent ev;
-				ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
-				ev.playerid = pkt_plr;
-				ev._eData = reinterpret_cast<unsigned char *>(&leaveinfo);
-				ev.databytes = sizeof(leaveinfo);
-				run_event_handler(ev);
-				connected_table[pkt_plr] = false;
-				disconnect_net(pkt_plr);
-				clear_msg(pkt_plr);
-				turn_queue[pkt_plr].clear();
-			}
-		} else {
-			ABORT(); // we were dropped by the owner?!?
-		}
+		recv_disconnect(pkt)
 		break;
 	default:
 		break;
@@ -137,7 +143,7 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 		dest = receiver;
 	if (dest != plr_self) {
 		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, message);
-		send(*pkt);
+		send_packet(*pkt);
 	}
 }
 
@@ -178,7 +184,7 @@ void base::SNetSendTurn(uint32_t turn)
 {
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
-	send(*pkt);
+	send_packet(*pkt);
 	turn_queue[plr_self].push_back(pkt->turn());
 }
 
@@ -217,7 +223,7 @@ void base::SNetLeaveGame(int reason)
 {
 	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
 	    plr_self, (leaveinfo_t)reason);
-	send(*pkt);
+	send_packet(*pkt);
 }
 
 void base::SNetDropPlayer(int playerid)
@@ -226,7 +232,7 @@ void base::SNetDropPlayer(int playerid)
 	    PLR_BROADCAST,
 	    (plr_t)playerid,
 	    (leaveinfo_t)LEAVE_DROP);
-	send(*pkt);
+	send_packet(*pkt);
 	recv_local(*pkt);
 }
 
