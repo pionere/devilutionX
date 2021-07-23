@@ -276,7 +276,7 @@ inline void packet_out::process_element(buffer_t &x)
 template <class T>
 void packet_out::process_element(T &x)
 {
-	encrypted_buffer.insert(encrypted_buffer.end(), begin(x), end(x));
+	encrypted_buffer.insert(encrypted_buffer.end(), packet_factory::begin(x), packet_factory::end(x));
 }
 
 class packet_factory {
