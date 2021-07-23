@@ -49,9 +49,9 @@ private:
 	typedef std::shared_ptr<client_connection> scc;
 
 	asio::io_context &ioc;
+	asio::steady_timer connTimer;
 	packet_factory pktfty;
 	asio::ip::tcp::acceptor* acceptor = NULL;
-	asio::steady_timer connTimer;
 	scc connections[MAX_PLRS];
 	buffer_t game_init_info;
 

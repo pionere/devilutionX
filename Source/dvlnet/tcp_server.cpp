@@ -13,6 +13,7 @@ namespace net {
 tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
     unsigned short port, const char* passwd, buffer_t info)
     : ioc(ioc)
+    , connTimer(ioc)
     , pktfty(passwd)
     , game_init_info(info)
 {
@@ -38,7 +39,9 @@ tcp_server::scc tcp_server::make_connection()
 
 plr_t tcp_server::next_free()
 {
-	for (plr_t i = 0; i < MAX_PLRS; i++)
+	plr_t i;
+
+	for (i = 0; i < MAX_PLRS; i++)
 		if (connections[i] == NULL)
 			break;
 	return i;
