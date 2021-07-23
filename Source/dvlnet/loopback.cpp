@@ -4,8 +4,9 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool loopback::create(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
+	setup_gameinfo(std::move(info));
 	auto reply = pktfty->make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 		cookie_self, plr_single,
 		game_init_info);
@@ -14,7 +15,7 @@ bool loopback::create(const std::string &addrstr, unsigned port, const std::stri
 	return true;
 }
 
-bool loopback::join(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
 	ABORT();
 }

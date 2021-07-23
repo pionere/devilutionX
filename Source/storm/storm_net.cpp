@@ -135,13 +135,12 @@ bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData)
 	netData->dwSeed = SwapLE32(netData->dwSeed);
 	netData->dwVersionId = SwapLE32(netData->dwVersionId);
 #endif
-	dvlnet_inst->setup_gameinfo(std::move(game_init_info));
 
 	dvlnet_inst->make_default_gamename(gpszGameName);
 	int port = NET_DEFAULT_PORT;
 	getIniInt("Network", "Port", &port);
 	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
-	result = dvlnet_inst->create(gpszGameName, port, pszGamePassword);
+	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, std::move(game_init_info));
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
 }
@@ -154,7 +153,7 @@ bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePas
 	// assert(pszGameName != NULL && pszGamePassword != NULL);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	snprintf(gpszGamePassword, sizeof(gpszGamePassword), "%s", pszGamePassword);
-	return dvlnet_inst->join(pszGameName, port, pszGamePassword);
+	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword);
 }
 
 /**

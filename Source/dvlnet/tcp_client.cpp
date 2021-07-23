@@ -14,18 +14,20 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcp_client::create(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
+	setup_gameinfo(std::move(info));
 	try {
-		local_server = std::make_unique<tcp_server>(ioc, addrstr, port, passwd);
-		return join(local_server->localhost_self(), port, passwd);
+		local_server = std::make_unique<tcp_server>(ioc, addrstr, port, passwd, game_init_info);
+		std::string localhost = local_server->localhost_self();
+		return join(localhost.c_str(), port, passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError("%s", e.what());
 		return false;
 	}
 }
 
-bool tcp_client::join(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
 	constexpr int MsSleep = 10;
 	constexpr int NoSleep = 250;

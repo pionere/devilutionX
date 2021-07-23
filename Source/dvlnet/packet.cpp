@@ -215,11 +215,12 @@ void packet_out::encrypt()
 	have_encrypted = true;
 }
 
-packet_factory::packet_factory(std::string pw)
+packet_factory::packet_factory(const char* passwd)
 {
 #ifndef NONET
 	if (sodium_init() < 0)
 		ABORT();
+	std::string pw = std::string(passwd);
 	pw.resize(std::min<net_size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MAX));
 	pw.resize(std::max<net_size_t>(pw.size(), crypto_pwhash_argon2id_PASSWD_MIN), 0);
 	std::string salt("W9bE9dQgVaeybwr2");

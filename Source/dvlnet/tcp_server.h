@@ -8,9 +8,9 @@
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
-#include "dvlnet/packet.h"
-#include "dvlnet/abstract_net.h"
-#include "dvlnet/frame_queue.h"
+#include "packet.h"
+#include "abstract_net.h"
+#include "frame_queue.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -25,8 +25,8 @@ public:
 
 class tcp_server {
 public:
-	tcp_server(asio::io_context &ioc, const std::string &bindaddr,
-	    unsigned short port, std::string pw);
+	tcp_server(asio::io_context &ioc, const char* bindAddr,
+	    unsigned short port, const char* passwd, buffer_t info);
 	std::string localhost_self();
 	void close();
 	virtual ~tcp_server();

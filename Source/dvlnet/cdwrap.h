@@ -16,13 +16,12 @@ class cdwrap : public abstract_net {
 private:
 	std::unique_ptr<abstract_net> dvlnet_wrap;
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
-	buffer_t game_init_info;
 
 	void reset();
 
 public:
-	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
-	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS]);
@@ -33,7 +32,6 @@ public:
 	virtual void SNetDropPlayer(int playerid);
 	virtual uint32_t SNetGetOwnerTurnsWaiting();
 	virtual uint32_t SNetGetTurnsInTransit();
-	virtual void setup_gameinfo(buffer_t info);
 	virtual void make_default_gamename(char (&gamename)[128]);
 
 	cdwrap();
@@ -52,33 +50,23 @@ void cdwrap<T>::reset()
 	int i;
 
 	dvlnet_wrap.reset(new T);
-	dvlnet_wrap->setup_gameinfo(game_init_info);
 
 	for (i = 0; i < NUM_EVT_TYPES; i++)
 		dvlnet_wrap->SNetRegisterEventHandler(i, registered_handlers[i]);
 }
 
 template <class T>
-bool cdwrap<T>::create(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool cdwrap<T>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
 	reset();
-	return dvlnet_wrap->create(addrstr, port, passwd);
+	return dvlnet_wrap->create_game(addrstr, port, passwd, std::move(info));
 }
 
 template <class T>
-bool cdwrap<T>::join(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool cdwrap<T>::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
-	game_init_info = buffer_t();
 	reset();
-	return dvlnet_wrap->join(addrstr, port, passwd);
-}
-
-template <class T>
-void cdwrap<T>::setup_gameinfo(buffer_t info)
-{
-	game_init_info = std::move(info);
-	if (dvlnet_wrap)
-		dvlnet_wrap->setup_gameinfo(game_init_info);
+	return dvlnet_wrap->join_game(addrstr, port, passwd);
 }
 
 template <class T>

@@ -7,17 +7,17 @@
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
-#include "dvlnet/frame_queue.h"
-#include "dvlnet/base.h"
-#include "dvlnet/tcp_server.h"
+#include "frame_queue.h"
+#include "base.h"
+#include "tcp_server.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class tcp_client : public base {
 public:
-	bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
-	bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
+	bool join_game(const char* addrstr, unsigned port, const char* passwd);
 
 	virtual void poll();
 	virtual void send(packet &pkt);

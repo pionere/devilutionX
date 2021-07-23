@@ -5,8 +5,8 @@
 #include <map>
 #include <memory>
 
-#include "dvlnet/base.h"
-#include "dvlnet/packet.h"
+#include "base.h"
+#include "packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -14,8 +14,8 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
-	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 	virtual void disconnect_net(plr_t pnum);
@@ -118,10 +118,12 @@ void base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::create(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
+	setup_gameinfo(std::move(info));
+	// join_game
 	setup_password(passwd);
-	gamename = addrstr;
+	gamename = std::string(addrstr);
 
 	if (wait_network()) {
 		plr_self = 0;
@@ -132,11 +134,11 @@ bool base_protocol<P>::create(const std::string &addrstr, unsigned port, const s
 }
 
 template <class P>
-bool base_protocol<P>::join(const std::string &addrstr, unsigned port, const std::string &passwd)
+bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
 	setup_password(passwd);
-	gamename = addrstr;
+	gamename = std::string(addrstr);
 	if (wait_network())
 		if (wait_firstpeer())
 			wait_join();

@@ -11,9 +11,9 @@ void base::setup_gameinfo(buffer_t info)
 	game_init_info = std::move(info);
 }
 
-void base::setup_password(std::string pw)
+void base::setup_password(const char* passwd)
 {
-	pktfty = std::make_unique<packet_factory>(pw);
+	pktfty = std::make_unique<packet_factory>(passwd);
 }
 
 void base::run_event_handler(SNetEvent &ev)

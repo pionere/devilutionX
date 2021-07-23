@@ -3,7 +3,7 @@
 #include <queue>
 #include <string>
 
-#include "dvlnet/base.h"
+#include "base.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -20,8 +20,8 @@ public:
 		plr_single = 0;
 	};
 
-	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd);
-	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info);
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd);
 	virtual void poll();
 	virtual void send(packet &pkt);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);

@@ -331,7 +331,7 @@ class packet_factory {
 public:
 	static constexpr unsigned short max_packet_size = 0xFFFF;
 
-	packet_factory(std::string pw = "");
+	packet_factory(const char *passwd);
 	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_out_packet(Args... args);

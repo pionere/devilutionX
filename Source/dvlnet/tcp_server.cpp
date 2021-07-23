@@ -10,12 +10,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_server::tcp_server(asio::io_context &ioc, const std::string &bindaddr,
-    unsigned short port, std::string pw)
+tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
+    unsigned short port, const char* passwd, buffer_t info)
     : ioc(ioc)
-    , pktfty(std::move(pw))
+    , game_init_info(info)
+    , pktfty(passwd)
 {
-	auto addr = asio::ip::address::from_string(bindaddr);
+	auto addr = asio::ip::address::from_string(bindAddr);
 	auto ep = asio::ip::tcp::endpoint(addr, port);
 	acceptor = std::make_unique<asio::ip::tcp::acceptor>(ioc, ep, true);
 	start_accept();

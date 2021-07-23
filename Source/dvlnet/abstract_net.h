@@ -27,8 +27,8 @@ public:
 
 class abstract_net {
 public:
-	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
-	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info) = 0;
+	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd) = 0;
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual bool SNetReceiveTurns(uint32_t *(&data)[MAX_PLRS], unsigned (&status)[MAX_PLRS])
@@ -40,7 +40,6 @@ public:
 	virtual void SNetDropPlayer(int playerid) = 0;
 	virtual uint32_t SNetGetOwnerTurnsWaiting() = 0;
 	virtual uint32_t SNetGetTurnsInTransit() = 0;
-	virtual void setup_gameinfo(buffer_t info) = 0;
 	virtual ~abstract_net() = default;
 
 	virtual void make_default_gamename(char (&gamename)[128]) = 0;

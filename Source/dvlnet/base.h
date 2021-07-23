@@ -6,16 +6,16 @@
 #include <memory>
 #include <string>
 
-#include "dvlnet/abstract_net.h"
-#include "dvlnet/packet.h"
+#include "abstract_net.h"
+#include "packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class base : public abstract_net {
 public:
-	virtual bool create(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
-	virtual bool join(const std::string &addrstr, unsigned port, const std::string &passwd) = 0;
+	//virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info) = 0;
+	//virtual bool join_game(const char* addrstr, unsigned port, const char* passwd) = 0;
 
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
@@ -31,10 +31,6 @@ public:
 	virtual void poll() = 0;
 	virtual void send(packet &pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
-
-	void setup_gameinfo(buffer_t info);
-
-	virtual void setup_password(std::string pw);
 
 	virtual ~base() = default;
 
@@ -68,6 +64,8 @@ protected:
 
 	std::unique_ptr<packet_factory> pktfty;
 
+	void setup_password(const char* passwd);
+	void setup_gameinfo(buffer_t info);
 	void handle_accept(packet &pkt);
 	void recv_local(packet &pkt);
 	void run_event_handler(SNetEvent &ev);
