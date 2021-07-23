@@ -268,17 +268,6 @@ inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n,
 	m_leaveinfo = l;
 }
 
-inline void packet_out::process_element(buffer_t &x)
-{
-	encrypted_buffer.insert(encrypted_buffer.end(), x.begin(), x.end());
-}
-
-template <class T>
-void packet_out::process_element(T &x)
-{
-	encrypted_buffer.insert(encrypted_buffer.end(), packet_factory::begin(x), packet_factory::end(x));
-}
-
 class packet_factory {
 	key_t key = {};
 
@@ -332,5 +321,17 @@ const BYTE* packet_factory::end(const T &x)
 {
 	return reinterpret_cast<const BYTE*>(&x) + sizeof(T);
 }
+
+inline void packet_out::process_element(buffer_t &x)
+{
+	encrypted_buffer.insert(encrypted_buffer.end(), x.begin(), x.end());
+}
+
+template <class T>
+void packet_out::process_element(T &x)
+{
+	encrypted_buffer.insert(encrypted_buffer.end(), packet_factory::begin(x), packet_factory::end(x));
+}
+
 } // namespace net
 DEVILUTION_END_NAMESPACE
