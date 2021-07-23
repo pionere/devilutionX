@@ -14,9 +14,9 @@ tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
     unsigned short port, const char* passwd, buffer_t info)
     : ioc(ioc)
     , connTimer(ioc)
-    , pktfty(passwd)
     , game_init_info(info)
 {
+	pktfty.setup_password(passwd);
 	auto addr = asio::ip::address::from_string(bindAddr);
 	auto ep = asio::ip::tcp::endpoint(addr, port);
 	acceptor = new asio::ip::tcp::acceptor(ioc, ep, true);
