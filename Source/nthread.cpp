@@ -19,7 +19,7 @@ static BYTE sgbSyncCountdown;
 static bool _gbMutexDisabled;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
+const unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 static Uint32 guNextTick;
 static bool _gbTickInSync;
 static SDL_threadID glpNThreadId;
