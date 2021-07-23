@@ -107,7 +107,7 @@ void base_protocol<P>::wait_join()
 	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
 	    sizeof(cookie_t));
 	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-	    PLR_MASTER, cookie_self, game_init_info);
+	    PLR_MASTER, cookie_self);
 	proto.send(firstpeer, pkt->data());
 	for (auto i = 0; i < 500; ++i) {
 		recv();

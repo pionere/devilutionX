@@ -48,8 +48,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 		randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
 		    sizeof(cookie_t));
 		auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-		    PLR_MASTER, cookie_self,
-		    game_init_info);
+		    PLR_MASTER, cookie_self);
 		send(*pkt);
 		for (auto i = 0; i < NoSleep; ++i) {
 			try {

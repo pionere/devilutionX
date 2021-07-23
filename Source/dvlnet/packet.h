@@ -141,7 +141,6 @@ void packet_proc<P>::process_data()
 		break;
 	case PT_JOIN_REQUEST:
 		self.process_element(m_cookie);
-		self.process_element(m_info);
 		break;
 	case PT_JOIN_ACCEPT:
 		self.process_element(m_cookie);
@@ -216,14 +215,12 @@ inline void packet_out::create<PT_TURN>(plr_t s, plr_t d, turn_t u)
 }
 
 template <>
-inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d,
-    cookie_t c, buffer_t i)
+inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d, cookie_t c)
 {
 	m_type = PT_JOIN_REQUEST;
 	m_src = s;
 	m_dest = d;
 	m_cookie = c;
-	m_info = i;
 }
 
 template <>

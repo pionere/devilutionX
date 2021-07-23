@@ -112,7 +112,7 @@ plr_t packet::newplr()
 
 const buffer_t &packet::info()
 {
-	CheckPacketTypeOneOf({ PT_JOIN_REQUEST, PT_JOIN_ACCEPT, PT_CONNECT, PT_INFO_REPLY }, m_type);
+	CheckPacketTypeOneOf({ PT_JOIN_ACCEPT, PT_CONNECT, PT_INFO_REPLY }, m_type);
 	return m_info;
 }
 
