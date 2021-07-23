@@ -18,7 +18,7 @@ tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
 {
 	auto addr = asio::ip::address::from_string(bindAddr);
 	auto ep = asio::ip::tcp::endpoint(addr, port);
-	acceptor = std::make_unique<asio::ip::tcp::acceptor>(ioc, ep, true);
+	acceptor = new asio::ip::tcp::acceptor>(ioc, ep, true);
 	start_accept();
 }
 
@@ -37,18 +37,10 @@ tcp_server::scc tcp_server::make_connection()
 
 plr_t tcp_server::next_free()
 {
-	for (plr_t i = 0; i < MAX_PLRS; ++i)
-		if (!connections[i])
-			return i;
-	return PLR_BROADCAST;
-}
-
-bool tcp_server::empty()
-{
-	for (plr_t i = 0; i < MAX_PLRS; ++i)
-		if (connections[i])
-			return false;
-	return true;
+	for (plr_t i = 0; i < MAX_PLRS; i++)
+		if (connections[i] == NULL)
+			break;
+	return i;
 }
 
 void tcp_server::start_recv(const scc &con)
@@ -71,10 +63,10 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, net_siz
 	while (con->recv_queue.packet_ready()) {
 		try {
 			auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
+			con->timeout = TIMEOUT_ACTIVE;
 			if (con->pnum == PLR_BROADCAST) {
 				handle_recv_newplr(con, *pkt);
 			} else {
-				con->timeout = timeout_active;
 				handle_recv_packet(*pkt);
 			}
 		} catch (dvlnet_exception &e) {
@@ -96,17 +88,14 @@ void tcp_server::send_connect(const scc &con)
 void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
 	auto pnum = next_free();
-	if (pnum == PLR_BROADCAST)
+	if (pnum == MAX_PLRS)
 		throw server_exception();
-	if (empty())
-		game_init_info = pkt.info();
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 	    pkt.cookie(), pnum,
 	    game_init_info);
 	start_send(con, *reply);
 	con->pnum = pnum;
 	connections[pnum] = con;
-	con->timeout = timeout_active;
 	send_connect(con);
 }
 
@@ -122,12 +111,12 @@ void tcp_server::send_packet(packet &pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (auto i = 0; i < MAX_PLRS; ++i)
-			if (i != src && connections[i])
+			if (i != src && connections[i] != NULL)
 				start_send(connections[i], pkt);
 	} else {
 		if (dest >= MAX_PLRS)
 			throw server_exception();
-		if ((dest != src) && connections[dest])
+		if ((dest != src) && connections[dest] != NULL)
 			start_send(connections[dest], pkt);
 	}
 }
@@ -161,12 +150,12 @@ void tcp_server::handle_accept(const scc &con, const asio::error_code &ec)
 {
 	if (ec)
 		return;
-	if (next_free() == PLR_BROADCAST) {
+	if (next_free() == MAX_PLRS) {
 		drop_connection(con);
 	} else {
 		asio::ip::tcp::no_delay option(true);
 		con->socket.set_option(option);
-		con->timeout = timeout_connect;
+		con->timeout = TIMEOUT_CONNECT;
 		start_recv(con);
 		start_timeout(con);
 	}
@@ -213,11 +202,11 @@ void tcp_server::drop_connection(const scc &con)
 
 void tcp_server::close()
 {
+	if (acceptor == NULL)
+		return;
 	acceptor->close();
-}
-
-tcp_server::~tcp_server()
-{
+	delete acceptor;
+	acceptor = NULL;
 }
 
 } // namespace net

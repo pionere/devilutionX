@@ -27,12 +27,12 @@ public:
 	tcp_server(asio::io_context &ioc, const char* bindAddr,
 	    unsigned short port, const char* passwd, buffer_t info);
 	void close();
-	virtual ~tcp_server();
+	virtual ~tcp_server() = default;
 
 	static void make_default_gamename(char (&gamename)[128]);
 private:
-	static constexpr int timeout_connect = 30;
-	static constexpr int timeout_active = 60;
+	static constexpr int TIMEOUT_CONNECT = 30;
+	static constexpr int TIMEOUT_ACTIVE = 60;
 
 	struct client_connection {
 		frame_queue recv_queue;
@@ -52,13 +52,12 @@ private:
 
 	asio::io_context &ioc;
 	packet_factory pktfty;
-	std::unique_ptr<asio::ip::tcp::acceptor> acceptor;
-	std::array<scc, MAX_PLRS> connections;
+	asio::ip::tcp::acceptor* acceptor = NULL;
+	scc connections[MAX_PLRS];
 	buffer_t game_init_info;
 
 	scc make_connection();
 	plr_t next_free();
-	bool empty();
 	void start_accept();
 	void handle_accept(const scc &con, const asio::error_code &ec);
 	void start_recv(const scc &con);
