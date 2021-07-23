@@ -7,6 +7,7 @@
 
 #include "base.h"
 #include "packet.h"
+#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -125,6 +126,7 @@ bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const cha
 	setup_password(passwd);
 	gamename = std::string(addrstr);
 
+	plr_self = PLR_BROADCAST;
 	if (wait_network()) {
 		plr_self = 0;
 		connected_table[plr_self] = true;
@@ -137,6 +139,7 @@ template <class P>
 bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char* passwd)
 {
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
+	plr_self = PLR_BROADCAST;
 	setup_password(passwd);
 	gamename = std::string(addrstr);
 	if (wait_network())

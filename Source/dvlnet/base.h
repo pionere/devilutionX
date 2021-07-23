@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <deque>
 #include <map>
 #include <memory>
@@ -51,12 +50,12 @@ protected:
 
 	message_t message_last;
 	std::deque<message_t> message_queue;
-	std::array<turn_t, MAX_PLRS> turn_last = {};
-	std::array<std::deque<turn_t>, MAX_PLRS> turn_queue;
-	std::array<bool, MAX_PLRS> connected_table = {};
+	turn_t turn_last[MAX_PLRS] = { };
+	std::deque<turn_t> turn_queue[MAX_PLRS] = { };
+	bool connected_table[MAX_PLRS] = { };
 
-	plr_t plr_self = PLR_BROADCAST;
-	cookie_t cookie_self = 0;
+	plr_t plr_self;
+	cookie_t cookie_self;
 
 	packet_factory pktfty;
 

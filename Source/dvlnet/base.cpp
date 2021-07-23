@@ -49,7 +49,7 @@ void base::recv_accept(packet &pkt)
 	SNetEvent ev;
 	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
 	ev.playerid = plr_self;
-	ev._eData = const_cast<unsigned char *>(pkt_info.data());
+	ev._eData = const_cast<BYTE*>(pkt_info.data());
 	ev.databytes = pkt_info.size();
 	run_event_handler(ev);
 }
@@ -74,7 +74,7 @@ void base::recv_disconnect(packet &pkt)
 			SNetEvent ev;
 			ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 			ev.playerid = pkt_plr;
-			ev._eData = reinterpret_cast<unsigned char *>(&leaveinfo);
+			ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
 			ev.databytes = sizeof(leaveinfo);
 			run_event_handler(ev);
 			connected_table[pkt_plr] = false;
@@ -107,7 +107,7 @@ void base::recv_local(packet &pkt)
 		connected_table[pkt.newplr()] = true; // this can probably be removed
 		break;
 	case PT_DISCONNECT:
-		recv_disconnect(pkt)
+		recv_disconnect(pkt);
 		break;
 	default:
 		break;
@@ -221,9 +221,15 @@ void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 
 void base::SNetLeaveGame(int reason)
 {
+	int i;
+
 	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
 	    plr_self, (leaveinfo_t)reason);
 	send_packet(*pkt);
+
+	message_queue.clear();
+	for (i = 0; i < MAX_PLRS; i++)
+		turn_queue[i].clear();
 }
 
 void base::SNetDropPlayer(int playerid)
