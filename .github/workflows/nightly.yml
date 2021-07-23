@@ -76,8 +76,10 @@ jobs:
         setupOnly: true
         vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
-    - run: |
-        Start-Process -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
+    - name: Install Required Packages
+      run: |
+        vcpkg install ${{ matrix.packages }}
+      #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
       #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
       #shell: bash
 
