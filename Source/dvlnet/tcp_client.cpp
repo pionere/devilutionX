@@ -53,7 +53,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 
 	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
 	    PLR_MASTER, cookie_self);
-	send(*pkt);
+	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
 		try {
 			poll();
@@ -106,7 +106,7 @@ void tcp_client::handle_send(const asio::error_code &ec, net_size_t bytesSent)
 	// empty for now
 }
 
-void tcp_client::send(packet &pkt)
+void tcp_client::send_packet(packet &pkt)
 {
 	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.data()));
 	auto buf = asio::buffer(*frame);

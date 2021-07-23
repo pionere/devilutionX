@@ -35,6 +35,9 @@ public:
 	 */
 	buffer_t read_packet();
 	void write(buffer_t buf);
+	void clear() {
+		buffer_deque.clear();
+	}
 
 	static buffer_t make_frame(buffer_t packetbuf);
 };
