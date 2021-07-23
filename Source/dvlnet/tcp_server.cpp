@@ -5,7 +5,7 @@
 #include <memory>
 #include <utility>
 
-#include "dvlnet/base.h"
+#include "base.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -22,19 +22,12 @@ tcp_server::tcp_server(asio::io_context &ioc, const char* bindAddr,
 	start_accept();
 }
 
-std::string tcp_server::localhost_self()
+void tcp_server::make_default_gamename(char (&gamename)[128])
 {
-	auto addr = acceptor->local_endpoint().address();
-	if (addr.is_unspecified()) {
-		if (addr.is_v4()) {
-			return asio::ip::address_v4::loopback().to_string();
-		}
-		if (addr.is_v6()) {
-			return asio::ip::address_v6::loopback().to_string();
-		}
-		ABORT();
+	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1)) {
+		copy_cstr(gamename, "127.0.0.1");
+		//SStrCopy(gamename, asio::ip::address_v4::loopback().to_string().c_str(), sizeof(gamename));
 	}
-	return addr.to_string();
 }
 
 tcp_server::scc tcp_server::make_connection()

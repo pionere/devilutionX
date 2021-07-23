@@ -1,5 +1,6 @@
 #include "tcp_client.h"
 
+#include <string>
 #include <SDL.h>
 #include <exception>
 #include <functional>
@@ -19,8 +20,7 @@ bool tcp_client::create_game(const char* addrstr, unsigned port, const char* pas
 	setup_gameinfo(std::move(info));
 	try {
 		local_server = std::make_unique<tcp_server>(ioc, addrstr, port, passwd, game_init_info);
-		std::string localhost = local_server->localhost_self();
-		return join_game(localhost.c_str(), port, passwd);
+		return join_game(addrstr, port, passwd);
 	} catch (std::system_error &e) {
 		SDL_SetError("%s", e.what());
 		return false;
@@ -35,6 +35,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	setup_password(passwd);
 	try {
 		std::string strPort = std::to_string(port);
+		auto resolver = asio::ip::tcp::resolver(ioc);
 		asio::connect(sock, resolver.resolve(addrstr, strPort));
 		asio::ip::tcp::no_delay option(true);
 		sock.set_option(option);
@@ -129,8 +130,7 @@ void tcp_client::SNetLeaveGame(int reason)
 
 void tcp_client::make_default_gamename(char (&gamename)[128])
 {
-	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1))
-		copy_cstr(gamename, "0.0.0.0");
+	tcp_server::make_default_gamename(gamename);
 }
 
 tcp_client::~tcp_client()

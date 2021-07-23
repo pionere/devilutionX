@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <memory>
 #include <array>
 #include <asio/ts/buffer.hpp>
@@ -27,10 +26,10 @@ class tcp_server {
 public:
 	tcp_server(asio::io_context &ioc, const char* bindAddr,
 	    unsigned short port, const char* passwd, buffer_t info);
-	std::string localhost_self();
 	void close();
 	virtual ~tcp_server();
 
+	static void make_default_gamename(char (&gamename)[128]);
 private:
 	static constexpr int timeout_connect = 30;
 	static constexpr int timeout_active = 60;
