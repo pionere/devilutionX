@@ -1542,6 +1542,7 @@ typedef struct SNetGameData {
 	BYTE bPlayerId; // internal-only!
 	BYTE bDifficulty;
 	BYTE bTickRate;
+	BYTE bNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE bMaxPlayers;
 } SNetGameData;
 #pragma pack(pop)

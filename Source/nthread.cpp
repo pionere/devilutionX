@@ -19,7 +19,7 @@ static BYTE sgbSyncCountdown;
 static bool _gbMutexDisabled;
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 const unsigned gdwLargestMsgSize = MAX_NETMSG_SIZE; // TODO: add to SNetGameData ? (was maxmessagesize in vanilla)
-unsigned gdwNormalMsgSize;
+unsigned gdwNormalMsgSize = MAX_NETMSG_SIZE;
 static Uint32 guNextTick;
 static bool _gbTickInSync;
 static SDL_threadID glpNThreadId;
@@ -141,23 +141,8 @@ void nthread_start(bool request_delta)
 		nthread_request_delta();
 	else
 		turn_delta_request = 0;
-	//_SNETCAPS caps;
-	//SNetGetProviderCaps(&caps);
 	gdwTurnsInTransit = 1; // TODO: add to SNetGameData ? (was defaultturnsintransit in vanilla)
-	gbNetUpdateRate = 2;  // TODO: add to SNetGameData ? (was defaultturnssec in vanilla)
-	// FIXME: instead of 20, gnTicksRate should be used, but does not really matter at the moment
-	//  and gnTicksRate is not set at this point
-	gdwNormalMsgSize = gdwDeltaBytesSec * gbNetUpdateRate / 20;
-	gdwNormalMsgSize *= 3;
-	gdwNormalMsgSize >>= 2;
-	gdwNormalMsgSize /= gbMaxPlayers;
-	static_assert(sizeof(TurnPktHdr) < 128, "TurnPktHdr does not fit in a message.");
-	while (gdwNormalMsgSize < 128) {
-		gdwNormalMsgSize *= 2;
-		gbNetUpdateRate *= 2;
-	}
-	if (gdwNormalMsgSize > gdwLargestMsgSize)
-		gdwNormalMsgSize = gdwLargestMsgSize;
+	static_assert(sizeof(TurnPkt) <= gdwNormalMsgSize, "TurnPkt does not fit in a message.");
 	if (gbMaxPlayers != 1) {
 		_gbMutexDisabled = false;
 		sgMemCrit.Enter();
@@ -173,8 +158,6 @@ void nthread_cleanup()
 {
 	_sbNthreadShouldRun = false;
 	gdwTurnsInTransit = 0;
-	//gdwNormalMsgSize = 0;
-	//gdwLargestMsgSize = 0;
 	if (sghThread != NULL && glpNThreadId != SDL_GetThreadID(NULL)) {
 		if (!_gbMutexDisabled)
 			sgMemCrit.Leave();
