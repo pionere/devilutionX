@@ -4,11 +4,16 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
+static constexpr plr_t PLR_SINGLE = 0;
+
 bool loopback::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info)
 {
 	setup_gameinfo(std::move(info));
+	// join_game
+	plr_self = PLR_SINGLE;
+	setup_password(passwd);
 	auto reply = pktfty.make_fake_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-		cookie_self, plr_single,
+		cookie_self, PLR_SINGLE,
 		game_init_info);
 
 	base::recv_local(*reply);
@@ -22,7 +27,6 @@ bool loopback::join_game(const char* addrstr, unsigned port, const char* passwd)
 
 void loopback::poll()
 {
-	ABORT();
 }
 
 void loopback::send_packet(packet &pkt)
@@ -30,23 +34,10 @@ void loopback::send_packet(packet &pkt)
 	ABORT();
 }
 
-bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
-{
-	if (message_queue.empty())
-		return false;
-	message_last = message_queue.front();
-	message_queue.pop();
-	*sender = plr_single;
-	*size = message_last.size();
-	*data = message_last.data();
-	return true;
-}
-
 void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
-	if (receiver == plr_single || receiver == SNPLAYER_ALL) {
-		buffer_t message(data, data + size);
-		message_queue.push(message);
+	if (receiver == SNPLAYER_ALL || receiver == PLR_SINGLE) {
+		message_queue.emplace_back(PLR_SINGLE, buffer_t(data, data + size));
 	}
 }
 
