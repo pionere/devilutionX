@@ -1,5 +1,5 @@
 #include "tcp_server.h"
-
+#ifdef TCPIP
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -290,3 +290,4 @@ void tcp_server::close()
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // TCPIP

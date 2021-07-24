@@ -27,6 +27,7 @@ option(NOSOUND "Disable sound support" OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
 option(NONET "Disable network support" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
+cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
 cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
@@ -237,7 +238,7 @@ else()
   endif()
 endif()
 
-if(NOT NONET)
+if(TCPIP)
   add_subdirectory(3rdParty/asio)
   if(NINTENDO_3DS)
       target_compile_definitions(asio INTERFACE
@@ -247,6 +248,10 @@ if(NOT NONET)
       target_include_directories(asio BEFORE INTERFACE CMake/ctr/asio/include)
   endif()
 endif()
+
+if(ZEROTIER)
+  add_subdirectory(3rdParty/libzt)
+endif(
 
 add_library(smacker STATIC
   3rdParty/libsmacker/smk_bitstream.c
@@ -539,15 +544,20 @@ target_link_libraries(${BIN_TARGET} PRIVATE
   smacker
   Radon)
 
-if(NOT NONET)
-  target_link_libraries(${BIN_TARGET} PRIVATE asio)
+if(NETENCRYPT)
   target_link_libraries(${BIN_TARGET} PRIVATE sodium)
+endif()
+if(TCPIP)
+  target_link_libraries(${BIN_TARGET} PRIVATE asio)
+endif()
+if(ZEROTIER)
+  target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()
 
 genex_for_option(DEBUG)
 target_compile_definitions(${BIN_TARGET} PUBLIC "$<${DEBUG_GENEX}:_DEBUG>")
 
-if(NOT NONET)
+if(TCPIP)
   target_compile_definitions(${BIN_TARGET} PRIVATE ASIO_STANDALONE)
 endif()
 
@@ -557,6 +567,7 @@ foreach(
   NOSOUND
   NOWIDESCREEN
   NONET
+  TCPIP
   NETENCRYPT
   ZEROTIER
   PREFILL_PLAYER_NAME
@@ -1068,9 +1079,4 @@ if(CPACK)
   set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
   set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
   include(CPack)
-endif()
-
-if(ZEROTIER)
-  add_subdirectory(3rdParty/libzt)
-  target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
 endif()

@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef TCPIP
 #include <memory>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
@@ -67,3 +67,4 @@ private:
 
 } //namespace net
 DEVILUTION_END_NAMESPACE
+#endif // TCPIP

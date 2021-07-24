@@ -1,11 +1,9 @@
 #include "abstract_net.h"
 
-#ifndef NONET
 #include "dvlnet/base_protocol.h"
 #include "dvlnet/cdwrap.h"
 #include "dvlnet/protocol_zt.h"
 #include "dvlnet/tcp_client.h"
-#endif
 #include "dvlnet/loopback.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -13,12 +11,11 @@ namespace net {
 
 std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 {
-#ifdef NONET
-	return std::make_unique<loopback>();
-#else
 	switch (provider) {
+#ifdef TCPIP
 	case SELCONN_TCP:
 		return std::make_unique<tcp_client>();
+#endif
 #ifdef ZEROTIER
 	case SELCONN_ZT:
 		return std::make_unique<cdwrap<base_protocol<protocol_zt>>>();
@@ -29,7 +26,6 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 		ASSUME_UNREACHABLE
 		return NULL;
 	}
-#endif
 }
 
 } // namespace net

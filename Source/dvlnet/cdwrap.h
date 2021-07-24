@@ -1,12 +1,12 @@
 #pragma once
-
-#include <exception>
-#include <map>
+#ifdef ZEROTIER
+//#include <exception>
+//#include <map>
 #include <memory>
-#include <string>
-#include <vector>
+//#include <string>
+//#include <vector>
 
-#include "dvlnet/abstract_net.h"
+#include "abstract_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -141,3 +141,4 @@ void cdwrap<T>::make_default_gamename(char (&gamename)[128])
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // ZEROTIER

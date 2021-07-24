@@ -33,19 +33,24 @@ static void SelconnFocus(unsigned index)
 {
 	int numplayers = MAX_PLRS;
 	switch (vecConnItems[index]->m_value) {
+#ifdef TCPIP
 	case SELCONN_TCP:
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to a TCP-compatible network.");
-		numplayers = MAX_PLRS;
+		//numplayers = MAX_PLRS;
 		break;
+#endif
 #ifdef ZEROTIER
 	case SELCONN_ZT:
 		snprintf(selconn_Description, sizeof(selconn_Description), "All computers must be connected to the internet.");
-		numplayers = MAX_PLRS;
+		//numplayers = MAX_PLRS;
 		break;
 #endif
 	case SELCONN_LOOPBACK:
 		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
 		numplayers = 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 
@@ -57,10 +62,10 @@ static void SelconnLoad()
 {
 	LoadBackgroundArt("ui_art\\selconn.pcx");
 
-#ifndef NONET
 #ifdef ZEROTIER
 	vecConnItems.push_back(new UiListItem("Zerotier", SELCONN_ZT));
 #endif
+#ifdef TCPIP
 	vecConnItems.push_back(new UiListItem("Client-Server (TCP)", SELCONN_TCP));
 #endif
 	vecConnItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));

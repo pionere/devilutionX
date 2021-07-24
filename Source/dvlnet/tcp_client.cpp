@@ -1,5 +1,5 @@
 #include "tcp_client.h"
-
+#ifdef TCPIP
 #include <string>
 #include <SDL.h>
 #include <exception>
@@ -152,3 +152,4 @@ void tcp_client::make_default_gamename(char (&gamename)[128])
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // TCPIP
