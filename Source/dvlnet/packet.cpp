@@ -127,14 +127,14 @@ void packet_in::create(buffer_t buf)
 	encrypted_buffer = std::move(buf);
 }
 
-void packet_in::decrypt()
+bool packet_in::decrypt()
 {
 #ifndef NONET
 	if (!DisableEncryption) {
 		if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
 		        + crypto_secretbox_MACBYTES
 		        + sizeof(packet_type) + 2 * sizeof(plr_t))
-			throw packet_exception();
+			return false;
 		auto pktlen = (encrypted_buffer.size()
 		    - crypto_secretbox_NONCEBYTES
 		    - crypto_secretbox_MACBYTES);
@@ -146,16 +146,17 @@ void packet_in::decrypt()
 		            - crypto_secretbox_NONCEBYTES,
 		        encrypted_buffer.data(),
 		        key.data()))
-			throw packet_exception();
+			return false;
 	} else
 #endif
 	{
 		if (encrypted_buffer.size() < sizeof(packet_type) + 2 * sizeof(plr_t))
-			throw packet_exception();
+			return false;
 		decrypted_buffer = encrypted_buffer;
 	}
 
 	process_data();
+	return true;
 }
 
 void packet_out::encrypt()

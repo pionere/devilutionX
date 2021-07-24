@@ -182,14 +182,11 @@ void base_protocol<P>::recv()
 		buffer_t pkt_buf;
 		endpoint sender;
 		while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
-			try {
-				auto pkt = pktfty.make_in_packet(pkt_buf);
+			auto pkt = pktfty.make_in_packet(pkt_buf);
+			if (pkt != NULL)
 				recv_decrypted(*pkt, sender);
-			} catch (packet_exception &e) {
-				// drop packet
+			else // drop invalid packet
 				proto.disconnect(sender);
-				SDL_Log("%s", e.what());
-			}
 		}
 		while (proto.get_disconnected(sender)) {
 			for (plr_t i = 0; i < MAX_PLRS; ++i) {

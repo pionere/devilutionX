@@ -109,7 +109,7 @@ public:
 	void process_element(buffer_t &x);
 	template <class T>
 	void process_element(T &x);
-	void decrypt();
+	bool decrypt();
 };
 
 class packet_out : public packet_proc<packet_out> {
@@ -286,7 +286,8 @@ inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
 {
 	auto ret = std::make_unique<packet_in>(key);
 	ret->create(std::move(buf));
-	ret->decrypt();
+	if (!ret->decrypt())
+		ret = NULL;
 	return ret;
 }
 

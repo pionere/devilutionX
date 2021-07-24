@@ -44,7 +44,7 @@ plr_t tcp_server::next_free_conn()
 	for (i = 0; i < MAX_PLRS; i++)
 		if (connections[i] == NULL)
 			break;
-	return i < ((SNetGameData*)gameInitInfo.data())->bMaxPlayers ? i : MAX_PLRS;
+	return i < ((SNetGameData*)game_init_info.data())->bMaxPlayers ? i : MAX_PLRS;
 }
 
 plr_t tcp_server::next_free_queue()
@@ -75,16 +75,8 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t 
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (con->recv_queue.packet_ready()) {
-		try {
-			auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
-			con->timeout = TIMEOUT_ACTIVE;
-			if (con->pnum == PLR_BROADCAST) {
-				handle_recv_newplr(con, *pkt);
-			} else {
-				handle_recv_packet(*pkt);
-			}
-		} catch (dvlnet_exception &e) {
-			SDL_Log("Network error: %s", e.what());
+		auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
+		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {
 			drop_connection(con);
 			return;
 		}
@@ -99,17 +91,23 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t 
 	send_packet(*pkt);
 }*/
 
-void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
+bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
 	plr_t i, pnum;
 
+	if (pkt.type() != PT_JOIN_REQUEST) {
+		// SDL_Log("Invalid join packet.");
+		return false;
+	}
 	pnum = next_free_conn();
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (pending_connections[i] == con)
 			break;
 	}
-	if (pnum == MAX_PLRS || i == MAX_PLRS)
-		throw server_exception();
+	if (pnum == MAX_PLRS || i == MAX_PLRS) {
+		// SDL_Log(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
+		return false;
+	}
 	pending_connections[i] = NULL;
 	connections[pnum] = con;
 	con->pnum = pnum;
@@ -120,12 +118,16 @@ void tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	//send_connect(con);
 }
 
-void tcp_server::handle_recv_packet(packet &pkt)
+bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
 {
-	send_packet(pkt);
+	if (con->pnum != PLR_BROADCAST) {
+		return con->pnum == pkt.src() && send_packet(pkt);
+	} else {
+		return handle_recv_newplr(con, pkt);
+	}
 }
 
-void tcp_server::send_packet(packet &pkt)
+bool tcp_server::send_packet(packet &pkt)
 {
 	plr_t dest = pkt.dest();
 	plr_t src = pkt.src();
@@ -135,11 +137,14 @@ void tcp_server::send_packet(packet &pkt)
 			if (i != src && connections[i] != NULL)
 				start_send(connections[i], pkt);
 	} else {
-		if (dest >= MAX_PLRS)
-			throw server_exception();
+		if (dest >= MAX_PLRS) {
+			// SDL_Log("Invalid destination %d", dest);
+			return false;
+		}
 		if ((dest != src) && connections[dest] != NULL)
 			start_send(connections[dest], pkt);
 	}
+	return true;
 }
 
 void tcp_server::start_send(const scc &con, packet &pkt)

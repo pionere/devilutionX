@@ -89,6 +89,8 @@ void tcp_client::handle_recv(const asio::error_code &ec, size_t bytesRead)
 	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (recv_queue.packet_ready()) {
 		auto pkt = pktfty.make_in_packet(recv_queue.read_packet());
+		// TODO: validate server-messages? drop server connection?
+		assert(pkt != NULL);
 		recv_local(*pkt);
 	}
 	start_recv();
