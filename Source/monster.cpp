@@ -2319,10 +2319,6 @@ void DoEnding()
 
 	music_stop();
 
-	if (gbMaxPlayers != 1) {
-		SDL_Delay(1000);
-	}
-
 	const char *vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk"
 #ifdef HELLFIRE

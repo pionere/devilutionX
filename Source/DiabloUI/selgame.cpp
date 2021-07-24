@@ -494,8 +494,6 @@ void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
 	SNetLeaveGame(LEAVE_UNKNOWN);
-	if (gbMaxPlayers != 1 && provider != SELCONN_LOOPBACK)
-		SDL_Delay(2000);
 }
 
 DEVILUTION_END_NAMESPACE
