@@ -18,7 +18,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 #else
 	switch (provider) {
 	case SELCONN_TCP:
-		return std::make_unique<cdwrap<tcp_client>>();
+		return std::make_unique<tcp_client>();
 #ifdef ZEROTIER
 	case SELCONN_ZT:
 		return std::make_unique<cdwrap<base_protocol<protocol_zt>>>();
