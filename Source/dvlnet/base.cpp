@@ -34,23 +34,23 @@ void base::recv_accept(packet &pkt)
 	if (plr_self != PLR_BROADCAST) {
 		return; // already have player id - should not happen...
 	}
-	if (pkt.cookie() == cookie_self) {
-		plr_self = pkt.newplr();
+	if (pkt.pktJoinAccCookie() == cookie_self) {
+		plr_self = pkt.pktJoinAccPlr();
 		connected_table[plr_self] = true;
 	}
-	auto &pkt_info = pkt.info();
+	auto &pkt_info = pkt.pktJoinAccInfo();
 #ifdef ZEROTIER
-	if (pkt_info.size() != sizeof(SNetGameData)) {
-		ABORT();
-	}
+	//if (pkt_info.size() != sizeof(SNetGameData)) {
+	//	ABORT();
+	//}
 	// we joined and did not create
-	game_init_info = pkt.info();
+	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));
 #endif
 	SNetEvent ev;
 	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
 	ev.playerid = plr_self;
-	ev._eData = const_cast<BYTE*>(pkt_info.data());
-	ev.databytes = pkt_info.size();
+	ev._eData = (BYTE*)&pkt_info;
+	ev.databytes = sizeof(SNetGameData);
 	run_event_handler(ev);
 }
 
@@ -82,8 +82,8 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 
 void base::recv_disconnect(packet &pkt)
 {
-	plr_t pkt_plr = pkt.newplr();
-	leaveinfo_t leaveinfo = pkt.leaveinfo();
+	plr_t pkt_plr = pkt.pktDisconnectPlr();
+	leaveinfo_t leaveinfo = pkt.pktDisconnectInfo();
 
 	if (pkt_plr != plr_self) {
 		if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
@@ -104,22 +104,22 @@ void base::recv_disconnect(packet &pkt)
 
 void base::recv_local(packet &pkt)
 {
-	plr_t pkt_plr = pkt.src();
+	plr_t pkt_plr = pkt.pktSrc();
 	if (pkt_plr < MAX_PLRS) {
 		connected_table[pkt_plr] = true;
 	}
-	switch (pkt.type()) {
+	switch (pkt.pktType()) {
 	case PT_MESSAGE:
-		message_queue.emplace_back(message_t(pkt_plr, pkt.message()));
+		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
-		turn_queue[pkt_plr].push_back(pkt.turn());
+		turn_queue[pkt_plr].push_back(pkt.pktTurn());
 		break;
 	case PT_JOIN_ACCEPT:
 		recv_accept(pkt);
 		break;
 	case PT_CONNECT:
-		connected_table[pkt.newplr()] = true; // this can probably be removed
+		connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
 		break;
 	case PT_DISCONNECT:
 		recv_disconnect(pkt);
@@ -150,14 +150,14 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 		ABORT();
 	buffer_t message(data, data + size);
 	if (receiver == plr_self || receiver == SNPLAYER_ALL)
-		message_queue.emplace_back(plr_self, message);
+		message_queue.emplace_back(plr_self, buffer_t(data, data + size));
 	plr_t dest;
 	if (receiver == SNPLAYER_ALL /*|| receiver == SNPLAYER_OTHERS*/)
 		dest = PLR_BROADCAST;
 	else
 		dest = receiver;
 	if (dest != plr_self) {
-		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, message);
+		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
 		send_packet(*pkt);
 	}
 }
@@ -200,7 +200,7 @@ void base::SNetSendTurn(uint32_t turn)
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn);
 	send_packet(*pkt);
-	turn_queue[plr_self].push_back(pkt->turn());
+	turn_queue[plr_self].push_back(pkt->pktTurn());
 }
 
 /*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)

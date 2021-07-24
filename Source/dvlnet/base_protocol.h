@@ -157,7 +157,7 @@ void base_protocol<P>::poll()
 template <class P>
 void base_protocol<P>::send_packet(packet &pkt)
 {
-	plr_t pkt_plr = pkt.dest();
+	plr_t pkt_plr = pkt.pktDest();
 
 	if (pkt_plr < MAX_PLRS) {
 		if (pkt_plr == mypnum)
@@ -223,7 +223,7 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 		}
 	}
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST,
-	    pkt.cookie(), i,
+	    pkt.pktJoinReqCookie(), i,
 	    game_init_info);
 	proto.send(sender, reply->encrypted_data());
 }
@@ -231,11 +231,8 @@ void base_protocol<P>::handle_join_request(packet &pkt, endpoint sender)
 template <class P>
 void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
 {
-	if (pkt.src() == PLR_BROADCAST && pkt.dest() == PLR_MASTER && pkt.type() == PT_INFO_REPLY) {
-		auto &pkt_info = pkt.info();
-		std::string pname;
-		pname.resize(pkt_info.size());
-		std::memcpy(&pname[0], pkt_info.data(), pkt_info.size());
+	if (pkt.pktSrc() == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER && pkt.pktType() == PT_INFO_REPLY) {
+		std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
 		game_list[pname] = sender;
 		return;
 	}
@@ -245,10 +242,10 @@ void base_protocol<P>::recv_decrypted(packet &pkt, endpoint sender)
 template <class P>
 void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 {
-	plr_t pkt_plr = pkt.src();
+	plr_t pkt_plr = pkt.pktSrc();
 
-	if (pkt_plr == PLR_BROADCAST && pkt.dest() == PLR_MASTER) {
-		packet_type pkt_type = pkt.type();
+	if (pkt_plr == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER) {
+		packet_type pkt_type = pkt.pktType();
 		if (pkt_type == PT_JOIN_REQUEST) {
 			handle_join_request(pkt, sender);
 		} else if (pkt_type == PT_INFO_REQUEST) {
@@ -263,11 +260,14 @@ void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 			}
 		}
 		return;
-	} else if (pkt_plr == PLR_MASTER && pkt.type() == PT_CONNECT) {
+	} else if (pkt_plr == PLR_MASTER && pkt.pktType() == PT_CONNECT) {
 		// addrinfo packets
-		pkt_plr = pkt.newplr();
+		pkt_plr = pkt.pktConnectPlr();
 		connected_table[pkt_plr] = true;
-		peers[pkt_plr].unserialize(pkt.info());
+		//.unserialize(pkt.info());
+		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd()));
+		if (addr.size() == 16)
+			memcpy(peers[pkt_plr].addr.data(), addr.data(), 16);
 		return;
 	} else if (pkt_plr >= MAX_PLRS) {
 		// normal packets
@@ -275,7 +275,7 @@ void base_protocol<P>::recv_ingame(packet &pkt, endpoint sender)
 	}
 	connected_table[pkt_plr] = true;
 	peers[pkt_plr] = sender;
-	pkt_plr = pkt.dest();
+	pkt_plr = pkt.pktDest();
 	if (pkt_plr != plr_self && pkt_plr != PLR_BROADCAST)
 		return; //packet not for us, drop
 	recv_local(pkt);

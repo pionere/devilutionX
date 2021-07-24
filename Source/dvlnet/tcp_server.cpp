@@ -95,7 +95,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 {
 	plr_t i, pnum;
 
-	if (pkt.type() != PT_JOIN_REQUEST) {
+	if (pkt.pktType() != PT_JOIN_REQUEST) {
 		// SDL_Log("Invalid join packet.");
 		return false;
 	}
@@ -112,7 +112,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	connections[pnum] = con;
 	con->pnum = pnum;
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-	    pkt.cookie(), pnum,
+	    pkt.pktJoinReqCookie(), pnum,
 	    game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
@@ -122,7 +122,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
 {
 	if (con->pnum != PLR_BROADCAST) {
-		return con->pnum == pkt.src() && send_packet(pkt);
+		return con->pnum == pkt.pktSrc() && send_packet(pkt);
 	} else {
 		return handle_recv_newplr(con, pkt);
 	}
@@ -130,8 +130,8 @@ bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
 
 bool tcp_server::send_packet(packet &pkt)
 {
-	plr_t dest = pkt.dest();
-	plr_t src = pkt.src();
+	plr_t dest = pkt.pktDest();
+	plr_t src = pkt.pktSrc();
 
 	if (dest == PLR_BROADCAST) {
 		for (int i = 0; i < MAX_PLRS; i++)

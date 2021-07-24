@@ -9,117 +9,9 @@ namespace net {
 static constexpr bool DisableEncryption = false;
 #endif
 
-const char *packet_type_to_string(uint8_t packetType)
-{
-	switch (packetType) {
-	case PT_MESSAGE:
-		return "PT_MESSAGE";
-	case PT_TURN:
-		return "PT_TURN";
-	case PT_JOIN_REQUEST:
-		return "PT_JOIN_REQUEST";
-	case PT_JOIN_ACCEPT:
-		return "PT_JOIN_ACCEPT";
-	case PT_CONNECT:
-		return "PT_CONNECT";
-	case PT_DISCONNECT:
-		return "PT_DISCONNECT";
-	case PT_INFO_REQUEST:
-		return "PT_INFO_REQUEST";
-	case PT_INFO_REPLY:
-		return "PT_INFO_REPLY";
-	default:
-		return NULL;
-	}
-}
-
-wrong_packet_type_exception::wrong_packet_type_exception(std::initializer_list<packet_type> expectedTypes, std::uint8_t actual)
-{
-	message_ = "Expected packet of type ";
-	const auto appendPacketType = [this](std::uint8_t t) {
-		const char *typeStr = packet_type_to_string(t);
-		if (typeStr != NULL)
-			message_.append(typeStr);
-		else
-			message_.append(std::to_string(t));
-	};
-
-	constexpr char KJoinTypes[] = " or ";
-	for (const packet_type t : expectedTypes) {
-		appendPacketType(t);
-		message_.append(KJoinTypes);
-	}
-	message_.resize(message_.size() - (sizeof(KJoinTypes) - 1));
-	message_.append(", got");
-	appendPacketType(actual);
-}
-
-namespace {
-
-void CheckPacketTypeOneOf(std::initializer_list<packet_type> expectedTypes, std::uint8_t actualType)
-{
-	for (std::uint8_t packetType : expectedTypes)
-		if (actualType == packetType)
-			return;
-	throw wrong_packet_type_exception(expectedTypes, actualType);
-}
-
-} // namespace
-
 const buffer_t &packet::encrypted_data()
 {
 	return encrypted_buffer;
-}
-
-packet_type packet::type()
-{
-	return m_type;
-}
-
-plr_t packet::src()
-{
-	return m_src;
-}
-
-plr_t packet::dest()
-{
-	return m_dest;
-}
-
-const buffer_t &packet::message()
-{
-	CheckPacketTypeOneOf({ PT_MESSAGE }, m_type);
-	return m_message;
-}
-
-turn_t packet::turn()
-{
-	CheckPacketTypeOneOf({ PT_TURN }, m_type);
-	return m_turn;
-}
-
-cookie_t packet::cookie()
-{
-	CheckPacketTypeOneOf({ PT_JOIN_REQUEST, PT_JOIN_ACCEPT }, m_type);
-	return m_cookie;
-}
-
-plr_t packet::newplr()
-{
-	CheckPacketTypeOneOf({ PT_JOIN_ACCEPT, PT_CONNECT, PT_DISCONNECT }, m_type);
-	return m_newplr;
-}
-
-const buffer_t &packet::info()
-{
-	CheckPacketTypeOneOf({ PT_JOIN_ACCEPT, PT_CONNECT, PT_INFO_REPLY }, m_type);
-	return m_info;
-}
-
-leaveinfo_t packet::leaveinfo()
-{
-	CheckPacketTypeOneOf({ PT_DISCONNECT }, m_type);
-	return m_leaveinfo;
 }
 
 void packet_in::create(buffer_t buf)
@@ -133,7 +25,7 @@ bool packet_in::decrypt()
 	if (!DisableEncryption) {
 		if (encrypted_buffer.size() < crypto_secretbox_NONCEBYTES
 		        + crypto_secretbox_MACBYTES
-		        + sizeof(packet_type) + 2 * sizeof(plr_t))
+		        + sizeof(NetPktHdr))
 			return false;
 		auto pktlen = (encrypted_buffer.size()
 		    - crypto_secretbox_NONCEBYTES
@@ -150,19 +42,19 @@ bool packet_in::decrypt()
 	} else
 #endif
 	{
-		if (encrypted_buffer.size() < sizeof(packet_type) + 2 * sizeof(plr_t))
+		if (encrypted_buffer.size() < sizeof(NetPktHdr))
 			return false;
 		decrypted_buffer = encrypted_buffer;
 	}
 
-	process_data();
 	return true;
 }
 
 void packet_out::encrypt()
 {
-	process_data();
-
+	encrypted_buffer = decrypted_buffer;
+	if (encrypted_buffer.size() < sizeof(NetPktHdr))
+		ABORT();
 #ifndef NONET
 	if (!DisableEncryption) {
 		auto lenCleartext = encrypted_buffer.size();
